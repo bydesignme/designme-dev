@@ -23,7 +23,7 @@ npx shadcn@latest add https://designme.dev/r/shadcn/astro/kanban-board.json  # A
 
 ## About
 
-Kanban board is a sprint board with columns such as To do, In progress and Done, where people and an agent move cards. Each card shows its key, priority, title, labels, due date, subtasks, comments, files and people, and the card an agent is working on says what it is doing as its bar fills. A header filters the board by person, label, priority or a search, switches between the board and a list, and each card opens a details sheet with a checklist you can tick.
+Kanban board is a sprint board with columns such as To do, In progress and Done, where people and an agent move cards. Each card shows its key and people, one row of chips (its priority in colour, the project it belongs to and its labels), its title, and one line with its due date, subtasks, comments and files, and the card an agent is working on says what it is doing as its bar fills. A header filters the board by person, label, priority or a search, switches between the board and a list, and each card opens a details sheet with a checklist you can tick.
 
 ### When to use it
 
@@ -35,14 +35,14 @@ Kanban board is a sprint board with columns such as To do, In progress and Done,
 
 ### What it does
 
-- Each card shows its key (like DES-142), a priority mark (three bars, or a red mark for Urgent), its people as initials avatars, the title, grey labels, the due date ("Today", "Tomorrow" or a date, in the bad text colour once it is past), subtasks done with a thin bar that turns green when they all are, and comment and file counts. Hover the marks and counts for what they mean.
+- Each card shows its key (like DES-142) with its people as initials avatars at the top right, then one row of chips: its priority in colour (Urgent red, High orange, Medium yellow, Low blue, none grey), a grey chip for the `project` it belongs to, and its labels, each in its own tag colour wherever it shows (`labelTones`, or the next colour in the order of `labels`). Under the title, one muted line holds the due date ("Today", "Tomorrow" or a date, in the bad text colour once it is past), subtasks done with a thin bar that turns green when they all are, and comment and file counts. Hover the priority and project chips and the counts for what they mean.
 - A card with `progress` is the agent's: it gets an accent edge, the thinking dots, what it is doing now (`activity`, or its first open subtask) with a percentage, and a bar that fills.
 - Drag a card to another column or to a new place in its own column: a floating copy follows the pointer, a placeholder shows where it will land and the column under it highlights. `onMove` reports the card, its column and its place there.
-- Click a card to open its details sheet over the right of the board: status, priority and people (each opens its menu), the due date, labels, the agent's progress, a checklist you can tick (it updates the card), and its comments and files. Arrow keys move the sheet from card to card.
-- Click a card's priority mark or its avatars to change them in a menu, or its dots to move it to another column. Each change calls `onChange` with the card.
+- Click a card to open its details sheet over the right of the board: status, priority and people (each opens its menu), the project, the due date, labels, the agent's progress, a checklist you can tick (it updates the card), and its comments and files. Arrow keys move the sheet from card to card.
+- Click a card's priority chip or its avatars to change them in a menu, or its dots (they show on hover, just left of the avatars) to move it to another column. Each change calls `onChange` with the card.
 - Shift-click, Cmd-click or Ctrl-click cards to pick several (Shift-click picks a range within a column); a bar over the foot of the board moves them all to a column at once, and Escape or its × clears the pick.
-- Filter chips for assignee, label and priority each open a menu of values with how many cards have each; pick several. The facepile in the header filters by person too, and a search matches titles and keys. Column counts read "2 of 4" while filtering, and when nothing matches the board says so with a Clear filters button.
-- A column with a `limit` shows how full it is ("2/3"), and a warning chip once it holds more. Each column header can fold the column to a narrow strip (press it to open it again), add a card, and open a menu to select all, sort by priority or due date, or fold it.
+- Filter chips for assignee, label and priority each open a menu of values with how many cards have each; pick several. The facepile in the header filters by person too, and a search matches titles, keys and projects. Column counts read "2 of 4" while filtering, and when nothing matches the board says so with a Clear filters button.
+- Each column header counts its cards in a grey chip; a column with a `limit` shows how full it is ("2/3"), and a warning chip once it holds more. Each column header can fold the column to a narrow strip (press it to open it again), add a card, and open a menu to select all, sort by priority or due date, or fold it.
 - The view switch shows the same cards as a list, grouped by column, one row each; the list keeps the board's height. Cards still drag, open and pick in the list.
 - The + buttons add a card at the end of a column with its title ready to type, and a double-click on any title (or F2) renames it; Enter saves, Escape cancels, and `onRename` reports it.
 - Under 640px wide, on a phone or in a narrow card, the header stacks, the board shows one column at a time picked with tabs that count each column's cards, and the details sheet covers the board.
@@ -50,7 +50,7 @@ Kanban board is a sprint board with columns such as To do, In progress and Done,
 
 ### Accessibility
 
-- Cards are list items with a label that reads their key, title, priority, people, due date, whether the agent is on it and whether they are picked. One card at a time is in the Tab order.
+- Cards are list items with a label that reads their key, title, priority, project, people, due date, whether the agent is on it and whether they are picked. One card at a time is in the Tab order.
 - From the keyboard, the arrow keys move between cards (up and down in a column, left and right across columns), Home and End go to a column's ends, Enter opens the details sheet, Space or x picks a card, Shift with an arrow picks as it moves, m opens Move to, p the priority, a the people, F2 renames, and Escape closes the sheet or clears the pick.
 - Menus are `menu`s with `menuitemradio` (Move to, priority) or `menuitemcheckbox` (people, filters) items; they open on their checked item, the arrows move through them and wrap, and picking from the keyboard puts the focus back on the card or the sheet's field.
 - The facepile is a group of toggle buttons with `aria-pressed`, the view switch and the narrow board's tabs are groups with `aria-pressed` on the one shown, and the checklist items are `checkbox`es.
@@ -84,16 +84,17 @@ const MEMBERS: KanbanBoardMember[] = [
 const day = (n: number) => { const d = new Date(); d.setDate(d.getDate() + n); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 const tasks = (...t: [string, boolean?][]) => t.map(([title, done]) => ({ title, done: !!done }));
 const CARDS: KanbanBoardCard[] = [
-  { id: 'DES-148', column: 'todo', title: 'Audit checkout for contrast', priority: 'high', labels: ['A11y'], assignees: ['DA'], due: day(3), subtasks: tasks(['List every text pair'], ['Check against 4.5:1'], ['Fix the failing pairs'], ['Write up the changes']) },
-  { id: 'DES-151', column: 'todo', title: 'Write release notes for pricing', priority: 'medium', labels: ['Copy'], assignees: ['MK'], due: day(2), comments: 2 },
-  { id: 'DES-157', column: 'todo', title: 'Pricing toggle hides the yearly saving', priority: 'urgent', labels: ['Bug'], assignees: ['JO'], due: day(1), comments: 4, attachments: 1 },
-  { id: 'DES-155', column: 'todo', title: 'Empty state for search', priority: 'low', labels: ['Design'], assignees: ['LP'], attachments: 2 },
-  { id: 'DES-142', column: 'doing', title: 'Export tokens to CSS', priority: 'high', labels: ['Code'], assignees: ['DA'], attachments: 1, progress: .4, subtasks: tasks(['Read the Figma variables', true], ['Map colours to roles', true], ['Write the CSS variables'], ['Check contrast pairs'], ['Open a pull request']) },
-  { id: 'DES-144', column: 'doing', title: 'Review annual plan copy', priority: 'medium', labels: ['Copy'], assignees: ['JO', 'MK'], due: day(-1), comments: 5, subtasks: tasks(['Headline', true], ['Plan names', true], ['Feature list'], ['Footnotes']) },
-  { id: 'DES-146', column: 'doing', title: 'Plan cards wrap at 768px', priority: 'high', labels: ['Design', 'Bug'], assignees: ['LP'], due: day(0), comments: 1, subtasks: tasks(['Reproduce on a tablet', true], ['Fix the grid'], ['Test at 744px']) },
-  { id: 'DES-139', column: 'done', title: 'One CTA per pricing card', priority: 'medium', labels: ['Design'], assignees: ['MK'], comments: 3, subtasks: tasks(['Pick the CTA', true], ['Update the cards', true]) },
-  { id: 'DES-137', column: 'done', title: 'Compare checkout flows', priority: 'low', labels: ['Design'], assignees: ['LP'], attachments: 3, subtasks: tasks(['Collect five flows', true], ['Note the steps', true], ['Share the findings', true]) }
+  { id: 'DES-148', column: 'todo', title: 'Audit checkout for contrast', priority: 'high', project: 'Checkout', labels: ['A11y'], assignees: ['DA'], due: day(3), subtasks: tasks(['List every text pair'], ['Check against 4.5:1'], ['Fix the failing pairs'], ['Write up the changes']) },
+  { id: 'DES-151', column: 'todo', title: 'Write release notes for pricing', priority: 'medium', project: 'Pricing', labels: ['Copy'], assignees: ['MK'], due: day(2), comments: 2 },
+  { id: 'DES-157', column: 'todo', title: 'Pricing toggle hides the yearly saving', priority: 'urgent', project: 'Pricing', labels: ['Bug'], assignees: ['JO'], due: day(1), comments: 4, attachments: 1 },
+  { id: 'DES-155', column: 'todo', title: 'Empty state for search', priority: 'low', project: 'Search', labels: ['Design'], assignees: ['LP'], attachments: 2 },
+  { id: 'DES-142', column: 'doing', title: 'Export tokens to CSS', priority: 'high', project: 'Tokens', labels: ['Code'], assignees: ['DA'], attachments: 1, progress: .4, subtasks: tasks(['Read the Figma variables', true], ['Map colours to roles', true], ['Write the CSS variables'], ['Check contrast pairs'], ['Open a pull request']) },
+  { id: 'DES-144', column: 'doing', title: 'Review annual plan copy', priority: 'medium', project: 'Pricing', labels: ['Copy'], assignees: ['JO', 'MK'], due: day(-1), comments: 5, subtasks: tasks(['Headline', true], ['Plan names', true], ['Feature list'], ['Footnotes']) },
+  { id: 'DES-146', column: 'doing', title: 'Plan cards wrap at 768px', priority: 'high', project: 'Pricing', labels: ['Design', 'Bug'], assignees: ['LP'], due: day(0), comments: 1, subtasks: tasks(['Reproduce on a tablet', true], ['Fix the grid'], ['Test at 744px']) },
+  { id: 'DES-139', column: 'done', title: 'One CTA per pricing card', priority: 'medium', project: 'Pricing', labels: ['Design'], assignees: ['MK'], comments: 3, subtasks: tasks(['Pick the CTA', true], ['Update the cards', true]) },
+  { id: 'DES-137', column: 'done', title: 'Compare checkout flows', priority: 'low', project: 'Checkout', labels: ['Design'], assignees: ['LP'], attachments: 3, subtasks: tasks(['Collect five flows', true], ['Note the steps', true], ['Share the findings', true]) }
 ];
+// each label takes the next core tag colour in this order: Design purple, Copy teal, Code green, Bug pink, A11y red
 const LABELS = ['Design', 'Copy', 'Code', 'Bug', 'A11y'];
 
 export default function KanbanBoardDemo() {
@@ -149,6 +150,7 @@ export default function KanbanBoardDemo() {
 | `columns` | `KanbanBoardColumn[]` |  |
 | `members` (optional) | `KanbanBoardMember[]` | The people (and agents) on the board: the facepile in the header, the Assignee filter and each card's people menu |
 | `labels` (optional) | `string[]` | The labels the Label filter offers. Defaults to every label on the cards |
+| `labelTones` (optional) | `Record<string, KanbanBoardTone>` | Each label's colour, like { Bug: 'pink' }. A label without one takes the next of purple, teal, green, pink and red (then blue, yellow and orange) in the order of `labels`, so pass `labels` to keep each label's colour as cards change |
 | `cards` (optional) | `KanbanBoardCard[]` | The cards, in order: a column shows its cards in the order they come here. Leave it out to let the board keep them |
 | `defaultCards` (optional) | `KanbanBoardCard[]` |  |
 | `onCardsChange` (optional) | `(cards: KanbanBoardCard[]) => void` |  |
@@ -230,6 +232,8 @@ import './kanban-board.css';
 
 export type KanbanBoardPriority = 'urgent' | 'high' | 'medium' | 'low' | 'none';
 export type KanbanBoardView = 'board' | 'list';
+/** A label's colour: one of the core tag colours */
+export type KanbanBoardTone = 'blue' | 'purple' | 'green' | 'orange' | 'red' | 'yellow' | 'pink' | 'teal';
 
 export interface KanbanBoardColumn {
   key: string;
@@ -265,8 +269,11 @@ export interface KanbanBoardCard {
   /** The key of the column it sits in */
   column: string;
   title: string;
+  /** Shown as a coloured chip: Urgent red, High orange, Medium yellow, Low blue, none grey */
   priority?: KanbanBoardPriority;
-  /** Grey labels, like ['Design', 'Bug'] */
+  /** What the card belongs to, like a project, an epic or a client: a grey chip beside its priority */
+  project?: string;
+  /** Labels, like ['Design', 'Bug'], each in its own colour (see `labelTones`) */
   labels?: string[];
   /** Member ids, shown as initials avatars */
   assignees?: string[];
@@ -283,7 +290,7 @@ export interface KanbanBoardCard {
 }
 
 export interface KanbanBoardFilters {
-  /** Matches a card's title or code */
+  /** Matches a card's title, code or project */
   query: string;
   assignees: string[];
   labels: string[];
@@ -300,6 +307,9 @@ export interface KanbanBoardProps {
   members?: KanbanBoardMember[];
   /** The labels the Label filter offers. Defaults to every label on the cards */
   labels?: string[];
+  /** Each label's colour, like { Bug: 'pink' }. A label without one takes the next of purple, teal, green, pink and red (then
+      blue, yellow and orange) in the order of `labels`, so pass `labels` to keep each label's colour as cards change */
+  labelTones?: Record<string, KanbanBoardTone>;
   /** The cards, in order: a column shows its cards in the order they come here. Leave it out to let the board keep them */
   cards?: KanbanBoardCard[];
   defaultCards?: KanbanBoardCard[];
@@ -346,6 +356,10 @@ export interface KanbanBoardProps {
 
 const PRIORITY: Record<KanbanBoardPriority, string> = { urgent: 'Urgent', high: 'High', medium: 'Medium', low: 'Low', none: 'No priority' };
 const PRIORITIES = Object.keys(PRIORITY) as KanbanBoardPriority[];
+// priority is a coloured chip, and labels take the other core tag colours first, so a label rarely shares its priority's colour
+const PRIORITY_TONE: Record<KanbanBoardPriority, string | undefined> = { urgent: 'dm-bad', high: 'dm-p', medium: 'dm-y', low: 'dm-b', none: undefined };
+const TONE: Record<KanbanBoardTone, string> = { blue: 'dm-b', purple: 'dm-l', green: 'dm-m', orange: 'dm-p', red: 'dm-r', yellow: 'dm-y', pink: 'dm-k', teal: 'dm-t' };
+const LABEL_TONES: KanbanBoardTone[] = ['purple', 'teal', 'green', 'pink', 'red', 'blue', 'yellow', 'orange'];
 const NO_FILTERS: KanbanBoardFilters = { query: '', assignees: [], labels: [], priorities: [] };
 const uid = () => 'card-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 const toDay = (s: string) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, (m || 1) - 1, d || 1); };
@@ -354,10 +368,9 @@ const daysFrom = (due: string, today: string) => Math.round((toDay(due).getTime(
 const dueText = (n: number, due: string) => n === 0 ? 'Today' : n === 1 ? 'Tomorrow' : toDay(due).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 const plural = (n: number, one: string) => `${n} ${one}${n === 1 ? '' : 's'}`;
 
-/** Priority as three bars that fill from the left; Urgent is the one in colour */
-function PriorityMark({ value = 'none' }: { value?: KanbanBoardPriority }) {
-  if (value === 'urgent') return <span className="dm-kbx-pu" aria-hidden="true">!</span>;
-  return <span className="dm-kbx-pb" data-p={value === 'medium' ? 'med' : value} aria-hidden="true"><i /><i /><i /></span>;
+/** Priority as a chip in its colour */
+function PriorityTag({ value = 'none' }: { value?: KanbanBoardPriority }) {
+  return <span className={cx('dm-tag', PRIORITY_TONE[value])}>{PRIORITY[value]}</span>;
 }
 
 type FilterField = 'assignees' | 'labels' | 'priorities';
@@ -367,7 +380,7 @@ interface Spot { column: string; before: string | null }
 
 /** A sprint board where you and the agent move cards, with filters, details and keyboard moves. */
 export function KanbanBoard({
-  title, subtitle, columns, members = [], labels, cards, defaultCards = [], onCardsChange, onMove, onChange, onRename,
+  title, subtitle, columns, members = [], labels, labelTones, cards, defaultCards = [], onCardsChange, onMove, onChange, onRename,
   open, defaultOpen = null, onOpen, filters, defaultFilters = NO_FILTERS, onFiltersChange, view, defaultView = 'board', onViewChange,
   collapsed, defaultCollapsed = [], onCollapsedChange, selected, defaultSelected = [], onSelectedChange, onDraggingChange, newCard,
   today: todayProp, addLabel = 'Add card', column, defaultColumn, onColumnChange, className
@@ -411,7 +424,8 @@ export function KanbanBoard({
   // a card just added stays on show until the filters change, so it never vanishes as you name it
   const kept = useRef(new Set<string>());
   const filtering = !!(f.query || f.assignees.length || f.labels.length || f.priorities.length);
-  const matches = (c: KanbanBoardCard) => kept.current.has(c.id) || ((!f.query || `${c.title} ${codeOf(c)}`.toLowerCase().includes(f.query.toLowerCase()))
+  const words = (c: KanbanBoardCard) => `${c.title} ${codeOf(c)} ${c.project ?? ''}`.toLowerCase();
+  const matches = (c: KanbanBoardCard) => kept.current.has(c.id) || ((!f.query || words(c).includes(f.query.toLowerCase()))
     && (!f.assignees.length || (c.assignees ?? []).some(a => f.assignees.includes(a)))
     && (!f.labels.length || (c.labels ?? []).some(l => f.labels.includes(l)))
     && (!f.priorities.length || f.priorities.includes(c.priority ?? 'none')));
@@ -419,12 +433,15 @@ export function KanbanBoard({
   const shownCount = list.filter(matches).length;
   const setF = (next: KanbanBoardFilters) => {
     kept.current.clear(); flip.current = true; filt.current = true; setFilters(next);
-    const n = latest.current.filter(c => (!next.query || `${c.title} ${codeOf(c)}`.toLowerCase().includes(next.query.toLowerCase())) && (!next.assignees.length || (c.assignees ?? []).some(a => next.assignees.includes(a))) && (!next.labels.length || (c.labels ?? []).some(l => next.labels.includes(l))) && (!next.priorities.length || next.priorities.includes(c.priority ?? 'none'))).length;
+    const n = latest.current.filter(c => (!next.query || words(c).includes(next.query.toLowerCase())) && (!next.assignees.length || (c.assignees ?? []).some(a => next.assignees.includes(a))) && (!next.labels.length || (c.labels ?? []).some(l => next.labels.includes(l))) && (!next.priorities.length || next.priorities.includes(c.priority ?? 'none'))).length;
     const any = !!(next.query || next.assignees.length || next.labels.length || next.priorities.length);
     say(any ? `${n} of ${latest.current.length} cards shown` : `All ${latest.current.length} cards shown`);
   };
   const toggleIn = <T,>(arr: T[], v: T) => arr.includes(v) ? arr.filter(x => x !== v) : [...arr, v];
   const allLabels = labels ?? [...new Set(list.flatMap(c => c.labels ?? []))];
+  // one colour per label wherever it shows: on the cards, in the sheet and in the Label filter
+  const toneOf = (l: string) => { const t = labelTones?.[l]; if (t) return TONE[t]; const i = allLabels.indexOf(l); return TONE[LABEL_TONES[(i < 0 ? 0 : i) % LABEL_TONES.length]]; };
+  const labelTag = (l: string) => <span key={l} className={cx('dm-tag', toneOf(l))}>{l}</span>;
 
   /* ---------- the cards glide to their new places after a move, a sort or a filter. A filter also fades in the cards it
      brings back and fades the ones it hides where they were. A glide still going when the board draws again carries on from
@@ -637,7 +654,7 @@ export function KanbanBoard({
     if (e.shiftKey || e.metaKey || e.ctrlKey) { pick(card.id, e.shiftKey); return; }
     clearTimeout(clickT.current);
     // a click on the title waits a moment, in case it is the first of a double-click that renames the card
-    if ((e.target as Element).closest('.dm-t') && e.detail === 1) { clickT.current = setTimeout(() => openSheet(card.id), 240); return; }
+    if ((e.target as Element).closest('.dm-kbx-k>.dm-t') && e.detail === 1) { clickT.current = setTimeout(() => openSheet(card.id), 240); return; }
     if (e.detail > 1) return;
     openSheet(card.id);
   };
@@ -690,7 +707,6 @@ export function KanbanBoard({
     const col = colOf(c.column), n = c.subtasks?.length ?? 0, d = c.subtasks?.filter(s => s.done).length ?? 0;
     const days = c.due && !col?.done ? daysFrom(c.due, day) : null;
     const out: ReactNode[] = [];
-    if (c.labels?.length) out.push(<span key="l" className="dm-kbx-tags">{c.labels.map(l => <span key={l} className="dm-tag">{l}</span>)}</span>);
     if (days != null && c.due) out.push(<Tip key="d" label={days < 0 ? 'Overdue' : 'Due'}><span className={cx('dm-kbx-mt', days < 0 && 'dm-late')}><Icon name="cal" size="xs" />{dueText(days, c.due)}</span></Tip>);
     if (n) out.push(<Tip key="s" label={`${d} of ${n} subtasks done`}><span className={cx('dm-kbx-mt', d === n && 'dm-ok')}><span className="dm-num">{d}/{n}</span><span className="dm-kbx-sb"><i style={{ width: d / n * 100 + '%' }} /></span></span></Tip>);
     if (c.comments) out.push(<Tip key="c" label={plural(c.comments, 'comment')}><span className="dm-kbx-mt"><Icon name="comment" size="xs" /><span className="dm-num">{c.comments}</span></span></Tip>);
@@ -701,7 +717,7 @@ export function KanbanBoard({
   const activity = (c: KanbanBoardCard) => c.activity ?? c.subtasks?.find(s => !s.done)?.title ?? 'Working';
   const describe = (c: KanbanBoardCard) => {
     const days = c.due && !colOf(c.column)?.done ? daysFrom(c.due, day) : null;
-    return `${codeOf(c)}, ${c.title}. ${PRIORITY[c.priority ?? 'none']} priority${people(c).length ? ', ' + people(c).map(m => m.name).join(' and ') : ''}${days != null && c.due ? `, due ${dueText(days, c.due)}${days < 0 ? ', overdue' : ''}` : ''}${c.progress != null ? ', the agent is working on it' : ''}${sel.includes(c.id) ? ', selected' : ''}`;
+    return `${codeOf(c)}, ${c.title}. ${PRIORITY[c.priority ?? 'none']} priority${c.project ? `, project ${c.project}` : ''}${people(c).length ? ', ' + people(c).map(m => m.name).join(' and ') : ''}${days != null && c.due ? `, due ${dueText(days, c.due)}${days < 0 ? ', overdue' : ''}` : ''}${c.progress != null ? ', the agent is working on it' : ''}${sel.includes(c.id) ? ', selected' : ''}`;
   };
   const face = (c: KanbanBoardCard, ghost = false) => {
     const ps = people(c), names = ps.map(m => m.name).join(', '), pr = c.priority ?? 'none', working = c.progress != null, p = Math.max(0, Math.min(1, c.progress ?? 0));
@@ -711,19 +727,25 @@ export function KanbanBoard({
       <>
         <div className="dm-kbx-k1">
           <button type="button" className="dm-kbx-sel" role="checkbox" aria-checked={sel.includes(c.id)} aria-label={`Select ${codeOf(c)}`} tabIndex={tab} onClick={() => pick(c.id)}><Icon name="check" size="xs" /></button>
-          <Tip label={PRIORITY[pr]} off={!!cardOpen('priority', c.id)}>
-            <button type="button" className="dm-kbx-pri" data-kbx="priority" data-kbx-id={c.id} aria-haspopup="menu" aria-expanded={!!cardOpen('priority', c.id)} aria-label={`Priority: ${PRIORITY[pr]}`} tabIndex={tab} onClick={e => btn('priority', e)}><PriorityMark value={pr} /></button>
-          </Tip>
           <span className="dm-kbx-id dm-num">{codeOf(c)}</span>
           <span className="dm-kbx-sp" />
+          {/* the dots show on hover or focus just left of the people, so the avatar sits at the card's edge */}
+          <Tip label="Move to" off={!!cardOpen('move', c.id)}>
+            <button type="button" className="dm-kbx-mv" data-kbx="move" aria-haspopup="menu" aria-expanded={!!cardOpen('move', c.id)} aria-label={`Move ${codeOf(c)}`} tabIndex={tab} onClick={e => btn('move', e)}><Icon name="more" size="xs" /></button>
+          </Tip>
           <Tip label={names || 'Assign'} off={!!cardOpen('assign', c.id)}>
             <button type="button" className="dm-kbx-who" data-kbx="assign" aria-haspopup="menu" aria-expanded={!!cardOpen('assign', c.id)} aria-label={`Assignees: ${names || 'none'}`} tabIndex={tab} onClick={e => btn('assign', e)}>
               {ps.length ? ps.map(m => <Avatar key={m.id} initials={m.initials} color={m.color} />) : <span className="dm-none"><Icon name="user" size="xs" /></span>}
             </button>
           </Tip>
-          <Tip label="Move to" off={!!cardOpen('move', c.id)}>
-            <button type="button" className="dm-kbx-mv" data-kbx="move" aria-haspopup="menu" aria-expanded={!!cardOpen('move', c.id)} aria-label={`Move ${codeOf(c)}`} tabIndex={tab} onClick={e => btn('move', e)}><Icon name="more" size="xs" /></button>
+        </div>
+        {/* one row of chips: the priority (it opens its menu), the project and the labels */}
+        <div className="dm-kbx-cr">
+          <Tip label="Priority" off={!!cardOpen('priority', c.id)}>
+            <button type="button" className={cx('dm-tag', PRIORITY_TONE[pr], 'dm-kbx-pri')} data-kbx="priority" data-kbx-id={c.id} aria-haspopup="menu" aria-expanded={!!cardOpen('priority', c.id)} aria-label={`Priority: ${PRIORITY[pr]}`} tabIndex={tab} onClick={e => btn('priority', e)}>{PRIORITY[pr]}</button>
           </Tip>
+          {c.project && <Tip label="Project"><span className="dm-tag dm-kbx-pj"><span>{c.project}</span></span></Tip>}
+          {c.labels?.map(labelTag)}
         </div>
         <Title card={c} editing={!ghost && editing === c.id} onDone={t => rename(c.id, t)} onCancel={() => { setEditing(null); setTimeout(() => els.current.get(c.id)?.focus({ preventScroll: true }), 0); }} />
         {working && <>
@@ -750,8 +772,8 @@ export function KanbanBoard({
   const ghostCard = drag && list.find(c => c.id === drag.id);
   const fm = menu?.kind === 'filter' ? menu.field : undefined;
   const fOpts: { v: string; label: ReactNode; n: number }[] = fm === 'assignees' ? members.map(m => ({ v: m.id, label: <><Avatar initials={m.initials} color={m.color} /><span>{m.name}</span></>, n: list.filter(c => (c.assignees ?? []).includes(m.id)).length }))
-    : fm === 'labels' ? allLabels.map(l => ({ v: l, label: <span>{l}</span>, n: list.filter(c => (c.labels ?? []).includes(l)).length }))
-    : fm === 'priorities' ? PRIORITIES.map(p => ({ v: p, label: <><PriorityMark value={p} /><span>{PRIORITY[p]}</span></>, n: list.filter(c => (c.priority ?? 'none') === p).length })) : [];
+    : fm === 'labels' ? allLabels.map(l => ({ v: l, label: labelTag(l), n: list.filter(c => (c.labels ?? []).includes(l)).length }))
+    : fm === 'priorities' ? PRIORITIES.map(p => ({ v: p, label: <PriorityTag value={p} />, n: list.filter(c => (c.priority ?? 'none') === p).length })) : [];
   const fName = { assignees: 'Assignee', labels: 'Label', priorities: 'Priority' } as const;
 
   return (
@@ -803,7 +825,7 @@ export function KanbanBoard({
                 <Card key={c.id} card={c} entering={enters(c)} className={cx(c.progress != null && 'dm-agent', drag?.id === c.id && 'dm-drag', sel.includes(c.id) && 'dm-sel', peek === c.id && 'dm-open')}
                   label={describe(c)} tabIndex={c.id === tabStop ? 0 : -1}
                   setRef={el => { if (el) els.current.set(c.id, el); else els.current.delete(c.id); }}
-                  onPointerDown={down(c)} onClick={click(c)} onDoubleClick={e => { if ((e.target as Element).closest('.dm-t') && !editing) { clearTimeout(clickT.current); setEditing(c.id); } }}
+                  onPointerDown={down(c)} onClick={click(c)} onDoubleClick={e => { if ((e.target as Element).closest('.dm-kbx-k>.dm-t') && !editing) { clearTimeout(clickT.current); setEditing(c.id); } }}
                   onKeyDown={key(c)} onFocus={e => { if (e.target === e.currentTarget) setFocusId(c.id); }}>
                   {face(c)}
                 </Card>
@@ -822,7 +844,7 @@ export function KanbanBoard({
                   <b>{col.title}</b>
                   <span className="dm-n dm-num">
                     {full ? <Tip label={`Over the limit of ${col.limit}`}><span className="dm-tag dm-warn"><Icon name="alert" size="xs" />{all}/{col.limit}</span></Tip>
-                      : filtering && here.length !== all ? `${here.length} of ${all}` : col.limit ? `${all}/${col.limit}` : all}
+                      : <span className="dm-tag">{filtering && here.length !== all ? `${here.length} of ${all}` : col.limit ? `${all}/${col.limit}` : all}</span>}
                   </span>
                   <span className="dm-kbx-sp" />
                   <Tip label={addLabel}><button type="button" className="dm-ib dm-kbx-cadd" aria-label={`${addLabel}: ${col.title}`} onClick={() => add(col.key)}><Icon name="plus" size="xs" /></button></Tip>
@@ -869,7 +891,7 @@ export function KanbanBoard({
         <div className="dm-ph">Priority</div>
         {PRIORITIES.map(p => (
           <button key={p} type="button" className="dm-mi" role="menuitemradio" aria-checked={(menuCard?.priority ?? 'none') === p} onClick={() => setPriority(p)}>
-            <PriorityMark value={p} /><span>{PRIORITY[p]}</span><span className="dm-ck"><Icon name="check" size="xs" /></span>
+            <PriorityTag value={p} /><span className="dm-ck"><Icon name="check" size="xs" /></span>
           </button>
         ))}
       </div>
@@ -928,11 +950,12 @@ export function KanbanBoard({
         )}
         <div className="dm-kbx-pk-rows">
           <div className="dm-kbx-pk-r"><span className="dm-k">Status</span><button type="button" className="dm-kbx-pv" data-kbx="sheet-move" aria-haspopup="menu" aria-expanded={!!isOpen('sheet-move')} aria-label={`Status: ${nameOf(card.column)}`} onClick={field('move')}>{nameOf(card.column)}<Icon name="chev-d" size="xs" /></button></div>
-          <div className="dm-kbx-pk-r"><span className="dm-k">Priority</span><button type="button" className="dm-kbx-pv" data-kbx="sheet-priority" aria-haspopup="menu" aria-expanded={!!isOpen('sheet-priority')} aria-label={`Priority: ${PRIORITY[card.priority ?? 'none']}`} onClick={field('priority')}><PriorityMark value={card.priority} />{PRIORITY[card.priority ?? 'none']}<Icon name="chev-d" size="xs" /></button></div>
+          <div className="dm-kbx-pk-r"><span className="dm-k">Priority</span><button type="button" className="dm-kbx-pv" data-kbx="sheet-priority" aria-haspopup="menu" aria-expanded={!!isOpen('sheet-priority')} aria-label={`Priority: ${PRIORITY[card.priority ?? 'none']}`} onClick={field('priority')}><PriorityTag value={card.priority} /><Icon name="chev-d" size="xs" /></button></div>
           {members.length > 0 && <div className="dm-kbx-pk-r"><span className="dm-k">Assignees</span><button type="button" className="dm-kbx-pv" data-kbx="sheet-assign" aria-haspopup="menu" aria-expanded={!!isOpen('sheet-assign')} aria-label={`Assignees: ${names || 'none'}`} onClick={field('assign')}>
             {ps.length ? <><span className="dm-avs">{ps.map(m => <Avatar key={m.id} initials={m.initials} color={m.color} />)}</span>{ps.length > 1 ? `${ps.length} people` : ps[0].name}</> : 'Assign'}<Icon name="chev-d" size="xs" /></button></div>}
+          {card.project && <div className="dm-kbx-pk-r"><span className="dm-k">Project</span><span className="dm-kbx-pv">{card.project}</span></div>}
           {days != null && card.due && <div className="dm-kbx-pk-r"><span className="dm-k">Due</span><span className={cx('dm-kbx-pv', late && 'dm-late')}><Icon name="cal" size="xs" />{dueText(days, card.due)}{late ? ', overdue' : ''}</span></div>}
-          {!!card.labels?.length && <div className="dm-kbx-pk-r"><span className="dm-k">Labels</span><span className="dm-kbx-tags">{card.labels.map(l => <span key={l} className="dm-tag">{l}</span>)}</span></div>}
+          {!!card.labels?.length && <div className="dm-kbx-pk-r"><span className="dm-k">Labels</span><span className="dm-kbx-tags">{card.labels.map(labelTag)}</span></div>}
         </div>
         {n > 0 && <>
           <div className="dm-kbx-pk-s"><b>Subtasks</b><span className="dm-num">{d}/{n}</span><span className="dm-kbx-sb"><i style={{ width: d / n * 100 + '%' }} /></span></div>

@@ -160,7 +160,7 @@
   };
   try { var a = localStorage.getItem('dmui-accent'); if (a && a !== 'default') window.dmAccent(a); } catch(e){}
 })();
-</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Kanban board","description":"Kanban board is a sprint board with columns such as To do, In progress and Done, where people and an agent move cards. Each card shows its key, priority, title, labels, due date, subtasks, comments, files and people, and the card an agent is working on says what it is doing as its bar fills. A header filters the board by person, label, priority or a search, switches between the board and a list, and each card opens a details sheet with a checklist you can tick.","url":"https://designme.dev/components/kanban-board","image":"https://designme.dev/components/og/kanban-board.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Kanban board, Collaboration, UI component, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Collaboration","item":"https://designme.dev/#s-collab"},{"@type":"ListItem","position":3,"name":"Kanban board","item":"https://designme.dev/components/kanban-board"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I show the agent working through its cards?","acceptedAnswer":{"@type":"Answer","text":"Control the board with cards, mark the agent with agent: true in members, and raise its card's progress toward 1 as it works, with activity saying what it is doing (or tick its subtasks and the first open one is shown). When it finishes, move the card to your done column and clear progress, as the example does."}},{"@type":"Question","name":"How do I stop the agent from moving cards while someone is dragging?","acceptedAnswer":{"@type":"Answer","text":"Use onDraggingChange. It is called with true when a card starts moving with the pointer and false when it lands, so you can pause your updates in between."}},{"@type":"Question","name":"Can cards be moved without dragging?","acceptedAnswer":{"@type":"Answer","text":"Yes. Each card's dots open a Move to menu (m from the keyboard), the details sheet's Status opens the same menu, and picked cards move together from the bar at the foot of the board. Every move calls onMove."}},{"@type":"Question","name":"How do due dates and the WIP limit work?","acceptedAnswer":{"@type":"Answer","text":"Give a card due as 'YYYY-MM-DD'; it reads as overdue once it is before today (the visitor's today by default), except in a column marked done. Give a column a limit and its header shows how full it is, with a warning chip once it is over."}},{"@type":"Question","name":"What does a new card look like?","acceptedAnswer":{"@type":"Answer","text":"By default it is titled \"New card\" with no priority. Pass newCard(column) to return your own card, such as one with your key and already assigned to the current user."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Kanban ---------- */
+</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Kanban board","description":"Kanban board is a sprint board with columns such as To do, In progress and Done, where people and an agent move cards. Each card shows its key and people, one row of chips (its priority in colour, the project it belongs to and its labels), its title, and one line with its due date, subtasks, comments and files, and the card an agent is working on says what it is doing as its bar fills. A header filters the board by person, label, priority or a search, switches between the board and a list, and each card opens a details sheet with a checklist you can tick.","url":"https://designme.dev/components/kanban-board","image":"https://designme.dev/components/og/kanban-board.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Kanban board, Collaboration, UI component, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Collaboration","item":"https://designme.dev/#s-collab"},{"@type":"ListItem","position":3,"name":"Kanban board","item":"https://designme.dev/components/kanban-board"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I show the agent working through its cards?","acceptedAnswer":{"@type":"Answer","text":"Control the board with cards, mark the agent with agent: true in members, and raise its card's progress toward 1 as it works, with activity saying what it is doing (or tick its subtasks and the first open one is shown). When it finishes, move the card to your done column and clear progress, as the example does."}},{"@type":"Question","name":"How do I stop the agent from moving cards while someone is dragging?","acceptedAnswer":{"@type":"Answer","text":"Use onDraggingChange. It is called with true when a card starts moving with the pointer and false when it lands, so you can pause your updates in between."}},{"@type":"Question","name":"Can cards be moved without dragging?","acceptedAnswer":{"@type":"Answer","text":"Yes. Each card's dots open a Move to menu (m from the keyboard), the details sheet's Status opens the same menu, and picked cards move together from the bar at the foot of the board. Every move calls onMove."}},{"@type":"Question","name":"How do due dates and the WIP limit work?","acceptedAnswer":{"@type":"Answer","text":"Give a card due as 'YYYY-MM-DD'; it reads as overdue once it is before today (the visitor's today by default), except in a column marked done. Give a column a limit and its header shows how full it is, with a warning chip once it is over."}},{"@type":"Question","name":"What does a new card look like?","acceptedAnswer":{"@type":"Answer","text":"By default it is titled \"New card\" with no priority. Pass newCard(column) to return your own card, such as one with your key and already assigned to the current user."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Kanban ---------- */
 /* a sprint board: a header with the project, its people (a facepile that filters by person), a search and a Board / List
    switch; filter chips for assignee, label and priority; then the columns. The board never scrolls sideways: under 640px it
    shows one column at a time, picked with tabs, so the columns always fit */
@@ -204,12 +204,13 @@
 /* the columns, and the room they keep: each has space for four cards, the most one holds as the agent fills Done, so the
    board keeps one height while it plays, as you filter, and as a column folds away */
 .kbx-bd{position:relative}
-.kbx-cols{display:grid;grid-template-columns:var(--dm-kbx-gt,repeat(3,minmax(0,1fr)));gap:10px;transition:grid-template-columns var(--dm-t) var(--dm-ease)}
-.kbx-c{display:flex;flex-direction:column;gap:6px;min-width:0;padding:6px 6px 8px;border-radius:var(--dm-r-card);background:color-mix(in srgb,var(--dm-fg) 3.5%,transparent);transition:background .25s,box-shadow .25s;min-height:452px}
+.kbx-cols{display:grid;grid-template-columns:var(--dm-kbx-gt,repeat(3,minmax(0,1fr)));gap:var(--dm-s-3);transition:grid-template-columns var(--dm-t) var(--dm-ease)}
+.kbx-c{display:flex;flex-direction:column;gap:var(--dm-s-2);min-width:0;padding:var(--dm-s-1) var(--dm-s-2) var(--dm-s-2);border-radius:calc(14px * var(--dm-rk));background:color-mix(in srgb,var(--dm-fg) 3.5%,transparent);transition:background .25s,box-shadow .25s;min-height:600px}
 .kbx-c.over{background:var(--dm-sel);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 40%,transparent)}
-.kbx-ch{display:flex;align-items:center;gap:6px;height:30px;padding:0 0 0 2px;font-size:13px}
+.kbx-ch{display:flex;align-items:center;gap:6px;height:36px;padding:0;font-size:13px}
 .kbx-ch b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.kbx-ch .n{font-size:12px;color:var(--dm-muted);white-space:nowrap}
+/* the count is a grey chip; with a limit it says how full the column is, and turns into a warning once it is over */
+.kbx-ch .n{display:inline-flex;white-space:nowrap}
 .kbx-ch .tag{height:20px;padding:0 6px;gap:3px;cursor:default}
 .kbx-ch .ib{width:24px;height:24px;flex:none;color:var(--dm-muted)}
 .kbx-ch .ib[aria-expanded="true"]{color:var(--dm-fg)}
@@ -225,22 +226,29 @@
 .kbx-c.shut .kbx-ch{flex-direction:column;height:auto;padding:0;gap:var(--dm-s-2)}
 .kbx-c.shut .kbx-ch b{writing-mode:vertical-rl}
 .kbx-c.shut :is(.kbx-list,.kbx-sp,.kbx-cadd,.kbx-cmn,.kbx-none){display:none}
-/* a card: its key, priority and people on top, the title, then its labels, due date, subtasks, comments and files */
-.kbx-k{position:relative;padding:var(--dm-s-2) 10px 9px;border-radius:calc(12px * var(--dm-rk));background:var(--dm-raised);box-shadow:var(--dm-shadow);display:flex;flex-direction:column;gap:5px;cursor:grab;transition:box-shadow .25s,opacity .2s;touch-action:none;user-select:none;-webkit-user-select:none}
+/* a card: its key with its people at the top right, one row of chips (its priority in colour, the project it belongs to in
+   grey, then its labels in their colours), the title, then one muted line with its due date, subtasks, comments and files */
+.kbx-k{position:relative;padding:var(--dm-s-3);border-radius:calc(12px * var(--dm-rk));background:var(--dm-raised);box-shadow:var(--dm-shadow);display:flex;flex-direction:column;gap:var(--dm-s-1);cursor:grab;transition:box-shadow .25s,opacity .2s;touch-action:none;user-select:none;-webkit-user-select:none}
 @media (hover:hover) and (pointer:fine){.kbx-k:hover{box-shadow:var(--dm-shadow-pop)}}
 .kbx-k:focus-visible{outline-offset:1px;border-radius:calc(12px * var(--dm-rk))}
 .kbx-k.drag{opacity:.35}
 .kbx-k.ghost{position:fixed;z-index:100;pointer-events:none;transform:rotate(2deg) scale(1.03);box-shadow:var(--dm-shadow-pop);cursor:grabbing}
 .kbx-k1{display:flex;align-items:center;gap:6px;height:20px}
 .kbx-id{font-size:11.5px;color:var(--dm-muted);white-space:nowrap}
-.kbx-k .t{font-size:13px;line-height:1.4;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
-/* a title is written in place (a new card, or a double-click on one): while you write it, it is a field, white with the
-   dimmed field edge, one step stronger while it has the focus, drawn outside the words so they keep their place */
-.kbx-k .t[contenteditable="true"]{display:block;outline:0;border-radius:var(--dm-r-xs);padding:0 var(--dm-s-1);margin:0 calc(-1 * var(--dm-s-1));background:var(--dm-surface);box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);cursor:text;-webkit-user-select:text;user-select:text}
-.kbx-k .t[contenteditable="true"]:focus{box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
-.kbx-m{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;min-height:20px;font-size:12px;color:var(--dm-muted)}
+.kbx-k>.t{font-size:13px;line-height:1.4;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+/* the title is the card's own .t (a teal label chip is a .tag.t too). It is written in place (a new card, or a
+   double-click on one): while you write it, it is a field, white with the dimmed field edge, one step stronger while it
+   has the focus, drawn outside the words so they keep their place */
+.kbx-k>.t[contenteditable="true"]{display:block;outline:0;border-radius:var(--dm-r-xs);padding:0 var(--dm-s-1);margin:0 calc(-1 * var(--dm-s-1));background:var(--dm-surface);box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);cursor:text;-webkit-user-select:text;user-select:text}
+.kbx-k>.t[contenteditable="true"]:focus{box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+.kbx-m{display:flex;align-items:center;flex-wrap:wrap;gap:2px var(--dm-s-2);min-height:20px;font-size:12px;color:var(--dm-muted)}
 .kbx-m:empty{display:none}
 .kbx-tags{display:flex;gap:4px}
+/* the chip row: the priority opens its menu; the project and the labels say what the card belongs to and is about */
+.kbx-cr{display:flex;align-items:center;flex-wrap:wrap;gap:4px 6px;min-width:0;margin:2px 0 var(--dm-s-1)}
+.kbx-cr .tag{flex:none}
+.kbx-cr .kbx-pj{flex:0 1 auto;min-width:0}
+.kbx-pj span{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .kbx-mt{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
 .kbx-mt .i{width:12px;height:12px}
 .kbx-mt.late{color:var(--dm-bad)}
@@ -249,28 +257,30 @@
 .kbx-sb{width:22px;height:3px;border-radius:2px;background:color-mix(in srgb,var(--dm-muted) 25%,transparent);overflow:hidden}
 .kbx-sb i{display:block;height:100%;border-radius:inherit;background:var(--dm-fg2);transition:width .35s var(--dm-ease)}
 .kbx-mt.ok .kbx-sb i{background:var(--dm-ok-mark)}
-/* the card's quick controls: its priority and its people open their menus, and the dots its Move to menu */
-.kbx-pri,.kbx-who,.kbx-mv{display:inline-grid;place-items:center;flex:none;border-radius:calc(6px * var(--dm-rk));transition:background var(--dm-t-fast),color var(--dm-t-fast),opacity var(--dm-t-fast)}
-.kbx-pri{width:20px;height:20px;margin:0 -2px 0 -4px}
-.kbx-pri[aria-expanded="true"],.kbx-who[aria-expanded="true"],.kbx-mv[aria-expanded="true"]{background:var(--dm-row)}
-@media (hover:hover) and (pointer:fine){.kbx-pri:hover,.kbx-who:hover,.kbx-mv:hover{background:var(--dm-row)}}
+/* the card's quick controls: its priority chip and its people open their menus, and the dots its Move to menu */
+.kbx-who,.kbx-mv{display:inline-grid;place-items:center;flex:none;border-radius:calc(6px * var(--dm-rk));transition:background var(--dm-t-fast),color var(--dm-t-fast),opacity var(--dm-t-fast)}
+.kbx-pri{transition:box-shadow var(--dm-t-fast)}
+.kbx-pri[aria-expanded="true"]{box-shadow:inset 0 0 0 1px color-mix(in srgb,currentColor 35%,transparent)}
+@media (hover:hover) and (pointer:fine){.kbx-pri:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,currentColor 35%,transparent)}}
+.kbx-who[aria-expanded="true"],.kbx-mv[aria-expanded="true"]{background:var(--dm-row)}
+@media (hover:hover) and (pointer:fine){.kbx-who:hover,.kbx-mv:hover{background:var(--dm-row)}}
 .kbx-who{display:inline-flex;align-items:center;height:22px;padding:0 1px 0 6px;border-radius:calc(11px * var(--dm-rk))}
 .kbx-who .av{width:20px;height:20px;font-size:9px;margin-left:-5px;box-shadow:0 0 0 1.5px var(--dm-surface)}
 .kbx-who:empty{width:22px;padding:0;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);border-radius:50%}
 .kbx-who .none{display:grid;place-items:center;width:20px;height:20px;margin-left:-5px;border-radius:50%;color:var(--dm-muted);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-muted) 45%,transparent)}
-.kbx-mv{width:22px;height:22px;margin-right:-4px;color:var(--dm-muted);opacity:0}
+/* the dots show on hover or focus just left of the people, without a space of their own, so the avatar sits at the card's edge */
+.kbx-mv{width:22px;height:22px;margin-left:-28px;color:var(--dm-muted);opacity:0}
 .kbx-mv[aria-expanded="true"]{opacity:1}
 @media (hover:hover) and (pointer:fine){.kbx-k:is(:hover,:focus-within,.open) .kbx-mv{opacity:1}}
 .kbx-mv[aria-expanded="true"]{color:var(--dm-fg)}
 @media (hover:hover) and (pointer:fine){.kbx-mv:hover{color:var(--dm-fg)}}
 @media (pointer:coarse){.kbx-mv{opacity:1}}
-/* priority, drawn as three bars that fill from the left; Urgent is the one in colour */
+/* three bars that fill from the left, a strength mark (the board itself shows priority as a coloured chip) */
 .kbx-pb{display:inline-flex;align-items:flex-end;gap:1.5px;width:12px;height:11px}
 .kbx-pb i{flex:1;border-radius:1px;background:color-mix(in srgb,var(--dm-muted) 35%,transparent)}
 .kbx-pb i:nth-child(1){height:45%}.kbx-pb i:nth-child(2){height:72%}.kbx-pb i:nth-child(3){height:100%}
 .kbx-pb[data-p="low"] i:nth-child(1),.kbx-pb[data-p="med"] i:nth-child(-n+2),.kbx-pb[data-p="high"] i{background:var(--dm-fg2)}
 .kbx-pb[data-p="none"] i{height:1.5px}
-.kbx-pu{display:grid;place-items:center;width:12px;height:12px;border-radius:calc(3px * var(--dm-rk));background:var(--dm-bad);color:var(--dm-surface);font-size:10px;font-weight:500;line-height:1}
 /* picked cards: a checkbox on each card while any is picked, and a slightly stronger edge on the picked ones */
 .kbx-sel{display:none;place-items:center;width:14px;height:14px;flex:none;border-radius:calc(4px * var(--dm-rk));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-muted) 80%,var(--dm-surface));color:var(--dm-on-accent,#fff);transition:background-color .2s,box-shadow .2s}
 .kbx.selecting .kbx-sel{display:grid}
@@ -348,7 +358,6 @@
 .kbx-pop .mi .av{width:20px;height:20px;font-size:9px}
 .kbx-pop .mi .r{margin-left:auto}
 .kbx-pop .mi .r+.ck{margin-left:0}
-.kbx-pop .mi>.kbx-pb,.kbx-pop .mi>.kbx-pu{margin:0 4px 0 3px}
 .kbx-pop .mi .tag{height:18px;padding:0 6px}
 /* the list: the same cards as rows, grouped by column under a header each, in one panel that keeps the board's height */
 .kbx.list .kbx-cols{display:flex;flex-direction:column;gap:0;border-radius:var(--dm-r-card);background:var(--dm-surface);box-shadow:var(--dm-shadow);overflow:hidden}
@@ -369,13 +378,14 @@
 .kbx.list .kbx-k:focus-visible{outline-offset:-2px;border-radius:0}
 .kbx.list .kbx-k.ghost{border-radius:calc(10px * var(--dm-rk));box-shadow:var(--dm-shadow-pop)}
 .kbx.list .kbx-k1{display:contents}
-.kbx.list .kbx-sel{order:0}.kbx.list .kbx-pri{order:1}.kbx.list .kbx-id{order:2;width:52px}
-.kbx.list .kbx-k .t{order:3;flex:1;min-width:0;display:block;white-space:nowrap;text-overflow:ellipsis}
+.kbx.list .kbx-sel{order:0}.kbx.list .kbx-id{order:1;width:52px}
+.kbx.list .kbx-k>.t{order:2;flex:1;min-width:0;display:block;white-space:nowrap;text-overflow:ellipsis}
+.kbx.list .kbx-cr{order:3;flex:none;flex-wrap:nowrap;margin:0}
 .kbx.list .kbx-ag{order:4;flex:none}.kbx.list .kbx-ag .s{display:none}
 .kbx.list .kbx-pr{order:5;width:40px;flex:none}
 .kbx.list .kbx-m{order:6;flex-wrap:nowrap}
 .kbx.list .kbx-k1 .kbx-sp{display:none}
-.kbx.list .kbx-who{order:7}.kbx.list .kbx-mv{order:8}
+.kbx.list .kbx-who{order:7}.kbx.list .kbx-mv{order:8;margin:0 -4px 0 0}
 .kbx.list .kbx-none{padding:10px var(--dm-s-3);text-align:left}
 .kbx.list .kbx-ph{border-radius:0;border-width:1.5px 0}
 /* a narrow board, on a phone or in a narrow card: the header stacks, one column at a time, picked with tabs that count each
@@ -402,10 +412,10 @@
   .kbx:not(.list) .kbx-ch{display:none}
   .kbx:not(.list) .kbx-c.shut{align-items:stretch;padding:6px 6px 8px;cursor:default}
   .kbx:not(.list) .kbx-c.shut .kbx-list{display:flex}
-  .kbx:not(.list) .kbx-c{min-height:412px}
+  .kbx:not(.list) .kbx-c{min-height:520px}
   .kbx-k{touch-action:pan-y}
   .kbx-mv{opacity:1}
-  .kbx.list .kbx-id,.kbx.list .kbx-m,.kbx.list .kbx-pr{display:none}
+  .kbx.list .kbx-id,.kbx.list .kbx-m,.kbx.list .kbx-pr,.kbx.list .kbx-cr>:not(.kbx-pri){display:none}
   .kbx-pk{width:100%}
   .kbx-bk{left:var(--dm-s-2);right:var(--dm-s-2);max-width:none;transform:translateY(8px)}
   .kbx-bk.on{transform:none}
@@ -458,7 +468,7 @@
 <path d="M149.497 283.784C149.477 284.047 149.474 284.311 149.487 284.575C156.385 340.034 183.548 391.116 225.9 428.196C267.989 465.044 322.188 485.532 378.414 485.855L379.743 485.859C436.453 485.868 491.188 465.353 533.619 428.212C575.912 391.194 603.062 340.216 610.018 284.856L610.018 281.512C610.008 277.337 608.324 273.315 605.303 270.335C602.277 267.351 598.155 265.656 593.837 265.656L165.647 265.656C161.338 265.656 157.226 267.349 154.21 270.331C151.198 273.309 149.524 277.326 149.523 281.491L149.523 283.437L149.497 283.784ZM114.378 247.395C118.396 247.391 122.254 245.919 125.214 243.29C128.063 240.759 129.887 237.33 130.396 233.629L130.396 233.35L130.437 232.917C136.355 171.634 165.162 114.754 211.202 73.3687C257.239 31.9859 317.206 9.06063 379.393 9.04448L379.396 9.04448C441.593 9.04583 501.574 31.964 547.624 73.3482C593.677 114.735 622.491 171.624 628.411 232.917L628.453 233.35L628.453 233.643C628.953 237.344 630.773 240.774 633.621 243.304C636.58 245.932 640.437 247.399 644.452 247.395L725.644 247.395C728.882 247.404 732.089 248.06 735.071 249.329C738.055 250.598 740.753 252.453 743.001 254.787C745.252 257.123 747.005 259.891 748.151 262.924C749.296 265.954 749.81 269.183 749.662 272.418L749.663 272.418C745.484 366.797 704.617 455.919 635.615 521.211C566.616 586.499 474.809 622.924 379.338 622.924C283.872 622.924 192.071 586.496 123.081 521.206C54.0935 455.917 13.2412 366.804 9.07133 272.438L9.07036 272.438L9.07036 272.436C9.07007 272.43 9.06967 272.423 9.06938 272.417L9.07036 272.417C8.92272 269.182 9.43655 265.953 10.5811 262.924C11.7276 259.89 13.481 257.123 15.7315 254.787C17.9805 252.452 20.6797 250.597 23.6622 249.329C26.6443 248.06 29.8504 247.404 33.0889 247.395L114.378 247.395Z" fill="black" stroke="white" stroke-width="18.0901"/>
 </svg></div><span class="gloss"></span></div><p>Built by <span class="u">DesignMe</span>, free to use under the MIT licence.</p></a>
     <p class="side-cta-d">Expert design and dev support for startups and enterprises, from Astro sites to React apps and AI products.</p>
-    <a class="hire-btn" href="https://www.designme.agency/intro?utm_source=designme.dev&utm_medium=referral&utm_campaign=book_a_call" target="_blank" rel="noopener">Book a call<span class="ms"><svg class="sh" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span></a></div></div></details><nav class="pg-crumbs" aria-label="Breadcrumb"><a href="/">Library</a><span>/</span><a href="/#s-collab">Collaboration</a></nav><h1 class="pg-h1" id="content" tabindex="-1">Kanban board</h1><p class="pg-lead">A sprint board where you and the agent move cards, with filters, details and keyboard moves. Free and MIT licensed, as HTML, a typed React component or an Astro component, in two styles with light and dark mode.</p><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">kanban-board</span></span><button type="button" data-copy="npx designme add kanban-board" aria-label="Copy install command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div><section class="cp-demo" aria-label="Kanban board demo"><div class="pg-seg cp-dev" role="radiogroup" aria-label="Preview width"><button type="button" role="radio" aria-checked="true" data-dev="desktop">Desktop</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-dev="tablet">Tablet</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-dev="mobile">Mobile</button></div><button type="button" class="cp-anim" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>Animate</button><div class="pg-demo stage-inner" style="--h-a:644px;--h-j:648px;--h-k:642px;--h-l:642px;--h-m:642px"><div class="card wide" data-c="kanban">
+    <a class="hire-btn" href="https://www.designme.agency/intro?utm_source=designme.dev&utm_medium=referral&utm_campaign=book_a_call" target="_blank" rel="noopener">Book a call<span class="ms"><svg class="sh" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span></a></div></div></details><nav class="pg-crumbs" aria-label="Breadcrumb"><a href="/">Library</a><span>/</span><a href="/#s-collab">Collaboration</a></nav><h1 class="pg-h1" id="content" tabindex="-1">Kanban board</h1><p class="pg-lead">A sprint board where you and the agent move cards, with filters, details and keyboard moves. Free and MIT licensed, as HTML, a typed React component or an Astro component, in two styles with light and dark mode.</p><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">kanban-board</span></span><button type="button" data-copy="npx designme add kanban-board" aria-label="Copy install command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div><section class="cp-demo" aria-label="Kanban board demo"><div class="pg-seg cp-dev" role="radiogroup" aria-label="Preview width"><button type="button" role="radio" aria-checked="true" data-dev="desktop">Desktop</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-dev="tablet">Tablet</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-dev="mobile">Mobile</button></div><button type="button" class="cp-anim" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>Animate</button><div class="pg-demo stage-inner" style="--h-a:792px;--h-j:756px;--h-k:750px;--h-l:750px;--h-m:750px"><div class="card wide" data-c="kanban">
   <div class="stage-in">
     <div class="kbx">
       <div class="kbx-hd"><div class="kbx-ti"><b>Website refresh</b><span class="num"></span></div><div class="kbx-fp" role="group" aria-label="Filter by person"></div><span class="kbx-sp"></span><label class="kbx-q"><svg class="i xs"><use href="#i-search"/></svg><input type="search" placeholder="Search cards" aria-label="Search cards" autocomplete="off"><button class="ib kbx-qx" aria-label="Clear the search" hidden><svg class="i xs"><use href="#i-x"/></svg></button></label><div class="seg2 kbx-vw" role="group" aria-label="View"><button aria-pressed="true" data-v="board"><svg class="i xs"><use href="#i-grid"/></svg><span class="lb">Board</span></button><button aria-pressed="false" data-v="list"><svg class="i xs"><use href="#i-list"/></svg><span class="lb">List</span></button></div></div>
@@ -510,7 +520,7 @@
   addEventListener('resize', function(){ cur = -2; mark(); });
   mark();
 })();
-</script><div class="dc-bar"><nav aria-label="On this page"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-ins"><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#e34f26" d="M1.5 0h21l-1.91 21.563L11.977 24l-8.564-2.438L1.5 0z"/><path fill="#fff" d="M8.531 9.75l-.232-2.718 10.059.003.23-2.622L5.412 4.41l.698 8.01h9.126l-.326 3.426-2.91.804-2.955-.81-.188-2.11H6.248l.33 4.171L12 19.351l5.379-1.443.744-8.157H8.531z"/></svg>HTML, CSS and JS</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">kanban-board</span></code><button class="cp-copy" type="button" data-copy="npx designme add kanban-board" data-label="Copy" aria-label="Copy the HTML install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">kanban-board</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add kanban-board --react" data-label="Copy" aria-label="Copy the React install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#bc52ee" d="M8.358 20.162c-1.186-1.07-1.532-3.316-1.038-4.944.856 1.026 2.043 1.352 3.272 1.535 1.897.283 3.76.177 5.522-.678.202-.098.388-.229.608-.36.166.473.209.95.151 1.437-.14 1.185-.738 2.1-1.688 2.794-.38.277-.782.525-1.175.787-1.205.804-1.531 1.747-1.078 3.119l.044.148a3.158 3.158 0 0 1-1.407-1.188 3.31 3.31 0 0 1-.544-1.815c-.004-.32-.004-.642-.048-.958-.106-.769-.472-1.113-1.161-1.133-.707-.02-1.267.411-1.415 1.09-.012.053-.028.104-.045.165h.002zm-5.961-4.445s3.24-1.575 6.49-1.575l2.451-7.565c.092-.366.36-.614.662-.614.302 0 .57.248.662.614l2.45 7.565c3.85 0 6.491 1.575 6.491 1.575L16.088.727C15.93.285 15.663 0 15.303 0H8.697c-.36 0-.615.285-.784.727l-5.516 14.99z"/></svg>Astro</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">kanban-board</span> <span class="cp-w">--astro</span></code><button class="cp-copy" type="button" data-copy="npx designme add kanban-board --astro" data-label="Copy" aria-label="Copy the Astro install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>shadcn, React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>kanban-board.json</code><button class="cp-copy" type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/kanban-board.json" data-label="Copy" aria-label="Copy the shadcn command for React">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#bc52ee" d="M8.358 20.162c-1.186-1.07-1.532-3.316-1.038-4.944.856 1.026 2.043 1.352 3.272 1.535 1.897.283 3.76.177 5.522-.678.202-.098.388-.229.608-.36.166.473.209.95.151 1.437-.14 1.185-.738 2.1-1.688 2.794-.38.277-.782.525-1.175.787-1.205.804-1.531 1.747-1.078 3.119l.044.148a3.158 3.158 0 0 1-1.407-1.188 3.31 3.31 0 0 1-.544-1.815c-.004-.32-.004-.642-.048-.958-.106-.769-.472-1.113-1.161-1.133-.707-.02-1.267.411-1.415 1.09-.012.053-.028.104-.045.165h.002zm-5.961-4.445s3.24-1.575 6.49-1.575l2.451-7.565c.092-.366.36-.614.662-.614.302 0 .57.248.662.614l2.45 7.565c3.85 0 6.491 1.575 6.491 1.575L16.088.727C15.93.285 15.663 0 15.303 0H8.697c-.36 0-.615.285-.784.727l-5.516 14.99z"/></svg>shadcn, Astro</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>astro/<wbr>kanban-board.json</code><button class="cp-copy" type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/astro/kanban-board.json" data-label="Copy" aria-label="Copy the shadcn command for Astro">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. Where each version lands, what it needs and the shadcn theme bridge: <a href="/docs/installation">Installation</a>.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Kanban board is a sprint board with columns such as To do, In progress and Done, where people and an agent move cards. Each card shows its key, priority, title, labels, due date, subtasks, comments, files and people, and the card an agent is working on says what it is doing as its bar fills. A header filters the board by person, label, priority or a search, switches between the board and a list, and each card opens a details sheet with a checklist you can tick.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When an agent picks up tasks from a shared backlog and the team should watch it progress</li><li>When people and the agent work from one board and either can move a card</li><li>When a team needs a dense board: priorities, due dates, subtasks and owners at a glance</li><li>When work in progress should stay under a limit, with a warning once a column holds too much</li><li>When a board has to work from the keyboard as well as with drag and drop</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li>Each card shows its key (like DES-142), a priority mark (three bars, or a red mark for Urgent), its people as initials avatars, the title, grey labels, the due date ("Today", "Tomorrow" or a date, in the bad text colour once it is past), subtasks done with a thin bar that turns green when they all are, and comment and file counts. Hover the marks and counts for what they mean.</li><li>A card with <code>progress</code> is the agent's: it gets an accent edge, the thinking dots, what it is doing now (<code>activity</code>, or its first open subtask) with a percentage, and a bar that fills.</li><li>Drag a card to another column or to a new place in its own column: a floating copy follows the pointer, a placeholder shows where it will land and the column under it highlights. <code>onMove</code> reports the card, its column and its place there.</li><li>Click a card to open its details sheet over the right of the board: status, priority and people (each opens its menu), the due date, labels, the agent's progress, a checklist you can tick (it updates the card), and its comments and files. Arrow keys move the sheet from card to card.</li><li>Click a card's priority mark or its avatars to change them in a menu, or its dots to move it to another column. Each change calls <code>onChange</code> with the card.</li><li>Shift-click, Cmd-click or Ctrl-click cards to pick several (Shift-click picks a range within a column); a bar over the foot of the board moves them all to a column at once, and Escape or its × clears the pick.</li><li>Filter chips for assignee, label and priority each open a menu of values with how many cards have each; pick several. The facepile in the header filters by person too, and a search matches titles and keys. Column counts read "2 of 4" while filtering, and when nothing matches the board says so with a Clear filters button.</li><li>A column with a <code>limit</code> shows how full it is ("2/3"), and a warning chip once it holds more. Each column header can fold the column to a narrow strip (press it to open it again), add a card, and open a menu to select all, sort by priority or due date, or fold it.</li><li>The view switch shows the same cards as a list, grouped by column, one row each; the list keeps the board's height. Cards still drag, open and pick in the list.</li><li>The + buttons add a card at the end of a column with its title ready to type, and a double-click on any title (or F2) renames it; Enter saves, Escape cancels, and <code>onRename</code> reports it.</li><li>Under 640px wide, on a phone or in a narrow card, the header stacks, the board shows one column at a time picked with tabs that count each column's cards, and the details sheet covers the board.</li><li>Filters, view, folded columns, picked cards, the open card and the narrow board's column can each be controlled (<code>filters</code>, <code>view</code>, <code>collapsed</code>, <code>selected</code>, <code>open</code>, <code>column</code>) or left to the board.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>Cards are list items with a label that reads their key, title, priority, people, due date, whether the agent is on it and whether they are picked. One card at a time is in the Tab order.</li><li>From the keyboard, the arrow keys move between cards (up and down in a column, left and right across columns), Home and End go to a column's ends, Enter opens the details sheet, Space or x picks a card, Shift with an arrow picks as it moves, m opens Move to, p the priority, a the people, F2 renames, and Escape closes the sheet or clears the pick.</li><li>Menus are <code>menu</code>s with <code>menuitemradio</code> (Move to, priority) or <code>menuitemcheckbox</code> (people, filters) items; they open on their checked item, the arrows move through them and wrap, and picking from the keyboard puts the focus back on the card or the sheet's field.</li><li>The facepile is a group of toggle buttons with <code>aria-pressed</code>, the view switch and the narrow board's tabs are groups with <code>aria-pressed</code> on the one shown, and the checklist items are <code>checkbox</code>es.</li><li>The details sheet is a labelled <code>dialog</code>; opened with Enter it takes the focus on its close button, and Escape returns it to the card.</li><li>Moves, picks, filters and folds are announced in a polite live region, as is a column going over its limit. The floating copy shown while dragging is <code>aria-hidden</code>.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it in React and drive it from your own state, or place it in an Astro page.</p></div><div class="cp-box"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>React</h3><pre class="cp-pre" data-name="React import"><code>import { KanbanBoard } from &#39;@/components/designme/kanban-board/KanbanBoard&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">React example</h3><p class="pg-d">The demo above as a React component, 73 lines you can copy.</p><pre class="cp-pre" data-name="React example"><code>&#39;use client&#39;;
+</script><div class="dc-bar"><nav aria-label="On this page"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-ins"><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#e34f26" d="M1.5 0h21l-1.91 21.563L11.977 24l-8.564-2.438L1.5 0z"/><path fill="#fff" d="M8.531 9.75l-.232-2.718 10.059.003.23-2.622L5.412 4.41l.698 8.01h9.126l-.326 3.426-2.91.804-2.955-.81-.188-2.11H6.248l.33 4.171L12 19.351l5.379-1.443.744-8.157H8.531z"/></svg>HTML, CSS and JS</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">kanban-board</span></code><button class="cp-copy" type="button" data-copy="npx designme add kanban-board" data-label="Copy" aria-label="Copy the HTML install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">kanban-board</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add kanban-board --react" data-label="Copy" aria-label="Copy the React install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#bc52ee" d="M8.358 20.162c-1.186-1.07-1.532-3.316-1.038-4.944.856 1.026 2.043 1.352 3.272 1.535 1.897.283 3.76.177 5.522-.678.202-.098.388-.229.608-.36.166.473.209.95.151 1.437-.14 1.185-.738 2.1-1.688 2.794-.38.277-.782.525-1.175.787-1.205.804-1.531 1.747-1.078 3.119l.044.148a3.158 3.158 0 0 1-1.407-1.188 3.31 3.31 0 0 1-.544-1.815c-.004-.32-.004-.642-.048-.958-.106-.769-.472-1.113-1.161-1.133-.707-.02-1.267.411-1.415 1.09-.012.053-.028.104-.045.165h.002zm-5.961-4.445s3.24-1.575 6.49-1.575l2.451-7.565c.092-.366.36-.614.662-.614.302 0 .57.248.662.614l2.45 7.565c3.85 0 6.491 1.575 6.491 1.575L16.088.727C15.93.285 15.663 0 15.303 0H8.697c-.36 0-.615.285-.784.727l-5.516 14.99z"/></svg>Astro</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">kanban-board</span> <span class="cp-w">--astro</span></code><button class="cp-copy" type="button" data-copy="npx designme add kanban-board --astro" data-label="Copy" aria-label="Copy the Astro install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>shadcn, React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>kanban-board.json</code><button class="cp-copy" type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/kanban-board.json" data-label="Copy" aria-label="Copy the shadcn command for React">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#bc52ee" d="M8.358 20.162c-1.186-1.07-1.532-3.316-1.038-4.944.856 1.026 2.043 1.352 3.272 1.535 1.897.283 3.76.177 5.522-.678.202-.098.388-.229.608-.36.166.473.209.95.151 1.437-.14 1.185-.738 2.1-1.688 2.794-.38.277-.782.525-1.175.787-1.205.804-1.531 1.747-1.078 3.119l.044.148a3.158 3.158 0 0 1-1.407-1.188 3.31 3.31 0 0 1-.544-1.815c-.004-.32-.004-.642-.048-.958-.106-.769-.472-1.113-1.161-1.133-.707-.02-1.267.411-1.415 1.09-.012.053-.028.104-.045.165h.002zm-5.961-4.445s3.24-1.575 6.49-1.575l2.451-7.565c.092-.366.36-.614.662-.614.302 0 .57.248.662.614l2.45 7.565c3.85 0 6.491 1.575 6.491 1.575L16.088.727C15.93.285 15.663 0 15.303 0H8.697c-.36 0-.615.285-.784.727l-5.516 14.99z"/></svg>shadcn, Astro</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>astro/<wbr>kanban-board.json</code><button class="cp-copy" type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/astro/kanban-board.json" data-label="Copy" aria-label="Copy the shadcn command for Astro">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. Where each version lands, what it needs and the shadcn theme bridge: <a href="/docs/installation">Installation</a>.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Kanban board is a sprint board with columns such as To do, In progress and Done, where people and an agent move cards. Each card shows its key and people, one row of chips (its priority in colour, the project it belongs to and its labels), its title, and one line with its due date, subtasks, comments and files, and the card an agent is working on says what it is doing as its bar fills. A header filters the board by person, label, priority or a search, switches between the board and a list, and each card opens a details sheet with a checklist you can tick.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When an agent picks up tasks from a shared backlog and the team should watch it progress</li><li>When people and the agent work from one board and either can move a card</li><li>When a team needs a dense board: priorities, due dates, subtasks and owners at a glance</li><li>When work in progress should stay under a limit, with a warning once a column holds too much</li><li>When a board has to work from the keyboard as well as with drag and drop</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li>Each card shows its key (like DES-142) with its people as initials avatars at the top right, then one row of chips: its priority in colour (Urgent red, High orange, Medium yellow, Low blue, none grey), a grey chip for the <code>project</code> it belongs to, and its labels, each in its own tag colour wherever it shows (<code>labelTones</code>, or the next colour in the order of <code>labels</code>). Under the title, one muted line holds the due date ("Today", "Tomorrow" or a date, in the bad text colour once it is past), subtasks done with a thin bar that turns green when they all are, and comment and file counts. Hover the priority and project chips and the counts for what they mean.</li><li>A card with <code>progress</code> is the agent's: it gets an accent edge, the thinking dots, what it is doing now (<code>activity</code>, or its first open subtask) with a percentage, and a bar that fills.</li><li>Drag a card to another column or to a new place in its own column: a floating copy follows the pointer, a placeholder shows where it will land and the column under it highlights. <code>onMove</code> reports the card, its column and its place there.</li><li>Click a card to open its details sheet over the right of the board: status, priority and people (each opens its menu), the project, the due date, labels, the agent's progress, a checklist you can tick (it updates the card), and its comments and files. Arrow keys move the sheet from card to card.</li><li>Click a card's priority chip or its avatars to change them in a menu, or its dots (they show on hover, just left of the avatars) to move it to another column. Each change calls <code>onChange</code> with the card.</li><li>Shift-click, Cmd-click or Ctrl-click cards to pick several (Shift-click picks a range within a column); a bar over the foot of the board moves them all to a column at once, and Escape or its × clears the pick.</li><li>Filter chips for assignee, label and priority each open a menu of values with how many cards have each; pick several. The facepile in the header filters by person too, and a search matches titles, keys and projects. Column counts read "2 of 4" while filtering, and when nothing matches the board says so with a Clear filters button.</li><li>Each column header counts its cards in a grey chip; a column with a <code>limit</code> shows how full it is ("2/3"), and a warning chip once it holds more. Each column header can fold the column to a narrow strip (press it to open it again), add a card, and open a menu to select all, sort by priority or due date, or fold it.</li><li>The view switch shows the same cards as a list, grouped by column, one row each; the list keeps the board's height. Cards still drag, open and pick in the list.</li><li>The + buttons add a card at the end of a column with its title ready to type, and a double-click on any title (or F2) renames it; Enter saves, Escape cancels, and <code>onRename</code> reports it.</li><li>Under 640px wide, on a phone or in a narrow card, the header stacks, the board shows one column at a time picked with tabs that count each column's cards, and the details sheet covers the board.</li><li>Filters, view, folded columns, picked cards, the open card and the narrow board's column can each be controlled (<code>filters</code>, <code>view</code>, <code>collapsed</code>, <code>selected</code>, <code>open</code>, <code>column</code>) or left to the board.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>Cards are list items with a label that reads their key, title, priority, project, people, due date, whether the agent is on it and whether they are picked. One card at a time is in the Tab order.</li><li>From the keyboard, the arrow keys move between cards (up and down in a column, left and right across columns), Home and End go to a column's ends, Enter opens the details sheet, Space or x picks a card, Shift with an arrow picks as it moves, m opens Move to, p the priority, a the people, F2 renames, and Escape closes the sheet or clears the pick.</li><li>Menus are <code>menu</code>s with <code>menuitemradio</code> (Move to, priority) or <code>menuitemcheckbox</code> (people, filters) items; they open on their checked item, the arrows move through them and wrap, and picking from the keyboard puts the focus back on the card or the sheet's field.</li><li>The facepile is a group of toggle buttons with <code>aria-pressed</code>, the view switch and the narrow board's tabs are groups with <code>aria-pressed</code> on the one shown, and the checklist items are <code>checkbox</code>es.</li><li>The details sheet is a labelled <code>dialog</code>; opened with Enter it takes the focus on its close button, and Escape returns it to the card.</li><li>Moves, picks, filters and folds are announced in a polite live region, as is a column going over its limit. The floating copy shown while dragging is <code>aria-hidden</code>.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it in React and drive it from your own state, or place it in an Astro page.</p></div><div class="cp-box"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>React</h3><pre class="cp-pre" data-name="React import"><code>import { KanbanBoard } from &#39;@/components/designme/kanban-board/KanbanBoard&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">React example</h3><p class="pg-d">The demo above as a React component, 74 lines you can copy.</p><pre class="cp-pre" data-name="React example"><code>&#39;use client&#39;;
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useEffect, useRef, useState } from &#39;react&#39;;
 import { KanbanBoard, type KanbanBoardCard, type KanbanBoardColumn, type KanbanBoardMember } from &#39;./KanbanBoard&#39;;
@@ -528,16 +538,17 @@ const MEMBERS: KanbanBoardMember[] = [
 const day = (n: number) =&gt; { const d = new Date(); d.setDate(d.getDate() + n); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, &#39;0&#39;)}-${String(d.getDate()).padStart(2, &#39;0&#39;)}`; };
 const tasks = (...t: [string, boolean?][]) =&gt; t.map(([title, done]) =&gt; ({ title, done: !!done }));
 const CARDS: KanbanBoardCard[] = [
-  { id: &#39;DES-148&#39;, column: &#39;todo&#39;, title: &#39;Audit checkout for contrast&#39;, priority: &#39;high&#39;, labels: [&#39;A11y&#39;], assignees: [&#39;DA&#39;], due: day(3), subtasks: tasks([&#39;List every text pair&#39;], [&#39;Check against 4.5:1&#39;], [&#39;Fix the failing pairs&#39;], [&#39;Write up the changes&#39;]) },
-  { id: &#39;DES-151&#39;, column: &#39;todo&#39;, title: &#39;Write release notes for pricing&#39;, priority: &#39;medium&#39;, labels: [&#39;Copy&#39;], assignees: [&#39;MK&#39;], due: day(2), comments: 2 },
-  { id: &#39;DES-157&#39;, column: &#39;todo&#39;, title: &#39;Pricing toggle hides the yearly saving&#39;, priority: &#39;urgent&#39;, labels: [&#39;Bug&#39;], assignees: [&#39;JO&#39;], due: day(1), comments: 4, attachments: 1 },
-  { id: &#39;DES-155&#39;, column: &#39;todo&#39;, title: &#39;Empty state for search&#39;, priority: &#39;low&#39;, labels: [&#39;Design&#39;], assignees: [&#39;LP&#39;], attachments: 2 },
-  { id: &#39;DES-142&#39;, column: &#39;doing&#39;, title: &#39;Export tokens to CSS&#39;, priority: &#39;high&#39;, labels: [&#39;Code&#39;], assignees: [&#39;DA&#39;], attachments: 1, progress: .4, subtasks: tasks([&#39;Read the Figma variables&#39;, true], [&#39;Map colours to roles&#39;, true], [&#39;Write the CSS variables&#39;], [&#39;Check contrast pairs&#39;], [&#39;Open a pull request&#39;]) },
-  { id: &#39;DES-144&#39;, column: &#39;doing&#39;, title: &#39;Review annual plan copy&#39;, priority: &#39;medium&#39;, labels: [&#39;Copy&#39;], assignees: [&#39;JO&#39;, &#39;MK&#39;], due: day(-1), comments: 5, subtasks: tasks([&#39;Headline&#39;, true], [&#39;Plan names&#39;, true], [&#39;Feature list&#39;], [&#39;Footnotes&#39;]) },
-  { id: &#39;DES-146&#39;, column: &#39;doing&#39;, title: &#39;Plan cards wrap at 768px&#39;, priority: &#39;high&#39;, labels: [&#39;Design&#39;, &#39;Bug&#39;], assignees: [&#39;LP&#39;], due: day(0), comments: 1, subtasks: tasks([&#39;Reproduce on a tablet&#39;, true], [&#39;Fix the grid&#39;], [&#39;Test at 744px&#39;]) },
-  { id: &#39;DES-139&#39;, column: &#39;done&#39;, title: &#39;One CTA per pricing card&#39;, priority: &#39;medium&#39;, labels: [&#39;Design&#39;], assignees: [&#39;MK&#39;], comments: 3, subtasks: tasks([&#39;Pick the CTA&#39;, true], [&#39;Update the cards&#39;, true]) },
-  { id: &#39;DES-137&#39;, column: &#39;done&#39;, title: &#39;Compare checkout flows&#39;, priority: &#39;low&#39;, labels: [&#39;Design&#39;], assignees: [&#39;LP&#39;], attachments: 3, subtasks: tasks([&#39;Collect five flows&#39;, true], [&#39;Note the steps&#39;, true], [&#39;Share the findings&#39;, true]) }
+  { id: &#39;DES-148&#39;, column: &#39;todo&#39;, title: &#39;Audit checkout for contrast&#39;, priority: &#39;high&#39;, project: &#39;Checkout&#39;, labels: [&#39;A11y&#39;], assignees: [&#39;DA&#39;], due: day(3), subtasks: tasks([&#39;List every text pair&#39;], [&#39;Check against 4.5:1&#39;], [&#39;Fix the failing pairs&#39;], [&#39;Write up the changes&#39;]) },
+  { id: &#39;DES-151&#39;, column: &#39;todo&#39;, title: &#39;Write release notes for pricing&#39;, priority: &#39;medium&#39;, project: &#39;Pricing&#39;, labels: [&#39;Copy&#39;], assignees: [&#39;MK&#39;], due: day(2), comments: 2 },
+  { id: &#39;DES-157&#39;, column: &#39;todo&#39;, title: &#39;Pricing toggle hides the yearly saving&#39;, priority: &#39;urgent&#39;, project: &#39;Pricing&#39;, labels: [&#39;Bug&#39;], assignees: [&#39;JO&#39;], due: day(1), comments: 4, attachments: 1 },
+  { id: &#39;DES-155&#39;, column: &#39;todo&#39;, title: &#39;Empty state for search&#39;, priority: &#39;low&#39;, project: &#39;Search&#39;, labels: [&#39;Design&#39;], assignees: [&#39;LP&#39;], attachments: 2 },
+  { id: &#39;DES-142&#39;, column: &#39;doing&#39;, title: &#39;Export tokens to CSS&#39;, priority: &#39;high&#39;, project: &#39;Tokens&#39;, labels: [&#39;Code&#39;], assignees: [&#39;DA&#39;], attachments: 1, progress: .4, subtasks: tasks([&#39;Read the Figma variables&#39;, true], [&#39;Map colours to roles&#39;, true], [&#39;Write the CSS variables&#39;], [&#39;Check contrast pairs&#39;], [&#39;Open a pull request&#39;]) },
+  { id: &#39;DES-144&#39;, column: &#39;doing&#39;, title: &#39;Review annual plan copy&#39;, priority: &#39;medium&#39;, project: &#39;Pricing&#39;, labels: [&#39;Copy&#39;], assignees: [&#39;JO&#39;, &#39;MK&#39;], due: day(-1), comments: 5, subtasks: tasks([&#39;Headline&#39;, true], [&#39;Plan names&#39;, true], [&#39;Feature list&#39;], [&#39;Footnotes&#39;]) },
+  { id: &#39;DES-146&#39;, column: &#39;doing&#39;, title: &#39;Plan cards wrap at 768px&#39;, priority: &#39;high&#39;, project: &#39;Pricing&#39;, labels: [&#39;Design&#39;, &#39;Bug&#39;], assignees: [&#39;LP&#39;], due: day(0), comments: 1, subtasks: tasks([&#39;Reproduce on a tablet&#39;, true], [&#39;Fix the grid&#39;], [&#39;Test at 744px&#39;]) },
+  { id: &#39;DES-139&#39;, column: &#39;done&#39;, title: &#39;One CTA per pricing card&#39;, priority: &#39;medium&#39;, project: &#39;Pricing&#39;, labels: [&#39;Design&#39;], assignees: [&#39;MK&#39;], comments: 3, subtasks: tasks([&#39;Pick the CTA&#39;, true], [&#39;Update the cards&#39;, true]) },
+  { id: &#39;DES-137&#39;, column: &#39;done&#39;, title: &#39;Compare checkout flows&#39;, priority: &#39;low&#39;, project: &#39;Checkout&#39;, labels: [&#39;Design&#39;], assignees: [&#39;LP&#39;], attachments: 3, subtasks: tasks([&#39;Collect five flows&#39;, true], [&#39;Note the steps&#39;, true], [&#39;Share the findings&#39;, true]) }
 ];
+// each label takes the next core tag colour in this order: Design purple, Copy teal, Code green, Bug pink, A11y red
 const LABELS = [&#39;Design&#39;, &#39;Copy&#39;, &#39;Code&#39;, &#39;Bug&#39;, &#39;A11y&#39;];
 
 export default function KanbanBoardDemo() {
@@ -586,7 +597,7 @@ export default function KanbanBoardDemo() {
 import KanbanBoard from &#39;../components/designme/kanban-board/KanbanBoard.astro&#39;;
 ---
 &lt;KanbanBoard /&gt;
-&lt;KanbanBoard data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything KanbanBoard takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>title</code></td><td><code>string</code></td><td>The board&#39;s name, like &quot;Website refresh&quot;</td></tr><tr><td><code>subtitle</code></td><td><code>string</code></td><td>Beside the name, like &quot;Sprint 14&quot;. Defaults to how many cards are done, when a column is marked `done`</td></tr><tr><td><code>columns</code><span class="opt">required</span></td><td><code>KanbanBoardColumn[]</code></td><td></td></tr><tr><td><code>members</code></td><td><code>KanbanBoardMember[]</code></td><td>The people (and agents) on the board: the facepile in the header, the Assignee filter and each card&#39;s people menu</td></tr><tr><td><code>labels</code></td><td><code>string[]</code></td><td>The labels the Label filter offers. Defaults to every label on the cards</td></tr><tr><td><code>cards</code></td><td><code>KanbanBoardCard[]</code></td><td>The cards, in order: a column shows its cards in the order they come here. Leave it out to let the board keep them</td></tr><tr><td><code>defaultCards</code></td><td><code>KanbanBoardCard[]</code></td><td></td></tr><tr><td><code>onCardsChange</code></td><td><code>(cards: KanbanBoardCard[]) =&gt; void</code></td><td></td></tr><tr><td><code>onMove</code></td><td><code>(id: string, column: string, index: number) =&gt; void</code></td><td>Called when a card lands in a column (dragged, from its Move to menu, or with the bulk bar), with its place among that column&#39;s cards</td></tr><tr><td><code>onChange</code></td><td><code>(card: KanbanBoardCard) =&gt; void</code></td><td>Called when a card&#39;s title, priority, people or subtasks change from the board</td></tr><tr><td><code>onRename</code></td><td><code>(id: string, title: string) =&gt; void</code></td><td>Called when a card&#39;s title is edited</td></tr><tr><td><code>open</code></td><td><code>string | null</code></td><td>The card whose details sheet is open, or null</td></tr><tr><td><code>defaultOpen</code></td><td><code>string | null</code></td><td></td></tr><tr><td><code>onOpen</code></td><td><code>(id: string | null) =&gt; void</code></td><td></td></tr><tr><td><code>filters</code></td><td><code>KanbanBoardFilters</code></td><td></td></tr><tr><td><code>defaultFilters</code></td><td><code>KanbanBoardFilters</code></td><td></td></tr><tr><td><code>onFiltersChange</code></td><td><code>(filters: KanbanBoardFilters) =&gt; void</code></td><td></td></tr><tr><td><code>view</code></td><td><code>KanbanBoardView</code></td><td></td></tr><tr><td><code>defaultView</code></td><td><code>KanbanBoardView</code></td><td></td></tr><tr><td><code>onViewChange</code></td><td><code>(view: KanbanBoardView) =&gt; void</code></td><td></td></tr><tr><td><code>collapsed</code></td><td><code>string[]</code></td><td>The keys of folded columns</td></tr><tr><td><code>defaultCollapsed</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onCollapsedChange</code></td><td><code>(keys: string[]) =&gt; void</code></td><td></td></tr><tr><td><code>selected</code></td><td><code>string[]</code></td><td>The ids of picked cards (Shift- or Cmd-click, Space or x); picking any shows the bar that moves them together</td></tr><tr><td><code>defaultSelected</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onSelectedChange</code></td><td><code>(ids: string[]) =&gt; void</code></td><td></td></tr><tr><td><code>onDraggingChange</code></td><td><code>(dragging: boolean) =&gt; void</code></td><td>Called with true when a card starts moving with the pointer and false when it lands, for pausing anything that would move cards meanwhile</td></tr><tr><td><code>newCard</code></td><td><code>(column: string) =&gt; KanbanBoardCard</code></td><td>Makes the card the + buttons add to a column. It goes to the end of the column with its title ready to type</td></tr><tr><td><code>today</code></td><td><code>string</code></td><td>Today, &#39;YYYY-MM-DD&#39;, for due dates. Defaults to the visitor&#39;s today</td></tr><tr><td><code>addLabel</code></td><td><code>string</code></td><td>The + buttons&#39; label</td></tr><tr><td><code>column</code></td><td><code>string</code></td><td>The column a narrow board shows. A board under 640px wide shows one column at a time, picked with tabs that count each column&#39;s cards. Defaults to the first column</td></tr><tr><td><code>defaultColumn</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onColumnChange</code></td><td><code>(column: string) =&gt; void</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>KanbanBoard.tsx<span class="l">React · 768 lines</span></summary><pre class="cp-pre" data-name="KanbanBoard.tsx"><code>&#39;use client&#39;;
+&lt;KanbanBoard data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything KanbanBoard takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>title</code></td><td><code>string</code></td><td>The board&#39;s name, like &quot;Website refresh&quot;</td></tr><tr><td><code>subtitle</code></td><td><code>string</code></td><td>Beside the name, like &quot;Sprint 14&quot;. Defaults to how many cards are done, when a column is marked `done`</td></tr><tr><td><code>columns</code><span class="opt">required</span></td><td><code>KanbanBoardColumn[]</code></td><td></td></tr><tr><td><code>members</code></td><td><code>KanbanBoardMember[]</code></td><td>The people (and agents) on the board: the facepile in the header, the Assignee filter and each card&#39;s people menu</td></tr><tr><td><code>labels</code></td><td><code>string[]</code></td><td>The labels the Label filter offers. Defaults to every label on the cards</td></tr><tr><td><code>labelTones</code></td><td><code>Record&lt;string, KanbanBoardTone&gt;</code></td><td>Each label&#39;s colour, like { Bug: &#39;pink&#39; }. A label without one takes the next of purple, teal, green, pink and red (then blue, yellow and orange) in the order of `labels`, so pass `labels` to keep each label&#39;s colour as cards change</td></tr><tr><td><code>cards</code></td><td><code>KanbanBoardCard[]</code></td><td>The cards, in order: a column shows its cards in the order they come here. Leave it out to let the board keep them</td></tr><tr><td><code>defaultCards</code></td><td><code>KanbanBoardCard[]</code></td><td></td></tr><tr><td><code>onCardsChange</code></td><td><code>(cards: KanbanBoardCard[]) =&gt; void</code></td><td></td></tr><tr><td><code>onMove</code></td><td><code>(id: string, column: string, index: number) =&gt; void</code></td><td>Called when a card lands in a column (dragged, from its Move to menu, or with the bulk bar), with its place among that column&#39;s cards</td></tr><tr><td><code>onChange</code></td><td><code>(card: KanbanBoardCard) =&gt; void</code></td><td>Called when a card&#39;s title, priority, people or subtasks change from the board</td></tr><tr><td><code>onRename</code></td><td><code>(id: string, title: string) =&gt; void</code></td><td>Called when a card&#39;s title is edited</td></tr><tr><td><code>open</code></td><td><code>string | null</code></td><td>The card whose details sheet is open, or null</td></tr><tr><td><code>defaultOpen</code></td><td><code>string | null</code></td><td></td></tr><tr><td><code>onOpen</code></td><td><code>(id: string | null) =&gt; void</code></td><td></td></tr><tr><td><code>filters</code></td><td><code>KanbanBoardFilters</code></td><td></td></tr><tr><td><code>defaultFilters</code></td><td><code>KanbanBoardFilters</code></td><td></td></tr><tr><td><code>onFiltersChange</code></td><td><code>(filters: KanbanBoardFilters) =&gt; void</code></td><td></td></tr><tr><td><code>view</code></td><td><code>KanbanBoardView</code></td><td></td></tr><tr><td><code>defaultView</code></td><td><code>KanbanBoardView</code></td><td></td></tr><tr><td><code>onViewChange</code></td><td><code>(view: KanbanBoardView) =&gt; void</code></td><td></td></tr><tr><td><code>collapsed</code></td><td><code>string[]</code></td><td>The keys of folded columns</td></tr><tr><td><code>defaultCollapsed</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onCollapsedChange</code></td><td><code>(keys: string[]) =&gt; void</code></td><td></td></tr><tr><td><code>selected</code></td><td><code>string[]</code></td><td>The ids of picked cards (Shift- or Cmd-click, Space or x); picking any shows the bar that moves them together</td></tr><tr><td><code>defaultSelected</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onSelectedChange</code></td><td><code>(ids: string[]) =&gt; void</code></td><td></td></tr><tr><td><code>onDraggingChange</code></td><td><code>(dragging: boolean) =&gt; void</code></td><td>Called with true when a card starts moving with the pointer and false when it lands, for pausing anything that would move cards meanwhile</td></tr><tr><td><code>newCard</code></td><td><code>(column: string) =&gt; KanbanBoardCard</code></td><td>Makes the card the + buttons add to a column. It goes to the end of the column with its title ready to type</td></tr><tr><td><code>today</code></td><td><code>string</code></td><td>Today, &#39;YYYY-MM-DD&#39;, for due dates. Defaults to the visitor&#39;s today</td></tr><tr><td><code>addLabel</code></td><td><code>string</code></td><td>The + buttons&#39; label</td></tr><tr><td><code>column</code></td><td><code>string</code></td><td>The column a narrow board shows. A board under 640px wide shows one column at a time, picked with tabs that count each column&#39;s cards. Defaults to the first column</td></tr><tr><td><code>defaultColumn</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onColumnChange</code></td><td><code>(column: string) =&gt; void</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>KanbanBoard.tsx<span class="l">React · 789 lines</span></summary><pre class="cp-pre" data-name="KanbanBoard.tsx"><code>&#39;use client&#39;;
 import { useEffect, useRef, useState, type AnimationEvent, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from &#39;react&#39;;
 import { createPortal } from &#39;react-dom&#39;;
 import { cx } from &#39;../lib/cx&#39;;
@@ -599,6 +610,8 @@ import &#39;./kanban-board.css&#39;;
 
 export type KanbanBoardPriority = &#39;urgent&#39; | &#39;high&#39; | &#39;medium&#39; | &#39;low&#39; | &#39;none&#39;;
 export type KanbanBoardView = &#39;board&#39; | &#39;list&#39;;
+/** A label&#39;s colour: one of the core tag colours */
+export type KanbanBoardTone = &#39;blue&#39; | &#39;purple&#39; | &#39;green&#39; | &#39;orange&#39; | &#39;red&#39; | &#39;yellow&#39; | &#39;pink&#39; | &#39;teal&#39;;
 
 export interface KanbanBoardColumn {
   key: string;
@@ -634,8 +647,11 @@ export interface KanbanBoardCard {
   /** The key of the column it sits in */
   column: string;
   title: string;
+  /** Shown as a coloured chip: Urgent red, High orange, Medium yellow, Low blue, none grey */
   priority?: KanbanBoardPriority;
-  /** Grey labels, like [&#39;Design&#39;, &#39;Bug&#39;] */
+  /** What the card belongs to, like a project, an epic or a client: a grey chip beside its priority */
+  project?: string;
+  /** Labels, like [&#39;Design&#39;, &#39;Bug&#39;], each in its own colour (see `labelTones`) */
   labels?: string[];
   /** Member ids, shown as initials avatars */
   assignees?: string[];
@@ -652,7 +668,7 @@ export interface KanbanBoardCard {
 }
 
 export interface KanbanBoardFilters {
-  /** Matches a card&#39;s title or code */
+  /** Matches a card&#39;s title, code or project */
   query: string;
   assignees: string[];
   labels: string[];
@@ -669,6 +685,9 @@ export interface KanbanBoardProps {
   members?: KanbanBoardMember[];
   /** The labels the Label filter offers. Defaults to every label on the cards */
   labels?: string[];
+  /** Each label&#39;s colour, like { Bug: &#39;pink&#39; }. A label without one takes the next of purple, teal, green, pink and red (then
+      blue, yellow and orange) in the order of `labels`, so pass `labels` to keep each label&#39;s colour as cards change */
+  labelTones?: Record&lt;string, KanbanBoardTone&gt;;
   /** The cards, in order: a column shows its cards in the order they come here. Leave it out to let the board keep them */
   cards?: KanbanBoardCard[];
   defaultCards?: KanbanBoardCard[];
@@ -715,6 +734,10 @@ export interface KanbanBoardProps {
 
 const PRIORITY: Record&lt;KanbanBoardPriority, string&gt; = { urgent: &#39;Urgent&#39;, high: &#39;High&#39;, medium: &#39;Medium&#39;, low: &#39;Low&#39;, none: &#39;No priority&#39; };
 const PRIORITIES = Object.keys(PRIORITY) as KanbanBoardPriority[];
+// priority is a coloured chip, and labels take the other core tag colours first, so a label rarely shares its priority&#39;s colour
+const PRIORITY_TONE: Record&lt;KanbanBoardPriority, string | undefined&gt; = { urgent: &#39;dm-bad&#39;, high: &#39;dm-p&#39;, medium: &#39;dm-y&#39;, low: &#39;dm-b&#39;, none: undefined };
+const TONE: Record&lt;KanbanBoardTone, string&gt; = { blue: &#39;dm-b&#39;, purple: &#39;dm-l&#39;, green: &#39;dm-m&#39;, orange: &#39;dm-p&#39;, red: &#39;dm-r&#39;, yellow: &#39;dm-y&#39;, pink: &#39;dm-k&#39;, teal: &#39;dm-t&#39; };
+const LABEL_TONES: KanbanBoardTone[] = [&#39;purple&#39;, &#39;teal&#39;, &#39;green&#39;, &#39;pink&#39;, &#39;red&#39;, &#39;blue&#39;, &#39;yellow&#39;, &#39;orange&#39;];
 const NO_FILTERS: KanbanBoardFilters = { query: &#39;&#39;, assignees: [], labels: [], priorities: [] };
 const uid = () =&gt; &#39;card-&#39; + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 const toDay = (s: string) =&gt; { const [y, m, d] = s.split(&#39;-&#39;).map(Number); return new Date(y, (m || 1) - 1, d || 1); };
@@ -723,10 +746,9 @@ const daysFrom = (due: string, today: string) =&gt; Math.round((toDay(due).getTi
 const dueText = (n: number, due: string) =&gt; n === 0 ? &#39;Today&#39; : n === 1 ? &#39;Tomorrow&#39; : toDay(due).toLocaleDateString(&#39;en-US&#39;, { month: &#39;short&#39;, day: &#39;numeric&#39; });
 const plural = (n: number, one: string) =&gt; `${n} ${one}${n === 1 ? &#39;&#39; : &#39;s&#39;}`;
 
-/** Priority as three bars that fill from the left; Urgent is the one in colour */
-function PriorityMark({ value = &#39;none&#39; }: { value?: KanbanBoardPriority }) {
-  if (value === &#39;urgent&#39;) return &lt;span className=&quot;dm-kbx-pu&quot; aria-hidden=&quot;true&quot;&gt;!&lt;/span&gt;;
-  return &lt;span className=&quot;dm-kbx-pb&quot; data-p={value === &#39;medium&#39; ? &#39;med&#39; : value} aria-hidden=&quot;true&quot;&gt;&lt;i /&gt;&lt;i /&gt;&lt;i /&gt;&lt;/span&gt;;
+/** Priority as a chip in its colour */
+function PriorityTag({ value = &#39;none&#39; }: { value?: KanbanBoardPriority }) {
+  return &lt;span className={cx(&#39;dm-tag&#39;, PRIORITY_TONE[value])}&gt;{PRIORITY[value]}&lt;/span&gt;;
 }
 
 type FilterField = &#39;assignees&#39; | &#39;labels&#39; | &#39;priorities&#39;;
@@ -736,7 +758,7 @@ interface Spot { column: string; before: string | null }
 
 /** A sprint board where you and the agent move cards, with filters, details and keyboard moves. */
 export function KanbanBoard({
-  title, subtitle, columns, members = [], labels, cards, defaultCards = [], onCardsChange, onMove, onChange, onRename,
+  title, subtitle, columns, members = [], labels, labelTones, cards, defaultCards = [], onCardsChange, onMove, onChange, onRename,
   open, defaultOpen = null, onOpen, filters, defaultFilters = NO_FILTERS, onFiltersChange, view, defaultView = &#39;board&#39;, onViewChange,
   collapsed, defaultCollapsed = [], onCollapsedChange, selected, defaultSelected = [], onSelectedChange, onDraggingChange, newCard,
   today: todayProp, addLabel = &#39;Add card&#39;, column, defaultColumn, onColumnChange, className
@@ -780,7 +802,8 @@ export function KanbanBoard({
   // a card just added stays on show until the filters change, so it never vanishes as you name it
   const kept = useRef(new Set&lt;string&gt;());
   const filtering = !!(f.query || f.assignees.length || f.labels.length || f.priorities.length);
-  const matches = (c: KanbanBoardCard) =&gt; kept.current.has(c.id) || ((!f.query || `${c.title} ${codeOf(c)}`.toLowerCase().includes(f.query.toLowerCase()))
+  const words = (c: KanbanBoardCard) =&gt; `${c.title} ${codeOf(c)} ${c.project ?? &#39;&#39;}`.toLowerCase();
+  const matches = (c: KanbanBoardCard) =&gt; kept.current.has(c.id) || ((!f.query || words(c).includes(f.query.toLowerCase()))
     &amp;&amp; (!f.assignees.length || (c.assignees ?? []).some(a =&gt; f.assignees.includes(a)))
     &amp;&amp; (!f.labels.length || (c.labels ?? []).some(l =&gt; f.labels.includes(l)))
     &amp;&amp; (!f.priorities.length || f.priorities.includes(c.priority ?? &#39;none&#39;)));
@@ -788,12 +811,15 @@ export function KanbanBoard({
   const shownCount = list.filter(matches).length;
   const setF = (next: KanbanBoardFilters) =&gt; {
     kept.current.clear(); flip.current = true; filt.current = true; setFilters(next);
-    const n = latest.current.filter(c =&gt; (!next.query || `${c.title} ${codeOf(c)}`.toLowerCase().includes(next.query.toLowerCase())) &amp;&amp; (!next.assignees.length || (c.assignees ?? []).some(a =&gt; next.assignees.includes(a))) &amp;&amp; (!next.labels.length || (c.labels ?? []).some(l =&gt; next.labels.includes(l))) &amp;&amp; (!next.priorities.length || next.priorities.includes(c.priority ?? &#39;none&#39;))).length;
+    const n = latest.current.filter(c =&gt; (!next.query || words(c).includes(next.query.toLowerCase())) &amp;&amp; (!next.assignees.length || (c.assignees ?? []).some(a =&gt; next.assignees.includes(a))) &amp;&amp; (!next.labels.length || (c.labels ?? []).some(l =&gt; next.labels.includes(l))) &amp;&amp; (!next.priorities.length || next.priorities.includes(c.priority ?? &#39;none&#39;))).length;
     const any = !!(next.query || next.assignees.length || next.labels.length || next.priorities.length);
     say(any ? `${n} of ${latest.current.length} cards shown` : `All ${latest.current.length} cards shown`);
   };
   const toggleIn = &lt;T,&gt;(arr: T[], v: T) =&gt; arr.includes(v) ? arr.filter(x =&gt; x !== v) : [...arr, v];
   const allLabels = labels ?? [...new Set(list.flatMap(c =&gt; c.labels ?? []))];
+  // one colour per label wherever it shows: on the cards, in the sheet and in the Label filter
+  const toneOf = (l: string) =&gt; { const t = labelTones?.[l]; if (t) return TONE[t]; const i = allLabels.indexOf(l); return TONE[LABEL_TONES[(i &lt; 0 ? 0 : i) % LABEL_TONES.length]]; };
+  const labelTag = (l: string) =&gt; &lt;span key={l} className={cx(&#39;dm-tag&#39;, toneOf(l))}&gt;{l}&lt;/span&gt;;
 
   /* ---------- the cards glide to their new places after a move, a sort or a filter. A filter also fades in the cards it
      brings back and fades the ones it hides where they were. A glide still going when the board draws again carries on from
@@ -1006,7 +1032,7 @@ export function KanbanBoard({
     if (e.shiftKey || e.metaKey || e.ctrlKey) { pick(card.id, e.shiftKey); return; }
     clearTimeout(clickT.current);
     // a click on the title waits a moment, in case it is the first of a double-click that renames the card
-    if ((e.target as Element).closest(&#39;.dm-t&#39;) &amp;&amp; e.detail === 1) { clickT.current = setTimeout(() =&gt; openSheet(card.id), 240); return; }
+    if ((e.target as Element).closest(&#39;.dm-kbx-k&gt;.dm-t&#39;) &amp;&amp; e.detail === 1) { clickT.current = setTimeout(() =&gt; openSheet(card.id), 240); return; }
     if (e.detail &gt; 1) return;
     openSheet(card.id);
   };
@@ -1059,7 +1085,6 @@ export function KanbanBoard({
     const col = colOf(c.column), n = c.subtasks?.length ?? 0, d = c.subtasks?.filter(s =&gt; s.done).length ?? 0;
     const days = c.due &amp;&amp; !col?.done ? daysFrom(c.due, day) : null;
     const out: ReactNode[] = [];
-    if (c.labels?.length) out.push(&lt;span key=&quot;l&quot; className=&quot;dm-kbx-tags&quot;&gt;{c.labels.map(l =&gt; &lt;span key={l} className=&quot;dm-tag&quot;&gt;{l}&lt;/span&gt;)}&lt;/span&gt;);
     if (days != null &amp;&amp; c.due) out.push(&lt;Tip key=&quot;d&quot; label={days &lt; 0 ? &#39;Overdue&#39; : &#39;Due&#39;}&gt;&lt;span className={cx(&#39;dm-kbx-mt&#39;, days &lt; 0 &amp;&amp; &#39;dm-late&#39;)}&gt;&lt;Icon name=&quot;cal&quot; size=&quot;xs&quot; /&gt;{dueText(days, c.due)}&lt;/span&gt;&lt;/Tip&gt;);
     if (n) out.push(&lt;Tip key=&quot;s&quot; label={`${d} of ${n} subtasks done`}&gt;&lt;span className={cx(&#39;dm-kbx-mt&#39;, d === n &amp;&amp; &#39;dm-ok&#39;)}&gt;&lt;span className=&quot;dm-num&quot;&gt;{d}/{n}&lt;/span&gt;&lt;span className=&quot;dm-kbx-sb&quot;&gt;&lt;i style={{ width: d / n * 100 + &#39;%&#39; }} /&gt;&lt;/span&gt;&lt;/span&gt;&lt;/Tip&gt;);
     if (c.comments) out.push(&lt;Tip key=&quot;c&quot; label={plural(c.comments, &#39;comment&#39;)}&gt;&lt;span className=&quot;dm-kbx-mt&quot;&gt;&lt;Icon name=&quot;comment&quot; size=&quot;xs&quot; /&gt;&lt;span className=&quot;dm-num&quot;&gt;{c.comments}&lt;/span&gt;&lt;/span&gt;&lt;/Tip&gt;);
@@ -1070,7 +1095,7 @@ export function KanbanBoard({
   const activity = (c: KanbanBoardCard) =&gt; c.activity ?? c.subtasks?.find(s =&gt; !s.done)?.title ?? &#39;Working&#39;;
   const describe = (c: KanbanBoardCard) =&gt; {
     const days = c.due &amp;&amp; !colOf(c.column)?.done ? daysFrom(c.due, day) : null;
-    return `${codeOf(c)}, ${c.title}. ${PRIORITY[c.priority ?? &#39;none&#39;]} priority${people(c).length ? &#39;, &#39; + people(c).map(m =&gt; m.name).join(&#39; and &#39;) : &#39;&#39;}${days != null &amp;&amp; c.due ? `, due ${dueText(days, c.due)}${days &lt; 0 ? &#39;, overdue&#39; : &#39;&#39;}` : &#39;&#39;}${c.progress != null ? &#39;, the agent is working on it&#39; : &#39;&#39;}${sel.includes(c.id) ? &#39;, selected&#39; : &#39;&#39;}`;
+    return `${codeOf(c)}, ${c.title}. ${PRIORITY[c.priority ?? &#39;none&#39;]} priority${c.project ? `, project ${c.project}` : &#39;&#39;}${people(c).length ? &#39;, &#39; + people(c).map(m =&gt; m.name).join(&#39; and &#39;) : &#39;&#39;}${days != null &amp;&amp; c.due ? `, due ${dueText(days, c.due)}${days &lt; 0 ? &#39;, overdue&#39; : &#39;&#39;}` : &#39;&#39;}${c.progress != null ? &#39;, the agent is working on it&#39; : &#39;&#39;}${sel.includes(c.id) ? &#39;, selected&#39; : &#39;&#39;}`;
   };
   const face = (c: KanbanBoardCard, ghost = false) =&gt; {
     const ps = people(c), names = ps.map(m =&gt; m.name).join(&#39;, &#39;), pr = c.priority ?? &#39;none&#39;, working = c.progress != null, p = Math.max(0, Math.min(1, c.progress ?? 0));
@@ -1080,19 +1105,25 @@ export function KanbanBoard({
       &lt;&gt;
         &lt;div className=&quot;dm-kbx-k1&quot;&gt;
           &lt;button type=&quot;button&quot; className=&quot;dm-kbx-sel&quot; role=&quot;checkbox&quot; aria-checked={sel.includes(c.id)} aria-label={`Select ${codeOf(c)}`} tabIndex={tab} onClick={() =&gt; pick(c.id)}&gt;&lt;Icon name=&quot;check&quot; size=&quot;xs&quot; /&gt;&lt;/button&gt;
-          &lt;Tip label={PRIORITY[pr]} off={!!cardOpen(&#39;priority&#39;, c.id)}&gt;
-            &lt;button type=&quot;button&quot; className=&quot;dm-kbx-pri&quot; data-kbx=&quot;priority&quot; data-kbx-id={c.id} aria-haspopup=&quot;menu&quot; aria-expanded={!!cardOpen(&#39;priority&#39;, c.id)} aria-label={`Priority: ${PRIORITY[pr]}`} tabIndex={tab} onClick={e =&gt; btn(&#39;priority&#39;, e)}&gt;&lt;PriorityMark value={pr} /&gt;&lt;/button&gt;
-          &lt;/Tip&gt;
           &lt;span className=&quot;dm-kbx-id dm-num&quot;&gt;{codeOf(c)}&lt;/span&gt;
           &lt;span className=&quot;dm-kbx-sp&quot; /&gt;
+          {/* the dots show on hover or focus just left of the people, so the avatar sits at the card&#39;s edge */}
+          &lt;Tip label=&quot;Move to&quot; off={!!cardOpen(&#39;move&#39;, c.id)}&gt;
+            &lt;button type=&quot;button&quot; className=&quot;dm-kbx-mv&quot; data-kbx=&quot;move&quot; aria-haspopup=&quot;menu&quot; aria-expanded={!!cardOpen(&#39;move&#39;, c.id)} aria-label={`Move ${codeOf(c)}`} tabIndex={tab} onClick={e =&gt; btn(&#39;move&#39;, e)}&gt;&lt;Icon name=&quot;more&quot; size=&quot;xs&quot; /&gt;&lt;/button&gt;
+          &lt;/Tip&gt;
           &lt;Tip label={names || &#39;Assign&#39;} off={!!cardOpen(&#39;assign&#39;, c.id)}&gt;
             &lt;button type=&quot;button&quot; className=&quot;dm-kbx-who&quot; data-kbx=&quot;assign&quot; aria-haspopup=&quot;menu&quot; aria-expanded={!!cardOpen(&#39;assign&#39;, c.id)} aria-label={`Assignees: ${names || &#39;none&#39;}`} tabIndex={tab} onClick={e =&gt; btn(&#39;assign&#39;, e)}&gt;
               {ps.length ? ps.map(m =&gt; &lt;Avatar key={m.id} initials={m.initials} color={m.color} /&gt;) : &lt;span className=&quot;dm-none&quot;&gt;&lt;Icon name=&quot;user&quot; size=&quot;xs&quot; /&gt;&lt;/span&gt;}
             &lt;/button&gt;
           &lt;/Tip&gt;
-          &lt;Tip label=&quot;Move to&quot; off={!!cardOpen(&#39;move&#39;, c.id)}&gt;
-            &lt;button type=&quot;button&quot; className=&quot;dm-kbx-mv&quot; data-kbx=&quot;move&quot; aria-haspopup=&quot;menu&quot; aria-expanded={!!cardOpen(&#39;move&#39;, c.id)} aria-label={`Move ${codeOf(c)}`} tabIndex={tab} onClick={e =&gt; btn(&#39;move&#39;, e)}&gt;&lt;Icon name=&quot;more&quot; size=&quot;xs&quot; /&gt;&lt;/button&gt;
+        &lt;/div&gt;
+        {/* one row of chips: the priority (it opens its menu), the project and the labels */}
+        &lt;div className=&quot;dm-kbx-cr&quot;&gt;
+          &lt;Tip label=&quot;Priority&quot; off={!!cardOpen(&#39;priority&#39;, c.id)}&gt;
+            &lt;button type=&quot;button&quot; className={cx(&#39;dm-tag&#39;, PRIORITY_TONE[pr], &#39;dm-kbx-pri&#39;)} data-kbx=&quot;priority&quot; data-kbx-id={c.id} aria-haspopup=&quot;menu&quot; aria-expanded={!!cardOpen(&#39;priority&#39;, c.id)} aria-label={`Priority: ${PRIORITY[pr]}`} tabIndex={tab} onClick={e =&gt; btn(&#39;priority&#39;, e)}&gt;{PRIORITY[pr]}&lt;/button&gt;
           &lt;/Tip&gt;
+          {c.project &amp;&amp; &lt;Tip label=&quot;Project&quot;&gt;&lt;span className=&quot;dm-tag dm-kbx-pj&quot;&gt;&lt;span&gt;{c.project}&lt;/span&gt;&lt;/span&gt;&lt;/Tip&gt;}
+          {c.labels?.map(labelTag)}
         &lt;/div&gt;
         &lt;Title card={c} editing={!ghost &amp;&amp; editing === c.id} onDone={t =&gt; rename(c.id, t)} onCancel={() =&gt; { setEditing(null); setTimeout(() =&gt; els.current.get(c.id)?.focus({ preventScroll: true }), 0); }} /&gt;
         {working &amp;&amp; &lt;&gt;
@@ -1119,8 +1150,8 @@ export function KanbanBoard({
   const ghostCard = drag &amp;&amp; list.find(c =&gt; c.id === drag.id);
   const fm = menu?.kind === &#39;filter&#39; ? menu.field : undefined;
   const fOpts: { v: string; label: ReactNode; n: number }[] = fm === &#39;assignees&#39; ? members.map(m =&gt; ({ v: m.id, label: &lt;&gt;&lt;Avatar initials={m.initials} color={m.color} /&gt;&lt;span&gt;{m.name}&lt;/span&gt;&lt;/&gt;, n: list.filter(c =&gt; (c.assignees ?? []).includes(m.id)).length }))
-    : fm === &#39;labels&#39; ? allLabels.map(l =&gt; ({ v: l, label: &lt;span&gt;{l}&lt;/span&gt;, n: list.filter(c =&gt; (c.labels ?? []).includes(l)).length }))
-    : fm === &#39;priorities&#39; ? PRIORITIES.map(p =&gt; ({ v: p, label: &lt;&gt;&lt;PriorityMark value={p} /&gt;&lt;span&gt;{PRIORITY[p]}&lt;/span&gt;&lt;/&gt;, n: list.filter(c =&gt; (c.priority ?? &#39;none&#39;) === p).length })) : [];
+    : fm === &#39;labels&#39; ? allLabels.map(l =&gt; ({ v: l, label: labelTag(l), n: list.filter(c =&gt; (c.labels ?? []).includes(l)).length }))
+    : fm === &#39;priorities&#39; ? PRIORITIES.map(p =&gt; ({ v: p, label: &lt;PriorityTag value={p} /&gt;, n: list.filter(c =&gt; (c.priority ?? &#39;none&#39;) === p).length })) : [];
   const fName = { assignees: &#39;Assignee&#39;, labels: &#39;Label&#39;, priorities: &#39;Priority&#39; } as const;
 
   return (
@@ -1172,7 +1203,7 @@ export function KanbanBoard({
                 &lt;Card key={c.id} card={c} entering={enters(c)} className={cx(c.progress != null &amp;&amp; &#39;dm-agent&#39;, drag?.id === c.id &amp;&amp; &#39;dm-drag&#39;, sel.includes(c.id) &amp;&amp; &#39;dm-sel&#39;, peek === c.id &amp;&amp; &#39;dm-open&#39;)}
                   label={describe(c)} tabIndex={c.id === tabStop ? 0 : -1}
                   setRef={el =&gt; { if (el) els.current.set(c.id, el); else els.current.delete(c.id); }}
-                  onPointerDown={down(c)} onClick={click(c)} onDoubleClick={e =&gt; { if ((e.target as Element).closest(&#39;.dm-t&#39;) &amp;&amp; !editing) { clearTimeout(clickT.current); setEditing(c.id); } }}
+                  onPointerDown={down(c)} onClick={click(c)} onDoubleClick={e =&gt; { if ((e.target as Element).closest(&#39;.dm-kbx-k&gt;.dm-t&#39;) &amp;&amp; !editing) { clearTimeout(clickT.current); setEditing(c.id); } }}
                   onKeyDown={key(c)} onFocus={e =&gt; { if (e.target === e.currentTarget) setFocusId(c.id); }}&gt;
                   {face(c)}
                 &lt;/Card&gt;
@@ -1191,7 +1222,7 @@ export function KanbanBoard({
                   &lt;b&gt;{col.title}&lt;/b&gt;
                   &lt;span className=&quot;dm-n dm-num&quot;&gt;
                     {full ? &lt;Tip label={`Over the limit of ${col.limit}`}&gt;&lt;span className=&quot;dm-tag dm-warn&quot;&gt;&lt;Icon name=&quot;alert&quot; size=&quot;xs&quot; /&gt;{all}/{col.limit}&lt;/span&gt;&lt;/Tip&gt;
-                      : filtering &amp;&amp; here.length !== all ? `${here.length} of ${all}` : col.limit ? `${all}/${col.limit}` : all}
+                      : &lt;span className=&quot;dm-tag&quot;&gt;{filtering &amp;&amp; here.length !== all ? `${here.length} of ${all}` : col.limit ? `${all}/${col.limit}` : all}&lt;/span&gt;}
                   &lt;/span&gt;
                   &lt;span className=&quot;dm-kbx-sp&quot; /&gt;
                   &lt;Tip label={addLabel}&gt;&lt;button type=&quot;button&quot; className=&quot;dm-ib dm-kbx-cadd&quot; aria-label={`${addLabel}: ${col.title}`} onClick={() =&gt; add(col.key)}&gt;&lt;Icon name=&quot;plus&quot; size=&quot;xs&quot; /&gt;&lt;/button&gt;&lt;/Tip&gt;
@@ -1238,7 +1269,7 @@ export function KanbanBoard({
         &lt;div className=&quot;dm-ph&quot;&gt;Priority&lt;/div&gt;
         {PRIORITIES.map(p =&gt; (
           &lt;button key={p} type=&quot;button&quot; className=&quot;dm-mi&quot; role=&quot;menuitemradio&quot; aria-checked={(menuCard?.priority ?? &#39;none&#39;) === p} onClick={() =&gt; setPriority(p)}&gt;
-            &lt;PriorityMark value={p} /&gt;&lt;span&gt;{PRIORITY[p]}&lt;/span&gt;&lt;span className=&quot;dm-ck&quot;&gt;&lt;Icon name=&quot;check&quot; size=&quot;xs&quot; /&gt;&lt;/span&gt;
+            &lt;PriorityTag value={p} /&gt;&lt;span className=&quot;dm-ck&quot;&gt;&lt;Icon name=&quot;check&quot; size=&quot;xs&quot; /&gt;&lt;/span&gt;
           &lt;/button&gt;
         ))}
       &lt;/div&gt;
@@ -1297,11 +1328,12 @@ export function KanbanBoard({
         )}
         &lt;div className=&quot;dm-kbx-pk-rows&quot;&gt;
           &lt;div className=&quot;dm-kbx-pk-r&quot;&gt;&lt;span className=&quot;dm-k&quot;&gt;Status&lt;/span&gt;&lt;button type=&quot;button&quot; className=&quot;dm-kbx-pv&quot; data-kbx=&quot;sheet-move&quot; aria-haspopup=&quot;menu&quot; aria-expanded={!!isOpen(&#39;sheet-move&#39;)} aria-label={`Status: ${nameOf(card.column)}`} onClick={field(&#39;move&#39;)}&gt;{nameOf(card.column)}&lt;Icon name=&quot;chev-d&quot; size=&quot;xs&quot; /&gt;&lt;/button&gt;&lt;/div&gt;
-          &lt;div className=&quot;dm-kbx-pk-r&quot;&gt;&lt;span className=&quot;dm-k&quot;&gt;Priority&lt;/span&gt;&lt;button type=&quot;button&quot; className=&quot;dm-kbx-pv&quot; data-kbx=&quot;sheet-priority&quot; aria-haspopup=&quot;menu&quot; aria-expanded={!!isOpen(&#39;sheet-priority&#39;)} aria-label={`Priority: ${PRIORITY[card.priority ?? &#39;none&#39;]}`} onClick={field(&#39;priority&#39;)}&gt;&lt;PriorityMark value={card.priority} /&gt;{PRIORITY[card.priority ?? &#39;none&#39;]}&lt;Icon name=&quot;chev-d&quot; size=&quot;xs&quot; /&gt;&lt;/button&gt;&lt;/div&gt;
+          &lt;div className=&quot;dm-kbx-pk-r&quot;&gt;&lt;span className=&quot;dm-k&quot;&gt;Priority&lt;/span&gt;&lt;button type=&quot;button&quot; className=&quot;dm-kbx-pv&quot; data-kbx=&quot;sheet-priority&quot; aria-haspopup=&quot;menu&quot; aria-expanded={!!isOpen(&#39;sheet-priority&#39;)} aria-label={`Priority: ${PRIORITY[card.priority ?? &#39;none&#39;]}`} onClick={field(&#39;priority&#39;)}&gt;&lt;PriorityTag value={card.priority} /&gt;&lt;Icon name=&quot;chev-d&quot; size=&quot;xs&quot; /&gt;&lt;/button&gt;&lt;/div&gt;
           {members.length &gt; 0 &amp;&amp; &lt;div className=&quot;dm-kbx-pk-r&quot;&gt;&lt;span className=&quot;dm-k&quot;&gt;Assignees&lt;/span&gt;&lt;button type=&quot;button&quot; className=&quot;dm-kbx-pv&quot; data-kbx=&quot;sheet-assign&quot; aria-haspopup=&quot;menu&quot; aria-expanded={!!isOpen(&#39;sheet-assign&#39;)} aria-label={`Assignees: ${names || &#39;none&#39;}`} onClick={field(&#39;assign&#39;)}&gt;
             {ps.length ? &lt;&gt;&lt;span className=&quot;dm-avs&quot;&gt;{ps.map(m =&gt; &lt;Avatar key={m.id} initials={m.initials} color={m.color} /&gt;)}&lt;/span&gt;{ps.length &gt; 1 ? `${ps.length} people` : ps[0].name}&lt;/&gt; : &#39;Assign&#39;}&lt;Icon name=&quot;chev-d&quot; size=&quot;xs&quot; /&gt;&lt;/button&gt;&lt;/div&gt;}
+          {card.project &amp;&amp; &lt;div className=&quot;dm-kbx-pk-r&quot;&gt;&lt;span className=&quot;dm-k&quot;&gt;Project&lt;/span&gt;&lt;span className=&quot;dm-kbx-pv&quot;&gt;{card.project}&lt;/span&gt;&lt;/div&gt;}
           {days != null &amp;&amp; card.due &amp;&amp; &lt;div className=&quot;dm-kbx-pk-r&quot;&gt;&lt;span className=&quot;dm-k&quot;&gt;Due&lt;/span&gt;&lt;span className={cx(&#39;dm-kbx-pv&#39;, late &amp;&amp; &#39;dm-late&#39;)}&gt;&lt;Icon name=&quot;cal&quot; size=&quot;xs&quot; /&gt;{dueText(days, card.due)}{late ? &#39;, overdue&#39; : &#39;&#39;}&lt;/span&gt;&lt;/div&gt;}
-          {!!card.labels?.length &amp;&amp; &lt;div className=&quot;dm-kbx-pk-r&quot;&gt;&lt;span className=&quot;dm-k&quot;&gt;Labels&lt;/span&gt;&lt;span className=&quot;dm-kbx-tags&quot;&gt;{card.labels.map(l =&gt; &lt;span key={l} className=&quot;dm-tag&quot;&gt;{l}&lt;/span&gt;)}&lt;/span&gt;&lt;/div&gt;}
+          {!!card.labels?.length &amp;&amp; &lt;div className=&quot;dm-kbx-pk-r&quot;&gt;&lt;span className=&quot;dm-k&quot;&gt;Labels&lt;/span&gt;&lt;span className=&quot;dm-kbx-tags&quot;&gt;{card.labels.map(labelTag)}&lt;/span&gt;&lt;/div&gt;}
         &lt;/div&gt;
         {n &gt; 0 &amp;&amp; &lt;&gt;
           &lt;div className=&quot;dm-kbx-pk-s&quot;&gt;&lt;b&gt;Subtasks&lt;/b&gt;&lt;span className=&quot;dm-num&quot;&gt;{d}/{n}&lt;/span&gt;&lt;span className=&quot;dm-kbx-sb&quot;&gt;&lt;i style={{ width: d / n * 100 + &#39;%&#39; }} /&gt;&lt;/span&gt;&lt;/div&gt;
@@ -1353,7 +1385,7 @@ function Card({ card, entering: enters, className, label, tabIndex, setRef, chil
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>kanban-board.css<span class="l">React · 256 lines</span></summary><pre class="cp-pre" data-name="kanban-board.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>kanban-board.css<span class="l">React · 266 lines</span></summary><pre class="cp-pre" data-name="kanban-board.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Kanban ---------- */
 /* a sprint board: a header with the project, its people (a facepile that filters by person), a search and a Board / List
    switch; filter chips for assignee, label and priority; then the columns. The board never scrolls sideways: under 640px it
@@ -1398,12 +1430,13 @@ function Card({ card, entering: enters, className, label, tabIndex, setRef, chil
 /* the columns, and the room they keep: each has space for four cards, the most one holds as the agent fills Done, so the
    board keeps one height while it plays, as you filter, and as a column folds away */
 .dm-kbx-bd{position:relative}
-.dm-kbx-cols{display:grid;grid-template-columns:var(--dm-kbx-gt,repeat(3,minmax(0,1fr)));gap:10px;transition:grid-template-columns var(--dm-t) var(--dm-ease)}
-.dm-kbx-c{display:flex;flex-direction:column;gap:6px;min-width:0;padding:6px 6px 8px;border-radius:var(--dm-r-card);background:color-mix(in srgb,var(--dm-fg) 3.5%,transparent);transition:background .25s,box-shadow .25s;min-height:452px}
+.dm-kbx-cols{display:grid;grid-template-columns:var(--dm-kbx-gt,repeat(3,minmax(0,1fr)));gap:var(--dm-s-3);transition:grid-template-columns var(--dm-t) var(--dm-ease)}
+.dm-kbx-c{display:flex;flex-direction:column;gap:var(--dm-s-2);min-width:0;padding:var(--dm-s-1) var(--dm-s-2) var(--dm-s-2);border-radius:calc(14px * var(--dm-rk));background:color-mix(in srgb,var(--dm-fg) 3.5%,transparent);transition:background .25s,box-shadow .25s;min-height:600px}
 .dm-kbx-c.dm-over{background:var(--dm-sel);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 40%,transparent)}
-.dm-kbx-ch{display:flex;align-items:center;gap:6px;height:30px;padding:0 0 0 2px;font-size:13px}
+.dm-kbx-ch{display:flex;align-items:center;gap:6px;height:36px;padding:0;font-size:13px}
 .dm-kbx-ch b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dm-kbx-ch .dm-n{font-size:12px;color:var(--dm-muted);white-space:nowrap}
+/* the count is a grey chip; with a limit it says how full the column is, and turns into a warning once it is over */
+.dm-kbx-ch .dm-n{display:inline-flex;white-space:nowrap}
 .dm-kbx-ch .dm-tag{height:20px;padding:0 6px;gap:3px;cursor:default}
 .dm-kbx-ch .dm-ib{width:24px;height:24px;flex:none;color:var(--dm-muted)}
 .dm-kbx-ch .dm-ib[aria-expanded=&quot;true&quot;]{color:var(--dm-fg)}
@@ -1419,22 +1452,29 @@ function Card({ card, entering: enters, className, label, tabIndex, setRef, chil
 .dm-kbx-c.dm-shut .dm-kbx-ch{flex-direction:column;height:auto;padding:0;gap:var(--dm-s-2)}
 .dm-kbx-c.dm-shut .dm-kbx-ch b{writing-mode:vertical-rl}
 .dm-kbx-c.dm-shut :is(.dm-kbx-list,.dm-kbx-sp,.dm-kbx-cadd,.dm-kbx-cmn,.dm-kbx-none){display:none}
-/* a card: its key, priority and people on top, the title, then its labels, due date, subtasks, comments and files */
-.dm-kbx-k{position:relative;padding:var(--dm-s-2) 10px 9px;border-radius:calc(12px * var(--dm-rk));background:var(--dm-raised);box-shadow:var(--dm-shadow);display:flex;flex-direction:column;gap:5px;cursor:grab;transition:box-shadow .25s,opacity .2s;touch-action:none;user-select:none;-webkit-user-select:none}
+/* a card: its key with its people at the top right, one row of chips (its priority in colour, the project it belongs to in
+   grey, then its labels in their colours), the title, then one muted line with its due date, subtasks, comments and files */
+.dm-kbx-k{position:relative;padding:var(--dm-s-3);border-radius:calc(12px * var(--dm-rk));background:var(--dm-raised);box-shadow:var(--dm-shadow);display:flex;flex-direction:column;gap:var(--dm-s-1);cursor:grab;transition:box-shadow .25s,opacity .2s;touch-action:none;user-select:none;-webkit-user-select:none}
 @media (hover:hover) and (pointer:fine){.dm-kbx-k:hover{box-shadow:var(--dm-shadow-pop)}}
 .dm-kbx-k:focus-visible{outline-offset:1px;border-radius:calc(12px * var(--dm-rk))}
 .dm-kbx-k.dm-drag{opacity:.35}
 .dm-kbx-k.dm-ghost{position:fixed;z-index:100;pointer-events:none;transform:rotate(2deg) scale(1.03);box-shadow:var(--dm-shadow-pop);cursor:grabbing}
 .dm-kbx-k1{display:flex;align-items:center;gap:6px;height:20px}
 .dm-kbx-id{font-size:11.5px;color:var(--dm-muted);white-space:nowrap}
-.dm-kbx-k .dm-t{font-size:13px;line-height:1.4;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
-/* a title is written in place (a new card, or a double-click on one): while you write it, it is a field, white with the
-   dimmed field edge, one step stronger while it has the focus, drawn outside the words so they keep their place */
-.dm-kbx-k .dm-t[contenteditable=&quot;true&quot;]{display:block;outline:0;border-radius:var(--dm-r-xs);padding:0 var(--dm-s-1);margin:0 calc(-1 * var(--dm-s-1));background:var(--dm-surface);box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);cursor:text;-webkit-user-select:text;user-select:text}
-.dm-kbx-k .dm-t[contenteditable=&quot;true&quot;]:focus{box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
-.dm-kbx-m{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;min-height:20px;font-size:12px;color:var(--dm-muted)}
+.dm-kbx-k&gt;.dm-t{font-size:13px;line-height:1.4;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+/* the title is the card&#39;s own .t (a teal label chip is a .tag.t too). It is written in place (a new card, or a
+   double-click on one): while you write it, it is a field, white with the dimmed field edge, one step stronger while it
+   has the focus, drawn outside the words so they keep their place */
+.dm-kbx-k&gt;.dm-t[contenteditable=&quot;true&quot;]{display:block;outline:0;border-radius:var(--dm-r-xs);padding:0 var(--dm-s-1);margin:0 calc(-1 * var(--dm-s-1));background:var(--dm-surface);box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);cursor:text;-webkit-user-select:text;user-select:text}
+.dm-kbx-k&gt;.dm-t[contenteditable=&quot;true&quot;]:focus{box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+.dm-kbx-m{display:flex;align-items:center;flex-wrap:wrap;gap:2px var(--dm-s-2);min-height:20px;font-size:12px;color:var(--dm-muted)}
 .dm-kbx-m:empty{display:none}
 .dm-kbx-tags{display:flex;gap:4px}
+/* the chip row: the priority opens its menu; the project and the labels say what the card belongs to and is about */
+.dm-kbx-cr{display:flex;align-items:center;flex-wrap:wrap;gap:4px 6px;min-width:0;margin:2px 0 var(--dm-s-1)}
+.dm-kbx-cr .dm-tag{flex:none}
+.dm-kbx-cr .dm-kbx-pj{flex:0 1 auto;min-width:0}
+.dm-kbx-pj span{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .dm-kbx-mt{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
 .dm-kbx-mt .dm-i{width:12px;height:12px}
 .dm-kbx-mt.dm-late{color:var(--dm-bad)}
@@ -1443,28 +1483,30 @@ function Card({ card, entering: enters, className, label, tabIndex, setRef, chil
 .dm-kbx-sb{width:22px;height:3px;border-radius:2px;background:color-mix(in srgb,var(--dm-muted) 25%,transparent);overflow:hidden}
 .dm-kbx-sb i{display:block;height:100%;border-radius:inherit;background:var(--dm-fg2);transition:width .35s var(--dm-ease)}
 .dm-kbx-mt.dm-ok .dm-kbx-sb i{background:var(--dm-ok-mark)}
-/* the card&#39;s quick controls: its priority and its people open their menus, and the dots its Move to menu */
-.dm-kbx-pri,.dm-kbx-who,.dm-kbx-mv{display:inline-grid;place-items:center;flex:none;border-radius:calc(6px * var(--dm-rk));transition:background var(--dm-t-fast),color var(--dm-t-fast),opacity var(--dm-t-fast)}
-.dm-kbx-pri{width:20px;height:20px;margin:0 -2px 0 -4px}
-.dm-kbx-pri[aria-expanded=&quot;true&quot;],.dm-kbx-who[aria-expanded=&quot;true&quot;],.dm-kbx-mv[aria-expanded=&quot;true&quot;]{background:var(--dm-row)}
-@media (hover:hover) and (pointer:fine){.dm-kbx-pri:hover,.dm-kbx-who:hover,.dm-kbx-mv:hover{background:var(--dm-row)}}
+/* the card&#39;s quick controls: its priority chip and its people open their menus, and the dots its Move to menu */
+.dm-kbx-who,.dm-kbx-mv{display:inline-grid;place-items:center;flex:none;border-radius:calc(6px * var(--dm-rk));transition:background var(--dm-t-fast),color var(--dm-t-fast),opacity var(--dm-t-fast)}
+.dm-kbx-pri{transition:box-shadow var(--dm-t-fast)}
+.dm-kbx-pri[aria-expanded=&quot;true&quot;]{box-shadow:inset 0 0 0 1px color-mix(in srgb,currentColor 35%,transparent)}
+@media (hover:hover) and (pointer:fine){.dm-kbx-pri:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,currentColor 35%,transparent)}}
+.dm-kbx-who[aria-expanded=&quot;true&quot;],.dm-kbx-mv[aria-expanded=&quot;true&quot;]{background:var(--dm-row)}
+@media (hover:hover) and (pointer:fine){.dm-kbx-who:hover,.dm-kbx-mv:hover{background:var(--dm-row)}}
 .dm-kbx-who{display:inline-flex;align-items:center;height:22px;padding:0 1px 0 6px;border-radius:calc(11px * var(--dm-rk))}
 .dm-kbx-who .dm-av{width:20px;height:20px;font-size:9px;margin-left:-5px;box-shadow:0 0 0 1.5px var(--dm-surface)}
 .dm-kbx-who:empty{width:22px;padding:0;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);border-radius:50%}
 .dm-kbx-who .dm-none{display:grid;place-items:center;width:20px;height:20px;margin-left:-5px;border-radius:50%;color:var(--dm-muted);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-muted) 45%,transparent)}
-.dm-kbx-mv{width:22px;height:22px;margin-right:-4px;color:var(--dm-muted);opacity:0}
+/* the dots show on hover or focus just left of the people, without a space of their own, so the avatar sits at the card&#39;s edge */
+.dm-kbx-mv{width:22px;height:22px;margin-left:-28px;color:var(--dm-muted);opacity:0}
 .dm-kbx-mv[aria-expanded=&quot;true&quot;]{opacity:1}
 @media (hover:hover) and (pointer:fine){.dm-kbx-k:is(:hover,:focus-within,.dm-open) .dm-kbx-mv{opacity:1}}
 .dm-kbx-mv[aria-expanded=&quot;true&quot;]{color:var(--dm-fg)}
 @media (hover:hover) and (pointer:fine){.dm-kbx-mv:hover{color:var(--dm-fg)}}
 @media (pointer:coarse){.dm-kbx-mv{opacity:1}}
-/* priority, drawn as three bars that fill from the left; Urgent is the one in colour */
+/* three bars that fill from the left, a strength mark (the board itself shows priority as a coloured chip) */
 .dm-kbx-pb{display:inline-flex;align-items:flex-end;gap:1.5px;width:12px;height:11px}
 .dm-kbx-pb i{flex:1;border-radius:1px;background:color-mix(in srgb,var(--dm-muted) 35%,transparent)}
 .dm-kbx-pb i:nth-child(1){height:45%}.dm-kbx-pb i:nth-child(2){height:72%}.dm-kbx-pb i:nth-child(3){height:100%}
 .dm-kbx-pb[data-p=&quot;low&quot;] i:nth-child(1),.dm-kbx-pb[data-p=&quot;med&quot;] i:nth-child(-n+2),.dm-kbx-pb[data-p=&quot;high&quot;] i{background:var(--dm-fg2)}
 .dm-kbx-pb[data-p=&quot;none&quot;] i{height:1.5px}
-.dm-kbx-pu{display:grid;place-items:center;width:12px;height:12px;border-radius:calc(3px * var(--dm-rk));background:var(--dm-bad);color:var(--dm-surface);font-size:10px;font-weight:500;line-height:1}
 /* picked cards: a checkbox on each card while any is picked, and a slightly stronger edge on the picked ones */
 .dm-kbx-sel{display:none;place-items:center;width:14px;height:14px;flex:none;border-radius:calc(4px * var(--dm-rk));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-muted) 80%,var(--dm-surface));color:var(--dm-on-accent,#fff);transition:background-color .2s,box-shadow .2s}
 .dm-kbx.dm-selecting .dm-kbx-sel{display:grid}
@@ -1542,7 +1584,6 @@ function Card({ card, entering: enters, className, label, tabIndex, setRef, chil
 .dm-kbx-pop .dm-mi .dm-av{width:20px;height:20px;font-size:9px}
 .dm-kbx-pop .dm-mi .dm-r{margin-left:auto}
 .dm-kbx-pop .dm-mi .dm-r+.dm-ck{margin-left:0}
-.dm-kbx-pop .dm-mi&gt;.dm-kbx-pb,.dm-kbx-pop .dm-mi&gt;.dm-kbx-pu{margin:0 4px 0 3px}
 .dm-kbx-pop .dm-mi .dm-tag{height:18px;padding:0 6px}
 /* the list: the same cards as rows, grouped by column under a header each, in one panel that keeps the board&#39;s height */
 .dm-kbx.dm-list .dm-kbx-cols{display:flex;flex-direction:column;gap:0;border-radius:var(--dm-r-card);background:var(--dm-surface);box-shadow:var(--dm-shadow);overflow:hidden}
@@ -1563,13 +1604,14 @@ function Card({ card, entering: enters, className, label, tabIndex, setRef, chil
 .dm-kbx.dm-list .dm-kbx-k:focus-visible{outline-offset:-2px;border-radius:0}
 .dm-kbx.dm-list .dm-kbx-k.dm-ghost{border-radius:calc(10px * var(--dm-rk));box-shadow:var(--dm-shadow-pop)}
 .dm-kbx.dm-list .dm-kbx-k1{display:contents}
-.dm-kbx.dm-list .dm-kbx-sel{order:0}.dm-kbx.dm-list .dm-kbx-pri{order:1}.dm-kbx.dm-list .dm-kbx-id{order:2;width:52px}
-.dm-kbx.dm-list .dm-kbx-k .dm-t{order:3;flex:1;min-width:0;display:block;white-space:nowrap;text-overflow:ellipsis}
+.dm-kbx.dm-list .dm-kbx-sel{order:0}.dm-kbx.dm-list .dm-kbx-id{order:1;width:52px}
+.dm-kbx.dm-list .dm-kbx-k&gt;.dm-t{order:2;flex:1;min-width:0;display:block;white-space:nowrap;text-overflow:ellipsis}
+.dm-kbx.dm-list .dm-kbx-cr{order:3;flex:none;flex-wrap:nowrap;margin:0}
 .dm-kbx.dm-list .dm-kbx-ag{order:4;flex:none}.dm-kbx.dm-list .dm-kbx-ag .dm-s{display:none}
 .dm-kbx.dm-list .dm-kbx-pr{order:5;width:40px;flex:none}
 .dm-kbx.dm-list .dm-kbx-m{order:6;flex-wrap:nowrap}
 .dm-kbx.dm-list .dm-kbx-k1 .dm-kbx-sp{display:none}
-.dm-kbx.dm-list .dm-kbx-who{order:7}.dm-kbx.dm-list .dm-kbx-mv{order:8}
+.dm-kbx.dm-list .dm-kbx-who{order:7}.dm-kbx.dm-list .dm-kbx-mv{order:8;margin:0 -4px 0 0}
 .dm-kbx.dm-list .dm-kbx-none{padding:10px var(--dm-s-3);text-align:left}
 .dm-kbx.dm-list .dm-kbx-ph{border-radius:0;border-width:1.5px 0}
 /* a narrow board, on a phone or in a narrow card: the header stacks, one column at a time, picked with tabs that count each
@@ -1596,10 +1638,10 @@ function Card({ card, entering: enters, className, label, tabIndex, setRef, chil
   .dm-kbx:not(.dm-list) .dm-kbx-ch{display:none}
   .dm-kbx:not(.dm-list) .dm-kbx-c.dm-shut{align-items:stretch;padding:6px 6px 8px;cursor:default}
   .dm-kbx:not(.dm-list) .dm-kbx-c.dm-shut .dm-kbx-list{display:flex}
-  .dm-kbx:not(.dm-list) .dm-kbx-c{min-height:412px}
+  .dm-kbx:not(.dm-list) .dm-kbx-c{min-height:520px}
   .dm-kbx-k{touch-action:pan-y}
   .dm-kbx-mv{opacity:1}
-  .dm-kbx.dm-list .dm-kbx-id,.dm-kbx.dm-list .dm-kbx-m,.dm-kbx.dm-list .dm-kbx-pr{display:none}
+  .dm-kbx.dm-list .dm-kbx-id,.dm-kbx.dm-list .dm-kbx-m,.dm-kbx.dm-list .dm-kbx-pr,.dm-kbx.dm-list .dm-kbx-cr&gt;:not(.dm-kbx-pri){display:none}
   .dm-kbx-pk{width:100%}
   .dm-kbx-bk{left:var(--dm-s-2);right:var(--dm-s-2);max-width:none;transform:translateY(8px)}
   .dm-kbx-bk.dm-on{transform:none}
@@ -1646,7 +1688,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>kanban-board.css<span class="l">HTML · 255 lines</span></summary><pre class="cp-pre" data-name="kanban-board.css"><code>/* ---------- Kanban ---------- */
+</code></pre></details><details class="cp-file"><summary>kanban-board.css<span class="l">HTML · 265 lines</span></summary><pre class="cp-pre" data-name="kanban-board.css"><code>/* ---------- Kanban ---------- */
 /* a sprint board: a header with the project, its people (a facepile that filters by person), a search and a Board / List
    switch; filter chips for assignee, label and priority; then the columns. The board never scrolls sideways: under 640px it
    shows one column at a time, picked with tabs, so the columns always fit */
@@ -1690,12 +1732,13 @@ const { class: className, ...rest } = Astro.props;
 /* the columns, and the room they keep: each has space for four cards, the most one holds as the agent fills Done, so the
    board keeps one height while it plays, as you filter, and as a column folds away */
 .kbx-bd{position:relative}
-.kbx-cols{display:grid;grid-template-columns:var(--dm-kbx-gt,repeat(3,minmax(0,1fr)));gap:10px;transition:grid-template-columns var(--dm-t) var(--dm-ease)}
-.kbx-c{display:flex;flex-direction:column;gap:6px;min-width:0;padding:6px 6px 8px;border-radius:var(--dm-r-card);background:color-mix(in srgb,var(--dm-fg) 3.5%,transparent);transition:background .25s,box-shadow .25s;min-height:452px}
+.kbx-cols{display:grid;grid-template-columns:var(--dm-kbx-gt,repeat(3,minmax(0,1fr)));gap:var(--dm-s-3);transition:grid-template-columns var(--dm-t) var(--dm-ease)}
+.kbx-c{display:flex;flex-direction:column;gap:var(--dm-s-2);min-width:0;padding:var(--dm-s-1) var(--dm-s-2) var(--dm-s-2);border-radius:calc(14px * var(--dm-rk));background:color-mix(in srgb,var(--dm-fg) 3.5%,transparent);transition:background .25s,box-shadow .25s;min-height:600px}
 .kbx-c.over{background:var(--dm-sel);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 40%,transparent)}
-.kbx-ch{display:flex;align-items:center;gap:6px;height:30px;padding:0 0 0 2px;font-size:13px}
+.kbx-ch{display:flex;align-items:center;gap:6px;height:36px;padding:0;font-size:13px}
 .kbx-ch b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.kbx-ch .n{font-size:12px;color:var(--dm-muted);white-space:nowrap}
+/* the count is a grey chip; with a limit it says how full the column is, and turns into a warning once it is over */
+.kbx-ch .n{display:inline-flex;white-space:nowrap}
 .kbx-ch .tag{height:20px;padding:0 6px;gap:3px;cursor:default}
 .kbx-ch .ib{width:24px;height:24px;flex:none;color:var(--dm-muted)}
 .kbx-ch .ib[aria-expanded=&quot;true&quot;]{color:var(--dm-fg)}
@@ -1711,22 +1754,29 @@ const { class: className, ...rest } = Astro.props;
 .kbx-c.shut .kbx-ch{flex-direction:column;height:auto;padding:0;gap:var(--dm-s-2)}
 .kbx-c.shut .kbx-ch b{writing-mode:vertical-rl}
 .kbx-c.shut :is(.kbx-list,.kbx-sp,.kbx-cadd,.kbx-cmn,.kbx-none){display:none}
-/* a card: its key, priority and people on top, the title, then its labels, due date, subtasks, comments and files */
-.kbx-k{position:relative;padding:var(--dm-s-2) 10px 9px;border-radius:calc(12px * var(--dm-rk));background:var(--dm-raised);box-shadow:var(--dm-shadow);display:flex;flex-direction:column;gap:5px;cursor:grab;transition:box-shadow .25s,opacity .2s;touch-action:none;user-select:none;-webkit-user-select:none}
+/* a card: its key with its people at the top right, one row of chips (its priority in colour, the project it belongs to in
+   grey, then its labels in their colours), the title, then one muted line with its due date, subtasks, comments and files */
+.kbx-k{position:relative;padding:var(--dm-s-3);border-radius:calc(12px * var(--dm-rk));background:var(--dm-raised);box-shadow:var(--dm-shadow);display:flex;flex-direction:column;gap:var(--dm-s-1);cursor:grab;transition:box-shadow .25s,opacity .2s;touch-action:none;user-select:none;-webkit-user-select:none}
 @media (hover:hover) and (pointer:fine){.kbx-k:hover{box-shadow:var(--dm-shadow-pop)}}
 .kbx-k:focus-visible{outline-offset:1px;border-radius:calc(12px * var(--dm-rk))}
 .kbx-k.drag{opacity:.35}
 .kbx-k.ghost{position:fixed;z-index:100;pointer-events:none;transform:rotate(2deg) scale(1.03);box-shadow:var(--dm-shadow-pop);cursor:grabbing}
 .kbx-k1{display:flex;align-items:center;gap:6px;height:20px}
 .kbx-id{font-size:11.5px;color:var(--dm-muted);white-space:nowrap}
-.kbx-k .t{font-size:13px;line-height:1.4;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
-/* a title is written in place (a new card, or a double-click on one): while you write it, it is a field, white with the
-   dimmed field edge, one step stronger while it has the focus, drawn outside the words so they keep their place */
-.kbx-k .t[contenteditable=&quot;true&quot;]{display:block;outline:0;border-radius:var(--dm-r-xs);padding:0 var(--dm-s-1);margin:0 calc(-1 * var(--dm-s-1));background:var(--dm-surface);box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);cursor:text;-webkit-user-select:text;user-select:text}
-.kbx-k .t[contenteditable=&quot;true&quot;]:focus{box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
-.kbx-m{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;min-height:20px;font-size:12px;color:var(--dm-muted)}
+.kbx-k&gt;.t{font-size:13px;line-height:1.4;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+/* the title is the card&#39;s own .t (a teal label chip is a .tag.t too). It is written in place (a new card, or a
+   double-click on one): while you write it, it is a field, white with the dimmed field edge, one step stronger while it
+   has the focus, drawn outside the words so they keep their place */
+.kbx-k&gt;.t[contenteditable=&quot;true&quot;]{display:block;outline:0;border-radius:var(--dm-r-xs);padding:0 var(--dm-s-1);margin:0 calc(-1 * var(--dm-s-1));background:var(--dm-surface);box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);cursor:text;-webkit-user-select:text;user-select:text}
+.kbx-k&gt;.t[contenteditable=&quot;true&quot;]:focus{box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+.kbx-m{display:flex;align-items:center;flex-wrap:wrap;gap:2px var(--dm-s-2);min-height:20px;font-size:12px;color:var(--dm-muted)}
 .kbx-m:empty{display:none}
 .kbx-tags{display:flex;gap:4px}
+/* the chip row: the priority opens its menu; the project and the labels say what the card belongs to and is about */
+.kbx-cr{display:flex;align-items:center;flex-wrap:wrap;gap:4px 6px;min-width:0;margin:2px 0 var(--dm-s-1)}
+.kbx-cr .tag{flex:none}
+.kbx-cr .kbx-pj{flex:0 1 auto;min-width:0}
+.kbx-pj span{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .kbx-mt{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
 .kbx-mt .i{width:12px;height:12px}
 .kbx-mt.late{color:var(--dm-bad)}
@@ -1735,28 +1785,30 @@ const { class: className, ...rest } = Astro.props;
 .kbx-sb{width:22px;height:3px;border-radius:2px;background:color-mix(in srgb,var(--dm-muted) 25%,transparent);overflow:hidden}
 .kbx-sb i{display:block;height:100%;border-radius:inherit;background:var(--dm-fg2);transition:width .35s var(--dm-ease)}
 .kbx-mt.ok .kbx-sb i{background:var(--dm-ok-mark)}
-/* the card&#39;s quick controls: its priority and its people open their menus, and the dots its Move to menu */
-.kbx-pri,.kbx-who,.kbx-mv{display:inline-grid;place-items:center;flex:none;border-radius:calc(6px * var(--dm-rk));transition:background var(--dm-t-fast),color var(--dm-t-fast),opacity var(--dm-t-fast)}
-.kbx-pri{width:20px;height:20px;margin:0 -2px 0 -4px}
-.kbx-pri[aria-expanded=&quot;true&quot;],.kbx-who[aria-expanded=&quot;true&quot;],.kbx-mv[aria-expanded=&quot;true&quot;]{background:var(--dm-row)}
-@media (hover:hover) and (pointer:fine){.kbx-pri:hover,.kbx-who:hover,.kbx-mv:hover{background:var(--dm-row)}}
+/* the card&#39;s quick controls: its priority chip and its people open their menus, and the dots its Move to menu */
+.kbx-who,.kbx-mv{display:inline-grid;place-items:center;flex:none;border-radius:calc(6px * var(--dm-rk));transition:background var(--dm-t-fast),color var(--dm-t-fast),opacity var(--dm-t-fast)}
+.kbx-pri{transition:box-shadow var(--dm-t-fast)}
+.kbx-pri[aria-expanded=&quot;true&quot;]{box-shadow:inset 0 0 0 1px color-mix(in srgb,currentColor 35%,transparent)}
+@media (hover:hover) and (pointer:fine){.kbx-pri:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,currentColor 35%,transparent)}}
+.kbx-who[aria-expanded=&quot;true&quot;],.kbx-mv[aria-expanded=&quot;true&quot;]{background:var(--dm-row)}
+@media (hover:hover) and (pointer:fine){.kbx-who:hover,.kbx-mv:hover{background:var(--dm-row)}}
 .kbx-who{display:inline-flex;align-items:center;height:22px;padding:0 1px 0 6px;border-radius:calc(11px * var(--dm-rk))}
 .kbx-who .av{width:20px;height:20px;font-size:9px;margin-left:-5px;box-shadow:0 0 0 1.5px var(--dm-surface)}
 .kbx-who:empty{width:22px;padding:0;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);border-radius:50%}
 .kbx-who .none{display:grid;place-items:center;width:20px;height:20px;margin-left:-5px;border-radius:50%;color:var(--dm-muted);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-muted) 45%,transparent)}
-.kbx-mv{width:22px;height:22px;margin-right:-4px;color:var(--dm-muted);opacity:0}
+/* the dots show on hover or focus just left of the people, without a space of their own, so the avatar sits at the card&#39;s edge */
+.kbx-mv{width:22px;height:22px;margin-left:-28px;color:var(--dm-muted);opacity:0}
 .kbx-mv[aria-expanded=&quot;true&quot;]{opacity:1}
 @media (hover:hover) and (pointer:fine){.kbx-k:is(:hover,:focus-within,.open) .kbx-mv{opacity:1}}
 .kbx-mv[aria-expanded=&quot;true&quot;]{color:var(--dm-fg)}
 @media (hover:hover) and (pointer:fine){.kbx-mv:hover{color:var(--dm-fg)}}
 @media (pointer:coarse){.kbx-mv{opacity:1}}
-/* priority, drawn as three bars that fill from the left; Urgent is the one in colour */
+/* three bars that fill from the left, a strength mark (the board itself shows priority as a coloured chip) */
 .kbx-pb{display:inline-flex;align-items:flex-end;gap:1.5px;width:12px;height:11px}
 .kbx-pb i{flex:1;border-radius:1px;background:color-mix(in srgb,var(--dm-muted) 35%,transparent)}
 .kbx-pb i:nth-child(1){height:45%}.kbx-pb i:nth-child(2){height:72%}.kbx-pb i:nth-child(3){height:100%}
 .kbx-pb[data-p=&quot;low&quot;] i:nth-child(1),.kbx-pb[data-p=&quot;med&quot;] i:nth-child(-n+2),.kbx-pb[data-p=&quot;high&quot;] i{background:var(--dm-fg2)}
 .kbx-pb[data-p=&quot;none&quot;] i{height:1.5px}
-.kbx-pu{display:grid;place-items:center;width:12px;height:12px;border-radius:calc(3px * var(--dm-rk));background:var(--dm-bad);color:var(--dm-surface);font-size:10px;font-weight:500;line-height:1}
 /* picked cards: a checkbox on each card while any is picked, and a slightly stronger edge on the picked ones */
 .kbx-sel{display:none;place-items:center;width:14px;height:14px;flex:none;border-radius:calc(4px * var(--dm-rk));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-muted) 80%,var(--dm-surface));color:var(--dm-on-accent,#fff);transition:background-color .2s,box-shadow .2s}
 .kbx.selecting .kbx-sel{display:grid}
@@ -1834,7 +1886,6 @@ const { class: className, ...rest } = Astro.props;
 .kbx-pop .mi .av{width:20px;height:20px;font-size:9px}
 .kbx-pop .mi .r{margin-left:auto}
 .kbx-pop .mi .r+.ck{margin-left:0}
-.kbx-pop .mi&gt;.kbx-pb,.kbx-pop .mi&gt;.kbx-pu{margin:0 4px 0 3px}
 .kbx-pop .mi .tag{height:18px;padding:0 6px}
 /* the list: the same cards as rows, grouped by column under a header each, in one panel that keeps the board&#39;s height */
 .kbx.list .kbx-cols{display:flex;flex-direction:column;gap:0;border-radius:var(--dm-r-card);background:var(--dm-surface);box-shadow:var(--dm-shadow);overflow:hidden}
@@ -1855,13 +1906,14 @@ const { class: className, ...rest } = Astro.props;
 .kbx.list .kbx-k:focus-visible{outline-offset:-2px;border-radius:0}
 .kbx.list .kbx-k.ghost{border-radius:calc(10px * var(--dm-rk));box-shadow:var(--dm-shadow-pop)}
 .kbx.list .kbx-k1{display:contents}
-.kbx.list .kbx-sel{order:0}.kbx.list .kbx-pri{order:1}.kbx.list .kbx-id{order:2;width:52px}
-.kbx.list .kbx-k .t{order:3;flex:1;min-width:0;display:block;white-space:nowrap;text-overflow:ellipsis}
+.kbx.list .kbx-sel{order:0}.kbx.list .kbx-id{order:1;width:52px}
+.kbx.list .kbx-k&gt;.t{order:2;flex:1;min-width:0;display:block;white-space:nowrap;text-overflow:ellipsis}
+.kbx.list .kbx-cr{order:3;flex:none;flex-wrap:nowrap;margin:0}
 .kbx.list .kbx-ag{order:4;flex:none}.kbx.list .kbx-ag .s{display:none}
 .kbx.list .kbx-pr{order:5;width:40px;flex:none}
 .kbx.list .kbx-m{order:6;flex-wrap:nowrap}
 .kbx.list .kbx-k1 .kbx-sp{display:none}
-.kbx.list .kbx-who{order:7}.kbx.list .kbx-mv{order:8}
+.kbx.list .kbx-who{order:7}.kbx.list .kbx-mv{order:8;margin:0 -4px 0 0}
 .kbx.list .kbx-none{padding:10px var(--dm-s-3);text-align:left}
 .kbx.list .kbx-ph{border-radius:0;border-width:1.5px 0}
 /* a narrow board, on a phone or in a narrow card: the header stacks, one column at a time, picked with tabs that count each
@@ -1888,10 +1940,10 @@ const { class: className, ...rest } = Astro.props;
   .kbx:not(.list) .kbx-ch{display:none}
   .kbx:not(.list) .kbx-c.shut{align-items:stretch;padding:6px 6px 8px;cursor:default}
   .kbx:not(.list) .kbx-c.shut .kbx-list{display:flex}
-  .kbx:not(.list) .kbx-c{min-height:412px}
+  .kbx:not(.list) .kbx-c{min-height:520px}
   .kbx-k{touch-action:pan-y}
   .kbx-mv{opacity:1}
-  .kbx.list .kbx-id,.kbx.list .kbx-m,.kbx.list .kbx-pr{display:none}
+  .kbx.list .kbx-id,.kbx.list .kbx-m,.kbx.list .kbx-pr,.kbx.list .kbx-cr&gt;:not(.kbx-pri){display:none}
   .kbx-pk{width:100%}
   .kbx-bk{left:var(--dm-s-2);right:var(--dm-s-2);max-width:none;transform:translateY(8px)}
   .kbx-bk.on{transform:none}
@@ -1900,28 +1952,31 @@ const { class: className, ...rest } = Astro.props;
   .kbx-bk .l{display:none}
   .kbx-bk .n{margin-right:auto}
 }
-</code></pre></details><details class="cp-file"><summary>kanban-board.js<span class="l">HTML · 392 lines</span></summary><pre class="cp-pre" data-name="kanban-board.js"><code>DM.def(&#39;kanban&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>kanban-board.js<span class="l">HTML · 398 lines</span></summary><pre class="cp-pre" data-name="kanban-board.js"><code>DM.def(&#39;kanban&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(/\{(search|x|grid|list)\}/g, (m, k) =&gt; I(k, &#39;xs&#39;));
   // the columns, each with a short name for the tabs a narrow board shows; In progress has a WIP limit of three
   const COLS = [{ k:&#39;todo&#39;, t:&#39;To do&#39;, s:&#39;To do&#39; }, { k:&#39;doing&#39;, t:&#39;In progress&#39;, s:&#39;Doing&#39;, lim:3 }, { k:&#39;done&#39;, t:&#39;Done&#39;, s:&#39;Done&#39; }];
   const M = { MK:{ n:&#39;Maya Kim&#39;, bg:&#39;var(--dm-av-l)&#39; }, JO:{ n:&#39;Jonas Ortiz&#39;, bg:&#39;var(--dm-av-m)&#39; }, LP:{ n:&#39;Lena Park&#39;, bg:&#39;var(--dm-av-p)&#39; }, DA:{ n:&#39;Design agent&#39;, bg:&#39;var(--dm-av-b)&#39;, agent:true } };
   const ME = &#39;MK&#39;, MK = Object.keys(M);
   const PRI = { urgent:&#39;Urgent&#39;, high:&#39;High&#39;, med:&#39;Medium&#39;, low:&#39;Low&#39;, none:&#39;No priority&#39; }, PK = Object.keys(PRI);
-  const LABELS = [&#39;Design&#39;, &#39;Copy&#39;, &#39;Code&#39;, &#39;Bug&#39;, &#39;A11y&#39;];
+  // priority is a coloured chip (Urgent red, High orange, Medium yellow, Low blue, none grey), and each label keeps one of the
+  // other core tag colours wherever it shows
+  const PT = { urgent:&#39;bad&#39;, high:&#39;p&#39;, med:&#39;y&#39;, low:&#39;b&#39;, none:&#39;&#39; };
+  const LABELS = [&#39;Design&#39;, &#39;Copy&#39;, &#39;Code&#39;, &#39;Bug&#39;, &#39;A11y&#39;], LT = { Design:&#39;l&#39;, Copy:&#39;t&#39;, Code:&#39;m&#39;, Bug:&#39;k&#39;, A11y:&#39;r&#39; };
   // due dates are days from today, so the overdue one is always overdue
   const day = n =&gt; { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + n); return d; };
   const fmt = n =&gt; n === 0 ? &#39;Today&#39; : n === 1 ? &#39;Tomorrow&#39; : day(n).toLocaleDateString(&#39;en-US&#39;, { month:&#39;short&#39;, day:&#39;numeric&#39; });
   const sub = (...a) =&gt; a.map(([t, d]) =&gt; ({ t, d:!!d }));
   let K = [
-    { id:&#39;DES-148&#39;, c:&#39;todo&#39;, t:&#39;Audit checkout for contrast&#39;, p:&#39;high&#39;, l:[&#39;A11y&#39;], who:[&#39;DA&#39;], due:3, sub:sub([&#39;List every text pair&#39;], [&#39;Check against 4.5:1&#39;], [&#39;Fix the failing pairs&#39;], [&#39;Write up the changes&#39;]) },
-    { id:&#39;DES-151&#39;, c:&#39;todo&#39;, t:&#39;Write release notes for pricing&#39;, p:&#39;med&#39;, l:[&#39;Copy&#39;], who:[&#39;MK&#39;], due:2, cm:2 },
-    { id:&#39;DES-157&#39;, c:&#39;todo&#39;, t:&#39;Pricing toggle hides the yearly saving&#39;, p:&#39;urgent&#39;, l:[&#39;Bug&#39;], who:[&#39;JO&#39;], due:1, cm:4, at:1 },
-    { id:&#39;DES-155&#39;, c:&#39;todo&#39;, t:&#39;Empty state for search&#39;, p:&#39;low&#39;, l:[&#39;Design&#39;], who:[&#39;LP&#39;], at:2 },
-    { id:&#39;DES-142&#39;, c:&#39;doing&#39;, t:&#39;Export tokens to CSS&#39;, p:&#39;high&#39;, l:[&#39;Code&#39;], who:[&#39;DA&#39;], at:1, run:.4, sub:sub([&#39;Read the Figma variables&#39;, 1], [&#39;Map colours to roles&#39;, 1], [&#39;Write the CSS variables&#39;], [&#39;Check contrast pairs&#39;], [&#39;Open a pull request&#39;]) },
-    { id:&#39;DES-144&#39;, c:&#39;doing&#39;, t:&#39;Review annual plan copy&#39;, p:&#39;med&#39;, l:[&#39;Copy&#39;], who:[&#39;JO&#39;, &#39;MK&#39;], due:-1, cm:5, sub:sub([&#39;Headline&#39;, 1], [&#39;Plan names&#39;, 1], [&#39;Feature list&#39;], [&#39;Footnotes&#39;]) },
-    { id:&#39;DES-146&#39;, c:&#39;doing&#39;, t:&#39;Plan cards wrap at 768px&#39;, p:&#39;high&#39;, l:[&#39;Design&#39;, &#39;Bug&#39;], who:[&#39;LP&#39;], due:0, cm:1, sub:sub([&#39;Reproduce on a tablet&#39;, 1], [&#39;Fix the grid&#39;], [&#39;Test at 744px&#39;]) },
-    { id:&#39;DES-139&#39;, c:&#39;done&#39;, t:&#39;One CTA per pricing card&#39;, p:&#39;med&#39;, l:[&#39;Design&#39;], who:[&#39;MK&#39;], cm:3, sub:sub([&#39;Pick the CTA&#39;, 1], [&#39;Update the cards&#39;, 1]) },
-    { id:&#39;DES-137&#39;, c:&#39;done&#39;, t:&#39;Compare checkout flows&#39;, p:&#39;low&#39;, l:[&#39;Design&#39;], who:[&#39;LP&#39;], at:3, sub:sub([&#39;Collect five flows&#39;, 1], [&#39;Note the steps&#39;, 1], [&#39;Share the findings&#39;, 1]) }
+    { id:&#39;DES-148&#39;, c:&#39;todo&#39;, t:&#39;Audit checkout for contrast&#39;, p:&#39;high&#39;, pj:&#39;Checkout&#39;, l:[&#39;A11y&#39;], who:[&#39;DA&#39;], due:3, sub:sub([&#39;List every text pair&#39;], [&#39;Check against 4.5:1&#39;], [&#39;Fix the failing pairs&#39;], [&#39;Write up the changes&#39;]) },
+    { id:&#39;DES-151&#39;, c:&#39;todo&#39;, t:&#39;Write release notes for pricing&#39;, p:&#39;med&#39;, pj:&#39;Pricing&#39;, l:[&#39;Copy&#39;], who:[&#39;MK&#39;], due:2, cm:2 },
+    { id:&#39;DES-157&#39;, c:&#39;todo&#39;, t:&#39;Pricing toggle hides the yearly saving&#39;, p:&#39;urgent&#39;, pj:&#39;Pricing&#39;, l:[&#39;Bug&#39;], who:[&#39;JO&#39;], due:1, cm:4, at:1 },
+    { id:&#39;DES-155&#39;, c:&#39;todo&#39;, t:&#39;Empty state for search&#39;, p:&#39;low&#39;, pj:&#39;Search&#39;, l:[&#39;Design&#39;], who:[&#39;LP&#39;], at:2 },
+    { id:&#39;DES-142&#39;, c:&#39;doing&#39;, t:&#39;Export tokens to CSS&#39;, p:&#39;high&#39;, pj:&#39;Tokens&#39;, l:[&#39;Code&#39;], who:[&#39;DA&#39;], at:1, run:.4, sub:sub([&#39;Read the Figma variables&#39;, 1], [&#39;Map colours to roles&#39;, 1], [&#39;Write the CSS variables&#39;], [&#39;Check contrast pairs&#39;], [&#39;Open a pull request&#39;]) },
+    { id:&#39;DES-144&#39;, c:&#39;doing&#39;, t:&#39;Review annual plan copy&#39;, p:&#39;med&#39;, pj:&#39;Pricing&#39;, l:[&#39;Copy&#39;], who:[&#39;JO&#39;, &#39;MK&#39;], due:-1, cm:5, sub:sub([&#39;Headline&#39;, 1], [&#39;Plan names&#39;, 1], [&#39;Feature list&#39;], [&#39;Footnotes&#39;]) },
+    { id:&#39;DES-146&#39;, c:&#39;doing&#39;, t:&#39;Plan cards wrap at 768px&#39;, p:&#39;high&#39;, pj:&#39;Pricing&#39;, l:[&#39;Design&#39;, &#39;Bug&#39;], who:[&#39;LP&#39;], due:0, cm:1, sub:sub([&#39;Reproduce on a tablet&#39;, 1], [&#39;Fix the grid&#39;], [&#39;Test at 744px&#39;]) },
+    { id:&#39;DES-139&#39;, c:&#39;done&#39;, t:&#39;One CTA per pricing card&#39;, p:&#39;med&#39;, pj:&#39;Pricing&#39;, l:[&#39;Design&#39;], who:[&#39;MK&#39;], cm:3, sub:sub([&#39;Pick the CTA&#39;, 1], [&#39;Update the cards&#39;, 1]) },
+    { id:&#39;DES-137&#39;, c:&#39;done&#39;, t:&#39;Compare checkout flows&#39;, p:&#39;low&#39;, pj:&#39;Checkout&#39;, l:[&#39;Design&#39;], who:[&#39;LP&#39;], at:3, sub:sub([&#39;Collect five flows&#39;, 1], [&#39;Note the steps&#39;, 1], [&#39;Share the findings&#39;, 1]) }
   ];
   let next = 158;
   const box = $(&#39;.kbx&#39;, r), bd = $(&#39;.kbx-bd&#39;, r), wrap = $(&#39;.kbx-cols&#39;, r), live = $(&#39;.kbx-sr&#39;, r);
@@ -1935,25 +1990,27 @@ const { class: className, ...rest } = Astro.props;
   const esc = s =&gt; s.replace(/&amp;/g, &#39;&amp;amp;&#39;).replace(/&lt;/g, &#39;&amp;lt;&#39;);
 
   /* ---------- the parts ---------- */
-  const pb = p =&gt; p === &#39;urgent&#39; ? &#39;&lt;span class=&quot;kbx-pu&quot; aria-hidden=&quot;true&quot;&gt;!&lt;/span&gt;&#39; : `&lt;span class=&quot;kbx-pb&quot; data-p=&quot;${p}&quot; aria-hidden=&quot;true&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;`;
+  const ptag = p =&gt; `&lt;span class=&quot;tag${PT[p] ? &#39; &#39; + PT[p] : &#39;&#39;}&quot;&gt;${PRI[p]}&lt;/span&gt;`;
+  const ltag = x =&gt; `&lt;span class=&quot;tag${LT[x] ? &#39; &#39; + LT[x] : &#39;&#39;}&quot;&gt;${x}&lt;/span&gt;`;
+  const priCls = p =&gt; `tag${PT[p] ? &#39; &#39; + PT[p] : &#39;&#39;} kbx-pri`;
   const avs = who =&gt; who.map(w =&gt; AV(w, M[w].bg)).join(&#39;&#39;);
   const done = k =&gt; (k.sub || []).filter(s =&gt; s.d).length;
   const step = k =&gt; (k.sub || []).find(s =&gt; !s.d)?.t || &#39;Wrapping up&#39;;
   const metaOf = k =&gt; {
     const n = k.sub?.length, d = done(k);
-    return `${k.l.length ? `&lt;span class=&quot;kbx-tags&quot;&gt;${k.l.map(x =&gt; `&lt;span class=&quot;tag&quot;&gt;${x}&lt;/span&gt;`).join(&#39;&#39;)}&lt;/span&gt;` : &#39;&#39;}`
-      + (k.due != null &amp;&amp; k.c !== &#39;done&#39; ? `&lt;span class=&quot;kbx-mt${k.due &lt; 0 ? &#39; late&#39; : &#39;&#39;}&quot; data-tip=&quot;${k.due &lt; 0 ? &#39;Overdue&#39; : &#39;Due&#39;}&quot;&gt;${I(&#39;cal&#39;, &#39;xs&#39;)}${fmt(k.due)}&lt;/span&gt;` : &#39;&#39;)
+    return (k.due != null &amp;&amp; k.c !== &#39;done&#39; ? `&lt;span class=&quot;kbx-mt${k.due &lt; 0 ? &#39; late&#39; : &#39;&#39;}&quot; data-tip=&quot;${k.due &lt; 0 ? &#39;Overdue&#39; : &#39;Due&#39;}&quot;&gt;${I(&#39;cal&#39;, &#39;xs&#39;)}${fmt(k.due)}&lt;/span&gt;` : &#39;&#39;)
       + (n ? `&lt;span class=&quot;kbx-mt${d === n ? &#39; ok&#39; : &#39;&#39;}&quot; data-tip=&quot;${d} of ${n} subtasks done&quot;&gt;&lt;span class=&quot;num&quot;&gt;${d}/${n}&lt;/span&gt;&lt;span class=&quot;kbx-sb&quot;&gt;&lt;i style=&quot;width:${d / n * 100}%&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;/span&gt;` : &#39;&#39;)
       + (k.cm ? `&lt;span class=&quot;kbx-mt&quot; data-tip=&quot;${k.cm} comment${k.cm &gt; 1 ? &#39;s&#39; : &#39;&#39;}&quot;&gt;${I(&#39;comment&#39;, &#39;xs&#39;)}&lt;span class=&quot;num&quot;&gt;${k.cm}&lt;/span&gt;&lt;/span&gt;` : &#39;&#39;)
       + (k.at ? `&lt;span class=&quot;kbx-mt&quot; data-tip=&quot;${k.at} file${k.at &gt; 1 ? &#39;s&#39; : &#39;&#39;}&quot;&gt;${I(&#39;clip&#39;, &#39;xs&#39;)}&lt;span class=&quot;num&quot;&gt;${k.at}&lt;/span&gt;&lt;/span&gt;` : &#39;&#39;);
   };
-  const label = k =&gt; `${k.id}, ${k.t}. ${PRI[k.p]} priority${k.who.length ? &#39;, &#39; + k.who.map(w =&gt; M[w].n).join(&#39; and &#39;) : &#39;&#39;}${k.due != null &amp;&amp; k.c !== &#39;done&#39; ? &#39;, due &#39; + fmt(k.due) + (k.due &lt; 0 ? &#39;, overdue&#39; : &#39;&#39;) : &#39;&#39;}${k.run != null ? &#39;, the agent is working on it&#39; : &#39;&#39;}${sel.has(k.id) ? &#39;, selected&#39; : &#39;&#39;}`;
+  const label = k =&gt; `${k.id}, ${k.t}. ${PRI[k.p]} priority${k.pj ? &#39;, project &#39; + k.pj : &#39;&#39;}${k.who.length ? &#39;, &#39; + k.who.map(w =&gt; M[w].n).join(&#39; and &#39;) : &#39;&#39;}${k.due != null &amp;&amp; k.c !== &#39;done&#39; ? &#39;, due &#39; + fmt(k.due) + (k.due &lt; 0 ? &#39;, overdue&#39; : &#39;&#39;) : &#39;&#39;}${k.run != null ? &#39;, the agent is working on it&#39; : &#39;&#39;}${sel.has(k.id) ? &#39;, selected&#39; : &#39;&#39;}`;
   const card = k =&gt; `&lt;div class=&quot;kbx-k${k.run != null ? &#39; agent&#39; : &#39;&#39;}${sel.has(k.id) ? &#39; sel&#39; : &#39;&#39;}${peek === k.id ? &#39; open&#39; : &#39;&#39;}&quot; data-id=&quot;${k.id}&quot; role=&quot;listitem&quot; tabindex=&quot;-1&quot; aria-label=&quot;${esc(label(k))}&quot;&gt;`
     + `&lt;div class=&quot;kbx-k1&quot;&gt;&lt;button class=&quot;kbx-sel&quot; role=&quot;checkbox&quot; aria-checked=&quot;${sel.has(k.id)}&quot; aria-label=&quot;Select ${k.id}&quot; tabindex=&quot;-1&quot;&gt;${I(&#39;check&#39;, &#39;xs&#39;)}&lt;/button&gt;`
-    + `&lt;button class=&quot;kbx-pri&quot; data-pop=&quot;.kbx-pm&quot; aria-haspopup=&quot;menu&quot; aria-label=&quot;Priority: ${PRI[k.p]}&quot; data-tip=&quot;${PRI[k.p]}&quot; tabindex=&quot;-1&quot;&gt;${pb(k.p)}&lt;/button&gt;`
     + `&lt;span class=&quot;kbx-id num&quot;&gt;${k.id}&lt;/span&gt;&lt;span class=&quot;kbx-sp&quot;&gt;&lt;/span&gt;`
-    + `&lt;button class=&quot;kbx-who&quot; data-pop=&quot;.kbx-am&quot; data-pop-align=&quot;end&quot; aria-haspopup=&quot;menu&quot; aria-label=&quot;Assignees: ${k.who.map(w =&gt; M[w].n).join(&#39;, &#39;) || &#39;none&#39;}&quot; data-tip=&quot;${k.who.map(w =&gt; M[w].n).join(&#39;, &#39;) || &#39;Assign&#39;}&quot; tabindex=&quot;-1&quot;&gt;${k.who.length ? avs(k.who) : `&lt;span class=&quot;none&quot;&gt;${I(&#39;user&#39;, &#39;xs&#39;)}&lt;/span&gt;`}&lt;/button&gt;`
-    + `&lt;button class=&quot;kbx-mv&quot; data-pop=&quot;.kbx-mp&quot; data-pop-align=&quot;end&quot; aria-haspopup=&quot;menu&quot; aria-label=&quot;Move ${k.id}&quot; data-tip=&quot;Move to&quot; tabindex=&quot;-1&quot;&gt;${I(&#39;more&#39;, &#39;xs&#39;)}&lt;/button&gt;&lt;/div&gt;`
+    + `&lt;button class=&quot;kbx-mv&quot; data-pop=&quot;.kbx-mp&quot; data-pop-align=&quot;end&quot; aria-haspopup=&quot;menu&quot; aria-label=&quot;Move ${k.id}&quot; data-tip=&quot;Move to&quot; tabindex=&quot;-1&quot;&gt;${I(&#39;more&#39;, &#39;xs&#39;)}&lt;/button&gt;`
+    + `&lt;button class=&quot;kbx-who&quot; data-pop=&quot;.kbx-am&quot; data-pop-align=&quot;end&quot; aria-haspopup=&quot;menu&quot; aria-label=&quot;Assignees: ${k.who.map(w =&gt; M[w].n).join(&#39;, &#39;) || &#39;none&#39;}&quot; data-tip=&quot;${k.who.map(w =&gt; M[w].n).join(&#39;, &#39;) || &#39;Assign&#39;}&quot; tabindex=&quot;-1&quot;&gt;${k.who.length ? avs(k.who) : `&lt;span class=&quot;none&quot;&gt;${I(&#39;user&#39;, &#39;xs&#39;)}&lt;/span&gt;`}&lt;/button&gt;&lt;/div&gt;`
+    + `&lt;div class=&quot;kbx-cr&quot;&gt;&lt;button class=&quot;${priCls(k.p)}&quot; data-pop=&quot;.kbx-pm&quot; aria-haspopup=&quot;menu&quot; aria-label=&quot;Priority: ${PRI[k.p]}&quot; data-tip=&quot;Priority&quot; tabindex=&quot;-1&quot;&gt;${PRI[k.p]}&lt;/button&gt;`
+    + (k.pj ? `&lt;span class=&quot;tag kbx-pj&quot; data-tip=&quot;Project&quot;&gt;&lt;span&gt;${esc(k.pj)}&lt;/span&gt;&lt;/span&gt;` : &#39;&#39;) + k.l.map(ltag).join(&#39;&#39;) + `&lt;/div&gt;`
     + `&lt;span class=&quot;t&quot;&gt;${esc(k.t)}&lt;/span&gt;`
     + (k.run != null ? `&lt;div class=&quot;kbx-ag&quot;&gt;&lt;span class=&quot;think on&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;${step(k)}&lt;/span&gt;&lt;span class=&quot;pc num&quot;&gt;${Math.round(k.run * 100)}%&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;kbx-pr&quot;&gt;&lt;i style=&quot;width:${k.run * 100}%&quot;&gt;&lt;/i&gt;&lt;/div&gt;` : &#39;&#39;)
     + `&lt;div class=&quot;kbx-m&quot;&gt;${metaOf(k)}&lt;/div&gt;&lt;/div&gt;`;
@@ -1969,7 +2026,7 @@ const { class: className, ...rest } = Astro.props;
   const pop = (cls, label, body) =&gt; `&lt;div class=&quot;pop kbx-pop ${cls}&quot; role=&quot;menu&quot; aria-label=&quot;${label}&quot;&gt;&lt;div class=&quot;ph&quot;&gt;${label}&lt;/div&gt;${body}&lt;/div&gt;`;
   box.insertAdjacentHTML(&#39;beforeend&#39;,
     pop(&#39;kbx-mp&#39;, &#39;Move to&#39;, COLS.map(cl =&gt; `&lt;button class=&quot;mi&quot; role=&quot;menuitemradio&quot; aria-checked=&quot;false&quot; data-close data-to=&quot;${cl.k}&quot;&gt;&lt;span&gt;${cl.t}&lt;/span&gt;&lt;span class=&quot;ck&quot;&gt;${I(&#39;check&#39;, &#39;xs&#39;)}&lt;/span&gt;&lt;/button&gt;`).join(&#39;&#39;))
-    + pop(&#39;kbx-pm&#39;, &#39;Priority&#39;, PK.map(p =&gt; `&lt;button class=&quot;mi&quot; role=&quot;menuitemradio&quot; aria-checked=&quot;false&quot; data-close data-p=&quot;${p}&quot;&gt;${pb(p)}&lt;span&gt;${PRI[p]}&lt;/span&gt;&lt;span class=&quot;ck&quot;&gt;${I(&#39;check&#39;, &#39;xs&#39;)}&lt;/span&gt;&lt;/button&gt;`).join(&#39;&#39;))
+    + pop(&#39;kbx-pm&#39;, &#39;Priority&#39;, PK.map(p =&gt; `&lt;button class=&quot;mi&quot; role=&quot;menuitemradio&quot; aria-checked=&quot;false&quot; data-close data-p=&quot;${p}&quot;&gt;${ptag(p)}&lt;span class=&quot;ck&quot;&gt;${I(&#39;check&#39;, &#39;xs&#39;)}&lt;/span&gt;&lt;/button&gt;`).join(&#39;&#39;))
     + pop(&#39;kbx-am&#39;, &#39;Assignees&#39;, MK.map(w =&gt; `&lt;button class=&quot;mi&quot; role=&quot;menuitemcheckbox&quot; aria-checked=&quot;false&quot; data-who=&quot;${w}&quot;&gt;${AV(w, M[w].bg)}&lt;span&gt;${M[w].n}${w === ME ? &#39; (you)&#39; : &#39;&#39;}&lt;/span&gt;&lt;span class=&quot;ck&quot;&gt;${I(&#39;check&#39;, &#39;xs&#39;)}&lt;/span&gt;&lt;/button&gt;`).join(&#39;&#39;))
     + pop(&#39;kbx-cm&#39;, &#39;Column&#39;, `&lt;button class=&quot;mi&quot; role=&quot;menuitem&quot; data-close data-a=&quot;add&quot;&gt;${I(&#39;plus&#39;, &#39;xs&#39;)}&lt;span&gt;Add card&lt;/span&gt;&lt;/button&gt;&lt;button class=&quot;mi&quot; role=&quot;menuitem&quot; data-close data-a=&quot;all&quot;&gt;${I(&#39;check&#39;, &#39;xs&#39;)}&lt;span&gt;Select all&lt;/span&gt;&lt;/button&gt;&lt;button class=&quot;mi&quot; role=&quot;menuitem&quot; data-close data-a=&quot;pri&quot;&gt;${I(&#39;sort&#39;, &#39;xs&#39;)}&lt;span&gt;Sort by priority&lt;/span&gt;&lt;/button&gt;&lt;button class=&quot;mi&quot; role=&quot;menuitem&quot; data-close data-a=&quot;due&quot;&gt;${I(&#39;cal&#39;, &#39;xs&#39;)}&lt;span&gt;Sort by due date&lt;/span&gt;&lt;/button&gt;&lt;div class=&quot;sep&quot;&gt;&lt;/div&gt;&lt;button class=&quot;mi&quot; role=&quot;menuitem&quot; data-close data-a=&quot;fold&quot;&gt;${I(&#39;chev-l&#39;, &#39;xs&#39;)}&lt;span&gt;Fold column&lt;/span&gt;&lt;/button&gt;`)
     + `&lt;div class=&quot;pop kbx-pop kbx-fm&quot; role=&quot;menu&quot; aria-label=&quot;Filter&quot;&gt;&lt;/div&gt;`);
@@ -1980,7 +2037,7 @@ const { class: className, ...rest } = Astro.props;
 
   /* ---------- filters ---------- */
   const filtering = () =&gt; !!(F.q || F.who.size || F.l.size || F.p.size);
-  const shows = k =&gt; k.keep || ((!F.q || (k.t + &#39; &#39; + k.id).toLowerCase().includes(F.q.toLowerCase()))
+  const shows = k =&gt; k.keep || ((!F.q || (k.t + &#39; &#39; + k.id + &#39; &#39; + (k.pj || &#39;&#39;)).toLowerCase().includes(F.q.toLowerCase()))
     &amp;&amp; (!F.who.size || k.who.some(w =&gt; F.who.has(w))) &amp;&amp; (!F.l.size || k.l.some(x =&gt; F.l.has(x))) &amp;&amp; (!F.p.size || F.p.has(k.p)));
   const visible = col =&gt; K.filter(k =&gt; k.c === col &amp;&amp; shows(k));
 
@@ -2000,7 +2057,7 @@ const { class: className, ...rest } = Astro.props;
       $(&#39;.kbx-list&#39;, col).innerHTML = L.map(card).join(&#39;&#39;) || (filtering() ? &#39;&#39; : &#39;&lt;div class=&quot;kbx-none&quot;&gt;No cards&lt;/div&gt;&#39;);
       // the count, or with a limit how full the column is, which turns into a warning once it is over
       const n = $(&#39;.kbx-ch .n&#39;, col), over = cl.lim &amp;&amp; all &gt; cl.lim;
-      n.innerHTML = over ? `&lt;span class=&quot;tag warn&quot; data-tip=&quot;Over the limit of ${cl.lim}&quot;&gt;${I(&#39;alert&#39;, &#39;xs&#39;)}${all}/${cl.lim}&lt;/span&gt;` : (filtering() &amp;&amp; L.length !== all ? `${L.length} of ${all}` : cl.lim ? `${all}/${cl.lim}` : all);
+      n.innerHTML = over ? `&lt;span class=&quot;tag warn&quot; data-tip=&quot;Over the limit of ${cl.lim}&quot;&gt;${I(&#39;alert&#39;, &#39;xs&#39;)}${all}/${cl.lim}&lt;/span&gt;` : `&lt;span class=&quot;tag&quot;&gt;${filtering() &amp;&amp; L.length !== all ? `${L.length} of ${all}` : cl.lim ? `${all}/${cl.lim}` : all}&lt;/span&gt;`;
       col.classList.toggle(&#39;shut&#39;, shut.has(cl.k)); col.classList.toggle(&#39;wip&#39;, !!over);
       const tg = $(&#39;.kbx-tg&#39;, col); tg.setAttribute(&#39;aria-expanded&#39;, !shut.has(cl.k)); tg.setAttribute(&#39;aria-label&#39;, (shut.has(cl.k) ? &#39;Open &#39; : &#39;Fold &#39;) + cl.t); tg.dataset.tip = shut.has(cl.k) ? &#39;Open&#39; : &#39;Fold&#39;;
       const tn = $(`[data-v=&quot;${cl.k}&quot;] .n`, tabs); if (tn.textContent !== String(L.length)){ tn.textContent = L.length; if (painted) enter(tn); }
@@ -2081,20 +2138,21 @@ const { class: className, ...rest } = Astro.props;
       + `&lt;div class=&quot;kbx-pk-r&quot;&gt;&lt;span class=&quot;k&quot;&gt;Status&lt;/span&gt;&lt;button class=&quot;kbx-pv&quot; data-pop=&quot;.kbx-mp&quot; aria-haspopup=&quot;menu&quot; aria-label=&quot;Status: ${colName(k.c)}&quot;&gt;${colName(k.c)}${I(&#39;chev-d&#39;, &#39;xs&#39;)}&lt;/button&gt;&lt;/div&gt;`
       + `&lt;div class=&quot;kbx-pk-r&quot;&gt;&lt;span class=&quot;k&quot;&gt;Priority&lt;/span&gt;&lt;button class=&quot;kbx-pv&quot; data-pop=&quot;.kbx-pm&quot; aria-haspopup=&quot;menu&quot; aria-label=&quot;Priority: ${PRI[k.p]}&quot;&gt;${priV(k)}&lt;/button&gt;&lt;/div&gt;`
       + `&lt;div class=&quot;kbx-pk-r&quot;&gt;&lt;span class=&quot;k&quot;&gt;Assignees&lt;/span&gt;&lt;button class=&quot;kbx-pv&quot; data-pop=&quot;.kbx-am&quot; aria-haspopup=&quot;menu&quot; aria-label=&quot;Assignees: ${names(k) || &#39;none&#39;}&quot;&gt;${whoV(k)}&lt;/button&gt;&lt;/div&gt;`
+      + (k.pj ? `&lt;div class=&quot;kbx-pk-r&quot;&gt;&lt;span class=&quot;k&quot;&gt;Project&lt;/span&gt;&lt;span class=&quot;kbx-pv&quot;&gt;${esc(k.pj)}&lt;/span&gt;&lt;/div&gt;` : &#39;&#39;)
       + (k.due != null ? `&lt;div class=&quot;kbx-pk-r&quot;&gt;&lt;span class=&quot;k&quot;&gt;Due&lt;/span&gt;&lt;span class=&quot;kbx-pv${k.due &lt; 0 &amp;&amp; k.c !== &#39;done&#39; ? &#39; late&#39; : &#39;&#39;}&quot;&gt;${I(&#39;cal&#39;, &#39;xs&#39;)}${fmt(k.due)}${k.due &lt; 0 &amp;&amp; k.c !== &#39;done&#39; ? &#39;, overdue&#39; : &#39;&#39;}&lt;/span&gt;&lt;/div&gt;` : &#39;&#39;)
-      + (k.l.length ? `&lt;div class=&quot;kbx-pk-r&quot;&gt;&lt;span class=&quot;k&quot;&gt;Labels&lt;/span&gt;&lt;span class=&quot;kbx-tags&quot;&gt;${k.l.map(x =&gt; `&lt;span class=&quot;tag&quot;&gt;${x}&lt;/span&gt;`).join(&#39;&#39;)}&lt;/span&gt;&lt;/div&gt;` : &#39;&#39;)
+      + (k.l.length ? `&lt;div class=&quot;kbx-pk-r&quot;&gt;&lt;span class=&quot;k&quot;&gt;Labels&lt;/span&gt;&lt;span class=&quot;kbx-tags&quot;&gt;${k.l.map(ltag).join(&#39;&#39;)}&lt;/span&gt;&lt;/div&gt;` : &#39;&#39;)
       + `&lt;/div&gt;`
       + (n ? `&lt;div class=&quot;kbx-pk-s&quot;&gt;&lt;b&gt;Subtasks&lt;/b&gt;&lt;span class=&quot;num&quot;&gt;${d}/${n}&lt;/span&gt;&lt;span class=&quot;kbx-sb&quot;&gt;&lt;i style=&quot;width:${d / n * 100}%&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;kbx-pk-cl&quot; role=&quot;group&quot; aria-label=&quot;Subtasks&quot;&gt;${k.sub.map((s, i) =&gt; `&lt;button class=&quot;kbx-ci&quot; role=&quot;checkbox&quot; aria-checked=&quot;${s.d}&quot; data-i=&quot;${i}&quot;${k.run != null ? &#39; disabled&#39; : &#39;&#39;}&gt;&lt;span class=&quot;kbx-cb&quot;&gt;${I(&#39;check&#39;, &#39;xs&#39;)}&lt;/span&gt;&lt;span&gt;${esc(s.t)}&lt;/span&gt;&lt;/button&gt;`).join(&#39;&#39;)}&lt;/div&gt;` : &#39;&#39;)
       + `&lt;div class=&quot;kbx-pk-f&quot;&gt;&lt;span class=&quot;kbx-mt&quot;&gt;${I(&#39;comment&#39;, &#39;xs&#39;)}${k.cm || &#39;No&#39;} comment${k.cm === 1 ? &#39;&#39; : &#39;s&#39;}&lt;/span&gt;&lt;span class=&quot;kbx-mt&quot;&gt;${I(&#39;clip&#39;, &#39;xs&#39;)}${k.at || &#39;No&#39;} file${k.at === 1 ? &#39;&#39; : &#39;s&#39;}&lt;/span&gt;&lt;/div&gt;`;
   }
   const names = k =&gt; k.who.map(w =&gt; M[w].n).join(&#39;, &#39;);
-  const priV = k =&gt; `${pb(k.p)}${PRI[k.p]}${I(&#39;chev-d&#39;, &#39;xs&#39;)}`;
+  const priV = k =&gt; `${ptag(k.p)}${I(&#39;chev-d&#39;, &#39;xs&#39;)}`;
   const whoV = k =&gt; `${k.who.length ? `&lt;span class=&quot;avs&quot;&gt;${avs(k.who)}&lt;/span&gt;${k.who.length &gt; 1 ? k.who.length + &#39; people&#39; : M[k.who[0]].n}` : &#39;Assign&#39;}${I(&#39;chev-d&#39;, &#39;xs&#39;)}`;
   // a quick edit changes the card and the sheet where they are, so the menu it came from stays put
   function refresh(k){
     const el = cardEl(k.id);
     if (el){ const p = $(&#39;.kbx-pri&#39;, el), w = $(&#39;.kbx-who&#39;, el);
-      p.innerHTML = pb(k.p); p.setAttribute(&#39;aria-label&#39;, `Priority: ${PRI[k.p]}`); p.dataset.tip = PRI[k.p];
+      p.className = priCls(k.p); p.textContent = PRI[k.p]; p.setAttribute(&#39;aria-label&#39;, `Priority: ${PRI[k.p]}`);
       w.innerHTML = k.who.length ? avs(k.who) : `&lt;span class=&quot;none&quot;&gt;${I(&#39;user&#39;, &#39;xs&#39;)}&lt;/span&gt;`; w.setAttribute(&#39;aria-label&#39;, `Assignees: ${names(k) || &#39;none&#39;}`); w.dataset.tip = names(k) || &#39;Assign&#39;;
       el.setAttribute(&#39;aria-label&#39;, label(k)); }
     if (peek === k.id){ const pv = $(&#39;.kbx-pv[data-pop=&quot;.kbx-pm&quot;]&#39;, sheet), av = $(&#39;.kbx-pv[data-pop=&quot;.kbx-am&quot;]&#39;, sheet);
@@ -2112,7 +2170,7 @@ const { class: className, ...rest } = Astro.props;
 
   /* ---------- adding and renaming ---------- */
   function rename(el, k, fresh){
-    const t = $(&#39;.t&#39;, el); editing = true; t.contentEditable = &#39;true&#39;; t.focus({ preventScroll:true }); document.getSelection().selectAllChildren(t);
+    const t = $(&#39;:scope&gt;.t&#39;, el); editing = true; t.contentEditable = &#39;true&#39;; t.focus({ preventScroll:true }); document.getSelection().selectAllChildren(t);
     const was = k.t;
     t.onkeydown = e =&gt; { e.stopPropagation(); if (e.key === &#39;Enter&#39;){ e.preventDefault(); t.blur(); } if (e.key === &#39;Escape&#39;){ t.textContent = was; t.blur(); } };
     t.onblur = () =&gt; { editing = false; t.contentEditable = &#39;false&#39;; k.t = t.textContent.trim() || (fresh ? &#39;New card&#39; : was); t.textContent = k.t; el.setAttribute(&#39;aria-label&#39;, label(k)); if (peek === k.id) sheetPaint(); c.later(0, () =&gt; focusCard(k.id)); };
@@ -2169,12 +2227,12 @@ const { class: className, ...rest } = Astro.props;
     if (el.querySelector(&#39;.t[contenteditable=&quot;true&quot;]&#39;)) return;
     // a click on the title waits a moment, in case it is the first of a double-click that renames the card
     clearTimeout(clickT);
-    if (e.target.closest(&#39;.t&#39;) &amp;&amp; e.detail === 1){ clickT = setTimeout(() =&gt; open(k.id), 240); c.offs.push(() =&gt; clearTimeout(clickT)); return; }
+    if (e.target.closest(&#39;.kbx-k&gt;.t&#39;) &amp;&amp; e.detail === 1){ clickT = setTimeout(() =&gt; open(k.id), 240); c.offs.push(() =&gt; clearTimeout(clickT)); return; }
     if (e.detail &gt; 1) return;
     open(k.id);
   });
   const open = id =&gt; { foc = id; peek === id ? closeSheet() : openSheet(id); };
-  c.on(wrap, &#39;dblclick&#39;, e =&gt; { const t = e.target.closest(&#39;.kbx-k .t&#39;); if (!t || editing) return; clearTimeout(clickT); const el = t.closest(&#39;.kbx-k&#39;); rename(el, byId(el.dataset.id)); });
+  c.on(wrap, &#39;dblclick&#39;, e =&gt; { const t = e.target.closest(&#39;.kbx-k&gt;.t&#39;); if (!t || editing) return; clearTimeout(clickT); const el = t.closest(&#39;.kbx-k&#39;); rename(el, byId(el.dataset.id)); });
   // shift-click picks the cards between the last one picked and this one, in the same column; Cmd or Ctrl-click one card
   function toggle(id, range){
     const k = byId(id), a = anchor &amp;&amp; byId(anchor);
@@ -2224,7 +2282,7 @@ const { class: className, ...rest } = Astro.props;
     fmFor = f; const opts = f === &#39;who&#39; ? MK : f === &#39;l&#39; ? LABELS : PK, set = F[f];
     const n = v =&gt; K.filter(k =&gt; f === &#39;who&#39; ? k.who.includes(v) : f === &#39;l&#39; ? k.l.includes(v) : k.p === v).length;
     fm.setAttribute(&#39;aria-label&#39;, { who:&#39;Assignee&#39;, l:&#39;Label&#39;, p:&#39;Priority&#39; }[f]);
-    fm.innerHTML = `&lt;div class=&quot;ph&quot;&gt;${{ who:&#39;Assignee&#39;, l:&#39;Label&#39;, p:&#39;Priority&#39; }[f]}&lt;/div&gt;` + opts.map(v =&gt; `&lt;button class=&quot;mi&quot; role=&quot;menuitemcheckbox&quot; aria-checked=&quot;${set.has(v)}&quot; data-v=&quot;${v}&quot;&gt;${f === &#39;who&#39; ? AV(v, M[v].bg) : f === &#39;p&#39; ? pb(v) : &#39;&#39;}&lt;span&gt;${f === &#39;who&#39; ? M[v].n : f === &#39;p&#39; ? PRI[v] : v}&lt;/span&gt;&lt;span class=&quot;r num&quot;&gt;${n(v)}&lt;/span&gt;&lt;span class=&quot;ck&quot;&gt;${I(&#39;check&#39;, &#39;xs&#39;)}&lt;/span&gt;&lt;/button&gt;`).join(&#39;&#39;);
+    fm.innerHTML = `&lt;div class=&quot;ph&quot;&gt;${{ who:&#39;Assignee&#39;, l:&#39;Label&#39;, p:&#39;Priority&#39; }[f]}&lt;/div&gt;` + opts.map(v =&gt; `&lt;button class=&quot;mi&quot; role=&quot;menuitemcheckbox&quot; aria-checked=&quot;${set.has(v)}&quot; data-v=&quot;${v}&quot;&gt;${f === &#39;who&#39; ? `${AV(v, M[v].bg)}&lt;span&gt;${M[v].n}&lt;/span&gt;` : f === &#39;p&#39; ? ptag(v) : ltag(v)}&lt;span class=&quot;r num&quot;&gt;${n(v)}&lt;/span&gt;&lt;span class=&quot;ck&quot;&gt;${I(&#39;check&#39;, &#39;xs&#39;)}&lt;/span&gt;&lt;/button&gt;`).join(&#39;&#39;);
     $$(&#39;.mi&#39;, fm).forEach(m =&gt; m.onclick = () =&gt; { const v = m.dataset.v; set.has(v) ? set.delete(v) : set.add(v); m.setAttribute(&#39;aria-checked&#39;, set.has(v)); refilter(); });
   }
   $$(&#39;.kbx-f&#39;, r).forEach(b =&gt; b.addEventListener(&#39;click&#39;, () =&gt; fill(b.dataset.f)));
@@ -2621,21 +2679,24 @@ const fitHits = window.dmFitHits || (() => {
   const M = { MK:{ n:'Maya Kim', bg:'var(--dm-av-l)' }, JO:{ n:'Jonas Ortiz', bg:'var(--dm-av-m)' }, LP:{ n:'Lena Park', bg:'var(--dm-av-p)' }, DA:{ n:'Design agent', bg:'var(--dm-av-b)', agent:true } };
   const ME = 'MK', MK = Object.keys(M);
   const PRI = { urgent:'Urgent', high:'High', med:'Medium', low:'Low', none:'No priority' }, PK = Object.keys(PRI);
-  const LABELS = ['Design', 'Copy', 'Code', 'Bug', 'A11y'];
+  // priority is a coloured chip (Urgent red, High orange, Medium yellow, Low blue, none grey), and each label keeps one of the
+  // other core tag colours wherever it shows
+  const PT = { urgent:'bad', high:'p', med:'y', low:'b', none:'' };
+  const LABELS = ['Design', 'Copy', 'Code', 'Bug', 'A11y'], LT = { Design:'l', Copy:'t', Code:'m', Bug:'k', A11y:'r' };
   // due dates are days from today, so the overdue one is always overdue
   const day = n => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + n); return d; };
   const fmt = n => n === 0 ? 'Today' : n === 1 ? 'Tomorrow' : day(n).toLocaleDateString('en-US', { month:'short', day:'numeric' });
   const sub = (...a) => a.map(([t, d]) => ({ t, d:!!d }));
   let K = [
-    { id:'DES-148', c:'todo', t:'Audit checkout for contrast', p:'high', l:['A11y'], who:['DA'], due:3, sub:sub(['List every text pair'], ['Check against 4.5:1'], ['Fix the failing pairs'], ['Write up the changes']) },
-    { id:'DES-151', c:'todo', t:'Write release notes for pricing', p:'med', l:['Copy'], who:['MK'], due:2, cm:2 },
-    { id:'DES-157', c:'todo', t:'Pricing toggle hides the yearly saving', p:'urgent', l:['Bug'], who:['JO'], due:1, cm:4, at:1 },
-    { id:'DES-155', c:'todo', t:'Empty state for search', p:'low', l:['Design'], who:['LP'], at:2 },
-    { id:'DES-142', c:'doing', t:'Export tokens to CSS', p:'high', l:['Code'], who:['DA'], at:1, run:.4, sub:sub(['Read the Figma variables', 1], ['Map colours to roles', 1], ['Write the CSS variables'], ['Check contrast pairs'], ['Open a pull request']) },
-    { id:'DES-144', c:'doing', t:'Review annual plan copy', p:'med', l:['Copy'], who:['JO', 'MK'], due:-1, cm:5, sub:sub(['Headline', 1], ['Plan names', 1], ['Feature list'], ['Footnotes']) },
-    { id:'DES-146', c:'doing', t:'Plan cards wrap at 768px', p:'high', l:['Design', 'Bug'], who:['LP'], due:0, cm:1, sub:sub(['Reproduce on a tablet', 1], ['Fix the grid'], ['Test at 744px']) },
-    { id:'DES-139', c:'done', t:'One CTA per pricing card', p:'med', l:['Design'], who:['MK'], cm:3, sub:sub(['Pick the CTA', 1], ['Update the cards', 1]) },
-    { id:'DES-137', c:'done', t:'Compare checkout flows', p:'low', l:['Design'], who:['LP'], at:3, sub:sub(['Collect five flows', 1], ['Note the steps', 1], ['Share the findings', 1]) }
+    { id:'DES-148', c:'todo', t:'Audit checkout for contrast', p:'high', pj:'Checkout', l:['A11y'], who:['DA'], due:3, sub:sub(['List every text pair'], ['Check against 4.5:1'], ['Fix the failing pairs'], ['Write up the changes']) },
+    { id:'DES-151', c:'todo', t:'Write release notes for pricing', p:'med', pj:'Pricing', l:['Copy'], who:['MK'], due:2, cm:2 },
+    { id:'DES-157', c:'todo', t:'Pricing toggle hides the yearly saving', p:'urgent', pj:'Pricing', l:['Bug'], who:['JO'], due:1, cm:4, at:1 },
+    { id:'DES-155', c:'todo', t:'Empty state for search', p:'low', pj:'Search', l:['Design'], who:['LP'], at:2 },
+    { id:'DES-142', c:'doing', t:'Export tokens to CSS', p:'high', pj:'Tokens', l:['Code'], who:['DA'], at:1, run:.4, sub:sub(['Read the Figma variables', 1], ['Map colours to roles', 1], ['Write the CSS variables'], ['Check contrast pairs'], ['Open a pull request']) },
+    { id:'DES-144', c:'doing', t:'Review annual plan copy', p:'med', pj:'Pricing', l:['Copy'], who:['JO', 'MK'], due:-1, cm:5, sub:sub(['Headline', 1], ['Plan names', 1], ['Feature list'], ['Footnotes']) },
+    { id:'DES-146', c:'doing', t:'Plan cards wrap at 768px', p:'high', pj:'Pricing', l:['Design', 'Bug'], who:['LP'], due:0, cm:1, sub:sub(['Reproduce on a tablet', 1], ['Fix the grid'], ['Test at 744px']) },
+    { id:'DES-139', c:'done', t:'One CTA per pricing card', p:'med', pj:'Pricing', l:['Design'], who:['MK'], cm:3, sub:sub(['Pick the CTA', 1], ['Update the cards', 1]) },
+    { id:'DES-137', c:'done', t:'Compare checkout flows', p:'low', pj:'Checkout', l:['Design'], who:['LP'], at:3, sub:sub(['Collect five flows', 1], ['Note the steps', 1], ['Share the findings', 1]) }
   ];
   let next = 158;
   const box = $('.kbx', r), bd = $('.kbx-bd', r), wrap = $('.kbx-cols', r), live = $('.kbx-sr', r);
@@ -2649,25 +2710,27 @@ const fitHits = window.dmFitHits || (() => {
   const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
   /* ---------- the parts ---------- */
-  const pb = p => p === 'urgent' ? '<span class="kbx-pu" aria-hidden="true">!</span>' : `<span class="kbx-pb" data-p="${p}" aria-hidden="true"><i></i><i></i><i></i></span>`;
+  const ptag = p => `<span class="tag${PT[p] ? ' ' + PT[p] : ''}">${PRI[p]}</span>`;
+  const ltag = x => `<span class="tag${LT[x] ? ' ' + LT[x] : ''}">${x}</span>`;
+  const priCls = p => `tag${PT[p] ? ' ' + PT[p] : ''} kbx-pri`;
   const avs = who => who.map(w => AV(w, M[w].bg)).join('');
   const done = k => (k.sub || []).filter(s => s.d).length;
   const step = k => (k.sub || []).find(s => !s.d)?.t || 'Wrapping up';
   const metaOf = k => {
     const n = k.sub?.length, d = done(k);
-    return `${k.l.length ? `<span class="kbx-tags">${k.l.map(x => `<span class="tag">${x}</span>`).join('')}</span>` : ''}`
-      + (k.due != null && k.c !== 'done' ? `<span class="kbx-mt${k.due < 0 ? ' late' : ''}" data-tip="${k.due < 0 ? 'Overdue' : 'Due'}">${I('cal', 'xs')}${fmt(k.due)}</span>` : '')
+    return (k.due != null && k.c !== 'done' ? `<span class="kbx-mt${k.due < 0 ? ' late' : ''}" data-tip="${k.due < 0 ? 'Overdue' : 'Due'}">${I('cal', 'xs')}${fmt(k.due)}</span>` : '')
       + (n ? `<span class="kbx-mt${d === n ? ' ok' : ''}" data-tip="${d} of ${n} subtasks done"><span class="num">${d}/${n}</span><span class="kbx-sb"><i style="width:${d / n * 100}%"></i></span></span>` : '')
       + (k.cm ? `<span class="kbx-mt" data-tip="${k.cm} comment${k.cm > 1 ? 's' : ''}">${I('comment', 'xs')}<span class="num">${k.cm}</span></span>` : '')
       + (k.at ? `<span class="kbx-mt" data-tip="${k.at} file${k.at > 1 ? 's' : ''}">${I('clip', 'xs')}<span class="num">${k.at}</span></span>` : '');
   };
-  const label = k => `${k.id}, ${k.t}. ${PRI[k.p]} priority${k.who.length ? ', ' + k.who.map(w => M[w].n).join(' and ') : ''}${k.due != null && k.c !== 'done' ? ', due ' + fmt(k.due) + (k.due < 0 ? ', overdue' : '') : ''}${k.run != null ? ', the agent is working on it' : ''}${sel.has(k.id) ? ', selected' : ''}`;
+  const label = k => `${k.id}, ${k.t}. ${PRI[k.p]} priority${k.pj ? ', project ' + k.pj : ''}${k.who.length ? ', ' + k.who.map(w => M[w].n).join(' and ') : ''}${k.due != null && k.c !== 'done' ? ', due ' + fmt(k.due) + (k.due < 0 ? ', overdue' : '') : ''}${k.run != null ? ', the agent is working on it' : ''}${sel.has(k.id) ? ', selected' : ''}`;
   const card = k => `<div class="kbx-k${k.run != null ? ' agent' : ''}${sel.has(k.id) ? ' sel' : ''}${peek === k.id ? ' open' : ''}" data-id="${k.id}" role="listitem" tabindex="-1" aria-label="${esc(label(k))}">`
     + `<div class="kbx-k1"><button class="kbx-sel" role="checkbox" aria-checked="${sel.has(k.id)}" aria-label="Select ${k.id}" tabindex="-1">${I('check', 'xs')}</button>`
-    + `<button class="kbx-pri" data-pop=".kbx-pm" aria-haspopup="menu" aria-label="Priority: ${PRI[k.p]}" data-tip="${PRI[k.p]}" tabindex="-1">${pb(k.p)}</button>`
     + `<span class="kbx-id num">${k.id}</span><span class="kbx-sp"></span>`
-    + `<button class="kbx-who" data-pop=".kbx-am" data-pop-align="end" aria-haspopup="menu" aria-label="Assignees: ${k.who.map(w => M[w].n).join(', ') || 'none'}" data-tip="${k.who.map(w => M[w].n).join(', ') || 'Assign'}" tabindex="-1">${k.who.length ? avs(k.who) : `<span class="none">${I('user', 'xs')}</span>`}</button>`
-    + `<button class="kbx-mv" data-pop=".kbx-mp" data-pop-align="end" aria-haspopup="menu" aria-label="Move ${k.id}" data-tip="Move to" tabindex="-1">${I('more', 'xs')}</button></div>`
+    + `<button class="kbx-mv" data-pop=".kbx-mp" data-pop-align="end" aria-haspopup="menu" aria-label="Move ${k.id}" data-tip="Move to" tabindex="-1">${I('more', 'xs')}</button>`
+    + `<button class="kbx-who" data-pop=".kbx-am" data-pop-align="end" aria-haspopup="menu" aria-label="Assignees: ${k.who.map(w => M[w].n).join(', ') || 'none'}" data-tip="${k.who.map(w => M[w].n).join(', ') || 'Assign'}" tabindex="-1">${k.who.length ? avs(k.who) : `<span class="none">${I('user', 'xs')}</span>`}</button></div>`
+    + `<div class="kbx-cr"><button class="${priCls(k.p)}" data-pop=".kbx-pm" aria-haspopup="menu" aria-label="Priority: ${PRI[k.p]}" data-tip="Priority" tabindex="-1">${PRI[k.p]}</button>`
+    + (k.pj ? `<span class="tag kbx-pj" data-tip="Project"><span>${esc(k.pj)}</span></span>` : '') + k.l.map(ltag).join('') + `</div>`
     + `<span class="t">${esc(k.t)}</span>`
     + (k.run != null ? `<div class="kbx-ag"><span class="think on"><i></i><i></i><i></i><i></i></span><span class="s">${step(k)}</span><span class="pc num">${Math.round(k.run * 100)}%</span></div><div class="kbx-pr"><i style="width:${k.run * 100}%"></i></div>` : '')
     + `<div class="kbx-m">${metaOf(k)}</div></div>`;
@@ -2683,7 +2746,7 @@ const fitHits = window.dmFitHits || (() => {
   const pop = (cls, label, body) => `<div class="pop kbx-pop ${cls}" role="menu" aria-label="${label}"><div class="ph">${label}</div>${body}</div>`;
   box.insertAdjacentHTML('beforeend',
     pop('kbx-mp', 'Move to', COLS.map(cl => `<button class="mi" role="menuitemradio" aria-checked="false" data-close data-to="${cl.k}"><span>${cl.t}</span><span class="ck">${I('check', 'xs')}</span></button>`).join(''))
-    + pop('kbx-pm', 'Priority', PK.map(p => `<button class="mi" role="menuitemradio" aria-checked="false" data-close data-p="${p}">${pb(p)}<span>${PRI[p]}</span><span class="ck">${I('check', 'xs')}</span></button>`).join(''))
+    + pop('kbx-pm', 'Priority', PK.map(p => `<button class="mi" role="menuitemradio" aria-checked="false" data-close data-p="${p}">${ptag(p)}<span class="ck">${I('check', 'xs')}</span></button>`).join(''))
     + pop('kbx-am', 'Assignees', MK.map(w => `<button class="mi" role="menuitemcheckbox" aria-checked="false" data-who="${w}">${AV(w, M[w].bg)}<span>${M[w].n}${w === ME ? ' (you)' : ''}</span><span class="ck">${I('check', 'xs')}</span></button>`).join(''))
     + pop('kbx-cm', 'Column', `<button class="mi" role="menuitem" data-close data-a="add">${I('plus', 'xs')}<span>Add card</span></button><button class="mi" role="menuitem" data-close data-a="all">${I('check', 'xs')}<span>Select all</span></button><button class="mi" role="menuitem" data-close data-a="pri">${I('sort', 'xs')}<span>Sort by priority</span></button><button class="mi" role="menuitem" data-close data-a="due">${I('cal', 'xs')}<span>Sort by due date</span></button><div class="sep"></div><button class="mi" role="menuitem" data-close data-a="fold">${I('chev-l', 'xs')}<span>Fold column</span></button>`)
     + `<div class="pop kbx-pop kbx-fm" role="menu" aria-label="Filter"></div>`);
@@ -2694,7 +2757,7 @@ const fitHits = window.dmFitHits || (() => {
 
   /* ---------- filters ---------- */
   const filtering = () => !!(F.q || F.who.size || F.l.size || F.p.size);
-  const shows = k => k.keep || ((!F.q || (k.t + ' ' + k.id).toLowerCase().includes(F.q.toLowerCase()))
+  const shows = k => k.keep || ((!F.q || (k.t + ' ' + k.id + ' ' + (k.pj || '')).toLowerCase().includes(F.q.toLowerCase()))
     && (!F.who.size || k.who.some(w => F.who.has(w))) && (!F.l.size || k.l.some(x => F.l.has(x))) && (!F.p.size || F.p.has(k.p)));
   const visible = col => K.filter(k => k.c === col && shows(k));
 
@@ -2714,7 +2777,7 @@ const fitHits = window.dmFitHits || (() => {
       $('.kbx-list', col).innerHTML = L.map(card).join('') || (filtering() ? '' : '<div class="kbx-none">No cards</div>');
       // the count, or with a limit how full the column is, which turns into a warning once it is over
       const n = $('.kbx-ch .n', col), over = cl.lim && all > cl.lim;
-      n.innerHTML = over ? `<span class="tag warn" data-tip="Over the limit of ${cl.lim}">${I('alert', 'xs')}${all}/${cl.lim}</span>` : (filtering() && L.length !== all ? `${L.length} of ${all}` : cl.lim ? `${all}/${cl.lim}` : all);
+      n.innerHTML = over ? `<span class="tag warn" data-tip="Over the limit of ${cl.lim}">${I('alert', 'xs')}${all}/${cl.lim}</span>` : `<span class="tag">${filtering() && L.length !== all ? `${L.length} of ${all}` : cl.lim ? `${all}/${cl.lim}` : all}</span>`;
       col.classList.toggle('shut', shut.has(cl.k)); col.classList.toggle('wip', !!over);
       const tg = $('.kbx-tg', col); tg.setAttribute('aria-expanded', !shut.has(cl.k)); tg.setAttribute('aria-label', (shut.has(cl.k) ? 'Open ' : 'Fold ') + cl.t); tg.dataset.tip = shut.has(cl.k) ? 'Open' : 'Fold';
       const tn = $(`[data-v="${cl.k}"] .n`, tabs); if (tn.textContent !== String(L.length)){ tn.textContent = L.length; if (painted) enter(tn); }
@@ -2795,20 +2858,21 @@ const fitHits = window.dmFitHits || (() => {
       + `<div class="kbx-pk-r"><span class="k">Status</span><button class="kbx-pv" data-pop=".kbx-mp" aria-haspopup="menu" aria-label="Status: ${colName(k.c)}">${colName(k.c)}${I('chev-d', 'xs')}</button></div>`
       + `<div class="kbx-pk-r"><span class="k">Priority</span><button class="kbx-pv" data-pop=".kbx-pm" aria-haspopup="menu" aria-label="Priority: ${PRI[k.p]}">${priV(k)}</button></div>`
       + `<div class="kbx-pk-r"><span class="k">Assignees</span><button class="kbx-pv" data-pop=".kbx-am" aria-haspopup="menu" aria-label="Assignees: ${names(k) || 'none'}">${whoV(k)}</button></div>`
+      + (k.pj ? `<div class="kbx-pk-r"><span class="k">Project</span><span class="kbx-pv">${esc(k.pj)}</span></div>` : '')
       + (k.due != null ? `<div class="kbx-pk-r"><span class="k">Due</span><span class="kbx-pv${k.due < 0 && k.c !== 'done' ? ' late' : ''}">${I('cal', 'xs')}${fmt(k.due)}${k.due < 0 && k.c !== 'done' ? ', overdue' : ''}</span></div>` : '')
-      + (k.l.length ? `<div class="kbx-pk-r"><span class="k">Labels</span><span class="kbx-tags">${k.l.map(x => `<span class="tag">${x}</span>`).join('')}</span></div>` : '')
+      + (k.l.length ? `<div class="kbx-pk-r"><span class="k">Labels</span><span class="kbx-tags">${k.l.map(ltag).join('')}</span></div>` : '')
       + `</div>`
       + (n ? `<div class="kbx-pk-s"><b>Subtasks</b><span class="num">${d}/${n}</span><span class="kbx-sb"><i style="width:${d / n * 100}%"></i></span></div><div class="kbx-pk-cl" role="group" aria-label="Subtasks">${k.sub.map((s, i) => `<button class="kbx-ci" role="checkbox" aria-checked="${s.d}" data-i="${i}"${k.run != null ? ' disabled' : ''}><span class="kbx-cb">${I('check', 'xs')}</span><span>${esc(s.t)}</span></button>`).join('')}</div>` : '')
       + `<div class="kbx-pk-f"><span class="kbx-mt">${I('comment', 'xs')}${k.cm || 'No'} comment${k.cm === 1 ? '' : 's'}</span><span class="kbx-mt">${I('clip', 'xs')}${k.at || 'No'} file${k.at === 1 ? '' : 's'}</span></div>`;
   }
   const names = k => k.who.map(w => M[w].n).join(', ');
-  const priV = k => `${pb(k.p)}${PRI[k.p]}${I('chev-d', 'xs')}`;
+  const priV = k => `${ptag(k.p)}${I('chev-d', 'xs')}`;
   const whoV = k => `${k.who.length ? `<span class="avs">${avs(k.who)}</span>${k.who.length > 1 ? k.who.length + ' people' : M[k.who[0]].n}` : 'Assign'}${I('chev-d', 'xs')}`;
   // a quick edit changes the card and the sheet where they are, so the menu it came from stays put
   function refresh(k){
     const el = cardEl(k.id);
     if (el){ const p = $('.kbx-pri', el), w = $('.kbx-who', el);
-      p.innerHTML = pb(k.p); p.setAttribute('aria-label', `Priority: ${PRI[k.p]}`); p.dataset.tip = PRI[k.p];
+      p.className = priCls(k.p); p.textContent = PRI[k.p]; p.setAttribute('aria-label', `Priority: ${PRI[k.p]}`);
       w.innerHTML = k.who.length ? avs(k.who) : `<span class="none">${I('user', 'xs')}</span>`; w.setAttribute('aria-label', `Assignees: ${names(k) || 'none'}`); w.dataset.tip = names(k) || 'Assign';
       el.setAttribute('aria-label', label(k)); }
     if (peek === k.id){ const pv = $('.kbx-pv[data-pop=".kbx-pm"]', sheet), av = $('.kbx-pv[data-pop=".kbx-am"]', sheet);
@@ -2826,7 +2890,7 @@ const fitHits = window.dmFitHits || (() => {
 
   /* ---------- adding and renaming ---------- */
   function rename(el, k, fresh){
-    const t = $('.t', el); editing = true; t.contentEditable = 'true'; t.focus({ preventScroll:true }); document.getSelection().selectAllChildren(t);
+    const t = $(':scope>.t', el); editing = true; t.contentEditable = 'true'; t.focus({ preventScroll:true }); document.getSelection().selectAllChildren(t);
     const was = k.t;
     t.onkeydown = e => { e.stopPropagation(); if (e.key === 'Enter'){ e.preventDefault(); t.blur(); } if (e.key === 'Escape'){ t.textContent = was; t.blur(); } };
     t.onblur = () => { editing = false; t.contentEditable = 'false'; k.t = t.textContent.trim() || (fresh ? 'New card' : was); t.textContent = k.t; el.setAttribute('aria-label', label(k)); if (peek === k.id) sheetPaint(); c.later(0, () => focusCard(k.id)); };
@@ -2883,12 +2947,12 @@ const fitHits = window.dmFitHits || (() => {
     if (el.querySelector('.t[contenteditable="true"]')) return;
     // a click on the title waits a moment, in case it is the first of a double-click that renames the card
     clearTimeout(clickT);
-    if (e.target.closest('.t') && e.detail === 1){ clickT = setTimeout(() => open(k.id), 240); c.offs.push(() => clearTimeout(clickT)); return; }
+    if (e.target.closest('.kbx-k>.t') && e.detail === 1){ clickT = setTimeout(() => open(k.id), 240); c.offs.push(() => clearTimeout(clickT)); return; }
     if (e.detail > 1) return;
     open(k.id);
   });
   const open = id => { foc = id; peek === id ? closeSheet() : openSheet(id); };
-  c.on(wrap, 'dblclick', e => { const t = e.target.closest('.kbx-k .t'); if (!t || editing) return; clearTimeout(clickT); const el = t.closest('.kbx-k'); rename(el, byId(el.dataset.id)); });
+  c.on(wrap, 'dblclick', e => { const t = e.target.closest('.kbx-k>.t'); if (!t || editing) return; clearTimeout(clickT); const el = t.closest('.kbx-k'); rename(el, byId(el.dataset.id)); });
   // shift-click picks the cards between the last one picked and this one, in the same column; Cmd or Ctrl-click one card
   function toggle(id, range){
     const k = byId(id), a = anchor && byId(anchor);
@@ -2938,7 +3002,7 @@ const fitHits = window.dmFitHits || (() => {
     fmFor = f; const opts = f === 'who' ? MK : f === 'l' ? LABELS : PK, set = F[f];
     const n = v => K.filter(k => f === 'who' ? k.who.includes(v) : f === 'l' ? k.l.includes(v) : k.p === v).length;
     fm.setAttribute('aria-label', { who:'Assignee', l:'Label', p:'Priority' }[f]);
-    fm.innerHTML = `<div class="ph">${{ who:'Assignee', l:'Label', p:'Priority' }[f]}</div>` + opts.map(v => `<button class="mi" role="menuitemcheckbox" aria-checked="${set.has(v)}" data-v="${v}">${f === 'who' ? AV(v, M[v].bg) : f === 'p' ? pb(v) : ''}<span>${f === 'who' ? M[v].n : f === 'p' ? PRI[v] : v}</span><span class="r num">${n(v)}</span><span class="ck">${I('check', 'xs')}</span></button>`).join('');
+    fm.innerHTML = `<div class="ph">${{ who:'Assignee', l:'Label', p:'Priority' }[f]}</div>` + opts.map(v => `<button class="mi" role="menuitemcheckbox" aria-checked="${set.has(v)}" data-v="${v}">${f === 'who' ? `${AV(v, M[v].bg)}<span>${M[v].n}</span>` : f === 'p' ? ptag(v) : ltag(v)}<span class="r num">${n(v)}</span><span class="ck">${I('check', 'xs')}</span></button>`).join('');
     $$('.mi', fm).forEach(m => m.onclick = () => { const v = m.dataset.v; set.has(v) ? set.delete(v) : set.add(v); m.setAttribute('aria-checked', set.has(v)); refilter(); });
   }
   $$('.kbx-f', r).forEach(b => b.addEventListener('click', () => fill(b.dataset.f)));

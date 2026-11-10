@@ -7,21 +7,24 @@ DM.def('kanban', (r, c) => {
   const M = { MK:{ n:'Maya Kim', bg:'var(--dm-av-l)' }, JO:{ n:'Jonas Ortiz', bg:'var(--dm-av-m)' }, LP:{ n:'Lena Park', bg:'var(--dm-av-p)' }, DA:{ n:'Design agent', bg:'var(--dm-av-b)', agent:true } };
   const ME = 'MK', MK = Object.keys(M);
   const PRI = { urgent:'Urgent', high:'High', med:'Medium', low:'Low', none:'No priority' }, PK = Object.keys(PRI);
-  const LABELS = ['Design', 'Copy', 'Code', 'Bug', 'A11y'];
+  // priority is a coloured chip (Urgent red, High orange, Medium yellow, Low blue, none grey), and each label keeps one of the
+  // other core tag colours wherever it shows
+  const PT = { urgent:'bad', high:'p', med:'y', low:'b', none:'' };
+  const LABELS = ['Design', 'Copy', 'Code', 'Bug', 'A11y'], LT = { Design:'l', Copy:'t', Code:'m', Bug:'k', A11y:'r' };
   // due dates are days from today, so the overdue one is always overdue
   const day = n => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + n); return d; };
   const fmt = n => n === 0 ? 'Today' : n === 1 ? 'Tomorrow' : day(n).toLocaleDateString('en-US', { month:'short', day:'numeric' });
   const sub = (...a) => a.map(([t, d]) => ({ t, d:!!d }));
   let K = [
-    { id:'DES-148', c:'todo', t:'Audit checkout for contrast', p:'high', l:['A11y'], who:['DA'], due:3, sub:sub(['List every text pair'], ['Check against 4.5:1'], ['Fix the failing pairs'], ['Write up the changes']) },
-    { id:'DES-151', c:'todo', t:'Write release notes for pricing', p:'med', l:['Copy'], who:['MK'], due:2, cm:2 },
-    { id:'DES-157', c:'todo', t:'Pricing toggle hides the yearly saving', p:'urgent', l:['Bug'], who:['JO'], due:1, cm:4, at:1 },
-    { id:'DES-155', c:'todo', t:'Empty state for search', p:'low', l:['Design'], who:['LP'], at:2 },
-    { id:'DES-142', c:'doing', t:'Export tokens to CSS', p:'high', l:['Code'], who:['DA'], at:1, run:.4, sub:sub(['Read the Figma variables', 1], ['Map colours to roles', 1], ['Write the CSS variables'], ['Check contrast pairs'], ['Open a pull request']) },
-    { id:'DES-144', c:'doing', t:'Review annual plan copy', p:'med', l:['Copy'], who:['JO', 'MK'], due:-1, cm:5, sub:sub(['Headline', 1], ['Plan names', 1], ['Feature list'], ['Footnotes']) },
-    { id:'DES-146', c:'doing', t:'Plan cards wrap at 768px', p:'high', l:['Design', 'Bug'], who:['LP'], due:0, cm:1, sub:sub(['Reproduce on a tablet', 1], ['Fix the grid'], ['Test at 744px']) },
-    { id:'DES-139', c:'done', t:'One CTA per pricing card', p:'med', l:['Design'], who:['MK'], cm:3, sub:sub(['Pick the CTA', 1], ['Update the cards', 1]) },
-    { id:'DES-137', c:'done', t:'Compare checkout flows', p:'low', l:['Design'], who:['LP'], at:3, sub:sub(['Collect five flows', 1], ['Note the steps', 1], ['Share the findings', 1]) }
+    { id:'DES-148', c:'todo', t:'Audit checkout for contrast', p:'high', pj:'Checkout', l:['A11y'], who:['DA'], due:3, sub:sub(['List every text pair'], ['Check against 4.5:1'], ['Fix the failing pairs'], ['Write up the changes']) },
+    { id:'DES-151', c:'todo', t:'Write release notes for pricing', p:'med', pj:'Pricing', l:['Copy'], who:['MK'], due:2, cm:2 },
+    { id:'DES-157', c:'todo', t:'Pricing toggle hides the yearly saving', p:'urgent', pj:'Pricing', l:['Bug'], who:['JO'], due:1, cm:4, at:1 },
+    { id:'DES-155', c:'todo', t:'Empty state for search', p:'low', pj:'Search', l:['Design'], who:['LP'], at:2 },
+    { id:'DES-142', c:'doing', t:'Export tokens to CSS', p:'high', pj:'Tokens', l:['Code'], who:['DA'], at:1, run:.4, sub:sub(['Read the Figma variables', 1], ['Map colours to roles', 1], ['Write the CSS variables'], ['Check contrast pairs'], ['Open a pull request']) },
+    { id:'DES-144', c:'doing', t:'Review annual plan copy', p:'med', pj:'Pricing', l:['Copy'], who:['JO', 'MK'], due:-1, cm:5, sub:sub(['Headline', 1], ['Plan names', 1], ['Feature list'], ['Footnotes']) },
+    { id:'DES-146', c:'doing', t:'Plan cards wrap at 768px', p:'high', pj:'Pricing', l:['Design', 'Bug'], who:['LP'], due:0, cm:1, sub:sub(['Reproduce on a tablet', 1], ['Fix the grid'], ['Test at 744px']) },
+    { id:'DES-139', c:'done', t:'One CTA per pricing card', p:'med', pj:'Pricing', l:['Design'], who:['MK'], cm:3, sub:sub(['Pick the CTA', 1], ['Update the cards', 1]) },
+    { id:'DES-137', c:'done', t:'Compare checkout flows', p:'low', pj:'Checkout', l:['Design'], who:['LP'], at:3, sub:sub(['Collect five flows', 1], ['Note the steps', 1], ['Share the findings', 1]) }
   ];
   let next = 158;
   const box = $('.kbx', r), bd = $('.kbx-bd', r), wrap = $('.kbx-cols', r), live = $('.kbx-sr', r);
@@ -35,25 +38,27 @@ DM.def('kanban', (r, c) => {
   const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
   /* ---------- the parts ---------- */
-  const pb = p => p === 'urgent' ? '<span class="kbx-pu" aria-hidden="true">!</span>' : `<span class="kbx-pb" data-p="${p}" aria-hidden="true"><i></i><i></i><i></i></span>`;
+  const ptag = p => `<span class="tag${PT[p] ? ' ' + PT[p] : ''}">${PRI[p]}</span>`;
+  const ltag = x => `<span class="tag${LT[x] ? ' ' + LT[x] : ''}">${x}</span>`;
+  const priCls = p => `tag${PT[p] ? ' ' + PT[p] : ''} kbx-pri`;
   const avs = who => who.map(w => AV(w, M[w].bg)).join('');
   const done = k => (k.sub || []).filter(s => s.d).length;
   const step = k => (k.sub || []).find(s => !s.d)?.t || 'Wrapping up';
   const metaOf = k => {
     const n = k.sub?.length, d = done(k);
-    return `${k.l.length ? `<span class="kbx-tags">${k.l.map(x => `<span class="tag">${x}</span>`).join('')}</span>` : ''}`
-      + (k.due != null && k.c !== 'done' ? `<span class="kbx-mt${k.due < 0 ? ' late' : ''}" data-tip="${k.due < 0 ? 'Overdue' : 'Due'}">${I('cal', 'xs')}${fmt(k.due)}</span>` : '')
+    return (k.due != null && k.c !== 'done' ? `<span class="kbx-mt${k.due < 0 ? ' late' : ''}" data-tip="${k.due < 0 ? 'Overdue' : 'Due'}">${I('cal', 'xs')}${fmt(k.due)}</span>` : '')
       + (n ? `<span class="kbx-mt${d === n ? ' ok' : ''}" data-tip="${d} of ${n} subtasks done"><span class="num">${d}/${n}</span><span class="kbx-sb"><i style="width:${d / n * 100}%"></i></span></span>` : '')
       + (k.cm ? `<span class="kbx-mt" data-tip="${k.cm} comment${k.cm > 1 ? 's' : ''}">${I('comment', 'xs')}<span class="num">${k.cm}</span></span>` : '')
       + (k.at ? `<span class="kbx-mt" data-tip="${k.at} file${k.at > 1 ? 's' : ''}">${I('clip', 'xs')}<span class="num">${k.at}</span></span>` : '');
   };
-  const label = k => `${k.id}, ${k.t}. ${PRI[k.p]} priority${k.who.length ? ', ' + k.who.map(w => M[w].n).join(' and ') : ''}${k.due != null && k.c !== 'done' ? ', due ' + fmt(k.due) + (k.due < 0 ? ', overdue' : '') : ''}${k.run != null ? ', the agent is working on it' : ''}${sel.has(k.id) ? ', selected' : ''}`;
+  const label = k => `${k.id}, ${k.t}. ${PRI[k.p]} priority${k.pj ? ', project ' + k.pj : ''}${k.who.length ? ', ' + k.who.map(w => M[w].n).join(' and ') : ''}${k.due != null && k.c !== 'done' ? ', due ' + fmt(k.due) + (k.due < 0 ? ', overdue' : '') : ''}${k.run != null ? ', the agent is working on it' : ''}${sel.has(k.id) ? ', selected' : ''}`;
   const card = k => `<div class="kbx-k${k.run != null ? ' agent' : ''}${sel.has(k.id) ? ' sel' : ''}${peek === k.id ? ' open' : ''}" data-id="${k.id}" role="listitem" tabindex="-1" aria-label="${esc(label(k))}">`
     + `<div class="kbx-k1"><button class="kbx-sel" role="checkbox" aria-checked="${sel.has(k.id)}" aria-label="Select ${k.id}" tabindex="-1">${I('check', 'xs')}</button>`
-    + `<button class="kbx-pri" data-pop=".kbx-pm" aria-haspopup="menu" aria-label="Priority: ${PRI[k.p]}" data-tip="${PRI[k.p]}" tabindex="-1">${pb(k.p)}</button>`
     + `<span class="kbx-id num">${k.id}</span><span class="kbx-sp"></span>`
-    + `<button class="kbx-who" data-pop=".kbx-am" data-pop-align="end" aria-haspopup="menu" aria-label="Assignees: ${k.who.map(w => M[w].n).join(', ') || 'none'}" data-tip="${k.who.map(w => M[w].n).join(', ') || 'Assign'}" tabindex="-1">${k.who.length ? avs(k.who) : `<span class="none">${I('user', 'xs')}</span>`}</button>`
-    + `<button class="kbx-mv" data-pop=".kbx-mp" data-pop-align="end" aria-haspopup="menu" aria-label="Move ${k.id}" data-tip="Move to" tabindex="-1">${I('more', 'xs')}</button></div>`
+    + `<button class="kbx-mv" data-pop=".kbx-mp" data-pop-align="end" aria-haspopup="menu" aria-label="Move ${k.id}" data-tip="Move to" tabindex="-1">${I('more', 'xs')}</button>`
+    + `<button class="kbx-who" data-pop=".kbx-am" data-pop-align="end" aria-haspopup="menu" aria-label="Assignees: ${k.who.map(w => M[w].n).join(', ') || 'none'}" data-tip="${k.who.map(w => M[w].n).join(', ') || 'Assign'}" tabindex="-1">${k.who.length ? avs(k.who) : `<span class="none">${I('user', 'xs')}</span>`}</button></div>`
+    + `<div class="kbx-cr"><button class="${priCls(k.p)}" data-pop=".kbx-pm" aria-haspopup="menu" aria-label="Priority: ${PRI[k.p]}" data-tip="Priority" tabindex="-1">${PRI[k.p]}</button>`
+    + (k.pj ? `<span class="tag kbx-pj" data-tip="Project"><span>${esc(k.pj)}</span></span>` : '') + k.l.map(ltag).join('') + `</div>`
     + `<span class="t">${esc(k.t)}</span>`
     + (k.run != null ? `<div class="kbx-ag"><span class="think on"><i></i><i></i><i></i><i></i></span><span class="s">${step(k)}</span><span class="pc num">${Math.round(k.run * 100)}%</span></div><div class="kbx-pr"><i style="width:${k.run * 100}%"></i></div>` : '')
     + `<div class="kbx-m">${metaOf(k)}</div></div>`;
@@ -69,7 +74,7 @@ DM.def('kanban', (r, c) => {
   const pop = (cls, label, body) => `<div class="pop kbx-pop ${cls}" role="menu" aria-label="${label}"><div class="ph">${label}</div>${body}</div>`;
   box.insertAdjacentHTML('beforeend',
     pop('kbx-mp', 'Move to', COLS.map(cl => `<button class="mi" role="menuitemradio" aria-checked="false" data-close data-to="${cl.k}"><span>${cl.t}</span><span class="ck">${I('check', 'xs')}</span></button>`).join(''))
-    + pop('kbx-pm', 'Priority', PK.map(p => `<button class="mi" role="menuitemradio" aria-checked="false" data-close data-p="${p}">${pb(p)}<span>${PRI[p]}</span><span class="ck">${I('check', 'xs')}</span></button>`).join(''))
+    + pop('kbx-pm', 'Priority', PK.map(p => `<button class="mi" role="menuitemradio" aria-checked="false" data-close data-p="${p}">${ptag(p)}<span class="ck">${I('check', 'xs')}</span></button>`).join(''))
     + pop('kbx-am', 'Assignees', MK.map(w => `<button class="mi" role="menuitemcheckbox" aria-checked="false" data-who="${w}">${AV(w, M[w].bg)}<span>${M[w].n}${w === ME ? ' (you)' : ''}</span><span class="ck">${I('check', 'xs')}</span></button>`).join(''))
     + pop('kbx-cm', 'Column', `<button class="mi" role="menuitem" data-close data-a="add">${I('plus', 'xs')}<span>Add card</span></button><button class="mi" role="menuitem" data-close data-a="all">${I('check', 'xs')}<span>Select all</span></button><button class="mi" role="menuitem" data-close data-a="pri">${I('sort', 'xs')}<span>Sort by priority</span></button><button class="mi" role="menuitem" data-close data-a="due">${I('cal', 'xs')}<span>Sort by due date</span></button><div class="sep"></div><button class="mi" role="menuitem" data-close data-a="fold">${I('chev-l', 'xs')}<span>Fold column</span></button>`)
     + `<div class="pop kbx-pop kbx-fm" role="menu" aria-label="Filter"></div>`);
@@ -80,7 +85,7 @@ DM.def('kanban', (r, c) => {
 
   /* ---------- filters ---------- */
   const filtering = () => !!(F.q || F.who.size || F.l.size || F.p.size);
-  const shows = k => k.keep || ((!F.q || (k.t + ' ' + k.id).toLowerCase().includes(F.q.toLowerCase()))
+  const shows = k => k.keep || ((!F.q || (k.t + ' ' + k.id + ' ' + (k.pj || '')).toLowerCase().includes(F.q.toLowerCase()))
     && (!F.who.size || k.who.some(w => F.who.has(w))) && (!F.l.size || k.l.some(x => F.l.has(x))) && (!F.p.size || F.p.has(k.p)));
   const visible = col => K.filter(k => k.c === col && shows(k));
 
@@ -100,7 +105,7 @@ DM.def('kanban', (r, c) => {
       $('.kbx-list', col).innerHTML = L.map(card).join('') || (filtering() ? '' : '<div class="kbx-none">No cards</div>');
       // the count, or with a limit how full the column is, which turns into a warning once it is over
       const n = $('.kbx-ch .n', col), over = cl.lim && all > cl.lim;
-      n.innerHTML = over ? `<span class="tag warn" data-tip="Over the limit of ${cl.lim}">${I('alert', 'xs')}${all}/${cl.lim}</span>` : (filtering() && L.length !== all ? `${L.length} of ${all}` : cl.lim ? `${all}/${cl.lim}` : all);
+      n.innerHTML = over ? `<span class="tag warn" data-tip="Over the limit of ${cl.lim}">${I('alert', 'xs')}${all}/${cl.lim}</span>` : `<span class="tag">${filtering() && L.length !== all ? `${L.length} of ${all}` : cl.lim ? `${all}/${cl.lim}` : all}</span>`;
       col.classList.toggle('shut', shut.has(cl.k)); col.classList.toggle('wip', !!over);
       const tg = $('.kbx-tg', col); tg.setAttribute('aria-expanded', !shut.has(cl.k)); tg.setAttribute('aria-label', (shut.has(cl.k) ? 'Open ' : 'Fold ') + cl.t); tg.dataset.tip = shut.has(cl.k) ? 'Open' : 'Fold';
       const tn = $(`[data-v="${cl.k}"] .n`, tabs); if (tn.textContent !== String(L.length)){ tn.textContent = L.length; if (painted) enter(tn); }
@@ -181,20 +186,21 @@ DM.def('kanban', (r, c) => {
       + `<div class="kbx-pk-r"><span class="k">Status</span><button class="kbx-pv" data-pop=".kbx-mp" aria-haspopup="menu" aria-label="Status: ${colName(k.c)}">${colName(k.c)}${I('chev-d', 'xs')}</button></div>`
       + `<div class="kbx-pk-r"><span class="k">Priority</span><button class="kbx-pv" data-pop=".kbx-pm" aria-haspopup="menu" aria-label="Priority: ${PRI[k.p]}">${priV(k)}</button></div>`
       + `<div class="kbx-pk-r"><span class="k">Assignees</span><button class="kbx-pv" data-pop=".kbx-am" aria-haspopup="menu" aria-label="Assignees: ${names(k) || 'none'}">${whoV(k)}</button></div>`
+      + (k.pj ? `<div class="kbx-pk-r"><span class="k">Project</span><span class="kbx-pv">${esc(k.pj)}</span></div>` : '')
       + (k.due != null ? `<div class="kbx-pk-r"><span class="k">Due</span><span class="kbx-pv${k.due < 0 && k.c !== 'done' ? ' late' : ''}">${I('cal', 'xs')}${fmt(k.due)}${k.due < 0 && k.c !== 'done' ? ', overdue' : ''}</span></div>` : '')
-      + (k.l.length ? `<div class="kbx-pk-r"><span class="k">Labels</span><span class="kbx-tags">${k.l.map(x => `<span class="tag">${x}</span>`).join('')}</span></div>` : '')
+      + (k.l.length ? `<div class="kbx-pk-r"><span class="k">Labels</span><span class="kbx-tags">${k.l.map(ltag).join('')}</span></div>` : '')
       + `</div>`
       + (n ? `<div class="kbx-pk-s"><b>Subtasks</b><span class="num">${d}/${n}</span><span class="kbx-sb"><i style="width:${d / n * 100}%"></i></span></div><div class="kbx-pk-cl" role="group" aria-label="Subtasks">${k.sub.map((s, i) => `<button class="kbx-ci" role="checkbox" aria-checked="${s.d}" data-i="${i}"${k.run != null ? ' disabled' : ''}><span class="kbx-cb">${I('check', 'xs')}</span><span>${esc(s.t)}</span></button>`).join('')}</div>` : '')
       + `<div class="kbx-pk-f"><span class="kbx-mt">${I('comment', 'xs')}${k.cm || 'No'} comment${k.cm === 1 ? '' : 's'}</span><span class="kbx-mt">${I('clip', 'xs')}${k.at || 'No'} file${k.at === 1 ? '' : 's'}</span></div>`;
   }
   const names = k => k.who.map(w => M[w].n).join(', ');
-  const priV = k => `${pb(k.p)}${PRI[k.p]}${I('chev-d', 'xs')}`;
+  const priV = k => `${ptag(k.p)}${I('chev-d', 'xs')}`;
   const whoV = k => `${k.who.length ? `<span class="avs">${avs(k.who)}</span>${k.who.length > 1 ? k.who.length + ' people' : M[k.who[0]].n}` : 'Assign'}${I('chev-d', 'xs')}`;
   // a quick edit changes the card and the sheet where they are, so the menu it came from stays put
   function refresh(k){
     const el = cardEl(k.id);
     if (el){ const p = $('.kbx-pri', el), w = $('.kbx-who', el);
-      p.innerHTML = pb(k.p); p.setAttribute('aria-label', `Priority: ${PRI[k.p]}`); p.dataset.tip = PRI[k.p];
+      p.className = priCls(k.p); p.textContent = PRI[k.p]; p.setAttribute('aria-label', `Priority: ${PRI[k.p]}`);
       w.innerHTML = k.who.length ? avs(k.who) : `<span class="none">${I('user', 'xs')}</span>`; w.setAttribute('aria-label', `Assignees: ${names(k) || 'none'}`); w.dataset.tip = names(k) || 'Assign';
       el.setAttribute('aria-label', label(k)); }
     if (peek === k.id){ const pv = $('.kbx-pv[data-pop=".kbx-pm"]', sheet), av = $('.kbx-pv[data-pop=".kbx-am"]', sheet);
@@ -212,7 +218,7 @@ DM.def('kanban', (r, c) => {
 
   /* ---------- adding and renaming ---------- */
   function rename(el, k, fresh){
-    const t = $('.t', el); editing = true; t.contentEditable = 'true'; t.focus({ preventScroll:true }); document.getSelection().selectAllChildren(t);
+    const t = $(':scope>.t', el); editing = true; t.contentEditable = 'true'; t.focus({ preventScroll:true }); document.getSelection().selectAllChildren(t);
     const was = k.t;
     t.onkeydown = e => { e.stopPropagation(); if (e.key === 'Enter'){ e.preventDefault(); t.blur(); } if (e.key === 'Escape'){ t.textContent = was; t.blur(); } };
     t.onblur = () => { editing = false; t.contentEditable = 'false'; k.t = t.textContent.trim() || (fresh ? 'New card' : was); t.textContent = k.t; el.setAttribute('aria-label', label(k)); if (peek === k.id) sheetPaint(); c.later(0, () => focusCard(k.id)); };
@@ -269,12 +275,12 @@ DM.def('kanban', (r, c) => {
     if (el.querySelector('.t[contenteditable="true"]')) return;
     // a click on the title waits a moment, in case it is the first of a double-click that renames the card
     clearTimeout(clickT);
-    if (e.target.closest('.t') && e.detail === 1){ clickT = setTimeout(() => open(k.id), 240); c.offs.push(() => clearTimeout(clickT)); return; }
+    if (e.target.closest('.kbx-k>.t') && e.detail === 1){ clickT = setTimeout(() => open(k.id), 240); c.offs.push(() => clearTimeout(clickT)); return; }
     if (e.detail > 1) return;
     open(k.id);
   });
   const open = id => { foc = id; peek === id ? closeSheet() : openSheet(id); };
-  c.on(wrap, 'dblclick', e => { const t = e.target.closest('.kbx-k .t'); if (!t || editing) return; clearTimeout(clickT); const el = t.closest('.kbx-k'); rename(el, byId(el.dataset.id)); });
+  c.on(wrap, 'dblclick', e => { const t = e.target.closest('.kbx-k>.t'); if (!t || editing) return; clearTimeout(clickT); const el = t.closest('.kbx-k'); rename(el, byId(el.dataset.id)); });
   // shift-click picks the cards between the last one picked and this one, in the same column; Cmd or Ctrl-click one card
   function toggle(id, range){
     const k = byId(id), a = anchor && byId(anchor);
@@ -324,7 +330,7 @@ DM.def('kanban', (r, c) => {
     fmFor = f; const opts = f === 'who' ? MK : f === 'l' ? LABELS : PK, set = F[f];
     const n = v => K.filter(k => f === 'who' ? k.who.includes(v) : f === 'l' ? k.l.includes(v) : k.p === v).length;
     fm.setAttribute('aria-label', { who:'Assignee', l:'Label', p:'Priority' }[f]);
-    fm.innerHTML = `<div class="ph">${{ who:'Assignee', l:'Label', p:'Priority' }[f]}</div>` + opts.map(v => `<button class="mi" role="menuitemcheckbox" aria-checked="${set.has(v)}" data-v="${v}">${f === 'who' ? AV(v, M[v].bg) : f === 'p' ? pb(v) : ''}<span>${f === 'who' ? M[v].n : f === 'p' ? PRI[v] : v}</span><span class="r num">${n(v)}</span><span class="ck">${I('check', 'xs')}</span></button>`).join('');
+    fm.innerHTML = `<div class="ph">${{ who:'Assignee', l:'Label', p:'Priority' }[f]}</div>` + opts.map(v => `<button class="mi" role="menuitemcheckbox" aria-checked="${set.has(v)}" data-v="${v}">${f === 'who' ? `${AV(v, M[v].bg)}<span>${M[v].n}</span>` : f === 'p' ? ptag(v) : ltag(v)}<span class="r num">${n(v)}</span><span class="ck">${I('check', 'xs')}</span></button>`).join('');
     $$('.mi', fm).forEach(m => m.onclick = () => { const v = m.dataset.v; set.has(v) ? set.delete(v) : set.add(v); m.setAttribute('aria-checked', set.has(v)); refilter(); });
   }
   $$('.kbx-f', r).forEach(b => b.addEventListener('click', () => fill(b.dataset.f)));

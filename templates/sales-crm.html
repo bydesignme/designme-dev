@@ -527,12 +527,13 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 /* the columns, and the room they keep: each has space for four cards, the most one holds as the agent fills Done, so the
    board keeps one height while it plays, as you filter, and as a column folds away */
 .kbx-bd{position:relative}
-.kbx-cols{display:grid;grid-template-columns:var(--dm-kbx-gt,repeat(3,minmax(0,1fr)));gap:10px;transition:grid-template-columns var(--dm-t) var(--dm-ease)}
-.kbx-c{display:flex;flex-direction:column;gap:6px;min-width:0;padding:6px 6px 8px;border-radius:var(--dm-r-card);background:color-mix(in srgb,var(--dm-fg) 3.5%,transparent);transition:background .25s,box-shadow .25s;min-height:452px}
+.kbx-cols{display:grid;grid-template-columns:var(--dm-kbx-gt,repeat(3,minmax(0,1fr)));gap:var(--dm-s-3);transition:grid-template-columns var(--dm-t) var(--dm-ease)}
+.kbx-c{display:flex;flex-direction:column;gap:var(--dm-s-2);min-width:0;padding:var(--dm-s-1) var(--dm-s-2) var(--dm-s-2);border-radius:calc(14px * var(--dm-rk));background:color-mix(in srgb,var(--dm-fg) 3.5%,transparent);transition:background .25s,box-shadow .25s;min-height:600px}
 .kbx-c.over{background:var(--dm-sel);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 40%,transparent)}
-.kbx-ch{display:flex;align-items:center;gap:6px;height:30px;padding:0 0 0 2px;font-size:13px}
+.kbx-ch{display:flex;align-items:center;gap:6px;height:36px;padding:0;font-size:13px}
 .kbx-ch b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.kbx-ch .n{font-size:12px;color:var(--dm-muted);white-space:nowrap}
+/* the count is a grey chip; with a limit it says how full the column is, and turns into a warning once it is over */
+.kbx-ch .n{display:inline-flex;white-space:nowrap}
 .kbx-ch .tag{height:20px;padding:0 6px;gap:3px;cursor:default}
 .kbx-ch .ib{width:24px;height:24px;flex:none;color:var(--dm-muted)}
 .kbx-ch .ib[aria-expanded="true"]{color:var(--dm-fg)}
@@ -548,22 +549,29 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .kbx-c.shut .kbx-ch{flex-direction:column;height:auto;padding:0;gap:var(--dm-s-2)}
 .kbx-c.shut .kbx-ch b{writing-mode:vertical-rl}
 .kbx-c.shut :is(.kbx-list,.kbx-sp,.kbx-cadd,.kbx-cmn,.kbx-none){display:none}
-/* a card: its key, priority and people on top, the title, then its labels, due date, subtasks, comments and files */
-.kbx-k{position:relative;padding:var(--dm-s-2) 10px 9px;border-radius:calc(12px * var(--dm-rk));background:var(--dm-raised);box-shadow:var(--dm-shadow);display:flex;flex-direction:column;gap:5px;cursor:grab;transition:box-shadow .25s,opacity .2s;touch-action:none;user-select:none;-webkit-user-select:none}
+/* a card: its key with its people at the top right, one row of chips (its priority in colour, the project it belongs to in
+   grey, then its labels in their colours), the title, then one muted line with its due date, subtasks, comments and files */
+.kbx-k{position:relative;padding:var(--dm-s-3);border-radius:calc(12px * var(--dm-rk));background:var(--dm-raised);box-shadow:var(--dm-shadow);display:flex;flex-direction:column;gap:var(--dm-s-1);cursor:grab;transition:box-shadow .25s,opacity .2s;touch-action:none;user-select:none;-webkit-user-select:none}
 @media (hover:hover) and (pointer:fine){.kbx-k:hover{box-shadow:var(--dm-shadow-pop)}}
 .kbx-k:focus-visible{outline-offset:1px;border-radius:calc(12px * var(--dm-rk))}
 .kbx-k.drag{opacity:.35}
 .kbx-k.ghost{position:fixed;z-index:100;pointer-events:none;transform:rotate(2deg) scale(1.03);box-shadow:var(--dm-shadow-pop);cursor:grabbing}
 .kbx-k1{display:flex;align-items:center;gap:6px;height:20px}
 .kbx-id{font-size:11px;color:var(--dm-muted);white-space:nowrap}
-.kbx-k .t{font-size:13px;line-height:1.4;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
-/* a title is written in place (a new card, or a double-click on one): while you write it, it is a field, white with the
-   dimmed field edge, one step stronger while it has the focus, drawn outside the words so they keep their place */
-.kbx-k .t[contenteditable="true"]{display:block;outline:0;border-radius:var(--dm-r-xs);padding:0 var(--dm-s-1);margin:0 calc(-1 * var(--dm-s-1));background:var(--dm-surface);box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);cursor:text;-webkit-user-select:text;user-select:text}
-.kbx-k .t[contenteditable="true"]:focus{box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
-.kbx-m{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;min-height:20px;font-size:12px;color:var(--dm-muted)}
+.kbx-k>.t{font-size:13px;line-height:1.4;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+/* the title is the card's own .t (a teal label chip is a .tag.t too). It is written in place (a new card, or a
+   double-click on one): while you write it, it is a field, white with the dimmed field edge, one step stronger while it
+   has the focus, drawn outside the words so they keep their place */
+.kbx-k>.t[contenteditable="true"]{display:block;outline:0;border-radius:var(--dm-r-xs);padding:0 var(--dm-s-1);margin:0 calc(-1 * var(--dm-s-1));background:var(--dm-surface);box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);cursor:text;-webkit-user-select:text;user-select:text}
+.kbx-k>.t[contenteditable="true"]:focus{box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+.kbx-m{display:flex;align-items:center;flex-wrap:wrap;gap:2px var(--dm-s-2);min-height:20px;font-size:12px;color:var(--dm-muted)}
 .kbx-m:empty{display:none}
 .kbx-tags{display:flex;gap:4px}
+/* the chip row: the priority opens its menu; the project and the labels say what the card belongs to and is about */
+.kbx-cr{display:flex;align-items:center;flex-wrap:wrap;gap:4px 6px;min-width:0;margin:2px 0 var(--dm-s-1)}
+.kbx-cr .tag{flex:none}
+.kbx-cr .kbx-pj{flex:0 1 auto;min-width:0}
+.kbx-pj span{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .kbx-mt{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
 .kbx-mt .i{width:12px;height:12px}
 .kbx-mt.late{color:var(--dm-bad)}
@@ -572,28 +580,30 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .kbx-sb{width:22px;height:3px;border-radius:2px;background:color-mix(in srgb,var(--dm-muted) 25%,transparent);overflow:hidden}
 .kbx-sb i{display:block;height:100%;border-radius:inherit;background:var(--dm-fg2);transition:width .35s var(--dm-ease)}
 .kbx-mt.ok .kbx-sb i{background:var(--dm-ok-mark)}
-/* the card's quick controls: its priority and its people open their menus, and the dots its Move to menu */
-.kbx-pri,.kbx-who,.kbx-mv{display:inline-grid;place-items:center;flex:none;border-radius:calc(6px * var(--dm-rk));transition:background var(--dm-t-fast),color var(--dm-t-fast),opacity var(--dm-t-fast)}
-.kbx-pri{width:20px;height:20px;margin:0 -2px 0 -4px}
-.kbx-pri[aria-expanded="true"],.kbx-who[aria-expanded="true"],.kbx-mv[aria-expanded="true"]{background:var(--dm-row)}
-@media (hover:hover) and (pointer:fine){.kbx-pri:hover,.kbx-who:hover,.kbx-mv:hover{background:var(--dm-row)}}
+/* the card's quick controls: its priority chip and its people open their menus, and the dots its Move to menu */
+.kbx-who,.kbx-mv{display:inline-grid;place-items:center;flex:none;border-radius:calc(6px * var(--dm-rk));transition:background var(--dm-t-fast),color var(--dm-t-fast),opacity var(--dm-t-fast)}
+.kbx-pri{transition:box-shadow var(--dm-t-fast)}
+.kbx-pri[aria-expanded="true"]{box-shadow:inset 0 0 0 1px color-mix(in srgb,currentColor 35%,transparent)}
+@media (hover:hover) and (pointer:fine){.kbx-pri:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,currentColor 35%,transparent)}}
+.kbx-who[aria-expanded="true"],.kbx-mv[aria-expanded="true"]{background:var(--dm-row)}
+@media (hover:hover) and (pointer:fine){.kbx-who:hover,.kbx-mv:hover{background:var(--dm-row)}}
 .kbx-who{display:inline-flex;align-items:center;height:22px;padding:0 1px 0 6px;border-radius:calc(11px * var(--dm-rk))}
 .kbx-who .av{width:20px;height:20px;font-size:11px;margin-left:-5px;box-shadow:0 0 0 1.5px var(--dm-surface)}
 .kbx-who:empty{width:22px;padding:0;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);border-radius:50%}
 .kbx-who .none{display:grid;place-items:center;width:20px;height:20px;margin-left:-5px;border-radius:50%;color:var(--dm-muted);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-muted) 45%,transparent)}
-.kbx-mv{width:22px;height:22px;margin-right:-4px;color:var(--dm-muted);opacity:0}
+/* the dots show on hover or focus just left of the people, without a space of their own, so the avatar sits at the card's edge */
+.kbx-mv{width:22px;height:22px;margin-left:-28px;color:var(--dm-muted);opacity:0}
 .kbx-mv[aria-expanded="true"]{opacity:1}
 @media (hover:hover) and (pointer:fine){.kbx-k:is(:hover,:focus-within,.open) .kbx-mv{opacity:1}}
 .kbx-mv[aria-expanded="true"]{color:var(--dm-fg)}
 @media (hover:hover) and (pointer:fine){.kbx-mv:hover{color:var(--dm-fg)}}
 @media (pointer:coarse){.kbx-mv{opacity:1}}
-/* priority, drawn as three bars that fill from the left; Urgent is the one in colour */
+/* three bars that fill from the left, a strength mark (the board itself shows priority as a coloured chip) */
 .kbx-pb{display:inline-flex;align-items:flex-end;gap:1.5px;width:12px;height:11px}
 .kbx-pb i{flex:1;border-radius:1px;background:color-mix(in srgb,var(--dm-muted) 35%,transparent)}
 .kbx-pb i:nth-child(1){height:45%}.kbx-pb i:nth-child(2){height:72%}.kbx-pb i:nth-child(3){height:100%}
 .kbx-pb[data-p="low"] i:nth-child(1),.kbx-pb[data-p="med"] i:nth-child(-n+2),.kbx-pb[data-p="high"] i{background:var(--dm-fg2)}
 .kbx-pb[data-p="none"] i{height:1.5px}
-.kbx-pu{display:grid;place-items:center;width:12px;height:12px;border-radius:calc(3px * var(--dm-rk));background:var(--dm-bad);color:var(--dm-surface);font-size:11px;font-weight:500;line-height:1}
 /* picked cards: a checkbox on each card while any is picked, and a slightly stronger edge on the picked ones */
 .kbx-sel{display:none;place-items:center;width:14px;height:14px;flex:none;border-radius:calc(4px * var(--dm-rk));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-muted) 80%,var(--dm-surface));color:var(--dm-on-accent,#fff);transition:background-color .2s,box-shadow .2s}
 .kbx.selecting .kbx-sel{display:grid}
@@ -671,7 +681,6 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .kbx-pop .mi .av{width:20px;height:20px;font-size:11px}
 .kbx-pop .mi .r{margin-left:auto}
 .kbx-pop .mi .r+.ck{margin-left:0}
-.kbx-pop .mi>.kbx-pb,.kbx-pop .mi>.kbx-pu{margin:0 4px 0 3px}
 .kbx-pop .mi .tag{height:18px;padding:0 6px}
 /* the list: the same cards as rows, grouped by column under a header each, in one panel that keeps the board's height */
 .kbx.list .kbx-cols{display:flex;flex-direction:column;gap:0;border-radius:var(--dm-r-card);background:var(--dm-surface);box-shadow:var(--dm-shadow);overflow:hidden}
@@ -692,13 +701,14 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .kbx.list .kbx-k:focus-visible{outline-offset:-2px;border-radius:0}
 .kbx.list .kbx-k.ghost{border-radius:calc(10px * var(--dm-rk));box-shadow:var(--dm-shadow-pop)}
 .kbx.list .kbx-k1{display:contents}
-.kbx.list .kbx-sel{order:0}.kbx.list .kbx-pri{order:1}.kbx.list .kbx-id{order:2;width:52px}
-.kbx.list .kbx-k .t{order:3;flex:1;min-width:0;display:block;white-space:nowrap;text-overflow:ellipsis}
+.kbx.list .kbx-sel{order:0}.kbx.list .kbx-id{order:1;width:52px}
+.kbx.list .kbx-k>.t{order:2;flex:1;min-width:0;display:block;white-space:nowrap;text-overflow:ellipsis}
+.kbx.list .kbx-cr{order:3;flex:none;flex-wrap:nowrap;margin:0}
 .kbx.list .kbx-ag{order:4;flex:none}.kbx.list .kbx-ag .s{display:none}
 .kbx.list .kbx-pr{order:5;width:40px;flex:none}
 .kbx.list .kbx-m{order:6;flex-wrap:nowrap}
 .kbx.list .kbx-k1 .kbx-sp{display:none}
-.kbx.list .kbx-who{order:7}.kbx.list .kbx-mv{order:8}
+.kbx.list .kbx-who{order:7}.kbx.list .kbx-mv{order:8;margin:0 -4px 0 0}
 .kbx.list .kbx-none{padding:10px var(--dm-s-3);text-align:left}
 .kbx.list .kbx-ph{border-radius:0;border-width:1.5px 0}
 /* a narrow board, on a phone or in a narrow card: the header stacks, one column at a time, picked with tabs that count each
@@ -725,10 +735,10 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
   .kbx:not(.list) .kbx-ch{display:none}
   .kbx:not(.list) .kbx-c.shut{align-items:stretch;padding:6px 6px 8px;cursor:default}
   .kbx:not(.list) .kbx-c.shut .kbx-list{display:flex}
-  .kbx:not(.list) .kbx-c{min-height:412px}
+  .kbx:not(.list) .kbx-c{min-height:520px}
   .kbx-k{touch-action:pan-y}
   .kbx-mv{opacity:1}
-  .kbx.list .kbx-id,.kbx.list .kbx-m,.kbx.list .kbx-pr{display:none}
+  .kbx.list .kbx-id,.kbx.list .kbx-m,.kbx.list .kbx-pr,.kbx.list .kbx-cr>:not(.kbx-pri){display:none}
   .kbx-pk{width:100%}
   .kbx-bk{left:var(--dm-s-2);right:var(--dm-s-2);max-width:none;transform:translateY(8px)}
   .kbx-bk.on{transform:none}

@@ -16,16 +16,17 @@ const MEMBERS: KanbanBoardMember[] = [
 const day = (n: number) => { const d = new Date(); d.setDate(d.getDate() + n); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 const tasks = (...t: [string, boolean?][]) => t.map(([title, done]) => ({ title, done: !!done }));
 const CARDS: KanbanBoardCard[] = [
-  { id: 'DES-148', column: 'todo', title: 'Audit checkout for contrast', priority: 'high', labels: ['A11y'], assignees: ['DA'], due: day(3), subtasks: tasks(['List every text pair'], ['Check against 4.5:1'], ['Fix the failing pairs'], ['Write up the changes']) },
-  { id: 'DES-151', column: 'todo', title: 'Write release notes for pricing', priority: 'medium', labels: ['Copy'], assignees: ['MK'], due: day(2), comments: 2 },
-  { id: 'DES-157', column: 'todo', title: 'Pricing toggle hides the yearly saving', priority: 'urgent', labels: ['Bug'], assignees: ['JO'], due: day(1), comments: 4, attachments: 1 },
-  { id: 'DES-155', column: 'todo', title: 'Empty state for search', priority: 'low', labels: ['Design'], assignees: ['LP'], attachments: 2 },
-  { id: 'DES-142', column: 'doing', title: 'Export tokens to CSS', priority: 'high', labels: ['Code'], assignees: ['DA'], attachments: 1, progress: .4, subtasks: tasks(['Read the Figma variables', true], ['Map colours to roles', true], ['Write the CSS variables'], ['Check contrast pairs'], ['Open a pull request']) },
-  { id: 'DES-144', column: 'doing', title: 'Review annual plan copy', priority: 'medium', labels: ['Copy'], assignees: ['JO', 'MK'], due: day(-1), comments: 5, subtasks: tasks(['Headline', true], ['Plan names', true], ['Feature list'], ['Footnotes']) },
-  { id: 'DES-146', column: 'doing', title: 'Plan cards wrap at 768px', priority: 'high', labels: ['Design', 'Bug'], assignees: ['LP'], due: day(0), comments: 1, subtasks: tasks(['Reproduce on a tablet', true], ['Fix the grid'], ['Test at 744px']) },
-  { id: 'DES-139', column: 'done', title: 'One CTA per pricing card', priority: 'medium', labels: ['Design'], assignees: ['MK'], comments: 3, subtasks: tasks(['Pick the CTA', true], ['Update the cards', true]) },
-  { id: 'DES-137', column: 'done', title: 'Compare checkout flows', priority: 'low', labels: ['Design'], assignees: ['LP'], attachments: 3, subtasks: tasks(['Collect five flows', true], ['Note the steps', true], ['Share the findings', true]) }
+  { id: 'DES-148', column: 'todo', title: 'Audit checkout for contrast', priority: 'high', project: 'Checkout', labels: ['A11y'], assignees: ['DA'], due: day(3), subtasks: tasks(['List every text pair'], ['Check against 4.5:1'], ['Fix the failing pairs'], ['Write up the changes']) },
+  { id: 'DES-151', column: 'todo', title: 'Write release notes for pricing', priority: 'medium', project: 'Pricing', labels: ['Copy'], assignees: ['MK'], due: day(2), comments: 2 },
+  { id: 'DES-157', column: 'todo', title: 'Pricing toggle hides the yearly saving', priority: 'urgent', project: 'Pricing', labels: ['Bug'], assignees: ['JO'], due: day(1), comments: 4, attachments: 1 },
+  { id: 'DES-155', column: 'todo', title: 'Empty state for search', priority: 'low', project: 'Search', labels: ['Design'], assignees: ['LP'], attachments: 2 },
+  { id: 'DES-142', column: 'doing', title: 'Export tokens to CSS', priority: 'high', project: 'Tokens', labels: ['Code'], assignees: ['DA'], attachments: 1, progress: .4, subtasks: tasks(['Read the Figma variables', true], ['Map colours to roles', true], ['Write the CSS variables'], ['Check contrast pairs'], ['Open a pull request']) },
+  { id: 'DES-144', column: 'doing', title: 'Review annual plan copy', priority: 'medium', project: 'Pricing', labels: ['Copy'], assignees: ['JO', 'MK'], due: day(-1), comments: 5, subtasks: tasks(['Headline', true], ['Plan names', true], ['Feature list'], ['Footnotes']) },
+  { id: 'DES-146', column: 'doing', title: 'Plan cards wrap at 768px', priority: 'high', project: 'Pricing', labels: ['Design', 'Bug'], assignees: ['LP'], due: day(0), comments: 1, subtasks: tasks(['Reproduce on a tablet', true], ['Fix the grid'], ['Test at 744px']) },
+  { id: 'DES-139', column: 'done', title: 'One CTA per pricing card', priority: 'medium', project: 'Pricing', labels: ['Design'], assignees: ['MK'], comments: 3, subtasks: tasks(['Pick the CTA', true], ['Update the cards', true]) },
+  { id: 'DES-137', column: 'done', title: 'Compare checkout flows', priority: 'low', project: 'Checkout', labels: ['Design'], assignees: ['LP'], attachments: 3, subtasks: tasks(['Collect five flows', true], ['Note the steps', true], ['Share the findings', true]) }
 ];
+// each label takes the next core tag colour in this order: Design purple, Copy teal, Code green, Bug pink, A11y red
 const LABELS = ['Design', 'Copy', 'Code', 'Bug', 'A11y'];
 
 export default function KanbanBoardDemo() {
