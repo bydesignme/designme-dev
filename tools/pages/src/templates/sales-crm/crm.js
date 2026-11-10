@@ -1704,6 +1704,32 @@
   sug.addEventListener('focusout', () => setTimeout(() => { if (!sug.contains(document.activeElement) && document.activeElement !== ask) hideSug(); }, 120));
   addEventListener('resize', () => { if (sug.classList.contains('open')) showSug(); });
 
+  /* ---------- setting up the workspace: the sidebar's progress card ---------- */
+  // five steps, three done; the card opens to them, each open step has its action, and the card says so and leaves once all
+  // five are done. Hiding it lasts the session
+  const STEPS = [
+    { k:'import', t:'Import your accounts', d:'24 accounts from a CSV', done:true },
+    { k:'team', t:'Invite your team', d:'8 people', done:true },
+    { k:'quota', t:'Set quarterly quotas', d:'$5.18M across the team', done:true },
+    { k:'cal', t:'Connect your calendar', d:'So the agent can book meetings', act:'Connect', msg:['Calendar connected', 'The agent books into free slots from now on'] },
+    { k:'fu', t:'Turn on follow-ups', d:'The agent drafts them after 14 quiet days', act:'Turn on', msg:['Follow-ups are on', 'Drafts wait in the agent inbox for you'] },
+  ];
+  const setup = $('.crm-setup', app), stl = $('.crm-stl', setup), stb = $('.crm-stb', setup);
+  let stHidden = false; try { stHidden = sessionStorage.getItem('crm-setup') === 'hidden'; } catch(e){}
+  function paintSetup(){
+    const n = STEPS.filter(x => x.done).length;
+    $('.n', stb).textContent = n === STEPS.length ? 'All done' : `${n} of ${STEPS.length}`;
+    $('.crm-stbar', setup).setAttribute('aria-valuenow', n); $('.crm-stbar i', setup).style.width = (n / STEPS.length * 100) + '%';
+    stl.innerHTML = STEPS.map(x => `<li class="${x.done ? 'done' : ''}" data-k="${x.k}"><span class="ck" aria-hidden="true">${x.done ? I('check', 'xs') : ''}</span><span class="tx"><span class="t">${x.t}</span><span class="d">${x.d}</span></span>${x.done ? '<span class="sr">Done</span>' : `<button class="pill line sm" data-st="${x.k}">${x.act}</button>`}</li>`).join('');
+  }
+  const setOpen = on => { setup.dataset.open = on; stb.setAttribute('aria-expanded', on); $('.fold', setup).classList.toggle('shut', !on); };
+  stb.onclick = () => setOpen(setup.dataset.open !== 'true');
+  $('.crm-stx', setup).onclick = () => { hideTip(); fadeOut(setup); try { sessionStorage.setItem('crm-setup', 'hidden'); } catch(e){} $('[data-go="accounts"]', app).focus({ preventScroll:true }); };
+  stl.addEventListener('click', e => { const b = e.target.closest('[data-st]'); if (!b) return; const x = STEPS.find(s => s.k === b.dataset.st); x.done = true; paintSetup();
+    const li = $(`li[data-k="${x.k}"]`, stl); if (li) enter(li); toast('ok', x.msg[0], x.msg[1], { label:'Undo', run:() => { x.done = false; paintSetup(); } });
+    const next = $('[data-st]', stl); if (next) next.focus({ preventScroll:true }); else { stb.focus({ preventScroll:true }); setTimeout(() => { if (STEPS.every(s => s.done)) setOpen(false); }, 900); } });
+  if (stHidden) setup.hidden = true; paintSetup();
+
   /* ---------- notifications: Notifications ---------- */
   const ago = n => n >= 0 ? 'Today' : n === -1 ? 'Yesterday' : `${-n} days ago`;
   const lastWin = DE.filter(d => d.st === 'won' && RAW.some(r => r[0] === coOf(d.co).n && r[7].some(x => x[0] === d.n))).sort((a, b) => b.close - a.close)[0];
