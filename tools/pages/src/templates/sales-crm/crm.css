@@ -800,7 +800,8 @@ body:has(.crm) .dmf{display:none}
 .crm-gd{flex:none;width:8px;height:8px;margin-right:2px;border-radius:50%;background:var(--crm-km,var(--crm-k))}
 .crm-gd[data-k="done"]{background:var(--dm-ok-mark)}
 .crm-aib .aib-gh{display:flex;align-items:center;gap:6px}
-.crm-aib .aib-i.on[data-k]{box-shadow:inset 3px 0 0 var(--crm-km,var(--crm-k)),inset 0 0 0 1px var(--crm-hair)}
+/* the selected row: the grey fill and hairline, and its icon tile a step darker; no coloured edge (owner, 10 Nov) */
+.crm-aib .aib-i.on:not(.done) .aib-av[data-k]{background:color-mix(in srgb,var(--crm-k) 16%,var(--crm-kb))}
 .crm-pvk{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:var(--dm-r-tag);background:var(--crm-kb);color:var(--crm-k);font-size:12px;font-weight:500}
 
 /* ---------- search, sort and saved views (owner, 10 Nov) ---------- */
@@ -834,12 +835,12 @@ body:has(.crm) .dmf{display:none}
 /* ---------- Forecast on wide monitors (owner, 10 Nov) ---------- */
 /* the dashboard keeps a readable width and sits centred, as Stripe's reporting does, so charts never stretch into flat lines;
    below the cap nothing changes */
-.crm-fc{--crm-fcw:1480px;padding-right:max(var(--dm-s-4),calc(100% - var(--crm-fcw) - var(--dm-s-5)))}
-/* below a 1920px window the cards line up with the page title, like every other view; past it they sit centred */
-@media (min-width:1920px){.crm-fc{padding-left:calc((100% - var(--crm-fcw)) / 2);padding-right:calc((100% - var(--crm-fcw)) / 2)}}
+.crm-fc{--crm-fcw:1480px;padding-left:max(var(--dm-s-5),calc((100% - var(--crm-fcw)) / 2));padding-right:max(var(--dm-s-4),calc((100% - var(--crm-fcw)) / 2))}
+/* once the cards reach their cap they sit centred, never against the left with a gap on the right (owner, 10 Nov) */
 /* charts grow a little taller as their cards get wider */
 .crm-fc .lnx-ch{height:clamp(132px,10vw,172px)}
-.crm-fc .scx-sp{height:clamp(34px,2.6vw,44px)}
+/* the stat cards' lines stay small, a hint of the trend, not the card's weight (owner, 10 Nov) */
+.crm-fc .scx-sp{height:clamp(26px,2vw,32px)}
 /* the bottom row fills evenly: the funnel's rows spread down the card with the insight at its foot, and the quota ring and
    its legend sit in the middle of theirs, rather than leaving a gap under the shorter cards */
 .crm-fc .fnx-rows{flex:1;justify-content:space-around;gap:var(--dm-s-2)}
@@ -1145,3 +1146,49 @@ body:has(.crm) .dmf{display:none}
 /* Blueprint light: the agent buttons in the table take the same clear lime tint and edge as the library's ask buttons */
 :root:not([data-style="soft"])[data-theme="light"] .pill.soft.crm-ag{background:color-mix(in srgb,var(--dm-accent) 24%,var(--dm-surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,color-mix(in srgb,var(--dm-accent) 70%,var(--dm-fg)) 20%,transparent)}
 @media (prefers-color-scheme:light){:root:not([data-style="soft"]):not([data-theme="dark"]) .pill.soft.crm-ag{background:color-mix(in srgb,var(--dm-accent) 24%,var(--dm-surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,color-mix(in srgb,var(--dm-accent) 70%,var(--dm-fg)) 20%,transparent)}}
+/* owner, 10 Nov: the forecast's middle row reads as one line. Every chart's labels sit on the same baseline at the card's foot
+   (Team activity's grid drops to it, and loses its Less / More key), Closed won's grid lines are half as strong, and Pipeline by
+   close week has the same quiet grid behind its bars */
+.crm-fc{--crm-gl:color-mix(in srgb,color-mix(in srgb,var(--dm-line),var(--dm-fg) 14%) 50%,transparent)}
+.crm-fc :is(.lnx-ax,.lnx-ax span,.bcx-l,.hmx-f,.hmx-ax){line-height:14px}
+.crm-fc .lnx-ax span{height:14px}
+.crm-fc .lnx-svg .gl{stroke:var(--crm-gl)}
+.crm-hm .hmx-wrap{margin-top:auto}
+.crm-fc .bcx-ch{position:relative}
+.crm-fc .bcx-ch::before{content:"";position:absolute;inset:0 0 20px;pointer-events:none;background:linear-gradient(var(--crm-gl),var(--crm-gl)) 0 25%/100% 1px no-repeat,linear-gradient(var(--crm-gl),var(--crm-gl)) 0 50%/100% 1px no-repeat,linear-gradient(var(--crm-gl),var(--crm-gl)) 0 75%/100% 1px no-repeat}
+.crm-fc .bcx-b{position:relative;z-index:1}
+.crm-fc .scx-sp path.ar{stroke:none}
+/* Blueprint dark: the cards sit on their own colour, so they need a clear edge to read as cards (owner, 10 Nov) */
+:root:not([data-style="soft"])[data-theme="dark"] :is(.crm-fc,.crm-ib,.crm-cal) .panel{box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-fg) 16%,transparent)}
+@media (prefers-color-scheme:dark){:root:not([data-style="soft"]):not([data-theme="light"]) :is(.crm-fc,.crm-ib,.crm-cal) .panel{box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-fg) 16%,transparent)}}
+/* the first hour line sat under the all-day row's border, one line drawn twice as thick at 8am (owner, 10 Nov) */
+.crm .ecx-col{background-position:0 -1px}
+/* a filter in use, in the Filter menu's list of fields: a dot in the accent where the value was (owner, 10 Nov) */
+.crm-fon{display:block;width:6px;height:6px;margin:0 2px;border-radius:50%;background:var(--dm-accent-mark,var(--dm-accent))}
+/* Sort: the rules in order, each a row with its grip, field, direction and remove; the fields left to add below them */
+.crm-srp{width:300px;padding:var(--dm-s-1)}
+.crm-srl{flex:none;display:flex;flex-direction:column;gap:2px;padding:2px 0 var(--dm-s-1)}
+.crm-srp>*{flex-shrink:0}
+.crm-srw{display:flex;align-items:center;gap:4px;height:32px;padding:0 2px;border-radius:var(--dm-r-sm);background:var(--dm-raised,var(--dm-surface));transition:transform .18s var(--dm-ease)}
+.crm-srw.drag{z-index:1;transition:none;box-shadow:var(--dm-shadow-pop)}
+.crm-srg,.crm-srx{flex:none;display:grid;place-items:center;width:24px;height:24px;padding:0;border:0;border-radius:var(--dm-r-sm);background:none;color:var(--dm-muted);cursor:grab;touch-action:none}
+.crm-srx{cursor:pointer}
+.crm-srw.drag .crm-srg{cursor:grabbing}
+:is(.crm-srg,.crm-srx):disabled{opacity:.35;cursor:default}
+.crm-srf{flex:1;min-width:0;display:flex;align-items:center;gap:8px;padding-left:2px;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crm-srf .i{flex:none;color:var(--dm-muted)}
+.crm-srd{flex:none;display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 8px;border:0;border-radius:var(--dm-r-sm);background:var(--dm-chip);font:inherit;font-size:12px;color:var(--dm-fg2);white-space:nowrap;cursor:pointer;transition:background var(--dm-t-fast),color var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){
+  .crm-srd:hover{color:var(--dm-fg);background:color-mix(in srgb,var(--dm-chip),var(--dm-fg) 6%)}
+  :is(.crm-srg,.crm-srx):not(:disabled):hover{color:var(--dm-fg);background:var(--dm-row)}
+}
+.crm-srp .mi[data-add] .i:last-child{margin-left:auto;color:var(--dm-muted)}
+/* Team activity: sixteen hours to a row, so each cell is bigger and a little taller than wide (owner, 10 Nov) */
+.crm-hm .hmx-grid{grid-template-columns:repeat(16,minmax(0,1fr))}
+.crm-hm .hmx-grid i{aspect-ratio:1/1.12}
+/* trial, Blueprint dark (owner, 10 Nov): the whole app sits on the sidebar's colour, one tone below the cards, so the
+   cards, columns and panels lift off it the way Soft's shadows lift them */
+:root:not([data-style="soft"])[data-theme="dark"] .crm :is(.crm-main,.crm-view){background:var(--dm-stage)}
+@media (prefers-color-scheme:dark){:root:not([data-style="soft"]):not([data-theme="light"]) .crm :is(.crm-main,.crm-view){background:var(--dm-stage)}}
+:root:not([data-style="soft"])[data-theme="dark"] .crm-kb .kbx-c:not(.over){--crm-colbg:color-mix(in srgb,var(--dm-fg) 2%,var(--dm-surface))}
+@media (prefers-color-scheme:dark){:root:not([data-style="soft"]):not([data-theme="light"]) .crm-kb .kbx-c:not(.over){--crm-colbg:color-mix(in srgb,var(--dm-fg) 2%,var(--dm-surface))}}

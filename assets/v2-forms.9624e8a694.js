@@ -690,7 +690,7 @@ const PRG_HTML = {
         <div class="pva-bar" role="progressbar" aria-labelledby="pva-n" aria-valuemin="0" aria-valuemax="100"><i class="pva-fill"></i></div>
         <div class="pva-meta">
           <span class="pva-eta num">Counting pages</span>
-          <button type="button" class="pva-cr" data-pop="#pva-cpop" data-pop-align="end" aria-haspopup="dialog" aria-expanded="false" aria-controls="pva-cpop"><svg class="i s" aria-hidden="true"><use href="#v2i-coins"/></svg><span><span class="v num">0</span> credits<span class="sr"> used by this run</span></span><svg class="i xs cv" aria-hidden="true"><use href="#v2i-chev-d"/></svg></button>
+          <button type="button" class="pva-cr" data-pop="#pva-cpop" data-pop-align="end" aria-haspopup="dialog" aria-expanded="false" aria-controls="pva-cpop"><svg class="i s" aria-hidden="true"><use href="#v2i-coins"/></svg><span><span class="v num">0</span> credits<span class="sr"> used by this run</span></span></button>
           <div class="pop pva-pop" id="pva-cpop" role="dialog" aria-label="Credits">
             <div class="pva-ph"><span class="pva-k">This run</span></div>
             <div class="pva-kv pva-c-sr"><span>Spent so far</span><b class="num pva-c-sp">0</b></div>

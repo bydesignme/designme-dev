@@ -350,7 +350,10 @@ const TPLS = {};
     return tpl.call(this, card);
   }; }
 const partsDone = new Set(), partsLoading = {};
-const loadPart = k => partsLoading[k] || (partsLoading[k] = fetch(PARTS.files[k]).then(r => { if (!r.ok) throw new Error(r.status + ' ' + PARTS.files[k]); return r.text(); })
+// a page left open across a deploy names section files the new build no longer has (they are named by their content), so
+// a 404 reloads the page once to pick up the current build, where the browser keeps the scroll position
+const stale = () => { try { const k = 'dm-stale-reload', at = +sessionStorage.getItem(k) || 0; if (Date.now() - at < 60000) return false; sessionStorage.setItem(k, Date.now()); } catch (e) { return false; } location.reload(); return true; };
+const loadPart = k => partsLoading[k] || (partsLoading[k] = fetch(PARTS.files[k]).then(r => { if (r.status === 404 && stale()) return new Promise(() => {}); if (!r.ok) throw new Error(r.status + ' ' + PARTS.files[k]); return r.text(); })
   .then(src => { partRun(src + '\\n//# sourceURL=' + location.origin + PARTS.files[k]); partsDone.add(k); }, e => { delete partsLoading[k]; throw e; }));
 const partsOf = id => PARTS.all.includes(id) ? Object.keys(PARTS.files) : PARTS.of[id] ? [PARTS.of[id]] : [];
 const hasDefs = id => partsOf(id).every(k => partsDone.has(k));
@@ -380,7 +383,9 @@ const needDefs = id => Promise.all(partsOf(id).map(loadPart));
     const go = () => { DM.mount(comp, now); syncTabs(comp);
       if (comp._tabsMo) comp._tabsMo.disconnect(); const sg = demoSeg(comp);
       if (sg){ comp._tabsMo = new MutationObserver(() => syncTabs(comp)); comp._tabsMo.observe(sg, { subtree:true, attributes:true, attributeFilter:['aria-pressed'] }); } };
-    if (hasDefs(comp.dataset.v2)) go(); else needDefs(comp.dataset.v2).then(go, e => { console.warn('designme: components not loaded', e); if (!comp._c) waiting.add(comp); });
+    if (hasDefs(comp.dataset.v2)) go(); else needDefs(comp.dataset.v2).then(() => { const n = $('.dm-lf', comp); if (n) n.remove(); go(); }, e => { console.warn('designme: components not loaded', e); if (comp._c) return; waiting.add(comp);
+      // never an empty stage: say so, with a way to try again
+      const st = $('.stage-inner', comp); if (st && !$('.dm-lf', st)){ const n = document.createElement('div'); n.className = 'dm-lf'; n.innerHTML = '<span>This component didn\\'t load.</span><button type="button">Try again</button>'; $('button', n).onclick = () => mount(comp, true); st.appendChild(n); } });
   };
   // a section's components load when it comes within a screen of the view, so its cards have them by the time they show
   const nearSec = new IntersectionObserver(es => es.forEach(en => { if (!en.isIntersecting) return; nearSec.unobserve(en.target);

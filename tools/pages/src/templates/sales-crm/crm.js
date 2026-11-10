@@ -74,16 +74,16 @@
     ['Halcyon Labs', 'Enterprise', ['Expansion', 'Pilot'], 'MK', 'na', 1, 'Demo', [['Platform expansion', 'nego', 184, 18, 5], ['Analytics pilot', 'demo', 42, 40, 0]]],
     ['Brightwater Health', 'Strategic', ['Renewal', 'More seats', 'Partner-led'], 'AR', 'na', 2, 'QBR', [['Renewal 2027', 'prop', 228, 30, 10], ['Care team seats', 'disc', 64, 75, 0], ['Partner bundle', 'won', 96, -12, 0]]],
     ['Pinecrest Logistics', 'Mid-market', ['First deal'], 'JO', 'emea', 4, 'Pricing', [['First contract', 'demo', 58, 45, 0]]],
-    ['Corvid Analytics', 'Enterprise', ['Expansion', 'More seats', 'Reseller'], 'TR', 'na', 0, 'Call', [['Enterprise tier', 'nego', 312, 12, 8], ['Data add-on', 'prop', 88, 28, -5], ['Reseller bundle', 'disc', 40, 90, 0]]],
+    ['Corvid Analytics', 'Enterprise', ['Expansion', 'More seats', 'Reseller'], 'TR', 'na', 0, 'Call', [['Enterprise tier', 'nego', 176, 12, 8], ['Data add-on', 'prop', 88, 28, -5], ['Reseller bundle', 'disc', 40, 90, 0]]],
     ['Lumen Grid', 'Mid-market', ['More seats'], 'LN', 'emea', 9, 'Email', [['Seat upgrade', 'prop', 36, 26, -10]]],
     ['Saltmarsh Foods', 'SMB', ['First deal', 'Pilot'], 'DK', 'emea', 16, 'Discovery', [['Pilot', 'disc', 18, 60, 0], ['Starter plan', 'demo', 12, 50, 0]]],
     ['Ironbark Capital', 'Strategic', ['Expansion'], 'MK', 'na', 3, 'Exec', [['Global rollout', 'prop', 420, 48, 0], ['Risk module', 'won', 140, -30, 0]]],
     ['Tidewell Energy', 'Enterprise', ['Renewal', 'Partner-led'], 'AR', 'apac', 38, 'Legal', [['Renewal', 'nego', 265, -4, -40], ['Grid ops seats', 'demo', 75, 70, 0]]],
     ['Quillon Media', 'Mid-market', ['First deal', 'Reseller', 'Pilot'], 'IB', 'na', 6, 'Demo', [['First contract', 'demo', 66, 35, 0], ['Reseller pilot', 'disc', 24, 80, 0]]],
     ['Marrow & Finch', 'SMB', ['More seats'], 'KM', 'emea', 21, 'Email', [['Seat upgrade', 'disc', 22, 55, -5]]],
-    ['Oakhaven Retail', 'Enterprise', ['Expansion', 'Renewal'], 'TR', 'na', 5, 'Pricing', [['Store rollout', 'nego', 198, 9, 10], ['Renewal', 'prop', 120, 40, 0]]],
+    ['Oakhaven Retail', 'Enterprise', ['Expansion', 'Renewal'], 'TR', 'na', 5, 'Pricing', [['Store rollout', 'nego', 96, 9, 10], ['Renewal', 'prop', 120, 40, 0]]],
     ['Fernway Travel', 'Mid-market', ['First deal'], 'JO', 'apac', 12, 'Call', [['First contract', 'disc', 48, 65, 0]]],
-    ['Kestrel Robotics', 'Strategic', ['Pilot', 'Expansion', 'Partner-led'], 'MK', 'apac', 1, 'Security', [['Pilot to production', 'nego', 356, 6, 12], ['Fleet expansion', 'prop', 150, 52, 0], ['Security review', 'won', 60, -20, 0]]],
+    ['Kestrel Robotics', 'Strategic', ['Pilot', 'Expansion', 'Partner-led'], 'MK', 'apac', 1, 'Security', [['Pilot to production', 'nego', 164, 6, 12], ['Fleet expansion', 'prop', 150, 52, 0], ['Security review', 'won', 60, -20, 0]]],
     ['Bluefin Insurance', 'Enterprise', ['Renewal'], 'LN', 'emea', 27, 'QBR', [['Renewal', 'prop', 142, -2, -30]]],
     ['Arbor & Vine', 'SMB', ['First deal', 'More seats'], 'DK', 'na', 44, 'Email', [['Starter', 'disc', 9, 85, -5]]],
     ['Cobalt Ridge', 'Mid-market', ['Expansion'], 'IB', 'na', 8, 'Demo', [['Expansion', 'demo', 72, 38, 5]]],
@@ -319,7 +319,7 @@
 
   /* ---------- the state of the filters, the selection and what is open ---------- */
   // A holds the filters as Filter menu's chips: a field, a value, and whether it reads the other way (is not, older than)
-  const F = { A:[], q:'', sort:'value', desc:true, then:null, said:'' };
+  const F = { A:[], q:'', S:[{ k:'value', desc:true }], said:'' };
   // the board starts with Closed lost hidden, as a chip in the hidden stages' dock
   const K = { own:new Set(), q:'', close:'any', view:'board', shut:new Set(['lost']), tab:'disc', order:STAGES.map(s => s.k), draft:null };
   // the board's column order lasts the session (a reload keeps it; a new tab starts from the stages' order)
@@ -354,16 +354,16 @@
   const tick = I('check', 'xs').replace('class="i xs"', 'class="i xs ck-y"') + I('minus', 'xs').replace('class="i xs"', 'class="i xs ck-m"');
   allBox.innerHTML = tick;
   $$('.crm-t .ttx-s', app).forEach(b => b.insertAdjacentHTML('beforeend', `<span class="ar">${I('chev-u', 'xs')}</span>`));
-  const SORTS = { value:['Pipeline', c => c.value], health:['Health', c => c.health], next:['Next step', c => c.next ? c.next.day * 100 + c.next.h : 1e6], name:['Account', c => c.n.toLowerCase()], stage:['Stage', c => ST[c.st].i], owner:['Owner', c => P[c.own][0]] };
+  const SORTS = { value:['Pipeline', c => c.value, 'dollar', 'Low to high', 'High to low'], health:['Health', c => c.health, 'gauge', 'Low to high', 'High to low'], next:['Next step', c => c.next ? c.next.day * 100 + c.next.h : 1e6, 'cal', 'Soonest first', 'Latest first'], name:['Account', c => c.n.toLowerCase(), 'globe', 'A to Z', 'Z to A'], stage:['Stage', c => ST[c.st].i, 'layers', 'Earliest first', 'Latest first'], owner:['Owner', c => P[c.own][0], 'user', 'A to Z', 'Z to A'] };
   const ASC = ['name', 'owner', 'next'];
   const qOk = c => !F.q || (c.n + ' ' + c.seg + ' ' + c.tags.join(' ') + ' ' + P[c.own][0] + ' ' + c.ppl.map(p => p.n).join(' ')).toLowerCase().includes(F.q.toLowerCase());
   const matches = c => qOk(c) && fmatch(c);
   const cmp = (x, y) => x > y ? 1 : x < y ? -1 : 0;
   const inView = () => {
-    const f = SORTS[F.sort][1], g = F.then && SORTS[F.then][1], gd = F.then && !ASC.includes(F.then);
-    return CO.filter(matches).sort((a, b) => cmp(f(a), f(b)) * (F.desc ? -1 : 1) || (g ? cmp(g(a), g(b)) * (gd ? -1 : 1) : 0) || a.n.localeCompare(b.n));
+    const by = F.S.map(r => [SORTS[r.k][1], r.desc ? -1 : 1]);
+    return CO.filter(matches).sort((a, b) => { for (const [f, d] of by){ const x = cmp(f(a), f(b)) * d; if (x) return x; } return a.n.localeCompare(b.n); });
   };
-  const sortLabel = () => SORTS[F.sort][0] + (F.then ? ', then ' + SORTS[F.then][0].toLowerCase() : '');
+  const sortLabel = () => SORTS[F.S[0].k][0] + (F.S.length > 1 ? ` +${F.S.length - 1}` : '');
   // a filter as its chip reads it, and how many accounts the view would show without it
   const fText = f => `${FL[f.k].l} ${FL[f.k].ops[+f.neg]} ${valOf(f.k, f.v).l}`;
   const relaxed = () => F.A.map(f => ({ f, n:CO.filter(c => qOk(c) && F.A.every(g => g === f || FL[g.k].test(c, g.v) !== g.neg)).length })).filter(x => x.n).sort((a, b) => b.n - a.n);
@@ -408,7 +408,7 @@
     playRows(snap);
     // one row at a time is in the Tab order; the arrow keys move between them
     const keep = rows.find(c => c.id === focusId) || rows[0]; if (keep) $(`tr[data-id="${keep.id}"]`, tbody).tabIndex = 0;
-    $$('.crm-t .ttx-s', app).forEach(b => { const on = b.dataset.k === F.sort; b.classList.toggle('on', on); b.classList.toggle('desc', on && F.desc); b.closest('th').setAttribute('aria-sort', on ? (F.desc ? 'descending' : 'ascending') : 'none'); });
+    $$('.crm-t .ttx-s', app).forEach(b => { const on = b.dataset.k === F.S[0].k; b.classList.toggle('on', on); b.classList.toggle('desc', on && F.S[0].desc); b.closest('th').setAttribute('aria-sort', on ? (F.S[0].desc ? 'descending' : 'ascending') : 'none'); });
     swap($('.crm-sort .v', app), sortLabel());
     syncSel(); chips(); counts();
   }
@@ -424,7 +424,7 @@
   const fch = $('.crm-fch', app);
   function chips(){
     const have = new Set(F.A.map(f => f.k));
-    $$('.flm-ch', fch).forEach(ch => { if (have.has(ch.dataset.k) || ch.classList.contains('gone')) return; if (REDUCE) return ch.remove(); ch.classList.add('gone'); setTimeout(() => ch.remove(), 300); });
+    $$('.flm-ch', fch).forEach(ch => { if (have.has(ch.dataset.k) || ch.classList.contains('gone')) return; chipLeave(ch); });
     F.A.forEach(f => {
       let ch = $(`.flm-ch[data-k="${f.k}"]:not(.gone)`, fch);
       if (!ch){ ch = html(`<div class="flm-ch" role="listitem" data-k="${f.k}"><span class="k">${FL[f.k].l}</span><button class="op"></button><span class="v"></span><button class="x">${I('x', 'xs')}</button></div>`); fch.appendChild(ch); }
@@ -455,7 +455,7 @@
     if (!k){
       fpop.setAttribute('aria-label', 'Filter by');
       fpop.innerHTML = `<div class="ph" role="none">Filter by</div>` + Object.entries(FL).map(([key, f]) => { const a = F.A.find(x => x.k === key), o = a && valOf(key, a.v);
-        return `<button class="mi" role="menuitem" aria-haspopup="menu" tabindex="-1" data-k="${key}">${I(f.ic)}<span>${f.l}</span><span class="r">${o ? (a.neg ? f.ops[1] + ' ' : '') + o.l : ''}</span>${I('chev-r', 'xs')}</button>`; }).join('');
+        return `<button class="mi" role="menuitem" aria-haspopup="menu" tabindex="-1" data-k="${key}">${I(f.ic)}<span>${f.l}</span><span class="r">${o ? `<i class="crm-fon" role="img" aria-label="In use: ${esc(f.ops[+a.neg] + ' ' + o.l)}"></i>` : ''}</span>${I('chev-r', 'xs')}</button>`; }).join('');
     } else {
       const f = FL[k], on = F.A.find(x => x.k === k);
       fpop.setAttribute('aria-label', f.l);
@@ -533,7 +533,7 @@
   $('.crm-ansx', ans).onclick = () => clearFilters();
 
   // sorting from the column headers: a second press turns the order round
-  $$('.crm-t .ttx-s', app).forEach(b => b.onclick = () => { const k = b.dataset.k; if (k === F.sort) F.desc = !F.desc; else { F.sort = k; F.desc = !ASC.includes(k); if (F.then === k) F.then = null; } renderTable(); });
+  $$('.crm-t .ttx-s', app).forEach(b => b.onclick = () => { const k = b.dataset.k; if (k === F.S[0].k) F.S[0].desc = !F.S[0].desc; else F.S = [{ k, desc:!ASC.includes(k) }, ...F.S.filter(r => r.k !== k)]; renderTable(); if (sortPop.classList.contains('open')) paintSort(); });
   allBox.onclick = () => { const on = allBox.getAttribute('aria-checked') !== 'true'; rows.forEach(c => on ? sel.add(c.id) : sel.delete(c.id)); syncSel(); };
   $('.ttx-clr', sb).onclick = () => { sel.clear(); syncSel(); };
   const toggleSel = id => { sel.has(id) ? sel.delete(id) : sel.add(id); syncSel(); };
@@ -557,19 +557,56 @@
     else if (e.key === 'a' || e.key === 'A'){ const c = coOf(tr.dataset.id); if (c.sug && CONFIRM.has(c.sug.k)){ e.preventDefault(); $('.crm-ag', tr).click(); setTimeout(() => $('[data-cf="go"]', cfm)?.focus({ preventScroll:true }), 40); return; } if (c.sug){ e.preventDefault(); accept(c, c.sug); const t = $(`tr[data-id="${c.id}"]`, tbody); if (t) focusRow(t); } }
   });
 
+  // a chip on its way out fades where it stands, out of the row's flow, so the chips that stay or arrive take their places at once
+  function chipLeave(ch){
+    if (REDUCE) return ch.remove();
+    const box = ch.parentElement, b = box.getBoundingClientRect(), r = ch.getBoundingClientRect();
+    if (getComputedStyle(box).position === 'static') box.style.position = 'relative';
+    Object.assign(ch.style, { position:'absolute', left:(r.left - b.left + box.scrollLeft) + 'px', top:(r.top - b.top) + 'px', margin:0, pointerEvents:'none' });
+    ch.classList.add('gone'); setTimeout(() => ch.remove(), 300);
+  }
   /* ---------- menus: built as they open, updated in place while they are open ---------- */
   const ck = `<span class="ck">${I('check', 'xs')}</span>`;
   const onOpen = (s, fn) => $$(s, app).forEach(b => b.addEventListener('click', fn));
   const mi = (attrs, body, role = 'menuitemradio', checked = false, close = true) => `<button class="mi" role="${role}" aria-checked="${checked}" tabindex="-1"${close ? ' data-close' : ''} ${attrs}>${body}${role !== 'menuitem' ? ck : ''}</button>`;
   const pop = id => $('#' + id, app);
-  // Sort: the field, then the order
-  onOpen('.crm-sort', () => {
-    const p = pop('crm-p-sort'), az = ['name', 'owner'].includes(F.sort), when = F.sort === 'next';
-    p.innerHTML = `<div class="ph" role="none">Sort by</div>` + Object.entries(SORTS).map(([k, s]) => mi(`data-k="${k}"`, `<span>${s[0]}</span>`, 'menuitemradio', F.sort === k)).join('')
-      + `<div class="sep" role="separator"></div>` + mi('data-o="asc"', `${I('up', 's')}<span>${az ? 'A to Z' : when ? 'Soonest first' : 'Low to high'}</span>`, 'menuitemradio', !F.desc) + mi('data-o="desc"', `${I('down', 's')}<span>${az ? 'Z to A' : when ? 'Latest first' : 'High to low'}</span>`, 'menuitemradio', F.desc)
-      + `<div class="sep" role="separator"></div><div class="ph" role="none">Then by</div>` + mi('data-t=""', '<span>Nothing</span>', 'menuitemradio', !F.then)
-      + Object.entries(SORTS).filter(([k]) => k !== F.sort).map(([k, s]) => mi(`data-t="${k}"`, `<span>${s[0]}</span>`, 'menuitemradio', F.then === k)).join('');
-    $$('.mi', p).forEach(m => m.addEventListener('click', () => { if (m.dataset.t != null) F.then = m.dataset.t || null; else if (m.dataset.k){ F.sort = m.dataset.k; F.desc = !ASC.includes(m.dataset.k); if (F.then === F.sort) F.then = null; } else F.desc = m.dataset.o === 'desc'; renderTable(); }));
+  // Sort: the rules in the order they apply, then the fields that can be added after them
+  const sortPop = pop('crm-p-sort');
+  // repainted a tick later, so the click that asked for it still lands inside the popover and doesn't close it
+  const paintSoon = focus => setTimeout(() => paintSort(focus));
+  function paintSort(focus){
+    const rest = Object.keys(SORTS).filter(k => !F.S.some(r => r.k === k)), one = F.S.length === 1;
+    sortPop.innerHTML = `<div class="ph" role="none">Sort by</div><div class="crm-srl" role="list">` + F.S.map((r, i) => { const S = SORTS[r.k];
+      return `<div class="crm-srw" role="listitem" data-i="${i}">`
+        + `<button class="crm-srg" data-a="grip" aria-label="Move ${S[0]}${one ? '' : ', Alt and an arrow key'}" tabindex="${one ? -1 : 0}"${one ? ' disabled' : ''}>${I('grip', 'xs')}</button>`
+        + `<span class="crm-srf">${I(S[2], 'xs')}<span>${i ? 'then ' : ''}${S[0]}</span></span>`
+        + `<button class="crm-srd" data-a="dir" aria-label="${S[0]}: ${r.desc ? S[4] : S[3]}. Switch the order">${I(r.desc ? 'down' : 'up', 'xs')}<span>${r.desc ? S[4] : S[3]}</span></button>`
+        + `<button class="crm-srx" data-a="rm" aria-label="Stop sorting by ${S[0]}"${one ? ' disabled' : ''}>${I('x', 'xs')}</button></div>`; }).join('') + `</div>`
+      + (rest.length ? `<div class="sep" role="separator"></div><div class="ph" role="none">Then by</div>` + rest.map(k => `<button class="mi" data-add="${k}">${I(SORTS[k][2])}<span>${SORTS[k][0]}</span>${I('plus', 'xs')}</button>`).join('') : '');
+    if (focus) { const m = $(focus, sortPop); if (m) m.focus({ preventScroll:true }); }
+  }
+  const moveRule = (i, j) => { if (j < 0 || j >= F.S.length || i === j) return; const [r] = F.S.splice(i, 1); F.S.splice(j, 0, r); };
+  onOpen('.crm-sort', () => paintSort());
+  sortPop.addEventListener('click', e => {
+    const add = e.target.closest('[data-add]'), b = e.target.closest('[data-a]');
+    if (add){ const k = add.dataset.add; F.S.push({ k, desc:!ASC.includes(k) }); renderTable(); paintSoon(`.crm-srw[data-i="${F.S.length - 1}"] .crm-srd`); return; }
+    if (!b || b.disabled) return; const i = +b.closest('.crm-srw').dataset.i;
+    if (b.dataset.a === 'dir'){ F.S[i].desc = !F.S[i].desc; renderTable(); paintSoon(`.crm-srw[data-i="${i}"] .crm-srd`); }
+    else if (b.dataset.a === 'rm'){ F.S.splice(i, 1); renderTable(); paintSoon(`.crm-srw[data-i="${Math.min(i, F.S.length - 1)}"] .crm-srd`); }
+  });
+  sortPop.addEventListener('keydown', e => { const g = e.target.closest('.crm-srg'); if (!g || !e.altKey || !/^Arrow(Up|Down)$/.test(e.key)) return;
+    e.preventDefault(); e.stopPropagation(); const i = +g.closest('.crm-srw').dataset.i, j = i + (e.key === 'ArrowUp' ? -1 : 1); if (j < 0 || j >= F.S.length) return;
+    moveRule(i, j); renderTable(); paintSoon(`.crm-srw[data-i="${j}"] .crm-srg`); });
+  // drag a rule by its grip: the rows close up around it as it moves, and the table follows when it is let go
+  sortPop.addEventListener('pointerdown', e => { const g = e.target.closest('.crm-srg'); if (!g || g.disabled || e.button) return;
+    e.preventDefault(); const row = g.closest('.crm-srw'), list = row.parentElement, rows = $$('.crm-srw', list), from = +row.dataset.i, y0 = e.clientY, H = row.offsetHeight;
+    let to = from; row.classList.add('drag'); g.setPointerCapture(e.pointerId);
+    const mv = ev => { const dy = ev.clientY - y0; row.style.transform = `translateY(${dy}px)`;
+      to = clamp(from + Math.round(dy / H), 0, rows.length - 1);
+      rows.forEach((r, k) => { if (r === row) return; r.style.transform = k > from && k <= to ? `translateY(${-H}px)` : k < from && k >= to ? `translateY(${H}px)` : ''; }); };
+    const up = () => { g.removeEventListener('pointermove', mv); g.removeEventListener('pointerup', up); g.removeEventListener('pointercancel', up);
+      moveRule(from, to); renderTable(); paintSoon(`.crm-srw[data-i="${to}"] .crm-srg`); };
+    g.addEventListener('pointermove', mv); g.addEventListener('pointerup', up); g.addEventListener('pointercancel', up);
   });
   // a row's own menu
   function buildRowMenu(){
@@ -1633,16 +1670,16 @@
   // commit: the weighted value of the deals in Proposal and Negotiation
   const commitOf = who => sum(DE.filter(d => (d.st === 'nego' || d.st === 'prop') && who.includes(d.own)), d => d.v * d.p / 100);
   const delta = (a, b) => { const p = Math.round((a / b - 1) * 1000) / 10; return `<span class="tag scx-d num ${p >= 0 ? 'ok' : 'bad'}">${p >= 0 ? '+' : '−'}${Math.abs(p)}%</span>`; };
-  const sparkPath = (pts) => { const mx = Math.max(...pts), mn = Math.min(...pts); return pts.map((y, k) => `${k ? 'L' : 'M'}${(k / (pts.length - 1) * 100).toFixed(1)} ${(28 - (y - mn) / ((mx - mn) || 1) * 24).toFixed(1)}`).join(' '); };
+  const sparkPath = (pts) => { const mx = Math.max(...pts), mn = Math.min(...pts); return pts.map((y, k) => `${k ? 'L' : 'M'}${(k / (pts.length - 1) * 100).toFixed(1)} ${(27 - (y - mn) / ((mx - mn) || 1) * 25).toFixed(1)}`).join(' '); };
   const lineOn = [true, true];
   let shownLine = null;
   function renderForecast(){
     const open = DE.filter(d => !closed(d)), pipe = sum(open, d => d.v), weighted = sum(open, d => d.v * d.p / 100), won = wonOf(OWN), avg = open.length ? pipe / open.length : 0;
     // the cumulative won by week, this quarter so far
     const EV = wonEvents(), A = Array.from({ length:WK + 1 }, (_, i) => sum(EV.filter(e => Math.floor((e.at + qDay) / 7) <= i), e => e.v));
-    const S = [['chart', 'Open pipeline', pipe, Q3.pipe, [3.4, 3.6, 3.5, 3.8, 3.9, 4.0, pipe / 1e6], 'vs end of Q3'], ['target', 'Weighted forecast', weighted, Q3.weighted, [1.5, 1.6, 1.7, 1.65, 1.8, 1.9, weighted / 1e6], 'vs end of Q3'],
-      ['ok', 'Closed won, Q4', won, Q3W[WK], A.map(v => v / 1e6), `vs week ${WK + 1} of Q3`], ['coins', 'Average open deal', avg, Q3.avg, [138, 136, 133, 130, 128, 126, avg / 1e3], 'vs end of Q3']];
-    $('.scx-grid', fc).innerHTML = S.map((s, i) => `<div class="scx-c panel"><span class="scx-k"><span class="ic">${I(s[0], 'xs')}</span>${s[1]}</span><div class="scx-v"><b class="num">${kmoney(s[2])}</b>${delta(s[2], s[3])}<span class="crm-vs">${s[5]}</span></div><div class="scx-sp"><svg viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><path stroke="var(--dm-c${i + 1})" d="${sparkPath(s[4])}"/></svg></div></div>`).join('');
+    const S = [['chart', 'Open pipeline', pipe, Q3.pipe, [3.3, 3.5, 3.7, 3.8, 4.0, 4.1, pipe / 1e6], 'vs end of Q3'], ['target', 'Weighted forecast', weighted, Q3.weighted, [1.45, 1.6, 1.75, 1.85, 1.95, 2.05, weighted / 1e6], 'vs end of Q3'],
+      ['ok', 'Closed won, Q4', won, Q3W[WK], A.map(v => v / 1e6), `vs week ${WK + 1} of Q3`], ['coins', 'Average open deal', avg, Q3.avg, [140, 136, 133, 131, 129, 127, avg / 1e3], 'vs end of Q3']];
+    $('.scx-grid', fc).innerHTML = S.map((s, i) => `<div class="scx-c panel"><span class="scx-k"><span class="ic">${I(s[0], 'xs')}</span>${s[1]}</span><div class="scx-v"><b class="num">${kmoney(s[2])}</b>${delta(s[2], s[3])}<span class="crm-vs">${s[5]}</span></div><div class="scx-sp"><svg viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="crm-sg${i}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--dm-c${i + 1})" stop-opacity=".2"/><stop offset="1" stop-color="var(--dm-c${i + 1})" stop-opacity="0"/></linearGradient></defs><path class="ar" style="fill:url(#crm-sg${i})" d="${sparkPath(s[4])} L100 30 L0 30 Z"/><path stroke="var(--dm-c${i + 1})" d="${sparkPath(s[4])}"/></svg></div></div>`).join('');
     // the line chart: closed won day by day, from the quarter's first day to today, against Q3 at the same point (owner,
     // 10 Nov: the chart covers the quarter so far and ends at today on its right edge; the quarter-end forecast is a line of
     // text under the total, not half a chart)
@@ -1788,7 +1825,7 @@
   const aLeft = (k, v) => { const was = AF[k]; AF[k] = v; const n = actRows().length; AF[k] = was; return n; };
   function afStep(k, focus){
     if (!k) afp.innerHTML = `<div class="ph" role="none">Filter by</div>` + Object.entries(AFL).map(([key, [l, ic]]) => { const o = AF[key] !== 'all' && AOPT[key].find(x => x[0] === AF[key]);
-      return `<button class="mi" role="menuitem" aria-haspopup="menu" tabindex="-1" data-k="${key}">${I(ic)}<span>${l}</span><span class="r">${o ? o[1] : ''}</span>${I('chev-r', 'xs')}</button>`; }).join('');
+      return `<button class="mi" role="menuitem" aria-haspopup="menu" tabindex="-1" data-k="${key}">${I(ic)}<span>${l}</span><span class="r">${o ? `<i class="crm-fon" role="img" aria-label="In use: ${esc(o[1])}"></i>` : ''}</span>${I('chev-r', 'xs')}</button>`; }).join('');
     else afp.innerHTML = `<button class="mi flm-bk" role="menuitem" tabindex="-1" aria-label="Back to all fields">${I('chev-l', 'xs')}<span>${AFL[k][0]}</span></button><div class="sep" role="separator"></div>`
       + AOPT[k].slice(1).map(([v, l]) => `<button class="mi" role="menuitemradio" aria-checked="${AF[k] === v}" tabindex="-1" data-close data-v="${v}">${aBody(k, v, l)}<span class="r num">${aLeft(k, v)}</span><span class="ck">${I('check', 'xs')}</span></button>`).join('');
     if (afp.dataset.k !== (k || '')) glide(afp, { transform:`translateX(${k ? 8 : -8}px)` }, 220);
@@ -1810,7 +1847,7 @@
   // the filters that are on, as Filter menu's chips under the head: the field, is, the value and its x
   function aChips(){
     const on = Object.keys(AFL).filter(k => AF[k] !== 'all');
-    $$('.flm-ch', ach).forEach(ch => { if (on.includes(ch.dataset.k)) return; if (REDUCE) ch.remove(); else { ch.classList.add('gone'); setTimeout(() => ch.remove(), 300); } });
+    $$('.flm-ch', ach).forEach(ch => { if (on.includes(ch.dataset.k) || ch.classList.contains('gone')) return; chipLeave(ch); });
     on.forEach(k => { let ch = $(`.flm-ch[data-k="${k}"]:not(.gone)`, ach); const l = AOPT[k].find(x => x[0] === AF[k])[1];
       if (!ch){ ch = html(`<div class="flm-ch" role="listitem" data-k="${k}"><span class="k">${AFL[k][0]}</span><span class="op">is</span><span class="v"></span><button class="x">${I('x', 'xs')}</button></div>`); ach.appendChild(ch); } else ch.classList.add('seen');
       $('.v', ch).textContent = l; $('.x', ch).setAttribute('aria-label', `Remove filter ${AFL[k][0]} is ${l}`); $('.x', ch).dataset.tip = 'Remove filter'; });
@@ -1851,23 +1888,25 @@
   seg($('.crm-tp .tpx-sg', fc), v => { tpSort = v; paintTop(); });
   const hm = $('.crm-hm', fc), hmg = $('.hmx-grid', hm), WD = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   let hmWho = 'team', hmShown = false;
-  hmg.innerHTML = Array.from({ length:168 }, () => '<i style="--dm-a:0"></i>').join('');
+  // the working part of the day, 6am to 10pm, sixteen hours a row (owner, 10 Nov: nobody works the whole 24)
+  const HM0 = 6, HMN = 16;
+  hmg.innerHTML = Array.from({ length:7 * HMN }, () => '<i style="--dm-a:0"></i>').join('');
   // Activity heatmap, the library's day-by-hour grid: the team's calls, meetings and emails of the last 12 weeks spread over the
   // working day (busiest mid-morning, Tuesday most), or the agent's follow-up drafts, which it writes overnight in a queue
   const hrW = (who, d, h) => who === 'team'
     ? (d > 4 ? .04 : [.22, .25, .23, .19, .11][d]) * (h < 7 || h > 19 ? .02 : h < 9 ? .35 : h < 12 ? 1 : h < 13 ? .55 : h < 17 ? .8 : .3)
-    : (h < 6 ? 1 : h < 8 ? .45 : .12) * (d > 4 ? .6 : 1);
+    : (h < 8 ? 1 : h < 9 ? .45 : h >= 20 ? .8 : h >= 18 ? .45 : .12) * (d > 4 ? .6 : 1);
   const hrN = h => h === 0 ? '12am' : h < 12 ? h + 'am' : h === 12 ? '12pm' : (h - 12) + 'pm';
   function renderHeat(){
     const tot = hmWho === 'team' ? sum(CO, c => sum(c.trend)) : sum(CO, c => sum(c.trend, t => t === 0 ? 2 : t < 3 ? 1 : 0)) + 36;
-    const Wt = []; for (let d = 0; d < 7; d++) for (let h = 0; h < 24; h++) Wt.push(hrW(hmWho, d, h) * (1 + Math.sin(d * 5.3 + h * 2.1) * .15));
+    const Wt = []; for (let d = 0; d < 7; d++) for (let h = HM0; h < HM0 + HMN; h++) Wt.push(hrW(hmWho, d, h) * (1 + Math.sin(d * 5.3 + h * 2.1) * .15));
     const ws = sum(Wt), V = Wt.map(w => Math.round(w / ws * tot)), mx = Math.max(...V), cells = $$('i', hmg), best = V.indexOf(mx);
-    cells.forEach((el, i) => { const d = Math.floor(i / 24), h = i % 24, v = V[i];
+    cells.forEach((el, i) => { const d = Math.floor(i / HMN), h = HM0 + i % HMN, v = V[i];
       const set = () => el.style.setProperty('--dm-a', (.08 + v / (mx || 1) * .87).toFixed(2));
-      if (REDUCE || hmShown) set(); else setTimeout(set, (h + d) * 10);
+      if (REDUCE || hmShown) set(); else setTimeout(set, (h - HM0 + d) * 14);
       el.dataset.tip = `${WD[d]}s, ${hrN(h)}: ${v} ${hmWho === 'team' ? (v === 1 ? 'touch' : 'calls, meetings and emails') : (v === 1 ? 'follow-up drafted' : 'follow-ups drafted')}`; });
     hmShown = true;
-    swap($('.hmx-st', hm), hmWho === 'team' ? `${sum(V).toLocaleString('en-US')} touches, busiest ${WD[Math.floor(best / 24)].slice(0, 3)} ${hrN(best % 24)}` : `${sum(V).toLocaleString('en-US')} follow-ups drafted, mostly overnight`);
+    swap($('.hmx-st', hm), hmWho === 'team' ? `${sum(V).toLocaleString('en-US')} touches, busiest ${WD[Math.floor(best / HMN)].slice(0, 3)} ${hrN(HM0 + best % HMN)}` : `${sum(V).toLocaleString('en-US')} follow-ups drafted, mostly before 8am`);
   }
   seg($('.hmx-sg', hm), v => { hmWho = v; renderHeat(); });
   $$('.lnx-k', fc).forEach(k => k.onclick = () => { const s = +k.dataset.s; if (lineOn[s] && !lineOn[1 - s]) return; lineOn[s] = !lineOn[s]; k.classList.toggle('on', lineOn[s]); k.setAttribute('aria-pressed', lineOn[s]); renderForecast(); });
