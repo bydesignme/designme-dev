@@ -3,7 +3,7 @@ import { useRef, useState, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { Avatar, Spin, Swap } from '../../lib/motion';
+import { Avatar, Spin, Swap, useMounted, useReflow } from '../../lib/motion';
 import '../../designme.css';
 import './task-table.css';
 
@@ -93,21 +93,15 @@ export function TaskTable({
   const running = tasks.filter(t => t.status === 'running').length;
   const line = summary ?? (tasks.length ? `${tasks.length} task${tasks.length === 1 ? '' : 's'}, ${running} running` : 'No tasks');
 
-  // rows glide to their new places: where each row sat in the table is kept after every render and eased from on the next
-  const body = useRef<HTMLTableSectionElement>(null);
-  const was = useRef(new Map<string, number>());
-  useIsoLayoutEffect(() => {
-    const now = new Map<string, number>();
-    body.current?.querySelectorAll<HTMLTableRowElement>('tr[data-id]').forEach(tr => {
-      const id = tr.dataset.id!, top = tr.offsetTop, before = was.current.get(id);
-      now.set(id, top);
-      if (!reduce && before !== undefined && Math.abs(before - top) > 1) tr.animate([{ transform: `translateY(${before - top}px)` }, { transform: 'none' }], { duration: 500, easing: 'cubic-bezier(.22,1,.36,1)' });
-    });
-    was.current = now;
-  });
+  // rows glide to their new places, a short glide from where they are on screen, so sorting again mid-glide carries on from
+  // there; rows that come back fade in. Cancelled rows slide away on their own (dm-ttx-out). The rows play their entrance
+  // once, so a sort that moves them doesn't play it again
+  const panel = useRef<HTMLDivElement>(null);
+  useReflow(panel, 'tbody > tr[data-id]', { by: 'data-id', leave: false });
+  const mounted = useMounted();
 
   // the empty state keeps the height the table had, centred in it, so the card doesn't shrink when the last task goes
-  const panel = useRef<HTMLDivElement>(null), emptyCell = useRef<HTMLTableCellElement>(null);
+  const emptyCell = useRef<HTMLTableCellElement>(null);
   const full = useRef<number | undefined>(undefined);
   const [pad, setPad] = useState<{ paddingTop: number; paddingBottom: number }>();
   useIsoLayoutEffect(() => { if (tasks.length && panel.current) full.current = panel.current.offsetHeight; });
@@ -157,11 +151,11 @@ export function TaskTable({
                 ))}
               </tr>
             </thead>
-            <tbody ref={body}>
+            <tbody>
               {rows.map((t, i) => {
                 const on = picked.includes(t.id), st = STATUS[t.status];
                 return (
-                  <tr key={t.id} data-id={t.id} className={cx('dm-enter', on && 'dm-sel', leaving.includes(t.id) && 'dm-ttx-out')} style={{ animationDelay: i * 30 + 'ms' }} onClick={() => toggle(t.id)}>
+                  <tr key={t.id} data-id={t.id} className={cx(!mounted && 'dm-enter', on && 'dm-sel', leaving.includes(t.id) && 'dm-ttx-out')} style={mounted ? undefined : { animationDelay: i * 30 + 'ms' }} onClick={() => toggle(t.id)}>
                     <td className="dm-ck">
                       <button type="button" className="dm-ttx-cb" role="checkbox" aria-checked={on} aria-label={'Select ' + t.name}><Tick /></button>
                     </td>

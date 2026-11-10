@@ -586,13 +586,13 @@ export default function KanbanBoardDemo() {
 import KanbanBoard from &#39;../components/designme/kanban-board/KanbanBoard.astro&#39;;
 ---
 &lt;KanbanBoard /&gt;
-&lt;KanbanBoard data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything KanbanBoard takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>title</code></td><td><code>string</code></td><td>The board&#39;s name, like &quot;Website refresh&quot;</td></tr><tr><td><code>subtitle</code></td><td><code>string</code></td><td>Beside the name, like &quot;Sprint 14&quot;. Defaults to how many cards are done, when a column is marked `done`</td></tr><tr><td><code>columns</code><span class="opt">required</span></td><td><code>KanbanBoardColumn[]</code></td><td></td></tr><tr><td><code>members</code></td><td><code>KanbanBoardMember[]</code></td><td>The people (and agents) on the board: the facepile in the header, the Assignee filter and each card&#39;s people menu</td></tr><tr><td><code>labels</code></td><td><code>string[]</code></td><td>The labels the Label filter offers. Defaults to every label on the cards</td></tr><tr><td><code>cards</code></td><td><code>KanbanBoardCard[]</code></td><td>The cards, in order: a column shows its cards in the order they come here. Leave it out to let the board keep them</td></tr><tr><td><code>defaultCards</code></td><td><code>KanbanBoardCard[]</code></td><td></td></tr><tr><td><code>onCardsChange</code></td><td><code>(cards: KanbanBoardCard[]) =&gt; void</code></td><td></td></tr><tr><td><code>onMove</code></td><td><code>(id: string, column: string, index: number) =&gt; void</code></td><td>Called when a card lands in a column (dragged, from its Move to menu, or with the bulk bar), with its place among that column&#39;s cards</td></tr><tr><td><code>onChange</code></td><td><code>(card: KanbanBoardCard) =&gt; void</code></td><td>Called when a card&#39;s title, priority, people or subtasks change from the board</td></tr><tr><td><code>onRename</code></td><td><code>(id: string, title: string) =&gt; void</code></td><td>Called when a card&#39;s title is edited</td></tr><tr><td><code>open</code></td><td><code>string | null</code></td><td>The card whose details sheet is open, or null</td></tr><tr><td><code>defaultOpen</code></td><td><code>string | null</code></td><td></td></tr><tr><td><code>onOpen</code></td><td><code>(id: string | null) =&gt; void</code></td><td></td></tr><tr><td><code>filters</code></td><td><code>KanbanBoardFilters</code></td><td></td></tr><tr><td><code>defaultFilters</code></td><td><code>KanbanBoardFilters</code></td><td></td></tr><tr><td><code>onFiltersChange</code></td><td><code>(filters: KanbanBoardFilters) =&gt; void</code></td><td></td></tr><tr><td><code>view</code></td><td><code>KanbanBoardView</code></td><td></td></tr><tr><td><code>defaultView</code></td><td><code>KanbanBoardView</code></td><td></td></tr><tr><td><code>onViewChange</code></td><td><code>(view: KanbanBoardView) =&gt; void</code></td><td></td></tr><tr><td><code>collapsed</code></td><td><code>string[]</code></td><td>The keys of folded columns</td></tr><tr><td><code>defaultCollapsed</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onCollapsedChange</code></td><td><code>(keys: string[]) =&gt; void</code></td><td></td></tr><tr><td><code>selected</code></td><td><code>string[]</code></td><td>The ids of picked cards (Shift- or Cmd-click, Space or x); picking any shows the bar that moves them together</td></tr><tr><td><code>defaultSelected</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onSelectedChange</code></td><td><code>(ids: string[]) =&gt; void</code></td><td></td></tr><tr><td><code>onDraggingChange</code></td><td><code>(dragging: boolean) =&gt; void</code></td><td>Called with true when a card starts moving with the pointer and false when it lands, for pausing anything that would move cards meanwhile</td></tr><tr><td><code>newCard</code></td><td><code>(column: string) =&gt; KanbanBoardCard</code></td><td>Makes the card the + buttons add to a column. It goes to the end of the column with its title ready to type</td></tr><tr><td><code>today</code></td><td><code>string</code></td><td>Today, &#39;YYYY-MM-DD&#39;, for due dates. Defaults to the visitor&#39;s today</td></tr><tr><td><code>addLabel</code></td><td><code>string</code></td><td>The + buttons&#39; label</td></tr><tr><td><code>column</code></td><td><code>string</code></td><td>The column a narrow board shows. A board under 640px wide shows one column at a time, picked with tabs that count each column&#39;s cards. Defaults to the first column</td></tr><tr><td><code>defaultColumn</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onColumnChange</code></td><td><code>(column: string) =&gt; void</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>KanbanBoard.tsx<span class="l">React · 761 lines</span></summary><pre class="cp-pre" data-name="KanbanBoard.tsx"><code>&#39;use client&#39;;
+&lt;KanbanBoard data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything KanbanBoard takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>title</code></td><td><code>string</code></td><td>The board&#39;s name, like &quot;Website refresh&quot;</td></tr><tr><td><code>subtitle</code></td><td><code>string</code></td><td>Beside the name, like &quot;Sprint 14&quot;. Defaults to how many cards are done, when a column is marked `done`</td></tr><tr><td><code>columns</code><span class="opt">required</span></td><td><code>KanbanBoardColumn[]</code></td><td></td></tr><tr><td><code>members</code></td><td><code>KanbanBoardMember[]</code></td><td>The people (and agents) on the board: the facepile in the header, the Assignee filter and each card&#39;s people menu</td></tr><tr><td><code>labels</code></td><td><code>string[]</code></td><td>The labels the Label filter offers. Defaults to every label on the cards</td></tr><tr><td><code>cards</code></td><td><code>KanbanBoardCard[]</code></td><td>The cards, in order: a column shows its cards in the order they come here. Leave it out to let the board keep them</td></tr><tr><td><code>defaultCards</code></td><td><code>KanbanBoardCard[]</code></td><td></td></tr><tr><td><code>onCardsChange</code></td><td><code>(cards: KanbanBoardCard[]) =&gt; void</code></td><td></td></tr><tr><td><code>onMove</code></td><td><code>(id: string, column: string, index: number) =&gt; void</code></td><td>Called when a card lands in a column (dragged, from its Move to menu, or with the bulk bar), with its place among that column&#39;s cards</td></tr><tr><td><code>onChange</code></td><td><code>(card: KanbanBoardCard) =&gt; void</code></td><td>Called when a card&#39;s title, priority, people or subtasks change from the board</td></tr><tr><td><code>onRename</code></td><td><code>(id: string, title: string) =&gt; void</code></td><td>Called when a card&#39;s title is edited</td></tr><tr><td><code>open</code></td><td><code>string | null</code></td><td>The card whose details sheet is open, or null</td></tr><tr><td><code>defaultOpen</code></td><td><code>string | null</code></td><td></td></tr><tr><td><code>onOpen</code></td><td><code>(id: string | null) =&gt; void</code></td><td></td></tr><tr><td><code>filters</code></td><td><code>KanbanBoardFilters</code></td><td></td></tr><tr><td><code>defaultFilters</code></td><td><code>KanbanBoardFilters</code></td><td></td></tr><tr><td><code>onFiltersChange</code></td><td><code>(filters: KanbanBoardFilters) =&gt; void</code></td><td></td></tr><tr><td><code>view</code></td><td><code>KanbanBoardView</code></td><td></td></tr><tr><td><code>defaultView</code></td><td><code>KanbanBoardView</code></td><td></td></tr><tr><td><code>onViewChange</code></td><td><code>(view: KanbanBoardView) =&gt; void</code></td><td></td></tr><tr><td><code>collapsed</code></td><td><code>string[]</code></td><td>The keys of folded columns</td></tr><tr><td><code>defaultCollapsed</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onCollapsedChange</code></td><td><code>(keys: string[]) =&gt; void</code></td><td></td></tr><tr><td><code>selected</code></td><td><code>string[]</code></td><td>The ids of picked cards (Shift- or Cmd-click, Space or x); picking any shows the bar that moves them together</td></tr><tr><td><code>defaultSelected</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onSelectedChange</code></td><td><code>(ids: string[]) =&gt; void</code></td><td></td></tr><tr><td><code>onDraggingChange</code></td><td><code>(dragging: boolean) =&gt; void</code></td><td>Called with true when a card starts moving with the pointer and false when it lands, for pausing anything that would move cards meanwhile</td></tr><tr><td><code>newCard</code></td><td><code>(column: string) =&gt; KanbanBoardCard</code></td><td>Makes the card the + buttons add to a column. It goes to the end of the column with its title ready to type</td></tr><tr><td><code>today</code></td><td><code>string</code></td><td>Today, &#39;YYYY-MM-DD&#39;, for due dates. Defaults to the visitor&#39;s today</td></tr><tr><td><code>addLabel</code></td><td><code>string</code></td><td>The + buttons&#39; label</td></tr><tr><td><code>column</code></td><td><code>string</code></td><td>The column a narrow board shows. A board under 640px wide shows one column at a time, picked with tabs that count each column&#39;s cards. Defaults to the first column</td></tr><tr><td><code>defaultColumn</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onColumnChange</code></td><td><code>(column: string) =&gt; void</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>KanbanBoard.tsx<span class="l">React · 768 lines</span></summary><pre class="cp-pre" data-name="KanbanBoard.tsx"><code>&#39;use client&#39;;
 import { useEffect, useRef, useState, type AnimationEvent, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from &#39;react&#39;;
 import { createPortal } from &#39;react-dom&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from &#39;../lib/hooks&#39;;
 import { Icon } from &#39;../lib/icons&#39;;
-import { Avatar, Seg, Swap, Think, Tip } from &#39;../lib/motion&#39;;
+import { Avatar, reflowGhost, reflowGlide, reflowIn, reflowMeasure, reflowStop, Seg, Swap, Think, Tip, type ReflowSnap } from &#39;../lib/motion&#39;;
 import { usePopover } from &#39;../lib/popover&#39;;
 import &#39;../designme.css&#39;;
 import &#39;./kanban-board.css&#39;;
@@ -787,7 +787,7 @@ export function KanbanBoard({
   const visible = (key: string) =&gt; list.filter(c =&gt; c.column === key &amp;&amp; matches(c));
   const shownCount = list.filter(matches).length;
   const setF = (next: KanbanBoardFilters) =&gt; {
-    kept.current.clear(); flip.current = true; setFilters(next);
+    kept.current.clear(); flip.current = true; filt.current = true; setFilters(next);
     const n = latest.current.filter(c =&gt; (!next.query || `${c.title} ${codeOf(c)}`.toLowerCase().includes(next.query.toLowerCase())) &amp;&amp; (!next.assignees.length || (c.assignees ?? []).some(a =&gt; next.assignees.includes(a))) &amp;&amp; (!next.labels.length || (c.labels ?? []).some(l =&gt; next.labels.includes(l))) &amp;&amp; (!next.priorities.length || next.priorities.includes(c.priority ?? &#39;none&#39;))).length;
     const any = !!(next.query || next.assignees.length || next.labels.length || next.priorities.length);
     say(any ? `${n} of ${latest.current.length} cards shown` : `All ${latest.current.length} cards shown`);
@@ -795,19 +795,26 @@ export function KanbanBoard({
   const toggleIn = &lt;T,&gt;(arr: T[], v: T) =&gt; arr.includes(v) ? arr.filter(x =&gt; x !== v) : [...arr, v];
   const allLabels = labels ?? [...new Set(list.flatMap(c =&gt; c.labels ?? []))];
 
-  /* ---------- the cards glide to their new places after a move, a sort or a filter ---------- */
-  const flip = useRef(false);
-  const rects = useRef(new Map&lt;string, { x: number; y: number }&gt;());
+  /* ---------- the cards glide to their new places after a move, a sort or a filter. A filter also fades in the cards it
+     brings back and fades the ones it hides where they were. A glide still going when the board draws again carries on from
+     where the card is on screen ---------- */
+  const flip = useRef(false), filt = useRef(false);
+  const rects = useRef(new Map&lt;string, ReflowSnap&gt;());
   useIsoLayoutEffect(() =&gt; {
-    const base = root.current?.getBoundingClientRect(); if (!base) return;
-    const now = new Map&lt;string, { x: number; y: number }&gt;();
-    els.current.forEach((el, id) =&gt; { const r = el.getBoundingClientRect(); now.set(id, { x: r.left - base.left, y: r.top - base.top }); });
-    if (flip.current &amp;&amp; !reduce) now.forEach((p, id) =&gt; {
-      const was = rects.current.get(id); if (!was) return;
-      const dx = was.x - p.x, dy = was.y - p.y;
-      if (Math.abs(dx) &gt; 1 || Math.abs(dy) &gt; 1) els.current.get(id)?.animate([{ transform: `translate(${dx}px,${dy}px)` }, { transform: &#39;none&#39; }], { duration: 420, easing: &#39;cubic-bezier(.22,1,.36,1)&#39; });
+    const box = root.current; if (!box) return;
+    const now = new Map&lt;string, ReflowSnap&gt;(), go = flip.current &amp;&amp; !reduce, was = rects.current;
+    let n = 0;
+    els.current.forEach((el, id) =&gt; {
+      const { rb, b, o, dx, dy } = reflowMeasure(el, box);
+      const s: ReflowSnap = { el, p: el.parentNode, x: b.left - rb.left, y: b.top - rb.top, w: b.width, h: b.height };
+      if (b.width || b.height) now.set(id, s);
+      if (!go) return;
+      const a = was.get(id);
+      if (a &amp;&amp; (Math.abs(a.x - s.x) &gt; .5 || Math.abs(a.y - s.y) &gt; .5)) { reflowStop(el); reflowGlide(el, a.x + dx - s.x, a.y + dy - s.y, box, o, 420); }
+      else if (!a &amp;&amp; filt.current &amp;&amp; (b.width || b.height)) { reflowStop(el); reflowIn(el, n++, box); }
     });
-    flip.current = false; rects.current = now;
+    if (go &amp;&amp; filt.current) was.forEach((a, id) =&gt; { if (!now.has(id)) reflowGhost(a, box, &#39;data-id&#39;); });
+    flip.current = false; filt.current = false; rects.current = now;
   });
 
   // cards that are new, or moved by someone else, come in with the entrance; a dropped card gets its own little pop
@@ -1893,7 +1900,7 @@ const { class: className, ...rest } = Astro.props;
   .kbx-bk .l{display:none}
   .kbx-bk .n{margin-right:auto}
 }
-</code></pre></details><details class="cp-file"><summary>kanban-board.js<span class="l">HTML · 389 lines</span></summary><pre class="cp-pre" data-name="kanban-board.js"><code>DM.def(&#39;kanban&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>kanban-board.js<span class="l">HTML · 392 lines</span></summary><pre class="cp-pre" data-name="kanban-board.js"><code>DM.def(&#39;kanban&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(/\{(search|x|grid|list)\}/g, (m, k) =&gt; I(k, &#39;xs&#39;));
   // the columns, each with a short name for the tabs a narrow board shows; In progress has a WIP limit of three
   const COLS = [{ k:&#39;todo&#39;, t:&#39;To do&#39;, s:&#39;To do&#39; }, { k:&#39;doing&#39;, t:&#39;In progress&#39;, s:&#39;Doing&#39;, lim:3 }, { k:&#39;done&#39;, t:&#39;Done&#39;, s:&#39;Done&#39; }];
@@ -1981,6 +1988,9 @@ const { class: className, ...rest } = Astro.props;
   // the cards are drawn again after each change; the ones that stay glide from where they were to where they are now
   let painted = false;
   function paint(o = {}){
+    // a filter or a search: the cards that still match glide to their new places, ones that come back fade in and ones
+    // filtered out fade where they were
+    if (o.filter &amp;&amp; painted){ reflow(() =&gt; $$(&#39;.kbx-k&#39;, wrap), () =&gt; paint({ flip:false }), { by:&#39;data-id&#39;, root:box }); return; }
     const had = document.activeElement &amp;&amp; box.contains(document.activeElement) &amp;&amp; document.activeElement.closest(&#39;.kbx-k&#39;);
     const keep = had ? had.dataset.id : null;
     const first = !REDUCE &amp;&amp; painted &amp;&amp; o.flip !== false ? new Map($$(&#39;.kbx-k&#39;, wrap).map(el =&gt; [el.dataset.id, el.getBoundingClientRect()])) : null;
@@ -2218,7 +2228,7 @@ const { class: className, ...rest } = Astro.props;
     $$(&#39;.mi&#39;, fm).forEach(m =&gt; m.onclick = () =&gt; { const v = m.dataset.v; set.has(v) ? set.delete(v) : set.add(v); m.setAttribute(&#39;aria-checked&#39;, set.has(v)); refilter(); });
   }
   $$(&#39;.kbx-f&#39;, r).forEach(b =&gt; b.addEventListener(&#39;click&#39;, () =&gt; fill(b.dataset.f)));
-  function refilter(){ K.forEach(k =&gt; delete k.keep); paint(); const n = K.filter(shows).length; say(filtering() ? `${n} of ${K.length} cards shown` : `All ${K.length} cards shown`); }
+  function refilter(){ K.forEach(k =&gt; delete k.keep); paint({ filter:true });const n = K.filter(shows).length; say(filtering() ? `${n} of ${K.length} cards shown` : `All ${K.length} cards shown`); }
   $$(&#39;.kbx-fp button&#39;, r).forEach(b =&gt; b.onclick = () =&gt; { const w = b.dataset.who; F.who.has(w) ? F.who.delete(w) : F.who.add(w); refilter(); });
   const clear = () =&gt; { F.q = &#39;&#39;; q.value = &#39;&#39;; qx.hidden = true; F.who.clear(); F.l.clear(); F.p.clear(); refilter(); };
   $(&#39;.kbx-clr&#39;, r).onclick = clear; $(&#39;.kbx-ec&#39;, r).onclick = () =&gt; { clear(); q.focus({ preventScroll:true }); };
@@ -2688,6 +2698,9 @@ const fitHits = window.dmFitHits || (() => {
   // the cards are drawn again after each change; the ones that stay glide from where they were to where they are now
   let painted = false;
   function paint(o = {}){
+    // a filter or a search: the cards that still match glide to their new places, ones that come back fade in and ones
+    // filtered out fade where they were
+    if (o.filter && painted){ reflow(() => $$('.kbx-k', wrap), () => paint({ flip:false }), { by:'data-id', root:box }); return; }
     const had = document.activeElement && box.contains(document.activeElement) && document.activeElement.closest('.kbx-k');
     const keep = had ? had.dataset.id : null;
     const first = !REDUCE && painted && o.flip !== false ? new Map($$('.kbx-k', wrap).map(el => [el.dataset.id, el.getBoundingClientRect()])) : null;
@@ -2925,7 +2938,7 @@ const fitHits = window.dmFitHits || (() => {
     $$('.mi', fm).forEach(m => m.onclick = () => { const v = m.dataset.v; set.has(v) ? set.delete(v) : set.add(v); m.setAttribute('aria-checked', set.has(v)); refilter(); });
   }
   $$('.kbx-f', r).forEach(b => b.addEventListener('click', () => fill(b.dataset.f)));
-  function refilter(){ K.forEach(k => delete k.keep); paint(); const n = K.filter(shows).length; say(filtering() ? `${n} of ${K.length} cards shown` : `All ${K.length} cards shown`); }
+  function refilter(){ K.forEach(k => delete k.keep); paint({ filter:true });const n = K.filter(shows).length; say(filtering() ? `${n} of ${K.length} cards shown` : `All ${K.length} cards shown`); }
   $$('.kbx-fp button', r).forEach(b => b.onclick = () => { const w = b.dataset.who; F.who.has(w) ? F.who.delete(w) : F.who.add(w); refilter(); });
   const clear = () => { F.q = ''; q.value = ''; qx.hidden = true; F.who.clear(); F.l.clear(); F.p.clear(); refilter(); };
   $('.kbx-clr', r).onclick = clear; $('.kbx-ec', r).onclick = () => { clear(); q.focus({ preventScroll:true }); };

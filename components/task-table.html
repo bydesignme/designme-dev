@@ -369,12 +369,12 @@ export default function TaskTableDemo() {
 import TaskTable from &#39;../components/designme/task-table/TaskTable.astro&#39;;
 ---
 &lt;TaskTable /&gt;
-&lt;TaskTable data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything TaskTable takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>tasks</code><span class="opt">required</span></td><td><code>Task[]</code></td><td></td></tr><tr><td><code>title</code></td><td><code>string</code></td><td>The name in the header. Defaults to &quot;Agent tasks&quot;</td></tr><tr><td><code>summary</code></td><td><code>string</code></td><td>The quiet line beside the name. Defaults to a count of tasks and how many are running</td></tr><tr><td><code>selected</code></td><td><code>string[]</code></td><td>Ids of the selected tasks. Leave it out to let the checkboxes and rows toggle it</td></tr><tr><td><code>defaultSelected</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onSelectedChange</code></td><td><code>(ids: string[]) =&gt; void</code></td><td></td></tr><tr><td><code>sort</code></td><td><code>TaskSort</code></td><td>The column the rows are sorted by. Leave it out to let the headers set it. Defaults to updated, newest first</td></tr><tr><td><code>defaultSort</code></td><td><code>TaskSort</code></td><td></td></tr><tr><td><code>onSortChange</code></td><td><code>(sort: TaskSort) =&gt; void</code></td><td></td></tr><tr><td><code>onAction</code></td><td><code>(action: TaskAction, ids: string[]) =&gt; void</code></td><td>A button in the header while tasks are selected. The selection clears after it; cancelled rows slide away first</td></tr><tr><td><code>empty</code></td><td><code>ReactNode</code></td><td>What shows when there are no tasks. Defaults to a short &quot;No agent tasks&quot; note</td></tr><tr><td><code>emptyAction</code></td><td><code>{ label: string; onClick: () =&gt; void }</code></td><td>A button under the empty note, like { label: &#39;Bring them back&#39;, onClick }</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>TaskTable.tsx<span class="l">React · 197 lines</span></summary><pre class="cp-pre" data-name="TaskTable.tsx"><code>&#39;use client&#39;;
+&lt;TaskTable data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything TaskTable takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>tasks</code><span class="opt">required</span></td><td><code>Task[]</code></td><td></td></tr><tr><td><code>title</code></td><td><code>string</code></td><td>The name in the header. Defaults to &quot;Agent tasks&quot;</td></tr><tr><td><code>summary</code></td><td><code>string</code></td><td>The quiet line beside the name. Defaults to a count of tasks and how many are running</td></tr><tr><td><code>selected</code></td><td><code>string[]</code></td><td>Ids of the selected tasks. Leave it out to let the checkboxes and rows toggle it</td></tr><tr><td><code>defaultSelected</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onSelectedChange</code></td><td><code>(ids: string[]) =&gt; void</code></td><td></td></tr><tr><td><code>sort</code></td><td><code>TaskSort</code></td><td>The column the rows are sorted by. Leave it out to let the headers set it. Defaults to updated, newest first</td></tr><tr><td><code>defaultSort</code></td><td><code>TaskSort</code></td><td></td></tr><tr><td><code>onSortChange</code></td><td><code>(sort: TaskSort) =&gt; void</code></td><td></td></tr><tr><td><code>onAction</code></td><td><code>(action: TaskAction, ids: string[]) =&gt; void</code></td><td>A button in the header while tasks are selected. The selection clears after it; cancelled rows slide away first</td></tr><tr><td><code>empty</code></td><td><code>ReactNode</code></td><td>What shows when there are no tasks. Defaults to a short &quot;No agent tasks&quot; note</td></tr><tr><td><code>emptyAction</code></td><td><code>{ label: string; onClick: () =&gt; void }</code></td><td>A button under the empty note, like { label: &#39;Bring them back&#39;, onClick }</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>TaskTable.tsx<span class="l">React · 191 lines</span></summary><pre class="cp-pre" data-name="TaskTable.tsx"><code>&#39;use client&#39;;
 import { useRef, useState, type ReactNode } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from &#39;../lib/hooks&#39;;
 import { Icon } from &#39;../lib/icons&#39;;
-import { Avatar, Spin, Swap } from &#39;../lib/motion&#39;;
+import { Avatar, Spin, Swap, useMounted, useReflow } from &#39;../lib/motion&#39;;
 import &#39;../designme.css&#39;;
 import &#39;./task-table.css&#39;;
 
@@ -464,21 +464,15 @@ export function TaskTable({
   const running = tasks.filter(t =&gt; t.status === &#39;running&#39;).length;
   const line = summary ?? (tasks.length ? `${tasks.length} task${tasks.length === 1 ? &#39;&#39; : &#39;s&#39;}, ${running} running` : &#39;No tasks&#39;);
 
-  // rows glide to their new places: where each row sat in the table is kept after every render and eased from on the next
-  const body = useRef&lt;HTMLTableSectionElement&gt;(null);
-  const was = useRef(new Map&lt;string, number&gt;());
-  useIsoLayoutEffect(() =&gt; {
-    const now = new Map&lt;string, number&gt;();
-    body.current?.querySelectorAll&lt;HTMLTableRowElement&gt;(&#39;tr[data-id]&#39;).forEach(tr =&gt; {
-      const id = tr.dataset.id!, top = tr.offsetTop, before = was.current.get(id);
-      now.set(id, top);
-      if (!reduce &amp;&amp; before !== undefined &amp;&amp; Math.abs(before - top) &gt; 1) tr.animate([{ transform: `translateY(${before - top}px)` }, { transform: &#39;none&#39; }], { duration: 500, easing: &#39;cubic-bezier(.22,1,.36,1)&#39; });
-    });
-    was.current = now;
-  });
+  // rows glide to their new places, a short glide from where they are on screen, so sorting again mid-glide carries on from
+  // there; rows that come back fade in. Cancelled rows slide away on their own (dm-ttx-out). The rows play their entrance
+  // once, so a sort that moves them doesn&#39;t play it again
+  const panel = useRef&lt;HTMLDivElement&gt;(null);
+  useReflow(panel, &#39;tbody &gt; tr[data-id]&#39;, { by: &#39;data-id&#39;, leave: false });
+  const mounted = useMounted();
 
   // the empty state keeps the height the table had, centred in it, so the card doesn&#39;t shrink when the last task goes
-  const panel = useRef&lt;HTMLDivElement&gt;(null), emptyCell = useRef&lt;HTMLTableCellElement&gt;(null);
+  const emptyCell = useRef&lt;HTMLTableCellElement&gt;(null);
   const full = useRef&lt;number | undefined&gt;(undefined);
   const [pad, setPad] = useState&lt;{ paddingTop: number; paddingBottom: number }&gt;();
   useIsoLayoutEffect(() =&gt; { if (tasks.length &amp;&amp; panel.current) full.current = panel.current.offsetHeight; });
@@ -528,11 +522,11 @@ export function TaskTable({
                 ))}
               &lt;/tr&gt;
             &lt;/thead&gt;
-            &lt;tbody ref={body}&gt;
+            &lt;tbody&gt;
               {rows.map((t, i) =&gt; {
                 const on = picked.includes(t.id), st = STATUS[t.status];
                 return (
-                  &lt;tr key={t.id} data-id={t.id} className={cx(&#39;dm-enter&#39;, on &amp;&amp; &#39;dm-sel&#39;, leaving.includes(t.id) &amp;&amp; &#39;dm-ttx-out&#39;)} style={{ animationDelay: i * 30 + &#39;ms&#39; }} onClick={() =&gt; toggle(t.id)}&gt;
+                  &lt;tr key={t.id} data-id={t.id} className={cx(!mounted &amp;&amp; &#39;dm-enter&#39;, on &amp;&amp; &#39;dm-sel&#39;, leaving.includes(t.id) &amp;&amp; &#39;dm-ttx-out&#39;)} style={mounted ? undefined : { animationDelay: i * 30 + &#39;ms&#39; }} onClick={() =&gt; toggle(t.id)}&gt;
                     &lt;td className=&quot;dm-ck&quot;&gt;
                       &lt;button type=&quot;button&quot; className=&quot;dm-ttx-cb&quot; role=&quot;checkbox&quot; aria-checked={on} aria-label={&#39;Select &#39; + t.name}&gt;&lt;Tick /&gt;&lt;/button&gt;
                     &lt;/td&gt;
@@ -792,7 +786,7 @@ const { class: className, ...rest } = Astro.props;
 }
 @container ttx (max-width:420px){.ttx-sb{padding-right:var(--dm-s-1)}.ttx-sb .pill{padding:0 var(--dm-s-2)}.ttx-sb .pill .i{display:none}}
 @container ttx (max-width:340px){.ttx-ti{padding:0 var(--dm-s-3)}.ttx-sb{gap:0;padding:0 var(--dm-s-1) 0 var(--dm-s-3)}.ttx-n{margin-right:var(--dm-s-1)}.ttx-t tr{padding-left:40px}.ttx-t th.ck,.ttx-t td.ck{left:12px}}
-</code></pre></details><details class="cp-file"><summary>task-table.js<span class="l">HTML · 86 lines</span></summary><pre class="cp-pre" data-name="task-table.js"><code>DM.def(&#39;task-table&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>task-table.js<span class="l">HTML · 85 lines</span></summary><pre class="cp-pre" data-name="task-table.js"><code>DM.def(&#39;task-table&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{pause}&#39;, I(&#39;pause&#39;,&#39;xs&#39;)).replace(&#39;{refresh}&#39;, I(&#39;refresh&#39;,&#39;xs&#39;)).replace(&#39;{x}&#39;, I(&#39;x&#39;,&#39;xs&#39;));
   const ST = { run:[&#39;Running&#39;,&#39;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&#39;], done:[&#39;Done&#39;, I(&#39;ok&#39;,&#39;xs&#39;)], fail:[&#39;Failed&#39;, I(&#39;alert&#39;,&#39;xs&#39;)], wait:[&#39;Queued&#39;,&#39;&lt;span class=&quot;dot&quot;&gt;&lt;/span&gt;&#39;], pause:[&#39;Paused&#39;, I(&#39;pause&#39;,&#39;xs&#39;)] };
   const SEED = [
@@ -821,12 +815,13 @@ const { class: className, ...rest } = Astro.props;
     tr.onclick = () =&gt; { t.sel = !t.sel; sync(); };
     rows.set(t.id, tr); return tr;
   }
-  // rows glide to their new places: measured before and after the move, then eased from where they were
+  // rows glide to their new places, a short glide from where they are on screen, so sorting again mid-glide carries on
+  // from there
+  const glideRows = move =&gt; reflow(() =&gt; [...rows.values()], move, { by:&#39;data-id&#39;, root:box, enter:false, leave:false });
   function order(anim){
     const f = fields[key], list = [...T].sort((a, b) =&gt; { const x = f(a), y = f(b); return (x &gt; y ? 1 : x &lt; y ? -1 : 0) * (desc ? -1 : 1); });
-    const first = anim &amp;&amp; !REDUCE ? new Map(list.map(t =&gt; [t.id, rows.get(t.id).getBoundingClientRect().top])) : null;
-    list.forEach(t =&gt; tb.appendChild(rows.get(t.id)));
-    if (first) list.forEach(t =&gt; { const el = rows.get(t.id), d = first.get(t.id) - el.getBoundingClientRect().top; if (Math.abs(d) &gt; 1) el.animate([{ transform:`translateY(${d}px)` }, { transform:&#39;none&#39; }], { duration:520, easing:ease }); });
+    const move = () =&gt; list.forEach(t =&gt; tb.appendChild(rows.get(t.id)));
+    anim ? glideRows(move) : move();
     $$(&#39;.ttx-s&#39;, r).forEach(b =&gt; { b.classList.toggle(&#39;on&#39;, +b.dataset.k === key); b.classList.toggle(&#39;desc&#39;, desc); b.closest(&#39;th&#39;).setAttribute(&#39;aria-sort&#39;, +b.dataset.k === key ? (desc ? &#39;descending&#39; : &#39;ascending&#39;) : &#39;none&#39;); });
   }
   let said = &#39;&#39;;
@@ -844,9 +839,7 @@ const { class: className, ...rest } = Astro.props;
     const out = T.filter(t =&gt; ids.includes(t.id)); T = T.filter(t =&gt; !ids.includes(t.id));
     // the table&#39;s height as it was, for the empty state that takes the last rows&#39; place
     const had = T.length ? 0 : box.getBoundingClientRect().height;
-    const go = () =&gt; { const first = new Map(T.map(t =&gt; [t.id, rows.get(t.id).getBoundingClientRect().top]));
-      out.forEach(t =&gt; { rows.get(t.id).remove(); rows.delete(t.id); });
-      if (!REDUCE) T.forEach(t =&gt; { const el = rows.get(t.id), d = first.get(t.id) - el.getBoundingClientRect().top; if (Math.abs(d) &gt; 1) el.animate([{ transform:`translateY(${d}px)` }, { transform:&#39;none&#39; }], { duration:480, easing:ease }); });
+    const go = () =&gt; { glideRows(() =&gt; out.forEach(t =&gt; { rows.get(t.id).remove(); rows.delete(t.id); }));
       if (!T.length) empty(had); sync(); };
     if (REDUCE) return go();
     out.forEach(t =&gt; rows.get(t.id).classList.add(&#39;ttx-out&#39;));
@@ -1225,12 +1218,13 @@ const fitHits = window.dmFitHits || (() => {
     tr.onclick = () => { t.sel = !t.sel; sync(); };
     rows.set(t.id, tr); return tr;
   }
-  // rows glide to their new places: measured before and after the move, then eased from where they were
+  // rows glide to their new places, a short glide from where they are on screen, so sorting again mid-glide carries on
+  // from there
+  const glideRows = move => reflow(() => [...rows.values()], move, { by:'data-id', root:box, enter:false, leave:false });
   function order(anim){
     const f = fields[key], list = [...T].sort((a, b) => { const x = f(a), y = f(b); return (x > y ? 1 : x < y ? -1 : 0) * (desc ? -1 : 1); });
-    const first = anim && !REDUCE ? new Map(list.map(t => [t.id, rows.get(t.id).getBoundingClientRect().top])) : null;
-    list.forEach(t => tb.appendChild(rows.get(t.id)));
-    if (first) list.forEach(t => { const el = rows.get(t.id), d = first.get(t.id) - el.getBoundingClientRect().top; if (Math.abs(d) > 1) el.animate([{ transform:`translateY(${d}px)` }, { transform:'none' }], { duration:520, easing:ease }); });
+    const move = () => list.forEach(t => tb.appendChild(rows.get(t.id)));
+    anim ? glideRows(move) : move();
     $$('.ttx-s', r).forEach(b => { b.classList.toggle('on', +b.dataset.k === key); b.classList.toggle('desc', desc); b.closest('th').setAttribute('aria-sort', +b.dataset.k === key ? (desc ? 'descending' : 'ascending') : 'none'); });
   }
   let said = '';
@@ -1248,9 +1242,7 @@ const fitHits = window.dmFitHits || (() => {
     const out = T.filter(t => ids.includes(t.id)); T = T.filter(t => !ids.includes(t.id));
     // the table's height as it was, for the empty state that takes the last rows' place
     const had = T.length ? 0 : box.getBoundingClientRect().height;
-    const go = () => { const first = new Map(T.map(t => [t.id, rows.get(t.id).getBoundingClientRect().top]));
-      out.forEach(t => { rows.get(t.id).remove(); rows.delete(t.id); });
-      if (!REDUCE) T.forEach(t => { const el = rows.get(t.id), d = first.get(t.id) - el.getBoundingClientRect().top; if (Math.abs(d) > 1) el.animate([{ transform:`translateY(${d}px)` }, { transform:'none' }], { duration:480, easing:ease }); });
+    const go = () => { glideRows(() => out.forEach(t => { rows.get(t.id).remove(); rows.delete(t.id); }));
       if (!T.length) empty(had); sync(); };
     if (REDUCE) return go();
     out.forEach(t => rows.get(t.id).classList.add('ttx-out'));

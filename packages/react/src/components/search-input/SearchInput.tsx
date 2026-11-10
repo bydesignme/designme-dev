@@ -3,7 +3,7 @@ import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode 
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
-import { enter, Fold } from '../../lib/motion';
+import { Fold, useReflow } from '../../lib/motion';
 import '../../designme.css';
 import './search-input.css';
 
@@ -86,8 +86,9 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
   const root = useRef<HTMLDivElement>(null), input = useRef<HTMLInputElement>(null);
   const id = useId();
 
-  // the results draw in again each time the box opens; while it stays open, only rows that weren't showing enter,
-  // so typing doesn't restart the list, and the list eases to its new height
+  // while the box is open, rows that were showing a moment ago glide to their new places as the answer comes and goes or the
+  // results narrow, new rows and the answer fade in, and rows that no longer match fade where they were, so typing never
+  // restarts the list; the list eases to its new height
   const [opens, setOpens] = useState(0), [wasOpen, setWasOpen] = useState(isOpen);
   if (wasOpen !== isOpen) { setWasOpen(isOpen); if (isOpen) setOpens(opens + 1); }
 
@@ -99,13 +100,10 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
     : mode === 'recent' ? recent.map(search => ({ kind: 'recent', search }))
     : found.map(item => ({ kind: 'item', item }));
   const paint = `${opens}|${text}|${sc}`;
-  const delays = useRef({ opens: -1, at: new Map<string, number>() });
-  if (delays.current.opens !== opens) delays.current = { opens, at: new Map() };
-  const shownKeys = new Set(rows.map(r => rowKey(r)));
-  for (const k of [...delays.current.at.keys()]) if (!shownKeys.has(k)) delays.current.at.delete(k);
-  let fresh = 0;
-  const delayOf = (k: string) => { const at = delays.current.at; if (!at.has(k)) at.set(k, fresh++ * 25); return at.get(k)!; };
-  const list = useRef<HTMLDivElement>(null), lastH = useRef(0), grow = useRef<Animation | null>(null), reduce = useReducedMotion();
+  // places are read against the box, which glides as the list opens under it
+  const list = useRef<HTMLDivElement>(null), field = useRef<HTMLDivElement>(null);
+  useReflow(field, '.dm-six-res > [data-key]', { host: list });
+  const lastH = useRef(0), grow = useRef<Animation | null>(null), reduce = useReducedMotion();
   useIsoLayoutEffect(() => {
     const el = list.current; if (!el) { lastH.current = 0; return; }
     const from = grow.current?.playState === 'running' ? el.getBoundingClientRect().height : lastH.current;
@@ -143,9 +141,9 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
   };
   // rows are picked on mousedown, so the cursor stays in the box
   const row = (r: Row, i: number, body: ReactNode) => {
-    const k = rowKey(r), e = enter(delayOf(k));
+    const k = rowKey(r);
     return (
-      <button key={k} type="button" tabIndex={-1} id={`${id}-${i}`} role="option" aria-selected={i === cur} className={cx('dm-six-it', e.className, i === cur && 'dm-hl')} style={e.style}
+      <button key={k} data-key={k} type="button" tabIndex={-1} id={`${id}-${i}`} role="option" aria-selected={i === cur} className={cx('dm-six-it', i === cur && 'dm-hl')}
         onMouseDown={ev => { ev.preventDefault(); pick(r); }}>{body}</button>
     );
   };
@@ -153,7 +151,7 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
   const words = answer?.split(' ').filter(Boolean) ?? [];
   return (
     <div data-dm="" ref={root} className={cx('dm-six', className)}>
-      <div className={cx('dm-six-box', isOpen && 'dm-f')}>
+      <div ref={field} className={cx('dm-six-box', isOpen && 'dm-f')}>
         <div className="dm-six-in">
           <Icon name="search" size="xs" />
           <span className="dm-six-chips">
@@ -168,19 +166,19 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
         <Fold open={isOpen}>
           <div key={opens} ref={list} className="dm-six-res" id={`${id}-list`} role="listbox" aria-label="Results">
             {mode === 'sources' && <>
-              <div className="dm-six-g">Filter by source</div>
+              <div className="dm-six-g" data-key="g">Filter by source</div>
               {rows.map((r, i) => r.kind === 'source' && row(r, i, <><span className="dm-ic"><Icon name={r.source.icon} size="xs" /></span>{r.source.label}<span className="dm-d">@{r.source.key}</span></>))}
             </>}
             {mode === 'recent' && !!rows.length && <>
-              <div className="dm-six-g">Recent</div>
+              <div className="dm-six-g" data-key="g">Recent</div>
               {rows.map((r, i) => r.kind === 'recent' && row(r, i, <><span className="dm-ic"><Icon name="history" size="xs" /></span>{r.search}</>))}
             </>}
             {mode === 'results' && <>
-              {answer !== undefined && <div className="dm-six-ans"><Icon name="spark" size="xs" /><span>{words.map((w, i) => <span key={i} className="dm-w">{w} </span>)}</span></div>}
+              {answer !== undefined && <div className="dm-six-ans" data-key="ans"><Icon name="spark" size="xs" /><span>{words.map((w, i) => <span key={i} className="dm-w">{w} </span>)}</span></div>}
               {rows.length ? <>
-                <div className="dm-six-g">{rows.length} {rows.length === 1 ? 'result' : 'results'}</div>
+                <div className="dm-six-g" data-key="g">{rows.length} {rows.length === 1 ? 'result' : 'results'}</div>
                 {rows.map((r, i) => r.kind === 'item' && row(r, i, <><span className="dm-ic"><Icon name={r.item.icon} size="xs" /></span><span>{marked(r.item.label, word)}</span><span className="dm-d">{r.item.source}</span></>))}
-              </> : <div className="dm-six-g">{emptyLabel}</div>}
+              </> : <div className="dm-six-g" data-key="g">{emptyLabel}</div>}
             </>}
           </div>
         </Fold>

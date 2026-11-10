@@ -144,9 +144,9 @@ Yes. `note` takes any React node, so it can hold links, bold text or other eleme
 'use client';
 import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
-import { useControllable } from '../lib/hooks';
+import { useControllable, useReducedMotion } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { avatarInk, enter, Spin } from '../lib/motion';
+import { avatarInk, enter, Fold, Spin, useMounted, useReflow } from '../lib/motion';
 import '../designme.css';
 import './account-table.css';
 
@@ -210,11 +210,16 @@ export function AccountTable({
   const s = text.trim().toLowerCase();
   const rows = accounts.filter(a => (!filter || a.plan === filter) && (!s || a.name.toLowerCase().includes(s)));
 
-  // the rows stagger in again whenever the search or the filter changes
-  const look = `${filter}\u0000${s}`;
-  const [seen, setSeen] = useState(look);
-  const [pass, setPass] = useState(0);
-  if (seen !== look) { setSeen(look); setPass(p => p + 1); }
+  // the rows stagger in once; after that a search or a plan filter glides the rows that still match to their new places,
+  // fades new ones in and fades the ones filtered out where they were
+  const box = useRef<HTMLDivElement>(null);
+  useReflow(box, 'tbody > tr[data-key]');
+  const mounted = useMounted();
+
+  // an open row's note opens by its height and the rows under it ease down; it folds shut the same way, and goes once folded
+  const [shut, setShut] = useState<string | null>(null);
+  const [was, setWas] = useState(opened);
+  if (was !== opened) { setWas(opened); if (was) setShut(was); }
 
   // the action button resets whenever another row opens
   const [draft, setDraft] = useState<'idle' | 'busy' | 'done'>('idle');
@@ -234,7 +239,7 @@ export function AccountTable({
   const toggle = (name: string) => setOpened(opened === name ? null : name);
 
   return (
-    <div data-dm="" className={cx('dm-atb dm-panel', className)}>
+    <div data-dm="" ref={box} className={cx('dm-atb dm-panel', className)}>
       <div className="dm-atb-h">
         <label className="dm-atb-s"><Icon name="search" size="xs" /><input placeholder={placeholder} aria-label={placeholder} value={text} onChange={e => setText(e.target.value)} /></label>
         <div className="dm-atb-fl" role="group" aria-label="Plan">
@@ -246,12 +251,12 @@ export function AccountTable({
       <div className="dm-atb-sc">
         <table>
           <thead><tr><th>Account</th><th>Plan</th><th>Seats</th><th>Health</th><th className="dm-r">MRR</th></tr></thead>
-          <tbody key={pass}>
+          <tbody>
             {rows.length ? rows.map((a, i) => {
-              const isOpen = opened === a.name, tone = planTones[a.plan];
+              const isOpen = opened === a.name, tone = planTones[a.plan], e = mounted ? undefined : enter(i * 35);
               return (
                 <Fragment key={a.name}>
-                  <tr className={cx('dm-row', isOpen && 'dm-open', enter(i * 35).className)} style={enter(i * 35).style} tabIndex={0} aria-expanded={isOpen}
+                  <tr data-key={a.name} className={cx('dm-row', isOpen && 'dm-open', e?.className)} style={e?.style} tabIndex={0} aria-expanded={isOpen}
                     onClick={() => toggle(a.name)} onKeyDown={e => { if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) { e.preventDefault(); toggle(a.name); } }}>
                     <td><span className="dm-nm"><span className="dm-lg" style={{ background: a.color, color: avatarInk(a.color) }}>{a.name[0]}</span>{a.name}</span></td>
                     <td><span className={cx('dm-tag', tone && TONE[tone])}>{a.plan}</span></td>
@@ -259,10 +264,8 @@ export function AccountTable({
                     <td><span className="dm-hb"><i><b style={{ width: a.health + '%', background: healthColor(a.health) }} /></i><span className="dm-num">{a.health}</span></span></td>
                     <td className="dm-r dm-num">{a.mrr}</td>
                   </tr>
-                  {isOpen && (
-                    <tr className="dm-det">
-                      <td colSpan={5}>
-                        <div className="dm-fold"><div>
+                  {(isOpen || shut === a.name) && (
+                    <Note name={a.name} open={isOpen} onGone={() => setShut(x => x === a.name ? null : x)}>
                           <div className="dm-atb-note dm-enter">
                             <Icon name="spark" size="xs" />
                             <span>{a.note}</span>
@@ -272,17 +275,33 @@ export function AccountTable({
                               </button>
                             )}
                           </div>
-                        </div></div>
-                      </td>
-                    </tr>
+                    </Note>
                   )}
                 </Fragment>
               );
-            }) : <tr className="dm-atb-empty"><td colSpan={5}>{emptyLabel}</td></tr>}
+            }) : <tr className="dm-atb-empty" data-key=" none"><td colSpan={5}>{emptyLabel}</td></tr>}
           </tbody>
         </table>
       </div>
     </div>
+  );
+}
+
+/** The note under an open row: it mounts shut and folds open on the next frame; told to close, it folds shut and then goes */
+function Note({ name, open, onGone, children }: { name: string; open: boolean; onGone: () => void; children: ReactNode }) {
+  const [on, setOn] = useState(false);
+  const reduce = useReducedMotion();
+  const ref = useRef<HTMLTableRowElement>(null);
+  useEffect(() => {
+    if (open) { const f = requestAnimationFrame(() => setOn(true)); return () => cancelAnimationFrame(f); }
+    setOn(false);
+    const ms = reduce || !ref.current ? 0 : (parseFloat(getComputedStyle(ref.current).getPropertyValue('--dm-t')) || .45) * 1000;
+    const t = setTimeout(onGone, ms); return () => clearTimeout(t);
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  return (
+    <tr ref={ref} className="dm-det" data-key={name + ' note'}>
+      <td colSpan={5}><Fold open={on}>{children}</Fold></td>
+    </tr>
   );
 }
 ```
