@@ -2261,6 +2261,10 @@ body:has(.crm) .dmf{display:none}
 .crm-fc .rgx-b{flex:1}
 /* the inbox's preview keeps a reading width on wide monitors: the draft, its details and its buttons stay within 760px */
 .crm-ipv.panel>*{width:100%;max-width:760px;margin-inline:auto}
+
+/* calendar events read like the Event calendar component (owner, 10 Nov): title and time from the top-left, with the
+   start-to-end range. A button centres its content by default, so the event lays out as a column from the top */
+.crm-ecx button.ecx-e:not(.short){display:flex;flex-direction:column;justify-content:flex-start;align-items:stretch}
 </style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -3467,7 +3471,7 @@ const fitHits = window.dmFitHits || (() => {
   function evEl(m){
     const c = coOf(m.co), col = P[m.own][1], late = m.st === 'plan' && m.day < 0, n = m._n || 1;
     const tag = m.sug ? 'div' : 'button';
-    const el = html(`<${tag} class="ecx-e crm-ev${m.sug ? ' sug' : ''}${!m.sug && m.dur <= .5 ? ' short' : ''}${late ? ' late' : ''}${m.st === 'held' ? ' held' : ''}" data-m="${m.id}" style="top:${at(m.h)};height:${tall(m.sug ? m.vd : m.dur)};left:calc(3px + (100% - 6px) * ${(m._l || 0) / n});width:calc((100% - 6px) / ${n} - ${n > 1 ? 2 : 0}px);${m.sug ? '' : `background:var(--dm-p${col}-bg);color:var(--dm-p${col})`}" ${m.sug ? ' role="group"' : ''} aria-label="${esc(m.sug ? 'Suggested: ' + low(m.kind) + ' with ' + c.n + ', ' + fmtDW(m.day) + ' ' + tmA(m.h) : evLabel(m))}"><b>${esc(c.n)}</b>${m.sug ? '' : `<span>${late ? 'Overdue: ' : ''}${esc(m.kind)}, ${tm(m.h)}</span>`}</${tag}>`);
+    const el = html(`<${tag} class="ecx-e crm-ev${m.sug ? ' sug' : ''}${!m.sug && m.dur <= .5 ? ' short' : ''}${late ? ' late' : ''}${m.st === 'held' ? ' held' : ''}" data-m="${m.id}" style="top:${at(m.h)};height:${tall(m.sug ? m.vd : m.dur)};left:calc(3px + (100% - 6px) * ${(m._l || 0) / n});width:calc((100% - 6px) / ${n} - ${n > 1 ? 2 : 0}px);${m.sug ? '' : `background:var(--dm-p${col}-bg);color:var(--dm-p${col})`}" ${m.sug ? ' role="group"' : ''} aria-label="${esc(m.sug ? 'Suggested: ' + low(m.kind) + ' with ' + c.n + ', ' + fmtDW(m.day) + ' ' + tmA(m.h) : evLabel(m))}"><b>${esc(c.n)}</b>${m.sug ? '' : `<span><span class="num">${tm(m.h)} – ${tm(m.h + m.dur)}</span> · ${late ? 'Overdue: ' : ''}${esc(m.kind)}</span>`}</${tag}>`);
     if (m.sug) el.insertAdjacentHTML('beforeend', `<span class="ecx-sg"><button class="y" data-sg="book" aria-label="Book a ${esc(low(m.kind))} with ${esc(c.n)}, ${fmtDW(m.day)} ${tmA(m.h)}">Book</button><button class="n crm-sgm" data-sg="more" data-pop="#crm-p-sg" aria-haspopup="menu" aria-label="More for ${esc(c.n)}" data-tip="Skip or open">${I('more', 'xs')}</button><i class="num">${tm(m.h)}</i></span>`);
     el._m = m;
     return el;
