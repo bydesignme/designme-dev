@@ -1497,6 +1497,19 @@
     pri:{ l:'Priority', ic:'flag', ops:['is', 'is not'], o:() => ['High', 'Medium', 'Low'].map(v => ({ v, l:v })), test:(d, v) => prioOf(d)[0] === v },
     acct:{ l:'Account', ic:'globe', ops:['is', 'is not'], o:() => CO.filter(c => DE.some(d => d.co === c.id)).sort((a, b) => a.n.localeCompare(b.n)).map(c => ({ v:c.id, l:c.n, g:`<span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span>` })), test:(d, v) => d.co === v },
   };
+  // the columns' totals (owner, 10 Nov): one calculation for every column, picked from any column's foot, as Attio does; the
+  // list view's summary row shows the same one under Value
+  const KCALC = { sum:['Sum', L => kmoney(sum(L, d => d.v))], wtd:['Weighted', L => kmoney(sum(L, d => d.v * d.p / 100))],
+    avg:['Average', L => kmoney(L.length ? sum(L, d => d.v) / L.length : 0)],
+    med:['Median', L => { const b = L.map(d => d.v).sort((x, y) => x - y), m = b.length >> 1; return kmoney(b.length ? (b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2) : 0); }],
+    cnt:['Count', L => String(L.length)] };
+  let kCalc = 'sum';
+  function buildKCalc(){
+    const p = $('#crm-p-calc', app), all = DE.filter(d => !K.shut.has(d.st) && dshows(d));
+    p.innerHTML = `<div class="ph" role="none">Column totals</div>` + Object.entries(KCALC).map(([id, [l, f]]) => mi(`data-c="${id}"`, `<span>${l}</span><span class="r num">${f(all)}</span>`, 'menuitemradio', kCalc === id)).join('');
+    $$('.mi', p).forEach(m => m.addEventListener('click', () => { kCalc = m.dataset.c; renderBoard(); }));
+  }
+  kb.addEventListener('click', e => { if (e.target.closest('.crm-cfb')) buildKCalc(); }, true);
   const dval = (k, v) => DFL[k].o().find(o => o.v === v);
   const dpass = (d, skip) => K.A.every(f => f.k === skip || DFL[f.k].test(d, f.v) !== f.neg);
   const dshows = (d, skip) => (!K.own.size || K.own.has(d.own)) && (!K.q || (d.n + ' ' + coOf(d.co).n + ' ' + d.id).toLowerCase().includes(K.q.toLowerCase())) && dpass(d, skip);
@@ -1508,7 +1521,7 @@
     + `<button class="ib crm-grip" aria-label="Move the ${s.t} column: drag it, or use the left and right arrows" data-tip="Drag, or press ← →" aria-keyshortcuts="ArrowLeft ArrowRight">${I('grip', 'xs')}</button>`
     + `<button class="ib kbx-cmn crm-cmn" data-pop="#crm-p-colm" data-pop-align="end" aria-haspopup="menu" aria-label="${s.t} actions" data-tip="Column actions">${I('more', 'xs')}</button>`
     + (closed({ st:s.k }) ? '' : `<button class="ib kbx-cadd crm-cadd" aria-label="Add a deal to ${s.t}" data-tip="Add deal">${I('plus', 'xs')}</button>`) + '</div>'
-    + `<div class="kbx-list" role="list" aria-label="${s.t}"></div><div class="crm-cft"><span>Total</span><b class="num">$0</b></div></div>`).join('');
+    + `<div class="kbx-list" role="list" aria-label="${s.t}"></div><div class="crm-cft"><button class="crm-cfb" data-col="${s.k}" data-pop="#crm-p-calc" data-pop-pos="up" aria-haspopup="menu"><span class="l">Sum</span><b class="num">$0</b></button></div></div>`).join('');
   const colOf = k => $(`.kbx-c[data-col="${k}"]`, cols);
   const whenOf = d => d.st === 'won' ? 'Won ' + fmtD(d.close) : d.st === 'lost' ? 'Lost ' + fmtD(d.close) : fmtD(d.close);
   // the list: one row per deal, in the columns of the list's header
@@ -1599,7 +1612,7 @@
       const col = $(`.kbx-c[data-col="${s.k}"]`, cols), L = DE.filter(d => d.st === s.k && dshows(d)).sort((a, b) => (closed({ st:s.k }) ? b.close - a.close : a.close - b.close) || b.v - a.v);
       if (!K.shut.has(s.k)) shown += L.length;
       $('.kbx-list', col).innerHTML = (K.draft && K.draft.k === s.k && K.view !== 'list' ? draftCard() : '') + (L.map(card).join('') || (filtering ? '' : '<div class="kbx-none">No deals</div>'));
-      const cn = $('.crm-cnt', col); cn.textContent = L.length; cn.setAttribute('aria-label', plural(L.length, 'deal')); $('.crm-cft b', col).textContent = kmoney(sum(L, d => d.v));
+      const cn = $('.crm-cnt', col); cn.textContent = L.length; cn.setAttribute('aria-label', plural(L.length, 'deal')); const kc = KCALC[kCalc]; $('.crm-cfb', col).innerHTML = `<span class="l">${kc[0]}</span><b class="num">${kc[1](L)}</b>`; $('.crm-cfb', col).setAttribute('aria-label', `${s.t}: ${kc[0].toLowerCase()} ${kc[1](L)}. Change the calculation`);
       col.classList.toggle('gone', K.shut.has(s.k)); col.classList.toggle('on', K.tab === s.k); col._sum = [L.length, kmoney(sum(L, d => d.v))];
       $(`.kbx-tabs [data-v="${s.k}"] .n`, kb).textContent = L.length;
     });
@@ -1624,6 +1637,12 @@
     $$('.kbx-fp button', kb).forEach(b => b.setAttribute('aria-pressed', K.own.has(b.dataset.who)));
     $('.kbx-fp', kb).classList.toggle('some', K.own.size > 0);
     kchips();
+    // the list's summary row: what is in view, under the columns it sums up
+    const ls = $('.crm-lsum', kb); ls.hidden = K.view !== 'list';
+    if (K.view === 'list'){ const L = vis, up = L.filter(d => !closed(d) && d.close >= 0).sort((a, b) => a.close - b.close)[0], kc = KCALC[kCalc];
+      ls.innerHTML = `<span></span><span class="t"><b class="num">${L.length}</b> ${L.length === 1 ? 'deal' : 'deals'}</span><span class="co"><b class="num">${new Set(L.map(d => d.co)).size}</b> accounts</span>`
+        + `<span class="ow"><b class="num">${new Set(L.map(d => d.own)).size}</b> owners</span><span class="cl">${up ? `Next <b>${fmtD(up.close)}</b>` : ''}</span>`
+        + `<span class="v"><button class="crm-cfb" data-pop="#crm-p-calc" data-pop-pos="up" aria-haspopup="menu" data-tip="Average win chance ${L.length ? Math.round(sum(L, d => d.p) / L.length) : 0}%" aria-label="${kc[0]} of the deals in view, ${kc[1](L)}. Change the calculation"><span class="l">${kc[0]}</span><b class="num">${kc[1](L)}</b></button></span>`; }
     $('.kbx-clr', kb).hidden = !filtering;
     const ks = $$('.kbx-k', cols), keep = ks.find(k => k.dataset.id === kFocus) || ks[0]; if (keep) keep.tabIndex = 0;
     if (view === 'pipeline') counts();
