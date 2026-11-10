@@ -256,7 +256,7 @@
     const now = () => 'Just now';
     if (kind === 'follow'){
       const prev = [c.last, c.lt];
-      c.log.unshift(['Email', 0, `Follow-up sent to ${item.to}: “${item.subj}”`, 'The agent, approved by Nina Cole']); c.last = 0; c.lt = 'Email'; c.trend[11]++; c._fresh = true;
+      c.log.unshift(['Email', 0, `Follow-up sent to ${item.to}: “${item.subj}”`, 'The agent, approved by Noah Cole']); c.last = 0; c.lt = 'Email'; c.trend[11]++; c._fresh = true;
       item.state = 'done'; item.res = 'Sent ' + now().toLowerCase();
       return { t:`Follow-up sent to ${item.to}`, s:`${c.n}: logged as an email, last touch is now today`, undo:() => { c.log.shift(); [c.last, c.lt] = prev; c.trend[11]--; item.state = 'wait'; } };
     }
@@ -754,7 +754,7 @@
   });
   function logActivity(c, kind, text){
     const prev = [c.last, c.lt];
-    c.log.unshift([kind, 0, text || (kind === 'Call' ? `Call with ${c.ppl[0].n}` : 'Email sent'), 'Nina Cole']); c.last = 0; c.lt = kind; c.trend[11]++; c._fresh = true;
+    c.log.unshift([kind, 0, text || (kind === 'Call' ? `Call with ${c.ppl[0].n}` : 'Email sent'), 'Noah Cole']); c.last = 0; c.lt = kind; c.trend[11]++; c._fresh = true;
     refresh();
     toast('ok', kind === 'Call' ? 'Call logged' : 'Email logged', `${c.n}, last touch is now today`, { label:'Undo', run:() => { c.log.shift(); [c.last, c.lt] = prev; c.trend[11]--; refresh(); } });
   }
@@ -777,7 +777,7 @@
   // a deal that is won closes today; moved back out, it gets its expected close date again
   function setStage(d, st){
     const to = closed({ st }), from = closed(d);
-    if (to && !from){ d.was = d.close; d.close = 0; if (st === 'lost'){ d.at = d.st; d.why = d.why || 'Marked lost by Nina Cole'; } }
+    if (to && !from){ d.was = d.close; d.close = 0; if (st === 'lost'){ d.at = d.st; d.why = d.why || 'Marked lost by Noah Cole'; } }
     if (!to && from && d.was != null){ d.close = d.was; d.was = null; }
     d.st = st; d.p = probOf(d);
   }
@@ -1340,6 +1340,7 @@
     if (K.view === 'list') return listRow(d);
     return `<div class="kbx-k${d.st === 'won' ? ' won' : ''}${d.st === 'lost' ? ' lost' : ''}${sheetFor === d.co ? ' open' : ''}" data-id="${d.id}" role="listitem" tabindex="-1" aria-label="${esc(d.n)}, ${esc(c.n)}, ${money(d.v)}, ${ST[d.st].t}${late ? ', past its close date' : ''}">`
       + `<div class="kbx-k1"><span class="kbx-id num">${d.id}</span><span class="kbx-sp"></span><span class="kbx-who" data-tip="${P[d.own][0]}">${av(d.own)}</span><button class="kbx-mv" data-pop="#crm-p-mv" data-pop-align="end" aria-haspopup="menu" aria-label="Move ${esc(d.n)}" data-tip="Move to" tabindex="-1">${I('more', 'xs')}</button></div>`
+      + (closed(d) ? '' : (pr => `<div class="kbx-tags crm-pri"><span class="tag ${pr[1]}">${pr[0]}</span></div>`)(prioOf(d)))
       + `<div class="t">${esc(d.n)}</div>`
       + `<div class="kbx-m"><span class="kbx-mt co"><span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span>${esc(c.n)}</span><span class="kbx-mt v num">${money(d.v)}</span>`
       + `<span class="kbx-mt num${late ? ' late' : ''}">${I(late ? 'alert' : 'cal', 'xs')}${whenOf(d)}</span>${closed(d) ? '' : `<span class="kbx-mt num">${d.p}%</span>`}</div>${d.st === 'lost' && d.why ? `<div class="crm-why">${esc(d.why)}</div>` : ''}</div>`; };
@@ -1349,6 +1350,9 @@
     return `<div class="kbx-k crm-draft" role="listitem"><div class="t" contenteditable="true" role="textbox" aria-label="New deal's name" data-ph="Deal name">${esc(dr.name)}</div>`
       + `<div class="crm-drw"><button class="dtp-v crm-dacc" data-pop="#crm-p-acc" aria-haspopup="menu" aria-label="Account: ${esc(c.n)}. Change it"><span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span><span>${esc(c.n)}</span>${I('chev-d', 'xs')}</button><span class="kbx-sp"></span>`
       + `<button class="pill ghost sm" data-dr="no">Cancel</button><button class="pill primary sm" data-dr="ok">Add</button></div></div>`; };
+  // a deal's priority, as Kanban board's chips show it: High for a large, slipping or soon-closing deal, Medium for a sizeable
+  // or likely one, Low for the rest; the core tag colours (orange, yellow, blue) as the component uses them
+  const prioOf = d => d.v >= 200000 || slipping(d) || (d.close <= 14 && d.p >= 50) ? ['High', 'p'] : d.v >= 60000 || d.p >= 40 ? ['Medium', 'y'] : ['Low', 'b'];
   function startDraft(k){
     if (K.draft && K.draft.k === k){ focusDraft(); return; }
     const co = (sheetFor && coOf(sheetFor)) || CO.slice().sort((a, b) => a.last - b.last || b.value - a.value)[0];
@@ -1899,7 +1903,7 @@
     need.forEach(([box, , msg]) => { const fx = box.closest('.fmx-f'); fx.classList.add('bad'); fx.insertAdjacentHTML('beforeend', `<span class="er">${msg}</span>`); });
     if (need.length){ $('.chip', need[0][0]).focus(); return; }
     let v = +vin.value.replace(/[^\d.]/g, '') || 25000; if (v < 1000) v *= 1000;
-    const i = nid, c = { id:'c' + (nid++), n:name, seg:nseg, tags:['First deal'], own:nown, reg:'na', last:0, lt:'Discovery', trend:[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], log:[['Discovery', 0, 'Account added by Nina Cole', 'Nina Cole']], ppl:peopleOf(i), i, base:[] };
+    const i = nid, c = { id:'c' + (nid++), n:name, seg:nseg, tags:['First deal'], own:nown, reg:'na', last:0, lt:'Discovery', trend:[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], log:[['Discovery', 0, 'Account added by Noah Cole', 'Noah Cole']], ppl:peopleOf(i), i, base:[] };
     CO.push(c); const d = { id:'DL-' + (did++), co:c.id, n:'First contract', st:'disc', v, close:toWork(60), adj:0, own:nown }; d.p = probOf(d); DE.push(d);
     fadeOut(nd); clearFilters(); setView('accounts'); refresh();
     const tr = $(`tr[data-id="${c.id}"]`, tbody); if (tr){ tr.scrollIntoView({ block:'nearest' }); enter(tr); focusRow(tr); }
