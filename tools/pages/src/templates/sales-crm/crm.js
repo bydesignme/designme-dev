@@ -1103,9 +1103,11 @@
       + (m.st === 'held' ? `<div class="ecx-pt num">${fmtDW(m.day)}, ${tm(m.h)} – ${tm(m.h + m.dur)}</div>`
         : `<div class="ecx-pt"><button class="dtp-v crm-pwhen num" data-pop="#crm-p-when" aria-haspopup="dialog" aria-label="When: ${fmtDW(m.day)}, ${tmA(m.h)} to ${tmA(m.h + m.dur)}. Change it" data-tip="Change the date or time">${I('cal', 'xs')}<span>${fmtDW(m.day)}, ${tm(m.h)} – ${tm(m.h + m.dur)}</span></button></div>`)
       + (d ? `<div class="crm-pdl"><span class="t">${esc(d.n)}</span>${pill(d.st)}<span class="num">${kmoney(d.v)}</span></div>` : '')
-      + (!m.fresh && !done ? `<button class="pill primary sm crm-join" data-p="join">Join call</button>` : '')
       + `<div class="ecx-pw crm-pw">${peopleRow(m)}</div>`
-      + `<div class="ecx-pa">${m.fresh ? `<button class="pill ghost sm" data-p="discard">Discard</button><button class="pill primary sm" data-p="save">Book</button>` : `<button class="pill line sm" data-p="open">Open account</button>${done ? `<button class="pill primary sm" data-p="log">Log the call</button>` : `<button class="pill soft sm ecx-ask ecx-prep" data-p="prep">${I('spark', 'xs')}Prep with agent</button>`}`}</div>`;
+      + `<div class="ecx-pa">${m.fresh ? `<button class="pill ghost sm" data-p="discard">Discard</button><button class="pill primary sm" data-p="save">Book</button>` : `<button class="pill line sm" data-p="open">Open account</button>${done ? `<button class="pill primary sm" data-p="log">Log the call</button>` : `<button class="pill soft sm ecx-ask ecx-prep" data-p="prep">${I('spark', 'xs')}Prep with agent</button>`}`}</div>`
+      // Join call sits under the pair, on the text column, for every meeting still to come, as calendars show a call's link
+      // (owner, 10 Nov: not a full-card button above the people)
+      + (!m.fresh && !done ? `<div class="ecx-pa crm-pjn"><button class="pill primary sm" data-p="join">Join call</button></div>` : '');
     placeCard(el); cpop.classList.remove('open'); void cpop.offsetWidth; cpop.classList.add('open'); hideTip();
     const ti = $('.ecx-ti', cpop); if (ti){ ti.focus({ preventScroll:true }); ti.onkeydown = k => { if (k.key === 'Enter'){ k.preventDefault(); saveNew(); } }; }
   }
@@ -1651,14 +1653,18 @@
   /* ---------- the forecast's banner, the quota card's figures and deal activity (owner, 10 Nov) ---------- */
   const fbn = $('.crm-sbn', app), FBART = "<g class=\"gds\"><path class=\"gd\" d=\"M135.6 59L42.1 113M151.2 68L57.6 122M166.8 77L73.2 131M182.4 86L88.8 140M197.9 95L104.4 149M135.6 59L197.9 95M120 68L182.4 104M104.4 77L166.8 113M88.8 86L151.2 122M73.2 95L135.6 131M57.6 104L120 140M42.1 113L104.4 149\"/></g><g class=\"z\" style=\"--z:0\"><path class=\"pl\" d=\"M135.6 21L166.8 39L166.8 95L151.2 104L120 86L120 30Z\"/><path class=\"ln\" style=\"--d:0\" pathLength=\"1\" d=\"M135.6 21L166.8 39L151.2 48L120 30Z\"/><path class=\"ln\" style=\"--d:1\" pathLength=\"1\" d=\"M166.8 39L166.8 95L151.2 104L120 86L120 30\"/><path class=\"ln\" style=\"--d:2\" pathLength=\"1\" d=\"M151.2 48L151.2 104\"/><path class=\"pl\" d=\"M120 44L151.2 62L151.2 104L135.6 113L104.4 95L104.4 53Z\"/><path class=\"ln\" style=\"--d:3\" pathLength=\"1\" d=\"M120 44L151.2 62L135.6 71L104.4 53Z\"/><path class=\"ln\" style=\"--d:4\" pathLength=\"1\" d=\"M151.2 62L151.2 104L135.6 113L104.4 95L104.4 53\"/><path class=\"ln\" style=\"--d:5\" pathLength=\"1\" d=\"M135.6 71L135.6 113\"/><path class=\"pl\" d=\"M104.4 67L135.6 85L135.6 113L120 122L88.8 104L88.8 76Z\"/><path class=\"ln\" style=\"--d:6\" pathLength=\"1\" d=\"M104.4 67L135.6 85L120 94L88.8 76Z\"/><path class=\"ln\" style=\"--d:7\" pathLength=\"1\" d=\"M135.6 85L135.6 113L120 122L88.8 104L88.8 76\"/><path class=\"ln\" style=\"--d:8\" pathLength=\"1\" d=\"M120 94L120 122\"/><path class=\"pl\" d=\"M88.8 90L120 108L120 122L104.4 131L73.2 113L73.2 99Z\"/><path class=\"ln\" style=\"--d:9\" pathLength=\"1\" d=\"M88.8 90L120 108L104.4 117L73.2 99Z\"/><path class=\"ln\" style=\"--d:10\" pathLength=\"1\" d=\"M120 108L120 122L104.4 131L73.2 113L73.2 99\"/><path class=\"ln\" style=\"--d:11\" pathLength=\"1\" d=\"M104.4 117L104.4 131\"/></g><g class=\"z\" style=\"--z:2\"><path class=\"ln ac\" style=\"--d:12\" pathLength=\"1\" d=\"M137.1 30.9V8.9h14l-4 5 4 5h-14\"/></g>";
   $('.bnx-art', fbn).innerHTML = `<svg class="bnx-svg" viewBox="0 0 240 160" width="240" height="160" focusable="false">${FBART}</svg>`;
-  try { if (sessionStorage.getItem('crm-fbn') === 'hidden') fbn.hidden = true; } catch(e){}
+  // X or Later folds the banner to a one-line row at the same spot; the row opens it again. Kept for the tab's session
+  const fbm = $('.crm-sbm', app);
+  try { if (sessionStorage.getItem('crm-fbn')){ fbn.hidden = true; fbm.hidden = false; } } catch(e){}
+  fbm.onclick = () => { fbm.hidden = true; fbn.hidden = false; enter(fbn); try { sessionStorage.removeItem('crm-fbn'); } catch(e){} $('[data-fb="go"]', fbn).focus({ preventScroll:true }); };
   function paintFbn(){
     const open = DE.filter(d => !closed(d)), commit = commitOf(OWN), unsure = DE.filter(d => (d.st === 'prop' || d.st === 'nego') && d.p >= 30 && d.p <= 60).length;
     $('.crm-fbd', fbn).textContent = `The agent drafted ${kmoney(commit)} from ${open.length} open deals and flagged ${unsure} to check.`;
   }
   fbn.addEventListener('click', e => { const b = e.target.closest('[data-fb]'); if (!b) return;
     if (b.dataset.fb === 'go'){ setView('pipeline'); return; }
-    fadeOut(fbn); try { sessionStorage.setItem('crm-fbn', 'hidden'); } catch(e){} $('[data-go="accounts"]', app).focus({ preventScroll:true }); });
+    fadeOut(fbn); try { sessionStorage.setItem('crm-fbn', 'min'); } catch(e){}
+    setTimeout(() => { fbm.hidden = false; enter(fbm); fbm.focus({ preventScroll:true }); }, REDUCE ? 0 : 200); });
   paintFbn();
   function paintQsum(){
     const quota = sum(TEAMS, t => t.quota), w = wonOf(OWN), cm = commitOf(OWN), gap = Math.max(0, quota - w - cm);
