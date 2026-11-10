@@ -695,7 +695,7 @@
     if (n.type === 'ai'){
       h += sec('setup', 'Setup', row(LABEL.model, selBtn('model', c.model, LABEL.model))
         + `<div class="sti-insw"><div class="sti-ih"><span class="k" id="wf-pr-l">Instructions</span><button class="pill ghost sm" data-f="prompt" data-pop="#wf-p-var" aria-haspopup="dialog">${I('plus', 'xs')}Insert data</button></div><div class="sti-ins" contenteditable="true" role="textbox" aria-multiline="true" aria-labelledby="wf-pr-l" spellcheck="false">${insHTML(n, ok)}</div></div>`
-        + row('Tools', `<span class="sti-chips">${c.tools.map(t => byId(t)).filter(Boolean).map(t => `<span class="sti-chip">${stile(t)}<button class="wfx-chip-t" data-go="${t.id}">${esc(t.t)}</button><button class="sti-cx" data-a="untool" data-t="${t.id}" aria-label="Remove ${esc(t.t)}" data-tip="Remove">${I('x', 'xs')}</button></span>`).join('')}<button class="sti-add" data-f="tool" data-pop="#wf-p-sel" aria-haspopup="menu" aria-label="Add a tool" data-tip="Add a tool">${I('plus', 'xs')}</button></span>`, ' top'))
+        + row('Tools', `<span class="sti-chips">${c.tools.map(t => byId(t)).filter(Boolean).map(t => `<span class="sti-chip">${stile(t)}<button class="wfx-chip-t" data-go="${t.id}">${esc(t.t)}</button><button class="sti-cx" data-a="untool" data-t="${t.id}" aria-label="Remove ${esc(t.t)}" data-tip="Remove">${I('x', 'xs')}</button></span>`).join('')}</span><button class="sti-addw" data-f="tool" data-pop="#wf-p-sel" aria-haspopup="menu">${I('plus', 's')}<span>Add a tool</span></button>`, ' top stack'))
         + sec('in', 'Inputs', inputs(), inMeta) + outs() + fails();
     }
     if (n.type === 'tool') h += sec('setup', 'Setup', row(LABEL.conn, selBtn('conn', c.conn, LABEL.conn)) + row(LABEL.action, selBtn('action', c.action || 'Find a company by domain', LABEL.action))) + sec('in', 'Inputs', inputs(), inMeta) + outs() + fails(true);
@@ -732,7 +732,7 @@
     if (b.dataset.go){ select(b.dataset.go, { open:true }); return; }
     if (!n) return;
     const f = b.dataset.f, a = b.dataset.a;
-    if (b.matches('.sti-sel, .sti-add[data-f]')) return buildSel(n, f);
+    if (b.matches('.sti-sel, .sti-add[data-f], .sti-addw[data-f]')) return buildSel(n, f);
     if (b.matches('[data-pop="#wf-p-var"]')){
       // Insert data puts a token where the caret was in the instructions, or at their end
       if (f === 'prompt'){ const box = $('.sti-ins', insp), at0 = caret && box && box.contains(caret.startContainer) ? caret.cloneRange() : null;
@@ -781,8 +781,10 @@
     const p = $('#wf-p-sel', app);
     if (f === 'tool'){
       const have = new Set((n.cfg.tools || []).map(t => byId(t)?.t));
-      p.innerHTML = `<div class="ph" role="none">Give ${esc(n.t)} a tool</div>` + TOOLS.map(([ic, t, conn, d], i) => WS_TOOLS.has(t) ? mi(`data-i="${i}"${have.has(t) ? ' aria-disabled="true"' : ''}`, `${I(ic, 's')}<span>${t}<span class="d">${d}</span></span>`, 'menuitem') : '').join('');
-      $$('.mi', p).forEach(m => m.onclick = () => { if (m.getAttribute('aria-disabled') === 'true') return; const [ic, t, conn, , out] = TOOLS[+m.dataset.i]; const tn = uniq(N('tool', t, { ic, host:n.id, out:out.map(o => [...o]), cfg:{ conn, action:t === 'Company lookup' ? 'Find a company by domain' : 'Search' } }));
+      p.innerHTML = `<div class="ph" role="none">Give ${esc(n.t)} a tool</div>` + TOOLS.map(([ic, t, conn, d], i) => WS_TOOLS.has(t) ? mi(`data-i="${i}"`, `${I(ic, 's')}<span>${t}<span class="d">${d}</span></span>`, 'menuitemcheckbox', have.has(t)) : '').join('');
+      $$('.mi', p).forEach(m => m.onclick = () => { const [ic, t, conn, , out] = TOOLS[+m.dataset.i];
+        const had = (n.cfg.tools || []).map(byId).find(x => x && x.t === t);
+        if (had) return commit(`Took ${had.t} away from ${n.t}`, () => { n.cfg.tools = n.cfg.tools.filter(x => x !== had.id); W.nodes = W.nodes.filter(x => x.id !== had.id); }); const tn = uniq(N('tool', t, { ic, host:n.id, out:out.map(o => [...o]), cfg:{ conn, action:t === 'Company lookup' ? 'Find a company by domain' : 'Search' } }));
         commit(`Gave ${n.t} the ${t} tool`, () => { W.nodes.push(tn); n.cfg.tools.push(tn.id); }); });
       return;
     }
@@ -1141,8 +1143,12 @@
       + `<ul class="wfx-fix-l">${rows.map(r => `<li><span class="k">${r[0]}</span><span class="was">${esc(r[1])}</span>${I('right', 'xs')}<span class="now">${esc(r[2])}</span></li>`).join('')}</ul>`
       + `<div class="wfx-fix-a"><button class="pill primary sm" data-a="apply">Apply to the draft</button><button class="pill ghost sm" data-a="show">Show the step</button><span class="wf-sp"></span><button class="ib" data-a="dismiss" aria-label="Dismiss the suggestion" data-tip="Dismiss">${I('x', 'xs')}</button></div></div>`);
     $('[data-a="apply"]', drNote).onclick = () => { commit(`Made ${bad.t} retry with backoff`, () => rows.forEach(r => r[3](bad)), { key:bad.id + '.fix' });
-      setNote(`<div class="wfx-note ok"><span class="wfx-ic">${I('check', 'xs')}</span><span class="tx"><b>Applied to the draft</b><span>${esc(bad.t)}: ${rows.map(r => r[0].toLowerCase() + ' ' + r[2].toLowerCase()).join(', ')}.</span></span><button class="pill ghost sm" data-a="undo">Undo</button></div>`);
+      setNote(`<div class="wfx-note ok"><span class="wfx-ic">${I('check', 'xs')}</span><span class="tx"><b>Applied to the draft</b><span>${esc(bad.t)}: ${rows.map(r => r[0].toLowerCase() + ' ' + r[2].toLowerCase()).join(', ')}.</span></span><button class="pill ghost sm" data-a="undo">Undo</button><button class="ib" data-a="dismiss" aria-label="Dismiss" data-tip="Dismiss">${I('x', 'xs')}</button></div>`);
       $('[data-a="undo"]', drNote).onclick = () => { undo(); fixCard(); };
+      $('[data-a="dismiss"]', drNote).onclick = () => clearNote();
+      // a confirmation, so a click anywhere else puts it away (owner, 10 Nov)
+      const away = e => { if (drNote.contains(e.target)) return; document.removeEventListener('pointerdown', away, true); if ($('.wfx-note.ok', drNote)) clearNote(); };
+      setTimeout(() => document.addEventListener('pointerdown', away, true));
       if (selId === bad.id) renderInspector(); toast('ai', 'The agent updated ' + bad.t, 'Test again to check it', { label:'Test run', run:() => startRun() }); };
     $('[data-a="show"]', drNote).onclick = () => select(bad.id, { open:true });
     $('[data-a="dismiss"]', drNote).onclick = () => clearNote();
@@ -1267,12 +1273,23 @@
     i.addEventListener('blur', () => done(true));
   }
   $('.wf-h1b', app).onclick = rename;
+  // every menu hangs from its trigger the same way (owner, 10 Nov): a menu draws its outline 1px outside its box, so it sits 1px
+  // in from the trigger's edge (the left edge, or the right one for a menu that opens to the left) and its outline lands on the
+  // trigger's. A menu under a wide field (the workspace switcher, the test chip) is the field's width; one under a dropdown is
+  // at least the dropdown's width
+  app.addEventListener('click', e => {
+    const tr = e.target.closest('[data-pop]'); if (!tr || !app.contains(tr)) return;
+    const p = $(tr.dataset.pop, app); if (!p) return;
+    const end = tr.dataset.popAlign === 'end', w = tr.getBoundingClientRect().width - 2, fit = tr.matches('.wf-wsb, .wf-lead, .sti-addw, .sti-sel');
+    // Runs this month fills its cell in Blueprint, out to the window's edge: its menu lines up with the sidebar's rows instead
+    const ar = tr.getBoundingClientRect(), row = tr.matches('.wf-usage') && ar.left < 8;
+    p.style.marginLeft = end ? '-1px' : row ? (13 - 8) + 'px' : '1px'; p.classList.toggle('fit', fit);
+    p.style.width = ''; p.style.minWidth = fit ? w + 'px' : '';
+  }, true);
   // Test with: the leads the form pretends to send
   app.addEventListener('click', e => {
-    const lt = e.target.closest('[data-pop="#wf-p-lead"]'); if (!lt) return;
-    // opened from the test chip, the menu is the chip's width, less the 1px each side its outline is drawn outside its box;
-    // opened from Test run's arrow it keeps its own width
-    const p = $('#wf-p-lead', app), fit = lt.classList.contains('wf-lead'); p.classList.toggle('fit', fit); p.style.width = fit ? (lt.getBoundingClientRect().width - 2) + 'px' : '';
+    if (!e.target.closest('[data-pop="#wf-p-lead"]')) return;
+    const p = $('#wf-p-lead', app);
     if (!W.lead){ p.innerHTML = `<div class="ph" role="none">Test with</div>` + mi('data-k="sample"', `<span class="wfx-ic">${I('file-text', 'xs')}</span><span>Sample data<span class="d">Made from each step's fields</span></span>`, 'menuitemradio', true) + mi('data-k="last"', `<span class="wfx-ic">${I('history', 'xs')}</span><span>The last real event<span class="d">${W.runs.length ? 'From run #' + W.runs[0].id : 'No runs yet'}</span></span>`, 'menuitemradio', false);
       $$('.mi', p).forEach(m => m.onclick = () => { if (m.dataset.k === 'last') toast('info', 'Using sample data', W.runs.length ? 'Live events stay private in the template' : 'This workflow has not run yet'); }); return; }
     p.innerHTML = `<div class="ph" role="none">Test with</div>` + LEADS.map(L => mi(`data-k="${L.k}"`, `${avOf(L.ini, L.hue)}<span>${esc(L.n)}, ${esc(L.co)}<span class="d">${L.last ? 'The last real submission, ' : ''}${L.seats} seats${L.fail ? ', its lookup gets rate limited' : ''}</span></span>`, 'menuitemradio', W.lead.k === L.k)).join('')
