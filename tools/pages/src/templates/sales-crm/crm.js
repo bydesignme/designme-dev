@@ -1687,7 +1687,7 @@
     const q3At = d => { const w = Math.min(12, Math.floor(d / 7)), prev = w ? Q3W[w - 1] : 0; return prev + (Q3W[w] - prev) * ((d % 7) + 1) / 7; };
     const QD = AD.map((_, d) => q3At(d));
     const fcEnd = won + sum(DE.filter(d => !closed(d) && d.close <= eoq), d => d.v * d.p / 100);
-    const hi = Math.max(AD[N], QD[N]) * 1.12, X = d => d / N * 320, Y = v => 136 - v / hi * 128;
+    const hi = Math.max(AD[N], QD[N]) * 1.25, X = d => d / N * 320, Y = v => 136 - v / hi * 128;
     // Line chart's own drawing: a smooth curve through a point every few days, last quarter dashed (owner, 10 Nov)
     const step = Math.max(1, Math.round(N / 12)), SI = []; for (let d = 0; d < N; d += step) SI.push(d); SI.push(N);
     const smooth = p => p.map((q, i) => { if (!i) return `M${q[0].toFixed(1)} ${q[1].toFixed(1)}`; const a = p[i - 1], m = (q[0] - a[0]) / 2; return `C${(a[0] + m).toFixed(1)} ${a[1].toFixed(1)} ${(q[0] - m).toFixed(1)} ${q[1].toFixed(1)} ${q[0].toFixed(1)} ${q[1].toFixed(1)}`; }).join(' ');
@@ -1754,7 +1754,7 @@
     if (bcRange === 'm') while (B.length > 3 && !B[B.length - 1].v) B.pop();
     const mname = (i, f) => new Date(Math.floor((m0 + i) / 12), (m0 + i) % 12, 1).toLocaleString('en-US', { month:f });
     const lab = i => bcRange === 'w' ? `week of ${fmtD(wk0 + i * 7)}` : mname(i, 'long'), bmx = Math.max(...B.map(x => x.v), 1);
-    bch.innerHTML = B.map((m, i) => `<div class="bcx-b" role="listitem" tabindex="0" aria-label="${lab(i)}: ${money(m.v)} in ${plural(m.n, 'open deal')}"><div class="bcx-tt"><b class="num">${kmoney(m.v)}</b><span>${plural(m.n, 'deal')}, ${lab(i)}${m.late ? `, ${m.late} past due` : ''}</span></div><div class="bcx-st" style="height:calc((100% - 20px) * ${Math.max(.015, m.v / bmx).toFixed(3)})"><i></i></div><div class="bcx-l">${bcRange === 'w' ? (i % 3 ? '' : fmtD(wk0 + i * 7)) : mname(i, 'short')}</div></div>`).join('');
+    bch.innerHTML = B.map((m, i) => `<div class="bcx-b" role="listitem" tabindex="0" aria-label="${lab(i)}: ${money(m.v)} in ${plural(m.n, 'open deal')}"><div class="bcx-tt"><b class="num">${kmoney(m.v)}</b><span>${plural(m.n, 'deal')}, ${lab(i)}${m.late ? `, ${m.late} past due` : ''}</span></div><div class="bcx-st" style="height:calc((100% - 20px) * ${Math.max(.015, m.v / bmx * .8).toFixed(3)})"><i></i></div><div class="bcx-l">${bcRange === 'w' ? (i % 3 ? '' : fmtD(wk0 + i * 7)) : mname(i, 'short')}</div></div>`).join('');
     $('.crm-bct', fc).textContent = `Pipeline by close ${bcRange === 'w' ? 'week' : 'month'}`;
     const big = B.reduce((x, m, i) => m.v > B[x].v ? i : x, 0);
     $('.crm-bcs', fc).textContent = bcRange === 'w' ? `${kmoney(sum(B.slice(0, 4), x => x.v))} in the next 4 weeks` : `${kmoney(sum(B, x => x.v))} open, most in ${mname(big, 'short')}`;
