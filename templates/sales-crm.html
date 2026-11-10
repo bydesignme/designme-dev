@@ -754,6 +754,8 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .dtp-r{display:grid;grid-template-columns:84px 1fr;align-items:center;min-height:34px;font-size:13px;position:relative}
 .dtp-r .k{color:var(--dm-muted);padding-left:var(--dm-s-1)}
 .dtp-v{display:inline-flex;align-items:center;gap:7px;justify-self:start;height:28px;padding:0 var(--dm-s-2);margin-left:-8px;border-radius:var(--dm-r-sm);transition:background .2s;color:var(--dm-fg)}
+/* a value that starts with a photo sits as far from the box's left edge as from its top and bottom (owner, 10 Nov) */
+.dtp-v:has(>.av:first-child){padding:0 6px 0 4px;margin-left:-4px}
 :where([data-c]) button.dtp-v[aria-expanded="true"]{background:var(--dm-row)}
 @media (hover:hover) and (pointer:fine){:where([data-c]) button.dtp-v:hover{background:var(--dm-row)}}
 .dtp-v .av{width:20px;height:20px;font-size:11px}
@@ -2092,7 +2094,7 @@ body:has(.crm) .dmf{display:none}
 .crm-sact .pill .i{color:var(--dm-fg2)}
 /* a section's header row: the fold toggle (label, count, and for Health its summary) and an optional + beside it.
    Sections are divided by hairlines so the panel reads as stacked groups */
-.crm-dtp .crm-sec{border-top:1px solid var(--crm-hair);padding-top:var(--dm-s-1);margin-top:var(--dm-s-2)}
+.crm-dtp .crm-sec{border-top:1px solid var(--crm-hair);padding-top:var(--dm-s-3);margin-top:var(--dm-s-2)}
 .crm-shr{display:flex;align-items:center;gap:var(--dm-s-1)}
 .crm-shr .dtp-sh{flex:1;min-width:0;min-height:32px;margin-top:0}
 .crm-sn{color:var(--dm-muted);font-size:12px}
@@ -2557,8 +2559,8 @@ body:has(.crm) .dmf{display:none}
 /* the details panel reads as the layer on top (owner, 10 Nov): a stronger edge in both themes, and in dark mode a surface a
    step lighter than the table it covers (lighter is higher in dark), with no shadow */
 /* light mode keeps the ordinary hairline; dark mode, where the surfaces sit closer, gets the stronger edge */
-:root[data-theme="dark"] .crm-sheet{background:var(--dm-stage)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .crm-sheet{background:var(--dm-stage)}}
+:root[data-theme="dark"] .crm-sheet{background:color-mix(in srgb,var(--dm-surface) 55%,var(--dm-raised))}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .crm-sheet{background:color-mix(in srgb,var(--dm-surface) 55%,var(--dm-raised))}}
 .crm-kb .crm-pri{margin:2px 0 4px}
 .crm-kb .crm-pri .tag{height:20px;font-size:11px}
 /* a card's avatar sits at its right edge (owner, 10 Nov): the move menu, shown on hover or focus, appears just left of it
@@ -2769,7 +2771,25 @@ body:has(.crm) .dmf{display:none}
 .crm-bc .crm-ht{flex:1}
 .crm-bc .crm-ht>*{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* the account panel sits on top of the content: a soft neutral shadow under its edge, in both themes (owner, 10 Nov) */
-.crm-sheet.on{box-shadow:var(--dm-shadow-pop)}
+.crm-sheet.on{box-shadow:-16px 0 32px -22px rgb(0 0 0 / .22)}
+:root[data-theme="dark"] .crm-sheet.on{box-shadow:-16px 0 32px -18px rgb(0 0 0 / .6)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .crm-sheet.on{box-shadow:-16px 0 32px -18px rgb(0 0 0 / .6)}}
+/* the account panel, owner's review 10 Nov: option B, the panel one step lighter than the content (dark mode), so it reads as
+   the top layer; its sections have the same room above and below their heads; the first section needs no line under the
+   agent's card; in dark mode the dividers are quieter and the action buttons need no outline on the lighter panel; the
+   account's letter square is a stronger grey */
+.crm-dtp .crm-sec:not(.crm-sec + .crm-sec){border-top:0;padding-top:0}
+.crm-dtp .pfm-lg{background:color-mix(in srgb,var(--dm-fg) 10%,transparent)}
+:root[data-theme="dark"] .crm-dtp .crm-sec{border-top-color:color-mix(in srgb,var(--dm-fg) 6%,transparent)}
+:root[data-theme="dark"] .crm-sact .pill.line{box-shadow:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .crm-dtp .crm-sec{border-top-color:color-mix(in srgb,var(--dm-fg) 6%,transparent)}:root:not([data-theme="light"]) .crm-sact .pill.line{box-shadow:none}}
+/* the sidebar's workspace switcher sits on the centre line of the content's header row, so the nav and the heading line up */
+.crm-side.ahx-side{padding-top:6px}
+@media (min-width:761px){
+  :root[data-style="soft"] .crm-side.ahx-side{padding-top:calc(var(--dm-s-2) + 6px);padding-bottom:var(--dm-s-2)}
+  /* Soft: the cards inside the panel have the shared hairline and a light shadow, not a second full card shadow */
+  :root[data-style="soft"] :is(.crm-fc .panel,.crm-ib .panel,.crm-cal .ecx){box-shadow:0 1px 2px rgb(0 0 0 / .04),inset 0 0 0 1px var(--crm-hair)}
+}
 </style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
