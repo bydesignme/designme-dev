@@ -299,12 +299,12 @@
     const skip = cfFor && cfFor.c === c && cfFor.sug === sug ? cfFor.skip : 0; cfFor = { c, sug, skip };
     if (sug.k === 'follow'){ const x = sug.item;
       cfm.innerHTML = `<div class="crm-cfh"><b id="crm-cft">Follow-up to ${esc(x.to)}</b><span class="muted">${esc(c.n)}, drafted by the agent</span></div><div class="crm-cfs"><span class="muted">Subject</span> ${esc(x.subj)}</div><div class="crm-cfb">${esc(x.body)}</div>`
-        + `<div class="crm-cfa"><button class="pill ghost sm" data-cf="edit" data-close>${I('edit', 'xs')}Edit</button><button class="pill primary sm" data-cf="go" data-close>${I('send', 'xs')}Send</button></div>`;
+        + `<div class="crm-cfa"><button class="pill line sm" data-cf="edit" data-close>${I('edit', 'xs')}Edit</button><button class="pill primary sm" data-cf="go" data-close>${I('send', 'xs')}Send</button></div>`;
     } else {
       const [k, dur] = stepFor(c, sug.k), sl = firstSlot(c, dur, sug.k === 'resched' ? workAfter(0, 1) : slotFrom(sug.k), skip, sug.k === 'resched' ? c.next : undefined); cfFor.slot = sl;
       cfm.innerHTML = `<div class="crm-cfh"><b id="crm-cft">${sug.k === 'resched' ? 'Move the ' + low(k) : 'Book a ' + low(k)}</b><span class="muted">${esc(c.n)}, on ${esc(first(c.own))}'s calendar</span></div>`
         + `<div class="crm-cfslot">${I('cal', 'xs')}<b class="num">${fmtDW(sl.day)}, ${tm(sl.h)} – ${tmA(sl.h + dur)}</b>${skip ? '' : '<span class="muted">first free slot</span>'}</div>`
-        + `<div class="crm-cfa"><button class="pill ghost sm" data-cf="next">${I('refresh', 'xs')}Pick another time</button><button class="pill primary sm" data-cf="go" data-close>${sug.k === 'resched' ? 'Move' : 'Book'}</button></div>`;
+        + `<div class="crm-cfa"><button class="pill line sm" data-cf="next">${I('refresh', 'xs')}Pick another time</button><button class="pill primary sm" data-cf="go" data-close>${sug.k === 'resched' ? 'Move' : 'Book'}</button></div>`;
     }
     cfm.setAttribute('aria-labelledby', 'crm-cft');
   }
@@ -398,7 +398,7 @@
     + `<td class="ck stk"><button class="ttx-cb" role="checkbox" aria-checked="${sel.has(c.id)}" aria-label="Select ${esc(c.n)}" tabindex="-1">${tick}</button></td>`
     + `<td class="stk2"><span class="nm"><span class="pfm-lg sm" aria-hidden="true">${esc(c.n[0])}</span><span class="tx"><span class="t" title="${esc(c.n)}">${esc(c.n)}</span><span class="s">${esc(c.seg)}</span></span></span></td>`
     + `<td>${pill(c.st)}</td><td>${nextCell(c)}</td><td><span class="ag">${av(c.own)}${esc(P[c.own][0])}</span></td>`
-    + `<td class="r"><span class="crm-pv"><b class="num">${money(c.value)}</b>${dueLine(c)}</span></td><td>${healthCell(c)}</td><td class="crm-agc">${agentCell(c)}</td>`
+    + `<td class="r"><span class="crm-pv"><b class="num">${money(c.value)}</b>${dueLine(c)}</span></td><td class="crm-hc">${healthCell(c)}</td><td class="crm-agc">${agentCell(c)}</td>`
     + `<td class="r"><button class="ib crm-rm" data-pop="#crm-p-row" data-pop-align="end" aria-haspopup="menu" aria-label="Actions for ${esc(c.n)}" tabindex="-1">${I('more', 'xs')}</button></td></tr>`;
   let rows = [], focusId = null;
   function renderTable(){
@@ -827,21 +827,24 @@
     if (!x){ ipv.innerHTML = `<div class="crm-pve muted">Nothing to preview.</div>`; return; }
     const c = coOf(x.co), d = dealOf(x.deal), wait = x.state === 'wait', [title] = ibText(x), ch = c.ppl.find(p => p.n === x.to) || c.ppl[0];
     const body = x.state !== 'wait' && x.snap ? x.snap.pv : pvBody(x);
-    const acts = wait ? `<button class="pill ghost" data-ia="dismiss">Dismiss</button><button class="pill soft" data-ia="edit"${x.kind === 'follow' ? '' : ' data-pop="#crm-p-ied" data-pop-align="end" aria-haspopup="menu"'}>${I('edit', 'xs')}Edit</button><button class="pill primary" data-ia="ok">${x.kind === 'follow' ? 'Approve and send' : 'Approve'}</button>`
+    const acts = wait && x.kind === 'follow' ? `<div class="drf-f crm-drff"><button class="pill ghost sm" data-ia="dismiss">${I('trash', 'xs')}Discard</button><span class="sp"></span><span class="muted drf-when">Select text to rewrite it</span><button class="pill primary sm" data-ia="ok">${I('send', 'xs')}Send</button></div>`
+      : wait ? `<button class="pill ghost" data-ia="dismiss">Dismiss</button><button class="pill soft" data-ia="edit"${x.kind === 'follow' ? '' : ' data-pop="#crm-p-ied" data-pop-align="end" aria-haspopup="menu"'}>${I('edit', 'xs')}Edit</button><button class="pill primary" data-ia="ok">${x.kind === 'follow' ? 'Approve and send' : 'Approve'}</button>`
       : `<span class="crm-pvres"><span class="ok">${I(x.state === 'done' ? 'ok' : 'x', 'xs')}</span>${esc(x.res)}</span>${x.undo ? `<button class="pill soft" data-ia="undo">${I('undo', 'xs')}Undo</button>` : ''}`;
     ipv.innerHTML = `<div class="crm-pvh"><span class="aib-av" data-k="${x.kind}" aria-hidden="true">${I(IBI[x.kind], 'xs')}</span><span class="crm-pvk" data-k="${x.kind}">${IBK[x.kind]}</span><span class="crm-sp"></span><button class="pill ghost sm" data-ia="open">${I('panel', 'xs')}Open account</button><button class="ib crm-pvx" data-ia="close" aria-label="Close the preview" data-tip="Close">${I('x', 's')}</button></div>`
-      + `<h2 class="crm-pvt" id="crm-pvt" tabindex="-1">${esc(title)}</h2>${body}<div class="crm-pva">${acts}</div>`;
+      + `<h2 class="crm-pvt" id="crm-pvt" tabindex="-1">${esc(title)}</h2>${body}${wait && x.kind === 'follow' ? acts : `<div class="crm-pva">${acts}</div>`}`;
     ipv.setAttribute('aria-labelledby', 'crm-pvt');
     if (pvLast !== x.id + x.state){ if (pvLast) [...ipv.children].forEach((el, i) => glide(el, { transform:'translateY(4px)' }, T + i * 30)); pvLast = x.id + x.state; }
   }
   // the preview's body, from the live data while the item waits (frozen into its snapshot once it is decided)
-  function pvBody(x){
+  function pvBody(x, live = true){
     const c = coOf(x.co), d = dealOf(x.deal), ch = c.ppl.find(p => p.n === x.to) || c.ppl[0];
     let body = '';
     if (x.kind === 'follow'){
-      body = `<div class="crm-pvm">${pvRow('To', `${avn(ch.n)}<span>${esc(ch.n)}<span class="muted">, ${esc(ch.r)} at ${esc(c.n)}</span></span>`)}${pvRow('From', `${av(c.own)}<span>${esc(P[c.own][0])}</span>`)}${pvRow('Subject', esc(x.subj))}</div>`
-        + (edFor === x.id ? `<div class="crm-ied"><label class="crm-iel" for="crm-ta">Draft to ${esc(x.to)}</label><textarea class="crm-ta" id="crm-ta" rows="7">${esc(x.body)}</textarea><div class="crm-iea"><button class="pill ghost sm" data-ia="cancel">Cancel</button><button class="pill primary sm" data-ia="save">Save draft</button></div></div>`
-          : `<div class="crm-pvb">${esc(x.body)}\n\n${esc(P[c.own][0])}</div>`)
+      const ed = live && x.state === 'wait';
+      body = `<div class="drf crm-drf"><div class="drf-fs"><div class="drf-r"><span class="drf-l">To</span><span class="drf-p">${avn(ch.n)}${esc(ch.n)}</span><span class="muted crm-drr">${esc(ch.r)} at ${esc(c.n)}</span></div>`
+        + `<div class="drf-r"><span class="drf-l">From</span><span class="drf-p">${av(c.own)}${esc(P[c.own][0])}</span></div>`
+        + (ed ? `<label class="drf-r"><span class="drf-l">Subject</span><input class="drf-s crm-dsj" value="${esc(x.subj)}" aria-label="Subject" autocomplete="off"></label>` : `<div class="drf-r"><span class="drf-l">Subject</span><span>${esc(x.subj)}</span></div>`) + `</div>`
+        + `<div class="drf-b crm-drb"${ed ? ' contenteditable="true" role="textbox" aria-multiline="true" aria-label="Message" spellcheck="false"' : ''}>${esc(x.body)}</div><div class="crm-sig">${esc(P[c.own][0])}</div></div>`
         + `<div class="crm-pvc muted">Quiet for ${plural(x.days ?? c.last, 'day')}. ${esc(d.n)}, ${ST[d.st].t}, ${money(d.v)}, closing ${fmtD(d.close)}.</div>`;
     } else if (x.kind === 'slip'){
       body = `<div class="crm-pvm">${pvRow('Account', `<span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span><span>${esc(c.n)}</span>`)}${pvRow('Deal', `<span>${esc(d.n)}</span>${pill(d.st)}<span class="num">${money(d.v)}</span>`)}`
@@ -857,7 +860,7 @@
     }
     return body;
   }
-  function ibSnap(x){ return { t:ibText(x), pv:pvBody(x) }; }
+  function ibSnap(x){ return { t:ibText(x), pv:pvBody(x, false) }; }
   // a phone shows the list alone; picking a row opens its preview as a sheet over it
   const pvOpen = on => { const was = ibv.classList.contains('pv'); ibv.classList.toggle('pv', on); ipv.inert = phone() && !on; if (was && !on) fadeCls(ipv); };
   function ibSelect(id, focus){ ibSel = id; edFor = null; renderInbox(); if (focus === 'row') $(`[data-ib="${id}"] .crm-it`, igs)?.focus({ preventScroll:false }); }
@@ -889,7 +892,7 @@
     if (a === 'open'){ openSheet(x.co, kb); return; }
     if (a === 'edit'){
       if (x.id !== ibSel){ ibSel = x.id; edFor = null; renderInbox(); }
-      if (x.kind === 'follow'){ edFor = edFor === x.id ? null : x.id; renderPreview(); if (phone()) pvOpen(true); const ta = $('.crm-ta', ipv); if (ta){ ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); } }
+      if (x.kind === 'follow'){ renderPreview(); if (phone()) pvOpen(true); const db = $('.crm-drb', ipv); if (db){ db.focus(); const r = document.createRange(); r.selectNodeContents(db); r.collapse(false); const sl = getSelection(); sl.removeAllRanges(); sl.addRange(r); } }
       else buildEdit(x);
       return;
     }
@@ -905,7 +908,48 @@
     const all = $$('.crm-it', igs), i = all.indexOf(b), to = { ArrowDown:all[i + 1], ArrowUp:all[i - 1], Home:all[0], End:all[all.length - 1] }[e.key];
     if (to){ e.preventDefault(); ibSelect(to.closest('[data-ib]').dataset.ib, 'row'); }
   });
-  ipv.addEventListener('keydown', e => { if (e.key === 'Escape' && e.target.closest('.crm-ta')){ e.preventDefault(); e.stopPropagation(); $('[data-ia="cancel"]', ipv).click(); } });
+  // the draft saves as you type, in the body and the subject
+  ipv.addEventListener('input', e => { const x = ibOf(ipv.dataset.ib); if (!x) return;
+    if (e.target.closest('.crm-drb')) x.body = e.target.closest('.crm-drb').innerText.replace(/\n{3,}/g, '\n\n').trim();
+    else if (e.target.closest('.crm-dsj')){ x.subj = e.target.value; } });
+  // Rewrite toolbar: select words in the draft and the agent rewrites them in place; the change shows as an inline diff
+  // (struck out, then the new words) until you accept it or undo it (owner, 10 Nov: the library's components, in the inbox)
+  const RW = { clear:'Clearer', short:'Shorter', warm:'Friendlier' };
+  const RWR = {
+    clear:[[/\bit has been\b/i, "it's been"], [/\bIs (\w+) still the right time to decide\?/, 'Are you still planning to decide in $1?'], [/\bI can send\b/, "I'll send"], [/ if that helps\b/, ' so you have it'], [/\bwe last spoke about\b/, 'we discussed']],
+    short:[[/\bit has been a few weeks since we last spoke about\b/i, "it's been a few weeks since we discussed"], [/\bstill the right time to decide\b/, 'still the plan'], [/ if that helps\b/, ''], [/\bthat we talked about\b|\bwe talked about\b/, ''], [/\ba short recording of\b/, 'a recording of'], [/\ban updated proposal\b/, 'the updated proposal'], [/\bjust |\breally /g, '']],
+    warm:[[/^(Hi [^,]+,) /, '$1 hope your week is going well. '], [/\bit has been\b/i, "it's been"], [/\bIs (\w+) still the right time to decide\?/, 'Is $1 still a good time for you to decide?'], [/\bI can send\b/, "I'd be happy to send"], [/ if that helps\b/, ' if that would help']],
+  };
+  const rewrite = (t, k) => { let o = t; RWR[k].forEach(([a, b]) => { o = o.replace(a, b); }); return o.replace(/ {2,}/g, ' ').replace(/ ([.,?])/g, '$1'); };
+  const rtb = html(`<div class="rwx-tb crm-rtb" role="toolbar" aria-label="Rewrite" inert></div>`); app.append(rtb);
+  const rtbHTML = `<button class="rwx-b" data-rw="clear">${I('spark', 'xs')}Clearer</button><button class="rwx-b" data-rw="short">Shorter</button><button class="rwx-b" data-rw="warm">Friendlier</button>`;
+  let rwRange = null, rwDiff = null;
+  const rtbAt = rect => { const w = rtb.offsetWidth, h = rtb.offsetHeight; rtb.style.left = clamp(rect.left + rect.width / 2 - w / 2, 8, innerWidth - w - 8) + 'px'; rtb.style.top = (rect.top - h - 8 < 8 ? rect.bottom + 8 : rect.top - h - 8) + 'px'; };
+  const rtbHide = () => { if (rwDiff) return; rtb.classList.remove('show', 'act'); rtb.inert = true; rwRange = null; };
+  function rtbShow(){
+    if (rwDiff) return; const sl = getSelection(), db = $('.crm-drb[contenteditable]', ipv);
+    if (!db || !sl.rangeCount || sl.isCollapsed || !db.contains(sl.anchorNode) || !db.contains(sl.focusNode) || sl.toString().trim().length < 3) return rtbHide();
+    rwRange = sl.getRangeAt(0).cloneRange(); rtb.classList.remove('act'); rtb.innerHTML = rtbHTML; rtb.inert = false; rtbAt(rwRange.getBoundingClientRect()); rtb.classList.add('show');
+  }
+  ipv.addEventListener('mouseup', () => setTimeout(rtbShow, 0));
+  ipv.addEventListener('keyup', e => { if (e.shiftKey || e.key === 'Shift') rtbShow(); });
+  document.addEventListener('selectionchange', () => { if (rwRange && getSelection().isCollapsed && !rtb.contains(document.activeElement)) rtbHide(); });
+  $('.crm-ipv', app).closest('.crm-ib')?.addEventListener('scroll', () => rtbHide(), true);
+  const rwDone = keep => { if (!rwDiff) return; const { el, was, now } = rwDiff, db = el.closest('.crm-drb');
+    el.replaceWith(document.createTextNode(keep ? now : was)); db.normalize(); db.contentEditable = 'true'; rwDiff = null; rtbHide();
+    const x = ibOf(ipv.dataset.ib); if (x) x.body = db.innerText.trim(); db.focus({ preventScroll:true }); };
+  rtb.addEventListener('mousedown', e => e.preventDefault());
+  rtb.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.rw && rwRange){ const k = b.dataset.rw, was = rwRange.toString(), now = rewrite(was, k), r = rwRange;
+      if (now === was){ rtb.classList.add('act'); rtb.innerHTML = `<span class="lbl">${I('check', 'xs')}Already ${RW[k].toLowerCase()} than that</span>`; rtbAt(r.getBoundingClientRect()); setTimeout(rtbHide, 1400); return; }
+      rtb.classList.add('act'); rtb.innerHTML = `<span class="lbl"><span class="think on"><i></i><i></i><i></i><i></i></span>Rewriting</span>`; rtbAt(r.getBoundingClientRect());
+      setTimeout(() => { const db = $('.crm-drb', ipv); if (!db || !db.contains(r.startContainer)) return rtbHide();
+        const el = html(`<span class="itd-c crm-rwd"><del>${esc(was)}</del><ins>${esc(now)}</ins></span>`); r.deleteContents(); r.insertNode(el); db.contentEditable = 'false'; getSelection().removeAllRanges();
+        rwDiff = { el, was, now }; rtb.innerHTML = `<span class="lbl">${I('check', 'xs')}${RW[k]}</span><button class="rwx-b" data-rw-x="undo">Undo</button><button class="pill accent sm" data-rw-x="ok">Accept</button>`;
+        rtbAt(el.getBoundingClientRect()); enter(el); $('[data-rw-x="ok"]', rtb).focus({ preventScroll:true }); }, REDUCE ? 150 : 700);
+      return; }
+    if (b.dataset.rwX) rwDone(b.dataset.rwX === 'ok'); });
+  rtb.addEventListener('keydown', e => { if (e.key === 'Escape'){ e.stopPropagation(); rwDiff ? rwDone(false) : rtbHide(); } });
   // Edit on a close date or a data fix: other dates, or other values
   function buildEdit(x){
     const p = pop('crm-p-ied'), d = dealOf(x.deal);
@@ -1114,8 +1158,8 @@
   // the people row: an overlapping avatar stack (each one removes its person; the organiser stays), a + that opens the picker,
   // and their first names
   const avsHtml = m => { const W = whoOf(m).map(personOf);
-    return `<span class="crm-avs" role="list" aria-label="People">${W.map(p => p.k === 'o:' + m.own ? `<span class="crm-avb" role="listitem" data-k="${p.k}" data-tip="${esc(p.n)}, organiser">${p.av}</span>`
-        : `<button class="crm-avb" role="listitem" data-k="${p.k}" data-rm="${p.k}" aria-label="Remove ${esc(p.n)}" data-tip="Remove ${esc(p.n)}">${p.av}<i class="x" aria-hidden="true">${I('x', 'xs')}</i></button>`).join('')}</span>`; };
+    return `<span class="crm-avs" role="list" aria-label="People">${W.map(p => p.k === 'o:' + m.own ? `<span class="crm-avb" role="listitem" data-k="${p.k}" data-tip="${esc(p.n)}, organiser" data-tip-at="below">${p.av}</span>`
+        : `<button class="crm-avb" role="listitem" data-k="${p.k}" data-rm="${p.k}" aria-label="Remove ${esc(p.n)}" data-tip="Remove ${esc(p.n)}" data-tip-at="below">${p.av}<i class="x" aria-hidden="true">${I('x', 'xs')}</i></button>`).join('')}</span>`; };
   function peopleRow(m){
     return avsHtml(m) + `<button class="ib crm-padd" data-pop="#crm-p-ppl" data-pop-align="end" aria-haspopup="dialog" aria-label="Add people" data-tip="Add people">${I('plus', 'xs')}</button>`
       + `<span class="muted crm-pwn">${esc(namesOf(m))}</span>`;
@@ -1672,20 +1716,24 @@
   }
   // deal activity: the deals that close this quarter, nearest to today first, filtered by stage, owner and amount, or searched;
   // a row (or its ⋯) opens its account
-  const AF = { st:'all', own:'all', amt:'all', q:'' }, ACTN = 8, abody = $('.crm-dat tbody', fc); let actPg = 0;
+  const AF = { st:'all', own:'all', amt:'all', sort:'close', q:'' }, ACTN = 8, abody = $('.crm-dat tbody', fc); let actPg = 0;
   const AOPT = {
-    st:[['all', 'Any stage'], ['open', 'Open'], ['soon', 'Closing in 14 days'], ['won', 'Closed won'], ['lost', 'Closed lost']],
+    // a stage option is the stage's own chip, so the menu and the table share one colour code (owner, 10 Nov)
+    st:[['all', 'Any stage'], ['open', 'Open'], ['soon', 'Closing in 14 days'], ...STAGES.map(x => [x.k, x.t])],
+    sort:[['close', 'Close date'], ['amt', 'Amount'], ['stage', 'Stage'], ['name', 'Deal name']],
     own:[['all', 'Any owner'], ...OWN.map(o => [o, P[o][0]])],
     amt:[['all', 'Any amount'], ['s', 'Under $50k'], ['m', '$50k to $200k'], ['l', 'Over $200k']],
   };
   // a filter's button names its field until a value is picked
-  const AFL = { st:'Stage', own:'Owner', amt:'Amount' };
+  const AFL = { st:'Stage', own:'Owner', amt:'Amount', sort:'Close date' };
+  const AFI = { all:'', open:I('target', 'xs'), soon:I('clock', 'xs') };
   const amtOk = (d, k) => k === 'all' || (k === 's' ? d.v < 50000 : k === 'm' ? d.v >= 50000 && d.v <= 200000 : d.v > 200000);
   const actRows = () => DE.filter(d => d.close >= -qDay && d.close <= eoq)
     .filter(d => AF.st === 'all' || (AF.st === 'open' ? !closed(d) : AF.st === 'soon' ? !closed(d) && d.close >= 0 && d.close <= 14 : d.st === AF.st))
     .filter(d => AF.own === 'all' || d.own === AF.own).filter(d => amtOk(d, AF.amt))
     .filter(d => !AF.q || (d.n + ' ' + coOf(d.co).n + ' ' + d.id + ' ' + P[d.own][0]).toLowerCase().includes(AF.q))
-    .sort((a, b) => Math.abs(a.close) - Math.abs(b.close) || b.v - a.v);
+    .sort(AF.sort === 'amt' ? (a, b) => b.v - a.v : AF.sort === 'stage' ? (a, b) => ST[a.st].i - ST[b.st].i || Math.abs(a.close) - Math.abs(b.close)
+      : AF.sort === 'name' ? (a, b) => a.n.localeCompare(b.n) || coOf(a.co).n.localeCompare(coOf(b.co).n) : (a, b) => Math.abs(a.close) - Math.abs(b.close) || b.v - a.v);
   const pageList = (n, at) => n <= 7 ? [...Array(n).keys()] : at < 4 ? [0, 1, 2, 3, 4, -1, n - 1] : at > n - 5 ? [0, -1, n - 5, n - 4, n - 3, n - 2, n - 1] : [0, -1, at - 1, at, at + 1, -1, n - 1];
   function paintAct(dir){
     const L = actRows(), pages = Math.max(1, Math.ceil(L.length / ACTN)); actPg = clamp(actPg, 0, pages - 1);
@@ -1697,7 +1745,7 @@
         + `<td class="r"><span class="crm-amt num${k}">${d.st === 'won' ? '+' : ''}${money(d.v)}</span></td>`
         + `<td class="r"><button class="ib crm-dmore" data-co="${c.id}" tabindex="-1" aria-label="Open ${esc(c.n)}" data-tip="Open account">${I('more', 'xs')}</button></td></tr>`; }).join('')
       : `<tr class="crm-dempty"><td colspan="7">No deals match these filters</td></tr>`;
-    $('.crm-actn', fc).textContent = plural(L.length, 'deal');
+    $('.crm-actn', fc).textContent = L.length;
     $('.crm-pgs', fc).innerHTML = pages > 1 ? pageList(pages, actPg).map(i => i < 0 ? '<span class="crm-pgx" aria-hidden="true">…</span>' : `<button class="crm-pgb num${i === actPg ? ' on' : ''}" data-p="${i}" aria-label="Page ${i + 1}"${i === actPg ? ' aria-current="page"' : ''}>${i + 1}</button>`).join('') : '';
     $('.crm-pgs', fc).insertAdjacentHTML('beforeend', pages > 1 ? `<span class="crm-pgm num">${actPg + 1} of ${pages}</span>` : '');
     $('[data-pg="-1"]', fc).disabled = actPg === 0; $('[data-pg="1"]', fc).disabled = actPg >= pages - 1;
@@ -1706,9 +1754,10 @@
   // the filter menus: one popover, built for the button that opened it
   let afFor = null;
   onOpen('.crm-af', e => { afFor = e.currentTarget.dataset.af; const p = pop('crm-p-af');
-    p.innerHTML = AOPT[afFor].map(([v, l]) => mi(`data-v="${v}"`, `${afFor === 'own' && v !== 'all' ? av(v) : ''}<span>${l}</span>`, 'menuitemradio', AF[afFor] === v)).join('');
+    const body = (k, v, l) => k === 'own' && v !== 'all' ? `${av(v)}<span>${l}</span>` : k === 'st' && ST[v] ? pill(v) : `${k === 'st' ? AFI[v] : ''}<span>${l}</span>`;
+    p.innerHTML = AOPT[afFor].map(([v, l], i) => (afFor === 'st' && i === 3 ? '<div class="sep" role="separator"></div>' : '') + mi(`data-v="${v}"`, body(afFor, v, l), 'menuitemradio', AF[afFor] === v)).join('');
     $$('.mi', p).forEach(m => m.addEventListener('click', () => { const k = afFor; AF[k] = m.dataset.v; actPg = 0;
-      const b = $(`.crm-af[data-af="${k}"]`, fc); b.classList.toggle('on', AF[k] !== 'all'); swap($('.v', b), AF[k] === 'all' ? AFL[k] : AOPT[k].find(x => x[0] === AF[k])[1]); paintAct(1); })); });
+      const b = $(`.crm-af[data-af="${k}"]`, fc); if (k !== 'sort') b.classList.toggle('on', AF[k] !== 'all'); swap($('.v', b), AF[k] === 'all' ? AFL[k] : AOPT[k].find(x => x[0] === AF[k])[1]); paintAct(1); })); });
   const asq = $('.crm-asq input', fc);
   asq.addEventListener('input', () => { AF.q = asq.value.trim().toLowerCase(); actPg = 0; paintAct(); });
   $$('[data-pg]', fc).forEach(b => b.onclick = () => { actPg += +b.dataset.pg; paintAct(+b.dataset.pg); });

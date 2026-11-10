@@ -16,7 +16,8 @@ import { ROOT, COMPONENTS } from '../../lib/data.mjs';
 // the components the screen is made of, by their registry name: each one's installed CSS is on the page
 const USES = ['agent-harness', 'task-table', 'progress', 'kanban-board', 'details-panel', 'filter-menu', 'search-input', 'form', 'toast',
   'activity-heatmap', 'notifications', 'profile-menu', 'command-palette', 'stat-cards', 'line-chart', 'radial-goals', 'funnel-chart',
-  'event-calendar', 'agent-inbox', 'health-score', 'decision-prompt', 'date-picker', 'banner'];
+  'event-calendar', 'agent-inbox', 'health-score', 'decision-prompt', 'date-picker', 'banner', 'draft-review', 'rewrite-toolbar',
+  'inline-text-diff'];
 // the screen's type scale: five sizes from the library's own (11, 12, 13, 14 and the 16px title), nothing under 11px. Every
 // component's text snaps to the nearest step at or below it; a display number (Health score's score, Stat cards' values) keeps
 // its size
@@ -116,7 +117,7 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
               <th><button class="ttx-s" data-k="next">Next step</button></th>
               <th><button class="ttx-s" data-k="owner">Owner</button></th>
               <th class="r"><button class="ttx-s" data-k="value">Pipeline</button></th>
-              <th><button class="ttx-s" data-k="health">Health</button></th>
+              <th class="crm-hc"><button class="ttx-s" data-k="health">Health</button></th>
               <th>Agent</th>
               <th class="r crm-actc"><span class="pg-sr">Actions</span></th>
             </tr></thead>
@@ -187,15 +188,18 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
         <!-- deal activity: the quarter's deals, filtered by stage, owner and amount or searched, with stage chips and pages -->
         <div class="panel crm-c12 crm-act">
           <div class="crm-ath">
-            <div class="crm-ah"><span class="muted">Deal activity</span><b class="num crm-actn"></b></div>
-            <div class="crm-afl" role="group" aria-label="Filter deal activity">
-              <button class="pill line sm crm-af" data-af="st" data-pop="#crm-p-af" data-pop-align="end" aria-haspopup="menu"><span class="v">Stage</span><Fragment set:html={I('chev-d', 'xs')} /></button>
-              <button class="pill line sm crm-af" data-af="own" data-pop="#crm-p-af" data-pop-align="end" aria-haspopup="menu"><span class="v">Owner</span><Fragment set:html={I('chev-d', 'xs')} /></button>
-              <button class="pill line sm crm-af" data-af="amt" data-pop="#crm-p-af" data-pop-align="end" aria-haspopup="menu"><span class="v">Amount</span><Fragment set:html={I('chev-d', 'xs')} /></button>
+            <!-- one line: the title with its count as a grey chip, then sort and filters, each with its field's icon (owner, 10 Nov) -->
+            <div class="crm-ah"><b>Deal activity</b><span class="tag crm-actn num" aria-label="deals shown"></span></div>
+            <div class="crm-afl" role="group" aria-label="Sort and filter deal activity">
+              <button class="pill line sm crm-af crm-asort" data-af="sort" data-pop="#crm-p-af" data-pop-align="end" aria-haspopup="menu" aria-label="Sort by" data-tip="Sort"><Fragment set:html={I('sort', 'xs')} /><span class="v">Close date</span></button>
+              <span class="crm-afs" aria-hidden="true"></span>
+              <button class="pill line sm crm-af" data-af="st" data-pop="#crm-p-af" data-pop-align="end" aria-haspopup="menu"><Fragment set:html={I('layers', 'xs')} /><span class="v">Stage</span><Fragment set:html={I('chev-d', 'xs')} /></button>
+              <button class="pill line sm crm-af" data-af="own" data-pop="#crm-p-af" data-pop-align="end" aria-haspopup="menu"><Fragment set:html={I('user', 'xs')} /><span class="v">Owner</span><Fragment set:html={I('chev-d', 'xs')} /></button>
+              <button class="pill line sm crm-af" data-af="amt" data-pop="#crm-p-af" data-pop-align="end" aria-haspopup="menu"><Fragment set:html={I('dollar', 'xs')} /><span class="v">Amount</span><Fragment set:html={I('chev-d', 'xs')} /></button>
               <label class="crm-asq"><Fragment set:html={I('search', 'xs')} /><input type="search" placeholder="Search" aria-label="Search deal activity" autocomplete="off" spellcheck="false"></label>
             </div>
           </div>
-          <div class="crm-dsc"><table class="crm-dat"><thead><tr><th>Deal</th><th>Account</th><th>Owner</th><th>Stage</th><th>Close date</th><th class="r">Amount</th><th class="r"><span class="crm-sr">Actions</span></th></tr></thead><tbody></tbody></table></div>
+          <div class="crm-dsc"><table class="crm-dat"><thead><tr><th><span class="crm-thi"><Fragment set:html={I('coins', 'xs')} />Deal</span></th><th><span class="crm-thi"><Fragment set:html={I('globe', 'xs')} />Account</span></th><th><span class="crm-thi"><Fragment set:html={I('user', 'xs')} />Owner</span></th><th><span class="crm-thi"><Fragment set:html={I('layers', 'xs')} />Stage</span></th><th><span class="crm-thi"><Fragment set:html={I('cal', 'xs')} />Close date</span></th><th class="r"><span class="crm-thi"><Fragment set:html={I('dollar', 'xs')} />Amount</span></th><th class="r"><span class="crm-sr">Actions</span></th></tr></thead><tbody></tbody></table></div>
           <div class="crm-pg"><button class="pill line sm" data-pg="-1"><Fragment set:html={I('chev-l', 'xs')} />Previous</button><span class="crm-pgs"></span><button class="pill line sm" data-pg="1">Next<Fragment set:html={I('chev-r', 'xs')} /></button></div>
         </div>
       </section>
