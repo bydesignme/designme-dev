@@ -1712,7 +1712,7 @@
       $('.lnx-tt span', ch).textContent = lineOn[0] && lineOn[1] ? `${a >= q ? '+' : '−'}${kmoney(Math.abs(a - q))} on Q3 at this point` : lineOn[0] ? 'This quarter' : 'Last quarter';
       lv.textContent = lineOn[0] ? kmoney(a) : latest(); };
     ch.onpointerleave = () => lv.textContent = latest();
-    paintBars();
+    paintBars(); paintClosing();
     // radial goals: each team's closed won against its quota
     const RAD = [78, 60, 42], CS = ['var(--dm-c1)', 'var(--dm-c3)', 'var(--dm-c4)'];
     const share = t => wonOf(t.who) / t.quota;
@@ -1747,6 +1747,7 @@
   // the current week or month, as it still has to close
   let bcRange = 'w';
   function paintBars(){
+    if (!$('.bcx-ch', fc)) return;
     const open = DE.filter(d => !closed(d)), bch = $('.bcx-ch', fc), wk0 = -((today.getDay() + 6) % 7), m0 = today.getFullYear() * 12 + today.getMonth();
     const B = Array.from({ length:bcRange === 'w' ? 12 : 6 }, () => ({ v:0, n:0, late:0 }));
     open.forEach(d => { let i; if (bcRange === 'w') i = Math.floor((Math.max(0, d.close) - wk0) / 7); else { const t = new Date(today); t.setDate(t.getDate() + Math.max(0, d.close)); i = t.getFullYear() * 12 + t.getMonth() - m0; }
@@ -1760,7 +1761,25 @@
     $('.crm-bcs', fc).textContent = bcRange === 'w' ? `${kmoney(sum(B.slice(0, 4), x => x.v))} in the next 4 weeks` : `${kmoney(sum(B, x => x.v))} open, most in ${mname(big, 'short')}`;
     if (!REDUCE) $$('.bcx-st', bch).forEach((x, i) => x.animate([{ transform:'scaleY(0)', transformOrigin:'bottom' }, { transform:'none', transformOrigin:'bottom' }], { duration:420, delay:i * 18, easing:EASE, fill:'backwards' }));
   }
-  seg($('.crm-bc .bcx-rg', fc), v => { bcRange = v; paintBars(); });
+  if ($('.crm-bc .bcx-rg', fc)) seg($('.crm-bc .bcx-rg', fc), v => { bcRange = v; paintBars(); });
+  // Closing next: the next open deals by close date, the ones past their date first, as Agenda rows: the date, a rail in the
+  // stage's colour, the deal and its account, and the amount with its win probability. A row opens the account
+  const cnl = $('.crm-cnl', fc);
+  const dayOf = n => { const t = new Date(today); t.setDate(t.getDate() + n); return t; };
+  function paintClosing(){
+    if (!cnl) return;
+    const open = DE.filter(d => !closed(d)).sort((a, b) => a.close - b.close || b.v - a.v), next = open.filter(d => d.close >= 0).slice(0, 4), late = open.filter(d => d.close < 0).length;
+    const soon = open.filter(d => d.close >= 0 && d.close <= 14);
+    $('.crm-cns', fc).textContent = `${kmoney(sum(soon, d => d.v))} in the next 14 days`;
+    const cn = $('.crm-cnn', fc); cn.textContent = late ? `${late} past due` : plural(soon.length, 'deal'); cn.classList.toggle('bad', !!late);
+    cnl.innerHTML = next.map(d => { const c = coOf(d.co), t = dayOf(d.close), late = d.close < 0;
+      return `<button class="agx-e crm-cne${late ? ' late' : ''}" role="listitem" data-co="${d.co}" aria-label="${esc(d.n)}, ${esc(c.n)}, ${money(d.v)}, ${late ? 'was due' : 'closes'} ${fmtD(d.close)}">`
+        + `<span class="tm num"><b>${t.toLocaleDateString('en-US', { month:'short', day:'numeric' })}</b><span>${late ? 'Overdue' : d.close === 0 ? 'Today' : t.toLocaleDateString('en-US', { weekday:'short' })}</span></span>`
+        + `<span class="bar crm-sd" data-s="${d.st}"></span>`
+        + `<span class="t"><b>${esc(d.n)}</b><span>${esc(c.n)} · ${ST[d.st].t}</span></span>`
+        + `<span class="crm-cna"><b class="num">${kmoney(d.v)}</b><span class="num">${d.p}%</span></span></button>`; }).join('');
+  }
+  if (cnl) cnl.addEventListener('click', e => { const r = e.target.closest('.crm-cne'); if (r) openSheet(r.dataset.co); });
   /* ---------- the forecast's banner, the quota card's figures and deal activity (owner, 10 Nov) ---------- */
   const fbn = $('.crm-sbn', app), FBART = "<g class=\"gds\"><path class=\"gd\" d=\"M135.6 59L42.1 113M151.2 68L57.6 122M166.8 77L73.2 131M182.4 86L88.8 140M197.9 95L104.4 149M135.6 59L197.9 95M120 68L182.4 104M104.4 77L166.8 113M88.8 86L151.2 122M73.2 95L135.6 131M57.6 104L120 140M42.1 113L104.4 149\"/></g><g class=\"z\" style=\"--z:0\"><path class=\"pl\" d=\"M135.6 21L166.8 39L166.8 95L151.2 104L120 86L120 30Z\"/><path class=\"ln\" style=\"--d:0\" pathLength=\"1\" d=\"M135.6 21L166.8 39L151.2 48L120 30Z\"/><path class=\"ln\" style=\"--d:1\" pathLength=\"1\" d=\"M166.8 39L166.8 95L151.2 104L120 86L120 30\"/><path class=\"ln\" style=\"--d:2\" pathLength=\"1\" d=\"M151.2 48L151.2 104\"/><path class=\"pl\" d=\"M120 44L151.2 62L151.2 104L135.6 113L104.4 95L104.4 53Z\"/><path class=\"ln\" style=\"--d:3\" pathLength=\"1\" d=\"M120 44L151.2 62L135.6 71L104.4 53Z\"/><path class=\"ln\" style=\"--d:4\" pathLength=\"1\" d=\"M151.2 62L151.2 104L135.6 113L104.4 95L104.4 53\"/><path class=\"ln\" style=\"--d:5\" pathLength=\"1\" d=\"M135.6 71L135.6 113\"/><path class=\"pl\" d=\"M104.4 67L135.6 85L135.6 113L120 122L88.8 104L88.8 76Z\"/><path class=\"ln\" style=\"--d:6\" pathLength=\"1\" d=\"M104.4 67L135.6 85L120 94L88.8 76Z\"/><path class=\"ln\" style=\"--d:7\" pathLength=\"1\" d=\"M135.6 85L135.6 113L120 122L88.8 104L88.8 76\"/><path class=\"ln\" style=\"--d:8\" pathLength=\"1\" d=\"M120 94L120 122\"/><path class=\"pl\" d=\"M88.8 90L120 108L120 122L104.4 131L73.2 113L73.2 99Z\"/><path class=\"ln\" style=\"--d:9\" pathLength=\"1\" d=\"M88.8 90L120 108L104.4 117L73.2 99Z\"/><path class=\"ln\" style=\"--d:10\" pathLength=\"1\" d=\"M120 108L120 122L104.4 131L73.2 113L73.2 99\"/><path class=\"ln\" style=\"--d:11\" pathLength=\"1\" d=\"M104.4 117L104.4 131\"/></g><g class=\"z\" style=\"--z:2\"><path class=\"ln ac\" style=\"--d:12\" pathLength=\"1\" d=\"M137.1 30.9V8.9h14l-4 5 4 5h-14\"/></g>";
   $('.bnx-art', fbn).innerHTML = `<svg class="bnx-svg" viewBox="0 0 240 160" width="240" height="160" focusable="false">${FBART}</svg>`;
