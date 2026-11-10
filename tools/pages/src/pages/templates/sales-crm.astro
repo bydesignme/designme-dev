@@ -17,7 +17,7 @@ import { ROOT, COMPONENTS } from '../../lib/data.mjs';
 const USES = ['agent-harness', 'task-table', 'progress', 'kanban-board', 'details-panel', 'filter-menu', 'search-input', 'form', 'toast',
   'activity-heatmap', 'notifications', 'profile-menu', 'command-palette', 'stat-cards', 'line-chart', 'radial-goals', 'funnel-chart',
   'event-calendar', 'agent-inbox', 'health-score', 'decision-prompt', 'date-picker', 'banner', 'draft-review', 'rewrite-toolbar',
-  'inline-text-diff'];
+  'inline-text-diff', 'bar-chart', 'top-pages'];
 // the screen's type scale: five sizes from the library's own (11, 12, 13, 14 and the 16px title), nothing under 11px. Every
 // component's text snaps to the nearest step at or below it; a display number (Health score's score, Stat cards' values) keeps
 // its size
@@ -112,13 +112,13 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
           <table class="ttx-t crm-t">
             <thead><tr>
               <th class="ck stk"><button class="ttx-cb ttx-all" role="checkbox" aria-checked="false" aria-label="Select all accounts in view"></button></th>
-              <th class="stk2"><button class="ttx-s" data-k="name">Account</button></th>
-              <th><button class="ttx-s" data-k="stage">Stage</button></th>
-              <th><button class="ttx-s" data-k="next">Next step</button></th>
-              <th><button class="ttx-s" data-k="owner">Owner</button></th>
-              <th class="r"><button class="ttx-s" data-k="value">Pipeline</button></th>
-              <th class="crm-hc"><button class="ttx-s" data-k="health">Health</button></th>
-              <th>Agent</th>
+              <th class="stk2"><button class="ttx-s" data-k="name"><Fragment set:html={I('globe', 'xs')} />Account</button></th>
+              <th><button class="ttx-s" data-k="stage"><Fragment set:html={I('layers', 'xs')} />Stage</button></th>
+              <th><button class="ttx-s" data-k="next"><Fragment set:html={I('cal', 'xs')} />Next step</button></th>
+              <th><button class="ttx-s" data-k="owner"><Fragment set:html={I('user', 'xs')} />Owner</button></th>
+              <th class="r"><button class="ttx-s" data-k="value"><Fragment set:html={I('dollar', 'xs')} />Pipeline</button></th>
+              <th class="crm-hc"><button class="ttx-s" data-k="health"><Fragment set:html={I('gauge', 'xs')} />Health</button></th>
+              <th><span class="crm-thi"><Fragment set:html={I('spark', 'xs')} />Agent</span></th>
               <th class="r crm-actc"><span class="pg-sr">Actions</span></th>
             </tr></thead>
             <tbody></tbody>
@@ -160,30 +160,38 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
       <!-- Forecast: Stat cards, Line chart, Activity heatmap, Funnel, Radial goals and Progress meters, worked out from the deals -->
       <section class="crm-view crm-fc" id="crm-v-forecast" aria-label="Forecast" hidden>
         <div class="scx-grid crm-c12"></div>
-        <div class="lnx panel crm-c6">
-          <div class="lnx-h"><div><span class="muted">Closed won this quarter</span><b class="num lnx-v">$0</b><span class="muted crm-fcst"></span></div><div class="lnx-lg"><button class="lnx-k on" data-s="0" aria-pressed="true"><i style="background:var(--dm-accent-mark,var(--dm-accent))"></i>Q4 2026</button><button class="lnx-k on" data-s="1" aria-pressed="true"><i style="background:var(--dm-c2)"></i>Q3 2026</button></div></div>
+        <!-- the forecast reads 4, 3, 3: stat cards, then three charts, then three breakdowns; every card's head is its title, a
+             muted line under it, and its controls on the right (owner, 10 Nov). The heatmap takes 5 of 12 columns so the library's
+             component shows the whole day, as it does on its own page; under 400px it switches to its own half-day scroller -->
+        <div class="lnx panel crm-c4">
+          <div class="lnx-h"><div class="crm-ht"><b>Closed won</b><span class="muted"><span class="num lnx-v">$0</span> won, <span class="crm-fcst"></span></span></div><div class="lnx-lg"><button class="lnx-k on" data-s="0" aria-pressed="true"><i style="background:var(--dm-accent-mark,var(--dm-accent))"></i>Q4</button><button class="lnx-k on" data-s="1" aria-pressed="true"><i style="background:var(--dm-c2)"></i>Q3</button></div></div>
           <div class="lnx-ch"><svg class="lnx-svg" viewBox="0 0 320 140" preserveAspectRatio="none" aria-hidden="true"></svg><div class="lnx-x"></div><div class="lnx-tt"><b class="num"></b><span></span></div></div>
-          <div class="lnx-ax muted num" aria-hidden="true"><span>Wk 1</span><span>Wk 3</span><span>Wk 5</span><span>Wk 7</span><span>Wk 9</span><span>Wk 11</span><span>Wk 13</span></div>
+          <div class="lnx-ax muted num" aria-hidden="true"></div>
         </div>
-        <div class="hmx panel crm-hm crm-c6">
-          <div class="hmx-h"><div><b>Team activity</b><span class="muted hmx-st">Last 12 weeks</span></div><div class="seg2 hmx-sg" role="group" aria-label="Whose activity"><button aria-pressed="true" data-v="team">Team</button><button aria-pressed="false" data-v="agent">Agent</button></div></div>
-          <div class="hmx-wrap"><div class="hmx-sc"><div class="hmx-days muted"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span></div><div class="hmx-grid"></div>
-          <div class="hmx-f muted num"></div></div></div>
+        <div class="bcx panel crm-bc crm-c3">
+          <div class="bcx-h"><div class="crm-ht"><b>Open pipeline by close month</b><span class="muted crm-bcs"></span></div></div>
+          <div class="bcx-ch" role="list" aria-label="Open pipeline by close month"></div>
+        </div>
+        <div class="hmx panel crm-hm crm-c5">
+          <div class="hmx-h"><div class="crm-ht"><b>Team activity</b><span class="muted hmx-st">Last 12 weeks</span></div><div class="seg2 hmx-sg" role="group" aria-label="Whose activity"><button aria-pressed="true" data-v="team">Team</button><button aria-pressed="false" data-v="agent">Agent</button></div></div>
+          <div class="hmx-wrap"><div class="hmx-sc"><div class="hmx-days muted"><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span><span>Sun</span></div><div class="hmx-grid"></div>
+          <div class="hmx-f muted"><span class="hmx-ax">12am</span><span class="hmx-ax x">3am</span><span class="hmx-ax">6am</span><span class="hmx-ax x">9am</span><span class="hmx-ax">12pm</span><span class="hmx-ax x">3pm</span><span class="hmx-ax">6pm</span><span class="hmx-ax x">9pm</span></div></div></div>
           <div class="hmx-lg muted">Less<i style="--dm-a:.08"></i><i style="--dm-a:.3"></i><i style="--dm-a:.55"></i><i style="--dm-a:.85"></i>More</div>
         </div>
         <div class="fnx panel crm-c4">
-          <div class="fnx-h"><b>Stage conversion</b><span class="muted crm-fnn num"></span></div>
+          <div class="fnx-h"><div class="crm-ht"><b>Stage conversion</b><span class="muted crm-fnn num"></span></div></div>
           <div class="fnx-rows"></div>
           <div class="fnx-ins"><span class="fnx-ic"><Fragment set:html={I('spark', 'xs')} /></span><span class="fnx-t"></span></div>
         </div>
         <div class="rgx panel crm-c4">
-          <div class="rgx-h"><div class="rgx-t"><b>Team quotas</b><span class="muted rgx-sub">Q4, closed won against quota</span></div></div>
+          <div class="rgx-h"><div class="rgx-t crm-ht"><b>Team quotas</b><span class="muted rgx-sub">Q4, closed won against quota</span></div></div>
           <div class="rgx-b"><div class="rgx-ring"><svg viewBox="0 0 180 180" aria-hidden="true"></svg><div class="rgx-c"><b class="num">0%</b><span class="muted">of quota</span></div></div><div class="rgx-lg"></div></div>
           <div class="crm-qsum"></div>
         </div>
-        <div class="panel crm-own crm-c4">
-          <div class="crm-ph"><b>Quota attainment</b><span class="crm-lgd muted"><i class="w"></i>Won<i class="c"></i>Commit</span></div>
-          <div class="crm-owl"></div>
+        <!-- quota attainment is Top pages: a ranked list with a share bar and the change since last week, sorted by won or change -->
+        <div class="tpx panel crm-tp crm-c4">
+          <div class="tpx-h"><div class="crm-ht"><b>Quota attainment</b><span class="muted tpx-sub">Top 5 closers, change on Q3 pace</span></div><div class="seg2 tpx-sg" role="group" aria-label="Sort"><button aria-pressed="true" data-v="v">Won</button><button aria-pressed="false" data-v="c">Change</button></div></div>
+          <div class="tpx-list" role="list"></div>
         </div>
         <!-- deal activity: the quarter's deals, filtered by stage, owner and amount or searched, with stage chips and pages -->
         <div class="panel crm-c12 crm-act">
@@ -191,14 +199,12 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
             <!-- one line: the title with its count as a grey chip, then sort and filters, each with its field's icon (owner, 10 Nov) -->
             <div class="crm-ah"><b>Deal activity</b><span class="tag crm-actn num" aria-label="deals shown"></span></div>
             <div class="crm-afl" role="group" aria-label="Sort and filter deal activity">
-              <button class="pill line sm crm-af crm-asort" data-af="sort" data-pop="#crm-p-af" data-pop-align="end" aria-haspopup="menu" aria-label="Sort by" data-tip="Sort"><Fragment set:html={I('sort', 'xs')} /><span class="v">Close date</span></button>
-              <span class="crm-afs" aria-hidden="true"></span>
-              <button class="pill line sm crm-af" data-af="st" data-pop="#crm-p-af" data-pop-align="end" aria-haspopup="menu"><Fragment set:html={I('layers', 'xs')} /><span class="v">Stage</span><Fragment set:html={I('chev-d', 'xs')} /></button>
-              <button class="pill line sm crm-af" data-af="own" data-pop="#crm-p-af" data-pop-align="end" aria-haspopup="menu"><Fragment set:html={I('user', 'xs')} /><span class="v">Owner</span><Fragment set:html={I('chev-d', 'xs')} /></button>
-              <button class="pill line sm crm-af" data-af="amt" data-pop="#crm-p-af" data-pop-align="end" aria-haspopup="menu"><Fragment set:html={I('dollar', 'xs')} /><span class="v">Amount</span><Fragment set:html={I('chev-d', 'xs')} /></button>
+              <button class="pill line sm flm-tr crm-aft" data-pop="#crm-p-af" data-pop-align="end" aria-haspopup="menu" aria-label="Filter deal activity"><Fragment set:html={I('filter', 'xs')} /><span>Filter</span></button>
+              <button class="pill line sm crm-asort" data-pop="#crm-p-as" data-pop-align="end" aria-haspopup="menu" aria-label="Sort deal activity"><Fragment set:html={I('sort', 'xs')} /><span class="v">Close date</span></button>
               <label class="crm-asq"><Fragment set:html={I('search', 'xs')} /><input type="search" placeholder="Search" aria-label="Search deal activity" autocomplete="off" spellcheck="false"></label>
             </div>
           </div>
+          <div class="crm-fch crm-ach" role="list" aria-label="Deal activity filters"></div>
           <div class="crm-dsc"><table class="crm-dat"><thead><tr><th><span class="crm-thi"><Fragment set:html={I('coins', 'xs')} />Deal</span></th><th><span class="crm-thi"><Fragment set:html={I('globe', 'xs')} />Account</span></th><th><span class="crm-thi"><Fragment set:html={I('user', 'xs')} />Owner</span></th><th><span class="crm-thi"><Fragment set:html={I('layers', 'xs')} />Stage</span></th><th><span class="crm-thi"><Fragment set:html={I('cal', 'xs')} />Close date</span></th><th class="r"><span class="crm-thi"><Fragment set:html={I('dollar', 'xs')} />Amount</span></th><th class="r"><span class="crm-sr">Actions</span></th></tr></thead><tbody></tbody></table></div>
           <div class="crm-pg"><button class="pill line sm" data-pg="-1"><Fragment set:html={I('chev-l', 'xs')} />Previous</button><span class="crm-pgs"></span><button class="pill line sm" data-pg="1">Next<Fragment set:html={I('chev-r', 'xs')} /></button></div>
         </div>
@@ -216,7 +222,8 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
     <div class="pop crm-pop flm-pop crm-flt" id="crm-p-flt" role="menu" aria-label="Filter by"></div>
     <div class="pop crm-pop" id="crm-p-sort" role="menu" aria-label="Sort"></div>
     <div class="pop crm-pop crm-svp" id="crm-p-save" role="dialog" aria-label="Save view"></div>
-    <div class="pop crm-pop" id="crm-p-af" role="menu" aria-label="Filter"></div>
+    <div class="pop crm-pop flm-pop crm-flt" id="crm-p-af" role="menu" aria-label="Filter by"></div>
+    <div class="pop crm-pop" id="crm-p-as" role="menu" aria-label="Sort by"></div>
     <div class="pop crm-pop" id="crm-p-close" role="menu" aria-label="Close date"></div>
     <div class="pop crm-pop" id="crm-p-assign" role="menu" aria-label="Assign owner"></div>
     <div class="pop crm-pop" id="crm-p-move" role="menu" aria-label="Move to stage"></div>

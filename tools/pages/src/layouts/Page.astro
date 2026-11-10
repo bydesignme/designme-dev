@@ -9,6 +9,8 @@
 // Everything else is 14px too. The header's row is 1400px wide, centred, as on the homepage (SiteShell lays the sidebar and the
 // page out in it); the lines under the header and over the footer run the full width of the window
 import { LOGO, SITE, FONT_CSS, HITS_JS, THEME_JS } from '../lib/data.mjs';
+// the homepage's accent swatches, for the templates' header picker (owner, 10 Nov: bring the accent switch back to the dashboards)
+const ACCENT_SW = [['default', 'Default'], ['#d4f84a', 'Lime'], ['#116ff8', 'Blue'], ['#7c5cff', 'Violet'], ['#e8366f', 'Rose'], ['#12a150', 'Green'], ['#0ea5a4', 'Teal'], ['#ff850d', 'Orange']];
 // the GitHub pill: the repository, and GitHub's mark (Simple Icons, the same mark as the components' Brand)
 const GITHUB = 'https://github.com/bydesignme/designme-dev';
 const GH_MARK = '<path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>';
@@ -166,6 +168,25 @@ a{color:inherit}
 @media (hover:none),(max-width:640px){.lg .L .wm .ch{fill-opacity:1;stroke:none}.lg .L .cons{opacity:.3}}
 @media (prefers-reduced-motion:reduce){.lg .L .wm .ch{transition-delay:0s}}
 .pg-sp{flex:1}
+/* the templates' accent picker: a dot in the header that opens the homepage's swatches (owner, 10 Nov) */
+.pg-acc{position:relative;display:flex}
+.pg-acc-b{display:grid;place-items:center;width:28px;height:28px;margin-left:2px;padding:0;border:0;border-radius:999px;background:var(--pg-chip);cursor:pointer}
+.pg-acc-dot{display:block;width:14px;height:14px;border-radius:50%;background:var(--pg-acc,#116ff8);box-shadow:0 0 0 3px color-mix(in srgb,var(--pg-acc,#116ff8) 22%,transparent);transition:background .25s,box-shadow .25s}
+.pg-acc-pop{position:absolute;top:calc(100% + 10px);right:0;z-index:80;display:flex;flex-direction:column;gap:12px;width:max-content;padding:14px;border-radius:16px;background:var(--pg-bg);border:1px solid var(--pg-line);box-shadow:0 1px 2px rgba(17,19,24,.05),0 24px 48px -20px rgba(17,19,24,.28);opacity:0;visibility:hidden;transform:translateY(-4px);transition:opacity .15s ease,transform .25s cubic-bezier(.16,1,.3,1),visibility 0s .25s}
+.pg-acc-pop.open{opacity:1;visibility:visible;transform:none;transition:opacity .2s ease,transform .35s cubic-bezier(.16,1,.3,1),visibility 0s}
+.pg-acc-t{font:500 13px/1.3 var(--pg-sans);color:var(--pg-fg)}
+.pg-acc .dc-acc{display:flex;gap:8px}
+.pg-acc .dc-sw{position:relative;flex:none;width:24px;height:24px;padding:0;border:0;border-radius:50%;background:var(--sw,#d4f84a);cursor:pointer;transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s}
+.pg-acc .dc-sw[data-acc="default"]{--sw:#d4f84a}
+:root[data-style="soft"] .pg-acc .dc-sw[data-acc="default"]{--sw:#116ff8}
+:root:not([data-style="soft"]) .pg-acc .dc-sw[data-acc="#d4f84a"],:root[data-style="soft"] .pg-acc .dc-sw[data-acc="#116ff8"]{display:none}
+.pg-acc .dc-sw[aria-checked="true"],.pg-acc .dc-sw.any.on{box-shadow:0 0 0 2px var(--pg-bg),0 0 0 4px var(--pg-fg)}
+.pg-acc .dc-sw.any{background:conic-gradient(#ff4d4d,#ffb84d,#f4e04d,#4dd47a,#4dc3ff,#7a6bff,#ff4dd8,#ff4d4d)}
+.pg-acc .dc-sw.any.on{background:var(--sw)}
+.pg-acc .dc-sw.any input{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;opacity:0;cursor:pointer}
+.pg-acc .dc-sw:focus-visible,.pg-acc .dc-sw.any:has(input:focus-visible),.pg-acc-b:focus-visible{outline:2px solid var(--pg-focus);outline-offset:3px}
+@media (hover:hover) and (pointer:fine){.pg-acc .dc-sw:hover{transform:scale(1.12)}}
+@media (prefers-reduced-motion:reduce){.pg-acc-pop,.pg-acc-pop.open,.pg-acc .dc-sw{transition:none}}
 .pg-seg{display:inline-flex;padding:2px;border-radius:999px;background:var(--pg-chip)}
 .pg-seg button{height:24px;padding:0 10px;border:0;border-radius:999px;background:none;color:var(--pg-dim);font:500 13px/1 var(--pg-sans);cursor:pointer;transition:color .2s}
 /* on a touch screen the header's small switches and the GitHub pill get a 44px tall tap area, drawn by nothing (they look the same) */
@@ -277,6 +298,12 @@ a{color:inherit}
     <button type="button" role="radio" aria-checked="false" data-theme-set="light" aria-label="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
     <button type="button" role="radio" aria-checked="false" data-theme-set="dark" aria-label="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
   </div>
+  {app && <div class="pg-acc">
+    <button type="button" class="pg-acc-b" aria-haspopup="dialog" aria-expanded="false" aria-label="Accent colour"><i class="pg-acc-dot" aria-hidden="true"></i></button>
+    <div class="pg-acc-pop" role="dialog" aria-label="Accent colour"><span class="pg-acc-t" id="pg-acc-t">Accent colour</span>
+      <div class="dc-acc" role="radiogroup" aria-labelledby="pg-acc-t">{ACCENT_SW.map(([v, n]) => <button type="button" class="dc-sw" role="radio" aria-checked="false" data-acc={v} aria-label={n} title={n} style={v === 'default' ? undefined : `--sw:${v}`}></button>)}<label class="dc-sw any" title="Any colour"><input type="color" value="#ff850d" aria-label="Pick any colour"></label></div>
+    </div>
+  </div>}
 </div></header>
 <main class={app ? 'pg-app' : 'pg-main'}><slot /></main>
 <footer class="pg-foot"><div class="pg-wrap"><div class="pg-foot-in">
@@ -412,6 +439,16 @@ a{color:inherit}
     var n = d ? vis[(i + d + vis.length) % vis.length] : e.key === 'Home' ? vis[0] : e.key === 'End' ? vis[vis.length - 1] : null;
     if (!n) return; e.preventDefault(); commit(n.dataset.acc); n.focus();
   }); });
+  var accB = document.querySelector('.pg-acc-b'), accP = document.querySelector('.pg-acc-pop');
+  var dot = function(){ var c = document.querySelector('[data-c]') || root, v = getComputedStyle(c).getPropertyValue('--dm-accent').trim(); if (v && root.style.getPropertyValue('--pg-acc') !== v) root.style.setProperty('--pg-acc', v); };
+  if (accB && accP){
+    var accOpen = function(on){ accP.classList.toggle('open', on); accB.setAttribute('aria-expanded', String(on)); if (on){ var f = accP.querySelector('[data-acc][tabindex="0"]'); if (f) f.focus({ preventScroll:true }); } };
+    accB.addEventListener('click', function(){ accOpen(!accP.classList.contains('open')); });
+    document.addEventListener('pointerdown', function(e){ if (accP.classList.contains('open') && !e.target.closest('.pg-acc')) accOpen(false); });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && accP.classList.contains('open')){ accOpen(false); accB.focus(); } });
+    new MutationObserver(function(){ requestAnimationFrame(dot); }).observe(root, { attributes:true, attributeFilter:['data-style', 'data-theme', 'style'] });
+    requestAnimationFrame(dot);
+  }
   if (anyIn){ anyIn.addEventListener('input', function(){ cur = anyIn.value; apply(); mark(); }); anyIn.addEventListener('change', function(){ commit(anyIn.value); }); }
   new MutationObserver(function(){ apply(); mark(); }).observe(root, { attributes:true, attributeFilter:['data-style', 'data-theme'] });
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', apply);
