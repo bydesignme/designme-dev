@@ -319,7 +319,7 @@
 
   /* ---------- the state of the filters, the selection and what is open ---------- */
   // A holds the filters as Filter menu's chips: a field, a value, and whether it reads the other way (is not, older than)
-  const F = { A:[], q:'', S:[{ k:'value', desc:true }], said:'' };
+  const F = { A:[], q:'', S:[{ k:'value', desc:true }], said:'', own:new Set() };
   // the board starts with Closed lost hidden, as a chip in the hidden stages' dock
   const K = { own:new Set(), q:'', close:'any', view:'board', shut:new Set(['lost']), tab:'disc', order:STAGES.map(s => s.k), draft:null };
   // the board's column order lasts the session (a reload keeps it; a new tab starts from the stages' order)
@@ -354,10 +354,44 @@
   const tick = I('check', 'xs').replace('class="i xs"', 'class="i xs ck-y"') + I('minus', 'xs').replace('class="i xs"', 'class="i xs ck-m"');
   allBox.innerHTML = tick;
   $$('.crm-t .ttx-s', app).forEach(b => b.insertAdjacentHTML('beforeend', `<span class="ar">${I('chev-u', 'xs')}</span>`));
+  // column widths, as in a spreadsheet (owner, 10 Nov): drag a header's right edge, or focus its handle and use the arrow
+  // keys; a narrower column cuts its text short and the table scrolls sideways once the columns outgrow it. The widths last
+  // the session; a double click on a handle gives every column its natural width back. Not on phones, where rows are cards
+  {
+    const tbl = $('.crm-t', app), heads = $$('thead th', tbl), cg = document.createElement('colgroup');
+    cg.innerHTML = heads.map(() => '<col>').join(''); tbl.prepend(cg);
+    const cols = $$('col', cg), RZ = [1, 2, 3, 4, 5, 6, 7], MIN = { 1:150 }, wide = matchMedia('(min-width:761px)');
+    let colW = null; try { colW = JSON.parse(sessionStorage.getItem('crm-colw') || 'null'); if (!Array.isArray(colW) || colW.length !== heads.length) colW = null; } catch (e) {}
+    const name = h => h.textContent.trim() || 'column';
+    const apply = () => {
+      if (!colW || !wide.matches){ tbl.classList.remove('rz'); cols.forEach(c => c.style.width = ''); tbl.style.width = ''; return; }
+      cols.forEach((c, i) => c.style.width = i === cols.length - 1 ? '' : colW[i] + 'px');
+      tbl.style.width = `max(100%, ${colW.slice(0, -1).reduce((a, b) => a + b, 0) + 48}px)`; tbl.classList.add('rz');
+      RZ.forEach(i => { const h = $('.crm-rz', heads[i]); if (h) h.setAttribute('aria-valuenow', colW[i]); });
+    };
+    const measure = () => { if (!colW) colW = heads.map(h => Math.round(h.getBoundingClientRect().width)); };
+    const save = () => { try { sessionStorage.setItem('crm-colw', JSON.stringify(colW)); } catch (e) {} };
+    RZ.forEach(i => heads[i].insertAdjacentHTML('beforeend', `<span class="crm-rz" role="separator" aria-orientation="vertical" tabindex="0" aria-valuemin="${MIN[i] || 72}" aria-label="Resize ${esc(name(heads[i]))}" data-tip="Drag to resize, double click to reset" data-i="${i}"></span>`));
+    tbl.addEventListener('pointerdown', e => { const g = e.target.closest('.crm-rz'); if (!g || e.button) return;
+      e.preventDefault(); e.stopPropagation(); hideTip(); measure(); const i = +g.dataset.i, x0 = e.clientX, w0 = colW[i];
+      g.setPointerCapture(e.pointerId); g.classList.add('on'); tbl.classList.add('rzing');
+      const mv = ev => { colW[i] = Math.max(MIN[i] || 72, Math.round(w0 + ev.clientX - x0)); apply(); };
+      const up = () => { g.removeEventListener('pointermove', mv); g.removeEventListener('pointerup', up); g.removeEventListener('pointercancel', up); g.classList.remove('on'); tbl.classList.remove('rzing'); save(); };
+      g.addEventListener('pointermove', mv); g.addEventListener('pointerup', up); g.addEventListener('pointercancel', up); });
+    tbl.addEventListener('click', e => { if (e.target.closest('.crm-rz')) e.stopPropagation(); }, true);
+    tbl.addEventListener('dblclick', e => { if (!e.target.closest('.crm-rz')) return; colW = null; try { sessionStorage.removeItem('crm-colw'); } catch (er) {} apply(); });
+    tbl.addEventListener('keydown', e => { const g = e.target.closest('.crm-rz'); if (!g || !/^Arrow(Left|Right)$/.test(e.key)) return;
+      e.preventDefault(); e.stopPropagation(); measure(); const i = +g.dataset.i; colW[i] = Math.max(MIN[i] || 72, colW[i] + (e.key === 'ArrowRight' ? 16 : -16)); apply(); save(); });
+    wide.addEventListener('change', apply); apply();
+  }
   const SORTS = { value:['Pipeline', c => c.value, 'dollar', 'Low to high', 'High to low'], health:['Health', c => c.health, 'gauge', 'Low to high', 'High to low'], next:['Next step', c => c.next ? c.next.day * 100 + c.next.h : 1e6, 'cal', 'Soonest first', 'Latest first'], name:['Account', c => c.n.toLowerCase(), 'globe', 'A to Z', 'Z to A'], stage:['Stage', c => ST[c.st].i, 'layers', 'Earliest first', 'Latest first'], owner:['Owner', c => P[c.own][0], 'user', 'A to Z', 'Z to A'] };
   const ASC = ['name', 'owner', 'next'];
   const qOk = c => !F.q || (c.n + ' ' + c.seg + ' ' + c.tags.join(' ') + ' ' + P[c.own][0] + ' ' + c.ppl.map(p => p.n).join(' ')).toLowerCase().includes(F.q.toLowerCase());
-  const matches = c => qOk(c) && fmatch(c);
+  const matches = c => qOk(c) && fmatch(c) && (!F.own.size || F.own.has(c.own));
+  // the owners' faces at the toolbar's start, the Pipeline board's quick filter: any number can be picked
+  const acFp = $('.crm-afp', app);
+  acFp.innerHTML = OWN.map(o => `<button aria-pressed="false" data-who="${o}" aria-label="${P[o][0]}" data-tip="${P[o][0]}">${av(o)}</button>`).join('');
+  acFp.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; F.own.has(b.dataset.who) ? F.own.delete(b.dataset.who) : F.own.add(b.dataset.who); renderTable(); });
   const cmp = (x, y) => x > y ? 1 : x < y ? -1 : 0;
   const inView = () => {
     const by = F.S.map(r => [SORTS[r.k][1], r.desc ? -1 : 1]);
@@ -392,7 +426,7 @@
   // health: Health score's ring at row size, with its score and its verdict
   const HB = { ok:'Healthy', mid:'Watch', bad:'At risk' };
   const ring = (v, r) => { const C = 2 * Math.PI * r, w = r * 2 + 8; return `<svg viewBox="0 0 ${w} ${w}" aria-hidden="true"><circle class="tr" cx="${w / 2}" cy="${w / 2}" r="${r}"/><circle class="fl" cx="${w / 2}" cy="${w / 2}" r="${r}" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C * (1 - v / 100)).toFixed(1)}"/></svg>`; };
-  const healthCell = c => `<span class="crm-hs" data-h="${c.hb}" data-tip="Contact ${c.hp[0]} of 35, on time ${c.hp[1]} of 25, win chance ${c.hp[2]} of 25, next step ${c.hp[3]} of 15">${ring(c.health, 7)}<b class="num" aria-label="Health ${c.health} of 100">${c.health}</b><span class="l">${HB[c.hb]}</span></span>`;
+  const healthCell = c => `<span class="crm-hs" data-h="${c.hb}" data-tip="${HB[c.hb]}. Contact ${c.hp[0]} of 35, on time ${c.hp[1]} of 25, win chance ${c.hp[2]} of 25, next step ${c.hp[3]} of 15">${ring(c.health, 7)}<b class="num" aria-label="Health ${c.health} of 100, ${HB[c.hb].toLowerCase()}">${c.health}</b></span>`;
   const agentCell = c => c.sug ? `<button class="pill soft sm crm-ag" data-sug="${c.id}" tabindex="-1"${CONFIRM.has(c.sug.k) ? ' data-pop="#crm-p-cfm" data-pop-align="end" aria-haspopup="dialog"' : ''} data-tip="${esc(c.sug.why)}" aria-label="${esc(c.sug.label)}. ${esc(c.sug.why)}">${I('spark', 'xs')}<span>${c.sug.label}</span></button>` : '';
   const row = c => `<tr data-id="${c.id}" tabindex="-1" class="${sel.has(c.id) ? 'sel' : ''}${sheetFor === c.id ? ' open' : ''}" aria-label="${esc(c.n)}">`
     + `<td class="ck stk"><button class="ttx-cb" role="checkbox" aria-checked="${sel.has(c.id)}" aria-label="Select ${esc(c.n)}" tabindex="-1">${tick}</button></td>`
@@ -410,6 +444,7 @@
     const keep = rows.find(c => c.id === focusId) || rows[0]; if (keep) $(`tr[data-id="${keep.id}"]`, tbody).tabIndex = 0;
     $$('.crm-t .ttx-s', app).forEach(b => { const on = b.dataset.k === F.S[0].k; b.classList.toggle('on', on); b.classList.toggle('desc', on && F.S[0].desc); b.closest('th').setAttribute('aria-sort', on ? (F.S[0].desc ? 'descending' : 'ascending') : 'none'); });
     swap($('.crm-sort .v', app), sortLabel());
+    $$('button', acFp).forEach(b => b.setAttribute('aria-pressed', F.own.has(b.dataset.who))); acFp.classList.toggle('some', F.own.size > 0);
     syncSel(); chips(); counts();
   }
   function syncSel(){
@@ -447,7 +482,7 @@
     if (e.target.closest('.op')){ const f = F.A.find(x => x.k === k); f.neg = !f.neg; said(''); renderTable(); }
     if (e.target.closest('.x')){ const had = ch.contains(document.activeElement), next = ch.nextElementSibling || ch.previousElementSibling; F.A = F.A.filter(x => x.k !== k); hideTip(); said(''); renderTable(); if (had) ((next && $('.x', next)) || $('.crm-ftr', app)).focus({ preventScroll:true }); }
   });
-  const clearFilters = () => { F.A = []; F.q = ''; const q = $('.crm-ask input', app); q.value = ''; $('.crm-ask .six-x', app).hidden = true; said(''); renderTable(); };
+  const clearFilters = () => { F.A = []; F.q = ''; F.own.clear(); const q = $('.crm-ask input', app); q.value = ''; $('.crm-ask .six-x', app).hidden = true; said(''); renderTable(); };
   $('.crm-clr', app).onclick = clearFilters;
   // the Filter menu: two steps, the fields and then the values of the one picked, each saying how many accounts it leaves
   const fpop = $('#crm-p-flt', app);

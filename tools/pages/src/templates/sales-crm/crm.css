@@ -1220,3 +1220,21 @@ body:has(.crm) .dmf{display:none}
    themes; the checkbox stays with the account's name and the row menu has no line before it */
 .crm-t :is(th,td):is(:nth-child(2),:nth-child(3),:nth-child(4),:nth-child(5),:nth-child(6),:nth-child(7)){box-shadow:inset -1px 0 0 var(--crm-hair)}
 .crm-t :is(th,td):is(:nth-child(3),:nth-child(4),:nth-child(5),:nth-child(6),:nth-child(7),:nth-child(8)){padding-left:var(--dm-s-3)}
+/* the owners' faces on Accounts, as on the board, ringed in the table's own surface */
+.crm-afp{margin-right:var(--dm-s-2)}
+.crm-afp .av{box-shadow:0 0 0 2px var(--dm-surface)}
+.crm-afp button[aria-pressed="true"] .av{box-shadow:0 0 0 2px var(--dm-surface),0 0 0 3.5px var(--dm-line-strong)}
+/* resizable columns (owner, 10 Nov): a grab strip on each header's right edge, on the column line; once a column is sized the
+   table keeps fixed widths and a cell too narrow for its text cuts it short with an ellipsis */
+.crm-t th{overflow:visible}
+.crm-rz{position:absolute;top:0;bottom:0;right:-4px;z-index:5;width:9px;cursor:col-resize;touch-action:none;outline:0}
+.crm-rz::after{content:"";position:absolute;top:8px;bottom:8px;left:4px;width:1px;border-radius:1px;background:transparent;transition:background var(--dm-t-fast),width var(--dm-t-fast),left var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.crm-rz:hover::after{left:3px;width:3px;background:var(--dm-line-strong)}}
+.crm-rz.on::after,.crm-rz:focus-visible::after{left:3px;width:3px;background:var(--dm-line-strong)}
+.crm-t.rzing,.crm-t.rzing *{cursor:col-resize!important;user-select:none}
+.crm-t.rz{table-layout:fixed}
+.crm-t.rz :is(th,td):not(.ck){overflow:hidden;text-overflow:ellipsis}
+.crm-t.rz td *{min-width:0}
+.crm-t.rz td :is(.nm,.crm-nx){max-width:100%}
+.crm-t.rz td :is(b,.k,.t,.n,.v){display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:760px){.crm-rz{display:none}}
