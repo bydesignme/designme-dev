@@ -1379,7 +1379,10 @@ const { class: className, ...rest } = Astro.props;
     // each switch is a set of radio buttons with one Tab stop, the one that's picked
     (function(){ function knob(seg){ var k = seg.querySelector('.pg-k'), b = seg.querySelector('[aria-checked="true"]'); if (!b) return;
         if (!k){ k = document.createElement('span'); k.className = 'pg-k'; k.setAttribute('aria-hidden', 'true'); seg.prepend(k); seg.classList.add('has-k'); k.style.transition = 'none'; }
-        k.style.width = b.offsetWidth + 'px'; k.style.transform = 'translateX(' + (b.offsetLeft - 2) + 'px)'; if (k.style.transition){ void k.offsetWidth; k.style.transition = ''; } }
+        // the knob sits exactly under the picked button: measured from the switch's own box, to the subpixel, so it keeps
+        // the switch's 2px inset on every side (it used to start 2px left of the button, touching the track's edge)
+        var sr = seg.getBoundingClientRect(), br = b.getBoundingClientRect();
+        k.style.width = br.width + 'px'; k.style.transform = 'translateX(' + (br.left - sr.left - seg.clientLeft) + 'px)'; if (k.style.transition){ void k.offsetWidth; k.style.transition = ''; } }
       document.querySelectorAll('.pg-seg').forEach(function(seg){ new MutationObserver(function(){ knob(seg); }).observe(seg, { subtree:true, attributes:true, attributeFilter:['aria-checked'] }); requestAnimationFrame(function(){ knob(seg); }); if (window.ResizeObserver) new ResizeObserver(function(){ knob(seg); }).observe(seg); }); })();
     document.querySelectorAll('[data-theme-set]').forEach(function(b){ var on = b.dataset.themeSet === t; b.setAttribute('aria-checked', String(on)); b.tabIndex = on ? 0 : -1; });
     document.querySelectorAll('[data-style-set]').forEach(function(b){ var on = b.dataset.styleSet === style; b.setAttribute('aria-checked', String(on)); b.tabIndex = on ? 0 : -1; });
