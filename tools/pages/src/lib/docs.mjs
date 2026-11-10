@@ -300,7 +300,7 @@ const BODY = {
         ['swatches'],
         ['ul', [
           'Soft is blue, `#116ff8`, with white text on it, in light and dark mode. Accent text is `#0f5fd5` in light mode and `#9dc4ff` in dark mode.',
-          'Blueprint is lime, `#d4f84a`, with dark text and icons on it. In dark mode, text and marks are lime too. In light mode, lime is too light to read on white, so accent text uses the ink colour and marks use green, `#4cbb17`.',
+          'Blueprint is lime, `#d4f84a`, with dark text and icons on it. In dark mode, text and marks are lime too. In light mode, lime is too light to read on white, so accent text uses the ink colour and marks use green, `#1daa51`.',
         ]],
       ]],
       ['Your own accent', [
