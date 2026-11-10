@@ -1675,17 +1675,14 @@
       $('.lnx-tt span', ch).textContent = lineOn[0] && lineOn[1] ? `${a >= q ? '+' : '−'}${kmoney(Math.abs(a - q))} on Q3 at this point` : lineOn[0] ? 'This quarter' : 'Last quarter';
       lv.textContent = lineOn[0] ? kmoney(a) : latest(); };
     ch.onpointerleave = () => lv.textContent = latest();
-    // Bar chart: the open pipeline by the month its deals close, this month and the five after it, one accent, the breakdown in
-    // each bar's readout (owner, 10 Nov: six even bars, as the library's chart has); a deal past its close date counts in this
-    // month, as it still has to close
-    const m0 = today.getFullYear() * 12 + today.getMonth(), MB = Array.from({ length:6 }, () => ({ v:0, n:0, late:0 }));
-    open.forEach(d => { const t = new Date(today); t.setDate(t.getDate() + Math.max(0, d.close)); const i = t.getFullYear() * 12 + t.getMonth() - m0; if (i < 6){ MB[i].v += d.v; MB[i].n++; if (d.close < 0) MB[i].late++; } });
-    // up to six months, ending at the last month any open deal closes in, so the chart never trails off in empty bars
-    while (MB.length > 3 && !MB[MB.length - 1].v) MB.pop();
-    const mname = (i, f) => new Date(Math.floor((m0 + i) / 12), (m0 + i) % 12, 1).toLocaleString('en-US', { month:f });
-    const bmx = Math.max(...MB.map(x => x.v), 1), bch = $('.bcx-ch', fc), big = MB.reduce((x, m, i) => m.v > MB[x].v ? i : x, 0);
-    bch.innerHTML = MB.map((m, i) => `<div class="bcx-b" role="listitem" tabindex="0" aria-label="${mname(i, 'long')}: ${money(m.v)} in ${plural(m.n, 'open deal')}"><div class="bcx-tt"><b class="num">${kmoney(m.v)}</b><span>${plural(m.n, 'deal')}${m.late ? `, ${m.late} past due` : ''}</span></div><div class="bcx-st" style="height:calc((100% - 20px) * ${Math.max(.015, m.v / bmx).toFixed(3)})"><i></i></div><div class="bcx-l">${mname(i, 'short')}</div></div>`).join('');
-    $('.crm-bcs', fc).textContent = `${kmoney(sum(MB, x => x.v))} open, most closing in ${mname(big, 'long')}`;
+    // Bar chart: the open pipeline by the week its deals close, the next 12 weeks, one accent, the breakdown in each bar's
+    // readout (owner, 10 Nov: week by week, twelve even bars); a deal past its close date counts in this week, as it still has
+    // to close
+    const wk0 = -((today.getDay() + 6) % 7), WB = Array.from({ length:12 }, () => ({ v:0, n:0, late:0 }));
+    open.forEach(d => { const i = Math.floor((Math.max(0, d.close) - wk0) / 7); if (i < 12){ WB[i].v += d.v; WB[i].n++; if (d.close < 0) WB[i].late++; } });
+    const bmx = Math.max(...WB.map(x => x.v), 1), bch = $('.bcx-ch', fc), soon = sum(WB.slice(0, 4), x => x.v);
+    bch.innerHTML = WB.map((m, i) => `<div class="bcx-b" role="listitem" tabindex="0" aria-label="Week of ${fmtD(wk0 + i * 7)}: ${money(m.v)} in ${plural(m.n, 'open deal')}"><div class="bcx-tt"><b class="num">${kmoney(m.v)}</b><span>${plural(m.n, 'deal')}, week of ${fmtD(wk0 + i * 7)}${m.late ? `, ${m.late} past due` : ''}</span></div><div class="bcx-st" style="height:calc((100% - 20px) * ${Math.max(.015, m.v / bmx).toFixed(3)})"><i></i></div><div class="bcx-l">${i % 3 ? '' : fmtD(wk0 + i * 7)}</div></div>`).join('');
+    $('.crm-bcs', fc).textContent = `${kmoney(soon)} closing in the next 4 weeks`;
     // radial goals: each team's closed won against its quota
     const RAD = [78, 60, 42], CS = ['var(--dm-c1)', 'var(--dm-c3)', 'var(--dm-c4)'];
     const share = t => wonOf(t.who) / t.quota;

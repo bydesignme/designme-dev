@@ -914,8 +914,8 @@ body:has(.crm) .dmf{display:none}
 /* light mode keeps the ordinary hairline; dark mode, where the surfaces sit closer, gets the stronger edge */
 :root[data-theme="dark"] .crm-sheet{border-left-color:color-mix(in srgb,var(--dm-line-strong) 55%,var(--dm-line))}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .crm-sheet{border-left-color:color-mix(in srgb,var(--dm-line-strong) 55%,var(--dm-line))}}
-:root[data-theme="dark"] .crm-sheet{background:color-mix(in srgb,var(--dm-surface) 55%,var(--dm-raised))}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .crm-sheet{background:color-mix(in srgb,var(--dm-surface) 55%,var(--dm-raised))}}
+:root[data-theme="dark"] .crm-sheet{background:var(--dm-stage)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .crm-sheet{background:var(--dm-stage)}}
 .crm-kb .crm-pri{margin:2px 0 4px}
 .crm-kb .crm-pri .tag{height:20px;font-size:11.5px}
 /* a card's avatar sits at its right edge (owner, 10 Nov): the move menu, shown on hover or focus, appears just left of it
@@ -1102,3 +1102,14 @@ body:has(.crm) .dmf{display:none}
 .crm-bc .bcx-l{display:flex;justify-content:center;white-space:nowrap}
 .crm-ach{flex-wrap:wrap;margin-top:calc(-1 * var(--dm-s-1))}
 .crm-ach .op{display:inline-flex;align-items:center}
+/* the app's frame: the sidebar is one step below the content, the components' stage colour, so the chrome and the content
+   read apart; in dark mode the account panel takes the same colour, its edge marking it as the layer on top (owner, 10 Nov) */
+.crm-side.ahx-side{background:var(--dm-stage)}
+/* Soft: the content is a rounded panel raised on the frame, inset from the sidebar and the window's edges; Blueprint stays
+   flush and square (owner, 10 Nov) */
+@media (min-width:761px){
+  :root[data-style="soft"] .crm[data-c]{background:var(--dm-stage)}
+  :root[data-style="soft"] .crm .ahx-side{border-right-color:transparent}
+  :root[data-style="soft"] .crm-main{margin:var(--dm-s-2) var(--dm-s-2) var(--dm-s-2) 0;border-radius:calc(12px * var(--dm-rk));background:var(--dm-surface);box-shadow:var(--dm-shadow),0 0 0 1px color-mix(in srgb,var(--dm-line) 60%,transparent)}
+  @supports (corner-shape:squircle){:root[data-style="soft"] .crm-main{corner-shape:squircle}}
+}
