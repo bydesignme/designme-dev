@@ -1269,8 +1269,9 @@
   $('.wf-h1b', app).onclick = rename;
   // Test with: the leads the form pretends to send
   app.addEventListener('click', e => {
-    if (!e.target.closest('[data-pop="#wf-p-lead"]')) return;
-    const p = $('#wf-p-lead', app);
+    const lt = e.target.closest('[data-pop="#wf-p-lead"]'); if (!lt) return;
+    // the menu is the chip's width, less the 1px each side its outline is drawn outside its box
+    const p = $('#wf-p-lead', app); p.style.width = (lt.getBoundingClientRect().width - 2) + 'px';
     if (!W.lead){ p.innerHTML = `<div class="ph" role="none">Test with</div>` + mi('data-k="sample"', `<span class="wfx-ic">${I('file-text', 'xs')}</span><span>Sample data<span class="d">Made from each step's fields</span></span>`, 'menuitemradio', true) + mi('data-k="last"', `<span class="wfx-ic">${I('history', 'xs')}</span><span>The last real event<span class="d">${W.runs.length ? 'From run #' + W.runs[0].id : 'No runs yet'}</span></span>`, 'menuitemradio', false);
       $$('.mi', p).forEach(m => m.onclick = () => { if (m.dataset.k === 'last') toast('info', 'Using sample data', W.runs.length ? 'Live events stay private in the template' : 'This workflow has not run yet'); }); return; }
     p.innerHTML = `<div class="ph" role="none">Test with</div>` + LEADS.map(L => mi(`data-k="${L.k}"`, `${avOf(L.ini, L.hue)}<span>${esc(L.n)}, ${esc(L.co)}<span class="d">${L.last ? 'The last real submission, ' : ''}${L.seats} seats${L.fail ? ', its lookup gets rate limited' : ''}</span></span>`, 'menuitemradio', W.lead.k === L.k)).join('')
