@@ -1244,7 +1244,6 @@ body:has(.crm) .dmf{display:none}
 .crm-kb .kbx-hd .crm-kfch:empty{display:none}
 .crm-kb .kbx-hd .kbx-clr{flex:none}
 /* the hidden stages lead their row now that the filters moved up beside the owners: no divider before them */
-.crm-kb .kbx-fl>.crm-dock:first-child{margin-left:0;padding-left:0;border-left:0}
 /* phones: the chips and Clear take their own full-width line under the owners, Filter, search and layout switch */
 @media (max-width:760px){
   .crm-kb .kbx-hd .crm-kfch{order:10;flex:1 1 100%;margin-left:0}
@@ -1283,3 +1282,26 @@ body:has(.crm) .dmf{display:none}
 .crm-lsum .v{grid-column:6 / 8;display:flex;justify-content:flex-end;overflow:visible}
 .crm-kb .crm-lsum .crm-cfb{width:auto;justify-content:flex-end;gap:6px;height:32px;margin-right:-8px;padding:0 8px;border-radius:var(--dm-r-sm)}
 @container kbx (max-width:639px){.crm-kb .crm-lsum{display:none}}
+/* Pipeline on one line (owner, 10 Nov): the hidden stages sit after the filters, Sort by Filter, no second row */
+.crm-kb .kbx-hd .crm-dock{flex:none;margin-left:var(--dm-s-1)}
+.crm-kb .crm-ksort{flex:none}
+.crm-kb .crm-ksort .v{max-width:120px;overflow:hidden;text-overflow:ellipsis}
+/* a column's foot is the column's rounded end even while the column runs on below it: its two lower corners are painted in
+   the board's colour */
+.crm-kb{--crm-kbbg:var(--dm-surface)}
+:root:not([data-style="soft"])[data-theme="dark"] .crm-kb{--crm-kbbg:var(--dm-stage)}
+@media (prefers-color-scheme:dark){:root:not([data-style="soft"]):not([data-theme="light"]) .crm-kb{--crm-kbbg:var(--dm-stage)}}
+.crm-kb:not(.list) .crm-cft::before,.crm-kb:not(.list) .crm-cft::after{content:"";position:absolute;bottom:-1px;width:var(--crm-colr);height:var(--crm-colr);pointer-events:none;background:radial-gradient(circle at var(--crm-cx) 0,transparent calc(var(--crm-colr) - .5px),var(--crm-kbbg) var(--crm-colr))}
+.crm-kb:not(.list) .crm-cft::before{left:0;--crm-cx:100%}
+.crm-kb:not(.list) .crm-cft::after{right:0;--crm-cx:0}
+.crm-kb:not(.list) .crm-cft{position:sticky}
+/* Accounts: a short table keeps its summary row at the foot of the view; an empty row takes up the space between */
+.crm-t{height:100%}
+.crm-t tr.crm-fill,.crm-t tr.crm-fill td{height:100%;padding:0;border:0;box-shadow:none;background:none;pointer-events:none}
+/* moving a column: the column being moved is tinted, a line shows where it will land, its name follows the pointer */
+.crm-sc{position:relative}
+.crm-t thead th[data-ci]{cursor:default}
+.crm-t.crm-coldrag,.crm-t.crm-coldrag *{cursor:grabbing!important;user-select:none}
+.crm-t :is(th,td).crm-cdr{background-color:color-mix(in srgb,var(--dm-fg) 4%,var(--dm-surface))}
+.crm-cdi{position:absolute;top:0;z-index:6;width:2px;border-radius:1px;background:var(--dm-line-strong);pointer-events:none}
+.crm-cghost{position:fixed;left:0;top:0;z-index:2147483000;padding:5px 10px;border-radius:var(--dm-r-sm);background:var(--dm-raised,var(--dm-surface));box-shadow:var(--dm-shadow-pop);font-size:12px;font-weight:500;color:var(--dm-fg);pointer-events:none;white-space:nowrap}
