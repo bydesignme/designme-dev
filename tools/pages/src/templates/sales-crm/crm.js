@@ -1586,15 +1586,18 @@
       ['ok', 'Closed won, Q4', won, Q3W[WK], A.map(v => v / 1e6), `vs week ${WK + 1} of Q3`], ['coins', 'Average open deal', avg, Q3.avg, [138, 136, 133, 130, 128, 126, avg / 1e3], 'vs end of Q3']];
     $('.scx-grid', fc).innerHTML = S.map((s, i) => `<div class="scx-c panel"><span class="scx-k"><span class="ic">${I(s[0], 'xs')}</span>${s[1]}</span><div class="scx-v"><b class="num">${kmoney(s[2])}</b>${delta(s[2], s[3])}<span class="crm-vs">${s[5]}</span></div><div class="scx-sp"><svg viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><path stroke="var(--dm-c${i + 1})" d="${sparkPath(s[4])}"/></svg></div></div>`).join('');
     // the line chart: closed won by week, this quarter against last
-    const hi = Math.max(Q3W[12], won) * 1.08, X = i => i / 12 * 320, Y = v => 136 - v / hi * 128;
+    const wkOf = d => Math.max(WK + 1, Math.floor((d.close + qDay) / 7)), proj = [A[A.length - 1]];
+    for (let i = WK + 1; i <= 12; i++) proj.push(proj[proj.length - 1] + sum(DE.filter(d => !closed(d) && d.close <= eoq && wkOf(d) === i), d => d.v * d.p / 100));
+    const hi = Math.max(Q3W[12], won, proj[proj.length - 1]) * 1.08, X = i => i / 12 * 320, Y = v => 136 - v / hi * 128;
     const smooth = p => p.map((q, i) => { if (!i) return `M${q[0]} ${q[1]}`; const a = p[i - 1], m = (q[0] - a[0]) / 2; return `C${a[0] + m} ${a[1]} ${q[0] - m} ${q[1]} ${q[0]} ${q[1]}`; }).join(' ');
-    const pa = A.map((v, i) => [X(i), Y(v)]), pb = Q3W.map((v, i) => [X(i), Y(v)]);
+    const pa = A.map((v, i) => [X(i), Y(v)]), pb = Q3W.map((v, i) => [X(i), Y(v)]), pf = proj.map((v, k) => [X(WK + k), Y(v)]);
     const svg = $('.lnx-svg', fc);
     svg.innerHTML = `<defs><linearGradient id="crm-lng" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--dm-accent-mark,var(--dm-accent))" stop-opacity=".16"/><stop offset="1" stop-color="var(--dm-accent-mark,var(--dm-accent))" stop-opacity="0"/></linearGradient></defs>`
       + [35, 70, 105].map(y => `<line class="gl" x1="0" x2="320" y1="${y}" y2="${y}"/>`).join('')
       + `<line class="crm-now" x1="${X(A.length - 1)}" x2="${X(A.length - 1)}" y1="6" y2="140"/>`
-      + `<path class="ar" d="${smooth(pa)} L${X(A.length - 1)} 140 L0 140 Z" fill="url(#crm-lng)" style="opacity:${lineOn[0] ? 1 : 0}"/><path class="ln l1${lineOn[1] ? '' : ' off'}" d="${smooth(pb)}" stroke="var(--dm-c2)" stroke-dasharray="4 4"/><path class="ln l0${lineOn[0] ? '' : ' off'}" d="${smooth(pa)}" stroke="var(--dm-accent-mark,var(--dm-accent))"/>`;
-    const ch = $('.lnx-ch', fc); $$('.lnx-pt, .crm-nowl', ch).forEach(x => x.remove());
+      + `<path class="ar" d="${smooth(pa)} L${X(A.length - 1)} 140 L0 140 Z" fill="url(#crm-lng)" style="opacity:${lineOn[0] ? 1 : 0}"/><path class="ln l1 crm-q3${lineOn[1] ? '' : ' off'}" d="${smooth(pb)}" stroke="var(--dm-c2)"/><path class="ln l0 crm-pj${lineOn[0] ? '' : ' off'}" d="${smooth(pf)}" stroke="var(--dm-accent-mark,var(--dm-accent))" stroke-dasharray="4 4"/><path class="ln l0${lineOn[0] ? '' : ' off'}" d="${smooth(pa)}" stroke="var(--dm-accent-mark,var(--dm-accent))"/>`;
+    const ch = $('.lnx-ch', fc); $$('.lnx-pt, .crm-nowl, .crm-pjl', ch).forEach(x => x.remove());
+    ch.insertAdjacentHTML('beforeend', `<span class="crm-pjl num" style="top:${(pf[pf.length - 1][1] / 140 * 100).toFixed(1)}%">Forecast ${kmoney(proj[proj.length - 1])}</span>`);
     ch.insertAdjacentHTML('beforeend', `<span class="crm-nowl" style="left:${(A.length - 1) / 12 * 100}%">Today</span>`);
     ch.insertAdjacentHTML('beforeend', '<span class="lnx-pt on" style="color:var(--dm-accent-mark,var(--dm-accent))"></span><span class="lnx-pt on" style="color:var(--dm-c2)"></span>');
     const lv = $('.lnx-v', fc), latest = () => kmoney(won);
@@ -1602,11 +1605,11 @@
     shownLine = won;
     ch.onpointermove = ev => { const b = ch.getBoundingClientRect(), i = clamp(Math.round((ev.clientX - b.left) / b.width * 12), 0, 12), px = i / 12 * b.width;
       $('.lnx-x', ch).style.left = px + 'px'; $('.lnx-tt', ch).style.left = clamp(px, 70, b.width - 70) + 'px';
-      const pts = $$('.lnx-pt', ch); [pa, pb].forEach((p, k) => { const has = !!p[i] && lineOn[k]; pts[k].classList.toggle('on', has); if (p[i]){ pts[k].style.left = px + 'px'; pts[k].style.top = p[i][1] / 140 * b.height + 'px'; } });
+      const pts = $$('.lnx-pt', ch); [pa.concat(pf.slice(1)), pb].forEach((p, k) => { const has = !!p[i] && lineOn[k]; pts[k].classList.toggle('on', has); if (p[i]){ pts[k].style.left = px + 'px'; pts[k].style.top = p[i][1] / 140 * b.height + 'px'; } });
       const a = A[i], q = Q3W[i];
-      const mine = lineOn[0] && a != null;
-      $('.lnx-tt b', ch).textContent = mine ? kmoney(a) + ' won by week ' + (i + 1) : kmoney(q) + ' by week ' + (i + 1) + ' of Q3';
-      $('.lnx-tt span', ch).textContent = mine ? (lineOn[1] ? `${a >= q ? '+' : '−'}${kmoney(Math.abs(a - q))} on Q3 at this point` : 'This quarter') : a == null ? 'This quarter is not there yet' : 'Last quarter';
+      const mine = lineOn[0] && a != null, fc0 = lineOn[0] && a == null ? proj[i - WK] : null;
+      $('.lnx-tt b', ch).textContent = mine ? kmoney(a) + ' won by week ' + (i + 1) : fc0 != null ? kmoney(fc0) + ' forecast by week ' + (i + 1) : kmoney(q) + ' by week ' + (i + 1) + ' of Q3';
+      $('.lnx-tt span', ch).textContent = fc0 != null ? 'Won so far, plus open deals weighted by their chance, by when they close' + (lineOn[1] ? `. Q3 had ${kmoney(q)}` : '') : mine ? (lineOn[1] ? `${a >= q ? '+' : '−'}${kmoney(Math.abs(a - q))} on Q3 at this point` : 'This quarter') : a == null ? 'This quarter is not there yet' : 'Last quarter';
       lv.textContent = mine ? kmoney(a) : latest(); };
     ch.onpointerleave = () => lv.textContent = latest();
     // radial goals: each team's closed won against its quota
@@ -1637,7 +1640,42 @@
     // quota by owner: Progress's meter, with a notch at the quota
     $('.crm-owl', fc).innerHTML = OWN.map(o => ({ o, w:wonOf([o]), m:commitOf([o]) })).sort((a, b) => b.w / QUOTA[b.o] - a.w / QUOTA[a.o]).map(({ o, w, m }) => { const p = w / QUOTA[o], pm = Math.max(0, Math.min(1 - Math.min(1, p), m / QUOTA[o]));
       return `<div class="crm-ow">${av(o)}<span class="n">${P[o][0]}</span><span class="p num">${kmoney(w)} <span class="muted">of ${kmoney(QUOTA[o])}</span></span><div class="prg-mb${p >= 1 ? ' ok' : ''}" role="meter" aria-label="${P[o][0]}: ${kmoney(w)} won, ${Math.round(p * 100)}% of quota, ${kmoney(m)} more in commit" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(100, Math.round(p * 100))}" data-tip="${kmoney(m)} more in commit"><i class="fl" style="width:${Math.min(100, p * 100)}%"></i><i class="crm-cm" style="left:${Math.min(100, p * 100)}%;width:${pm * 100}%"></i></div></div>`; }).join('');
+    paintFbn(); paintQsum(); paintAct();
   }
+  /* ---------- the forecast's banner, the quota card's figures and deal activity (owner, 10 Nov) ---------- */
+  const fbn = $('.crm-fbn', fc), FBART = "<g class=\"gds\"><path class=\"gd\" d=\"M135.6 59L42.1 113M151.2 68L57.6 122M166.8 77L73.2 131M182.4 86L88.8 140M197.9 95L104.4 149M135.6 59L197.9 95M120 68L182.4 104M104.4 77L166.8 113M88.8 86L151.2 122M73.2 95L135.6 131M57.6 104L120 140M42.1 113L104.4 149\"/></g><g class=\"z\" style=\"--z:0\"><path class=\"pl\" d=\"M135.6 21L166.8 39L166.8 95L151.2 104L120 86L120 30Z\"/><path class=\"ln\" style=\"--d:0\" pathLength=\"1\" d=\"M135.6 21L166.8 39L151.2 48L120 30Z\"/><path class=\"ln\" style=\"--d:1\" pathLength=\"1\" d=\"M166.8 39L166.8 95L151.2 104L120 86L120 30\"/><path class=\"ln\" style=\"--d:2\" pathLength=\"1\" d=\"M151.2 48L151.2 104\"/><path class=\"pl\" d=\"M120 44L151.2 62L151.2 104L135.6 113L104.4 95L104.4 53Z\"/><path class=\"ln\" style=\"--d:3\" pathLength=\"1\" d=\"M120 44L151.2 62L135.6 71L104.4 53Z\"/><path class=\"ln\" style=\"--d:4\" pathLength=\"1\" d=\"M151.2 62L151.2 104L135.6 113L104.4 95L104.4 53\"/><path class=\"ln\" style=\"--d:5\" pathLength=\"1\" d=\"M135.6 71L135.6 113\"/><path class=\"pl\" d=\"M104.4 67L135.6 85L135.6 113L120 122L88.8 104L88.8 76Z\"/><path class=\"ln\" style=\"--d:6\" pathLength=\"1\" d=\"M104.4 67L135.6 85L120 94L88.8 76Z\"/><path class=\"ln\" style=\"--d:7\" pathLength=\"1\" d=\"M135.6 85L135.6 113L120 122L88.8 104L88.8 76\"/><path class=\"ln\" style=\"--d:8\" pathLength=\"1\" d=\"M120 94L120 122\"/><path class=\"pl\" d=\"M88.8 90L120 108L120 122L104.4 131L73.2 113L73.2 99Z\"/><path class=\"ln\" style=\"--d:9\" pathLength=\"1\" d=\"M88.8 90L120 108L104.4 117L73.2 99Z\"/><path class=\"ln\" style=\"--d:10\" pathLength=\"1\" d=\"M120 108L120 122L104.4 131L73.2 113L73.2 99\"/><path class=\"ln\" style=\"--d:11\" pathLength=\"1\" d=\"M104.4 117L104.4 131\"/></g><g class=\"z\" style=\"--z:2\"><path class=\"ln ac\" style=\"--d:12\" pathLength=\"1\" d=\"M137.1 30.9V8.9h14l-4 5 4 5h-14\"/></g>";
+  $('.bnx-art', fbn).innerHTML = `<svg class="bnx-svg" viewBox="0 0 240 160" width="240" height="160" focusable="false">${FBART}</svg>`;
+  try { if (sessionStorage.getItem('crm-fbn') === 'hidden') fbn.hidden = true; } catch(e){}
+  function paintFbn(){
+    const open = DE.filter(d => !closed(d)), commit = commitOf(OWN), unsure = DE.filter(d => (d.st === 'prop' || d.st === 'nego') && d.p >= 30 && d.p <= 60).length;
+    $('.crm-fbd', fbn).textContent = `The agent drafted it from ${open.length} open deals: ${kmoney(commit)} in commit, ${kmoney(sum(open, d => d.v * d.p / 100))} weighted. It is unsure about ${plural(unsure, 'deal')}.`;
+  }
+  fbn.addEventListener('click', e => { const b = e.target.closest('[data-fb]'); if (!b) return;
+    if (b.dataset.fb === 'go'){ setView('pipeline'); return; }
+    fadeOut(fbn); try { sessionStorage.setItem('crm-fbn', 'hidden'); } catch(e){} $('#content', app).focus({ preventScroll:true }); });
+  function paintQsum(){
+    const quota = sum(TEAMS, t => t.quota), w = wonOf(OWN), cm = commitOf(OWN), gap = Math.max(0, quota - w - cm);
+    $('.crm-qsum', fc).innerHTML = [['Won', w], ['Commit', cm], ['Gap to quota', gap]].map(([k, v]) => `<div><span>${k}</span><b class="num">${kmoney(v)}</b></div>`).join('');
+  }
+  // deal activity: wins and losses this quarter, newest first, or the open deals closing in the next two weeks; a row opens its account
+  let actF = 'all', actPg = 0; const ACTN = 8, abody = $('.crm-dat tbody', fc);
+  const actRows = () => actF === 'due' ? DE.filter(d => !closed(d) && d.close >= 0 && d.close <= 14).sort((a, b) => a.close - b.close)
+    : DE.filter(d => (actF === 'all' ? closed(d) : d.st === actF) && d.close >= -qDay && d.close <= 0).sort((a, b) => b.close - a.close);
+  function paintAct(dir){
+    const L = actRows(), pages = Math.max(1, Math.ceil(L.length / ACTN)); actPg = clamp(actPg, 0, pages - 1);
+    const pg = L.slice(actPg * ACTN, actPg * ACTN + ACTN);
+    abody.innerHTML = pg.length ? pg.map(d => { const c = coOf(d.co), amt = d.st === 'won' ? ' won' : d.st === 'lost' ? ' lost' : '';
+      return `<tr data-co="${c.id}" tabindex="0" aria-label="${esc(d.n)}, ${esc(c.n)}, ${ST[d.st].t}, ${money(d.v)}. Open the account"><td><span class="crm-dn">${esc(d.n)}</span><span class="muted num">${d.id}</span></td><td><span class="crm-dc"><span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span>${esc(c.n)}</span></td><td><span class="crm-do">${av(d.own)}${esc(first(d.own))}</span></td><td>${pill(d.st)}</td><td class="num">${d.close === 0 ? 'Today' : fmtD(d.close)}</td><td class="r num crm-da${amt}">${money(d.v)}</td></tr>`; }).join('')
+      : `<tr class="crm-dempty"><td colspan="6">Nothing here this quarter</td></tr>`;
+    $('.crm-actn', fc).textContent = `${L.length} ${actF === 'due' ? 'closing in 14 days' : actF === 'all' ? 'won or lost this quarter' : actF + ' this quarter'}`;
+    $('.crm-pgn', fc).textContent = L.length ? `${actPg * ACTN + 1}–${Math.min(L.length, actPg * ACTN + ACTN)} of ${L.length}` : '';
+    $('[data-pg="-1"]', fc).disabled = actPg === 0; $('[data-pg="1"]', fc).disabled = actPg >= pages - 1;
+    if (dir && !REDUCE) $$('tr', abody).forEach((tr, i) => tr.animate([{ opacity:0, transform:`translateX(${dir * 8}px)` }, { opacity:1, transform:'none' }], { duration:220, delay:i * 14, easing:EASE, fill:'backwards' }));
+  }
+  $$('.crm-actf button', fc).forEach(b => b.onclick = () => { if (b.dataset.a === actF) return; actF = b.dataset.a; actPg = 0; $$('.crm-actf button', fc).forEach(x => x.setAttribute('aria-pressed', x === b)); paintAct(1); });
+  $$('[data-pg]', fc).forEach(b => b.onclick = () => { actPg += +b.dataset.pg; paintAct(+b.dataset.pg); });
+  abody.addEventListener('click', e => { const tr = e.target.closest('tr[data-co]'); if (tr) openSheet(tr.dataset.co, true); });
+  abody.addEventListener('keydown', e => { const tr = e.target.closest('tr[data-co]'); if (tr && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); openSheet(tr.dataset.co, true); } });
   const hm = $('.crm-hm', fc), hmg = $('.hmx-grid', hm), WD = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], DAYW = [.22, .25, .23, .19, .11];
   let hmWho = 'team', hmShown = false;
   hmg.innerHTML = Array.from({ length:60 }, () => '<i style="--dm-a:0"></i>').join('');
