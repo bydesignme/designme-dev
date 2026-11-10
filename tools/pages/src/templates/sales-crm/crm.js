@@ -321,7 +321,7 @@
   // A holds the filters as Filter menu's chips: a field, a value, and whether it reads the other way (is not, older than)
   const F = { A:[], q:'', S:[{ k:'value', desc:true }], said:'', own:new Set() };
   // the board starts with Closed lost hidden, as a chip in the hidden stages' dock
-  const K = { own:new Set(), q:'', close:'any', view:'board', shut:new Set(['lost']), tab:'disc', order:STAGES.map(s => s.k), draft:null };
+  const K = { own:new Set(), q:'', A:[], view:'board', shut:new Set(['lost']), tab:'disc', order:STAGES.map(s => s.k), draft:null };
   // the board's column order lasts the session (a reload keeps it; a new tab starts from the stages' order)
   try { const o = JSON.parse(sessionStorage.getItem('crm-col-order') || 'null'); if (Array.isArray(o) && o.length === STAGES.length && STAGES.every(s => o.includes(s.k))) K.order = o; } catch(e){}
   const saveOrder = () => { try { sessionStorage.setItem('crm-col-order', JSON.stringify(K.order)); } catch(e){} };
@@ -610,13 +610,13 @@
   // repainted a tick later, so the click that asked for it still lands inside the popover and doesn't close it
   const paintSoon = focus => setTimeout(() => paintSort(focus));
   function paintSort(focus){
-    const rest = Object.keys(SORTS).filter(k => !F.S.some(r => r.k === k)), one = F.S.length === 1;
+    const rest = Object.keys(SORTS).filter(k => !F.S.some(r => r.k === k)), one = F.S.length === 1, dflt = one && F.S[0].k === 'value' && F.S[0].desc;
     sortPop.innerHTML = `<div class="ph" role="none">Sort by</div><div class="crm-srl" role="list">` + F.S.map((r, i) => { const S = SORTS[r.k];
       return `<div class="crm-srw" role="listitem" data-i="${i}">`
         + `<button class="crm-srg" data-a="grip" aria-label="Move ${S[0]}${one ? '' : ', Alt and an arrow key'}" tabindex="${one ? -1 : 0}"${one ? ' disabled' : ''}>${I('grip', 'xs')}</button>`
         + `<span class="crm-srf">${I(S[2], 'xs')}<span>${i ? 'then ' : ''}${S[0]}</span></span>`
         + `<button class="crm-srd" data-a="dir" aria-label="${S[0]}: ${r.desc ? S[4] : S[3]}. Switch the order">${I(r.desc ? 'down' : 'up', 'xs')}<span>${r.desc ? S[4] : S[3]}</span></button>`
-        + `<button class="crm-srx" data-a="rm" aria-label="Stop sorting by ${S[0]}"${one ? ' disabled' : ''}>${I('x', 'xs')}</button></div>`; }).join('') + `</div>`
+        + (dflt ? '' : `<button class="crm-srx" data-a="rm" aria-label="${one ? `Stop sorting by ${S[0]}, back to the default order` : `Stop sorting by ${S[0]}`}" data-tip="${one ? 'Back to the default order' : 'Remove'}">${I('x', 'xs')}</button>`) + `</div>`; }).join('') + `</div>`
       + (rest.length ? `<div class="sep" role="separator"></div><div class="ph" role="none">Then by</div>` + rest.map(k => `<button class="mi" data-add="${k}">${I(SORTS[k][2])}<span>${SORTS[k][0]}</span>${I('plus', 'xs')}</button>`).join('') : '');
     if (focus) { const m = $(focus, sortPop); if (m) m.focus({ preventScroll:true }); }
   }
@@ -627,7 +627,7 @@
     if (add){ const k = add.dataset.add; F.S.push({ k, desc:!ASC.includes(k) }); renderTable(); paintSoon(`.crm-srw[data-i="${F.S.length - 1}"] .crm-srd`); return; }
     if (!b || b.disabled) return; const i = +b.closest('.crm-srw').dataset.i;
     if (b.dataset.a === 'dir'){ F.S[i].desc = !F.S[i].desc; renderTable(); paintSoon(`.crm-srw[data-i="${i}"] .crm-srd`); }
-    else if (b.dataset.a === 'rm'){ F.S.splice(i, 1); renderTable(); paintSoon(`.crm-srw[data-i="${Math.min(i, F.S.length - 1)}"] .crm-srd`); }
+    else if (b.dataset.a === 'rm'){ F.S.splice(i, 1); if (!F.S.length) F.S = [{ k:'value', desc:true }]; hideTip(); renderTable(); paintSoon(`.crm-srw[data-i="${Math.min(i, F.S.length - 1)}"] .crm-srd`); }
   });
   sortPop.addEventListener('keydown', e => { const g = e.target.closest('.crm-srg'); if (!g || !e.altKey || !/^Arrow(Up|Down)$/.test(e.key)) return;
     e.preventDefault(); e.stopPropagation(); const i = +g.closest('.crm-srw').dataset.i, j = i + (e.key === 'ArrowUp' ? -1 : 1); if (j < 0 || j >= F.S.length) return;
@@ -1446,9 +1446,20 @@
   /* ---------- Pipeline: the Kanban board ---------- */
   const kb = $('.crm-kb', app), cols = $('.kbx-cols', kb), live = $('.kbx-sr', kb), kq = $('.kbx-hd .kbx-q input', kb), kqx = $('.kbx-hd .kbx-qx', kb);
   const say = t => { live.textContent = ''; setTimeout(() => live.textContent = t, 40); };
-  const CLOSES = [['any', 'Any time'], ['month', 'This month'], ['quarter', 'This quarter'], ['overdue', 'Date passed']];
-  const dshows = d => (!K.own.size || K.own.has(d.own)) && (!K.q || (d.n + ' ' + coOf(d.co).n + ' ' + d.id).toLowerCase().includes(K.q.toLowerCase()))
-    && (K.close === 'any' || (K.close === 'overdue' ? slipping(d) : !closed(d) && d.close >= 0 && d.close <= (K.close === 'month' ? eom : eoq)));
+  // the board's filters (owner, 10 Nov): the same Filter menu as Accounts, with a deal's own fields: when it closes, its
+  // amount, its win chance, its priority and its account. The owners' faces and the search sit beside it, as on Accounts
+  const DFL = {
+    close:{ l:'Close date', ic:'cal', ops:['is', 'is not'], o:() => [{ v:'week', l:'This week' }, { v:'month', l:'This month' }, { v:'quarter', l:'This quarter' }, { v:'late', l:'Date passed' }],
+      test:(d, v) => v === 'late' ? slipping(d) : !closed(d) && d.close >= 0 && d.close <= (v === 'week' ? 7 : v === 'month' ? eom : eoq) },
+    amt:{ l:'Amount', ic:'dollar', ops:['over', 'up to'], o:() => [50000, 100000, 250000].map(v => ({ v, l:kmoney(v) })), test:(d, v) => d.v > v },
+    win:{ l:'Win chance', ic:'gauge', ops:['is', 'is not'], o:() => [{ v:'hi', l:'Over 60%' }, { v:'mid', l:'25 to 60%' }, { v:'lo', l:'Under 25%' }],
+      test:(d, v) => v === 'hi' ? d.p > 60 : v === 'lo' ? d.p < 25 : d.p >= 25 && d.p <= 60 },
+    pri:{ l:'Priority', ic:'flag', ops:['is', 'is not'], o:() => ['High', 'Medium', 'Low'].map(v => ({ v, l:v })), test:(d, v) => prioOf(d)[0] === v },
+    acct:{ l:'Account', ic:'globe', ops:['is', 'is not'], o:() => CO.filter(c => DE.some(d => d.co === c.id)).sort((a, b) => a.n.localeCompare(b.n)).map(c => ({ v:c.id, l:c.n, g:`<span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span>` })), test:(d, v) => d.co === v },
+  };
+  const dval = (k, v) => DFL[k].o().find(o => o.v === v);
+  const dpass = (d, skip) => K.A.every(f => f.k === skip || DFL[f.k].test(d, f.v) !== f.neg);
+  const dshows = (d, skip) => (!K.own.size || K.own.has(d.own)) && (!K.q || (d.n + ' ' + coOf(d.co).n + ' ' + d.id).toLowerCase().includes(K.q.toLowerCase())) && dpass(d, skip);
   $('.kbx-fp', kb).innerHTML = OWN.map(o => `<button aria-pressed="false" data-who="${o}" aria-label="${P[o][0]}" data-tip="${P[o][0]}">${av(o)}</button>`).join('');
   $('.kbx-tabs', kb).innerHTML = STAGES.map(s => `<button aria-pressed="${s.k === K.tab}" data-v="${s.k}">${s.k === 'won' ? 'Won' : s.k === 'lost' ? 'Lost' : s.t}<span class="n num"></span></button>`).join('');
   seg($('.kbx-tabs', kb), v => { K.tab = v; renderBoard(); });
@@ -1537,7 +1548,7 @@
 
   let kFocus = null;
   function renderBoard(){
-    const filtering = K.own.size || K.q || K.close !== 'any';
+    const filtering = K.own.size || K.q || K.A.length;
     const vis = DE.filter(d => !K.shut.has(d.st) && dshows(d)), vo = vis.filter(d => !closed(d)), vw = vis.filter(d => d.st === 'won'), vl = vis.filter(d => d.st === 'lost');
     K.sum = [`${vo.length} open · ${kmoney(sum(vo, d => d.v))}`, vw.length && `${vw.length} won`, vl.length && `${vl.length} lost`].filter(Boolean).join(' · ');
     $('.crm-kbsum', kb).textContent = K.sum;
@@ -1567,12 +1578,12 @@
     ah.hidden = !allHid; if (allHid) $('.crm-ahn', ah).textContent = `That hides ${plural(DE.length, 'deal')}. Show them all, or pick a stage above.`;
     const inHid = DE.filter(d => K.shut.has(d.st) && dshows(d)).length;
     $('.kbx-em', kb).hidden = allHid || shown > 0 || !filtering;
-    $('.kbx-em .crm-emn', kb).textContent = inHid ? `${plural(inHid, 'matching deal')} ${inHid === 1 ? 'sits' : 'sit'} in hidden stages.` : 'Try another owner, date or search.';
+    $('.kbx-em .crm-emn', kb).textContent = inHid ? `${plural(inHid, 'matching deal')} ${inHid === 1 ? 'sits' : 'sit'} in hidden stages.` : 'Try another owner, filter or search.';
     const onBoard = DE.filter(d => !K.shut.has(d.st)).length;
     $('.kbx-cnt', kb).textContent = filtering ? `${shown} of ${onBoard} deals shown` : `${onBoard} deals shown${onBoard < DE.length ? `, ${DE.length - onBoard} in hidden stages` : ''}`;
     $$('.kbx-fp button', kb).forEach(b => b.setAttribute('aria-pressed', K.own.has(b.dataset.who)));
     $('.kbx-fp', kb).classList.toggle('some', K.own.size > 0);
-    const cb = $('[data-f="close"]', kb); $('.v', cb).textContent = CLOSES.find(x => x[0] === K.close)[1]; cb.classList.toggle('on', K.close !== 'any');
+    kchips();
     $('.kbx-clr', kb).hidden = !filtering;
     const ks = $$('.kbx-k', cols), keep = ks.find(k => k.dataset.id === kFocus) || ks[0]; if (keep) keep.tabIndex = 0;
     if (view === 'pipeline') counts();
@@ -1583,12 +1594,57 @@
   $('.kbx-fp', kb).addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; K.own.has(b.dataset.who) ? K.own.delete(b.dataset.who) : K.own.add(b.dataset.who); flipCards(renderBoard); });
   kq.addEventListener('input', () => { K.q = kq.value.trim(); kqx.hidden = !kq.value; flipCards(renderBoard); });
   kqx.onclick = () => { kq.value = ''; K.q = ''; kqx.hidden = true; flipCards(renderBoard); kq.focus(); };
-  const clearBoard = () => { K.own.clear(); K.q = ''; K.close = 'any'; kq.value = ''; kqx.hidden = true; flipCards(renderBoard); };
+  const clearBoard = () => { K.own.clear(); K.q = ''; K.A = []; kq.value = ''; kqx.hidden = true; flipCards(renderBoard); };
   $('.kbx-clr', kb).onclick = clearBoard; $('.crm-kbclr', kb).onclick = clearBoard;
-  onOpen('[data-f="close"]', () => {
-    const p = pop('crm-p-close');
-    p.innerHTML = `<div class="ph" role="none">Closes</div>` + CLOSES.map(([k, t]) => mi(`data-k="${k}"`, `<span>${t}</span><span class="r num">${k === 'any' ? DE.length : DE.filter(d => { const s = K.close; K.close = k; const r = dshows(d); K.close = s; return r; }).length}</span>`, 'menuitemradio', K.close === k)).join('');
-    $$('.mi', p).forEach(m => m.addEventListener('click', () => { K.close = m.dataset.k; flipCards(renderBoard); }));
+  // the board's Filter menu: two steps, the fields and then the values of the one picked, each with how many deals it leaves
+  const kfp = $('#crm-p-kflt', app), kfch = $('.crm-kfch', kb);
+  function kstep(k, focus){
+    if (!k){
+      kfp.setAttribute('aria-label', 'Filter by');
+      kfp.innerHTML = `<div class="ph" role="none">Filter by</div>` + Object.entries(DFL).map(([key, f]) => { const a = K.A.find(x => x.k === key), o = a && dval(key, a.v);
+        return `<button class="mi" role="menuitem" aria-haspopup="menu" tabindex="-1" data-k="${key}">${I(f.ic)}<span>${f.l}</span><span class="r">${o ? `<i class="crm-fon" role="img" aria-label="In use: ${esc(f.ops[+a.neg] + ' ' + o.l)}"></i>` : ''}</span>${I('chev-r', 'xs')}</button>`; }).join('');
+    } else {
+      const f = DFL[k], on = K.A.find(x => x.k === k), base = DE.filter(d => !K.shut.has(d.st) && dshows(d, k));
+      kfp.setAttribute('aria-label', f.l);
+      kfp.innerHTML = `<button class="mi flm-bk" role="menuitem" tabindex="-1" aria-label="Back to all fields">${I('chev-l', 'xs')}<span>${f.l}</span></button><div class="sep" role="separator"></div>`
+        + f.o().map(o => `<button class="mi" role="menuitemradio" aria-checked="${!!on && on.v === o.v}" tabindex="-1" data-close data-v="${o.v}">${o.g || ''}<span>${esc(o.l)}</span><span class="r num">${base.filter(d => f.test(d, o.v)).length}</span><span class="ck">${I('check', 'xs')}</span></button>`).join('');
+    }
+    if (kfp.dataset.k !== (k || '')) glide(kfp, { transform:`translateX(${k ? 8 : -8}px)` }, 220);
+    kfp.dataset.k = k || '';
+    if (focus) setTimeout(() => { const m = k ? ($('.mi[aria-checked="true"]', kfp) || $$('.mi', kfp)[1]) : ($(`.mi[data-k="${focus}"]`, kfp) || $('.mi', kfp)); if (m) m.focus({ preventScroll:true }); });
+  }
+  $('.crm-kftr', kb).addEventListener('click', () => kstep(null));
+  kfp.addEventListener('click', e => {
+    const m = e.target.closest('.mi'); if (!m) return; const kbd = !e.detail;
+    if (m.classList.contains('flm-bk') || m.dataset.k) e.stopPropagation();
+    if (m.classList.contains('flm-bk')){ const from = kfp.dataset.k; kstep(null, kbd || kfp.contains(document.activeElement) ? from : null); return; }
+    if (m.dataset.k){ kstep(m.dataset.k, kbd || kfp.contains(document.activeElement)); return; }
+    const k = kfp.dataset.k, v = k === 'amt' ? +m.dataset.v : m.dataset.v, f = K.A.find(x => x.k === k);
+    if (f){ f.v = v; f.neg = false; } else K.A.push({ k, v, neg:false });
+    $$('.mi[data-v]', kfp).forEach(x => x.setAttribute('aria-checked', x === m)); flipCards(renderBoard);
+  });
+  kfp.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' && !kfp.dataset.k){ const m = e.target.closest('.mi[data-k]'); if (m){ e.preventDefault(); e.stopPropagation(); kstep(m.dataset.k, true); } }
+    else if (e.key === 'ArrowLeft' && kfp.dataset.k){ e.preventDefault(); e.stopPropagation(); kstep(null, kfp.dataset.k); }
+  }, true);
+  // the board's filters as Filter menu's chips: the field, is / is not (press to flip it), the value and a remove button
+  function kchips(){
+    const have = new Set(K.A.map(f => f.k));
+    $$('.flm-ch', kfch).forEach(ch => { if (have.has(ch.dataset.k) || ch.classList.contains('gone')) return; chipLeave(ch); });
+    K.A.forEach(f => {
+      let ch = $(`.flm-ch[data-k="${f.k}"]:not(.gone)`, kfch);
+      if (!ch){ ch = html(`<div class="flm-ch" role="listitem" data-k="${f.k}"><span class="k">${DFL[f.k].l}</span><button class="op"></button><span class="v"></span><button class="x">${I('x', 'xs')}</button></div>`); kfch.appendChild(ch); }
+      const o = dval(f.k, f.v), op = DFL[f.k].ops[+f.neg], text = `${DFL[f.k].l} ${op} ${o.l}`;
+      $('.op', ch).textContent = op; $('.v', ch).textContent = o.l;
+      $('.op', ch).setAttribute('aria-label', `${text}: change to ${DFL[f.k].ops[+!f.neg]}`); $('.op', ch).dataset.tip = `Change to ${DFL[f.k].ops[+!f.neg]}`;
+      $('.x', ch).setAttribute('aria-label', `Remove filter ${text}`); $('.x', ch).dataset.tip = 'Remove filter';
+    });
+    $('.crm-kftr', kb).classList.toggle('on', K.A.length > 0);
+  }
+  kfch.addEventListener('click', e => {
+    const ch = e.target.closest('.flm-ch'); if (!ch) return; const k = ch.dataset.k;
+    if (e.target.closest('.op')){ const f = K.A.find(x => x.k === k); f.neg = !f.neg; flipCards(renderBoard); }
+    if (e.target.closest('.x')){ const had = ch.contains(document.activeElement), next = ch.nextElementSibling || ch.previousElementSibling; K.A = K.A.filter(x => x.k !== k); hideTip(); flipCards(renderBoard); if (had) ((next && $('.x', next)) || $('.crm-kftr', kb)).focus({ preventScroll:true }); }
   });
   cols.addEventListener('click', e => {
     if (dragged) return;
@@ -1997,7 +2053,7 @@
       accounts:[`${plural(CO.length, 'account')} · ${kmoney(pipe)} open · ${slip} slipping`, `${plural(CO.length, 'account')} · ${kmoney(pipe)} · ${slip} slipping`],
       inbox:w.length ? [[`${w.length} waiting`, cnt('follow') && plural(cnt('follow'), 'follow-up'), cnt('slip') && `${cnt('slip')} past close`, cnt('fix') && plural(cnt('fix'), 'data fix', 'data fixes')].filter(Boolean).join(' · '), `${w.length} waiting for you`] : ['Nothing waiting', 'Nothing waiting'],
       calendar:[`${weekLabel().replace(/, \d{4}$/, '')} · ${plural(meetingsIn().length, 'meeting')} · ${closingIn()} closing`, `${plural(meetingsIn().length, 'meeting')} · ${closingIn()} closing`],
-      pipeline:[(K.own.size || K.q || K.close !== 'any' ? 'Shown: ' : '') + (K.sum || '').replace(/^(\d+) open · (\$[\d.]+[kM]?)/, (m, n, v) => `${plural(+n, 'open deal')} · ${v} open`), K.sum || ''],
+      pipeline:[(K.own.size || K.q || K.A.length ? 'Shown: ' : '') + (K.sum || '').replace(/^(\d+) open · (\$[\d.]+[kM]?)/, (m, n, v) => `${plural(+n, 'open deal')} · ${v} open`), K.sum || ''],
       forecast:[`Q${Math.floor(today.getMonth() / 3) + 1} ${today.getFullYear()} · week ${clamp(WK + 1, 1, 13)} of 13 · ${kmoney(wonOf(OWN))} closed won`, `Week ${clamp(WK + 1, 1, 13)} of 13 · ${kmoney(wonOf(OWN))} won`],
     };
     swap($('.crm-sum', app), `<span class="lg">${S[view][0]}</span><span class="sh">${S[view][1]}</span>`, true);
