@@ -354,6 +354,7 @@
   const tick = I('check', 'xs').replace('class="i xs"', 'class="i xs ck-y"') + I('minus', 'xs').replace('class="i xs"', 'class="i xs ck-m"');
   allBox.innerHTML = tick;
   $$('.crm-t .ttx-s', app).forEach(b => b.insertAdjacentHTML('beforeend', `<span class="ar">${I('chev-u', 'xs')}</span>`));
+  const TBLX = { note:() => {} };
   // column widths, as in a spreadsheet (owner, 10 Nov): drag a header's right edge, or focus its handle and use the arrow
   // keys; a narrower column cuts its text short and the table scrolls sideways once the columns outgrow it. The widths last
   // the session; a double click on a handle gives every column its natural width back. Not on phones, where rows are cards
@@ -370,7 +371,8 @@
       RZ.forEach(i => { const h = $('.crm-rz', heads[i]); if (h) h.setAttribute('aria-valuenow', colW[i]); });
     };
     const measure = () => { if (!colW) colW = heads.map(h => Math.round(h.getBoundingClientRect().width)); };
-    const save = () => { try { sessionStorage.setItem('crm-colw', JSON.stringify(colW)); } catch (e) {} };
+    const save = () => { try { sessionStorage.setItem('crm-colw', JSON.stringify(colW)); } catch (e) {} TBLX.note(); };
+    TBLX.getW = () => colW && [...colW]; TBLX.setW = w => { colW = w && [...w]; try { w ? sessionStorage.setItem('crm-colw', JSON.stringify(w)) : sessionStorage.removeItem('crm-colw'); } catch (e) {} apply(); };
     RZ.forEach(i => heads[i].insertAdjacentHTML('beforeend', `<span class="crm-rz" role="separator" aria-orientation="vertical" tabindex="0" aria-valuemin="${MIN[i] || 72}" aria-label="Resize ${esc(name(heads[i]))}" data-tip="Drag to resize, double click to reset" data-i="${i}"></span>`));
     tbl.addEventListener('pointerdown', e => { const g = e.target.closest('.crm-rz'); if (!g || e.button) return;
       e.preventDefault(); e.stopPropagation(); hideTip(); measure(); const i = +g.dataset.i, x0 = e.clientX, w0 = colW[i];
@@ -379,7 +381,7 @@
       const up = () => { g.removeEventListener('pointermove', mv); g.removeEventListener('pointerup', up); g.removeEventListener('pointercancel', up); g.classList.remove('on'); tbl.classList.remove('rzing'); save(); };
       g.addEventListener('pointermove', mv); g.addEventListener('pointerup', up); g.addEventListener('pointercancel', up); });
     tbl.addEventListener('click', e => { if (e.target.closest('.crm-rz')) e.stopPropagation(); }, true);
-    tbl.addEventListener('dblclick', e => { if (!e.target.closest('.crm-rz')) return; colW = null; try { sessionStorage.removeItem('crm-colw'); } catch (er) {} apply(); });
+    tbl.addEventListener('dblclick', e => { if (!e.target.closest('.crm-rz')) return; colW = null; try { sessionStorage.removeItem('crm-colw'); } catch (er) {} apply(); TBLX.note(); });
     tbl.addEventListener('keydown', e => { const g = e.target.closest('.crm-rz'); if (!g || !/^Arrow(Left|Right)$/.test(e.key)) return;
       e.preventDefault(); e.stopPropagation(); measure(); const i = +g.dataset.i; colW[i] = Math.max(MIN[i] || 72, colW[i] + (e.key === 'ArrowRight' ? 16 : -16)); apply(); save(); });
     wide.addEventListener('change', apply); apply();
@@ -428,7 +430,8 @@
     const lines = () => [$('colgroup', tbl), ...$$('tr', tbl)].filter(r => r && r.children.length === N);
     COLS.apply = () => { const o = cur(); lines().forEach(r => { [...r.children].forEach((c, i) => { if (c.dataset.ci == null) c.dataset.ci = i; });
       const by = {}; [...r.children].forEach(c => by[c.dataset.ci] = c); o.forEach(i => r.appendChild(by[i])); }); };
-    const save = () => { try { sessionStorage.setItem('crm-colord', JSON.stringify(order)); } catch (e) {} };
+    const save = () => { try { sessionStorage.setItem('crm-colord', JSON.stringify(order)); } catch (e) {} TBLX.note(); };
+    TBLX.getO = () => order && [...order]; TBLX.setO = o => { order = o && [...o]; try { o ? sessionStorage.setItem('crm-colord', JSON.stringify(o)) : sessionStorage.removeItem('crm-colord'); } catch (e) {} COLS.apply(); };
     const moveTo = (ci, pos) => { order = [...cur()]; const from = order.indexOf(ci); order.splice(from, 1); order.splice(pos > from ? pos - 1 : pos, 0, ci); COLS.apply(); save(); };
     const cells = ci => $$(`[data-ci="${ci}"]`, tbl).filter(c => c.tagName !== 'COL');
     let drag = null, justDragged = false;
@@ -462,6 +465,26 @@
       if (k < 0 || k >= slots.length) return; moveTo(ci, e.key === 'ArrowLeft' ? slots[k] : slots[k] + 1); e.target.focus({ preventScroll:true }); });
     wideQ.addEventListener('change', () => COLS.apply());
   }
+  // undo and redo for the table (owner, 10 Nov): Cmd or Ctrl Z steps back through the table's own changes (the filters, the
+  // owners picked, the sort, the columns' order and widths) and Cmd or Ctrl Shift Z (or Ctrl Y) steps forward again. A
+  // field being typed in keeps its own undo
+  const HIST = { past:[], future:[], cur:null, busy:false };
+  const histSnap = () => JSON.stringify({ A:F.A, S:F.S, own:[...F.own], o:TBLX.getO ? TBLX.getO() : null, w:TBLX.getW ? TBLX.getW() : null });
+  const histNote = () => { if (HIST.busy) return; const now = histSnap(); if (HIST.cur === null){ HIST.cur = now; return; }
+    if (now === HIST.cur) return; HIST.past.push(HIST.cur); if (HIST.past.length > 60) HIST.past.shift(); HIST.cur = now; HIST.future = []; };
+  TBLX.note = histNote;
+  const histGo = back => {
+    const from = back ? HIST.past : HIST.future, to = back ? HIST.future : HIST.past; if (!from.length) return false;
+    to.push(HIST.cur); HIST.cur = from.pop(); const st = JSON.parse(HIST.cur);
+    HIST.busy = true; F.A = st.A; F.S = st.S; F.own = new Set(st.own); if (TBLX.setO) TBLX.setO(st.o); if (TBLX.setW) TBLX.setW(st.w); said(''); renderTable(); HIST.busy = false;
+    hideTip(); return true;
+  };
+  document.addEventListener('keydown', e => {
+    if (!(e.metaKey || e.ctrlKey) || e.altKey || view !== 'accounts') return;
+    const k = e.key.toLowerCase(), redo = (k === 'z' && e.shiftKey) || (k === 'y' && e.ctrlKey && !e.metaKey); if (k !== 'z' && !redo) return;
+    const t = e.target; if (t && (t.closest('input,textarea,select,[contenteditable="true"]'))) return;
+    if (histGo(!redo)) e.preventDefault();
+  });
   let calcFor = null;
   $$('.crm-tfb', tfr).forEach(b => b.addEventListener('click', () => {
     calcFor = b.dataset.k; const p = $('#crm-p-calc', app), cur = calcOn[calcFor];
@@ -531,7 +554,7 @@
     $$('.crm-t .ttx-s', app).forEach(b => { const on = b.dataset.k === F.S[0].k; b.classList.toggle('on', on); b.classList.toggle('desc', on && F.S[0].desc); b.closest('th').setAttribute('aria-sort', on ? (F.S[0].desc ? 'descending' : 'ascending') : 'none'); });
     swap($('.crm-sort .v', app), sortLabel());
     $$('button', acFp).forEach(b => b.setAttribute('aria-pressed', F.own.has(b.dataset.who))); acFp.classList.toggle('some', F.own.size > 0);
-    syncSel(); chips(); counts(); paintCalcs(); COLS.apply();
+    syncSel(); chips(); counts(); paintCalcs(); COLS.apply(); histNote();
   }
   function syncSel(){
     [...sel].forEach(id => { if (!coOf(id)) sel.delete(id); });
