@@ -14,7 +14,8 @@
   /* ---------- people, stages, regions and teams ---------- */
   const P = { MK:['Maya Kim', 'l'], AR:['Ari Reyes', 'p'], TR:['Theo Reed', 't'], JO:['Jon Ortiz', 'm'], LN:['Lena Novak', 'r'], IB:['Iris Bell', 'k'], DK:['Dev Kumar', 'b'], KM:['Kofi Mensah', 'y'] };
   const OWN = Object.keys(P);
-  const av = (id, cls = '') => `<span class="av${cls ? ' ' + cls : ''}" style="background:var(--dm-av-${P[id][1]});color:var(--dm-av-${P[id][1]}-ink)" aria-hidden="true">${id}</span>`;
+  // the team has faces (Pexels portraits, on the site only: art/README.md); a customer's people keep their initials
+  const av = (id, cls = '') => `<span class="av ph${cls ? ' ' + cls : ''}" style="background:var(--dm-av-${P[id][1]});color:var(--dm-av-${P[id][1]}-ink)" aria-hidden="true"><img src="/art/people/${id}.jpg" alt="" width="64" height="64" loading="lazy" decoding="async"></span>`;
   const first = id => P[id][0].split(' ')[0];
   const STAGES = [{ k:'disc', t:'Discovery', p:10 }, { k:'demo', t:'Demo', p:25 }, { k:'prop', t:'Proposal', p:50 }, { k:'nego', t:'Negotiation', p:75 }, { k:'won', t:'Closed won', p:100 }, { k:'lost', t:'Closed lost', p:0 }];
   // a deal is closed once it is won or lost; everything else is open pipeline
@@ -100,7 +101,8 @@
   const peopleOf = i => Array.from({ length:2 + i % 2 }, (_, k) => ({ n:FN[(i * 3 + k * 7) % FN.length] + ' ' + LN_[(i * 5 + k * 3) % LN_.length], r:ROLE[(i + k * 3) % ROLE.length] }));
   const ini = n => n.split(' ').map(w => w[0]).join('');
   // a contact's avatar: the same --dm-av pairs as the owners', picked by their name so it never changes
-  const avn = (n, cls = '') => { const k = 'bltmprky'[[...n].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) % 9973, 7) % 8]; return `<span class="av${cls ? ' ' + cls : ''}" style="background:var(--dm-av-${k});color:var(--dm-av-${k}-ink)" aria-hidden="true">${ini(n)}</span>`; };
+  // a customer's people: initials in a quiet neutral circle (the team has photos)
+  const avn = (n, cls = '') => `<span class="av crm-avn${cls ? ' ' + cls : ''}" aria-hidden="true">${ini(n)}</span>`;
   // twelve weeks of meetings, calls and emails: none since the last touch, a steady few before it
   const trendOf = (i, last) => { let s = i * 7919 + 17; const r = () => (s = (s * 16807) % 2147483647) / 2147483647;
     return Array.from({ length:12 }, (_, w) => (11 - w) * 7 + 3 < last ? 0 : Math.round(1 + r() * 5 + (last < 10 ? w / 3 : 0))); };

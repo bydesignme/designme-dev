@@ -62,3 +62,21 @@ top of the script. It writes both sizes and prints a gradient of each photo's co
 (`python3 art/get-photos.py pink-dream`) to fetch only those. The gradients in the components are picked by hand from those colours, a
 little brighter, so an installed component still looks colourful without the photos. To add a photo, add it there, run
 the script, and give the component's data the new name and a gradient.
+
+## The Sales CRM's team
+
+The Sales CRM template on designme.dev shows its sales team with Pexels portraits (owner, 10 Nov), cropped to 128px in
+`people/`. The names are made up; the photos only stand in for them. Customers' contacts keep initials, as real CRMs
+show people without a photo. The template's installable components never point at these files.
+
+| File | Pexels photo | Shown as |
+| --- | --- | --- |
+| `people/MK.jpg` | [415829](https://www.pexels.com/photo/415829/) | Maya Kim |
+| `people/AR.jpg` | [1222271](https://www.pexels.com/photo/1222271/) | Ari Reyes |
+| `people/TR.jpg` | [220453](https://www.pexels.com/photo/220453/) | Theo Reed |
+| `people/JO.jpg` | [1300402](https://www.pexels.com/photo/1300402/) | Jon Ortiz |
+| `people/LN.jpg` | [3763188](https://www.pexels.com/photo/3763188/) | Lena Novak |
+| `people/IB.jpg` | [774909](https://www.pexels.com/photo/774909/) | Iris Bell |
+| `people/DK.jpg` | [614810](https://www.pexels.com/photo/614810/) | Dev Kumar |
+| `people/KM.jpg` | [1681010](https://www.pexels.com/photo/1681010/) | Kofi Mensah |
+| `people/NC.jpg` | [1181686](https://www.pexels.com/photo/1181686/) | Nina Cole |

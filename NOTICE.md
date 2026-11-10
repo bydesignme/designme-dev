@@ -19,7 +19,7 @@ These ship with the components when you install them.
   integrations, and don't mean the owners endorse this project. Payment form names card brands with short text labels
   (VISA, MC, AMEX), not logos.
 
-The photos in `art/` (the Carousel and Image generation demos on designme.dev) are from [Pexels](https://www.pexels.com), under the
+The photos in `art/` (the Carousel and Image generation demos, and the Sales CRM template's team portraits on designme.dev) are from [Pexels](https://www.pexels.com), under the
 [Pexels License](https://www.pexels.com/license/), not the MIT licence. `art/README.md` links each one. They are never
 part of what you install.
 
