@@ -488,9 +488,9 @@
   let calcFor = null;
   $$('.crm-tfb', tfr).forEach(b => b.addEventListener('click', () => {
     calcFor = b.dataset.k; const p = $('#crm-p-calc', app), cur = calcOn[calcFor];
-    p.innerHTML = `<div class="ph" role="none">${esc(colName[calcFor])}</div>` + Object.entries(CALC[calcFor]).map(([id, [l, f]]) => mi(`data-c="${id}"`, `<span>${l}</span><span class="r num">${n0(f(rows)[0])}</span>`, 'menuitemradio', cur === id)).join('')
-      + (cur ? `<div class="sep" role="separator"></div>` + mi('data-c=""', `${I('x', 's')}<span>None</span>`, 'menuitem') : '');
-    $$('.mi', p).forEach(m => m.addEventListener('click', () => { if (m.dataset.c) calcOn[calcFor] = m.dataset.c; else delete calcOn[calcFor]; paintCalcs(); }));
+    p.innerHTML = `<div class="ph" role="none">${esc(colName[calcFor])}</div>` + Object.entries(CALC[calcFor]).map(([id, [l, f]]) => mi(`data-calc="${id}"`, `<span>${l}</span><span class="r num">${n0(f(rows)[0])}</span>`, 'menuitemradio', cur === id)).join('')
+      + (cur ? `<div class="sep" role="separator"></div>` + mi('data-calc=""', `${I('x', 's')}<span>None</span>`, 'menuitem') : '');
+    $$('.mi', p).forEach(m => m.addEventListener('click', () => { if (m.dataset.calc) calcOn[calcFor] = m.dataset.calc; else delete calcOn[calcFor]; paintCalcs(); }));
   }));
   const SORTS = { value:['Pipeline', c => c.value, 'dollar', 'Low to high', 'High to low'], health:['Health', c => c.health, 'gauge', 'Low to high', 'High to low'], next:['Next step', c => c.next ? c.next.day * 100 + c.next.h : 1e6, 'cal', 'Soonest first', 'Latest first'], name:['Account', c => c.n.toLowerCase(), 'globe', 'A to Z', 'Z to A'], stage:['Stage', c => ST[c.st].i, 'layers', 'Earliest first', 'Latest first'], owner:['Owner', c => P[c.own][0], 'user', 'A to Z', 'Z to A'] };
   const ASC = ['name', 'owner', 'next'];
@@ -714,6 +714,22 @@
   const onOpen = (s, fn) => $$(s, app).forEach(b => b.addEventListener('click', fn));
   const mi = (attrs, body, role = 'menuitemradio', checked = false, close = true) => `<button class="mi" role="${role}" aria-checked="${checked}" tabindex="-1"${close ? ' data-close' : ''} ${attrs}>${body}${role !== 'menuitem' ? ck : ''}</button>`;
   const pop = id => $('#' + id, app);
+  // every menu hangs from its trigger the same way, as in the workflow editor (owner, 10 Nov): a menu draws its outline 1px
+  // outside its box, so it sits 1px in from the trigger's edge (the right edge for a menu that opens to the left) and the two
+  // outlines meet. Under a field (the workspace switcher, a details panel value) the menu is at least the field's width and its
+  // logo or avatar and its words sit on the field's: its rows start where the field's hover box starts when the field's picture
+  // sits close to its edge
+  app.addEventListener('click', e => {
+    const tr = e.target.closest('[data-pop]'); if (!tr || !app.contains(tr)) return;
+    const p = $(tr.dataset.pop, app); if (!p) return;
+    const end = tr.dataset.popAlign === 'end', ar = tr.getBoundingClientRect(), field = tr.matches('.crm-wsb, .dtp-v');
+    p.style.marginLeft = end ? '-1px' : '1px'; p.style.minWidth = field ? (ar.width - 2) + 'px' : '';
+    const ic = field && tr.querySelector('.av, .pfm-lg');
+    p.classList.toggle('fitc', !!ic);
+    if (ic){ const ir = ic.getBoundingClientRect(), off = ir.left - ar.left, pad = off - 1 - 3 >= 4 ? 4 : Math.max(0, off - 4);
+      p.style.setProperty('--mi-pp', pad + 'px'); p.style.setProperty('--mi-pl', (off - 1 - pad) + 'px');
+      p.style.setProperty('--mi-gap', getComputedStyle(tr).columnGap); p.style.setProperty('--mi-av', ir.width + 'px'); }
+  }, true);
   // Sort: the rules in the order they apply, then the fields that can be added after them
   const sortPop = pop('crm-p-sort');
   // repainted a tick later, so the click that asked for it still lands inside the popover and doesn't close it
@@ -1576,8 +1592,8 @@
   let kCalc = 'sum';
   function buildKCalc(){
     const p = $('#crm-p-calc', app), all = DE.filter(d => !K.shut.has(d.st) && dshows(d));
-    p.innerHTML = `<div class="ph" role="none">Column totals</div>` + Object.entries(KCALC).map(([id, [l, f]]) => mi(`data-c="${id}"`, `<span>${l}</span><span class="r num">${f(all)}</span>`, 'menuitemradio', kCalc === id)).join('');
-    $$('.mi', p).forEach(m => m.addEventListener('click', () => { kCalc = m.dataset.c; renderBoard(); }));
+    p.innerHTML = `<div class="ph" role="none">Column totals</div>` + Object.entries(KCALC).map(([id, [l, f]]) => mi(`data-calc="${id}"`, `<span>${l}</span><span class="r num">${f(all)}</span>`, 'menuitemradio', kCalc === id)).join('');
+    $$('.mi', p).forEach(m => m.addEventListener('click', () => { kCalc = m.dataset.calc; renderBoard(); }));
   }
   kb.addEventListener('click', e => { if (e.target.closest('.crm-cfb')) buildKCalc(); }, true);
   // Sort for the board (owner, 10 Nov): the same rules as Accounts' Sort, any number, in order, each with its direction;
@@ -1871,10 +1887,10 @@
     const b = K.shut.size === STAGES.length ? $('.crm-allhid .pill', kb) : $(`.crm-dk[data-col="${k}"]`, kb); if (b) setTimeout(() => b.focus({ preventScroll:true }), 140); }
   function buildColMenu(k){
     const p = pop('crm-p-colm'), v = visCols(), i = v.indexOf(k);
-    p.innerHTML = `<div class="ph" role="none">${ST[k].t}</div>` + (closed({ st:k }) ? '' : mi('data-c="add"', `${I('plus', 's')}<span>Add a deal</span>`, 'menuitem'))
-      + mi(`data-c="left"${i <= 0 ? ' aria-disabled="true"' : ''}`, `${I('chev-l', 's')}<span>Move left</span>`, 'menuitem') + mi(`data-c="right"${i >= v.length - 1 ? ' aria-disabled="true"' : ''}`, `${I('chev-r', 's')}<span>Move right</span>`, 'menuitem')
-      + `<div class="sep" role="separator"></div>` + mi('data-c="hide"', `${I('eye', 's')}<span>Hide column</span>`, 'menuitem');
-    $$('.mi', p).forEach(m => m.addEventListener('click', () => { const c = m.dataset.c; if (m.getAttribute('aria-disabled') === 'true') return;
+    p.innerHTML = `<div class="ph" role="none">${ST[k].t}</div>` + (closed({ st:k }) ? '' : mi('data-calc="add"', `${I('plus', 's')}<span>Add a deal</span>`, 'menuitem'))
+      + mi(`data-calc="left"${i <= 0 ? ' aria-disabled="true"' : ''}`, `${I('chev-l', 's')}<span>Move left</span>`, 'menuitem') + mi(`data-calc="right"${i >= v.length - 1 ? ' aria-disabled="true"' : ''}`, `${I('chev-r', 's')}<span>Move right</span>`, 'menuitem')
+      + `<div class="sep" role="separator"></div>` + mi('data-calc="hide"', `${I('eye', 's')}<span>Hide column</span>`, 'menuitem');
+    $$('.mi', p).forEach(m => m.addEventListener('click', () => { const c = m.dataset.calc; if (m.getAttribute('aria-disabled') === 'true') return;
       setTimeout(() => c === 'add' ? startDraft(k) : c === 'hide' ? hideCol(k) : moveCol(k, c === 'left' ? -1 : 1, 'crm-cmn'), 130); }));
   }
   // every stage hidden: Show all stages brings the columns back in, with one Undo

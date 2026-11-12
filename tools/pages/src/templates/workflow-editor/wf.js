@@ -959,7 +959,7 @@
     paintTop(); tick();
     say(only ? `Testing ${byId(only).t}` : 'Test run started');
   }
-  function resetRunView(){ trRows.innerHTML = ''; logEl.innerHTML = ''; rowEls = new Map(); nodeCache = new Map(); logN = 0; axisN = 0; drNote.innerHTML = ''; dataTab = null; filterLog(); }
+  function resetRunView(){ trRows.innerHTML = R ? '' : '<p class="rdr-le">Run a test to see each step and how long it took.</p>'; logEl.innerHTML = ''; rowEls = new Map(); nodeCache = new Map(); logN = 0; axisN = 0; drNote.innerHTML = ''; dataTab = null; filterLog(); }
   function tick(){
     if (!R || !R.live) return;
     R.now = (performance.now() - R.t0) / 1000;
@@ -1364,7 +1364,7 @@
   function paintLim(){
     const { cap, used, fc, mode } = LIM, over = fc > cap;
     lk.style.left = lpct(cap) + '%'; $('.slx-tt', lp).textContent = n0(cap); lk.setAttribute('aria-valuenow', cap); lk.setAttribute('aria-valuetext', `${n0(cap)} runs`);
-    if (document.activeElement !== lin){ lin.value = cap; lin.style.width = Math.max(1, String(cap).length) + 'ch'; }
+    if (document.activeElement !== lin){ lin.value = n0(cap); lin.style.width = Math.max(1, n0(cap).length) + 'ch'; }
     $('.slx-used', lp).style.width = Math.min(100, used / cap * lpct(cap)) + '%'; $('.slx-fc', lp).style.width = Math.min(lpct(cap), fc / cap * lpct(cap)) + '%';
     $('.slx-sp', lp).textContent = n0(used);
     const h = over ? `<span class="w">${I('alert', 'xs')}Forecast passes your limit around Nov 27. Runs will ${LMODE[mode]}.</span>` : `<span class="o">${I('ok', 'xs')}<span>On track, about ${n0(cap - fc)} runs to spare.</span></span>`;
@@ -1383,6 +1383,7 @@
   let lbefore = LIM.cap;
   $('.slx-v', lp).addEventListener('pointerdown', e => { if (document.activeElement !== lin){ e.preventDefault(); lin.focus({ preventScroll:true }); } });
   lin.onfocus = () => { lbefore = LIM.cap; lin.select(); };
+  lin.addEventListener('focus', () => { lin.value = String(LIM.cap); lin.style.width = Math.max(1, lin.value.length) + 'ch'; });
   lin.oninput = () => { lin.value = lin.value.replace(/\D/g, '').slice(0, 4); lin.style.width = Math.max(1, lin.value.length) + 'ch'; const n = +lin.value; if (lin.value && n >= LIM.MIN && n <= LIM.MAX){ LIM.cap = n; paintLim(); lflash(); } };
   lin.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); lin.blur(); } else if (e.key === 'Escape'){ e.stopPropagation(); LIM.cap = lbefore; lin.blur(); paintLim(); } };
   lin.onblur = () => { const n = lin.value === '' ? lbefore : clamp(Math.round(parseInt(lin.value, 10) / 100) * 100, LIM.MIN, LIM.MAX); LIM.cap = n; paintLim(); };
@@ -1675,7 +1676,8 @@
 
   /* ---------- everything follows the graph ---------- */
   function renderAll(){ renderCanvas(); if (app.classList.contains('pn')){ if (panelTab === 'step') renderInspector(); if (panelTab === 'versions') renderVersions(); if (panelTab === 'runs') renderRuns(); } paintTop(); paintUndo(); }
-  renderAll(); W.runs.forEach(ctxOf); renderInspector(); paintData();
+  // the run bar starts on its empty states (no test has run yet), as it does after switching workflows
+  renderAll(); W.runs.forEach(ctxOf); renderInspector(); resetRunView(); paintData();
   $('.wf-side', app).inert = matchMedia('(max-width:1023px)').matches;
   const first0 = () => { fit(); $$('.wfx-node', nodesEl).forEach((b, i) => { if (!REDUCE) b.animate([{ opacity:0, filter:'blur(3px)' }, { opacity:1, filter:'none' }], { duration:520, delay:Math.min(i, 8) * 55, easing:'cubic-bezier(.16,1,.3,1)', fill:'backwards' }); }); };
   first0();
