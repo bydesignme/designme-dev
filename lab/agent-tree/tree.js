@@ -38,7 +38,6 @@
     const g = $('.atx-g', n.el); g.innerHTML = mark(s); g.classList.remove('drw');
     if (s === 'done'){ g.querySelectorAll('path,polyline').forEach(e => e.setAttribute('pathLength', 1)); void g.offsetWidth; g.classList.add('drw'); }
     if (t){ const sp = $('.atx-tx span', n.el); sp.textContent = t; sp.classList.remove('sw'); void sp.offsetWidth; sp.classList.add('sw'); }
-    if (s === 'done' && n.parent) back(n);
   }
   const say = (n, t) => { const sp = $('.atx-tx span', n.el); sp.textContent = t; sp.classList.remove('sw'); void sp.offsetWidth; sp.classList.add('sw'); };
   function spawn(n, s){ n.el.hidden = false; n.s = s || n.s; state(n, n.s); n.t0 = performance.now(); n.el.classList.add('in'); n.el.style.animationDelay = '300ms'; }
@@ -69,8 +68,7 @@
     const L = { gr, st, trunk, end:null, reach:null }; lines.set(p, L); return L;
   }
   // a pulse (B) or packets of work (A) along the path from the orchestrator down to each running step
-  const flows = new Map(), backs = [];
-  function back(n){ backs.push({ n, t:T }); }
+  const flows = new Map();
   function hop(p, k){ // the path from a parent's mark to a child's, through the bend
     const a = geo[p.id], b = geo[k.id]; if (!a || !b) return '';
     const R = V === 'a' ? 18 : (parseFloat(getComputedStyle(root).getPropertyValue('--r')) || 0);
@@ -100,7 +98,6 @@
         k.br.classList.toggle('on', k.s !== 'queued' && k.s !== 'fail'); k.br.classList.toggle('bad', k.s === 'fail');
         const d = V === 'a' ? `M${x0} ${b.cy - R}L${x0 + R} ${b.cy}H${b.left - 4}` : `M${x0} ${b.cy - R}Q${x0} ${b.cy} ${x0 + R} ${b.cy}H${b.left - 4}`;
         k.br.setAttribute('d', d); const len = k.br.getTotalLength(); k.br.style.strokeDasharray = len; k.br.style.strokeDashoffset = len * (1 - k.dr);
-        if (V === 'a' && k.dr > .2){ const c = mk('circle', { class:'jn', cx:x0, cy:b.cy - R, r:4 }); c.style.stroke = k.s === 'queued' ? 'var(--rail)' : col(k); gJn.append(c); }
       }
     }
     // the flows: every running step that has nothing running under it gets one, along its whole path from the top
@@ -114,7 +111,7 @@
       if (!f){ f = { t0:T, el:mk('g', { class:'pulse' }) };
         { const id = 'pg' + (++pid), gr = mk('linearGradient', { id, gradientUnits:'userSpaceOnUse' }); HL.forEach(([o, c], i) => gr.append(mk('stop', { class:'h' + i + ' ' + c, offset:o }))); defs.append(gr); f.gr = gr;
           f.core = mk('path', { class:'core', stroke:`url(#${id})` }); f.el.append(f.core); f.cyc = -1;
-          f.el.style.setProperty('--fc', V === 'a' ? col(n) : 'var(--run)');  } gFx.append(f.el); flows.set(n, f); }
+          f.el.style.setProperty('--fc', 'var(--run)');  } gFx.append(f.el); flows.set(n, f); }
       {
         f.core.setAttribute('d', d); const len = f.core.getTotalLength();
         // slow and even: about 170px a second, eased gently at both ends, fading in as it leaves and out as it arrives
@@ -128,14 +125,6 @@
           f.gr.setAttribute('x1', a.x); f.gr.setAttribute('y1', a.y); f.gr.setAttribute('x2', b.x + (a.x === b.x ? .01 : 0)); f.gr.setAttribute('y2', b.y + (a.y === b.y ? .01 : 0)); }
 
       }
-    }
-    // A: a finished step sends its result back up its branch, a green dot to its parent
-    if (V === 'a') for (let i = backs.length - 1; i >= 0; i--){
-      const bk = backs[i], n = bk.n, p = n.parent; if (!geo[n.id] || !geo[p.id]){ backs.splice(i, 1); continue; }
-      if (!bk.el){ bk.el = mk('circle', { class:'pk', r:5.5 }); bk.el.style.setProperty('--pc', 'var(--ok)'); bk.el.style.fill = 'var(--ok)'; bk.path = mk('path'); bk.path.style.display = 'none'; gFx.append(bk.el, bk.path); }
-      bk.path.setAttribute('d', `M${geo[p.id].cx} ${geo[p.id].bottom + 2}` + hop(p, n)); const len = bk.path.getTotalLength(), u = (T - bk.t) / .7;
-      if (u >= 1){ bk.el.remove(); bk.path.remove(); backs.splice(i, 1); continue; }
-      const e = 1 - Math.pow(1 - u, 2), q = bk.path.getPointAtLength(len * (1 - e)); bk.el.setAttribute('cx', q.x); bk.el.setAttribute('cy', q.y); bk.el.style.opacity = u > .85 ? (1 - u) / .15 : 1;
     }
     requestAnimationFrame(frame);
   }
