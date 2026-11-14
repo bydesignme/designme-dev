@@ -38,9 +38,10 @@
     const g = $('.atx-g', n.el); g.innerHTML = mark(s); g.classList.remove('drw');
     if (s === 'done'){ g.querySelectorAll('path,polyline').forEach(e => e.setAttribute('pathLength', 1)); void g.offsetWidth; g.classList.add('drw'); }
     if (t){ const sp = $('.atx-tx span', n.el); sp.textContent = t; sp.classList.remove('sw'); void sp.offsetWidth; sp.classList.add('sw'); }
+    if (typeof draw === 'function' && svg) draw(0);
   }
   const say = (n, t) => { const sp = $('.atx-tx span', n.el); sp.textContent = t; sp.classList.remove('sw'); void sp.offsetWidth; sp.classList.add('sw'); };
-  function spawn(n, s){ n.el.hidden = false; n.s = s || n.s; state(n, n.s); n.t0 = performance.now(); n.el.classList.add('in'); n.el.style.animationDelay = '300ms'; }
+  function spawn(n, s){ n.el.hidden = false; n.s = s || n.s; state(n, n.s); n.t0 = performance.now(); n.el.classList.add('in'); n.el.style.animationDelay = '120ms'; draw(0); }
 
   // ---------- the lines ----------
   const NS = 'http://www.w3.org/2000/svg', mk = (t, a = {}) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
@@ -72,61 +73,72 @@
   function hop(p, k){ // the path from a parent's mark to a child's, through the bend
     const a = geo[p.id], b = geo[k.id]; if (!a || !b) return '';
     const R = V === 'a' ? 18 : (parseFloat(getComputedStyle(root).getPropertyValue('--r')) || 0);
-    return V === 'a' ? `V${b.cy - R}L${a.cx + R} ${b.cy}H${b.cx}` : `V${b.cy - R}Q${a.cx} ${b.cy} ${a.cx + R} ${b.cy}H${b.cx}`;
+    return V === 'a' ? `V${b.cy - R}L${a.cx + R} ${b.cy}H${b.cx - b.r - 3}` : `V${b.cy - R}Q${a.cx} ${b.cy} ${a.cx + R} ${b.cy}H${b.cx - b.r - 3}`;
   }
-  function frame(t){
-    const dt = last ? Math.min(.05, (t - last) / 1000) : 0; last = t; T += dt;
+  // draw(dt): the lines for where the rows are now. Each frame eases them on by dt; a row arriving or changing state redraws
+  // them at once with dt 0, so for no frame does a line point where a row used to be
+  function frame(t){ const dt = last ? Math.min(.05, (t - last) / 1000) : 0; last = t; T += dt; draw(dt); requestAnimationFrame(frame); }
+  function draw(dt){
     const fast = 1 - Math.exp(-dt * 13), slow = 1 - Math.exp(-dt * 6);
     const tr = tree.getBoundingClientRect(), R = V === 'a' ? 18 : (parseFloat(getComputedStyle(root).getPropertyValue('--r')) || 0);
     // positions in the tree's own space, so a zoom or scale on the page doesn't move the lines off their rows
     const sc = tr.width / (tree.offsetWidth || tr.width) || 1;
-    for (const n of N){ if (!shown(n)) continue; const g = $('.atx-g', n.el).getBoundingClientRect(); geo[n.id] = { cx:(g.left + g.width / 2 - tr.left) / sc, cy:(g.top + g.height / 2 - tr.top) / sc, top:(g.top - tr.top) / sc, bottom:(g.bottom - tr.top) / sc, left:(g.left - tr.left) / sc }; }
+    for (const n of N){ if (!shown(n)) continue; const g = $('.atx-g', n.el).getBoundingClientRect(); geo[n.id] = { cx:(g.left + g.width / 2 - tr.left) / sc, cy:(g.top + g.height / 2 - tr.top) / sc, top:(g.top - tr.top) / sc, bottom:(g.bottom - tr.top) / sc, left:(g.left - tr.left) / sc };
+      const rt = n.s === 'queued' ? 7 : n.s === 'run' ? 9.5 : 15; n.rr = n.rr == null ? rt : n.rr + (rt - n.rr) * fast; geo[n.id].r = n.rr; }
     gJn.replaceChildren();
     for (const p of N){
-      if (!p.kids.length || !shown(p)) continue; const L = line(p), a = geo[p.id], x0 = a.cx, y0 = a.bottom + 2;
+      if (!p.kids.length || !shown(p)) continue; const L = line(p), a = geo[p.id], x0 = a.cx, y0 = a.cy + a.r + 2;
       let endT = y0, reachT = y0;
       for (const k of p.kids){ if (!shown(k)) continue; const b = geo[k.id]; endT = Math.max(endT, b.cy - R); if (k.s !== 'queued') reachT = Math.max(reachT, b.cy); }
-      L.end = ease(L.end, endT, fast); L.reach = ease(L.reach, Math.min(reachT, endT), slow);
-      const span = L.end - y0; L.trunk.setAttribute('d', span > .5 ? `M${x0} ${y0}V${L.end}` : '');
-      if (V === 'b' && span > .5){ const r = Math.min(1, Math.max(0, (L.reach - y0) / span)), f = Math.min(1 - r, 34 / span);
+      // the line eases down only towards a child that is new; children it already reaches pull it along at once when rows move
+      let held = y0; for (const k of p.kids) if (shown(k) && k.dr > .5) held = Math.max(held, geo[k.id].cy - R);
+      L.end = Math.max(ease(L.end, endT, fast), Math.min(held, endT)); L.reach = ease(L.reach, Math.min(reachT, endT), slow);
+      // a line only shows once it has some length, so a line just starting never leaves a dot under its parent
+      const span = L.end - y0; L.trunk.setAttribute('d', span > 4 ? `M${x0} ${y0}V${L.end}` : '');
+      if (V === 'b' && span > 4){ const r = Math.min(1, Math.max(0, (L.reach - y0) / span)), f = Math.min(1 - r, 34 / span);
         L.gr.setAttribute('y1', y0); L.gr.setAttribute('y2', L.end); [0, r, Math.min(1, r + f), 1].forEach((o, i) => L.st[i].setAttribute('offset', o)); }
       for (const k of p.kids){
         if (!k.br){ k.br = mk('path', { class:'b' }); gBr.append(k.br); k.dr = 0; if (V === 'a') k.br.style.setProperty('--c', col(k)); }
         if (!shown(k)){ k.br.setAttribute('d', ''); continue; }
         const b = geo[k.id], reached = L.end >= b.cy - R - 1;
-        k.dr = ease(k.dr, reached ? 1 : 0, fast * .85);
+        k.dr = ease(k.dr, reached ? 1 : 0, fast * .85); if (k.dr < .04){ k.br.setAttribute('d', ''); continue; }
         k.br.classList.toggle('on', k.s !== 'queued' && k.s !== 'fail'); k.br.classList.toggle('bad', k.s === 'fail');
-        const d = V === 'a' ? `M${x0} ${b.cy - R}L${x0 + R} ${b.cy}H${b.left - 4}` : `M${x0} ${b.cy - R}Q${x0} ${b.cy} ${x0 + R} ${b.cy}H${b.left - 4}`;
+        const d = V === 'a' ? `M${x0} ${b.cy - R}L${x0 + R} ${b.cy}H${b.cx - b.r - 3}` : `M${x0} ${b.cy - R}Q${x0} ${b.cy} ${x0 + R} ${b.cy}H${b.cx - b.r - 3}`;
         k.br.setAttribute('d', d); const len = k.br.getTotalLength(); k.br.style.strokeDasharray = len; k.br.style.strokeDashoffset = len * (1 - k.dr);
       }
     }
     // the flows: every running step that has nothing running under it gets one, along its whole path from the top
     const leaves = N.filter(n => shown(n) && n.s === 'run' && n.lv && !n.kids.some(k => shown(k) && k.s === 'run'));
-    for (const [n, f] of flows) if (!leaves.includes(n)){ f.el.remove(); if (f.gr) f.gr.remove(); if (f.path) f.path.remove(); flows.delete(n); }
-    for (const n of leaves){
+    // one band per agent, from the top down to the step that agent is working on now. It belongs to the agent, not the step,
+    // so when a step finishes and the next starts it carries on instead of starting again
+    const agentOf = n => { let x = n; while (x.lv > 1) x = x.parent; return x; };
+    const want = new Map(); for (const n of leaves) want.set(agentOf(n), n);
+    const f0 = ag => flows.get(ag);
+    for (const [ag, f] of flows) if (!want.has(ag)){ f.el.remove(); f.gr.remove(); flows.delete(ag); }
+    for (const [ag, n] of want){
       const chain = []; for (let x = n; x; x = x.parent) chain.unshift(x);
-      if (chain.some(x => !geo[x.id] || (x.br && x.br !== undefined && x.dr < .98 && x.lv))) continue;
-      let d = `M${geo.root.cx} ${geo.root.bottom + 2}`; for (let i = 1; i < chain.length; i++) d += hop(chain[i - 1], chain[i]);
-      let f = flows.get(n);
-      if (!f){ f = { t0:T, el:mk('g', { class:'pulse' }) };
-        { const id = 'pg' + (++pid), gr = mk('linearGradient', { id, gradientUnits:'userSpaceOnUse' }); HL.forEach(([o, c], i) => gr.append(mk('stop', { class:'h' + i + ' ' + c, offset:o }))); defs.append(gr); f.gr = gr;
-          f.core = mk('path', { class:'core', stroke:`url(#${id})` }); f.el.append(f.core); f.cyc = -1;
-          f.el.style.setProperty('--fc', 'var(--run)');  } gFx.append(f.el); flows.set(n, f); }
-      {
-        f.core.setAttribute('d', d); const len = f.core.getTotalLength();
-        // slow and even: about 170px a second, eased gently at both ends, fading in as it leaves and out as it arrives
-        const travel = Math.min(3.4, Math.max(1.8, len / 170)), cyc = travel + .35, k = Math.floor((T - f.t0) / cyc), u = ((T - f.t0) % cyc) / travel;
-        if (u >= 1){ f.el.style.opacity = 0; }
-        else { f.el.style.opacity = Math.min(1, u / .18, (1 - u) / .22).toFixed(3); const at = (.5 - Math.cos(Math.PI * u) / 2) * len;
-          // the band: BAND long, with the dot at its core; it rides the path, and its gradient runs from its back end to its front
-          const t0 = at - BAND * CORE, t1 = t0 + BAND;
-          f.core.style.strokeDasharray = `${BAND} ${len + BAND * 2}`; f.core.style.strokeDashoffset = -t0;
-          const a = along(f.core, len, t0), b = along(f.core, len, t1);
-          f.gr.setAttribute('x1', a.x); f.gr.setAttribute('y1', a.y); f.gr.setAttribute('x2', b.x + (a.x === b.x ? .01 : 0)); f.gr.setAttribute('y2', b.y + (a.y === b.y ? .01 : 0)); }
-
-      }
+      if (!chain.every(x => geo[x.id])) continue;
+      // a band starts only once its whole route is drawn
+      if (!chain.every(x => !x.lv || (x.br && x.dr > .97))){ if (f0(ag)) f0(ag).el.style.opacity = 0; continue; }
+      // one continuous route: each leg runs on under the step's mark (whose solid face hides it) to its centre, where the next
+      // leg leaves; dashes restart on every separate piece of a path, so it has to be one piece
+      let d = `M${geo.root.cx} ${geo.root.cy}`; for (let i = 1; i < chain.length; i++) d += hop(chain[i - 1], chain[i]) + `H${geo[chain[i].id].cx}`;
+      let f = flows.get(ag);
+      if (!f){ const id = 'pg' + (++pid), gr = mk('linearGradient', { id, gradientUnits:'userSpaceOnUse' }); HL.forEach(([o, c]) => gr.append(mk('stop', { class:c, offset:o }))); defs.append(gr);
+        f = { gr, el:mk('g', { class:'pulse' }), start:null }; f.core = mk('path', { class:'core', stroke:`url(#${id})` }); f.el.append(f.core); f.el.style.setProperty('--fc', 'var(--run)'); gFx.append(f.el); flows.set(ag, f); }
+      f.core.setAttribute('d', d); const len = f.core.getTotalLength();
+      // a trip: about 170px a second, eased gently at both ends, fading in as it leaves and out as it arrives, then a short rest
+      if (f.start == null || T - f.start >= f.trip + .35){ f.start = T; f.len0 = len; f.trip = Math.min(3.4, Math.max(1.8, len / 170)); }
+      const u = (T - f.start) / f.trip;
+      if (u >= 1){ f.el.style.opacity = 0; continue; }
+      f.el.style.opacity = Math.min(1, u / .18, (1 - u) / .22).toFixed(3);
+      const at = Math.min(len, (.5 - Math.cos(Math.PI * u) / 2) * f.len0);
+      // the band: BAND long, its core at CORE; it rides the path, its gradient running from its back end to its front
+      const t0 = at - BAND * CORE, t1 = t0 + BAND;
+      f.core.style.strokeDasharray = `${BAND} ${len + BAND * 2}`; f.core.style.strokeDashoffset = -t0;
+      const a = along(f.core, len, t0), b = along(f.core, len, t1);
+      f.gr.setAttribute('x1', a.x); f.gr.setAttribute('y1', a.y); f.gr.setAttribute('x2', b.x + (a.x === b.x ? .01 : 0)); f.gr.setAttribute('y2', b.y + (a.y === b.y ? .01 : 0));
     }
-    requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
 
