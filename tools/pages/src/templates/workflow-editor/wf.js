@@ -381,10 +381,10 @@
 
   /* ---------- the view: zoom z and pan (px, py); a point x on the board shows at x * z + px ---------- */
   const V = { z:1, px:0, py:0 };
-  const ZS = [.5, .67, .8, .9, 1, 1.25, 1.5];
+  const ZMIN = .2, ZS = [.25, .33, .5, .67, .8, .9, 1, 1.25, 1.5];
   const zl = $('.wf-zl', app);
   function setView(z, px, py, anim = false){
-    V.z = clamp(z, .4, 1.6); V.px = px; V.py = py;
+    V.z = clamp(z, ZMIN, 1.6); V.px = px; V.py = py;
     cv.classList.toggle('anim', anim && !REDUCE);
     world.style.transform = `translate(${V.px}px,${V.py}px) scale(${V.z})`;
     vp.style.backgroundPosition = `${V.px}px ${V.py}px`; vp.style.backgroundSize = `${16 * V.z}px ${16 * V.z}px`;
@@ -411,13 +411,14 @@
   }
   function fit(anim = false, live = false){
     const r = room(live), b = bbox(), W0 = r.r - r.l, H0 = r.b - r.t;
-    const z = clamp(Math.min(W0 / b.w, H0 / b.h, 1), .7, 1);
-    // a workflow wider than the canvas at the smallest readable zoom starts at its trigger
+    const z = clamp(Math.min(W0 / b.w, H0 / b.h, 1), ZMIN, 1);
+    // a workflow wider than the canvas at the smallest zoom starts at its trigger
     const px = b.w * z <= W0 ? r.l + (W0 - b.w * z) / 2 - b.x * z : r.l + 8 - b.x * z;
     setView(z, px, r.t + (H0 - b.h * z) / 2 - b.y * z, anim); V.user = false;
   }
-  function zoomAt(z, mx = cv.clientWidth / 2, my = cv.clientHeight / 2, anim = true){ const k = clamp(z, .4, 1.6) / V.z; setView(V.z * k, mx - (mx - V.px) * k, my - (my - V.py) * k, anim); }
-  const step = d => { const i = ZS.findIndex(z => z >= V.z - .001); zoomAt(ZS[clamp(d > 0 ? (ZS[i] > V.z + .001 ? i : i + 1) : i - 1, 0, ZS.length - 1)]); };
+  function zoomAt(z, mx = cv.clientWidth / 2, my = cv.clientHeight / 2, anim = true){ const k = clamp(z, ZMIN, 1.6) / V.z; setView(V.z * k, mx - (mx - V.px) * k, my - (my - V.py) * k, anim); }
+  // the next step in or out; below the first step (a fitted phone) zooming out goes to the smallest zoom
+  const step = d => zoomAt(d > 0 ? (ZS.find(z => z > V.z + .001) ?? ZS[ZS.length - 1]) : ([...ZS].reverse().find(z => z < V.z - .001) ?? ZMIN));
   // a step is brought into view when it is picked or starts running, only if it isn't already
   function reveal(id, centre = false){
     const p = POS[id]; if (!p) return; const r = room();

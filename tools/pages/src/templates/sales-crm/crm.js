@@ -1279,18 +1279,31 @@
   }
   // the view switch is Segmented control: its knob slides to the view picked, here or from Month's days and meetings
   const cvSeg = seg($('.crm-cvw', ecx), v => { if (v !== cv) setCv(v); });
-  // Month: six weeks, each day with its first three meetings and how many more; a day opens in Day, a meeting opens its card
+  // Month: six weeks that share the view's height, each day with the meetings that fit and how many more; a day opens in Day,
+  // a meeting opens its card
   function renderMonth(dir){
     const f = new Date(today.getFullYear(), today.getMonth() + mo, 1), lead = (f.getDay() + 6) % 7, n0 = Math.round((f - today) / 864e5) - lead;
     let g = '';
     for (let i = 0; i < 42; i++){ const n = n0 + i, d = dateOf(n), inM = d.getMonth() === f.getMonth(), L = MT.filter(m => m.day === n).sort((a, b) => a.h - b.h);
       g += `<div class="crm-mc${inM ? '' : ' o'}${n === 0 ? ' t' : ''}${isWork(n) ? '' : ' we'}"><button class="crm-mcd num" data-n="${n}" aria-label="${DAYL[dow(n)]} ${fmtD(n)}, ${plural(L.length, 'meeting')}. Open the day">${d.getDate()}</button>`
-        + L.slice(0, 3).map(m => `<button class="crm-mce${isPast(m) ? ' past' : ''}" data-mm="${m.id}" style="--crm-mc:var(--dm-p${P[m.own][1]})" aria-label="${esc(evLabel(m))}"><i></i><span class="num">${tm(m.h)}</span><span class="t">${esc(coOf(m.co).n)}</span></button>`).join('')
-        + (L.length > 3 ? `<button class="crm-mcm" data-n="${n}">${L.length - 3} more</button>` : '') + `</div>`; }
+        + L.map(m => `<button class="crm-mce${isPast(m) ? ' past' : ''}" data-mm="${m.id}" style="--crm-mc:var(--dm-p${P[m.own][1]})" aria-label="${esc(evLabel(m))}"><i></i><span class="num">${tm(m.h)}</span><span class="t">${esc(coOf(m.co).n)}</span></button>`).join('')
+        + (L.length ? `<button class="crm-mcm" data-n="${n}" hidden></button>` : '') + `</div>`; }
     mview.innerHTML = `<div class="crm-mwd muted">${['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(x => `<span>${x}</span>`).join('')}</div><div class="crm-mg">${g}</div>`;
-    if (dir) glide($('.crm-mg', mview), { transform:`translateX(${dir * 14}px)` }, 240);
+    fitMonth(); if (dir) glide($('.crm-mg', mview), { transform:`translateX(${dir * 14}px)` }, 240);
     paintCalHead();
   }
+  // a day's meetings, as many as its cell has room for; the rest go under "N more"
+  function fitMonth(){
+    if (mview.hidden) return;
+    $$('.crm-mc', mview).forEach(c => { const es = $$('.crm-mce', c), more = $('.crm-mcm', c); if (!es.length) return;
+      es.forEach(e => { e.hidden = false; }); more.hidden = true;
+      const cs = getComputedStyle(c), gap = parseFloat(cs.rowGap) || 0, d = c.firstElementChild;
+      const room = c.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - d.offsetHeight - parseFloat(getComputedStyle(d).marginBottom), lh = es[0].offsetHeight + gap;
+      if (es.length * lh <= room + .5) return;
+      more.hidden = false; const k = Math.max(0, Math.floor((room - more.offsetHeight - gap + .5) / lh));
+      es.forEach((e, i) => { e.hidden = i >= k; }); const n = es.length - k; more.innerHTML = `<span class="p">+</span>${n}<span class="l"> more</span>`; more.setAttribute('aria-label', `${n} more ${n === 1 ? 'meeting' : 'meetings'}. Open the day`); });
+  }
+  new ResizeObserver(fitMonth).observe(mview);
   mview.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
     if (b.dataset.mm){ const m = MT.find(x => x.id === b.dataset.mm); if (!m) return; setCv('day', m.day); const el = $(`.ecx-e[data-m="${m.id}"]`, cgrid); if (el){ el.focus({ preventScroll:true }); openCalPop(el); } return; }
     if (b.dataset.n != null) setCv('day', +b.dataset.n); });
