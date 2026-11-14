@@ -113,17 +113,17 @@
       let f = flows.get(n);
       if (!f){ f = { t0:T, el:mk('g', { class:'pulse' }) };
         { const id = 'pg' + (++pid), gr = mk('linearGradient', { id, gradientUnits:'userSpaceOnUse' }); HL.forEach(([o, c], i) => gr.append(mk('stop', { class:'h' + i + ' ' + c, offset:o }))); defs.append(gr); f.gr = gr;
-          f.core = mk('path', { class:'core', stroke:`url(#${id})` }); f.head = mk('circle', { class:'hd', r:5 }); f.el.append(f.core, f.head); f.cyc = -1;
-          f.el.style.setProperty('--fc', V === 'a' ? col(n) : 'var(--run)'); f.head.style.fill = 'var(--fc)'; } gFx.append(f.el); flows.set(n, f); }
+          f.core = mk('path', { class:'core', stroke:`url(#${id})` }); f.el.append(f.core); f.cyc = -1;
+          f.el.style.setProperty('--fc', V === 'a' ? col(n) : 'var(--run)');  } gFx.append(f.el); flows.set(n, f); }
       {
         f.core.setAttribute('d', d); const len = f.core.getTotalLength();
-        const travel = Math.min(1.5, Math.max(.8, len / 420)), cyc = travel + .55, k = Math.floor((T - f.t0) / cyc), u = ((T - f.t0) % cyc) / travel;
+        // slow and even: about 170px a second, eased gently at both ends, fading in as it leaves and out as it arrives
+        const travel = Math.min(3.4, Math.max(1.8, len / 170)), cyc = travel + .35, k = Math.floor((T - f.t0) / cyc), u = ((T - f.t0) % cyc) / travel;
         if (u >= 1){ f.el.style.opacity = 0; }
-        else { f.el.style.opacity = 1; const at = easeIO(u) * len;
+        else { f.el.style.opacity = Math.min(1, u / .18, (1 - u) / .22).toFixed(3); const at = (.5 - Math.cos(Math.PI * u) / 2) * len;
           // the band: BAND long, with the dot at its core; it rides the path, and its gradient runs from its back end to its front
           const t0 = at - BAND * CORE, t1 = t0 + BAND;
           f.core.style.strokeDasharray = `${BAND} ${len + BAND * 2}`; f.core.style.strokeDashoffset = -t0;
-          const hp = f.core.getPointAtLength(at); f.head.setAttribute('cx', hp.x); f.head.setAttribute('cy', hp.y);
           const a = along(f.core, len, t0), b = along(f.core, len, t1);
           f.gr.setAttribute('x1', a.x); f.gr.setAttribute('y1', a.y); f.gr.setAttribute('x2', b.x + (a.x === b.x ? .01 : 0)); f.gr.setAttribute('y2', b.y + (a.y === b.y ? .01 : 0)); }
 
