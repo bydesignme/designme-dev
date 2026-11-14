@@ -1139,41 +1139,87 @@
 :root:not([data-style="soft"]) .v2 .rq-wk-w.fail{background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--bad) 10%,transparent) 5px 6px),var(--bad-bg)}
 :root:not([data-style="soft"]) .v2 .rq-wk-stack i{animation:v2-bpin .3s var(--ease) backwards}
 /* ---------- Agent tree ---------- */
-/* an orchestrator and its sub-agents as a tree: a chevron folds a branch, each row shows its task, status and cost, and a
-   branch's cost is its own plus everything under it */
-.v2 .atr{width:100%;max-width:440px;margin:0 auto;padding:6px}
-.v2 .atr-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);padding:var(--s-2) 10px 10px}
-.v2 .atr-ht{display:flex;flex-direction:column;min-width:0}
-.v2 .atr-ht b{font-weight:500;font-size:14px}
-.v2 .atr-st{font-size:12.5px}
+/* an orchestrator and its sub-agents as a tree. Colour carries meaning only: each agent has its own colour (its avatar), each
+   step shows the app it works in, and each state has its colour (running the accent, done green, needs you orange, failed
+   red, queued and stopped grey), on its mark, its chip and the lines. A parent's line runs down from its mark and bends into
+   each child's (rounded in Soft, square in Blueprint), shading from the parent's state to the child's, with a small arrow
+   into the child. A new agent's line draws in before its row arrives, a sheen runs down the lines to whatever is running,
+   and costs and times roll as they count */
+.v2 .atr{--atr-r:9;--atr-ln:var(--rail);--atr-run:var(--accent-mark,var(--accent));--atr-done:var(--ok-mark);--atr-need:var(--warn-mark);--atr-fail:var(--bad-mark);width:100%;max-width:480px;margin:0 auto;padding:6px}
+:root:not([data-style="soft"]) .v2 .atr{--atr-r:0}
+.v2 .atr-h{display:flex;flex-direction:column;gap:var(--s-2);padding:var(--s-2) 10px 12px}
+.v2 .atr-hr{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3)}
+.v2 .atr-ht{font-weight:500;font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .v2 .atr-tot{font-size:14px;font-weight:500}
+.v2 .atr-chips{display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-height:20px}
+.v2 .atr-chips .tag{transition:opacity .2s}
+.v2 .atr-ck{margin-left:auto;font-size:12px;color:var(--muted)}
+.v2 button.atr-nd{cursor:pointer;font:inherit;font-size:11.5px;font-weight:500}
 .v2 .atr-tree{display:flex;flex-direction:column;padding-top:var(--s-1);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
-.v2 .atr-n{display:flex;align-items:center;gap:var(--s-2);min-height:44px;padding:5px 10px 5px calc(4px + var(--lv,0) * 20px);border-radius:calc(10px * var(--rk));font-size:13px;outline:0;transition:background .16s}
+.v2 .atr-n{position:relative;display:flex;align-items:center;gap:10px;min-height:48px;padding:6px 10px 6px calc(10px + var(--lv,0) * 28px);border-radius:calc(10px * var(--rk));font-size:13px;outline:0;cursor:default;transition:background .2s,opacity .3s}
+.v2 .atr-n[aria-expanded]{cursor:pointer}
+.v2 .atr-n[hidden]{display:none}
 @media (hover:hover) and (pointer:fine){.v2 .atr-n:hover{background:var(--row)}}
 .v2 .atr-n:focus-visible{box-shadow:inset 0 0 0 2px var(--focus)}
-.v2 .atr-tg{width:20px;height:20px;display:grid;place-items:center;flex:none;border-radius:calc(6px * var(--rk));color:var(--muted);transition:background .16s,color .16s}
-@media (hover:hover) and (pointer:fine){.v2 .atr-tg:hover{background:var(--row);color:var(--fg)}}
+/* the state mark on the line: a ring while queued, a spinner with a quiet pulse while running, a tick, an alert or a stop */
+.v2 .atr-g{position:relative;width:20px;height:20px;display:grid;place-items:center;flex:none;border-radius:50%;color:var(--faint);transition:background .3s,color .3s}
+.v2 .atr-g .spin{position:relative;width:12px;height:12px;color:var(--atr-run)}
+.v2 .atr-g .dot{width:8px;height:8px;background:none;box-shadow:inset 0 0 0 1.5px currentColor}
+.v2 .atr-g .atr-tk{position:absolute;width:12px;height:12px;border-radius:50%;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--atr-run) 22%,transparent)}
+:root:not([data-style="soft"]) .v2 .atr-g .atr-tk{display:none}
+@supports (corner-shape:squircle){.v2 .atr-g,.v2 .atr-g :is(.atr-pl,.atr-tk){corner-shape:round}}
+.v2 .atr-g .atr-pl{position:absolute;inset:0;border-radius:50%;background:color-mix(in srgb,var(--atr-run) 16%,transparent);animation:v2-atrpulse 1.8s var(--ease) infinite}
+@keyframes v2-atrpulse{0%{transform:scale(.5);opacity:1}70%,100%{transform:scale(1.2);opacity:0}}
+.v2 .atr-n.done>.atr-g{background:color-mix(in srgb,var(--atr-done) 14%,transparent);color:var(--ok)}
+.v2 .atr-n.need>.atr-g{background:color-mix(in srgb,var(--atr-need) 16%,transparent);color:var(--warn)}
+.v2 .atr-n.fail>.atr-g{background:color-mix(in srgb,var(--atr-fail) 14%,transparent);color:var(--bad)}
+.v2 .atr-n.stop>.atr-g{color:var(--muted)}
+/* who is working: an agent's avatar in its own colour, or the app a step works in */
+.v2 .atr-av{width:26px;height:26px;display:grid;place-items:center;flex:none;border-radius:calc(7px * var(--rk));background:var(--a,var(--fg));color:var(--ai,var(--surface))}
+.v2 .atr-av .i{width:13px;height:13px;stroke-width:1.9}
+.v2 .atr-av.app{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 70%,transparent);color:var(--fg)}
+.v2 .atr-av.app .brand{width:14px;height:14px}
+@supports (corner-shape:squircle){.v2 .atr-av{corner-shape:squircle;border-radius:calc(9px * var(--rk))}}
+.v2 .atr-t{flex:1;min-width:0;display:flex;flex-direction:column}
+.v2 .atr-t b{display:flex;align-items:center;gap:2px;min-width:0;font-weight:500}
+.v2 .atr-t b>span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .atr-t>span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .atr-n.stop .atr-t b{color:var(--muted);text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--muted) 60%,transparent)}
+.v2 .atr-n.queued .atr-t b{color:var(--fg2)}
+/* a branch folds by its row; the chevron beside its name turns as it does */
+.v2 .atr-tg{width:16px;height:16px;display:grid;place-items:center;flex:none;color:var(--muted)}
 .v2 .atr-tg svg{transition:transform .32s var(--ease)}
 .v2 .atr-n[aria-expanded="false"] .atr-tg svg{transform:rotate(-90deg)}
-.v2 .atr-sp{width:20px;flex:none}
-.v2 .atr-g{width:16px;height:16px;display:grid;place-items:center;flex:none;color:var(--faint)}
-.v2 .atr-g .spin{width:11px;height:11px;color:var(--accent-fg,var(--accent))}
-.v2 .atr-n.done .atr-g{color:var(--ok)}
-.v2 .atr-n.fail .atr-g{color:var(--bad)}
-.v2 .atr-t{flex:1;min-width:0;display:flex;flex-direction:column}
-.v2 .atr-t b{font-weight:500}
-.v2 .atr-t span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.v2 .atr-n.fail .atr-t span{color:var(--bad)}
-.v2 .atr-n.queued .atr-t b{color:var(--fg2)}
-.v2 .atr-c{font-size:12.5px;color:var(--fg2);min-width:44px;text-align:right}
+/* the right side: the state's chip over what the node has spent and for how long */
+.v2 .atr-r{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex:none}
+.v2 .atr-c{font-size:12px;color:var(--fg2);white-space:nowrap}
+.v2 .atr-c .s{color:var(--muted)}
 .v2 .atr-n.queued .atr-c{color:var(--muted)}
-/* the way out of a failed step: a white button on its red-tinted row */
-.v2 .atr-n.fail{background:var(--bad-bg)}
-.v2 .atr-fix{flex:none;align-self:flex-start;margin-top:var(--s-1);background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
-@media (hover:hover) and (pointer:fine){.v2 .atr-fix:hover{background:var(--surface);box-shadow:var(--shadow-pop)}}
-/* a folded branch keeps its children's space shut; the guide line marks the level */
-.v2 .atr-kids{position:relative}
-.v2 .atr-kids::before{content:"";position:absolute;top:2px;bottom:6px;left:calc(14px + var(--lv,0) * 20px);width:1px;background:var(--line)}
+.v2 .atr-st.tag.run{background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent-fg,var(--accent))}
+.v2 .atr-st.tag.stop{background:var(--chip);color:var(--muted)}
+.v2 .atr-st .spin{width:9px;height:9px;border-width:1.5px}
+.v2 .atr-st .i{width:11px;height:11px}
+/* a step that needs you: its question and the way on, under its task */
+.v2 .atr-fix{flex:none;align-self:flex-start;margin-top:6px}
+/* rolling digits: a changed digit slides up out of its place as the new one comes in */
+.v2 .atr-rl{display:inline-grid;overflow:hidden;vertical-align:top}
+.v2 .atr-rl>*{grid-area:1/1}
+.v2 .atr-rl .o{animation:v2-atrro .34s var(--ease) forwards}
+.v2 .atr-rl .n{animation:v2-atrrn .34s var(--ease) backwards}
+@keyframes v2-atrro{to{transform:translateY(-75%);opacity:0}}
+@keyframes v2-atrrn{from{transform:translateY(75%);opacity:0}}
+/* the lines: one svg over the tree (agent-tree's frame loop draws them). The line is tinted as far as the work has got and
+   fades into grey below it; a branch into a step that has started takes the tint, one still queued stays grey */
+.v2 .atr-tree{position:relative}
+.v2 .atr{--atr-flow:color-mix(in srgb,var(--atr-run) 58%,var(--surface))}
+.v2 .atr-ln{position:absolute;z-index:1;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.v2 .atr-ln stop.f{stop-color:var(--atr-flow)}
+.v2 .atr-ln stop.g{stop-color:var(--atr-ln)}
+.v2 .atr-ln .br{stroke:var(--atr-ln);transition:stroke .6s var(--ease)}
+.v2 .atr-ln .br.on{stroke:var(--atr-flow)}
+.v2 .atr-in{animation:v2-atrin .56s cubic-bezier(.16,1,.3,1) backwards}
+@keyframes v2-atrin{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.v2 .atr-g .atr-pl{animation:none;opacity:0}.v2 .atr-in,.v2 .atr-rl>*{animation:none}.v2 .atr-rl .o{display:none}}
 .v2 .atr-sum{display:flex;align-items:center;gap:var(--s-2);margin:var(--s-2) var(--s-1) 2px;padding:10px var(--s-3);border-radius:var(--r-in);background:var(--ok-bg);font-size:13px}
 .v2 .atr-sum svg{color:var(--ok);flex:none}
 /* ---------- Agent tree designs ---------- */

@@ -15,7 +15,7 @@ TPLS["web-search"] = "<div class=\"wsx panel\">\n  <button class=\"wsx-h\" aria-
 TPLS["browser-session"] = "<div class=\"bws panel\">\n  <div class=\"bws-h\"><div class=\"bws-ht\"><b>Pricing research</b><span class=\"muted bws-st\" aria-live=\"polite\"></span></div><div class=\"bws-ctl\"><button class=\"ib bws-pause\" aria-label=\"Pause\" data-tip=\"Pause\">{pause}</button><button class=\"pill line sm bws-take\" aria-pressed=\"false\">Take over</button></div></div>\n  <div class=\"bws-win\"><div class=\"bws-bar\"><span class=\"bws-dots\" aria-hidden=\"true\"><i></i><i></i><i></i></span><div class=\"bws-url\">{search}<span></span></div></div><div class=\"bws-vp\"></div></div>\n  <ol class=\"bws-steps\" aria-label=\"Steps\"></ol>\n</div>";
 TPLS["trace-view"] = "<div class=\"trv panel\">\n  <div class=\"trv-h\"><div class=\"trv-ht\"><b>Pricing research</b><span class=\"muted trv-st\" aria-live=\"polite\"></span></div><span class=\"trv-tot num\">0.00s</span></div>\n  <div class=\"trv-lg\" role=\"list\" aria-label=\"Spans by kind\"></div>\n  <div class=\"trv-ax\" aria-hidden=\"true\"><span>Span</span><span class=\"trv-sc\"></span><span class=\"trv-tk\">Tokens</span><span class=\"trv-ms\">Time</span></div>\n  <div class=\"trv-rows\" role=\"group\" aria-label=\"Spans\"></div>\n  <div class=\"fold shut trv-dt\" inert><div><div class=\"trv-dc\" role=\"region\" aria-label=\"Span details\"></div></div></div>\n</div>";
 TPLS["agent-inbox"] = "<div class=\"aib panel\">\n  <div class=\"aib-h\"><b>Inbox</b><span class=\"muted aib-st\" aria-live=\"polite\"></span></div>\n  <div class=\"aib-gs\"></div>\n</div>";
-TPLS["agent-tree"] = "<div class=\"dm atr-dm\" data-designs=\"card\"><div class=\"dm-main\">\n<div class=\"atr panel\">\n  <div class=\"atr-h\"><div class=\"atr-ht\"><b>Redesign the pricing page</b><span class=\"muted atr-st\">3 agents working</span></div><span class=\"atr-tot num\">$0.00</span></div>\n  <div class=\"atr-tree\" role=\"tree\" aria-label=\"Agents\"></div>\n</div>\n</div>\n<div class=\"demo\"><div class=\"seg2\" role=\"group\" aria-label=\"Agent tree design\"><button aria-pressed=\"true\" data-v=\"classic\">Classic</button><button aria-pressed=\"false\" data-v=\"cost\">Cost tree</button><button aria-pressed=\"false\" data-v=\"map\">Cost map</button></div></div>\n</div>";
+TPLS["agent-tree"] = "<div class=\"dm atr-dm\" data-designs=\"card\"><div class=\"dm-main\">\n<div class=\"atr panel\">\n  <div class=\"atr-h\"><div class=\"atr-hr\"><b class=\"atr-ht\">Redesign the pricing page</b><span class=\"atr-tot num\">$0.00</span></div><div class=\"atr-chips\" aria-live=\"polite\"></div></div>\n  <div class=\"atr-tree\" role=\"tree\" aria-label=\"Agents\"></div>\n</div>\n</div>\n<div class=\"demo\"><div class=\"seg2\" role=\"group\" aria-label=\"Agent tree design\"><button aria-pressed=\"true\" data-v=\"classic\">Classic</button><button aria-pressed=\"false\" data-v=\"cost\">Cost tree</button><button aria-pressed=\"false\" data-v=\"map\">Cost map</button></div></div>\n</div>";
 TPLS["agent-lanes"] = "<div class=\"dm aln-dm\" data-designs=\"card\"><div class=\"dm-main\"><div class=\"aln panel\">\n  <div class=\"aln-h\"><span class=\"aln-ic\">{users}</span><span class=\"aln-t\">3 agents working</span><span class=\"aln-m muted num\">0:00</span><span class=\"aln-ct num\">0 of 9 steps</span><button class=\"pill soft sm aln-pause\">{pause}Pause all</button></div>\n  <div class=\"aln-rows\"></div>\n</div></div>\n<div class=\"demo\"><div class=\"seg2\" role=\"group\" aria-label=\"Agent lanes design\"><button aria-pressed=\"true\" data-v=\"classic\">Classic</button><button aria-pressed=\"false\" data-v=\"swimlanes\">Swimlanes</button><button aria-pressed=\"false\" data-v=\"crew\">Crew</button></div></div>\n</div>";
 TPLS["reasoning-trail"] = "<div class=\"rtr-dm dm\"><div class=\"dm-main\"><div class=\"rtr panel\">\n  <button class=\"rtr-h\" aria-expanded=\"true\">\n    <span class=\"think on rtr-mark\"><i></i><i></i><i></i><i></i></span>\n    <span class=\"rtr-title shim\">Reasoning</span><span class=\"rtr-time num muted\">0s</span>\n    <svg class=\"i xs rtr-chev\"><use href=\"#i-chev-d\"/></svg>\n  </button>\n  <div class=\"fold rtr-fold\"><div>\n    <div class=\"rtr-body\"></div>\n  </div></div>\n</div></div>\n  <div class=\"demo\"><div class=\"seg2\" role=\"group\" aria-label=\"View\"><button aria-pressed=\"true\" data-v=\"plan\">Plan</button><button aria-pressed=\"false\" data-v=\"notes\">Notes</button><button aria-pressed=\"false\" data-v=\"sources\">Sources</button><button aria-pressed=\"false\" data-v=\"edits\">Edits</button></div></div>\n</div>";
 TPLS["thinking"] = "<div class=\"tk\" data-open=\"1\">\n  <button class=\"tk-h\" aria-expanded=\"true\">\n    <span class=\"tk-mark\"><span class=\"think on\"><i></i><i></i><i></i><i></i></span></span>\n    <span class=\"tk-title shim\">Checking the pricing page</span><span class=\"tk-time num\">0s</span>\n    <svg class=\"i xs tk-chev\"><use href=\"#i-chev-d\"/></svg>\n  </button>\n  <div class=\"fold tk-fold\"><div><ol class=\"tk-list\" aria-live=\"polite\"></ol></div></div>\n</div>";
@@ -1080,88 +1080,189 @@ DM.def('run-queue', (r, c) => {
 }
 /* ---------- Agent tree ---------- */
 DM.def('agent-tree', (r, c) => {
-  // the run: an orchestrator, its three agents and their steps. cost is what each spends on its own, in dollars; a branch
-  // shows its own cost plus everything under it
-  const T = { id:'root', n:'Orchestrator', t:'Plans the work and hands it out', cost:.04, s:'run', kids:[
-    { id:'res', n:'Research agent', t:'Compare 3 competitor pricing pages', cost:.02, s:'done', kids:[
-      { id:'res1', n:'Read the 3 pricing pages', t:'3 pages, 9.4k words', cost:.06, s:'done' },
-      { id:'res2', n:'Summarise their plans', t:'Notes added to Pricing v4', cost:.04, s:'done' } ] },
-    { id:'des', n:'Design agent', t:'Rework the plan cards in Figma', cost:.02, s:'run', kids:[
-      { id:'des1', n:'Update the Pro card', t:'Pricing v4, frame 2', cost:.03, s:'run' },
-      { id:'des2', n:'Update the Team card', t:'Pricing v4, frame 3', cost:0, s:'queued' },
-      { id:'des3', n:'Apply library tokens', t:'Colour and spacing', cost:0, s:'queued' } ] },
-    { id:'cop', n:'Copy agent', t:'Rewrite the plan descriptions', cost:0, s:'queued' } ] };
-  const tree = $('.atr-tree', r), stEl = $('.atr-st', r), tot = $('.atr-tot', r), root = $('.atr', r);
-  const all = []; (function walk(n, lv, p){ n.lv = lv; n.parent = p; all.push(n); (n.kids || []).forEach(k => walk(k, lv + 1, n)); })(T, 0, null);
-  const by = id => all.find(n => n.id === id), kids = n => !!(n.kids && n.kids.length);
-  const sum = n => n.cost + (n.kids || []).reduce((a, k) => a + sum(k), 0), money = v => '$' + v.toFixed(2);
-  const G = { run:'<span class="spin"></span>', done:I('ok','xs'), fail:I('alert','xs'), queued:'<span class="dot"></span>' };
+  // the run: an orchestrator hands the work to three agents, and they split it into steps. Each agent has its colour (av, from
+  // the avatar colours) and its icon; each step the app it works in (app) or an icon. at is when a node joins the tree (in
+  // seconds), s the state it joins in and t its task; cost is what it has spent on its own, and a branch shows its own cost
+  // plus everything under it
+  const T = { id:'root', n:'Orchestrator', t:'Plans the work and hands it out', ic:'spark', s:'run', kids:[
+    { id:'res', n:'Research agent', t:'Compare 3 competitor pricing pages', ic:'globe', av:'l', at:.15, s:'run', kids:[
+      { id:'res1', n:'Read the 3 pricing pages', t:'Reading page 1 of 3', ic:'globe', at:.95, s:'run' },
+      { id:'res2', n:'Summarise their plans', t:'Waiting for the pages', app:'notion', at:1.15, s:'queued' } ] },
+    { id:'des', n:'Design agent', t:'Rework the plan cards', ic:'palette', av:'p', at:.45, s:'run', kids:[
+      { id:'des1', n:'Update the Pro card', t:'Pricing v4, frame 2', app:'figma', at:1.4, s:'run' },
+      { id:'des2', n:'Update the Team card', t:'Pricing v4, frame 3', app:'figma', at:1.6, s:'queued' },
+      { id:'des3', n:'Apply library tokens', t:'Colour and spacing', app:'figma', at:1.8, s:'queued' } ] },
+    { id:'cop', n:'Copy agent', t:'Rewrite the plan descriptions', ic:'edit', av:'m', at:.75, s:'queued' } ] };
+  const tree = $('.atr-tree', r), chips = $('.atr-chips', r), tot = $('.atr-tot', r), root = $('.atr', r);
+  const all = []; const walk = (n, lv, p) => { n.lv = lv; n.parent = p; n.cost = 0; n.secs = 0; all.push(n); (n.kids || []).forEach(k => walk(k, lv + 1, n)); }; walk(T, 0, null);
+  const by = id => all.find(n => n.id === id), kids = n => !!(n.kids && n.kids.length), shown = n => !n.el.hidden;
+  const sum = n => n.cost + (n.kids || []).filter(shown).reduce((a, k) => a + sum(k), 0), money = v => '$' + v.toFixed(2);
+  const secs = s => s < 60 ? Math.floor(s) + 's' : Math.floor(s / 60) + 'm ' + String(Math.floor(s % 60)).padStart(2, '0') + 's';
+  // a state's mark on the line, and its chip
+  const G = { run:'<i class="atr-pl"></i><i class="atr-tk"></i><span class="spin"></span>', done:I('check','xs'), need:I('alert','xs'), fail:I('alert','xs'), stop:I('minus','xs'), queued:'<span class="dot"></span>' };
+  const CH = { run:['run', '<span class="spin"></span>Running'], done:['ok', I('check','xs') + 'Done'], need:['warn', I('alert','xs') + 'Needs you'], fail:['bad', I('alert','xs') + 'Failed'], stop:['stop', 'Stopped'], queued:['', 'Queued'] };
+  const avatar = n => n.app ? `<span class="atr-av app" aria-hidden="true">${BRAND[n.app]}</span>` : n.av || !n.lv ? `<span class="atr-av" aria-hidden="true"${n.av ? ` style="--a:var(--av-${n.av});--ai:var(--av-${n.av}-ink)"` : ''}>${I(n.ic, 's')}</span>` : `<span class="atr-av app" aria-hidden="true">${I(n.ic, 's')}</span>`;
   function build(n){
-    const row = html(`<div class="atr-n ${n.s}" role="treeitem" aria-level="${n.lv + 1}"${kids(n) ? ' aria-expanded="true"' : ''} tabindex="-1" style="--lv:${n.lv}">${kids(n) ? `<span class="atr-tg" aria-hidden="true">${I('chev-d','xs')}</span>` : '<span class="atr-sp"></span>'}<span class="atr-g">${G[n.s]}</span><span class="atr-t"><b>${n.n}</b><span>${n.t}</span></span><span class="atr-c num"></span></div>`);
-    n.el = row; const out = [row];
-    if (kids(n)){ const f = html(`<div class="fold atr-kids" role="group" style="--lv:${n.lv}"><div></div></div>`); n.kids.forEach(k => build(k).forEach(e => f.firstElementChild.appendChild(e))); n.fold = f; out.push(f); }
+    const row = html(`<div class="atr-n ${n.s}" role="treeitem" aria-level="${n.lv + 1}"${kids(n) ? ' aria-expanded="true"' : ''} tabindex="-1" style="--lv:${n.lv}"><span class="atr-g" aria-hidden="true">${G[n.s]}</span>${avatar(n)}<span class="atr-t"><b><span>${n.n}</span>${kids(n) ? `<span class="atr-tg" aria-hidden="true">${I('chev-d','xs')}</span>` : ''}</b><span>${n.t}</span></span><span class="atr-r"><span class="tag atr-st"></span><span class="atr-c num"></span></span></div>`);
+    n.el = row; paintState(n); const out = [row];
+    if (kids(n)){ const f = html(`<div class="fold atr-kids" role="group"><div></div></div>`); n.kids.forEach(k => build(k).forEach(e => f.firstElementChild.appendChild(e))); n.fold = f; out.push(f); }
     return out;
   }
+  function paintState(n){ const st = $('.atr-st', n.el), [k, h] = CH[n.s]; st.className = 'tag atr-st' + (k ? ' ' + k : ''); st.innerHTML = h; }
+  // rolling digits: the characters that changed slide out upwards as the new ones come in
+  function roll(el, txt){
+    const old = el.dataset.v; if (old === txt) return; el.dataset.v = txt;
+    if (!old || old.length !== txt.length || REDUCE){ el.textContent = txt; return; }
+    el.innerHTML = [...txt].map((ch, i) => ch === old[i] ? ch : `<span class="atr-rl"><span class="o">${old[i]}</span><span class="n">${ch}</span></span>`).join('');
+  }
   build(T).forEach(e => tree.appendChild(e)); T.el.tabIndex = 0;
-  // each branch folds by its row (or its chevron); folded, it keeps its total
+
+  // ---------- the lines ----------
+  // one svg over the tree draws every parent's line: down from its mark to its last child, curving off into each child's
+  // mark. The line is tinted as far as the work has got (down to the last child that has started) and fades into grey below
+  // that. It is redrawn every frame from where the rows are, easing towards it, so a line grows down as an agent arrives and
+  // its branch curves out to it, the tint glides down as steps start, and folding a branch draws its lines back in
+  const SVG = 'http://www.w3.org/2000/svg', mk = (t, a = {}) => { const e = document.createElementNS(SVG, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
+  const svg = mk('svg', { class:'atr-ln', 'aria-hidden':'true' }), defs = mk('defs'); svg.append(defs); tree.prepend(svg);
+  const uid = (DM.uid = (DM.uid || 0) + 1); let gi = 0;
+  const L = [];
+  const lineOf = p => { let x = L.find(l => l.p === p); if (x) return x;
+    const id = `atr${uid}-${++gi}`, gr = mk('linearGradient', { id, gradientUnits:'userSpaceOnUse', x1:0, x2:0 }), st = [0, 1, 2, 3].map(() => mk('stop'));
+    st[0].setAttribute('class', 'f'); st[1].setAttribute('class', 'f'); st[2].setAttribute('class', 'g'); st[3].setAttribute('class', 'g'); gr.append(...st); defs.append(gr);
+    const trunk = mk('path', { stroke:`url(#${id})` }); svg.prepend(trunk); svg.prepend(defs);
+    x = { p, gr, st, trunk, end:null, reach:null }; L.push(x); return x; };
+  const open = n => { for (let p = n.parent; p; p = p.parent) if (p.el.getAttribute('aria-expanded') === 'false') return false; return true; };
+  let last = 0;
+  const ease = (v, to, a) => v == null ? to : v + (to - v) * a;
+  function frame(t){
+    const dt = last ? Math.min(.05, (t - last) / 1000) : 0; last = t;
+    const fast = 1 - Math.exp(-dt * 14), slow = 1 - Math.exp(-dt * 7);
+    const tr = tree.getBoundingClientRect(), R = parseFloat(getComputedStyle(root).getPropertyValue('--atr-r')) || 0;
+    for (const p of all){
+      if (!kids(p)) continue; const l = lineOf(p);
+      const on = shown(p) && open(p) && p.el.getAttribute('aria-expanded') !== 'false';
+      const pg = $('.atr-g', p.el).getBoundingClientRect(), x0 = pg.left + pg.width / 2 - tr.left, y0 = pg.bottom - tr.top + 3;
+      const fb = p.fold.getBoundingClientRect().bottom - tr.top;
+      let endT = y0, reachT = y0;
+      const B = p.kids.map(k => {
+        const g = $('.atr-g', k.el).getBoundingClientRect(), cy = g.top + g.height / 2 - tr.top, x1 = g.left - tr.left - 5;
+        const vis = on && shown(k) && cy < fb - 2;
+        if (vis){ endT = Math.max(endT, cy - R); if (k.s !== 'queued') reachT = Math.max(reachT, cy); }
+        return { k, cy, x1, vis };
+      });
+      l.end = ease(l.end, endT, fast); l.reach = ease(l.reach, Math.min(reachT, endT), slow);
+      const span = l.end - y0;
+      l.trunk.setAttribute('d', span > .5 ? `M${x0} ${y0}V${l.end}` : '');
+      if (span > .5){
+        const r = Math.min(1, Math.max(0, (l.reach - y0) / span)), fade = Math.min(1 - r, 28 / span);
+        l.gr.setAttribute('y1', y0); l.gr.setAttribute('y2', l.end);
+        l.st[0].setAttribute('offset', 0); l.st[1].setAttribute('offset', r); l.st[2].setAttribute('offset', Math.min(1, r + fade)); l.st[3].setAttribute('offset', 1);
+      }
+      // a branch curves out once the line has come down to it, and draws back in when its row goes
+      for (const b of B){
+        const k = b.k; if (!k.br){ k.br = mk('path', { class:'br' }); svg.append(k.br); k.dr = 0; }
+        const reached = b.vis && l.end >= b.cy - R - 1;
+        k.dr = ease(k.dr, reached ? 1 : 0, b.vis ? fast * .8 : fast * 1.4); if (!b.vis && k.dr < .01) k.dr = 0;
+        k.br.classList.toggle('on', k.s !== 'queued');
+        if (k.dr < .01){ k.br.setAttribute('d', ''); continue; }
+        k.br.setAttribute('d', `M${x0} ${b.cy - R}Q${x0} ${b.cy} ${x0 + R} ${b.cy}H${b.x1}`);
+        const len = k.br.getTotalLength(); k.br.style.strokeDasharray = len; k.br.style.strokeDashoffset = len * (1 - k.dr);
+      }
+    }
+  }
+  c.loop(frame);
+  // a new child: the line comes down to it and curves out, and its row rises into place as the curve arrives
+  function spawn(n){
+    n.el.hidden = false; if (n.s === 'run') n.t0 = performance.now();
+    n.el.classList.remove('atr-in'); void n.el.offsetWidth; n.el.style.animationDelay = '240ms'; n.el.classList.add('atr-in');
+    paint(true);
+  }
+
+  // each branch folds by its row; folded, it keeps its total
   function toggle(n, open){
     if (!kids(n)) return; const o = open ?? n.el.getAttribute('aria-expanded') !== 'true';
     n.el.setAttribute('aria-expanded', o); n.fold.classList.toggle('shut', !o); n.fold.inert = !o;
   }
-  function paint(){
-    all.forEach(n => { const ce = $('.atr-c', n.el), v = kids(n) ? sum(n) : n.cost;
-      ce.textContent = n.s === 'queued' && !v ? '–' : money(v);
-      if (kids(n)){ const k = n.kids.length, what = n.lv ? (k > 1 ? ' steps ' : ' step ') : (k > 1 ? ' agents ' : ' agent ');
-        ce.dataset.tip = `Its own ${money(n.cost)}, ${k}${what}${money(sum(n) - n.cost)}`; } });
-    tot.textContent = money(sum(T));
-  }
-  // the line under the title: what the run is doing, and a clock
+  // the numbers: each node's cost and time, the run's total, and the header's chips (how many agents, how many running, and
+  // what needs you, which takes you to it)
   const t0 = performance.now(); let ended = 0;
-  const clock = () => { const s = Math.floor(((ended || performance.now()) - t0) / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
-  stEl.innerHTML = '<span class="m" aria-live="polite">Running</span> · <span class="num ck">0:00</span>';
-  const setMode = m => swap($('.m', stEl), m);
-  // whatever is running spends as it goes, so its cost and every total above it count up
-  c.every(100, () => { all.forEach(n => { if (n.s === 'run') n.cost += n.lv ? .0016 : .0006; }); paint(); $('.ck', stEl).textContent = clock(); });
-  paint();
-  function step(n, s, t){ n.s = s; n.el.className = 'atr-n ' + s; const g = $('.atr-g', n.el); g.innerHTML = G[s]; enter(g); if (t !== undefined) swap($('.atr-t span', n.el), t); paint(); }
+  const clock = () => secs(((ended || performance.now()) - t0) / 1000);
+  function paint(chipsToo){
+    all.forEach(n => { if (!shown(n)) return; const ce = $('.atr-c', n.el), v = kids(n) ? sum(n) : n.cost;
+      roll(ce, n.s === 'queued' && !v ? '–' : money(v) + (n.secs >= 1 ? ' · ' + secs(n.secs) : ''));
+      if (kids(n)){ const k = n.kids.filter(shown).length, what = n.lv ? (k === 1 ? ' step ' : ' steps ') : (k === 1 ? ' agent ' : ' agents ');
+        ce.dataset.tip = `Its own ${money(n.cost)}, ${k}${what}${money(sum(n) - n.cost)}`; } });
+    roll(tot, money(sum(T)));
+    if (!chipsToo) return;
+    const ag = T.kids.filter(shown).length, run = all.filter(n => shown(n) && n.s === 'run' && n !== T).length, need = all.filter(n => shown(n) && n.s === 'need');
+    chips.innerHTML = `<span class="tag">${ag} agent${ag === 1 ? '' : 's'}</span>${run ? `<span class="tag atr-st run"><span class="spin"></span>${run} running</span>` : ''}${need.length ? `<button type="button" class="tag warn atr-nd">${I('alert','xs')}${need.length} needs you</button>` : ''}${T.s === 'done' ? `<span class="tag ok">${I('check','xs')}Done</span>` : ''}<span class="atr-ck num"></span>`;
+    const nd = $('.atr-nd', chips); if (nd) nd.onclick = () => { const x = need[0]; all.forEach(y => y.el.tabIndex = y === x ? 0 : -1); x.el.focus(); };
+    $('.atr-ck', chips).textContent = clock();
+  }
+  // whatever is running spends as it goes and its time counts, so its numbers and every total above it roll up
+  c.every(100, () => { const now = performance.now(); all.forEach(n => { if (n.s === 'run' && shown(n)){ n.cost += n.lv ? .0016 : .0006; n.secs = (now - n.t0) / 1000 + (n.base || 0); } }); });
+  c.every(700, () => { paint(); const ck = $('.atr-ck', chips); if (ck) ck.textContent = clock(); });
+  function step(n, s, t){
+    if (s === 'run' && n.s !== 'run') n.t0 = performance.now(); if (n.s === 'run' && s !== 'run') n.base = n.secs;
+    n.s = s; n.el.className = 'atr-n ' + s;
+    const g = $('.atr-g', n.el); g.innerHTML = G[s]; enter(g); const st = $('.atr-st', n.el); paintState(n); enter(st);
+    if (t !== undefined) swap($(':scope>.atr-t>span', n.el), t); paint(true);
+  }
+  const say = (n, t) => swap($(':scope>.atr-t>span', n.el), t);
+
+  // the tree keeps the room it will need at the end, with every row in and the summary under it, so nothing moves as it grows
+  T.kids[1].kids.push({ id:'des3b', n:'Apply library tokens', t:'Using color.accent.500', app:'figma', s:'run' });
+  const nb = T.kids[1].kids[3]; nb.lv = 2; nb.parent = T.kids[1]; nb.cost = 0; nb.secs = 0; all.push(nb);
+  T.kids[1].fold.firstElementChild.appendChild(build(nb)[0]);
+  const prov = html(`<div class="atr-sum">${I('ok','xs')}<span>Done in 0:00 · 3 agents · $0.00</span></div>`); root.appendChild(prov);
+  const full = root.getBoundingClientRect().height; prov.remove(); if (full) root.style.minHeight = Math.ceil(full) + 'px';
+  all.forEach(n => { if (n !== T) n.el.hidden = true; }); T.t0 = t0; paint(true);
+
   // clicking a branch folds it; the arrow keys move through the tree as in any tree view
   c.on(tree, 'click', e => { const row = e.target.closest('.atr-n'); if (!row || e.target.closest('.atr-fix')) return; const n = all.find(x => x.el === row); all.forEach(x => x.el.tabIndex = x === n ? 0 : -1); toggle(n); });
-  const visible = () => all.filter(n => { for (let p = n.parent; p; p = p.parent) if (p.el.getAttribute('aria-expanded') === 'false') return false; return true; });
+  const visible = () => all.filter(n => { if (!shown(n)) return false; for (let p = n.parent; p; p = p.parent) if (p.el.getAttribute('aria-expanded') === 'false') return false; return true; })
+    .sort((a, b) => a.el.compareDocumentPosition(b.el) & 4 ? -1 : 1);
   c.on(tree, 'keydown', e => {
     const v = visible(), i = v.findIndex(n => n.el === document.activeElement); if (i < 0) return;
     const n = v[i], open = n.el.getAttribute('aria-expanded') === 'true'; let go = null;
     if (e.key === 'ArrowDown') go = v[i + 1]; else if (e.key === 'ArrowUp') go = v[i - 1];
-    else if (e.key === 'ArrowRight'){ if (kids(n) && !open) toggle(n, true); else if (kids(n)) go = n.kids[0]; }
+    else if (e.key === 'ArrowRight'){ if (kids(n) && !open) toggle(n, true); else if (kids(n)) go = n.kids.find(shown); }
     else if (e.key === 'ArrowLeft'){ if (kids(n) && open) toggle(n, false); else go = n.parent; }
     else if (e.key === 'Enter' || e.key === ' ') toggle(n);
     else if (e.key === 'Home') go = v[0]; else if (e.key === 'End') go = v[v.length - 1];
     else return;
     e.preventDefault(); if (go){ all.forEach(x => x.el.tabIndex = -1); go.el.tabIndex = 0; go.el.focus({ preventScroll:true }); }
   });
-  // the run: the design agent works through its steps, one fails on a token the library doesn't have, and the fix it offers
-  // waits for you
+  // the run: it opens mid-plan, the orchestrator handing out the agents and they their steps. The research reads its pages and
+  // sums them up while the design agent works through its cards; one step needs you, as the library has no token for the
+  // colour it found. Taking the fix stops that step and starts a new one with the token the library has; then the copy
+  // agent writes and the run is done
   c.run(async () => {
-    await c.wait(2000); step(by('des1'), 'done'); step(by('des2'), 'run');
-    await c.wait(2500); step(by('des2'), 'done'); step(by('des3'), 'run');
-    await c.wait(2000);
-    const tk = by('des3'); step(tk, 'fail', "color.accent.600 isn't in the library"); setMode('1 step failed');
-    const fix = html(`<button class="pill sm atr-fix">Use color.accent.500</button>`); $('.atr-t', tk.el).appendChild(fix); enter(fix);
+    const order = all.filter(n => n !== T && n.at != null).sort((a, b) => a.at - b.at); let at = 0;
+    for (const n of order){ await c.wait((n.at - at) * 1000); at = n.at; spawn(n); }
+    await c.wait(600); say(by('res1'), 'Reading page 2 of 3');
+    await c.wait(700); say(by('res1'), 'Reading page 3 of 3');
+    await c.wait(500); step(by('des1'), 'done', 'Pricing v4, frame 2'); step(by('des2'), 'run', 'Editing frame 3');
+    await c.wait(300); step(by('res1'), 'done', '3 pages, 9.4k words'); step(by('res2'), 'run', 'Comparing 9 plans');
+    await c.wait(1300); step(by('res2'), 'done', 'Notes added to Pricing v4'); step(by('res'), 'done');
+    await c.wait(700); step(by('des2'), 'done', 'Pricing v4, frame 3'); step(by('des3'), 'run', 'Matching colours to tokens');
+    await c.wait(1200);
+    const tk = by('des3'); step(tk, 'need', "color.accent.600 isn't in the library");
+    const fix = html(`<button class="pill sm line atr-fix">Use color.accent.500</button>`); $('.atr-t', tk.el).appendChild(fix); enter(fix);
     await new Promise(res => { fix.onclick = res; });
-    fix.remove(); step(tk, 'run', 'Using color.accent.500'); setMode('Running');
-    await c.wait(2000); step(tk, 'done', 'Colour and spacing, from the library'); step(by('des'), 'done'); step(by('cop'), 'run');
-    await c.wait(3000); step(by('cop'), 'done'); step(T, 'done'); ended = performance.now(); setMode('Done');
+    fix.remove(); step(tk, 'stop', 'Stopped for color.accent.500'); spawn(nb);
+    await c.wait(1700); step(nb, 'done', 'Colour and spacing, from the library'); step(by('des'), 'done'); step(by('cop'), 'run', 'Writing 3 plan blurbs');
+    await c.wait(2400); step(by('cop'), 'done', 'Plan descriptions rewritten'); step(T, 'done'); ended = performance.now(); paint(true);
     const sm = html(`<div class="atr-sum">${I('ok','xs')}<span>Done in ${clock()} · 3 agents · ${money(sum(T))}</span></div>`); root.appendChild(sm); enter(sm);
   });
-  // the finished research starts folded, as a done branch would
-  toggle(by('res'), false);
-  // the preview's story: read a branch's cost, take the fix when a step fails, and fold the design branch once it's done
+  // the preview's story: read a branch's cost, take the fix when a step needs you, and fold the research once the run is done
   c.story(async s => {
-    await s.beat(3);
-    await s.point($('.atr-c', by('des').el)); await s.beat(4); s.away();
-    await s.until(() => $('.atr-fix', r)); await s.beat(4);
+    await s.until(() => shown(by('des3'))); await s.beat(2);
+    await s.point($('.atr-c', by('des').el)); await s.beat(3); s.away();
+    await s.until(() => $('.atr-fix', r)); await s.beat(3);
     await s.tap($('.atr-fix', r)); s.away();
     await s.until(() => T.s === 'done'); await s.beat(2);
-    await s.tap(by('des').el); s.away(); await s.beat(1);
+    await s.tap(by('res').el); s.away(); await s.beat(1);
   });
 });
 /* ---------- Agent tree designs ---------- */
