@@ -592,6 +592,826 @@ const fitHits = window.dmFitHits || (() => {
 
 
 
+/* ---------- Agent tree ---------- */
+DM.def('agent-tree', (r, c) => {
+  // the run: an orchestrator, its three agents and their steps. cost is what each spends on its own, in dollars; a branch
+  // shows its own cost plus everything under it
+  const T = { id:'root', n:'Orchestrator', t:'Plans the work and hands it out', cost:.04, s:'run', kids:[
+    { id:'res', n:'Research agent', t:'Compare 3 competitor pricing pages', cost:.02, s:'done', kids:[
+      { id:'res1', n:'Read the 3 pricing pages', t:'3 pages, 9.4k words', cost:.06, s:'done' },
+      { id:'res2', n:'Summarise their plans', t:'Notes added to Pricing v4', cost:.04, s:'done' } ] },
+    { id:'des', n:'Design agent', t:'Rework the plan cards in Figma', cost:.02, s:'run', kids:[
+      { id:'des1', n:'Update the Pro card', t:'Pricing v4, frame 2', cost:.03, s:'run' },
+      { id:'des2', n:'Update the Team card', t:'Pricing v4, frame 3', cost:0, s:'queued' },
+      { id:'des3', n:'Apply library tokens', t:'Colour and spacing', cost:0, s:'queued' } ] },
+    { id:'cop', n:'Copy agent', t:'Rewrite the plan descriptions', cost:0, s:'queued' } ] };
+  const tree = $('.atr-tree', r), stEl = $('.atr-st', r), tot = $('.atr-tot', r), root = $('.atr', r);
+  const all = []; (function walk(n, lv, p){ n.lv = lv; n.parent = p; all.push(n); (n.kids || []).forEach(k => walk(k, lv + 1, n)); })(T, 0, null);
+  const by = id => all.find(n => n.id === id), kids = n => !!(n.kids && n.kids.length);
+  const sum = n => n.cost + (n.kids || []).reduce((a, k) => a + sum(k), 0), money = v => '$' + v.toFixed(2);
+  const G = { run:'<span class="spin"></span>', done:I('ok','xs'), fail:I('alert','xs'), queued:'<span class="dot"></span>' };
+  function build(n){
+    const row = html(`<div class="atr-n ${n.s}" role="treeitem" aria-level="${n.lv + 1}"${kids(n) ? ' aria-expanded="true"' : ''} tabindex="-1" style="--lv:${n.lv}">${kids(n) ? `<span class="atr-tg" aria-hidden="true">${I('chev-d','xs')}</span>` : '<span class="atr-sp"></span>'}<span class="atr-g">${G[n.s]}</span><span class="atr-t"><b>${n.n}</b><span>${n.t}</span></span><span class="atr-c num"></span></div>`);
+    n.el = row; const out = [row];
+    if (kids(n)){ const f = html(`<div class="fold atr-kids" role="group" style="--lv:${n.lv}"><div></div></div>`); n.kids.forEach(k => build(k).forEach(e => f.firstElementChild.appendChild(e))); n.fold = f; out.push(f); }
+    return out;
+  }
+  build(T).forEach(e => tree.appendChild(e)); T.el.tabIndex = 0;
+  // each branch folds by its row (or its chevron); folded, it keeps its total
+  function toggle(n, open){
+    if (!kids(n)) return; const o = open ?? n.el.getAttribute('aria-expanded') !== 'true';
+    n.el.setAttribute('aria-expanded', o); n.fold.classList.toggle('shut', !o); n.fold.inert = !o;
+  }
+  function paint(){
+    all.forEach(n => { const ce = $('.atr-c', n.el), v = kids(n) ? sum(n) : n.cost;
+      ce.textContent = n.s === 'queued' && !v ? '–' : money(v);
+      if (kids(n)){ const k = n.kids.length, what = n.lv ? (k > 1 ? ' steps ' : ' step ') : (k > 1 ? ' agents ' : ' agent ');
+        ce.dataset.tip = `Its own ${money(n.cost)}, ${k}${what}${money(sum(n) - n.cost)}`; } });
+    tot.textContent = money(sum(T));
+  }
+  // the line under the title: what the run is doing, and a clock
+  const t0 = performance.now(); let ended = 0;
+  const clock = () => { const s = Math.floor(((ended || performance.now()) - t0) / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+  stEl.innerHTML = '<span class="m" aria-live="polite">Running</span> · <span class="num ck">0:00</span>';
+  const setMode = m => swap($('.m', stEl), m);
+  // whatever is running spends as it goes, so its cost and every total above it count up
+  c.every(100, () => { all.forEach(n => { if (n.s === 'run') n.cost += n.lv ? .0016 : .0006; }); paint(); $('.ck', stEl).textContent = clock(); });
+  paint();
+  function step(n, s, t){ n.s = s; n.el.className = 'atr-n ' + s; const g = $('.atr-g', n.el); g.innerHTML = G[s]; enter(g); if (t !== undefined) swap($('.atr-t span', n.el), t); paint(); }
+  // clicking a branch folds it; the arrow keys move through the tree as in any tree view
+  c.on(tree, 'click', e => { const row = e.target.closest('.atr-n'); if (!row || e.target.closest('.atr-fix')) return; const n = all.find(x => x.el === row); all.forEach(x => x.el.tabIndex = x === n ? 0 : -1); toggle(n); });
+  const visible = () => all.filter(n => { for (let p = n.parent; p; p = p.parent) if (p.el.getAttribute('aria-expanded') === 'false') return false; return true; });
+  c.on(tree, 'keydown', e => {
+    const v = visible(), i = v.findIndex(n => n.el === document.activeElement); if (i < 0) return;
+    const n = v[i], open = n.el.getAttribute('aria-expanded') === 'true'; let go = null;
+    if (e.key === 'ArrowDown') go = v[i + 1]; else if (e.key === 'ArrowUp') go = v[i - 1];
+    else if (e.key === 'ArrowRight'){ if (kids(n) && !open) toggle(n, true); else if (kids(n)) go = n.kids[0]; }
+    else if (e.key === 'ArrowLeft'){ if (kids(n) && open) toggle(n, false); else go = n.parent; }
+    else if (e.key === 'Enter' || e.key === ' ') toggle(n);
+    else if (e.key === 'Home') go = v[0]; else if (e.key === 'End') go = v[v.length - 1];
+    else return;
+    e.preventDefault(); if (go){ all.forEach(x => x.el.tabIndex = -1); go.el.tabIndex = 0; go.el.focus({ preventScroll:true }); }
+  });
+  // the run: the design agent works through its steps, one fails on a token the library doesn't have, and the fix it offers
+  // waits for you
+  c.run(async () => {
+    await c.wait(2000); step(by('des1'), 'done'); step(by('des2'), 'run');
+    await c.wait(2500); step(by('des2'), 'done'); step(by('des3'), 'run');
+    await c.wait(2000);
+    const tk = by('des3'); step(tk, 'fail', "color.accent.600 isn't in the library"); setMode('1 step failed');
+    const fix = html(`<button class="pill sm atr-fix">Use color.accent.500</button>`); $('.atr-t', tk.el).appendChild(fix); enter(fix);
+    await new Promise(res => { fix.onclick = res; });
+    fix.remove(); step(tk, 'run', 'Using color.accent.500'); setMode('Running');
+    await c.wait(2000); step(tk, 'done', 'Colour and spacing, from the library'); step(by('des'), 'done'); step(by('cop'), 'run');
+    await c.wait(3000); step(by('cop'), 'done'); step(T, 'done'); ended = performance.now(); setMode('Done');
+    const sm = html(`<div class="atr-sum">${I('ok','xs')}<span>Done in ${clock()} · 3 agents · ${money(sum(T))}</span></div>`); root.appendChild(sm); enter(sm);
+  });
+  // the finished research starts folded, as a done branch would
+  toggle(by('res'), false);
+  // the preview's story: read a branch's cost, take the fix when a step fails, and fold the design branch once it's done
+  c.story(async s => {
+    await s.beat(3);
+    await s.point($('.atr-c', by('des').el)); await s.beat(4); s.away();
+    await s.until(() => $('.atr-fix', r)); await s.beat(4);
+    await s.tap($('.atr-fix', r)); s.away();
+    await s.until(() => T.s === 'done'); await s.beat(2);
+    await s.tap(by('des').el); s.away(); await s.beat(1);
+  });
+});
+/* ---------- Agent tree designs ---------- */
+/* the homepage card's design switch, shown as its footer tabs: Classic is the component above, and the others are the
+   directions the owner chose. The switch is the card's alone: the registry, the code view and the component page install
+   Classic, as it was (build.js leaves a data-designs="card" switch out of them) */
+{
+  const classic = DM.defs['agent-tree'];
+  // the card has three designs, picked with the switch under the tree (on designme.dev, the card's footer tabs): Classic, the
+  // tree as it has always been; Cost tree, the tree with each branch's share of the cost as a bar in the accent; and Cost
+  // map, every agent and step as a block as wide as its cost, coloured by how it is doing. The two new ones play this run:
+  // an orchestrator and three agents, each with its steps. cost is what each spends itself, in dollars, and it grows while it
+  // runs; a branch's cost is its own and everything under it
+  const ATR_RUN = () => ({ id:'root', n:'Orchestrator', t:'Plans the work and hands it out', ic:'cpu', ag:'o', cost:.04, s:'run', kids:[
+    { id:'res', n:'Research agent', t:'Compare 3 competitor pricing pages', ic:'search', ag:'b', cost:.02, s:'done', kids:[
+      { id:'res1', n:'Read 3 pricing pages', t:'9.4k words', cost:.06, s:'done' },
+      { id:'res2', n:'Summarise their plans', t:'Notes in Pricing v4', cost:.04, s:'done' } ] },
+    { id:'des', n:'Design agent', t:'Rework the plan cards in Figma', ic:'palette', ag:'l', cost:.02, s:'run', kids:[
+      { id:'des1', n:'Update the Pro card', t:'Pricing v4, frame 2', cost:.05, s:'run' },
+      { id:'des2', n:'Update the Team card', t:'Pricing v4, frame 3', cost:0, s:'queued' },
+      { id:'des3', n:'Apply library tokens', t:'Colour and spacing', cost:0, s:'queued' } ] },
+    { id:'cop', n:'Copy agent', t:'Rewrite the plan descriptions', ic:'edit', ag:'p', cost:0, s:'queued', kids:[
+      { id:'cop1', n:'Rewrite 3 descriptions', t:'Under 20 words each', cost:0, s:'queued' } ] } ] });
+  // the run, the same in both: the design agent works through its cards, one step fails on a token the library doesn't have
+  // and waits for its fix, then the copy agent writes. on(event, node) tells the design what changed
+  function atrModel(c, on){
+    const T = ATR_RUN(), all = [];
+    (function walk(n, lv, p){ n.lv = lv; n.parent = p; all.push(n); (n.kids || []).forEach(k => walk(k, lv + 1, n)); })(T, 0, null);
+    all.forEach(n => { if (!n.ag) n.ag = n.parent.ag; });
+    // each agent's step of the accent, for its bars (the orchestrator's is the first)
+    T.kids.forEach((k, i) => { k.k = i + 1; }); all.forEach(n => { if (!n.k) n.k = n.lv > 1 ? n.parent.k : 1; });
+    const by = id => all.find(n => n.id === id), sum = n => n.cost + (n.kids || []).reduce((a, k) => a + sum(k), 0);
+    const m = { T, all, by, sum, t0:0, ended:0, fix:null };
+    const set = (n, s, t) => { n.s = s; if (t !== undefined) n.t = t; on('state', n); };
+    // whatever is running spends as it goes, ten times a second, and the clock counts
+    c.every(100, () => { if (m.ended) return; m.t0 += .1; all.forEach(n => { if (n.s === 'run') n.cost += n.lv ? .0016 : .0005; }); on('tick'); });
+    c.run(async () => {
+      await c.wait(1800); set(by('des1'), 'done'); set(by('des2'), 'run');
+      await c.wait(2200); set(by('des2'), 'done'); set(by('des3'), 'run');
+      await c.wait(1800); const tk = by('des3'); set(tk, 'fail', 'color.accent.600 is not in the library'); set(by('des'), 'fail');
+      // the fix waits for you; the person in the demo takes it after a while, unless you have taken over
+      await new Promise(res => { m.fix = () => { m.fix = null; res(); }; on('ask', tk); c.auto(6500, () => m.fix && m.fix()); });
+      set(tk, 'run', 'Using color.accent.500'); set(by('des'), 'run');
+      await c.wait(1600); set(tk, 'done', 'Colour and spacing, from the library'); set(by('des'), 'done'); set(by('cop'), 'run'); set(by('cop1'), 'run');
+      await c.wait(2600); set(by('cop1'), 'done'); set(by('cop'), 'done'); set(T, 'done'); m.ended = m.t0; on('end');
+    });
+    return m;
+  }
+  const atrVars = n => n.ag === 'o' ? '--a:var(--ink);--ai:var(--on-ink)' : `--a:var(--av-${n.ag});--ai:var(--av-${n.ag}-ink)`;
+  const atrMoney = v => '$' + v.toFixed(2);
+  const atrClock = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+  const atrGlyph = s => s === 'run' ? '<span class="spin"></span>' : s === 'done' ? I('ok','xs') : s === 'fail' ? I('alert','xs') : '<span class="dot" style="width:5px;height:5px"></span>';
+
+  // Cost tree: the tree with each branch's share of the whole run as a bar, and the run's cost by agent as one bar on top.
+  // Hover or focus a row and the path above it darkens
+  const ATR_COST = `<div class="atr-ct panel">
+    <div class="atr-ct-h"><div class="atr-ct-ht"><b>Redesign the pricing page</b><span class="atr-ct-st"><span class="m">Running</span> · <span class="num ck">0:00</span></span></div><span class="atr-ct-tot num">$0.00</span></div>
+    <div class="atr-ct-mix" aria-hidden="true"></div>
+    <div class="atr-ct-tree" role="tree" aria-label="Agents"></div>
+  </div>`;
+  function atrCost(r, c){
+    const tree = $('.atr-ct-tree', r), tot = $('.atr-ct-tot', r), mix = $('.atr-ct-mix', r), ck = $('.ck', r), mEl = $('.atr-ct-st .m', r), root = $('.atr-ct', r);
+    let M;
+    const kids = n => !!(n.kids && n.kids.length);
+    function build(n){
+      const row = html(`<div class="atr-ct-n" role="treeitem" aria-level="${n.lv + 1}"${kids(n) ? ' aria-expanded="true"' : ''} tabindex="-1" data-s="${n.s}" style="--lv:${n.lv};--k:var(--k${n.k});${atrVars(n)}">${kids(n) ? `<span class="atr-ct-tg" aria-hidden="true">${I('chev-d','xs')}</span>` : '<span class="atr-ct-sp"></span>'}${n.lv === 1 ? `<span class="atr-x-av" aria-hidden="true">${I(n.ic)}</span>` : `<span class="atr-x-g">${atrGlyph(n.s)}</span>`}<span class="atr-ct-t"><b>${n.n}</b><span>${n.t}</span></span><span class="atr-ct-c"><b class="num">–</b><i aria-hidden="true"><span></span></i></span></div>`);
+      n.el = row; const out = [row];
+      if (kids(n)){ const f = html(`<div class="fold atr-ct-kids" role="group" style="--lv:${n.lv}"><i class="atr-ct-gd" aria-hidden="true"></i><div></div></div>`); n.kids.forEach(k => build(k).forEach(e => f.lastElementChild.appendChild(e))); n.fold = f; out.push(f); }
+      return out;
+    }
+    function toggle(n, open){ if (!kids(n)) return; const o = open ?? n.el.getAttribute('aria-expanded') !== 'true'; n.el.setAttribute('aria-expanded', String(o)); n.fold.classList.toggle('shut', !o); n.fold.inert = !o; }
+    function paint(){
+      const total = M.sum(M.T);
+      M.all.forEach(n => { const v = kids(n) ? M.sum(n) : n.cost, b = $('.atr-ct-c b', n.el), t = n.s === 'queued' && !v ? '–' : atrMoney(v); if (b.textContent !== t) b.textContent = t;
+        $('.atr-ct-c i', n.el).style.setProperty('--sh', total ? (v / total).toFixed(3) : 0);
+        if (kids(n)) $('.atr-ct-c', n.el).dataset.tip = `Its own ${atrMoney(n.cost)}, the rest ${atrMoney(M.sum(n) - n.cost)}`; });
+      tot.textContent = atrMoney(total);
+      let at = 0; M.T.kids.forEach((k, i) => { const w = total ? M.sum(k) / total * 100 : 0; mix.children[i].style.setProperty('--x0', at.toFixed(2)); mix.children[i].style.setProperty('--x1', (at + w).toFixed(2)); at += w; });
+      ck.textContent = atrClock(M.ended || M.t0);
+    }
+    M = atrModel(c, (ev, n) => {
+      if (ev === 'state'){ n.el.dataset.s = n.s; const g = $('.atr-x-g', n.el); if (g){ g.innerHTML = atrGlyph(n.s); enter(g); } swap($('.atr-ct-t span', n.el), n.t); const f = $('.atr-x-fix', n.el); if (f && n.s !== 'fail') f.remove(); if (n.id === 'des') swap(mEl, n.s === 'fail' ? '1 step failed' : 'Running'); }
+      if (ev === 'ask'){ const fix = html('<button class="pill sm atr-x-fix" type="button">Use color.accent.500</button>'); $('.atr-ct-t', n.el).appendChild(fix); enter(fix); fix.onclick = e => { e.stopPropagation(); M.fix && M.fix(); }; }
+      // done: the finished design branch folds and the research opens, then the summary comes in under the tree, so the
+      // tree never grows past the height it ran at
+      if (ev === 'end'){ swap(mEl, 'Done'); toggle(M.by('des'), false); toggle(M.by('res'), true);
+        c.later(REDUCE ? 0 : 500, () => { const sm = html(`<div class="atr-ct-sum">${I('ok','xs')}<span>Done in ${atrClock(M.ended)} · 3 agents · ${atrMoney(M.sum(M.T))}</span></div>`); root.appendChild(sm); }); }
+      paint();
+    });
+    mix.innerHTML = M.T.kids.map(k => `<i style="--k:var(--k${k.k})"></i>`).join('');
+    build(M.T).forEach(e => tree.appendChild(e)); M.T.el.tabIndex = 0;
+    toggle(M.by('res'), false); paint();
+    // hovering or focusing a row lights its path: every guide above it and the rows it hangs from
+    const light = n => { $$('.path', tree).forEach(x => x.classList.remove('path')); for (let p = n && n.parent; p; p = p.parent){ p.fold.classList.add('path'); p.el.classList.add('path'); } };
+    c.on(tree, 'pointerover', e => { const row = e.target.closest('.atr-ct-n'); light(row ? M.all.find(x => x.el === row) : null); });
+    c.on(tree, 'pointerleave', () => light(null));
+    c.on(tree, 'focusin', e => { const row = e.target.closest('.atr-ct-n'); light(row ? M.all.find(x => x.el === row) : null); });
+    c.on(tree, 'click', e => { const row = e.target.closest('.atr-ct-n'); if (!row || e.target.closest('.atr-x-fix')) return; const n = M.all.find(x => x.el === row); M.all.forEach(x => x.el.tabIndex = x === n ? 0 : -1); toggle(n); });
+    // the arrow keys move through the tree as in any tree view
+    const visible = () => M.all.filter(n => { for (let p = n.parent; p; p = p.parent) if (p.el.getAttribute('aria-expanded') === 'false') return false; return true; });
+    c.on(tree, 'keydown', e => {
+      const v = visible(), i = v.findIndex(n => n.el === document.activeElement); if (i < 0) return;
+      const n = v[i], open = n.el.getAttribute('aria-expanded') === 'true'; let go = null;
+      if (e.key === 'ArrowDown') go = v[i + 1]; else if (e.key === 'ArrowUp') go = v[i - 1];
+      else if (e.key === 'ArrowRight'){ if (kids(n) && !open) toggle(n, true); else if (kids(n)) go = n.kids[0]; }
+      else if (e.key === 'ArrowLeft'){ if (kids(n) && open) toggle(n, false); else go = n.parent; }
+      else if (e.key === 'Enter' || e.key === ' '){ const f = $('.atr-x-fix', n.el); if (f) f.click(); else toggle(n); }
+      else if (e.key === 'Home') go = v[0]; else if (e.key === 'End') go = v[v.length - 1];
+      else return;
+      e.preventDefault(); if (go){ M.all.forEach(x => x.el.tabIndex = -1); go.el.tabIndex = 0; go.el.focus({ preventScroll:true }); }
+    });
+    // the person in the demo: reads the design branch's cost and the path above a step, then takes the fix
+    c.story(async s => {
+      await s.beat(3); await s.point($('.atr-ct-c', M.by('des').el)); light(M.by('des1')); await s.beat(4); light(null); s.away();
+      await s.until(() => $('.atr-x-fix', r)); await s.beat(3);
+      await s.tap($('.atr-x-fix', r)); s.away();
+      await s.until(() => M.ended); await s.beat(5);
+    });
+    // it ends as tall as it starts (the fix, while it waits under the failed step, adds a line below), so the height it
+    // mounts with is the one that sits centred
+  }
+
+  // Cost map: every agent and step as a block as wide as its cost, growing live, in the colour of how it is doing; press a
+  // block to zoom into it
+  const ATR_MAP = `<div class="atr-cm panel">
+    <div class="atr-cm-h"><div class="atr-cm-ht"><nav class="atr-cm-crumb" aria-label="Where you are"></nav><span class="atr-cm-st num">Running · 0:00</span></div><span class="atr-cm-tot num">$0.00</span></div>
+    <div class="atr-cm-map" role="group" aria-label="Cost by agent and step"></div>
+    <ul class="atr-cm-lg" aria-label="What the colours mean"><li data-s="done"><i></i>Done</li><li data-s="run"><i></i>Running</li><li data-s="fail"><i></i>Failed</li><li data-s="queued"><i></i>Queued</li></ul>
+    <div class="atr-cm-say" aria-live="polite"></div>
+    <ul class="atr-cm-key" aria-label="Agents"></ul>
+  </div>`;
+  function atrMap(r, c){
+    const map = $('.atr-cm-map', r), crumb = $('.atr-cm-crumb', r), st = $('.atr-cm-st', r), tot = $('.atr-cm-tot', r), say = $('.atr-cm-say', r), key = $('.atr-cm-key', r);
+    let M, top, W = 0, shown = '';
+    // each block's place and width, as shares of the branch on show; blocks outside it fade. The branch fills the first row,
+    // its children the second and theirs the third, and each branch's own work (what it spends besides its children) closes
+    // its row, hatched, so every row adds up
+    function lay(){
+      const base = top, total = Math.max(1e-6, M.sum(base)), gap = 4, pos = new Map(), own = new Map();
+      pos.set(base, { x:0, w:1, lv:0 });
+      let x = 0; (base.kids || []).forEach(k => { const w = M.sum(k) / total; pos.set(k, { x, w, lv:1 }); let y = x; (k.kids || []).forEach(g => { const gw = M.sum(k) ? g.cost / M.sum(k) * w : 0; pos.set(g, { x:y, w:gw, lv:2 }); y += gw; }); if (k.kids) own.set(k, { x:y, w:M.sum(k) ? k.cost / M.sum(k) * w : 0, lv:2 }); x += w; });
+      own.set(base, { x, w:base.cost / total, lv:1 });
+      M.all.forEach(n => { if (!n.ob) return; const p = own.get(n); if (!p || p.w * W < 3){ n.ob.classList.add('gone'); return; } n.ob.classList.remove('gone'); n.ob.style.setProperty('--lv', p.lv); n.ob.style.setProperty('--x', (p.x * W).toFixed(1) + 'px'); n.ob.style.setProperty('--w', Math.max(0, p.w * W - gap).toFixed(1) + 'px'); n.ob.dataset.tip = `${n.lv ? n.n : 'The orchestrator'}'s own work, ${atrMoney(n.cost)}`; });
+      M.all.forEach(n => {
+        const p = pos.get(n), el = n.b; if (!el) return;
+        if (!p){ el.classList.add('gone'); el.tabIndex = -1; return; }
+        el.classList.remove('gone'); el.tabIndex = 0;
+        const px = p.x * W, pw = Math.max(0, p.w * W - (p.lv ? gap : 0));
+        el.style.setProperty('--lv', p.lv); el.style.setProperty('--x', px.toFixed(1) + 'px'); el.style.setProperty('--w', pw.toFixed(1) + 'px');
+        // a block too narrow for its words keeps only its colour, and says them in its tooltip
+        $('.atr-cm-l', el).style.opacity = pw > 64 ? 1 : 0;
+      });
+    }
+    const ro = new ResizeObserver(() => { W = map.clientWidth; lay(); }); ro.observe(map); c.offs.push(() => ro.disconnect());
+    function crumbs(){
+      const path = []; for (let p = top; p; p = p.parent) path.unshift(p);
+      crumb.innerHTML = path.map((p, i) => i === path.length - 1 ? `<b>${p.lv ? p.n : 'Pricing page'}</b>` : `<button type="button" data-id="${p.id}">${p.lv ? p.n : 'Pricing page'}</button>${I('chev-r','xs')}`).join('');
+      $$('button', crumb).forEach(b => b.onclick = () => go(M.by(b.dataset.id)));
+    }
+    function go(n){ if (!n || !n.kids) return; top = n; crumbs(); lay(); const f = n.b; if (f && document.activeElement && map.contains(document.activeElement)) f.focus({ preventScroll:true }); }
+    const word = { done:' · done', run:' · running', fail:' · failed', queued:' · queued' };
+    function tell(n){ if (!n){ say.innerHTML = shown; return; } const v = M.sum(n), share = v / Math.max(1e-6, M.sum(M.T)) * 100; say.innerHTML = `<b>${n.n}</b> · ${atrMoney(v)}, ${share.toFixed(0)}% of the run${n.kids ? ` · its own ${atrMoney(n.cost)}` : ''}${n.lv ? word[n.s] : ''}`; }
+    function blocks(){
+      M.all.forEach(n => {
+        n.b = html(`<button class="atr-cm-b${n.lv === 0 ? ' lv0' : ''}" type="button" data-s="${n.s}" aria-label="${n.n}"><span class="bg"><span class="sh"></span></span><i class="k" aria-hidden="true"></i><span class="atr-cm-l"><b>${n.lv === 0 ? 'Whole run' : n.n.replace(' agent', '')}</b><span class="v">–</span></span></button>`);
+        n.b.dataset.tip = n.n;
+        map.appendChild(n.b);
+        if (n.kids){ n.ob = html('<span class="atr-cm-b own" aria-hidden="true"><span class="bg"></span></span>'); map.appendChild(n.ob); }
+        n.b.onclick = () => { if (n === top && n.parent) go(n.parent); else if (n.kids && n !== top) go(n); else tell(n); };
+        ['pointerenter', 'focus'].forEach(ev => n.b.addEventListener(ev, () => tell(n)));
+        ['pointerleave', 'blur'].forEach(ev => n.b.addEventListener(ev, () => tell(null)));
+      });
+    }
+    c.on(map, 'keydown', e => { if (e.key === 'Escape' && top.parent){ e.preventDefault(); go(top.parent); } });
+    function legend(){
+      key.innerHTML = M.T.kids.map(k => `<li style="${atrVars(k)}" data-s="${k.s}"><span class="atr-x-av" aria-hidden="true">${I(k.ic)}</span><span class="t">${k.n}</span><span class="tg"></span><span class="p num"></span><span class="c num"></span></li>`).join('');
+      M.T.kids.forEach((k, i) => { k.li = key.children[i]; });
+    }
+    // each agent's state, as a tag in the colour its blocks have
+    const TG = { run:'<span class="tag warn"><span class="spin"></span>Running</span>', done:`<span class="tag ok">${I('check','xs')}Done</span>`, fail:'<span class="tag bad">Failed</span>', queued:'<span class="tag">Queued</span>' };
+    let k10 = 0;
+    function paint(full){
+      const total = M.sum(M.T);
+      tot.textContent = atrMoney(total);
+      M.all.forEach(n => { const v = $('.v', n.b); const t = n.s === 'queued' && !M.sum(n) ? 'Queued' : atrMoney(M.sum(n)); if (v.textContent !== t) v.textContent = t; });
+      M.T.kids.forEach(k => { const p = Math.round(M.sum(k) / total * 100) + '%', cc = atrMoney(M.sum(k)); if ($('.p', k.li).textContent !== p) $('.p', k.li).textContent = p; if ($('.c', k.li).textContent !== cc) $('.c', k.li).textContent = cc; });
+      // the blocks are laid out again twice a second, and glide to their new widths
+      if (full || ++k10 % 5 === 0) lay();
+      st.textContent = (M.ended ? 'Done in ' : 'Running · ') + atrClock(M.ended || M.t0);
+    }
+    M = atrModel(c, (ev, n) => {
+      if (ev === 'state'){ n.b.dataset.s = n.s; if (n.lv === 1){ n.li.dataset.s = n.s; $('.tg', n.li).innerHTML = TG[n.s]; } }
+      if (ev === 'ask'){ const li = n.parent.li, b = html('<button class="pill sm atr-x-fix" type="button">Fix</button>'); b.dataset.tip = 'Use color.accent.500'; $('.tg', li).after(b); b.onclick = () => { b.remove(); M.fix && M.fix(); }; shown = '<b>Apply library tokens</b> failed: color.accent.600 is not in the library'; tell(null); }
+      if (ev === 'state' && n.id === 'des3' && n.s === 'run'){ const b = $('.atr-x-fix', key); if (b) b.remove(); shown = ''; tell(null); }
+      if (ev === 'end'){ shown = `Done: ${atrMoney(M.sum(M.T))} across 3 agents, most of it on design`; tell(null); }
+      paint(ev !== 'tick');
+    });
+    top = M.T; blocks(); legend(); M.T.kids.forEach(k => { $('.tg', k.li).innerHTML = TG[k.s]; }); crumbs(); paint(true);
+    // the person in the demo: reads the design agent's block, takes the fix, zooms into the design agent and back out
+    c.story(async s => {
+      await s.beat(4); await s.point(M.by('des').b); tell(M.by('des')); await s.beat(3); s.away(); tell(null);
+      await s.until(() => $('.atr-x-fix', key)); await s.beat(3);
+      await s.tap($('.atr-x-fix', key)); s.away(); await s.beat(2);
+      await s.tap(M.by('des').b); s.away(); await s.beat(4);
+      await s.tap($('button', crumb)); s.away();
+      await s.until(() => M.ended); await s.beat(4);
+    });
+  }
+
+  // the switch: the design the card last showed (Classic to begin with) is drawn, and picking another mounts the card again
+  // with it, so it plays from the start, entrance and demo; a key that picked it keeps the focus on the switch. Inside another
+  // component (as in Agent harness), and in the registry, the code view and the component page (build.js leaves a
+  // data-designs="card" switch out of them), it is the classic tree on its own
+  const ATR_DS = { cost:[ATR_COST, atrCost], map:[ATR_MAP, atrMap] };
+  DM.def('agent-tree', (r, c, card) => {
+    let dm = $(':scope>.atr-dm', r);
+    if (!dm) return classic(r, c, card);
+    if (!c.card || r !== c.st){ dm.replaceWith(...$(':scope>.dm-main', dm).childNodes); return classic(r, c, card); }
+    const v = ATR_DS[card._dv] ? card._dv : 'classic';
+    if (v === 'classic') classic(r, c, card);
+    // (the classic component may have drawn its icons into the stage again, so the switch is found afresh)
+    dm = $(':scope>.atr-dm', r);
+    const main = $(':scope>.dm-main', dm), sg = $(':scope>.demo .seg2', dm);
+    let tall = null, h = 0, wide = -1;
+    // the card keeps the room the tallest design needs; this one sits with its own tallest moment in the middle of it, and
+    // grows downwards from there. Its height is taken once at each width, so what it does never moves its top
+    const fit = () => { const H = parseFloat(getComputedStyle(r).minHeight) || 0, w = r.clientWidth; if (w !== wide){ wide = w; h = tall ? tall() : main.offsetHeight; } dm.style.setProperty('--dmy', Math.max(0, Math.floor((H - h) / 2)) + 'px'); };
+    if (v !== 'classic'){ main.innerHTML = ATR_DS[v][0]; const t = ATR_DS[v][1](main, c); tall = typeof t === 'function' ? t : null; }
+    // the classic tree is tallest with its summary under it, at the end of the run: a hidden copy of it with the summary in
+    // is measured, then taken away
+    else tall = () => { const a = $('.atr', main); if (!a) return main.offsetHeight;
+      const p = a.cloneNode(true); if (!$('.atr-sum', p)) p.appendChild(html(`<div class="atr-sum">${I('ok','xs')}<span>Done in 0:00 · 3 agents · $0.00</span></div>`));
+      p.style.cssText = 'position:absolute;left:0;right:0;top:0;visibility:hidden'; p.setAttribute('aria-hidden', 'true'); main.appendChild(p); const x = p.offsetHeight; p.remove(); return x; };
+    $$('button', sg).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+    seg(sg, k => {
+      if (k === v) return;
+      const kb = sg.contains(document.activeElement) && document.activeElement.matches(":focus-visible");
+      card._dv = k; DM.mount(card);
+      // it comes back once the new design has started, so it isn't taken for the visitor taking over the new demo
+      if (kb) setTimeout(() => { const b = $(`.atr-dm>.demo button[data-v="${k}"]`, card); if (b && (!document.activeElement || document.activeElement === document.body)) b.focus({ preventScroll:true }); }, 120);
+    });
+    const ro = new ResizeObserver(fit); ro.observe(r); c.offs.push(() => ro.disconnect());
+  });
+}
+/* ---------- Agent inbox ---------- */
+DM.def('agent-inbox', (r, c) => {
+  // the runs, grouped by what they need: one waits for approval, one failed and can be retried, two are running with their
+  // clocks, two are done
+  const A = { 'Design agent':['D','var(--av-l)'], 'Build agent':['B','var(--av-m)'], 'Research agent':['R','var(--av-t)'], 'Copy agent':['C','var(--av-p)'], 'QA agent':['Q','var(--av-b)'] };
+  const R = [
+    { id:'pub', t:'Publish the pricing page', a:'Design agent', g:'needs', why:'Waiting for your approval' },
+    { id:'tok', t:'Export tokens to CSS', a:'Build agent', g:'needs', fail:true, why:'Failed: rate limited by Figma', tip:'Figma answered 429 at 10:42. Safe to retry' },
+    { id:'cards', t:'Rework the plan cards', a:'Design agent', g:'run', sec:102, doing:'Editing frame 3 of 6' },
+    { id:'cmp', t:'Compare 3 competitor pages', a:'Research agent', g:'run', sec:38, doing:'Reading page 3 of 3' },
+    { id:'copy', t:'Rewrite plan descriptions', a:'Copy agent', g:'done', ago:'12m ago' },
+    { id:'aud', t:'Audit pricing contrast', a:'QA agent', g:'done', ago:'25m ago' }
+  ];
+  const GR = [['needs', 'Needs you'], ['run', 'Running'], ['done', 'Done']];
+  const gs = $('.aib-gs', r), st = $('.aib-st', r);
+  gs.innerHTML = GR.map(([k, n]) => `<section class="aib-g" data-g="${k}" aria-label="${n}"><div class="aib-gh"><span>${n}</span><span class="n"></span></div><div class="aib-gl" role="list"></div></section>`).join('');
+  const clock = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  const meta = x => x.g === 'needs' ? x.why : x.g === 'run' ? x.doing : x.a;
+  const right = x => x.g === 'needs' ? (x.fail ? `<button class="pill sm aib-go" aria-label="Retry ${x.t}">${I('refresh','xs')}Retry</button>` : `<button class="pill primary sm aib-go" aria-label="Approve ${x.t}">Approve</button>`)
+    : x.g === 'run' ? `<span class="spin"></span><span class="num aib-ck">${clock(x.sec)}</span>` : `<span class="ok">${I('ok','xs')}</span><span>${x.ago}</span>`;
+  function row(x){
+    const [m, col] = A[x.a];
+    x.el = html(`<div class="aib-i" role="listitem"><span class="aib-av" style="background:${col};color:${col.replace(')', '-ink)')}" aria-hidden="true">${m}</span><span class="aib-t"><b>${x.t}</b><span></span></span><span class="aib-r"></span></div>`);
+    update(x, true); return x.el;
+  }
+  function update(x, now){
+    const el = x.el, sp = $('.aib-t span', el), rr = $('.aib-r', el);
+    el.classList.toggle('fail', !!x.fail && x.g === 'needs');
+    if (x.tip && x.g === 'needs') sp.dataset.tip = x.tip; else delete sp.dataset.tip;
+    if (now){ sp.textContent = meta(x); rr.innerHTML = right(x); } else { swap(sp, meta(x)); rr.innerHTML = right(x); enter(rr); }
+    const b = $('.aib-go', el); if (b) b.onclick = () => act(x);
+  }
+  const list = g => $(`.aib-g[data-g="${g}"] .aib-gl`, gs);
+  R.forEach(x => list(x.g).appendChild(row(x)));
+  function counts(){
+    // a group with nothing in it goes away, and the line at the top says what is left
+    GR.forEach(([k]) => { const n = R.filter(x => x.g === k).length, sec = $(`.aib-g[data-g="${k}"]`, gs); $('.n', sec).textContent = n; sec.hidden = !n; });
+    const need = R.filter(x => x.g === 'needs').length, run = R.filter(x => x.g === 'run').length, done = R.filter(x => x.g === 'done').length;
+    const t = need ? `${need} need${need > 1 ? '' : 's'} you` : run ? `${run} running` : `All clear · ${done} done today`;
+    if (!st.textContent) st.textContent = t; else swap(st, t);
+  }
+  counts();
+  // a run that moves glides to its place in the new group: rows and group titles are measured before and after, and eased
+  // from where they were; the moving row rides above the rest, and a group that comes back fades in
+  const ease = getComputedStyle(r).getPropertyValue('--ease').trim() || 'ease';
+  const shown = () => $$('.aib-g:not([hidden]) .aib-gh,.aib-g:not([hidden]) .aib-i', gs);
+  function move(x, g){
+    const first = new Map(shown().map(e => [e, e.getBoundingClientRect().top]));
+    x.g = g; update(x); list(g).prepend(x.el); counts();
+    if (REDUCE) return;
+    x.el.classList.add('mv'); c.later(440, () => x.el.classList.remove('mv'));
+    shown().forEach(e => { if (!first.has(e)) return enter(e); const d = first.get(e) - e.getBoundingClientRect().top; if (Math.abs(d) > 1) e.animate([{ transform:`translateY(${d}px)` }, { transform:'none' }], { duration:420, easing:ease }); });
+  }
+  // every running run's clock ticks
+  c.every(1000, () => R.forEach(x => { if (x.g === 'run'){ x.sec++; const ck = $('.aib-ck', x.el); if (ck) ck.textContent = clock(x.sec); } }));
+  // Approve starts the run and Retry tries a failed one again; either runs, then lands in Done
+  function act(x){
+    const retry = !!x.fail; x.fail = false; x.sec = 0; x.doing = retry ? 'Retrying the export' : 'Publishing to designme.studio/pricing';
+    move(x, 'run');
+    c.later(retry ? 5000 : 4000, () => { x.ago = 'Just now'; move(x, 'done'); });
+  }
+  // the research run finishes on its own while you look
+  c.later(6000, () => { const x = R.find(y => y.id === 'cmp'); if (x.g === 'run'){ x.ago = 'Just now'; move(x, 'done'); } });
+  // the preview's story: read why the export failed, approve the publish, and retry the export
+  c.story(async s => {
+    const by = id => R.find(x => x.id === id);
+    await s.beat(3);
+    await s.point($('.aib-t span', by('tok').el)); await s.beat(3);
+    await s.tap($('.aib-go', by('pub').el)); s.away(); await s.beat(5);
+    await s.tap($('.aib-go', by('tok').el)); s.away();
+    await s.until(() => by('tok').g === 'done' && by('pub').g === 'done'); await s.beat(3);
+  });
+});
+/* ---------- Trace view ---------- */
+DM.def('trace-view', (r, c) => {
+  // the kinds of span, each with its mark and colour: the identity slots of the chart palette, and grey for the agents
+  // that hold the other spans. The name is always on the mark, in a tooltip, and in the span's label
+  const K = { agent:['Agent','cpu','var(--muted)'], llm:['LLM call','spark','var(--c2)'], tool:['Tool call','term','var(--c6)'], ret:['Retrieval','search','var(--c3)'] };
+  // one run, in seconds from its start. A tool call that takes longer than SLOW seconds is flagged
+  const SPAN = 5, SLOW = 2, PACE = 1.5;
+  const S = [
+    { id:'run', k:'agent', n:'Pricing research', s:0, d:4.82, lv:0, in:"Compare Northwind's plans with ours", out:'3 prices saved to Pricing research' },
+    { id:'plan', k:'llm', n:'Plan the steps', s:.04, d:.62, tk:1240, lv:1, in:'The task and 2 earlier messages', out:'Search notes, fetch the page, summarise' },
+    { id:'notes', k:'ret', n:'Search saved notes', s:.7, d:.38, tk:910, lv:1, in:'"northwind pricing", top 4', out:'4 notes, best match 0.82' },
+    { id:'fetch', k:'tool', n:'fetch_page', s:1.12, d:2.46, tk:3120, lv:1, in:'GET northwind.app/pricing', out:'200 OK, 48 KB, 3 plans' },
+    { id:'sum', k:'agent', n:'Summariser', s:3.62, d:1.02, lv:1, in:'The page and 4 notes', out:'A 120-word summary' },
+    { id:'write', k:'llm', n:'Write the summary', s:3.66, d:.94, tk:2380, lv:2, in:'Page text and notes, 2,050 tokens', out:'120 words, 3 prices' },
+    { id:'ans', k:'llm', n:'Final answer', s:4.66, d:.16, tk:560, lv:1, in:'The summary', out:'3 prices saved to Pricing research' }
+  ];
+  const END = Math.max(...S.map(x => x.s + x.d));
+  // an agent span counts the tokens of every span under it
+  S.forEach((x, i) => { x.kids = []; for (let j = i + 1; j < S.length && S[j].lv > x.lv; j++) x.kids.push(S[j]); });
+  const root = $('.trv', r), rows = $('.trv-rows', r), stEl = $('.trv-st', r), tot = $('.trv-tot', r), dt = $('.trv-dt', r), dc = $('.trv-dc', r), lg = $('.trv-lg', r);
+  // the key: every kind but the agents, with its colour and how many of its spans have started
+  const KEYS = ['llm', 'tool', 'ret'];
+  lg.innerHTML = KEYS.map(k => `<span role="listitem" class="z" data-k="${k}" style="--k:${K[k][2]}"><i></i>${K[k][0]} <b class="num">0</b></span>`).join('');
+  // each span's parent, for the tree's guides
+  S.forEach((x, i) => { for (let j = i - 1; j >= 0; j--) if (S[j].lv === x.lv - 1){ x.up = S[j]; break; } });
+  $('.trv-sc', r).innerHTML = Array.from({ length:Math.ceil(SPAN / 2) }, (_, i) => `<span style="left:${i * 2 / SPAN * 100}%">${i * 2}s</span>`).join('');
+  const sec = v => v.toFixed(2) + 's', tks = v => v >= 1000 ? (v / 1000).toFixed(1) + 'k' : String(Math.round(v));
+  let T = 0, sel = null, said = '';
+  S.forEach(x => {
+    const [kind, icon, col] = K[x.k];
+    x.el = html(`<button type="button" class="trv-r${x.lv ? '' : ' root'}" data-k="${x.k}" aria-expanded="false" style="--k:${col};--lv:${x.lv}" hidden><span class="trv-n"><span class="trv-g" aria-hidden="true"></span><span class="trv-k" data-tip="${kind}">${I(icon,'xs')}</span><span class="trv-nm">${x.n}</span></span><span class="trv-b"><i style="left:${x.s / SPAN * 100}%;width:${x.d / SPAN * 100}%"></i></span><span class="trv-tk num"></span><span class="trv-ms num"></span></button>`);
+    x.el.onclick = () => open(x === sel ? null : x);
+    rows.appendChild(x.el);
+  });
+  // where the run is: each span shows once it starts, its bar and its numbers grow while it runs
+  const took = x => Math.max(0, Math.min(T, x.s + x.d) - x.s);
+  const used = x => x.k === 'agent' ? x.kids.reduce((a, k) => a + (k.k === 'agent' ? 0 : used(k)), 0) : x.tk * Math.min(1, took(x) / x.d);
+  // the tree's guides for the spans on show: a line on down past a parent's mark, an elbow into each child, and the lines of
+  // ancestors whose own siblings are still to come
+  const vis = x => !x.el.hidden, later = x => S.some(y => y !== x && y.up === x.up && S.indexOf(y) > S.indexOf(x) && vis(y));
+  function tree(){
+    S.forEach(x => {
+      if (!vis(x)) return;
+      let h = '';
+      for (let a = x.up; a && a.up; a = a.up) if (later(a)) h += `<i style="--x:${a.lv - 1}"></i>`;
+      if (x.up) h += `<i class="el${later(x) ? '' : ' end'}" style="--x:${x.lv - 1}"></i>`;
+      if (S.some(y => y.up === x && vis(y))) h += `<i class="dn" style="--x:${x.lv}"></i>`;
+      $('.trv-g', x.el).innerHTML = h;
+    });
+  }
+  let had = 0, txtAt = -1e9;
+  function paint(){
+    let shown = 0;
+    // the times and token counts change ten times a second, not every frame: each change of text lays the page out
+    const now = performance.now(), txt = T >= END || now - txtAt >= 100; if (txt) txtAt = now;
+    S.forEach(x => {
+      if (T < x.s) return; shown++;
+      if (x.el.hidden){ x.el.hidden = false; enter(x.el); }
+      const w = took(x), run = T < x.s + x.d, kind = K[x.k][0];
+      x.el.classList.toggle('run', run);
+      const f = x.d ? w / x.d : 1; if (f !== x._f){ x._f = f; $('.trv-b i', x.el).style.setProperty('--f', f.toFixed(4)); }
+      // (what's on screen is kept under _names, apart from the span's own data)
+      const say = txt || (!run && !x._fin); if (!run) x._fin = true;
+      if (say){ const ms = sec(w), tk = tks(used(x)); if (x._ms !== ms){ x._ms = ms; $('.trv-ms', x.el).textContent = ms; } if (x._tk !== tk){ x._tk = tk; $('.trv-tk', x.el).textContent = tk; } }
+      if (x.k === 'tool' && w > SLOW && !x.slow){
+        x.slow = true; x.el.classList.add('slow');
+        const why = `Over the ${SLOW}s budget for a tool call`, tg = html(`<span class="tag warn" data-tip="${why}">slow</span>`); $('.trv-n', x.el).appendChild(tg); enter(tg);
+        $('.trv-ms', x.el).dataset.tip = why;
+      }
+      if (say){ const al = `${x.n}, ${kind}, ${run ? 'running, ' : ''}${sec(w)}, ${Math.round(used(x)).toLocaleString('en-US')} tokens${x.slow ? ', slow' : ''}`; if (x._al !== al){ x._al = al; x.el.setAttribute('aria-label', al); } }
+    });
+    if (shown !== had){ had = shown; tree();
+      KEYS.forEach(k => { const n = S.filter(x => x.k === k && vis(x)).length, el = $(`[data-k="${k}"]`, lg), b = $('b', el); el.classList.toggle('z', !n); if (b.textContent !== String(n)){ b.textContent = n; if (n) enter(b); } }); }
+    // the playhead runs down every track while the run streams, and fades once it is done
+    root.style.setProperty('--now', Math.min(T, END) / SPAN); root.classList.toggle('live', T > 0 && T < END);
+    if (txt) tot.textContent = sec(Math.min(T, END));
+    const slow = S.filter(x => x.slow).length;
+    const line = T >= END ? `Done · ${S.length} spans${slow ? `, ${slow} slow` : ''}` : `Running · ${shown} span${shown > 1 ? 's' : ''}`;
+    if (line !== said){ said = line; swap($('.m', stEl), line); }
+    if (sel) fill();
+  }
+  // a span's details: what went in, what came out, how long it took and what it used
+  function open(x){
+    if (sel) sel.el.setAttribute('aria-expanded', 'false');
+    sel = x; dt.classList.toggle('shut', !x); dt.inert = !x; rows.classList.toggle('sel', !!x);
+    if (!x) return;
+    x.el.setAttribute('aria-expanded', 'true');
+    const [kind, icon, col] = K[x.k];
+    dc.innerHTML = `<div class="trv-dh"><span class="trv-k" style="--k:${col}">${I(icon,'xs')}</span><b>${x.n}</b>${x.slow ? '<span class="tag warn">slow</span>' : ''}<button class="ib trv-x" aria-label="Close details" data-tip="Close">${I('x')}</button></div>
+      <div class="trv-pos" aria-hidden="true" style="--k:${col}"><i style="left:${x.s / SPAN * 100}%"></i></div>
+      <div class="trv-kv"><div><span>Kind</span><b>${kind}</b></div><div><span>Starts at</span><b class="num">${sec(x.s)}</b></div><div><span>Latency</span><b class="num lt"></b></div><div><span>Tokens</span><b class="num tk"></b></div></div>
+      <div class="trv-io"><span>Input</span><code>${x.in}</code><span>Output</span><code class="out"></code></div>`;
+    // closing hands focus back to the span, if it was inside the details
+    $('.trv-x', dc).onclick = () => { const el = sel.el, back = dc.contains(document.activeElement); open(null); if (back) el.focus({ preventScroll:true }); };
+    fill(); enter(dc);
+  }
+  function fill(){
+    const x = sel, done = T >= x.s + x.d;
+    $('.lt', dc).textContent = sec(took(x)); $('.tk', dc).textContent = Math.round(used(x)).toLocaleString('en-US'); $('.trv-pos i', dc).style.width = (took(x) / SPAN * 100) + '%';
+    const o = $('.out', dc), t = done ? x.out : 'Running…'; if (o.textContent !== t) o.textContent = t;
+  }
+  // the arrow keys move between spans, and Escape shuts the details
+  c.on(r, 'keydown', e => {
+    if (e.key === 'Escape' && sel){ const el = sel.el; open(null); el.focus({ preventScroll:true }); return; }
+    const vis = S.filter(x => !x.el.hidden), i = vis.findIndex(x => x.el === document.activeElement); if (i < 0) return;
+    const go = e.key === 'ArrowDown' ? vis[i + 1] : e.key === 'ArrowUp' ? vis[i - 1] : e.key === 'Home' ? vis[0] : e.key === 'End' ? vis[vis.length - 1] : undefined;
+    if (go === undefined && !['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) return;
+    e.preventDefault(); if (go) go.el.focus({ preventScroll:true });
+  });
+  stEl.innerHTML = '<span class="m">Running</span>';
+  // the run streams in at a pace a person can follow: one second of the run every PACE seconds
+  c.later(600, () => { const t0 = performance.now(); c.loop(t => { T = Math.min(END, (t - t0) / 1000 / PACE); paint(); return T < END ? undefined : false; }); });
+  // the preview's story: the fetch runs long and turns amber, the person reads why, opens it, then closes it
+  c.story(async s => {
+    const f = S.find(x => x.id === 'fetch');
+    await s.until(() => f.slow); await s.beat(2);
+    // on a narrow card the tag is hidden, and the time carries the same tooltip
+    const tg = $('.tag', f.el); await s.point(tg.offsetWidth ? tg : $('.trv-ms', f.el)); await s.beat(3); s.away();
+    await s.until(() => T >= END); await s.beat(1);
+    await s.tap(f.el); s.away(); await s.beat(8);
+    await s.tap($('.trv-x', r)); s.away(); await s.beat(2);
+  });
+});
+/* ---------- Run cost ---------- */
+DM.def('run-cost', (r, c) => {
+  // the label crossfades on its own span, so the button itself never blurs
+  const go = $('.rc-go', r); go.innerHTML = '<span class="rc-gl">Start run</span>'; const gl = () => $('.rc-gl', go);
+  const tg = $('.toggle', r), cap = $('.rc-cap', r), fill = $('.rc-fill', r), st = $('.rc-st', r), stt = $('.rc-stt', r);
+  let used = 0, inT = 0, outT = 0, tools = 0, running = false, limit = 1800, loop = 0;
+  const fmt = n => Math.round(n).toLocaleString('en-US');
+  const paint = () => { $('.rc-n', r).textContent = fmt(used); fill.style.width = (used / 2000 * 100) + '%'; $('.rc-in', r).textContent = fmt(inT); $('.rc-out', r).textContent = fmt(outT); $('.rc-tools', r).textContent = tools; };
+  const status = (t, cls) => { st.className = 'rc-st tag ' + (cls || ''); swap(stt, t); };
+  const capOn = () => tg.getAttribute('aria-checked') === 'true';
+  $('.rc-cap-t', r).onclick = e => { e.preventDefault(); tg.setAttribute('aria-checked', !capOn()); cap.style.opacity = capOn() ? 1 : .2; limit = capOn() ? 1800 : 2000; if (!running && used < limit && used > 0) go.disabled = false; };
+  function stop(t, cls){ running = false; clearInterval(loop); status(t, cls); }
+  go.onclick = () => {
+    if (running){ stop('Stopped'); swap(gl(), 'Resume'); return; }
+    if (used >= 2000){ used = inT = outT = tools = 0; paint(); }
+    running = true; status('Running', 'b'); swap(gl(), 'Stop'); go.className = 'pill soft sm rc-go'; fill.style.background = 'var(--accent-mark,var(--accent))';
+    loop = c.every(90, () => {
+      used = Math.min(2000, used + 8 + Math.random() * 18); inT += 120 + Math.random() * 220; outT += 30 + Math.random() * 70; if (Math.random() < .12) tools++;
+      paint();
+      if (used >= limit){
+        used = limit; paint();
+        if (limit < 2000){ stop('Paused at 90%', 'warn'); fill.style.background = 'var(--warn-mark)'; swap(gl(), 'Raise cap'); go.className = 'pill primary sm rc-go'; go.onclick2 = true; }
+        else { stop('Budget used', 'bad'); swap(gl(), 'Start over'); go.className = 'pill primary sm rc-go'; }
+      }
+    });
+  };
+  const orig = go.onclick;
+  go.addEventListener('click', e => { if (go.onclick2 && !running){ go.onclick2 = false; e.stopImmediatePropagation(); tg.setAttribute('aria-checked','false'); cap.style.opacity = .2; limit = 2000; orig(); } }, true);
+  paint();
+  // the run starts by itself once the card has settled, so the spend can be seen climbing to the cap
+  c.auto(1500, () => { if (!running && !used) go.click(); });
+});
+/* ---------- Agent lanes ---------- */
+DM.def('agent-lanes', (r, c) => {
+  r.innerHTML = r.innerHTML.replace('{users}', I('users')).replace('{pause}', I('pause','xs'));
+  // each agent has a hue of its own (t names the palette slot): its badge, its track, its tag and its stretch of the relay line
+  const L = [
+    { n:'Researcher', ic:'search', t:'pb', acts:['Reading competitor sites','Comparing 5 pricing pages','Writing the brief'], log:['Read stripe.com/pricing','Read linear.app/pricing','Noted 3 patterns'] },
+    { n:'Designer', ic:'palette', t:'pl', wait:'Waiting for the brief', acts:['Laying out pricing cards','Setting type and spacing','Exporting frames'], log:['Made 3 card variants','Applied spacing tokens','Exported 4 frames'] },
+    { n:'Reviewer', ic:'eye', t:'pm', wait:'Waiting for the designer', acts:['Checking contrast','Checking copy','Signing off'], log:['Contrast passes AA','Fixed 2 lines of copy','Approved'] }
+  ];
+  const root = $('.aln', r), rows = $('.aln-rows', r), ct = $('.aln-ct', r), STEPS = L.length * 3;
+  L.forEach(l => {
+    l.el = html(`<div class="aln-lane" data-s="queued" style="--c:var(--${l.t});--cb:var(--${l.t}-bg);--cm:var(--aln-${l.t},var(--${l.t}))"><button class="aln-row" aria-expanded="false"><span class="aln-av">${I(l.ic)}</span><span class="aln-who"><span class="aln-n">${l.n}</span><span class="aln-a">${l.wait || 'Queued'}</span></span><span class="aln-tr" aria-hidden="true"><i></i><i></i><i></i></span><span class="aln-st"><span class="tag">Queued</span></span></button><div class="fold shut"><div><div class="aln-det"></div></div></div></div>`);
+    rows.appendChild(l.el); const b = $('.aln-row', l.el), f = $('.fold', l.el);
+    b.onclick = () => { const s = f.classList.toggle('shut'); b.setAttribute('aria-expanded', !s); };
+  });
+  const TAG = { queued:'<span class="tag">Queued</span>', waiting:`<span class="tag">${I('clock','xs')}Waiting</span>`, working:'<span class="tag aln-tg"><span class="spin"></span>Working</span>', paused:'<span class="tag warn">Paused</span>', done:`<span class="tag ok">${I('check','xs')}Done</span>` };
+  const state = (l, s) => { l.el.dataset.s = s; const t = $('.aln-st', l.el); t.innerHTML = TAG[s]; enter(t.firstElementChild); };
+  const act = (l, t, live) => { const a = $('.aln-a', l.el); a.classList.toggle('live', !!live); a.classList.toggle('shim', !!live); swap(a, t); };
+  let paused = false, secs = 0, finished = false, steps = 0;
+  const count = () => swap(ct, `${steps} of ${STEPS} steps`);
+  const pb = $('.aln-pause', r);
+  pb.onclick = () => { paused = !paused; pb.innerHTML = I(paused ? 'play' : 'pause','xs') + (paused ? 'Resume' : 'Pause all'); swap($('.aln-t', r), paused ? 'All agents paused' : '3 agents working');
+    L.forEach(l => { if (l.running){ state(l, paused ? 'paused' : 'working'); $('.aln-a', l.el).classList.toggle('shim', !paused); } }); };
+  c.every(1000, () => { if (!paused && !finished){ secs++; $('.aln-m', r).textContent = Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0'); } });
+  // time only passes for the agents while they aren't paused; each() hears how far through the wait they are
+  const hold = async (ms, each) => { let t = 0; while (t < ms){ await c.wait(100); if (!paused){ t += 100; each && each(t / ms); } } };
+  async function work(l){
+    l.running = true; state(l, 'working');
+    const bars = $$('.aln-tr i', l.el), det = $('.aln-det', l.el);
+    for (let i = 0; i < 3; i++){
+      bars[i].classList.add('run'); act(l, l.acts[i], true);
+      await hold(1500, p => bars[i].style.setProperty('--p', p.toFixed(3)));
+      bars[i].classList.replace('run', 'on'); steps++; count();
+      const d = html(`<div><span>${l.log[i]}</span><span class="muted">${secs}s</span></div>`); det.appendChild(d); enter(d);
+    }
+    l.running = false; act(l, l.log[2]); state(l, 'done');
+  }
+  // the relay line draws itself from one badge down to the next, the badge it reaches rings, and the stroke stays as the lit
+  // stretch: one line from badge to badge that follows them as the hand-off line opens and shuts (the grey under it steps aside)
+  const links = [];
+  const place = k => { const rr = rows.getBoundingClientRect(), a = $('.aln-av', k.from.el).getBoundingClientRect(), b = $('.aln-av', k.to.el).getBoundingClientRect();
+    const y0 = a.bottom - rr.top + 4, y1 = b.top - rr.top - 4; k.pk.style.top = y0 + 'px'; k.pk.style.height = Math.max(0, y1 - y0) + 'px'; };
+  const ro = new ResizeObserver(() => links.forEach(place)); ro.observe(rows); c.offs.push(() => ro.disconnect());
+  function carry(from, to){
+    const k = { from, to, pk:html(`<span class="aln-pk" aria-hidden="true" style="--from:var(--aln-${from.t},var(--${from.t}));--to:var(--aln-${to.t},var(--${to.t}))"></span>`) };
+    rows.appendChild(k.pk); links.push(k); place(k);
+    const an = REDUCE ? null : k.pk.animate([{ transform:'scaleY(0)' }, { transform:'scaleY(1)' }], { duration:800, easing:'cubic-bezier(.65,0,.35,1)' });
+    return an ? an.finished.catch(() => {}) : Promise.resolve();
+  }
+  async function handoff(from, to, txt){
+    const h = html(`<div class="fold shut aln-hf" style="--from:var(--${from.t});--to:var(--${to.t})"><div><div class="aln-hand"><b class="f">${from.n}</b> handed ${txt} to <b class="t">${to.n}</b></div></div></div>`);
+    to.el.before(h); void h.offsetWidth; h.classList.remove('shut'); enter($('.aln-hand', h), 80);
+    await c.wait(REDUCE ? 0 : 500); await carry(from, to);
+    from.el.classList.add('sent'); h.classList.add('lit'); to.el.classList.add('got');
+    const av = $('.aln-av', to.el); av.classList.add('ping'); c.later(950, () => av.classList.remove('ping'));
+    await c.wait(1300); h.classList.add('shut'); await c.wait(REDUCE ? 0 : 700); h.remove();
+  }
+  c.run(async () => {
+    await c.wait(600);
+    const r1 = work(L[0]); act(L[1], L[1].wait); state(L[1], 'waiting');
+    await r1; await handoff(L[0], L[1], 'the brief');
+    act(L[2], L[2].wait); state(L[2], 'waiting');
+    await work(L[1]); await handoff(L[1], L[2], '4 frames');
+    await work(L[2]);
+    finished = true; root.classList.add('fin'); $('.aln-ic', r).innerHTML = I('ok'); enter($('.aln-ic', r).firstElementChild);
+    swap($('.aln-t', r), 'All 3 agents finished'); pb.remove();
+  });
+});
+/* ---------- Agent lanes designs ---------- */
+/* the homepage card's design switch, shown as its footer tabs: Classic is the component above, and Swimlanes (every
+   agent's work on one clock, each lane in its agent's hue) and Crew (a card per agent with its own pause and steer) are
+   the directions under review. The card keeps the pick (card._dv), so Replay and the story's next round play the same
+   design, and a new pick plays it from the start. The switch is the card's alone: inside another component, as in Agent
+   harness, the lanes are Classic, and the registry, the code view and the component page install Classic (build.js
+   leaves the switch out of them) */
+{
+  const classic = DM.defs['agent-lanes'];
+  // the run Swimlanes and Crew play: three agents on one clock, in seconds. Each does its steps; the designer and the
+  // reviewer start on their own work, then wait for the hand-off from the one before them. t is the agent's palette slot (its
+  // lane's hue), av its avatar colour, and each step's ic the icon on its bar
+  const ALN_RUN = () => [
+    { n:'Researcher', ic:'search', t:'pb', av:'b', cost:.08, steps:[{ t:'Read 5 pricing pages', s:0, d:1.6, ic:'globe' }, { t:'Compared plans and limits', s:1.6, d:1.4, ic:'layers' }, { t:'Wrote the brief', s:3, d:1.2, ic:'file-text' }] },
+    { n:'Designer', ic:'palette', t:'pl', av:'l', cost:.21, waitFrom:2.3, waitTo:4.4, waitFor:'the brief', steps:[{ t:'Set up Pricing v5', s:.8, d:1.5, ic:'figma' }, { t:'Laid out the plan cards', s:4.4, d:2.2, ic:'grid' }, { t:'Set type and spacing', s:6.6, d:1.4, ic:'sliders' }, { t:'Exported 4 frames', s:8, d:.8, ic:'upload' }] },
+    { n:'Reviewer', ic:'eye', t:'pm', av:'m', cost:.06, waitFrom:3.2, waitTo:9, waitFor:'the frames', steps:[{ t:'Read last month’s copy', s:1.6, d:1.6, ic:'book' }, { t:'Checked contrast', s:9, d:1.4, ic:'eye' }, { t:'Fixed 2 lines of copy', s:10.4, d:1, ic:'edit' }, { t:'Approved the page', s:11.4, d:.6, ic:'check' }] }
+  ];
+  // the hand-offs: at its time the sender passes its work, which the receiver picks up at got
+  const ALN_HAND = [{ from:0, to:1, at:4.2, got:4.4, what:'brief' }, { from:1, to:2, at:8.8, got:9, what:'4 frames' }];
+  const ALN_END = 12;
+  const alnClock = t => '0:' + String(Math.floor(t)).padStart(2, '0');
+  const alnLc = s => s.charAt(0).toLowerCase() + s.slice(1);
+  // what an agent is doing at a moment: a step, waiting, idle or done
+  // (times are compared a hair early, so a clock of tenths lands on a step's end exactly)
+  function alnAt(a, t){
+    t += 1e-6;
+    const st = a.steps.find(x => t >= x.s && t < x.s + x.d); if (st) return { s:'work', t:st.t, step:st };
+    if (a.waitFrom !== undefined && t >= a.waitFrom && t < a.waitTo) return { s:'wait', t:'Waiting for ' + a.waitFor };
+    const last = a.steps[a.steps.length - 1]; if (t >= last.s + last.d) return { s:'done', t:'Done, ' + alnLc(last.t) };
+    if (t < a.steps[0].s) return { s:'idle', t:'Starts soon' };
+    return { s:'idle', t:'Between steps' };
+  }
+
+  const alnSwTpl = () => `<div class="aln-sw panel keep">
+    <div class="aln-sw-h"><div class="aln-sw-ht"><b class="aln-sw-tt">3 agents working</b><span class="aln-sw-st num">0:00 of 0:12</span></div><span class="aln-sw-key" aria-hidden="true"><span><i class="next"></i>Next</span><span><i class="run"></i>Working</span><span><i class="done"></i>Done</span><span><i class="wait"></i>Waiting</span></span><button class="pill soft sm aln-sw-pause" type="button">${I('pause','xs')}Pause</button></div>
+    <div class="aln-sw-grid">
+      <div class="aln-sw-ax num" aria-hidden="true"><span class="aln-sw-ticks"></span></div>
+      <div class="aln-sw-rows"></div>
+      <div class="aln-sw-ph" role="slider" tabindex="0" aria-label="Time in the run" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0" aria-valuetext="0 seconds"><i></i><span class="aln-sw-now num">0:00</span></div>
+    </div>
+    <div class="aln-sw-f"><span class="aln-sw-say" aria-live="polite">Researcher starts on the pricing pages</span><button class="pill soft sm aln-sw-live" type="button" hidden>Back to now</button></div>
+  </div>`;
+  // Swimlanes: the clock ticks ten times a second while the demo plays and nobody has paused it. Bars reveal with a clip and
+  // the playhead moves with a transform; text changes only when it says something new
+  function alnSwim(r, c){
+    const A = ALN_RUN(), root = $('.aln-sw', r), rows = $('.aln-sw-rows', r), ph = $('.aln-sw-ph', r), line = $('i', ph), now = $('.aln-sw-now', r), st = $('.aln-sw-st', r), say = $('.aln-sw-say', r), live = $('.aln-sw-live', r), pb = $('.aln-sw-pause', r), tt = $('.aln-sw-tt', r);
+    $('.aln-sw-ticks', r).innerHTML = [0, 3, 6, 9, 12].map(t => `<span style="left:${t / ALN_END * 100}%">${t}s</span>`).join('');
+    const pct = v => (v / ALN_END * 100).toFixed(3) + '%', clamp = v => Math.max(0, Math.min(1, Math.round(v * 1e4) / 1e4));
+    A.forEach(a => {
+      a.el = html(`<div class="aln-sw-row" data-s="idle" style="--c:var(--${a.t});--cb:var(--${a.t}-bg);--cm:var(--aln-sw-${a.t},var(--${a.t}))"><div class="aln-sw-who"><span class="aln-sw-av" aria-hidden="true">${I(a.ic)}</span><span class="aln-sw-wt"><b>${a.n}</b><span>Starts soon</span></span></div><div class="aln-sw-lane"></div></div>`);
+      const lane = $('.aln-sw-lane', a.el);
+      if (a.waitFrom !== undefined){ a.w = html(`<span class="aln-sw-w" style="left:${pct(a.waitFrom)};width:calc(${pct(a.waitTo - a.waitFrom)} - 2px)"><span class="aln-sw-wl">${I('clock','xs')}<span>Waiting for ${a.waitFor}</span></span></span>`); lane.appendChild(a.w); }
+      a.steps.forEach(x => { x.el = html(`<span class="aln-sw-b" style="left:${pct(x.s)};width:calc(${pct(x.d)} - 2px)" data-tip="${a.n}: ${x.t}, ${x.d.toFixed(1)}s"><span class="aln-sw-fl"><i></i>${I(x.ic,'xs')}</span></span>`); lane.appendChild(x.el); });
+      rows.appendChild(a.el);
+    });
+    stagger($$('.aln-sw-row', r), 60);
+    // the hand-offs, each a hook in its sender's hue and what was passed, placed by the lanes they join and the times
+    const hos = ALN_HAND.map(h => { const a = A[h.from];
+      const el = html(`<span class="aln-sw-ho" style="--hc:var(--aln-sw-${a.t},var(--${a.t}));--from:${h.from};--to:${h.to};--x0:${h.at / ALN_END};--x1:${h.got / ALN_END}" aria-hidden="true"><i></i></span>`);
+      const tg = html(`<span class="tag aln-sw-tg" style="--c:var(--${a.t});--to:${h.to};--x0:${h.at / ALN_END}" aria-hidden="true">${I('file-text','xs')}${h.what}</span>`);
+      rows.append(el, tg); return { ...h, el, tg }; });
+    // the lane's width is read when it changes size, never while the clock runs
+    let W = 0, CW = 0, T = 0, V = null, paused = false, fin = false, said = '';
+    const lay = () => { W = $('.aln-sw-lane', A[0].el).clientWidth; CW = now.offsetWidth; paint(); };
+    const ro = new ResizeObserver(lay); ro.observe(rows); c.offs.push(() => ro.disconnect());
+    // the run as it stands: bars fill up to now (T); the playhead sits at now, or where you took it (V)
+    function paint(){
+      const v = V === null ? T : V;
+      root.classList.toggle('scrub', V !== null);
+      A.forEach(a => {
+        a.steps.forEach(x => { const f = clamp((T - x.s) / x.d), k = f >= 1 ? 'done' : f > 0 ? 'run' : '';
+          if (x.f !== f){ x.f = f; x.el.style.setProperty('--f', f.toFixed(4)); }
+          if (x.k !== k){ x.k = k; x.el.classList.toggle('run', k === 'run'); x.el.classList.toggle('done', k === 'done'); }
+          const af = x.s > v; if (x.af !== af){ x.af = af; x.el.classList.toggle('after', af); } });
+        if (a.w){ const f = clamp((T - a.waitFrom) / (a.waitTo - a.waitFrom)); if (a.wf !== f){ a.wf = f; a.w.style.setProperty('--f', f.toFixed(4)); } a.w.classList.toggle('after', a.waitFrom > v); }
+        const at = alnAt(a, v); if (a.s !== at.s){ a.s = at.s; a.el.dataset.s = at.s; } if (a.say !== at.t){ a.say = at.t; $('.aln-sw-wt span', a.el).textContent = at.t; }
+      });
+      hos.forEach(h => { const on = T >= h.at && v >= h.at; if (h.on !== on){ h.on = on; h.el.classList.toggle('on', on); h.tg.classList.toggle('on', on); } });
+      const x = v / ALN_END * W; line.style.transform = `translateX(${x.toFixed(1)}px)`;
+      now.style.transform = `translateX(${Math.max(-6, Math.min(W - CW + 6, x - CW / 2)).toFixed(1)}px)`;
+    }
+    function text(){
+      const v = V === null ? T : V, put = (el, s) => { if (el.textContent !== s) el.textContent = s; };
+      put(now, alnClock(v)); put(st, paused ? `Paused at ${alnClock(T)}` : fin ? 'Done in 0:12, with 2 hand-offs' : `${alnClock(T)} of 0:12`);
+      ph.setAttribute('aria-valuenow', v.toFixed(1)); ph.setAttribute('aria-valuetext', `${v.toFixed(1)} seconds: ${A.map(a => a.n + ', ' + alnLc(alnAt(a, v).t)).join('; ')}`);
+      const busy = A.filter(a => alnAt(a, v).s === 'work');
+      const ln = V !== null ? `At ${alnClock(v)}: ${busy.length ? busy.map(a => `${a.n} ${alnLc(alnAt(a, v).t)}`).join(', ') : 'between steps'}` : fin ? 'All three finished in 12 seconds, with 2 hand-offs' : busy.length ? busy.map(a => `${a.n}: ${alnLc(alnAt(a, v).t)}`).join(' · ') : said;
+      if (ln !== said){ said = ln; say.textContent = ln; }
+    }
+    // the agent a hand-off reaches nods as it gets the work
+    const fire = () => hos.forEach(h => { if (T >= h.at && !h.fired){ h.fired = true; const b = A[h.to].el; b.classList.add('got'); c.later(650, () => b.classList.remove('got')); } });
+    const iv = c.every(100, () => {
+      if (paused || fin) return;
+      T = Math.min(ALN_END, Math.round(T * 10 + 1) / 10); paint(); text(); fire();
+      if (T >= ALN_END){ fin = true; clearInterval(iv); root.classList.add('fin'); swap(tt, 'All 3 agents finished'); pb.hidden = true; text(); }
+    });
+    pb.onclick = () => { paused = !paused; root.classList.toggle('paused', paused); pb.innerHTML = I(paused ? 'play' : 'pause','xs') + (paused ? 'Resume' : 'Pause'); swap(tt, paused ? 'All agents paused' : '3 agents working'); text(); };
+    // dragging the playhead's time, clicking a lane, or the arrow keys on the playhead look back through the run; Back to
+    // now follows the run again
+    const seek = v => { v = Math.max(0, Math.min(T, v)); V = v >= T - .05 ? null : v; live.hidden = V === null; paint(); text(); };
+    live.onclick = () => seek(T);
+    const laneLeft = () => $('.aln-sw-lane', A[0].el).getBoundingClientRect().left;
+    let drag = false, left = 0;
+    c.on(now, 'pointerdown', e => { drag = true; ph.classList.add('drag'); left = laneLeft(); now.setPointerCapture(e.pointerId); e.preventDefault(); ph.focus({ preventScroll:true }); });
+    c.on(now, 'pointermove', e => { if (drag && W) seek((e.clientX - left) / W * ALN_END); });
+    const up = () => { drag = false; ph.classList.remove('drag'); }; c.on(now, 'pointerup', up); c.on(now, 'pointercancel', up);
+    c.on(rows, 'pointerdown', e => { if (e.target.closest('.aln-sw-lane') && W) seek((e.clientX - laneLeft()) / W * ALN_END); });
+    c.on(ph, 'keydown', e => { const v = V === null ? T : V, k = e.key; const to = k === 'ArrowLeft' || k === 'ArrowDown' ? v - .5 : k === 'ArrowRight' || k === 'ArrowUp' ? v + .5 : k === 'Home' ? 0 : k === 'End' ? T : null; if (to === null) return; e.preventDefault(); seek(to); });
+    paint(); text();
+    // the story: once the run is done, someone takes the playhead back through it, then back to now
+    c.story(async s => {
+      await s.until(() => fin); await s.beat(2);
+      await s.point(now, false); seek(3.5); await s.point(now, false); await s.beat(1);
+      seek(5.5); await s.point(now, false); await s.beat(3);
+      seek(9.6); await s.point(now, false); await s.beat(3); s.away();
+      await s.tap(live); s.away(); await s.beat(3);
+    });
+  }
+
+  const alnCrewTpl = () => `<div class="aln-cw"><div class="aln-cw-h"><span class="aln-cw-ic">${I('users')}</span><b class="aln-cw-tt">3 agents working</b><span class="aln-cw-tot num">$0.00</span></div><div class="aln-cw-list"></div></div>`;
+  // Crew: each agent keeps its own clock, which stops while you pause it, and a hand-off waits for the agent before it
+  function alnCrew(r, c){
+    const A = ALN_RUN(), H = ALN_HAND.map(h => ({ ...h })), list = $('.aln-cw-list', r), tot = $('.aln-cw-tot', r), tt = $('.aln-cw-tt', r);
+    let fin = false;
+    A.forEach((a, i) => {
+      a.held = false; a.tk = 0; a.spent = 0; a.t = 0; const N = a.steps.length;
+      a.el = html(`<div class="aln-cw-c" data-s="idle" style="--a:var(--av-${a.av});--ai:var(--av-${a.av}-ink)"><div class="aln-cw-top"><span class="aln-cw-av" aria-hidden="true">${I(a.ic)}</span><span class="aln-cw-tx"><b>${a.n}</b><span>Starts soon</span></span><span class="tag aln-cw-tag">Up next</span><span class="aln-cw-acts"><button class="ib aln-cw-hold" type="button" aria-pressed="false" aria-label="Pause ${a.n}" data-tip="Pause this agent">${I('pause','xs')}</button><button class="ib aln-cw-sb" type="button" aria-expanded="false" aria-label="Steer ${a.n}" data-tip="Steer">${I('wand','xs')}</button></span></div><div class="aln-cw-meter"><span class="aln-cw-tr" role="progressbar" aria-label="${a.n}’s steps" aria-valuemin="0" aria-valuemax="${N}" aria-valuenow="0" style="--n:${N}"><span class="aln-cw-ln"><i></i></span>${'<b></b>'.repeat(N)}</span><span class="aln-cw-num"><span><b class="aln-cw-sn">0</b> of ${N} steps</span><span class="aln-cw-tkn"><b class="aln-cw-tk">0</b> tokens</span><b class="aln-cw-cs">$0.00</b></span></div><div class="fold shut"><div><form class="aln-cw-steer"><input aria-label="A note for the ${a.n.toLowerCase()}" placeholder="Tell the ${a.n.toLowerCase()} what to change"><button class="ib" type="submit" aria-label="Send" data-tip="Send">${I('send','xs')}</button></form></div></div><div class="aln-cw-nts"></div></div>`);
+      list.appendChild(a.el);
+      a.tr = $('.aln-cw-tr', a.el); a.ln = $('.aln-cw-ln i', a.el); a.dots = $$('.aln-cw-tr b', a.el); a.sn = $('.aln-cw-sn', a.el); a.tkEl = $('.aln-cw-tk', a.el); a.csEl = $('.aln-cw-cs', a.el);
+      if (i < A.length - 1){ const h = H[i]; h.el = html(`<div class="aln-cw-ho"><span>${a.n}</span><span class="ln"></span><span class="tag">${I('clock','xs')}${h.what}</span><span class="ln"></span><span>${A[i + 1].n}</span></div>`); list.appendChild(h.el); }
+      const hold = $('.aln-cw-hold', a.el), sb = $('.aln-cw-sb', a.el), fold = $('.fold', a.el), form = $('.aln-cw-steer', a.el), inp = $('input', form);
+      fold.inert = true;
+      hold.onclick = () => { a.held = !a.held; hold.setAttribute('aria-pressed', String(a.held)); hold.innerHTML = I(a.held ? 'play' : 'pause','xs'); hold.dataset.tip = a.held ? 'Resume this agent' : 'Pause this agent'; hold.setAttribute('aria-label', (a.held ? 'Resume ' : 'Pause ') + a.n); paint(a); };
+      // the note's field takes the focus only when you open it yourself; the demo never moves your focus
+      sb.onclick = e => { const on = sb.getAttribute('aria-expanded') !== 'true'; sb.setAttribute('aria-expanded', String(on)); fold.classList.toggle('shut', !on); fold.inert = !on; if (on && e.isTrusted) requestAnimationFrame(() => inp.focus({ preventScroll:true })); };
+      // the note shows once its field has shut, so the card never holds both at once
+      form.onsubmit = e => { e.preventDefault(); const v = inp.value.trim(); if (!v) return; inp.value = ''; sb.click(); if (form.contains(document.activeElement)) sb.focus({ preventScroll:true });
+        setTimeout(() => { if (a.el.isConnected) $('.aln-cw-nts', a.el).replaceChildren(html(`<div class="aln-cw-note">${I('check','xs')}<span>Got it: “${v.replace(/&/g, '&amp;').replace(/</g, '&lt;')}”, before the next step</span></div>`)); }, REDUCE ? 0 : 460); };
+    });
+    function paint(a){
+      const at = alnAt(a, a.t), s = a.held && at.s !== 'done' ? 'hold' : at.s;
+      if (a.s !== s){ a.s = s; a.el.dataset.s = s; const tg = $('.aln-cw-tag', a.el);
+        tg.className = 'tag aln-cw-tag' + (s === 'done' ? ' ok' : s === 'hold' ? ' warn' : '');
+        tg.innerHTML = s === 'work' ? '<span class="spin"></span>Working' : s === 'wait' ? 'Waiting' : s === 'done' ? I('check','xs') + 'Done' : s === 'hold' ? 'Paused' : 'Up next'; }
+      const ln = s === 'hold' ? 'Paused by you' : at.t; if (a.say !== ln){ a.say = ln; const sp = $('.aln-cw-tx span', a.el); sp.className = s === 'work' ? 'shim' : ''; sp.textContent = ln; }
+      // the line through the steps: up to each finished step's dot, and on towards the next as the step at work goes
+      const N = a.steps.length, t = a.t + 1e-6, done = a.steps.filter(x => t >= x.s + x.d).length, cur = a.steps.find(x => t >= x.s && t < x.s + x.d);
+      const p = Math.min(1, Math.round((done + (cur ? (a.t - cur.s) / cur.d : 0)) / N * 1e3) / 1e3);
+      if (a.p !== p){ a.p = p; a.ln.style.transform = `scaleX(${p.toFixed(3)})`; }
+      if (a.done !== done){ a.done = done; a.dots.forEach((d, k) => { d.classList.toggle('done', k < done); d.classList.toggle('now', k === done); }); a.sn.textContent = done; a.tr.setAttribute('aria-valuenow', done); }
+    }
+    c.every(100, () => {
+      let spent = 0;
+      A.forEach((a, i) => {
+        const prev = H[i - 1];
+        const blocked = prev && a.t >= (a.waitFrom ?? 99) && A[prev.from].t < prev.at;
+        // once the hand-off has come, the wait is over at once
+        if (!blocked && prev && a.t >= a.waitFrom && a.t < a.waitTo) a.t = a.waitTo;
+        if (!a.held && !blocked && a.t < ALN_END) a.t = Math.min(ALN_END, Math.round(a.t * 10 + 1) / 10);
+        if (alnAt(a, a.t).s === 'work' && !a.held){ a.tk += 40 + Math.random() * 90; a.spent += a.cost / 50; }
+        spent += a.spent; paint(a);
+        const tk = Math.round(a.tk).toLocaleString('en-US'), cs = '$' + a.spent.toFixed(2);
+        if (a.tkEl.textContent !== tk) a.tkEl.textContent = tk; if (a.csEl.textContent !== cs) a.csEl.textContent = cs;
+      });
+      H.forEach(h => { if (!h.on && A[h.from].t >= h.at){ h.on = true; h.el.classList.add('on'); const tg = $('.tag', h.el); tg.className = 'tag ok'; tg.innerHTML = I('check','xs') + h.what; } });
+      const ts = '$' + spent.toFixed(2); if (tot.textContent !== ts) tot.textContent = ts;
+      if (!fin && A.every(a => a.t >= ALN_END)){ fin = true; swap(tt, 'All 3 agents finished'); $('.aln-cw-ic', r).innerHTML = I('ok'); }
+    });
+    A.forEach(paint);
+    // the story: someone steers the designer while it works, then pauses the reviewer for a moment
+    c.story(async s => {
+      await s.until(() => A[1].s === 'work' && A[1].t > 5); await s.beat(1);
+      await s.tap($('.aln-cw-sb', A[1].el)); s.away();
+      await s.type($('input', A[1].el), 'Make the Pro card stand out', { n:.07, keep:true });
+      await s.beat(1); await s.tap($('.aln-cw-steer .ib', A[1].el)); s.away();
+      await s.until(() => A[2].s === 'work'); await s.beat(2);
+      await s.tap($('.aln-cw-hold', A[2].el)); s.away(); await s.beat(4);
+      await s.tap($('.aln-cw-hold', A[2].el)); s.away();
+      await s.until(() => fin); await s.beat(4);
+    });
+  }
+  // the switch: the design the card last showed (Classic to begin with) is drawn, and picking another starts the card
+  // again with it, as Animate does (on designme.dev through the card's own replay, so its footer tabs follow)
+  DM.def('agent-lanes', (r, c, card) => {
+    const dm0 = $(':scope>.aln-dm', r);
+    if (!dm0) return classic(r, c, card);
+    // placed inside another component (as in Agent harness, where the card's own stage is not there), it is Classic, as it was
+    if (!c.card){ dm0.replaceWith(...$(':scope>.dm-main', dm0).childNodes); return classic(r, c, card); }
+    const D = { swimlanes:[alnSwim, alnSwTpl], crew:[alnCrew, alnCrewTpl] }, dv = D[c.card._dv] ? c.card._dv : 'classic';
+    if (dv === 'classic') classic(r, c, card);
+    else { $(':scope>.aln-dm>.dm-main', r).innerHTML = D[dv][1](); D[dv][0](r, c); }
+    const sg = $(':scope>.aln-dm>.demo .seg2', r); if (!sg) return;
+    $$('button', sg).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === dv)));
+    seg(sg, v => { if (v === dv || !(v === 'classic' || D[v])) return; c.card._dv = v; if (window.V2 && c.card.dataset.v2) window.V2.replay(c.card); else DM.mount(c.card); });
+  });
+}
 /* ---------- Live answer ---------- */
 DM.def('live-answer', (r, c) => {
   const A = $('.lva-a', r);
@@ -2976,6 +3796,97 @@ DM.def('answer-action-bar', (r, c) => {
     await s.tap(cp); s.away(); await s.beat(1);
   });
 });
+/* ---------- Permission gate ---------- */
+DM.def('permission-gate', (r, c) => {
+  r.innerHTML = r.innerHTML.replace('{figma}', I('figma')).replace(/\{chk\}/g, I('check','xs')).replace('{chev}', I('chev-d','xs'));
+  const root = $('.pgx', r), ok = $('.pgx-ok', r), no = $('.pgx-no', r), sc = $('.pgx-sc', r), title = $('.pgx-ht b', r), sub = $('.pgx-ht .muted', r);
+  const first = { sc:sc.innerHTML, title:title.textContent, sub:sub.textContent, no:no.textContent };
+  const boxes = () => $$('.pgx-o input', sc);
+  // how long: This task, Today or Always, from the dropdown in the footer
+  let dur = 'This task';
+  const span = () => dur === 'Always' ? 'always' : 'for ' + dur.toLowerCase();
+  const count = () => { const n = boxes().filter(b => b.checked).length; ok.disabled = !n; swap(ok, n ? 'Allow ' + n + (n > 1 ? ' scopes' : ' scope') : 'Pick a scope'); };
+  c.on(sc, 'change', count);
+  $$('.pgx-pop .mi', r).forEach(m => m.addEventListener('click', () => { dur = m.dataset.v; $$('.pgx-pop .mi', r).forEach(x => x.setAttribute('aria-checked', x === m)); swap($('.pgx-dv', r), dur === 'Always' ? 'Always' : 'For ' + dur.toLowerCase()); }));
+  const body = [sc, $('.pgx-f', r)];
+  // the scopes give way to a shorter result row: on the card it keeps the height it had and centres the row (hold)
+  const show = on => { if (!on && c.card && !root.classList.contains('held')) hold(root); body.forEach(e => e.hidden = !on); if (on) stagger(body, 50); };
+  // the frames the agent edits once it may. Plan toggle is a library component, so editing it needs Publish library
+  const F = ['Hero', 'Plan cards', 'Compare table', 'FAQ', 'Plan toggle', 'Checkout summary'], LIB = 4;
+  const clock = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  // the clock counts the agent's working time only, not the time it waits for you
+  let granted = 0, publish = false, skip = false, done = 0, ms = 0, run = 0, panel = null;
+  function row(){
+    panel = html(`<div class="pgx-done run"><span class="g"><span class="spin"></span></span><span class="t"><b class="pgx-a"></b><span class="pgx-d"></span></span><span class="pgx-tm num"></span><button class="pill ghost sm">Revoke</button></div>`);
+    root.appendChild(panel); enter(panel); $('button', panel).onclick = revoke;
+  }
+  // the agent works through the frames under what it was given, and stops to ask when it reaches one it may not touch
+  function work(){
+    const id = ++run; if (!panel) row();
+    const a = $('.pgx-a', panel), d = $('.pgx-d', panel), tm = $('.pgx-tm', panel);
+    swap(a, `Allowed ${granted} ${granted > 1 ? 'scopes' : 'scope'} ${span()}`);
+    const t0 = performance.now(), now = () => ms + performance.now() - t0;
+    tm.textContent = clock(Math.floor(ms / 1000));
+    c.run(async () => {
+      const tick = c.every(250, () => { if (run === id) tm.textContent = clock(Math.floor(now() / 1000)); });
+      try {
+        while (done < F.length){
+          if (done === LIB && !publish && !skip) return ask();
+          swap(d, done === LIB && skip ? `Skipping ${F[done]}` : `Editing ${F[done]} · ${done + 1} of ${F.length}`);
+          await c.wait(900); if (run !== id) return;
+          done++;
+        }
+        panel.classList.replace('run', 'ok'); const g = $('.g', panel); g.innerHTML = I('ok'); enter(g);
+        swap(a, skip ? `Done. ${F.length - 1} frames edited` : `Done. ${F.length} frames edited`);
+        swap(d, skip ? 'On a new page. Plan toggle skipped' : 'On a new page. Plan toggle published');
+      } finally { clearInterval(tick); if (run === id) ms = now(); }
+    });
+  }
+  // asks again, for only the scope it now needs
+  function ask(){
+    const p = panel; panel = null; p.classList.add('leave');
+    root.classList.add('esc'); swap(title, 'Also allow Publish library?'); swap(sub, `${F[LIB]}, frame ${LIB + 1} of ${F.length}, is a library component`);
+    c.later(300, () => {
+      p.remove();
+      sc.innerHTML = `<label class="pgx-o" data-k="publish"><input type="checkbox" checked><span class="bx">${I('check','xs')}</span><span class="t">Publish library<span class="d">Updates Checkout, Marketing site, Email kit and Docs</span></span><span class="tag warn">Risky</span></label>`;
+      no.textContent = 'Skip this frame'; count(); show(true);
+    });
+  }
+  function reset(){
+    run++; granted = done = ms = 0; publish = skip = false;
+    root.classList.remove('esc'); sc.innerHTML = first.sc; swap(title, first.title); swap(sub, first.sub); no.textContent = first.no; count();
+  }
+  function revoke(){ const p = panel; panel = null; run++; p.classList.add('leave'); c.later(300, () => { p.remove(); release(root); reset(); show(true); }); }
+  ok.onclick = () => c.run(async () => {
+    const picked = boxes().filter(b => b.checked); if (!picked.length) return;
+    granted += picked.length; if (picked.some(b => b.closest('.pgx-o').dataset.k === 'publish')) publish = true;
+    ok.innerHTML = '<span class="spin"></span>'; await c.wait(500);
+    show(false);
+    if (root.classList.contains('esc')){ root.classList.remove('esc'); swap(title, first.title); swap(sub, first.sub); }
+    // placed inside another component (Agent harness), it reports back without the run
+    if (!c.card){ row(); swap($('.pgx-a', panel), `Allowed ${granted} ${granted > 1 ? 'scopes' : 'scope'} ${span()}`); swap($('.pgx-d', panel), 'Applying the pricing fixes now'); $('.pgx-tm', panel).remove();
+      c.later(1400, () => { if (!panel) return; panel.classList.replace('run', 'ok'); $('.g', panel).innerHTML = I('ok'); swap($('.pgx-d', panel), 'Done. 6 frames edited on a new page'); }); return; }
+    work();
+  });
+  no.onclick = () => {
+    if (root.classList.contains('esc')){ skip = true; show(false); root.classList.remove('esc'); swap(title, first.title); swap(sub, first.sub); work(); return; }
+    show(false); const d = html(`<div class="pgx-done" style="background:var(--chip)">${I('info')}<span class="t">The agent will skip the Figma edits<span>It will list the fixes in chat instead</span></span><button class="pill ghost sm">Undo</button></div>`);
+    root.appendChild(d); enter(d); $('button', d).onclick = () => { d.remove(); release(root); show(true); };
+  };
+  // the preview's story: hold back the risky scope, allow the rest, then grant it when the agent needs it for one frame
+  c.story(async s => {
+    await s.beat(3);
+    const pub = $('[data-k="publish"]', sc);
+    await s.tap(pub); await s.beat(1);
+    await s.point($('.tag', pub)); await s.beat(3);
+    await s.tap(pub); await s.beat(2);
+    await s.tap(ok); s.away();
+    await s.until(() => root.classList.contains('esc') && !sc.hidden);
+    await s.beat(4);
+    await s.tap(ok); s.away();
+    await s.until(() => panel && panel.classList.contains('ok'));
+  });
+});
 /* ---------- Voice orb ---------- */
 // the glass sphere of Voice orb, as a fragment shader. It is lit as a ball: normals from the sphere, a soft key light from the
 // top left with a deeper, shifted hue past the terminator toward the bottom right, light gathered through the glass on the
@@ -3250,6 +4161,113 @@ DM.def('prompt-library', (r, c) => {
     await s.tap($('.plb-sel', $('.plb-fd[data-k="tone"]', vars))); await s.beat(2);
     await s.tap($('.plb-pop-tone .mi[data-o="friendlier"]', r)); s.away(); await s.beat(3);
     await s.tap($('.plb-use', r)); s.away(); await s.beat(3);
+  });
+});
+/* ---------- Steering ---------- */
+DM.def('steering', (r, c) => {
+  r.innerHTML = r.innerHTML.replace('{up}', I('up','xs'));
+  // the run: four steps on the pricing page. A card step paints its card in the current accent, and remembers which,
+  // so a change of mind can find the cards that already have the old one
+  const S = [
+    { id:'read', t:'Read Pricing v4', d:'3 frames, 14 layers', s:'done' },
+    { id:'pro', card:'Pro', t:'Update the Pro card', s:'run', ms:7500 },
+    { id:'team', card:'Team', t:'Update the Team card', d:'Pricing v4, frame 3', s:'queued', ms:3500 },
+    { id:'ship', t:'Export to staging', d:'designme.studio/pricing', s:'queued', ms:2500 }
+  ];
+  const steps = $('.ste-steps', r), log = $('.ste-log', r), box = $('.ste-box', r), inp = $('input', box), go = $('.ste-go', r), st = $('.ste-st', r), mode = $('.m', st), ck = $('.ck', st);
+  let hue = 'violet', ended = false, running = false;
+  const queue = [];
+  const G = { run:'<span class="spin"></span>', done:I('ok','xs'), queued:'<span class="dot"></span>' };
+  const doing = x => x.card ? `Setting the accent to ${hue}` : x.d;
+  function row(x){
+    x.el = html(`<li class="ste-s ${x.s}"><span class="ste-g">${G[x.s]}</span><span class="ste-t"><b>${x.t}</b><span>${x.s === 'run' ? doing(x) : x.d || 'Pricing v4, frame 2'}</span></span>${x.mine ? '<span class="tag b">From you</span>' : ''}</li>`);
+    return x.el;
+  }
+  S.forEach(x => steps.appendChild(row(x)));
+  function set(x, s, d){ x.s = s; x.el.className = 'ste-s ' + s; const g = $('.ste-g', x.el); g.innerHTML = G[s]; enter(g); if (d) swap($('.ste-t span', x.el), d); }
+  const where = () => { const i = S.findIndex(x => x.s === 'run'); swap(mode, ended ? 'Done' : `Step ${i + 1} of ${S.length}`); };
+  // the clock runs until the last step is done
+  const t0 = performance.now(); let tEnd = 0;
+  const clock = () => { const s = Math.floor(((tEnd || performance.now()) - t0) / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+  c.every(250, () => { ck.textContent = clock(); });
+  // a message waits for the step in progress, then the agent takes it up before the next one
+  const ready = () => { go.disabled = ended || !inp.value.trim(); };
+  inp.oninput = ready;
+  c.on(box, 'submit', e => {
+    e.preventDefault(); const text = inp.value.trim(); if (!text || ended) return;
+    inp.value = ''; ready();
+    const m = html(`<div class="ste-me"><p></p><span class="ste-q"><span class="spin"></span>Applies after this step</span></div>`);
+    $('p', m).textContent = text; log.appendChild(m); enter(m);
+    queue.push({ text, el:m });
+    if (!running) apply();
+  });
+  // what the agent says back, with buttons when it needs you to choose
+  function say(text, warn, acts){
+    const a = html(`<div class="ste-ag${warn ? ' warn' : ''}">${warn ? I('alert','xs') : I('spark','xs')}<div class="t"><p></p>${acts ? '<div class="ste-acts"></div>' : ''}</div></div>`);
+    $('p', a).textContent = text; log.appendChild(a); enter(a);
+    if (acts) acts.forEach(([label, ink, fn]) => { const b = html(`<button class="pill sm ${ink ? 'primary' : 'ghost'}">${label}</button>`); b.onclick = () => { $('.ste-acts', a).replaceWith(html(`<span class="muted">${fn()}</span>`)); a.classList.remove('warn'); a.firstElementChild.outerHTML = I('spark','xs'); }; $('.ste-acts', a).appendChild(b); });
+  }
+  function apply(){
+    while (queue.length){
+      const q = queue.shift(), tag = $('.ste-q', q.el);
+      tag.innerHTML = I('check','xs') + (S.some(x => x.s !== 'done') ? 'Applied' : 'Noted'); enter(tag);
+      const left = S.some(x => x.s !== 'done');
+      if (!left){ say("The run had finished, so I'll keep this for the next one."); continue; }
+      if (!/blue|accent|library/i.test(q.text)){ say("Got it. I'll follow that from the next step."); continue; }
+      // a change of accent: what's still to come uses it, and a card already painted the old way is offered a redo
+      hue = 'library blue';
+      const old = S.filter(x => x.card && x.s === 'done' && x.hue === 'violet' && !S.some(y => y.redo === x.id));
+      const run = S.find(x => x.s === 'run'); if (run && run.card) swap($('.ste-t span', run.el), doing(run));
+      if (!old.length){ say('Got it. From here the accent is color.accent.500 from the library.'); continue; }
+      const names = old.map(x => x.card).join(' and ');
+      say(`Got it. From here the accent is color.accent.500. The ${names} card${old.length > 1 ? 's are' : ' is'} already violet.`, true, [
+        ['Leave it', false, () => `Kept the ${names} card as it is`],
+        [`Redo the ${names} card${old.length > 1 ? 's' : ''}`, true, () => { old.forEach(redo); return `Added a step to redo the ${names} card${old.length > 1 ? 's' : ''}`; }]
+      ]);
+    }
+  }
+  // a redo goes in before the export if the export hasn't started, otherwise at the end
+  function redo(x){
+    const n = { id:'redo-' + x.id, redo:x.id, card:x.card, mine:true, t:`Redo the ${x.card} card`, d:'Accent to library blue', s:'queued', ms:2000 };
+    const ship = S.find(y => y.id === 'ship'), at = ship.s === 'queued' ? S.indexOf(ship) : S.length;
+    S.splice(at, 0, n); steps.insertBefore(row(n), S[at + 1] ? S[at + 1].el : null);
+    const li = n.el; li.style.height = '0px'; li.style.minHeight = '0px'; li.style.overflow = 'hidden'; li.style.opacity = '0';
+    requestAnimationFrame(() => { li.style.transition = 'height .4s var(--ease),min-height .4s var(--ease),opacity .4s'; li.style.height = '44px'; li.style.minHeight = '44px'; li.style.opacity = '1'; c.later(450, () => { li.removeAttribute('style'); }); });
+    if (ended){ ended = false; tEnd = 0; $('.ste-sum', r)?.remove(); inp.disabled = false; inp.placeholder = 'Steer the agent while it works'; ready(); c.run(work); }
+    where();
+  }
+  // the agent works through the steps; between two steps it takes up what you sent
+  async function work(){
+    running = true;
+    for (let x = S.find(y => y.s === 'run' || y.s === 'queued'); x; x = S.find(y => y.s === 'run' || y.s === 'queued')){
+      if (x.s !== 'run') set(x, 'run', doing(x));
+      where();
+      await c.wait(x.ms);
+      if (x.card) x.hue = hue;
+      set(x, 'done', x.card ? (x.hue === 'violet' ? 'Accent set to violet' : 'Accent set to library blue') : x.id === 'ship' ? 'Live on designme.studio/pricing' : x.d);
+      apply();
+    }
+    running = false; ended = true; tEnd = performance.now(); where();
+    inp.disabled = true; inp.placeholder = 'The run has finished'; ready();
+    const n = $$('.ste-me', r).length;
+    $('.ste-sum', r)?.remove();
+    const sum = html(`<div class="ste-sum">${I('ok','xs')}<span>Done in ${clock()}${n ? ` · ${n} change${n > 1 ? 's' : ''} from you` : ''}</span></div>`);
+    log.appendChild(sum); enter(sum);
+  }
+  c.run(work);
+  // the preview's story: read what the agent is doing, tell it to use the library's blue, and have it redo the card
+  // that was already violet
+  c.story(async s => {
+    await s.beat(2);
+    await s.point($('.ste-t span', S[1].el), false); await s.beat(1);
+    await s.tap(inp);
+    // typed a few letters at a time, so a busy page (few, longer timers) types it as fast as a quiet one
+    const msg = 'Use our library blue, not violet';
+    await s.type(inp, msg.match(/.{1,3}/g), { n:.15, each:ready, keep:true });
+    await s.beat(1); await s.tap(go); s.away();
+    await s.until(() => $('.ste-acts .primary', r)); await s.beat(3);
+    await s.tap($('.ste-acts .primary', r)); s.away();
+    await s.until(() => ended); await s.beat(2);
   });
 });
 /* ---------- Image generation ---------- */
@@ -3601,7 +4619,7 @@ DM.def('image-generation', (r, c, card) => {
   });
 });
 /* ---------- the sections' components, loaded the first time a section comes near (DEF_PARTS in build.js) ---------- */
-const PARTS = {"files":{"s-status":"/assets/v2-status.8d4ddf7a69.js","s-product":"/assets/v2-product.b8d27a446a.js","s-review":"/assets/v2-review.9255d5ad55.js","s-data":"/assets/v2-data.635fd5e0fa.js","s-workspace":"/assets/v2-workspace.a51181e45b.js","s-harness":"/assets/v2-harness.a05cbcfaa8.js","s-charts":"/assets/v2-charts.9a7629fce0.js","s-dates":"/assets/v2-dates.2a023484d7.js","s-forms":"/assets/v2-forms.cb3a39c2f9.js","s-collab":"/assets/v2-collab.257770798d.js"},"of":{"status-pill":"s-status","step-loader":"s-status","thinking-states":"s-status","reasoning-trail":"s-status","thinking":"s-status","context-meter":"s-status","action-log":"s-status","run-queue":"s-status","agent-tree":"s-status","agent-inbox":"s-status","browser-session":"s-status","trace-view":"s-status","run-cost":"s-status","toast":"s-status","toast-stack":"s-status","pricing-cards":"s-product","onboarding-checklist":"s-product","stepper":"s-product","set-limit":"s-product","currency-converter":"s-product","run-summary":"s-status","error-recovery":"s-status","agent-lanes":"s-status","agent-run-timeline":"s-status","decision-prompt":"s-review","proposal-card":"s-review","rewrite-toolbar":"s-review","design-tuner":"s-review","permission-gate":"s-review","human-handoff":"s-review","launch-checklist":"s-review","plan-review":"s-review","change-review":"s-review","inline-text-diff":"s-review","draft-review":"s-review","steering":"s-review","eval-results":"s-review","design-review":"s-review","source-stack":"s-data","metric-insight":"s-data","task-table":"s-data","code-viewer":"s-data","terminal-stream":"s-data","details-panel":"s-data","citation-hover":"s-data","field-extraction":"s-data","workspace-rail":"s-workspace","command-palette":"s-workspace","agent-settings":"s-workspace","file-explorer":"s-workspace","automation-canvas":"s-workspace","canvas-toolbar":"s-workspace","step-inspector":"s-workspace","data-picker":"s-workspace","run-drawer":"s-workspace","memory-panel":"s-workspace","model-compare":"s-workspace","tool-connections":"s-workspace","knowledge-sources":"s-workspace","scheduled-runs":"s-workspace","harness":"s-harness","line-chart":"s-charts","bar-chart":"s-charts","donut-chart":"s-charts","funnel":"s-charts","top-pages":"s-charts","health-score":"s-charts","activity-heatmap":"s-charts","stat-cards":"s-charts","account-table":"s-charts","date-picker":"s-dates","segmented-control":"s-dates","date-range-picker":"s-dates","event-calendar":"s-dates","agenda":"s-dates","buttons":"s-forms","badge":"s-forms","tooltip":"s-forms","search-input":"s-forms","country-select":"s-forms","multi-select":"s-forms","social-signin":"s-forms","sign-in":"s-forms","otp-field":"s-forms","form":"s-forms","payment-form":"s-forms","comments":"s-collab","notifications":"s-collab","banner":"s-collab","invite":"s-collab","reactions":"s-collab","profile-menu":"s-collab","context-switcher":"s-collab","filter-menu":"s-collab","number-field":"s-collab","ticket-list":"s-collab","kanban":"s-collab","agent-builder":"s-workspace","agent-phases":"s-status","color-picker":"s-forms","context-menu":"s-collab","progress":"s-forms","radar-chart":"s-charts","radial-goals":"s-charts","scatter-chart":"s-charts","score-breakdown":"s-charts","slider":"s-forms","carousel":"s-forms","web-search":"s-status"},"all":["harness"]};
+const PARTS = {"files":{"s-status":"/assets/v2-status.60e3d18d44.js","s-product":"/assets/v2-product.b8d27a446a.js","s-review":"/assets/v2-review.0e66510f39.js","s-data":"/assets/v2-data.635fd5e0fa.js","s-workspace":"/assets/v2-workspace.a51181e45b.js","s-harness":"/assets/v2-harness.a05cbcfaa8.js","s-charts":"/assets/v2-charts.9a7629fce0.js","s-dates":"/assets/v2-dates.2a023484d7.js","s-forms":"/assets/v2-forms.cb3a39c2f9.js","s-collab":"/assets/v2-collab.257770798d.js"},"of":{"status-pill":"s-status","step-loader":"s-status","thinking-states":"s-status","reasoning-trail":"s-status","thinking":"s-status","context-meter":"s-status","action-log":"s-status","run-queue":"s-status","browser-session":"s-status","toast":"s-status","toast-stack":"s-status","pricing-cards":"s-product","onboarding-checklist":"s-product","stepper":"s-product","set-limit":"s-product","currency-converter":"s-product","run-summary":"s-status","error-recovery":"s-status","agent-run-timeline":"s-status","decision-prompt":"s-review","proposal-card":"s-review","rewrite-toolbar":"s-review","design-tuner":"s-review","human-handoff":"s-review","launch-checklist":"s-review","plan-review":"s-review","change-review":"s-review","inline-text-diff":"s-review","draft-review":"s-review","eval-results":"s-review","design-review":"s-review","source-stack":"s-data","metric-insight":"s-data","task-table":"s-data","code-viewer":"s-data","terminal-stream":"s-data","details-panel":"s-data","citation-hover":"s-data","field-extraction":"s-data","workspace-rail":"s-workspace","command-palette":"s-workspace","agent-settings":"s-workspace","file-explorer":"s-workspace","automation-canvas":"s-workspace","canvas-toolbar":"s-workspace","step-inspector":"s-workspace","data-picker":"s-workspace","run-drawer":"s-workspace","memory-panel":"s-workspace","model-compare":"s-workspace","tool-connections":"s-workspace","knowledge-sources":"s-workspace","scheduled-runs":"s-workspace","harness":"s-harness","line-chart":"s-charts","bar-chart":"s-charts","donut-chart":"s-charts","funnel":"s-charts","top-pages":"s-charts","health-score":"s-charts","activity-heatmap":"s-charts","stat-cards":"s-charts","account-table":"s-charts","date-picker":"s-dates","segmented-control":"s-dates","date-range-picker":"s-dates","event-calendar":"s-dates","agenda":"s-dates","buttons":"s-forms","badge":"s-forms","tooltip":"s-forms","search-input":"s-forms","country-select":"s-forms","multi-select":"s-forms","social-signin":"s-forms","sign-in":"s-forms","otp-field":"s-forms","form":"s-forms","payment-form":"s-forms","comments":"s-collab","notifications":"s-collab","banner":"s-collab","invite":"s-collab","reactions":"s-collab","profile-menu":"s-collab","context-switcher":"s-collab","filter-menu":"s-collab","number-field":"s-collab","ticket-list":"s-collab","kanban":"s-collab","agent-builder":"s-workspace","agent-phases":"s-status","color-picker":"s-forms","context-menu":"s-collab","progress":"s-forms","radar-chart":"s-charts","radial-goals":"s-charts","scatter-chart":"s-charts","score-breakdown":"s-charts","slider":"s-forms","carousel":"s-forms","web-search":"s-status"},"all":["harness"]};
 const partRun = src => eval(src);
 // the markup of the cards whose section has a file of its own comes with that file
 const TPLS = {};

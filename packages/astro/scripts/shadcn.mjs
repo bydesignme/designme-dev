@@ -55,3 +55,22 @@ for (const fw of ['react', 'astro']){
   });
 }
 console.log(`wrote r/shadcn: core, theme bridge and ${index.length} components, for React and Astro`);
+
+// the index the shadcn CLI and other tools look for at /r/registry.json. Per-item files, with their source, stay at
+// /r/shadcn/<name>.json (React) and /r/shadcn/astro/<name>.json. The index lists the React items and where each file
+// goes; it does not repeat the source, which is already in the item.
+const listed = ['core', ...index.map(it => it.name), 'theme-bridge'].map(name => {
+  const item = JSON.parse(fs.readFileSync(path.join(out, name + '.json'), 'utf8'));
+  return {
+    name: item.name, type: item.type, title: item.title, description: item.description,
+    ...(item.registryDependencies ? { registryDependencies: item.registryDependencies } : {}),
+    files: item.files.map(({ path: p, type, target }) => ({ path: p, type, ...(target ? { target } : {}) })),
+  };
+});
+fs.writeFileSync(path.join(reg, 'registry.json'), JSON.stringify({
+  $schema: 'https://ui.shadcn.com/schema/registry.json',
+  name: 'designme',
+  homepage: 'https://designme.dev',
+  items: listed,
+}, null, 1) + '\n');
+console.log(`wrote r/registry.json: ${listed.length} items`);

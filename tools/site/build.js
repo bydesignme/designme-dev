@@ -778,6 +778,10 @@ if (REGDIR){
   console.log('registry entries written:', n);
 }
 
+/* this week's components open the library. Their code rides in the first section's script so the lead plays with the
+   first screen, and the docs still list each one in the section it belongs to (SECTION_ORDER, read below) */
+const LAUNCH = ['agent-tree', 'trace-view', 'agent-lanes', 'steering', 'run-cost', 'permission-gate', 'agent-inbox'];
+let SECTION_ORDER = null;
 /* ---------- the components' script goes last ---------- */
 {
   const end = site.lastIndexOf('</body>');
@@ -786,6 +790,10 @@ if (REGDIR){
   const sectionOf = {}, order = [];
   for (const [, sid, body] of site.matchAll(/<section class="lib-sec" id="([\w-]+)"[^>]*>([\s\S]*?)<\/section>/g)){
     order.push(sid); for (const [, id] of body.matchAll(/<article\b[^>]*\bdata-v2="([\w-]+)"/g)) sectionOf[id] = sid;
+  }
+  for (const id of LAUNCH){
+    if (!sectionOf[id]) throw new Error('launch component not on the page: ' + id);
+    sectionOf[id] = order[0];
   }
   const P = defParts(sectionOf, order[0]), files = {};
   // a card in a section with a file of its own gets its markup (its <template>) from that file too, so the page doesn't
@@ -868,6 +876,34 @@ site = site.replace(/(<style(?![^>]*id="v2-css")[^>]*>)([\s\S]*?)(<\/style>)/g, 
   if (n !== done.length) throw new Error(`card heads written out: ${n} of ${done.length}`);
 }
 // the big styles and scripts go to content-hashed files in /assets (split-assets.js); the steps below read the page whole
+/* ---------- launch week: these seven open the grid, in this order, on the default view and on Popular. Recent puts
+   them back (data-home). The docs keep the section order from before the move ---------- */
+{
+  SECTION_ORDER = {};
+  for (const [, sid, body] of site.matchAll(/<section class="lib-sec" id="([\w-]+)"[^>]*>([\s\S]*?)<\/section>/g)){
+    SECTION_ORDER[sid] = [...body.matchAll(/<article\b[^>]*\bdata-reg="([\w-]+)"/g)].map(m => m[1]);
+  }
+  const pulled = [];
+  for (const id of LAUNCH){
+    const re = new RegExp(`<article\\b(?=[^>]*\\bdata-v2="${id}")[^>]*>[\\s\\S]*?</article>`);
+    const m = site.match(re);
+    if (!m) throw new Error('launch card missing: ' + id);
+    const before = site.slice(0, m.index);
+    const open = before.lastIndexOf('<section class="lib-sec"');
+    const close = before.lastIndexOf('</section>');
+    if (open < 0 || close > open) throw new Error(id + ' is not inside a section');
+    const sid = (before.slice(open).match(/id="([\w-]+)"/) || [])[1];
+    const reg = (m[0].match(/data-reg="([\w-]+)"/) || [])[1];
+    if (!sid || !reg || !SECTION_ORDER[sid] || !SECTION_ORDER[sid].includes(reg)) throw new Error('launch card ' + id + ' left its section list');
+    pulled.push(m[0].replace('<article ', `<article data-home="${sid}" `));
+    site = site.slice(0, m.index) + site.slice(m.index + m[0].length);
+  }
+  const mark = 'App basics</button></div>';
+  const at = site.indexOf(mark);
+  if (at < 0 || site.indexOf(mark, at + 1) !== -1) throw new Error('group switch not found once');
+  const end = at + mark.length;
+  site = site.slice(0, end) + '\n<div class="grid launch" id="launch" data-grp="agent">\n' + pulled.join('\n') + '\n</div>\n' + site.slice(end);
+}
 const split = splitAssets(site, path.dirname(OUT), V2_PARTS);
 fs.writeFileSync(OUT, split.html);
 console.log('assets:', split.files.join(' ') + '; index.html', split.html.length, 'bytes');
@@ -880,6 +916,15 @@ console.log('swapped', done.length, 'cards; size', site.length);
   const secs = [...site.matchAll(/<section class="lib-sec" id="([\w-]+)" data-grp="(\w+)">([\s\S]*?)<\/section>/g)].map(([, id, grp, body]) => ({
     id, grp, title:text(body.match(/<h2>([\s\S]*?)<\/h2>/)[1]), about:text((body.match(/<div class="sec-head">[\s\S]*?<p>([\s\S]*?)<\/p>/) || [, ''])[1]),
     cards:[...body.matchAll(/<article\b[^>]*\bdata-reg="([\w-]+)"[^>]*>[\s\S]*?class="comp-title">([\s\S]*?)<\/h2>[\s\S]*?class="comp-desc">([\s\S]*?)<\/p>/g)].map(([, reg, t, d]) => ({ reg, t:text(t), d:text(d) })) }));
+  // the lead grid holds this week's cards on the homepage; the docs still list them in the section they were in
+  if (SECTION_ORDER){
+    const all = {};
+    for (const m of site.matchAll(/<article\b[^>]*\bdata-reg="([\w-]+)"[^>]*>[\s\S]*?class="comp-title">([\s\S]*?)<\/h2>[\s\S]*?class="comp-desc">([\s\S]*?)<\/p>/g)) all[m[1]] = { reg:m[1], t:text(m[2]), d:text(m[3]) };
+    for (const sec of secs){
+      const order = SECTION_ORDER[sec.id]; if (!order) continue;
+      sec.cards = order.map(reg => { if (!all[reg]) throw new Error('section list lost ' + reg); return all[reg]; });
+    }
+  }
   const count = secs.reduce((n, x) => n + x.cards.length, 0);
   let md = `# Designme.dev
 
@@ -890,7 +935,7 @@ Install with the CLI, which copies each component's source into your project so 
 - HTML: \`npx designme add <name>\` adds the component and the shared core it needs.
 - React: \`npx designme add <name> --react\` adds a \`.tsx\` component and its CSS. Needs React 19, and works with Next.js (App Router), Vite and Astro islands.
 - Astro: \`npx designme add <name> --astro\` adds an \`.astro\` component with the HTML version's CSS and script, and the shared core.
-- shadcn CLI: \`npx shadcn@latest add https://designme.dev/r/shadcn/<name>.json\` (React) or \`https://designme.dev/r/shadcn/astro/<name>.json\` (Astro).
+- shadcn CLI: \`npx shadcn@latest add https://designme.dev/r/shadcn/<name>.json\` (React) or \`https://designme.dev/r/shadcn/astro/<name>.json\` (Astro). The index of the React items is https://designme.dev/r/registry.json.
 
 Every CSS variable starts with \`--dm-\` in every version, and in the React version every class and animation name starts with \`dm-\` too, so the components sit beside Tailwind, shadcn/ui or any other CSS. Each component below links to its page as Markdown: what it is for, how to install and use it, its React props, questions and its React source. The same page with a live demo is at the same address without \`.md\`, and every component is on the homepage, https://designme.dev/.
 `;

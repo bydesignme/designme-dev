@@ -817,6 +817,11 @@
       const q = query.trim().toLowerCase();
       const match = c => !q || title(c).toLowerCase().includes(q) || c.querySelector('.comp-desc').textContent.toLowerCase().includes(q) || c.closest('.lib-sec').querySelector('h2').textContent.toLowerCase().includes(q);
       let shown = 0;
+      const lead = $('#launch'), WEEK = ['agent-tree','trace-view','agent-lanes','steering','run-cost','permission-gate','agent-inbox'];
+      if (lead){
+        if (mode === 'recent') [...lead.querySelectorAll('.comp')].forEach(c => { const g = c.dataset.home && $('#' + c.dataset.home + ' .grid'); if (g) g.appendChild(c); });
+        else WEEK.forEach(id => { const c = $(`.comp[data-v2="${id}"]`); if (c) lead.appendChild(c); });
+      }
       $$('.lib-sec').forEach(sec => {
         const grid = $('.grid', sec), cs = $$('.comp', grid);
         cs.sort((a, b) => mode === 'recent' ? num(b.id) - num(a.id) : curated.indexOf(a.id) - curated.indexOf(b.id)).forEach(c => grid.appendChild(c));
@@ -831,6 +836,16 @@
           if (q && n) g.classList.remove('closed');
         }
       });
+      if (lead){
+        let n = 0;
+        [...lead.querySelectorAll('.comp')].forEach(c => {
+          const ok = match(c) && (mode !== 'saved' || saved.includes(c.id));
+          c.classList.toggle('filtered-out', !ok);
+          const a = $(`.side-a[data-c="${c.id}"]`); if (a) a.classList.toggle('hide', !ok);
+          if (ok) n++;
+        });
+        lead.classList.toggle('filtered-out', !n); shown += n;
+      }
       // saved list follows the search too
       let sv = 0;
       $$('.saved-a', savedList).forEach(a => { const c = byId.get(a.getAttribute('href').slice(1)); const ok = c && match(c); a.classList.toggle('hide', !ok); if (ok) sv++; });
@@ -1178,6 +1193,21 @@
     };
     b.addEventListener('click', go);
     inp.addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+    const row2 = $('#su-fig-row'), inp2 = $('#su-fig-email'), b2 = $('#su-fig-go');
+    if (row2 && inp2 && b2){
+      const fail2 = msg => { b2.disabled = false; b2.textContent = 'Sign up'; $('#su-fig-msg').textContent = msg; row2.classList.remove('bad'); void row2.offsetWidth; row2.classList.add('bad'); Sound.play('fail'); };
+      const go2 = async () => {
+        const v = inp2.value.trim(); $('#su-fig-msg').textContent = '';
+        if (!valid(v)){ fail2('Enter a valid email address'); inp2.focus(); return; }
+        b2.disabled = true; b2.innerHTML = '<i class="bt-spin"></i>'; Sound.play('send');
+        try {
+          await window.dmSubscribe(v, 'intro');
+          row2.outerHTML = `<div class="su-ok enter"><span class="su-ok-t">${ic('check_circle','sm')}You're on the list. We'll send the Figma library when it's ready.</span></div>`; Sound.play('done');
+        } catch(e){ fail2('Something went wrong, try again in a moment'); }
+      };
+      b2.addEventListener('click', go2);
+      inp2.addEventListener('keydown', e => { if (e.key === 'Enter') go2(); });
+    }
   }
   /* ---------- set limit ---------- */
   
