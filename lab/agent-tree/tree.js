@@ -73,7 +73,7 @@
   function hop(p, k){ // the path from a parent's mark to a child's, through the bend
     const a = geo[p.id], b = geo[k.id]; if (!a || !b) return '';
     const R = V === 'a' ? 18 : (parseFloat(getComputedStyle(root).getPropertyValue('--r')) || 0);
-    return V === 'a' ? `V${b.cy - R}L${a.cx + R} ${b.cy}H${b.cx - b.r - 3}` : `V${b.cy - R}Q${a.cx} ${b.cy} ${a.cx + R} ${b.cy}H${b.cx - b.r - 3}`;
+    return V === 'a' ? `V${b.cy - R}L${a.cx + R} ${b.cy}H${b.cx - b.r + 1}` : `V${b.cy - R}Q${a.cx} ${b.cy} ${a.cx + R} ${b.cy}H${b.cx - b.r + 1}`;
   }
   // draw(dt): the lines for where the rows are now. Each frame eases them on by dt; a row arriving or changing state redraws
   // them at once with dt 0, so for no frame does a line point where a row used to be
@@ -87,7 +87,7 @@
       const rt = n.s === 'queued' ? 7 : n.s === 'run' ? 9.5 : 15; n.rr = n.rr == null ? rt : n.rr + (rt - n.rr) * fast; geo[n.id].r = n.rr; }
     gJn.replaceChildren();
     for (const p of N){
-      if (!p.kids.length || !shown(p)) continue; const L = line(p), a = geo[p.id], x0 = a.cx, y0 = a.cy + a.r + 2;
+      if (!p.kids.length || !shown(p)) continue; const L = line(p), a = geo[p.id], x0 = a.cx, y0 = a.cy + a.r - 1;
       let endT = y0, reachT = y0;
       for (const k of p.kids){ if (!shown(k)) continue; const b = geo[k.id]; endT = Math.max(endT, b.cy - R); if (k.s !== 'queued') reachT = Math.max(reachT, b.cy); }
       // the line eases down only towards a child that is new; children it already reaches pull it along at once when rows move
@@ -103,7 +103,7 @@
         const b = geo[k.id], reached = L.end >= b.cy - R - 1;
         k.dr = ease(k.dr, reached ? 1 : 0, fast * .85); if (k.dr < .04){ k.br.setAttribute('d', ''); continue; }
         k.br.classList.toggle('on', k.s !== 'queued' && k.s !== 'fail'); k.br.classList.toggle('bad', k.s === 'fail');
-        const d = V === 'a' ? `M${x0} ${b.cy - R}L${x0 + R} ${b.cy}H${b.cx - b.r - 3}` : `M${x0} ${b.cy - R}Q${x0} ${b.cy} ${x0 + R} ${b.cy}H${b.cx - b.r - 3}`;
+        const d = V === 'a' ? `M${x0} ${b.cy - R}L${x0 + R} ${b.cy}H${b.cx - b.r + 1}` : `M${x0} ${b.cy - R}Q${x0} ${b.cy} ${x0 + R} ${b.cy}H${b.cx - b.r + 1}`;
         k.br.setAttribute('d', d); const len = k.br.getTotalLength(); k.br.style.strokeDasharray = len; k.br.style.strokeDashoffset = len * (1 - k.dr);
       }
     }
