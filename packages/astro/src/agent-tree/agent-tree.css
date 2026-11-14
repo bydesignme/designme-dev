@@ -1,39 +1,108 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Agent tree ---------- */
-/* an orchestrator and its sub-agents as a tree: a chevron folds a branch, each row shows its task, status and cost, and a
-   branch's cost is its own plus everything under it */
-.atr{width:100%;max-width:440px;margin:0 auto;padding:6px}
-.atr-h{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-3);padding:var(--dm-s-2) 10px 10px}
-.atr-ht{display:flex;flex-direction:column;min-width:0}
-.atr-ht b{font-weight:500;font-size:14px}
+/* an orchestrator and the agents it spawns. Each child joins its parent through a rounded elbow that draws in
+   when the child appears, and the path to whatever is running carries a short moving dash. A branch's cost and
+   tokens are its own plus everything under it. bare drops the surface so the tree can sit in a chat. */
+.atr{width:100%;max-width:440px;margin:0 auto;padding:6px 6px 8px;container-type:inline-size}
+.atr.bare{max-width:none;margin:0;padding:0;background:none;box-shadow:none;border-radius:0}
+.atr-h{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--dm-s-3);padding:6px 8px 2px}
+.atr.bare .atr-h{padding-left:0;padding-right:0}
+.atr-ht{display:flex;flex-direction:column;min-width:0;gap:1px}
+.atr-ht b{font-weight:500;font-size:14px;letter-spacing:-.011em}
+.atr-slim .atr-ht b{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 .atr-st{font-size:12.5px}
-.atr-tot{font-size:14px;font-weight:500}
-.atr-tree{display:flex;flex-direction:column;padding-top:var(--dm-s-1);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.atr-n{display:flex;align-items:center;gap:var(--dm-s-2);min-height:44px;padding:5px 10px 5px calc(4px + var(--dm-lv,0) * 20px);border-radius:calc(10px * var(--dm-rk));font-size:13px;outline:0;transition:background .16s}
+.atr-tot{font-size:14px;font-weight:500;padding-top:1px}
+.atr-detail{min-height:18px;margin:0 8px 4px;font-size:12.5px;line-height:18px;color:var(--dm-fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.atr.bare .atr-detail{margin-left:0;margin-right:0}
+.atr-tree{display:flex;flex-direction:column}
+.atr-item{position:relative;min-width:0}
+.atr-n{display:flex;align-items:flex-start;gap:8px;min-height:44px;padding:6px 8px;border-radius:calc(10px * var(--dm-rk));corner-shape:squircle;font-size:13px;line-height:1.35;outline:0;cursor:pointer;transition:background .16s}
+.atr-n.path{background:var(--dm-row)}
 @media (hover:hover) and (pointer:fine){.atr-n:hover{background:var(--dm-row)}}
 .atr-n:focus-visible{box-shadow:inset 0 0 0 2px var(--dm-focus)}
-.atr-tg{width:20px;height:20px;display:grid;place-items:center;flex:none;border-radius:calc(6px * var(--dm-rk));color:var(--dm-muted);transition:background .16s,color .16s}
-@media (hover:hover) and (pointer:fine){.atr-tg:hover{background:var(--dm-row);color:var(--dm-fg)}}
+.atr-n[aria-selected="true"]{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-fg) 16%,transparent)}
+.atr-n:focus-visible[aria-selected="true"]{box-shadow:inset 0 0 0 2px var(--dm-focus)}
+.atr-tg{width:20px;height:20px;margin-top:1px;display:grid;place-items:center;flex:none;border-radius:calc(6px * var(--dm-rk));color:var(--dm-muted);transition:background .16s,color .16s}
+@media (hover:hover) and (pointer:fine){.atr-tg:hover{background:color-mix(in srgb,var(--dm-fg) 6%,transparent);color:var(--dm-fg)}}
 .atr-tg svg{transition:transform .32s var(--dm-ease)}
 .atr-n[aria-expanded="false"] .atr-tg svg{transform:rotate(-90deg)}
-.atr-sp{width:20px;flex:none}
-.atr-g{width:16px;height:16px;display:grid;place-items:center;flex:none;color:var(--dm-faint)}
-.atr-g .spin{width:11px;height:11px;color:var(--dm-accent-fg,var(--dm-accent))}
+.atr-sp{width:20px;height:20px;flex:none}
+.atr-g{width:16px;height:16px;margin-top:3px;display:grid;place-items:center;flex:none;color:var(--dm-faint)}
+.atr-g .spin{width:12px;height:12px;color:var(--dm-accent-mark)}
 .atr-n.done .atr-g{color:var(--dm-ok)}
 .atr-n.fail .atr-g{color:var(--dm-bad)}
-.atr-t{flex:1;min-width:0;display:flex;flex-direction:column}
-.atr-t b{font-weight:500}
-.atr-t span{font-size:12px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.atr-n.fail .atr-t span{color:var(--dm-bad)}
-.atr-n.queued .atr-t b{color:var(--dm-fg2)}
-.atr-c{font-size:12.5px;color:var(--dm-fg2);min-width:44px;text-align:right}
-.atr-n.queued .atr-c{color:var(--dm-muted)}
-/* the way out of a failed step: a white button on its red-tinted row */
+.atr-n.wait .atr-g{color:var(--dm-warn-mark)}
+.atr-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;padding-top:1px}
+.atr-nm{display:flex;align-items:baseline;gap:8px;min-width:0}
+.atr-nm b{font-weight:500;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.atr-time{flex:none;font-size:12px;color:var(--dm-muted)}
+.atr-task{font-size:12.5px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.atr-n.queued .atr-nm b{color:var(--dm-fg2)}
+.atr-meta{display:flex;flex-direction:column;align-items:flex-end;gap:1px;min-width:58px;padding-top:1px;flex:none}
+.atr-c{font-size:12.5px;color:var(--dm-fg2)}
+.atr-tok{font-size:12px;color:var(--dm-muted)}
+.atr-n.queued .atr-c,.atr-n.queued .atr-tok{color:var(--dm-muted)}
+.atr-ask{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .atr-n.fail{background:var(--dm-bad-bg)}
-.atr-fix{flex:none;align-self:flex-start;margin-top:var(--dm-s-1);background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-shadow)}
-@media (hover:hover) and (pointer:fine){.atr-fix:hover{background:var(--dm-surface);box-shadow:var(--dm-shadow-pop)}}
-/* a folded branch keeps its children's space shut; the guide line marks the level */
+.atr-n.wait{background:var(--dm-warn-bg)}
+.atr-n.fail,.atr-n.fail.path{background:var(--dm-bad-bg)}
+@media (hover:hover) and (pointer:fine){.atr-n.fail:hover{background:var(--dm-bad-bg)}}
+.atr-n.wait,.atr-n.wait.path{background:var(--dm-warn-bg)}
+@media (hover:hover) and (pointer:fine){.atr-n.wait:hover{background:var(--dm-warn-bg)}}
+.atr-n.fail .atr-task{color:var(--dm-bad)}
+.atr-n.wait .atr-task{color:var(--dm-warn)}
+.atr-n.fail .atr-nm b,.atr-n.wait .atr-nm b,.atr-n.fail .atr-c,.atr-n.wait .atr-c{color:var(--dm-fg)}
+.atr-fix,.atr-no{flex:none;background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-shadow)}
+@media (hover:hover) and (pointer:fine){.atr-fix:hover,.atr-no:hover{background:var(--dm-surface);box-shadow:var(--dm-shadow-pop)}}
+.atr-yes{flex:none}
+/* elbows sit in the branch, so folding a branch clips them with its children */
 .atr-kids{position:relative}
-.atr-kids::before{content:"";position:absolute;top:2px;bottom:6px;left:calc(14px + var(--dm-lv,0) * 20px);width:1px;background:var(--dm-line)}
-.atr-sum{display:flex;align-items:center;gap:var(--dm-s-2);margin:var(--dm-s-2) var(--dm-s-1) 2px;padding:10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-ok-bg);font-size:13px}
-.atr-sum svg{color:var(--dm-ok);flex:none}
+.atr-nest{position:relative;padding:1px 0 2px 20px}
+.atr-svg{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
+.atr-wire,.atr-flow{fill:none;stroke-width:1.5px;stroke-linecap:round;stroke-linejoin:round}
+.atr-wire{stroke:color-mix(in srgb,var(--dm-fg) 32%,transparent)}
+.atr-wire.on{stroke:var(--dm-fg2)}
+.atr-wire.live{stroke:var(--dm-accent-mark)}
+.atr-wire.bad{stroke:var(--dm-bad-mark)}
+.atr-wire.wait{stroke:var(--dm-warn-mark)}
+.atr-flow{stroke:var(--dm-accent-mark);stroke-dasharray:8 36;animation:atrflow 1.05s linear infinite}
+@keyframes atrflow{to{stroke-dashoffset:-44}}
+.atr-wire.draw{stroke-dasharray:var(--dm-len);stroke-dashoffset:var(--dm-len);animation:atrdraw .46s var(--dm-ease) forwards}
+@keyframes atrdraw{to{stroke-dashoffset:0}}
+.atr-sum{display:flex;align-items:flex-start;gap:var(--dm-s-2);margin:6px 4px 2px;padding:10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-ok-bg);font-size:13px;line-height:1.4;color:var(--dm-fg)}
+.atr-sum svg{color:var(--dm-ok);flex:none;margin-top:3px}
+/* the tree inside a chat message: the chat is the product surface, and the tree brings no box of its own */
+.atr-chat{width:100%;max-width:440px;margin:0 auto;padding:12px 12px 10px;display:flex;flex-direction:column;gap:12px}
+.atr-chat-h{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-3);min-height:24px;padding:2px 2px 0}
+.atr-chat-h b{font-weight:500;font-size:14px;letter-spacing:-.011em}
+.atr-chat-live{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--dm-fg2)}
+.atr-chat-live .dot{width:6px;height:6px;background:var(--dm-ok-mark)}
+.atr-chat-live.run .dot{background:var(--dm-accent-mark)}
+.atr-chat-live.wait{color:var(--dm-warn)}
+.atr-chat-live.wait .dot{background:var(--dm-warn-mark)}
+.atr-chat-live.fail{color:var(--dm-bad)}
+.atr-chat-live.fail .dot{background:var(--dm-bad-mark)}
+.atr-chat-live.done{color:var(--dm-ok)}
+.atr-chat-live.done .dot{background:var(--dm-ok)}
+.atr-chat-log{display:flex;flex-direction:column;gap:12px;min-width:0}
+.atr-chat-me{align-self:flex-end;max-width:88%;margin:0;padding:8px 12px;border-radius:calc(14px * var(--dm-rk)) calc(14px * var(--dm-rk)) calc(4px * var(--dm-rk)) calc(14px * var(--dm-rk));corner-shape:squircle;background:var(--dm-chip);font-size:13px;line-height:1.45}
+.atr-chat-ag{display:flex;flex-direction:column;gap:6px;min-width:0}
+.atr-chat-who{font-size:12.5px;font-weight:500;color:var(--dm-muted);padding-left:2px}
+.atr-chat-box{display:flex;align-items:center;height:36px;padding:0 12px;border-radius:calc(10px * var(--dm-rk));corner-shape:squircle;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 65%,transparent);color:var(--dm-muted);font-size:13px}
+:root:not([data-style="soft"]) .atr-wire:not(:where([data-style="soft"],[data-style="soft"] *)),:root:not([data-style="soft"]) .atr-flow:not(:where([data-style="soft"],[data-style="soft"] *)){stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter}
+:root:not([data-style="soft"]) .atr-flow:not(:where([data-style="soft"],[data-style="soft"] *)){stroke-dasharray:6 10;animation-duration:.7s;animation-timing-function:steps(4,end)}
+:root:not([data-style="soft"]) .atr-wire.draw:not(:where([data-style="soft"],[data-style="soft"] *)){animation-timing-function:steps(4,end);animation-duration:.32s}
+:root:not([data-style="soft"]) .atr-n.fail:not(:where([data-style="soft"],[data-style="soft"] *)),:root:not([data-style="soft"]) .atr-n.fail.path:not(:where([data-style="soft"],[data-style="soft"] *)){background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--dm-bad) 10%,transparent) 5px 6px),var(--dm-bad-bg)}
+@media (hover:hover) and (pointer:fine){:root:not([data-style="soft"]) .atr-n.fail:hover:not(:where([data-style="soft"],[data-style="soft"] *)){background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--dm-bad) 10%,transparent) 5px 6px),var(--dm-bad-bg)}}
+:root:not([data-style="soft"]) .atr-n.wait:not(:where([data-style="soft"],[data-style="soft"] *)),:root:not([data-style="soft"]) .atr-n.wait.path:not(:where([data-style="soft"],[data-style="soft"] *)){background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--dm-warn) 14%,transparent) 5px 6px),var(--dm-warn-bg)}
+@media (hover:hover) and (pointer:fine){:root:not([data-style="soft"]) .atr-n.wait:hover:not(:where([data-style="soft"],[data-style="soft"] *)){background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--dm-warn) 14%,transparent) 5px 6px),var(--dm-warn-bg)}}
+@media (prefers-reduced-motion:reduce){
+  .atr-flow{display:none}
+  .atr-wire.draw{animation:none;stroke-dashoffset:0}
+  .atr-tg svg{transition:none}
+}
+@container (max-width:380px){
+  .atr-chat-me{max-width:100%}
+  .atr-meta{min-width:52px}
+  .atr-nest{padding-left:16px}
+}

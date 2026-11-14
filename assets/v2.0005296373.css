@@ -1139,43 +1139,113 @@
 :root:not([data-style="soft"]) .v2 .rq-wk-w.fail{background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--bad) 10%,transparent) 5px 6px),var(--bad-bg)}
 :root:not([data-style="soft"]) .v2 .rq-wk-stack i{animation:v2-bpin .3s var(--ease) backwards}
 /* ---------- Agent tree ---------- */
-/* an orchestrator and its sub-agents as a tree: a chevron folds a branch, each row shows its task, status and cost, and a
-   branch's cost is its own plus everything under it */
-.v2 .atr{width:100%;max-width:440px;margin:0 auto;padding:6px}
-.v2 .atr-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);padding:var(--s-2) 10px 10px}
-.v2 .atr-ht{display:flex;flex-direction:column;min-width:0}
-.v2 .atr-ht b{font-weight:500;font-size:14px}
+/* an orchestrator and the agents it spawns. Each child joins its parent through a rounded elbow that draws in
+   when the child appears, and the path to whatever is running carries a short moving dash. A branch's cost and
+   tokens are its own plus everything under it. bare drops the surface so the tree can sit in a chat. */
+.v2 .atr{width:100%;max-width:440px;margin:0 auto;padding:6px 6px 8px;container-type:inline-size}
+.v2 .atr.bare{max-width:none;margin:0;padding:0;background:none;box-shadow:none;border-radius:0}
+.v2 .atr-h{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s-3);padding:6px 8px 2px}
+.v2 .atr.bare .atr-h{padding-left:0;padding-right:0}
+.v2 .atr-ht{display:flex;flex-direction:column;min-width:0;gap:1px}
+.v2 .atr-ht b{font-weight:500;font-size:14px;letter-spacing:-.011em}
+.v2 .atr-slim .atr-ht b{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 .v2 .atr-st{font-size:12.5px}
-.v2 .atr-tot{font-size:14px;font-weight:500}
-.v2 .atr-tree{display:flex;flex-direction:column;padding-top:var(--s-1);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
-.v2 .atr-n{display:flex;align-items:center;gap:var(--s-2);min-height:44px;padding:5px 10px 5px calc(4px + var(--lv,0) * 20px);border-radius:calc(10px * var(--rk));font-size:13px;outline:0;transition:background .16s}
+.v2 .atr-tot{font-size:14px;font-weight:500;padding-top:1px}
+.v2 .atr-detail{min-height:18px;margin:0 8px 4px;font-size:12.5px;line-height:18px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .atr.bare .atr-detail{margin-left:0;margin-right:0}
+.v2 .atr-tree{display:flex;flex-direction:column}
+.v2 .atr-item{position:relative;min-width:0}
+.v2 .atr-n{display:flex;align-items:flex-start;gap:8px;min-height:44px;padding:6px 8px;border-radius:calc(10px * var(--rk));corner-shape:squircle;font-size:13px;line-height:1.35;outline:0;cursor:pointer;transition:background .16s}
+.v2 .atr-n.path{background:var(--row)}
 @media (hover:hover) and (pointer:fine){.v2 .atr-n:hover{background:var(--row)}}
 .v2 .atr-n:focus-visible{box-shadow:inset 0 0 0 2px var(--focus)}
-.v2 .atr-tg{width:20px;height:20px;display:grid;place-items:center;flex:none;border-radius:calc(6px * var(--rk));color:var(--muted);transition:background .16s,color .16s}
-@media (hover:hover) and (pointer:fine){.v2 .atr-tg:hover{background:var(--row);color:var(--fg)}}
+.v2 .atr-n[aria-selected="true"]{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--fg) 16%,transparent)}
+.v2 .atr-n:focus-visible[aria-selected="true"]{box-shadow:inset 0 0 0 2px var(--focus)}
+.v2 .atr-tg{width:20px;height:20px;margin-top:1px;display:grid;place-items:center;flex:none;border-radius:calc(6px * var(--rk));color:var(--muted);transition:background .16s,color .16s}
+@media (hover:hover) and (pointer:fine){.v2 .atr-tg:hover{background:color-mix(in srgb,var(--fg) 6%,transparent);color:var(--fg)}}
 .v2 .atr-tg svg{transition:transform .32s var(--ease)}
 .v2 .atr-n[aria-expanded="false"] .atr-tg svg{transform:rotate(-90deg)}
-.v2 .atr-sp{width:20px;flex:none}
-.v2 .atr-g{width:16px;height:16px;display:grid;place-items:center;flex:none;color:var(--faint)}
-.v2 .atr-g .spin{width:11px;height:11px;color:var(--accent-fg,var(--accent))}
+.v2 .atr-sp{width:20px;height:20px;flex:none}
+.v2 .atr-g{width:16px;height:16px;margin-top:3px;display:grid;place-items:center;flex:none;color:var(--faint)}
+.v2 .atr-g .spin{width:12px;height:12px;color:var(--accent-mark)}
 .v2 .atr-n.done .atr-g{color:var(--ok)}
 .v2 .atr-n.fail .atr-g{color:var(--bad)}
-.v2 .atr-t{flex:1;min-width:0;display:flex;flex-direction:column}
-.v2 .atr-t b{font-weight:500}
-.v2 .atr-t span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.v2 .atr-n.fail .atr-t span{color:var(--bad)}
-.v2 .atr-n.queued .atr-t b{color:var(--fg2)}
-.v2 .atr-c{font-size:12.5px;color:var(--fg2);min-width:44px;text-align:right}
-.v2 .atr-n.queued .atr-c{color:var(--muted)}
-/* the way out of a failed step: a white button on its red-tinted row */
+.v2 .atr-n.wait .atr-g{color:var(--warn-mark)}
+.v2 .atr-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;padding-top:1px}
+.v2 .atr-nm{display:flex;align-items:baseline;gap:8px;min-width:0}
+.v2 .atr-nm b{font-weight:500;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .atr-time{flex:none;font-size:12px;color:var(--muted)}
+.v2 .atr-task{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .atr-n.queued .atr-nm b{color:var(--fg2)}
+.v2 .atr-meta{display:flex;flex-direction:column;align-items:flex-end;gap:1px;min-width:58px;padding-top:1px;flex:none}
+.v2 .atr-c{font-size:12.5px;color:var(--fg2)}
+.v2 .atr-tok{font-size:12px;color:var(--muted)}
+.v2 .atr-n.queued .atr-c,.v2 .atr-n.queued .atr-tok{color:var(--muted)}
+.v2 .atr-ask{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .v2 .atr-n.fail{background:var(--bad-bg)}
-.v2 .atr-fix{flex:none;align-self:flex-start;margin-top:var(--s-1);background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
-@media (hover:hover) and (pointer:fine){.v2 .atr-fix:hover{background:var(--surface);box-shadow:var(--shadow-pop)}}
-/* a folded branch keeps its children's space shut; the guide line marks the level */
+.v2 .atr-n.wait{background:var(--warn-bg)}
+.v2 .atr-n.fail,.v2 .atr-n.fail.path{background:var(--bad-bg)}
+@media (hover:hover) and (pointer:fine){.v2 .atr-n.fail:hover{background:var(--bad-bg)}}
+.v2 .atr-n.wait,.v2 .atr-n.wait.path{background:var(--warn-bg)}
+@media (hover:hover) and (pointer:fine){.v2 .atr-n.wait:hover{background:var(--warn-bg)}}
+.v2 .atr-n.fail .atr-task{color:var(--bad)}
+.v2 .atr-n.wait .atr-task{color:var(--warn)}
+.v2 .atr-n.fail .atr-nm b,.v2 .atr-n.wait .atr-nm b,.v2 .atr-n.fail .atr-c,.v2 .atr-n.wait .atr-c{color:var(--fg)}
+.v2 .atr-fix,.v2 .atr-no{flex:none;background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
+@media (hover:hover) and (pointer:fine){.v2 .atr-fix:hover,.v2 .atr-no:hover{background:var(--surface);box-shadow:var(--shadow-pop)}}
+.v2 .atr-yes{flex:none}
+/* elbows sit in the branch, so folding a branch clips them with its children */
 .v2 .atr-kids{position:relative}
-.v2 .atr-kids::before{content:"";position:absolute;top:2px;bottom:6px;left:calc(14px + var(--lv,0) * 20px);width:1px;background:var(--line)}
-.v2 .atr-sum{display:flex;align-items:center;gap:var(--s-2);margin:var(--s-2) var(--s-1) 2px;padding:10px var(--s-3);border-radius:var(--r-in);background:var(--ok-bg);font-size:13px}
-.v2 .atr-sum svg{color:var(--ok);flex:none}
+.v2 .atr-nest{position:relative;padding:1px 0 2px 20px}
+.v2 .atr-svg{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
+.v2 .atr-wire,.v2 .atr-flow{fill:none;stroke-width:1.5px;stroke-linecap:round;stroke-linejoin:round}
+.v2 .atr-wire{stroke:color-mix(in srgb,var(--fg) 32%,transparent)}
+.v2 .atr-wire.on{stroke:var(--fg2)}
+.v2 .atr-wire.live{stroke:var(--accent-mark)}
+.v2 .atr-wire.bad{stroke:var(--bad-mark)}
+.v2 .atr-wire.wait{stroke:var(--warn-mark)}
+.v2 .atr-flow{stroke:var(--accent-mark);stroke-dasharray:8 36;animation:v2-atrflow 1.05s linear infinite}
+@keyframes v2-atrflow{to{stroke-dashoffset:-44}}
+.v2 .atr-wire.draw{stroke-dasharray:var(--len);stroke-dashoffset:var(--len);animation:v2-atrdraw .46s var(--ease) forwards}
+@keyframes v2-atrdraw{to{stroke-dashoffset:0}}
+.v2 .atr-sum{display:flex;align-items:flex-start;gap:var(--s-2);margin:6px 4px 2px;padding:10px var(--s-3);border-radius:var(--r-in);background:var(--ok-bg);font-size:13px;line-height:1.4;color:var(--fg)}
+.v2 .atr-sum svg{color:var(--ok);flex:none;margin-top:3px}
+/* the tree inside a chat message: the chat is the product surface, and the tree brings no box of its own */
+.v2 .atr-chat{width:100%;max-width:440px;margin:0 auto;padding:12px 12px 10px;display:flex;flex-direction:column;gap:12px}
+.v2 .atr-chat-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);min-height:24px;padding:2px 2px 0}
+.v2 .atr-chat-h b{font-weight:500;font-size:14px;letter-spacing:-.011em}
+.v2 .atr-chat-live{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--fg2)}
+.v2 .atr-chat-live .dot{width:6px;height:6px;background:var(--ok-mark)}
+.v2 .atr-chat-live.run .dot{background:var(--accent-mark)}
+.v2 .atr-chat-live.wait{color:var(--warn)}
+.v2 .atr-chat-live.wait .dot{background:var(--warn-mark)}
+.v2 .atr-chat-live.fail{color:var(--bad)}
+.v2 .atr-chat-live.fail .dot{background:var(--bad-mark)}
+.v2 .atr-chat-live.done{color:var(--ok)}
+.v2 .atr-chat-live.done .dot{background:var(--ok)}
+.v2 .atr-chat-log{display:flex;flex-direction:column;gap:12px;min-width:0}
+.v2 .atr-chat-me{align-self:flex-end;max-width:88%;margin:0;padding:8px 12px;border-radius:calc(14px * var(--rk)) calc(14px * var(--rk)) calc(4px * var(--rk)) calc(14px * var(--rk));corner-shape:squircle;background:var(--chip);font-size:13px;line-height:1.45}
+.v2 .atr-chat-ag{display:flex;flex-direction:column;gap:6px;min-width:0}
+.v2 .atr-chat-who{font-size:12.5px;font-weight:500;color:var(--muted);padding-left:2px}
+.v2 .atr-chat-box{display:flex;align-items:center;height:36px;padding:0 12px;border-radius:calc(10px * var(--rk));corner-shape:squircle;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 65%,transparent);color:var(--muted);font-size:13px}
+:root:not([data-style="soft"]) .v2 .atr-wire,:root:not([data-style="soft"]) .v2 .atr-flow{stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter}
+:root:not([data-style="soft"]) .v2 .atr-flow{stroke-dasharray:6 10;animation-duration:.7s;animation-timing-function:steps(4,end)}
+:root:not([data-style="soft"]) .v2 .atr-wire.draw{animation-timing-function:steps(4,end);animation-duration:.32s}
+:root:not([data-style="soft"]) .v2 .atr-n.fail,:root:not([data-style="soft"]) .v2 .atr-n.fail.path{background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--bad) 10%,transparent) 5px 6px),var(--bad-bg)}
+@media (hover:hover) and (pointer:fine){:root:not([data-style="soft"]) .v2 .atr-n.fail:hover{background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--bad) 10%,transparent) 5px 6px),var(--bad-bg)}}
+:root:not([data-style="soft"]) .v2 .atr-n.wait,:root:not([data-style="soft"]) .v2 .atr-n.wait.path{background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--warn) 14%,transparent) 5px 6px),var(--warn-bg)}
+@media (hover:hover) and (pointer:fine){:root:not([data-style="soft"]) .v2 .atr-n.wait:hover{background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--warn) 14%,transparent) 5px 6px),var(--warn-bg)}}
+@media (prefers-reduced-motion:reduce){
+  .v2 .atr-flow{display:none}
+  .v2 .atr-wire.draw{animation:none;stroke-dashoffset:0}
+  .v2 .atr-tg svg{transition:none}
+}
+@container (max-width:380px){
+  .v2 .atr-chat-me{max-width:100%}
+  .v2 .atr-meta{min-width:52px}
+  .v2 .atr-nest{padding-left:16px}
+}
+
 /* ---------- Agent tree designs ---------- */
 /* the card's design switch: Classic, Cost tree and Cost map, with the switch under the tree (on designme.dev it is the
    card's footer tabs). Each design sits centred in the room the card keeps for the tallest of them (--dmy, set by the switch) */
