@@ -48,6 +48,13 @@
   const svg = mk('svg', { class:'atx-ln', 'aria-hidden':'true' }), defs = mk('defs'); svg.append(defs); tree.prepend(svg);
   let pid = 0;
   const easeIO = u => u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+  // the highlight, as the owner drew it in Figma (Flow detail, 4x): a 210px band along the line, the dot at its core;
+  // clear, light at 50%, the colour, light at 70%, clear
+  const BAND = 210, CORE = .541, HL = [[0, 'l0'], [.19, 'l1'], [CORE, 'c'], [.781, 'l2'], [1, 'l0']];
+  // a point on the path, carried on past either end along the path's own direction there
+  const along = (pth, len, t) => { if (t >= 0 && t <= len) return pth.getPointAtLength(t);
+    const q = pth.getPointAtLength(t < 0 ? 0 : len), r = pth.getPointAtLength(t < 0 ? Math.min(len, 1) : Math.max(0, len - 1)), dx = q.x - r.x, dy = q.y - r.y, m = Math.hypot(dx, dy) || 1, k = t < 0 ? -t : t - len;
+    return { x:q.x + dx / m * k, y:q.y + dy / m * k }; };
   const gTrunk = mk('g'), gBr = mk('g'), gJn = mk('g'), gFx = mk('g'); svg.append(gTrunk, gBr, gJn, gFx);
   const geo = {};       // where each node's mark is, this frame
   const ease = (v, to, a) => v == null ? to : v + (to - v) * a;
@@ -105,17 +112,20 @@
       let d = `M${geo.root.cx} ${geo.root.bottom + 2}`; for (let i = 1; i < chain.length; i++) d += hop(chain[i - 1], chain[i]);
       let f = flows.get(n);
       if (!f){ f = { t0:T, el:mk('g', { class:'pulse' }) };
-        { const id = 'pg' + (++pid), gr = mk('linearGradient', { id, gradientUnits:'userSpaceOnUse' }); ['t0', 't1'].forEach((c, i) => gr.append(mk('stop', { class:c, offset:i }))); defs.append(gr); f.gr = gr;
-          f.core = mk('path', { class:'core' }); f.core.style.display = 'none'; f.head = mk('circle', { class:'hd', r:5 }); f.el.append(f.core, f.head); f.cyc = -1;
+        { const id = 'pg' + (++pid), gr = mk('linearGradient', { id, gradientUnits:'userSpaceOnUse' }); HL.forEach(([o, c], i) => gr.append(mk('stop', { class:'h' + i + ' ' + c, offset:o }))); defs.append(gr); f.gr = gr;
+          f.core = mk('path', { class:'core', stroke:`url(#${id})` }); f.head = mk('circle', { class:'hd', r:5 }); f.el.append(f.core, f.head); f.cyc = -1;
           f.el.style.setProperty('--fc', V === 'a' ? col(n) : 'var(--run)'); f.head.style.fill = 'var(--fc)'; } gFx.append(f.el); flows.set(n, f); }
       {
-        f.core.setAttribute('d', d); const len = f.core.getTotalLength(), seg = Math.min(96, len * .42);
+        f.core.setAttribute('d', d); const len = f.core.getTotalLength();
         const travel = Math.min(1.5, Math.max(.8, len / 420)), cyc = travel + .55, k = Math.floor((T - f.t0) / cyc), u = ((T - f.t0) % cyc) / travel;
         if (u >= 1){ f.el.style.opacity = 0; }
-        else { f.el.style.opacity = 1; const head = easeIO(u) * len;
-          const hp = f.core.getPointAtLength(Math.max(0, Math.min(len, head))); f.head.setAttribute('cx', hp.x); f.head.setAttribute('cy', hp.y); f.head.style.opacity = head > len + 2 ? 0 : 1;
-          const a = f.core.getPointAtLength(Math.max(0, Math.min(len, head - seg))), b = f.core.getPointAtLength(Math.max(0, Math.min(len, head)));
-          f.gr.setAttribute('x1', a.x); f.gr.setAttribute('y1', a.y); f.gr.setAttribute('x2', b.x + (a.x === b.x && a.y === b.y ? .01 : 0)); f.gr.setAttribute('y2', b.y + .001); }
+        else { f.el.style.opacity = 1; const at = easeIO(u) * len;
+          // the band: BAND long, with the dot at its core; it rides the path, and its gradient runs from its back end to its front
+          const t0 = at - BAND * CORE, t1 = t0 + BAND;
+          f.core.style.strokeDasharray = `${BAND} ${len + BAND * 2}`; f.core.style.strokeDashoffset = -t0;
+          const hp = f.core.getPointAtLength(at); f.head.setAttribute('cx', hp.x); f.head.setAttribute('cy', hp.y);
+          const a = along(f.core, len, t0), b = along(f.core, len, t1);
+          f.gr.setAttribute('x1', a.x); f.gr.setAttribute('y1', a.y); f.gr.setAttribute('x2', b.x + (a.x === b.x ? .01 : 0)); f.gr.setAttribute('y2', b.y + (a.y === b.y ? .01 : 0)); }
 
       }
     }
