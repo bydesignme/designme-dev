@@ -32,6 +32,7 @@ const fullScreen = FULL_SCREEN.includes(c.reg);
 const EDGE = ['automation-canvas', 'canvas-toolbar'];
 const others = sec.cards.filter(x => x.reg !== c.reg), shown = others.slice(0, 8);
 const cmdHtml = `npx designme add ${c.reg}`, cmdReact = `npx designme add ${c.reg} --react`, cmdAstro = `npx designme add ${c.reg} --astro`;
+const BOOK = 'https://www.designme.agency/intro?utm_source=designme.dev&utm_medium=referral&utm_campaign=book_a_call';
 // the shadcn CLI adds the same React and Astro files from the shadcn registry items (r/shadcn)
 const cmdShadcn = `npx shadcn@latest add ${shadcnUrl(c.reg)}`, cmdShadcnAstro = `npx shadcn@latest add ${shadcnUrl(c.reg, true)}`;
 const importLine = rx ? `import { ${rx.component} } from '@/components/designme/${c.reg}/${rx.component}';` : '';
@@ -151,6 +152,12 @@ const words = cmd => cmd.split(' ').map(w => /^https?:/.test(w) ? w.replace(/&/g
       .cp-line .cp-w{white-space:nowrap}
       .cp-copy{flex:none;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border:0;border-radius:999px;background:var(--pg-bg);color:var(--pg-fg);box-shadow:inset 0 0 0 1px var(--pg-line2);font:500 13px/1 var(--pg-sans);cursor:pointer;transition:background-color .2s}
       .cp-copy:hover{background:var(--pg-chip)}
+      /* the two install commands, Copy code, and one line under it, all above the demo */
+      .pg-installs{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin-top:16px}
+      .pg-installs .pg-cmd{margin-top:0}
+      .cp-copy-top{margin-top:12px}
+      .cp-studio{margin:8px 0 0;font-size:13px;line-height:1.5;color:var(--pg-dim)}
+      .cp-studio a{color:inherit;text-decoration:underline;text-underline-offset:2px}
       .cp-note{margin-top:20px!important;color:var(--pg-dim);font-size:14px}
       /* about: the summary, then When to use it, What it does and Accessibility as plain text tabs, one list at a time */
       .cp-sum{font-size:14px;line-height:1.7}
@@ -253,7 +260,12 @@ const words = cmd => cmd.split(' ').map(w => /^https?:/.test(w) ? w.replace(/&/g
     <nav class="pg-crumbs" aria-label="Breadcrumb"><a href="/">Library</a><span>/</span><a href={sec.url}>{sec.title}</a></nav>
     <h1 class="pg-h1" id="content" tabindex="-1">{c.title}</h1>
     <p class="pg-lead">{c.desc} Free and MIT licensed, as HTML, a typed React component or an Astro component, in two styles with light and dark mode.</p>
-    <div class="pg-cmd"><span class="d">$</span><span class="c" set:html={words(cmdHtml)} /><button type="button" data-copy={cmdHtml} aria-label="Copy install command" set:html={copyIcon} /></div>
+    <div class="pg-installs">
+      <div class="pg-cmd"><span class="d">$</span><span class="c" set:html={words(cmdHtml)} /><button type="button" data-copy={cmdHtml} aria-label="Copy install command" set:html={copyIcon} /></div>
+      <div class="pg-cmd"><span class="d">$</span><span class="c" set:html={words(cmdShadcn)} /><button type="button" data-copy={cmdShadcn} aria-label="Copy the shadcn command" set:html={copyIcon} /></div>
+    </div>
+    <button class="cp-copy cp-copy-top" type="button" id="cp-copy-code">Copy code</button>
+    <p class="cp-studio">Need this designed into your product? <a href={BOOK} target="_blank" rel="noopener">Book a call</a></p>
 
     <section class="cp-demo" data-edge={EDGE.includes(c.reg) ? "" : undefined} aria-label={`${c.title} demo`}>
       {fullScreen && <div class="pg-seg cp-dev" role="radiogroup" aria-label="Preview width"><button type="button" role="radio" aria-checked="true" data-dev="desktop">Desktop</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-dev="tablet">Tablet</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-dev="mobile">Mobile</button></div>}
@@ -365,6 +377,18 @@ const words = cmd => cmd.split(' ').map(w => /^https?:/.test(w) ? w.replace(/&/g
       var card = document.querySelector('.pg-demo > .card[data-c]');
       var replay = function(){ if (card && typeof DM !== 'undefined') DM.mount(card); };
       document.getElementById('cp-replay').addEventListener('click', replay);
+      // Copy code, above the demo: the HTML, CSS and JS the CLI installs, already on the page
+      var codeBtn = document.getElementById('cp-copy-code');
+      if (codeBtn) codeBtn.addEventListener('click', async function(){
+        var files = [].slice.call(document.querySelectorAll('details.cp-file')).filter(function(d){
+          return /^HTML/.test(((d.querySelector('.l') || {}).textContent || '').trim());
+        }).map(function(d){
+          var name = (d.querySelector('summary').childNodes[0].textContent || '').trim();
+          return '/* ' + name + ' */\n' + d.querySelector('pre code').textContent;
+        }).join('\n\n');
+        if (!files) return;
+        try { await navigator.clipboard.writeText(files); codeBtn.textContent = 'Copied'; setTimeout(function(){ codeBtn.textContent = 'Copy code'; }, 1600); } catch (e) {}
+      });
       // a new style starts the demo again
       document.addEventListener('pg-style', replay);
       // the cards under More in …: each plays its component, scaled into its picture, while it's on screen, and stops when it
