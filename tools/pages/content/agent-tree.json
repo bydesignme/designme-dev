@@ -1,37 +1,45 @@
 {
-  "summary": "Agent tree shows an orchestrator and the sub-agents it hands work to, as a tree a person can fold. Every row has its task, a status and what it has spent, and each branch adds up its own cost and everything under it, so you can see where the money went. When a step fails, its row turns red and offers the fix in place.",
+  "summary": "Agent tree shows an orchestrator and the sub-agents it spawns, joined by elbows that draw in as each one appears. A short dash runs along the path to whatever is working. Every row has its task, a status and what it has spent, and each branch adds up its own cost and tokens and everything under it.",
   "use": [
-    "When one agent splits a job across sub-agents and people need to see who is doing what, and what is still queued.",
-    "When a run spends money as it goes and people should see the cost per agent and per step, not just the total.",
-    "When a step can fail and the run should wait for a person to take the fix it offers.",
+    "When one agent splits a job across sub-agents and people need to see who started whom, and what is still queued.",
+    "When a run spends money and tokens as it goes and people should see the cost per agent and per step, not just the total.",
+    "When a step can fail, or stop to wait for approval, and the run should offer the fix or the approval in place.",
+    "When the tree sits inside a chat or a side panel, and the heavy card around it would get in the way.",
     "When the tree gets long and finished branches should fold away."
   ],
   "features": [
-    "`root` is the orchestrator; each node has a `name`, a `task`, a `status` of `queued`, `running`, `done` or `failed`, its own `cost` in dollars, and `children`.",
-    "A branch shows its own cost plus everything under it. Hover its cost to see the split, like \"Its own $0.02, 3 steps $0.26\". The total sits beside the title.",
-    "A running node spins, a finished one turns to a green check, and a failed one to a red alert on a red-tinted row. A changed `task` crossfades.",
-    "`fix` adds a white button under a failed step's task, like Use color.accent.500.",
-    "Click a branch, or its chevron, to fold it. `collapsed`, `defaultCollapsed` and `onCollapsedChange` hold which branches are folded.",
-    "The line under the title reads Running, \"1 step failed\" or Done, with a clock that counts until the root is done, or shows `seconds`. Once the root is done a green line sums it up, like \"Done in 0:14 · 3 agents · $0.66\"; `summary` changes it or, set to `false`, hides it."
+    "`root` is the orchestrator. Each node has an `id`, a `name`, a `task`, a `status` of `queued`, `running`, `done`, `failed` or `waiting`, its own `cost` in dollars, its own `tokens`, and `children`.",
+    "A child joins its parent with an elbow. The elbow draws in when the child appears. While a node is running, a short dash travels the path from the root to it. Hover or select a row and that path is marked back to the root, and a line under the title reads the row's own cost, the rollup and its tokens.",
+    "A branch shows its own cost plus everything under it, and the same for tokens. Hover its cost to see the split, like \"Its own $0.02, 2 steps $0.09 · 1.2k tokens\". The total sits beside the title.",
+    "A running node spins and its time counts up. A finished one turns to a green check, a failed one to a red alert on a red-tinted row, and a waiting one to a hand on an amber row. A changed `task` crossfades.",
+    "`fix` adds a button under a failed step's task, like Trim to 90 words. `approval` adds Approve and, if you pass it, Hold, under a waiting step.",
+    "`variant` is `panel` or `bare`. bare drops the surface and the shadow so the tree can sit in a chat or a side panel. `slim` hides the title and keeps the status line, for a tree whose chat header already names the run.",
+    "Click a branch, or its chevron, to fold it. `collapsed`, `defaultCollapsed` and `onCollapsedChange` hold which branches are folded. `selected`, `defaultSelected` and `onSelectedChange` hold the row that is marked.",
+    "The line under the title reads Running, Needs you, \"1 step failed\" or Done, with a clock that counts until the root is done, or shows `seconds`. Once the root is done a green line sums it up, like \"Done in 0:12 · 3 agents · $0.48 · 4.4k tokens\"; `summary` changes it or, set to `false`, hides it."
   ],
   "a11y": [
-    "The rows form a tree with `role=\"tree\"`. Each row is a `treeitem` with `aria-level`, and a branch has `aria-expanded`.",
-    "Only one row is in the tab order. Up and Down move through the rows you can see, Right opens a branch or moves into it, Left closes it or moves to its parent, Home and End jump to the first and last row, and Enter or Space folds a branch.",
+    "The rows form a tree with `role=\"tree\"`. Each row is a `treeitem` with `aria-level` and `aria-selected`, and a branch has `aria-expanded`.",
+    "Only one row is in the tab order. Up and Down move through the rows you can see, Right opens a branch or moves into it, Left closes it or moves to its parent, Home and End jump to the first and last row, and Enter or Space folds a branch, or presses Approve or the fix when that row is offering one.",
     "A folded branch is inert, so its rows can't be reached until it opens.",
-    "The status line under the title is announced politely when it changes."
+    "The status line under the title, and the line for the selected row, are announced politely when they change.",
+    "With reduced motion the elbows appear in place and the dash along the active path stays still."
   ],
   "faq": [
     {
       "q": "Does it keep track of costs?",
-      "a": "No. Give each node the `cost` it spent on its own and the tree adds up the branches. Update the costs as your run reports them and the totals follow."
+      "a": "No. Give each node the `cost` it spent on its own and the tree adds up the branches. Update the costs as your run reports them and the totals follow. `tokens` works the same way."
     },
     {
       "q": "Can it show more than three levels?",
-      "a": "Yes. Nodes can nest as deep as your run does; each level indents a step further, with a guide line down the side."
+      "a": "Yes. Nodes can nest as deep as your run does. Each level steps in, and the elbow follows the row."
     },
     {
-      "q": "What does the fix button do?",
-      "a": "Whatever you pass as its `onClick`. In the demo it lets the failed step run again with the token the library has."
+      "q": "What do the fix and approval buttons do?",
+      "a": "Whatever you pass. `fix.onClick` runs for a failed step. `approval.onApprove` runs for a waiting step, and `approval.onDecline` runs when someone presses Hold."
+    },
+    {
+      "q": "Can it sit inside a chat?",
+      "a": "Yes. Pass `variant=\"bare\"` and the tree drops its surface and shadow. `slim` hides the title when the chat header already names the run. The demo's In chat design is that tree inside a transcript."
     },
     {
       "q": "Can costs be in another currency?",
