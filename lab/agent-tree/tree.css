@@ -1,0 +1,76 @@
+/* Agent tree explorations (lab only, not in the library). One run, two ways of drawing it:
+   A (angled): circuit-like lines that leave the trunk at 45 degrees, a junction dot where each branch splits off, each agent's
+   branch in its own colour, and small glowing dots carrying work down to what is running and results back up.
+   B (bold): borderless and large for a phone, 2px lines with rounded elbows, and a glowing pulse moving down the active path.
+   Both use the library's tokens (core.css), in Soft and Blueprint, light and dark. */
+html,body{margin:0;background:var(--dm-page);color:var(--dm-fg);font-family:var(--dm-sans);-webkit-font-smoothing:antialiased}
+.atx{--r:14;--run:var(--dm-accent-mark,var(--dm-accent));--ok:var(--dm-ok-mark);--bad:var(--dm-bad-mark);--rail:var(--dm-rail);
+  --flow:color-mix(in srgb,var(--run) 30%,var(--dm-surface));--tip:color-mix(in srgb,var(--run) 30%,#fff);--ez:cubic-bezier(.22,1,.36,1);position:relative;box-sizing:border-box;min-height:100vh;padding:88px 50px 40px;background:var(--dm-surface)}
+:root:not([data-style="soft"]) .atx{--r:0}
+.atx-h{margin:0 0 40px}
+.atx-ey{display:flex;align-items:center;gap:9px;font-size:15px;color:var(--dm-muted);letter-spacing:.01em}
+.atx-ey .live{width:8px;height:8px;border-radius:50%;background:var(--run)}
+.atx.done .atx-ey .live{background:var(--ok);animation:none}
+@keyframes atxlive{50%{opacity:.35}}
+.atx-t{margin:12px 0 0;font-size:30px;font-weight:500;letter-spacing:-.015em;line-height:1.2}
+.atx-m{margin-top:10px;font-size:16px;color:var(--dm-muted)}
+.atx-m .num{font-variant-numeric:tabular-nums}
+.atx-tree{position:relative}
+.atx-n{position:relative;display:flex;align-items:center;gap:16px;min-height:84px;padding:0 0 0 calc(var(--lv) * 46px);transition:opacity .5s var(--dm-ease)}
+.atx-n[hidden]{display:none}
+.atx-n.dim{opacity:.45}
+/* the state mark at the end of each line */
+.atx-g{position:relative;z-index:2;width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:50%;background:var(--dm-surface);color:var(--dm-faint);transition:color .4s,background .4s,box-shadow .4s}
+.atx-g .ring{width:14px;height:14px;border-radius:50%;box-shadow:inset 0 0 0 2px currentColor}
+.atx-g .spin{width:19px;height:19px;border-radius:50%;border:2.5px solid color-mix(in srgb,var(--run) 22%,transparent);border-top-color:var(--run);animation:atxrot .8s linear infinite;box-sizing:border-box}
+@keyframes atxrot{to{transform:rotate(360deg)}}
+.atx-g .i{width:16px;height:16px;stroke-width:2.4}
+.atx-n.done .atx-g{background:color-mix(in srgb,var(--ok) 16%,var(--dm-surface));color:var(--dm-ok)}
+.atx-n.fail .atx-g{background:color-mix(in srgb,var(--bad) 16%,var(--dm-surface));color:var(--dm-bad)}
+@supports (corner-shape:squircle){.atx-g{corner-shape:round}}
+/* who: an agent's avatar in its own colour, or the app a step works in */
+.atx-av{width:46px;height:46px;flex:none;display:grid;place-items:center;border-radius:calc(10px * var(--dm-rk,1));background:var(--a,var(--dm-fg));color:var(--ai,var(--dm-surface))}
+.atx-av .i{width:21px;height:21px;stroke-width:1.9}
+.atx-av.app{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 80%,transparent);color:var(--dm-fg)}
+.atx-av.app svg.brand{width:22px;height:22px}
+:root:not([data-style="soft"]) .atx-av{border-radius:0}
+@supports (corner-shape:squircle){:root[data-style="soft"] .atx-av{corner-shape:squircle;border-radius:calc(13px * var(--dm-rk,1))}}
+.atx-tx{flex:1;min-width:0}
+.atx-tx b{display:block;font-size:20px;font-weight:500;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.atx-tx span{display:block;margin-top:3px;font-size:16px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.atx-n.fail .atx-tx span{color:var(--dm-bad)}
+.atx-n.queued .atx-tx b{color:var(--dm-fg2)}
+.atx-q{flex:none;font-size:14.5px;color:var(--dm-muted);font-variant-numeric:tabular-nums;text-align:right;min-width:72px}
+.atx-n.in{animation:atxin .56s var(--ez) backwards}
+@keyframes atxin{from{opacity:0;transform:translateY(8px);filter:blur(3px)}}
+.atx-tx span.sw{animation:atxsw .46s var(--ez)}
+@keyframes atxsw{from{opacity:0;transform:translateY(60%);filter:blur(3px)}}
+.atx-n.run .atx-tx span.sw{animation:atxsw .46s var(--ez),atxshim 2s linear .46s infinite}
+/* the lines */
+.atx-ln{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;fill:none;stroke-linecap:round;stroke-linejoin:round;z-index:1}
+.atx-ln .b{stroke:var(--rail);stroke-width:2.25;transition:stroke .6s var(--dm-ease)}
+.atx-ln .b.on{stroke:var(--c,var(--flow))}
+.atx-ln .b.bad{stroke:color-mix(in srgb,var(--bad) 70%,var(--dm-surface))}
+.atx-ln stop.f{stop-color:var(--c,var(--flow))}
+.atx-ln stop.g{stop-color:var(--rail)}
+/* the flow: a crisp fill runs down the line to whatever is running, a linear gradient from clear at its tail to solid at
+   its head, ending in a solid dot. No blur and no glow. It eases down, rests, and the step it reaches rings once */
+.atx-ln .pulse path{fill:none;stroke-linecap:round;stroke-width:2.5}
+.atx-ln .pulse .hd{stroke:var(--dm-surface);stroke-width:2}
+.atx-ln stop.t0{stop-color:var(--fc,var(--run));stop-opacity:0}
+.atx-ln stop.t1{stop-color:var(--fc,var(--run));stop-opacity:1}
+.atx-g.hit{animation:atxhit .7s var(--ez)}
+@keyframes atxhit{from{box-shadow:0 0 0 0 color-mix(in srgb,var(--run) 30%,transparent)}to{box-shadow:0 0 0 11px color-mix(in srgb,var(--run) 0%,transparent)}}
+/* a running step's line of work shimmers: a pale band sweeps through the letters */
+.atx-n.run .atx-tx span{background:linear-gradient(90deg,var(--dm-muted) 0 40%,color-mix(in srgb,var(--dm-muted) 22%,var(--dm-surface)) 50%,var(--dm-muted) 60% 100%) 100% 0/300% 100% no-repeat;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:atxshim 2s linear infinite}
+@keyframes atxshim{from{background-position:100% 0}to{background-position:0 0}}
+/* a tick draws itself */
+.atx-g.drw path,.atx-g.drw polyline{stroke-dasharray:1;stroke-dashoffset:1;animation:atxdraw .36s var(--ez) .1s forwards}
+@keyframes atxdraw{to{stroke-dashoffset:0}}
+/* A: junction dots, and dots of work travelling down and results travelling back up */
+.atx-ln .jn{fill:var(--dm-surface);stroke-width:2}
+.atx-ln .pk{stroke:var(--dm-surface);stroke-width:2}
+.v-a{background-image:radial-gradient(circle at center,color-mix(in srgb,var(--dm-fg) 9%,transparent) 1px,transparent 1.5px);background-size:20px 20px;background-position:-1px -1px}
+.v-a .atx-g,.v-a .atx-av.app{box-shadow:0 0 0 4px var(--dm-surface)}
+.v-a .atx-n.done .atx-g{box-shadow:0 0 0 4px var(--dm-surface)}
+@media (prefers-reduced-motion:reduce){.atx-ln .pulse,.atx-ln .pk{display:none}.atx-n.in,.atx-tx span.sw,.atx-g.hit,.atx-n.run .atx-tx span{animation:none}.atx-g.drw path,.atx-g.drw polyline{stroke-dashoffset:0}.atx-n.run .atx-tx span{-webkit-text-fill-color:currentColor}}
