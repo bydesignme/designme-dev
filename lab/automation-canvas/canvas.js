@@ -60,7 +60,7 @@ DM.def('automation-canvas', (r, c) => {
   const wide = (n, W, w) => { const pad = W < 800 ? 24 : Math.max(28, W * .06); return { x:{ t:pad + w / 2, a:W / 2, b:W / 2, c:W - pad - w / 2 }[n.id] / W, y:band(n.y) }; };
   // narrow: the run goes down the canvas: the trigger, then the two steps it starts side by side, then the step they both
   // feed. Each wire comes down into the mark on top of the step it feeds
-  const NARROWAT = { t:['l', .03], a:['l', .3], b:['r', .3], c:['l', .64] };
+  const NARROWAT = { t:['l', .03], a:['l', .28], b:['r', .28], c:['l', .58] };
   const pos = (n, W, w) => (narrow() ? n.um : n.uw) || (n.add ? null : narrow() ? { x:(NARROWAT[n.id][0] === 'l' ? 16 + w / 2 : W - 16 - w / 2) / W, y:Math.max(band(NARROWAT[n.id][1]), (safe().T + 4 + el(n.id).offsetHeight / 2) / cv.clientHeight) } : wide(n, W, w));
   const nodeHTML = n => `<button class="acx-n${n.kind ? ' sm' : ''}" data-id="${n.id}"><span class="dmf-g"></span><span class="ic" style="color:${n.fg || n.col};background:color-mix(in srgb,${n.col} 14%,transparent)">${I(n.ic,'xs')}</span><span class="t"><b>${n.t}</b><span class="d">${n.d}</span></span></button>`;
   nodes.innerHTML = N.map(nodeHTML).join('');
@@ -176,7 +176,7 @@ DM.def('automation-canvas', (r, c) => {
       else { const yb = between(), x1 = S.x + G, x2 = gx - G; P.push([x1, S.y], [x1, yb], [x2, yb], [x2, X.y]); }
     } else if (S.d === 'd' && X.side === 't'){
       const gy = X.y - M;
-      if (gy - S.y >= 8){ if (Math.abs(X.x - S.x) > .5){ const ym = (S.y + gy) / 2; P.push([S.x, ym], [X.x, ym]); } }
+      if (gy - S.y >= 8){ if (Math.abs(X.x - S.x) > .5){ const ym = S.y + Math.min(G + 4, (gy - S.y) / 2); P.push([S.x, ym], [X.x, ym]); } }
       else {
         const y1 = S.y + G, y2 = gy - G, mid = (S.x + X.x) / 2, l0 = Math.min(sb.l, tb.l) - M - G, r0 = Math.max(sb.r, tb.r) + G;
         const lane = mid - l0 < r0 - mid ? l0 : r0; P.push([S.x, y1], [lane, y1], [lane, y2], [X.x, y2]);
@@ -196,12 +196,14 @@ DM.def('automation-canvas', (r, c) => {
   function portOf(e){
     const [a, b, kind] = e, A = el(a), AB = lb(A);
     if (kind){ const k = knobs[a + ':' + kind]; if (k && k.isConnected){ const K = lb(k); return { x:K.cx, y:K.b - 1, d:'d' }; }
-      const s = subAt(byId(a), kind); return { x:s.l + s.w / 2, y:AB.b - 1, d:'d' }; }
+      // the connector has gone (the canvas is full): the wire starts at the step's foot and runs down through where it was,
+      // so it keeps the same course
+      const s = subAt(byId(a), kind), x = s.l + s.w / 2; return { x, y:AB.b + 10 + 24 - 1, d:'d', pre:[x, AB.b - 1] }; }
     if (a === 't'){ const M = lb(markOf('t')), rr = MR('src') - 1; return narrow() ? { x:M.cx, y:M.cy + rr, d:'d' } : { x:M.cx + rr, y:M.cy, d:'r' }; }
     return entry(byId(b)) === 'l' ? { x:AB.r - 1, y:AB.cy, d:'r' } : { x:footLive(a), y:AB.b - 1, d:'d' };
   }
   function endOf(id){ const n = byId(id), M = lb(markOf(id)); return { x:M.cx, y:M.cy, r:MR(n.ms), side:entry(n) }; }
-  const pathOf = e => route(portOf(e), lb(el(e[0])), endOf(e[1]), lb(el(e[1])));
+  const pathOf = e => { const S = portOf(e), P = route(S, lb(el(e[0])), endOf(e[1]), lb(el(e[1]))); if (S.pre) P.unshift(S.pre); return P; };
   const lenOf = P => P.reduce((s, p, i) => i ? s + Math.hypot(p[0] - P[i - 1][0], p[1] - P[i - 1][1]) : 0, 0);
   // each wire: its grey rail, the tint over it once a run reaches it, and its flow band. rv0 is when the rail starts drawing
   // in (on arrival, or when a step is added), t0 when the tint starts
@@ -262,7 +264,7 @@ DM.def('automation-canvas', (r, c) => {
       if (a.d === 'r' ? B.l < a.x + 15 + 32 : B.t < a.y + 15 + 32) sc += 250;
       sc += samples.filter(p => inside(p, B, 6)).length * 60;
       const P = route(a, { l:a.x - 1, t:a.y - 1, r:a.x + 1, b:a.y + 1 }, markAt(B), B);
-      for (let i = 1; i < P.length; i++) for (let j = 1; j < 8; j++){ const p = [P[i - 1][0] + (P[i][0] - P[i - 1][0]) * j / 8, P[i - 1][1] + (P[i][1] - P[i - 1][1]) * j / 8]; if (others.some(o => inside(p, o, 4))) sc += 30; }
+      for (let i = 1; i < P.length; i++) for (let j = 1; j < 8; j++){ const p = [P[i - 1][0] + (P[i][0] - P[i - 1][0]) * j / 8, P[i - 1][1] + (P[i][1] - P[i - 1][1]) * j / 8]; if (others.some(o => inside(p, o, 18))) sc += 30; }
       return sc;
     };
     const fits = B => (n.kind || (narrow() ? B.b + 34 <= H - 4 : B.r + 34 <= W - 4 || B.b + 34 <= H - 4)) && B.l >= M + (side === 'l' ? 15 : 0) && B.t >= M + (side === 't' ? 15 : 0) && B.r <= W - M && B.b <= H - M;
