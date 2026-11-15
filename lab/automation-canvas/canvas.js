@@ -22,28 +22,28 @@ DM.def('automation-canvas', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{play}', I('play','xs')).replace('{search}', I('search','xs')).replace(/\{(minus|plus|fit)\}/g, (m, n) => I(n));
   // sub: the connectors under a step, for the model it thinks with and the tools it may use
   const N = [
-    { id:'t', ic:'clock', col:'var(--py)', t:'Schedule', d:'Mondays 9:00', y:.4, f:['When', ['Mondays 9:00','Every weekday','On new Figma version']] },
-    { id:'a', ic:'figma', col:'var(--pl)', t:'Read frames', d:'Pricing, Checkout', y:.22, f:['Frames', ['Pricing, Checkout','All frames','Changed this week']] },
-    { id:'b', ic:'spark', col:'var(--accent-mark,var(--accent))', fg:'var(--accent-fg,var(--accent))', t:'Agent: audit', d:'Contrast, tokens', y:.58, f:['Checks', ['Contrast, tokens','Everything','Accessibility only']], sub:['model', 'tools'] },
-    { id:'c', ic:'send', col:'var(--pm)', t:'Post summary', d:'#design in Slack', y:.4, f:['Channel', ['#design in Slack','Email the team','Linear ticket']] }
+    { id:'t', ic:'clock', av:'p', t:'Schedule', d:'Mondays 9:00', y:.4, f:['When', ['Mondays 9:00','Every weekday','On new Figma version']] },
+    { id:'a', app:'figma', t:'Read frames', d:'Pricing, Checkout', y:.22, f:['Frames', ['Pricing, Checkout','All frames','Changed this week']] },
+    { id:'b', ic:'spark', av:'l', t:'Agent: audit', d:'Contrast, tokens', y:.58, f:['Checks', ['Contrast, tokens','Everything','Accessibility only']], sub:['model', 'tools'] },
+    { id:'c', app:'slack', t:'Post summary', d:'#design in Slack', y:.4, f:['Channel', ['#design in Slack','Email the team','Linear ticket']] }
   ];
   N.forEach(n => n.ms = n.id === 't' ? 'src' : 'queued');
   // a wire: from, to, and for a model or a tool, which connector it hangs from
   const E = [['t','a'],['t','b'],['a','c'],['b','c']];
   const CAT = [
-    { id:'tools', label:'Tools', col:'var(--pt)', items:[
+    { id:'tools', label:'Tools', av:'t', items:[
       { ic:'globe', t:'Search the web', desc:'Looks things up and keeps the top results', f:['Sources', ['Top results','News only','Our docs site']] },
       { ic:'file-text', t:'Read a doc', desc:'Pulls the text out of a doc or a PDF', f:['Doc', ['Brand guidelines','Release notes','Any shared doc']] },
       { ic:'eye', t:'Check contrast', desc:'Measures each text colour against its fill', f:['Level', ['WCAG AA','WCAG AAA','APCA']] } ] },
-    { id:'logic', label:'Logic', col:'var(--py)', items:[
+    { id:'logic', label:'Logic', av:'y', items:[
       { ic:'branch', t:'If / else', desc:'Sends the run one way or the other', f:['When', ['Any check fails','Over 5 issues','Always']] },
       { ic:'clock', t:'Wait', desc:'Pauses the run for a while', f:['For', ['1 hour','Until 9:00','1 day']] },
       { ic:'user', t:'Ask a person', desc:'Holds the run until someone approves', f:['Who', ['Design lead','Anyone on #design','The run owner']] } ] },
-    { id:'actions', label:'Actions', col:'var(--pm)', items:[
+    { id:'actions', label:'Actions', av:'m', items:[
       { ic:'flag', t:'Create ticket', desc:'Files an issue with what the agent found', f:['Tracker', ['Design QA board','Linear, Web team','GitHub issues']] },
       { ic:'mail', t:'Send email', desc:'Emails a short summary to a list', f:['To', ['Design team','Product leads','Just me']] },
       { ic:'edit', t:'Update doc', desc:'Writes the results into a shared doc', f:['Doc', ['QA log','Weekly notes','Release checklist']] } ] },
-    { id:'models', label:'Models', col:'var(--pl)', items:[
+    { id:'models', label:'Models', av:'b', items:[
       { ic:'bolt', t:'Fast model', desc:'Quick and cheap, for simple checks', f:['Model', ['Fast','Fast, low cost']] },
       { ic:'brain', t:'Reasoning model', desc:'Slower, thinks harder audits through', f:['Model', ['Reasoning','Reasoning, long context']] },
       { ic:'image', t:'Vision model', desc:'Reads screenshots and frames', f:['Model', ['Vision','Vision, high detail']] } ] }
@@ -65,7 +65,9 @@ DM.def('automation-canvas', (r, c) => {
   // feed. Each wire comes down into the mark on top of the step it feeds
   const NARROWAT = { t:['l', .03], a:['l', .28], b:['r', .28], c:['l', .58] };
   const pos = (n, W, w) => (narrow() ? n.um : n.uw) || (n.add ? null : narrow() ? { x:(NARROWAT[n.id][0] === 'l' ? 16 + w / 2 : W - 16 - w / 2) / W, y:Math.max(band(NARROWAT[n.id][1]), (safe().T + 4 + el(n.id).offsetHeight / 2) / cv.clientHeight) } : wide(n, W, w));
-  const nodeHTML = n => `<button class="acx-n${n.kind ? ' sm' : ''}" data-id="${n.id}"><span class="dmf-g"></span><span class="ic" style="color:${n.fg || n.col};background:color-mix(in srgb,${n.col} 14%,transparent)">${I(n.ic,'xs')}</span><span class="t"><b>${n.t}</b><span class="d">${n.d}</span></span></button>`;
+  // a step's tile: an app's colour logo, or a solid avatar colour with its ink
+  const tile = (n, sz) => n.app ? `<span class="ic app">${ATX_BRAND[n.app]}</span>` : `<span class="ic fill" style="--a:var(--dm-av-${n.av});--ai:var(--dm-av-${n.av}-ink)">${I(n.ic, sz)}</span>`;
+  const nodeHTML = n => `<button class="acx-n${n.kind ? ' sm' : ''}" data-id="${n.id}"><span class="dmf-g"></span>${tile(n, 'xs')}<span class="t"><b>${n.t}</b><span class="d">${n.d}</span></span></button>`;
   nodes.innerHTML = N.map(nodeHTML).join('');
   const el = id => $(`.acx-n[data-id="${id}"]`, nodes);
   const byId = id => N.find(n => n.id === id);
@@ -390,7 +392,7 @@ DM.def('automation-canvas', (r, c) => {
     const groups = CAT.filter(g => OFFER[kind].includes(g.id)).map(g => ({ g, items:g.items.filter(it => !q || it.t.toLowerCase().includes(q) || it.desc.toLowerCase().includes(q)) })).filter(x => x.items.length);
     const mark = t => { const i = q ? t.toLowerCase().indexOf(q) : -1; return i < 0 ? esc(t) : esc(t.slice(0, i)) + '<mark>' + esc(t.slice(i, i + q.length)) + '</mark>' + esc(t.slice(i + q.length)); };
     let k = 0;
-    ls.innerHTML = groups.length ? groups.map(({ g, items }) => `<div role="group" aria-labelledby="acx-g-${g.id}-${uid}"><div class="acx-gh" id="acx-g-${g.id}-${uid}">${g.label}</div>${items.map(it => { const i = k++; return `<div class="acx-o" role="option" aria-selected="false" id="acx-o-${uid}-${i}" aria-describedby="acx-od-${uid}-${i}" data-g="${g.id}" data-t="${esc(it.t)}"><span class="ic" style="color:${g.col};background:color-mix(in srgb,${g.col} 14%,transparent)">${I(it.ic,'xs')}</span><span>${mark(it.t)}</span><span id="acx-od-${uid}-${i}" hidden>${esc(it.desc)}</span></div>`; }).join('')}</div>`).join('')
+    ls.innerHTML = groups.length ? groups.map(({ g, items }) => `<div role="group" aria-labelledby="acx-g-${g.id}-${uid}"><div class="acx-gh" id="acx-g-${g.id}-${uid}">${g.label}</div>${items.map(it => { const i = k++; return `<div class="acx-o" role="option" aria-selected="false" id="acx-o-${uid}-${i}" aria-describedby="acx-od-${uid}-${i}" data-g="${g.id}" data-t="${esc(it.t)}">${tile({ ic:it.ic, av:g.av }, 'xs')}<span>${mark(it.t)}</span><span id="acx-od-${uid}-${i}" hidden>${esc(it.desc)}</span></div>`; }).join('')}</div>`).join('')
       : `<p class="acx-pe">No steps match “${esc(qi.value.trim())}”</p>`;
     opts = $$('.acx-o', ls);
     opts.forEach((o, i) => { o.onpointermove = () => { if (act !== i) hl(i, false); }; o.onclick = e => { e.stopPropagation(); add(o, e.isTrusted); }; });
@@ -442,7 +444,7 @@ DM.def('automation-canvas', (r, c) => {
   function add(o, focus){
     const b = pkFor; if (!b) return;
     const it = itemOf(o), g = CAT.find(x => x.id === o.dataset.g), src = byId(b.dataset.for), kind = b.dataset.k === 'out' ? null : b.dataset.k;
-    const n = { id:'n' + ++seq, ic:it.ic, col:g.col, t:it.t, d:it.f[1][0], f:it.f, add:true, kind, ms:'queued' };
+    const n = { id:'n' + ++seq, ic:it.ic, av:g.av, t:it.t, d:it.f[1][0], f:it.f, add:true, kind, ms:'queued' };
     closePk(); N.push(n); E.push(kind ? [src.id, n.id, kind] : [src.id, n.id]);
     const nb = html(nodeHTML(n)); nodes.insertBefore(nb, $('.acx-h, .acx-sc', nodes)); setMark(n, 'queued'); bind(n);
     if (!REDUCE){ nb.classList.add('add'); nb.style.animationDelay = '.3s'; }
