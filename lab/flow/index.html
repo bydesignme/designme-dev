@@ -17,7 +17,7 @@
 <style>
 html,body{margin:0;background:var(--dm-surface);color:var(--dm-fg);font-family:var(--dm-sans)}
 .demo{position:relative;width:520px;height:340px;margin:40px auto}
-.n{position:absolute;display:flex;align-items:center;gap:10px;font-size:14px;transform:translate(-15px,-15px)}
+.n{position:absolute;z-index:2;display:flex;align-items:center;gap:10px;font-size:14px;transform:translate(-15px,-15px)}
 </style>
 </head>
 <body>
@@ -31,13 +31,13 @@ html,body{margin:0;background:var(--dm-surface);color:var(--dm-fg);font-family:v
 <script src="flow.js"></script>
 <script>
 const host = document.querySelector('.demo'), L = DMFlow.layer(host), $ = s => document.querySelector(s);
-DMFlow.mark($('#m0'), 'done'); DMFlow.mark($('#m1'), 'run'); DMFlow.mark($('#m2'), 'queued'); DMFlow.mark($('#m3'), 'fail');
+DMFlow.mark($('#m0'), 'src'); DMFlow.mark($('#m1'), 'run'); DMFlow.mark($('#m2'), 'queued'); DMFlow.mark($('#m3'), 'fail');
 const trunk = DMFlow.line(L), b = [1, 2, 3].map(() => DMFlow.line(L)), bd = DMFlow.band(L);
 DMFlow.loop(T => {
   const a = L.box($('#m0')), m = [1, 2, 3].map(i => L.box($('#m' + i))), st = ['run', 'queued', 'fail'];
-  trunk.set(`M${a.cx} ${a.cy + 15 - 1}V${m[2].cy - DMFlow.R()}`);
+  trunk.set(`M${a.cx} ${a.cy + DMFlow.markR('src') - 1}V${m[2].cy - DMFlow.R()}`);
   m.forEach((k, i) => b[i].set(DMFlow.branch(a.cx, k.cy - DMFlow.R(), k.cx - DMFlow.markR(st[i]) + 1, k.cy), i === 0 ? 'on' : i === 2 ? 'bad' : 'queued'));
-  bd.tick(DMFlow.route([[a.cx, a.cy], [a.cx, m[0].cy], [m[0].cx, m[0].cy]]), T);
+  bd.tick(DMFlow.route([[a.cx, a.cy + DMFlow.markR('src') - 1], [a.cx, m[0].cy], [m[0].cx, m[0].cy]]), T);
 });
 </script>
 </body>

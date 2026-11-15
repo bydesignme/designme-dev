@@ -11,7 +11,11 @@
    - The flow is one band (the owner's Figma highlight): 210px long, clear, light 50%, the accent at .541, light 70%, clear.
      It eases along a route to whatever is running (about 170px a second, 1.8 to 3.4s a trip, a .35s rest), fading in as it
      leaves and out as it arrives. No dots, glows, blur or pulsing. A route must be one piece: dashes restart per subpath.
-   - Marks swap at once (spinner to tick, no fade from empty) and the tick draws itself. */
+   - Marks swap at once (spinner to tick, no fade from empty) and the tick draws itself.
+   - Where a run starts (the source, the trigger, the orchestrator) the mark is 'src': a filled accent disc with a white
+     border. Every line and band leaves from a mark's edge (markR), never its centre.
+   - Marks sit above the lines: give whatever holds a mark a stacking order above the overlay (z-index 2) if it has a
+     transform, filter or opacity animation, or the lines will paint over it. */
 (() => {
   const NS = 'http://www.w3.org/2000/svg';
   const mk = (t, a = {}) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
@@ -91,18 +95,18 @@
     };
   }
 
-  // a state mark: <span class="dmf-g"> with a ring (queued), spinner (run), tick (done) or cross (fail). mark(el, s) swaps it at
+  // a state mark: <span class="dmf-g"> with a ring (queued), spinner (run), tick (done), cross (fail) or the source disc (src). mark(el, s) swaps it at
   // once; a tick draws itself
   const TICK = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg>';
   const CROSS = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17" pathLength="1"/></svg>';
   function mark(el, s){
     if (el.dataset.s === s) return; el.dataset.s = s;
     el.className = 'dmf-g ' + s;
-    el.innerHTML = s === 'run' ? '<span class="spin"></span>' : s === 'done' ? TICK : s === 'fail' ? CROSS : '<span class="ring"></span>';
+    el.innerHTML = s === 'run' ? '<span class="spin"></span>' : s === 'done' ? TICK : s === 'fail' ? CROSS : s === 'src' ? '<span class="dot"></span>' : '<span class="ring"></span>';
     if (s === 'done' || s === 'fail'){ void el.offsetWidth; el.classList.add('drw'); }
   }
   // the visible radius of a mark in a state (lines end 1px under it)
-  const markR = s => s === 'queued' ? 7 : s === 'run' ? 9.5 : 15;
+  const markR = s => s === 'queued' ? 7 : s === 'run' ? 9.5 : s === 'src' ? 11 : 15;
 
   // swap a line of text in place (the Agent tree's step text)
   function swap(el, t){ el.textContent = t; el.classList.remove('dmf-sw'); void el.offsetWidth; el.classList.add('dmf-sw'); }
