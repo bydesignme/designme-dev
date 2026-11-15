@@ -112,7 +112,8 @@
   function swap(el, t){ el.textContent = t; el.classList.remove('dmf-sw'); void el.offsetWidth; el.classList.add('dmf-sw'); }
 
   // a clock in seconds that keeps time with requestAnimationFrame (the clip recorder drives rAF and performance.now)
-  function loop(fn){ let last = 0, T = 0; const f = t => { const dt = last ? Math.min(.05, (t - last) / 1000) : 0; last = t; T += dt; fn(T, dt); requestAnimationFrame(f); }; requestAnimationFrame(f); }
+  // returns a stop function
+  function loop(fn){ let last = 0, T = 0, on = true; const f = t => { if (!on) return; const dt = last ? Math.min(.05, (t - last) / 1000) : 0; last = t; T += dt; fn(T, dt); requestAnimationFrame(f); }; requestAnimationFrame(f); return () => { on = false; }; }
 
   window.DMFlow = { kind, R, route, branch, layer, line, band, mark, markR, swap, loop, BAND };
 })();
