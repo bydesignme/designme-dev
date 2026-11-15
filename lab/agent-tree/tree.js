@@ -3,7 +3,7 @@
    fails, the orchestrator reroutes it, and the run finishes. Lines are redrawn every frame from where the rows are. */
 (() => {
   const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
-  // data-v="auto": Soft draws the rounded lines (b), Blueprint the angled ones in each agent's colour (a)
+  // data-v="auto": Soft draws the rounded lines (b), Blueprint the angled ones (a), both in one accent tint
   const root = $('.atx'), V = root.dataset.v === 'auto' ? (document.documentElement.dataset.style === 'soft' ? 'b' : 'a') : root.dataset.v, tree = $('.atx-tree', root);
   root.classList.add('v-' + V);
   const IC = (n, cls = '') => { const [vb, body] = ATX_ICONS[n]; return `<svg class="i ${cls}" viewBox="${vb}" aria-hidden="true">${body}</svg>`; };
@@ -21,10 +21,6 @@
   const by = id => N.find(n => n.id === id);
   N.forEach(n => { n.parent = n.p ? by(n.p) : null; n.lv = n.parent ? n.parent.lv + 1 : 0; n.kids = []; n.s = n.s || 'queued'; n.cost = 0; n.secs = 0; });
   N.forEach(n => n.parent && n.parent.kids.push(n));
-  // an agent's colour: its own, or the agent it works for
-  // ?lines=mono: Blueprint's lines take one accent tint like Soft's, instead of each agent's colour
-  const AGENTC = V === 'a' && new URLSearchParams(location.search).get('lines') !== 'mono';
-  const col = n => n.av ? AV[n.av] : n.parent && n.parent.av ? AV[n.parent.av] : 'color-mix(in srgb,var(--dm-fg) 40%,var(--dm-surface))';
   const mark = s => s === 'run' ? '<span class="spin"></span>' : s === 'done' ? IC('check') : s === 'fail' ? IC('x') : '<span class="ring"></span>';
   for (const n of N){
     const who = n.app ? `<span class="atx-av app">${ATX_BRAND[n.app]}</span>` : n.av || !n.lv ? `<span class="atx-av" style="${n.av ? `--a:${AV[n.av]};--ai:var(--dm-av-${n.av}-ink)` : ''}">${IC(n.ic)}</span>` : `<span class="atx-av app">${IC(n.ic)}</span>`;
@@ -67,7 +63,6 @@
     const id = 'g' + p.id, gr = mk('linearGradient', { id, gradientUnits:'userSpaceOnUse', x1:0, x2:0 }), st = ['f', 'f', 'g', 'g'].map(c => mk('stop', { class:c }));
     gr.append(...st); defs.append(gr);
     const trunk = mk('path', { class:'b on', stroke:V === 'b' ? `url(#${id})` : '' }); gTrunk.append(trunk);
-    if (AGENTC) trunk.style.setProperty('--c', col(p.lv ? p : { lv:0 }));
     const L = { gr, st, trunk, end:null, reach:null }; lines.set(p, L); return L;
   }
   // a pulse (B) or packets of work (A) along the path from the orchestrator down to each running step
@@ -100,7 +95,7 @@
       if (V === 'b' && span > 4){ const r = Math.min(1, Math.max(0, (L.reach - y0) / span)), f = Math.min(1 - r, 34 / span);
         L.gr.setAttribute('y1', y0); L.gr.setAttribute('y2', L.end); [0, r, Math.min(1, r + f), 1].forEach((o, i) => L.st[i].setAttribute('offset', o)); }
       for (const k of p.kids){
-        if (!k.br){ k.br = mk('path', { class:'b' }); gBr.append(k.br); k.dr = 0; if (AGENTC) k.br.style.setProperty('--c', col(k)); }
+        if (!k.br){ k.br = mk('path', { class:'b' }); gBr.append(k.br); k.dr = 0; }
         if (!shown(k)){ k.br.setAttribute('d', ''); continue; }
         const b = geo[k.id], reached = L.end >= b.cy - R - 1;
         k.dr = ease(k.dr, reached ? 1 : 0, fast * .85); if (k.dr < .04){ k.br.setAttribute('d', ''); continue; }
