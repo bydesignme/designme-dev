@@ -36,7 +36,7 @@ Steering lets a person change an agent's course while it works, without stopping
 
 - `steps` lists the run, each with a `title`, a `detail` that crossfades when it changes, and a `status` of `queued`, `running` or `done`. A step that a message added has `fromYou`, which shows a "From you" tag.
 - Your messages sit on the right. A `queued` one says "Applies after this step" with a small spinner, and an `applied` one shows a check.
-- The agent's replies sit on the left. `warn` makes one amber, for a heads-up like "The Pro card is already violet", and `actions` adds white and filled buttons under it. Once you answer, `answer` takes the buttons' place and the amber goes.
+- The agent's replies sit on the left. `warn` gives one a light accent tint, for a heads-up like "The Pro card is already violet", and `actions` adds white and filled buttons under it. Once you answer, `answer` takes the buttons' place and the tint goes.
 - The line under the title reads "Step 2 of 4", or Done, with a clock that counts until every step is done, or shows `seconds`.
 - Once every step is done a green line sums it up, like "Done in 0:14 · 1 change from you"; `summary` changes it or, set to `false`, hides it. The message box then says the run has finished.
 - Enter or the send button sends; the button stays off while the box is empty.
@@ -231,11 +231,11 @@ export interface SteerMessage {
   text: string;
   /** For yours: `queued` while it waits for the step in progress, `applied` once the agent has taken it up */
   state?: 'queued' | 'applied';
-  /** For the agent's: an amber heads-up, for when your message changes work already done */
+  /** For the agent's: a heads-up in a light accent tint, for when your message changes work already done */
   warn?: boolean;
   /** Buttons under the agent's message, the last one filled, like Leave it and Redo the Pro card */
   actions?: { label: string; onClick: () => void }[];
-  /** Takes the buttons' place once you've answered, like "Added a step to redo the Pro card". The amber goes too */
+  /** Takes the buttons' place once you've answered, like "Added a step to redo the Pro card". The tint goes too */
   answer?: string;
 }
 

@@ -1362,6 +1362,8 @@
     const inEl = $('#pv-in', pv), find = n => $$('main .comp').find(c => c.querySelector('.comp-title').textContent === n);
     // changelog
     const LOG = [
+      { v:'v1.0.1', d:'15 November 2026', t:'Agent builder removed', items:[
+        ['improved','Agent builder is no longer in the library: it is gone from the site, the CLI and the docs, which leaves 124 components'] ] },
       { v:'v1.0.0', d:'9 November 2026', t:'The first public release', items:[
         ['new','designme.dev is public: the code is on GitHub under the MIT licence, and the CLI is 1.0.0 on npm. Add components with npx designme add, as HTML, React or Astro'],
         ['new','Templates: a Sales CRM and a Workflow editor, whole apps built from the components, in the sidebar under Templates'],
@@ -1373,7 +1375,7 @@
       { v:'v0.16', d:'4 November 2026', t:'Astro, shadcn and twelve new components', items:[
         ['new','Three components for workflow editors, from the Workflow editor template: a step inspector that sets up one step and flags data no earlier step gives, a data picker that maps fields from earlier steps, and a run drawer with the steps, the log and the data of a run',['Step inspector','Data picker','Run drawer']],
         ['new','Thinking states: six thinking indicators to pick from (Orbit, Morph, Scan, Stream, Matrix and Stack), each a small mark with a status line that steps through what the agent is doing',['Thinking states']],
-        ['new','Twelve new components, each in HTML, React and Astro, for 119 in all',['Progress and meter','Slider','Context menu','Carousel','Colour picker','Agent phases','Web search','Agent builder','Radial goals','Eval radar','Cost vs quality','Score breakdown']],
+        ['new','Twelve new components, each in HTML, React and Astro, for 119 in all',['Progress and meter','Slider','Context menu','Carousel','Colour picker','Agent phases','Web search','Radial goals','Eval radar','Cost vs quality','Score breakdown']],
         ['new','Every component as an Astro component, with the same markup, CSS and script as the HTML version. Add them with npx designme add and the <span class="nowrap">--astro</span> flag'],
         ['new','Every component is also a shadcn registry item, in React and Astro, so the shadcn CLI can add it to a shadcn/ui project'],
         ['new','The theme bridge, an opt-in CSS file that gives the components the colours and corners of your shadcn/ui or Tailwind v4 theme. Add it with the <span class="nowrap">--theme-bridge</span> flag'],

@@ -42,10 +42,10 @@ Object.assign(WAIT, { 'attachment-tray':6500 });
 Object.assign(WAIT, { 'agent-run-timeline':9000 });
 // Memory panel is taken once the launch email has used three memories, each with its Used tag
 Object.assign(WAIT, { 'memory-panel':12500 });
-// the twelve new components: Progress mid-run past the warning, Context menu with its submenu open, Carousel's drafts with the third
+// the new components of 4 Nov: Progress mid-run past the warning, Context menu with its submenu open, Carousel's drafts with the third
 // kept, Eval radar with its note, Cost vs quality with the outliers ringed, Score breakdown with the proposal, Colour picker with
-// its scale, Web search reading, Agent phases waiting for you, Agent builder drafted
-Object.assign(WAIT, { progress:6500, 'context-menu':4800, carousel:11500, 'radar-chart':5000, 'scatter-chart':4500, 'score-breakdown':7500, 'color-picker':10500, 'web-search':7000, 'agent-phases':11500, 'agent-builder':10000 });
+// its scale, Web search reading, Agent phases waiting for you
+Object.assign(WAIT, { progress:6500, 'context-menu':4800, carousel:11500, 'radar-chart':5000, 'scatter-chart':4500, 'score-breakdown':7500, 'color-picker':10500, 'web-search':7000, 'agent-phases':11500 });
 // Number field with the budget kept at its most
 Object.assign(WAIT, { 'number-field':9500 });
 // Image generation with three portraits made and the fourth, retried, coming out of its dots

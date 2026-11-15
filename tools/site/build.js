@@ -82,7 +82,6 @@ const NEW = [
   { cid:'c155', id:'scatter-chart', title:'Cost vs quality', section:'Charts and tables', after:'c154', icon:'trending_up' },
   { cid:'c160', id:'agent-phases', title:'Agent phases', section:'Agent status', after:'c60', icon:'history', next:'browser-session' },
   { cid:'c159', id:'web-search', title:'Web search', section:'Agent status', after:'c129', icon:'search', next:'browser-session' },
-  { cid:'c161', id:'agent-builder', title:'Agent builder', section:'Workspace', after:'c38', icon:'settings', next:'model-compare' },
   // 4 Nov: Number field beside Filter menu, which sat alone in its row
   { cid:'c163', id:'number-field', title:'Number field', section:'Collaboration', after:'c128', icon:'tune', next:'filter-menu' },
   // 5 Nov: Image generation, wide, after Artifact card with what an agent makes (Thinking states, on its own branch, takes c164)
@@ -753,7 +752,7 @@ if (REGDIR){
   const idx = JSON.parse(fs.readFileSync(path.join(REGDIR, 'index.json'), 'utf8'));
   const siteNames = {}; for (const m of fs.readFileSync(SITE, 'utf8').matchAll(/<article[^>]*\bid="(c\d+)"[^>]*>[\s\S]*?class="comp-title">([^<]*)</g)) siteNames[m[1]] = m[2];
   const slug = n => n.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  let n = 0;
+  let n = 0; const written = new Set();
   for (const [cid, id] of Object.entries(MAP)){
     const extra = EXTRA.find(x => x.cid === cid);
     if (extra && !idx.items.some(x => x.name === extra.reg)){
@@ -768,8 +767,13 @@ if (REGDIR){
     const old = JSON.parse(fs.readFileSync(file, 'utf8')), one = regOne(id);
     const item = { ...old, description:CARDS[id].desc, files:[
       { path:`${name}/${name}.html`, content:one.html }, { path:`${name}/${name}.css`, content:one.css }, { path:`${name}/${name}.js`, content:one.js } ] };
-    fs.writeFileSync(file, pyDump(item)); n++;
+    fs.writeFileSync(file, pyDump(item)); n++; written.add(name);
     const it = idx.items.find(x => x.name === name); if (it) it.description = CARDS[id].desc;
+  }
+  // a component taken out of the library (its card gone from soft-2/index.html) leaves the index, and its entry file goes
+  for (const x of idx.items.filter(x => !written.has(x.name))){
+    idx.items.splice(idx.items.indexOf(x), 1); fs.rmSync(path.join(REGDIR, x.name + '.json'), { force:true });
+    console.log('registry entry removed:', x.name);
   }
   const corePath = path.join(REGDIR, 'core.json'), core = JSON.parse(fs.readFileSync(corePath, 'utf8'));
   core.files = [{ path:'core/core.css', content:REG_CORE_CSS }, { path:'core/core.js', content:REG_CORE_JS }];

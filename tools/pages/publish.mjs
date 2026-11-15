@@ -32,6 +32,8 @@ fs.writeFileSync(path.join(ROOT, '_redirects'), [
   '# Variant carousel and Image carousel became one component, Carousel, with a switch between the two (owner, 4 Nov)',
   '/components/variant-carousel /components/carousel 301', '/components/image-carousel /components/carousel 301',
   '/components/variant-carousel.md /components/carousel.md 301', '/components/image-carousel.md /components/carousel.md 301',
+  '# Agent builder was removed from the library (owner, 15 Nov): its page and its Markdown copy go to the homepage',
+  '/components/agent-builder / 301', '/components/agent-builder.md / 301',
   '# the docs start at their introduction',
   '/docs /docs/introduction 302', '/docs/ /docs/introduction 302', ''
 ].join('\n'));

@@ -9,8 +9,8 @@ These ship with the components when you install them.
 
 - **Country flags** (Country select, Currency converter): SVGs from
   [flag-icons](https://github.com/lipis/flag-icons) by Panayiotis Lipiridis, MIT licence. Spain's flag is simplified.
-- **Brand marks** (Social sign-in, Tool connections, Buttons, Agent builder, Agent run timeline, Memory panel and
-  Scheduled runs):
+- **Brand marks** (Social sign-in, Tool connections, Buttons, Agent run timeline, Memory panel and Scheduled
+  runs):
   - GitHub, Notion and Linear: from [Simple Icons](https://simpleicons.org), CC0 1.0.
   - Google, Figma and Slack: from [Devicon](https://devicon.dev), MIT licence.
   - Gmail and Google Drive: Google's own logos.

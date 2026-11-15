@@ -62,7 +62,6 @@ export * from './components/field-extraction/FieldExtraction';
 export * from './components/workspace-rail/WorkspaceRail';
 export * from './components/command-palette/CommandPalette';
 export * from './components/agent-settings/AgentSettings';
-export * from './components/agent-builder/AgentBuilder';
 export * from './components/tool-connections/ToolConnections';
 export * from './components/knowledge-sources/KnowledgeSources';
 export * from './components/scheduled-runs/ScheduledRuns';

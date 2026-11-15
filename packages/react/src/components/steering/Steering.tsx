@@ -26,11 +26,11 @@ export interface SteerMessage {
   text: string;
   /** For yours: `queued` while it waits for the step in progress, `applied` once the agent has taken it up */
   state?: 'queued' | 'applied';
-  /** For the agent's: an amber heads-up, for when your message changes work already done */
+  /** For the agent's: a heads-up in a light accent tint, for when your message changes work already done */
   warn?: boolean;
   /** Buttons under the agent's message, the last one filled, like Leave it and Redo the Pro card */
   actions?: { label: string; onClick: () => void }[];
-  /** Takes the buttons' place once you've answered, like "Added a step to redo the Pro card". The amber goes too */
+  /** Takes the buttons' place once you've answered, like "Added a step to redo the Pro card". The tint goes too */
   answer?: string;
 }
 

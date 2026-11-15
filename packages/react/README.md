@@ -4,7 +4,7 @@ React versions of the [designme.dev](https://designme.dev) components, for Next.
 
 They use the same markup and the same CSS as the site, so they look and move exactly like the previews on designme.dev, in both styles (Blueprint and Soft) and in light and dark. The difference is that each one takes props, so you drive it from your own state instead of a scripted demo.
 
-All 125 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
+All 124 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
 
 Each one has a page on designme.dev with its demo, its React usage, its props and its code, at `https://designme.dev/components/<name>`. To see them all running locally, run `npm run dev` here.
 
@@ -318,10 +318,6 @@ Jump anywhere or hand a task to the agent from one box.
 **AgentSettings** · `agent-settings/AgentSettings.tsx`  
 How much the agent may do alone, with a save bar for changes.  
 `value` / `defaultValue` / `onValueChange` (`{ autonomy, toggles, cap, instructions }`), `levels: { label, description }[]`, `toggles: { key, label, detail? }[]`, `caps`, `formatCap`, `capLabel`, `capDetail`, `onSave(value)` (return a promise to spin until it settles), `onReset`. Any change since the last save brings up the save bar.
-
-**AgentBuilder** · `agent-builder/AgentBuilder.tsx`  
-Describe an agent in a sentence and it drafts the rest; test it, save it, publish it.  
-`value: { name, purpose, icon, instructions, model, effort, tools: { key, label, brand?, level: 'read' | 'ask' | 'act' }[], knowledge, trigger: 'chat' | 'sched' | 'event', triggerDetail? }`, `onChange(value, section)`, `description` / `onDescriptionChange`, `onDraft`, `drafting` (the section in hand), `drafted` (sections with a Drafted tag), `status: 'empty' | 'dirty' | 'saved' | 'live'`, `onSave`, `onPublish`, `publishing`, `onTest`, `test: { email, reply? }`, `models`, `icons`.
 
 **FileExplorer** · `file-explorer/FileExplorer.tsx`  
 Project files, with the ones the agent touched marked.  
