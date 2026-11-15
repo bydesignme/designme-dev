@@ -70,7 +70,9 @@ DM.def('automation-canvas', (r, c) => {
   const box = b => ({ l:b.offsetLeft, t:b.offsetTop, r:b.offsetLeft + b.offsetWidth, b:b.offsetTop + b.offsetHeight, w:b.offsetWidth, h:b.offsetHeight });
   // a box where it shows this frame (a drag's scale and every glide included), in the world's own space
   const lb = b => { const q = L.box(b); return { l:q.x, t:q.y, r:q.x + q.w, b:q.y + q.h, w:q.w, h:q.h, cx:q.cx, cy:q.cy }; };
-  const setMark = (n, s) => { n.ms = s; const m = el(n.id) && markOf(n.id); if (m) DMFlow.mark(m, s); };
+  // a mark swaps at once, and its wires are redrawn in the same moment, so a wire never ends short of a mark that shrank
+  let ready = false;
+  const setMark = (n, s) => { n.ms = s; const m = el(n.id) && markOf(n.id); if (m) DMFlow.mark(m, s); if (ready) frame(NOW); };
   N.forEach(n => setMark(n, n.ms));
 
   /* ---------- the marks and ports ----------
@@ -230,7 +232,7 @@ DM.def('automation-canvas', (r, c) => {
     });
     Object.keys(stub).filter(k => !want.has(k)).forEach(k => { stub[k].ln.remove(); delete stub[k]; });
   }
-  ticks.add(frame); c.offs.push(() => ticks.delete(frame));
+  ticks.add(frame); c.offs.push(() => ticks.delete(frame)); ready = true;
   const wires = () => placeKnobs();
 
   /* ---------- where a new step goes: as near as it can to just after what it hangs from (to the right of a step, under a
@@ -528,7 +530,7 @@ DM.def('automation-canvas', (r, c) => {
     const tint = ids => ids.forEach(i => into(i).forEach(w => { w.st = 'on'; w.t0 = NOW; }));
     const work = ids => ids.forEach(i => { setMark(byId(i), 'run'); shim(i, true); into(i).forEach(w => { w.bd.restart(); w.band = true; }); });
     const done = (i, s = 'done') => { setMark(byId(i), s); shim(i, false); };
-    running = true; const fails = ++runs === 1, t0 = NOW;
+    running = true; const fails = ++runs === 1, t0 = performance.now();
     try {
       close(); closePk();
       N.forEach(n => { if (n.id !== 't'){ setMark(n, 'queued'); shim(n.id, false); } });
@@ -551,7 +553,7 @@ DM.def('automation-canvas', (r, c) => {
       done('c');
       let at = 'c', nx;
       while ((nx = E.find(e => e[0] === at && !e[2]))){ const n2 = nx[1]; tint([n2]); await wait(480); work([n2]); await wait(tripOf([n2]) * 1000 + 250); done(n2); at = n2; }
-      const s = `Test passed in ${(NOW - t0).toFixed(1)}s`; status(s); say(s);
+      const s = `Test passed in ${((performance.now() - t0) / 1000).toFixed(1)}s`; status(s); say(s);
     } finally { if (id === runId) running = false; }
   });
 
