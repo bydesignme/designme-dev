@@ -1,0 +1,70 @@
+/* ---------- Agent lanes, with drawn hand-offs (lab) ----------
+   Written with the site's short token names (soft-2/index.html), so it can move there as it is; the lab page points them at
+   core.css. Lines, the flow band and the step marks come from the shared module (lab/flow: .dmf, .dmf-ln, .dmf-g).
+   Each agent keeps its hue on its badge only. A lane is three step marks on a grey rail; the rail between two steps takes the
+   flow tint as the agent moves on, and a hand-off is a line routed from the step that hands off down to the step in the next
+   lane that picks it up, with the flow band running along it at that moment */
+.aln{--cols:34px minmax(0,1.2fr) minmax(0,1fr) 92px;width:100%;padding:var(--s-2);font-size:13px;line-height:1.45;color:var(--fg)}
+/* the badge of a finished agent fills with a livelier version of its hue (3:1 on the surface); dark mode's are light already */
+.aln{--aln-pb:#2a7bff;--aln-pm:#1fa66a;--aln-pl:#7a5af5}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .aln{--aln-pb:var(--pb);--aln-pm:var(--pm);--aln-pl:var(--pl)}}
+:root[data-theme="dark"] .aln{--aln-pb:var(--pb);--aln-pm:var(--pm);--aln-pl:var(--pl)}
+.aln-h{display:flex;align-items:center;gap:10px;padding:var(--s-2) 10px 10px}
+.aln-ic{color:var(--fg2);display:grid;transition:color .3s}
+.aln.fin .aln-ic{color:var(--ok)}
+.aln-t{font-size:14px;font-weight:500;white-space:nowrap}
+.aln-m{font-size:12.5px}
+.aln-ct{font-size:12.5px;color:var(--muted);margin-right:auto;white-space:nowrap}
+.aln-ct::before{content:"·";margin-right:6px}
+.aln-pause{flex:none}
+/* the lanes and the hand-offs between them; the line overlay (.dmf-ln) is laid over them, under the marks */
+.aln-rows{position:relative}
+.aln-rows>:not(.dmf-ln){position:relative}
+.aln-lane{border-radius:calc(14px * var(--rk));transition:background var(--t-fast)}
+@media (hover:hover){.aln-lane:hover{background:var(--row)}}
+/* a lane rising in is lifted above the lines while it moves, so its marks stay on top of them */
+.aln-lane.dmf-in{z-index:2}
+.aln-row{display:grid;grid-template-columns:var(--cols);align-items:center;gap:var(--s-3);width:100%;padding:10px;border-radius:inherit;text-align:left}
+.aln-av{width:34px;height:34px;border-radius:calc(11px * var(--rk));display:grid;place-items:center;color:var(--c);background:var(--cb);transition:color .4s,background .4s}
+.aln-lane[data-s="done"] .aln-av{background:var(--cm);color:var(--surface)}
+.aln-who{min-width:0}
+.aln-n{display:block;font-weight:500;font-size:13.5px}
+.aln-a{display:block;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aln-a.live{color:var(--fg2)}
+.aln-a.dmf-sw.dmf-shim{animation:dmfsw .46s var(--ez),dmfshim 2s linear .46s infinite}
+/* the lane's steps: three marks spread over the track, joined by the rail the overlay draws */
+.aln-sp{display:flex;align-items:center;justify-content:space-between;height:30px}
+.aln-sp .dmf-g,.aln-sp .dmf-g *{corner-shape:round}
+.aln.paused .dmf-g .spin{animation-play-state:paused}
+.aln-st{display:flex;justify-content:flex-end}
+.aln-st .tag .spin{width:9px;height:9px}
+/* a lane opens to its log, under the agent's name (the track's column stays clear for the lines) */
+.aln-det{display:grid;grid-template-columns:var(--cols);column-gap:var(--s-3);padding:0 10px 10px;font-size:12.5px;color:var(--fg2)}
+.aln-det>div{grid-column:2;display:flex;align-items:center;gap:var(--s-2);min-width:0;padding:3px 0}
+.aln-det>div::before{content:"";width:5px;height:5px;border-radius:50%;corner-shape:round;background:var(--faint);flex:none}
+.aln-det .muted{margin-left:auto}
+/* a hand-off opens a row between the lanes for its line; its sentence rises in once the line is drawn */
+.aln-hf{transition-duration:var(--t-slow)}
+.aln-hand{display:grid;grid-template-columns:var(--cols);column-gap:var(--s-3);padding:8px 10px;font-size:12.5px;line-height:18px;color:var(--fg2)}
+.aln-hx{grid-column:2;min-width:0;visibility:hidden;text-wrap:pretty}
+.aln-hf.on .aln-hx{visibility:visible}
+.aln-hx b{font-weight:500;color:var(--fg)}
+@supports (corner-shape:squircle){:root[data-style="soft"] .aln-av{corner-shape:squircle;border-radius:calc(13px * var(--rk))}}
+/* narrow: the track keeps its own column at the right, so a hand-off's line never crosses a name; the state tag moves under
+   the name */
+@container (max-width:520px){
+  .aln{--cols:34px minmax(0,1fr) 120px}
+  .aln-row{row-gap:6px}
+  .aln-av{grid-row:1 / span 2}
+  .aln-sp{grid-column:3;grid-row:1 / span 2}
+  .aln-st{grid-column:2;grid-row:2;justify-content:flex-start}
+  .aln-ct{display:none}
+  .aln-m{margin-right:auto}
+}
+@container (max-width:340px){.aln-ic{display:none}}
+/* Blueprint: square */
+:root:not([data-style="soft"]) :is(.aln-av,.aln-lane){border-radius:0}
+:root:not([data-style="soft"]) .aln-av{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 35%,transparent)}
+:root:not([data-style="soft"]) .aln-lane[data-s="done"] .aln-av{box-shadow:none}
+/* the step marks stay round in Blueprint too, as the shared treatment draws them (the core squares every corner) */
+:root:not([data-style="soft"]) .aln :is(.dmf-g,.dmf-g *){border-radius:50%!important}
