@@ -22,6 +22,8 @@
   N.forEach(n => { n.parent = n.p ? by(n.p) : null; n.lv = n.parent ? n.parent.lv + 1 : 0; n.kids = []; n.s = n.s || 'queued'; n.cost = 0; n.secs = 0; });
   N.forEach(n => n.parent && n.parent.kids.push(n));
   // an agent's colour: its own, or the agent it works for
+  // ?lines=mono: Blueprint's lines take one accent tint like Soft's, instead of each agent's colour
+  const AGENTC = V === 'a' && new URLSearchParams(location.search).get('lines') !== 'mono';
   const col = n => n.av ? AV[n.av] : n.parent && n.parent.av ? AV[n.parent.av] : 'color-mix(in srgb,var(--dm-fg) 40%,var(--dm-surface))';
   const mark = s => s === 'run' ? '<span class="spin"></span>' : s === 'done' ? IC('check') : s === 'fail' ? IC('x') : '<span class="ring"></span>';
   for (const n of N){
@@ -65,7 +67,7 @@
     const id = 'g' + p.id, gr = mk('linearGradient', { id, gradientUnits:'userSpaceOnUse', x1:0, x2:0 }), st = ['f', 'f', 'g', 'g'].map(c => mk('stop', { class:c }));
     gr.append(...st); defs.append(gr);
     const trunk = mk('path', { class:'b on', stroke:V === 'b' ? `url(#${id})` : '' }); gTrunk.append(trunk);
-    if (V === 'a') trunk.style.setProperty('--c', col(p.lv ? p : { lv:0 }));
+    if (AGENTC) trunk.style.setProperty('--c', col(p.lv ? p : { lv:0 }));
     const L = { gr, st, trunk, end:null, reach:null }; lines.set(p, L); return L;
   }
   // a pulse (B) or packets of work (A) along the path from the orchestrator down to each running step
@@ -98,7 +100,7 @@
       if (V === 'b' && span > 4){ const r = Math.min(1, Math.max(0, (L.reach - y0) / span)), f = Math.min(1 - r, 34 / span);
         L.gr.setAttribute('y1', y0); L.gr.setAttribute('y2', L.end); [0, r, Math.min(1, r + f), 1].forEach((o, i) => L.st[i].setAttribute('offset', o)); }
       for (const k of p.kids){
-        if (!k.br){ k.br = mk('path', { class:'b' }); gBr.append(k.br); k.dr = 0; if (V === 'a') k.br.style.setProperty('--c', col(k)); }
+        if (!k.br){ k.br = mk('path', { class:'b' }); gBr.append(k.br); k.dr = 0; if (AGENTC) k.br.style.setProperty('--c', col(k)); }
         if (!shown(k)){ k.br.setAttribute('d', ''); continue; }
         const b = geo[k.id], reached = L.end >= b.cy - R - 1;
         k.dr = ease(k.dr, reached ? 1 : 0, fast * .85); if (k.dr < .04){ k.br.setAttribute('d', ''); continue; }
