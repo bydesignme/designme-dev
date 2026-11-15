@@ -1,0 +1,35 @@
+/* DMFlow styles: the Agent tree's lines, band and state marks (see flow.js for the rules). Uses the install's tokens
+   (core.css). Put .dmf on the component root, or any ancestor of the overlay and marks. */
+.dmf{--run:var(--dm-accent-mark,var(--dm-accent));--flow:color-mix(in srgb,var(--run) 30%,var(--dm-surface));--ez:cubic-bezier(.22,1,.36,1)}
+/* the lines: an svg laid over the component, under its marks */
+.dmf-ln{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;fill:none;stroke-linecap:round;stroke-linejoin:round;z-index:1}
+.dmf-ln .b{stroke:var(--dm-rail);stroke-width:2.25}
+.dmf-ln .b.on{stroke:var(--flow)}
+.dmf-ln .b.bad{stroke:color-mix(in srgb,var(--dm-bad-mark,var(--dm-bad)) 70%,var(--dm-surface))}
+/* the band: the owner's Figma highlight. Light stops are white in light mode; in dark they fade in and out in the accent */
+.dmf-band path{fill:none;stroke-linecap:round;stroke-width:2.25}
+.dmf-ln stop.l0{stop-color:#fff;stop-opacity:0}
+.dmf-ln stop.l1{stop-color:#fff;stop-opacity:.505}
+.dmf-ln stop.c{stop-color:var(--run);stop-opacity:1}
+.dmf-ln stop.l2{stop-color:#fff;stop-opacity:.7}
+:root[data-theme="dark"] .dmf-ln :is(stop.l0,stop.l1,stop.l2){stop-color:var(--run)}
+:root[data-theme="dark"] .dmf-ln stop.l1{stop-opacity:.3}
+:root[data-theme="dark"] .dmf-ln stop.l2{stop-opacity:.45}
+/* the marks: the visible ring is the only opaque part, so a line meets it exactly */
+.dmf-g{position:relative;z-index:2;width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:50%;color:var(--dm-faint)}
+.dmf-g .ring{width:14px;height:14px;border-radius:50%;background:var(--dm-surface);box-shadow:inset 0 0 0 2px currentColor}
+.dmf-g .spin{width:19px;height:19px;border-radius:50%;box-sizing:border-box;border:2.5px solid color-mix(in srgb,var(--run) 22%,var(--dm-surface));border-top-color:var(--run);background:var(--dm-surface);animation:dmfrot .8s linear infinite}
+@keyframes dmfrot{to{transform:rotate(360deg)}}
+.dmf-g .i{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.dmf-g.done{background:color-mix(in srgb,var(--dm-ok-mark,var(--dm-ok)) 16%,var(--dm-surface));color:var(--dm-ok)}
+.dmf-g.fail{background:color-mix(in srgb,var(--dm-bad-mark,var(--dm-bad)) 16%,var(--dm-surface));color:var(--dm-bad)}
+.dmf-g.drw path{stroke-dasharray:1;stroke-dashoffset:1;animation:dmfdraw .32s var(--ez) forwards}
+@keyframes dmfdraw{to{stroke-dashoffset:0}}
+/* rows rise in; a line of text swaps in place; running text shimmers */
+.dmf-in{animation:dmfin .56s var(--ez) backwards}
+@keyframes dmfin{from{opacity:0;transform:translateY(8px);filter:blur(3px)}}
+.dmf-sw{animation:dmfsw .46s var(--ez)}
+@keyframes dmfsw{from{opacity:0;transform:translateY(60%);filter:blur(3px)}}
+.dmf-shim{background:linear-gradient(90deg,var(--dm-muted) 0 40%,color-mix(in srgb,var(--dm-muted) 22%,var(--dm-surface)) 50%,var(--dm-muted) 60% 100%) 100% 0/300% 100% no-repeat;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:dmfshim 2s linear infinite}
+@keyframes dmfshim{from{background-position:100% 0}to{background-position:0 0}}
+@media (prefers-reduced-motion:reduce){.dmf-band{display:none}.dmf-in,.dmf-sw,.dmf-shim,.dmf-g .spin{animation:none}.dmf-g.drw path{stroke-dashoffset:0}.dmf-shim{-webkit-text-fill-color:currentColor}}

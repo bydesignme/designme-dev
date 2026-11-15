@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en" data-style="soft">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Flow lines · Designme.dev lab</title>
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<script>
+(function(){ var d = document.documentElement, q = new URLSearchParams(location.search), s = q.get('style'), t = q.get('theme');
+  try { s = s || localStorage.getItem('dmui-style') || 'soft'; t = t || localStorage.getItem('dmui-theme'); } catch(e){}
+  if (s === 'bp') d.removeAttribute('data-style'); else d.setAttribute('data-style', 'soft');
+  d.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light'); })();
+</script>
+<link rel="stylesheet" href="../../components/assets/core.css">
+<link rel="stylesheet" href="flow.css">
+<style>
+html,body{margin:0;background:var(--dm-surface);color:var(--dm-fg);font-family:var(--dm-sans)}
+.demo{position:relative;width:520px;height:340px;margin:40px auto}
+.n{position:absolute;display:flex;align-items:center;gap:10px;font-size:14px;transform:translate(-15px,-15px)}
+</style>
+</head>
+<body>
+<!-- a reference for the shared treatment: a vertical line, three branches (run, queued, failed) and a band to the running one -->
+<div class="demo dmf">
+  <span class="n" style="left:40px;top:30px"><span class="dmf-g" id="m0"></span>Source</span>
+  <span class="n" style="left:200px;top:120px"><span class="dmf-g" id="m1"></span>Running</span>
+  <span class="n" style="left:200px;top:200px"><span class="dmf-g" id="m2"></span>Queued</span>
+  <span class="n" style="left:200px;top:280px"><span class="dmf-g" id="m3"></span>Failed</span>
+</div>
+<script src="flow.js"></script>
+<script>
+const host = document.querySelector('.demo'), L = DMFlow.layer(host), $ = s => document.querySelector(s);
+DMFlow.mark($('#m0'), 'done'); DMFlow.mark($('#m1'), 'run'); DMFlow.mark($('#m2'), 'queued'); DMFlow.mark($('#m3'), 'fail');
+const trunk = DMFlow.line(L), b = [1, 2, 3].map(() => DMFlow.line(L)), bd = DMFlow.band(L);
+DMFlow.loop(T => {
+  const a = L.box($('#m0')), m = [1, 2, 3].map(i => L.box($('#m' + i))), st = ['run', 'queued', 'fail'];
+  trunk.set(`M${a.cx} ${a.cy + 15 - 1}V${m[2].cy - DMFlow.R()}`);
+  m.forEach((k, i) => b[i].set(DMFlow.branch(a.cx, k.cy - DMFlow.R(), k.cx - DMFlow.markR(st[i]) + 1, k.cy), i === 0 ? 'on' : i === 2 ? 'bad' : 'queued'));
+  bd.tick(DMFlow.route([[a.cx, a.cy], [a.cx, m[0].cy], [m[0].cx, m[0].cy]]), T);
+});
+</script>
+</body>
+</html>
