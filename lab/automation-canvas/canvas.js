@@ -57,7 +57,7 @@ DM.def('automation-canvas', (r, c) => {
   const safe = () => ({ T:tp.offsetTop + tp.offsetHeight - cv.offsetTop + 8, B:cv.clientHeight - bar.offsetTop + 8 });
   const band = y => { const H = cv.clientHeight, { T, B } = safe(); return (T + y * Math.max(0, H - T - B)) / H; };
   // wide: the trigger and the last step sit the same distance in from each side and the two middle steps halfway between
-  const wide = (n, W, w) => { const pad = Math.max(28, W * .06); return { x:{ t:pad + w / 2, a:W / 2, b:W / 2, c:W - pad - w / 2 }[n.id] / W, y:band(n.y) }; };
+  const wide = (n, W, w) => { const pad = W < 800 ? 24 : Math.max(28, W * .06); return { x:{ t:pad + w / 2, a:W / 2, b:W / 2, c:W - pad - w / 2 }[n.id] / W, y:band(n.y) }; };
   // narrow: the run goes down the canvas: the trigger, then the two steps it starts side by side, then the step they both
   // feed. Each wire comes down into the mark on top of the step it feeds
   const NARROWAT = { t:['l', .03], a:['l', .3], b:['r', .3], c:['l', .64] };
@@ -265,7 +265,7 @@ DM.def('automation-canvas', (r, c) => {
       for (let i = 1; i < P.length; i++) for (let j = 1; j < 8; j++){ const p = [P[i - 1][0] + (P[i][0] - P[i - 1][0]) * j / 8, P[i - 1][1] + (P[i][1] - P[i - 1][1]) * j / 8]; if (others.some(o => inside(p, o, 4))) sc += 30; }
       return sc;
     };
-    const fits = B => (n.kind || (narrow() ? B.b + 34 <= H - 4 : B.r + 34 <= W - 4)) && B.l >= M + 15 && B.t >= M + 15 && B.r <= W - M && B.b <= H - M;
+    const fits = B => (n.kind || (narrow() ? B.b + 34 <= H - 4 : B.r + 34 <= W - 4 || B.b + 34 <= H - 4)) && B.l >= M + (side === 'l' ? 15 : 0) && B.t >= M + (side === 't' ? 15 : 0) && B.r <= W - M && B.b <= H - M;
     let best = null, bs = Infinity, soft = null, ss = Infinity;
     // first: exactly lined up with its port, if that spot is clear
     const exact = at(want[0] - w / 2, want[1] - h / 2);
