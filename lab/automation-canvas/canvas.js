@@ -61,7 +61,7 @@ DM.def('automation-canvas', (r, c) => {
   // narrow: the run goes down the canvas: the trigger, then the two steps it starts side by side, then the step they both
   // feed. Each wire comes down into the mark on top of the step it feeds
   const NARROWAT = { t:['l', .03], a:['l', .3], b:['r', .3], c:['l', .64] };
-  const pos = (n, W, w) => (narrow() ? n.um : n.uw) || (n.add ? null : narrow() ? { x:(NARROWAT[n.id][0] === 'l' ? 16 + w / 2 : W - 16 - w / 2) / W, y:band(NARROWAT[n.id][1]) } : wide(n, W, w));
+  const pos = (n, W, w) => (narrow() ? n.um : n.uw) || (n.add ? null : narrow() ? { x:(NARROWAT[n.id][0] === 'l' ? 16 + w / 2 : W - 16 - w / 2) / W, y:Math.max(band(NARROWAT[n.id][1]), (safe().T + 4 + el(n.id).offsetHeight / 2) / cv.clientHeight) } : wide(n, W, w));
   const nodeHTML = n => `<button class="acx-n${n.kind ? ' sm' : ''}" data-id="${n.id}"><span class="dmf-g"></span><span class="ic" style="color:${n.fg || n.col};background:color-mix(in srgb,${n.col} 14%,transparent)">${I(n.ic,'xs')}</span><span class="t"><b>${n.t}</b><span class="d">${n.d}</span></span></button>`;
   nodes.innerHTML = N.map(nodeHTML).join('');
   const el = id => $(`.acx-n[data-id="${id}"]`, nodes);
