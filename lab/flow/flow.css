@@ -3,11 +3,11 @@
 .dmf{--run:var(--dm-accent-mark,var(--dm-accent));--flow:color-mix(in srgb,var(--run) 30%,var(--dm-surface));--ez:cubic-bezier(.22,1,.36,1)}
 /* the lines: an svg laid over the component, under its marks */
 .dmf-ln{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;fill:none;stroke-linecap:round;stroke-linejoin:round;z-index:1}
-.dmf-ln .b{stroke:var(--dm-rail);stroke-width:2.25}
+.dmf-ln .b{stroke:var(--dm-rail);stroke-width:1.5}
 .dmf-ln .b.on{stroke:var(--flow)}
 .dmf-ln .b.bad{stroke:color-mix(in srgb,var(--dm-bad-mark,var(--dm-bad)) 70%,var(--dm-surface))}
 /* the band: the owner's Figma highlight. Light stops are white in light mode; in dark they fade in and out in the accent */
-.dmf-band path{fill:none;stroke-linecap:round;stroke-width:2.25}
+.dmf-band path{fill:none;stroke-linecap:round;stroke-width:1.5}
 .dmf-ln stop.l0{stop-color:#fff;stop-opacity:0}
 .dmf-ln stop.l1{stop-color:#fff;stop-opacity:.505}
 .dmf-ln stop.c{stop-color:var(--run);stop-opacity:1}
@@ -15,17 +15,21 @@
 :root[data-theme="dark"] .dmf-ln :is(stop.l0,stop.l1,stop.l2){stop-color:var(--run)}
 :root[data-theme="dark"] .dmf-ln stop.l1{stop-opacity:.3}
 :root[data-theme="dark"] .dmf-ln stop.l2{stop-opacity:.45}
-/* the marks: the visible ring is the only opaque part, so a line meets it exactly */
-.dmf-g{position:relative;z-index:2;width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:50%;color:var(--dm-faint)}
-.dmf-g .ring{width:14px;height:14px;border-radius:50%;background:var(--dm-surface);box-shadow:inset 0 0 0 2px currentColor}
-.dmf-g .spin{width:19px;height:19px;border-radius:50%;box-sizing:border-box;border:2.5px solid color-mix(in srgb,var(--run) 22%,var(--dm-surface));border-top-color:var(--run);background:var(--dm-surface);animation:dmfrot .8s linear infinite}
+/* the marks: small, the size of a queued dot (14px). Finished marks are filled discs cut out of the line by a 2px border in
+   the surface colour, with a light neutral shadow; queued is a ring, running a spinner. Lines meet the outside edge. */
+.dmf-g{position:relative;z-index:2;width:18px;height:18px;flex:none;display:grid;place-items:center;border-radius:50%;color:var(--dm-faint)}
+.dmf-g .ring{width:14px;height:14px;box-sizing:border-box;border-radius:50%;background:var(--dm-surface);box-shadow:inset 0 0 0 1.75px currentColor}
+.dmf-g .spin{width:14px;height:14px;box-sizing:border-box;border-radius:50%;border:2px solid color-mix(in srgb,var(--run) 22%,var(--dm-surface));border-top-color:var(--run);background:var(--dm-surface);animation:dmfrot .8s linear infinite}
+.dmf-g:is(.done,.fail,.src){width:14px;height:14px;margin:2px;box-shadow:0 0 0 2px var(--dm-surface),0 1px 3px 2px rgba(0,0,0,.12);color:var(--dm-surface)}
+:root[data-theme="dark"] .dmf-g:is(.done,.fail,.src){box-shadow:0 0 0 2px var(--dm-surface),0 1px 3px 2px rgba(0,0,0,.4)}
+.dmf-g.done{background:var(--dm-ok-mark,var(--dm-ok))}
+.dmf-g.fail{background:var(--dm-bad-mark,var(--dm-bad))}
+.dmf-g.src{background:var(--run)}
+.dmf-g .dot{display:none}
+.dmf-g .i{width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round}
 /* marks are true circles in both styles: core squares everything inside a card in Blueprint and squircles it in Soft */
-.dmf-g,.dmf-g :is(.ring,.spin,.dot){border-radius:50%!important;corner-shape:round!important}
+.dmf-g,.dmf-g :is(.ring,.spin){border-radius:50%!important;corner-shape:round!important}
 @keyframes dmfrot{to{transform:rotate(360deg)}}
-.dmf-g .i{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-.dmf-g .dot{width:16px;height:16px;border-radius:50%;background:var(--run);box-shadow:0 0 0 3px var(--dm-surface),0 0 0 3.5px color-mix(in srgb,var(--dm-line) 60%,transparent)}
-.dmf-g.done{background:color-mix(in srgb,var(--dm-ok-mark,var(--dm-ok)) 16%,var(--dm-surface));color:var(--dm-ok)}
-.dmf-g.fail{background:color-mix(in srgb,var(--dm-bad-mark,var(--dm-bad)) 16%,var(--dm-surface));color:var(--dm-bad)}
 .dmf-g.drw path{stroke-dasharray:1;stroke-dashoffset:1;animation:dmfdraw .32s var(--ez) forwards}
 @keyframes dmfdraw{to{stroke-dashoffset:0}}
 /* rows rise in; a line of text swaps in place; running text shimmers */

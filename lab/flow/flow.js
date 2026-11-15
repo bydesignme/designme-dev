@@ -11,6 +11,8 @@
    - The flow is one band (the owner's Figma highlight): 210px long, clear, light 50%, the accent at .541, light 70%, clear.
      It eases along a route to whatever is running (about 170px a second, 1.8 to 3.4s a trip, a .35s rest), fading in as it
      leaves and out as it arrives. No dots, glows, blur or pulsing. A route must be one piece: dashes restart per subpath.
+   - Marks are small (owner, 15 Nov): the size of a queued dot, 14px. Finished marks (done, fail, src) are filled discs with a
+     2px cut-out border in the surface colour and a light neutral shadow; lines are 1.5px. Never 30px discs in a component.
    - Marks swap at once (spinner to tick, no fade from empty) and the tick draws itself.
    - Where a run starts (the source, the trigger, the orchestrator) the mark is 'src': a filled accent disc with a white
      border. Every line and band leaves from a mark's edge (markR), never its centre.
@@ -106,7 +108,7 @@
     if (s === 'done' || s === 'fail'){ void el.offsetWidth; el.classList.add('drw'); }
   }
   // the visible radius of a mark in a state (lines end 1px under it)
-  const markR = s => s === 'queued' ? 7 : s === 'run' ? 9.5 : s === 'src' ? 11 : 15;
+  const markR = s => s === 'queued' || s === 'run' ? 7 : 9;
 
   // swap a line of text in place (the Agent tree's step text)
   function swap(el, t){ el.textContent = t; el.classList.remove('dmf-sw'); void el.offsetWidth; el.classList.add('dmf-sw'); }
