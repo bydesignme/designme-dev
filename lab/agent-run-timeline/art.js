@@ -13,8 +13,8 @@
   // s: start, d: duration (run seconds); p: the step whose call this is; at: when the row appears (default: just before s);
   // sub: what the step is on, by seconds into it; end: its result
   const STEPS = [
-    { id:'src', l:'Run started', src:true, at:-1.2 },
-    { id:'plan', l:'Plan the change', ic:'brain', k:'model', s:0, d:1.6, cost:.03, at:-.7, sub:[[0, 'Reading the request'], [.7, 'Planning 3 steps']], end:'Plan in 3 steps' },
+    { id:'src', l:'Start', src:true },
+    { id:'plan', l:'Plan the change', ic:'brain', k:'model', s:0, d:1.6, cost:.03, at:-.8, sub:[[0, 'Reading the request'], [.7, 'Planning 3 steps']], end:'Plan in 3 steps' },
     { id:'read', p:'plan', l:'Read 6 files', ic:'file-text', k:'tool', s:1.6, d:2.2, cost:.02, sub:[[0, 'Reading 1 of 6'], [.7, 'Reading 3 of 6'], [1.5, 'Reading 5 of 6']], end:'6 files, 840 lines' },
     { id:'fig', p:'plan', l:'Search Figma', ic:'@figma', k:'app', s:1.9, d:1.4, cost:.01, sub:[[0, 'Searching Pricing v4']], end:'3 frames found' },
     { id:'edit', l:'Edit PricingCard', ic:'edit', k:'model', s:4, d:2.4, cost:.06, at:.15, sub:[[0, 'Writing the change'], [1.2, 'Updating the plan cards']], end:'2 files changed' },
@@ -46,6 +46,8 @@
     const by = id => S.find(x => x.id === id);
     S.forEach(x => { x.parent = x.p ? by(x.p) : null; if (x.parent) x.parent.kids.push(x); x.lv = x.parent ? 1 : 0; if (x.at == null) x.at = x.s - LEAD; x.ph = 0; });
     for (const x of S){
+      // the run's source is not a row: its mark sits at the top of the rail, on the time axis
+      if (x.src){ x.el = $('.art-src', r); x.mk = $('.dmf-g', x.el); DMFlow.mark(x.mk, 'src'); x.state = 'src'; x.ph = 3; continue; }
       const k = K[x.k];
       const icon = x.src ? '' : `<span class="art-ic" aria-hidden="true">${x.ic[0] === '@' ? BRAND[x.ic.slice(1)] : I(x.ic, 'xs')}</span>`;
       const tip = x.src ? '' : `${x.l}: ${x.d.toFixed(1)}s, $${x.cost.toFixed(2)}${x.fail ? ', ' + x.fail : ''}`;
@@ -57,8 +59,9 @@
       DMFlow.mark(x.mk, x.src ? 'src' : 'queued'); x.state = x.src ? 'src' : 'queued';
       rows.appendChild(x.el);
     }
-    for (const x of S){ x.nh = x.el.offsetHeight; }
-    for (const x of S){ x.el.classList.add('hid'); x.el.style.height = '0px'; }
+    const rowsOf = S.filter(x => !x.src);
+    for (const x of rowsOf){ x.nh = x.el.offsetHeight; }
+    for (const x of rowsOf){ x.el.classList.add('hid'); x.el.style.height = '0px'; }
 
     // the lines: a grey rail and its tinted part under each top-level step, and a branch for each call
     const L = DMFlow.layer(rows), TL = S.filter(x => !x.p);
@@ -74,10 +77,9 @@
       if (x.state === 'done') return x.end;
       let s = x.sub[0][1]; for (const [o, v] of x.sub) if (t - x.s >= o) s = v; return s;
     };
-    const MK = () => parseFloat(getComputedStyle(art).getPropertyValue('--mk')) || 1;
-
-    let t = -1.4, running = false, finished = false, tEnd = 0, line = '', ft = '', live = '';
-    const queue = S.slice().sort((a, b) => a.at - b.at);
+    
+    let t = -.9, running = false, finished = false, tEnd = 0, line = '', ft = '', live = '';
+    const queue = S.filter(x => !x.src).sort((a, b) => a.at - b.at);
     let last = null;
 
     function paintStep(x){
@@ -105,8 +107,9 @@
       }
 
       // where every mark is, this frame, in the rows' own space
-      const k = MK(), R = DMFlow.R(), G = {};
-      for (const x of S) if (x.ph >= 1){ const b = L.box(x.mk); G[x.id] = { cx:b.cx, cy:b.cy, r:DMFlow.markR(x.state) * k }; }
+      // a small corner at this size: the shared route() with a shorter reach (cut in Blueprint, round in Soft)
+      const R = DMFlow.kind() === 'a' ? 10 : 8, G = {};
+      for (const x of S) if (x.ph >= 1){ const b = L.box(x.mk); G[x.id] = { cx:b.cx, cy:b.cy, r:DMFlow.markR(x.state) }; }
       const src = S[0]; if (!G.src) return tail(T);
       const X0 = G.src.cx;
       const tgtY = (X) => X.p ? G[X.id].cy - R : G[X.id].cy - G[X.id].r + 1;
@@ -144,15 +147,13 @@
           if (X.b0 == null && (X.state === 'queued' || lit)) X.b0 = T;
           if (X.b0 == null){ X.br.set(''); continue; }
           const p = Math.min(1, (T - X.b0) / BR);
-          X.br.set(DMFlow.branch(X0, yb, g.cx - g.r + 1, g.cy), X.state === 'fail' ? 'bad' : lit ? 'on' : 'queued', p);
+          X.br.set(DMFlow.route([[X0, yb], [X0, g.cy], [g.cx - g.r + 1, g.cy]], R), X.state === 'fail' ? 'bad' : lit ? 'on' : 'queued', p);
           X.lit = lit && p >= 1;
           if (p >= 1 && X.ph === 2) show(X, T);
         }
         // a top-level step rises in once the rail reaches its mark
         if (A.next && A.next.ph === 2 && A.next.q >= 1) show(A.next, T);
       }
-      // the source and the first rows have no line to wait for
-      if (src.ph === 2) show(src, T);
 
       // the band: from the source's edge, down the rail, to the step at work, once its whole route is drawn and lit
       let tg = null; for (const x of S) if (x.ph >= 3 && x.state === 'run' && (!tg || x.s >= tg.s)) tg = x;
@@ -162,7 +163,7 @@
         const top = tg.p ? tg.parent : tg, prev = TL[TL.indexOf(top) - 1];
         const ready = tg.p ? (tg.parent.ok === tg && tg.lit) : (prev && prev.ok === tg);
         if (ready){ const ys = G.src.cy + G.src.r - 1, g = G[tg.id];
-          d = tg.p ? DMFlow.route([[X0, ys], [X0, g.cy], [g.cx, g.cy]]) : DMFlow.route([[X0, ys], [X0, g.cy]]); }
+          d = tg.p ? DMFlow.route([[X0, ys], [X0, g.cy], [g.cx, g.cy]], R) : DMFlow.route([[X0, ys], [X0, g.cy]], R); }
       }
       if (d) band.tick(d, T); else band.off();
       tail(T);

@@ -9,11 +9,14 @@
      a second run passes. */
 (() => {
   const REC = /[?&]rec\b/.test(location.search);
+  // lab only: ?wires=curve draws the wires as the soft-2 component does (its bezier S-curves), to compare with the routes
+  window.LAB_WIRES = new URLSearchParams(location.search).get('wires') === 'curve' ? 'curve' : 'routed';
+  const CURVE = () => window.LAB_WIRES === 'curve';
   let go = !REC;
   // one frame clock for the page (DMFlow.loop); each mount adds its frame and takes it away when it stops
   const ticks = new Set(); let NOW = 0;
   DMFlow.loop((T, dt) => { NOW = T; ticks.forEach(f => { try { f(T, dt); } catch(e){ console.error(e); ticks.delete(f); } }); });
-  const MR = s => DMFlow.markR(s), clamp = v => Math.max(0, Math.min(1, v)), ez = u => u * u * (3 - 2 * u);
+  const MR = s => DMFlow.markR(s), MK = 9, clamp = v => Math.max(0, Math.min(1, v)), ez = u => u * u * (3 - 2 * u);
 
 DM.def('automation-canvas', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{play}', I('play','xs')).replace('{search}', I('search','xs')).replace(/\{(minus|plus|fit)\}/g, (m, n) => I(n));
@@ -111,7 +114,7 @@ DM.def('automation-canvas', (r, c) => {
   function fit(){
     const W = cv.clientWidth, { T, B } = safe(), H = cv.clientHeight - T - B, P = 24, bs = $$('.acx-n, .acx-h, .acx-sc', nodes).filter(b => b.dataset.on !== '0').map(box);
     if (!bs.length) return;
-    const x0 = Math.min(...bs.map(b => b.l)) - 15, y0 = Math.min(...bs.map(b => b.t)) - 15, x1 = Math.max(...bs.map(b => b.r)) + 15, y1 = Math.max(...bs.map(b => b.b)) + 15;
+    const x0 = Math.min(...bs.map(b => b.l)) - MK, y0 = Math.min(...bs.map(b => b.t)) - MK, x1 = Math.max(...bs.map(b => b.r)) + MK, y1 = Math.max(...bs.map(b => b.b)) + MK;
     z = lim(Math.min((W - 2 * P) / (x1 - x0), (H - 2 * P) / (y1 - y0), 1));
     px = (W - (x1 - x0) * z) / 2 - x0 * z; py = T + (H - (y1 - y0) * z) / 2 - y0 * z;
     apply(true); say('Fit to screen, ' + pct());
@@ -137,7 +140,7 @@ DM.def('automation-canvas', (r, c) => {
   }
   // where a step's output leaves it: its right side, or its foot (under its icon) when the canvas stacks or when there is no
   // room for another step to its right
-  const roomR = B => B.r + 15 + 48 + (cv.clientWidth < 800 ? 164 : 176) + 40 <= cv.clientWidth;
+  const roomR = B => B.r + MK + 48 + (cv.clientWidth < 800 ? 164 : 176) + 40 <= cv.clientWidth;
   const outAt = (B, n) => !narrow() && roomR(B) ? { x:B.r, y:B.t + B.h / 2, d:'r' } : { x:footX(n.id), y:B.b, d:'d' };
   // the connectors sit under the step: either side of its middle on a wide canvas, and to the right of its foot when it
   // stacks, so the wire leaving its foot keeps clear of them
@@ -167,7 +170,7 @@ DM.def('automation-canvas', (r, c) => {
      radius and the side it is met on, 'l' or 't'). sb and tb are the two steps' boxes, for going round them when the target
      is behind. The wire ends 1px under the mark's edge */
   function route(S, sb, X, tb){
-    const G = 20, M = 15, P = [[S.x, S.y]];
+    const G = 20, M = MK, P = [[S.x, S.y]];
     const end = X.side === 'l' ? [X.x - X.r + 1, X.y] : [X.x, X.y - X.r + 1];
     const between = () => tb.t >= sb.b + 2 * G ? (sb.b + tb.t) / 2 : sb.t >= tb.b + 2 * G ? (tb.b + sb.t) / 2 : Math.max(sb.b, tb.b) + G;
     if (S.d === 'r' && X.side === 'l'){
@@ -203,7 +206,21 @@ DM.def('automation-canvas', (r, c) => {
     return entry(byId(b)) === 'l' ? { x:AB.r - 1, y:AB.cy, d:'r' } : { x:footLive(a), y:AB.b - 1, d:'d' };
   }
   function endOf(id){ const n = byId(id), M = lb(markOf(id)); return { x:M.cx, y:M.cy, r:MR(n.ms), side:entry(n) }; }
-  const pathOf = e => { const S = portOf(e), P = route(S, lb(el(e[0])), endOf(e[1]), lb(el(e[1]))); if (S.pre) P.unshift(S.pre); return P; };
+  // the soft-2 wire: a cubic that leaves the port along its direction and comes into the mark along the side it is met on,
+  // each handle half the distance (24px at least); it ends 1px under the mark's edge
+  function curve(S, X){
+    const end = X.side === 'l' ? [X.x - X.r + 1, X.y] : [X.x, X.y - X.r + 1], dx = end[0] - S.x, dy = end[1] - S.y;
+    const k0 = Math.max(24, Math.abs(S.d === 'd' ? dy : dx) / 2), k1 = Math.max(24, Math.abs(X.side === 'l' ? dx : dy) / 2);
+    return [[S.x, S.y], S.d === 'r' ? [S.x + k0, S.y] : [S.x, S.y + k0], X.side === 'l' ? [end[0] - k1, end[1]] : [end[0], end[1] - k1], end];
+  }
+  const bez = (q, t) => { const u = 1 - t; return [0, 1].map(i => u * u * u * q[0][i] + 3 * u * u * t * q[1][i] + 3 * u * t * t * q[2][i] + t * t * t * q[3][i]); };
+  // a wire's shape: its corner points (routed) or points along its curve (curved), and its path
+  function shape(S, sb, X, tb){
+    if (!CURVE()){ const P = route(S, sb, X, tb); if (S.pre) P.unshift(S.pre); return { P, d:DMFlow.route(P) }; }
+    const q = curve(S, X), P = Array.from({ length:17 }, (_, i) => bez(q, i / 16)); if (S.pre) P.unshift(S.pre);
+    return { P, d:(S.pre ? `M${S.pre[0]} ${S.pre[1]}L${q[0][0]} ${q[0][1]}` : `M${q[0][0]} ${q[0][1]}`) + `C${q[1].join(' ')} ${q[2].join(' ')} ${q[3].join(' ')}` };
+  }
+  const pathOf = e => shape(portOf(e), lb(el(e[0])), endOf(e[1]), lb(el(e[1])));
   const lenOf = P => P.reduce((s, p, i) => i ? s + Math.hypot(p[0] - P[i - 1][0], p[1] - P[i - 1][1]) : 0, 0);
   // each wire: its grey rail, the tint over it once a run reaches it, and its flow band. rv0 is when the rail starts drawing
   // in (on arrival, or when a step is added), t0 when the tint starts
@@ -214,7 +231,7 @@ DM.def('automation-canvas', (r, c) => {
     if (!world.isConnected || c.seen === false) return;
     E.forEach(e => {
       const [a, b] = e; if (!placed(byId(a)) || !placed(byId(b))) return;
-      const k = key(a, b), w = wireOf(k), P = geo[k] = pathOf(e), d = DMFlow.route(P); w.len = lenOf(P);
+      const k = key(a, b), w = wireOf(k), { P, d } = pathOf(e); geo[k] = P; w.len = lenOf(P);
       const rv = REDUCE ? 1 : ez(clamp((T - w.rv0) / .45));
       w.rail.set(rv > .001 ? d : '', 'queued', rv);
       const tv = w.st === 'bad' || REDUCE ? 1 : ez(clamp((T - w.t0) / .45));
@@ -254,20 +271,20 @@ DM.def('automation-canvas', (r, c) => {
     const side = entry(n), mi = markIn(n, w, h);
     // just after its port, lined up with it: a step on the right has its middle level with the port; one underneath has
     // its mark right under it
-    const want = a.d === 'r' ? [a.x + 15 + 48 + w / 2, a.y] : [a.x - mi + w / 2, a.y + 15 + 40 + h / 2];
+    const want = a.d === 'r' ? [a.x + MK + 48 + w / 2, a.y] : [a.x - mi + w / 2, a.y + MK + 40 + h / 2];
     const inside = (p, b, m) => p[0] > b.l - m && p[0] < b.r + m && p[1] > b.t - m && p[1] < b.b + m;
     const ov = (A, B, m) => Math.max(0, Math.min(A.r, B.r + m) - Math.max(A.l, B.l - m)) * Math.max(0, Math.min(A.b, B.b + m) - Math.max(A.t, B.t - m));
     const at = (x, y) => ({ l:x, t:y, r:x + w, b:y + h, w, h });
-    const markAt = B => side === 'l' ? { x:B.l, y:B.t + B.h / 2, r:15, side } : { x:B.l + mi, y:B.t, r:15, side };
+    const markAt = B => side === 'l' ? { x:B.l, y:B.t + B.h / 2, r:MK, side } : { x:B.l + mi, y:B.t, r:MK, side };
     const score = B => {
       let sc = Math.hypot(B.l + w / 2 - want[0], B.t + h / 2 - want[1]);
-      if (a.d === 'r' ? B.l < a.x + 15 + 32 : B.t < a.y + 15 + 32) sc += 250;
+      if (a.d === 'r' ? B.l < a.x + MK + 32 : B.t < a.y + MK + 32) sc += 250;
       sc += samples.filter(p => inside(p, B, 6)).length * 60;
-      const P = route(a, { l:a.x - 1, t:a.y - 1, r:a.x + 1, b:a.y + 1 }, markAt(B), B);
+      const P = shape(a, { l:a.x - 1, t:a.y - 1, r:a.x + 1, b:a.y + 1 }, markAt(B), B).P;
       for (let i = 1; i < P.length; i++) for (let j = 1; j < 8; j++){ const p = [P[i - 1][0] + (P[i][0] - P[i - 1][0]) * j / 8, P[i - 1][1] + (P[i][1] - P[i - 1][1]) * j / 8]; if (others.some(o => inside(p, o, 18))) sc += 30; }
       return sc;
     };
-    const fits = B => (n.kind || (narrow() ? B.b + 34 <= H - 4 : B.r + 34 <= W - 4 || B.b + 34 <= H - 4)) && B.l >= M + (side === 'l' ? 15 : 0) && B.t >= M + (side === 't' ? 15 : 0) && B.r <= W - M && B.b <= H - M;
+    const fits = B => (n.kind || (narrow() ? B.b + 34 <= H - 4 : B.r + 34 <= W - 4 || B.b + 34 <= H - 4)) && B.l >= M + (side === 'l' ? MK : 0) && B.t >= M + (side === 't' ? MK : 0) && B.r <= W - M && B.b <= H - M;
     let best = null, bs = Infinity, soft = null, ss = Infinity;
     // first: exactly lined up with its port, if that spot is clear
     const exact = at(want[0] - w / 2, want[1] - h / 2);
@@ -279,7 +296,7 @@ DM.def('automation-canvas', (r, c) => {
       if (!hit){ if (sc < bs){ bs = sc; best = B; } }
       else if (hit * 10 + sc < ss){ ss = hit * 10 + sc; soft = B; }
     } }
-    const B = best || soft || at(M + 15, M + 15);
+    const B = best || soft || at(M + MK, M + MK);
     return { x:(B.l + w / 2) / W, y:(B.t + h / 2) / H };
   }
   function layout(){
@@ -310,7 +327,7 @@ DM.def('automation-canvas', (r, c) => {
     const cx = (me.l + me.r) / 2, cy = (me.t + me.b) / 2, cl = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
     const over = (x, y, o) => Math.max(0, Math.min(x + pw, o.r) - Math.max(x, o.l)) * Math.max(0, Math.min(y + ph, o.b) - Math.max(y, o.t));
     const ys = [me.t - 40, cy - ph / 2, me.t, me.b - ph, M, H - ph - M, H - ph + OVER], xs = [cx - pw / 2, me.l, me.r - pw, M, W - pw - M];
-    const spots = [...ys.map(y => [me.r + G + 15, y]), ...ys.map(y => [me.l - pw - G - 15, y]), ...xs.map(x => [x, me.b + G]), ...xs.map(x => [x, me.t - ph - G - 15])]
+    const spots = [...ys.map(y => [me.r + G + MK, y]), ...ys.map(y => [me.l - pw - G - MK, y]), ...xs.map(x => [x, me.b + G]), ...xs.map(x => [x, me.t - ph - G - MK])]
       .flatMap(([x, y]) => [[cl(x, M, W - pw - M), cl(y, M, H - ph - M)], [cl(x, M, W - pw - M), cl(y, M, H - ph + OVER)]]);
     let best = null, bs = Infinity;
     for (const [x, y] of spots){ const hang = Math.max(0, y + ph - (H - M)); const sc = others.reduce((a2, o) => a2 + over(x, y, o), 0) + over(x, y, me) * 4 + hang * 20 + Math.hypot(x + pw / 2 - cx, y + ph / 2 - cy) / 100; if (sc < bs){ bs = sc; best = [x, y]; } }
@@ -351,7 +368,7 @@ DM.def('automation-canvas', (r, c) => {
           group = N.filter(x => sel.has(x.id) && el(x.id)).map(x => { const e2 = el(x.id); return [x, e2, e2.offsetLeft, e2.offsetTop]; });
           group.forEach(g => g[1].classList.add('drag')); nodes.classList.add('drag'); close(); closePk(); b.setPointerCapture?.(e.pointerId); }
         const W = cv.clientWidth, H = cv.clientHeight;
-        group.forEach(([, e2, ox, oy]) => { e2.style.left = Math.max(19, Math.min(W - e2.offsetWidth - 19, ox + dx)) + 'px'; e2.style.top = Math.max(19, Math.min(H - e2.offsetHeight - 19, oy + dy)) + 'px'; });
+        group.forEach(([, e2, ox, oy]) => { e2.style.left = Math.max(MK + 4, Math.min(W - e2.offsetWidth - MK - 4, ox + dx)) + 'px'; e2.style.top = Math.max(MK + 4, Math.min(H - e2.offsetHeight - MK - 4, oy + dy)) + 'px'; });
         wires(); };
       const up = () => { document.removeEventListener('pointermove', mv); document.removeEventListener('pointerup', up);
         if (!moved) return; nodes.classList.remove('drag'); justDragged = true; setTimeout(() => justDragged = false, 50);
@@ -601,6 +618,10 @@ document.addEventListener('DOMContentLoaded', () => {
   mark('#sw-theme', d.dataset.theme === 'dark' ? 'dark' : 'light');
   seg($('#sw-style'), v => { if (v === 'soft') d.dataset.style = 'soft'; else delete d.dataset.style; try { localStorage.setItem('dmui-style', v === 'soft' ? 'soft' : 'blueprint'); } catch(e){} });
   seg($('#sw-theme'), v => { d.dataset.theme = v; try { localStorage.setItem('dmui-theme', v); } catch(e){} });
+  // lab only: compare the routed wires with soft-2's curves
+  mark('#sw-wires', window.LAB_WIRES);
+  seg($('#sw-wires'), v => { window.LAB_WIRES = v; const q = new URLSearchParams(location.search); if (v === 'curve') q.set('wires', 'curve'); else q.delete('wires');
+    history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q.toString().replace(/=(&|$)/g, '$1') : '')); });
   $('#replay').addEventListener('click', () => { window.LAB_DONE = false; DM.mount(card, !!card._c); });
 });
 window.LAB = { start(){ window.LAB_DONE = false; go = true; const card = $('[data-c="automation-canvas"]'); DM.mount(card, !!card._c); } };

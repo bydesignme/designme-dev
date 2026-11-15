@@ -1,26 +1,28 @@
 /* Agent run timeline, with the Agent tree's lines (lab). Written with the site's short token names so it can move into
-   soft-2 as it is. The rail is the shared DMFlow line: grey ahead of the run, the accent tint (--flow) behind it, red only
-   for a failure. Tool calls branch off the step that made them; the flow band runs down the rail to the step at work.
+   soft-2 as it is. The original's density (32px rows, 12.5px labels), with a thin rail on the left: grey ahead of the run,
+   the accent tint (--flow) behind it, red only for a failure. Tool calls branch off the step that made them with a short
+   leg; the run's source mark sits on the time axis at the top of the rail; the flow band runs down to the step at work.
    Soft is the base; Blueprint overrides sit under :root[data-style="bp"] (and :root without a style, as on lab pages). */
-.art{--mk:.8;--ind:40px;--lane:44%;--dur:44px;container:art/inline-size;box-sizing:border-box;width:100%;max-width:720px;padding:var(--s-4);font-size:13px;line-height:1.45;color:var(--fg)}
+.art{--ind:22px;--lane:52%;--dur:44px;container:art/inline-size;box-sizing:border-box;width:100%;max-width:720px;padding:var(--s-4);font-size:13px;line-height:1.45;color:var(--fg)}
 .art-h{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s-3)}
 .art-hd{min-width:0}
-.art-t{font-size:14px;font-weight:500;line-height:20px}
-.art-s{display:block;margin-top:2px;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.art-t{font-weight:500}
+.art-s{display:block;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .art-tag{flex:none}
 .art-tag.run{background:var(--accent-bg);color:var(--accent-fg)}
 .art-tag .spin{width:9px;height:9px}
 /* the key: how long each kind of step has run so far. A kind's colour stays on its icon */
-.art-key{display:flex;flex-wrap:wrap;gap:var(--s-1) var(--s-4);margin-top:var(--s-3);font-size:12px;color:var(--muted)}
+.art-key{display:flex;flex-wrap:wrap;gap:2px var(--s-4);margin-top:10px;font-size:12px;color:var(--muted)}
 .art-key>span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
 .art-key b{font-weight:500;color:var(--fg2)}
-.art-kic{width:16px;height:16px;flex:none;display:grid;place-items:center;border-radius:calc(4px * var(--rk));background:var(--kb);color:var(--kt)}
-.art-kic .i{width:10px;height:10px}
+.art-kic{width:14px;height:14px;flex:none;display:grid;place-items:center;border-radius:calc(3px * var(--rk));background:var(--kb);color:var(--kt)}
+.art-kic .i{width:9px;height:9px}
 /* the grid: the steps on the left, their place on the run's time axis on the right */
 .art-grid{position:relative;margin-top:var(--s-3)}
 .art-axis,.art-row{display:grid;grid-template-columns:minmax(0,1fr) var(--lane) var(--dur);align-items:center}
 .art-axis{height:20px;font-size:11px;color:var(--muted)}
-.art-ticks{grid-column:2;position:relative;height:16px}
+.art-src{display:flex;align-items:center;gap:var(--s-2);min-width:0}
+.art-ticks{position:relative;height:16px}
 .art-ticks span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
 .art-ticks span:first-child{transform:none}
 .art-ticks span:last-child{transform:translateX(-100%)}
@@ -28,31 +30,25 @@
 .art-bg{position:absolute;top:20px;bottom:0;left:calc(100% - var(--dur) - var(--lane));width:var(--lane);pointer-events:none;background:linear-gradient(90deg,color-mix(in srgb,var(--line) 50%,transparent) 1px,transparent 1px) 0 0/25% 100%;box-shadow:inset -1px 0 color-mix(in srgb,var(--line) 50%,transparent)}
 .art-rows{position:relative}
 /* a row holds a mark, so it sits above the line overlay (it rises in with a transform) */
-.art-row{position:relative;z-index:2;min-height:44px}
-.art-row.src{min-height:36px}
+.art-row{position:relative;z-index:2;min-height:32px}
 .art-row.hid{visibility:hidden;overflow:hidden;min-height:0}
-.art-lab{display:flex;align-items:center;min-width:0;padding:0 var(--s-3) 0 calc(var(--lv,0) * var(--ind))}
-/* the marks are the shared ones, a little smaller here; the script scales markR by --mk */
-.art .dmf-g{transform:scale(var(--mk));margin:calc(15px * (var(--mk) - 1))}
-/* marks are true circles in both styles: no squircle on them */
-.art :is(.dmf-g,.dmf-g .ring,.dmf-g .dot,.dmf-g .spin){corner-shape:round}
-.art-ic{width:22px;height:22px;flex:none;display:grid;place-items:center;margin-left:var(--s-2);border-radius:calc(6px * var(--rk));background:var(--kb);color:var(--kt)}
-.art-ic .i{width:12px;height:12px}
-.art-ic .brand{width:12px;height:12px}
+.art-lab{display:flex;align-items:center;min-width:0;padding:0 var(--s-3) 0 calc(var(--lv,0) * var(--ind));font-size:12.5px;color:var(--fg2);white-space:nowrap}
+.art-ic{width:22px;height:22px;flex:none;display:grid;place-items:center;margin-left:var(--s-2);border-radius:calc(7px * var(--rk));background:var(--kb);color:var(--kt)}
+.art-ic .brand{width:13px;height:13px}
 .art-row[data-k="app"] .art-ic,.art-kic.app{background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}
-.art-tx{min-width:0;margin-left:10px}
-.art-n,.art-sub{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.art-n{font-size:13px;line-height:18px;color:var(--fg)}
-.art-sub{font-size:12px;line-height:17px;color:var(--muted)}
-.art-row.src .art-n{color:var(--fg2)}
+/* the step's name, and what it is on now in muted text after it (swapped in place) */
+.art-tx{display:flex;align-items:baseline;gap:var(--s-2);min-width:0;margin-left:var(--s-2)}
+.art-n{flex:0 0 auto;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.art-sub{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:12px;color:var(--muted)}
+.art-row[data-s="run"] .art-n{color:var(--fg)}
 .art-row[data-s="queued"] .art-n{color:var(--muted)}
-.art-row[data-s="queued"] .art-ic{opacity:.5}
+.art-row[data-s="queued"] .art-ic{opacity:.45}
 .art-row[data-s="fail"] .art-sub{color:var(--bad)}
 .art-sub.dmf-shim.dmf-sw{animation:dmfsw .46s var(--ez),dmfshim 2s linear .46s infinite}
 /* the time lane: where the step sits on the run, growing while it works */
 .art-lane{position:relative;align-self:stretch}
-.art-bar{--bar:color-mix(in srgb,var(--accent-mark) 42%,var(--surface));position:absolute;top:50%;height:8px;margin-top:-4px;width:0;border-radius:calc(2px * var(--rk));background:var(--bar);cursor:default}
-.art-bar::before{content:"";position:absolute;inset:-8px -2px}
+.art-bar{--bar:color-mix(in srgb,var(--accent-mark) 42%,var(--surface));position:absolute;top:50%;height:10px;margin-top:-5px;width:0;border-radius:calc(3px * var(--rk));background:var(--bar);cursor:default}
+.art-bar::before{content:"";position:absolute;inset:-6px -2px}
 .art-row[data-s="run"] .art-bar{--bar:var(--accent-mark)}
 .art-row[data-s="fail"] .art-bar{--bar:color-mix(in srgb,var(--bad-mark) 70%,var(--surface))}
 .art-d{font-size:12px;color:var(--muted);text-align:right;white-space:nowrap}
@@ -71,16 +67,16 @@
 .art-f>span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
 .art-f b{color:var(--fg);font-weight:500}
 @supports (corner-shape:squircle){.art :is(.art-ic,.art-kic,.art-bar,.art-now){corner-shape:squircle}}
-/* a phone: a narrower lane, no kind icons on the rows (the key keeps them), and the axis in halves */
+/* a phone: a narrower lane, no kind icons or detail on the rows (a failure still shows in its mark, bar and time), the axis in halves */
 @container art (max-width:460px){
-  .art-grid{--lane:30%;--dur:36px}
+  .art-grid{--lane:32%;--dur:36px}
   .art-ic{display:none}
-  .art-tx{margin-left:var(--s-2)}
-  .art-n{font-size:12.5px}
+  .art-sub{display:none}
+  .art-n{flex-shrink:1;min-width:0}
   .art-ticks span.q{display:none}
   .art-f{gap:var(--s-2) var(--s-4)}
 }
-/* Blueprint: square, but the state marks stay true circles */
-:is(:root[data-style="bp"],:root:not([data-style])) .art :is(.dmf-g,.dmf-g .ring,.dmf-g .dot,.dmf-g .spin){border-radius:50%!important}
-:is(:root[data-style="bp"],:root:not([data-style])) .art-head i{left:-.5px}
 @media (prefers-reduced-motion:reduce){.art-head{transition:none}}
+/* Blueprint: core.css squares every corner inside a card with a stronger !important rule than lab/flow's, so the state
+   marks are put back to true circles here */
+:is(:root[data-style="bp"],:root:not([data-style])) .art :is(.dmf-g,.dmf-g .ring,.dmf-g .spin){border-radius:50%!important}
