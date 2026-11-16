@@ -920,29 +920,33 @@ patch("""  <div class="top-actions">
     <div class="seg style-seg" id="style-seg\"""")
 patch("""</header>""", """</header>
 <script>
-// the GitHub pill: the star count once a session, or "Star on GitHub" when GitHub doesn't answer. A failed request is still
-// logged by the browser itself; everything else is caught
+// the GitHub pill: the star count once a session, or just "Star" when GitHub doesn't answer. A failed request is still
+// logged by the browser itself; everything else is caught. It waits until the page is parsed, so the pill in the intro
+// (below this script) is counted too
 (function(){
-  var pills = document.querySelectorAll('[data-gh-stars]'), KEY = 'dm-gh-stars';
-  if (!pills.length) return;
-  var fmt = function(n){ return n < 1000 ? String(n) : n < 1e6 ? (Math.floor(n / 100) / 10) + 'k' : (Math.floor(n / 1e5) / 10) + 'm'; };
-  var show = function(n){ pills.forEach(function(a){ var c = a.querySelector('.gh-n'); c.textContent = fmt(n); c.hidden = false; a.classList.add('has-n'); a.setAttribute('aria-label', 'Star designme.dev on GitHub, ' + n.toLocaleString('en') + ' stars'); }); };
-  var saved = null; try { saved = sessionStorage.getItem(KEY); } catch(e){}
-  if (saved !== null){ if (/^\\d+$/.test(saved) && +saved > 0) show(+saved); return; }
-  if (!window.fetch) return;
-  var keep = function(v){ try { sessionStorage.setItem(KEY, v); } catch(e){} };
-  fetch('https://api.github.com/repos/bydesignme/designme-dev').then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
-    var n = d && typeof d.stargazers_count === 'number' ? d.stargazers_count : null;
-    keep(n === null ? '-' : String(n)); if (n) show(n);
-  }).catch(function(){ keep('-'); });
+  var start = function(){
+    var pills = document.querySelectorAll('[data-gh-stars]'), KEY = 'dm-gh-stars';
+    if (!pills.length) return;
+    var fmt = function(n){ return n < 1000 ? String(n) : n < 1e6 ? (Math.floor(n / 100) / 10) + 'k' : (Math.floor(n / 1e5) / 10) + 'm'; };
+    var show = function(n){ pills.forEach(function(a){ var c = a.querySelector('.gh-n'); c.textContent = fmt(n); c.hidden = false; a.classList.add('has-n'); a.setAttribute('aria-label', 'Star designme.dev on GitHub, ' + n.toLocaleString('en') + ' stars'); }); };
+    var saved = null; try { saved = sessionStorage.getItem(KEY); } catch(e){}
+    if (saved !== null){ if (/^\\d+$/.test(saved) && +saved > 0) show(+saved); return; }
+    if (!window.fetch) return;
+    var keep = function(v){ try { sessionStorage.setItem(KEY, v); } catch(e){} };
+    fetch('https://api.github.com/repos/bydesignme/designme-dev').then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+      var n = d && typeof d.stargazers_count === 'number' ? d.stargazers_count : null;
+      keep(n === null ? '-' : String(n)); if (n) show(n);
+    }).catch(function(){ keep('-'); });
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();
 </script>""")
 CSS += """
 /* the GitHub pill, like the header's other 28px controls; on a phone it sits beside the menu button */
-body.ui .top .gh-pill{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px 0 9px;border:1px solid var(--sh-line);border-radius:999px;background:var(--sh-card);color:var(--sh-text);font-family:var(--sans);font-size:13px;font-weight:500;line-height:1;text-decoration:none;white-space:nowrap;transition:border-color .2s;corner-shape:round}
-body.ui .top .gh-pill:hover{border-color:var(--sh-line-2)}
-body.ui .top .gh-pill svg{display:block;width:14px;height:14px;flex:none}
-body.ui .top .gh-pill .gh-n{font-variant-numeric:tabular-nums}
+body.ui :is(.top,.intro-get) .gh-pill{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px 0 9px;border:1px solid var(--sh-line);border-radius:999px;background:var(--sh-card);color:var(--sh-text);font-family:var(--sans);font-size:13px;font-weight:500;line-height:1;text-decoration:none;white-space:nowrap;transition:border-color .2s;corner-shape:round}
+body.ui :is(.top,.intro-get) .gh-pill:hover{border-color:var(--sh-line-2)}
+body.ui :is(.top,.intro-get) .gh-pill svg{display:block;width:14px;height:14px;flex:none}
+body.ui :is(.top,.intro-get) .gh-pill .gh-n{font-variant-numeric:tabular-nums}
 body.ui .top .gh-pill.has-n .gh-l{display:none}
 @media (max-width:960px){ body.ui .top .gh-pill{height:32px;margin-right:8px;padding:0 12px 0 10px} }
 /* the sidebar's Docs page: its icon lifts on hover, like the others move */
@@ -1478,6 +1482,76 @@ for pre in ('<a class="hire-btn" id="hire-btn" href=',
             '<div class="m-cta"><div class="t">Need expert design and dev support?</div><a class="hire-btn m-cta-btn" href=',
             '<div class="m-cta mi-in"><div class="t">Need expert design and dev support?</div><a class="hire-btn m-cta-btn" href='):
   patch(pre + '"https://designme.agency"', pre + '"' + BOOK + '"')
+
+# search reads each card's section heading; a card in the lead is not inside a section, so it reads the one it came from
+patch("""c.closest('.lib-sec').querySelector('h2').textContent.toLowerCase().includes(q);""", """(c.closest('.lib-sec') || document.getElementById(c.dataset.home) || c).querySelector('h2')?.textContent.toLowerCase().includes(q);""")
+patch("""s:(c.closest('.lib-sec') || {}).querySelector ? c.closest('.lib-sec').querySelector('h2').textContent : '' }));""", """s:((c.closest('.lib-sec') || document.getElementById(c.dataset.home || '')) || { querySelector:() => null }).querySelector('h2')?.textContent || '' }));""")
+
+# the intro strip: the install command, a Star link that keeps its word beside the count, and Book a call on one row;
+# then four of this week's components (still pictures of the live demos, linking to their pages); then the list,
+# led by the Figma library, which is not ready yet
+FEAT = [('agent-tree', 'Agent tree'), ('trace-view', 'Trace view'), ('agent-lanes', 'Agent lanes'), ('steering', 'Steering')]
+feat = ''.join(
+  '<a href="/components/' + slug + '"><span class="ft-pic"><img class="ft-lt" src="/components/thumbs/' + slug + '-light.webp" alt="" width="640" height="400"><img class="ft-dk" src="/components/thumbs/' + slug + '-dark.webp" alt="" width="640" height="400"></span><span class="ft-n">' + name + '</span></a>'
+  for slug, name in FEAT)
+patch(
+  """  <div class="intro-get"><button class="cdm-cmd intro-cmd" data-cmd="npx designme add live-answer --react" title="Copy install command"><span class="d">$</span><span class="c">npx designme add live-answer --react</span><span class="ms sm">content_copy</span></button></div>
+  <div class="m-cta"><div class="t">Need expert design and dev support?</div><a class="hire-btn m-cta-btn" href=\"""" + BOOK + """\" target="_blank" rel="noopener">Book a call<span class="ms">arrow_forward</span></a></div>""",
+  """  <div class="intro-get"><button class="cdm-cmd intro-cmd" data-cmd="npx designme add live-answer --react" title="Copy install command"><span class="d">$</span><span class="c">npx designme add live-answer --react</span><span class="ms sm">content_copy</span></button><a class="gh-pill" href="https://github.com/bydesignme/designme-dev" aria-label="Star designme.dev on GitHub" data-gh-stars><svg viewBox="0 0 24 24" aria-hidden="true">""" + GH_MARK + """</svg><span class="gh-l">Star</span><span class="gh-n" hidden></span></a><a class="hire-btn" href=\"""" + BOOK + """\" target="_blank" rel="noopener">Book a call<span class="ms">arrow_forward</span></a></div>
+  <div class="intro-feat">""" + feat + """</div>
+  <div class="su" id="su-fig"><p class="su-lead">The Figma library is coming soon. Leave your email and you'll get it when it lands.</p><div class="su-row" id="su-fig-row"><input id="su-fig-email" type="email" placeholder="you@company.com" autocomplete="email" aria-label="Email address"><button class="su-btn" id="su-fig-go" type="button">Sign up</button></div><div class="su-msg" id="su-fig-msg" role="status"></div><div class="su-note">Unsubscribe any time. Read the <a href="#/privacy">privacy notice</a>.</div></div>""")
+
+# Popular (the default) opens on this week's agent components. Recent puts them back in their own sections.
+patch(
+  """      let shown = 0;
+      $$('.lib-sec').forEach(sec => {""",
+  """      let shown = 0;
+      const lead = $('#launch'), WEEK = ['agent-tree','trace-view','agent-lanes','steering','run-cost','agent-inbox','permission-gate'];
+      if (lead){
+        if (mode === 'recent') [...lead.querySelectorAll('.comp')].forEach(c => { const g = c.dataset.home && $('#' + c.dataset.home + ' .grid'); if (g) g.appendChild(c); });
+        else WEEK.forEach(id => { const c = $(`.comp[data-v2="${id}"]`); if (c) lead.appendChild(c); });
+      }
+      $$('.lib-sec').forEach(sec => {""")
+patch(
+  """      });
+      // saved list follows the search too""",
+  """      });
+      if (lead){
+        let n = 0;
+        [...lead.querySelectorAll('.comp')].forEach(c => {
+          const ok = match(c) && (mode !== 'saved' || saved.includes(c.id));
+          c.classList.toggle('filtered-out', !ok);
+          const a = $(`.side-a[data-c="${c.id}"]`); if (a) a.classList.toggle('hide', !ok);
+          if (ok) n++;
+        });
+        lead.classList.toggle('filtered-out', !n); shown += n;
+      }
+      // saved list follows the search too""")
+# the same list, in the intro, led by the Figma library (still coming; the note after signing up says so)
+patch(
+  """    b.addEventListener('click', go);
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+  }
+  /* ---------- set limit ---------- */""",
+  """    b.addEventListener('click', go);
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+    const row2 = $('#su-fig-row'), inp2 = $('#su-fig-email'), b2 = $('#su-fig-go');
+    if (row2 && inp2 && b2){
+      const fail2 = msg => { b2.disabled = false; b2.textContent = 'Sign up'; $('#su-fig-msg').textContent = msg; row2.classList.remove('bad'); void row2.offsetWidth; row2.classList.add('bad'); Sound.play('fail'); };
+      const go2 = async () => {
+        const v = inp2.value.trim(); $('#su-fig-msg').textContent = '';
+        if (!valid(v)){ fail2('Enter a valid email address'); inp2.focus(); return; }
+        b2.disabled = true; b2.innerHTML = '<i class="bt-spin"></i>'; Sound.play('send');
+        try {
+          await window.dmSubscribe(v, 'intro');
+          row2.outerHTML = `<div class="su-ok enter"><span class="su-ok-t">${ic('check_circle','sm')}You're on the list. We'll send the Figma library when it's ready.</span></div>`; Sound.play('done');
+        } catch(e){ fail2('Something went wrong, try again in a moment'); }
+      };
+      b2.addEventListener('click', go2);
+      inp2.addEventListener('keydown', e => { if (e.key === 'Enter') go2(); });
+    }
+  }
+  /* ---------- set limit ---------- */""")
 # the privacy notice says only what the site does: sign-ups are kept in Supabase (no email service sends to them yet), and
 # the GitHub pill asks GitHub's API from the visitor's browser
 patch("""<h2>Who helps us</h2><p>Supabase stores sign-ups and roadmap votes, beehiiv sends our emails, Plausible provides usage statistics and Cloudflare hosts the site.""",
@@ -1511,6 +1585,33 @@ patch("""</header>
 <script>try{document.documentElement.style.setProperty('--hdr-h',Math.round(document.querySelector('.top').getBoundingClientRect().bottom)+'px')}catch(e){}</script>
 <script>
 // the GitHub pill""")
+
+CSS += """
+/* the intro strip: Star and Book a call sit with the install command */
+.intro-get .hire-btn{margin-top:0;height:32px}
+.intro-get .gh-pill{height:32px;padding:0 12px 0 10px}
+/* four featured components, stills of the live demos, each linking to its page */
+.intro-feat{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:22px}
+.intro-feat a{display:flex;flex-direction:column;gap:8px;min-width:0;color:var(--sh-text);text-decoration:none}
+.intro-feat a:hover .ft-n{text-decoration:underline;text-underline-offset:2px}
+.ft-pic{position:relative;display:block;aspect-ratio:16/10;border-radius:calc(8px * var(--rk,1));corner-shape:squircle;overflow:hidden;background:var(--sh-stage);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--sh-line) 50%,transparent)}
+:root:not([data-style="soft"]) .ft-pic{border-radius:0}
+.ft-pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ft-pic .ft-dk{display:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ft-pic .ft-lt{display:none}:root:not([data-theme="light"]) .ft-pic .ft-dk{display:block}}
+:root[data-theme="dark"] .ft-pic .ft-lt{display:none}
+:root[data-theme="dark"] .ft-pic .ft-dk{display:block}
+.ft-n{font-size:13px;font-weight:500;letter-spacing:-.011em}
+@media (max-width:800px){.intro-feat{grid-template-columns:1fr 1fr}}
+/* the list in the intro, under the featured row. The Figma line stays: the library is not ready */
+.intro > .su .su-lead{display:block;margin:0 0 10px;max-width:52ch;font-size:14px;line-height:1.5;color:var(--sh-dim)}
+/* this week's agent components, ahead of the sections, on the default view and on Popular */
+body.ui .launch{margin-top:28px;gap:24px}
+body.ui .launch.filtered-out,body.ui .launch:not(:has(.comp)){display:none}
+/* the lead has three normal-width cards: the last one takes the whole row rather than leave half of it empty */
+body.ui .launch>.comp:last-child:not(.wide){grid-column:1/-1}
+.launch:has(.comp) + .lib-sec .sec-head{padding-top:44px}
+"""
 
 json.dump({ 'patches': P, 'css': CSS },open(os.path.join(HERE, 'site-patches.json'), 'w'), indent=1)
 print(len(P), 'patches')

@@ -1,6 +1,5 @@
 TPLS["design-review"] = "<div class=\"drv panel\">\n  <div class=\"drv-h\"><span class=\"drv-ic\">{palette}</span><div class=\"drv-ht\"><b>Pricing page v4</b><span class=\"muted\">6 screens · sent for review by the design agent</span></div><span class=\"tag b drv-tag\">In review</span></div>\n  <div class=\"drv-b\">\n    <div class=\"drv-col\"><span class=\"drv-lb\">Checks</span><div class=\"drv-checks\"></div></div>\n    <div class=\"drv-col\"><span class=\"drv-lb\">Review</span><div class=\"drv-rv\" aria-live=\"polite\"><span class=\"muted drv-wt\">Maya reviews once the checks pass</span></div></div>\n  </div>\n  <div class=\"drv-f\">\n    <span class=\"muted drv-st\">Waiting on checks</span>\n    <div class=\"drv-mg\"><button class=\"pill accent sm drv-go\" disabled>Ship to everyone</button><button class=\"pill accent sm drv-dd\" aria-label=\"How it ships\" data-pop=\".drv-pop\" data-pop-align=\"end\" disabled>{chev}</button></div>\n    <div class=\"pop drv-pop\" role=\"menu\">\n      <button class=\"mi\" role=\"menuitemradio\" data-close data-m=\"Ship to everyone\" aria-checked=\"true\"><span>Ship to everyone<span class=\"d\">Every visitor sees it now</span></span><span class=\"ck\">{chk}</span></button>\n      <button class=\"mi\" role=\"menuitemradio\" data-close data-m=\"Ship to 10% first\" aria-checked=\"false\"><span>Ship to 10% first<span class=\"d\">Everyone else after a day</span></span><span class=\"ck\">{chk}</span></button>\n      <button class=\"mi\" role=\"menuitemradio\" data-close data-m=\"Ship on Monday\" aria-checked=\"false\"><span>Ship on Monday<span class=\"d\">At 09:00 your time</span></span><span class=\"ck\">{chk}</span></button>\n    </div>\n  </div>\n</div>";
 TPLS["eval-results"] = "<div class=\"dm evr-dm\" data-designs=\"card\"><div class=\"dm-main\">\n<div class=\"evr panel\">\n  <div class=\"evr-h\"><div class=\"evr-ht\"><b>Pricing copy evals</b><span class=\"muted evr-st\">Copy agent · 8 cases · run 2h ago</span></div><button class=\"pill primary sm evr-run\">{play}Run evals</button></div>\n  <div class=\"evr-sum\"><div class=\"evr-segs\" aria-hidden=\"true\"></div><div class=\"evr-nums\"><span class=\"evr-pass num\" aria-live=\"polite\"></span><span class=\"tag evr-dl\"></span></div></div>\n  <div class=\"evr-tabs\"><div class=\"seg2\" role=\"group\" aria-label=\"Show\"><button aria-pressed=\"true\" data-v=\"all\">All <span class=\"n num\"></span></button><button aria-pressed=\"false\" data-v=\"fail\">Failed <span class=\"n num\"></span></button></div></div>\n  <div class=\"evr-list\" role=\"list\" aria-label=\"Cases\"></div>\n  <p class=\"evr-none\" hidden>No failed cases</p>\n</div>\n</div>\n<div class=\"demo\"><div class=\"seg2\" role=\"group\" aria-label=\"Eval results design\"><button aria-pressed=\"true\" data-v=\"classic\">Classic</button><button aria-pressed=\"false\" data-v=\"runs\">Run vs run</button><button aria-pressed=\"false\" data-v=\"judge\">Score &amp; judge</button></div></div>\n</div>";
-TPLS["steering"] = "<div class=\"ste panel\">\n  <div class=\"ste-h\"><b>Redesign the pricing page</b><span class=\"muted ste-st\"><span class=\"m\" aria-live=\"polite\">Step 2 of 4</span> · <span class=\"num ck\">0:00</span></span></div>\n  <ol class=\"ste-steps\" aria-label=\"Steps\"></ol>\n  <div class=\"ste-log\" aria-live=\"polite\"></div>\n  <form class=\"ste-box\"><input placeholder=\"Steer the agent while it works\" aria-label=\"Message the agent\" spellcheck=\"false\" autocomplete=\"off\"><button class=\"ste-go\" aria-label=\"Send\" disabled>{up}</button></form>\n</div>";
 TPLS["draft-review"] = "<div class=\"drf panel\">\n  <div class=\"drf-h\"><span class=\"drf-ag\">{spark}</span><div class=\"drf-ht\"><b>Draft from the agent</b><span class=\"muted\">After the pricing review with Maya</span></div><span class=\"tag drf-tag\">Not sent</span></div>\n  <div class=\"drf-fs\">\n    <div class=\"drf-r\"><span class=\"drf-l\">To</span><span class=\"drf-p\">{av}Maya Kim</span></div>\n    <label class=\"drf-r\"><span class=\"drf-l\">Subject</span><input class=\"drf-s\" value=\"Pricing v4: what changed\" aria-label=\"Subject\"></label>\n  </div>\n  <div class=\"drf-b\" contenteditable=\"true\" role=\"textbox\" aria-multiline=\"true\" aria-label=\"Message\" spellcheck=\"false\">Hi Maya,<br><br>Here's what changed on the pricing page: one button per plan, the yearly price first, and the FAQ under the comparison table. The full list is in the attached summary.<br><br>Ready for your sign-off when you are.</div>\n  <div class=\"drf-att\"></div>\n  <div class=\"fold shut drf-wf\"><div><div class=\"drf-w\"><p>{warn}<span>You mention an attachment, but nothing is attached.</span></p><div class=\"drf-wa\"><button class=\"pill ghost sm drf-any\">Send anyway</button><button class=\"pill primary sm drf-at\">{clip}Attach the summary</button></div></div></div></div>\n  <div class=\"drf-f\">\n    <button class=\"pill ghost sm drf-x\">{trash}Discard</button><span class=\"sp\"></span><span class=\"muted drf-when\"></span>\n    <div class=\"drf-mg\"><button class=\"pill primary sm drf-go\">{send}Send</button><button class=\"pill primary sm drf-dd\" aria-label=\"When to send\" aria-haspopup=\"menu\" aria-expanded=\"false\" data-pop=\".drf-pop\" data-pop-align=\"end\">{chev}</button></div>\n  </div>\n  <div class=\"pop drf-pop\" role=\"menu\" aria-label=\"When to send\">\n    <button class=\"mi\" role=\"menuitemradio\" aria-checked=\"true\" data-close data-w=\"now\"><span>Send now</span><span class=\"ck\">{chk}</span></button>\n    <button class=\"mi\" role=\"menuitemradio\" aria-checked=\"false\" data-close data-w=\"Tomorrow at 09:00\"><span>Tomorrow at 09:00<span class=\"d\">The start of Maya's day</span></span><span class=\"ck\">{chk}</span></button>\n    <button class=\"mi\" role=\"menuitemradio\" aria-checked=\"false\" data-close data-w=\"Monday at 09:00\"><span>Monday at 09:00<span class=\"d\">The start of next week</span></span><span class=\"ck\">{chk}</span></button>\n  </div>\n</div>";
 TPLS["inline-text-diff"] = "<div class=\"itd panel\">\n  <div class=\"itd-h\"><div class=\"itd-ht\"><b>Pricing intro</b><span class=\"muted itd-st\">4 edits to review</span></div><div class=\"itd-a\"><button class=\"pill ghost sm itd-no\">Reject all</button><button class=\"pill primary sm itd-ok\">Accept all</button></div></div>\n  <p class=\"itd-t\"></p>\n  <p class=\"itd-f muted\" aria-live=\"polite\"></p>\n  <div class=\"itd-bar\" role=\"dialog\" aria-label=\"Edit\">\n    <p class=\"itd-why\">{warn}<span></span></p>\n    <div class=\"itd-bb\"><button class=\"pill primary sm itd-acc\">{chk}Accept</button><button class=\"pill ghost sm itd-rej\">{x}Reject</button></div>\n  </div>\n</div>";
 TPLS["launch-checklist"] = "<div class=\"lcx panel\">\n  <div class=\"lcx-h\"><div><b>Ready to ship pricing?</b><span class=\"muted lcx-st\">6 checks</span></div><button class=\"pill primary sm lcx-run\">{play}Run checks</button></div>\n  <div class=\"lcx-bar\"></div>\n  <div class=\"lcx-list\"></div>\n</div>";
@@ -9,7 +8,6 @@ TPLS["design-tuner"] = "<div class=\"dtx\">\n  <div class=\"dtx-prev\"><div clas
 TPLS["proposal-card"] = "<div class=\"prx\">\n  <div class=\"prx-h\"><span class=\"prx-ic\">{wand}</span><div class=\"prx-ht\"><b>Raise contrast on the secondary button</b><span class=\"muted\">Pricing, frame 2 of 3</span></div></div>\n  <div class=\"prx-diff\"><div class=\"prx-sw\"><span class=\"prx-c\" style=\"background:#c9cfd8\"></span><span class=\"num\">#C9CFD8</span><span class=\"tag bad\">2.1 : 1</span></div><span class=\"prx-ar\">{right}</span><div class=\"prx-sw prx-new\"><span class=\"prx-c\" style=\"background:#5b6472\"></span><span class=\"num\">#5B6472</span><span class=\"tag ok\"><span class=\"prx-rt\">5.9 : 1</span></span></div></div>\n  <div class=\"prx-cf\"><span class=\"muted\">Confidence</span><div class=\"prx-seg\"><i></i><i></i><i></i><i></i><i></i></div><span class=\"num prx-pc\">0%</span></div>\n  <button class=\"prx-alt-t\">{chev}<span>2 other options</span></button>\n  <div class=\"fold shut prx-alt\"><div><div class=\"prx-alts\"></div></div></div>\n  <div class=\"prx-f\"><button class=\"pill ghost sm prx-no\">Not now</button><button class=\"pill primary sm prx-ok\">Accept</button></div>\n</div>";
 TPLS["decision-prompt"] = "<div class=\"dpx\" tabindex=\"0\">\n  <div class=\"dpx-h\"><span class=\"dpx-k muted num\">Question 1 of 3</span><div class=\"dpx-dots\"><i class=\"on\"></i><i></i><i></i></div></div>\n  <div class=\"dpx-body\"></div>\n  <div class=\"dpx-f\"><button class=\"pill ghost sm dpx-skip\">Skip</button><button class=\"pill primary sm dpx-go\">Continue <span class=\"kbd\">↵</span></button></div>\n</div>";
 TPLS["human-handoff"] = "<div class=\"hox panel\">\n  <div class=\"hox-h\"><span class=\"hox-ic\">{user}</span><div class=\"hox-ht\"><b>Handed off to a person</b><span class=\"muted\">Refund over $500 needs a person</span></div></div>\n  <div class=\"hox-b\">\n    <div class=\"hox-col\">\n      <span class=\"hox-lb\">Assigned to</span>\n      <div class=\"hox-who\"><span class=\"hox-av\"><span class=\"spin\"></span></span><span class=\"hox-wt\"><b class=\"hox-wn\">Finding someone</b><span class=\"hox-wd\"><span class=\"hox-wv\">Billing team</span></span></span><button class=\"hox-rb\" aria-haspopup=\"menu\" aria-expanded=\"false\" data-pop=\".hox-pop\" data-pop-align=\"end\" data-pop-pos=\"down\" disabled>Reassign{chev}</button></div>\n      <div class=\"hox-sla\"><div class=\"hox-sl\">{clock}<span class=\"hox-due num\">Reply due in 14 min</span><span class=\"muted\">15 min target</span></div><div class=\"hox-bar\" role=\"progressbar\" aria-label=\"Time left to reply\" aria-valuemin=\"0\" aria-valuemax=\"900\"><i></i></div></div>\n      <div class=\"hox-ms\">\n        <div class=\"hox-mh\"><span class=\"hox-lb hox-ml\">Sent to Dana</span><span class=\"sp\"></span><button class=\"pill ghost sm hox-no\" hidden>Cancel</button><button class=\"pill ghost sm hox-ed\">{edit}Edit</button></div>\n        <div class=\"hox-mb\" role=\"textbox\" aria-multiline=\"true\" aria-readonly=\"true\" aria-label=\"Message sent to Dana\" spellcheck=\"false\">Thanks, Dana. A refund this size needs someone on our billing team, so I've passed your conversation to them. They'll reply here within 15 minutes.</div>\n      </div>\n    </div>\n    <div class=\"hox-col\">\n      <span class=\"hox-lb\">Context passed along</span>\n      <p class=\"hox-sum\">Dana was charged twice for her annual plan on Oct 21 and wants one charge back. The agent confirmed the duplicate, but can't refund more than $500.</p>\n      <div class=\"hox-facts\">\n        <div class=\"hox-f\"><span class=\"k\">Amount</span><span class=\"v num\">$588.00</span></div>\n        <div class=\"hox-f\"><span class=\"k\">Customer</span><span class=\"v\">Dana Lee · Pro since 2023</span></div>\n        <div class=\"hox-f\"><span class=\"k\">Order</span><span class=\"v num\">#48213 · charged twice</span></div>\n      </div>\n      <button class=\"fchip lnk hox-lnk\" data-tip=\"Opens the whole conversation\">{link}<span>View conversation · 12 messages</span></button>\n    </div>\n  </div>\n  <div class=\"hox-st\" aria-live=\"polite\"><span class=\"g\"><span class=\"spin\"></span></span><span class=\"t\"><b class=\"hox-sa\">Handing off to Billing</b><span class=\"hox-sb\">The agent has stopped replying to Dana</span></span></div>\n  <div class=\"pop hox-pop\" role=\"menu\" aria-label=\"Reassign to\">\n    <div class=\"ph\">Reassign to</div>\n  </div>\n</div>";
-TPLS["permission-gate"] = "<div class=\"pgx panel\">\n  <div class=\"pgx-h\"><span class=\"pgx-ic\">{figma}</span><div class=\"pgx-ht\"><b>Allow the agent to edit Figma?</b><span class=\"muted\">It needs this to apply the pricing fixes</span></div></div>\n  <div class=\"pgx-sc\">\n    <label class=\"pgx-o\" data-k=\"read\"><input type=\"checkbox\" checked><span class=\"bx\">{chk}</span><span class=\"t\">Read frames<span class=\"d\">Pricing, Checkout</span></span></label>\n    <label class=\"pgx-o\" data-k=\"edit\"><input type=\"checkbox\" checked><span class=\"bx\">{chk}</span><span class=\"t\">Edit frames<span class=\"d\">Only on a new page</span></span></label>\n    <label class=\"pgx-o\" data-k=\"publish\"><input type=\"checkbox\"><span class=\"bx\">{chk}</span><span class=\"t\">Publish library<span class=\"d\">Affects 4 other files</span></span><span class=\"tag warn\" data-tip=\"Checkout, Marketing site, Email kit and Docs use this library\">Risky</span></label>\n  </div>\n  <div class=\"pgx-f\"><button class=\"pgx-db\" aria-haspopup=\"menu\" aria-expanded=\"false\" aria-label=\"How long\" data-pop=\".pgx-pop\"><span class=\"pgx-dv\">For this task</span>{chev}</button><span class=\"sp\"></span><button class=\"pill ghost sm pgx-no\">Not now</button><button class=\"pill primary sm pgx-ok\">Allow 2 scopes</button></div>\n  <div class=\"pop pgx-pop\" role=\"menu\" aria-label=\"How long\">\n    <button class=\"mi\" role=\"menuitemradio\" aria-checked=\"true\" data-close data-v=\"This task\"><span>For this task<span class=\"d\">Until the pricing fixes are done</span></span><span class=\"ck\">{chk}</span></button>\n    <button class=\"mi\" role=\"menuitemradio\" aria-checked=\"false\" data-close data-v=\"Today\"><span>For today<span class=\"d\">Until midnight</span></span><span class=\"ck\">{chk}</span></button>\n    <button class=\"mi\" role=\"menuitemradio\" aria-checked=\"false\" data-close data-v=\"Always\"><span>Always<span class=\"d\">Until you revoke it</span></span><span class=\"ck\">{chk}</span></button>\n  </div>\n</div>";
 TPLS["plan-review"] = "<div class=\"plx\">\n  <div class=\"plx-h\"><span class=\"think plx-mk\"><i></i><i></i><i></i><i></i></span><div class=\"plx-ht\"><b>Plan: redesign the pricing page</b><span class=\"muted plx-st\">5 steps, about 4 min</span></div><span class=\"plx-tm num\" aria-label=\"Elapsed\"></span></div>\n  <ol class=\"plx-list\"></ol>\n  <button class=\"plx-add\">{plus}Add a step</button>\n  <div class=\"plx-f\"><span class=\"muted plx-n\">Click a step to edit it</span><button class=\"pill ghost sm plx-chg\">Ask for changes</button><button class=\"pill primary sm plx-go\">Approve plan</button></div>\n</div>";
 TPLS["change-review"] = "<div class=\"crx panel\">\n  <div class=\"crx-side\">\n    <div class=\"crx-sh\"><b>3 files changed</b><span class=\"muted crx-tot num\"></span></div>\n    <div class=\"crx-files\"></div>\n  </div>\n  <div class=\"crx-main\">\n    <div class=\"crx-mh\"><span class=\"crx-fn num\"></span><span class=\"crx-sp\"></span><button class=\"pill ghost sm crx-rej\">Undo all</button><button class=\"pill primary sm crx-ok\">Keep all</button></div>\n    <div class=\"crx-diff\"></div>\n  </div>\n</div>";
 
@@ -154,97 +152,6 @@ DM.def('design-tuner', (r, c) => {
   });
   // the preview lets the agent tune once on its own, unless you reach for a slider or the button first
   c.auto(1600, () => go.click());
-});
-/* ---------- Permission gate ---------- */
-DM.def('permission-gate', (r, c) => {
-  r.innerHTML = r.innerHTML.replace('{figma}', I('figma')).replace(/\{chk\}/g, I('check','xs')).replace('{chev}', I('chev-d','xs'));
-  const root = $('.pgx', r), ok = $('.pgx-ok', r), no = $('.pgx-no', r), sc = $('.pgx-sc', r), title = $('.pgx-ht b', r), sub = $('.pgx-ht .muted', r);
-  const first = { sc:sc.innerHTML, title:title.textContent, sub:sub.textContent, no:no.textContent };
-  const boxes = () => $$('.pgx-o input', sc);
-  // how long: This task, Today or Always, from the dropdown in the footer
-  let dur = 'This task';
-  const span = () => dur === 'Always' ? 'always' : 'for ' + dur.toLowerCase();
-  const count = () => { const n = boxes().filter(b => b.checked).length; ok.disabled = !n; swap(ok, n ? 'Allow ' + n + (n > 1 ? ' scopes' : ' scope') : 'Pick a scope'); };
-  c.on(sc, 'change', count);
-  $$('.pgx-pop .mi', r).forEach(m => m.addEventListener('click', () => { dur = m.dataset.v; $$('.pgx-pop .mi', r).forEach(x => x.setAttribute('aria-checked', x === m)); swap($('.pgx-dv', r), dur === 'Always' ? 'Always' : 'For ' + dur.toLowerCase()); }));
-  const body = [sc, $('.pgx-f', r)];
-  // the scopes give way to a shorter result row: on the card it keeps the height it had and centres the row (hold)
-  const show = on => { if (!on && c.card && !root.classList.contains('held')) hold(root); body.forEach(e => e.hidden = !on); if (on) stagger(body, 50); };
-  // the frames the agent edits once it may. Plan toggle is a library component, so editing it needs Publish library
-  const F = ['Hero', 'Plan cards', 'Compare table', 'FAQ', 'Plan toggle', 'Checkout summary'], LIB = 4;
-  const clock = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
-  // the clock counts the agent's working time only, not the time it waits for you
-  let granted = 0, publish = false, skip = false, done = 0, ms = 0, run = 0, panel = null;
-  function row(){
-    panel = html(`<div class="pgx-done run"><span class="g"><span class="spin"></span></span><span class="t"><b class="pgx-a"></b><span class="pgx-d"></span></span><span class="pgx-tm num"></span><button class="pill ghost sm">Revoke</button></div>`);
-    root.appendChild(panel); enter(panel); $('button', panel).onclick = revoke;
-  }
-  // the agent works through the frames under what it was given, and stops to ask when it reaches one it may not touch
-  function work(){
-    const id = ++run; if (!panel) row();
-    const a = $('.pgx-a', panel), d = $('.pgx-d', panel), tm = $('.pgx-tm', panel);
-    swap(a, `Allowed ${granted} ${granted > 1 ? 'scopes' : 'scope'} ${span()}`);
-    const t0 = performance.now(), now = () => ms + performance.now() - t0;
-    tm.textContent = clock(Math.floor(ms / 1000));
-    c.run(async () => {
-      const tick = c.every(250, () => { if (run === id) tm.textContent = clock(Math.floor(now() / 1000)); });
-      try {
-        while (done < F.length){
-          if (done === LIB && !publish && !skip) return ask();
-          swap(d, done === LIB && skip ? `Skipping ${F[done]}` : `Editing ${F[done]} · ${done + 1} of ${F.length}`);
-          await c.wait(900); if (run !== id) return;
-          done++;
-        }
-        panel.classList.replace('run', 'ok'); const g = $('.g', panel); g.innerHTML = I('ok'); enter(g);
-        swap(a, skip ? `Done. ${F.length - 1} frames edited` : `Done. ${F.length} frames edited`);
-        swap(d, skip ? 'On a new page. Plan toggle skipped' : 'On a new page. Plan toggle published');
-      } finally { clearInterval(tick); if (run === id) ms = now(); }
-    });
-  }
-  // asks again, for only the scope it now needs
-  function ask(){
-    const p = panel; panel = null; p.classList.add('leave');
-    root.classList.add('esc'); swap(title, 'Also allow Publish library?'); swap(sub, `${F[LIB]}, frame ${LIB + 1} of ${F.length}, is a library component`);
-    c.later(300, () => {
-      p.remove();
-      sc.innerHTML = `<label class="pgx-o" data-k="publish"><input type="checkbox" checked><span class="bx">${I('check','xs')}</span><span class="t">Publish library<span class="d">Updates Checkout, Marketing site, Email kit and Docs</span></span><span class="tag warn">Risky</span></label>`;
-      no.textContent = 'Skip this frame'; count(); show(true);
-    });
-  }
-  function reset(){
-    run++; granted = done = ms = 0; publish = skip = false;
-    root.classList.remove('esc'); sc.innerHTML = first.sc; swap(title, first.title); swap(sub, first.sub); no.textContent = first.no; count();
-  }
-  function revoke(){ const p = panel; panel = null; run++; p.classList.add('leave'); c.later(300, () => { p.remove(); release(root); reset(); show(true); }); }
-  ok.onclick = () => c.run(async () => {
-    const picked = boxes().filter(b => b.checked); if (!picked.length) return;
-    granted += picked.length; if (picked.some(b => b.closest('.pgx-o').dataset.k === 'publish')) publish = true;
-    ok.innerHTML = '<span class="spin"></span>'; await c.wait(500);
-    show(false);
-    if (root.classList.contains('esc')){ root.classList.remove('esc'); swap(title, first.title); swap(sub, first.sub); }
-    // placed inside another component (Agent harness), it reports back without the run
-    if (!c.card){ row(); swap($('.pgx-a', panel), `Allowed ${granted} ${granted > 1 ? 'scopes' : 'scope'} ${span()}`); swap($('.pgx-d', panel), 'Applying the pricing fixes now'); $('.pgx-tm', panel).remove();
-      c.later(1400, () => { if (!panel) return; panel.classList.replace('run', 'ok'); $('.g', panel).innerHTML = I('ok'); swap($('.pgx-d', panel), 'Done. 6 frames edited on a new page'); }); return; }
-    work();
-  });
-  no.onclick = () => {
-    if (root.classList.contains('esc')){ skip = true; show(false); root.classList.remove('esc'); swap(title, first.title); swap(sub, first.sub); work(); return; }
-    show(false); const d = html(`<div class="pgx-done" style="background:var(--chip)">${I('info')}<span class="t">The agent will skip the Figma edits<span>It will list the fixes in chat instead</span></span><button class="pill ghost sm">Undo</button></div>`);
-    root.appendChild(d); enter(d); $('button', d).onclick = () => { d.remove(); release(root); show(true); };
-  };
-  // the preview's story: hold back the risky scope, allow the rest, then grant it when the agent needs it for one frame
-  c.story(async s => {
-    await s.beat(3);
-    const pub = $('[data-k="publish"]', sc);
-    await s.tap(pub); await s.beat(1);
-    await s.point($('.tag', pub)); await s.beat(3);
-    await s.tap(pub); await s.beat(2);
-    await s.tap(ok); s.away();
-    await s.until(() => root.classList.contains('esc') && !sc.hidden);
-    await s.beat(4);
-    await s.tap(ok); s.away();
-    await s.until(() => panel && panel.classList.contains('ok'));
-  });
 });
 /* ---------- Hand-off to a person ---------- */
 DM.def('human-handoff', (r, c) => {
@@ -562,113 +469,6 @@ DM.def('draft-review', (r, c) => {
     await s.until(() => file); await s.beat(2);
     await s.tap(go); s.away();
     await s.until(() => done && !$('button', done));
-  });
-});
-/* ---------- Steering ---------- */
-DM.def('steering', (r, c) => {
-  r.innerHTML = r.innerHTML.replace('{up}', I('up','xs'));
-  // the run: four steps on the pricing page. A card step paints its card in the current accent, and remembers which,
-  // so a change of mind can find the cards that already have the old one
-  const S = [
-    { id:'read', t:'Read Pricing v4', d:'3 frames, 14 layers', s:'done' },
-    { id:'pro', card:'Pro', t:'Update the Pro card', s:'run', ms:7500 },
-    { id:'team', card:'Team', t:'Update the Team card', d:'Pricing v4, frame 3', s:'queued', ms:3500 },
-    { id:'ship', t:'Export to staging', d:'designme.studio/pricing', s:'queued', ms:2500 }
-  ];
-  const steps = $('.ste-steps', r), log = $('.ste-log', r), box = $('.ste-box', r), inp = $('input', box), go = $('.ste-go', r), st = $('.ste-st', r), mode = $('.m', st), ck = $('.ck', st);
-  let hue = 'violet', ended = false, running = false;
-  const queue = [];
-  const G = { run:'<span class="spin"></span>', done:I('ok','xs'), queued:'<span class="dot"></span>' };
-  const doing = x => x.card ? `Setting the accent to ${hue}` : x.d;
-  function row(x){
-    x.el = html(`<li class="ste-s ${x.s}"><span class="ste-g">${G[x.s]}</span><span class="ste-t"><b>${x.t}</b><span>${x.s === 'run' ? doing(x) : x.d || 'Pricing v4, frame 2'}</span></span>${x.mine ? '<span class="tag b">From you</span>' : ''}</li>`);
-    return x.el;
-  }
-  S.forEach(x => steps.appendChild(row(x)));
-  function set(x, s, d){ x.s = s; x.el.className = 'ste-s ' + s; const g = $('.ste-g', x.el); g.innerHTML = G[s]; enter(g); if (d) swap($('.ste-t span', x.el), d); }
-  const where = () => { const i = S.findIndex(x => x.s === 'run'); swap(mode, ended ? 'Done' : `Step ${i + 1} of ${S.length}`); };
-  // the clock runs until the last step is done
-  const t0 = performance.now(); let tEnd = 0;
-  const clock = () => { const s = Math.floor(((tEnd || performance.now()) - t0) / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
-  c.every(250, () => { ck.textContent = clock(); });
-  // a message waits for the step in progress, then the agent takes it up before the next one
-  const ready = () => { go.disabled = ended || !inp.value.trim(); };
-  inp.oninput = ready;
-  c.on(box, 'submit', e => {
-    e.preventDefault(); const text = inp.value.trim(); if (!text || ended) return;
-    inp.value = ''; ready();
-    const m = html(`<div class="ste-me"><p></p><span class="ste-q"><span class="spin"></span>Applies after this step</span></div>`);
-    $('p', m).textContent = text; log.appendChild(m); enter(m);
-    queue.push({ text, el:m });
-    if (!running) apply();
-  });
-  // what the agent says back, with buttons when it needs you to choose
-  function say(text, warn, acts){
-    const a = html(`<div class="ste-ag${warn ? ' warn' : ''}">${warn ? I('alert','xs') : I('spark','xs')}<div class="t"><p></p>${acts ? '<div class="ste-acts"></div>' : ''}</div></div>`);
-    $('p', a).textContent = text; log.appendChild(a); enter(a);
-    if (acts) acts.forEach(([label, ink, fn]) => { const b = html(`<button class="pill sm ${ink ? 'primary' : 'ghost'}">${label}</button>`); b.onclick = () => { $('.ste-acts', a).replaceWith(html(`<span class="muted">${fn()}</span>`)); a.classList.remove('warn'); a.firstElementChild.outerHTML = I('spark','xs'); }; $('.ste-acts', a).appendChild(b); });
-  }
-  function apply(){
-    while (queue.length){
-      const q = queue.shift(), tag = $('.ste-q', q.el);
-      tag.innerHTML = I('check','xs') + (S.some(x => x.s !== 'done') ? 'Applied' : 'Noted'); enter(tag);
-      const left = S.some(x => x.s !== 'done');
-      if (!left){ say("The run had finished, so I'll keep this for the next one."); continue; }
-      if (!/blue|accent|library/i.test(q.text)){ say("Got it. I'll follow that from the next step."); continue; }
-      // a change of accent: what's still to come uses it, and a card already painted the old way is offered a redo
-      hue = 'library blue';
-      const old = S.filter(x => x.card && x.s === 'done' && x.hue === 'violet' && !S.some(y => y.redo === x.id));
-      const run = S.find(x => x.s === 'run'); if (run && run.card) swap($('.ste-t span', run.el), doing(run));
-      if (!old.length){ say('Got it. From here the accent is color.accent.500 from the library.'); continue; }
-      const names = old.map(x => x.card).join(' and ');
-      say(`Got it. From here the accent is color.accent.500. The ${names} card${old.length > 1 ? 's are' : ' is'} already violet.`, true, [
-        ['Leave it', false, () => `Kept the ${names} card as it is`],
-        [`Redo the ${names} card${old.length > 1 ? 's' : ''}`, true, () => { old.forEach(redo); return `Added a step to redo the ${names} card${old.length > 1 ? 's' : ''}`; }]
-      ]);
-    }
-  }
-  // a redo goes in before the export if the export hasn't started, otherwise at the end
-  function redo(x){
-    const n = { id:'redo-' + x.id, redo:x.id, card:x.card, mine:true, t:`Redo the ${x.card} card`, d:'Accent to library blue', s:'queued', ms:2000 };
-    const ship = S.find(y => y.id === 'ship'), at = ship.s === 'queued' ? S.indexOf(ship) : S.length;
-    S.splice(at, 0, n); steps.insertBefore(row(n), S[at + 1] ? S[at + 1].el : null);
-    const li = n.el; li.style.height = '0px'; li.style.minHeight = '0px'; li.style.overflow = 'hidden'; li.style.opacity = '0';
-    requestAnimationFrame(() => { li.style.transition = 'height .4s var(--ease),min-height .4s var(--ease),opacity .4s'; li.style.height = '44px'; li.style.minHeight = '44px'; li.style.opacity = '1'; c.later(450, () => { li.removeAttribute('style'); }); });
-    if (ended){ ended = false; tEnd = 0; $('.ste-sum', r)?.remove(); inp.disabled = false; inp.placeholder = 'Steer the agent while it works'; ready(); c.run(work); }
-    where();
-  }
-  // the agent works through the steps; between two steps it takes up what you sent
-  async function work(){
-    running = true;
-    for (let x = S.find(y => y.s === 'run' || y.s === 'queued'); x; x = S.find(y => y.s === 'run' || y.s === 'queued')){
-      if (x.s !== 'run') set(x, 'run', doing(x));
-      where();
-      await c.wait(x.ms);
-      if (x.card) x.hue = hue;
-      set(x, 'done', x.card ? (x.hue === 'violet' ? 'Accent set to violet' : 'Accent set to library blue') : x.id === 'ship' ? 'Live on designme.studio/pricing' : x.d);
-      apply();
-    }
-    running = false; ended = true; tEnd = performance.now(); where();
-    inp.disabled = true; inp.placeholder = 'The run has finished'; ready();
-    const n = $$('.ste-me', r).length;
-    $('.ste-sum', r)?.remove();
-    const sum = html(`<div class="ste-sum">${I('ok','xs')}<span>Done in ${clock()}${n ? ` · ${n} change${n > 1 ? 's' : ''} from you` : ''}</span></div>`);
-    log.appendChild(sum); enter(sum);
-  }
-  c.run(work);
-  // the preview's story: read what the agent is doing, tell it to use the library's blue, and have it redo the card
-  // that was already violet
-  c.story(async s => {
-    await s.beat(2);
-    await s.point($('.ste-t span', S[1].el), false); await s.beat(1);
-    await s.tap(inp);
-    // typed a few letters at a time, so a busy page (few, longer timers) types it as fast as a quiet one
-    const msg = 'Use our library blue, not violet';
-    await s.type(inp, msg.match(/.{1,3}/g), { n:.15, each:ready, keep:true });
-    await s.beat(1); await s.tap(go); s.away();
-    await s.until(() => $('.ste-acts .primary', r)); await s.beat(3);
-    await s.tap($('.ste-acts .primary', r)); s.away();
-    await s.until(() => ended); await s.beat(2);
   });
 });
 /* ---------- Eval results ---------- */
