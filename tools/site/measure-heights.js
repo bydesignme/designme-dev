@@ -66,11 +66,11 @@ const server = http.createServer((req, res) => {
       const reserved = document.getElementById('card-heights'); if (reserved) reserved.disabled = true;
       // both sets of cards, Agent components and App basics, are laid out while they're measured
       document.documentElement.classList.add('grp-all');
-      const comps = [...document.querySelectorAll('.lib-sec .comp[data-v2]')].filter(c => !COMPS || COMPS.includes(c.dataset.v2));
+      const comps = [...document.querySelectorAll(':is(.lib-sec,.launch) .comp[data-v2]')].filter(c => !COMPS || COMPS.includes(c.dataset.v2));
       const base = new Map(comps.map(c => [c, parseFloat(getComputedStyle(c.querySelector(':scope>.stage')).minHeight) || 0]));
       // then each stage at its own height: no minimum, and not stretched to match the card beside it
       const st = document.createElement('style');
-      st.textContent = '.lib-sec .grid{align-items:start!important}.lib-sec .comp>.stage{min-height:0!important;flex:none!important}';
+      st.textContent = ':is(.lib-sec,.launch).grid,.lib-sec .grid{align-items:start!important}:is(.lib-sec,.launch) .comp>.stage{min-height:0!important;flex:none!important}';
       document.head.appendChild(st);
       comps.forEach(c => window.V2.replay(c));
       // the stage's height, and the component's own: the component keeps its tallest size inside the stage, so it grows

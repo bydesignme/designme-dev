@@ -593,191 +593,363 @@ const fitHits = window.dmFitHits || (() => {
 
 
 /* ---------- Agent tree ---------- */
-DM.def('agent-tree', (r, c) => {
-  // the run: an orchestrator hands the work to three agents, and they split it into steps. Each agent has its colour (av, from
-  // the avatar colours) and its icon; each step the app it works in (app) or an icon. at is when a node joins the tree (in
-  // seconds), s the state it joins in and t its task; cost is what it has spent on its own, and a branch shows its own cost
-  // plus everything under it
-  const T = { id:'root', n:'Orchestrator', t:'Plans the work and hands it out', ic:'spark', s:'run', kids:[
-    { id:'res', n:'Research agent', t:'Compare 3 competitor pricing pages', ic:'globe', av:'l', at:.15, s:'run', kids:[
-      { id:'res1', n:'Read the 3 pricing pages', t:'Reading page 1 of 3', ic:'globe', at:.95, s:'run' },
-      { id:'res2', n:'Summarise their plans', t:'Waiting for the pages', app:'notion', at:1.15, s:'queued' } ] },
-    { id:'des', n:'Design agent', t:'Rework the plan cards', ic:'palette', av:'p', at:.45, s:'run', kids:[
-      { id:'des1', n:'Update the Pro card', t:'Pricing v4, frame 2', app:'figma', at:1.4, s:'run' },
-      { id:'des2', n:'Update the Team card', t:'Pricing v4, frame 3', app:'figma', at:1.6, s:'queued' },
-      { id:'des3', n:'Apply library tokens', t:'Colour and spacing', app:'figma', at:1.8, s:'queued' } ] },
-    { id:'cop', n:'Copy agent', t:'Rewrite the plan descriptions', ic:'edit', av:'m', at:.75, s:'queued' } ] };
-  const tree = $('.atr-tree', r), chips = $('.atr-chips', r), tot = $('.atr-tot', r), root = $('.atr', r);
-  const all = []; const walk = (n, lv, p) => { n.lv = lv; n.parent = p; n.cost = 0; n.secs = 0; all.push(n); (n.kids || []).forEach(k => walk(k, lv + 1, n)); }; walk(T, 0, null);
-  const by = id => all.find(n => n.id === id), kids = n => !!(n.kids && n.kids.length), shown = n => !n.el.hidden;
-  const sum = n => n.cost + (n.kids || []).filter(shown).reduce((a, k) => a + sum(k), 0), money = v => '$' + v.toFixed(2);
-  const secs = s => s < 60 ? Math.floor(s) + 's' : Math.floor(s / 60) + 'm ' + String(Math.floor(s % 60)).padStart(2, '0') + 's';
-  // a state's mark on the line, and its chip
-  const G = { run:'<i class="atr-pl"></i><i class="atr-tk"></i><span class="spin"></span>', done:I('check','xs'), need:I('alert','xs'), fail:I('alert','xs'), stop:I('minus','xs'), queued:'<span class="dot"></span>' };
-  const CH = { run:['run', '<span class="spin"></span>Running'], done:['ok', I('check','xs') + 'Done'], need:['warn', I('alert','xs') + 'Needs you'], fail:['bad', I('alert','xs') + 'Failed'], stop:['stop', 'Stopped'], queued:['', 'Queued'] };
-  const avatar = n => n.app ? `<span class="atr-av app" aria-hidden="true">${BRAND[n.app]}</span>` : n.av || !n.lv ? `<span class="atr-av" aria-hidden="true"${n.av ? ` style="--a:var(--av-${n.av});--ai:var(--av-${n.av}-ink)"` : ''}>${I(n.ic, 's')}</span>` : `<span class="atr-av app" aria-hidden="true">${I(n.ic, 's')}</span>`;
-  function build(n){
-    const row = html(`<div class="atr-n ${n.s}" role="treeitem" aria-level="${n.lv + 1}"${kids(n) ? ' aria-expanded="true"' : ''} tabindex="-1" style="--lv:${n.lv}"><span class="atr-g" aria-hidden="true">${G[n.s]}</span>${avatar(n)}<span class="atr-t"><b><span>${n.n}</span>${kids(n) ? `<span class="atr-tg" aria-hidden="true">${I('chev-d','xs')}</span>` : ''}</b><span>${n.t}</span></span><span class="atr-r"><span class="tag atr-st"></span><span class="atr-c num"></span></span></div>`);
-    n.el = row; paintState(n); const out = [row];
-    if (kids(n)){ const f = html(`<div class="fold atr-kids" role="group"><div></div></div>`); n.kids.forEach(k => build(k).forEach(e => f.firstElementChild.appendChild(e))); n.fold = f; out.push(f); }
-    return out;
+/* the lines and the flow, drawn every frame from where the marks are. The tree's rows are treeitems (.atr-n, with data-id
+   and data-s) whose mark is .atr-g (data-m); atrLines reads them from the page, so whatever draws the rows (this script,
+   or React) gets the same lines. A row that appears after the start opens its space (data-ph="open"), its parent's line
+   draws down to it and its branch out to its mark (data-ph="wait"), then it rises in (data-ph="in"), one row at a time.
+   A parent's line is a grey rail with its tinted part over it, down to the last child that has started; a branch takes the
+   tint once the tint has reached it, the grey while its child is queued, and the bad colour for a failed child. Each
+   agent's band eases from the run's source to the step that agent is on, once that whole route is drawn */
+const ATR_TICK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg>';
+const ATR_CROSS = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17" pathLength="1"/></svg>';
+// what a mark holds in each state (a finished disc is the mark itself, with its tick or cross)
+const atrMark = m => m === 'run' ? '<span class="atr-spin"></span>' : m === 'wait' ? '<span class="atr-wt"></span>' : m === 'done' ? ATR_TICK : m === 'fail' ? ATR_CROSS : m === 'src' ? '' : '<span class="atr-ring"></span>';
+// a mark's visible radius: rings and spinners are 14px; finished discs and the waiting mark carry a 2px cut-out border
+const atrMarkR = m => m === 'done' || m === 'fail' || m === 'src' || m === 'wait' ? 9 : 7;
+const atrEz = u => 1 - Math.pow(1 - Math.min(1, Math.max(0, u)), 3);
+function atrLines(tree){
+  const NS = 'http://www.w3.org/2000/svg', mk = (t, a = {}) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
+  // the svg is the tree's first child (one is made if the markup has none)
+  let svg = tree.querySelector(':scope>.atr-ln'); if (!svg){ svg = mk('svg', { class:'atr-ln', 'aria-hidden':'true' }); tree.prepend(svg); }
+  const defs = mk('defs'), gRail = mk('g'), gLine = mk('g'), gBand = mk('g'); svg.replaceChildren(defs, gRail, gLine, gBand);
+  const uid = 'atr' + (atrLines.n = (atrLines.n || 0) + 1), host = tree.closest('.atr') || tree;
+  // OPEN: a row's space opening; BR: a branch drawing out; TINT: the tint gliding down to a step that starts; GO: a line
+  // drawing back in as its branch folds
+  const OPEN = .22, BR = .16, TINT = .3, GO = .14, BAND = 210, CORE = .541, STOPS = [[0, 'l0'], [.19, 'l1'], [CORE, 'c'], [.781, 'l2'], [1, 'l0']];
+  const S = new Map(), bands = new Map(), queue = [];
+  let T = 0, last = 0, booted = false, prev = null, bn = 0;
+  const shown = x => x.ph === 'in' || x.ph === 'shown';
+  const folded = x => { for (let p = x.parent; p; p = p.parent) if (p.el.getAttribute('aria-expanded') === 'false') return true; return false; };
+  // a line that is cut short is drawn from its start: reveal 0 to 1
+  const draw = (p, d, cls, reveal = 1) => {
+    p.setAttribute('d', reveal > .001 ? d : ''); p.setAttribute('class', cls);
+    if (reveal >= 1 || !d){ p.style.strokeDasharray = ''; p.style.strokeDashoffset = ''; return; }
+    const len = p.getTotalLength(); p.style.strokeDasharray = len; p.style.strokeDashoffset = len * (1 - reveal);
+  };
+  const restart = (el, a) => { el.removeAttribute(a); void el.offsetWidth; el.setAttribute(a, ''); };
+  // reads the rows on the page: new ones, ones that went, their parents and children, and the marks and text that changed
+  function sync(){
+    const els = [...tree.querySelectorAll('.atr-n')].filter(el => !el.closest('[hidden]')), seen = new Set();
+    for (const el of els){
+      const id = el.dataset.id; seen.add(id);
+      let x = S.get(id);
+      if (!x || x.el !== el){
+        if (x) gone(x);
+        x = { id, el, q:0, b:0, ph:'shown', rt:null, rf:null, r0:-1e9, fol:false };
+        // rows there from the start are drawn at once; later ones open, draw and rise, one at a time
+        if (booted && !REDUCE){ x.ph = 'open'; el.dataset.ph = 'open'; el.style.height = '0px'; queue.push(x); }
+        else { x.q = 1; x.b = 1; x.boot = true; el.removeAttribute('data-ph'); el.style.height = ''; }
+        S.set(id, x);
+      }
+      x.st = el.dataset.s; x.g = el.querySelector(':scope>.atr-b>.atr-r>.atr-g'); x.sub = el.querySelector(':scope>.atr-b>.atr-r .atr-sub');
+      // a mark swaps at once and a tick or cross draws itself; a line of text that changes rises into place
+      const m = x.g ? x.g.dataset.m : '';
+      if (x.m !== undefined && m !== x.m && (m === 'done' || m === 'fail') && !REDUCE) restart(x.g, 'data-drw');
+      x.m = m;
+      const t = x.sub ? x.sub.textContent : '';
+      if (x.t !== undefined && t !== x.t && x.ph === 'shown' && !REDUCE) restart(x.sub, 'data-sw');
+      x.t = t;
+    }
+    for (const x of [...S.values()]) if (!seen.has(x.id)) gone(x);
+    for (const x of S.values()){ const p = x.el.parentElement && x.el.parentElement.closest('.atr-n'); x.parent = p && S.get(p.dataset.id) || null; x.kids = []; }
+    for (const el of els){ const x = S.get(el.dataset.id); if (x.parent) x.parent.kids.push(x); }
+    booted = true;
   }
-  function paintState(n){ const st = $('.atr-st', n.el), [k, h] = CH[n.s]; st.className = 'tag atr-st' + (k ? ' ' + k : ''); st.innerHTML = h; }
-  // rolling digits: the characters that changed slide out upwards as the new ones come in
-  function roll(el, txt){
-    const old = el.dataset.v; if (old === txt) return; el.dataset.v = txt;
-    if (!old || old.length !== txt.length || REDUCE){ el.textContent = txt; return; }
-    el.innerHTML = [...txt].map((ch, i) => ch === old[i] ? ch : `<span class="atr-rl"><span class="o">${old[i]}</span><span class="n">${ch}</span></span>`).join('');
-  }
-  build(T).forEach(e => tree.appendChild(e)); T.el.tabIndex = 0;
+  function gone(x){ for (const k of ['pr', 'pt', 'pb']) if (x[k]) x[k].remove(); S.delete(x.id); const i = queue.indexOf(x); if (i >= 0) queue.splice(i, 1); }
 
-  // ---------- the lines ----------
-  // one svg over the tree draws every parent's line: down from its mark to its last child, curving off into each child's
-  // mark. The line is tinted as far as the work has got (down to the last child that has started) and fades into grey below
-  // that. It is redrawn every frame from where the rows are, easing towards it, so a line grows down as an agent arrives and
-  // its branch curves out to it, the tint glides down as steps start, and folding a branch draws its lines back in
-  const SVG = 'http://www.w3.org/2000/svg', mk = (t, a = {}) => { const e = document.createElementNS(SVG, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
-  const svg = mk('svg', { class:'atr-ln', 'aria-hidden':'true' }), defs = mk('defs'); svg.append(defs); tree.prepend(svg);
-  const uid = (DM.uid = (DM.uid || 0) + 1); let gi = 0;
-  const L = [];
-  const lineOf = p => { let x = L.find(l => l.p === p); if (x) return x;
-    const id = `atr${uid}-${++gi}`, gr = mk('linearGradient', { id, gradientUnits:'userSpaceOnUse', x1:0, x2:0 }), st = [0, 1, 2, 3].map(() => mk('stop'));
-    st[0].setAttribute('class', 'f'); st[1].setAttribute('class', 'f'); st[2].setAttribute('class', 'g'); st[3].setAttribute('class', 'g'); gr.append(...st); defs.append(gr);
-    const trunk = mk('path', { stroke:`url(#${id})` }); svg.prepend(trunk); svg.prepend(defs);
-    x = { p, gr, st, trunk, end:null, reach:null }; L.push(x); return x; };
-  const open = n => { for (let p = n.parent; p; p = p.parent) if (p.el.getAttribute('aria-expanded') === 'false') return false; return true; };
-  let last = 0;
-  const ease = (v, to, a) => v == null ? to : v + (to - v) * a;
   function frame(t){
-    const dt = last ? Math.min(.05, (t - last) / 1000) : 0; last = t;
-    const fast = 1 - Math.exp(-dt * 14), slow = 1 - Math.exp(-dt * 7);
-    const tr = tree.getBoundingClientRect(), R = parseFloat(getComputedStyle(root).getPropertyValue('--atr-r')) || 0;
-    for (const p of all){
-      if (!kids(p)) continue; const l = lineOf(p);
-      const on = shown(p) && open(p) && p.el.getAttribute('aria-expanded') !== 'false';
-      const pg = $('.atr-g', p.el).getBoundingClientRect(), x0 = pg.left + pg.width / 2 - tr.left, y0 = pg.bottom - tr.top + 3;
-      const fb = p.fold.getBoundingClientRect().bottom - tr.top;
-      let endT = y0, reachT = y0;
-      const B = p.kids.map(k => {
-        const g = $('.atr-g', k.el).getBoundingClientRect(), cy = g.top + g.height / 2 - tr.top, x1 = g.left - tr.left - 5;
-        const vis = on && shown(k) && cy < fb - 2;
-        if (vis){ endT = Math.max(endT, cy - R); if (k.s !== 'queued') reachT = Math.max(reachT, cy); }
-        return { k, cy, x1, vis };
-      });
-      l.end = ease(l.end, endT, fast); l.reach = ease(l.reach, Math.min(reachT, endT), slow);
-      const span = l.end - y0;
-      l.trunk.setAttribute('d', span > .5 ? `M${x0} ${y0}V${l.end}` : '');
-      if (span > .5){
-        const r = Math.min(1, Math.max(0, (l.reach - y0) / span)), fade = Math.min(1 - r, 28 / span);
-        l.gr.setAttribute('y1', y0); l.gr.setAttribute('y2', l.end);
-        l.st[0].setAttribute('offset', 0); l.st[1].setAttribute('offset', r); l.st[2].setAttribute('offset', Math.min(1, r + fade)); l.st[3].setAttribute('offset', 1);
+    const dt = last ? Math.max(0, Math.min(.05, (t - last) / 1000)) : 0; last = Math.max(last, t); T += dt;
+    sync();
+    const red = REDUCE, cs = getComputedStyle(host), R = parseFloat(cs.getPropertyValue('--atr-r')) || 8, cut = cs.getPropertyValue('--atr-cut').trim() === '1';
+    // one row's space opens at a time, once the row before it has risen in and its parent is there
+    if (red) for (const x of queue.splice(0)){ x.ph = 'shown'; x.el.removeAttribute('data-ph'); x.el.style.height = ''; x.q = x.b = 1; }
+    if (!prev || !S.has(prev.id) || shown(prev)){
+      const nx = queue[0];
+      if (nx && (!nx.parent || shown(nx.parent))){ queue.shift(); prev = nx; nx.ph = 'opening'; nx.t1 = T; nx.el.style.height = ''; nx.nh = nx.el.offsetHeight; nx.el.style.height = '0px'; }
+    }
+    for (const x of S.values()) if (x.ph === 'opening'){
+      const u = (T - x.t1) / OPEN;
+      if (u >= 1){ x.el.style.height = ''; x.ph = 'wait'; x.el.dataset.ph = 'wait'; } else x.el.style.height = (x.nh * atrEz(u)).toFixed(2) + 'px';
+    }
+    // where every mark is this frame, in the tree's own space (a zoom or a transform on the page doesn't move the lines)
+    const tb = tree.getBoundingClientRect(), sc = tb.width / (tree.offsetWidth || tb.width) || 1;
+    for (const x of S.values()){ const b = x.g.getBoundingClientRect(); x.cx = (b.left + b.width / 2 - tb.left) / sc; x.cy = (b.top + b.height / 2 - tb.top) / sc; x.r = atrMarkR(x.m); }
+    const corner = (x0, y, x1) => cut ? `L${x1} ${y}` : `Q${x0} ${y} ${x1} ${y}`;
+    for (const P of S.values()){
+      if (!P.kids.length && !P.pr) continue;
+      if (!P.pr){ P.pr = mk('path', { 'data-p':P.id }); gRail.append(P.pr); P.pt = mk('path', { 'data-p':P.id }); gLine.append(P.pt); }
+      const x0 = P.cx, y0 = P.cy + P.r - 1;
+      // the rail draws down to each child in turn as its space opens, and back up as a branch folds
+      let cur = y0, end = y0;
+      for (const k of P.kids){
+        const want = k.ph !== 'open' && k.ph !== 'opening' && !folded(k), y = k.cy - R;
+        if (want && k.q < 1){ if (k.q0 == null){ k.qd = red ? 0 : Math.min(.26, Math.max(.1, (y - cur) / 520)); k.q0 = T - k.q * k.qd; } k.q = k.qd ? Math.min(1, (T - k.q0) / k.qd) : 1; }
+        else if (!want){ k.q0 = null; k.q = red ? 0 : Math.max(0, k.q - dt / GO); }
+        k.on = want;
+        if (k.q > 0){ cur = k.q >= 1 ? y : cur + (y - cur) * atrEz(k.q); end = Math.max(end, cur); }
       }
-      // a branch curves out once the line has come down to it, and draws back in when its row goes
-      for (const b of B){
-        const k = b.k; if (!k.br){ k.br = mk('path', { class:'br' }); svg.append(k.br); k.dr = 0; }
-        const reached = b.vis && l.end >= b.cy - R - 1;
-        k.dr = ease(k.dr, reached ? 1 : 0, b.vis ? fast * .8 : fast * 1.4); if (!b.vis && k.dr < .01) k.dr = 0;
-        k.br.classList.toggle('on', k.s !== 'queued');
-        if (k.dr < .01){ k.br.setAttribute('d', ''); continue; }
-        k.br.setAttribute('d', `M${x0} ${b.cy - R}Q${x0} ${b.cy} ${x0 + R} ${b.cy}H${b.x1}`);
-        const len = k.br.getTotalLength(); k.br.style.strokeDasharray = len; k.br.style.strokeDashoffset = len * (1 - k.dr);
+      draw(P.pr, end - y0 > 2 ? `M${x0} ${y0}V${end}` : '', 'r');
+      // the tint: down to the last child that has started. It follows the rail down to a child that joins already at work,
+      // and glides down to one that starts later
+      let to = null; for (const k of P.kids) if (k.q > 0 && k.st !== 'queued') to = k;
+      if (to !== P.rt){ P.rf = P.ru >= 1 || P.boot ? P.rt : P.rf; P.rt = to; P.r0 = P.boot ? -1e9 : T; P.fol = !!to && to.q < 1; }
+      P.ru = P.fol || red ? 1 : Math.min(1, (T - P.r0) / TINT);
+      const yOf = k => k && S.has(k.id) ? k.cy - R : y0, reach = Math.min(end, yOf(P.rf) + (yOf(P.rt) - yOf(P.rf)) * atrEz(P.ru));
+      draw(P.pt, reach - y0 > 2 ? `M${x0} ${y0}V${reach}` : '', 'on');
+      // each branch draws out once the rail is at it (and, for a child at work, the tint too); then its row rises in
+      for (const k of P.kids){
+        if (!k.pb){ k.pb = mk('path', { 'data-k':k.id }); gLine.append(k.pb); }
+        const y = k.cy - R; k.lit = k.st !== 'queued' && reach >= y - .5;
+        if (k.on && k.q >= 1){ if (k.b0 == null && (k.st === 'queued' || k.lit)) k.b0 = T - k.b * BR; if (k.b0 != null) k.b = red ? 1 : Math.min(1, (T - k.b0) / BR); }
+        else if (!k.on){ k.b0 = null; k.b = red ? 0 : Math.max(0, k.b - dt / GO); }
+        // (a cut corner starts half a line's width up the parent's line, so its sharp joint is drawn whole, with no notch)
+        draw(k.pb, `M${x0} ${cut ? y - .75 : y}` + (cut ? `L${x0} ${y}` : '') + corner(x0, k.cy, x0 + R) + `L${k.cx - k.r + 1} ${k.cy}`, k.st === 'fail' ? 'bad' : k.lit ? 'on' : 'r', k.b);
+        if (k.ph === 'wait' && k.b >= 1){ k.ph = 'in'; k.el.dataset.ph = 'in'; k.tin = T; }
       }
+      P.boot = false;
+    }
+    for (const x of S.values()) if (x.ph === 'in' && T - x.tin > .6){ x.ph = 'shown'; x.el.removeAttribute('data-ph'); }
+    // the bands: one per agent, to the step it is working on now (the last running step under it with nothing running
+    // under that). A band belongs to its agent, so when one step finishes and the next starts it carries on; when its agent
+    // has nothing running it finishes the trip it is on and goes
+    const root = [...S.values()].find(x => !x.parent), agentOf = x => { while (x.parent && x.parent.parent) x = x.parent; return x; };
+    const want = new Map();
+    for (const x of S.values()) if (x.parent && x.st === 'run' && shown(x) && !x.kids.some(k => k.st === 'run' && shown(k))) want.set(agentOf(x).id, x);
+    for (const [id, f] of bands) if (!want.has(id)) f.end = true;
+    for (const [id, x] of want){ let f = bands.get(id); if (!f) f = band(id); f.to = x; f.end = false; }
+    for (const [id, f] of bands){
+      const chain = []; for (let x = f.to; x; x = x.parent) chain.unshift(x);
+      const ready = root && chain[0] === root && chain.slice(1).every(x => S.has(x.id) && x.q >= 1 && x.b >= 1 && x.lit && shown(x) && !folded(x));
+      if (!ready || red){ f.el.style.opacity = 0; f.start = null; if (f.end){ f.el.remove(); f.gr.remove(); bands.delete(id); } continue; }
+      // one route from the source's edge, down each line and along each branch to the next mark's centre (under the mark),
+      // in one piece: dashes start again on every piece of a path
+      let d = `M${root.cx} ${root.cy + root.r - 1}`, px = root.cx;
+      for (const x of chain.slice(1)){ d += `L${px} ${x.cy - R}` + corner(px, x.cy, px + R) + `L${x.cx} ${x.cy}`; px = x.cx; }
+      f.core.setAttribute('d', d); const len = f.core.getTotalLength();
+      // a trip: about 170px a second, 1.8 to 3.4s, eased at both ends, fading in as it leaves and out as it arrives, then
+      // a short rest. A band whose agent has nothing left running ends with the trip it is on
+      if (f.start == null || (!f.end && T - f.start >= f.trip + .35)){ if (f.end){ f.el.remove(); f.gr.remove(); bands.delete(id); continue; } f.start = T; f.len0 = len; f.trip = Math.min(3.4, Math.max(1.8, len / 170)); }
+      const u = (T - f.start) / f.trip;
+      if (u >= 1){ f.el.style.opacity = 0; if (f.end){ f.el.remove(); f.gr.remove(); bands.delete(id); } continue; }
+      f.el.style.opacity = Math.min(1, u / .18, (1 - u) / .22).toFixed(3);
+      const at = Math.min(len, (.5 - Math.cos(Math.PI * u) / 2) * f.len0), t0 = at - BAND * CORE, a = along(f.core, len, t0), b = along(f.core, len, t0 + BAND);
+      f.core.style.strokeDasharray = `${BAND} ${len + BAND * 2}`; f.core.style.strokeDashoffset = -t0;
+      f.gr.setAttribute('x1', a.x); f.gr.setAttribute('y1', a.y); f.gr.setAttribute('x2', b.x + (a.x === b.x ? .01 : 0)); f.gr.setAttribute('y2', b.y + (a.y === b.y ? .01 : 0));
     }
   }
-  c.loop(frame);
-  // a new child: the line comes down to it and curves out, and its row rises into place as the curve arrives
-  function spawn(n){
-    n.el.hidden = false; if (n.s === 'run') n.t0 = performance.now();
-    n.el.classList.remove('atr-in'); void n.el.offsetWidth; n.el.style.animationDelay = '240ms'; n.el.classList.add('atr-in');
-    paint(true);
+  // a point on the route, carried on past either end in the route's own direction there (the band's gradient runs from its
+  // back end to its front, which can be off the route while it leaves or arrives)
+  function along(p, len, t){
+    if (t >= 0 && t <= len) return p.getPointAtLength(t);
+    const q = p.getPointAtLength(t < 0 ? 0 : len), r = p.getPointAtLength(t < 0 ? Math.min(len, 1) : Math.max(0, len - 1)), dx = q.x - r.x, dy = q.y - r.y, m = Math.hypot(dx, dy) || 1, k = t < 0 ? -t : t - len;
+    return { x:q.x + dx / m * k, y:q.y + dy / m * k };
   }
+  function band(id){
+    const gid = `${uid}-b${++bn}`, gr = mk('linearGradient', { id:gid, gradientUnits:'userSpaceOnUse' });
+    STOPS.forEach(([o, k]) => gr.append(mk('stop', { class:k, offset:o }))); defs.append(gr);
+    const el = mk('g', { class:'atr-bd', 'data-a':id }), core = mk('path', { stroke:`url(#${gid})` }); el.append(core); el.style.opacity = 0; gBand.append(el);
+    const f = { el, gr, core, start:null, end:false, to:null }; bands.set(id, f); return f;
+  }
+  // a row's phase: open (its space is opening), wait (its line is drawing to it), in (rising in) or shown
+  return { sync, frame, phase:id => (S.get(id) || {}).ph };
+}
+DM.def('agent-tree', (r, c) => {
+  // the run: the orchestrator splits the work between three agents, and each agent between its steps. Each agent has its
+  // avatar colour (av) and icon (ic); each step the app it works in (app) or an icon. s is the state it joins in and t what
+  // it is on. One step fails and the orchestrator reroutes it to a retry; the last one waits for a person to approve it
+  const RUN = [
+    { id:'root', n:'Orchestrator', t:'Splitting the work', ic:'spark', s:'run' },
+    { id:'res', p:'root', n:'Research', t:'5 competitor pages', ic:'globe', av:'l' },
+    { id:'res1', p:'res', n:'Read the pages', t:'Reading 1 of 5', ic:'file-text' },
+    { id:'des', p:'root', n:'Design', t:'Plan cards in Figma', ic:'palette', av:'p' },
+    { id:'des1', p:'des', n:'Update cards', t:'Pricing v4', app:'figma' },
+    { id:'des2', p:'des', n:'Brand tokens', t:'Colours and spacing', app:'figma' },
+    { id:'des3', p:'des', n:'Retry tokens', t:'Rerouted to accent.500', app:'figma' },
+    { id:'cop', p:'root', n:'Copy', t:'Rewrite the plan blurbs', ic:'edit', av:'m' },
+    { id:'cop1', p:'cop', n:'Post to Slack', t:'Needs your OK', app:'slack', cost:.006, tok:140 }
+  ];
+  const root = $('.atr', r), tree = $('.atr-tree', r), meta = $('.atr-m', r), time = $('.atr-time', r), tot = $('.atr-tot', r), foot = $('.atr-f', r), sr = $('.atr-sr', r);
+  const N = RUN.map(x => ({ cost:0, tok:0, ...x, s:x.s || 'queued', kids:[], secs:0, t0:0 })), by = id => N.find(n => n.id === id);
+  N.forEach(n => { n.parent = n.p ? by(n.p) : null; n.lv = n.parent ? n.parent.lv + 1 : 0; if (n.parent) n.parent.kids.push(n); });
+  const money = v => '$' + v.toFixed(2), clock = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+  const toks = v => v >= 1000 ? (v / 1000).toFixed(v >= 10000 ? 0 : 1).replace(/\.0$/, '') + 'k' : String(Math.round(v));
+  const here = n => !n.el.hidden, under = n => n.kids.filter(here);
+  const sum = n => n.cost + under(n).reduce((a, k) => a + sum(k), 0), sumTok = n => n.tok + under(n).reduce((a, k) => a + sumTok(k), 0);
+  const word = { queued:'queued', run:'running', wait:'needs you', done:'done', fail:'failed' };
 
-  // each branch folds by its row; folded, it keeps its total
-  function toggle(n, open){
-    if (!kids(n)) return; const o = open ?? n.el.getAttribute('aria-expanded') !== 'true';
-    n.el.setAttribute('aria-expanded', o); n.fold.classList.toggle('shut', !o); n.fold.inert = !o;
-  }
-  // the numbers: each node's cost and time, the run's total, and the header's chips (how many agents, how many running, and
-  // what needs you, which takes you to it)
-  const t0 = performance.now(); let ended = 0;
-  const clock = () => secs(((ended || performance.now()) - t0) / 1000);
-  function paint(chipsToo){
-    all.forEach(n => { if (!shown(n)) return; const ce = $('.atr-c', n.el), v = kids(n) ? sum(n) : n.cost;
-      roll(ce, n.s === 'queued' && !v ? '–' : money(v) + (n.secs >= 1 ? ' · ' + secs(n.secs) : ''));
-      if (kids(n)){ const k = n.kids.filter(shown).length, what = n.lv ? (k === 1 ? ' step ' : ' steps ') : (k === 1 ? ' agent ' : ' agents ');
-        ce.dataset.tip = `Its own ${money(n.cost)}, ${k}${what}${money(sum(n) - n.cost)}`; } });
-    roll(tot, money(sum(T)));
-    if (!chipsToo) return;
-    const ag = T.kids.filter(shown).length, run = all.filter(n => shown(n) && n.s === 'run' && n !== T).length, need = all.filter(n => shown(n) && n.s === 'need');
-    chips.innerHTML = `<span class="tag">${ag} agent${ag === 1 ? '' : 's'}</span>${run ? `<span class="tag atr-st run"><span class="spin"></span>${run} running</span>` : ''}${need.length ? `<button type="button" class="tag warn atr-nd">${I('alert','xs')}${need.length} needs you</button>` : ''}${T.s === 'done' ? `<span class="tag ok">${I('check','xs')}Done</span>` : ''}<span class="atr-ck num"></span>`;
-    const nd = $('.atr-nd', chips); if (nd) nd.onclick = () => { const x = need[0]; all.forEach(y => y.el.tabIndex = y === x ? 0 : -1); x.el.focus(); };
-    $('.atr-ck', chips).textContent = clock();
-  }
-  // whatever is running spends as it goes and its time counts, so its numbers and every total above it roll up
-  c.every(100, () => { const now = performance.now(); all.forEach(n => { if (n.s === 'run' && shown(n)){ n.cost += n.lv ? .0016 : .0006; n.secs = (now - n.t0) / 1000 + (n.base || 0); } }); });
-  c.every(700, () => { paint(); const ck = $('.atr-ck', chips); if (ck) ck.textContent = clock(); });
-  function step(n, s, t){
-    if (s === 'run' && n.s !== 'run') n.t0 = performance.now(); if (n.s === 'run' && s !== 'run') n.base = n.secs;
-    n.s = s; n.el.className = 'atr-n ' + s;
-    const g = $('.atr-g', n.el); g.innerHTML = G[s]; enter(g); const st = $('.atr-st', n.el); paintState(n); enter(st);
-    if (t !== undefined) swap($(':scope>.atr-t>span', n.el), t); paint(true);
-  }
-  const say = (n, t) => swap($(':scope>.atr-t>span', n.el), t);
+  // the rows, all built at the start and hidden until each joins the run
+  const build = n => {
+    const who = n.app ? `<span class="atr-av app" aria-hidden="true">${BRAND[n.app]}</span>` : `<span class="atr-av${n.av || !n.lv ? '' : ' app'}" aria-hidden="true"${n.av ? ` style="--a:var(--av-${n.av});--ai:var(--av-${n.av}-ink)"` : ''}>${I(n.ic, 'xs')}</span>`;
+    const m = n.lv ? n.s : 'src';
+    n.el = html(`<div class="atr-n" role="treeitem" aria-level="${n.lv + 1}" aria-selected="false" tabindex="${n.lv ? -1 : 0}" data-id="${n.id}" data-s="${n.s}" style="--lv:${n.lv}"><div class="atr-b"><div class="atr-r"><span class="atr-g" data-m="${m}" aria-hidden="true">${atrMark(m)}</span>${who}<span class="atr-tx"><span class="atr-nm"></span>${n.kids.length ? `<span class="atr-tg" aria-hidden="true">${I('chev-d', 'xs')}</span>` : ''}<span class="atr-sub"></span></span><span class="atr-q num"><span class="atr-c"></span></span></div></div></div>`);
+    $('.atr-nm', n.el).textContent = n.n; $('.atr-sub', n.el).textContent = n.t;
+    n.tg = $('.atr-tg', n.el); if (n.tg) n.tg.hidden = true;
+    if (n.kids.length){ n.fold = html('<div class="fold atr-kids"><div role="group"></div></div>'); n.kids.forEach(k => n.fold.firstElementChild.appendChild(build(k))); n.el.appendChild(n.fold); }
+    if (n.lv) n.el.hidden = true;
+    return n.el;
+  };
+  tree.appendChild(build(N[0]));
+  const T = N[0];
 
-  // the tree keeps the room it will need at the end, with every row in and the summary under it, so nothing moves as it grows
-  T.kids[1].kids.push({ id:'des3b', n:'Apply library tokens', t:'Using color.accent.500', app:'figma', s:'run' });
-  const nb = T.kids[1].kids[3]; nb.lv = 2; nb.parent = T.kids[1]; nb.cost = 0; nb.secs = 0; all.push(nb);
-  T.kids[1].fold.firstElementChild.appendChild(build(nb)[0]);
-  const prov = html(`<div class="atr-sum">${I('ok','xs')}<span>Done in 0:00 · 3 agents · $0.00</span></div>`); root.appendChild(prov);
-  const full = root.getBoundingClientRect().height; prov.remove(); if (full) root.style.minHeight = Math.ceil(full) + 'px';
-  all.forEach(n => { if (n !== T) n.el.hidden = true; }); T.t0 = t0; paint(true);
+  // the room the run needs at its tallest (every row in, and the approval under the last step) is kept from the start, so
+  // the tree sits centred in its stage at every moment and grows downwards inside its own surface (hold(), with the
+  // tallest height instead of the current one)
+  const tallest = () => {
+    const p = root.cloneNode(true);
+    p.style.cssText = `position:absolute;left:0;top:0;width:${root.offsetWidth}px;min-height:0;visibility:hidden;pointer-events:none`;
+    p.setAttribute('aria-hidden', 'true'); p.inert = true;
+    $$('.atr-ln', p).forEach(e => e.remove());
+    $$('[hidden]', p).forEach(e => { e.hidden = false; });
+    $$('[data-ph]', p).forEach(e => { e.removeAttribute('data-ph'); e.style.height = ''; });
+    const f = $('.atr-f', p); if (!f.textContent) f.textContent = 'Orchestrator';
+    const w = $('[data-id="cop1"]>.atr-b', p); if (w && !$('.atr-ask', w)) w.appendChild(html('<div class="atr-ask"><button type="button" class="pill sm primary">Approve</button><button type="button" class="pill sm line">Hold</button></div>'));
+    root.parentElement.appendChild(p); const h = p.offsetHeight; p.remove(); return h;
+  };
+  let wide = -1;
+  const keep = () => { const w = root.offsetWidth; if (!w || w === wide) return; wide = w; root.style.minHeight = tallest() + 'px'; };
+  keep(); const ro = new ResizeObserver(keep); ro.observe(root); c.offs.push(() => ro.disconnect());
 
-  // clicking a branch folds it; the arrow keys move through the tree as in any tree view
-  c.on(tree, 'click', e => { const row = e.target.closest('.atr-n'); if (!row || e.target.closest('.atr-fix')) return; const n = all.find(x => x.el === row); all.forEach(x => x.el.tabIndex = x === n ? 0 : -1); toggle(n); });
-  const visible = () => all.filter(n => { if (!shown(n)) return false; for (let p = n.parent; p; p = p.parent) if (p.el.getAttribute('aria-expanded') === 'false') return false; return true; })
+  const L = atrLines(tree);
+  c.loop(t => { L.frame(t); });
+
+  // the numbers: each row's time and cost (a branch adds up everything under it, split in its tooltip), the run's total and
+  // clock in the header, and the selected row's split under the tree
+  let t0 = performance.now(), ended = 0, sel = null;
+  function paint(){
+    for (const n of N){
+      if (!here(n)) continue;
+      // (the cost keeps its element, so its tooltip stays while it counts)
+      const q = $(':scope>.atr-b .atr-q', n.el), ce = $('.atr-c', q), k = under(n), v = k.length ? sum(n) : n.cost;
+      let se = $('.atr-sec', q);
+      if (n.secs >= 1 && !se){ se = html('<span class="atr-sec"><span></span><span aria-hidden="true"> ·</span></span>'); q.prepend(se); } else if (n.secs < 1 && se){ se.remove(); se = null; }
+      if (se && se.firstChild.textContent !== Math.floor(n.secs) + 's') se.firstChild.textContent = Math.floor(n.secs) + 's';
+      const c$ = n.s === 'queued' && !v ? '' : money(v); if (ce.textContent !== c$) ce.textContent = c$;
+      if (k.length) ce.dataset.tip = `Its own ${money(n.cost)}, ${k.length} ${n.lv ? (k.length === 1 ? 'step' : 'steps') : (k.length === 1 ? 'agent' : 'agents')} ${money(sum(n) - n.cost)}`;
+      const label = `${n.n}, ${word[n.s]}, ${$(':scope>.atr-b .atr-sub', n.el).textContent}${v ? ', ' + money(v) : ''}`;
+      if (n.el.getAttribute('aria-label') !== label) n.el.setAttribute('aria-label', label);
+    }
+    tot.textContent = money(sum(T));
+    const run = N.filter(n => here(n) && n.lv && n.s === 'run').length, wait = N.some(n => here(n) && n.s === 'wait');
+    const fail = N.filter(n => here(n) && n.s === 'fail' && !n.el.hasAttribute('data-dim')).length;
+    const st = ended ? 'Done' : wait ? 'Needs you' : fail && !run ? `${fail} failed` : run ? `${run} running` : N.some(n => n.lv && n.s === 'done') ? 'Wrapping up' : 'Starting';
+    if (meta.textContent !== st) meta.textContent = st;
+    root.dataset.s = ended ? 'done' : wait ? 'wait' : fail && !run ? 'fail' : 'run';
+    time.textContent = clock(((ended || performance.now()) - t0) / 1000);
+    const x = sel || T, kx = under(x), own = kx.length ? ` · its own ${money(x.cost)} · ${kx.length} ${x.lv ? (kx.length === 1 ? 'step' : 'steps') : (kx.length === 1 ? 'agent' : 'agents')} ${money(sum(x) - x.cost)}` : ` · ${money(x.cost)}`;
+    const f = `<b></b>${own} · ${toks(sumTok(x))} tokens`;
+    if (foot._f !== f + x.n){ foot._f = f + x.n; foot.innerHTML = f; foot.firstChild.textContent = x.n; }
+  }
+  // what is running spends as it goes, and its time counts
+  c.every(100, () => {
+    if (ended) return; const now = performance.now();
+    for (const n of N) if (here(n) && n.s === 'run'){ n.cost += n.lv ? .0014 : .0004; n.tok += n.lv ? 21 : 6; n.secs = (now - n.t0) / 1000; }
+    paint();
+  });
+
+  // states: a mark swaps at once (the line engine draws its tick in), and a new line of text rises into place
+  function set(n, s, t){
+    if (s === 'run' && n.s !== 'run') n.t0 = performance.now() - n.secs * 1000;
+    n.s = s; n.el.dataset.s = s;
+    const m = n.lv ? s : s === 'fail' ? 'fail' : 'src', g = $(':scope>.atr-b .atr-g', n.el);
+    if (g.dataset.m !== m){ g.dataset.m = m; g.innerHTML = atrMark(m); }
+    if (t !== undefined) $(':scope>.atr-b .atr-sub', n.el).textContent = t;
+    if (s !== 'wait' && s !== 'fail') ask(n, null);
+    paint(); L.frame(performance.now());
+  }
+  const say = (n, t) => { $(':scope>.atr-b .atr-sub', n.el).textContent = t; paint(); };
+  const until = async f => { while (!f()) await c.wait(50); };
+  // a new row joins: its parent shows its chevron, and the line engine opens its space, draws its line and lets it rise in
+  async function grow(n, s, t){
+    set(n, s, t); n.el.hidden = false; L.frame(performance.now()); if (s === 'run') n.t0 = performance.now();
+    const p = n.parent; if (p && !p.el.hasAttribute('aria-expanded')){ p.el.setAttribute('aria-expanded', 'true'); p.tg.hidden = false; }
+    paint(); await until(() => { const ph = L.phase(n.id); return ph === 'in' || ph === 'shown'; });
+  }
+  // the way on, in place under a row: a fix for a failed step, or Approve and Hold for one that needs a person
+  function ask(n, how){
+    const old = $(':scope>.atr-b>.atr-ask', n.el); if (old) old.remove();
+    if (!how) return;
+    const box = html(`<div class="atr-ask">${how.map(([k, label]) => `<button type="button" class="pill sm ${k === 'yes' ? 'primary' : 'line'} atr-${k}">${label}</button>`).join('')}</div>`);
+    $(':scope>.atr-b', n.el).appendChild(box);
+    return box;
+  }
+  const tell = m => { sr.textContent = m; };
+
+  // the keyboard: one row in the tab order; Up and Down move through the rows you can see (and select them), Right opens
+  // a branch or moves into it, Left closes it or moves to its parent, Home and End jump to the ends. Enter or Space on a row
+  // with a way on moves to its first button; Escape there comes back to the row
+  const open = n => n.el.getAttribute('aria-expanded') !== 'false';
+  const visible = () => N.filter(n => { if (!here(n) || ['open', 'opening', 'wait'].includes(L.phase(n.id))) return false; for (let p = n.parent; p; p = p.parent) if (!open(p)) return false; return true; })
     .sort((a, b) => a.el.compareDocumentPosition(b.el) & 4 ? -1 : 1);
+  function pick(n, focus){
+    sel = n; for (const x of N){ x.el.tabIndex = x === n ? 0 : -1; x.el.setAttribute('aria-selected', String(x === n)); }
+    if (focus) n.el.focus({ preventScroll:true }); paint();
+  }
+  function fold(n, o){
+    if (!under(n).length) return;
+    n.el.setAttribute('aria-expanded', String(o)); n.fold.classList.toggle('shut', !o); n.fold.inert = !o;
+    if (!o && n.fold.contains(document.activeElement)) pick(n, true);
+  }
+  c.on(tree, 'click', e => {
+    const row = e.target.closest('.atr-n'); if (!row || e.target.closest('button')) return;
+    const n = N.find(x => x.el === row);
+    if (e.target.closest('.atr-tg')){ fold(n, !open(n)); return; }
+    pick(n, true);
+  });
   c.on(tree, 'keydown', e => {
-    const v = visible(), i = v.findIndex(n => n.el === document.activeElement); if (i < 0) return;
-    const n = v[i], open = n.el.getAttribute('aria-expanded') === 'true'; let go = null;
+    if (e.target.closest('button')){ if (e.key === 'Escape'){ const n = N.find(x => x.el === e.target.closest('.atr-n')); if (n){ e.preventDefault(); pick(n, true); } } return; }
+    const v = visible(), i = v.findIndex(n => n.el === e.target); if (i < 0) return;
+    const n = v[i], k = under(n).length; let go = null;
     if (e.key === 'ArrowDown') go = v[i + 1]; else if (e.key === 'ArrowUp') go = v[i - 1];
-    else if (e.key === 'ArrowRight'){ if (kids(n) && !open) toggle(n, true); else if (kids(n)) go = n.kids.find(shown); }
-    else if (e.key === 'ArrowLeft'){ if (kids(n) && open) toggle(n, false); else go = n.parent; }
-    else if (e.key === 'Enter' || e.key === ' ') toggle(n);
+    else if (e.key === 'ArrowRight'){ if (k && !open(n)) fold(n, true); else if (k) go = under(n)[0]; }
+    else if (e.key === 'ArrowLeft'){ if (k && open(n)) fold(n, false); else go = n.parent; }
     else if (e.key === 'Home') go = v[0]; else if (e.key === 'End') go = v[v.length - 1];
+    else if (e.key === 'Enter' || e.key === ' '){ const b = $(':scope>.atr-b>.atr-ask button', n.el); if (b) b.focus(); else pick(n, true); }
     else return;
-    e.preventDefault(); if (go){ all.forEach(x => x.el.tabIndex = -1); go.el.tabIndex = 0; go.el.focus({ preventScroll:true }); }
+    e.preventDefault(); if (go) pick(go, true);
   });
-  // the run: it opens mid-plan, the orchestrator handing out the agents and they their steps. The research reads its pages and
-  // sums them up while the design agent works through its cards; one step needs you, as the library has no token for the
-  // colour it found. Taking the fix stops that step and starts a new one with the token the library has; then the copy
-  // agent writes and the run is done
+
+  // the run: agents join one at a time and split their work; the research reads its pages while the design agent works
+  // through its cards. One step fails on a token the library doesn't have, and the orchestrator reroutes it to a retry (a
+  // person can take the fix first). The copy agent's post waits for a person: the story presses Approve, and without the
+  // story the person in the demo does after a while, unless the visitor has taken over, who then approves it themselves
   c.run(async () => {
-    const order = all.filter(n => n !== T && n.at != null).sort((a, b) => a.at - b.at); let at = 0;
-    for (const n of order){ await c.wait((n.at - at) * 1000); at = n.at; spawn(n); }
-    await c.wait(600); say(by('res1'), 'Reading page 2 of 3');
-    await c.wait(700); say(by('res1'), 'Reading page 3 of 3');
-    await c.wait(500); step(by('des1'), 'done', 'Pricing v4, frame 2'); step(by('des2'), 'run', 'Editing frame 3');
-    await c.wait(300); step(by('res1'), 'done', '3 pages, 9.4k words'); step(by('res2'), 'run', 'Comparing 9 plans');
-    await c.wait(1300); step(by('res2'), 'done', 'Notes added to Pricing v4'); step(by('res'), 'done');
-    await c.wait(700); step(by('des2'), 'done', 'Pricing v4, frame 3'); step(by('des3'), 'run', 'Matching colours to tokens');
-    await c.wait(1200);
-    const tk = by('des3'); step(tk, 'need', "color.accent.600 isn't in the library");
-    const fix = html(`<button class="pill sm line atr-fix">Use color.accent.500</button>`); $('.atr-t', tk.el).appendChild(fix); enter(fix);
-    await new Promise(res => { fix.onclick = res; });
-    fix.remove(); step(tk, 'stop', 'Stopped for color.accent.500'); spawn(nb);
-    await c.wait(1700); step(nb, 'done', 'Colour and spacing, from the library'); step(by('des'), 'done'); step(by('cop'), 'run', 'Writing 3 plan blurbs');
-    await c.wait(2400); step(by('cop'), 'done', 'Plan descriptions rewritten'); step(T, 'done'); ended = performance.now(); paint(true);
-    const sm = html(`<div class="atr-sum">${I('ok','xs')}<span>Done in ${clock()} · 3 agents · ${money(sum(T))}</span></div>`); root.appendChild(sm); enter(sm);
+    await c.wait(300);
+    await grow(by('res'), 'run'); await grow(by('des'), 'run'); await grow(by('cop'), 'queued'); say(T, '3 agents at work');
+    await grow(by('res1'), 'run'); await grow(by('des1'), 'run'); await grow(by('des2'), 'queued');
+    await c.wait(300); say(by('res1'), 'Reading 3 of 5');
+    await c.wait(500); say(by('res1'), 'Reading 5 of 5');
+    await c.wait(450); set(by('res1'), 'done', '5 pages, 12k words');
+    await c.wait(350); set(by('res'), 'done', 'Notes in Pricing v4');
+    await c.wait(350); set(by('des1'), 'done', 'Pro and Team done'); set(by('des2'), 'run', 'Matching colours');
+    await c.wait(1100);
+    const tk = by('des2'); set(tk, 'fail', 'Missing accent.600'); tell(`${tk.n} failed: Missing accent.600`);
+    await new Promise(res => { $('.atr-fix', ask(tk, [['fix', 'Use accent.500']])).onclick = () => res(); c.later(1300, res); });
+    ask(tk, null); tk.el.setAttribute('data-dim', ''); paint();
+    await grow(by('des3'), 'run', 'Rerouted to accent.500');
+    await c.wait(1200); set(by('des3'), 'done', 'Used accent.500');
+    await c.wait(300); set(by('des'), 'done', 'Cards and tokens done'); set(by('cop'), 'run', 'Writing 3 blurbs');
+    await c.wait(1200); say(by('cop'), '3 blurbs written');
+    const ps = by('cop1'); await grow(ps, 'wait', 'Needs your OK');
+    tell(`${ps.n} needs you`);
+    await new Promise(res => {
+      const box = ask(ps, [['yes', 'Approve'], ['no', 'Hold']]);
+      $('.atr-yes', box).onclick = () => res();
+      $('.atr-no', box).onclick = e => { say(ps, 'On hold'); e.currentTarget.remove(); $('.atr-yes', box).focus({ preventScroll:true }); };
+      c.auto(2600, () => res());
+    });
+    set(ps, 'done', 'Posted to #pricing');
+    await c.wait(350); set(by('cop'), 'done', '3 blurbs posted');
+    await c.wait(300); set(T, 'done', 'Run finished'); ended = performance.now(); paint(); tell('Run finished');
   });
-  // the preview's story: read a branch's cost, take the fix when a step needs you, and fold the research once the run is done
+  // the preview's story: read how a branch's cost splits, then approve the post
   c.story(async s => {
-    await s.until(() => shown(by('des3'))); await s.beat(2);
-    await s.point($('.atr-c', by('des').el)); await s.beat(3); s.away();
-    await s.until(() => $('.atr-fix', r)); await s.beat(3);
-    await s.tap($('.atr-fix', r)); s.away();
-    await s.until(() => T.s === 'done'); await s.beat(2);
-    await s.tap(by('res').el); s.away(); await s.beat(1);
+    await s.until(() => here(by('des2')) && L.phase('des2') === 'shown'); await s.beat(2);
+    await s.point($(':scope>.atr-b .atr-c', by('des').el)); await s.beat(3); s.away();
+    await s.until(() => $('.atr-yes', r)); await s.beat(3);
+    await s.tap($('.atr-yes', r)); s.away();
+    await s.until(() => ended);
   });
+  paint();
 });
 /* ---------- Agent tree designs ---------- */
 /* the homepage card's design switch, shown as its footer tabs: Classic is the component above, and the others are the
@@ -1005,11 +1177,7 @@ DM.def('agent-tree', (r, c) => {
     // grows downwards from there. Its height is taken once at each width, so what it does never moves its top
     const fit = () => { const H = parseFloat(getComputedStyle(r).minHeight) || 0, w = r.clientWidth; if (w !== wide){ wide = w; h = tall ? tall() : main.offsetHeight; } dm.style.setProperty('--dmy', Math.max(0, Math.floor((H - h) / 2)) + 'px'); };
     if (v !== 'classic'){ main.innerHTML = ATR_DS[v][0]; const t = ATR_DS[v][1](main, c); tall = typeof t === 'function' ? t : null; }
-    // the classic tree is tallest with its summary under it, at the end of the run: a hidden copy of it with the summary in
-    // is measured, then taken away
-    else tall = () => { const a = $('.atr', main); if (!a) return main.offsetHeight;
-      const p = a.cloneNode(true); if (!$('.atr-sum', p)) p.appendChild(html(`<div class="atr-sum">${I('ok','xs')}<span>Done in 0:00 · 3 agents · $0.00</span></div>`));
-      p.style.cssText = 'position:absolute;left:0;right:0;top:0;visibility:hidden'; p.setAttribute('aria-hidden', 'true'); main.appendChild(p); const x = p.offsetHeight; p.remove(); return x; };
+    // (the classic tree keeps the room of its tallest moment from the start, so its height now is its tallest)
     $$('button', sg).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
     seg(sg, k => {
       if (k === v) return;
