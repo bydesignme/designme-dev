@@ -61,7 +61,7 @@ export interface AgentRunTimelineProps {
   stats?: TimelineStat[];
   /** The names of the kinds in the key. Defaults to Model, Tools and Apps */
   kindLabels?: Partial<Record<StepKind, string>>;
-  /** Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own */
+  /** Draws its own container (the default, as on designme.dev). Set true to sit it flat in a chat thread */
   bare?: boolean;
   className?: string;
 }
@@ -103,7 +103,7 @@ const secs = (n: number) => String(+n.toFixed(1));
 type State = 'wait' | 'run' | 'done' | 'fail';
 
 /** A run drawn as a Gantt chart: every step as a bar in its kind's colour on a shared time axis, with a playhead while it runs. */
-export function AgentRunTimeline({ title, steps, time, span, ticks, status, stats, kindLabels, bare = true, className }: AgentRunTimelineProps) {
+export function AgentRunTimeline({ title, steps, time, span, ticks, status, stats, kindLabels, bare = false, className }: AgentRunTimelineProps) {
   const end = Math.max(0, ...steps.map(s => s.start + s.duration));
   const T = span ?? Math.max(4, Math.ceil(end / 4) * 4);
   const done = time === undefined || time >= T;

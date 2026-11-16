@@ -45,7 +45,7 @@ A list of the things an agent remembers about a team, such as brand rules and wo
 - Forget removes a memory and leaves an Undo in its place for `undoFor` ms (4000 by default), calling `onForget` and, if undone, `onRestore`.
 - The count under the title updates as memories come and go, worded by `countLabel`.
 - In Blueprint the new memory's tint is hatched and the pulse steps in hard beats, with the source's edge blinking in the kind's colour instead of lifting.
-- Sits flat by default; set `bare` to false to give it its own card.
+- It draws its own container by default; set `bare` to sit it flat in a chat thread.
 
 ### Accessibility
 
@@ -143,7 +143,7 @@ export default function MemoryPanelDemo() {
 | `onForget` (optional) | `(memory: MemoryItem) => void` | Called when a memory is forgotten. It can still come back with Undo for `undoFor` ms |
 | `onRestore` (optional) | `(memory: MemoryItem) => void` | Called when Undo brings a forgotten memory back |
 | `undoFor` (optional) | `number` | How long Undo stays, in ms |
-| `bare` (optional) | `boolean` | Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own |
+| `bare` (optional) | `boolean` | Draws its own container (the default, as on designme.dev). Set true to sit it flat in a chat thread |
 | `className` (optional) | `string` |  |
 
 ## Usage in Astro
@@ -269,7 +269,7 @@ export interface MemoryPanelProps {
   onRestore?: (memory: MemoryItem) => void;
   /** How long Undo stays, in ms */
   undoFor?: number;
-  /** Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own */
+  /** Draws its own container (the default, as on designme.dev). Set true to sit it flat in a chat thread */
   bare?: boolean;
   className?: string;
 }
@@ -284,7 +284,7 @@ const Mark = ({ brand, icon }: { brand?: BrandName; icon?: IconName }) => brand 
 export function MemoryPanel({
   title = 'Team memory', icon = 'book', kinds, memories, defaultMemories = [], onMemoriesChange, filter, defaultFilter = 'all', onFilterChange,
   allLabel = 'All', countLabel = plural, showSources = true, activity, editedSource = 'Edited by you, just now', newLabel = 'New', usedLabel = 'Used',
-  onEdit, onForget, onRestore, undoFor = 4000, bare = true, className
+  onEdit, onForget, onRestore, undoFor = 4000, bare = false, className
 }: MemoryPanelProps) {
   const [list, setList] = useControllable(memories, defaultMemories, onMemoriesChange);
   const [f, setF] = useControllable(filter, defaultFilter, onFilterChange);

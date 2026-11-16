@@ -68,7 +68,7 @@ export interface PermissionGateProps {
   /** Shown after Not now */
   declinedTitle?: ReactNode;
   declinedDetail?: ReactNode;
-  /** Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own */
+  /** Draws its own container (the default, as on designme.dev). Set true to sit it flat in a chat thread */
   bare?: boolean;
   className?: string;
 }
@@ -83,7 +83,7 @@ const durSpan = (d: string) => /^always$/i.test(d) ? 'always' : 'for ' + d.toLow
 export function PermissionGate({
   title, subtitle, icon, scopes, value, defaultValue = [], onValueChange, durations = DURATIONS, durationDetails = DETAILS, duration, defaultDuration, onDurationChange,
   status, defaultStatus = 'asking', onStatusChange, onAllow, onDecline, onRevoke, onUndo, allowedDetail, allowedTitle, working = false, meta, followUp = false,
-  declineLabel = 'Not now', declinedTitle = 'The agent will skip these changes', declinedDetail, bare = true, className
+  declineLabel = 'Not now', declinedTitle = 'The agent will skip these changes', declinedDetail, bare = false, className
 }: PermissionGateProps) {
   const [ticked, setTicked] = useControllable(value, defaultValue, onValueChange);
   const [dur, setDur] = useControllable(duration, defaultDuration ?? durations[0], onDurationChange);

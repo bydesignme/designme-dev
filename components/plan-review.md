@@ -147,7 +147,7 @@ export default function PlanReviewDemo() {
 | `onRequestChanges` (optional) | `() => void` |  |
 | `onStop` (optional) | `() => void` |  |
 | `onSeeChanges` (optional) | `() => void` |  |
-| `bare` (optional) | `boolean` | Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own |
+| `bare` (optional) | `boolean` | Draws its own container (the default, as on designme.dev). Set true to sit it flat in a chat thread |
 | `className` (optional) | `string` |  |
 
 ## Usage in Astro
@@ -177,7 +177,7 @@ In the `running` phase the footer shows a Stop button that calls `onStop`. Stopp
 
 **Can it sit on its own instead of inside a chat?**
 
-Yes. It is flat by default to sit in a chat thread. Set `bare={false}` to give it its own card.
+Yes. It draws its own container by default. Set `bare` to sit it flat in a chat thread.
 
 ## Source
 
@@ -227,7 +227,7 @@ export interface PlanReviewProps {
   onRequestChanges?: () => void;
   onStop?: () => void;
   onSeeChanges?: () => void;
-  /** Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own */
+  /** Draws its own container (the default, as on designme.dev). Set true to sit it flat in a chat thread */
   bare?: boolean;
   className?: string;
 }
@@ -236,7 +236,7 @@ const NOTE: Record<PlanPhase, string> = { review: 'Click a step to edit it', run
 let added = 0;
 
 /** A plan the agent proposes before it starts: edit a step, skip it, add one, then approve. */
-export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, phase = 'review', status, note, meta, onApprove, onRequestChanges, onStop, onSeeChanges, bare = true, className }: PlanReviewProps) {
+export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, phase = 'review', status, note, meta, onApprove, onRequestChanges, onStop, onSeeChanges, bare = false, className }: PlanReviewProps) {
   const [list, setList] = useControllable(steps, defaultSteps, onStepsChange);
   const live = useRef(list);
   useEffect(() => { live.current = list; });

@@ -83,7 +83,7 @@ export interface MemoryPanelProps {
   onRestore?: (memory: MemoryItem) => void;
   /** How long Undo stays, in ms */
   undoFor?: number;
-  /** Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own */
+  /** Draws its own container (the default, as on designme.dev). Set true to sit it flat in a chat thread */
   bare?: boolean;
   className?: string;
 }
@@ -98,7 +98,7 @@ const Mark = ({ brand, icon }: { brand?: BrandName; icon?: IconName }) => brand 
 export function MemoryPanel({
   title = 'Team memory', icon = 'book', kinds, memories, defaultMemories = [], onMemoriesChange, filter, defaultFilter = 'all', onFilterChange,
   allLabel = 'All', countLabel = plural, showSources = true, activity, editedSource = 'Edited by you, just now', newLabel = 'New', usedLabel = 'Used',
-  onEdit, onForget, onRestore, undoFor = 4000, bare = true, className
+  onEdit, onForget, onRestore, undoFor = 4000, bare = false, className
 }: MemoryPanelProps) {
   const [list, setList] = useControllable(memories, defaultMemories, onMemoriesChange);
   const [f, setF] = useControllable(filter, defaultFilter, onFilterChange);

@@ -123,7 +123,7 @@ export default function PermissionGateDemo() {
   const r = run.current;
   return (
     <div ref={ref} style={{ width: '100%' }}>
-      <PermissionGate bare={false} icon={<Icon name="figma" />} durationDetails={{ 'This task': 'Until the pricing fixes are done', Today: 'Until midnight', Always: 'Until you revoke it' }}
+      <PermissionGate icon={<Icon name="figma" />} durationDetails={{ 'This task': 'Until the pricing fixes are done', Today: 'Until midnight', Always: 'Until you revoke it' }}
         title={more ? 'Also allow Publish library?' : 'Allow the agent to edit Figma?'}
         subtitle={more ? `${FRAMES[LIB]}, frame ${LIB + 1} of ${FRAMES.length}, is a library component` : 'It needs this to apply the pricing fixes'}
         scopes={more ? MORE : FIRST} value={value} onValueChange={setValue} duration={duration} onDurationChange={setDuration}
@@ -170,7 +170,7 @@ export default function PermissionGateDemo() {
 | `declineLabel` (optional) | `string` | The decline button. Defaults to "Not now"; a follow-up ask might say "Skip this frame" |
 | `declinedTitle` (optional) | `ReactNode` | Shown after Not now |
 | `declinedDetail` (optional) | `ReactNode` |  |
-| `bare` (optional) | `boolean` | Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own |
+| `bare` (optional) | `boolean` | Draws its own container (the default, as on designme.dev). Set true to sit it flat in a chat thread |
 | `className` (optional) | `string` |  |
 
 ## Usage in Astro
@@ -277,7 +277,7 @@ export interface PermissionGateProps {
   /** Shown after Not now */
   declinedTitle?: ReactNode;
   declinedDetail?: ReactNode;
-  /** Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own */
+  /** Draws its own container (the default, as on designme.dev). Set true to sit it flat in a chat thread */
   bare?: boolean;
   className?: string;
 }
@@ -292,7 +292,7 @@ const durSpan = (d: string) => /^always$/i.test(d) ? 'always' : 'for ' + d.toLow
 export function PermissionGate({
   title, subtitle, icon, scopes, value, defaultValue = [], onValueChange, durations = DURATIONS, durationDetails = DETAILS, duration, defaultDuration, onDurationChange,
   status, defaultStatus = 'asking', onStatusChange, onAllow, onDecline, onRevoke, onUndo, allowedDetail, allowedTitle, working = false, meta, followUp = false,
-  declineLabel = 'Not now', declinedTitle = 'The agent will skip these changes', declinedDetail, bare = true, className
+  declineLabel = 'Not now', declinedTitle = 'The agent will skip these changes', declinedDetail, bare = false, className
 }: PermissionGateProps) {
   const [ticked, setTicked] = useControllable(value, defaultValue, onValueChange);
   const [dur, setDur] = useControllable(duration, defaultDuration ?? durations[0], onDurationChange);

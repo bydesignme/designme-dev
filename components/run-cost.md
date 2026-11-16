@@ -119,7 +119,7 @@ export default function RunCostDemo() {
 | `actionLabel` (optional) | `string` | Words on the button. Defaults to Start run, Stop, Resume, Raise cap or Start over, by status |
 | `onAction` (optional) | `() => void` | Called by the button. What it does is up to you: start, stop, resume, raise the cap |
 | `title` (optional) | `string` |  |
-| `bare` (optional) | `boolean` | Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own |
+| `bare` (optional) | `boolean` | Draws its own container (the default, as on designme.dev). Set true to sit it flat in a chat thread |
 | `className` (optional) | `string` |  |
 
 ## Usage in Astro
@@ -189,7 +189,7 @@ export interface RunCostProps {
   /** Called by the button. What it does is up to you: start, stop, resume, raise the cap */
   onAction?: () => void;
   title?: string;
-  /** Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own */
+  /** Draws its own container (the default, as on designme.dev). Set true to sit it flat in a chat thread */
   bare?: boolean;
   className?: string;
 }
@@ -199,7 +199,7 @@ const TONE: Partial<Record<RunCostStatus, string>> = { running: 'dm-b', paused: 
 const ACTION: Record<RunCostStatus, string> = { idle: 'Start run', running: 'Stop', stopped: 'Resume', paused: 'Raise cap', spent: 'Start over' };
 
 /** Credits a run has used against its budget, with a cap the agent pauses at and the tokens behind the number. */
-export function RunCost({ used, budget, capAt = 90, capOn, defaultCapOn = true, onCapChange, status = 'idle', statusLabel, rows, actionLabel, onAction, title = 'Credits used', bare = true, className }: RunCostProps) {
+export function RunCost({ used, budget, capAt = 90, capOn, defaultCapOn = true, onCapChange, status = 'idle', statusLabel, rows, actionLabel, onAction, title = 'Credits used', bare = false, className }: RunCostProps) {
   const [cap, setCap] = useControllable(capOn, defaultCapOn, onCapChange);
   const label = statusLabel ?? { idle: 'Idle', running: 'Running', stopped: 'Stopped', paused: `Paused at ${capAt}%`, spent: 'Budget used' }[status];
   return (

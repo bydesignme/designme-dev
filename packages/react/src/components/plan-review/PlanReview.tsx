@@ -41,7 +41,7 @@ export interface PlanReviewProps {
   onRequestChanges?: () => void;
   onStop?: () => void;
   onSeeChanges?: () => void;
-  /** Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own */
+  /** Draws its own container (the default, as on designme.dev). Set true to sit it flat in a chat thread */
   bare?: boolean;
   className?: string;
 }
@@ -50,7 +50,7 @@ const NOTE: Record<PlanPhase, string> = { review: 'Click a step to edit it', run
 let added = 0;
 
 /** A plan the agent proposes before it starts: edit a step, skip it, add one, then approve. */
-export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, phase = 'review', status, note, meta, onApprove, onRequestChanges, onStop, onSeeChanges, bare = true, className }: PlanReviewProps) {
+export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, phase = 'review', status, note, meta, onApprove, onRequestChanges, onStop, onSeeChanges, bare = false, className }: PlanReviewProps) {
   const [list, setList] = useControllable(steps, defaultSteps, onStepsChange);
   const live = useRef(list);
   useEffect(() => { live.current = list; });

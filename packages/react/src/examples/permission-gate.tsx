@@ -61,7 +61,7 @@ export default function PermissionGateDemo() {
   const r = run.current;
   return (
     <div ref={ref} style={{ width: '100%' }}>
-      <PermissionGate bare={false} icon={<Icon name="figma" />} durationDetails={{ 'This task': 'Until the pricing fixes are done', Today: 'Until midnight', Always: 'Until you revoke it' }}
+      <PermissionGate icon={<Icon name="figma" />} durationDetails={{ 'This task': 'Until the pricing fixes are done', Today: 'Until midnight', Always: 'Until you revoke it' }}
         title={more ? 'Also allow Publish library?' : 'Allow the agent to edit Figma?'}
         subtitle={more ? `${FRAMES[LIB]}, frame ${LIB + 1} of ${FRAMES.length}, is a library component` : 'It needs this to apply the pricing fixes'}
         scopes={more ? MORE : FIRST} value={value} onValueChange={setValue} duration={duration} onDurationChange={setDuration}

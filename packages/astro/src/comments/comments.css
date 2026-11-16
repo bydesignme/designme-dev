@@ -11,13 +11,20 @@
 .cmx-pin{width:20px;height:20px;border-radius:50% 50% 50% var(--dm-r-xs);background:var(--dm-accent);color:var(--dm-on-accent);display:grid;place-items:center;font-size:11px;font-weight:500;flex:none;transition:background var(--dm-t)}
 .cmx.done .cmx-pin{background:var(--dm-ok);color:var(--dm-surface)}
 .cmx-res{width:28px;height:28px;color:var(--dm-muted)}
-.cmx-th{display:flex;flex-direction:column;gap:var(--dm-s-4);flex:1}
-.cmx-rp{display:flex;flex-direction:column;gap:var(--dm-s-4);margin-left:var(--dm-s-3);padding-left:calc(var(--dm-s-5) + 1px);position:relative}
-/* the replies' line starts just below the first comment's avatar, centred under it, and runs down beside every reply */
+.cmx-th{--dm-cmx-ln:color-mix(in srgb,var(--dm-rail) 50%,var(--dm-surface));display:flex;flex-direction:column;gap:var(--dm-s-4);flex:1}
+/* dark: the rail is close to the surface already, so the line keeps more of it to stay visible */
+:root[data-theme="dark"] .cmx-th{--dm-cmx-ln:color-mix(in srgb,var(--dm-rail) 80%,var(--dm-surface))}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cmx-th{--dm-cmx-ln:color-mix(in srgb,var(--dm-rail) 80%,var(--dm-surface))}}
+.cmx-rp{--dm-cmx-x:calc(-1 * (var(--dm-s-5) + 1px) - .75px);display:flex;flex-direction:column;gap:var(--dm-s-4);margin-left:var(--dm-s-3);padding-left:calc(var(--dm-s-5) + 1px);position:relative}
+/* the line starts just below the first comment's avatar, centred under it, and runs down to the last reply's turn */
 .cmx-th>.cmx-c:first-child{position:relative}
-.cmx-th>.cmx-c:first-child:has(+ .cmx-rp)::before,.cmx-rp::before{content:'';position:absolute;width:1px;background:var(--dm-rail);pointer-events:none}
-.cmx-th>.cmx-c:first-child:has(+ .cmx-rp)::before{left:calc(var(--dm-s-3) - .5px);top:calc(24px + var(--dm-s-1));bottom:calc(-1 * var(--dm-s-4))}
-.cmx-rp::before{left:-.5px;top:0;bottom:0}
+.cmx-th>.cmx-c:first-child:has(+ .cmx-rp)::before{content:'';position:absolute;width:1.5px;background:var(--dm-cmx-ln);pointer-events:none;left:calc(var(--dm-s-3) - .75px);top:calc(24px + var(--dm-s-1));bottom:calc(-1 * var(--dm-s-4))}
+/* each reply: the line comes down from above and turns into its avatar; under every reply but the last it carries on down */
+.cmx-rp>.cmx-c{position:relative}
+.cmx-rp>.cmx-c .av{position:relative;z-index:1}
+.cmx-rp>.cmx-c::before{content:'';position:absolute;left:var(--dm-cmx-x);top:calc(-1 * var(--dm-s-4));width:calc(var(--dm-s-5) + 2.75px);height:calc(var(--dm-s-4) + 12.75px);box-sizing:border-box;border-left:1.5px solid var(--dm-cmx-ln);border-bottom:1.5px solid var(--dm-cmx-ln);border-bottom-left-radius:10px;corner-shape:round;pointer-events:none}
+.cmx-rp>.cmx-c:not(:last-child)::after{content:'';position:absolute;left:var(--dm-cmx-x);top:12px;bottom:calc(-1 * var(--dm-s-4));width:1.5px;background:var(--dm-cmx-ln);pointer-events:none}
+:root:not([data-style="soft"]) .cmx-rp>.cmx-c:not(:where([data-style="soft"],[data-style="soft"] *))::before{border:0;border-radius:0;background:var(--dm-cmx-ln);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22.75 28.75' preserveAspectRatio='none'%3E%3Cpath d='M.75 0V20L8.75 28H22.75' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E") 0 0/100% 100% no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22.75 28.75' preserveAspectRatio='none'%3E%3Cpath d='M.75 0V20L8.75 28H22.75' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E") 0 0/100% 100% no-repeat}
 .cmx-c{display:flex;gap:var(--dm-s-3);min-width:0}
 .cmx-c .av{width:24px;height:24px;font-size:10px}
 .cmx-c .b{flex:1;display:flex;flex-direction:column;min-width:0}

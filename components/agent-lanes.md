@@ -136,7 +136,7 @@ export default function AgentLanesDemo() {
 | `expanded` (optional) | `string[]` | Keys of the lanes that are open. Leave it out to let each row toggle itself |
 | `defaultExpanded` (optional) | `string[]` |  |
 | `onExpandedChange` (optional) | `(keys: string[]) => void` |  |
-| `bare` (optional) | `boolean` | Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own |
+| `bare` (optional) | `boolean` | Draws its own container (the default, as on designme.dev). Set true to sit it flat in a chat thread |
 | `className` (optional) | `string` |  |
 
 ## Usage in Astro
@@ -229,7 +229,7 @@ export interface AgentLanesProps {
   expanded?: string[];
   defaultExpanded?: string[];
   onExpandedChange?: (keys: string[]) => void;
-  /** Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own */
+  /** Draws its own container (the default, as on designme.dev). Set true to sit it flat in a chat thread */
   bare?: boolean;
   className?: string;
 }
@@ -310,7 +310,7 @@ function Lane({ lane, paused, open, sent, got, ping, onToggle }: { lane: AgentLa
 const clock = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 
 /** Several agents working side by side, each in its own lane and hue, handing work to one another down a relay line. */
-export function AgentLanes({ lanes, title, seconds, paused, defaultPaused = false, onPausedChange, handoff, expanded, defaultExpanded = [], onExpandedChange, bare = true, className }: AgentLanesProps) {
+export function AgentLanes({ lanes, title, seconds, paused, defaultPaused = false, onPausedChange, handoff, expanded, defaultExpanded = [], onExpandedChange, bare = false, className }: AgentLanesProps) {
   const [isPaused, setPaused] = useControllable(paused, defaultPaused, onPausedChange);
   const [open, setOpen] = useControllable(expanded, defaultExpanded, onExpandedChange);
   const finished = lanes.length > 0 && lanes.every(l => l.status === 'done');

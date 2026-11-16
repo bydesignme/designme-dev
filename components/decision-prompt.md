@@ -90,7 +90,7 @@ export default function DecisionPromptDemo() {
 | `startLabel` (optional) | `string` | The line under the summary while the agent gets going |
 | `started` (optional) | `boolean` | The agent has got going: the line under the summary settles with a check |
 | `startedLabel` (optional) | `string` | What that line says once started. Defaults to startLabel |
-| `bare` (optional) | `boolean` | Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own |
+| `bare` (optional) | `boolean` | Draws its own container (the default, as on designme.dev). Set true to sit it flat in a chat thread |
 | `className` (optional) | `string` |  |
 
 ## Usage in Astro
@@ -160,7 +160,7 @@ export interface DecisionPromptProps {
   started?: boolean;
   /** What that line says once started. Defaults to startLabel */
   startedLabel?: string;
-  /** Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own */
+  /** Draws its own container (the default, as on designme.dev). Set true to sit it flat in a chat thread */
   bare?: boolean;
   className?: string;
 }
@@ -168,7 +168,7 @@ export interface DecisionPromptProps {
 /** The agent asks a few quick questions before it starts. Number keys pick, Enter continues. */
 export function DecisionPrompt({
   questions, answers: value, defaultAnswers = [], onAnswersChange, onComplete, skippedLabel = 'Agent decides', startLabel = 'Starting',
-  started = false, startedLabel, bare = true, className
+  started = false, startedLabel, bare = false, className
 }: DecisionPromptProps) {
   const [answers, setAnswers] = useControllable(value, defaultAnswers, onAnswersChange);
   const [sel, setSel] = useState(0);

@@ -39,7 +39,7 @@ Stepper walks a person through a short setup one question at a time, with a trac
 - Completed steps on the track show a check and can be clicked to go back to them.
 - `onNext` runs before moving on; returning false, or a promise of false, keeps the person on the step, and Continue is disabled while it is pending.
 - Finish calls `onFinish` with the picks, and the done screen lists the chosen options unless you set `doneDetail`. The track is hidden there, and the screen keeps the height the steps had, with the confirmation centred in it.
-- Start over returns to the first step, and `bare` (the default) sits flat in a chat thread.
+- Start over returns to the first step. It draws its own container by default; set `bare` to sit it flat in a chat thread.
 
 ### Accessibility
 
@@ -91,7 +91,7 @@ export default function StepperDemo() {
 | `nextLabel` (optional) | `string` |  |
 | `finishLabel` (optional) | `string` |  |
 | `restartLabel` (optional) | `string` |  |
-| `bare` (optional) | `boolean` | Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own |
+| `bare` (optional) | `boolean` | Draws its own container (the default, as on designme.dev). Set true to sit it flat in a chat thread |
 | `className` (optional) | `string` |  |
 
 ## Usage in Astro
@@ -177,7 +177,7 @@ export interface StepperProps {
   nextLabel?: string;
   finishLabel?: string;
   restartLabel?: string;
-  /** Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own */
+  /** Draws its own container (the default, as on designme.dev). Set true to sit it flat in a chat thread */
   bare?: boolean;
   className?: string;
 }
@@ -206,7 +206,7 @@ function burst(at: HTMLElement) {
 
 /** A few steps of setup, one question at a time, with a track that fills in as you go. */
 export function Stepper({ steps, step, defaultStep = 0, onStepChange, values, defaultValues, onValuesChange, onNext, onFinish,
-  doneTitle = "You're set up", doneDetail, backLabel = 'Back', nextLabel = 'Continue', finishLabel = 'Finish', restartLabel = 'Start over', bare = true, className }: StepperProps) {
+  doneTitle = "You're set up", doneDetail, backLabel = 'Back', nextLabel = 'Continue', finishLabel = 'Finish', restartLabel = 'Start over', bare = false, className }: StepperProps) {
   const [cur, setCur] = useControllable(step, defaultStep, onStepChange);
   const [picks, setPicks] = useControllable(values, defaultValues ?? steps.map(s => s.defaultOption ?? 0), onValuesChange);
   // each move slides the new step in from the side it comes from; the first step just appears

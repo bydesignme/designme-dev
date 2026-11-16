@@ -48,6 +48,8 @@ export interface DataPickerProps {
   onActiveChange?: (active: number) => void;
   /** Said under the list, like "From the 4 steps before Send the reply" */
   note?: ReactNode;
+  /** Draws its own container (the default, as on designme.dev). Set true to sit it flat in a chat thread */
+  bare?: boolean;
   className?: string;
 }
 
@@ -59,7 +61,7 @@ const mark = (t: string, v: string) => { const i = v ? t.toLowerCase().indexOf(v
 /** Maps data from earlier steps into a step's inputs: each input holds tokens, the step and then its field, and a + opens a
     picker of what earlier steps hand on, grouped by step, with each field's type in colour and a sample, a search and the
     arrow keys. */
-export function DataPicker({ sources, fields, defaultFields = [], onFieldsChange, step, open, defaultOpen = null, onOpenChange, query, onQueryChange, active, onActiveChange, note, className }: DataPickerProps) {
+export function DataPicker({ sources, fields, defaultFields = [], onFieldsChange, step, open, defaultOpen = null, onOpenChange, query, onQueryChange, active, onActiveChange, note, bare = false, className }: DataPickerProps) {
   const [list, setList] = useControllable(fields, defaultFields, onFieldsChange);
   const [openKey, setOpen] = useControllable<string | null>(open, defaultOpen, onOpenChange);
   const [q, setQ] = useControllable(query, '', onQueryChange);
@@ -104,7 +106,7 @@ export function DataPicker({ sources, fields, defaultFields = [], onFieldsChange
 
   let n = 0;
   return (
-    <div data-dm="" ref={root} className={cx('dm-fpk', className)}>
+    <div data-dm="" ref={root} className={cx('dm-fpk', !bare && 'dm-panel', className)}>
       {step && <div className="dm-fpk-hd"><Tile kind={step.kind} icon={step.icon} /><b>{step.title}</b>{step.position && <span className="dm-muted">{step.position}</span>}</div>}
       {list.map(fd => (
         <div className="dm-fpk-f" key={fd.key}>
