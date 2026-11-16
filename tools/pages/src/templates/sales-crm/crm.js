@@ -2125,20 +2125,69 @@
   const CUR = '<svg class="crm-axc" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 2.5l12 6.2-5.3 1.5-2.4 5.1z"/></svg>';
   const TICK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
   const short = n => dayOf(n).toLocaleDateString('en-US', { month:'short', day:'numeric' });
+  // Next steps (owner's Figma, 16 Nov): each card's picture is a short list of what its button opens. The item in focus is a
+  // window, its neighbours grey slips above and below. In a loop the pointer glides to the item, presses, the item changes
+  // (a rep's commit ticks in, a new date is approved, a draft is sent), then the list scrolls up to the next. The three cards
+  // run at different speeds so they never move together; a resting pointer holds a card, and reduced motion shows it still
+  const AXP = { commit:{ step:3600, mv:700, at:0 }, dates:{ step:3000, mv:600, at:700 }, follow:{ step:4200, mv:800, at:1400 } };
+  let axGen = 0;
   function paintActions(){
-    const w = waiting(), slip = w.filter(x => x.kind === 'slip'), fol = w.filter(x => x.kind === 'follow'), left = OWN.filter(o => SUBMIT[o] === undefined), inN = OWN.length - left.length;
-    const s0 = slip[0] && dealOf(slip[0].deal), f0 = fol[0] && coOf(fol[0].co), pend = ['MK', 'TR', 'AR'].find(o => SUBMIT[o] === undefined);
-    const pc = n => Math.round(n / OWN.length * 100);
-    // each picture loops every 5 seconds (crm.css): the pointer glides in and clicks, the thing it clicks changes, then it resets
+    const w = waiting(), slip = w.filter(x => x.kind === 'slip'), fol = w.filter(x => x.kind === 'follow'), left = OWN.filter(o => SUBMIT[o] === undefined);
+    // the lists: teams whose commits come in, the deals whose dates move, the accounts whose drafts go out
+    const L = {
+      commit:TEAMS.map((t, i) => ({ h:`<span class="crm-axt">${esc(t.t)}</span>` + [0, 1].map(r => `<span class="crm-axr"><span class="crm-axl" style="width:${[[60, 44], [52, 38], [56, 46]][i][r]}%"></span><span class="crm-axm${r ? '' : ' in'}" ${r ? 'data-go' : ''}>${TICK}</span></span>`).join('') })),
+      dates:(slip.length ? slip : [{ deal:null, was:-6, to:8 }]).slice(0, 4).map(x => { const d = x.deal && dealOf(x.deal);
+        return { h:`<span class="crm-axr"><span class="crm-axi" style="--a:var(--dm-av-r);--ai:var(--dm-av-r-ink)">${I('cal', 'xs')}</span><span class="crm-axn">${esc(d ? d.n : 'Renewal')}</span></span><span class="crm-axd"><s class="num">${short(x.was)}</s>${I('right', 'xs')}<span class="tag crm-axg num" data-go>${short(x.to)}</span></span><span class="crm-axl" style="width:72%"></span>` }; }),
+      follow:(fol.length ? fol : [{ co:null }]).slice(0, 4).map((x, i) => { const c = x.co && coOf(x.co);
+        return { h:`<span class="crm-axr"><span class="crm-axi" style="--a:var(--dm-av-b);--ai:var(--dm-av-b-ink)">${I('mail', 'xs')}</span><span class="crm-axn">${esc(c ? c.n : 'Saltmarsh Foods')}</span></span><span class="crm-axl" style="width:${[88, 76, 82, 70][i]}%"></span><span class="crm-axr"><span class="tag crm-axg dr" data-go>${I('spark', 'xs')}<span class="sw"><span class="a">Drafted</span><span class="b">Sent</span></span></span></span>` }; }),
+    };
     const C = [
-      { k:'commit', t:left.length ? 'Submit the Q4 commit' : 'The Q4 commit is in', d:left.length ? `${plural(left.length, 'rep')} to go, due Friday.` : `All ${OWN.length} reps are in.`, b:'Review commit',
-        v:`<div class="crm-axw"><span class="crm-axt">Q4 commit</span>${['MK', 'TR', 'AR'].map((o, i) => `<span class="crm-axr">${av(o)}<span class="crm-axl" style="width:${[52, 40, 46][i]}%"></span><span class="crm-axm${SUBMIT[o] !== undefined ? ' on' : o === pend ? ' go' : ''}">${SUBMIT[o] !== undefined ? TICK : o === pend ? `<i class="dn">${TICK}</i>${CUR}` : ''}</span></span>`).join('')}<span class="crm-axp"><i style="width:${pc(inN)}%"></i>${pend ? `<b style="left:${pc(inN)}%;width:${pc(1)}%"></b>` : ''}</span></div>` },
-      { k:'dates', t:slip.length ? `Move ${plural(slip.length, 'close date')}` : 'Close dates are current', d:slip.length ? 'New dates are ready to approve.' : 'No deal is past its date.', b:'Review dates',
-        v:`<div class="crm-axw"><span class="crm-axr"><span class="crm-axi" style="--a:var(--dm-av-r);--ai:var(--dm-av-r-ink)">${I('cal', 'xs')}</span><span class="crm-axn">${esc(s0 ? s0.n : 'Pilot to production')}</span></span><span class="crm-axd${slip.length ? ' go' : ''}"><span class="od num">${short(slip[0] ? slip[0].was : -6)}</span><span class="nw">${I('right', 'xs')}<span class="tag num">${short(slip[0] ? slip[0].to : 8)}${slip.length ? CUR : ''}</span></span></span><span class="crm-axl" style="width:72%"></span></div>` },
-      { k:'follow', t:fol.length ? `Send ${plural(fol.length, 'follow-up')}` : 'No account is quiet', d:fol.length ? 'Drafts are ready to send.' : 'Every account was touched lately.', b:'Review drafts',
-        v:`<div class="crm-axw crm-axbk" aria-hidden="true"></div><div class="crm-axw${fol.length ? ' go' : ''}"><span class="crm-axr"><span class="crm-axi" style="--a:var(--dm-av-b);--ai:var(--dm-av-b-ink)">${I('mail', 'xs')}</span><span class="crm-axn">${esc(f0 ? f0.n : 'Corvid Analytics')}</span></span><span class="crm-axl l1" style="width:88%"></span><span class="crm-axl l2" style="width:64%"></span><span class="crm-axf"><span class="tag">${I('spark', 'xs')}Drafted</span><span class="crm-axs2"><span class="a">Send</span><span class="b">${TICK}Sent</span>${fol.length ? CUR : ''}</span></span></div>` },
+      { k:'commit', t:left.length ? 'Submit the Q4 commit' : 'The Q4 commit is in', d:left.length ? `${plural(left.length, 'rep')} to go, due Friday.` : `All ${OWN.length} reps are in.`, b:'Review commit' },
+      { k:'dates', t:slip.length ? `Move ${plural(slip.length, 'close date')}` : 'Close dates are current', d:slip.length ? 'New dates are ready to be approved.' : 'No deal is past its date.', b:'Review dates' },
+      { k:'follow', t:fol.length ? `Send ${plural(fol.length, 'follow-up')}` : 'No account is quiet', d:fol.length ? 'Drafts are ready to send. Review them.' : 'Every account was touched lately.', b:'Review drafts' },
     ];
-    axs.innerHTML = C.map(c => `<div class="panel crm-ax" data-ax="${c.k}"><div class="tx"><b>${c.t}</b><p>${c.d}</p><button class="pill line sm" data-ax="${c.k}">${c.b}</button></div><div class="crm-axv" aria-hidden="true">${c.v}</div></div>`).join('');
+    // the track: the last item first (the slip above), the list, then its first two again so the loop can wrap unseen
+    const track = items => { const n = items.length, seq = [items[n - 1], ...items, items[0], items[1 % n]]; return seq.map(x => `<div class="crm-axw">${x.h}</div>`).join(''); };
+    axs.innerHTML = C.map(c => `<div class="panel crm-ax" data-ax="${c.k}"><div class="tx"><b>${c.t}</b><p>${c.d}</p><button class="pill line sm" data-ax="${c.k}">${c.b}</button></div><div class="crm-axv" aria-hidden="true"><div class="crm-axk" style="--ax-mv:${AXP[c.k].mv}ms">${track(L[c.k])}</div>${CUR}</div></div>`).join('');
+    const gen = ++axGen;
+    $$('.crm-ax', axs).forEach(card => axLoop(card, L[card.dataset.ax].length, AXP[card.dataset.ax], gen));
+  }
+  function axLoop(card, n, P, gen){
+    const vis = $('.crm-axv', card), k = $('.crm-axk', card), W = $$('.crm-axw', k), cur = $('.crm-axc', vis);
+    let i = 1, held = false;
+    card.addEventListener('pointerenter', () => held = true); card.addEventListener('pointerleave', () => held = false);
+    const place = (idx, anim) => { k.classList.toggle('mv', anim); const it = W[idx]; k.style.transform = `translateY(${Math.round((vis.clientHeight - it.offsetHeight) / 2 - it.offsetTop)}px)`;
+      W.forEach((x, m) => x.classList.toggle('on', m === idx)); };
+    requestAnimationFrame(() => place(i, false));
+    if (REDUCE) return;
+    // a wait that only counts while the forecast is on screen, the tab is visible and no pointer rests on the card
+    const live = () => gen === axGen && card.isConnected;
+    const wait = ms => new Promise(res => { let left = ms, last = performance.now(); const t = () => { if (!live()) return; const now = performance.now();
+      if (!held && !fc.hidden && !document.hidden) left -= now - last; last = now; left <= 0 ? res() : setTimeout(t, 50); }; setTimeout(t, 50); });
+    const at = el => { const v = vis.getBoundingClientRect(), r = el.getBoundingClientRect(); return [r.left - v.left + r.width * .55, r.top - v.top + r.height * .5]; };
+    const run = async () => {
+      await wait(P.at + 900);
+      while (live()){
+        const it = W[i], go = $('[data-go]', it);
+        if (go){
+          const [x, y] = at(go);
+          cur.classList.remove('press'); cur.style.transition = 'none'; cur.style.transform = `translate(${x + 34}px,${y + 26}px)`; void cur.offsetWidth; cur.style.transition = '';
+          cur.style.opacity = 1; cur.style.transform = `translate(${x}px,${y}px)`;
+          await wait(700); if (!live()) return;
+          cur.classList.add('press'); cur.style.transform = `translate(${x}px,${y}px) scale(.8)`;
+          await wait(140); if (!live()) return;
+          cur.style.transform = `translate(${x}px,${y}px)`; go.classList.add(go.classList.contains('crm-axm') ? 'in' : 'ok');
+          await wait(520); if (!live()) return;
+          cur.classList.remove('press'); cur.style.opacity = 0; cur.style.transform = `translate(${x + 18}px,${y + 14}px)`;
+        }
+        await wait(Math.max(300, P.step - 1700)); if (!live()) return;
+        // scroll up to the next item; past the end, jump back unseen to the same item at the start, all fresh again
+        i++; place(i, true);
+        await wait(P.mv + 60); if (!live()) return;
+        if (i === n + 1){ i = 1; W.forEach(x => $$('[data-go]', x).forEach(g => g.classList.remove('in', 'ok'))); place(i, false); }
+      }
+    };
+    run();
   }
   axs.addEventListener('click', e => { const b = e.target.closest('button[data-ax]'); if (!b) return;
     if (b.dataset.ax === 'commit'){ const t = $('.crm-reps', fc); t.scrollIntoView({ behavior:REDUCE ? 'auto' : 'smooth', block:'start' }); const s = $('.crm-sub', t); if (s) setTimeout(() => s.focus({ preventScroll:true }), REDUCE ? 0 : 400); }
