@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Launch phase one · Designme.dev preview</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<!-- a private review page (owner, 16 Nov): the 24 components picked for the launch, each as its component page's demo
+     (?embed=1), with the site's style and theme switches. Not linked anywhere, noindex, out of the sitemap -->
+<script>
+(function(){ var d = document.documentElement, s, t;
+  try { s = localStorage.getItem('dmui-style') || 'soft'; t = localStorage.getItem('dmui-theme') || 'light'; } catch(e){ s = 'soft'; t = 'light'; }
+  d.dataset.s = s === 'bp' ? 'bp' : 'soft'; d.dataset.t = t === 'dark' ? 'dark' : 'light'; })();
+</script>
+<style>
+:root{--bg:#fafafa;--card:#fff;--fg:#171717;--muted:#6a6a6a;--line:rgba(0,0,0,.08);--chip:#f3f3f3;--on:#fff;--r:14px;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+html[data-t="dark"]{--bg:#1c1c1c;--card:#262626;--fg:#f2f2f2;--muted:#c0c0c0;--line:rgba(255,255,255,.08);--chip:#303030;--on:#3a3a3a}
+html[data-s="bp"]{--r:0px}
+html,body{margin:0;background:var(--bg);color:var(--fg)}
+*{box-sizing:border-box}
+header{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:14px 24px;background:var(--bg);border-bottom:1px solid var(--line)}
+header b{font-size:14px;font-weight:500}
+header span{font-size:13px;color:var(--muted)}
+.sp{flex:1}
+.seg{display:inline-flex;padding:2px;border-radius:calc(var(--r) * .7);background:var(--chip)}
+.seg button{font:inherit;font-size:12px;font-weight:500;color:var(--muted);background:none;border:0;padding:5px 10px;border-radius:calc(var(--r) * .6);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--on);color:var(--fg);box-shadow:0 0 0 1px var(--line)}
+main{max-width:1440px;margin:0 auto;padding:24px}
+h2{font-size:13px;font-weight:500;color:var(--muted);margin:28px 0 12px}
+h2:first-child{margin-top:4px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.c{display:flex;flex-direction:column;border-radius:var(--r);background:var(--card);box-shadow:0 0 0 1px var(--line);overflow:hidden}
+.c.w{grid-column:1/-1}
+.h{display:flex;align-items:baseline;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.h b{font-size:14px;font-weight:500}
+.h i{font-style:normal;font-size:12px;color:var(--muted)}
+.h a{margin-left:auto;font-size:12px;color:var(--muted);text-decoration:none}
+.h a:hover{color:var(--fg)}
+iframe{display:block;width:100%;height:var(--h,580px);border:0;background:var(--bg);transition:opacity .3s}
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}main{padding:16px}header{padding:12px 16px}}
+</style>
+</head>
+<body>
+<header>
+  <b>Launch phase one</b><span>24 components · a private preview</span>
+  <span class="sp"></span>
+  <div class="seg" role="group" aria-label="Style"><button data-k="s" data-v="soft">Soft</button><button data-k="s" data-v="bp">Blueprint</button></div>
+  <div class="seg" role="group" aria-label="Theme"><button data-k="t" data-v="light">Light</button><button data-k="t" data-v="dark">Dark</button></div>
+</header>
+<main id="m"></main>
+<script>
+// the set and its groups; w = full width, h = frame height
+const G = [
+  ['Agent at work', [['agent-tree', 'Agent tree', 1, 700], ['trace-view', 'Trace view', 1, 640], ['agent-run-timeline', 'Agent run timeline', 1, 560], ['terminal-stream', 'Terminal stream'], ['thinking', 'Thinking'], ['thinking-states', 'Thinking states'], ['status-pill', 'Status pill', 0, 420], ['step-loader', 'Step loader', 0, 420], ['live-answer', 'Live answer'], ['web-search', 'Web search']]],
+  ['Human in the loop', [['composer', 'Composer'], ['permission-gate', 'Permission gate'], ['plan-review', 'Plan review'], ['decision-prompt', 'Decision prompt']]],
+  ['Visibility and control', [['context-meter', 'Context meter'], ['run-cost', 'Run cost'], ['memory-panel', 'Memory panel', 0, 680], ['agent-inbox', 'Agent inbox', 0, 680], ['tool-connections', 'Tool connections'], ['eval-results', 'Eval results', 0, 640]]],
+  ['Showcase', [['inline-text-diff', 'Inline text diff'], ['metric-insight', 'Metric insight'], ['agent-harness', 'Agent harness', 1, 780], ['automation-canvas', 'Automation canvas', 1, 700]]],
+];
+const m = document.getElementById('m');
+m.innerHTML = G.map(([g, L]) => `<h2>${g}</h2><div class="grid">` + L.map(([id, t, w, h]) =>
+  `<section class="c${w ? ' w' : ''}"><div class="h"><b>${t}</b><i>${id}</i><a href="/components/${id}" target="_blank" rel="noopener">Open page</a></div>`
+  + `<iframe loading="lazy" title="${t}" data-src="/components/${id}?embed=1" style="--h:${h || 580}px"></iframe></section>`).join('') + '</div>').join('');
+const frames = [...document.querySelectorAll('iframe')];
+// each frame shows its component page with only the demo on view (same origin, so the page styles itself once loaded)
+const ONLY = 'body{visibility:hidden!important}.cp-demo{visibility:visible!important;position:fixed!important;inset:0!important;z-index:100;margin:0!important;border-radius:0!important;overflow:auto;overscroll-behavior:contain}.cp-demo .pg-demo{min-height:100%}body>.tip{visibility:visible!important}';
+frames.forEach(f => f.addEventListener('load', () => { try { const d = f.contentDocument; if (!d.getElementById('pv-only')){ const st = d.createElement('style'); st.id = 'pv-only'; st.textContent = ONLY; d.head.appendChild(st); } } catch(e){} f.style.opacity = 1; }));
+const load = () => frames.forEach(f => { f.style.opacity = 0; f.src = f.dataset.src + '&r=' + Date.now(); });
+const d = document.documentElement;
+const paint = () => document.querySelectorAll('.seg button').forEach(b => b.setAttribute('aria-pressed', d.dataset[b.dataset.k] === b.dataset.v));
+document.querySelectorAll('.seg button').forEach(b => b.onclick = () => {
+  d.dataset[b.dataset.k] = b.dataset.v;
+  try { localStorage.setItem(b.dataset.k === 's' ? 'dmui-style' : 'dmui-theme', b.dataset.v); } catch(e){}
+  paint(); load(); });
+paint(); load();
+</script>
+</body>
+</html>
