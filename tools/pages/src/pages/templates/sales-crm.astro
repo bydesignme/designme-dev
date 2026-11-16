@@ -1,9 +1,9 @@
 ---
 // /templates/sales-crm: a sales CRM where an agent works beside the rep, made of the library's own components as a showcase
-// of what they build. The sidebar switches between five views: Accounts (a table with each account's next step, health and
+// of what they build. The sidebar switches between six views: Accounts (a table with each account's next step, health and
 // the agent's suggestion), the Agent inbox (what the agent prepared, to approve, edit or dismiss), the Calendar (the reps'
-// week of meetings, the deals closing each day, and follow-up slots the agent proposes), the Pipeline (a deals board) and
-// the Forecast. Saved views in the sidebar filter the accounts. Everything is drawn with the components' own classes and
+// week of meetings, the deals closing each day, and follow-up slots the agent proposes), the Pipeline (a deals board),
+// the Forecast (the quarter against quota, by rep) and Reports (the charts). Saved views in the sidebar filter the accounts. Everything is drawn with the components' own classes and
 // tokens, from their installed CSS, so the screen follows Soft and Blueprint, light and dark, with the site's switches. Its
 // data and interactions are one script (src/templates/sales-crm/crm.js); the layout around the components is
 // src/templates/sales-crm/crm.css. Noindex and out of the sitemap, llms.txt and the site's navigation until the owner
@@ -50,6 +50,7 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
         <button class="ahx-cv" data-go="accounts"><Fragment set:html={I('table')} /><span class="t">Accounts</span><span class="n num" data-count="accounts"></span></button>
         <button class="ahx-cv" data-go="pipeline"><Fragment set:html={I('grid')} /><span class="t">Pipeline</span><span class="n num" data-count="deals"></span></button>
         <button class="ahx-cv" data-go="forecast"><Fragment set:html={I('chart')} /><span class="t">Forecast</span></button>
+        <button class="ahx-cv" data-go="reports"><Fragment set:html={I('bars')} /><span class="t">Reports</span></button>
         <button class="ahx-cv" data-go="calendar"><Fragment set:html={I('cal')} /><span class="t">Calendar</span><span class="n num" data-count="meetings" data-tip="Meetings booked this week"></span></button>
       </nav>
       <div class="ahx-lh"><span>Agent</span></div>
@@ -158,14 +159,12 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
         </div>
       </section>
 
-      <!-- Forecast: Stat cards, Line chart, Activity heatmap, Funnel, Radial goals and Progress meters, worked out from the deals -->
-      <section class="crm-view crm-fc" id="crm-v-forecast" aria-label="Forecast" hidden>
-        <div class="scx-grid crm-c12"></div>
-        <!-- the forecast reads 4, 3, 3: stat cards, then three charts, then three breakdowns; every card's head is its title, a
-             muted line under it, and its controls on the right (owner, 10 Nov). The heatmap takes 5 of 12 columns so the library's
-             component shows the whole day, as it does on its own page; under 400px it switches to its own half-day scroller -->
-        <div class="lnx panel crm-c3">
-          <div class="lnx-h"><div class="crm-ht"><b>Closed won</b><span class="muted"><span class="num lnx-v">$0</span> won, <span class="crm-fcst"></span></span></div><div class="lnx-lg"><button class="lnx-k on" data-s="0" aria-pressed="true"><i style="background:var(--dm-accent-mark,var(--dm-accent))"></i>Q4</button><button class="lnx-k on" data-s="1" aria-pressed="true"><i style="background:var(--dm-c2)"></i>Q3</button></div></div>
+      <!-- Forecast (owner, 16 Nov: a simple results page, closer to Stripe): the quarter's numbers over a wide closed-won line, the
+           deals closing next beside it, three action cards for what to do about it, and the forecast by rep. The other charts are
+           in Reports -->
+      <section class="crm-view crm-fc crm-fo" id="crm-v-forecast" aria-label="Forecast" hidden>
+        <div class="lnx crm-hero crm-c8">
+          <div class="lnx-h crm-hh"><div class="crm-hm4" role="group" aria-label="This quarter against quota"></div><div class="lnx-lg"><button class="lnx-k on" data-s="0" aria-pressed="true"><i style="background:var(--dm-accent-mark,var(--dm-accent))"></i>Q4</button><button class="lnx-k on" data-s="1" aria-pressed="true"><i style="background:var(--dm-c2)"></i>Q3</button></div></div>
           <div class="lnx-ch"><svg class="lnx-svg" viewBox="0 0 320 140" preserveAspectRatio="none" aria-hidden="true"></svg><div class="lnx-x"></div><div class="lnx-tt"><b class="num"></b><span></span></div></div>
           <div class="lnx-ax muted num" aria-hidden="true"></div>
         </div>
@@ -174,23 +173,36 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
           <div class="agx-h"><div class="crm-ht"><b>Closing next</b><span class="muted crm-cns"></span></div><span class="tag crm-cnn num"></span></div>
           <div class="agx-list crm-cnl" role="list" aria-label="Deals closing next"></div>
         </div>
-        <div class="hmx panel crm-hm crm-c5">
+        <!-- next steps: three action cards, each with a small picture of what it opens and one button -->
+        <div class="crm-axs crm-c12" role="group" aria-label="Next steps"></div>
+        <!-- the forecast by rep: quota, closed won with attainment, commit, best case, the gap and whether the rep's commit is in -->
+        <div class="panel crm-c12 crm-act crm-reps">
+          <div class="crm-ath"><div class="crm-ht"><b>Forecast by rep</b><span class="muted crm-rps"></span></div></div>
+          <div class="crm-dsc"><table class="crm-dat crm-rpt"><thead><tr><th>Rep</th><th class="r">Quota</th><th>Closed won</th><th class="r">Commit</th><th class="r">Best case</th><th class="r">Gap</th><th class="r">Commit status</th></tr></thead><tbody></tbody><tfoot></tfoot></table></div>
+        </div>
+      </section>
+
+      <!-- Reports: the library's Stat cards, Activity heatmap, Funnel, Radial goals and Top pages, and the quarter's deal activity,
+           worked out from the same deals -->
+      <section class="crm-view crm-fc crm-rp" id="crm-v-reports" aria-label="Reports" hidden>
+        <div class="scx-grid crm-c12"></div>
+        <div class="hmx panel crm-hm crm-c6">
           <div class="hmx-h"><div class="crm-ht"><b>Team activity</b><span class="muted hmx-st">Last 12 weeks</span></div><div class="seg2 hmx-sg" role="group" aria-label="Whose activity"><button aria-pressed="true" data-v="team">Team</button><button aria-pressed="false" data-v="agent">Agent</button></div></div>
           <div class="hmx-wrap"><div class="hmx-sc"><div class="hmx-days muted"><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span><span>Sun</span></div><div class="hmx-grid"></div>
           <div class="hmx-f muted"><span class="hmx-ax">6am</span><span class="hmx-ax x">8am</span><span class="hmx-ax">10am</span><span class="hmx-ax x">12pm</span><span class="hmx-ax">2pm</span><span class="hmx-ax x">4pm</span><span class="hmx-ax">6pm</span><span class="hmx-ax x">8pm</span></div></div></div>
         </div>
-        <div class="fnx panel crm-c4">
+        <div class="fnx panel crm-c6">
           <div class="fnx-h"><div class="crm-ht"><b>Stage conversion</b><span class="muted crm-fnn num"></span></div></div>
           <div class="fnx-rows"></div>
           <div class="fnx-ins"><span class="fnx-ic"><Fragment set:html={I('spark', 'xs')} /></span><span class="fnx-t"></span></div>
         </div>
-        <div class="rgx panel crm-c4">
+        <div class="rgx panel crm-c6">
           <div class="rgx-h"><div class="rgx-t crm-ht"><b>Team quotas</b><span class="muted rgx-sub">Q4, closed won against quota</span></div></div>
           <div class="rgx-b"><div class="rgx-ring"><svg viewBox="0 0 180 180" aria-hidden="true"></svg><div class="rgx-c"><b class="num">0%</b><span class="muted">of quota</span></div></div><div class="rgx-lg"></div></div>
           <div class="crm-qsum"></div>
         </div>
-        <!-- quota attainment is Top pages: a ranked list with a share bar and the change since last week, sorted by won or change -->
-        <div class="tpx panel crm-tp crm-c4">
+        <!-- quota attainment, Top pages: a ranked list with a share bar and the change since last week, sorted by won or change -->
+        <div class="tpx panel crm-tp crm-c6">
           <div class="tpx-h"><div class="crm-ht"><b>Quota attainment</b><span class="muted tpx-sub">Top 5 closers, change on Q3 pace</span></div><div class="seg2 tpx-sg" role="group" aria-label="Sort"><button aria-pressed="true" data-v="v">Won</button><button aria-pressed="false" data-v="c">Change</button></div></div>
           <div class="tpx-list" role="list"></div>
         </div>
