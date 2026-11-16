@@ -1412,10 +1412,10 @@ body:has(.crm) .dmf{display:none}
 .crm-fo .crm-cn.panel{background:var(--dm-row);box-shadow:none}
 /* the action cards: words and a button on the left, a picture of what it opens on the right, on a dotted ground */
 .crm-axs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--dm-s-3)}
-.crm-ax{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) 44%;min-height:172px}
+.crm-ax{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) 50%;min-height:156px}
 .crm-ax .tx{position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:var(--dm-s-4)}
 .crm-ax .tx b{font-size:14px;font-weight:500;color:var(--dm-fg);line-height:1.35}
-.crm-ax .tx p{margin:0 0 var(--dm-s-3);font-size:13px;line-height:1.45;color:var(--dm-muted)}
+.crm-ax .tx p{margin:0 0 var(--dm-s-4);font-size:13px;line-height:1.45;color:var(--dm-muted)}
 .crm-ax .tx .pill{margin-top:auto}
 .crm-axv{position:relative;min-width:0}
 .crm-axv::before{content:"";position:absolute;inset:0;background:radial-gradient(circle,color-mix(in srgb,var(--dm-fg) 16%,transparent) 1px,transparent 1.4px) 6px 6px/12px 12px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 40%);mask-image:linear-gradient(90deg,transparent,#000 40%)}
@@ -1435,7 +1435,6 @@ body:has(.crm) .dmf{display:none}
 @supports (corner-shape:squircle){.crm-axi{corner-shape:squircle}}
 .crm-axn{font-size:12px;font-weight:500;color:var(--dm-fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .crm-axd{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dm-muted)}
-.crm-axd s{text-decoration-color:var(--dm-muted)}
 .crm-axd .tag{height:20px;font-size:11px}
 .crm-axf{display:flex;align-items:center;gap:6px}
 .crm-axf .tag{height:20px;font-size:11px;gap:4px}
@@ -1467,3 +1466,51 @@ body:has(.crm) .dmf{display:none}
 @media (max-width:900px){.crm-rpt :is(th,td):nth-child(5){display:none}}
 .crm-axd{white-space:nowrap}
 @media (max-width:640px){.crm-axf .tag{display:none}.crm-axw{right:var(--dm-s-3)}}
+/* ---------- the action cards' loops (owner, 16 Nov: animated, every 5 seconds, modern and minimal) ----------
+   One 5s timeline for all three: the pointer glides in (10 to 34%), presses (38%), the thing it pressed changes (42%), holds,
+   and everything fades back by 100%. The cards start .6s apart so they never click together. A resting pointer holds a
+   card's loop where it is; reduced motion shows the still picture */
+.crm-axp{position:relative}
+.crm-axp b{position:absolute;top:0;bottom:0;background:var(--dm-accent-mark,var(--dm-accent));transform-origin:left;transform:scaleX(0)}
+.crm-axm .dn{position:absolute;inset:0;display:grid;place-items:center;border-radius:50%;background:var(--dm-ok-mark,var(--dm-ok));color:var(--dm-surface);opacity:0;transform:scale(.5)}
+.crm-axm.go{box-shadow:inset 0 0 0 1.5px var(--dm-faint)}
+.crm-axd .od{position:relative}
+.crm-axd .od::after{content:"";position:absolute;left:-1px;right:-1px;top:50%;height:1px;background:currentColor;transform-origin:left;transform:scaleX(1)}
+.crm-axd .nw{display:inline-flex;align-items:center;gap:6px}
+.crm-axs2{display:inline-grid;overflow:visible}
+.crm-axs2>:is(.a,.b){grid-area:1/1;display:inline-flex;align-items:center;gap:3px}
+.crm-axs2>.b{opacity:0}
+.crm-axs2 .b svg{width:9px;height:9px;fill:none;stroke:currentColor;stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round}
+@media (prefers-reduced-motion:no-preference){
+  .crm-ax{--ax-d:0s}
+  .crm-ax[data-ax="dates"]{--ax-d:.6s}
+  .crm-ax[data-ax="follow"]{--ax-d:1.2s}
+  .crm-ax :is(.crm-axc,.dn,.crm-axp b,.od::after,.nw,.tag,.crm-axl,.a,.b){animation-duration:5s;animation-iteration-count:infinite;animation-timing-function:var(--dm-ease,cubic-bezier(.22,1,.36,1));animation-delay:var(--ax-d);animation-fill-mode:both}
+  .crm-ax .crm-axc{animation-name:axcur}
+  .crm-ax .crm-axm.go .dn{animation-name:axdone}
+  .crm-ax .crm-axp b{animation-name:axbar}
+  .crm-ax .crm-axd.go .od::after{animation-name:axstrike}
+  .crm-ax .crm-axd.go .nw{animation-name:axin}
+  .crm-ax .crm-axd.go .tag{animation-name:axok}
+  .crm-ax .crm-axw.go .crm-axl.l1{animation-name:axtype1}
+  .crm-ax .crm-axw.go .crm-axl.l2{animation-name:axtype2}
+  .crm-ax .crm-axw.go .crm-axf>.tag{animation-name:axin}
+  .crm-ax .crm-axw.go .crm-axs2 .a{animation-name:axout}
+  .crm-ax .crm-axw.go .crm-axs2 .b{animation-name:axswap}
+  .crm-ax:focus-within *{animation-play-state:paused}
+}
+@keyframes axcur{0%,10%{opacity:0;transform:translate(-44px,30px)}18%{opacity:1}34%{transform:none}38%{transform:scale(.8)}42%,80%{opacity:1;transform:none}90%,100%{opacity:0;transform:none}}
+@keyframes axdone{0%,40%{opacity:0;transform:scale(.5)}48%,86%{opacity:1;transform:none}94%,100%{opacity:0;transform:none}}
+@keyframes axbar{0%,42%{transform:scaleX(0)}56%,86%{transform:none}96%,100%{transform:scaleX(0)}}
+@keyframes axstrike{0%,4%{transform:scaleX(0)}18%,88%{transform:none}96%,100%{transform:scaleX(0)}}
+@keyframes axin{0%,14%{opacity:0;transform:translateX(-4px)}26%,88%{opacity:1;transform:none}96%,100%{opacity:0;transform:none}}
+@keyframes axok{0%,40%{background:var(--dm-chip);color:var(--dm-fg)}46%,86%{background:var(--dm-ok-bg);color:var(--dm-ok)}96%,100%{background:var(--dm-chip);color:var(--dm-fg)}}
+@keyframes axtype1{0%,2%{transform:scaleX(0)}18%,88%{transform:none}96%,100%{transform:scaleX(0)}}
+@keyframes axtype2{0%,10%{transform:scaleX(0)}26%,88%{transform:none}96%,100%{transform:scaleX(0)}}
+@keyframes axout{0%,40%{opacity:1;transform:none}46%,86%{opacity:0;transform:translateY(-6px)}94%,100%{opacity:1;transform:none}}
+@keyframes axswap{0%,40%{opacity:0;transform:translateY(6px)}46%,86%{opacity:1;transform:none}94%,100%{opacity:0;transform:translateY(6px)}}
+.crm-ax .crm-axl{transform-origin:left}
+:root .crm-axm .dn.dn{border-radius:50%!important;corner-shape:round!important}
+.crm-axm .crm-axc{left:9px;top:9px}
+@media (hover:hover) and (pointer:fine){.crm-ax:hover *{animation-play-state:paused}}
+.crm-ax[data-ax="commit"] .crm-axw{top:20px;gap:7px}
