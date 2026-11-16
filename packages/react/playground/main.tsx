@@ -8,9 +8,10 @@ import { Seg } from '../src/lib/motion';
 // every file in src/examples named after a registry item is one card, in the site's order
 const examples = import.meta.glob<{ default: ComponentType }>('../src/examples/*.tsx', { eager: true });
 // the cards that span the full width on designme.dev
-const WIDE = new Set(['agent-lanes', 'agent-run-timeline', 'design-tuner', 'change-review', 'task-table', 'field-extraction', 'automation-canvas',
-  'model-compare', 'stat-cards', 'account-table', 'date-range-picker', 'event-calendar', 'buttons', 'kanban-board', 'pricing-cards', 'agent-harness', 'design-review', 'terminal-stream', 'human-handoff', 'rich-text-editor', 'context-switcher', 'banner']);
-['canvas-toolbar', 'image-generation', 'run-drawer'].forEach(n => WIDE.add(n));
+const WIDE = new Set(['agent-lanes', 'agent-run-timeline', 'task-table', 'automation-canvas', 'stat-cards', 'account-table', 'date-range-picker',
+  'event-calendar', 'buttons', 'kanban-board', 'pricing-cards', 'agent-harness', 'terminal-stream', 'rich-text-editor',
+  'context-switcher', 'banner']);
+['canvas-toolbar', 'run-drawer'].forEach(n => WIDE.add(n));
 const only = new URLSearchParams(location.search).get('only')?.split(',');
 const CARDS = registry.items.flatMap(item => {
   const mod = examples[`../src/examples/${item.name}.tsx`];
@@ -25,7 +26,7 @@ function Card({ name, title, desc, file, Demo }: (typeof CARDS)[number]) {
     <article className={WIDE.has(name) ? 'pg-card pg-wide' : 'pg-card'} id={name}>
       <header><h3>{title}</h3><p>{desc}</p></header>
       {/* the harness is a whole app, as wide as on designme.dev */}
-      <div className="pg-stage"><div className="pg-in" style={name === 'agent-harness' ? { maxWidth: 960 } : name === 'image-generation' ? { maxWidth: 900 } : undefined}><Demo key={run} /></div></div>
+      <div className="pg-stage"><div className="pg-in" style={name === 'agent-harness' ? { maxWidth: 960 } : undefined}><Demo key={run} /></div></div>
       <footer><code>{file}</code><button type="button" onClick={() => setRun(r => r + 1)}>Replay</button></footer>
     </article>
   );

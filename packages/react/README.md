@@ -4,7 +4,7 @@ React versions of the [designme.dev](https://designme.dev) components, for Next.
 
 They use the same markup and the same CSS as the site, so they look and move exactly like the previews on designme.dev, in both styles (Blueprint and Soft) and in light and dark. The difference is that each one takes props, so you drive it from your own state instead of a scripted demo.
 
-All 124 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
+All 99 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
 
 Each one has a page on designme.dev with its demo, its React usage, its props and its code, at `https://designme.dev/components/<name>`. To see them all running locally, run `npm run dev` here.
 
@@ -83,21 +83,9 @@ The agent's plan, notes, sources and edits, after it thinks.
 The live trace, written as the agent works, then folded away.  
 `steps: { label, state: 'running' | 'retry' | 'done', result?, resultTip?, time? }[]` (`result` is what the step found, or what it waits on while it retries; it opens under the step and crossfades, and writes itself in a word at a time once the step is done; `time` shows at the right of a done step, and the line to the next step turns green), `running`, `seconds` (counts by itself when left out), `title` (the header while it runs), `summary` (the header once done: what the work came to), `collapseWhenDone`, `open` / `defaultOpen` / `onOpenChange`.
 
-**AgentPhases** · `agent-phases/AgentPhases.tsx`  
-One line for which phase the agent is in, from thinking to done.  
-`phase: 'thinking' | 'searching' | 'reading' | 'waiting' | 'writing' | 'done'`, `label`, `seconds` (counts by itself, pausing while waiting), `error: { text, detail?, onRetry }`, `slow: { text, onStop? }`, `ask: { text, approveLabel?, onApprove, onDecline? }` (shown while waiting), `took` (seconds per phase, listed once done), `open` / `defaultOpen` / `onOpenChange`.
-
 **ContextMeter** · `context-meter/ContextMeter.tsx`  
 How full the context is and what fills it, with Compact to free room.  
 `parts: { key, label, tokens, color?, items? }[]` (`items` is what's in it, shown on hover), `limit`, `warnAt` (share of the limit where the ring turns orange, 0.85 by default), `message` and `messageTone: 'warn' | 'ok'` (a line under the legend), `onCompact` (return a promise and the button spins), `compacted` and `onUndo`, `hint`, `open` / `defaultOpen` / `onOpenChange`. The numbers count to their new values; Escape shuts the panel.
-
-**ActionLog** · `action-log/ActionLog.tsx`  
-Every read, search, edit and command, logged as it runs.  
-`actions: { icon, title, detail?, state: 'running' | 'done', time?, output? }[]` (title, detail and output take JSX; output lines in `dm-a` / `dm-x` spans read as added and removed), `title`, `running`, `status` (defaults to "Running step N", then "N steps, Xs"), `bare`. Each row opens to show its output.
-
-**RunQueue** · `run-queue/RunQueue.tsx`  
-Agent jobs running, up next and done, with progress, retries and a compact view.  
-`jobs: { id?, title, agent?, icon?, state, progress?, time?, note?, steps?: { label, state, meta? }[] }[]` with state `'queued' | 'running' | 'failed' | 'done'` (running and failed jobs show under Running, queued under Up next, done under Done; a job glides between them), `title`, `status`, `summary` (under "All N jobs done" once every job is done), `density: 'detailed' | 'compact'` / `defaultDensity` / `onDensityChange`, `onRetry(job, step)`, `bare`.
 
 **RunCost** · `run-cost/RunCost.tsx`  
 Live credit and token spend, with a cap that pauses the run.  
@@ -111,14 +99,6 @@ One notification that changes shape with its state.
 Agent notifications that stack and fan out on hover.  
 `toasts: { id, icon, tone?, title, detail?, time? }[]` (oldest first, the last one in front), `onDismiss(id)` (drop it from `toasts` and it slides away), `expanded` (fans out on hover when left out), `max` (6).
 
-**RunSummary** · `run-summary/RunSummary.tsx`  
-What the agent did, what changed and what needs you.  
-`title`, `undoneTitle`, `subtitle`, `summary`, `stats: { label, value, prefix?, suffix?, decimals? }[]` (they count up), `changes: { file, added, removed }[]`, `needs: { key, text, action?: { label, onClick, busy? } }[]`, `onDetails`, `onOpenChanges`, `undone` / `defaultUndone` / `onUndoneChange`, `bare`.
-
-**ErrorRecovery** · `error-recovery/ErrorRecovery.tsx`  
-A failed step with retry, skip or hand over to a person.  
-`title`, `status`, `steps: { label, state: 'done' | 'fail' | 'run' | 'wait' | 'skip' | 'hand', note? }[]`, `question`, `options: { value, label }[]`, `value` / `defaultValue` / `onValueChange`, `onContinue(value)`, `continueLabel`, `open` / `defaultOpen` / `onOpenChange` (the choices fold away on Continue), `bare`.
-
 **AgentLanes** · `agent-lanes/AgentLanes.tsx`  
 Several agents working in parallel, each with its own lane and hand-offs.  
 `lanes: { key, name, icon, tone?, status: 'queued' | 'waiting' | 'working' | 'paused' | 'done', activity, steps?, done?, progress?, log?: { text, time? }[] }[]` (`tone` colours the lane's badge, track, tag and stretch of relay line; `progress`, 0 to 1, fills the step in hand), `title`, `seconds` (counts by itself when left out), `paused` / `defaultPaused` / `onPausedChange` (adds Pause all and Resume), `handoff: { from, to, what }` (a light runs down the relay line to the next badge and the stretch stays lit; clear it and its line slides away), `expanded` / `defaultExpanded` / `onExpandedChange`, `bare`.
@@ -130,10 +110,6 @@ An orchestrator and its sub-agents, with cost rolled up per branch.
 **AgentInbox** · `agent-inbox/AgentInbox.tsx`  
 Every run that needs you, is running or is done, in one list.  
 `runs: { id, title, agent, color?, group: 'needs' | 'running' | 'done', detail?, failed?, why?, seconds?, ended? }[]` (running clocks count on from `seconds`), `onApprove(id)`, `onRetry(id)` (each adds its button), `title`, `status` (defaults to "2 need you", "2 running" once nothing needs you, or "All clear · 4 done today"). A group with no runs is hidden, and a run that changes group glides to its new place.
-
-**BrowserSession** · `browser-session/BrowserSession.tsx`  
-The agent browsing for you, step by step, with Pause and Take over.  
-`title`, `url` (the address bar), `search` (marks `url` as a search), `children` (the page, 156px tall: a screenshot or live view, or a wireframe drawn with the `dm-bws-pg` classes), `cursor: { x, y, down? } | null` (the agent's pointer over the page), `steps: { label, state: 'queued' | 'running' | 'waiting' | 'done', detail? }[]`, `ask: { label, onAllow }` (under the waiting step, beside Take over), `paused` / `defaultPaused` / `onPausedChange`, `inControl` / `defaultInControl` / `onInControlChange` (Take over and Hand back; the page is only usable while the person has it), `seconds` (counts by itself while it browses), `status` (defaults to Browsing, Paused, Needs you, You have control or Done), `summary` (shown once every step is done).
 
 **WebSearch** · `web-search/WebSearch.tsx`  
 The agent's searches as a trail, with the answer and its sources.  
@@ -153,33 +129,13 @@ Every model and tool step of a run on one time axis.
 Answers that stream in with numbered sources and next steps.  
 `turns: { key?, question?, state: 'waiting' | 'thinking' | 'answering' | 'done', text?, thoughts?, thoughtFor?, sources?: { n, title, detail?, tip?, mark?, color? }[] }[]` (in `text`, `[n]` cites source n and a blank line starts a paragraph; feed it as it grows for the word-by-word reveal; leave `question` out when the bubble is shown elsewhere, like in a chat), `followUps`, `onFollowUp`, `onRetry` (adds Try again), `onRate`, `onCopy`, `onSourceClick`.
 
-**ThreadPanel** · `thread-panel/ThreadPanel.tsx`  
-Switch between agent threads and reply in place.  
-`threads: { id, title, color?, messages: { id?, from: 'user' | 'agent', text, sources?, thinking? }[] }[]`, `value` / `defaultValue` / `onValueChange` (the open thread), `onSend(text, threadId)`, `draft` / `defaultDraft` / `onDraftChange` (the reply being typed), `placeholder`, `bare`. `thinking: true` on a message shows a shimmering "Thinking".
-
 **Composer** · `composer/Composer.tsx`  
 Message input with attachments, what to work on, a mode and dictation.  
 `value` / `defaultValue` / `onValueChange`, `placeholder`, `onSubmit({ text, attachments })`, `busy` and `onStop` (send turns into stop), `thread`, `attachments` / `defaultAttachments` / `onAttachmentsChange` (`{ key, label, icon?, status?: 'loading' | 'error' | 'ready' }`; send waits for every one to load), `addOptions` and `onAdd`, `onRetry(key)` (Try again on a failed one), `contexts` / `context` / `onContextChange` (what the agent works on), `modes` / `mode` / `onModeChange` (defaults to Ask, Edit and Plan), `tools` (more in the toolbar, before the mode), `onDictate`, `dictating`, `dictationSeconds`, `onDictationEnd(keep)`. Enter sends, Shift+Enter adds a line, Escape cancels dictation.
 
-**VoiceCapture** · `voice-capture/VoiceCapture.tsx`  
-Talk to the agent, then fix what it misheard before sending.  
-`words: (string | { text, alternatives? })[]` (words with alternatives get a highlight and a "Did you mean" menu), `state` / `defaultState` / `onStateChange` (`'listening' | 'paused' | 'review' | 'sent' | 'cancelled'`), `seconds`, `level` (0 to 1, or a function read about 20 times a second, for example from an AnalyserNode), `status`, `onSend(text)`, `onFix(index, text)`, `onRecordAgain`. It never opens the microphone itself.
-
-**VoiceOrb** · `voice-orb/VoiceOrb.tsx`  
-A hands-free voice chat, with an orb that shows who is talking.  
-`state: 'idle' | 'listening' | 'thinking' | 'speaking' | 'ended'` (the accent colour while it listens, violet while the agent speaks), `level` (0 to 1; the orb swells, its light flows faster and its glow brightens with it, so feed it from your audio or a made-up curve. The light inside is a small WebGL shader; without WebGL the orb keeps a plain gradient), `muted` / `onMutedChange` (listening shows as Muted and the mute button is pressed), `mutedNotice` (shows "You're muted" with Unmute, for someone talking while muted), `caption: { speaker, text, id? }` (each word fades in; a new `id` or speaker starts a new line), `hint`, `elapsed` (seconds), `onStart`, `onEnd`, `onRestart` (from the row once it has ended), `endedDetail`, `labels`. It never opens the microphone or plays sound itself.
-
-**ToolCall** · `tool-call/ToolCall.tsx`  
-Each tool the agent calls, with its input and output.  
-`message`, `calls: { key, server?, name, icon?, state: 'queued' | 'running' | 'done', duration?, input?, output? }[]` (input and output are JSON values, shown highlighted), `reply` (fades in once every call is done), `open` / `defaultOpen` / `onOpenChange` (the keys of the open calls).
-
 **ArtifactCard** · `artifact-card/ArtifactCard.tsx`  
 A file the agent made, with its versions, Open, Copy and Download.  
 `variant: 'compact' | 'preview' | 'inline' | 'stack'` (a row, a card with its first page, a chip inside a message, or a stack of its versions), `versions: { title, meta, note?, content, summary? }[]` (oldest first; `content` is the Markdown, or CSV, that the reader shows, Copy copies and Download saves), `version` / `defaultVersion` / `onVersionChange` (a menu of every version, newest first; the stack lays its sheets out instead), `state: 'writing' | 'ready'` with `status` and `progress` (a spinner and the status line while writing; the actions come in when it's ready), `kind`, `icon`, `fileName`, `ext`, `onOpen` and `openLabel` (opens the file your own way instead of the card's reader, which covers its nearest positioned ancestor), `onCopy`, `onDownload`.
-
-**ImageGeneration** · `image-generation/ImageGeneration.tsx`  
-A prompt with styles, shape and count, pictures that resolve out of grain, and a gallery of earlier ones.  
-`onGenerate(request, update)` (makes the pictures: `request` is `{ prompt, styles, shape, count, model, references, variationOf?, retry? }`, and you call `update(slot, { progress, image, error })` as each goes; send `image` as soon as there is anything to show, even only a `placeholder`, and the effect, dots then blur and a scan line then sharp, plays over it; Retry and Vary call it again for one picture), `onAction(action, image)` (`'upscale'` (return a promise and the sweep waits for it), `'download'`, `'reference'`, `'like'`, `'dislike'`), `title` and `section` (the header), `prompt` / `defaultPrompt` / `onPromptChange`, `styles` (the chips; Editorial, Poster, Surreal and 35mm by default) with `selectedStyles` / `defaultSelectedStyles` / `onSelectedStylesChange`, `shape: '1:1' | '3:4' | '16:9'` / `defaultShape` / `onShapeChange`, `count` (1 to 4) / `defaultCount` / `onCountChange`, `models: { key, label, description?, icon? }[]` with `model` / `defaultModel` / `onModelChange`, `gallery` (earlier pictures, newest first; finished ones join at the top), `presets: { key, label, description?, styles, image? }[]` (the Styles tab; picking one sets the chips), `tab` / `defaultTab` / `onTabChange`. Each picture is `{ key, src?, alt, placeholder?, ratio?, prompt?, styles? }`. A picture opens larger in a dialog over the component with Upscale, Vary, Use as reference, Download and its own thumbs.
 
 **RichTextEditor** · `rich-text-editor/RichTextEditor.tsx`  
 A minimal editor with an inline AI menu that streams a suggestion to accept or discard.  
@@ -188,14 +144,6 @@ A minimal editor with an inline AI menu that streams a suggestion to accept or d
 **ModelPicker** · `model-picker/ModelPicker.tsx`  
 Pick a model by speed, quality and cost, and how hard it thinks.  
 `models: { id, name, mark?, color?, note?, speed, quality, cost, speedDetail?, qualityDetail?, costDetail?, status?: 'ready' | 'checking' | 'busy', statusText? }[]` (speed, quality and cost from 1 to 5, drawn as five-step meters; the details show on hover; busy turns the row amber), `value` / `defaultValue` / `onValueChange` (called for any row, busy or not, so you can check the model first), `efforts: { label, detail? }[]` (defaults to Off, Low, Medium and High), `effort` / `defaultEffort` / `onEffortChange` (a small dropdown under the list), `suggestion: { text, actions: { label, onClick }[] }` (a way out when the picked model can't start), `note` (a confirmation with a green check), `label`, `open` / `defaultOpen` / `onOpenChange`. Arrow keys move through the models; Escape closes the list and focuses the trigger.
-
-**PromptStarters** · `prompt-starters/PromptStarters.tsx`  
-Suggested tasks that fill the composer in one click.  
-`starters: { icon, tone?, title, description, prompt }[]`, `value` / `defaultValue` / `onValueChange` (the picked title), `onSend(prompt)`, `onShuffle` (shows Shuffle; pass a new set and it staggers in), `placeholder`, `sentLabel`.
-
-**PromptLibrary** · `prompt-library/PromptLibrary.tsx`  
-Saved prompts with blanks to fill in before they go to the agent.  
-`prompts: { id, title, template, blanks }[]` (`template` writes each blank as `{key}`; `blanks` maps each key to `{ label, placeholder?, options?, error? }`: with `options` it is a dropdown that starts on the first, without it a text field), `title`, `subtitle`, `open` / `defaultOpen` / `onOpenChange` (the open prompt's id, or null for the list), `values` / `defaultValues` / `onValuesChange` (the open prompt's blanks by key), `onUse(text, prompt, values)` (only once every blank has a value; an empty one says what it needs), `onUndo`, `labels`.
 
 **AttachmentTray** · `attachment-tray/AttachmentTray.tsx`  
 Drop files for the agent and watch each one upload.  
@@ -227,21 +175,9 @@ A suggested change with confidence, alternatives and undo.
 Select a sentence and let the agent rewrite it in place.  
 `title`, `kind`, `sentences` / `defaultSentences` / `onSentencesChange`, `selected` / `defaultSelected` / `onSelectedChange`, `actions: { key, label, icon? }[]` (Clearer, Shorter and Friendlier by default), `onRewrite(sentence, action, index)` (returns the new sentence, or a promise of it; it is written in word by word, then Undo or Accept), `onAsk`, `askLabel`, `askShortcut`. A `ref` gives `rewrite(action)` (on the selected sentence), `accept()` and `undo()`, for driving it from outside.
 
-**DesignTuner** · `design-tuner/DesignTuner.tsx`  
-Tweak a component by hand or let the agent tune it.  
-`params: { key, label, min, max, value, unit?, decimals? }[]`, `values` / `defaultValues` / `onValuesChange`, `title`, `status`, `active` (the slider the agent is moving), `tuning`, `note`, `actionLabel`, `onTune`, `preview(values, vars)` (your own preview; `vars` holds a `--dm-<key>` variable per value). Sliders drag or move with the arrow keys.
-
 **PermissionGate** · `permission-gate/PermissionGate.tsx`  
 The agent asks before it touches something new.  
 `title`, `subtitle`, `icon`, `scopes: { key, label, detail?, risk?, riskDetail? }[]` (`riskDetail` is what the risk tag shows on hover), `value` / `defaultValue` / `onValueChange` (the ticked keys), `durations` (picked from a small dropdown in the footer), `durationDetails` (the line under each in its menu), `duration` / `defaultDuration` / `onDurationChange`, `status` / `defaultStatus` / `onStatusChange` (`'asking' | 'allowed' | 'declined'`), `onAllow(keys, duration)` (return a promise and the button spins until it settles), `onDecline`, `onRevoke`, `onUndo`, `allowedTitle` and `allowedDetail` (the two lines once allowed; both crossfade), `working` (a spinner on a neutral row while the agent works under the permission), `meta` (quiet text at the end of that row, like an elapsed time), `followUp` (a second ask mid-run for one more scope: the icon tile turns amber), `declineLabel` (defaults to Not now), `declinedTitle`, `declinedDetail`, `bare` (on by default: it sits in the chat with no card; `false` draws the card).
-
-**HumanHandoff** · `human-handoff/HumanHandoff.tsx`  
-The agent hands a conversation to a person, with what they need to pick it up.  
-`title`, `reason` (why it handed off), `assignee: { name, initials?, color?, team?, presence?, tone?: 'ok' | 'warn' } | null` (null while it finds someone; `finding: { title, detail? }` fills the row meanwhile), `people` (adds Reassign, a small menu of who else can take it) and `onReassign(person)`, `secondsLeft` ("Reply due in 14 min", orange under five minutes, overdue at 0) and `targetSeconds` (the bar's whole window, 900 by default), `summary`, `facts: { label, value }[]`, `link: { label, href?, onClick?, tip? }` (the whole conversation), `message` and `messageLabel` (what the customer was told), `onMessageChange(text)` (adds Edit; the message turns editable, then Save or Cancel), `edited`, `status: { tone?: 'wait' | 'warn' | 'ok', title, detail?, person? }` (the row at the foot: a spinner while it waits, orange with an alert, green with the person's avatar), `labels`. The two columns stack below 600px.
-
-**LaunchChecklist** · `launch-checklist/LaunchChecklist.tsx`  
-The agent checks a design before it ships, and fixes what fails.  
-`checks: { label, state: 'wait' | 'run' | 'ok' | 'bad', note?, onFix? }[]`, `title`, `status`, `action: { label, icon?, accent?, disabled?, onClick }`, `bare`.
 
 **InlineTextDiff** · `inline-text-diff/InlineTextDiff.tsx`  
 The agent's edits to a piece of copy, accepted or rejected one by one.  
@@ -251,25 +187,13 @@ The agent's edits to a piece of copy, accepted or rejected one by one.
 An email the agent drafted, to check and edit before it sends.  
 `title`, `subtitle`, `to: { name, initials?, color? }[]`, `subject` / `onSubjectChange`, `body` (paragraphs split by blank lines; it stays editable, read edits from `onBodyChange(text)`), `attachments: { name, size?, loading? }[]`, `warning: { text, actions: { label, onClick, primary? }[] }` (folds open above the buttons, like an attachment the message mentions but nothing attached), `phase: 'draft' | 'sending' | 'undo' | 'sent' | 'scheduled' | 'discarded'`, `sendOptions: { key, label, detail? }[]` (now, tomorrow at 09:00 or Monday at 09:00 by default, from a dropdown beside Send; any key but `now` turns the button into Schedule), `sendOption` / `defaultSendOption` / `onSendOptionChange`, `onSend(option)`, `onDiscard`, `onUndo` (undoes a send in its window, cancels a scheduled one or brings back a discarded draft), `undoLeft` (seconds shown while the phase is `undo`), `labels`.
 
-**Steering** · `steering/Steering.tsx`  
-Change the agent's course while it works, without starting over.  
-`title`, `steps: { id, title, detail?, status: 'queued' | 'running' | 'done', fromYou? }[]`, `messages: { id, from: 'you' | 'agent', text, state?: 'queued' | 'applied', warn?, actions?: { label, onClick }[], answer? }[]` (yours wait as `queued` until the agent takes them up; the agent's last action is filled, and `answer` takes the buttons' place), `onSend(text)`, `value` / `defaultValue` / `onValueChange`, `placeholder`, `status` (defaults to "Step 2 of 4" or Done), `seconds` (counts by itself until every step is done), `summary` (defaults to "Done in 0:14 · 1 change from you"; `false` hides it).
-
 **EvalResults** · `eval-results/EvalResults.tsx`  
 An eval run case by case, against the run before.  
 `title`, `subtitle`, `cases: { id, name, status: 'queued' | 'running' | 'pass' | 'fail', time?, expected?, got?, source?, fix?: { label, onClick } }[]` (a failed case opens to show expected, got and source), `onRun` (adds the button), `running`, `runLabel`, `previousPassed` (adds "1 fewer than the last run" or "All passing" once the run settles), `filter: 'all' | 'fail'` / `defaultFilter` / `onFilterChange`, `open` / `defaultOpen` / `onOpenChange`.
 
-**DesignReview** · `design-review/DesignReview.tsx`  
-Checks run, a teammate asks for a change, the agent makes it, and you ship.  
-`title`, `subtitle`, `icon`, `checks: { label, state: 'wait' | 'run' | 'ok' | 'bad', note? }[]`, `messages: { author: { name, initials?, color?, agent? }, verdict?: { label, tone?, icon?, busy? }, text? }[]` (oldest first), `phase: 'review' | 'approved' | 'shipping' | 'live' | 'scheduled'` (Ship turns on at `approved`), `note`, `waitingLabel`, `options: { key, label, detail? }[]` (to everyone, to 10% first or on Monday by default), `option` / `defaultOption` / `onOptionChange`, `onShip(option)`, `doneLabel`, `labels`.
-
 **PlanReview** · `plan-review/PlanReview.tsx`  
 Check the agent's plan, edit steps, then let it run.  
 `title`, `steps` / `defaultSteps` / `onStepsChange` (`{ id, text, skipped?, edited?, state?: 'run' | 'retry' | 'done', detail? }[]`; `detail` is the line a step reports under it, and `retry` shows it waiting out a problem; people can edit a step in place, skip one or add one), `phase: 'review' | 'running' | 'done'`, `status`, `note`, `meta` (quiet text at the end of the header, like an elapsed time), `onApprove`, `onRequestChanges`, `onStop`, `onSeeChanges`, `bare` (on by default: it sits in the chat with no card; `false` draws the card).
-
-**ChangeReview** · `change-review/ChangeReview.tsx`  
-Accept or reject each change the agent made, file by file.  
-`files: { name, path?, hunks: { key?, title, lines: { kind: 'add' | 'del' | 'ctx', line, text }[] }[] }[]`, `file` / `defaultFile` / `onFileChange`, `decisions` / `defaultDecisions` / `onDecisionsChange` (`'kept' | 'undone'` per hunk key), `onComment({ file, hunk, line, text })`, `title`. Keep all moves on to the next file.
 
 ### Sources and output
 
@@ -285,10 +209,6 @@ A number, its trend, and the agent's read on why it moved.
 Agent tasks in a sortable table with bulk actions.  
 `tasks: { id, name, status: 'running' | 'failed' | 'queued' | 'paused' | 'done', agent: { name, initials, color }, cost, updated }[]`, `selected` / `defaultSelected` / `onSelectedChange` (ids), `sort` / `defaultSort` / `onSortChange` (`{ key, desc? }`), `onAction(action, ids)` (`'pause' | 'retry' | 'cancel'`; the selection clears after, and cancelled rows slide away first), `title`, `summary`, `empty` and `emptyAction: { label, onClick }` (shown when there are no tasks). Selecting rows turns the header into an action bar; rows glide when the order changes. On narrow screens it hides the cost and shows agents as avatars.
 
-**CodeViewer** · `code-viewer/CodeViewer.tsx`  
-Code the agent wrote, with line notes you can ask about.  
-`files: { name, lines: { code, changed?, note? }[] }[]` (`code` is a string or tokens `[kind, text]` with kind `k | s | f | cm | tg | at`), `file` / `defaultFile` / `onFileChange`, `line` / `defaultLine` / `onLineChange` (the line whose note is open), `delay`, `unchangedNote`, `onCopy(text)`.
-
 **TerminalStream** · `terminal-stream/TerminalStream.tsx`  
 Shell commands the agent runs, with their output as it streams in.  
 `cwd`, `entries` (oldest first: a command `{ command, output?, status: 'running' | 'ok' | 'failed' | 'stopped', exitCode?, duration? }`, a note `{ kind: 'note', text }` for what the agent says between commands, or an edit `{ kind: 'edit', file, added?, removed?, diff?, status?: 'running' | 'done' | 'stopped' }` (`diff` is the changed lines, each starting with - or +, shown under it on red and green tints); an output line is a string or `{ text, tone?: 'ok' | 'bad' | 'muted' }`), `status: 'running' | 'passed' | 'failed' | 'stopped'` (left out, it follows the entries), `elapsed` (beside Running in the header, and in the summary), `summary` (defaults to "3 commands · 0:18 · passed", counting each command once however many times it ran; `false` hides it), `tail` (output longer than `tail` + 1 lines folds to its last `tail`, 4 by default, behind "Show 24 more lines"), `onStop` (adds Stop while it runs), `onCopy(text)`, `labels`. Output wraps inside the panel, so long lines never scroll the page sideways.
@@ -300,10 +220,6 @@ Properties of a run you can change in place.
 **CitationHoverCard** · `citation-hover-card/CitationHoverCard.tsx`  
 Hover a citation to see the exact passage it came from.  
 `text` (`[n]` cites source n; a blank line starts a paragraph), `sources: { mark, color, site, title, quote, meta?, href? }[]` (wrap the key part of `quote` in `<mark>`), `openLabel`, `onOpenSource(source, index)`, `open` / `onOpenChange` (the index of the citation whose card shows, or null). Hovering, focusing or tapping a citation shows its card.
-
-**FieldExtraction** · `field-extraction/FieldExtraction.tsx`  
-The agent pulls fields out of a document and shows where each came from.  
-`page` (the document; wrap the source of each field in `<FieldZone field="key">`), `fields: { key, label, value, confidence, suggestion?, fixed? }[]` (under 0.6 it asks for a check), `reading` (runs the scan line), `status`, `checkHint`, `onFix(key, value)`, `title`, `sendLabel`, `sentLabel`, `sendState: 'idle' | 'sending' | 'sent'`, `onSend`.
 
 ### Workspace
 
@@ -331,10 +247,6 @@ A trigger, a few agent steps, and a run you can watch flow through.
 A floating toolbar for a workflow canvas: run, pick a tool, comment, fit and zoom.  
 `nodes: { id, icon, color, iconColor?, title, detail?, x, y, narrow?, state?: 'run' | 'done' }[]` (positions in canvas pixels at 100%; `narrow` is used below 440px), `edges: [from, to][]`, `lit` (the wires a run has reached), `running`, `onRun`, `onStop`, `runLabel`, `stopLabel`, `tool: 'select' | 'hand' | 'lasso'` / `defaultTool` / `onToolChange`, `commenting` / `defaultCommenting` / `onCommentingChange`, `onComment({ x, y })` and `comments` (the pins), `view: { panX, panY, zoom } | null` / `defaultView` / `onViewChange` (null fits the steps), `selected` / `defaultSelected` / `onSelectedChange`, `onNodesMove(moves, narrow)`, `zoomSteps`, `label`, `children` (drawn on the canvas under the steps). The toolbar is fixed at the bottom centre, and the canvas fills the height it is given, 560px when nothing gives it one (520px below 440px wide). A ref can `panBy`, `zoomIn`, `zoomOut`, `zoomTo` and `fit`. Shortcuts while the canvas or toolbar has the focus: V, H and L for the tools, C to comment, ⇧1 to fit, ⇧0 for 100%, − and + to zoom, the arrow keys to pan, Escape to leave Comment or clear the selection. Below 440px Comment and Fit move into More, below 360px the zoom buttons too.
 
-**StepInspector** · `step-inspector/StepInspector.tsx`  
-The settings of one step in an agent workflow, in sections that fold.  
-`step: StepConfig` (`title`, `kind: 'trigger' | 'ai' | 'tool' | 'app' | 'output' | 'branch' | 'wait' | 'approval'` (its tile's colour), `icon`, `position`, and by kind: `model`, `instructions` (text and `{ ref }` parts), `tools`, `inputs: { name, ref }[]`, `outputs: { name, type, sample }[]`, `retries`, `backoff: 'fixed' | 'doubling'`, `timeLimit`, `onFail`, `rule: { ref, op, value }`, `yes`, `no`, `approvers`, `askIn`, `shows`, `expire`, `then`, `off`), `sources` (the earlier steps and their fields; a ref is `"<step id>.<field>"`, and one they don't give is flagged), `onChange(step)`, `onTest`, `testing`, `status` / `statusOk` (the line under the name), `choices` (each choice's options), `toolOptions`, `people`, `open` / `defaultOpen` / `onOpenChange` (the open sections), `actions` (more buttons in the head).
-
 **DataPicker** · `data-picker/DataPicker.tsx`  
 Map a field from earlier steps into a step's input.  
 `sources: { id, title, kind, icon?, fields: { name, type: 'text' | 'number' | 'list' | 'object' | 'bool' | 'date', sample? }[] }[]` (only the steps before this one), `fields` / `defaultFields` / `onFieldsChange` (`{ key, label, refs }[]`, each ref `"<step id>.<field>"`), `step` (the step on top), `open` / `defaultOpen` / `onOpenChange` (the input whose picker is open), `query` / `onQueryChange`, `active` / `onActiveChange` (the highlighted option), `note`. Types and step kinds are coloured; the arrows, Enter and Escape work in the search.
@@ -346,10 +258,6 @@ A workflow's run under its canvas: the steps, the log and the data.
 **MemoryPanel** · `memory-panel/MemoryPanel.tsx`  
 What the agent remembers about your team, editable and removable.  
 `title`, `icon`, `kinds: { value, label, color }[]`, `memories` / `defaultMemories` / `onMemoriesChange` (`{ id, kind, text, source?, isNew? }[]`), `filter` / `defaultFilter` / `onFilterChange`, `allLabel`, `countLabel(n)`, `editedSource`, `onEdit`, `onForget`, `onRestore`, `undoFor`, `bare`. Edit in place; Forget leaves an Undo row for a few seconds.
-
-**ModelCompare** · `model-compare/ModelCompare.tsx`  
-Run one prompt on three models side by side and keep the best.  
-`models: { name, mark, color, markText?, description? }[]`, `columns` / `defaultColumns` / `onColumnsChange` (`{ id, model }[]`), `min` (2), `max` (3), `prompt` / `defaultPrompt` / `onPromptChange`, `asked`, `answers` (per column: `{ state: 'thinking' | 'answering' | 'done', text?, tokens?, seconds?, tokensPerSecond?, cost? }`), `onSend(prompt, columns)`, `onRun(column)`, `chosen` / `defaultChosen` / `onChosenChange`, `placeholder`. The prompt field and Run sit on top and the answers in columns on one surface, stacking below 540px wide; each column's header swaps its model and shows time, tokens and cost once done, the fastest and cheapest a step darker. Use this answer gives the chosen column the accent's tint.
 
 **ToolConnections** · `tool-connections/ToolConnections.tsx`  
 The tools the agent can reach, and how much it may do with each.  
@@ -367,7 +275,7 @@ Tasks the agent runs on a schedule, with their last result and a switch.
 
 **AgentHarness** · `agent-harness/AgentHarness.tsx`  
 An agent app made of the other components: chats down the side, tabs across the top, and New chat with your mark and a greeting over the Composer at the foot. Nothing plays by itself: a chat changes when you change its blocks.  
-`conversations: { id, title, state?: 'idle' | 'running' | 'waiting' | 'done', unread?, status?: { state, label, meta?, action?, review? }, context?, blocks, followUps? }[]` (the side list, newest first), `tabs` / `defaultTabs` / `onTabsChange` (`{ key, chat? }[]`, a tab without a chat is New chat; it starts with one), `tab` / `defaultTab` / `onTabChange` (the tab on screen), `onSend({ text, attachments }, conversationId, tabKey)` (null from New chat: return the id of the chat it started and the tab turns into it; nothing is sent while the chat on screen is running), `onFollowUp(text, conversationId)`, `greeting`, `heading`, `workspaces: { name, mark?, color? }[]` with `workspace` / `defaultWorkspace` / `onWorkspaceChange`, `panel: { title, icon?, link?, children } | null` and `onPanelClose` (the panel beside the chat, for an artifact), `model` (beside the context ring), `draft` / `defaultDraft` / `onDraftChange` (each tab keeps its own), `placeholders: { home?, reply?, working? }`, `composer` (the rest of the Composer's props). A block is `{ key, kind, … }`: `'user'` (`text`, `files?`), `'say'` (`text`, pass it as it grows and each word fades in), `'working'` (`text`, a passing line with the thinking mark), `'group'` (`label`, `state: 'running' | 'done'`, `seconds?`, `blocks`: the agent's work under one line, folded a moment after it is done), `'node'` (`node`), or a component's name with its `props`: `'thinking'`, `'tool-call'`, `'permission-gate'`, `'plan-review'`, `'action-log'`, `'run-summary'`, `'live-answer'`, `'source-stack'`, `'artifact-card'`, `'error-recovery'`, `'decision-prompt'`, `'agent-lanes'`, `'change-review'`. `status` drives the Status pill beside the tabs; `review: blockKey` adds a Review button that scrolls to that block, and `context` (0 to 100) fills the ring. Every chat stays mounted, so its components keep their state when you switch. The chat follows new messages until you scroll up. At phone width the chats slide in from the side and the tabs scroll. `npx designme add agent-harness --react` adds the components it uses too.
+`conversations: { id, title, state?: 'idle' | 'running' | 'waiting' | 'done', unread?, status?: { state, label, meta?, action?, review? }, context?, blocks, followUps? }[]` (the side list, newest first), `tabs` / `defaultTabs` / `onTabsChange` (`{ key, chat? }[]`, a tab without a chat is New chat; it starts with one), `tab` / `defaultTab` / `onTabChange` (the tab on screen), `onSend({ text, attachments }, conversationId, tabKey)` (null from New chat: return the id of the chat it started and the tab turns into it; nothing is sent while the chat on screen is running), `onFollowUp(text, conversationId)`, `greeting`, `heading`, `workspaces: { name, mark?, color? }[]` with `workspace` / `defaultWorkspace` / `onWorkspaceChange`, `panel: { title, icon?, link?, children } | null` and `onPanelClose` (the panel beside the chat, for an artifact), `model` (beside the context ring), `draft` / `defaultDraft` / `onDraftChange` (each tab keeps its own), `placeholders: { home?, reply?, working? }`, `composer` (the rest of the Composer's props). A block is `{ key, kind, … }`: `'user'` (`text`, `files?`), `'say'` (`text`, pass it as it grows and each word fades in), `'working'` (`text`, a passing line with the thinking mark), `'group'` (`label`, `state: 'running' | 'done'`, `seconds?`, `blocks`: the agent's work under one line, folded a moment after it is done), `'node'` (`node`), or a component's name with its `props`: `'thinking'`, `'permission-gate'`, `'plan-review'`, `'live-answer'`, `'source-stack'`, `'artifact-card'`, `'decision-prompt'`, `'agent-lanes'`. `status` drives the Status pill beside the tabs; `review: blockKey` adds a Review button that scrolls to that block, and `context` (0 to 100) fills the ring. Every chat stays mounted, so its components keep their state when you switch. The chat follows new messages until you scroll up. At phone width the chats slide in from the side and the tabs scroll. `npx designme add agent-harness --react` adds the components it uses too.
 
 ### Charts and tables
 
@@ -479,10 +387,6 @@ A searchable select with country codes, currency and keyboard support.
 A combobox that filters as you type and keeps your picks as chips.  
 `label`, `options: { value, label?, meta? }[]`, `value` / `defaultValue` / `onValueChange` (the picked values, in order), `query` / `defaultQuery` / `onQueryChange`, `open` / `defaultOpen` / `onOpenChange`, `placeholder`, `hint`, `empty`. ↑ and ↓ move through the list, Enter picks or unpicks, Escape closes it, and Backspace in an empty box removes the last chip.
 
-**ColorPicker** · `color-picker/ColorPicker.tsx`  
-Pick a colour, check its contrast, and let the agent fix it or make a scale.  
-`value` / `defaultValue` / `onValueChange` (hex), `alpha` / `onAlphaChange` (shows the opacity rail), `swatches`, `ink`, `onScale(steps)`. Also exports `contrast`, `parseHex` and `makeScale`.
-
 **SocialSignIn** · `social-sign-in/SocialSignIn.tsx`  
 One-tap providers that remember the last one you used.  
 `providers: { key, label, brand? or icon? or letters? }[]` (defaults to Google, GitHub, Figma and SSO), `user: { name, initials, color? }`, `lastUsed` / `defaultLastUsed` / `onLastUsedChange`, `signedIn` / `defaultSignedIn` / `onSignedInChange`, `onSignIn(provider)` (return a promise and the button spins; resolving to false stays signed out), `onSignOut`, `onEmail`, `title`, `logo`, `emailLabel`.
@@ -562,10 +466,6 @@ A sprint board where you and the agent move cards, with filters, details and key
 **PricingCards** · `pricing-cards/PricingCards.tsx`  
 Three plans with a billing switch and a seat slider.  
 `plans: { name, description?, price, priceLabel?, unit?, total?, features, action: { label, variant?: 'soft' | 'accent' | 'primary' }, popular?, fromSeats? }[]` (`price` is per editor per month, `0` is free and `null` is "Custom"; the outline moves to a plan once the editors reach its `fromSeats`), `period` / `defaultPeriod` / `onPeriodChange` (`'monthly' | 'yearly'`), `yearlyDiscount`, `seats` / `defaultSeats` / `onSeatsChange`, `minSeats`, `maxSeats`, `seatsLabel`, `popularLabel`, `onChoose(plan, { period, seats })`. Prices roll to their new value.
-
-**OnboardingChecklist** · `onboarding-checklist/OnboardingChecklist.tsx`  
-First steps with a progress ring, and the agent can do some for you.  
-`steps: { key?, title, detail?, done?, automatic? }[]` (`automatic` adds "Do it for me"), `done` / `defaultDone` / `onDoneChange` (keys), `running` (keys the agent is working on), `onDoIt(step, index)` (return a promise; the step ticks itself off when it settles), `title`, `status`, `doneMessage`, `doItLabel`, `runningLabel`, `open` / `defaultOpen` / `onOpenChange`, `bare` (on by default: it sits in the chat with no card; `false` draws the card).
 
 **Stepper** · `stepper/Stepper.tsx`  
 A multi-step setup with a progress track that fills as you go.  

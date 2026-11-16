@@ -127,8 +127,8 @@ every session and every agent.
   the public launch (owner, 4 Nov): their licence didn't allow redistributing them in a public repo. Agents keep their
   icons and marks.
 - Photos are only from Pexels (owner, 5 Nov), under the Pexels License, listed with their Pexels ids in `art/README.md` and
-  credited in `NOTICE.md`. They are on the site only (laid over a gradient by `art/art.js`), never in installs. The Carousel and
-  Image generation demos use them, with and without people.
+  credited in `NOTICE.md`. They are on the site only (laid over a gradient by `art/art.js`), never in installs. The Carousel demo
+  uses them, with and without people.
 
 ## QA before every push
 - Both styles (Soft and Blueprint), light and dark, at 1440, 768, 390 and 360.

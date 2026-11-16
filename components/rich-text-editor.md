@@ -1066,17 +1066,10 @@ export function RichTextEditor({
 
 - [Live answer](https://designme.dev/components/live-answer.md): Answers that stream in with numbered sources and next steps.
 - [Composer](https://designme.dev/components/composer.md): Message input with attachments, what to work on, a mode and dictation.
-- [Thread panel](https://designme.dev/components/thread-panel.md): Switch between agent threads and reply in place.
 - [Artifact card](https://designme.dev/components/artifact-card.md): A file the agent made, with its versions, Open, Copy and Download.
-- [Image generation](https://designme.dev/components/image-generation.md): A prompt with styles, shape and count, pictures that resolve out of grain, and a gallery of earlier ones.
-- [Tool call](https://designme.dev/components/tool-call.md): Each tool the agent calls, with its input and output.
-- [Voice capture](https://designme.dev/components/voice-capture.md): Talk to the agent, then fix what it misheard before sending.
-- [Voice orb](https://designme.dev/components/voice-orb.md): A hands-free voice chat, with an orb that shows who is talking.
 - [Answer action bar](https://designme.dev/components/answer-action-bar.md): Copy, regenerate, rate and listen to an answer from one row under it.
 - [Response versions](https://designme.dev/components/response-versions.md): Regenerate an answer and flip between versions.
 - [Model picker](https://designme.dev/components/model-picker.md): Pick a model by speed, quality and cost, and how hard it thinks.
-- [Prompt starters](https://designme.dev/components/prompt-starters.md): Suggested tasks that fill the composer in one click.
-- [Prompt library](https://designme.dev/components/prompt-library.md): Saved prompts with blanks to fill in before they go to the agent.
 - [Attachment tray](https://designme.dev/components/attachment-tray.md): Drop files for the agent and watch each one upload.
 - [Feedback sheet](https://designme.dev/components/feedback-sheet.md): Rate an answer and tell the agent what missed.
 

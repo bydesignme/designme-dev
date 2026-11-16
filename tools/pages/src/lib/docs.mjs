@@ -72,7 +72,7 @@ const BODY = {
     lead: 'Designme.dev is a free library of UI components for products built around AI agents.',
     sections: [
       ['What it is', [
-        ['p', `${count} free components: ${nOf('agent')} for the agent itself, like status pills, reasoning trails, tool calls, permission gates, plan reviews and run summaries, and ${nOf('basics')} app basics around it.`],
+        ['p', `${count} free components: ${nOf('agent')} for the agent itself, like status pills, reasoning trails, agent trees, permission gates, plan reviews and run costs, and ${nOf('basics')} app basics around it.`],
         ['p', 'Every component plays as a demo on the [homepage](/), and has a page of its own with its install command, React props, code and questions.'],
       ]],
       ['Two styles, light and dark', [
@@ -220,12 +220,12 @@ const BODY = {
       ['Add components', [
         ['steps', [
           ['Add them with the CLI', [
-            ['code', 'sh', 'npx designme add tool-call buttons --astro'],
+            ['code', 'sh', 'npx designme add live-answer buttons --astro'],
             ['p', 'They land in `src/components/designme`, or `components/designme` when there is no `src` folder. The shared core, `core/designme.css` and `core/core.js`, is added once. Without `--astro`, the CLI says so when it finds an `astro.config` file in the folder you run it from.'],
-            ['tree', 'Your project', [astroTreeOf(['tool-call', 'buttons'])]],
+            ['tree', 'Your project', [astroTreeOf(['live-answer', 'buttons'])]],
           ]],
           ['Use them in a page', [
-            ['code', 'astro', `---\nimport ${astroOf('tool-call')} from '../components/designme/tool-call/${astroOf('tool-call')}.astro';\nimport ${astroOf('buttons')} from '../components/designme/buttons/${astroOf('buttons')}.astro';\n---\n<${astroOf('tool-call')} />\n<${astroOf('buttons')} data-style="soft" class="my-buttons" />`],
+            ['code', 'astro', `---\nimport ${astroOf('live-answer')} from '../components/designme/live-answer/${astroOf('live-answer')}.astro';\nimport ${astroOf('buttons')} from '../components/designme/buttons/${astroOf('buttons')}.astro';\n---\n<${astroOf('live-answer')} />\n<${astroOf('buttons')} data-style="soft" class="my-buttons" />`],
             ['p', 'The CLI prints the import line for each component. It uses your `@/` alias when your `tsconfig.json` has one, and a path from `src/pages` when it doesn\'t.'],
           ]],
         ]],
@@ -335,8 +335,8 @@ const BODY = {
           ['Lists you pick from', 'A `listbox` of `option` rows. The search box that drives one is a `combobox`', `${C('command-palette')}, ${C('country-select')}`],
           ['A single choice', 'A `radiogroup`', C('decision-prompt')],
           ['On or off settings', 'A `switch` with `aria-checked`', C('agent-settings')],
-          ['Tabs', '`tablist`, `tab` and `aria-selected`', `${C('code-viewer')}, ${C('thread-panel')}, ${C('segmented-control')}`],
-          ['Sliders', '`aria-valuenow` and `aria-valuetext`', C('design-tuner')],
+          ['Tabs', '`tablist`, `tab` and `aria-selected`', `${C('terminal-stream')}, ${C('segmented-control')}`],
+          ['Sliders', '`aria-valuenow` and `aria-valuetext`', C('slider')],
           ['File trees', 'A `tree` of `treeitem` rows', C('file-explorer')],
           ['Popovers', 'A labelled `dialog`, like the calendar', `${C('date-picker')}, ${C('citation-hover-card')}`],
           ['Toggle and icon buttons', 'Toggles report their state with `aria-pressed`. Icon-only buttons have a label', `${C('buttons')}, ${C('line-chart')}`],

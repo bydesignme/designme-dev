@@ -139,7 +139,7 @@ patch("""  $$('[data-copy]').forEach(btn => btn.addEventListener('click', async 
 # ---------- the intro: one short line, the React install command, then a switch between the two sets ----------
 RX_CMD = 'npx designme add live-answer --react'
 patch("""<p>46 components for showing an agent's work, from status and conversation to review, sources and workspace, plus 32 app basics for the dashboard around it, designed and built by the <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a> team.</p>""",
-      """<p>124 free components in HTML, React or Astro, designed and built by <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a>.</p>
+      """<p>99 free components in HTML, React or Astro, designed and built by <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a>.</p>
   <div class="intro-get"><button class="cdm-cmd intro-cmd" data-cmd=\"""" + RX_CMD + """\" title="Copy install command"><span class="d">$</span><span class="c">""" + RX_CMD + """</span><span class="ms sm">content_copy</span></button></div>""")
 # the two group introductions become one switch: Agent components or App basics
 patch("""<div class="grp-intro"><span class="k">46 components</span><h2>Agent components</h2><p>Everything for showing an agent's work, from the first plan to the final summary.</p></div>""",
@@ -205,7 +205,7 @@ patch("""  /* ---------- book a call button: fill grows from the pointer -------
 # the phone menu's search counted one card too few
 patch("""placeholder="Search ${$$('main .comp').length - 1} components\"""", """placeholder="Search ${$$('main .comp').length} components\"""")
 patch("""from status pills and reasoning trails to tool calls and run summaries, plus app basics for the dashboard around them, in two styles with light and dark mode.""",
-      """from status pills to tool calls, in HTML, React or Astro, with light and dark mode.""")
+      """from status pills to permission gates, in HTML, React or Astro, with light and dark mode.""")
 patch("""<meta property="og:description" content="Free UI components for AI agent products, in two styles with light and dark mode.""",
       """<meta property="og:description" content="Free UI components for AI agent products, in HTML, React or Astro, in two styles with light and dark mode.""")
 
@@ -972,6 +972,8 @@ CSS += """
 # (git log on soft-plush; component names in the third field are card titles, so their buttons open the component)
 patch("""    const LOG = [
 """, """    const LOG = [
+      { v:'v1.1.0', d:'16 November 2026', t:'A smaller library', items:[
+        ['improved','25 components left the library so the rest can be polished before launch: Thread panel, Image generation, Tool call, Voice capture, Voice orb, Prompt starters, Prompt library, Browser session, Run summary, Agent phases, Action log, Run queue, Error and recovery, Change review, Hand-off to a person, Design tuner, Launch checklist, Steering, Design review, Code viewer, Field extraction, Step inspector, Model compare, Colour picker and Onboarding checklist. They are gone from the site, the CLI and the docs, which leaves 99 components'] ] },
       { v:'v1.0.1', d:'15 November 2026', t:'Agent builder removed', items:[
         ['improved','Agent builder is no longer in the library: it is gone from the site, the CLI and the docs, which leaves 124 components'] ] },
       { v:'v1.0.0', d:'9 November 2026', t:'The first public release', items:[
@@ -983,9 +985,9 @@ patch("""    const LOG = [
         ['improved','On the slider, the value the agent recommends sits clear above the handle',['Slider']],
         ['improved','Sign-ups, roadmap votes and ideas are limited per visitor to stop flooding, and the privacy notice says how'] ] },
       { v:'v0.16', d:'4 November 2026', t:'Astro, shadcn and twelve new components', items:[
-        ['new','Three components for workflow editors, from the Workflow editor template: a step inspector that sets up one step and flags data no earlier step gives, a data picker that maps fields from earlier steps, and a run drawer with the steps, the log and the data of a run',['Step inspector','Data picker','Run drawer']],
+        ['new','Three components for workflow editors, from the Workflow editor template: a step inspector that sets up one step and flags data no earlier step gives, a data picker that maps fields from earlier steps, and a run drawer with the steps, the log and the data of a run',['Data picker','Run drawer']],
         ['new','Thinking states: six thinking indicators to pick from (Orbit, Morph, Scan, Stream, Matrix and Stack), each a small mark with a status line that steps through what the agent is doing',['Thinking states']],
-        ['new','Twelve new components, each in HTML, React and Astro, for 119 in all',['Progress and meter','Slider','Context menu','Carousel','Colour picker','Agent phases','Web search','Radial goals','Eval radar','Cost vs quality','Score breakdown']],
+        ['new','Twelve new components, each in HTML, React and Astro, for 119 in all',['Progress and meter','Slider','Context menu','Carousel','Web search','Radial goals','Eval radar','Cost vs quality','Score breakdown']],
         ['new','Every component as an Astro component, with the same markup, CSS and script as the HTML version. Add them with npx designme add and the <span class="nowrap">--astro</span> flag'],
         ['new','Every component is also a shadcn registry item, in React and Astro, so the shadcn CLI can add it to a shadcn/ui project'],
         ['new','The theme bridge, an opt-in CSS file that gives the components the colours and corners of your shadcn/ui or Tailwind v4 theme. Add it with the <span class="nowrap">--theme-bridge</span> flag'],
@@ -1004,16 +1006,16 @@ patch("""    const LOG = [
         ['new','Desktop, Tablet and Mobile previews on the pages of the full-screen components',['Agent harness','Automation canvas','Canvas toolbar','Event calendar','Kanban board','Rich text editor']],
         ['improved','Agents at work keep playing while your mouse rests on them, like Status pill, Thinking and Agent lanes'] ] },
       { v:'v0.14', d:'30 October 2026', t:'Design switches', items:[
-        ['new','A design switch on ten cards to try other designs of the same component. Classic stays the default and is what the CLI installs',['Thread panel','Tool call','Agent tree','Run summary','Action log','Run queue','Eval results','Agent settings','Attachment tray','Agent lanes']],
+        ['new','A design switch on ten cards to try other designs of the same component. Classic stays the default and is what the CLI installs',['Agent tree','Eval results','Agent settings','Attachment tray','Agent lanes']],
         ['improved','No coloured glows: pulsing rings pulse in a neutral grey, and running bars and steps lose their coloured halos'],
-        ['improved','Fields look the same everywhere: white with a quiet grey edge, a step stronger on focus',['Prompt library','Automation canvas','Set limit','Event calendar','Kanban board']],
+        ['improved','Fields look the same everywhere: white with a quiet grey edge, a step stronger on focus',['Automation canvas','Set limit','Event calendar','Kanban board']],
         ['fixed','The demo no longer refills a Context switcher you have closed',['Context switcher']] ] },
       { v:'v0.13', d:'29 October 2026', t:'Four new components and calmer fields', items:[
         ['new','Four new components',['Canvas toolbar','Badge','Context switcher','Banner']],
         ['improved','Demos hold still while your mouse rests on a component, so nothing moves under the pointer, and carry on when it leaves'],
         ['improved','Fields have a dimmed grey edge that turns a step stronger on focus, and only the keyboard shows a focus ring, in grey'],
         ['new','Automation canvas pans, zooms and selects, and adds steps from a searchable picker',['Automation canvas']],
-        ['improved','Voice orb is a lit glass sphere drawn by a shader, and it reacts to the voice level',['Voice orb']],
+        ['improved','Voice orb is a lit glass sphere drawn by a shader, and it reacts to the voice level'],
         ['improved','Livelier demos',['Trace view','Agent lanes','Thinking','Command palette','Terminal stream','Attachment tray','Agent run timeline','Memory panel']],
         ['improved','Currency converter shows a flag before each currency',['Currency converter']],
         ['improved','Grey borders and hairlines are half as strong, with one light grey behind hovered rows'] ] },
@@ -1035,7 +1037,7 @@ patch("""    const LOG = [
         ['improved','Components keep their height when they end on something shorter, so they stay centred'],
         ['improved','Text on a picked accent colour is chosen for contrast, so violet, rose and green get white text'] ] },
       { v:'v0.10', d:'23 October 2026', t:'Twenty-one new components and a calmer site', items:[
-        ['new','Twenty-one new components, for 102 in all',['Model picker','Answer action bar','Inline text diff','Draft review','Agent tree','Agent inbox','Voice orb','Prompt library','Steering','Eval results','Knowledge sources','Scheduled runs','Segmented control','OTP field','Multi-select','Profile menu','Filter menu','Browser session','Trace view','Terminal stream','Hand-off to a person']],
+        ['new','Twenty-one new components, for 102 in all',['Model picker','Answer action bar','Inline text diff','Draft review','Agent tree','Agent inbox','Eval results','Knowledge sources','Scheduled runs','Segmented control','OTP field','Multi-select','Profile menu','Filter menu','Trace view','Terminal stream']],
         ['improved','A calmer site: 14px type, one 1400px width, and Changelog, Roadmap and FAQ in the sidebar'],
         ['new','The FAQ is a page of its own'],
         ['improved','Composer, Thinking and Context meter reworked as our own designs',['Composer','Thinking','Context meter']],
@@ -1047,7 +1049,7 @@ patch("""    const LOG = [
         ['new','A page for every component, with a live demo, install commands, what it is for, its props and its source, plus a Markdown copy'],
         ['new','llms.txt, an index of every component for AI tools'],
         ['new','A real 404 page that suggests the component you were looking for'],
-        ['new','Design review: checks, a reviewer asking for a change, the agent making it, and a split button to ship',['Design review']],
+        ['new','Design review: checks, a reviewer asking for a change, the agent making it, and a split button to ship'],
         ['improved','Sound starts muted on every visit'] ] },
       { v:'v0.8', d:'21 October 2026', t:'The Agent harness', items:[
         ['new','Agent harness is a real agent chat, built from the other components',['Agent harness']],
@@ -1490,7 +1492,7 @@ patch("""s:(c.closest('.lib-sec') || {}).querySelector ? c.closest('.lib-sec').q
 # the intro strip: the install command, a Star link that keeps its word beside the count, and Book a call on one row;
 # then four of this week's components (still pictures of the live demos, linking to their pages); then the list,
 # led by the Figma library, which is not ready yet
-FEAT = [('agent-tree', 'Agent tree'), ('trace-view', 'Trace view'), ('agent-lanes', 'Agent lanes'), ('steering', 'Steering')]
+FEAT = [('agent-tree', 'Agent tree'), ('trace-view', 'Trace view'), ('agent-lanes', 'Agent lanes'), ('permission-gate', 'Permission gate')]
 feat = ''.join(
   '<a href="/components/' + slug + '"><span class="ft-pic"><img class="ft-lt" src="/components/thumbs/' + slug + '-light.webp" alt="" width="640" height="400"><img class="ft-dk" src="/components/thumbs/' + slug + '-dark.webp" alt="" width="640" height="400"></span><span class="ft-n">' + name + '</span></a>'
   for slug, name in FEAT)
@@ -1506,7 +1508,7 @@ patch(
   """      let shown = 0;
       $$('.lib-sec').forEach(sec => {""",
   """      let shown = 0;
-      const lead = $('#launch'), WEEK = ['agent-tree','trace-view','agent-lanes','steering','run-cost','agent-inbox','permission-gate'];
+      const lead = $('#launch'), WEEK = ['agent-tree','trace-view','agent-lanes','permission-gate','run-cost','agent-inbox'];
       if (lead){
         if (mode === 'recent') [...lead.querySelectorAll('.comp')].forEach(c => { const g = c.dataset.home && $('#' + c.dataset.home + ' .grid'); if (g) g.appendChild(c); });
         else WEEK.forEach(id => { const c = $(`.comp[data-v2="${id}"]`); if (c) lead.appendChild(c); });
@@ -1609,7 +1611,6 @@ CSS += """
 body.ui .launch{margin-top:28px;gap:24px}
 body.ui .launch.filtered-out,body.ui .launch:not(:has(.comp)){display:none}
 /* the lead has three normal-width cards: the last one takes the whole row rather than leave half of it empty */
-body.ui .launch>.comp:last-child:not(.wide){grid-column:1/-1}
 .launch:has(.comp) + .lib-sec .sec-head{padding-top:44px}
 """
 

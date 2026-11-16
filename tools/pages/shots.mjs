@@ -29,7 +29,7 @@ const names = site.sections.flatMap(s => s.cards.map(c => c.reg)).filter(n => !o
 // passed and summed itself up, and Hand-off to a person once Alex has it and the agent is paused. Rich text editor is taken with the
 // shorter sentence streamed in beside the struck one, ready to accept. Context switcher is taken with the project's switcher open on
 // the search for "inv"
-const WAIT = { toast:2600, 'status-pill':3300, 'design-review':9500, 'model-picker':13000, 'answer-action-bar':17000, composer:18000, thinking:11000, 'context-meter':10500, 'inline-text-diff':9500, 'agent-tree':16500, 'agent-inbox':5000, 'voice-orb':8500, 'prompt-library':12000, steering:16800, 'eval-results':7000, 'knowledge-sources':8200, 'scheduled-runs':4000, 'segmented-control':7000, 'otp-field':10800, 'multi-select':5500, 'profile-menu':11500, 'filter-menu':12500, 'browser-session':9500, 'trace-view':11500, 'terminal-stream':20000, 'human-handoff':15500, 'rich-text-editor':16800, 'context-switcher':4600, banner:2600 };
+const WAIT = { toast:2600, 'status-pill':3300, 'model-picker':13000, 'answer-action-bar':17000, composer:18000, thinking:11000, 'context-meter':10500, 'inline-text-diff':9500, 'agent-tree':16500, 'agent-inbox':5000, 'eval-results':7000, 'knowledge-sources':8200, 'scheduled-runs':4000, 'segmented-control':7000, 'otp-field':10800, 'multi-select':5500, 'profile-menu':11500, 'filter-menu':12500, 'trace-view':11500, 'terminal-stream':20000, 'rich-text-editor':16800, 'context-switcher':4600, banner:2600 };
 // Canvas toolbar is taken mid-run, with Stop on the bar and the wires lighting up
 Object.assign(WAIT, { 'canvas-toolbar':12800 });
 // Agent lanes is taken as the light carries the brief down to the Designer
@@ -45,18 +45,16 @@ Object.assign(WAIT, { 'memory-panel':12500 });
 // the new components of 4 Nov: Progress mid-run past the warning, Context menu with its submenu open, Carousel's drafts with the third
 // kept, Eval radar with its note, Cost vs quality with the outliers ringed, Score breakdown with the proposal, Colour picker with
 // its scale, Web search reading, Agent phases waiting for you
-Object.assign(WAIT, { progress:6500, 'context-menu':4800, carousel:11500, 'radar-chart':5000, 'scatter-chart':4500, 'score-breakdown':7500, 'color-picker':10500, 'web-search':7000, 'agent-phases':11500 });
+Object.assign(WAIT, { progress:6500, 'context-menu':4800, carousel:11500, 'radar-chart':5000, 'scatter-chart':4500, 'score-breakdown':7500, 'web-search':7000 });
 // Number field with the budget kept at its most
 Object.assign(WAIT, { 'number-field':9500 });
-// Image generation with three portraits made and the fourth, retried, coming out of its dots
-Object.assign(WAIT, { 'image-generation':11200 });
 // Kanban board while the agent's card is most of the way through, before it moves to Done
 Object.assign(WAIT, { 'kanban-board':3800 });
 // Thinking states between two lines, Orbit reading the files
 Object.assign(WAIT, { 'thinking-states':3900 });
-// Step inspector with a field put into the instructions; Data picker with its picker open on the score; Run drawer with the
+// Data picker with its picker open on the score; Run drawer with the
 // lookup tried again and the research writing its score
-Object.assign(WAIT, { 'step-inspector':6200, 'data-picker':7400, 'run-drawer':5600 });
+Object.assign(WAIT, { 'data-picker':7400, 'run-drawer':5600 });
 // Health score on Watch, its ring orange and Next step the weakest, before the check-in is booked
 Object.assign(WAIT, { 'health-score':2300 });
 const OUT = { thumbs:path.join(HERE, 'public/components/thumbs'), og:path.join(HERE, 'public/components/og') };
@@ -75,7 +73,7 @@ const base = `http://127.0.0.1:${server.address().port}`;
 
 // a box of the given shape around the component, inside the demo, in page pixels
 // a component too tall for the shared picture's shape is pictured from its top (its title), not cut through the middle
-const TOP = new Set(['agent-run-timeline', 'memory-panel', 'kanban-board', 'step-inspector']);
+const TOP = new Set(['agent-run-timeline', 'memory-panel', 'kanban-board']);
 const boxAround = (comp, demo, ratio, pad, top = false) => {
   let w = comp.width + pad * 2, h = comp.height + pad * 2;
   if (w / h < ratio) w = h * ratio; else h = w / ratio;

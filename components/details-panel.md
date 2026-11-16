@@ -337,11 +337,9 @@ export function DetailsPanel({ title, kind, copyValue, copyLabel = 'Copy run ID'
 
 ## More in Sources and output
 
-- [Code viewer](https://designme.dev/components/code-viewer.md): Code the agent wrote, with line notes you can ask about.
 - [Terminal stream](https://designme.dev/components/terminal-stream.md): Shell commands the agent runs, with their output as it streams in.
 - [Citation hover card](https://designme.dev/components/citation-hover-card.md): Hover a citation to see the exact passage it came from.
 - [Source stack](https://designme.dev/components/source-stack.md): Everything the agent read, folded into one quiet pill.
-- [Field extraction](https://designme.dev/components/field-extraction.md): The agent pulls fields out of a document and shows where each came from.
 - [Metric insight](https://designme.dev/components/metric-insight.md): A number, its trend, and the agent's read on why it moved.
 - [Task table](https://designme.dev/components/task-table.md): Agent tasks in a sortable table with bulk actions.
 

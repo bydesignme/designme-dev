@@ -288,7 +288,6 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
 ## More in Product
 
 - [Pricing cards](https://designme.dev/components/pricing-cards.md): Three plans with a billing switch and a seat slider.
-- [Onboarding checklist](https://designme.dev/components/onboarding-checklist.md): First steps with a progress ring, and the agent can do some for you.
 - [Stepper](https://designme.dev/components/stepper.md): A multi-step setup with a progress track that fills as you go.
 - [Currency converter](https://designme.dev/components/currency-converter.md): Show plan prices in local currency, with a swap and live rate.
 

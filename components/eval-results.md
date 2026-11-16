@@ -312,18 +312,12 @@ export function EvalResults({ title, subtitle, cases, onRun, running = false, ru
 
 ## More in Review and approve
 
-- [Change review](https://designme.dev/components/change-review.md): Accept or reject each change the agent made, file by file.
 - [Plan review](https://designme.dev/components/plan-review.md): Check the agent's plan, edit steps, then let it run.
 - [Permission gate](https://designme.dev/components/permission-gate.md): The agent asks before it touches something new.
-- [Hand-off to a person](https://designme.dev/components/human-handoff.md): The agent hands a conversation to a person, with what they need to pick it up.
 - [Decision prompt](https://designme.dev/components/decision-prompt.md): The agent asks a few quick questions before it starts.
 - [Proposal card](https://designme.dev/components/proposal-card.md): A suggested change with confidence, alternatives and undo.
-- [Design tuner](https://designme.dev/components/design-tuner.md): Tweak a component by hand or let the agent tune it.
 - [Rewrite toolbar](https://designme.dev/components/rewrite-toolbar.md): Select a sentence and let the agent rewrite it in place.
-- [Launch checklist](https://designme.dev/components/launch-checklist.md): The agent checks a design before it ships, and fixes what fails.
 - [Inline text diff](https://designme.dev/components/inline-text-diff.md): The agent's edits to a piece of copy, accepted or rejected one by one.
 - [Draft review](https://designme.dev/components/draft-review.md): An email the agent drafted, to check and edit before it sends.
-- [Steering](https://designme.dev/components/steering.md): Change the agent's course while it works, without starting over.
-- [Design review](https://designme.dev/components/design-review.md): Checks run, a teammate asks for a change, the agent makes it, and you ship.
 
 All components: https://designme.dev/llms.txt

@@ -34,7 +34,7 @@ A complete agent chat app assembled from the other designme components: chats do
 
 ### What it does
 
-- Each conversation's `blocks` can be 'user', 'say', 'working', 'group', 'node', or one of thirteen components such as 'tool-call', 'permission-gate', 'plan-review' and 'change-review', each taking that component's own props.
+- Each conversation's `blocks` can be 'user', 'say', 'working', 'group', 'node', or one of eight components such as 'permission-gate', 'plan-review' and 'decision-prompt', each taking that component's own props.
 - A 'group' block stays open while its state is 'running' and folds into its label a moment after it is 'done', unless the person opened it.
 - Tabs for open chats, with + for New chat and × to close; each tab keeps its own draft in the composer.
 - New chat opens as a chat app does: the Composer waits at the foot, where it stays once the chat starts, and your `logo`, a greeting and the `heading` sit centred in the room above it.
@@ -67,18 +67,14 @@ import {
   AgentHarness, type AgentHarnessBlock, type AgentHarnessConversation, type AgentHarnessPanel, type AgentHarnessState,
   type AgentHarnessStatus, type AgentHarnessTab
 } from './AgentHarness';
-import type { Action } from '../action-log/ActionLog';
 import type { AgentLane, LaneTone } from '../agent-lanes/AgentLanes';
 import type { ArtifactVersion } from '../artifact-card/ArtifactCard';
 
-import type { ChangedFile } from '../change-review/ChangeReview';
 import type { DecisionQuestion } from '../decision-prompt/DecisionPrompt';
-import type { RecoveryStep } from '../error-recovery/ErrorRecovery';
 import type { AnswerSource, AnswerTurn } from '../live-answer/LiveAnswer';
 import type { PlanReviewStep } from '../plan-review/PlanReview';
 import type { StackSource } from '../source-stack/SourceStack';
 import type { ThinkingStep } from '../thinking/Thinking';
-import type { ToolCallItem } from '../tool-call/ToolCall';
 import { Icon, type IconName } from '../lib/icons';
 import { useWait } from '../lib/useScript';
 
@@ -142,20 +138,6 @@ const THOUGHTS: Thought[] = [
 ];
 const TRACE = { title: 'Checking the pricing page', summary: '3 cards to fix, 2 changes planned' };
 const doneThoughts = (): ThinkingStep[] => THOUGHTS.map(t => ({ label: t.label, state: 'done', result: t.result, resultTip: t.tip }));
-const CALLS: ToolCallItem[] = [
-  { key: 'plans', icon: 'db', server: 'billing', name: 'list_plan_changes', state: 'queued', duration: '412 ms',
-    input: { since: '2026-10-01' }, output: [{ plan: 'Pro', price: 24 }, { plan: 'Team', price: 48 }] },
-  { key: 'edit', icon: 'edit', server: 'files', name: 'edit', state: 'queued', duration: '1.2 s', input: { path: 'Pricing.tsx', lines: 6 }, output: { changed: 6, saved: true } }
-];
-const CALL_TEXT = { message: 'Checking which plans changed this month before I update the pricing page.', reply: 'Two plans changed. I updated their prices and the yearly saving on the page.' };
-const ACTIONS: Omit<Action, 'state'>[] = [
-  { icon: 'file-text', title: <>Read <code>Pricing.tsx</code></>, detail: 'src/pages, 212 lines', time: '0.4s', output: 'export function Pricing() {\n  return <Grid cols={3} gap={20}>…' },
-  { icon: 'search', title: <>Searched Figma for <code>Button</code></>, detail: '6 matches in Components.fig', time: '1.1s', output: 'Button / Primary\nButton / Secondary\nButton / Ghost  +3' },
-  { icon: 'edit', title: <>Edited <code>PricingCard.tsx</code></>, detail: <><span style={{ color: 'var(--dm-add)' }}>+18</span> <span style={{ color: 'var(--dm-del)' }}>−7</span> lines</>, time: '2.3s',
-    output: <><span className="dm-x">− gap: 20px;</span>{'\n'}<span className="dm-a">+ gap: var(--space-6);</span></> },
-  { icon: 'term', title: <>Ran <code>npm test</code></>, detail: '24 tests passed', time: '3.2s', output: '✓ PricingCard renders 3 plans\n✓ toggles yearly billing\n24 passed, 0 failed' },
-  { icon: 'pr', title: 'Opened a pull request', detail: '#412, Use shared spacing tokens', time: '0.6s', output: 'feat/pricing-spacing → main\n3 commits, ready for review' }
-];
 const GATE = {
   icon: <Icon name="figma" />, title: 'Allow the agent to edit Figma?', subtitle: 'It needs this to apply the pricing fixes',
   scopes: [{ key: 'read', label: 'Read frames', detail: 'Pricing, Checkout' }, { key: 'edit', label: 'Edit frames', detail: 'Only on a new page' }, { key: 'publish', label: 'Publish library', detail: 'Affects 4 other files', risk: 'Risky' }],
@@ -163,10 +145,6 @@ const GATE = {
 };
 const PLAN = ['Read the pricing frames and the brand tokens', 'Compare against the three competitor pages', 'Simplify the plan cards to one CTA each',
   'Move the FAQ below the comparison table', 'Write a summary of every change'];
-const SUMMARY = { subtitle: 'Finished in 12m 40s', summary: 'Pricing cards now use spacing tokens',
-  stats: [{ label: 'files', value: 6 }, { label: 'steps', value: 14 }, { label: 'tokens', value: 182, suffix: 'k' }, { label: 'cost', value: 0.84, prefix: '$', decimals: 2 }],
-  changes: [{ file: 'PricingCard.tsx', added: 24, removed: 18 }, { file: 'tokens.css', added: 9, removed: 2 }, { file: 'Pricing.test.tsx', added: 31, removed: 0 }],
-  needs: [{ key: 'badge', text: 'The yearly badge overlaps the price on mobile', action: { label: 'Review', onClick: () => {} } }], onDetails: () => {}, onOpenChanges: () => {} };
 const QUESTIONS: DecisionQuestion[] = [
   { question: 'Which frames should the agent redesign?', label: 'Frames', options: [{ label: 'Pricing only', detail: '1 frame' }, { label: 'Pricing and checkout', detail: '3 frames' }, { label: 'The whole flow', detail: '9 frames' }] },
   { question: 'How bold can the changes be?', label: 'Scope', options: [{ label: 'Polish spacing and type', detail: 'Safe' }, { label: 'Rework the layout', detail: 'Medium' }, { label: 'Fresh direction', detail: 'Bold' }] },
@@ -176,18 +154,6 @@ const LANES: { key: string; name: string; icon: IconName; tone: LaneTone; wait?:
   { key: 'researcher', name: 'Researcher', icon: 'search', tone: 'blue', acts: ['Reading competitor sites', 'Comparing 5 pricing pages', 'Writing the brief'], log: ['Read stripe.com/pricing', 'Read linear.app/pricing', 'Noted 3 patterns'] },
   { key: 'designer', name: 'Designer', icon: 'palette', tone: 'purple', wait: 'Waiting for the brief', acts: ['Laying out pricing cards', 'Setting type and spacing', 'Exporting frames'], log: ['Made 3 card variants', 'Applied spacing tokens', 'Exported 4 frames'] },
   { key: 'reviewer', name: 'Reviewer', icon: 'eye', tone: 'green', wait: 'Waiting for the designer', acts: ['Checking contrast', 'Checking copy', 'Signing off'], log: ['Contrast passes AA', 'Fixed 2 lines of copy', 'Approved'] }
-];
-const FILES: ChangedFile[] = [
-  { name: 'PricingCard.tsx', path: 'src/PricingCard.tsx', hunks: [
-    { title: 'Use the shared button', lines: [{ kind: 'ctx', line: 14, text: '  return (' }, { kind: 'del', line: 15, text: '    <button className="cta-old">' }, { kind: 'add', line: 15, text: '    <Button variant="primary">' }, { kind: 'ctx', line: 16, text: '      {plan.cta}' }] },
-    { title: 'Drop the second CTA', lines: [{ kind: 'del', line: 22, text: '    <a href="/contact">Talk to sales</a>' }, { kind: 'ctx', line: 22, text: '  </Card>' }] }
-  ] },
-  { name: 'tokens.css', path: 'src/tokens.css', hunks: [
-    { title: 'Raise muted text contrast', lines: [{ kind: 'ctx', line: 8, text: ':root {' }, { kind: 'del', line: 9, text: '  --text-muted: #c9cfd8;' }, { kind: 'add', line: 9, text: '  --text-muted: #5b6472;' }, { kind: 'ctx', line: 10, text: '  --radius-card: 16px;' }] }
-  ] },
-  { name: 'pricing.mdx', path: 'src/pricing.mdx', hunks: [
-    { title: 'Move the FAQ below the table', lines: [{ kind: 'del', line: 31, text: '<FAQ />' }, { kind: 'ctx', line: 31, text: '<CompareTable />' }, { kind: 'add', line: 32, text: '<FAQ />' }] }
-  ] }
 ];
 const ANSWER = 'Most people leave at the workspace step [1]. It asks for a team name before anyone has made anything, and five of eight people in interviews paused there [2]. Moving it after the first project, and filling the name from the email domain, should help [3].';
 const LA_FOLLOW: Record<string, string> = {
@@ -229,18 +195,10 @@ const SOURCES: StackSource[] = [
   { kind: 'web', title: 'NN/g on price framing', host: 'nngroup.com', relevance: .48, mark: 'N', color: 'var(--dm-fg2)' }
 ];
 const STACK_TEXT = 'Annual plans convert about 18% better when the monthly price is shown crossed out next to them.';
-const RECOVERY = [{ value: 'retry', label: 'Ask for edit access, then retry' }, { value: 'skip', label: 'Skip it and post the summary' }, { value: 'hand', label: 'Hand it over to Maya' }];
-const STALLED: RecoveryStep[] = [
-  { label: 'Pull 1,240 deals from the CRM', state: 'done', note: 'Done in 8s' },
-  { label: 'Write to the Pipeline 2026 sheet', state: 'fail', note: 'Error 403: the agent lost edit access to this sheet' },
-  { label: 'Post the summary in #sales', state: 'wait' }
-];
 const NOTES = {
   gate: "I can't change the frames without access. Allow it above, or pick Not now and I'll list the fixes here.",
   plan: "Noted. Edit a step above to match, or approve the plan as it is and I'll start.",
-  ask: "Pick an answer above, or press Skip and I'll decide for you.",
-  recover: "Choose how I should carry on above, and I'll pick it up from there.",
-  maya: "Maya hasn't replied yet. I'll carry on as soon as she does."
+  ask: "Pick an answer above, or press Skip and I'll decide for you."
 };
 const doneLanes = (): AgentLane[] => LANES.map((p, i) => ({ key: p.key, name: p.name, icon: p.icon, tone: p.tone, status: 'done', activity: p.log[2], done: 3,
   log: p.log.map((text, k) => ({ text, time: 6 + i * 16 + k * 5 + 's' })) }));
@@ -252,26 +210,21 @@ const PAST = (openDoc: () => void): Conv[] => [
   { id: 'pricing', title: S.pricing.title, state: 'done', context: 46, status: { state: 'done', label: 'Done', meta: '6 files changed' }, followUps: FOLLOW.pricing, blocks: [
     user(S.pricing.ask),
     { key: 'g1', kind: 'group', label: 'Checked 6 frames and 2 plan prices', state: 'done', seconds: 11, blocks: [
-      { key: 'tk', kind: 'thinking', props: { steps: doneThoughts(), running: false, seconds: 9, ...TRACE, defaultOpen: false } },
-      { key: 'tc', kind: 'tool-call', props: { calls: CALLS.map(c => ({ ...c, state: 'done' })), defaultOpen: ['plans'], ...CALL_TEXT } }
+      { key: 'tk', kind: 'thinking', props: { steps: doneThoughts(), running: false, seconds: 9, ...TRACE, defaultOpen: false } }
     ] },
     say('s1', 'Three cards break the 8px grid, and the Figma frames still show the old prices. To fix them I need edit access to Pricing.fig.'),
     { key: 'pg', kind: 'permission-gate', props: { ...GATE, defaultStatus: 'allowed', allowedDetail: 'Done. 6 frames edited on a new page' } },
-    { key: 'g2', kind: 'group', label: 'Edited 6 frames and opened a pull request', state: 'done', seconds: 6, blocks: [
-      { key: 'al', kind: 'action-log', props: { actions: ACTIONS.map(a => ({ ...a, state: 'done' })), running: false } }
-    ] },
+    { key: 'g2', kind: 'group', label: 'Edited 6 frames and opened a pull request', state: 'done', seconds: 6, blocks: [] },
     say('s2', "Here's the plan for the rest of the redesign. Change any step, or approve it and I'll start."),
     { key: 'pl', kind: 'plan-review', props: { title: 'Plan: redesign the pricing page', phase: 'done', status: 'Done. 4 frames updated', steps: PLAN.map((t, i) => ({ id: 's' + i, text: t, state: 'done' })), onSeeChanges: () => {} } },
-    say('s3', "All done. Here's what changed."),
-    { key: 'rs', kind: 'run-summary', props: SUMMARY }
+    say('s3', 'All done. Six files changed, and the pull request is open for review.')
   ] },
   { id: 'team', title: S.team.title, state: 'done', context: 58, status: { state: 'done', label: 'Ready to review', meta: '3 files' }, followUps: FOLLOW.team, blocks: [
     user(S.team.ask), say('s1', 'Three quick questions before I split the work.'),
     { key: 'dp', kind: 'decision-prompt', props: { questions: QUESTIONS, defaultAnswers: [0, 0, 0], startLabel: 'Starting the redesign', started: true, startedLabel: 'Started the redesign' } },
     say('s2', "I've handed the brief to three agents. Each one passes its work to the next."),
     { key: 'al', kind: 'agent-lanes', props: { lanes: doneLanes(), seconds: 51 } },
-    say('s3', 'The reviewer signed off. Here are the changes, ready for you to keep or undo.'),
-    { key: 'cr', kind: 'change-review', props: { files: FILES } }
+    say('s3', 'The reviewer signed off. The three files are ready for you to review.')
   ] },
   { id: 'dropoff', title: S.dropoff.title, state: 'done', context: 24, status: { state: 'done', label: 'Answered', meta: '3 sources' }, blocks: [
     { key: 'la', kind: 'live-answer', props: { turns: [{ question: S.dropoff.ask, state: 'done', text: ANSWER, thoughts: THOUGHTS_LA, thoughtFor: 2, sources: ANSWER_SOURCES }], followUps: Object.keys(LA_FOLLOW) } },
@@ -283,11 +236,8 @@ const PAST = (openDoc: () => void): Conv[] => [
     { key: 'ss', kind: 'source-stack', props: { sources: SOURCES, defaultOpen: true, children: STACK_TEXT } },
     say('s1', 'Want me to try the crossed-out monthly price on the pricing page?')
   ] },
-  { id: 'sync', title: S.sync.title, state: 'done', unread: true, context: 31, status: { state: 'done', label: 'Recovered', meta: '1 retry' }, followUps: FOLLOW.sync, blocks: [
+  { id: 'sync', title: S.sync.title, state: 'done', unread: true, context: 31, status: { state: 'done', label: 'Done', meta: '1,240 deals' }, followUps: FOLLOW.sync, blocks: [
     user(S.sync.ask),
-    { key: 'er', kind: 'error-recovery', props: { title: 'Sync the pipeline to Sheets', status: 'Recovered', options: RECOVERY, open: false, steps: [
-      { label: 'Pull 1,240 deals from the CRM', state: 'done', note: 'Done in 8s' }, { label: 'Write to the Pipeline 2026 sheet', state: 'done', note: 'Wrote 1,240 rows' },
-      { label: 'Post the summary in #sales', state: 'done', note: 'Posted to 14 people' }] } },
     say('s1', 'All 1,240 deals are in the sheet, and the summary is posted in #sales.')
   ] }
 ];
@@ -424,14 +374,8 @@ export default function AgentHarnessDemo() {
         steps[at] = { ...steps[at], state: 'done', result: th.result, resultTip: th.tip }; trace(); tick();
       }
       await t.wait(250); trace(false); t.ctx(21); await t.wait(400);
-      let calls = CALLS;
-      const call = (open?: string[]) => t.put({ key: 'tc', kind: 'tool-call', props: { calls, open, ...CALL_TEXT } }, 'g1');
-      call(); await t.wait(600);
-      for (const c of CALLS) {
-        calls = calls.map(x => x.key === c.key ? { ...x, state: 'running' } : x); call(); t.status({ state: 'reading', label: 'Calling tools', meta: c.name });
-        await t.wait(1300); calls = calls.map(x => x.key === c.key ? { ...x, state: 'done' } : x); call();
-      }
-      call(['plans']); g.done('Checked 6 frames and 2 plan prices'); t.ctx(28); await t.wait(700);
+      t.status({ state: 'reading', label: 'Calling tools', meta: 'billing' }); await t.wait(1600);
+      g.done('Checked 6 frames and 2 plan prices'); t.ctx(28); await t.wait(700);
 
       await t.say('s1', 'Three cards break the 8px grid, and the Figma frames still show the old prices. To fix them I need edit access to Pricing.fig.');
       const gate = (more: object) => t.prop('pg', more);
@@ -443,13 +387,8 @@ export default function AgentHarnessDemo() {
       if (answered() === 'declined') { await t.wait(500); await t.say('s2', 'No problem. To fix it by hand, move the three cards onto the 8px grid and update the Pro and Team prices.'); return t.end('Done', 'Nothing edited'); }
       t.wait(1400).then(() => gate({ allowedDetail: 'Done. 6 frames edited on a new page' }));
       const g2 = t.group('g2', 'Applying the fixes');
-      let acts: Action[] = [];
-      const log = (running = true) => t.put({ key: 'al', kind: 'action-log', props: { actions: acts, running } }, 'g2');
-      for (let i = 0; i < ACTIONS.length; i++) {
-        acts = [...acts, { ...ACTIONS[i], state: 'running' }]; log(); t.status({ state: 'working', label: 'Applying the fixes', meta: `Step ${i + 1} of 5` });
-        await t.wait(665); acts = acts.map((a, k) => k === i ? { ...a, state: 'done' } : a); log();
-      }
-      log(false); g2.done('Edited 6 frames and opened a pull request'); t.ctx(36); await t.wait(600);
+      t.status({ state: 'working', label: 'Applying the fixes', meta: '6 frames' }); await t.wait(2200);
+      g2.done('Edited 6 frames and opened a pull request'); t.ctx(36); await t.wait(600);
 
       await t.say('s2', "Here's the plan for the rest of the redesign. Change any step, or approve it and I'll start.");
       const stop = { now: false };
@@ -470,9 +409,8 @@ export default function AgentHarnessDemo() {
       plan({ status: stop.now ? 'Stopped, progress kept' : 'Done. 4 frames updated', phase: 'done' });
       if (stop.now) { await t.say('s3', 'Stopped. The finished steps are kept.'); return t.end('Stopped', 'Progress kept'); }
       t.ctx(44); await t.wait(600);
-      await t.say('s3', "All done. Here's what changed.");
-      t.put({ key: 'rs', kind: 'run-summary', props: SUMMARY }); t.ctx(46);
-      await t.wait(1200); t.end('Done', '6 files changed', FOLLOW.pricing);
+      await t.say('s3', 'All done. Six files changed, and the pull request is open for review.'); t.ctx(46);
+      await t.wait(600); t.end('Done', '6 files changed', FOLLOW.pricing);
     },
 
     async team(t) {
@@ -506,8 +444,7 @@ export default function AgentHarnessDemo() {
       await work(LANES[1]); await hand('designer', 'reviewer', '4 frames');
       await work(LANES[2]);
       t.ctx(52); await t.wait(600);
-      await t.say('s3', 'The reviewer signed off. Here are the changes, ready for you to keep or undo.');
-      t.put({ key: 'cr', kind: 'change-review', props: { files: FILES } }); t.ctx(58);
+      await t.say('s3', 'The reviewer signed off. The three files are ready for you to review.'); t.ctx(58);
       await t.wait(800); t.end('Ready to review', '3 files', FOLLOW.team);
     },
 
@@ -556,29 +493,8 @@ export default function AgentHarnessDemo() {
     async sync(t) {
       await t.ask(); t.ctx(9);
       const gone = t.working('w', 'Syncing 1,240 deals'); t.status({ state: 'working', label: 'Syncing deals' });
-      await t.wait(1500); gone();
-      let steps = STALLED, choice: string | null = null, sum = 'Stopped at step 2';
-      const show = () => t.put({ key: 'er', kind: 'error-recovery', props: { title: 'Sync the pipeline to Sheets', status: sum, steps, options: RECOVERY, open: !choice, onContinue: go } });
-      const step = (i: number, state: RecoveryStep['state'], note?: string) => { steps = steps.map((x, k) => k === i ? { ...x, state, note } : x); show(); };
-      function go(v: string) { if (!choice) { choice = v; show(); } }
-      show(); t.hold('er', 'Needs a decision', NOTES.recover); t.ctx(14);
-      await t.until(() => !!choice);
-      if (choice === 'retry') {
-        t.status({ state: 'working', label: 'Recovering' });
-        step(1, 'run', 'Asking for edit access'); sum = 'Recovering'; show(); await t.wait(1200);
-        step(1, 'run', 'Access granted, retrying'); await t.wait(1000);
-        step(1, 'done', 'Wrote 1,240 rows'); step(2, 'run'); await t.wait(1000);
-        step(2, 'done', 'Posted to 14 people'); sum = 'Recovered'; show();
-        t.ctx(31); await t.wait(600);
-        await t.say('s1', 'All 1,240 deals are in the sheet, and the summary is posted in #sales.'); t.end('Recovered', '1 retry', FOLLOW.sync);
-      } else if (choice === 'skip') {
-        step(1, 'skip', 'Skipped, nothing was written'); step(2, 'run'); await t.wait(1000);
-        step(2, 'done', 'Posted, with a note about the sheet'); sum = '2 of 3 done'; show(); t.ctx(31); await t.wait(600);
-        await t.say('s1', 'The summary is posted in #sales. The sheet stays as it was until access is back.'); t.end('Done', '1 step skipped');
-      } else {
-        step(1, 'hand', 'Maya has the error, the logs and the last good state'); sum = 'Waiting on Maya'; show(); t.ctx(31); await t.wait(600);
-        await t.say('s1', "Maya has the error and the logs. I'll pick it up again when she replies."); t.hold('er', 'Waiting on Maya', NOTES.maya);
-      }
+      await t.wait(2200); gone(); t.ctx(31);
+      await t.say('s1', 'All 1,240 deals are in the sheet, and the summary is posted in #sales.'); t.end('Done', '1,240 deals', FOLLOW.sync);
     }
   };
 
@@ -711,21 +627,16 @@ import { useControllable, useCopied, useIsoLayoutEffect, useReducedMotion } from
 import { Icon, type IconName } from '../lib/icons';
 import { Fold, Spin, Swap, Think, Tip, enter } from '../lib/motion';
 import { usePopover } from '../lib/popover';
-import { ActionLog, type ActionLogProps } from '../action-log/ActionLog';
 import { AgentLanes, type AgentLanesProps } from '../agent-lanes/AgentLanes';
 import { ArtifactCard, type ArtifactCardProps } from '../artifact-card/ArtifactCard';
-import { ChangeReview, type ChangeReviewProps } from '../change-review/ChangeReview';
 import { Composer, type ComposerAttachment, type ComposerProps } from '../composer/Composer';
 import { DecisionPrompt, type DecisionPromptProps } from '../decision-prompt/DecisionPrompt';
-import { ErrorRecovery, type ErrorRecoveryProps } from '../error-recovery/ErrorRecovery';
 import { LiveAnswer, type LiveAnswerProps } from '../live-answer/LiveAnswer';
 import { PermissionGate, type PermissionGateProps } from '../permission-gate/PermissionGate';
 import { PlanReview, type PlanReviewProps } from '../plan-review/PlanReview';
-import { RunSummary, type RunSummaryProps } from '../run-summary/RunSummary';
 import { SourceStack, type SourceStackProps } from '../source-stack/SourceStack';
 import { StatusPill, type StatusPillProps } from '../status-pill/StatusPill';
 import { Thinking, type ThinkingProps } from '../thinking/Thinking';
-import { ToolCall, type ToolCallProps } from '../tool-call/ToolCall';
 import '../designme.css';
 import '../live-answer/live-answer.css';
 import '../context-meter/context-meter.css';
@@ -742,18 +653,13 @@ export type AgentHarnessBlock = { key: string } & (
   /** The agent's work under one line: open while it runs, folded into its label a moment after it is done. The person can open it again */
   | { kind: 'group'; label: string; state: 'running' | 'done'; seconds?: number; blocks: AgentHarnessBlock[] }
   | { kind: 'thinking'; props: ThinkingProps }
-  | { kind: 'tool-call'; props: ToolCallProps }
   | { kind: 'permission-gate'; props: PermissionGateProps }
   | { kind: 'plan-review'; props: PlanReviewProps }
-  | { kind: 'action-log'; props: ActionLogProps }
-  | { kind: 'run-summary'; props: RunSummaryProps }
   | { kind: 'live-answer'; props: LiveAnswerProps }
   | { kind: 'source-stack'; props: SourceStackProps }
   | { kind: 'artifact-card'; props: ArtifactCardProps }
-  | { kind: 'error-recovery'; props: ErrorRecoveryProps }
   | { kind: 'decision-prompt'; props: DecisionPromptProps }
   | { kind: 'agent-lanes'; props: AgentLanesProps }
-  | { kind: 'change-review'; props: ChangeReviewProps }
   /** Anything else, as it is */
   | { kind: 'node'; node: ReactNode }
 );
@@ -852,8 +758,8 @@ export interface AgentHarnessProps {
   className?: string;
 }
 
-// an artifact and a diff keep their card in the chat; every other component sits on the chat itself
-const BOXED = new Set(['artifact-card', 'change-review']);
+// an artifact keeps its card in the chat; every other component sits on the chat itself
+const BOXED = new Set(['artifact-card']);
 const IDLE: AgentHarnessStatus = { state: 'idle', label: 'Ready for a task' };
 const NARROW = 620;
 let made = 0;
@@ -862,18 +768,13 @@ const newTab = (): AgentHarnessTab => ({ key: 'tab-' + ++made });
 function Message({ b }: { b: AgentHarnessBlock }) {
   switch (b.kind) {
     case 'thinking': return <Thinking {...b.props} />;
-    case 'tool-call': return <ToolCall {...b.props} />;
     case 'permission-gate': return <PermissionGate {...b.props} />;
     case 'plan-review': return <PlanReview {...b.props} />;
-    case 'action-log': return <ActionLog {...b.props} />;
-    case 'run-summary': return <RunSummary {...b.props} />;
     case 'live-answer': return <LiveAnswer {...b.props} />;
     case 'source-stack': return <SourceStack {...b.props} />;
     case 'artifact-card': return <ArtifactCard {...b.props} />;
-    case 'error-recovery': return <ErrorRecovery {...b.props} />;
     case 'decision-prompt': return <DecisionPrompt {...b.props} />;
     case 'agent-lanes': return <AgentLanes {...b.props} />;
-    case 'change-review': return <ChangeReview {...b.props} />;
     case 'node': return <>{b.node}</>;
     default: return null;
   }

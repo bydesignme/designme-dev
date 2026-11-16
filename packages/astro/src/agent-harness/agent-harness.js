@@ -10,7 +10,7 @@ DM.def('harness', (r, c) => {
   const pill = $('.ahx-spl .spl-pill', r), pin = $('.spl-in', pill);
   // the templates live on the components' own cards: here and on designme.dev every card is on the page; on your own page, add the cards it uses
   const tplOf = k => { const card = $(`.card[data-c="${k}"], .comp[data-v2="${k}"]`); return card && DM.tpl(card); };
-  const BOXED = ['artifact-card', 'change-review'];
+  const BOXED = ['artifact-card'];
   const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
   /* a clock of its own: a past chat replays at speed out of sight, so opening it shows its end at once.
      The tiny waits of a replay go through a message, which the browser runs at once, where a timer would be held back */
@@ -87,8 +87,7 @@ DM.def('harness', (r, c) => {
       const tk = g.comp('thinking', .5);
       await t.until(() => { t.status('think', 'Thinking', $('.tk-time', tk).textContent); return $('.tk-fin', tk); }, 200);
       t.ctx(21); await t.wait(400);
-      const tc = g.comp('tool-call');
-      await t.until(() => { const on = $$('.tcx-c', tc).find(x => $('.spin', x)); t.status('tool', 'Calling tools', on ? $('.tcx-n b', on).textContent : 'billing'); return $('.tcx-end.in', tc); });
+      t.status('tool', 'Calling tools', 'billing'); await t.wait(1600);
       g.done('Checked 6 frames and 2 plan prices', 11); t.ctx(28); await t.wait(700);
       await t.say('Three cards break the 8px grid, and the Figma frames still show the old prices. To fix them I need edit access to Pricing.fig.');
       const pg = t.comp('permission-gate'); t.hold(pg, 'Needs access', "I can't change the frames without access. Allow it above, or pick Not now and I'll list the fixes here.");
@@ -96,8 +95,7 @@ DM.def('harness', (r, c) => {
       await t.until(() => $('.pgx-done', pg));
       if (/skip/.test($('.pgx-done', pg).textContent)){ await t.wait(500); await t.say("No problem. To fix it by hand, move the three cards onto the 8px grid and update the Pro and Team prices."); return t.end('Done', 'Nothing edited'); }
       const g2 = t.group('Applying the fixes');
-      const al = g2.comp('action-log', .7);
-      await t.until(() => { t.status('run', 'Applying the fixes', 'Step ' + $('.alg-list', al).children.length + ' of 5'); return $('.alg-st .dot', al); });
+      t.status('run', 'Applying the fixes', '6 frames'); await t.wait(2200);
       g2.done('Edited 6 frames and opened a pull request', 6); t.ctx(36); await t.wait(600);
       await t.say("Here's the plan for the rest of the redesign. Change any step, or approve it and I'll start.");
       const pl = t.comp('plan-review'); t.hold(pl, 'Needs your approval', "Noted. Edit a step above to match, or approve the plan as it is and I'll start."); t.ctx(40);
@@ -106,9 +104,7 @@ DM.def('harness', (r, c) => {
       await t.until(() => { const s = $('.plx-st', pl).textContent; if (/^Step/.test(s)) t.status('run', 'Running the plan', s); return $('.plx-f .pill.soft', pl) && /^(Done|Stopped)/.test(s); });
       if (/Stopped/.test($('.plx-st', pl).textContent)){ await t.say('Stopped. The finished steps are kept.'); return t.end('Stopped', 'Progress kept'); }
       t.ctx(44); await t.wait(600);
-      await t.say("All done. Here's what changed.");
-      const rs = t.comp('run-summary'); t.ctx(46);
-      $('.plx-f .pill.soft', pl).onclick = () => look(rs);
+      await t.say('All done. Six files changed, and the pull request is open for review.'); t.ctx(46);
       await t.wait(1200); t.end('Done', '6 files changed', ['What still needs me?', 'Which spacing tokens did you use?']);
     } },
     team:{ ask:'Redesign the pricing page with three agents', title:'Pricing with three agents', nt:'Three agents on pricing', ic:'users', end:{ g:'ok', t:'Ready to review', m:'3 files' }, ctx:58, run:async t => {
@@ -123,8 +119,7 @@ DM.def('harness', (r, c) => {
       const al = t.comp('agent-lanes', .6);
       await t.until(() => { const s = $('.aln-t', al).textContent; t.status('run', /paused/.test(s) ? 'Agents paused' : 'Agents working', $('.aln-m', al).textContent); return /finished/.test(s); }, 300);
       t.ctx(52); await t.wait(600);
-      await t.say('The reviewer signed off. Here are the changes, ready for you to keep or undo.');
-      t.comp('change-review'); t.ctx(58);
+      await t.say('The reviewer signed off. The three files are ready for you to review.'); t.ctx(58);
       await t.wait(800); t.end('Ready to review', '3 files', ['What did the researcher find?', 'Who signed off?']);
     } },
     dropoff:{ ask:'Where are people dropping off in onboarding?', title:'Onboarding drop-off', nt:'Where onboarding loses people', ic:'chart', end:{ g:'ok', t:'Answered', m:'3 sources' }, ctx:24, run:async t => {
@@ -145,18 +140,12 @@ DM.def('harness', (r, c) => {
       await t.say('Want me to try the crossed-out monthly price on the pricing page?');
       t.end('Answered', '8 sources', ['Try it on the pricing page', 'How sure are you?']);
     } },
-    sync:{ ask:"Sync this quarter's deals to the pipeline sheet", title:'Sync deals to Sheets', nt:"This quarter's deals to Sheets", ic:'table', end:{ g:'ok', t:'Recovered', m:'1 retry' }, ctx:31, run:async t => {
+    sync:{ ask:"Sync this quarter's deals to the pipeline sheet", title:'Sync deals to Sheets', nt:"This quarter's deals to Sheets", ic:'table', end:{ g:'ok', t:'Done', m:'1,240 deals' }, ctx:31, run:async t => {
       await t.ask(); t.ctx(9);
       const w = t.working('Syncing 1,240 deals'); t.status('run', 'Syncing deals');
-      await t.wait(1500); w.remove();
-      const er = t.comp('error-recovery'); t.hold(er, 'Needs a decision', "Choose how I should carry on above, and I'll pick it up from there."); t.ctx(14);
-      t.decide(er, '.erx-go');
-      await t.until(() => { const s = $('.erx-s', er).textContent; if (s === 'Recovering') t.status('run', 'Recovering'); return /Recovered|2 of 3|Maya/.test(s); });
-      const s = $('.erx-s', er).textContent; t.ctx(31); await t.wait(600);
-      if (/Maya/.test(s)){ await t.say("Maya has the error and the logs. I'll pick it up again when she replies."); return t.status('wait', 'Waiting on Maya', '', null, "Maya hasn't replied yet. I'll carry on as soon as she does."); }
-      if (/2 of 3/.test(s)){ await t.say('The summary is posted in #sales. The sheet stays as it was until access is back.'); return t.end('Done', '1 step skipped'); }
+      await t.wait(2200); w.remove(); t.ctx(31);
       await t.say('All 1,240 deals are in the sheet, and the summary is posted in #sales.');
-      t.end('Recovered', '1 retry', ['Who can edit the sheet now?', 'Run this every Monday']);
+      t.end('Done', '1,240 deals', ['Who can edit the sheet now?', 'Run this every Monday']);
     } }
   };
   const KEYS = Object.keys(S), HUE = ['#3b82f6', '#7a5af8', '#0ea5a4', '#f97316', '#16a34a'];

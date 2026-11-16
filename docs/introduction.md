@@ -6,7 +6,7 @@ Designme.dev docs. The same page with navigation: https://designme.dev/docs/intr
 
 ## What it is
 
-124 free components: 74 for the agent itself, like status pills, reasoning trails, tool calls, permission gates, plan reviews and run summaries, and 50 app basics around it.
+99 free components: 51 for the agent itself, like status pills, reasoning trails, agent trees, permission gates, plan reviews and run costs, and 48 app basics around it.
 
 Every component plays as a demo on the [homepage](https://designme.dev/), and has a page of its own with its install command, React props, code and questions.
 
@@ -28,18 +28,11 @@ Each style has a light and a dark theme. Switch them in the header of any page h
 
 - [Live answer](https://designme.dev/components/live-answer.md)
 - [Composer](https://designme.dev/components/composer.md)
-- [Thread panel](https://designme.dev/components/thread-panel.md)
 - [Artifact card](https://designme.dev/components/artifact-card.md)
-- [Image generation](https://designme.dev/components/image-generation.md)
 - [Rich text editor](https://designme.dev/components/rich-text-editor.md)
-- [Tool call](https://designme.dev/components/tool-call.md)
-- [Voice capture](https://designme.dev/components/voice-capture.md)
-- [Voice orb](https://designme.dev/components/voice-orb.md)
 - [Answer action bar](https://designme.dev/components/answer-action-bar.md)
 - [Response versions](https://designme.dev/components/response-versions.md)
 - [Model picker](https://designme.dev/components/model-picker.md)
-- [Prompt starters](https://designme.dev/components/prompt-starters.md)
-- [Prompt library](https://designme.dev/components/prompt-library.md)
 - [Attachment tray](https://designme.dev/components/attachment-tray.md)
 - [Feedback sheet](https://designme.dev/components/feedback-sheet.md)
 
@@ -51,15 +44,9 @@ Each style has a light and a dark theme. Switch them in the header of any page h
 - [Agent tree](https://designme.dev/components/agent-tree.md)
 - [Agent inbox](https://designme.dev/components/agent-inbox.md)
 - [Trace view](https://designme.dev/components/trace-view.md)
-- [Browser session](https://designme.dev/components/browser-session.md)
 - [Web search](https://designme.dev/components/web-search.md)
-- [Agent phases](https://designme.dev/components/agent-phases.md)
-- [Run summary](https://designme.dev/components/run-summary.md)
 - [Agent run timeline](https://designme.dev/components/agent-run-timeline.md)
-- [Action log](https://designme.dev/components/action-log.md)
 - [Context meter](https://designme.dev/components/context-meter.md)
-- [Error and recovery](https://designme.dev/components/error-recovery.md)
-- [Run queue](https://designme.dev/components/run-queue.md)
 - [Run cost](https://designme.dev/components/run-cost.md)
 - [Toast stack](https://designme.dev/components/toast-stack.md)
 - [Toast](https://designme.dev/components/toast.md)
@@ -69,28 +56,20 @@ Each style has a light and a dark theme. Switch them in the header of any page h
 
 ### Review and approve
 
-- [Change review](https://designme.dev/components/change-review.md)
 - [Plan review](https://designme.dev/components/plan-review.md)
 - [Permission gate](https://designme.dev/components/permission-gate.md)
-- [Hand-off to a person](https://designme.dev/components/human-handoff.md)
 - [Decision prompt](https://designme.dev/components/decision-prompt.md)
 - [Proposal card](https://designme.dev/components/proposal-card.md)
-- [Design tuner](https://designme.dev/components/design-tuner.md)
 - [Rewrite toolbar](https://designme.dev/components/rewrite-toolbar.md)
-- [Launch checklist](https://designme.dev/components/launch-checklist.md)
 - [Inline text diff](https://designme.dev/components/inline-text-diff.md)
 - [Draft review](https://designme.dev/components/draft-review.md)
-- [Steering](https://designme.dev/components/steering.md)
 - [Eval results](https://designme.dev/components/eval-results.md)
-- [Design review](https://designme.dev/components/design-review.md)
 
 ### Sources and output
 
-- [Code viewer](https://designme.dev/components/code-viewer.md)
 - [Terminal stream](https://designme.dev/components/terminal-stream.md)
 - [Citation hover card](https://designme.dev/components/citation-hover-card.md)
 - [Source stack](https://designme.dev/components/source-stack.md)
-- [Field extraction](https://designme.dev/components/field-extraction.md)
 - [Metric insight](https://designme.dev/components/metric-insight.md)
 - [Details panel](https://designme.dev/components/details-panel.md)
 - [Task table](https://designme.dev/components/task-table.md)
@@ -99,12 +78,10 @@ Each style has a light and a dark theme. Switch them in the header of any page h
 
 - [Automation canvas](https://designme.dev/components/automation-canvas.md)
 - [Canvas toolbar](https://designme.dev/components/canvas-toolbar.md)
-- [Step inspector](https://designme.dev/components/step-inspector.md)
 - [Data picker](https://designme.dev/components/data-picker.md)
 - [Run drawer](https://designme.dev/components/run-drawer.md)
 - [Command palette](https://designme.dev/components/command-palette.md)
 - [Memory panel](https://designme.dev/components/memory-panel.md)
-- [Model compare](https://designme.dev/components/model-compare.md)
 - [Agent settings](https://designme.dev/components/agent-settings.md)
 - [Tools and connections](https://designme.dev/components/tool-connections.md)
 - [Knowledge sources](https://designme.dev/components/knowledge-sources.md)
@@ -116,7 +93,7 @@ Each style has a light and a dark theme. Switch them in the header of any page h
 
 - [Agent harness](https://designme.dev/components/agent-harness.md)
 
-There are also 50 app basics, like charts, date pickers and forms, for the product around the agent. They are all in the [library](https://designme.dev/#s-charts).
+There are also 48 app basics, like charts, date pickers and forms, for the product around the agent. They are all in the [library](https://designme.dev/#s-charts).
 
 ## HTML, React or Astro
 

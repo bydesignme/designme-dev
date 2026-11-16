@@ -287,7 +287,6 @@ export function Stepper({ steps, step, defaultStep = 0, onStepChange, values, de
 ## More in Product
 
 - [Pricing cards](https://designme.dev/components/pricing-cards.md): Three plans with a billing switch and a seat slider.
-- [Onboarding checklist](https://designme.dev/components/onboarding-checklist.md): First steps with a progress ring, and the agent can do some for you.
 - [Set limit](https://designme.dev/components/set-limit.md): A monthly agent budget with a draggable cap and a forecast.
 - [Currency converter](https://designme.dev/components/currency-converter.md): Show plan prices in local currency, with a swap and live rate.
 

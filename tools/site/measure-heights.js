@@ -13,7 +13,7 @@ const ROOT = path.resolve(__dirname, '../..');
 const BANDS = [['a', 1440], ['b', 1181], ['c', 961], ['d', 880], ['e', 834], ['f', 820], ['g', 768], ['h', 744], ['i', 641], ['j', 520], ['k', 430], ['l', 390], ['m', 360]];
 // ONLY=d,e measures just those bands and keeps the rest from card-heights.json as it is
 const ONLY = process.env.ONLY ? process.env.ONLY.split(',') : null;
-// COMPS=run-summary,toast measures just those components and keeps every other one from card-heights.json as it is
+// COMPS=agent-tree,toast measures just those components and keeps every other one from card-heights.json as it is
 const COMPS = process.env.COMPS ? process.env.COMPS.split(',') : null;
 const STYLES = ['bp', 'soft'];
 const PLAY = 24000, EVERY = 200;

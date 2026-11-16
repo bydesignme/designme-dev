@@ -9,7 +9,7 @@ Designme.dev docs. The same page with navigation: https://designme.dev/docs/astr
 ### 1. Add them with the CLI
 
 ```sh
-npx designme add tool-call buttons --astro
+npx designme add live-answer buttons --astro
 ```
 
 They land in `src/components/designme`, or `components/designme` when there is no `src` folder. The shared core, `core/designme.css` and `core/core.js`, is added once. Without `--astro`, the CLI says so when it finds an `astro.config` file in the folder you run it from.
@@ -21,10 +21,10 @@ src/components/designme/
   core/
     designme.css
     core.js
-  tool-call/
-    ToolCall.astro
-    tool-call.css
-    tool-call.js
+  live-answer/
+    LiveAnswer.astro
+    live-answer.css
+    live-answer.js
   buttons/
     Buttons.astro
     buttons.css
@@ -35,10 +35,10 @@ src/components/designme/
 
 ```astro
 ---
-import ToolCall from '../components/designme/tool-call/ToolCall.astro';
+import LiveAnswer from '../components/designme/live-answer/LiveAnswer.astro';
 import Buttons from '../components/designme/buttons/Buttons.astro';
 ---
-<ToolCall />
+<LiveAnswer />
 <Buttons data-style="soft" class="my-buttons" />
 ```
 

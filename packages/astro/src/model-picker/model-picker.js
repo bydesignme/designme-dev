@@ -3,7 +3,7 @@ import { $, $$, DM, I, centre, enter, swap, tip } from '../core/core.js';
 DM.def('model-picker', (r, c) => {
   r.innerHTML = r.innerHTML.replace(/\{chev\}/g, I('chev-d','xs')).replace('{brain}', I('brain','xs')).replace(/\{chk\}/g, I('check','xs'));
   // speed, quality and cost out of five, and the numbers behind them: tokens a second, and a typical reply's seconds and
-  // price with no thinking (the same three models and figures as Model compare)
+  // price with no thinking
   const M = [
     { n:'Opus 5.5', m:'O', c:'var(--dm-pl)', t:'var(--dm-on-ink)', d:'Deepest reasoning, slower', s:2, q:5, p:5, tps:38, sec:9, cost:.021 },
     { n:'Sonnet 5.5', m:'S', c:'var(--dm-accent)', t:'var(--dm-on-accent)', d:'Balanced, the default for design work', s:4, q:4, p:2, tps:74, sec:4, cost:.006 },

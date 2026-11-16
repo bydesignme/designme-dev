@@ -576,12 +576,10 @@ export function CanvasToolbar({
 ## More in Workspace
 
 - [Automation canvas](https://designme.dev/components/automation-canvas.md): A trigger, a few agent steps, and a run you can watch flow through.
-- [Step inspector](https://designme.dev/components/step-inspector.md): The settings of one step in an agent workflow, in sections that fold.
 - [Data picker](https://designme.dev/components/data-picker.md): Map a field from earlier steps into a step's input.
 - [Run drawer](https://designme.dev/components/run-drawer.md): A workflow's run under its canvas: the steps, the log and the data.
 - [Command palette](https://designme.dev/components/command-palette.md): Jump anywhere or hand a task to the agent from one box.
 - [Memory panel](https://designme.dev/components/memory-panel.md): What the agent remembers about your team, editable and removable.
-- [Model compare](https://designme.dev/components/model-compare.md): Run one prompt on three models side by side and keep the best.
 - [Agent settings](https://designme.dev/components/agent-settings.md): How much the agent may do alone, with a save bar for changes.
 - [Tools and connections](https://designme.dev/components/tool-connections.md): The tools the agent can reach, and how much it may do with each.
 - [Knowledge sources](https://designme.dev/components/knowledge-sources.md): The files, sites and folders the agent knows, and how far each is indexed.

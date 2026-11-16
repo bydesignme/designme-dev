@@ -1,4 +1,4 @@
-/* The pictures in the Carousel demo (both its types) and the Image generation demo, on designme.dev only: photos from Pexels (https://www.pexels.com),
+/* The pictures in the Carousel demo (both its types), on designme.dev only: photos from Pexels (https://www.pexels.com),
    free to use under the Pexels License (https://www.pexels.com/license/), not this repository's MIT licence. art/README.md
    links each photo.
    The components people install draw each picture as a gradient of its colours (the --art on the element); this script runs

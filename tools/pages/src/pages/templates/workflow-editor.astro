@@ -3,8 +3,8 @@
 // An agent workflow on a canvas (trigger, AI steps with tools, a branch, a human approval, app steps and an output), a step
 // inspector, a run drawer with the trace, the log and the data, run history and versions. The shell is drawn with the
 // components' own classes and tokens, from their installed CSS, so the screen follows Soft and Blueprint, light and dark, with
-// the site's switches. The step inspector, the data picker and the run drawer are the library's Step inspector, Data picker
-// and Run drawer (they started here). Its data and interactions are one script (src/templates/workflow-editor/wf.js); the
+// the site's switches. The data picker and the run drawer are the library's Data picker and Run drawer (they started here);
+// the step inspector and the run log were the library's Step inspector and Action log, whose CSS the template keeps. Its data and interactions are one script (src/templates/workflow-editor/wf.js); the
 // layout around the components, and the parts the library doesn't have yet (wfx-*, candidates for new components), are
 // src/templates/workflow-editor/wf.css. Noindex and out of the sitemap, llms.txt and the site's navigation.
 import fs from 'node:fs';
@@ -13,15 +13,16 @@ import Page from '../../layouts/Page.astro';
 import { ROOT, COMPONENTS } from '../../lib/data.mjs';
 
 // the components the screen is made of, by their registry name: each one's installed CSS is on the page
-const USES = ['agent-harness', 'automation-canvas', 'canvas-toolbar', 'step-inspector', 'data-picker', 'run-drawer', 'segmented-control', 'form',
-  'action-log', 'command-palette', 'toast', 'progress', 'profile-menu', 'set-limit'];
+const USES = ['agent-harness', 'automation-canvas', 'canvas-toolbar', 'data-picker', 'run-drawer', 'segmented-control', 'form',
+  'command-palette', 'toast', 'progress', 'profile-menu', 'set-limit'];
 const css = USES.map(reg => {
   const c = COMPONENTS.find(x => x.reg === reg);
   if (!c) throw new Error('workflow-editor: no component called ' + reg);
   return `/* ${c.title} */\n` + c.html.css;
 }).join('\n');
 const DIR = path.join(ROOT, 'tools/pages/src/templates/workflow-editor');
-const APP_CSS = fs.readFileSync(path.join(DIR, 'wf.css'), 'utf8');
+// Step inspector and Action log left the library (owner, 16 Nov); their CSS stays with the template, in kept.css
+const APP_CSS = fs.readFileSync(path.join(DIR, 'kept.css'), 'utf8') + '\n' + fs.readFileSync(path.join(DIR, 'wf.css'), 'utf8');
 const APP_JS = fs.readFileSync(path.join(DIR, 'wf.js'), 'utf8');
 const title = 'Workflow editor template, free, open source | Designme.dev';
 const description = 'A free agent workflow editor template: a canvas of steps, a step inspector, test runs with a trace and a log, run history and versions.';

@@ -1,12 +1,11 @@
-# The photos in the Carousel and Image generation demos on designme.dev, from Pexels (https://www.pexels.com), free to use
+# The photos in the Carousel demo on designme.dev, from Pexels (https://www.pexels.com), free to use
 # under the Pexels License (https://www.pexels.com/license/). This script downloads each one, crops it and writes <name>.webp
 # and its thumbnail <name>-s.webp here, then prints the gradient of its colours that the components draw before (and
 # instead of) the photo. art/README.md lists every photo with its Pexels page.
-# A photo is cropped to 3:2 (960x640, thumbnail 192x128) unless it names its own sizes: Image generation's gallery mixes
-# portrait, square and landscape pictures, so each of its photos keeps a crop that suits it.
+# A photo is cropped to 3:2 (960x640, thumbnail 192x128) unless it names its own sizes.
 #
 #   python3 art/get-photos.py              # every photo, from the repository root; needs Pillow with WebP
-#   python3 art/get-photos.py pink-dream   # only the photos named
+#   python3 art/get-photos.py cover-a      # only the photos named
 import io, os, sys, urllib.request
 from PIL import Image, ImageOps
 
@@ -26,24 +25,6 @@ PHOTOS = {
   'cover-b':         (28917758, (0.5, 0.5)),
   'cover-c':         (38965265, (0.5, 0.5)),
   'cover-d':         (2132095,  (0.5, 0.5)),
-  # Image generation: what the demo makes from its prompt, "editorial portrait on a bold colour backdrop" (3:4)
-  'yellow-wall':     (1536619,  (0.55, 0.5),  (600, 800), (240, 320)),
-  'green-reach':     (9488402,  (0.5, 0.45),  (600, 800), (240, 320)),
-  'magenta-pose':    (33604177, (0.5, 0.35),  (600, 800), (240, 320)),
-  'white-blazer':    (31240694, (0.5, 0.3),   (600, 800), (240, 320)),
-  # Image generation: the gallery of earlier pictures and the style presets, in mixed shapes for the masonry
-  'pink-dream':      (10377281, (0.5, 0.5),   (640, 800), (240, 300)),
-  'pink-tower':      (38921436, (0.5, 0.5),   (560, 840), (240, 360)),
-  'pink-window':     (2268728,  (0.5, 0.5),   (720, 720), (240, 240)),
-  'clay-loops':      (28628510, (0.5, 0.5),   (800, 600), (240, 180)),
-  'pastel-shapes':   (27790842, (0.55, 0.5),  (800, 600), (240, 180)),
-  'petal-face':      (4850291,  (0.5, 0.4),   (600, 800), (240, 320)),
-  'retro-room':      (7035405,  (0.5, 0.5),   (560, 840), (240, 360)),
-  'ribbon-look':     (15432405, (0.5, 0.45),  (600, 800), (240, 320)),
-  'light-leak':      (3431494,  (0.5, 0.5),   (800, 600), (240, 180)),
-  'fruit-bowl':      (33729669, (0.5, 0.5),   (720, 720), (240, 240)),
-  'framing-hands':   (7035194,  (0.5, 0.5),   (840, 560), (240, 160)),
-  'yellow-shapes':   (12198530, (0.5, 0.55),  (840, 560), (240, 160)),
 }
 
 def hexc(px):

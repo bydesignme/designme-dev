@@ -276,7 +276,6 @@ export function OtpField({ title = 'Check your email', description, icon = 'mail
 - [Search input](https://designme.dev/components/search-input.md): Search with scoped filters, recent queries and an agent answer.
 - [Country select](https://designme.dev/components/country-select.md): A searchable select with country codes, currency and keyboard support.
 - [Multi-select](https://designme.dev/components/multi-select.md): A combobox that filters as you type and keeps your picks as chips.
-- [Colour picker](https://designme.dev/components/color-picker.md): Pick a colour by eye or by hex, check its contrast, and let the agent fix it or make a scale from it.
 - [Social sign-in](https://designme.dev/components/social-sign-in.md): One-tap providers that remember the last one you used.
 - [Sign in](https://designme.dev/components/sign-in.md): Email first, then the one-time code from the email, copied or typed in.
 - [Form](https://designme.dev/components/form.md): A project brief with inline checks and an agent that drafts the rest.

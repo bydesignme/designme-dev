@@ -14,8 +14,8 @@ Components use the ARIA pattern that fits what they do. For example:
 | Lists you pick from | A `listbox` of `option` rows. The search box that drives one is a `combobox` | [Command palette](https://designme.dev/components/command-palette.md), [Country select](https://designme.dev/components/country-select.md) |
 | A single choice | A `radiogroup` | [Decision prompt](https://designme.dev/components/decision-prompt.md) |
 | On or off settings | A `switch` with `aria-checked` | [Agent settings](https://designme.dev/components/agent-settings.md) |
-| Tabs | `tablist`, `tab` and `aria-selected` | [Code viewer](https://designme.dev/components/code-viewer.md), [Thread panel](https://designme.dev/components/thread-panel.md), [Segmented control](https://designme.dev/components/segmented-control.md) |
-| Sliders | `aria-valuenow` and `aria-valuetext` | [Design tuner](https://designme.dev/components/design-tuner.md) |
+| Tabs | `tablist`, `tab` and `aria-selected` | [Terminal stream](https://designme.dev/components/terminal-stream.md), [Segmented control](https://designme.dev/components/segmented-control.md) |
+| Sliders | `aria-valuenow` and `aria-valuetext` | [Slider](https://designme.dev/components/slider.md) |
 | File trees | A `tree` of `treeitem` rows | [File explorer](https://designme.dev/components/file-explorer.md) |
 | Popovers | A labelled `dialog`, like the calendar | [Date picker](https://designme.dev/components/date-picker.md), [Citation hover card](https://designme.dev/components/citation-hover-card.md) |
 | Toggle and icon buttons | Toggles report their state with `aria-pressed`. Icon-only buttons have a label | [Buttons](https://designme.dev/components/buttons.md), [Line chart](https://designme.dev/components/line-chart.md) |

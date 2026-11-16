@@ -35,8 +35,7 @@ ${head('Agent ops', 'Pricing page redesign, sprint 14. 6 agents and 12 people on
   ${comp('stat-cards')}
   ${comp('line-chart', { span:8 })}
   ${comp('health-score', { span:4 })}
-  ${comp('agent-tree', { span:6 })}
-  ${comp('run-queue', { span:6, box:{ title:'Run queue', meta:'Started by Maya Kim', act:avatar('Maya Kim', { size:'xs', label:true }) } })}
+  ${comp('agent-tree', { span:12 })}
   ${comp('bar-chart', { span:4 })}
   ${comp('donut-chart', { span:4 })}
   ${comp('run-cost', { span:4 })}
@@ -77,7 +76,6 @@ const chat = () => `
       <div class="tc-col">
         <div class="tc-day"><span>Today</span></div>
         ${comp('artifact-card', { cls:'tc-turn' })}
-        ${comp('tool-call', { cls:'tc-turn' })}
         <div class="tc-day"><span>${avatar('Lena Novak', { size:'xs' })}Lena Novak joined the chat</span></div>
         ${comp('live-answer', { cls:'tc-turn' })}
       </div>
@@ -111,9 +109,7 @@ const inbox = () => `
     <div class="tp-grid">
       ${comp('plan-review', { span:7, box:{ title:'Plan', meta:'5 steps' } })}
       ${comp('permission-gate', { span:5 })}
-      ${comp('human-handoff', { span:12 })}
-      ${comp('run-summary', { span:6 })}
-      ${comp('comments', { span:6 })}
+      ${comp('comments', { span:12 })}
     </div>
   </section>
 </div>`;

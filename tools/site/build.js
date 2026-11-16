@@ -81,7 +81,7 @@ const NEW = [
   { cid:'c154', id:'radar-chart', title:'Eval radar', section:'Charts and tables', after:'c157', icon:'grid_on' },
   { cid:'c155', id:'scatter-chart', title:'Cost vs quality', section:'Charts and tables', after:'c154', icon:'trending_up' },
   { cid:'c160', id:'agent-phases', title:'Agent phases', section:'Agent status', after:'c60', icon:'history', next:'browser-session' },
-  { cid:'c159', id:'web-search', title:'Web search', section:'Agent status', after:'c129', icon:'search', next:'browser-session' },
+  { cid:'c159', id:'web-search', title:'Web search', section:'Agent status', after:'c129', icon:'search', next:'trace-view' },
   // 4 Nov: Number field beside Filter menu, which sat alone in its row
   { cid:'c163', id:'number-field', title:'Number field', section:'Collaboration', after:'c128', icon:'tune', next:'filter-menu' },
   // 5 Nov: Image generation, wide, after Artifact card with what an agent makes (Thinking states, on its own branch, takes c164)
@@ -91,13 +91,23 @@ const NEW = [
   // 8 Nov: three components promoted from the Workflow editor template, after Canvas toolbar with the other workflow parts:
   // Step inspector and Data picker side by side, then Run drawer across the row, so the rows stay full
   { cid:'c166', id:'step-inspector', title:'Step inspector', section:'Workspace', after:'c141', icon:'tune', next:'canvas-toolbar' },
-  { cid:'c167', id:'data-picker', title:'Data picker', section:'Workspace', after:'c166', icon:'link', next:'step-inspector' },
+  { cid:'c167', id:'data-picker', title:'Data picker', section:'Workspace', after:'c166', icon:'link', next:'canvas-toolbar' },
   { cid:'c168', id:'run-drawer', title:'Run drawer', section:'Workspace', after:'c167', icon:'history', next:'data-picker' }
 ];
 // a card placed after a new one that isn't there yet goes where that one would have gone
 for (const x of NEW){ let a = NEW.find(y => y.cid === x.after); while (a && !soft.includes(`data-c="${a.id}" id="c-${a.id}"`)){ x.after = a.after; a = NEW.find(y => y.cid === x.after); } }
 NEW.splice(0, NEW.length, ...NEW.filter(x => soft.includes(`data-c="${x.id}" id="c-${x.id}"`)));
 for (const x of NEW){ MAP[x.cid] = x.id; EXTRA.push({ cid:x.cid, id:x.id, reg:x.id, title:x.title, section:x.section, after:x.after, icon:x.icon }); }
+/* the components taken out of the library (owner, 16 Nov: launch with fewer, each one polished). Their cards leave the page:
+   a card cut from one of them is cut from the card that one was cut from, and the original page's cards for them go once
+   the new cards are in place. Their registry entries go with them (the registry build below drops entries with no card) */
+const REMOVED = new Set(['thread-panel', 'image-generation', 'tool-call', 'voice-capture', 'voice-orb', 'prompt-starters', 'prompt-library',
+  'browser-session', 'run-summary', 'agent-phases', 'action-log', 'run-queue', 'error-recovery', 'change-review', 'human-handoff', 'design-tuner',
+  'launch-checklist', 'steering', 'design-review', 'code-viewer', 'field-extraction', 'step-inspector', 'model-compare', 'color-picker', 'onboarding-checklist']);
+const DROP = Object.keys(MAP).filter(cid => REMOVED.has(MAP[cid]));
+for (const x of EXTRA){ let a = EXTRA.find(y => y.cid === x.after); while (a && REMOVED.has(a.id)){ x.after = a.after; a = EXTRA.find(y => y.cid === x.after); } }
+EXTRA.splice(0, EXTRA.length, ...EXTRA.filter(x => !REMOVED.has(x.id)));
+DROP.forEach(cid => delete MAP[cid]);
 
 /* ---------- read the Soft 2 page ---------- */
 const cssA = soft.indexOf('<style>\n[hidden]') + '<style>'.length;
@@ -494,13 +504,19 @@ for (const x of EXTRA){
   const card = m[0].replace(`id="${x.after}"`, `id="${x.cid}"`).replace(/(class="comp-title">)[^<]*/, '$1' + x.title).replace(/(<span class="ibox"><span class="ms">)[^<]*/, '$1' + x.icon);
   main = main.replace(m[0], () => m[0] + '\n  ' + card);
 }
+for (const cid of DROP){
+  const m = main.match(new RegExp(`\\n?[ \\t]*<article[^>]*\\bid="${cid}"[^>]*>[\\s\\S]*?</article>`));
+  if (m) main = main.replace(m[0], '');
+}
 const esc = t => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const done = [];
 // card widths: a component drawn wide gets the full row; STRETCH ones get it too and widen to fill it, so every section
 // pairs its half-width cards evenly; NARROW ones were wide on the old site but are narrow components
 const REG_ITEMS = REGDIR ? JSON.parse(fs.readFileSync(path.join(REGDIR, 'index.json'), 'utf8')).items : [];
-const STRETCH = ['code-viewer'];
-const NARROW = ['plan-review', 'form', 'payment-form'];
+// 16 Nov: after the trim each section keeps an even number of half-width cards: Web search, Data picker, Carousel and Stepper
+// (in a wide container, owner) take a full row, and Plan review is wide again
+const STRETCH = ['web-search', 'data-picker', 'carousel', 'stepper'];
+const NARROW = ['form', 'payment-form'];
 main = main.replace(/<article([^>]*\bid="(c\d+)"[^>]*)>([\s\S]*?)<\/article>/g, (all, attrs, cid, body) => {
   const id = MAP[cid]; if (!id) return all;
   const C = CARDS[id]; if (!C){ warn.push('no card for ' + id); return all; }
@@ -558,11 +574,11 @@ main = main.replace(/<article([^>]*\bid="(c\d+)"[^>]*)>([\s\S]*?)<\/article>/g, 
    with what shows off an agent best. A wide card goes after an even number of half-width ones, so rows stay full ---------- */
 const SECTIONS_FIRST = ['s-conversation', 's-status'], GRP = {};
 const ORDER = {
-  's-conversation': ['live-answer', 'composer', 'thread-panel', 'artifact-card', 'rich-text-editor', 'tool-call', 'voice-capture', 'voice-orb', 'answer-action-bar', 'response-versions', 'model-picker', 'prompt-starters', 'prompt-library', 'attachment-tray', 'feedback-sheet'],
-  's-status': ['thinking', 'reasoning-trail', 'agent-lanes', 'agent-tree', 'agent-inbox', 'trace-view', 'browser-session', 'run-summary', 'agent-run-timeline', 'action-log', 'context-meter', 'error-recovery', 'run-queue', 'run-cost', 'toast-stack', 'toast', 'status-pill', 'step-loader'],
-  's-review': ['change-review', 'plan-review', 'permission-gate', 'human-handoff', 'decision-prompt', 'proposal-card', 'design-tuner', 'rewrite-toolbar', 'launch-checklist', 'inline-text-diff', 'draft-review', 'steering', 'eval-results', 'design-review'],
-  's-data': ['code-viewer', 'terminal-stream', 'citation-hover', 'source-stack', 'field-extraction', 'metric-insight', 'details-panel', 'task-table'],
-  's-workspace': ['automation-canvas', 'command-palette', 'memory-panel', 'model-compare', 'agent-settings', 'tool-connections', 'knowledge-sources', 'scheduled-runs', 'file-explorer', 'workspace-rail'],
+  's-conversation': ['live-answer', 'composer', 'artifact-card', 'rich-text-editor', 'answer-action-bar', 'response-versions', 'model-picker', 'attachment-tray', 'feedback-sheet'],
+  's-status': ['thinking', 'reasoning-trail', 'agent-lanes', 'agent-tree', 'agent-inbox', 'trace-view', 'agent-run-timeline', 'context-meter', 'run-cost', 'toast-stack', 'toast', 'status-pill', 'step-loader'],
+  's-review': ['plan-review', 'permission-gate', 'decision-prompt', 'proposal-card', 'rewrite-toolbar', 'inline-text-diff', 'draft-review', 'eval-results'],
+  's-data': ['terminal-stream', 'citation-hover', 'source-stack', 'metric-insight', 'details-panel', 'task-table'],
+  's-workspace': ['automation-canvas', 'command-palette', 'memory-panel', 'agent-settings', 'tool-connections', 'knowledge-sources', 'scheduled-runs', 'file-explorer', 'workspace-rail'],
 };
 // Banner leads Collaboration (owner, 3 Nov); a half-width card further down fills the row the move opens (grid dense)
 ORDER['s-collab'] = ['banner', 'comments', 'notifications', 'invite', 'reactions', 'profile-menu', 'context-switcher', 'filter-menu', 'ticket-list', 'kanban'];
@@ -784,8 +800,9 @@ if (REGDIR){
 
 /* this week's components open the library. Their code rides in the first section's script so the lead plays with the
    first screen, and the docs still list each one in the section it belongs to (SECTION_ORDER, read below) */
-// three normal-width cards: Permission gate goes last and takes the whole row (make-patches.py), so no half row is left empty
-const LAUNCH = ['agent-tree', 'trace-view', 'agent-lanes', 'steering', 'run-cost', 'agent-inbox', 'permission-gate'];
+// four wide cards and two normal ones: Permission gate takes Steering's place (owner, 16 Nov) beside Run cost, so every row is
+// full
+const LAUNCH = ['agent-tree', 'trace-view', 'agent-lanes', 'permission-gate', 'run-cost', 'agent-inbox'];
 let SECTION_ORDER = null;
 /* ---------- the components' script goes last ---------- */
 {
@@ -933,7 +950,7 @@ console.log('swapped', done.length, 'cards; size', site.length);
   const count = secs.reduce((n, x) => n + x.cards.length, 0);
   let md = `# Designme.dev
 
-> ${count} free, MIT-licensed UI components for products built around AI agents: status pills, reasoning trails, tool calls, permission gates, plan reviews, run summaries and more, plus the app basics around them (charts, dates, forms, tables). Each one comes as plain HTML, CSS and JS, as a typed React component with no dependencies beyond React, or as an Astro component, in two styles (Soft and Blueprint) with light and dark mode.
+> ${count} free, MIT-licensed UI components for products built around AI agents: status pills, reasoning trails, agent trees, permission gates, plan reviews, run costs and more, plus the app basics around them (charts, dates, forms, tables). Each one comes as plain HTML, CSS and JS, as a typed React component with no dependencies beyond React, or as an Astro component, in two styles (Soft and Blueprint) with light and dark mode.
 
 Install with the CLI, which copies each component's source into your project so you own it:
 

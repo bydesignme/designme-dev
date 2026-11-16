@@ -34,6 +34,10 @@ fs.writeFileSync(path.join(ROOT, '_redirects'), [
   '/components/variant-carousel.md /components/carousel.md 301', '/components/image-carousel.md /components/carousel.md 301',
   '# Agent builder was removed from the library (owner, 15 Nov): its page and its Markdown copy go to the homepage',
   '/components/agent-builder / 301', '/components/agent-builder.md / 301',
+  '# 25 components left the library before launch (owner, 16 Nov: launch with fewer, each one polished): each page goes to the',
+  '# section it was in on the homepage, and its Markdown copy to the homepage',
+  ...[['thread-panel', 's-conversation'], ['image-generation', 's-conversation'], ['tool-call', 's-conversation'], ['voice-capture', 's-conversation'], ['voice-orb', 's-conversation'], ['prompt-starters', 's-conversation'], ['prompt-library', 's-conversation'], ['browser-session', 's-status'], ['run-summary', 's-status'], ['agent-phases', 's-status'], ['action-log', 's-status'], ['run-queue', 's-status'], ['error-recovery', 's-status'], ['change-review', 's-review'], ['human-handoff', 's-review'], ['design-tuner', 's-review'], ['launch-checklist', 's-review'], ['steering', 's-review'], ['design-review', 's-review'], ['code-viewer', 's-data'], ['field-extraction', 's-data'], ['step-inspector', 's-workspace'], ['model-compare', 's-workspace'], ['color-picker', 's-forms'], ['onboarding-checklist', 's-product']]
+    .flatMap(([n, s]) => [`/components/${n} /#${s} 301`, `/components/${n}.md / 301`]),
   '# the docs start at their introduction',
   '/docs /docs/introduction 302', '/docs/ /docs/introduction 302', ''
 ].join('\n'));

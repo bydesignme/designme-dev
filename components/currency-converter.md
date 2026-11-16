@@ -282,7 +282,6 @@ export function CurrencyConverter({ currencies = CurrencyConverterCurrencies, am
 ## More in Product
 
 - [Pricing cards](https://designme.dev/components/pricing-cards.md): Three plans with a billing switch and a seat slider.
-- [Onboarding checklist](https://designme.dev/components/onboarding-checklist.md): First steps with a progress ring, and the agent can do some for you.
 - [Stepper](https://designme.dev/components/stepper.md): A multi-step setup with a progress track that fills as you go.
 - [Set limit](https://designme.dev/components/set-limit.md): A monthly agent budget with a draggable cap and a forecast.
 

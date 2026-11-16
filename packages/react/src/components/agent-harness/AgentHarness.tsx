@@ -5,21 +5,16 @@ import { useControllable, useCopied, useIsoLayoutEffect, useReducedMotion } from
 import { Icon, type IconName } from '../../lib/icons';
 import { Fold, Spin, Swap, Think, Tip, enter } from '../../lib/motion';
 import { usePopover } from '../../lib/popover';
-import { ActionLog, type ActionLogProps } from '../action-log/ActionLog';
 import { AgentLanes, type AgentLanesProps } from '../agent-lanes/AgentLanes';
 import { ArtifactCard, type ArtifactCardProps } from '../artifact-card/ArtifactCard';
-import { ChangeReview, type ChangeReviewProps } from '../change-review/ChangeReview';
 import { Composer, type ComposerAttachment, type ComposerProps } from '../composer/Composer';
 import { DecisionPrompt, type DecisionPromptProps } from '../decision-prompt/DecisionPrompt';
-import { ErrorRecovery, type ErrorRecoveryProps } from '../error-recovery/ErrorRecovery';
 import { LiveAnswer, type LiveAnswerProps } from '../live-answer/LiveAnswer';
 import { PermissionGate, type PermissionGateProps } from '../permission-gate/PermissionGate';
 import { PlanReview, type PlanReviewProps } from '../plan-review/PlanReview';
-import { RunSummary, type RunSummaryProps } from '../run-summary/RunSummary';
 import { SourceStack, type SourceStackProps } from '../source-stack/SourceStack';
 import { StatusPill, type StatusPillProps } from '../status-pill/StatusPill';
 import { Thinking, type ThinkingProps } from '../thinking/Thinking';
-import { ToolCall, type ToolCallProps } from '../tool-call/ToolCall';
 import '../../designme.css';
 import '../live-answer/live-answer.css';
 import '../context-meter/context-meter.css';
@@ -36,18 +31,13 @@ export type AgentHarnessBlock = { key: string } & (
   /** The agent's work under one line: open while it runs, folded into its label a moment after it is done. The person can open it again */
   | { kind: 'group'; label: string; state: 'running' | 'done'; seconds?: number; blocks: AgentHarnessBlock[] }
   | { kind: 'thinking'; props: ThinkingProps }
-  | { kind: 'tool-call'; props: ToolCallProps }
   | { kind: 'permission-gate'; props: PermissionGateProps }
   | { kind: 'plan-review'; props: PlanReviewProps }
-  | { kind: 'action-log'; props: ActionLogProps }
-  | { kind: 'run-summary'; props: RunSummaryProps }
   | { kind: 'live-answer'; props: LiveAnswerProps }
   | { kind: 'source-stack'; props: SourceStackProps }
   | { kind: 'artifact-card'; props: ArtifactCardProps }
-  | { kind: 'error-recovery'; props: ErrorRecoveryProps }
   | { kind: 'decision-prompt'; props: DecisionPromptProps }
   | { kind: 'agent-lanes'; props: AgentLanesProps }
-  | { kind: 'change-review'; props: ChangeReviewProps }
   /** Anything else, as it is */
   | { kind: 'node'; node: ReactNode }
 );
@@ -146,8 +136,8 @@ export interface AgentHarnessProps {
   className?: string;
 }
 
-// an artifact and a diff keep their card in the chat; every other component sits on the chat itself
-const BOXED = new Set(['artifact-card', 'change-review']);
+// an artifact keeps its card in the chat; every other component sits on the chat itself
+const BOXED = new Set(['artifact-card']);
 const IDLE: AgentHarnessStatus = { state: 'idle', label: 'Ready for a task' };
 const NARROW = 620;
 let made = 0;
@@ -156,18 +146,13 @@ const newTab = (): AgentHarnessTab => ({ key: 'tab-' + ++made });
 function Message({ b }: { b: AgentHarnessBlock }) {
   switch (b.kind) {
     case 'thinking': return <Thinking {...b.props} />;
-    case 'tool-call': return <ToolCall {...b.props} />;
     case 'permission-gate': return <PermissionGate {...b.props} />;
     case 'plan-review': return <PlanReview {...b.props} />;
-    case 'action-log': return <ActionLog {...b.props} />;
-    case 'run-summary': return <RunSummary {...b.props} />;
     case 'live-answer': return <LiveAnswer {...b.props} />;
     case 'source-stack': return <SourceStack {...b.props} />;
     case 'artifact-card': return <ArtifactCard {...b.props} />;
-    case 'error-recovery': return <ErrorRecovery {...b.props} />;
     case 'decision-prompt': return <DecisionPrompt {...b.props} />;
     case 'agent-lanes': return <AgentLanes {...b.props} />;
-    case 'change-review': return <ChangeReview {...b.props} />;
     case 'node': return <>{b.node}</>;
     default: return null;
   }
