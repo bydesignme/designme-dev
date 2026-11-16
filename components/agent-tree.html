@@ -287,139 +287,90 @@
 .dm.atr-dm{min-height:0;gap:var(--dm-s-5);padding-top:var(--dm-dmy,0px)}
 .atr-dm>.dm-main>*{width:100%}
 .stage-in:has(>.atr-dm){align-self:auto;display:block}
-/* the two new designs: each agent has its avatar in the avatar colours (--dm-a, its ink --dm-ai), the orchestrator's is ink.
-   Green is done, red needs a fix, and the accent marks what is running */
-.atr-x-av{position:relative;width:24px;height:24px;border-radius:var(--dm-r-sm);display:grid;place-items:center;flex:none;background:var(--dm-a);color:var(--dm-ai)}
-.atr-x-av .i{width:12px;height:12px;stroke-width:1.9}
-.atr-x-g{width:16px;height:16px;display:grid;place-items:center;flex:none;color:var(--dm-faint)}
-.atr-x-g .spin{width:11px;height:11px;color:var(--dm-accent-mark)}
-[data-s="done"]>.atr-x-g{color:var(--dm-ok)}
-[data-s="fail"]>.atr-x-g{color:var(--dm-bad)}
-.atr-x-fix{flex:none;background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-shadow)}
-@media (hover:hover) and (pointer:fine){.atr-x-fix:hover{background:var(--dm-surface);box-shadow:var(--dm-shadow-pop)}}
-/* Cost tree: the tree, with each branch's share of the whole run as a bar. Cost is the accent: each agent takes a step of
-   it (--dm-k1 to --dm-k3, each 3:1 or more on the surface), in the bar of the whole run and in its rows, so a row's bar and its
-   part of the run match. Lighter steps would drop under 3:1, so the steps run from the accent towards the text colour, and
-   in Blueprint's dark theme, where the lime is already light, towards the surface */
-.atr-ct{--dm-k1:var(--dm-accent-mark,var(--dm-accent));--dm-k2:color-mix(in oklab,var(--dm-accent-mark,var(--dm-accent)) 78%,var(--dm-fg));--dm-k3:color-mix(in oklab,var(--dm-accent-mark,var(--dm-accent)) 56%,var(--dm-fg));width:100%;padding:6px;display:flex;flex-direction:column}
-:root:not([data-style="soft"])[data-theme="dark"] .atr-ct:not(:where([data-style="soft"],[data-style="soft"] *)){--dm-k2:color-mix(in oklab,var(--dm-accent-mark,var(--dm-accent)) 72%,var(--dm-surface));--dm-k3:color-mix(in oklab,var(--dm-accent-mark,var(--dm-accent)) 50%,var(--dm-surface))}
-@media (prefers-color-scheme:dark){:root:not([data-style="soft"]):not([data-theme="light"]) .atr-ct:not(:where([data-style="soft"],[data-style="soft"] *)){--dm-k2:color-mix(in oklab,var(--dm-accent-mark,var(--dm-accent)) 72%,var(--dm-surface));--dm-k3:color-mix(in oklab,var(--dm-accent-mark,var(--dm-accent)) 50%,var(--dm-surface))}}
-.atr-ct-h{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-3);padding:var(--dm-s-2) 10px 8px}
-.atr-ct-ht{display:flex;flex-direction:column;min-width:0}
-.atr-ct-ht b{font-weight:500}
-.atr-ct-st{font-size:12.5px;color:var(--dm-muted)}
-.atr-ct-tot{font-size:14px;font-weight:500}
+/* the two other designs take the Classic tree's treatment (owner, 16 Nov): its header, its 14px marks (a ring while queued,
+   a spinner while running, a filled disc with a tick or a cross once done or failed, the accent disc where the run starts,
+   the accent ring while a step waits for a person), its avatars and app logos, and, in Cost tree, its lines and band. Agent
+   colours stay on the avatars; cost is the accent, in one step per agent (--dm-k1 to --dm-k3, each 3:1 or more on the surface).
+   Lighter steps would drop under 3:1, so the steps run from the accent towards the text colour, and in Blueprint's dark
+   theme, where the lime is already light, towards the surface */
+.atr-ct,.atr-cm{--dm-k1:var(--dm-accent-mark,var(--dm-accent));--dm-k2:color-mix(in oklab,var(--dm-accent-mark,var(--dm-accent)) 74%,var(--dm-fg));--dm-k3:color-mix(in oklab,var(--dm-accent-mark,var(--dm-accent)) 50%,var(--dm-fg))}
+:root:not([data-style="soft"])[data-theme="dark"] :is(.atr-ct,.atr-cm):not(:where([data-style="soft"],[data-style="soft"] *)){--dm-k2:color-mix(in oklab,var(--dm-accent-mark,var(--dm-accent)) 70%,var(--dm-surface));--dm-k3:color-mix(in oklab,var(--dm-accent-mark,var(--dm-accent)) 46%,var(--dm-surface))}
+@media (prefers-color-scheme:dark){:root:not([data-style="soft"]):not([data-theme="light"]) :is(.atr-ct,.atr-cm):not(:where([data-style="soft"],[data-style="soft"] *)){--dm-k2:color-mix(in oklab,var(--dm-accent-mark,var(--dm-accent)) 70%,var(--dm-surface));--dm-k3:color-mix(in oklab,var(--dm-accent-mark,var(--dm-accent)) 46%,var(--dm-surface))}}
+.atr-x-fix{flex:none}
+/* Cost tree: the Classic tree with each row's share of the whole run as a bar after its cost, and the run's cost by agent
+   as one bar under the header. A row's bar and its agent's part of the run's bar are the same step of the accent */
+.atr-ct .atr-h{padding-bottom:var(--dm-s-2)}
 /* the whole run's cost, one bar: each agent's part in its step of the accent, clipped to its stretch (--dm-x0 to --dm-x1, in
-   percent) so it grows without a layout; what is left at the end is the orchestrator's own */
-.atr-ct-mix{position:relative;height:6px;margin:0 10px 10px;border-radius:3px;overflow:hidden;background:color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.atr-ct-mix i{position:absolute;inset:0;background:var(--dm-k);clip-path:inset(0 calc(100% - var(--dm-x1,0) * 1% + 1px) 0 calc(var(--dm-x0,0) * 1% + 1px) round 3px);transition:clip-path .8s var(--dm-ease)}
-.atr-ct-tree{display:flex;flex-direction:column;padding-top:4px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.atr-ct-n{position:relative;display:flex;align-items:center;gap:var(--dm-s-2);min-height:44px;padding:5px 10px 5px calc(6px + var(--dm-lv,0) * 22px);border-radius:calc(10px * var(--dm-rk));font-size:13px;outline:0;transition:background .16s}
-@media (hover:hover) and (pointer:fine){.atr-ct-n:hover{background:var(--dm-row)}}
-.atr-ct-n:focus-visible{box-shadow:inset 0 0 0 2px var(--dm-focus)}
-.atr-ct-tg{width:18px;height:18px;display:grid;place-items:center;flex:none;border-radius:calc(6px * var(--dm-rk));color:var(--dm-muted)}
-.atr-ct-tg svg{transition:transform .32s var(--dm-ease)}
-.atr-ct-n[aria-expanded="false"] .atr-ct-tg svg{transform:rotate(-90deg)}
-.atr-ct-sp{width:18px;flex:none}
-.atr-ct-t{flex:1;min-width:0;display:flex;flex-direction:column}
-.atr-ct-t b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.atr-ct-t span{font-size:12px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.atr-ct-n[data-s="queued"] .atr-ct-t b{color:var(--dm-fg2)}
-/* each row's cost, and its branch's share of the whole as a bar in its agent's step of the accent */
-.atr-ct-c{display:flex;flex-direction:column;align-items:flex-end;gap:4px;min-width:62px}
-.atr-ct-c b{font-size:12.5px;font-weight:400;color:var(--dm-fg2)}
-.atr-ct-c i{display:block;width:56px;height:3px;border-radius:2px;background:color-mix(in srgb,var(--dm-line) 50%,transparent);overflow:hidden;transition:background .16s}
-.atr-ct-c i span{display:block;height:100%;border-radius:inherit;background:var(--dm-k,var(--dm-k1));transform-origin:left;transform:scaleX(var(--dm-sh,0));transition:transform .5s var(--dm-ease)}
-.atr-ct-n[data-s="queued"] .atr-ct-c b{color:var(--dm-muted)}
-/* on a grey row the bar's track turns white, and on a red one nothing on it is grey */
-@media (hover:hover) and (pointer:fine){.atr-ct-n:hover .atr-ct-c i{background:var(--dm-surface)}}
-.atr-ct-n[data-s="fail"]{background:var(--dm-bad-bg)}
-.atr-ct-n[data-s="fail"] :is(.atr-ct-t b,.atr-ct-c b,.atr-ct-tg){color:var(--dm-fg)}
-.atr-ct-n[data-s="fail"] .atr-ct-t span{color:var(--dm-bad)}
-.atr-ct-n[data-s="fail"] .atr-ct-c i{background:var(--dm-surface)}
-/* the guides: a light grey line down each branch; hovering or focusing a row darkens the path above it a step */
-.atr-ct-kids{position:relative}
-.atr-ct-gd{position:absolute;top:0;bottom:8px;left:calc(15px + var(--dm-lv,0) * 22px);width:1.5px;border-radius:1px;background:color-mix(in srgb,var(--dm-line) 90%,transparent);transform-origin:top;transition:background .25s,transform .45s var(--dm-ease);pointer-events:none}
-.atr-ct-kids.shut>.atr-ct-gd{transform:scaleY(0)}
-.atr-ct-kids.path>.atr-ct-gd{background:var(--dm-faint)}
-.atr-ct-n.path .atr-ct-tg{color:var(--dm-fg)}
-.atr-ct-n .atr-x-fix{margin-top:4px;align-self:flex-start}
-.atr-ct-sum{display:flex;align-items:center;gap:var(--dm-s-2);margin:var(--dm-s-2) 4px 2px;padding:10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-ok-bg);font-size:13px;animation:popin .5s var(--dm-ease)}
-.atr-ct-sum svg{color:var(--dm-ok);flex:none}
-/* on a phone the tree steps in less and its bars are shorter, so the names keep their room */
-@container (max-width:360px){
-  .atr-ct-n{padding-left:calc(4px + var(--dm-lv,0) * 16px)}
-  .atr-ct-gd{left:calc(13px + var(--dm-lv,0) * 16px)}
-  .atr-ct-c{min-width:46px}
-  .atr-ct-c i{width:40px}
-}
+   percent) so it grows without a layout, with a 2px gap of the surface between parts; what is left at the end is the
+   orchestrator's own, on the grey track */
+.atr-ct-mix{position:relative;height:6px;margin:0 var(--dm-s-2) var(--dm-s-3);border-radius:calc(3px * var(--dm-rk));overflow:hidden;background:color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.atr-ct-mix i{position:absolute;inset:0;background:var(--dm-k);clip-path:inset(0 calc(100% - var(--dm-x1,0) * 1% + 1px) 0 calc(var(--dm-x0,0) * 1% + 1px) round calc(3px * var(--dm-rk)));transition:clip-path .8s var(--dm-ease)}
+/* each row's cost, then its branch's share of the whole as a short bar in its agent's step of the accent */
+.atr-ct .atr-q{align-items:center;gap:var(--dm-s-2)}
+.atr-ct .atr-c{min-width:38px;text-align:right}
+.atr-ct-bar{display:block;width:40px;height:3px;flex:none;border-radius:calc(2px * var(--dm-rk));overflow:hidden;background:color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.atr-ct-bar span{display:block;height:100%;border-radius:inherit;background:var(--dm-k,var(--dm-k1));transform-origin:left;transform:scaleX(var(--dm-sh,0));transition:transform .5s var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){.atr-b:hover .atr-ct-bar{background:var(--dm-surface)}}
+.atr-n[data-dim]>.atr-b .atr-ct-bar span{opacity:.5}
+/* the end: one line with the done mark, under the tree */
+.atr-ct-sum{display:flex;align-items:center;gap:var(--dm-s-2);margin:var(--dm-s-1) 0 0;padding:var(--dm-s-2);font-size:12.5px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.atr-ct-sum b{font-weight:500;color:var(--dm-fg)}
+.atr-ct-sum[data-in]{animation:atrin .56s var(--dm-atr-ez) backwards}
+@container atr (max-width:360px){.atr-ct-bar{width:28px}.atr-ct .atr-c{min-width:34px}}
+/* narrower still, the rows keep their cost and leave the bar to the run's bar above, so the names keep their room */
+@container atr (max-width:340px){.atr-ct-bar{display:none}}
 :root:not([data-style="soft"]) .atr-ct-mix i:not(:where([data-style="soft"],[data-style="soft"] *)){transition:clip-path .4s steps(4,end)}
-:root:not([data-style="soft"]) .atr-ct-gd:not(:where([data-style="soft"],[data-style="soft"] *)){width:1px;background:repeating-linear-gradient(var(--dm-rail) 0 3px,transparent 3px 6px);transition:transform .3s steps(3,end)}
-:root:not([data-style="soft"]) .atr-ct-kids.path>.atr-ct-gd:not(:where([data-style="soft"],[data-style="soft"] *)){background:var(--dm-faint)}
-:root:not([data-style="soft"]) .atr-ct-c i span:not(:where([data-style="soft"],[data-style="soft"] *)){transition:transform .3s steps(3,end)}
-:root:not([data-style="soft"]) .atr-ct-n[data-s="fail"]:not(:where([data-style="soft"],[data-style="soft"] *)){background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--dm-bad) 10%,transparent) 5px 6px),var(--dm-bad-bg)}
-:root:not([data-style="soft"]) .atr-ct-sum:not(:where([data-style="soft"],[data-style="soft"] *)){animation:bpin .3s var(--dm-ease)}
+:root:not([data-style="soft"]) .atr-ct-bar span:not(:where([data-style="soft"],[data-style="soft"] *)){transition:transform .3s steps(3,end)}
 /* Cost map: every agent and step as a block as wide as its cost, one row for each level. A block's place and width are set
-   with a transform and a clip, so as costs grow and as you zoom, the blocks slide and stretch without a layout. Its colour
-   says how it is doing, as the key under the map says: green is done, amber is running, red failed, and a grey hatch is
-   queued. Each block has a tint of its colour with a line of the colour itself along its top (3:1 or more), and its words
-   in the text colour, so nothing grey sits on a tint. An agent's own work, outside its steps, is a lighter grey hatch */
-.atr-cm{width:100%;padding:var(--dm-s-3);display:flex;flex-direction:column;gap:10px}
-.atr-cm-h{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-3);padding:2px 2px 0}
-.atr-cm-ht{display:flex;flex-direction:column;min-width:0}
-.atr-cm-crumb{display:flex;align-items:center;gap:4px;font-size:13.5px;min-width:0}
+   with a transform and a clip, so as costs grow and as you zoom the blocks slide and stretch without a layout. Blocks are
+   flat: the whole run and finished work grey, the accent tint while at work or waiting for a person, the bad tint when failed, the hover grey
+   while queued, and each carries its state as the tree's mark, so the colour is never the only sign. An agent's own work,
+   outside its steps, is a light grey hatch */
+.atr-cm{display:flex;flex-direction:column;gap:10px;padding:var(--dm-s-2) var(--dm-s-3) var(--dm-s-3)}
+.atr-cm .atr-h{padding:var(--dm-s-1) 0 0}
+.atr-cm-crumb{display:flex;align-items:center;gap:4px;min-width:0;font-size:14px}
 .atr-cm-crumb button{border-radius:calc(6px * var(--dm-rk));padding:2px 4px;margin:-2px -4px;color:var(--dm-fg2);transition:background .2s,color .2s}
 @media (hover:hover) and (pointer:fine){.atr-cm-crumb button:hover{background:var(--dm-row);color:var(--dm-fg)}}
 .atr-cm-crumb b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .atr-cm-crumb .i{color:var(--dm-faint)}
-.atr-cm-st{font-size:12.5px;color:var(--dm-muted)}
-.atr-cm-tot{font-size:14px;font-weight:500}
-.atr-cm-map{position:relative;height:calc(3 * 52px + 2 * 4px);overflow:hidden;border-radius:calc(12px * var(--dm-rk))}
-.atr-cm-b{--dm-st:transparent;position:absolute;left:0;top:calc(var(--dm-lv) * 56px);width:100%;height:52px;transform:translateX(var(--dm-x,0px));transition:transform .7s var(--dm-ease),clip-path .7s var(--dm-ease),opacity .4s;text-align:left;outline:0;clip-path:inset(0 calc(100% - var(--dm-w,0px)) 0 0 round 10px)}
-.atr-cm-b .bg{position:absolute;inset:0;overflow:hidden;background-color:var(--dm-chip);transition:background-color .3s}
-.atr-cm-b .k{position:absolute;left:0;right:0;top:0;height:3px;background:var(--dm-st);transition:background .3s}
-.atr-cm-b:not(.lv0,.own)[data-s="done"]{--dm-st:var(--dm-ok)}
-.atr-cm-b:not(.lv0,.own)[data-s="done"] .bg{background-color:var(--dm-ok-bg)}
-.atr-cm-b:not(.lv0,.own)[data-s="run"]{--dm-st:var(--dm-warn-mark)}
-.atr-cm-b:not(.lv0,.own)[data-s="run"] .bg{background-color:var(--dm-warn-bg)}
-.atr-cm-b:not(.lv0,.own)[data-s="fail"]{--dm-st:var(--dm-bad-mark)}
-.atr-cm-b:not(.lv0,.own)[data-s="fail"] .bg{background-color:var(--dm-bad-bg)}
-.atr-cm-b:not(.lv0,.own)[data-s="queued"] .bg{background-image:repeating-linear-gradient(135deg,transparent 0 4px,color-mix(in srgb,var(--dm-fg) 8%,transparent) 4px 5px);background-color:var(--dm-surface)}
-.atr-cm-b.own .bg{background-image:repeating-linear-gradient(135deg,transparent 0 4px,color-mix(in srgb,var(--dm-fg) 7%,transparent) 4px 5px);background-color:var(--dm-row)}
-/* a block at work carries a passing light, moved with a transform */
-.atr-cm-b .sh{display:none;position:absolute;top:0;bottom:0;left:0;width:var(--dm-w,0px);background:linear-gradient(100deg,transparent 35%,color-mix(in srgb,var(--dm-fg) 6%,transparent) 50%,transparent 65%);transform:translateX(-100%);animation:atrsheen 1.8s linear infinite}
-.atr-cm-b:not(.lv0)[data-s="run"] .sh{display:block}
-@keyframes atrsheen{to{transform:translateX(100%)}}
-/* under the pointer a block takes a neutral step darker, keeping its colour */
-.atr-cm-b:not(.lv0,.own):focus-visible .bg{background-image:linear-gradient(color-mix(in srgb,var(--dm-fg) 5%,transparent),color-mix(in srgb,var(--dm-fg) 5%,transparent))}
-@media (hover:hover) and (pointer:fine){.atr-cm-b:not(.lv0,.own):hover .bg{background-image:linear-gradient(color-mix(in srgb,var(--dm-fg) 5%,transparent),color-mix(in srgb,var(--dm-fg) 5%,transparent))}}
+.atr-cm-map{position:relative;height:calc(3 * 52px + 2 * 4px);overflow:hidden}
+.atr-cm-b{position:absolute;left:0;top:calc(var(--dm-lv) * 56px);width:100%;height:52px;transform:translateX(var(--dm-x,0px));transition:transform .7s var(--dm-ease),clip-path .7s var(--dm-ease),opacity .4s;text-align:left;outline:0;clip-path:inset(0 calc(100% - var(--dm-w,0px)) 0 0 round calc(8px * var(--dm-rk)))}
+.atr-cm-b .bg{position:absolute;inset:0;background-color:var(--dm-chip);transition:background-color .3s}
+.atr-cm-b:not(.lv0):is([data-s="run"],[data-s="wait"]) .bg{background-color:color-mix(in srgb,var(--dm-atr-run) 14%,var(--dm-surface))}
+.atr-cm-b:not(.lv0)[data-s="fail"] .bg{background-color:var(--dm-bad-bg)}
+.atr-cm-b:not(.lv0)[data-s="queued"] .bg{background-color:var(--dm-row)}
+.atr-cm-b.own .bg{background-color:var(--dm-row);background-image:repeating-linear-gradient(135deg,transparent 0 4px,color-mix(in srgb,var(--dm-fg) 7%,transparent) 4px 5px)}
+/* under the pointer a block takes a neutral step darker, keeping its tint */
+.atr-cm-b:not(.own):focus-visible .bg{background-image:linear-gradient(color-mix(in srgb,var(--dm-fg) 5%,transparent),color-mix(in srgb,var(--dm-fg) 5%,transparent))}
+@media (hover:hover) and (pointer:fine){.atr-cm-b:not(.own):hover .bg{background-image:linear-gradient(color-mix(in srgb,var(--dm-fg) 5%,transparent),color-mix(in srgb,var(--dm-fg) 5%,transparent))}}
 .atr-cm-b:focus-visible .atr-cm-l b{text-decoration:underline;text-decoration-color:var(--dm-focus);text-underline-offset:3px;text-decoration-thickness:2px}
-.atr-cm-l{position:absolute;left:10px;top:9px;right:8px;display:flex;flex-direction:column;font-size:12.5px;line-height:1.35;white-space:nowrap;pointer-events:none;color:var(--dm-fg)}
-.atr-cm-l b{font-weight:500}
-.atr-cm-l span{font-size:11.5px;font-variant-numeric:tabular-nums}
+.atr-cm-l{position:absolute;left:8px;top:8px;width:calc(var(--dm-w,0px) - 16px);display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:6px;align-items:center;font-size:12.5px;line-height:1.35;white-space:nowrap;pointer-events:none;color:var(--dm-fg);transition:opacity .3s}
+.atr-cm-l .atr-g{grid-row:1}
+.atr-cm-l b{font-weight:500;overflow:hidden;text-overflow:ellipsis}
+.atr-cm-l .v{grid-column:2;font-size:12px;color:var(--dm-fg2);font-variant-numeric:tabular-nums}
 .atr-cm-b.gone{opacity:0;pointer-events:none}
-/* the key to the colours, under the map */
-.atr-cm-lg{list-style:none;margin:-2px 0 0;padding:0 2px;display:flex;flex-wrap:wrap;gap:2px 14px;font-size:12px;color:var(--dm-muted)}
+/* a block too narrow for its words keeps its mark; one too narrow for that keeps only its tint (its tooltip says the rest) */
+.atr-cm-l[data-fit="mark"]>:not(.atr-g){opacity:0}
+.atr-cm-l[data-fit="none"]{opacity:0}
+/* the key to the blocks, under the map: the marks, and the hatch for an agent's own work */
+.atr-cm-lg{list-style:none;margin:-2px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--dm-muted)}
 .atr-cm-lg li{display:inline-flex;align-items:center;gap:6px}
-.atr-cm-lg i{width:10px;height:10px;border-radius:3px;background:var(--dm-st);flex:none}
-.atr-cm-lg [data-s="done"]{--dm-st:var(--dm-ok)}.atr-cm-lg [data-s="run"]{--dm-st:var(--dm-warn-mark)}.atr-cm-lg [data-s="fail"]{--dm-st:var(--dm-bad-mark)}
-.atr-cm-lg [data-s="queued"] i{background:repeating-linear-gradient(135deg,transparent 0 2px,color-mix(in srgb,var(--dm-fg) 55%,transparent) 2px 3px),var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-fg) 55%,transparent)}
+.atr-cm-lg .atr-g{transform:scale(.86)}
+.atr-cm-lg .own{width:12px;height:12px;flex:none;border-radius:calc(3px * var(--dm-rk));background:var(--dm-row) repeating-linear-gradient(135deg,transparent 0 2px,color-mix(in srgb,var(--dm-fg) 30%,transparent) 2px 3px)}
 .atr-cm-say{min-height:20px;font-size:12.5px;color:var(--dm-fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .atr-cm-say b{font-weight:500;color:var(--dm-fg)}
-.atr-cm-key{list-style:none;margin:0;padding:6px 0 0;display:flex;flex-direction:column;gap:2px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.atr-cm-key li{display:flex;align-items:center;gap:var(--dm-s-2);min-height:32px;padding:0 4px;font-size:12.5px}
-.atr-cm-key .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.atr-cm-key .p{width:38px;text-align:right;color:var(--dm-muted);font-variant-numeric:tabular-nums}
-.atr-cm-key .c{width:44px;text-align:right;color:var(--dm-fg2);font-variant-numeric:tabular-nums}
-.atr-cm-key .tag .spin{width:9px;height:9px}
-.atr-cm-key .atr-x-fix{margin-left:4px}
+/* each agent: its mark and avatar, as in the tree, its share and its cost, and the way on when it needs one */
+.atr-cm-key{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.atr-cm-key li{display:flex;align-items:center;gap:var(--dm-s-2);min-height:36px;padding:0 var(--dm-s-1);font-size:13px}
+.atr-cm-key .t{flex:1;min-width:0;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.atr-cm-key .p{width:38px;text-align:right;font-size:12px;color:var(--dm-muted);font-variant-numeric:tabular-nums}
+.atr-cm-key .c{width:44px;text-align:right;font-size:12px;color:var(--dm-fg2);font-variant-numeric:tabular-nums}
+.atr-cm-key .pill{margin-left:2px}
 /* on a phone the key leaves out each agent's share, which its blocks already show, so the names keep their room */
-@container (max-width:360px){.atr-cm-key .p{display:none}}
+@container atr (max-width:360px){.atr-cm-key .p{display:none}}
 :root:not([data-style="soft"]) .atr-cm-b:not(:where([data-style="soft"],[data-style="soft"] *)){clip-path:inset(0 calc(100% - var(--dm-w,0px) + 2px) 0 0);transition-duration:.45s;transition-timing-function:steps(5,end)}
-:root:not([data-style="soft"]) .atr-cm-b:not(.lv0,.own)[data-s="run"] .bg:not(:where([data-style="soft"],[data-style="soft"] *)){background-image:repeating-linear-gradient(135deg,transparent 0 4px,color-mix(in srgb,var(--dm-warn) 16%,transparent) 4px 5px)}
-:root:not([data-style="soft"]) .atr-cm-b:not(.lv0,.own)[data-s="fail"] .bg:not(:where([data-style="soft"],[data-style="soft"] *)){background-image:repeating-linear-gradient(135deg,transparent 0 4px,color-mix(in srgb,var(--dm-bad) 16%,transparent) 4px 5px)}
-:root:not([data-style="soft"]) .atr-cm-b .sh:not(:where([data-style="soft"],[data-style="soft"] *)){display:none}
-:root:not([data-style="soft"]) .atr-cm-lg i:not(:where([data-style="soft"],[data-style="soft"] *)){border-radius:0}
+:root:not([data-style="soft"]) .atr-cm-b[data-s="fail"] .bg:not(:where([data-style="soft"],[data-style="soft"] *)){background-image:repeating-linear-gradient(135deg,transparent 0 4px,color-mix(in srgb,var(--dm-bad) 14%,transparent) 4px 5px)}
+:root:not([data-style="soft"]) .atr-cm-lg .own:not(:where([data-style="soft"],[data-style="soft"] *)){border-radius:0}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px + var(--sw,0px))}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px + var(--sw,0px))}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px + var(--sw,0px))}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px + var(--sw,0px))}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -435,7 +386,7 @@
 <path d="M149.497 283.784C149.477 284.047 149.474 284.311 149.487 284.575C156.385 340.034 183.548 391.116 225.9 428.196C267.989 465.044 322.188 485.532 378.414 485.855L379.743 485.859C436.453 485.868 491.188 465.353 533.619 428.212C575.912 391.194 603.062 340.216 610.018 284.856L610.018 281.512C610.008 277.337 608.324 273.315 605.303 270.335C602.277 267.351 598.155 265.656 593.837 265.656L165.647 265.656C161.338 265.656 157.226 267.349 154.21 270.331C151.198 273.309 149.524 277.326 149.523 281.491L149.523 283.437L149.497 283.784ZM114.378 247.395C118.396 247.391 122.254 245.919 125.214 243.29C128.063 240.759 129.887 237.33 130.396 233.629L130.396 233.35L130.437 232.917C136.355 171.634 165.162 114.754 211.202 73.3687C257.239 31.9859 317.206 9.06063 379.393 9.04448L379.396 9.04448C441.593 9.04583 501.574 31.964 547.624 73.3482C593.677 114.735 622.491 171.624 628.411 232.917L628.453 233.35L628.453 233.643C628.953 237.344 630.773 240.774 633.621 243.304C636.58 245.932 640.437 247.399 644.452 247.395L725.644 247.395C728.882 247.404 732.089 248.06 735.071 249.329C738.055 250.598 740.753 252.453 743.001 254.787C745.252 257.123 747.005 259.891 748.151 262.924C749.296 265.954 749.81 269.183 749.662 272.418L749.663 272.418C745.484 366.797 704.617 455.919 635.615 521.211C566.616 586.499 474.809 622.924 379.338 622.924C283.872 622.924 192.071 586.496 123.081 521.206C54.0935 455.917 13.2412 366.804 9.07133 272.438L9.07036 272.438L9.07036 272.436C9.07007 272.43 9.06967 272.423 9.06938 272.417L9.07036 272.417C8.92272 269.182 9.43655 265.953 10.5811 262.924C11.7276 259.89 13.481 257.123 15.7315 254.787C17.9805 252.452 20.6797 250.597 23.6622 249.329C26.6443 248.06 29.8504 247.404 33.0889 247.395L114.378 247.395Z" fill="black" stroke="white" stroke-width="18.0901"/>
 </svg></div><span class="gloss"></span></div><p>Built by <span class="u">DesignMe</span>, free to use under the MIT licence.</p></a>
     <p class="side-cta-d">Expert design and dev support for startups and enterprises, from Astro sites to React apps and AI products.</p>
-    <a class="hire-btn" href="https://www.designme.agency/intro?utm_source=designme.dev&utm_medium=referral&utm_campaign=book_a_call" target="_blank" rel="noopener">Book a call<span class="ms"><svg class="sh" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span></a></div></div></details><nav class="pg-crumbs" aria-label="Breadcrumb"><a href="/">Library</a><span>/</span><a href="/#s-status">Agent status</a></nav><h1 class="pg-h1" id="content" tabindex="-1">Agent tree</h1><p class="pg-lead">An orchestrator and its sub-agents, with cost rolled up per branch. Free and MIT licensed, as HTML, a typed React component or an Astro component, in two styles with light and dark mode.</p><div class="pg-installs"><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">agent-tree</span></span><button type="button" data-copy="npx designme add agent-tree" aria-label="Copy install command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>agent-tree.json</span><button type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/agent-tree.json" aria-label="Copy the shadcn command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div></div><button class="cp-copy cp-copy-top" type="button" id="cp-copy-code">Copy code</button><p class="cp-studio">Need this designed into your product? <a href="https://www.designme.agency/intro?utm_source=designme.dev&amp;utm_medium=referral&amp;utm_campaign=book_a_call" target="_blank" rel="noopener">Book a call</a></p><section class="cp-demo" aria-label="Agent tree demo"><button type="button" class="cp-anim" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>Animate</button><div class="pg-demo stage-inner" style="--h-a:613px;--h-j:581px;--h-k:581px;--h-l:581px;--h-m:581px"><div class="card" data-c="agent-tree">
+    <a class="hire-btn" href="https://www.designme.agency/intro?utm_source=designme.dev&utm_medium=referral&utm_campaign=book_a_call" target="_blank" rel="noopener">Book a call<span class="ms"><svg class="sh" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span></a></div></div></details><nav class="pg-crumbs" aria-label="Breadcrumb"><a href="/">Library</a><span>/</span><a href="/#s-status">Agent status</a></nav><h1 class="pg-h1" id="content" tabindex="-1">Agent tree</h1><p class="pg-lead">An orchestrator and its sub-agents, with cost rolled up per branch. Free and MIT licensed, as HTML, a typed React component or an Astro component, in two styles with light and dark mode.</p><div class="pg-installs"><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">agent-tree</span></span><button type="button" data-copy="npx designme add agent-tree" aria-label="Copy install command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>agent-tree.json</span><button type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/agent-tree.json" aria-label="Copy the shadcn command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div></div><button class="cp-copy cp-copy-top" type="button" id="cp-copy-code">Copy code</button><p class="cp-studio">Need this designed into your product? <a href="https://www.designme.agency/intro?utm_source=designme.dev&amp;utm_medium=referral&amp;utm_campaign=book_a_call" target="_blank" rel="noopener">Book a call</a></p><section class="cp-demo" aria-label="Agent tree demo"><button type="button" class="cp-anim" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>Animate</button><div class="pg-demo stage-inner" style="--h-a:563px;--h-j:531px;--h-k:531px;--h-l:531px;--h-m:531px"><div class="card" data-c="agent-tree">
   <div class="stage-in">
     <div class="dm atr-dm" data-designs="card"><div class="dm-main">
     <div class="atr panel" data-s="run">
@@ -2288,202 +2239,275 @@ DM.def('agent-tree', (r, c) => {
 {
   const classic = DM.defs['agent-tree'];
   // the card has three designs, picked with the switch under the tree (on designme.dev, the card's footer tabs): Classic, the
-  // tree as it has always been; Cost tree, the tree with each branch's share of the cost as a bar in the accent; and Cost
-  // map, every agent and step as a block as wide as its cost, coloured by how it is doing. The two new ones play this run:
-  // an orchestrator and three agents, each with its steps. cost is what each spends itself, in dollars, and it grows while it
+  // tree; Cost tree, the same tree with each branch's share of the cost as a bar in the accent; and Cost map, every agent and
+  // step as a block as wide as its cost. The two cost designs play Classic's run, with its agents, steps and marks: the
+  // orchestrator splits the work between three agents, one design step fails on a token the library doesn't have and is
+  // rerouted to a retry, and the copy agent's post waits for your OK. Every row is there from the start (the plan, in rings)
+  // but the retry, which joins when the step fails. cost is what each spends itself, in dollars, and it grows while it
   // runs; a branch's cost is its own and everything under it
-  const ATR_RUN = () => ({ id:'root', n:'Orchestrator', t:'Plans the work and hands it out', ic:'cpu', ag:'o', cost:.04, s:'run', kids:[
-    { id:'res', n:'Research agent', t:'Compare 3 competitor pricing pages', ic:'search', ag:'b', cost:.02, s:'done', kids:[
-      { id:'res1', n:'Read 3 pricing pages', t:'9.4k words', cost:.06, s:'done' },
-      { id:'res2', n:'Summarise their plans', t:'Notes in Pricing v4', cost:.04, s:'done' } ] },
-    { id:'des', n:'Design agent', t:'Rework the plan cards in Figma', ic:'palette', ag:'l', cost:.02, s:'run', kids:[
-      { id:'des1', n:'Update the Pro card', t:'Pricing v4, frame 2', cost:.05, s:'run' },
-      { id:'des2', n:'Update the Team card', t:'Pricing v4, frame 3', cost:0, s:'queued' },
-      { id:'des3', n:'Apply library tokens', t:'Colour and spacing', cost:0, s:'queued' } ] },
-    { id:'cop', n:'Copy agent', t:'Rewrite the plan descriptions', ic:'edit', ag:'p', cost:0, s:'queued', kids:[
-      { id:'cop1', n:'Rewrite 3 descriptions', t:'Under 20 words each', cost:0, s:'queued' } ] } ] });
-  // the run, the same in both: the design agent works through its cards, one step fails on a token the library doesn't have
-  // and waits for its fix, then the copy agent writes. on(event, node) tells the design what changed
+  const ATR_RUN = [
+    { id:'root', n:'Orchestrator', t:'Splitting the work', ic:'spark', s:'run', cost:.004 },
+    { id:'res', p:'root', n:'Research', t:'5 competitor pages', ic:'globe', av:'l', s:'run', cost:.003 },
+    { id:'res1', p:'res', n:'Read the pages', t:'Reading 1 of 5', ic:'file-text', s:'run', cost:.006 },
+    { id:'des', p:'root', n:'Design', t:'Plan cards in Figma', ic:'palette', av:'p', s:'run', cost:.003 },
+    { id:'des1', p:'des', n:'Update cards', t:'Pricing v4', app:'figma', s:'run', cost:.005 },
+    { id:'des2', p:'des', n:'Brand tokens', t:'Colours and spacing', app:'figma' },
+    { id:'des3', p:'des', n:'Retry tokens', t:'Rerouted to accent.500', app:'figma', late:true },
+    { id:'cop', p:'root', n:'Copy', t:'Rewrite the plan blurbs', ic:'edit', av:'m' },
+    { id:'cop1', p:'cop', n:'Post to Slack', t:'Waits for your OK', app:'slack' }
+  ];
+  // the run, the same in both. on(event, node) tells the design what changed: 'state' (its state or its line of text),
+  // 'join' (the retry), 'ask' (a fix for the failed step, or the post's OK), 'tick' (ten times a second) and 'end'
   function atrModel(c, on){
-    const T = ATR_RUN(), all = [];
-    (function walk(n, lv, p){ n.lv = lv; n.parent = p; all.push(n); (n.kids || []).forEach(k => walk(k, lv + 1, n)); })(T, 0, null);
-    all.forEach(n => { if (!n.ag) n.ag = n.parent.ag; });
+    const all = ATR_RUN.map(x => ({ cost:0, s:'queued', ...x, kids:[] })), by = id => all.find(n => n.id === id);
+    all.forEach(n => { n.parent = n.p ? by(n.p) : null; n.lv = n.parent ? n.parent.lv + 1 : 0; if (n.parent) n.parent.kids.push(n); });
+    const T = all[0];
     // each agent's step of the accent, for its bars (the orchestrator's is the first)
     T.kids.forEach((k, i) => { k.k = i + 1; }); all.forEach(n => { if (!n.k) n.k = n.lv > 1 ? n.parent.k : 1; });
-    const by = id => all.find(n => n.id === id), sum = n => n.cost + (n.kids || []).reduce((a, k) => a + sum(k), 0);
-    const m = { T, all, by, sum, t0:0, ended:0, fix:null };
-    const set = (n, s, t) => { n.s = s; if (t !== undefined) n.t = t; on('state', n); };
+    const sum = n => n.cost + n.kids.reduce((a, k) => a + sum(k), 0);
+    const m = { T, all, by, sum, t0:0, ended:0, fix:null, ok:null };
+    const set = (n, s, t) => { if (s) n.s = s; if (t !== undefined) n.t = t; on('state', n); };
     // whatever is running spends as it goes, ten times a second, and the clock counts
-    c.every(100, () => { if (m.ended) return; m.t0 += .1; all.forEach(n => { if (n.s === 'run') n.cost += n.lv ? .0016 : .0005; }); on('tick'); });
+    c.every(100, () => { if (m.ended) return; m.t0 += .1; all.forEach(n => { if (n.s === 'run' && !n.late) n.cost += n.lv ? .0014 : .0004; }); on('tick'); });
+    // a way on waits for you; the person in the demo takes it after a while, unless you have taken over
+    const ask = (k, n, ms) => new Promise(res => { m[k] = () => { m[k] = null; res(); }; on('ask', n, k); c.auto(ms, () => m[k] && m[k]()); });
     c.run(async () => {
-      await c.wait(1800); set(by('des1'), 'done'); set(by('des2'), 'run');
-      await c.wait(2200); set(by('des2'), 'done'); set(by('des3'), 'run');
-      await c.wait(1800); const tk = by('des3'); set(tk, 'fail', 'color.accent.600 is not in the library'); set(by('des'), 'fail');
-      // the fix waits for you; the person in the demo takes it after a while, unless you have taken over
-      await new Promise(res => { m.fix = () => { m.fix = null; res(); }; on('ask', tk); c.auto(6500, () => m.fix && m.fix()); });
-      set(tk, 'run', 'Using color.accent.500'); set(by('des'), 'run');
-      await c.wait(1600); set(tk, 'done', 'Colour and spacing, from the library'); set(by('des'), 'done'); set(by('cop'), 'run'); set(by('cop1'), 'run');
-      await c.wait(2600); set(by('cop1'), 'done'); set(by('cop'), 'done'); set(T, 'done'); m.ended = m.t0; on('end');
+      await c.wait(700); set(by('res1'), null, 'Reading 3 of 5');
+      await c.wait(700); set(by('res1'), null, 'Reading 5 of 5');
+      await c.wait(600); set(by('res1'), 'done', '5 pages, 12k words'); set(T, null, '3 agents at work');
+      await c.wait(350); set(by('res'), 'done', 'Notes in Pricing v4');
+      await c.wait(500); set(by('des1'), 'done', 'Pro and Team done'); set(by('des2'), 'run', 'Matching colours');
+      await c.wait(1400); const tk = by('des2'); set(tk, 'fail', 'Missing accent.600');
+      await ask('fix', tk, 3200);
+      tk.dim = true; const rt = by('des3'); rt.late = false; rt.s = 'run'; on('join', rt); set(tk);
+      await c.wait(1500); set(rt, 'done', 'Used accent.500');
+      await c.wait(300); set(by('des'), 'done', 'Cards and tokens done'); set(by('cop'), 'run', 'Writing 3 blurbs');
+      await c.wait(1500); set(by('cop'), null, '3 blurbs written'); const ps = by('cop1'); set(ps, 'wait', 'Needs your OK');
+      await ask('ok', ps, 3200);
+      set(ps, 'done', 'Posted to #pricing');
+      await c.wait(350); set(by('cop'), 'done', '3 blurbs posted');
+      await c.wait(300); set(T, 'done', 'Run finished'); m.ended = m.t0; on('end');
     });
     return m;
   }
-  const atrVars = n => n.ag === 'o' ? '--dm-a:var(--dm-ink);--dm-ai:var(--dm-on-ink)' : `--dm-a:var(--dm-av-${n.ag});--dm-ai:var(--dm-av-${n.ag}-ink)`;
   const atrMoney = v => '$' + v.toFixed(2);
   const atrClock = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
-  const atrGlyph = s => s === 'run' ? '<span class="spin"></span>' : s === 'done' ? I('ok','xs') : s === 'fail' ? I('alert','xs') : '<span class="dot" style="width:5px;height:5px"></span>';
-
-  // Cost tree: the tree with each branch's share of the whole run as a bar, and the run's cost by agent as one bar on top.
-  // Hover or focus a row and the path above it darkens
-  const ATR_COST = `<div class="atr-ct panel">
-    <div class="atr-ct-h"><div class="atr-ct-ht"><b>Redesign the pricing page</b><span class="atr-ct-st"><span class="m">Running</span> · <span class="num ck">0:00</span></span></div><span class="atr-ct-tot num">$0.00</span></div>
-    <div class="atr-ct-mix" aria-hidden="true"></div>
-    <div class="atr-ct-tree" role="tree" aria-label="Agents"></div>
-  </div>`;
-  function atrCost(r, c){
-    const tree = $('.atr-ct-tree', r), tot = $('.atr-ct-tot', r), mix = $('.atr-ct-mix', r), ck = $('.ck', r), mEl = $('.atr-ct-st .m', r), root = $('.atr-ct', r);
-    let M;
-    const kids = n => !!(n.kids && n.kids.length);
-    function build(n){
-      const row = html(`<div class="atr-ct-n" role="treeitem" aria-level="${n.lv + 1}"${kids(n) ? ' aria-expanded="true"' : ''} tabindex="-1" data-s="${n.s}" style="--dm-lv:${n.lv};--dm-k:var(--dm-k${n.k});${atrVars(n)}">${kids(n) ? `<span class="atr-ct-tg" aria-hidden="true">${I('chev-d','xs')}</span>` : '<span class="atr-ct-sp"></span>'}${n.lv === 1 ? `<span class="atr-x-av" aria-hidden="true">${I(n.ic)}</span>` : `<span class="atr-x-g">${atrGlyph(n.s)}</span>`}<span class="atr-ct-t"><b>${n.n}</b><span>${n.t}</span></span><span class="atr-ct-c"><b class="num">–</b><i aria-hidden="true"><span></span></i></span></div>`);
-      n.el = row; const out = [row];
-      if (kids(n)){ const f = html(`<div class="fold atr-ct-kids" role="group" style="--dm-lv:${n.lv}"><i class="atr-ct-gd" aria-hidden="true"></i><div></div></div>`); n.kids.forEach(k => build(k).forEach(e => f.lastElementChild.appendChild(e))); n.fold = f; out.push(f); }
-      return out;
-    }
-    function toggle(n, open){ if (!kids(n)) return; const o = open ?? n.el.getAttribute('aria-expanded') !== 'true'; n.el.setAttribute('aria-expanded', String(o)); n.fold.classList.toggle('shut', !o); n.fold.inert = !o; }
-    function paint(){
-      const total = M.sum(M.T);
-      M.all.forEach(n => { const v = kids(n) ? M.sum(n) : n.cost, b = $('.atr-ct-c b', n.el), t = n.s === 'queued' && !v ? '–' : atrMoney(v); if (b.textContent !== t) b.textContent = t;
-        $('.atr-ct-c i', n.el).style.setProperty('--dm-sh', total ? (v / total).toFixed(3) : 0);
-        if (kids(n)) $('.atr-ct-c', n.el).dataset.tip = `Its own ${atrMoney(n.cost)}, the rest ${atrMoney(M.sum(n) - n.cost)}`; });
-      tot.textContent = atrMoney(total);
-      let at = 0; M.T.kids.forEach((k, i) => { const w = total ? M.sum(k) / total * 100 : 0; mix.children[i].style.setProperty('--dm-x0', at.toFixed(2)); mix.children[i].style.setProperty('--dm-x1', (at + w).toFixed(2)); at += w; });
-      ck.textContent = atrClock(M.ended || M.t0);
-    }
-    M = atrModel(c, (ev, n) => {
-      if (ev === 'state'){ n.el.dataset.s = n.s; const g = $('.atr-x-g', n.el); if (g){ g.innerHTML = atrGlyph(n.s); enter(g); } swap($('.atr-ct-t span', n.el), n.t); const f = $('.atr-x-fix', n.el); if (f && n.s !== 'fail') f.remove(); if (n.id === 'des') swap(mEl, n.s === 'fail' ? '1 step failed' : 'Running'); }
-      if (ev === 'ask'){ const fix = html('<button class="pill sm atr-x-fix" type="button">Use color.accent.500</button>'); $('.atr-ct-t', n.el).appendChild(fix); enter(fix); fix.onclick = e => { e.stopPropagation(); M.fix && M.fix(); }; }
-      // done: the finished design branch folds and the research opens, then the summary comes in under the tree, so the
-      // tree never grows past the height it ran at
-      if (ev === 'end'){ swap(mEl, 'Done'); toggle(M.by('des'), false); toggle(M.by('res'), true);
-        c.later(REDUCE ? 0 : 500, () => { const sm = html(`<div class="atr-ct-sum">${I('ok','xs')}<span>Done in ${atrClock(M.ended)} · 3 agents · ${atrMoney(M.sum(M.T))}</span></div>`); root.appendChild(sm); }); }
-      paint();
-    });
-    mix.innerHTML = M.T.kids.map(k => `<i style="--dm-k:var(--dm-k${k.k})"></i>`).join('');
-    build(M.T).forEach(e => tree.appendChild(e)); M.T.el.tabIndex = 0;
-    toggle(M.by('res'), false); paint();
-    // hovering or focusing a row lights its path: every guide above it and the rows it hangs from
-    const light = n => { $$('.path', tree).forEach(x => x.classList.remove('path')); for (let p = n && n.parent; p; p = p.parent){ p.fold.classList.add('path'); p.el.classList.add('path'); } };
-    c.on(tree, 'pointerover', e => { const row = e.target.closest('.atr-ct-n'); light(row ? M.all.find(x => x.el === row) : null); });
-    c.on(tree, 'pointerleave', () => light(null));
-    c.on(tree, 'focusin', e => { const row = e.target.closest('.atr-ct-n'); light(row ? M.all.find(x => x.el === row) : null); });
-    c.on(tree, 'click', e => { const row = e.target.closest('.atr-ct-n'); if (!row || e.target.closest('.atr-x-fix')) return; const n = M.all.find(x => x.el === row); M.all.forEach(x => x.el.tabIndex = x === n ? 0 : -1); toggle(n); });
-    // the arrow keys move through the tree as in any tree view
-    const visible = () => M.all.filter(n => { for (let p = n.parent; p; p = p.parent) if (p.el.getAttribute('aria-expanded') === 'false') return false; return true; });
-    c.on(tree, 'keydown', e => {
-      const v = visible(), i = v.findIndex(n => n.el === document.activeElement); if (i < 0) return;
-      const n = v[i], open = n.el.getAttribute('aria-expanded') === 'true'; let go = null;
-      if (e.key === 'ArrowDown') go = v[i + 1]; else if (e.key === 'ArrowUp') go = v[i - 1];
-      else if (e.key === 'ArrowRight'){ if (kids(n) && !open) toggle(n, true); else if (kids(n)) go = n.kids[0]; }
-      else if (e.key === 'ArrowLeft'){ if (kids(n) && open) toggle(n, false); else go = n.parent; }
-      else if (e.key === 'Enter' || e.key === ' '){ const f = $('.atr-x-fix', n.el); if (f) f.click(); else toggle(n); }
-      else if (e.key === 'Home') go = v[0]; else if (e.key === 'End') go = v[v.length - 1];
-      else return;
-      e.preventDefault(); if (go){ M.all.forEach(x => x.el.tabIndex = -1); go.el.tabIndex = 0; go.el.focus({ preventScroll:true }); }
-    });
-    // the person in the demo: reads the design branch's cost and the path above a step, then takes the fix
-    c.story(async s => {
-      await s.beat(3); await s.point($('.atr-ct-c', M.by('des').el)); light(M.by('des1')); await s.beat(4); light(null); s.away();
-      await s.until(() => $('.atr-x-fix', r)); await s.beat(3);
-      await s.tap($('.atr-x-fix', r)); s.away();
-      await s.until(() => M.ended); await s.beat(5);
-    });
-    // it ends as tall as it starts (the fix, while it waits under the failed step, adds a line below), so the height it
-    // mounts with is the one that sits centred
+  // who: an agent's avatar in its colour, the orchestrator's in ink, or the app a step works in (as in Classic)
+  const atrWho = n => n.app ? `<span class="atr-av app" aria-hidden="true">${BRAND[n.app]}</span>` : `<span class="atr-av${n.av || !n.lv ? '' : ' app'}" aria-hidden="true"${n.av ? ` style="--dm-a:var(--dm-av-${n.av});--dm-ai:var(--dm-av-${n.av}-ink)"` : ''}>${I(n.ic, 'xs')}</span>`;
+  // a node's mark: the source disc for the orchestrator while it runs, else its state
+  const atrM = n => n.lv ? n.s : n.s === 'run' ? 'src' : n.s;
+  const atrG = m => `<span class="atr-g" data-m="${m}" aria-hidden="true">${atrMark(m)}</span>`;
+  const atrWord = { queued:'queued', run:'running', wait:'needs you', done:'done', fail:'failed' };
+  // the run's header, as in Classic: its title, a dot and a word for how it is doing, the clock and the total
+  const ATR_HEAD = t => `<div class="atr-h"><div class="atr-hd">${t}<span class="atr-s"><span class="atr-dot" aria-hidden="true"></span><span class="atr-m">Starting</span><span aria-hidden="true">·</span><span class="atr-time num">0:00</span></span></div><span class="atr-tot num">$0.00</span></div>`;
+  function atrHead(r, M){
+    const meta = $('.atr-m', r), time = $('.atr-time', r), root = $('.atr', r);
+    return () => {
+      const live = M.all.filter(n => !n.late), run = live.filter(n => n.lv && n.s === 'run').length, wait = live.some(n => n.s === 'wait');
+      const fail = live.filter(n => n.s === 'fail' && !n.dim).length;
+      const st = M.ended ? 'Done' : wait ? 'Needs you' : fail && !run ? `${fail} failed` : run ? `${run} running` : 'Starting';
+      if (meta.textContent !== st) meta.textContent = st;
+      root.dataset.s = M.ended ? 'done' : wait ? 'wait' : fail && !run ? 'fail' : 'run';
+      $('.atr-tot', r).textContent = atrMoney(M.sum(M.T)); time.textContent = atrClock(M.ended || M.t0);
+    };
   }
 
-  // Cost map: every agent and step as a block as wide as its cost, growing live, in the colour of how it is doing; press a
-  // block to zoom into it
-  const ATR_MAP = `<div class="atr-cm panel">
-    <div class="atr-cm-h"><div class="atr-cm-ht"><nav class="atr-cm-crumb" aria-label="Where you are"></nav><span class="atr-cm-st num">Running · 0:00</span></div><span class="atr-cm-tot num">$0.00</span></div>
+  // Cost tree: Classic's tree, its lines and its band, with each row's share of the whole run as a bar after its cost, and
+  // the run's cost by agent as one bar under the header
+  const ATR_COST = `<div class="atr atr-ct panel" data-s="run">
+    ${ATR_HEAD('<b class="atr-t">Redesign the pricing page</b>')}
+    <div class="atr-ct-mix" aria-hidden="true"></div>
+    <div class="atr-tree" role="tree" aria-label="Agents"><svg class="atr-ln" aria-hidden="true"></svg></div>
+    <p class="atr-sr" role="status"></p>
+  </div>`;
+  function atrCost(r, c){
+    const tree = $('.atr-tree', r), mix = $('.atr-ct-mix', r), box = $('.atr', r), sr = $('.atr-sr', r);
+    let M, L, head;
+    const here = n => !n.late, under = n => n.kids.filter(here);
+    function build(n){
+      n.el = html(`<div class="atr-n" role="treeitem" aria-level="${n.lv + 1}" aria-selected="false" tabindex="${n.lv ? -1 : 0}" data-id="${n.id}" data-s="${n.s}" style="--dm-lv:${n.lv};--dm-k:var(--dm-k${n.k})"><div class="atr-b"><div class="atr-r">${atrG(atrM(n))}${atrWho(n)}<span class="atr-tx"><span class="atr-nm"></span>${n.kids.length ? `<span class="atr-tg" aria-hidden="true">${I('chev-d', 'xs')}</span>` : ''}<span class="atr-sub"></span></span><span class="atr-q num"><span class="atr-c"></span><i class="atr-ct-bar" aria-hidden="true"><span></span></i></span></div></div></div>`);
+      $('.atr-nm', n.el).textContent = n.n; $('.atr-sub', n.el).textContent = n.t;
+      if (n.kids.length){ n.el.setAttribute('aria-expanded', 'true'); n.fold = html('<div class="fold atr-kids"><div role="group"></div></div>'); n.kids.forEach(k => n.fold.firstElementChild.appendChild(build(k))); n.el.appendChild(n.fold); }
+      if (n.late) n.el.hidden = true;
+      return n.el;
+    }
+    function paint(){
+      const total = M.sum(M.T);
+      for (const n of M.all){
+        if (!here(n)) continue;
+        const v = under(n).length ? M.sum(n) : n.cost, ce = $(':scope>.atr-b .atr-c', n.el), t = n.s === 'queued' && !v ? '' : atrMoney(v);
+        if (ce.textContent !== t) ce.textContent = t;
+        $(':scope>.atr-b .atr-ct-bar', n.el).style.setProperty('--dm-sh', total ? (v / total).toFixed(3) : 0);
+        if (under(n).length) ce.dataset.tip = `Its own ${atrMoney(n.cost)}, the rest ${atrMoney(M.sum(n) - n.cost)}`;
+        const label = `${n.n}, ${atrWord[n.s]}, ${n.t}${v ? ', ' + atrMoney(v) : ''}`;
+        if (n.el.getAttribute('aria-label') !== label) n.el.setAttribute('aria-label', label);
+      }
+      let at = 0; M.T.kids.forEach((k, i) => { const w = total ? M.sum(k) / total * 100 : 0; mix.children[i].style.setProperty('--dm-x0', at.toFixed(2)); mix.children[i].style.setProperty('--dm-x1', (at + w).toFixed(2)); at += w; });
+      head();
+    }
+    // the way on, in place under a row: the fix for the failed step, or Approve and Hold for the post
+    function ask(n, how){
+      const old = $(':scope>.atr-b>.atr-ask', n.el); if (old) old.remove();
+      if (!how) return null;
+      const b = html(`<div class="atr-ask">${how.map(([k, label]) => `<button type="button" class="pill sm ${k === 'yes' || k === 'fix' ? 'primary' : 'line'} atr-${k}">${label}</button>`).join('')}</div>`);
+      $(':scope>.atr-b', n.el).appendChild(b); return b;
+    }
+    M = atrModel(c, (ev, n, k) => {
+      if (ev === 'state'){
+        n.el.dataset.s = n.s; const g = $(':scope>.atr-b .atr-g', n.el), m = atrM(n);
+        if (g.dataset.m !== m){ g.dataset.m = m; g.innerHTML = atrMark(m); }
+        $(':scope>.atr-b .atr-sub', n.el).textContent = n.t;
+        if (n.dim) n.el.setAttribute('data-dim', '');
+        if (n.s !== 'wait' && n.s !== 'fail') ask(n, null);
+        if (n.dim) ask(n, null);
+        if (n.s === 'fail') sr.textContent = `${n.n} failed: ${n.t}`;
+      }
+      if (ev === 'join'){ n.el.dataset.s = n.s; const g = $(':scope>.atr-b .atr-g', n.el); g.dataset.m = n.s; g.innerHTML = atrMark(n.s); n.el.hidden = false; }
+      if (ev === 'ask'){
+        if (k === 'fix') $('.atr-fix', ask(n, [['fix', 'Use accent.500']])).onclick = () => M.fix && M.fix();
+        else { const b = ask(n, [['yes', 'Approve'], ['no', 'Hold']]); sr.textContent = `${n.n} needs you`;
+          $('.atr-yes', b).onclick = () => M.ok && M.ok();
+          $('.atr-no', b).onclick = e => { n.t = 'On hold'; $(':scope>.atr-b .atr-sub', n.el).textContent = n.t; e.currentTarget.remove(); $('.atr-yes', b).focus({ preventScroll:true }); }; }
+      }
+      // done: one line under the tree with the done mark
+      if (ev === 'end'){ sr.textContent = 'Run finished'; const sm = html(`<p class="atr-ct-sum"${REDUCE ? '' : ' data-in'}>${atrG('done')}<span>Done in <b class="num">${atrClock(M.ended)}</b> · 3 agents · <b class="num">${atrMoney(M.sum(M.T))}</b></span></p>`); box.insertBefore(sm, sr); }
+      if (L && ev !== 'tick') L.frame(performance.now());
+      if (head) paint();
+    });
+    mix.innerHTML = M.T.kids.map(k => `<i style="--dm-k:var(--dm-k${k.k})"></i>`).join('');
+    tree.appendChild(build(M.T));
+    head = atrHead(r, M); paint();
+    L = atrLines(tree); c.loop(t => { L.frame(t); });
+    // the keyboard and the pointer, as in Classic: one row in the tab order, the arrows move through the rows you can see,
+    // Right and Left open and close a branch, and the chevron folds one
+    const open = n => n.el.getAttribute('aria-expanded') !== 'false';
+    const visible = () => M.all.filter(n => { if (!here(n)) return false; for (let p = n.parent; p; p = p.parent) if (!open(p)) return false; return true; });
+    const pick = n => { M.all.forEach(x => { x.el.tabIndex = x === n ? 0 : -1; x.el.setAttribute('aria-selected', String(x === n)); }); n.el.focus({ preventScroll:true }); };
+    const fold = (n, o) => { if (!under(n).length) return; n.el.setAttribute('aria-expanded', String(o)); n.fold.classList.toggle('shut', !o); n.fold.inert = !o; if (!o && n.fold.contains(document.activeElement)) pick(n); };
+    c.on(tree, 'click', e => { const row = e.target.closest('.atr-n'); if (!row || e.target.closest('button')) return; const n = M.all.find(x => x.el === row); if (e.target.closest('.atr-tg')) fold(n, !open(n)); else pick(n); });
+    c.on(tree, 'keydown', e => {
+      if (e.target.closest('button')) return;
+      const v = visible(), i = v.findIndex(n => n.el === e.target); if (i < 0) return;
+      const n = v[i], k = under(n).length; let go = null;
+      if (e.key === 'ArrowDown') go = v[i + 1]; else if (e.key === 'ArrowUp') go = v[i - 1];
+      else if (e.key === 'ArrowRight'){ if (k && !open(n)) fold(n, true); else if (k) go = under(n)[0]; }
+      else if (e.key === 'ArrowLeft'){ if (k && open(n)) fold(n, false); else go = n.parent; }
+      else if (e.key === 'Home') go = v[0]; else if (e.key === 'End') go = v[v.length - 1];
+      else if (e.key === 'Enter' || e.key === ' '){ const b = $(':scope>.atr-b>.atr-ask button', n.el); if (b) b.focus(); else pick(n); }
+      else return;
+      e.preventDefault(); if (go) pick(go);
+    });
+    // the person in the demo: reads how the design branch's cost splits, takes the fix, then approves the post
+    c.story(async s => {
+      await s.beat(3); await s.point($(':scope>.atr-b .atr-c', M.by('des').el)); await s.beat(3); s.away();
+      await s.until(() => $('.atr-fix', r)); await s.beat(3); await s.tap($('.atr-fix', r)); s.away();
+      await s.until(() => $('.atr-yes', r)); await s.beat(3); await s.tap($('.atr-yes', r)); s.away();
+      await s.until(() => M.ended); await s.beat(5);
+    });
+    // its tallest moment (every row in, the approval under the post, and the closing line) is measured in a hidden copy and
+    // kept from the start, as in Classic, so the tree sits centred at every moment and grows down inside its own surface
+    const tallest = () => {
+      const p = box.cloneNode(true);
+      p.style.cssText = `position:absolute;left:0;top:0;width:${box.offsetWidth}px;min-height:0;visibility:hidden;pointer-events:none`;
+      p.setAttribute('aria-hidden', 'true'); p.inert = true;
+      $$('.atr-ln', p).forEach(e => e.remove());
+      $$('[hidden]', p).forEach(e => { e.hidden = false; }); $$('[data-ph]', p).forEach(e => { e.removeAttribute('data-ph'); e.style.height = ''; });
+      $$('.atr-ask', p).forEach(e => e.remove());
+      const w = $('[data-id="cop1"]>.atr-b', p); if (w) w.appendChild(html('<div class="atr-ask"><button type="button" class="pill sm primary">Approve</button><button type="button" class="pill sm line">Hold</button></div>'));
+      if (!$('.atr-ct-sum', p)) p.insertBefore(html(`<p class="atr-ct-sum">${atrG('done')}<span>Done in 0:00 · 3 agents · $0.00</span></p>`), $('.atr-sr', p));
+      box.parentElement.appendChild(p); const h = p.offsetHeight; p.remove(); return h;
+    };
+    let wide = -1;
+    const keep = () => { const w = box.offsetWidth; if (!w || w === wide) return; wide = w; box.style.minHeight = tallest() + 'px'; };
+    keep(); const ro = new ResizeObserver(keep); ro.observe(box); c.offs.push(() => ro.disconnect());
+  }
+
+  // Cost map: every agent and step as a block as wide as its cost, growing live, tinted by how it is doing and carrying its
+  // mark; press a block to zoom into it
+  const ATR_MAP = `<div class="atr atr-cm panel" data-s="run">
+    ${ATR_HEAD('<nav class="atr-cm-crumb atr-t" aria-label="Where you are"></nav>')}
     <div class="atr-cm-map" role="group" aria-label="Cost by agent and step"></div>
-    <ul class="atr-cm-lg" aria-label="What the colours mean"><li data-s="done"><i></i>Done</li><li data-s="run"><i></i>Running</li><li data-s="fail"><i></i>Failed</li><li data-s="queued"><i></i>Queued</li></ul>
+    <ul class="atr-cm-lg" aria-label="What the marks mean"><li>${atrG('done')}Done</li><li>${atrG('run')}Running</li><li>${atrG('fail')}Failed</li><li>${atrG('queued')}Queued</li><li><i class="own" aria-hidden="true"></i>Its own work</li></ul>
     <div class="atr-cm-say" aria-live="polite"></div>
     <ul class="atr-cm-key" aria-label="Agents"></ul>
   </div>`;
   function atrMap(r, c){
-    const map = $('.atr-cm-map', r), crumb = $('.atr-cm-crumb', r), st = $('.atr-cm-st', r), tot = $('.atr-cm-tot', r), say = $('.atr-cm-say', r), key = $('.atr-cm-key', r);
-    let M, top, W = 0, shown = '';
+    const map = $('.atr-cm-map', r), crumb = $('.atr-cm-crumb', r), say = $('.atr-cm-say', r), key = $('.atr-cm-key', r);
+    let M, top, W = 0, shown = '', head;
     // each block's place and width, as shares of the branch on show; blocks outside it fade. The branch fills the first row,
     // its children the second and theirs the third, and each branch's own work (what it spends besides its children) closes
     // its row, hatched, so every row adds up
     function lay(){
       const base = top, total = Math.max(1e-6, M.sum(base)), gap = 4, pos = new Map(), own = new Map();
       pos.set(base, { x:0, w:1, lv:0 });
-      let x = 0; (base.kids || []).forEach(k => { const w = M.sum(k) / total; pos.set(k, { x, w, lv:1 }); let y = x; (k.kids || []).forEach(g => { const gw = M.sum(k) ? g.cost / M.sum(k) * w : 0; pos.set(g, { x:y, w:gw, lv:2 }); y += gw; }); if (k.kids) own.set(k, { x:y, w:M.sum(k) ? k.cost / M.sum(k) * w : 0, lv:2 }); x += w; });
+      let x = 0; base.kids.forEach(k => { const w = M.sum(k) / total; pos.set(k, { x, w, lv:1 }); let y = x; k.kids.forEach(g => { const gw = M.sum(k) ? g.cost / M.sum(k) * w : 0; pos.set(g, { x:y, w:gw, lv:2 }); y += gw; }); if (k.kids.length) own.set(k, { x:y, w:M.sum(k) ? k.cost / M.sum(k) * w : 0, lv:2 }); x += w; });
       own.set(base, { x, w:base.cost / total, lv:1 });
       M.all.forEach(n => { if (!n.ob) return; const p = own.get(n); if (!p || p.w * W < 3){ n.ob.classList.add('gone'); return; } n.ob.classList.remove('gone'); n.ob.style.setProperty('--dm-lv', p.lv); n.ob.style.setProperty('--dm-x', (p.x * W).toFixed(1) + 'px'); n.ob.style.setProperty('--dm-w', Math.max(0, p.w * W - gap).toFixed(1) + 'px'); n.ob.dataset.tip = `${n.lv ? n.n : 'The orchestrator'}'s own work, ${atrMoney(n.cost)}`; });
       M.all.forEach(n => {
         const p = pos.get(n), el = n.b; if (!el) return;
-        if (!p){ el.classList.add('gone'); el.tabIndex = -1; return; }
+        if (!p || p.w * W < 3){ el.classList.add('gone'); el.tabIndex = -1; return; }
         el.classList.remove('gone'); el.tabIndex = 0;
         const px = p.x * W, pw = Math.max(0, p.w * W - (p.lv ? gap : 0));
         el.style.setProperty('--dm-lv', p.lv); el.style.setProperty('--dm-x', px.toFixed(1) + 'px'); el.style.setProperty('--dm-w', pw.toFixed(1) + 'px');
-        // a block too narrow for its words keeps only its colour, and says them in its tooltip
-        $('.atr-cm-l', el).style.opacity = pw > 64 ? 1 : 0;
+        // a block too narrow for its words keeps its tint and mark, or only its tint, and says them in its tooltip
+        const l = $('.atr-cm-l', el), fit = pw > 72 ? 'all' : pw > 28 ? 'mark' : 'none'; if (l.dataset.fit !== fit) l.dataset.fit = fit;
       });
     }
     const ro = new ResizeObserver(() => { W = map.clientWidth; lay(); }); ro.observe(map); c.offs.push(() => ro.disconnect());
     function crumbs(){
       const path = []; for (let p = top; p; p = p.parent) path.unshift(p);
-      crumb.innerHTML = path.map((p, i) => i === path.length - 1 ? `<b>${p.lv ? p.n : 'Pricing page'}</b>` : `<button type="button" data-id="${p.id}">${p.lv ? p.n : 'Pricing page'}</button>${I('chev-r','xs')}`).join('');
+      crumb.innerHTML = path.map((p, i) => i === path.length - 1 ? `<b>${p.lv ? p.n : 'Redesign the pricing page'}</b>` : `<button type="button" data-id="${p.id}">${p.lv ? p.n : 'Pricing page'}</button>${I('chev-r','xs')}`).join('');
       $$('button', crumb).forEach(b => b.onclick = () => go(M.by(b.dataset.id)));
     }
-    function go(n){ if (!n || !n.kids) return; top = n; crumbs(); lay(); const f = n.b; if (f && document.activeElement && map.contains(document.activeElement)) f.focus({ preventScroll:true }); }
-    const word = { done:' · done', run:' · running', fail:' · failed', queued:' · queued' };
-    function tell(n){ if (!n){ say.innerHTML = shown; return; } const v = M.sum(n), share = v / Math.max(1e-6, M.sum(M.T)) * 100; say.innerHTML = `<b>${n.n}</b> · ${atrMoney(v)}, ${share.toFixed(0)}% of the run${n.kids ? ` · its own ${atrMoney(n.cost)}` : ''}${n.lv ? word[n.s] : ''}`; }
+    function go(n){ if (!n || !n.kids.length) return; top = n; crumbs(); lay(); if (document.activeElement && map.contains(document.activeElement)) n.b.focus({ preventScroll:true }); }
+    function tell(n){ if (!n){ say.innerHTML = shown; return; } const v = M.sum(n), share = v / Math.max(1e-6, M.sum(M.T)) * 100; say.innerHTML = `<b>${n.n}</b> · ${atrMoney(v)}, ${share.toFixed(0)}% of the run${n.kids.length ? ` · its own ${atrMoney(n.cost)}` : ''}${n.lv ? ' · ' + atrWord[n.s] : ''}`; }
     function blocks(){
       M.all.forEach(n => {
-        n.b = html(`<button class="atr-cm-b${n.lv === 0 ? ' lv0' : ''}" type="button" data-s="${n.s}" aria-label="${n.n}"><span class="bg"><span class="sh"></span></span><i class="k" aria-hidden="true"></i><span class="atr-cm-l"><b>${n.lv === 0 ? 'Whole run' : n.n.replace(' agent', '')}</b><span class="v">–</span></span></button>`);
-        n.b.dataset.tip = n.n;
-        map.appendChild(n.b);
-        if (n.kids){ n.ob = html('<span class="atr-cm-b own" aria-hidden="true"><span class="bg"></span></span>'); map.appendChild(n.ob); }
-        n.b.onclick = () => { if (n === top && n.parent) go(n.parent); else if (n.kids && n !== top) go(n); else tell(n); };
+        n.b = html(`<button class="atr-cm-b${n.lv ? '' : ' lv0'}" type="button" data-s="${n.s}" aria-label="${n.n}"><span class="bg"></span><span class="atr-cm-l">${atrG(atrM(n))}<b>${n.lv ? n.n : 'Whole run'}</b><span class="v">–</span></span></button>`);
+        n.b.dataset.tip = n.n; map.appendChild(n.b);
+        if (n.kids.length){ n.ob = html('<span class="atr-cm-b own" aria-hidden="true"><span class="bg"></span></span>'); map.appendChild(n.ob); }
+        n.b.onclick = () => { if (n === top && n.parent) go(n.parent); else if (n.kids.length && n !== top) go(n); else tell(n); };
         ['pointerenter', 'focus'].forEach(ev => n.b.addEventListener(ev, () => tell(n)));
         ['pointerleave', 'blur'].forEach(ev => n.b.addEventListener(ev, () => tell(null)));
       });
     }
     c.on(map, 'keydown', e => { if (e.key === 'Escape' && top.parent){ e.preventDefault(); go(top.parent); } });
+    // the agents under the map: each one's mark and avatar, as in the tree, its share and its cost
     function legend(){
-      key.innerHTML = M.T.kids.map(k => `<li style="${atrVars(k)}" data-s="${k.s}"><span class="atr-x-av" aria-hidden="true">${I(k.ic)}</span><span class="t">${k.n}</span><span class="tg"></span><span class="p num"></span><span class="c num"></span></li>`).join('');
+      key.innerHTML = M.T.kids.map(k => `<li>${atrG(k.s)}${atrWho(k)}<span class="t">${k.n}</span><span class="p num"></span><span class="c num"></span></li>`).join('');
       M.T.kids.forEach((k, i) => { k.li = key.children[i]; });
     }
-    // each agent's state, as a tag in the colour its blocks have
-    const TG = { run:'<span class="tag warn"><span class="spin"></span>Running</span>', done:`<span class="tag ok">${I('check','xs')}Done</span>`, fail:'<span class="tag bad">Failed</span>', queued:'<span class="tag">Queued</span>' };
     let k10 = 0;
     function paint(full){
       const total = M.sum(M.T);
-      tot.textContent = atrMoney(total);
-      M.all.forEach(n => { const v = $('.v', n.b); const t = n.s === 'queued' && !M.sum(n) ? 'Queued' : atrMoney(M.sum(n)); if (v.textContent !== t) v.textContent = t; });
+      M.all.forEach(n => { const v = $('.v', n.b), t = n.s === 'queued' && !M.sum(n) ? 'Queued' : atrMoney(M.sum(n)); if (v.textContent !== t) v.textContent = t; });
       M.T.kids.forEach(k => { const p = Math.round(M.sum(k) / total * 100) + '%', cc = atrMoney(M.sum(k)); if ($('.p', k.li).textContent !== p) $('.p', k.li).textContent = p; if ($('.c', k.li).textContent !== cc) $('.c', k.li).textContent = cc; });
       // the blocks are laid out again twice a second, and glide to their new widths
       if (full || ++k10 % 5 === 0) lay();
-      st.textContent = (M.ended ? 'Done in ' : 'Running · ') + atrClock(M.ended || M.t0);
+      if (head) head();
     }
-    M = atrModel(c, (ev, n) => {
-      if (ev === 'state'){ n.b.dataset.s = n.s; if (n.lv === 1){ n.li.dataset.s = n.s; $('.tg', n.li).innerHTML = TG[n.s]; } }
-      if (ev === 'ask'){ const li = n.parent.li, b = html('<button class="pill sm atr-x-fix" type="button">Fix</button>'); b.dataset.tip = 'Use color.accent.500'; $('.tg', li).after(b); b.onclick = () => { b.remove(); M.fix && M.fix(); }; shown = '<b>Apply library tokens</b> failed: color.accent.600 is not in the library'; tell(null); }
-      if (ev === 'state' && n.id === 'des3' && n.s === 'run'){ const b = $('.atr-x-fix', key); if (b) b.remove(); shown = ''; tell(null); }
+    const mark = (g, m) => { if (g.dataset.m !== m){ g.dataset.m = m; g.innerHTML = atrMark(m); if (!REDUCE && (m === 'done' || m === 'fail')){ g.removeAttribute('data-drw'); void g.offsetWidth; g.setAttribute('data-drw', ''); } } };
+    // the way on for an agent, in its row: Fix for its failed step, Approve for the post
+    function way(k, label, tip, run){ const b = html(`<button class="pill sm primary atr-x-fix" type="button">${label}</button>`); b.dataset.tip = tip; $('.c', k.li).after(b); b.onclick = () => { b.remove(); run(); }; }
+    M = atrModel(c, (ev, n, k) => {
+      if (ev === 'state' || ev === 'join'){ n.b.dataset.s = n.s; mark($('.atr-g', n.b), atrM(n)); if (n.lv === 1) mark($('.atr-g', n.li), n.s); }
+      if (ev === 'ask' && k === 'fix'){ way(n.parent, 'Fix', 'Use accent.500', () => M.fix && M.fix()); shown = `<b>${n.n}</b> failed: accent.600 is not in the library`; tell(null); }
+      if (ev === 'ask' && k === 'ok'){ way(n.parent, 'Approve', 'Post the blurbs to #pricing', () => M.ok && M.ok()); shown = `<b>${n.n}</b> needs your OK`; tell(null); }
+      // a way on the demo took goes, and so does what it said
+      if (ev === 'state' && n.lv === 2 && (n.dim || n.s === 'done')){ const b = $('.atr-x-fix', n.parent.li); if (b) b.remove(); shown = ''; tell(null); }
       if (ev === 'end'){ shown = `Done: ${atrMoney(M.sum(M.T))} across 3 agents, most of it on design`; tell(null); }
       paint(ev !== 'tick');
     });
-    top = M.T; blocks(); legend(); M.T.kids.forEach(k => { $('.tg', k.li).innerHTML = TG[k.s]; }); crumbs(); paint(true);
-    // the person in the demo: reads the design agent's block, takes the fix, zooms into the design agent and back out
+    top = M.T; blocks(); legend(); crumbs(); head = atrHead(r, M); paint(true);
+    // the person in the demo: reads the design agent's block, takes the fix, zooms into the design agent and back out, then
+    // approves the post
     c.story(async s => {
       await s.beat(4); await s.point(M.by('des').b); tell(M.by('des')); await s.beat(3); s.away(); tell(null);
       await s.until(() => $('.atr-x-fix', key)); await s.beat(3);
       await s.tap($('.atr-x-fix', key)); s.away(); await s.beat(2);
       await s.tap(M.by('des').b); s.away(); await s.beat(4);
       await s.tap($('button', crumb)); s.away();
+      await s.until(() => $('.atr-x-fix', key)); await s.beat(3); await s.tap($('.atr-x-fix', key)); s.away();
       await s.until(() => M.ended); await s.beat(4);
     });
   }

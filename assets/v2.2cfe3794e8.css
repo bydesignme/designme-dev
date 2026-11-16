@@ -1266,139 +1266,90 @@
 .v2 .dm.atr-dm{min-height:0;gap:var(--s-5);padding-top:var(--dmy,0px)}
 .v2 .atr-dm>.dm-main>*{width:100%}
 .v2.stage-in:has(>.atr-dm){align-self:auto;display:block}
-/* the two new designs: each agent has its avatar in the avatar colours (--a, its ink --ai), the orchestrator's is ink.
-   Green is done, red needs a fix, and the accent marks what is running */
-.v2 .atr-x-av{position:relative;width:24px;height:24px;border-radius:var(--r-sm);display:grid;place-items:center;flex:none;background:var(--a);color:var(--ai)}
-.v2 .atr-x-av .i{width:12px;height:12px;stroke-width:1.9}
-.v2 .atr-x-g{width:16px;height:16px;display:grid;place-items:center;flex:none;color:var(--faint)}
-.v2 .atr-x-g .spin{width:11px;height:11px;color:var(--accent-mark)}
-.v2 [data-s="done"]>.atr-x-g{color:var(--ok)}
-.v2 [data-s="fail"]>.atr-x-g{color:var(--bad)}
-.v2 .atr-x-fix{flex:none;background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
-@media (hover:hover) and (pointer:fine){.v2 .atr-x-fix:hover{background:var(--surface);box-shadow:var(--shadow-pop)}}
-/* Cost tree: the tree, with each branch's share of the whole run as a bar. Cost is the accent: each agent takes a step of
-   it (--k1 to --k3, each 3:1 or more on the surface), in the bar of the whole run and in its rows, so a row's bar and its
-   part of the run match. Lighter steps would drop under 3:1, so the steps run from the accent towards the text colour, and
-   in Blueprint's dark theme, where the lime is already light, towards the surface */
-.v2 .atr-ct{--k1:var(--accent-mark,var(--accent));--k2:color-mix(in oklab,var(--accent-mark,var(--accent)) 78%,var(--fg));--k3:color-mix(in oklab,var(--accent-mark,var(--accent)) 56%,var(--fg));width:100%;padding:6px;display:flex;flex-direction:column}
-:root:not([data-style="soft"])[data-theme="dark"] .v2 .atr-ct{--k2:color-mix(in oklab,var(--accent-mark,var(--accent)) 72%,var(--surface));--k3:color-mix(in oklab,var(--accent-mark,var(--accent)) 50%,var(--surface))}
-@media (prefers-color-scheme:dark){:root:not([data-style="soft"]):not([data-theme="light"]) .v2 .atr-ct{--k2:color-mix(in oklab,var(--accent-mark,var(--accent)) 72%,var(--surface));--k3:color-mix(in oklab,var(--accent-mark,var(--accent)) 50%,var(--surface))}}
-.v2 .atr-ct-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);padding:var(--s-2) 10px 8px}
-.v2 .atr-ct-ht{display:flex;flex-direction:column;min-width:0}
-.v2 .atr-ct-ht b{font-weight:500}
-.v2 .atr-ct-st{font-size:12.5px;color:var(--muted)}
-.v2 .atr-ct-tot{font-size:14px;font-weight:500}
+/* the two other designs take the Classic tree's treatment (owner, 16 Nov): its header, its 14px marks (a ring while queued,
+   a spinner while running, a filled disc with a tick or a cross once done or failed, the accent disc where the run starts,
+   the accent ring while a step waits for a person), its avatars and app logos, and, in Cost tree, its lines and band. Agent
+   colours stay on the avatars; cost is the accent, in one step per agent (--k1 to --k3, each 3:1 or more on the surface).
+   Lighter steps would drop under 3:1, so the steps run from the accent towards the text colour, and in Blueprint's dark
+   theme, where the lime is already light, towards the surface */
+.v2 .atr-ct,.v2 .atr-cm{--k1:var(--accent-mark,var(--accent));--k2:color-mix(in oklab,var(--accent-mark,var(--accent)) 74%,var(--fg));--k3:color-mix(in oklab,var(--accent-mark,var(--accent)) 50%,var(--fg))}
+:root:not([data-style="soft"])[data-theme="dark"] .v2 :is(.atr-ct,.atr-cm){--k2:color-mix(in oklab,var(--accent-mark,var(--accent)) 70%,var(--surface));--k3:color-mix(in oklab,var(--accent-mark,var(--accent)) 46%,var(--surface))}
+@media (prefers-color-scheme:dark){:root:not([data-style="soft"]):not([data-theme="light"]) .v2 :is(.atr-ct,.atr-cm){--k2:color-mix(in oklab,var(--accent-mark,var(--accent)) 70%,var(--surface));--k3:color-mix(in oklab,var(--accent-mark,var(--accent)) 46%,var(--surface))}}
+.v2 .atr-x-fix{flex:none}
+/* Cost tree: the Classic tree with each row's share of the whole run as a bar after its cost, and the run's cost by agent
+   as one bar under the header. A row's bar and its agent's part of the run's bar are the same step of the accent */
+.v2 .atr-ct .atr-h{padding-bottom:var(--s-2)}
 /* the whole run's cost, one bar: each agent's part in its step of the accent, clipped to its stretch (--x0 to --x1, in
-   percent) so it grows without a layout; what is left at the end is the orchestrator's own */
-.v2 .atr-ct-mix{position:relative;height:6px;margin:0 10px 10px;border-radius:3px;overflow:hidden;background:color-mix(in srgb,var(--line) 50%,transparent)}
-.v2 .atr-ct-mix i{position:absolute;inset:0;background:var(--k);clip-path:inset(0 calc(100% - var(--x1,0) * 1% + 1px) 0 calc(var(--x0,0) * 1% + 1px) round 3px);transition:clip-path .8s var(--ease)}
-.v2 .atr-ct-tree{display:flex;flex-direction:column;padding-top:4px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
-.v2 .atr-ct-n{position:relative;display:flex;align-items:center;gap:var(--s-2);min-height:44px;padding:5px 10px 5px calc(6px + var(--lv,0) * 22px);border-radius:calc(10px * var(--rk));font-size:13px;outline:0;transition:background .16s}
-@media (hover:hover) and (pointer:fine){.v2 .atr-ct-n:hover{background:var(--row)}}
-.v2 .atr-ct-n:focus-visible{box-shadow:inset 0 0 0 2px var(--focus)}
-.v2 .atr-ct-tg{width:18px;height:18px;display:grid;place-items:center;flex:none;border-radius:calc(6px * var(--rk));color:var(--muted)}
-.v2 .atr-ct-tg svg{transition:transform .32s var(--ease)}
-.v2 .atr-ct-n[aria-expanded="false"] .atr-ct-tg svg{transform:rotate(-90deg)}
-.v2 .atr-ct-sp{width:18px;flex:none}
-.v2 .atr-ct-t{flex:1;min-width:0;display:flex;flex-direction:column}
-.v2 .atr-ct-t b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.v2 .atr-ct-t span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.v2 .atr-ct-n[data-s="queued"] .atr-ct-t b{color:var(--fg2)}
-/* each row's cost, and its branch's share of the whole as a bar in its agent's step of the accent */
-.v2 .atr-ct-c{display:flex;flex-direction:column;align-items:flex-end;gap:4px;min-width:62px}
-.v2 .atr-ct-c b{font-size:12.5px;font-weight:400;color:var(--fg2)}
-.v2 .atr-ct-c i{display:block;width:56px;height:3px;border-radius:2px;background:color-mix(in srgb,var(--line) 50%,transparent);overflow:hidden;transition:background .16s}
-.v2 .atr-ct-c i span{display:block;height:100%;border-radius:inherit;background:var(--k,var(--k1));transform-origin:left;transform:scaleX(var(--sh,0));transition:transform .5s var(--ease)}
-.v2 .atr-ct-n[data-s="queued"] .atr-ct-c b{color:var(--muted)}
-/* on a grey row the bar's track turns white, and on a red one nothing on it is grey */
-@media (hover:hover) and (pointer:fine){.v2 .atr-ct-n:hover .atr-ct-c i{background:var(--surface)}}
-.v2 .atr-ct-n[data-s="fail"]{background:var(--bad-bg)}
-.v2 .atr-ct-n[data-s="fail"] :is(.atr-ct-t b,.atr-ct-c b,.atr-ct-tg){color:var(--fg)}
-.v2 .atr-ct-n[data-s="fail"] .atr-ct-t span{color:var(--bad)}
-.v2 .atr-ct-n[data-s="fail"] .atr-ct-c i{background:var(--surface)}
-/* the guides: a light grey line down each branch; hovering or focusing a row darkens the path above it a step */
-.v2 .atr-ct-kids{position:relative}
-.v2 .atr-ct-gd{position:absolute;top:0;bottom:8px;left:calc(15px + var(--lv,0) * 22px);width:1.5px;border-radius:1px;background:color-mix(in srgb,var(--line) 90%,transparent);transform-origin:top;transition:background .25s,transform .45s var(--ease);pointer-events:none}
-.v2 .atr-ct-kids.shut>.atr-ct-gd{transform:scaleY(0)}
-.v2 .atr-ct-kids.path>.atr-ct-gd{background:var(--faint)}
-.v2 .atr-ct-n.path .atr-ct-tg{color:var(--fg)}
-.v2 .atr-ct-n .atr-x-fix{margin-top:4px;align-self:flex-start}
-.v2 .atr-ct-sum{display:flex;align-items:center;gap:var(--s-2);margin:var(--s-2) 4px 2px;padding:10px var(--s-3);border-radius:var(--r-in);background:var(--ok-bg);font-size:13px;animation:v2-popin .5s var(--ease)}
-.v2 .atr-ct-sum svg{color:var(--ok);flex:none}
-/* on a phone the tree steps in less and its bars are shorter, so the names keep their room */
-@container (max-width:360px){
-  .v2 .atr-ct-n{padding-left:calc(4px + var(--lv,0) * 16px)}
-  .v2 .atr-ct-gd{left:calc(13px + var(--lv,0) * 16px)}
-  .v2 .atr-ct-c{min-width:46px}
-  .v2 .atr-ct-c i{width:40px}
-}
+   percent) so it grows without a layout, with a 2px gap of the surface between parts; what is left at the end is the
+   orchestrator's own, on the grey track */
+.v2 .atr-ct-mix{position:relative;height:6px;margin:0 var(--s-2) var(--s-3);border-radius:calc(3px * var(--rk));overflow:hidden;background:color-mix(in srgb,var(--line) 50%,transparent)}
+.v2 .atr-ct-mix i{position:absolute;inset:0;background:var(--k);clip-path:inset(0 calc(100% - var(--x1,0) * 1% + 1px) 0 calc(var(--x0,0) * 1% + 1px) round calc(3px * var(--rk)));transition:clip-path .8s var(--ease)}
+/* each row's cost, then its branch's share of the whole as a short bar in its agent's step of the accent */
+.v2 .atr-ct .atr-q{align-items:center;gap:var(--s-2)}
+.v2 .atr-ct .atr-c{min-width:38px;text-align:right}
+.v2 .atr-ct-bar{display:block;width:40px;height:3px;flex:none;border-radius:calc(2px * var(--rk));overflow:hidden;background:color-mix(in srgb,var(--line) 50%,transparent)}
+.v2 .atr-ct-bar span{display:block;height:100%;border-radius:inherit;background:var(--k,var(--k1));transform-origin:left;transform:scaleX(var(--sh,0));transition:transform .5s var(--ease)}
+@media (hover:hover) and (pointer:fine){.v2 .atr-b:hover .atr-ct-bar{background:var(--surface)}}
+.v2 .atr-n[data-dim]>.atr-b .atr-ct-bar span{opacity:.5}
+/* the end: one line with the done mark, under the tree */
+.v2 .atr-ct-sum{display:flex;align-items:center;gap:var(--s-2);margin:var(--s-1) 0 0;padding:var(--s-2);font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .atr-ct-sum b{font-weight:500;color:var(--fg)}
+.v2 .atr-ct-sum[data-in]{animation:v2-atrin .56s var(--atr-ez) backwards}
+@container atr (max-width:360px){.v2 .atr-ct-bar{width:28px}.v2 .atr-ct .atr-c{min-width:34px}}
+/* narrower still, the rows keep their cost and leave the bar to the run's bar above, so the names keep their room */
+@container atr (max-width:340px){.v2 .atr-ct-bar{display:none}}
 :root:not([data-style="soft"]) .v2 .atr-ct-mix i{transition:clip-path .4s steps(4,end)}
-:root:not([data-style="soft"]) .v2 .atr-ct-gd{width:1px;background:repeating-linear-gradient(var(--rail) 0 3px,transparent 3px 6px);transition:transform .3s steps(3,end)}
-:root:not([data-style="soft"]) .v2 .atr-ct-kids.path>.atr-ct-gd{background:var(--faint)}
-:root:not([data-style="soft"]) .v2 .atr-ct-c i span{transition:transform .3s steps(3,end)}
-:root:not([data-style="soft"]) .v2 .atr-ct-n[data-s="fail"]{background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--bad) 10%,transparent) 5px 6px),var(--bad-bg)}
-:root:not([data-style="soft"]) .v2 .atr-ct-sum{animation:v2-bpin .3s var(--ease)}
+:root:not([data-style="soft"]) .v2 .atr-ct-bar span{transition:transform .3s steps(3,end)}
 /* Cost map: every agent and step as a block as wide as its cost, one row for each level. A block's place and width are set
-   with a transform and a clip, so as costs grow and as you zoom, the blocks slide and stretch without a layout. Its colour
-   says how it is doing, as the key under the map says: green is done, amber is running, red failed, and a grey hatch is
-   queued. Each block has a tint of its colour with a line of the colour itself along its top (3:1 or more), and its words
-   in the text colour, so nothing grey sits on a tint. An agent's own work, outside its steps, is a lighter grey hatch */
-.v2 .atr-cm{width:100%;padding:var(--s-3);display:flex;flex-direction:column;gap:10px}
-.v2 .atr-cm-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);padding:2px 2px 0}
-.v2 .atr-cm-ht{display:flex;flex-direction:column;min-width:0}
-.v2 .atr-cm-crumb{display:flex;align-items:center;gap:4px;font-size:13.5px;min-width:0}
+   with a transform and a clip, so as costs grow and as you zoom the blocks slide and stretch without a layout. Blocks are
+   flat: the whole run and finished work grey, the accent tint while at work or waiting for a person, the bad tint when failed, the hover grey
+   while queued, and each carries its state as the tree's mark, so the colour is never the only sign. An agent's own work,
+   outside its steps, is a light grey hatch */
+.v2 .atr-cm{display:flex;flex-direction:column;gap:10px;padding:var(--s-2) var(--s-3) var(--s-3)}
+.v2 .atr-cm .atr-h{padding:var(--s-1) 0 0}
+.v2 .atr-cm-crumb{display:flex;align-items:center;gap:4px;min-width:0;font-size:14px}
 .v2 .atr-cm-crumb button{border-radius:calc(6px * var(--rk));padding:2px 4px;margin:-2px -4px;color:var(--fg2);transition:background .2s,color .2s}
 @media (hover:hover) and (pointer:fine){.v2 .atr-cm-crumb button:hover{background:var(--row);color:var(--fg)}}
 .v2 .atr-cm-crumb b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .v2 .atr-cm-crumb .i{color:var(--faint)}
-.v2 .atr-cm-st{font-size:12.5px;color:var(--muted)}
-.v2 .atr-cm-tot{font-size:14px;font-weight:500}
-.v2 .atr-cm-map{position:relative;height:calc(3 * 52px + 2 * 4px);overflow:hidden;border-radius:calc(12px * var(--rk))}
-.v2 .atr-cm-b{--st:transparent;position:absolute;left:0;top:calc(var(--lv) * 56px);width:100%;height:52px;transform:translateX(var(--x,0px));transition:transform .7s var(--ease),clip-path .7s var(--ease),opacity .4s;text-align:left;outline:0;clip-path:inset(0 calc(100% - var(--w,0px)) 0 0 round 10px)}
-.v2 .atr-cm-b .bg{position:absolute;inset:0;overflow:hidden;background-color:var(--chip);transition:background-color .3s}
-.v2 .atr-cm-b .k{position:absolute;left:0;right:0;top:0;height:3px;background:var(--st);transition:background .3s}
-.v2 .atr-cm-b:not(.lv0,.own)[data-s="done"]{--st:var(--ok)}
-.v2 .atr-cm-b:not(.lv0,.own)[data-s="done"] .bg{background-color:var(--ok-bg)}
-.v2 .atr-cm-b:not(.lv0,.own)[data-s="run"]{--st:var(--warn-mark)}
-.v2 .atr-cm-b:not(.lv0,.own)[data-s="run"] .bg{background-color:var(--warn-bg)}
-.v2 .atr-cm-b:not(.lv0,.own)[data-s="fail"]{--st:var(--bad-mark)}
-.v2 .atr-cm-b:not(.lv0,.own)[data-s="fail"] .bg{background-color:var(--bad-bg)}
-.v2 .atr-cm-b:not(.lv0,.own)[data-s="queued"] .bg{background-image:repeating-linear-gradient(135deg,transparent 0 4px,color-mix(in srgb,var(--fg) 8%,transparent) 4px 5px);background-color:var(--surface)}
-.v2 .atr-cm-b.own .bg{background-image:repeating-linear-gradient(135deg,transparent 0 4px,color-mix(in srgb,var(--fg) 7%,transparent) 4px 5px);background-color:var(--row)}
-/* a block at work carries a passing light, moved with a transform */
-.v2 .atr-cm-b .sh{display:none;position:absolute;top:0;bottom:0;left:0;width:var(--w,0px);background:linear-gradient(100deg,transparent 35%,color-mix(in srgb,var(--fg) 6%,transparent) 50%,transparent 65%);transform:translateX(-100%);animation:v2-atrsheen 1.8s linear infinite}
-.v2 .atr-cm-b:not(.lv0)[data-s="run"] .sh{display:block}
-@keyframes v2-atrsheen{to{transform:translateX(100%)}}
-/* under the pointer a block takes a neutral step darker, keeping its colour */
-.v2 .atr-cm-b:not(.lv0,.own):focus-visible .bg{background-image:linear-gradient(color-mix(in srgb,var(--fg) 5%,transparent),color-mix(in srgb,var(--fg) 5%,transparent))}
-@media (hover:hover) and (pointer:fine){.v2 .atr-cm-b:not(.lv0,.own):hover .bg{background-image:linear-gradient(color-mix(in srgb,var(--fg) 5%,transparent),color-mix(in srgb,var(--fg) 5%,transparent))}}
+.v2 .atr-cm-map{position:relative;height:calc(3 * 52px + 2 * 4px);overflow:hidden}
+.v2 .atr-cm-b{position:absolute;left:0;top:calc(var(--lv) * 56px);width:100%;height:52px;transform:translateX(var(--x,0px));transition:transform .7s var(--ease),clip-path .7s var(--ease),opacity .4s;text-align:left;outline:0;clip-path:inset(0 calc(100% - var(--w,0px)) 0 0 round calc(8px * var(--rk)))}
+.v2 .atr-cm-b .bg{position:absolute;inset:0;background-color:var(--chip);transition:background-color .3s}
+.v2 .atr-cm-b:not(.lv0):is([data-s="run"],[data-s="wait"]) .bg{background-color:color-mix(in srgb,var(--atr-run) 14%,var(--surface))}
+.v2 .atr-cm-b:not(.lv0)[data-s="fail"] .bg{background-color:var(--bad-bg)}
+.v2 .atr-cm-b:not(.lv0)[data-s="queued"] .bg{background-color:var(--row)}
+.v2 .atr-cm-b.own .bg{background-color:var(--row);background-image:repeating-linear-gradient(135deg,transparent 0 4px,color-mix(in srgb,var(--fg) 7%,transparent) 4px 5px)}
+/* under the pointer a block takes a neutral step darker, keeping its tint */
+.v2 .atr-cm-b:not(.own):focus-visible .bg{background-image:linear-gradient(color-mix(in srgb,var(--fg) 5%,transparent),color-mix(in srgb,var(--fg) 5%,transparent))}
+@media (hover:hover) and (pointer:fine){.v2 .atr-cm-b:not(.own):hover .bg{background-image:linear-gradient(color-mix(in srgb,var(--fg) 5%,transparent),color-mix(in srgb,var(--fg) 5%,transparent))}}
 .v2 .atr-cm-b:focus-visible .atr-cm-l b{text-decoration:underline;text-decoration-color:var(--focus);text-underline-offset:3px;text-decoration-thickness:2px}
-.v2 .atr-cm-l{position:absolute;left:10px;top:9px;right:8px;display:flex;flex-direction:column;font-size:12.5px;line-height:1.35;white-space:nowrap;pointer-events:none;color:var(--fg)}
-.v2 .atr-cm-l b{font-weight:500}
-.v2 .atr-cm-l span{font-size:11.5px;font-variant-numeric:tabular-nums}
+.v2 .atr-cm-l{position:absolute;left:8px;top:8px;width:calc(var(--w,0px) - 16px);display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:6px;align-items:center;font-size:12.5px;line-height:1.35;white-space:nowrap;pointer-events:none;color:var(--fg);transition:opacity .3s}
+.v2 .atr-cm-l .atr-g{grid-row:1}
+.v2 .atr-cm-l b{font-weight:500;overflow:hidden;text-overflow:ellipsis}
+.v2 .atr-cm-l .v{grid-column:2;font-size:12px;color:var(--fg2);font-variant-numeric:tabular-nums}
 .v2 .atr-cm-b.gone{opacity:0;pointer-events:none}
-/* the key to the colours, under the map */
-.v2 .atr-cm-lg{list-style:none;margin:-2px 0 0;padding:0 2px;display:flex;flex-wrap:wrap;gap:2px 14px;font-size:12px;color:var(--muted)}
+/* a block too narrow for its words keeps its mark; one too narrow for that keeps only its tint (its tooltip says the rest) */
+.v2 .atr-cm-l[data-fit="mark"]>:not(.atr-g){opacity:0}
+.v2 .atr-cm-l[data-fit="none"]{opacity:0}
+/* the key to the blocks, under the map: the marks, and the hatch for an agent's own work */
+.v2 .atr-cm-lg{list-style:none;margin:-2px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--muted)}
 .v2 .atr-cm-lg li{display:inline-flex;align-items:center;gap:6px}
-.v2 .atr-cm-lg i{width:10px;height:10px;border-radius:3px;background:var(--st);flex:none}
-.v2 .atr-cm-lg [data-s="done"]{--st:var(--ok)}.v2 .atr-cm-lg [data-s="run"]{--st:var(--warn-mark)}.v2 .atr-cm-lg [data-s="fail"]{--st:var(--bad-mark)}
-.v2 .atr-cm-lg [data-s="queued"] i{background:repeating-linear-gradient(135deg,transparent 0 2px,color-mix(in srgb,var(--fg) 55%,transparent) 2px 3px),var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--fg) 55%,transparent)}
+.v2 .atr-cm-lg .atr-g{transform:scale(.86)}
+.v2 .atr-cm-lg .own{width:12px;height:12px;flex:none;border-radius:calc(3px * var(--rk));background:var(--row) repeating-linear-gradient(135deg,transparent 0 2px,color-mix(in srgb,var(--fg) 30%,transparent) 2px 3px)}
 .v2 .atr-cm-say{min-height:20px;font-size:12.5px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .v2 .atr-cm-say b{font-weight:500;color:var(--fg)}
-.v2 .atr-cm-key{list-style:none;margin:0;padding:6px 0 0;display:flex;flex-direction:column;gap:2px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
-.v2 .atr-cm-key li{display:flex;align-items:center;gap:var(--s-2);min-height:32px;padding:0 4px;font-size:12.5px}
-.v2 .atr-cm-key .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.v2 .atr-cm-key .p{width:38px;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
-.v2 .atr-cm-key .c{width:44px;text-align:right;color:var(--fg2);font-variant-numeric:tabular-nums}
-.v2 .atr-cm-key .tag .spin{width:9px;height:9px}
-.v2 .atr-cm-key .atr-x-fix{margin-left:4px}
+/* each agent: its mark and avatar, as in the tree, its share and its cost, and the way on when it needs one */
+.v2 .atr-cm-key{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.v2 .atr-cm-key li{display:flex;align-items:center;gap:var(--s-2);min-height:36px;padding:0 var(--s-1);font-size:13px}
+.v2 .atr-cm-key .t{flex:1;min-width:0;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .atr-cm-key .p{width:38px;text-align:right;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.v2 .atr-cm-key .c{width:44px;text-align:right;font-size:12px;color:var(--fg2);font-variant-numeric:tabular-nums}
+.v2 .atr-cm-key .pill{margin-left:2px}
 /* on a phone the key leaves out each agent's share, which its blocks already show, so the names keep their room */
-@container (max-width:360px){.v2 .atr-cm-key .p{display:none}}
+@container atr (max-width:360px){.v2 .atr-cm-key .p{display:none}}
 :root:not([data-style="soft"]) .v2 .atr-cm-b{clip-path:inset(0 calc(100% - var(--w,0px) + 2px) 0 0);transition-duration:.45s;transition-timing-function:steps(5,end)}
-:root:not([data-style="soft"]) .v2 .atr-cm-b:not(.lv0,.own)[data-s="run"] .bg{background-image:repeating-linear-gradient(135deg,transparent 0 4px,color-mix(in srgb,var(--warn) 16%,transparent) 4px 5px)}
-:root:not([data-style="soft"]) .v2 .atr-cm-b:not(.lv0,.own)[data-s="fail"] .bg{background-image:repeating-linear-gradient(135deg,transparent 0 4px,color-mix(in srgb,var(--bad) 16%,transparent) 4px 5px)}
-:root:not([data-style="soft"]) .v2 .atr-cm-b .sh{display:none}
-:root:not([data-style="soft"]) .v2 .atr-cm-lg i{border-radius:0}
+:root:not([data-style="soft"]) .v2 .atr-cm-b[data-s="fail"] .bg{background-image:repeating-linear-gradient(135deg,transparent 0 4px,color-mix(in srgb,var(--bad) 14%,transparent) 4px 5px)}
+:root:not([data-style="soft"]) .v2 .atr-cm-lg .own{border-radius:0}
 /* ---------- Agent inbox ---------- */
 /* every run in one list, grouped by what it needs: Needs you, Running, Done. A run glides to its new group when it moves */
 .v2 .aib{width:100%;max-width:440px;margin:0 auto;padding:6px}
