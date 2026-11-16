@@ -161,7 +161,7 @@
   try { var a = localStorage.getItem('dmui-accent'); if (a && a !== 'default') window.dmAccent(a); } catch(e){}
 })();
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Composer","description":"Composer is the box where a person writes a task for a design or coding agent and sends it. Besides the text, it lets them attach files and frames, pick what the agent works on, choose what the agent may do (ask, edit or plan), and dictate instead of typing.","url":"https://designme.dev/components/composer","image":"https://designme.dev/components/og/composer.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Composer, Conversation, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Conversation","item":"https://designme.dev/#s-conversation"},{"@type":"ListItem","position":3,"name":"Composer","item":"https://designme.dev/components/composer"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does the composer record audio itself?","acceptedAnswer":{"@type":"Answer","text":"No. onDictate tells you the person pressed the microphone, and you start listening, set dictating and write what you hear into value. The clock counts by itself, or pass dictationSeconds."}},{"@type":"Question","name":"What happens to the text when dictation is cancelled?","acceptedAnswer":{"@type":"Answer","text":"The composer remembers the text from before dictation started. Cancel, or Escape in the text box, puts it back and calls onDictationEnd(false), while Done keeps the dictated text and calls onDictationEnd(true)."}},{"@type":"Question","name":"How do I show a file that is still uploading or failed?","acceptedAnswer":{"@type":"Answer","text":"Give the attachment status: 'loading' while it uploads and 'error' if it fails. Send stays disabled until every attachment is ready, and Try again on a failed one calls onRetry with its key."}},{"@type":"Question","name":"Can people send a message with only an attachment?","acceptedAnswer":{"@type":"Answer","text":"Yes. Send is enabled as soon as there is text or an attachment, once every attachment has loaded, and it is disabled while busy is true."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Composer ---------- */
-.cpx{display:flex;flex-direction:column;justify-content:flex-end;gap:14px;overflow-anchor:none}
+.cpx{display:flex;flex-direction:column;justify-content:flex-end;gap:14px;overflow-anchor:none;container-type:inline-size}
 /* neither the composer nor the box it sits in anchors the page's scroll, so the page stays put as the thread grows and clears */
 .stage-in:has(>.cpx){overflow-anchor:none}
 /* on a card the composer keeps the room the conversation will take, with the box at its foot, so the box stays put */
@@ -196,6 +196,8 @@
 @media (hover:hover) and (pointer:fine){.cpx-bar .chip:hover{background:var(--dm-row);color:var(--dm-fg)}}
 .cpx-bar .chip>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cpx-bar .chip>svg:last-child{color:var(--dm-muted)}
+/* a narrow box: the context and mode chips keep only their icon (the name stays for screen readers, and in the tooltip) */
+@container (max-width:400px){.cpx-bar .chip{padding:0 8px}.cpx-bar .chip>span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.cpx-bar .chip>svg:last-child{display:none}}
 .cpx-send{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--dm-accent);color:var(--dm-on-accent);flex:none;transition:opacity .32s,transform .16s,background .16s}
 @media (hover:hover) and (pointer:fine){.cpx-send:hover{background:var(--dm-accent-2)}}
 .cpx-send:active{transform:scale(.92)}
@@ -651,9 +653,9 @@ export function Composer({
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>composer.css<span class="l">React · 51 lines</span></summary><pre class="cp-pre" data-name="composer.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>composer.css<span class="l">React · 53 lines</span></summary><pre class="cp-pre" data-name="composer.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Composer ---------- */
-.dm-cpx{display:flex;flex-direction:column;justify-content:flex-end;gap:14px;overflow-anchor:none}
+.dm-cpx{display:flex;flex-direction:column;justify-content:flex-end;gap:14px;overflow-anchor:none;container-type:inline-size}
 /* neither the composer nor the box it sits in anchors the page&#39;s scroll, so the page stays put as the thread grows and clears */
 .dm-stage-in:has(&gt;.dm-cpx){overflow-anchor:none}
 /* on a card the composer keeps the room the conversation will take, with the box at its foot, so the box stays put */
@@ -688,6 +690,8 @@ export function Composer({
 @media (hover:hover) and (pointer:fine){.dm-cpx-bar .dm-chip:hover{background:var(--dm-row);color:var(--dm-fg)}}
 .dm-cpx-bar .dm-chip&gt;span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dm-cpx-bar .dm-chip&gt;svg:last-child{color:var(--dm-muted)}
+/* a narrow box: the context and mode chips keep only their icon (the name stays for screen readers, and in the tooltip) */
+@container (max-width:400px){.dm-cpx-bar .dm-chip{padding:0 8px}.dm-cpx-bar .dm-chip&gt;span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.dm-cpx-bar .dm-chip&gt;svg:last-child{display:none}}
 .dm-cpx-send{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--dm-accent);color:var(--dm-on-accent);flex:none;transition:opacity .32s,transform .16s,background .16s}
 @media (hover:hover) and (pointer:fine){.dm-cpx-send:hover{background:var(--dm-accent-2)}}
 .dm-cpx-send:active{transform:scale(.92)}
@@ -807,8 +811,8 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>composer.css<span class="l">HTML · 50 lines</span></summary><pre class="cp-pre" data-name="composer.css"><code>/* ---------- Composer ---------- */
-.cpx{display:flex;flex-direction:column;justify-content:flex-end;gap:14px;overflow-anchor:none}
+</code></pre></details><details class="cp-file"><summary>composer.css<span class="l">HTML · 52 lines</span></summary><pre class="cp-pre" data-name="composer.css"><code>/* ---------- Composer ---------- */
+.cpx{display:flex;flex-direction:column;justify-content:flex-end;gap:14px;overflow-anchor:none;container-type:inline-size}
 /* neither the composer nor the box it sits in anchors the page&#39;s scroll, so the page stays put as the thread grows and clears */
 .stage-in:has(&gt;.cpx){overflow-anchor:none}
 /* on a card the composer keeps the room the conversation will take, with the box at its foot, so the box stays put */
@@ -843,6 +847,8 @@ const { class: className, ...rest } = Astro.props;
 @media (hover:hover) and (pointer:fine){.cpx-bar .chip:hover{background:var(--dm-row);color:var(--dm-fg)}}
 .cpx-bar .chip&gt;span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cpx-bar .chip&gt;svg:last-child{color:var(--dm-muted)}
+/* a narrow box: the context and mode chips keep only their icon (the name stays for screen readers, and in the tooltip) */
+@container (max-width:400px){.cpx-bar .chip{padding:0 8px}.cpx-bar .chip&gt;span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.cpx-bar .chip&gt;svg:last-child{display:none}}
 .cpx-send{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--dm-accent);color:var(--dm-on-accent);flex:none;transition:opacity .32s,transform .16s,background .16s}
 @media (hover:hover) and (pointer:fine){.cpx-send:hover{background:var(--dm-accent-2)}}
 .cpx-send:active{transform:scale(.92)}

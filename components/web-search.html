@@ -616,22 +616,22 @@ const { class: className, ...rest } = Astro.props;
     swap(st, `${Q.length} searches, ${read} pages read`); say(`Done: ${Q.length} searches, ${read} pages read`);
     await c.wait(400); hold(root); setOpen(false);
     const A = &#39;Stripe caps metered usage at 100 million events a month for each meter [1]. Metronome and Orb both take events in bulk with no monthly cap [2]. At your volume Stripe still fits, with room to grow.&#39;.split(&#39; &#39;);
-    for (let i = 1; i &lt;= A.length; i++){ ans.innerHTML = A.slice(0, i).join(&#39; &#39;).replace(/\[(\d)\]/g, (m, k) =&gt; `&lt;button class=&quot;wsx-cite&quot; data-c=&quot;${k}&quot; aria-label=&quot;Source ${k}: ${$(&#39;.t&#39;, pages[k].li).textContent}, ${pages[k].d}&quot; data-tip=&quot;${$(&#39;.t&#39;, pages[k].li).textContent} · ${pages[k].d}&quot;&gt;${k}&lt;/button&gt;`); await c.wait(50); }
+    for (let i = 1; i &lt;= A.length; i++){ ans.innerHTML = A.slice(0, i).join(&#39; &#39;).replace(/\[(\d)\]/g, (m, k) =&gt; `&lt;button class=&quot;wsx-cite&quot; data-n=&quot;${k}&quot; aria-label=&quot;Source ${k}: ${$(&#39;.t&#39;, pages[k].li).textContent}, ${pages[k].d}&quot; data-tip=&quot;${$(&#39;.t&#39;, pages[k].li).textContent} · ${pages[k].d}&quot;&gt;${k}&lt;/button&gt;`); await c.wait(50); }
 
   });
   // a citation lights the page it came from (and the query that found it), and its site&#39;s mark
-  const light = k =&gt; { $$(&#39;.wsx-r.hl, .wsx-q.hl&#39;, r).forEach(x =&gt; x.classList.remove(&#39;hl&#39;)); $$(&#39;.wsx-marks span&#39;, r).forEach(x =&gt; x.classList.remove(&#39;hl&#39;)); $$(&#39;.wsx-cite&#39;, r).forEach(x =&gt; x.classList.toggle(&#39;on&#39;, x.dataset.c === k)); if (!k) return;
+  const light = k =&gt; { $$(&#39;.wsx-r.hl, .wsx-q.hl&#39;, r).forEach(x =&gt; x.classList.remove(&#39;hl&#39;)); $$(&#39;.wsx-marks span&#39;, r).forEach(x =&gt; x.classList.remove(&#39;hl&#39;)); $$(&#39;.wsx-cite&#39;, r).forEach(x =&gt; x.classList.toggle(&#39;on&#39;, x.dataset.n === k)); if (!k) return;
     const p = pages[k]; const shown = !$(&#39;.fold&#39;, p.q).classList.contains(&#39;shut&#39;) &amp;&amp; head.getAttribute(&#39;aria-expanded&#39;) === &#39;true&#39;; (shown ? p.li : p.q).classList.add(&#39;hl&#39;); const m = $(`.wsx-marks span[data-s=&quot;${p.d}&quot;]`, r); if (m) m.classList.add(&#39;hl&#39;); };
-  c.on(ans, &#39;pointerover&#39;, e =&gt; { const b = e.target.closest(&#39;.wsx-cite&#39;); if (b) light(b.dataset.c); });
+  c.on(ans, &#39;pointerover&#39;, e =&gt; { const b = e.target.closest(&#39;.wsx-cite&#39;); if (b) light(b.dataset.n); });
   c.on(ans, &#39;pointerout&#39;, e =&gt; { const b = e.target.closest(&#39;.wsx-cite&#39;); if (b &amp;&amp; !b.contains(e.relatedTarget)) light(null); });
-  c.on(ans, &#39;focusin&#39;, e =&gt; { const b = e.target.closest(&#39;.wsx-cite&#39;); if (b) light(b.dataset.c); });
+  c.on(ans, &#39;focusin&#39;, e =&gt; { const b = e.target.closest(&#39;.wsx-cite&#39;); if (b) light(b.dataset.n); });
   c.on(ans, &#39;focusout&#39;, () =&gt; light(null));
   // the preview&#39;s story: open the trail again, open the search that found source 2, and point at [2]
   if (r === c.st) c.story(async s =&gt; {
-    await s.until(() =&gt; done &amp;&amp; $(&#39;.wsx-cite[data-c=&quot;2&quot;]&#39;, r)); await s.beat(4);
+    await s.until(() =&gt; done &amp;&amp; $(&#39;.wsx-cite[data-n=&quot;2&quot;]&#39;, r)); await s.beat(4);
     await s.tap(head); await s.beat(2);
     await s.tap($(&#39;.wsx-q[data-k=&quot;2&quot;] .wsx-qh&#39;, r)); await s.beat(2);
-    const b = $(&#39;.wsx-cite[data-c=&quot;2&quot;]&#39;, r); await s.point(b); light(&#39;2&#39;); await s.beat(4);
+    const b = $(&#39;.wsx-cite[data-n=&quot;2&quot;]&#39;, r); await s.point(b); light(&#39;2&#39;); await s.beat(4);
     light(null); s.away(); await s.beat(2);
   });
 });
@@ -1023,22 +1023,22 @@ const fitHits = window.dmFitHits || (() => {
     swap(st, `${Q.length} searches, ${read} pages read`); say(`Done: ${Q.length} searches, ${read} pages read`);
     await c.wait(400); hold(root); setOpen(false);
     const A = 'Stripe caps metered usage at 100 million events a month for each meter [1]. Metronome and Orb both take events in bulk with no monthly cap [2]. At your volume Stripe still fits, with room to grow.'.split(' ');
-    for (let i = 1; i <= A.length; i++){ ans.innerHTML = A.slice(0, i).join(' ').replace(/\[(\d)\]/g, (m, k) => `<button class="wsx-cite" data-c="${k}" aria-label="Source ${k}: ${$('.t', pages[k].li).textContent}, ${pages[k].d}" data-tip="${$('.t', pages[k].li).textContent} · ${pages[k].d}">${k}</button>`); await c.wait(50); }
+    for (let i = 1; i <= A.length; i++){ ans.innerHTML = A.slice(0, i).join(' ').replace(/\[(\d)\]/g, (m, k) => `<button class="wsx-cite" data-n="${k}" aria-label="Source ${k}: ${$('.t', pages[k].li).textContent}, ${pages[k].d}" data-tip="${$('.t', pages[k].li).textContent} · ${pages[k].d}">${k}</button>`); await c.wait(50); }
 
   });
   // a citation lights the page it came from (and the query that found it), and its site's mark
-  const light = k => { $$('.wsx-r.hl, .wsx-q.hl', r).forEach(x => x.classList.remove('hl')); $$('.wsx-marks span', r).forEach(x => x.classList.remove('hl')); $$('.wsx-cite', r).forEach(x => x.classList.toggle('on', x.dataset.c === k)); if (!k) return;
+  const light = k => { $$('.wsx-r.hl, .wsx-q.hl', r).forEach(x => x.classList.remove('hl')); $$('.wsx-marks span', r).forEach(x => x.classList.remove('hl')); $$('.wsx-cite', r).forEach(x => x.classList.toggle('on', x.dataset.n === k)); if (!k) return;
     const p = pages[k]; const shown = !$('.fold', p.q).classList.contains('shut') && head.getAttribute('aria-expanded') === 'true'; (shown ? p.li : p.q).classList.add('hl'); const m = $(`.wsx-marks span[data-s="${p.d}"]`, r); if (m) m.classList.add('hl'); };
-  c.on(ans, 'pointerover', e => { const b = e.target.closest('.wsx-cite'); if (b) light(b.dataset.c); });
+  c.on(ans, 'pointerover', e => { const b = e.target.closest('.wsx-cite'); if (b) light(b.dataset.n); });
   c.on(ans, 'pointerout', e => { const b = e.target.closest('.wsx-cite'); if (b && !b.contains(e.relatedTarget)) light(null); });
-  c.on(ans, 'focusin', e => { const b = e.target.closest('.wsx-cite'); if (b) light(b.dataset.c); });
+  c.on(ans, 'focusin', e => { const b = e.target.closest('.wsx-cite'); if (b) light(b.dataset.n); });
   c.on(ans, 'focusout', () => light(null));
   // the preview's story: open the trail again, open the search that found source 2, and point at [2]
   if (r === c.st) c.story(async s => {
-    await s.until(() => done && $('.wsx-cite[data-c="2"]', r)); await s.beat(4);
+    await s.until(() => done && $('.wsx-cite[data-n="2"]', r)); await s.beat(4);
     await s.tap(head); await s.beat(2);
     await s.tap($('.wsx-q[data-k="2"] .wsx-qh', r)); await s.beat(2);
-    const b = $('.wsx-cite[data-c="2"]', r); await s.point(b); light('2'); await s.beat(4);
+    const b = $('.wsx-cite[data-n="2"]', r); await s.point(b); light('2'); await s.beat(4);
     light(null); s.away(); await s.beat(2);
   });
 });

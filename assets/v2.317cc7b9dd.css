@@ -838,7 +838,7 @@
 .v2 .trv-sc{position:relative;height:18px}
 .v2 .trv-sc span{position:absolute;top:0;transform:translateX(-50%);font-size:12px}
 .v2 .trv-sc span:first-child{transform:none}
-.v2 .trv-rows{display:flex;flex-direction:column;padding-bottom:var(--s-1)}
+.v2 .trv-rows{display:flex;flex-direction:column;padding-bottom:var(--s-1);min-height:calc(var(--n,0) * 32px + var(--s-1))}
 .v2 .trv-r{width:100%;min-height:32px;border-radius:calc(10px * var(--rk));font-size:13px;text-align:left;transition:background .16s}
 @media (hover:hover) and (pointer:fine){.v2 .trv-r:hover{background:var(--row)}}
 .v2 .trv-r[aria-expanded="true"]{background:var(--sel)}
@@ -1430,6 +1430,18 @@
 .v2 .art-f>span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
 .v2 .art-f b{color:var(--fg);font-weight:500}
 @media (max-width:600px){.v2 .art{--lab:112px;--dur:38px}.v2 .art-lab{gap:6px;padding-right:var(--s-2)}.v2 .art-lab .tag{display:none}.v2 .art-f{gap:var(--s-2) var(--s-4)}}
+/* a phone: each step's name sits on its own line above its bar, so it is read in full; the bars take the whole width */
+@media (max-width:480px){
+  .v2 .art{--lab:0px}
+  .v2 .art-row{height:auto;grid-template-rows:auto 22px;row-gap:2px;padding:5px 0 3px}
+  .v2 .art-row .art-lab{grid-column:1/-1;grid-row:1;padding-right:0}
+  .v2 .art-row .art-lab .t{white-space:normal;overflow:visible}
+  .v2 .art-row .art-lane{grid-column:2;grid-row:2;height:22px}
+  .v2 .art-row .art-d{grid-column:3;grid-row:2}
+  .v2 .art-bar{top:4px}
+  .v2 .art-ic{width:20px;height:20px}
+  .v2 .art-link{top:-35px;height:39px}
+}
 :root:not([data-style="soft"]) .v2 .art-ic{--ring:inset 0 0 0 1px color-mix(in srgb,var(--k) 35%,transparent)}
 :root:not([data-style="soft"]) .v2 .art-row[data-k="app"] .art-ic{--ring:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}
 :root:not([data-style="soft"]) .v2 .art-row[data-s="run"] .art-ic{animation:v2-artbp 1s steps(1,end) infinite}
@@ -1491,7 +1503,7 @@
 .v2 .lva-fu button{display:inline-flex;align-items:center;gap:var(--s-2);padding:6px var(--s-3) 6px 10px;border-radius:var(--r-pill);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent);font-size:13px;color:var(--fg2);transition:color .2s,box-shadow .2s,transform .2s var(--ease)}
 @media (hover:hover) and (pointer:fine){.v2 .lva-fu button:hover{color:var(--fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--faint) 50%,transparent)}}
 /* ---------- Composer ---------- */
-.v2 .cpx{display:flex;flex-direction:column;justify-content:flex-end;gap:14px;overflow-anchor:none}
+.v2 .cpx{display:flex;flex-direction:column;justify-content:flex-end;gap:14px;overflow-anchor:none;container-type:inline-size}
 /* neither the composer nor the box it sits in anchors the page's scroll, so the page stays put as the thread grows and clears */
 .v2.stage-in:has(>.cpx){overflow-anchor:none}
 /* on a card the composer keeps the room the conversation will take, with the box at its foot, so the box stays put */
@@ -1526,6 +1538,8 @@
 @media (hover:hover) and (pointer:fine){.v2 .cpx-bar .chip:hover{background:var(--row);color:var(--fg)}}
 .v2 .cpx-bar .chip>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .v2 .cpx-bar .chip>svg:last-child{color:var(--muted)}
+/* a narrow box: the context and mode chips keep only their icon (the name stays for screen readers, and in the tooltip) */
+@container (max-width:400px){.v2 .cpx-bar .chip{padding:0 8px}.v2 .cpx-bar .chip>span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.v2 .cpx-bar .chip>svg:last-child{display:none}}
 .v2 .cpx-send{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent,#fff);flex:none;transition:opacity .32s,transform .16s,background .16s}
 @media (hover:hover) and (pointer:fine){.v2 .cpx-send:hover{background:var(--accent-2)}}
 .v2 .cpx-send:active{transform:scale(.92)}
@@ -2295,7 +2309,7 @@
 .v2 .pgx-o input{position:absolute;opacity:0;pointer-events:none}
 .v2 .pgx-o .bx{width:18px;height:18px;border-radius:calc(6px * var(--rk));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--muted) 80%,var(--surface));display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--ease),box-shadow .3s,color .3s}
 .v2 .pgx-o .bx svg{transform:scale(.4);transition:transform .35s var(--ease)}
-.v2 .pgx-o input:checked+.bx{background:var(--accent);box-shadow:inset 0 0 0 1px var(--accent-mark,var(--accent));color:var(--on-accent,#fff)}
+.v2 .pgx-o input:checked+.bx{background:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent-mark,var(--accent));color:var(--on-accent,#fff)}
 .v2 .pgx-o input:checked+.bx svg{transform:none}
 .v2 .pgx-o input:focus-visible+.bx{outline:2px solid var(--focus);outline-offset:2px}
 .v2 .pgx-o .t{flex:1;min-width:0}
@@ -2342,7 +2356,7 @@
 .v2 .plx-list{list-style:none;margin:0 -6px;padding:0;display:flex;flex-direction:column;counter-reset:s}
 .v2 .plx-s{display:flex;align-items:flex-start;gap:10px;padding:7px 6px;border-radius:calc(10px * var(--rk));font-size:13px;transition:background .25s,opacity .35s;position:relative}
 @media (hover:hover) and (pointer:fine){.v2 .plx-s:hover{background:var(--row)}}
-.v2 .plx-s .n{width:20px;height:20px;border-radius:50%;background:var(--chip);display:grid;place-items:center;font-size:11px;font-family:var(--mono);color:var(--fg2);flex:none;transition:background .35s,color .35s}
+.v2 .plx-s .n{width:20px;height:20px;border-radius:50%;background:var(--chip);display:grid;place-items:center;font-size:11px;font-variant-numeric:tabular-nums;color:var(--muted);flex:none;transition:background .35s,color .35s}
 @media (hover:hover) and (pointer:fine){.v2 .plx-s:hover .n{background:var(--surface)}}
 .v2 .plx-s .b{flex:1;min-width:0;display:flex;flex-direction:column}
 .v2 .plx-s .t{min-width:0;outline:0;border-radius:5px;padding:1px 3px;margin:0 -3px;line-height:1.5}
@@ -3216,6 +3230,8 @@
 /* the canvas reads as a workflow editor: a dot every 16px, all the way to its edges */
 .v2 .acx-cv{position:relative;height:560px;min-height:100%;border-radius:inherit;outline:0;background-color:var(--stage);background-image:radial-gradient(circle at center,color-mix(in srgb,var(--fg) 14%,transparent) 1.1px,transparent 1.6px);background-size:16px 16px;background-position:center}
 @container acx (max-width:559px){.v2 .acx-cv{height:640px}}
+/* a phone: two steps fit side by side, and a step's detail wraps rather than being cut */
+@container acx (max-width:559px){.v2 .acx-n.acx-n{width:min(176px,calc(50% - 14px))}.v2 .acx-n.acx-n .t span{white-space:normal;text-wrap:pretty}}
 /* in a stage the canvas takes all of it, so the stage's own room goes */
 .v2.stage-in.wide:has(>.acx){max-width:none;align-self:stretch}
 /* the view: the steps and wires sit on a world that pans and zooms inside the canvas, and the dots move with it. Drag the
@@ -3701,7 +3717,7 @@
 .v2 .hnx-t.chk .ic::after{width:10px;height:10px;right:-3px;bottom:-3px;box-sizing:border-box;background:var(--surface);border:1.5px solid var(--accent-mark,var(--accent));border-right-color:transparent;box-shadow:0 0 0 2px var(--surface);animation:v2-rot .8s linear infinite}
 .v2 .hnx-t .t{flex:1;min-width:0;display:flex;flex-direction:column}
 .v2 .hnx-t .t span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.v2 .hnx-t.err .t span{color:var(--bad)}
+.v2 .hnx-t.err .t span{color:var(--bad);white-space:normal;text-wrap:pretty}
 /* the same pill switch as every other segmented switch; its track darkens with a hovered row so it never melts into it */
 .v2 .hnx-pm{display:grid;grid-template-columns:repeat(3,auto);padding:2px;border-radius:var(--r-pill);background:var(--chip);position:relative;transition:background-color .2s}
 @media (hover:hover) and (pointer:fine){.v2 .hnx-t:hover .hnx-pm{background:color-mix(in srgb,var(--fg) 8%,transparent)}}

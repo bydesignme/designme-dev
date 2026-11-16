@@ -5,10 +5,10 @@ import { AutomationCanvas, type AutomationCatalog, type AutomationEdge, type Aut
 import { useStory, useWait } from './useScript';
 
 const NODES: AutomationNode[] = [
-  { id: 't', icon: 'clock', color: 'var(--dm-py)', title: 'Schedule', detail: 'Mondays 9:00', x: .14, y: .4, narrow: { x: .27, y: .07 }, field: { label: 'When', options: ['Mondays 9:00', 'Every weekday', 'On new Figma version'] } },
-  { id: 'a', icon: 'figma', color: 'var(--dm-pl)', title: 'Read frames', detail: 'Pricing, Checkout', x: .4, y: .22, narrow: { x: .27, y: .2 }, field: { label: 'Frames', options: ['Pricing, Checkout', 'All frames', 'Changed this week'] } },
-  { id: 'b', icon: 'spark', color: 'var(--dm-accent)', title: 'Agent: audit', detail: 'Contrast, tokens', x: .4, y: .58, narrow: { x: .73, y: .33 }, field: { label: 'Checks', options: ['Contrast, tokens', 'Everything', 'Accessibility only'] }, connectors: ['model', 'tools'] },
-  { id: 'c', icon: 'send', color: 'var(--dm-pm)', title: 'Post summary', detail: '#design in Slack', x: .78, y: .4, narrow: { x: .27, y: .64 }, field: { label: 'Channel', options: ['#design in Slack', 'Email the team', 'Linear ticket'] } }
+  { id: 't', icon: 'clock', color: 'var(--dm-py)', title: 'Schedule', detail: 'Mondays 9:00', x: .14, y: .4, narrow: { x: .5, y: .07 }, field: { label: 'When', options: ['Mondays 9:00', 'Every weekday', 'On new Figma version'] } },
+  { id: 'a', icon: 'figma', color: 'var(--dm-pl)', title: 'Read frames', detail: 'Pricing, Checkout', x: .4, y: .22, narrow: { x: .25, y: .33 }, field: { label: 'Frames', options: ['Pricing, Checkout', 'All frames', 'Changed this week'] } },
+  { id: 'b', icon: 'spark', color: 'var(--dm-accent)', title: 'Agent: audit', detail: 'Contrast, tokens', x: .4, y: .58, narrow: { x: .75, y: .33 }, field: { label: 'Checks', options: ['Contrast, tokens', 'Everything', 'Accessibility only'] }, connectors: ['model', 'tools'] },
+  { id: 'c', icon: 'send', color: 'var(--dm-pm)', title: 'Post summary', detail: '#design in Slack', x: .78, y: .4, narrow: { x: .5, y: .66 }, field: { label: 'Channel', options: ['#design in Slack', 'Email the team', 'Linear ticket'] } }
 ];
 const EDGES: AutomationEdge[] = [['t', 'a'], ['t', 'b'], ['a', 'c'], ['b', 'c']];
 

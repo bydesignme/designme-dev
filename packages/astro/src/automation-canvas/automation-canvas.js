@@ -48,8 +48,10 @@ DM.def('automation-canvas', (r, c) => {
   const wide = (n, W, w) => { const pad = Math.max(20, W * .06); return { x:{ t:pad + w / 2, a:W / 2, b:W / 2, c:W - pad - w / 2 }[n.id] / W, y:band(n.y) }; };
   // narrow: the steps go down the left of the canvas, with the agent on its own on the right, so its model and tools have
   // room under it
-  const NARROWAT = { t:['l', .07], a:['l', .2], b:['r', .33], c:['l', .64] };
-  const pos = (n, W, w) => (narrow() ? n.um : n.uw) || (n.add ? null : narrow() ? { x:(NARROWAT[n.id][0] === 'l' ? 6 + w / 2 : W - 6 - w / 2) / W, y:band(NARROWAT[n.id][1]) } : wide(n, W, w));
+  // (a phone, 16 Nov: the flow reads top to bottom as a diamond, the trigger over the two steps it starts, side by side, and
+  // the summary under both, so no wire runs behind a step)
+  const NARROWAT = { t:['c', .07], a:['l', .33], b:['r', .33], c:['c', .66] };
+  const pos = (n, W, w) => (narrow() ? n.um : n.uw) || (n.add ? null : narrow() ? { x:({ l:6 + w / 2, r:W - 6 - w / 2, c:W / 2 })[NARROWAT[n.id][0]] / W, y:band(NARROWAT[n.id][1]) } : wide(n, W, w));
   const nodeHTML = n => `<button class="acx-n${n.kind ? ' sm' : ''}" data-id="${n.id}"><span class="ic" style="color:${n.fg || n.col};background:color-mix(in srgb,${n.col} 14%,transparent)">${I(n.ic,'xs')}</span><span class="t"><b>${n.t}</b><span class="d">${n.d}</span></span></button>`;
   nodes.innerHTML = N.map(nodeHTML).join('');
   const el = id => $(`.acx-n[data-id="${id}"]`, nodes);

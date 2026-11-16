@@ -517,22 +517,22 @@ DM.def('web-search', (r, c) => {
     swap(st, `${Q.length} searches, ${read} pages read`); say(`Done: ${Q.length} searches, ${read} pages read`);
     await c.wait(400); hold(root); setOpen(false);
     const A = 'Stripe caps metered usage at 100 million events a month for each meter [1]. Metronome and Orb both take events in bulk with no monthly cap [2]. At your volume Stripe still fits, with room to grow.'.split(' ');
-    for (let i = 1; i <= A.length; i++){ ans.innerHTML = A.slice(0, i).join(' ').replace(/\[(\d)\]/g, (m, k) => `<button class="wsx-cite" data-c="${k}" aria-label="Source ${k}: ${$('.t', pages[k].li).textContent}, ${pages[k].d}" data-tip="${$('.t', pages[k].li).textContent} · ${pages[k].d}">${k}</button>`); await c.wait(50); }
+    for (let i = 1; i <= A.length; i++){ ans.innerHTML = A.slice(0, i).join(' ').replace(/\[(\d)\]/g, (m, k) => `<button class="wsx-cite" data-n="${k}" aria-label="Source ${k}: ${$('.t', pages[k].li).textContent}, ${pages[k].d}" data-tip="${$('.t', pages[k].li).textContent} · ${pages[k].d}">${k}</button>`); await c.wait(50); }
 
   });
   // a citation lights the page it came from (and the query that found it), and its site's mark
-  const light = k => { $$('.wsx-r.hl, .wsx-q.hl', r).forEach(x => x.classList.remove('hl')); $$('.wsx-marks span', r).forEach(x => x.classList.remove('hl')); $$('.wsx-cite', r).forEach(x => x.classList.toggle('on', x.dataset.c === k)); if (!k) return;
+  const light = k => { $$('.wsx-r.hl, .wsx-q.hl', r).forEach(x => x.classList.remove('hl')); $$('.wsx-marks span', r).forEach(x => x.classList.remove('hl')); $$('.wsx-cite', r).forEach(x => x.classList.toggle('on', x.dataset.n === k)); if (!k) return;
     const p = pages[k]; const shown = !$('.fold', p.q).classList.contains('shut') && head.getAttribute('aria-expanded') === 'true'; (shown ? p.li : p.q).classList.add('hl'); const m = $(`.wsx-marks span[data-s="${p.d}"]`, r); if (m) m.classList.add('hl'); };
-  c.on(ans, 'pointerover', e => { const b = e.target.closest('.wsx-cite'); if (b) light(b.dataset.c); });
+  c.on(ans, 'pointerover', e => { const b = e.target.closest('.wsx-cite'); if (b) light(b.dataset.n); });
   c.on(ans, 'pointerout', e => { const b = e.target.closest('.wsx-cite'); if (b && !b.contains(e.relatedTarget)) light(null); });
-  c.on(ans, 'focusin', e => { const b = e.target.closest('.wsx-cite'); if (b) light(b.dataset.c); });
+  c.on(ans, 'focusin', e => { const b = e.target.closest('.wsx-cite'); if (b) light(b.dataset.n); });
   c.on(ans, 'focusout', () => light(null));
   // the preview's story: open the trail again, open the search that found source 2, and point at [2]
   if (r === c.st) c.story(async s => {
-    await s.until(() => done && $('.wsx-cite[data-c="2"]', r)); await s.beat(4);
+    await s.until(() => done && $('.wsx-cite[data-n="2"]', r)); await s.beat(4);
     await s.tap(head); await s.beat(2);
     await s.tap($('.wsx-q[data-k="2"] .wsx-qh', r)); await s.beat(2);
-    const b = $('.wsx-cite[data-c="2"]', r); await s.point(b); light('2'); await s.beat(4);
+    const b = $('.wsx-cite[data-n="2"]', r); await s.point(b); light('2'); await s.beat(4);
     light(null); s.away(); await s.beat(2);
   });
 });

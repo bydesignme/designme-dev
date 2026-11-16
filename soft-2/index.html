@@ -883,7 +883,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .trv-sc{position:relative;height:18px}
 .trv-sc span{position:absolute;top:0;transform:translateX(-50%);font-size:12px}
 .trv-sc span:first-child{transform:none}
-.trv-rows{display:flex;flex-direction:column;padding-bottom:var(--s-1)}
+.trv-rows{display:flex;flex-direction:column;padding-bottom:var(--s-1);min-height:calc(var(--n,0) * 32px + var(--s-1))}
 .trv-r{width:100%;min-height:32px;border-radius:calc(10px * var(--rk));font-size:13px;text-align:left;transition:background .16s}
 .trv-r:hover{background:var(--row)}
 .trv-r[aria-expanded="true"]{background:var(--sel)}
@@ -1469,6 +1469,18 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .art-f>span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
 .art-f b{color:var(--fg);font-weight:500}
 @media (max-width:600px){.art{--lab:112px;--dur:38px}.art-lab{gap:6px;padding-right:var(--s-2)}.art-lab .tag{display:none}.art-f{gap:var(--s-2) var(--s-4)}}
+/* a phone: each step's name sits on its own line above its bar, so it is read in full; the bars take the whole width */
+@media (max-width:480px){
+  .art{--lab:0px}
+  .art-row{height:auto;grid-template-rows:auto 22px;row-gap:2px;padding:5px 0 3px}
+  .art-row .art-lab{grid-column:1/-1;grid-row:1;padding-right:0}
+  .art-row .art-lab .t{white-space:normal;overflow:visible}
+  .art-row .art-lane{grid-column:2;grid-row:2;height:22px}
+  .art-row .art-d{grid-column:3;grid-row:2}
+  .art-bar{top:4px}
+  .art-ic{width:20px;height:20px}
+  .art-link{top:-35px;height:39px}
+}
 :root[data-style="bp"] .art-ic{--ring:inset 0 0 0 1px color-mix(in srgb,var(--k) 35%,transparent)}
 :root[data-style="bp"] .art-row[data-k="app"] .art-ic{--ring:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}
 :root[data-style="bp"] .art-row[data-s="run"] .art-ic{animation:artbp 1s steps(1,end) infinite}
@@ -1526,7 +1538,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .lva-fu button{display:inline-flex;align-items:center;gap:var(--s-2);padding:6px var(--s-3) 6px 10px;border-radius:var(--r-pill);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent);font-size:13px;color:var(--fg2);transition:color .2s,box-shadow .2s,transform .2s var(--ease)}
 .lva-fu button:hover{color:var(--fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--faint) 50%,transparent)}
 /* ---------- Composer ---------- */
-.cpx{display:flex;flex-direction:column;justify-content:flex-end;gap:14px;overflow-anchor:none}
+.cpx{display:flex;flex-direction:column;justify-content:flex-end;gap:14px;overflow-anchor:none;container-type:inline-size}
 /* neither the composer nor the box it sits in anchors the page's scroll, so the page stays put as the thread grows and clears */
 .stage-in:has(>.cpx){overflow-anchor:none}
 /* on a card the composer keeps the room the conversation will take, with the box at its foot, so the box stays put */
@@ -1560,6 +1572,8 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .cpx-bar .chip:hover,.cpx-bar .chip[aria-expanded="true"]{background:var(--row);color:var(--fg)}
 .cpx-bar .chip>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cpx-bar .chip>svg:last-child{color:var(--muted)}
+/* a narrow box: the context and mode chips keep only their icon (the name stays for screen readers, and in the tooltip) */
+@container (max-width:400px){.cpx-bar .chip{padding:0 8px}.cpx-bar .chip>span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.cpx-bar .chip>svg:last-child{display:none}}
 .cpx-send{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent);flex:none;transition:opacity .32s,transform .16s,background .16s}
 .cpx-send:hover{background:var(--accent-2)}
 .cpx-send:active{transform:scale(.92)}
@@ -2318,7 +2332,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .pgx-o input{position:absolute;opacity:0;pointer-events:none}
 .pgx-o .bx{width:18px;height:18px;border-radius:calc(6px * var(--rk));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--muted) 80%,var(--surface));display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--ease),box-shadow .3s,color .3s}
 .pgx-o .bx svg{transform:scale(.4);transition:transform .35s var(--ease)}
-.pgx-o input:checked+.bx{background:var(--accent);box-shadow:inset 0 0 0 1px var(--accent-mark,var(--accent));color:var(--on-accent)}
+.pgx-o input:checked+.bx{background:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent-mark,var(--accent));color:var(--on-accent)}
 .pgx-o input:checked+.bx svg{transform:none}
 .pgx-o input:focus-visible+.bx{outline:2px solid var(--focus);outline-offset:2px}
 .pgx-o .t{flex:1;min-width:0}
@@ -2364,7 +2378,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .plx-list{list-style:none;margin:0 -6px;padding:0;display:flex;flex-direction:column;counter-reset:s}
 .plx-s{display:flex;align-items:flex-start;gap:10px;padding:7px 6px;border-radius:calc(10px * var(--rk));font-size:13px;transition:background .25s,opacity .35s;position:relative}
 .plx-s:hover{background:var(--row)}
-.plx-s .n{width:20px;height:20px;border-radius:50%;background:var(--chip);display:grid;place-items:center;font-size:11px;font-family:var(--mono);color:var(--fg2);flex:none;transition:background .35s,color .35s}
+.plx-s .n{width:20px;height:20px;border-radius:50%;background:var(--chip);display:grid;place-items:center;font-size:11px;font-variant-numeric:tabular-nums;color:var(--muted);flex:none;transition:background .35s,color .35s}
 .plx-s:hover .n{background:var(--surface)}
 .plx-s .b{flex:1;min-width:0;display:flex;flex-direction:column}
 .plx-s .t{min-width:0;outline:0;border-radius:5px;padding:1px 3px;margin:0 -3px;line-height:1.5}
@@ -3230,6 +3244,8 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 /* the canvas reads as a workflow editor: a dot every 16px, all the way to its edges */
 .acx-cv{position:relative;height:560px;min-height:100%;border-radius:inherit;outline:0;background-color:var(--stage);background-image:radial-gradient(circle at center,color-mix(in srgb,var(--fg) 14%,transparent) 1.1px,transparent 1.6px);background-size:16px 16px;background-position:center}
 @container acx (max-width:559px){.acx-cv{height:640px}}
+/* a phone: two steps fit side by side, and a step's detail wraps rather than being cut */
+@container acx (max-width:559px){.acx-n.acx-n{width:min(176px,calc(50% - 14px))}.acx-n.acx-n .t span{white-space:normal;text-wrap:pretty}}
 /* in a stage the canvas takes all of it, so the stage's own room goes */
 .card.wide .stage-in:has(>.acx){max-width:none;align-self:stretch}
 /* the view: the steps and wires sit on a world that pans and zooms inside the canvas, and the dots move with it. Drag the
@@ -3708,7 +3724,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .hnx-t.chk .ic::after{width:10px;height:10px;right:-3px;bottom:-3px;box-sizing:border-box;background:var(--surface);border:1.5px solid var(--accent);border-right-color:transparent;box-shadow:0 0 0 2px var(--surface);animation:rot .8s linear infinite}
 .hnx-t .t{flex:1;min-width:0;display:flex;flex-direction:column}
 .hnx-t .t span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hnx-t.err .t span{color:var(--bad)}
+.hnx-t.err .t span{color:var(--bad);white-space:normal;text-wrap:pretty}
 /* the same pill switch as every other segmented switch; its track darkens with a hovered row so it never melts into it */
 .hnx-pm{display:grid;grid-template-columns:repeat(3,auto);padding:2px;border-radius:var(--r-pill);background:var(--chip);position:relative;transition:background-color .2s}
 .hnx-t:hover .hnx-pm{background:color-mix(in srgb,var(--fg) 8%,transparent)}
@@ -9868,6 +9884,10 @@ DM.def('agent-inbox', (r, c) => {
   ];
   const GR = [['needs', 'Needs you'], ['run', 'Running'], ['done', 'Done']];
   const gs = $('.aib-gs', r), st = $('.aib-st', r);
+  // the inbox is at its fullest when it first shows; once a run leaves it the panel keeps that height, so it never shrinks in
+  // its stage and stays centred (16 Nov)
+  const ib = r.classList.contains('aib') ? r : $('.aib', r);
+  if (ib) c.later(900, () => { ib.style.minHeight = Math.ceil(ib.getBoundingClientRect().height) + 'px'; });
   gs.innerHTML = GR.map(([k, n]) => `<section class="aib-g" data-g="${k}" aria-label="${n}"><div class="aib-gh"><span>${n}</span><span class="n"></span></div><div class="aib-gl" role="list"></div></section>`).join('');
   const clock = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
   const meta = x => x.g === 'needs' ? x.why : x.g === 'run' ? x.doing : x.a;
@@ -9946,6 +9966,8 @@ DM.def('trace-view', (r, c) => {
   // an agent span counts the tokens of every span under it
   S.forEach((x, i) => { x.kids = []; for (let j = i + 1; j < S.length && S[j].lv > x.lv; j++) x.kids.push(S[j]); });
   const root = $('.trv', r), rows = $('.trv-rows', r), stEl = $('.trv-st', r), tot = $('.trv-tot', r), dt = $('.trv-dt', r), dc = $('.trv-dc', r), lg = $('.trv-lg', r);
+  // room for every span from the start, so the panel never grows (and re-centres in its stage) as spans arrive
+  rows.style.setProperty('--n', S.length);
   // the key: every kind but the agents, with its colour and how many of its spans have started
   const KEYS = ['llm', 'tool', 'ret'];
   lg.innerHTML = KEYS.map(k => `<span role="listitem" class="z" data-k="${k}" style="--k:${K[k][2]}"><i></i>${K[k][0]} <b class="num">0</b></span>`).join('');
@@ -12633,6 +12655,20 @@ DM.def('plan-review', (r, c) => {
     $('.plx-x', s).onclick = () => { const off = s.classList.toggle('off'); $('.plx-x', s).dataset.tip = off ? 'Include step' : 'Skip step'; $('.plx-x', s).setAttribute('aria-label', off ? 'Include step' : 'Skip step'); $('.plx-x', s).innerHTML = I(off ? 'undo' : 'x', 'xs'); count(); };
   }
   $$('.plx-s', list).forEach((s, i) => bind(s, S[i][1]));
+  // the room the plan needs at its tallest (every step with its done line under it, the rate-limit line the longest of
+  // them) is kept from the start, so the panel never grows or shrinks in its stage and sits centred at every moment
+  // (16 Nov; as Agent tree). Measured on a hidden copy at the panel's width, again when the width changes
+  const root = $('.plx', r);
+  const tallest = () => {
+    const p = root.cloneNode(true);
+    p.style.cssText = `position:absolute;left:0;top:0;width:${root.offsetWidth}px;min-height:0;visibility:hidden;pointer-events:none`;
+    p.setAttribute('aria-hidden', 'true'); p.inert = true;
+    $$('.plx-s', p).forEach((x, i) => { const d = $('.d', x); d.classList.add('on'); d.style.transition = 'none'; d.firstElementChild.textContent = i === 1 ? 'Rate limited by the browser tool. Retrying in 3s' : (S[i] ? S[i][1] : 'Done'); });
+    root.parentElement.appendChild(p); const h = p.offsetHeight; p.remove(); return h;
+  };
+  let pw = -1;
+  const keep = () => { const w = root.offsetWidth; if (!w || w === pw) return; pw = w; root.style.minHeight = tallest() + 'px'; };
+  keep(); const ro = new ResizeObserver(keep); ro.observe(root); c.offs.push(() => ro.disconnect());
   $('.plx-add', r).onclick = () => { const s = html(row(['New step'], $$('.plx-s', list).length)); list.appendChild(s); enter(s); bind(s); count(); const t = $('.t', s); t.focus({ preventScroll:true }); document.getSelection().selectAllChildren(t); };
   $('.plx-chg', r).onclick = () => { swap($('.plx-n', r), 'Tell the agent what to change in chat'); };
   const clock = ms => { const s = Math.floor(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
@@ -13879,8 +13915,10 @@ DM.def('automation-canvas', (r, c) => {
   const wide = (n, W, w) => { const pad = Math.max(20, W * .06); return { x:{ t:pad + w / 2, a:W / 2, b:W / 2, c:W - pad - w / 2 }[n.id] / W, y:band(n.y) }; };
   // narrow: the steps go down the left of the canvas, with the agent on its own on the right, so its model and tools have
   // room under it
-  const NARROWAT = { t:['l', .07], a:['l', .2], b:['r', .33], c:['l', .64] };
-  const pos = (n, W, w) => (narrow() ? n.um : n.uw) || (n.add ? null : narrow() ? { x:(NARROWAT[n.id][0] === 'l' ? 6 + w / 2 : W - 6 - w / 2) / W, y:band(NARROWAT[n.id][1]) } : wide(n, W, w));
+  // (a phone, 16 Nov: the flow reads top to bottom as a diamond, the trigger over the two steps it starts, side by side, and
+  // the summary under both, so no wire runs behind a step)
+  const NARROWAT = { t:['c', .07], a:['l', .33], b:['r', .33], c:['c', .66] };
+  const pos = (n, W, w) => (narrow() ? n.um : n.uw) || (n.add ? null : narrow() ? { x:({ l:6 + w / 2, r:W - 6 - w / 2, c:W / 2 })[NARROWAT[n.id][0]] / W, y:band(NARROWAT[n.id][1]) } : wide(n, W, w));
   const nodeHTML = n => `<button class="acx-n${n.kind ? ' sm' : ''}" data-id="${n.id}"><span class="ic" style="color:${n.fg || n.col};background:color-mix(in srgb,${n.col} 14%,transparent)">${I(n.ic,'xs')}</span><span class="t"><b>${n.t}</b><span class="d">${n.d}</span></span></button>`;
   nodes.innerHTML = N.map(nodeHTML).join('');
   const el = id => $(`.acx-n[data-id="${id}"]`, nodes);
@@ -14916,6 +14954,22 @@ DM.def('memory-panel', (r, c) => {
     el.animate([{ height:'0px', paddingTop:'0px', paddingBottom:'0px', marginBottom:-gap + 'px', opacity:0, filter:'blur(4px)', overflow:'hidden' }, { height:cs.height, paddingTop:cs.paddingTop, paddingBottom:cs.paddingBottom, marginBottom:'0px', opacity:1, filter:'blur(0px)', overflow:'hidden' }], { duration:560, easing:ease }); };
   seg($('.mmx-tab', r), v => { f = v; paint(); });
   count(); paint();
+  // the room the list needs once the agent has learned its new rule (one more row, at the top, with its New tag) is kept from
+  // the start, so the panel never grows in its stage and stays centred (16 Nov; as Agent tree). Measured on a hidden copy at
+  // the panel's width, again when the width changes
+  const mroot = r.classList.contains('mmx') ? r : $('.mmx', r);
+  if (mroot){
+    const tallest = () => {
+      const p = mroot.cloneNode(true);
+      p.style.cssText = `position:absolute;left:0;top:0;width:${mroot.offsetWidth}px;min-height:0;visibility:hidden;pointer-events:none`;
+      p.setAttribute('aria-hidden', 'true'); p.inert = true;
+      $('.mmx-list', p).prepend(item({ id:-1, k:'brand', t:'Use “Start free” instead of “Sign up” on CTAs', from:'figma', s:'Your edit in Pricing v4, just now', isNew:true }));
+      mroot.parentElement.appendChild(p); const h = p.offsetHeight; p.remove(); return h;
+    };
+    let mw = -1;
+    const keep = () => { const w = mroot.offsetWidth; if (!w || w === mw) return; mw = w; mroot.style.minHeight = tallest() + 'px'; };
+    keep(); const ro = new ResizeObserver(keep); ro.observe(mroot); c.offs.push(() => ro.disconnect());
+  }
   // the preview: the agent learns a rule from your edit in Figma, then drafts an email in Gmail with three memories, which
   // pulse as it reads them. Every state lives in the memories' data, so switching tabs keeps it; taking over settles it
   c.run(async () => {
@@ -14984,6 +15038,22 @@ DM.def('tool-connections', (r, c) => {
     if (pm){ const b = html(`<button class="pill accent sm">Reconnect</button>`); pm.replaceWith(b); enter(b);
       b.onclick = () => c.run(async () => { b.innerHTML = '<span class="spin"></span>'; await c.wait(900); bad.classList.remove('err'); bad._t.ok = true; const n = row(bad._t); bad.replaceWith(n); swap(st, [...list.children].filter(el => el._t[4] > 0).length + ' of ' + [...list.children].filter(el => el._t[4] > 0).length + ' healthy'); }); }
   });
+  // the room the list needs at its tallest (Slack's expired token, which wraps on a narrow panel, with Reconnect in place of
+  // its switch) is kept from the start, so the panel never grows or shrinks in its stage (16 Nov; as Agent tree)
+  const hp = r.classList.contains('hnx') ? r : $('.hnx', r);
+  if (hp){
+    const tallest = () => {
+      const p = hp.cloneNode(true);
+      p.style.cssText = `position:absolute;left:0;top:0;width:${hp.offsetWidth}px;min-height:0;visibility:hidden;pointer-events:none`;
+      p.setAttribute('aria-hidden', 'true'); p.inert = true;
+      const sl = [...p.querySelectorAll('.hnx-t')].find(x => /^Slack/.test(($('.t', x) || x).textContent));
+      if (sl){ sl.classList.add('err'); const d = $('.t span', sl); if (d) d.textContent = 'Token expired. Reconnect to use it'; }
+      hp.parentElement.appendChild(p); const h = p.offsetHeight; p.remove(); return h;
+    };
+    let hw = -1;
+    const keep = () => { const w = hp.offsetWidth; if (!w || w === hw) return; hw = w; hp.style.minHeight = tallest() + 'px'; };
+    keep(); const ro = new ResizeObserver(keep); ro.observe(hp); c.offs.push(() => ro.disconnect());
+  }
   // the preview's story: test everything, Slack's token has expired, reconnect it, and every connection is healthy
   c.story(async s => {
     await s.beat(3);
@@ -19779,22 +19849,22 @@ DM.def('web-search', (r, c) => {
     swap(st, `${Q.length} searches, ${read} pages read`); say(`Done: ${Q.length} searches, ${read} pages read`);
     await c.wait(400); hold(root); setOpen(false);
     const A = 'Stripe caps metered usage at 100 million events a month for each meter [1]. Metronome and Orb both take events in bulk with no monthly cap [2]. At your volume Stripe still fits, with room to grow.'.split(' ');
-    for (let i = 1; i <= A.length; i++){ ans.innerHTML = A.slice(0, i).join(' ').replace(/\[(\d)\]/g, (m, k) => `<button class="wsx-cite" data-c="${k}" aria-label="Source ${k}: ${$('.t', pages[k].li).textContent}, ${pages[k].d}" data-tip="${$('.t', pages[k].li).textContent} · ${pages[k].d}">${k}</button>`); await c.wait(50); }
+    for (let i = 1; i <= A.length; i++){ ans.innerHTML = A.slice(0, i).join(' ').replace(/\[(\d)\]/g, (m, k) => `<button class="wsx-cite" data-n="${k}" aria-label="Source ${k}: ${$('.t', pages[k].li).textContent}, ${pages[k].d}" data-tip="${$('.t', pages[k].li).textContent} · ${pages[k].d}">${k}</button>`); await c.wait(50); }
 
   });
   // a citation lights the page it came from (and the query that found it), and its site's mark
-  const light = k => { $$('.wsx-r.hl, .wsx-q.hl', r).forEach(x => x.classList.remove('hl')); $$('.wsx-marks span', r).forEach(x => x.classList.remove('hl')); $$('.wsx-cite', r).forEach(x => x.classList.toggle('on', x.dataset.c === k)); if (!k) return;
+  const light = k => { $$('.wsx-r.hl, .wsx-q.hl', r).forEach(x => x.classList.remove('hl')); $$('.wsx-marks span', r).forEach(x => x.classList.remove('hl')); $$('.wsx-cite', r).forEach(x => x.classList.toggle('on', x.dataset.n === k)); if (!k) return;
     const p = pages[k]; const shown = !$('.fold', p.q).classList.contains('shut') && head.getAttribute('aria-expanded') === 'true'; (shown ? p.li : p.q).classList.add('hl'); const m = $(`.wsx-marks span[data-s="${p.d}"]`, r); if (m) m.classList.add('hl'); };
-  c.on(ans, 'pointerover', e => { const b = e.target.closest('.wsx-cite'); if (b) light(b.dataset.c); });
+  c.on(ans, 'pointerover', e => { const b = e.target.closest('.wsx-cite'); if (b) light(b.dataset.n); });
   c.on(ans, 'pointerout', e => { const b = e.target.closest('.wsx-cite'); if (b && !b.contains(e.relatedTarget)) light(null); });
-  c.on(ans, 'focusin', e => { const b = e.target.closest('.wsx-cite'); if (b) light(b.dataset.c); });
+  c.on(ans, 'focusin', e => { const b = e.target.closest('.wsx-cite'); if (b) light(b.dataset.n); });
   c.on(ans, 'focusout', () => light(null));
   // the preview's story: open the trail again, open the search that found source 2, and point at [2]
   if (r === c.st) c.story(async s => {
-    await s.until(() => done && $('.wsx-cite[data-c="2"]', r)); await s.beat(4);
+    await s.until(() => done && $('.wsx-cite[data-n="2"]', r)); await s.beat(4);
     await s.tap(head); await s.beat(2);
     await s.tap($('.wsx-q[data-k="2"] .wsx-qh', r)); await s.beat(2);
-    const b = $('.wsx-cite[data-c="2"]', r); await s.point(b); light('2'); await s.beat(4);
+    const b = $('.wsx-cite[data-n="2"]', r); await s.point(b); light('2'); await s.beat(4);
     light(null); s.away(); await s.beat(2);
   });
 });

@@ -19,6 +19,8 @@ DM.def('trace-view', (r, c) => {
   // an agent span counts the tokens of every span under it
   S.forEach((x, i) => { x.kids = []; for (let j = i + 1; j < S.length && S[j].lv > x.lv; j++) x.kids.push(S[j]); });
   const root = $('.trv', r), rows = $('.trv-rows', r), stEl = $('.trv-st', r), tot = $('.trv-tot', r), dt = $('.trv-dt', r), dc = $('.trv-dc', r), lg = $('.trv-lg', r);
+  // room for every span from the start, so the panel never grows (and re-centres in its stage) as spans arrive
+  rows.style.setProperty('--dm-n', S.length);
   // the key: every kind but the agents, with its colour and how many of its spans have started
   const KEYS = ['llm', 'tool', 'ret'];
   lg.innerHTML = KEYS.map(k => `<span role="listitem" class="z" data-k="${k}" style="--dm-k:${K[k][2]}"><i></i>${K[k][0]} <b class="num">0</b></span>`).join('');

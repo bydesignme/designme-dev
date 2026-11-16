@@ -124,7 +124,7 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
         <span className="dm-trv-sc">{labels.map(v => <span key={v} style={{ left: `${(v / span) * 100}%` }}>{v}s</span>)}</span>
         <span className="dm-trv-tk">Tokens</span><span className="dm-trv-ms">Time</span>
       </div>
-      <div ref={rows} className={cx('dm-trv-rows', sel && 'dm-sel')} role="group" aria-label="Spans" onKeyDown={onKey}>
+      <div ref={rows} className={cx('dm-trv-rows', sel && 'dm-sel')} style={{ '--dm-n': all.length } as CSSProperties} role="group" aria-label="Spans" onKeyDown={onKey}>
         {shown.map(row => {
           const { s, lv } = row;
           const [kind, icon, col] = KIND[s.kind], w = took(s), tk = tokensOf(s), run = running(s), sl = slow(s);

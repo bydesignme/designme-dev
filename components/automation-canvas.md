@@ -82,10 +82,10 @@ import { AutomationCanvas, type AutomationCatalog, type AutomationEdge, type Aut
 import { useStory, useWait } from '../lib/useScript';
 
 const NODES: AutomationNode[] = [
-  { id: 't', icon: 'clock', color: 'var(--dm-py)', title: 'Schedule', detail: 'Mondays 9:00', x: .14, y: .4, narrow: { x: .27, y: .07 }, field: { label: 'When', options: ['Mondays 9:00', 'Every weekday', 'On new Figma version'] } },
-  { id: 'a', icon: 'figma', color: 'var(--dm-pl)', title: 'Read frames', detail: 'Pricing, Checkout', x: .4, y: .22, narrow: { x: .27, y: .2 }, field: { label: 'Frames', options: ['Pricing, Checkout', 'All frames', 'Changed this week'] } },
-  { id: 'b', icon: 'spark', color: 'var(--dm-accent)', title: 'Agent: audit', detail: 'Contrast, tokens', x: .4, y: .58, narrow: { x: .73, y: .33 }, field: { label: 'Checks', options: ['Contrast, tokens', 'Everything', 'Accessibility only'] }, connectors: ['model', 'tools'] },
-  { id: 'c', icon: 'send', color: 'var(--dm-pm)', title: 'Post summary', detail: '#design in Slack', x: .78, y: .4, narrow: { x: .27, y: .64 }, field: { label: 'Channel', options: ['#design in Slack', 'Email the team', 'Linear ticket'] } }
+  { id: 't', icon: 'clock', color: 'var(--dm-py)', title: 'Schedule', detail: 'Mondays 9:00', x: .14, y: .4, narrow: { x: .5, y: .07 }, field: { label: 'When', options: ['Mondays 9:00', 'Every weekday', 'On new Figma version'] } },
+  { id: 'a', icon: 'figma', color: 'var(--dm-pl)', title: 'Read frames', detail: 'Pricing, Checkout', x: .4, y: .22, narrow: { x: .25, y: .33 }, field: { label: 'Frames', options: ['Pricing, Checkout', 'All frames', 'Changed this week'] } },
+  { id: 'b', icon: 'spark', color: 'var(--dm-accent)', title: 'Agent: audit', detail: 'Contrast, tokens', x: .4, y: .58, narrow: { x: .75, y: .33 }, field: { label: 'Checks', options: ['Contrast, tokens', 'Everything', 'Accessibility only'] }, connectors: ['model', 'tools'] },
+  { id: 'c', icon: 'send', color: 'var(--dm-pm)', title: 'Post summary', detail: '#design in Slack', x: .78, y: .4, narrow: { x: .5, y: .66 }, field: { label: 'Channel', options: ['#design in Slack', 'Email the team', 'Linear ticket'] } }
 ];
 const EDGES: AutomationEdge[] = [['t', 'a'], ['t', 'b'], ['a', 'c'], ['b', 'c']];
 
@@ -499,7 +499,8 @@ export function AutomationCanvas({
   const layoutKey = narrow ? 'narrow' : 'wide';
   // cards narrow a little when a wide canvas is short of room for three columns of full-size cards; a model or a tool is
   // smaller again, so on a stacked canvas it fits beside the steps in the left-hand column
-  const width = narrow || (!!size && size.w < 700) ? 150 : 176;
+  // (on a phone two cards sit side by side, so they never take more than half the canvas)
+  const width = narrow && size ? Math.min(150, Math.floor(size.w / 2 - 14)) : narrow || (!!size && size.w < 700) ? 150 : 176;
   const widthOf = (n: AutomationNode) => n.attach && n.attach.via !== 'out' ? (narrow ? 124 : width === 150 ? 150 : 168) : width;
   const reduce = useReducedMotion();
   /* the canvas never traps the page: until the person has engaged with it (a click in it, a tap in it, or the keyboard's

@@ -49,6 +49,22 @@ DM.def('memory-panel', (r, c) => {
     el.animate([{ height:'0px', paddingTop:'0px', paddingBottom:'0px', marginBottom:-gap + 'px', opacity:0, filter:'blur(4px)', overflow:'hidden' }, { height:cs.height, paddingTop:cs.paddingTop, paddingBottom:cs.paddingBottom, marginBottom:'0px', opacity:1, filter:'blur(0px)', overflow:'hidden' }], { duration:560, easing:ease }); };
   seg($('.mmx-tab', r), v => { f = v; paint(); });
   count(); paint();
+  // the room the list needs once the agent has learned its new rule (one more row, at the top, with its New tag) is kept from
+  // the start, so the panel never grows in its stage and stays centred (16 Nov; as Agent tree). Measured on a hidden copy at
+  // the panel's width, again when the width changes
+  const mroot = r.classList.contains('mmx') ? r : $('.mmx', r);
+  if (mroot){
+    const tallest = () => {
+      const p = mroot.cloneNode(true);
+      p.style.cssText = `position:absolute;left:0;top:0;width:${mroot.offsetWidth}px;min-height:0;visibility:hidden;pointer-events:none`;
+      p.setAttribute('aria-hidden', 'true'); p.inert = true;
+      $('.mmx-list', p).prepend(item({ id:-1, k:'brand', t:'Use “Start free” instead of “Sign up” on CTAs', from:'figma', s:'Your edit in Pricing v4, just now', isNew:true }));
+      mroot.parentElement.appendChild(p); const h = p.offsetHeight; p.remove(); return h;
+    };
+    let mw = -1;
+    const keep = () => { const w = mroot.offsetWidth; if (!w || w === mw) return; mw = w; mroot.style.minHeight = tallest() + 'px'; };
+    keep(); const ro = new ResizeObserver(keep); ro.observe(mroot); c.offs.push(() => ro.disconnect());
+  }
   // the preview: the agent learns a rule from your edit in Figma, then drafts an email in Gmail with three memories, which
   // pulse as it reads them. Every state lives in the memories' data, so switching tabs keeps it; taking over settles it
   c.run(async () => {

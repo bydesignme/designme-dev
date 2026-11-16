@@ -508,8 +508,10 @@ DM.def('automation-canvas', (r, c) => {
   const wide = (n, W, w) => { const pad = Math.max(20, W * .06); return { x:{ t:pad + w / 2, a:W / 2, b:W / 2, c:W - pad - w / 2 }[n.id] / W, y:band(n.y) }; };
   // narrow: the steps go down the left of the canvas, with the agent on its own on the right, so its model and tools have
   // room under it
-  const NARROWAT = { t:['l', .07], a:['l', .2], b:['r', .33], c:['l', .64] };
-  const pos = (n, W, w) => (narrow() ? n.um : n.uw) || (n.add ? null : narrow() ? { x:(NARROWAT[n.id][0] === 'l' ? 6 + w / 2 : W - 6 - w / 2) / W, y:band(NARROWAT[n.id][1]) } : wide(n, W, w));
+  // (a phone, 16 Nov: the flow reads top to bottom as a diamond, the trigger over the two steps it starts, side by side, and
+  // the summary under both, so no wire runs behind a step)
+  const NARROWAT = { t:['c', .07], a:['l', .33], b:['r', .33], c:['c', .66] };
+  const pos = (n, W, w) => (narrow() ? n.um : n.uw) || (n.add ? null : narrow() ? { x:({ l:6 + w / 2, r:W - 6 - w / 2, c:W / 2 })[NARROWAT[n.id][0]] / W, y:band(NARROWAT[n.id][1]) } : wide(n, W, w));
   const nodeHTML = n => `<button class="acx-n${n.kind ? ' sm' : ''}" data-id="${n.id}"><span class="ic" style="color:${n.fg || n.col};background:color-mix(in srgb,${n.col} 14%,transparent)">${I(n.ic,'xs')}</span><span class="t"><b>${n.t}</b><span class="d">${n.d}</span></span></button>`;
   nodes.innerHTML = N.map(nodeHTML).join('');
   const el = id => $(`.acx-n[data-id="${id}"]`, nodes);
@@ -1545,6 +1547,22 @@ DM.def('memory-panel', (r, c) => {
     el.animate([{ height:'0px', paddingTop:'0px', paddingBottom:'0px', marginBottom:-gap + 'px', opacity:0, filter:'blur(4px)', overflow:'hidden' }, { height:cs.height, paddingTop:cs.paddingTop, paddingBottom:cs.paddingBottom, marginBottom:'0px', opacity:1, filter:'blur(0px)', overflow:'hidden' }], { duration:560, easing:ease }); };
   seg($('.mmx-tab', r), v => { f = v; paint(); });
   count(); paint();
+  // the room the list needs once the agent has learned its new rule (one more row, at the top, with its New tag) is kept from
+  // the start, so the panel never grows in its stage and stays centred (16 Nov; as Agent tree). Measured on a hidden copy at
+  // the panel's width, again when the width changes
+  const mroot = r.classList.contains('mmx') ? r : $('.mmx', r);
+  if (mroot){
+    const tallest = () => {
+      const p = mroot.cloneNode(true);
+      p.style.cssText = `position:absolute;left:0;top:0;width:${mroot.offsetWidth}px;min-height:0;visibility:hidden;pointer-events:none`;
+      p.setAttribute('aria-hidden', 'true'); p.inert = true;
+      $('.mmx-list', p).prepend(item({ id:-1, k:'brand', t:'Use “Start free” instead of “Sign up” on CTAs', from:'figma', s:'Your edit in Pricing v4, just now', isNew:true }));
+      mroot.parentElement.appendChild(p); const h = p.offsetHeight; p.remove(); return h;
+    };
+    let mw = -1;
+    const keep = () => { const w = mroot.offsetWidth; if (!w || w === mw) return; mw = w; mroot.style.minHeight = tallest() + 'px'; };
+    keep(); const ro = new ResizeObserver(keep); ro.observe(mroot); c.offs.push(() => ro.disconnect());
+  }
   // the preview: the agent learns a rule from your edit in Figma, then drafts an email in Gmail with three memories, which
   // pulse as it reads them. Every state lives in the memories' data, so switching tabs keeps it; taking over settles it
   c.run(async () => {
@@ -1613,6 +1631,22 @@ DM.def('tool-connections', (r, c) => {
     if (pm){ const b = html(`<button class="pill accent sm">Reconnect</button>`); pm.replaceWith(b); enter(b);
       b.onclick = () => c.run(async () => { b.innerHTML = '<span class="spin"></span>'; await c.wait(900); bad.classList.remove('err'); bad._t.ok = true; const n = row(bad._t); bad.replaceWith(n); swap(st, [...list.children].filter(el => el._t[4] > 0).length + ' of ' + [...list.children].filter(el => el._t[4] > 0).length + ' healthy'); }); }
   });
+  // the room the list needs at its tallest (Slack's expired token, which wraps on a narrow panel, with Reconnect in place of
+  // its switch) is kept from the start, so the panel never grows or shrinks in its stage (16 Nov; as Agent tree)
+  const hp = r.classList.contains('hnx') ? r : $('.hnx', r);
+  if (hp){
+    const tallest = () => {
+      const p = hp.cloneNode(true);
+      p.style.cssText = `position:absolute;left:0;top:0;width:${hp.offsetWidth}px;min-height:0;visibility:hidden;pointer-events:none`;
+      p.setAttribute('aria-hidden', 'true'); p.inert = true;
+      const sl = [...p.querySelectorAll('.hnx-t')].find(x => /^Slack/.test(($('.t', x) || x).textContent));
+      if (sl){ sl.classList.add('err'); const d = $('.t span', sl); if (d) d.textContent = 'Token expired. Reconnect to use it'; }
+      hp.parentElement.appendChild(p); const h = p.offsetHeight; p.remove(); return h;
+    };
+    let hw = -1;
+    const keep = () => { const w = hp.offsetWidth; if (!w || w === hw) return; hw = w; hp.style.minHeight = tallest() + 'px'; };
+    keep(); const ro = new ResizeObserver(keep); ro.observe(hp); c.offs.push(() => ro.disconnect());
+  }
   // the preview's story: test everything, Slack's token has expired, reconnect it, and every connection is healthy
   c.story(async s => {
     await s.beat(3);

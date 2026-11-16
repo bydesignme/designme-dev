@@ -244,7 +244,8 @@ export function AutomationCanvas({
   const layoutKey = narrow ? 'narrow' : 'wide';
   // cards narrow a little when a wide canvas is short of room for three columns of full-size cards; a model or a tool is
   // smaller again, so on a stacked canvas it fits beside the steps in the left-hand column
-  const width = narrow || (!!size && size.w < 700) ? 150 : 176;
+  // (on a phone two cards sit side by side, so they never take more than half the canvas)
+  const width = narrow && size ? Math.min(150, Math.floor(size.w / 2 - 14)) : narrow || (!!size && size.w < 700) ? 150 : 176;
   const widthOf = (n: AutomationNode) => n.attach && n.attach.via !== 'out' ? (narrow ? 124 : width === 150 ? 150 : 168) : width;
   const reduce = useReducedMotion();
   /* the canvas never traps the page: until the person has engaged with it (a click in it, a tap in it, or the keyboard's

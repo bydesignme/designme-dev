@@ -46,6 +46,22 @@ DM.def('tool-connections', (r, c) => {
     if (pm){ const b = html(`<button class="pill accent sm">Reconnect</button>`); pm.replaceWith(b); enter(b);
       b.onclick = () => c.run(async () => { b.innerHTML = '<span class="spin"></span>'; await c.wait(900); bad.classList.remove('err'); bad._t.ok = true; const n = row(bad._t); bad.replaceWith(n); swap(st, [...list.children].filter(el => el._t[4] > 0).length + ' of ' + [...list.children].filter(el => el._t[4] > 0).length + ' healthy'); }); }
   });
+  // the room the list needs at its tallest (Slack's expired token, which wraps on a narrow panel, with Reconnect in place of
+  // its switch) is kept from the start, so the panel never grows or shrinks in its stage (16 Nov; as Agent tree)
+  const hp = r.classList.contains('hnx') ? r : $('.hnx', r);
+  if (hp){
+    const tallest = () => {
+      const p = hp.cloneNode(true);
+      p.style.cssText = `position:absolute;left:0;top:0;width:${hp.offsetWidth}px;min-height:0;visibility:hidden;pointer-events:none`;
+      p.setAttribute('aria-hidden', 'true'); p.inert = true;
+      const sl = [...p.querySelectorAll('.hnx-t')].find(x => /^Slack/.test(($('.t', x) || x).textContent));
+      if (sl){ sl.classList.add('err'); const d = $('.t span', sl); if (d) d.textContent = 'Token expired. Reconnect to use it'; }
+      hp.parentElement.appendChild(p); const h = p.offsetHeight; p.remove(); return h;
+    };
+    let hw = -1;
+    const keep = () => { const w = hp.offsetWidth; if (!w || w === hw) return; hw = w; hp.style.minHeight = tallest() + 'px'; };
+    keep(); const ro = new ResizeObserver(keep); ro.observe(hp); c.offs.push(() => ro.disconnect());
+  }
   // the preview's story: test everything, Slack's token has expired, reconnect it, and every connection is healthy
   c.story(async s => {
     await s.beat(3);

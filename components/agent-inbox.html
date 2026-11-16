@@ -518,7 +518,7 @@ const { class: className, ...rest } = Astro.props;
 .aib-r .ok{color:var(--dm-ok);display:grid}
 .aib-i.fail{background:var(--dm-bad-bg)}
 .aib-i.fail .aib-r .pill{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-shadow)}
-</code></pre></details><details class="cp-file"><summary>agent-inbox.js<span class="l">HTML · 73 lines</span></summary><pre class="cp-pre" data-name="agent-inbox.js"><code>DM.def(&#39;agent-inbox&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>agent-inbox.js<span class="l">HTML · 77 lines</span></summary><pre class="cp-pre" data-name="agent-inbox.js"><code>DM.def(&#39;agent-inbox&#39;, (r, c) =&gt; {
   // the runs, grouped by what they need: one waits for approval, one failed and can be retried, two are running with their
   // clocks, two are done
   const A = { &#39;Design agent&#39;:[&#39;D&#39;,&#39;var(--dm-av-l)&#39;], &#39;Build agent&#39;:[&#39;B&#39;,&#39;var(--dm-av-m)&#39;], &#39;Research agent&#39;:[&#39;R&#39;,&#39;var(--dm-av-t)&#39;], &#39;Copy agent&#39;:[&#39;C&#39;,&#39;var(--dm-av-p)&#39;], &#39;QA agent&#39;:[&#39;Q&#39;,&#39;var(--dm-av-b)&#39;] };
@@ -532,6 +532,10 @@ const { class: className, ...rest } = Astro.props;
   ];
   const GR = [[&#39;needs&#39;, &#39;Needs you&#39;], [&#39;run&#39;, &#39;Running&#39;], [&#39;done&#39;, &#39;Done&#39;]];
   const gs = $(&#39;.aib-gs&#39;, r), st = $(&#39;.aib-st&#39;, r);
+  // the inbox is at its fullest when it first shows; once a run leaves it the panel keeps that height, so it never shrinks in
+  // its stage and stays centred (16 Nov)
+  const ib = r.classList.contains(&#39;aib&#39;) ? r : $(&#39;.aib&#39;, r);
+  if (ib) c.later(900, () =&gt; { ib.style.minHeight = Math.ceil(ib.getBoundingClientRect().height) + &#39;px&#39;; });
   gs.innerHTML = GR.map(([k, n]) =&gt; `&lt;section class=&quot;aib-g&quot; data-g=&quot;${k}&quot; aria-label=&quot;${n}&quot;&gt;&lt;div class=&quot;aib-gh&quot;&gt;&lt;span&gt;${n}&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;aib-gl&quot; role=&quot;list&quot;&gt;&lt;/div&gt;&lt;/section&gt;`).join(&#39;&#39;);
   const clock = s =&gt; Math.floor(s / 60) + &#39;:&#39; + String(s % 60).padStart(2, &#39;0&#39;);
   const meta = x =&gt; x.g === &#39;needs&#39; ? x.why : x.g === &#39;run&#39; ? x.doing : x.a;
@@ -940,6 +944,10 @@ const fitHits = window.dmFitHits || (() => {
   ];
   const GR = [['needs', 'Needs you'], ['run', 'Running'], ['done', 'Done']];
   const gs = $('.aib-gs', r), st = $('.aib-st', r);
+  // the inbox is at its fullest when it first shows; once a run leaves it the panel keeps that height, so it never shrinks in
+  // its stage and stays centred (16 Nov)
+  const ib = r.classList.contains('aib') ? r : $('.aib', r);
+  if (ib) c.later(900, () => { ib.style.minHeight = Math.ceil(ib.getBoundingClientRect().height) + 'px'; });
   gs.innerHTML = GR.map(([k, n]) => `<section class="aib-g" data-g="${k}" aria-label="${n}"><div class="aib-gh"><span>${n}</span><span class="n"></span></div><div class="aib-gl" role="list"></div></section>`).join('');
   const clock = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
   const meta = x => x.g === 'needs' ? x.why : x.g === 'run' ? x.doing : x.a;

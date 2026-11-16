@@ -183,7 +183,7 @@
 .trv-sc{position:relative;height:18px}
 .trv-sc span{position:absolute;top:0;transform:translateX(-50%);font-size:12px}
 .trv-sc span:first-child{transform:none}
-.trv-rows{display:flex;flex-direction:column;padding-bottom:var(--dm-s-1)}
+.trv-rows{display:flex;flex-direction:column;padding-bottom:var(--dm-s-1);min-height:calc(var(--dm-n,0) * 32px + var(--dm-s-1))}
 .trv-r{width:100%;min-height:32px;border-radius:calc(10px * var(--dm-rk));font-size:13px;text-align:left;transition:background .16s}
 @media (hover:hover) and (pointer:fine){.trv-r:hover{background:var(--dm-row)}}
 .trv-r[aria-expanded="true"]{background:var(--dm-sel)}
@@ -496,7 +496,7 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
         &lt;span className=&quot;dm-trv-sc&quot;&gt;{labels.map(v =&gt; &lt;span key={v} style={{ left: `${(v / span) * 100}%` }}&gt;{v}s&lt;/span&gt;)}&lt;/span&gt;
         &lt;span className=&quot;dm-trv-tk&quot;&gt;Tokens&lt;/span&gt;&lt;span className=&quot;dm-trv-ms&quot;&gt;Time&lt;/span&gt;
       &lt;/div&gt;
-      &lt;div ref={rows} className={cx(&#39;dm-trv-rows&#39;, sel &amp;&amp; &#39;dm-sel&#39;)} role=&quot;group&quot; aria-label=&quot;Spans&quot; onKeyDown={onKey}&gt;
+      &lt;div ref={rows} className={cx(&#39;dm-trv-rows&#39;, sel &amp;&amp; &#39;dm-sel&#39;)} style={{ &#39;--dm-n&#39;: all.length } as CSSProperties} role=&quot;group&quot; aria-label=&quot;Spans&quot; onKeyDown={onKey}&gt;
         {shown.map(row =&gt; {
           const { s, lv } = row;
           const [kind, icon, col] = KIND[s.kind], w = took(s), tk = tokensOf(s), run = running(s), sl = slow(s);
@@ -570,7 +570,7 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
 .dm-trv-sc{position:relative;height:18px}
 .dm-trv-sc span{position:absolute;top:0;transform:translateX(-50%);font-size:12px}
 .dm-trv-sc span:first-child{transform:none}
-.dm-trv-rows{display:flex;flex-direction:column;padding-bottom:var(--dm-s-1)}
+.dm-trv-rows{display:flex;flex-direction:column;padding-bottom:var(--dm-s-1);min-height:calc(var(--dm-n,0) * 32px + var(--dm-s-1))}
 .dm-trv-r{width:100%;min-height:32px;border-radius:calc(10px * var(--dm-rk));font-size:13px;text-align:left;transition:background .16s}
 @media (hover:hover) and (pointer:fine){.dm-trv-r:hover{background:var(--dm-row)}}
 .dm-trv-r[aria-expanded=&quot;true&quot;]{background:var(--dm-sel)}
@@ -697,7 +697,7 @@ const { class: className, ...rest } = Astro.props;
 .trv-sc{position:relative;height:18px}
 .trv-sc span{position:absolute;top:0;transform:translateX(-50%);font-size:12px}
 .trv-sc span:first-child{transform:none}
-.trv-rows{display:flex;flex-direction:column;padding-bottom:var(--dm-s-1)}
+.trv-rows{display:flex;flex-direction:column;padding-bottom:var(--dm-s-1);min-height:calc(var(--dm-n,0) * 32px + var(--dm-s-1))}
 .trv-r{width:100%;min-height:32px;border-radius:calc(10px * var(--dm-rk));font-size:13px;text-align:left;transition:background .16s}
 @media (hover:hover) and (pointer:fine){.trv-r:hover{background:var(--dm-row)}}
 .trv-r[aria-expanded=&quot;true&quot;]{background:var(--dm-sel)}
@@ -761,7 +761,7 @@ const { class: className, ...rest } = Astro.props;
 /* narrow: the names keep their room. Tokens move into each span&#39;s details, the slow tag leaves the amber bar and time to
    say it (the time keeps its tooltip), the tree draws closer, and the details give the start its own line */
 @container (max-width:330px){.trv-ax,.trv-r{grid-template-columns:minmax(0,1fr) 72px 44px}.trv-tk,.trv-n .tag{display:none}.trv-n{padding-left:calc(var(--dm-lv,0) * 10px)}.trv-g{display:none}.trv-kv{grid-template-columns:repeat(2,minmax(0,1fr))}}
-</code></pre></details><details class="cp-file"><summary>trace-view.js<span class="l">HTML · 123 lines</span></summary><pre class="cp-pre" data-name="trace-view.js"><code>DM.def(&#39;trace-view&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>trace-view.js<span class="l">HTML · 125 lines</span></summary><pre class="cp-pre" data-name="trace-view.js"><code>DM.def(&#39;trace-view&#39;, (r, c) =&gt; {
   // the kinds of span, each with its mark and colour: the identity slots of the chart palette, and grey for the agents
   // that hold the other spans. The name is always on the mark, in a tooltip, and in the span&#39;s label
   const K = { agent:[&#39;Agent&#39;,&#39;cpu&#39;,&#39;var(--dm-muted)&#39;], llm:[&#39;LLM call&#39;,&#39;spark&#39;,&#39;var(--dm-c2)&#39;], tool:[&#39;Tool call&#39;,&#39;term&#39;,&#39;var(--dm-c6)&#39;], ret:[&#39;Retrieval&#39;,&#39;search&#39;,&#39;var(--dm-c3)&#39;] };
@@ -780,6 +780,8 @@ const { class: className, ...rest } = Astro.props;
   // an agent span counts the tokens of every span under it
   S.forEach((x, i) =&gt; { x.kids = []; for (let j = i + 1; j &lt; S.length &amp;&amp; S[j].lv &gt; x.lv; j++) x.kids.push(S[j]); });
   const root = $(&#39;.trv&#39;, r), rows = $(&#39;.trv-rows&#39;, r), stEl = $(&#39;.trv-st&#39;, r), tot = $(&#39;.trv-tot&#39;, r), dt = $(&#39;.trv-dt&#39;, r), dc = $(&#39;.trv-dc&#39;, r), lg = $(&#39;.trv-lg&#39;, r);
+  // room for every span from the start, so the panel never grows (and re-centres in its stage) as spans arrive
+  rows.style.setProperty(&#39;--dm-n&#39;, S.length);
   // the key: every kind but the agents, with its colour and how many of its spans have started
   const KEYS = [&#39;llm&#39;, &#39;tool&#39;, &#39;ret&#39;];
   lg.innerHTML = KEYS.map(k =&gt; `&lt;span role=&quot;listitem&quot; class=&quot;z&quot; data-k=&quot;${k}&quot; style=&quot;--dm-k:${K[k][2]}&quot;&gt;&lt;i&gt;&lt;/i&gt;${K[k][0]} &lt;b class=&quot;num&quot;&gt;0&lt;/b&gt;&lt;/span&gt;`).join(&#39;&#39;);
@@ -1238,6 +1240,8 @@ const fitHits = window.dmFitHits || (() => {
   // an agent span counts the tokens of every span under it
   S.forEach((x, i) => { x.kids = []; for (let j = i + 1; j < S.length && S[j].lv > x.lv; j++) x.kids.push(S[j]); });
   const root = $('.trv', r), rows = $('.trv-rows', r), stEl = $('.trv-st', r), tot = $('.trv-tot', r), dt = $('.trv-dt', r), dc = $('.trv-dc', r), lg = $('.trv-lg', r);
+  // room for every span from the start, so the panel never grows (and re-centres in its stage) as spans arrive
+  rows.style.setProperty('--dm-n', S.length);
   // the key: every kind but the agents, with its colour and how many of its spans have started
   const KEYS = ['llm', 'tool', 'ret'];
   lg.innerHTML = KEYS.map(k => `<span role="listitem" class="z" data-k="${k}" style="--dm-k:${K[k][2]}"><i></i>${K[k][0]} <b class="num">0</b></span>`).join('');

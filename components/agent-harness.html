@@ -206,7 +206,7 @@
 .lva-fu button{display:inline-flex;align-items:center;gap:var(--dm-s-2);padding:6px var(--dm-s-3) 6px 10px;border-radius:var(--dm-r-pill);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13px;color:var(--dm-fg2);transition:color .2s,box-shadow .2s,transform .2s var(--dm-ease)}
 @media (hover:hover) and (pointer:fine){.lva-fu button:hover{color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-faint) 50%,transparent)}}
 </style><style>/* ---------- Composer ---------- */
-.cpx{display:flex;flex-direction:column;justify-content:flex-end;gap:14px;overflow-anchor:none}
+.cpx{display:flex;flex-direction:column;justify-content:flex-end;gap:14px;overflow-anchor:none;container-type:inline-size}
 /* neither the composer nor the box it sits in anchors the page's scroll, so the page stays put as the thread grows and clears */
 .stage-in:has(>.cpx){overflow-anchor:none}
 /* on a card the composer keeps the room the conversation will take, with the box at its foot, so the box stays put */
@@ -241,6 +241,8 @@
 @media (hover:hover) and (pointer:fine){.cpx-bar .chip:hover{background:var(--dm-row);color:var(--dm-fg)}}
 .cpx-bar .chip>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cpx-bar .chip>svg:last-child{color:var(--dm-muted)}
+/* a narrow box: the context and mode chips keep only their icon (the name stays for screen readers, and in the tooltip) */
+@container (max-width:400px){.cpx-bar .chip{padding:0 8px}.cpx-bar .chip>span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.cpx-bar .chip>svg:last-child{display:none}}
 .cpx-send{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--dm-accent);color:var(--dm-on-accent);flex:none;transition:opacity .32s,transform .16s,background .16s}
 @media (hover:hover) and (pointer:fine){.cpx-send:hover{background:var(--dm-accent-2)}}
 .cpx-send:active{transform:scale(.92)}
@@ -647,7 +649,7 @@
 .plx-list{list-style:none;margin:0 -6px;padding:0;display:flex;flex-direction:column;counter-reset:s}
 .plx-s{display:flex;align-items:flex-start;gap:10px;padding:7px 6px;border-radius:calc(10px * var(--dm-rk));font-size:13px;transition:background .25s,opacity .35s;position:relative}
 @media (hover:hover) and (pointer:fine){.plx-s:hover{background:var(--dm-row)}}
-.plx-s .n{width:20px;height:20px;border-radius:50%;background:var(--dm-chip);display:grid;place-items:center;font-size:11px;font-family:var(--dm-mono);color:var(--dm-fg2);flex:none;transition:background .35s,color .35s}
+.plx-s .n{width:20px;height:20px;border-radius:50%;background:var(--dm-chip);display:grid;place-items:center;font-size:11px;font-variant-numeric:tabular-nums;color:var(--dm-muted);flex:none;transition:background .35s,color .35s}
 @media (hover:hover) and (pointer:fine){.plx-s:hover .n{background:var(--dm-surface)}}
 .plx-s .b{flex:1;min-width:0;display:flex;flex-direction:column}
 .plx-s .t{min-width:0;outline:0;border-radius:5px;padding:1px 3px;margin:0 -3px;line-height:1.5}
@@ -690,7 +692,7 @@
 .pgx-o input{position:absolute;opacity:0;pointer-events:none}
 .pgx-o .bx{width:18px;height:18px;border-radius:calc(6px * var(--dm-rk));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-muted) 80%,var(--dm-surface));display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--dm-ease),box-shadow .3s,color .3s}
 .pgx-o .bx svg{transform:scale(.4);transition:transform .35s var(--dm-ease)}
-.pgx-o input:checked+.bx{background:var(--dm-accent);box-shadow:inset 0 0 0 1px var(--dm-accent-mark,var(--dm-accent));color:var(--dm-on-accent)}
+.pgx-o input:checked+.bx{background:var(--dm-accent);box-shadow:inset 0 0 0 1.5px var(--dm-accent-mark,var(--dm-accent));color:var(--dm-on-accent)}
 .pgx-o input:checked+.bx svg{transform:none}
 .pgx-o input:focus-visible+.bx{outline:2px solid var(--dm-focus);outline-offset:2px}
 .pgx-o .t{flex:1;min-width:0}
@@ -977,7 +979,7 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
         .cp-view{display:none;height:760px;--dvf-line:var(--pg-line2);--dvf-bg:var(--pg-bg)}
         .cp-demo.framed .cp-view{display:block;margin-top:52px;height:708px}
         .cp-demo.framed .pg-demo{display:none}
-        @media (max-width:860px){.cp-dev{display:none}}
+        @media (max-width:860px){.pg-seg.cp-dev{display:none}}
         /* ?embed=1: only the demo, filling the window */
         html[data-embed],html[data-embed] body{height:100%;overflow:hidden}
         html[data-embed] body{visibility:hidden}
@@ -4310,6 +4312,20 @@ const fitHits = window.dmFitHits || (() => {
     $('.plx-x', s).onclick = () => { const off = s.classList.toggle('off'); $('.plx-x', s).dataset.tip = off ? 'Include step' : 'Skip step'; $('.plx-x', s).setAttribute('aria-label', off ? 'Include step' : 'Skip step'); $('.plx-x', s).innerHTML = I(off ? 'undo' : 'x', 'xs'); count(); };
   }
   $$('.plx-s', list).forEach((s, i) => bind(s, S[i][1]));
+  // the room the plan needs at its tallest (every step with its done line under it, the rate-limit line the longest of
+  // them) is kept from the start, so the panel never grows or shrinks in its stage and sits centred at every moment
+  // (16 Nov; as Agent tree). Measured on a hidden copy at the panel's width, again when the width changes
+  const root = $('.plx', r);
+  const tallest = () => {
+    const p = root.cloneNode(true);
+    p.style.cssText = `position:absolute;left:0;top:0;width:${root.offsetWidth}px;min-height:0;visibility:hidden;pointer-events:none`;
+    p.setAttribute('aria-hidden', 'true'); p.inert = true;
+    $$('.plx-s', p).forEach((x, i) => { const d = $('.d', x); d.classList.add('on'); d.style.transition = 'none'; d.firstElementChild.textContent = i === 1 ? 'Rate limited by the browser tool. Retrying in 3s' : (S[i] ? S[i][1] : 'Done'); });
+    root.parentElement.appendChild(p); const h = p.offsetHeight; p.remove(); return h;
+  };
+  let pw = -1;
+  const keep = () => { const w = root.offsetWidth; if (!w || w === pw) return; pw = w; root.style.minHeight = tallest() + 'px'; };
+  keep(); const ro = new ResizeObserver(keep); ro.observe(root); c.offs.push(() => ro.disconnect());
   $('.plx-add', r).onclick = () => { const s = html(row(['New step'], $$('.plx-s', list).length)); list.appendChild(s); enter(s); bind(s); count(); const t = $('.t', s); t.focus({ preventScroll:true }); document.getSelection().selectAllChildren(t); };
   $('.plx-chg', r).onclick = () => { swap($('.plx-n', r), 'Tell the agent what to change in chat'); };
   const clock = ms => { const s = Math.floor(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
