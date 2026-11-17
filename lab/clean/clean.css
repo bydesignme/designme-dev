@@ -1,197 +1,217 @@
-/* Clean: a third component style, explored next to Soft and Blueprint (lab only, nothing ships from here).
-   Airy, white and almost clinical: a light neutral stage, white cards with a hairline and one very soft, wide shadow,
-   nested surfaces a hair off-white, generous squircle corners, lighter big figures, one crisp blue used sparingly and
-   faint blue gradients where a chart or a running task needs them. Calm, slow motion.
+/* Clean: a monochrome third style, explored next to Soft and Blueprint (owner, 17 Nov: "gray, black and white, lots of
+   white space, slightly rounded buttons, quite a bit of depth, very subtle shadows, and a border outline").
+   It is a token and treatment layer over Soft, laid on our own components with their own markup, copy and demos, and
+   scoped to [data-clean] on <html> or on any element around the components (a real style would be
+   :root[data-style="clean"]). The values follow the depth, motion and press recipe of the owner's reference site
+   (hairline ring + 1px contact shadow + short soft shadow on cards; inner top light and a ring on buttons; ease-out
+   quint, 150 to 300ms; a .97 press), on neutral greys. Lab only, nothing ships from here. */
 
-   How it is built: Clean sits on top of Soft (the page keeps data-style="soft") and only rewrites the tokens core reads,
-   plus a few component touches where a token can't reach. Everything is scoped to [data-clean], on <html> or on any
-   element around the components, the same way core scopes Soft to [data-style="soft"]. To make it a real style, swap
-   [data-clean] for [data-style="clean"] (see the notes at the end of lab/clean/index.html).
-   Token names carry the --dm- prefix because the component pages (and installs) use it; the library source
-   (soft-2/index.html) would use the short names (--surface, --line, ...). */
-
-/* ---------- tokens, light ---------- */
+/* ======================================================================================================== tokens */
 [data-clean],[data-clean] [data-style="soft"]{
-  --dm-motion:soft;
-  /* page and surfaces: a light neutral stage, white cards, nested panels a hair off-white */
-  --dm-page:#f5f5f5; --dm-stage:#f5f5f5; --dm-surface:#ffffff; --dm-raised:#ffffff;
-  --dm-inner:#fafafa; --dm-hair:rgba(0,0,0,.06);
-  /* type and lines: neutral greys only */
-  --dm-fg:#141414; --dm-fg2:#4d4d4d; --dm-muted:#6b6b6b; --dm-faint:#c8c8c8; --dm-rail:#dcdcdc; --dm-line:#ebebeb;
-  --dm-field-line:#dcdcdc; --dm-line-strong:#8a8a8a; --dm-field-line-strong:#b5b5b5;
-  --dm-chip:#f2f2f2; --dm-hover:#ededed; --dm-press:#e6e6e6; --dm-wash:#fafafa; --dm-row:#fafafa;
-  --dm-soft:#f0f0f0; --dm-soft-h:#e8e8e8; --dm-soft-ring:inset 0 0 0 1px rgba(0,0,0,.04); --dm-dis:#a3a3a3;
-  --dm-knob:#ffffff; --dm-knob-shadow:0 0 0 1px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.07);
-  --dm-tile:#f5f5f5;
-  /* one crisp blue, the same family as Soft's */
-  --dm-accent:#116ff8; --dm-on-accent:#ffffff; --dm-accent-fg:#0f5fd5; --dm-accent-mark:#116ff8;
-  --dm-sel:color-mix(in srgb,var(--dm-accent) 5%,transparent);
-  /* delicate blue gradients: an area fill that fades from 18% to nothing, a wash that fades from a soft blue into the
-     surface, and a fine white hatch inside accent bars and fills */
-  --dm-area:.18;
-  --dm-wash-a:linear-gradient(180deg,color-mix(in srgb,var(--dm-accent) 6%,var(--dm-surface)) 0,var(--dm-surface) 112px);
-  --dm-hatch:repeating-linear-gradient(-45deg,rgba(255,255,255,.16) 0 1px,transparent 1px 5px);
-  /* status colours as in Soft (saturated), a step deeper where Soft's only just held its contrast on white: Clean puts
-     marks on off-white panels, washes and grey tracks too, and text on the table's 11% tints */
-  --dm-ok:#147a39; --dm-ok-bg:#e6f7eb; --dm-ok-mark:#1ba04c; --dm-warn:#9a4704; --dm-warn-bg:#fff0d6; --dm-warn-mark:#e86100;
-  --dm-bad:#cf2017; --dm-bad-bg:#feeceb; --dm-bad-mark:#f04438;
-  /* chart palette: Soft's hues, the accent first, the light ones a step deeper so every mark holds 3:1 on white, #fafafa,
-     the blue wash and a grey track */
-  --dm-c1:var(--dm-accent-mark); --dm-c2:#7c4dff; --dm-c3:#1ba04c; --dm-c4:#e86100; --dm-c5:#f74b6a; --dm-c6:#0098b4;
-  /* edges and depth: a hairline and one very soft, wide, neutral shadow; no top highlight, no colour */
-  --dm-shadow:0 0 0 1px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.03),0 8px 24px -8px rgba(0,0,0,.05),0 28px 56px -24px rgba(0,0,0,.08);
-  --dm-shadow-pop:0 0 0 1px rgba(0,0,0,.065),0 2px 4px rgba(0,0,0,.03),0 14px 32px -10px rgba(0,0,0,.08),0 40px 72px -28px rgba(0,0,0,.12);
-  --dm-shadow-toast:0 0 0 1px rgba(0,0,0,.06),0 10px 28px -10px rgba(0,0,0,.12);
-  --dm-shadow-lift:var(--dm-shadow-pop);
-  /* tooltips are white cards with a hairline, not black */
-  --dm-tip-bg:#ffffff; --dm-tip-fg:#141414; --dm-tip-ring:0 0 0 1px rgba(0,0,0,.06),0 10px 28px -8px rgba(0,0,0,.14);
-  /* radius: generous and smooth. Round corners where the browser can't draw squircles, larger -sq radii where it can */
-  --dm-rk:1.1;
-  --dm-r-card:22px; --dm-r-lg:24px; --dm-r-in:14px; --dm-r-sm:10px; --dm-r-xs:5px; --dm-r-pill:999px;
-  --dm-r-field:10px; --dm-r-field-sq:14px; --dm-r-box:14px; --dm-r-box-sq:19px; --dm-r-tag:7px; --dm-r-tag-sq:10px;
-  /* type: the one big figure in a component is lighter and larger */
-  --dm-fig:400; --dm-fig-size:26px;
-  /* motion: calm and slow, the same ease as Soft */
-  --dm-ease:cubic-bezier(.22,1,.36,1); --dm-ease-io:cubic-bezier(.65,0,.35,1);
-  --dm-t-fast:.25s; --dm-t:.4s; --dm-t-slow:.6s;
-  /* spacing: more air than Soft inside a card */
-  --dm-pad:20px;
-  --dm-pick-line:var(--dm-rail); --dm-pick-on:var(--dm-faint);
-  --dm-accent-bg:color-mix(in srgb,var(--dm-accent) 8%,transparent);
+  /* white, black and one neutral grey ramp; no blue */
+  --dm-page:#f7f7f7; --dm-stage:#f7f7f7; --dm-surface:#ffffff; --dm-raised:#ffffff; --dm-strip:#fafafa;
+  --dm-fg:#0a0a0a; --dm-fg2:#404040; --dm-muted:#6b6b6b; --dm-faint:#d4d4d4; --dm-rail:#e5e5e5;
+  --dm-line:#e5e5e5; --dm-hair:rgba(0,0,0,.08); --dm-field-line:#e0e0e0; --dm-line-strong:#8f8f8f; --dm-field-line-strong:#b3b3b3;
+  --dm-chip:#f3f3f3; --dm-hover:#ededed; --dm-press:#e6e6e6; --dm-wash:#fafafa; --dm-row:#f7f7f7;
+  --dm-soft:#f3f3f3; --dm-soft-h:#ededed; --dm-soft-ring:inset 0 0 0 1px rgba(0,0,0,.06); --dm-dis:#a3a3a3;
+  --dm-ghost:#ededed; --dm-ghost-2:#f4f4f4;
+  /* the accent is ink: black fills with white on them, black checks, a black chart line */
+  --dm-accent:#0a0a0a; --dm-on-accent:#ffffff; --dm-accent-fg:#0a0a0a; --dm-accent-mark:#0a0a0a; --dm-accent-2:#262626;
+  --dm-accent-bg:rgba(0,0,0,.05); --dm-sel:rgba(0,0,0,.035);
+  --dm-ink:#0a0a0a; --dm-on-ink:#ffffff;
+  /* status colour only where it means something, kept small */
+  --dm-ok:#147a39; --dm-ok-bg:#ebf7ee; --dm-ok-mark:#1ba04c; --dm-warn:#9a4704; --dm-warn-bg:#fff2dc; --dm-warn-mark:#e86100;
+  --dm-bad:#c81e16; --dm-bad-bg:#fdeceb; --dm-bad-mark:#e5372c;
+  --dm-c1:var(--dm-accent-mark); --dm-c2:#8f8f8f; --dm-c3:#5c5c5c; --dm-c4:#b0b0b0;
+  /* depth: every card has a hairline outline, a 1px contact shadow and one short, soft shadow */
+  --dm-shadow:0 0 0 1px rgba(0,0,0,.07),0 1px 1px rgba(0,0,0,.04),0 2px 10px -4px rgba(0,0,0,.12);
+  --dm-shadow-pop:0 0 0 1px rgba(0,0,0,.08),0 1px 1px rgba(0,0,0,.04),0 12px 28px -12px rgba(0,0,0,.22);
+  --dm-shadow-toast:var(--dm-shadow-pop); --dm-shadow-lift:var(--dm-shadow-pop);
+  --dm-tip-bg:#ffffff; --dm-tip-fg:#0a0a0a; --dm-tip-ring:0 0 0 1px rgba(0,0,0,.08),0 1px 1px rgba(0,0,0,.04),0 6px 16px -6px rgba(0,0,0,.18);
+  /* buttons: depth from a ring, a light along the top inside the fill, a faint shade along the bottom and a slight
+     top-to-bottom gradient. Primary is ink; secondary is white */
+  --dm-btn-1:#2a2a2a; --dm-btn-2:#0a0a0a;
+  --dm-btn-depth:0 0 0 1px #0a0a0a,inset 0 1px 0 rgba(255,255,255,.16),inset 0 -1px 0 rgba(0,0,0,.25),0 1px 2px rgba(0,0,0,.18),0 2px 4px -2px rgba(0,0,0,.2);
+  --dm-btn-press:0 0 0 1px #0a0a0a,inset 0 1px 0 rgba(255,255,255,.08),inset 0 1px 3px rgba(0,0,0,.45),0 1px 1px rgba(0,0,0,.12);
+  --dm-btn2-1:#ffffff; --dm-btn2-2:#fafafa;
+  --dm-btn2-depth:0 0 0 1px rgba(0,0,0,.1),inset 0 -1px 0 rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.06);
+  --dm-btn2-hover:0 0 0 1px rgba(0,0,0,.14),inset 0 -1px 0 rgba(0,0,0,.05),0 1px 2px rgba(0,0,0,.08);
+  --dm-btn2-press:0 0 0 1px rgba(0,0,0,.14),inset 0 1px 2px rgba(0,0,0,.1);
+  /* switchers: a white knob with a hairline and a 1px shadow, on a light grey track */
+  --dm-knob:#ffffff; --dm-knob-shadow:0 0 0 1px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.07); --dm-track-ring:inset 0 0 0 1px rgba(0,0,0,.035);
+  --dm-area:.07;
+  /* shape: slightly rounded. 8px for buttons, fields, chips and switchers (never pills), 12px for cards */
+  --dm-rk:1; --dm-r-pill:8px; --dm-r-card:12px; --dm-r-lg:14px; --dm-r-in:8px; --dm-r-sm:8px; --dm-r-xs:4px;
+  --dm-r-field:8px; --dm-r-field-sq:11px; --dm-r-box:10px; --dm-r-box-sq:14px; --dm-r-tag:6px; --dm-r-tag-sq:8px;
+  /* motion: ease-out quint. Hovers 150ms, presses spring back in 150ms, entrances 420 to 520ms */
+  --dm-ease:cubic-bezier(.23,1,.32,1); --dm-ease-io:cubic-bezier(.65,0,.35,1);
+  --dm-t-fast:.15s; --dm-t:.24s; --dm-t-slow:.42s;
 }
 @supports (corner-shape:squircle){
-  [data-clean],[data-clean] [data-style="soft"]{--dm-rk:1.5;--dm-r-card:30px;--dm-r-lg:32px;--dm-r-in:19px;--dm-r-sm:13px;--dm-r-xs:7px}
+  [data-clean],[data-clean] [data-style="soft"]{--dm-rk:1.35;--dm-r-pill:11px;--dm-r-card:17px;--dm-r-lg:19px;--dm-r-in:11px;--dm-r-sm:11px;--dm-r-xs:6px}
 }
-
-/* ---------- tokens, dark ---------- */
-/* a near-black neutral page, two surface steps, white hairlines at 7%, the blue kept faint */
+/* dark: the same logic on near-black neutrals; the primary button turns white with dark text */
 :root[data-theme="dark"][data-clean],:root[data-theme="dark"] [data-clean],:root[data-theme="dark"][data-clean] [data-style="soft"]{
-  --dm-page:#0f0f0f; --dm-stage:#0f0f0f; --dm-surface:#171717; --dm-raised:#1f1f1f;
-  --dm-inner:#1c1c1c; --dm-hair:rgba(255,255,255,.07);
-  --dm-fg:#f2f2f2; --dm-fg2:#c7c7c7; --dm-muted:#bdbdbd; --dm-faint:#4a4a4a; --dm-rail:#333333; --dm-line:#262626;
-  --dm-field-line:#5c5c5c; --dm-line-strong:#7a7a7a; --dm-field-line-strong:#8f8f8f;
-  --dm-chip:#222222; --dm-hover:#272727; --dm-press:#2e2e2e; --dm-wash:#1b1b1b; --dm-row:color-mix(in srgb,var(--dm-fg) 4%,transparent);
-  --dm-soft:#242424; --dm-soft-h:#2b2b2b; --dm-soft-ring:inset 0 0 0 1px rgba(255,255,255,.05); --dm-dis:#6e6e6e;
-  --dm-knob:#2e2e2e; --dm-knob-shadow:0 0 0 1px rgba(255,255,255,.06),0 1px 3px rgba(0,0,0,.4);
-  --dm-tile:#222222;
-  --dm-accent:#116ff8; --dm-on-accent:#ffffff; --dm-accent-fg:#9dc4ff; --dm-accent-mark:#3d8bff;
-  --dm-sel:color-mix(in srgb,var(--dm-accent) 9%,transparent);
-  --dm-area:.14;
-  --dm-wash-a:linear-gradient(180deg,color-mix(in srgb,var(--dm-accent) 7%,var(--dm-surface)) 0,var(--dm-surface) 112px);
-  --dm-hatch:repeating-linear-gradient(-45deg,rgba(255,255,255,.14) 0 1px,transparent 1px 5px);
-  --dm-ok:#4ade80; --dm-ok-bg:rgba(34,197,94,.14); --dm-ok-mark:#22c55e; --dm-warn:#ffc247; --dm-warn-bg:rgba(255,184,40,.15); --dm-warn-mark:#ffa940;
-  --dm-bad:#ffaca4; --dm-bad-bg:rgba(240,68,56,.15); --dm-bad-mark:#f97066;
-  --dm-c1:var(--dm-accent-mark); --dm-c2:#9b7bff; --dm-c3:#22c55e; --dm-c4:#ffa033; --dm-c5:#ff6b85; --dm-c6:#22cce8;
-  --dm-shadow:0 0 0 1px rgba(255,255,255,.07),0 1px 2px rgba(0,0,0,.4),0 16px 40px -14px rgba(0,0,0,.55);
-  --dm-shadow-pop:0 0 0 1px rgba(255,255,255,.09),0 2px 4px rgba(0,0,0,.4),0 24px 56px -18px rgba(0,0,0,.7);
-  --dm-shadow-toast:0 0 0 1px rgba(255,255,255,.08),0 12px 28px -12px rgba(0,0,0,.7);
-  --dm-shadow-lift:var(--dm-shadow-pop);
-  --dm-tip-bg:#262626; --dm-tip-fg:#f2f2f2; --dm-tip-ring:0 0 0 1px rgba(255,255,255,.09),0 12px 28px -10px rgba(0,0,0,.7);
-  --dm-accent-bg:color-mix(in srgb,var(--dm-accent) 13%,transparent);
+  --dm-page:#0a0a0a; --dm-stage:#0a0a0a; --dm-surface:#141414; --dm-raised:#1c1c1c; --dm-strip:#181818;
+  --dm-fg:#f5f5f5; --dm-fg2:#cfcfcf; --dm-muted:#bdbdbd; --dm-faint:#474747; --dm-rail:#2e2e2e;
+  --dm-line:#2a2a2a; --dm-hair:rgba(255,255,255,.09); --dm-field-line:#4d4d4d; --dm-line-strong:#7a7a7a; --dm-field-line-strong:#8f8f8f;
+  --dm-chip:#1f1f1f; --dm-hover:#232323; --dm-press:#2a2a2a; --dm-wash:#181818; --dm-row:#1a1a1a;
+  --dm-soft:#1f1f1f; --dm-soft-h:#262626; --dm-soft-ring:inset 0 0 0 1px rgba(255,255,255,.06); --dm-dis:#666666;
+  --dm-ghost:#262626; --dm-ghost-2:#1e1e1e;
+  --dm-accent:#f5f5f5; --dm-on-accent:#0a0a0a; --dm-accent-fg:#f5f5f5; --dm-accent-mark:#f5f5f5; --dm-accent-2:#ffffff;
+  --dm-accent-bg:rgba(255,255,255,.07); --dm-sel:rgba(255,255,255,.05);
+  --dm-ink:#f5f5f5; --dm-on-ink:#0a0a0a;
+  --dm-ok:#4ade80; --dm-ok-bg:rgba(34,197,94,.13); --dm-ok-mark:#22c55e; --dm-warn:#ffc247; --dm-warn-bg:rgba(255,184,40,.14); --dm-warn-mark:#ffa940;
+  --dm-bad:#ffaca4; --dm-bad-bg:rgba(240,68,56,.14); --dm-bad-mark:#f97066;
+  --dm-c2:#7a7a7a; --dm-c3:#a3a3a3; --dm-c4:#5c5c5c;
+  --dm-shadow:0 0 0 1px rgba(255,255,255,.08),0 1px 1px rgba(0,0,0,.5),0 2px 10px -4px rgba(0,0,0,.6);
+  --dm-shadow-pop:0 0 0 1px rgba(255,255,255,.1),0 1px 1px rgba(0,0,0,.5),0 12px 28px -12px rgba(0,0,0,.8);
+  --dm-tip-bg:#1f1f1f; --dm-tip-fg:#f5f5f5; --dm-tip-ring:0 0 0 1px rgba(255,255,255,.1),0 6px 16px -6px rgba(0,0,0,.7);
+  --dm-btn-1:#ffffff; --dm-btn-2:#e0e0e0;
+  --dm-btn-depth:0 0 0 1px #f5f5f5,inset 0 1px 0 #ffffff,inset 0 -1px 0 rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.5);
+  --dm-btn-press:0 0 0 1px #f5f5f5,inset 0 1px 3px rgba(0,0,0,.28),0 1px 1px rgba(0,0,0,.4);
+  --dm-btn2-1:#222222; --dm-btn2-2:#1c1c1c;
+  --dm-btn2-depth:0 0 0 1px rgba(255,255,255,.1),inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.5);
+  --dm-btn2-hover:0 0 0 1px rgba(255,255,255,.15),inset 0 1px 0 rgba(255,255,255,.07),0 1px 2px rgba(0,0,0,.5);
+  --dm-btn2-press:0 0 0 1px rgba(255,255,255,.14),inset 0 1px 3px rgba(0,0,0,.5);
+  --dm-knob:#2a2a2a; --dm-knob-shadow:0 0 0 1px rgba(255,255,255,.08),inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.5); --dm-track-ring:inset 0 0 0 1px rgba(255,255,255,.04);
+  --dm-area:.09;
   color-scheme:dark;
 }
-/* the same, when the system is dark and nothing chose a theme */
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"])[data-clean],:root:not([data-theme="light"]) [data-clean]{
-  --dm-page:#0f0f0f; --dm-stage:#0f0f0f; --dm-surface:#171717; --dm-raised:#1f1f1f; --dm-inner:#1c1c1c; --dm-hair:rgba(255,255,255,.07);
-  --dm-fg:#f2f2f2; --dm-fg2:#c7c7c7; --dm-muted:#bdbdbd; --dm-faint:#4a4a4a; --dm-rail:#333333; --dm-line:#262626;
-  --dm-field-line:#5c5c5c; --dm-line-strong:#7a7a7a; --dm-field-line-strong:#8f8f8f;
-  --dm-chip:#222222; --dm-hover:#272727; --dm-press:#2e2e2e; --dm-wash:#1b1b1b; --dm-row:color-mix(in srgb,var(--dm-fg) 4%,transparent);
-  --dm-soft:#242424; --dm-soft-h:#2b2b2b; --dm-soft-ring:inset 0 0 0 1px rgba(255,255,255,.05); --dm-dis:#6e6e6e;
-  --dm-knob:#2e2e2e; --dm-knob-shadow:0 0 0 1px rgba(255,255,255,.06),0 1px 3px rgba(0,0,0,.4); --dm-tile:#222222;
-  --dm-accent-fg:#9dc4ff; --dm-accent-mark:#3d8bff; --dm-sel:color-mix(in srgb,var(--dm-accent) 9%,transparent); --dm-area:.14;
-  --dm-wash-a:linear-gradient(180deg,color-mix(in srgb,var(--dm-accent) 7%,var(--dm-surface)) 0,var(--dm-surface) 112px);
-  --dm-hatch:repeating-linear-gradient(-45deg,rgba(255,255,255,.14) 0 1px,transparent 1px 5px);
-  --dm-ok:#4ade80; --dm-ok-bg:rgba(34,197,94,.14); --dm-ok-mark:#22c55e; --dm-warn:#ffc247; --dm-warn-bg:rgba(255,184,40,.15); --dm-warn-mark:#ffa940;
-  --dm-bad:#ffaca4; --dm-bad-bg:rgba(240,68,56,.15); --dm-bad-mark:#f97066;
-  --dm-c2:#9b7bff; --dm-c3:#22c55e; --dm-c4:#ffa033; --dm-c5:#ff6b85; --dm-c6:#22cce8;
-  --dm-shadow:0 0 0 1px rgba(255,255,255,.07),0 1px 2px rgba(0,0,0,.4),0 16px 40px -14px rgba(0,0,0,.55);
-  --dm-shadow-pop:0 0 0 1px rgba(255,255,255,.09),0 2px 4px rgba(0,0,0,.4),0 24px 56px -18px rgba(0,0,0,.7);
-  --dm-shadow-toast:0 0 0 1px rgba(255,255,255,.08),0 12px 28px -12px rgba(0,0,0,.7); --dm-shadow-lift:var(--dm-shadow-pop);
-  --dm-tip-bg:#262626; --dm-tip-fg:#f2f2f2; --dm-tip-ring:0 0 0 1px rgba(255,255,255,.09),0 12px 28px -10px rgba(0,0,0,.7);
-  --dm-accent-bg:color-mix(in srgb,var(--dm-accent) 13%,transparent);
-  color-scheme:dark}}
 
-/* ---------- shared touches (where a token can't reach) ---------- */
-/* thin icons */
+/* ======================================================================================================== shared */
+[data-clean] :where([data-c]){letter-spacing:-.006em}
 [data-clean] .i{stroke-width:1.5}
-/* segmented switches: a white knob with a hairline on a light grey track, gliding slowly */
-[data-clean] .seg2 .knob,[data-clean] .hnx-pm .kn{background:var(--dm-knob);box-shadow:var(--dm-knob-shadow);transition-duration:var(--dm-t);transition-timing-function:var(--dm-ease)}
-/* presses are small and precise, never springy */
-[data-clean] .pill:active{transform:scale(.985)}
-[data-clean] .ib:active{transform:scale(.97)}
-[data-clean] .pill,[data-clean] .ib,[data-clean] .chip{transition-duration:var(--dm-t-fast)}
+/* text that swaps fades without a blur */
+[data-clean] .sw{transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease)}
+[data-clean] .sw.out{filter:none}
+/* entrances (the core .enter, popovers): a fade and a 6px rise on ease-out quint, no blur */
+@keyframes clpiece{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes clcard{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes clout{to{opacity:0;transform:translateY(-4px)}}
+[data-clean] .enter{animation:clpiece var(--dm-t-slow) var(--dm-ease) backwards}
+[data-clean] .pop-in{animation:clcard .32s var(--dm-ease) backwards}
+[data-clean] .leave{animation:clout .18s var(--dm-ease) both}
+[data-clean] .tip{filter:none;transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease)}
 
-/* ---------- Stat cards ---------- */
-[data-clean] .scx-grid{gap:var(--dm-s-3)}
-[data-clean] .scx-c{padding:var(--dm-pad);gap:var(--dm-s-2);transition:transform var(--dm-t) var(--dm-ease),box-shadow var(--dm-t) var(--dm-ease)}
-[data-clean] .scx-c:hover{transform:translateY(-1px)}
-/* the label's icon sits in a small grey squircle tile */
-[data-clean] .scx-k{gap:var(--dm-s-2)}
-[data-clean] .scx-k .ic{place-items:center;width:24px;height:24px;border-radius:calc(7px * var(--dm-rk));background:var(--dm-tile);box-shadow:inset 0 0 0 1px var(--dm-hair);color:var(--dm-fg2)}
-/* the figure: larger and lighter */
-[data-clean] .scx-v b{font-size:22px;font-weight:var(--dm-fig);letter-spacing:-.025em;line-height:1.2}
-[data-clean] .scx-sp path{stroke-width:1.5}
+/* buttons. Primary: ink with a slight gradient, a ring, a light along its top and a shade along its bottom.
+   Secondary: white with a hairline, a 1px shadow and a faint shade along its bottom. A press sinks it (.97, the inner
+   shade deepens) and it springs back in 150ms */
+[data-clean] .pill{font-weight:500;transition:transform var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease),background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+[data-clean] .pill:active{transform:scale(.97)}
+[data-clean] .pill:is(.primary,.accent):not([disabled]){color:var(--dm-on-accent);background:linear-gradient(180deg,var(--dm-btn-1),var(--dm-btn-2));box-shadow:var(--dm-btn-depth)}
+@media (hover:hover) and (pointer:fine){[data-clean] .pill:is(.primary,.accent):not([disabled]):hover{background:linear-gradient(180deg,color-mix(in srgb,var(--dm-btn-1) 88%,#808080),var(--dm-btn-2))}}
+[data-clean] .pill:is(.primary,.accent):not([disabled]):active{box-shadow:var(--dm-btn-press)}
+[data-clean] :is(.pill.line,.pill.soft,.hnx-test,.ttx-em .pill){color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
+@media (hover:hover) and (pointer:fine){[data-clean] :is(.pill.line,.pill.soft,.hnx-test,.ttx-em .pill):hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
+[data-clean] :is(.pill.line,.pill.soft,.hnx-test,.ttx-em .pill):active{box-shadow:var(--dm-btn2-press)}
+/* text buttons (a ghost in a toolbar): no fill until hovered, then the faintest grey */
+@media (hover:hover) and (pointer:fine){[data-clean] .pill.ghost:hover{background:var(--dm-row)}}
+[data-clean] .ib{transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease),transform var(--dm-t-fast) var(--dm-ease)}
+[data-clean] .ib:active{transform:scale(.94)}
 
-/* ---------- Line chart ---------- */
-[data-clean] .lnx{padding:var(--dm-pad);gap:var(--dm-s-4)}
-[data-clean] .lnx-h>div:first-child{gap:var(--dm-s-1)}
-[data-clean] .lnx-v{font-size:var(--dm-fig-size);font-weight:var(--dm-fig);letter-spacing:-.025em;line-height:1.15}
-/* the area fades from 18% of the accent to nothing; the grid is a faint dashed hairline */
-[data-clean] .lnx-svg #lng stop:first-child{stop-opacity:var(--dm-area)}
-[data-clean] .lnx-svg .gl{stroke:var(--dm-line);stroke-dasharray:2 4}
-[data-clean] .lnx-svg .ln{stroke-width:1.75}
-/* the crosshair is a dashed hairline, the readout a white card */
-[data-clean] .lnx-x{width:0;background:none;border-left:1px dashed var(--dm-faint)}
-[data-clean] .lnx-tt,[data-clean] .bcx-tt{background:var(--dm-tip-bg);color:var(--dm-tip-fg);box-shadow:var(--dm-tip-ring);padding:var(--dm-s-2) 10px;gap:2px}
-[data-clean] .lnx-tt span,[data-clean] .bcx-tt span{opacity:1;color:var(--dm-muted)}
-[data-clean] .lnx-tt,[data-clean] .lnx-x,[data-clean] .lnx-pt{transition-duration:var(--dm-t)}
+/* switchers: a white knob with a hairline and a 1px shadow, gliding on a light grey track */
+[data-clean] :is(.seg2,.hnx-pm){box-shadow:var(--dm-track-ring)}
+[data-clean] :is(.seg2 .knob,.hnx-pm .kn){background:var(--dm-knob);box-shadow:var(--dm-knob-shadow);border-radius:calc(var(--dm-r-pill) - 2px);transition:left var(--dm-t) var(--dm-ease),width var(--dm-t) var(--dm-ease)}
+[data-clean] :is(.seg2,.hnx-pm) button{color:var(--dm-muted);font-weight:500;border-radius:calc(var(--dm-r-pill) - 2px);transition:color var(--dm-t-fast) var(--dm-ease)}
+[data-clean] :is(.seg2,.hnx-pm) button[aria-pressed="true"]{color:var(--dm-fg)}
+/* toggles: ink when on, a white knob with a hairline */
+[data-clean] .toggle::after{box-shadow:0 0 0 .5px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.2);transition:transform var(--dm-t) var(--dm-ease)}
 
-/* ---------- Bar chart ---------- */
-[data-clean] .bcx{padding:var(--dm-pad);gap:var(--dm-s-5)}
-[data-clean] .bcx-h>div:first-child{gap:var(--dm-s-1)}
-[data-clean] .bcx-v{font-size:var(--dm-fig-size);font-weight:var(--dm-fig);letter-spacing:-.025em;line-height:1.15}
-/* the bars keep the one accent, with a fine white hatch inside; the others step back slowly while one is read */
-[data-clean] .bcx-st i{background-image:var(--dm-hatch)}
-[data-clean] .bcx-st{transition:opacity var(--dm-t) var(--dm-ease)}
-[data-clean] .bcx-ch:hover .bcx-b:not(:hover) .bcx-st{opacity:.32}
-[data-clean] .bcx-l{margin-top:var(--dm-s-2)}
-
-/* ---------- Task table ---------- */
-[data-clean] .ttx-hd{height:56px;border-bottom-color:var(--dm-hair)}
-/* (only where the table is a table; narrow, it keeps its own stacked rows) */
-@container ttx (min-width:341px){[data-clean] .ttx-ti,[data-clean] .ttx-sb{padding-left:var(--dm-pad)}}
-@container ttx (min-width:561px){
-  [data-clean] .ttx-t th{height:40px;border-bottom-color:var(--dm-hair)}
-  [data-clean] .ttx-t td{height:52px;border-bottom-color:color-mix(in srgb,var(--dm-line) 60%,transparent)}
-  [data-clean] .ttx-t th.ck,[data-clean] .ttx-t td.ck{padding-left:var(--dm-pad)}
-  [data-clean] .ttx-t th:last-child,[data-clean] .ttx-t td:last-child{padding-right:var(--dm-pad)}
-}
-/* rows ease their hover and pick greys a little slower */
-[data-clean] .ttx-t tbody tr[data-id]{transition:background-color var(--dm-t) var(--dm-ease)}
-/* the tick eases in instead of springing */
+/* ======================================================================================================== Task table */
+[data-clean] .ttx-hd{border-bottom:0}
+[data-clean] .ttx-ti b{font-size:13.5px;font-weight:500}
+[data-clean] .ttx-ti,[data-clean] .ttx-sb{filter:none!important;transition:opacity var(--dm-t) var(--dm-ease),transform var(--dm-t) var(--dm-ease)}
+/* the column heads sit on an off-white strip between two hairlines */
+[data-clean] .ttx-t thead tr{background:var(--dm-strip)}
+[data-clean] .ttx-t th{border-top:1px solid var(--dm-line);border-bottom:1px solid var(--dm-line);font-weight:400}
+[data-clean] .ttx-t td{border-bottom-color:var(--dm-line)}
+/* stacked (narrow), the strip's hairlines belong to the row, not to each label */
+@container ttx (max-width:560px){[data-clean] .ttx-t th{border-top:0;border-bottom:0}[data-clean] .ttx-t thead tr{border-top:1px solid var(--dm-line);border-bottom:1px solid var(--dm-line)}}
+[data-clean] .ttx-t .nm{font-weight:400}
+[data-clean] .ttx-t tbody tr[data-id]{transition:background-color var(--dm-t-fast) var(--dm-ease)}
+[data-clean] .ttx-t tbody tr[data-id]:hover{background:var(--dm-row)}
+[data-clean] .ttx-t tbody tr.sel{background:var(--dm-chip)}
+[data-clean] .ttx-t tbody tr.sel:hover{background:var(--dm-hover)}
+/* checkboxes: a hairline box, ink when checked; the tick eases in */
+[data-clean] .ttx-cb{border-radius:calc(4px * var(--dm-rk));transition:background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
+[data-clean] .ttx-cb[aria-checked="true"],[data-clean] .ttx-cb[aria-checked="mixed"]{background:linear-gradient(180deg,var(--dm-btn-1),var(--dm-btn-2));box-shadow:inset 0 0 0 1px var(--dm-accent)}
 [data-clean] .ttx-cb svg{transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease)}
-[data-clean] .ttx-cb{border-radius:calc(4px * var(--dm-rk))}
+/* status: a white chip with a hairline and grey text; only the small glyph carries colour (green done, red failed) */
+[data-clean] .ttx-st,[data-clean] .ttx-st[data-s]{--dm-sc:var(--dm-fg2);height:22px;padding:0 8px 0 7px;border-radius:var(--dm-r-tag);background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-hair);font-weight:500;transition:color var(--dm-t) var(--dm-ease)}
+@supports (corner-shape:squircle){[data-clean] .ttx-st{border-radius:var(--dm-r-tag-sq)}}
+[data-clean] .ttx-st[data-s="done"] .i{color:var(--dm-ok)}
+[data-clean] .ttx-st[data-s="fail"] .i{color:var(--dm-bad)}
+[data-clean] .ttx-st .spin{color:var(--dm-fg2)}
+[data-clean] .ttx-sin{animation:clpiece var(--dm-t) var(--dm-ease)}
+[data-clean] .ttx-t tbody tr.ttx-out{transition-duration:.18s}
+/* avatars: pale grey with ink initials and a hairline */
+[data-clean] .ttx-t .av{background:var(--dm-chip)!important;color:var(--dm-fg2)!important;box-shadow:inset 0 0 0 1px var(--dm-hair)}
+[data-clean] .ttx-t .ag{color:var(--dm-fg2)}
 
-/* ---------- Tools and connections ---------- */
-[data-clean] .hnx{padding:var(--dm-s-4);gap:var(--dm-s-2);background-image:var(--dm-wash-a)}
-[data-clean] .hnx-h{padding:var(--dm-s-1) var(--dm-s-3) var(--dm-s-3)}
-[data-clean] .hnx-t{padding:10px var(--dm-s-3);transition:background-color var(--dm-t) var(--dm-ease)}
-/* icon tiles: an off-white squircle with a hairline */
-[data-clean] .hnx-t .ic{width:32px;height:32px;border-radius:calc(8px * var(--dm-rk))}
-[data-clean] .hnx-t .ic.brandic{background:var(--dm-inner);box-shadow:inset 0 0 0 1px var(--dm-hair)}
-[data-clean] .hnx-pm button{transition-duration:var(--dm-t-fast)}
-/* a hovered row darkens the switch's track a little less, so its grey labels keep 4.5:1 */
-[data-clean] .hnx-t:hover .hnx-pm{background:color-mix(in srgb,var(--dm-fg) 6%,transparent)}
-[data-clean] .hnx-add{margin-top:var(--dm-s-1);padding-left:var(--dm-s-3)}
-/* on a phone the row keeps Soft's tighter padding, so the descriptions keep their room */
-@container (max-width:400px){[data-clean] .hnx{padding:var(--dm-s-3)}[data-clean] .hnx-t{padding:var(--dm-s-2) 10px}[data-clean] .hnx-t .ic{width:28px;height:28px}[data-clean] .hnx-h{padding:2px 10px var(--dm-s-2)}[data-clean] .hnx-add{padding-left:10px}}
+/* ======================================================================================================== Tools */
+/* the head is an off-white strip with a hairline under it, "Connect a tool" a foot strip with a hairline over it */
+[data-clean] .hnx{gap:0;padding:0;overflow:hidden}
+[data-clean] .hnx-h{padding:12px 14px;background:var(--dm-strip);border-bottom:1px solid var(--dm-line)}
+[data-clean] .hnx-h b{font-weight:500}
+[data-clean] .hnx-list{padding:6px}
+[data-clean] .hnx-t{padding:8px;border-radius:var(--dm-r-in);transition:background-color var(--dm-t-fast) var(--dm-ease)}
+[data-clean] .hnx-t:hover{background:var(--dm-row)}
+[data-clean] .hnx-t .ic,[data-clean] .hnx-t .ic.brandic{background:var(--dm-surface)!important;color:var(--dm-fg2)!important;box-shadow:inset 0 0 0 1px var(--dm-hair),0 1px 1px rgba(0,0,0,.04);border-radius:calc(7px * var(--dm-rk))}
+[data-clean] .hnx-t .ic::after{transition-duration:var(--dm-t)}
+[data-clean] .hnx-t:hover .hnx-pm{background:var(--dm-hover)}
+[data-clean] .hnx-add{align-self:stretch;margin-top:auto;height:40px;padding:0 14px;border-radius:0;background:var(--dm-strip);border-top:1px solid var(--dm-line);font-weight:500;transition:color var(--dm-t-fast) var(--dm-ease),background-color var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){[data-clean] .hnx-add:hover{background:var(--dm-chip)}}
 
-/* ---------- Progress and meter ---------- */
-[data-clean] .prg{padding:var(--dm-pad);gap:var(--dm-s-4);background-image:var(--dm-wash-a)}
-/* paused reads in a grey that still holds 3:1 */
-[data-clean] .prg[data-s="paused"]{--dm-prg-c:var(--dm-line-strong)}
-/* tracks stay neutral grey; accent fills get the fine hatch (status fills stay plain, so they keep 3:1 on the track) */
-[data-clean] .prg:not([data-s="done"],[data-s="err"],[data-s="paused"]) :is(.prg-seg b,.prg-lin i){background-image:var(--dm-hatch)}
-/* the meter is a nested surface instead of a divider */
-[data-clean] .prg-meter{margin-top:var(--dm-s-1);padding:var(--dm-s-4);border-top:0;border-radius:var(--dm-r-in);background:var(--dm-inner);box-shadow:inset 0 0 0 1px var(--dm-hair)}
-[data-clean] .prg-mb:not(.warn,.bad) .fl{background-image:var(--dm-hatch)}
+/* ======================================================================================================== Line chart */
+[data-clean] .lnx-v{font-size:20px;font-weight:500;letter-spacing:-.02em;line-height:1.25;margin-top:2px}
+[data-clean] .lnx-svg #lng stop:first-child{stop-opacity:var(--dm-area)}
+[data-clean] .lnx-svg .ln{stroke-width:1.5}
+[data-clean] .lnx-svg .gl{stroke:var(--dm-line);stroke-dasharray:3 3}
+/* the legend: small outlined toggles, white when on */
+[data-clean] .lnx-k{height:24px;padding:0 8px;border-radius:var(--dm-r-tag);font-weight:500;transition:color var(--dm-t-fast) var(--dm-ease),background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
+@supports (corner-shape:squircle){[data-clean] .lnx-k{border-radius:var(--dm-r-tag-sq)}}
+[data-clean] .lnx-k.on{background:var(--dm-surface);box-shadow:var(--dm-btn2-depth)}
+[data-clean] .lnx-k:hover{background:var(--dm-row)}
+[data-clean] .lnx-k.on:hover{background:var(--dm-surface);box-shadow:var(--dm-btn2-hover)}
+[data-clean] .lnx-k i{width:7px;height:7px;transition-duration:var(--dm-t)}
+/* the crosshair is a hairline; the readout a white card with a hairline */
+[data-clean] .lnx-x{background:var(--dm-faint);transition-duration:var(--dm-t-fast)}
+[data-clean] .lnx-tt{background:var(--dm-tip-bg);color:var(--dm-tip-fg);box-shadow:var(--dm-tip-ring);transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease)}
+[data-clean] .lnx-tt span{opacity:1;color:var(--dm-muted)}
+[data-clean] .lnx-pt{width:8px;height:8px;margin:-4px;box-shadow:0 0 0 1.5px currentColor,0 1px 2px rgba(0,0,0,.2);transition-duration:var(--dm-t-fast)}
+
+/* ======================================================================================================== empty states */
+/* one treatment for every component: a ghost of the component's own content (rows, tiles or a flat line) on a small
+   white card, a short title, one grey line and one secondary action. The table's own empty state takes the same look */
+[data-clean] :is(.cle-em,.ttx-em){display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
+[data-clean] .cle-em{padding:28px 16px 30px}
+[data-clean] :is(.cle-em,.ttx-em) b{font-size:13.5px;font-weight:500;color:var(--dm-fg)}
+[data-clean] :is(.cle-em,.ttx-em)>span:not(.ic){max-width:290px;font-size:12.5px;line-height:1.5;color:var(--dm-muted)}
+[data-clean] :is(.cle-em,.ttx-em) .pill{margin-top:12px}
+/* the ghost: a white card with a hairline and three rows, each a square and two bars, fading downward */
+[data-clean] :is(.cle-art,.ttx-em .ic){position:relative;display:block;width:136px;height:70px;margin:0 0 16px;border-radius:calc(10px * var(--dm-rk));background:var(--dm-surface);box-shadow:var(--dm-shadow)}
+[data-clean] .ttx-em .ic svg{display:none}
+[data-clean] :is(.cle-art.rows,.cle-art.tiles,.ttx-em .ic)::before{content:"";position:absolute;left:14px;top:14px;width:10px;height:10px;border-radius:3px;background:var(--dm-ghost);box-shadow:0 16px 0 var(--dm-ghost),0 32px 0 var(--dm-ghost-2)}
+[data-clean] :is(.cle-art.rows,.cle-art.tiles,.ttx-em .ic)::after{content:"";position:absolute;left:32px;top:16px;width:58px;height:6px;border-radius:3px;background:var(--dm-ghost);box-shadow:0 16px 0 var(--dm-ghost),0 32px 0 var(--dm-ghost-2)}
+/* tools: the squares are tiles, a little larger and rounder */
+[data-clean] .cle-art.tiles::before{width:12px;height:12px;top:13px;border-radius:4px;box-shadow:0 16px 0 var(--dm-ghost),0 32px 0 var(--dm-ghost-2)}
+/* the chart: a flat dashed line on a baseline, with an empty point at its end */
+[data-clean] .cle-art.line{background-image:repeating-linear-gradient(90deg,var(--dm-faint) 0 4px,transparent 4px 8px),linear-gradient(var(--dm-ghost),var(--dm-ghost));background-repeat:no-repeat;background-size:96px 1.5px,108px 1px;background-position:14px 40px,14px 56px}
+[data-clean] .cle-art.line::after{content:"";position:absolute;left:108px;top:36px;width:8px;height:8px;border-radius:50%;background:var(--dm-surface);box-shadow:inset 0 0 0 1.5px var(--dm-faint)}
+@supports (corner-shape:squircle){[data-clean] .cle-art.line::after{corner-shape:round}}
+[data-clean] .ttx-t tbody tr.ttx-empty td{padding-top:28px!important;padding-bottom:30px!important}
+
+/* ======================================================================================================== entrance */
+/* when a card comes into view (the page sets [data-in] on the root), the card fades and rises 8px from .98, and its
+   pieces follow 40ms apart: the head, then each row, tile or the chart */
+[data-clean][data-in] [data-c]>.stage-in>.panel{animation:clcard .52s var(--dm-ease) both}
+[data-clean][data-in] :is(.ttx-hd,.ttx-t thead tr,.ttx-t tbody tr:not(.leave,.ttx-out),.hnx-h,.hnx-t,.hnx-add,.lnx-h,.lnx-ch,.lnx-ax,.cle-em>*,.ttx-em>*){animation:clpiece .44s var(--dm-ease) both;animation-delay:var(--d,120ms)!important}
+[data-clean][data-in] :is(.ttx-t thead tr,.hnx-list>.hnx-t:nth-child(1),.lnx-ch,.cle-em>:nth-child(2),.ttx-em>:nth-child(2)){--d:160ms}
+[data-clean][data-in] :is(.ttx-t tbody tr:nth-child(1),.hnx-list>.hnx-t:nth-child(2),.lnx-ax,.cle-em>:nth-child(3),.ttx-em>:nth-child(3)){--d:200ms}
+[data-clean][data-in] :is(.ttx-t tbody tr:nth-child(2),.hnx-list>.hnx-t:nth-child(3),.cle-em>:nth-child(4),.ttx-em>:nth-child(4)){--d:240ms}
+[data-clean][data-in] :is(.ttx-t tbody tr:nth-child(3),.hnx-list>.hnx-t:nth-child(4)){--d:280ms}
+[data-clean][data-in] :is(.ttx-t tbody tr:nth-child(4),.hnx-list>.hnx-t:nth-child(5)){--d:320ms}
+[data-clean][data-in] :is(.ttx-t tbody tr:nth-child(5),.hnx-list>.hnx-t:nth-child(6),.hnx-add){--d:360ms}
+[data-clean][data-in] :is(.ttx-t tbody tr:nth-child(n+6)){--d:400ms}
+@media (prefers-reduced-motion:reduce){[data-clean] *,[data-clean] *::before,[data-clean] *::after{animation:none!important}}
