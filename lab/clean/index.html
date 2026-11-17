@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Clean exploration · Designme.dev lab</title>
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<!-- owner, 17 Nov: explore a third component style next to Soft and Blueprint, "Clean": airy, white, delicate blue
+     gradients, almost clinical. Clean is a token layer (clean.css) laid over our own components: the same markup, layout
+     and copy, just in Clean. Each pair is the same component page (its demo only): on the left in Soft (or Blueprint), on
+     the right in Clean. Nothing ships from here -->
+<script>
+(function(){ var t; try { t = localStorage.getItem('dmui-theme'); } catch(e){} document.documentElement.dataset.t = t === 'dark' ? 'dark' : 'light'; })();
+</script>
+<style>
+:root{--bg:#f5f5f5;--card:#fff;--fg:#141414;--muted:#6b6b6b;--line:rgba(0,0,0,.07);--chip:#ebebeb;--on:#fff;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+html[data-t="dark"]{--bg:#0f0f0f;--card:#171717;--fg:#f2f2f2;--muted:#bdbdbd;--line:rgba(255,255,255,.08);--chip:#222;--on:#2e2e2e;color-scheme:dark}
+html,body{margin:0;background:var(--bg);color:var(--fg)}
+*{box-sizing:border-box}
+header{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px 16px;flex-wrap:wrap;padding:12px 24px;background:var(--bg);border-bottom:1px solid var(--line)}
+header b{font-size:14px;font-weight:500}
+header .sub{font-size:13px;color:var(--muted)}
+.sp{flex:1}
+.ctl{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.seg{display:inline-flex;padding:2px;border-radius:10px;background:var(--chip)}
+.seg button{font:inherit;font-size:12px;font-weight:500;color:var(--muted);background:none;border:0;height:26px;padding:0 10px;border-radius:8px;cursor:pointer;transition:color .25s cubic-bezier(.22,1,.36,1),background-color .25s cubic-bezier(.22,1,.36,1)}
+.seg button:hover{color:var(--fg)}
+.seg button[aria-pressed="true"]{background:var(--on);color:var(--fg);box-shadow:0 0 0 1px var(--line),0 1px 3px rgba(0,0,0,.06)}
+.seg button:focus-visible{outline:2px solid #8a8a8a;outline-offset:1px}
+main{max-width:1440px;margin:0 auto;padding:24px}
+.note{max-width:860px;font-size:13px;line-height:1.6;color:var(--muted);margin:0 0 16px}
+.note b{color:var(--fg);font-weight:500}
+.tok{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px 24px;margin:0 0 8px;padding:0;list-style:none;font-size:12px;color:var(--muted)}
+.tok li{display:flex;align-items:center;gap:8px;min-width:0;height:24px}
+.tok i{flex:none;width:14px;height:14px;border-radius:4px;box-shadow:inset 0 0 0 1px var(--line)}
+.tok span{color:var(--fg);white-space:nowrap}
+.tok em{font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+h2{font-size:13px;font-weight:500;color:var(--muted);margin:32px 0 10px}
+h2 span{font-weight:400}
+.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.c{display:flex;flex-direction:column;min-width:0;border-radius:14px;background:var(--card);box-shadow:0 0 0 1px var(--line);overflow:hidden}
+.h{display:flex;align-items:baseline;gap:8px;height:40px;padding:12px 16px 0;border-bottom:1px solid var(--line);font-size:13px}
+.h b{font-weight:500}.h i{font-style:normal;color:var(--muted)}
+iframe{display:block;width:100%;height:var(--h,520px);border:0;background:var(--bg);opacity:0;transition:opacity .3s}
+@media (max-width:900px){.pair{grid-template-columns:minmax(0,1fr)}main{padding:16px}header{padding:12px 16px}}
+@media (prefers-reduced-motion:reduce){iframe,.seg button{transition:none}}
+</style>
+</head>
+<body>
+<header>
+  <b>Clean exploration</b><span class="sub">A third style next to Soft and Blueprint</span>
+  <span class="sp"></span>
+  <div class="ctl">Compare with<div class="seg" id="cmp" role="group" aria-label="Compare with"><button data-v="soft">Soft</button><button data-v="bp">Blueprint</button></div></div>
+  <div class="seg" id="thm" role="group" aria-label="Theme"><button data-v="light">Light</button><button data-v="dark">Dark</button></div>
+</header>
+<main>
+  <p class="note"><b>Clean is a set of tokens, not new components.</b> The same markup, copy and demos as the library, with
+    <code>clean.css</code> laid over Soft: a light neutral stage, white cards with a hairline and one very soft, wide shadow,
+    nested surfaces a hair off-white, squircle corners, lighter big figures, thin icons in grey tiles, the one blue accent with
+    faint blue fades (area fills, a header wash, a fine hatch inside accent bars) and slower, calmer motion. Every text pair
+    passes 4.5:1 and APCA Lc 60, every mark 3:1, in both themes.</p>
+  <ul class="tok" id="tok"></ul>
+  <div id="pairs"></div>
+</main>
+<script>
+const dark = () => document.documentElement.dataset.t === 'dark';
+// the Clean tokens worth seeing at a glance (the values in clean.css)
+const TOK = () => (dark()
+  ? [['Stage', '#0f0f0f'], ['Surface', '#171717'], ['Inner panel', '#1c1c1c'], ['Hairline', 'rgba(255,255,255,.07)'], ['Text', '#f2f2f2'], ['Muted', '#bdbdbd'], ['Accent', '#116ff8'], ['Accent mark', '#3d8bff']]
+  : [['Stage', '#f5f5f5'], ['Surface', '#ffffff'], ['Inner panel', '#fafafa'], ['Hairline', 'rgba(0,0,0,.06)'], ['Text', '#141414'], ['Muted', '#6b6b6b'], ['Accent', '#116ff8'], ['Accent text', '#0f5fd5']])
+  .concat([['Card radius', '22px (30px squircle)', 'none'], ['Inner radius', '14px (19px squircle)', 'none'], ['Big figure', '26px, weight 400', 'none'], ['Motion', '250 to 600ms, ease-out', 'none']]);
+const paintTok = () => { document.getElementById('tok').innerHTML = TOK().map(([n, v, sw]) => `<li><i style="background:${sw || v}${sw ? ';box-shadow:none;width:0;margin-right:-8px' : ''}"></i><span>${n}</span><em>${v}</em></li>`).join(''); };
+// six components that suit the look: [id, name, height of its stage in px, what Clean changes]
+const P = [
+  ['stat-cards', 'Stat cards', 440, 'figures at 22px / 400, icons in grey squircle tiles, a 1px lift on hover'],
+  ['line-chart', 'Line chart', 400, 'an 18% area fade, dashed hairline grid and crosshair, a white readout'],
+  ['bar-chart', 'Bar chart', 380, 'a fine white hatch in the accent bars, a lighter figure, a white readout'],
+  ['task-table', 'Task table', 520, 'taller rows, more side padding, fainter dividers, a tick that eases in'],
+  ['tool-connections', 'Tools and connections', 540, 'a soft blue wash at the top, off-white icon tiles, white knobs'],
+  ['progress', 'Progress and meter', 420, 'a header wash, hatched fills, the meter as a nested off-white panel']];
+let cmp = 'soft';
+try { if (localStorage.getItem('dmlab-clean-cmp') === 'bp') cmp = 'bp'; } catch(e){}
+const head = k => k === 'clean' ? 'Clean' : (cmp === 'bp' ? 'Blueprint' : 'Soft');
+document.getElementById('pairs').innerHTML = P.map(([id, t, h, d]) => `<h2>${t} <span>· ${d}</span></h2><div class="pair">`
+  + ['base', 'clean'].map(k => `<section class="c"><div class="h"><b data-k="${k}">${head(k)}</b><i>${t}</i></div><iframe data-k="${k}" data-id="${id}" title="${t}, ${k === 'clean' ? 'Clean' : 'compared style'}" style="--h:${h}px"></iframe></section>`).join('')
+  + '</div>').join('');
+const frames = [...document.querySelectorAll('iframe')];
+const cleanHref = new URL('clean.css', location.href).href;
+// each frame shows only the component's demo; the Clean one gets clean.css and data-clean on its root, the stage in
+// Clean's stage colour. Blueprint is the page without data-style
+const ONLY = 'html{overflow:hidden!important;scrollbar-gutter:auto!important}body{visibility:hidden!important}.cp-demo{visibility:visible!important;position:fixed!important;inset:0!important;z-index:100;margin:0!important;border-radius:0!important;overflow:auto}.cp-demo .pg-demo{min-height:100%!important}body>.tip{visibility:visible!important}';
+let pending = 0, keep = null;
+// a pair grows (never shrinks) to fit the taller of its two demos at its tallest moment, so nothing scrolls inside a frame.
+// Demos re-render their markup on replay, so the frames are measured on a slow tick rather than observed
+const fit = f => { try {
+  const d = f.contentDocument, pd = d && d.querySelector('.pg-demo'), st = pd && pd.querySelector(':scope>.card>.stage-in>:not(template)');
+  if (!st) return; const cs = f.contentWindow.getComputedStyle(pd);
+  const need = Math.ceil(st.getBoundingClientRect().height + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom)) + 8;
+  if (need > parseFloat(getComputedStyle(f).height)) f.closest('.pair').querySelectorAll('iframe').forEach(x => x.style.setProperty('--h', need + 'px'));
+} catch(e){} };
+setInterval(() => frames.forEach(fit), 400);
+const shown = f => { f.style.opacity = 1; if (--pending === 0 && keep !== null){ try { localStorage.setItem('dmui-style', keep); } catch(e){} } };
+frames.forEach(f => f.addEventListener('load', () => { try {
+  const d = f.contentDocument, r = d.documentElement;
+  const a = d.createElement('style'); a.textContent = ONLY; d.head.appendChild(a);
+  if (f.dataset.k === 'clean'){
+    r.setAttribute('data-style', 'soft'); r.setAttribute('data-clean', '');
+    const s = d.createElement('style'); s.textContent = '.cp-demo{background:var(--dm-stage)!important}'; d.head.appendChild(s);
+    const l = d.createElement('link'); l.rel = 'stylesheet'; l.href = cleanHref;
+    l.onload = l.onerror = () => shown(f); d.head.appendChild(l); return;
+  }
+  if (cmp === 'bp') r.removeAttribute('data-style'); else r.setAttribute('data-style', 'soft');
+} catch(e){} shown(f); }));
+const load = () => {
+  try { keep = localStorage.getItem('dmui-style'); localStorage.setItem('dmui-style', 'soft'); } catch(e){ keep = null; }
+  pending = frames.length;
+  frames.forEach(f => { f.style.opacity = 0; f.src = `../../components/${f.dataset.id}.html?r=${Date.now()}`; });
+};
+const paint = () => {
+  document.querySelectorAll('#thm button').forEach(b => b.setAttribute('aria-pressed', document.documentElement.dataset.t === b.dataset.v));
+  document.querySelectorAll('#cmp button').forEach(b => b.setAttribute('aria-pressed', cmp === b.dataset.v));
+  document.querySelectorAll('.h b[data-k]').forEach(b => b.textContent = head(b.dataset.k));
+  paintTok();
+};
+document.querySelectorAll('#thm button').forEach(b => b.onclick = () => { if (document.documentElement.dataset.t === b.dataset.v) return; document.documentElement.dataset.t = b.dataset.v; try { localStorage.setItem('dmui-theme', b.dataset.v); } catch(e){} paint(); load(); });
+document.querySelectorAll('#cmp button').forEach(b => b.onclick = () => { if (cmp === b.dataset.v) return; cmp = b.dataset.v; try { localStorage.setItem('dmlab-clean-cmp', cmp); } catch(e){}
+  paint(); frames.filter(f => f.dataset.k === 'base').forEach(f => { pending++; f.style.opacity = 0; f.src = `../../components/${f.dataset.id}.html?r=${Date.now()}`; }); });
+try { localStorage.setItem('dmui-theme', document.documentElement.dataset.t); } catch(e){}
+paint(); load();
+</script>
+</body>
+</html>

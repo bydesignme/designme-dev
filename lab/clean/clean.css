@@ -1,0 +1,197 @@
+/* Clean: a third component style, explored next to Soft and Blueprint (lab only, nothing ships from here).
+   Airy, white and almost clinical: a light neutral stage, white cards with a hairline and one very soft, wide shadow,
+   nested surfaces a hair off-white, generous squircle corners, lighter big figures, one crisp blue used sparingly and
+   faint blue gradients where a chart or a running task needs them. Calm, slow motion.
+
+   How it is built: Clean sits on top of Soft (the page keeps data-style="soft") and only rewrites the tokens core reads,
+   plus a few component touches where a token can't reach. Everything is scoped to [data-clean], on <html> or on any
+   element around the components, the same way core scopes Soft to [data-style="soft"]. To make it a real style, swap
+   [data-clean] for [data-style="clean"] (see the notes at the end of lab/clean/index.html).
+   Token names carry the --dm- prefix because the component pages (and installs) use it; the library source
+   (soft-2/index.html) would use the short names (--surface, --line, ...). */
+
+/* ---------- tokens, light ---------- */
+[data-clean],[data-clean] [data-style="soft"]{
+  --dm-motion:soft;
+  /* page and surfaces: a light neutral stage, white cards, nested panels a hair off-white */
+  --dm-page:#f5f5f5; --dm-stage:#f5f5f5; --dm-surface:#ffffff; --dm-raised:#ffffff;
+  --dm-inner:#fafafa; --dm-hair:rgba(0,0,0,.06);
+  /* type and lines: neutral greys only */
+  --dm-fg:#141414; --dm-fg2:#4d4d4d; --dm-muted:#6b6b6b; --dm-faint:#c8c8c8; --dm-rail:#dcdcdc; --dm-line:#ebebeb;
+  --dm-field-line:#dcdcdc; --dm-line-strong:#8a8a8a; --dm-field-line-strong:#b5b5b5;
+  --dm-chip:#f2f2f2; --dm-hover:#ededed; --dm-press:#e6e6e6; --dm-wash:#fafafa; --dm-row:#fafafa;
+  --dm-soft:#f0f0f0; --dm-soft-h:#e8e8e8; --dm-soft-ring:inset 0 0 0 1px rgba(0,0,0,.04); --dm-dis:#a3a3a3;
+  --dm-knob:#ffffff; --dm-knob-shadow:0 0 0 1px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.07);
+  --dm-tile:#f5f5f5;
+  /* one crisp blue, the same family as Soft's */
+  --dm-accent:#116ff8; --dm-on-accent:#ffffff; --dm-accent-fg:#0f5fd5; --dm-accent-mark:#116ff8;
+  --dm-sel:color-mix(in srgb,var(--dm-accent) 5%,transparent);
+  /* delicate blue gradients: an area fill that fades from 18% to nothing, a wash that fades from a soft blue into the
+     surface, and a fine white hatch inside accent bars and fills */
+  --dm-area:.18;
+  --dm-wash-a:linear-gradient(180deg,color-mix(in srgb,var(--dm-accent) 6%,var(--dm-surface)) 0,var(--dm-surface) 112px);
+  --dm-hatch:repeating-linear-gradient(-45deg,rgba(255,255,255,.16) 0 1px,transparent 1px 5px);
+  /* status colours as in Soft (saturated), a step deeper where Soft's only just held its contrast on white: Clean puts
+     marks on off-white panels, washes and grey tracks too, and text on the table's 11% tints */
+  --dm-ok:#147a39; --dm-ok-bg:#e6f7eb; --dm-ok-mark:#1ba04c; --dm-warn:#9a4704; --dm-warn-bg:#fff0d6; --dm-warn-mark:#e86100;
+  --dm-bad:#cf2017; --dm-bad-bg:#feeceb; --dm-bad-mark:#f04438;
+  /* chart palette: Soft's hues, the accent first, the light ones a step deeper so every mark holds 3:1 on white, #fafafa,
+     the blue wash and a grey track */
+  --dm-c1:var(--dm-accent-mark); --dm-c2:#7c4dff; --dm-c3:#1ba04c; --dm-c4:#e86100; --dm-c5:#f74b6a; --dm-c6:#0098b4;
+  /* edges and depth: a hairline and one very soft, wide, neutral shadow; no top highlight, no colour */
+  --dm-shadow:0 0 0 1px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.03),0 8px 24px -8px rgba(0,0,0,.05),0 28px 56px -24px rgba(0,0,0,.08);
+  --dm-shadow-pop:0 0 0 1px rgba(0,0,0,.065),0 2px 4px rgba(0,0,0,.03),0 14px 32px -10px rgba(0,0,0,.08),0 40px 72px -28px rgba(0,0,0,.12);
+  --dm-shadow-toast:0 0 0 1px rgba(0,0,0,.06),0 10px 28px -10px rgba(0,0,0,.12);
+  --dm-shadow-lift:var(--dm-shadow-pop);
+  /* tooltips are white cards with a hairline, not black */
+  --dm-tip-bg:#ffffff; --dm-tip-fg:#141414; --dm-tip-ring:0 0 0 1px rgba(0,0,0,.06),0 10px 28px -8px rgba(0,0,0,.14);
+  /* radius: generous and smooth. Round corners where the browser can't draw squircles, larger -sq radii where it can */
+  --dm-rk:1.1;
+  --dm-r-card:22px; --dm-r-lg:24px; --dm-r-in:14px; --dm-r-sm:10px; --dm-r-xs:5px; --dm-r-pill:999px;
+  --dm-r-field:10px; --dm-r-field-sq:14px; --dm-r-box:14px; --dm-r-box-sq:19px; --dm-r-tag:7px; --dm-r-tag-sq:10px;
+  /* type: the one big figure in a component is lighter and larger */
+  --dm-fig:400; --dm-fig-size:26px;
+  /* motion: calm and slow, the same ease as Soft */
+  --dm-ease:cubic-bezier(.22,1,.36,1); --dm-ease-io:cubic-bezier(.65,0,.35,1);
+  --dm-t-fast:.25s; --dm-t:.4s; --dm-t-slow:.6s;
+  /* spacing: more air than Soft inside a card */
+  --dm-pad:20px;
+  --dm-pick-line:var(--dm-rail); --dm-pick-on:var(--dm-faint);
+  --dm-accent-bg:color-mix(in srgb,var(--dm-accent) 8%,transparent);
+}
+@supports (corner-shape:squircle){
+  [data-clean],[data-clean] [data-style="soft"]{--dm-rk:1.5;--dm-r-card:30px;--dm-r-lg:32px;--dm-r-in:19px;--dm-r-sm:13px;--dm-r-xs:7px}
+}
+
+/* ---------- tokens, dark ---------- */
+/* a near-black neutral page, two surface steps, white hairlines at 7%, the blue kept faint */
+:root[data-theme="dark"][data-clean],:root[data-theme="dark"] [data-clean],:root[data-theme="dark"][data-clean] [data-style="soft"]{
+  --dm-page:#0f0f0f; --dm-stage:#0f0f0f; --dm-surface:#171717; --dm-raised:#1f1f1f;
+  --dm-inner:#1c1c1c; --dm-hair:rgba(255,255,255,.07);
+  --dm-fg:#f2f2f2; --dm-fg2:#c7c7c7; --dm-muted:#bdbdbd; --dm-faint:#4a4a4a; --dm-rail:#333333; --dm-line:#262626;
+  --dm-field-line:#5c5c5c; --dm-line-strong:#7a7a7a; --dm-field-line-strong:#8f8f8f;
+  --dm-chip:#222222; --dm-hover:#272727; --dm-press:#2e2e2e; --dm-wash:#1b1b1b; --dm-row:color-mix(in srgb,var(--dm-fg) 4%,transparent);
+  --dm-soft:#242424; --dm-soft-h:#2b2b2b; --dm-soft-ring:inset 0 0 0 1px rgba(255,255,255,.05); --dm-dis:#6e6e6e;
+  --dm-knob:#2e2e2e; --dm-knob-shadow:0 0 0 1px rgba(255,255,255,.06),0 1px 3px rgba(0,0,0,.4);
+  --dm-tile:#222222;
+  --dm-accent:#116ff8; --dm-on-accent:#ffffff; --dm-accent-fg:#9dc4ff; --dm-accent-mark:#3d8bff;
+  --dm-sel:color-mix(in srgb,var(--dm-accent) 9%,transparent);
+  --dm-area:.14;
+  --dm-wash-a:linear-gradient(180deg,color-mix(in srgb,var(--dm-accent) 7%,var(--dm-surface)) 0,var(--dm-surface) 112px);
+  --dm-hatch:repeating-linear-gradient(-45deg,rgba(255,255,255,.14) 0 1px,transparent 1px 5px);
+  --dm-ok:#4ade80; --dm-ok-bg:rgba(34,197,94,.14); --dm-ok-mark:#22c55e; --dm-warn:#ffc247; --dm-warn-bg:rgba(255,184,40,.15); --dm-warn-mark:#ffa940;
+  --dm-bad:#ffaca4; --dm-bad-bg:rgba(240,68,56,.15); --dm-bad-mark:#f97066;
+  --dm-c1:var(--dm-accent-mark); --dm-c2:#9b7bff; --dm-c3:#22c55e; --dm-c4:#ffa033; --dm-c5:#ff6b85; --dm-c6:#22cce8;
+  --dm-shadow:0 0 0 1px rgba(255,255,255,.07),0 1px 2px rgba(0,0,0,.4),0 16px 40px -14px rgba(0,0,0,.55);
+  --dm-shadow-pop:0 0 0 1px rgba(255,255,255,.09),0 2px 4px rgba(0,0,0,.4),0 24px 56px -18px rgba(0,0,0,.7);
+  --dm-shadow-toast:0 0 0 1px rgba(255,255,255,.08),0 12px 28px -12px rgba(0,0,0,.7);
+  --dm-shadow-lift:var(--dm-shadow-pop);
+  --dm-tip-bg:#262626; --dm-tip-fg:#f2f2f2; --dm-tip-ring:0 0 0 1px rgba(255,255,255,.09),0 12px 28px -10px rgba(0,0,0,.7);
+  --dm-accent-bg:color-mix(in srgb,var(--dm-accent) 13%,transparent);
+  color-scheme:dark;
+}
+/* the same, when the system is dark and nothing chose a theme */
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"])[data-clean],:root:not([data-theme="light"]) [data-clean]{
+  --dm-page:#0f0f0f; --dm-stage:#0f0f0f; --dm-surface:#171717; --dm-raised:#1f1f1f; --dm-inner:#1c1c1c; --dm-hair:rgba(255,255,255,.07);
+  --dm-fg:#f2f2f2; --dm-fg2:#c7c7c7; --dm-muted:#bdbdbd; --dm-faint:#4a4a4a; --dm-rail:#333333; --dm-line:#262626;
+  --dm-field-line:#5c5c5c; --dm-line-strong:#7a7a7a; --dm-field-line-strong:#8f8f8f;
+  --dm-chip:#222222; --dm-hover:#272727; --dm-press:#2e2e2e; --dm-wash:#1b1b1b; --dm-row:color-mix(in srgb,var(--dm-fg) 4%,transparent);
+  --dm-soft:#242424; --dm-soft-h:#2b2b2b; --dm-soft-ring:inset 0 0 0 1px rgba(255,255,255,.05); --dm-dis:#6e6e6e;
+  --dm-knob:#2e2e2e; --dm-knob-shadow:0 0 0 1px rgba(255,255,255,.06),0 1px 3px rgba(0,0,0,.4); --dm-tile:#222222;
+  --dm-accent-fg:#9dc4ff; --dm-accent-mark:#3d8bff; --dm-sel:color-mix(in srgb,var(--dm-accent) 9%,transparent); --dm-area:.14;
+  --dm-wash-a:linear-gradient(180deg,color-mix(in srgb,var(--dm-accent) 7%,var(--dm-surface)) 0,var(--dm-surface) 112px);
+  --dm-hatch:repeating-linear-gradient(-45deg,rgba(255,255,255,.14) 0 1px,transparent 1px 5px);
+  --dm-ok:#4ade80; --dm-ok-bg:rgba(34,197,94,.14); --dm-ok-mark:#22c55e; --dm-warn:#ffc247; --dm-warn-bg:rgba(255,184,40,.15); --dm-warn-mark:#ffa940;
+  --dm-bad:#ffaca4; --dm-bad-bg:rgba(240,68,56,.15); --dm-bad-mark:#f97066;
+  --dm-c2:#9b7bff; --dm-c3:#22c55e; --dm-c4:#ffa033; --dm-c5:#ff6b85; --dm-c6:#22cce8;
+  --dm-shadow:0 0 0 1px rgba(255,255,255,.07),0 1px 2px rgba(0,0,0,.4),0 16px 40px -14px rgba(0,0,0,.55);
+  --dm-shadow-pop:0 0 0 1px rgba(255,255,255,.09),0 2px 4px rgba(0,0,0,.4),0 24px 56px -18px rgba(0,0,0,.7);
+  --dm-shadow-toast:0 0 0 1px rgba(255,255,255,.08),0 12px 28px -12px rgba(0,0,0,.7); --dm-shadow-lift:var(--dm-shadow-pop);
+  --dm-tip-bg:#262626; --dm-tip-fg:#f2f2f2; --dm-tip-ring:0 0 0 1px rgba(255,255,255,.09),0 12px 28px -10px rgba(0,0,0,.7);
+  --dm-accent-bg:color-mix(in srgb,var(--dm-accent) 13%,transparent);
+  color-scheme:dark}}
+
+/* ---------- shared touches (where a token can't reach) ---------- */
+/* thin icons */
+[data-clean] .i{stroke-width:1.5}
+/* segmented switches: a white knob with a hairline on a light grey track, gliding slowly */
+[data-clean] .seg2 .knob,[data-clean] .hnx-pm .kn{background:var(--dm-knob);box-shadow:var(--dm-knob-shadow);transition-duration:var(--dm-t);transition-timing-function:var(--dm-ease)}
+/* presses are small and precise, never springy */
+[data-clean] .pill:active{transform:scale(.985)}
+[data-clean] .ib:active{transform:scale(.97)}
+[data-clean] .pill,[data-clean] .ib,[data-clean] .chip{transition-duration:var(--dm-t-fast)}
+
+/* ---------- Stat cards ---------- */
+[data-clean] .scx-grid{gap:var(--dm-s-3)}
+[data-clean] .scx-c{padding:var(--dm-pad);gap:var(--dm-s-2);transition:transform var(--dm-t) var(--dm-ease),box-shadow var(--dm-t) var(--dm-ease)}
+[data-clean] .scx-c:hover{transform:translateY(-1px)}
+/* the label's icon sits in a small grey squircle tile */
+[data-clean] .scx-k{gap:var(--dm-s-2)}
+[data-clean] .scx-k .ic{place-items:center;width:24px;height:24px;border-radius:calc(7px * var(--dm-rk));background:var(--dm-tile);box-shadow:inset 0 0 0 1px var(--dm-hair);color:var(--dm-fg2)}
+/* the figure: larger and lighter */
+[data-clean] .scx-v b{font-size:22px;font-weight:var(--dm-fig);letter-spacing:-.025em;line-height:1.2}
+[data-clean] .scx-sp path{stroke-width:1.5}
+
+/* ---------- Line chart ---------- */
+[data-clean] .lnx{padding:var(--dm-pad);gap:var(--dm-s-4)}
+[data-clean] .lnx-h>div:first-child{gap:var(--dm-s-1)}
+[data-clean] .lnx-v{font-size:var(--dm-fig-size);font-weight:var(--dm-fig);letter-spacing:-.025em;line-height:1.15}
+/* the area fades from 18% of the accent to nothing; the grid is a faint dashed hairline */
+[data-clean] .lnx-svg #lng stop:first-child{stop-opacity:var(--dm-area)}
+[data-clean] .lnx-svg .gl{stroke:var(--dm-line);stroke-dasharray:2 4}
+[data-clean] .lnx-svg .ln{stroke-width:1.75}
+/* the crosshair is a dashed hairline, the readout a white card */
+[data-clean] .lnx-x{width:0;background:none;border-left:1px dashed var(--dm-faint)}
+[data-clean] .lnx-tt,[data-clean] .bcx-tt{background:var(--dm-tip-bg);color:var(--dm-tip-fg);box-shadow:var(--dm-tip-ring);padding:var(--dm-s-2) 10px;gap:2px}
+[data-clean] .lnx-tt span,[data-clean] .bcx-tt span{opacity:1;color:var(--dm-muted)}
+[data-clean] .lnx-tt,[data-clean] .lnx-x,[data-clean] .lnx-pt{transition-duration:var(--dm-t)}
+
+/* ---------- Bar chart ---------- */
+[data-clean] .bcx{padding:var(--dm-pad);gap:var(--dm-s-5)}
+[data-clean] .bcx-h>div:first-child{gap:var(--dm-s-1)}
+[data-clean] .bcx-v{font-size:var(--dm-fig-size);font-weight:var(--dm-fig);letter-spacing:-.025em;line-height:1.15}
+/* the bars keep the one accent, with a fine white hatch inside; the others step back slowly while one is read */
+[data-clean] .bcx-st i{background-image:var(--dm-hatch)}
+[data-clean] .bcx-st{transition:opacity var(--dm-t) var(--dm-ease)}
+[data-clean] .bcx-ch:hover .bcx-b:not(:hover) .bcx-st{opacity:.32}
+[data-clean] .bcx-l{margin-top:var(--dm-s-2)}
+
+/* ---------- Task table ---------- */
+[data-clean] .ttx-hd{height:56px;border-bottom-color:var(--dm-hair)}
+/* (only where the table is a table; narrow, it keeps its own stacked rows) */
+@container ttx (min-width:341px){[data-clean] .ttx-ti,[data-clean] .ttx-sb{padding-left:var(--dm-pad)}}
+@container ttx (min-width:561px){
+  [data-clean] .ttx-t th{height:40px;border-bottom-color:var(--dm-hair)}
+  [data-clean] .ttx-t td{height:52px;border-bottom-color:color-mix(in srgb,var(--dm-line) 60%,transparent)}
+  [data-clean] .ttx-t th.ck,[data-clean] .ttx-t td.ck{padding-left:var(--dm-pad)}
+  [data-clean] .ttx-t th:last-child,[data-clean] .ttx-t td:last-child{padding-right:var(--dm-pad)}
+}
+/* rows ease their hover and pick greys a little slower */
+[data-clean] .ttx-t tbody tr[data-id]{transition:background-color var(--dm-t) var(--dm-ease)}
+/* the tick eases in instead of springing */
+[data-clean] .ttx-cb svg{transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease)}
+[data-clean] .ttx-cb{border-radius:calc(4px * var(--dm-rk))}
+
+/* ---------- Tools and connections ---------- */
+[data-clean] .hnx{padding:var(--dm-s-4);gap:var(--dm-s-2);background-image:var(--dm-wash-a)}
+[data-clean] .hnx-h{padding:var(--dm-s-1) var(--dm-s-3) var(--dm-s-3)}
+[data-clean] .hnx-t{padding:10px var(--dm-s-3);transition:background-color var(--dm-t) var(--dm-ease)}
+/* icon tiles: an off-white squircle with a hairline */
+[data-clean] .hnx-t .ic{width:32px;height:32px;border-radius:calc(8px * var(--dm-rk))}
+[data-clean] .hnx-t .ic.brandic{background:var(--dm-inner);box-shadow:inset 0 0 0 1px var(--dm-hair)}
+[data-clean] .hnx-pm button{transition-duration:var(--dm-t-fast)}
+/* a hovered row darkens the switch's track a little less, so its grey labels keep 4.5:1 */
+[data-clean] .hnx-t:hover .hnx-pm{background:color-mix(in srgb,var(--dm-fg) 6%,transparent)}
+[data-clean] .hnx-add{margin-top:var(--dm-s-1);padding-left:var(--dm-s-3)}
+/* on a phone the row keeps Soft's tighter padding, so the descriptions keep their room */
+@container (max-width:400px){[data-clean] .hnx{padding:var(--dm-s-3)}[data-clean] .hnx-t{padding:var(--dm-s-2) 10px}[data-clean] .hnx-t .ic{width:28px;height:28px}[data-clean] .hnx-h{padding:2px 10px var(--dm-s-2)}[data-clean] .hnx-add{padding-left:10px}}
+
+/* ---------- Progress and meter ---------- */
+[data-clean] .prg{padding:var(--dm-pad);gap:var(--dm-s-4);background-image:var(--dm-wash-a)}
+/* paused reads in a grey that still holds 3:1 */
+[data-clean] .prg[data-s="paused"]{--dm-prg-c:var(--dm-line-strong)}
+/* tracks stay neutral grey; accent fills get the fine hatch (status fills stay plain, so they keep 3:1 on the track) */
+[data-clean] .prg:not([data-s="done"],[data-s="err"],[data-s="paused"]) :is(.prg-seg b,.prg-lin i){background-image:var(--dm-hatch)}
+/* the meter is a nested surface instead of a divider */
+[data-clean] .prg-meter{margin-top:var(--dm-s-1);padding:var(--dm-s-4);border-top:0;border-radius:var(--dm-r-in);background:var(--dm-inner);box-shadow:inset 0 0 0 1px var(--dm-hair)}
+[data-clean] .prg-mb:not(.warn,.bad) .fl{background-image:var(--dm-hatch)}
