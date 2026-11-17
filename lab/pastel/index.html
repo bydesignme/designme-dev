@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Pastel exploration · Designme.dev lab</title>
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<!-- owner, 17 Nov: compare our Soft colours with a pastel variation, the colour recipe of the open-source Focus app
+     (github.com/szmichalczyk/focus-app; its colours only, no code or layout taken). Each pair is the same component page
+     (its demo only): on the left as it is, on the right with the pastel tokens below laid over it. Nothing ships from here -->
+<script>
+(function(){ var t; try { t = localStorage.getItem('dmui-theme'); } catch(e){} document.documentElement.dataset.t = t === 'dark' ? 'dark' : 'light'; })();
+</script>
+<style>
+:root{--bg:#fafafa;--card:#fff;--fg:#171717;--muted:#6a6a6a;--line:rgba(0,0,0,.08);--chip:#f3f3f3;--on:#fff;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+html[data-t="dark"]{--bg:#1c1c1c;--card:#262626;--fg:#f2f2f2;--muted:#c0c0c0;--line:rgba(255,255,255,.08);--chip:#303030;--on:#3a3a3a}
+html,body{margin:0;background:var(--bg);color:var(--fg)}
+*{box-sizing:border-box}
+header{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:14px 24px;background:var(--bg);border-bottom:1px solid var(--line)}
+header b{font-size:14px;font-weight:500}
+header span{font-size:13px;color:var(--muted)}
+.sp{flex:1}
+.seg{display:inline-flex;padding:2px;border-radius:10px;background:var(--chip)}
+.seg button{font:inherit;font-size:12px;font-weight:500;color:var(--muted);background:none;border:0;padding:5px 10px;border-radius:8px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--on);color:var(--fg);box-shadow:0 0 0 1px var(--line)}
+main{max-width:1440px;margin:0 auto;padding:24px}
+.note{max-width:860px;font-size:13px;line-height:1.55;color:var(--muted);margin:0 0 20px}
+.note b{color:var(--fg);font-weight:500}
+.sw{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 28px}
+.sw span{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px 0 8px;border-radius:999px;font-size:12px;font-weight:500}
+.sw i{width:10px;height:10px;border-radius:3px}
+h2{font-size:13px;font-weight:500;color:var(--muted);margin:28px 0 10px}
+.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.c{display:flex;flex-direction:column;border-radius:14px;background:var(--card);box-shadow:0 0 0 1px var(--line);overflow:hidden}
+.h{display:flex;align-items:baseline;gap:8px;padding:10px 16px;border-bottom:1px solid var(--line);font-size:13px}
+.h b{font-weight:500}.h i{font-style:normal;color:var(--muted)}
+iframe{display:block;width:100%;height:var(--h,520px);border:0;background:var(--bg);opacity:0;transition:opacity .3s}
+@media (max-width:900px){.pair{grid-template-columns:minmax(0,1fr)}main{padding:16px}}
+</style>
+</head>
+<body>
+<header>
+  <b>Pastel exploration</b><span>Now vs a pastel variation of Soft, after the Focus app's colours</span>
+  <span class="sp"></span>
+  <div class="seg" role="group" aria-label="Theme"><button data-v="light">Light</button><button data-v="dark">Dark</button></div>
+</header>
+<main>
+  <p class="note"><b>The recipe.</b> One muted, slightly greyed hue per item (no orange except where something needs attention). Fills are
+    that hue mixed only 16 to 18% into the surface, with a soft diagonal fade; text is the same hue mixed 62% into a blue-grey ink
+    (#1b2230), so labels read tinted instead of saturated; marks and bars use the hue itself. Neutrals turn cool blue-grey, and
+    tooltips become white cards with a hairline and a soft shadow instead of black. Every text pair passes 4.5:1 and APCA Lc 60 (light Lc 68 to 73, dark 62 to 70), every
+    mark 3:1 or more. Soft only; Blueprint would keep its own colours.</p>
+  <div class="sw" id="sw"></div>
+  <div id="pairs"></div>
+</main>
+<script>
+// the Focus project hues we map onto our palette slots (blue, violet, green, orange, red, yellow, pink, teal)
+const HUE = { pb:'#3b7ddd', pl:'#6c56d9', pm:'#3f8f4f', pp:'#c96442', pr:'#c23a4b', py:'#b98a1e', pk:'#d9488a', pt:'#2f9e8f' };
+const NAME = { pb:'Blue', pl:'Violet', pm:'Green', pp:'Orange', pr:'Red', py:'Yellow', pk:'Pink', pt:'Teal' };
+const dark = () => document.documentElement.dataset.t === 'dark';
+// the pastel layer: our palette tokens rewritten with the recipe, plus a few component touches
+function pastelCss(){
+  const D = dark(), surf = D ? '#262626' : '#ffffff', ink = D ? '#f2f2f2' : '#1b2230';
+  const fg = h => `color-mix(in srgb,${h} ${D ? 35 : 62}%,${ink})`, bg = h => `color-mix(in srgb,${h} 16%,${surf})`;
+  let v = Object.entries(HUE).map(([k, h]) => `--dm-${k}:${fg(h)};--dm-${k}-bg:${bg(h)};--dm-aln-${k}:${h};--dm-aln-sw-${k}:${h};`).join('');
+  v += `--dm-ok:${fg('#1b8a4a')};--dm-ok-bg:${bg('#1b8a4a')};--dm-ok-mark:#2f9e5f;--dm-warn:${fg('#c96442')};--dm-warn-bg:${bg('#c96442')};--dm-bad:${fg('#c23a4b')};--dm-bad-bg:${bg('#c23a4b')};`
+    + `--dm-accent-bg:${bg('#3b5bdb')};--dm-accent-fg:${fg('#3b5bdb')};`
+    + (D ? '' : '--dm-fg:#1b2230;--dm-fg2:#3b4558;--dm-muted:#667085;--dm-faint:#8a93a3;--dm-chip:#eef1f5;--dm-line:#e8ecf1;--dm-rail:#e4e8ee;--dm-row:#f8fafc;--dm-stage:#f8fafc;');
+  return `:root{${v}}`
+    // badges and tags: the diagonal fade the Focus tiles have
+    + `.bdg[data-tone],.tag.b,.tag.l,.tag.m,.tag.p,.tag.r,.tag.y,.tag.k,.tag.t{background-image:linear-gradient(160deg,transparent 30%,${D ? 'rgba(0,0,0,.18)' : 'rgba(255,255,255,.55)'})}`
+    + `.bdg[data-tone="accent"]{box-shadow:none}`
+    // tooltips: a white card with a hairline and a soft shadow, the shortcut in a cool grey chip
+    + (D ? `.tip{--dm-tip-bg:#303030;--dm-tip-fg:#f2f2f2;--dm-tip-ring:0 0 0 1px rgba(255,255,255,.08),0 8px 24px rgba(0,0,0,.4)}`
+         : `.tip{--dm-tip-bg:#fff;--dm-tip-fg:#1b2230;--dm-tip-ring:0 0 0 1px #e8ecf1,0 8px 24px rgba(27,34,48,.12)}.tip .kbd{background:#eef1f5!important;color:#4d5667!important}`)
+    // agent lanes: the lane tiles get the diagonal fade, the bars the hue's soft top-light
+    + `.aln-av,.aln-sw-av,.aln-tg{background-image:linear-gradient(160deg,transparent 30%,${D ? 'rgba(0,0,0,.18)' : 'rgba(255,255,255,.5)'})}`;
+}
+document.getElementById('sw').innerHTML = Object.entries(HUE).map(([k, h]) => `<span style="background:color-mix(in srgb,${h} 16%,var(--card));color:color-mix(in srgb,${h} 62%,var(--fg))"><i style="background:${h}"></i>${NAME[k]}</span>`).join('');
+const P = [['badge', 'Badge', 420], ['tooltip', 'Tooltip', 420], ['agent-lanes', 'Agent lanes', 560], ['agent-tree', 'Agent tree', 680]];
+document.getElementById('pairs').innerHTML = P.map(([id, t, h]) => `<h2>${t}</h2><div class="pair">`
+  + ['now', 'pastel'].map(k => `<section class="c"><div class="h"><b>${k === 'now' ? 'Now' : 'Pastel'}</b><i>${t}</i></div><iframe data-k="${k}" data-id="${id}" title="${t}, ${k}" style="--h:${h}px"></iframe></section>`).join('')
+  + '</div>').join('');
+const frames = [...document.querySelectorAll('iframe')];
+// each frame shows only the component's demo, in Soft; the pastel one gets the layer above
+const ONLY = 'body{visibility:hidden!important}.cp-demo{visibility:visible!important;position:fixed!important;inset:0!important;z-index:100;margin:0!important;border-radius:0!important;overflow:auto}.cp-demo .pg-demo{min-height:100%}body>.tip{visibility:visible!important}';
+frames.forEach(f => f.addEventListener('load', () => { try { const d = f.contentDocument;
+  const a = d.createElement('style'); a.textContent = ONLY; d.head.appendChild(a);
+  if (f.dataset.k === 'pastel'){ const b = d.createElement('style'); b.textContent = pastelCss(); d.head.appendChild(b); }
+} catch(e){} f.style.opacity = 1; }));
+const load = () => { try { localStorage.setItem('dmui-style', 'soft'); } catch(e){} frames.forEach(f => { f.style.opacity = 0; f.src = `../../components/${f.dataset.id}.html?r=${Date.now()}`; }); };
+const paint = () => document.querySelectorAll('.seg button').forEach(b => b.setAttribute('aria-pressed', document.documentElement.dataset.t === b.dataset.v));
+document.querySelectorAll('.seg button').forEach(b => b.onclick = () => { document.documentElement.dataset.t = b.dataset.v; try { localStorage.setItem('dmui-theme', b.dataset.v); } catch(e){} paint(); load(); });
+paint(); load();
+</script>
+</body>
+</html>
