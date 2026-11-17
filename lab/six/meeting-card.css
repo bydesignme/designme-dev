@@ -1,0 +1,137 @@
+/* Meeting card in the six-component lab (owner, 17 Nov: "design a clean and soft variant of this calendar invite
+   component"). Laid into the lab's frames of /components/meeting-card.html, over refresh.css (Soft refreshed) or clean.css
+   (Clean), and scoped the same way: :root[data-refresh] or [data-clean]. Everything the owner signed off on the library
+   card stays: 45 minutes, 10:30 to 11:15; the time block in the accent tint with a faint accent edge; fine 45deg lines
+   inside the block over the part that has run, no grey hatch; time chips with an even 6px inset (a step lighter than the
+   tint in dark); the status chip top right; three faces and initials; the split Join with a very light divider and its
+   menu; a darker hover on the copy button. The motion is meeting-card.js. Lab only, nothing ships from here. */
+
+/* ======================================================================================================== Soft refreshed */
+:root[data-refresh]{--lx-out:cubic-bezier(.16,1,.3,1);--lx-ease:cubic-bezier(.22,1,.36,1)}
+
+/* the track and the block are fully round, like every refreshed shape; the chips keep their 6px inset (40px track, 5px
+   to the block, 18px chips: 6px above and below, 6px from the block's ends) */
+:root[data-refresh] :is(.mtx-track,.mtx-blk,.mtx-blk>.num){border-radius:999px;corner-shape:round}
+:root[data-refresh] .mtx-track{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent),inset 0 1px 3px rgba(0,0,0,.05)}
+:root[data-refresh][data-theme="dark"] .mtx-track{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent),inset 0 1px 3px rgba(0,0,0,.3)}
+/* time passes smoothly: the now line and the lines over the gone part glide for as long as the demo's step lasts, so they
+   never stop and start */
+:root[data-refresh] .mtx-bp{transition:width .6s linear}
+:root[data-refresh] .mtx-now{transition:left .6s linear,opacity .4s var(--lx-ease)}
+/* the status chip: a new state fades up out of a blur while the chip morphs to its new width (meeting-card.js); the
+   minutes roll like an odometer, the old number rising away as the new one comes up */
+:root[data-refresh] .mtx-fade{animation:lxchip .46s var(--lx-ease) both}
+@keyframes lxchip{from{opacity:0;filter:blur(3px);transform:translateY(2px)}}
+/* the live dot in the green text colour: the bright mark green drops under 3:1 on the green tint (2.7:1) */
+:root[data-refresh] .mtx-st.ok .dot{color:var(--dm-ok)}
+:root[data-refresh] .mtx-roll{position:relative}
+:root[data-refresh] .mtx-roll i.in{animation:lxroll .44s var(--lx-out) both}
+@keyframes lxroll{from{transform:translateY(80%);opacity:0;filter:blur(2px)}}
+:root[data-refresh] .mtx-roll .lx-out{position:absolute;left:0;top:0;font-style:normal;pointer-events:none}
+/* the people spread on hover with the long, soft deceleration */
+:root[data-refresh] .mtx-who .av{transition:margin .5s var(--lx-out)}
+/* the copy button: compact and round, its hover a step darker than the row grey */
+:root[data-refresh] .mtx-cp{width:28px;height:28px}
+:root[data-refresh] .mtx-who{padding:1px 0}
+
+/* the split Join, refreshed: one compact pill. The halves carry the gradient; the pill's edge, the blurred light inside its
+   top and the shade inside its bottom are drawn once over both, so there is no seam besides the very light divider */
+:root[data-refresh] .mtx-jg{border-radius:999px;box-shadow:var(--dm-btn-drop);transition:transform var(--dm-t-release) var(--dm-spring-out)}
+:root[data-refresh] .mtx-jg::after{content:"";position:absolute;inset:0;z-index:2;border-radius:999px;pointer-events:none;
+  box-shadow:inset 0 0 0 1px var(--dm-btn-edge),inset 0 3px 5px -2px var(--dm-btn-glow),inset 0 -3px 5px -3px var(--dm-btn-shade)}
+:root[data-refresh] .mtx-jg:has(.pill[disabled])::after{display:none}
+:root[data-refresh] .mtx-jg:has(.pill[disabled]){box-shadow:none}
+:root[data-refresh] .mtx-jg :is(.mtx-join,.mtx-jm){height:28px;box-shadow:none!important;transform:none!important}
+:root[data-refresh] .mtx-jg .mtx-join{border-radius:999px 0 0 999px!important;padding:0 10px 0 4px;gap:6px}
+:root[data-refresh] .mtx-jg .mtx-jm{border-radius:0 999px 999px 0!important;width:28px;padding:0 2px 0 0}
+:root[data-refresh] .mtx-jm::before{top:7px;bottom:7px;background:color-mix(in srgb,var(--dm-on-accent) 28%,transparent)}
+/* the Meet mark sits in a white circle with an even 4px inset */
+:root[data-refresh] .mtx-join .mk{width:20px;height:20px;border-radius:50%;corner-shape:round}
+:root[data-refresh] .mtx-join .mk .brand{width:13px;height:11px}
+/* a press sinks the whole pill, not one half */
+:root[data-refresh] .mtx-jg:has(.pill:not([disabled]):active,.prs){transform:scale(.97);transition-duration:var(--dm-t-press);transition-timing-function:var(--dm-ease)}
+/* live: the pill breathes with its own top light (a darker or lighter fill around the label would cost its contrast) */
+@property --dm-lift{syntax:"<number>";inherits:false;initial-value:0}
+:root[data-refresh] .mtx.live :is(.mtx-join,.mtx-jm):not(:hover){animation:lxbreath 2.8s ease-in-out infinite}
+@keyframes lxbreath{50%{--dm-lift:1}}
+
+/* the card's surface while it grows out of the status chip (meeting-card.js) */
+:root[data-refresh] .mtx.lx-in{isolation:isolate;background:transparent!important;box-shadow:none!important}
+:root[data-refresh] .lx-surf{position:absolute;z-index:-1;pointer-events:none}
+/* the gooey menu: an SVG layer under the menu, Join's pill lifted above it; a soft neutral shadow under the liquid shape */
+:root[data-refresh] .lx-goo{position:fixed;inset:0;z-index:49;pointer-events:none}
+:root[data-refresh] .lx-goo svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 1px 1px rgba(0,0,0,.06)) drop-shadow(0 10px 18px rgba(0,0,0,.1))}
+:root[data-refresh][data-theme="dark"] .lx-goo svg{filter:drop-shadow(0 1px 1px rgba(0,0,0,.3)) drop-shadow(0 10px 18px rgba(0,0,0,.4))}
+:root[data-refresh] .lx-goo rect{fill:var(--dm-raised)}
+:root[data-refresh] .mtx-jg.lx-up{z-index:51}
+:root[data-refresh] .pop.lx-hide{opacity:0!important;transition:none!important}
+:root[data-refresh] .mtx-jm svg{transition:transform .42s var(--lx-ease)}
+:root[data-refresh] .mtx-jm[aria-expanded="true"] svg{transform:rotate(180deg)}
+
+/* ======================================================================================================== Clean */
+/* the card: the meeting and its track on white, the people and actions on an off-white foot strip under a hairline */
+[data-clean] .mtx{padding:0;gap:0}
+[data-clean] .mtx-h{padding:16px 16px 0}
+[data-clean] .mtx-t{font-size:14px;font-weight:500;letter-spacing:-.01em}
+[data-clean] .mtx-track{margin:16px;height:40px;background:var(--dm-surface);border-radius:calc(8px * var(--dm-rk));box-shadow:inset 0 0 0 1px var(--dm-line)}
+[data-clean] .mtx-f{padding:12px 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-bottom-left-radius:inherit;border-bottom-right-radius:inherit;corner-shape:inherit}
+/* the block: the ink tint with a faint ink edge (the accent is ink in Clean); the time chips white with a hairline */
+[data-clean] .mtx-blk{outline-color:color-mix(in srgb,var(--dm-fg) 16%,transparent)}
+[data-clean] .mtx-blk>.num{box-shadow:0 0 0 1px var(--dm-hair)}
+/* the part that has run: fine 45deg lines in grey ink */
+[data-clean] .mtx-bp{background:repeating-linear-gradient(45deg,color-mix(in srgb,var(--dm-fg) 34%,transparent) 0 1px,transparent 1px 6px);transition:width .45s var(--dm-ease)}
+[data-clean] .mtx-now{width:1.5px;margin-left:-.75px;background:var(--dm-fg);transition:left .45s var(--dm-ease),opacity .3s var(--dm-ease)}
+[data-clean] .mtx-now i{background:var(--dm-fg)}
+/* the status chip: white with a hairline and grey text; only the live dot carries colour */
+[data-clean] .mtx-st,[data-clean] .mtx-st.ok{height:22px;padding:0 8px;background:var(--dm-surface);color:var(--dm-fg2);box-shadow:inset 0 0 0 1px var(--dm-hair);transition:color var(--dm-t) var(--dm-ease)}
+[data-clean] .mtx-st .dot{color:var(--dm-ok-mark)}
+[data-clean] .mtx-fade{animation:lxcfade .24s var(--dm-ease) both}
+@keyframes lxcfade{from{opacity:0}}
+[data-clean] .mtx-roll i.in{animation:lxcroll .3s var(--dm-ease) both}
+@keyframes lxcroll{from{transform:translateY(60%);opacity:0}}
+/* people: the faces as they are, initials in pale grey with ink letters; their ring is the strip */
+[data-clean] .mtx-who .av{box-shadow:0 0 0 2px var(--dm-strip);transition:margin .24s var(--dm-ease)}
+[data-clean] .mtx-who .av:not([data-pic-on]){background-color:var(--dm-chip)!important;color:var(--dm-fg2)!important}
+[data-clean] .mtx-who .av:not([data-pic-on])::before{content:"";position:absolute;inset:0;border-radius:50%;box-shadow:inset 0 0 0 1px var(--dm-hair);pointer-events:none}
+[data-clean] .mtx-who .av{position:relative}
+/* the copy button: 32px, slightly rounded, a step darker on hover */
+[data-clean] .mtx-cp{width:32px;height:32px;border-radius:var(--dm-r-pill)}
+/* Join: the ink button, split, with a very light divider; no breathing, the live dot says it */
+[data-clean] .mtx-jg :is(.mtx-join,.mtx-jm){height:32px}
+[data-clean] .mtx-jg .mtx-join{border-radius:var(--dm-r-pill) 0 0 var(--dm-r-pill);padding:0 12px 0 6px;gap:8px}
+[data-clean] .mtx-jg .mtx-jm{border-radius:0 var(--dm-r-pill) var(--dm-r-pill) 0;width:28px}
+[data-clean] .mtx-jm::before{top:9px;bottom:9px;background:color-mix(in srgb,var(--dm-on-accent) 26%,transparent)}
+[data-clean] .mtx-join .mk{width:20px;height:20px;border-radius:calc(5px * var(--dm-rk))}
+[data-clean] .mtx-join .mk .brand{width:13px;height:11px}
+[data-clean] .mtx.live :is(.mtx-join,.mtx-jm){animation:none}
+[data-clean] .mtx-join:active,[data-clean] .mtx-join.prs{transform:scale(.97);transition:transform var(--dm-t-fast) var(--dm-ease)}
+/* the menu: a plain scale and fade out of the chevron (meeting-card.js points its origin at the chevron) */
+[data-clean] .mtx-pop{filter:none;transform:scale(.96);transition:opacity .15s var(--dm-ease),transform .2s var(--dm-ease),visibility 0s .15s}
+[data-clean] .mtx-pop.open{transform:none;transition:opacity .15s var(--dm-ease),transform .2s var(--dm-ease)}
+
+/* the empty state: a ghost of the card itself, a title, one grey line and one secondary action, laid over the card's own
+   frame (the meeting stays underneath, unseen, so the card keeps its height and nothing around it moves) */
+[data-clean][data-empty] .mtx>:not(.lx-em){visibility:hidden!important}
+[data-clean] .lx-em{display:none}
+[data-clean][data-empty] .lx-em{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:16px;text-align:center}
+[data-clean] .lx-em b{font-size:13.5px;font-weight:500;color:var(--dm-fg)}
+[data-clean] .lx-em>span:not(.lx-ghost){font-size:12.5px;line-height:1.5;color:var(--dm-muted)}
+[data-clean] .lx-em .pill{margin-top:10px}
+[data-clean] .lx-ghost{position:relative;display:block;flex:none;width:128px;height:60px;margin:0 0 12px;border-radius:calc(10px * var(--dm-rk));background:var(--dm-surface);box-shadow:var(--dm-shadow)}
+[data-clean] .lx-ghost i{position:absolute;display:block;background:var(--dm-ghost)}
+[data-clean] .lx-ghost .t{left:10px;top:10px;width:46px;height:6px;border-radius:3px}
+[data-clean] .lx-ghost .c{right:10px;top:8px;width:24px;height:10px;border-radius:4px;background:var(--dm-ghost-2);box-shadow:inset 0 0 0 1px var(--dm-hair)}
+[data-clean] .lx-ghost .r{left:10px;right:10px;top:23px;height:14px;border-radius:4px;background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-line)}
+[data-clean] .lx-ghost .r::after{content:"";position:absolute;left:28%;width:40%;top:3px;bottom:3px;border-radius:3px;border:1px dashed var(--dm-faint)}
+[data-clean] .lx-ghost .a{top:42px;width:10px;height:10px;border-radius:50%;box-shadow:0 0 0 1.5px var(--dm-surface)}
+[data-clean] .lx-ghost .a:nth-of-type(4){left:10px}
+[data-clean] .lx-ghost .a:nth-of-type(5){left:18px;background:var(--dm-ghost-2)}
+[data-clean] .lx-ghost .a:nth-of-type(6){left:26px;background:var(--dm-ghost-2)}
+[data-clean] .lx-ghost .j{right:10px;top:43px;width:24px;height:8px;border-radius:3px}
+
+@media (prefers-reduced-motion:reduce){
+  :root[data-refresh] :is(.mtx-bp,.mtx-now,.mtx-who .av,.mtx-jg,.mtx-jm svg){transition:none}
+  :root[data-refresh] :is(.mtx-fade,.mtx-roll i.in){animation:none}
+  :root[data-refresh] .mtx.live :is(.mtx-join,.mtx-jm){animation:none}
+  [data-clean] :is(.mtx-bp,.mtx-now,.mtx-who .av,.mtx-pop,.mtx-pop.open){transition:none}
+}
