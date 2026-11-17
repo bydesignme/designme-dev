@@ -6,9 +6,10 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Crypto dashboard · Designme.dev lab</title>
 <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
-<!-- owner, 17 Nov: a crypto dashboard collection in Soft, after patterns from a Dribbble reference (a credit score gauge, price
-     and asset cards, a transaction receipt, a chats list, hatched stacked bars). Our own content, our tokens and status colours,
-     the warm palette for marks. A 1600 x 1200 artboard for posts; light and dark. Nothing ships from here -->
+<!-- owner, 17 Nov: a crypto dashboard collection in Soft for posts. Revised the same day to move away from the reference it
+     started from: an uneven bento instead of a 3 x 3 grid, and our own designs for every card (a tick ring for the credit score,
+     a price card with range tabs, a receipt, a swap, price alerts, a single allocation bar). Our own content, our tokens, status
+     colours and chart palette. A 1600 x 1200 artboard; light and dark. Nothing ships from here -->
 <script>(function(){ var t; try { t = localStorage.getItem('dmui-theme'); } catch(e){} document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light'); })();</script>
 <link rel="stylesheet" href="../../components/assets/core.css">
 <link rel="stylesheet" href="crypto.css">
@@ -21,73 +22,109 @@
   <div class="seg" role="group" aria-label="Theme"><button data-t="light">Light</button><button data-t="dark">Dark</button></div>
 </header>
 <div class="fit"><div class="board" id="board">
-  <!-- column 1 -->
-  <div class="col">
-    <section class="cd tall gauge" aria-label="Credit health">
-      <span class="eb">Credit health</span>
-      <div class="gw">
-        <svg class="gs" viewBox="0 0 400 270" aria-hidden="true"><g class="dots"></g><g class="segs"></g><g class="knob"><circle r="15" class="kr"/><circle r="7" class="kc"/></g></svg>
-        <div class="gt"><b class="big num" id="score">300</b><span class="gl">Your score is good</span><span class="gm">Checked on 14 Nov</span></div>
+
+  <!-- credit health: a ring of ticks that fill to the score -->
+  <section class="cd credit" aria-label="Credit health">
+    <div class="hd"><span class="tt">Credit health</span><span class="sp"></span><span class="tag ok" id="band">Good</span></div>
+    <div class="ring" id="ring">
+      <svg viewBox="0 0 200 200" aria-hidden="true"><g class="ticks"></g><circle class="hit" cx="100" cy="100" r="84"/></svg>
+      <div class="rc"><b class="big num" id="score">300</b><span class="of">of 850</span></div>
+    </div>
+    <div class="ft"><span>Checked on 14 Nov</span><span class="up num">+18 since Oct</span></div>
+    <div class="ctp" id="ctip" hidden></div>
+  </section>
+
+  <!-- portfolio value: the readout lives in the header -->
+  <section class="cd port" aria-label="Portfolio value">
+    <div class="ph">
+      <div class="pro">
+        <span class="tt">Portfolio value</span>
+        <span class="prv"><b class="big num" id="pvv">$94,210.40</b><span class="tag ok num" id="pvc">+8.2%</span></span>
+        <span class="mut num" id="pvd">Last 30 days, to 16 Nov</span>
       </div>
-      <button class="chipb">How it's worked out</button>
-      <div class="tip" id="gtip" hidden></div>
-    </section>
-    <section class="cd short coin up" aria-label="Ethereum">
-      <div class="ch"><b>Ethereum</b><b class="num">$3,182.40</b></div>
-      <div class="cf"><svg class="cl" viewBox="0 0 300 70" preserveAspectRatio="none" aria-hidden="true"><path class="ar"/><path class="ln"/></svg><span class="tag ok num">+2.8%</span></div>
-    </section>
-    <section class="cd tall pv" aria-label="Portfolio value">
-      <span class="eb">Portfolio value</span>
-      <b class="big num">94.2K</b>
-      <div class="pc" id="pc">
-        <div class="ya num"><span>$1000</span><span>$500</span><span>$200</span><span>$100</span></div>
-        <svg class="pvs" viewBox="0 0 360 220" preserveAspectRatio="none" aria-hidden="true"><defs><pattern id="vh" width="5" height="10" patternUnits="userSpaceOnUse"><rect width="1" height="10" class="hl"/></pattern></defs><path class="hatch"/><path class="ln"/><line class="mk" x1="0" x2="0" y1="0" y2="220"/></svg>
-        <span class="dot" id="pvdot"></span>
-        <div class="ro" id="pvro"><span class="rd num">12 Nov, 09:00</span><span class="rv"><b class="num">96,310.40</b><span class="tag ok num">+2.1%</span></span></div>
-      </div>
-    </section>
-  </div>
-  <!-- column 2 -->
-  <div class="col">
-    <section class="cd short price" aria-label="Solana price">
-      <div class="pt"><span class="pr"><b class="num" id="pval">$318.42</b><span class="tag ok num" id="pchg">+2.8%</span></span><span class="pd num" id="pdate">16 Nov, 14:32</span></div>
-      <svg class="ps" viewBox="0 0 400 80" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="pg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" class="g0"/><stop offset="1" class="g1"/></linearGradient></defs><path class="ar" fill="url(#pg)"/><path class="ln"/></svg>
-      <span class="pdot" id="pdot"></span>
-    </section>
-    <section class="cd tall assets" aria-label="Your assets">
-      <span class="lb">Your assets</span>
-      <b class="big num">86,240<span class="dec">.75</span></b>
-      <span class="gain">You gained <b class="num">+$612.40</b> this week</span>
-      <div class="tabs" role="tablist" aria-label="Assets"><button role="tab" aria-selected="true" data-v="all">All assets</button><button role="tab" aria-selected="false" data-v="crypto">Crypto</button><button role="tab" aria-selected="false" data-v="cash">Cash</button></div>
-      <div class="rows" id="rows"></div>
-    </section>
-    <section class="cd tall chats" aria-label="Messages">
-      <div class="chh"><span class="eb">Messages</span><span class="sp"></span><button class="ob" aria-label="Delete" data-ic="trash"></button><button class="ob" aria-label="New message" data-ic="edit"></button></div>
-      <div class="cr" id="chats"></div>
-    </section>
-  </div>
-  <!-- column 3 -->
-  <div class="col">
-    <section class="cd tall tx" aria-label="Transaction">
-      <div class="stripe" aria-hidden="true"></div>
-      <button class="plus" aria-label="Buy more" data-ic="plus"></button>
-      <b class="amt num">+0.0418 ETH</b>
-      <span class="usd num">$141.20</span>
-      <span class="tid">Transaction ID: <span class="num">58201744</span> <button class="cp" id="cp" aria-label="Copy the transaction ID" data-ic="copy"></button></span>
-      <div class="acts"><button class="pill primary">Buy again</button><button class="pill gb">Back</button></div>
-    </section>
-    <section class="cd short coin down" aria-label="Euro">
-      <div class="ch"><b>Euro</b><b class="num">€8,420.30</b></div>
-      <div class="cf"><svg class="cl" viewBox="0 0 300 70" preserveAspectRatio="none" aria-hidden="true"><path class="ar"/><path class="ln"/></svg><span class="tag bad num">−1.2%</span></div>
-    </section>
-    <section class="cd tall alloc" aria-label="Allocation by month">
-      <span class="eb">Allocation by month</span>
-      <b class="big num">94.2K</b>
-      <div class="bars" id="bars"></div>
-      <div class="lg"><span><i class="y"></i>Stablecoins</span><span><i class="k"></i>Ethereum</span><span><i class="l"></i>Bitcoin</span></div>
-      <div class="tip" id="atip" hidden></div>
-    </section>
-  </div>
+      <span class="sp"></span>
+      <span class="meta">30 days</span>
+    </div>
+    <div class="pc" id="pc">
+      <svg class="pvs" viewBox="0 0 600 160" preserveAspectRatio="none" aria-hidden="true">
+        <defs><linearGradient id="pvg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" class="g0"/><stop offset="1" class="g1"/></linearGradient></defs>
+        <g class="grid"></g><path class="ar" fill="url(#pvg)"/><path class="ln"/><line class="mk" y1="0" y2="160"/>
+      </svg>
+      <div class="ya num"></div>
+      <span class="dot" id="pvdot"></span>
+    </div>
+  </section>
+
+  <!-- the receipt -->
+  <section class="cd tx" aria-label="Transaction">
+    <div class="hd"><span class="tt">Purchase</span><span class="sp"></span><span class="tag ok">Settled</span></div>
+    <div class="amt"><b class="big num" id="amt">0.0418 ETH</b><span class="mut num">$133.02 at $3,182.40</span></div>
+    <div class="path">
+      <div class="pp"><span class="it" data-ic="bank"></span><span class="pt"><span class="pl">From</span><b>Exchange account</b><span class="mut">Spot balance, USD</span></span></div>
+      <div class="pp"><span class="it" data-ic="wallet"></span><span class="pt"><span class="pl">To</span><b>Main wallet</b><span class="mut num">0x8f3a…21c4</span></span></div>
+    </div>
+    <dl class="dl">
+      <div><dt>Amount</dt><dd class="num">$133.02</dd></div>
+      <div><dt>Network fee</dt><dd class="num">$0.99</dd></div>
+      <div><dt>Total</dt><dd class="num">$134.01</dd></div>
+    </dl>
+    <ol class="tl" id="tl">
+      <li><i></i><span>Submitted</span><span class="mut num">14:32:08</span></li>
+      <li><i></i><span>Confirmed</span><span class="mut num">14:32:41</span></li>
+      <li><i></i><span>Settled</span><span class="mut num">14:33:15</span></li>
+    </ol>
+    <div class="tid"><span class="mut">Transaction ID</span><span class="sp"></span><span class="num">58201744</span><button class="cp" id="cp" aria-label="Copy the transaction ID" data-ic="copy"></button></div>
+    <button class="pill primary wide">Buy again</button>
+  </section>
+
+  <!-- your assets: a plain list under one total -->
+  <section class="cd assets" aria-label="Your assets">
+    <div class="hd"><span class="tt">Your assets</span><span class="sp"></span><span class="mut num">7 holdings</span></div>
+    <b class="big num" id="tot">$108,506.40</b>
+    <span class="gain"><span class="tag ok num">+$612.40</span><span class="mut">this week</span></span>
+    <div class="seg2 tabs" role="tablist" aria-label="Show"><span class="knob"></span><button role="tab" aria-selected="true" aria-pressed="true" data-v="all">All</button><button role="tab" aria-selected="false" aria-pressed="false" data-v="crypto">Crypto</button><button role="tab" aria-selected="false" aria-pressed="false" data-v="cash">Cash</button></div>
+    <div class="rows" id="rows"></div>
+  </section>
+
+  <!-- the price card: left-aligned header, range tabs, a plain line -->
+  <section class="cd price" aria-label="Solana price">
+    <div class="hd"><span class="tt">Solana</span><span class="mut">SOL</span><span class="sp"></span>
+      <div class="seg2 rng" role="tablist" aria-label="Range"><span class="knob"></span><button role="tab" aria-pressed="true" aria-selected="true" data-r="d">1D</button><button role="tab" aria-pressed="false" aria-selected="false" data-r="w">1W</button><button role="tab" aria-pressed="false" aria-selected="false" data-r="m">1M</button><button role="tab" aria-pressed="false" aria-selected="false" data-r="y">1Y</button></div></div>
+    <span class="prv"><b class="big num" id="pval">$318.42</b><span class="tag ok num" id="pchg">+2.8%</span></span>
+    <span class="mut num" id="pdate">16 Nov, 14:32</span>
+    <div class="psw" id="psw">
+      <svg class="ps" viewBox="0 0 300 150" preserveAspectRatio="none" aria-hidden="true"><g class="grid"></g><path class="ln"/><line class="mk" y1="0" y2="150"/></svg>
+      <span class="dot" id="pdot"></span>
+    </div>
+    <div class="xa mut num" id="pxa"><span></span><span></span></div>
+  </section>
+
+  <!-- swap -->
+  <section class="cd swap" aria-label="Swap">
+    <div class="hd"><span class="tt">Swap</span><span class="sp"></span><span class="meta">Slippage 0.5%</span></div>
+    <div class="sx" id="sx">
+      <div class="sb" data-side="a"><span class="sl mut">You pay</span><b class="sa big num">0.50</b><span class="cn">ETH</span><span class="bal mut num">Balance 2.184</span></div>
+      <button class="flip" id="flip" aria-label="Swap the two coins" data-ic="flip"></button>
+      <div class="sb" data-side="b"><span class="sl mut">You get</span><b class="sa big num">4.997</b><span class="cn">SOL</span><span class="bal mut num">Balance 40.57</span></div>
+    </div>
+    <div class="rate mut num"><span id="rate">1 ETH = 9.994 SOL</span><span>Fee $0.42</span></div>
+    <button class="pill primary wide">Review swap</button>
+  </section>
+
+  <!-- allocation: one stacked bar and its legend -->
+  <section class="cd alloc" aria-label="Allocation">
+    <div class="hd"><span class="tt">Allocation</span><span class="sp"></span><span class="mut num">Crypto, $94,210.40</span></div>
+    <div class="ab" id="ab"></div>
+    <div class="al" id="al"></div>
+    <div class="ctp" id="atip" hidden></div>
+  </section>
+
+  <!-- price alerts -->
+  <section class="cd alerts" aria-label="Price alerts">
+    <div class="hd"><span class="tt">Price alerts</span><span class="sp"></span><span class="meta num" id="aon">3 on</span><button class="gh" aria-label="New alert" data-ic="plus"></button></div>
+    <div class="arow" id="arows"></div>
+  </section>
+
 </div></div>
 <script src="crypto.js"></script>
 </body>
