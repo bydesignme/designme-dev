@@ -44,6 +44,7 @@ main{max-width:1440px;margin:0 auto;padding:16px 16px 40px}
 .lb span{overflow:hidden;text-overflow:ellipsis}
 /* the empty state's switch, in the Clean column's label */
 .sw{margin-left:auto;display:inline-flex;align-items:center;gap:6px;flex:none;font:inherit;font-size:12px;color:var(--muted);background:none;border:0;padding:0 2px;border-radius:6px;cursor:pointer}
+.sw+.sw{margin-left:12px}
 .sw:hover{color:var(--fg)}
 .sw i{position:relative;width:24px;height:14px;border-radius:7px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--line);transition:background-color .2s cubic-bezier(.23,1,.32,1)}
 .sw i::after{content:"";position:absolute;left:2px;top:2px;width:10px;height:10px;border-radius:50%;background:var(--on);box-shadow:0 0 0 1px var(--line),0 1px 2px rgba(0,0,0,.15);transition:transform .2s cubic-bezier(.23,1,.32,1)}
@@ -78,7 +79,7 @@ iframe{display:block;width:100%;height:var(--h,240px);border:0;border-radius:14p
   <section class="row" aria-label="Meeting card">
     <div class="cell"><div class="lb"><b>Soft now</b><span>the library today</span></div><iframe data-k="now" title="Meeting card, Soft now"></iframe></div>
     <div class="cell"><div class="lb"><b>Soft refreshed</b><span>one entrance, changes in place</span></div><iframe data-k="new" title="Meeting card, Soft refreshed"></iframe></div>
-    <div class="cell"><div class="lb"><b>Clean</b><span>calm rise, scale and fade</span><button class="sw" id="empty" type="button" aria-pressed="false"><i aria-hidden="true"></i>Empty state</button></div><iframe data-k="clean" title="Meeting card, Clean"></iframe></div>
+    <div class="cell"><div class="lb"><b>Clean</b><span>calm rise, scale and fade</span><button class="sw" id="glow" type="button" aria-pressed="false"><i aria-hidden="true"></i>Glow</button><button class="sw" id="empty" type="button" aria-pressed="false"><i aria-hidden="true"></i>Empty state</button></div><iframe data-k="clean" title="Meeting card, Clean"></iframe></div>
   </section>
 </main>
 <div class="cur" aria-hidden="true"><svg viewBox="0 0 22 22"><path d="M4 2.5v15.2l4-3.8 2.7 6.1 2.6-1.1-2.7-6h5.6z" fill="#111" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg></div>
@@ -130,6 +131,12 @@ document.getElementById('replay').onclick = () => frames.forEach(MC.replay);
 const em = document.getElementById('empty');
 em.onclick = () => { const on = em.getAttribute('aria-pressed') !== 'true'; em.setAttribute('aria-pressed', on);
   const f = frames.find(x => x.dataset.k === 'clean'); if (f && f.dataset.ready) MC.setEmpty(f, on); };
+// the glow (owner, 17 Nov, to compare): a soft neutral glow around the Clean card's outline and a little outside Join
+const gl = document.getElementById('glow');
+const glowOn = () => gl.getAttribute('aria-pressed') === 'true';
+const setGlow = f => { try { f.contentDocument.documentElement.toggleAttribute('data-glow', glowOn()); } catch(e){} };
+gl.onclick = () => { gl.setAttribute('aria-pressed', !glowOn()); frames.filter(x => x.dataset.k === 'clean').forEach(setGlow); };
+frames.filter(x => x.dataset.k === 'clean').forEach(f => f.addEventListener('load', () => setGlow(f)));
 paint();
 </script>
 </body>
