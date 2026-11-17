@@ -351,6 +351,10 @@
   /* ---------- Accounts: the table ---------- */
   const tbody = $('.crm-t tbody', app), tableBox = $('.crm-co', app), scroller = $('.crm-sc', app);
   const allBox = $('.ttx-all', app), sb = $('.crm-hd .ttx-sb', app);
+  // the bulk actions float at the bottom of the table (owner, 17 Nov), not over the toolbar: the filters stay where they are,
+  // and a dark pill rises with the count, the actions and a clear button in front
+  tableBox.appendChild(sb); sb.classList.add('crm-flt');
+  { const clr = $('.ttx-clr', sb); if (clr){ clr.innerHTML = I('x', 'xs'); clr.setAttribute('aria-label', 'Clear selection'); clr.dataset.tip = 'Clear selection'; clr.classList.add('crm-fx'); sb.prepend(clr); } }
   const tick = I('check', 'xs').replace('class="i xs"', 'class="i xs ck-y"') + I('minus', 'xs').replace('class="i xs"', 'class="i xs ck-m"');
   allBox.innerHTML = tick;
   $$('.crm-t .ttx-s', app).forEach(b => b.insertAdjacentHTML('beforeend', `<span class="ar">${I('chev-u', 'xs')}</span>`));
