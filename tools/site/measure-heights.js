@@ -15,7 +15,9 @@ const BANDS = [['a', 1440], ['b', 1181], ['c', 961], ['d', 880], ['e', 834], ['f
 const ONLY = process.env.ONLY ? process.env.ONLY.split(',') : null;
 // COMPS=agent-tree,toast measures just those components and keeps every other one from card-heights.json as it is
 const COMPS = process.env.COMPS ? process.env.COMPS.split(',') : null;
-const STYLES = ['bp', 'soft', 'clean'];
+// STYLES=clean measures just that style: the other styles' numbers for the components measured stay as they were, and the
+// stage keeps the tallest of all of them
+const STYLES = process.env.STYLES ? process.env.STYLES.split(',') : ['bp', 'soft', 'clean'];
 const PLAY = 24000, EVERY = 200;
 
 const TYPES = { '.html':'text/html', '.js':'text/javascript', '.json':'application/json', '.css':'text/css', '.svg':'image/svg+xml', '.png':'image/png', '.woff2':'font/woff2' };
@@ -45,7 +47,7 @@ const serve = page => page.route('**/*', route => {
     const old = JSON.parse(fs.readFileSync(path.join(__dirname, 'card-heights.json'), 'utf8'));
     if (old.bands.map(x => x.join()).join() !== BANDS.map(x => x.join()).join()) throw new Error('card-heights.json has other bands: measure everything');
     for (const [all, key] of [[out, 'heights'], [outHost, 'components'], [outBp, 'componentsBp'], [outClean, 'componentsClean']]) for (const id in old[key] || {}){
-      if (COMPS.includes(id)) continue;
+      if (COMPS.includes(id) && (!process.env.STYLES || !(key === 'heights' || (key === 'components' && !STYLES.includes('soft')) || (key === 'componentsBp' && !STYLES.includes('bp'))))) continue;
       all[id] = Object.fromEntries(BANDS.map(([b], j) => [b, old[key][id][j]]));
     }
   }
