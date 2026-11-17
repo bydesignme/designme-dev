@@ -1,8 +1,8 @@
 // Measures how tall each card's stage gets while its component plays, and writes card-heights.json, which build.js turns
 // into a min-height per card so nothing below a card moves as its component starts or grows.
-// Each band of screen widths is measured at its narrowest width, where components wrap the most, in both styles.
+// Each band of screen widths is measured at its narrowest width, where components wrap the most, in all three styles.
 // usage (from tools/site, after a build): node measure-heights.js     needs Playwright: PW=<path to playwright> or npm i playwright
-const fs = require('fs'), path = require('path'), http = require('http');
+const fs = require('fs'), path = require('path');
 const { chromium } = require(process.env.PW || 'playwright');
 
 const ROOT = path.resolve(__dirname, '../..');
@@ -15,34 +15,36 @@ const BANDS = [['a', 1440], ['b', 1181], ['c', 961], ['d', 880], ['e', 834], ['f
 const ONLY = process.env.ONLY ? process.env.ONLY.split(',') : null;
 // COMPS=agent-tree,toast measures just those components and keeps every other one from card-heights.json as it is
 const COMPS = process.env.COMPS ? process.env.COMPS.split(',') : null;
-const STYLES = ['bp', 'soft'];
+const STYLES = ['bp', 'soft', 'clean'];
 const PLAY = 24000, EVERY = 200;
 
 const TYPES = { '.html':'text/html', '.js':'text/javascript', '.json':'application/json', '.css':'text/css', '.svg':'image/svg+xml', '.png':'image/png', '.woff2':'font/woff2' };
-const server = http.createServer((req, res) => {
-  const file = path.join(ROOT, decodeURIComponent(req.url.split('?')[0]).replace(/\/$/, '/index.html'));
-  if (!file.startsWith(ROOT) || !fs.existsSync(file) || fs.statSync(file).isDirectory()){ res.writeHead(404); return res.end(); }
-  res.writeHead(200, { 'Content-Type': TYPES[path.extname(file)] || 'application/octet-stream' });
-  fs.createReadStream(file).pipe(res);
+// the repository is served to the browser from disk (no server listens anywhere): requests to http://dm.local/ are answered
+// with its files, and anything else is left unanswered
+const serve = page => page.route('**/*', route => {
+  const u = new URL(route.request().url());
+  if (u.host !== 'dm.local') return route.abort();
+  const file = path.join(ROOT, decodeURIComponent(u.pathname).replace(/\/$/, '/index.html'));
+  if (!file.startsWith(ROOT) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) return route.fulfill({ status: 404, body: '' });
+  return route.fulfill({ status: 200, contentType: TYPES[path.extname(file)] || 'application/octet-stream', body: fs.readFileSync(file) });
 });
 
 (async () => {
-  await new Promise(r => server.listen(0, '127.0.0.1', r));
-  const url = `http://127.0.0.1:${server.address().port}/`;
+  const url = 'http://dm.local/';
   // PW_EXEC points at a Chromium of your own, if Playwright's isn't installed
   const browser = await chromium.launch(process.env.PW_EXEC ? { executablePath: process.env.PW_EXEC } : {});
   const spill = [];
-  // the stage keeps the taller of the two styles; the component's own height is kept per style, so each sits centred
-  const out = {}, outHost = {}, outBp = {};
+  // the stage keeps the tallest of the three styles; the component's own height is kept per style, so each sits centred
+  const out = {}, outHost = {}, outBp = {}, outClean = {};
   if (ONLY){
     const old = JSON.parse(fs.readFileSync(path.join(__dirname, 'card-heights.json'), 'utf8'));
     BANDS.forEach(([b], i) => { if (ONLY.includes(b)) return; const j = old.bands.findIndex(([ob, ow]) => ob === b && ow === BANDS[i][1]); if (j < 0) throw new Error(`band ${b} isn't in card-heights.json: measure it too`);
-      for (const [all, key] of [[out, 'heights'], [outHost, 'components'], [outBp, 'componentsBp']]) for (const id in old[key]) (all[id] || (all[id] = {}))[b] = old[key][id][j]; });
+      for (const [all, key] of [[out, 'heights'], [outHost, 'components'], [outBp, 'componentsBp'], [outClean, 'componentsClean']]) for (const id in old[key] || {}) (all[id] || (all[id] = {}))[b] = old[key][id][j]; });
   }
   if (COMPS){
     const old = JSON.parse(fs.readFileSync(path.join(__dirname, 'card-heights.json'), 'utf8'));
     if (old.bands.map(x => x.join()).join() !== BANDS.map(x => x.join()).join()) throw new Error('card-heights.json has other bands: measure everything');
-    for (const [all, key] of [[out, 'heights'], [outHost, 'components'], [outBp, 'componentsBp']]) for (const id in old[key]){
+    for (const [all, key] of [[out, 'heights'], [outHost, 'components'], [outBp, 'componentsBp'], [outClean, 'componentsClean']]) for (const id in old[key] || {}){
       if (COMPS.includes(id)) continue;
       all[id] = Object.fromEntries(BANDS.map(([b], j) => [b, old[key][id][j]]));
     }
@@ -50,11 +52,12 @@ const server = http.createServer((req, res) => {
   for (const [band, width] of BANDS) for (const style of STYLES){
     if (ONLY && !ONLY.includes(band)) continue;
     const page = await browser.newPage({ viewport: { width, height: 900 } });
+    await serve(page);
     await page.addInitScript(() => { window.DM_NO_IDLE = true; });
     // every card counts as on screen while it's measured, so demos that rest off screen (c.seen, through an
     // IntersectionObserver) still play to their tallest moment
     await page.addInitScript(() => { window.IntersectionObserver = class { constructor(cb){ this.cb = cb; } observe(el){ setTimeout(() => this.cb([{ target:el, isIntersecting:true, intersectionRatio:1 }], this), 0); } unobserve(){} disconnect(){} takeRecords(){ return []; } }; });
-    await page.addInitScript(s => { try { localStorage.setItem('dmui-style', s === 'soft' ? 'soft' : 'blueprint'); localStorage.setItem('dmui-theme', 'light'); } catch(e){} }, style);
+    await page.addInitScript(s => { try { localStorage.setItem('dmui-style', s === 'bp' ? 'blueprint' : s); localStorage.setItem('dmui-theme', 'light'); } catch(e){} }, style);
     await page.goto(url, { waitUntil: 'load' });
     await page.evaluate(() => document.fonts.ready);
     // entrances (a fade up of a few pixels) play eight times as fast, so a component isn't measured taller than it gets
@@ -113,13 +116,13 @@ const server = http.createServer((req, res) => {
     }, { PLAY, EVERY, COMPS });
     for (const [id, [h, hh, up, side]] of Object.entries(got)){
       if (up > 1 || side > 1) spill.push(`${id} at ${width}px in ${style}: ${up > 1 ? up + 'px above its top ' : ''}${side > 1 ? side + 'px past a side of its stage' : ''}`);
-      const o = out[id] || (out[id] = {}), host = style === 'bp' ? outBp : outHost, oh = host[id] || (host[id] = {}); o[band] = Math.max(o[band] || 0, h); oh[band] = Math.max(oh[band] || 0, hh); }
+      const o = out[id] || (out[id] = {}), host = style === 'bp' ? outBp : style === 'clean' ? outClean : outHost, oh = host[id] || (host[id] = {}); o[band] = Math.max(o[band] || 0, h); oh[band] = Math.max(oh[band] || 0, hh); }
     console.log(`${band} ${width}px ${style}: ${Object.keys(got).length} cards`);
     await page.close();
   }
-  await browser.close(); server.close();
+  await browser.close();
   const sorted = (o) => Object.fromEntries(Object.keys(o).sort().map(id => [id, BANDS.map(([b]) => o[id][b])]));
-  fs.writeFileSync(path.join(__dirname, 'card-heights.json'), JSON.stringify({ bands: BANDS, heights: sorted(out), components: sorted(outHost), componentsBp: sorted(outBp) }, null, 1) + '\n');
+  fs.writeFileSync(path.join(__dirname, 'card-heights.json'), JSON.stringify({ bands: BANDS, heights: sorted(out), components: sorted(outHost), componentsBp: sorted(outBp), componentsClean: sorted(outClean) }, null, 1) + '\n');
   console.log('wrote card-heights.json');
   if (spill.length) console.log('Reaching outside the component (check these fit their stage):\n  ' + spill.join('\n  '));
 })().catch(e => { console.error(e); process.exit(1); });

@@ -12,6 +12,11 @@ const [SITE, SOFT, OUT, REGDIR] = process.argv.slice(2);
 let site = fs.readFileSync(SITE, 'utf8');
 const soft = fs.readFileSync(SOFT, 'utf8');
 const warn = [];
+/* three styles (owner, 17 Nov): Blueprint, Soft and Clean. soft-2/index.html draws Soft as its base, Blueprint as
+   [data-style="bp"] and Clean as [data-style="clean"] over Soft. The site and installs write Soft as data-style="soft",
+   Clean as data-style="clean" and Blueprint as neither, so a Blueprint rule becomes BP_ROOT: one :not() with both names, so
+   its weight stays what it was with Soft's alone and Clean (a layer over Soft) never picks up a Blueprint rule */
+const BP_ROOT = ':not([data-style="soft"],[data-style="clean"])', CLEAN = '[data-style="clean"]';
 
 /* ---------- site card -> new component ---------- */
 const MAP = {
@@ -204,10 +209,10 @@ const defOf = id => { const a = DEFS_JS.indexOf(`DM.def('${id}'`); if (a < 0) re
 /* ---------- CSS: scope everything to .v2, keyed to the site's style and theme ---------- */
 const SHELL = /(^|[\s>+~(,])(\.wrap|\.top|\.ctrls|\.acc|\.acc-[\w-]+|\.sec-h|\.grp-h|\.grid|\.card-h|\.card-f|\.replay|\.seg(?![\w-])|body|html)(?![\w-])/;
 function rootPart(sel){
-  // ":root[...]:not(...)" at the start, the site uses data-style="soft" where this page uses data-style="bp"
+  // ":root[...]:not(...)" at the start, the site uses data-style="soft" (and "clean") where this page uses data-style="bp"
   const m = sel.match(/^:root((?:\[[^\]]*\]|:not\([^)]*\))*)/);
   if (!m) return null;
-  let attrs = m[1].replace(/\[data-style="bp"\]/g, ':not([data-style="soft"])');
+  let attrs = m[1].replace(/\[data-style="bp"\]/g, BP_ROOT);
   return { root: ':root' + attrs, rest: sel.slice(m[0].length).trim(), plain: !attrs };
 }
 function scopeSel(sel){
@@ -462,12 +467,12 @@ const needDefs = id => Promise.all(partsOf(id).map(loadPart));
    nothing below it moves as the component starts and plays. Unlayered, so it outranks the site's own minimums ---------- */
 const HEIGHTS = fs.existsSync(path.join(__dirname, 'card-heights.json')) ? JSON.parse(fs.readFileSync(path.join(__dirname, 'card-heights.json'), 'utf8')) : null;
 const HEIGHTS_CSS = !HEIGHTS ? '' : '\n<style id="card-heights">\n' + HEIGHTS.bands.map(([b, w], i) => {
-  // Soft's height for the component, and Blueprint's where it was measured on its own
-  const rule = `:is(.lib-sec,.launch) .comp>.stage{min-height:var(--rh-${b},420px)}:is(.lib-sec,.launch) .comp>.stage .v2.stage-in{min-height:var(--rc-${b},0px)}:root:not([data-style="soft"]) :is(.lib-sec,.launch) .comp>.stage .v2.stage-in{min-height:var(--rcb-${b},var(--rc-${b},0px))}`;
+  // Soft's height for the component, and Blueprint's and Clean's where they were measured on their own
+  const rule = `:is(.lib-sec,.launch) .comp>.stage{min-height:var(--rh-${b},420px)}:is(.lib-sec,.launch) .comp>.stage .v2.stage-in{min-height:var(--rc-${b},0px)}:root${BP_ROOT} :is(.lib-sec,.launch) .comp>.stage .v2.stage-in{min-height:var(--rcb-${b},var(--rc-${b},0px))}:root${CLEAN} :is(.lib-sec,.launch) .comp>.stage .v2.stage-in{min-height:var(--rcc-${b},var(--rc-${b},0px))}`;
   return i ? `@media (max-width:${HEIGHTS.bands[i - 1][1] - 1}px){${rule}}` : rule;
 }).join('\n') + '\n</style>';
 // the card's stage keeps its tallest height, and inside it the component keeps its own, so it grows downwards as it plays
-const heightsOf = id => !HEIGHTS || !HEIGHTS.heights[id] ? '' : ` style="${HEIGHTS.bands.map(([b], i) => `--rh-${b}:${HEIGHTS.heights[id][i]}px` + (HEIGHTS.components ? `;--rc-${b}:${HEIGHTS.components[id][i]}px` : '') + (HEIGHTS.componentsBp && HEIGHTS.componentsBp[id] ? `;--rcb-${b}:${HEIGHTS.componentsBp[id][i]}px` : '')).join(';')}"`;
+const heightsOf = id => !HEIGHTS || !HEIGHTS.heights[id] ? '' : ` style="${HEIGHTS.bands.map(([b], i) => `--rh-${b}:${HEIGHTS.heights[id][i]}px` + (HEIGHTS.components ? `;--rc-${b}:${HEIGHTS.components[id][i]}px` : '') + (HEIGHTS.componentsBp && HEIGHTS.componentsBp[id] ? `;--rcb-${b}:${HEIGHTS.componentsBp[id][i]}px` : '') + (HEIGHTS.componentsClean && HEIGHTS.componentsClean[id] ? `;--rcc-${b}:${HEIGHTS.componentsClean[id][i]}px` : '')).join(';')}"`;
 
 /* ---------- site: keep the site's own CSS below the components' ---------- */
 {
@@ -641,11 +646,13 @@ if (missing.length) warn.push('cards not swapped: ' + missing.join(','));
 
 /* ---------- the code people copy or install: original CSS and JS, Blueprint by default and Soft with data-style="soft" ---------- */
 const ELEM = /^(\*|button|input|textarea|select|b|strong|:focus-visible|\[hidden\])(?![\w-])/;
-/* the style hangs off the page, never off a stage: Blueprint is the default, Soft is data-style="soft" on <html> or on any
-   element around the components. So the base tokens (Soft's) also sit on any [data-style="soft"], and every Blueprint rule
-   steps aside inside one. Blueprint's sweeping rules (every corner square, no blur, square svg shapes) reach only what the
-   components draw: their card ([data-c]), the tooltip and the kanban drag ghost (both on <body>), never the rest of your page */
-const SOFT_HERE = '[data-style="soft"]', NOT_SOFT = ':not(:where([data-style="soft"],[data-style="soft"] *))';
+/* the style hangs off the page, never off a stage: Blueprint is the default, Soft is data-style="soft" and Clean is
+   data-style="clean", on <html> or on any element around the components. So the base tokens (Soft's) also sit on any
+   [data-style="soft"] or [data-style="clean"], Clean's own rules also reach inside any [data-style="clean"], and every
+   Blueprint rule steps aside inside either. Blueprint's sweeping rules (every corner square, no blur, square svg shapes)
+   reach only what the components draw: their card ([data-c]), the tooltip and the kanban drag ghost (both on <body>), never
+   the rest of your page */
+const SOFT_HERE = '[data-style="soft"]', NOT_SOFT = ':not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *))';
 const DRAWN = ['[data-c]', '.tip', '.kbx-k.ghost'];
 // adds a condition to the element a selector picks (its last compound), ahead of any pseudo-element
 function onSubject(sel, cond){
@@ -664,8 +671,11 @@ function styleScope(sel){
     let depth = 0; for (; i < sel.length; i++){ if (sel[i] === '(' || sel[i] === '[') depth++; else if (sel[i] === ')' || sel[i] === ']'){ if (!--depth){ i++; break; } } }
   }
   if (i < sel.length && !/\s/.test(sel[i])) return [sel];
-  const attrs = sel.slice(5, i), rest = sel.slice(i).trim(), bp = attrs.includes(':not([data-style="soft"])');
-  if (!rest) return bp ? [sel] : [sel, attrs ? `:root${attrs} ${SOFT_HERE}` : SOFT_HERE];
+  const attrs = sel.slice(5, i), rest = sel.slice(i).trim(), bp = attrs.includes(BP_ROOT);
+  // a Clean rule: on <html>, or on any element around the components
+  if (!bp && attrs.includes(CLEAN)){ const other = attrs.replace(CLEAN, ''), here = other ? `:root${other} ${CLEAN}` : CLEAN;
+    return [sel, rest ? `${other ? here : ':root ' + here} ${rest}` : here]; }
+  if (!rest) return bp ? [sel] : [sel, attrs ? `:root${attrs} ${SOFT_HERE}` : SOFT_HERE, attrs ? `:root${attrs} ${CLEAN}` : CLEAN];
   if (!bp) return [sel];
   let r = rest;
   if (/^\*/.test(r)) r = `:where(${DRAWN.flatMap(x => [x, x + ' *']).join(',')})` + r.slice(1);
@@ -677,7 +687,7 @@ function regCss(text){
   root.walkRules(rule => {
     if (rule.parent.type === 'atrule' && /keyframes/.test(rule.parent.name)) return;
     const out = [...new Set(rule.selectors.map(sel => {
-      sel = sel.trim().replace(/\[data-style="bp"\]/g, ':not([data-style="soft"])').replace(/^:where\(\.stage-in\) /, ':where([data-c]) ').replace(/\.stage:has\(\.dm\)>\.stage-in/g, '.stage-in:has(>.dm)');
+      sel = sel.trim().replace(/\[data-style="bp"\]/g, BP_ROOT).replace(/^:where\(\.stage-in\) /, ':where([data-c]) ').replace(/\.stage:has\(\.dm\)>\.stage-in/g, '.stage-in:has(>.dm)');
       if (SHELL.test(sel)) return null;
       if (/(^|[\s>+~(])\.stage(?![\w-])/.test(sel)) return null;
       if (/(^|[\s>+~(])\.card(?![\w-])/.test(sel) && !/\.card\.(bare|wide) \.stage-in/.test(sel)) return null;
@@ -690,7 +700,7 @@ function regCss(text){
   root.walkAtRules('media', at => { if (!at.nodes || !at.nodes.length) at.remove(); });
   return root.toString().replace(/\n{3,}/g, '\n\n').trim() + '\n';
 }
-const REG_CORE_CSS_SITE = `/* Designme shared core: tokens for Blueprint (default) and Soft (data-style="soft" on <html> or on any element around the components), light and dark (<html data-theme="dark">) */\n`
+const REG_CORE_CSS_SITE = `/* Designme shared core: tokens for Blueprint (default), Soft (data-style="soft") and Clean (data-style="clean"), on <html> or on any element around the components, light and dark (<html data-theme="dark">) */\n`
   + regCss(CSS.slice(0, CSS.indexOf('/* ---------- Status pill ---------- */')) + '\n' + CSS.slice(CSS.indexOf('/* ---------- Blueprint 2 ---------- */')))
   + `\n/* a component card: the template renders into .stage-in */\n[data-c]{width:440px;max-width:100%;font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-webkit-font-smoothing:antialiased}\n[data-c].wide{width:720px}\n`;
 const REG_CORE_JS_SITE = CORE_JS.trim() + `\n\n/* ---------- icons: the sprite every <use href="#i-..."> points at ---------- */\nconst SPRITE = ${JSON.stringify(SPRITE)};\n`
@@ -879,6 +889,15 @@ site = site.replace(/(<article\b[^>]*\bdata-reg="([\w-]+)"[^>]*>[\s\S]*?<h2 clas
 }
 // the site's own styles take the neutral greys (the components' styles, #v2-css, come from soft-2/index.html already neutral)
 site = site.replace(/(<style(?![^>]*id="v2-css")[^>]*>)([\s\S]*?)(<\/style>)/g, (m, a, css, b) => a + neutralSite(css) + b);
+// the site's own chrome (its header, sidebar, toolbars and pages) has two looks, Blueprint and Soft; Clean, a layer over Soft,
+// wears Soft's. So a chrome rule for Soft also reaches Clean, and a Blueprint one (not Soft) steps aside for it too. Only the
+// site's own styles: the components' (#v2-css) are scoped by style already
+{
+  const keep = '\u0000';
+  site = site.replace(/(<style(?![^>]*id="v2-css")[^>]*>)([\s\S]*?)(<\/style>)/g, (m, a, css, b) => a + css
+    .split(BP_ROOT).join(keep).replace(/:not\(\[data-style="soft"\]\)/g, keep).replace(/\[data-style="soft"\]/g, ':is([data-style="soft"],[data-style="clean"])')
+    .split(keep).join(BP_ROOT) + b);
+}
 /* ---------- the cards' own chrome, written out the way the site's script leaves it as it starts: each card's "open its
    page" button, and the icons of its head (the site chrome's own set, PH_SHELL, the same in both styles), drawn in. Added by
    the script one card at a time once the page had drawn, they held up a phone for half a second. The script keeps working

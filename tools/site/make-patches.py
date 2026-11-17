@@ -381,7 +381,7 @@ patch("""      c.querySelector('.comp-title').addEventListener('click', () => { 
 # Soft is the style a first visit opens in; a visitor who picks Blueprint keeps it
 patch("""var st=localStorage.getItem("dmui-style");if(st)document.documentElement.setAttribute("data-style",st)""",
       # until a visitor picks a style, it follows their theme: dark opens in Blueprint dark, light in Soft light (owner, 4 Nov)
-      """var st=localStorage.getItem("dmui-style")||((t||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"))==="dark"?"bp":"soft");if(st==="soft"||st==="mine")document.documentElement.setAttribute("data-style","soft")""")
+      """var st=localStorage.getItem("dmui-style")||((t||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"))==="dark"?"bp":"soft");if(st==="soft"||st==="mine")document.documentElement.setAttribute("data-style","soft");else if(st==="clean")document.documentElement.setAttribute("data-style","clean")""")
 # "Your theme" (st "mine") is Soft with a visitor's pasted shadcn/Tailwind v4 theme over the demos: build.js inlines the script
 # that applies it (tools/site/theme-bridge.js, previewScript) right after this one, so it is on before the page paints
 # the sidebar's call to action names what the agency builds, Astro first, for search (owner, 4 Nov)
@@ -494,7 +494,7 @@ patch("""    function placeCodeBtns(){
     placeCodeBtns();""", """    const touch = matchMedia('(hover: none), (max-width: 640px)');
     const NAME = { anim:n => 'Animate ' + n, view:n => 'View the code of ' + n, copy:n => 'Copy the code of ' + n };
     function placeCodeBtns(){
-      const soft = root.getAttribute('data-style') === 'soft';
+      const soft = /^(soft|clean)$/.test(root.getAttribute('data-style') || '');
       $$('.comp').forEach(c => {
         const btns = c.querySelector('.code-btns'); if (!btns) return;
         if (!btns._home){
@@ -882,7 +882,10 @@ patch(""".acc-sw{position:relative;width:28px;height:28px;flex:none;border-radiu
 patch(""".acc-sw[data-v="default"]{background:conic-gradient(#ff850d 0 50%,#116ff8 50% 100%)}
 html[data-style="soft"] .acc-sw[data-v="default"]{background:conic-gradient(#116ff8 0 50%,#ff850d 50% 100%)}""", """.acc-sw[data-v="default"]{background:#d4f84a}
 html[data-style="soft"] .acc-sw[data-v="default"]{background:#116ff8}
-html:not([data-style="soft"]) .acc-sw[data-v="#d4f84a"],html[data-style="soft"] .acc-sw[data-v="#116ff8"]{display:none}""")
+html:not([data-style="soft"]) .acc-sw[data-v="#d4f84a"],html[data-style="soft"]:not([data-style="clean"]) .acc-sw[data-v="#116ff8"]{display:none}
+html[data-style="clean"] .acc-sw[data-v="default"]{background:#0a0a0a}
+html[data-style="clean"][data-theme="dark"] .acc-sw[data-v="default"]{background:#f5f5f5}
+@media (prefers-color-scheme: dark){html[data-style="clean"]:not([data-theme="light"]) .acc-sw[data-v="default"]{background:#f5f5f5}}""")
 patch("""const SW = [['default','Default',null],['#ff850d','Orange'],['#116ff8','Blue'],['#7c5cff','Violet'],['#e8366f','Rose'],['#12a150','Green'],['#0ea5a4','Teal']];""", """const SW = [['default','Default',null],['#d4f84a','Lime'],['#116ff8','Blue'],['#7c5cff','Violet'],['#e8366f','Rose'],['#12a150','Green'],['#0ea5a4','Teal'],['#ff850d','Orange']];""")
 
 # ---------- the logo: option 3, the blueprint of the wordmark ----------
@@ -1339,7 +1342,7 @@ patch("""      $$('.acc-sw[data-v]').forEach(b => b.classList.toggle('on', b.dat
       $$('.acc-row').forEach(row => { const all = $$('.acc-sw[data-v]', row), sws = all.filter(b => !twin(b)), on = sws.find(b => b.dataset.v === cur) || sws[0]; all.forEach(b => { b.tabIndex = b === on ? 0 : -1; }); });""")
 patch("""    const pop = $('#acc-pop'), btn = $('#acc-btn');""", """    const pop = $('#acc-pop'), btn = $('#acc-btn');
     // the swatch the style hides, as its Default is the same colour
-    const twin = b => b.dataset.v === (document.documentElement.getAttribute('data-style') === 'soft' ? '#116ff8' : '#d4f84a');
+    const twin = b => { const st = document.documentElement.getAttribute('data-style'); return st === 'clean' ? false : b.dataset.v === (st === 'soft' ? '#116ff8' : '#d4f84a'); };
     document.addEventListener('keydown', e => {
       const b = e.target.closest && e.target.closest('.acc-row .acc-sw[data-v]'); if (!b) return;
       const sws = $$('.acc-sw[data-v]', b.parentElement).filter(x => !twin(x)), i = sws.indexOf(b);
@@ -1461,12 +1464,12 @@ patch("""</head>""", """<script>
 # pasted theme is on, the accent picker is hidden (it would do nothing); Reset brings it back.
 # Blueprint and Soft work as before. The component and docs pages have the same option (tools/pages/src/layouts/Page.astro)
 patch("""<span>Soft</span></button></div>""",
-      """<span>Soft</span></button><button data-v="mine" aria-haspopup="dialog"><svg class="ss-ic ss-pal" viewBox="0 0 256 256" aria-hidden="true"><circle cx="128" cy="128" r="96" opacity="0.2"/><circle cx="128" cy="128" r="96" fill="none" stroke="currentColor" stroke-width="16"/><circle cx="92" cy="104" r="14"/><circle cx="144" cy="84" r="14"/><circle cx="172" cy="132" r="14"/></svg><span>Your theme</span></button></div>""")
+      """<span>Soft</span></button><button data-v="clean"><svg class="ss-ic ss-pill" viewBox="0 0 256 256" aria-hidden="true"><rect x="24" y="76" width="208" height="104" rx="52" opacity="0.2"/><rect x="24" y="76" width="208" height="104" rx="52" fill="none" stroke="currentColor" stroke-width="16"/></svg><span>Clean</span></button><button data-v="mine" aria-haspopup="dialog"><svg class="ss-ic ss-pal" viewBox="0 0 256 256" aria-hidden="true"><circle cx="128" cy="128" r="96" opacity="0.2"/><circle cx="128" cy="128" r="96" fill="none" stroke="currentColor" stroke-width="16"/><circle cx="92" cy="104" r="14"/><circle cx="144" cy="84" r="14"/><circle cx="172" cy="132" r="14"/></svg><span>Your theme</span></button></div>""")
 patch("""const cur = root.getAttribute('data-style') || 'blueprint';""",
       """let cur = root.getAttribute('data-style') || 'blueprint';
     try { if (localStorage.getItem('dmui-style') === 'mine') cur = 'mine'; } catch(e) {}""")
 patch("""if (v === 'soft') root.setAttribute('data-style', 'soft'); else root.removeAttribute('data-style');""",
-      """if (v === 'soft' || v === 'mine') root.setAttribute('data-style', 'soft'); else root.removeAttribute('data-style');
+      """if (v === 'soft' || v === 'mine') root.setAttribute('data-style', 'soft'); else if (v === 'clean') root.setAttribute('data-style', 'clean'); else root.removeAttribute('data-style');
         if (window.dmTheme) window.dmTheme.apply(v === 'mine');""")
 patch("""    segInit(seg, v => {
       const restore = anchor();""",
@@ -1476,6 +1479,21 @@ patch("""    segInit(seg, v => {
     segInit(seg, v => {
       const restore = anchor();""")
 
+
+
+# ---------- Clean: a third style (owner, 17 Nov) ----------
+# Clean is a layer over Soft (monochrome, fully round, data-style="clean"). The switch above picks it; the site's own chrome
+# wears Soft's look in it (build.js rewrites the chrome's Soft selectors to reach Clean too), and wherever the site's script
+# asks "is this Soft?" Clean answers yes
+patch("""soft = r.getAttribute('data-style') === 'soft', t = r.getAttribute('data-theme');""",
+      """soft = /^(soft|clean)$/.test(r.getAttribute('data-style') || ''), t = r.getAttribute('data-theme');""")
+patch("""if (document.documentElement.getAttribute('data-style') === 'soft' && PH[name])""",
+      """if (/^(soft|clean)$/.test(document.documentElement.getAttribute('data-style') || '') && PH[name])""")
+patch("""const bp = document.documentElement.getAttribute('data-style') !== 'soft', M = MODES[""",
+      """const bp = !/^(soft|clean)$/.test(document.documentElement.getAttribute('data-style') || ''), M = MODES[""")
+patch("""      if (v === 'soft') b.animate([""", """      if (v === 'soft' || v === 'clean') b.animate([""")
+patch("""(document.documentElement.getAttribute('data-style') === 'soft' ? 'Blue, the Soft default' :""",
+      """(document.documentElement.getAttribute('data-style') === 'clean' ? 'Ink, the Clean default' : document.documentElement.getAttribute('data-style') === 'soft' ? 'Blue, the Soft default' :""")
 
 # ---------- launch (owner, 4 Nov) ----------
 # Book a call goes to the agency's booking page, not its homepage, tagged so the agency can see it came from here

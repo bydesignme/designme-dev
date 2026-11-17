@@ -99,7 +99,7 @@
   const SHELL = '.top,.side,.intro,.comp-head,.comp-foot,.code-btns,.cd,.toast,.dv-bar,.dv-code,.dv-more,.exp-btn';
   function iconSVG(name, el){
     if (el && el.closest(SHELL) && PH_SHELL[name]) return '<svg class="sh" viewBox="0 0 256 256">' + PH_SHELL[name] + '</svg>';
-    if (document.documentElement.getAttribute('data-style') === 'soft' && PH[name]) return '<svg class="ph" viewBox="0 0 256 256">' + PH[name] + '</svg>';
+    if (/^(soft|clean)$/.test(document.documentElement.getAttribute('data-style') || '') && PH[name]) return '<svg class="ph" viewBox="0 0 256 256">' + PH[name] + '</svg>';
     return '<svg viewBox="0 0 24 24">' + ICONS[name] + '</svg>';
   }
   function hydrate(root){
@@ -677,7 +677,7 @@
     const touch = matchMedia('(hover: none), (max-width: 640px)');
     const NAME = { anim:n => 'Animate ' + n, view:n => 'View the code of ' + n, copy:n => 'Copy the code of ' + n };
     function placeCodeBtns(){
-      const soft = root.getAttribute('data-style') === 'soft';
+      const soft = /^(soft|clean)$/.test(root.getAttribute('data-style') || '');
       $$('.comp').forEach(c => {
         const btns = c.querySelector('.code-btns'); if (!btns) return;
         if (!btns._home){
@@ -708,7 +708,7 @@
     const playIcon = v => {
       if (reduce) return;
       const b = seg.querySelector(`button[data-v="${v}"] .ss-ic`); if (!b) return;
-      if (v === 'soft') b.animate([{ transform:'translateY(0) scale(1)' }, { transform:'translateY(-3px) scale(1.14)', offset:.45 }, { transform:'translateY(.5px) scale(.97)', offset:.75 }, { transform:'translateY(0) scale(1)' }], { duration:620, easing:'cubic-bezier(.34,1.3,.64,1)' });
+      if (v === 'soft' || v === 'clean') b.animate([{ transform:'translateY(0) scale(1)' }, { transform:'translateY(-3px) scale(1.14)', offset:.45 }, { transform:'translateY(.5px) scale(.97)', offset:.75 }, { transform:'translateY(0) scale(1)' }], { duration:620, easing:'cubic-bezier(.34,1.3,.64,1)' });
       else b.animate([{ transform:'rotate(0deg)' }, { transform:'rotate(-22deg)', offset:.4 }, { transform:'rotate(6deg)', offset:.75 }, { transform:'rotate(0deg)' }], { duration:560, easing:'cubic-bezier(.34,1.3,.64,1)' });
       const ind = seg.querySelector('.seg-ind'); if (ind) ind.animate([{ scale:'1 1' }, { scale:'1.06 .94', offset:.45 }, { scale:'1 1' }], { duration:520, easing:'cubic-bezier(.34,1.3,.64,1)' });
     };
@@ -720,7 +720,7 @@
       playIcon(v);
       const swap = () => {
         root.classList.add('theming');
-        if (v === 'soft' || v === 'mine') root.setAttribute('data-style', 'soft'); else root.removeAttribute('data-style');
+        if (v === 'soft' || v === 'mine') root.setAttribute('data-style', 'soft'); else if (v === 'clean') root.setAttribute('data-style', 'clean'); else root.removeAttribute('data-style');
         if (window.dmTheme) window.dmTheme.apply(v === 'mine');
         try { localStorage.setItem('dmui-style', v); } catch(e) {}
         placeCodeBtns(); hydrate(document.body);
@@ -1041,7 +1041,7 @@
     function play(comp){
       if (comp && comp.dataset.v2 && window.V2){ window.V2.replay(comp); return; }
       const stage = comp.querySelector('.stage-inner'); if (!stage) return;
-      const bp = document.documentElement.getAttribute('data-style') !== 'soft', M = MODES[bp ? 'blueprint' : 'soft'];
+      const bp = !/^(soft|clean)$/.test(document.documentElement.getAttribute('data-style') || ''), M = MODES[bp ? 'blueprint' : 'soft'];
       const roots = [...stage.children].filter(usable);
       if (reduce){ roots.forEach(r => r.animate([{ opacity:0 }, { opacity:1 }], { duration:220 })); return; }
       roots.forEach(r => r.animate(M.root, { duration:M.rootD, easing:bp ? 'cubic-bezier(.2,0,0,1)' : EASE }));
@@ -2136,7 +2136,7 @@
     if (styleRow){ const row = document.createElement('div'); row.className = 'm-set mi-in'; row.innerHTML = `<span class="m-lbl">Accent</span><span class="m-acc acc-row" role="radiogroup" aria-label="Accent colour">${swatches()}</span>`; styleRow.after(row); }
     const pop = $('#acc-pop'), btn = $('#acc-btn');
     // the swatch the style hides, as its Default is the same colour
-    const twin = b => b.dataset.v === (document.documentElement.getAttribute('data-style') === 'soft' ? '#116ff8' : '#d4f84a');
+    const twin = b => { const st = document.documentElement.getAttribute('data-style'); return st === 'clean' ? false : b.dataset.v === (st === 'soft' ? '#116ff8' : '#d4f84a'); };
     document.addEventListener('keydown', e => {
       const b = e.target.closest && e.target.closest('.acc-row .acc-sw[data-v]'); if (!b) return;
       const sws = $$('.acc-sw[data-v]', b.parentElement).filter(x => !twin(x)), i = sws.indexOf(b);
@@ -2144,7 +2144,7 @@
       const n = d ? sws[(i + d + sws.length) % sws.length] : e.key === 'Home' ? sws[0] : e.key === 'End' ? sws[sws.length - 1] : null;
       if (!n) return; e.preventDefault(); commit(n.dataset.v, n); n.focus();
     });
-    const label = v => v === 'default' ? (document.documentElement.getAttribute('data-style') === 'soft' ? 'Blue, the Soft default' : 'Lime, the Blueprint default') : v.toUpperCase();
+    const label = v => v === 'default' ? (document.documentElement.getAttribute('data-style') === 'clean' ? 'Ink, the Clean default' : document.documentElement.getAttribute('data-style') === 'soft' ? 'Blue, the Soft default' : 'Lime, the Blueprint default') : v.toUpperCase();
     function mark(){
       $$('.acc-sw[data-v]').forEach(b => { const on = b.dataset.v === cur; b.classList.toggle('on', on); b.setAttribute('aria-checked', String(on)); });
       $$('.acc-row').forEach(row => { const all = $$('.acc-sw[data-v]', row), sws = all.filter(b => !twin(b)), on = sws.find(b => b.dataset.v === cur) || sws[0]; all.forEach(b => { b.tabIndex = b === on ? 0 : -1; }); });

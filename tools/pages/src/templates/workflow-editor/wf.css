@@ -11,7 +11,7 @@
      wfx-fix, wfx-note            the agent's fix and a plain note, beside the run's steps
      wfx-vers                     the version history
      wfx-apps                     Connected apps: the apps with their marks and state, a catalogue to connect more, the tools
-   Blueprint is the page with no data-style, so its overrides are :root:not([data-style="soft"]). Hover styles are only for a
+   Blueprint is the page with no data-style, so its overrides are :root:not([data-style="soft"],[data-style="clean"]). Hover styles are only for a
    mouse (hover:hover and pointer:fine).
    Motion uses the library's tokens (--dm-t, --dm-t-fast, --dm-ease): panels slide without a bounce, popovers and dialogs lift and
    fade in like the core's .pop, and everything that leaves fades and closes its room. Reduced motion turns it all off. */
@@ -26,7 +26,7 @@ body:has(.wf) .dmf{display:none}
 
 /* ---------- the app ---------- */
 .wf[data-c]{--wf-ns:var(--dm-shadow);--wf-nb:color-mix(in srgb,var(--dm-line) 60%,transparent);--wf-dot:color-mix(in srgb,var(--dm-fg) 8%,transparent);width:100%;max-width:none;height:100%;display:grid;grid-template-columns:240px minmax(0,1fr);position:relative;overflow:hidden;background:var(--dm-surface);color:var(--dm-fg);font-size:13px;text-align:left}
-:root:not([data-style="soft"]) .wf[data-c]{--wf-ns:0 0 #0000;--wf-nb:color-mix(in srgb,var(--dm-line-strong) 45%,transparent);--wf-dot:color-mix(in srgb,var(--dm-fg) 7%,transparent)}
+:root:not([data-style="soft"],[data-style="clean"]) .wf[data-c]{--wf-ns:0 0 #0000;--wf-nb:color-mix(in srgb,var(--dm-line-strong) 45%,transparent);--wf-dot:color-mix(in srgb,var(--dm-fg) 7%,transparent)}
 :where(.wf) :where(h1,h2,h3,p,ul,ol){margin:0}
 .wf .muted{color:var(--dm-muted)}
 .wf-sp{flex:1}
@@ -333,8 +333,8 @@ body:has(.wf) .dmf{display:none}
 .wf-over.out :is(.cpl,.fmx){animation:wfpopout var(--dm-t-fast) var(--dm-ease) both}
 @keyframes wfpop{from{opacity:0;transform:translateY(6px) scale(.98);filter:blur(3px)}}
 @keyframes wfpopout{to{opacity:0;transform:translateY(6px) scale(.98);filter:blur(3px)}}
-:root:not([data-style="soft"]) .wf-over :is(.cpl,.fmx){animation-name:wfpopbp}
-:root:not([data-style="soft"]) .wf-over.out :is(.cpl,.fmx){animation-name:wfpopoutbp}
+:root:not([data-style="soft"],[data-style="clean"]) .wf-over :is(.cpl,.fmx){animation-name:wfpopbp}
+:root:not([data-style="soft"],[data-style="clean"]) .wf-over.out :is(.cpl,.fmx){animation-name:wfpopoutbp}
 @keyframes wfpopbp{from{opacity:0;transform:translateY(4px)}}
 @keyframes wfpopoutbp{to{opacity:0;transform:translateY(4px)}}
 .wf-cmd .cpl{width:100%;max-width:600px}
@@ -452,7 +452,7 @@ body:has(.wf) .dmf{display:none}
 @media (max-width:1199px){
   .wf-panel{position:absolute;right:0;top:0;bottom:0;width:min(368px,100%);box-shadow:var(--dm-shadow-pop);border-left:0;transform:translateX(101%);visibility:hidden;transition:transform var(--dm-t) var(--dm-ease),visibility 0s var(--dm-t)}
   .wf.pn .wf-panel{width:min(368px,100%);transform:none;visibility:visible;transition-delay:0s}
-  :root:not([data-style="soft"]) .wf-panel{box-shadow:-1px 0 0 color-mix(in srgb,var(--dm-line) 70%,transparent)}
+  :root:not([data-style="soft"],[data-style="clean"]) .wf-panel{box-shadow:-1px 0 0 color-mix(in srgb,var(--dm-line) 70%,transparent)}
 }
 @media (max-width:1199px){
   .wf-ask{width:32px;padding:0}
@@ -517,12 +517,12 @@ body:has(.wf) .dmf{display:none}
    rounded panel raised on that frame, with a hairline in dark mode; Blueprint stays flush and square (owner, 10 Nov) */
 .wf-side.ahx-side{background:var(--dm-stage)}
 @media (min-width:1024px){
-  :root[data-style="soft"] .wf[data-c]{background:var(--dm-stage)}
-  :root[data-style="soft"] .wf .ahx-side{border-right-color:transparent}
-  :root[data-style="soft"] .wf-main{margin:var(--dm-s-2) var(--dm-s-2) var(--dm-s-2) 0;border-radius:calc(12px * var(--dm-rk));background:var(--dm-surface);box-shadow:var(--dm-shadow)}
-  @supports (corner-shape:squircle){:root[data-style="soft"] .wf-main{corner-shape:squircle}}
-  :root[data-style="soft"][data-theme="dark"] .wf-main{box-shadow:var(--dm-shadow),0 0 0 1px color-mix(in srgb,var(--dm-fg) 10%,transparent)}
-  @media (prefers-color-scheme:dark){:root[data-style="soft"]:not([data-theme="light"]) .wf-main{box-shadow:var(--dm-shadow),0 0 0 1px color-mix(in srgb,var(--dm-fg) 10%,transparent)}}
+  :root:is([data-style="soft"],[data-style="clean"]) .wf[data-c]{background:var(--dm-stage)}
+  :root:is([data-style="soft"],[data-style="clean"]) .wf .ahx-side{border-right-color:transparent}
+  :root:is([data-style="soft"],[data-style="clean"]) .wf-main{margin:var(--dm-s-2) var(--dm-s-2) var(--dm-s-2) 0;border-radius:calc(12px * var(--dm-rk));background:var(--dm-surface);box-shadow:var(--dm-shadow)}
+  @supports (corner-shape:squircle){:root:is([data-style="soft"],[data-style="clean"]) .wf-main{corner-shape:squircle}}
+  :root:is([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wf-main{box-shadow:var(--dm-shadow),0 0 0 1px color-mix(in srgb,var(--dm-fg) 10%,transparent)}
+  @media (prefers-color-scheme:dark){:root:is([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wf-main{box-shadow:var(--dm-shadow),0 0 0 1px color-mix(in srgb,var(--dm-fg) 10%,transparent)}}
 }
 /* owner's review 10 Nov: the workspace switcher sits on the header row's centre line, the sidebar's footer divider and the
    run bar's top edge are one line, and the usage count carries a token icon */
@@ -533,13 +533,13 @@ body:has(.wf) .dmf{display:none}
 .wf .rdr-dw.shut{height:58px}
 .wf .rdr-dw .rdr-h{height:57px}
 @media (min-width:1024px){
-  :root[data-style="soft"] .wf-side.ahx-side{padding-top:calc(var(--dm-s-2) + 6px)}
-  :root[data-style="soft"] .wf .rdr-dw.shut{height:50px}
-  :root[data-style="soft"] .wf .rdr-dw .rdr-h{height:49px}
+  :root:is([data-style="soft"],[data-style="clean"]) .wf-side.ahx-side{padding-top:calc(var(--dm-s-2) + 6px)}
+  :root:is([data-style="soft"],[data-style="clean"]) .wf .rdr-dw.shut{height:50px}
+  :root:is([data-style="soft"],[data-style="clean"]) .wf .rdr-dw .rdr-h{height:49px}
 }
 /* Blueprint is flat: the sidebar is white like the run bar and the inspector, the dotted canvas the one layer below them
    (owner, 10 Nov); Soft keeps the darker frame under its raised panel */
-:root:not([data-style="soft"]) .wf-side.ahx-side{background:var(--dm-surface)}
+:root:not([data-style="soft"],[data-style="clean"]) .wf-side.ahx-side{background:var(--dm-surface)}
 /* the usage meter is a button that opens Set limit; its label and count share one centre line */
 .wf-usage{width:100%;text-align:left;font:inherit;color:inherit;background:none;border-radius:var(--dm-r-sm);cursor:pointer;transition:background var(--dm-t-fast)}
 .wf-usage .prg-mh{display:flex;align-items:center}
@@ -562,29 +562,29 @@ body:has(.wf) .dmf{display:none}
    darkest tone and the canvas is the one lighter area inside it; the sidebar's edge runs the full height, the top bar's line
    runs the full width (through the workspace switcher's row), and the run bar's top edge, the usage meter's line and the step
    panel's foot line are one line from edge to edge. A switch is a dark track with an outline and a lighter knob */
-:root:not([data-style="soft"])[data-theme="dark"] .wf{--wf-g:color-mix(in srgb,var(--dm-fg) 14%,transparent)}
-:root:not([data-style="soft"])[data-theme="dark"] :is(.wf-side.ahx-side,.wf-top,.wf.pn .wf-panel,.wf .rdr-dw,.wf-insp .wfx-insp-f,.wfx-cv .ctb-bar){background:var(--dm-stage)}
-:root:not([data-style="soft"])[data-theme="dark"] .wfx-cv{background:var(--dm-surface)}
-:root:not([data-style="soft"])[data-theme="dark"] .wf .ahx-side{border-right:1px solid var(--wf-g)}
-:root:not([data-style="soft"])[data-theme="dark"] .wf-top{border-bottom:1px solid var(--wf-g)}
-:root:not([data-style="soft"])[data-theme="dark"] .wf.pn .wf-panel{border-left-color:var(--wf-g)}
-:root:not([data-style="soft"])[data-theme="dark"] .wf-ph{border-bottom-color:var(--wf-g)}
-:root:not([data-style="soft"])[data-theme="dark"] .wf .rdr-dw{border-top:1px solid var(--wf-g);box-shadow:none}
-:root:not([data-style="soft"])[data-theme="dark"] .wf-usage::before{background:var(--wf-g)}
-:root:not([data-style="soft"])[data-theme="dark"] .wf-insp .wfx-insp-f{box-sizing:border-box;min-height:58px;border-top:1px solid var(--wf-g)}
-:root:not([data-style="soft"])[data-theme="dark"] .wfx-cv .ctb-bar{box-shadow:0 0 0 1px var(--wf-g)}
+:root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wf{--wf-g:color-mix(in srgb,var(--dm-fg) 14%,transparent)}
+:root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] :is(.wf-side.ahx-side,.wf-top,.wf.pn .wf-panel,.wf .rdr-dw,.wf-insp .wfx-insp-f,.wfx-cv .ctb-bar){background:var(--dm-stage)}
+:root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wfx-cv{background:var(--dm-surface)}
+:root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wf .ahx-side{border-right:1px solid var(--wf-g)}
+:root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wf-top{border-bottom:1px solid var(--wf-g)}
+:root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wf.pn .wf-panel{border-left-color:var(--wf-g)}
+:root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wf-ph{border-bottom-color:var(--wf-g)}
+:root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wf .rdr-dw{border-top:1px solid var(--wf-g);box-shadow:none}
+:root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wf-usage::before{background:var(--wf-g)}
+:root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wf-insp .wfx-insp-f{box-sizing:border-box;min-height:58px;border-top:1px solid var(--wf-g)}
+:root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wfx-cv .ctb-bar{box-shadow:0 0 0 1px var(--wf-g)}
 @media (prefers-color-scheme:dark){
-  :root:not([data-style="soft"]):not([data-theme="light"]) .wf{--wf-g:color-mix(in srgb,var(--dm-fg) 14%,transparent)}
-  :root:not([data-style="soft"]):not([data-theme="light"]) :is(.wf-side.ahx-side,.wf-top,.wf.pn .wf-panel,.wf .rdr-dw,.wf-insp .wfx-insp-f,.wfx-cv .ctb-bar){background:var(--dm-stage)}
-  :root:not([data-style="soft"]):not([data-theme="light"]) .wfx-cv{background:var(--dm-surface)}
-  :root:not([data-style="soft"]):not([data-theme="light"]) .wf .ahx-side{border-right:1px solid var(--wf-g)}
-  :root:not([data-style="soft"]):not([data-theme="light"]) .wf-top{border-bottom:1px solid var(--wf-g)}
-  :root:not([data-style="soft"]):not([data-theme="light"]) .wf.pn .wf-panel{border-left-color:var(--wf-g)}
-  :root:not([data-style="soft"]):not([data-theme="light"]) .wf-ph{border-bottom-color:var(--wf-g)}
-  :root:not([data-style="soft"]):not([data-theme="light"]) .wf .rdr-dw{border-top:1px solid var(--wf-g);box-shadow:none}
-  :root:not([data-style="soft"]):not([data-theme="light"]) .wf-usage::before{background:var(--wf-g)}
-  :root:not([data-style="soft"]):not([data-theme="light"]) .wf-insp .wfx-insp-f{box-sizing:border-box;min-height:58px;border-top:1px solid var(--wf-g)}
-  :root:not([data-style="soft"]):not([data-theme="light"]) .wfx-cv .ctb-bar{box-shadow:0 0 0 1px var(--wf-g)}
+  :root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wf{--wf-g:color-mix(in srgb,var(--dm-fg) 14%,transparent)}
+  :root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) :is(.wf-side.ahx-side,.wf-top,.wf.pn .wf-panel,.wf .rdr-dw,.wf-insp .wfx-insp-f,.wfx-cv .ctb-bar){background:var(--dm-stage)}
+  :root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wfx-cv{background:var(--dm-surface)}
+  :root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wf .ahx-side{border-right:1px solid var(--wf-g)}
+  :root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wf-top{border-bottom:1px solid var(--wf-g)}
+  :root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wf.pn .wf-panel{border-left-color:var(--wf-g)}
+  :root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wf-ph{border-bottom-color:var(--wf-g)}
+  :root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wf .rdr-dw{border-top:1px solid var(--wf-g);box-shadow:none}
+  :root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wf-usage::before{background:var(--wf-g)}
+  :root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wf-insp .wfx-insp-f{box-sizing:border-box;min-height:58px;border-top:1px solid var(--wf-g)}
+  :root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wfx-cv .ctb-bar{box-shadow:0 0 0 1px var(--wf-g)}
 }
 /* the workflow's name and the test chip under it share a left edge, and their contents start on one line (owner, 10 Nov) */
 .wf-top .wf-h1b{margin-left:-8px;padding:0 8px}
@@ -595,7 +595,7 @@ body:has(.wf) .dmf{display:none}
    sidebar and Runs this month fills its cell; in Soft the line is inset like the sidebar's rows and Runs this month is a row
    like the others, its divider above it */
 @media (min-width:1024px){
-  :root[data-style="soft"] .wf .wf-side.ahx-side{padding-top:8px}
+  :root:is([data-style="soft"],[data-style="clean"]) .wf .wf-side.ahx-side{padding-top:8px}
   .wf[data-c]{grid-template-columns:248px minmax(0,1fr)}
   .wf .wf-side.ahx-side{padding-left:12px;padding-right:12px}
   .wf-side .ahx-ws{position:relative;box-sizing:border-box;height:56px;margin:0 0 10px;padding:8px 0 9px}
@@ -604,13 +604,13 @@ body:has(.wf) .dmf{display:none}
   .wf-side .wf-wsb .pfm-lg{width:27px;height:27px}
   .wf-sfoot .wf-usage{height:44px;margin-top:14px;padding:6px 9px}
   .wf-sfoot .wf-usage::before{top:-6px}
-  :root:not([data-style="soft"]) .wf-side.ahx-side{padding-top:0;padding-bottom:0}
-  :root:not([data-style="soft"]) .wf-side .ahx-ws{margin:0 -12px 10px;padding:8px 12px 9px}
-  :root:not([data-style="soft"]) .wf-sfoot .wf-usage{width:auto;height:58px;margin:var(--dm-s-2) -12px 0;padding:12px 21px 10px;border-radius:0}
-  :root:not([data-style="soft"]) .wf-sfoot .wf-usage::before{top:0}
-  :root:not([data-style="soft"])[data-theme="dark"] .wf-side .ahx-ws::after{background:var(--wf-g)}
+  :root:not([data-style="soft"],[data-style="clean"]) .wf-side.ahx-side{padding-top:0;padding-bottom:0}
+  :root:not([data-style="soft"],[data-style="clean"]) .wf-side .ahx-ws{margin:0 -12px 10px;padding:8px 12px 9px}
+  :root:not([data-style="soft"],[data-style="clean"]) .wf-sfoot .wf-usage{width:auto;height:58px;margin:var(--dm-s-2) -12px 0;padding:12px 21px 10px;border-radius:0}
+  :root:not([data-style="soft"],[data-style="clean"]) .wf-sfoot .wf-usage::before{top:0}
+  :root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wf-side .ahx-ws::after{background:var(--wf-g)}
   @media (prefers-color-scheme:dark){
-    :root:not([data-style="soft"]):not([data-theme="light"]) .wf-side .ahx-ws::after{background:var(--wf-g)}
+    :root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wf-side .ahx-ws::after{background:var(--wf-g)}
   }
 }
 /* the inspector's chips, tokens, add buttons and dropdowns are one height (30px), their avatar or icon 5px from the edge */
@@ -625,13 +625,13 @@ body:has(.wf) .dmf{display:none}
 #wf-p-sel .ph{padding-left:5px}
 /* every switch in dark mode is one thing: a track a few tones darker than what it sits on, outlined as a whole, and a lighter
    knob with no outline (Step, Runs, Versions; Steps, Log, Data; All, Warnings, Errors; Set limit) */
-:root[data-style="soft"][data-theme="dark"] .wf{--wf-trk:color-mix(in srgb,var(--dm-surface) 78%,#000);--wf-trk-l:color-mix(in srgb,var(--dm-fg) 10%,transparent);--wf-knob:color-mix(in srgb,var(--dm-fg) 14%,var(--dm-surface))}
+:root:is([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wf{--wf-trk:color-mix(in srgb,var(--dm-surface) 78%,#000);--wf-trk-l:color-mix(in srgb,var(--dm-fg) 10%,transparent);--wf-knob:color-mix(in srgb,var(--dm-fg) 14%,var(--dm-surface))}
 @media (prefers-color-scheme:dark){
-  :root[data-style="soft"]:not([data-theme="light"]) .wf{--wf-trk:color-mix(in srgb,var(--dm-surface) 78%,#000);--wf-trk-l:color-mix(in srgb,var(--dm-fg) 10%,transparent);--wf-knob:color-mix(in srgb,var(--dm-fg) 14%,var(--dm-surface))}
+  :root:is([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wf{--wf-trk:color-mix(in srgb,var(--dm-surface) 78%,#000);--wf-trk-l:color-mix(in srgb,var(--dm-fg) 10%,transparent);--wf-knob:color-mix(in srgb,var(--dm-fg) 14%,var(--dm-surface))}
 }
-:root:not([data-style="soft"])[data-theme="dark"] .wf{--wf-trk:color-mix(in srgb,var(--dm-surface) 78%,#000);--wf-trk-l:var(--wf-g);--wf-knob:color-mix(in srgb,var(--dm-fg) 12%,var(--dm-stage))}
+:root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wf{--wf-trk:color-mix(in srgb,var(--dm-surface) 78%,#000);--wf-trk-l:var(--wf-g);--wf-knob:color-mix(in srgb,var(--dm-fg) 12%,var(--dm-stage))}
 @media (prefers-color-scheme:dark){
-  :root:not([data-style="soft"]):not([data-theme="light"]) .wf{--wf-trk:color-mix(in srgb,var(--dm-surface) 78%,#000);--wf-trk-l:var(--wf-g);--wf-knob:color-mix(in srgb,var(--dm-fg) 12%,var(--dm-stage))}
+  :root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wf{--wf-trk:color-mix(in srgb,var(--dm-surface) 78%,#000);--wf-trk-l:var(--wf-g);--wf-knob:color-mix(in srgb,var(--dm-fg) 12%,var(--dm-stage))}
 }
 :root[data-theme="dark"] .wf :is(.seg2,.sgc-seg){background:var(--wf-trk);box-shadow:inset 0 0 0 1px var(--wf-trk-l)}
 :root[data-theme="dark"] .wf :is(.seg2 .knob,.sgc-seg .sgc-k){background:var(--wf-knob);box-shadow:none}
@@ -641,20 +641,20 @@ body:has(.wf) .dmf{display:none}
 }
 /* Blueprint dark: the rows that stick to the top of the run bar's views and the versions' markers are the frame's tone, and
    menus are the chips' fill with the grid's edge */
-:root:not([data-style="soft"])[data-theme="dark"] .wf .rdr-dw :is(.rdr-ax,.rdr-lf){background:var(--dm-stage)}
-:root:not([data-style="soft"])[data-theme="dark"] .wf-panel .wfx-ver-m{background:var(--dm-stage)}
-:root:not([data-style="soft"])[data-theme="dark"] .wf .pop{background:var(--dm-surface)}
+:root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wf .rdr-dw :is(.rdr-ax,.rdr-lf){background:var(--dm-stage)}
+:root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wf-panel .wfx-ver-m{background:var(--dm-stage)}
+:root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wf .pop{background:var(--dm-surface)}
 @media (prefers-color-scheme:dark){
-  :root:not([data-style="soft"]):not([data-theme="light"]) .wf .rdr-dw :is(.rdr-ax,.rdr-lf){background:var(--dm-stage)}
-  :root:not([data-style="soft"]):not([data-theme="light"]) .wf-panel .wfx-ver-m{background:var(--dm-stage)}
-  :root:not([data-style="soft"]):not([data-theme="light"]) .wf .pop{background:var(--dm-surface)}
+  :root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wf .rdr-dw :is(.rdr-ax,.rdr-lf){background:var(--dm-stage)}
+  :root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wf-panel .wfx-ver-m{background:var(--dm-stage)}
+  :root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wf .pop{background:var(--dm-surface)}
 }
 /* the run bar's head and its views share one 12px edge: Last run's hover box starts where the Log filters and the steps' axis
    start, and the follow button ends where they end (owner, 10 Nov) */
 .wf .rdr-dw .rdr-h{padding:0 var(--dm-s-3)}
 /* the step panel's foot is exactly as tall as the run bar, so its line is the run bar's line in every style (owner, 10 Nov) */
 .wf-insp .wfx-insp-f{box-sizing:border-box;height:58px;min-height:0;display:flex;align-items:center;padding-top:0;padding-bottom:0}
-:root[data-style="soft"] .wf-insp .wfx-insp-f{height:50px}
+:root:is([data-style="soft"],[data-style="clean"]) .wf-insp .wfx-insp-f{height:50px}
 /* a dropdown's outline is drawn outside its box and a field's inside it, so the menus under a field start 1px in: their edge
    lands on the field's edge. The test chip's menu is the chip's width, its avatars and heading on the chip's avatar */
 #wf-p-lead{padding:4px}
@@ -681,9 +681,9 @@ body:has(.wf) .dmf{display:none}
 .sti-addw .i{flex:none}
 @media (hover:hover) and (pointer:fine){.sti-addw:hover{background:var(--dm-row);color:var(--dm-fg)}}
 .sti-addw[aria-expanded="true"]{background:var(--dm-row);color:var(--dm-fg)}
-@supports (corner-shape:squircle){:root[data-style="soft"] .sti-addw{corner-shape:squircle}}
+@supports (corner-shape:squircle){:root:is([data-style="soft"],[data-style="clean"]) .sti-addw{corner-shape:squircle}}
 /* Soft's sidebar sits on the frame's grey, where the row grey doesn't show: its hover is a step darker than the frame */
-@media (hover:hover) and (pointer:fine){:root[data-style="soft"] .wf-side :is(.ahx-cv,.ahx-wsb):not([aria-current="true"]):hover{background:color-mix(in srgb,var(--dm-fg) 5%,transparent)}}
+@media (hover:hover) and (pointer:fine){:root:is([data-style="soft"],[data-style="clean"]) .wf-side :is(.ahx-cv,.ahx-wsb):not([aria-current="true"]):hover{background:color-mix(in srgb,var(--dm-fg) 5%,transparent)}}
 /* the reviewer's pass (owner, 12 Nov): the run bar's switch is the 28px of the buttons beside it */
 .wf .rdr-tabs button{height:24px}
 /* the step panel's head and its Runs filter start and end on its content's edges (16px in), as the Step tab's sections do */

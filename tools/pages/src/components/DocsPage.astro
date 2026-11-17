@@ -162,8 +162,11 @@ const toc = d.sections.map(s => ({ id:s.id, label:s.h }));
       .dc-pv-l{font-size:13px;font-weight:500;color:var(--pg-fg)}
       .dc-pv-picks{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
       .dc-pick{position:relative;display:grid;place-items:center;width:24px;height:24px;padding:0;border:0;border-radius:999px;background:var(--sw,#d4f84a);box-shadow:inset 0 0 0 1px rgba(18,18,18,.12);cursor:pointer}
-      html[data-style="soft"] .dc-pick[data-v="default"]{background:#116ff8}
-      html:not([data-style="soft"]) .dc-pick[data-v="#d4f84a"],html[data-style="soft"] .dc-pick[data-v="#116ff8"]{display:none}
+      html:is([data-style="soft"],[data-style="clean"]) .dc-pick[data-v="default"]{background:#116ff8}
+      html:not([data-style="soft"],[data-style="clean"]) .dc-pick[data-v="#d4f84a"],html[data-style="soft"]:not([data-style="clean"]) .dc-pick[data-v="#116ff8"]{display:none}
+      html[data-style="clean"] .dc-pick[data-v="default"]{background:#0a0a0a}
+      html[data-style="clean"][data-theme="dark"] .dc-pick[data-v="default"]{background:#f5f5f5}
+      @media (prefers-color-scheme:dark){html[data-style="clean"]:not([data-theme="light"]) .dc-pick[data-v="default"]{background:#f5f5f5}}
       .dc-pick[aria-checked="true"],.dc-pick-any.on{box-shadow:0 0 0 2px var(--pg-bg),0 0 0 4px var(--pg-fg)}
       .dc-pick-any{background:conic-gradient(#ff5f5f,#ffd23f,#3ddc97,#3d8bff,#b06bff,#ff5f5f)}
       .dc-pick-any input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
@@ -180,7 +183,7 @@ const toc = d.sections.map(s => ({ id:s.id, label:s.h }));
       .dc-pv-chart{display:block;width:160px;height:56px;overflow:visible}
       .dc-pv-chart .ln{fill:none;stroke:var(--mk);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
       .dc-pv-chart .ar{fill:color-mix(in srgb,var(--mk) 12%,transparent)}
-      :root:not([data-style="soft"]) .dc-pv-btn,:root:not([data-style="soft"]) .dc-pv-chip,:root:not([data-style="soft"]) .dc-pv-switch,:root:not([data-style="soft"]) .dc-pv-switch i{border-radius:0}
+      :root:not([data-style="soft"],[data-style="clean"]) .dc-pv-btn,:root:not([data-style="soft"],[data-style="clean"]) .dc-pv-chip,:root:not([data-style="soft"],[data-style="clean"]) .dc-pv-switch,:root:not([data-style="soft"],[data-style="clean"]) .dc-pv-switch i{border-radius:0}
       .dc-pv-roles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;padding:12px 14px;border-top:1px solid var(--pg-line);color:var(--pg-fg)}
       .dc-pv-note{margin:0!important;padding:10px 14px;border-top:1px solid var(--pg-line);font-size:13px;color:var(--pv-dim)!important;max-width:none!important}
 
@@ -253,7 +256,7 @@ const toc = d.sections.map(s => ({ id:s.id, label:s.h }));
       var now = pv.querySelector('.dc-pv-now'), out = [].slice.call(pv.querySelectorAll('.dc-pv-role'));
       var isDark = function(){ var t = root.getAttribute('data-theme'); return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; };
       function paint(){
-        var soft = root.getAttribute('data-style') === 'soft', dark = isDark();
+        var soft = /^(soft|clean)$/.test(root.getAttribute('data-style') || ''), dark = isDark();
         KEYS.forEach(function(k){ pv.style.removeProperty(k); });
         if (cur !== 'default'){ var v = roles(cur, soft, dark); for (var k in v) if (v[k]) pv.style.setProperty(k, v[k]); }
         // Default shows the style's own accent even when another one is picked for the page: its values are read with the

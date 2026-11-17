@@ -174,7 +174,7 @@
   ],
   [
    "var st=localStorage.getItem(\"dmui-style\");if(st)document.documentElement.setAttribute(\"data-style\",st)",
-   "var st=localStorage.getItem(\"dmui-style\")||((t||(matchMedia(\"(prefers-color-scheme: dark)\").matches?\"dark\":\"light\"))===\"dark\"?\"bp\":\"soft\");if(st===\"soft\"||st===\"mine\")document.documentElement.setAttribute(\"data-style\",\"soft\")"
+   "var st=localStorage.getItem(\"dmui-style\")||((t||(matchMedia(\"(prefers-color-scheme: dark)\").matches?\"dark\":\"light\"))===\"dark\"?\"bp\":\"soft\");if(st===\"soft\"||st===\"mine\")document.documentElement.setAttribute(\"data-style\",\"soft\");else if(st===\"clean\")document.documentElement.setAttribute(\"data-style\",\"clean\")"
   ],
   [
    "<p class=\"side-cta-d\">Expert design and dev support for startups and enterprises.</p>",
@@ -254,7 +254,7 @@
   ],
   [
    "    function placeCodeBtns(){\n      const soft = root.getAttribute('data-style') === 'soft';\n      $$('.comp').forEach(c => {\n        const btns = c.querySelector('.code-btns'); if (!btns) return;\n        if (!btns._home){ btns._home = btns.parentElement; btns._next = btns.nextSibling; }\n        const st = c.querySelector('.stage'); if (btns.parentElement !== st) st.appendChild(btns);\n      });\n    }\n    placeCodeBtns();",
-   "    const touch = matchMedia('(hover: none), (max-width: 640px)');\n    const NAME = { anim:n => 'Animate ' + n, view:n => 'View the code of ' + n, copy:n => 'Copy the code of ' + n };\n    function placeCodeBtns(){\n      const soft = root.getAttribute('data-style') === 'soft';\n      $$('.comp').forEach(c => {\n        const btns = c.querySelector('.code-btns'); if (!btns) return;\n        if (!btns._home){\n          btns._home = btns.parentElement; btns._next = btns.nextSibling;\n          // each label goes in a span the icon row can hide, and the button is named after the component\n          const t = c.querySelector('.comp-title'), n = t ? t.textContent.trim() : '';\n          $$('button', btns).forEach(b => {\n            [...b.childNodes].forEach(x => { if (x.nodeType === 3 && x.textContent.trim()){ const s = document.createElement('span'); s.className = 'cb-l'; x.replaceWith(s); s.appendChild(x); } });\n            const k = b.hasAttribute('data-anim') ? 'anim' : b.hasAttribute('data-view') ? 'view' : b.hasAttribute('data-copy') ? 'copy' : '';\n            if (k && n) b.setAttribute('aria-label', NAME[k](n));\n          });\n        }\n        const head = touch.matches && c.closest('main') && c.querySelector(':scope>.comp-head');\n        if (head){ if (btns.parentElement !== head) head.insertBefore(btns, head.querySelector(':scope>.exp-btn,:scope>.save-btn')); return; }\n        const st = c.querySelector('.stage'); if (btns.parentElement !== st) st.appendChild(btns);\n      });\n    }\n    placeCodeBtns();\n    if (touch.addEventListener) touch.addEventListener('change', placeCodeBtns);"
+   "    const touch = matchMedia('(hover: none), (max-width: 640px)');\n    const NAME = { anim:n => 'Animate ' + n, view:n => 'View the code of ' + n, copy:n => 'Copy the code of ' + n };\n    function placeCodeBtns(){\n      const soft = /^(soft|clean)$/.test(root.getAttribute('data-style') || '');\n      $$('.comp').forEach(c => {\n        const btns = c.querySelector('.code-btns'); if (!btns) return;\n        if (!btns._home){\n          btns._home = btns.parentElement; btns._next = btns.nextSibling;\n          // each label goes in a span the icon row can hide, and the button is named after the component\n          const t = c.querySelector('.comp-title'), n = t ? t.textContent.trim() : '';\n          $$('button', btns).forEach(b => {\n            [...b.childNodes].forEach(x => { if (x.nodeType === 3 && x.textContent.trim()){ const s = document.createElement('span'); s.className = 'cb-l'; x.replaceWith(s); s.appendChild(x); } });\n            const k = b.hasAttribute('data-anim') ? 'anim' : b.hasAttribute('data-view') ? 'view' : b.hasAttribute('data-copy') ? 'copy' : '';\n            if (k && n) b.setAttribute('aria-label', NAME[k](n));\n          });\n        }\n        const head = touch.matches && c.closest('main') && c.querySelector(':scope>.comp-head');\n        if (head){ if (btns.parentElement !== head) head.insertBefore(btns, head.querySelector(':scope>.exp-btn,:scope>.save-btn')); return; }\n        const st = c.querySelector('.stage'); if (btns.parentElement !== st) st.appendChild(btns);\n      });\n    }\n    placeCodeBtns();\n    if (touch.addEventListener) touch.addEventListener('change', placeCodeBtns);"
   ],
   [
    "</head>",
@@ -282,7 +282,7 @@
   ],
   [
    ".acc-sw[data-v=\"default\"]{background:conic-gradient(#ff850d 0 50%,#116ff8 50% 100%)}\nhtml[data-style=\"soft\"] .acc-sw[data-v=\"default\"]{background:conic-gradient(#116ff8 0 50%,#ff850d 50% 100%)}",
-   ".acc-sw[data-v=\"default\"]{background:#d4f84a}\nhtml[data-style=\"soft\"] .acc-sw[data-v=\"default\"]{background:#116ff8}\nhtml:not([data-style=\"soft\"]) .acc-sw[data-v=\"#d4f84a\"],html[data-style=\"soft\"] .acc-sw[data-v=\"#116ff8\"]{display:none}"
+   ".acc-sw[data-v=\"default\"]{background:#d4f84a}\nhtml[data-style=\"soft\"] .acc-sw[data-v=\"default\"]{background:#116ff8}\nhtml:not([data-style=\"soft\"]) .acc-sw[data-v=\"#d4f84a\"],html[data-style=\"soft\"]:not([data-style=\"clean\"]) .acc-sw[data-v=\"#116ff8\"]{display:none}\nhtml[data-style=\"clean\"] .acc-sw[data-v=\"default\"]{background:#0a0a0a}\nhtml[data-style=\"clean\"][data-theme=\"dark\"] .acc-sw[data-v=\"default\"]{background:#f5f5f5}\n@media (prefers-color-scheme: dark){html[data-style=\"clean\"]:not([data-theme=\"light\"]) .acc-sw[data-v=\"default\"]{background:#f5f5f5}}"
   ],
   [
    "const SW = [['default','Default',null],['#ff850d','Orange'],['#116ff8','Blue'],['#7c5cff','Violet'],['#e8366f','Rose'],['#12a150','Green'],['#0ea5a4','Teal']];",
@@ -458,7 +458,7 @@
   ],
   [
    "    const pop = $('#acc-pop'), btn = $('#acc-btn');",
-   "    const pop = $('#acc-pop'), btn = $('#acc-btn');\n    // the swatch the style hides, as its Default is the same colour\n    const twin = b => b.dataset.v === (document.documentElement.getAttribute('data-style') === 'soft' ? '#116ff8' : '#d4f84a');\n    document.addEventListener('keydown', e => {\n      const b = e.target.closest && e.target.closest('.acc-row .acc-sw[data-v]'); if (!b) return;\n      const sws = $$('.acc-sw[data-v]', b.parentElement).filter(x => !twin(x)), i = sws.indexOf(b);\n      const d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;\n      const n = d ? sws[(i + d + sws.length) % sws.length] : e.key === 'Home' ? sws[0] : e.key === 'End' ? sws[sws.length - 1] : null;\n      if (!n) return; e.preventDefault(); commit(n.dataset.v, n); n.focus();\n    });"
+   "    const pop = $('#acc-pop'), btn = $('#acc-btn');\n    // the swatch the style hides, as its Default is the same colour\n    const twin = b => { const st = document.documentElement.getAttribute('data-style'); return st === 'clean' ? false : b.dataset.v === (st === 'soft' ? '#116ff8' : '#d4f84a'); };\n    document.addEventListener('keydown', e => {\n      const b = e.target.closest && e.target.closest('.acc-row .acc-sw[data-v]'); if (!b) return;\n      const sws = $$('.acc-sw[data-v]', b.parentElement).filter(x => !twin(x)), i = sws.indexOf(b);\n      const d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;\n      const n = d ? sws[(i + d + sws.length) % sws.length] : e.key === 'Home' ? sws[0] : e.key === 'End' ? sws[sws.length - 1] : null;\n      if (!n) return; e.preventDefault(); commit(n.dataset.v, n); n.focus();\n    });"
   ],
   [
    "    btn.addEventListener('click', e => { e.stopPropagation(); pop.classList.contains('open') ? close() : open(); });",
@@ -494,7 +494,7 @@
   ],
   [
    "<span>Soft</span></button></div>",
-   "<span>Soft</span></button><button data-v=\"mine\" aria-haspopup=\"dialog\"><svg class=\"ss-ic ss-pal\" viewBox=\"0 0 256 256\" aria-hidden=\"true\"><circle cx=\"128\" cy=\"128\" r=\"96\" opacity=\"0.2\"/><circle cx=\"128\" cy=\"128\" r=\"96\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"16\"/><circle cx=\"92\" cy=\"104\" r=\"14\"/><circle cx=\"144\" cy=\"84\" r=\"14\"/><circle cx=\"172\" cy=\"132\" r=\"14\"/></svg><span>Your theme</span></button></div>"
+   "<span>Soft</span></button><button data-v=\"clean\"><svg class=\"ss-ic ss-pill\" viewBox=\"0 0 256 256\" aria-hidden=\"true\"><rect x=\"24\" y=\"76\" width=\"208\" height=\"104\" rx=\"52\" opacity=\"0.2\"/><rect x=\"24\" y=\"76\" width=\"208\" height=\"104\" rx=\"52\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"16\"/></svg><span>Clean</span></button><button data-v=\"mine\" aria-haspopup=\"dialog\"><svg class=\"ss-ic ss-pal\" viewBox=\"0 0 256 256\" aria-hidden=\"true\"><circle cx=\"128\" cy=\"128\" r=\"96\" opacity=\"0.2\"/><circle cx=\"128\" cy=\"128\" r=\"96\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"16\"/><circle cx=\"92\" cy=\"104\" r=\"14\"/><circle cx=\"144\" cy=\"84\" r=\"14\"/><circle cx=\"172\" cy=\"132\" r=\"14\"/></svg><span>Your theme</span></button></div>"
   ],
   [
    "const cur = root.getAttribute('data-style') || 'blueprint';",
@@ -502,11 +502,31 @@
   ],
   [
    "if (v === 'soft') root.setAttribute('data-style', 'soft'); else root.removeAttribute('data-style');",
-   "if (v === 'soft' || v === 'mine') root.setAttribute('data-style', 'soft'); else root.removeAttribute('data-style');\n        if (window.dmTheme) window.dmTheme.apply(v === 'mine');"
+   "if (v === 'soft' || v === 'mine') root.setAttribute('data-style', 'soft'); else if (v === 'clean') root.setAttribute('data-style', 'clean'); else root.removeAttribute('data-style');\n        if (window.dmTheme) window.dmTheme.apply(v === 'mine');"
   ],
   [
    "    segInit(seg, v => {\n      const restore = anchor();",
    "    // Your theme opens its panel on every click, Enter or Space, so the theme can be changed or reset (Reset goes back to Soft);\n    // arrowing onto it (the arrow keys click it from the script) only picks it, so the arrows carry on through the switch\n    { const mb = seg.querySelector('button[data-v=\"mine\"]'); if (mb) mb.addEventListener('click', e => { if (e.isTrusted && window.dmTheme) window.dmTheme.open(mb, () => seg.querySelector('button[data-v=\"soft\"]').click()); }); }\n    segInit(seg, v => {\n      const restore = anchor();"
+  ],
+  [
+   "soft = r.getAttribute('data-style') === 'soft', t = r.getAttribute('data-theme');",
+   "soft = /^(soft|clean)$/.test(r.getAttribute('data-style') || ''), t = r.getAttribute('data-theme');"
+  ],
+  [
+   "if (document.documentElement.getAttribute('data-style') === 'soft' && PH[name])",
+   "if (/^(soft|clean)$/.test(document.documentElement.getAttribute('data-style') || '') && PH[name])"
+  ],
+  [
+   "const bp = document.documentElement.getAttribute('data-style') !== 'soft', M = MODES[",
+   "const bp = !/^(soft|clean)$/.test(document.documentElement.getAttribute('data-style') || ''), M = MODES["
+  ],
+  [
+   "      if (v === 'soft') b.animate([",
+   "      if (v === 'soft' || v === 'clean') b.animate(["
+  ],
+  [
+   "(document.documentElement.getAttribute('data-style') === 'soft' ? 'Blue, the Soft default' :",
+   "(document.documentElement.getAttribute('data-style') === 'clean' ? 'Ink, the Clean default' : document.documentElement.getAttribute('data-style') === 'soft' ? 'Blue, the Soft default' :"
   ],
   [
    "<a class=\"hire-btn\" id=\"hire-btn\" href=\"https://designme.agency\"",

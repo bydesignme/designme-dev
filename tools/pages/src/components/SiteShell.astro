@@ -27,13 +27,13 @@ const SOUND_IC = '<svg class="on" viewBox="0 0 24 24" fill="none" stroke="curren
      colours are the homepage's --sh- tokens, which differ a little from this page's own in dark mode. Hover and the row
      you're on share the homepage's light fill (--sh-act); the page you're on (Library or Docs) takes the chip grey */
   :root{--sh-side:#ffffff;--sh-bg:#ffffff;--sh-card:#ffffff;--sh-line:rgba(18,18,18,.08);--sh-line-2:rgba(18,18,18,.14);--sh-chip:#f1f1f1;--sh-act:#fafafa;--sh-text:#121212;--sh-dim:#525252;--sh-muted:#6a6a6a;--sh-blue:#116ff8;--sh-mark:#7a8e2b;--sh-ease:cubic-bezier(.22,1,.36,1)}
-  :root[data-style="soft"]{--sh-mark:#116ff8}
+  :root:is([data-style="soft"],[data-style="clean"]){--sh-mark:#116ff8}
   @media (prefers-color-scheme:dark){
     :root:not([data-theme="light"]){--sh-side:#111111;--sh-bg:#111111;--sh-card:#181818;--sh-line:rgba(255,255,255,.09);--sh-line-2:rgba(255,255,255,.16);--sh-chip:rgba(255,255,255,.07);--sh-act:#1d1d1d;--sh-text:#f2f2f2;--sh-dim:#c9c9c9;--sh-muted:#c0c0c0;--sh-mark:#d4f84a}
-    :root[data-style="soft"]:not([data-theme="light"]){--sh-mark:#3d8bff}
+    :root:is([data-style="soft"],[data-style="clean"]):not([data-theme="light"]){--sh-mark:#3d8bff}
   }
   :root[data-theme="dark"]{--sh-side:#111111;--sh-bg:#111111;--sh-card:#181818;--sh-line:rgba(255,255,255,.09);--sh-line-2:rgba(255,255,255,.16);--sh-chip:rgba(255,255,255,.07);--sh-act:#1d1d1d;--sh-text:#f2f2f2;--sh-dim:#c9c9c9;--sh-muted:#c0c0c0;--sh-mark:#d4f84a}
-  :root[data-style="soft"][data-theme="dark"]{--sh-mark:#3d8bff}
+  :root:is([data-style="soft"],[data-style="clean"])[data-theme="dark"]{--sh-mark:#3d8bff}
   /* it stays put under the header, the groups scroll inside it, and the DesignMe credit and Book a call are pinned to its
      bottom. Its background and the line on its right reach the window's left edge, as on the homepage */
   .side{position:sticky;top:var(--pg-head);align-self:start;height:calc(100vh - var(--pg-head));display:flex;flex-direction:column;min-width:0;padding:28px 20px 22px 0;isolation:isolate;font:400 16px/1.5 var(--pg-sans);letter-spacing:-.006em;color:var(--sh-text)}
@@ -52,7 +52,7 @@ const SOUND_IC = '<svg class="on" viewBox="0 0 24 24" fill="none" stroke="curren
   .side-search input::placeholder{color:var(--sh-muted);opacity:1}
   .side-search .kbd{display:inline-flex;align-items:center;padding:1px 7px;border:1px solid var(--sh-line);border-radius:6px;background:var(--sh-bg);font:500 11.5px/1.5 var(--pg-sans);color:var(--sh-muted)}
   html:root .side-search .kbd{box-shadow:none}
-  :root[data-style="soft"] .side-search .kbd{border-color:transparent;letter-spacing:normal}
+  :root:is([data-style="soft"],[data-style="clean"]) .side-search .kbd{border-color:transparent;letter-spacing:normal}
   /* the "/" that focuses the search sits in a key cap (owner, 4 Nov), the same on the homepage */
   html:root .side-search .kbd{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 6px;border:0;border-radius:6px;background:var(--sh-chip);box-shadow:inset 0 0 0 1px var(--sh-line);font:500 12px/1 var(--pg-sans);color:var(--sh-dim)}
   @supports (corner-shape:squircle){html:root .side-search .kbd{corner-shape:squircle;border-radius:9px}}
@@ -193,8 +193,11 @@ const SOUND_IC = '<svg class="on" viewBox="0 0 24 24" fill="none" stroke="curren
   .dc-acc{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;margin-left:auto}
   .dc-set .dc-sw{position:relative;flex:none;width:26px;height:26px;padding:0;border:0;border-radius:50%;background:var(--sw,#d4f84a);cursor:pointer}
   .dc-set .dc-sw[data-acc="default"]{--sw:#d4f84a}
-  :root[data-style="soft"] .dc-set .dc-sw[data-acc="default"]{--sw:#116ff8}
-  :root:not([data-style="soft"]) .dc-set .dc-sw[data-acc="#d4f84a"],:root[data-style="soft"] .dc-set .dc-sw[data-acc="#116ff8"]{display:none}
+  :root:is([data-style="soft"],[data-style="clean"]) .dc-set .dc-sw[data-acc="default"]{--sw:#116ff8}
+  :root:not([data-style="soft"],[data-style="clean"]) .dc-set .dc-sw[data-acc="#d4f84a"],:root[data-style="soft"]:not([data-style="clean"]) .dc-set .dc-sw[data-acc="#116ff8"]{display:none}
+  :root[data-style="clean"] .dc-set .dc-sw[data-acc="default"]{--sw:#0a0a0a}
+  :root[data-style="clean"][data-theme="dark"] .dc-set .dc-sw[data-acc="default"]{--sw:#f5f5f5}
+  @media (prefers-color-scheme:dark){:root[data-style="clean"]:not([data-theme="light"]) .dc-set .dc-sw[data-acc="default"]{--sw:#f5f5f5}}
   /* the picked swatch has a ring in the text colour, which holds 3:1 on the menu whatever the colour inside it */
   .dc-set .dc-sw[aria-checked="true"],.dc-set .dc-sw.any.on{box-shadow:0 0 0 2px var(--pg-bg),0 0 0 4px var(--sh-text)}
   .dc-set .dc-sw.any{background:conic-gradient(#ff4d4d,#ffb84d,#f4e04d,#4dd47a,#4dc3ff,#7a6bff,#ff4dd8,#ff4d4d)}
@@ -229,7 +232,7 @@ const SOUND_IC = '<svg class="on" viewBox="0 0 24 24" fill="none" stroke="curren
       <details class="dc-mnav"><summary>{where}<span aria-hidden="true">/</span><b>{title}</b><span class="dc-chev" set:html={chev} /></summary>
         <div class="dc-mnav-in"><SideNav doc={doc} reg={reg} mode="menu">
           <div class="dc-set">
-            <div class="dc-set-r"><span class="dc-set-l" id="dc-style-l">Style</span><div class="pg-seg" role="radiogroup" aria-labelledby="dc-style-l"><button type="button" role="radio" aria-checked="false" data-style-set="bp">Blueprint</button><button type="button" role="radio" aria-checked="false" data-style-set="soft">Soft</button><button type="button" role="radio" aria-checked="false" aria-haspopup="dialog" data-style-set="mine">Your theme</button></div></div>
+            <div class="dc-set-r"><span class="dc-set-l" id="dc-style-l">Style</span><div class="pg-seg" role="radiogroup" aria-labelledby="dc-style-l"><button type="button" role="radio" aria-checked="false" data-style-set="bp">Blueprint</button><button type="button" role="radio" aria-checked="false" data-style-set="soft">Soft</button><button type="button" role="radio" aria-checked="false" data-style-set="clean">Clean</button><button type="button" role="radio" aria-checked="false" aria-haspopup="dialog" data-style-set="mine">Your theme</button></div></div>
             <div class="dc-set-r"><span class="dc-set-l" id="dc-acc-l">Accent</span><div class="dc-acc" role="radiogroup" aria-labelledby="dc-acc-l">
               {ACCENT_SW.map(([v, n]) => <button type="button" class="dc-sw" role="radio" aria-checked="false" data-acc={v} aria-label={n} title={n} style={v === 'default' ? undefined : `--sw:${v}`}></button>)}
               <label class="dc-sw any" title="Pick any colour"><input type="color" value="#ff850d" aria-label="Pick any colour"></label>

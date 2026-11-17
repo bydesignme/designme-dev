@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <style>[hidden]{display:none!important}body{margin:0}</style>
-<script>try{var q=new URLSearchParams(location.search).get('style'),l=localStorage.getItem('designme2-style');if(q?/^(bp|bp2|blueprint)$/i.test(q):l==='bp2')document.documentElement.dataset.style='bp'}catch(e){}</script>
+<script>try{var q=new URLSearchParams(location.search).get('style'),l=localStorage.getItem('designme2-style');if(q?/^(bp|bp2|blueprint)$/i.test(q):l==='bp2')document.documentElement.dataset.style='bp';else if(q?/^clean$/i.test(q):l==='clean')document.documentElement.dataset.style='clean'}catch(e){}</script>
 </head>
 <body>
 <title>Designme Soft 2</title>
@@ -6746,7 +6746,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
       <p id="style-p">Every component rebuilt to live inside the agent's own thread: one quiet surface per object, grey type for finished work, and slow, blurred motion only on what is happening now. 103 of 103 rebuilt so far.</p>
     </div>
     <div class="ctrls">
-      <div class="seg" id="style-seg" role="group" aria-label="Style"><button aria-pressed="true" data-v="soft2">Soft 2</button><button aria-pressed="false" data-v="bp2">Blueprint 2</button></div>
+      <div class="seg" id="style-seg" role="group" aria-label="Style"><button aria-pressed="true" data-v="soft2">Soft 2</button><button aria-pressed="false" data-v="bp2">Blueprint 2</button><button aria-pressed="false" data-v="clean">Clean</button></div>
       <div class="acc" role="group" aria-label="Accent colour"><span class="acc-l">Accent</span><span class="acc-p"><button style="--c:#116ff8" data-v="#116ff8" aria-label="Blue" data-tip="Blue"></button><button style="--c:#7c3aed" data-v="#7c3aed" aria-label="Violet" data-tip="Violet"></button><button style="--c:#0f9f6e" data-v="#0f9f6e" aria-label="Green" data-tip="Green"></button><button style="--c:#f76b00" data-v="#f76b00" aria-label="Orange" data-tip="Orange"></button><button style="--c:#db2777" data-v="#db2777" aria-label="Pink" data-tip="Pink"></button></span><label class="acc-sw" data-tip="Any colour"><input type="color" value="#116ff8" aria-label="Pick any accent colour"></label></div>
       <div class="seg" id="theme-seg" role="group" aria-label="Theme"><button aria-pressed="true" data-v="light">Light</button><button aria-pressed="false" data-v="dark">Dark</button></div>
     </div>
@@ -8981,11 +8981,12 @@ document.addEventListener('DOMContentLoaded', () => {
   /* style: Soft 2 or Blueprint 2, from ?style= or what this browser last picked; each style keeps its own accent */
   const STY = {
     soft2:{ h:'Soft 2', p:$('#style-p') ? $('#style-p').textContent : '', acc:'#116ff8', key:'soft2-accent', title:'Designme Soft 2' },
+    clean:{ h:'Clean', p:"The same components in black, white and grey: hairline outlines, fully round controls, depth inside the buttons and calm motion.", acc:'#0a0a0a', key:'clean-accent', title:'Designme Clean' },
     bp2:{ h:'Blueprint 2', p:"The same 124 components drawn as a technical sheet: square corners, hairline edges instead of shadows, a lime accent, and motion that wipes and ticks into place in short, hard beats.", acc:'#d4f84a', key:'bp2-accent', title:'Designme Blueprint 2' }
   };
   let style = 'soft2';
   try { const q = new URLSearchParams(location.search).get('style'); const ls = localStorage.getItem('designme2-style');
-    if (q) style = /^(bp|bp2|blueprint)$/i.test(q) ? 'bp2' : 'soft2'; else if (ls in STY) style = ls; } catch(e){}
+    if (q) style = /^(bp|bp2|blueprint)$/i.test(q) ? 'bp2' : /^clean$/i.test(q) ? 'clean' : 'soft2'; else if (ls in STY) style = ls; } catch(e){}
   const acc = $('.acc'); let loadAcc = () => {};
   if (acc){
     const pick = $('.acc-sw input', acc), sw = $('.acc-sw', acc), presets = $$('.acc-p button', acc);
@@ -9000,7 +9001,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   const applyStyle = (v, replay) => {
     style = v; const S = STY[v];
-    if (v === 'bp2') root.dataset.style = 'bp'; else delete root.dataset.style;
+    if (v === 'bp2') root.dataset.style = 'bp'; else if (v === 'clean') root.dataset.style = 'clean'; else delete root.dataset.style;
     const h = $('#style-h'), p = $('#style-p'); if (h) h.textContent = S.h; if (p) p.textContent = S.p; document.title = S.title;
     loadAcc();
     try { localStorage.setItem('designme2-style', v); } catch(e){}
@@ -9008,7 +9009,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (replay) $$('.card[data-c]').forEach(card => { if (!card._c) return; const r = card.getBoundingClientRect(); if (r.bottom > -200 && r.top < innerHeight + 200) DM.mount(card); });
   };
   const sseg = $('#style-seg');
-  if (sseg){ $$('button', sseg).forEach(b => b.setAttribute('aria-pressed', b.dataset.v === style)); seg(sseg, v => { applyStyle(v, true); try { const u = new URL(location.href); if (v === 'bp2') u.searchParams.set('style', 'blueprint'); else u.searchParams.delete('style'); history.replaceState(null, '', u); } catch(e){} }); }
+  if (sseg){ $$('button', sseg).forEach(b => b.setAttribute('aria-pressed', b.dataset.v === style)); seg(sseg, v => { applyStyle(v, true); try { const u = new URL(location.href); if (v === 'bp2') u.searchParams.set('style', 'blueprint'); else if (v === 'clean') u.searchParams.set('style', 'clean'); else u.searchParams.delete('style'); history.replaceState(null, '', u); } catch(e){} }); }
   applyStyle(style, false);
 });
 

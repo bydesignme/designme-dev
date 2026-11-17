@@ -113,7 +113,9 @@ export const ACCENTS = (() => {
   const blocks = [...CORE.css.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/([^{}]*)\{([^{}]*)\}/g)].map(m => ({ sel:m[1].replace(/\/\*[\s\S]*?\*\//g, '').trim(), body:m[2] }));
   // a block is found by any selector in its list (Soft's tokens also sit on [data-style="soft"]); the last block that sets the
   // property wins, as in the cascade
-  const has = (b, sel, prop) => b.sel.split(',').map(x => x.trim()).includes(sel) && new RegExp(`(^|;)\\s*${prop}\\s*:`).test(b.body);
+  // (split on the commas between selectors, not the ones inside :not() or :is())
+  const list = t => { const out = []; let d = 0, from = 0; for (let i = 0; i < t.length; i++){ const ch = t[i]; if (ch === '(' || ch === '[') d++; else if (ch === ')' || ch === ']') d--; else if (ch === ',' && !d){ out.push(t.slice(from, i)); from = i + 1; } } return [...out, t.slice(from)].map(x => x.trim()); };
+  const has = (b, sel, prop) => list(b.sel).includes(sel) && new RegExp(`(^|;)\\s*${prop}\\s*:`).test(b.body);
   const get = (sel, prop, base) => {
     const b = blocks.filter(x => has(x, sel, prop)).pop() || (base && blocks.filter(x => has(x, base, prop)).pop());
     if (!b) throw new Error(`core.css: no ${prop} for ${sel}`);
@@ -121,7 +123,7 @@ export const ACCENTS = (() => {
   };
   const SEL = {
     soft:{ light:':root', dark:':root[data-theme="dark"]' },
-    bp:{ light:':root:not([data-style="soft"])', dark:':root:not([data-style="soft"])[data-theme="dark"]' },
+    bp:{ light:':root:not([data-style="soft"],[data-style="clean"])', dark:':root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"]' },
   };
   const out = {};
   for (const [style, themes] of Object.entries(SEL)) for (const [theme, sel] of Object.entries(themes)){
