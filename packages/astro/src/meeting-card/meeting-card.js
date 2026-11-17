@@ -1,12 +1,12 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, BRAND, DM, I, copied, swap } from '../core/core.js';
+import { $, $$, BRAND, DM, I, copied, hideTip, showTip, swap, tipFor } from '../core/core.js';
 DM.def('meeting-card', (r, c) => {
-  r.innerHTML = r.innerHTML.replace(/\{([\w-]+)\}/g, (m, k) => k === 'meet' ? BRAND.meet : I(k, k === 'clock' ? 'xs' : 's'));
+  r.innerHTML = r.innerHTML.replace(/\{([\w-]+)\}/g, (m, k) => k === 'meet' ? BRAND.meet : I(k, k === 'clock' || k === 'chev-d' ? 'xs' : 's'));
   // the row runs 10:15 to 11:30 in minutes of the day; the meeting is 10:30 to 11:15, 45 minutes
   const FROM = 615, TO = 690, AT = 630, END = 675, URL = 'https://meet.google.com/nax-wqkf-stu';
   const pc = m => Math.min(100, Math.max(0, (m - FROM) / (TO - FROM) * 100));
   const clock = m => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
-  const root = $('.mtx', r), st = $('.mtx-st', r), track = $('.mtx-track', r), blk = $('.mtx-blk', r), join = $('.mtx-join', r), cp = $('.mtx-cp', r);
+  const root = $('.mtx', r), st = $('.mtx-st', r), track = $('.mtx-track', r), blk = $('.mtx-blk', r), join = $('.mtx-join', r), jm = $('.mtx-jm', r), cp = $('.mtx-cp', r);
   const phase = m => m < AT ? 'soon' : m === AT ? 'start' : m < END ? 'live' : 'done';
   let was = 'soon', num = 10;
   // the chip: a new state fades in; within a state only the minutes change, and they roll
@@ -27,7 +27,7 @@ DM.def('meeting-card', (r, c) => {
     was = ph;
     root.classList.toggle('live', ph === 'start' || ph === 'live');
     root.classList.toggle('done', ph === 'done');
-    join.disabled = ph === 'done';
+    join.disabled = jm.disabled = ph === 'done';
     track.setAttribute('aria-label', ph === 'done' ? 'The meeting ran 10:30 to 11:15 and has ended' : `Now ${clock(m)}. The meeting runs 10:30 to 11:15`);
   };
   set(620);
@@ -36,6 +36,14 @@ DM.def('meeting-card', (r, c) => {
     const lb = $('.lb', join); swap(lb, 'Opening Meet'); c.later(1600, () => swap(lb, 'Join'));
   };
   cp.onclick = () => copied(cp, URL, 'Copied');
+  // the meeting's actions: the chevron flashes a check and says what happened
+  const jmIc = jm.innerHTML;
+  $$('.mtx-pop .mi', r).forEach(b => b.addEventListener('click', () => {
+    if (b.dataset.a === 'Invitation copied'){ try { navigator.clipboard.writeText(`Pricing review, today 10:30 to 11:15\n${URL}`).catch(() => {}); } catch(e){} }
+    clearTimeout(jm._t); c.later(140, () => { jm.innerHTML = I('check', 'xs'); jm.classList.add('done'); jm.dataset.tip = b.dataset.a; showTip(jm);
+      jm._t = setTimeout(() => { jm.innerHTML = jmIc; jm.classList.remove('done'); delete jm.dataset.tip; if (tipFor === jm) hideTip(true); }, 1500); });
+  }));
+  c.offs.push(() => clearTimeout(jm._t));
   const who = $('.mtx-who', r);
   // the preview: the countdown, "Starting now", the meeting going by with the gone part hatched, then over
   c.story(async s => {

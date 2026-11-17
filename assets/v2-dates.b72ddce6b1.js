@@ -1,4 +1,4 @@
-TPLS["meeting-card"] = "<div class=\"mtx panel\">\n  <div class=\"mtx-h\">\n    <b class=\"mtx-t\">Pricing review</b><span class=\"mtx-sub num\">Today, 10:30 to 11:15</span>\n    <span class=\"tag mtx-st\"><span>{clock}In <span class=\"mtx-roll num\"><i>10</i></span> min</span></span>\n  </div>\n  <div class=\"mtx-track\" role=\"img\" aria-label=\"Now 10:20. The meeting runs 10:30 to 11:15\">\n    <span class=\"mtx-blk\"><span class=\"mtx-bp\"></span><span class=\"num\">10:30</span><span class=\"num\">11:15</span></span>\n    <span class=\"mtx-now\"><i></i></span>\n  </div>\n  <div class=\"mtx-f\">\n    <div class=\"mtx-who\"><span class=\"av\" style=\"background:var(--av-l);color:var(--av-l-ink)\" role=\"img\" aria-label=\"Maya Kim\" data-tip=\"Maya Kim\">MK</span><span class=\"av\" style=\"background:var(--av-m);color:var(--av-m-ink)\" role=\"img\" aria-label=\"Jo Ortiz\" data-tip=\"Jo Ortiz\">JO</span><span class=\"av\" style=\"background:var(--av-p);color:var(--av-p-ink)\" role=\"img\" aria-label=\"Ana Ruiz\" data-tip=\"Ana Ruiz\">AR</span><span class=\"av\" style=\"background:var(--av-t);color:var(--av-t-ink)\" role=\"img\" aria-label=\"Sam Lee\" data-tip=\"Sam Lee\">SL</span><span class=\"av mtx-more\" role=\"img\" aria-label=\"Dev Kapoor, Lena Novak\" data-tip=\"Dev Kapoor, Lena Novak\">+2</span></div>\n    <span class=\"sp\"></span>\n    <button class=\"ib mtx-cp\" aria-label=\"Copy Google Meet link\" data-tip=\"Copy meet.google.com/nax-wqkf-stu\">{link}</button>\n    <button class=\"pill primary mtx-join\"><span class=\"mk\">{meet}</span><span class=\"lb\">Join</span></button>\n  </div>\n</div>";
+TPLS["meeting-card"] = "<div class=\"mtx panel\">\n  <div class=\"mtx-h\">\n    <b class=\"mtx-t\">Pricing review</b><span class=\"mtx-sub num\">Today, 10:30 to 11:15</span>\n    <span class=\"tag mtx-st\"><span>{clock}In <span class=\"mtx-roll num\"><i>10</i></span> min</span></span>\n  </div>\n  <div class=\"mtx-track\" role=\"img\" aria-label=\"Now 10:20. The meeting runs 10:30 to 11:15\">\n    <span class=\"mtx-blk\"><span class=\"mtx-bp\"></span><span class=\"num\">10:30</span><span class=\"num\">11:15</span></span>\n    <span class=\"mtx-now\"><i></i></span>\n  </div>\n  <div class=\"mtx-f\">\n    <div class=\"mtx-who\"><span class=\"av\" style=\"background:var(--av-l);color:var(--av-l-ink)\" role=\"img\" aria-label=\"Maya Kim\" data-tip=\"Maya Kim\" data-pic=\"people/MK-5876695\">MK</span><span class=\"av\" style=\"background:var(--av-m);color:var(--av-m-ink)\" role=\"img\" aria-label=\"Jon Ortiz\" data-tip=\"Jon Ortiz\" data-pic=\"people/JO-5384445\">JO</span><span class=\"av\" style=\"background:var(--av-p);color:var(--av-p-ink)\" role=\"img\" aria-label=\"Ari Reyes\" data-tip=\"Ari Reyes\" data-pic=\"people/AR-3785077\">AR</span><span class=\"av\" style=\"background:var(--av-t);color:var(--av-t-ink)\" role=\"img\" aria-label=\"Sam Lee\" data-tip=\"Sam Lee\">SL</span><span class=\"av mtx-more\" role=\"img\" aria-label=\"Dev Kapoor, Lena Novak\" data-tip=\"Dev Kapoor, Lena Novak\">+2</span></div>\n    <span class=\"sp\"></span>\n    <button class=\"ib mtx-cp\" aria-label=\"Copy Google Meet link\" data-tip=\"Copy meet.google.com/nax-wqkf-stu\">{link}</button>\n    <div class=\"mtx-jg\"><button class=\"pill primary mtx-join\"><span class=\"mk\">{meet}</span><span class=\"lb\">Join</span></button><button class=\"pill primary mtx-jm\" aria-label=\"More for this meeting\" data-pop=\".mtx-pop\" data-pop-align=\"end\" aria-haspopup=\"menu\">{chev-d}</button><div class=\"pop mtx-pop\" role=\"menu\"><button class=\"mi\" role=\"menuitem\" data-close data-a=\"Invite sent\">{mail}Send invite</button><button class=\"mi\" role=\"menuitem\" data-close data-a=\"Added to calendar\">{cal}Add to calendar</button><button class=\"mi\" role=\"menuitem\" data-close data-a=\"Invitation copied\">{copy}Copy invitation</button></div></div>\n  </div>\n</div>";
 TPLS["agenda"] = "<div class=\"agx panel\">\n  <div class=\"agx-h\"><div><b>Today</b><span class=\"muted\">Monday, Oct 19</span></div><span class=\"tag b agx-n\">4 events</span></div>\n  <div class=\"agx-list\"></div>\n</div>";
 TPLS["event-calendar"] = "<div class=\"ecx panel\">\n  <div class=\"ecx-h\"><b>Oct 19 – 23, 2026</b><span class=\"ecx-sp\"></span><span class=\"ecx-msg muted\"></span><button class=\"pill soft sm ecx-ask\">{spark}Find 45 min for a design review</button></div>\n  <div class=\"ecx-days\" role=\"group\" aria-label=\"Day\"></div>\n  <div class=\"ecx-sc\"><div class=\"ecx-grid\"><div class=\"ecx-tm\"></div></div></div>\n</div>";
 TPLS["date-range-picker"] = "<div class=\"drx panel\">\n  <div class=\"drx-side\"><button class=\"drx-p\" data-p=\"7\">Last 7 days</button><button class=\"drx-p\" data-p=\"30\">Last 30 days</button><button class=\"drx-p\" data-p=\"q\">This quarter</button><button class=\"drx-p\" data-p=\"sp\">Since pricing launch</button></div>\n  <div class=\"drx-main\">\n    <div class=\"drx-top\"><div class=\"drx-in\"><span class=\"muted\">From</span><b class=\"drx-a\">–</b></div>{right}<div class=\"drx-in\"><span class=\"muted\">To</span><b class=\"drx-b\">–</b></div><span class=\"drx-n muted\"></span></div>\n    <div class=\"drx-cals\"><div class=\"drx-cal\" data-o=\"0\"></div><div class=\"drx-cal\" data-o=\"1\"></div></div>\n    <div class=\"drx-f\"><button class=\"pill ghost sm drx-clr\">Clear</button><button class=\"pill primary sm drx-ok\" disabled>Apply</button></div>\n  </div>\n</div>";
@@ -338,12 +338,12 @@ DM.def('agenda', (r, c) => {
 });
 /* ---------- Meeting card ---------- */
 DM.def('meeting-card', (r, c) => {
-  r.innerHTML = r.innerHTML.replace(/\{([\w-]+)\}/g, (m, k) => k === 'meet' ? BRAND.meet : I(k, k === 'clock' ? 'xs' : 's'));
+  r.innerHTML = r.innerHTML.replace(/\{([\w-]+)\}/g, (m, k) => k === 'meet' ? BRAND.meet : I(k, k === 'clock' || k === 'chev-d' ? 'xs' : 's'));
   // the row runs 10:15 to 11:30 in minutes of the day; the meeting is 10:30 to 11:15, 45 minutes
   const FROM = 615, TO = 690, AT = 630, END = 675, URL = 'https://meet.google.com/nax-wqkf-stu';
   const pc = m => Math.min(100, Math.max(0, (m - FROM) / (TO - FROM) * 100));
   const clock = m => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
-  const root = $('.mtx', r), st = $('.mtx-st', r), track = $('.mtx-track', r), blk = $('.mtx-blk', r), join = $('.mtx-join', r), cp = $('.mtx-cp', r);
+  const root = $('.mtx', r), st = $('.mtx-st', r), track = $('.mtx-track', r), blk = $('.mtx-blk', r), join = $('.mtx-join', r), jm = $('.mtx-jm', r), cp = $('.mtx-cp', r);
   const phase = m => m < AT ? 'soon' : m === AT ? 'start' : m < END ? 'live' : 'done';
   let was = 'soon', num = 10;
   // the chip: a new state fades in; within a state only the minutes change, and they roll
@@ -364,7 +364,7 @@ DM.def('meeting-card', (r, c) => {
     was = ph;
     root.classList.toggle('live', ph === 'start' || ph === 'live');
     root.classList.toggle('done', ph === 'done');
-    join.disabled = ph === 'done';
+    join.disabled = jm.disabled = ph === 'done';
     track.setAttribute('aria-label', ph === 'done' ? 'The meeting ran 10:30 to 11:15 and has ended' : `Now ${clock(m)}. The meeting runs 10:30 to 11:15`);
   };
   set(620);
@@ -373,6 +373,14 @@ DM.def('meeting-card', (r, c) => {
     const lb = $('.lb', join); swap(lb, 'Opening Meet'); c.later(1600, () => swap(lb, 'Join'));
   };
   cp.onclick = () => copied(cp, URL, 'Copied');
+  // the meeting's actions: the chevron flashes a check and says what happened
+  const jmIc = jm.innerHTML;
+  $$('.mtx-pop .mi', r).forEach(b => b.addEventListener('click', () => {
+    if (b.dataset.a === 'Invitation copied'){ try { navigator.clipboard.writeText(`Pricing review, today 10:30 to 11:15\n${URL}`).catch(() => {}); } catch(e){} }
+    clearTimeout(jm._t); c.later(140, () => { jm.innerHTML = I('check', 'xs'); jm.classList.add('done'); jm.dataset.tip = b.dataset.a; showTip(jm);
+      jm._t = setTimeout(() => { jm.innerHTML = jmIc; jm.classList.remove('done'); delete jm.dataset.tip; if (tipFor === jm) hideTip(true); }, 1500); });
+  }));
+  c.offs.push(() => clearTimeout(jm._t));
   const who = $('.mtx-who', r);
   // the preview: the countdown, "Starting now", the meeting going by with the gone part hatched, then over
   c.story(async s => {

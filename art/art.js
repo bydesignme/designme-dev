@@ -8,14 +8,16 @@
 (() => {
   const base = document.currentScript ? new URL('.', document.currentScript.src).href : '/art/';
   const SEL = '[data-pic]';
-  const NAME = /^[a-z0-9-]+$/;
+  // a picture name, or people/<initials>-<pexels id> for a face (site only: installs keep the initials avatar)
+  const NAME = /^(people\/[A-Z]{2}-\d+|[a-z0-9-]+)$/;
   const lay = el => {
     const n = el.dataset.pic; if (!NAME.test(n) || el.dataset.picOn === n) return;
     el.dataset.picOn = n;
     // the picture over the gradient, so a slow connection still shows its colours. The site's own demos call the gradient
     // --art, the installed code on the component pages --dm-art
     const cs = getComputedStyle(el), g = (cs.getPropertyValue('--art') || cs.getPropertyValue('--dm-art')).trim();
-    el.style.backgroundImage = `url("${base}${n}${el.dataset.picSize === 's' ? '-s' : ''}.webp")${g ? ', ' + g : ''}`;
+    const file = n.startsWith('people/') ? `${n}.jpg` : `${n}${el.dataset.picSize === 's' ? '-s' : ''}.webp`;
+    el.style.backgroundImage = `url("${base}${file}")${g ? ', ' + g : ''}`;
   };
   const near = new WeakSet();
   const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => {

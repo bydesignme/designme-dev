@@ -355,7 +355,7 @@ Today's schedule with a live now line and agent prep notes.
 
 **MeetingCard** · `meeting-card/MeetingCard.tsx`  
 The next meeting from countdown to wrap-up, with the time already gone hatched out and a join that stays open.  
-`title`, `subtitle`, `start`, `end`, `now` (24-hour "HH:MM"; the status chip, the now line and the hatch follow `now`), `from` / `to` (the track's ends, half an hour either side by default), `people: { initials, color, name }[]`, `max` (avatars before "+N", 4), `status`, `provider` (defaults to "Google Meet"), `mark`, `link`, `href`, `onJoin` (left out, the link opens in a new tab), `onCopy`, `joinLabel`, `copyLabel`, `copiedLabel`.
+`title`, `subtitle`, `start`, `end`, `now` (24-hour "HH:MM"; the status chip, the now line and the hatch follow `now`), `from` / `to` (the track's ends, half an hour either side by default), `people: { initials, color, name }[]`, `max` (avatars before "+N", 4), `status`, `provider` (defaults to "Google Meet"), `mark`, `link`, `href`, `onJoin` (left out, the link opens in a new tab), `onCopy`, `joinLabel`, `copyLabel`, `copiedLabel`, `actions: { key, label, icon?, done? }[]` (the menu under the chevron beside Join: Send invite, Add to calendar and Copy invitation by default; `[]` hides it), `onAction`.
 
 ### Forms and inputs
 
