@@ -238,6 +238,6 @@ export function Agenda({ items, title = 'Today', subtitle, count, now, open, def
 - [Segmented control](https://designme.dev/components/segmented-control.md): Switch between views of the same thing, with a sliding indicator.
 - [Date range picker](https://designme.dev/components/date-range-picker.md): Pick a start and end across two months, or use a preset.
 - [Event calendar](https://designme.dev/components/event-calendar.md): A week view where the agent finds a free slot for you.
-- [Meeting card](https://designme.dev/components/meeting-card.md): The next meeting with a countdown, a now line on its time track and a one-click join.
+- [Meeting card](https://designme.dev/components/meeting-card.md): The next meeting from countdown to wrap-up, with the time already gone hatched out and a join that stays open.
 
 All components: https://designme.dev/llms.txt

@@ -302,6 +302,6 @@ export function DatePicker({
 - [Date range picker](https://designme.dev/components/date-range-picker.md): Pick a start and end across two months, or use a preset.
 - [Event calendar](https://designme.dev/components/event-calendar.md): A week view where the agent finds a free slot for you.
 - [Agenda](https://designme.dev/components/agenda.md): Today's schedule with a live now line and agent prep notes.
-- [Meeting card](https://designme.dev/components/meeting-card.md): The next meeting with a countdown, a now line on its time track and a one-click join.
+- [Meeting card](https://designme.dev/components/meeting-card.md): The next meeting from countdown to wrap-up, with the time already gone hatched out and a join that stays open.
 
 All components: https://designme.dev/llms.txt

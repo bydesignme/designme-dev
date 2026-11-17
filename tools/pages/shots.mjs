@@ -38,8 +38,8 @@ Object.assign(WAIT, { 'agent-lanes':6800 });
 Object.assign(WAIT, { 'command-palette':4600 });
 // Attachment tray is taken once the agent has read the three files
 Object.assign(WAIT, { 'attachment-tray':6500 });
-// Meeting card is taken once the meeting has started, live, with the pointer on the join line
-Object.assign(WAIT, { 'meeting-card':9200 });
+// Meeting card is taken with the meeting under way, the part that has run hatched out
+Object.assign(WAIT, { 'meeting-card':12600 });
 // Agent run timeline is taken once the run is done, the retry joined to the failed tests and the playhead green at the finish
 Object.assign(WAIT, { 'agent-run-timeline':9000 });
 // Memory panel is taken once the launch email has used three memories, each with its Used tag

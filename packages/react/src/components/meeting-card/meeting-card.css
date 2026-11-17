@@ -1,40 +1,57 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Meeting card ---------- */
-/* the next meeting: a countdown, its place on a time track (10:00 to 12:30, ticks every 15 minutes) with the now line creeping
-   toward it, and the call's join link. The meeting is the accent tint, the now line the accent mark; at the start time the
-   block turns live (a ring round it) and the dot beside the countdown pulses. Every state is the same height */
-.dm-mtx{width:100%;max-width:400px;margin:0 auto;padding:var(--dm-s-2);display:flex;flex-direction:column;gap:var(--dm-s-1)}
-.dm-mtx-top{display:flex;flex-direction:column;padding:var(--dm-s-3) var(--dm-s-4) var(--dm-s-3);border-radius:calc(12px * var(--dm-rk));background:var(--dm-row);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
-/* Blueprint's box is flat, a hairline on the panel: its green now line keeps 3:1 on white, not on the row grey */
-:root:not([data-style="soft"]) .dm-mtx-top:not(:where([data-style="soft"],[data-style="soft"] *)){background:var(--dm-surface)}
-.dm-mtx-when{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--dm-fg2)}
-.dm-mtx-dot{width:6px;height:6px;border-radius:50%;background:var(--dm-bad-mark);flex:none}
-.dm-mtx.dm-live .dm-mtx-dot{animation:dm-mtxlive 1.6s ease-in-out infinite}
-@keyframes dm-mtxlive{50%{opacity:.35}}
-.dm-mtx-t{font-size:14px;font-weight:500;margin-top:4px}
-/* the baseline under the ticks is drawn as the track's background */
-.dm-mtx-track{position:relative;height:38px;margin-top:var(--dm-s-4);--dm-bl:color-mix(in srgb,var(--dm-rail) 70%,transparent);background:linear-gradient(var(--dm-bl),var(--dm-bl)) left bottom/100% 1px no-repeat}
-.dm-mtx-ticks i{position:absolute;bottom:0;width:1px;height:5px;margin-left:-.5px;background:var(--dm-rail)}
-.dm-mtx-ticks i.dm-h{height:9px;background:var(--dm-faint)}
-.dm-mtx-ticks i:first-child{margin-left:0}.dm-mtx-ticks i:last-child{margin-left:-1px}
-.dm-mtx-blk{position:absolute;top:2px;bottom:13px;display:flex;align-items:center;padding:0 var(--dm-s-2);border-radius:calc(6px * var(--dm-rk));background:var(--dm-accent-bg);box-shadow:inset 0 0 0 1px transparent;font-size:12px;font-weight:500;color:var(--dm-accent-fg);transition:background var(--dm-t),box-shadow var(--dm-t)}
-/* live: a ring in the accent mark round the same tint, so its label keeps its contrast */
-.dm-mtx.dm-live .dm-mtx-blk{box-shadow:inset 0 0 0 1.5px var(--dm-accent-mark)}
-.dm-mtx-now{position:absolute;top:-4px;bottom:0;left:var(--dm-p,0%);width:2px;margin-left:-1px;border-radius:1px;background:var(--dm-accent-mark);transition:left .3s linear;z-index:1}
-.dm-mtx-now i{position:absolute;top:-4px;left:50%;width:8px;height:8px;border-radius:1.5px;background:var(--dm-accent-mark);transform:translateX(-50%) rotate(45deg)}
-.dm-mtx-axis{position:relative;height:16px;margin-top:6px;font-size:11.5px;color:var(--dm-muted)}
-.dm-mtx-axis span{position:absolute;top:0;transform:translateX(-50%)}
-.dm-mtx-axis .dm-a{left:0;transform:none}.dm-mtx-axis .dm-z{right:0;transform:none}
-.dm-mtx-join{display:flex;align-items:center;gap:var(--dm-s-1);padding:0 var(--dm-s-1) 0 0}
-.dm-mtx-go{flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:var(--dm-s-2);border-radius:calc(10px * var(--dm-rk));text-align:left;transition:background var(--dm-t-fast)}
-.dm-mtx-go.dm-hv{background:var(--dm-row)}
-@media (hover:hover) and (pointer:fine){.dm-mtx-go:hover{background:var(--dm-row)}}
-.dm-mtx-mk{width:32px;height:32px;flex:none;display:grid;place-items:center;border-radius:calc(8px * var(--dm-rk));background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 70%,transparent)}
-.dm-mtx-mk .dm-brand{width:19px;height:16px}
-.dm-mtx-gt{flex:1;min-width:0;display:flex;flex-direction:column}
-.dm-mtx-gt b{font-size:13px;font-weight:500}
-.dm-mtx-url{font-size:12px;color:var(--dm-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.dm-mtx-ar{color:var(--dm-muted);display:grid;transition:transform var(--dm-t-fast),color var(--dm-t-fast)}
-.dm-mtx-go.dm-hv .dm-mtx-ar{color:var(--dm-fg);transform:translateX(2px)}
-@media (hover:hover) and (pointer:fine){.dm-mtx-go:hover .dm-mtx-ar{color:var(--dm-fg);transform:translateX(2px)}}
-@media (prefers-reduced-motion:reduce){.dm-mtx.dm-live .dm-mtx-dot{animation:none}.dm-mtx-now{transition:none}}
+/* the next meeting, told as it goes: a countdown, "Starting now", the meeting in progress and then over. The track is the
+   morning from 10:00 to 12:30 with the meeting on it in the accent tint, its start and end on the block itself. Time that
+   has gone is hatched out in neutral grey (the hatch and the tint meet at the now line), and the status chip at the top right
+   rolls its minutes. Join stays open while the meeting runs, since people join late, and breathes gently while it is live.
+   Every state is the same height */
+.dm-mtx{width:100%;max-width:400px;margin:0 auto;padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-4)}
+/* the title and the chip share the first line; the time runs under both, so a longer chip never wraps it and every state
+   is the same height */
+.dm-mtx-h{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:var(--dm-s-3);row-gap:2px}
+.dm-mtx-t{font-size:14px;font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dm-mtx-sub{grid-row:2;grid-column:1 / -1;font-size:12.5px;color:var(--dm-muted)}
+.dm-mtx-st{grid-row:1;grid-column:2;justify-self:end;transition:background .4s cubic-bezier(.22,1,.36,1),color .4s cubic-bezier(.22,1,.36,1)}
+.dm-mtx-st>span{display:inline-flex;align-items:center;gap:5px}
+.dm-mtx-st .dm-dot{color:var(--dm-ok-mark)}
+.dm-mtx-fade{animation:dm-mtxfade .4s cubic-bezier(.22,1,.36,1) both}
+@keyframes dm-mtxfade{from{opacity:0}}
+/* the minutes roll: each new number comes up from below */
+.dm-mtx-roll{display:inline-grid;overflow:hidden;line-height:20px;height:20px}
+.dm-mtx-roll i{font-style:normal}
+.dm-mtx-roll i.dm-in{animation:dm-mtxroll .32s cubic-bezier(.22,1,.36,1) both}
+@keyframes dm-mtxroll{from{transform:translateY(70%);opacity:0}}
+/* the track: the morning on a quiet row, the meeting on it */
+.dm-mtx-track{position:relative;height:40px;border-radius:calc(8px * var(--dm-rk));background:var(--dm-row);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);overflow:hidden}
+/* Blueprint's row is the surface itself: its green now line keeps 3:1 on white, not on the row grey */
+:root:not([data-style="soft"]) .dm-mtx-track:not(:where([data-style="soft"],[data-style="soft"] *)){background:var(--dm-surface)}
+.dm-mtx-blk{position:absolute;top:5px;bottom:5px;left:20%;width:60%;display:flex;align-items:center;justify-content:space-between;padding:0 var(--dm-s-2);border-radius:calc(5px * var(--dm-rk));background:var(--dm-accent-bg);overflow:hidden;font-size:11.5px;font-weight:500;color:var(--dm-fg2);z-index:1}
+/* the start and end sit on the block in small surface chips, so they read on the tint and on the hatch alike; a hairline
+   keeps the block's edge once it is hatched */
+.dm-mtx-blk{outline:1px solid color-mix(in srgb,var(--dm-line-strong) 35%,transparent);outline-offset:-1px}
+.dm-mtx-blk>.dm-num{position:relative;padding:1px 5px;border-radius:calc(4px * var(--dm-rk));background:color-mix(in srgb,var(--dm-surface) 88%,transparent);color:var(--dm-fg2)}
+/* gone: fine 45deg lines in the strong grey over a faint grey, from the start of the row to now, and inside the meeting
+   (.mtx-bp) over the part that has run, where it hides the tint */
+.dm-mtx-past,.dm-mtx-bp{position:absolute;top:0;bottom:0;left:0;background:repeating-linear-gradient(45deg,var(--dm-line-strong) 0 1px,transparent 1px 6px),color-mix(in srgb,var(--dm-chip) 60%,var(--dm-surface));transition:width .45s cubic-bezier(.22,1,.36,1)}
+.dm-mtx-past{width:var(--dm-p,0%)}
+.dm-mtx-bp{width:var(--dm-cut,0%)}
+.dm-mtx-now{position:absolute;top:0;bottom:0;left:var(--dm-p,0%);width:2px;margin-left:-1px;background:var(--dm-accent-mark);transition:left .45s cubic-bezier(.22,1,.36,1);z-index:2}
+.dm-mtx-now i{position:absolute;top:3px;left:50%;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:var(--dm-accent-mark)}
+.dm-mtx.dm-done .dm-mtx-now{opacity:0;transition:opacity .4s,left .45s cubic-bezier(.22,1,.36,1)}
+/* the footer: who is coming, the link, and Join */
+.dm-mtx-f{display:flex;align-items:center;gap:var(--dm-s-2)}
+.dm-mtx-who{display:flex;align-items:center;padding:2px 0}
+.dm-mtx-who .dm-av{width:26px;height:26px;font-size:10px;margin-left:-4px;box-shadow:0 0 0 2px var(--dm-surface);transition:margin .25s cubic-bezier(.22,1,.36,1)}
+.dm-mtx-who .dm-av:first-child{margin-left:0}
+@media (hover:hover) and (pointer:fine){.dm-mtx-who:is(:hover,.dm-hv) .dm-av:not(:first-child){margin-left:2px}}
+.dm-mtx-who .dm-mtx-more{background:var(--dm-chip);color:var(--dm-fg2)}
+.dm-mtx-cp{width:34px;height:34px}
+.dm-mtx-join{height:34px;padding:0 var(--dm-s-4) 0 6px;gap:var(--dm-s-2);transition:background var(--dm-t-fast),opacity var(--dm-t-fast),transform .32s cubic-bezier(.34,1.56,.64,1)}
+.dm-mtx-join:active,.dm-mtx-join.dm-prs{transform:scale(.95);transition-duration:.08s}
+.dm-mtx-join .dm-mk{width:22px;height:22px;display:grid;place-items:center;border-radius:calc(6px * var(--dm-rk));background:#fff;flex:none}
+.dm-mtx-join .dm-mk .dm-brand{width:15px;height:12.5px}
+/* live: Join breathes a step darker and back, slowly; a darker fill keeps its label's contrast where fading it would not */
+.dm-mtx.dm-live .dm-mtx-join:not(:hover){animation:dm-mtxpulse 2.4s ease-in-out infinite}
+@keyframes dm-mtxpulse{50%{background:color-mix(in srgb,var(--dm-accent) 86%,#000)}}
+.dm-mtx-join[disabled] .dm-mk{opacity:.5}
+@media (prefers-reduced-motion:reduce){.dm-mtx.dm-live .dm-mtx-join{animation:none}.dm-mtx-past,.dm-mtx-bp,.dm-mtx-now,.dm-mtx-who .dm-av{transition:none}.dm-mtx-roll i.dm-in,.dm-mtx-fade{animation:none}}

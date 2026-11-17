@@ -1,4 +1,4 @@
-TPLS["meeting-card"] = "<div class=\"mtx panel\">\n  <div class=\"mtx-top\">\n    <div class=\"mtx-when\"><span class=\"mtx-dot\"></span><span class=\"mtx-in num\">In 30 minutes</span></div>\n    <b class=\"mtx-t\">Meeting with Product team</b>\n    <div class=\"mtx-track\" role=\"img\" aria-label=\"Now 10:00. The meeting runs 10:30 to 12:00\"><span class=\"mtx-ticks\"></span><span class=\"mtx-blk\"><span class=\"num\">90 min</span></span><span class=\"mtx-now\"><i></i></span></div>\n    <div class=\"mtx-axis num\" aria-hidden=\"true\"><span class=\"a\">10:00</span><span style=\"left:20%\">10:30</span><span style=\"left:80%\">12:00</span><span class=\"z\">12:30</span></div>\n  </div>\n  <div class=\"mtx-join\">\n    <button class=\"mtx-go\"><span class=\"mtx-mk\">{meet}</span><span class=\"mtx-gt\"><b>Join on Google Meet</b><span class=\"mtx-url\">meet.google.com/nax-wqkf-stu</span></span><span class=\"mtx-ar\">{right}</span></button>\n    <button class=\"ib mtx-cp\" aria-label=\"Copy meeting link\" data-tip=\"Copy link\">{copy}</button>\n  </div>\n</div>";
+TPLS["meeting-card"] = "<div class=\"mtx panel\">\n  <div class=\"mtx-h\">\n    <b class=\"mtx-t\">Pricing review</b><span class=\"mtx-sub num\">Today, 10:30 to 12:00</span>\n    <span class=\"tag mtx-st\"><span>{clock}In <span class=\"mtx-roll num\"><i>10</i></span> min</span></span>\n  </div>\n  <div class=\"mtx-track\" role=\"img\" aria-label=\"Now 10:20. The meeting runs 10:30 to 12:00\">\n    <span class=\"mtx-blk\"><span class=\"mtx-bp\"></span><span class=\"num\">10:30</span><span class=\"num\">12:00</span></span>\n    <span class=\"mtx-past\"></span>\n    <span class=\"mtx-now\"><i></i></span>\n  </div>\n  <div class=\"mtx-f\">\n    <div class=\"mtx-who\"><span class=\"av\" style=\"background:var(--av-l);color:var(--av-l-ink)\" role=\"img\" aria-label=\"Maya Kim\" data-tip=\"Maya Kim\">MK</span><span class=\"av\" style=\"background:var(--av-m);color:var(--av-m-ink)\" role=\"img\" aria-label=\"Jo Ortiz\" data-tip=\"Jo Ortiz\">JO</span><span class=\"av\" style=\"background:var(--av-p);color:var(--av-p-ink)\" role=\"img\" aria-label=\"Ana Ruiz\" data-tip=\"Ana Ruiz\">AR</span><span class=\"av\" style=\"background:var(--av-t);color:var(--av-t-ink)\" role=\"img\" aria-label=\"Sam Lee\" data-tip=\"Sam Lee\">SL</span><span class=\"av mtx-more\" role=\"img\" aria-label=\"Dev Kapoor, Lena Novak\" data-tip=\"Dev Kapoor, Lena Novak\">+2</span></div>\n    <span class=\"sp\"></span>\n    <button class=\"ib mtx-cp\" aria-label=\"Copy Google Meet link\" data-tip=\"Copy meet.google.com/nax-wqkf-stu\">{link}</button>\n    <button class=\"pill primary mtx-join\"><span class=\"mk\">{meet}</span><span class=\"lb\">Join</span></button>\n  </div>\n</div>";
 TPLS["agenda"] = "<div class=\"agx panel\">\n  <div class=\"agx-h\"><div><b>Today</b><span class=\"muted\">Monday, Oct 19</span></div><span class=\"tag b agx-n\">4 events</span></div>\n  <div class=\"agx-list\"></div>\n</div>";
 TPLS["event-calendar"] = "<div class=\"ecx panel\">\n  <div class=\"ecx-h\"><b>Oct 19 – 23, 2026</b><span class=\"ecx-sp\"></span><span class=\"ecx-msg muted\"></span><button class=\"pill soft sm ecx-ask\">{spark}Find 45 min for a design review</button></div>\n  <div class=\"ecx-days\" role=\"group\" aria-label=\"Day\"></div>\n  <div class=\"ecx-sc\"><div class=\"ecx-grid\"><div class=\"ecx-tm\"></div></div></div>\n</div>";
 TPLS["date-range-picker"] = "<div class=\"drx panel\">\n  <div class=\"drx-side\"><button class=\"drx-p\" data-p=\"7\">Last 7 days</button><button class=\"drx-p\" data-p=\"30\">Last 30 days</button><button class=\"drx-p\" data-p=\"q\">This quarter</button><button class=\"drx-p\" data-p=\"sp\">Since pricing launch</button></div>\n  <div class=\"drx-main\">\n    <div class=\"drx-top\"><div class=\"drx-in\"><span class=\"muted\">From</span><b class=\"drx-a\">–</b></div>{right}<div class=\"drx-in\"><span class=\"muted\">To</span><b class=\"drx-b\">–</b></div><span class=\"drx-n muted\"></span></div>\n    <div class=\"drx-cals\"><div class=\"drx-cal\" data-o=\"0\"></div><div class=\"drx-cal\" data-o=\"1\"></div></div>\n    <div class=\"drx-f\"><button class=\"pill ghost sm drx-clr\">Clear</button><button class=\"pill primary sm drx-ok\" disabled>Apply</button></div>\n  </div>\n</div>";
@@ -338,32 +338,52 @@ DM.def('agenda', (r, c) => {
 });
 /* ---------- Meeting card ---------- */
 DM.def('meeting-card', (r, c) => {
-  r.innerHTML = r.innerHTML.replace(/\{([\w-]+)\}/g, (m, k) => k === 'meet' ? BRAND.meet : I(k));
-  // the track runs 10:00 to 12:30 (minutes of the day); the meeting is 10:30 to 12:00
+  r.innerHTML = r.innerHTML.replace(/\{([\w-]+)\}/g, (m, k) => k === 'meet' ? BRAND.meet : I(k, k === 'clock' ? 'xs' : 's'));
+  // the row runs 10:00 to 12:30 in minutes of the day; the meeting is 10:30 to 12:00
   const FROM = 600, TO = 750, AT = 630, END = 720, URL = 'https://meet.google.com/nax-wqkf-stu';
-  const pc = m => (m - FROM) / (TO - FROM) * 100, clock = m => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
-  const root = $('.mtx', r), now = $('.mtx-now', r), when = $('.mtx-in', r), track = $('.mtx-track', r), blk = $('.mtx-blk', r);
-  const go = $('.mtx-go', r), label = $('.mtx-gt b', r), cp = $('.mtx-cp', r);
-  $('.mtx-ticks', r).innerHTML = Array.from({ length: 11 }, (_, i) => `<i class="${i % 4 ? '' : 'h'}" style="left:${i * 10}%"></i>`).join('');
-  blk.style.left = pc(AT) + '%'; blk.style.width = (pc(END) - pc(AT)) + '%';
-  // the clock: the now line moves to the minute, the countdown says what is left, and at the start the meeting turns live
+  const pc = m => Math.min(100, Math.max(0, (m - FROM) / (TO - FROM) * 100));
+  const clock = m => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
+  const root = $('.mtx', r), st = $('.mtx-st', r), track = $('.mtx-track', r), blk = $('.mtx-blk', r), join = $('.mtx-join', r), cp = $('.mtx-cp', r);
+  const phase = m => m < AT ? 'soon' : m === AT ? 'start' : m < END ? 'live' : 'done';
+  let was = 'soon', num = 10;
+  // the chip: a new state fades in; within a state only the minutes change, and they roll
+  const chip = (cls, inner) => { st.className = 'tag mtx-st' + (cls ? ' ' + cls : ''); st.innerHTML = `<span class="mtx-fade">${inner}</span>`; };
+  const roll = n => { const el = $('.mtx-roll', st); if (el && n !== num) el.innerHTML = `<i class="in">${n}</i>`; num = n; };
   const set = m => {
-    now.style.setProperty('--p', pc(m) + '%');
-    const left = AT - m, live = left <= 0;
-    const text = live ? 'Starting now' : `In ${left} minute${left === 1 ? '' : 's'}`;
-    if (live !== root.classList.contains('live')) swap(when, text); else when.textContent = text;
-    root.classList.toggle('live', live);
-    track.setAttribute('aria-label', `Now ${clock(m)}. The meeting runs 10:30 to 12:00`);
+    const ph = phase(m), p = pc(m);
+    root.style.setProperty('--p', p + '%'); track.style.setProperty('--p', p + '%');
+    blk.style.setProperty('--cut', Math.min(100, Math.max(0, (m - AT) / (END - AT) * 100)) + '%');
+    const n = ph === 'soon' ? AT - m : END - m;
+    if (ph !== was){
+      if (ph === 'soon') chip('', `${I('clock', 'xs')}In <span class="mtx-roll num"><i>${n}</i></span> min`);
+      if (ph === 'start') chip('ok', '<i class="dot"></i>Starting now');
+      if (ph === 'live') chip('ok', `<i class="dot"></i>Live, <span class="mtx-roll num"><i>${n}</i></span> min left`);
+      if (ph === 'done') chip('', 'Ended');
+      num = n;
+    } else roll(n);
+    was = ph;
+    root.classList.toggle('live', ph === 'start' || ph === 'live');
+    root.classList.toggle('done', ph === 'done');
+    join.disabled = ph === 'done';
+    track.setAttribute('aria-label', ph === 'done' ? 'The meeting ran 10:30 to 12:00 and has ended' : `Now ${clock(m)}. The meeting runs 10:30 to 12:00`);
   };
-  set(FROM);
-  go.onclick = () => { swap(label, 'Opening Google Meet'); c.later(1600, () => swap(label, 'Join on Google Meet')); };
+  set(620);
+  join.onclick = () => {
+    join.classList.add('prs'); c.later(110, () => join.classList.remove('prs'));
+    const lb = $('.lb', join); swap(lb, 'Opening Meet'); c.later(1600, () => swap(lb, 'Join'));
+  };
   cp.onclick = () => copied(cp, URL, 'Copied');
-  // the preview: the minutes tick by until the meeting starts, then the person in it copies the link
+  const who = $('.mtx-who', r);
+  // the preview: the countdown, "Starting now", the meeting going by with the gone part hatched, then over
   c.story(async s => {
     await s.beat(2);
-    for (let m = FROM + 1; m <= AT; m++){ await s.beat(AT - m < 4 ? .9 : .3); set(m); }
-    await s.beat(3);
-    await s.point(go, false); go.classList.add('hv'); await s.beat(2);
-    go.classList.remove('hv'); await s.tap(cp); await s.beat(4);
+    for (let m = 621; m <= AT; m++){ await s.beat(1); set(m); }
+    await s.beat(4);
+    for (let m = AT + 6; m <= 666; m += 6){ await s.beat(1.2); set(m); }
+    who.classList.add('hv'); await s.point($$('.av', who)[1]); await s.beat(3);
+    who.classList.remove('hv'); await s.tap(cp); await s.beat(3);
+    s.away();
+    for (let m = 672; m <= END; m += 6){ await s.beat(1.2); set(m); }
+    await s.beat(5);
   });
 });
