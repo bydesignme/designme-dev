@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, DM, I, REDUCE, seg, stagger, swap } from '../core/core.js';
+import { $, DM, I, REDUCE, grow, seg, stagger, swap } from '../core/core.js';
 DM.def('reasoning-trail', (r, c) => {
   const body = $('.rtr-body', r), head = $('.rtr-h', r), fold = $('.rtr-fold', r), title = $('.rtr-title', r), time = $('.rtr-time', r), mark = $('.rtr-mark', r);
   let tab = 'plan', planDone = 0, secs = 0, finished = false;

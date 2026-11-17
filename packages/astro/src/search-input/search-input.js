@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, REDUCE, enter, reflow } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, enter, grow, reflow } from '../core/core.js';
 DM.def('search-input', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{search}', I('search','xs')).replace('{x}', I('x','xs'));
   const box = $('.six-box', r), inp = $('.six-in input', r), dd = $('.six-dd', r), res = $('.six-res', r), chips = $('.six-chips', r), xB = $('.six-x', r), k = $('.six-k', r);

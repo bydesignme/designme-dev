@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, swap, tween } from '../core/core.js';
+import { $, $$, DM, I, grow, swap, tween } from '../core/core.js';
 DM.def('radar-chart', (r, c) => {
   // six eval scores out of 100: this run against the baseline it is compared with
   const A = [['Accuracy', 88, 84], ['Instruction following', 86, 80], ['Tool use', 62, 78], ['Speed', 74, 66], ['Cost efficiency', 82, 58], ['Safety', 91, 90]];

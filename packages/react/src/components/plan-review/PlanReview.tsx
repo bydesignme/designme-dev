@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { Spin, Swap, Think, Tip } from '../../lib/motion';
+import { Spin, Swap, Think, Tip, useGrow } from '../../lib/motion';
 import '../../designme.css';
 import './plan-review.css';
 
@@ -72,9 +72,12 @@ export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, pha
   const included = list.filter(s => !s.skipped);
   const editable = phase === 'review';
   let n = 0;
+  // the panel grows with the plan (owner, 17 Nov): its height eases to its content, nothing kept for the final state
+  const [growRef, growIn] = useGrow();
 
   return (
-    <div data-dm="" className={cx('dm-plx', !bare && 'dm-panel', className)}>
+    <div data-dm="" ref={growRef} className={cx('dm-plx', 'dm-growing', !bare && 'dm-panel', className)}>
+      <div className="dm-grow" ref={growIn}>
       <div className="dm-plx-h">
         <Think on={phase === 'running'} className="dm-plx-mk" />
         <div className="dm-plx-ht"><b>{title}</b><Swap className="dm-muted dm-plx-st">{status ?? `${included.length} steps, about ${Math.max(1, Math.round(included.length * .8))} min`}</Swap></div>
@@ -122,6 +125,7 @@ export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, pha
         </>}
         {phase === 'running' && <button type="button" className="dm-pill dm-ghost dm-sm dm-plx-stop dm-enter" style={{ animationDelay: '50ms' }} onClick={onStop}><Icon name="stop" size="xs" />Stop</button>}
         {phase === 'done' && <button type="button" className="dm-pill dm-soft dm-sm dm-enter" onClick={onSeeChanges}><Icon name="eye" size="xs" />See changes</button>}
+      </div>
       </div>
     </div>
   );

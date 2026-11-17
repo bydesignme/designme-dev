@@ -503,9 +503,9 @@
 .aln{padding:var(--dm-s-2)}
 /* the lanes' marks (tracks, lines, a finished badge) in livelier versions of the agents' hues, each 3:1 on the surface; their
    text keeps the agent's text colour. Dark mode's agent colours are light already, so they are used as they are */
-.aln{--dm-aln-pb:#2a7bff;--dm-aln-pm:#1fa66a;--dm-aln-pl:#7a5af5}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .aln{--dm-aln-pb:var(--dm-pb);--dm-aln-pm:var(--dm-pm);--dm-aln-pl:var(--dm-pl)}}
-:root[data-theme="dark"] .aln{--dm-aln-pb:var(--dm-pb);--dm-aln-pm:var(--dm-pm);--dm-aln-pl:var(--dm-pl)}
+.aln{--dm-aln-pb:#2a7bff;--dm-aln-pm:#1daa51;--dm-aln-pl:#7a5af5}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .aln{--dm-aln-pb:var(--dm-pb);--dm-aln-pm:#4ade80;--dm-aln-pl:var(--dm-pl)}}
+:root[data-theme="dark"] .aln{--dm-aln-pb:var(--dm-pb);--dm-aln-pm:#4ade80;--dm-aln-pl:var(--dm-pl)}
 /* on a card the lanes sit centred in the room kept for their tallest moment, and glide as a hand-off line opens and shuts */
 .stage-in:has(>.aln){display:flex;flex-direction:column;justify-content:center}
 .aln-h{display:flex;align-items:center;gap:10px;padding:var(--dm-s-2) 10px 10px}
@@ -542,14 +542,14 @@
 /* the lane at work is tinted, so what sits on the tint (its badge, its tag) is lifted onto the surface to stand clear of it */
 .aln-lane[data-s="working"] .aln-av,.aln-lane[data-s="working"] .aln-tg{background:var(--dm-surface);box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-c) 22%,transparent)}
 /* a finished agent's badge fills with its hue */
-.aln-lane[data-s="done"] .aln-av{background:var(--dm-cm);color:var(--dm-surface)}
+.aln-lane[data-s="done"] .aln-av{background:var(--dm-cb);color:var(--dm-c)}
 .aln-who{min-width:0}
 .aln-n{display:block;font-weight:500;font-size:13.5px}
 .aln-a{display:block;font-size:12.5px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .aln-a.live{color:var(--dm-fg2)}
 /* the track: one part a step. Finished parts are solid, the one in hand fills as the agent works, with a light running along it */
 .aln-tr{display:flex;gap:3px}
-.aln-tr i{flex:1;height:10px;border-radius:5px;background:color-mix(in srgb,var(--dm-cm) 13%,var(--dm-line));position:relative;overflow:hidden}
+.aln-tr i{flex:1;height:10px;border-radius:5px;background:color-mix(in srgb,var(--dm-cm) 16%,var(--dm-surface));position:relative;overflow:hidden}
 .aln-tr i::after{content:"";position:absolute;inset:0;border-radius:inherit;background:var(--dm-cm);transform:scaleX(var(--dm-p,0));transform-origin:left;transition:transform .25s linear}
 .aln-tr i.on::after{transform:scaleX(1);transition:transform .5s var(--dm-ease)}
 .aln-tr i.run::after{background:linear-gradient(90deg,var(--dm-cm) 0 30%,color-mix(in srgb,var(--dm-cm) 30%,var(--dm-surface)) 50%,var(--dm-cm) 70% 100%) 0 0/250% 100%;animation:alnsheen 1.6s linear infinite}
@@ -640,6 +640,9 @@
 </style><style>/* ---------- Plan review ---------- */
 /* the plan the agent posts in the chat: no container; with .panel it becomes a card */
 .plx{padding:14px 0;display:flex;flex-direction:column;gap:10px}
+.growing{overflow:clip;overflow-clip-margin:6px;transition:height .55s cubic-bezier(.22,1,.36,1)}
+.growing>.dm-grow{display:flex;flex-direction:column;gap:inherit;flex:none}
+@media (prefers-reduced-motion:reduce){.growing{transition:none}}
 .plx.panel{padding:14px}
 .plx-h{display:flex;align-items:center;gap:10px}
 .plx-mk{color:var(--dm-accent-fg,var(--dm-accent))}
@@ -4312,20 +4315,10 @@ const fitHits = window.dmFitHits || (() => {
     $('.plx-x', s).onclick = () => { const off = s.classList.toggle('off'); $('.plx-x', s).dataset.tip = off ? 'Include step' : 'Skip step'; $('.plx-x', s).setAttribute('aria-label', off ? 'Include step' : 'Skip step'); $('.plx-x', s).innerHTML = I(off ? 'undo' : 'x', 'xs'); count(); };
   }
   $$('.plx-s', list).forEach((s, i) => bind(s, S[i][1]));
-  // the room the plan needs at its tallest (every step with its done line under it, the rate-limit line the longest of
-  // them) is kept from the start, so the panel never grows or shrinks in its stage and sits centred at every moment
-  // (16 Nov; as Agent tree). Measured on a hidden copy at the panel's width, again when the width changes
+  // the panel grows with the plan (owner, 17 Nov): no room kept for the final state, the height eases open as done lines
+  // and notes arrive, and the panel stays centred in its stage as it grows
   const root = $('.plx', r);
-  const tallest = () => {
-    const p = root.cloneNode(true);
-    p.style.cssText = `position:absolute;left:0;top:0;width:${root.offsetWidth}px;min-height:0;visibility:hidden;pointer-events:none`;
-    p.setAttribute('aria-hidden', 'true'); p.inert = true;
-    $$('.plx-s', p).forEach((x, i) => { const d = $('.d', x); d.classList.add('on'); d.style.transition = 'none'; d.firstElementChild.textContent = i === 1 ? 'Rate limited by the browser tool. Retrying in 3s' : (S[i] ? S[i][1] : 'Done'); });
-    root.parentElement.appendChild(p); const h = p.offsetHeight; p.remove(); return h;
-  };
-  let pw = -1;
-  const keep = () => { const w = root.offsetWidth; if (!w || w === pw) return; pw = w; root.style.minHeight = tallest() + 'px'; };
-  keep(); const ro = new ResizeObserver(keep); ro.observe(root); c.offs.push(() => ro.disconnect());
+  c.offs.push(grow(root));
   $('.plx-add', r).onclick = () => { const s = html(row(['New step'], $$('.plx-s', list).length)); list.appendChild(s); enter(s); bind(s); count(); const t = $('.t', s); t.focus({ preventScroll:true }); document.getSelection().selectAllChildren(t); };
   $('.plx-chg', r).onclick = () => { swap($('.plx-n', r), 'Tell the agent what to change in chat'); };
   const clock = ms => { const s = Math.floor(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };

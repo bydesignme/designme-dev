@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, BRAND, DM, I, REDUCE, enter, html, seg, stagger, swap } from '../core/core.js';
+import { $, BRAND, DM, I, REDUCE, enter, grow, html, seg, stagger, swap } from '../core/core.js';
 DM.def('memory-panel', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{book}', I('book')).replace('{spark}', I('spark','xs'));
   // where a memory came from: an app's own mark, or an icon for something said in chat or an edit

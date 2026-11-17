@@ -138,20 +138,10 @@ DM.def('plan-review', (r, c) => {
     $('.plx-x', s).onclick = () => { const off = s.classList.toggle('off'); $('.plx-x', s).dataset.tip = off ? 'Include step' : 'Skip step'; $('.plx-x', s).setAttribute('aria-label', off ? 'Include step' : 'Skip step'); $('.plx-x', s).innerHTML = I(off ? 'undo' : 'x', 'xs'); count(); };
   }
   $$('.plx-s', list).forEach((s, i) => bind(s, S[i][1]));
-  // the room the plan needs at its tallest (every step with its done line under it, the rate-limit line the longest of
-  // them) is kept from the start, so the panel never grows or shrinks in its stage and sits centred at every moment
-  // (16 Nov; as Agent tree). Measured on a hidden copy at the panel's width, again when the width changes
+  // the panel grows with the plan (owner, 17 Nov): no room kept for the final state, the height eases open as done lines
+  // and notes arrive, and the panel stays centred in its stage as it grows
   const root = $('.plx', r);
-  const tallest = () => {
-    const p = root.cloneNode(true);
-    p.style.cssText = `position:absolute;left:0;top:0;width:${root.offsetWidth}px;min-height:0;visibility:hidden;pointer-events:none`;
-    p.setAttribute('aria-hidden', 'true'); p.inert = true;
-    $$('.plx-s', p).forEach((x, i) => { const d = $('.d', x); d.classList.add('on'); d.style.transition = 'none'; d.firstElementChild.textContent = i === 1 ? 'Rate limited by the browser tool. Retrying in 3s' : (S[i] ? S[i][1] : 'Done'); });
-    root.parentElement.appendChild(p); const h = p.offsetHeight; p.remove(); return h;
-  };
-  let pw = -1;
-  const keep = () => { const w = root.offsetWidth; if (!w || w === pw) return; pw = w; root.style.minHeight = tallest() + 'px'; };
-  keep(); const ro = new ResizeObserver(keep); ro.observe(root); c.offs.push(() => ro.disconnect());
+  c.offs.push(grow(root));
   $('.plx-add', r).onclick = () => { const s = html(row(['New step'], $$('.plx-s', list).length)); list.appendChild(s); enter(s); bind(s); count(); const t = $('.t', s); t.focus({ preventScroll:true }); document.getSelection().selectAllChildren(t); };
   $('.plx-chg', r).onclick = () => { swap($('.plx-n', r), 'Tell the agent what to change in chat'); };
   const clock = ms => { const s = Math.floor(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };

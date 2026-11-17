@@ -1,5 +1,5 @@
 'use client';
-import { cloneElement, isValidElement, useEffect, useRef, useState, type CSSProperties, type FocusEvent, type PointerEvent, type ReactNode, type Ref, type RefObject } from 'react';
+import { useLayoutEffect, cloneElement, isValidElement, useEffect, useRef, useState, type CSSProperties, type FocusEvent, type PointerEvent, type ReactNode, type Ref, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { cx } from './cx';
 import { useIsoLayoutEffect, useReducedMotion } from './hooks';
@@ -266,4 +266,25 @@ export function useReflow(root: RefObject<HTMLElement | null>, selector: string,
     const ro = new ResizeObserver(fresh); ro.observe(box);
     return () => { cancelAnimationFrame(raf); box.removeEventListener('transitionend', fresh); box.removeEventListener('animationend', fresh); ro.disconnect(); };
   }, [root]);
+}
+
+/** A container that grows with what it holds: put `outer` on the container (with the dm-growing class) and `inner` on one
+ *  wrapper around its content (dm-grow). The container's height follows the content's, eased, so it opens smoothly as rows
+ *  arrive and closes as they go, staying centred wherever it is centred. */
+export function useGrow<T extends HTMLElement = HTMLDivElement>() {
+  const outer = useRef<T>(null), inner = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const el = outer.current, w = inner.current;
+    if (!el || !w || typeof ResizeObserver === 'undefined') return;
+    let first = true;
+    const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
+    const fit = () => {
+      const h = Math.ceil(w.getBoundingClientRect().height + box());
+      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
+      else el.style.height = h + 'px';
+    };
+    const ro = new ResizeObserver(fit); ro.observe(w); fit();
+    return () => { ro.disconnect(); el.style.height = ''; };
+  }, []);
+  return [outer, inner] as const;
 }

@@ -163,6 +163,9 @@
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Plan review","description":"Plan review shows the plan an agent proposes before it starts work, as a numbered list a person can change. They can rewrite a step, skip one, add their own, and then approve so the agent runs through the steps in the same view.","url":"https://designme.dev/components/plan-review","image":"https://designme.dev/components/og/plan-review.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Plan review, Review and approve, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Review and approve","item":"https://designme.dev/#s-review"},{"@type":"ListItem","position":3,"name":"Plan review","item":"https://designme.dev/components/plan-review"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I start the agent once the plan is approved?","acceptedAnswer":{"@type":"Answer","text":"Handle onApprove, set phase to running, and mark steps with state: 'run' and 'done' as your agent works. Set phase to done at the end."}},{"@type":"Question","name":"How do I get the edited plan back?","acceptedAnswer":{"@type":"Answer","text":"Pass steps and onStepsChange to control the list. Each step comes back with its new text, plus edited and skipped flags you can send to the agent."}},{"@type":"Question","name":"Can I stop the agent halfway?","acceptedAnswer":{"@type":"Answer","text":"In the running phase the footer shows a Stop button that calls onStop. Stopping the agent and updating the phase is up to your code."}},{"@type":"Question","name":"Can it sit on its own instead of inside a chat?","acceptedAnswer":{"@type":"Answer","text":"Yes. It draws its own container by default. Set bare to sit it flat in a chat thread."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Plan review ---------- */
 /* the plan the agent posts in the chat: no container; with .panel it becomes a card */
 .plx{padding:14px 0;display:flex;flex-direction:column;gap:10px}
+.growing{overflow:clip;overflow-clip-margin:6px;transition:height .55s cubic-bezier(.22,1,.36,1)}
+.growing>.dm-grow{display:flex;flex-direction:column;gap:inherit;flex:none}
+@media (prefers-reduced-motion:reduce){.growing{transition:none}}
 .plx.panel{padding:14px}
 .plx-h{display:flex;align-items:center;gap:10px}
 .plx-mk{color:var(--dm-accent-fg,var(--dm-accent))}
@@ -342,12 +345,12 @@ export default function PlanReviewDemo() {
 import PlanReview from &#39;../components/designme/plan-review/PlanReview.astro&#39;;
 ---
 &lt;PlanReview /&gt;
-&lt;PlanReview data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything PlanReview takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>title</code><span class="opt">required</span></td><td><code>string</code></td><td>Like &quot;Plan: redesign the pricing page&quot;</td></tr><tr><td><code>steps</code></td><td><code>PlanReviewStep[]</code></td><td>The steps. Leave `steps` out to let the person edit, skip and add steps on their own</td></tr><tr><td><code>defaultSteps</code></td><td><code>PlanReviewStep[]</code></td><td></td></tr><tr><td><code>onStepsChange</code></td><td><code>(steps: PlanReviewStep[]) =&gt; void</code></td><td></td></tr><tr><td><code>phase</code></td><td><code>PlanPhase</code></td><td>review (steps can be edited), running (the agent works through them) or done</td></tr><tr><td><code>status</code></td><td><code>string</code></td><td>The line under the title. Defaults to how many steps are left in and roughly how long they take</td></tr><tr><td><code>note</code></td><td><code>string</code></td><td>The quiet line in the footer. Defaults to a hint for each phase</td></tr><tr><td><code>meta</code></td><td><code>ReactNode</code></td><td>Quiet text at the end of the header, like an elapsed time &quot;0:04&quot;</td></tr><tr><td><code>onApprove</code></td><td><code>() =&gt; void</code></td><td></td></tr><tr><td><code>onRequestChanges</code></td><td><code>() =&gt; void</code></td><td></td></tr><tr><td><code>onStop</code></td><td><code>() =&gt; void</code></td><td></td></tr><tr><td><code>onSeeChanges</code></td><td><code>() =&gt; void</code></td><td></td></tr><tr><td><code>bare</code></td><td><code>boolean</code></td><td>Draws its own container (the default, as on designme.dev). Set true to sit it flat in a chat thread</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>PlanReview.tsx<span class="l">React · 129 lines</span></summary><pre class="cp-pre" data-name="PlanReview.tsx"><code>&#39;use client&#39;;
+&lt;PlanReview data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything PlanReview takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>title</code><span class="opt">required</span></td><td><code>string</code></td><td>Like &quot;Plan: redesign the pricing page&quot;</td></tr><tr><td><code>steps</code></td><td><code>PlanReviewStep[]</code></td><td>The steps. Leave `steps` out to let the person edit, skip and add steps on their own</td></tr><tr><td><code>defaultSteps</code></td><td><code>PlanReviewStep[]</code></td><td></td></tr><tr><td><code>onStepsChange</code></td><td><code>(steps: PlanReviewStep[]) =&gt; void</code></td><td></td></tr><tr><td><code>phase</code></td><td><code>PlanPhase</code></td><td>review (steps can be edited), running (the agent works through them) or done</td></tr><tr><td><code>status</code></td><td><code>string</code></td><td>The line under the title. Defaults to how many steps are left in and roughly how long they take</td></tr><tr><td><code>note</code></td><td><code>string</code></td><td>The quiet line in the footer. Defaults to a hint for each phase</td></tr><tr><td><code>meta</code></td><td><code>ReactNode</code></td><td>Quiet text at the end of the header, like an elapsed time &quot;0:04&quot;</td></tr><tr><td><code>onApprove</code></td><td><code>() =&gt; void</code></td><td></td></tr><tr><td><code>onRequestChanges</code></td><td><code>() =&gt; void</code></td><td></td></tr><tr><td><code>onStop</code></td><td><code>() =&gt; void</code></td><td></td></tr><tr><td><code>onSeeChanges</code></td><td><code>() =&gt; void</code></td><td></td></tr><tr><td><code>bare</code></td><td><code>boolean</code></td><td>Draws its own container (the default, as on designme.dev). Set true to sit it flat in a chat thread</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>PlanReview.tsx<span class="l">React · 133 lines</span></summary><pre class="cp-pre" data-name="PlanReview.tsx"><code>&#39;use client&#39;;
 import { useEffect, useRef, useState, type ReactNode } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable } from &#39;../lib/hooks&#39;;
 import { Icon } from &#39;../lib/icons&#39;;
-import { Spin, Swap, Think, Tip } from &#39;../lib/motion&#39;;
+import { Spin, Swap, Think, Tip, useGrow } from &#39;../lib/motion&#39;;
 import &#39;../designme.css&#39;;
 import &#39;./plan-review.css&#39;;
 
@@ -416,9 +419,12 @@ export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, pha
   const included = list.filter(s =&gt; !s.skipped);
   const editable = phase === &#39;review&#39;;
   let n = 0;
+  // the panel grows with the plan (owner, 17 Nov): its height eases to its content, nothing kept for the final state
+  const [growRef, growIn] = useGrow();
 
   return (
-    &lt;div data-dm=&quot;&quot; className={cx(&#39;dm-plx&#39;, !bare &amp;&amp; &#39;dm-panel&#39;, className)}&gt;
+    &lt;div data-dm=&quot;&quot; ref={growRef} className={cx(&#39;dm-plx&#39;, &#39;dm-growing&#39;, !bare &amp;&amp; &#39;dm-panel&#39;, className)}&gt;
+      &lt;div className=&quot;dm-grow&quot; ref={growIn}&gt;
       &lt;div className=&quot;dm-plx-h&quot;&gt;
         &lt;Think on={phase === &#39;running&#39;} className=&quot;dm-plx-mk&quot; /&gt;
         &lt;div className=&quot;dm-plx-ht&quot;&gt;&lt;b&gt;{title}&lt;/b&gt;&lt;Swap className=&quot;dm-muted dm-plx-st&quot;&gt;{status ?? `${included.length} steps, about ${Math.max(1, Math.round(included.length * .8))} min`}&lt;/Swap&gt;&lt;/div&gt;
@@ -467,13 +473,17 @@ export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, pha
         {phase === &#39;running&#39; &amp;&amp; &lt;button type=&quot;button&quot; className=&quot;dm-pill dm-ghost dm-sm dm-plx-stop dm-enter&quot; style={{ animationDelay: &#39;50ms&#39; }} onClick={onStop}&gt;&lt;Icon name=&quot;stop&quot; size=&quot;xs&quot; /&gt;Stop&lt;/button&gt;}
         {phase === &#39;done&#39; &amp;&amp; &lt;button type=&quot;button&quot; className=&quot;dm-pill dm-soft dm-sm dm-enter&quot; onClick={onSeeChanges}&gt;&lt;Icon name=&quot;eye&quot; size=&quot;xs&quot; /&gt;See changes&lt;/button&gt;}
       &lt;/div&gt;
+      &lt;/div&gt;
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>plan-review.css<span class="l">React · 41 lines</span></summary><pre class="cp-pre" data-name="plan-review.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>plan-review.css<span class="l">React · 44 lines</span></summary><pre class="cp-pre" data-name="plan-review.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Plan review ---------- */
 /* the plan the agent posts in the chat: no container; with .panel it becomes a card */
 .dm-plx{padding:14px 0;display:flex;flex-direction:column;gap:10px}
+.dm-growing{overflow:clip;overflow-clip-margin:6px;transition:height .55s cubic-bezier(.22,1,.36,1)}
+.dm-growing&gt;.dm-dm-grow{display:flex;flex-direction:column;gap:inherit;flex:none}
+@media (prefers-reduced-motion:reduce){.dm-growing{transition:none}}
 .dm-plx.dm-panel{padding:14px}
 .dm-plx-h{display:flex;align-items:center;gap:10px}
 .dm-plx-mk{color:var(--dm-accent-fg,var(--dm-accent))}
@@ -548,9 +558,12 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>plan-review.css<span class="l">HTML · 40 lines</span></summary><pre class="cp-pre" data-name="plan-review.css"><code>/* ---------- Plan review ---------- */
+</code></pre></details><details class="cp-file"><summary>plan-review.css<span class="l">HTML · 43 lines</span></summary><pre class="cp-pre" data-name="plan-review.css"><code>/* ---------- Plan review ---------- */
 /* the plan the agent posts in the chat: no container; with .panel it becomes a card */
 .plx{padding:14px 0;display:flex;flex-direction:column;gap:10px}
+.growing{overflow:clip;overflow-clip-margin:6px;transition:height .55s cubic-bezier(.22,1,.36,1)}
+.growing&gt;.dm-grow{display:flex;flex-direction:column;gap:inherit;flex:none}
+@media (prefers-reduced-motion:reduce){.growing{transition:none}}
 .plx.panel{padding:14px}
 .plx-h{display:flex;align-items:center;gap:10px}
 .plx-mk{color:var(--dm-accent-fg,var(--dm-accent))}
@@ -587,7 +600,7 @@ const { class: className, ...rest } = Astro.props;
 .plx-f{display:flex;align-items:center;gap:6px}
 .plx-n{flex:1;font-size:12px;min-width:0}
 @media (max-width:480px){.plx-n{display:none}}
-</code></pre></details><details class="cp-file"><summary>plan-review.js<span class="l">HTML · 80 lines</span></summary><pre class="cp-pre" data-name="plan-review.js"><code>DM.def(&#39;plan-review&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>plan-review.js<span class="l">HTML · 70 lines</span></summary><pre class="cp-pre" data-name="plan-review.js"><code>DM.def(&#39;plan-review&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{plus}&#39;, I(&#39;plus&#39;,&#39;xs&#39;));
   // each step, and the line it reports when it&#39;s done
   const S = [
@@ -608,20 +621,10 @@ const { class: className, ...rest } = Astro.props;
     $(&#39;.plx-x&#39;, s).onclick = () =&gt; { const off = s.classList.toggle(&#39;off&#39;); $(&#39;.plx-x&#39;, s).dataset.tip = off ? &#39;Include step&#39; : &#39;Skip step&#39;; $(&#39;.plx-x&#39;, s).setAttribute(&#39;aria-label&#39;, off ? &#39;Include step&#39; : &#39;Skip step&#39;); $(&#39;.plx-x&#39;, s).innerHTML = I(off ? &#39;undo&#39; : &#39;x&#39;, &#39;xs&#39;); count(); };
   }
   $$(&#39;.plx-s&#39;, list).forEach((s, i) =&gt; bind(s, S[i][1]));
-  // the room the plan needs at its tallest (every step with its done line under it, the rate-limit line the longest of
-  // them) is kept from the start, so the panel never grows or shrinks in its stage and sits centred at every moment
-  // (16 Nov; as Agent tree). Measured on a hidden copy at the panel&#39;s width, again when the width changes
+  // the panel grows with the plan (owner, 17 Nov): no room kept for the final state, the height eases open as done lines
+  // and notes arrive, and the panel stays centred in its stage as it grows
   const root = $(&#39;.plx&#39;, r);
-  const tallest = () =&gt; {
-    const p = root.cloneNode(true);
-    p.style.cssText = `position:absolute;left:0;top:0;width:${root.offsetWidth}px;min-height:0;visibility:hidden;pointer-events:none`;
-    p.setAttribute(&#39;aria-hidden&#39;, &#39;true&#39;); p.inert = true;
-    $$(&#39;.plx-s&#39;, p).forEach((x, i) =&gt; { const d = $(&#39;.d&#39;, x); d.classList.add(&#39;on&#39;); d.style.transition = &#39;none&#39;; d.firstElementChild.textContent = i === 1 ? &#39;Rate limited by the browser tool. Retrying in 3s&#39; : (S[i] ? S[i][1] : &#39;Done&#39;); });
-    root.parentElement.appendChild(p); const h = p.offsetHeight; p.remove(); return h;
-  };
-  let pw = -1;
-  const keep = () =&gt; { const w = root.offsetWidth; if (!w || w === pw) return; pw = w; root.style.minHeight = tallest() + &#39;px&#39;; };
-  keep(); const ro = new ResizeObserver(keep); ro.observe(root); c.offs.push(() =&gt; ro.disconnect());
+  c.offs.push(grow(root));
   $(&#39;.plx-add&#39;, r).onclick = () =&gt; { const s = html(row([&#39;New step&#39;], $$(&#39;.plx-s&#39;, list).length)); list.appendChild(s); enter(s); bind(s); count(); const t = $(&#39;.t&#39;, s); t.focus({ preventScroll:true }); document.getSelection().selectAllChildren(t); };
   $(&#39;.plx-chg&#39;, r).onclick = () =&gt; { swap($(&#39;.plx-n&#39;, r), &#39;Tell the agent what to change in chat&#39;); };
   const clock = ms =&gt; { const s = Math.floor(ms / 1000); return Math.floor(s / 60) + &#39;:&#39; + String(s % 60).padStart(2, &#39;0&#39;); };
@@ -1023,20 +1026,10 @@ const fitHits = window.dmFitHits || (() => {
     $('.plx-x', s).onclick = () => { const off = s.classList.toggle('off'); $('.plx-x', s).dataset.tip = off ? 'Include step' : 'Skip step'; $('.plx-x', s).setAttribute('aria-label', off ? 'Include step' : 'Skip step'); $('.plx-x', s).innerHTML = I(off ? 'undo' : 'x', 'xs'); count(); };
   }
   $$('.plx-s', list).forEach((s, i) => bind(s, S[i][1]));
-  // the room the plan needs at its tallest (every step with its done line under it, the rate-limit line the longest of
-  // them) is kept from the start, so the panel never grows or shrinks in its stage and sits centred at every moment
-  // (16 Nov; as Agent tree). Measured on a hidden copy at the panel's width, again when the width changes
+  // the panel grows with the plan (owner, 17 Nov): no room kept for the final state, the height eases open as done lines
+  // and notes arrive, and the panel stays centred in its stage as it grows
   const root = $('.plx', r);
-  const tallest = () => {
-    const p = root.cloneNode(true);
-    p.style.cssText = `position:absolute;left:0;top:0;width:${root.offsetWidth}px;min-height:0;visibility:hidden;pointer-events:none`;
-    p.setAttribute('aria-hidden', 'true'); p.inert = true;
-    $$('.plx-s', p).forEach((x, i) => { const d = $('.d', x); d.classList.add('on'); d.style.transition = 'none'; d.firstElementChild.textContent = i === 1 ? 'Rate limited by the browser tool. Retrying in 3s' : (S[i] ? S[i][1] : 'Done'); });
-    root.parentElement.appendChild(p); const h = p.offsetHeight; p.remove(); return h;
-  };
-  let pw = -1;
-  const keep = () => { const w = root.offsetWidth; if (!w || w === pw) return; pw = w; root.style.minHeight = tallest() + 'px'; };
-  keep(); const ro = new ResizeObserver(keep); ro.observe(root); c.offs.push(() => ro.disconnect());
+  c.offs.push(grow(root));
   $('.plx-add', r).onclick = () => { const s = html(row(['New step'], $$('.plx-s', list).length)); list.appendChild(s); enter(s); bind(s); count(); const t = $('.t', s); t.focus({ preventScroll:true }); document.getSelection().selectAllChildren(t); };
   $('.plx-chg', r).onclick = () => { swap($('.plx-n', r), 'Tell the agent what to change in chat'); };
   const clock = ms => { const s = Math.floor(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };

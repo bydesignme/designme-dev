@@ -1143,9 +1143,9 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .aln{padding:var(--s-2)}
 /* the lanes' marks (tracks, lines, a finished badge) in livelier versions of the agents' hues, each 3:1 on the surface; their
    text keeps the agent's text colour. Dark mode's agent colours are light already, so they are used as they are */
-.aln{--aln-pb:#2a7bff;--aln-pm:#1fa66a;--aln-pl:#7a5af5}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .aln{--aln-pb:var(--pb);--aln-pm:var(--pm);--aln-pl:var(--pl)}}
-:root[data-theme="dark"] .aln{--aln-pb:var(--pb);--aln-pm:var(--pm);--aln-pl:var(--pl)}
+.aln{--aln-pb:#2a7bff;--aln-pm:#1daa51;--aln-pl:#7a5af5}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .aln{--aln-pb:var(--pb);--aln-pm:#4ade80;--aln-pl:var(--pl)}}
+:root[data-theme="dark"] .aln{--aln-pb:var(--pb);--aln-pm:#4ade80;--aln-pl:var(--pl)}
 /* on a card the lanes sit centred in the room kept for their tallest moment, and glide as a hand-off line opens and shuts */
 .stage-in:has(>.aln){display:flex;flex-direction:column;justify-content:center}
 .aln-h{display:flex;align-items:center;gap:10px;padding:var(--s-2) 10px 10px}
@@ -1182,14 +1182,14 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 /* the lane at work is tinted, so what sits on the tint (its badge, its tag) is lifted onto the surface to stand clear of it */
 .aln-lane[data-s="working"] .aln-av,.aln-lane[data-s="working"] .aln-tg{background:var(--surface);box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 22%,transparent)}
 /* a finished agent's badge fills with its hue */
-.aln-lane[data-s="done"] .aln-av{background:var(--cm);color:var(--surface)}
+.aln-lane[data-s="done"] .aln-av{background:var(--cb);color:var(--c)}
 .aln-who{min-width:0}
 .aln-n{display:block;font-weight:500;font-size:13.5px}
 .aln-a{display:block;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .aln-a.live{color:var(--fg2)}
 /* the track: one part a step. Finished parts are solid, the one in hand fills as the agent works, with a light running along it */
 .aln-tr{display:flex;gap:3px}
-.aln-tr i{flex:1;height:10px;border-radius:5px;background:color-mix(in srgb,var(--cm) 13%,var(--line));position:relative;overflow:hidden}
+.aln-tr i{flex:1;height:10px;border-radius:5px;background:color-mix(in srgb,var(--cm) 16%,var(--surface));position:relative;overflow:hidden}
 .aln-tr i::after{content:"";position:absolute;inset:0;border-radius:inherit;background:var(--cm);transform:scaleX(var(--p,0));transform-origin:left;transition:transform .25s linear}
 .aln-tr i.on::after{transform:scaleX(1);transition:transform .5s var(--ease)}
 .aln-tr i.run::after{background:linear-gradient(90deg,var(--cm) 0 30%,color-mix(in srgb,var(--cm) 30%,var(--surface)) 50%,var(--cm) 70% 100%) 0 0/250% 100%;animation:alnsheen 1.6s linear infinite}
@@ -2369,6 +2369,9 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 /* ---------- Plan review ---------- */
 /* the plan the agent posts in the chat: no container; with .panel it becomes a card */
 .plx{padding:14px 0;display:flex;flex-direction:column;gap:10px}
+.growing{overflow:clip;overflow-clip-margin:6px;transition:height .55s cubic-bezier(.22,1,.36,1)}
+.growing>.dm-grow{display:flex;flex-direction:column;gap:inherit;flex:none}
+@media (prefers-reduced-motion:reduce){.growing{transition:none}}
 .plx.panel{padding:14px}
 .plx-h{display:flex;align-items:center;gap:10px}
 .plx-mk{color:var(--accent)}
@@ -8447,6 +8450,21 @@ function reflow(items, change, o = {}){
    release() lets it size to its content again, for Start over and the like */
 function hold(el){ if (!el) return el; el.style.minHeight = Math.ceil(el.getBoundingClientRect().height) + 'px'; el.classList.add('held'); return el; }
 function release(el){ if (el){ el.style.minHeight = ''; el.classList.remove('held'); } return el; }
+/* grow(): a container that grows with what it holds (owner, 17 Nov: no room reserved for the final state). Its content moves
+   into a .dm-grow wrapper, and the container's height follows the wrapper's, eased, so it opens smoothly as rows arrive and
+   closes as they go, staying centred in its stage as it does. Returns a function that stops it */
+function grow(el){
+  if (!el || el._grow) return () => {};
+  const w = document.createElement('div'); w.className = 'dm-grow';
+  while (el.firstChild) w.appendChild(el.firstChild);
+  el.appendChild(w); el.classList.add('growing');
+  const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
+  let first = true;
+  const fit = () => { const h = Math.ceil(w.getBoundingClientRect().height + box());
+    if (first){ el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; } else el.style.height = h + 'px'; };
+  const ro = new ResizeObserver(fit); ro.observe(w); fit();
+  return el._grow = () => { ro.disconnect(); el._grow = null; el.style.height = ''; el.classList.remove('growing'); };
+}
 /* centre(): keeps a field centred in the room its stage keeps for it, and glides it up as its list opens, so the field
    and the list sit centred together. showing() is the height on show once things settle; the glide runs at the speed
    folds and lists open with, so the two move as one */
@@ -12655,20 +12673,10 @@ DM.def('plan-review', (r, c) => {
     $('.plx-x', s).onclick = () => { const off = s.classList.toggle('off'); $('.plx-x', s).dataset.tip = off ? 'Include step' : 'Skip step'; $('.plx-x', s).setAttribute('aria-label', off ? 'Include step' : 'Skip step'); $('.plx-x', s).innerHTML = I(off ? 'undo' : 'x', 'xs'); count(); };
   }
   $$('.plx-s', list).forEach((s, i) => bind(s, S[i][1]));
-  // the room the plan needs at its tallest (every step with its done line under it, the rate-limit line the longest of
-  // them) is kept from the start, so the panel never grows or shrinks in its stage and sits centred at every moment
-  // (16 Nov; as Agent tree). Measured on a hidden copy at the panel's width, again when the width changes
+  // the panel grows with the plan (owner, 17 Nov): no room kept for the final state, the height eases open as done lines
+  // and notes arrive, and the panel stays centred in its stage as it grows
   const root = $('.plx', r);
-  const tallest = () => {
-    const p = root.cloneNode(true);
-    p.style.cssText = `position:absolute;left:0;top:0;width:${root.offsetWidth}px;min-height:0;visibility:hidden;pointer-events:none`;
-    p.setAttribute('aria-hidden', 'true'); p.inert = true;
-    $$('.plx-s', p).forEach((x, i) => { const d = $('.d', x); d.classList.add('on'); d.style.transition = 'none'; d.firstElementChild.textContent = i === 1 ? 'Rate limited by the browser tool. Retrying in 3s' : (S[i] ? S[i][1] : 'Done'); });
-    root.parentElement.appendChild(p); const h = p.offsetHeight; p.remove(); return h;
-  };
-  let pw = -1;
-  const keep = () => { const w = root.offsetWidth; if (!w || w === pw) return; pw = w; root.style.minHeight = tallest() + 'px'; };
-  keep(); const ro = new ResizeObserver(keep); ro.observe(root); c.offs.push(() => ro.disconnect());
+  c.offs.push(grow(root));
   $('.plx-add', r).onclick = () => { const s = html(row(['New step'], $$('.plx-s', list).length)); list.appendChild(s); enter(s); bind(s); count(); const t = $('.t', s); t.focus({ preventScroll:true }); document.getSelection().selectAllChildren(t); };
   $('.plx-chg', r).onclick = () => { swap($('.plx-n', r), 'Tell the agent what to change in chat'); };
   const clock = ms => { const s = Math.floor(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };

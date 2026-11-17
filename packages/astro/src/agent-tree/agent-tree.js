@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, BRAND, DM, I, REDUCE, html, reveal } from '../core/core.js';
+import { $, $$, BRAND, DM, I, REDUCE, grow, html, reveal } from '../core/core.js';
 /* the lines and the flow, drawn every frame from where the marks are. The tree's rows are treeitems (.atr-n, with data-id
    and data-s) whose mark is .atr-g (data-m); atrLines reads them from the page, so whatever draws the rows (this script,
    or React) gets the same lines. A row that appears after the start opens its space (data-ph="open"), its parent's line

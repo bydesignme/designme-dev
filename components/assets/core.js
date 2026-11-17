@@ -189,6 +189,21 @@ function reflow(items, change, o = {}){
    release() lets it size to its content again, for Start over and the like */
 function hold(el){ if (!el) return el; el.style.minHeight = Math.ceil(el.getBoundingClientRect().height) + 'px'; el.classList.add('held'); return el; }
 function release(el){ if (el){ el.style.minHeight = ''; el.classList.remove('held'); } return el; }
+/* grow(): a container that grows with what it holds (owner, 17 Nov: no room reserved for the final state). Its content moves
+   into a .dm-grow wrapper, and the container's height follows the wrapper's, eased, so it opens smoothly as rows arrive and
+   closes as they go, staying centred in its stage as it does. Returns a function that stops it */
+function grow(el){
+  if (!el || el._grow) return () => {};
+  const w = document.createElement('div'); w.className = 'dm-grow';
+  while (el.firstChild) w.appendChild(el.firstChild);
+  el.appendChild(w); el.classList.add('growing');
+  const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
+  let first = true;
+  const fit = () => { const h = Math.ceil(w.getBoundingClientRect().height + box());
+    if (first){ el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; } else el.style.height = h + 'px'; };
+  const ro = new ResizeObserver(fit); ro.observe(w); fit();
+  return el._grow = () => { ro.disconnect(); el._grow = null; el.style.height = ''; el.classList.remove('growing'); };
+}
 /* centre(): keeps a field centred in the room its stage keeps for it, and glides it up as its list opens, so the field
    and the list sit centred together. showing() is the height on show once things settle; the glide runs at the speed
    folds and lists open with, so the two move as one */
