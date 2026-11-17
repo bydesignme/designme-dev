@@ -7,7 +7,7 @@
    menu; a darker hover on the copy button. The motion is meeting-card.js. Lab only, nothing ships from here. */
 
 /* ======================================================================================================== Soft refreshed */
-:root[data-refresh]{--lx-out:cubic-bezier(.16,1,.3,1);--lx-ease:cubic-bezier(.22,1,.36,1)}
+:root[data-refresh]{--lx-ease:cubic-bezier(.22,1,.36,1)}
 
 /* the track and the block are fully round, like every refreshed shape; the chips keep their 6px inset (40px track, 5px
    to the block, 18px chips: 6px above and below, 6px from the block's ends) */
@@ -18,18 +18,20 @@
    never stop and start */
 :root[data-refresh] .mtx-bp{transition:width .6s linear}
 :root[data-refresh] .mtx-now{transition:left .6s linear,opacity .4s var(--lx-ease)}
-/* the status chip: a new state fades up out of a blur while the chip morphs to its new width (meeting-card.js); the
-   minutes roll like an odometer, the old number rising away as the new one comes up */
-:root[data-refresh] .mtx-fade{animation:lxchip .46s var(--lx-ease) both}
-@keyframes lxchip{from{opacity:0;filter:blur(3px);transform:translateY(2px)}}
+/* the status chip: the old words fade out, the chip eases to its new width, then the new words rise 4px into place
+   (meeting-card.js), about 580ms in all; the minutes roll like an odometer, the old number rising away as the new one comes up */
+:root[data-refresh] .mtx-st{position:relative;overflow:hidden}
+:root[data-refresh] .mtx-fade{animation:lxchip .24s var(--lx-ease) .34s both}
+@keyframes lxchip{from{opacity:0;filter:blur(1px);transform:translateY(4px)}}
+:root[data-refresh] .mtx-st>.lx-was{position:absolute;left:7px;top:0;bottom:0;pointer-events:none}
 /* the live dot in the green text colour: the bright mark green drops under 3:1 on the green tint (2.7:1) */
 :root[data-refresh] .mtx-st.ok .dot{color:var(--dm-ok)}
 :root[data-refresh] .mtx-roll{position:relative}
-:root[data-refresh] .mtx-roll i.in{animation:lxroll .44s var(--lx-out) both}
-@keyframes lxroll{from{transform:translateY(80%);opacity:0;filter:blur(2px)}}
+:root[data-refresh] .mtx-roll i.in{animation:lxroll .38s var(--lx-ease) both}
+@keyframes lxroll{from{transform:translateY(80%);opacity:0}}
 :root[data-refresh] .mtx-roll .lx-out{position:absolute;left:0;top:0;font-style:normal;pointer-events:none}
-/* the people spread on hover with the long, soft deceleration */
-:root[data-refresh] .mtx-who .av{transition:margin .5s var(--lx-out)}
+/* the people spread on hover, in place */
+:root[data-refresh] .mtx-who .av{transition:margin .32s var(--lx-ease)}
 /* the copy button: compact and round, its hover a step darker than the row grey */
 :root[data-refresh] .mtx-cp{width:28px;height:28px}
 :root[data-refresh] .mtx-who{padding:1px 0}
@@ -55,17 +57,13 @@
 :root[data-refresh] .mtx.live :is(.mtx-join,.mtx-jm):not(:hover){animation:lxbreath 2.8s ease-in-out infinite}
 @keyframes lxbreath{50%{--dm-lift:1}}
 
-/* the card's surface while it grows out of the status chip (meeting-card.js) */
-:root[data-refresh] .mtx.lx-in{isolation:isolate;background:transparent!important;box-shadow:none!important}
-:root[data-refresh] .lx-surf{position:absolute;z-index:-1;pointer-events:none}
-/* the gooey menu: an SVG layer under the menu, Join's pill lifted above it; a soft neutral shadow under the liquid shape */
-:root[data-refresh] .lx-goo{position:fixed;inset:0;z-index:49;pointer-events:none}
-:root[data-refresh] .lx-goo svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 1px 1px rgba(0,0,0,.06)) drop-shadow(0 10px 18px rgba(0,0,0,.1))}
-:root[data-refresh][data-theme="dark"] .lx-goo svg{filter:drop-shadow(0 1px 1px rgba(0,0,0,.3)) drop-shadow(0 10px 18px rgba(0,0,0,.4))}
-:root[data-refresh] .lx-goo rect{fill:var(--dm-raised)}
-:root[data-refresh] .mtx-jg.lx-up{z-index:51}
-:root[data-refresh] .pop.lx-hide{opacity:0!important;transition:none!important}
-:root[data-refresh] .mtx-jm svg{transition:transform .42s var(--lx-ease)}
+/* the menu: a scale from .96 and a fade out of the chevron (meeting-card.js points its origin at the chevron), 180ms in and
+   130ms out, never blurred; the chevron turns to face it. Join's group sits above the track's now line, so the menu does
+   too even while a press is still springing back */
+:root[data-refresh] .mtx-jg{z-index:3}
+:root[data-refresh] .mtx-pop{filter:none;transform:scale(.96);transition:opacity .13s var(--lx-ease),transform .13s var(--lx-ease),visibility 0s .13s}
+:root[data-refresh] .mtx-pop.open{filter:none;transform:none;transition:opacity .18s var(--lx-ease),transform .18s var(--lx-ease)}
+:root[data-refresh] .mtx-jm svg{transition:transform .3s var(--lx-ease)}
 :root[data-refresh] .mtx-jm[aria-expanded="true"] svg{transform:rotate(180deg)}
 
 /* ======================================================================================================== Clean */
@@ -130,7 +128,7 @@
 [data-clean] .lx-ghost .j{right:10px;top:43px;width:24px;height:8px;border-radius:3px}
 
 @media (prefers-reduced-motion:reduce){
-  :root[data-refresh] :is(.mtx-bp,.mtx-now,.mtx-who .av,.mtx-jg,.mtx-jm svg){transition:none}
+  :root[data-refresh] :is(.mtx-bp,.mtx-now,.mtx-who .av,.mtx-jg,.mtx-jm svg,.mtx-pop,.mtx-pop.open){transition:none}
   :root[data-refresh] :is(.mtx-fade,.mtx-roll i.in){animation:none}
   :root[data-refresh] .mtx.live :is(.mtx-join,.mtx-jm){animation:none}
   [data-clean] :is(.mtx-bp,.mtx-now,.mtx-who .av,.mtx-pop,.mtx-pop.open){transition:none}

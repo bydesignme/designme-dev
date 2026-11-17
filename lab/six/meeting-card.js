@@ -1,18 +1,18 @@
 /* Meeting card in the six-component lab: the lab clock and the motion of the two new variants, run in the lab page and
    laid on the real component in its frames (/components/meeting-card.html, its own markup, copy and demo story).
-   Soft refreshed takes the plush vocabulary of the owner's references: the card grows out of its status chip (a seed),
-   the people slide out from behind the first face (satellites), the time block widens into place with its times sliding
-   in (a size morph), the now line glides in, the minutes roll, the chip morphs to each new state's width, and the Join
-   chevron's menu grows out of it like liquid (goo). Clean takes the calm Access Grid vocabulary: the card rises 8px from
-   .98, its pieces follow 40ms apart, and the menu scales and fades out of the chevron.
+   Soft refreshed follows the corrected motion rules (owner, 17 Nov: the seed, satellites and goo read as "weird,
+   clipping, unnatural"): the card arrives whole and its pieces follow on a gentle cascade, done within 800ms; state
+   changes happen in place (the chip eases to its new width, the minutes roll, the lines glide); the menu scales and fades
+   out of the chevron. Nothing grows around its content, nothing is clipped, nothing bigger than a word is blurred.
+   Clean takes the calm Access Grid vocabulary: the card rises 8px from .98, its pieces follow 40ms apart, and the menu
+   scales and fades out of the chevron.
    Every frame runs on one lab clock: the page's own timers, frame loops, CSS transitions and animations and ours, so 0.5x
    slows all of it (the demo story included) and a recording can step it frame by frame. A press inside a card during its
    entrance lands the entrance at once. Lab only, nothing ships from here. */
 (() => {
 const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const E = { soft:'cubic-bezier(.22,1,.36,1)', out:'cubic-bezier(.16,1,.3,1)', clean:'cubic-bezier(.23,1,.32,1)' };
-const blur = n => `blur(${n}px)`;
-const C = { vt:0, speed:1, rec:false, tracks:new Map(), timers:[], q:[], frames:[], nid:1e7 };
+const E = { soft:'cubic-bezier(.22,1,.36,1)', clean:'cubic-bezier(.23,1,.32,1)' };
+const C = { vt:0, speed:1, rec:false, tracks:new Map(), timers:[], q:[], frames:[], nid:1e7, pre:new Set() };
 
 /* ---------------------------------------------------------------------------------------------------- the lab clock */
 const track = a => { C.tracks.set(a, C.vt); try { a.pause(); a.currentTime = 0; } catch(e){} };
@@ -47,7 +47,8 @@ const runQ = () => { const due = C.q.filter(e => e.t <= C.vt).sort((a, b) => a.t
   C.q = C.q.filter(e => !due.includes(e)); due.forEach(e => { try { e.fn(); } catch(x){ console.error(x); } }); };
 const runRaf = () => C.frames.forEach(f => { try { const W = f.contentWindow, q = W.__labRaf; if (!q || !q.size) return;
   const cbs = [...q.values()]; q.clear(); const t = W.performance.now(); cbs.forEach(cb => { try { cb(t); } catch(e){ console.error(e); } }); } catch(e){} });
-const advance = dt => { C.vt += dt; runTimers(); runQ(); runRaf(); adopt(); drive(); };
+// pre: what is read before the step's timers change anything (the chip's width as it is on screen)
+const advance = dt => { C.pre.forEach(fn => fn()); C.vt += dt; runTimers(); runQ(); runRaf(); adopt(); drive(); };
 let last = performance.now();
 const tick = now => { const dt = Math.min(64, now - last); last = now; if (!C.rec) advance(dt * C.speed); requestAnimationFrame(tick); };
 requestAnimationFrame(tick);
@@ -57,8 +58,6 @@ const at = (f, ms, fn, kind = 'fx') => C.q.push({ f, t:C.vt + ms, fn, kind });
 const A = (f, el, kf, o = {}) => { if (!el || !el.animate) return null;
   const a = el.animate(kf, { duration:o.d ?? 260, delay:o.delay || 0, easing:o.e || E.soft, fill:o.fill || 'backwards' });
   track(a); f._s.anims.add(a); f._s.live = true; return a; };
-const fill = (f, el, delay, d = 300) => A(f, el, [{ opacity:0, filter:blur(3), transform:'translateY(3px)' }, { opacity:1, filter:blur(0), transform:'none' }], { d, delay });
-const ghost = (f, el, delay, s = .9, d = 420) => A(f, el, [{ opacity:0, transform:`scale(${s})`, filter:blur(4) }, { opacity:1, transform:'none', filter:blur(0) }], { d, delay });
 const jump = f => {
   for (const a of f._s.anims) if (C.tracks.has(a)){ try { a.finish(); } catch(e){} C.tracks.delete(a); }
   f._s.anims.clear();
@@ -66,115 +65,51 @@ const jump = f => {
   mine.filter(e => e.kind === 'fx').forEach(e => { try { e.fn(); } catch(x){} });
   f._s.live = false;
 };
-// a damped spring from 0 to 1 at t seconds, sampled every 16ms into keyframes (menus only: a gentle overshoot)
-const springAt = (t, { w, z }) => { if (t <= 0) return 0; const wd = w * Math.sqrt(1 - z * z);
-  return 1 - Math.exp(-z * w * t) * (Math.cos(wd * t) + (z * w / wd) * Math.sin(wd * t)); };
-const springKF = (props, sp) => { const n = Math.max(2, Math.round(sp.ms / 16)), kf = [];
-  for (let i = 0; i <= n; i++){ const p = i === n ? 1 : springAt(i / n * sp.ms / 1000, sp), k = { offset:i / n };
-    for (const [name, [a, b]] of Object.entries(props)) k[name] = (a + (b - a) * p) + 'px'; kf.push(k); }
-  return kf; };
-const SA = (f, el, props, sp) => A(f, el, springKF(props, sp), { d:sp.ms, e:'linear' });
-const MENU = { w:13, z:.72, ms:680 };
-
-/* ---------------------------------------------------------------------------------------------------- geometry */
-const rel = (el, to) => { const a = el.getBoundingClientRect(), b = to.getBoundingClientRect(); return { x:a.left - b.left, y:a.top - b.top, w:a.width, h:a.height }; };
 const rectOf = el => { const r = el.getBoundingClientRect(); return { x:r.left, y:r.top, w:r.width, h:r.height }; };
 // a popover's box from its placed position (its own transform is mid-transition while it opens)
 const popBox = pop => { const h = pop.offsetParent.getBoundingClientRect(); return { x:h.left + parseFloat(pop.style.left || 0), y:h.top + parseFloat(pop.style.top || 0), w:pop.offsetWidth, h:pop.offsetHeight }; };
-const setRect = (el, r, rx) => { el.setAttribute('x', r.x); el.setAttribute('y', r.y); el.setAttribute('width', r.w); el.setAttribute('height', r.h); el.setAttribute('rx', rx); };
+// a menu scales and fades out of its trigger: its transform origin is the chevron's middle, whichever way it opens
+const originAtTrigger = (W, pop, btn) => new W.MutationObserver(() => { if (!pop.classList.contains('open')) return;
+  const p = popBox(pop), b = rectOf(btn); pop.style.transformOrigin = `${b.x + b.w / 2 - p.x}px ${b.y + b.h / 2 - p.y}px`;
+}).observe(pop, { attributes:true, attributeFilter:['class'] });
+// the card and its pieces arrive on one rhythm: the whole card first (opacity, a short rise, a touch of scale; its
+// shadow moves with it), then its pieces a beat later, opacity and a few px of rise only. Transform and opacity only
+const cascade = (f, root, parts, o) => {
+  A(f, root, [{ opacity:0, transform:`translateY(8px) scale(${o.scale})` }, { opacity:1, transform:'none' }], { d:o.card, e:o.e });
+  parts.filter(Boolean).forEach((p, i) => A(f, p, [{ opacity:0, transform:`translateY(${o.rise}px)` }, { opacity:1, transform:'none' }], { d:o.part, delay:o.first + i * o.step, e:o.e }));
+};
 
 /* ---------------------------------------------------------------------------------------------------- Soft refreshed */
-// the entrance: a seed dot at the chip's place widens into the status chip; the card's surface grows out of that seed to
-// the whole card; the title and time fill in; the track arrives as an empty shape, the meeting block widens into place and
-// its times slide in from its middle; the now line glides in from the left; the faces slide out from behind the first one;
-// the copy button and Join arrive last. Decelerating moves (560 to 760ms), blur as the glue, nothing bounces
-const enterSoft = (f, root) => {
-  const d = f.contentDocument, R = root.getBoundingClientRect(), cs = getComputedStyle(root);
-  const chip = root.querySelector('.mtx-st'), cr = rel(chip, root), seed = { x:cr.x + cr.w - cr.h, y:cr.y, w:cr.h, h:cr.h };
-  // the surface: the card's own fill, shadow and corners on a shape that starts as the seed
-  const surf = d.createElement('span'); surf.className = 'lx-surf';
-  Object.assign(surf.style, { background:cs.backgroundColor, boxShadow:cs.boxShadow, cornerShape:cs.getPropertyValue('corner-shape') || '' });
-  root.classList.add('lx-in'); root.appendChild(surf);
-  A(f, surf, [
-    { left:seed.x + 'px', top:seed.y + 'px', width:seed.w + 'px', height:seed.h + 'px', borderRadius:seed.h / 2 + 'px', opacity:0, filter:blur(3) },
-    { opacity:1, filter:blur(0), offset:.22 },
-    { left:'0px', top:'0px', width:R.width + 'px', height:R.height + 'px', borderRadius:cs.borderTopLeftRadius, opacity:1, filter:blur(0) }
-  ], { d:760, delay:180, e:E.out, fill:'both' });
-  at(f, 960, () => { surf.remove(); root.classList.remove('lx-in'); });
-  // the seed: a dot that widens into the chip, its words sliding in inside the growing width
-  chip.style.overflow = 'hidden';
-  A(f, chip, [{ width:cr.h + 'px', opacity:0, transform:'scale(.6)', filter:blur(4) }, { opacity:1, transform:'none', filter:blur(0), offset:.3 }, { width:cr.w + 'px', opacity:1, transform:'none', filter:blur(0) }], { d:680, e:E.soft });
-  if (chip.firstElementChild) A(f, chip.firstElementChild, [{ opacity:0, transform:'translateX(-6px)', filter:blur(3) }, { opacity:1, transform:'none', filter:blur(0) }], { d:420, delay:260 });
-  at(f, 700, () => { chip.style.overflow = ''; });
-  fill(f, root.querySelector('.mtx-t'), 420); fill(f, root.querySelector('.mtx-sub'), 480);
-  // the track as an empty shape, then the meeting block widening into place from its middle
-  const tr = root.querySelector('.mtx-track'), blk = root.querySelector('.mtx-blk'), br = rel(blk, tr), nums = [...blk.querySelectorAll(':scope>.num')];
-  ghost(f, tr, 480, .96, 380);
-  A(f, blk, [{ left:(br.x + br.w / 2 - br.h / 2) + 'px', width:br.h + 'px', opacity:0 }, { opacity:1, offset:.2 }, { left:br.x + 'px', width:br.w + 'px', opacity:1 }], { d:680, delay:600, e:E.out });
-  nums.forEach((n, i) => A(f, n, [{ opacity:0, transform:`translateX(${i ? -14 : 14}px)`, filter:blur(3) }, { opacity:1, transform:'none', filter:blur(0) }], { d:480, delay:820 + i * 40, e:E.out }));
-  const now = root.querySelector('.mtx-now');
-  if (now && !root.classList.contains('done')) A(f, now, [{ left:'0px', opacity:0 }, { opacity:1, offset:.3 }, { left:getComputedStyle(now).left, opacity:1 }], { d:780, delay:700, e:E.out });
-  // the people: the first face from a seed, the others slide out from behind it
-  const avs = [...root.querySelectorAll('.mtx-who .av')];
-  if (avs.length){
-    const x0 = avs[0].getBoundingClientRect().left;
-    avs.forEach((a, i) => { a.style.position = 'relative'; a.style.zIndex = avs.length - i; });
-    ghost(f, avs[0], 760, .85, 440);
-    avs.slice(1).forEach((a, i) => A(f, a, [{ transform:`translateX(${x0 - a.getBoundingClientRect().left}px) scale(.9)`, opacity:0, filter:blur(2) }, { opacity:1, offset:.4 }, { transform:'none', opacity:1, filter:blur(0) }], { d:640, delay:840 + i * 70, e:E.out }));
-    at(f, 840 + avs.length * 70 + 660, () => avs.forEach(a => { a.style.zIndex = ''; a.style.position = ''; }));
-  }
-  ghost(f, root.querySelector('.mtx-cp'), 1000, .8, 420);
-  const jg = root.querySelector('.mtx-jg'), join = root.querySelector('.mtx-join');
-  ghost(f, jg, 1060, .9, 460);
-  if (join){ ghost(f, join.querySelector('.mk'), 1160, .5, 380); fill(f, join.querySelector('.lb'), 1220); }
-  fill(f, root.querySelector('.mtx-jm svg'), 1260);
-};
+// the entrance (owner, 17 Nov: one continuous entrance): the card arrives whole over 520ms; the title, chip, time line,
+// track, people, copy button and Join follow 50ms apart, each 400ms. All of it is done by 800ms. Nothing grows, nothing
+// is clipped, nothing is blurred
+const PARTS = ['.mtx-t', '.mtx-st', '.mtx-sub', '.mtx-track', '.mtx-who', '.mtx-cp', '.mtx-jg'];
+const enterSoft = (f, root) => cascade(f, root, PARTS.map(s => root.querySelector(s)), { scale:.985, card:520, rise:5, part:400, first:100, step:50, e:E.soft });
 
-// the gooey menu: the menu grows out of the chevron like liquid. The chevron and the menu are drawn in one SVG layer under
-// a goo filter (a blur, then a hard alpha threshold), so while they are close they share one outline with a neck between
-// them, which stretches, thins and lets go as the menu springs away. The real menu, crisp, takes over as it settles
-const gooLayer = d => { d.querySelectorAll('.lx-goo').forEach(x => x.remove());
-  const L = d.createElement('div'); L.className = 'lx-goo';
-  L.innerHTML = '<svg aria-hidden="true"><defs><filter id="lx-g" filterUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%"><feGaussianBlur in="SourceGraphic" stdDeviation="7" result="b"/><feColorMatrix in="b" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9" result="g"/><feComposite in="SourceGraphic" in2="g" operator="atop"/></filter></defs><g filter="url(#lx-g)"><rect class="b"/><rect class="p"/></g></svg>';
-  (d.querySelector('.cp-demo') || d.body).appendChild(L); return L; };
-const gooOpen = (f, btn, pop) => { const d = f.contentDocument, jg = btn.closest('.mtx-jg');
-  const b = rectOf(btn), up = parseFloat(pop.style.top) < 0, r = parseFloat(getComputedStyle(pop).borderTopLeftRadius) || 16;
-  // the menu settles a little further off the chevron, so the neck has room to show
-  pop.style.top = (parseFloat(pop.style.top) + (up ? -12 : 12)) + 'px';
-  pop.classList.add('lx-hide'); jg.classList.add('lx-up');
-  const P = popBox(pop), L = gooLayer(d), rb = L.querySelector('.b'), rp = L.querySelector('.p');
-  const seed = { x:b.x + 2, y:b.y + 2, w:b.w - 4, h:b.h - 4 };
-  setRect(rb, seed, seed.h / 2); setRect(rp, P, r * .8);
-  // the menu first swells out of the chevron while it is still attached to it, then lifts away to its place: the neck
-  // between them stretches, thins and lets go (its size on a spring, its lift on a slow ease-in-out)
-  const n = Math.round(MENU.ms / 16), kf = [], io = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-  const anchor = up ? seed.y + seed.h * .5 : seed.y + seed.h * .5;
-  for (let i = 0; i <= n; i++){ const t = i / n, sz = i === n ? 1 : springAt(t * MENU.ms / 1000, MENU), l = io(Math.min(1, Math.max(0, (t - .16) / .62)));
-    const w = seed.w + (P.w - seed.w) * sz, h = seed.h + (P.h - seed.h) * sz, x = seed.x + (P.x - seed.x) * sz;
-    const yAttached = up ? anchor - h : anchor, y = yAttached + (P.y - yAttached) * l;
-    kf.push({ offset:t, x:x + 'px', y:y + 'px', width:w + 'px', height:h + 'px', rx:(seed.h / 2 + (r * .8 - seed.h / 2) * sz) + 'px' }); }
-  A(f, rp, kf, { d:MENU.ms, e:'linear' });
-  at(f, MENU.ms * .66, () => pop.classList.remove('lx-hide'));
-  A(f, L, [{ opacity:1 }, { opacity:0 }], { d:200, delay:MENU.ms * .78, fill:'forwards' });
-  at(f, MENU.ms * .78 + 210, () => L.remove());
-};
-const gooClose = (f, btn, pop) => { const d = f.contentDocument, jg = btn.closest('.mtx-jg');
-  const b = rectOf(btn), P = popBox(pop), r = parseFloat(getComputedStyle(pop).borderTopLeftRadius) || 16, L = gooLayer(d), rb = L.querySelector('.b'), rp = L.querySelector('.p');
-  pop.classList.add('lx-hide'); at(f, 320, () => pop.classList.remove('lx-hide'));
-  const seed = { x:b.x + 4, y:b.y + 4, w:b.w - 8, h:b.h - 8 }, sp = { w:15, z:.86, ms:440 };
-  setRect(rb, seed, seed.h / 2); setRect(rp, seed, seed.h / 2);
-  SA(f, rp, { x:[P.x, seed.x], y:[P.y, seed.y], width:[P.w, seed.w], height:[P.h, seed.h], rx:[r * .8, seed.h / 2] }, sp);
-  A(f, L, [{ opacity:1 }, { opacity:0 }], { d:120, delay:sp.ms - 100, fill:'forwards' });
-  at(f, sp.ms + 30, () => { L.remove(); jg.classList.remove('lx-up'); });
-};
-
-// a card freshly mounted (a replay, or the demo starting its story again) gets the refreshed state changes: the chip
-// morphs to each new state's width, the minutes roll like an odometer, the chevron's menu grows out of it
+// a card freshly mounted (a replay, or the demo starting its story again) gets the refreshed state changes, all in place:
+// the chip eases to each new state's width while the old words fade out and the new ones rise in; the minutes roll like an
+// odometer; the menu scales and fades out of the chevron (CSS, with its origin set here)
 const dressSoft = (f, root) => { const W = f.contentWindow, chip = root.querySelector('.mtx-st'), pop = root.querySelector('.mtx-pop'), jm = root.querySelector('.mtx-jm');
-  if (chip){ chip._w = chip.offsetWidth;
+  if (chip){
+    // the chip's width as it is on screen, read before each step of the clock, so a new state eases from exactly there
+    const cs = getComputedStyle(chip), pad = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+    const seen = () => { if (!chip.isConnected){ C.pre.delete(seen); return; } chip._w = chip.getBoundingClientRect().width; }; C.pre.add(seen); seen();
+    // the width the new state wants: its words' own width and the chip's padding
+    const natural = () => { const k = [...chip.children].find(c => !c.classList.contains('lx-was')); return k ? k.getBoundingClientRect().width + pad : chip.offsetWidth; };
+    const ours = n => n.nodeType !== 1 || n.classList.contains('lx-was');
     new W.MutationObserver(ms => { for (const m of ms){
-      if (m.target === chip){ const w0 = chip._w, w1 = chip.offsetWidth; chip._w = w1;
-        if (!REDUCE && w0 && Math.abs(w0 - w1) > 1){ chip.style.overflow = 'hidden'; A(f, chip, [{ width:w0 + 'px' }, { width:w1 + 'px' }], { d:560, e:E.soft }); at(f, 580, () => { chip.style.overflow = ''; }); }
+      if (m.target === chip){
+        if ([...m.addedNodes, ...m.removedNodes].every(ours)) continue;
+        if (REDUCE) continue;
+        // the old words fade out where they were
+        const old = [...m.removedNodes].find(n => !ours(n));
+        if (old){ const g = old.cloneNode(true); g.classList.remove('mtx-fade'); g.classList.add('lx-was'); g.querySelectorAll('.in').forEach(x => x.classList.remove('in')); g.querySelectorAll('.lx-out').forEach(x => x.remove()); chip.appendChild(g);
+          A(f, g, [{ opacity:1 }, { opacity:0, transform:'translateY(-3px)' }], { d:80, e:E.soft, fill:'forwards' }); at(f, 90, () => g.remove()); }
+        // then the chip eases to its new width with nothing inside it, and the new words rise in once it is there (CSS,
+        // .mtx-fade), so no words are ever cut by the chip's edge
+        if (chip._a){ chip._a.cancel(); C.tracks.delete(chip._a); }
+        const w0 = chip._w, w1 = natural();
+        if (w0 && Math.abs(w0 - w1) > 1) chip._a = A(f, chip, [{ width:w0 + 'px' }, { width:w1 + 'px' }], { d:260, delay:80, e:E.soft, fill:'backwards' });
         continue; }
       const roll = m.target.classList && m.target.classList.contains('mtx-roll') ? m.target : null; if (!roll) continue;
       // a new number in (the ghost of the old one leaving is ours, and so is its removal)
@@ -183,35 +118,26 @@ const dressSoft = (f, root) => { const W = f.contentWindow, chip = root.querySel
       const w1 = roll.offsetWidth, w0 = roll._w || w1; roll._w = w1;
       if (REDUCE || !old) continue;
       const g = old.cloneNode(true); g.className = 'lx-out'; roll.appendChild(g);
-      A(f, g, [{ transform:'none', opacity:1, filter:blur(0) }, { transform:'translateY(-80%)', opacity:0, filter:blur(2) }], { d:420, e:E.out, fill:'forwards' });
-      at(f, 440, () => g.remove());
-      if (Math.abs(w0 - w1) > .5) A(f, roll, [{ width:w0 + 'px' }, { width:w1 + 'px' }], { d:440, e:E.out });
-      chip._w = chip.offsetWidth;
+      A(f, g, [{ transform:'none', opacity:1 }, { transform:'translateY(-80%)', opacity:0 }], { d:380, e:E.soft, fill:'forwards' });
+      at(f, 390, () => g.remove());
+      if (Math.abs(w0 - w1) > .5) A(f, roll, [{ width:w0 + 'px' }, { width:w1 + 'px' }], { d:300, e:E.soft });
     } }).observe(chip, { childList:true, subtree:true });
     const roll0 = chip.querySelector('.mtx-roll'); if (roll0) roll0._w = roll0.offsetWidth;
   }
-  if (pop && jm) new W.MutationObserver(ms => { for (const m of ms){
-    const was = (m.oldValue || '').split(' ').includes('open'), is = pop.classList.contains('open'); if (was === is || REDUCE) continue;
-    (is ? gooOpen : gooClose)(f, jm, pop);
-  } }).observe(pop, { attributes:true, attributeFilter:['class'], attributeOldValue:true });
+  if (pop && jm) originAtTrigger(W, pop, jm);
 };
 
 /* ---------------------------------------------------------------------------------------------------- Clean */
 // the calm entrance: the card fades and rises 8px from .98 over 520ms; its pieces follow 40ms apart, each rising 6px
 const enterClean = (f, root) => {
-  A(f, root, [{ opacity:0, transform:'translateY(8px) scale(.98)' }, { opacity:1, transform:'none' }], { d:520, e:E.clean });
   const empty = f.contentDocument.documentElement.hasAttribute('data-empty');
-  const parts = empty ? [...root.querySelectorAll('.lx-em>*')] : ['.mtx-t', '.mtx-st', '.mtx-sub', '.mtx-track', '.mtx-who', '.mtx-cp', '.mtx-jg'].map(s => root.querySelector(s));
-  parts.forEach((p, i) => A(f, p, [{ opacity:0, transform:'translateY(6px)' }, { opacity:1, transform:'none' }], { d:440, delay:120 + i * 40, e:E.clean }));
+  cascade(f, root, empty ? [...root.querySelectorAll('.lx-em>*')] : PARTS.map(s => root.querySelector(s)), { scale:.98, card:520, rise:6, part:440, first:120, step:40, e:E.clean });
 };
 const EMPTY = '<div class="lx-em"><span class="lx-ghost" aria-hidden="true"><i class="t"></i><i class="c"></i><i class="r"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="j"></i></span>'
   + '<b>No meetings left today</b><span>Your calendar is clear until tomorrow.</span><button class="pill line sm" type="button"><svg class="i xs"><use href="#i-cal"/></svg>Schedule a meeting</button></div>';
 const dressClean = (f, root) => { const W = f.contentWindow, pop = root.querySelector('.mtx-pop'), jm = root.querySelector('.mtx-jm');
   if (!root.querySelector('.lx-em')) root.insertAdjacentHTML('beforeend', EMPTY);
-  // the menu scales out of the chevron itself: its origin is the chevron's middle, whichever way the menu opens
-  if (pop && jm) new W.MutationObserver(() => { if (!pop.classList.contains('open')) return;
-    const p = popBox(pop), b = rectOf(jm); pop.style.transformOrigin = `${b.x + b.w / 2 - p.x}px ${b.y + b.h / 2 - p.y}px`;
-  }).observe(pop, { attributes:true, attributeFilter:['class'] });
+  if (pop && jm) originAtTrigger(W, pop, jm);
 };
 
 /* ---------------------------------------------------------------------------------------------------- the frames */
@@ -238,7 +164,6 @@ const dress = (f, root) => { f._root = root;
 const replay = f => { if (!f._s) return;
   jump(f);
   const d = f.contentDocument, W = f.contentWindow, card = d.querySelector('.pg-demo>.card[data-c]'); if (!card) return;
-  d.querySelectorAll('.lx-goo').forEach(x => x.remove());
   W.__labMount = true; try { W.eval('DM.mount(document.querySelector(".pg-demo>.card[data-c]"))'); } catch(e){ console.error(e); } finally { W.__labMount = false; }
   const root = rootOf(f); if (!root) return;
   dress(f, root);
