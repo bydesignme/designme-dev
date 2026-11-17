@@ -183,7 +183,7 @@
 .prg-st{flex:none}
 .prg-st.run{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}
 .prg-seg{display:flex;gap:var(--dm-s-1)}
-.prg-seg i,.prg-lin{position:relative;flex:none;height:6px;border-radius:calc(3px * var(--dm-rk));background:var(--dm-chip);overflow:hidden}
+.prg-seg i,.prg-lin{position:relative;flex:none;height:6px;border-radius:calc(3px * var(--dm-rk-s,var(--dm-rk)));background:var(--dm-chip);overflow:hidden}
 .prg-seg i{flex:1}
 .prg-seg b{position:absolute;inset:0;border-radius:inherit;background:var(--dm-prg-c);transform-origin:left;transform:scaleX(var(--dm-f,0));transition:transform .45s var(--dm-ease),background .3s}
 .prg-ll{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-2);min-height:28px;margin-bottom:calc(var(--dm-s-1) * -1);font-size:12.5px;color:var(--dm-fg2)}
@@ -197,7 +197,7 @@
 .prg-mh{display:flex;align-items:baseline;justify-content:space-between;gap:var(--dm-s-2);font-size:13px}
 .prg-mh b{font-weight:500;color:var(--dm-fg)}
 .prg-mh .muted{font-size:12.5px}
-.prg-mb{position:relative;height:8px;border-radius:calc(4px * var(--dm-rk));background:var(--dm-chip)}
+.prg-mb{position:relative;height:8px;border-radius:calc(4px * var(--dm-rk-s,var(--dm-rk)));background:var(--dm-chip)}
 .prg-mb .fl{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:inherit;background:var(--dm-accent-mark,var(--dm-accent));transition:width .6s var(--dm-ease),background .3s}
 .prg-mb.warn .fl{background:var(--dm-warn-mark)}
 .prg-mb.bad .fl{background:var(--dm-bad-mark)}
@@ -209,6 +209,8 @@
 .prg-ml .tag .i{margin-left:-1px}
 .prg-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 @media (prefers-reduced-motion:reduce){.prg[data-s="ind"] .prg-ring>svg{animation:none}.prg-lin.ind i{animation:none;width:100%;opacity:.35}}
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style="clean"] .prg.panel,:root [data-style="clean"] .prg.panel,:root [data-style="clean"].prg.panel{padding:20px 20px 18px 21px}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px + var(--sw,0px))}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px + var(--sw,0px))}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px + var(--sw,0px))}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px + var(--sw,0px))}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -471,7 +473,7 @@ export function Progress({ title, state, steps, step, stepProgress, valueText, e
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>progress.css<span class="l">React · 51 lines</span></summary><pre class="cp-pre" data-name="progress.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>progress.css<span class="l">React · 53 lines</span></summary><pre class="cp-pre" data-name="progress.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Progress and meter ---------- */
 /* one run, three ways to read it: the ring is the whole run, the segments its steps (n of m), the bar the step in hand.
    Its colour says how it is going: the accent while it runs, grey while paused, red when a step fails, green once done */
@@ -495,7 +497,7 @@ export function Progress({ title, state, steps, step, stepProgress, valueText, e
 .dm-prg-st{flex:none}
 .dm-prg-st.dm-run{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}
 .dm-prg-seg{display:flex;gap:var(--dm-s-1)}
-.dm-prg-seg i,.dm-prg-lin{position:relative;flex:none;height:6px;border-radius:calc(3px * var(--dm-rk));background:var(--dm-chip);overflow:hidden}
+.dm-prg-seg i,.dm-prg-lin{position:relative;flex:none;height:6px;border-radius:calc(3px * var(--dm-rk-s,var(--dm-rk)));background:var(--dm-chip);overflow:hidden}
 .dm-prg-seg i{flex:1}
 .dm-prg-seg b{position:absolute;inset:0;border-radius:inherit;background:var(--dm-prg-c);transform-origin:left;transform:scaleX(var(--dm-f,0));transition:transform .45s var(--dm-ease),background .3s}
 .dm-prg-ll{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-2);min-height:28px;margin-bottom:calc(var(--dm-s-1) * -1);font-size:12.5px;color:var(--dm-fg2)}
@@ -509,7 +511,7 @@ export function Progress({ title, state, steps, step, stepProgress, valueText, e
 .dm-prg-mh{display:flex;align-items:baseline;justify-content:space-between;gap:var(--dm-s-2);font-size:13px}
 .dm-prg-mh b{font-weight:500;color:var(--dm-fg)}
 .dm-prg-mh .dm-muted{font-size:12.5px}
-.dm-prg-mb{position:relative;height:8px;border-radius:calc(4px * var(--dm-rk));background:var(--dm-chip)}
+.dm-prg-mb{position:relative;height:8px;border-radius:calc(4px * var(--dm-rk-s,var(--dm-rk)));background:var(--dm-chip)}
 .dm-prg-mb .dm-fl{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:inherit;background:var(--dm-accent-mark,var(--dm-accent));transition:width .6s var(--dm-ease),background .3s}
 .dm-prg-mb.dm-warn .dm-fl{background:var(--dm-warn-mark)}
 .dm-prg-mb.dm-bad .dm-fl{background:var(--dm-bad-mark)}
@@ -521,6 +523,8 @@ export function Progress({ title, state, steps, step, stepProgress, valueText, e
 .dm-prg-ml .dm-tag .dm-i{margin-left:-1px}
 .dm-prg-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 @media (prefers-reduced-motion:reduce){.dm-prg[data-s=&quot;ind&quot;] .dm-prg-ring&gt;svg{animation:none}.dm-prg-lin.dm-ind i{animation:none;width:100%;opacity:.35}}
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style=&quot;clean&quot;] .dm-prg.dm-panel,:root [data-style=&quot;clean&quot;] .dm-prg.dm-panel,:root [data-style=&quot;clean&quot;].dm-prg.dm-panel{padding:20px 20px 18px 21px}
 </code></pre></details><details class="cp-file"><summary>Progress.astro<span class="l">Astro · 40 lines</span></summary><pre class="cp-pre" data-name="Progress.astro"><code>---
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
 // Progress and meter: An agent run&#39;s progress and what it costs, with a credits meter that warns as it fills.
@@ -581,7 +585,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>progress.css<span class="l">HTML · 50 lines</span></summary><pre class="cp-pre" data-name="progress.css"><code>/* ---------- Progress and meter ---------- */
+</code></pre></details><details class="cp-file"><summary>progress.css<span class="l">HTML · 52 lines</span></summary><pre class="cp-pre" data-name="progress.css"><code>/* ---------- Progress and meter ---------- */
 /* one run, three ways to read it: the ring is the whole run, the segments its steps (n of m), the bar the step in hand.
    Its colour says how it is going: the accent while it runs, grey while paused, red when a step fails, green once done */
 .prg{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-3);--dm-prg-c:var(--dm-accent-mark,var(--dm-accent))}
@@ -604,7 +608,7 @@ const { class: className, ...rest } = Astro.props;
 .prg-st{flex:none}
 .prg-st.run{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}
 .prg-seg{display:flex;gap:var(--dm-s-1)}
-.prg-seg i,.prg-lin{position:relative;flex:none;height:6px;border-radius:calc(3px * var(--dm-rk));background:var(--dm-chip);overflow:hidden}
+.prg-seg i,.prg-lin{position:relative;flex:none;height:6px;border-radius:calc(3px * var(--dm-rk-s,var(--dm-rk)));background:var(--dm-chip);overflow:hidden}
 .prg-seg i{flex:1}
 .prg-seg b{position:absolute;inset:0;border-radius:inherit;background:var(--dm-prg-c);transform-origin:left;transform:scaleX(var(--dm-f,0));transition:transform .45s var(--dm-ease),background .3s}
 .prg-ll{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-2);min-height:28px;margin-bottom:calc(var(--dm-s-1) * -1);font-size:12.5px;color:var(--dm-fg2)}
@@ -618,7 +622,7 @@ const { class: className, ...rest } = Astro.props;
 .prg-mh{display:flex;align-items:baseline;justify-content:space-between;gap:var(--dm-s-2);font-size:13px}
 .prg-mh b{font-weight:500;color:var(--dm-fg)}
 .prg-mh .muted{font-size:12.5px}
-.prg-mb{position:relative;height:8px;border-radius:calc(4px * var(--dm-rk));background:var(--dm-chip)}
+.prg-mb{position:relative;height:8px;border-radius:calc(4px * var(--dm-rk-s,var(--dm-rk)));background:var(--dm-chip)}
 .prg-mb .fl{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:inherit;background:var(--dm-accent-mark,var(--dm-accent));transition:width .6s var(--dm-ease),background .3s}
 .prg-mb.warn .fl{background:var(--dm-warn-mark)}
 .prg-mb.bad .fl{background:var(--dm-bad-mark)}
@@ -630,6 +634,8 @@ const { class: className, ...rest } = Astro.props;
 .prg-ml .tag .i{margin-left:-1px}
 .prg-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 @media (prefers-reduced-motion:reduce){.prg[data-s=&quot;ind&quot;] .prg-ring&gt;svg{animation:none}.prg-lin.ind i{animation:none;width:100%;opacity:.35}}
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style=&quot;clean&quot;] .prg.panel,:root [data-style=&quot;clean&quot;] .prg.panel,:root [data-style=&quot;clean&quot;].prg.panel{padding:20px 20px 18px 21px}
 </code></pre></details><details class="cp-file"><summary>progress.js<span class="l">HTML · 80 lines</span></summary><pre class="cp-pre" data-name="progress.js"><code>DM.def(&#39;progress&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{pause}&#39;, I(&#39;pause&#39;));
   const root = $(&#39;.prg&#39;, r), ring = $(&#39;.prg-ring&#39;, r), arc = $(&#39;.prg-ring .fl&#39;, r), pc = $(&#39;.prg-pc&#39;, r), vt = $(&#39;.prg-vt&#39;, r), tag = $(&#39;.prg-st&#39;, r), btn = $(&#39;.prg-btn&#39;, r);

@@ -163,7 +163,7 @@
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Social sign-in","description":"Social sign-in is a sign-in card with one button per provider, such as Google, GitHub, Figma and SSO, plus a way to continue with email. The provider used last time gets an outline and a Last used badge, so a returning person can find it quickly. After sign-in the card swaps to a welcome message with the provider's name and a Sign out button.","url":"https://designme.dev/components/social-sign-in","image":"https://designme.dev/components/og/social-sign-in.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Social sign-in, Forms and inputs, UI component, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Forms and inputs","item":"https://designme.dev/#s-forms"},{"@type":"ListItem","position":3,"name":"Social sign-in","item":"https://designme.dev/components/social-sign-in"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I connect it to my OAuth flow?","acceptedAnswer":{"@type":"Answer","text":"Handle onSignIn, which receives the clicked provider, and return a promise. The button spins until it resolves. Resolve to false or reject to keep the card signed out."}},{"@type":"Question","name":"How does it remember the last provider between visits?","acceptedAnswer":{"@type":"Answer","text":"It doesn't store anything itself. Save the key from onLastUsedChange wherever you like, then pass it back as lastUsed or defaultLastUsed next time."}},{"@type":"Question","name":"Can I add a provider that has no brand mark, like Microsoft?","acceptedAnswer":{"@type":"Answer","text":"Yes. Give it letters, such as \"MS\", for a letter tile, or an icon name. Built-in brand marks cover google, github, figma and slack."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Social sign-in ---------- */
 .ssi{padding:28px 22px var(--dm-s-5);display:flex;flex-direction:column;align-items:center;gap:14px;max-width:320px;margin:0 auto;width:100%}
 .ssi-h{display:flex;flex-direction:column;align-items:center;gap:var(--dm-s-3);text-align:center}
-.ssi-lg{width:44px;height:44px;border-radius:calc(14px * var(--dm-rk));background:var(--dm-ink);color:var(--dm-on-ink);display:grid;place-items:center}
+.ssi-lg{width:44px;height:44px;border-radius:calc(14px * var(--dm-rk-l,var(--dm-rk)));background:var(--dm-ink);color:var(--dm-on-ink);display:grid;place-items:center}
 .ssi-lg .logo{width:26px;height:26px}
 .ssi-h b{font-weight:500;font-size:14px}
 .ssi-list{display:flex;flex-direction:column;gap:var(--dm-s-2);width:100%}
@@ -173,7 +173,7 @@
 .ssi-b .mk{width:18px;height:18px;display:grid;place-items:center;flex:none}
 .ssi-b .mk svg,.ssi-b .mk img{width:18px;height:18px;display:block}
 .ssi-b .mk .i{width:16px;height:16px}
-.ssi-b .mk .lt{min-width:18px;height:18px;padding:0 3px;border-radius:5px;background:var(--dm-ink);color:var(--dm-on-ink);display:grid;place-items:center;font-size:10px;font-weight:500}
+.ssi-b .mk .lt{min-width:18px;height:18px;padding:0 3px;border-radius:var(--dm-r-tiny,5px);background:var(--dm-ink);color:var(--dm-on-ink);display:grid;place-items:center;font-size:10px;font-weight:500}
 .ssi-b .last{position:absolute;top:-8px;right:22px;font-size:10.5px;font-weight:500;color:var(--dm-fg2);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent);padding:1px 7px;border-radius:var(--dm-r-pill)}
 .ssi-b.last-used{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-on) 50%,transparent)}
 .ssi-b.busy{pointer-events:none}
@@ -184,6 +184,8 @@
 @media (hover:hover) and (pointer:fine){.ssi-mail:hover{color:var(--dm-fg);background:var(--dm-row)}}
 .ssi-ok{display:flex;flex-direction:column;align-items:center;gap:var(--dm-s-2);padding:var(--dm-s-2) 0 var(--dm-s-1);text-align:center;font-size:13px}
 .ssi-ok .av{width:44px;height:44px;font-size:14px}
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style="clean"] .ssi.panel,:root [data-style="clean"] .ssi.panel,:root [data-style="clean"].ssi.panel{padding:11px 20px 20px 20px}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px + var(--sw,0px))}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px + var(--sw,0px))}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px + var(--sw,0px))}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px + var(--sw,0px))}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -397,11 +399,11 @@ export function SocialSignIn({ providers = PROVIDERS, lastUsed, defaultLastUsed 
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>social-sign-in.css<span class="l">React · 26 lines</span></summary><pre class="cp-pre" data-name="social-sign-in.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>social-sign-in.css<span class="l">React · 28 lines</span></summary><pre class="cp-pre" data-name="social-sign-in.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Social sign-in ---------- */
 .dm-ssi{padding:28px 22px var(--dm-s-5);display:flex;flex-direction:column;align-items:center;gap:14px;max-width:320px;margin:0 auto;width:100%}
 .dm-ssi-h{display:flex;flex-direction:column;align-items:center;gap:var(--dm-s-3);text-align:center}
-.dm-ssi-lg{width:44px;height:44px;border-radius:calc(14px * var(--dm-rk));background:var(--dm-ink);color:var(--dm-on-ink);display:grid;place-items:center}
+.dm-ssi-lg{width:44px;height:44px;border-radius:calc(14px * var(--dm-rk-l,var(--dm-rk)));background:var(--dm-ink);color:var(--dm-on-ink);display:grid;place-items:center}
 .dm-ssi-lg .dm-logo{width:26px;height:26px}
 .dm-ssi-h b{font-weight:500;font-size:14px}
 .dm-ssi-list{display:flex;flex-direction:column;gap:var(--dm-s-2);width:100%}
@@ -411,7 +413,7 @@ export function SocialSignIn({ providers = PROVIDERS, lastUsed, defaultLastUsed 
 .dm-ssi-b .dm-mk{width:18px;height:18px;display:grid;place-items:center;flex:none}
 .dm-ssi-b .dm-mk svg,.dm-ssi-b .dm-mk img{width:18px;height:18px;display:block}
 .dm-ssi-b .dm-mk .dm-i{width:16px;height:16px}
-.dm-ssi-b .dm-mk .dm-lt{min-width:18px;height:18px;padding:0 3px;border-radius:5px;background:var(--dm-ink);color:var(--dm-on-ink);display:grid;place-items:center;font-size:10px;font-weight:500}
+.dm-ssi-b .dm-mk .dm-lt{min-width:18px;height:18px;padding:0 3px;border-radius:var(--dm-r-tiny,5px);background:var(--dm-ink);color:var(--dm-on-ink);display:grid;place-items:center;font-size:10px;font-weight:500}
 .dm-ssi-b .dm-last{position:absolute;top:-8px;right:22px;font-size:10.5px;font-weight:500;color:var(--dm-fg2);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent);padding:1px 7px;border-radius:var(--dm-r-pill)}
 .dm-ssi-b.dm-last-used{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-on) 50%,transparent)}
 .dm-ssi-b.dm-busy{pointer-events:none}
@@ -422,6 +424,8 @@ export function SocialSignIn({ providers = PROVIDERS, lastUsed, defaultLastUsed 
 @media (hover:hover) and (pointer:fine){.dm-ssi-mail:hover{color:var(--dm-fg);background:var(--dm-row)}}
 .dm-ssi-ok{display:flex;flex-direction:column;align-items:center;gap:var(--dm-s-2);padding:var(--dm-s-2) 0 var(--dm-s-1);text-align:center;font-size:13px}
 .dm-ssi-ok .dm-av{width:44px;height:44px;font-size:14px}
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style=&quot;clean&quot;] .dm-ssi.dm-panel,:root [data-style=&quot;clean&quot;] .dm-ssi.dm-panel,:root [data-style=&quot;clean&quot;].dm-ssi.dm-panel{padding:11px 20px 20px 20px}
 </code></pre></details><details class="cp-file"><summary>SocialSignIn.astro<span class="l">Astro · 29 lines</span></summary><pre class="cp-pre" data-name="SocialSignIn.astro"><code>---
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
 // Social sign-in: One-tap providers that remember the last one you used.
@@ -460,10 +464,10 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>social-sign-in.css<span class="l">HTML · 25 lines</span></summary><pre class="cp-pre" data-name="social-sign-in.css"><code>/* ---------- Social sign-in ---------- */
+</code></pre></details><details class="cp-file"><summary>social-sign-in.css<span class="l">HTML · 27 lines</span></summary><pre class="cp-pre" data-name="social-sign-in.css"><code>/* ---------- Social sign-in ---------- */
 .ssi{padding:28px 22px var(--dm-s-5);display:flex;flex-direction:column;align-items:center;gap:14px;max-width:320px;margin:0 auto;width:100%}
 .ssi-h{display:flex;flex-direction:column;align-items:center;gap:var(--dm-s-3);text-align:center}
-.ssi-lg{width:44px;height:44px;border-radius:calc(14px * var(--dm-rk));background:var(--dm-ink);color:var(--dm-on-ink);display:grid;place-items:center}
+.ssi-lg{width:44px;height:44px;border-radius:calc(14px * var(--dm-rk-l,var(--dm-rk)));background:var(--dm-ink);color:var(--dm-on-ink);display:grid;place-items:center}
 .ssi-lg .logo{width:26px;height:26px}
 .ssi-h b{font-weight:500;font-size:14px}
 .ssi-list{display:flex;flex-direction:column;gap:var(--dm-s-2);width:100%}
@@ -473,7 +477,7 @@ const { class: className, ...rest } = Astro.props;
 .ssi-b .mk{width:18px;height:18px;display:grid;place-items:center;flex:none}
 .ssi-b .mk svg,.ssi-b .mk img{width:18px;height:18px;display:block}
 .ssi-b .mk .i{width:16px;height:16px}
-.ssi-b .mk .lt{min-width:18px;height:18px;padding:0 3px;border-radius:5px;background:var(--dm-ink);color:var(--dm-on-ink);display:grid;place-items:center;font-size:10px;font-weight:500}
+.ssi-b .mk .lt{min-width:18px;height:18px;padding:0 3px;border-radius:var(--dm-r-tiny,5px);background:var(--dm-ink);color:var(--dm-on-ink);display:grid;place-items:center;font-size:10px;font-weight:500}
 .ssi-b .last{position:absolute;top:-8px;right:22px;font-size:10.5px;font-weight:500;color:var(--dm-fg2);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent);padding:1px 7px;border-radius:var(--dm-r-pill)}
 .ssi-b.last-used{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-on) 50%,transparent)}
 .ssi-b.busy{pointer-events:none}
@@ -484,6 +488,8 @@ const { class: className, ...rest } = Astro.props;
 @media (hover:hover) and (pointer:fine){.ssi-mail:hover{color:var(--dm-fg);background:var(--dm-row)}}
 .ssi-ok{display:flex;flex-direction:column;align-items:center;gap:var(--dm-s-2);padding:var(--dm-s-2) 0 var(--dm-s-1);text-align:center;font-size:13px}
 .ssi-ok .av{width:44px;height:44px;font-size:14px}
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style=&quot;clean&quot;] .ssi.panel,:root [data-style=&quot;clean&quot;] .ssi.panel,:root [data-style=&quot;clean&quot;].ssi.panel{padding:11px 20px 20px 20px}
 </code></pre></details><details class="cp-file"><summary>social-sign-in.js<span class="l">HTML · 20 lines</span></summary><pre class="cp-pre" data-name="social-sign-in.js"><code>DM.def(&#39;social-signin&#39;, (r, c) =&gt; {
   const P = [[&#39;Google&#39;,&#39;google&#39;],[&#39;GitHub&#39;,&#39;github&#39;],[&#39;Figma&#39;,&#39;figma&#39;],[&#39;SSO&#39;,&#39;&#39;]];
   let last = &#39;Figma&#39;;

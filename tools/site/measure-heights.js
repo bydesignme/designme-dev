@@ -47,7 +47,7 @@ const serve = page => page.route('**/*', route => {
     const old = JSON.parse(fs.readFileSync(path.join(__dirname, 'card-heights.json'), 'utf8'));
     if (old.bands.map(x => x.join()).join() !== BANDS.map(x => x.join()).join()) throw new Error('card-heights.json has other bands: measure everything');
     for (const [all, key] of [[out, 'heights'], [outHost, 'components'], [outBp, 'componentsBp'], [outClean, 'componentsClean']]) for (const id in old[key] || {}){
-      if (COMPS.includes(id) && (!process.env.STYLES || !(key === 'heights' || (key === 'components' && !STYLES.includes('soft')) || (key === 'componentsBp' && !STYLES.includes('bp'))))) continue;
+      if (COMPS.includes(id) && (!process.env.STYLES || !(key === 'heights' || (key === 'components' && !STYLES.includes('soft')) || (key === 'componentsBp' && !STYLES.includes('bp')) || (key === 'componentsClean' && !STYLES.includes('clean'))))) continue;
       all[id] = Object.fromEntries(BANDS.map(([b], j) => [b, old[key][id][j]]));
     }
   }

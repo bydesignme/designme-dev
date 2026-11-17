@@ -15,7 +15,7 @@
 /* the key: how long each kind has run so far */
 .art-key{display:flex;flex-wrap:wrap;gap:2px var(--dm-s-4);margin-top:10px;font-size:12px;color:var(--dm-muted)}
 .art-key span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
-.art-key i{width:8px;height:8px;border-radius:2px;background:var(--dm-k);flex:none}
+.art-key i{width:8px;height:8px;border-radius:var(--dm-r-tiny,2px);background:var(--dm-k);flex:none}
 .art-key b{font-weight:500;color:var(--dm-fg2)}
 .art-grid{position:relative;margin-top:var(--dm-s-3)}
 .art-axis,.art-row{display:grid;grid-template-columns:var(--dm-lab) minmax(0,1fr) var(--dm-dur);align-items:center}
@@ -30,7 +30,7 @@
 .art-lab{display:flex;align-items:center;gap:var(--dm-s-2);min-width:0;padding-right:var(--dm-s-3);font-size:12.5px;color:var(--dm-fg2);white-space:nowrap;transition:color .3s}
 .art-lab .t{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .art-lab .tag{flex:none}
-.art-ic{--dm-ring:0 0 0 0 transparent;width:22px;height:22px;border-radius:calc(7px * var(--dm-rk));display:grid;place-items:center;flex:none;background:var(--dm-kb);color:var(--dm-kt);box-shadow:var(--dm-ring);transition:opacity .3s}
+.art-ic{--dm-ring:0 0 0 0 transparent;width:22px;height:22px;border-radius:calc(7px * var(--dm-rk-m,var(--dm-rk)));display:grid;place-items:center;flex:none;background:var(--dm-kb);color:var(--dm-kt);box-shadow:var(--dm-ring);transition:opacity .3s}
 .art-ic .brand{width:13px;height:13px}
 /* an app's own mark sits on a plain tile */
 .art-row[data-k="app"] .art-ic{--dm-ring:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent);background:var(--dm-surface);color:var(--dm-fg)}
@@ -44,7 +44,7 @@
 @keyframes artpop{40%{transform:scale(1.14)}}
 /* the lanes: quarter lines at half strength, a bar for each step */
 .art-lane{position:relative;height:100%;background:linear-gradient(90deg,color-mix(in srgb,var(--dm-line) 50%,transparent) 1px,transparent 1px) 0 0/25% 100%;box-shadow:inset -1px 0 color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.art-bar{position:absolute;top:9px;height:14px;width:0;border-radius:5px;background:linear-gradient(90deg,var(--dm-k),color-mix(in oklab,var(--dm-k) 82%,#fff));cursor:default;transition:filter .2s}
+.art-bar{position:absolute;top:9px;height:14px;width:0;border-radius:var(--dm-r-tiny,5px);background:linear-gradient(90deg,var(--dm-k),color-mix(in oklab,var(--dm-k) 82%,#fff));cursor:default;transition:filter .2s}
 @media (hover:hover) and (pointer:fine){.art-bar:hover{filter:brightness(1.08) saturate(1.1)}}
 /* the bar at work carries a passing light and a bright leading edge */
 .art-row[data-s="run"] .art-bar{background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.42) 46%,transparent 62%) 0 0/250% 100% no-repeat,var(--dm-k);animation:artsheen 1.3s linear infinite}
@@ -67,7 +67,7 @@
 .art-head{position:absolute;top:2px;bottom:0;left:calc(var(--dm-lab) + (100% - var(--dm-lab) - var(--dm-dur)) * var(--dm-p,0));width:0;pointer-events:none;opacity:0;transition:opacity .4s}
 .art.live .art-head,.art.fin .art-head{opacity:1}
 .art-head i{position:absolute;top:16px;bottom:0;left:-.75px;width:1.5px;border-radius:1px;background:var(--dm-accent-mark,var(--dm-accent));transition:background .4s}
-.art-now{position:absolute;top:0;left:0;transform:translateX(-50%);display:inline-flex;align-items:center;gap:3px;height:16px;padding:0 5px;border-radius:5px;background:var(--dm-accent);color:var(--dm-on-accent);font-size:11px;font-weight:500;line-height:1;white-space:nowrap;transition:background .4s,color .4s}
+.art-now{position:absolute;top:0;left:0;transform:translateX(-50%);display:inline-flex;align-items:center;gap:3px;height:16px;padding:0 5px;border-radius:var(--dm-r-tiny,5px);background:var(--dm-accent);color:var(--dm-on-accent);font-size:11px;font-weight:500;line-height:1;white-space:nowrap;transition:background .4s,color .4s}
 .art-now .i{width:10px;height:10px}
 .art.fin .art-head i{background:var(--dm-ok)}
 .art.fin .art-now{background:var(--dm-ok-bg);color:var(--dm-ok)}
@@ -102,22 +102,11 @@
 @keyframes artdrawbp{from{clip-path:inset(0 100% 100% 0)}to{clip-path:inset(0)}}
 :root:not([data-style="soft"],[data-style="clean"]) .art-past:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){background:repeating-linear-gradient(135deg,transparent 0 5px,var(--dm-grid) 5px 6px)}
 :root:not([data-style="soft"],[data-style="clean"]) .art-head i:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){width:1px;left:-.5px}
-/* Clean (owner, 17 Nov): black, white and grey. The three kinds of step are ink, dark grey and mid grey, flat bars with a
-   small corner; the failed run a red hatch; icons on white tiles with a hairline; the playhead an ink hairline with an ink
-   time chip (a hairline chip once done); the status a hairline chip; the totals an off-white foot strip */
-:root[data-style="clean"] .art,:root [data-style="clean"] .art,:root [data-style="clean"].art{padding-bottom:0}
-:root[data-style="clean"] .art-row[data-k="model"],:root [data-style="clean"] .art-row[data-k="model"],:root [data-style="clean"].art-row[data-k="model"],:root[data-style="clean"] .art-key span:has(b[data-k="model"]),:root [data-style="clean"] .art-key span:has(b[data-k="model"]),:root [data-style="clean"].art-key span:has(b[data-k="model"]){--dm-k:var(--dm-fg)!important;--dm-kt:var(--dm-fg)!important}
-:root[data-style="clean"] .art-row[data-k="tool"],:root [data-style="clean"] .art-row[data-k="tool"],:root [data-style="clean"].art-row[data-k="tool"],:root[data-style="clean"] .art-key span:has(b[data-k="tool"]),:root [data-style="clean"] .art-key span:has(b[data-k="tool"]),:root [data-style="clean"].art-key span:has(b[data-k="tool"]){--dm-k:color-mix(in srgb,var(--dm-fg) 66%,var(--dm-surface))!important;--dm-kt:var(--dm-fg)!important}
-:root[data-style="clean"] .art-row[data-k="app"],:root [data-style="clean"] .art-row[data-k="app"],:root [data-style="clean"].art-row[data-k="app"],:root[data-style="clean"] .art-key span:has(b[data-k="app"]),:root [data-style="clean"] .art-key span:has(b[data-k="app"]),:root [data-style="clean"].art-key span:has(b[data-k="app"]){--dm-k:color-mix(in srgb,var(--dm-fg) 46%,var(--dm-surface))!important;--dm-kt:var(--dm-fg)!important}
-:root[data-style="clean"] .art-tag:not(.ok),:root [data-style="clean"] .art-tag:not(.ok),:root [data-style="clean"].art-tag:not(.ok),:root[data-style="clean"] .art.live .art-tag:not(.ok),:root [data-style="clean"] .art.live .art-tag:not(.ok),:root [data-style="clean"].art.live .art-tag:not(.ok){background:var(--dm-surface);color:var(--dm-fg2);box-shadow:inset 0 0 0 1px var(--dm-line)}
-:root[data-style="clean"] .art-tag.ok,:root [data-style="clean"] .art-tag.ok,:root [data-style="clean"].art-tag.ok{background:var(--dm-strip);color:var(--dm-fg);box-shadow:inset 0 0 0 1px var(--dm-line)}
+/* Clean (owner, 17 Nov): the kinds of step keep their colours as flat, round bars; the failed run a red hatch with no red
+   fill; round icon tiles; the totals an off-white foot strip */
+:root[data-style="clean"] .art,:root [data-style="clean"] .art,:root [data-style="clean"].art{padding:18px 20px 0}
 :root[data-style="clean"] .art-lab .tag.bad,:root [data-style="clean"] .art-lab .tag.bad,:root [data-style="clean"].art-lab .tag.bad{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-bad-mark) 45%,transparent)}
-:root[data-style="clean"] .art-ic,:root [data-style="clean"] .art-ic,:root [data-style="clean"].art-ic,:root[data-style="clean"] .art-row[data-k="app"] .art-ic,:root [data-style="clean"] .art-row[data-k="app"] .art-ic,:root [data-style="clean"].art-row[data-k="app"] .art-ic{background:var(--dm-surface);color:var(--dm-fg);--dm-ring:inset 0 0 0 1px var(--dm-line)}
-:root[data-style="clean"] .art-bar,:root [data-style="clean"] .art-bar,:root [data-style="clean"].art-bar,:root[data-style="clean"] .art-row[data-s="run"] .art-bar,:root [data-style="clean"] .art-row[data-s="run"] .art-bar,:root [data-style="clean"].art-row[data-s="run"] .art-bar{top:11px;height:10px;border-radius:3px;background:var(--dm-k);animation:none}
+:root[data-style="clean"] .art-bar,:root [data-style="clean"] .art-bar,:root [data-style="clean"].art-bar,:root[data-style="clean"] .art-row[data-s="run"] .art-bar,:root [data-style="clean"] .art-row[data-s="run"] .art-bar,:root [data-style="clean"].art-row[data-s="run"] .art-bar{top:11px;height:10px;border-radius:var(--dm-r-tiny,3px);background:var(--dm-k);animation:none}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .art-bar:hover,:root [data-style="clean"] .art-bar:hover,:root [data-style="clean"].art-bar:hover{filter:none}}
 :root[data-style="clean"] .art-row[data-s="fail"] .art-bar,:root [data-style="clean"] .art-row[data-s="fail"] .art-bar,:root [data-style="clean"].art-row[data-s="fail"] .art-bar{background:repeating-linear-gradient(135deg,var(--dm-bad-mark) 0 2px,transparent 2px 5px);box-shadow:inset 0 0 0 1px var(--dm-bad-mark)}
-:root[data-style="clean"] .art-past,:root [data-style="clean"] .art-past,:root [data-style="clean"].art-past{display:none}
-:root[data-style="clean"] .art-head i,:root [data-style="clean"] .art-head i,:root [data-style="clean"].art-head i,:root[data-style="clean"] .art.fin .art-head i,:root [data-style="clean"] .art.fin .art-head i,:root [data-style="clean"].art.fin .art-head i{width:1px;left:-.5px;background:var(--dm-fg)}
-:root[data-style="clean"] .art-now,:root [data-style="clean"] .art-now,:root [data-style="clean"].art-now{background:var(--dm-fg);color:var(--dm-surface)}
-:root[data-style="clean"] .art.fin .art-now,:root [data-style="clean"] .art.fin .art-now,:root [data-style="clean"].art.fin .art-now{background:var(--dm-surface);color:var(--dm-fg);box-shadow:inset 0 0 0 1px var(--dm-line-strong)}
-:root[data-style="clean"] .art-f,:root [data-style="clean"] .art-f,:root [data-style="clean"].art-f{margin:var(--dm-s-3) calc(-1 * var(--dm-s-4)) 0;padding:12px var(--dm-s-4);background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+:root[data-style="clean"] .art-f,:root [data-style="clean"] .art-f,:root [data-style="clean"].art-f{margin:var(--dm-s-3) -20px 0;padding:18px 20px 17px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}

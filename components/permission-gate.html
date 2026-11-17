@@ -166,15 +166,15 @@
 .pgx{position:relative;width:100%;max-width:400px;margin:0 auto;padding:var(--dm-s-1) 0;display:flex;flex-direction:column;gap:var(--dm-s-3)}
 .pgx.panel{padding:var(--dm-s-4)}
 .pgx-h{display:flex;gap:var(--dm-s-3);align-items:center}
-.pgx-ic{width:32px;height:32px;border-radius:calc(9px * var(--dm-rk));background:var(--dm-chip);display:grid;place-items:center;flex:none}
+.pgx-ic{width:32px;height:32px;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-chip);display:grid;place-items:center;flex:none}
 .pgx-ht{display:flex;flex-direction:column;min-width:0}
 .pgx-ht b{font-weight:500;font-size:14px}
 .pgx-ht span{font-size:13px}
 .pgx-sc{display:flex;flex-direction:column;margin-inline:-8px}
-.pgx-o{display:flex;align-items:center;gap:var(--dm-s-3);padding:var(--dm-s-2);border-radius:calc(10px * var(--dm-rk));cursor:pointer;font-size:13.5px;transition:background .25s}
+.pgx-o{display:flex;align-items:center;gap:var(--dm-s-3);padding:var(--dm-s-2);border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));cursor:pointer;font-size:13.5px;transition:background .25s}
 @media (hover:hover) and (pointer:fine){.pgx-o:hover{background:var(--dm-row)}}
 .pgx-o input{position:absolute;opacity:0;pointer-events:none}
-.pgx-o .bx{width:18px;height:18px;border-radius:calc(6px * var(--dm-rk));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-muted) 80%,var(--dm-surface));display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--dm-ease),box-shadow .3s,color .3s}
+.pgx-o .bx{width:18px;height:18px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-muted) 80%,var(--dm-surface));display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--dm-ease),box-shadow .3s,color .3s}
 .pgx-o .bx svg{transform:scale(.4);transition:transform .35s var(--dm-ease)}
 .pgx-o input:checked+.bx{background:var(--dm-accent);box-shadow:inset 0 0 0 1.5px var(--dm-accent-mark,var(--dm-accent));color:var(--dm-on-accent)}
 .pgx-o input:checked+.bx svg{transform:none}
@@ -210,6 +210,9 @@
 .pgx-ic{transition:background .32s var(--dm-ease)}
 .pgx.esc .pgx-ic{background:var(--dm-warn-bg)}
 .pgx-scope{display:flex;flex-direction:column;gap:var(--dm-s-3)}
+
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style="clean"] .pgx.panel,:root [data-style="clean"] .pgx.panel,:root [data-style="clean"].pgx.panel{padding:18px 20px 20px 22px}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px + var(--sw,0px))}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px + var(--sw,0px))}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px + var(--sw,0px))}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px + var(--sw,0px))}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -542,22 +545,22 @@ export function PermissionGate({
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>permission-gate.css<span class="l">React · 52 lines</span></summary><pre class="cp-pre" data-name="permission-gate.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>permission-gate.css<span class="l">React · 55 lines</span></summary><pre class="cp-pre" data-name="permission-gate.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Permission gate ---------- */
 /* the agent asks in the chat as one card: the question, the scopes to tick, and a footer with how long and the two
    answers. Without .panel it sits flat in the thread */
 .dm-pgx{position:relative;width:100%;max-width:400px;margin:0 auto;padding:var(--dm-s-1) 0;display:flex;flex-direction:column;gap:var(--dm-s-3)}
 .dm-pgx.dm-panel{padding:var(--dm-s-4)}
 .dm-pgx-h{display:flex;gap:var(--dm-s-3);align-items:center}
-.dm-pgx-ic{width:32px;height:32px;border-radius:calc(9px * var(--dm-rk));background:var(--dm-chip);display:grid;place-items:center;flex:none}
+.dm-pgx-ic{width:32px;height:32px;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-chip);display:grid;place-items:center;flex:none}
 .dm-pgx-ht{display:flex;flex-direction:column;min-width:0}
 .dm-pgx-ht b{font-weight:500;font-size:14px}
 .dm-pgx-ht span{font-size:13px}
 .dm-pgx-sc{display:flex;flex-direction:column;margin-inline:-8px}
-.dm-pgx-o{display:flex;align-items:center;gap:var(--dm-s-3);padding:var(--dm-s-2);border-radius:calc(10px * var(--dm-rk));cursor:pointer;font-size:13.5px;transition:background .25s}
+.dm-pgx-o{display:flex;align-items:center;gap:var(--dm-s-3);padding:var(--dm-s-2);border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));cursor:pointer;font-size:13.5px;transition:background .25s}
 @media (hover:hover) and (pointer:fine){.dm-pgx-o:hover{background:var(--dm-row)}}
 .dm-pgx-o input{position:absolute;opacity:0;pointer-events:none}
-.dm-pgx-o .dm-bx{width:18px;height:18px;border-radius:calc(6px * var(--dm-rk));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-muted) 80%,var(--dm-surface));display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--dm-ease),box-shadow .3s,color .3s}
+.dm-pgx-o .dm-bx{width:18px;height:18px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-muted) 80%,var(--dm-surface));display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--dm-ease),box-shadow .3s,color .3s}
 .dm-pgx-o .dm-bx svg{transform:scale(.4);transition:transform .35s var(--dm-ease)}
 .dm-pgx-o input:checked+.dm-bx{background:var(--dm-accent);box-shadow:inset 0 0 0 1.5px var(--dm-accent-mark,var(--dm-accent));color:var(--dm-on-accent)}
 .dm-pgx-o input:checked+.dm-bx svg{transform:none}
@@ -593,6 +596,9 @@ export function PermissionGate({
 .dm-pgx-ic{transition:background .32s var(--dm-ease)}
 .dm-pgx.dm-esc .dm-pgx-ic{background:var(--dm-warn-bg)}
 .dm-pgx-scope{display:flex;flex-direction:column;gap:var(--dm-s-3)}
+
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style=&quot;clean&quot;] .dm-pgx.dm-panel,:root [data-style=&quot;clean&quot;] .dm-pgx.dm-panel,:root [data-style=&quot;clean&quot;].dm-pgx.dm-panel{padding:18px 20px 20px 22px}
 </code></pre></details><details class="cp-file"><summary>PermissionGate.astro<span class="l">Astro · 37 lines</span></summary><pre class="cp-pre" data-name="PermissionGate.astro"><code>---
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
 // Permission gate: The agent asks before it touches something new.
@@ -647,21 +653,21 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>permission-gate.css<span class="l">HTML · 51 lines</span></summary><pre class="cp-pre" data-name="permission-gate.css"><code>/* ---------- Permission gate ---------- */
+</code></pre></details><details class="cp-file"><summary>permission-gate.css<span class="l">HTML · 54 lines</span></summary><pre class="cp-pre" data-name="permission-gate.css"><code>/* ---------- Permission gate ---------- */
 /* the agent asks in the chat as one card: the question, the scopes to tick, and a footer with how long and the two
    answers. Without .panel it sits flat in the thread */
 .pgx{position:relative;width:100%;max-width:400px;margin:0 auto;padding:var(--dm-s-1) 0;display:flex;flex-direction:column;gap:var(--dm-s-3)}
 .pgx.panel{padding:var(--dm-s-4)}
 .pgx-h{display:flex;gap:var(--dm-s-3);align-items:center}
-.pgx-ic{width:32px;height:32px;border-radius:calc(9px * var(--dm-rk));background:var(--dm-chip);display:grid;place-items:center;flex:none}
+.pgx-ic{width:32px;height:32px;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-chip);display:grid;place-items:center;flex:none}
 .pgx-ht{display:flex;flex-direction:column;min-width:0}
 .pgx-ht b{font-weight:500;font-size:14px}
 .pgx-ht span{font-size:13px}
 .pgx-sc{display:flex;flex-direction:column;margin-inline:-8px}
-.pgx-o{display:flex;align-items:center;gap:var(--dm-s-3);padding:var(--dm-s-2);border-radius:calc(10px * var(--dm-rk));cursor:pointer;font-size:13.5px;transition:background .25s}
+.pgx-o{display:flex;align-items:center;gap:var(--dm-s-3);padding:var(--dm-s-2);border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));cursor:pointer;font-size:13.5px;transition:background .25s}
 @media (hover:hover) and (pointer:fine){.pgx-o:hover{background:var(--dm-row)}}
 .pgx-o input{position:absolute;opacity:0;pointer-events:none}
-.pgx-o .bx{width:18px;height:18px;border-radius:calc(6px * var(--dm-rk));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-muted) 80%,var(--dm-surface));display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--dm-ease),box-shadow .3s,color .3s}
+.pgx-o .bx{width:18px;height:18px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-muted) 80%,var(--dm-surface));display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--dm-ease),box-shadow .3s,color .3s}
 .pgx-o .bx svg{transform:scale(.4);transition:transform .35s var(--dm-ease)}
 .pgx-o input:checked+.bx{background:var(--dm-accent);box-shadow:inset 0 0 0 1.5px var(--dm-accent-mark,var(--dm-accent));color:var(--dm-on-accent)}
 .pgx-o input:checked+.bx svg{transform:none}
@@ -697,6 +703,9 @@ const { class: className, ...rest } = Astro.props;
 .pgx-ic{transition:background .32s var(--dm-ease)}
 .pgx.esc .pgx-ic{background:var(--dm-warn-bg)}
 .pgx-scope{display:flex;flex-direction:column;gap:var(--dm-s-3)}
+
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style=&quot;clean&quot;] .pgx.panel,:root [data-style=&quot;clean&quot;] .pgx.panel,:root [data-style=&quot;clean&quot;].pgx.panel{padding:18px 20px 20px 22px}
 </code></pre></details><details class="cp-file"><summary>permission-gate.js<span class="l">HTML · 91 lines</span></summary><pre class="cp-pre" data-name="permission-gate.js"><code>DM.def(&#39;permission-gate&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{figma}&#39;, I(&#39;figma&#39;)).replace(/\{chk\}/g, I(&#39;check&#39;,&#39;xs&#39;)).replace(&#39;{chev}&#39;, I(&#39;chev-d&#39;,&#39;xs&#39;));
   const root = $(&#39;.pgx&#39;, r), ok = $(&#39;.pgx-ok&#39;, r), no = $(&#39;.pgx-no&#39;, r), sc = $(&#39;.pgx-sc&#39;, r), title = $(&#39;.pgx-ht b&#39;, r), sub = $(&#39;.pgx-ht .muted&#39;, r);

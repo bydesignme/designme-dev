@@ -39,7 +39,7 @@ Run cost shows how many credits an agent run has used against its budget, as a b
 - `status` sets the tag and colour: idle, running (blue), stopped, paused (orange, and the bar and the dot in the tag turn bright orange too) or spent (red). `statusLabel` replaces the tag's words.
 - The main button's label follows the status: Start run, Stop, Resume, Raise cap or Start over. It calls `onAction`, and `actionLabel` replaces the label.
 - `rows` lists the breakdown under the bar, and `title` replaces the "Credits used" heading.
-- Ships in Clean too (`data-style="clean"`): a white status chip with a hairline where only the dot takes a status colour, an ink fill and budget line on a grey rail, rows that answer the pointer, and the controls on an off-white foot strip.
+- Ships in Clean too (`data-style="clean"`): a round card with 20px all round, the status chip in its status colours, the accent fill and an ink budget line on a round grey rail, rows that answer the pointer, and the controls on an off-white foot strip, Stop 20px in from the corner.
 
 ### Accessibility
 

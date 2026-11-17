@@ -163,7 +163,7 @@
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Citation hover card","description":"Citation hover card renders an agent's answer with numbered citations in the text. Hover, focus or tap a number and a small card opens under it with the source's site, title and the exact passage the claim relies on, with the key words highlighted.","url":"https://designme.dev/components/citation-hover-card","image":"https://designme.dev/components/og/citation-hover-card.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Citation hover card, Sources and output, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Sources and output","item":"https://designme.dev/#s-data"},{"@type":"ListItem","position":3,"name":"Citation hover card","item":"https://designme.dev/components/citation-hover-card"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I mark which part of the source backs up the claim?","acceptedAnswer":{"@type":"Answer","text":"quote accepts React nodes, so wrap the passage that matters in a <mark> element. The card styles it as a highlight."}},{"@type":"Question","name":"What happens if the text cites a number with no source?","acceptedAnswer":{"@type":"Answer","text":"A marker like [4] with no fourth source is left as plain text, so it never opens an empty card."}},{"@type":"Question","name":"What if a source has no URL, like a private file?","acceptedAnswer":{"@type":"Answer","text":"Leave out href. The link then stays on the page and only calls onOpenSource, so you can open the file in your own viewer."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Citation hover card ---------- */
 .chx{position:relative;overflow:visible;padding-bottom:150px}
 .chx-p{line-height:1.8}
-.chx-c{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;margin:0 1px 0 3px;border-radius:calc(6px * var(--dm-rk));background:var(--dm-hover);color:var(--dm-fg2);font-size:11px;font-variant-numeric:tabular-nums;vertical-align:2px;transition:background .2s,color .2s}
+.chx-c{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;margin:0 1px 0 3px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));background:var(--dm-hover);color:var(--dm-fg2);font-size:11px;font-variant-numeric:tabular-nums;vertical-align:2px;transition:background .2s,color .2s}
 .chx-c.on{background:var(--dm-accent);color:var(--dm-on-accent)}
 @media (hover:hover) and (pointer:fine){.chx-c:hover{background:var(--dm-accent);color:var(--dm-on-accent)}}
 /* hidden as well as clear when put away, so Tab never lands on its link */
@@ -171,13 +171,16 @@
 .chx-card.show{opacity:1;visibility:visible;pointer-events:auto;animation:chxin .5s var(--dm-ease) both;transition-property:opacity}
 @keyframes chxin{from{opacity:0;transform:translateY(10px) scale(.985);filter:blur(3px)}60%{filter:blur(0)}to{opacity:1;transform:none;filter:none}}
 .chx-sh{display:flex;align-items:center;gap:var(--dm-s-2);font-size:12px;color:var(--dm-muted)}
-.chx-sh .fv{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk));display:grid;place-items:center;font-size:9px;font-weight:500;color:#fff;flex:none}
+.chx-sh .fv{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));display:grid;place-items:center;font-size:9px;font-weight:500;color:#fff;flex:none}
 .chx-t{font-size:13px;font-weight:500;margin:var(--dm-s-2) 0 6px}
 .chx-q{font-size:12.5px;line-height:1.55;color:var(--dm-fg2);padding-left:10px;box-shadow:inset 2px 0 0 var(--dm-accent-mark,var(--dm-accent))}
-.chx-q mark{background:var(--dm-sel);color:var(--dm-fg);border-radius:3px;padding:0 2px}
+.chx-q mark{background:var(--dm-sel);color:var(--dm-fg);border-radius:var(--dm-r-tiny,3px);padding:0 2px}
 .chx-f{display:flex;align-items:center;justify-content:space-between;margin-top:10px;font-size:12px;color:var(--dm-muted)}
 .chx-f a{color:var(--dm-accent-fg,var(--dm-accent));display:inline-flex;align-items:center;gap:var(--dm-s-1);text-decoration:none}
 @media (hover:hover) and (pointer:fine){.chx-f a:hover{text-decoration:underline;text-underline-offset:2px}}
+
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style="clean"] .chx-card.panel,:root [data-style="clean"] .chx-card.panel,:root [data-style="clean"].chx-card.panel{padding:18px 20px 18px 20px}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px + var(--sw,0px))}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px + var(--sw,0px))}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px + var(--sw,0px))}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px + var(--sw,0px))}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -411,11 +414,11 @@ export function CitationHoverCard({ text, sources, openLabel = &#39;Open source&
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>citation-hover-card.css<span class="l">React · 20 lines</span></summary><pre class="cp-pre" data-name="citation-hover-card.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>citation-hover-card.css<span class="l">React · 23 lines</span></summary><pre class="cp-pre" data-name="citation-hover-card.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Citation hover card ---------- */
 .dm-chx{position:relative;overflow:visible;padding-bottom:150px}
 .dm-chx-p{line-height:1.8}
-.dm-chx-c{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;margin:0 1px 0 3px;border-radius:calc(6px * var(--dm-rk));background:var(--dm-hover);color:var(--dm-fg2);font-size:11px;font-variant-numeric:tabular-nums;vertical-align:2px;transition:background .2s,color .2s}
+.dm-chx-c{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;margin:0 1px 0 3px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));background:var(--dm-hover);color:var(--dm-fg2);font-size:11px;font-variant-numeric:tabular-nums;vertical-align:2px;transition:background .2s,color .2s}
 .dm-chx-c.dm-on{background:var(--dm-accent);color:var(--dm-on-accent)}
 @media (hover:hover) and (pointer:fine){.dm-chx-c:hover{background:var(--dm-accent);color:var(--dm-on-accent)}}
 /* hidden as well as clear when put away, so Tab never lands on its link */
@@ -423,13 +426,16 @@ export function CitationHoverCard({ text, sources, openLabel = &#39;Open source&
 .dm-chx-card.dm-show{opacity:1;visibility:visible;pointer-events:auto;animation:dm-chxin .5s var(--dm-ease) both;transition-property:opacity}
 @keyframes dm-chxin{from{opacity:0;transform:translateY(10px) scale(.985);filter:blur(3px)}60%{filter:blur(0)}to{opacity:1;transform:none;filter:none}}
 .dm-chx-sh{display:flex;align-items:center;gap:var(--dm-s-2);font-size:12px;color:var(--dm-muted)}
-.dm-chx-sh .dm-fv{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk));display:grid;place-items:center;font-size:9px;font-weight:500;color:#fff;flex:none}
+.dm-chx-sh .dm-fv{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));display:grid;place-items:center;font-size:9px;font-weight:500;color:#fff;flex:none}
 .dm-chx-t{font-size:13px;font-weight:500;margin:var(--dm-s-2) 0 6px}
 .dm-chx-q{font-size:12.5px;line-height:1.55;color:var(--dm-fg2);padding-left:10px;box-shadow:inset 2px 0 0 var(--dm-accent-mark,var(--dm-accent))}
-.dm-chx-q mark{background:var(--dm-sel);color:var(--dm-fg);border-radius:3px;padding:0 2px}
+.dm-chx-q mark{background:var(--dm-sel);color:var(--dm-fg);border-radius:var(--dm-r-tiny,3px);padding:0 2px}
 .dm-chx-f{display:flex;align-items:center;justify-content:space-between;margin-top:10px;font-size:12px;color:var(--dm-muted)}
 .dm-chx-f a{color:var(--dm-accent-fg,var(--dm-accent));display:inline-flex;align-items:center;gap:var(--dm-s-1);text-decoration:none}
 @media (hover:hover) and (pointer:fine){.dm-chx-f a:hover{text-decoration:underline;text-underline-offset:2px}}
+
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style=&quot;clean&quot;] .dm-chx-card.dm-panel,:root [data-style=&quot;clean&quot;] .dm-chx-card.dm-panel,:root [data-style=&quot;clean&quot;].dm-chx-card.dm-panel{padding:18px 20px 18px 20px}
 </code></pre></details><details class="cp-file"><summary>CitationHoverCard.astro<span class="l">Astro · 27 lines</span></summary><pre class="cp-pre" data-name="CitationHoverCard.astro"><code>---
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
 // Citation hover card: Hover a citation to see the exact passage it came from.
@@ -464,10 +470,10 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>citation-hover-card.css<span class="l">HTML · 19 lines</span></summary><pre class="cp-pre" data-name="citation-hover-card.css"><code>/* ---------- Citation hover card ---------- */
+</code></pre></details><details class="cp-file"><summary>citation-hover-card.css<span class="l">HTML · 22 lines</span></summary><pre class="cp-pre" data-name="citation-hover-card.css"><code>/* ---------- Citation hover card ---------- */
 .chx{position:relative;overflow:visible;padding-bottom:150px}
 .chx-p{line-height:1.8}
-.chx-c{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;margin:0 1px 0 3px;border-radius:calc(6px * var(--dm-rk));background:var(--dm-hover);color:var(--dm-fg2);font-size:11px;font-variant-numeric:tabular-nums;vertical-align:2px;transition:background .2s,color .2s}
+.chx-c{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;margin:0 1px 0 3px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));background:var(--dm-hover);color:var(--dm-fg2);font-size:11px;font-variant-numeric:tabular-nums;vertical-align:2px;transition:background .2s,color .2s}
 .chx-c.on{background:var(--dm-accent);color:var(--dm-on-accent)}
 @media (hover:hover) and (pointer:fine){.chx-c:hover{background:var(--dm-accent);color:var(--dm-on-accent)}}
 /* hidden as well as clear when put away, so Tab never lands on its link */
@@ -475,13 +481,16 @@ const { class: className, ...rest } = Astro.props;
 .chx-card.show{opacity:1;visibility:visible;pointer-events:auto;animation:chxin .5s var(--dm-ease) both;transition-property:opacity}
 @keyframes chxin{from{opacity:0;transform:translateY(10px) scale(.985);filter:blur(3px)}60%{filter:blur(0)}to{opacity:1;transform:none;filter:none}}
 .chx-sh{display:flex;align-items:center;gap:var(--dm-s-2);font-size:12px;color:var(--dm-muted)}
-.chx-sh .fv{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk));display:grid;place-items:center;font-size:9px;font-weight:500;color:#fff;flex:none}
+.chx-sh .fv{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));display:grid;place-items:center;font-size:9px;font-weight:500;color:#fff;flex:none}
 .chx-t{font-size:13px;font-weight:500;margin:var(--dm-s-2) 0 6px}
 .chx-q{font-size:12.5px;line-height:1.55;color:var(--dm-fg2);padding-left:10px;box-shadow:inset 2px 0 0 var(--dm-accent-mark,var(--dm-accent))}
-.chx-q mark{background:var(--dm-sel);color:var(--dm-fg);border-radius:3px;padding:0 2px}
+.chx-q mark{background:var(--dm-sel);color:var(--dm-fg);border-radius:var(--dm-r-tiny,3px);padding:0 2px}
 .chx-f{display:flex;align-items:center;justify-content:space-between;margin-top:10px;font-size:12px;color:var(--dm-muted)}
 .chx-f a{color:var(--dm-accent-fg,var(--dm-accent));display:inline-flex;align-items:center;gap:var(--dm-s-1);text-decoration:none}
 @media (hover:hover) and (pointer:fine){.chx-f a:hover{text-decoration:underline;text-underline-offset:2px}}
+
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style=&quot;clean&quot;] .chx-card.panel,:root [data-style=&quot;clean&quot;] .chx-card.panel,:root [data-style=&quot;clean&quot;].chx-card.panel{padding:18px 20px 18px 20px}
 </code></pre></details><details class="cp-file"><summary>citation-hover-card.js<span class="l">HTML · 50 lines</span></summary><pre class="cp-pre" data-name="citation-hover-card.js"><code>DM.def(&#39;citation-hover&#39;, (r, c) =&gt; {
   const S = [
     [&#39;B&#39;,&#39;#4a5a8a&#39;,&#39;baymard.com&#39;,&#39;Pricing page UX benchmark&#39;,&#39;Of 64 SaaS sites tested, those leading with the annual plan saw &lt;mark&gt;a 12 to 20% higher trial to paid rate&lt;/mark&gt; than monthly first layouts.&#39;,&#39;Read 4 days ago&#39;],

@@ -43,7 +43,7 @@ Agent run timeline draws one agent run as a Gantt chart: every model, tool and a
 - The footer counts up total time, cost, steps and retries as the playhead moves, each with an icon. Pass `stats` to show your own figures once the run is done.
 - The axis covers `span` seconds, defaulting to the end of the last step rounded up to a multiple of 4, with labels at quarters unless you pass `ticks`. An axis label hides while the playhead's time covers it.
 - In Blueprint the bars are flat, the running bar is hatched and steps along, its icon's ring blinks in steps, the lanes behind the playhead are hatched and the lines are hairlines, with no glow.
-- Ships in Clean too (`data-style="clean"`): the kinds of step are ink, dark grey and mid grey as flat bars, the failed run is a red hatch, the playhead and its time are ink, and the totals sit on an off-white foot strip.
+- Ships in Clean too (`data-style="clean"`): the kinds of step keep their colours as flat, round bars, the icon tiles are circles, the failed run is a red hatch with no red fill, and the totals sit on an off-white foot strip.
 
 ### Accessibility
 

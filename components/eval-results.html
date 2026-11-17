@@ -172,7 +172,7 @@
 .evr-run .spin{width:10px;height:10px}
 .evr-sum{display:flex;flex-direction:column;gap:var(--dm-s-2);padding:var(--dm-s-3) 10px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .evr-segs{display:flex;gap:3px}
-.evr-segs i{flex:1;height:6px;border-radius:3px;background:var(--dm-rail);transition:background .3s}
+.evr-segs i{flex:1;height:6px;border-radius:var(--dm-r-tiny,3px);background:var(--dm-rail);transition:background .3s}
 .evr-segs i.pass{background:var(--dm-ok)}
 .evr-segs i.fail{background:var(--dm-bad-mark)}
 .evr-segs i.run{background:var(--dm-accent-mark,var(--dm-accent));animation:evrrun 1s ease-in-out infinite}
@@ -185,8 +185,8 @@
 .evr-list{display:flex;flex-direction:column}
 /* a case folds away when the filter hides it, and stays hidden once shut so nothing measures it */
 .evr-w.shut>div{visibility:hidden;transition:visibility 0s var(--dm-t)}
-.evr-i{display:flex;flex-direction:column;border-radius:calc(10px * var(--dm-rk));transition:background .2s}
-.evr-r{display:flex;align-items:center;gap:10px;width:100%;min-height:38px;padding:6px 10px;border-radius:calc(10px * var(--dm-rk));font-size:13px;text-align:left;color:var(--dm-fg)}
+.evr-i{display:flex;flex-direction:column;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));transition:background .2s}
+.evr-r{display:flex;align-items:center;gap:10px;width:100%;min-height:38px;padding:6px 10px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;text-align:left;color:var(--dm-fg)}
 .evr-g{width:16px;height:16px;display:grid;place-items:center;flex:none;color:var(--dm-faint)}
 .evr-g .spin{width:11px;height:11px;color:var(--dm-accent-fg,var(--dm-accent))}
 .evr-i.pass .evr-g{color:var(--dm-ok)}
@@ -206,6 +206,8 @@
 .evr-fix{align-self:flex-start;margin-top:6px;background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-shadow)}
 @media (hover:hover) and (pointer:fine){.evr-fix:hover{background:var(--dm-surface);box-shadow:var(--dm-shadow-pop)}}
 .evr-none{margin:0;padding:10px;font-size:12.5px;color:var(--dm-muted)}
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style="clean"] .evr.panel,:root [data-style="clean"] .evr.panel,:root [data-style="clean"].evr.panel{padding:10px 20px 8px 20px}
 </style><style>/* the design switch under it (the card's tabs on designme.dev): Classic, the run above, then Run vs run and Score & judge */
 .dm.evr-dm>.dm-main{align-items:stretch}
 /* what sits on a regressed case's amber is white in light mode and the amber's own tint in dark, never grey; in dark mode
@@ -224,8 +226,8 @@
 @keyframes evrpop{from{transform:scale(.3)}60%{transform:scale(1.2)}}
 .evr-was{color:var(--dm-bad);text-decoration:line-through;text-decoration-thickness:1.5px}
 .evr-is{color:var(--dm-ok);font-weight:500}
-.evr-mk{padding:0 2px;border-radius:3px;background:var(--dm-bad-bg);color:var(--dm-bad)}
-.evr-gd{padding:0 2px;border-radius:3px;background:var(--dm-ok-bg);color:var(--dm-ok)}
+.evr-mk{padding:0 2px;border-radius:var(--dm-r-tiny,3px);background:var(--dm-bad-bg);color:var(--dm-bad)}
+.evr-gd{padding:0 2px;border-radius:var(--dm-r-tiny,3px);background:var(--dm-ok-bg);color:var(--dm-ok)}
 :root:not([data-style="soft"],[data-style="clean"]) .evr-dot.bump:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation:none}
 /* Run vs run: each case's result last run and this run side by side, so a regression or a fix stands out. Regressed is
    amber, Fixed green and Failing red, in the site's tag tones, from the filters to the rows */
@@ -259,15 +261,15 @@
 .evr-vs-th span:nth-child(2),.evr-vs-th span:nth-child(4){text-align:center}
 .evr-vs-list{display:flex;flex-direction:column;min-height:332px}
 .evr-vs-w.shut>div{visibility:hidden;transition:visibility 0s var(--dm-t)}
-.evr-vs-i{border-radius:calc(10px * var(--dm-rk));transition:background .25s}
-.evr-vs-r{width:100%;min-height:38px;padding:5px 10px;border-radius:calc(10px * var(--dm-rk));font-size:13px;text-align:left}
+.evr-vs-i{border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));transition:background .25s}
+.evr-vs-r{width:100%;min-height:38px;padding:5px 10px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;text-align:left}
 .evr-vs-r .n{min-width:0;display:flex;align-items:center;gap:6px}
 .evr-vs-r .n>span:first-child{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .evr-vs-r .evr-dot{justify-self:center}
 .evr-vs-r .ar{display:grid;place-items:center;color:var(--dm-muted)}
 .evr-vs-r .ar .i{width:11px;height:11px}
 .evr-vs-r .tm{font-size:12px;color:var(--dm-muted);text-align:right;font-variant-numeric:tabular-nums}
-:where([data-c]) button.evr-vs-r:focus-visible{outline-offset:-2px;border-radius:calc(10px * var(--dm-rk))}
+:where([data-c]) button.evr-vs-r:focus-visible{outline-offset:-2px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)))}
 @media (hover:hover) and (pointer:fine){.evr-vs-i:hover{background:var(--dm-row)}}
 .evr-vs-i .tg{flex:none}
 .evr-vs-i.fix .ar{color:var(--dm-ok)}
@@ -308,14 +310,14 @@
 .evr-jg-cats .s{font-size:12px;color:var(--dm-fg2);font-variant-numeric:tabular-nums}
 .evr-jg-cats .s .d{margin-left:var(--dm-s-1);color:var(--dm-bad)}
 .evr-jg-cats .s .d.up{color:var(--dm-ok)}
-.evr-jg-cats .b{grid-column:1/-1;height:5px;border-radius:3px;background:var(--dm-line);overflow:hidden}
+.evr-jg-cats .b{grid-column:1/-1;height:5px;border-radius:var(--dm-r-tiny,3px);background:var(--dm-line);overflow:hidden}
 .evr-jg-cats .b i{display:block;height:100%;border-radius:inherit;background:var(--dm-accent-mark);transform-origin:left;transform:scaleX(var(--dm-p,0));transition:transform 1s var(--dm-ease)}
 .evr-jg-j{display:flex;flex-direction:column;gap:var(--dm-s-2);min-height:208px;padding:var(--dm-s-3);border-radius:var(--dm-r-card);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent);font-size:12.5px}
 .evr-jg-j.go{animation:evrjgin .45s var(--dm-ease)}
 @keyframes evrjgin{from{opacity:0;transform:translateY(8px)}}
 .evr-jg-jh{display:flex;align-items:center;gap:var(--dm-s-2);font-size:13px}
 .evr-jg-jh b{flex:1;min-width:0;font-weight:500}
-.evr-jg-jq{margin:0;padding:var(--dm-s-2) 10px;border-radius:calc(10px * var(--dm-rk));background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent);line-height:1.6;color:var(--dm-fg)}
+.evr-jg-jq{margin:0;padding:var(--dm-s-2) 10px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent);line-height:1.6;color:var(--dm-fg)}
 .evr-jg-jr{margin:0;color:var(--dm-fg2);line-height:1.55}
 .evr-jg-jr .who{display:inline-flex;align-items:center;gap:var(--dm-s-1);color:var(--dm-muted);margin-right:var(--dm-s-1)}
 .evr-jg-ja{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:auto}
@@ -601,7 +603,7 @@ export function EvalResults({ title, subtitle, cases, onRun, running = false, ru
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>eval-results.css<span class="l">React · 48 lines</span></summary><pre class="cp-pre" data-name="eval-results.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>eval-results.css<span class="l">React · 50 lines</span></summary><pre class="cp-pre" data-name="eval-results.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Eval results ---------- */
 /* an eval suite&#39;s latest run: one bar segment per case, the pass count against the run before, and the cases, all or
    just the failed ones. A failed case opens to show what was expected and what came back, with a fix that reruns it */
@@ -614,7 +616,7 @@ export function EvalResults({ title, subtitle, cases, onRun, running = false, ru
 .dm-evr-run .dm-spin{width:10px;height:10px}
 .dm-evr-sum{display:flex;flex-direction:column;gap:var(--dm-s-2);padding:var(--dm-s-3) 10px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .dm-evr-segs{display:flex;gap:3px}
-.dm-evr-segs i{flex:1;height:6px;border-radius:3px;background:var(--dm-rail);transition:background .3s}
+.dm-evr-segs i{flex:1;height:6px;border-radius:var(--dm-r-tiny,3px);background:var(--dm-rail);transition:background .3s}
 .dm-evr-segs i.dm-pass{background:var(--dm-ok)}
 .dm-evr-segs i.dm-fail{background:var(--dm-bad-mark)}
 .dm-evr-segs i.dm-run{background:var(--dm-accent-mark,var(--dm-accent));animation:dm-evrrun 1s ease-in-out infinite}
@@ -627,8 +629,8 @@ export function EvalResults({ title, subtitle, cases, onRun, running = false, ru
 .dm-evr-list{display:flex;flex-direction:column}
 /* a case folds away when the filter hides it, and stays hidden once shut so nothing measures it */
 .dm-evr-w.dm-shut&gt;div{visibility:hidden;transition:visibility 0s var(--dm-t)}
-.dm-evr-i{display:flex;flex-direction:column;border-radius:calc(10px * var(--dm-rk));transition:background .2s}
-.dm-evr-r{display:flex;align-items:center;gap:10px;width:100%;min-height:38px;padding:6px 10px;border-radius:calc(10px * var(--dm-rk));font-size:13px;text-align:left;color:var(--dm-fg)}
+.dm-evr-i{display:flex;flex-direction:column;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));transition:background .2s}
+.dm-evr-r{display:flex;align-items:center;gap:10px;width:100%;min-height:38px;padding:6px 10px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;text-align:left;color:var(--dm-fg)}
 .dm-evr-g{width:16px;height:16px;display:grid;place-items:center;flex:none;color:var(--dm-faint)}
 .dm-evr-g .dm-spin{width:11px;height:11px;color:var(--dm-accent-fg,var(--dm-accent))}
 .dm-evr-i.dm-pass .dm-evr-g{color:var(--dm-ok)}
@@ -648,6 +650,8 @@ export function EvalResults({ title, subtitle, cases, onRun, running = false, ru
 .dm-evr-fix{align-self:flex-start;margin-top:6px;background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-shadow)}
 @media (hover:hover) and (pointer:fine){.dm-evr-fix:hover{background:var(--dm-surface);box-shadow:var(--dm-shadow-pop)}}
 .dm-evr-none{margin:0;padding:10px;font-size:12.5px;color:var(--dm-muted)}
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style=&quot;clean&quot;] .dm-evr.dm-panel,:root [data-style=&quot;clean&quot;] .dm-evr.dm-panel,:root [data-style=&quot;clean&quot;].dm-evr.dm-panel{padding:10px 20px 8px 20px}
 </code></pre></details><details class="cp-file"><summary>EvalResults.astro<span class="l">Astro · 30 lines</span></summary><pre class="cp-pre" data-name="EvalResults.astro"><code>---
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
 // Eval results: An eval run case by case, against the run before.
@@ -688,7 +692,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>eval-results.css<span class="l">HTML · 47 lines</span></summary><pre class="cp-pre" data-name="eval-results.css"><code>/* ---------- Eval results ---------- */
+</code></pre></details><details class="cp-file"><summary>eval-results.css<span class="l">HTML · 49 lines</span></summary><pre class="cp-pre" data-name="eval-results.css"><code>/* ---------- Eval results ---------- */
 /* an eval suite&#39;s latest run: one bar segment per case, the pass count against the run before, and the cases, all or
    just the failed ones. A failed case opens to show what was expected and what came back, with a fix that reruns it */
 .evr{width:100%;max-width:440px;margin:0 auto;padding:6px;display:flex;flex-direction:column}
@@ -700,7 +704,7 @@ const { class: className, ...rest } = Astro.props;
 .evr-run .spin{width:10px;height:10px}
 .evr-sum{display:flex;flex-direction:column;gap:var(--dm-s-2);padding:var(--dm-s-3) 10px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .evr-segs{display:flex;gap:3px}
-.evr-segs i{flex:1;height:6px;border-radius:3px;background:var(--dm-rail);transition:background .3s}
+.evr-segs i{flex:1;height:6px;border-radius:var(--dm-r-tiny,3px);background:var(--dm-rail);transition:background .3s}
 .evr-segs i.pass{background:var(--dm-ok)}
 .evr-segs i.fail{background:var(--dm-bad-mark)}
 .evr-segs i.run{background:var(--dm-accent-mark,var(--dm-accent));animation:evrrun 1s ease-in-out infinite}
@@ -713,8 +717,8 @@ const { class: className, ...rest } = Astro.props;
 .evr-list{display:flex;flex-direction:column}
 /* a case folds away when the filter hides it, and stays hidden once shut so nothing measures it */
 .evr-w.shut&gt;div{visibility:hidden;transition:visibility 0s var(--dm-t)}
-.evr-i{display:flex;flex-direction:column;border-radius:calc(10px * var(--dm-rk));transition:background .2s}
-.evr-r{display:flex;align-items:center;gap:10px;width:100%;min-height:38px;padding:6px 10px;border-radius:calc(10px * var(--dm-rk));font-size:13px;text-align:left;color:var(--dm-fg)}
+.evr-i{display:flex;flex-direction:column;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));transition:background .2s}
+.evr-r{display:flex;align-items:center;gap:10px;width:100%;min-height:38px;padding:6px 10px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;text-align:left;color:var(--dm-fg)}
 .evr-g{width:16px;height:16px;display:grid;place-items:center;flex:none;color:var(--dm-faint)}
 .evr-g .spin{width:11px;height:11px;color:var(--dm-accent-fg,var(--dm-accent))}
 .evr-i.pass .evr-g{color:var(--dm-ok)}
@@ -734,6 +738,8 @@ const { class: className, ...rest } = Astro.props;
 .evr-fix{align-self:flex-start;margin-top:6px;background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-shadow)}
 @media (hover:hover) and (pointer:fine){.evr-fix:hover{background:var(--dm-surface);box-shadow:var(--dm-shadow-pop)}}
 .evr-none{margin:0;padding:10px;font-size:12.5px;color:var(--dm-muted)}
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style=&quot;clean&quot;] .evr.panel,:root [data-style=&quot;clean&quot;] .evr.panel,:root [data-style=&quot;clean&quot;].evr.panel{padding:10px 20px 8px 20px}
 </code></pre></details><details class="cp-file"><summary>eval-results.js<span class="l">HTML · 85 lines</span></summary><pre class="cp-pre" data-name="eval-results.js"><code>DM.def(&#39;eval-results&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{play}&#39;, I(&#39;play&#39;,&#39;xs&#39;));
   // eight checks on the pricing page&#39;s copy. The price check fails after the copy agent&#39;s latest edit, until it&#39;s fixed

@@ -23,14 +23,14 @@
 .dm-mtx-roll i.dm-in{animation:dm-mtxroll .32s cubic-bezier(.22,1,.36,1) both}
 @keyframes dm-mtxroll{from{transform:translateY(70%);opacity:0}}
 /* the track: the morning on a quiet row, the meeting on it */
-.dm-mtx-track{position:relative;height:40px;border-radius:calc(8px * var(--dm-rk));background:var(--dm-row);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);overflow:hidden}
+.dm-mtx-track{position:relative;height:40px;border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-row);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);overflow:hidden}
 /* Blueprint's row is the surface itself: its green now line keeps 3:1 on white, not on the row grey */
 :root:not([data-style="soft"],[data-style="clean"]) .dm-mtx-track:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){background:var(--dm-surface)}
-.dm-mtx-blk{position:absolute;top:5px;bottom:5px;left:20%;width:60%;display:flex;align-items:center;justify-content:space-between;padding:0 6px;border-radius:calc(5px * var(--dm-rk));background:var(--dm-accent-bg);overflow:hidden;font-size:11.5px;font-weight:500;color:var(--dm-fg2);z-index:1}
+.dm-mtx-blk{position:absolute;top:5px;bottom:5px;left:20%;width:60%;display:flex;align-items:center;justify-content:space-between;padding:0 6px;border-radius:calc(5px * var(--dm-rk-s,var(--dm-rk)));background:var(--dm-accent-bg);overflow:hidden;font-size:11.5px;font-weight:500;color:var(--dm-fg2);z-index:1}
 /* the start and end sit on the block in small surface chips, so they read on the tint and on the hatch alike; the block's
    edge is a faint accent line (owner, 17 Nov: no grey outline) */
 .dm-mtx-blk{outline:1px solid color-mix(in srgb,var(--dm-accent-mark) 35%,transparent);outline-offset:-1px}
-.dm-mtx-blk>.dm-num{position:relative;padding:0 6px;line-height:18px;border-radius:calc(4px * var(--dm-rk));background:color-mix(in srgb,var(--dm-surface) 88%,transparent);color:var(--dm-fg2)}
+.dm-mtx-blk>.dm-num{position:relative;padding:0 6px;line-height:18px;border-radius:calc(4px * var(--dm-rk-s,var(--dm-rk)));background:color-mix(in srgb,var(--dm-surface) 88%,transparent);color:var(--dm-fg2)}
 /* dark: raised means lighter, so the chip is the tint lifted a step, opaque enough to clear the hatch (owner, 17 Nov) */
 :root[data-theme="dark"] .dm-mtx-blk>.dm-num{background:color-mix(in srgb,var(--dm-fg) 12%,var(--dm-accent-bg));color:var(--dm-fg)}
 /* gone: fine 45deg accent lines over the tint, inside the meeting block only, across the part that has run (owner, 17 Nov) */
@@ -62,7 +62,7 @@
 .dm-mtx-cp{width:34px;height:34px}
 .dm-mtx-join{height:34px;padding:0 var(--dm-s-4) 0 6px;gap:var(--dm-s-2);transition:background var(--dm-t-fast),opacity var(--dm-t-fast),transform .32s cubic-bezier(.34,1.56,.64,1)}
 .dm-mtx-join:active,.dm-mtx-join.dm-prs{transform:scale(.95);transition-duration:.08s}
-.dm-mtx-join .dm-mk{width:22px;height:22px;display:grid;place-items:center;border-radius:calc(6px * var(--dm-rk));background:#fff;flex:none}
+.dm-mtx-join .dm-mk{width:22px;height:22px;display:grid;place-items:center;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));background:#fff;flex:none}
 .dm-mtx-join .dm-mk .dm-brand{width:15px;height:12.5px}
 /* live: Join breathes a step darker and back, slowly; a darker fill keeps its label's contrast where fading it would not */
 .dm-mtx.dm-live :is(.dm-mtx-join,.dm-mtx-jm):not(:hover){animation:dm-mtxpulse 2.4s ease-in-out infinite}
@@ -70,39 +70,34 @@
 .dm-mtx-join[disabled] .dm-mk{opacity:.5}
 @media (prefers-reduced-motion:reduce){.dm-mtx.dm-live :is(.dm-mtx-join,.dm-mtx-jm){animation:none}.dm-mtx-bp,.dm-mtx-now,.dm-mtx-who .dm-av{transition:none}.dm-mtx-roll i.dm-in,.dm-mtx-fade{animation:none}}
 /* Clean (owner, 17 Nov): the meeting and its track on white, the people and actions on an off-white foot strip under a
-   hairline. The track, the block and its time chips are pills; the block keeps the accent tint (ink in Clean) with a faint
-   ink edge and fine 45deg lines over the part that has run; the now line is ink. The status chip is white with a hairline and
-   grey words, only the live dot green. Join is the ink button, split, with a very light divider and no breathing; its menu
-   scales and fades from the chevron. The faces as they are; initials in pale grey with ink letters */
+   hairline. The track, the block and its time chips are pills; the block, its lines, the now line, the status chip and the
+   faces keep their colours. Join is the ink button, split, with a very light divider and no breathing; its menu scales and
+   fades from the chevron */
 @keyframes dm-clfade{from{opacity:0}}
 @keyframes dm-clroll{from{transform:translateY(60%);opacity:0}}
 :root[data-style="clean"] .dm-mtx,:root [data-style="clean"] .dm-mtx,:root [data-style="clean"].dm-mtx{padding:0;gap:0}
-:root[data-style="clean"] .dm-mtx-h,:root [data-style="clean"] .dm-mtx-h,:root [data-style="clean"].dm-mtx-h{padding:16px 16px 0}
+:root[data-style="clean"] .dm-mtx-h,:root [data-style="clean"] .dm-mtx-h,:root [data-style="clean"].dm-mtx-h{padding:18px 20px 0}
 :root[data-style="clean"] .dm-mtx-t,:root [data-style="clean"] .dm-mtx-t,:root [data-style="clean"].dm-mtx-t{font-size:14px;font-weight:500;letter-spacing:-.01em}
-:root[data-style="clean"] .dm-mtx-track,:root [data-style="clean"] .dm-mtx-track,:root [data-style="clean"].dm-mtx-track{margin:16px;height:40px;background:var(--dm-surface);border-radius:999px;box-shadow:inset 0 0 0 1px var(--dm-line)}
-:root[data-style="clean"] .dm-mtx-f,:root [data-style="clean"] .dm-mtx-f,:root [data-style="clean"].dm-mtx-f{position:relative;z-index:3;padding:12px 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-bottom-left-radius:inherit;border-bottom-right-radius:inherit}
+:root[data-style="clean"] .dm-mtx-track,:root [data-style="clean"] .dm-mtx-track,:root [data-style="clean"].dm-mtx-track{margin:16px 20px;height:40px;background:var(--dm-surface);border-radius:999px;box-shadow:inset 0 0 0 1px var(--dm-line)}
+:root[data-style="clean"] .dm-mtx-f,:root [data-style="clean"] .dm-mtx-f,:root [data-style="clean"].dm-mtx-f{position:relative;z-index:3;padding:20px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-bottom-left-radius:inherit;border-bottom-right-radius:inherit}
 :root[data-style="clean"] .dm-mtx-blk,:root [data-style="clean"] .dm-mtx-blk,:root [data-style="clean"].dm-mtx-blk,:root[data-style="clean"] .dm-mtx-blk>.dm-num,:root [data-style="clean"] .dm-mtx-blk>.dm-num,:root [data-style="clean"].dm-mtx-blk>.dm-num{border-radius:999px}
-:root[data-style="clean"] .dm-mtx-blk,:root [data-style="clean"] .dm-mtx-blk,:root [data-style="clean"].dm-mtx-blk{outline-color:color-mix(in srgb,var(--dm-fg) 16%,transparent)}
 :root[data-style="clean"] .dm-mtx-blk>.dm-num,:root [data-style="clean"] .dm-mtx-blk>.dm-num,:root [data-style="clean"].dm-mtx-blk>.dm-num{box-shadow:0 0 0 1px var(--dm-hair)}
-:root[data-style="clean"] .dm-mtx-bp,:root [data-style="clean"] .dm-mtx-bp,:root [data-style="clean"].dm-mtx-bp{background:repeating-linear-gradient(45deg,color-mix(in srgb,var(--dm-fg) 34%,transparent) 0 1px,transparent 1px 6px);transition:width .45s var(--dm-ease)}
-:root[data-style="clean"] .dm-mtx-now,:root [data-style="clean"] .dm-mtx-now,:root [data-style="clean"].dm-mtx-now{width:1.5px;margin-left:-.75px;background:var(--dm-fg);transition:left .45s var(--dm-ease),opacity .3s var(--dm-ease)}
-:root[data-style="clean"] .dm-mtx-now i,:root [data-style="clean"] .dm-mtx-now i,:root [data-style="clean"].dm-mtx-now i{background:var(--dm-fg)}
-:root[data-style="clean"] .dm-mtx-st,:root [data-style="clean"] .dm-mtx-st,:root [data-style="clean"].dm-mtx-st,:root[data-style="clean"] .dm-mtx-st.dm-ok,:root [data-style="clean"] .dm-mtx-st.dm-ok,:root [data-style="clean"].dm-mtx-st.dm-ok{height:22px;padding:0 8px;background:var(--dm-surface);color:var(--dm-fg2);box-shadow:inset 0 0 0 1px var(--dm-hair);transition:color var(--dm-t) var(--dm-ease)}
-:root[data-style="clean"] .dm-mtx-st .dm-dot,:root [data-style="clean"] .dm-mtx-st .dm-dot,:root [data-style="clean"].dm-mtx-st .dm-dot{color:var(--dm-ok-mark)}
+:root[data-style="clean"] .dm-mtx-bp,:root [data-style="clean"] .dm-mtx-bp,:root [data-style="clean"].dm-mtx-bp{transition:width .45s var(--dm-ease)}
+:root[data-style="clean"] .dm-mtx-now,:root [data-style="clean"] .dm-mtx-now,:root [data-style="clean"].dm-mtx-now{transition:left .45s var(--dm-ease),opacity .3s var(--dm-ease)}
 :root[data-style="clean"] .dm-mtx-fade,:root [data-style="clean"] .dm-mtx-fade,:root [data-style="clean"].dm-mtx-fade{animation:dm-clfade .24s var(--dm-ease) both}
 :root[data-style="clean"] .dm-mtx-roll i.dm-in,:root [data-style="clean"] .dm-mtx-roll i.dm-in,:root [data-style="clean"].dm-mtx-roll i.dm-in{animation:dm-clroll .3s var(--dm-ease) both}
 :root[data-style="clean"] .dm-mtx-who .dm-av,:root [data-style="clean"] .dm-mtx-who .dm-av,:root [data-style="clean"].dm-mtx-who .dm-av{position:relative;box-shadow:0 0 0 2px var(--dm-strip);transition:margin .24s var(--dm-ease)}
-:root[data-style="clean"] .dm-mtx-who .dm-av:not([data-pic-on]),:root [data-style="clean"] .dm-mtx-who .dm-av:not([data-pic-on]),:root [data-style="clean"].dm-mtx-who .dm-av:not([data-pic-on]){background-color:var(--dm-chip)!important;color:var(--dm-fg2)!important;box-shadow:inset 0 0 0 1px var(--dm-hair),0 0 0 2px var(--dm-strip)}
+
 :root[data-style="clean"] .dm-mtx-cp,:root [data-style="clean"] .dm-mtx-cp,:root [data-style="clean"].dm-mtx-cp{width:32px;height:32px;border-radius:999px}
 :root[data-style="clean"] .dm-mtx-jg,:root [data-style="clean"] .dm-mtx-jg,:root [data-style="clean"].dm-mtx-jg{z-index:3}
 :root[data-style="clean"] .dm-mtx-jg :is(.dm-mtx-join,.dm-mtx-jm),:root [data-style="clean"] .dm-mtx-jg :is(.dm-mtx-join,.dm-mtx-jm),:root [data-style="clean"].dm-mtx-jg :is(.dm-mtx-join,.dm-mtx-jm){height:32px}
 :root[data-style="clean"] .dm-mtx-jg .dm-mtx-join,:root [data-style="clean"] .dm-mtx-jg .dm-mtx-join,:root [data-style="clean"].dm-mtx-jg .dm-mtx-join{border-radius:999px 0 0 999px;padding:0 12px 0 6px;gap:8px}
 :root[data-style="clean"] .dm-mtx-jg .dm-mtx-jm,:root [data-style="clean"] .dm-mtx-jg .dm-mtx-jm,:root [data-style="clean"].dm-mtx-jg .dm-mtx-jm{border-radius:0 999px 999px 0;width:28px}
-:root[data-style="clean"] .dm-mtx-jm::before,:root [data-style="clean"] .dm-mtx-jm::before,:root [data-style="clean"].dm-mtx-jm::before{top:9px;bottom:9px;background:color-mix(in srgb,var(--dm-on-accent) 26%,transparent)}
-:root[data-style="clean"] .dm-mtx-join .dm-mk,:root [data-style="clean"] .dm-mtx-join .dm-mk,:root [data-style="clean"].dm-mtx-join .dm-mk{width:20px;height:20px;border-radius:5px}
+:root[data-style="clean"] .dm-mtx-jm::before,:root [data-style="clean"] .dm-mtx-jm::before,:root [data-style="clean"].dm-mtx-jm::before{top:9px;bottom:9px;background:color-mix(in srgb,var(--dm-on-btn) 26%,transparent)}
+:root[data-style="clean"] .dm-mtx-join .dm-mk,:root [data-style="clean"] .dm-mtx-join .dm-mk,:root [data-style="clean"].dm-mtx-join .dm-mk{width:20px;height:20px;border-radius:var(--dm-r-tiny,5px)}
 :root[data-style="clean"] .dm-mtx-join .dm-mk .dm-brand,:root [data-style="clean"] .dm-mtx-join .dm-mk .dm-brand,:root [data-style="clean"].dm-mtx-join .dm-mk .dm-brand{width:13px;height:11px}
 :root[data-style="clean"] .dm-mtx.dm-live :is(.dm-mtx-join,.dm-mtx-jm),:root [data-style="clean"] .dm-mtx.dm-live :is(.dm-mtx-join,.dm-mtx-jm),:root [data-style="clean"].dm-mtx.dm-live :is(.dm-mtx-join,.dm-mtx-jm){animation:none}
 :root[data-style="clean"] .dm-mtx-join:active,:root [data-style="clean"] .dm-mtx-join:active,:root [data-style="clean"].dm-mtx-join:active{transform:scale(.97);transition:transform var(--dm-t-fast) var(--dm-ease)}
 /* a phone: the foot strip's pieces close up a little, so Join keeps its room beside the people as its words change */
-@media (max-width:400px){:root[data-style="clean"] .dm-mtx-f,:root [data-style="clean"] .dm-mtx-f,:root [data-style="clean"].dm-mtx-f{padding:12px 14px;gap:6px}:root[data-style="clean"] .dm-mtx-jg .dm-mtx-join,:root [data-style="clean"] .dm-mtx-jg .dm-mtx-join,:root [data-style="clean"].dm-mtx-jg .dm-mtx-join{padding:0 10px 0 5px;gap:6px}:root[data-style="clean"] .dm-mtx-cp,:root [data-style="clean"] .dm-mtx-cp,:root [data-style="clean"].dm-mtx-cp{width:30px;height:30px}}
+@media (max-width:400px){:root[data-style="clean"] .dm-mtx-h,:root [data-style="clean"] .dm-mtx-h,:root [data-style="clean"].dm-mtx-h{padding:16px 16px 0}:root[data-style="clean"] .dm-mtx-track,:root [data-style="clean"] .dm-mtx-track,:root [data-style="clean"].dm-mtx-track{margin:16px}:root[data-style="clean"] .dm-mtx-f,:root [data-style="clean"] .dm-mtx-f,:root [data-style="clean"].dm-mtx-f{padding:16px;gap:6px}:root[data-style="clean"] .dm-mtx-jg .dm-mtx-join,:root [data-style="clean"] .dm-mtx-jg .dm-mtx-join,:root [data-style="clean"].dm-mtx-jg .dm-mtx-join{padding:0 10px 0 5px;gap:6px}:root[data-style="clean"] .dm-mtx-cp,:root [data-style="clean"] .dm-mtx-cp,:root [data-style="clean"].dm-mtx-cp{width:30px;height:30px}}
 @media (prefers-reduced-motion:reduce){:root[data-style="clean"] :is(.dm-mtx-bp,.dm-mtx-now,.dm-mtx-who .dm-av),:root [data-style="clean"] :is(.dm-mtx-bp,.dm-mtx-now,.dm-mtx-who .dm-av),:root [data-style="clean"]:is(.dm-mtx-bp,.dm-mtx-now,.dm-mtx-who .dm-av){transition:none}:root[data-style="clean"] :is(.dm-mtx-fade,.dm-mtx-roll i.dm-in),:root [data-style="clean"] :is(.dm-mtx-fade,.dm-mtx-roll i.dm-in),:root [data-style="clean"]:is(.dm-mtx-fade,.dm-mtx-roll i.dm-in){animation:none}}

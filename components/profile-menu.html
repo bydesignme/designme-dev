@@ -163,7 +163,7 @@
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Profile menu","description":"Profile menu is the account menu that opens from an avatar in an app's top bar. It shows who is signed in, lists the workspaces to switch between, and holds a theme switch, a Keyboard shortcuts row with its key, and Sign out. It is a real menu: the arrow keys move through it, Escape closes it and puts the focus back on the avatar.","url":"https://designme.dev/components/profile-menu","image":"https://designme.dev/components/og/profile-menu.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Profile menu, Collaboration, UI component, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Collaboration","item":"https://designme.dev/#s-collab"},{"@type":"ListItem","position":3,"name":"Profile menu","item":"https://designme.dev/components/profile-menu"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does the theme switch change the theme?","acceptedAnswer":{"@type":"Answer","text":"No. It flips its own state and calls onDarkChange. Set data-theme on <html> there, or call your own theme code. On designme.dev the demo only says what it was set to."}},{"@type":"Question","name":"Can the workspaces be a submenu instead?","acceptedAnswer":{"@type":"Answer","text":"They are an inline list, so the whole menu fits a phone screen without a flyout. Keep the list short; for many workspaces, link to a page that lists them all."}},{"@type":"Question","name":"What happens on Sign out?","acceptedAnswer":{"@type":"Answer","text":"The avatar gives way to a Sign in button and onSignedInChange(false) is called. Do the real sign out there, or control it with signedIn."}},{"@type":"Question","name":"Can I list my app's own shortcuts?","acceptedAnswer":{"@type":"Answer","text":"Yes. Pass shortcuts as { keys, label }[]. Only ? is handled by the component; your other keys need your own handlers."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Profile menu ---------- */
 /* an app's top bar with the account behind the avatar. The menu opens under it, lined up with its right edge */
 .pfm{position:relative;width:100%;max-width:400px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
-.pfm-bar{display:flex;align-items:center;gap:10px;min-height:52px;padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-2) var(--dm-s-3);border-radius:calc(14px * var(--dm-rk))}
+.pfm-bar{display:flex;align-items:center;gap:10px;min-height:52px;padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-2) var(--dm-s-3);border-radius:calc(14px * var(--dm-rk-l,var(--dm-rk)))}
 .pfm-lg{width:26px;height:26px;border-radius:var(--dm-r-sm);display:grid;place-items:center;flex:none;font-size:12px;font-weight:500;background:var(--dm-chip);color:var(--dm-fg2);transition:background var(--dm-t) var(--dm-ease),color var(--dm-t) var(--dm-ease)}
 .pfm-lg[data-t="pb"]{--dm-tb:var(--dm-pb-bg);--dm-tc:var(--dm-pb)}.pfm-lg[data-t="pp"]{--dm-tb:var(--dm-pp-bg);--dm-tc:var(--dm-pp)}.pfm-lg[data-t="pl"]{--dm-tb:var(--dm-pl-bg);--dm-tc:var(--dm-pl)}.pfm-lg[data-t="pm"]{--dm-tb:var(--dm-pm-bg);--dm-tc:var(--dm-pm)}
 .pfm-lg[data-t="pr"]{--dm-tb:var(--dm-pr-bg);--dm-tc:var(--dm-pr)}.pfm-lg[data-t="py"]{--dm-tb:var(--dm-py-bg);--dm-tc:var(--dm-py)}.pfm-lg[data-t="pk"]{--dm-tb:var(--dm-pk-bg);--dm-tc:var(--dm-pk)}.pfm-lg[data-t="pt"]{--dm-tb:var(--dm-pt-bg);--dm-tc:var(--dm-pt)}
@@ -186,7 +186,7 @@
 .pfm-me .t{min-width:0;display:flex;flex-direction:column;line-height:1.35}
 .pfm-me b{font-size:13.5px;font-weight:500}
 .pfm-me .muted{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pfm-pop .mi .pfm-lg{width:24px;height:24px;font-size:11px;border-radius:calc(7px * var(--dm-rk))}
+.pfm-pop .mi .pfm-lg{width:24px;height:24px;font-size:11px;border-radius:calc(7px * var(--dm-rk-m,var(--dm-rk)))}
 .pfm-pop .mi .d{white-space:nowrap}
 /* the theme row is a switch: on, it shows the switch on rather than a selected row */
 .pfm-th[aria-checked="true"]{background:none;font-weight:400}
@@ -196,7 +196,7 @@
 .pfm-th[aria-checked="true"] .toggle{background:var(--dm-accent);box-shadow:inset 0 0 0 1px var(--dm-accent-mark,var(--dm-accent))}
 .pfm-th[aria-checked="true"] .toggle::after{transform:translateX(12px);background:var(--dm-on-accent)}
 .pfm-ky .kbd{margin-left:auto}
-.pfm-keys{padding:10px var(--dm-s-3) var(--dm-s-3);border-radius:calc(14px * var(--dm-rk))}
+.pfm-keys{padding:10px var(--dm-s-3) var(--dm-s-3);border-radius:calc(14px * var(--dm-rk-l,var(--dm-rk)))}
 .pfm-kh{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-2);font-size:13px;margin-bottom:6px}
 .pfm-kh .ib{width:26px;height:26px;margin-right:-4px}
 .pfm-kl{margin:0;display:flex;flex-direction:column;gap:6px}
@@ -205,6 +205,8 @@
 .pfm-kl dd{margin:0;color:var(--dm-fg2);min-width:0}
 .pfm-note{margin:0;min-height:20px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;text-align:center}
 .pfm-note .i{color:var(--dm-ok)}
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style="clean"] .pfm-bar.panel,:root [data-style="clean"] .pfm-bar.panel,:root [data-style="clean"].pfm-bar.panel{padding:20px 20px 20px 11px}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px + var(--sw,0px))}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px + var(--sw,0px))}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px + var(--sw,0px))}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px + var(--sw,0px))}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -516,11 +518,11 @@ export function ProfileMenu({
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>profile-menu.css<span class="l">React · 47 lines</span></summary><pre class="cp-pre" data-name="profile-menu.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>profile-menu.css<span class="l">React · 49 lines</span></summary><pre class="cp-pre" data-name="profile-menu.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Profile menu ---------- */
 /* an app&#39;s top bar with the account behind the avatar. The menu opens under it, lined up with its right edge */
 .dm-pfm{position:relative;width:100%;max-width:400px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
-.dm-pfm-bar{display:flex;align-items:center;gap:10px;min-height:52px;padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-2) var(--dm-s-3);border-radius:calc(14px * var(--dm-rk))}
+.dm-pfm-bar{display:flex;align-items:center;gap:10px;min-height:52px;padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-2) var(--dm-s-3);border-radius:calc(14px * var(--dm-rk-l,var(--dm-rk)))}
 .dm-pfm-lg{width:26px;height:26px;border-radius:var(--dm-r-sm);display:grid;place-items:center;flex:none;font-size:12px;font-weight:500;background:var(--dm-chip);color:var(--dm-fg2);transition:background var(--dm-t) var(--dm-ease),color var(--dm-t) var(--dm-ease)}
 .dm-pfm-lg[data-t=&quot;pb&quot;]{--dm-tb:var(--dm-pb-bg);--dm-tc:var(--dm-pb)}.dm-pfm-lg[data-t=&quot;pp&quot;]{--dm-tb:var(--dm-pp-bg);--dm-tc:var(--dm-pp)}.dm-pfm-lg[data-t=&quot;pl&quot;]{--dm-tb:var(--dm-pl-bg);--dm-tc:var(--dm-pl)}.dm-pfm-lg[data-t=&quot;pm&quot;]{--dm-tb:var(--dm-pm-bg);--dm-tc:var(--dm-pm)}
 .dm-pfm-lg[data-t=&quot;pr&quot;]{--dm-tb:var(--dm-pr-bg);--dm-tc:var(--dm-pr)}.dm-pfm-lg[data-t=&quot;py&quot;]{--dm-tb:var(--dm-py-bg);--dm-tc:var(--dm-py)}.dm-pfm-lg[data-t=&quot;pk&quot;]{--dm-tb:var(--dm-pk-bg);--dm-tc:var(--dm-pk)}.dm-pfm-lg[data-t=&quot;pt&quot;]{--dm-tb:var(--dm-pt-bg);--dm-tc:var(--dm-pt)}
@@ -543,7 +545,7 @@ export function ProfileMenu({
 .dm-pfm-me .dm-t{min-width:0;display:flex;flex-direction:column;line-height:1.35}
 .dm-pfm-me b{font-size:13.5px;font-weight:500}
 .dm-pfm-me .dm-muted{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dm-pfm-pop .dm-mi .dm-pfm-lg{width:24px;height:24px;font-size:11px;border-radius:calc(7px * var(--dm-rk))}
+.dm-pfm-pop .dm-mi .dm-pfm-lg{width:24px;height:24px;font-size:11px;border-radius:calc(7px * var(--dm-rk-m,var(--dm-rk)))}
 .dm-pfm-pop .dm-mi .dm-d{white-space:nowrap}
 /* the theme row is a switch: on, it shows the switch on rather than a selected row */
 .dm-pfm-th[aria-checked=&quot;true&quot;]{background:none;font-weight:400}
@@ -553,7 +555,7 @@ export function ProfileMenu({
 .dm-pfm-th[aria-checked=&quot;true&quot;] .dm-toggle{background:var(--dm-accent);box-shadow:inset 0 0 0 1px var(--dm-accent-mark,var(--dm-accent))}
 .dm-pfm-th[aria-checked=&quot;true&quot;] .dm-toggle::after{transform:translateX(12px);background:var(--dm-on-accent)}
 .dm-pfm-ky .dm-kbd{margin-left:auto}
-.dm-pfm-keys{padding:10px var(--dm-s-3) var(--dm-s-3);border-radius:calc(14px * var(--dm-rk))}
+.dm-pfm-keys{padding:10px var(--dm-s-3) var(--dm-s-3);border-radius:calc(14px * var(--dm-rk-l,var(--dm-rk)))}
 .dm-pfm-kh{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-2);font-size:13px;margin-bottom:6px}
 .dm-pfm-kh .dm-ib{width:26px;height:26px;margin-right:-4px}
 .dm-pfm-kl{margin:0;display:flex;flex-direction:column;gap:6px}
@@ -562,6 +564,8 @@ export function ProfileMenu({
 .dm-pfm-kl dd{margin:0;color:var(--dm-fg2);min-width:0}
 .dm-pfm-note{margin:0;min-height:20px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;text-align:center}
 .dm-pfm-note .dm-i{color:var(--dm-ok)}
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style=&quot;clean&quot;] .dm-pfm-bar.dm-panel,:root [data-style=&quot;clean&quot;] .dm-pfm-bar.dm-panel,:root [data-style=&quot;clean&quot;].dm-pfm-bar.dm-panel{padding:20px 20px 20px 11px}
 </code></pre></details><details class="cp-file"><summary>ProfileMenu.astro<span class="l">Astro · 45 lines</span></summary><pre class="cp-pre" data-name="ProfileMenu.astro"><code>---
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
 // Profile menu: The account menu behind an avatar: switch workspace, theme, shortcuts and sign out.
@@ -632,10 +636,10 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>profile-menu.css<span class="l">HTML · 46 lines</span></summary><pre class="cp-pre" data-name="profile-menu.css"><code>/* ---------- Profile menu ---------- */
+</code></pre></details><details class="cp-file"><summary>profile-menu.css<span class="l">HTML · 48 lines</span></summary><pre class="cp-pre" data-name="profile-menu.css"><code>/* ---------- Profile menu ---------- */
 /* an app&#39;s top bar with the account behind the avatar. The menu opens under it, lined up with its right edge */
 .pfm{position:relative;width:100%;max-width:400px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
-.pfm-bar{display:flex;align-items:center;gap:10px;min-height:52px;padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-2) var(--dm-s-3);border-radius:calc(14px * var(--dm-rk))}
+.pfm-bar{display:flex;align-items:center;gap:10px;min-height:52px;padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-2) var(--dm-s-3);border-radius:calc(14px * var(--dm-rk-l,var(--dm-rk)))}
 .pfm-lg{width:26px;height:26px;border-radius:var(--dm-r-sm);display:grid;place-items:center;flex:none;font-size:12px;font-weight:500;background:var(--dm-chip);color:var(--dm-fg2);transition:background var(--dm-t) var(--dm-ease),color var(--dm-t) var(--dm-ease)}
 .pfm-lg[data-t=&quot;pb&quot;]{--dm-tb:var(--dm-pb-bg);--dm-tc:var(--dm-pb)}.pfm-lg[data-t=&quot;pp&quot;]{--dm-tb:var(--dm-pp-bg);--dm-tc:var(--dm-pp)}.pfm-lg[data-t=&quot;pl&quot;]{--dm-tb:var(--dm-pl-bg);--dm-tc:var(--dm-pl)}.pfm-lg[data-t=&quot;pm&quot;]{--dm-tb:var(--dm-pm-bg);--dm-tc:var(--dm-pm)}
 .pfm-lg[data-t=&quot;pr&quot;]{--dm-tb:var(--dm-pr-bg);--dm-tc:var(--dm-pr)}.pfm-lg[data-t=&quot;py&quot;]{--dm-tb:var(--dm-py-bg);--dm-tc:var(--dm-py)}.pfm-lg[data-t=&quot;pk&quot;]{--dm-tb:var(--dm-pk-bg);--dm-tc:var(--dm-pk)}.pfm-lg[data-t=&quot;pt&quot;]{--dm-tb:var(--dm-pt-bg);--dm-tc:var(--dm-pt)}
@@ -658,7 +662,7 @@ const { class: className, ...rest } = Astro.props;
 .pfm-me .t{min-width:0;display:flex;flex-direction:column;line-height:1.35}
 .pfm-me b{font-size:13.5px;font-weight:500}
 .pfm-me .muted{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pfm-pop .mi .pfm-lg{width:24px;height:24px;font-size:11px;border-radius:calc(7px * var(--dm-rk))}
+.pfm-pop .mi .pfm-lg{width:24px;height:24px;font-size:11px;border-radius:calc(7px * var(--dm-rk-m,var(--dm-rk)))}
 .pfm-pop .mi .d{white-space:nowrap}
 /* the theme row is a switch: on, it shows the switch on rather than a selected row */
 .pfm-th[aria-checked=&quot;true&quot;]{background:none;font-weight:400}
@@ -668,7 +672,7 @@ const { class: className, ...rest } = Astro.props;
 .pfm-th[aria-checked=&quot;true&quot;] .toggle{background:var(--dm-accent);box-shadow:inset 0 0 0 1px var(--dm-accent-mark,var(--dm-accent))}
 .pfm-th[aria-checked=&quot;true&quot;] .toggle::after{transform:translateX(12px);background:var(--dm-on-accent)}
 .pfm-ky .kbd{margin-left:auto}
-.pfm-keys{padding:10px var(--dm-s-3) var(--dm-s-3);border-radius:calc(14px * var(--dm-rk))}
+.pfm-keys{padding:10px var(--dm-s-3) var(--dm-s-3);border-radius:calc(14px * var(--dm-rk-l,var(--dm-rk)))}
 .pfm-kh{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-2);font-size:13px;margin-bottom:6px}
 .pfm-kh .ib{width:26px;height:26px;margin-right:-4px}
 .pfm-kl{margin:0;display:flex;flex-direction:column;gap:6px}
@@ -677,6 +681,8 @@ const { class: className, ...rest } = Astro.props;
 .pfm-kl dd{margin:0;color:var(--dm-fg2);min-width:0}
 .pfm-note{margin:0;min-height:20px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;text-align:center}
 .pfm-note .i{color:var(--dm-ok)}
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style=&quot;clean&quot;] .pfm-bar.panel,:root [data-style=&quot;clean&quot;] .pfm-bar.panel,:root [data-style=&quot;clean&quot;].pfm-bar.panel{padding:20px 20px 20px 11px}
 </code></pre></details><details class="cp-file"><summary>profile-menu.js<span class="l">HTML · 100 lines</span></summary><pre class="cp-pre" data-name="profile-menu.js"><code>DM.def(&#39;profile-menu&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{chev}&#39;, I(&#39;chev-d&#39;,&#39;xs&#39;)).replace(&#39;{moon}&#39;, I(&#39;moon&#39;)).replace(&#39;{keyboard}&#39;, I(&#39;keyboard&#39;)).replace(&#39;{logout}&#39;, I(&#39;logout&#39;)).replace(&#39;{x}&#39;, I(&#39;x&#39;,&#39;xs&#39;));
   // the workspaces this account belongs to: initial, name, plan and the tint of its tile

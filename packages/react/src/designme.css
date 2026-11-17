@@ -46,9 +46,9 @@
   --dm-hl:#fdeb9a; --dm-hl-ok:#d3f1df;
   /* Soft is plush: every corner is scaled by --dm-rk, and larger still where the browser draws true squircles (below) */
   --dm-rk:1.25;
-  --dm-r-card:calc(16px * var(--dm-rk));
+  --dm-r-card:calc(16px * var(--dm-rk-l,var(--dm-rk)));
   /* spacing runs on a 4px scale, and corners on a small set of radii; values off the scale are still written out */
-  --dm-s-1:4px; --dm-s-2:8px; --dm-s-3:12px; --dm-s-4:16px; --dm-s-5:20px; --dm-s-6:24px; --dm-s-8:32px; --dm-r-xs:calc(4px * var(--dm-rk)); --dm-r-lg:calc(20px * var(--dm-rk)); --dm-r-in:calc(12px * var(--dm-rk)); --dm-r-sm:calc(8px * var(--dm-rk)); --dm-r-pill:999px;
+  --dm-s-1:4px; --dm-s-2:8px; --dm-s-3:12px; --dm-s-4:16px; --dm-s-5:20px; --dm-s-6:24px; --dm-s-8:32px; --dm-r-xs:calc(4px * var(--dm-rk-s,var(--dm-rk))); --dm-r-lg:calc(20px * var(--dm-rk-l,var(--dm-rk))); --dm-r-in:calc(12px * var(--dm-rk-l,var(--dm-rk))); --dm-r-sm:calc(8px * var(--dm-rk-m,var(--dm-rk))); --dm-r-pill:999px;
   /* fields and tags have slightly rounded corners, never pills: --dm-r-field for one-line fields and dropdown triggers, --dm-r-box
      for boxes you write several lines in, --dm-r-tag for tags. Where the browser smooths corners (corner-shape: squircle) a
      corner looks smaller, so each takes the larger -sq radius there to look the same size. Fields share one height and,
@@ -135,7 +135,7 @@
 :where([data-dm]) button{background:none;border:0;padding:0;cursor:pointer}
 /* one weight for emphasis: medium, never bold */
 :where([data-dm]) b,:where([data-dm]) strong{font-weight:500}
-:where([data-dm]) :focus-visible{outline:2px solid var(--dm-focus);outline-offset:2px;border-radius:calc(6px * var(--dm-rk))}
+:where([data-dm]) :focus-visible{outline:2px solid var(--dm-focus);outline-offset:2px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)))}
 /* a button that got the focus back after a click (closePops) keeps no ring until a key is pressed */
 [data-nofv]:focus-visible{outline:0}
 /* a field shows the focus with its own edge, which steps up to --dm-field-line-strong, so it never takes the ring as well */
@@ -143,7 +143,7 @@
 .dm-i{width:16px;height:16px;flex:none;display:inline-block;vertical-align:-3px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .dm-i.dm-s{width:14px;height:14px}.dm-i.dm-xs{width:12px;height:12px}.dm-i.dm-l{width:18px;height:18px}
 .dm-brand{width:16px;height:16px;display:block;flex:none}
-.dm-flag{width:20px;height:15px;border-radius:3px;object-fit:cover;display:block;flex:none;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+.dm-flag{width:20px;height:15px;border-radius:var(--dm-r-tiny,3px);object-fit:cover;display:block;flex:none;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
 
 /* ---------- primitives ---------- */
 .dm-mono{font-family:var(--dm-mono)}
@@ -193,19 +193,19 @@
 @media (hover:hover) and (pointer:fine){.dm-fchip.dm-lnk:hover{background:var(--dm-row);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent)}}
 .dm-ft{font-family:var(--dm-sans);font-size:9.5px;font-weight:500;color:var(--dm-ts);letter-spacing:.02em}
 .dm-ft.dm-re{color:var(--dm-react)}.dm-ft.dm-fg{color:var(--dm-pl)}.dm-ft.dm-pdf{color:var(--dm-pr)}.dm-ft.dm-csv{color:var(--dm-pm)}
-.dm-kbd{font-family:inherit;font-size:11px;padding:1px 5px;border-radius:5px;background:var(--dm-chip);color:var(--dm-fg2)}
+.dm-kbd{font-family:inherit;font-size:11px;padding:1px 5px;border-radius:var(--dm-r-tiny,5px);background:var(--dm-chip);color:var(--dm-fg2)}
 /* on a row that is hovered, highlighted or picked, the row turns grey, so its shortcut chips turn white to stay visible */
 @media (hover:hover) and (pointer:fine){:is(.dm-mi,.dm-cpl-i,[role="option"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"]):is(:hover,.dm-hl,.dm-on,[aria-selected="true"]) .dm-kbd{background:var(--dm-surface)}}
 @media (hover:hover) and (pointer:fine){.dm-pill.dm-ghost:hover .dm-kbd{background:var(--dm-surface)}}
 .dm-pill .dm-kbd{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 var(--dm-s-1);margin-right:-6px}
 /* a key hint on a filled button sits on a slightly darker well of the fill, so white text keeps its contrast */
 .dm-pill.dm-primary .dm-kbd,.dm-pill.dm-accent .dm-kbd{background:color-mix(in srgb,var(--dm-accent) 80%,#000);color:inherit}
-code.dm-c{font-family:var(--dm-mono);font-size:12.5px;background:var(--dm-chip);padding:1px 5px;border-radius:5px}
+code.dm-c{font-family:var(--dm-mono);font-size:12.5px;background:var(--dm-chip);padding:1px 5px;border-radius:var(--dm-r-tiny,5px)}
 .dm-av{width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;font-size:10px;font-weight:500;color:#fff;flex:none}
 .dm-hr{height:1px;background:var(--dm-line);border:0;margin:0}
 /* an off switch and an empty box are drawn in a grey that holds 3:1 against the surface; an accent fill keeps a hairline of the
    accent's mark, so a light accent like lime still has an edge */
-.dm-toggle{width:30px;height:18px;border-radius:calc(9px * var(--dm-rk));background:color-mix(in srgb,var(--dm-muted) 80%,var(--dm-surface));position:relative;flex:none;transition:background var(--dm-t-fast)}
+.dm-toggle{width:30px;height:18px;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));background:color-mix(in srgb,var(--dm-muted) 80%,var(--dm-surface));position:relative;flex:none;transition:background var(--dm-t-fast)}
 .dm-toggle::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform var(--dm-t) var(--dm-ease)}
 .dm-toggle[aria-checked="true"]{background:var(--dm-accent);box-shadow:inset 0 0 0 1px var(--dm-accent-mark,var(--dm-accent))}
 .dm-toggle[aria-checked="true"]::after{transform:translateX(12px);background:var(--dm-on-accent)}
@@ -291,10 +291,10 @@ code.dm-c{font-family:var(--dm-mono);font-size:12.5px;background:var(--dm-chip);
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dm-ssx-ics span{color:#0d0d0d!important}}
 /* a closed popover is hidden as well as clear, so Tab and screen readers pass over it: it shows at once as it opens, so the
    focus can go into it, and hides once it has faded out */
-.dm-pop{position:absolute;z-index:50;min-width:200px;background:var(--dm-raised);border-radius:calc(14px * var(--dm-rk));box-shadow:var(--dm-shadow-pop);padding:6px;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(6px) scale(.98);transform-origin:var(--dm-origin,top left);filter:blur(3px);transition:opacity .2s var(--dm-ease),transform .35s var(--dm-ease),filter .2s var(--dm-ease),visibility 0s .2s}
+.dm-pop{position:absolute;z-index:50;min-width:200px;background:var(--dm-raised);border-radius:calc(14px * var(--dm-rk-l,var(--dm-rk)));box-shadow:var(--dm-shadow-pop);padding:6px;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(6px) scale(.98);transform-origin:var(--dm-origin,top left);filter:blur(3px);transition:opacity .2s var(--dm-ease),transform .35s var(--dm-ease),filter .2s var(--dm-ease),visibility 0s .2s}
 .dm-pop.dm-open{opacity:1;visibility:visible;pointer-events:auto;transform:none;filter:none;transition-property:opacity,transform,filter}
 .dm-pop .dm-ph{padding:6px var(--dm-s-2) var(--dm-s-1);font-size:11.5px;color:var(--dm-muted)}
-.dm-mi{display:flex;align-items:center;gap:10px;width:100%;padding:7px var(--dm-s-2);border-radius:calc(9px * var(--dm-rk));font-size:13px;text-align:left;color:var(--dm-fg);transition:background var(--dm-t-fast)}
+.dm-mi{display:flex;align-items:center;gap:10px;width:100%;padding:7px var(--dm-s-2);border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;text-align:left;color:var(--dm-fg);transition:background var(--dm-t-fast)}
 .dm-mi.dm-hl{background:var(--dm-row)}
 @media (hover:hover) and (pointer:fine){.dm-mi:hover{background:var(--dm-row)}}
 /* the rows of a menu or list stand 2px apart, so two highlighted rows never touch */
@@ -424,10 +424,14 @@ code.dm-c{font-family:var(--dm-mono);font-size:12.5px;background:var(--dm-chip);
 :root[data-theme="dark"] :is(.dm-pop,.dm-ecx-pop) .dm-pill.dm-line{background:transparent}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(.dm-pop,.dm-ecx-pop) .dm-pill.dm-line{background:transparent}}
 /* ---------- Clean ---------- */
-/* Clean (owner, 17 Nov): the third style, a layer over Soft. Black, white and one neutral grey ramp, with an ink accent (black
-   fills in light, white in dark); hairline outlines with a 1px contact shadow and one short soft shadow on cards; off-white
-   head and foot strips; fully round controls (buttons, chips, tags, switchers and their knobs, toggles) and every other corner
-   drawn round, never as a squircle, about 12px on cards. Buttons have depth inside their fill: a blurred light along the top,
+/* Clean (owner, 17 Nov): the third style, a layer over Soft. The chrome is black, white and one neutral grey ramp: surfaces,
+   text, hairlines, the primary button in ink (black in light, white in dark, its own --dm-btn tokens), secondary buttons,
+   switchers, knobs and toggles. Data and status keep Soft's colours: the blue accent for data, selection and links, the
+   chart palette, agents' own colours and pastel avatars, and the vivid status colours (a green tick, never a black one;
+   no red fill behind an error, only its red words and mark). Hairline outlines with a 1px contact shadow and one short soft shadow on cards; off-white
+   head and foot strips; everything fully round: chips, tags, icon tiles, bars, tracks,
+   rows and fields are pills or circles (the radii scale with --dm-rk-s, --dm-rk-m and --dm-r-tiny), and cards, panels and popovers
+   take 22px round corners (--dm-rk-l), never squircles. Buttons have depth inside their fill: a blurred light along the top,
    a soft shade along the bottom and a near-solid edge; checkboxes and tracks have a soft inner shadow. In dark only, a faint
    neutral glow sits around card outlines and around the white primary button (an approved exception to "no glows": white
    or neutral only, never a hue). Status colour only on small marks. Motion is calm: ease-out quint, hovers 150ms, presses
@@ -440,12 +444,7 @@ code.dm-c{font-family:var(--dm-mono);font-size:12.5px;background:var(--dm-chip);
   --dm-chip:#f3f3f3; --dm-hover:#ededed; --dm-press:#e6e6e6; --dm-wash:#fafafa; --dm-row:#f7f7f7;
   --dm-soft:#f3f3f3; --dm-soft-h:#ededed; --dm-soft-ring:inset 0 0 0 1px rgba(0,0,0,.06); --dm-dis:#a3a3a3;
   --dm-ghost:#ededed; --dm-ghost-2:#f4f4f4;
-  --dm-accent:#0a0a0a; --dm-on-accent:#ffffff; --dm-accent-fg:#0a0a0a; --dm-accent-mark:#0a0a0a; --dm-accent-2:#262626;
-  --dm-accent-bg:rgba(0,0,0,.05); --dm-sel:rgba(0,0,0,.035);
-  --dm-ink:#0a0a0a; --dm-on-ink:#ffffff;
-  --dm-ok:#147a39; --dm-ok-bg:#ebf7ee; --dm-ok-mark:#1ba04c; --dm-warn:#9a4704; --dm-warn-bg:#fff2dc; --dm-warn-mark:#e86100;
-  --dm-bad:#c81e16; --dm-bad-bg:#fdeceb; --dm-bad-mark:#e5372c;
-  --dm-c1:var(--dm-accent-mark); --dm-c2:#8f8f8f; --dm-c3:#5c5c5c; --dm-c4:#b0b0b0;
+  --dm-ink:#0a0a0a; --dm-on-ink:#ffffff; --dm-on-btn:#ffffff;
   --dm-shadow:0 0 0 1px rgba(0,0,0,.07),0 1px 1px rgba(0,0,0,.04),0 2px 10px -4px rgba(0,0,0,.12);
   --dm-shadow-pop:0 0 0 1px rgba(0,0,0,.08),0 1px 1px rgba(0,0,0,.04),0 12px 28px -12px rgba(0,0,0,.22);
   --dm-shadow-toast:var(--dm-shadow-pop); --dm-shadow-lift:var(--dm-shadow-pop);
@@ -459,10 +458,13 @@ code.dm-c{font-family:var(--dm-mono);font-size:12.5px;background:var(--dm-chip);
   --dm-btn2-press:0 0 0 1px rgba(0,0,0,.11),inset 0 1px 3px rgba(0,0,0,.1);
   --dm-knob:#ffffff; --dm-knob-shadow:0 0 0 1px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.07); --dm-track-ring:inset 0 0 0 1px rgba(0,0,0,.03),inset 0 1px 3px rgba(0,0,0,.09);
   --dm-area:.07;
-  /* every corner is round (never a squircle), so no corner needs the squircle's larger radius: cards 12px, fields 8px, and
-     buttons, chips, tags and switchers full pills */
-  --dm-rk:1; --dm-r-card:12px; --dm-r-lg:14px; --dm-r-in:8px; --dm-r-sm:999px; --dm-r-xs:4px; --dm-r-pill:999px;
-  --dm-r-field:8px; --dm-r-field-sq:8px; --dm-r-box:10px; --dm-r-box-sq:10px; --dm-r-tag:999px; --dm-r-tag-sq:999px;
+  /* fully round (owner, 17 Nov), and never a squircle: a corner written for something small (6px or less, and the small fixed
+     radii, --dm-r-tiny) is a pill or a circle; one of 7 to 10px is 2.2 times as round, which is a pill on a row, a tile or a
+     control and about 20px on a card; 11px and more (cards, panels, popovers) is 1.6 times, about 22px. Fields and chips are
+     pills; boxes you write several lines in keep 16px */
+  --dm-rk:1; --dm-rk-s:100; --dm-rk-m:2.2; --dm-rk-l:1.6; --dm-r-tiny:999px;
+  --dm-r-card:22px; --dm-r-lg:24px; --dm-r-in:999px; --dm-r-sm:999px; --dm-r-xs:999px; --dm-r-pill:999px;
+  --dm-r-field:999px; --dm-r-field-sq:999px; --dm-r-box:16px; --dm-r-box-sq:16px; --dm-r-tag:999px; --dm-r-tag-sq:999px;
   --dm-ease:cubic-bezier(.23,1,.32,1); --dm-ease-io:cubic-bezier(.65,0,.35,1);
   --dm-t-fast:.15s; --dm-t:.24s; --dm-t-slow:.42s;
 }
@@ -473,12 +475,7 @@ code.dm-c{font-family:var(--dm-mono);font-size:12.5px;background:var(--dm-chip);
   --dm-chip:#1f1f1f; --dm-hover:#232323; --dm-press:#2a2a2a; --dm-wash:#181818; --dm-row:#1a1a1a;
   --dm-soft:#1f1f1f; --dm-soft-h:#262626; --dm-soft-ring:inset 0 0 0 1px rgba(255,255,255,.06); --dm-dis:#666666;
   --dm-ghost:#262626; --dm-ghost-2:#1e1e1e;
-  --dm-accent:#f5f5f5; --dm-on-accent:#0a0a0a; --dm-accent-fg:#f5f5f5; --dm-accent-mark:#f5f5f5; --dm-accent-2:#ffffff;
-  --dm-accent-bg:rgba(255,255,255,.07); --dm-sel:rgba(255,255,255,.05);
-  --dm-ink:#f5f5f5; --dm-on-ink:#0a0a0a;
-  --dm-ok:#4ade80; --dm-ok-bg:rgba(34,197,94,.13); --dm-ok-mark:#22c55e; --dm-warn:#ffc247; --dm-warn-bg:rgba(255,184,40,.14); --dm-warn-mark:#ffa940;
-  --dm-bad:#ffaca4; --dm-bad-bg:rgba(240,68,56,.14); --dm-bad-mark:#f97066;
-  --dm-c2:#7a7a7a; --dm-c3:#a3a3a3; --dm-c4:#5c5c5c;
+  --dm-ink:#f5f5f5; --dm-on-ink:#0a0a0a; --dm-on-btn:#0a0a0a;
   --dm-shadow:0 0 0 1px rgba(255,255,255,.1),0 0 0 4px rgba(255,255,255,.02),0 0 32px 4px rgba(255,255,255,.05),0 1px 1px rgba(0,0,0,.5),0 2px 10px -4px rgba(0,0,0,.6);
   --dm-shadow-pop:0 0 0 1px rgba(255,255,255,.1),0 1px 1px rgba(0,0,0,.5),0 12px 28px -12px rgba(0,0,0,.8);
   --dm-tip-bg:#1f1f1f; --dm-tip-fg:#f5f5f5; --dm-tip-ring:0 0 0 1px rgba(255,255,255,.1),0 6px 16px -6px rgba(0,0,0,.7);
@@ -499,12 +496,7 @@ code.dm-c{font-family:var(--dm-mono);font-size:12.5px;background:var(--dm-chip);
   --dm-chip:#1f1f1f; --dm-hover:#232323; --dm-press:#2a2a2a; --dm-wash:#181818; --dm-row:#1a1a1a;
   --dm-soft:#1f1f1f; --dm-soft-h:#262626; --dm-soft-ring:inset 0 0 0 1px rgba(255,255,255,.06); --dm-dis:#666666;
   --dm-ghost:#262626; --dm-ghost-2:#1e1e1e;
-  --dm-accent:#f5f5f5; --dm-on-accent:#0a0a0a; --dm-accent-fg:#f5f5f5; --dm-accent-mark:#f5f5f5; --dm-accent-2:#ffffff;
-  --dm-accent-bg:rgba(255,255,255,.07); --dm-sel:rgba(255,255,255,.05);
-  --dm-ink:#f5f5f5; --dm-on-ink:#0a0a0a;
-  --dm-ok:#4ade80; --dm-ok-bg:rgba(34,197,94,.13); --dm-ok-mark:#22c55e; --dm-warn:#ffc247; --dm-warn-bg:rgba(255,184,40,.14); --dm-warn-mark:#ffa940;
-  --dm-bad:#ffaca4; --dm-bad-bg:rgba(240,68,56,.14); --dm-bad-mark:#f97066;
-  --dm-c2:#7a7a7a; --dm-c3:#a3a3a3; --dm-c4:#5c5c5c;
+  --dm-ink:#f5f5f5; --dm-on-ink:#0a0a0a; --dm-on-btn:#0a0a0a;
   --dm-shadow:0 0 0 1px rgba(255,255,255,.1),0 0 0 4px rgba(255,255,255,.02),0 0 32px 4px rgba(255,255,255,.05),0 1px 1px rgba(0,0,0,.5),0 2px 10px -4px rgba(0,0,0,.6);
   --dm-shadow-pop:0 0 0 1px rgba(255,255,255,.1),0 1px 1px rgba(0,0,0,.5),0 12px 28px -12px rgba(0,0,0,.8);
   --dm-tip-bg:#1f1f1f; --dm-tip-fg:#f5f5f5; --dm-tip-ring:0 0 0 1px rgba(255,255,255,.1),0 6px 16px -6px rgba(0,0,0,.7);
@@ -518,6 +510,11 @@ code.dm-c{font-family:var(--dm-mono);font-size:12.5px;background:var(--dm-chip);
   --dm-knob:#2a2a2a; --dm-knob-shadow:0 0 0 1px rgba(255,255,255,.08),inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.5); --dm-track-ring:inset 0 0 0 1px rgba(255,255,255,.04),inset 0 1px 3px rgba(0,0,0,.35);
   --dm-area:.09;
   color-scheme:dark}
+/* no red fill behind an error (owner, 17 Nov): a failed row in the inbox or the eval results, an error line in the run
+   drawer's log and a wrong code digit keep their red words and marks on the row as it is */
+:root[data-style="clean"] :is(.dm-aib-i.dm-fail,.dm-aib-i.dm-mv.dm-fail,.dm-evr-i.dm-fail):not(:hover),:root [data-style="clean"] :is(.dm-aib-i.dm-fail,.dm-aib-i.dm-mv.dm-fail,.dm-evr-i.dm-fail):not(:hover),:root [data-style="clean"]:is(.dm-aib-i.dm-fail,.dm-aib-i.dm-mv.dm-fail,.dm-evr-i.dm-fail):not(:hover){background:transparent}
+:root[data-style="clean"] .dm-rdr-l[data-l="error"],:root [data-style="clean"] .dm-rdr-l[data-l="error"],:root [data-style="clean"].dm-rdr-l[data-l="error"]{background:transparent}
+:root[data-style="clean"] .dm-otp-in.dm-bad .dm-otp-d,:root [data-style="clean"] .dm-otp-in.dm-bad .dm-otp-d,:root [data-style="clean"].dm-otp-in.dm-bad .dm-otp-d{background:var(--dm-surface)}
 /* every corner round, never a squircle */
 :root[data-style="clean"] :where([data-dm],[data-dm] *,.dm-tip,.dm-tip *,.dm-kbx-k.dm-ghost,.dm-kbx-k.dm-ghost *),:root [data-style="clean"] :where([data-dm],[data-dm] *,.dm-tip,.dm-tip *,.dm-kbx-k.dm-ghost,.dm-kbx-k.dm-ghost *),:root [data-style="clean"]:where([data-dm],[data-dm] *,.dm-tip,.dm-tip *,.dm-kbx-k.dm-ghost,.dm-kbx-k.dm-ghost *),:root[data-style="clean"] :where([data-dm],[data-dm] *,.dm-tip,.dm-tip *,.dm-kbx-k.dm-ghost,.dm-kbx-k.dm-ghost *)::before,:root [data-style="clean"] :where([data-dm],[data-dm] *,.dm-tip,.dm-tip *,.dm-kbx-k.dm-ghost,.dm-kbx-k.dm-ghost *)::before,:root [data-style="clean"]:where([data-dm],[data-dm] *,.dm-tip,.dm-tip *,.dm-kbx-k.dm-ghost,.dm-kbx-k.dm-ghost *)::before,:root[data-style="clean"] :where([data-dm],[data-dm] *,.dm-tip,.dm-tip *,.dm-kbx-k.dm-ghost,.dm-kbx-k.dm-ghost *)::after,:root [data-style="clean"] :where([data-dm],[data-dm] *,.dm-tip,.dm-tip *,.dm-kbx-k.dm-ghost,.dm-kbx-k.dm-ghost *)::after,:root [data-style="clean"]:where([data-dm],[data-dm] *,.dm-tip,.dm-tip *,.dm-kbx-k.dm-ghost,.dm-kbx-k.dm-ghost *)::after{corner-shape:round!important}
 /* icons a little finer; words that swap fade without a blur; the tooltip and menus scale and fade, never blur */
@@ -539,7 +536,7 @@ code.dm-c{font-family:var(--dm-mono);font-size:12.5px;background:var(--dm-chip);
    (.97, the inner shade deepens) and it springs back in 150ms */
 :root[data-style="clean"] .dm-pill,:root [data-style="clean"] .dm-pill,:root [data-style="clean"].dm-pill{font-weight:500;transition:transform var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease),background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
 :root[data-style="clean"] .dm-pill:active,:root [data-style="clean"] .dm-pill:active,:root [data-style="clean"].dm-pill:active{transform:scale(.97)}
-:root[data-style="clean"] .dm-pill:is(.dm-primary,.dm-accent):not([disabled]),:root [data-style="clean"] .dm-pill:is(.dm-primary,.dm-accent):not([disabled]),:root [data-style="clean"].dm-pill:is(.dm-primary,.dm-accent):not([disabled]){color:var(--dm-on-accent);background:linear-gradient(180deg,var(--dm-btn-1),var(--dm-btn-2));box-shadow:var(--dm-btn-depth)}
+:root[data-style="clean"] .dm-pill:is(.dm-primary,.dm-accent):not([disabled]),:root [data-style="clean"] .dm-pill:is(.dm-primary,.dm-accent):not([disabled]),:root [data-style="clean"].dm-pill:is(.dm-primary,.dm-accent):not([disabled]){color:var(--dm-on-btn);background:linear-gradient(180deg,var(--dm-btn-1),var(--dm-btn-2));box-shadow:var(--dm-btn-depth)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-pill:is(.dm-primary,.dm-accent):not([disabled]):hover,:root [data-style="clean"] .dm-pill:is(.dm-primary,.dm-accent):not([disabled]):hover,:root [data-style="clean"].dm-pill:is(.dm-primary,.dm-accent):not([disabled]):hover{background:linear-gradient(180deg,color-mix(in srgb,var(--dm-btn-1) 88%,#808080),var(--dm-btn-2))}}
 :root[data-style="clean"] .dm-pill:is(.dm-primary,.dm-accent):not([disabled]):active,:root [data-style="clean"] .dm-pill:is(.dm-primary,.dm-accent):not([disabled]):active,:root [data-style="clean"].dm-pill:is(.dm-primary,.dm-accent):not([disabled]):active{box-shadow:var(--dm-btn-press)}
 :root[data-style="clean"] :is(.dm-pill.dm-line,.dm-pill.dm-soft):not([disabled]),:root [data-style="clean"] :is(.dm-pill.dm-line,.dm-pill.dm-soft):not([disabled]),:root [data-style="clean"]:is(.dm-pill.dm-line,.dm-pill.dm-soft):not([disabled]){color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
@@ -554,7 +551,9 @@ code.dm-c{font-family:var(--dm-mono);font-size:12.5px;background:var(--dm-chip);
 :root[data-style="clean"] .dm-seg2 .dm-knob,:root [data-style="clean"] .dm-seg2 .dm-knob,:root [data-style="clean"].dm-seg2 .dm-knob{background:var(--dm-knob);box-shadow:var(--dm-knob-shadow);transition:left var(--dm-t) var(--dm-ease),width var(--dm-t) var(--dm-ease)}
 :root[data-style="clean"] .dm-seg2 button,:root [data-style="clean"] .dm-seg2 button,:root [data-style="clean"].dm-seg2 button{color:var(--dm-muted);font-weight:500;transition:color var(--dm-t-fast) var(--dm-ease)}
 :root[data-style="clean"] .dm-seg2 button[aria-pressed="true"],:root [data-style="clean"] .dm-seg2 button[aria-pressed="true"],:root [data-style="clean"].dm-seg2 button[aria-pressed="true"]{color:var(--dm-fg)}
-/* toggles: ink when on, a white knob with a hairline, and a soft inner shadow in the track */
+/* toggles: ink when on (a switcher is chrome), a knob with a hairline, and a soft inner shadow in the track */
+:root[data-style="clean"] .dm-toggle[aria-checked="true"],:root [data-style="clean"] .dm-toggle[aria-checked="true"],:root [data-style="clean"].dm-toggle[aria-checked="true"]{background:var(--dm-btn-2);box-shadow:inset 0 0 0 1px var(--dm-btn-2),inset 0 2px 4px -1px rgba(0,0,0,.3)}
+:root[data-style="clean"] .dm-toggle[aria-checked="true"]::after,:root [data-style="clean"] .dm-toggle[aria-checked="true"]::after,:root [data-style="clean"].dm-toggle[aria-checked="true"]::after{background:var(--dm-on-btn)}
 :root[data-style="clean"] .dm-toggle,:root [data-style="clean"] .dm-toggle,:root [data-style="clean"].dm-toggle{box-shadow:inset 0 0 0 1px rgba(0,0,0,.05),inset 0 2px 4px -1px rgba(0,0,0,.18)}
 :root[data-style="clean"] .dm-toggle::after,:root [data-style="clean"] .dm-toggle::after,:root [data-style="clean"].dm-toggle::after{box-shadow:0 0 0 .5px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.2);transition:transform var(--dm-t) var(--dm-ease)}
 

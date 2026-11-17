@@ -26,7 +26,7 @@
    mark, an avatar or an app, the name and what it is on now, and its time and cost (a branch adds up everything under it) */
 .atr-tree{position:relative;padding:var(--dm-s-1) 0}
 .atr-n{position:relative;outline:0}
-.atr-b{border-radius:calc(8px * var(--dm-rk));transition:background var(--dm-t-fast)}
+.atr-b{border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));transition:background var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.atr-b:hover{background:var(--dm-row)}}
 .atr-n[aria-selected="true"]>.atr-b{background:var(--dm-row);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .atr-n:focus-visible>.atr-b{box-shadow:inset 0 0 0 2px var(--dm-focus)}
@@ -51,14 +51,14 @@
 /* marks are true circles in both styles: Blueprint squares every corner and Soft draws squircles */
 :root .atr .atr-g.atr-g,:root .atr .atr-g.atr-g>span,:root .atr .atr-dot.atr-dot{border-radius:50%!important;corner-shape:round!important}
 /* who: an agent's avatar in its colour (--dm-a, its ink --dm-ai; the orchestrator's is ink), or the app a step works in */
-.atr-av{width:22px;height:22px;flex:none;display:grid;place-items:center;border-radius:calc(6px * var(--dm-rk));background:var(--dm-a,var(--dm-fg));color:var(--dm-ai,var(--dm-surface))}
+.atr-av{width:22px;height:22px;flex:none;display:grid;place-items:center;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));background:var(--dm-a,var(--dm-fg));color:var(--dm-ai,var(--dm-surface))}
 .atr-av .i{width:12px;height:12px}
 .atr-av.app{background:var(--dm-surface);color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent)}
 .atr-av .brand{width:13px;height:13px}
 /* the name, a chevron that folds a branch, and what it is on now in muted text after it (it shimmers while it runs) */
 .atr-tx{flex:1;min-width:0;display:flex;align-items:baseline;gap:var(--dm-s-2);white-space:nowrap}
 .atr-nm{flex:0 0 auto;max-width:100%;overflow:hidden;text-overflow:ellipsis;font-weight:500}
-.atr-tg{align-self:center;width:16px;height:16px;margin-left:-6px;flex:none;display:grid;place-items:center;border-radius:calc(4px * var(--dm-rk));color:var(--dm-muted);cursor:pointer;transition:background var(--dm-t-fast),color var(--dm-t-fast)}
+.atr-tg{align-self:center;width:16px;height:16px;margin-left:-6px;flex:none;display:grid;place-items:center;border-radius:calc(4px * var(--dm-rk-s,var(--dm-rk)));color:var(--dm-muted);cursor:pointer;transition:background var(--dm-t-fast),color var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.atr-tg:hover{background:var(--dm-chip);color:var(--dm-fg)}}
 .atr-tg svg{width:12px;height:12px;transition:transform .32s var(--dm-ease)}
 .atr-n[aria-expanded="false"]>.atr-b .atr-tg svg{transform:rotate(-90deg)}
@@ -129,16 +129,10 @@
   .atr-g[data-drw] path{animation:none;stroke-dashoffset:0}
   .atr-n[data-s="run"]>.atr-b .atr-sub{animation:none;background:none;-webkit-text-fill-color:currentColor}
 }
-/* Clean (owner, 17 Nov): monochrome. What runs is ink (the spinner, the start, the band), ticks are ink discs, red only for
-   a failure; agents and apps sit on white tiles with a hairline and an ink icon (the orchestrator stays ink); the lines are
-   hairlines, a started one a step stronger; a step waiting for a person sits on the row grey with a hairline; the cost split
-   is an off-white foot strip */
-:root[data-style="clean"] .atr,:root [data-style="clean"] .atr,:root [data-style="clean"].atr{--dm-atr-run:var(--dm-fg);--dm-atr-flow:var(--dm-line-strong)}
-:root[data-style="clean"] .atr:not(.bare),:root [data-style="clean"] .atr:not(.bare),:root [data-style="clean"].atr:not(.bare){padding-bottom:0}
-:root[data-style="clean"] .atr-av:is(.app,[style]),:root [data-style="clean"] .atr-av:is(.app,[style]),:root [data-style="clean"].atr-av:is(.app,[style]){color:var(--dm-fg);background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-line),0 1px 1px rgba(0,0,0,.03)}
-:root[data-style="clean"] .atr-g[data-m="done"],:root [data-style="clean"] .atr-g[data-m="done"],:root [data-style="clean"].atr-g[data-m="done"]{background:var(--dm-fg)}
-:root[data-style="clean"] .atr-n[data-s="wait"]>.atr-b,:root [data-style="clean"] .atr-n[data-s="wait"]>.atr-b,:root [data-style="clean"].atr-n[data-s="wait"]>.atr-b{background:var(--dm-row);box-shadow:inset 0 0 0 1px var(--dm-line)}
-:root[data-style="clean"] .atr-n[data-s="wait"]>.atr-b .atr-sub,:root [data-style="clean"] .atr-n[data-s="wait"]>.atr-b .atr-sub,:root [data-style="clean"].atr-n[data-s="wait"]>.atr-b .atr-sub{color:var(--dm-fg)}
+/* Clean (owner, 17 Nov): the tree keeps its colours (the accent where it runs, green ticks, agents' own colours, red for a
+   failure); its rails are hairlines and the cost split is an off-white foot strip */
+:root[data-style="clean"] .atr:not(.bare),:root [data-style="clean"] .atr:not(.bare),:root [data-style="clean"].atr:not(.bare){padding:12px 12px 0}
+:root[data-style="clean"] .atr:not(.bare) .atr-h,:root [data-style="clean"] .atr:not(.bare) .atr-h,:root [data-style="clean"].atr:not(.bare) .atr-h{padding-top:6px}
 :root[data-style="clean"] .atr-ln .r,:root [data-style="clean"] .atr-ln .r,:root [data-style="clean"].atr-ln .r{stroke:var(--dm-line)}
 :root[data-style="clean"] .atr-ln .bad,:root [data-style="clean"] .atr-ln .bad,:root [data-style="clean"].atr-ln .bad{stroke:color-mix(in srgb,var(--dm-bad-mark) 55%,var(--dm-surface))}
-:root[data-style="clean"] .atr:not(.bare) .atr-f,:root [data-style="clean"] .atr:not(.bare) .atr-f,:root [data-style="clean"].atr:not(.bare) .atr-f{margin:var(--dm-s-1) calc(-1 * var(--dm-s-2)) 0;padding:10px var(--dm-s-4);background:var(--dm-strip);border-top-color:var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+:root[data-style="clean"] .atr:not(.bare) .atr-f,:root [data-style="clean"] .atr:not(.bare) .atr-f,:root [data-style="clean"].atr:not(.bare) .atr-f{margin:var(--dm-s-1) -12px 0;padding:18px 20px;background:var(--dm-strip);border-top-color:var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}

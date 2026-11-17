@@ -173,7 +173,7 @@
 .mpk-tr:focus-visible{outline:2px solid var(--dm-focus);outline-offset:2px}
 .mpk-ef{font-weight:400;font-size:12.5px}
 /* each model's mark carries the letter colour that reads on it (--dm-mt): on the accent fill that is --dm-on-accent */
-.mpk-mk{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk));display:grid;place-items:center;font-size:11px;font-weight:500;color:var(--dm-mt,var(--dm-on-ink));background:var(--dm-mc,var(--dm-fg2));flex:none;transition:background .32s}
+.mpk-mk{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));display:grid;place-items:center;font-size:11px;font-weight:500;color:var(--dm-mt,var(--dm-on-ink));background:var(--dm-mc,var(--dm-fg2));flex:none;transition:background .32s}
 .mpk-p{padding:6px;display:flex;flex-direction:column}
 .mpk-hd,.mpk-o{display:grid;grid-template-columns:20px minmax(0,1fr) repeat(3,34px);align-items:center;gap:10px}
 .mpk-hd{padding:var(--dm-s-1) 10px 2px;font-size:11px;color:var(--dm-muted)}
@@ -192,7 +192,7 @@
 .mpk-o.busy .d{color:var(--dm-warn)}
 .mpk-o.busy .mpk-mk{background:var(--dm-warn-mark);color:var(--dm-on-ink)}
 .mpk-m{display:flex;gap:2px;height:8px}
-.mpk-m i{flex:1;border-radius:2px;background:var(--dm-rail);transition:background .32s}
+.mpk-m i{flex:1;border-radius:var(--dm-r-tiny,2px);background:var(--dm-rail);transition:background .32s}
 .mpk-m i.on{background:var(--dm-fg2)}
 .mpk-o[aria-checked="true"]:not(.busy) .mpk-m i.on{background:var(--dm-accent-mark,var(--dm-accent))}
 /* the way out when a model can't take the request: wait for it, or a close match that starts now */
@@ -218,6 +218,8 @@
 /* phones: the line under each name wraps, and the meters keep room for their labels */
 /* on a phone the meters close up so a model's line keeps two or three words to a row */
 @media (max-width:480px){.mpk-hd,.mpk-o{grid-template-columns:20px minmax(0,1fr) repeat(3,34px);gap:6px}.mpk-hd{font-size:10.5px;padding-inline:6px}.mpk-o{padding-inline:6px}.mpk-o .d{white-space:normal}}
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style="clean"] .mpk-p.panel,:root [data-style="clean"] .mpk-p.panel,:root [data-style="clean"].mpk-p.panel{padding:15px 20px 12px 20px}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px + var(--sw,0px))}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px + var(--sw,0px))}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px + var(--sw,0px))}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px + var(--sw,0px))}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -519,7 +521,7 @@ export function ModelPicker({
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>model-picker.css<span class="l">React · 60 lines</span></summary><pre class="cp-pre" data-name="model-picker.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>model-picker.css<span class="l">React · 62 lines</span></summary><pre class="cp-pre" data-name="model-picker.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Model picker ---------- */
 /* a trigger that names the model and how hard it thinks, over the open list: speed, quality and cost as five-step meters
    with the real numbers on hover, and the thinking effort under them as a small dropdown */
@@ -533,7 +535,7 @@ export function ModelPicker({
 .dm-mpk-tr:focus-visible{outline:2px solid var(--dm-focus);outline-offset:2px}
 .dm-mpk-ef{font-weight:400;font-size:12.5px}
 /* each model&#39;s mark carries the letter colour that reads on it (--dm-mt): on the accent fill that is --dm-on-accent */
-.dm-mpk-mk{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk));display:grid;place-items:center;font-size:11px;font-weight:500;color:var(--dm-mt,var(--dm-on-ink));background:var(--dm-mc,var(--dm-fg2));flex:none;transition:background .32s}
+.dm-mpk-mk{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));display:grid;place-items:center;font-size:11px;font-weight:500;color:var(--dm-mt,var(--dm-on-ink));background:var(--dm-mc,var(--dm-fg2));flex:none;transition:background .32s}
 .dm-mpk-p{padding:6px;display:flex;flex-direction:column}
 .dm-mpk-hd,.dm-mpk-o{display:grid;grid-template-columns:20px minmax(0,1fr) repeat(3,34px);align-items:center;gap:10px}
 .dm-mpk-hd{padding:var(--dm-s-1) 10px 2px;font-size:11px;color:var(--dm-muted)}
@@ -552,7 +554,7 @@ export function ModelPicker({
 .dm-mpk-o.dm-busy .dm-d{color:var(--dm-warn)}
 .dm-mpk-o.dm-busy .dm-mpk-mk{background:var(--dm-warn-mark);color:var(--dm-on-ink)}
 .dm-mpk-m{display:flex;gap:2px;height:8px}
-.dm-mpk-m i{flex:1;border-radius:2px;background:var(--dm-rail);transition:background .32s}
+.dm-mpk-m i{flex:1;border-radius:var(--dm-r-tiny,2px);background:var(--dm-rail);transition:background .32s}
 .dm-mpk-m i.dm-on{background:var(--dm-fg2)}
 .dm-mpk-o[aria-checked=&quot;true&quot;]:not(.dm-busy) .dm-mpk-m i.dm-on{background:var(--dm-accent-mark,var(--dm-accent))}
 /* the way out when a model can&#39;t take the request: wait for it, or a close match that starts now */
@@ -578,6 +580,8 @@ export function ModelPicker({
 /* phones: the line under each name wraps, and the meters keep room for their labels */
 /* on a phone the meters close up so a model&#39;s line keeps two or three words to a row */
 @media (max-width:480px){.dm-mpk-hd,.dm-mpk-o{grid-template-columns:20px minmax(0,1fr) repeat(3,34px);gap:6px}.dm-mpk-hd{font-size:10.5px;padding-inline:6px}.dm-mpk-o{padding-inline:6px}.dm-mpk-o .dm-d{white-space:normal}}
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style=&quot;clean&quot;] .dm-mpk-p.dm-panel,:root [data-style=&quot;clean&quot;] .dm-mpk-p.dm-panel,:root [data-style=&quot;clean&quot;].dm-mpk-p.dm-panel{padding:15px 20px 12px 20px}
 </code></pre></details><details class="cp-file"><summary>ModelPicker.astro<span class="l">Astro · 42 lines</span></summary><pre class="cp-pre" data-name="ModelPicker.astro"><code>---
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
 // Model picker: Pick a model by speed, quality and cost, and how hard it thinks.
@@ -642,7 +646,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>model-picker.css<span class="l">HTML · 59 lines</span></summary><pre class="cp-pre" data-name="model-picker.css"><code>/* ---------- Model picker ---------- */
+</code></pre></details><details class="cp-file"><summary>model-picker.css<span class="l">HTML · 61 lines</span></summary><pre class="cp-pre" data-name="model-picker.css"><code>/* ---------- Model picker ---------- */
 /* a trigger that names the model and how hard it thinks, over the open list: speed, quality and cost as five-step meters
    with the real numbers on hover, and the thinking effort under them as a small dropdown */
 .mpk{position:relative;display:flex;flex-direction:column;gap:var(--dm-s-2);width:100%;max-width:420px;margin:0 auto}
@@ -655,7 +659,7 @@ const { class: className, ...rest } = Astro.props;
 .mpk-tr:focus-visible{outline:2px solid var(--dm-focus);outline-offset:2px}
 .mpk-ef{font-weight:400;font-size:12.5px}
 /* each model&#39;s mark carries the letter colour that reads on it (--dm-mt): on the accent fill that is --dm-on-accent */
-.mpk-mk{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk));display:grid;place-items:center;font-size:11px;font-weight:500;color:var(--dm-mt,var(--dm-on-ink));background:var(--dm-mc,var(--dm-fg2));flex:none;transition:background .32s}
+.mpk-mk{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));display:grid;place-items:center;font-size:11px;font-weight:500;color:var(--dm-mt,var(--dm-on-ink));background:var(--dm-mc,var(--dm-fg2));flex:none;transition:background .32s}
 .mpk-p{padding:6px;display:flex;flex-direction:column}
 .mpk-hd,.mpk-o{display:grid;grid-template-columns:20px minmax(0,1fr) repeat(3,34px);align-items:center;gap:10px}
 .mpk-hd{padding:var(--dm-s-1) 10px 2px;font-size:11px;color:var(--dm-muted)}
@@ -674,7 +678,7 @@ const { class: className, ...rest } = Astro.props;
 .mpk-o.busy .d{color:var(--dm-warn)}
 .mpk-o.busy .mpk-mk{background:var(--dm-warn-mark);color:var(--dm-on-ink)}
 .mpk-m{display:flex;gap:2px;height:8px}
-.mpk-m i{flex:1;border-radius:2px;background:var(--dm-rail);transition:background .32s}
+.mpk-m i{flex:1;border-radius:var(--dm-r-tiny,2px);background:var(--dm-rail);transition:background .32s}
 .mpk-m i.on{background:var(--dm-fg2)}
 .mpk-o[aria-checked=&quot;true&quot;]:not(.busy) .mpk-m i.on{background:var(--dm-accent-mark,var(--dm-accent))}
 /* the way out when a model can&#39;t take the request: wait for it, or a close match that starts now */
@@ -700,6 +704,8 @@ const { class: className, ...rest } = Astro.props;
 /* phones: the line under each name wraps, and the meters keep room for their labels */
 /* on a phone the meters close up so a model&#39;s line keeps two or three words to a row */
 @media (max-width:480px){.mpk-hd,.mpk-o{grid-template-columns:20px minmax(0,1fr) repeat(3,34px);gap:6px}.mpk-hd{font-size:10.5px;padding-inline:6px}.mpk-o{padding-inline:6px}.mpk-o .d{white-space:normal}}
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style=&quot;clean&quot;] .mpk-p.panel,:root [data-style=&quot;clean&quot;] .mpk-p.panel,:root [data-style=&quot;clean&quot;].mpk-p.panel{padding:15px 20px 12px 20px}
 </code></pre></details><details class="cp-file"><summary>model-picker.js<span class="l">HTML · 76 lines</span></summary><pre class="cp-pre" data-name="model-picker.js"><code>DM.def(&#39;model-picker&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(/\{chev\}/g, I(&#39;chev-d&#39;,&#39;xs&#39;)).replace(&#39;{brain}&#39;, I(&#39;brain&#39;,&#39;xs&#39;)).replace(/\{chk\}/g, I(&#39;check&#39;,&#39;xs&#39;));
   // speed, quality and cost out of five, and the numbers behind them: tokens a second, and a typical reply&#39;s seconds and

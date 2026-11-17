@@ -187,6 +187,8 @@
 .asx.dirty .asx-bar{transform:none;opacity:1;filter:none;pointer-events:auto;height:40px;margin-bottom:0}
 /* hidden, the bar takes no room at all: its padding goes too, so the panel ends as evenly as it starts (owner, 4 Nov) */
 .asx:not(.dirty) .asx-bar{padding-block:0}
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style="clean"] .asx.panel,:root [data-style="clean"] .asx.panel,:root [data-style="clean"].asx.panel{padding:8px 20px 14px 20px}
 </style><style>/* the design switch under it (the card's tabs on designme.dev): Classic, the settings above, then Live preview, Tabs and
    Presets, each drawn in the same slot at the full width */
 .dm.asx-dm>.dm-main{align-items:stretch}
@@ -196,7 +198,7 @@
 :root[data-theme="dark"] .asx-dm{--dm-asx-lift:var(--dm-hover)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .asx-dm{--dm-asx-lift:var(--dm-hover)}}
 /* a tool's own mark on a white tile */
-.asx-app{width:26px;height:26px;border-radius:calc(8px * var(--dm-rk));display:grid;place-items:center;flex:none;background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent);color:var(--dm-fg)}
+.asx-app{width:26px;height:26px;border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));display:grid;place-items:center;flex:none;background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent);color:var(--dm-fg)}
 .asx-app .brand{width:14px;height:14px}
 .asx-app .i{width:13px;height:13px;color:var(--dm-fg2)}
 /* Live preview: one autonomy slider, and under it what the agent would do alone or ask about on a real run, on white */
@@ -207,7 +209,7 @@
 .asx-lp-lv,.asx-lp-cv{font-size:12.5px;color:var(--dm-fg2)}
 /* the slider: three stops, a fill to the stop you are on, a thumb that glides and snaps */
 .asx-lp-sl{position:relative;height:28px;margin:0 10px;cursor:pointer;touch-action:none;outline:0}
-.asx-lp-tr{position:absolute;left:0;right:0;top:12px;height:4px;border-radius:2px;background:var(--dm-line)}
+.asx-lp-tr{position:absolute;left:0;right:0;top:12px;height:4px;border-radius:var(--dm-r-tiny,2px);background:var(--dm-line)}
 .asx-lp-fill{position:absolute;left:0;top:0;bottom:0;width:100%;border-radius:inherit;background:var(--dm-accent-mark);transform-origin:left;transform:scaleX(var(--dm-v,.5));transition:transform .45s var(--dm-ease)}
 .asx-lp-stop{position:absolute;top:-3px;left:calc(var(--dm-x) * 100%);width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--dm-surface);box-shadow:inset 0 0 0 2px var(--dm-rail)}
 .asx-lp-th{position:absolute;top:2px;left:0;width:24px;height:24px;margin-left:-12px;border-radius:50%;display:grid;place-items:center;background:var(--dm-surface);box-shadow:var(--dm-shadow-pop);transform:translateX(var(--dm-tx,0px));transition:transform .45s var(--dm-ease),box-shadow .2s}
@@ -216,7 +218,7 @@
 .asx-lp-sl.drag .asx-lp-fill{transition:none}
 .asx-lp-sl:focus-visible .asx-lp-th{box-shadow:var(--dm-shadow-pop),0 0 0 2px var(--dm-surface),0 0 0 4px var(--dm-focus)}
 .asx-lp-ticks{display:flex;justify-content:space-between;margin:-4px 0 0}
-.asx-lp-ticks button{padding:2px var(--dm-s-1);border-radius:calc(6px * var(--dm-rk));font-size:12px;color:var(--dm-muted);transition:color .2s}
+.asx-lp-ticks button{padding:2px var(--dm-s-1);border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));font-size:12px;color:var(--dm-muted);transition:color .2s}
 .asx-lp-ticks button.on{color:var(--dm-fg)}
 @media (hover:hover) and (pointer:fine){.asx-lp-ticks button:hover{color:var(--dm-fg)}}
 /* the run, on white inside a dimmed outline: each action's verdict is the site's tag, green when it acts alone, amber when
@@ -227,11 +229,11 @@
 .asx-lp-acts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
 .asx-lp-a{display:flex;align-items:center;gap:10px;min-height:32px;font-size:12.5px}
 .asx-lp-a .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.asx-lp-a .asx-app{width:24px;height:24px;border-radius:calc(7px * var(--dm-rk))}
+.asx-lp-a .asx-app{width:24px;height:24px;border-radius:calc(7px * var(--dm-rk-m,var(--dm-rk)))}
 /* the cap's slider, drawn to match: a track that fills to the cap and a round thumb (square in Blueprint) */
-.asx-lp-rg{-webkit-appearance:none;appearance:none;width:100%;height:22px;margin:0;background:none;cursor:pointer;border-radius:calc(6px * var(--dm-rk))}
-.asx-lp-rg::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:linear-gradient(var(--dm-accent-mark),var(--dm-accent-mark)) 0 0/var(--dm-f,50%) 100% no-repeat,var(--dm-line)}
-.asx-lp-rg::-moz-range-track{height:4px;border-radius:2px;background:linear-gradient(var(--dm-accent-mark),var(--dm-accent-mark)) 0 0/var(--dm-f,50%) 100% no-repeat,var(--dm-line)}
+.asx-lp-rg{-webkit-appearance:none;appearance:none;width:100%;height:22px;margin:0;background:none;cursor:pointer;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)))}
+.asx-lp-rg::-webkit-slider-runnable-track{height:4px;border-radius:var(--dm-r-tiny,2px);background:linear-gradient(var(--dm-accent-mark),var(--dm-accent-mark)) 0 0/var(--dm-f,50%) 100% no-repeat,var(--dm-line)}
+.asx-lp-rg::-moz-range-track{height:4px;border-radius:var(--dm-r-tiny,2px);background:linear-gradient(var(--dm-accent-mark),var(--dm-accent-mark)) 0 0/var(--dm-f,50%) 100% no-repeat,var(--dm-line)}
 .asx-lp-rg::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;margin-top:-7px;border:0;border-radius:50%;background:var(--dm-surface);box-shadow:var(--dm-shadow-pop),inset 0 0 0 5px var(--dm-accent-mark);transition:transform .2s var(--dm-ease)}
 .asx-lp-rg::-moz-range-thumb{width:18px;height:18px;border:0;border-radius:50%;background:var(--dm-surface);box-shadow:var(--dm-shadow-pop),inset 0 0 0 5px var(--dm-accent-mark)}
 .asx-lp-rg:active::-webkit-slider-thumb{transform:scale(1.12)}
@@ -320,7 +322,7 @@
 .asx-ps-p[data-p="care"]{--dm-asx-pc:var(--dm-pt);--dm-asx-pc-bg:var(--dm-pt-bg)}
 .asx-ps-p[data-p="bal"]{--dm-asx-pc:var(--dm-accent-fg);--dm-asx-pc-bg:var(--dm-accent-bg)}
 .asx-ps-p[data-p="bold"]{--dm-asx-pc:var(--dm-pl);--dm-asx-pc-bg:var(--dm-pl-bg)}
-.asx-ps-pi{width:28px;height:28px;border-radius:calc(9px * var(--dm-rk));display:grid;place-items:center;background:var(--dm-asx-pc-bg);color:var(--dm-asx-pc)}
+.asx-ps-pi{width:28px;height:28px;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));display:grid;place-items:center;background:var(--dm-asx-pc-bg);color:var(--dm-asx-pc)}
 .asx-ps-pi .i{width:14px;height:14px}
 .asx-ps-p b{font-size:13px;font-weight:500}
 .asx-ps-p .d{font-size:11.5px;line-height:1.35;color:var(--dm-muted)}
@@ -328,7 +330,7 @@
 @media (hover:hover) and (pointer:fine){.asx-ps-p:hover .d{color:var(--dm-fg2)}}
 /* how far the preset trusts the agent, as a short meter */
 .asx-ps-m{display:flex;gap:2px;margin-top:auto}
-.asx-ps-m i{width:10px;height:4px;border-radius:2px;background:var(--dm-line)}
+.asx-ps-m i{width:10px;height:4px;border-radius:var(--dm-r-tiny,2px);background:var(--dm-line)}
 .asx-ps-m i.on{background:var(--dm-accent-mark)}
 .asx-ps-mx{display:flex;flex-direction:column;gap:var(--dm-s-1)}
 .asx-ps-mh,.asx-ps-row{display:grid;grid-template-columns:minmax(0,1fr) repeat(3,64px);align-items:center;gap:var(--dm-s-1)}
@@ -336,7 +338,7 @@
 .asx-ps-mh span{text-align:center}
 .asx-ps-mh span:first-child{text-align:left}
 .asx-ps-grid{display:flex;flex-direction:column;gap:2px}
-.asx-ps-row{min-height:40px;padding:3px var(--dm-s-1);border-radius:calc(10px * var(--dm-rk));transition:background .2s}
+.asx-ps-row{min-height:40px;padding:3px var(--dm-s-1);border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));transition:background .2s}
 @media (hover:hover) and (pointer:fine){.asx-ps-row:hover{background:var(--dm-row)}}
 .asx-ps-tl{display:flex;align-items:center;gap:var(--dm-s-2);min-width:0;font-size:12.5px}
 .asx-ps-tl span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -351,7 +353,7 @@
 @supports (corner-shape:squircle){.asx-ps-c{corner-shape:squircle;border-radius:var(--dm-r-tag-sq)}}
 .asx-ps-key{display:flex;gap:var(--dm-s-3);justify-content:flex-end;padding:2px var(--dm-s-1) 0;font-size:11.5px;color:var(--dm-muted)}
 .asx-ps-key span{display:inline-flex;align-items:center;gap:5px}
-.asx-ps-key i{width:8px;height:8px;border-radius:2px}
+.asx-ps-key i{width:8px;height:8px;border-radius:var(--dm-r-tiny,2px)}
 .asx-ps-key .al i{background:var(--dm-asx-al)}
 .asx-ps-key .as i{background:var(--dm-asx-as)}
 .asx-ps-key .bl i{background:var(--dm-muted)}
@@ -595,7 +597,7 @@ export function AgentSettings({
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>agent-settings.css<span class="l">React · 29 lines</span></summary><pre class="cp-pre" data-name="agent-settings.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>agent-settings.css<span class="l">React · 31 lines</span></summary><pre class="cp-pre" data-name="agent-settings.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Agent settings ---------- */
 .dm-asx{padding:6px 14px 14px;display:flex;flex-direction:column;position:relative;overflow:hidden;transition:padding-bottom .45s var(--dm-ease)}
 /* with nothing to save, the panel ends as it starts: the same room under the last field as over the first row (owner, 4 Nov) */
@@ -623,6 +625,8 @@ export function AgentSettings({
 .dm-asx.dm-dirty .dm-asx-bar{transform:none;opacity:1;filter:none;pointer-events:auto;height:40px;margin-bottom:0}
 /* hidden, the bar takes no room at all: its padding goes too, so the panel ends as evenly as it starts (owner, 4 Nov) */
 .dm-asx:not(.dm-dirty) .dm-asx-bar{padding-block:0}
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style=&quot;clean&quot;] .dm-asx.dm-panel,:root [data-style=&quot;clean&quot;] .dm-asx.dm-panel,:root [data-style=&quot;clean&quot;].dm-asx.dm-panel{padding:8px 20px 14px 20px}
 </code></pre></details><details class="cp-file"><summary>AgentSettings.astro<span class="l">Astro · 32 lines</span></summary><pre class="cp-pre" data-name="AgentSettings.astro"><code>---
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
 // Agent settings: How much the agent may do alone, with a save bar for changes.
@@ -667,7 +671,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>agent-settings.css<span class="l">HTML · 28 lines</span></summary><pre class="cp-pre" data-name="agent-settings.css"><code>/* ---------- Agent settings ---------- */
+</code></pre></details><details class="cp-file"><summary>agent-settings.css<span class="l">HTML · 30 lines</span></summary><pre class="cp-pre" data-name="agent-settings.css"><code>/* ---------- Agent settings ---------- */
 .asx{padding:6px 14px 14px;display:flex;flex-direction:column;position:relative;overflow:hidden;transition:padding-bottom .45s var(--dm-ease)}
 /* with nothing to save, the panel ends as it starts: the same room under the last field as over the first row (owner, 4 Nov) */
 .asx:not(.dirty){padding-bottom:6px}
@@ -694,6 +698,8 @@ const { class: className, ...rest } = Astro.props;
 .asx.dirty .asx-bar{transform:none;opacity:1;filter:none;pointer-events:auto;height:40px;margin-bottom:0}
 /* hidden, the bar takes no room at all: its padding goes too, so the panel ends as evenly as it starts (owner, 4 Nov) */
 .asx:not(.dirty) .asx-bar{padding-block:0}
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style=&quot;clean&quot;] .asx.panel,:root [data-style=&quot;clean&quot;] .asx.panel,:root [data-style=&quot;clean&quot;].asx.panel{padding:8px 20px 14px 20px}
 </code></pre></details><details class="cp-file"><summary>agent-settings.js<span class="l">HTML · 24 lines</span></summary><pre class="cp-pre" data-name="agent-settings.js"><code>DM.def(&#39;agent-settings&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{minus}&#39;, I(&#39;minus&#39;,&#39;xs&#39;)).replace(&#39;{plus}&#39;, I(&#39;plus&#39;,&#39;xs&#39;));
   const root = $(&#39;.asx&#39;, r), steps = $$(&#39;.asx-steps button&#39;, r), knob = $(&#39;.asx-knob&#39;, r), ad = $(&#39;.asx-ad&#39;, r), tg = $$(&#39;.toggle&#39;, r), v = $(&#39;.asx-v&#39;, r), ta = $(&#39;.asx-ta&#39;, r);

@@ -19,7 +19,7 @@
 .aln-ct::before{content:"·";margin-right:6px}
 .aln-rows{position:relative}
 .aln-rows>*{position:relative}
-.aln-lane{border-radius:calc(14px * var(--dm-rk));transition:background .3s}
+.aln-lane{border-radius:calc(14px * var(--dm-rk-l,var(--dm-rk)));transition:background .3s}
 @media (hover:hover) and (pointer:fine){.aln-lane:hover{background:var(--dm-row)}}
 /* the lane at work carries a wash of its hue from the left */
 .aln-lane[data-s="working"]{background:linear-gradient(90deg,color-mix(in srgb,var(--dm-c) 8%,transparent),transparent 72%)}
@@ -34,7 +34,7 @@
    and the line from badge to badge stays a single clean line */
 .aln-rows>.aln-lane.sent::before,.aln-rows>.aln-lane.got::after,.aln-rows>.aln-hf.lit::before{background:transparent}
 .aln-row{display:grid;grid-template-columns:34px minmax(0,1.2fr) minmax(0,1fr) auto;align-items:center;gap:var(--dm-s-3);width:100%;padding:10px;text-align:left}
-.aln-av{position:relative;width:34px;height:34px;border-radius:calc(11px * var(--dm-rk));display:grid;place-items:center;color:var(--dm-c);background:var(--dm-cb);transition:color .4s,background .4s}
+.aln-av{position:relative;width:34px;height:34px;border-radius:calc(11px * var(--dm-rk-l,var(--dm-rk)));display:grid;place-items:center;color:var(--dm-c);background:var(--dm-cb);transition:color .4s,background .4s}
 .aln-av::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none}
 .aln-lane[data-s="working"] .aln-av{animation:alnbreathe 2.4s var(--dm-ease-io) infinite}
 @keyframes alnbreathe{0%,100%{box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-c) 22%,transparent),0 0 0 1px color-mix(in srgb,var(--dm-fg) 0%,transparent)}50%{box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-c) 22%,transparent),0 0 0 5px color-mix(in srgb,var(--dm-fg) 6%,transparent)}}
@@ -51,7 +51,7 @@
 .aln-a.live{color:var(--dm-fg2)}
 /* the track: one part a step. Finished parts are solid, the one in hand fills as the agent works, with a light running along it */
 .aln-tr{display:flex;gap:3px}
-.aln-tr i{flex:1;height:10px;border-radius:5px;background:color-mix(in srgb,var(--dm-cm) 16%,var(--dm-surface));position:relative;overflow:hidden}
+.aln-tr i{flex:1;height:10px;border-radius:var(--dm-r-tiny,5px);background:color-mix(in srgb,var(--dm-cm) 16%,var(--dm-surface));position:relative;overflow:hidden}
 .aln-tr i::after{content:"";position:absolute;inset:0;border-radius:inherit;background:var(--dm-cm);transform:scaleX(var(--dm-p,0));transform-origin:left;transition:transform .25s linear}
 .aln-tr i.on::after{transform:scaleX(1);transition:transform .5s var(--dm-ease)}
 .aln-tr i.run::after{background:linear-gradient(90deg,var(--dm-cm) 0 30%,color-mix(in srgb,var(--dm-cm) 30%,var(--dm-surface)) 50%,var(--dm-cm) 70% 100%) 0 0/250% 100%;animation:alnsheen 1.6s linear infinite}
@@ -95,3 +95,5 @@
 :root:not([data-style="soft"],[data-style="clean"]) .aln-pk:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){width:1px;left:26.5px;border-radius:0;background:var(--dm-to)}
 :root:not([data-style="soft"],[data-style="clean"]) .aln-av.ping:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *))::before{animation:alnpingbp .6s steps(3,end)}
 @keyframes alnpingbp{from{box-shadow:0 0 0 1px var(--dm-c)}to{box-shadow:0 0 0 7px transparent}}
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style="clean"] .aln.panel,:root [data-style="clean"] .aln.panel,:root [data-style="clean"].aln.panel{padding:12px 20px 20px 20px}
