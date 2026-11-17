@@ -178,6 +178,24 @@
 .spl.mo .spl-track{opacity:0;transition:opacity .16s}
 .spl-fill{height:100%;width:0;border-radius:inherit;background:var(--dm-accent-mark,var(--dm-accent));transition:width .8s var(--dm-ease)}
 .spl-pill{position:relative}
+/* Clean (owner, 17 Nov): a hairline monochrome pill, 36px, with the card's outline and short shadow; ink words and marks,
+   colour only on the status (the green tick, the orange wait dot). A step crosses with a 3px fade, no blur; Review is the
+   ink button, round and concentric in the pill. The bar takes the card's 12px corners and a 3px rail with an ink fill */
+:root[data-style="clean"] .spl-stage,:root [data-style="clean"] .spl-stage{min-height:40px}
+:root[data-style="clean"] .spl-pill,:root [data-style="clean"] .spl-pill{height:36px;border-radius:999px;background:var(--dm-surface);box-shadow:var(--dm-shadow);transition:width .3s var(--dm-ease),border-radius .42s var(--dm-ease),height .42s var(--dm-ease)}
+:root[data-style="clean"] .spl-in,:root [data-style="clean"] .spl-in{gap:8px;padding:0 5px 0 13px;font-size:13px;color:var(--dm-fg);transition:opacity .24s var(--dm-ease),transform .24s var(--dm-ease)}
+:root[data-style="clean"] .spl-in.out,:root [data-style="clean"] .spl-in.out{opacity:0;filter:none;transform:translateY(-3px);transition:opacity .15s ease-in-out,transform .15s ease-in-out}
+:root[data-style="clean"] .spl-in .g,:root [data-style="clean"] .spl-in .g{width:14px;color:var(--dm-fg2)!important}
+:root[data-style="clean"] .spl-in .g:has(svg),:root [data-style="clean"] .spl-in .g:has(svg){color:var(--dm-ok)!important}
+:root[data-style="clean"] .spl-in .g:has(.dot):not(:has(.dot[style])),:root [data-style="clean"] .spl-in .g:has(.dot):not(:has(.dot[style])){color:var(--dm-warn-mark)!important}
+:root[data-style="clean"] .spl-in .m,:root [data-style="clean"] .spl-in .m{color:var(--dm-muted)}
+:root[data-style="clean"] .spl-in .pill,:root [data-style="clean"] .spl-in .pill{height:26px;padding:0 11px;border-radius:999px;margin-left:2px}
+:root[data-style="clean"] .spl.bar .spl-pill,:root [data-style="clean"] .spl.bar .spl-pill{height:58px;border-radius:var(--dm-r-card)}
+:root[data-style="clean"] .spl.bar .spl-in,:root [data-style="clean"] .spl.bar .spl-in{height:42px;padding:0 14px}
+/* the measure under the bar lies across Review's lower half: it lets the pointer through */
+:root[data-style="clean"] .spl-track,:root [data-style="clean"] .spl-track{left:14px;right:14px;bottom:12px;height:3px;border-radius:2px;background:var(--dm-rail);pointer-events:none}
+:root[data-style="clean"] .spl-fill,:root [data-style="clean"] .spl-fill{background:var(--dm-accent-mark);transition:width .6s var(--dm-ease)}
+@media (prefers-reduced-motion:reduce){:root[data-style="clean"] :is(.spl-pill,.spl-in,.spl-in.out,.spl-fill),:root [data-style="clean"] :is(.spl-pill,.spl-in,.spl-in.out,.spl-fill){transition:none!important}}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px + var(--sw,0px))}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px + var(--sw,0px))}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px + var(--sw,0px))}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px + var(--sw,0px))}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -384,7 +402,7 @@ export function StatusPill(props: StatusPillProps) {
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>status-pill.css<span class="l">React · 20 lines</span></summary><pre class="cp-pre" data-name="status-pill.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>status-pill.css<span class="l">React · 38 lines</span></summary><pre class="cp-pre" data-name="status-pill.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Status pill ---------- */
 .dm-spl-stage{min-height:44px;justify-content:center}
 .dm-spl-pill{background:var(--dm-surface);border-radius:var(--dm-r-pill);box-shadow:var(--dm-shadow);height:40px;display:flex;align-items:center;overflow:hidden;transition:width .6s var(--dm-ease),border-radius .5s var(--dm-ease),height .5s var(--dm-ease)}
@@ -403,6 +421,24 @@ export function StatusPill(props: StatusPillProps) {
 .dm-spl.dm-mo .dm-spl-track{opacity:0;transition:opacity .16s}
 .dm-spl-fill{height:100%;width:0;border-radius:inherit;background:var(--dm-accent-mark,var(--dm-accent));transition:width .8s var(--dm-ease)}
 .dm-spl-pill{position:relative}
+/* Clean (owner, 17 Nov): a hairline monochrome pill, 36px, with the card&#39;s outline and short shadow; ink words and marks,
+   colour only on the status (the green tick, the orange wait dot). A step crosses with a 3px fade, no blur; Review is the
+   ink button, round and concentric in the pill. The bar takes the card&#39;s 12px corners and a 3px rail with an ink fill */
+:root[data-style=&quot;clean&quot;] .dm-spl-stage,:root [data-style=&quot;clean&quot;] .dm-spl-stage{min-height:40px}
+:root[data-style=&quot;clean&quot;] .dm-spl-pill,:root [data-style=&quot;clean&quot;] .dm-spl-pill{height:36px;border-radius:999px;background:var(--dm-surface);box-shadow:var(--dm-shadow);transition:width .3s var(--dm-ease),border-radius .42s var(--dm-ease),height .42s var(--dm-ease)}
+:root[data-style=&quot;clean&quot;] .dm-spl-in,:root [data-style=&quot;clean&quot;] .dm-spl-in{gap:8px;padding:0 5px 0 13px;font-size:13px;color:var(--dm-fg);transition:opacity .24s var(--dm-ease),transform .24s var(--dm-ease)}
+:root[data-style=&quot;clean&quot;] .dm-spl-in.dm-out,:root [data-style=&quot;clean&quot;] .dm-spl-in.dm-out{opacity:0;filter:none;transform:translateY(-3px);transition:opacity .15s ease-in-out,transform .15s ease-in-out}
+:root[data-style=&quot;clean&quot;] .dm-spl-in .dm-g,:root [data-style=&quot;clean&quot;] .dm-spl-in .dm-g{width:14px;color:var(--dm-fg2)!important}
+:root[data-style=&quot;clean&quot;] .dm-spl-in .dm-g:has(svg),:root [data-style=&quot;clean&quot;] .dm-spl-in .dm-g:has(svg){color:var(--dm-ok)!important}
+:root[data-style=&quot;clean&quot;] .dm-spl-in .dm-g:has(.dm-dot):not(:has(.dm-dot[style])),:root [data-style=&quot;clean&quot;] .dm-spl-in .dm-g:has(.dm-dot):not(:has(.dm-dot[style])){color:var(--dm-warn-mark)!important}
+:root[data-style=&quot;clean&quot;] .dm-spl-in .dm-m,:root [data-style=&quot;clean&quot;] .dm-spl-in .dm-m{color:var(--dm-muted)}
+:root[data-style=&quot;clean&quot;] .dm-spl-in .dm-pill,:root [data-style=&quot;clean&quot;] .dm-spl-in .dm-pill{height:26px;padding:0 11px;border-radius:999px;margin-left:2px}
+:root[data-style=&quot;clean&quot;] .dm-spl.dm-bar .dm-spl-pill,:root [data-style=&quot;clean&quot;] .dm-spl.dm-bar .dm-spl-pill{height:58px;border-radius:var(--dm-r-card)}
+:root[data-style=&quot;clean&quot;] .dm-spl.dm-bar .dm-spl-in,:root [data-style=&quot;clean&quot;] .dm-spl.dm-bar .dm-spl-in{height:42px;padding:0 14px}
+/* the measure under the bar lies across Review&#39;s lower half: it lets the pointer through */
+:root[data-style=&quot;clean&quot;] .dm-spl-track,:root [data-style=&quot;clean&quot;] .dm-spl-track{left:14px;right:14px;bottom:12px;height:3px;border-radius:2px;background:var(--dm-rail);pointer-events:none}
+:root[data-style=&quot;clean&quot;] .dm-spl-fill,:root [data-style=&quot;clean&quot;] .dm-spl-fill{background:var(--dm-accent-mark);transition:width .6s var(--dm-ease)}
+@media (prefers-reduced-motion:reduce){:root[data-style=&quot;clean&quot;] :is(.dm-spl-pill,.dm-spl-in,.dm-spl-in.dm-out,.dm-spl-fill),:root [data-style=&quot;clean&quot;] :is(.dm-spl-pill,.dm-spl-in,.dm-spl-in.dm-out,.dm-spl-fill){transition:none!important}}
 </code></pre></details><details class="cp-file"><summary>StatusPill.astro<span class="l">Astro · 29 lines</span></summary><pre class="cp-pre" data-name="StatusPill.astro"><code>---
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
 // Status pill: One live line for what the agent is doing right now.
@@ -441,7 +477,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>status-pill.css<span class="l">HTML · 19 lines</span></summary><pre class="cp-pre" data-name="status-pill.css"><code>/* ---------- Status pill ---------- */
+</code></pre></details><details class="cp-file"><summary>status-pill.css<span class="l">HTML · 37 lines</span></summary><pre class="cp-pre" data-name="status-pill.css"><code>/* ---------- Status pill ---------- */
 .spl-stage{min-height:44px;justify-content:center}
 .spl-pill{background:var(--dm-surface);border-radius:var(--dm-r-pill);box-shadow:var(--dm-shadow);height:40px;display:flex;align-items:center;overflow:hidden;transition:width .6s var(--dm-ease),border-radius .5s var(--dm-ease),height .5s var(--dm-ease)}
 .spl-in{display:flex;align-items:center;gap:9px;padding:0 6px 0 14px;height:100%;white-space:nowrap;font-size:13.5px;transition:opacity .32s var(--dm-ease),filter .32s var(--dm-ease)}
@@ -459,6 +495,24 @@ const { class: className, ...rest } = Astro.props;
 .spl.mo .spl-track{opacity:0;transition:opacity .16s}
 .spl-fill{height:100%;width:0;border-radius:inherit;background:var(--dm-accent-mark,var(--dm-accent));transition:width .8s var(--dm-ease)}
 .spl-pill{position:relative}
+/* Clean (owner, 17 Nov): a hairline monochrome pill, 36px, with the card&#39;s outline and short shadow; ink words and marks,
+   colour only on the status (the green tick, the orange wait dot). A step crosses with a 3px fade, no blur; Review is the
+   ink button, round and concentric in the pill. The bar takes the card&#39;s 12px corners and a 3px rail with an ink fill */
+:root[data-style=&quot;clean&quot;] .spl-stage,:root [data-style=&quot;clean&quot;] .spl-stage{min-height:40px}
+:root[data-style=&quot;clean&quot;] .spl-pill,:root [data-style=&quot;clean&quot;] .spl-pill{height:36px;border-radius:999px;background:var(--dm-surface);box-shadow:var(--dm-shadow);transition:width .3s var(--dm-ease),border-radius .42s var(--dm-ease),height .42s var(--dm-ease)}
+:root[data-style=&quot;clean&quot;] .spl-in,:root [data-style=&quot;clean&quot;] .spl-in{gap:8px;padding:0 5px 0 13px;font-size:13px;color:var(--dm-fg);transition:opacity .24s var(--dm-ease),transform .24s var(--dm-ease)}
+:root[data-style=&quot;clean&quot;] .spl-in.out,:root [data-style=&quot;clean&quot;] .spl-in.out{opacity:0;filter:none;transform:translateY(-3px);transition:opacity .15s ease-in-out,transform .15s ease-in-out}
+:root[data-style=&quot;clean&quot;] .spl-in .g,:root [data-style=&quot;clean&quot;] .spl-in .g{width:14px;color:var(--dm-fg2)!important}
+:root[data-style=&quot;clean&quot;] .spl-in .g:has(svg),:root [data-style=&quot;clean&quot;] .spl-in .g:has(svg){color:var(--dm-ok)!important}
+:root[data-style=&quot;clean&quot;] .spl-in .g:has(.dot):not(:has(.dot[style])),:root [data-style=&quot;clean&quot;] .spl-in .g:has(.dot):not(:has(.dot[style])){color:var(--dm-warn-mark)!important}
+:root[data-style=&quot;clean&quot;] .spl-in .m,:root [data-style=&quot;clean&quot;] .spl-in .m{color:var(--dm-muted)}
+:root[data-style=&quot;clean&quot;] .spl-in .pill,:root [data-style=&quot;clean&quot;] .spl-in .pill{height:26px;padding:0 11px;border-radius:999px;margin-left:2px}
+:root[data-style=&quot;clean&quot;] .spl.bar .spl-pill,:root [data-style=&quot;clean&quot;] .spl.bar .spl-pill{height:58px;border-radius:var(--dm-r-card)}
+:root[data-style=&quot;clean&quot;] .spl.bar .spl-in,:root [data-style=&quot;clean&quot;] .spl.bar .spl-in{height:42px;padding:0 14px}
+/* the measure under the bar lies across Review&#39;s lower half: it lets the pointer through */
+:root[data-style=&quot;clean&quot;] .spl-track,:root [data-style=&quot;clean&quot;] .spl-track{left:14px;right:14px;bottom:12px;height:3px;border-radius:2px;background:var(--dm-rail);pointer-events:none}
+:root[data-style=&quot;clean&quot;] .spl-fill,:root [data-style=&quot;clean&quot;] .spl-fill{background:var(--dm-accent-mark);transition:width .6s var(--dm-ease)}
+@media (prefers-reduced-motion:reduce){:root[data-style=&quot;clean&quot;] :is(.spl-pill,.spl-in,.spl-in.out,.spl-fill),:root [data-style=&quot;clean&quot;] :is(.spl-pill,.spl-in,.spl-in.out,.spl-fill){transition:none!important}}
 </code></pre></details><details class="cp-file"><summary>status-pill.js<span class="l">HTML · 47 lines</span></summary><pre class="cp-pre" data-name="status-pill.js"><code>DM.def(&#39;status-pill&#39;, (r, c) =&gt; {
   const pill = $(&#39;.spl-pill&#39;, r), box = $(&#39;.spl-in&#39;, r), root = $(&#39;.spl&#39;, r);
   pill.insertAdjacentHTML(&#39;beforeend&#39;, &#39;&lt;div class=&quot;spl-track&quot;&gt;&lt;div class=&quot;spl-fill&quot;&gt;&lt;/div&gt;&lt;/div&gt;&#39;);

@@ -353,6 +353,24 @@
 .v2 .spl.mo .spl-track{opacity:0;transition:opacity .16s}
 .v2 .spl-fill{height:100%;width:0;border-radius:inherit;background:var(--accent-mark,var(--accent));transition:width .8s var(--ease)}
 .v2 .spl-pill{position:relative}
+/* Clean (owner, 17 Nov): a hairline monochrome pill, 36px, with the card's outline and short shadow; ink words and marks,
+   colour only on the status (the green tick, the orange wait dot). A step crosses with a 3px fade, no blur; Review is the
+   ink button, round and concentric in the pill. The bar takes the card's 12px corners and a 3px rail with an ink fill */
+:root[data-style="clean"] .v2 .spl-stage{min-height:40px}
+:root[data-style="clean"] .v2 .spl-pill{height:36px;border-radius:999px;background:var(--surface);box-shadow:var(--shadow);transition:width .3s var(--ease),border-radius .42s var(--ease),height .42s var(--ease)}
+:root[data-style="clean"] .v2 .spl-in{gap:8px;padding:0 5px 0 13px;font-size:13px;color:var(--fg);transition:opacity .24s var(--ease),transform .24s var(--ease)}
+:root[data-style="clean"] .v2 .spl-in.out{opacity:0;filter:none;transform:translateY(-3px);transition:opacity .15s ease-in-out,transform .15s ease-in-out}
+:root[data-style="clean"] .v2 .spl-in .g{width:14px;color:var(--fg2)!important}
+:root[data-style="clean"] .v2 .spl-in .g:has(svg){color:var(--ok)!important}
+:root[data-style="clean"] .v2 .spl-in .g:has(.dot):not(:has(.dot[style])){color:var(--warn-mark)!important}
+:root[data-style="clean"] .v2 .spl-in .m{color:var(--muted)}
+:root[data-style="clean"] .v2 .spl-in .pill{height:26px;padding:0 11px;border-radius:999px;margin-left:2px}
+:root[data-style="clean"] .v2 .spl.bar .spl-pill{height:58px;border-radius:var(--r-card)}
+:root[data-style="clean"] .v2 .spl.bar .spl-in{height:42px;padding:0 14px}
+/* the measure under the bar lies across Review's lower half: it lets the pointer through */
+:root[data-style="clean"] .v2 .spl-track{left:14px;right:14px;bottom:12px;height:3px;border-radius:2px;background:var(--rail);pointer-events:none}
+:root[data-style="clean"] .v2 .spl-fill{background:var(--accent-mark);transition:width .6s var(--ease)}
+@media (prefers-reduced-motion:reduce){:root[data-style="clean"] .v2 :is(.spl-pill,.spl-in,.spl-in.out,.spl-fill){transition:none!important}}
 /* ---------- Step loader ---------- */
 .v2 .stl .dm-main{gap:10px}
 .v2 .stl-row{display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:var(--r-pill);box-shadow:var(--shadow);height:40px;padding:0 14px 0 13px;font-size:13.5px;min-width:250px;transition:box-shadow .3s}
@@ -581,6 +599,35 @@
 .v2 .ctm-ring .fl{stroke:var(--accent-mark,var(--accent));stroke-linecap:round;stroke-dasharray:0 100;transition:stroke-dasharray .42s var(--ease),stroke .32s}
 .v2 .ctm.hot .ctm-ring .fl{stroke:var(--warn-mark)}
 
+/* Clean (owner, 17 Nov): the pill is the white secondary control with its depth inside the fill; the ring is ink on a
+   grey rail. The panel is a 12px card with an off-white head strip and foot strip, opening and shutting with a 4px move and
+   no blur. The four parts of the bar are one grey ramp, each at 3:1 or more on the card; Compact is a secondary button */
+:root[data-style="clean"] .v2 .ctm{--cm1:#0a0a0a;--cm2:#525252;--cm3:#7a7a7a;--cm4:#949494}
+@media (prefers-color-scheme:dark){:root[data-style="clean"]:not([data-theme="light"]) .v2 .ctm{--cm1:#f5f5f5;--cm2:#b3b3b3;--cm3:#8a8a8a;--cm4:#6b6b6b}}
+:root[data-style="clean"][data-theme="dark"] .v2 .ctm{--cm1:#f5f5f5;--cm2:#b3b3b3;--cm3:#8a8a8a;--cm4:#6b6b6b}
+:root[data-style="clean"] .v2 .ctm-tg{height:32px;border-radius:var(--r-pill);color:var(--fg2);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth);transition:box-shadow var(--t-fast) var(--ease),transform var(--t-fast) var(--ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .ctm-tg:hover{box-shadow:var(--btn2-hover)}}
+:root[data-style="clean"] .v2 .ctm-tg:active{transform:scale(.97)}
+:root[data-style="clean"] .v2 .ctm-ring .tr{stroke:var(--rail)}
+:root[data-style="clean"] .v2 .ctm-pop{padding:0;gap:0;overflow:hidden;transition:opacity .24s var(--ease),transform .32s var(--ease),visibility 0s}
+:root[data-style="clean"] .v2 .ctm[data-open="0"] .ctm-pop{transform:translateY(-4px);transition:opacity .15s var(--ease),transform .2s var(--ease),visibility 0s .2s}
+:root[data-style="clean"] .v2 .ctm-ph{padding:10px 14px;background:var(--strip);border-bottom:1px solid var(--line);font-size:12.5px}
+:root[data-style="clean"] .v2 .ctm-bar{margin:14px 14px 0;height:6px;gap:2px;border-radius:3px;background:var(--rail)}
+:root[data-style="clean"] .v2 .ctm-bar i{transition:width .42s var(--ease),opacity .15s var(--ease)}
+:root[data-style="clean"] .v2 .ctm-bar i:first-child{border-radius:3px 0 0 3px}
+:root[data-style="clean"] .v2 .ctm-bar.hl i:not(.on){opacity:.28}
+:root[data-style="clean"] .v2 .ctm :is(.ctm-bar i,.ctm-l)[data-k="files"]{--c:var(--cm1)!important}
+:root[data-style="clean"] .v2 .ctm :is(.ctm-bar i,.ctm-l)[data-k="tools"]{--c:var(--cm2)!important}
+:root[data-style="clean"] .v2 .ctm :is(.ctm-bar i,.ctm-l)[data-k="chat"]{--c:var(--cm3)!important}
+:root[data-style="clean"] .v2 .ctm :is(.ctm-bar i,.ctm-l)[data-k="sys"]{--c:var(--cm4)!important}
+:root[data-style="clean"] .v2 .ctm-leg{margin:10px 8px 0}
+:root[data-style="clean"] .v2 .ctm-l{border-radius:6px;transition:background-color var(--t-fast) var(--ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .ctm-l:hover{background:var(--row)}}
+:root[data-style="clean"] .v2 .ctm-msg{margin:6px 14px 0}
+:root[data-style="clean"] .v2 .ctm-f{margin-top:12px;padding:8px 14px;background:var(--strip);border-top:1px solid var(--line)}
+:root[data-style="clean"] .v2 .ctm-go{height:26px;padding:0 10px;border-radius:var(--r-pill);color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .ctm-go:hover{background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-hover)}}
+@media (prefers-reduced-motion:reduce){:root[data-style="clean"] .v2 :is(.ctm-pop,.ctm-bar i,.ctm-tg){transition:none!important}}
 /* ---------- Agent tree ---------- */
 /* an orchestrator and the agents it hands work to, as a tree that grows while the run plays: a header with the run's title,
    its status, the time and the total cost, then the tree. A parent's line runs down from its mark and each child branches
@@ -703,6 +750,21 @@
   .v2 .atr-g[data-drw] path{animation:none;stroke-dashoffset:0}
   .v2 .atr-n[data-s="run"]>.atr-b .atr-sub{animation:none;background:none;-webkit-text-fill-color:currentColor}
 }
+/* Clean (owner, 17 Nov): monochrome. What runs is ink (the spinner, the start, the band), ticks are ink discs, red only for
+   a failure; agents and apps sit on white tiles with a hairline and an ink icon (the orchestrator stays ink); the lines are
+   hairlines, a started one a step stronger; a step waiting for a person sits on the row grey with a hairline; the cost split
+   is an off-white foot strip */
+:root[data-style="clean"] .v2 .atr{--atr-run:var(--fg);--atr-flow:var(--line-strong)}
+:root[data-style="clean"] .v2 .atr:not(.bare){padding-bottom:0}
+:root[data-style="clean"] .v2 .atr-av:is(.app,[style]){color:var(--fg);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line),0 1px 1px rgba(0,0,0,.03)}
+:root[data-style="clean"] .v2 .atr-g[data-m="done"]{background:var(--fg)}
+:root[data-style="clean"] .v2 .atr-n[data-s="wait"]>.atr-b{background:var(--row);box-shadow:inset 0 0 0 1px var(--line)}
+:root[data-style="clean"] .v2 .atr-n[data-s="wait"]>.atr-b .atr-sub{color:var(--fg)}
+:root[data-style="clean"] .v2 .atr-ln .r{stroke:var(--line)}
+:root[data-style="clean"] .v2 .atr-ln .bad{stroke:color-mix(in srgb,var(--bad-mark) 55%,var(--surface))}
+:root[data-style="clean"] .v2 .atr:not(.bare){display:flex;flex-direction:column}
+/* the strip sits at the foot of the card, however tall the card is held */
+:root[data-style="clean"] .v2 .atr:not(.bare) .atr-f{margin:auto calc(-1 * var(--s-2)) 0;padding:10px var(--s-4);background:var(--strip);border-top-color:var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
 /* ---------- Agent tree designs ---------- */
 /* the card's design switch: Classic, Cost tree and Cost map, with the switch under the tree (on designme.dev it is the
    card's footer tabs). Each design sits centred in the room the card keeps for the tallest of them (--dmy, set by the switch) */
@@ -921,6 +983,27 @@
 .v2 .rc-rows .num{color:var(--fg)}
 .v2 .rc-f{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:var(--s-3);padding-top:var(--s-3);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .v2 .rc-cap-t{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--fg2);cursor:pointer}
+/* Clean (owner, 17 Nov): a 12px card with its hairline; the status a white chip with a hairline and grey words, only its dot
+   in a status colour; a 6px rail with an ink fill (orange at the cap) and an ink budget line; rows that answer the pointer
+   with the faintest grey; the controls on an off-white foot strip */
+:root[data-style="clean"] .v2 .rc{padding:16px 16px 0;overflow:hidden}
+:root[data-style="clean"] .v2 .rc-h{font-size:12.5px}
+:root[data-style="clean"] .v2 .rc-big .muted{font-size:13px}
+:root[data-style="clean"] .v2 .rc-st,:root[data-style="clean"] .v2 .rc-st:is(.b,.warn,.bad){height:22px;padding:0 8px 0 7px;background:var(--surface);color:var(--fg2);box-shadow:inset 0 0 0 1px var(--hair);font-weight:500}
+:root[data-style="clean"] .v2 .rc-st .dot{background:var(--faint)}
+:root[data-style="clean"] .v2 .rc-st.b .dot{background:var(--accent-mark)}
+:root[data-style="clean"] .v2 .rc-st.warn .dot{background:var(--warn-mark)}
+:root[data-style="clean"] .v2 .rc-st.bad .dot{background:var(--bad-mark)}
+:root[data-style="clean"] .v2 .rc-track{height:6px;border-radius:3px;background:var(--rail);margin:12px 0 14px}
+:root[data-style="clean"] .v2 .rc-fill{border-radius:3px}
+:root[data-style="clean"] .v2 .rc:not(:has(.rc-st.warn)) .rc-fill{background:var(--accent-mark)!important}
+:root[data-style="clean"] .v2 .rc-cap{background:var(--fg)}
+:root[data-style="clean"] .v2 .rc-rows{margin:0 -6px}
+:root[data-style="clean"] .v2 .rc-rows>div{padding:5px 6px;border-radius:6px;transition:background-color var(--t-fast) var(--ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .rc-rows>div:hover{background:var(--row)}}
+:root[data-style="clean"] .v2 .rc-f{margin:12px -16px 0;padding:8px 16px;border-top:1px solid var(--line);background:var(--strip)}
+:root[data-style="clean"] .v2 .rc-go{transition:transform var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
+@media (prefers-reduced-motion:reduce){:root[data-style="clean"] .v2 .rc-rows>div{transition:none}}
 /* ---------- Toast ---------- */
 /* the toast on its way out and the one coming in share one cell, so each keeps its full width while they cross */
 .v2 .tst-slot{min-height:64px;width:100%;display:grid;justify-items:center;align-items:end}
@@ -1459,6 +1542,25 @@
 @keyframes v2-artdrawbp{from{clip-path:inset(0 100% 100% 0)}to{clip-path:inset(0)}}
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .art-past{background:repeating-linear-gradient(135deg,transparent 0 5px,var(--grid) 5px 6px)}
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .art-head i{width:1px;left:-.5px}
+/* Clean (owner, 17 Nov): black, white and grey. The three kinds of step are ink, dark grey and mid grey, flat bars with a
+   small corner; the failed run a red hatch; icons on white tiles with a hairline; the playhead an ink hairline with an ink
+   time chip (a hairline chip once done); the status a hairline chip; the totals an off-white foot strip */
+:root[data-style="clean"] .v2 .art{padding-bottom:0}
+:root[data-style="clean"] .v2 .art-row[data-k="model"],:root[data-style="clean"] .v2 .art-key span:has(b[data-k="model"]){--k:var(--fg)!important;--kt:var(--fg)!important}
+:root[data-style="clean"] .v2 .art-row[data-k="tool"],:root[data-style="clean"] .v2 .art-key span:has(b[data-k="tool"]){--k:color-mix(in srgb,var(--fg) 66%,var(--surface))!important;--kt:var(--fg)!important}
+:root[data-style="clean"] .v2 .art-row[data-k="app"],:root[data-style="clean"] .v2 .art-key span:has(b[data-k="app"]){--k:color-mix(in srgb,var(--fg) 46%,var(--surface))!important;--kt:var(--fg)!important}
+:root[data-style="clean"] .v2 .art-tag:not(.ok),:root[data-style="clean"] .v2 .art.live .art-tag:not(.ok){background:var(--surface);color:var(--fg2);box-shadow:inset 0 0 0 1px var(--line)}
+:root[data-style="clean"] .v2 .art-tag.ok{background:var(--strip);color:var(--fg);box-shadow:inset 0 0 0 1px var(--line)}
+:root[data-style="clean"] .v2 .art-lab .tag.bad{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--bad-mark) 45%,transparent)}
+:root[data-style="clean"] .v2 .art-ic,:root[data-style="clean"] .v2 .art-row[data-k="app"] .art-ic{background:var(--surface);color:var(--fg);--ring:inset 0 0 0 1px var(--line)}
+:root[data-style="clean"] .v2 .art-bar,:root[data-style="clean"] .v2 .art-row[data-s="run"] .art-bar{top:11px;height:10px;border-radius:3px;background:var(--k);animation:none}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .art-bar:hover{filter:none}}
+:root[data-style="clean"] .v2 .art-row[data-s="fail"] .art-bar{background:repeating-linear-gradient(135deg,var(--bad-mark) 0 2px,transparent 2px 5px);box-shadow:inset 0 0 0 1px var(--bad-mark)}
+:root[data-style="clean"] .v2 .art-past{display:none}
+:root[data-style="clean"] .v2 .art-head i,:root[data-style="clean"] .v2 .art.fin .art-head i{width:1px;left:-.5px;background:var(--fg)}
+:root[data-style="clean"] .v2 .art-now{background:var(--fg);color:var(--surface)}
+:root[data-style="clean"] .v2 .art.fin .art-now{background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 1px var(--line-strong)}
+:root[data-style="clean"] .v2 .art-f{margin:var(--s-3) calc(-1 * var(--s-4)) 0;padding:12px var(--s-4);background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
 /* ---------- Live answer ---------- */
 .v2 .lva{display:flex;flex-direction:column;gap:14px}
 .v2 .lva-q{display:flex;justify-content:flex-end}
@@ -4601,6 +4703,41 @@
 @keyframes v2-mtxpulse{50%{background:color-mix(in srgb,var(--accent) 86%,#000)}}
 .v2 .mtx-join[disabled] .mk{opacity:.5}
 @media (prefers-reduced-motion:reduce){.v2 .mtx.live :is(.mtx-join,.mtx-jm){animation:none}.v2 .mtx-bp,.v2 .mtx-now,.v2 .mtx-who .av{transition:none}.v2 .mtx-roll i.in,.v2 .mtx-fade{animation:none}}
+/* Clean (owner, 17 Nov): the meeting and its track on white, the people and actions on an off-white foot strip under a
+   hairline. The track, the block and its time chips are pills; the block keeps the accent tint (ink in Clean) with a faint
+   ink edge and fine 45deg lines over the part that has run; the now line is ink. The status chip is white with a hairline and
+   grey words, only the live dot green. Join is the ink button, split, with a very light divider and no breathing; its menu
+   scales and fades from the chevron. The faces as they are; initials in pale grey with ink letters */
+@keyframes v2-clfade{from{opacity:0}}
+@keyframes v2-clroll{from{transform:translateY(60%);opacity:0}}
+:root[data-style="clean"] .v2 .mtx{padding:0;gap:0}
+:root[data-style="clean"] .v2 .mtx-h{padding:16px 16px 0}
+:root[data-style="clean"] .v2 .mtx-t{font-size:14px;font-weight:500;letter-spacing:-.01em}
+:root[data-style="clean"] .v2 .mtx-track{margin:16px;height:40px;background:var(--surface);border-radius:999px;box-shadow:inset 0 0 0 1px var(--line)}
+:root[data-style="clean"] .v2 .mtx-f{position:relative;z-index:3;padding:12px 16px;background:var(--strip);border-top:1px solid var(--line);border-bottom-left-radius:inherit;border-bottom-right-radius:inherit}
+:root[data-style="clean"] .v2 .mtx-blk,:root[data-style="clean"] .v2 .mtx-blk>.num{border-radius:999px}
+:root[data-style="clean"] .v2 .mtx-blk{outline-color:color-mix(in srgb,var(--fg) 16%,transparent)}
+:root[data-style="clean"] .v2 .mtx-blk>.num{box-shadow:0 0 0 1px var(--hair)}
+:root[data-style="clean"] .v2 .mtx-bp{background:repeating-linear-gradient(45deg,color-mix(in srgb,var(--fg) 34%,transparent) 0 1px,transparent 1px 6px);transition:width .45s var(--ease)}
+:root[data-style="clean"] .v2 .mtx-now{width:1.5px;margin-left:-.75px;background:var(--fg);transition:left .45s var(--ease),opacity .3s var(--ease)}
+:root[data-style="clean"] .v2 .mtx-now i{background:var(--fg)}
+:root[data-style="clean"] .v2 .mtx-st,:root[data-style="clean"] .v2 .mtx-st.ok{height:22px;padding:0 8px;background:var(--surface);color:var(--fg2);box-shadow:inset 0 0 0 1px var(--hair);transition:color var(--t) var(--ease)}
+:root[data-style="clean"] .v2 .mtx-st .dot{color:var(--ok-mark)}
+:root[data-style="clean"] .v2 .mtx-fade{animation:v2-clfade .24s var(--ease) both}
+:root[data-style="clean"] .v2 .mtx-roll i.in{animation:v2-clroll .3s var(--ease) both}
+:root[data-style="clean"] .v2 .mtx-who .av{position:relative;box-shadow:0 0 0 2px var(--strip);transition:margin .24s var(--ease)}
+:root[data-style="clean"] .v2 .mtx-who .av:not([data-pic-on]){background-color:var(--chip)!important;color:var(--fg2)!important;box-shadow:inset 0 0 0 1px var(--hair),0 0 0 2px var(--strip)}
+:root[data-style="clean"] .v2 .mtx-cp{width:32px;height:32px;border-radius:999px}
+:root[data-style="clean"] .v2 .mtx-jg{z-index:3}
+:root[data-style="clean"] .v2 .mtx-jg :is(.mtx-join,.mtx-jm){height:32px}
+:root[data-style="clean"] .v2 .mtx-jg .mtx-join{border-radius:999px 0 0 999px;padding:0 12px 0 6px;gap:8px}
+:root[data-style="clean"] .v2 .mtx-jg .mtx-jm{border-radius:0 999px 999px 0;width:28px}
+:root[data-style="clean"] .v2 .mtx-jm::before{top:9px;bottom:9px;background:color-mix(in srgb,var(--on-accent,#fff) 26%,transparent)}
+:root[data-style="clean"] .v2 .mtx-join .mk{width:20px;height:20px;border-radius:5px}
+:root[data-style="clean"] .v2 .mtx-join .mk .brand{width:13px;height:11px}
+:root[data-style="clean"] .v2 .mtx.live :is(.mtx-join,.mtx-jm){animation:none}
+:root[data-style="clean"] .v2 .mtx-join:active{transform:scale(.97);transition:transform var(--t-fast) var(--ease)}
+@media (prefers-reduced-motion:reduce){:root[data-style="clean"] .v2 :is(.mtx-bp,.mtx-now,.mtx-who .av){transition:none}:root[data-style="clean"] .v2 :is(.mtx-fade,.mtx-roll i.in){animation:none}}
 /* ---------- Buttons ---------- */
 .v2 .btx{display:flex;flex-direction:column;gap:14px;width:100%}
 .v2 .btx-row{display:flex;align-items:center;gap:var(--s-2);flex-wrap:wrap}
