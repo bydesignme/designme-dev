@@ -1,0 +1,92 @@
+/* Context meter, Soft refreshed ([data-refresh]) and Clean ([data-clean]): the look and the CSS half of the motion, laid
+   over the real component in the lab's frames (context-meter.js adds the readout and the warning chip and drives the
+   entrance). Lab only, nothing ships from here. */
+
+/* ======================================================================================================== shared */
+/* the bar answers the pointer 8px above and below it; a part is found by where the pointer is along it */
+:is(:root[data-refresh],[data-clean]) .ctm-bar{position:relative;overflow:visible}
+:is(:root[data-refresh],[data-clean]) .ctm-bar::after{content:"";position:absolute;inset:-8px 0}
+:is(:root[data-refresh],[data-clean]) .ctm-tg{position:relative;z-index:2;overflow:hidden;white-space:nowrap}
+:is(:root[data-refresh],[data-clean]) .ctm-pop{position:relative}
+/* the readout for a hovered part, on the head's line */
+.six-ro{position:absolute;left:0;top:0;z-index:5;display:flex;align-items:center;gap:6px;height:24px;padding:0 9px;white-space:nowrap;pointer-events:none;
+  font-size:12px;color:var(--dm-fg2);opacity:0}
+.six-ro b{font-weight:500;color:var(--dm-fg)}
+/* while it shows, the head's words step back */
+:is(:root[data-refresh],[data-clean]) .ctm-ph>*{transition:opacity .18s var(--dm-ease)}
+:is(:root[data-refresh],[data-clean]) .six-ro-on .ctm-ph>*{opacity:0}
+/* the warning chip inside the pill */
+.six-chip{display:inline-flex;flex:none;overflow:hidden;height:20px;font-size:12px;font-weight:500;white-space:nowrap}
+.six-chip>span{display:inline-flex;align-items:center;gap:5px;padding:0 8px 0 7px}
+.six-chip i{width:6px;height:6px;border-radius:50%;background:var(--dm-warn-mark);flex:none}
+
+/* ======================================================================================================== Soft refreshed */
+/* the pill: the refresh's white button recipe (half-opacity edge, light inside the top, shade inside the bottom, soft drop) */
+:root[data-refresh] .ctm-tg{
+  background:linear-gradient(180deg,var(--dm-btn2-top),var(--dm-btn2-bot));
+  box-shadow:inset 0 0 0 1px var(--dm-btn2-edge),inset 0 3px 5px -2px var(--dm-btn2-glow),inset 0 -3px 5px -3px var(--dm-btn2-shade),var(--dm-btn2-drop);
+  transition:box-shadow var(--dm-t-fast) var(--dm-ease),transform var(--dm-t-release) var(--dm-spring-out);
+}
+@media (hover:hover) and (pointer:fine){:root[data-refresh] .ctm-tg:hover{box-shadow:inset 0 0 0 1px var(--dm-btn2-edge-h),inset 0 3px 5px -2px var(--dm-btn2-glow),inset 0 -3px 5px -3px var(--dm-btn2-shade),var(--dm-btn2-drop)}}
+:root[data-refresh] .ctm-tg:active{transform:scale(.97);transition-duration:var(--dm-t-press)}
+/* the panel opens from the pill's corner: .96 and a fade, 180ms in, 130ms out, no blur */
+:root[data-refresh] .ctm-pop{transform-origin:16px -8px;transition:opacity .18s var(--dm-ease),transform .18s var(--dm-ease),visibility 0s}
+:root[data-refresh] .ctm[data-open="0"] .ctm-pop{opacity:0;transform:scale(.96);transition:opacity .13s var(--dm-ease),transform .13s var(--dm-ease),visibility 0s .13s}
+/* the bar: a round track with a soft inner shade; its parts are round, each with a light along its top, 3px apart */
+:root[data-refresh] .ctm-bar{height:10px;gap:3px;border-radius:999px;background:var(--dm-chip);box-shadow:var(--dm-track-ring)}
+:root[data-refresh] .ctm-bar i{border-radius:999px;box-shadow:inset 0 1px 0 rgba(255,255,255,.3),inset 0 -1px 2px rgba(0,0,0,.1);
+  transition:width .5s var(--dm-ease),opacity .2s var(--dm-ease),transform .24s var(--dm-ease),box-shadow .2s var(--dm-ease)}
+/* a hovered part lifts 2px on a soft neutral shadow; the others step back */
+:root[data-refresh] .ctm-bar.hl i.on{transform:translateY(-2px);box-shadow:inset 0 1px 0 rgba(255,255,255,.3),inset 0 -1px 2px rgba(0,0,0,.1),0 3px 6px -2px rgba(0,0,0,.22)}
+:root[data-refresh] .ctm-bar.hl i:not(.on){opacity:.3}
+:root[data-refresh] .ctm-l .sw{border-radius:50%}
+:root[data-refresh] .six-ro{border-radius:999px;background:var(--dm-raised);box-shadow:var(--dm-shadow-pop);transform:translateY(4px);
+  transition:opacity .18s var(--dm-ease),transform .26s var(--dm-ease)}
+:root[data-refresh] .six-ro.on{opacity:1;transform:none;transition:left .3s var(--dm-ease),opacity .18s var(--dm-ease),transform .26s var(--dm-ease)}
+:root[data-refresh] .six-chip{border-radius:999px;background:var(--dm-warn-bg);color:var(--dm-warn)}
+
+/* ======================================================================================================== Clean */
+/* the pill is a white control with Clean's 8px corners and its depth inside the fill; the ring is ink on a grey rail */
+[data-clean] .ctm-tg{height:32px;border-radius:var(--dm-r-pill);color:var(--dm-fg2);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth);
+  transition:box-shadow var(--dm-t-fast) var(--dm-ease),transform var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){[data-clean] .ctm-tg:hover{box-shadow:var(--dm-btn2-hover)}}
+[data-clean] .ctm-tg:active{transform:scale(.97)}
+[data-clean] .ctm-ring .tr{stroke:var(--dm-rail)}
+/* the panel: a 12px card with a head strip and a foot strip; it opens and shuts with a 4px move, no blur */
+[data-clean] .ctm-pop{padding:0;gap:0;overflow:hidden;transition:opacity .24s var(--dm-ease),transform .32s var(--dm-ease),visibility 0s}
+[data-clean] .ctm[data-open="0"] .ctm-pop{transform:translateY(-4px);transition:opacity .15s var(--dm-ease),transform .2s var(--dm-ease),visibility 0s .2s}
+[data-clean] .ctm-ph{padding:10px 14px;background:var(--dm-strip);border-bottom:1px solid var(--dm-line);font-size:12.5px}
+[data-clean] .ctm-bar{margin:14px 14px 0;height:6px;gap:2px;border-radius:3px;background:var(--dm-rail)}
+[data-clean] .ctm-bar i{transition:width .42s var(--dm-ease),opacity .15s var(--dm-ease)}
+[data-clean] .ctm-bar i:first-child{border-radius:3px 0 0 3px}
+[data-clean] .ctm-bar.hl i:not(.on){opacity:.28}
+/* four parts in one grey ramp, every one at 3:1 or more on the card */
+[data-clean]{--six-c1:#0a0a0a;--six-c2:#525252;--six-c3:#7a7a7a;--six-c4:#949494}
+:root[data-theme="dark"][data-clean]{--six-c1:#f5f5f5;--six-c2:#b3b3b3;--six-c3:#8a8a8a;--six-c4:#6b6b6b}
+[data-clean] :is(.ctm-bar i[data-k="files"],.ctm-l[data-k="files"] .sw){background:var(--six-c1)!important}
+[data-clean] :is(.ctm-bar i[data-k="tools"],.ctm-l[data-k="tools"] .sw){background:var(--six-c2)!important}
+[data-clean] :is(.ctm-bar i[data-k="chat"],.ctm-l[data-k="chat"] .sw){background:var(--six-c3)!important}
+[data-clean] :is(.ctm-bar i[data-k="sys"],.ctm-l[data-k="sys"] .sw){background:var(--six-c4)!important}
+[data-clean] .ctm-l .sw{border-radius:2px}
+[data-clean] .ctm-leg{margin:10px 8px 0}
+[data-clean] .ctm-l{border-radius:6px;transition:background-color var(--dm-t-fast) var(--dm-ease)}
+[data-clean] .ctm-l:hover{background:var(--dm-row)}
+[data-clean] .ctm-msg{margin:6px 14px 0}
+[data-clean] .ctm-f{margin-top:12px;padding:8px 14px;background:var(--dm-strip);border-top:1px solid var(--dm-line)}
+[data-clean] .ctm-go{height:26px;padding:0 10px;border-radius:var(--dm-r-pill);color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
+@media (hover:hover) and (pointer:fine){[data-clean] .ctm-go:hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
+[data-clean] .six-ro{border-radius:6px;background:var(--dm-tip-bg);box-shadow:var(--dm-tip-ring);transform:translateY(2px);transition:opacity .15s var(--dm-ease),transform .24s var(--dm-ease)}
+[data-clean] .six-ro.on{opacity:1;transform:none;transition:left .24s var(--dm-ease),opacity .15s var(--dm-ease),transform .24s var(--dm-ease)}
+[data-clean] .six-chip{border-radius:6px;background:var(--dm-surface);color:var(--dm-fg2);box-shadow:inset 0 0 0 1px var(--dm-hair)}
+
+/* text that swaps (the library's swap) fades without a blur in Soft refreshed */
+:root[data-refresh] .sw.out{filter:none}
+
+@media (prefers-reduced-motion:reduce){
+  :is(:root[data-refresh],[data-clean]) :is(.ctm-pop,.ctm-bar i,.six-ro,.ctm-tg){transition:none!important}
+  :root[data-refresh] .ctm[data-open="0"] .ctm-pop{transform:none}
+}
+
+/* every shape drawn at a pill radius or as a circle draws with round corners: Soft's base gives everything in a
+   component a squircle, which at a pill radius reads square-ish outside the round end (owner, 17 Nov) */
+:root[data-refresh] :is(.ctm-bar,.ctm-bar i,.ctm-l .sw,.six-ro,.six-chip,.six-chip i),[data-clean] .six-chip i{corner-shape:round!important}

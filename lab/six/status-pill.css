@@ -1,0 +1,65 @@
+/* Status pill, Soft refreshed ([data-refresh]) and Clean ([data-clean]): the look and the CSS half of the motion, laid
+   over the real component in the lab's frames (status-pill.js drives the rest). Lab only, nothing ships from here. */
+
+/* the measure under the bar is hidden in the pill but still lies across Review's lower half, where it took the click
+   (the library has the same bug); here it lets the pointer through */
+:is(:root[data-refresh],[data-clean]) .spl-track{pointer-events:none}
+
+/* ======================================================================================================== Soft refreshed */
+/* plush and fully round: a white face with a soft shade inside its bottom edge and a light inside its top (the inner glow
+   reads in dark, where the face is grey), a half-strength hairline and the refresh's soft wide shadow */
+:root[data-refresh] .spl-pill{
+  background:linear-gradient(180deg,var(--dm-surface),color-mix(in srgb,var(--dm-surface) 97.5%,#000));
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.045),inset 0 3px 5px -2px rgba(255,255,255,.9),inset 0 -3px 6px -4px rgba(0,0,0,.08),var(--dm-shadow);
+  transition:width .3s cubic-bezier(.22,1,.36,1),border-radius .5s var(--dm-ease),height .5s var(--dm-ease);
+}
+:root[data-refresh][data-theme="dark"] .spl-pill{
+  background:linear-gradient(180deg,color-mix(in srgb,var(--dm-surface) 94%,#fff),var(--dm-surface));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.07),inset 0 3px 5px -2px rgba(255,255,255,.07),inset 0 -3px 6px -4px rgba(0,0,0,.3),var(--dm-shadow);
+}
+/* a step changes in place: the line fades up 4px (no blur) over the 180ms the component waits before it writes the new
+   one, the pill eases to its new width in 300ms, and the new words rise in as it gets there (status-pill.js), so the two
+   lines cross and nothing is ever seen clipped. The box shows at once; its pieces fade */
+:root[data-refresh] .spl-in{transition:none}
+:root[data-refresh] .spl-in.out{opacity:0;filter:none;transform:translateY(-4px);transition:opacity .18s ease-in-out,transform .18s ease-in-out}
+/* the bar's measure: a track with a soft inner shade and the accent fill with its light at the top */
+:root[data-refresh] .spl-track{height:4px;bottom:12px;border-radius:999px;background:var(--dm-chip);box-shadow:var(--dm-track-ring)}
+:root[data-refresh] .spl-fill{border-radius:999px;background:linear-gradient(180deg,var(--dm-fill-top),var(--dm-fill-bot));transition:width .6s var(--dm-ease)}
+/* Review sits concentric inside the pill */
+:root[data-refresh] .spl-in .pill{height:28px}
+/* the Pill/Bar switch keeps the library's three beats (the words leave, the empty shape changes, the words return) */
+:root[data-refresh] .spl.bar .spl-pill{border-radius:18px;transition:width .5s var(--dm-ease),border-radius .5s var(--dm-ease),height .5s var(--dm-ease)}
+
+/* ======================================================================================================== Clean */
+/* a hairline monochrome pill: 36px, the card's hairline ring and its short soft shadow, Inter 400, ink marks; only a
+   status carries colour (the green tick, the orange wait dot) */
+[data-clean] .spl-stage{min-height:40px}
+[data-clean] .spl-pill{height:36px;border-radius:999px;background:var(--dm-surface);box-shadow:var(--dm-shadow);
+  transition:width .3s var(--dm-ease),border-radius .42s var(--dm-ease),height .42s var(--dm-ease)}
+@supports (corner-shape:squircle){[data-clean] .spl-pill{corner-shape:round}}
+[data-clean] .spl-in{gap:8px;padding:0 5px 0 13px;font-size:13px;color:var(--dm-fg);transition:none}
+[data-clean] .spl-in .g{width:14px;color:var(--dm-fg2)!important}
+[data-clean] .spl-in .g:has(svg){color:var(--dm-ok)!important}
+[data-clean] .spl-in .g:has(.dot):not(:has(.dot[style])){color:var(--dm-warn-mark)!important}
+[data-clean] .spl-in .m{color:var(--dm-muted)}
+[data-clean] .spl-in.out{opacity:0;filter:none;transform:translateY(-3px);transition:opacity .18s ease-in-out,transform .18s ease-in-out}
+/* Review: the ink button, round so it sits concentric in the pill (5px in from its ends) */
+[data-clean] .spl-in .pill{height:26px;padding:0 11px;border-radius:999px;margin-left:2px}
+/* the bar: the card's 12px corners, a 3px rail with an ink fill */
+[data-clean] .spl.bar .spl-pill{height:58px;border-radius:var(--dm-r-card)}
+[data-clean] .spl.bar .spl-in{height:42px;padding:0 14px}
+[data-clean] .spl-track{left:14px;right:14px;bottom:12px;height:3px;border-radius:2px;background:var(--dm-rail)}
+[data-clean] .spl-fill{background:var(--dm-accent-mark);transition:width .6s var(--dm-ease)}
+@supports (corner-shape:squircle){[data-clean] .spl.bar .spl-pill{corner-shape:squircle}}
+
+/* text that swaps (the library's swap) fades without a blur in Soft refreshed */
+:root[data-refresh] .sw.out{filter:none}
+
+@media (prefers-reduced-motion:reduce){
+  :root[data-refresh] :is(.spl-pill,.spl-in,.spl-fill),[data-clean] :is(.spl-pill,.spl-in,.spl-fill){transition:none!important}
+}
+
+/* every shape drawn at a pill radius draws with round corners: Soft's base gives everything in a component a squircle,
+   which at a pill radius reads square-ish outside the round end (owner, 17 Nov) */
+:root[data-refresh] :is(.spl-pill,.spl-track,.spl-fill,.spl-in .pill),[data-clean] :is(.spl-pill,.spl-in .pill){corner-shape:round!important}
+:root[data-refresh] .spl.bar .spl-pill{corner-shape:round!important}

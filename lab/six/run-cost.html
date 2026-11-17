@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Run cost · Six · Designme.dev lab</title>
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<!-- owner, 17 Nov: six components in Soft now, Soft refreshed and Clean, with the motion of the owner's references (fill
+     while counting, size changes in place, stretch switches).
+     Soft refreshed follows the corrected Soft motion rules (owner, 17 Nov): one continuous entrance with a gentle cascade,
+     nothing clipped, no blur bigger than a word, no filters, state changes in place, springs only on presses and knobs.
+     Each column is the same component page (its demo only) in an iframe: Soft as it ships; Soft with refresh.css, motion.css
+     and run-cost.css, driven by run-cost.js; Clean with clean.css and run-cost.css, driven by run-cost.js. Every frame runs on the
+     motion lab's clock (../soft-refresh/motion.js), timers included, so 0.5x slows all of it. Nothing ships from here -->
+<script>
+(function(){ var t; try { t = localStorage.getItem('dmui-theme'); } catch(x){} document.documentElement.dataset.t = t === 'dark' ? 'dark' : 'light'; })();
+</script>
+<style>
+:root{--bg:#ffffff;--fg:#171717;--muted:#6a6a6a;--line:rgba(0,0,0,.08);--chip:#f3f3f3;--on:#fff;--frame:#fafafa;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+html[data-t="dark"]{--bg:#111111;--fg:#f2f2f2;--muted:#b8b8b8;--line:rgba(255,255,255,.09);--chip:#262626;--on:#363636;--frame:#1c1c1c;color-scheme:dark}
+html,body{margin:0;background:var(--bg);color:var(--fg)}
+*{box-sizing:border-box}
+header{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;padding:10px 16px;background:var(--bg);border-bottom:1px solid var(--line)}
+header b{font-size:14px;font-weight:500}
+header .crumb{font-size:13px;color:var(--muted);text-decoration:none;border-radius:6px}
+header .crumb:hover{color:var(--fg)}
+header .crumb:focus-visible{outline:2px solid #858585;outline-offset:2px}
+header i{font-style:normal;font-size:13px;color:var(--muted)}
+.sp{flex:1}
+.seg{display:inline-flex;padding:2px;border-radius:10px;background:var(--chip)}
+.seg button,.btn{font:inherit;font-size:12px;font-weight:500;color:var(--muted);background:none;border:0;height:26px;padding:0 10px;border-radius:8px;cursor:pointer;transition:color .16s cubic-bezier(.22,1,.36,1),background-color .16s cubic-bezier(.22,1,.36,1),transform .16s cubic-bezier(.22,1,.36,1)}
+.seg button:hover{color:var(--fg)}
+.seg button[aria-pressed="true"]{background:var(--on);color:var(--fg);box-shadow:0 0 0 1px var(--line),0 1px 2px rgba(0,0,0,.06)}
+.btn{display:inline-flex;align-items:center;gap:6px;height:30px;color:var(--fg);background:var(--on);border-radius:9px;box-shadow:0 0 0 1px var(--line),0 1px 1px rgba(0,0,0,.05)}
+.btn:active{transform:scale(.97)}
+.btn svg{width:13px;height:13px}
+:is(.seg button,.btn):focus-visible{outline:2px solid #858585;outline-offset:1px}
+main{max-width:1440px;margin:0 auto;padding:16px 16px 40px}
+.note{max-width:860px;margin:0;font-size:13px;line-height:1.55;color:var(--muted)}
+.note b{color:var(--fg);font-weight:500}
+.row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
+.cell{min-width:0}
+.lb{display:flex;align-items:baseline;gap:6px;height:22px;font-size:12px;color:var(--muted)}
+.lb b{font-weight:500;color:var(--fg)}
+iframe{display:block;width:100%;height:var(--h,240px);border:0;border-radius:14px;background:var(--frame);box-shadow:0 0 0 1px var(--line);opacity:0;transition:opacity .2s}
+.cap{margin:8px 2px 0;font-size:12.5px;line-height:1.5;color:var(--muted);max-width:460px}
+@media (max-width:1099px){.row{grid-template-columns:minmax(0,1fr);max-width:560px}}
+@media (prefers-reduced-motion:reduce){iframe,.seg button,.btn{transition:none}}
+</style>
+</head>
+<body>
+<header>
+  <a class="crumb" href="./">Six components</a><i aria-hidden="true">/</i><b>Run cost</b>
+  <span class="sp"></span>
+  <div class="seg" id="spd" role="group" aria-label="Speed"><button data-v="1" type="button">1x</button><button data-v="0.5" type="button">0.5x</button></div>
+  <div class="seg" id="thm" role="group" aria-label="Theme"><button data-v="light" type="button">Light</button><button data-v="dark" type="button">Dark</button></div>
+  <button class="btn" id="replay" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Replay</button>
+</header>
+<main>
+  <p class="note"><b>Run cost.</b> The same component page in three styles, at its real size. The run starts by itself and climbs to the cap; Raise cap carries on to the budget. Turn the cap off and on, stop and resume, hover a row for its share of the spend. Hovering the card holds the run, as it does on the site. Replay plays the entrance again; 0.5x slows everything.</p>
+  <section class="row" aria-label="Run cost in three styles">
+    <div class="cell"><div class="lb"><b>Soft now</b><span>as it ships</span></div><iframe data-k="now" title="Run cost, Soft now"></iframe><p class="cap">The card as it ships: the spend climbs, the status and button swap their text.</p></div>
+    <div class="cell"><div class="lb"><b>Soft refreshed</b><span>round, plush, springy</span></div><iframe data-k="new" title="Run cost, Soft refreshed"></iframe><p class="cap">Arrives whole, its rows 45ms behind; the budget line draws in from its middle. Each row gets a bar for its share of the spend (hover for the credits). Status and button change width in place; the cap switch's knob stretches, presses spring back.</p></div>
+    <div class="cell"><div class="lb"><b>Clean</b><span>monochrome, calm</span></div><iframe data-k="clean" title="Run cost, Clean"></iframe><p class="cap">The card rises, its rows follow 40ms apart. Ink fill and bars, a white status chip where only the dot is coloured, a foot strip for the controls. Width changes are short and quiet.</p></div>
+  </section>
+</main>
+<script src="../soft-refresh/motion.js"></script>
+<script>
+/* the lab around one component: three frames of its page, dressed per style, on the motion lab's clock (SRM). A style's
+   script (run-cost.js) registers mounted() (wires this style's extras into a fresh mount) and enter() (its entrance) */
+const LAB = (() => {
+const C = SRM.C, REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const EASE = { new:'cubic-bezier(.22,1,.36,1)', clean:'cubic-bezier(.23,1,.32,1)', now:'cubic-bezier(.22,1,.36,1)' };
+const OUT = 'cubic-bezier(.16,1,.3,1)';
+const dark = () => document.documentElement.dataset.t === 'dark';
+let ID = null, FX = {};
+// an animation joins the lab clock paused; the clock sets its time every frame (0.5x, frame-stepped recordings)
+const track = a => { C.tracks.set(a, C.vt); a.pause(); a.currentTime = 0; };
+const A = (f, el, kf, o = {}) => { if (!el || !el.animate || REDUCE) return null;
+  const opt = { duration:o.d ?? 260, delay:o.delay || 0, easing:o.e || EASE[f.dataset.k], fill:o.fill || 'backwards' };
+  if (o.comp) opt.composite = o.comp; if (o.pseudo) opt.pseudoElement = o.pseudo;
+  const a = el.animate(kf, opt); track(a); f._s.anims.add(a); f._s.live = true; return a; };
+// a step on the lab clock; it still runs when an entrance is cut short
+const at = (f, ms, fn) => C.events.push({ f, t:C.vt + ms, fn, kind:'fx' });
+// a number that counts from 'from' to 'to' on the same ease as the measure it belongs to
+const count = (f, el, o) => { if (!el || REDUCE) return;
+  const a = A(f, el, [], { d:o.d ?? 900, delay:o.delay || 0, fill:'both', e:o.e }); if (!a) return;
+  const k = { el, f, a, from:o.from ?? 0, to:o.to, fmt:o.fmt, last:null, take(){} }; C.counters.push(k); el.textContent = k.fmt(k.from); };
+// the shared moves (owner, 17 Nov, corrected Soft motion): the component arrives whole and its pieces follow on a gentle
+// cascade, transform and opacity only, no blur and nothing clipped. Soft refreshed: 8px and .985 over 520ms, pieces 5px
+// over 400ms on cubic-bezier(.22,1,.36,1). Clean: 8px and .98 over 520ms, pieces 6px over 440ms on ease-out quint
+const whole = (f, el, delay = 0) => f.dataset.k === 'new'
+  ? A(f, el, [{ opacity:0, transform:'translateY(8px) scale(.985)' }, { opacity:1, transform:'none' }], { d:520, delay, e:EASE.new })
+  : A(f, el, [{ opacity:0, transform:'translateY(8px) scale(.98)' }, { opacity:1, transform:'none' }], { d:520, delay, e:EASE.clean });
+const piece = (f, el, delay = 0, o = {}) => f.dataset.k === 'new'
+  ? A(f, el, [{ opacity:0, transform:`translateY(${o.y ?? 5}px)` }, { opacity:1, transform:'none' }], { d:o.d ?? 400, delay, e:EASE.new })
+  : A(f, el, [{ opacity:0, transform:`translateY(${o.y ?? 6}px)` }, { opacity:1, transform:'none' }], { d:o.d ?? 440, delay, e:EASE.clean });
+// a bar of parts fills from its start: one fill runs through the parts in turn (each part's width keyframes sit at its own
+// stretch of the run, so the ease belongs to the whole fill)
+const fillParts = (f, parts, gap, o = {}) => {
+  const ws = parts.map(s => s.getBoundingClientRect().width), n = ws.filter(w => w > 0).length;
+  const T = ws.reduce((a, w) => a + w, 0) + gap * Math.max(0, n - 1); let x = 0;
+  parts.forEach((s, i) => { const w = ws[i]; if (!w || !T) return; const a = x / T, b = Math.min(1, (x + w) / T); x += w + gap;
+    A(f, s, [{ width:'0px', offset:0 }, { width:'0px', offset:a }, { width:w + 'px', offset:b }, { width:w + 'px', offset:1 }], { d:o.d ?? 760, delay:o.delay || 0, e:o.e }); }); };
+// a chip or a button whose words change: its width eases from the old to the new (240 to 320ms) while its words fade
+const morphW = (f, el, w0, o = {}) => { const w1 = el.getBoundingClientRect().width; if (Math.abs(w1 - w0) < 1) return null;
+  return A(f, el, [{ width:w0 + 'px' }, { width:w1 + 'px' }], { d:o.d ?? (f.dataset.k === 'new' ? 280 : 240), e:o.e || EASE[f.dataset.k], delay:o.delay }); };
+// a press inside a frame cuts its entrance to the end (motion.js does the same for its own)
+const jump = f => {
+  for (const a of f._s.anims) if (C.tracks.has(a)){ try { a.finish(); } catch(e){} C.tracks.delete(a); }
+  f._s.anims.clear();
+  C.counters = C.counters.filter(k => { if (k.f !== f) return true; k.el.textContent = k.fmt(k.to); return false; });
+  const mine = C.events.filter(e => e.f === f); C.events = C.events.filter(e => e.f !== f);
+  mine.filter(e => e.kind === 'fx').forEach(e => { try { e.fn(); } catch(x){} });
+  f._s.live = false; };
+
+/* ---------------------------------------------------------------------------------------------------- the frames */
+const frames = [...document.querySelectorAll('iframe')];
+SRM.setFrames(frames);
+const base = new URL('.', location.href).href;
+const LAYERS = { now:[], new:['../soft-refresh/refresh.css', '../soft-refresh/motion.css'], clean:['../clean/clean.css'] };
+// each frame shows only the component's demo, centred on its own stage with 12px around it, without the page's Animate
+// button (Replay in the header plays all three)
+const ONLY = 'html{overflow:hidden!important;scrollbar-gutter:auto!important}body{visibility:hidden!important}'
+  + '.cp-demo{visibility:visible!important;position:fixed!important;inset:0!important;z-index:100;margin:0!important;border-radius:0!important;overflow:hidden;background:var(--dm-stage)!important}'
+  + '.cp-anim{display:none!important}.cp-demo .pg-demo{min-height:100%!important;padding:12px!important}.pg-demo>.card{--sw:0px!important}'
+  + 'body>.tip{visibility:visible!important}';
+const dress = f => { try { const r = f.contentDocument.documentElement, k = f.dataset.k;
+  r.setAttribute('data-style', 'soft'); r.setAttribute('data-theme', dark() ? 'dark' : 'light');
+  if (k === 'new'){ r.setAttribute('data-refresh', ''); r.setAttribute('data-motion', ''); }
+  if (k === 'clean') r.setAttribute('data-clean', '');
+} catch(e){} };
+const rootOf = f => { try { return f.contentDocument.querySelector('.pg-demo>.card>.stage-in>:not(template)'); } catch(e){ return null; } };
+// the three frames are as tall as the tallest of them at its tallest moment (they grow, never shrink), so nothing scrolls
+// inside a frame and the three line up
+const fit = () => { const n = FX.h || Math.max(...frames.map(f => { const r = rootOf(f); return r ? Math.ceil(r.getBoundingClientRect().height) + 24 + (FX.room || 0) : 0; }));
+  const h = parseFloat(frames[0].style.getPropertyValue('--h')) || 0; if (n > h) frames.forEach(f => f.style.setProperty('--h', n + 'px')); };
+// the page's own timers join the clock too, so its story slows at 0.5x and a recording can step it frame by frame
+const timers = f => { const W = f.contentWindow, q = new Map(), rc = W.clearTimeout.bind(W); let id = 5e6;
+  const now = () => W.performance.now();
+  W.setTimeout = (fn, ms, ...a) => { const i = ++id; q.set(i, { t:now() + (+ms || 0), fn, a }); return i; };
+  W.setInterval = (fn, ms, ...a) => { const i = ++id; q.set(i, { t:now() + Math.max(4, +ms || 0), fn, a, p:Math.max(4, +ms || 0) }); return i; };
+  W.clearTimeout = W.clearInterval = i => { q.delete(i); rc(i); };
+  const run0 = W._srmClock.run.bind(W._srmClock);
+  W._srmClock.run = () => { const t = now();
+    for (let n = 0; n < 400; n++){ let best = null;
+      for (const e of q) if (e[1].t <= t && (!best || e[1].t < best[1].t)) best = e;
+      if (!best) break; const [i, e] = best; if (e.p) e.t += e.p; else q.delete(i);
+      try { typeof e.fn === 'function' ? e.fn(...e.a) : W.eval(e.fn); } catch(x){ console.error(x); } }
+    run0(); }; };
+// every mount goes through here: the lab's replays, and a story starting over (DM.again) without an entrance
+const mounted = (f, again) => { const d = f.contentDocument, root = rootOf(f), k = f.dataset.k; if (!root) return;
+  if (k !== 'now' && FX.mounted) FX.mounted(f, root, k);
+  if (again || k === 'now' || REDUCE || !FX.enter) return;
+  // the styled frames drop the page's own entrance and play their own over the settled first frame
+  d.getAnimations().forEach(a => { if (a.constructor.name === 'Animation' && !f._s.anims.has(a)) a.cancel(); });
+  root.style.visibility = 'hidden';
+  at(f, 34, () => { root.style.visibility = ''; FX.enter(f, root, k); }); };
+const wire = f => { const W = f.contentWindow;
+  SRM.hook(f); timers(f);
+  // DM is a top-level const in the page's core.js, reachable by name only
+  const DM = f._dm = W.eval('DM'), gated = DM.mount;
+  DM.mount = function(card, again){ if (!W.__six && !again) return; W.__six = false; W.__srmMount = true;
+    try { gated.call(DM, card, again); } finally { W.__srmMount = false; } mounted(f, !!again); }; };
+const replay = f => { if (!f._s) return; jump(f); f._s.quiet = true; at(f, 400, () => { f._s.quiet = false; });
+  const W = f.contentWindow, card = f.contentDocument.querySelector('.pg-demo>.card[data-c]'); if (!card) return;
+  W.__six = true; f._dm.mount(card); };
+let pending = frames.length, keep = null;
+const ready = () => { if (--pending) return;
+  try { if (keep !== null) localStorage.setItem('dmui-style', keep); } catch(e){}
+  setTimeout(() => { frames.forEach(f => { try { wire(f); } catch(e){ console.error(e); } });
+    frames.forEach(replay); fit(); frames.forEach(f => { f.style.opacity = 1; }); }, 700); };
+const start = () => {
+  try { keep = localStorage.getItem('dmui-style'); localStorage.setItem('dmui-style', 'soft'); } catch(e){}
+  frames.forEach(f => f.addEventListener('load', () => { try {
+    const d = f.contentDocument, s = d.createElement('style'); s.textContent = ONLY + (FX.only || ''); d.body.appendChild(s); dress(f);
+    const hrefs = f.dataset.k === 'now' ? [] : [...LAYERS[f.dataset.k], ID + '.css'];
+    if (!hrefs.length) return ready();
+    let n = hrefs.length; const done = () => { if (!--n) ready(); };
+    // the layers go last in the document, so they win ties with the page's own rules
+    hrefs.forEach(h => { const l = d.createElement('link'); l.rel = 'stylesheet'; l.href = base + h; l.onload = l.onerror = done; d.body.appendChild(l); });
+  } catch(e){ ready(); } }, { once:true }));
+  frames.forEach(f => { f.src = `../../components/${ID}.html`; });
+  setInterval(fit, 250);
+  const paint = () => {
+    document.querySelectorAll('#thm button').forEach(b => b.setAttribute('aria-pressed', dark() === (b.dataset.v === 'dark')));
+    document.querySelectorAll('#spd button').forEach(b => b.setAttribute('aria-pressed', +b.dataset.v === C.speed));
+  };
+  document.querySelectorAll('#thm button').forEach(b => b.onclick = () => { document.documentElement.dataset.t = b.dataset.v;
+    try { localStorage.setItem('dmui-theme', b.dataset.v); } catch(e){} paint(); frames.forEach(dress); });
+  document.querySelectorAll('#spd button').forEach(b => b.onclick = () => { SRM.setSpeed(+b.dataset.v); paint(); });
+  document.getElementById('replay').onclick = () => frames.forEach(replay);
+  paint();
+};
+return { def(id, fx){ ID = id; FX = fx; }, start, replay, frames, A, at, count, whole, piece, fillParts, morphW, jump, REDUCE, EASE, C };
+})();
+</script>
+<script src="run-cost.js"></script>
+<script>LAB.start();</script>
+</body>
+</html>
