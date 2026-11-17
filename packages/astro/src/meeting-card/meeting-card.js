@@ -2,8 +2,8 @@
 import { $, $$, BRAND, DM, I, copied, swap } from '../core/core.js';
 DM.def('meeting-card', (r, c) => {
   r.innerHTML = r.innerHTML.replace(/\{([\w-]+)\}/g, (m, k) => k === 'meet' ? BRAND.meet : I(k, k === 'clock' ? 'xs' : 's'));
-  // the row runs 10:00 to 12:30 in minutes of the day; the meeting is 10:30 to 12:00
-  const FROM = 600, TO = 750, AT = 630, END = 720, URL = 'https://meet.google.com/nax-wqkf-stu';
+  // the row runs 10:15 to 11:30 in minutes of the day; the meeting is 10:30 to 11:15, 45 minutes
+  const FROM = 615, TO = 690, AT = 630, END = 675, URL = 'https://meet.google.com/nax-wqkf-stu';
   const pc = m => Math.min(100, Math.max(0, (m - FROM) / (TO - FROM) * 100));
   const clock = m => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
   const root = $('.mtx', r), st = $('.mtx-st', r), track = $('.mtx-track', r), blk = $('.mtx-blk', r), join = $('.mtx-join', r), cp = $('.mtx-cp', r);
@@ -28,7 +28,7 @@ DM.def('meeting-card', (r, c) => {
     root.classList.toggle('live', ph === 'start' || ph === 'live');
     root.classList.toggle('done', ph === 'done');
     join.disabled = ph === 'done';
-    track.setAttribute('aria-label', ph === 'done' ? 'The meeting ran 10:30 to 12:00 and has ended' : `Now ${clock(m)}. The meeting runs 10:30 to 12:00`);
+    track.setAttribute('aria-label', ph === 'done' ? 'The meeting ran 10:30 to 11:15 and has ended' : `Now ${clock(m)}. The meeting runs 10:30 to 11:15`);
   };
   set(620);
   join.onclick = () => {
@@ -42,11 +42,11 @@ DM.def('meeting-card', (r, c) => {
     await s.beat(2);
     for (let m = 621; m <= AT; m++){ await s.beat(1); set(m); }
     await s.beat(4);
-    for (let m = AT + 6; m <= 666; m += 6){ await s.beat(1.2); set(m); }
+    for (let m = AT + 3; m <= 651; m += 3){ await s.beat(1.2); set(m); }
     who.classList.add('hv'); await s.point($$('.av', who)[1]); await s.beat(3);
     who.classList.remove('hv'); await s.tap(cp); await s.beat(3);
     s.away();
-    for (let m = 672; m <= END; m += 6){ await s.beat(1.2); set(m); }
+    for (let m = 654; m <= END; m += 3){ await s.beat(1.2); set(m); }
     await s.beat(5);
   });
 });

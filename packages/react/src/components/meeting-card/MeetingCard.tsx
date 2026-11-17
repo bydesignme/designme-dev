@@ -20,11 +20,11 @@ export interface MeetingCardPerson {
 export interface MeetingCardProps {
   /** Like "Pricing review" */
   title: string;
-  /** The line under the title. Defaults to "Today, 10:30 to 12:00" from `start` and `end` */
+  /** The line under the title. Defaults to "Today, 10:30 to 11:15" from `start` and `end` */
   subtitle?: string;
   /** When it starts, 24-hour "HH:MM", like "10:30" */
   start: string;
-  /** When it ends, like "12:00" */
+  /** When it ends, like "11:15" */
   end: string;
   /** The time now, like "10:20". The status chip, the now line and the hatched past all follow it */
   now: string;
@@ -36,7 +36,7 @@ export interface MeetingCardProps {
   people?: MeetingCardPerson[];
   /** How many avatars show before a "+N". Defaults to 4 */
   max?: number;
-  /** The status chip's text, in place of the countdown: "In 10 min", "Starting now", "Live, 54 min left", "Ended" */
+  /** The status chip's text, in place of the countdown: "In 10 min", "Starting now", "Live, 30 min left", "Ended" */
   status?: string;
   /** The call's service, for names and labels. Defaults to "Google Meet" */
   provider?: string;
@@ -109,7 +109,6 @@ export function MeetingCard({ title, subtitle, start, end, now, from, to, people
         <span className="dm-mtx-blk" style={{ left: pc(a) + '%', width: pc(b) - pc(a) + '%', ['--dm-cut' as string]: Math.min(100, Math.max(0, (t - a) / Math.max(1, b - a) * 100)) + '%' }}>
           <span className="dm-mtx-bp" /><span className="dm-num">{start}</span><span className="dm-num">{end}</span>
         </span>
-        <span className="dm-mtx-past" />
         <span className="dm-mtx-now"><i /></span>
       </div>
       <div className="dm-mtx-f">

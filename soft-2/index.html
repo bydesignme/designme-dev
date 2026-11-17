@@ -4555,14 +4555,12 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 /* Blueprint's row is the surface itself: its green now line keeps 3:1 on white, not on the row grey */
 :root[data-style="bp"] .mtx-track{background:var(--surface)}
 .mtx-blk{position:absolute;top:5px;bottom:5px;left:20%;width:60%;display:flex;align-items:center;justify-content:space-between;padding:0 var(--s-2);border-radius:calc(5px * var(--rk));background:var(--accent-bg);overflow:hidden;font-size:11.5px;font-weight:500;color:var(--fg2);z-index:1}
-/* the start and end sit on the block in small surface chips, so they read on the tint and on the hatch alike; a hairline
-   keeps the block's edge once it is hatched */
-.mtx-blk{outline:1px solid color-mix(in srgb,var(--line-strong) 35%,transparent);outline-offset:-1px}
+/* the start and end sit on the block in small surface chips, so they read on the tint and on the hatch alike; the block's
+   edge is a faint accent line (owner, 17 Nov: no grey outline) */
+.mtx-blk{outline:1px solid color-mix(in srgb,var(--accent-mark) 35%,transparent);outline-offset:-1px}
 .mtx-blk>.num{position:relative;padding:1px 5px;border-radius:calc(4px * var(--rk));background:color-mix(in srgb,var(--surface) 88%,transparent);color:var(--fg2)}
-/* gone: fine 45deg lines in the strong grey over a faint grey, from the start of the row to now, and inside the meeting
-   (.mtx-bp) over the part that has run, where it hides the tint */
-.mtx-past,.mtx-bp{position:absolute;top:0;bottom:0;left:0;background:repeating-linear-gradient(45deg,var(--line-strong) 0 1px,transparent 1px 6px),color-mix(in srgb,var(--chip) 60%,var(--surface));transition:width .45s cubic-bezier(.22,1,.36,1)}
-.mtx-past{width:var(--p,0%)}
+/* gone: fine 45deg accent lines over the tint, inside the meeting block only, across the part that has run (owner, 17 Nov) */
+.mtx-bp{position:absolute;top:0;bottom:0;left:0;background:repeating-linear-gradient(45deg,color-mix(in srgb,var(--accent-mark) 60%,transparent) 0 1px,transparent 1px 6px);transition:width .45s cubic-bezier(.22,1,.36,1)}
 .mtx-bp{width:var(--cut,0%)}
 .mtx-now{position:absolute;top:0;bottom:0;left:var(--p,0%);width:2px;margin-left:-1px;background:var(--accent-mark);transition:left .45s cubic-bezier(.22,1,.36,1);z-index:2}
 .mtx-now i{position:absolute;top:3px;left:50%;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:var(--accent-mark)}
@@ -4583,7 +4581,7 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .mtx.live .mtx-join:not(:hover){animation:mtxpulse 2.4s ease-in-out infinite}
 @keyframes mtxpulse{50%{background:color-mix(in srgb,var(--accent) 86%,#000)}}
 .mtx-join[disabled] .mk{opacity:.5}
-@media (prefers-reduced-motion:reduce){.mtx.live .mtx-join{animation:none}.mtx-past,.mtx-bp,.mtx-now,.mtx-who .av{transition:none}.mtx-roll i.in,.mtx-fade{animation:none}}
+@media (prefers-reduced-motion:reduce){.mtx.live .mtx-join{animation:none}.mtx-bp,.mtx-now,.mtx-who .av{transition:none}.mtx-roll i.in,.mtx-fade{animation:none}}
 /* ---------- Buttons ---------- */
 .btx{display:flex;flex-direction:column;gap:14px;width:100%}
 .btx-row{display:flex;align-items:center;gap:var(--s-2);flex-wrap:wrap}
@@ -7846,12 +7844,11 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="mtx panel">
   <div class="mtx-h">
-    <b class="mtx-t">Pricing review</b><span class="mtx-sub num">Today, 10:30 to 12:00</span>
+    <b class="mtx-t">Pricing review</b><span class="mtx-sub num">Today, 10:30 to 11:15</span>
     <span class="tag mtx-st"><span>{clock}In <span class="mtx-roll num"><i>10</i></span> min</span></span>
   </div>
-  <div class="mtx-track" role="img" aria-label="Now 10:20. The meeting runs 10:30 to 12:00">
-    <span class="mtx-blk"><span class="mtx-bp"></span><span class="num">10:30</span><span class="num">12:00</span></span>
-    <span class="mtx-past"></span>
+  <div class="mtx-track" role="img" aria-label="Now 10:20. The meeting runs 10:30 to 11:15">
+    <span class="mtx-blk"><span class="mtx-bp"></span><span class="num">10:30</span><span class="num">11:15</span></span>
     <span class="mtx-now"><i></i></span>
   </div>
   <div class="mtx-f">
@@ -16534,8 +16531,8 @@ DM.def('agenda', (r, c) => {
 /* ---------- Meeting card ---------- */
 DM.def('meeting-card', (r, c) => {
   r.innerHTML = r.innerHTML.replace(/\{([\w-]+)\}/g, (m, k) => k === 'meet' ? BRAND.meet : I(k, k === 'clock' ? 'xs' : 's'));
-  // the row runs 10:00 to 12:30 in minutes of the day; the meeting is 10:30 to 12:00
-  const FROM = 600, TO = 750, AT = 630, END = 720, URL = 'https://meet.google.com/nax-wqkf-stu';
+  // the row runs 10:15 to 11:30 in minutes of the day; the meeting is 10:30 to 11:15, 45 minutes
+  const FROM = 615, TO = 690, AT = 630, END = 675, URL = 'https://meet.google.com/nax-wqkf-stu';
   const pc = m => Math.min(100, Math.max(0, (m - FROM) / (TO - FROM) * 100));
   const clock = m => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
   const root = $('.mtx', r), st = $('.mtx-st', r), track = $('.mtx-track', r), blk = $('.mtx-blk', r), join = $('.mtx-join', r), cp = $('.mtx-cp', r);
@@ -16560,7 +16557,7 @@ DM.def('meeting-card', (r, c) => {
     root.classList.toggle('live', ph === 'start' || ph === 'live');
     root.classList.toggle('done', ph === 'done');
     join.disabled = ph === 'done';
-    track.setAttribute('aria-label', ph === 'done' ? 'The meeting ran 10:30 to 12:00 and has ended' : `Now ${clock(m)}. The meeting runs 10:30 to 12:00`);
+    track.setAttribute('aria-label', ph === 'done' ? 'The meeting ran 10:30 to 11:15 and has ended' : `Now ${clock(m)}. The meeting runs 10:30 to 11:15`);
   };
   set(620);
   join.onclick = () => {
@@ -16574,11 +16571,11 @@ DM.def('meeting-card', (r, c) => {
     await s.beat(2);
     for (let m = 621; m <= AT; m++){ await s.beat(1); set(m); }
     await s.beat(4);
-    for (let m = AT + 6; m <= 666; m += 6){ await s.beat(1.2); set(m); }
+    for (let m = AT + 3; m <= 651; m += 3){ await s.beat(1.2); set(m); }
     who.classList.add('hv'); await s.point($$('.av', who)[1]); await s.beat(3);
     who.classList.remove('hv'); await s.tap(cp); await s.beat(3);
     s.away();
-    for (let m = 672; m <= END; m += 6){ await s.beat(1.2); set(m); }
+    for (let m = 654; m <= END; m += 3){ await s.beat(1.2); set(m); }
     await s.beat(5);
   });
 });

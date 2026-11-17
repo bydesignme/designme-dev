@@ -36,7 +36,7 @@ Meeting card follows one meeting from countdown to wrap-up. A status chip counts
 
 - The status chip follows `now`: "In 10 min" with a clock, "Starting now" at `start`, "Live, 54 min left" while it runs and "Ended" after `end`. The minutes roll as they change, and a new state fades in. Pass `status` to write your own text.
 - The track runs from half an hour before `start` to half an hour after `end` unless you set `from` and `to`. The meeting sits on it in the accent tint, with its start and end times on the block itself.
-- Everything before `now` is hatched with fine 45° lines in neutral grey, including the part of the meeting that has run, and the now line moves through the block. Once the meeting is over the whole block is hatched and the now line fades.
+- The part of the meeting that has run is hatched with fine 45° lines in the accent, inside the meeting block only, and the now line moves through it. Once the meeting is over the whole block is hatched and the now line fades.
 - `people` shows as an avatar stack, up to `max` and then "+N". Each avatar names its person in a tooltip, and the stack spreads a little on hover.
 - Join carries the Google Meet mark and stays available while the meeting runs, breathing a shade darker and back while it is live. It presses with a small settle, says it is opening for a moment, and is disabled once the meeting has ended. `onJoin` replaces opening the link in a new tab, and `provider` and `mark` change the service.
 - The copy button puts the link on the clipboard, turns into a check and says "Copied", and calls `onCopy`.
@@ -81,15 +81,15 @@ export default function MeetingCardDemo() {
       setNow(620); await wait(1000);
       for (let m = 621; m <= 630; m++) { await wait(500); setNow(m); }
       await wait(2000);
-      for (let m = 636; m <= 666; m += 6) { await wait(600); setNow(m); }
+      for (let m = 633; m <= 651; m += 3) { await wait(600); setNow(m); }
       await wait(1500); press('.dm-mtx-cp'); await wait(1500);
-      for (let m = 672; m <= 720; m += 6) { await wait(600); setNow(m); }
+      for (let m = 654; m <= 675; m += 3) { await wait(600); setNow(m); }
       await wait(4500);
     }
   });
   return (
     <div ref={ref} style={{ width: '100%' }}>
-      <MeetingCard title="Pricing review" start="10:30" end="12:00" from="10:00" to="12:30" now={clock(now)} people={PEOPLE}
+      <MeetingCard title="Pricing review" start="10:30" end="11:15" from="10:15" to="11:30" now={clock(now)} people={PEOPLE}
         link="meet.google.com/nax-wqkf-stu" onJoin={() => {}} />
     </div>
   );
@@ -101,15 +101,15 @@ export default function MeetingCardDemo() {
 | Prop | Type | What it does |
 | --- | --- | --- |
 | `title` | `string` | Like "Pricing review" |
-| `subtitle` (optional) | `string` | The line under the title. Defaults to "Today, 10:30 to 12:00" from `start` and `end` |
+| `subtitle` (optional) | `string` | The line under the title. Defaults to "Today, 10:30 to 11:15" from `start` and `end` |
 | `start` | `string` | When it starts, 24-hour "HH:MM", like "10:30" |
-| `end` | `string` | When it ends, like "12:00" |
+| `end` | `string` | When it ends, like "11:15" |
 | `now` | `string` | The time now, like "10:20". The status chip, the now line and the hatched past all follow it |
 | `from` (optional) | `string` | Where the track starts. Defaults to half an hour before `start` |
 | `to` (optional) | `string` | Where the track ends. Defaults to half an hour after `end` |
 | `people` (optional) | `MeetingCardPerson[]` | Who is invited, as an avatar stack with each name in a tooltip |
 | `max` (optional) | `number` | How many avatars show before a "+N". Defaults to 4 |
-| `status` (optional) | `string` | The status chip's text, in place of the countdown: "In 10 min", "Starting now", "Live, 54 min left", "Ended" |
+| `status` (optional) | `string` | The status chip's text, in place of the countdown: "In 10 min", "Starting now", "Live, 30 min left", "Ended" |
 | `provider` (optional) | `string` | The call's service, for names and labels. Defaults to "Google Meet" |
 | `mark` (optional) | `ReactNode` | The service's mark on the Join button. Defaults to the Google Meet mark |
 | `link` | `string` | The call's link, like "meet.google.com/nax-wqkf-stu" |
@@ -177,11 +177,11 @@ export interface MeetingCardPerson {
 export interface MeetingCardProps {
   /** Like "Pricing review" */
   title: string;
-  /** The line under the title. Defaults to "Today, 10:30 to 12:00" from `start` and `end` */
+  /** The line under the title. Defaults to "Today, 10:30 to 11:15" from `start` and `end` */
   subtitle?: string;
   /** When it starts, 24-hour "HH:MM", like "10:30" */
   start: string;
-  /** When it ends, like "12:00" */
+  /** When it ends, like "11:15" */
   end: string;
   /** The time now, like "10:20". The status chip, the now line and the hatched past all follow it */
   now: string;
@@ -193,7 +193,7 @@ export interface MeetingCardProps {
   people?: MeetingCardPerson[];
   /** How many avatars show before a "+N". Defaults to 4 */
   max?: number;
-  /** The status chip's text, in place of the countdown: "In 10 min", "Starting now", "Live, 54 min left", "Ended" */
+  /** The status chip's text, in place of the countdown: "In 10 min", "Starting now", "Live, 30 min left", "Ended" */
   status?: string;
   /** The call's service, for names and labels. Defaults to "Google Meet" */
   provider?: string;
@@ -266,7 +266,6 @@ export function MeetingCard({ title, subtitle, start, end, now, from, to, people
         <span className="dm-mtx-blk" style={{ left: pc(a) + '%', width: pc(b) - pc(a) + '%', ['--dm-cut' as string]: Math.min(100, Math.max(0, (t - a) / Math.max(1, b - a) * 100)) + '%' }}>
           <span className="dm-mtx-bp" /><span className="dm-num">{start}</span><span className="dm-num">{end}</span>
         </span>
-        <span className="dm-mtx-past" />
         <span className="dm-mtx-now"><i /></span>
       </div>
       <div className="dm-mtx-f">
