@@ -306,10 +306,12 @@ function carousel(c, tr, o = {}){
   return { go, measure, get at(){ return at; }, get stop(){ return stops[at]; } };
 }
 /* entrance: when a component mounts, its container rises into place and its parts follow one after another.
-   Soft rises out of a blur; Blueprint wipes down and ticks its parts in, in short hard beats. Each animation only
+   Soft rises out of a blur; Blueprint wipes down and ticks its parts in, in short hard beats; Clean rises calmly, 8px from .98. Each animation only
    names where it starts, so it ends on whatever the element's own styles say, and leaves nothing behind */
 const REVEAL = {
   soft:{ root:[{ opacity:0, transform:'translateY(14px)' }], rootMs:820, part:[{ opacity:0, filter:'blur(6px)', transform:'translateY(8px)' }], partMs:760, first:110, step:65, max:620, ease:'cubic-bezier(.16,1,.3,1)' },
+  // Clean: the card fades and rises 8px from .98 over 520ms, then its pieces follow 40ms apart, each rising 6px (owner, 17 Nov)
+  clean:{ root:[{ opacity:0, transform:'translateY(8px) scale(.98)' }], rootMs:520, part:[{ opacity:0, transform:'translateY(6px)' }], partMs:440, first:120, step:40, max:440, ease:'cubic-bezier(.23,1,.32,1)' },
   bp:{ root:[{ opacity:0, clipPath:'inset(0 0 100% 0)' }, { opacity:1, clipPath:'inset(0 0 0% 0)', offset:.35 }, { clipPath:'inset(0 0 0% 0)' }], rootMs:520, part:[{ opacity:0, transform:'translateY(4px)' }], partMs:320, first:160, step:45, max:420, ease:'cubic-bezier(.65,0,.25,1)' }
 };
 function revealParts(root){

@@ -431,6 +431,140 @@ code.c{font-family:var(--dm-mono);font-size:12.5px;background:var(--dm-chip);pad
    than the surface it sits on */
 :root[data-theme="dark"] :is(.pop,.ecx-pop) .pill.line{background:transparent}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(.pop,.ecx-pop) .pill.line{background:transparent}}
+/* ---------- Clean ---------- */
+/* Clean (owner, 17 Nov): the third style, a layer over Soft. Black, white and one neutral grey ramp, with an ink accent (black
+   fills in light, white in dark); hairline outlines with a 1px contact shadow and one short soft shadow on cards; off-white
+   head and foot strips; fully round controls (buttons, chips, tags, switchers and their knobs, toggles) and every other corner
+   drawn round, never as a squircle, about 12px on cards. Buttons have depth inside their fill: a blurred light along the top,
+   a soft shade along the bottom and a near-solid edge; checkboxes and tracks have a soft inner shadow. In dark only, a faint
+   neutral glow sits around card outlines and around the white primary button (an approved exception to "no glows": white
+   or neutral only, never a hue). Status colour only on small marks. Motion is calm: ease-out quint, hovers 150ms, presses
+   at .97, menus scale and fade from their trigger, and a card rises 8px from .98 with its pieces 40ms apart (REVEAL.clean) */
+:root[data-style="clean"],[data-style="clean"]{
+  --dm-motion:clean;
+  --dm-page:#f7f7f7; --dm-stage:#f7f7f7; --dm-surface:#ffffff; --dm-raised:#ffffff; --dm-strip:#fafafa;
+  --dm-fg:#0a0a0a; --dm-fg2:#404040; --dm-muted:#6b6b6b; --dm-faint:#d4d4d4; --dm-rail:#e5e5e5;
+  --dm-line:#e5e5e5; --dm-hair:rgba(0,0,0,.08); --dm-field-line:#e0e0e0; --dm-line-strong:#8f8f8f; --dm-field-line-strong:#b3b3b3;
+  --dm-chip:#f3f3f3; --dm-hover:#ededed; --dm-press:#e6e6e6; --dm-wash:#fafafa; --dm-row:#f7f7f7;
+  --dm-soft:#f3f3f3; --dm-soft-h:#ededed; --dm-soft-ring:inset 0 0 0 1px rgba(0,0,0,.06); --dm-dis:#a3a3a3;
+  --dm-ghost:#ededed; --dm-ghost-2:#f4f4f4;
+  --dm-accent:#0a0a0a; --dm-on-accent:#ffffff; --dm-accent-fg:#0a0a0a; --dm-accent-mark:#0a0a0a; --dm-accent-2:#262626;
+  --dm-accent-bg:rgba(0,0,0,.05); --dm-sel:rgba(0,0,0,.035);
+  --dm-ink:#0a0a0a; --dm-on-ink:#ffffff;
+  --dm-ok:#147a39; --dm-ok-bg:#ebf7ee; --dm-ok-mark:#1ba04c; --dm-warn:#9a4704; --dm-warn-bg:#fff2dc; --dm-warn-mark:#e86100;
+  --dm-bad:#c81e16; --dm-bad-bg:#fdeceb; --dm-bad-mark:#e5372c;
+  --dm-c1:var(--dm-accent-mark); --dm-c2:#8f8f8f; --dm-c3:#5c5c5c; --dm-c4:#b0b0b0;
+  --dm-shadow:0 0 0 1px rgba(0,0,0,.07),0 1px 1px rgba(0,0,0,.04),0 2px 10px -4px rgba(0,0,0,.12);
+  --dm-shadow-pop:0 0 0 1px rgba(0,0,0,.08),0 1px 1px rgba(0,0,0,.04),0 12px 28px -12px rgba(0,0,0,.22);
+  --dm-shadow-toast:var(--dm-shadow-pop); --dm-shadow-lift:var(--dm-shadow-pop);
+  --dm-tip-bg:#ffffff; --dm-tip-fg:#0a0a0a; --dm-tip-ring:0 0 0 1px rgba(0,0,0,.08),0 1px 1px rgba(0,0,0,.04),0 6px 16px -6px rgba(0,0,0,.18);
+  --dm-btn-1:#2a2a2a; --dm-btn-2:#0a0a0a;
+  --dm-btn-depth:0 0 0 1px rgba(10,10,10,.92),inset 0 3px 6px -2px rgba(255,255,255,.42),inset 0 0 0 1px rgba(255,255,255,.06),inset 0 -3px 5px -3px rgba(0,0,0,.45),0 1px 2px rgba(0,0,0,.08),0 4px 12px -4px rgba(0,0,0,.16);
+  --dm-btn-press:0 0 0 1px rgba(10,10,10,.92),inset 0 1px 3px rgba(0,0,0,.5),inset 0 -3px 5px -3px rgba(0,0,0,.5),0 1px 1px rgba(0,0,0,.1);
+  --dm-btn2-1:#ffffff; --dm-btn2-2:#fafafa;
+  --dm-btn2-depth:0 0 0 1px rgba(0,0,0,.07),inset 0 3px 5px -2px #ffffff,inset 0 -3px 5px -3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05),0 4px 12px -4px rgba(0,0,0,.08);
+  --dm-btn2-hover:0 0 0 1px rgba(0,0,0,.11),inset 0 3px 5px -2px #ffffff,inset 0 -3px 5px -3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06),0 4px 12px -4px rgba(0,0,0,.1);
+  --dm-btn2-press:0 0 0 1px rgba(0,0,0,.11),inset 0 1px 3px rgba(0,0,0,.1);
+  --dm-knob:#ffffff; --dm-knob-shadow:0 0 0 1px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.07); --dm-track-ring:inset 0 0 0 1px rgba(0,0,0,.03),inset 0 1px 3px rgba(0,0,0,.09);
+  --dm-area:.07;
+  /* every corner is round (never a squircle), so no corner needs the squircle's larger radius: cards 12px, fields 8px, and
+     buttons, chips, tags and switchers full pills */
+  --dm-rk:1; --dm-r-card:12px; --dm-r-lg:14px; --dm-r-in:8px; --dm-r-sm:999px; --dm-r-xs:4px; --dm-r-pill:999px;
+  --dm-r-field:8px; --dm-r-field-sq:8px; --dm-r-box:10px; --dm-r-box-sq:10px; --dm-r-tag:999px; --dm-r-tag-sq:999px;
+  --dm-ease:cubic-bezier(.23,1,.32,1); --dm-ease-io:cubic-bezier(.65,0,.35,1);
+  --dm-t-fast:.15s; --dm-t:.24s; --dm-t-slow:.42s;
+}
+@media (prefers-color-scheme:dark){:root[data-style="clean"]:not([data-theme="light"]),:root:not([data-theme="light"]) [data-style="clean"]{
+  --dm-page:#0a0a0a; --dm-stage:#0a0a0a; --dm-surface:#141414; --dm-raised:#1c1c1c; --dm-strip:#181818;
+  --dm-fg:#f5f5f5; --dm-fg2:#cfcfcf; --dm-muted:#bdbdbd; --dm-faint:#474747; --dm-rail:#2e2e2e;
+  --dm-line:#2a2a2a; --dm-hair:rgba(255,255,255,.09); --dm-field-line:#4d4d4d; --dm-line-strong:#7a7a7a; --dm-field-line-strong:#8f8f8f;
+  --dm-chip:#1f1f1f; --dm-hover:#232323; --dm-press:#2a2a2a; --dm-wash:#181818; --dm-row:#1a1a1a;
+  --dm-soft:#1f1f1f; --dm-soft-h:#262626; --dm-soft-ring:inset 0 0 0 1px rgba(255,255,255,.06); --dm-dis:#666666;
+  --dm-ghost:#262626; --dm-ghost-2:#1e1e1e;
+  --dm-accent:#f5f5f5; --dm-on-accent:#0a0a0a; --dm-accent-fg:#f5f5f5; --dm-accent-mark:#f5f5f5; --dm-accent-2:#ffffff;
+  --dm-accent-bg:rgba(255,255,255,.07); --dm-sel:rgba(255,255,255,.05);
+  --dm-ink:#f5f5f5; --dm-on-ink:#0a0a0a;
+  --dm-ok:#4ade80; --dm-ok-bg:rgba(34,197,94,.13); --dm-ok-mark:#22c55e; --dm-warn:#ffc247; --dm-warn-bg:rgba(255,184,40,.14); --dm-warn-mark:#ffa940;
+  --dm-bad:#ffaca4; --dm-bad-bg:rgba(240,68,56,.14); --dm-bad-mark:#f97066;
+  --dm-c2:#7a7a7a; --dm-c3:#a3a3a3; --dm-c4:#5c5c5c;
+  --dm-shadow:0 0 0 1px rgba(255,255,255,.1),0 0 0 4px rgba(255,255,255,.02),0 0 32px 4px rgba(255,255,255,.05),0 1px 1px rgba(0,0,0,.5),0 2px 10px -4px rgba(0,0,0,.6);
+  --dm-shadow-pop:0 0 0 1px rgba(255,255,255,.1),0 1px 1px rgba(0,0,0,.5),0 12px 28px -12px rgba(0,0,0,.8);
+  --dm-tip-bg:#1f1f1f; --dm-tip-fg:#f5f5f5; --dm-tip-ring:0 0 0 1px rgba(255,255,255,.1),0 6px 16px -6px rgba(0,0,0,.7);
+  --dm-btn-1:#ffffff; --dm-btn-2:#e0e0e0;
+  --dm-btn-depth:0 0 0 1px rgba(245,245,245,.9),inset 0 3px 5px -2px #ffffff,inset 0 -3px 5px -3px rgba(0,0,0,.18),0 1px 2px rgba(0,0,0,.5),0 0 14px rgba(255,255,255,.16);
+  --dm-btn-press:0 0 0 1px rgba(245,245,245,.9),inset 0 1px 3px rgba(0,0,0,.3),inset 0 -3px 5px -3px rgba(0,0,0,.2),0 1px 1px rgba(0,0,0,.4);
+  --dm-btn2-1:#222222; --dm-btn2-2:#1c1c1c;
+  --dm-btn2-depth:0 0 0 1px rgba(255,255,255,.08),inset 0 3px 5px -2px rgba(255,255,255,.08),inset 0 -3px 5px -3px rgba(0,0,0,.35),0 1px 2px rgba(0,0,0,.5);
+  --dm-btn2-hover:0 0 0 1px rgba(255,255,255,.15),inset 0 1px 0 rgba(255,255,255,.07),0 1px 2px rgba(0,0,0,.5);
+  --dm-btn2-press:0 0 0 1px rgba(255,255,255,.14),inset 0 1px 3px rgba(0,0,0,.5);
+  --dm-knob:#2a2a2a; --dm-knob-shadow:0 0 0 1px rgba(255,255,255,.08),inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.5); --dm-track-ring:inset 0 0 0 1px rgba(255,255,255,.04),inset 0 1px 3px rgba(0,0,0,.35);
+  --dm-area:.09;
+  color-scheme:dark}}
+:root[data-style="clean"][data-theme="dark"],:root[data-theme="dark"] [data-style="clean"]{
+  --dm-page:#0a0a0a; --dm-stage:#0a0a0a; --dm-surface:#141414; --dm-raised:#1c1c1c; --dm-strip:#181818;
+  --dm-fg:#f5f5f5; --dm-fg2:#cfcfcf; --dm-muted:#bdbdbd; --dm-faint:#474747; --dm-rail:#2e2e2e;
+  --dm-line:#2a2a2a; --dm-hair:rgba(255,255,255,.09); --dm-field-line:#4d4d4d; --dm-line-strong:#7a7a7a; --dm-field-line-strong:#8f8f8f;
+  --dm-chip:#1f1f1f; --dm-hover:#232323; --dm-press:#2a2a2a; --dm-wash:#181818; --dm-row:#1a1a1a;
+  --dm-soft:#1f1f1f; --dm-soft-h:#262626; --dm-soft-ring:inset 0 0 0 1px rgba(255,255,255,.06); --dm-dis:#666666;
+  --dm-ghost:#262626; --dm-ghost-2:#1e1e1e;
+  --dm-accent:#f5f5f5; --dm-on-accent:#0a0a0a; --dm-accent-fg:#f5f5f5; --dm-accent-mark:#f5f5f5; --dm-accent-2:#ffffff;
+  --dm-accent-bg:rgba(255,255,255,.07); --dm-sel:rgba(255,255,255,.05);
+  --dm-ink:#f5f5f5; --dm-on-ink:#0a0a0a;
+  --dm-ok:#4ade80; --dm-ok-bg:rgba(34,197,94,.13); --dm-ok-mark:#22c55e; --dm-warn:#ffc247; --dm-warn-bg:rgba(255,184,40,.14); --dm-warn-mark:#ffa940;
+  --dm-bad:#ffaca4; --dm-bad-bg:rgba(240,68,56,.14); --dm-bad-mark:#f97066;
+  --dm-c2:#7a7a7a; --dm-c3:#a3a3a3; --dm-c4:#5c5c5c;
+  --dm-shadow:0 0 0 1px rgba(255,255,255,.1),0 0 0 4px rgba(255,255,255,.02),0 0 32px 4px rgba(255,255,255,.05),0 1px 1px rgba(0,0,0,.5),0 2px 10px -4px rgba(0,0,0,.6);
+  --dm-shadow-pop:0 0 0 1px rgba(255,255,255,.1),0 1px 1px rgba(0,0,0,.5),0 12px 28px -12px rgba(0,0,0,.8);
+  --dm-tip-bg:#1f1f1f; --dm-tip-fg:#f5f5f5; --dm-tip-ring:0 0 0 1px rgba(255,255,255,.1),0 6px 16px -6px rgba(0,0,0,.7);
+  --dm-btn-1:#ffffff; --dm-btn-2:#e0e0e0;
+  --dm-btn-depth:0 0 0 1px rgba(245,245,245,.9),inset 0 3px 5px -2px #ffffff,inset 0 -3px 5px -3px rgba(0,0,0,.18),0 1px 2px rgba(0,0,0,.5),0 0 14px rgba(255,255,255,.16);
+  --dm-btn-press:0 0 0 1px rgba(245,245,245,.9),inset 0 1px 3px rgba(0,0,0,.3),inset 0 -3px 5px -3px rgba(0,0,0,.2),0 1px 1px rgba(0,0,0,.4);
+  --dm-btn2-1:#222222; --dm-btn2-2:#1c1c1c;
+  --dm-btn2-depth:0 0 0 1px rgba(255,255,255,.08),inset 0 3px 5px -2px rgba(255,255,255,.08),inset 0 -3px 5px -3px rgba(0,0,0,.35),0 1px 2px rgba(0,0,0,.5);
+  --dm-btn2-hover:0 0 0 1px rgba(255,255,255,.15),inset 0 1px 0 rgba(255,255,255,.07),0 1px 2px rgba(0,0,0,.5);
+  --dm-btn2-press:0 0 0 1px rgba(255,255,255,.14),inset 0 1px 3px rgba(0,0,0,.5);
+  --dm-knob:#2a2a2a; --dm-knob-shadow:0 0 0 1px rgba(255,255,255,.08),inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.5); --dm-track-ring:inset 0 0 0 1px rgba(255,255,255,.04),inset 0 1px 3px rgba(0,0,0,.35);
+  --dm-area:.09;
+  color-scheme:dark}
+/* every corner round, never a squircle */
+:root[data-style="clean"] :where([data-c],[data-c] *,.tip,.tip *,.kbx-k.ghost,.kbx-k.ghost *),:root [data-style="clean"] :where([data-c],[data-c] *,.tip,.tip *,.kbx-k.ghost,.kbx-k.ghost *),:root[data-style="clean"] :where([data-c],[data-c] *,.tip,.tip *,.kbx-k.ghost,.kbx-k.ghost *)::before,:root [data-style="clean"] :where([data-c],[data-c] *,.tip,.tip *,.kbx-k.ghost,.kbx-k.ghost *)::before,:root[data-style="clean"] :where([data-c],[data-c] *,.tip,.tip *,.kbx-k.ghost,.kbx-k.ghost *)::after,:root [data-style="clean"] :where([data-c],[data-c] *,.tip,.tip *,.kbx-k.ghost,.kbx-k.ghost *)::after{corner-shape:round!important}
+/* icons a little finer; words that swap fade without a blur; the tooltip and menus scale and fade, never blur */
+:root[data-style="clean"] .i,:root [data-style="clean"] .i{stroke-width:1.5}
+:root[data-style="clean"] .sw,:root [data-style="clean"] .sw{transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease)}
+:root[data-style="clean"] .sw.out,:root [data-style="clean"] .sw.out{filter:none}
+@keyframes clpiece{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes clcard{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes clout{to{opacity:0;transform:translateY(-4px)}}
+:root[data-style="clean"] .enter,:root [data-style="clean"] .enter{animation:clpiece var(--dm-t-slow) var(--dm-ease) backwards}
+:root[data-style="clean"] .pop-in,:root [data-style="clean"] .pop-in{animation:clcard .32s var(--dm-ease) backwards}
+:root[data-style="clean"] .leave,:root [data-style="clean"] .leave{animation:clout .18s var(--dm-ease) both}
+:root[data-style="clean"] .tip,:root [data-style="clean"] .tip{filter:none;transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease)}
+:root[data-style="clean"] .pop,:root [data-style="clean"] .pop{transform:scale(.96);filter:none;transition:opacity .15s var(--dm-ease),transform .2s var(--dm-ease),visibility 0s .15s}
+:root[data-style="clean"] .pop.open,:root [data-style="clean"] .pop.open{transform:none;transition:opacity .15s var(--dm-ease),transform .2s var(--dm-ease)}
+
+/* buttons. Primary: ink with a slight gradient, a near-solid edge, a blurred light inside its top and a shade inside its
+   bottom. Secondary: white with a hairline, a light inside its top and a faint shade inside its bottom. A press sinks it
+   (.97, the inner shade deepens) and it springs back in 150ms */
+:root[data-style="clean"] .pill,:root [data-style="clean"] .pill{font-weight:500;transition:transform var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease),background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .pill:active,:root [data-style="clean"] .pill:active{transform:scale(.97)}
+:root[data-style="clean"] .pill:is(.primary,.accent):not([disabled]),:root [data-style="clean"] .pill:is(.primary,.accent):not([disabled]){color:var(--dm-on-accent);background:linear-gradient(180deg,var(--dm-btn-1),var(--dm-btn-2));box-shadow:var(--dm-btn-depth)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .pill:is(.primary,.accent):not([disabled]):hover,:root [data-style="clean"] .pill:is(.primary,.accent):not([disabled]):hover{background:linear-gradient(180deg,color-mix(in srgb,var(--dm-btn-1) 88%,#808080),var(--dm-btn-2))}}
+:root[data-style="clean"] .pill:is(.primary,.accent):not([disabled]):active,:root [data-style="clean"] .pill:is(.primary,.accent):not([disabled]):active{box-shadow:var(--dm-btn-press)}
+:root[data-style="clean"] :is(.pill.line,.pill.soft):not([disabled]),:root [data-style="clean"] :is(.pill.line,.pill.soft):not([disabled]){color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] :is(.pill.line,.pill.soft):not([disabled]):hover,:root [data-style="clean"] :is(.pill.line,.pill.soft):not([disabled]):hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
+:root[data-style="clean"] :is(.pill.line,.pill.soft):not([disabled]):active,:root [data-style="clean"] :is(.pill.line,.pill.soft):not([disabled]):active{box-shadow:var(--dm-btn2-press)}
+/* text buttons: no fill until hovered, then the faintest grey */
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .pill.ghost:hover,:root [data-style="clean"] .pill.ghost:hover{background:var(--dm-row)}}
+:root[data-style="clean"] .ib,:root [data-style="clean"] .ib{transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease),transform var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .ib:active,:root [data-style="clean"] .ib:active{transform:scale(.94)}
+/* switchers: a white knob with a hairline and a 1px shadow, gliding on a grey track with a soft inner shadow */
+:root[data-style="clean"] .seg2,:root [data-style="clean"] .seg2{box-shadow:var(--dm-track-ring)}
+:root[data-style="clean"] .seg2 .knob,:root [data-style="clean"] .seg2 .knob{background:var(--dm-knob);box-shadow:var(--dm-knob-shadow);transition:left var(--dm-t) var(--dm-ease),width var(--dm-t) var(--dm-ease)}
+:root[data-style="clean"] .seg2 button,:root [data-style="clean"] .seg2 button{color:var(--dm-muted);font-weight:500;transition:color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .seg2 button[aria-pressed="true"],:root [data-style="clean"] .seg2 button[aria-pressed="true"]{color:var(--dm-fg)}
+/* toggles: ink when on, a white knob with a hairline, and a soft inner shadow in the track */
+:root[data-style="clean"] .toggle,:root [data-style="clean"] .toggle{box-shadow:inset 0 0 0 1px rgba(0,0,0,.05),inset 0 2px 4px -1px rgba(0,0,0,.18)}
+:root[data-style="clean"] .toggle::after,:root [data-style="clean"] .toggle::after{box-shadow:0 0 0 .5px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.2);transition:transform var(--dm-t) var(--dm-ease)}
 
 /* a component card: the template renders into .stage-in */
 [data-c]{width:440px;max-width:100%;font-family:var(--dm-sans);font-size:14px;line-height:1.5;color:var(--dm-fg);-webkit-font-smoothing:antialiased}

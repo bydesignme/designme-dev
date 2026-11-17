@@ -1494,6 +1494,14 @@ patch("""const bp = document.documentElement.getAttribute('data-style') !== 'sof
 patch("""      if (v === 'soft') b.animate([""", """      if (v === 'soft' || v === 'clean') b.animate([""")
 patch("""(document.documentElement.getAttribute('data-style') === 'soft' ? 'Blue, the Soft default' :""",
       """(document.documentElement.getAttribute('data-style') === 'clean' ? 'Ink, the Clean default' : document.documentElement.getAttribute('data-style') === 'soft' ? 'Blue, the Soft default' :""")
+# the card's stage in Clean is Clean's own stage grey (#f7f7f7, near-black #0a0a0a in dark), so a Clean card sits on the
+# ground it was designed on; the rest of the chrome stays Soft's
+patch("""<style id="accent-roles">""", """<style id="clean-chrome">
+:root[data-style="clean"]{--sh-stage:#f7f7f7}
+@media (prefers-color-scheme: dark){:root[data-style="clean"]:not([data-theme="light"]){--sh-stage:#0a0a0a}}
+:root[data-style="clean"][data-theme="dark"]{--sh-stage:#0a0a0a}
+</style>
+<style id="accent-roles">""")
 
 # ---------- launch (owner, 4 Nov) ----------
 # Book a call goes to the agency's booking page, not its homepage, tagged so the agency can see it came from here

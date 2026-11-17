@@ -672,14 +672,16 @@ function styleScope(sel){
   }
   if (i < sel.length && !/\s/.test(sel[i])) return [sel];
   const attrs = sel.slice(5, i), rest = sel.slice(i).trim(), bp = attrs.includes(BP_ROOT);
-  // a Clean rule: on <html>, or on any element around the components
-  if (!bp && attrs.includes(CLEAN)){ const other = attrs.replace(CLEAN, ''), here = other ? `:root${other} ${CLEAN}` : CLEAN;
-    return [sel, rest ? `${other ? here : ':root ' + here} ${rest}` : here]; }
-  if (!rest) return bp ? [sel] : [sel, attrs ? `:root${attrs} ${SOFT_HERE}` : SOFT_HERE, attrs ? `:root${attrs} ${CLEAN}` : CLEAN];
-  if (!bp) return [sel];
+  const clean = !bp && attrs.includes(CLEAN);
+  if (!rest) return bp ? [sel] : clean ? [sel, attrs.replace(CLEAN, '') ? `:root${attrs.replace(CLEAN, '')} ${CLEAN}` : CLEAN]
+    : [sel, attrs ? `:root${attrs} ${SOFT_HERE}` : SOFT_HERE, attrs ? `:root${attrs} ${CLEAN}` : CLEAN];
+  if (!bp && !clean) return [sel];
+  // a sweeping rule (every element, or an element by its tag) reaches only what the components draw
   let r = rest;
   if (/^\*/.test(r)) r = `:where(${DRAWN.flatMap(x => [x, x + ' *']).join(',')})` + r.slice(1);
   else if (/^[a-z]/.test(r)) r = `:where(${DRAWN.join(',')}) ` + r;
+  // a Clean rule: on <html>, or on any element around the components
+  if (clean){ const other = attrs.replace(CLEAN, ''); return [`:root${attrs} ${r}`, `:root${other} ${CLEAN} ${r}`]; }
   return [`:root${attrs} ${onSubject(r, NOT_SOFT)}`];
 }
 function regCss(text){

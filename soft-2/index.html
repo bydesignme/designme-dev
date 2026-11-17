@@ -6618,6 +6618,140 @@ button.pvb-row:focus-visible{outline-offset:-2px}
    than the surface it sits on */
 :root[data-theme="dark"] :is(.pop,.ecx-pop) .pill.line{background:transparent}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(.pop,.ecx-pop) .pill.line{background:transparent}}
+/* ---------- Clean ---------- */
+/* Clean (owner, 17 Nov): the third style, a layer over Soft. Black, white and one neutral grey ramp, with an ink accent (black
+   fills in light, white in dark); hairline outlines with a 1px contact shadow and one short soft shadow on cards; off-white
+   head and foot strips; fully round controls (buttons, chips, tags, switchers and their knobs, toggles) and every other corner
+   drawn round, never as a squircle, about 12px on cards. Buttons have depth inside their fill: a blurred light along the top,
+   a soft shade along the bottom and a near-solid edge; checkboxes and tracks have a soft inner shadow. In dark only, a faint
+   neutral glow sits around card outlines and around the white primary button (an approved exception to "no glows": white
+   or neutral only, never a hue). Status colour only on small marks. Motion is calm: ease-out quint, hovers 150ms, presses
+   at .97, menus scale and fade from their trigger, and a card rises 8px from .98 with its pieces 40ms apart (REVEAL.clean) */
+:root[data-style="clean"]{
+  --motion:clean;
+  --page:#f7f7f7; --stage:#f7f7f7; --surface:#ffffff; --raised:#ffffff; --strip:#fafafa;
+  --fg:#0a0a0a; --fg2:#404040; --muted:#6b6b6b; --faint:#d4d4d4; --rail:#e5e5e5;
+  --line:#e5e5e5; --hair:rgba(0,0,0,.08); --field-line:#e0e0e0; --line-strong:#8f8f8f; --field-line-strong:#b3b3b3;
+  --chip:#f3f3f3; --hover:#ededed; --press:#e6e6e6; --wash:#fafafa; --row:#f7f7f7;
+  --soft:#f3f3f3; --soft-h:#ededed; --soft-ring:inset 0 0 0 1px rgba(0,0,0,.06); --dis:#a3a3a3;
+  --ghost:#ededed; --ghost-2:#f4f4f4;
+  --accent:#0a0a0a; --on-accent:#ffffff; --accent-fg:#0a0a0a; --accent-mark:#0a0a0a; --accent-2:#262626;
+  --accent-bg:rgba(0,0,0,.05); --sel:rgba(0,0,0,.035);
+  --ink:#0a0a0a; --on-ink:#ffffff;
+  --ok:#147a39; --ok-bg:#ebf7ee; --ok-mark:#1ba04c; --warn:#9a4704; --warn-bg:#fff2dc; --warn-mark:#e86100;
+  --bad:#c81e16; --bad-bg:#fdeceb; --bad-mark:#e5372c;
+  --c1:var(--accent-mark); --c2:#8f8f8f; --c3:#5c5c5c; --c4:#b0b0b0;
+  --shadow:0 0 0 1px rgba(0,0,0,.07),0 1px 1px rgba(0,0,0,.04),0 2px 10px -4px rgba(0,0,0,.12);
+  --shadow-pop:0 0 0 1px rgba(0,0,0,.08),0 1px 1px rgba(0,0,0,.04),0 12px 28px -12px rgba(0,0,0,.22);
+  --shadow-toast:var(--shadow-pop); --shadow-lift:var(--shadow-pop);
+  --tip-bg:#ffffff; --tip-fg:#0a0a0a; --tip-ring:0 0 0 1px rgba(0,0,0,.08),0 1px 1px rgba(0,0,0,.04),0 6px 16px -6px rgba(0,0,0,.18);
+  --btn-1:#2a2a2a; --btn-2:#0a0a0a;
+  --btn-depth:0 0 0 1px rgba(10,10,10,.92),inset 0 3px 6px -2px rgba(255,255,255,.42),inset 0 0 0 1px rgba(255,255,255,.06),inset 0 -3px 5px -3px rgba(0,0,0,.45),0 1px 2px rgba(0,0,0,.08),0 4px 12px -4px rgba(0,0,0,.16);
+  --btn-press:0 0 0 1px rgba(10,10,10,.92),inset 0 1px 3px rgba(0,0,0,.5),inset 0 -3px 5px -3px rgba(0,0,0,.5),0 1px 1px rgba(0,0,0,.1);
+  --btn2-1:#ffffff; --btn2-2:#fafafa;
+  --btn2-depth:0 0 0 1px rgba(0,0,0,.07),inset 0 3px 5px -2px #ffffff,inset 0 -3px 5px -3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05),0 4px 12px -4px rgba(0,0,0,.08);
+  --btn2-hover:0 0 0 1px rgba(0,0,0,.11),inset 0 3px 5px -2px #ffffff,inset 0 -3px 5px -3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06),0 4px 12px -4px rgba(0,0,0,.1);
+  --btn2-press:0 0 0 1px rgba(0,0,0,.11),inset 0 1px 3px rgba(0,0,0,.1);
+  --knob:#ffffff; --knob-shadow:0 0 0 1px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.07); --track-ring:inset 0 0 0 1px rgba(0,0,0,.03),inset 0 1px 3px rgba(0,0,0,.09);
+  --area:.07;
+  /* every corner is round (never a squircle), so no corner needs the squircle's larger radius: cards 12px, fields 8px, and
+     buttons, chips, tags and switchers full pills */
+  --rk:1; --r-card:12px; --r-lg:14px; --r-in:8px; --r-sm:999px; --r-xs:4px; --r-pill:999px;
+  --r-field:8px; --r-field-sq:8px; --r-box:10px; --r-box-sq:10px; --r-tag:999px; --r-tag-sq:999px;
+  --ease:cubic-bezier(.23,1,.32,1); --ease-io:cubic-bezier(.65,0,.35,1);
+  --t-fast:.15s; --t:.24s; --t-slow:.42s;
+}
+@media (prefers-color-scheme:dark){:root[data-style="clean"]:not([data-theme="light"]){
+  --page:#0a0a0a; --stage:#0a0a0a; --surface:#141414; --raised:#1c1c1c; --strip:#181818;
+  --fg:#f5f5f5; --fg2:#cfcfcf; --muted:#bdbdbd; --faint:#474747; --rail:#2e2e2e;
+  --line:#2a2a2a; --hair:rgba(255,255,255,.09); --field-line:#4d4d4d; --line-strong:#7a7a7a; --field-line-strong:#8f8f8f;
+  --chip:#1f1f1f; --hover:#232323; --press:#2a2a2a; --wash:#181818; --row:#1a1a1a;
+  --soft:#1f1f1f; --soft-h:#262626; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.06); --dis:#666666;
+  --ghost:#262626; --ghost-2:#1e1e1e;
+  --accent:#f5f5f5; --on-accent:#0a0a0a; --accent-fg:#f5f5f5; --accent-mark:#f5f5f5; --accent-2:#ffffff;
+  --accent-bg:rgba(255,255,255,.07); --sel:rgba(255,255,255,.05);
+  --ink:#f5f5f5; --on-ink:#0a0a0a;
+  --ok:#4ade80; --ok-bg:rgba(34,197,94,.13); --ok-mark:#22c55e; --warn:#ffc247; --warn-bg:rgba(255,184,40,.14); --warn-mark:#ffa940;
+  --bad:#ffaca4; --bad-bg:rgba(240,68,56,.14); --bad-mark:#f97066;
+  --c2:#7a7a7a; --c3:#a3a3a3; --c4:#5c5c5c;
+  --shadow:0 0 0 1px rgba(255,255,255,.1),0 0 0 4px rgba(255,255,255,.02),0 0 32px 4px rgba(255,255,255,.05),0 1px 1px rgba(0,0,0,.5),0 2px 10px -4px rgba(0,0,0,.6);
+  --shadow-pop:0 0 0 1px rgba(255,255,255,.1),0 1px 1px rgba(0,0,0,.5),0 12px 28px -12px rgba(0,0,0,.8);
+  --tip-bg:#1f1f1f; --tip-fg:#f5f5f5; --tip-ring:0 0 0 1px rgba(255,255,255,.1),0 6px 16px -6px rgba(0,0,0,.7);
+  --btn-1:#ffffff; --btn-2:#e0e0e0;
+  --btn-depth:0 0 0 1px rgba(245,245,245,.9),inset 0 3px 5px -2px #ffffff,inset 0 -3px 5px -3px rgba(0,0,0,.18),0 1px 2px rgba(0,0,0,.5),0 0 14px rgba(255,255,255,.16);
+  --btn-press:0 0 0 1px rgba(245,245,245,.9),inset 0 1px 3px rgba(0,0,0,.3),inset 0 -3px 5px -3px rgba(0,0,0,.2),0 1px 1px rgba(0,0,0,.4);
+  --btn2-1:#222222; --btn2-2:#1c1c1c;
+  --btn2-depth:0 0 0 1px rgba(255,255,255,.08),inset 0 3px 5px -2px rgba(255,255,255,.08),inset 0 -3px 5px -3px rgba(0,0,0,.35),0 1px 2px rgba(0,0,0,.5);
+  --btn2-hover:0 0 0 1px rgba(255,255,255,.15),inset 0 1px 0 rgba(255,255,255,.07),0 1px 2px rgba(0,0,0,.5);
+  --btn2-press:0 0 0 1px rgba(255,255,255,.14),inset 0 1px 3px rgba(0,0,0,.5);
+  --knob:#2a2a2a; --knob-shadow:0 0 0 1px rgba(255,255,255,.08),inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.5); --track-ring:inset 0 0 0 1px rgba(255,255,255,.04),inset 0 1px 3px rgba(0,0,0,.35);
+  --area:.09;
+  color-scheme:dark}}
+:root[data-style="clean"][data-theme="dark"]{
+  --page:#0a0a0a; --stage:#0a0a0a; --surface:#141414; --raised:#1c1c1c; --strip:#181818;
+  --fg:#f5f5f5; --fg2:#cfcfcf; --muted:#bdbdbd; --faint:#474747; --rail:#2e2e2e;
+  --line:#2a2a2a; --hair:rgba(255,255,255,.09); --field-line:#4d4d4d; --line-strong:#7a7a7a; --field-line-strong:#8f8f8f;
+  --chip:#1f1f1f; --hover:#232323; --press:#2a2a2a; --wash:#181818; --row:#1a1a1a;
+  --soft:#1f1f1f; --soft-h:#262626; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.06); --dis:#666666;
+  --ghost:#262626; --ghost-2:#1e1e1e;
+  --accent:#f5f5f5; --on-accent:#0a0a0a; --accent-fg:#f5f5f5; --accent-mark:#f5f5f5; --accent-2:#ffffff;
+  --accent-bg:rgba(255,255,255,.07); --sel:rgba(255,255,255,.05);
+  --ink:#f5f5f5; --on-ink:#0a0a0a;
+  --ok:#4ade80; --ok-bg:rgba(34,197,94,.13); --ok-mark:#22c55e; --warn:#ffc247; --warn-bg:rgba(255,184,40,.14); --warn-mark:#ffa940;
+  --bad:#ffaca4; --bad-bg:rgba(240,68,56,.14); --bad-mark:#f97066;
+  --c2:#7a7a7a; --c3:#a3a3a3; --c4:#5c5c5c;
+  --shadow:0 0 0 1px rgba(255,255,255,.1),0 0 0 4px rgba(255,255,255,.02),0 0 32px 4px rgba(255,255,255,.05),0 1px 1px rgba(0,0,0,.5),0 2px 10px -4px rgba(0,0,0,.6);
+  --shadow-pop:0 0 0 1px rgba(255,255,255,.1),0 1px 1px rgba(0,0,0,.5),0 12px 28px -12px rgba(0,0,0,.8);
+  --tip-bg:#1f1f1f; --tip-fg:#f5f5f5; --tip-ring:0 0 0 1px rgba(255,255,255,.1),0 6px 16px -6px rgba(0,0,0,.7);
+  --btn-1:#ffffff; --btn-2:#e0e0e0;
+  --btn-depth:0 0 0 1px rgba(245,245,245,.9),inset 0 3px 5px -2px #ffffff,inset 0 -3px 5px -3px rgba(0,0,0,.18),0 1px 2px rgba(0,0,0,.5),0 0 14px rgba(255,255,255,.16);
+  --btn-press:0 0 0 1px rgba(245,245,245,.9),inset 0 1px 3px rgba(0,0,0,.3),inset 0 -3px 5px -3px rgba(0,0,0,.2),0 1px 1px rgba(0,0,0,.4);
+  --btn2-1:#222222; --btn2-2:#1c1c1c;
+  --btn2-depth:0 0 0 1px rgba(255,255,255,.08),inset 0 3px 5px -2px rgba(255,255,255,.08),inset 0 -3px 5px -3px rgba(0,0,0,.35),0 1px 2px rgba(0,0,0,.5);
+  --btn2-hover:0 0 0 1px rgba(255,255,255,.15),inset 0 1px 0 rgba(255,255,255,.07),0 1px 2px rgba(0,0,0,.5);
+  --btn2-press:0 0 0 1px rgba(255,255,255,.14),inset 0 1px 3px rgba(0,0,0,.5);
+  --knob:#2a2a2a; --knob-shadow:0 0 0 1px rgba(255,255,255,.08),inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.5); --track-ring:inset 0 0 0 1px rgba(255,255,255,.04),inset 0 1px 3px rgba(0,0,0,.35);
+  --area:.09;
+  color-scheme:dark}
+/* every corner round, never a squircle */
+:root[data-style="clean"] *,:root[data-style="clean"] *::before,:root[data-style="clean"] *::after{corner-shape:round!important}
+/* icons a little finer; words that swap fade without a blur; the tooltip and menus scale and fade, never blur */
+:root[data-style="clean"] .i{stroke-width:1.5}
+:root[data-style="clean"] .sw{transition:opacity var(--t-fast) var(--ease),transform var(--t) var(--ease)}
+:root[data-style="clean"] .sw.out{filter:none}
+@keyframes clpiece{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes clcard{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes clout{to{opacity:0;transform:translateY(-4px)}}
+:root[data-style="clean"] .enter{animation:clpiece var(--t-slow) var(--ease) backwards}
+:root[data-style="clean"] .pop-in{animation:clcard .32s var(--ease) backwards}
+:root[data-style="clean"] .leave{animation:clout .18s var(--ease) both}
+:root[data-style="clean"] .tip{filter:none;transition:opacity var(--t-fast) var(--ease),transform var(--t) var(--ease)}
+:root[data-style="clean"] .pop{transform:scale(.96);filter:none;transition:opacity .15s var(--ease),transform .2s var(--ease),visibility 0s .15s}
+:root[data-style="clean"] .pop.open{transform:none;transition:opacity .15s var(--ease),transform .2s var(--ease)}
+
+/* buttons. Primary: ink with a slight gradient, a near-solid edge, a blurred light inside its top and a shade inside its
+   bottom. Secondary: white with a hairline, a light inside its top and a faint shade inside its bottom. A press sinks it
+   (.97, the inner shade deepens) and it springs back in 150ms */
+:root[data-style="clean"] .pill{font-weight:500;transition:transform var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
+:root[data-style="clean"] .pill:active{transform:scale(.97)}
+:root[data-style="clean"] .pill:is(.primary,.accent):not([disabled]){color:var(--on-accent);background:linear-gradient(180deg,var(--btn-1),var(--btn-2));box-shadow:var(--btn-depth)}
+:root[data-style="clean"] .pill:is(.primary,.accent):not([disabled]):hover{background:linear-gradient(180deg,color-mix(in srgb,var(--btn-1) 88%,#808080),var(--btn-2))}
+:root[data-style="clean"] .pill:is(.primary,.accent):not([disabled]):active{box-shadow:var(--btn-press)}
+:root[data-style="clean"] :is(.pill.line,.pill.soft):not([disabled]){color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth)}
+:root[data-style="clean"] :is(.pill.line,.pill.soft):not([disabled]):hover{background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-hover)}
+:root[data-style="clean"] :is(.pill.line,.pill.soft):not([disabled]):active{box-shadow:var(--btn2-press)}
+/* text buttons: no fill until hovered, then the faintest grey */
+:root[data-style="clean"] .pill.ghost:hover{background:var(--row)}
+:root[data-style="clean"] .ib{transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease),transform var(--t-fast) var(--ease)}
+:root[data-style="clean"] .ib:active{transform:scale(.94)}
+/* switchers: a white knob with a hairline and a 1px shadow, gliding on a grey track with a soft inner shadow */
+:root[data-style="clean"] .seg2{box-shadow:var(--track-ring)}
+:root[data-style="clean"] .seg2 .knob{background:var(--knob);box-shadow:var(--knob-shadow);transition:left var(--t) var(--ease),width var(--t) var(--ease)}
+:root[data-style="clean"] .seg2 button{color:var(--muted);font-weight:500;transition:color var(--t-fast) var(--ease)}
+:root[data-style="clean"] .seg2 button[aria-pressed="true"]{color:var(--fg)}
+/* toggles: ink when on, a white knob with a hairline, and a soft inner shadow in the track */
+:root[data-style="clean"] .toggle{box-shadow:inset 0 0 0 1px rgba(0,0,0,.05),inset 0 2px 4px -1px rgba(0,0,0,.18)}
+:root[data-style="clean"] .toggle::after{box-shadow:0 0 0 .5px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.2);transition:transform var(--t) var(--ease)}
 </style>
 <style>
 /* this page's own stages, left out of the shipped CSS: Automation canvas and Canvas toolbar fill theirs, edge to edge */
@@ -8657,10 +8791,12 @@ function carousel(c, tr, o = {}){
   return { go, measure, get at(){ return at; }, get stop(){ return stops[at]; } };
 }
 /* entrance: when a component mounts, its container rises into place and its parts follow one after another.
-   Soft rises out of a blur; Blueprint wipes down and ticks its parts in, in short hard beats. Each animation only
+   Soft rises out of a blur; Blueprint wipes down and ticks its parts in, in short hard beats; Clean rises calmly, 8px from .98. Each animation only
    names where it starts, so it ends on whatever the element's own styles say, and leaves nothing behind */
 const REVEAL = {
   soft:{ root:[{ opacity:0, transform:'translateY(14px)' }], rootMs:820, part:[{ opacity:0, filter:'blur(6px)', transform:'translateY(8px)' }], partMs:760, first:110, step:65, max:620, ease:'cubic-bezier(.16,1,.3,1)' },
+  // Clean: the card fades and rises 8px from .98 over 520ms, then its pieces follow 40ms apart, each rising 6px (owner, 17 Nov)
+  clean:{ root:[{ opacity:0, transform:'translateY(8px) scale(.98)' }], rootMs:520, part:[{ opacity:0, transform:'translateY(6px)' }], partMs:440, first:120, step:40, max:440, ease:'cubic-bezier(.23,1,.32,1)' },
   bp:{ root:[{ opacity:0, clipPath:'inset(0 0 100% 0)' }, { opacity:1, clipPath:'inset(0 0 0% 0)', offset:.35 }, { clipPath:'inset(0 0 0% 0)' }], rootMs:520, part:[{ opacity:0, transform:'translateY(4px)' }], partMs:320, first:160, step:45, max:420, ease:'cubic-bezier(.65,0,.25,1)' }
 };
 function revealParts(root){
