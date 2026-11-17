@@ -2,7 +2,7 @@
 
 > An orchestrator and its sub-agents, with cost rolled up per branch.
 
-Agent components / Agent status. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in two styles (Soft and Blueprint) with light and dark mode. Live demo: https://designme.dev/components/agent-tree
+Agent components / Agent status. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/agent-tree
 
 ## Install
 
@@ -48,6 +48,7 @@ Agent tree shows one agent run as a tree that grows while it works: a header wit
 - The header's status reads how many steps are running, Needs you, "1 failed", Wrapping up or Done, unless you pass `status`. The clock counts until the root is done, or shows `seconds`.
 - Click a branch's chevron to fold it; `collapsed`, `defaultCollapsed` and `onCollapsedChange` hold which branches are folded. A folded branch keeps its total.
 - `variant="bare"` leaves off the surface, `slim` hides the header, and `style` reaches the root (the demo uses it to keep the room the finished run needs, so the tree stays centred while it grows). Narrow trees hide each row's task, then its time, so the names keep their room.
+- Ships in Clean too (`data-style="clean"`): what runs and what is done are ink, red only marks a failure, agents and apps sit on white tiles with a hairline, the lines are hairlines, and the cost split is an off-white foot strip.
 
 ### Accessibility
 

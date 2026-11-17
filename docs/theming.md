@@ -1,6 +1,6 @@
 # Theming
 
-> Two attributes on `<html>` pick the style and the theme, and one accent colours the rest.
+> Two attributes on `<html>` pick the style (Blueprint, Soft or Clean) and the theme, and one accent colours the rest.
 
 Designme.dev docs. The same page with navigation: https://designme.dev/docs/theming
 
@@ -20,6 +20,14 @@ Add `data-style="soft"` to `<html>`, or to any element around the components to 
 
 ```html
 <html data-style="soft">
+```
+
+### Clean
+
+Black, white and grey with an ink accent, hairline outlines and fully round controls. Add `data-style="clean"` to `<html>`, or to any element around the components to make just those Clean.
+
+```html
+<html data-style="clean">
 ```
 
 Until you pick a style in the header, designme.dev follows your theme: light opens in Soft and dark in Blueprint. It remembers the style you pick.
@@ -108,7 +116,7 @@ The components use Inter and JetBrains Mono, and fall back to the system font. O
 
 ## More docs
 
-- [Introduction](https://designme.dev/docs/introduction.md): What designme.dev is: free components for AI agent products, in HTML, React or Astro, in two styles with light and dark mode.
+- [Introduction](https://designme.dev/docs/introduction.md): What designme.dev is: free components for AI agent products, in HTML, React or Astro, in three styles with light and dark mode.
 - [Installation](https://designme.dev/docs/installation.md): Add components with the designme CLI or the shadcn CLI, as HTML, CSS and JavaScript, React or Astro, and give them your Tailwind v4 theme.
 - [Astro](https://designme.dev/docs/astro.md): Add the components to an Astro project as .astro files, with the same markup, CSS and script as the HTML version.
 - [Accessibility](https://designme.dev/docs/accessibility.md): The roles, keyboard support, touch tap areas, reduced motion and contrast work built into the components.

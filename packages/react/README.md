@@ -2,7 +2,7 @@
 
 React versions of the [designme.dev](https://designme.dev) components, for Next.js, React (Vite) and Astro. You copy the source into your project, the way shadcn/ui works, so it is yours to change.
 
-They use the same markup and the same CSS as the site, so they look and move exactly like the previews on designme.dev, in both styles (Blueprint and Soft) and in light and dark. The difference is that each one takes props, so you drive it from your own state instead of a scripted demo.
+They use the same markup and the same CSS as the site, so they look and move exactly like the previews on designme.dev, in all three styles (Blueprint, Soft and Clean) and in light and dark. The difference is that each one takes props, so you drive it from your own state instead of a scripted demo.
 
 All 100 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
 
@@ -23,7 +23,7 @@ Or by hand:
 1. Copy `src/` into your project, for example as `components/designme/`.
 2. That's all for the styles: each component imports the shared `designme.css` and its own small CSS file, in that order, and your bundler loads each file once.
 3. Load Inter and JetBrains Mono (the components fall back to the system font if you don't).
-4. Pick the look on `<html>`: Blueprint is the default, `data-style="soft"` switches to Soft (on `<html>`, or on any element around the components to make just those Soft; tooltips sit on the page and keep its style), and `data-theme="dark"` or `data-theme="light"` fixes the theme (otherwise it follows the device).
+4. Pick the look on `<html>`: Blueprint is the default, `data-style="soft"` switches to Soft and `data-style="clean"` to Clean (on `<html>`, or on any element around the components to make just those Soft or Clean; tooltips sit on the page and keep its style), and `data-theme="dark"` or `data-theme="light"` fixes the theme (otherwise it follows the device).
 
 Every class, CSS variable and animation name starts with `dm-` (`.dm-panel`, `--dm-accent`, `dm-enter`), so the components sit next to Tailwind, shadcn/ui or your own CSS without either side changing the other. To retheme them, override the variables with `!important`, for example `:root { --dm-accent: #7c3aed !important }`. Each style and theme sets its tokens with a more specific selector, so a plain `:root` rule only reaches Soft in light mode.
 

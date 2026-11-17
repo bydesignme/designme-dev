@@ -2,7 +2,7 @@
 
 > How full the context is and what fills it, with Compact to free room.
 
-Agent components / Agent status. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in two styles (Soft and Blueprint) with light and dark mode. Live demo: https://designme.dev/components/context-meter
+Agent components / Agent status. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/context-meter
 
 ## Install
 
@@ -41,6 +41,7 @@ Context meter shows how full an agent's context window is and what fills it. A s
 - `message` adds a line under the legend, in orange with a warning sign for `messageTone: 'warn'` or in green with a check for `'ok'`, like "Freed 41.2k tokens. 9 decisions kept". The line keeps its room while empty, so a message fades in without the panel changing height.
 - Compact calls `onCompact`. Return a promise and the button spins until it settles. Set `compacted` and the button becomes Undo, which calls `onUndo`.
 - The pill opens and shuts the panel, and `open`, `defaultOpen` and `onOpenChange` let you control it. The panel keeps its room while shut, so nothing around it moves.
+- Ships in Clean too (`data-style="clean"`): the pill is a white control with its depth inside the fill and an ink ring, the panel has off-white head and foot strips, the bar's parts are one grey ramp, and Compact is a secondary button.
 
 ### Accessibility
 

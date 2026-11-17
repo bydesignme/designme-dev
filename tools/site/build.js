@@ -681,7 +681,8 @@ function styleScope(sel){
   if (/^\*/.test(r)) r = `:where(${DRAWN.flatMap(x => [x, x + ' *']).join(',')})` + r.slice(1);
   else if (/^[a-z]/.test(r)) r = `:where(${DRAWN.join(',')}) ` + r;
   // a Clean rule: on <html>, or on any element around the components
-  if (clean){ const other = attrs.replace(CLEAN, ''); return [`:root${attrs} ${r}`, `:root${other} ${CLEAN} ${r}`]; }
+  // (and on the component's own root: data-style="clean" on the element the rule starts from)
+  if (clean){ const other = attrs.replace(CLEAN, ''); return [`:root${attrs} ${r}`, `:root${other} ${CLEAN} ${r}`, ...(/^[.[:]/.test(r) ? [`:root${other} ${CLEAN}${r}`] : [])]; }
   return [`:root${attrs} ${onSubject(r, NOT_SOFT)}`];
 }
 function regCss(text){
@@ -973,7 +974,7 @@ console.log('swapped', done.length, 'cards; size', site.length);
   const count = secs.reduce((n, x) => n + x.cards.length, 0);
   let md = `# Designme.dev
 
-> ${count} free, MIT-licensed UI components for products built around AI agents: status pills, reasoning trails, agent trees, permission gates, plan reviews, run costs and more, plus the app basics around them (charts, dates, forms, tables). Each one comes as plain HTML, CSS and JS, as a typed React component with no dependencies beyond React, or as an Astro component, in two styles (Soft and Blueprint) with light and dark mode.
+> ${count} free, MIT-licensed UI components for products built around AI agents: status pills, reasoning trails, agent trees, permission gates, plan reviews, run costs and more, plus the app basics around them (charts, dates, forms, tables). Each one comes as plain HTML, CSS and JS, as a typed React component with no dependencies beyond React, or as an Astro component, in three styles (Soft, Blueprint and Clean) with light and dark mode.
 
 Install with the CLI, which copies each component's source into your project so you own it:
 

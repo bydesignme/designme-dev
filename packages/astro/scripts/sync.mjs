@@ -126,8 +126,8 @@ import '../core/designme.css';
 import './${x.name}.css';
 ${lent.map(y => `import ${y.comp} from '../${y.name}/${y.comp}.astro';\n`).join('')}
 export interface Props extends HTMLAttributes<'div'> {
-  /** "soft" draws it in the Soft style. Leave it out for Blueprint, or for the style set on <html> (data-style="soft") */
-  'data-style'?: 'soft';
+  /** "soft" or "clean" draws it in that style. Leave it out for Blueprint, or for the style set on <html> (data-style="soft" or "clean") */
+  'data-style'?: 'soft' | 'clean';
 }
 const { class: className, ...rest } = Astro.props;
 ---

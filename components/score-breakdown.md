@@ -2,7 +2,7 @@
 
 > A score out of 100 whose gauge is split by what goes into it, with the weakest part flagged and a fix to try.
 
-App basics / Charts and tables. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in two styles (Soft and Blueprint) with light and dark mode. Live demo: https://designme.dev/components/score-breakdown
+App basics / Charts and tables. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/score-breakdown
 
 ## Install
 

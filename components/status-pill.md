@@ -2,7 +2,7 @@
 
 > One live line for what the agent is doing right now.
 
-Agent components / Agent status. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in two styles (Soft and Blueprint) with light and dark mode. Live demo: https://designme.dev/components/status-pill
+Agent components / Agent status. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/status-pill
 
 ## Install
 
@@ -40,6 +40,7 @@ Status pill is a single line that tells people what the agent is doing right now
 - `file` adds a chip with a type badge, like TSX or PDF. `action` adds a button that calls your `onClick`.
 - `variant="bar"` makes it taller with a `progress` track (0 to 100) along the bottom. Switching variants morphs in steps so text and shape never move together.
 - The width is measured from the content, so the pill always hugs its text.
+- Ships in Clean too (`data-style="clean"`): a 36px hairline pill in ink and grey, colour only on the done tick and the waiting dot, a step crossing with a short fade, Review as the round ink button, and the bar on a 3px rail with an ink fill.
 
 ### Accessibility
 

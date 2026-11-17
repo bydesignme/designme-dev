@@ -24,7 +24,7 @@ Each component imports `core/designme.css` and its own `.css`, and its `<script>
 uses from `core/core.js`. Astro bundles each of them once per page, however many components use them. The core mounts every
 component when it scrolls into view and plays its demo, as on designme.dev; to show your own data, change its `.js`.
 
-- `data-style="soft"` on a component (or on `<html>`) draws it in Soft; without it, Blueprint.
+- `data-style="soft"` on a component (or on `<html>`) draws it in Soft, `data-style="clean"` in Clean; without it, Blueprint.
 - `data-theme="dark"` or `"light"` on `<html>` fixes the theme; without it the components follow the device.
 - Every other attribute (`class`, `style`, `id`, `aria-*`) goes on the component's root element. The markup inside it is kept
   exactly as it is (`<Fragment is:raw>`).

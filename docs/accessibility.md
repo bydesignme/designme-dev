@@ -93,7 +93,7 @@ Every component's page lists what it does under About, then Accessibility. Its M
 
 ## More docs
 
-- [Introduction](https://designme.dev/docs/introduction.md): What designme.dev is: free components for AI agent products, in HTML, React or Astro, in two styles with light and dark mode.
+- [Introduction](https://designme.dev/docs/introduction.md): What designme.dev is: free components for AI agent products, in HTML, React or Astro, in three styles with light and dark mode.
 - [Installation](https://designme.dev/docs/installation.md): Add components with the designme CLI or the shadcn CLI, as HTML, CSS and JavaScript, React or Astro, and give them your Tailwind v4 theme.
 - [Astro](https://designme.dev/docs/astro.md): Add the components to an Astro project as .astro files, with the same markup, CSS and script as the HTML version.
 - [Theming](https://designme.dev/docs/theming.md): Switch between Soft and Blueprint, light and dark, and set your own accent and its roles.

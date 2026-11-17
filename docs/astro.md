@@ -72,11 +72,11 @@ Each component has a typed `Props` interface: every attribute of a `<div>` (Astr
 
 | Prop | What it does |
 | --- | --- |
-| `data-style="soft"` | Draws the component in the Soft style. Leave it out for Blueprint, or for the style set on `<html>` |
+| `data-style="soft"`, `data-style="clean"` | Draws the component in the Soft or the Clean style. Leave it out for Blueprint, or for the style set on `<html>` |
 | `class` | Added to the root element's own classes |
 | `style`, `id`, `aria-*` and the rest | Set on the root element as they are |
 
-`data-style` only takes `"soft"`: Blueprint is what the components draw without it. A component can be Soft on a Blueprint page, but not the other way round. See [Theming](https://designme.dev/docs/theming.md).
+`data-style` takes `"soft"` or `"clean"`: Blueprint is what the components draw without it. A component can be Soft or Clean on a Blueprint page, but not Blueprint on a Soft or Clean one. See [Theming](https://designme.dev/docs/theming.md).
 
 ## Your own data
 
@@ -86,14 +86,14 @@ To drive a component from your own state with props, use the React version as an
 
 ## Style, theme and fonts
 
-- `data-style="soft"` on `<html>` makes every component Soft; on one component, just that one.
+- `data-style="soft"` on `<html>` makes every component Soft, and `data-style="clean"` Clean; on one component, just that one.
 - `data-theme="dark"` or `data-theme="light"` on `<html>` fixes the theme. Without it, the components follow the device.
 - Load Inter and JetBrains Mono for the full look. Without them, the components fall back to the system font.
 - The components use plain class names, as the HTML version does, and CSS variables that start with `--dm-`, so they never meet your page's own. For a shadcn/ui or Tailwind v4 theme, add the theme bridge: `npx designme add --astro --theme-bridge`. See [Installation](https://designme.dev/docs/installation.md).
 
 ## More docs
 
-- [Introduction](https://designme.dev/docs/introduction.md): What designme.dev is: free components for AI agent products, in HTML, React or Astro, in two styles with light and dark mode.
+- [Introduction](https://designme.dev/docs/introduction.md): What designme.dev is: free components for AI agent products, in HTML, React or Astro, in three styles with light and dark mode.
 - [Installation](https://designme.dev/docs/installation.md): Add components with the designme CLI or the shadcn CLI, as HTML, CSS and JavaScript, React or Astro, and give them your Tailwind v4 theme.
 - [Theming](https://designme.dev/docs/theming.md): Switch between Soft and Blueprint, light and dark, and set your own accent and its roles.
 - [Accessibility](https://designme.dev/docs/accessibility.md): The roles, keyboard support, touch tap areas, reduced motion and contrast work built into the components.

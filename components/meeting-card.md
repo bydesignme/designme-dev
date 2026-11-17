@@ -2,7 +2,7 @@
 
 > The next meeting from countdown to wrap-up, with the time already gone hatched out and a join that stays open.
 
-App basics / Dates. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in two styles (Soft and Blueprint) with light and dark mode. Live demo: https://designme.dev/components/meeting-card
+App basics / Dates. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/meeting-card
 
 ## Install
 
@@ -41,6 +41,7 @@ Meeting card follows one meeting from countdown to wrap-up. A status chip counts
 - `people` shows as an avatar stack, up to `max` and then "+N". Each avatar names its person in a tooltip, and the stack spreads a little on hover.
 - Join carries the Google Meet mark and stays available while the meeting runs, breathing a shade darker and back while it is live. It presses with a small settle, says it is opening for a moment, and is disabled once the meeting has ended. `onJoin` replaces opening the link in a new tab, and `provider` and `mark` change the service.
 - The copy button puts the link on the clipboard, turns into a check and says "Copied", and calls `onCopy`.
+- Ships in Clean too (`data-style="clean"`): the people and actions sit on an off-white foot strip, the track, the block and its time chips are pills, the now line is ink, only the live dot is green, and Join is the ink split button.
 
 ### Accessibility
 

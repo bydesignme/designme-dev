@@ -2,7 +2,7 @@
 
 > Show plan prices in local currency, with a swap and live rate.
 
-App basics / Product. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in two styles (Soft and Blueprint) with light and dark mode. Live demo: https://designme.dev/components/currency-converter
+App basics / Product. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/currency-converter
 
 ## Install
 

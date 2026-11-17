@@ -2,7 +2,7 @@
 
 > Type a number or step it with minus and plus, with units, limits and a word when a value is changed to fit.
 
-App basics / Collaboration. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in two styles (Soft and Blueprint) with light and dark mode. Live demo: https://designme.dev/components/number-field
+App basics / Collaboration. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/number-field
 
 ## Install
 
