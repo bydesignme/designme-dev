@@ -127,8 +127,10 @@ every session and every agent.
   Reasoning trail, Agent lanes, Agent run timeline, Trace view, Agent tree, Run queue, Terminal stream, Browser session,
   Action log, Attachment tray; `useStory(ref, run, { hold: false })` in React) keep playing while the pointer rests on
   them.
-- Every component sits centred in its stage at every moment: its tallest state, its end state, and closed dropdowns.
-  End states that are shorter keep their height with `hold()` / `release()`. Dropdowns use `centre()`: the closed field
+- A component never reserves room for a later state: its container grows with its content, smoothly (`grow()` /
+  `useGrow()`), and shrinks the same way. It stays centred in its stage as it grows (owner, 17 Nov). This replaces keeping a
+  height with `hold()` / `release()` for content that arrives.
+- Every component sits centred in its stage at every moment: its tallest state, its end state, and closed dropdowns. Dropdowns use `centre()`: the closed field
   sits centred and glides up as its list opens.
 - Component pages show every state the homepage card does (owner, 4 Nov). A card with designs under review (a
   `data-designs="card"` switch) shows them on its page too, switched under the demo (`designsOf` in `tools/site/build.js`

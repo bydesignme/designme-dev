@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, BRAND, DM, I, REDUCE, grow, html, reveal } from '../core/core.js';
+import { $, BRAND, DM, I, REDUCE, grow, html, reveal } from '../core/core.js';
 /* the lines and the flow, drawn every frame from where the marks are. The tree's rows are treeitems (.atr-n, with data-id
    and data-s) whose mark is .atr-g (data-m); atrLines reads them from the page, so whatever draws the rows (this script,
    or React) gets the same lines. A row that appears after the start opens its space (data-ph="open"), its parent's line
@@ -14,6 +14,9 @@ const atrMark = m => m === 'run' ? '<span class="atr-spin"></span>' : m === 'wai
 // a mark's visible radius: rings and spinners are 14px; finished discs and the waiting mark carry a 2px cut-out border
 const atrMarkR = m => m === 'done' || m === 'fail' || m === 'src' || m === 'wait' ? 9 : 7;
 const atrEz = u => 1 - Math.pow(1 - Math.min(1, Math.max(0, u)), 3);
+// the way on under a row closes its height as it goes, so the tree shrinks with it smoothly instead of jumping (owner, 17 Nov)
+const atrDrop = el => { el.classList.add('atr-gone'); if (REDUCE || !el.animate || !el.isConnected) return el.remove();
+  el.inert = true; el.animate([{ height:el.offsetHeight + 'px', opacity:1 }, { height:'0px', paddingBottom:'0px', opacity:0 }], { duration:320, easing:'cubic-bezier(.22,1,.36,1)', fill:'forwards' }).finished.then(() => el.remove(), () => el.remove()); };
 function atrLines(tree){
   const NS = 'http://www.w3.org/2000/svg', mk = (t, a = {}) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
   // the svg is the tree's first child (one is made if the markup has none)
@@ -198,23 +201,9 @@ DM.def('agent-tree', (r, c) => {
   tree.appendChild(build(N[0]));
   const T = N[0];
 
-  // the room the run needs at its tallest (every row in, and the approval under the last step) is kept from the start, so
-  // the tree sits centred in its stage at every moment and grows downwards inside its own surface (hold(), with the
-  // tallest height instead of the current one)
-  const tallest = () => {
-    const p = root.cloneNode(true);
-    p.style.cssText = `position:absolute;left:0;top:0;width:${root.offsetWidth}px;min-height:0;visibility:hidden;pointer-events:none`;
-    p.setAttribute('aria-hidden', 'true'); p.inert = true;
-    $$('.atr-ln', p).forEach(e => e.remove());
-    $$('[hidden]', p).forEach(e => { e.hidden = false; });
-    $$('[data-ph]', p).forEach(e => { e.removeAttribute('data-ph'); e.style.height = ''; });
-    const f = $('.atr-f', p); if (!f.textContent) f.textContent = 'Orchestrator';
-    const w = $('[data-id="cop1"]>.atr-b', p); if (w && !$('.atr-ask', w)) w.appendChild(html('<div class="atr-ask"><button type="button" class="pill sm primary">Approve</button><button type="button" class="pill sm line">Hold</button></div>'));
-    root.parentElement.appendChild(p); const h = p.offsetHeight; p.remove(); return h;
-  };
-  let wide = -1;
-  const keep = () => { const w = root.offsetWidth; if (!w || w === wide) return; wide = w; root.style.minHeight = tallest() + 'px'; };
-  keep(); const ro = new ResizeObserver(keep); ro.observe(root); c.offs.push(() => ro.disconnect());
+  // the tree grows with its rows (owner, 17 Nov: no room reserved for a later state): the panel opens at the height of what it
+  // holds and eases taller as each row arrives, and shorter as a branch folds, staying centred in its stage (grow())
+  c.offs.push(grow(root));
 
   const L = atrLines(tree);
   c.loop(t => { L.frame(t); });
@@ -266,14 +255,14 @@ DM.def('agent-tree', (r, c) => {
   const say = (n, t) => { $(':scope>.atr-b .atr-sub', n.el).textContent = t; paint(); };
   const until = async f => { while (!f()) await c.wait(50); };
   // a new row joins: its parent shows its chevron, and the line engine opens its space, draws its line and lets it rise in
-  async function grow(n, s, t){
+  async function arrive(n, s, t){
     set(n, s, t); n.el.hidden = false; L.frame(performance.now()); if (s === 'run') n.t0 = performance.now();
     const p = n.parent; if (p && !p.el.hasAttribute('aria-expanded')){ p.el.setAttribute('aria-expanded', 'true'); p.tg.hidden = false; }
     paint(); await until(() => { const ph = L.phase(n.id); return ph === 'in' || ph === 'shown'; });
   }
   // the way on, in place under a row: a fix for a failed step, or Approve and Hold for one that needs a person
   function ask(n, how){
-    const old = $(':scope>.atr-b>.atr-ask', n.el); if (old) old.remove();
+    const old = $(':scope>.atr-b>.atr-ask:not(.atr-gone)', n.el); if (old) atrDrop(old);
     if (!how) return;
     const box = html(`<div class="atr-ask">${how.map(([k, label]) => `<button type="button" class="pill sm ${k === 'yes' ? 'primary' : 'line'} atr-${k}">${label}</button>`).join('')}</div>`);
     $(':scope>.atr-b', n.el).appendChild(box);
@@ -321,8 +310,8 @@ DM.def('agent-tree', (r, c) => {
   // story the person in the demo does after a while, unless the visitor has taken over, who then approves it themselves
   c.run(async () => {
     await c.wait(300);
-    await grow(by('res'), 'run'); await grow(by('des'), 'run'); await grow(by('cop'), 'queued'); say(T, '3 agents at work');
-    await grow(by('res1'), 'run'); await grow(by('des1'), 'run'); await grow(by('des2'), 'queued');
+    await arrive(by('res'), 'run'); await arrive(by('des'), 'run'); await arrive(by('cop'), 'queued'); say(T, '3 agents at work');
+    await arrive(by('res1'), 'run'); await arrive(by('des1'), 'run'); await arrive(by('des2'), 'queued');
     await c.wait(300); say(by('res1'), 'Reading 3 of 5');
     await c.wait(500); say(by('res1'), 'Reading 5 of 5');
     await c.wait(450); set(by('res1'), 'done', '5 pages, 12k words');
@@ -332,11 +321,11 @@ DM.def('agent-tree', (r, c) => {
     const tk = by('des2'); set(tk, 'fail', 'Missing accent.600'); tell(`${tk.n} failed: Missing accent.600`);
     await new Promise(res => { $('.atr-fix', ask(tk, [['fix', 'Use accent.500']])).onclick = () => res(); c.later(1300, res); });
     ask(tk, null); tk.el.setAttribute('data-dim', ''); paint();
-    await grow(by('des3'), 'run', 'Rerouted to accent.500');
+    await arrive(by('des3'), 'run', 'Rerouted to accent.500');
     await c.wait(1200); set(by('des3'), 'done', 'Used accent.500');
     await c.wait(300); set(by('des'), 'done', 'Cards and tokens done'); set(by('cop'), 'run', 'Writing 3 blurbs');
     await c.wait(1200); say(by('cop'), '3 blurbs written');
-    const ps = by('cop1'); await grow(ps, 'wait', 'Needs your OK');
+    const ps = by('cop1'); await arrive(ps, 'wait', 'Needs your OK');
     tell(`${ps.n} needs you`);
     await new Promise(res => {
       const box = ask(ps, [['yes', 'Approve'], ['no', 'Hold']]);

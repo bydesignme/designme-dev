@@ -71,6 +71,14 @@
 .atr-n[data-s="wait"]>.atr-b{background:var(--dm-sel)}
 .atr-n[data-s="wait"]>.atr-b .atr-sub{color:var(--dm-accent-fg,var(--dm-accent))}
 .atr-ask{display:flex;flex-wrap:wrap;gap:var(--dm-s-2);padding:0 var(--dm-s-2) var(--dm-s-2) calc(var(--dm-s-2) + var(--dm-lv,0) * var(--dm-atr-ind) + 56px)}
+/* the tree grows with its rows (grow(), owner 17 Nov): each new row already opens its own height smoothly, so the panel
+   follows its content frame by frame, with nothing cut off and no room left over; the way on under a row (a fix, Approve and
+   Hold) opens its height the same way. Where a browser can't ease a height to auto, it appears at once */
+.atr.growing{transition:none;interpolate-size:allow-keywords}
+.atr-ask{overflow:clip;overflow-clip-margin:4px;animation:atrask .42s var(--dm-atr-ez) backwards}
+@keyframes atrask{from{height:0;padding-bottom:0;opacity:0}}
+.atr .atr-n[data-ph="in"]>.atr-b>.atr-ask{animation:atrask .42s var(--dm-atr-ez) backwards,atrin .56s var(--dm-atr-ez) backwards}
+@media (prefers-reduced-motion:reduce){.atr-ask,.atr .atr-n[data-ph="in"]>.atr-b>.atr-ask{animation:none}}
 /* a failed step the orchestrator has rerouted to a retry fades back (its words in the muted grey, so they keep 4.5:1) */
 .atr-n[data-dim]>.atr-b .atr-av{opacity:.5}
 .atr-n[data-dim]>.atr-b :is(.atr-nm,.atr-sub,.atr-c){color:var(--dm-muted)}
@@ -133,6 +141,4 @@
 :root[data-style="clean"] .atr-n[data-s="wait"]>.atr-b .atr-sub,:root [data-style="clean"] .atr-n[data-s="wait"]>.atr-b .atr-sub,:root [data-style="clean"].atr-n[data-s="wait"]>.atr-b .atr-sub{color:var(--dm-fg)}
 :root[data-style="clean"] .atr-ln .r,:root [data-style="clean"] .atr-ln .r,:root [data-style="clean"].atr-ln .r{stroke:var(--dm-line)}
 :root[data-style="clean"] .atr-ln .bad,:root [data-style="clean"] .atr-ln .bad,:root [data-style="clean"].atr-ln .bad{stroke:color-mix(in srgb,var(--dm-bad-mark) 55%,var(--dm-surface))}
-:root[data-style="clean"] .atr:not(.bare),:root [data-style="clean"] .atr:not(.bare),:root [data-style="clean"].atr:not(.bare){display:flex;flex-direction:column}
-/* the strip sits at the foot of the card, however tall the card is held */
-:root[data-style="clean"] .atr:not(.bare) .atr-f,:root [data-style="clean"] .atr:not(.bare) .atr-f,:root [data-style="clean"].atr:not(.bare) .atr-f{margin:auto calc(-1 * var(--dm-s-2)) 0;padding:10px var(--dm-s-4);background:var(--dm-strip);border-top-color:var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+:root[data-style="clean"] .atr:not(.bare) .atr-f,:root [data-style="clean"] .atr:not(.bare) .atr-f,:root [data-style="clean"].atr:not(.bare) .atr-f{margin:var(--dm-s-1) calc(-1 * var(--dm-s-2)) 0;padding:10px var(--dm-s-4);background:var(--dm-strip);border-top-color:var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}

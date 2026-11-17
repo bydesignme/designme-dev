@@ -172,8 +172,13 @@
 .ctm-tg>svg:last-child{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
 .ctm[data-open="0"] .ctm-tg>svg:last-child{transform:rotate(-90deg)}
 /* the panel keeps its room when shut, so nothing below it moves, and nothing clips its shadow */
-.ctm-pop{width:100%;padding:14px var(--dm-s-4) var(--dm-s-3);display:flex;flex-direction:column;gap:var(--dm-s-3);transition:opacity .32s var(--dm-ease),transform .42s var(--dm-ease),visibility 0s}
-.ctm[data-open="0"] .ctm-pop{opacity:0;transform:translateY(-6px);visibility:hidden;pointer-events:none;transition:opacity .16s var(--dm-ease),transform .32s var(--dm-ease),visibility 0s .32s}
+/* shut, the panel folds away to nothing (owner, 17 Nov: no room kept for a later state): its height eases to 0 as it fades,
+   so the meter shrinks with it and stays centred in its stage, and opens back the same way. Where the browser can't ease a
+   height to auto, it opens and shuts at once */
+.ctm{interpolate-size:allow-keywords}
+.ctm-pop{width:100%;padding:14px var(--dm-s-4) var(--dm-s-3);display:flex;flex-direction:column;gap:var(--dm-s-3);overflow:clip;transition:opacity .32s var(--dm-ease),transform .42s var(--dm-ease),height .42s var(--dm-ease),margin-top .42s var(--dm-ease),padding .42s var(--dm-ease),visibility 0s}
+.ctm[data-open="0"] .ctm-pop{height:0;margin-top:calc(-1 * var(--dm-s-2));padding-block:0;opacity:0;transform:translateY(-6px);visibility:hidden;pointer-events:none;transition:opacity .16s var(--dm-ease),transform .32s var(--dm-ease),height .32s var(--dm-ease),margin-top .32s var(--dm-ease),padding .32s var(--dm-ease),visibility 0s .32s}
+@media (prefers-reduced-motion:reduce){.ctm-pop,.ctm[data-open="0"] .ctm-pop{transition:none}}
 .ctm-ph{display:flex;align-items:baseline;justify-content:space-between;gap:var(--dm-s-3);font-size:13px;color:var(--dm-muted)}
 .ctm-ph b{color:var(--dm-fg);font-weight:500}
 .ctm-bar{display:flex;gap:2px;height:8px;border-radius:var(--dm-r-xs);background:var(--dm-chip);overflow:hidden}
@@ -215,8 +220,8 @@
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .ctm-tg:hover,:root [data-style="clean"] .ctm-tg:hover,:root [data-style="clean"].ctm-tg:hover{box-shadow:var(--dm-btn2-hover)}}
 :root[data-style="clean"] .ctm-tg:active,:root [data-style="clean"] .ctm-tg:active,:root [data-style="clean"].ctm-tg:active{transform:scale(.97)}
 :root[data-style="clean"] .ctm-ring .tr,:root [data-style="clean"] .ctm-ring .tr,:root [data-style="clean"].ctm-ring .tr{stroke:var(--dm-rail)}
-:root[data-style="clean"] .ctm-pop,:root [data-style="clean"] .ctm-pop,:root [data-style="clean"].ctm-pop{padding:0;gap:0;overflow:hidden;transition:opacity .24s var(--dm-ease),transform .32s var(--dm-ease),visibility 0s}
-:root[data-style="clean"] .ctm[data-open="0"] .ctm-pop,:root [data-style="clean"] .ctm[data-open="0"] .ctm-pop,:root [data-style="clean"].ctm[data-open="0"] .ctm-pop{transform:translateY(-4px);transition:opacity .15s var(--dm-ease),transform .2s var(--dm-ease),visibility 0s .2s}
+:root[data-style="clean"] .ctm-pop,:root [data-style="clean"] .ctm-pop,:root [data-style="clean"].ctm-pop{padding:0;gap:0;overflow:hidden;transition:opacity .24s var(--dm-ease),transform .32s var(--dm-ease),height .32s var(--dm-ease),margin-top .32s var(--dm-ease),visibility 0s}
+:root[data-style="clean"] .ctm[data-open="0"] .ctm-pop,:root [data-style="clean"] .ctm[data-open="0"] .ctm-pop,:root [data-style="clean"].ctm[data-open="0"] .ctm-pop{transform:translateY(-4px);transition:opacity .15s var(--dm-ease),transform .2s var(--dm-ease),height .24s var(--dm-ease),margin-top .24s var(--dm-ease),visibility 0s .24s}
 :root[data-style="clean"] .ctm-ph,:root [data-style="clean"] .ctm-ph,:root [data-style="clean"].ctm-ph{padding:10px 14px;background:var(--dm-strip);border-bottom:1px solid var(--dm-line);font-size:12.5px}
 :root[data-style="clean"] .ctm-bar,:root [data-style="clean"] .ctm-bar,:root [data-style="clean"].ctm-bar{margin:14px 14px 0;height:6px;gap:2px;border-radius:3px;background:var(--dm-rail)}
 :root[data-style="clean"] .ctm-bar i,:root [data-style="clean"] .ctm-bar i,:root [data-style="clean"].ctm-bar i{transition:width .42s var(--dm-ease),opacity .15s var(--dm-ease)}
@@ -480,7 +485,7 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>context-meter.css<span class="l">React · 76 lines</span></summary><pre class="cp-pre" data-name="context-meter.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>context-meter.css<span class="l">React · 81 lines</span></summary><pre class="cp-pre" data-name="context-meter.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Context meter ---------- */
 /* a pill with the ring opens what fills the context: one bar split by kind, a legend whose rows list their items, and Compact */
 /* it never anchors the page&#39;s scroll, so the page can&#39;t follow it as it changes; on a card it sits in the middle of its room */
@@ -493,8 +498,13 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
 .dm-ctm-tg&gt;svg:last-child{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
 .dm-ctm[data-open=&quot;0&quot;] .dm-ctm-tg&gt;svg:last-child{transform:rotate(-90deg)}
 /* the panel keeps its room when shut, so nothing below it moves, and nothing clips its shadow */
-.dm-ctm-pop{width:100%;padding:14px var(--dm-s-4) var(--dm-s-3);display:flex;flex-direction:column;gap:var(--dm-s-3);transition:opacity .32s var(--dm-ease),transform .42s var(--dm-ease),visibility 0s}
-.dm-ctm[data-open=&quot;0&quot;] .dm-ctm-pop{opacity:0;transform:translateY(-6px);visibility:hidden;pointer-events:none;transition:opacity .16s var(--dm-ease),transform .32s var(--dm-ease),visibility 0s .32s}
+/* shut, the panel folds away to nothing (owner, 17 Nov: no room kept for a later state): its height eases to 0 as it fades,
+   so the meter shrinks with it and stays centred in its stage, and opens back the same way. Where the browser can&#39;t ease a
+   height to auto, it opens and shuts at once */
+.dm-ctm{interpolate-size:allow-keywords}
+.dm-ctm-pop{width:100%;padding:14px var(--dm-s-4) var(--dm-s-3);display:flex;flex-direction:column;gap:var(--dm-s-3);overflow:clip;transition:opacity .32s var(--dm-ease),transform .42s var(--dm-ease),height .42s var(--dm-ease),margin-top .42s var(--dm-ease),padding .42s var(--dm-ease),visibility 0s}
+.dm-ctm[data-open=&quot;0&quot;] .dm-ctm-pop{height:0;margin-top:calc(-1 * var(--dm-s-2));padding-block:0;opacity:0;transform:translateY(-6px);visibility:hidden;pointer-events:none;transition:opacity .16s var(--dm-ease),transform .32s var(--dm-ease),height .32s var(--dm-ease),margin-top .32s var(--dm-ease),padding .32s var(--dm-ease),visibility 0s .32s}
+@media (prefers-reduced-motion:reduce){.dm-ctm-pop,.dm-ctm[data-open=&quot;0&quot;] .dm-ctm-pop{transition:none}}
 .dm-ctm-ph{display:flex;align-items:baseline;justify-content:space-between;gap:var(--dm-s-3);font-size:13px;color:var(--dm-muted)}
 .dm-ctm-ph b{color:var(--dm-fg);font-weight:500}
 .dm-ctm-bar{display:flex;gap:2px;height:8px;border-radius:var(--dm-r-xs);background:var(--dm-chip);overflow:hidden}
@@ -536,8 +546,8 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
 @media (hover:hover) and (pointer:fine){:root[data-style=&quot;clean&quot;] .dm-ctm-tg:hover,:root [data-style=&quot;clean&quot;] .dm-ctm-tg:hover,:root [data-style=&quot;clean&quot;].dm-ctm-tg:hover{box-shadow:var(--dm-btn2-hover)}}
 :root[data-style=&quot;clean&quot;] .dm-ctm-tg:active,:root [data-style=&quot;clean&quot;] .dm-ctm-tg:active,:root [data-style=&quot;clean&quot;].dm-ctm-tg:active{transform:scale(.97)}
 :root[data-style=&quot;clean&quot;] .dm-ctm-ring .dm-tr,:root [data-style=&quot;clean&quot;] .dm-ctm-ring .dm-tr,:root [data-style=&quot;clean&quot;].dm-ctm-ring .dm-tr{stroke:var(--dm-rail)}
-:root[data-style=&quot;clean&quot;] .dm-ctm-pop,:root [data-style=&quot;clean&quot;] .dm-ctm-pop,:root [data-style=&quot;clean&quot;].dm-ctm-pop{padding:0;gap:0;overflow:hidden;transition:opacity .24s var(--dm-ease),transform .32s var(--dm-ease),visibility 0s}
-:root[data-style=&quot;clean&quot;] .dm-ctm[data-open=&quot;0&quot;] .dm-ctm-pop,:root [data-style=&quot;clean&quot;] .dm-ctm[data-open=&quot;0&quot;] .dm-ctm-pop,:root [data-style=&quot;clean&quot;].dm-ctm[data-open=&quot;0&quot;] .dm-ctm-pop{transform:translateY(-4px);transition:opacity .15s var(--dm-ease),transform .2s var(--dm-ease),visibility 0s .2s}
+:root[data-style=&quot;clean&quot;] .dm-ctm-pop,:root [data-style=&quot;clean&quot;] .dm-ctm-pop,:root [data-style=&quot;clean&quot;].dm-ctm-pop{padding:0;gap:0;overflow:hidden;transition:opacity .24s var(--dm-ease),transform .32s var(--dm-ease),height .32s var(--dm-ease),margin-top .32s var(--dm-ease),visibility 0s}
+:root[data-style=&quot;clean&quot;] .dm-ctm[data-open=&quot;0&quot;] .dm-ctm-pop,:root [data-style=&quot;clean&quot;] .dm-ctm[data-open=&quot;0&quot;] .dm-ctm-pop,:root [data-style=&quot;clean&quot;].dm-ctm[data-open=&quot;0&quot;] .dm-ctm-pop{transform:translateY(-4px);transition:opacity .15s var(--dm-ease),transform .2s var(--dm-ease),height .24s var(--dm-ease),margin-top .24s var(--dm-ease),visibility 0s .24s}
 :root[data-style=&quot;clean&quot;] .dm-ctm-ph,:root [data-style=&quot;clean&quot;] .dm-ctm-ph,:root [data-style=&quot;clean&quot;].dm-ctm-ph{padding:10px 14px;background:var(--dm-strip);border-bottom:1px solid var(--dm-line);font-size:12.5px}
 :root[data-style=&quot;clean&quot;] .dm-ctm-bar,:root [data-style=&quot;clean&quot;] .dm-ctm-bar,:root [data-style=&quot;clean&quot;].dm-ctm-bar{margin:14px 14px 0;height:6px;gap:2px;border-radius:3px;background:var(--dm-rail)}
 :root[data-style=&quot;clean&quot;] .dm-ctm-bar i,:root [data-style=&quot;clean&quot;] .dm-ctm-bar i,:root [data-style=&quot;clean&quot;].dm-ctm-bar i{transition:width .42s var(--dm-ease),opacity .15s var(--dm-ease)}
@@ -601,7 +611,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>context-meter.css<span class="l">HTML · 75 lines</span></summary><pre class="cp-pre" data-name="context-meter.css"><code>/* ---------- Context meter ---------- */
+</code></pre></details><details class="cp-file"><summary>context-meter.css<span class="l">HTML · 80 lines</span></summary><pre class="cp-pre" data-name="context-meter.css"><code>/* ---------- Context meter ---------- */
 /* a pill with the ring opens what fills the context: one bar split by kind, a legend whose rows list their items, and Compact */
 /* it never anchors the page&#39;s scroll, so the page can&#39;t follow it as it changes; on a card it sits in the middle of its room */
 .ctm{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:var(--dm-s-2);width:100%;max-width:340px;margin-inline:auto;overflow-anchor:none}
@@ -613,8 +623,13 @@ const { class: className, ...rest } = Astro.props;
 .ctm-tg&gt;svg:last-child{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
 .ctm[data-open=&quot;0&quot;] .ctm-tg&gt;svg:last-child{transform:rotate(-90deg)}
 /* the panel keeps its room when shut, so nothing below it moves, and nothing clips its shadow */
-.ctm-pop{width:100%;padding:14px var(--dm-s-4) var(--dm-s-3);display:flex;flex-direction:column;gap:var(--dm-s-3);transition:opacity .32s var(--dm-ease),transform .42s var(--dm-ease),visibility 0s}
-.ctm[data-open=&quot;0&quot;] .ctm-pop{opacity:0;transform:translateY(-6px);visibility:hidden;pointer-events:none;transition:opacity .16s var(--dm-ease),transform .32s var(--dm-ease),visibility 0s .32s}
+/* shut, the panel folds away to nothing (owner, 17 Nov: no room kept for a later state): its height eases to 0 as it fades,
+   so the meter shrinks with it and stays centred in its stage, and opens back the same way. Where the browser can&#39;t ease a
+   height to auto, it opens and shuts at once */
+.ctm{interpolate-size:allow-keywords}
+.ctm-pop{width:100%;padding:14px var(--dm-s-4) var(--dm-s-3);display:flex;flex-direction:column;gap:var(--dm-s-3);overflow:clip;transition:opacity .32s var(--dm-ease),transform .42s var(--dm-ease),height .42s var(--dm-ease),margin-top .42s var(--dm-ease),padding .42s var(--dm-ease),visibility 0s}
+.ctm[data-open=&quot;0&quot;] .ctm-pop{height:0;margin-top:calc(-1 * var(--dm-s-2));padding-block:0;opacity:0;transform:translateY(-6px);visibility:hidden;pointer-events:none;transition:opacity .16s var(--dm-ease),transform .32s var(--dm-ease),height .32s var(--dm-ease),margin-top .32s var(--dm-ease),padding .32s var(--dm-ease),visibility 0s .32s}
+@media (prefers-reduced-motion:reduce){.ctm-pop,.ctm[data-open=&quot;0&quot;] .ctm-pop{transition:none}}
 .ctm-ph{display:flex;align-items:baseline;justify-content:space-between;gap:var(--dm-s-3);font-size:13px;color:var(--dm-muted)}
 .ctm-ph b{color:var(--dm-fg);font-weight:500}
 .ctm-bar{display:flex;gap:2px;height:8px;border-radius:var(--dm-r-xs);background:var(--dm-chip);overflow:hidden}
@@ -656,8 +671,8 @@ const { class: className, ...rest } = Astro.props;
 @media (hover:hover) and (pointer:fine){:root[data-style=&quot;clean&quot;] .ctm-tg:hover,:root [data-style=&quot;clean&quot;] .ctm-tg:hover,:root [data-style=&quot;clean&quot;].ctm-tg:hover{box-shadow:var(--dm-btn2-hover)}}
 :root[data-style=&quot;clean&quot;] .ctm-tg:active,:root [data-style=&quot;clean&quot;] .ctm-tg:active,:root [data-style=&quot;clean&quot;].ctm-tg:active{transform:scale(.97)}
 :root[data-style=&quot;clean&quot;] .ctm-ring .tr,:root [data-style=&quot;clean&quot;] .ctm-ring .tr,:root [data-style=&quot;clean&quot;].ctm-ring .tr{stroke:var(--dm-rail)}
-:root[data-style=&quot;clean&quot;] .ctm-pop,:root [data-style=&quot;clean&quot;] .ctm-pop,:root [data-style=&quot;clean&quot;].ctm-pop{padding:0;gap:0;overflow:hidden;transition:opacity .24s var(--dm-ease),transform .32s var(--dm-ease),visibility 0s}
-:root[data-style=&quot;clean&quot;] .ctm[data-open=&quot;0&quot;] .ctm-pop,:root [data-style=&quot;clean&quot;] .ctm[data-open=&quot;0&quot;] .ctm-pop,:root [data-style=&quot;clean&quot;].ctm[data-open=&quot;0&quot;] .ctm-pop{transform:translateY(-4px);transition:opacity .15s var(--dm-ease),transform .2s var(--dm-ease),visibility 0s .2s}
+:root[data-style=&quot;clean&quot;] .ctm-pop,:root [data-style=&quot;clean&quot;] .ctm-pop,:root [data-style=&quot;clean&quot;].ctm-pop{padding:0;gap:0;overflow:hidden;transition:opacity .24s var(--dm-ease),transform .32s var(--dm-ease),height .32s var(--dm-ease),margin-top .32s var(--dm-ease),visibility 0s}
+:root[data-style=&quot;clean&quot;] .ctm[data-open=&quot;0&quot;] .ctm-pop,:root [data-style=&quot;clean&quot;] .ctm[data-open=&quot;0&quot;] .ctm-pop,:root [data-style=&quot;clean&quot;].ctm[data-open=&quot;0&quot;] .ctm-pop{transform:translateY(-4px);transition:opacity .15s var(--dm-ease),transform .2s var(--dm-ease),height .24s var(--dm-ease),margin-top .24s var(--dm-ease),visibility 0s .24s}
 :root[data-style=&quot;clean&quot;] .ctm-ph,:root [data-style=&quot;clean&quot;] .ctm-ph,:root [data-style=&quot;clean&quot;].ctm-ph{padding:10px 14px;background:var(--dm-strip);border-bottom:1px solid var(--dm-line);font-size:12.5px}
 :root[data-style=&quot;clean&quot;] .ctm-bar,:root [data-style=&quot;clean&quot;] .ctm-bar,:root [data-style=&quot;clean&quot;].ctm-bar{margin:14px 14px 0;height:6px;gap:2px;border-radius:3px;background:var(--dm-rail)}
 :root[data-style=&quot;clean&quot;] .ctm-bar i,:root [data-style=&quot;clean&quot;] .ctm-bar i,:root [data-style=&quot;clean&quot;].ctm-bar i{transition:width .42s var(--dm-ease),opacity .15s var(--dm-ease)}

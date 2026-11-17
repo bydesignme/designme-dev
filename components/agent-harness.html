@@ -605,8 +605,13 @@
 .ctm-tg>svg:last-child{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
 .ctm[data-open="0"] .ctm-tg>svg:last-child{transform:rotate(-90deg)}
 /* the panel keeps its room when shut, so nothing below it moves, and nothing clips its shadow */
-.ctm-pop{width:100%;padding:14px var(--dm-s-4) var(--dm-s-3);display:flex;flex-direction:column;gap:var(--dm-s-3);transition:opacity .32s var(--dm-ease),transform .42s var(--dm-ease),visibility 0s}
-.ctm[data-open="0"] .ctm-pop{opacity:0;transform:translateY(-6px);visibility:hidden;pointer-events:none;transition:opacity .16s var(--dm-ease),transform .32s var(--dm-ease),visibility 0s .32s}
+/* shut, the panel folds away to nothing (owner, 17 Nov: no room kept for a later state): its height eases to 0 as it fades,
+   so the meter shrinks with it and stays centred in its stage, and opens back the same way. Where the browser can't ease a
+   height to auto, it opens and shuts at once */
+.ctm{interpolate-size:allow-keywords}
+.ctm-pop{width:100%;padding:14px var(--dm-s-4) var(--dm-s-3);display:flex;flex-direction:column;gap:var(--dm-s-3);overflow:clip;transition:opacity .32s var(--dm-ease),transform .42s var(--dm-ease),height .42s var(--dm-ease),margin-top .42s var(--dm-ease),padding .42s var(--dm-ease),visibility 0s}
+.ctm[data-open="0"] .ctm-pop{height:0;margin-top:calc(-1 * var(--dm-s-2));padding-block:0;opacity:0;transform:translateY(-6px);visibility:hidden;pointer-events:none;transition:opacity .16s var(--dm-ease),transform .32s var(--dm-ease),height .32s var(--dm-ease),margin-top .32s var(--dm-ease),padding .32s var(--dm-ease),visibility 0s .32s}
+@media (prefers-reduced-motion:reduce){.ctm-pop,.ctm[data-open="0"] .ctm-pop{transition:none}}
 .ctm-ph{display:flex;align-items:baseline;justify-content:space-between;gap:var(--dm-s-3);font-size:13px;color:var(--dm-muted)}
 .ctm-ph b{color:var(--dm-fg);font-weight:500}
 .ctm-bar{display:flex;gap:2px;height:8px;border-radius:var(--dm-r-xs);background:var(--dm-chip);overflow:hidden}
@@ -648,8 +653,8 @@
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .ctm-tg:hover,:root [data-style="clean"] .ctm-tg:hover,:root [data-style="clean"].ctm-tg:hover{box-shadow:var(--dm-btn2-hover)}}
 :root[data-style="clean"] .ctm-tg:active,:root [data-style="clean"] .ctm-tg:active,:root [data-style="clean"].ctm-tg:active{transform:scale(.97)}
 :root[data-style="clean"] .ctm-ring .tr,:root [data-style="clean"] .ctm-ring .tr,:root [data-style="clean"].ctm-ring .tr{stroke:var(--dm-rail)}
-:root[data-style="clean"] .ctm-pop,:root [data-style="clean"] .ctm-pop,:root [data-style="clean"].ctm-pop{padding:0;gap:0;overflow:hidden;transition:opacity .24s var(--dm-ease),transform .32s var(--dm-ease),visibility 0s}
-:root[data-style="clean"] .ctm[data-open="0"] .ctm-pop,:root [data-style="clean"] .ctm[data-open="0"] .ctm-pop,:root [data-style="clean"].ctm[data-open="0"] .ctm-pop{transform:translateY(-4px);transition:opacity .15s var(--dm-ease),transform .2s var(--dm-ease),visibility 0s .2s}
+:root[data-style="clean"] .ctm-pop,:root [data-style="clean"] .ctm-pop,:root [data-style="clean"].ctm-pop{padding:0;gap:0;overflow:hidden;transition:opacity .24s var(--dm-ease),transform .32s var(--dm-ease),height .32s var(--dm-ease),margin-top .32s var(--dm-ease),visibility 0s}
+:root[data-style="clean"] .ctm[data-open="0"] .ctm-pop,:root [data-style="clean"] .ctm[data-open="0"] .ctm-pop,:root [data-style="clean"].ctm[data-open="0"] .ctm-pop{transform:translateY(-4px);transition:opacity .15s var(--dm-ease),transform .2s var(--dm-ease),height .24s var(--dm-ease),margin-top .24s var(--dm-ease),visibility 0s .24s}
 :root[data-style="clean"] .ctm-ph,:root [data-style="clean"] .ctm-ph,:root [data-style="clean"].ctm-ph{padding:10px 14px;background:var(--dm-strip);border-bottom:1px solid var(--dm-line);font-size:12.5px}
 :root[data-style="clean"] .ctm-bar,:root [data-style="clean"] .ctm-bar,:root [data-style="clean"].ctm-bar{margin:14px 14px 0;height:6px;gap:2px;border-radius:3px;background:var(--dm-rail)}
 :root[data-style="clean"] .ctm-bar i,:root [data-style="clean"] .ctm-bar i,:root [data-style="clean"].ctm-bar i{transition:width .42s var(--dm-ease),opacity .15s var(--dm-ease)}
@@ -670,9 +675,6 @@
 </style><style>/* ---------- Plan review ---------- */
 /* the plan the agent posts in the chat: no container; with .panel it becomes a card */
 .plx{padding:14px 0;display:flex;flex-direction:column;gap:10px}
-.growing{overflow:clip;overflow-clip-margin:6px;transition:height .55s cubic-bezier(.22,1,.36,1)}
-.growing>.dm-grow{display:flex;flex-direction:column;gap:inherit;flex:none}
-@media (prefers-reduced-motion:reduce){.growing{transition:none}}
 .plx.panel{padding:14px}
 .plx-h{display:flex;align-items:center;gap:10px}
 .plx-mk{color:var(--dm-accent-fg,var(--dm-accent))}

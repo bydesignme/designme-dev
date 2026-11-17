@@ -630,6 +630,9 @@ const atrMark = m => m === 'run' ? '<span class="atr-spin"></span>' : m === 'wai
 // a mark's visible radius: rings and spinners are 14px; finished discs and the waiting mark carry a 2px cut-out border
 const atrMarkR = m => m === 'done' || m === 'fail' || m === 'src' || m === 'wait' ? 9 : 7;
 const atrEz = u => 1 - Math.pow(1 - Math.min(1, Math.max(0, u)), 3);
+// the way on under a row closes its height as it goes, so the tree shrinks with it smoothly instead of jumping (owner, 17 Nov)
+const atrDrop = el => { el.classList.add('atr-gone'); if (REDUCE || !el.animate || !el.isConnected) return el.remove();
+  el.inert = true; el.animate([{ height:el.offsetHeight + 'px', opacity:1 }, { height:'0px', paddingBottom:'0px', opacity:0 }], { duration:320, easing:'cubic-bezier(.22,1,.36,1)', fill:'forwards' }).finished.then(() => el.remove(), () => el.remove()); };
 function atrLines(tree){
   const NS = 'http://www.w3.org/2000/svg', mk = (t, a = {}) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
   // the svg is the tree's first child (one is made if the markup has none)
@@ -814,23 +817,9 @@ DM.def('agent-tree', (r, c) => {
   tree.appendChild(build(N[0]));
   const T = N[0];
 
-  // the room the run needs at its tallest (every row in, and the approval under the last step) is kept from the start, so
-  // the tree sits centred in its stage at every moment and grows downwards inside its own surface (hold(), with the
-  // tallest height instead of the current one)
-  const tallest = () => {
-    const p = root.cloneNode(true);
-    p.style.cssText = `position:absolute;left:0;top:0;width:${root.offsetWidth}px;min-height:0;visibility:hidden;pointer-events:none`;
-    p.setAttribute('aria-hidden', 'true'); p.inert = true;
-    $$('.atr-ln', p).forEach(e => e.remove());
-    $$('[hidden]', p).forEach(e => { e.hidden = false; });
-    $$('[data-ph]', p).forEach(e => { e.removeAttribute('data-ph'); e.style.height = ''; });
-    const f = $('.atr-f', p); if (!f.textContent) f.textContent = 'Orchestrator';
-    const w = $('[data-id="cop1"]>.atr-b', p); if (w && !$('.atr-ask', w)) w.appendChild(html('<div class="atr-ask"><button type="button" class="pill sm primary">Approve</button><button type="button" class="pill sm line">Hold</button></div>'));
-    root.parentElement.appendChild(p); const h = p.offsetHeight; p.remove(); return h;
-  };
-  let wide = -1;
-  const keep = () => { const w = root.offsetWidth; if (!w || w === wide) return; wide = w; root.style.minHeight = tallest() + 'px'; };
-  keep(); const ro = new ResizeObserver(keep); ro.observe(root); c.offs.push(() => ro.disconnect());
+  // the tree grows with its rows (owner, 17 Nov: no room reserved for a later state): the panel opens at the height of what it
+  // holds and eases taller as each row arrives, and shorter as a branch folds, staying centred in its stage (grow())
+  c.offs.push(grow(root));
 
   const L = atrLines(tree);
   c.loop(t => { L.frame(t); });
@@ -882,14 +871,14 @@ DM.def('agent-tree', (r, c) => {
   const say = (n, t) => { $(':scope>.atr-b .atr-sub', n.el).textContent = t; paint(); };
   const until = async f => { while (!f()) await c.wait(50); };
   // a new row joins: its parent shows its chevron, and the line engine opens its space, draws its line and lets it rise in
-  async function grow(n, s, t){
+  async function arrive(n, s, t){
     set(n, s, t); n.el.hidden = false; L.frame(performance.now()); if (s === 'run') n.t0 = performance.now();
     const p = n.parent; if (p && !p.el.hasAttribute('aria-expanded')){ p.el.setAttribute('aria-expanded', 'true'); p.tg.hidden = false; }
     paint(); await until(() => { const ph = L.phase(n.id); return ph === 'in' || ph === 'shown'; });
   }
   // the way on, in place under a row: a fix for a failed step, or Approve and Hold for one that needs a person
   function ask(n, how){
-    const old = $(':scope>.atr-b>.atr-ask', n.el); if (old) old.remove();
+    const old = $(':scope>.atr-b>.atr-ask:not(.atr-gone)', n.el); if (old) atrDrop(old);
     if (!how) return;
     const box = html(`<div class="atr-ask">${how.map(([k, label]) => `<button type="button" class="pill sm ${k === 'yes' ? 'primary' : 'line'} atr-${k}">${label}</button>`).join('')}</div>`);
     $(':scope>.atr-b', n.el).appendChild(box);
@@ -937,8 +926,8 @@ DM.def('agent-tree', (r, c) => {
   // story the person in the demo does after a while, unless the visitor has taken over, who then approves it themselves
   c.run(async () => {
     await c.wait(300);
-    await grow(by('res'), 'run'); await grow(by('des'), 'run'); await grow(by('cop'), 'queued'); say(T, '3 agents at work');
-    await grow(by('res1'), 'run'); await grow(by('des1'), 'run'); await grow(by('des2'), 'queued');
+    await arrive(by('res'), 'run'); await arrive(by('des'), 'run'); await arrive(by('cop'), 'queued'); say(T, '3 agents at work');
+    await arrive(by('res1'), 'run'); await arrive(by('des1'), 'run'); await arrive(by('des2'), 'queued');
     await c.wait(300); say(by('res1'), 'Reading 3 of 5');
     await c.wait(500); say(by('res1'), 'Reading 5 of 5');
     await c.wait(450); set(by('res1'), 'done', '5 pages, 12k words');
@@ -948,11 +937,11 @@ DM.def('agent-tree', (r, c) => {
     const tk = by('des2'); set(tk, 'fail', 'Missing accent.600'); tell(`${tk.n} failed: Missing accent.600`);
     await new Promise(res => { $('.atr-fix', ask(tk, [['fix', 'Use accent.500']])).onclick = () => res(); c.later(1300, res); });
     ask(tk, null); tk.el.setAttribute('data-dim', ''); paint();
-    await grow(by('des3'), 'run', 'Rerouted to accent.500');
+    await arrive(by('des3'), 'run', 'Rerouted to accent.500');
     await c.wait(1200); set(by('des3'), 'done', 'Used accent.500');
     await c.wait(300); set(by('des'), 'done', 'Cards and tokens done'); set(by('cop'), 'run', 'Writing 3 blurbs');
     await c.wait(1200); say(by('cop'), '3 blurbs written');
-    const ps = by('cop1'); await grow(ps, 'wait', 'Needs your OK');
+    const ps = by('cop1'); await arrive(ps, 'wait', 'Needs your OK');
     tell(`${ps.n} needs you`);
     await new Promise(res => {
       const box = ask(ps, [['yes', 'Approve'], ['no', 'Hold']]);
@@ -1089,7 +1078,7 @@ DM.def('agent-tree', (r, c) => {
     }
     // the way on, in place under a row: the fix for the failed step, or Approve and Hold for the post
     function ask(n, how){
-      const old = $(':scope>.atr-b>.atr-ask', n.el); if (old) old.remove();
+      const old = $(':scope>.atr-b>.atr-ask:not(.atr-gone)', n.el); if (old) atrDrop(old);
       if (!how) return null;
       const b = html(`<div class="atr-ask">${how.map(([k, label]) => `<button type="button" class="pill sm ${k === 'yes' || k === 'fix' ? 'primary' : 'line'} atr-${k}">${label}</button>`).join('')}</div>`);
       $(':scope>.atr-b', n.el).appendChild(b); return b;
@@ -1146,22 +1135,8 @@ DM.def('agent-tree', (r, c) => {
       await s.until(() => $('.atr-yes', r)); await s.beat(3); await s.tap($('.atr-yes', r)); s.away();
       await s.until(() => M.ended); await s.beat(5);
     });
-    // its tallest moment (every row in, the approval under the post, and the closing line) is measured in a hidden copy and
-    // kept from the start, as in Classic, so the tree sits centred at every moment and grows down inside its own surface
-    const tallest = () => {
-      const p = box.cloneNode(true);
-      p.style.cssText = `position:absolute;left:0;top:0;width:${box.offsetWidth}px;min-height:0;visibility:hidden;pointer-events:none`;
-      p.setAttribute('aria-hidden', 'true'); p.inert = true;
-      $$('.atr-ln', p).forEach(e => e.remove());
-      $$('[hidden]', p).forEach(e => { e.hidden = false; }); $$('[data-ph]', p).forEach(e => { e.removeAttribute('data-ph'); e.style.height = ''; });
-      $$('.atr-ask', p).forEach(e => e.remove());
-      const w = $('[data-id="cop1"]>.atr-b', p); if (w) w.appendChild(html('<div class="atr-ask"><button type="button" class="pill sm primary">Approve</button><button type="button" class="pill sm line">Hold</button></div>'));
-      if (!$('.atr-ct-sum', p)) p.insertBefore(html(`<p class="atr-ct-sum">${atrG('done')}<span>Done in 0:00 · 3 agents · $0.00</span></p>`), $('.atr-sr', p));
-      box.parentElement.appendChild(p); const h = p.offsetHeight; p.remove(); return h;
-    };
-    let wide = -1;
-    const keep = () => { const w = box.offsetWidth; if (!w || w === wide) return; wide = w; box.style.minHeight = tallest() + 'px'; };
-    keep(); const ro = new ResizeObserver(keep); ro.observe(box); c.offs.push(() => ro.disconnect());
+    // it grows with its rows, as Classic does (owner, 17 Nov): no room kept for its tallest moment
+    c.offs.push(grow(box));
   }
 
   // Cost map: every agent and step as a block as wide as its cost, growing live, tinted by how it is doing and carrying its
@@ -1268,12 +1243,9 @@ DM.def('agent-tree', (r, c) => {
     // (the classic component may have drawn its icons into the stage again, so the switch is found afresh)
     dm = $(':scope>.atr-dm', r);
     const main = $(':scope>.dm-main', dm), sg = $(':scope>.demo .seg2', dm);
-    let tall = null, h = 0, wide = -1;
-    // the card keeps the room the tallest design needs; this one sits with its own tallest moment in the middle of it, and
-    // grows downwards from there. Its height is taken once at each width, so what it does never moves its top
-    const fit = () => { const H = parseFloat(getComputedStyle(r).minHeight) || 0, w = r.clientWidth; if (w !== wide){ wide = w; h = tall ? tall() : main.offsetHeight; } dm.style.setProperty('--dmy', Math.max(0, Math.floor((H - h) / 2)) + 'px'); };
-    if (v !== 'classic'){ main.innerHTML = ATR_DS[v][0]; const t = ATR_DS[v][1](main, c); tall = typeof t === 'function' ? t : null; }
-    // (the classic tree keeps the room of its tallest moment from the start, so its height now is its tallest)
+    // the card keeps the room the tallest design needs, and the design picked sits in the middle of it, growing with its
+    // content from there (CSS: the switch's main part is centred in the room)
+    if (v !== 'classic'){ main.innerHTML = ATR_DS[v][0]; ATR_DS[v][1](main, c); }
     $$('button', sg).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
     seg(sg, k => {
       if (k === v) return;
@@ -1282,7 +1254,6 @@ DM.def('agent-tree', (r, c) => {
       // it comes back once the new design has started, so it isn't taken for the visitor taking over the new demo
       if (kb) setTimeout(() => { const b = $(`.atr-dm>.demo button[data-v="${k}"]`, card); if (b && (!document.activeElement || document.activeElement === document.body)) b.focus({ preventScroll:true }); }, 120);
     });
-    const ro = new ResizeObserver(fit); ro.observe(r); c.offs.push(() => ro.disconnect());
   });
 }
 /* ---------- Agent inbox ---------- */

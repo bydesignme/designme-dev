@@ -292,6 +292,10 @@
 /* a shut fold is hidden as well as clear once it has folded, so Tab passes over what is inside it */
 .v2 .fold.shut{grid-template-rows:0fr;opacity:0;visibility:hidden;transition:grid-template-rows var(--t) var(--ease),opacity var(--t) var(--ease),visibility 0s var(--t)}
 
+/* grow(): a container that grows with its content, eased (any component; Plan review and Agent tree use it) */
+.v2 .growing{overflow:clip;overflow-clip-margin:6px;transition:height .55s cubic-bezier(.22,1,.36,1)}
+.v2 .growing>.dm-grow{display:flex;flex-direction:column;gap:inherit;flex:none}
+@media (prefers-reduced-motion:reduce){.v2 .growing{transition:none}}
 /* ---------- tooltip and popover ---------- */
 .v2 .tip{position:fixed;z-index:1000;pointer-events:none;background:var(--tip-bg,var(--ink));color:var(--tip-fg,var(--on-ink));box-shadow:var(--tip-ring,none);font-size:12px;line-height:1.35;padding:6px 9px;border-radius:var(--r-sm);max-width:240px;opacity:0;transform:translateY(4px);filter:blur(2px);transition:opacity .18s var(--ease),transform .25s var(--ease),filter .18s}
 .v2 .tip.show{opacity:1;transform:none;filter:none}
@@ -566,8 +570,13 @@
 .v2 .ctm-tg>svg:last-child{color:var(--muted);transition:transform .32s var(--ease)}
 .v2 .ctm[data-open="0"] .ctm-tg>svg:last-child{transform:rotate(-90deg)}
 /* the panel keeps its room when shut, so nothing below it moves, and nothing clips its shadow */
-.v2 .ctm-pop{width:100%;padding:14px var(--s-4) var(--s-3);display:flex;flex-direction:column;gap:var(--s-3);transition:opacity .32s var(--ease),transform .42s var(--ease),visibility 0s}
-.v2 .ctm[data-open="0"] .ctm-pop{opacity:0;transform:translateY(-6px);visibility:hidden;pointer-events:none;transition:opacity .16s var(--ease),transform .32s var(--ease),visibility 0s .32s}
+/* shut, the panel folds away to nothing (owner, 17 Nov: no room kept for a later state): its height eases to 0 as it fades,
+   so the meter shrinks with it and stays centred in its stage, and opens back the same way. Where the browser can't ease a
+   height to auto, it opens and shuts at once */
+.v2 .ctm{interpolate-size:allow-keywords}
+.v2 .ctm-pop{width:100%;padding:14px var(--s-4) var(--s-3);display:flex;flex-direction:column;gap:var(--s-3);overflow:clip;transition:opacity .32s var(--ease),transform .42s var(--ease),height .42s var(--ease),margin-top .42s var(--ease),padding .42s var(--ease),visibility 0s}
+.v2 .ctm[data-open="0"] .ctm-pop{height:0;margin-top:calc(-1 * var(--s-2));padding-block:0;opacity:0;transform:translateY(-6px);visibility:hidden;pointer-events:none;transition:opacity .16s var(--ease),transform .32s var(--ease),height .32s var(--ease),margin-top .32s var(--ease),padding .32s var(--ease),visibility 0s .32s}
+@media (prefers-reduced-motion:reduce){.v2 .ctm-pop,.v2 .ctm[data-open="0"] .ctm-pop{transition:none}}
 .v2 .ctm-ph{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s-3);font-size:13px;color:var(--muted)}
 .v2 .ctm-ph b{color:var(--fg);font-weight:500}
 .v2 .ctm-bar{display:flex;gap:2px;height:8px;border-radius:var(--r-xs);background:var(--chip);overflow:hidden}
@@ -609,8 +618,8 @@
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .ctm-tg:hover{box-shadow:var(--btn2-hover)}}
 :root[data-style="clean"] .v2 .ctm-tg:active{transform:scale(.97)}
 :root[data-style="clean"] .v2 .ctm-ring .tr{stroke:var(--rail)}
-:root[data-style="clean"] .v2 .ctm-pop{padding:0;gap:0;overflow:hidden;transition:opacity .24s var(--ease),transform .32s var(--ease),visibility 0s}
-:root[data-style="clean"] .v2 .ctm[data-open="0"] .ctm-pop{transform:translateY(-4px);transition:opacity .15s var(--ease),transform .2s var(--ease),visibility 0s .2s}
+:root[data-style="clean"] .v2 .ctm-pop{padding:0;gap:0;overflow:hidden;transition:opacity .24s var(--ease),transform .32s var(--ease),height .32s var(--ease),margin-top .32s var(--ease),visibility 0s}
+:root[data-style="clean"] .v2 .ctm[data-open="0"] .ctm-pop{transform:translateY(-4px);transition:opacity .15s var(--ease),transform .2s var(--ease),height .24s var(--ease),margin-top .24s var(--ease),visibility 0s .24s}
 :root[data-style="clean"] .v2 .ctm-ph{padding:10px 14px;background:var(--strip);border-bottom:1px solid var(--line);font-size:12.5px}
 :root[data-style="clean"] .v2 .ctm-bar{margin:14px 14px 0;height:6px;gap:2px;border-radius:3px;background:var(--rail)}
 :root[data-style="clean"] .v2 .ctm-bar i{transition:width .42s var(--ease),opacity .15s var(--ease)}
@@ -700,6 +709,14 @@
 .v2 .atr-n[data-s="wait"]>.atr-b{background:var(--sel)}
 .v2 .atr-n[data-s="wait"]>.atr-b .atr-sub{color:var(--accent-fg,var(--accent))}
 .v2 .atr-ask{display:flex;flex-wrap:wrap;gap:var(--s-2);padding:0 var(--s-2) var(--s-2) calc(var(--s-2) + var(--lv,0) * var(--atr-ind) + 56px)}
+/* the tree grows with its rows (grow(), owner 17 Nov): each new row already opens its own height smoothly, so the panel
+   follows its content frame by frame, with nothing cut off and no room left over; the way on under a row (a fix, Approve and
+   Hold) opens its height the same way. Where a browser can't ease a height to auto, it appears at once */
+.v2 .atr.growing{transition:none;interpolate-size:allow-keywords}
+.v2 .atr-ask{overflow:clip;overflow-clip-margin:4px;animation:v2-atrask .42s var(--atr-ez) backwards}
+@keyframes v2-atrask{from{height:0;padding-bottom:0;opacity:0}}
+.v2 .atr .atr-n[data-ph="in"]>.atr-b>.atr-ask{animation:v2-atrask .42s var(--atr-ez) backwards,v2-atrin .56s var(--atr-ez) backwards}
+@media (prefers-reduced-motion:reduce){.v2 .atr-ask,.v2 .atr .atr-n[data-ph="in"]>.atr-b>.atr-ask{animation:none}}
 /* a failed step the orchestrator has rerouted to a retry fades back (its words in the muted grey, so they keep 4.5:1) */
 .v2 .atr-n[data-dim]>.atr-b .atr-av{opacity:.5}
 .v2 .atr-n[data-dim]>.atr-b :is(.atr-nm,.atr-sub,.atr-c){color:var(--muted)}
@@ -762,15 +779,14 @@
 :root[data-style="clean"] .v2 .atr-n[data-s="wait"]>.atr-b .atr-sub{color:var(--fg)}
 :root[data-style="clean"] .v2 .atr-ln .r{stroke:var(--line)}
 :root[data-style="clean"] .v2 .atr-ln .bad{stroke:color-mix(in srgb,var(--bad-mark) 55%,var(--surface))}
-:root[data-style="clean"] .v2 .atr:not(.bare){display:flex;flex-direction:column}
-/* the strip sits at the foot of the card, however tall the card is held */
-:root[data-style="clean"] .v2 .atr:not(.bare) .atr-f{margin:auto calc(-1 * var(--s-2)) 0;padding:10px var(--s-4);background:var(--strip);border-top-color:var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
+:root[data-style="clean"] .v2 .atr:not(.bare) .atr-f{margin:var(--s-1) calc(-1 * var(--s-2)) 0;padding:10px var(--s-4);background:var(--strip);border-top-color:var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
 /* ---------- Agent tree designs ---------- */
 /* the card's design switch: Classic, Cost tree and Cost map, with the switch under the tree (on designme.dev it is the
-   card's footer tabs). Each design sits centred in the room the card keeps for the tallest of them (--dmy, set by the switch) */
-.v2 .dm.atr-dm{min-height:0;gap:var(--s-5);padding-top:var(--dmy,0px)}
+   card's footer tabs). Each design sits centred in the room the card keeps for the tallest of them, and grows from there
+   with its content, up and down alike (owner, 17 Nov) */
+.v2 .dm.atr-dm{min-height:0;flex:1;gap:var(--s-5)}
 .v2 .atr-dm>.dm-main>*{width:100%}
-.v2.stage-in:has(>.atr-dm){align-self:auto;display:block}
+.v2.stage-in:has(>.atr-dm){align-self:auto;display:flex;flex-direction:column}
 /* the two other designs take the Classic tree's treatment (owner, 16 Nov): its header, its 14px marks (a ring while queued,
    a spinner while running, a filled disc with a tick or a cross once done or failed, the accent disc where the run starts,
    the accent ring while a step waits for a person), its avatars and app logos, and, in Cost tree, its lines and band. Agent
@@ -2451,9 +2467,6 @@
 /* ---------- Plan review ---------- */
 /* the plan the agent posts in the chat: no container; with .panel it becomes a card */
 .v2 .plx{padding:14px 0;display:flex;flex-direction:column;gap:10px}
-.v2 .growing{overflow:clip;overflow-clip-margin:6px;transition:height .55s cubic-bezier(.22,1,.36,1)}
-.v2 .growing>.dm-grow{display:flex;flex-direction:column;gap:inherit;flex:none}
-@media (prefers-reduced-motion:reduce){.v2 .growing{transition:none}}
 .v2 .plx.panel{padding:14px}
 .v2 .plx-h{display:flex;align-items:center;gap:10px}
 .v2 .plx-mk{color:var(--accent-fg,var(--accent))}

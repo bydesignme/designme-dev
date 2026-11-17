@@ -70,7 +70,7 @@ import { AgentTree } from '@/components/designme/agent-tree/AgentTree';
 ```tsx
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AgentTree, type AgentNode } from './AgentTree';
 import { useScript, useStory } from '../lib/useScript';
 
@@ -141,16 +141,10 @@ export default function AgentTreeDemo() {
       ...(id === 'des2' && fixable ? { fix: { label: 'Use accent.500', onClick: () => fixed.current?.() } } : {}),
       ...(id === 'cop1' ? { approval: { onApprove: () => approved.current?.(), onHold: canHold ? () => { set('cop1', { task: 'On hold' }); setCanHold(false); } : undefined } } : {}) };
   };
-  // the room the tree keeps: the run at its tallest (every row in, and the approval under the last step), drawn once in a
-  // hidden copy and measured, so the tree sits centred in its stage while it grows
-  const full = (id: string): AgentNode => ({ ...RUN[id], children: Object.keys(UNDER).filter(k => UNDER[k] === id).map(full), ...(id === 'cop1' ? { approval: { onApprove: () => {}, onHold: () => {} } } : {}) });
-  const ghost = useRef<HTMLDivElement>(null), [h, setH] = useState(0);
-  useLayoutEffect(() => { const el = ghost.current?.firstElementChild; if (el) setH(Math.ceil(el.getBoundingClientRect().height)); }, []);
-
   return (
     <div ref={ref} style={{ width: '100%', position: 'relative' }}>
-      {!h && <div ref={ghost} aria-hidden="true" inert style={{ position: 'absolute', inset: '0 0 auto', visibility: 'hidden', pointerEvents: 'none' }}><AgentTree root={full('root')} title="Redesign the pricing page" /></div>}
-      <AgentTree root={node('root')} title="Redesign the pricing page" style={h ? { minHeight: h } : undefined} />
+      {/* the tree grows with its rows: no room kept for the finished run */}
+      <AgentTree root={node('root')} title="Redesign the pricing page" />
     </div>
   );
 }
@@ -174,7 +168,7 @@ export default function AgentTreeDemo() {
 | `variant` (optional) | `'panel' \| 'bare'` | panel draws the surface; bare leaves it off, for a tree inside a chat or a side panel |
 | `slim` (optional) | `boolean` | Hides the header, for a tree under a header that already names the run |
 | `className` (optional) | `string` |  |
-| `style` (optional) | `CSSProperties` | On the root, for example a minHeight that keeps the room the finished run needs while the tree grows |
+| `style` (optional) | `CSSProperties` | On the root element |
 
 ## Usage in Astro
 
@@ -220,7 +214,7 @@ import { cx } from '../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion, useSeconds } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
 import { Brand, type BrandName } from '../lib/brands';
-import { avatarInk, Tip } from '../lib/motion';
+import { avatarInk, Tip, useGrow } from '../lib/motion';
 import '../designme.css';
 import './agent-tree.css';
 
@@ -278,7 +272,7 @@ export interface AgentTreeProps {
   /** Hides the header, for a tree under a header that already names the run */
   slim?: boolean;
   className?: string;
-  /** On the root, for example a minHeight that keeps the room the finished run needs while the tree grows */
+  /** On the root element */
   style?: CSSProperties;
 }
 
@@ -446,6 +440,9 @@ export function AgentTree({ root, title, status, seconds, collapsed, defaultColl
   const [sel, setSel] = useControllable<string | null>(selected, defaultSelected, v => { if (v) onSelectedChange?.(v); });
   const [focus, setFocus] = useState(root.id);
   const treeRef = useRef<HTMLDivElement>(null);
+  // the panel grows with its rows and shrinks as a branch folds, staying centred where it is centred (owner, 17 Nov: no room
+  // kept for a later state)
+  const [growRef, growIn] = useGrow();
   const reduce = useReducedMotion(), red = useRef(reduce); red.current = reduce;
   const finished = root.status === 'done';
   const counted = useSeconds(seconds === undefined && !finished);
@@ -568,7 +565,8 @@ export function AgentTree({ root, title, status, seconds, collapsed, defaultColl
   };
 
   return (
-    <div data-dm="" className={cx('dm-atr', variant === 'panel' ? 'dm-panel' : 'dm-bare', slim && 'dm-slim', className)} data-s={runState} style={style}>
+    <div data-dm="" ref={growRef} className={cx('dm-atr', 'dm-growing', variant === 'panel' ? 'dm-panel' : 'dm-bare', slim && 'dm-slim', className)} data-s={runState} style={style}>
+      <div className="dm-grow" ref={growIn}>
       <div className="dm-atr-h">
         <div className="dm-atr-hd"><b className="dm-atr-t">{title}</b><span className="dm-atr-s"><span className="dm-atr-dot" aria-hidden="true" /><span className="dm-atr-m">{line}</span><span aria-hidden="true">·</span><span className="dm-atr-time dm-num">{clock(secs)}</span></span></div>
         <span className="dm-atr-tot dm-num">{money(sum(root))}</span>
@@ -579,6 +577,7 @@ export function AgentTree({ root, title, status, seconds, collapsed, defaultColl
       </div>
       <p className="dm-atr-f"><b>{picked.n.name}</b>{split} · {toks(sumTok(picked.n))} tokens</p>
       <p className="dm-atr-sr" role="status">{said}</p>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AgentTree, type AgentNode } from '../components/agent-tree/AgentTree';
 import { useScript, useStory } from './useScript';
 
@@ -71,16 +71,10 @@ export default function AgentTreeDemo() {
       ...(id === 'des2' && fixable ? { fix: { label: 'Use accent.500', onClick: () => fixed.current?.() } } : {}),
       ...(id === 'cop1' ? { approval: { onApprove: () => approved.current?.(), onHold: canHold ? () => { set('cop1', { task: 'On hold' }); setCanHold(false); } : undefined } } : {}) };
   };
-  // the room the tree keeps: the run at its tallest (every row in, and the approval under the last step), drawn once in a
-  // hidden copy and measured, so the tree sits centred in its stage while it grows
-  const full = (id: string): AgentNode => ({ ...RUN[id], children: Object.keys(UNDER).filter(k => UNDER[k] === id).map(full), ...(id === 'cop1' ? { approval: { onApprove: () => {}, onHold: () => {} } } : {}) });
-  const ghost = useRef<HTMLDivElement>(null), [h, setH] = useState(0);
-  useLayoutEffect(() => { const el = ghost.current?.firstElementChild; if (el) setH(Math.ceil(el.getBoundingClientRect().height)); }, []);
-
   return (
     <div ref={ref} style={{ width: '100%', position: 'relative' }}>
-      {!h && <div ref={ghost} aria-hidden="true" inert style={{ position: 'absolute', inset: '0 0 auto', visibility: 'hidden', pointerEvents: 'none' }}><AgentTree root={full('root')} title="Redesign the pricing page" /></div>}
-      <AgentTree root={node('root')} title="Redesign the pricing page" style={h ? { minHeight: h } : undefined} />
+      {/* the tree grows with its rows: no room kept for the finished run */}
+      <AgentTree root={node('root')} title="Redesign the pricing page" />
     </div>
   );
 }

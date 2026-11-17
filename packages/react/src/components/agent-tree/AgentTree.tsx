@@ -4,7 +4,7 @@ import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion, useSeconds } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
 import { Brand, type BrandName } from '../../lib/brands';
-import { avatarInk, Tip } from '../../lib/motion';
+import { avatarInk, Tip, useGrow } from '../../lib/motion';
 import '../../designme.css';
 import './agent-tree.css';
 
@@ -62,7 +62,7 @@ export interface AgentTreeProps {
   /** Hides the header, for a tree under a header that already names the run */
   slim?: boolean;
   className?: string;
-  /** On the root, for example a minHeight that keeps the room the finished run needs while the tree grows */
+  /** On the root element */
   style?: CSSProperties;
 }
 
@@ -230,6 +230,9 @@ export function AgentTree({ root, title, status, seconds, collapsed, defaultColl
   const [sel, setSel] = useControllable<string | null>(selected, defaultSelected, v => { if (v) onSelectedChange?.(v); });
   const [focus, setFocus] = useState(root.id);
   const treeRef = useRef<HTMLDivElement>(null);
+  // the panel grows with its rows and shrinks as a branch folds, staying centred where it is centred (owner, 17 Nov: no room
+  // kept for a later state)
+  const [growRef, growIn] = useGrow();
   const reduce = useReducedMotion(), red = useRef(reduce); red.current = reduce;
   const finished = root.status === 'done';
   const counted = useSeconds(seconds === undefined && !finished);
@@ -352,7 +355,8 @@ export function AgentTree({ root, title, status, seconds, collapsed, defaultColl
   };
 
   return (
-    <div data-dm="" className={cx('dm-atr', variant === 'panel' ? 'dm-panel' : 'dm-bare', slim && 'dm-slim', className)} data-s={runState} style={style}>
+    <div data-dm="" ref={growRef} className={cx('dm-atr', 'dm-growing', variant === 'panel' ? 'dm-panel' : 'dm-bare', slim && 'dm-slim', className)} data-s={runState} style={style}>
+      <div className="dm-grow" ref={growIn}>
       <div className="dm-atr-h">
         <div className="dm-atr-hd"><b className="dm-atr-t">{title}</b><span className="dm-atr-s"><span className="dm-atr-dot" aria-hidden="true" /><span className="dm-atr-m">{line}</span><span aria-hidden="true">·</span><span className="dm-atr-time dm-num">{clock(secs)}</span></span></div>
         <span className="dm-atr-tot dm-num">{money(sum(root))}</span>
@@ -363,6 +367,7 @@ export function AgentTree({ root, title, status, seconds, collapsed, defaultColl
       </div>
       <p className="dm-atr-f"><b>{picked.n.name}</b>{split} · {toks(sumTok(picked.n))} tokens</p>
       <p className="dm-atr-sr" role="status">{said}</p>
+      </div>
     </div>
   );
 }
