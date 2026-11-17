@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Soft refresh motion · Designme.dev lab</title>
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<!-- owner, 17 Nov: give the refreshed Soft a new motion language, after a reference shot the owner loves (its motion
+     vocabulary only, applied to our own components, their markup and copy). Each pair is the same component page: on the
+     left Soft as it is with its own entrance, on the right Soft refreshed (refresh.css) with the new motion (motion.css and
+     motion.js). Both play the same beats after the entrance. Nothing ships from here -->
+<script>
+(function(){ var t; try { t = localStorage.getItem('dmui-theme'); } catch(x){} document.documentElement.dataset.t = t === 'dark' ? 'dark' : 'light'; })();
+</script>
+<style>
+:root{--bg:#ffffff;--fg:#171717;--muted:#6a6a6a;--line:rgba(0,0,0,.08);--chip:#f3f3f3;--on:#fff;--frame:#fafafa;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+html[data-t="dark"]{--bg:#111111;--fg:#f2f2f2;--muted:#c0c0c0;--line:rgba(255,255,255,.09);--chip:#262626;--on:#363636;--frame:#1c1c1c;color-scheme:dark}
+html,body{margin:0;background:var(--bg);color:var(--fg)}
+*{box-sizing:border-box}
+header{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;padding:10px 16px;background:var(--bg);border-bottom:1px solid var(--line)}
+header b{font-size:14px;font-weight:500}
+header>span{font-size:13px;color:var(--muted)}
+header a{font-size:13px;color:var(--muted);text-decoration:none;border-radius:6px}
+header a:hover{color:var(--fg)}
+header a:focus-visible{outline:2px solid #858585;outline-offset:2px}
+.sp{flex:1}
+.seg{display:inline-flex;padding:2px;border-radius:10px;background:var(--chip)}
+.seg button,.btn{font:inherit;font-size:12px;font-weight:500;color:var(--muted);background:none;border:0;height:26px;padding:0 10px;border-radius:8px;cursor:pointer;transition:color .16s cubic-bezier(.22,1,.36,1),background-color .16s cubic-bezier(.22,1,.36,1),transform .16s cubic-bezier(.22,1,.36,1)}
+.seg button:hover{color:var(--fg)}
+.seg button[aria-pressed="true"]{background:var(--on);color:var(--fg);box-shadow:0 0 0 1px var(--line),0 1px 2px rgba(0,0,0,.06)}
+.btn{display:inline-flex;align-items:center;gap:6px;height:30px;color:var(--fg);background:var(--on);border-radius:9px;box-shadow:0 0 0 1px var(--line),0 1px 1px rgba(0,0,0,.05)}
+.btn.sm{height:24px;padding:0 8px;border-radius:7px}
+.btn:active{transform:scale(.97)}
+.btn svg{width:13px;height:13px}
+:is(.seg button,.btn):focus-visible{outline:2px solid #858585;outline-offset:1px}
+main{max-width:1440px;margin:0 auto;padding:16px 16px 40px}
+.note{max-width:860px;margin:0;font-size:13px;line-height:1.55;color:var(--muted)}
+.note b{color:var(--fg);font-weight:500}
+section{margin-top:20px}
+h2{display:flex;align-items:center;gap:8px;margin:0 0 4px;font-size:13px;font-weight:500}
+.cap{margin:0 0 8px;font-size:12.5px;color:var(--muted);max-width:860px}
+.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.cell{min-width:0}
+.lb{display:flex;align-items:baseline;gap:6px;height:22px;font-size:12px;color:var(--muted)}
+.lb b{font-weight:500;color:var(--fg)}
+iframe{display:block;width:100%;height:var(--h,200px);border:0;border-radius:14px;background:var(--frame);box-shadow:0 0 0 1px var(--line);opacity:0;transition:opacity .2s}
+@media (max-width:1199px){.row{grid-template-columns:minmax(0,1fr);max-width:720px}}
+@media (prefers-reduced-motion:reduce){iframe,.seg button,.btn{transition:none}}
+</style>
+</head>
+<body>
+<header>
+  <b>Soft refresh</b><a href="./">Look</a><span>Motion</span>
+  <span class="sp"></span>
+  <div class="seg" id="spd" role="group" aria-label="Speed"><button data-v="1">1x</button><button data-v="0.5">0.5x</button></div>
+  <div class="seg" id="thm" role="group" aria-label="Theme"><button data-v="light">Light</button><button data-v="dark">Dark</button></div>
+  <button class="btn" id="all" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Replay all</button>
+</header>
+<main>
+  <p class="note"><b>Calm entrances, plush controls.</b> Entrances grow out of a seed, slide out from behind the element before them and
+    arrive as empty shapes that fill; numbers count while their measures draw; blur is the glue. They decelerate with no overshoot
+    (560 to 600ms moves, 260ms fades, 70 to 90ms between items). Knobs, menus and presses are plush: knobs stretch toward where they
+    go, menus grow out of their button like liquid, and presses spring back, with a gentle overshoot. Left is Soft now; right is Soft
+    refreshed. Both play the same clicks; click inside a component and its entrance jumps to the end.</p>
+  <div id="rows"></div>
+</main>
+<script src="motion.js"></script>
+<script>
+const dark = () => document.documentElement.dataset.t === 'dark';
+const C = [
+  ['stat-cards', 'Stat cards', 'Entrance: the switcher first, cards slide out from behind the first one and fill, numbers count, sparklines draw. The period knob stretches.'],
+  ['line-chart', 'Line chart', 'Entrance: the card opens from its header, the figure counts, the line draws and the area fades up under it.'],
+  ['tool-connections', 'Tools and connections', 'Entrance: the list grows out of its header and the rows slide out from behind it. Permission knobs stretch; Connect a tool opens as a speed dial.'],
+  ['agent-settings', 'Agent settings', 'Stretch switches: the knob leans toward where it goes and settles, the track crossfades. The Autonomy knob stretches too.'],
+  ['buttons', 'Buttons', 'Presses sink and spring back. More opens as a gooey menu, Share morphs into its menu, Run agent morphs into a panel.'],
+  ['task-table', 'Task table', 'AI fill: Generate morphs into Stop, the rows wait as skeletons, an aurora sweeps up through the table and fills them.'],
+  ['status-pill', 'Status pill', 'A seed dot grows into the pill, then its mark, label and measure.']
+];
+const SIDE = [['now', 'Soft now', 'as it is'], ['new', 'Soft refreshed', 'new look and motion']];
+const RP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>';
+document.getElementById('rows').innerHTML = C.map(([id, t, cap]) => `<section data-id="${id}"><h2>${t}<button class="btn sm" data-r="${id}" type="button" aria-label="Replay ${t}">${RP}Replay</button></h2><p class="cap">${cap}</p><div class="row">`
+  + SIDE.map(([k, n, s]) => `<div class="cell"><div class="lb"><b>${n}</b><span>${s}</span></div><iframe data-k="${k}" data-id="${id}" title="${t}, ${n}"></iframe></div>`).join('')
+  + '</div></section>').join('');
+const frames = [...document.querySelectorAll('iframe')];
+SRM.setFrames(frames);
+const base = new URL('.', location.href).href;
+// each frame shows only the component's demo, centred on its own stage as on the site, without its replay button and
+// without the designs switch some pages carry under the demo
+const ONLY = 'html{overflow:hidden!important;scrollbar-gutter:auto!important}body{visibility:hidden!important}'
+  + '.cp-demo{visibility:visible!important;position:fixed!important;inset:0!important;z-index:100;margin:0!important;border-radius:0!important;overflow:hidden;background:var(--dm-stage)!important}'
+  + '.cp-anim{display:none!important}.cp-demo .pg-demo{min-height:100%!important;padding:12px!important}.pg-demo>.card{--sw:0px!important}'
+  + '.dm>.demo{display:none!important}.spl.dm{min-height:96px!important}body>.tip{visibility:visible!important}';
+// a frame is as tall as its settled demo (and as its twin), so it can grow inside it, centred
+// (Buttons keeps room under it for the menus it opens)
+const ROOM = { buttons:150, 'status-pill':56 };
+const fit = id => { const tw = frames.filter(f => f.dataset.id === id);
+  const n = Math.max(...tw.map(f => { try { const st = f.contentDocument.querySelector(id === 'status-pill' ? '.spl-stage' : '.pg-demo>.card>.stage-in>:not(template)'); return st ? st.offsetHeight + 24 + (ROOM[id] || 0) : 0; } catch(e){ return 0; } }));
+  const h = parseFloat(tw[0].style.getPropertyValue('--h')) || 0; if (n > h) tw.forEach(f => f.style.setProperty('--h', n + 'px')); };
+const dress = f => { try { const r = f.contentDocument.documentElement;
+  r.setAttribute('data-style', 'soft'); r.setAttribute('data-theme', dark() ? 'dark' : 'light');
+  if (f.dataset.k === 'new'){ r.setAttribute('data-refresh', ''); r.setAttribute('data-motion', ''); }
+} catch(e){} };
+let pending = frames.length, keep = null;
+try { keep = localStorage.getItem('dmui-style'); localStorage.setItem('dmui-style', 'soft'); } catch(e){}
+const ready = () => { if (--pending) return;
+  try { if (keep !== null) localStorage.setItem('dmui-style', keep); } catch(e){}
+  // let the pages settle, size the frames, then play everything once
+  setTimeout(() => { C.forEach(([id]) => fit(id)); frames.forEach(f => { SRM.hook(f); f.style.opacity = 1; }); C.forEach(([id]) => SRM.replay(id)); }, 900);
+};
+frames.forEach(f => f.addEventListener('load', () => { try {
+  const d = f.contentDocument, a = d.createElement('style'); a.textContent = ONLY; d.body.appendChild(a); dress(f);
+  if (f.dataset.k === 'new'){ let n = 2; const done = () => { if (!--n) ready(); };
+    ['refresh.css', 'motion.css'].forEach(h => { const l = d.createElement('link'); l.rel = 'stylesheet'; l.href = base + h; l.onload = l.onerror = done; d.body.appendChild(l); }); return; }
+} catch(e){} ready(); }, { once:true }));
+frames.forEach(f => { f.src = `../../components/${f.dataset.id}.html`; });
+setInterval(() => C.forEach(([id]) => fit(id)), 500);
+const paint = () => {
+  document.querySelectorAll('#thm button').forEach(b => b.setAttribute('aria-pressed', dark() === (b.dataset.v === 'dark')));
+  document.querySelectorAll('#spd button').forEach(b => b.setAttribute('aria-pressed', +b.dataset.v === SRM.C.speed));
+};
+document.querySelectorAll('#thm button').forEach(b => b.onclick = () => { document.documentElement.dataset.t = b.dataset.v;
+  try { localStorage.setItem('dmui-theme', b.dataset.v); } catch(e){} paint(); frames.forEach(dress); });
+document.querySelectorAll('#spd button').forEach(b => b.onclick = () => { SRM.setSpeed(+b.dataset.v); paint(); });
+document.getElementById('all').onclick = () => C.forEach(([id]) => SRM.replay(id));
+document.querySelectorAll('[data-r]').forEach(b => b.onclick = () => SRM.replay(b.dataset.r));
+paint();
+</script>
+</body>
+</html>

@@ -1,0 +1,238 @@
+/* Soft refreshed (owner, 17 Nov). First brief: "add the blue gradient rounded feel to the soft style with softer
+   shadows ... gradient buttons, with a little border line, inner shadow, and inner glow". Then the exact target: the
+   owner's "Get started" button (rounded rectangle, vertical blue gradient, darker-blue border, a crisp light inside the
+   top edge, a darker band inside the bottom, a soft neutral shadow), white cards on a very light grey, soft wide shadows.
+   Soft keeps its identity: squircles scaled by --rk, the blue accent, plush. What changes:
+   - buttons are rounded rectangles with their depth inside the fill and border; the only shadow outside is soft and
+     neutral, never blue;
+   - cards and popovers get softer, wider shadows with no top highlight line;
+   - blue gradients go on visuals (chart area, checked boxes), never on cards; switch tracks crossfade grey to blue;
+   - segmented knobs and switch knobs are white with a hairline, a light top and a 1px shadow;
+   - presses sink in 120ms and spring back with a gentle overshoot; hovers and fades are 160 to 260ms.
+   The motion layer (stretching knobs, gooey menus, the AI fill, entrances) is motion.css and motion.js.
+   Written as a token block plus the rules that read it, scoped to [data-refresh] on <html> for the lab. To adopt it, the
+   tokens move into Soft's token block in soft-2/index.html without the --dm- prefix (the registry adds it back), and the
+   rules drop the :root[data-refresh] prefix, with Blueprint overriding them under :root[data-style="bp"].
+   Lab only, nothing ships from here. */
+
+/* the hover lift animates the gradient itself (a registered number can transition; a gradient cannot) */
+@property --dm-lift{syntax:"<number>";inherits:false;initial-value:0}
+
+/* ======================================================================================================== tokens */
+:root[data-refresh]{
+  /* motion: crisp for hovers and fades; presses and knobs spring (motion.css and motion.js carry the springs) */
+  --dm-ease:cubic-bezier(.22,1,.36,1); --dm-t-fast:.16s; --dm-t:.24s; --dm-t-slow:.26s; --dm-t-press:.12s;
+  --dm-spring-out:cubic-bezier(.34,1.45,.64,1); --dm-t-release:.34s;
+
+  /* buttons are rounded rectangles, not pills (owner's reference, 17 Nov): a corner of about a quarter of the height,
+     drawn as a squircle where the browser can (--rk turns 6.4px into 8px round or 10.9px squircle at 32px tall) */
+  --dm-btn-r:calc(6.4px * var(--dm-rk)); --dm-btn-r-sm:calc(5.6px * var(--dm-rk)); --dm-btn-r-lg:calc(8px * var(--dm-rk));
+
+  /* primary (accent) buttons, after the owner's "Get started" reference, built on our accent. The fill runs from 6%
+     lighter than the accent at the top, through a touch deeper than the accent (5% toward black) at 34%, to 16% toward
+     black at the bottom. A label's glyphs start at 30% of the height or lower, so white keeps 4.5:1 at the lightest
+     point under it, at rest and on hover (hover lifts only the top light and the sheen above the label) */
+  --dm-btn-top:color-mix(in srgb,var(--dm-accent) 88%,#fff);
+  --dm-btn-mid:color-mix(in srgb,var(--dm-accent) 95%,#000);
+  --dm-btn-bot:color-mix(in srgb,var(--dm-accent) 84%,#000);
+  --dm-btn-edge:color-mix(in srgb,var(--dm-accent) 76%,#000);    /* a 1px darker-blue border all round */
+  --dm-btn-glow:rgba(255,255,255,.3);      /* the crisp 1px light inside the top edge */
+  --dm-btn-sheen:.12;                      /* the faint glow in the upper half, as an alpha */
+  --dm-btn-shade:rgba(0,0,0,.12);          /* the darker 1px band inside the bottom edge */
+  --dm-btn-drop:0 1px 2px rgba(0,0,0,.06),0 4px 12px -4px rgba(0,0,0,.12); /* soft and neutral, never blue */
+  --dm-btn-press:inset 0 1px 3px rgba(0,0,0,.18);
+  --dm-btn-press-shade:rgba(0,0,0,.24);
+
+  /* secondary (white) buttons: the same recipe, white to #f7f7f7 with a hairline grey border */
+  --dm-btn2-top:#ffffff; --dm-btn2-bot:#f7f7f7;
+  --dm-btn2-edge:#e2e2e2; --dm-btn2-edge-h:#d4d4d4;
+  --dm-btn2-glow:#ffffff; --dm-btn2-shade:rgba(0,0,0,.05);
+  --dm-btn2-drop:0 1px 2px rgba(0,0,0,.05),0 4px 12px -4px rgba(0,0,0,.08);
+  --dm-btn2-press:inset 0 1px 3px rgba(0,0,0,.08);
+
+  /* soft (grey) buttons and filled icon buttons: the same recipe on Soft's grey */
+  --dm-btn3-top:color-mix(in srgb,var(--dm-soft) 45%,#fff); --dm-btn3-bot:var(--dm-soft);
+  --dm-btn3-edge:rgba(0,0,0,.06); --dm-btn3-glow:rgba(255,255,255,.8); --dm-btn3-shade:rgba(0,0,0,.05);
+  --dm-btn3-press:inset 0 1px 3px rgba(0,0,0,.1);
+
+  /* switchers: a white knob with a hairline, a white top and a soft 1px shadow, gliding on a light track */
+  --dm-knob-top:#ffffff; --dm-knob-bot:#fcfcfc;
+  --dm-knob-shadow:0 0 0 1px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.07),inset 0 1px 0 #fff;
+  --dm-track-ring:inset 0 0 0 1px rgba(0,0,0,.025),inset 0 1px 1px rgba(0,0,0,.025);
+  --dm-switch-off-ring:inset 0 0 0 1px rgba(0,0,0,.06),inset 0 1px 1px rgba(0,0,0,.1);
+  --dm-switch-knob:0 0 0 .5px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.16),0 2px 4px -2px rgba(0,0,0,.1);
+
+  /* visuals: the chart area fades from the accent at 20%; fills (switch tracks, checked boxes) run from 7% lighter at
+     the top to the button's deep end, and every point of them keeps 3:1 on the surface */
+  --dm-area-top:.2;
+  --dm-fill-top:var(--dm-btn-top); --dm-fill-bot:var(--dm-btn-bot);
+  /* the fill behind white text on a red button (hold to delete): Soft light's --bad in both themes, since dark's --bad is
+     a light text red that white cannot sit on */
+  --dm-bad-fill:#cf2017;
+
+  /* softer, wider shadows: a fainter hairline, a 1px contact and two wide, very light layers, no top highlight */
+  --dm-shadow:0 0 0 1px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.03),0 6px 14px -6px rgba(0,0,0,.04),0 20px 44px -16px rgba(0,0,0,.07);
+  --dm-shadow-pop:0 0 0 1px rgba(0,0,0,.05),0 2px 4px rgba(0,0,0,.03),0 12px 28px -8px rgba(0,0,0,.08),0 32px 64px -24px rgba(0,0,0,.12);
+  --dm-shadow-lift:var(--dm-shadow-pop);
+}
+/* the card edge, tried both ways: a white edge with no grey line (the lab's "White" switch) */
+:root[data-refresh][data-edge="white"]{
+  --dm-shadow:inset 0 0 0 1px rgba(255,255,255,.9),0 0 0 1px rgba(0,0,0,.018),0 1px 2px rgba(0,0,0,.035),0 6px 14px -6px rgba(0,0,0,.05),0 20px 44px -16px rgba(0,0,0,.08);
+}
+
+/* dark: the same logic. The primary keeps its gradient with a weaker inner light and a light edge line; secondary
+   buttons and knobs are a step above the surface with a light hairline */
+:root[data-refresh][data-theme="dark"]{
+  --dm-btn-edge:color-mix(in srgb,var(--dm-accent) 80%,#fff);   /* on the dark surface the border is a lighter line, so the edge keeps 3:1 */
+  --dm-btn-glow:rgba(255,255,255,.2);
+  --dm-btn-sheen:.08;
+  --dm-btn-shade:rgba(0,0,0,.18);
+  --dm-btn-drop:0 1px 2px rgba(0,0,0,.3),0 4px 12px -4px rgba(0,0,0,.4);
+  --dm-btn-press:inset 0 1px 3px rgba(0,0,0,.3);
+  --dm-btn-press-shade:rgba(0,0,0,.3);
+
+  --dm-btn2-top:#333333; --dm-btn2-bot:#2b2b2b;
+  --dm-btn2-edge:#454545; --dm-btn2-edge-h:#555555;
+  --dm-btn2-glow:rgba(255,255,255,.07); --dm-btn2-shade:rgba(0,0,0,.22);
+  --dm-btn2-drop:0 1px 2px rgba(0,0,0,.3),0 4px 12px -4px rgba(0,0,0,.4);
+  --dm-btn2-press:inset 0 1px 3px rgba(0,0,0,.35);
+
+  --dm-btn3-top:#3b3b3b; --dm-btn3-bot:#323232;
+  --dm-btn3-edge:rgba(255,255,255,.08); --dm-btn3-glow:rgba(255,255,255,.06); --dm-btn3-shade:rgba(0,0,0,.2);
+  --dm-btn3-press:inset 0 1px 3px rgba(0,0,0,.35);
+
+  --dm-knob-top:#3d3d3d; --dm-knob-bot:#363636;
+  --dm-knob-shadow:0 0 0 1px rgba(255,255,255,.08),0 1px 2px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.07);
+  --dm-track-ring:inset 0 0 0 1px rgba(255,255,255,.03),inset 0 1px 1px rgba(0,0,0,.2);
+  --dm-switch-off-ring:inset 0 0 0 1px rgba(255,255,255,.05),inset 0 1px 1px rgba(0,0,0,.25);
+  --dm-switch-knob:0 0 0 .5px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.4);
+
+  --dm-area-top:.22;
+  /* on the dark surface a deep blue drops under 3:1, so dark fills end on the accent itself */
+  --dm-fill-bot:var(--dm-accent);
+
+  --dm-shadow:0 0 0 1px rgba(255,255,255,.05),0 1px 2px rgba(0,0,0,.24),0 8px 20px -8px rgba(0,0,0,.32),0 24px 48px -20px rgba(0,0,0,.4);
+  --dm-shadow-pop:0 0 0 1px rgba(255,255,255,.1),0 2px 4px rgba(0,0,0,.28),0 14px 32px -10px rgba(0,0,0,.45),0 36px 64px -24px rgba(0,0,0,.5);
+}
+:root[data-refresh][data-theme="dark"][data-edge="white"]{
+  --dm-shadow:inset 0 0 0 1px rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.24),0 8px 20px -8px rgba(0,0,0,.32),0 24px 48px -20px rgba(0,0,0,.4);
+}
+
+/* ======================================================================================================== buttons */
+/* rounded rectangles; a press sinks in 120ms and the release springs back with a gentle overshoot */
+:root[data-refresh] .pill{border-radius:var(--dm-btn-r)}
+:root[data-refresh] .pill.sm{border-radius:var(--dm-btn-r-sm)}
+:root[data-refresh] .pill.btx-lg{border-radius:var(--dm-btn-r-lg)}
+:root[data-refresh] :is(.pill,.ib,.hnx-add){transition:transform var(--dm-t-release) var(--dm-spring-out),box-shadow var(--dm-t-fast) var(--dm-ease),background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease),--dm-lift .2s var(--dm-ease),min-width .3s var(--dm-ease)}
+:root[data-refresh] :is(.pill,.hnx-add):not([disabled]):is(:active,.is-press){transform:scale(.97);transition-duration:var(--dm-t-press);transition-timing-function:var(--dm-ease)}
+:root[data-refresh] .ib:not([disabled]):is(:active,.is-press){transform:scale(.94);transition-duration:var(--dm-t-press);transition-timing-function:var(--dm-ease)}
+
+/* primary: the gradient, a 1px darker-blue border, the crisp light inside the top edge, a faint glow in the upper half,
+   the darker band inside the bottom edge and a soft neutral shadow outside. The border is the first inset ring, so the
+   lights sit just inside it and the button keeps its size. Hover lifts the top (--dm-lift); a press drops the top light
+   for an inner shadow and deepens the bottom band. (.is-hover and .is-press are the lab's frozen states) */
+:root[data-refresh] .pill:is(.primary,.accent):not([disabled],.ok,.done,.btx-ask.busy){
+  color:var(--dm-on-accent);
+  background-color:var(--dm-btn-mid);
+  background-image:
+    radial-gradient(120% 70% at 50% 0%,rgb(255 255 255 / calc(var(--dm-btn-sheen) + var(--dm-lift) * .06)),transparent 42%),
+    linear-gradient(180deg,color-mix(in srgb,var(--dm-btn-top),#fff calc(var(--dm-lift) * 7%)) 0%,var(--dm-btn-mid) 34%,var(--dm-btn-bot) 100%);
+  box-shadow:inset 0 0 0 1px var(--dm-btn-edge),inset 0 2px 0 0 var(--dm-btn-glow),inset 0 -2px 0 0 var(--dm-btn-shade),var(--dm-btn-drop);
+}
+@media (hover:hover) and (pointer:fine){
+  :root[data-refresh] .pill:is(.primary,.accent):not([disabled],.ok,.done,.btx-ask.busy):hover{--dm-lift:1;background-color:var(--dm-btn-mid)}
+}
+:root[data-refresh] .pill:is(.primary,.accent).is-hover:not([disabled]){--dm-lift:1}
+:root[data-refresh] .pill:is(.primary,.accent):not([disabled],.ok,.done,.btx-ask.busy):is(:active,.is-press){
+  --dm-lift:0;
+  box-shadow:inset 0 0 0 1px var(--dm-btn-edge),var(--dm-btn-press),inset 0 -3px 0 0 var(--dm-btn-press-shade),0 1px 1px rgba(0,0,0,.06),0 2px 6px -4px rgba(0,0,0,.1);
+}
+/* a key hint on a primary sits on a darker well of the fill */
+:root[data-refresh] .pill:is(.primary,.accent) .kbd{background:color-mix(in srgb,var(--dm-btn-bot) 82%,#000)}
+
+/* secondary (white): .pill.line */
+:root[data-refresh] .pill.line:not([disabled]){
+  color:var(--dm-fg);
+  background-color:var(--dm-btn2-bot);
+  background-image:linear-gradient(180deg,var(--dm-btn2-top),color-mix(in srgb,var(--dm-btn2-bot),var(--dm-fg) calc(var(--dm-lift) * 2.5%)));
+  box-shadow:inset 0 0 0 1px var(--dm-btn2-edge),inset 0 2px 0 0 var(--dm-btn2-glow),inset 0 -2px 0 0 var(--dm-btn2-shade),var(--dm-btn2-drop);
+}
+@media (hover:hover) and (pointer:fine){
+  :root[data-refresh] .pill.line:not([disabled]):hover{--dm-lift:1;box-shadow:inset 0 0 0 1px var(--dm-btn2-edge-h),inset 0 2px 0 0 var(--dm-btn2-glow),inset 0 -2px 0 0 var(--dm-btn2-shade),var(--dm-btn2-drop)}
+}
+:root[data-refresh] .pill.line.is-hover:not([disabled]){--dm-lift:1;box-shadow:inset 0 0 0 1px var(--dm-btn2-edge-h),inset 0 2px 0 0 var(--dm-btn2-glow),inset 0 -2px 0 0 var(--dm-btn2-shade),var(--dm-btn2-drop)}
+:root[data-refresh] .pill.line:not([disabled]):is(:active,.is-press){box-shadow:inset 0 0 0 1px var(--dm-btn2-edge-h),var(--dm-btn2-press),inset 0 -3px 0 0 rgba(0,0,0,.06),0 1px 1px rgba(0,0,0,.04),0 2px 6px -4px rgba(0,0,0,.06)}
+
+/* soft (grey) buttons and filled icon buttons: the same recipe on Soft's grey */
+:root[data-refresh] :is(.pill.soft,.ib.fill):not([disabled]){
+  background-color:var(--dm-btn3-bot);
+  background-image:linear-gradient(180deg,color-mix(in srgb,var(--dm-btn3-top),var(--dm-fg) calc(var(--dm-lift) * 3%)),color-mix(in srgb,var(--dm-btn3-bot),var(--dm-fg) calc(var(--dm-lift) * 4%)));
+  box-shadow:inset 0 0 0 1px var(--dm-btn3-edge),inset 0 2px 0 0 var(--dm-btn3-glow),inset 0 -2px 0 0 var(--dm-btn3-shade),0 1px 2px rgba(0,0,0,.04);
+}
+@media (hover:hover) and (pointer:fine){
+  :root[data-refresh] :is(.pill.soft,.ib.fill):not([disabled]):hover{--dm-lift:1;background-color:var(--dm-btn3-bot)}
+}
+:root[data-refresh] :is(.pill.soft,.ib.fill).is-hover:not([disabled]){--dm-lift:1}
+/* pressed in: a press, and a toggled-on soft button (Preview) */
+:root[data-refresh] :is(.pill.soft,.ib.fill):not([disabled]):is(:active,.is-press,[aria-pressed="true"]){
+  --dm-lift:1;
+  box-shadow:inset 0 0 0 1px var(--dm-btn3-edge),var(--dm-btn3-press),inset 0 -2px 0 0 transparent,0 0 0 0 transparent;
+}
+
+/* hold to delete: the red tint gets the family's edge and top light; the fill that grows is a gentle red gradient */
+:root[data-refresh] .btx-hold{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-bad) 14%,transparent),inset 0 2px 0 0 rgba(255,255,255,.45),inset 0 -2px 0 0 color-mix(in srgb,var(--dm-bad) 8%,transparent)}
+:root[data-refresh][data-theme="dark"] .btx-hold{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-bad) 18%,transparent),inset 0 2px 0 0 rgba(255,255,255,.05),inset 0 -2px 0 0 rgba(0,0,0,.18)}
+:root[data-refresh] .btx-hold .fill{background:linear-gradient(180deg,color-mix(in srgb,var(--dm-bad-fill) 88%,#fff) 0%,var(--dm-bad-fill) 18%,color-mix(in srgb,var(--dm-bad-fill) 90%,#000) 100%)}
+:root[data-refresh][data-theme="dark"] .btx-hold.h .lb,:root[data-refresh][data-theme="dark"] .btx-hold.done .lb{color:#fff}
+
+/* the dark unsaved-changes bar in Agent settings: its Save keeps the primary recipe, and the edge reads on the ink */
+:root[data-refresh] .asx-bar{box-shadow:0 1px 2px rgba(0,0,0,.12),0 8px 20px -10px rgba(0,0,0,.3)}
+
+/* ======================================================================================================== switchers */
+/* segmented controls: a light track with a faint inner ring, a white knob with a hairline, a white top and a 1px shadow */
+:root[data-refresh] :is(.seg2,.hnx-pm,.asx-steps){box-shadow:var(--dm-track-ring)}
+:root[data-refresh] :is(.seg2 .knob,.hnx-pm .kn,.asx-knob){
+  background:linear-gradient(180deg,var(--dm-knob-top),var(--dm-knob-bot));
+  box-shadow:var(--dm-knob-shadow);
+  transition:left var(--dm-t) var(--dm-ease),width var(--dm-t) var(--dm-ease);
+}
+:root[data-refresh] :is(.seg2,.hnx-pm,.asx-steps) button{transition:color var(--dm-t-fast) var(--dm-ease),transform var(--dm-t-press) var(--dm-ease)}
+:root[data-refresh] :is(.seg2,.hnx-pm,.asx-steps) button:active{transform:scale(.96)}
+
+/* switches: off is a grey well with a faint inner shade; on is the accent with its border, a light inside the top and a
+   shade inside the bottom (drawn as inset shadows rather than a gradient, so off and on crossfade over 400ms); the knob
+   is white with a hairline and depth */
+:root[data-refresh] .toggle{
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.06),inset 0 2px 3px -1px rgba(0,0,0,.14),inset 0 -4px 5px -3px rgba(0,0,0,0);
+  transition:background-color .4s var(--dm-ease),box-shadow .4s var(--dm-ease);
+}
+:root[data-refresh][data-theme="dark"] .toggle{box-shadow:inset 0 0 0 1px rgba(255,255,255,.05),inset 0 2px 3px -1px rgba(0,0,0,.3),inset 0 -4px 5px -3px rgba(0,0,0,0)}
+:root[data-refresh] .toggle[aria-checked="true"]{
+  background-color:var(--dm-accent);
+  box-shadow:inset 0 0 0 1px var(--dm-btn-edge),inset 0 5px 6px -4px rgba(255,255,255,.3),inset 0 -4px 5px -3px rgba(0,0,0,.1);
+}
+:root[data-refresh][data-theme="dark"] .toggle[aria-checked="true"]{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-accent) 80%,#fff),inset 0 5px 6px -4px rgba(255,255,255,.22),inset 0 -4px 5px -3px rgba(0,0,0,.08)}
+:root[data-refresh] .toggle::after{background:linear-gradient(180deg,#fff,#f6f6f6);box-shadow:var(--dm-switch-knob);transition:transform var(--dm-t) var(--dm-ease)}
+:root[data-refresh] .toggle:active::after{width:16px}
+:root[data-refresh] .toggle[aria-checked="true"]:active::after{transform:translateX(10px)}
+
+/* ======================================================================================================== visuals */
+/* checked boxes: the accent gradient with its edge */
+:root[data-refresh] .ttx-cb[aria-checked="true"],:root[data-refresh] .ttx-cb[aria-checked="mixed"]{
+  background-color:var(--dm-accent);
+  background-image:linear-gradient(180deg,var(--dm-fill-top),var(--dm-fill-bot));
+  box-shadow:inset 0 0 0 1px var(--dm-btn-edge),inset 0 1px 0 0 rgba(255,255,255,.22);
+}
+:root[data-refresh] .ttx-cb{transition:background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
+/* the line chart's area: the accent at 20% fading to nothing */
+:root[data-refresh] #lng stop:first-child{stop-opacity:var(--dm-area-top)}
+/* a hovered stat card lifts on the softer pop shadow, quicker */
+:root[data-refresh] .scx-c{transition:transform var(--dm-t) var(--dm-ease),box-shadow var(--dm-t) var(--dm-ease)}
+/* the chart readout and selection bar follow the faster timing */
+:root[data-refresh] .lnx-tt{transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease)}
+:root[data-refresh] .hnx-t,:root[data-refresh] .ttx-t tbody tr[data-id]{transition:background-color var(--dm-t-fast) var(--dm-ease)}
+
+@media (prefers-reduced-motion:reduce){
+  :root[data-refresh] :is(.pill,.ib,.hnx-add,.seg2 .knob,.hnx-pm .kn,.asx-knob,.toggle::after){transition:none}
+  :root[data-refresh] :is(.pill,.ib,.hnx-add,.seg2 button,.hnx-pm button,.asx-steps button):active{transform:none}
+}

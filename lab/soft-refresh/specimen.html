@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en" data-style="soft">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Button states · Soft refresh lab</title>
+<!-- the Buttons panel of the Soft refresh lab: our own .pill buttons on the component library's core.css, in each state.
+     ?v=now shows Soft as it is, ?v=new lays refresh.css over it. Hover and press are frozen with the lab's .is-hover and
+     .is-press classes so every state shows at once; the buttons stay live, so hovering and pressing them works too -->
+<style>
+@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2')}
+</style>
+<link rel="stylesheet" href="/components/assets/core.css">
+<script>
+(function(){ var q = new URLSearchParams(location.search), r = document.documentElement;
+  r.dataset.theme = q.get('t') === 'dark' ? 'dark' : 'light';
+  if (q.get('v') === 'new'){ r.setAttribute('data-refresh', ''); document.write('<link rel="stylesheet" href="refresh.css">'); } })();
+</script>
+<style>
+html,body{margin:0;background:var(--dm-stage)}
+[data-c].spec{width:auto;padding:12px 14px;display:grid;grid-template-columns:72px repeat(5,minmax(0,1fr));gap:10px 8px;align-items:center;font-size:12px}
+.spec .h{color:var(--dm-muted);font-size:12px}
+.spec .c{display:flex}
+.spec .pill{width:100%;max-width:112px}
+.spec .pill .spin{width:12px;height:12px}
+/* Soft now has no frozen states of its own: these copy its hover and press rules (core.css) onto the lab's classes */
+:root:not([data-refresh]) .pill.primary.is-hover{background:var(--dm-accent-2)}
+:root:not([data-refresh]) .pill.soft.is-hover{background:var(--dm-soft-h)}
+:root:not([data-refresh]) .pill.is-press{transform:scale(.97)}
+@media (max-width:520px){[data-c].spec{grid-template-columns:repeat(5,minmax(0,1fr))}.spec .rl{grid-column:1/-1}.spec .h0{display:none}}
+</style>
+</head>
+<body>
+<div class="spec" data-c="specimen">
+  <span class="h h0"></span><span class="h">Rest</span><span class="h">Hover</span><span class="h">Press</span><span class="h">Disabled</span><span class="h">Loading</span>
+  <span class="h rl">Primary</span>
+  <span class="c"><button class="pill primary">Publish</button></span>
+  <span class="c"><button class="pill primary is-hover">Publish</button></span>
+  <span class="c"><button class="pill primary is-press">Publish</button></span>
+  <span class="c"><button class="pill primary" disabled>Publish</button></span>
+  <span class="c"><button class="pill primary" aria-busy="true"><span class="spin" aria-hidden="true"></span>Publishing</button></span>
+  <span class="h rl">Secondary</span>
+  <span class="c"><button class="pill line">Share</button></span>
+  <span class="c"><button class="pill line is-hover">Share</button></span>
+  <span class="c"><button class="pill line is-press">Share</button></span>
+  <span class="c"><button class="pill line" disabled>Share</button></span>
+  <span class="c"><button class="pill line" aria-busy="true"><span class="spin" aria-hidden="true"></span>Sharing</button></span>
+  <span class="h rl">Soft</span>
+  <span class="c"><button class="pill soft">Preview</button></span>
+  <span class="c"><button class="pill soft is-hover">Preview</button></span>
+  <span class="c"><button class="pill soft is-press">Preview</button></span>
+  <span class="c"><button class="pill soft" disabled>Preview</button></span>
+  <span class="c"><button class="pill soft" aria-busy="true"><span class="spin" aria-hidden="true"></span>Loading</button></span>
+</div>
+</body>
+</html>

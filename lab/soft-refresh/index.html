@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Soft refresh · Designme.dev lab</title>
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<!-- owner, 17 Nov: "add the blue gradient rounded feel to the soft style with softer shadows ... compare the soft now with
+     the updated gradient buttons, with a little border line, inner shadow, and inner glow". Each pair is the same component
+     page (its demo only), in Soft as it is on the left and with refresh.css laid over it on the right. Nothing ships from
+     here: soft-2/index.html, packages/ and the library are untouched -->
+<script>
+(function(){ var t, e; try { t = localStorage.getItem('dmui-theme'); e = localStorage.getItem('dmlab-edge'); } catch(x){}
+  var r = document.documentElement; r.dataset.t = t === 'dark' ? 'dark' : 'light'; r.dataset.edge = e === 'white' ? 'white' : 'line'; })();
+</script>
+<style>
+:root{--bg:#ffffff;--fg:#171717;--muted:#6a6a6a;--line:rgba(0,0,0,.08);--chip:#f3f3f3;--on:#fff;--frame:#fafafa;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+html[data-t="dark"]{--bg:#111111;--fg:#f2f2f2;--muted:#c0c0c0;--line:rgba(255,255,255,.09);--chip:#262626;--on:#363636;--frame:#1c1c1c;color-scheme:dark}
+html,body{margin:0;background:var(--bg);color:var(--fg)}
+*{box-sizing:border-box}
+header{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;padding:10px 16px;background:var(--bg);border-bottom:1px solid var(--line)}
+header b{font-size:14px;font-weight:500}
+header span{font-size:13px;color:var(--muted)}
+header a{font-size:13px;color:var(--muted);text-decoration:none;border-radius:6px}
+header a:hover{color:var(--fg)}
+header a:focus-visible{outline:2px solid #858585;outline-offset:2px}
+.sp{flex:1}
+.ctl{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.seg{display:inline-flex;padding:2px;border-radius:10px;background:var(--chip)}
+.seg button,.btn{font:inherit;font-size:12px;font-weight:500;color:var(--muted);background:none;border:0;height:26px;padding:0 10px;border-radius:8px;cursor:pointer;transition:color .16s cubic-bezier(.22,1,.36,1),background-color .16s cubic-bezier(.22,1,.36,1),transform .16s cubic-bezier(.22,1,.36,1)}
+.seg button:hover{color:var(--fg)}
+.seg button[aria-pressed="true"]{background:var(--on);color:var(--fg);box-shadow:0 0 0 1px var(--line),0 1px 2px rgba(0,0,0,.06)}
+.btn{display:inline-flex;align-items:center;gap:6px;height:30px;color:var(--fg);background:var(--on);border-radius:9px;box-shadow:0 0 0 1px var(--line),0 1px 1px rgba(0,0,0,.05)}
+.btn:active{transform:scale(.97)}
+.btn svg{width:13px;height:13px}
+:is(.seg button,.btn):focus-visible{outline:2px solid #858585;outline-offset:1px}
+main{max-width:1440px;margin:0 auto;padding:16px 16px 40px}
+.note{max-width:860px;margin:0 0 4px;font-size:13px;line-height:1.55;color:var(--muted)}
+.note b{color:var(--fg);font-weight:500}
+.note a{color:var(--fg)}
+.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}
+.cell{min-width:0}
+.lb{display:flex;align-items:baseline;gap:6px;height:22px;font-size:12px;color:var(--muted)}
+.lb b{font-weight:500;color:var(--fg)}
+.fr{display:grid;grid-template-columns:repeat(var(--n,1),minmax(0,1fr));gap:12px;align-items:start}
+iframe{display:block;width:100%;height:var(--h,200px);border:0;border-radius:14px;background:var(--frame);box-shadow:0 0 0 1px var(--line);opacity:0;transition:opacity .2s}
+@media (max-width:1199px){.row{grid-template-columns:minmax(0,1fr);max-width:720px}}
+@media (max-width:640px){.fr{grid-template-columns:minmax(0,1fr)}header{padding:10px 16px}}
+@media (prefers-reduced-motion:reduce){iframe,.seg button,.btn{transition:none}}
+</style>
+</head>
+<body>
+<header>
+  <b>Soft refresh</b><span>Look</span><a href="motion.html">Motion</a>
+  <span class="sp"></span>
+  <div class="ctl"><span>Card edge</span><div class="seg" id="edge" role="group" aria-label="Card edge in the refreshed frames"><button data-v="line">Hairline</button><button data-v="white">White</button></div></div>
+  <div class="seg" id="thm" role="group" aria-label="Theme"><button data-v="light">Light</button><button data-v="dark">Dark</button></div>
+  <button class="btn" id="replay" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Replay</button>
+</header>
+<main>
+  <p class="note"><b>Same components, same markup.</b> Left is Soft as it ships; right is Soft with <code>refresh.css</code> over it.
+    Buttons follow the owner's "Get started" reference on our blue: rounded rectangles (a quarter of the height), a vertical gradient
+    from 6% lighter to 16% deeper, a 1px darker-blue border, a crisp light inside the top edge with a faint glow under it, a darker
+    band inside the bottom edge and a soft neutral shadow. Secondary buttons are the same recipe in white. Cards get softer, wider
+    shadows; blue gradients sit on the chart area and checked boxes; switch tracks crossfade grey to blue. Hover and press them;
+    Replay starts every demo again. The motion (stretch switches, gooey menus, the AI fill and the entrances) is on the
+    <a href="motion.html">Motion</a> page.</p>
+  <section class="row" aria-label="Button states">
+    <div class="cell"><div class="lb"><b>Soft now</b><span>Buttons, every state</span></div><iframe class="spec" data-v="now" title="Button states, Soft now" style="--h:172px"></iframe></div>
+    <div class="cell"><div class="lb"><b>Soft refreshed</b><span>Buttons, every state</span></div><iframe class="spec" data-v="new" title="Button states, Soft refreshed" style="--h:172px"></iframe></div>
+  </section>
+  <div id="rows"></div>
+</main>
+<script>
+const dark = () => document.documentElement.dataset.t === 'dark';
+// the rows: each lists the components that sit side by side in one cell, so both cells of a row show the same thing
+const R = [
+  [['buttons', 'Buttons']],
+  [['task-table', 'Task table']],
+  [['tool-connections', 'Tools and connections'], ['line-chart', 'Line chart']],
+  [['stat-cards', 'Stat cards'], ['agent-settings', 'Agent settings']]
+];
+const SIDE = [['now', 'Soft now'], ['new', 'Soft refreshed']];
+document.getElementById('rows').innerHTML = R.map(cs => `<section class="row">` + SIDE.map(([k, n]) =>
+  `<div class="cell"><div class="lb"><b>${n}</b><span>${cs.map(c => c[1]).join(', ')}</span></div><div class="fr" style="--n:${cs.length}">`
+  + cs.map(([id, t]) => `<iframe data-k="${k}" data-id="${id}" title="${t}, ${n}"></iframe>`).join('') + '</div></div>').join('') + '</section>').join('');
+const frames = [...document.querySelectorAll('#rows iframe')];
+// the Buttons panel: every state of our buttons side by side, reloaded in the theme picked
+const specs = [...document.querySelectorAll('iframe.spec')];
+const loadSpecs = () => specs.forEach(f => { f.style.opacity = 0; f.onload = () => { f.style.opacity = 1; }; f.src = `specimen.html?v=${f.dataset.v}&t=${dark() ? 'dark' : 'light'}`; });
+loadSpecs();
+const cssHref = new URL('refresh.css', location.href).href;
+// each frame shows only the component's demo on its own stage with 12px around it, without its replay button (Replay in
+// the header presses them all) and without the designs switch some pages carry under the demo
+const ONLY = 'html{overflow:hidden!important;scrollbar-gutter:auto!important}body{visibility:hidden!important}'
+  + '.cp-demo{visibility:visible!important;position:fixed!important;inset:0!important;z-index:100;margin:0!important;border-radius:0!important;overflow:hidden;background:var(--dm-stage)!important}'
+  + '.cp-anim{display:none!important}.cp-demo .pg-demo{min-height:100%!important;padding:12px!important;align-content:start!important}'
+  + '.pg-demo>.card{align-items:start!important;align-content:start!important;--sw:0px!important}.dm>.demo{display:none!important}body>.tip{visibility:visible!important}';
+// a frame is as tall as its demo at its tallest moment, and as tall as its twin on the other side (it grows, never
+// shrinks, until the theme changes), so nothing scrolls inside a frame and the two sides line up
+// a demo may lay itself out taller for a moment as it loads, so for its first 1.5s a frame follows it both ways
+const need = f => { try {
+  const st = f.contentDocument && f.contentDocument.querySelector('.pg-demo>.card>.stage-in>:not(template)');
+  return st && f.dataset.ready ? Math.ceil(st.getBoundingClientRect().height) + 24 : 0;
+} catch(e){ return 0; } };
+const fit = id => {
+  const tw = frames.filter(f => f.dataset.id === id), n = Math.max(...tw.map(need));
+  if (!n) return;
+  const settling = tw.some(f => Date.now() - (+f.dataset.ready || 0) < 1500), h = parseFloat(tw[0].style.getPropertyValue('--h')) || 0;
+  if (settling ? n !== h : n > h) tw.forEach(f => f.style.setProperty('--h', n + 'px'));
+};
+const ids = [...new Set(frames.map(f => f.dataset.id))];
+setInterval(() => ids.forEach(fit), 250);
+const dress = f => { try {
+  const r = f.contentDocument.documentElement;
+  r.setAttribute('data-style', 'soft'); r.setAttribute('data-theme', dark() ? 'dark' : 'light');
+  if (f.dataset.k === 'new'){ r.setAttribute('data-refresh', ''); r.setAttribute('data-edge', document.documentElement.dataset.edge); }
+} catch(e){} };
+let pending = 0, keep = null;
+const shown = f => { f.style.opacity = 1; f.dataset.ready = Date.now(); fit(f.dataset.id); if (--pending === 0 && keep !== null){ try { localStorage.setItem('dmui-style', keep); } catch(e){} } };
+frames.forEach(f => f.addEventListener('load', () => { try {
+  const d = f.contentDocument;
+  const a = d.createElement('style'); a.textContent = ONLY; d.body.appendChild(a);
+  dress(f);
+  if (f.dataset.k === 'new'){
+    // the layer goes last in the document, so it wins ties with the page's own rules
+    const l = d.createElement('link'); l.rel = 'stylesheet'; l.href = cssHref;
+    l.onload = l.onerror = () => shown(f); d.body.appendChild(l); return;
+  }
+} catch(e){} shown(f); }));
+const load = () => {
+  try { keep = localStorage.getItem('dmui-style'); localStorage.setItem('dmui-style', 'soft'); } catch(e){ keep = null; }
+  pending = frames.length;
+  frames.forEach(f => { f.style.opacity = 0; delete f.dataset.ready; f.src = `../../components/${f.dataset.id}.html?r=${Date.now()}`; });
+};
+const paint = () => {
+  document.querySelectorAll('#thm button').forEach(b => b.setAttribute('aria-pressed', dark() === (b.dataset.v === 'dark')));
+  document.querySelectorAll('#edge button').forEach(b => b.setAttribute('aria-pressed', document.documentElement.dataset.edge === b.dataset.v));
+};
+// the theme and the card edge restyle the frames in place; the demos carry on
+document.querySelectorAll('#thm button').forEach(b => b.onclick = () => { if (dark() === (b.dataset.v === 'dark')) return;
+  document.documentElement.dataset.t = b.dataset.v; try { localStorage.setItem('dmui-theme', b.dataset.v); } catch(e){}
+  paint(); loadSpecs(); frames.forEach(f => { f.dataset.ready = Date.now(); dress(f); }); });
+document.querySelectorAll('#edge button').forEach(b => b.onclick = () => {
+  document.documentElement.dataset.edge = b.dataset.v; try { localStorage.setItem('dmlab-edge', b.dataset.v); } catch(e){}
+  paint(); frames.forEach(dress); });
+// Replay: every demo starts over
+document.getElementById('replay').onclick = () => frames.forEach(f => { try { const b = f.contentDocument.getElementById('cp-replay'); if (b) b.click(); } catch(e){} });
+paint(); load();
+</script>
+</body>
+</html>
