@@ -207,7 +207,7 @@ patch("""placeholder="Search ${$$('main .comp').length - 1} components\"""", """
 patch("""from status pills and reasoning trails to tool calls and run summaries, plus app basics for the dashboard around them, in two styles with light and dark mode.""",
       """from status pills to permission gates, in HTML, React or Astro, with light and dark mode.""")
 patch("""<meta property="og:description" content="Free UI components for AI agent products, in two styles with light and dark mode.""",
-      """<meta property="og:description" content="Free UI components for AI agent products, in HTML, React or Astro, in two styles with light and dark mode.""")
+      """<meta property="og:description" content="Free UI components for AI agent products, in HTML, React or Astro, in three styles with light and dark mode.""")
 
 # ---------- component page: an arrow either side, named on hover, and the plain arrow keys ----------
 patch("""<button class="dv-ib" id="dv-x" aria-label="Close">${ic('close','sm')}</button></div>""",

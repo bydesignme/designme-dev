@@ -5,7 +5,7 @@ reasoning trails, agent trees, permission gates, plan reviews, run costs and mor
 (charts, dates, forms, tables).
 
 Each one comes as plain HTML, CSS and JavaScript, as a typed React component, or as an Astro component. Every component
-comes in two styles, Soft and Blueprint, with light and dark mode.
+comes in three styles, Soft, Blueprint and Clean, with light and dark mode.
 
 [Browse the library](https://designme.dev) · [Docs](https://designme.dev/docs) · [Changelog](https://designme.dev/#/changelog)
 
@@ -84,6 +84,7 @@ Two attributes on `<html>` pick the look:
 ```html
 <html>                     <!-- Blueprint, the default -->
 <html data-style="soft">   <!-- Soft -->
+<html data-style="clean">  <!-- Clean: black, white and grey, fully round controls -->
 <html data-theme="dark">   <!-- or "light"; without it, the components follow the device -->
 ```
 

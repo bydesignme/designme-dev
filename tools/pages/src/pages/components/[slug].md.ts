@@ -9,7 +9,7 @@ const fence = (lang, code) => { const t = code.includes('```') ? '````' : '```';
 export function GET({ props: { c } }){
   const copy = c.copy || {}, rx = c.react, ax = c.astro, out = [];
   out.push(`# ${c.title}`, '', `> ${c.desc}`, '');
-  out.push(`${c.section.set} / ${c.section.title}. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in two styles (Soft and Blueprint) with light and dark mode. Live demo: ${SITE}${c.url}`, '');
+  out.push(`${c.section.set} / ${c.section.title}. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: ${SITE}${c.url}`, '');
   out.push('## Install', '', fence('sh', `npx designme add ${c.reg}          # HTML, CSS and JS, with the shared core\nnpx designme add ${c.reg} --react  # React 19 component and its CSS${ax ? `\nnpx designme add ${c.reg} --astro  # Astro component, with the HTML version's CSS and JS` : ''}`), '');
   out.push('The CLI copies the source into your project, so you own it and can change anything.', '');
   out.push('With the shadcn CLI, in a project set up for shadcn/ui:', '', fence('sh', `npx shadcn@latest add ${shadcnUrl(c.reg)}${ax ? `\nnpx shadcn@latest add ${shadcnUrl(c.reg, true)}  # Astro` : ''}`), '');

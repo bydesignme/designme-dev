@@ -243,11 +243,11 @@ const BODY = {
       ['Props', [
         ['p', 'Each component has a typed `Props` interface: every attribute of a `<div>` (Astro\'s `HTMLAttributes<\'div\'>`), plus `data-style`. They all go on the component\'s root element.'],
         ['table', ['Prop', 'What it does'], [
-          ['`data-style="soft"`', 'Draws the component in the Soft style. Leave it out for Blueprint, or for the style set on `<html>`'],
+          ['`data-style="soft"`, `data-style="clean"`', 'Draws the component in the Soft or the Clean style. Leave it out for Blueprint, or for the style set on `<html>`'],
           ['`class`', 'Added to the root element\'s own classes'],
           ['`style`, `id`, `aria-*` and the rest', 'Set on the root element as they are'],
         ]],
-        ['p', `\`data-style\` only takes \`"soft"\`: Blueprint is what the components draw without it. A component can be Soft on a Blueprint page, but not the other way round. See ${D('theming')}.`],
+        ['p', `\`data-style\` takes \`"soft"\` or \`"clean"\`: Blueprint is what the components draw without it. A component can be Soft or Clean on a Blueprint page, but not Blueprint on a Soft or Clean one. See ${D('theming')}.`],
       ]],
       ['Your own data', [
         ['p', 'The Astro components play the demos from designme.dev. To show your own data, change the component\'s `.js` (and its markup in the `.astro` file), as you would with the HTML version.'],
@@ -255,7 +255,7 @@ const BODY = {
       ]],
       ['Style, theme and fonts', [
         ['ul', [
-          '`data-style="soft"` on `<html>` makes every component Soft; on one component, just that one.',
+          '`data-style="soft"` on `<html>` makes every component Soft, and `data-style="clean"` Clean; on one component, just that one.',
           '`data-theme="dark"` or `data-theme="light"` on `<html>` fixes the theme. Without it, the components follow the device.',
           'Load Inter and JetBrains Mono for the full look. Without them, the components fall back to the system font.',
           `The components use plain class names, as the HTML version does, and CSS variables that start with \`--dm-\`, so they never meet your page\'s own. For a shadcn/ui or Tailwind v4 theme, add the theme bridge: \`npx designme add --astro --theme-bridge\`. See ${D('installation')}.`,
@@ -265,12 +265,13 @@ const BODY = {
   },
 
   theming: {
-    lead: 'Two attributes on `<html>` pick the style and the theme, and one accent colours the rest.',
+    lead: 'Two attributes on `<html>` pick the style (Blueprint, Soft or Clean) and the theme, and one accent colours the rest.',
     sections: [
       ['Style', [
         ['items', [
           ['Blueprint', [['p', 'What the components draw by default.'], ['code', 'html', '<html>']]],
           ['Soft', [['p', 'Add `data-style="soft"` to `<html>`, or to any element around the components to make just those Soft. Tooltips sit on the page, so they keep the page\'s style.'], ['code', 'html', '<html data-style="soft">']]],
+          ['Clean', [['p', 'Black, white and grey with an ink accent, hairline outlines and fully round controls. Add `data-style="clean"` to `<html>`, or to any element around the components to make just those Clean.'], ['code', 'html', '<html data-style="clean">']]],
         ]],
         ['p', 'Until you pick a style in the header, designme.dev follows your theme: light opens in Soft and dark in Blueprint. It remembers the style you pick.'],
       ]],

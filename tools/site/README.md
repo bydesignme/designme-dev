@@ -51,7 +51,7 @@ npm run build
 
 Add `PW_EXEC=/path/to/chromium` to use a Chromium of your own. `measure-heights.js` plays every component at a series of
 widths (1440, where the 1400px layout stops growing, then 1181 and 961; 880, 834, 820, 768, 744 and 641 for tablets; 520,
-430, 390 and 360 for phones; each width covers the screens from it up to the next) in both styles, and writes to
+430, 390 and 360 for phones; each width covers the screens from it up to the next) in all three styles (it serves the repository to the browser from disk), and writes to
 `card-heights.json` the tallest each card's stage gets and the tallest each component gets in each style, open lists and
 popovers included. Phones and tablets get several widths because a component wraps more on every narrower screen, so a
 height measured at one width leaves it off-centre at another. Entrances play eight times as fast while it measures, so a

@@ -86,19 +86,38 @@ every session and every agent.
   banners the primary button is white in light mode and the accent in dark mode.
 - Pricing: only the recommended plan's button is primary (accent); the others are white with a grey outline.
 
+## Clean (owner, 17 Nov)
+- Three styles: Blueprint, Soft and Clean. Clean is `data-style="clean"` (storage `dmui-style` = `clean`), a layer over
+  Soft: Soft's component rules plus Clean's tokens and touches, written in `soft-2/index.html` as `:root[data-style="clean"]`
+  rules (the "Clean" CSS section for tokens and shared treatments, each component's own section for its touches). The build
+  writes Blueprint as `:not([data-style="soft"],[data-style="clean"])`, so Blueprint rules never reach Clean.
+- Clean is monochrome (black, white and grey, an ink accent: black fills in light, white in dark), with hairline outlines,
+  off-white head and foot strips, fully round controls (buttons, chips, tags, switchers, knobs, toggles) and every corner
+  drawn round, never a squircle (cards 12px). Buttons have an inner glow at the top and a soft shade at the bottom inside the
+  fill; checkboxes and tracks have inner shadows. Status colour only on small marks (the live dot, the done tick, the failed
+  mark).
+- Clean has an outer glow only in dark mode: a faint neutral glow around card outlines and the white primary button. This is
+  an approved exception to "no glows"; it is white or neutral, never a hue. Light mode has no outer glow.
+- Clean's motion is Access Grid-like: ease cubic-bezier(.23,1,.32,1), the card rises 8px from .98 over about 520ms and its
+  pieces follow 40ms apart (`REVEAL.clean`), presses at .97, hovers 150ms, menus scale and fade from their trigger.
+- Soft stays exactly as it was; the "Soft refreshed" lab is dropped. Six components have their Clean touches (Agent tree,
+  Agent run timeline, Status pill, Context meter, Run cost, Meeting card); the others render with Clean's tokens and get
+  theirs later.
+
 ## Spacing and radius
 - Soft is plush (owner, 3 Nov): every corner radius in a component is scaled by `--rk` (1.25, and 1.7 where the browser
   draws squircles), and every corner is a squircle (`corner-shape: squircle`, round corners as the fallback), pills,
   chips, buttons and switchers included. Only true circles (50%: spinners, loader rings, avatars, dots) stay round. Shadows are soft and layered with a faint top highlight (`--shadow`, `--shadow-pop`). Write new radii
   as `calc(<n>px * var(--rk))` or the radius tokens. Blueprint stays square.
 - Write Soft-only rules as the base rule and override them with `:root[data-style="bp"]`, never as
-  `:root:not([data-style="bp"])`: the registry build rewrites the latter into a selector that never matches.
+  `:root:not([data-style="bp"])`: the registry build rewrites the latter into a selector that never matches. Clean rules are
+  `:root[data-style="clean"] ...`, after the Soft rule they change.
 - Use the spacing tokens (4px scale) and radius tokens for new and changed CSS. Existing off-scale values are snapped
   later in a separate pass, one category at a time, with before/after screenshots for the owner to review.
 
 ## Components
 - Installed code must look like its style with no wrapper: Blueprint with no `data-style`, Soft with
-  `data-style="soft"`. Nothing may depend on a page's demo stage.
+  `data-style="soft"`, Clean with `data-style="clean"`. Nothing may depend on a page's demo stage.
 - Demos (scripted autoplay) stop for good the moment a person clicks, focuses or types inside the component, and stay
   stopped until Animate/replay is pressed.
 - While a mouse rests on a component, its demo holds where it is (so it never moves what the person is about to click) and
@@ -131,7 +150,7 @@ every session and every agent.
   uses them, with and without people.
 
 ## QA before every push
-- Both styles (Soft and Blueprint), light and dark, at 1440, 768, 390 and 360.
+- All three styles (Soft, Blueprint and Clean), light and dark, at 1440, 768, 390 and 360.
 - No console errors and no sideways scroll.
 - The type rules above.
 - Centring checked at every settled moment, not only the tallest one.
