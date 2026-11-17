@@ -3,6 +3,18 @@ import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent as 
 import { cx } from './cx';
 import { useControllable, useIsoLayoutEffect } from './hooks';
 
+/* how the last thing was done, with a pointer or the keyboard: focus handed back to the trigger after a click shows no ring
+   (a mouse or a tap never shows one); after a key it does */
+let byKey = false;
+if (typeof window !== 'undefined') {
+  addEventListener('keydown', e => { if (e.metaKey || e.ctrlKey || e.altKey) return; byKey = true; const a = document.activeElement as HTMLElement | null; if (a?.dataset && 'nofv' in a.dataset) delete a.dataset.nofv; }, true);
+  addEventListener('pointerdown', () => { byKey = false; }, true);
+}
+const giveBack = (b: HTMLElement) => {
+  b.focus({ preventScroll: true, focusVisible: byKey } as FocusOptions);
+  if (!byKey) { b.dataset.nofv = ''; b.addEventListener('blur', () => { delete b.dataset.nofv; }, { once: true }); }
+};
+
 export interface PopoverOptions {
   /** Line the popover up with the trigger's start edge (the default) or its end edge */
   align?: 'start' | 'end';
@@ -60,7 +72,7 @@ export function usePopover({ align = 'start', side, open, defaultOpen = false, o
       }
       return;
     }
-    if (inside.current || (p && p.contains(document.activeElement))) { inside.current = false; btn.current?.focus({ preventScroll: true }); }
+    if (inside.current || (p && p.contains(document.activeElement))) { inside.current = false; if (btn.current) giveBack(btn.current); }
   }, [isOpen]);
 
   useEffect(() => {

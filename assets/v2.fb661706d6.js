@@ -473,7 +473,13 @@ function copied(btn, text, label = 'Copied to clipboard'){
 let openPop = null;
 // closing hands the focus back to the popover's button when it was inside, so a pick or Tab never drops it on the page; while
 // it fades out it is inert, and after that hidden (CSS)
-function closePops(){ if (!openPop) return; const { pop:p, btn } = openPop, back = p.contains(document.activeElement); p.classList.remove('open'); p.inert = true; btn.setAttribute('aria-expanded','false'); openPop = null; if (back && btn.isConnected) btn.focus({ preventScroll:true }); setTimeout(() => { p.inert = false; if (!p.classList.contains('open')){ p.style.left = '0px'; p.style.top = '0px'; } }, 300); }
+/* how the last thing was done, with a pointer or the keyboard: focus handed back to a popover's button after a click shows
+   no ring (a mouse or a tap never shows one); after a key it does */
+let byKey = false;
+addEventListener('keydown', e => { if (e.metaKey || e.ctrlKey || e.altKey) return; byKey = true; const a = document.activeElement; if (a && a.dataset && 'nofv' in a.dataset) delete a.dataset.nofv; }, true);
+addEventListener('pointerdown', () => { byKey = false; }, true);
+function giveBack(btn){ btn.focus({ preventScroll:true, focusVisible:byKey }); if (!byKey){ btn.dataset.nofv = ''; btn.addEventListener('blur', () => { delete btn.dataset.nofv; }, { once:true }); } }
+function closePops(){ if (!openPop) return; const { pop:p, btn } = openPop, back = p.contains(document.activeElement); p.classList.remove('open'); p.inert = true; btn.setAttribute('aria-expanded','false'); openPop = null; if (back && btn.isConnected) giveBack(btn); setTimeout(() => { p.inert = false; if (!p.classList.contains('open')){ p.style.left = '0px'; p.style.top = '0px'; } }, 300); }
 function placePop(btn, pop){
   const host = pop.offsetParent || pop.parentElement; const hr = host.getBoundingClientRect(), br = btn.getBoundingClientRect();
   const up = btn.dataset.popPos === 'up' || (btn.dataset.popPos !== 'down' && br.bottom + pop.offsetHeight + 12 > innerHeight && br.top - pop.offsetHeight > 12);
