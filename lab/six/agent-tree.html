@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Agent tree · Six components · Designme.dev lab</title>
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<!-- owner, 17 Nov: the Agent tree three ways, side by side at its real size: Soft as it ships (the library's own component
+     page, its demo only), Soft refreshed (refresh.css, the plush motion: a seed that opens into the card, sub-agents that
+     slide out from behind the row before them, ghost rows that fill, a status chip that morphs, branches that fold back
+     into their parent with blur) and Clean (clean.css, the calm motion: rise and stagger, hairlines, monochrome).
+     The same file is the comparison page and, with ?f=refresh or ?f=clean, the page inside each of the two new frames.
+     Every frame runs on one lab clock (agent-tree.js), so 0.5x slows all three and a recording can step them frame by
+     frame. Lab only: soft-2/index.html, packages/ and the library are untouched -->
+<script>
+(function(){ var q = new URLSearchParams(location.search), f = q.get('f'), d = document.documentElement, t;
+  try { t = localStorage.getItem('dmui-theme'); } catch(e){}
+  if (q.get('t')) t = q.get('t');
+  if (f !== 'refresh' && f !== 'clean'){ d.setAttribute('data-host', ''); d.dataset.t = t === 'dark' ? 'dark' : 'light'; return; }
+  d.setAttribute('data-style', 'soft'); d.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light'); d.dataset.f = f;
+  var L = ['../../components/assets/core.css'];
+  if (f === 'refresh'){ d.setAttribute('data-refresh', ''); d.setAttribute('data-motion', ''); L.push('../soft-refresh/refresh.css', '../soft-refresh/motion.css'); }
+  else { d.setAttribute('data-clean', ''); L.push('../clean/clean.css'); }
+  L.push('agent-tree.css');
+  for (var i = 0; i < L.length; i++) document.write('<link rel="stylesheet" href="' + L[i] + '">');
+})();
+</script>
+<style>
+:root[data-host]{--bg:#ffffff;--fg:#171717;--muted:#6a6a6a;--line:rgba(0,0,0,.08);--chip:#f3f3f3;--on:#fff;--frame:#fafafa;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+:root[data-host][data-t="dark"]{--bg:#111111;--fg:#f2f2f2;--muted:#c0c0c0;--line:rgba(255,255,255,.09);--chip:#262626;--on:#363636;--frame:#1c1c1c;color-scheme:dark}
+:root[data-host],:root[data-host] body{margin:0;background:var(--bg);color:var(--fg)}
+:root[data-host] *{box-sizing:border-box}
+:root[data-host] header{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;padding:10px 16px;background:var(--bg);border-bottom:1px solid var(--line)}
+:root[data-host] header b{font-size:14px;font-weight:500}
+:root[data-host] header>span{font-size:13px;color:var(--muted)}
+:root[data-host] header a{font-size:13px;color:var(--muted);text-decoration:none;border-radius:6px}
+:root[data-host] header a:hover{color:var(--fg)}
+:root[data-host] header a:focus-visible{outline:2px solid #858585;outline-offset:2px}
+:root[data-host] .sp{flex:1}
+:root[data-host] .seg{display:inline-flex;padding:2px;border-radius:10px;background:var(--chip)}
+:root[data-host] :is(.seg button,.btn){font:inherit;font-size:12px;font-weight:500;color:var(--muted);background:none;border:0;height:26px;padding:0 10px;border-radius:8px;cursor:pointer;transition:color .16s cubic-bezier(.22,1,.36,1),background-color .16s cubic-bezier(.22,1,.36,1),transform .16s cubic-bezier(.22,1,.36,1)}
+:root[data-host] .seg button:hover{color:var(--fg)}
+:root[data-host] .seg button[aria-pressed="true"]{background:var(--on);color:var(--fg);box-shadow:0 0 0 1px var(--line),0 1px 2px rgba(0,0,0,.06)}
+:root[data-host] .btn{display:inline-flex;align-items:center;gap:6px;height:30px;color:var(--fg);background:var(--on);border-radius:9px;box-shadow:0 0 0 1px var(--line),0 1px 1px rgba(0,0,0,.05)}
+:root[data-host] .btn:active{transform:scale(.97)}
+:root[data-host] .btn svg{width:13px;height:13px}
+:root[data-host] :is(.seg button,.btn):focus-visible{outline:2px solid #858585;outline-offset:1px}
+:root[data-host] main{max-width:1440px;margin:0 auto;padding:16px 16px 40px}
+:root[data-host] .note{max-width:880px;margin:0;font-size:13px;line-height:1.55;color:var(--muted)}
+:root[data-host] .note b{color:var(--fg);font-weight:500}
+:root[data-host] .row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
+:root[data-host] .cell{min-width:0}
+:root[data-host] .lb{display:flex;align-items:baseline;gap:6px;height:22px;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden}
+:root[data-host] .lb b{font-weight:500;color:var(--fg)}
+:root[data-host] iframe{display:block;width:100%;height:var(--h,420px);border:0;border-radius:14px;background:var(--frame);box-shadow:0 0 0 1px var(--line);opacity:0;transition:opacity .2s}
+:root[data-host] .cur{position:fixed;left:0;top:0;z-index:50;width:22px;height:22px;pointer-events:none;opacity:0;transform:translate(-3px,-2px)}
+:root[data-host] .cur.on{opacity:1}
+:root[data-host] .cur.dn svg{transform:scale(.88);transform-origin:3px 2px}
+@media (max-width:1199px){:root[data-host] .row{grid-template-columns:minmax(0,1fr);max-width:520px}}
+@media (prefers-reduced-motion:reduce){:root[data-host] :is(iframe,.seg button,.btn){transition:none}}
+</style>
+</head>
+<body>
+<script src="agent-tree.js"></script>
+</body>
+</html>

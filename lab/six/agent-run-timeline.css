@@ -1,0 +1,159 @@
+/* Agent run timeline, Soft refreshed and Clean (lab/six). The run, steps, times, costs, key and footer match the library's
+   Agent run timeline (soft-2/index.html); the look comes from the style layer under it (refresh.css or clean.css, which set
+   the --dm- tokens and restyle .panel) and from the rules here, scoped to this component (.sxa). [data-f="refresh"] and
+   [data-f="clean"] on <html> pick the variant. Colour: Soft refreshed draws the three kinds of step as one blue in three
+   tones (the accent, and the accent mixed toward the text colour, as the library's Cost tree does), Clean as ink, dark
+   grey and mid grey; red only for the failed run, green only for done (Soft). Lab only, nothing ships from here. */
+
+@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(../../fonts/inter-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(../../fonts/inter-latin-500-normal.woff2) format('woff2')}
+
+html[data-f],html[data-f] body{margin:0;background:var(--dm-stage);color:var(--dm-fg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+html[data-f]{overflow:hidden}
+.sxs{box-sizing:border-box;padding:12px;min-height:100vh}
+
+/* ------------------------------------------------------------------------------------------------------------ card */
+.sxa{--lab:168px;--dur:46px;--ez:cubic-bezier(.22,1,.36,1);--r:999px;
+  --k1:var(--dm-accent-mark);--k2:color-mix(in oklab,var(--dm-accent-mark) 72%,var(--dm-fg));--k3:color-mix(in oklab,var(--dm-accent-mark) 48%,var(--dm-fg));
+  position:relative;box-sizing:border-box;width:100%;margin:0 auto;padding:var(--dm-s-4);font-size:13px;line-height:1.4;color:var(--dm-fg);container:sxa/inline-size}
+.sxa *{box-sizing:border-box}
+.sxa-row[data-k="model"],.sxa-k[data-k="model"]{--k:var(--k1)}
+.sxa-row[data-k="tool"],.sxa-k[data-k="tool"]{--k:var(--k2)}
+.sxa-row[data-k="app"],.sxa-k[data-k="app"]{--k:var(--k3)}
+
+.sxa-h{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--dm-s-3)}
+.sxa-hd{min-width:0;display:flex;flex-direction:column;gap:2px}
+.sxa-t{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sxa-s{display:grid;font-size:12px;color:var(--dm-muted);white-space:nowrap}
+.sxa-s>span{grid-area:1/1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+
+/* the status tag: Running with a spinner, then Done with a tick that draws; its width morphs between them */
+.sxa-tag{flex:none;display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 8px;overflow:hidden;border-radius:var(--r);font-size:12px;font-weight:500;white-space:nowrap;
+  background:color-mix(in srgb,var(--dm-accent) 9%,var(--dm-surface));color:var(--dm-accent-fg);transition:background-color .42s var(--ez),color .42s var(--ez)}
+.sxa-tag[data-s="done"]{background:var(--dm-ok-bg);color:var(--dm-ok)}
+.sxa-tg-ic{width:12px;height:12px;display:grid;place-items:center;flex:none}
+.sxa-tg-ic .i{width:12px;height:12px;color:inherit;stroke-width:2.2}
+.sxa-spin{width:10px;height:10px;border-radius:50%;border:1.5px solid currentColor;border-right-color:transparent;animation:sxarot .9s linear infinite}
+@keyframes sxarot{to{transform:rotate(1turn)}}
+.sxa-sw,.sxa-csw,.sxa-nsw{display:inline-grid;align-items:center}
+.sxa-sw>span,.sxa-csw>span,.sxa-nsw>span{grid-area:1/1;display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
+
+/* the key: time by kind of step; each chip picks out its kind */
+.sxa-key{display:flex;flex-wrap:wrap;gap:2px 4px;margin:10px 0 0 -8px}
+.sxa-k{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 8px;border-radius:var(--r);font:inherit;font-size:12px;color:var(--dm-muted);background:transparent;border:0;cursor:pointer;
+  transition:background-color .16s var(--ez),box-shadow .16s var(--ez),color .16s var(--ez)}
+.sxa-k i{width:8px;height:8px;flex:none;border-radius:50%;background:var(--k)}
+.sxa-k b{font-weight:500;color:var(--dm-fg2)}
+@media (hover:hover) and (pointer:fine){.sxa-k:hover{background:var(--dm-row)}}
+.sxa-k[aria-pressed="true"]{background:var(--dm-surface);color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 45%,transparent)}
+.sxa-k:focus-visible{outline:2px solid var(--dm-line-strong);outline-offset:1px}
+
+/* ------------------------------------------------------------------------------------------------------------ grid */
+.sxa-grid{position:relative;margin-top:var(--dm-s-2)}
+.sxa-axis,.sxa-row{display:grid;grid-template-columns:var(--lab) minmax(0,1fr) var(--dur);align-items:center}
+.sxa-axis{height:20px;font-size:11px;color:var(--dm-muted)}
+.sxa-ticks{position:relative;height:16px}
+.sxa-ticks span{position:absolute;top:0;transform:translateX(-50%);transition:opacity .2s}
+.sxa-ticks span:first-child{transform:none}
+.sxa-ticks span:last-child{transform:translateX(-100%)}
+.sxa:is(.live,.fin) .sxa-ticks span.hid{opacity:0}
+.sxa-rows{position:relative}
+.sxa-row{height:32px;border-radius:calc(8px * var(--dm-rk));transition:background-color .16s var(--ez)}
+@media (hover:hover) and (pointer:fine){.sxa-row:hover{background:color-mix(in srgb,var(--dm-row) 70%,transparent)}}
+.sxa-lab{display:flex;align-items:center;gap:var(--dm-s-2);min-width:0;padding-right:var(--dm-s-2);font-size:12.5px;color:var(--dm-fg2);white-space:nowrap;transition:color .3s var(--ez),opacity .24s var(--ez)}
+.sxa-lab .t{min-width:0;overflow:hidden;text-overflow:ellipsis;border-radius:var(--r)}
+.sxa-ic{width:22px;height:22px;flex:none;display:grid;place-items:center;border-radius:50%;color:var(--dm-fg2);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 60%,transparent);transition:opacity .3s var(--ez)}
+.sxa-ic .i{width:12px;height:12px;color:inherit}
+.sxa-ic .brand{width:12px;height:12px}
+.sxa-row[data-s="wait"] .sxa-lab{color:var(--dm-muted)}
+.sxa-row[data-s="wait"] .sxa-ic{opacity:.5}
+.sxa-row[data-s="run"] .sxa-lab{color:var(--dm-fg)}
+.sxa-chip{position:absolute;top:6px;z-index:1;display:inline-flex;align-items:center;height:20px;padding:0 7px;overflow:hidden;border-radius:var(--r);font-size:11.5px;font-weight:500;background:var(--dm-bad-bg);color:var(--dm-bad)}
+
+.sxa-lane{position:relative;height:100%;background:linear-gradient(90deg,color-mix(in srgb,var(--dm-line) 50%,transparent) 1px,transparent 1px) 0 0/25% 100%;box-shadow:inset -1px 0 color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.sxa-bar{position:absolute;top:10px;height:12px;width:0;overflow:hidden;border-radius:var(--r);cursor:default;transition:opacity .24s var(--ez);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--k) 78%,#fff),var(--k) 55%,color-mix(in srgb,var(--k) 90%,#000));box-shadow:inset 0 1px 1px rgba(255,255,255,.3),inset 0 -1px 1px rgba(0,0,0,.1)}
+.sxa-row[data-s="fail"] .sxa-bar{background:repeating-linear-gradient(135deg,var(--dm-bad-mark) 0 3px,color-mix(in srgb,var(--dm-bad-mark) 40%,var(--dm-surface)) 3px 6px);box-shadow:none}
+.sxa-plan{display:none}
+.sxa-link{position:absolute;top:-10px;height:26px;min-width:6px;border-left:1px dashed var(--dm-line-strong);border-bottom:1px dashed var(--dm-line-strong);pointer-events:none;display:none}
+.sxa-row:not([data-s="wait"]) .sxa-link{display:block}
+.sxa-d{display:flex;align-items:center;justify-content:flex-end;gap:3px;font-size:12px;color:var(--dm-muted);white-space:nowrap}
+.sxa-tk{width:12px;height:12px;display:grid;place-items:center;color:var(--dm-ok-mark)}
+.sxa-tk .i{width:12px;height:12px;color:inherit;stroke-width:2.4}
+.sxa-row[data-s="run"] .sxa-d{color:var(--dm-fg)}
+.sxa-row[data-s="done"] .sxa-d{color:var(--dm-fg2)}
+.sxa-row[data-s="fail"] .sxa-d{color:var(--dm-bad)}
+
+/* picking a kind in the key: its steps stay, the others step back */
+.sxa[data-pick] .sxa-row .sxa-bar,.sxa[data-pick] .sxa-row .sxa-lab{transition:opacity .24s var(--ez),color .3s var(--ez)}
+.sxa[data-pick="model"] .sxa-row:not([data-k="model"]) :is(.sxa-bar,.sxa-lab,.sxa-plan),
+.sxa[data-pick="tool"] .sxa-row:not([data-k="tool"]) :is(.sxa-bar,.sxa-lab,.sxa-plan),
+.sxa[data-pick="app"] .sxa-row:not([data-k="app"]) :is(.sxa-bar,.sxa-lab,.sxa-plan){opacity:.3}
+
+/* the past and the playhead */
+.sxa-past{position:absolute;top:20px;bottom:0;left:var(--lab);width:calc((100% - var(--lab) - var(--dur)) * var(--p,0));pointer-events:none;opacity:0;transition:opacity .5s var(--ez);
+  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--dm-accent) 7%,transparent))}
+.sxa.live .sxa-past{opacity:1}
+.sxa-head{position:absolute;top:2px;bottom:0;left:calc(var(--lab) + (100% - var(--lab) - var(--dur)) * var(--p,0));width:0;pointer-events:none;opacity:0;transition:opacity .4s var(--ez)}
+.sxa.live .sxa-head,.sxa.fin .sxa-head{opacity:1}
+.sxa-head i{position:absolute;top:16px;bottom:0;left:-.75px;width:1.5px;border-radius:1px;background:var(--dm-accent-mark);transition:background-color .42s var(--ez)}
+.sxa-now{position:absolute;top:0;left:0;transform:translateX(-50%);display:inline-flex;align-items:center;height:18px;padding:0 6px;overflow:hidden;border-radius:var(--r);
+  background:var(--dm-accent);color:var(--dm-on-accent);font-size:11px;font-weight:500;line-height:1;white-space:nowrap;transition:background-color .42s var(--ez),color .42s var(--ez)}
+.sxa-now .i{width:10px;height:10px;color:inherit;stroke-width:2.4}
+.sxa.fin .sxa-head i{background:var(--dm-ok-mark)}
+.sxa.fin .sxa-now{background:var(--dm-ok-bg);color:var(--dm-ok)}
+
+/* the footer: ghosts while the run goes, filled with the totals at the end */
+.sxa-f{display:flex;flex-wrap:wrap;gap:var(--dm-s-2) var(--dm-s-5);margin-top:var(--dm-s-3);padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12px;color:var(--dm-muted)}
+.sxa-fi{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.sxa-fi .i{width:12px;height:12px;color:var(--dm-muted)}
+.sxa-fi>span{border-radius:var(--r)}
+.sxa-f b{color:var(--dm-fg);font-weight:500}
+.sxa-f.gh .sxa-fi>span{color:transparent;background:var(--dm-chip)}
+.sxa-f.gh .sxa-fi>span *{color:transparent}
+.sxa-f.fl .sxa-fi>span,.sxa-f.fl .sxa-fi>span *{transition:color .34s var(--ez),background-color .34s var(--ez),box-shadow .34s var(--ez)}
+
+.sxa-tip{position:absolute;z-index:20;left:0;top:0;height:24px;display:flex;align-items:center;padding:0 10px;font-size:12px;white-space:nowrap;pointer-events:none;
+  color:var(--dm-fg);background:var(--dm-raised);border-radius:var(--r);box-shadow:var(--dm-shadow-pop);opacity:0}
+
+/* a narrow card (a phone): a shorter label column, the 3s and 9s ticks step back, and the failed run's chip gives way
+   (the failure still shows as the red hatch, the red time and the readout) */
+@container sxa (max-width:360px){
+  .sxa-axis,.sxa-row{grid-template-columns:118px minmax(0,1fr) var(--dur)}
+  .sxa-past{left:118px;width:calc((100% - 118px - var(--dur)) * var(--p,0))}
+  .sxa-head{left:calc(118px + (100% - 118px - var(--dur)) * var(--p,0))}
+  .sxa-ticks span:nth-child(2n){visibility:hidden}
+  .sxa-chip{display:none}
+}
+
+/* true circles and full pills stay round (the base under [data-c] draws squircles) */
+.sxa :is(.sxa-spin,.sxa-k i,.sxa-tip){corner-shape:round}
+[data-f="refresh"] .sxa :is(.sxa-tag,.sxa-k,.sxa-ic,.sxa-bar,.sxa-now,.sxa-chip,.sxa-lab .t,.sxa-fi>span){corner-shape:round}
+
+/* ========================================================================================================= Clean */
+/* black, white and grey: bars in ink, dark grey and mid grey, flat, with a small corner; each waiting step shows its
+   planned span as a hatch; the playhead is ink; a hairline chip for the status; the footer is an off-white strip */
+[data-f="clean"] .sxa{--r:6px;--k1:var(--dm-fg);--k2:color-mix(in srgb,var(--dm-fg) 66%,var(--dm-surface));--k3:color-mix(in srgb,var(--dm-fg) 46%,var(--dm-surface));padding-bottom:0}
+[data-f="clean"] .sxa-k i{border-radius:2px}
+[data-f="clean"] .sxa-tag{background:var(--dm-surface);color:var(--dm-fg2);box-shadow:inset 0 0 0 1px var(--dm-line)}
+[data-f="clean"] .sxa-tag[data-s="done"]{background:var(--dm-strip);color:var(--dm-fg)}
+[data-f="clean"] .sxa-ic{border-radius:6px;color:var(--dm-fg);box-shadow:inset 0 0 0 1px var(--dm-line)}
+[data-f="clean"] .sxa-bar{top:11px;height:10px;border-radius:3px;background:var(--k);box-shadow:none;overflow:visible}
+[data-f="clean"] .sxa-row[data-s="run"] .sxa-bar::after{content:"";position:absolute;inset:-3px -1px -3px auto;width:2px;border-radius:1px;background:var(--k)}
+[data-f="clean"] .sxa-row[data-s="fail"] .sxa-bar{background:repeating-linear-gradient(135deg,var(--dm-bad-mark) 0 2px,transparent 2px 5px);box-shadow:inset 0 0 0 1px var(--dm-bad-mark)}
+[data-f="clean"] .sxa-plan{display:block;position:absolute;top:11px;height:10px;border-radius:3px;pointer-events:none;
+  background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--dm-line-strong) 70%,transparent) 0 1px,transparent 1px 4px);box-shadow:inset 0 0 0 1px var(--dm-line);transition:opacity .3s var(--ez)}
+[data-f="clean"] .sxa-tk{color:var(--dm-fg)}
+[data-f="clean"] .sxa-chip{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-bad-mark) 45%,transparent)}
+[data-f="clean"] .sxa-past{display:none}
+[data-f="clean"] .sxa-head i{width:1px;left:-.5px;background:var(--dm-fg)}
+[data-f="clean"] .sxa-now{background:var(--dm-fg);color:var(--dm-surface)}
+[data-f="clean"] .sxa.fin .sxa-head i{background:var(--dm-fg)}
+[data-f="clean"] .sxa.fin .sxa-now{background:var(--dm-surface);color:var(--dm-fg);box-shadow:inset 0 0 0 1px var(--dm-line-strong)}
+[data-f="clean"] .sxa-f{margin:var(--dm-s-3) calc(-1 * var(--dm-s-4)) 0;padding:12px var(--dm-s-4);background:var(--dm-strip);border-top-color:var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+[data-f="clean"] .sxa-f.gh .sxa-fi>span{background:transparent;box-shadow:inset 0 0 0 1px var(--dm-line)}
+
+@media (prefers-reduced-motion:reduce){
+  .sxa-spin{animation:none}
+  .sxa *{transition:none!important}
+}
