@@ -34,18 +34,19 @@
      point under it, at rest and on hover (hover lifts only the top light and the sheen above the label) */
   --dm-btn-top:color-mix(in srgb,var(--dm-accent) 88%,#fff);
   --dm-btn-mid:color-mix(in srgb,var(--dm-accent) 95%,#000);
-  --dm-btn-bot:color-mix(in srgb,var(--dm-accent) 84%,#000);
-  --dm-btn-edge:color-mix(in srgb,var(--dm-accent) 76%,#000);    /* a 1px darker-blue border all round */
-  --dm-btn-glow:rgba(255,255,255,.3);      /* the crisp 1px light inside the top edge */
+  --dm-btn-bot:color-mix(in srgb,var(--dm-accent) 88%,#000);
+  /* a 1px blue border all round, at half the opacity it had and a step lighter (owner, 17 Nov: the blue around was too dark) */
+  --dm-btn-edge:color-mix(in srgb,color-mix(in srgb,var(--dm-accent) 82%,#000) 50%,transparent);
+  --dm-btn-glow:rgba(255,255,255,.34);     /* the light inside the top edge, now a blurred inner glow rather than a crisp line */
   --dm-btn-sheen:.12;                      /* the faint glow in the upper half, as an alpha */
-  --dm-btn-shade:rgba(0,0,0,.12);          /* the darker 1px band inside the bottom edge */
+  --dm-btn-shade:rgba(0,0,0,.12);          /* the soft darker band inside the bottom edge */
   --dm-btn-drop:0 1px 2px rgba(0,0,0,.06),0 4px 12px -4px rgba(0,0,0,.12); /* soft and neutral, never blue */
   --dm-btn-press:inset 0 1px 3px rgba(0,0,0,.18);
   --dm-btn-press-shade:rgba(0,0,0,.24);
 
   /* secondary (white) buttons: the same recipe, white to #f7f7f7 with a hairline grey border */
   --dm-btn2-top:#ffffff; --dm-btn2-bot:#f7f7f7;
-  --dm-btn2-edge:#e2e2e2; --dm-btn2-edge-h:#d4d4d4;
+  --dm-btn2-edge:rgba(0,0,0,.07); --dm-btn2-edge-h:rgba(0,0,0,.11);
   --dm-btn2-glow:#ffffff; --dm-btn2-shade:rgba(0,0,0,.05);
   --dm-btn2-drop:0 1px 2px rgba(0,0,0,.05),0 4px 12px -4px rgba(0,0,0,.08);
   --dm-btn2-press:inset 0 1px 3px rgba(0,0,0,.08);
@@ -58,7 +59,7 @@
   /* switchers: a white knob with a hairline, a white top and a soft 1px shadow, gliding on a light track */
   --dm-knob-top:#ffffff; --dm-knob-bot:#fcfcfc;
   --dm-knob-shadow:0 0 0 1px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.07),inset 0 1px 0 #fff;
-  --dm-track-ring:inset 0 0 0 1px rgba(0,0,0,.025),inset 0 1px 1px rgba(0,0,0,.025);
+  --dm-track-ring:inset 0 0 0 1px rgba(0,0,0,.03),inset 0 1px 3px rgba(0,0,0,.09);
   --dm-switch-off-ring:inset 0 0 0 1px rgba(0,0,0,.06),inset 0 1px 1px rgba(0,0,0,.1);
   --dm-switch-knob:0 0 0 .5px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.16),0 2px 4px -2px rgba(0,0,0,.1);
 
@@ -120,9 +121,9 @@
 
 /* ======================================================================================================== buttons */
 /* rounded rectangles; a press sinks in 120ms and the release springs back with a gentle overshoot */
-:root[data-refresh] .pill{border-radius:var(--dm-btn-r)}
-:root[data-refresh] .pill.sm{border-radius:var(--dm-btn-r-sm)}
-:root[data-refresh] .pill.btx-lg{border-radius:var(--dm-btn-r-lg)}
+/* fully round (owner, 17 Nov): every control has true round ends; a squircle at pill radius reads square-ish, so these
+   draw with round corners */
+:root[data-refresh] :is(.pill,.ib,.hnx-add,.seg2,.seg2 .knob,.seg2 button,.hnx-pm,.hnx-pm .kn,.hnx-pm button,.asx-steps,.asx-knob,.asx-steps button,.toggle,.tag,.chip,.bdg){border-radius:999px!important;corner-shape:round!important}
 :root[data-refresh] :is(.pill,.ib,.hnx-add){transition:transform var(--dm-t-release) var(--dm-spring-out),box-shadow var(--dm-t-fast) var(--dm-ease),background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease),--dm-lift .2s var(--dm-ease),min-width .3s var(--dm-ease)}
 :root[data-refresh] :is(.pill,.hnx-add):not([disabled]):is(:active,.is-press){transform:scale(.97);transition-duration:var(--dm-t-press);transition-timing-function:var(--dm-ease)}
 :root[data-refresh] .ib:not([disabled]):is(:active,.is-press){transform:scale(.94);transition-duration:var(--dm-t-press);transition-timing-function:var(--dm-ease)}
@@ -137,7 +138,7 @@
   background-image:
     radial-gradient(120% 70% at 50% 0%,rgb(255 255 255 / calc(var(--dm-btn-sheen) + var(--dm-lift) * .06)),transparent 42%),
     linear-gradient(180deg,color-mix(in srgb,var(--dm-btn-top),#fff calc(var(--dm-lift) * 7%)) 0%,var(--dm-btn-mid) 34%,var(--dm-btn-bot) 100%);
-  box-shadow:inset 0 0 0 1px var(--dm-btn-edge),inset 0 2px 0 0 var(--dm-btn-glow),inset 0 -2px 0 0 var(--dm-btn-shade),var(--dm-btn-drop);
+  box-shadow:inset 0 0 0 1px var(--dm-btn-edge),inset 0 3px 5px -2px var(--dm-btn-glow),inset 0 -3px 5px -3px var(--dm-btn-shade),var(--dm-btn-drop);
 }
 @media (hover:hover) and (pointer:fine){
   :root[data-refresh] .pill:is(.primary,.accent):not([disabled],.ok,.done,.btx-ask.busy):hover{--dm-lift:1;background-color:var(--dm-btn-mid)}
@@ -155,22 +156,23 @@
   color:var(--dm-fg);
   background-color:var(--dm-btn2-bot);
   background-image:linear-gradient(180deg,var(--dm-btn2-top),color-mix(in srgb,var(--dm-btn2-bot),var(--dm-fg) calc(var(--dm-lift) * 2.5%)));
-  box-shadow:inset 0 0 0 1px var(--dm-btn2-edge),inset 0 2px 0 0 var(--dm-btn2-glow),inset 0 -2px 0 0 var(--dm-btn2-shade),var(--dm-btn2-drop);
+  box-shadow:inset 0 0 0 1px var(--dm-btn2-edge),inset 0 3px 5px -2px var(--dm-btn2-glow),inset 0 -3px 5px -3px var(--dm-btn2-shade),var(--dm-btn2-drop);
 }
 @media (hover:hover) and (pointer:fine){
-  :root[data-refresh] .pill.line:not([disabled]):hover{--dm-lift:1;box-shadow:inset 0 0 0 1px var(--dm-btn2-edge-h),inset 0 2px 0 0 var(--dm-btn2-glow),inset 0 -2px 0 0 var(--dm-btn2-shade),var(--dm-btn2-drop)}
+  :root[data-refresh] .pill.line:not([disabled]):hover{--dm-lift:1;box-shadow:inset 0 0 0 1px var(--dm-btn2-edge-h),inset 0 3px 5px -2px var(--dm-btn2-glow),inset 0 -3px 5px -3px var(--dm-btn2-shade),var(--dm-btn2-drop)}
 }
-:root[data-refresh] .pill.line.is-hover:not([disabled]){--dm-lift:1;box-shadow:inset 0 0 0 1px var(--dm-btn2-edge-h),inset 0 2px 0 0 var(--dm-btn2-glow),inset 0 -2px 0 0 var(--dm-btn2-shade),var(--dm-btn2-drop)}
+:root[data-refresh] .pill.line.is-hover:not([disabled]){--dm-lift:1;box-shadow:inset 0 0 0 1px var(--dm-btn2-edge-h),inset 0 3px 5px -2px var(--dm-btn2-glow),inset 0 -3px 5px -3px var(--dm-btn2-shade),var(--dm-btn2-drop)}
 :root[data-refresh] .pill.line:not([disabled]):is(:active,.is-press){box-shadow:inset 0 0 0 1px var(--dm-btn2-edge-h),var(--dm-btn2-press),inset 0 -3px 0 0 rgba(0,0,0,.06),0 1px 1px rgba(0,0,0,.04),0 2px 6px -4px rgba(0,0,0,.06)}
 
 /* soft (grey) buttons and filled icon buttons: the same recipe on Soft's grey */
 :root[data-refresh] :is(.pill.soft,.ib.fill):not([disabled]){
   background-color:var(--dm-btn3-bot);
   background-image:linear-gradient(180deg,color-mix(in srgb,var(--dm-btn3-top),var(--dm-fg) calc(var(--dm-lift) * 3%)),color-mix(in srgb,var(--dm-btn3-bot),var(--dm-fg) calc(var(--dm-lift) * 4%)));
-  box-shadow:inset 0 0 0 1px var(--dm-btn3-edge),inset 0 2px 0 0 var(--dm-btn3-glow),inset 0 -2px 0 0 var(--dm-btn3-shade),0 1px 2px rgba(0,0,0,.04);
+  box-shadow:inset 0 0 0 1px var(--dm-btn3-edge),inset 0 3px 5px -2px var(--dm-btn3-glow),inset 0 -3px 5px -3px var(--dm-btn3-shade),0 1px 2px rgba(0,0,0,.04);
 }
 @media (hover:hover) and (pointer:fine){
-  :root[data-refresh] :is(.pill.soft,.ib.fill):not([disabled]):hover{--dm-lift:1;background-color:var(--dm-btn3-bot)}
+  /* hover lifts the top light; it never goes darker (owner, 17 Nov) */
+  :root[data-refresh] :is(.pill.soft,.ib.fill):not([disabled]):hover{--dm-lift:1}
 }
 :root[data-refresh] :is(.pill.soft,.ib.fill).is-hover:not([disabled]){--dm-lift:1}
 /* pressed in: a press, and a toggled-on soft button (Preview) */
@@ -203,7 +205,7 @@
    shade inside the bottom (drawn as inset shadows rather than a gradient, so off and on crossfade over 400ms); the knob
    is white with a hairline and depth */
 :root[data-refresh] .toggle{
-  box-shadow:inset 0 0 0 1px rgba(0,0,0,.06),inset 0 2px 3px -1px rgba(0,0,0,.14),inset 0 -4px 5px -3px rgba(0,0,0,0);
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.06),inset 0 2px 4px -1px rgba(0,0,0,.2),inset 0 -4px 5px -3px rgba(0,0,0,0);
   transition:background-color .4s var(--dm-ease),box-shadow .4s var(--dm-ease);
 }
 :root[data-refresh][data-theme="dark"] .toggle{box-shadow:inset 0 0 0 1px rgba(255,255,255,.05),inset 0 2px 3px -1px rgba(0,0,0,.3),inset 0 -4px 5px -3px rgba(0,0,0,0)}
@@ -221,9 +223,11 @@
 :root[data-refresh] .ttx-cb[aria-checked="true"],:root[data-refresh] .ttx-cb[aria-checked="mixed"]{
   background-color:var(--dm-accent);
   background-image:linear-gradient(180deg,var(--dm-fill-top),var(--dm-fill-bot));
-  box-shadow:inset 0 0 0 1px var(--dm-btn-edge),inset 0 1px 0 0 rgba(255,255,255,.22);
+  box-shadow:inset 0 0 0 1px var(--dm-btn-edge),inset 0 2px 3px -1px rgba(255,255,255,.3),inset 0 -2px 3px -2px rgba(0,0,0,.18);
 }
 :root[data-refresh] .ttx-cb{transition:background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
+:root[data-refresh] .ttx-cb:not([aria-checked="true"],[aria-checked="mixed"]){box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-muted) 55%,var(--dm-surface)),inset 0 1px 3px rgba(0,0,0,.14)}
+:root[data-refresh][data-theme="dark"] .ttx-cb:not([aria-checked="true"],[aria-checked="mixed"]){box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-muted) 55%,var(--dm-surface)),inset 0 1px 3px rgba(0,0,0,.45)}
 /* the line chart's area: the accent at 20% fading to nothing */
 :root[data-refresh] #lng stop:first-child{stop-opacity:var(--dm-area-top)}
 /* a hovered stat card lifts on the softer pop shadow, quicker */
@@ -236,3 +240,7 @@
   :root[data-refresh] :is(.pill,.ib,.hnx-add,.seg2 .knob,.hnx-pm .kn,.asx-knob,.toggle::after){transition:none}
   :root[data-refresh] :is(.pill,.ib,.hnx-add,.seg2 button,.hnx-pm button,.asx-steps button):active{transform:none}
 }
+
+/* every shape Soft draws at the pill radius gets true round ends too (owner, 17 Nov: "make everything fully rounded");
+   a squircle at that radius reads square-ish. Cards and panels keep their own rounded corners */
+:root[data-refresh] :is(.aab-bar,.aab-rd,.acc,.acx-h,.acx-zb,.acx-zl,.acx-zm,.afx-chip,.afx-in-main,.ahx-wh,.asx-bar,.asx-knob,.asx-lp-bar,.asx-ps-bar,.asx-steps,.asx-tb-kn,.asx-tb-t,.asx-tb-t:focus-visible,.asx-tb-tabs,.bdg,.chip,.cmx-rc,.crs-dots button,.csw-bd,.ctb-b,.ctb-bar,.ctb-bar :focus-visible,.ctb-pin,.ctb-z,.ctm-tg,.cvq-k,.drf-go,.drf-p,.evr-vs-chip:focus-visible,.fchip,.hnx-add,.hnx-pm,.hnx-pm .kn,.hnx-pm button,.ksx-add,.lnx-k,.lva-fu button,.lva-sb,.lva-tb,.mix-mk b,.mpk-eb,.mpk-tr,.ntx-ct,.pfm-tr,.pgx-db,.pill,.plx-add,.rdx-k,.replay,.rte-ai,.rte-ask,.rwx-b,.rwx-tb,.rxx-r,.sdx-tt,.seg,.seg .knob,.seg button,.seg button:focus-visible,.seg2,.seg2 .knob,.seg2 button,.seg2 button:focus-visible,.sgc-k,.sgc-seg,.sgc-seg button,.shx-add,.slx-k,.slx-tt,.spl-pill,.ssi-b,.ssi-b .last,.ssi-mail,.ssx-pill,.stl-row,.ttp-bar,.ttx-st){corner-shape:round!important}
