@@ -1,3 +1,4 @@
+TPLS["meeting-card"] = "<div class=\"mtx panel\">\n  <div class=\"mtx-top\">\n    <div class=\"mtx-when\"><span class=\"mtx-dot\"></span><span class=\"mtx-in num\">In 30 minutes</span></div>\n    <b class=\"mtx-t\">Meeting with Product team</b>\n    <div class=\"mtx-track\" role=\"img\" aria-label=\"Now 10:00. The meeting runs 10:30 to 12:00\"><span class=\"mtx-ticks\"></span><span class=\"mtx-blk\"><span class=\"num\">90 min</span></span><span class=\"mtx-now\"><i></i></span></div>\n    <div class=\"mtx-axis num\" aria-hidden=\"true\"><span class=\"a\">10:00</span><span style=\"left:20%\">10:30</span><span style=\"left:80%\">12:00</span><span class=\"z\">12:30</span></div>\n  </div>\n  <div class=\"mtx-join\">\n    <button class=\"mtx-go\"><span class=\"mtx-mk\">{meet}</span><span class=\"mtx-gt\"><b>Join on Google Meet</b><span class=\"mtx-url\">meet.google.com/nax-wqkf-stu</span></span><span class=\"mtx-ar\">{right}</span></button>\n    <button class=\"ib mtx-cp\" aria-label=\"Copy meeting link\" data-tip=\"Copy link\">{copy}</button>\n  </div>\n</div>";
 TPLS["agenda"] = "<div class=\"agx panel\">\n  <div class=\"agx-h\"><div><b>Today</b><span class=\"muted\">Monday, Oct 19</span></div><span class=\"tag b agx-n\">4 events</span></div>\n  <div class=\"agx-list\"></div>\n</div>";
 TPLS["event-calendar"] = "<div class=\"ecx panel\">\n  <div class=\"ecx-h\"><b>Oct 19 – 23, 2026</b><span class=\"ecx-sp\"></span><span class=\"ecx-msg muted\"></span><button class=\"pill soft sm ecx-ask\">{spark}Find 45 min for a design review</button></div>\n  <div class=\"ecx-days\" role=\"group\" aria-label=\"Day\"></div>\n  <div class=\"ecx-sc\"><div class=\"ecx-grid\"><div class=\"ecx-tm\"></div></div></div>\n</div>";
 TPLS["date-range-picker"] = "<div class=\"drx panel\">\n  <div class=\"drx-side\"><button class=\"drx-p\" data-p=\"7\">Last 7 days</button><button class=\"drx-p\" data-p=\"30\">Last 30 days</button><button class=\"drx-p\" data-p=\"q\">This quarter</button><button class=\"drx-p\" data-p=\"sp\">Since pricing launch</button></div>\n  <div class=\"drx-main\">\n    <div class=\"drx-top\"><div class=\"drx-in\"><span class=\"muted\">From</span><b class=\"drx-a\">–</b></div>{right}<div class=\"drx-in\"><span class=\"muted\">To</span><b class=\"drx-b\">–</b></div><span class=\"drx-n muted\"></span></div>\n    <div class=\"drx-cals\"><div class=\"drx-cal\" data-o=\"0\"></div><div class=\"drx-cal\" data-o=\"1\"></div></div>\n    <div class=\"drx-f\"><button class=\"pill ghost sm drx-clr\">Clear</button><button class=\"pill primary sm drx-ok\" disabled>Apply</button></div>\n  </div>\n</div>";
@@ -334,4 +335,35 @@ DM.def('agenda', (r, c) => {
   });
   // the preview opens one meeting on its own, unless you take over first
   c.auto(1000, () => rows[2].click());
+});
+/* ---------- Meeting card ---------- */
+DM.def('meeting-card', (r, c) => {
+  r.innerHTML = r.innerHTML.replace(/\{([\w-]+)\}/g, (m, k) => k === 'meet' ? BRAND.meet : I(k));
+  // the track runs 10:00 to 12:30 (minutes of the day); the meeting is 10:30 to 12:00
+  const FROM = 600, TO = 750, AT = 630, END = 720, URL = 'https://meet.google.com/nax-wqkf-stu';
+  const pc = m => (m - FROM) / (TO - FROM) * 100, clock = m => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
+  const root = $('.mtx', r), now = $('.mtx-now', r), when = $('.mtx-in', r), track = $('.mtx-track', r), blk = $('.mtx-blk', r);
+  const go = $('.mtx-go', r), label = $('.mtx-gt b', r), cp = $('.mtx-cp', r);
+  $('.mtx-ticks', r).innerHTML = Array.from({ length: 11 }, (_, i) => `<i class="${i % 4 ? '' : 'h'}" style="left:${i * 10}%"></i>`).join('');
+  blk.style.left = pc(AT) + '%'; blk.style.width = (pc(END) - pc(AT)) + '%';
+  // the clock: the now line moves to the minute, the countdown says what is left, and at the start the meeting turns live
+  const set = m => {
+    now.style.setProperty('--p', pc(m) + '%');
+    const left = AT - m, live = left <= 0;
+    const text = live ? 'Starting now' : `In ${left} minute${left === 1 ? '' : 's'}`;
+    if (live !== root.classList.contains('live')) swap(when, text); else when.textContent = text;
+    root.classList.toggle('live', live);
+    track.setAttribute('aria-label', `Now ${clock(m)}. The meeting runs 10:30 to 12:00`);
+  };
+  set(FROM);
+  go.onclick = () => { swap(label, 'Opening Google Meet'); c.later(1600, () => swap(label, 'Join on Google Meet')); };
+  cp.onclick = () => copied(cp, URL, 'Copied');
+  // the preview: the minutes tick by until the meeting starts, then the person in it copies the link
+  c.story(async s => {
+    await s.beat(2);
+    for (let m = FROM + 1; m <= AT; m++){ await s.beat(AT - m < 4 ? .9 : .3); set(m); }
+    await s.beat(3);
+    await s.point(go, false); go.classList.add('hv'); await s.beat(2);
+    go.classList.remove('hv'); await s.tap(cp); await s.beat(4);
+  });
 });

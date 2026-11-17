@@ -69,6 +69,7 @@ export * from './components/segmented-control/SegmentedControl';
 export * from './components/date-range-picker/DateRangePicker';
 export * from './components/event-calendar/EventCalendar';
 export * from './components/agenda/Agenda';
+export * from './components/meeting-card/MeetingCard';
 export * from './components/buttons/Buttons';
 export * from './components/badge/Badge';
 export * from './components/progress/Progress';

@@ -4,7 +4,7 @@ React versions of the [designme.dev](https://designme.dev) components, for Next.
 
 They use the same markup and the same CSS as the site, so they look and move exactly like the previews on designme.dev, in both styles (Blueprint and Soft) and in light and dark. The difference is that each one takes props, so you drive it from your own state instead of a scripted demo.
 
-All 99 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
+All 100 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
 
 Each one has a page on designme.dev with its demo, its React usage, its props and its code, at `https://designme.dev/components/<name>`. To see them all running locally, run `npm run dev` here.
 
@@ -352,6 +352,10 @@ A week view where the agent finds a free slot for you.
 **Agenda** · `agenda/Agenda.tsx`  
 Today's schedule with a live now line and agent prep notes.  
 `items: { key?, time, title, detail?, people?, past?, notes?, action?: { label, onClick? } }[]`, `title`, `subtitle`, `count`, `now` (the line sits after the last past item), `open` / `defaultOpen` / `onOpenChange`.
+
+**MeetingCard** · `meeting-card/MeetingCard.tsx`  
+The next meeting with a countdown, a now line on its time track and a one-click join.  
+`title`, `start`, `end`, `now` (24-hour "HH:MM"; the countdown, the now line and the live state follow `now`), `from` / `to` (the track's ends, half an hour either side by default), `length`, `status`, `provider` (defaults to "Google Meet"), `mark`, `link`, `href`, `onJoin` (left out, the link opens in a new tab), `onCopy`, `copyLabel`, `copiedLabel`.
 
 ### Forms and inputs
 

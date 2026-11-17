@@ -11,7 +11,7 @@ const examples = import.meta.glob<{ default: ComponentType }>('../src/examples/*
 const WIDE = new Set(['agent-lanes', 'agent-run-timeline', 'task-table', 'automation-canvas', 'stat-cards', 'account-table', 'date-range-picker',
   'event-calendar', 'buttons', 'kanban-board', 'pricing-cards', 'agent-harness', 'terminal-stream', 'rich-text-editor',
   'context-switcher', 'banner']);
-['canvas-toolbar', 'run-drawer'].forEach(n => WIDE.add(n));
+['canvas-toolbar', 'run-drawer', 'meeting-card'].forEach(n => WIDE.add(n));
 const only = new URLSearchParams(location.search).get('only')?.split(',');
 const CARDS = registry.items.flatMap(item => {
   const mod = examples[`../src/examples/${item.name}.tsx`];

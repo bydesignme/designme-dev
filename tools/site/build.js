@@ -92,7 +92,9 @@ const NEW = [
   // Step inspector and Data picker side by side, then Run drawer across the row, so the rows stay full
   { cid:'c166', id:'step-inspector', title:'Step inspector', section:'Workspace', after:'c141', icon:'tune', next:'canvas-toolbar' },
   { cid:'c167', id:'data-picker', title:'Data picker', section:'Workspace', after:'c166', icon:'link', next:'canvas-toolbar' },
-  { cid:'c168', id:'run-drawer', title:'Run drawer', section:'Workspace', after:'c167', icon:'history', next:'data-picker' }
+  { cid:'c168', id:'run-drawer', title:'Run drawer', section:'Workspace', after:'c167', icon:'history', next:'data-picker' },
+  // the next meeting with a countdown and a join link, after Agenda (owner, 17 Nov)
+  { cid:'c169', id:'meeting-card', title:'Meeting card', section:'Dates', after:'c63', icon:'videocam' }
 ];
 // a card placed after a new one that isn't there yet goes where that one would have gone
 for (const x of NEW){ let a = NEW.find(y => y.cid === x.after); while (a && !soft.includes(`data-c="${a.id}" id="c-${a.id}"`)){ x.after = a.after; a = NEW.find(y => y.cid === x.after); } }

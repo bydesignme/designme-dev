@@ -1,0 +1,40 @@
+/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Meeting card ---------- */
+/* the next meeting: a countdown, its place on a time track (10:00 to 12:30, ticks every 15 minutes) with the now line creeping
+   toward it, and the call's join link. The meeting is the accent tint, the now line the accent mark; at the start time the
+   block turns live (a ring round it) and the dot beside the countdown pulses. Every state is the same height */
+.mtx{width:100%;max-width:400px;margin:0 auto;padding:var(--dm-s-2);display:flex;flex-direction:column;gap:var(--dm-s-1)}
+.mtx-top{display:flex;flex-direction:column;padding:var(--dm-s-3) var(--dm-s-4) var(--dm-s-3);border-radius:calc(12px * var(--dm-rk));background:var(--dm-row);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
+/* Blueprint's box is flat, a hairline on the panel: its green now line keeps 3:1 on white, not on the row grey */
+:root:not([data-style="soft"]) .mtx-top:not(:where([data-style="soft"],[data-style="soft"] *)){background:var(--dm-surface)}
+.mtx-when{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--dm-fg2)}
+.mtx-dot{width:6px;height:6px;border-radius:50%;background:var(--dm-bad-mark);flex:none}
+.mtx.live .mtx-dot{animation:mtxlive 1.6s ease-in-out infinite}
+@keyframes mtxlive{50%{opacity:.35}}
+.mtx-t{font-size:14px;font-weight:500;margin-top:4px}
+/* the baseline under the ticks is drawn as the track's background */
+.mtx-track{position:relative;height:38px;margin-top:var(--dm-s-4);--dm-bl:color-mix(in srgb,var(--dm-rail) 70%,transparent);background:linear-gradient(var(--dm-bl),var(--dm-bl)) left bottom/100% 1px no-repeat}
+.mtx-ticks i{position:absolute;bottom:0;width:1px;height:5px;margin-left:-.5px;background:var(--dm-rail)}
+.mtx-ticks i.h{height:9px;background:var(--dm-faint)}
+.mtx-ticks i:first-child{margin-left:0}.mtx-ticks i:last-child{margin-left:-1px}
+.mtx-blk{position:absolute;top:2px;bottom:13px;display:flex;align-items:center;padding:0 var(--dm-s-2);border-radius:calc(6px * var(--dm-rk));background:var(--dm-accent-bg);box-shadow:inset 0 0 0 1px transparent;font-size:12px;font-weight:500;color:var(--dm-accent-fg);transition:background var(--dm-t),box-shadow var(--dm-t)}
+/* live: a ring in the accent mark round the same tint, so its label keeps its contrast */
+.mtx.live .mtx-blk{box-shadow:inset 0 0 0 1.5px var(--dm-accent-mark)}
+.mtx-now{position:absolute;top:-4px;bottom:0;left:var(--dm-p,0%);width:2px;margin-left:-1px;border-radius:1px;background:var(--dm-accent-mark);transition:left .3s linear;z-index:1}
+.mtx-now i{position:absolute;top:-4px;left:50%;width:8px;height:8px;border-radius:1.5px;background:var(--dm-accent-mark);transform:translateX(-50%) rotate(45deg)}
+.mtx-axis{position:relative;height:16px;margin-top:6px;font-size:11.5px;color:var(--dm-muted)}
+.mtx-axis span{position:absolute;top:0;transform:translateX(-50%)}
+.mtx-axis .a{left:0;transform:none}.mtx-axis .z{right:0;transform:none}
+.mtx-join{display:flex;align-items:center;gap:var(--dm-s-1);padding:0 var(--dm-s-1) 0 0}
+.mtx-go{flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:var(--dm-s-2);border-radius:calc(10px * var(--dm-rk));text-align:left;transition:background var(--dm-t-fast)}
+.mtx-go.hv{background:var(--dm-row)}
+@media (hover:hover) and (pointer:fine){.mtx-go:hover{background:var(--dm-row)}}
+.mtx-mk{width:32px;height:32px;flex:none;display:grid;place-items:center;border-radius:calc(8px * var(--dm-rk));background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 70%,transparent)}
+.mtx-mk .brand{width:19px;height:16px}
+.mtx-gt{flex:1;min-width:0;display:flex;flex-direction:column}
+.mtx-gt b{font-size:13px;font-weight:500}
+.mtx-url{font-size:12px;color:var(--dm-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mtx-ar{color:var(--dm-muted);display:grid;transition:transform var(--dm-t-fast),color var(--dm-t-fast)}
+.mtx-go.hv .mtx-ar{color:var(--dm-fg);transform:translateX(2px)}
+@media (hover:hover) and (pointer:fine){.mtx-go:hover .mtx-ar{color:var(--dm-fg);transform:translateX(2px)}}
+@media (prefers-reduced-motion:reduce){.mtx.live .mtx-dot{animation:none}.mtx-now{transition:none}}

@@ -6,7 +6,7 @@ Designme.dev docs. The same page with navigation: https://designme.dev/docs/intr
 
 ## What it is
 
-99 free components: 51 for the agent itself, like status pills, reasoning trails, agent trees, permission gates, plan reviews and run costs, and 48 app basics around it.
+100 free components: 51 for the agent itself, like status pills, reasoning trails, agent trees, permission gates, plan reviews and run costs, and 49 app basics around it.
 
 Every component plays as a demo on the [homepage](https://designme.dev/), and has a page of its own with its install command, React props, code and questions.
 
@@ -93,7 +93,7 @@ Each style has a light and a dark theme. Switch them in the header of any page h
 
 - [Agent harness](https://designme.dev/components/agent-harness.md)
 
-There are also 48 app basics, like charts, date pickers and forms, for the product around the agent. They are all in the [library](https://designme.dev/#s-charts).
+There are also 49 app basics, like charts, date pickers and forms, for the product around the agent. They are all in the [library](https://designme.dev/#s-charts).
 
 ## HTML, React or Astro
 
