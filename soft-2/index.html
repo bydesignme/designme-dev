@@ -2298,74 +2298,8 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 /* phones: the line under each name wraps, and the meters keep room for their labels */
 /* on a phone the meters close up so a model's line keeps two or three words to a row */
 @media (max-width:480px){.mpk-hd,.mpk-o{grid-template-columns:20px minmax(0,1fr) repeat(3,34px);gap:6px}.mpk-hd{font-size:10.5px;padding-inline:6px}.mpk-o{padding-inline:6px}.mpk-o .d{white-space:normal}}
-/* Clean (owner, 18 Nov): one measure inside the popover. Its content sits 16px in from each edge: the column heads, each
-   row's mark and meters (the rows sit 8px in, with 8px of their own) and the foot's text. The picked row's fill is
-   concentric with the popover's corners (22px = its 14px + the 8px inset), and the foot strip's select sits 8px from the
-   right and bottom edges, a 28px pill (14 + 8 = 22). Selection is neutral: a grey row fill, an ink check, meters one step
-   darker; the models' marks keep their own colours. The trigger is a secondary pill, and the popover scales and fades in
-   from it */
-:root[data-style="clean"] .mpk-tr{gap:8px;padding:0 10px 0 6px;color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth);transition:box-shadow var(--t-fast) var(--ease),transform var(--t-fast) var(--ease)}
-:root[data-style="clean"] .mpk-tr:hover{box-shadow:var(--btn2-hover)}
-:root[data-style="clean"] .mpk-tr:active{transform:scale(.97);box-shadow:var(--btn2-press)}
-:root[data-style="clean"] .mpk-tr>svg{transition:transform var(--t) var(--ease)}
-:root[data-style="clean"] .mpk-p.panel{padding:0;transform-origin:top right;transition:opacity var(--t) var(--ease),transform .32s var(--ease)}
-:root[data-style="clean"] .mpk-fold.shut .mpk-p{opacity:0;transform:translateY(-4px) scale(.96)}
-:root[data-style="clean"] :is(.mpk-hd,.mpk-o){grid-template-columns:20px minmax(0,1fr) repeat(3,40px);gap:10px}
-:root[data-style="clean"] .mpk-hd{padding:16px 16px 4px;line-height:16px}
-:root[data-style="clean"] .mpk-list{padding:0 8px 8px}
-:root[data-style="clean"] .mpk-o{padding:8px;border-radius:calc(var(--r-card) - 8px);transition:background-color var(--t-fast) var(--ease)}
-:root[data-style="clean"] .mpk-o[aria-checked="true"]{background:var(--chip)}
-:root[data-style="clean"] .mpk-o[aria-checked="true"] .t b{color:var(--fg)}
-:root[data-style="clean"] .mpk-mk{border-radius:50%}
-/* the check is ink and draws itself in when its row is picked */
-:root[data-style="clean"] .mpk-o .ck{color:var(--fg);opacity:1;transform:none}
-:root[data-style="clean"] .mpk-o .ck svg{stroke-dasharray:22;stroke-dashoffset:22;transition:stroke-dashoffset .1s var(--ease)}
-:root[data-style="clean"] .mpk-o[aria-checked="true"] .ck svg{stroke-dashoffset:0;transition:stroke-dashoffset .42s var(--ease) .06s}
-/* meters: ink pips on a faint grey track, one step darker on the picked row. As the popover opens they fill left to right,
-   row by row */
-@keyframes mpkpip{from{background-color:var(--rail)}}
-:root[data-style="clean"] .mpk-m{gap:2px}
-:root[data-style="clean"] .mpk-m i{background:var(--rail);transition:background-color .32s var(--ease)}
-:root[data-style="clean"] .mpk-m i.on{background:var(--fg2)}
-:root[data-style="clean"] .mpk-o[aria-checked="true"] .mpk-m i:not(.on){background:var(--faint)}
-:root[data-style="clean"] .mpk-o[aria-checked="true"]:not(.busy) .mpk-m i.on{background:var(--fg)}
-:root[data-style="clean"] .mpk-fold:not(.shut) .mpk-m i.on{animation:mpkpip .36s var(--ease) backwards;animation-delay:calc(140ms + var(--mpr,0) * 70ms + var(--mpm,0) * 110ms + var(--mpi,0) * 35ms)}
-:root[data-style="clean"] .mpk-o:nth-child(2){--mpr:1}
-:root[data-style="clean"] .mpk-o:nth-child(3){--mpr:2}
-:root[data-style="clean"] .mpk-o:nth-child(n+4){--mpr:3}
-:root[data-style="clean"] .mpk-m:nth-child(4){--mpm:1}
-:root[data-style="clean"] .mpk-m:nth-child(5){--mpm:2}
-:root[data-style="clean"] .mpk-m i:nth-child(2){--mpi:1}
-:root[data-style="clean"] .mpk-m i:nth-child(3){--mpi:2}
-:root[data-style="clean"] .mpk-m i:nth-child(4){--mpi:3}
-:root[data-style="clean"] .mpk-m i:nth-child(5){--mpi:4}
-/* the way out when a model is busy: its own section under the rows, between hairlines, with its buttons 16px in */
-:root[data-style="clean"] .mpk-sg{margin:0;padding:16px;border-radius:0;background:none;border-top:1px solid var(--line);gap:12px}
-:root[data-style="clean"] .mpk-sgt{color:var(--fg2)}
-:root[data-style="clean"] .mpk-sga{gap:8px}
-:root[data-style="clean"] .mpk-sg .pill.ghost{color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth)}
-:root[data-style="clean"] .mpk-sg .pill.ghost:hover{background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-hover)}
-:root[data-style="clean"] .mpk-sg .pill.ghost:active{box-shadow:var(--btn2-press)}
-/* the foot strip: thinking on one line, 16px in, and its select a secondary pill 8px from the corner */
-:root[data-style="clean"] .mpk-th{flex-wrap:nowrap;gap:12px;margin:0;padding:8px 8px 8px 16px;background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
-:root[data-style="clean"] .mpk-thh{flex-direction:row;align-items:baseline;gap:8px;min-width:0;white-space:nowrap}
-:root[data-style="clean"] .mpk-thh b{flex:none;align-self:center}
-:root[data-style="clean"] .mpk-thd{min-width:0;overflow:hidden;text-overflow:ellipsis}
-:root[data-style="clean"] .mpk-eb{flex:none;gap:6px;height:28px;padding:0 10px 0 12px;font-weight:500;color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth);transition:box-shadow var(--t-fast) var(--ease),transform var(--t-fast) var(--ease)}
-:root[data-style="clean"] :is(.mpk-eb:hover,.mpk-eb[aria-expanded="true"]){background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-hover)}
-:root[data-style="clean"] .mpk-eb:active{transform:scale(.97);box-shadow:var(--btn2-press)}
-:root[data-style="clean"] .mpk-pop{padding:6px;border-radius:var(--r-card)}
-:root[data-style="clean"] .mpk-pop .mi{border-radius:calc(var(--r-card) - 6px)}
-/* the confirmation under the popover takes no room until it has something to say, and opens smoothly when it does */
-:root[data-style="clean"] .mpk-note{min-height:0;max-height:0;margin-top:-8px;opacity:0;overflow:hidden;transition:max-height var(--t) var(--ease),margin-top var(--t) var(--ease),opacity var(--t) var(--ease)}
-:root[data-style="clean"] .mpk-note:not(:empty){max-height:40px;margin-top:0;opacity:1}
-:root[data-style="clean"] .mpk-note svg{color:var(--ok-mark)}
-/* phones: the thinking line goes under its label rather than being cut, and the select turns into a text control aligned by
-   its text, its chevron 16px from the edge like the meters above it */
-@media (max-width:480px){:root[data-style="clean"] :is(.mpk-hd,.mpk-o){grid-template-columns:20px minmax(0,1fr) repeat(3,36px);gap:8px}:root[data-style="clean"] .mpk-hd{padding-inline:16px}:root[data-style="clean"] .mpk-o{padding-inline:8px}
-  :root[data-style="clean"] .mpk-th{padding:12px 16px}:root[data-style="clean"] .mpk-thh{flex-direction:column;align-items:flex-start;gap:0;white-space:normal}:root[data-style="clean"] .mpk-thh b{align-self:auto}
-  :root[data-style="clean"] .mpk-eb,:root[data-style="clean"] :is(.mpk-eb:hover,.mpk-eb[aria-expanded="true"]){margin-right:-10px;background:none;box-shadow:none}:root[data-style="clean"] :is(.mpk-eb:hover,.mpk-eb[aria-expanded="true"]){background:var(--hover)}}
-@media (prefers-reduced-motion:reduce){:root[data-style="clean"] .mpk-m i.on{animation:none!important}:root[data-style="clean"] :is(.mpk-p,.mpk-o .ck svg,.mpk-note,.mpk-m i){transition:none!important}}
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style="clean"] .mpk-p.panel{padding:15px 20px 12px 20px}
 /* ---------- Answer action bar ---------- */
 /* every action on an answer in one raised rail under it: copy, regenerate with its versions, thumbs, and read aloud, which
    widens into a progress bar and a clock and lights each word as it reads it */
@@ -12809,10 +12743,8 @@ DM.def('model-picker', (r, c) => {
   // thinking effort, and what it may spend
   const E = [['Off', 'Answers straight away'], ['Low', 'Up to 2k thinking tokens'], ['Medium', 'Up to 8k thinking tokens'], ['High', 'Up to 24k thinking tokens']];
   const list = $('.mpk-list', r), tr = $('.mpk-tr', r), fold = $('.mpk-fold', r), sgf = $('.mpk-sgf', r), sgt = $('.mpk-sgt', r), note = $('.mpk-note', r), thd = $('.mpk-thd', r), ev = $('.mpk-ev', r), items = $$('.mpk-pop .mi', r);
-  // in Clean the first row's numbers show under its meters, so they never sit over the column heads
-  const clean = r.closest('[data-style]')?.dataset.style === 'clean';
-  const meter = (v, tip, i) => `<span class="mpk-m" data-tip="${tip}"${clean && !i ? ' data-tip-at="below"' : ''}>${[1, 2, 3, 4, 5].map(k => `<i${k <= v ? ' class="on"' : ''}></i>`).join('')}</span>`;
-  list.innerHTML = M.map((x, i) => `<button class="mpk-o" role="radio" aria-checked="false" tabindex="-1" data-i="${i}"><span class="mpk-mk" style="--mc:${x.c};--mt:${x.t}">${x.m}</span><span class="t"><b>${x.n}<span class="ck">${I('check','xs')}</span></b><span class="d">${x.d}</span></span>${meter(x.s, x.tps + ' tokens a second', i)}${meter(x.q, 'Quality ' + x.q + ' of 5', i)}${meter(x.p, '$' + x.cost.toFixed(3) + ' a reply', i)}</button>`).join('');
+  const meter = (v, tip) => `<span class="mpk-m" data-tip="${tip}">${[1, 2, 3, 4, 5].map(k => `<i${k <= v ? ' class="on"' : ''}></i>`).join('')}</span>`;
+  list.innerHTML = M.map((x, i) => `<button class="mpk-o" role="radio" aria-checked="false" tabindex="-1" data-i="${i}"><span class="mpk-mk" style="--mc:${x.c};--mt:${x.t}">${x.m}</span><span class="t"><b>${x.n}<span class="ck">${I('check','xs')}</span></b><span class="d">${x.d}</span></span>${meter(x.s, x.tps + ' tokens a second')}${meter(x.q, 'Quality ' + x.q + ' of 5')}${meter(x.p, '$' + x.cost.toFixed(3) + ' a reply')}</button>`).join('');
   const rows = $$('.mpk-o', list);
   // Opus is at capacity when the demo starts (busy is its wait in seconds), and free again once you've waited it out
   let cur = 1, eff = 2, busy = 20, waiting = false;

@@ -69,9 +69,9 @@ const EFFORTS: ThinkingEffort[] = [
   { label: 'Medium', detail: 'Up to 8k thinking tokens' }, { label: 'High', detail: 'Up to 24k thinking tokens' }
 ];
 
-const Meter = ({ value, tip, below }: { value: number; tip?: string; below?: boolean }) => {
+const Meter = ({ value, tip }: { value: number; tip?: string }) => {
   const bars = <span className="dm-mpk-m" aria-hidden={tip ? undefined : true}>{[1, 2, 3, 4, 5].map(k => <i key={k} className={k <= value ? 'dm-on' : undefined} />)}</span>;
-  return tip ? <Tip label={tip} side={below ? 'bottom' : 'top'}>{bars}</Tip> : bars;
+  return tip ? <Tip label={tip}>{bars}</Tip> : bars;
 };
 
 /** Choose the model for a chat by speed, quality and cost, and how hard it thinks, with what the next reply will take. */
@@ -87,10 +87,6 @@ export function ModelPicker({
   const picked = models.find(m => m.id === cur) ?? models[0];
   const rows = useRef<(HTMLButtonElement | null)[]>([]);
   const trigger = useRef<HTMLButtonElement>(null);
-  // in Clean the first row's numbers show under its meters, so they never sit over the column heads
-  const root = useRef<HTMLDivElement>(null);
-  const [clean, setClean] = useState(false);
-  useEffect(() => { setClean(root.current?.closest('[data-style]')?.getAttribute('data-style') === 'clean'); }, []);
   // the confirmation enters each time it changes
   const [noteKey, setNoteKey] = useState(0);
   useEffect(() => { if (note) setNoteKey(k => k + 1); }, [note]);
@@ -103,7 +99,7 @@ export function ModelPicker({
   };
 
   return (
-    <div ref={root} data-dm="" className={cx('dm-mpk', className)} onKeyDown={e => { if (e.key === 'Escape' && isOpen) { setOpen(false); trigger.current?.focus(); } }}>
+    <div data-dm="" className={cx('dm-mpk', className)} onKeyDown={e => { if (e.key === 'Escape' && isOpen) { setOpen(false); trigger.current?.focus(); } }}>
       <div className="dm-mpk-top">
         <span className="dm-muted dm-mpk-lb">{label}</span>
         <button ref={trigger} type="button" className="dm-mpk-tr" aria-haspopup="true" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
@@ -125,7 +121,7 @@ export function ModelPicker({
                   <b>{m.name}<span className="dm-ck">{m.status === 'checking' ? <Spin /> : <Icon name="check" size="xs" />}</span></b>
                   <Swap className="dm-d">{(m.status && m.status !== 'ready' && m.statusText) || m.note || ''}</Swap>
                 </span>
-                <Meter value={m.speed} tip={m.speedDetail} below={clean && !i} /><Meter value={m.quality} tip={m.qualityDetail} below={clean && !i} /><Meter value={m.cost} tip={m.costDetail} below={clean && !i} />
+                <Meter value={m.speed} tip={m.speedDetail} /><Meter value={m.quality} tip={m.qualityDetail} /><Meter value={m.cost} tip={m.costDetail} />
               </button>
             ))}
           </div>
