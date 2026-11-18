@@ -309,8 +309,9 @@ function carousel(c, tr, o = {}){
    names where it starts, so it ends on whatever the element's own styles say, and leaves nothing behind */
 const REVEAL = {
   soft:{ root:[{ opacity:0, transform:'translateY(14px)' }], rootMs:820, part:[{ opacity:0, filter:'blur(6px)', transform:'translateY(8px)' }], partMs:760, first:110, step:65, max:620, ease:'cubic-bezier(.16,1,.3,1)' },
-  // Clean: the card fades and rises 8px from .98 over 520ms, then its pieces follow 40ms apart, each rising 6px (owner, 17 Nov)
-  clean:{ root:[{ opacity:0, transform:'translateY(8px) scale(.98)' }], rootMs:520, part:[{ opacity:0, transform:'translateY(6px)' }], partMs:440, first:120, step:40, max:440, ease:'cubic-bezier(.23,1,.32,1)' },
+  // Clean: the card fades and rises 8px from .98 over 680ms, then its pieces follow 50ms apart, each rising 6px (owner, 17 Nov;
+  // calmer on 18 Nov)
+  clean:{ root:[{ opacity:0, transform:'translateY(8px) scale(.98)' }], rootMs:680, part:[{ opacity:0, transform:'translateY(6px)' }], partMs:560, first:140, step:50, max:520, ease:'cubic-bezier(.23,1,.32,1)' },
   bp:{ root:[{ opacity:0, clipPath:'inset(0 0 100% 0)' }, { opacity:1, clipPath:'inset(0 0 0% 0)', offset:.35 }, { clipPath:'inset(0 0 0% 0)' }], rootMs:520, part:[{ opacity:0, transform:'translateY(4px)' }], partMs:320, first:160, step:45, max:420, ease:'cubic-bezier(.65,0,.25,1)' }
 };
 function revealParts(root){
@@ -474,16 +475,34 @@ function copied(btn, text, label = 'Copied to clipboard'){
 let openPop = null;
 // closing hands the focus back to the popover's button when it was inside, so a pick or Tab never drops it on the page; while
 // it fades out it is inert, and after that hidden (CSS)
-/* how the last thing was done, with a pointer or the keyboard: focus handed back to a popover's button after a click shows
-   no ring (a mouse or a tap never shows one); after a key it does */
+/* how the last thing was done, with a pointer or the keyboard: a control pressed with a mouse or a finger, or focus handed
+   back to a popover's button after a click, shows no ring (a mouse or a tap never shows one); a key that moves or acts does.
+   A modifier on its own (Shift, Cmd, Ctrl, Alt: a screenshot shortcut, say) is not one, though the browser counts it */
 let byKey = false;
-addEventListener('keydown', e => { if (e.metaKey || e.ctrlKey || e.altKey) return; byKey = true; const a = document.activeElement; if (a && a.dataset && 'nofv' in a.dataset) delete a.dataset.nofv; }, true);
-addEventListener('pointerdown', () => { byKey = false; }, true);
+const MODS = new Set(['Shift', 'Meta', 'Control', 'Alt', 'AltGraph', 'CapsLock', 'Fn', 'OS']);
+addEventListener('keydown', e => { if (e.metaKey || e.ctrlKey || e.altKey || MODS.has(e.key)) return; byKey = true; const a = document.activeElement; if (a && a.dataset && 'nofv' in a.dataset) delete a.dataset.nofv; }, true);
+addEventListener('pointerdown', e => { byKey = false;
+  const t = e.target && e.target.closest && e.target.closest('button,a[href],summary,[tabindex],[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],label,input,select');
+  const f = t && t.tagName === 'LABEL' ? t.control : t;
+  if (f && f.dataset && !('nofv' in f.dataset)){ f.dataset.nofv = ''; f.addEventListener('blur', () => { delete f.dataset.nofv; }, { once:true }); }
+}, true);
 function giveBack(btn){ btn.focus({ preventScroll:true, focusVisible:byKey }); if (!byKey){ btn.dataset.nofv = ''; btn.addEventListener('blur', () => { delete btn.dataset.nofv; }, { once:true }); } }
 function closePops(){ if (!openPop) return; const { pop:p, btn } = openPop, back = p.contains(document.activeElement); p.classList.remove('open'); p.inert = true; btn.setAttribute('aria-expanded','false'); openPop = null; if (back && btn.isConnected) giveBack(btn); setTimeout(() => { p.inert = false; if (!p.classList.contains('open')){ p.style.left = '0px'; p.style.top = '0px'; } }, 300); }
+/* the room a popover may open into: the window, cut by any box around the component that clips what spills out of it (a
+   homepage card's stage, a component page's demo), so a menu is never cropped (owner, 18 Nov) */
+function popRoom(btn){
+  let top = 0, bottom = innerHeight;
+  for (let a = (btn.closest('.stage-in') || btn).parentElement; a && a !== document.documentElement; a = a.parentElement){
+    if (getComputedStyle(a).overflowY === 'visible') continue;
+    const r = a.getBoundingClientRect(); top = Math.max(top, r.top); bottom = Math.min(bottom, r.bottom);
+  }
+  return { top, bottom };
+}
 function placePop(btn, pop){
   const host = pop.offsetParent || pop.parentElement; const hr = host.getBoundingClientRect(), br = btn.getBoundingClientRect();
-  const up = btn.dataset.popPos === 'up' || (btn.dataset.popPos !== 'down' && br.bottom + pop.offsetHeight + 12 > innerHeight && br.top - pop.offsetHeight > 12);
+  // below when it fits there; above when it doesn't and fits above, or has more room there
+  const room = popRoom(btn), need = pop.offsetHeight + 12, below = room.bottom - br.bottom, above = br.top - room.top;
+  const up = btn.dataset.popPos === 'up' || (btn.dataset.popPos !== 'down' && below < need && (above >= need || above > below));
   let x = br.left - hr.left; if (btn.dataset.popAlign === 'end') x = br.right - hr.left - pop.offsetWidth;
   const cb = (btn.closest('.card') || document.body).getBoundingClientRect(), lo = Math.max(0, cb.left) + 8, hi = Math.min(innerWidth, cb.right) - 8;
   x = Math.max(lo - hr.left, Math.min(x, hi - hr.left - pop.offsetWidth));
