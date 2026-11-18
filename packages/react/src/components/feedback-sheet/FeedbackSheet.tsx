@@ -63,14 +63,12 @@ export function FeedbackSheet({ children, rating, defaultRating = null, onRating
   const [busy, setBusy] = useState(false);
   const sending = sendingProp ?? busy;
   const [sent, setSent] = useControllable<Feedback | null>(sentProp, null, onSentChange);
-  // Clean (owner, 18 Nov): the container grows with what it holds, eased (grow() on the site), and stays centred wherever it is
-  // centred. Soft and Blueprint keep their layout: the wrapper inside is display:contents there
+  // the container grows with what it holds, eased (grow() on the site), and stays centred wherever it is centred, in every
+  // style (owner, 18 Nov)
   const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
-  const [clean, setClean] = useState(false);
-  useIsoLayoutEffect(() => { setClean(root.current?.closest('[data-style]')?.getAttribute('data-style') === 'clean'); }, []);
   useIsoLayoutEffect(() => {
     const el = root.current, w = inner.current;
-    if (!clean || !el || !w || typeof ResizeObserver === 'undefined') return;
+    if (!el || !w || typeof ResizeObserver === 'undefined') return;
     let first = true;
     const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
     const fit = () => {
@@ -80,9 +78,9 @@ export function FeedbackSheet({ children, rating, defaultRating = null, onRating
     };
     const ro = new ResizeObserver(fit); ro.observe(w); fit();
     return () => { ro.disconnect(); el.style.height = ''; };
-  }, [clean]);
-  // Clean says it once: the thank-you line under the bar, without "Feedback sent" beside the thumbs
-  const status = sent ? (clean ? '' : 'Feedback sent') : rate === 'up' ? 'Thanks, noted' : '';
+  }, []);
+  // sent, it says so once: the thank-you line under the bar, nothing beside the thumbs
+  const status = sent ? '' : rate === 'up' ? 'Thanks, noted' : '';
   const box = useRef<HTMLTextAreaElement>(null);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const later = (ms: number, fn: () => void) => { timers.current.push(setTimeout(fn, ms)); };
@@ -105,8 +103,8 @@ export function FeedbackSheet({ children, rating, defaultRating = null, onRating
   };
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-fbx', !bare && 'dm-panel', clean && 'dm-growing', className)} style={bare ? undefined : { padding: 16 }}>
-      <div ref={inner} className="dm-grow" style={clean ? undefined : { display: 'contents' }}>
+    <div data-dm="" ref={root} className={cx('dm-fbx', !bare && 'dm-panel', 'dm-growing', className)} style={bare ? undefined : { padding: 16 }}>
+      <div ref={inner} className="dm-grow">
       {children && <div className="dm-msg">{children}</div>}
       <div className="dm-fbx-bar">
         <Tip label="Good answer"><button type="button" className={cx('dm-ib dm-fbx-up', rate === 'up' && 'dm-on')} aria-label="Good answer" aria-pressed={rate === 'up'} onClick={up}><Icon name="up-thumb" /></button></Tip>

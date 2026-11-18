@@ -623,15 +623,21 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .stage-in:has(>.tk){overflow-anchor:none}
 .tk{font-size:14px;width:100%;max-width:420px;margin-inline:auto;overflow-anchor:none}
 /* on a card the trace keeps the room it will fill, so the header stays put as steps arrive */
-.stage-in>.tk{min-height:inherit}
+/* the trace grows with its steps in every style (grow(), owner's notes 18 Nov): no room kept for the steps to come. The
+   header's hover fill reaches 8px past its sides, so the growing box lets that much show */
+.tk.growing{overflow-clip-margin:12px}
 .tk-h{display:flex;align-items:center;gap:10px;width:calc(100% + 16px);margin:0 -8px;padding:6px var(--s-2);border-radius:calc(10px * var(--rk-m,var(--rk)));text-align:left;transition:background var(--t-fast)}
-.tk-h:hover{background:var(--row)}
+/* the header's hover is a quiet fill round the chevron, never a band wider than the trace (owner, 18 Nov) */
+.tk-h:hover .tk-chev{background:var(--row);box-shadow:0 0 0 6px var(--row);color:var(--fg)}
 .tk-mark{width:18px;height:18px;flex:none;display:grid;place-items:center;color:var(--accent-mark,var(--accent));transition:color .3s}
 .tk-h.tk-fin .tk-mark{color:var(--ok)}
+/* a finished state has no elapsed clock (owner, 18 Nov): the clock goes once the header says what the work came to */
+.tk-h.tk-fin .tk-time{visibility:hidden}
 .tk-h.tk-fin .tk-mark .i{animation:tkpop .5s var(--ease) backwards}
 .tk-title{flex:1;min-width:0;color:var(--fg)}
 .tk-time{color:var(--muted);font-size:13px}
-.tk-chev{color:var(--muted);transition:transform .32s var(--ease)}
+.tk-chev{color:var(--muted);border-radius:50%;transition:transform .32s var(--ease),background-color var(--t-fast),box-shadow var(--t-fast),color var(--t-fast)}
+:root[data-style="bp"] .tk-chev{border-radius:0}
 .tk[data-open="0"] .tk-chev{transform:rotate(-90deg)}
 .tk-list{list-style:none;margin:0;padding:6px 0 0;display:flex;flex-direction:column}
 .tk-st{position:relative;display:flex;gap:10px;padding:6px 0}
@@ -675,7 +681,6 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
    a finished step a green disc whose tick draws in, and a step waiting out a problem an amber clock. The header's dots
    turn in ink, and as the last step finishes it becomes what the work came to, with a green disc */
 :root[data-style="clean"] .tk{background:var(--surface);box-shadow:var(--shadow);border-radius:var(--r-card);overflow:clip}
-:root[data-style="clean"] .stage-in>.tk{min-height:0}
 :root[data-style="clean"] .tk.growing{overflow-clip-margin:0px}
 :root[data-style="clean"] .tk-h{width:100%;min-height:48px;margin:0;padding:14px 16px;gap:10px;align-items:flex-start;border-radius:0;line-height:20px}
 /* a header that wraps on a phone keeps its mark, time and chevron on the centre line of its first line */
@@ -687,12 +692,11 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
    work came to (a finished state has no elapsed clock); the chevron keeps the right edge, where the steps' times end too */
 :root[data-style="clean"] .tk-title{flex:0 1 auto;font-weight:500}
 :root[data-style="clean"] .tk-time{margin-right:auto;font-variant-numeric:tabular-nums}
-:root[data-style="clean"] .tk-h.tk-fin .tk-time{visibility:hidden}
-:root[data-style="clean"] .tk-chev{width:14px;height:14px;border-radius:50%;box-shadow:0 0 0 7px transparent;transition:transform .4s var(--ease),background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
+:root[data-style="clean"] .tk-chev{width:14px;height:14px;border-radius:50%;box-shadow:0 0 0 7px transparent;transition:transform var(--t) var(--ease),background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .tk-h:hover .tk-chev{background:var(--hover);box-shadow:0 0 0 7px var(--hover);color:var(--fg)}
 :root[data-style="clean"] .tk-mark{width:16px;height:16px;margin-right:2px;color:var(--fg)}
-:root[data-style="clean"] .tk-h.tk-fin .tk-mark{width:16px;height:16px;border-radius:50%;background:var(--ok-mark);color:var(--surface);animation:tkdisc .34s var(--ease) backwards}
-:root[data-style="clean"] .tk-h.tk-fin .tk-mark .i{width:10px;height:10px;stroke-width:3.2;stroke-dasharray:21;animation:tkdraw .3s var(--ease) .14s backwards}
+:root[data-style="clean"] .tk-h.tk-fin .tk-mark{width:16px;height:16px;border-radius:50%;background:var(--ok-mark);color:var(--surface);animation:tkdisc var(--t) var(--ease) backwards}
+:root[data-style="clean"] .tk-h.tk-fin .tk-mark .i{width:10px;height:10px;stroke-width:3.2;stroke-dasharray:21;animation:tkdraw var(--t) var(--ease) .14s backwards}
 /* the steps are as tall as Soft's, so the card keeps its stage's height in every style: 5px above and below each step,
    and its last words 16px from the card's foot */
 :root[data-style="clean"] .tk-list{padding:8px 16px 10px;border-top:1px solid var(--line)}
@@ -706,18 +710,18 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 :root[data-style="clean"] .tk-st .mk{width:16px;height:16px;margin:2px 2px 0 0;color:var(--fg);background:none;transition:none}
 :root[data-style="clean"] .tk-st.run .mk{background:none;animation:none}
 :root[data-style="clean"] .tk-st.run .mk .spin{box-sizing:border-box;width:16px;height:16px;border:1.5px solid var(--line);border-top-color:var(--fg);animation:rot .9s linear infinite}
-:root[data-style="clean"] .tk-st.done .mk{background:var(--ok-mark);color:var(--surface);animation:tkdisc .34s var(--ease) backwards}
-:root[data-style="clean"] .tk-st.done .mk .i{width:10px;height:10px;stroke-width:3.2;stroke-dasharray:21;animation:tkdraw .3s var(--ease) .14s backwards}
+:root[data-style="clean"] .tk-st.done .mk{background:var(--ok-mark);color:var(--surface);animation:tkdisc var(--t) var(--ease) backwards}
+:root[data-style="clean"] .tk-st.done .mk .i{width:10px;height:10px;stroke-width:3.2;stroke-dasharray:21;animation:tkdraw var(--t) var(--ease) .14s backwards}
 :root[data-style="clean"] .tk-st.retry .mk{background:none;color:var(--warn-mark);animation:none}
 :root[data-style="clean"] .tk-st.retry .mk .i{width:16px;height:16px;stroke-width:1.8}
 @keyframes tkdisc{from{opacity:0;transform:scale(.5)}}
 @keyframes tkdraw{from{stroke-dashoffset:21}}
 /* the hairline from under each mark to just above the next, darkening down into the next step once this one is done */
 :root[data-style="clean"] .tk-st:not(:last-child)::before,:root[data-style="clean"] .tk-st.done:not(:last-child)::after{left:7.5px;top:27px;bottom:-3px;width:1px;border-radius:0;background:var(--line)}
-:root[data-style="clean"] .tk-st.done:not(:last-child)::after{background:var(--line-strong);animation:tkgrow .44s var(--ease-io) .2s backwards}
+:root[data-style="clean"] .tk-st.done:not(:last-child)::after{background:var(--line-strong);animation:tkgrow var(--t-slow) var(--ease-io) .2s backwards}
 /* what a step found writes itself in a word at a time: a fade and a 3px rise, no blur */
 @keyframes tkwordc{from{opacity:0;transform:translateY(3px)}}
-:root[data-style="clean"] .tk-st .res .w{animation:tkwordc .42s var(--ease) backwards}
+:root[data-style="clean"] .tk-st .res .w{animation:tkwordc var(--t-slow) var(--ease) backwards}
 /* ---------- Context meter ---------- */
 /* a pill with the ring opens what fills the context: one bar split by kind, a legend whose rows list their items, and Compact */
 /* it never anchors the page's scroll, so the page can't follow it as it changes; on a card it sits in the middle of its room */
@@ -2019,6 +2023,12 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .rte-url[aria-invalid="true"]{box-shadow:inset 0 0 0 1px var(--bad)}
 .rte-lnk .pill{flex:none}
 .rte-lnk .ib{width:30px;height:30px;flex:none}
+/* the link field's buttons are as tall as the field, so the row's three parts are one height */
+.rte-lnk .pill{height:32px;padding:0 14px}
+.rte-lnk .ib{width:32px;height:32px}
+/* nothing in the editor's chrome shrinks on a click (owner, 18 Nov) */
+:is(.rte-idle,.rte-lnk) .ib:active,.rte-rev .pill.ghost:active{transform:none}
+:root[data-style="clean"] :is(.rte-idle,.rte-lnk) .ib:active{transform:none}
 /* the small Ask AI button over a selection, for the mouse; the keyboard has the toolbar's button and its shortcut */
 .rte-ask{position:absolute;left:0;top:0;z-index:6;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px 0 9px;border-radius:var(--r-pill);background:var(--raised);box-shadow:var(--shadow-pop);font-size:12.5px;color:var(--fg);white-space:nowrap;opacity:0;visibility:hidden;transform:translateY(4px);transition:opacity .18s var(--ease),transform .3s var(--ease),visibility 0s .3s}
 .rte-ask .i{color:var(--accent-fg)}
@@ -2057,10 +2067,8 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 :root[data-style="clean"] .rte-ft{min-height:45px;padding:8px 8px 8px 16px;background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card);box-shadow:none}
 :root[data-style="clean"] .rte-idle .ib{width:28px;height:28px}
 :root[data-style="clean"] .rte-idle .ib:hover{background:var(--hover)}
-/* the menu's heading starts where its items' words do; the link field's buttons are as tall as the field */
+/* the menu's heading starts where its items' words do */
 :root[data-style="clean"] .rte-menu .ph{padding-left:calc(var(--s-2) + 14px + 10px)}
-:root[data-style="clean"] .rte-lnk .pill{height:32px;padding:0 14px}
-:root[data-style="clean"] .rte-lnk .ib{width:32px;height:32px}
 :root[data-style="clean"] .rte-st{color:var(--fg2)}
 :root[data-style="clean"] .rte-rev{gap:8px;margin-right:0}
 :root[data-style="clean"] .rte-rev .pill.ghost:hover{background:var(--hover)}
@@ -2068,7 +2076,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 /* the key on the ink button: a faint light chip, in the button's own text colour */
 :root[data-style="clean"] .rte-ok:not([disabled]) .kbd{background:color-mix(in srgb,var(--on-btn) 18%,transparent);color:var(--on-btn)}
 @keyframes rtewc{from{opacity:0}to{opacity:1}}
-:root[data-style="clean"] .rte-new .w{animation:rtewc .36s var(--ease) both}
+:root[data-style="clean"] .rte-new .w{animation:rtewc var(--t-slow) var(--ease) both}
 @container rte (max-width:400px){:root[data-style="clean"] .rte-ai{width:28px;padding:0}:root[data-style="clean"] .rte-body{padding:16px}:root[data-style="clean"] .rte-body.empty::before{left:16px;right:16px;top:16px}:root[data-style="clean"] .rte-ft{padding-left:16px}}
 @container rte (max-width:330px){:root[data-style="clean"] .rte-tb{gap:0;padding:8px}:root[data-style="clean"] .rte-b{width:28px}}
 /* ---------- Artifact card ---------- */
@@ -2648,8 +2656,14 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 @media (prefers-reduced-motion:reduce){:root[data-style="clean"] .atx-ctx{transition:none}.atx-ctx-it.up .atx-ctx-rg .pg{animation:none;stroke-dasharray:1 0}}
 /* ---------- Response versions ---------- */
 .rvx{display:flex;flex-direction:column;gap:14px}
-.rvx-a{display:flex;flex-direction:column;gap:var(--s-2);padding:0 2px}
-.rvx-t{min-height:72px}
+.rvx-a{display:flex;flex-direction:column;gap:var(--s-2)}
+/* the answer is as tall as its words in every style (owner's notes, 18 Nov): the component grows with them (grow()), and a
+   version streaming in keeps the height of the one it replaces, then eases to its own. The bar's first button reaches 6px
+   past the column, so the growing box lets that much show, focus ring included */
+.rvx.growing{overflow-clip-margin:12px}
+/* nothing in the bar shrinks on a click (owner, 18 Nov) */
+.rvx-bar .ib:active{transform:none}
+:root[data-style="clean"] .rvx-bar .ib:active{transform:none}
 .rvx-t .w{animation:rvw .45s var(--ease) both}
 @keyframes rvw{from{opacity:0;filter:blur(4px)}to{opacity:1;filter:none}}
 .rvx-t.out{animation:rvo .3s var(--ease) both}
@@ -2662,25 +2676,31 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .rvx-re svg{transition:transform .7s var(--ease)}
 .rvx-re.go svg{transform:rotate(360deg)}
 .rvx-st{font-size:12px;margin-left:6px}
-/* Clean (owner, 18 Nov): no room kept for a longer answer: the answer is as tall as its words and the component grows with
-   them (grow()), staying centred in its stage; while a new version streams in, it keeps the height of the one it replaces
-   and then eases to its own. Words fade in and out without a blur, and Copy's tick is the vivid green */
+/* Clean (owner, 18 Nov): the answer, the bar's first icon and the bubble share the column's edges; words fade in and out
+   without a blur, and Copy's tick is the vivid green */
 @keyframes rvwc{from{opacity:0}to{opacity:1}}
 @keyframes rvoc{to{opacity:0;transform:translateY(-2px)}}
-:root[data-style="clean"] .rvx-a{padding:0}
-:root[data-style="clean"] .rvx-t{min-height:0}
-:root[data-style="clean"] .rvx-t .w{animation-name:rvwc}
-:root[data-style="clean"] .rvx-t.out{animation-name:rvoc}
+:root[data-style="clean"] .rvx-t .w{animation-name:rvwc;animation-duration:var(--t-slow)}
+:root[data-style="clean"] .rvx-t.out{animation-name:rvoc;animation-duration:var(--t)}
 :root[data-style="clean"] .rvx-cp.copied{color:var(--ok-mark)!important}
 /* ---------- Feedback sheet ---------- */
 .fbx{display:flex;flex-direction:column;gap:var(--s-2)}
-.fbx-bar{display:flex;align-items:center;gap:2px;margin-left:-6px}
+/* the first thumb's icon starts where the answer does */
+.fbx-bar{display:flex;align-items:center;gap:2px;margin-left:-8px}
 .fbx-bar .ib svg{transition:transform .45s var(--ease)}
-.fbx-bar .ib.on svg{transform:scale(1.12) rotate(-8deg)}
+.fbx-bar .ib.on svg{transform:rotate(-8deg)}
+/* nothing in the row shrinks or swells on a click (owner, 18 Nov): a rated thumb only tilts */
+.fbx-bar .ib:active,.fbx-f .pill.ghost:active{transform:none}
+:root[data-style="clean"] .fbx-bar .ib:active{transform:none}
 .fbx-dn.on{background:var(--bad-bg);color:var(--bad)}
 .fbx-st{font-size:12.5px;margin-left:6px}
 .fbx-box>div{margin-inline:-16px;padding-inline:var(--s-4)}
-.fbx-in{padding:var(--s-4);display:flex;flex-direction:column;gap:10px;margin:var(--s-1) 0 18px}
+.fbx-in{padding:var(--s-4);display:flex;flex-direction:column;gap:10px;margin:var(--s-1) 0 0}
+/* the component grows with what it shows in every style (grow(), owner's notes 18 Nov), and keeps no room under the sheet:
+   its shadow shows past the fold and the growing box instead. The fold's own gap goes with it when it is shut */
+.fbx.growing,.fbx-box>div{overflow-clip-margin:32px}
+.fbx-box{transition:grid-template-rows var(--t) var(--ease),opacity var(--t) var(--ease),margin-top var(--t) var(--ease)}
+.fbx-box.shut{margin-top:calc(-1 * var(--s-2));transition:grid-template-rows var(--t) var(--ease),opacity var(--t) var(--ease),margin-top var(--t) var(--ease),visibility 0s var(--t)}
 .fbx-q{font-size:13.5px;font-weight:500}
 .fbx-ch{display:flex;flex-wrap:wrap;gap:6px}
 .fbx-ch .chip.on{background:var(--sel);color:var(--accent);box-shadow:none}
@@ -2690,22 +2710,18 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .fbx-ta::placeholder{color:var(--muted)}
 .fbx-f{display:flex;align-items:center;gap:6px}
 .fbx-n{font-size:12px;flex:1;min-width:0}
-.fbx-thx{display:flex;align-items:center;gap:var(--s-2);font-size:13px;padding:10px var(--s-3);border-radius:var(--r-in);background:var(--ok-bg);color:var(--ok)}
+/* sent: a neutral line with the green tick, no green fill (owner, 18 Nov: a finished state) */
+.fbx-thx{display:flex;align-items:center;gap:var(--s-2);font-size:13px;line-height:20px;color:var(--fg2)}
+.fbx-thx svg{flex:none;color:var(--ok-mark)}
 @media (max-width:480px){.fbx-n{display:none}}
 /* Clean (owner, 18 Nov): the sheet's content sits 16px in from its edges, and its foot is an off-white strip: the note
    starts where the question does, and Cancel and Send are 28px pills 8px from the card's edges (14 + 8 = its 22px corner).
    The first thumb's icon starts where the answer and the sheet do. The chrome is monochrome: a rated
-   thumb fills in ink (no red fill), a picked reason is an ink chip like a toggle that is on, and the thanks is a line with a
-   green tick, not a green box (and nothing beside the thumbs says the same again). The component grows with what it shows
-   (grow()) */
-:root[data-style="clean"] .fbx.growing{overflow-clip-margin:12px}
-:root[data-style="clean"] .fbx-bar{margin-left:-8px}
+   thumb fills in ink (no red fill, no tilt) and a picked reason is an ink chip like a toggle that is on */
+:root[data-style="clean"] .fbx-bar .ib.on svg{transform:none}
 :root[data-style="clean"] .fbx-bar .ib.on{background:none;color:var(--fg)}
 :root[data-style="clean"] .fbx-bar .ib.on:hover{background:var(--row)}
 :root[data-style="clean"] .fbx-bar .ib.on svg{fill:currentColor}
-:root[data-style="clean"] .fbx-box.shut{margin-top:-8px}
-:root[data-style="clean"] .fbx-box{transition:grid-template-rows var(--t) var(--ease),opacity var(--t) var(--ease),margin-top var(--t) var(--ease)}
-:root[data-style="clean"] .fbx-box.shut{transition:grid-template-rows var(--t) var(--ease),opacity var(--t) var(--ease),margin-top var(--t) var(--ease),visibility 0s var(--t)}
 :root[data-style="clean"] .fbx-in.panel{gap:12px;margin:4px 0 0;padding:16px 16px 0;overflow:clip}
 :root[data-style="clean"] .fbx-q{font-size:14px;line-height:20px}
 :root[data-style="clean"] .fbx-ch .chip.on{background:var(--btn-2);color:var(--on-btn);box-shadow:inset 0 0 0 1px var(--btn-2)}
@@ -2715,8 +2731,6 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 :root[data-style="clean"] .fbx-n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* on a phone the note gives way, and Cancel and Send keep to the right edge */
 :root[data-style="clean"] .fbx-x{margin-left:auto}
-:root[data-style="clean"] .fbx-thx{gap:8px;padding:0;border-radius:0;background:none;color:var(--fg2);line-height:20px}
-:root[data-style="clean"] .fbx-thx svg{color:var(--ok-mark)}
 /* ---------- Model picker ---------- */
 /* a trigger that names the model and how hard it thinks, over the open list: speed, quality and cost as five-step meters
    with the real numbers on hover, and the thinking effort under them as a small dropdown */
@@ -2864,7 +2878,16 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 /* every action on an answer in one raised rail under it: copy, regenerate with its versions, thumbs, and read aloud, which
    widens into a progress bar and a clock and lights each word as it reads it */
 .aab{display:flex;flex-direction:column;gap:var(--s-3)}
-.aab-t{min-height:78px}
+/* no room kept for a longer answer or an empty status line, in every style (owner's notes, 18 Nov): the answer is as tall as
+   its words, the reasons and the status take room only while they show, and the component grows with them (grow()). While
+   a new version streams in, the answer keeps the height of the one it replaces, then eases to its own. The bar's shadow
+   shows past the growing box */
+.aab.growing{overflow-clip-margin:32px}
+.aab-why{transition:grid-template-rows var(--t) var(--ease),opacity var(--t) var(--ease),margin-top var(--t) var(--ease)}
+.aab-why.shut{margin-top:calc(-1 * var(--s-3));transition:grid-template-rows var(--t) var(--ease),opacity var(--t) var(--ease),margin-top var(--t) var(--ease),visibility 0s var(--t)}
+/* nothing in the bar shrinks or swells on a click (owner, 18 Nov): a rated thumb only tilts */
+.aab-bar .ib:active{transform:none}
+:root[data-style="clean"] .aab-bar .ib:active{transform:none}
 .aab-t .w{transition:background .16s,color .16s;border-radius:var(--r-xs)}
 .aab-t .w.in{animation:aabw .42s var(--ease) both}
 @keyframes aabw{from{opacity:0;filter:blur(4px)}to{opacity:1;filter:none}}
@@ -2881,7 +2904,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .aab-re.go svg{transform:rotate(360deg)}
 .aab-up[aria-pressed="true"]{color:var(--ok);background:var(--ok-bg)}
 .aab-dn[aria-pressed="true"]{color:var(--bad);background:var(--bad-bg)}
-.aab-up[aria-pressed="true"] svg,.aab-dn[aria-pressed="true"] svg{transform:scale(1.1) rotate(-8deg)}
+.aab-up[aria-pressed="true"] svg,.aab-dn[aria-pressed="true"] svg{transform:rotate(-8deg)}
 .aab-sep{width:1px;height:16px;background:var(--line);margin:0 var(--s-1)}
 /* the version pager only takes room once there is a second version */
 .aab-pg{display:inline-flex;align-items:center;max-width:0;overflow:hidden;opacity:0;transition:max-width .42s var(--ease),opacity .32s}
@@ -2903,23 +2926,21 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .aab-wq{font-size:13px;font-weight:500}
 .aab-ch{display:flex;flex-wrap:wrap;gap:6px}
 .aab-ch .chip.on{background:var(--sel);color:var(--accent);box-shadow:none}
-.aab-st{margin:0;min-height:20px;font-size:12.5px;display:flex;align-items:center;gap:6px}
+.aab-st{margin:0;max-height:20px;font-size:12.5px;display:flex;align-items:center;gap:6px;transition:max-height var(--t) var(--ease),margin-top var(--t) var(--ease)}
+.aab-st:is(:empty,.off){max-height:0;margin-top:calc(-1 * var(--s-3))}
 .aab-st.warn{color:var(--warn)}
 .aab-st.ok svg{color:var(--ok);flex:none}
 .aab-rd.on .aab-pr{width:40px}
 @media (max-width:480px){.aab-rd.on .aab-tm{display:none}.aab-row{flex-wrap:wrap}.aab-meta{flex-basis:100%}}
-/* Clean (owner, 18 Nov): no room kept for a longer answer or an empty status line: the answer is as tall as its words, the
-   reasons and the status take room only while they show, and the component grows with them (grow()), centred in its stage.
-   While a new version streams in, the answer keeps the height of the one it replaces, then eases to its own. The chrome is
-   monochrome: a rated thumb fills in ink (no green or red fill), read aloud plays in ink on a grey track and lights the word
+/* Clean (owner, 18 Nov): the chrome is monochrome: a rated thumb fills in ink (no green or red fill, no tilt), read aloud plays in ink on a grey track and lights the word
    it reads in grey, and a picked reason is an ink chip like a toggle that is on. What a new version changed stays green, and
    so does the status's tick; a problem stays amber. Words fade in and out without a blur */
 @keyframes aabwc{from{opacity:0}to{opacity:1}}
 @keyframes aaboc{to{opacity:0;transform:translateY(-2px)}}
-:root[data-style="clean"] .aab-t{min-height:0}
 :root[data-style="clean"] .aab-bar{border-radius:calc(28px / 2 + 3px)}
-:root[data-style="clean"] .aab-t .w.in{animation-name:aabwc}
-:root[data-style="clean"] .aab-t.out{animation-name:aaboc}
+:root[data-style="clean"] .aab-t .w.in{animation-name:aabwc;animation-duration:var(--t-slow)}
+:root[data-style="clean"] .aab-t.out{animation-name:aaboc;animation-duration:var(--t)}
+:root[data-style="clean"] .aab-bar .ib[aria-pressed="true"] svg{transform:none}
 :root[data-style="clean"] .aab-t .w.rd{background:var(--hover);color:var(--fg)}
 :root[data-style="clean"] .aab-bar .ib[aria-pressed="true"]{background:none;color:var(--fg)}
 :root[data-style="clean"] .aab-bar .ib[aria-pressed="true"]:hover{background:var(--row)}
@@ -2928,10 +2949,6 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 :root[data-style="clean"] .aab-rd:hover{background:var(--hover)}
 :root[data-style="clean"] .aab-ch .chip.on{background:var(--btn-2);color:var(--on-btn);box-shadow:inset 0 0 0 1px var(--btn-2)}
 :root[data-style="clean"] .aab-cp.copied{color:var(--ok-mark)!important}
-:root[data-style="clean"] .aab-why{transition:grid-template-rows var(--t) var(--ease),opacity var(--t) var(--ease),margin-top var(--t) var(--ease)}
-:root[data-style="clean"] .aab-why.shut{margin-top:-12px;transition:grid-template-rows var(--t) var(--ease),opacity var(--t) var(--ease),margin-top var(--t) var(--ease),visibility 0s var(--t)}
-:root[data-style="clean"] .aab-st{min-height:0;max-height:20px;transition:max-height var(--t) var(--ease),margin-top var(--t) var(--ease)}
-:root[data-style="clean"] .aab-st:is(:empty,.off){max-height:0;margin-top:-12px}
 :root[data-style="clean"] .aab-st.ok svg{color:var(--ok-mark)}
 /* ---------- Decision prompt ---------- */
 /* the agent asks in the chat: no container; with .panel it becomes a card */
@@ -10373,20 +10390,21 @@ DM.def('thinking', (r, c) => {
   const tk = $('.tk', r), list = $('.tk-list', r), title = $('.tk-title', r), time = $('.tk-time', r), head = $('.tk-h', r), fold = $('.tk-fold', r), mark = $('.tk-mark', r);
   // each step: what the agent does and what it found. Measuring the cards times out once, counts down and tries again
   const S = [
-    ['Open Pricing v4 in Figma', '6 frames, 3 plan cards', 1300],
+    ['Open Pricing v4 in Figma', '6 frames', 1300],
     ['Read the spacing tokens', 'tokens.css, 9 spacing values', 1200],
-    ['Measure the plan cards', '3 cards are off the 8px grid', 1400, { retry:"Figma didn't answer", tip:'Pro has an 18px gap, Team 22px and Enterprise 13px' }],
+    ['Measure the plan cards', 'Off the 8px grid', 1400, { retry:"Figma didn't answer", tip:'Pro has an 18px gap, Team 22px and Enterprise 13px' }],
     ['Check text contrast', 'All 14 text pairs pass AA', 1100],
-    ['Plan the fix', '2 changes, about 3 minutes', 1200]
+    ['Plan the fix', 'About 3 minutes of work', 1200]
   ];
   const setOpen = o => { tk.dataset.open = o ? '1' : '0'; fold.classList.toggle('shut', !o); head.setAttribute('aria-expanded', o); };
   head.onclick = () => setOpen(tk.dataset.open !== '1');
-  // Clean (owner, 18 Nov): a card that grows with its steps (grow(), started once its entrance has settled, so it measures
-  // the card at its real size), and its header says what the work came to as the last step finishes, never after it
+  // the trace grows with its steps in every style (grow(), started once its entrance has settled, so it measures the card
+  // at its real size), and its header says what the work came to as the last step finishes, never after it (owner, 18 Nov).
+  // Clean draws its finished mark as a tick on a green disc
   const ds = r.closest('[data-style]'), clean = !!ds && ds.dataset.style === 'clean';
-  if (clean) Promise.resolve().then(() => Promise.all(tk.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && tk.isConnected) c.offs.push(grow(tk)); });
-  // (the template's chevron names the sprite's icon directly, which the homepage renames; Clean draws it through I())
-  if (clean) $('.tk-chev', r).outerHTML = I('chev-d', 'xs tk-chev');
+  Promise.resolve().then(() => Promise.all(tk.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && tk.isConnected) c.offs.push(grow(tk)); });
+  // (the template's chevron names the sprite's icon directly, which the homepage renames, so it is drawn through I())
+  $('.tk-chev', r).outerHTML = I('chev-d', 'xs tk-chev');
   // the header becomes what the work came to
   const finish = () => { live = false; head.classList.add('tk-fin'); mark.innerHTML = clean ? I('check','xs') : I('ok'); enter(mark.firstElementChild); title.classList.remove('shim'); swap(title, '3 cards to fix, 2 changes planned'); };
   // the line under a step opens and then crossfades; what the step found writes itself in a word at a time, and a tip on it
@@ -10412,9 +10430,9 @@ DM.def('thinking', (r, c) => {
       li.classList.replace('run', 'done'); l.classList.remove('shim'); glyph(li, I('check','xs')); note(li, res, x && x.tip, true);
       const t = $('.tk-dur', li); t.textContent = (took / 1000).toFixed(1) + 's'; enter(t);
     }
-    // the header becomes what the work came to (in Clean as the last step finishes), and folds the trace away
-    if (clean) finish(); else { await c.wait(500); finish(); }
-    await c.wait(clean ? 2500 : 2000); setOpen(false);
+    // the header becomes what the work came to as the last step finishes, and folds the trace away
+    finish();
+    await c.wait(2500); setOpen(false);
   });
   // the preview's story: once it has folded, the person opens it again and reads what the cards measured
   if (r === c.st) c.story(async s => {
@@ -13530,13 +13548,13 @@ DM.def('response-versions', (r, c) => {
   const vers = [pool[0]]; let cur = 0, busy = false;
   const t = $('.rvx-t', r), n = $('.rvx-n', r), pv = $('.rvx-prev', r), nx = $('.rvx-next', r), re = $('.rvx-re', r), st = $('.rvx-st', r);
   const nav = () => { n.textContent = (cur + 1) + ' / ' + vers.length; pv.disabled = cur === 0 || busy; nx.disabled = cur === vers.length - 1 || busy; };
-  // Clean (owner, 18 Nov): no room kept for a longer answer. The component grows with its words (grow(), once its entrance
-  // has settled), and a version streaming in keeps the height of the one it replaces, then eases to its own
-  const ds = r.closest('[data-style]'), clean = !!ds && ds.dataset.style === 'clean', rvx = $('.rvx', r);
-  if (clean) Promise.resolve().then(() => Promise.all(rvx.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && rvx.isConnected) c.offs.push(grow(rvx)); });
-  const keep = () => { if (clean && t.textContent.trim()) t.style.minHeight = t.offsetHeight + 'px'; };
+  // no room kept for a longer answer, in every style (owner, 18 Nov). The component grows with its words (grow(), once its
+  // entrance has settled), and a version streaming in keeps the height of the one it replaces, then eases to its own
+  const rvx = $('.rvx', r);
+  Promise.resolve().then(() => Promise.all(rvx.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && rvx.isConnected) c.offs.push(grow(rvx)); });
+  const keep = () => { if (t.textContent.trim()) t.style.minHeight = t.offsetHeight + 'px'; };
   const fit = () => { if (!t.style.minHeight) return; const was = t.offsetHeight; t.style.minHeight = ''; const h = t.offsetHeight; if (h >= was || REDUCE) return;
-    t.style.minHeight = was + 'px'; void t.offsetHeight; t.style.transition = 'min-height .42s var(--ease)'; t.style.minHeight = h + 'px';
+    t.style.minHeight = was + 'px'; void t.offsetHeight; t.style.transition = 'min-height var(--t) var(--ease)'; t.style.minHeight = h + 'px';
     c.later(460, () => { t.style.transition = ''; t.style.minHeight = ''; }); };
   async function stream(s){
     keep(); t.classList.add('out'); await c.wait(260); t.classList.remove('out'); t.innerHTML = '';
@@ -13560,10 +13578,10 @@ DM.def('response-versions', (r, c) => {
 DM.def('feedback-sheet', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{up}', I('up-thumb')).replace('{dn}', I('down-thumb'));
   const up = $('.fbx-up', r), dn = $('.fbx-dn', r), box = $('.fbx-box', r), st = $('.fbx-st', r), go = $('.fbx-go', r), ta = $('.fbx-ta', r), chips = $$('.fbx-ch .chip', r);
-  // Clean (owner, 18 Nov): the component grows with what it shows (grow(), once its entrance has settled), so the thanks
-  // line eases in as the sheet folds away
-  const ds = r.closest('[data-style]'), clean = !!ds && ds.dataset.style === 'clean', fbx = $('.fbx', r);
-  if (clean) Promise.resolve().then(() => Promise.all(fbx.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && fbx.isConnected) c.offs.push(grow(fbx)); });
+  // the component grows with what it shows in every style (grow(), once its entrance has settled), so the thanks line
+  // eases in as the sheet folds away
+  const fbx = $('.fbx', r);
+  Promise.resolve().then(() => Promise.all(fbx.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && fbx.isConnected) c.offs.push(grow(fbx)); });
   const ready = () => go.disabled = !(chips.some(x => x.classList.contains('on')) || ta.value.trim());
   chips.forEach(ch => ch.onclick = () => { ch.classList.toggle('on'); ready(); });
   ta.oninput = ready;
@@ -13577,7 +13595,7 @@ DM.def('feedback-sheet', (r, c) => {
     box.classList.add('shut'); await c.wait(300);
     const n = chips.filter(x => x.classList.contains('on')).length;
     const thx = html(`<div class="fbx-thx">${I('ok')}<span>Thanks. The agent will ${n ? 'avoid this' : 'use this'} next time in this project.</span></div>`);
-    ($(':scope>.dm-grow', fbx) || fbx).appendChild(thx); enter(thx); swap(st, clean ? '' : 'Feedback sent');
+    ($(':scope>.dm-grow', fbx) || fbx).appendChild(thx); enter(thx); swap(st, '');
   });
   /* once it has entered, it rates the answer down and fills in the sheet by itself. Clicking, focusing or typing in it
      takes over, and what it had typed goes */
@@ -13696,14 +13714,14 @@ DM.def('answer-action-bar', (r, c) => {
     up.setAttribute('aria-pressed', vers[cur].rate === 'up'); dn.setAttribute('aria-pressed', vers[cur].rate === 'down');
     swap(meta, vers[cur].meta);
   }
-  // Clean (owner, 18 Nov): no room kept for a longer answer or an empty status. The component grows with what it shows
-  // (grow(), once its entrance has settled), and a version streaming in keeps the height of the one it replaces, then eases
-  // to its own
-  const ds = r.closest('[data-style]'), clean = !!ds && ds.dataset.style === 'clean', aab = $('.aab', r);
-  if (clean) Promise.resolve().then(() => Promise.all(aab.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && aab.isConnected) c.offs.push(grow(aab)); });
-  const keep = () => { if (clean && t.textContent.trim()) t.style.minHeight = t.offsetHeight + 'px'; };
+  // no room kept for a longer answer or an empty status, in every style (owner, 18 Nov). The component grows with what it
+  // shows (grow(), once its entrance has settled), and a version streaming in keeps the height of the one it replaces, then
+  // eases to its own
+  const aab = $('.aab', r);
+  Promise.resolve().then(() => Promise.all(aab.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && aab.isConnected) c.offs.push(grow(aab)); });
+  const keep = () => { if (t.textContent.trim()) t.style.minHeight = t.offsetHeight + 'px'; };
   const fit = () => { if (!t.style.minHeight) return; const was = t.offsetHeight; t.style.minHeight = ''; const h = t.offsetHeight; if (h >= was || REDUCE) return;
-    t.style.minHeight = was + 'px'; void t.offsetHeight; t.style.transition = 'min-height .42s var(--ease)'; t.style.minHeight = h + 'px';
+    t.style.minHeight = was + 'px'; void t.offsetHeight; t.style.transition = 'min-height var(--t) var(--ease)'; t.style.minHeight = h + 'px';
     c.later(460, () => { t.style.transition = ''; t.style.minHeight = ''; }); };
   // a version streams in word by word; paging between versions shows one at once
   async function stream(v){
@@ -13721,16 +13739,18 @@ DM.def('answer-action-bar', (r, c) => {
     c.run(async () => {
       if (failOnce){ failOnce = false;
         status('Writing a new version' + (note ? ' with your note' : '')); st.classList.add('shim'); await c.wait(1200); st.classList.remove('shim');
-        for (let k = 2; k > 0; k--){ status(`Couldn't reach Sonnet 5.5. Retrying in ${k}s`, 'warn'); await c.wait(1000); }
+        for (let k = 2; k > 0; k--){ status(`Couldn't reach the model. Retrying in ${k}s`, 'warn'); await c.wait(1000); }
       }
       status('Writing a new version' + (note ? ' with your note' : '')); st.classList.add('shim');
       const v = { ...POOL[Math.min(vers.length, POOL.length - 1)], rate:'' }; vers.push(v); cur = vers.length - 1; nav();
       await stream(v); busy = false; nav(); st.classList.remove('shim');
-      status(cur === 1 ? 'Version 2 fixes the saving: 21%, not 15%' : `Version ${cur + 1} of ${vers.length}`, 'ok');
+      // what the new version fixed, when it answers a reason; the pager already counts the versions
+      if (note) status('Fixes the saving: 21%, not 15%', 'ok'); else status('');
     });
   }
   re.onclick = () => regenerate();
-  cp.onclick = () => { copied(cp, plain(vers[cur])); status('Copied without the highlights', 'ok'); };
+  // the tooltip says it was copied, and how
+  cp.onclick = () => copied(cp, plain(vers[cur]), 'Copied without the highlights');
   // thumbs: up is a quiet thanks; down asks why, and a reason writes a version that answers it
   up.onclick = () => { const v = vers[cur]; v.rate = v.rate === 'up' ? '' : 'up'; why.classList.add('shut'); nav(); status(v.rate ? 'Thanks, noted for this project' : ''); };
   dn.onclick = () => { const v = vers[cur]; v.rate = v.rate === 'down' ? '' : 'down'; why.classList.toggle('shut', v.rate !== 'down'); why.inert = v.rate !== 'down'; nav(); status(''); chips.forEach(x => x.classList.remove('on')); };

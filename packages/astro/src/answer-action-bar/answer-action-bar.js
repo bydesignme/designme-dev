@@ -24,14 +24,14 @@ DM.def('answer-action-bar', (r, c) => {
     up.setAttribute('aria-pressed', vers[cur].rate === 'up'); dn.setAttribute('aria-pressed', vers[cur].rate === 'down');
     swap(meta, vers[cur].meta);
   }
-  // Clean (owner, 18 Nov): no room kept for a longer answer or an empty status. The component grows with what it shows
-  // (grow(), once its entrance has settled), and a version streaming in keeps the height of the one it replaces, then eases
-  // to its own
-  const ds = r.closest('[data-style]'), clean = !!ds && ds.dataset.style === 'clean', aab = $('.aab', r);
-  if (clean) Promise.resolve().then(() => Promise.all(aab.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && aab.isConnected) c.offs.push(grow(aab)); });
-  const keep = () => { if (clean && t.textContent.trim()) t.style.minHeight = t.offsetHeight + 'px'; };
+  // no room kept for a longer answer or an empty status, in every style (owner, 18 Nov). The component grows with what it
+  // shows (grow(), once its entrance has settled), and a version streaming in keeps the height of the one it replaces, then
+  // eases to its own
+  const aab = $('.aab', r);
+  Promise.resolve().then(() => Promise.all(aab.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && aab.isConnected) c.offs.push(grow(aab)); });
+  const keep = () => { if (t.textContent.trim()) t.style.minHeight = t.offsetHeight + 'px'; };
   const fit = () => { if (!t.style.minHeight) return; const was = t.offsetHeight; t.style.minHeight = ''; const h = t.offsetHeight; if (h >= was || REDUCE) return;
-    t.style.minHeight = was + 'px'; void t.offsetHeight; t.style.transition = 'min-height .42s var(--dm-ease)'; t.style.minHeight = h + 'px';
+    t.style.minHeight = was + 'px'; void t.offsetHeight; t.style.transition = 'min-height var(--dm-t) var(--dm-ease)'; t.style.minHeight = h + 'px';
     c.later(460, () => { t.style.transition = ''; t.style.minHeight = ''; }); };
   // a version streams in word by word; paging between versions shows one at once
   async function stream(v){
@@ -49,16 +49,18 @@ DM.def('answer-action-bar', (r, c) => {
     c.run(async () => {
       if (failOnce){ failOnce = false;
         status('Writing a new version' + (note ? ' with your note' : '')); st.classList.add('shim'); await c.wait(1200); st.classList.remove('shim');
-        for (let k = 2; k > 0; k--){ status(`Couldn't reach Sonnet 5.5. Retrying in ${k}s`, 'warn'); await c.wait(1000); }
+        for (let k = 2; k > 0; k--){ status(`Couldn't reach the model. Retrying in ${k}s`, 'warn'); await c.wait(1000); }
       }
       status('Writing a new version' + (note ? ' with your note' : '')); st.classList.add('shim');
       const v = { ...POOL[Math.min(vers.length, POOL.length - 1)], rate:'' }; vers.push(v); cur = vers.length - 1; nav();
       await stream(v); busy = false; nav(); st.classList.remove('shim');
-      status(cur === 1 ? 'Version 2 fixes the saving: 21%, not 15%' : `Version ${cur + 1} of ${vers.length}`, 'ok');
+      // what the new version fixed, when it answers a reason; the pager already counts the versions
+      if (note) status('Fixes the saving: 21%, not 15%', 'ok'); else status('');
     });
   }
   re.onclick = () => regenerate();
-  cp.onclick = () => { copied(cp, plain(vers[cur])); status('Copied without the highlights', 'ok'); };
+  // the tooltip says it was copied, and how
+  cp.onclick = () => copied(cp, plain(vers[cur]), 'Copied without the highlights');
   // thumbs: up is a quiet thanks; down asks why, and a reason writes a version that answers it
   up.onclick = () => { const v = vers[cur]; v.rate = v.rate === 'up' ? '' : 'up'; why.classList.add('shut'); nav(); status(v.rate ? 'Thanks, noted for this project' : ''); };
   dn.onclick = () => { const v = vers[cur]; v.rate = v.rate === 'down' ? '' : 'down'; why.classList.toggle('shut', v.rate !== 'down'); why.inert = v.rate !== 'down'; nav(); status(''); chips.forEach(x => x.classList.remove('on')); };

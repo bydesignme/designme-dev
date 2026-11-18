@@ -3,7 +3,16 @@
 /* every action on an answer in one raised rail under it: copy, regenerate with its versions, thumbs, and read aloud, which
    widens into a progress bar and a clock and lights each word as it reads it */
 .dm-aab{display:flex;flex-direction:column;gap:var(--dm-s-3)}
-.dm-aab-t{min-height:78px}
+/* no room kept for a longer answer or an empty status line, in every style (owner's notes, 18 Nov): the answer is as tall as
+   its words, the reasons and the status take room only while they show, and the component grows with them (grow()). While
+   a new version streams in, the answer keeps the height of the one it replaces, then eases to its own. The bar's shadow
+   shows past the growing box */
+.dm-aab.dm-growing{overflow-clip-margin:32px}
+.dm-aab-why{transition:grid-template-rows var(--dm-t) var(--dm-ease),opacity var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease)}
+.dm-aab-why.dm-shut{margin-top:calc(-1 * var(--dm-s-3));transition:grid-template-rows var(--dm-t) var(--dm-ease),opacity var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease),visibility 0s var(--dm-t)}
+/* nothing in the bar shrinks or swells on a click (owner, 18 Nov): a rated thumb only tilts */
+.dm-aab-bar .dm-ib:active{transform:none}
+:root[data-style="clean"] .dm-aab-bar .dm-ib:active,:root [data-style="clean"] .dm-aab-bar .dm-ib:active,:root [data-style="clean"].dm-aab-bar .dm-ib:active{transform:none}
 .dm-aab-t .dm-w{transition:background .16s,color .16s;border-radius:var(--dm-r-xs)}
 .dm-aab-t .dm-w.dm-in{animation:dm-aabw .42s var(--dm-ease) both}
 @keyframes dm-aabw{from{opacity:0;filter:blur(4px)}to{opacity:1;filter:none}}
@@ -20,7 +29,7 @@
 .dm-aab-re.dm-go svg{transform:rotate(360deg)}
 .dm-aab-up[aria-pressed="true"]{color:var(--dm-ok);background:var(--dm-ok-bg)}
 .dm-aab-dn[aria-pressed="true"]{color:var(--dm-bad);background:var(--dm-bad-bg)}
-.dm-aab-up[aria-pressed="true"] svg,.dm-aab-dn[aria-pressed="true"] svg{transform:scale(1.1) rotate(-8deg)}
+.dm-aab-up[aria-pressed="true"] svg,.dm-aab-dn[aria-pressed="true"] svg{transform:rotate(-8deg)}
 .dm-aab-sep{width:1px;height:16px;background:var(--dm-line);margin:0 var(--dm-s-1)}
 /* the version pager only takes room once there is a second version */
 .dm-aab-pg{display:inline-flex;align-items:center;max-width:0;overflow:hidden;opacity:0;transition:max-width .42s var(--dm-ease),opacity .32s}
@@ -42,23 +51,21 @@
 .dm-aab-wq{font-size:13px;font-weight:500}
 .dm-aab-ch{display:flex;flex-wrap:wrap;gap:6px}
 .dm-aab-ch .dm-chip.dm-on{background:var(--dm-sel);color:var(--dm-accent-fg,var(--dm-accent));box-shadow:none}
-.dm-aab-st{margin:0;min-height:20px;font-size:12.5px;display:flex;align-items:center;gap:6px}
+.dm-aab-st{margin:0;max-height:20px;font-size:12.5px;display:flex;align-items:center;gap:6px;transition:max-height var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease)}
+.dm-aab-st:is(:empty,.dm-off){max-height:0;margin-top:calc(-1 * var(--dm-s-3))}
 .dm-aab-st.dm-warn{color:var(--dm-warn)}
 .dm-aab-st.dm-ok svg{color:var(--dm-ok);flex:none}
 .dm-aab-rd.dm-on .dm-aab-pr{width:40px}
 @media (max-width:480px){.dm-aab-rd.dm-on .dm-aab-tm{display:none}.dm-aab-row{flex-wrap:wrap}.dm-aab-meta{flex-basis:100%}}
-/* Clean (owner, 18 Nov): no room kept for a longer answer or an empty status line: the answer is as tall as its words, the
-   reasons and the status take room only while they show, and the component grows with them (grow()), centred in its stage.
-   While a new version streams in, the answer keeps the height of the one it replaces, then eases to its own. The chrome is
-   monochrome: a rated thumb fills in ink (no green or red fill), read aloud plays in ink on a grey track and lights the word
+/* Clean (owner, 18 Nov): the chrome is monochrome: a rated thumb fills in ink (no green or red fill, no tilt), read aloud plays in ink on a grey track and lights the word
    it reads in grey, and a picked reason is an ink chip like a toggle that is on. What a new version changed stays green, and
    so does the status's tick; a problem stays amber. Words fade in and out without a blur */
 @keyframes dm-aabwc{from{opacity:0}to{opacity:1}}
 @keyframes dm-aaboc{to{opacity:0;transform:translateY(-2px)}}
-:root[data-style="clean"] .dm-aab-t,:root [data-style="clean"] .dm-aab-t,:root [data-style="clean"].dm-aab-t{min-height:0}
 :root[data-style="clean"] .dm-aab-bar,:root [data-style="clean"] .dm-aab-bar,:root [data-style="clean"].dm-aab-bar{border-radius:calc(28px / 2 + 3px)}
-:root[data-style="clean"] .dm-aab-t .dm-w.dm-in,:root [data-style="clean"] .dm-aab-t .dm-w.dm-in,:root [data-style="clean"].dm-aab-t .dm-w.dm-in{animation-name:dm-aabwc}
-:root[data-style="clean"] .dm-aab-t.dm-out,:root [data-style="clean"] .dm-aab-t.dm-out,:root [data-style="clean"].dm-aab-t.dm-out{animation-name:dm-aaboc}
+:root[data-style="clean"] .dm-aab-t .dm-w.dm-in,:root [data-style="clean"] .dm-aab-t .dm-w.dm-in,:root [data-style="clean"].dm-aab-t .dm-w.dm-in{animation-name:dm-aabwc;animation-duration:var(--dm-t-slow)}
+:root[data-style="clean"] .dm-aab-t.dm-out,:root [data-style="clean"] .dm-aab-t.dm-out,:root [data-style="clean"].dm-aab-t.dm-out{animation-name:dm-aaboc;animation-duration:var(--dm-t)}
+:root[data-style="clean"] .dm-aab-bar .dm-ib[aria-pressed="true"] svg,:root [data-style="clean"] .dm-aab-bar .dm-ib[aria-pressed="true"] svg,:root [data-style="clean"].dm-aab-bar .dm-ib[aria-pressed="true"] svg{transform:none}
 :root[data-style="clean"] .dm-aab-t .dm-w.dm-rd,:root [data-style="clean"] .dm-aab-t .dm-w.dm-rd,:root [data-style="clean"].dm-aab-t .dm-w.dm-rd{background:var(--dm-hover);color:var(--dm-fg)}
 :root[data-style="clean"] .dm-aab-bar .dm-ib[aria-pressed="true"],:root [data-style="clean"] .dm-aab-bar .dm-ib[aria-pressed="true"],:root [data-style="clean"].dm-aab-bar .dm-ib[aria-pressed="true"]{background:none;color:var(--dm-fg)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-aab-bar .dm-ib[aria-pressed="true"]:hover,:root [data-style="clean"] .dm-aab-bar .dm-ib[aria-pressed="true"]:hover,:root [data-style="clean"].dm-aab-bar .dm-ib[aria-pressed="true"]:hover{background:var(--dm-row)}}
@@ -67,8 +74,4 @@
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-aab-rd:hover,:root [data-style="clean"] .dm-aab-rd:hover,:root [data-style="clean"].dm-aab-rd:hover{background:var(--dm-hover)}}
 :root[data-style="clean"] .dm-aab-ch .dm-chip.dm-on,:root [data-style="clean"] .dm-aab-ch .dm-chip.dm-on,:root [data-style="clean"].dm-aab-ch .dm-chip.dm-on{background:var(--dm-btn-2);color:var(--dm-on-btn);box-shadow:inset 0 0 0 1px var(--dm-btn-2)}
 :root[data-style="clean"] .dm-aab-cp.dm-copied,:root [data-style="clean"] .dm-aab-cp.dm-copied,:root [data-style="clean"].dm-aab-cp.dm-copied{color:var(--dm-ok-mark)!important}
-:root[data-style="clean"] .dm-aab-why,:root [data-style="clean"] .dm-aab-why,:root [data-style="clean"].dm-aab-why{transition:grid-template-rows var(--dm-t) var(--dm-ease),opacity var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease)}
-:root[data-style="clean"] .dm-aab-why.dm-shut,:root [data-style="clean"] .dm-aab-why.dm-shut,:root [data-style="clean"].dm-aab-why.dm-shut{margin-top:-12px;transition:grid-template-rows var(--dm-t) var(--dm-ease),opacity var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease),visibility 0s var(--dm-t)}
-:root[data-style="clean"] .dm-aab-st,:root [data-style="clean"] .dm-aab-st,:root [data-style="clean"].dm-aab-st{min-height:0;max-height:20px;transition:max-height var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease)}
-:root[data-style="clean"] .dm-aab-st:is(:empty,.dm-off),:root [data-style="clean"] .dm-aab-st:is(:empty,.dm-off),:root [data-style="clean"].dm-aab-st:is(:empty,.dm-off){max-height:0;margin-top:-12px}
 :root[data-style="clean"] .dm-aab-st.dm-ok svg,:root [data-style="clean"] .dm-aab-st.dm-ok svg,:root [data-style="clean"].dm-aab-st.dm-ok svg{color:var(--dm-ok-mark)}

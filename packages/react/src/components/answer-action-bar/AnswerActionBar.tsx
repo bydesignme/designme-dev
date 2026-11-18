@@ -97,14 +97,12 @@ export function AnswerActionBar({
   const regenerate = () => { if (streaming) return; setRead('idle'); setPos(0); setSpin(true); setTimeout(() => setSpin(false), 700); onRegenerate?.(); };
   const copy = () => { copyText(text); onCopy?.(text); };
   const why = rating === 'down' && !asked[at];
-  // Clean (owner, 18 Nov): the container grows with what it holds, eased (grow() on the site), and stays centred wherever it is
-  // centred. Soft and Blueprint keep their layout: the wrapper inside is display:contents there
+  // the container grows with what it holds, eased (grow() on the site), and stays centred wherever it is centred, in every
+  // style (owner, 18 Nov)
   const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
-  const [clean, setClean] = useState(false);
-  useIsoLayoutEffect(() => { setClean(root.current?.closest('[data-style]')?.getAttribute('data-style') === 'clean'); }, []);
   useIsoLayoutEffect(() => {
     const el = root.current, w = inner.current;
-    if (!clean || !el || !w || typeof ResizeObserver === 'undefined') return;
+    if (!el || !w || typeof ResizeObserver === 'undefined') return;
     let first = true;
     const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
     const fit = () => {
@@ -114,26 +112,26 @@ export function AnswerActionBar({
     };
     const ro = new ResizeObserver(fit); ro.observe(w); fit();
     return () => { ro.disconnect(); el.style.height = ''; };
-  }, [clean]);
-  // Clean: while a new version streams in, the answer keeps the height of the one it replaces, then eases to its own
+  }, []);
+  // while a new version streams in, the answer keeps the height of the one it replaces, then eases to its own
   const tRef = useRef<HTMLParagraphElement>(null), prevT = useRef({ at: -1, h: 0 });
   useIsoLayoutEffect(() => {
     const el = tRef.current; if (!el) return;
-    if (clean && prevT.current.at !== -1 && prevT.current.at !== at && prevT.current.h && streaming) el.style.minHeight = prevT.current.h + 'px';
+    if (prevT.current.at !== -1 && prevT.current.at !== at && prevT.current.h && streaming) el.style.minHeight = prevT.current.h + 'px';
     prevT.current = { at: at, h: el.style.minHeight ? prevT.current.h : (el.textContent?.trim() ? el.offsetHeight : 0) };
   });
   useEffect(() => {
     const el = tRef.current; if (!el || streaming || !el.style.minHeight) return;
     const was = el.offsetHeight; el.style.minHeight = ''; const h = el.offsetHeight;
     if (h >= was || reduce) return;
-    el.style.minHeight = was + 'px'; void el.offsetHeight; el.style.transition = 'min-height .42s var(--dm-ease)'; el.style.minHeight = h + 'px';
+    el.style.minHeight = was + 'px'; void el.offsetHeight; el.style.transition = 'min-height var(--dm-t) var(--dm-ease)'; el.style.minHeight = h + 'px';
     const t = setTimeout(() => { el.style.transition = ''; el.style.minHeight = ''; }, 460);
     return () => clearTimeout(t);
   }, [streaming, at, reduce]);
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-aab', !bare && 'dm-panel', clean && 'dm-growing', className)} style={bare ? undefined : { padding: 16 }}>
-      <div ref={inner} className="dm-grow" style={clean ? undefined : { display: 'contents' }}>
+    <div data-dm="" ref={root} className={cx('dm-aab', !bare && 'dm-panel', 'dm-growing', className)} style={bare ? undefined : { padding: 16 }}>
+      <div ref={inner} className="dm-grow">
       {question && <div className="dm-bub">{question}</div>}
       <p ref={tRef} className="dm-msg dm-aab-t" aria-live="polite">
         {words.map(({ w, nw }, k) => (

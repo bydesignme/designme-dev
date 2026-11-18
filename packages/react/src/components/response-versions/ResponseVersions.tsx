@@ -48,14 +48,12 @@ export function ResponseVersions({ prompt, versions, version, defaultVersion = 0
   }, [at, shown, streaming, reduce]);
   const text = versions[shown] ?? '';
   const words = text.split(' ').filter(Boolean);
-  // Clean (owner, 18 Nov): the container grows with what it holds, eased (grow() on the site), and stays centred wherever it is
-  // centred. Soft and Blueprint keep their layout: the wrapper inside is display:contents there
+  // the container grows with what it holds, eased (grow() on the site), and stays centred wherever it is centred, in every
+  // style (owner, 18 Nov)
   const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
-  const [clean, setClean] = useState(false);
-  useIsoLayoutEffect(() => { setClean(root.current?.closest('[data-style]')?.getAttribute('data-style') === 'clean'); }, []);
   useIsoLayoutEffect(() => {
     const el = root.current, w = inner.current;
-    if (!clean || !el || !w || typeof ResizeObserver === 'undefined') return;
+    if (!el || !w || typeof ResizeObserver === 'undefined') return;
     let first = true;
     const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
     const fit = () => {
@@ -65,19 +63,19 @@ export function ResponseVersions({ prompt, versions, version, defaultVersion = 0
     };
     const ro = new ResizeObserver(fit); ro.observe(w); fit();
     return () => { ro.disconnect(); el.style.height = ''; };
-  }, [clean]);
-  // Clean: while a new version streams in, the answer keeps the height of the one it replaces, then eases to its own
+  }, []);
+  // while a new version streams in, the answer keeps the height of the one it replaces, then eases to its own
   const tRef = useRef<HTMLParagraphElement>(null), prevT = useRef({ at: -1, h: 0 });
   useIsoLayoutEffect(() => {
     const el = tRef.current; if (!el) return;
-    if (clean && prevT.current.at !== -1 && prevT.current.at !== shown && prevT.current.h && streaming) el.style.minHeight = prevT.current.h + 'px';
+    if (prevT.current.at !== -1 && prevT.current.at !== shown && prevT.current.h && streaming) el.style.minHeight = prevT.current.h + 'px';
     prevT.current = { at: shown, h: el.style.minHeight ? prevT.current.h : (el.textContent?.trim() ? el.offsetHeight : 0) };
   });
   useEffect(() => {
     const el = tRef.current; if (!el || streaming || !el.style.minHeight) return;
     const was = el.offsetHeight; el.style.minHeight = ''; const h = el.offsetHeight;
     if (h >= was || reduce) return;
-    el.style.minHeight = was + 'px'; void el.offsetHeight; el.style.transition = 'min-height .42s var(--dm-ease)'; el.style.minHeight = h + 'px';
+    el.style.minHeight = was + 'px'; void el.offsetHeight; el.style.transition = 'min-height var(--dm-t) var(--dm-ease)'; el.style.minHeight = h + 'px';
     const t = setTimeout(() => { el.style.transition = ''; el.style.minHeight = ''; }, 460);
     return () => clearTimeout(t);
   }, [streaming, shown, reduce]);
@@ -92,8 +90,8 @@ export function ResponseVersions({ prompt, versions, version, defaultVersion = 0
   const copy = () => { const t = versions[at] ?? ''; copyText(t); onCopy?.(t); };
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-rvx', !bare && 'dm-panel', clean && 'dm-growing', className)} style={bare ? undefined : { padding: 16 }}>
-      <div ref={inner} className="dm-grow" style={clean ? undefined : { display: 'contents' }}>
+    <div data-dm="" ref={root} className={cx('dm-rvx', !bare && 'dm-panel', 'dm-growing', className)} style={bare ? undefined : { padding: 16 }}>
+      <div ref={inner} className="dm-grow">
       {prompt && <div className="dm-bub">{prompt}</div>}
       <div className="dm-rvx-a">
         <p ref={tRef} className={cx('dm-msg dm-rvx-t', out && 'dm-out')} aria-live="polite">

@@ -6,11 +6,11 @@ import { useScript, useStory } from './useScript';
 
 /* ---------- Thinking: each step and what it found; measuring the cards times out once and tries again; then it folds away ---------- */
 export const PRICING_STEPS: { label: string; result: string; ms: number; retry?: string; tip?: string }[] = [
-  { label: 'Open Pricing v4 in Figma', result: '6 frames, 3 plan cards', ms: 1300 },
+  { label: 'Open Pricing v4 in Figma', result: '6 frames', ms: 1300 },
   { label: 'Read the spacing tokens', result: 'tokens.css, 9 spacing values', ms: 1200 },
-  { label: 'Measure the plan cards', result: '3 cards are off the 8px grid', ms: 1400, retry: "Figma didn't answer", tip: 'Pro has an 18px gap, Team 22px and Enterprise 13px' },
+  { label: 'Measure the plan cards', result: 'Off the 8px grid', ms: 1400, retry: "Figma didn't answer", tip: 'Pro has an 18px gap, Team 22px and Enterprise 13px' },
   { label: 'Check text contrast', result: 'All 14 text pairs pass AA', ms: 1100 },
-  { label: 'Plan the fix', result: '2 changes, about 3 minutes', ms: 1200 }
+  { label: 'Plan the fix', result: 'About 3 minutes of work', ms: 1200 }
 ];
 
 export default function ThinkingDemo() {
@@ -34,8 +34,7 @@ export default function ThinkingDemo() {
       }
       out[at] = { ...out[at], state: 'done', result: s.result, resultTip: s.tip, time: (took / 1000).toFixed(1) + 's' }; show();
     }
-    // the header says what the work came to (in Clean as the last step finishes, never after it)
-    if (ref.current?.closest('[data-style]')?.getAttribute('data-style') !== 'clean') await wait(500);
+    // the header says what the work came to as the last step finishes, never after it
     setRunning(false);
   });
   // the preview's story: once it has folded, the person opens it again to read what the cards measured

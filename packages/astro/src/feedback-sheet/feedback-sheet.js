@@ -3,10 +3,10 @@ import { $, $$, DM, I, enter, grow, html, swap } from '../core/core.js';
 DM.def('feedback-sheet', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{up}', I('up-thumb')).replace('{dn}', I('down-thumb'));
   const up = $('.fbx-up', r), dn = $('.fbx-dn', r), box = $('.fbx-box', r), st = $('.fbx-st', r), go = $('.fbx-go', r), ta = $('.fbx-ta', r), chips = $$('.fbx-ch .chip', r);
-  // Clean (owner, 18 Nov): the component grows with what it shows (grow(), once its entrance has settled), so the thanks
-  // line eases in as the sheet folds away
-  const ds = r.closest('[data-style]'), clean = !!ds && ds.dataset.style === 'clean', fbx = $('.fbx', r);
-  if (clean) Promise.resolve().then(() => Promise.all(fbx.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && fbx.isConnected) c.offs.push(grow(fbx)); });
+  // the component grows with what it shows in every style (grow(), once its entrance has settled), so the thanks line
+  // eases in as the sheet folds away
+  const fbx = $('.fbx', r);
+  Promise.resolve().then(() => Promise.all(fbx.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && fbx.isConnected) c.offs.push(grow(fbx)); });
   const ready = () => go.disabled = !(chips.some(x => x.classList.contains('on')) || ta.value.trim());
   chips.forEach(ch => ch.onclick = () => { ch.classList.toggle('on'); ready(); });
   ta.oninput = ready;
@@ -20,7 +20,7 @@ DM.def('feedback-sheet', (r, c) => {
     box.classList.add('shut'); await c.wait(300);
     const n = chips.filter(x => x.classList.contains('on')).length;
     const thx = html(`<div class="fbx-thx">${I('ok')}<span>Thanks. The agent will ${n ? 'avoid this' : 'use this'} next time in this project.</span></div>`);
-    ($(':scope>.dm-grow', fbx) || fbx).appendChild(thx); enter(thx); swap(st, clean ? '' : 'Feedback sent');
+    ($(':scope>.dm-grow', fbx) || fbx).appendChild(thx); enter(thx); swap(st, '');
   });
   /* once it has entered, it rates the answer down and fills in the sheet by itself. Clicking, focusing or typing in it
      takes over, and what it had typed goes */

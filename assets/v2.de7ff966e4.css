@@ -577,15 +577,21 @@
 .v2.stage-in:has(>.tk){overflow-anchor:none}
 .v2 .tk{font-size:14px;width:100%;max-width:420px;margin-inline:auto;overflow-anchor:none}
 /* on a card the trace keeps the room it will fill, so the header stays put as steps arrive */
-.v2.stage-in>.tk{min-height:inherit}
+/* the trace grows with its steps in every style (grow(), owner's notes 18 Nov): no room kept for the steps to come. The
+   header's hover fill reaches 8px past its sides, so the growing box lets that much show */
+.v2 .tk.growing{overflow-clip-margin:12px}
 .v2 .tk-h{display:flex;align-items:center;gap:10px;width:calc(100% + 16px);margin:0 -8px;padding:6px var(--s-2);border-radius:calc(10px * var(--rk-m,var(--rk)));text-align:left;transition:background var(--t-fast)}
-@media (hover:hover) and (pointer:fine){.v2 .tk-h:hover{background:var(--row)}}
+/* the header's hover is a quiet fill round the chevron, never a band wider than the trace (owner, 18 Nov) */
+@media (hover:hover) and (pointer:fine){.v2 .tk-h:hover .tk-chev{background:var(--row);box-shadow:0 0 0 6px var(--row);color:var(--fg)}}
 .v2 .tk-mark{width:18px;height:18px;flex:none;display:grid;place-items:center;color:var(--accent-mark,var(--accent));transition:color .3s}
 .v2 .tk-h.tk-fin .tk-mark{color:var(--ok)}
+/* a finished state has no elapsed clock (owner, 18 Nov): the clock goes once the header says what the work came to */
+.v2 .tk-h.tk-fin .tk-time{visibility:hidden}
 .v2 .tk-h.tk-fin .tk-mark .i{animation:v2-tkpop .5s var(--ease) backwards}
 .v2 .tk-title{flex:1;min-width:0;color:var(--fg)}
 .v2 .tk-time{color:var(--muted);font-size:13px}
-.v2 .tk-chev{color:var(--muted);transition:transform .32s var(--ease)}
+.v2 .tk-chev{color:var(--muted);border-radius:50%;transition:transform .32s var(--ease),background-color var(--t-fast),box-shadow var(--t-fast),color var(--t-fast)}
+:root:not([data-style="soft"],[data-style="clean"]) .v2 .tk-chev{border-radius:0}
 .v2 .tk[data-open="0"] .tk-chev{transform:rotate(-90deg)}
 .v2 .tk-list{list-style:none;margin:0;padding:6px 0 0;display:flex;flex-direction:column}
 .v2 .tk-st{position:relative;display:flex;gap:10px;padding:6px 0}
@@ -629,7 +635,6 @@
    a finished step a green disc whose tick draws in, and a step waiting out a problem an amber clock. The header's dots
    turn in ink, and as the last step finishes it becomes what the work came to, with a green disc */
 :root[data-style="clean"] .v2 .tk{background:var(--surface);box-shadow:var(--shadow);border-radius:var(--r-card);overflow:clip}
-:root[data-style="clean"] .v2 .stage-in>.tk{min-height:0}
 :root[data-style="clean"] .v2 .tk.growing{overflow-clip-margin:0px}
 :root[data-style="clean"] .v2 .tk-h{width:100%;min-height:48px;margin:0;padding:14px 16px;gap:10px;align-items:flex-start;border-radius:0;line-height:20px}
 /* a header that wraps on a phone keeps its mark, time and chevron on the centre line of its first line */
@@ -641,12 +646,11 @@
    work came to (a finished state has no elapsed clock); the chevron keeps the right edge, where the steps' times end too */
 :root[data-style="clean"] .v2 .tk-title{flex:0 1 auto;font-weight:500}
 :root[data-style="clean"] .v2 .tk-time{margin-right:auto;font-variant-numeric:tabular-nums}
-:root[data-style="clean"] .v2 .tk-h.tk-fin .tk-time{visibility:hidden}
-:root[data-style="clean"] .v2 .tk-chev{width:14px;height:14px;border-radius:50%;box-shadow:0 0 0 7px transparent;transition:transform .4s var(--ease),background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
+:root[data-style="clean"] .v2 .tk-chev{width:14px;height:14px;border-radius:50%;box-shadow:0 0 0 7px transparent;transition:transform var(--t) var(--ease),background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .tk-h:hover .tk-chev{background:var(--hover);box-shadow:0 0 0 7px var(--hover);color:var(--fg)}}
 :root[data-style="clean"] .v2 .tk-mark{width:16px;height:16px;margin-right:2px;color:var(--fg)}
-:root[data-style="clean"] .v2 .tk-h.tk-fin .tk-mark{width:16px;height:16px;border-radius:50%;background:var(--ok-mark);color:var(--surface);animation:v2-tkdisc .34s var(--ease) backwards}
-:root[data-style="clean"] .v2 .tk-h.tk-fin .tk-mark .i{width:10px;height:10px;stroke-width:3.2;stroke-dasharray:21;animation:v2-tkdraw .3s var(--ease) .14s backwards}
+:root[data-style="clean"] .v2 .tk-h.tk-fin .tk-mark{width:16px;height:16px;border-radius:50%;background:var(--ok-mark);color:var(--surface);animation:v2-tkdisc var(--t) var(--ease) backwards}
+:root[data-style="clean"] .v2 .tk-h.tk-fin .tk-mark .i{width:10px;height:10px;stroke-width:3.2;stroke-dasharray:21;animation:v2-tkdraw var(--t) var(--ease) .14s backwards}
 /* the steps are as tall as Soft's, so the card keeps its stage's height in every style: 5px above and below each step,
    and its last words 16px from the card's foot */
 :root[data-style="clean"] .v2 .tk-list{padding:8px 16px 10px;border-top:1px solid var(--line)}
@@ -660,18 +664,18 @@
 :root[data-style="clean"] .v2 .tk-st .mk{width:16px;height:16px;margin:2px 2px 0 0;color:var(--fg);background:none;transition:none}
 :root[data-style="clean"] .v2 .tk-st.run .mk{background:none;animation:none}
 :root[data-style="clean"] .v2 .tk-st.run .mk .spin{box-sizing:border-box;width:16px;height:16px;border:1.5px solid var(--line);border-top-color:var(--fg);animation:v2-rot .9s linear infinite}
-:root[data-style="clean"] .v2 .tk-st.done .mk{background:var(--ok-mark);color:var(--surface);animation:v2-tkdisc .34s var(--ease) backwards}
-:root[data-style="clean"] .v2 .tk-st.done .mk .i{width:10px;height:10px;stroke-width:3.2;stroke-dasharray:21;animation:v2-tkdraw .3s var(--ease) .14s backwards}
+:root[data-style="clean"] .v2 .tk-st.done .mk{background:var(--ok-mark);color:var(--surface);animation:v2-tkdisc var(--t) var(--ease) backwards}
+:root[data-style="clean"] .v2 .tk-st.done .mk .i{width:10px;height:10px;stroke-width:3.2;stroke-dasharray:21;animation:v2-tkdraw var(--t) var(--ease) .14s backwards}
 :root[data-style="clean"] .v2 .tk-st.retry .mk{background:none;color:var(--warn-mark);animation:none}
 :root[data-style="clean"] .v2 .tk-st.retry .mk .i{width:16px;height:16px;stroke-width:1.8}
 @keyframes v2-tkdisc{from{opacity:0;transform:scale(.5)}}
 @keyframes v2-tkdraw{from{stroke-dashoffset:21}}
 /* the hairline from under each mark to just above the next, darkening down into the next step once this one is done */
 :root[data-style="clean"] .v2 .tk-st:not(:last-child)::before,:root[data-style="clean"] .v2 .tk-st.done:not(:last-child)::after{left:7.5px;top:27px;bottom:-3px;width:1px;border-radius:0;background:var(--line)}
-:root[data-style="clean"] .v2 .tk-st.done:not(:last-child)::after{background:var(--line-strong);animation:v2-tkgrow .44s var(--ease-io) .2s backwards}
+:root[data-style="clean"] .v2 .tk-st.done:not(:last-child)::after{background:var(--line-strong);animation:v2-tkgrow var(--t-slow) var(--ease-io) .2s backwards}
 /* what a step found writes itself in a word at a time: a fade and a 3px rise, no blur */
 @keyframes v2-tkwordc{from{opacity:0;transform:translateY(3px)}}
-:root[data-style="clean"] .v2 .tk-st .res .w{animation:v2-tkwordc .42s var(--ease) backwards}
+:root[data-style="clean"] .v2 .tk-st .res .w{animation:v2-tkwordc var(--t-slow) var(--ease) backwards}
 /* ---------- Context meter ---------- */
 /* a pill with the ring opens what fills the context: one bar split by kind, a legend whose rows list their items, and Compact */
 /* it never anchors the page's scroll, so the page can't follow it as it changes; on a card it sits in the middle of its room */
@@ -1986,6 +1990,12 @@
 .v2 .rte-url[aria-invalid="true"]{box-shadow:inset 0 0 0 1px var(--bad)}
 .v2 .rte-lnk .pill{flex:none}
 .v2 .rte-lnk .ib{width:30px;height:30px;flex:none}
+/* the link field's buttons are as tall as the field, so the row's three parts are one height */
+.v2 .rte-lnk .pill{height:32px;padding:0 14px}
+.v2 .rte-lnk .ib{width:32px;height:32px}
+/* nothing in the editor's chrome shrinks on a click (owner, 18 Nov) */
+.v2 :is(.rte-idle,.rte-lnk) .ib:active,.v2 .rte-rev .pill.ghost:active{transform:none}
+:root[data-style="clean"] .v2 :is(.rte-idle,.rte-lnk) .ib:active{transform:none}
 /* the small Ask AI button over a selection, for the mouse; the keyboard has the toolbar's button and its shortcut */
 .v2 .rte-ask{position:absolute;left:0;top:0;z-index:6;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px 0 9px;border-radius:var(--r-pill);background:var(--raised);box-shadow:var(--shadow-pop);font-size:12.5px;color:var(--fg);white-space:nowrap;opacity:0;visibility:hidden;transform:translateY(4px);transition:opacity .18s var(--ease),transform .3s var(--ease),visibility 0s .3s}
 .v2 .rte-ask .i{color:var(--accent-fg)}
@@ -2024,10 +2034,8 @@
 :root[data-style="clean"] .v2 .rte-ft{min-height:45px;padding:8px 8px 8px 16px;background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card);box-shadow:none}
 :root[data-style="clean"] .v2 .rte-idle .ib{width:28px;height:28px}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .rte-idle .ib:hover{background:var(--hover)}}
-/* the menu's heading starts where its items' words do; the link field's buttons are as tall as the field */
+/* the menu's heading starts where its items' words do */
 :root[data-style="clean"] .v2 .rte-menu .ph{padding-left:calc(var(--s-2) + 14px + 10px)}
-:root[data-style="clean"] .v2 .rte-lnk .pill{height:32px;padding:0 14px}
-:root[data-style="clean"] .v2 .rte-lnk .ib{width:32px;height:32px}
 :root[data-style="clean"] .v2 .rte-st{color:var(--fg2)}
 :root[data-style="clean"] .v2 .rte-rev{gap:8px;margin-right:0}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .rte-rev .pill.ghost:hover{background:var(--hover)}}
@@ -2035,7 +2043,7 @@
 /* the key on the ink button: a faint light chip, in the button's own text colour */
 :root[data-style="clean"] .v2 .rte-ok:not([disabled]) .kbd{background:color-mix(in srgb,var(--on-btn) 18%,transparent);color:var(--on-btn)}
 @keyframes v2-rtewc{from{opacity:0}to{opacity:1}}
-:root[data-style="clean"] .v2 .rte-new .w{animation:v2-rtewc .36s var(--ease) both}
+:root[data-style="clean"] .v2 .rte-new .w{animation:v2-rtewc var(--t-slow) var(--ease) both}
 @container rte (max-width:400px){:root[data-style="clean"] .v2 .rte-ai{width:28px;padding:0}:root[data-style="clean"] .v2 .rte-body{padding:16px}:root[data-style="clean"] .v2 .rte-body.empty::before{left:16px;right:16px;top:16px}:root[data-style="clean"] .v2 .rte-ft{padding-left:16px}}
 @container rte (max-width:330px){:root[data-style="clean"] .v2 .rte-tb{gap:0;padding:8px}:root[data-style="clean"] .v2 .rte-b{width:28px}}
 /* ---------- Artifact card ---------- */
@@ -2623,8 +2631,14 @@
 @media (prefers-reduced-motion:reduce){:root[data-style="clean"] .v2 .atx-ctx{transition:none}.v2 .atx-ctx-it.up .atx-ctx-rg .pg{animation:none;stroke-dasharray:1 0}}
 /* ---------- Response versions ---------- */
 .v2 .rvx{display:flex;flex-direction:column;gap:14px}
-.v2 .rvx-a{display:flex;flex-direction:column;gap:var(--s-2);padding:0 2px}
-.v2 .rvx-t{min-height:72px}
+.v2 .rvx-a{display:flex;flex-direction:column;gap:var(--s-2)}
+/* the answer is as tall as its words in every style (owner's notes, 18 Nov): the component grows with them (grow()), and a
+   version streaming in keeps the height of the one it replaces, then eases to its own. The bar's first button reaches 6px
+   past the column, so the growing box lets that much show, focus ring included */
+.v2 .rvx.growing{overflow-clip-margin:12px}
+/* nothing in the bar shrinks on a click (owner, 18 Nov) */
+.v2 .rvx-bar .ib:active{transform:none}
+:root[data-style="clean"] .v2 .rvx-bar .ib:active{transform:none}
 .v2 .rvx-t .w{animation:v2-rvw .45s var(--ease) both}
 @keyframes v2-rvw{from{opacity:0;filter:blur(4px)}to{opacity:1;filter:none}}
 .v2 .rvx-t.out{animation:v2-rvo .3s var(--ease) both}
@@ -2637,25 +2651,31 @@
 .v2 .rvx-re svg{transition:transform .7s var(--ease)}
 .v2 .rvx-re.go svg{transform:rotate(360deg)}
 .v2 .rvx-st{font-size:12px;margin-left:6px}
-/* Clean (owner, 18 Nov): no room kept for a longer answer: the answer is as tall as its words and the component grows with
-   them (grow()), staying centred in its stage; while a new version streams in, it keeps the height of the one it replaces
-   and then eases to its own. Words fade in and out without a blur, and Copy's tick is the vivid green */
+/* Clean (owner, 18 Nov): the answer, the bar's first icon and the bubble share the column's edges; words fade in and out
+   without a blur, and Copy's tick is the vivid green */
 @keyframes v2-rvwc{from{opacity:0}to{opacity:1}}
 @keyframes v2-rvoc{to{opacity:0;transform:translateY(-2px)}}
-:root[data-style="clean"] .v2 .rvx-a{padding:0}
-:root[data-style="clean"] .v2 .rvx-t{min-height:0}
-:root[data-style="clean"] .v2 .rvx-t .w{animation-name:v2-rvwc}
-:root[data-style="clean"] .v2 .rvx-t.out{animation-name:v2-rvoc}
+:root[data-style="clean"] .v2 .rvx-t .w{animation-name:v2-rvwc;animation-duration:var(--t-slow)}
+:root[data-style="clean"] .v2 .rvx-t.out{animation-name:v2-rvoc;animation-duration:var(--t)}
 :root[data-style="clean"] .v2 .rvx-cp.copied{color:var(--ok-mark)!important}
 /* ---------- Feedback sheet ---------- */
 .v2 .fbx{display:flex;flex-direction:column;gap:var(--s-2)}
-.v2 .fbx-bar{display:flex;align-items:center;gap:2px;margin-left:-6px}
+/* the first thumb's icon starts where the answer does */
+.v2 .fbx-bar{display:flex;align-items:center;gap:2px;margin-left:-8px}
 .v2 .fbx-bar .ib svg{transition:transform .45s var(--ease)}
-.v2 .fbx-bar .ib.on svg{transform:scale(1.12) rotate(-8deg)}
+.v2 .fbx-bar .ib.on svg{transform:rotate(-8deg)}
+/* nothing in the row shrinks or swells on a click (owner, 18 Nov): a rated thumb only tilts */
+.v2 .fbx-bar .ib:active,.v2 .fbx-f .pill.ghost:active{transform:none}
+:root[data-style="clean"] .v2 .fbx-bar .ib:active{transform:none}
 .v2 .fbx-dn.on{background:var(--bad-bg);color:var(--bad)}
 .v2 .fbx-st{font-size:12.5px;margin-left:6px}
 .v2 .fbx-box>div{margin-inline:-16px;padding-inline:var(--s-4)}
-.v2 .fbx-in{padding:var(--s-4);display:flex;flex-direction:column;gap:10px;margin:var(--s-1) 0 18px}
+.v2 .fbx-in{padding:var(--s-4);display:flex;flex-direction:column;gap:10px;margin:var(--s-1) 0 0}
+/* the component grows with what it shows in every style (grow(), owner's notes 18 Nov), and keeps no room under the sheet:
+   its shadow shows past the fold and the growing box instead. The fold's own gap goes with it when it is shut */
+.v2 .fbx.growing,.v2 .fbx-box>div{overflow-clip-margin:32px}
+.v2 .fbx-box{transition:grid-template-rows var(--t) var(--ease),opacity var(--t) var(--ease),margin-top var(--t) var(--ease)}
+.v2 .fbx-box.shut{margin-top:calc(-1 * var(--s-2));transition:grid-template-rows var(--t) var(--ease),opacity var(--t) var(--ease),margin-top var(--t) var(--ease),visibility 0s var(--t)}
 .v2 .fbx-q{font-size:13.5px;font-weight:500}
 .v2 .fbx-ch{display:flex;flex-wrap:wrap;gap:6px}
 .v2 .fbx-ch .chip.on{background:var(--sel);color:var(--accent-fg,var(--accent));box-shadow:none}
@@ -2665,22 +2685,18 @@
 .v2 .fbx-ta::placeholder{color:var(--muted)}
 .v2 .fbx-f{display:flex;align-items:center;gap:6px}
 .v2 .fbx-n{font-size:12px;flex:1;min-width:0}
-.v2 .fbx-thx{display:flex;align-items:center;gap:var(--s-2);font-size:13px;padding:10px var(--s-3);border-radius:var(--r-in);background:var(--ok-bg);color:var(--ok)}
+/* sent: a neutral line with the green tick, no green fill (owner, 18 Nov: a finished state) */
+.v2 .fbx-thx{display:flex;align-items:center;gap:var(--s-2);font-size:13px;line-height:20px;color:var(--fg2)}
+.v2 .fbx-thx svg{flex:none;color:var(--ok-mark)}
 @media (max-width:480px){.v2 .fbx-n{display:none}}
 /* Clean (owner, 18 Nov): the sheet's content sits 16px in from its edges, and its foot is an off-white strip: the note
    starts where the question does, and Cancel and Send are 28px pills 8px from the card's edges (14 + 8 = its 22px corner).
    The first thumb's icon starts where the answer and the sheet do. The chrome is monochrome: a rated
-   thumb fills in ink (no red fill), a picked reason is an ink chip like a toggle that is on, and the thanks is a line with a
-   green tick, not a green box (and nothing beside the thumbs says the same again). The component grows with what it shows
-   (grow()) */
-:root[data-style="clean"] .v2 .fbx.growing{overflow-clip-margin:12px}
-:root[data-style="clean"] .v2 .fbx-bar{margin-left:-8px}
+   thumb fills in ink (no red fill, no tilt) and a picked reason is an ink chip like a toggle that is on */
+:root[data-style="clean"] .v2 .fbx-bar .ib.on svg{transform:none}
 :root[data-style="clean"] .v2 .fbx-bar .ib.on{background:none;color:var(--fg)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .fbx-bar .ib.on:hover{background:var(--row)}}
 :root[data-style="clean"] .v2 .fbx-bar .ib.on svg{fill:currentColor}
-:root[data-style="clean"] .v2 .fbx-box.shut{margin-top:-8px}
-:root[data-style="clean"] .v2 .fbx-box{transition:grid-template-rows var(--t) var(--ease),opacity var(--t) var(--ease),margin-top var(--t) var(--ease)}
-:root[data-style="clean"] .v2 .fbx-box.shut{transition:grid-template-rows var(--t) var(--ease),opacity var(--t) var(--ease),margin-top var(--t) var(--ease),visibility 0s var(--t)}
 :root[data-style="clean"] .v2 .fbx-in.panel{gap:12px;margin:4px 0 0;padding:16px 16px 0;overflow:clip}
 :root[data-style="clean"] .v2 .fbx-q{font-size:14px;line-height:20px}
 :root[data-style="clean"] .v2 .fbx-ch .chip.on{background:var(--btn-2);color:var(--on-btn);box-shadow:inset 0 0 0 1px var(--btn-2)}
@@ -2690,8 +2706,6 @@
 :root[data-style="clean"] .v2 .fbx-n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* on a phone the note gives way, and Cancel and Send keep to the right edge */
 :root[data-style="clean"] .v2 .fbx-x{margin-left:auto}
-:root[data-style="clean"] .v2 .fbx-thx{gap:8px;padding:0;border-radius:0;background:none;color:var(--fg2);line-height:20px}
-:root[data-style="clean"] .v2 .fbx-thx svg{color:var(--ok-mark)}
 /* ---------- Model picker ---------- */
 /* a trigger that names the model and how hard it thinks, over the open list: speed, quality and cost as five-step meters
    with the real numbers on hover, and the thinking effort under them as a small dropdown */
@@ -2841,7 +2855,16 @@
 /* every action on an answer in one raised rail under it: copy, regenerate with its versions, thumbs, and read aloud, which
    widens into a progress bar and a clock and lights each word as it reads it */
 .v2 .aab{display:flex;flex-direction:column;gap:var(--s-3)}
-.v2 .aab-t{min-height:78px}
+/* no room kept for a longer answer or an empty status line, in every style (owner's notes, 18 Nov): the answer is as tall as
+   its words, the reasons and the status take room only while they show, and the component grows with them (grow()). While
+   a new version streams in, the answer keeps the height of the one it replaces, then eases to its own. The bar's shadow
+   shows past the growing box */
+.v2 .aab.growing{overflow-clip-margin:32px}
+.v2 .aab-why{transition:grid-template-rows var(--t) var(--ease),opacity var(--t) var(--ease),margin-top var(--t) var(--ease)}
+.v2 .aab-why.shut{margin-top:calc(-1 * var(--s-3));transition:grid-template-rows var(--t) var(--ease),opacity var(--t) var(--ease),margin-top var(--t) var(--ease),visibility 0s var(--t)}
+/* nothing in the bar shrinks or swells on a click (owner, 18 Nov): a rated thumb only tilts */
+.v2 .aab-bar .ib:active{transform:none}
+:root[data-style="clean"] .v2 .aab-bar .ib:active{transform:none}
 .v2 .aab-t .w{transition:background .16s,color .16s;border-radius:var(--r-xs)}
 .v2 .aab-t .w.in{animation:v2-aabw .42s var(--ease) both}
 @keyframes v2-aabw{from{opacity:0;filter:blur(4px)}to{opacity:1;filter:none}}
@@ -2858,7 +2881,7 @@
 .v2 .aab-re.go svg{transform:rotate(360deg)}
 .v2 .aab-up[aria-pressed="true"]{color:var(--ok);background:var(--ok-bg)}
 .v2 .aab-dn[aria-pressed="true"]{color:var(--bad);background:var(--bad-bg)}
-.v2 .aab-up[aria-pressed="true"] svg,.v2 .aab-dn[aria-pressed="true"] svg{transform:scale(1.1) rotate(-8deg)}
+.v2 .aab-up[aria-pressed="true"] svg,.v2 .aab-dn[aria-pressed="true"] svg{transform:rotate(-8deg)}
 .v2 .aab-sep{width:1px;height:16px;background:var(--line);margin:0 var(--s-1)}
 /* the version pager only takes room once there is a second version */
 .v2 .aab-pg{display:inline-flex;align-items:center;max-width:0;overflow:hidden;opacity:0;transition:max-width .42s var(--ease),opacity .32s}
@@ -2880,23 +2903,21 @@
 .v2 .aab-wq{font-size:13px;font-weight:500}
 .v2 .aab-ch{display:flex;flex-wrap:wrap;gap:6px}
 .v2 .aab-ch .chip.on{background:var(--sel);color:var(--accent-fg,var(--accent));box-shadow:none}
-.v2 .aab-st{margin:0;min-height:20px;font-size:12.5px;display:flex;align-items:center;gap:6px}
+.v2 .aab-st{margin:0;max-height:20px;font-size:12.5px;display:flex;align-items:center;gap:6px;transition:max-height var(--t) var(--ease),margin-top var(--t) var(--ease)}
+.v2 .aab-st:is(:empty,.off){max-height:0;margin-top:calc(-1 * var(--s-3))}
 .v2 .aab-st.warn{color:var(--warn)}
 .v2 .aab-st.ok svg{color:var(--ok);flex:none}
 .v2 .aab-rd.on .aab-pr{width:40px}
 @media (max-width:480px){.v2 .aab-rd.on .aab-tm{display:none}.v2 .aab-row{flex-wrap:wrap}.v2 .aab-meta{flex-basis:100%}}
-/* Clean (owner, 18 Nov): no room kept for a longer answer or an empty status line: the answer is as tall as its words, the
-   reasons and the status take room only while they show, and the component grows with them (grow()), centred in its stage.
-   While a new version streams in, the answer keeps the height of the one it replaces, then eases to its own. The chrome is
-   monochrome: a rated thumb fills in ink (no green or red fill), read aloud plays in ink on a grey track and lights the word
+/* Clean (owner, 18 Nov): the chrome is monochrome: a rated thumb fills in ink (no green or red fill, no tilt), read aloud plays in ink on a grey track and lights the word
    it reads in grey, and a picked reason is an ink chip like a toggle that is on. What a new version changed stays green, and
    so does the status's tick; a problem stays amber. Words fade in and out without a blur */
 @keyframes v2-aabwc{from{opacity:0}to{opacity:1}}
 @keyframes v2-aaboc{to{opacity:0;transform:translateY(-2px)}}
-:root[data-style="clean"] .v2 .aab-t{min-height:0}
 :root[data-style="clean"] .v2 .aab-bar{border-radius:calc(28px / 2 + 3px)}
-:root[data-style="clean"] .v2 .aab-t .w.in{animation-name:v2-aabwc}
-:root[data-style="clean"] .v2 .aab-t.out{animation-name:v2-aaboc}
+:root[data-style="clean"] .v2 .aab-t .w.in{animation-name:v2-aabwc;animation-duration:var(--t-slow)}
+:root[data-style="clean"] .v2 .aab-t.out{animation-name:v2-aaboc;animation-duration:var(--t)}
+:root[data-style="clean"] .v2 .aab-bar .ib[aria-pressed="true"] svg{transform:none}
 :root[data-style="clean"] .v2 .aab-t .w.rd{background:var(--hover);color:var(--fg)}
 :root[data-style="clean"] .v2 .aab-bar .ib[aria-pressed="true"]{background:none;color:var(--fg)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .aab-bar .ib[aria-pressed="true"]:hover{background:var(--row)}}
@@ -2905,10 +2926,6 @@
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .aab-rd:hover{background:var(--hover)}}
 :root[data-style="clean"] .v2 .aab-ch .chip.on{background:var(--btn-2);color:var(--on-btn);box-shadow:inset 0 0 0 1px var(--btn-2)}
 :root[data-style="clean"] .v2 .aab-cp.copied{color:var(--ok-mark)!important}
-:root[data-style="clean"] .v2 .aab-why{transition:grid-template-rows var(--t) var(--ease),opacity var(--t) var(--ease),margin-top var(--t) var(--ease)}
-:root[data-style="clean"] .v2 .aab-why.shut{margin-top:-12px;transition:grid-template-rows var(--t) var(--ease),opacity var(--t) var(--ease),margin-top var(--t) var(--ease),visibility 0s var(--t)}
-:root[data-style="clean"] .v2 .aab-st{min-height:0;max-height:20px;transition:max-height var(--t) var(--ease),margin-top var(--t) var(--ease)}
-:root[data-style="clean"] .v2 .aab-st:is(:empty,.off){max-height:0;margin-top:-12px}
 :root[data-style="clean"] .v2 .aab-st.ok svg{color:var(--ok-mark)}
 /* ---------- Decision prompt ---------- */
 /* the agent asks in the chat: no container; with .panel it becomes a card */

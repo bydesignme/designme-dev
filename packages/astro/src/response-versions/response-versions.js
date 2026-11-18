@@ -11,13 +11,13 @@ DM.def('response-versions', (r, c) => {
   const vers = [pool[0]]; let cur = 0, busy = false;
   const t = $('.rvx-t', r), n = $('.rvx-n', r), pv = $('.rvx-prev', r), nx = $('.rvx-next', r), re = $('.rvx-re', r), st = $('.rvx-st', r);
   const nav = () => { n.textContent = (cur + 1) + ' / ' + vers.length; pv.disabled = cur === 0 || busy; nx.disabled = cur === vers.length - 1 || busy; };
-  // Clean (owner, 18 Nov): no room kept for a longer answer. The component grows with its words (grow(), once its entrance
-  // has settled), and a version streaming in keeps the height of the one it replaces, then eases to its own
-  const ds = r.closest('[data-style]'), clean = !!ds && ds.dataset.style === 'clean', rvx = $('.rvx', r);
-  if (clean) Promise.resolve().then(() => Promise.all(rvx.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && rvx.isConnected) c.offs.push(grow(rvx)); });
-  const keep = () => { if (clean && t.textContent.trim()) t.style.minHeight = t.offsetHeight + 'px'; };
+  // no room kept for a longer answer, in every style (owner, 18 Nov). The component grows with its words (grow(), once its
+  // entrance has settled), and a version streaming in keeps the height of the one it replaces, then eases to its own
+  const rvx = $('.rvx', r);
+  Promise.resolve().then(() => Promise.all(rvx.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && rvx.isConnected) c.offs.push(grow(rvx)); });
+  const keep = () => { if (t.textContent.trim()) t.style.minHeight = t.offsetHeight + 'px'; };
   const fit = () => { if (!t.style.minHeight) return; const was = t.offsetHeight; t.style.minHeight = ''; const h = t.offsetHeight; if (h >= was || REDUCE) return;
-    t.style.minHeight = was + 'px'; void t.offsetHeight; t.style.transition = 'min-height .42s var(--dm-ease)'; t.style.minHeight = h + 'px';
+    t.style.minHeight = was + 'px'; void t.offsetHeight; t.style.transition = 'min-height var(--dm-t) var(--dm-ease)'; t.style.minHeight = h + 'px';
     c.later(460, () => { t.style.transition = ''; t.style.minHeight = ''; }); };
   async function stream(s){
     keep(); t.classList.add('out'); await c.wait(260); t.classList.remove('out'); t.innerHTML = '';

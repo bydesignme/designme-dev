@@ -1,13 +1,22 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Feedback sheet ---------- */
 .dm-fbx{display:flex;flex-direction:column;gap:var(--dm-s-2)}
-.dm-fbx-bar{display:flex;align-items:center;gap:2px;margin-left:-6px}
+/* the first thumb's icon starts where the answer does */
+.dm-fbx-bar{display:flex;align-items:center;gap:2px;margin-left:-8px}
 .dm-fbx-bar .dm-ib svg{transition:transform .45s var(--dm-ease)}
-.dm-fbx-bar .dm-ib.dm-on svg{transform:scale(1.12) rotate(-8deg)}
+.dm-fbx-bar .dm-ib.dm-on svg{transform:rotate(-8deg)}
+/* nothing in the row shrinks or swells on a click (owner, 18 Nov): a rated thumb only tilts */
+.dm-fbx-bar .dm-ib:active,.dm-fbx-f .dm-pill.dm-ghost:active{transform:none}
+:root[data-style="clean"] .dm-fbx-bar .dm-ib:active,:root [data-style="clean"] .dm-fbx-bar .dm-ib:active,:root [data-style="clean"].dm-fbx-bar .dm-ib:active{transform:none}
 .dm-fbx-dn.dm-on{background:var(--dm-bad-bg);color:var(--dm-bad)}
 .dm-fbx-st{font-size:12.5px;margin-left:6px}
 .dm-fbx-box>div{margin-inline:-16px;padding-inline:var(--dm-s-4)}
-.dm-fbx-in{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:10px;margin:var(--dm-s-1) 0 18px}
+.dm-fbx-in{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:10px;margin:var(--dm-s-1) 0 0}
+/* the component grows with what it shows in every style (grow(), owner's notes 18 Nov), and keeps no room under the sheet:
+   its shadow shows past the fold and the growing box instead. The fold's own gap goes with it when it is shut */
+.dm-fbx.dm-growing,.dm-fbx-box>div{overflow-clip-margin:32px}
+.dm-fbx-box{transition:grid-template-rows var(--dm-t) var(--dm-ease),opacity var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease)}
+.dm-fbx-box.dm-shut{margin-top:calc(-1 * var(--dm-s-2));transition:grid-template-rows var(--dm-t) var(--dm-ease),opacity var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease),visibility 0s var(--dm-t)}
 .dm-fbx-q{font-size:13.5px;font-weight:500}
 .dm-fbx-ch{display:flex;flex-wrap:wrap;gap:6px}
 .dm-fbx-ch .dm-chip.dm-on{background:var(--dm-sel);color:var(--dm-accent-fg,var(--dm-accent));box-shadow:none}
@@ -17,22 +26,18 @@
 .dm-fbx-ta::placeholder{color:var(--dm-muted)}
 .dm-fbx-f{display:flex;align-items:center;gap:6px}
 .dm-fbx-n{font-size:12px;flex:1;min-width:0}
-.dm-fbx-thx{display:flex;align-items:center;gap:var(--dm-s-2);font-size:13px;padding:10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-ok-bg);color:var(--dm-ok)}
+/* sent: a neutral line with the green tick, no green fill (owner, 18 Nov: a finished state) */
+.dm-fbx-thx{display:flex;align-items:center;gap:var(--dm-s-2);font-size:13px;line-height:20px;color:var(--dm-fg2)}
+.dm-fbx-thx svg{flex:none;color:var(--dm-ok-mark)}
 @media (max-width:480px){.dm-fbx-n{display:none}}
 /* Clean (owner, 18 Nov): the sheet's content sits 16px in from its edges, and its foot is an off-white strip: the note
    starts where the question does, and Cancel and Send are 28px pills 8px from the card's edges (14 + 8 = its 22px corner).
    The first thumb's icon starts where the answer and the sheet do. The chrome is monochrome: a rated
-   thumb fills in ink (no red fill), a picked reason is an ink chip like a toggle that is on, and the thanks is a line with a
-   green tick, not a green box (and nothing beside the thumbs says the same again). The component grows with what it shows
-   (grow()) */
-:root[data-style="clean"] .dm-fbx.dm-growing,:root [data-style="clean"] .dm-fbx.dm-growing,:root [data-style="clean"].dm-fbx.dm-growing{overflow-clip-margin:12px}
-:root[data-style="clean"] .dm-fbx-bar,:root [data-style="clean"] .dm-fbx-bar,:root [data-style="clean"].dm-fbx-bar{margin-left:-8px}
+   thumb fills in ink (no red fill, no tilt) and a picked reason is an ink chip like a toggle that is on */
+:root[data-style="clean"] .dm-fbx-bar .dm-ib.dm-on svg,:root [data-style="clean"] .dm-fbx-bar .dm-ib.dm-on svg,:root [data-style="clean"].dm-fbx-bar .dm-ib.dm-on svg{transform:none}
 :root[data-style="clean"] .dm-fbx-bar .dm-ib.dm-on,:root [data-style="clean"] .dm-fbx-bar .dm-ib.dm-on,:root [data-style="clean"].dm-fbx-bar .dm-ib.dm-on{background:none;color:var(--dm-fg)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-fbx-bar .dm-ib.dm-on:hover,:root [data-style="clean"] .dm-fbx-bar .dm-ib.dm-on:hover,:root [data-style="clean"].dm-fbx-bar .dm-ib.dm-on:hover{background:var(--dm-row)}}
 :root[data-style="clean"] .dm-fbx-bar .dm-ib.dm-on svg,:root [data-style="clean"] .dm-fbx-bar .dm-ib.dm-on svg,:root [data-style="clean"].dm-fbx-bar .dm-ib.dm-on svg{fill:currentColor}
-:root[data-style="clean"] .dm-fbx-box.dm-shut,:root [data-style="clean"] .dm-fbx-box.dm-shut,:root [data-style="clean"].dm-fbx-box.dm-shut{margin-top:-8px}
-:root[data-style="clean"] .dm-fbx-box,:root [data-style="clean"] .dm-fbx-box,:root [data-style="clean"].dm-fbx-box{transition:grid-template-rows var(--dm-t) var(--dm-ease),opacity var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease)}
-:root[data-style="clean"] .dm-fbx-box.dm-shut,:root [data-style="clean"] .dm-fbx-box.dm-shut,:root [data-style="clean"].dm-fbx-box.dm-shut{transition:grid-template-rows var(--dm-t) var(--dm-ease),opacity var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease),visibility 0s var(--dm-t)}
 :root[data-style="clean"] .dm-fbx-in.dm-panel,:root [data-style="clean"] .dm-fbx-in.dm-panel,:root [data-style="clean"].dm-fbx-in.dm-panel{gap:12px;margin:4px 0 0;padding:16px 16px 0;overflow:clip}
 :root[data-style="clean"] .dm-fbx-q,:root [data-style="clean"] .dm-fbx-q,:root [data-style="clean"].dm-fbx-q{font-size:14px;line-height:20px}
 :root[data-style="clean"] .dm-fbx-ch .dm-chip.dm-on,:root [data-style="clean"] .dm-fbx-ch .dm-chip.dm-on,:root [data-style="clean"].dm-fbx-ch .dm-chip.dm-on{background:var(--dm-btn-2);color:var(--dm-on-btn);box-shadow:inset 0 0 0 1px var(--dm-btn-2)}
@@ -42,5 +47,3 @@
 :root[data-style="clean"] .dm-fbx-n,:root [data-style="clean"] .dm-fbx-n,:root [data-style="clean"].dm-fbx-n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* on a phone the note gives way, and Cancel and Send keep to the right edge */
 :root[data-style="clean"] .dm-fbx-x,:root [data-style="clean"] .dm-fbx-x,:root [data-style="clean"].dm-fbx-x{margin-left:auto}
-:root[data-style="clean"] .dm-fbx-thx,:root [data-style="clean"] .dm-fbx-thx,:root [data-style="clean"].dm-fbx-thx{gap:8px;padding:0;border-radius:0;background:none;color:var(--dm-fg2);line-height:20px}
-:root[data-style="clean"] .dm-fbx-thx svg,:root [data-style="clean"] .dm-fbx-thx svg,:root [data-style="clean"].dm-fbx-thx svg{color:var(--dm-ok-mark)}
