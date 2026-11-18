@@ -807,6 +807,9 @@ body.ui section.faq{display:none}
    they get the same room above and below as every other component */
 body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!important}
 @media (min-width:641px){ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:56px!important} }
+/* Composer in Clean (owner, 18 Nov): it keeps no room for its conversation and sits centred in its stage, so the stage has
+   the same room above and below it, not the original page's 40px foot (which left it 8px low) */
+@media (min-width:641px){ html[data-style="clean"] body.ui main .comp[data-v2="composer"] .stage-inner{padding-bottom:56px!important} }
 /* Automation canvas and Canvas toolbar: the canvas is the whole stage, edge to edge and over the strip under it too, so
    their stage has no room of its own and keeps its rounded corners all round (the clip outranks the unlayered .v2-host) */
 body.ui main .comp:is([data-v2="automation-canvas"],[data-v2="canvas-toolbar"]) .stage-inner{padding:0;border-radius:12px;overflow:clip!important}

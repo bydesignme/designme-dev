@@ -1,6 +1,6 @@
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useWait } from './useScript';
 import { LiveAnswer, type AnswerSource, type AnswerTurn } from '../components/live-answer/LiveAnswer';
 
@@ -21,6 +21,10 @@ const SOURCES: AnswerSource[] = [
 export default function LiveAnswerDemo() {
   const [turns, setTurns] = useState<AnswerTurn[]>([{ key: 0, question: FIRST, state: 'waiting' }]);
   const [asked, setAsked] = useState(false);
+  // Clean (owner, 18 Nov) keeps no room for the answer: it grows as it streams in, centred where it sits
+  const ref = useRef<HTMLDivElement>(null);
+  const [clean, setClean] = useState(false);
+  useEffect(() => { setClean(ref.current?.closest('[data-style]')?.getAttribute('data-style') === 'clean'); }, []);
   const wait = useWait();
 
   // streams the answer to question q into turn i, one word at a time
@@ -48,8 +52,8 @@ export default function LiveAnswerDemo() {
   const retry = (i: number) => { if (turns[i].state === 'done') answer(i, turns[i].question ?? ''); };
 
   return (
-    // keeps the room the first answer fills with its sources and follow-ups, so nothing climbs when they arrive
-    <div style={{ width: '100%', minHeight: 376 }}>
+    // keeps the room the first answer fills with its sources and follow-ups, so nothing climbs when they arrive (not in Clean)
+    <div ref={ref} style={{ width: '100%', minHeight: clean ? undefined : 376 }}>
       <LiveAnswer turns={turns} followUps={asked ? undefined : ['Show the drop-off by device', 'Draft a fix for the workspace step']} onFollowUp={ask} onRetry={retry} />
     </div>
   );

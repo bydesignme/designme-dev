@@ -51,6 +51,23 @@ const clock = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2,
 export function AgentInbox({ runs, onApprove, onRetry, title = 'Inbox', status, className }: AgentInboxProps) {
   const reduce = useReducedMotion();
   const list = useRef<HTMLDivElement>(null);
+  // Clean (owner, 18 Nov): the inbox grows and shrinks with its rows, eased (as grow() on the site)
+  const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
+  const [clean, setClean] = useState(false);
+  useIsoLayoutEffect(() => { setClean(root.current?.closest('[data-style]')?.getAttribute('data-style') === 'clean'); }, []);
+  useIsoLayoutEffect(() => {
+    const el = root.current, w = inner.current;
+    if (!clean || !el || !w || typeof ResizeObserver === 'undefined') return;
+    let first = true;
+    const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
+    const fit = () => {
+      const h = Math.ceil(w.offsetHeight + box());
+      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
+      else el.style.height = h + 'px';
+    };
+    const ro = new ResizeObserver(fit); ro.observe(w); fit();
+    return () => { ro.disconnect(); el.style.height = ''; };
+  }, [clean]);
   // what changes after the first render plays its entrance; what is there from the start just appears
   const ready = useRef(false);
   useEffect(() => { ready.current = true; }, []);
@@ -89,8 +106,13 @@ export function AgentInbox({ runs, onApprove, onRetry, title = 'Inbox', status, 
   }, [sig]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div data-dm="" className={cx('dm-aib dm-panel', className)}>
-      <div className="dm-aib-h"><b>{title}</b><span aria-live="polite"><Swap className="dm-muted dm-aib-st">{line}</Swap></span></div>
+    <div data-dm="" ref={root} className={cx('dm-aib dm-panel', clean && 'dm-growing', className)}>
+      <div ref={inner} className="dm-grow" style={clean ? undefined : { display: 'contents' }}>
+      <div className="dm-aib-h">
+        {/* Clean's head has a neutral mark in a tile, the column the agents' marks sit in */}
+        {clean && <span className="dm-aib-hi" aria-hidden="true"><Icon name="mail" /></span>}
+        <b>{title}</b><span aria-live="polite"><Swap className="dm-muted dm-aib-st">{line}</Swap></span>
+      </div>
       <div ref={list}>
         {GROUPS.map(([g, name]) => {
           const rows = runs.filter(r => r.group === g);
@@ -118,6 +140,7 @@ export function AgentInbox({ runs, onApprove, onRetry, title = 'Inbox', status, 
             </section>
           );
         })}
+      </div>
       </div>
     </div>
   );

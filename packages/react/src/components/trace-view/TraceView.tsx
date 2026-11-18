@@ -1,7 +1,7 @@
 'use client';
-import { useRef, type CSSProperties, type KeyboardEvent } from 'react';
+import { useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { cx } from '../../lib/cx';
-import { useControllable } from '../../lib/hooks';
+import { useControllable, useIsoLayoutEffect } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
 import { enter, Fold, Swap, Tip } from '../../lib/motion';
 import '../../designme.css';
@@ -63,6 +63,24 @@ type Row = { s: TraceSpan; lv: number; up?: Row };
 export function TraceView({ title, spans, time, axis, slowAfter = 2, status, selected, defaultSelected = null, onSelectedChange, className }: TraceViewProps) {
   const [open, setOpen] = useControllable(selected, defaultSelected, onSelectedChange);
   const rows = useRef<HTMLDivElement>(null);
+  // Clean (owner, 18 Nov) keeps no room for spans still to come: the card grows and shrinks with what it holds, eased, as
+  // each span starts and the details open and shut (as grow() on the site)
+  const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
+  const [clean, setClean] = useState(false);
+  useIsoLayoutEffect(() => { setClean(root.current?.closest('[data-style]')?.getAttribute('data-style') === 'clean'); }, []);
+  useIsoLayoutEffect(() => {
+    const el = root.current, w = inner.current;
+    if (!clean || !el || !w || typeof ResizeObserver === 'undefined') return;
+    let first = true;
+    const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
+    const fit = () => {
+      const h = Math.ceil(w.offsetHeight + box());
+      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
+      else el.style.height = h + 'px';
+    };
+    const ro = new ResizeObserver(fit); ro.observe(w); fit();
+    return () => { ro.disconnect(); el.style.height = ''; };
+  }, [clean]);
   const all: Row[] = [];
   (function walk(list: TraceSpan[], lv: number, up?: Row) { list.forEach(s => { const row = { s, lv, up }; all.push(row); if (s.children) walk(s.children, lv + 1, row); }); })(spans, 0);
   const end = Math.max(0, ...all.map(({ s }) => s.start + (s.duration ?? Math.max(0, (time ?? s.start) - s.start))));
@@ -109,9 +127,12 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
   };
 
   return (
-    <div data-dm="" className={cx('dm-trv dm-panel', live && time !== undefined && time > 0 && 'dm-live', className)} style={{ '--dm-now': Math.min(end, now) / span } as CSSProperties}
+    <div data-dm="" ref={root} className={cx('dm-trv dm-panel', clean && 'dm-growing', live && time !== undefined && time > 0 && 'dm-live', className)} style={{ '--dm-now': Math.min(end, now) / span } as CSSProperties}
       onKeyDown={e => { if (e.key === 'Escape' && open) close(true); }}>
+      <div ref={inner} className="dm-grow" style={clean ? undefined : { display: 'contents' }}>
       <div className="dm-trv-h">
+        {/* Clean's head has the run's mark in a tile, the column every span's mark is centred in */}
+        {clean && <span className="dm-trv-hi" aria-hidden="true"><Icon name="cpu" /></span>}
         <div className="dm-trv-ht"><b>{title}</b><span className="dm-muted dm-trv-st" aria-live="polite"><Swap>{line}</Swap></span></div>
         <span className="dm-trv-tot dm-num">{sec(Math.min(end, now))}</span>
       </div>
@@ -171,6 +192,7 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
           </div>
         )}
       </Fold>
+      </div>
     </div>
   );
 }

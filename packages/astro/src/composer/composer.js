@@ -4,9 +4,22 @@ DM.def('composer', (r, c) => {
   const icons = { clip:'clip', figma:'figma', eye:'eye', edit:'edit', list:'list', code:'code', mic:'mic', up:'up', check:'check', file:'file-text', image:'image' };
   r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) => k === 'chev' ? I('chev-d','xs') : icons[k] ? I(icons[k]) : m);
   const box = $('.cpx-box', r), ta = $('.cpx-ta', r), send = $('.cpx-bar .cpx-send', r), thread = $('.cpx-thread', r), att = $('.cpx-att', r), PH = ta.placeholder;
-  const grow = () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 160) + 'px'; };
+  // Clean (owner, 18 Nov) keeps no room for the conversation: the thread and the box grow together (grow()), centred in the
+  // stage, once the entrance (which scales it from .98) has ended
+  const ds = r.closest('[data-style]'), cpx = $('.cpx', r);
+  if (r === c.st && cpx && ds && ds.dataset.style === 'clean'){
+    Promise.resolve().then(() => Promise.all(cpx.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && cpx.isConnected) c.offs.push(grow(cpx)); });
+    // a menu opens above the box: the composer glides down by half of what the menu reaches past its top, so the two sit
+    // centred together in the stage, and back as it shuts
+    const pops = $$('.pop', box), glide = () => { const op = pops.find(p => p.classList.contains('open'));
+      const over = op ? box.getBoundingClientRect().top - cpx.getBoundingClientRect().top + op.offsetTop : 0;
+      cpx.style.setProperty('--dm-gy', Math.max(0, Math.round(-over / 2)) + 'px'); };
+    cpx.classList.add('glide');
+    const mo = new MutationObserver(glide); pops.forEach(p => mo.observe(p, { attributes:true, attributeFilter:['class'] })); c.offs.push(() => mo.disconnect());
+  }
+  const fit = () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 160) + 'px'; };
   // send waits for text or a file, and for every file to finish loading
-  const sync = () => { send.disabled = (!ta.value.trim() && !att.children.length) || !!$('.fchip.ld,.fchip.err', att); grow(); };
+  const sync = () => { send.disabled = (!ta.value.trim() && !att.children.length) || !!$('.fchip.ld,.fchip.err', att); fit(); };
   c.on(ta, 'input', sync);
   c.on(r, 'keydown', e => { if (e.target === ta && e.key === 'Enter' && !e.shiftKey && box.dataset.mode === 'idle'){ e.preventDefault(); submit(); } if (e.key === 'Escape' && box.dataset.mode === 'voice') stopVoice(false, true); });
   /* attachments load before they can be sent. The first Figma link can't be opened, so the error shows, and Try again fetches it */
@@ -40,10 +53,10 @@ DM.def('composer', (r, c) => {
   let before = '', vc = null;
   async function dictate(){
     if (vc) vc.stop(); vc = ctl(c); const k = vc; c.offs.push(() => k.stop());
-    before = ta.value; box.dataset.mode = 'voice'; ta.value = ''; ta.placeholder = 'Listening…'; grow();
+    before = ta.value; box.dataset.mode = 'voice'; ta.value = ''; ta.placeholder = 'Listening…'; fit();
     const t0 = performance.now(), tm = $('.cpx-tm', r); tm.textContent = '0:00';
     k.every(250, () => { const s = Math.floor((performance.now() - t0) / 1000); tm.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); });
-    await k.run(async () => { await k.wait(700); for (const w of said.split(' ')){ ta.value += (ta.value ? ' ' : '') + w; grow(); await k.wait(160 + Math.random() * 120); } });
+    await k.run(async () => { await k.wait(700); for (const w of said.split(' ')){ ta.value += (ta.value ? ' ' : '') + w; fit(); await k.wait(160 + Math.random() * 120); } });
   }
   function stopVoice(keep, mine){ if (vc) vc.stop(); box.dataset.mode = 'idle'; ta.placeholder = PH; if (!keep) ta.value = before; sync(); if (mine) ta.focus({ preventScroll:true }); }
   $('.cpx-mic', r).onclick = dictate;

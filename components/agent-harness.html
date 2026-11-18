@@ -207,6 +207,16 @@
 .lva-fu{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
 .lva-fu button{display:inline-flex;align-items:center;gap:var(--dm-s-2);padding:6px var(--dm-s-3) 6px 10px;border-radius:var(--dm-r-pill);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13px;color:var(--dm-fg2);transition:color .2s,box-shadow .2s,transform .2s var(--dm-ease)}
 @media (hover:hover) and (pointer:fine){.lva-fu button:hover{color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-faint) 50%,transparent)}}
+/* Clean (owner, 18 Nov): no room kept for the answer to come. The turn grows as the answer streams in (grow()) and stays
+   centred in its stage. Words fade in without a blur, and the sources' badges are one neutral grey, not a colour each, side
+   by side rather than overlapping */
+:root[data-style="clean"] .lva-a,:root [data-style="clean"] .lva-a,:root [data-style="clean"].lva-a,:root[data-style="clean"] .stage-in>.lva .lva-a,:root [data-style="clean"] .stage-in>.lva .lva-a,:root [data-style="clean"].stage-in>.lva .lva-a{min-height:0}
+@keyframes lvwc{from{opacity:0}to{opacity:1}}
+:root[data-style="clean"] :is(.lva-p .w,.lva-p .cite),:root [data-style="clean"] :is(.lva-p .w,.lva-p .cite),:root [data-style="clean"]:is(.lva-p .w,.lva-p .cite){animation-name:lvwc}
+:root[data-style="clean"] .lva-fav,:root [data-style="clean"] .lva-fav,:root [data-style="clean"].lva-fav{gap:2px}
+:root[data-style="clean"] .lva-fav span,:root [data-style="clean"] .lva-fav span,:root [data-style="clean"].lva-fav span{margin-left:0;background:var(--dm-chip)!important;color:var(--dm-fg2);box-shadow:inset 0 0 0 1px var(--dm-hair)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .lva-sb:hover .lva-fav span:not(:first-child),:root [data-style="clean"] .lva-sb:hover .lva-fav span:not(:first-child),:root [data-style="clean"].lva-sb:hover .lva-fav span:not(:first-child){margin-left:0;background:var(--dm-chip)!important;color:var(--dm-fg2);box-shadow:inset 0 0 0 1px var(--dm-hair)}}
+:root[data-style="clean"] :is(.lva-tb,.lva-sb,.lva-s,.lva-fu button),:root [data-style="clean"] :is(.lva-tb,.lva-sb,.lva-s,.lva-fu button),:root [data-style="clean"]:is(.lva-tb,.lva-sb,.lva-s,.lva-fu button){transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
 </style><style>/* ---------- Composer ---------- */
 .cpx{display:flex;flex-direction:column;justify-content:flex-end;gap:14px;overflow-anchor:none;container-type:inline-size}
 /* neither the composer nor the box it sits in anchors the page's scroll, so the page stays put as the thread grows and clears */
@@ -258,6 +268,29 @@
 .pp-plus,.pp-ctx,.pp-mode{width:264px}
 .cpx-bar>.cpx-send{flex:none}
 @media (max-width:480px){.cpx-bar .cpx-ctx>span{max-width:88px}}
+/* Clean (owner, 18 Nov): the box takes the card's 22px round corners, with everything in it 16px from its edges: the
+   attachments, the text, Send's edge and the dictation line; the attach button's glyph lines up with the text, and the
+   toolbar's 28px controls share one centre line. Send is the ink button. A file that failed keeps the chip's white with its
+   words and mark in red, no red fill. No room is kept for the conversation: the thread and the box grow together (grow())
+   and stay centred in the stage */
+:root[data-style="clean"] .stage-in>.cpx,:root [data-style="clean"] .stage-in>.cpx,:root [data-style="clean"].stage-in>.cpx{min-height:0}
+/* its menus open above the box, past the top of the composer: grow() must not clip them */
+:root[data-style="clean"] .cpx.growing,:root [data-style="clean"] .cpx.growing,:root [data-style="clean"].cpx.growing{overflow:visible}
+:root[data-style="clean"] .cpx-box,:root [data-style="clean"] .cpx-box,:root [data-style="clean"].cpx-box{border-radius:var(--dm-r-card)}
+:root[data-style="clean"] .cpx-att,:root [data-style="clean"] .cpx-att,:root [data-style="clean"].cpx-att{gap:4px;padding:16px 16px 0}
+:root[data-style="clean"] .cpx-ta,:root [data-style="clean"] .cpx-ta,:root [data-style="clean"].cpx-ta{padding:14px 16px 4px}
+:root[data-style="clean"] .cpx-rows,:root [data-style="clean"] .cpx-rows,:root [data-style="clean"].cpx-rows{padding:4px 16px 16px}
+:root[data-style="clean"] .cpx-bar>.cpx-add,:root [data-style="clean"] .cpx-bar>.cpx-add,:root [data-style="clean"].cpx-bar>.cpx-add{margin-left:-6px}
+:root[data-style="clean"] .cpx-rec,:root [data-style="clean"] .cpx-rec,:root [data-style="clean"].cpx-rec{padding-left:0}
+:root[data-style="clean"] .cpx-bar>.ib,:root [data-style="clean"] .cpx-bar>.ib,:root [data-style="clean"].cpx-bar>.ib{width:28px;height:28px}
+:root[data-style="clean"] .cpx-bar .chip,:root [data-style="clean"] .cpx-bar .chip,:root [data-style="clean"].cpx-bar .chip{height:28px;padding:0 8px;transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .cpx-add[aria-expanded="true"],:root [data-style="clean"] .cpx-add[aria-expanded="true"],:root [data-style="clean"].cpx-add[aria-expanded="true"]{background:var(--dm-hover)}
+:root[data-style="clean"] .cpx-send,:root [data-style="clean"] .cpx-send,:root [data-style="clean"].cpx-send{width:28px;height:28px;transition:transform var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .cpx-send:not([disabled]),:root [data-style="clean"] .cpx-send:not([disabled]),:root [data-style="clean"].cpx-send:not([disabled]){color:var(--dm-on-btn);background:linear-gradient(180deg,var(--dm-btn-1),var(--dm-btn-2));box-shadow:var(--dm-btn-depth)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .cpx-send:not([disabled]):hover,:root [data-style="clean"] .cpx-send:not([disabled]):hover,:root [data-style="clean"].cpx-send:not([disabled]):hover{background:linear-gradient(180deg,color-mix(in srgb,var(--dm-btn-1) 88%,#808080),var(--dm-btn-2))}}
+:root[data-style="clean"] .cpx-send:not([disabled]):active,:root [data-style="clean"] .cpx-send:not([disabled]):active,:root [data-style="clean"].cpx-send:not([disabled]):active{transform:scale(.97);box-shadow:var(--dm-btn-press)}
+:root[data-style="clean"] .cpx-att .fchip.err,:root [data-style="clean"] .cpx-att .fchip.err,:root [data-style="clean"].cpx-att .fchip.err{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
+:root[data-style="clean"] .cpx-att .fchip.err .ic,:root [data-style="clean"] .cpx-att .fchip.err .ic,:root [data-style="clean"].cpx-att .fchip.err .ic{color:var(--dm-bad-mark)}
 </style><style>/* ---------- Artifact card ---------- */
 /* a file the agent made, shown four ways: a compact row, a card with its first page, a chip inside the message, and a stack
    of its versions. Each plays its writing state, then opens, copies, downloads and switches versions the same way */
@@ -446,6 +479,38 @@
 .afx-st-act{display:flex;align-items:center;gap:var(--dm-s-1);transition:opacity var(--dm-t) var(--dm-ease)}
 .afx-st-act .pill{gap:6px}
 .afx-st.is-writing .afx-st-act{opacity:0;visibility:hidden}
+/* Clean (owner, 18 Nov): a file's mark is one neutral grey whatever its type (no hue per type). The compact card and the
+   preview card take the card's 22px round corners with their content 16px from every edge (a quiet icon button by its
+   glyph, a filled one by its edge); the preview's page sits on an off-white head. The reader's words start 16px in, under
+   its title (its header has no mark, so the two line up), and Copy and Download sit in an off-white foot strip, 16px in
+   from its sides. The variants keep no room for the tallest moment: each sits centred in the stage, and a version menu
+   glides it up so the two sit centred together. The inline chip's closing words wait until the file is written, and the
+   stack's lines are all grey, the pen alone in the accent while it writes */
+:root[data-style="clean"] .afx.dm>.afx-main,:root [data-style="clean"] .afx.dm>.afx-main,:root [data-style="clean"].afx.dm>.afx-main{min-height:0}
+:root[data-style="clean"] .afx-ic,:root [data-style="clean"] .afx-ic,:root [data-style="clean"].afx-ic{color:var(--dm-fg2);background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .afx-in-ic,:root [data-style="clean"] .afx-in-ic,:root [data-style="clean"].afx-in-ic{color:var(--dm-fg2)}
+:root[data-style="clean"] .afx-cp-card,:root [data-style="clean"] .afx-cp-card,:root [data-style="clean"].afx-cp-card{gap:12px;padding:14px 16px 13px;border-radius:var(--dm-r-card);transition:background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .afx-cp-act .pill,:root [data-style="clean"] .afx-cp-act .pill,:root [data-style="clean"].afx-cp-act .pill{margin-left:4px}
+:root[data-style="clean"] .afx-pv-prev,:root [data-style="clean"] .afx-pv-prev,:root [data-style="clean"].afx-pv-prev{padding:16px 16px 0;background:var(--dm-strip);border-bottom:1px solid var(--dm-line)}
+/* pointing at the preview card fills it with the quietest grey (its page still lifts), rather than raising its shadow */
+:root[data-style="clean"] .afx-pv-card,:root [data-style="clean"] .afx-pv-card,:root [data-style="clean"].afx-pv-card{transition:background-color var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .afx-pv-card:not(.is-writing):hover,:root [data-style="clean"] .afx-pv-card:not(.is-writing):hover,:root [data-style="clean"].afx-pv-card:not(.is-writing):hover{background:var(--dm-wash);box-shadow:var(--dm-shadow)}}
+:root[data-style="clean"] .afx-pv-meta,:root [data-style="clean"] .afx-pv-meta,:root [data-style="clean"].afx-pv-meta{gap:12px;padding:14px 9px 13px 16px}
+:root[data-style="clean"] .afx-ph,:root [data-style="clean"] .afx-ph,:root [data-style="clean"].afx-ph{gap:12px;padding:16px 10px 16px 16px}
+:root[data-style="clean"] .afx-ph .afx-ic,:root [data-style="clean"] .afx-ph .afx-ic,:root [data-style="clean"].afx-ph .afx-ic{display:none}
+:root[data-style="clean"] .afx-ph .afx-x,:root [data-style="clean"] .afx-ph .afx-x,:root [data-style="clean"].afx-ph .afx-x{width:28px;height:28px;margin-right:0}
+:root[data-style="clean"] .afx-pb,:root [data-style="clean"] .afx-pb,:root [data-style="clean"].afx-pb{padding:16px}
+:root[data-style="clean"] .afx-pf,:root [data-style="clean"] .afx-pf,:root [data-style="clean"].afx-pf{gap:8px;padding:8px 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line)}
+:root[data-style="clean"] .afx-r.n b,:root [data-style="clean"] .afx-r.n b,:root [data-style="clean"].afx-r.n b{background:var(--dm-ln)}
+/* the stack keeps no room for its buttons while the page is written: they unfold under the caption once it is done */
+:root[data-style="clean"] .afx-st-act,:root [data-style="clean"] .afx-st-act,:root [data-style="clean"].afx-st-act{max-height:32px;transition:opacity var(--dm-t) var(--dm-ease),max-height var(--dm-t) var(--dm-ease),margin var(--dm-t) var(--dm-ease)}
+:root[data-style="clean"] .afx-st.is-writing .afx-st-act,:root [data-style="clean"] .afx-st.is-writing .afx-st-act,:root [data-style="clean"].afx-st.is-writing .afx-st-act{max-height:0;margin-top:-18px}
+/* the desk keeps 12px over the sheets for them to peek into on hover; at rest the older ones show 3px of it, so the stack
+   starts 9px higher and what shows sits centred in the stage */
+:root[data-style="clean"] .afx-desk,:root [data-style="clean"] .afx-desk,:root [data-style="clean"].afx-desk{margin-top:-9px}
+:root[data-style="clean"] .afx-in-after,:root [data-style="clean"] .afx-in-after,:root [data-style="clean"].afx-in-after{margin-top:-10px}
+:root[data-style="clean"] .afx-in-after p,:root [data-style="clean"] .afx-in-after p,:root [data-style="clean"].afx-in-after p{padding-top:10px}
+@container (max-width:400px){:root[data-style="clean"] .afx-cp-card,:root [data-style="clean"] .afx-cp-card,:root [data-style="clean"].afx-cp-card{gap:10px}:root[data-style="clean"] .afx-pv-meta,:root [data-style="clean"] .afx-pv-meta,:root [data-style="clean"].afx-pv-meta{gap:10px;padding-right:10px}}
 </style><style>/* ---------- Thinking ---------- */
 /* the steps the agent takes, on a line that turns green as each one finishes; the step in hand turns in the accent with a
    soft halo, and what each step found writes itself in under it. The header ends as a summary of the work */
@@ -3693,6 +3758,10 @@ const fitHits = window.dmFitHits || (() => {
 })();
 })();</script><script src="/components/assets/core.js"></script><script>DM.def('live-answer', (r, c) => {
   const A = $('.lva-a', r);
+  // Clean (owner, 18 Nov) keeps no room for the answer: the turn grows as it streams in (grow()), centred in its stage
+  // (in a chat around it, like the Agent harness, the chat lays it out)
+  const ds = r.closest('[data-style]'), lva = $('.lva', r) || r;
+  if (r === c.st && ds && ds.dataset.style === 'clean') Promise.resolve().then(() => Promise.all(lva.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && lva.isConnected) c.offs.push(grow(lva)); });
   const srcs = { 1:'Funnel data, last 30 days', 2:'Session notes from 8 interviews', 3:'Onboarding.fig, step 2' };
   const S = [[1,'F','#7a5af8','Funnel data','Amplitude, last 30 days'],[2,'N','#0ea5a4','Session notes','Notion, 8 interviews'],[3,'S','#f97316','Onboarding.fig','Figma, step 2']];
   const T = {
@@ -3753,9 +3822,22 @@ const fitHits = window.dmFitHits || (() => {
   const icons = { clip:'clip', figma:'figma', eye:'eye', edit:'edit', list:'list', code:'code', mic:'mic', up:'up', check:'check', file:'file-text', image:'image' };
   r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) => k === 'chev' ? I('chev-d','xs') : icons[k] ? I(icons[k]) : m);
   const box = $('.cpx-box', r), ta = $('.cpx-ta', r), send = $('.cpx-bar .cpx-send', r), thread = $('.cpx-thread', r), att = $('.cpx-att', r), PH = ta.placeholder;
-  const grow = () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 160) + 'px'; };
+  // Clean (owner, 18 Nov) keeps no room for the conversation: the thread and the box grow together (grow()), centred in the
+  // stage, once the entrance (which scales it from .98) has ended
+  const ds = r.closest('[data-style]'), cpx = $('.cpx', r);
+  if (r === c.st && cpx && ds && ds.dataset.style === 'clean'){
+    Promise.resolve().then(() => Promise.all(cpx.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && cpx.isConnected) c.offs.push(grow(cpx)); });
+    // a menu opens above the box: the composer glides down by half of what the menu reaches past its top, so the two sit
+    // centred together in the stage, and back as it shuts
+    const pops = $$('.pop', box), glide = () => { const op = pops.find(p => p.classList.contains('open'));
+      const over = op ? box.getBoundingClientRect().top - cpx.getBoundingClientRect().top + op.offsetTop : 0;
+      cpx.style.setProperty('--dm-gy', Math.max(0, Math.round(-over / 2)) + 'px'); };
+    cpx.classList.add('glide');
+    const mo = new MutationObserver(glide); pops.forEach(p => mo.observe(p, { attributes:true, attributeFilter:['class'] })); c.offs.push(() => mo.disconnect());
+  }
+  const fit = () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 160) + 'px'; };
   // send waits for text or a file, and for every file to finish loading
-  const sync = () => { send.disabled = (!ta.value.trim() && !att.children.length) || !!$('.fchip.ld,.fchip.err', att); grow(); };
+  const sync = () => { send.disabled = (!ta.value.trim() && !att.children.length) || !!$('.fchip.ld,.fchip.err', att); fit(); };
   c.on(ta, 'input', sync);
   c.on(r, 'keydown', e => { if (e.target === ta && e.key === 'Enter' && !e.shiftKey && box.dataset.mode === 'idle'){ e.preventDefault(); submit(); } if (e.key === 'Escape' && box.dataset.mode === 'voice') stopVoice(false, true); });
   /* attachments load before they can be sent. The first Figma link can't be opened, so the error shows, and Try again fetches it */
@@ -3789,10 +3871,10 @@ const fitHits = window.dmFitHits || (() => {
   let before = '', vc = null;
   async function dictate(){
     if (vc) vc.stop(); vc = ctl(c); const k = vc; c.offs.push(() => k.stop());
-    before = ta.value; box.dataset.mode = 'voice'; ta.value = ''; ta.placeholder = 'Listening…'; grow();
+    before = ta.value; box.dataset.mode = 'voice'; ta.value = ''; ta.placeholder = 'Listening…'; fit();
     const t0 = performance.now(), tm = $('.cpx-tm', r); tm.textContent = '0:00';
     k.every(250, () => { const s = Math.floor((performance.now() - t0) / 1000); tm.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); });
-    await k.run(async () => { await k.wait(700); for (const w of said.split(' ')){ ta.value += (ta.value ? ' ' : '') + w; grow(); await k.wait(160 + Math.random() * 120); } });
+    await k.run(async () => { await k.wait(700); for (const w of said.split(' ')){ ta.value += (ta.value ? ' ' : '') + w; fit(); await k.wait(160 + Math.random() * 120); } });
   }
   function stopVoice(keep, mine){ if (vc) vc.stop(); box.dataset.mode = 'idle'; ta.placeholder = PH; if (!keep) ta.value = before; sync(); if (mine) ta.focus({ preventScroll:true }); }
   $('.cpx-mic', r).onclick = dictate;
@@ -3858,6 +3940,9 @@ const fitHits = window.dmFitHits || (() => {
       rows:[['Plan', 'Ours', 'Northwind', 'Halcyon', 'Fernway'], ['Team', '$29', '$22', '$25', '$28'], ['Business', '$79', '$69', '$75', '$89']] }] };
 
   const own = r === c.st, root = $('.afx', r), main = $('.afx-main', r), demo = $(':scope>.demo', root);
+  // Clean (owner, 18 Nov) keeps no room for the tallest moment: the variant sits centred in its stage, and a menu is centred
+  // with it in the stage's room
+  const ds = r.closest('[data-style]'), clean = !!ds && ds.dataset.style === 'clean';
   // inside another component (Agent harness puts it in a chat) the card is just the file: no chat around it, no switcher
   if (!own){ root.classList.remove('dm'); if (demo) demo.remove(); }
   let art = REPORT, opts = {}, view = 'compact', K = null, now = { ready:false, m:null };
@@ -3933,7 +4018,10 @@ const fitHits = window.dmFitHits || (() => {
     const cur = new DOMMatrixReadOnly(getComputedStyle(wrap).transform).m42;
     if (!menu){ wrap.style.transform = ''; return -cur; }
     const w = wrap.getBoundingClientRect(), b = btn.getBoundingClientRect(), rr = root.getBoundingClientRect();
-    const top0 = rr.top, bot0 = demo && demo.offsetParent ? demo.getBoundingClientRect().top - (parseFloat(getComputedStyle(root).rowGap) || 0) : rr.bottom;
+    let top0 = rr.top, bot0 = demo && demo.offsetParent ? demo.getBoundingClientRect().top - (parseFloat(getComputedStyle(root).rowGap) || 0) : rr.bottom;
+    // Clean: the room is the stage's, inside its padding (and above the switcher, where it shows)
+    const room = clean && (root.closest('.stage-inner') || root.closest('.stage'));
+    if (room){ const sr = room.getBoundingClientRect(), cs = getComputedStyle(room); top0 = Math.min(top0, sr.top + parseFloat(cs.paddingTop)); if (!(demo && demo.offsetParent)) bot0 = Math.max(bot0, sr.bottom - parseFloat(cs.paddingBottom)); }
     const mt = b.bottom - cur + 6, top = Math.min(w.top - cur, mt), bot = Math.max(w.bottom - cur, mt + menu.offsetHeight);
     const d = Math.max(top0 - top, (top0 + bot0) / 2 - (top + bot) / 2), to = Math.abs(d) > .5 ? Math.round(d) : 0;
     wrap.style.transform = to ? `translateY(${to}px)` : '';
@@ -4133,7 +4221,7 @@ const fitHits = window.dmFitHits || (() => {
           <button type="button" class="ib afx-dl" aria-label="Download ${esc(a.title)}" data-tip="Download">${ic('down', 's')}</button>
         </span></span>
       </span>
-      ${own ? '<p>The short version: the plan table is where people stall, and three small changes should move most of them on.</p>' : ''}
+      ${!own ? '' : clean ? '<div class="fold shut afx-in-after"><div><p>The short version: the plan table is where people stall, and three small changes should move most of them on.</p></div></div>' : '<p>The short version: the plan table is where people stall, and three small changes should move most of them on.</p>'}
     </div></div>`;
     const wrap = $('.afx-w', main), chip = $('.afx-chip', main), btn = $('.afx-in-main', main), vb = $('.afx-vb3', main);
     now.m = m; bindMeta(chip, m);
@@ -4146,6 +4234,8 @@ const fitHits = window.dmFitHits || (() => {
       await k.wait(300);
       await phases(k, a, $('.afx-in-m .afx-wr', chip));
       btn.disabled = false; settle(chip, m);
+      // Clean: the words that sum the file up come once it is written
+      const after = $('.afx-in-after', main); if (after) after.classList.remove('shut');
     });
   }
 

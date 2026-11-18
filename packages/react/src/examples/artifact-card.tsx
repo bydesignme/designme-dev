@@ -1,8 +1,8 @@
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArtifactCard, type ArtifactCardProps, type ArtifactVersion } from '../components/artifact-card/ArtifactCard';
-import { Seg } from '../lib/motion';
+import { Fold, Seg } from '../lib/motion';
 import { Demo } from './Demo';
 import { useScript, useStory } from './useScript';
 
@@ -42,6 +42,9 @@ const ASK = 'Review our pricing page and tell me what to fix first.';
 export default function ArtifactCardDemo() {
   const ref = useRef<HTMLDivElement>(null);
   const [variant, setVariant] = useState<Variant>('compact');
+  // Clean (owner, 18 Nov): the words that sum the file up come once it is written
+  const [clean, setClean] = useState(false);
+  useEffect(() => { setClean(ref.current?.closest('[data-style]')?.getAttribute('data-style') === 'clean'); }, []);
   const [version, setVersion] = useState(2);
   // where the writing is: a step while it runs, then done; the summary is written out a few letters at a time
   const [step, setStep] = useState(0);
@@ -81,7 +84,9 @@ export default function ArtifactCardDemo() {
       <div className="dm-afx-in-msg">
         <p>I went through the pricing page from top to bottom and wrote up what to fix first.</p>
         {report}
-        <p>The short version: the plan table is where people stall, and three small changes should move most of them on.</p>
+        {clean
+          ? <Fold open={!writing} className="dm-afx-in-after"><p>The short version: the plan table is where people stall, and three small changes should move most of them on.</p></Fold>
+          : <p>The short version: the plan table is where people stall, and three small changes should move most of them on.</p>}
       </div>
     </div>
   ) : report;

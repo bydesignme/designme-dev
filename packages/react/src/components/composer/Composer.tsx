@@ -106,10 +106,29 @@ export function Composer({
   const counted = useSeconds(dictating && dictationSeconds === undefined);
 
   const box = useRef<HTMLDivElement>(null), ta = useRef<HTMLTextAreaElement>(null);
+  // Clean (owner, 18 Nov) keeps no room for the conversation: the thread and the box grow and shrink together, eased (as
+  // grow() on the site)
+  const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
+  const [clean, setClean] = useState(false);
+  useIsoLayoutEffect(() => { setClean(root.current?.closest('[data-style]')?.getAttribute('data-style') === 'clean'); }, []);
+  useIsoLayoutEffect(() => {
+    const el = root.current, w = inner.current;
+    if (!clean || !el || !w || typeof ResizeObserver === 'undefined') return;
+    let first = true;
+    const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
+    const fit = () => {
+      const h = Math.ceil(w.offsetHeight + box());
+      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
+      else el.style.height = h + 'px';
+    };
+    const ro = new ResizeObserver(fit); ro.observe(w); fit();
+    return () => { ro.disconnect(); el.style.height = ''; };
+  }, [clean]);
   // the text box grows with its text, up to 160px
   useIsoLayoutEffect(() => { const t = ta.current; if (!t) return; t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 160) + 'px'; }, [text, dictating]);
 
   /* ---------- menus: open above their button, close on a click outside, Escape or a pick ---------- */
+  const [gy, setGy] = useState(0);
   const [pop, setPop] = useState<PopName | null>(null);
   const [place, setPlace] = useState<Partial<Record<PopName, CSSProperties>>>({});
   const triggers = useRef<Partial<Record<PopName, HTMLButtonElement | null>>>({});
@@ -129,8 +148,12 @@ export function Composer({
     const hr = host.getBoundingClientRect(), br = btn.getBoundingClientRect(), end = pop === 'mode';
     let x = end ? br.right - hr.left - el.offsetWidth : br.left - hr.left;
     x = Math.max(-hr.left + 8, Math.min(x, innerWidth - hr.left - el.offsetWidth - 8));
-    setPlace(p => ({ ...p, [pop]: { left: x, top: br.top - hr.top - el.offsetHeight - 6, '--dm-origin': 'bottom ' + (end ? 'right' : 'left') } as CSSProperties }));
+    const top = br.top - hr.top - el.offsetHeight - 6;
+    setPlace(p => ({ ...p, [pop]: { left: x, top, '--dm-origin': 'bottom ' + (end ? 'right' : 'left') } as CSSProperties }));
+    // Clean: the composer glides down by half of what the menu reaches past its top, so the two sit centred together
+    const rt = root.current; if (clean && rt) setGy(Math.max(0, Math.round(-(hr.top - rt.getBoundingClientRect().top + top) / 2)));
   }, [pop]);
+  useIsoLayoutEffect(() => { if (!pop) setGy(0); }, [pop]);
   useEffect(() => {
     if (!pop) return;
     const click = (e: MouseEvent) => { const t = e.target as Node; if (!pops.current[pop]?.contains(t) && !triggers.current[pop]?.contains(t)) setPop(null); };
@@ -189,7 +212,8 @@ export function Composer({
   };
 
   return (
-    <div data-dm="" className={cx('dm-cpx', className)}>
+    <div data-dm="" ref={root} className={cx('dm-cpx', clean && 'dm-growing dm-glide', className)} style={clean ? { '--dm-gy': gy + 'px' } as CSSProperties : undefined}>
+      <div ref={inner} className="dm-grow" style={clean ? undefined : { display: 'contents' }}>
       <div className="dm-cpx-thread" aria-live="polite">{thread}</div>
       <div ref={box} className="dm-cpx-box" data-mode={dictating ? 'voice' : 'idle'}>
         <div className="dm-cpx-att">{files.map(f => (
@@ -237,6 +261,7 @@ export function Composer({
           <div className="dm-ph">The agent may</div>
           {modes.map(o => <button key={o.value} type="button" role="menuitemradio" aria-checked={o.value === md} className="dm-mi" onClick={pick(() => setMd(o.value))}><Icon name={o.icon ?? 'edit'} /><span>{o.label ?? o.value}{o.detail && <span className="dm-d">{o.detail}</span>}</span><Check /></button>)}
         </div>
+      </div>
       </div>
     </div>
   );

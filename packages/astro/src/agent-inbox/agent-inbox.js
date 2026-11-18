@@ -17,6 +17,9 @@ DM.def('agent-inbox', (r, c) => {
   // the panel fits its rows at every moment (owner, 18 Nov: no room kept for a group that has gone): as a group goes or
   // comes back, its height eases with grow(), and it stays centred in its stage
   const ib = r.classList.contains('aib') ? r : $('.aib', r);
+  // Clean (owner, 18 Nov): the head has a neutral mark in a tile, the column the agents' marks sit in
+  const ds = r.closest('[data-style]');
+  if (ib && ds && ds.dataset.style === 'clean') $('.aib-h', ib).prepend(html(`<span class="aib-hi" aria-hidden="true">${I('mail')}</span>`));
   if (ib) c.offs.push(grow(ib));
   gs.innerHTML = GR.map(([k, n]) => `<section class="aib-g" data-g="${k}" aria-label="${n}"><div class="aib-gh"><span>${n}</span><span class="n"></span></div><div class="aib-gl" role="list"></div></section>`).join('');
   const clock = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');

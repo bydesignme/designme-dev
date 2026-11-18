@@ -946,8 +946,28 @@
 .v2 .aib-r .ok{color:var(--ok);display:grid}
 .v2 .aib-i.fail{background:var(--bad-bg)}
 .v2 .aib-i.fail .aib-r .pill{background:var(--surface);color:var(--fg);box-shadow:var(--on-tint-btn)}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .v2 .aib.panel{padding:10px 10px 10px 10px}
+/* Clean (owner, 18 Nov): a card on two columns, its content 16px from every edge. The head's neutral mark sits in a 28px
+   column, the agents' marks in the same column under it, and the title, the group names and each run's words start 12px
+   after it; the line beside the title, the buttons and the clocks end on the content's right edge, and each row shares one
+   centre line. A run's row is not a button, so it has no hover fill (nor a red one when it failed: its words and mark stay
+   red), and a run that moves glides without lifting. The done ticks are the vivid mark green, never the darker text green */
+.v2 .aib-hi{display:none}
+:root[data-style="clean"] .v2 .aib.panel{padding:16px 16px 6px}
+:root[data-style="clean"] .v2 .aib.panel .aib-h{align-items:center;gap:12px;padding:0 0 4px}
+:root[data-style="clean"] .v2 .aib.panel .aib-hi{width:28px;height:28px;display:grid;place-items:center;flex:none;border-radius:var(--r-sm);color:var(--fg2);background:var(--chip);box-shadow:inset 0 0 0 1px var(--hair)}
+:root[data-style="clean"] .v2 .aib.panel .aib-h b{flex:1;line-height:20px}
+:root[data-style="clean"] .v2 .aib.panel .aib-st{line-height:18px}
+:root[data-style="clean"] .v2 .aib.panel .aib-gh{padding:12px 0 4px 40px;line-height:18px}
+:root[data-style="clean"] .v2 .aib.panel .aib-i{gap:12px;padding:8px 0;border-radius:0}
+:root[data-style="clean"] .v2 .aib.panel .aib-i.fail{background:none}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .aib.panel .aib-i:hover{background:none}}
+:root[data-style="clean"] .v2 .aib.panel .aib-i.mv{background:var(--surface);box-shadow:none}
+:root[data-style="clean"] .v2 .aib-r .ok{color:var(--ok-mark)}
+/* Retry is the secondary button, as Clean draws it everywhere (its tokens), with no press scale */
+:root[data-style="clean"] .v2 .aib-i.fail .aib-r .pill{color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .aib-i.fail .aib-r .pill:hover{color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth)}}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .aib-i.fail .aib-r .pill:hover{box-shadow:var(--btn2-hover)}}
+:root[data-style="clean"] .v2 .aib-i.fail .aib-r .pill:active{transform:none;box-shadow:var(--btn2-press)}
 /* ---------- Trace view ---------- */
 /* one agent run as a waterfall: every span on a shared time axis, nested under the span that started it, with its tokens
    and latency. Each kind has its colour (the chart palette's identity slots): its mark, its bar and its count in the key.
@@ -1035,6 +1055,51 @@
 /* narrow: the names keep their room. Tokens move into each span's details, the slow tag leaves the amber bar and time to
    say it (the time keeps its tooltip), the tree draws closer, and the details give the start its own line */
 @container (max-width:330px){.v2 .trv-ax,.v2 .trv-r{grid-template-columns:minmax(0,1fr) 72px 44px}.v2 .trv-tk,.v2 .trv-n .tag{display:none}.v2 .trv-n{padding-left:calc(var(--lv,0) * 10px)}.v2 .trv-g{display:none}.v2 .trv-kv{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* Clean (owner, 18 Nov): a card on two columns. Its content sits 16px from every edge, the head's neutral mark (the run's
+   agent) in a 32px column with the title's words 12px after it; each span's mark is centred in that column (nested ones
+   step in 16px a level) and the root span's name starts where the title's does, as do the key and the Span heading. A row's
+   hover and selection fill spans the content box, no wider, and is a neutral grey; the times and tokens sit 8px inside it,
+   with the run's total over them. It keeps no room for spans still to come: it grows as each span starts (grow()) and stays
+   centred in its stage. The kinds keep their colours on the bars and the key (chart data), drawn flat and at full strength
+   so the key matches them; the marks beside the names are one neutral grey, as file types are. An open span's details are
+   an off-white foot strip, edge to edge, on the same columns */
+.v2 .trv-hi{display:none}
+:root[data-style="clean"] .v2 .trv.panel{padding:15px 16px 0;overflow:clip;overflow-clip-margin:0px}
+:root[data-style="clean"] .v2 .trv.panel .trv-h{gap:12px;justify-content:flex-start;padding:0 8px 0 0}
+:root[data-style="clean"] .v2 .trv.panel .trv-hi{width:32px;height:32px;display:grid;place-items:center;flex:none;border-radius:calc(9px * var(--rk-m,var(--rk)));color:var(--fg2);background:var(--chip);box-shadow:inset 0 0 0 1px var(--hair)}
+:root[data-style="clean"] .v2 .trv.panel .trv-ht{flex:1}
+:root[data-style="clean"] .v2 .trv.panel .trv-ht b{line-height:20px}
+:root[data-style="clean"] .v2 .trv.panel .trv-st{line-height:18px}
+:root[data-style="clean"] .v2 .trv.panel .trv-lg{padding:8px 0 12px 44px}
+:root[data-style="clean"] .v2 .trv.panel :is(.trv-ax,.trv-r){padding:0 8px 0 0}
+:root[data-style="clean"] .v2 .trv.panel .trv-ax>span:first-child{padding-left:44px}
+:root[data-style="clean"] .v2 .trv.panel .trv-n{gap:19px;padding-left:calc(7px + var(--lv,0) * 16px)}
+:root[data-style="clean"] .v2 .trv.panel .trv-n .tag{margin-left:-11px}
+:root[data-style="clean"] .v2 .trv.panel .trv-g i{left:calc(var(--x) * 16px + 15.5px)}
+:root[data-style="clean"] .v2 .trv-rows,:root[data-style="clean"] .v2 .trv.panel .trv-rows{min-height:0;padding-bottom:9px}
+:root[data-style="clean"] .v2 .trv-r{transition:background-color var(--t-fast) var(--ease)}
+:root[data-style="clean"] .v2 .trv-r[aria-expanded="true"]{background:var(--row)}
+:root[data-style="clean"] .v2 .trv-rows.sel .trv-r:not([aria-expanded="true"]) .trv-b i{opacity:1}
+:root[data-style="clean"] .v2 .trv-k{color:var(--fg2);background:var(--chip);box-shadow:inset 0 0 0 1px var(--hair)}
+:root[data-style="clean"] .v2 .trv-r:not(.slow):not([data-k="agent"]) .trv-b i{background:var(--k);animation:none}
+:root[data-style="clean"] .v2 .trv-r.run:not([data-k="agent"]) .trv-b i::after{display:none}
+:root[data-style="clean"] .v2 .trv.panel .trv-dt{margin:0 -16px}
+:root[data-style="clean"] .v2 .trv.panel .trv-dc{gap:12px;margin-top:0;padding:10px 24px 16px 60px;background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
+:root[data-style="clean"] .v2 .trv.panel .trv-dh{position:relative;gap:8px;min-height:28px}
+:root[data-style="clean"] .v2 .trv.panel .trv-dh>.trv-k{position:absolute;left:-37px;top:5px}
+:root[data-style="clean"] .v2 .trv.panel .trv-dh .ib{width:28px;height:28px;margin:0 -6px 0 auto}
+:root[data-style="clean"] .v2 .trv-io code{background:var(--surface);box-shadow:inset 0 0 0 1px var(--hair)}
+/* narrow: the names keep their room. The head's mark is a 24px tile with the words 8px after it, the same columns run down
+   the card, the tree steps in 10px a level, and the time axis is a little shorter */
+@container (max-width:330px){
+  :root[data-style="clean"] .v2 .trv.panel .trv-h{gap:8px}
+  :root[data-style="clean"] .v2 .trv.panel .trv-hi{width:24px;height:24px;border-radius:var(--r-sm)}
+  :root[data-style="clean"] .v2 .trv.panel .trv-lg,:root[data-style="clean"] .v2 .trv.panel .trv-ax>span:first-child{padding-left:32px}
+  :root[data-style="clean"] .v2 .trv.panel .trv-n{gap:11px;padding-left:calc(3px + var(--lv,0) * 10px)}
+  :root[data-style="clean"] .v2 .trv.panel :is(.trv-ax,.trv-r){grid-template-columns:minmax(0,1fr) 60px 44px}
+  :root[data-style="clean"] .v2 .trv.panel .trv-dc{padding-left:48px}
+  :root[data-style="clean"] .v2 .trv.panel .trv-dh>.trv-k{left:-29px}
+}
 /* ---------- Run cost ---------- */
 .v2 .rc{padding:18px}
 .v2 .rc-h{display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
@@ -1800,6 +1865,16 @@
 .v2 .lva-fu{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
 .v2 .lva-fu button{display:inline-flex;align-items:center;gap:var(--s-2);padding:6px var(--s-3) 6px 10px;border-radius:var(--r-pill);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent);font-size:13px;color:var(--fg2);transition:color .2s,box-shadow .2s,transform .2s var(--ease)}
 @media (hover:hover) and (pointer:fine){.v2 .lva-fu button:hover{color:var(--fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--faint) 50%,transparent)}}
+/* Clean (owner, 18 Nov): no room kept for the answer to come. The turn grows as the answer streams in (grow()) and stays
+   centred in its stage. Words fade in without a blur, and the sources' badges are one neutral grey, not a colour each, side
+   by side rather than overlapping */
+:root[data-style="clean"] .v2 .lva-a,:root[data-style="clean"] .v2 .stage-in>.lva .lva-a{min-height:0}
+@keyframes v2-lvwc{from{opacity:0}to{opacity:1}}
+:root[data-style="clean"] .v2 :is(.lva-p .w,.lva-p .cite){animation-name:v2-lvwc}
+:root[data-style="clean"] .v2 .lva-fav{gap:2px}
+:root[data-style="clean"] .v2 .lva-fav span{margin-left:0;background:var(--chip)!important;color:var(--fg2);box-shadow:inset 0 0 0 1px var(--hair)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .lva-sb:hover .lva-fav span:not(:first-child){margin-left:0;background:var(--chip)!important;color:var(--fg2);box-shadow:inset 0 0 0 1px var(--hair)}}
+:root[data-style="clean"] .v2 :is(.lva-tb,.lva-sb,.lva-s,.lva-fu button){transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
 /* ---------- Composer ---------- */
 .v2 .cpx{display:flex;flex-direction:column;justify-content:flex-end;gap:14px;overflow-anchor:none;container-type:inline-size}
 /* neither the composer nor the box it sits in anchors the page's scroll, so the page stays put as the thread grows and clears */
@@ -1851,6 +1926,29 @@
 .v2 .pp-plus,.v2 .pp-ctx,.v2 .pp-mode{width:264px}
 .v2 .cpx-bar>.cpx-send{flex:none}
 @media (max-width:480px){.v2 .cpx-bar .cpx-ctx>span{max-width:88px}}
+/* Clean (owner, 18 Nov): the box takes the card's 22px round corners, with everything in it 16px from its edges: the
+   attachments, the text, Send's edge and the dictation line; the attach button's glyph lines up with the text, and the
+   toolbar's 28px controls share one centre line. Send is the ink button. A file that failed keeps the chip's white with its
+   words and mark in red, no red fill. No room is kept for the conversation: the thread and the box grow together (grow())
+   and stay centred in the stage */
+:root[data-style="clean"] .v2 .stage-in>.cpx{min-height:0}
+/* its menus open above the box, past the top of the composer: grow() must not clip them */
+:root[data-style="clean"] .v2 .cpx.growing{overflow:visible}
+:root[data-style="clean"] .v2 .cpx-box{border-radius:var(--r-card)}
+:root[data-style="clean"] .v2 .cpx-att{gap:4px;padding:16px 16px 0}
+:root[data-style="clean"] .v2 .cpx-ta{padding:14px 16px 4px}
+:root[data-style="clean"] .v2 .cpx-rows{padding:4px 16px 16px}
+:root[data-style="clean"] .v2 .cpx-bar>.cpx-add{margin-left:-6px}
+:root[data-style="clean"] .v2 .cpx-rec{padding-left:0}
+:root[data-style="clean"] .v2 .cpx-bar>.ib{width:28px;height:28px}
+:root[data-style="clean"] .v2 .cpx-bar .chip{height:28px;padding:0 8px;transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
+:root[data-style="clean"] .v2 .cpx-add[aria-expanded="true"]{background:var(--hover)}
+:root[data-style="clean"] .v2 .cpx-send{width:28px;height:28px;transition:transform var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
+:root[data-style="clean"] .v2 .cpx-send:not([disabled]){color:var(--on-btn);background:linear-gradient(180deg,var(--btn-1),var(--btn-2));box-shadow:var(--btn-depth)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .cpx-send:not([disabled]):hover{background:linear-gradient(180deg,color-mix(in srgb,var(--btn-1) 88%,#808080),var(--btn-2))}}
+:root[data-style="clean"] .v2 .cpx-send:not([disabled]):active{transform:scale(.97);box-shadow:var(--btn-press)}
+:root[data-style="clean"] .v2 .cpx-att .fchip.err{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent)}
+:root[data-style="clean"] .v2 .cpx-att .fchip.err .ic{color:var(--bad-mark)}
 /* ---------- Rich text editor ---------- */
 /* a minimal editor for a draft an agent helps with: a formatting toolbar, the text, and a quiet foot with the word count and
    undo. Select text and press Ask AI (or the shortcut, or type / on a new line), and the suggestion streams in beside the
@@ -2129,6 +2227,38 @@
 .v2 .afx-st-act{display:flex;align-items:center;gap:var(--s-1);transition:opacity var(--t) var(--ease)}
 .v2 .afx-st-act .pill{gap:6px}
 .v2 .afx-st.is-writing .afx-st-act{opacity:0;visibility:hidden}
+/* Clean (owner, 18 Nov): a file's mark is one neutral grey whatever its type (no hue per type). The compact card and the
+   preview card take the card's 22px round corners with their content 16px from every edge (a quiet icon button by its
+   glyph, a filled one by its edge); the preview's page sits on an off-white head. The reader's words start 16px in, under
+   its title (its header has no mark, so the two line up), and Copy and Download sit in an off-white foot strip, 16px in
+   from its sides. The variants keep no room for the tallest moment: each sits centred in the stage, and a version menu
+   glides it up so the two sit centred together. The inline chip's closing words wait until the file is written, and the
+   stack's lines are all grey, the pen alone in the accent while it writes */
+:root[data-style="clean"] .v2 .afx.dm>.afx-main{min-height:0}
+:root[data-style="clean"] .v2 .afx-ic{color:var(--fg2);background:var(--chip);box-shadow:inset 0 0 0 1px var(--hair)}
+:root[data-style="clean"] .v2 .afx-in-ic{color:var(--fg2)}
+:root[data-style="clean"] .v2 .afx-cp-card{gap:12px;padding:14px 16px 13px;border-radius:var(--r-card);transition:background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
+:root[data-style="clean"] .v2 .afx-cp-act .pill{margin-left:4px}
+:root[data-style="clean"] .v2 .afx-pv-prev{padding:16px 16px 0;background:var(--strip);border-bottom:1px solid var(--line)}
+/* pointing at the preview card fills it with the quietest grey (its page still lifts), rather than raising its shadow */
+:root[data-style="clean"] .v2 .afx-pv-card{transition:background-color var(--t-fast) var(--ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .afx-pv-card:not(.is-writing):hover{background:var(--wash);box-shadow:var(--shadow)}}
+:root[data-style="clean"] .v2 .afx-pv-meta{gap:12px;padding:14px 9px 13px 16px}
+:root[data-style="clean"] .v2 .afx-ph{gap:12px;padding:16px 10px 16px 16px}
+:root[data-style="clean"] .v2 .afx-ph .afx-ic{display:none}
+:root[data-style="clean"] .v2 .afx-ph .afx-x{width:28px;height:28px;margin-right:0}
+:root[data-style="clean"] .v2 .afx-pb{padding:16px}
+:root[data-style="clean"] .v2 .afx-pf{gap:8px;padding:8px 16px;background:var(--strip);border-top:1px solid var(--line)}
+:root[data-style="clean"] .v2 .afx-r.n b{background:var(--ln)}
+/* the stack keeps no room for its buttons while the page is written: they unfold under the caption once it is done */
+:root[data-style="clean"] .v2 .afx-st-act{max-height:32px;transition:opacity var(--t) var(--ease),max-height var(--t) var(--ease),margin var(--t) var(--ease)}
+:root[data-style="clean"] .v2 .afx-st.is-writing .afx-st-act{max-height:0;margin-top:-18px}
+/* the desk keeps 12px over the sheets for them to peek into on hover; at rest the older ones show 3px of it, so the stack
+   starts 9px higher and what shows sits centred in the stage */
+:root[data-style="clean"] .v2 .afx-desk{margin-top:-9px}
+:root[data-style="clean"] .v2 .afx-in-after{margin-top:-10px}
+:root[data-style="clean"] .v2 .afx-in-after p{padding-top:10px}
+@container (max-width:400px){:root[data-style="clean"] .v2 .afx-cp-card{gap:10px}:root[data-style="clean"] .v2 .afx-pv-meta{gap:10px;padding-right:10px}}
 /* ---------- Attachment tray ---------- */
 /* a drop zone, then the files as plain rows. Each file wears its type's hue: its badge, its ring and the wash that fills its
    row from the left as it uploads. Once it is up the agent reads it (the line shimmers) and says what it found, like 12 pages */

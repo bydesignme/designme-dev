@@ -35,18 +35,18 @@ Trace view lays one agent run out as an observability waterfall: every span, whe
 ### What it does
 
 - `spans` is the run as a tree: each span has a `name`, a `kind` of `agent`, `llm`, `tool` or `retrieval`, a `start` and a `duration` in seconds, its `tokens`, and `children`. An agent span without its own `tokens` adds up every span under it.
-- Each kind has its own mark and colour, and its name in a tooltip on the mark. A key under the title counts the LLM calls, tool calls and retrievals that have started. Guides join each span to the one that started it.
+- Each kind has its own mark and colour, and its name in a tooltip on the mark. In Clean the marks are one neutral grey, the colour stays on the bars and the key, and the head has the run's own mark in a tile, the column every span's mark is centred in. A key under the title counts the LLM calls, tool calls and retrievals that have started. Guides join each span to the one that started it.
 - Each row shows its bar on the time axis, its tokens and its latency; the header shows the run's total time. An agent span is drawn as a bracket over the time its spans take.
-- `time` streams a run in: spans that start later stay hidden, a span without a `duration` grows up to it with a light passing along its bar and a bright leading edge, and a playhead marks `time` down every track. Leave it out once the run is over and the playhead fades.
+- `time` streams a run in: spans that start later stay hidden, a span without a `duration` grows up to it with a light passing along its bar and a bright leading edge (in Clean, a flat bar), and a playhead marks `time` down every track. Leave it out once the run is over and the playhead fades.
 - A tool call that takes longer than `slowAfter` seconds (2 by default) turns amber and hatched and gets a slow tag, with the budget in its tooltip.
-- Pressing a span opens its details under the waterfall: a bar showing where it sat in the run, its kind, start, latency, tokens, input and output, while the other bars step back. Pressing it again, the close button or Escape shuts them.
+- Pressing a span opens its details under the waterfall: a bar showing where it sat in the run, its kind, start, latency, tokens, input and output, while the other bars step back (in Clean the bars stay as they are, the open span's row takes a grey fill and the details are an off-white strip at the card's foot). Pressing it again, the close button or Escape shuts them.
 - On a narrow card the names keep their room: the tokens column, the slow tag and the guides give way, the amber bar and time still mark a slow span, and every span's tokens stay in its details.
 
 ### Accessibility
 
 - Each span is a button in a labelled group, named with its name, kind, latency and tokens, and whether it is still running or slow.
 - Each span says whether its details are open, and the details are a labelled region.
-- The key is a labelled list, so the counts by kind are read out too. The guides, the playhead and the bar in the details are decoration and hidden from screen readers.
+- The key is a labelled list, so the counts by kind are read out too. The guides, the playhead, the bar in the details and Clean's head mark are decoration and hidden from screen readers.
 - The arrow keys, Home and End move between spans, and Escape closes the details and puts focus back on the span.
 - The line under the title is announced politely when it changes.
 - With reduced motion nothing slides, fades or shimmers; the bars, the playhead and the numbers still update.
@@ -163,9 +163,9 @@ Not as it is. They open under the waterfall, so the card stays narrow enough to 
 
 ```tsx
 'use client';
-import { useRef, type CSSProperties, type KeyboardEvent } from 'react';
+import { useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { cx } from '../lib/cx';
-import { useControllable } from '../lib/hooks';
+import { useControllable, useIsoLayoutEffect } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
 import { enter, Fold, Swap, Tip } from '../lib/motion';
 import '../designme.css';
@@ -227,6 +227,24 @@ type Row = { s: TraceSpan; lv: number; up?: Row };
 export function TraceView({ title, spans, time, axis, slowAfter = 2, status, selected, defaultSelected = null, onSelectedChange, className }: TraceViewProps) {
   const [open, setOpen] = useControllable(selected, defaultSelected, onSelectedChange);
   const rows = useRef<HTMLDivElement>(null);
+  // Clean (owner, 18 Nov) keeps no room for spans still to come: the card grows and shrinks with what it holds, eased, as
+  // each span starts and the details open and shut (as grow() on the site)
+  const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
+  const [clean, setClean] = useState(false);
+  useIsoLayoutEffect(() => { setClean(root.current?.closest('[data-style]')?.getAttribute('data-style') === 'clean'); }, []);
+  useIsoLayoutEffect(() => {
+    const el = root.current, w = inner.current;
+    if (!clean || !el || !w || typeof ResizeObserver === 'undefined') return;
+    let first = true;
+    const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
+    const fit = () => {
+      const h = Math.ceil(w.offsetHeight + box());
+      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
+      else el.style.height = h + 'px';
+    };
+    const ro = new ResizeObserver(fit); ro.observe(w); fit();
+    return () => { ro.disconnect(); el.style.height = ''; };
+  }, [clean]);
   const all: Row[] = [];
   (function walk(list: TraceSpan[], lv: number, up?: Row) { list.forEach(s => { const row = { s, lv, up }; all.push(row); if (s.children) walk(s.children, lv + 1, row); }); })(spans, 0);
   const end = Math.max(0, ...all.map(({ s }) => s.start + (s.duration ?? Math.max(0, (time ?? s.start) - s.start))));
@@ -273,9 +291,12 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
   };
 
   return (
-    <div data-dm="" className={cx('dm-trv dm-panel', live && time !== undefined && time > 0 && 'dm-live', className)} style={{ '--dm-now': Math.min(end, now) / span } as CSSProperties}
+    <div data-dm="" ref={root} className={cx('dm-trv dm-panel', clean && 'dm-growing', live && time !== undefined && time > 0 && 'dm-live', className)} style={{ '--dm-now': Math.min(end, now) / span } as CSSProperties}
       onKeyDown={e => { if (e.key === 'Escape' && open) close(true); }}>
+      <div ref={inner} className="dm-grow" style={clean ? undefined : { display: 'contents' }}>
       <div className="dm-trv-h">
+        {/* Clean's head has the run's mark in a tile, the column every span's mark is centred in */}
+        {clean && <span className="dm-trv-hi" aria-hidden="true"><Icon name="cpu" /></span>}
         <div className="dm-trv-ht"><b>{title}</b><span className="dm-muted dm-trv-st" aria-live="polite"><Swap>{line}</Swap></span></div>
         <span className="dm-trv-tot dm-num">{sec(Math.min(end, now))}</span>
       </div>
@@ -335,6 +356,7 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
           </div>
         )}
       </Fold>
+      </div>
     </div>
   );
 }

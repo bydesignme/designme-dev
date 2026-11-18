@@ -1,7 +1,7 @@
 'use client';
-import { Fragment, useState } from 'react';
+import { Fragment, useRef, useState } from 'react';
 import { cx } from '../../lib/cx';
-import { useCopied, useSeconds } from '../../lib/hooks';
+import { useCopied, useIsoLayoutEffect, useSeconds } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
 import { enter, Fold, Think, Tip } from '../../lib/motion';
 import '../../designme.css';
@@ -197,8 +197,27 @@ function TurnSlot(props: TurnProps) {
 /** A question and an answer that streams in word by word, with citations, sources and follow-ups, then more turns below it. */
 export function LiveAnswer({ turns, followUps, onFollowUp, onRetry, onRate, onCopy, onSourceClick, className }: LiveAnswerProps) {
   const last = turns.length - 1;
+  // Clean (owner, 18 Nov) keeps no room for the answer: it grows and shrinks with what it holds, eased, as it streams in
+  // (as grow() on the site)
+  const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
+  const [clean, setClean] = useState(false);
+  useIsoLayoutEffect(() => { setClean(root.current?.closest('[data-style]')?.getAttribute('data-style') === 'clean'); }, []);
+  useIsoLayoutEffect(() => {
+    const el = root.current, w = inner.current;
+    if (!clean || !el || !w || typeof ResizeObserver === 'undefined') return;
+    let first = true;
+    const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
+    const fit = () => {
+      const h = Math.ceil(w.offsetHeight + box());
+      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
+      else el.style.height = h + 'px';
+    };
+    const ro = new ResizeObserver(fit); ro.observe(w); fit();
+    return () => { ro.disconnect(); el.style.height = ''; };
+  }, [clean]);
   return (
-    <div data-dm="" className={cx('dm-lva', className)}>
+    <div data-dm="" ref={root} className={cx('dm-lva', clean && 'dm-growing', className)}>
+      <div ref={inner} className="dm-grow" style={clean ? undefined : { display: 'contents' }}>
       {turns.length > 0 && turns[0].question && <div className="dm-lva-q"><div className="dm-bub">{turns[0].question}</div></div>}
       <div className="dm-lva-a">
         {turns.map((t, i) => (
@@ -208,6 +227,7 @@ export function LiveAnswer({ turns, followUps, onFollowUp, onRetry, onRate, onCo
               onRetry={onRetry && (() => onRetry(i))} onRate={onRate && (r => onRate(i, r))} onCopy={onCopy && (x => onCopy(i, x))} onSourceClick={onSourceClick} />
           </Fragment>
         ))}
+      </div>
       </div>
     </div>
   );

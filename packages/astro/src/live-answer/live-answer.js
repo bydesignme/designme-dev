@@ -1,7 +1,11 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, copied, enter, html, stagger } from '../core/core.js';
+import { $, $$, DM, I, copied, enter, grow, html, stagger } from '../core/core.js';
 DM.def('live-answer', (r, c) => {
   const A = $('.lva-a', r);
+  // Clean (owner, 18 Nov) keeps no room for the answer: the turn grows as it streams in (grow()), centred in its stage
+  // (in a chat around it, like the Agent harness, the chat lays it out)
+  const ds = r.closest('[data-style]'), lva = $('.lva', r) || r;
+  if (r === c.st && ds && ds.dataset.style === 'clean') Promise.resolve().then(() => Promise.all(lva.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && lva.isConnected) c.offs.push(grow(lva)); });
   const srcs = { 1:'Funnel data, last 30 days', 2:'Session notes from 8 interviews', 3:'Onboarding.fig, step 2' };
   const S = [[1,'F','#7a5af8','Funnel data','Amplitude, last 30 days'],[2,'N','#0ea5a4','Session notes','Notion, 8 interviews'],[3,'S','#f97316','Onboarding.fig','Figma, step 2']];
   const T = {

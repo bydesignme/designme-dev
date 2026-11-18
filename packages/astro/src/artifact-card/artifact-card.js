@@ -31,6 +31,9 @@ DM.def('artifact-card', (r, c) => {
       rows:[['Plan', 'Ours', 'Northwind', 'Halcyon', 'Fernway'], ['Team', '$29', '$22', '$25', '$28'], ['Business', '$79', '$69', '$75', '$89']] }] };
 
   const own = r === c.st, root = $('.afx', r), main = $('.afx-main', r), demo = $(':scope>.demo', root);
+  // Clean (owner, 18 Nov) keeps no room for the tallest moment: the variant sits centred in its stage, and a menu is centred
+  // with it in the stage's room
+  const ds = r.closest('[data-style]'), clean = !!ds && ds.dataset.style === 'clean';
   // inside another component (Agent harness puts it in a chat) the card is just the file: no chat around it, no switcher
   if (!own){ root.classList.remove('dm'); if (demo) demo.remove(); }
   let art = REPORT, opts = {}, view = 'compact', K = null, now = { ready:false, m:null };
@@ -106,7 +109,10 @@ DM.def('artifact-card', (r, c) => {
     const cur = new DOMMatrixReadOnly(getComputedStyle(wrap).transform).m42;
     if (!menu){ wrap.style.transform = ''; return -cur; }
     const w = wrap.getBoundingClientRect(), b = btn.getBoundingClientRect(), rr = root.getBoundingClientRect();
-    const top0 = rr.top, bot0 = demo && demo.offsetParent ? demo.getBoundingClientRect().top - (parseFloat(getComputedStyle(root).rowGap) || 0) : rr.bottom;
+    let top0 = rr.top, bot0 = demo && demo.offsetParent ? demo.getBoundingClientRect().top - (parseFloat(getComputedStyle(root).rowGap) || 0) : rr.bottom;
+    // Clean: the room is the stage's, inside its padding (and above the switcher, where it shows)
+    const room = clean && (root.closest('.stage-inner') || root.closest('.stage'));
+    if (room){ const sr = room.getBoundingClientRect(), cs = getComputedStyle(room); top0 = Math.min(top0, sr.top + parseFloat(cs.paddingTop)); if (!(demo && demo.offsetParent)) bot0 = Math.max(bot0, sr.bottom - parseFloat(cs.paddingBottom)); }
     const mt = b.bottom - cur + 6, top = Math.min(w.top - cur, mt), bot = Math.max(w.bottom - cur, mt + menu.offsetHeight);
     const d = Math.max(top0 - top, (top0 + bot0) / 2 - (top + bot) / 2), to = Math.abs(d) > .5 ? Math.round(d) : 0;
     wrap.style.transform = to ? `translateY(${to}px)` : '';
@@ -306,7 +312,7 @@ DM.def('artifact-card', (r, c) => {
           <button type="button" class="ib afx-dl" aria-label="Download ${esc(a.title)}" data-tip="Download">${ic('down', 's')}</button>
         </span></span>
       </span>
-      ${own ? '<p>The short version: the plan table is where people stall, and three small changes should move most of them on.</p>' : ''}
+      ${!own ? '' : clean ? '<div class="fold shut afx-in-after"><div><p>The short version: the plan table is where people stall, and three small changes should move most of them on.</p></div></div>' : '<p>The short version: the plan table is where people stall, and three small changes should move most of them on.</p>'}
     </div></div>`;
     const wrap = $('.afx-w', main), chip = $('.afx-chip', main), btn = $('.afx-in-main', main), vb = $('.afx-vb3', main);
     now.m = m; bindMeta(chip, m);
@@ -319,6 +325,8 @@ DM.def('artifact-card', (r, c) => {
       await k.wait(300);
       await phases(k, a, $('.afx-in-m .afx-wr', chip));
       btn.disabled = false; settle(chip, m);
+      // Clean: the words that sum the file up come once it is written
+      const after = $('.afx-in-after', main); if (after) after.classList.remove('shut');
     });
   }
 

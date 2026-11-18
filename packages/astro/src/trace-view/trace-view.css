@@ -86,3 +86,48 @@
 /* narrow: the names keep their room. Tokens move into each span's details, the slow tag leaves the amber bar and time to
    say it (the time keeps its tooltip), the tree draws closer, and the details give the start its own line */
 @container (max-width:330px){.trv-ax,.trv-r{grid-template-columns:minmax(0,1fr) 72px 44px}.trv-tk,.trv-n .tag{display:none}.trv-n{padding-left:calc(var(--dm-lv,0) * 10px)}.trv-g{display:none}.trv-kv{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* Clean (owner, 18 Nov): a card on two columns. Its content sits 16px from every edge, the head's neutral mark (the run's
+   agent) in a 32px column with the title's words 12px after it; each span's mark is centred in that column (nested ones
+   step in 16px a level) and the root span's name starts where the title's does, as do the key and the Span heading. A row's
+   hover and selection fill spans the content box, no wider, and is a neutral grey; the times and tokens sit 8px inside it,
+   with the run's total over them. It keeps no room for spans still to come: it grows as each span starts (grow()) and stays
+   centred in its stage. The kinds keep their colours on the bars and the key (chart data), drawn flat and at full strength
+   so the key matches them; the marks beside the names are one neutral grey, as file types are. An open span's details are
+   an off-white foot strip, edge to edge, on the same columns */
+.trv-hi{display:none}
+:root[data-style="clean"] .trv.panel,:root [data-style="clean"] .trv.panel,:root [data-style="clean"].trv.panel{padding:15px 16px 0;overflow:clip;overflow-clip-margin:0px}
+:root[data-style="clean"] .trv.panel .trv-h,:root [data-style="clean"] .trv.panel .trv-h,:root [data-style="clean"].trv.panel .trv-h{gap:12px;justify-content:flex-start;padding:0 8px 0 0}
+:root[data-style="clean"] .trv.panel .trv-hi,:root [data-style="clean"] .trv.panel .trv-hi,:root [data-style="clean"].trv.panel .trv-hi{width:32px;height:32px;display:grid;place-items:center;flex:none;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));color:var(--dm-fg2);background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .trv.panel .trv-ht,:root [data-style="clean"] .trv.panel .trv-ht,:root [data-style="clean"].trv.panel .trv-ht{flex:1}
+:root[data-style="clean"] .trv.panel .trv-ht b,:root [data-style="clean"] .trv.panel .trv-ht b,:root [data-style="clean"].trv.panel .trv-ht b{line-height:20px}
+:root[data-style="clean"] .trv.panel .trv-st,:root [data-style="clean"] .trv.panel .trv-st,:root [data-style="clean"].trv.panel .trv-st{line-height:18px}
+:root[data-style="clean"] .trv.panel .trv-lg,:root [data-style="clean"] .trv.panel .trv-lg,:root [data-style="clean"].trv.panel .trv-lg{padding:8px 0 12px 44px}
+:root[data-style="clean"] .trv.panel :is(.trv-ax,.trv-r),:root [data-style="clean"] .trv.panel :is(.trv-ax,.trv-r),:root [data-style="clean"].trv.panel :is(.trv-ax,.trv-r){padding:0 8px 0 0}
+:root[data-style="clean"] .trv.panel .trv-ax>span:first-child,:root [data-style="clean"] .trv.panel .trv-ax>span:first-child,:root [data-style="clean"].trv.panel .trv-ax>span:first-child{padding-left:44px}
+:root[data-style="clean"] .trv.panel .trv-n,:root [data-style="clean"] .trv.panel .trv-n,:root [data-style="clean"].trv.panel .trv-n{gap:19px;padding-left:calc(7px + var(--dm-lv,0) * 16px)}
+:root[data-style="clean"] .trv.panel .trv-n .tag,:root [data-style="clean"] .trv.panel .trv-n .tag,:root [data-style="clean"].trv.panel .trv-n .tag{margin-left:-11px}
+:root[data-style="clean"] .trv.panel .trv-g i,:root [data-style="clean"] .trv.panel .trv-g i,:root [data-style="clean"].trv.panel .trv-g i{left:calc(var(--dm-x) * 16px + 15.5px)}
+:root[data-style="clean"] .trv-rows,:root [data-style="clean"] .trv-rows,:root [data-style="clean"].trv-rows,:root[data-style="clean"] .trv.panel .trv-rows,:root [data-style="clean"] .trv.panel .trv-rows,:root [data-style="clean"].trv.panel .trv-rows{min-height:0;padding-bottom:9px}
+:root[data-style="clean"] .trv-r,:root [data-style="clean"] .trv-r,:root [data-style="clean"].trv-r{transition:background-color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .trv-r[aria-expanded="true"],:root [data-style="clean"] .trv-r[aria-expanded="true"],:root [data-style="clean"].trv-r[aria-expanded="true"]{background:var(--dm-row)}
+:root[data-style="clean"] .trv-rows.sel .trv-r:not([aria-expanded="true"]) .trv-b i,:root [data-style="clean"] .trv-rows.sel .trv-r:not([aria-expanded="true"]) .trv-b i,:root [data-style="clean"].trv-rows.sel .trv-r:not([aria-expanded="true"]) .trv-b i{opacity:1}
+:root[data-style="clean"] .trv-k,:root [data-style="clean"] .trv-k,:root [data-style="clean"].trv-k{color:var(--dm-fg2);background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .trv-r:not(.slow):not([data-k="agent"]) .trv-b i,:root [data-style="clean"] .trv-r:not(.slow):not([data-k="agent"]) .trv-b i,:root [data-style="clean"].trv-r:not(.slow):not([data-k="agent"]) .trv-b i{background:var(--dm-k);animation:none}
+:root[data-style="clean"] .trv-r.run:not([data-k="agent"]) .trv-b i::after,:root [data-style="clean"] .trv-r.run:not([data-k="agent"]) .trv-b i::after,:root [data-style="clean"].trv-r.run:not([data-k="agent"]) .trv-b i::after{display:none}
+:root[data-style="clean"] .trv.panel .trv-dt,:root [data-style="clean"] .trv.panel .trv-dt,:root [data-style="clean"].trv.panel .trv-dt{margin:0 -16px}
+:root[data-style="clean"] .trv.panel .trv-dc,:root [data-style="clean"] .trv.panel .trv-dc,:root [data-style="clean"].trv.panel .trv-dc{gap:12px;margin-top:0;padding:10px 24px 16px 60px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+:root[data-style="clean"] .trv.panel .trv-dh,:root [data-style="clean"] .trv.panel .trv-dh,:root [data-style="clean"].trv.panel .trv-dh{position:relative;gap:8px;min-height:28px}
+:root[data-style="clean"] .trv.panel .trv-dh>.trv-k,:root [data-style="clean"] .trv.panel .trv-dh>.trv-k,:root [data-style="clean"].trv.panel .trv-dh>.trv-k{position:absolute;left:-37px;top:5px}
+:root[data-style="clean"] .trv.panel .trv-dh .ib,:root [data-style="clean"] .trv.panel .trv-dh .ib,:root [data-style="clean"].trv.panel .trv-dh .ib{width:28px;height:28px;margin:0 -6px 0 auto}
+:root[data-style="clean"] .trv-io code,:root [data-style="clean"] .trv-io code,:root [data-style="clean"].trv-io code{background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-hair)}
+/* narrow: the names keep their room. The head's mark is a 24px tile with the words 8px after it, the same columns run down
+   the card, the tree steps in 10px a level, and the time axis is a little shorter */
+@container (max-width:330px){
+  :root[data-style="clean"] .trv.panel .trv-h,:root [data-style="clean"] .trv.panel .trv-h,:root [data-style="clean"].trv.panel .trv-h{gap:8px}
+  :root[data-style="clean"] .trv.panel .trv-hi,:root [data-style="clean"] .trv.panel .trv-hi,:root [data-style="clean"].trv.panel .trv-hi{width:24px;height:24px;border-radius:var(--dm-r-sm)}
+  :root[data-style="clean"] .trv.panel .trv-lg,:root [data-style="clean"] .trv.panel .trv-lg,:root [data-style="clean"].trv.panel .trv-lg,:root[data-style="clean"] .trv.panel .trv-ax>span:first-child,:root [data-style="clean"] .trv.panel .trv-ax>span:first-child,:root [data-style="clean"].trv.panel .trv-ax>span:first-child{padding-left:32px}
+  :root[data-style="clean"] .trv.panel .trv-n,:root [data-style="clean"] .trv.panel .trv-n,:root [data-style="clean"].trv.panel .trv-n{gap:11px;padding-left:calc(3px + var(--dm-lv,0) * 10px)}
+  :root[data-style="clean"] .trv.panel :is(.trv-ax,.trv-r),:root [data-style="clean"] .trv.panel :is(.trv-ax,.trv-r),:root [data-style="clean"].trv.panel :is(.trv-ax,.trv-r){grid-template-columns:minmax(0,1fr) 60px 44px}
+  :root[data-style="clean"] .trv.panel .trv-dc,:root [data-style="clean"] .trv.panel .trv-dc,:root [data-style="clean"].trv.panel .trv-dc{padding-left:48px}
+  :root[data-style="clean"] .trv.panel .trv-dh>.trv-k,:root [data-style="clean"] .trv.panel .trv-dh>.trv-k,:root [data-style="clean"].trv.panel .trv-dh>.trv-k{left:-29px}
+}

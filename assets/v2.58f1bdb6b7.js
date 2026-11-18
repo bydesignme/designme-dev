@@ -1295,6 +1295,9 @@ DM.def('agent-inbox', (r, c) => {
   // the panel fits its rows at every moment (owner, 18 Nov: no room kept for a group that has gone): as a group goes or
   // comes back, its height eases with grow(), and it stays centred in its stage
   const ib = r.classList.contains('aib') ? r : $('.aib', r);
+  // Clean (owner, 18 Nov): the head has a neutral mark in a tile, the column the agents' marks sit in
+  const ds = r.closest('[data-style]');
+  if (ib && ds && ds.dataset.style === 'clean') $('.aib-h', ib).prepend(html(`<span class="aib-hi" aria-hidden="true">${I('mail')}</span>`));
   if (ib) c.offs.push(grow(ib));
   gs.innerHTML = GR.map(([k, n]) => `<section class="aib-g" data-g="${k}" aria-label="${n}"><div class="aib-gh"><span>${n}</span><span class="n"></span></div><div class="aib-gl" role="list"></div></section>`).join('');
   const clock = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
@@ -1376,6 +1379,12 @@ DM.def('trace-view', (r, c) => {
   const root = $('.trv', r), rows = $('.trv-rows', r), stEl = $('.trv-st', r), tot = $('.trv-tot', r), dt = $('.trv-dt', r), dc = $('.trv-dc', r), lg = $('.trv-lg', r);
   // room for every span from the start, so the panel never grows (and re-centres in its stage) as spans arrive
   rows.style.setProperty('--n', S.length);
+  // Clean (owner, 18 Nov) keeps no room: the card grows as each span starts and as the details open (grow(), centred in its
+  // stage), once its entrance (which scales it from .98) has ended, so it measures the card at its real size
+  const ds = r.closest('[data-style]'), clean = !!ds && ds.dataset.style === 'clean';
+  // Clean's head has the run's mark in a tile, the column every span's mark is centred in
+  if (clean) $('.trv-h', r).prepend(html(`<span class="trv-hi" aria-hidden="true">${I('cpu')}</span>`));
+  if (clean) Promise.resolve().then(() => Promise.all(root.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && root.isConnected) c.offs.push(grow(root)); });
   // the key: every kind but the agents, with its colour and how many of its spans have started
   const KEYS = ['llm', 'tool', 'ret'];
   lg.innerHTML = KEYS.map(k => `<span role="listitem" class="z" data-k="${k}" style="--k:${K[k][2]}"><i></i>${K[k][0]} <b class="num">0</b></span>`).join('');
@@ -1794,6 +1803,10 @@ DM.def('agent-lanes', (r, c) => {
 /* ---------- Live answer ---------- */
 DM.def('live-answer', (r, c) => {
   const A = $('.lva-a', r);
+  // Clean (owner, 18 Nov) keeps no room for the answer: the turn grows as it streams in (grow()), centred in its stage
+  // (in a chat around it, like the Agent harness, the chat lays it out)
+  const ds = r.closest('[data-style]'), lva = $('.lva', r) || r;
+  if (r === c.st && ds && ds.dataset.style === 'clean') Promise.resolve().then(() => Promise.all(lva.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && lva.isConnected) c.offs.push(grow(lva)); });
   const srcs = { 1:'Funnel data, last 30 days', 2:'Session notes from 8 interviews', 3:'Onboarding.fig, step 2' };
   const S = [[1,'F','#7a5af8','Funnel data','Amplitude, last 30 days'],[2,'N','#0ea5a4','Session notes','Notion, 8 interviews'],[3,'S','#f97316','Onboarding.fig','Figma, step 2']];
   const T = {
@@ -1855,9 +1868,22 @@ DM.def('composer', (r, c) => {
   const icons = { clip:'clip', figma:'figma', eye:'eye', edit:'edit', list:'list', code:'code', mic:'mic', up:'up', check:'check', file:'file-text', image:'image' };
   r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) => k === 'chev' ? I('chev-d','xs') : icons[k] ? I(icons[k]) : m);
   const box = $('.cpx-box', r), ta = $('.cpx-ta', r), send = $('.cpx-bar .cpx-send', r), thread = $('.cpx-thread', r), att = $('.cpx-att', r), PH = ta.placeholder;
-  const grow = () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 160) + 'px'; };
+  // Clean (owner, 18 Nov) keeps no room for the conversation: the thread and the box grow together (grow()), centred in the
+  // stage, once the entrance (which scales it from .98) has ended
+  const ds = r.closest('[data-style]'), cpx = $('.cpx', r);
+  if (r === c.st && cpx && ds && ds.dataset.style === 'clean'){
+    Promise.resolve().then(() => Promise.all(cpx.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && cpx.isConnected) c.offs.push(grow(cpx)); });
+    // a menu opens above the box: the composer glides down by half of what the menu reaches past its top, so the two sit
+    // centred together in the stage, and back as it shuts
+    const pops = $$('.pop', box), glide = () => { const op = pops.find(p => p.classList.contains('open'));
+      const over = op ? box.getBoundingClientRect().top - cpx.getBoundingClientRect().top + op.offsetTop : 0;
+      cpx.style.setProperty('--gy', Math.max(0, Math.round(-over / 2)) + 'px'); };
+    cpx.classList.add('glide');
+    const mo = new MutationObserver(glide); pops.forEach(p => mo.observe(p, { attributes:true, attributeFilter:['class'] })); c.offs.push(() => mo.disconnect());
+  }
+  const fit = () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 160) + 'px'; };
   // send waits for text or a file, and for every file to finish loading
-  const sync = () => { send.disabled = (!ta.value.trim() && !att.children.length) || !!$('.fchip.ld,.fchip.err', att); grow(); };
+  const sync = () => { send.disabled = (!ta.value.trim() && !att.children.length) || !!$('.fchip.ld,.fchip.err', att); fit(); };
   c.on(ta, 'input', sync);
   c.on(r, 'keydown', e => { if (e.target === ta && e.key === 'Enter' && !e.shiftKey && box.dataset.mode === 'idle'){ e.preventDefault(); submit(); } if (e.key === 'Escape' && box.dataset.mode === 'voice') stopVoice(false, true); });
   /* attachments load before they can be sent. The first Figma link can't be opened, so the error shows, and Try again fetches it */
@@ -1891,10 +1917,10 @@ DM.def('composer', (r, c) => {
   let before = '', vc = null;
   async function dictate(){
     if (vc) vc.stop(); vc = ctl(c); const k = vc; c.offs.push(() => k.stop());
-    before = ta.value; box.dataset.mode = 'voice'; ta.value = ''; ta.placeholder = 'Listening…'; grow();
+    before = ta.value; box.dataset.mode = 'voice'; ta.value = ''; ta.placeholder = 'Listening…'; fit();
     const t0 = performance.now(), tm = $('.cpx-tm', r); tm.textContent = '0:00';
     k.every(250, () => { const s = Math.floor((performance.now() - t0) / 1000); tm.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); });
-    await k.run(async () => { await k.wait(700); for (const w of said.split(' ')){ ta.value += (ta.value ? ' ' : '') + w; grow(); await k.wait(160 + Math.random() * 120); } });
+    await k.run(async () => { await k.wait(700); for (const w of said.split(' ')){ ta.value += (ta.value ? ' ' : '') + w; fit(); await k.wait(160 + Math.random() * 120); } });
   }
   function stopVoice(keep, mine){ if (vc) vc.stop(); box.dataset.mode = 'idle'; ta.placeholder = PH; if (!keep) ta.value = before; sync(); if (mine) ta.focus({ preventScroll:true }); }
   $('.cpx-mic', r).onclick = dictate;
@@ -2625,6 +2651,9 @@ DM.def('artifact-card', (r, c) => {
       rows:[['Plan', 'Ours', 'Northwind', 'Halcyon', 'Fernway'], ['Team', '$29', '$22', '$25', '$28'], ['Business', '$79', '$69', '$75', '$89']] }] };
 
   const own = r === c.st, root = $('.afx', r), main = $('.afx-main', r), demo = $(':scope>.demo', root);
+  // Clean (owner, 18 Nov) keeps no room for the tallest moment: the variant sits centred in its stage, and a menu is centred
+  // with it in the stage's room
+  const ds = r.closest('[data-style]'), clean = !!ds && ds.dataset.style === 'clean';
   // inside another component (Agent harness puts it in a chat) the card is just the file: no chat around it, no switcher
   if (!own){ root.classList.remove('dm'); if (demo) demo.remove(); }
   let art = REPORT, opts = {}, view = 'compact', K = null, now = { ready:false, m:null };
@@ -2700,7 +2729,10 @@ DM.def('artifact-card', (r, c) => {
     const cur = new DOMMatrixReadOnly(getComputedStyle(wrap).transform).m42;
     if (!menu){ wrap.style.transform = ''; return -cur; }
     const w = wrap.getBoundingClientRect(), b = btn.getBoundingClientRect(), rr = root.getBoundingClientRect();
-    const top0 = rr.top, bot0 = demo && demo.offsetParent ? demo.getBoundingClientRect().top - (parseFloat(getComputedStyle(root).rowGap) || 0) : rr.bottom;
+    let top0 = rr.top, bot0 = demo && demo.offsetParent ? demo.getBoundingClientRect().top - (parseFloat(getComputedStyle(root).rowGap) || 0) : rr.bottom;
+    // Clean: the room is the stage's, inside its padding (and above the switcher, where it shows)
+    const room = clean && (root.closest('.stage-inner') || root.closest('.stage'));
+    if (room){ const sr = room.getBoundingClientRect(), cs = getComputedStyle(room); top0 = Math.min(top0, sr.top + parseFloat(cs.paddingTop)); if (!(demo && demo.offsetParent)) bot0 = Math.max(bot0, sr.bottom - parseFloat(cs.paddingBottom)); }
     const mt = b.bottom - cur + 6, top = Math.min(w.top - cur, mt), bot = Math.max(w.bottom - cur, mt + menu.offsetHeight);
     const d = Math.max(top0 - top, (top0 + bot0) / 2 - (top + bot) / 2), to = Math.abs(d) > .5 ? Math.round(d) : 0;
     wrap.style.transform = to ? `translateY(${to}px)` : '';
@@ -2900,7 +2932,7 @@ DM.def('artifact-card', (r, c) => {
           <button type="button" class="ib afx-dl" aria-label="Download ${esc(a.title)}" data-tip="Download">${ic('down', 's')}</button>
         </span></span>
       </span>
-      ${own ? '<p>The short version: the plan table is where people stall, and three small changes should move most of them on.</p>' : ''}
+      ${!own ? '' : clean ? '<div class="fold shut afx-in-after"><div><p>The short version: the plan table is where people stall, and three small changes should move most of them on.</p></div></div>' : '<p>The short version: the plan table is where people stall, and three small changes should move most of them on.</p>'}
     </div></div>`;
     const wrap = $('.afx-w', main), chip = $('.afx-chip', main), btn = $('.afx-in-main', main), vb = $('.afx-vb3', main);
     now.m = m; bindMeta(chip, m);
@@ -2913,6 +2945,8 @@ DM.def('artifact-card', (r, c) => {
       await k.wait(300);
       await phases(k, a, $('.afx-in-m .afx-wr', chip));
       btn.disabled = false; settle(chip, m);
+      // Clean: the words that sum the file up come once it is written
+      const after = $('.afx-in-after', main); if (after) after.classList.remove('shut');
     });
   }
 

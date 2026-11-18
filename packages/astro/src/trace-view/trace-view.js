@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, DM, I, enter, html, swap } from '../core/core.js';
+import { $, DM, I, enter, grow, html, swap } from '../core/core.js';
 DM.def('trace-view', (r, c) => {
   // the kinds of span, each with its mark and colour: the identity slots of the chart palette, and grey for the agents
   // that hold the other spans. The name is always on the mark, in a tooltip, and in the span's label
@@ -21,6 +21,12 @@ DM.def('trace-view', (r, c) => {
   const root = $('.trv', r), rows = $('.trv-rows', r), stEl = $('.trv-st', r), tot = $('.trv-tot', r), dt = $('.trv-dt', r), dc = $('.trv-dc', r), lg = $('.trv-lg', r);
   // room for every span from the start, so the panel never grows (and re-centres in its stage) as spans arrive
   rows.style.setProperty('--dm-n', S.length);
+  // Clean (owner, 18 Nov) keeps no room: the card grows as each span starts and as the details open (grow(), centred in its
+  // stage), once its entrance (which scales it from .98) has ended, so it measures the card at its real size
+  const ds = r.closest('[data-style]'), clean = !!ds && ds.dataset.style === 'clean';
+  // Clean's head has the run's mark in a tile, the column every span's mark is centred in
+  if (clean) $('.trv-h', r).prepend(html(`<span class="trv-hi" aria-hidden="true">${I('cpu')}</span>`));
+  if (clean) Promise.resolve().then(() => Promise.all(root.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && root.isConnected) c.offs.push(grow(root)); });
   // the key: every kind but the agents, with its colour and how many of its spans have started
   const KEYS = ['llm', 'tool', 'ret'];
   lg.innerHTML = KEYS.map(k => `<span role="listitem" class="z" data-k="${k}" style="--dm-k:${K[k][2]}"><i></i>${K[k][0]} <b class="num">0</b></span>`).join('');
