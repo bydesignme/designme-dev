@@ -502,64 +502,8 @@
 .v2 .rtr-edit{font-family:var(--mono);font-size:12px;border-radius:calc(10px * var(--rk-m,var(--rk)));background:var(--chip);padding:var(--s-2) 10px;margin:var(--s-1) 0 var(--s-2);line-height:1.65}
 .v2 .rtr-edit .a{color:var(--add)}.v2 .rtr-edit .x{color:var(--del);text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--del) 40%,transparent)}
 .v2 .rtr-src{display:flex;flex-wrap:wrap;gap:6px}
-/* the plan's Clean marks and the closing foot strip are Clean's alone: Soft and Blueprint never show them */
-.v2 .rtr-m,.v2 .rtr-ff{display:none}
-/* Clean (owner, 18 Nov): a card of its own, bare or not: a hairline-outlined round card with the thinking head on top and
-   a hairline under it. The plan's steps sit on a hairline rail that fills down into each step as the one above finishes;
-   a finished step is a green disc whose tick draws in, the step in hand a calm ink spinner ring, a queued step a hairline
-   circle. Notes and edits have no rail. The finished trail closes with an off-white foot strip that sums it up. The card
-   grows with what it holds (grow()) and folds into its head. Content sits 16px in from every edge; the chevron's 28px
-   circle sits 8px from the head's top and right edges, following the card's 22px corner */
-:root[data-style="clean"] .v2 .rtr.rtr.rtr{padding:0;background:var(--surface);box-shadow:var(--shadow);border-radius:var(--r-card);overflow:clip}
-:root[data-style="clean"] .v2 .rtr.growing{overflow-clip-margin:0px}
-:root[data-style="clean"] .v2 .rtr-h{min-height:44px;padding:0 15px 0 16px;gap:10px;border-radius:0;font-size:13.5px}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .rtr-h:hover{background:none}}
-:root[data-style="clean"] .v2 .rtr-h:focus-visible{outline-offset:-2px;border-radius:var(--r-card)}
-:root[data-style="clean"] .v2 .rtr-mark{color:var(--fg)}
-:root[data-style="clean"] .v2 .rtr-title{font-weight:500}
-:root[data-style="clean"] .v2 .rtr-title:not(.shim){color:var(--fg)}
-:root[data-style="clean"] .v2 .rtr-time{font-variant-numeric:tabular-nums}
-:root[data-style="clean"] .v2 .rtr-chev{width:14px;height:14px;border-radius:50%;box-shadow:0 0 0 7px transparent;transition:transform .4s var(--ease),background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .rtr-h:hover .rtr-chev{background:var(--hover);box-shadow:0 0 0 7px var(--hover);color:var(--fg)}}
-:root[data-style="clean"] .v2 .rtr-body{padding:10px 16px;border-top:1px solid var(--line)}
-:root[data-style="clean"] .v2 .rtr-body[data-v="sources"]{padding:16px}
-:root[data-style="clean"] .v2 .rtr-li{padding:6px 0 6px 28px;line-height:20px}
-:root[data-style="clean"] .v2 .rtr-li .g{top:8px}
-:root[data-style="clean"] .v2 .rtr-li .d{line-height:18px;margin-top:0}
-/* the rail: a hairline from under each mark to just above the next, and over it the part that has filled */
-:root[data-style="clean"] .v2 .rtr-li:not(:last-child)::before{top:28px;bottom:-4px;background:var(--line)}
-:root[data-style="clean"] .v2 .rtr-body:not([data-v="plan"]) .rtr-li::before{display:none}
-:root[data-style="clean"] .v2 .rtr-body[data-v="plan"] .rtr-li:not(:last-child)::before{background:var(--line) linear-gradient(var(--line-strong),var(--line-strong)) no-repeat 0 0/100% 0}
-:root[data-style="clean"] .v2 .rtr-body[data-v="plan"] .rtr-li[data-s="done"]:not(:last-child)::before{background-size:100% 100%}
-/* the marks */
-/* (React sets its own display on Soft's tick, so this one has to win over an inline style) */
-:root[data-style="clean"] .v2 .rtr-body[data-v="plan"] .g>:not(.rtr-m){display:none!important}
-:root[data-style="clean"] .v2 .rtr-m{display:grid;place-items:center;width:16px;height:16px;box-sizing:border-box;border-radius:50%}
-:root[data-style="clean"] .v2 [data-s="next"]>.g>.rtr-m{box-shadow:inset 0 0 0 1px var(--line-strong)}
-:root[data-style="clean"] .v2 [data-s="now"]>.g>.rtr-m{border:1.5px solid var(--line);border-top-color:var(--fg);animation:v2-rot .9s linear infinite}
-:root[data-style="clean"] .v2 [data-s="done"]>.g>.rtr-m{background:var(--ok-mark);color:var(--surface)}
-:root[data-style="clean"] .v2 .rtr-m svg,:root[data-style="clean"] .v2 .rtr-fk svg{width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
-/* the moment a step finishes: its disc settles in and its tick draws, the rail draws down into the next step, and that
-   step's queued ring turns into the spinner as the rail reaches it */
-@keyframes v2-rtrdisc{from{opacity:0;transform:scale(.5)}}
-@keyframes v2-rtrdraw{to{stroke-dashoffset:0}}
-@keyframes v2-rtrfill{from{background-size:100% 0}}
-@keyframes v2-rtrnow{from{border-color:var(--line-strong)}}
-:root[data-style="clean"] .v2 .rtr-li.just>.g>.rtr-m{animation:v2-rtrdisc .34s var(--ease) backwards}
-:root[data-style="clean"] .v2 .rtr-li.just>.g>.rtr-m path{stroke-dasharray:1;stroke-dashoffset:1;animation:v2-rtrdraw .3s var(--ease) .14s forwards}
-:root[data-style="clean"] .v2 .rtr-body[data-v="plan"] .rtr-li.just:not(:last-child)::before{animation:v2-rtrfill .44s var(--ease-io) .2s backwards}
-:root[data-style="clean"] .v2 .rtr-li.next-in>.g>.rtr-m{animation:v2-rtrnow .3s var(--ease) .5s backwards,v2-rot .9s linear infinite}
-:root[data-style="clean"] .v2 .rtr-src{gap:8px}
-:root[data-style="clean"] .v2 .rtr-body[data-v="edits"] .g{color:var(--muted)}
-:root[data-style="clean"] .v2 .rtr-edit{border-radius:var(--r-box);margin:4px 0 8px;padding:8px 12px;line-height:20px}
-:root[data-style="clean"] .v2 .rtr-body>.rtr-edit:last-child,:root[data-style="clean"] .v2 .rtr-body>:last-child>.rtr-edit:last-child{margin-bottom:6px}
-/* the foot strip, once the trail is done: a green tick, how much of the plan is done, and what it read and changed */
-:root[data-style="clean"] .v2 .rtr-ff{display:grid}
-:root[data-style="clean"] .v2 .rtr-f{display:flex;align-items:center;gap:8px;min-height:44px;margin:0;padding:0 16px;background:var(--strip);border-top:1px solid var(--line);font-size:12.5px;color:var(--fg2);white-space:nowrap}
-:root[data-style="clean"] .v2 .rtr-fk{display:grid;place-items:center;width:14px;height:14px;flex:none;border-radius:50%;background:var(--ok-mark);color:var(--surface)}
-:root[data-style="clean"] .v2 .rtr-fk svg{width:8px;height:8px;stroke-width:3.6}
-:root[data-style="clean"] .v2 .rtr-fs{margin-left:auto;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
-@media (prefers-reduced-motion:reduce){:root[data-style="clean"] .v2 .rtr-li:is(.just,.next-in) *,:root[data-style="clean"] .v2 .rtr-li.just::before{animation:none!important}:root[data-style="clean"] .v2 .rtr-li.just>.g>.rtr-m path{stroke-dashoffset:0}:root[data-style="clean"] .v2 [data-s="now"]>.g>.rtr-m{animation:none}}
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style="clean"] .v2 .rtr.panel{padding:20px 20px 2px 20px}
 /* ---------- Thinking ---------- */
 /* the steps the agent takes, on a line that turns green as each one finishes; the step in hand turns in the accent with a
    soft halo, and what each step found writes itself in under it. The header ends as a summary of the work */
@@ -2050,64 +1994,6 @@
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .atx-drop.over .atx-ic::after{animation:none}
 @keyframes v2-atxringbp{from{opacity:.6;transform:scale(1)}to{opacity:0;transform:scale(1.6)}}
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .atx-ok .i{animation:none}
-/* Clean (owner, 18 Nov): one card that grows as files arrive (grow()), its content 16px from each edge. The drop zone is a
-   pill well inside it with a track's inner shadow, its upload button a secondary circle 8px in from the well's round end, so
-   the two are concentric; a file dragged over lifts the well to the surface with a stronger hairline. Files are rows with
-   hairline dividers under their text: a neutral circle with the type's colour as a small dot, and while a file uploads its
-   divider becomes a rail that fills with ink, a soft sheen running along it while the agent reads, then fades as a green tick
-   draws itself. The closing line is the foot strip, its count rolling as each file is read */
-:root[data-style="clean"] .v2 .atx{gap:0;background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow);overflow:clip}
-:root[data-style="clean"] .v2 .atx-ants{display:none}
-:root[data-style="clean"] .v2 .atx-drop{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;justify-items:start;column-gap:12px;row-gap:0;margin:16px 16px 0;padding:8px 16px 8px 8px;border-radius:26px;background:var(--row);box-shadow:var(--track-ring);font-size:13px;line-height:18px;text-align:left;transition:background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
-:root[data-style="clean"] .v2 .atx-drop.over{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line-strong) 45%,transparent)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .atx-drop:hover{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line-strong) 45%,transparent)}}
-:root[data-style="clean"] .v2 .atx-drop.over{transform:none}
-:root[data-style="clean"] .v2 .atx-drop b{align-self:end;font-weight:500}
-:root[data-style="clean"] .v2 .atx-drop .muted{align-self:start;font-size:12.5px}
-:root[data-style="clean"] .v2 .atx-ic{grid-row:span 2;width:36px;height:36px;border-radius:50%;color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth);transition:transform var(--t) var(--ease),box-shadow var(--t-fast) var(--ease)}
-:root[data-style="clean"] .v2 .atx-drop.over .atx-ic{transform:translateY(-2px);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-hover);color:var(--fg)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .atx-drop:hover .atx-ic{transform:translateY(-2px);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-hover);color:var(--fg)}}
-:root[data-style="clean"] .v2 .atx-drop.over .atx-ic::before,:root[data-style="clean"] .v2 .atx-drop.over .atx-ic::after{animation:none}
-:root[data-style="clean"] .v2 .atx-list{gap:0;padding:0 16px}
-:root[data-style="clean"] .v2 .atx-list:not(:empty){padding-block:6px}
-/* while the last file is still going up, its rail is the lowest thing in the card, so the list keeps it 16px from the edge */
-:root[data-style="clean"] .v2 .atx-list:has(>.atx-it:last-child :is(.atx-ring,.atx-rd)){padding-bottom:16px}
-:root[data-style="clean"] .v2 .atx-it{gap:12px;padding:10px 0;border-radius:0;overflow:visible;background:none}
-:root[data-style="clean"] .v2 .atx-it.up{background:none}
-/* the divider under a row's text (.atx-ln, Clean's own), which is the upload's rail while the file goes up, its ink fill
-   clipped to the progress with a soft sheen running along it; a file that is read keeps the hairline, the last one none */
-.v2 .atx-ln{position:absolute;left:44px;right:0;bottom:0;height:1px;border-radius:999px;background:var(--line);pointer-events:none;transition:height var(--t) var(--ease),background-color var(--t) var(--ease)}
-.v2 .atx-it:last-child .atx-ln{background:transparent}
-.v2 .atx-it:not(:has(.atx-ok)) .atx-ln{height:2px;background:var(--rail)}
-.v2 .atx-ln i{position:absolute;inset:0;border-radius:inherit;background:linear-gradient(90deg,var(--fg) 40%,color-mix(in srgb,var(--fg) 35%,var(--surface)) 50%,var(--fg) 60%) 0 0/250% 100%;clip-path:inset(0 calc(100% - var(--p)) 0 0 round 999px);transition:clip-path .2s linear,opacity .4s var(--ease);animation:v2-atxsheen 1.6s linear infinite}
-.v2 .atx-it:has(.atx-ok) .atx-ln i{opacity:0;animation:none}
-@keyframes v2-atxsheen{from{background-position:100% 0}to{background-position:0 0}}
-:root[data-style="clean"] .v2 .atx-ti{position:relative;width:32px;height:32px;border-radius:50%;font-size:9.5px;color:var(--fg2);background:var(--chip)}
-/* the file type's colour, as a small dot on the neutral circle */
-.v2 .atx-td{position:absolute;right:-1px;bottom:-1px;width:8px;height:8px;border-radius:50%;background:var(--c);box-shadow:0 0 0 2px var(--surface)}
-:root[data-style="clean"] .v2 .atx-it .atx-m,:root[data-style="clean"] .v2 .atx-it:not(.up) .atx-m{color:var(--muted)}
-/* the upload's own ring stays for screen readers; the rail shows the progress */
-:root[data-style="clean"] .v2 .atx-ring{opacity:0}
-:root[data-style="clean"] .v2 .atx-rd{color:var(--muted)}
-/* read: a green disc lands and its tick draws itself */
-.v2 .atx-okc{display:grid;place-items:center;width:16px;height:16px;border-radius:50%;background:var(--ok-mark);color:var(--surface);animation:v2-atxokin .32s var(--ease) backwards}
-.v2 .atx-okc svg{width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
-.v2 .atx-okc path{stroke-dasharray:1;stroke-dashoffset:1;animation:v2-atxokdraw .34s var(--ease) .16s forwards}
-@keyframes v2-atxokin{from{opacity:0;transform:scale(.5)}}
-@keyframes v2-atxokdraw{to{stroke-dashoffset:0}}
-:root[data-style="clean"] .v2 .atx-it .ib{width:28px;height:28px;margin-right:-8px;color:var(--muted)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .atx-it .ib:hover{background:var(--row);color:var(--fg)}}
-/* the foot strip: what the agent can read now, its count rolling up as each file is read */
-:root[data-style="clean"] .v2 .atx-sum{display:flex;align-items:center;gap:8px;min-height:0;padding:13px 16px;font-size:12.5px;line-height:18px;text-align:left;color:var(--fg2);background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
-:root[data-style="clean"] .v2 .atx-sum:empty{display:none}
-/* (a step of --ok in the vivid green keeps the small tick at 3:1 on the off-white strip) */
-:root[data-style="clean"] .v2 .atx-tk{display:grid;place-items:center;flex:none;color:color-mix(in srgb,var(--ok-mark) 80%,var(--ok))}
-:root[data-style="clean"] .v2 .atx-tk .i{stroke-width:2.2}
-.v2 .atx-roll{display:inline-grid;overflow:hidden;height:1lh;vertical-align:top}
-.v2 .atx-roll i{font-style:normal}
-.v2 .atx-roll i.in{animation:v2-atxroll .32s var(--ease) both}
-@keyframes v2-atxroll{from{opacity:0;transform:translateY(60%)}}
-@media (prefers-reduced-motion:reduce){.v2 .atx-ln i,.v2 .atx-okc,.v2 .atx-roll i.in{animation:none}.v2 .atx-okc path{animation:none;stroke-dashoffset:0}.v2 .atx-ln,:root[data-style="clean"] .v2 .atx-drop,:root[data-style="clean"] .v2 .atx-ic{transition:none}}
 /* ---------- Attachment tray designs ---------- */
 /* the card's three designs, picked in the switch under it: Classic (the component above, as it ships), Composer and Context budget. Each fills the
    width and sits centred in the room kept for the tallest of them. Classic keeps room for its three sample files, so its
@@ -2115,8 +2001,6 @@
 .v2 .dm.atx-dm{min-height:0}
 .v2 .atx-dm>.dm-main>*{align-self:stretch}
 .v2 .atx-dm .atx-list{min-height:164.5px}
-/* in Clean the card grows with its files instead (owner, 17 Nov: no room kept for a later state) */
-:root[data-style="clean"] .v2 .atx-dm .atx-list{min-height:0}
 /* what both designs share: a clear file input over the control that opens it, and a grey picture of what is in each file
    (a page for a PDF, frames for a Figma file, a grid for a sheet, a scene for an image), its kind in the site's grey tag */
 .v2 .atx-pick{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:0}
@@ -2234,19 +2118,6 @@
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .atx-cmp-box.thud{animation:none}
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .atx-cmp-art .sh{animation:none}
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .atx-cmp-empty.out .sh{transition:transform .2s steps(2,end),opacity .2s steps(2,end)}
-/* Clean: the box takes the card's 22px corners, and + and send sit 8px from its edges (send is 28px, so its round end follows
-   the corner; + lines its glyph up with the field above). Send is the ink button. The empty tray is a well with a track's
-   inner shadow, concentric with the box, and the previews are rounded pictures, not circles */
-:root[data-style="clean"] .v2 .atx-cmp-box{border-radius:var(--r-card)}
-:root[data-style="clean"] .v2 .atx-cmp-empty{border:0;border-radius:14px;background:var(--row);box-shadow:var(--track-ring)}
-:root[data-style="clean"] .v2 .atx-cmp-it,:root[data-style="clean"] .v2 .atx-cmp-th,:root[data-style="clean"] .v2 .atx-cmp-it:focus-visible{border-radius:12px}
-:root[data-style="clean"] .v2 .atx-cmp-f{padding:8px 0 0}
-:root[data-style="clean"] .v2 .atx-cmp-add{margin-left:1px}
-:root[data-style="clean"] .v2 .atx-cmp-send{width:28px;height:28px;transition:transform var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
-:root[data-style="clean"] .v2 .atx-cmp-send:not([disabled]){color:var(--on-btn);background:linear-gradient(180deg,var(--btn-1),var(--btn-2));box-shadow:var(--btn-depth)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .atx-cmp-send:not([disabled]):hover{background:linear-gradient(180deg,color-mix(in srgb,var(--btn-1) 88%,#808080),var(--btn-2))}}
-:root[data-style="clean"] .v2 .atx-cmp-send:not([disabled]):active{transform:scale(.97);box-shadow:var(--btn-press)}
-:root[data-style="clean"] .v2 .atx-cmp-ok{background:var(--ok-mark);color:var(--surface)}
 
 /* Context budget: what each file costs the agent's context. The window bar has the instructions first in grey, then each
    file in a step of the accent, as wide as its share; the same step marks the file's row. Each part is drawn across the
@@ -2307,15 +2178,6 @@
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .atx-ctx-bar i,:root:not([data-style="soft"],[data-style="clean"]) .v2 .atx-ctx-segs i{transition:clip-path .4s steps(5,end),opacity .2s}
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .atx-ctx-ic{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent)}
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .atx-ctx-up{transition:transform .2s steps(2,end)}
-/* Clean: content 16px from the card's edges, the card grows with its files (grow()) rather than keeping room for three,
-   icons are circles, the upload line is ink, and the drop zone is a pill well with a track's inner shadow */
-:root[data-style="clean"] .v2 .atx-ctx{padding:16px}
-:root[data-style="clean"] .v2 .atx-ctx-list{min-height:0}
-:root[data-style="clean"] .v2 .atx-ctx-ic{border-radius:50%}
-:root[data-style="clean"] .v2 .atx-ctx-up{background:var(--fg)}
-:root[data-style="clean"] .v2 .atx-ctx-drop{background:var(--row);box-shadow:var(--track-ring);border-radius:999px}
-:root[data-style="clean"] .v2 .atx-ctx-drop.over{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line-strong) 45%,transparent)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .atx-ctx-drop:hover{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line-strong) 45%,transparent)}}
 /* ---------- Response versions ---------- */
 .v2 .rvx{display:flex;flex-direction:column;gap:14px}
 .v2 .rvx-a{display:flex;flex-direction:column;gap:var(--s-2);padding:0 2px}
@@ -2412,75 +2274,8 @@
 /* phones: the line under each name wraps, and the meters keep room for their labels */
 /* on a phone the meters close up so a model's line keeps two or three words to a row */
 @media (max-width:480px){.v2 .mpk-hd,.v2 .mpk-o{grid-template-columns:20px minmax(0,1fr) repeat(3,34px);gap:6px}.v2 .mpk-hd{font-size:10.5px;padding-inline:6px}.v2 .mpk-o{padding-inline:6px}.v2 .mpk-o .d{white-space:normal}}
-/* Clean (owner, 18 Nov): one measure inside the popover. Its content sits 16px in from each edge: the column heads, each
-   row's mark and meters (the rows sit 8px in, with 8px of their own) and the foot's text. The picked row's fill is
-   concentric with the popover's corners (22px = its 14px + the 8px inset), and the foot strip's select sits 8px from the
-   right and bottom edges, a 28px pill (14 + 8 = 22). Selection is neutral: a grey row fill, an ink check, meters one step
-   darker; the models' marks keep their own colours. The trigger is a secondary pill, and the popover scales and fades in
-   from it */
-:root[data-style="clean"] .v2 .mpk-tr{gap:8px;padding:0 10px 0 6px;color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth);transition:box-shadow var(--t-fast) var(--ease),transform var(--t-fast) var(--ease)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .mpk-tr:hover{box-shadow:var(--btn2-hover)}}
-:root[data-style="clean"] .v2 .mpk-tr:active{transform:scale(.97);box-shadow:var(--btn2-press)}
-:root[data-style="clean"] .v2 .mpk-tr>svg{transition:transform var(--t) var(--ease)}
-:root[data-style="clean"] .v2 .mpk-p.panel{padding:0;transform-origin:top right;transition:opacity var(--t) var(--ease),transform .32s var(--ease)}
-:root[data-style="clean"] .v2 .mpk-fold.shut .mpk-p{opacity:0;transform:translateY(-4px) scale(.96)}
-:root[data-style="clean"] .v2 :is(.mpk-hd,.mpk-o){grid-template-columns:20px minmax(0,1fr) repeat(3,40px);gap:10px}
-:root[data-style="clean"] .v2 .mpk-hd{padding:16px 16px 4px;line-height:16px}
-:root[data-style="clean"] .v2 .mpk-list{padding:0 8px 8px}
-:root[data-style="clean"] .v2 .mpk-o{padding:8px;border-radius:calc(var(--r-card) - 8px);transition:background-color var(--t-fast) var(--ease)}
-:root[data-style="clean"] .v2 .mpk-o[aria-checked="true"]{background:var(--chip)}
-:root[data-style="clean"] .v2 .mpk-o[aria-checked="true"] .t b{color:var(--fg)}
-:root[data-style="clean"] .v2 .mpk-mk{border-radius:50%}
-/* the check is ink and draws itself in when its row is picked */
-:root[data-style="clean"] .v2 .mpk-o .ck{color:var(--fg);opacity:1;transform:none}
-:root[data-style="clean"] .v2 .mpk-o .ck svg{stroke-dasharray:22;stroke-dashoffset:22;transition:stroke-dashoffset .1s var(--ease)}
-:root[data-style="clean"] .v2 .mpk-o[aria-checked="true"] .ck svg{stroke-dashoffset:0;transition:stroke-dashoffset .42s var(--ease) .06s}
-/* meters: ink pips on a faint grey track, one step darker on the picked row. As the popover opens they fill left to right,
-   row by row */
-@keyframes v2-mpkpip{from{background-color:var(--rail)}}
-:root[data-style="clean"] .v2 .mpk-m{gap:2px}
-:root[data-style="clean"] .v2 .mpk-m i{background:var(--rail);transition:background-color .32s var(--ease)}
-:root[data-style="clean"] .v2 .mpk-m i.on{background:var(--fg2)}
-:root[data-style="clean"] .v2 .mpk-o[aria-checked="true"] .mpk-m i:not(.on){background:var(--faint)}
-:root[data-style="clean"] .v2 .mpk-o[aria-checked="true"]:not(.busy) .mpk-m i.on{background:var(--fg)}
-:root[data-style="clean"] .v2 .mpk-fold:not(.shut) .mpk-m i.on{animation:v2-mpkpip .36s var(--ease) backwards;animation-delay:calc(140ms + var(--mpr,0) * 70ms + var(--mpm,0) * 110ms + var(--mpi,0) * 35ms)}
-:root[data-style="clean"] .v2 .mpk-o:nth-child(2){--mpr:1}
-:root[data-style="clean"] .v2 .mpk-o:nth-child(3){--mpr:2}
-:root[data-style="clean"] .v2 .mpk-o:nth-child(n+4){--mpr:3}
-:root[data-style="clean"] .v2 .mpk-m:nth-child(4){--mpm:1}
-:root[data-style="clean"] .v2 .mpk-m:nth-child(5){--mpm:2}
-:root[data-style="clean"] .v2 .mpk-m i:nth-child(2){--mpi:1}
-:root[data-style="clean"] .v2 .mpk-m i:nth-child(3){--mpi:2}
-:root[data-style="clean"] .v2 .mpk-m i:nth-child(4){--mpi:3}
-:root[data-style="clean"] .v2 .mpk-m i:nth-child(5){--mpi:4}
-/* the way out when a model is busy: its own section under the rows, between hairlines, with its buttons 16px in */
-:root[data-style="clean"] .v2 .mpk-sg{margin:0;padding:16px;border-radius:0;background:none;border-top:1px solid var(--line);gap:12px}
-:root[data-style="clean"] .v2 .mpk-sgt{color:var(--fg2)}
-:root[data-style="clean"] .v2 .mpk-sga{gap:8px}
-:root[data-style="clean"] .v2 .mpk-sg .pill.ghost{color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .mpk-sg .pill.ghost:hover{background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-hover)}}
-:root[data-style="clean"] .v2 .mpk-sg .pill.ghost:active{box-shadow:var(--btn2-press)}
-/* the foot strip: thinking on one line, 16px in, and its select a secondary pill 8px from the corner */
-:root[data-style="clean"] .v2 .mpk-th{flex-wrap:nowrap;gap:12px;margin:0;padding:8px 8px 8px 16px;background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
-:root[data-style="clean"] .v2 .mpk-thh{flex-direction:row;align-items:baseline;gap:8px;min-width:0;white-space:nowrap}
-:root[data-style="clean"] .v2 .mpk-thh b{flex:none;align-self:center}
-:root[data-style="clean"] .v2 .mpk-thd{min-width:0;overflow:hidden;text-overflow:ellipsis}
-:root[data-style="clean"] .v2 .mpk-eb{flex:none;gap:6px;height:28px;padding:0 10px 0 12px;font-weight:500;color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth);transition:box-shadow var(--t-fast) var(--ease),transform var(--t-fast) var(--ease)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 :is(.mpk-eb:hover,.mpk-eb[aria-expanded="true"]){background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-hover)}}
-:root[data-style="clean"] .v2 .mpk-eb:active{transform:scale(.97);box-shadow:var(--btn2-press)}
-:root[data-style="clean"] .v2 .mpk-pop{padding:6px;border-radius:var(--r-card)}
-:root[data-style="clean"] .v2 .mpk-pop .mi{border-radius:calc(var(--r-card) - 6px)}
-/* the confirmation under the popover takes no room until it has something to say, and opens smoothly when it does */
-:root[data-style="clean"] .v2 .mpk-note{min-height:0;max-height:0;margin-top:-8px;opacity:0;overflow:hidden;transition:max-height var(--t) var(--ease),margin-top var(--t) var(--ease),opacity var(--t) var(--ease)}
-:root[data-style="clean"] .v2 .mpk-note:not(:empty){max-height:40px;margin-top:0;opacity:1}
-:root[data-style="clean"] .v2 .mpk-note svg{color:var(--ok-mark)}
-/* phones: the thinking line goes under its label rather than being cut, and the select turns into a text control aligned by
-   its text, its chevron 16px from the edge like the meters above it */
-@media (max-width:480px){:root[data-style="clean"] .v2 :is(.mpk-hd,.mpk-o){grid-template-columns:20px minmax(0,1fr) repeat(3,36px);gap:8px}:root[data-style="clean"] .v2 .mpk-hd{padding-inline:16px}:root[data-style="clean"] .v2 .mpk-o{padding-inline:8px}
-  :root[data-style="clean"] .v2 .mpk-th{padding:12px 16px}:root[data-style="clean"] .v2 .mpk-thh{flex-direction:column;align-items:flex-start;gap:0;white-space:normal}:root[data-style="clean"] .v2 .mpk-thh b{align-self:auto}
-  :root[data-style="clean"] .v2 .mpk-eb{margin-right:-10px;background:none;box-shadow:none}
-  @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 :is(.mpk-eb:hover,.mpk-eb[aria-expanded="true"]){margin-right:-10px;background:none;box-shadow:none}}@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 :is(.mpk-eb:hover,.mpk-eb[aria-expanded="true"]){background:var(--hover)}}}
-@media (prefers-reduced-motion:reduce){:root[data-style="clean"] .v2 .mpk-m i.on{animation:none!important}:root[data-style="clean"] .v2 :is(.mpk-p,.mpk-o .ck svg,.mpk-note,.mpk-m i){transition:none!important}}
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style="clean"] .v2 .mpk-p.panel{padding:15px 20px 12px 20px}
 /* ---------- Answer action bar ---------- */
 /* every action on an answer in one raised rail under it: copy, regenerate with its versions, thumbs, and read aloud, which
    widens into a progress bar and a clock and lights each word as it reads it */
@@ -2664,70 +2459,9 @@
 .v2 .pgx-ic{transition:background .32s var(--ease)}
 .v2 .pgx.esc .pgx-ic{background:var(--warn-bg)}
 .v2 .pgx-scope{display:flex;flex-direction:column;gap:var(--s-3)}
-/* the line in the foot strip once you have answered (Clean only): the scopes you allowed, or that you allowed none */
-.v2 .pgx-sum{display:none}
 
-/* Clean (owner, 18 Nov): a card with the question, the scopes and an off-white foot strip. Its content sits 16px from
-   every edge; the controls in the strip sit 8px from the card's edges, their round ends following its corners
-   (22 = 14 + 8), and the duration select lines up with the content above by its text, not its hover box. The ticks are
-   ink and draw in, the count on Allow rolls as boxes are ticked, and once you answer the scopes fold into one summary line
-   in the strip while the card eases to its new height (grow(), centred in its stage). Its height is never kept */
-/* the card clips its strips to its round corners; the duration menu opens out of it (nothing changes height while it is open) */
-:root[data-style="clean"] .v2 .pgx.panel{padding:16px 16px 0;overflow:clip;overflow-clip-margin:0px}
-:root[data-style="clean"] .v2 .pgx.panel:has(.pgx-pop.open){overflow:visible}
-:root[data-style="clean"] .v2 .pgx-ic{border-radius:50%;box-shadow:inset 0 0 0 1px var(--hair)}
-:root[data-style="clean"] .v2 .pgx-ht b{line-height:20px;letter-spacing:-.01em}
-:root[data-style="clean"] .v2 .pgx-ht span,:root[data-style="clean"] .v2 .pgx-o .d,:root[data-style="clean"] .v2 .pgx-done .t span{line-height:18px}
-:root[data-style="clean"] .v2 :is(.pgx-o,.pgx-done) .t{line-height:20px}
-:root[data-style="clean"] .v2 .pgx-o{transition:background-color var(--t-fast) var(--ease)}
-:root[data-style="clean"] .v2 .pgx-o .bx{border-radius:50%;background:var(--surface);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--muted) 80%,var(--surface)),var(--track-ring);transition:background .2s var(--ease),box-shadow .2s var(--ease)}
-:root[data-style="clean"] .v2 .pgx-o .bx svg{transform:none;stroke-dasharray:21;stroke-dashoffset:21;transition:stroke-dashoffset .3s var(--ease)}
-:root[data-style="clean"] .v2 .pgx-o input:checked+.bx{background:linear-gradient(180deg,var(--btn-1),var(--btn-2));box-shadow:inset 0 0 0 1px var(--btn-2),inset 0 2px 3px -1px rgba(255,255,255,.28);color:var(--on-btn)}
-:root[data-style="clean"] .v2 .pgx-o input:checked+.bx svg{stroke-dashoffset:0;transition-delay:.06s}
-:root[data-style="clean"] .v2 .pgx-o:active .bx{transform:scale(.94);transition:transform var(--t-fast) var(--ease)}
-/* the foot strip: 8px round its 28px controls, so it is 45px tall with its hairline; the scopes end 16px above it (their
-   rows keep 8px of hover room below the text). Lines are whole pixels, so the card's edge meets the strip's exactly */
-:root[data-style="clean"] .v2 .pgx.panel .pgx-sc{margin-bottom:-4px}
-:root[data-style="clean"] .v2 .pgx.panel .pgx-f{margin:0 -16px;padding:8px;gap:4px;border-top:1px solid var(--line);background:var(--strip);border-radius:0 0 var(--r-card) var(--r-card)}
-:root[data-style="clean"] .v2 .pgx-f .pgx-db{padding:0 8px;margin:0;color:var(--fg2);transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .pgx-f :is(.pgx-db:hover,.pgx-db[aria-expanded="true"],.pill.ghost:hover){background:var(--hover);color:var(--fg)}}
-/* on a narrow stage the buttons wrap under the select: the strip's 4px gaps put them 8px under it */
-@container (max-width:340px){:root[data-style="clean"] .v2 .pgx-no{margin:0 0 0 auto}:root[data-style="clean"] .v2 .pgx-ok{margin-top:0}}
-/* Allow's count rolls: up as a box is ticked, down as one is cleared */
-:root[data-style="clean"] .v2 .pgx-cnt{display:inline-grid;overflow:clip}
-:root[data-style="clean"] .v2 .pgx-cnt>i{grid-area:1/1;font-style:normal;font-variant-numeric:tabular-nums}
-@keyframes v2-pgxiu{from{transform:translateY(80%);opacity:0}}
-@keyframes v2-pgxou{to{transform:translateY(-80%);opacity:0}}
-@keyframes v2-pgxid{from{transform:translateY(-80%);opacity:0}}
-@keyframes v2-pgxod{to{transform:translateY(80%);opacity:0}}
-:root[data-style="clean"] .v2 .pgx-cnt>.iu{animation:v2-pgxiu .3s var(--ease) both}
-:root[data-style="clean"] .v2 .pgx-cnt>.ou{animation:v2-pgxou .3s var(--ease) both}
-:root[data-style="clean"] .v2 .pgx-cnt>.id{animation:v2-pgxid .3s var(--ease) both}
-:root[data-style="clean"] .v2 .pgx-cnt>.od{animation:v2-pgxod .3s var(--ease) both}
-/* answered: the result line where the scopes were (a 32px mark under the question's tile, the words under the question's
-   words, the clock on the right), then the strip with the summary and Revoke or Undo in the corner */
-:root[data-style="clean"] .v2 .pgx.panel .pgx-done{display:grid;grid-template-columns:32px minmax(0,1fr) auto;grid-template-rows:auto 45px;column-gap:12px;row-gap:16px;align-items:center;padding:0;border-radius:0;background:none!important}
-:root[data-style="clean"] .v2 .pgx.panel .pgx-done>:is(.g,svg){grid-area:1/1}
-:root[data-style="clean"] .v2 .pgx.panel .pgx-done>.t{grid-area:1/2}
-:root[data-style="clean"] .v2 .pgx.panel .pgx-done .t b{font-weight:500}
-:root[data-style="clean"] .v2 .pgx.panel .pgx-done .t b span{font-size:inherit;line-height:inherit;color:inherit}
-:root[data-style="clean"] .v2 .pgx.panel .pgx-done .t span{color:var(--muted)}
-:root[data-style="clean"] .v2 .pgx.panel .pgx-done>.pgx-tm{grid-area:1/3;justify-self:end}
-:root[data-style="clean"] .v2 .pgx.panel .pgx-done>.pill{grid-area:2/3;z-index:1;align-self:end;margin:0 -8px 8px 0;color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .pgx.panel .pgx-done>.pill:hover{background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-hover)}}
-:root[data-style="clean"] .v2 .pgx.panel .pgx-done>.pill:active{box-shadow:var(--btn2-press)}
-/* the strip is the summary line itself, edge to edge; Revoke or Undo sits on its right end. Its colour reaches 240px below
-   the card's edge (clipped there), so while the card eases shorter no empty band shows under it */
-:root[data-style="clean"] .v2 .pgx.panel .pgx-sum{display:block;grid-area:2/1/3/-1;align-self:stretch;margin:0 -16px -240px;padding:8px 88px 248px 16px;border-top:1px solid var(--line);background:var(--strip);line-height:28px;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-:root[data-style="clean"] .v2 .pgx-sum .s{display:none}
-@container (max-width:340px){:root[data-style="clean"] .v2 .pgx-sum .l{display:none}:root[data-style="clean"] .v2 .pgx-sum .s{display:inline}}
-/* the mark: a neutral circle with the spinner while the agent works; done, its ring turns green and the tick draws in */
-:root[data-style="clean"] .v2 .pgx.panel .pgx-done .g{width:32px;height:32px;border-radius:50%;background:var(--chip);box-shadow:inset 0 0 0 1px var(--hair);color:var(--fg2);transition:background-color .3s var(--ease),box-shadow .3s var(--ease)}
-:root[data-style="clean"] .v2 .pgx.panel .pgx-done.ok .g{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--ok-mark);color:var(--ok-mark)}
-:root[data-style="clean"] .v2 .pgx.panel .pgx-done.ok .g svg{width:16px;height:16px;stroke-width:2;stroke-dasharray:21;animation:v2-pgxdraw .5s var(--ease) .12s both}
-@keyframes v2-pgxdraw{from{stroke-dashoffset:21}to{stroke-dashoffset:0}}
-:root[data-style="clean"] .v2 .pgx.panel .pgx-done>svg{width:32px;height:32px;padding:8px;box-sizing:border-box;border-radius:50%;background:var(--chip);box-shadow:inset 0 0 0 1px var(--hair);color:var(--fg2)}
-@media (prefers-reduced-motion:reduce){:root[data-style="clean"] .v2 :is(.pgx-o .bx,.pgx-o .bx svg,.pgx-done .g){transition:none}:root[data-style="clean"] .v2 :is(.pgx-cnt>i,.pgx-done.ok .g svg){animation:none}}
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style="clean"] .v2 .pgx.panel{padding:18px 20px 20px 22px}
 /* ---------- Plan review ---------- */
 /* the plan the agent posts in the chat: no container; with .panel it becomes a card */
 .v2 .plx{padding:14px 0;display:flex;flex-direction:column;gap:10px}

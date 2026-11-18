@@ -49,67 +49,6 @@
 .pgx-ic{transition:background .32s var(--dm-ease)}
 .pgx.esc .pgx-ic{background:var(--dm-warn-bg)}
 .pgx-scope{display:flex;flex-direction:column;gap:var(--dm-s-3)}
-/* the line in the foot strip once you have answered (Clean only): the scopes you allowed, or that you allowed none */
-.pgx-sum{display:none}
 
-/* Clean (owner, 18 Nov): a card with the question, the scopes and an off-white foot strip. Its content sits 16px from
-   every edge; the controls in the strip sit 8px from the card's edges, their round ends following its corners
-   (22 = 14 + 8), and the duration select lines up with the content above by its text, not its hover box. The ticks are
-   ink and draw in, the count on Allow rolls as boxes are ticked, and once you answer the scopes fold into one summary line
-   in the strip while the card eases to its new height (grow(), centred in its stage). Its height is never kept */
-/* the card clips its strips to its round corners; the duration menu opens out of it (nothing changes height while it is open) */
-:root[data-style="clean"] .pgx.panel,:root [data-style="clean"] .pgx.panel,:root [data-style="clean"].pgx.panel{padding:16px 16px 0;overflow:clip;overflow-clip-margin:0px}
-:root[data-style="clean"] .pgx.panel:has(.pgx-pop.open),:root [data-style="clean"] .pgx.panel:has(.pgx-pop.open),:root [data-style="clean"].pgx.panel:has(.pgx-pop.open){overflow:visible}
-:root[data-style="clean"] .pgx-ic,:root [data-style="clean"] .pgx-ic,:root [data-style="clean"].pgx-ic{border-radius:50%;box-shadow:inset 0 0 0 1px var(--dm-hair)}
-:root[data-style="clean"] .pgx-ht b,:root [data-style="clean"] .pgx-ht b,:root [data-style="clean"].pgx-ht b{line-height:20px;letter-spacing:-.01em}
-:root[data-style="clean"] .pgx-ht span,:root [data-style="clean"] .pgx-ht span,:root [data-style="clean"].pgx-ht span,:root[data-style="clean"] .pgx-o .d,:root [data-style="clean"] .pgx-o .d,:root [data-style="clean"].pgx-o .d,:root[data-style="clean"] .pgx-done .t span,:root [data-style="clean"] .pgx-done .t span,:root [data-style="clean"].pgx-done .t span{line-height:18px}
-:root[data-style="clean"] :is(.pgx-o,.pgx-done) .t,:root [data-style="clean"] :is(.pgx-o,.pgx-done) .t,:root [data-style="clean"]:is(.pgx-o,.pgx-done) .t{line-height:20px}
-:root[data-style="clean"] .pgx-o,:root [data-style="clean"] .pgx-o,:root [data-style="clean"].pgx-o{transition:background-color var(--dm-t-fast) var(--dm-ease)}
-:root[data-style="clean"] .pgx-o .bx,:root [data-style="clean"] .pgx-o .bx,:root [data-style="clean"].pgx-o .bx{border-radius:50%;background:var(--dm-surface);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-muted) 80%,var(--dm-surface)),var(--dm-track-ring);transition:background .2s var(--dm-ease),box-shadow .2s var(--dm-ease)}
-:root[data-style="clean"] .pgx-o .bx svg,:root [data-style="clean"] .pgx-o .bx svg,:root [data-style="clean"].pgx-o .bx svg{transform:none;stroke-dasharray:21;stroke-dashoffset:21;transition:stroke-dashoffset .3s var(--dm-ease)}
-:root[data-style="clean"] .pgx-o input:checked+.bx,:root [data-style="clean"] .pgx-o input:checked+.bx,:root [data-style="clean"].pgx-o input:checked+.bx{background:linear-gradient(180deg,var(--dm-btn-1),var(--dm-btn-2));box-shadow:inset 0 0 0 1px var(--dm-btn-2),inset 0 2px 3px -1px rgba(255,255,255,.28);color:var(--dm-on-btn)}
-:root[data-style="clean"] .pgx-o input:checked+.bx svg,:root [data-style="clean"] .pgx-o input:checked+.bx svg,:root [data-style="clean"].pgx-o input:checked+.bx svg{stroke-dashoffset:0;transition-delay:.06s}
-:root[data-style="clean"] .pgx-o:active .bx,:root [data-style="clean"] .pgx-o:active .bx,:root [data-style="clean"].pgx-o:active .bx{transform:scale(.94);transition:transform var(--dm-t-fast) var(--dm-ease)}
-/* the foot strip: 8px round its 28px controls, so it is 45px tall with its hairline; the scopes end 16px above it (their
-   rows keep 8px of hover room below the text). Lines are whole pixels, so the card's edge meets the strip's exactly */
-:root[data-style="clean"] .pgx.panel .pgx-sc,:root [data-style="clean"] .pgx.panel .pgx-sc,:root [data-style="clean"].pgx.panel .pgx-sc{margin-bottom:-4px}
-:root[data-style="clean"] .pgx.panel .pgx-f,:root [data-style="clean"] .pgx.panel .pgx-f,:root [data-style="clean"].pgx.panel .pgx-f{margin:0 -16px;padding:8px;gap:4px;border-top:1px solid var(--dm-line);background:var(--dm-strip);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
-:root[data-style="clean"] .pgx-f .pgx-db,:root [data-style="clean"] .pgx-f .pgx-db,:root [data-style="clean"].pgx-f .pgx-db{padding:0 8px;margin:0;color:var(--dm-fg2);transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .pgx-f :is(.pgx-db:hover,.pgx-db[aria-expanded="true"],.pill.ghost:hover),:root [data-style="clean"] .pgx-f :is(.pgx-db:hover,.pgx-db[aria-expanded="true"],.pill.ghost:hover),:root [data-style="clean"].pgx-f :is(.pgx-db:hover,.pgx-db[aria-expanded="true"],.pill.ghost:hover){background:var(--dm-hover);color:var(--dm-fg)}}
-/* on a narrow stage the buttons wrap under the select: the strip's 4px gaps put them 8px under it */
-@container (max-width:340px){:root[data-style="clean"] .pgx-no,:root [data-style="clean"] .pgx-no,:root [data-style="clean"].pgx-no{margin:0 0 0 auto}:root[data-style="clean"] .pgx-ok,:root [data-style="clean"] .pgx-ok,:root [data-style="clean"].pgx-ok{margin-top:0}}
-/* Allow's count rolls: up as a box is ticked, down as one is cleared */
-:root[data-style="clean"] .pgx-cnt,:root [data-style="clean"] .pgx-cnt,:root [data-style="clean"].pgx-cnt{display:inline-grid;overflow:clip}
-:root[data-style="clean"] .pgx-cnt>i,:root [data-style="clean"] .pgx-cnt>i,:root [data-style="clean"].pgx-cnt>i{grid-area:1/1;font-style:normal;font-variant-numeric:tabular-nums}
-@keyframes pgxiu{from{transform:translateY(80%);opacity:0}}
-@keyframes pgxou{to{transform:translateY(-80%);opacity:0}}
-@keyframes pgxid{from{transform:translateY(-80%);opacity:0}}
-@keyframes pgxod{to{transform:translateY(80%);opacity:0}}
-:root[data-style="clean"] .pgx-cnt>.iu,:root [data-style="clean"] .pgx-cnt>.iu,:root [data-style="clean"].pgx-cnt>.iu{animation:pgxiu .3s var(--dm-ease) both}
-:root[data-style="clean"] .pgx-cnt>.ou,:root [data-style="clean"] .pgx-cnt>.ou,:root [data-style="clean"].pgx-cnt>.ou{animation:pgxou .3s var(--dm-ease) both}
-:root[data-style="clean"] .pgx-cnt>.id,:root [data-style="clean"] .pgx-cnt>.id,:root [data-style="clean"].pgx-cnt>.id{animation:pgxid .3s var(--dm-ease) both}
-:root[data-style="clean"] .pgx-cnt>.od,:root [data-style="clean"] .pgx-cnt>.od,:root [data-style="clean"].pgx-cnt>.od{animation:pgxod .3s var(--dm-ease) both}
-/* answered: the result line where the scopes were (a 32px mark under the question's tile, the words under the question's
-   words, the clock on the right), then the strip with the summary and Revoke or Undo in the corner */
-:root[data-style="clean"] .pgx.panel .pgx-done,:root [data-style="clean"] .pgx.panel .pgx-done,:root [data-style="clean"].pgx.panel .pgx-done{display:grid;grid-template-columns:32px minmax(0,1fr) auto;grid-template-rows:auto 45px;column-gap:12px;row-gap:16px;align-items:center;padding:0;border-radius:0;background:none!important}
-:root[data-style="clean"] .pgx.panel .pgx-done>:is(.g,svg),:root [data-style="clean"] .pgx.panel .pgx-done>:is(.g,svg),:root [data-style="clean"].pgx.panel .pgx-done>:is(.g,svg){grid-area:1/1}
-:root[data-style="clean"] .pgx.panel .pgx-done>.t,:root [data-style="clean"] .pgx.panel .pgx-done>.t,:root [data-style="clean"].pgx.panel .pgx-done>.t{grid-area:1/2}
-:root[data-style="clean"] .pgx.panel .pgx-done .t b,:root [data-style="clean"] .pgx.panel .pgx-done .t b,:root [data-style="clean"].pgx.panel .pgx-done .t b{font-weight:500}
-:root[data-style="clean"] .pgx.panel .pgx-done .t b span,:root [data-style="clean"] .pgx.panel .pgx-done .t b span,:root [data-style="clean"].pgx.panel .pgx-done .t b span{font-size:inherit;line-height:inherit;color:inherit}
-:root[data-style="clean"] .pgx.panel .pgx-done .t span,:root [data-style="clean"] .pgx.panel .pgx-done .t span,:root [data-style="clean"].pgx.panel .pgx-done .t span{color:var(--dm-muted)}
-:root[data-style="clean"] .pgx.panel .pgx-done>.pgx-tm,:root [data-style="clean"] .pgx.panel .pgx-done>.pgx-tm,:root [data-style="clean"].pgx.panel .pgx-done>.pgx-tm{grid-area:1/3;justify-self:end}
-:root[data-style="clean"] .pgx.panel .pgx-done>.pill,:root [data-style="clean"] .pgx.panel .pgx-done>.pill,:root [data-style="clean"].pgx.panel .pgx-done>.pill{grid-area:2/3;z-index:1;align-self:end;margin:0 -8px 8px 0;color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .pgx.panel .pgx-done>.pill:hover,:root [data-style="clean"] .pgx.panel .pgx-done>.pill:hover,:root [data-style="clean"].pgx.panel .pgx-done>.pill:hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
-:root[data-style="clean"] .pgx.panel .pgx-done>.pill:active,:root [data-style="clean"] .pgx.panel .pgx-done>.pill:active,:root [data-style="clean"].pgx.panel .pgx-done>.pill:active{box-shadow:var(--dm-btn2-press)}
-/* the strip is the summary line itself, edge to edge; Revoke or Undo sits on its right end. Its colour reaches 240px below
-   the card's edge (clipped there), so while the card eases shorter no empty band shows under it */
-:root[data-style="clean"] .pgx.panel .pgx-sum,:root [data-style="clean"] .pgx.panel .pgx-sum,:root [data-style="clean"].pgx.panel .pgx-sum{display:block;grid-area:2/1/3/-1;align-self:stretch;margin:0 -16px -240px;padding:8px 88px 248px 16px;border-top:1px solid var(--dm-line);background:var(--dm-strip);line-height:28px;font-size:12.5px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-:root[data-style="clean"] .pgx-sum .s,:root [data-style="clean"] .pgx-sum .s,:root [data-style="clean"].pgx-sum .s{display:none}
-@container (max-width:340px){:root[data-style="clean"] .pgx-sum .l,:root [data-style="clean"] .pgx-sum .l,:root [data-style="clean"].pgx-sum .l{display:none}:root[data-style="clean"] .pgx-sum .s,:root [data-style="clean"] .pgx-sum .s,:root [data-style="clean"].pgx-sum .s{display:inline}}
-/* the mark: a neutral circle with the spinner while the agent works; done, its ring turns green and the tick draws in */
-:root[data-style="clean"] .pgx.panel .pgx-done .g,:root [data-style="clean"] .pgx.panel .pgx-done .g,:root [data-style="clean"].pgx.panel .pgx-done .g{width:32px;height:32px;border-radius:50%;background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-hair);color:var(--dm-fg2);transition:background-color .3s var(--dm-ease),box-shadow .3s var(--dm-ease)}
-:root[data-style="clean"] .pgx.panel .pgx-done.ok .g,:root [data-style="clean"] .pgx.panel .pgx-done.ok .g,:root [data-style="clean"].pgx.panel .pgx-done.ok .g{background:var(--dm-surface);box-shadow:inset 0 0 0 1.5px var(--dm-ok-mark);color:var(--dm-ok-mark)}
-:root[data-style="clean"] .pgx.panel .pgx-done.ok .g svg,:root [data-style="clean"] .pgx.panel .pgx-done.ok .g svg,:root [data-style="clean"].pgx.panel .pgx-done.ok .g svg{width:16px;height:16px;stroke-width:2;stroke-dasharray:21;animation:pgxdraw .5s var(--dm-ease) .12s both}
-@keyframes pgxdraw{from{stroke-dashoffset:21}to{stroke-dashoffset:0}}
-:root[data-style="clean"] .pgx.panel .pgx-done>svg,:root [data-style="clean"] .pgx.panel .pgx-done>svg,:root [data-style="clean"].pgx.panel .pgx-done>svg{width:32px;height:32px;padding:8px;box-sizing:border-box;border-radius:50%;background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-hair);color:var(--dm-fg2)}
-@media (prefers-reduced-motion:reduce){:root[data-style="clean"] :is(.pgx-o .bx,.pgx-o .bx svg,.pgx-done .g),:root [data-style="clean"] :is(.pgx-o .bx,.pgx-o .bx svg,.pgx-done .g),:root [data-style="clean"]:is(.pgx-o .bx,.pgx-o .bx svg,.pgx-done .g){transition:none}:root[data-style="clean"] :is(.pgx-cnt>i,.pgx-done.ok .g svg),:root [data-style="clean"] :is(.pgx-cnt>i,.pgx-done.ok .g svg),:root [data-style="clean"]:is(.pgx-cnt>i,.pgx-done.ok .g svg){animation:none}}
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style="clean"] .pgx.panel,:root [data-style="clean"] .pgx.panel,:root [data-style="clean"].pgx.panel{padding:18px 20px 20px 22px}
