@@ -432,7 +432,9 @@ function showTip(el){
   tip.style.left = '0px'; tip.style.top = '0px'; tip.classList.add('show'); tip.removeAttribute('aria-hidden');
   const r = el.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
   // it stays inside the component's stage when it fits there, so on a phone it never runs past the card's edge
-  const st = el.closest('.stage-in'), sb = st && st.parentElement.getBoundingClientRect();
+  // (the stage you see: on a component page the stage-in's own parent hugs the component, and a tip near its edge would be
+  // pushed off its button)
+  const st = el.closest('.stage-in'), sb = st && (st.closest('.stage-inner') || st.parentElement).getBoundingClientRect();
   const lo = sb && sb.width >= w + 16 ? Math.max(8, sb.left + 8) : 8, hi = sb && sb.width >= w + 16 ? Math.min(innerWidth, sb.right) - w - 8 : innerWidth - w - 8;
   let x = r.left + r.width / 2 - w / 2; x = Math.max(lo, Math.min(hi, x));
   // above the trigger, or below when there is no room; data-tip-at="below" asks for below first, for a trigger that has
