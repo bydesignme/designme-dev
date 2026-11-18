@@ -35,8 +35,12 @@ function sample(id){
   const inner = e => { const r = document.createRange(); r.selectNodeContents(e); const b = r.getBoundingClientRect(); return b.width ? b : e.getBoundingClientRect(); };
   sin.querySelectorAll('button,.pill,.ib,.tag,[role="switch"]').forEach(e => { if (!card.contains(e) || !vis(e) || e.closest('.pop') || (e.parentElement && e.parentElement.closest('button,.pill,.tag'))) return; const b = e.getBoundingClientRect(); if (b.width < 8 || b.height < 8 || b.width > C.width * .6) return; A.push({ k:'ctl', e, b:bare(e) ? inner(e) : b, box:b }); });
   const tw = document.createTreeWalker(card, NodeFilter.SHOW_TEXT); let n;
+  const sets = e => { const cs = getComputedStyle(e), pe = e.parentElement, ps = pe && getComputedStyle(pe);
+    if (/center/.test(cs.textAlign) || (ps && /grid|flex/.test(ps.display) && (/center/.test(ps.justifyContent) || /center/.test(ps.justifyItems) || /center/.test(ps.placeItems))) || (/grid|flex/.test(cs.display) && /center/.test(cs.justifyContent + cs.justifyItems))) return 'centre';
+    if (/right|end/.test(cs.textAlign) || (ps && /flex/.test(ps.display) && /end|space-between/.test(ps.justifyContent) && [...pe.children].filter(k => k.offsetParent).pop() === e)) return 'right';
+    return 'left'; };
   const placed = e => { for (let a = e; a && a !== card; a = a.parentElement) if (/(^|;)\s*(left|--x0)\s*:/.test(a.getAttribute('style') || '')) return true; return false; };
-  while ((n = tw.nextNode())){ const e = n.parentElement; if (!n.textContent.trim() || !vis(e) || e.closest('button,.pill,.tag,.pop,.hand') || placed(e)) continue; const r = document.createRange(); r.selectNodeContents(n); [...r.getClientRects()].forEach(b => { if (b.width > 2) A.push({ k:'text', e, b }); }); }
+  while ((n = tw.nextNode())){ const e = n.parentElement; if (!n.textContent.trim() || !vis(e) || e.closest('button,.pill,.tag,.pop,.hand') || placed(e)) continue; const r = document.createRange(); r.selectNodeContents(n); const lines = [...r.getClientRects()].filter(b => b.width > 2), set = sets(e); lines.forEach(b => A.push({ k:'text', e, b, set, wraps:lines.length > 1 })); }
   // rows: anchors that share a line
   const rows = []; A.sort((a, b) => a.b.top - b.b.top);
   for (const a of A){ const cy = (a.b.top + a.b.bottom) / 2; const r = rows.find(r => cy > r.top && cy < r.bottom); if (r){ r.items.push(a); r.top = Math.min(r.top, a.b.top); r.bottom = Math.max(r.bottom, a.b.bottom); } else rows.push({ top:a.b.top, bottom:a.b.bottom, items:[a] }); }
@@ -50,9 +54,9 @@ function sample(id){
     const corner = row && row.items.some(x => x.k === 'ctl' && ((x.box || x.b).right > C.right - 9.5) && ((x.box || x.b).bottom > C.bottom - 9.5 || (x.box || x.b).top < C.top + 9.5));
     return corner ? ((C.bottom - cy) < (cy - C.top) ? 'foot' : 'head') : -1; };
   // a right edge counts for controls, and for words set against the right (a number, a time, a status), not for ragged text
-  const rightSet = a => a && (a.k === 'ctl' || (a.k === 'text' && getComputedStyle(a.e).textAlign !== 'center' && C.right - a.b.right < 48 && !a.e.closest('[style*="text-align:center"]')));
+  const rightSet = a => a && (a.k === 'ctl' || (a.k === 'text' && a.set === 'right' && !a.wraps));
   // columns: the first mark, first words and last control of each row, against every other row's
-  const lead = rows.map(r => ({ mark:r.items.find(a => a.k === 'mark'), text:r.items.find(a => a.k === 'text'), last:[...r.items].reverse().find(a => a.k === 'ctl' || a.k === 'text') }));
+  const lead = rows.map(r => ({ mark:r.items.find(a => a.k === 'mark'), text:r.items.find(a => a.k === 'text' && a.set === 'left'), last:[...r.items].reverse().find(a => a.k === 'ctl' || a.k === 'text') }));
   lead.forEach((l, i) => { l.band = band(rows[i].items[0], rows[i]); });
   for (let i = 0; i < lead.length; i++) for (let j = i + 1; j < lead.length; j++){
     const a = lead[i], b = lead[j]; if (a.band !== b.band) continue;
@@ -61,7 +65,7 @@ function sample(id){
     if (rightSet(a.last) && rightSet(b.last) && near(a.last.b.right, b.last.b.right)) out.push(`columns: right edges at ${Math.round(C.right - a.last.b.right)} and ${Math.round(C.right - b.last.b.right)} from the card's edge ${name(a.last.e)} / ${name(b.last.e)}`);
   }
   // centres: single-line rows of a flex container
-  sin.querySelectorAll('*').forEach(e => { if (!card.contains(e) || !vis(e)) return; const cs = getComputedStyle(e); if (!/flex/.test(cs.display) || cs.flexDirection !== 'row') return;
+  sin.querySelectorAll('*').forEach(e => { if (!card.contains(e) || !vis(e)) return; const cs = getComputedStyle(e); if (!/flex/.test(cs.display) || cs.flexDirection !== 'row' || !/center|baseline/.test(cs.alignItems)) return;
     const kids = [...e.children].filter(k => vis(k) && k.getBoundingClientRect().height > 4); if (kids.length < 2) return;
     const cy = kids.map(k => { const b = k.getBoundingClientRect(); if (b.height > 34) return null; if (!k.children.length && k.textContent.trim()){ const r = document.createRange(); r.selectNodeContents(k); const t = r.getBoundingClientRect(); return (t.top + t.bottom) / 2; } return (b.top + b.bottom) / 2; }).filter(v => v !== null);
     if (cy.length >= 2 && Math.max(...cy) - Math.min(...cy) > 2) out.push(`centres: ${name(e)} parts differ by ${(Math.max(...cy) - Math.min(...cy)).toFixed(1)}px`); });

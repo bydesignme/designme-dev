@@ -40,11 +40,11 @@ Attachment tray is a drop zone plus a list of the files a person is giving the a
 - `onRemove` adds a remove button to each file and is called after the file has animated out.
 - The line under the list counts files that are up and read, like "The agent can read 2 files now", unless you pass your own `summary`.
 - The drop zone takes the accent under the pointer. While a file is dragged over it, its dashed edge marches, its arrow bobs and rings spread from the badge. `title` changes its heading, `action` adds a link after "or", and `dragging` shows the drag state for a scripted demo.
-- Ships in Clean too (`data-style="clean"`): a round card with 16px all round that grows with its files instead of keeping room for them. The drop zone is a pill well with a round upload button, each file sits on a neutral circle with its type's colour as a small dot, the divider under it fills with ink as it uploads and a green tick draws itself once it is read, and the closing line is an off-white foot strip whose count rolls up.
+- Ships in Clean too (`data-style="clean"`): a round card with 16px all round that grows with its files instead of keeping room for them, and the whole card is the drop target: a file dragged over it turns it grey with a dashed line 8px inside its edge. Empty, it shows a small sketch of a file list, the title, a browse link and `action` as a button. Every file sits on the same neutral circle (one colour, not a hue per type), the divider under it fills with ink as it uploads and a green tick draws itself once it is read. Once there are files, an off-white foot strip holds the count, which rolls up, and an Add files button.
 
 ### Accessibility
 
-- The drop zone wraps a real file input labelled "Choose files", so it also works without dragging.
+- The drop zone wraps a real file input labelled "Choose files", so it also works without dragging. In Clean the browse link holds it, and the foot strip's Add files button holds another, labelled "Add files".
 - Each upload ring is a `role="progressbar"` with `aria-valuenow` from 0 to 100 and a label naming the file.
 - Remove buttons are labelled with the file name, like "Remove brief.pdf".
 - With reduced motion the edge, the arrow, the rings and the shimmer stay still; the ring and the percentage still show the progress.
@@ -112,8 +112,8 @@ export default function AttachmentTrayDemo() {
 | `files` | `Attachment[]` |  |
 | `onFiles` (optional) | `(files: File[]) => void` | Files the person dropped on the tray or picked with the file dialog |
 | `onRemove` (optional) | `(id: string) => void` | Adds a remove button to each file. Called once the file has animated out |
-| `title` (optional) | `ReactNode` | The drop zone's heading |
-| `action` (optional) | `{ label: string; onClick: () => void }` | A link after "or" in the drop zone, like "add sample files" |
+| `title` (optional) | `ReactNode` | The drop zone's heading (in Clean, the empty state's title) |
+| `action` (optional) | `{ label: string; onClick: () => void }` | A link after "or" in the drop zone, like "add sample files". In Clean it is a button under the empty state, its label starting with a capital ("Add sample files") |
 | `accept` (optional) | `string` | Passed to the file input, like "image/*,.pdf" |
 | `summary` (optional) | `string` | The line under the list. Defaults to how many files the agent can read |
 | `dragging` (optional) | `boolean` | Shows the drop zone as if a file were being dragged over it, for a scripted demo. A real drag shows it by itself |
@@ -150,7 +150,7 @@ Yes. Pass `summary` and it replaces the default count of files the agent can rea
 
 ```tsx
 'use client';
-import { useEffect, useRef, useState, type CSSProperties, type DragEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent, type CSSProperties, type DragEvent, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { useIsoLayoutEffect } from '../lib/hooks';
 import { Icon } from '../lib/icons';
@@ -177,9 +177,10 @@ export interface AttachmentTrayProps {
   onFiles?: (files: File[]) => void;
   /** Adds a remove button to each file. Called once the file has animated out */
   onRemove?: (id: string) => void;
-  /** The drop zone's heading */
+  /** The drop zone's heading (in Clean, the empty state's title) */
   title?: ReactNode;
-  /** A link after "or" in the drop zone, like "add sample files" */
+  /** A link after "or" in the drop zone, like "add sample files". In Clean it is a button under the empty state, its label
+   *  starting with a capital ("Add sample files") */
   action?: { label: string; onClick: () => void };
   /** Passed to the file input, like "image/*,.pdf" */
   accept?: string;
@@ -210,7 +211,8 @@ function Item({ file, delay, onRemove, clean }: { file: Attachment; delay: numbe
   return (
     <div className={cx('dm-atx-it', up && 'dm-up', leaving ? 'dm-leave' : 'dm-enter')}
       style={{ '--dm-c': fg, '--dm-cb': bg, '--dm-p': `${(p * 100).toFixed(1)}%`, ...(leaving ? {} : { animationDelay: delay + 'ms' }) } as CSSProperties}>
-      <span className="dm-atx-ti">{label}{clean && <span className="dm-atx-td" />}</span>
+      {/* Clean: one neutral circle for every file type (the type's hue is Soft's and Blueprint's) */}
+      <span className="dm-atx-ti">{label}</span>
       <span className="dm-atx-n"><span className="dm-atx-nm">{file.name}</span>
         {/* the percentage counts in place; the line crossfades when the file moves on to being read and to what was found */}
         {!up ? <span className="dm-atx-m dm-num">{meta}</span>
@@ -273,10 +275,15 @@ export function AttachmentTray({ files, onFiles, onRemove, title = 'Drop files h
     setSeen({ ids, delay });
   }
   const hold = (e: DragEvent) => { e.preventDefault(); setOver(true); };
+  // in Clean the card holds the rows and buttons, so moving between them is not leaving it
+  const leave = (e: DragEvent) => { if (clean && e.currentTarget.contains(e.relatedTarget as Node | null)) return; setOver(false); };
+  const dropped = (e: DragEvent) => { e.preventDefault(); setOver(false); if (e.dataTransfer.files.length) onFiles?.(Array.from(e.dataTransfer.files)); };
+  const picked = (e: ChangeEvent<HTMLInputElement>) => { if (e.target.files?.length) onFiles?.(Array.from(e.target.files)); e.target.value = ''; };
   const read = files.filter(f => f.progress >= 100 && !f.reading).length;
   const line = summary ?? (read ? `The agent can read ${read} ${read > 1 ? 'files' : 'file'} now` : '');
-  // Clean (data-style="clean" on the page or around the tray) is a card that grows with its files, and its foot strip's
-  // count rolls; Soft and Blueprint are as they were
+  // Clean (data-style="clean" on the page or around the tray) is a card that grows with its files and is the drop target
+  // as a whole. Empty, it shows Clean's empty state (a sketch of a file list, the title, a browse link and the action as a
+  // button); with files, a foot strip holds the count, which rolls, and Add files. Soft and Blueprint are as they were
   const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
   const [clean, setClean] = useState(false);
   useIsoLayoutEffect(() => { setClean(root.current?.closest('[data-style]')?.getAttribute('data-style') === 'clean'); }, []);
@@ -293,27 +300,39 @@ export function AttachmentTray({ files, onFiles, onRemove, title = 'Drop files h
     return () => { ro.disconnect(); el.style.height = ''; };
   }, [clean]);
 
-  const body = (<>
-      <label className={cx('dm-atx-drop', (over || dragging) && 'dm-over')} onDragEnter={hold} onDragOver={hold} onDragLeave={() => setOver(false)}
-        onDrop={e => { e.preventDefault(); setOver(false); if (e.dataTransfer.files.length) onFiles?.(Array.from(e.dataTransfer.files)); }}>
-        <input type="file" multiple accept={accept} className="dm-atx-file" aria-label="Choose files"
-          onChange={e => { if (e.target.files?.length) onFiles?.(Array.from(e.target.files)); e.target.value = ''; }} />
+  const list = <div className="dm-atx-list">{files.map(f => <Item key={f.id} file={f} delay={seen.delay[f.id] ?? 0} onRemove={onRemove} clean={clean} />)}</div>;
+  const body = !clean ? (<>
+      <label className={cx('dm-atx-drop', (over || dragging) && 'dm-over')} onDragEnter={hold} onDragOver={hold} onDragLeave={leave} onDrop={dropped}>
+        <input type="file" multiple accept={accept} className="dm-atx-file" aria-label="Choose files" onChange={picked} />
         <Ants />
         <span className="dm-atx-ic"><Icon name="upload" /></span>
         <b>{title}</b>
         {action && <span className="dm-muted">or <button type="button" className="dm-atx-sample" onClick={action.onClick}>{action.label}</button></span>}
       </label>
-      <div className="dm-atx-list">{files.map(f => <Item key={f.id} file={f} delay={seen.delay[f.id] ?? 0} onRemove={onRemove} clean={clean} />)}</div>
-      {!clean ? <Swap className="dm-atx-sum dm-muted">{line}</Swap>
-        : <div className="dm-atx-sum dm-muted">{line && <>
-            <span className="dm-atx-tk"><Icon name="check" size="xs" /></span>
-            {summary != null ? <span>{summary}</span>
-              : <span>The agent can read <span className="dm-atx-roll dm-num"><i key={read} className="dm-in">{read}</i></span> {read > 1 ? 'files' : 'file'} now</span>}
-          </>}</div>}
+      {list}
+      <Swap className="dm-atx-sum dm-muted">{line}</Swap>
+  </>) : (<>
+      {list}
+      {/* the empty state comes after the list so CSS shows it only while the list is empty, and the strip only once it isn't */}
+      <div className="dm-atx-em">
+        <span className="dm-atx-em-art" aria-hidden="true" />
+        <b>{title}</b>
+        <span>or <label className="dm-atx-br">browse your files<input type="file" multiple accept={accept} className="dm-atx-file" aria-label="Choose files" onChange={picked} /></label></span>
+        {action && <button type="button" className="dm-pill dm-line dm-sm dm-atx-smp" onClick={action.onClick}><Icon name="plus" size="xs" />{action.label.charAt(0).toUpperCase() + action.label.slice(1)}</button>}
+      </div>
+      <div className="dm-atx-ft">
+        <div className="dm-atx-sum dm-muted">{line && <>
+          <span className="dm-atx-tk"><Icon name="check" size="xs" /></span>
+          {summary != null ? <span>{summary}</span>
+            : <span>The agent can read <span className="dm-atx-roll dm-num"><i key={read} className="dm-in">{read}</i></span> {read > 1 ? 'files' : 'file'} now</span>}
+        </>}</div>
+        <label className="dm-pill dm-line dm-sm dm-atx-add"><Icon name="plus" size="xs" />Add files<input type="file" multiple accept={accept} className="dm-atx-file" aria-label="Add files" onChange={picked} /></label>
+      </div>
   </>);
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-atx', clean && 'dm-growing', className)}>
+    <div data-dm="" ref={root} className={cx('dm-atx', clean && 'dm-growing', clean && (over || dragging) && 'dm-over', className)}
+      {...(clean ? { onDragEnter: hold, onDragOver: hold, onDragLeave: leave, onDrop: dropped } : {})}>
       {clean ? <div className="dm-grow" ref={inner}>{body}</div> : body}
     </div>
   );

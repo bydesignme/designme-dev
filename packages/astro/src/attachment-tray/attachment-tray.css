@@ -56,28 +56,39 @@
 :root:not([data-style="soft"],[data-style="clean"]) .atx-drop.over .atx-ic:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *))::after{animation:none}
 @keyframes atxringbp{from{opacity:.6;transform:scale(1)}to{opacity:0;transform:scale(1.6)}}
 :root:not([data-style="soft"],[data-style="clean"]) .atx-ok .i:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation:none}
-/* Clean (owner, 18 Nov): one card that grows as files arrive (grow()), its content 16px from each edge. The drop zone is a
-   pill well inside it with a track's inner shadow, its upload button a secondary circle 8px in from the well's round end, so
-   the two are concentric; a file dragged over lifts the well to the surface with a stronger hairline. Files are rows with
-   hairline dividers under their text: a neutral circle with the type's colour as a small dot, and while a file uploads its
-   divider becomes a rail that fills with ink, a soft sheen running along it while the agent reads, then fades as a green tick
-   draws itself. The closing line is the foot strip, its count rolling as each file is read */
-:root[data-style="clean"] .atx,:root [data-style="clean"] .atx,:root [data-style="clean"].atx{gap:0;background:var(--dm-surface);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow);overflow:clip}
-:root[data-style="clean"] .atx-ants,:root [data-style="clean"] .atx-ants,:root [data-style="clean"].atx-ants{display:none}
-:root[data-style="clean"] .atx-drop,:root [data-style="clean"] .atx-drop,:root [data-style="clean"].atx-drop{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;justify-items:start;column-gap:12px;row-gap:0;margin:16px 16px 0;padding:8px 16px 8px 8px;border-radius:26px;background:var(--dm-row);box-shadow:var(--dm-track-ring);font-size:13px;line-height:18px;text-align:left;transition:background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
-:root[data-style="clean"] .atx-drop.over,:root [data-style="clean"] .atx-drop.over,:root [data-style="clean"].atx-drop.over{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 45%,transparent)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .atx-drop:hover,:root [data-style="clean"] .atx-drop:hover,:root [data-style="clean"].atx-drop:hover{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 45%,transparent)}}
-:root[data-style="clean"] .atx-drop.over,:root [data-style="clean"] .atx-drop.over,:root [data-style="clean"].atx-drop.over{transform:none}
-:root[data-style="clean"] .atx-drop b,:root [data-style="clean"] .atx-drop b,:root [data-style="clean"].atx-drop b{align-self:end;font-weight:500}
-:root[data-style="clean"] .atx-drop .muted,:root [data-style="clean"] .atx-drop .muted,:root [data-style="clean"].atx-drop .muted{align-self:start;font-size:12.5px}
-:root[data-style="clean"] .atx-ic,:root [data-style="clean"] .atx-ic,:root [data-style="clean"].atx-ic{grid-row:span 2;width:36px;height:36px;border-radius:50%;color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth);transition:transform var(--dm-t) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
-:root[data-style="clean"] .atx-drop.over .atx-ic,:root [data-style="clean"] .atx-drop.over .atx-ic,:root [data-style="clean"].atx-drop.over .atx-ic{transform:translateY(-2px);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover);color:var(--dm-fg)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .atx-drop:hover .atx-ic,:root [data-style="clean"] .atx-drop:hover .atx-ic,:root [data-style="clean"].atx-drop:hover .atx-ic{transform:translateY(-2px);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover);color:var(--dm-fg)}}
-:root[data-style="clean"] .atx-drop.over .atx-ic::before,:root [data-style="clean"] .atx-drop.over .atx-ic::before,:root [data-style="clean"].atx-drop.over .atx-ic::before,:root[data-style="clean"] .atx-drop.over .atx-ic::after,:root [data-style="clean"] .atx-drop.over .atx-ic::after,:root [data-style="clean"].atx-drop.over .atx-ic::after{animation:none}
+/* Clean (owner, 18 Nov): one card that grows as files arrive (grow()), its content 16px from each edge, and the whole card is
+   the drop target: a file dragged over it fills it with the row grey and draws a dashed hairline 8px in from its edge. Empty,
+   it shows Clean's empty state (.atx-em): a small sketch of a file list on a white card, the title, one muted line with a
+   browse link, and Add sample files. Files are rows with hairline dividers under their text: one neutral grey circle with the
+   type's letters for every file (owner, 18 Nov: one colour, not a hue per type), and while a file uploads its divider becomes
+   a rail that fills with ink, the same for every file, a soft sheen running along
+   it while the agent reads, then fades as a green tick draws itself. Once there are files, the off-white foot strip (.atx-ft)
+   says what the agent can read, its count rolling as each file is read, and holds Add files 8px from the card's corner (a
+   28px pill, so its round end follows the card's 22px corner) */
+/* (the dashed hairline is an outline drawn 8px inside the card, so it follows the card's corners) */
+:root[data-style="clean"] .atx,:root [data-style="clean"] .atx,:root [data-style="clean"].atx{position:relative;gap:0;background:var(--dm-surface);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow);overflow:clip;outline:1px dashed transparent;outline-offset:-9px;transition:height .55s cubic-bezier(.22,1,.36,1),background-color var(--dm-t-fast) var(--dm-ease),outline-color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .atx.over,:root [data-style="clean"] .atx.over,:root [data-style="clean"].atx.over{background:var(--dm-row);outline-color:var(--dm-faint)}
+/* the empty state, the lab's (lab/clean): the sketch is a white card with a hairline and three rows, each a square and a bar,
+   fading downward; under it the title, one grey line and a secondary button */
+.atx-em{display:flex;flex-direction:column;align-items:center;gap:4px;padding:16px;text-align:center}
+.atx-em b{font-size:13.5px;line-height:18px;font-weight:500;color:var(--dm-fg)}
+.atx-em>span:not(.atx-em-art){max-width:290px;font-size:12.5px;line-height:1.5;color:var(--dm-muted)}
+.atx-em .pill{margin-top:12px}
+.atx-em-art{position:relative;display:block;width:136px;height:70px;margin:0 0 16px;border-radius:calc(10px * var(--dm-rk-l,var(--dm-rk)));background:var(--dm-surface);box-shadow:var(--dm-shadow)}
+.atx-em-art::before{content:"";position:absolute;left:14px;top:14px;width:10px;height:10px;border-radius:3px;background:var(--dm-ghost);box-shadow:0 16px 0 var(--dm-ghost),0 32px 0 var(--dm-ghost-2)}
+.atx-em-art::after{content:"";position:absolute;left:32px;top:16px;width:58px;height:6px;border-radius:3px;background:var(--dm-ghost);box-shadow:0 16px 0 var(--dm-ghost),0 32px 0 var(--dm-ghost-2)}
+/* the browse link wraps a clear file input, so it opens the file dialog and shows the keyboard's focus */
+.atx-br{position:relative;color:var(--dm-accent-fg,var(--dm-accent));font-weight:500;cursor:pointer}
+@media (hover:hover) and (pointer:fine){.atx-br:hover{text-decoration:underline;text-underline-offset:2px}}
+.atx-br:has(.atx-file:focus-visible),.atx-add:has(:focus-visible){outline:2px solid var(--dm-focus);outline-offset:2px}
+.atx-br:has(.atx-file:focus-visible){border-radius:4px}
+/* the empty state shows until the first file lands, and the foot strip from then on */
+.atx-list:not(:empty)~.atx-em,.atx-list:empty~.atx-ft{display:none}
+/* (on a phone the count can take two lines: the strip grows with it and Add files stays 8px from the corner) */
+.atx-ft{display:flex;align-items:flex-end;gap:12px;padding:8px 8px 8px 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+.atx-add{position:relative;overflow:hidden;flex:none;margin-left:auto;cursor:pointer}
 :root[data-style="clean"] .atx-list,:root [data-style="clean"] .atx-list,:root [data-style="clean"].atx-list{gap:0;padding:0 16px}
 :root[data-style="clean"] .atx-list:not(:empty),:root [data-style="clean"] .atx-list:not(:empty),:root [data-style="clean"].atx-list:not(:empty){padding-block:6px}
-/* while the last file is still going up, its rail is the lowest thing in the card, so the list keeps it 16px from the edge */
-:root[data-style="clean"] .atx-list:has(>.atx-it:last-child :is(.atx-ring,.atx-rd)),:root [data-style="clean"] .atx-list:has(>.atx-it:last-child :is(.atx-ring,.atx-rd)),:root [data-style="clean"].atx-list:has(>.atx-it:last-child :is(.atx-ring,.atx-rd)){padding-bottom:16px}
 :root[data-style="clean"] .atx-it,:root [data-style="clean"] .atx-it,:root [data-style="clean"].atx-it{gap:12px;padding:10px 0;border-radius:0;overflow:visible;background:none}
 :root[data-style="clean"] .atx-it.up,:root [data-style="clean"] .atx-it.up,:root [data-style="clean"].atx-it.up{background:none}
 /* the divider under a row's text (.atx-ln, Clean's own), which is the upload's rail while the file goes up, its ink fill
@@ -89,8 +100,6 @@
 .atx-it:has(.atx-ok) .atx-ln i{opacity:0;animation:none}
 @keyframes atxsheen{from{background-position:100% 0}to{background-position:0 0}}
 :root[data-style="clean"] .atx-ti,:root [data-style="clean"] .atx-ti,:root [data-style="clean"].atx-ti{position:relative;width:32px;height:32px;border-radius:50%;font-size:9.5px;color:var(--dm-fg2);background:var(--dm-chip)}
-/* the file type's colour, as a small dot on the neutral circle */
-.atx-td{position:absolute;right:-1px;bottom:-1px;width:8px;height:8px;border-radius:50%;background:var(--dm-c);box-shadow:0 0 0 2px var(--dm-surface)}
 :root[data-style="clean"] .atx-it .atx-m,:root [data-style="clean"] .atx-it .atx-m,:root [data-style="clean"].atx-it .atx-m,:root[data-style="clean"] .atx-it:not(.up) .atx-m,:root [data-style="clean"] .atx-it:not(.up) .atx-m,:root [data-style="clean"].atx-it:not(.up) .atx-m{color:var(--dm-muted)}
 /* the upload's own ring stays for screen readers; the rail shows the progress */
 :root[data-style="clean"] .atx-ring,:root [data-style="clean"] .atx-ring,:root [data-style="clean"].atx-ring{opacity:0}
@@ -101,16 +110,18 @@
 .atx-okc path{stroke-dasharray:1;stroke-dashoffset:1;animation:atxokdraw .34s var(--dm-ease) .16s forwards}
 @keyframes atxokin{from{opacity:0;transform:scale(.5)}}
 @keyframes atxokdraw{to{stroke-dashoffset:0}}
-:root[data-style="clean"] .atx-it .ib,:root [data-style="clean"] .atx-it .ib,:root [data-style="clean"].atx-it .ib{width:28px;height:28px;margin-right:-8px;color:var(--dm-muted)}
+/* the remove button sits on the content's 16px edge, where the dividers end */
+:root[data-style="clean"] .atx-it .ib,:root [data-style="clean"] .atx-it .ib,:root [data-style="clean"].atx-it .ib{width:28px;height:28px;color:var(--dm-muted)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .atx-it .ib:hover,:root [data-style="clean"] .atx-it .ib:hover,:root [data-style="clean"].atx-it .ib:hover{background:var(--dm-row);color:var(--dm-fg)}}
-/* the foot strip: what the agent can read now, its count rolling up as each file is read */
-:root[data-style="clean"] .atx-sum,:root [data-style="clean"] .atx-sum,:root [data-style="clean"].atx-sum{display:flex;align-items:center;gap:8px;min-height:0;padding:13px 16px;font-size:12.5px;line-height:18px;text-align:left;color:var(--dm-fg2);background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+/* in the foot strip: what the agent can read now, its count rolling up as each file is read. The tick sits in the files'
+   circle column, so the words start on the names' column */
+:root[data-style="clean"] .atx-sum,:root [data-style="clean"] .atx-sum,:root [data-style="clean"].atx-sum{display:flex;align-items:center;gap:12px;flex:1;min-width:0;min-height:0;padding:5px 0;font-size:12.5px;line-height:18px;text-align:left;color:var(--dm-fg2)}
 :root[data-style="clean"] .atx-sum:empty,:root [data-style="clean"] .atx-sum:empty,:root [data-style="clean"].atx-sum:empty{display:none}
 /* (a step of --dm-ok in the vivid green keeps the small tick at 3:1 on the off-white strip) */
-:root[data-style="clean"] .atx-tk,:root [data-style="clean"] .atx-tk,:root [data-style="clean"].atx-tk{display:grid;place-items:center;flex:none;color:color-mix(in srgb,var(--dm-ok-mark) 80%,var(--dm-ok))}
+:root[data-style="clean"] .atx-tk,:root [data-style="clean"] .atx-tk,:root [data-style="clean"].atx-tk{display:grid;place-items:center;flex:none;width:32px;color:color-mix(in srgb,var(--dm-ok-mark) 80%,var(--dm-ok))}
 :root[data-style="clean"] .atx-tk .i,:root [data-style="clean"] .atx-tk .i,:root [data-style="clean"].atx-tk .i{stroke-width:2.2}
 .atx-roll{display:inline-grid;overflow:hidden;height:1lh;vertical-align:top}
 .atx-roll i{font-style:normal}
 .atx-roll i.in{animation:atxroll .32s var(--dm-ease) both}
 @keyframes atxroll{from{opacity:0;transform:translateY(60%)}}
-@media (prefers-reduced-motion:reduce){.atx-ln i,.atx-okc,.atx-roll i.in{animation:none}.atx-okc path{animation:none;stroke-dashoffset:0}.atx-ln,:root[data-style="clean"] .atx-drop,:root [data-style="clean"] .atx-drop,:root [data-style="clean"].atx-drop,:root[data-style="clean"] .atx-ic,:root [data-style="clean"] .atx-ic,:root [data-style="clean"].atx-ic{transition:none}}
+@media (prefers-reduced-motion:reduce){.atx-ln i,.atx-okc,.atx-roll i.in{animation:none}.atx-okc path{animation:none;stroke-dashoffset:0}.atx-ln,:root[data-style="clean"] .atx,:root [data-style="clean"] .atx,:root [data-style="clean"].atx{transition:none}}
