@@ -1,5 +1,5 @@
 'use client';
-import { useRef, type KeyboardEvent } from 'react';
+import { useRef, useState, type KeyboardEvent } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion, useSeconds } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
@@ -43,12 +43,16 @@ export interface ReasoningTrailProps {
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
-  /** Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own */
+  /** Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own. In the Clean
+   *  style it always has its card */
   bare?: boolean;
   className?: string;
 }
 
 const VIEWS: ReasoningTrailView[] = ['plan', 'notes', 'sources', 'edits'];
+
+const TICK = <svg viewBox="0 0 24 24"><path pathLength={1} d="m5 12.5 4.5 4.5L19 7.5" /></svg>;
+const count = (n: number, one: string) => `${n} ${one}${n === 1 ? '' : 's'}`;
 
 /** The agent's plan, notes, sources or edits, under a header it can fold away. Pick what it shows with `view`. */
 export function ReasoningTrail({ running = false, seconds, title, plan, notes, sources, edits, view, defaultView, onViewChange, open, defaultOpen = true, onOpenChange, bare = true, className }: ReasoningTrailProps) {
@@ -66,6 +70,37 @@ export function ReasoningTrail({ running = false, seconds, title, plan, notes, s
     e.preventDefault(); if (!e.repeat) setOpen(!isOpen);
   };
 
+  // Clean: the trail is a card that grows with what it holds (as grow() on designme.dev): its height follows its content,
+  // eased, as steps change, views switch and it folds. Soft and Blueprint keep their own sizing
+  const rootRef = useRef<HTMLDivElement>(null), growRef = useRef<HTMLDivElement>(null), [clean, setClean] = useState(false);
+  useIsoLayoutEffect(() => {
+    const el = rootRef.current, w = growRef.current;
+    if (!el || !w || (el.closest('[data-style]') as HTMLElement | null)?.dataset.style !== 'clean') return;
+    setClean(true);
+    if (typeof ResizeObserver === 'undefined') return;
+    let first = true;
+    const fit = () => {
+      const cs = getComputedStyle(el), h = Math.ceil(w.offsetHeight + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth));
+      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
+      else el.style.height = h + 'px';
+    };
+    el.classList.add('dm-growing'); const ro = new ResizeObserver(fit); ro.observe(w); fit();
+    return () => { ro.disconnect(); el.classList.remove('dm-growing'); el.style.height = ''; };
+  }, []);
+
+  // in Clean, a step that has just finished draws its tick and the rail down into the next, which starts to turn: each
+  // plays once, when the plan moves on
+  const states = plan?.map(p => p.state) ?? [], key = states.join(), prev = useRef<string[] | null>(null);
+  const [fresh, setFresh] = useState<{ done: number[]; now: number[] }>({ done: [], now: [] });
+  useIsoLayoutEffect(() => {
+    const was = prev.current; prev.current = states; if (!was) return;
+    setFresh({ done: states.flatMap((s, i) => s === 'done' && was[i] && was[i] !== 'done' ? [i] : []), now: states.flatMap((s, i) => s === 'now' && was[i] === 'next' ? [i] : []) });
+  }, [key]);
+  // the foot strip that closes a finished trail in Clean: how much of the plan is done, and what the agent read and changed
+  const doneN = states.filter(s => s === 'done').length, allDone = !!plan?.length && doneN === plan.length;
+  const footL = plan?.length ? (allDone ? `All ${count(plan.length, 'step')} done` : `${doneN} of ${count(plan.length, 'step')} done`) : '';
+  const footR = [sources?.length ? count(sources.length, 'source') : '', edits?.length ? count(edits.length, 'edit') : ''].filter(Boolean).join(' · ');
+
   // switching views grows or shrinks the open trail to its new height instead of jumping to it
   const reduce = useReducedMotion();
   const bodyRef = useRef<HTMLDivElement>(null), seen = useRef({ tab, h: 0 }), anim = useRef<Animation | null>(null);
@@ -74,7 +109,7 @@ export function ReasoningTrail({ running = false, seconds, title, plan, notes, s
     if (anim.current?.playState === 'running' && seen.current.tab === tab) return;
     const to = el.offsetHeight, from = seen.current.h, moved = seen.current.tab !== tab;
     seen.current = { tab, h: to };
-    if (!moved || !isOpen || reduce || !from || Math.abs(from - to) < 1 || !el.animate) return;
+    if (!moved || !isOpen || reduce || clean || !from || Math.abs(from - to) < 1 || !el.animate) return;
     const cs = getComputedStyle(el), ms = parseFloat(cs.getPropertyValue('--dm-t')) * 1000 || 450;
     anim.current?.cancel(); el.style.overflow = 'hidden';
     const a = el.animate([{ height: from + 'px' }, { height: to + 'px' }], { duration: ms, easing: cs.getPropertyValue('--dm-ease').trim() || 'ease' });
@@ -84,8 +119,8 @@ export function ReasoningTrail({ running = false, seconds, title, plan, notes, s
 
   const body = () => {
     if (tab === 'plan') return plan?.map((p, i) => (
-      <div key={'p' + i} className={cx('dm-rtr-li dm-enter', p.state === 'now' && 'dm-now')} style={enter(i * 50).style}>
-        <span className="dm-g">{p.state === 'done' ? <span style={{ color: 'var(--dm-ok)', display: 'grid' }}><Icon name="check" size="xs" /></span> : p.state === 'now' ? <Pulse /> : <Dot color="var(--dm-faint)" />}</span>
+      <div key={'p' + i} className={cx('dm-rtr-li dm-enter', p.state === 'now' && 'dm-now', fresh.done.includes(i) && 'dm-just', fresh.now.includes(i) && 'dm-next-in')} data-s={p.state} style={enter(i * 50).style}>
+        <span className="dm-g">{p.state === 'done' ? <span style={{ color: 'var(--dm-ok)', display: 'grid' }}><Icon name="check" size="xs" /></span> : p.state === 'now' ? <Pulse /> : <Dot color="var(--dm-faint)" />}<span className="dm-rtr-m" aria-hidden="true">{p.state === 'done' && TICK}</span></span>
         <span>{p.label}<span className="dm-d">{p.state === 'done' ? p.detail ?? 'Done' : p.state === 'now' ? 'Working' : 'Next'}</span></span>
       </div>));
     if (tab === 'notes') return notes?.map((t, i) => (
@@ -99,7 +134,8 @@ export function ReasoningTrail({ running = false, seconds, title, plan, notes, s
   };
 
   return (
-    <div data-dm="" className={cx('dm-rtr', !bare && 'dm-panel', className)} style={bare ? { paddingInline: 0 } : undefined}>
+    <div data-dm="" ref={rootRef} className={cx('dm-rtr', !bare && 'dm-panel', className)} style={bare ? { paddingInline: 0 } : undefined}>
+      <div ref={growRef} className="dm-grow">
       <button type="button" className="dm-rtr-h" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)} onKeyDown={onHeadKey}>
         <Think on={running} className="dm-rtr-mark" />
         <Swap className={cx('dm-rtr-title', running && 'dm-shim')}>{head}</Swap>
@@ -108,8 +144,12 @@ export function ReasoningTrail({ running = false, seconds, title, plan, notes, s
       </button>
       <Fold open={isOpen} className="dm-rtr-fold">
         {/* keyed by view, so switching views plays the entrance again */}
-        <div className="dm-rtr-body" key={tab} ref={bodyRef}>{body()}</div>
+        <div className="dm-rtr-body" key={tab} ref={bodyRef} data-v={tab}>{body()}</div>
+        <Fold open={!running && !!(footL || footR)} className="dm-rtr-ff">
+          <p className="dm-rtr-f">{allDone && <span className="dm-rtr-fk" aria-hidden="true">{TICK}</span>}<span className="dm-rtr-fd">{footL}</span><span className="dm-rtr-fs">{footR}</span></p>
+        </Fold>
       </Fold>
+      </div>
     </div>
   );
 }
