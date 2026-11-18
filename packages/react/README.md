@@ -77,7 +77,7 @@ Six thinking indicators to pick from, each with a status line.
 
 **ReasoningTrail** · `reasoning-trail/ReasoningTrail.tsx`  
 The agent's plan, notes, sources and edits, after it thinks.  
-`running`, `seconds` (counts by itself when left out), `title`, `plan: { label, detail?, state: 'done' | 'now' | 'next' }[]`, `notes: string[]`, `sources: { label, kind?, tip? }[]`, `edits: { file, detail?, removed?, added? }[]`, `view: 'plan' | 'notes' | 'sources' | 'edits'` / `defaultView` / `onViewChange`, `bare`, `open` / `defaultOpen` / `onOpenChange`.
+`running`, `seconds` (counts by itself when left out), `title`, `plan: { label, detail?, state: 'done' | 'now' | 'next' }[]`, `notes: string[]`, `sources: { label, kind?, tip?, reading? }[]`, `edits: { file, detail?, removed?, added? }[]` (pass notes, sources and edits as the agent makes them; while `running`, a view with none yet says so, and a source with `reading` shimmers), `view: 'plan' | 'notes' | 'sources' | 'edits'` / `defaultView` / `onViewChange`, `bare`, `open` / `defaultOpen` / `onOpenChange`.
 
 **Thinking** · `thinking/Thinking.tsx`  
 The live trace, written as the agent works, then folded away.  
