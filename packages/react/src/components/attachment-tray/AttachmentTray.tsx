@@ -50,7 +50,7 @@ const kind = (name: string): [string, string, string] => {
 const bytes = (b: number) => b > 1e6 ? (b / 1e6).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1e3)) + ' KB';
 const RING = 50.3;
 
-function Item({ file, delay, onRemove }: { file: Attachment; delay: number; onRemove?: (id: string) => void }) {
+function Item({ file, delay, onRemove, clean }: { file: Attachment; delay: number; onRemove?: (id: string) => void; clean?: boolean }) {
   const [leaving, setLeaving] = useState(false);
   const t = useRef<ReturnType<typeof setTimeout>>(undefined);
   useEffect(() => () => clearTimeout(t.current), []);
@@ -59,14 +59,16 @@ function Item({ file, delay, onRemove }: { file: Attachment; delay: number; onRe
   return (
     <div className={cx('dm-atx-it', up && 'dm-up', leaving ? 'dm-leave' : 'dm-enter')}
       style={{ '--dm-c': fg, '--dm-cb': bg, '--dm-p': `${(p * 100).toFixed(1)}%`, ...(leaving ? {} : { animationDelay: delay + 'ms' }) } as CSSProperties}>
-      <span className="dm-atx-ti">{label}</span>
+      <span className="dm-atx-ti">{label}{clean && <span className="dm-atx-td" />}</span>
       <span className="dm-atx-n"><span className="dm-atx-nm">{file.name}</span>
         {/* the percentage counts in place; the line crossfades when the file moves on to being read and to what was found */}
         {!up ? <span className="dm-atx-m dm-num">{meta}</span>
           : file.reading ? <span className="dm-atx-m"><span className="dm-shim">{bytes(file.size)} · Reading</span></span> : <Swap className="dm-atx-m">{meta}</Swap>}
       </span>
       {up
-        ? file.reading ? <span className="dm-atx-rd"><span className="dm-spin" aria-hidden="true" /></span> : <span className="dm-atx-ok"><Icon name="ok" /></span>
+        ? file.reading ? <span className="dm-atx-rd"><span className="dm-spin" aria-hidden="true" /></span>
+          // Clean: a green disc lands and its tick draws itself
+          : <span className="dm-atx-ok">{clean ? <span className="dm-atx-okc"><svg viewBox="0 0 16 16" aria-hidden="true"><path pathLength={1} d="M4.6 8.3l2.3 2.3 4.5-4.8" /></svg></span> : <Icon name="ok" />}</span>
         : <svg className="dm-atx-ring" viewBox="0 0 22 22" role="progressbar" aria-label={`Uploading ${file.name}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(p * 100)}>
             <circle cx="11" cy="11" r="8" fill="none" stroke="var(--dm-line)" strokeWidth="2" />
             <circle cx="11" cy="11" r="8" fill="none" stroke={fg} strokeWidth="2" strokeLinecap="round" strokeDasharray={RING} transform="rotate(-90 11 11)" style={{ strokeDashoffset: RING * (1 - p) }} />
@@ -77,6 +79,8 @@ function Item({ file, delay, onRemove }: { file: Attachment; delay: number; onRe
             onClick={() => { setLeaving(true); t.current = setTimeout(() => onRemove(file.id), 320); }}><Icon name="x" size="xs" /></button>
         </Tip>
       )}
+      {/* Clean: the divider under the text, which is the upload's rail; its ink fill follows the progress */}
+      {clean && <span className="dm-atx-ln" aria-hidden="true"><i /></span>}
     </div>
   );
 }
@@ -120,9 +124,25 @@ export function AttachmentTray({ files, onFiles, onRemove, title = 'Drop files h
   const hold = (e: DragEvent) => { e.preventDefault(); setOver(true); };
   const read = files.filter(f => f.progress >= 100 && !f.reading).length;
   const line = summary ?? (read ? `The agent can read ${read} ${read > 1 ? 'files' : 'file'} now` : '');
+  // Clean (data-style="clean" on the page or around the tray) is a card that grows with its files, and its foot strip's
+  // count rolls; Soft and Blueprint are as they were
+  const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
+  const [clean, setClean] = useState(false);
+  useIsoLayoutEffect(() => { setClean(root.current?.closest('[data-style]')?.getAttribute('data-style') === 'clean'); }, []);
+  useIsoLayoutEffect(() => {
+    const el = root.current, w = inner.current;
+    if (!clean || !el || !w || typeof ResizeObserver === 'undefined') return;
+    let first = true;
+    const fit = () => {
+      const h = Math.ceil(w.getBoundingClientRect().height);
+      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
+      else el.style.height = h + 'px';
+    };
+    const ro = new ResizeObserver(fit); ro.observe(w); fit();
+    return () => { ro.disconnect(); el.style.height = ''; };
+  }, [clean]);
 
-  return (
-    <div data-dm="" className={cx('dm-atx', className)}>
+  const body = (<>
       <label className={cx('dm-atx-drop', (over || dragging) && 'dm-over')} onDragEnter={hold} onDragOver={hold} onDragLeave={() => setOver(false)}
         onDrop={e => { e.preventDefault(); setOver(false); if (e.dataTransfer.files.length) onFiles?.(Array.from(e.dataTransfer.files)); }}>
         <input type="file" multiple accept={accept} className="dm-atx-file" aria-label="Choose files"
@@ -132,8 +152,18 @@ export function AttachmentTray({ files, onFiles, onRemove, title = 'Drop files h
         <b>{title}</b>
         {action && <span className="dm-muted">or <button type="button" className="dm-atx-sample" onClick={action.onClick}>{action.label}</button></span>}
       </label>
-      <div className="dm-atx-list">{files.map(f => <Item key={f.id} file={f} delay={seen.delay[f.id] ?? 0} onRemove={onRemove} />)}</div>
-      <Swap className="dm-atx-sum dm-muted">{line}</Swap>
+      <div className="dm-atx-list">{files.map(f => <Item key={f.id} file={f} delay={seen.delay[f.id] ?? 0} onRemove={onRemove} clean={clean} />)}</div>
+      {!clean ? <Swap className="dm-atx-sum dm-muted">{line}</Swap>
+        : <div className="dm-atx-sum dm-muted">{line && <>
+            <span className="dm-atx-tk"><Icon name="check" size="xs" /></span>
+            {summary != null ? <span>{summary}</span>
+              : <span>The agent can read <span className="dm-atx-roll dm-num"><i key={read} className="dm-in">{read}</i></span> {read > 1 ? 'files' : 'file'} now</span>}
+          </>}</div>}
+  </>);
+
+  return (
+    <div data-dm="" ref={root} className={cx('dm-atx', clean && 'dm-growing', className)}>
+      {clean ? <div className="dm-grow" ref={inner}>{body}</div> : body}
     </div>
   );
 }
