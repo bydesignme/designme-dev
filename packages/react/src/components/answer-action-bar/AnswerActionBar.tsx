@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
-import { useControllable, useCopied, useReducedMotion } from '../../lib/hooks';
+import { useControllable, useCopied, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
 import { enter, Fold, Swap, Tip } from '../../lib/motion';
 import '../../designme.css';
@@ -97,11 +97,45 @@ export function AnswerActionBar({
   const regenerate = () => { if (streaming) return; setRead('idle'); setPos(0); setSpin(true); setTimeout(() => setSpin(false), 700); onRegenerate?.(); };
   const copy = () => { copyText(text); onCopy?.(text); };
   const why = rating === 'down' && !asked[at];
+  // Clean (owner, 18 Nov): the container grows with what it holds, eased (grow() on the site), and stays centred wherever it is
+  // centred. Soft and Blueprint keep their layout: the wrapper inside is display:contents there
+  const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
+  const [clean, setClean] = useState(false);
+  useIsoLayoutEffect(() => { setClean(root.current?.closest('[data-style]')?.getAttribute('data-style') === 'clean'); }, []);
+  useIsoLayoutEffect(() => {
+    const el = root.current, w = inner.current;
+    if (!clean || !el || !w || typeof ResizeObserver === 'undefined') return;
+    let first = true;
+    const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
+    const fit = () => {
+      const h = Math.ceil(w.offsetHeight + box());
+      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
+      else el.style.height = h + 'px';
+    };
+    const ro = new ResizeObserver(fit); ro.observe(w); fit();
+    return () => { ro.disconnect(); el.style.height = ''; };
+  }, [clean]);
+  // Clean: while a new version streams in, the answer keeps the height of the one it replaces, then eases to its own
+  const tRef = useRef<HTMLParagraphElement>(null), prevT = useRef({ at: -1, h: 0 });
+  useIsoLayoutEffect(() => {
+    const el = tRef.current; if (!el) return;
+    if (clean && prevT.current.at !== -1 && prevT.current.at !== at && prevT.current.h && streaming) el.style.minHeight = prevT.current.h + 'px';
+    prevT.current = { at: at, h: el.style.minHeight ? prevT.current.h : (el.textContent?.trim() ? el.offsetHeight : 0) };
+  });
+  useEffect(() => {
+    const el = tRef.current; if (!el || streaming || !el.style.minHeight) return;
+    const was = el.offsetHeight; el.style.minHeight = ''; const h = el.offsetHeight;
+    if (h >= was || reduce) return;
+    el.style.minHeight = was + 'px'; void el.offsetHeight; el.style.transition = 'min-height .42s var(--dm-ease)'; el.style.minHeight = h + 'px';
+    const t = setTimeout(() => { el.style.transition = ''; el.style.minHeight = ''; }, 460);
+    return () => clearTimeout(t);
+  }, [streaming, at, reduce]);
 
   return (
-    <div data-dm="" className={cx('dm-aab', !bare && 'dm-panel', className)} style={bare ? undefined : { padding: 16 }}>
+    <div data-dm="" ref={root} className={cx('dm-aab', !bare && 'dm-panel', clean && 'dm-growing', className)} style={bare ? undefined : { padding: 16 }}>
+      <div ref={inner} className="dm-grow" style={clean ? undefined : { display: 'contents' }}>
       {question && <div className="dm-bub">{question}</div>}
-      <p className="dm-msg dm-aab-t" aria-live="polite">
+      <p ref={tRef} className="dm-msg dm-aab-t" aria-live="polite">
         {words.map(({ w, nw }, k) => (
           // inside the changed phrase the space is highlighted too, so the phrase reads as one
           <span key={at + ':' + k}>{k ? <span className={nw && words[k - 1].nw ? 'dm-nw' : undefined}> </span> : null}<span className={cx('dm-w dm-in', nw && 'dm-nw', k === lit && 'dm-rd')} style={!streaming && !reduce ? { animationDelay: k * 10 + 'ms' } : undefined}>{w}</span></span>
@@ -145,9 +179,10 @@ export function AnswerActionBar({
           </div>
         </div>
       </Fold>
-      <p className={cx('dm-aab-st dm-muted', statusTone && 'dm-' + statusTone)} aria-live="polite">
+      <p className={cx('dm-aab-st dm-muted', statusTone && 'dm-' + statusTone, !status && 'dm-off')} aria-live="polite">
         {statusTone === 'ok' && status ? <><Icon name="ok" size="xs" /><span key={status} {...enter()}>{status}</span></> : <Swap className={streaming && status ? 'dm-shim' : undefined}>{status}</Swap>}
       </p>
+      </div>
     </div>
   );
 }

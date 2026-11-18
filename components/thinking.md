@@ -34,11 +34,11 @@ Thinking is the live trace an agent writes while it works: the steps it takes, o
 
 ### What it does
 
-- Each step has a `label`, a `state`, an optional `result` and an optional `time`. A running step turns in the accent with a soft halo and its label shimmers, `retry` shows a clock in amber while the step waits on a problem, and `done` turns into a check.
-- The line from each step down to the next turns green, top to bottom, once the step above it is done, so the trace fills in as the work gets through it.
+- Each step has a `label`, a `state`, an optional `result` and an optional `time`. A running step turns in the accent with a soft halo and its label shimmers, `retry` shows a clock in amber while the step waits on a problem, and `done` turns into a check. In Clean a running step is a turning ink ring, a done one a green disc whose tick draws in, and `retry` an amber clock.
+- The line from each step down to the next turns green, top to bottom, once the step above it is done, so the trace fills in as the work gets through it. In Clean the line is a grey hairline that darkens instead.
 - While a step waits or retries its `result` crossfades in place, so a countdown like "Trying again in 2s" updates where it is. Once the step is done, what it found writes itself in a word at a time, and its `time`, like "1.3s", shows at its right. `resultTip` adds more detail on hover.
-- The header shows `title` while it runs, like "Checking the pricing page", beside four dots turning in the accent, and a clock that counts by itself unless you pass `seconds`.
-- When `running` turns false, the header becomes `summary`, like "3 cards to fix, 2 changes planned", with a check. With `collapseWhenDone` on, the default, the trace folds away a moment later.
+- The header shows `title` while it runs, like "Checking the pricing page", beside four dots turning in the accent (in ink in Clean), and a clock that counts by itself unless you pass `seconds`.
+- When `running` turns false, the header becomes `summary`, like "3 cards to fix, 2 changes planned", with a check. With `collapseWhenDone` on, the default, the trace folds away a moment later. In Clean the trace has a card of its own that grows with its steps, and the check sits on a green disc.
 - The header toggles the trace open and shut, and `open`, `defaultOpen` and `onOpenChange` let you control it.
 
 ### Accessibility
@@ -93,7 +93,9 @@ export default function ThinkingDemo() {
       }
       out[at] = { ...out[at], state: 'done', result: s.result, resultTip: s.tip, time: (took / 1000).toFixed(1) + 's' }; show();
     }
-    await wait(500); setRunning(false);
+    // the header says what the work came to (in Clean as the last step finishes, never after it)
+    if (ref.current?.closest('[data-style]')?.getAttribute('data-style') !== 'clean') await wait(500);
+    setRunning(false);
   });
   // the preview's story: once it has folded, the person opens it again to read what the cards measured
   useStory(ref, async ({ wait }) => {
@@ -149,7 +151,7 @@ Yes. Set `collapseWhenDone` to false, or control it with `open` and `onOpenChang
 
 ```tsx
 'use client';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion, useSeconds } from '../lib/hooks';
 import { Icon } from '../lib/icons';
@@ -222,6 +224,24 @@ function Mark({ state }: { state: ThinkingStep['state'] }) {
 /** The live trace: each step the agent takes on a line that turns green as they finish, and what each found, then a header
     that says what the work came to, folded away. */
 export function Thinking({ steps, running, seconds, title = 'Working on it', summary, collapseWhenDone = true, open, defaultOpen = true, onOpenChange, className }: ThinkingProps) {
+  // Clean (owner, 18 Nov): a card of its own that grows with its steps, eased (grow() on the site), and the finished header's
+  // mark is a green disc with a tick. Soft and Blueprint keep their layout: the wrapper inside is display:contents there
+  const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
+  const [clean, setClean] = useState(false);
+  useIsoLayoutEffect(() => { setClean(root.current?.closest('[data-style]')?.getAttribute('data-style') === 'clean'); }, []);
+  useIsoLayoutEffect(() => {
+    const el = root.current, w = inner.current;
+    if (!clean || !el || !w || typeof ResizeObserver === 'undefined') return;
+    let first = true;
+    const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
+    const fit = () => {
+      const h = Math.ceil(w.offsetHeight + box());
+      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
+      else el.style.height = h + 'px';
+    };
+    const ro = new ResizeObserver(fit); ro.observe(w); fit();
+    return () => { ro.disconnect(); el.style.height = ''; };
+  }, [clean]);
   const counted = useSeconds(running && seconds === undefined);
   const secs = seconds ?? counted;
   const [isOpen, setOpen] = useControllable(open, defaultOpen, onOpenChange);
@@ -234,9 +254,10 @@ export function Thinking({ steps, running, seconds, title = 'Working on it', sum
   const done = !running && steps.length > 0;
 
   return (
-    <div data-dm="" className={cx('dm-tk', className)} data-open={isOpen ? '1' : '0'}>
+    <div data-dm="" ref={root} className={cx('dm-tk', clean && 'dm-growing', className)} data-open={isOpen ? '1' : '0'}>
+      <div ref={inner} className="dm-grow" style={clean ? undefined : { display: 'contents' }}>
       <button type="button" className={cx('dm-tk-h', done && 'dm-tk-fin')} aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
-        <span className="dm-tk-mark">{done ? <span key="ok" {...enter()} style={{ display: 'grid' }}><Icon name="ok" /></span> : <Think on={running} />}</span>
+        <span className="dm-tk-mark">{done ? <span key="ok" {...enter()} style={{ display: 'grid' }}><Icon name={clean ? 'check' : 'ok'} size={clean ? 'xs' : 's'} /></span> : <Think on={running} />}</span>
         <Settle className="dm-tk-title" shimmer={running}>{done ? summary ?? `${steps.length} ${steps.length === 1 ? 'step' : 'steps'}` : title}</Settle>
         <span className="dm-tk-time dm-num">{secs + 's'}</span>
         <Icon name="chev-d" size="xs" className="dm-tk-chev" />
@@ -261,6 +282,7 @@ export function Thinking({ steps, running, seconds, title = 'Working on it', sum
           ))}
         </ol>
       </Fold>
+      </div>
     </div>
   );
 }

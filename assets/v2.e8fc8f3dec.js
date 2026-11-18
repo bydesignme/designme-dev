@@ -3312,9 +3312,18 @@ DM.def('response-versions', (r, c) => {
   const vers = [pool[0]]; let cur = 0, busy = false;
   const t = $('.rvx-t', r), n = $('.rvx-n', r), pv = $('.rvx-prev', r), nx = $('.rvx-next', r), re = $('.rvx-re', r), st = $('.rvx-st', r);
   const nav = () => { n.textContent = (cur + 1) + ' / ' + vers.length; pv.disabled = cur === 0 || busy; nx.disabled = cur === vers.length - 1 || busy; };
+  // Clean (owner, 18 Nov): no room kept for a longer answer. The component grows with its words (grow(), once its entrance
+  // has settled), and a version streaming in keeps the height of the one it replaces, then eases to its own
+  const ds = r.closest('[data-style]'), clean = !!ds && ds.dataset.style === 'clean', rvx = $('.rvx', r);
+  if (clean) Promise.resolve().then(() => Promise.all(rvx.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && rvx.isConnected) c.offs.push(grow(rvx)); });
+  const keep = () => { if (clean && t.textContent.trim()) t.style.minHeight = t.offsetHeight + 'px'; };
+  const fit = () => { if (!t.style.minHeight) return; const was = t.offsetHeight; t.style.minHeight = ''; const h = t.offsetHeight; if (h >= was || REDUCE) return;
+    t.style.minHeight = was + 'px'; void t.offsetHeight; t.style.transition = 'min-height .42s var(--ease)'; t.style.minHeight = h + 'px';
+    c.later(460, () => { t.style.transition = ''; t.style.minHeight = ''; }); };
   async function stream(s){
-    t.classList.add('out'); await c.wait(260); t.classList.remove('out'); t.innerHTML = '';
+    keep(); t.classList.add('out'); await c.wait(260); t.classList.remove('out'); t.innerHTML = '';
     for (const w of s.split(' ')){ t.insertAdjacentHTML('beforeend', `<span class="w">${w} </span>`); await c.wait(45); }
+    fit();
   }
   async function show(i){ cur = i; nav(); t.classList.add('out'); await c.wait(240); t.classList.remove('out'); t.innerHTML = vers[i].split(' ').map((w, k) => `<span class="w" style="animation-delay:${k * 12}ms">${w} </span>`).join(''); }
   pv.onclick = () => c.run(() => show(cur - 1));
@@ -3333,6 +3342,10 @@ DM.def('response-versions', (r, c) => {
 DM.def('feedback-sheet', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{up}', I('up-thumb')).replace('{dn}', I('down-thumb'));
   const up = $('.fbx-up', r), dn = $('.fbx-dn', r), box = $('.fbx-box', r), st = $('.fbx-st', r), go = $('.fbx-go', r), ta = $('.fbx-ta', r), chips = $$('.fbx-ch .chip', r);
+  // Clean (owner, 18 Nov): the component grows with what it shows (grow(), once its entrance has settled), so the thanks
+  // line eases in as the sheet folds away
+  const ds = r.closest('[data-style]'), clean = !!ds && ds.dataset.style === 'clean', fbx = $('.fbx', r);
+  if (clean) Promise.resolve().then(() => Promise.all(fbx.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && fbx.isConnected) c.offs.push(grow(fbx)); });
   const ready = () => go.disabled = !(chips.some(x => x.classList.contains('on')) || ta.value.trim());
   chips.forEach(ch => ch.onclick = () => { ch.classList.toggle('on'); ready(); });
   ta.oninput = ready;
@@ -3346,7 +3359,7 @@ DM.def('feedback-sheet', (r, c) => {
     box.classList.add('shut'); await c.wait(300);
     const n = chips.filter(x => x.classList.contains('on')).length;
     const thx = html(`<div class="fbx-thx">${I('ok')}<span>Thanks. The agent will ${n ? 'avoid this' : 'use this'} next time in this project.</span></div>`);
-    r.firstElementChild.appendChild(thx); enter(thx); swap(st, 'Feedback sent');
+    ($(':scope>.dm-grow', fbx) || fbx).appendChild(thx); enter(thx); swap(st, clean ? '' : 'Feedback sent');
   });
   /* once it has entered, it rates the answer down and fills in the sheet by itself. Clicking, focusing or typing in it
      takes over, and what it had typed goes */
@@ -3465,11 +3478,21 @@ DM.def('answer-action-bar', (r, c) => {
     up.setAttribute('aria-pressed', vers[cur].rate === 'up'); dn.setAttribute('aria-pressed', vers[cur].rate === 'down');
     swap(meta, vers[cur].meta);
   }
+  // Clean (owner, 18 Nov): no room kept for a longer answer or an empty status. The component grows with what it shows
+  // (grow(), once its entrance has settled), and a version streaming in keeps the height of the one it replaces, then eases
+  // to its own
+  const ds = r.closest('[data-style]'), clean = !!ds && ds.dataset.style === 'clean', aab = $('.aab', r);
+  if (clean) Promise.resolve().then(() => Promise.all(aab.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && aab.isConnected) c.offs.push(grow(aab)); });
+  const keep = () => { if (clean && t.textContent.trim()) t.style.minHeight = t.offsetHeight + 'px'; };
+  const fit = () => { if (!t.style.minHeight) return; const was = t.offsetHeight; t.style.minHeight = ''; const h = t.offsetHeight; if (h >= was || REDUCE) return;
+    t.style.minHeight = was + 'px'; void t.offsetHeight; t.style.transition = 'min-height .42s var(--ease)'; t.style.minHeight = h + 'px';
+    c.later(460, () => { t.style.transition = ''; t.style.minHeight = ''; }); };
   // a version streams in word by word; paging between versions shows one at once
   async function stream(v){
-    t.classList.add('out'); await c.wait(260); t.classList.remove('out'); t.innerHTML = '';
+    keep(); t.classList.add('out'); await c.wait(260); t.classList.remove('out'); t.innerHTML = '';
     const ws = words(v);
     for (let i = 0; i < ws.length; i++){ t.insertAdjacentHTML('beforeend', ws[i]); t.lastElementChild.classList.add('in'); await c.wait(38); }
+    fit();
   }
   async function show(i){ stop(); cur = i; nav(); t.classList.add('out'); await c.wait(240); t.classList.remove('out'); t.innerHTML = words(vers[i]).join(''); $$('.w', t).forEach((w, k) => { w.classList.add('in'); w.style.animationDelay = k * 10 + 'ms'; }); }
   pv.onclick = () => c.run(() => show(cur - 1));
@@ -3665,7 +3688,7 @@ DM.def('permission-gate', (r, c) => {
   });
 });
 /* ---------- the sections' components, loaded the first time a section comes near (DEF_PARTS in build.js) ---------- */
-const PARTS = {"files":{"s-status":"/assets/v2-status.913f9103c0.js","s-product":"/assets/v2-product.c6072ab581.js","s-review":"/assets/v2-review.c0bf5d98c9.js","s-data":"/assets/v2-data.ef15935ec3.js","s-workspace":"/assets/v2-workspace.d0cd114b57.js","s-harness":"/assets/v2-harness.7f9eee6c97.js","s-charts":"/assets/v2-charts.9a7629fce0.js","s-dates":"/assets/v2-dates.b72ddce6b1.js","s-forms":"/assets/v2-forms.1157041b0f.js","s-collab":"/assets/v2-collab.257770798d.js"},"of":{"status-pill":"s-status","step-loader":"s-status","thinking-states":"s-status","reasoning-trail":"s-status","thinking":"s-status","context-meter":"s-status","toast":"s-status","toast-stack":"s-status","pricing-cards":"s-product","stepper":"s-product","set-limit":"s-product","currency-converter":"s-product","agent-run-timeline":"s-status","decision-prompt":"s-review","proposal-card":"s-review","rewrite-toolbar":"s-review","plan-review":"s-review","inline-text-diff":"s-review","draft-review":"s-review","eval-results":"s-review","source-stack":"s-data","metric-insight":"s-data","task-table":"s-data","terminal-stream":"s-data","details-panel":"s-data","citation-hover":"s-data","workspace-rail":"s-workspace","command-palette":"s-workspace","agent-settings":"s-workspace","file-explorer":"s-workspace","automation-canvas":"s-workspace","canvas-toolbar":"s-workspace","data-picker":"s-workspace","run-drawer":"s-workspace","memory-panel":"s-workspace","tool-connections":"s-workspace","knowledge-sources":"s-workspace","scheduled-runs":"s-workspace","harness":"s-harness","line-chart":"s-charts","bar-chart":"s-charts","donut-chart":"s-charts","funnel":"s-charts","top-pages":"s-charts","health-score":"s-charts","activity-heatmap":"s-charts","stat-cards":"s-charts","account-table":"s-charts","date-picker":"s-dates","segmented-control":"s-dates","date-range-picker":"s-dates","event-calendar":"s-dates","agenda":"s-dates","meeting-card":"s-dates","buttons":"s-forms","badge":"s-forms","tooltip":"s-forms","search-input":"s-forms","country-select":"s-forms","multi-select":"s-forms","social-signin":"s-forms","sign-in":"s-forms","otp-field":"s-forms","form":"s-forms","payment-form":"s-forms","comments":"s-collab","notifications":"s-collab","banner":"s-collab","invite":"s-collab","reactions":"s-collab","profile-menu":"s-collab","context-switcher":"s-collab","filter-menu":"s-collab","number-field":"s-collab","ticket-list":"s-collab","kanban":"s-collab","context-menu":"s-collab","progress":"s-forms","radar-chart":"s-charts","radial-goals":"s-charts","scatter-chart":"s-charts","score-breakdown":"s-charts","slider":"s-forms","carousel":"s-forms","web-search":"s-status"},"all":["harness"]};
+const PARTS = {"files":{"s-status":"/assets/v2-status.ceb64bd68c.js","s-product":"/assets/v2-product.c6072ab581.js","s-review":"/assets/v2-review.c0bf5d98c9.js","s-data":"/assets/v2-data.ef15935ec3.js","s-workspace":"/assets/v2-workspace.d0cd114b57.js","s-harness":"/assets/v2-harness.7f9eee6c97.js","s-charts":"/assets/v2-charts.9a7629fce0.js","s-dates":"/assets/v2-dates.b72ddce6b1.js","s-forms":"/assets/v2-forms.1157041b0f.js","s-collab":"/assets/v2-collab.257770798d.js"},"of":{"status-pill":"s-status","step-loader":"s-status","thinking-states":"s-status","reasoning-trail":"s-status","thinking":"s-status","context-meter":"s-status","toast":"s-status","toast-stack":"s-status","pricing-cards":"s-product","stepper":"s-product","set-limit":"s-product","currency-converter":"s-product","agent-run-timeline":"s-status","decision-prompt":"s-review","proposal-card":"s-review","rewrite-toolbar":"s-review","plan-review":"s-review","inline-text-diff":"s-review","draft-review":"s-review","eval-results":"s-review","source-stack":"s-data","metric-insight":"s-data","task-table":"s-data","terminal-stream":"s-data","details-panel":"s-data","citation-hover":"s-data","workspace-rail":"s-workspace","command-palette":"s-workspace","agent-settings":"s-workspace","file-explorer":"s-workspace","automation-canvas":"s-workspace","canvas-toolbar":"s-workspace","data-picker":"s-workspace","run-drawer":"s-workspace","memory-panel":"s-workspace","tool-connections":"s-workspace","knowledge-sources":"s-workspace","scheduled-runs":"s-workspace","harness":"s-harness","line-chart":"s-charts","bar-chart":"s-charts","donut-chart":"s-charts","funnel":"s-charts","top-pages":"s-charts","health-score":"s-charts","activity-heatmap":"s-charts","stat-cards":"s-charts","account-table":"s-charts","date-picker":"s-dates","segmented-control":"s-dates","date-range-picker":"s-dates","event-calendar":"s-dates","agenda":"s-dates","meeting-card":"s-dates","buttons":"s-forms","badge":"s-forms","tooltip":"s-forms","search-input":"s-forms","country-select":"s-forms","multi-select":"s-forms","social-signin":"s-forms","sign-in":"s-forms","otp-field":"s-forms","form":"s-forms","payment-form":"s-forms","comments":"s-collab","notifications":"s-collab","banner":"s-collab","invite":"s-collab","reactions":"s-collab","profile-menu":"s-collab","context-switcher":"s-collab","filter-menu":"s-collab","number-field":"s-collab","ticket-list":"s-collab","kanban":"s-collab","context-menu":"s-collab","progress":"s-forms","radar-chart":"s-charts","radial-goals":"s-charts","scatter-chart":"s-charts","score-breakdown":"s-charts","slider":"s-forms","carousel":"s-forms","web-search":"s-status"},"all":["harness"]};
 const partRun = src => eval(src);
 // the markup of the cards whose section has a file of its own comes with that file
 const TPLS = {};

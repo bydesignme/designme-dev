@@ -34,7 +34,9 @@ export default function ThinkingDemo() {
       }
       out[at] = { ...out[at], state: 'done', result: s.result, resultTip: s.tip, time: (took / 1000).toFixed(1) + 's' }; show();
     }
-    await wait(500); setRunning(false);
+    // the header says what the work came to (in Clean as the last step finishes, never after it)
+    if (ref.current?.closest('[data-style]')?.getAttribute('data-style') !== 'clean') await wait(500);
+    setRunning(false);
   });
   // the preview's story: once it has folded, the person opens it again to read what the cards measured
   useStory(ref, async ({ wait }) => {

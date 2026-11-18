@@ -52,3 +52,52 @@
 :root:not([data-style="soft"],[data-style="clean"]) .dm-tk-st:not(:last-child):not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *))::before{width:1px;left:8.5px;background:repeating-linear-gradient(var(--dm-rail) 0 3px,transparent 3px 6px)}
 :root:not([data-style="soft"],[data-style="clean"]) .dm-tk-st.dm-done .dm-mk .dm-i:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)),:root:not([data-style="soft"],[data-style="clean"]) .dm-tk-h.dm-tk-fin .dm-tk-mark .dm-i:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation:none}
 :root:not([data-style="soft"],[data-style="clean"]) .dm-tk-st .dm-res .dm-w:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation:dm-bpin .3s var(--dm-ease) backwards}
+/* Clean (owner, 18 Nov): a card of its own, like Reasoning trail's: a hairline-outlined round card with the header on top
+   and a hairline under it. The card grows with its steps (grow(), never the room it will fill) and folds into its header.
+   Content sits 16px in from every edge, and each step's words start where the header's do. The steps sit on a hairline
+   that darkens down into each step as the one above finishes (grey, never a hue); the step in hand is a turning ink ring,
+   a finished step a green disc whose tick draws in, and a step waiting out a problem an amber clock. The header's dots
+   turn in ink, and as the last step finishes it becomes what the work came to, with a green disc */
+:root[data-style="clean"] .dm-tk,:root [data-style="clean"] .dm-tk,:root [data-style="clean"].dm-tk{background:var(--dm-surface);box-shadow:var(--dm-shadow);border-radius:var(--dm-r-card);overflow:clip}
+:root[data-style="clean"] .dm-stage-in>.dm-tk,:root [data-style="clean"] .dm-stage-in>.dm-tk,:root [data-style="clean"].dm-stage-in>.dm-tk{min-height:0}
+:root[data-style="clean"] .dm-tk.dm-growing,:root [data-style="clean"] .dm-tk.dm-growing,:root [data-style="clean"].dm-tk.dm-growing{overflow-clip-margin:0px}
+:root[data-style="clean"] .dm-tk-h,:root [data-style="clean"] .dm-tk-h,:root [data-style="clean"].dm-tk-h{width:100%;min-height:48px;margin:0;padding:14px 16px;gap:10px;align-items:flex-start;border-radius:0;line-height:20px}
+/* a header that wraps on a phone keeps its mark, time and chevron on the centre line of its first line */
+:root[data-style="clean"] .dm-tk-h>.dm-tk-mark,:root [data-style="clean"] .dm-tk-h>.dm-tk-mark,:root [data-style="clean"].dm-tk-h>.dm-tk-mark{margin-top:2px}
+:root[data-style="clean"] .dm-tk-h>.dm-tk-chev,:root [data-style="clean"] .dm-tk-h>.dm-tk-chev,:root [data-style="clean"].dm-tk-h>.dm-tk-chev{margin-top:3px}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-tk-h:hover,:root [data-style="clean"] .dm-tk-h:hover,:root [data-style="clean"].dm-tk-h:hover{background:none}}
+:root[data-style="clean"] .dm-tk-h:focus-visible,:root [data-style="clean"] .dm-tk-h:focus-visible,:root [data-style="clean"].dm-tk-h:focus-visible{outline-offset:-2px;border-radius:var(--dm-r-card)}
+/* the clock follows the title, as in "Checking the pricing page 7s", and the chevron keeps the right edge, where the steps'
+   times end too */
+:root[data-style="clean"] .dm-tk-title,:root [data-style="clean"] .dm-tk-title,:root [data-style="clean"].dm-tk-title{flex:0 1 auto;font-weight:500}
+:root[data-style="clean"] .dm-tk-time,:root [data-style="clean"] .dm-tk-time,:root [data-style="clean"].dm-tk-time{margin-right:auto;font-variant-numeric:tabular-nums}
+:root[data-style="clean"] .dm-tk-chev,:root [data-style="clean"] .dm-tk-chev,:root [data-style="clean"].dm-tk-chev{width:14px;height:14px;border-radius:50%;box-shadow:0 0 0 7px transparent;transition:transform .4s var(--dm-ease),background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-tk-h:hover .dm-tk-chev,:root [data-style="clean"] .dm-tk-h:hover .dm-tk-chev,:root [data-style="clean"].dm-tk-h:hover .dm-tk-chev{background:var(--dm-hover);box-shadow:0 0 0 7px var(--dm-hover);color:var(--dm-fg)}}
+:root[data-style="clean"] .dm-tk-mark,:root [data-style="clean"] .dm-tk-mark,:root [data-style="clean"].dm-tk-mark{width:16px;height:16px;margin-right:2px;color:var(--dm-fg)}
+:root[data-style="clean"] .dm-tk-h.dm-tk-fin .dm-tk-mark,:root [data-style="clean"] .dm-tk-h.dm-tk-fin .dm-tk-mark,:root [data-style="clean"].dm-tk-h.dm-tk-fin .dm-tk-mark{width:16px;height:16px;border-radius:50%;background:var(--dm-ok-mark);color:var(--dm-surface);animation:dm-tkdisc .34s var(--dm-ease) backwards}
+:root[data-style="clean"] .dm-tk-h.dm-tk-fin .dm-tk-mark .dm-i,:root [data-style="clean"] .dm-tk-h.dm-tk-fin .dm-tk-mark .dm-i,:root [data-style="clean"].dm-tk-h.dm-tk-fin .dm-tk-mark .dm-i{width:10px;height:10px;stroke-width:3.2;stroke-dasharray:21;animation:dm-tkdraw .3s var(--dm-ease) .14s backwards}
+/* the steps are as tall as Soft's, so the card keeps its stage's height in every style: 5px above and below each step,
+   and its last words 16px from the card's foot */
+:root[data-style="clean"] .dm-tk-list,:root [data-style="clean"] .dm-tk-list,:root [data-style="clean"].dm-tk-list{padding:8px 16px 10px;border-top:1px solid var(--dm-line)}
+:root[data-style="clean"] .dm-tk-st,:root [data-style="clean"] .dm-tk-st,:root [data-style="clean"].dm-tk-st{padding:5px 0}
+/* a step's time sits on its first line's centre line, and ends where the chevron does */
+:root[data-style="clean"] .dm-tk-st .dm-tk-ln,:root [data-style="clean"] .dm-tk-st .dm-tk-ln,:root [data-style="clean"].dm-tk-st .dm-tk-ln{align-items:flex-start}
+:root[data-style="clean"] .dm-tk-st .dm-lab,:root [data-style="clean"] .dm-tk-st .dm-lab,:root [data-style="clean"].dm-tk-st .dm-lab,:root[data-style="clean"] .dm-tk-st .dm-tk-dur,:root [data-style="clean"] .dm-tk-st .dm-tk-dur,:root [data-style="clean"].dm-tk-st .dm-tk-dur{line-height:20px}
+:root[data-style="clean"] .dm-tk-st .dm-res,:root [data-style="clean"] .dm-tk-st .dm-res,:root [data-style="clean"].dm-tk-st .dm-res{line-height:17px}
+:root[data-style="clean"] .dm-tk-st .dm-tk-dur,:root [data-style="clean"] .dm-tk-st .dm-tk-dur,:root [data-style="clean"].dm-tk-st .dm-tk-dur{font-variant-numeric:tabular-nums}
+/* the marks: 16px discs 16px in from the card's edge, centred on the step's first line, under the header's mark */
+:root[data-style="clean"] .dm-tk-st .dm-mk,:root [data-style="clean"] .dm-tk-st .dm-mk,:root [data-style="clean"].dm-tk-st .dm-mk{width:16px;height:16px;margin:2px 2px 0 0;color:var(--dm-fg);background:none;transition:none}
+:root[data-style="clean"] .dm-tk-st.dm-run .dm-mk,:root [data-style="clean"] .dm-tk-st.dm-run .dm-mk,:root [data-style="clean"].dm-tk-st.dm-run .dm-mk{background:none;animation:none}
+:root[data-style="clean"] .dm-tk-st.dm-run .dm-mk .dm-spin,:root [data-style="clean"] .dm-tk-st.dm-run .dm-mk .dm-spin,:root [data-style="clean"].dm-tk-st.dm-run .dm-mk .dm-spin{box-sizing:border-box;width:16px;height:16px;border:1.5px solid var(--dm-line);border-top-color:var(--dm-fg);animation:dm-rot .9s linear infinite}
+:root[data-style="clean"] .dm-tk-st.dm-done .dm-mk,:root [data-style="clean"] .dm-tk-st.dm-done .dm-mk,:root [data-style="clean"].dm-tk-st.dm-done .dm-mk{background:var(--dm-ok-mark);color:var(--dm-surface);animation:dm-tkdisc .34s var(--dm-ease) backwards}
+:root[data-style="clean"] .dm-tk-st.dm-done .dm-mk .dm-i,:root [data-style="clean"] .dm-tk-st.dm-done .dm-mk .dm-i,:root [data-style="clean"].dm-tk-st.dm-done .dm-mk .dm-i{width:10px;height:10px;stroke-width:3.2;stroke-dasharray:21;animation:dm-tkdraw .3s var(--dm-ease) .14s backwards}
+:root[data-style="clean"] .dm-tk-st.dm-retry .dm-mk,:root [data-style="clean"] .dm-tk-st.dm-retry .dm-mk,:root [data-style="clean"].dm-tk-st.dm-retry .dm-mk{background:none;color:var(--dm-warn-mark);animation:none}
+:root[data-style="clean"] .dm-tk-st.dm-retry .dm-mk .dm-i,:root [data-style="clean"] .dm-tk-st.dm-retry .dm-mk .dm-i,:root [data-style="clean"].dm-tk-st.dm-retry .dm-mk .dm-i{width:16px;height:16px;stroke-width:1.8}
+@keyframes dm-tkdisc{from{opacity:0;transform:scale(.5)}}
+@keyframes dm-tkdraw{from{stroke-dashoffset:21}}
+/* the hairline from under each mark to just above the next, darkening down into the next step once this one is done */
+:root[data-style="clean"] .dm-tk-st:not(:last-child)::before,:root [data-style="clean"] .dm-tk-st:not(:last-child)::before,:root [data-style="clean"].dm-tk-st:not(:last-child)::before,:root[data-style="clean"] .dm-tk-st.dm-done:not(:last-child)::after,:root [data-style="clean"] .dm-tk-st.dm-done:not(:last-child)::after,:root [data-style="clean"].dm-tk-st.dm-done:not(:last-child)::after{left:7.5px;top:27px;bottom:-3px;width:1px;border-radius:0;background:var(--dm-line)}
+:root[data-style="clean"] .dm-tk-st.dm-done:not(:last-child)::after,:root [data-style="clean"] .dm-tk-st.dm-done:not(:last-child)::after,:root [data-style="clean"].dm-tk-st.dm-done:not(:last-child)::after{background:var(--dm-line-strong);animation:dm-tkgrow .44s var(--dm-ease-io) .2s backwards}
+/* what a step found writes itself in a word at a time: a fade and a 3px rise, no blur */
+@keyframes dm-tkwordc{from{opacity:0;transform:translateY(3px)}}
+:root[data-style="clean"] .dm-tk-st .dm-res .dm-w,:root [data-style="clean"] .dm-tk-st .dm-res .dm-w,:root [data-style="clean"].dm-tk-st .dm-res .dm-w{animation:dm-tkwordc .42s var(--dm-ease) backwards}

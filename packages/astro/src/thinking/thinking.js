@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, DM, I, enter, html, swap, tip } from '../core/core.js';
+import { $, DM, I, enter, grow, html, swap, tip } from '../core/core.js';
 DM.def('thinking', (r, c) => {
   const tk = $('.tk', r), list = $('.tk-list', r), title = $('.tk-title', r), time = $('.tk-time', r), head = $('.tk-h', r), fold = $('.tk-fold', r), mark = $('.tk-mark', r);
   // each step: what the agent does and what it found. Measuring the cards times out once, counts down and tries again
@@ -12,6 +12,14 @@ DM.def('thinking', (r, c) => {
   ];
   const setOpen = o => { tk.dataset.open = o ? '1' : '0'; fold.classList.toggle('shut', !o); head.setAttribute('aria-expanded', o); };
   head.onclick = () => setOpen(tk.dataset.open !== '1');
+  // Clean (owner, 18 Nov): a card that grows with its steps (grow(), started once its entrance has settled, so it measures
+  // the card at its real size), and its header says what the work came to as the last step finishes, never after it
+  const ds = r.closest('[data-style]'), clean = !!ds && ds.dataset.style === 'clean';
+  if (clean) Promise.resolve().then(() => Promise.all(tk.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && tk.isConnected) c.offs.push(grow(tk)); });
+  // (the template's chevron names the sprite's icon directly, which the homepage renames; Clean draws it through I())
+  if (clean) $('.tk-chev', r).outerHTML = I('chev-d', 'xs tk-chev');
+  // the header becomes what the work came to
+  const finish = () => { live = false; head.classList.add('tk-fin'); mark.innerHTML = clean ? I('check','xs') : I('ok'); enter(mark.firstElementChild); title.classList.remove('shim'); swap(title, '3 cards to fix, 2 changes planned'); };
   // the line under a step opens and then crossfades; what the step found writes itself in a word at a time, and a tip on it
   // holds the detail
   const words = t => t.split(' ').map((w, i, a) => `<span class="w" style="animation-delay:${i * 45}ms">${w}${i < a.length - 1 ? ' ' : ''}</span>`).join('');
@@ -35,10 +43,9 @@ DM.def('thinking', (r, c) => {
       li.classList.replace('run', 'done'); l.classList.remove('shim'); glyph(li, I('check','xs')); note(li, res, x && x.tip, true);
       const t = $('.tk-dur', li); t.textContent = (took / 1000).toFixed(1) + 's'; enter(t);
     }
-    // the header becomes what the work came to, and folds the trace away
-    await c.wait(500); live = false;
-    head.classList.add('tk-fin'); mark.innerHTML = I('ok'); enter(mark.firstElementChild); title.classList.remove('shim'); swap(title, '3 cards to fix, 2 changes planned');
-    await c.wait(2000); setOpen(false);
+    // the header becomes what the work came to (in Clean as the last step finishes), and folds the trace away
+    if (clean) finish(); else { await c.wait(500); finish(); }
+    await c.wait(clean ? 2500 : 2000); setOpen(false);
   });
   // the preview's story: once it has folded, the person opens it again and reads what the cards measured
   if (r === c.st) c.story(async s => {

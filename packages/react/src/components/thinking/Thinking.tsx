@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion, useSeconds } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
@@ -72,6 +72,24 @@ function Mark({ state }: { state: ThinkingStep['state'] }) {
 /** The live trace: each step the agent takes on a line that turns green as they finish, and what each found, then a header
     that says what the work came to, folded away. */
 export function Thinking({ steps, running, seconds, title = 'Working on it', summary, collapseWhenDone = true, open, defaultOpen = true, onOpenChange, className }: ThinkingProps) {
+  // Clean (owner, 18 Nov): a card of its own that grows with its steps, eased (grow() on the site), and the finished header's
+  // mark is a green disc with a tick. Soft and Blueprint keep their layout: the wrapper inside is display:contents there
+  const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
+  const [clean, setClean] = useState(false);
+  useIsoLayoutEffect(() => { setClean(root.current?.closest('[data-style]')?.getAttribute('data-style') === 'clean'); }, []);
+  useIsoLayoutEffect(() => {
+    const el = root.current, w = inner.current;
+    if (!clean || !el || !w || typeof ResizeObserver === 'undefined') return;
+    let first = true;
+    const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
+    const fit = () => {
+      const h = Math.ceil(w.offsetHeight + box());
+      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
+      else el.style.height = h + 'px';
+    };
+    const ro = new ResizeObserver(fit); ro.observe(w); fit();
+    return () => { ro.disconnect(); el.style.height = ''; };
+  }, [clean]);
   const counted = useSeconds(running && seconds === undefined);
   const secs = seconds ?? counted;
   const [isOpen, setOpen] = useControllable(open, defaultOpen, onOpenChange);
@@ -84,9 +102,10 @@ export function Thinking({ steps, running, seconds, title = 'Working on it', sum
   const done = !running && steps.length > 0;
 
   return (
-    <div data-dm="" className={cx('dm-tk', className)} data-open={isOpen ? '1' : '0'}>
+    <div data-dm="" ref={root} className={cx('dm-tk', clean && 'dm-growing', className)} data-open={isOpen ? '1' : '0'}>
+      <div ref={inner} className="dm-grow" style={clean ? undefined : { display: 'contents' }}>
       <button type="button" className={cx('dm-tk-h', done && 'dm-tk-fin')} aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
-        <span className="dm-tk-mark">{done ? <span key="ok" {...enter()} style={{ display: 'grid' }}><Icon name="ok" /></span> : <Think on={running} />}</span>
+        <span className="dm-tk-mark">{done ? <span key="ok" {...enter()} style={{ display: 'grid' }}><Icon name={clean ? 'check' : 'ok'} size={clean ? 'xs' : 's'} /></span> : <Think on={running} />}</span>
         <Settle className="dm-tk-title" shimmer={running}>{done ? summary ?? `${steps.length} ${steps.length === 1 ? 'step' : 'steps'}` : title}</Settle>
         <span className="dm-tk-time dm-num">{secs + 's'}</span>
         <Icon name="chev-d" size="xs" className="dm-tk-chev" />
@@ -111,6 +130,7 @@ export function Thinking({ steps, running, seconds, title = 'Working on it', sum
           ))}
         </ol>
       </Fold>
+      </div>
     </div>
   );
 }

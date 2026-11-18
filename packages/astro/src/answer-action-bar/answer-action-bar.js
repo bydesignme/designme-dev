@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, copied, enter, swap } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, copied, enter, grow, swap } from '../core/core.js';
 DM.def('answer-action-bar', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{copy}', I('copy')).replace('{re}', I('refresh')).replace('{l}', I('chev-l','xs')).replace('{rr}', I('chev-r','xs'))
     .replace('{up}', I('up-thumb')).replace('{dn}', I('down-thumb')).replace('{vol}', I('vol','xs'));
@@ -24,11 +24,21 @@ DM.def('answer-action-bar', (r, c) => {
     up.setAttribute('aria-pressed', vers[cur].rate === 'up'); dn.setAttribute('aria-pressed', vers[cur].rate === 'down');
     swap(meta, vers[cur].meta);
   }
+  // Clean (owner, 18 Nov): no room kept for a longer answer or an empty status. The component grows with what it shows
+  // (grow(), once its entrance has settled), and a version streaming in keeps the height of the one it replaces, then eases
+  // to its own
+  const ds = r.closest('[data-style]'), clean = !!ds && ds.dataset.style === 'clean', aab = $('.aab', r);
+  if (clean) Promise.resolve().then(() => Promise.all(aab.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && aab.isConnected) c.offs.push(grow(aab)); });
+  const keep = () => { if (clean && t.textContent.trim()) t.style.minHeight = t.offsetHeight + 'px'; };
+  const fit = () => { if (!t.style.minHeight) return; const was = t.offsetHeight; t.style.minHeight = ''; const h = t.offsetHeight; if (h >= was || REDUCE) return;
+    t.style.minHeight = was + 'px'; void t.offsetHeight; t.style.transition = 'min-height .42s var(--dm-ease)'; t.style.minHeight = h + 'px';
+    c.later(460, () => { t.style.transition = ''; t.style.minHeight = ''; }); };
   // a version streams in word by word; paging between versions shows one at once
   async function stream(v){
-    t.classList.add('out'); await c.wait(260); t.classList.remove('out'); t.innerHTML = '';
+    keep(); t.classList.add('out'); await c.wait(260); t.classList.remove('out'); t.innerHTML = '';
     const ws = words(v);
     for (let i = 0; i < ws.length; i++){ t.insertAdjacentHTML('beforeend', ws[i]); t.lastElementChild.classList.add('in'); await c.wait(38); }
+    fit();
   }
   async function show(i){ stop(); cur = i; nav(); t.classList.add('out'); await c.wait(240); t.classList.remove('out'); t.innerHTML = words(vers[i]).join(''); $$('.w', t).forEach((w, k) => { w.classList.add('in'); w.style.animationDelay = k * 10 + 'ms'; }); }
   pv.onclick = () => c.run(() => show(cur - 1));
