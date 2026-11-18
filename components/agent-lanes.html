@@ -256,8 +256,39 @@
 :root:not([data-style="soft"],[data-style="clean"]) .aln-pk:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){width:1px;left:26.5px;border-radius:0;background:var(--dm-to)}
 :root:not([data-style="soft"],[data-style="clean"]) .aln-av.ping:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *))::before{animation:alnpingbp .6s steps(3,end)}
 @keyframes alnpingbp{from{box-shadow:0 0 0 1px var(--dm-c)}to{box-shadow:0 0 0 7px transparent}}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .aln.panel,:root [data-style="clean"] .aln.panel,:root [data-style="clean"].aln.panel{padding:12px 20px 20px 20px}
+/* the line saying what just happened, and once the run is done, how it went: Clean's foot strip shows it */
+.aln-say{display:none}
+/* Clean (owner, 18 Nov): a card with a foot strip. The head and the lanes sit 16px in from the card's edges; Pause all moves
+   down into the off-white foot strip, 8px from its edges (a 28px pill in the 22px corner), beside the line saying what just
+   happened, and when the run is done the strip closes the card with a summary. The parts are placed on one grid, so the
+   markup stays Soft's. The relay line joins the badges as one unbroken line (it meets each badge) and stops at the last one */
+:root[data-style="clean"] .aln.panel,:root [data-style="clean"] .aln.panel,:root [data-style="clean"].aln.panel{display:grid;grid-template-columns:auto auto auto minmax(0,1fr) auto;grid-template-rows:auto auto 44px;padding:0;background:linear-gradient(var(--dm-line),var(--dm-line)) 0 calc(100% - 44px)/100% 1px no-repeat,linear-gradient(var(--dm-strip),var(--dm-strip)) 0 100%/100% 43px no-repeat,var(--dm-surface)}
+:root[data-style="clean"] .aln.panel .aln-h,:root [data-style="clean"] .aln.panel .aln-h,:root [data-style="clean"].aln.panel .aln-h{display:contents}
+:root[data-style="clean"] .aln.panel .aln-h>*,:root [data-style="clean"] .aln.panel .aln-h>*,:root [data-style="clean"].aln.panel .aln-h>*{grid-row:1;align-self:center;margin-top:16px;margin-bottom:4px}
+:root[data-style="clean"] .aln.panel .aln-ic,:root [data-style="clean"] .aln.panel .aln-ic,:root [data-style="clean"].aln.panel .aln-ic{grid-column:1;margin-left:16px;margin-right:10px}
+:root[data-style="clean"] .aln.panel .aln-t,:root [data-style="clean"] .aln.panel .aln-t,:root [data-style="clean"].aln.panel .aln-t{grid-column:2;margin-right:10px}
+:root[data-style="clean"] .aln.panel .aln-m,:root [data-style="clean"] .aln.panel .aln-m,:root [data-style="clean"].aln.panel .aln-m{grid-column:3;margin-right:6px}
+:root[data-style="clean"] .aln.panel .aln-ct,:root [data-style="clean"] .aln.panel .aln-ct,:root [data-style="clean"].aln.panel .aln-ct{grid-column:4;margin-right:16px}
+:root[data-style="clean"] .aln.panel .aln-pause,:root [data-style="clean"] .aln.panel .aln-pause,:root [data-style="clean"].aln.panel .aln-pause{position:absolute;right:8px;bottom:8px;margin:0}
+:root[data-style="clean"] .aln.panel .aln-rows,:root [data-style="clean"] .aln.panel .aln-rows,:root [data-style="clean"].aln.panel .aln-rows{grid-row:2;grid-column:1 / -1;margin:4px 8px 8px}
+:root[data-style="clean"] .aln.panel .aln-say,:root [data-style="clean"] .aln.panel .aln-say,:root [data-style="clean"].aln.panel .aln-say{display:block;grid-row:3;grid-column:1 / -1;align-self:center;min-width:0;margin:0 16px;font-size:12.5px;line-height:20px;color:var(--dm-fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Pause all is pinned in the strip's corner rather than placed on the grid, so its width never squeezes the head on a phone;
+   the line beside it keeps clear of it (the button and a 12px gap) until the run is done and the button goes */
+:root[data-style="clean"] .aln.panel:has(.aln-pause) .aln-say,:root [data-style="clean"] .aln.panel:has(.aln-pause) .aln-say,:root [data-style="clean"].aln.panel:has(.aln-pause) .aln-say{margin-right:116px}
+:root[data-style="clean"] .aln-say .i,:root [data-style="clean"] .aln-say .i,:root [data-style="clean"].aln-say .i{color:color-mix(in srgb,var(--dm-ok-mark) 85%,var(--dm-ok));vertical-align:-2px;margin-right:6px}
+:root[data-style="clean"] .aln.fin .aln-ic,:root [data-style="clean"] .aln.fin .aln-ic,:root [data-style="clean"].aln.fin .aln-ic{color:color-mix(in srgb,var(--dm-ok-mark) 85%,var(--dm-ok))}
+/* the lanes: their fills 8px in from the card, so a lane's corner is the card's less 8px; their content 16px in */
+:root[data-style="clean"] .aln-lane,:root [data-style="clean"] .aln-lane,:root [data-style="clean"].aln-lane{border-radius:14px}
+:root[data-style="clean"] .aln-row,:root [data-style="clean"] .aln-row,:root [data-style="clean"].aln-row{padding:8px}
+:root[data-style="clean"] .aln-det,:root [data-style="clean"] .aln-det,:root [data-style="clean"].aln-det{padding:0 8px 8px 54px}
+:root[data-style="clean"] .aln-hand,:root [data-style="clean"] .aln-hand,:root [data-style="clean"].aln-hand{padding:6px 8px 6px 54px}
+:root[data-style="clean"] .aln-rows>*::before,:root [data-style="clean"] .aln-rows>*::before,:root [data-style="clean"].aln-rows>*::before,:root[data-style="clean"] .aln-lane::after,:root [data-style="clean"] .aln-lane::after,:root [data-style="clean"].aln-lane::after{left:24.25px;width:1.5px;border-radius:1px;background:var(--dm-faint)}
+:root[data-style="clean"] .aln-lane::before,:root [data-style="clean"] .aln-lane::before,:root [data-style="clean"].aln-lane::before{top:42px}
+:root[data-style="clean"] .aln-lane::after,:root [data-style="clean"] .aln-lane::after,:root [data-style="clean"].aln-lane::after{height:8px}
+:root[data-style="clean"] .aln-lane:not(:has(~.aln-lane))::before,:root [data-style="clean"] .aln-lane:not(:has(~.aln-lane))::before,:root [data-style="clean"].aln-lane:not(:has(~.aln-lane))::before{display:none}
+:root[data-style="clean"] .aln-rows>.aln-lane.sent::before,:root [data-style="clean"] .aln-rows>.aln-lane.sent::before,:root [data-style="clean"].aln-rows>.aln-lane.sent::before,:root[data-style="clean"] .aln-rows>.aln-lane.got::after,:root [data-style="clean"] .aln-rows>.aln-lane.got::after,:root [data-style="clean"].aln-rows>.aln-lane.got::after,:root[data-style="clean"] .aln-rows>.aln-hf.lit::before,:root [data-style="clean"] .aln-rows>.aln-hf.lit::before,:root [data-style="clean"].aln-rows>.aln-hf.lit::before{background:transparent}
+:root[data-style="clean"] .aln-pk,:root [data-style="clean"] .aln-pk,:root [data-style="clean"].aln-pk{left:24.25px;width:1.5px;border-radius:1px;box-sizing:content-box;padding:4px 0;margin-top:-4px}
+@media (max-width:400px){:root[data-style="clean"] .aln.panel .aln-t,:root [data-style="clean"] .aln.panel .aln-t,:root [data-style="clean"].aln.panel .aln-t{margin-left:16px}}
 </style><style>/* the card's three designs, picked in the switch under it: Classic (the component above, as it ships), Swimlanes and Crew, each filling the width and
    centred in the room kept for the tallest of them */
 .dm.aln-dm{min-height:0}
@@ -353,6 +384,30 @@
 :root:not([data-style="soft"],[data-style="clean"]) .aln-sw-ho:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){border-left-width:1px;border-bottom-width:1px}
 :root:not([data-style="soft"],[data-style="clean"]) .aln-sw-ph i:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){width:1px;left:-.5px}
 :root:not([data-style="soft"],[data-style="clean"]) .aln-sw-ho:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)),:root:not([data-style="soft"],[data-style="clean"]) .aln-sw-tg:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){transition-timing-function:steps(4,end)}
+/* Clean (owner, 18 Nov): the head and the lanes 16px in from the card's edges, and an off-white foot strip with the line saying
+   what happened; Pause and Back to now sit in it, 8px from its edges, as round as the card's corner less 8px. The parts are
+   placed on one grid, so the markup stays Soft's. Each lane's steps sit inside its track with even room all round: the track
+   is a 44px pill and a step a 24px one, 10px in at the start and the end as above and below (22 = 12 + 10), so the clock runs
+   from 10px inside the track's start to 10px inside its end (the last step keeps its 2px gap, so 8px of border on the right).
+   An axis label the playhead's time passes over steps aside */
+:root[data-style="clean"] .aln-sw,:root [data-style="clean"] .aln-sw,:root [data-style="clean"].aln-sw{display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-rows:auto auto 44px;gap:0;padding:0;background:linear-gradient(var(--dm-line),var(--dm-line)) 0 calc(100% - 44px)/100% 1px no-repeat,linear-gradient(var(--dm-strip),var(--dm-strip)) 0 100%/100% 43px no-repeat,var(--dm-surface)}
+:root[data-style="clean"] :is(.aln-sw-h,.aln-sw-f),:root [data-style="clean"] :is(.aln-sw-h,.aln-sw-f),:root [data-style="clean"]:is(.aln-sw-h,.aln-sw-f){display:contents}
+:root[data-style="clean"] .aln-sw-ht,:root [data-style="clean"] .aln-sw-ht,:root [data-style="clean"].aln-sw-ht{grid-row:1;grid-column:1 / -1;justify-self:start;margin:16px 16px 0}
+:root[data-style="clean"] .aln-sw-key,:root [data-style="clean"] .aln-sw-key,:root [data-style="clean"].aln-sw-key{grid-row:1;grid-column:1 / -1;justify-self:end;align-self:center;margin:16px 16px 0}
+:root[data-style="clean"] .aln-sw-grid,:root [data-style="clean"] .aln-sw-grid,:root [data-style="clean"].aln-sw-grid{grid-row:2;grid-column:1 / -1;margin:12px 16px 16px}
+:root[data-style="clean"] .aln-sw-say,:root [data-style="clean"] .aln-sw-say,:root [data-style="clean"].aln-sw-say{grid-row:3;grid-column:1;align-self:center;margin:0 12px 0 16px;line-height:20px}
+:root[data-style="clean"] .aln-sw-live,:root [data-style="clean"] .aln-sw-live,:root [data-style="clean"].aln-sw-live{grid-row:3;grid-column:2;align-self:end;margin:8px 8px 8px 0}
+:root[data-style="clean"] .aln-sw-pause,:root [data-style="clean"] .aln-sw-pause,:root [data-style="clean"].aln-sw-pause{grid-row:3;grid-column:3;align-self:end;margin:8px 8px 8px 0}
+:root[data-style="clean"] .aln-sw-lane,:root [data-style="clean"] .aln-sw-lane,:root [data-style="clean"].aln-sw-lane{border:solid transparent;border-width:0 8px 0 10px}
+:root[data-style="clean"] .aln-sw-ax,:root [data-style="clean"] .aln-sw-ax,:root [data-style="clean"].aln-sw-ax{margin-left:calc(var(--dm-lab) + 10px);margin-right:8px}
+:root[data-style="clean"] .aln-sw-ticks span,:root [data-style="clean"] .aln-sw-ticks span,:root [data-style="clean"].aln-sw-ticks span{transition:opacity var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .aln-sw-ticks span.hid,:root [data-style="clean"] .aln-sw-ticks span.hid,:root [data-style="clean"].aln-sw-ticks span.hid{opacity:0}
+:root[data-style="clean"] .aln-sw-ph,:root [data-style="clean"] .aln-sw-ph,:root [data-style="clean"].aln-sw-ph{left:calc(var(--dm-lab) + 10px);right:8px}
+:root[data-style="clean"] .aln-sw-ho,:root [data-style="clean"] .aln-sw-ho,:root [data-style="clean"].aln-sw-ho{left:calc(var(--dm-lab) + 10px + var(--dm-x0) * (100% - var(--dm-lab) - 18px));width:calc((var(--dm-x1) - var(--dm-x0)) * (100% - var(--dm-lab) - 18px))}
+:root[data-style="clean"] .aln-sw-tg,:root [data-style="clean"] .aln-sw-tg,:root [data-style="clean"].aln-sw-tg{left:calc(var(--dm-lab) + 10px + var(--dm-x0) * (100% - var(--dm-lab) - 18px))}
+/* once the hand-off's tag lands in a wait, it says what came, so the wait's own words step aside */
+:root[data-style="clean"] .aln-sw-wl,:root [data-style="clean"] .aln-sw-wl,:root [data-style="clean"].aln-sw-wl{transition:opacity var(--dm-t) var(--dm-ease)}
+:root[data-style="clean"] .aln-sw-w.got .aln-sw-wl,:root [data-style="clean"] .aln-sw-w.got .aln-sw-wl,:root [data-style="clean"].aln-sw-w.got .aln-sw-wl{opacity:0}
 
 /* Crew: a card per agent, each on its own clock, so pausing one or steering it leaves the others running. Its avatar is in
    the avatar colours. Its progress is a thin line through a dot for each step: in the accent while it works, a mid grey
@@ -363,6 +418,8 @@
 .aln-cw-ic .i{color:inherit}
 .aln-cw-tt{flex:1;font-weight:500}
 .aln-cw-tot{font-size:13px;color:var(--dm-fg2)}
+/* the run so far, and once it is done how it went: Clean shows it under the title */
+.aln-cw-sum{display:none}
 .aln-cw-list{display:flex;flex-direction:column}
 .aln-cw-c{position:relative;display:flex;flex-direction:column;padding:var(--dm-s-3);border-radius:var(--dm-r-card);background:var(--dm-surface);box-shadow:var(--dm-shadow);transition:opacity .3s}
 .aln-cw-c[data-s="hold"]{opacity:.8}
@@ -417,6 +474,57 @@
 :root:not([data-style="soft"],[data-style="clean"]) .aln-cw-ho .ln:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){border-top-width:1px}
 :root:not([data-style="soft"],[data-style="clean"]) .aln-cw-note:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation:bpin .3s var(--dm-ease)}
 :root:not([data-style="soft"],[data-style="clean"]) .aln-cw-ho.on .tag:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation:none}
+/* Clean (owner, 18 Nov): each agent's card has its name, what it is doing and its status 16px in from the edges, and an
+   off-white foot strip with its progress, its counts and its pause and steer buttons, 8px from the strip's edges. The parts are
+   placed on one grid, so the markup stays Soft's. The signature: the agent at work is the one card with presence (it lifts a
+   little, its hairline steps up and its progress line runs a soft sheen), its step dots fill in from the rim as they finish,
+   and a hand-off travels: the line from the sender draws, the chip slides along it and ticks, then the line on to the receiver
+   draws. The others sit flat on their hairline */
+:root[data-style="clean"] .aln-cw-h,:root [data-style="clean"] .aln-cw-h,:root [data-style="clean"].aln-cw-h{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:0 var(--dm-s-2);align-items:center;padding:0 16px}
+:root[data-style="clean"] .aln-cw-ic,:root [data-style="clean"] .aln-cw-ic,:root [data-style="clean"].aln-cw-ic{grid-row:1;grid-column:1}
+:root[data-style="clean"] .aln-cw-tt,:root [data-style="clean"] .aln-cw-tt,:root [data-style="clean"].aln-cw-tt{grid-row:1;grid-column:2}
+:root[data-style="clean"] .aln-cw-sum,:root [data-style="clean"] .aln-cw-sum,:root [data-style="clean"].aln-cw-sum{display:block;grid-row:2;grid-column:2;font-size:12.5px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root[data-style="clean"] .aln-cw-tot,:root [data-style="clean"] .aln-cw-tot,:root [data-style="clean"].aln-cw-tot{grid-row:1;grid-column:3}
+/* the agent at work has its presence from its card, so its badge holds still */
+:root[data-style="clean"] .aln-cw-c[data-s="work"] .aln-cw-av,:root [data-style="clean"] .aln-cw-c[data-s="work"] .aln-cw-av,:root [data-style="clean"].aln-cw-c[data-s="work"] .aln-cw-av{animation:none}
+:root[data-style="clean"] .aln-cw-ic:has([href$="i-ok"]),:root [data-style="clean"] .aln-cw-ic:has([href$="i-ok"]),:root [data-style="clean"].aln-cw-ic:has([href$="i-ok"]){color:color-mix(in srgb,var(--dm-ok-mark) 85%,var(--dm-ok))}
+:root[data-style="clean"] .aln-cw-c,:root [data-style="clean"] .aln-cw-c,:root [data-style="clean"].aln-cw-c{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;grid-template-rows:auto auto auto 44px;padding:0;background:linear-gradient(var(--dm-line),var(--dm-line)) 0 calc(100% - 44px)/100% 1px no-repeat,linear-gradient(var(--dm-strip),var(--dm-strip)) 0 100%/100% 43px no-repeat,var(--dm-surface);box-shadow:0 0 0 1px var(--dm-line);transition:opacity .3s,box-shadow .52s var(--dm-ease),transform .52s var(--dm-ease)}
+:root[data-style="clean"] .aln-cw-c[data-s="work"],:root [data-style="clean"] .aln-cw-c[data-s="work"],:root [data-style="clean"].aln-cw-c[data-s="work"]{box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-fg) 16%,transparent),var(--dm-shadow-pop);transform:translateY(-2px)}
+:root[data-style="clean"] :is(.aln-cw-top,.aln-cw-meter),:root [data-style="clean"] :is(.aln-cw-top,.aln-cw-meter),:root [data-style="clean"]:is(.aln-cw-top,.aln-cw-meter){display:contents}
+:root[data-style="clean"] .aln-cw-av,:root [data-style="clean"] .aln-cw-av,:root [data-style="clean"].aln-cw-av{grid-row:1;grid-column:1;align-self:center;margin:16px 12px 16px 16px}
+:root[data-style="clean"] .aln-cw-tx,:root [data-style="clean"] .aln-cw-tx,:root [data-style="clean"].aln-cw-tx{grid-row:1;grid-column:2 / 4;align-self:center;margin:16px 0}
+:root[data-style="clean"] .aln-cw-tag,:root [data-style="clean"] .aln-cw-tag,:root [data-style="clean"].aln-cw-tag{grid-row:1;grid-column:4;justify-self:end;align-self:center;margin:0 16px 0 12px}
+:root[data-style="clean"] .aln-cw-c>.fold,:root [data-style="clean"] .aln-cw-c>.fold,:root [data-style="clean"].aln-cw-c>.fold{grid-row:2;grid-column:1 / -1;margin:0 16px}
+:root[data-style="clean"] .aln-cw-c>.fold .aln-cw-steer,:root [data-style="clean"] .aln-cw-c>.fold .aln-cw-steer,:root [data-style="clean"].aln-cw-c>.fold .aln-cw-steer{margin:0 0 16px}
+:root[data-style="clean"] .aln-cw-nts,:root [data-style="clean"] .aln-cw-nts,:root [data-style="clean"].aln-cw-nts{grid-row:3;grid-column:1 / -1;margin:0 16px}
+:root[data-style="clean"] .aln-cw-nts:not(:empty),:root [data-style="clean"] .aln-cw-nts:not(:empty),:root [data-style="clean"].aln-cw-nts:not(:empty){margin:-6px 16px 16px}
+/* the counts end where the two buttons begin (8px + 2 x 28px + 4px + an 8px gap from the edge), so they line up card to card */
+:root[data-style="clean"] .aln-cw-tr,:root [data-style="clean"] .aln-cw-tr,:root [data-style="clean"].aln-cw-tr{grid-row:4;grid-column:1 / 3;align-self:center;margin:0 0 0 16px}
+:root[data-style="clean"] .aln-cw-num,:root [data-style="clean"] .aln-cw-num,:root [data-style="clean"].aln-cw-num{grid-row:4;grid-column:3 / 5;justify-self:end;align-self:center;margin:0 76px 0 12px}
+:root[data-style="clean"] .aln-cw-acts,:root [data-style="clean"] .aln-cw-acts,:root [data-style="clean"].aln-cw-acts{grid-row:4;grid-column:4;justify-self:end;align-self:end;margin:8px 8px 8px 0}
+/* the progress line: a 4px track with a soft inner shadow; the part done fills in the card's colour, with a sheen running
+   along it while the agent works */
+:root[data-style="clean"] .aln-cw-ln,:root [data-style="clean"] .aln-cw-ln,:root [data-style="clean"].aln-cw-ln{top:4px;height:4px;border-radius:999px;background:var(--dm-rail);box-shadow:var(--dm-track-ring)}
+:root[data-style="clean"] .aln-cw-ln i,:root [data-style="clean"] .aln-cw-ln i,:root [data-style="clean"].aln-cw-ln i{border-radius:inherit}
+:root[data-style="clean"] .aln-cw-c[data-s="work"] .aln-cw-ln i,:root [data-style="clean"] .aln-cw-c[data-s="work"] .aln-cw-ln i,:root [data-style="clean"].aln-cw-c[data-s="work"] .aln-cw-ln i{background:linear-gradient(90deg,var(--dm-cwf) 0 40%,color-mix(in srgb,var(--dm-cwf) 55%,#fff) 50%,var(--dm-cwf) 60% 100%) 0 0/300% 100% var(--dm-cwf);animation:alncwsheen 2s linear infinite}
+@keyframes alncwsheen{from{background-position:100% 0}to{background-position:-50% 0}}
+/* a step's dot fills in from its rim as it finishes. A finished card's green takes a touch of the text green, so its marks keep
+   3:1 on the off-white strip */
+:root[data-style="clean"] .aln-cw-tr b,:root [data-style="clean"] .aln-cw-tr b,:root [data-style="clean"].aln-cw-tr b{transition:background .3s,box-shadow .45s var(--dm-ease)}
+:root[data-style="clean"] .aln-cw-tr b.done,:root [data-style="clean"] .aln-cw-tr b.done,:root [data-style="clean"].aln-cw-tr b.done{background:var(--dm-surface);box-shadow:inset 0 0 0 5px var(--dm-cwf)}
+:root[data-style="clean"] .aln-cw-c[data-s="done"] .aln-cw-tr,:root [data-style="clean"] .aln-cw-c[data-s="done"] .aln-cw-tr,:root [data-style="clean"].aln-cw-c[data-s="done"] .aln-cw-tr{--dm-cwf:color-mix(in srgb,var(--dm-ok-mark) 85%,var(--dm-ok))}
+:root[data-style="clean"] .aln-cw-c[data-s="work"] .aln-cw-tr b.now,:root [data-style="clean"] .aln-cw-c[data-s="work"] .aln-cw-tr b.now,:root [data-style="clean"].aln-cw-c[data-s="work"] .aln-cw-tr b.now{animation:none}
+/* a hand-off travels from the card above to the one below: the line from the sender draws, the chip slides along it and its
+   tick draws, then the line on to the receiver draws and the receiver's name steps up */
+:root[data-style="clean"] .aln-cw-ho .ln,:root [data-style="clean"] .aln-cw-ho .ln,:root [data-style="clean"].aln-cw-ho .ln{width:28px;height:1.5px;border:0;background:linear-gradient(color-mix(in srgb,var(--dm-fg) 50%,var(--dm-stage)),color-mix(in srgb,var(--dm-fg) 50%,var(--dm-stage))) 0 0/0% 100% no-repeat,repeating-linear-gradient(90deg,var(--dm-faint) 0 3px,transparent 3px 6px);transition:background-size .36s var(--dm-ease)}
+:root[data-style="clean"] .aln-cw-ho.on .ln,:root [data-style="clean"] .aln-cw-ho.on .ln,:root [data-style="clean"].aln-cw-ho.on .ln{background-size:100% 100%,auto}
+:root[data-style="clean"] .aln-cw-ho.on .tag~.ln,:root [data-style="clean"] .aln-cw-ho.on .tag~.ln,:root [data-style="clean"].aln-cw-ho.on .tag~.ln{transition-delay:.34s}
+:root[data-style="clean"] .aln-cw-ho>span:last-child,:root [data-style="clean"] .aln-cw-ho>span:last-child,:root [data-style="clean"].aln-cw-ho>span:last-child{transition:color .3s var(--dm-ease) .6s}
+:root[data-style="clean"] .aln-cw-ho.on>span:last-child,:root [data-style="clean"] .aln-cw-ho.on>span:last-child,:root [data-style="clean"].aln-cw-ho.on>span:last-child,:root[data-style="clean"] .aln-cw-ho.on>span:first-child,:root [data-style="clean"] .aln-cw-ho.on>span:first-child,:root [data-style="clean"].aln-cw-ho.on>span:first-child{color:var(--dm-fg2)}
+:root[data-style="clean"] .aln-cw-ho.on .tag,:root [data-style="clean"] .aln-cw-ho.on .tag,:root [data-style="clean"].aln-cw-ho.on .tag{animation:alncwtravel .6s var(--dm-ease) backwards}
+@keyframes alncwtravel{from{opacity:0;transform:translateX(-32px)}}
+:root[data-style="clean"] .aln-cw-ho.on .tag .i,:root [data-style="clean"] .aln-cw-ho.on .tag .i,:root [data-style="clean"].aln-cw-ho.on .tag .i{stroke-dasharray:20;stroke-dashoffset:20;animation:alncwtick .32s var(--dm-ease) .3s forwards}
+@keyframes alncwtick{to{stroke-dashoffset:0}}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px + var(--sw,0px))}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px + var(--sw,0px))}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px + var(--sw,0px))}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px + var(--sw,0px))}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -437,6 +545,7 @@
     <div class="dm aln-dm" data-designs="card"><div class="dm-main"><div class="aln panel">
       <div class="aln-h"><span class="aln-ic"><svg class="i s"><use href="#i-users"/></svg></span><span class="aln-t">3 agents working</span><span class="aln-m muted num">0:00</span><span class="aln-ct num">0 of 9 steps</span><button class="pill soft sm aln-pause"><svg class="i xs"><use href="#i-pause"/></svg>Pause all</button></div>
       <div class="aln-rows"></div>
+      <div class="aln-say" aria-live="polite">3 agents queued</div>
     </div></div>
     <div class="demo"><div class="seg2" role="group" aria-label="Agent lanes design"><button aria-pressed="true" data-v="classic">Classic</button><button aria-pressed="false" data-v="swimlanes">Swimlanes</button><button aria-pressed="false" data-v="crew">Crew</button></div></div>
     </div>
@@ -550,7 +659,7 @@ export default function AgentLanesDemo() {
 import AgentLanes from &#39;../components/designme/agent-lanes/AgentLanes.astro&#39;;
 ---
 &lt;AgentLanes /&gt;
-&lt;AgentLanes data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything AgentLanes takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>lanes</code><span class="opt">required</span></td><td><code>AgentLane[]</code></td><td></td></tr><tr><td><code>title</code></td><td><code>string</code></td><td>Header text. Defaults to &quot;3 agents working&quot;, &quot;All agents paused&quot; or &quot;All 3 agents finished&quot;</td></tr><tr><td><code>seconds</code></td><td><code>number</code></td><td>Seconds to show as m:ss. Leave it out to let the header count while agents work</td></tr><tr><td><code>paused</code></td><td><code>boolean</code></td><td>Whether every agent is paused. Working lanes then show Paused and the clock stops</td></tr><tr><td><code>defaultPaused</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onPausedChange</code></td><td><code>(paused: boolean) =&gt; void</code></td><td>Adds the Pause all / Resume button, until every lane is done</td></tr><tr><td><code>handoff</code></td><td><code>AgentHandoff</code></td><td>The handoff to show. Set it back to undefined and its line slides away; the stretch of relay line it crossed stays lit</td></tr><tr><td><code>expanded</code></td><td><code>string[]</code></td><td>Keys of the lanes that are open. Leave it out to let each row toggle itself</td></tr><tr><td><code>defaultExpanded</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onExpandedChange</code></td><td><code>(keys: string[]) =&gt; void</code></td><td></td></tr><tr><td><code>bare</code></td><td><code>boolean</code></td><td>Draws its own container (the default, as on designme.dev). Set true to sit it flat in a chat thread</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>AgentLanes.tsx<span class="l">React · 234 lines</span></summary><pre class="cp-pre" data-name="AgentLanes.tsx"><code>&#39;use client&#39;;
+&lt;AgentLanes data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything AgentLanes takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>lanes</code><span class="opt">required</span></td><td><code>AgentLane[]</code></td><td></td></tr><tr><td><code>title</code></td><td><code>string</code></td><td>Header text. Defaults to &quot;3 agents working&quot;, &quot;All agents paused&quot; or &quot;All 3 agents finished&quot;</td></tr><tr><td><code>seconds</code></td><td><code>number</code></td><td>Seconds to show as m:ss. Leave it out to let the header count while agents work</td></tr><tr><td><code>paused</code></td><td><code>boolean</code></td><td>Whether every agent is paused. Working lanes then show Paused and the clock stops</td></tr><tr><td><code>defaultPaused</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onPausedChange</code></td><td><code>(paused: boolean) =&gt; void</code></td><td>Adds the Pause all / Resume button, until every lane is done</td></tr><tr><td><code>handoff</code></td><td><code>AgentHandoff</code></td><td>The handoff to show. Set it back to undefined and its line slides away; the stretch of relay line it crossed stays lit</td></tr><tr><td><code>expanded</code></td><td><code>string[]</code></td><td>Keys of the lanes that are open. Leave it out to let each row toggle itself</td></tr><tr><td><code>defaultExpanded</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onExpandedChange</code></td><td><code>(keys: string[]) =&gt; void</code></td><td></td></tr><tr><td><code>bare</code></td><td><code>boolean</code></td><td>Draws its own container (the default, as on designme.dev). Set true to sit it flat in a chat thread</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>AgentLanes.tsx<span class="l">React · 244 lines</span></summary><pre class="cp-pre" data-name="AgentLanes.tsx"><code>&#39;use client&#39;;
 import { Fragment, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable, useReducedMotion, useSeconds } from &#39;../lib/hooks&#39;;
@@ -689,6 +798,7 @@ function Lane({ lane, paused, open, sent, got, ping, onToggle }: { lane: AgentLa
 }
 
 const clock = (s: number) =&gt; `${Math.floor(s / 60)}:${String(s % 60).padStart(2, &#39;0&#39;)}`;
+const lc = (t: string) =&gt; t.charAt(0).toLowerCase() + t.slice(1);
 
 /** Several agents working side by side, each in its own lane and hue, handing work to one another down a relay line. */
 export function AgentLanes({ lanes, title, seconds, paused, defaultPaused = false, onPausedChange, handoff, expanded, defaultExpanded = [], onExpandedChange, bare = false, className }: AgentLanesProps) {
@@ -748,16 +858,24 @@ export function AgentLanes({ lanes, title, seconds, paused, defaultPaused = fals
   const toneOf = (key: string) =&gt; hue(lanes.find(l =&gt; l.key === key));
   const head = title ?? (finished ? `All ${lanes.length} agents finished` : isPaused ? &#39;All agents paused&#39; : `${lanes.length} agents working`);
   const total = lanes.reduce((n, l) =&gt; n + (l.steps ?? 3), 0), stepsDone = lanes.reduce((n, l) =&gt; n + Math.min(l.done ?? 0, l.steps ?? 3), 0);
+  // the line under the lanes (shown in Clean&#39;s foot strip): the hand-off under way, else what the agent at work last did,
+  // and once the run is done, how it went
+  const time = clock(seconds ?? counted), working = lanes.find(l =&gt; l.status === &#39;working&#39;), did = working?.log?.[working.log.length - 1]?.text;
+  const say = finished ? `Done in ${time} · ${total} steps · ${relayed.length} hand-off${relayed.length === 1 ? &#39;&#39; : &#39;s&#39;}`
+    : isPaused ? `Paused at ${time}`
+    : handoff ? `${nameOf(handoff.from)} handed ${handoff.what} to ${nameOf(handoff.to)}`
+    : working ? (did ? `${working.name}: ${lc(did)}` : `${working.name} started: ${lc(working.activity)}`)
+    : stepsDone ? `${stepsDone} of ${total} steps` : `${lanes.length} agents queued`;
 
   return (
     &lt;div data-dm=&quot;&quot; className={cx(&#39;dm-aln&#39;, !bare &amp;&amp; &#39;dm-panel&#39;, finished &amp;&amp; &#39;dm-fin&#39;, className)} style={bare ? { paddingInline: 0 } : undefined}&gt;
       &lt;div className=&quot;dm-aln-h&quot;&gt;
         &lt;span className=&quot;dm-aln-ic&quot;&gt;{finished ? &lt;span key=&quot;ok&quot; {...enter()} style={{ display: &#39;grid&#39; }}&gt;&lt;Icon name=&quot;ok&quot; /&gt;&lt;/span&gt; : &lt;Icon name=&quot;users&quot; /&gt;}&lt;/span&gt;
         &lt;Swap className=&quot;dm-aln-t&quot;&gt;{head}&lt;/Swap&gt;
-        &lt;span className=&quot;dm-aln-m dm-muted dm-num&quot;&gt;{clock(seconds ?? counted)}&lt;/span&gt;
+        &lt;span className=&quot;dm-aln-m dm-muted dm-num&quot;&gt;{time}&lt;/span&gt;
         &lt;Swap className=&quot;dm-aln-ct dm-num&quot;&gt;{`${stepsDone} of ${total} steps`}&lt;/Swap&gt;
         {onPausedChange &amp;&amp; !finished &amp;&amp; (
-          &lt;button type=&quot;button&quot; className=&quot;dm-pill dm-soft dm-sm&quot; onClick={() =&gt; setPaused(!isPaused)}&gt;
+          &lt;button type=&quot;button&quot; className=&quot;dm-pill dm-soft dm-sm dm-aln-pause&quot; onClick={() =&gt; setPaused(!isPaused)}&gt;
             &lt;Icon name={isPaused ? &#39;play&#39; : &#39;pause&#39;} size=&quot;xs&quot; /&gt;{isPaused ? &#39;Resume&#39; : &#39;Pause all&#39;}
           &lt;/button&gt;
         )}
@@ -780,10 +898,11 @@ export function AgentLanes({ lanes, title, seconds, paused, defaultPaused = fals
           return &lt;span key={k} className=&quot;dm-aln-pk&quot; data-k={k} aria-hidden=&quot;true&quot; style={{ &#39;--dm-from&#39;: `var(--dm-aln-${toneOf(f)},var(--dm-${toneOf(f)}))`, &#39;--dm-to&#39;: `var(--dm-aln-${toneOf(g)},var(--dm-${toneOf(g)}))` } as CSSProperties} /&gt;;
         })}
       &lt;/div&gt;
+      &lt;div className=&quot;dm-aln-say&quot; aria-live=&quot;polite&quot;&gt;{finished &amp;&amp; &lt;Icon name=&quot;check&quot; size=&quot;xs&quot; /&gt;}&lt;Swap&gt;{say}&lt;/Swap&gt;&lt;/div&gt;
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>agent-lanes.css<span class="l">React · 100 lines</span></summary><pre class="cp-pre" data-name="agent-lanes.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>agent-lanes.css<span class="l">React · 131 lines</span></summary><pre class="cp-pre" data-name="agent-lanes.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Agent lanes ---------- */
 /* each agent has its own hue (--dm-c, with its tint --dm-cb): its badge, its track, its tag and its stretch of the relay line that
    joins the badges. A hand-off sends a light down that line from one agent to the next, and the stretch it crossed stays lit */
@@ -880,9 +999,40 @@ export function AgentLanes({ lanes, title, seconds, paused, defaultPaused = fals
 :root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .dm-aln-pk:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *)){width:1px;left:26.5px;border-radius:0;background:var(--dm-to)}
 :root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .dm-aln-av.dm-ping:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *))::before{animation:dm-alnpingbp .6s steps(3,end)}
 @keyframes dm-alnpingbp{from{box-shadow:0 0 0 1px var(--dm-c)}to{box-shadow:0 0 0 7px transparent}}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style=&quot;clean&quot;] .dm-aln.dm-panel,:root [data-style=&quot;clean&quot;] .dm-aln.dm-panel,:root [data-style=&quot;clean&quot;].dm-aln.dm-panel{padding:12px 20px 20px 20px}
-</code></pre></details><details class="cp-file"><summary>AgentLanes.astro<span class="l">Astro · 27 lines</span></summary><pre class="cp-pre" data-name="AgentLanes.astro"><code>---
+/* the line saying what just happened, and once the run is done, how it went: Clean&#39;s foot strip shows it */
+.dm-aln-say{display:none}
+/* Clean (owner, 18 Nov): a card with a foot strip. The head and the lanes sit 16px in from the card&#39;s edges; Pause all moves
+   down into the off-white foot strip, 8px from its edges (a 28px pill in the 22px corner), beside the line saying what just
+   happened, and when the run is done the strip closes the card with a summary. The parts are placed on one grid, so the
+   markup stays Soft&#39;s. The relay line joins the badges as one unbroken line (it meets each badge) and stops at the last one */
+:root[data-style=&quot;clean&quot;] .dm-aln.dm-panel,:root [data-style=&quot;clean&quot;] .dm-aln.dm-panel,:root [data-style=&quot;clean&quot;].dm-aln.dm-panel{display:grid;grid-template-columns:auto auto auto minmax(0,1fr) auto;grid-template-rows:auto auto 44px;padding:0;background:linear-gradient(var(--dm-line),var(--dm-line)) 0 calc(100% - 44px)/100% 1px no-repeat,linear-gradient(var(--dm-strip),var(--dm-strip)) 0 100%/100% 43px no-repeat,var(--dm-surface)}
+:root[data-style=&quot;clean&quot;] .dm-aln.dm-panel .dm-aln-h,:root [data-style=&quot;clean&quot;] .dm-aln.dm-panel .dm-aln-h,:root [data-style=&quot;clean&quot;].dm-aln.dm-panel .dm-aln-h{display:contents}
+:root[data-style=&quot;clean&quot;] .dm-aln.dm-panel .dm-aln-h&gt;*,:root [data-style=&quot;clean&quot;] .dm-aln.dm-panel .dm-aln-h&gt;*,:root [data-style=&quot;clean&quot;].dm-aln.dm-panel .dm-aln-h&gt;*{grid-row:1;align-self:center;margin-top:16px;margin-bottom:4px}
+:root[data-style=&quot;clean&quot;] .dm-aln.dm-panel .dm-aln-ic,:root [data-style=&quot;clean&quot;] .dm-aln.dm-panel .dm-aln-ic,:root [data-style=&quot;clean&quot;].dm-aln.dm-panel .dm-aln-ic{grid-column:1;margin-left:16px;margin-right:10px}
+:root[data-style=&quot;clean&quot;] .dm-aln.dm-panel .dm-aln-t,:root [data-style=&quot;clean&quot;] .dm-aln.dm-panel .dm-aln-t,:root [data-style=&quot;clean&quot;].dm-aln.dm-panel .dm-aln-t{grid-column:2;margin-right:10px}
+:root[data-style=&quot;clean&quot;] .dm-aln.dm-panel .dm-aln-m,:root [data-style=&quot;clean&quot;] .dm-aln.dm-panel .dm-aln-m,:root [data-style=&quot;clean&quot;].dm-aln.dm-panel .dm-aln-m{grid-column:3;margin-right:6px}
+:root[data-style=&quot;clean&quot;] .dm-aln.dm-panel .dm-aln-ct,:root [data-style=&quot;clean&quot;] .dm-aln.dm-panel .dm-aln-ct,:root [data-style=&quot;clean&quot;].dm-aln.dm-panel .dm-aln-ct{grid-column:4;margin-right:16px}
+:root[data-style=&quot;clean&quot;] .dm-aln.dm-panel .dm-aln-pause,:root [data-style=&quot;clean&quot;] .dm-aln.dm-panel .dm-aln-pause,:root [data-style=&quot;clean&quot;].dm-aln.dm-panel .dm-aln-pause{position:absolute;right:8px;bottom:8px;margin:0}
+:root[data-style=&quot;clean&quot;] .dm-aln.dm-panel .dm-aln-rows,:root [data-style=&quot;clean&quot;] .dm-aln.dm-panel .dm-aln-rows,:root [data-style=&quot;clean&quot;].dm-aln.dm-panel .dm-aln-rows{grid-row:2;grid-column:1 / -1;margin:4px 8px 8px}
+:root[data-style=&quot;clean&quot;] .dm-aln.dm-panel .dm-aln-say,:root [data-style=&quot;clean&quot;] .dm-aln.dm-panel .dm-aln-say,:root [data-style=&quot;clean&quot;].dm-aln.dm-panel .dm-aln-say{display:block;grid-row:3;grid-column:1 / -1;align-self:center;min-width:0;margin:0 16px;font-size:12.5px;line-height:20px;color:var(--dm-fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Pause all is pinned in the strip&#39;s corner rather than placed on the grid, so its width never squeezes the head on a phone;
+   the line beside it keeps clear of it (the button and a 12px gap) until the run is done and the button goes */
+:root[data-style=&quot;clean&quot;] .dm-aln.dm-panel:has(.dm-aln-pause) .dm-aln-say,:root [data-style=&quot;clean&quot;] .dm-aln.dm-panel:has(.dm-aln-pause) .dm-aln-say,:root [data-style=&quot;clean&quot;].dm-aln.dm-panel:has(.dm-aln-pause) .dm-aln-say{margin-right:116px}
+:root[data-style=&quot;clean&quot;] .dm-aln-say .dm-i,:root [data-style=&quot;clean&quot;] .dm-aln-say .dm-i,:root [data-style=&quot;clean&quot;].dm-aln-say .dm-i{color:color-mix(in srgb,var(--dm-ok-mark) 85%,var(--dm-ok));vertical-align:-2px;margin-right:6px}
+:root[data-style=&quot;clean&quot;] .dm-aln.dm-fin .dm-aln-ic,:root [data-style=&quot;clean&quot;] .dm-aln.dm-fin .dm-aln-ic,:root [data-style=&quot;clean&quot;].dm-aln.dm-fin .dm-aln-ic{color:color-mix(in srgb,var(--dm-ok-mark) 85%,var(--dm-ok))}
+/* the lanes: their fills 8px in from the card, so a lane&#39;s corner is the card&#39;s less 8px; their content 16px in */
+:root[data-style=&quot;clean&quot;] .dm-aln-lane,:root [data-style=&quot;clean&quot;] .dm-aln-lane,:root [data-style=&quot;clean&quot;].dm-aln-lane{border-radius:14px}
+:root[data-style=&quot;clean&quot;] .dm-aln-row,:root [data-style=&quot;clean&quot;] .dm-aln-row,:root [data-style=&quot;clean&quot;].dm-aln-row{padding:8px}
+:root[data-style=&quot;clean&quot;] .dm-aln-det,:root [data-style=&quot;clean&quot;] .dm-aln-det,:root [data-style=&quot;clean&quot;].dm-aln-det{padding:0 8px 8px 54px}
+:root[data-style=&quot;clean&quot;] .dm-aln-hand,:root [data-style=&quot;clean&quot;] .dm-aln-hand,:root [data-style=&quot;clean&quot;].dm-aln-hand{padding:6px 8px 6px 54px}
+:root[data-style=&quot;clean&quot;] .dm-aln-rows&gt;*::before,:root [data-style=&quot;clean&quot;] .dm-aln-rows&gt;*::before,:root [data-style=&quot;clean&quot;].dm-aln-rows&gt;*::before,:root[data-style=&quot;clean&quot;] .dm-aln-lane::after,:root [data-style=&quot;clean&quot;] .dm-aln-lane::after,:root [data-style=&quot;clean&quot;].dm-aln-lane::after{left:24.25px;width:1.5px;border-radius:1px;background:var(--dm-faint)}
+:root[data-style=&quot;clean&quot;] .dm-aln-lane::before,:root [data-style=&quot;clean&quot;] .dm-aln-lane::before,:root [data-style=&quot;clean&quot;].dm-aln-lane::before{top:42px}
+:root[data-style=&quot;clean&quot;] .dm-aln-lane::after,:root [data-style=&quot;clean&quot;] .dm-aln-lane::after,:root [data-style=&quot;clean&quot;].dm-aln-lane::after{height:8px}
+:root[data-style=&quot;clean&quot;] .dm-aln-lane:not(:has(~.dm-aln-lane))::before,:root [data-style=&quot;clean&quot;] .dm-aln-lane:not(:has(~.dm-aln-lane))::before,:root [data-style=&quot;clean&quot;].dm-aln-lane:not(:has(~.dm-aln-lane))::before{display:none}
+:root[data-style=&quot;clean&quot;] .dm-aln-rows&gt;.dm-aln-lane.dm-sent::before,:root [data-style=&quot;clean&quot;] .dm-aln-rows&gt;.dm-aln-lane.dm-sent::before,:root [data-style=&quot;clean&quot;].dm-aln-rows&gt;.dm-aln-lane.dm-sent::before,:root[data-style=&quot;clean&quot;] .dm-aln-rows&gt;.dm-aln-lane.dm-got::after,:root [data-style=&quot;clean&quot;] .dm-aln-rows&gt;.dm-aln-lane.dm-got::after,:root [data-style=&quot;clean&quot;].dm-aln-rows&gt;.dm-aln-lane.dm-got::after,:root[data-style=&quot;clean&quot;] .dm-aln-rows&gt;.dm-aln-hf.dm-lit::before,:root [data-style=&quot;clean&quot;] .dm-aln-rows&gt;.dm-aln-hf.dm-lit::before,:root [data-style=&quot;clean&quot;].dm-aln-rows&gt;.dm-aln-hf.dm-lit::before{background:transparent}
+:root[data-style=&quot;clean&quot;] .dm-aln-pk,:root [data-style=&quot;clean&quot;] .dm-aln-pk,:root [data-style=&quot;clean&quot;].dm-aln-pk{left:24.25px;width:1.5px;border-radius:1px;box-sizing:content-box;padding:4px 0;margin-top:-4px}
+@media (max-width:400px){:root[data-style=&quot;clean&quot;] .dm-aln.dm-panel .dm-aln-t,:root [data-style=&quot;clean&quot;] .dm-aln.dm-panel .dm-aln-t,:root [data-style=&quot;clean&quot;].dm-aln.dm-panel .dm-aln-t{margin-left:16px}}
+</code></pre></details><details class="cp-file"><summary>AgentLanes.astro<span class="l">Astro · 28 lines</span></summary><pre class="cp-pre" data-name="AgentLanes.astro"><code>---
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
 // Agent lanes: Several agents working in parallel, each with its own lane and hand-offs.
 // The markup, CSS and script are designme.dev&#39;s own, run by the shared core in ../core, which mounts the component when it scrolls
@@ -902,21 +1052,23 @@ const { class: className, ...rest } = Astro.props;
 &lt;div class=&quot;aln panel&quot;&gt;
   &lt;div class=&quot;aln-h&quot;&gt;&lt;span class=&quot;aln-ic&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-users&quot;/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;span class=&quot;aln-t&quot;&gt;3 agents working&lt;/span&gt;&lt;span class=&quot;aln-m muted num&quot;&gt;0:00&lt;/span&gt;&lt;span class=&quot;aln-ct num&quot;&gt;0 of 9 steps&lt;/span&gt;&lt;button class=&quot;pill soft sm aln-pause&quot;&gt;&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-pause&quot;/&gt;&lt;/svg&gt;Pause all&lt;/button&gt;&lt;/div&gt;
   &lt;div class=&quot;aln-rows&quot;&gt;&lt;/div&gt;
+  &lt;div class=&quot;aln-say&quot; aria-live=&quot;polite&quot;&gt;3 agents queued&lt;/div&gt;
 &lt;/div&gt;
   &lt;/Fragment&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;script&gt;
   import &#39;./agent-lanes.js&#39;;
 &lt;/script&gt;
-</code></pre></details><details class="cp-file"><summary>agent-lanes.html<span class="l">HTML · 9 lines</span></summary><pre class="cp-pre" data-name="agent-lanes.html"><code>&lt;div class=&quot;card wide&quot; data-c=&quot;agent-lanes&quot;&gt;
+</code></pre></details><details class="cp-file"><summary>agent-lanes.html<span class="l">HTML · 10 lines</span></summary><pre class="cp-pre" data-name="agent-lanes.html"><code>&lt;div class=&quot;card wide&quot; data-c=&quot;agent-lanes&quot;&gt;
   &lt;div class=&quot;stage-in&quot;&gt;
     &lt;div class=&quot;aln panel&quot;&gt;
       &lt;div class=&quot;aln-h&quot;&gt;&lt;span class=&quot;aln-ic&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-users&quot;/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;span class=&quot;aln-t&quot;&gt;3 agents working&lt;/span&gt;&lt;span class=&quot;aln-m muted num&quot;&gt;0:00&lt;/span&gt;&lt;span class=&quot;aln-ct num&quot;&gt;0 of 9 steps&lt;/span&gt;&lt;button class=&quot;pill soft sm aln-pause&quot;&gt;&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-pause&quot;/&gt;&lt;/svg&gt;Pause all&lt;/button&gt;&lt;/div&gt;
       &lt;div class=&quot;aln-rows&quot;&gt;&lt;/div&gt;
+      &lt;div class=&quot;aln-say&quot; aria-live=&quot;polite&quot;&gt;3 agents queued&lt;/div&gt;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>agent-lanes.css<span class="l">HTML · 99 lines</span></summary><pre class="cp-pre" data-name="agent-lanes.css"><code>/* ---------- Agent lanes ---------- */
+</code></pre></details><details class="cp-file"><summary>agent-lanes.css<span class="l">HTML · 130 lines</span></summary><pre class="cp-pre" data-name="agent-lanes.css"><code>/* ---------- Agent lanes ---------- */
 /* each agent has its own hue (--dm-c, with its tint --dm-cb): its badge, its track, its tag and its stretch of the relay line that
    joins the badges. A hand-off sends a light down that line from one agent to the next, and the stretch it crossed stays lit */
 .aln{padding:var(--dm-s-2)}
@@ -1012,9 +1164,40 @@ const { class: className, ...rest } = Astro.props;
 :root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .aln-pk:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *)){width:1px;left:26.5px;border-radius:0;background:var(--dm-to)}
 :root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .aln-av.ping:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *))::before{animation:alnpingbp .6s steps(3,end)}
 @keyframes alnpingbp{from{box-shadow:0 0 0 1px var(--dm-c)}to{box-shadow:0 0 0 7px transparent}}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style=&quot;clean&quot;] .aln.panel,:root [data-style=&quot;clean&quot;] .aln.panel,:root [data-style=&quot;clean&quot;].aln.panel{padding:12px 20px 20px 20px}
-</code></pre></details><details class="cp-file"><summary>agent-lanes.js<span class="l">HTML · 68 lines</span></summary><pre class="cp-pre" data-name="agent-lanes.js"><code>DM.def(&#39;agent-lanes&#39;, (r, c) =&gt; {
+/* the line saying what just happened, and once the run is done, how it went: Clean&#39;s foot strip shows it */
+.aln-say{display:none}
+/* Clean (owner, 18 Nov): a card with a foot strip. The head and the lanes sit 16px in from the card&#39;s edges; Pause all moves
+   down into the off-white foot strip, 8px from its edges (a 28px pill in the 22px corner), beside the line saying what just
+   happened, and when the run is done the strip closes the card with a summary. The parts are placed on one grid, so the
+   markup stays Soft&#39;s. The relay line joins the badges as one unbroken line (it meets each badge) and stops at the last one */
+:root[data-style=&quot;clean&quot;] .aln.panel,:root [data-style=&quot;clean&quot;] .aln.panel,:root [data-style=&quot;clean&quot;].aln.panel{display:grid;grid-template-columns:auto auto auto minmax(0,1fr) auto;grid-template-rows:auto auto 44px;padding:0;background:linear-gradient(var(--dm-line),var(--dm-line)) 0 calc(100% - 44px)/100% 1px no-repeat,linear-gradient(var(--dm-strip),var(--dm-strip)) 0 100%/100% 43px no-repeat,var(--dm-surface)}
+:root[data-style=&quot;clean&quot;] .aln.panel .aln-h,:root [data-style=&quot;clean&quot;] .aln.panel .aln-h,:root [data-style=&quot;clean&quot;].aln.panel .aln-h{display:contents}
+:root[data-style=&quot;clean&quot;] .aln.panel .aln-h&gt;*,:root [data-style=&quot;clean&quot;] .aln.panel .aln-h&gt;*,:root [data-style=&quot;clean&quot;].aln.panel .aln-h&gt;*{grid-row:1;align-self:center;margin-top:16px;margin-bottom:4px}
+:root[data-style=&quot;clean&quot;] .aln.panel .aln-ic,:root [data-style=&quot;clean&quot;] .aln.panel .aln-ic,:root [data-style=&quot;clean&quot;].aln.panel .aln-ic{grid-column:1;margin-left:16px;margin-right:10px}
+:root[data-style=&quot;clean&quot;] .aln.panel .aln-t,:root [data-style=&quot;clean&quot;] .aln.panel .aln-t,:root [data-style=&quot;clean&quot;].aln.panel .aln-t{grid-column:2;margin-right:10px}
+:root[data-style=&quot;clean&quot;] .aln.panel .aln-m,:root [data-style=&quot;clean&quot;] .aln.panel .aln-m,:root [data-style=&quot;clean&quot;].aln.panel .aln-m{grid-column:3;margin-right:6px}
+:root[data-style=&quot;clean&quot;] .aln.panel .aln-ct,:root [data-style=&quot;clean&quot;] .aln.panel .aln-ct,:root [data-style=&quot;clean&quot;].aln.panel .aln-ct{grid-column:4;margin-right:16px}
+:root[data-style=&quot;clean&quot;] .aln.panel .aln-pause,:root [data-style=&quot;clean&quot;] .aln.panel .aln-pause,:root [data-style=&quot;clean&quot;].aln.panel .aln-pause{position:absolute;right:8px;bottom:8px;margin:0}
+:root[data-style=&quot;clean&quot;] .aln.panel .aln-rows,:root [data-style=&quot;clean&quot;] .aln.panel .aln-rows,:root [data-style=&quot;clean&quot;].aln.panel .aln-rows{grid-row:2;grid-column:1 / -1;margin:4px 8px 8px}
+:root[data-style=&quot;clean&quot;] .aln.panel .aln-say,:root [data-style=&quot;clean&quot;] .aln.panel .aln-say,:root [data-style=&quot;clean&quot;].aln.panel .aln-say{display:block;grid-row:3;grid-column:1 / -1;align-self:center;min-width:0;margin:0 16px;font-size:12.5px;line-height:20px;color:var(--dm-fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Pause all is pinned in the strip&#39;s corner rather than placed on the grid, so its width never squeezes the head on a phone;
+   the line beside it keeps clear of it (the button and a 12px gap) until the run is done and the button goes */
+:root[data-style=&quot;clean&quot;] .aln.panel:has(.aln-pause) .aln-say,:root [data-style=&quot;clean&quot;] .aln.panel:has(.aln-pause) .aln-say,:root [data-style=&quot;clean&quot;].aln.panel:has(.aln-pause) .aln-say{margin-right:116px}
+:root[data-style=&quot;clean&quot;] .aln-say .i,:root [data-style=&quot;clean&quot;] .aln-say .i,:root [data-style=&quot;clean&quot;].aln-say .i{color:color-mix(in srgb,var(--dm-ok-mark) 85%,var(--dm-ok));vertical-align:-2px;margin-right:6px}
+:root[data-style=&quot;clean&quot;] .aln.fin .aln-ic,:root [data-style=&quot;clean&quot;] .aln.fin .aln-ic,:root [data-style=&quot;clean&quot;].aln.fin .aln-ic{color:color-mix(in srgb,var(--dm-ok-mark) 85%,var(--dm-ok))}
+/* the lanes: their fills 8px in from the card, so a lane&#39;s corner is the card&#39;s less 8px; their content 16px in */
+:root[data-style=&quot;clean&quot;] .aln-lane,:root [data-style=&quot;clean&quot;] .aln-lane,:root [data-style=&quot;clean&quot;].aln-lane{border-radius:14px}
+:root[data-style=&quot;clean&quot;] .aln-row,:root [data-style=&quot;clean&quot;] .aln-row,:root [data-style=&quot;clean&quot;].aln-row{padding:8px}
+:root[data-style=&quot;clean&quot;] .aln-det,:root [data-style=&quot;clean&quot;] .aln-det,:root [data-style=&quot;clean&quot;].aln-det{padding:0 8px 8px 54px}
+:root[data-style=&quot;clean&quot;] .aln-hand,:root [data-style=&quot;clean&quot;] .aln-hand,:root [data-style=&quot;clean&quot;].aln-hand{padding:6px 8px 6px 54px}
+:root[data-style=&quot;clean&quot;] .aln-rows&gt;*::before,:root [data-style=&quot;clean&quot;] .aln-rows&gt;*::before,:root [data-style=&quot;clean&quot;].aln-rows&gt;*::before,:root[data-style=&quot;clean&quot;] .aln-lane::after,:root [data-style=&quot;clean&quot;] .aln-lane::after,:root [data-style=&quot;clean&quot;].aln-lane::after{left:24.25px;width:1.5px;border-radius:1px;background:var(--dm-faint)}
+:root[data-style=&quot;clean&quot;] .aln-lane::before,:root [data-style=&quot;clean&quot;] .aln-lane::before,:root [data-style=&quot;clean&quot;].aln-lane::before{top:42px}
+:root[data-style=&quot;clean&quot;] .aln-lane::after,:root [data-style=&quot;clean&quot;] .aln-lane::after,:root [data-style=&quot;clean&quot;].aln-lane::after{height:8px}
+:root[data-style=&quot;clean&quot;] .aln-lane:not(:has(~.aln-lane))::before,:root [data-style=&quot;clean&quot;] .aln-lane:not(:has(~.aln-lane))::before,:root [data-style=&quot;clean&quot;].aln-lane:not(:has(~.aln-lane))::before{display:none}
+:root[data-style=&quot;clean&quot;] .aln-rows&gt;.aln-lane.sent::before,:root [data-style=&quot;clean&quot;] .aln-rows&gt;.aln-lane.sent::before,:root [data-style=&quot;clean&quot;].aln-rows&gt;.aln-lane.sent::before,:root[data-style=&quot;clean&quot;] .aln-rows&gt;.aln-lane.got::after,:root [data-style=&quot;clean&quot;] .aln-rows&gt;.aln-lane.got::after,:root [data-style=&quot;clean&quot;].aln-rows&gt;.aln-lane.got::after,:root[data-style=&quot;clean&quot;] .aln-rows&gt;.aln-hf.lit::before,:root [data-style=&quot;clean&quot;] .aln-rows&gt;.aln-hf.lit::before,:root [data-style=&quot;clean&quot;].aln-rows&gt;.aln-hf.lit::before{background:transparent}
+:root[data-style=&quot;clean&quot;] .aln-pk,:root [data-style=&quot;clean&quot;] .aln-pk,:root [data-style=&quot;clean&quot;].aln-pk{left:24.25px;width:1.5px;border-radius:1px;box-sizing:content-box;padding:4px 0;margin-top:-4px}
+@media (max-width:400px){:root[data-style=&quot;clean&quot;] .aln.panel .aln-t,:root [data-style=&quot;clean&quot;] .aln.panel .aln-t,:root [data-style=&quot;clean&quot;].aln.panel .aln-t{margin-left:16px}}
+</code></pre></details><details class="cp-file"><summary>agent-lanes.js<span class="l">HTML · 77 lines</span></summary><pre class="cp-pre" data-name="agent-lanes.js"><code>DM.def(&#39;agent-lanes&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{users}&#39;, I(&#39;users&#39;)).replace(&#39;{pause}&#39;, I(&#39;pause&#39;,&#39;xs&#39;));
   // each agent has a hue of its own (t names the palette slot): its badge, its track, its tag and its stretch of the relay line
   const L = [
@@ -1022,7 +1205,7 @@ const { class: className, ...rest } = Astro.props;
     { n:&#39;Designer&#39;, ic:&#39;palette&#39;, t:&#39;pl&#39;, wait:&#39;Waiting for the brief&#39;, acts:[&#39;Laying out pricing cards&#39;,&#39;Setting type and spacing&#39;,&#39;Exporting frames&#39;], log:[&#39;Made 3 card variants&#39;,&#39;Applied spacing tokens&#39;,&#39;Exported 4 frames&#39;] },
     { n:&#39;Reviewer&#39;, ic:&#39;eye&#39;, t:&#39;pm&#39;, wait:&#39;Waiting for the designer&#39;, acts:[&#39;Checking contrast&#39;,&#39;Checking copy&#39;,&#39;Signing off&#39;], log:[&#39;Contrast passes AA&#39;,&#39;Fixed 2 lines of copy&#39;,&#39;Approved&#39;] }
   ];
-  const root = $(&#39;.aln&#39;, r), rows = $(&#39;.aln-rows&#39;, r), ct = $(&#39;.aln-ct&#39;, r), STEPS = L.length * 3;
+  const root = $(&#39;.aln&#39;, r), rows = $(&#39;.aln-rows&#39;, r), ct = $(&#39;.aln-ct&#39;, r), say = $(&#39;.aln-say&#39;, r), STEPS = L.length * 3;
   L.forEach(l =&gt; {
     l.el = html(`&lt;div class=&quot;aln-lane&quot; data-s=&quot;queued&quot; style=&quot;--dm-c:var(--dm-${l.t});--dm-cb:var(--dm-${l.t}-bg);--dm-cm:var(--dm-aln-${l.t},var(--dm-${l.t}))&quot;&gt;&lt;button class=&quot;aln-row&quot; aria-expanded=&quot;false&quot;&gt;&lt;span class=&quot;aln-av&quot;&gt;${I(l.ic)}&lt;/span&gt;&lt;span class=&quot;aln-who&quot;&gt;&lt;span class=&quot;aln-n&quot;&gt;${l.n}&lt;/span&gt;&lt;span class=&quot;aln-a&quot;&gt;${l.wait || &#39;Queued&#39;}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;aln-tr&quot; aria-hidden=&quot;true&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;aln-st&quot;&gt;&lt;span class=&quot;tag&quot;&gt;Queued&lt;/span&gt;&lt;/span&gt;&lt;/button&gt;&lt;div class=&quot;fold shut&quot;&gt;&lt;div&gt;&lt;div class=&quot;aln-det&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;`);
     rows.appendChild(l.el); const b = $(&#39;.aln-row&#39;, l.el), f = $(&#39;.fold&#39;, l.el);
@@ -1031,24 +1214,33 @@ const { class: className, ...rest } = Astro.props;
   const TAG = { queued:&#39;&lt;span class=&quot;tag&quot;&gt;Queued&lt;/span&gt;&#39;, waiting:`&lt;span class=&quot;tag&quot;&gt;${I(&#39;clock&#39;,&#39;xs&#39;)}Waiting&lt;/span&gt;`, working:&#39;&lt;span class=&quot;tag aln-tg&quot;&gt;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;Working&lt;/span&gt;&#39;, paused:&#39;&lt;span class=&quot;tag warn&quot;&gt;Paused&lt;/span&gt;&#39;, done:`&lt;span class=&quot;tag ok&quot;&gt;${I(&#39;check&#39;,&#39;xs&#39;)}Done&lt;/span&gt;` };
   const state = (l, s) =&gt; { l.el.dataset.s = s; const t = $(&#39;.aln-st&#39;, l.el); t.innerHTML = TAG[s]; enter(t.firstElementChild); };
   const act = (l, t, live) =&gt; { const a = $(&#39;.aln-a&#39;, l.el); a.classList.toggle(&#39;live&#39;, !!live); a.classList.toggle(&#39;shim&#39;, !!live); swap(a, t); };
-  let paused = false, secs = 0, finished = false, steps = 0;
+  let paused = false, secs = 0, finished = false, steps = 0, hand = &#39;&#39;, hands = 0;
   const count = () =&gt; swap(ct, `${steps} of ${STEPS} steps`);
+  const clk = () =&gt; Math.floor(secs / 60) + &#39;:&#39; + String(secs % 60).padStart(2, &#39;0&#39;), lc = t =&gt; t.charAt(0).toLowerCase() + t.slice(1);
+  // the line under the lanes (shown in Clean&#39;s foot strip): the hand-off under way, else what the agent at work last did,
+  // and once the run is done, how it went
+  const tell = () =&gt; { if (!say) return;
+    if (finished) return swap(say, `${I(&#39;check&#39;,&#39;xs&#39;)}Done in ${clk()} · ${STEPS} steps · ${hands} hand-off${hands === 1 ? &#39;&#39; : &#39;s&#39;}`, true);
+    if (paused) return swap(say, `Paused at ${clk()}`);
+    if (hand) return swap(say, hand);
+    const w = L.find(l =&gt; l.running);
+    swap(say, w ? (w.did ? `${w.n}: ${lc(w.did)}` : `${w.n} started: ${lc(w.acts[0])}`) : steps ? `${steps} of ${STEPS} steps` : `${L.length} agents queued`); };
   const pb = $(&#39;.aln-pause&#39;, r);
   pb.onclick = () =&gt; { paused = !paused; pb.innerHTML = I(paused ? &#39;play&#39; : &#39;pause&#39;,&#39;xs&#39;) + (paused ? &#39;Resume&#39; : &#39;Pause all&#39;); swap($(&#39;.aln-t&#39;, r), paused ? &#39;All agents paused&#39; : &#39;3 agents working&#39;);
-    L.forEach(l =&gt; { if (l.running){ state(l, paused ? &#39;paused&#39; : &#39;working&#39;); $(&#39;.aln-a&#39;, l.el).classList.toggle(&#39;shim&#39;, !paused); } }); };
-  c.every(1000, () =&gt; { if (!paused &amp;&amp; !finished){ secs++; $(&#39;.aln-m&#39;, r).textContent = Math.floor(secs / 60) + &#39;:&#39; + String(secs % 60).padStart(2, &#39;0&#39;); } });
+    L.forEach(l =&gt; { if (l.running){ state(l, paused ? &#39;paused&#39; : &#39;working&#39;); $(&#39;.aln-a&#39;, l.el).classList.toggle(&#39;shim&#39;, !paused); } }); tell(); };
+  c.every(1000, () =&gt; { if (!paused &amp;&amp; !finished){ secs++; $(&#39;.aln-m&#39;, r).textContent = clk(); } });
   // time only passes for the agents while they aren&#39;t paused; each() hears how far through the wait they are
   const hold = async (ms, each) =&gt; { let t = 0; while (t &lt; ms){ await c.wait(100); if (!paused){ t += 100; each &amp;&amp; each(t / ms); } } };
   async function work(l){
-    l.running = true; state(l, &#39;working&#39;);
+    l.running = true; l.did = &#39;&#39;; state(l, &#39;working&#39;); tell();
     const bars = $$(&#39;.aln-tr i&#39;, l.el), det = $(&#39;.aln-det&#39;, l.el);
     for (let i = 0; i &lt; 3; i++){
       bars[i].classList.add(&#39;run&#39;); act(l, l.acts[i], true);
       await hold(1500, p =&gt; bars[i].style.setProperty(&#39;--dm-p&#39;, p.toFixed(3)));
-      bars[i].classList.replace(&#39;run&#39;, &#39;on&#39;); steps++; count();
+      bars[i].classList.replace(&#39;run&#39;, &#39;on&#39;); steps++; count(); l.did = l.log[i]; tell();
       const d = html(`&lt;div&gt;&lt;span&gt;${l.log[i]}&lt;/span&gt;&lt;span class=&quot;muted&quot;&gt;${secs}s&lt;/span&gt;&lt;/div&gt;`); det.appendChild(d); enter(d);
     }
-    l.running = false; act(l, l.log[2]); state(l, &#39;done&#39;);
+    l.running = false; act(l, l.log[2]); state(l, &#39;done&#39;); tell();
   }
   // the relay line draws itself from one badge down to the next, the badge it reaches rings, and the stroke stays as the lit
   // stretch: one line from badge to badge that follows them as the hand-off line opens and shuts (the grey under it steps aside)
@@ -1064,11 +1256,11 @@ const { class: className, ...rest } = Astro.props;
   }
   async function handoff(from, to, txt){
     const h = html(`&lt;div class=&quot;fold shut aln-hf&quot; style=&quot;--dm-from:var(--dm-${from.t});--dm-to:var(--dm-${to.t})&quot;&gt;&lt;div&gt;&lt;div class=&quot;aln-hand&quot;&gt;&lt;b class=&quot;f&quot;&gt;${from.n}&lt;/b&gt; handed ${txt} to &lt;b class=&quot;t&quot;&gt;${to.n}&lt;/b&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;`);
-    to.el.before(h); void h.offsetWidth; h.classList.remove(&#39;shut&#39;); enter($(&#39;.aln-hand&#39;, h), 80);
+    to.el.before(h); void h.offsetWidth; h.classList.remove(&#39;shut&#39;); enter($(&#39;.aln-hand&#39;, h), 80); hand = `${from.n} handed ${txt} to ${to.n}`; hands++; tell();
     await c.wait(REDUCE ? 0 : 500); await carry(from, to);
     from.el.classList.add(&#39;sent&#39;); h.classList.add(&#39;lit&#39;); to.el.classList.add(&#39;got&#39;);
     const av = $(&#39;.aln-av&#39;, to.el); av.classList.add(&#39;ping&#39;); c.later(950, () =&gt; av.classList.remove(&#39;ping&#39;));
-    await c.wait(1300); h.classList.add(&#39;shut&#39;); await c.wait(REDUCE ? 0 : 700); h.remove();
+    await c.wait(1300); h.classList.add(&#39;shut&#39;); hand = &#39;&#39;; tell(); await c.wait(REDUCE ? 0 : 700); h.remove();
   }
   c.run(async () =&gt; {
     await c.wait(600);
@@ -1078,7 +1270,7 @@ const { class: className, ...rest } = Astro.props;
     await work(L[1]); await handoff(L[1], L[2], &#39;4 frames&#39;);
     await work(L[2]);
     finished = true; root.classList.add(&#39;fin&#39;); $(&#39;.aln-ic&#39;, r).innerHTML = I(&#39;ok&#39;); enter($(&#39;.aln-ic&#39;, r).firstElementChild);
-    swap($(&#39;.aln-t&#39;, r), &#39;All 3 agents finished&#39;); pb.remove();
+    swap($(&#39;.aln-t&#39;, r), &#39;All 3 agents finished&#39;); pb.remove(); tell();
   });
 });
 </code></pre></details></div></section><section class="cp-sec" id="questions"><div class="pg-sh"><span class="n">06</span><h2>Questions</h2><p>What people ask about it.</p></div><dl class="cp-qs"><div><dt class="pg-t">Does Pause all stop my agents?</dt><dd>No. It changes how the lanes look and calls <code>onPausedChange</code>. Your code pauses the agents, and the lanes' own <code>status</code> values stay as you set them.</dd></div><div><dt class="pg-t">How do I show one agent handing work to another?</dt><dd>Set <code>handoff</code> with the <code>from</code> and <code>to</code> lane keys and a short <code>what</code>, like "the brief". The light takes about a second and a half to arrive; clear <code>handoff</code> after that and the line closes before it goes.</dd></div><div><dt class="pg-t">Can a lane have more than three steps?</dt><dd>Yes. Set <code>steps</code> on the lane to cut its track into as many parts as you need, move <code>done</code> forward as each one finishes, and set <code>progress</code> to fill the one in hand.</dd></div></dl></section><section class="cp-sec" id="more"><div class="pg-sh"><span class="n">07</span><h2>More in Agent status</h2><p>Show what the agent is doing, how far along it is, and what it is working with.</p></div><div class="pg-cards"><div class="pg-card"><a class="pg-t pg-link" href="/components/thinking">Thinking</a><span class="pg-d">The live trace, written as the agent works, then folded away.</span><span class="pg-thumb" data-reg="thinking" data-h="420"><img class="lt" src="/components/thumbs/thinking-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/thinking-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/reasoning-trail">Reasoning trail</a><span class="pg-d">The agent&#39;s plan, notes, sources and edits, after it thinks.</span><span class="pg-thumb" data-reg="reasoning-trail" data-h="440"><img class="lt" src="/components/thumbs/reasoning-trail-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/reasoning-trail-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/agent-tree">Agent tree</a><span class="pg-d">An orchestrator and its sub-agents, with cost rolled up per branch.</span><span class="pg-thumb" data-reg="agent-tree" data-h="571" data-wide="1"><img class="lt" src="/components/thumbs/agent-tree-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/agent-tree-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/agent-inbox">Agent inbox</a><span class="pg-d">Every run that needs you, is running or is done, in one list.</span><span class="pg-thumb" data-reg="agent-inbox" data-h="583" data-wide="1"><img class="lt" src="/components/thumbs/agent-inbox-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/agent-inbox-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/trace-view">Trace view</a><span class="pg-d">One agent run as a waterfall of spans, with latency and tokens.</span><span class="pg-thumb" data-reg="trace-view" data-h="645" data-wide="1"><img class="lt" src="/components/thumbs/trace-view-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/trace-view-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/web-search">Web search</a><span class="pg-d">The agent&#39;s searches as a trail: what it asked, what came back, what it read or skipped, and the answer with its sources.</span><span class="pg-thumb" data-reg="web-search" data-h="524" data-wide="1"><img class="lt" src="/components/thumbs/web-search-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/web-search-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/agent-run-timeline">Agent run timeline</a><span class="pg-d">Every model and tool step of a run on one time axis.</span><span class="pg-thumb" data-reg="agent-run-timeline" data-h="553" data-wide="1"><img class="lt" src="/components/thumbs/agent-run-timeline-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/agent-run-timeline-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/context-meter">Context meter</a><span class="pg-d">How full the context is and what fills it, with Compact to free room.</span><span class="pg-thumb" data-reg="context-meter" data-h="463"><img class="lt" src="/components/thumbs/context-meter-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/context-meter-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div></div><a class="cp-all" href="/#s-status">All 15 in Agent status →</a></section><nav class="dc-pn" aria-label="Previous and next component"><a href="/components/reasoning-trail" rel="prev"><span class="pg-d"><svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"/></svg>Previous</span><span class="pg-t">Reasoning trail</span></a><a href="/components/agent-tree" rel="next" class="n"><span class="pg-d">Next<svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span><span class="pg-t">Agent tree</span></a></nav></div></div></div><script>
@@ -1425,7 +1617,7 @@ const fitHits = window.dmFitHits || (() => {
     { n:'Designer', ic:'palette', t:'pl', wait:'Waiting for the brief', acts:['Laying out pricing cards','Setting type and spacing','Exporting frames'], log:['Made 3 card variants','Applied spacing tokens','Exported 4 frames'] },
     { n:'Reviewer', ic:'eye', t:'pm', wait:'Waiting for the designer', acts:['Checking contrast','Checking copy','Signing off'], log:['Contrast passes AA','Fixed 2 lines of copy','Approved'] }
   ];
-  const root = $('.aln', r), rows = $('.aln-rows', r), ct = $('.aln-ct', r), STEPS = L.length * 3;
+  const root = $('.aln', r), rows = $('.aln-rows', r), ct = $('.aln-ct', r), say = $('.aln-say', r), STEPS = L.length * 3;
   L.forEach(l => {
     l.el = html(`<div class="aln-lane" data-s="queued" style="--dm-c:var(--dm-${l.t});--dm-cb:var(--dm-${l.t}-bg);--dm-cm:var(--dm-aln-${l.t},var(--dm-${l.t}))"><button class="aln-row" aria-expanded="false"><span class="aln-av">${I(l.ic)}</span><span class="aln-who"><span class="aln-n">${l.n}</span><span class="aln-a">${l.wait || 'Queued'}</span></span><span class="aln-tr" aria-hidden="true"><i></i><i></i><i></i></span><span class="aln-st"><span class="tag">Queued</span></span></button><div class="fold shut"><div><div class="aln-det"></div></div></div></div>`);
     rows.appendChild(l.el); const b = $('.aln-row', l.el), f = $('.fold', l.el);
@@ -1434,24 +1626,33 @@ const fitHits = window.dmFitHits || (() => {
   const TAG = { queued:'<span class="tag">Queued</span>', waiting:`<span class="tag">${I('clock','xs')}Waiting</span>`, working:'<span class="tag aln-tg"><span class="spin"></span>Working</span>', paused:'<span class="tag warn">Paused</span>', done:`<span class="tag ok">${I('check','xs')}Done</span>` };
   const state = (l, s) => { l.el.dataset.s = s; const t = $('.aln-st', l.el); t.innerHTML = TAG[s]; enter(t.firstElementChild); };
   const act = (l, t, live) => { const a = $('.aln-a', l.el); a.classList.toggle('live', !!live); a.classList.toggle('shim', !!live); swap(a, t); };
-  let paused = false, secs = 0, finished = false, steps = 0;
+  let paused = false, secs = 0, finished = false, steps = 0, hand = '', hands = 0;
   const count = () => swap(ct, `${steps} of ${STEPS} steps`);
+  const clk = () => Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0'), lc = t => t.charAt(0).toLowerCase() + t.slice(1);
+  // the line under the lanes (shown in Clean's foot strip): the hand-off under way, else what the agent at work last did,
+  // and once the run is done, how it went
+  const tell = () => { if (!say) return;
+    if (finished) return swap(say, `${I('check','xs')}Done in ${clk()} · ${STEPS} steps · ${hands} hand-off${hands === 1 ? '' : 's'}`, true);
+    if (paused) return swap(say, `Paused at ${clk()}`);
+    if (hand) return swap(say, hand);
+    const w = L.find(l => l.running);
+    swap(say, w ? (w.did ? `${w.n}: ${lc(w.did)}` : `${w.n} started: ${lc(w.acts[0])}`) : steps ? `${steps} of ${STEPS} steps` : `${L.length} agents queued`); };
   const pb = $('.aln-pause', r);
   pb.onclick = () => { paused = !paused; pb.innerHTML = I(paused ? 'play' : 'pause','xs') + (paused ? 'Resume' : 'Pause all'); swap($('.aln-t', r), paused ? 'All agents paused' : '3 agents working');
-    L.forEach(l => { if (l.running){ state(l, paused ? 'paused' : 'working'); $('.aln-a', l.el).classList.toggle('shim', !paused); } }); };
-  c.every(1000, () => { if (!paused && !finished){ secs++; $('.aln-m', r).textContent = Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0'); } });
+    L.forEach(l => { if (l.running){ state(l, paused ? 'paused' : 'working'); $('.aln-a', l.el).classList.toggle('shim', !paused); } }); tell(); };
+  c.every(1000, () => { if (!paused && !finished){ secs++; $('.aln-m', r).textContent = clk(); } });
   // time only passes for the agents while they aren't paused; each() hears how far through the wait they are
   const hold = async (ms, each) => { let t = 0; while (t < ms){ await c.wait(100); if (!paused){ t += 100; each && each(t / ms); } } };
   async function work(l){
-    l.running = true; state(l, 'working');
+    l.running = true; l.did = ''; state(l, 'working'); tell();
     const bars = $$('.aln-tr i', l.el), det = $('.aln-det', l.el);
     for (let i = 0; i < 3; i++){
       bars[i].classList.add('run'); act(l, l.acts[i], true);
       await hold(1500, p => bars[i].style.setProperty('--dm-p', p.toFixed(3)));
-      bars[i].classList.replace('run', 'on'); steps++; count();
+      bars[i].classList.replace('run', 'on'); steps++; count(); l.did = l.log[i]; tell();
       const d = html(`<div><span>${l.log[i]}</span><span class="muted">${secs}s</span></div>`); det.appendChild(d); enter(d);
     }
-    l.running = false; act(l, l.log[2]); state(l, 'done');
+    l.running = false; act(l, l.log[2]); state(l, 'done'); tell();
   }
   // the relay line draws itself from one badge down to the next, the badge it reaches rings, and the stroke stays as the lit
   // stretch: one line from badge to badge that follows them as the hand-off line opens and shuts (the grey under it steps aside)
@@ -1467,11 +1668,11 @@ const fitHits = window.dmFitHits || (() => {
   }
   async function handoff(from, to, txt){
     const h = html(`<div class="fold shut aln-hf" style="--dm-from:var(--dm-${from.t});--dm-to:var(--dm-${to.t})"><div><div class="aln-hand"><b class="f">${from.n}</b> handed ${txt} to <b class="t">${to.n}</b></div></div></div>`);
-    to.el.before(h); void h.offsetWidth; h.classList.remove('shut'); enter($('.aln-hand', h), 80);
+    to.el.before(h); void h.offsetWidth; h.classList.remove('shut'); enter($('.aln-hand', h), 80); hand = `${from.n} handed ${txt} to ${to.n}`; hands++; tell();
     await c.wait(REDUCE ? 0 : 500); await carry(from, to);
     from.el.classList.add('sent'); h.classList.add('lit'); to.el.classList.add('got');
     const av = $('.aln-av', to.el); av.classList.add('ping'); c.later(950, () => av.classList.remove('ping'));
-    await c.wait(1300); h.classList.add('shut'); await c.wait(REDUCE ? 0 : 700); h.remove();
+    await c.wait(1300); h.classList.add('shut'); hand = ''; tell(); await c.wait(REDUCE ? 0 : 700); h.remove();
   }
   c.run(async () => {
     await c.wait(600);
@@ -1481,7 +1682,7 @@ const fitHits = window.dmFitHits || (() => {
     await work(L[1]); await handoff(L[1], L[2], '4 frames');
     await work(L[2]);
     finished = true; root.classList.add('fin'); $('.aln-ic', r).innerHTML = I('ok'); enter($('.aln-ic', r).firstElementChild);
-    swap($('.aln-t', r), 'All 3 agents finished'); pb.remove();
+    swap($('.aln-t', r), 'All 3 agents finished'); pb.remove(); tell();
   });
 });
 </script><script>/* ---------- Agent lanes designs ---------- */
@@ -1540,8 +1741,10 @@ const fitHits = window.dmFitHits || (() => {
       const tg = html(`<span class="tag aln-sw-tg" style="--dm-c:var(--dm-${a.t});--dm-to:${h.to};--dm-x0:${h.at / ALN_END}" aria-hidden="true">${I('file-text','xs')}${h.what}</span>`);
       rows.append(el, tg); return { ...h, el, tg }; });
     // the lane's width is read when it changes size, never while the clock runs
-    let W = 0, CW = 0, T = 0, V = null, paused = false, fin = false, said = '';
-    const lay = () => { W = $('.aln-sw-lane', A[0].el).clientWidth; CW = now.offsetWidth; paint(); };
+    let W = 0, CW = 0, T = 0, V = null, paused = false, fin = false, said = '', TX = [];
+    // the axis labels' spans, read with the lane: the one the playhead's time passes over steps aside (Clean)
+    const ax = $('.aln-sw-ax', r), tks = $$('.aln-sw-ticks span', r);
+    const lay = () => { W = $('.aln-sw-lane', A[0].el).clientWidth; CW = now.offsetWidth; const a = ax.getBoundingClientRect().left; TX = tks.map(el => { const b = el.getBoundingClientRect(); return [b.left - a, b.right - a]; }); paint(); };
     const ro = new ResizeObserver(lay); ro.observe(rows); c.offs.push(() => ro.disconnect());
     // the run as it stands: bars fill up to now (T); the playhead sits at now, or where you took it (V)
     function paint(){
@@ -1555,9 +1758,10 @@ const fitHits = window.dmFitHits || (() => {
         if (a.w){ const f = clamp((T - a.waitFrom) / (a.waitTo - a.waitFrom)); if (a.wf !== f){ a.wf = f; a.w.style.setProperty('--dm-f', f.toFixed(4)); } a.w.classList.toggle('after', a.waitFrom > v); }
         const at = alnAt(a, v); if (a.s !== at.s){ a.s = at.s; a.el.dataset.s = at.s; } if (a.say !== at.t){ a.say = at.t; $('.aln-sw-wt span', a.el).textContent = at.t; }
       });
-      hos.forEach(h => { const on = T >= h.at && v >= h.at; if (h.on !== on){ h.on = on; h.el.classList.toggle('on', on); h.tg.classList.toggle('on', on); } });
-      const x = v / ALN_END * W; line.style.transform = `translateX(${x.toFixed(1)}px)`;
-      now.style.transform = `translateX(${Math.max(-6, Math.min(W - CW + 6, x - CW / 2)).toFixed(1)}px)`;
+      hos.forEach(h => { const on = T >= h.at && v >= h.at; if (h.on !== on){ h.on = on; h.el.classList.toggle('on', on); h.tg.classList.toggle('on', on); if (A[h.to].w) A[h.to].w.classList.toggle('got', on); } });
+      const x = v / ALN_END * W, nx = Math.max(-6, Math.min(W - CW + 6, x - CW / 2)); line.style.transform = `translateX(${x.toFixed(1)}px)`;
+      now.style.transform = `translateX(${nx.toFixed(1)}px)`;
+      tks.forEach((el, k) => { const t = TX[k], hid = !!t && t[1] > nx - 4 && t[0] < nx + CW + 4; if (el.dmHid !== hid){ el.dmHid = hid; el.classList.toggle('hid', hid); } });
     }
     function text(){
       const v = V === null ? T : V, put = (el, s) => { if (el.textContent !== s) el.textContent = s; };
@@ -1579,7 +1783,7 @@ const fitHits = window.dmFitHits || (() => {
     // now follows the run again
     const seek = v => { v = Math.max(0, Math.min(T, v)); V = v >= T - .05 ? null : v; live.hidden = V === null; paint(); text(); };
     live.onclick = () => seek(T);
-    const laneLeft = () => $('.aln-sw-lane', A[0].el).getBoundingClientRect().left;
+    const laneLeft = () => { const ln = $('.aln-sw-lane', A[0].el); return ln.getBoundingClientRect().left + ln.clientLeft; };
     let drag = false, left = 0;
     c.on(now, 'pointerdown', e => { drag = true; ph.classList.add('drag'); left = laneLeft(); now.setPointerCapture(e.pointerId); e.preventDefault(); ph.focus({ preventScroll:true }); });
     c.on(now, 'pointermove', e => { if (drag && W) seek((e.clientX - left) / W * ALN_END); });
@@ -1597,11 +1801,13 @@ const fitHits = window.dmFitHits || (() => {
     });
   }
 
-  const alnCrewTpl = () => `<div class="aln-cw"><div class="aln-cw-h"><span class="aln-cw-ic">${I('users')}</span><b class="aln-cw-tt">3 agents working</b><span class="aln-cw-tot num">$0.00</span></div><div class="aln-cw-list"></div></div>`;
+  const alnCrewTpl = () => `<div class="aln-cw"><div class="aln-cw-h"><span class="aln-cw-ic">${I('users')}</span><b class="aln-cw-tt">3 agents working</b><span class="aln-cw-sum num">0:00 · 0 of 11 steps</span><span class="aln-cw-tot num">$0.00</span></div><div class="aln-cw-list"></div></div>`;
   // Crew: each agent keeps its own clock, which stops while you pause it, and a hand-off waits for the agent before it
   function alnCrew(r, c){
     const A = ALN_RUN(), H = ALN_HAND.map(h => ({ ...h })), list = $('.aln-cw-list', r), tot = $('.aln-cw-tot', r), tt = $('.aln-cw-tt', r);
-    let fin = false;
+    // the line under the title (Clean shows it): the time and the steps so far, and once all are done, how the run went
+    const sum = $('.aln-cw-sum', r), ALL = A.reduce((n, a) => n + a.steps.length, 0);
+    let fin = false, ticks = 0;
     A.forEach((a, i) => {
       a.held = false; a.tk = 0; a.spent = 0; a.t = 0; const N = a.steps.length;
       a.el = html(`<div class="aln-cw-c" data-s="idle" style="--dm-a:var(--dm-av-${a.av});--dm-ai:var(--dm-av-${a.av}-ink)"><div class="aln-cw-top"><span class="aln-cw-av" aria-hidden="true">${I(a.ic)}</span><span class="aln-cw-tx"><b>${a.n}</b><span>Starts soon</span></span><span class="tag aln-cw-tag">Up next</span><span class="aln-cw-acts"><button class="ib aln-cw-hold" type="button" aria-pressed="false" aria-label="Pause ${a.n}" data-tip="Pause this agent">${I('pause','xs')}</button><button class="ib aln-cw-sb" type="button" aria-expanded="false" aria-label="Steer ${a.n}" data-tip="Steer">${I('wand','xs')}</button></span></div><div class="aln-cw-meter"><span class="aln-cw-tr" role="progressbar" aria-label="${a.n}’s steps" aria-valuemin="0" aria-valuemax="${N}" aria-valuenow="0" style="--dm-n:${N}"><span class="aln-cw-ln"><i></i></span>${'<b></b>'.repeat(N)}</span><span class="aln-cw-num"><span><b class="aln-cw-sn">0</b> of ${N} steps</span><span class="aln-cw-tkn"><b class="aln-cw-tk">0</b> tokens</span><b class="aln-cw-cs">$0.00</b></span></div><div class="fold shut"><div><form class="aln-cw-steer"><input aria-label="A note for the ${a.n.toLowerCase()}" placeholder="Tell the ${a.n.toLowerCase()} what to change"><button class="ib" type="submit" aria-label="Send" data-tip="Send">${I('send','xs')}</button></form></div></div><div class="aln-cw-nts"></div></div>`);
@@ -1645,6 +1851,8 @@ const fitHits = window.dmFitHits || (() => {
       H.forEach(h => { if (!h.on && A[h.from].t >= h.at){ h.on = true; h.el.classList.add('on'); const tg = $('.tag', h.el); tg.className = 'tag ok'; tg.innerHTML = I('check','xs') + h.what; } });
       const ts = '$' + spent.toFixed(2); if (tot.textContent !== ts) tot.textContent = ts;
       if (!fin && A.every(a => a.t >= ALN_END)){ fin = true; swap(tt, 'All 3 agents finished'); $('.aln-cw-ic', r).innerHTML = I('ok'); }
+      if (sum){ if (!fin) ticks++; const k = alnClock(ticks / 10), n = A.reduce((m, a) => m + (a.done || 0), 0);
+        const ss = fin ? `Done in ${k} · ${ALL} steps · ${H.length} hand-offs` : `${k} · ${n} of ${ALL} steps`; if (sum.dmSaid !== ss){ sum.dmSaid = ss; fin ? swap(sum, ss) : (sum.textContent = ss); } }
     });
     A.forEach(paint);
     // the story: someone steers the designer while it works, then pauses the reviewer for a moment

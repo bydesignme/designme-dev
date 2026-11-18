@@ -1501,7 +1501,7 @@ DM.def('agent-lanes', (r, c) => {
     { n:'Designer', ic:'palette', t:'pl', wait:'Waiting for the brief', acts:['Laying out pricing cards','Setting type and spacing','Exporting frames'], log:['Made 3 card variants','Applied spacing tokens','Exported 4 frames'] },
     { n:'Reviewer', ic:'eye', t:'pm', wait:'Waiting for the designer', acts:['Checking contrast','Checking copy','Signing off'], log:['Contrast passes AA','Fixed 2 lines of copy','Approved'] }
   ];
-  const root = $('.aln', r), rows = $('.aln-rows', r), ct = $('.aln-ct', r), STEPS = L.length * 3;
+  const root = $('.aln', r), rows = $('.aln-rows', r), ct = $('.aln-ct', r), say = $('.aln-say', r), STEPS = L.length * 3;
   L.forEach(l => {
     l.el = html(`<div class="aln-lane" data-s="queued" style="--c:var(--${l.t});--cb:var(--${l.t}-bg);--cm:var(--aln-${l.t},var(--${l.t}))"><button class="aln-row" aria-expanded="false"><span class="aln-av">${I(l.ic)}</span><span class="aln-who"><span class="aln-n">${l.n}</span><span class="aln-a">${l.wait || 'Queued'}</span></span><span class="aln-tr" aria-hidden="true"><i></i><i></i><i></i></span><span class="aln-st"><span class="tag">Queued</span></span></button><div class="fold shut"><div><div class="aln-det"></div></div></div></div>`);
     rows.appendChild(l.el); const b = $('.aln-row', l.el), f = $('.fold', l.el);
@@ -1510,24 +1510,33 @@ DM.def('agent-lanes', (r, c) => {
   const TAG = { queued:'<span class="tag">Queued</span>', waiting:`<span class="tag">${I('clock','xs')}Waiting</span>`, working:'<span class="tag aln-tg"><span class="spin"></span>Working</span>', paused:'<span class="tag warn">Paused</span>', done:`<span class="tag ok">${I('check','xs')}Done</span>` };
   const state = (l, s) => { l.el.dataset.s = s; const t = $('.aln-st', l.el); t.innerHTML = TAG[s]; enter(t.firstElementChild); };
   const act = (l, t, live) => { const a = $('.aln-a', l.el); a.classList.toggle('live', !!live); a.classList.toggle('shim', !!live); swap(a, t); };
-  let paused = false, secs = 0, finished = false, steps = 0;
+  let paused = false, secs = 0, finished = false, steps = 0, hand = '', hands = 0;
   const count = () => swap(ct, `${steps} of ${STEPS} steps`);
+  const clk = () => Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0'), lc = t => t.charAt(0).toLowerCase() + t.slice(1);
+  // the line under the lanes (shown in Clean's foot strip): the hand-off under way, else what the agent at work last did,
+  // and once the run is done, how it went
+  const tell = () => { if (!say) return;
+    if (finished) return swap(say, `${I('check','xs')}Done in ${clk()} · ${STEPS} steps · ${hands} hand-off${hands === 1 ? '' : 's'}`, true);
+    if (paused) return swap(say, `Paused at ${clk()}`);
+    if (hand) return swap(say, hand);
+    const w = L.find(l => l.running);
+    swap(say, w ? (w.did ? `${w.n}: ${lc(w.did)}` : `${w.n} started: ${lc(w.acts[0])}`) : steps ? `${steps} of ${STEPS} steps` : `${L.length} agents queued`); };
   const pb = $('.aln-pause', r);
   pb.onclick = () => { paused = !paused; pb.innerHTML = I(paused ? 'play' : 'pause','xs') + (paused ? 'Resume' : 'Pause all'); swap($('.aln-t', r), paused ? 'All agents paused' : '3 agents working');
-    L.forEach(l => { if (l.running){ state(l, paused ? 'paused' : 'working'); $('.aln-a', l.el).classList.toggle('shim', !paused); } }); };
-  c.every(1000, () => { if (!paused && !finished){ secs++; $('.aln-m', r).textContent = Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0'); } });
+    L.forEach(l => { if (l.running){ state(l, paused ? 'paused' : 'working'); $('.aln-a', l.el).classList.toggle('shim', !paused); } }); tell(); };
+  c.every(1000, () => { if (!paused && !finished){ secs++; $('.aln-m', r).textContent = clk(); } });
   // time only passes for the agents while they aren't paused; each() hears how far through the wait they are
   const hold = async (ms, each) => { let t = 0; while (t < ms){ await c.wait(100); if (!paused){ t += 100; each && each(t / ms); } } };
   async function work(l){
-    l.running = true; state(l, 'working');
+    l.running = true; l.did = ''; state(l, 'working'); tell();
     const bars = $$('.aln-tr i', l.el), det = $('.aln-det', l.el);
     for (let i = 0; i < 3; i++){
       bars[i].classList.add('run'); act(l, l.acts[i], true);
       await hold(1500, p => bars[i].style.setProperty('--p', p.toFixed(3)));
-      bars[i].classList.replace('run', 'on'); steps++; count();
+      bars[i].classList.replace('run', 'on'); steps++; count(); l.did = l.log[i]; tell();
       const d = html(`<div><span>${l.log[i]}</span><span class="muted">${secs}s</span></div>`); det.appendChild(d); enter(d);
     }
-    l.running = false; act(l, l.log[2]); state(l, 'done');
+    l.running = false; act(l, l.log[2]); state(l, 'done'); tell();
   }
   // the relay line draws itself from one badge down to the next, the badge it reaches rings, and the stroke stays as the lit
   // stretch: one line from badge to badge that follows them as the hand-off line opens and shuts (the grey under it steps aside)
@@ -1543,11 +1552,11 @@ DM.def('agent-lanes', (r, c) => {
   }
   async function handoff(from, to, txt){
     const h = html(`<div class="fold shut aln-hf" style="--from:var(--${from.t});--to:var(--${to.t})"><div><div class="aln-hand"><b class="f">${from.n}</b> handed ${txt} to <b class="t">${to.n}</b></div></div></div>`);
-    to.el.before(h); void h.offsetWidth; h.classList.remove('shut'); enter($('.aln-hand', h), 80);
+    to.el.before(h); void h.offsetWidth; h.classList.remove('shut'); enter($('.aln-hand', h), 80); hand = `${from.n} handed ${txt} to ${to.n}`; hands++; tell();
     await c.wait(REDUCE ? 0 : 500); await carry(from, to);
     from.el.classList.add('sent'); h.classList.add('lit'); to.el.classList.add('got');
     const av = $('.aln-av', to.el); av.classList.add('ping'); c.later(950, () => av.classList.remove('ping'));
-    await c.wait(1300); h.classList.add('shut'); await c.wait(REDUCE ? 0 : 700); h.remove();
+    await c.wait(1300); h.classList.add('shut'); hand = ''; tell(); await c.wait(REDUCE ? 0 : 700); h.remove();
   }
   c.run(async () => {
     await c.wait(600);
@@ -1557,7 +1566,7 @@ DM.def('agent-lanes', (r, c) => {
     await work(L[1]); await handoff(L[1], L[2], '4 frames');
     await work(L[2]);
     finished = true; root.classList.add('fin'); $('.aln-ic', r).innerHTML = I('ok'); enter($('.aln-ic', r).firstElementChild);
-    swap($('.aln-t', r), 'All 3 agents finished'); pb.remove();
+    swap($('.aln-t', r), 'All 3 agents finished'); pb.remove(); tell();
   });
 });
 /* ---------- Agent lanes designs ---------- */
@@ -1622,8 +1631,10 @@ DM.def('agent-lanes', (r, c) => {
       const tg = html(`<span class="tag aln-sw-tg" style="--c:var(--${a.t});--to:${h.to};--x0:${h.at / ALN_END}" aria-hidden="true">${I('file-text','xs')}${h.what}</span>`);
       rows.append(el, tg); return { ...h, el, tg }; });
     // the lane's width is read when it changes size, never while the clock runs
-    let W = 0, CW = 0, T = 0, V = null, paused = false, fin = false, said = '';
-    const lay = () => { W = $('.aln-sw-lane', A[0].el).clientWidth; CW = now.offsetWidth; paint(); };
+    let W = 0, CW = 0, T = 0, V = null, paused = false, fin = false, said = '', TX = [];
+    // the axis labels' spans, read with the lane: the one the playhead's time passes over steps aside (Clean)
+    const ax = $('.aln-sw-ax', r), tks = $$('.aln-sw-ticks span', r);
+    const lay = () => { W = $('.aln-sw-lane', A[0].el).clientWidth; CW = now.offsetWidth; const a = ax.getBoundingClientRect().left; TX = tks.map(el => { const b = el.getBoundingClientRect(); return [b.left - a, b.right - a]; }); paint(); };
     const ro = new ResizeObserver(lay); ro.observe(rows); c.offs.push(() => ro.disconnect());
     // the run as it stands: bars fill up to now (T); the playhead sits at now, or where you took it (V)
     function paint(){
@@ -1637,9 +1648,10 @@ DM.def('agent-lanes', (r, c) => {
         if (a.w){ const f = clamp((T - a.waitFrom) / (a.waitTo - a.waitFrom)); if (a.wf !== f){ a.wf = f; a.w.style.setProperty('--f', f.toFixed(4)); } a.w.classList.toggle('after', a.waitFrom > v); }
         const at = alnAt(a, v); if (a.s !== at.s){ a.s = at.s; a.el.dataset.s = at.s; } if (a.say !== at.t){ a.say = at.t; $('.aln-sw-wt span', a.el).textContent = at.t; }
       });
-      hos.forEach(h => { const on = T >= h.at && v >= h.at; if (h.on !== on){ h.on = on; h.el.classList.toggle('on', on); h.tg.classList.toggle('on', on); } });
-      const x = v / ALN_END * W; line.style.transform = `translateX(${x.toFixed(1)}px)`;
-      now.style.transform = `translateX(${Math.max(-6, Math.min(W - CW + 6, x - CW / 2)).toFixed(1)}px)`;
+      hos.forEach(h => { const on = T >= h.at && v >= h.at; if (h.on !== on){ h.on = on; h.el.classList.toggle('on', on); h.tg.classList.toggle('on', on); if (A[h.to].w) A[h.to].w.classList.toggle('got', on); } });
+      const x = v / ALN_END * W, nx = Math.max(-6, Math.min(W - CW + 6, x - CW / 2)); line.style.transform = `translateX(${x.toFixed(1)}px)`;
+      now.style.transform = `translateX(${nx.toFixed(1)}px)`;
+      tks.forEach((el, k) => { const t = TX[k], hid = !!t && t[1] > nx - 4 && t[0] < nx + CW + 4; if (el.dmHid !== hid){ el.dmHid = hid; el.classList.toggle('hid', hid); } });
     }
     function text(){
       const v = V === null ? T : V, put = (el, s) => { if (el.textContent !== s) el.textContent = s; };
@@ -1661,7 +1673,7 @@ DM.def('agent-lanes', (r, c) => {
     // now follows the run again
     const seek = v => { v = Math.max(0, Math.min(T, v)); V = v >= T - .05 ? null : v; live.hidden = V === null; paint(); text(); };
     live.onclick = () => seek(T);
-    const laneLeft = () => $('.aln-sw-lane', A[0].el).getBoundingClientRect().left;
+    const laneLeft = () => { const ln = $('.aln-sw-lane', A[0].el); return ln.getBoundingClientRect().left + ln.clientLeft; };
     let drag = false, left = 0;
     c.on(now, 'pointerdown', e => { drag = true; ph.classList.add('drag'); left = laneLeft(); now.setPointerCapture(e.pointerId); e.preventDefault(); ph.focus({ preventScroll:true }); });
     c.on(now, 'pointermove', e => { if (drag && W) seek((e.clientX - left) / W * ALN_END); });
@@ -1679,11 +1691,13 @@ DM.def('agent-lanes', (r, c) => {
     });
   }
 
-  const alnCrewTpl = () => `<div class="aln-cw"><div class="aln-cw-h"><span class="aln-cw-ic">${I('users')}</span><b class="aln-cw-tt">3 agents working</b><span class="aln-cw-tot num">$0.00</span></div><div class="aln-cw-list"></div></div>`;
+  const alnCrewTpl = () => `<div class="aln-cw"><div class="aln-cw-h"><span class="aln-cw-ic">${I('users')}</span><b class="aln-cw-tt">3 agents working</b><span class="aln-cw-sum num">0:00 · 0 of 11 steps</span><span class="aln-cw-tot num">$0.00</span></div><div class="aln-cw-list"></div></div>`;
   // Crew: each agent keeps its own clock, which stops while you pause it, and a hand-off waits for the agent before it
   function alnCrew(r, c){
     const A = ALN_RUN(), H = ALN_HAND.map(h => ({ ...h })), list = $('.aln-cw-list', r), tot = $('.aln-cw-tot', r), tt = $('.aln-cw-tt', r);
-    let fin = false;
+    // the line under the title (Clean shows it): the time and the steps so far, and once all are done, how the run went
+    const sum = $('.aln-cw-sum', r), ALL = A.reduce((n, a) => n + a.steps.length, 0);
+    let fin = false, ticks = 0;
     A.forEach((a, i) => {
       a.held = false; a.tk = 0; a.spent = 0; a.t = 0; const N = a.steps.length;
       a.el = html(`<div class="aln-cw-c" data-s="idle" style="--a:var(--av-${a.av});--ai:var(--av-${a.av}-ink)"><div class="aln-cw-top"><span class="aln-cw-av" aria-hidden="true">${I(a.ic)}</span><span class="aln-cw-tx"><b>${a.n}</b><span>Starts soon</span></span><span class="tag aln-cw-tag">Up next</span><span class="aln-cw-acts"><button class="ib aln-cw-hold" type="button" aria-pressed="false" aria-label="Pause ${a.n}" data-tip="Pause this agent">${I('pause','xs')}</button><button class="ib aln-cw-sb" type="button" aria-expanded="false" aria-label="Steer ${a.n}" data-tip="Steer">${I('wand','xs')}</button></span></div><div class="aln-cw-meter"><span class="aln-cw-tr" role="progressbar" aria-label="${a.n}’s steps" aria-valuemin="0" aria-valuemax="${N}" aria-valuenow="0" style="--n:${N}"><span class="aln-cw-ln"><i></i></span>${'<b></b>'.repeat(N)}</span><span class="aln-cw-num"><span><b class="aln-cw-sn">0</b> of ${N} steps</span><span class="aln-cw-tkn"><b class="aln-cw-tk">0</b> tokens</span><b class="aln-cw-cs">$0.00</b></span></div><div class="fold shut"><div><form class="aln-cw-steer"><input aria-label="A note for the ${a.n.toLowerCase()}" placeholder="Tell the ${a.n.toLowerCase()} what to change"><button class="ib" type="submit" aria-label="Send" data-tip="Send">${I('send','xs')}</button></form></div></div><div class="aln-cw-nts"></div></div>`);
@@ -1727,6 +1741,8 @@ DM.def('agent-lanes', (r, c) => {
       H.forEach(h => { if (!h.on && A[h.from].t >= h.at){ h.on = true; h.el.classList.add('on'); const tg = $('.tag', h.el); tg.className = 'tag ok'; tg.innerHTML = I('check','xs') + h.what; } });
       const ts = '$' + spent.toFixed(2); if (tot.textContent !== ts) tot.textContent = ts;
       if (!fin && A.every(a => a.t >= ALN_END)){ fin = true; swap(tt, 'All 3 agents finished'); $('.aln-cw-ic', r).innerHTML = I('ok'); }
+      if (sum){ if (!fin) ticks++; const k = alnClock(ticks / 10), n = A.reduce((m, a) => m + (a.done || 0), 0);
+        const ss = fin ? `Done in ${k} · ${ALL} steps · ${H.length} hand-offs` : `${k} · ${n} of ${ALL} steps`; if (sum.dmSaid !== ss){ sum.dmSaid = ss; fin ? swap(sum, ss) : (sum.textContent = ss); } }
     });
     A.forEach(paint);
     // the story: someone steers the designer while it works, then pauses the reviewer for a moment

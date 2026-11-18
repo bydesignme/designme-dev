@@ -1346,8 +1346,39 @@
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .aln-pk{width:1px;left:26.5px;border-radius:0;background:var(--to)}
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .aln-av.ping::before{animation:v2-alnpingbp .6s steps(3,end)}
 @keyframes v2-alnpingbp{from{box-shadow:0 0 0 1px var(--c)}to{box-shadow:0 0 0 7px transparent}}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .v2 .aln.panel{padding:12px 20px 20px 20px}
+/* the line saying what just happened, and once the run is done, how it went: Clean's foot strip shows it */
+.v2 .aln-say{display:none}
+/* Clean (owner, 18 Nov): a card with a foot strip. The head and the lanes sit 16px in from the card's edges; Pause all moves
+   down into the off-white foot strip, 8px from its edges (a 28px pill in the 22px corner), beside the line saying what just
+   happened, and when the run is done the strip closes the card with a summary. The parts are placed on one grid, so the
+   markup stays Soft's. The relay line joins the badges as one unbroken line (it meets each badge) and stops at the last one */
+:root[data-style="clean"] .v2 .aln.panel{display:grid;grid-template-columns:auto auto auto minmax(0,1fr) auto;grid-template-rows:auto auto 44px;padding:0;background:linear-gradient(var(--line),var(--line)) 0 calc(100% - 44px)/100% 1px no-repeat,linear-gradient(var(--strip),var(--strip)) 0 100%/100% 43px no-repeat,var(--surface)}
+:root[data-style="clean"] .v2 .aln.panel .aln-h{display:contents}
+:root[data-style="clean"] .v2 .aln.panel .aln-h>*{grid-row:1;align-self:center;margin-top:16px;margin-bottom:4px}
+:root[data-style="clean"] .v2 .aln.panel .aln-ic{grid-column:1;margin-left:16px;margin-right:10px}
+:root[data-style="clean"] .v2 .aln.panel .aln-t{grid-column:2;margin-right:10px}
+:root[data-style="clean"] .v2 .aln.panel .aln-m{grid-column:3;margin-right:6px}
+:root[data-style="clean"] .v2 .aln.panel .aln-ct{grid-column:4;margin-right:16px}
+:root[data-style="clean"] .v2 .aln.panel .aln-pause{position:absolute;right:8px;bottom:8px;margin:0}
+:root[data-style="clean"] .v2 .aln.panel .aln-rows{grid-row:2;grid-column:1 / -1;margin:4px 8px 8px}
+:root[data-style="clean"] .v2 .aln.panel .aln-say{display:block;grid-row:3;grid-column:1 / -1;align-self:center;min-width:0;margin:0 16px;font-size:12.5px;line-height:20px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Pause all is pinned in the strip's corner rather than placed on the grid, so its width never squeezes the head on a phone;
+   the line beside it keeps clear of it (the button and a 12px gap) until the run is done and the button goes */
+:root[data-style="clean"] .v2 .aln.panel:has(.aln-pause) .aln-say{margin-right:116px}
+:root[data-style="clean"] .v2 .aln-say .i{color:color-mix(in srgb,var(--ok-mark) 85%,var(--ok));vertical-align:-2px;margin-right:6px}
+:root[data-style="clean"] .v2 .aln.fin .aln-ic{color:color-mix(in srgb,var(--ok-mark) 85%,var(--ok))}
+/* the lanes: their fills 8px in from the card, so a lane's corner is the card's less 8px; their content 16px in */
+:root[data-style="clean"] .v2 .aln-lane{border-radius:14px}
+:root[data-style="clean"] .v2 .aln-row{padding:8px}
+:root[data-style="clean"] .v2 .aln-det{padding:0 8px 8px 54px}
+:root[data-style="clean"] .v2 .aln-hand{padding:6px 8px 6px 54px}
+:root[data-style="clean"] .v2 .aln-rows>*::before,:root[data-style="clean"] .v2 .aln-lane::after{left:24.25px;width:1.5px;border-radius:1px;background:var(--faint)}
+:root[data-style="clean"] .v2 .aln-lane::before{top:42px}
+:root[data-style="clean"] .v2 .aln-lane::after{height:8px}
+:root[data-style="clean"] .v2 .aln-lane:not(:has(~.aln-lane))::before{display:none}
+:root[data-style="clean"] .v2 .aln-rows>.aln-lane.sent::before,:root[data-style="clean"] .v2 .aln-rows>.aln-lane.got::after,:root[data-style="clean"] .v2 .aln-rows>.aln-hf.lit::before{background:transparent}
+:root[data-style="clean"] .v2 .aln-pk{left:24.25px;width:1.5px;border-radius:1px;box-sizing:content-box;padding:4px 0;margin-top:-4px}
+@media (max-width:400px){:root[data-style="clean"] .v2 .aln.panel .aln-t{margin-left:16px}}
 /* ---------- Agent lanes designs ---------- */
 /* the card's three designs, picked in the switch under it: Classic (the component above, as it ships), Swimlanes and Crew, each filling the width and
    centred in the room kept for the tallest of them */
@@ -1444,6 +1475,30 @@
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .aln-sw-ho{border-left-width:1px;border-bottom-width:1px}
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .aln-sw-ph i{width:1px;left:-.5px}
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .aln-sw-ho,:root:not([data-style="soft"],[data-style="clean"]) .v2 .aln-sw-tg{transition-timing-function:steps(4,end)}
+/* Clean (owner, 18 Nov): the head and the lanes 16px in from the card's edges, and an off-white foot strip with the line saying
+   what happened; Pause and Back to now sit in it, 8px from its edges, as round as the card's corner less 8px. The parts are
+   placed on one grid, so the markup stays Soft's. Each lane's steps sit inside its track with even room all round: the track
+   is a 44px pill and a step a 24px one, 10px in at the start and the end as above and below (22 = 12 + 10), so the clock runs
+   from 10px inside the track's start to 10px inside its end (the last step keeps its 2px gap, so 8px of border on the right).
+   An axis label the playhead's time passes over steps aside */
+:root[data-style="clean"] .v2 .aln-sw{display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-rows:auto auto 44px;gap:0;padding:0;background:linear-gradient(var(--line),var(--line)) 0 calc(100% - 44px)/100% 1px no-repeat,linear-gradient(var(--strip),var(--strip)) 0 100%/100% 43px no-repeat,var(--surface)}
+:root[data-style="clean"] .v2 :is(.aln-sw-h,.aln-sw-f){display:contents}
+:root[data-style="clean"] .v2 .aln-sw-ht{grid-row:1;grid-column:1 / -1;justify-self:start;margin:16px 16px 0}
+:root[data-style="clean"] .v2 .aln-sw-key{grid-row:1;grid-column:1 / -1;justify-self:end;align-self:center;margin:16px 16px 0}
+:root[data-style="clean"] .v2 .aln-sw-grid{grid-row:2;grid-column:1 / -1;margin:12px 16px 16px}
+:root[data-style="clean"] .v2 .aln-sw-say{grid-row:3;grid-column:1;align-self:center;margin:0 12px 0 16px;line-height:20px}
+:root[data-style="clean"] .v2 .aln-sw-live{grid-row:3;grid-column:2;align-self:end;margin:8px 8px 8px 0}
+:root[data-style="clean"] .v2 .aln-sw-pause{grid-row:3;grid-column:3;align-self:end;margin:8px 8px 8px 0}
+:root[data-style="clean"] .v2 .aln-sw-lane{border:solid transparent;border-width:0 8px 0 10px}
+:root[data-style="clean"] .v2 .aln-sw-ax{margin-left:calc(var(--lab) + 10px);margin-right:8px}
+:root[data-style="clean"] .v2 .aln-sw-ticks span{transition:opacity var(--t-fast) var(--ease)}
+:root[data-style="clean"] .v2 .aln-sw-ticks span.hid{opacity:0}
+:root[data-style="clean"] .v2 .aln-sw-ph{left:calc(var(--lab) + 10px);right:8px}
+:root[data-style="clean"] .v2 .aln-sw-ho{left:calc(var(--lab) + 10px + var(--x0) * (100% - var(--lab) - 18px));width:calc((var(--x1) - var(--x0)) * (100% - var(--lab) - 18px))}
+:root[data-style="clean"] .v2 .aln-sw-tg{left:calc(var(--lab) + 10px + var(--x0) * (100% - var(--lab) - 18px))}
+/* once the hand-off's tag lands in a wait, it says what came, so the wait's own words step aside */
+:root[data-style="clean"] .v2 .aln-sw-wl{transition:opacity var(--t) var(--ease)}
+:root[data-style="clean"] .v2 .aln-sw-w.got .aln-sw-wl{opacity:0}
 
 /* Crew: a card per agent, each on its own clock, so pausing one or steering it leaves the others running. Its avatar is in
    the avatar colours. Its progress is a thin line through a dot for each step: in the accent while it works, a mid grey
@@ -1454,6 +1509,8 @@
 .v2 .aln-cw-ic .i{color:inherit}
 .v2 .aln-cw-tt{flex:1;font-weight:500}
 .v2 .aln-cw-tot{font-size:13px;color:var(--fg2)}
+/* the run so far, and once it is done how it went: Clean shows it under the title */
+.v2 .aln-cw-sum{display:none}
 .v2 .aln-cw-list{display:flex;flex-direction:column}
 .v2 .aln-cw-c{position:relative;display:flex;flex-direction:column;padding:var(--s-3);border-radius:var(--r-card);background:var(--surface);box-shadow:var(--shadow);transition:opacity .3s}
 .v2 .aln-cw-c[data-s="hold"]{opacity:.8}
@@ -1508,6 +1565,57 @@
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .aln-cw-ho .ln{border-top-width:1px}
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .aln-cw-note{animation:v2-bpin .3s var(--ease)}
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .aln-cw-ho.on .tag{animation:none}
+/* Clean (owner, 18 Nov): each agent's card has its name, what it is doing and its status 16px in from the edges, and an
+   off-white foot strip with its progress, its counts and its pause and steer buttons, 8px from the strip's edges. The parts are
+   placed on one grid, so the markup stays Soft's. The signature: the agent at work is the one card with presence (it lifts a
+   little, its hairline steps up and its progress line runs a soft sheen), its step dots fill in from the rim as they finish,
+   and a hand-off travels: the line from the sender draws, the chip slides along it and ticks, then the line on to the receiver
+   draws. The others sit flat on their hairline */
+:root[data-style="clean"] .v2 .aln-cw-h{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:0 var(--s-2);align-items:center;padding:0 16px}
+:root[data-style="clean"] .v2 .aln-cw-ic{grid-row:1;grid-column:1}
+:root[data-style="clean"] .v2 .aln-cw-tt{grid-row:1;grid-column:2}
+:root[data-style="clean"] .v2 .aln-cw-sum{display:block;grid-row:2;grid-column:2;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root[data-style="clean"] .v2 .aln-cw-tot{grid-row:1;grid-column:3}
+/* the agent at work has its presence from its card, so its badge holds still */
+:root[data-style="clean"] .v2 .aln-cw-c[data-s="work"] .aln-cw-av{animation:none}
+:root[data-style="clean"] .v2 .aln-cw-ic:has([href$="i-ok"]){color:color-mix(in srgb,var(--ok-mark) 85%,var(--ok))}
+:root[data-style="clean"] .v2 .aln-cw-c{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;grid-template-rows:auto auto auto 44px;padding:0;background:linear-gradient(var(--line),var(--line)) 0 calc(100% - 44px)/100% 1px no-repeat,linear-gradient(var(--strip),var(--strip)) 0 100%/100% 43px no-repeat,var(--surface);box-shadow:0 0 0 1px var(--line);transition:opacity .3s,box-shadow .52s var(--ease),transform .52s var(--ease)}
+:root[data-style="clean"] .v2 .aln-cw-c[data-s="work"]{box-shadow:0 0 0 1px color-mix(in srgb,var(--fg) 16%,transparent),var(--shadow-pop);transform:translateY(-2px)}
+:root[data-style="clean"] .v2 :is(.aln-cw-top,.aln-cw-meter){display:contents}
+:root[data-style="clean"] .v2 .aln-cw-av{grid-row:1;grid-column:1;align-self:center;margin:16px 12px 16px 16px}
+:root[data-style="clean"] .v2 .aln-cw-tx{grid-row:1;grid-column:2 / 4;align-self:center;margin:16px 0}
+:root[data-style="clean"] .v2 .aln-cw-tag{grid-row:1;grid-column:4;justify-self:end;align-self:center;margin:0 16px 0 12px}
+:root[data-style="clean"] .v2 .aln-cw-c>.fold{grid-row:2;grid-column:1 / -1;margin:0 16px}
+:root[data-style="clean"] .v2 .aln-cw-c>.fold .aln-cw-steer{margin:0 0 16px}
+:root[data-style="clean"] .v2 .aln-cw-nts{grid-row:3;grid-column:1 / -1;margin:0 16px}
+:root[data-style="clean"] .v2 .aln-cw-nts:not(:empty){margin:-6px 16px 16px}
+/* the counts end where the two buttons begin (8px + 2 x 28px + 4px + an 8px gap from the edge), so they line up card to card */
+:root[data-style="clean"] .v2 .aln-cw-tr{grid-row:4;grid-column:1 / 3;align-self:center;margin:0 0 0 16px}
+:root[data-style="clean"] .v2 .aln-cw-num{grid-row:4;grid-column:3 / 5;justify-self:end;align-self:center;margin:0 76px 0 12px}
+:root[data-style="clean"] .v2 .aln-cw-acts{grid-row:4;grid-column:4;justify-self:end;align-self:end;margin:8px 8px 8px 0}
+/* the progress line: a 4px track with a soft inner shadow; the part done fills in the card's colour, with a sheen running
+   along it while the agent works */
+:root[data-style="clean"] .v2 .aln-cw-ln{top:4px;height:4px;border-radius:999px;background:var(--rail);box-shadow:var(--track-ring)}
+:root[data-style="clean"] .v2 .aln-cw-ln i{border-radius:inherit}
+:root[data-style="clean"] .v2 .aln-cw-c[data-s="work"] .aln-cw-ln i{background:linear-gradient(90deg,var(--cwf) 0 40%,color-mix(in srgb,var(--cwf) 55%,#fff) 50%,var(--cwf) 60% 100%) 0 0/300% 100% var(--cwf);animation:v2-alncwsheen 2s linear infinite}
+@keyframes v2-alncwsheen{from{background-position:100% 0}to{background-position:-50% 0}}
+/* a step's dot fills in from its rim as it finishes. A finished card's green takes a touch of the text green, so its marks keep
+   3:1 on the off-white strip */
+:root[data-style="clean"] .v2 .aln-cw-tr b{transition:background .3s,box-shadow .45s var(--ease)}
+:root[data-style="clean"] .v2 .aln-cw-tr b.done{background:var(--surface);box-shadow:inset 0 0 0 5px var(--cwf)}
+:root[data-style="clean"] .v2 .aln-cw-c[data-s="done"] .aln-cw-tr{--cwf:color-mix(in srgb,var(--ok-mark) 85%,var(--ok))}
+:root[data-style="clean"] .v2 .aln-cw-c[data-s="work"] .aln-cw-tr b.now{animation:none}
+/* a hand-off travels from the card above to the one below: the line from the sender draws, the chip slides along it and its
+   tick draws, then the line on to the receiver draws and the receiver's name steps up */
+:root[data-style="clean"] .v2 .aln-cw-ho .ln{width:28px;height:1.5px;border:0;background:linear-gradient(color-mix(in srgb,var(--fg) 50%,var(--stage)),color-mix(in srgb,var(--fg) 50%,var(--stage))) 0 0/0% 100% no-repeat,repeating-linear-gradient(90deg,var(--faint) 0 3px,transparent 3px 6px);transition:background-size .36s var(--ease)}
+:root[data-style="clean"] .v2 .aln-cw-ho.on .ln{background-size:100% 100%,auto}
+:root[data-style="clean"] .v2 .aln-cw-ho.on .tag~.ln{transition-delay:.34s}
+:root[data-style="clean"] .v2 .aln-cw-ho>span:last-child{transition:color .3s var(--ease) .6s}
+:root[data-style="clean"] .v2 .aln-cw-ho.on>span:last-child,:root[data-style="clean"] .v2 .aln-cw-ho.on>span:first-child{color:var(--fg2)}
+:root[data-style="clean"] .v2 .aln-cw-ho.on .tag{animation:v2-alncwtravel .6s var(--ease) backwards}
+@keyframes v2-alncwtravel{from{opacity:0;transform:translateX(-32px)}}
+:root[data-style="clean"] .v2 .aln-cw-ho.on .tag .i{stroke-dasharray:20;stroke-dashoffset:20;animation:v2-alncwtick .32s var(--ease) .3s forwards}
+@keyframes v2-alncwtick{to{stroke-dashoffset:0}}
 /* ---------- Agent run timeline ---------- */
 /* each kind of step has a hue: --k paints its bar, --kt its text and icon, --kb the icon's tint. The model is purple, tools
    are teal and apps orange, each app with its own mark. The playhead runs in the accent with the time on it, and the lanes it
