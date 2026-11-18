@@ -97,10 +97,19 @@ every session and every agent.
   avatars, and the status colours. Ticks are the vivid green (`--ok-mark`), never black. No red fill behind an error: a
   failed row keeps its red words and mark on the row as it is. Off-white head and foot strips; buttons have an inner glow at
   the top and a soft shade at the bottom inside the fill; checkboxes and tracks have inner shadows.
-- Everything in Clean is fully round (owner, 17 Nov): chips, tags, status pills, icon tiles, avatars, bars, tracks, row fills,
-  fields, segmented controls and marks are pills or circles, and cards, panels and popovers have about 22px round corners
-  (never squircles), with strips and inner panels following the card's corners. Small radii scale with `--rk-s`, `--rk-m`
-  and `--r-tiny`, large ones with `--rk-l`; write new radii as `calc(<n>px * var(--rk-s|m|l,var(--rk)))`.
+- Clean's rounding (owner, 18 Nov, replacing "everything fully round" of 17 Nov, which turned heatmap cells, flags, OTP
+  boxes, text fields, images, calendar events and whole panels into pills and circles): pills and circles only for controls
+  (buttons, chips, tags, toggles, switchers), avatars and dots. Everything else has ordinary rounded corners, a little rounder
+  than Soft: fields 10px, rows 10px, cards and popovers about 22px with strips and inner panels following the card's corners,
+  never squircles. The tokens (`--rk-s` 1.6, `--rk-m` 1.4, `--rk-l` 1.3, `--r-in`/`--r-field` 10px) do this; write new radii as
+  `calc(<n>px * var(--rk-s|m|l,var(--rk)))` and never a 999px on anything taller than a control.
+- Standard UX first (owner, 18 Nov): every component must look like how that component normally looks in well-made products.
+  A checkbox is a rounded square, a drop zone is not a pill, progress has the shape of its thing (a ring round a round tile,
+  a line under a row), content appears only once the process that makes it has made it, nothing sits outside its card,
+  text columns line up, hovers are a quiet fill. Empty states use the lab's Clean empty state (`lab/clean/clean.css`
+  `.cle-em`/`.cle-art`): a small monochrome card sketch, a title, one muted line, an optional outline button.
+- Review Clean work on a separate preview before it reaches staging (owner, 18 Nov): batches of 5 components, each on its own
+  lab page (as `lab/six/`), and staging only gets them once the owner approves.
 - Padding is measured, not eyeballed (owner, 17 Nov): every Clean card has its content 20px in from each edge, footer
   controls included (a button in a foot strip sits 20px from the right and bottom edges). Check with a script that measures
   each card's insets at 1440 and fix every mismatch above 1px. Measure through the whole demo (sampled while it plays, to its
