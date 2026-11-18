@@ -1,7 +1,6 @@
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useRef, useState } from 'react';
-import { useIsoLayoutEffect } from '../lib/hooks';
+import { useState } from 'react';
 import { ReasoningTrail, type PlanStep, type ReasoningTrailProps, type ReasoningTrailView } from '../components/reasoning-trail/ReasoningTrail';
 import { Seg } from '../lib/motion';
 import { Demo } from './Demo';
@@ -18,9 +17,6 @@ const CONTENT: Pick<ReasoningTrailProps, 'notes' | 'sources' | 'edits'> = {
 export default function ReasoningTrailDemo() {
   const [done, setDone] = useState(0);
   const [view, setView] = useState<ReasoningTrailView>('plan');
-  // Clean's trail is a card that grows with each view instead (owner, 18 Nov: no room kept for a later state)
-  const box = useRef<HTMLDivElement>(null), [clean, setClean] = useState(false);
-  useIsoLayoutEffect(() => { setClean((box.current?.closest('[data-style]') as HTMLElement | null)?.dataset.style === 'clean'); }, []);
   useScript(async ({ wait }) => { for (let i = 1; i <= PLAN.length; i++) { await wait(1500); setDone(i); } });
   const running = done < PLAN.length;
   const plan: PlanStep[] = PLAN.map(([label, detail], i) => ({ label, detail, state: i < done ? 'done' : i === done ? 'now' : 'next' }));
@@ -28,8 +24,8 @@ export default function ReasoningTrailDemo() {
     <Demo switcher={<Seg label="View" value={view} onChange={setView} options={[{ value: 'plan', label: 'Plan' }, { value: 'notes', label: 'Notes' }, { value: 'sources', label: 'Sources' }, { value: 'edits', label: 'Edits' }]} />}>
       {/* the preview keeps the room of its tallest view, so the switcher under it stays put: a hidden copy of each view
           sits in the same grid cell, and the trail you see is centred in it */}
-      <div ref={box} style={{ display: 'grid', width: '100%' }}>
-        {!clean && VIEWS.map(v => (
+      <div style={{ display: 'grid', width: '100%' }}>
+        {VIEWS.map(v => (
           <div key={v} aria-hidden="true" inert style={{ gridArea: '1 / 1', visibility: 'hidden', pointerEvents: 'none' }}>
             <ReasoningTrail plan={plan} view={v} seconds={0} {...CONTENT} />
           </div>
