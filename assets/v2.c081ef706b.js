@@ -3027,18 +3027,27 @@ DM.def('artifact-card', (r, c) => {
 /* ---------- Attachment tray ---------- */
 DM.def('attachment-tray', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{upload}', I('upload'));
-  const drop = $('.atx-drop', r), list = $('.atx-list', r), sum = $('.atx-sum', r);
+  const tray = $('.atx', r), list = $('.atx-list', r), sum = $('.atx-sum', r);
+  // Clean: the whole card is the drop target. The drop zone gives way to the empty state (after the list, so it shows only
+  // while the list is empty), and the closing line moves into a foot strip with Add files, shown once there are files. The
+  // card grows with its files (grow()); Soft and Blueprint as they were
+  const clean = (r.closest('[data-style]') || document.documentElement).dataset.style === 'clean';
+  if (clean){
+    $('.atx-drop', r).remove();
+    list.after(html(`<div class="atx-em"><span class="atx-em-art" aria-hidden="true"></span><b>Drop files here</b><span>or <label class="atx-br">browse your files<input type="file" multiple class="atx-file" aria-label="Choose files"></label></span><button type="button" class="pill line sm atx-smp">${I('plus','xs')}Add sample files</button></div>`));
+    const ft = html(`<div class="atx-ft"><label class="pill line sm atx-add">${I('plus','xs')}Add files<input type="file" multiple class="atx-file" aria-label="Add files"></label></div>`);
+    sum.replaceWith(ft); ft.prepend(sum);
+    c.offs.push(grow(tray));
+  }
+  const drop = clean ? tray : $('.atx-drop', r);
   const kind = n => { const e = (n.split('.').pop() || '').toLowerCase(); return e === 'pdf' ? ['PDF','var(--pr)','var(--pr-bg)'] : /png|jpg|jpeg|gif|webp|fig/.test(e) ? [e.toUpperCase().slice(0,3),'var(--pl)','var(--pl-bg)'] : /csv|xlsx/.test(e) ? ['CSV','var(--pm)','var(--pm-bg)'] : [e.toUpperCase().slice(0,3) || 'TXT','var(--pb)','var(--pb-bg)']; };
   const size = b => b > 1e6 ? (b / 1e6).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1e3)) + ' KB';
   const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
   let read = 0;
-  // Clean: the tray is a card that grows with its files (grow()), and its foot strip's count rolls; Soft and Blueprint as they were
-  const clean = (r.closest('[data-style]') || document.documentElement).dataset.style === 'clean';
-  if (clean) c.offs.push(grow($('.atx', r)));
   // a file uploads (its row fills with its hue and its ring closes), then the agent reads it and says what it found
   function add(name, bytes, i = 0, found){
     const k = kind(name), sz = size(bytes);
-    const it = html(`<div class="atx-it" style="--c:${k[1]};--cb:${k[2]}"><span class="atx-ti">${k[0]}${clean ? '<span class="atx-td"></span>' : ''}</span><span class="atx-n"><span class="atx-nm">${esc(name)}</span><span class="atx-m"><span>${sz} · <span class="num pc">0%</span></span></span></span><svg class="atx-ring" viewBox="0 0 22 22" role="progressbar" aria-label="Uploading ${esc(name).replace(/"/g, '&quot;')}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><circle cx="11" cy="11" r="8" fill="none" stroke="var(--line)" stroke-width="2"/><circle cx="11" cy="11" r="8" fill="none" stroke="${k[1]}" stroke-width="2" stroke-linecap="round" stroke-dasharray="50.3" stroke-dashoffset="50.3" transform="rotate(-90 11 11)"/></svg><button class="ib" aria-label="Remove ${esc(name).replace(/"/g, '&quot;')}" data-tip="Remove">${I('x','xs')}</button>${clean ? '<span class="atx-ln" aria-hidden="true"><i></i></span>' : ''}</div>`);
+    const it = html(`<div class="atx-it" style="--c:${k[1]};--cb:${k[2]}"><span class="atx-ti">${k[0]}</span><span class="atx-n"><span class="atx-nm">${esc(name)}</span><span class="atx-m"><span>${sz} · <span class="num pc">0%</span></span></span></span><svg class="atx-ring" viewBox="0 0 22 22" role="progressbar" aria-label="Uploading ${esc(name).replace(/"/g, '&quot;')}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><circle cx="11" cy="11" r="8" fill="none" stroke="var(--line)" stroke-width="2"/><circle cx="11" cy="11" r="8" fill="none" stroke="${k[1]}" stroke-width="2" stroke-linecap="round" stroke-dasharray="50.3" stroke-dashoffset="50.3" transform="rotate(-90 11 11)"/></svg><button class="ib" aria-label="Remove ${esc(name).replace(/"/g, '&quot;')}" data-tip="Remove">${I('x','xs')}</button>${clean ? '<span class="atx-ln" aria-hidden="true"><i></i></span>' : ''}</div>`);
     list.appendChild(it); enter(it, i * 80);
     $('.ib', it).onclick = () => { it.classList.add('leave'); setTimeout(() => it.remove(), 320); };
     const svg = $('.atx-ring', it), ring = $$('circle', it)[1], m = $('.atx-m', it); let p = 0;
@@ -3061,10 +3070,11 @@ DM.def('attachment-tray', (r, c) => {
     });
   }
   const samples = () => [['brief.pdf', 2.4e6, '12 pages'],['Pricing.fig', 8.1e6, '6 frames'],['signups.csv', 3.2e5, '1,204 rows']].forEach((f, i) => add(f[0], f[1], i, f[2]));
-  $('.atx-sample', r).onclick = e => { e.preventDefault(); samples(); };
-  $('.atx-file', r).onchange = e => { Array.from(e.target.files).forEach((f, i) => add(f.name, f.size, i)); e.target.value = ''; };
+  $(clean ? '.atx-smp' : '.atx-sample', r).onclick = e => { e.preventDefault(); samples(); };
+  $$('.atx-file', r).forEach(inp => { inp.onchange = e => { Array.from(e.target.files).forEach((f, i) => add(f.name, f.size, i)); e.target.value = ''; }; });
   ['dragenter','dragover'].forEach(ev => c.on(drop, ev, e => { e.preventDefault(); drop.classList.add('over'); }));
-  ['dragleave','drop'].forEach(ev => c.on(drop, ev, () => drop.classList.remove('over')));
+  // (in Clean the card holds the rows and buttons, so moving between them is not leaving it)
+  ['dragleave','drop'].forEach(ev => c.on(drop, ev, e => { if (clean && ev === 'dragleave' && drop.contains(e.relatedTarget)) return; drop.classList.remove('over'); }));
   c.on(drop, 'drop', e => { e.preventDefault(); Array.from(e.dataTransfer.files).forEach((f, i) => add(f.name, f.size, i)); });
   /* the dashed edge follows the drop zone's size and corners, with the dashes spaced to meet evenly all the way round */
   const ants = $('.atx-ants rect', r);
@@ -3075,7 +3085,7 @@ DM.def('attachment-tray', (r, c) => {
     const per = 2 * (w + h - 4 * k) - (8 - 2 * Math.PI) * rad, step = per / Math.max(8, Math.round(per / 11));
     ants.style.setProperty('--ap', step + 'px'); ants.style.setProperty('--ag', (step - 4.5) + 'px');
   };
-  fit(); const ro = new ResizeObserver(fit); ro.observe(drop); c.offs.push(() => ro.disconnect());
+  if (ants){ fit(); const ro = new ResizeObserver(fit); ro.observe(drop); c.offs.push(() => ro.disconnect()); }
   /* once it has entered, three sample files are dragged over, drop in and upload, so the tray shows what it does */
   c.run(async () => {
     await c.step(950); if (list.children.length) return;
@@ -3145,6 +3155,14 @@ DM.def('attachment-tray', (r, c) => {
   function atxComposer(r, c){
     const box = $('.atx-cmp-box', r), tray = $('.atx-cmp-list', r), empty = $('.atx-cmp-empty', r), st = $('.atx-cmp-st', r), ta = $('.atx-cmp-ta', r), send = $('.atx-cmp-send', r);
     const files = [];
+    // Clean: the empty tray is Clean's empty state, as Classic's (a sketch of a file list, the title, one line and Add sample
+    // files) in place of the drawing, and the box grows with what it holds (grow())
+    const clean = (r.closest('[data-style]') || document.documentElement).dataset.style === 'clean';
+    if (clean){
+      empty.classList.add('atx-em');
+      empty.innerHTML = `<span class="atx-em-art" aria-hidden="true"></span><b>Drop files for the agent</b><span>or press + to add them</span><button type="button" class="pill line sm atx-smp">${I('plus','xs')}Add sample files</button>`;
+      c.offs.push(grow(box));
+    }
     const status = () => { const up = files.filter(f => f.done).length, all = files.length; st.textContent = !all ? '' : up < all ? `${up} of ${all} ready` : `${all} ${all === 1 ? 'file' : 'files'} ready to send`; send.disabled = !all || up < all; };
     // the empty tray steps aside as the first files land, and comes back once the last one has gone
     let gone = 0;
@@ -3205,6 +3223,7 @@ DM.def('attachment-tray', (r, c) => {
     const drop = () => { if (!drag) return; const d = drag; drag = null; if (!d.on) return; files.forEach(g => { g.el.style.transform = ''; }); d.f.el.classList.remove('drag'); const i = files.indexOf(d.f); if (d.to !== undefined && d.to !== i) move(i, d.to); };
     c.on(tray, 'pointerup', drop); c.on(tray, 'pointercancel', drop);
     $('.atx-pick', r).onchange = e => { add(Array.from(e.target.files).map(f => ({ n:f.name, sz:f.size }))); e.target.value = ''; };
+    if (clean) $('.atx-smp', r).onclick = () => { if (!files.length) add(ATX_FILES()); };
     atxDrop(c, box, add);
     // Enter sends, as the button's tip says; Shift with Enter starts a new line
     c.on(ta, 'keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing){ e.preventDefault(); send.click(); } });
@@ -3233,13 +3252,21 @@ DM.def('attachment-tray', (r, c) => {
     <ol class="atx-ctx-list" aria-label="Files"></ol>
     <label class="atx-ctx-drop"><input type="file" multiple class="atx-pick" aria-label="Add files">${I('plus','xs')}<span>Drop files or <u>browse</u></span></label>
   </div>`;
-  // Context budget: each file uploads (a line grows under its icon), then the agent counts its tokens and its share of the window grows.
+  // Context budget: each file uploads (a line grows under its icon; in Clean a ring closes round it), then the agent counts its tokens and its share of the window grows.
   // A switch leaves a file out, its name opens what the agent found, and a file too big to read whole says what it keeps
   function atxBudget(r, c){
     const list = $('.atx-ctx-list', r), segs = $('.atx-ctx-segs', r), bar = $('.atx-ctx-bar', r), st = $('.atx-ctx-st', r), pc = $('.atx-ctx-pc', r), free = $('.atx-ctx-free', r), dz = $('.atx-ctx-drop', r);
-    const WIN = 128000, SYS = 4000, files = [];
-    // Clean: the card grows with its files (owner, 17 Nov), as Classic does there; Soft and Blueprint keep their room
-    if ((r.closest('[data-style]') || document.documentElement).dataset.style === 'clean') c.offs.push(grow($('.atx-ctx', r)));
+    const WIN = 128000, SYS = 4000, files = [], card = $('.atx-ctx', r);
+    // Clean: the card grows with its files (owner, 17 Nov), as Classic does there; Soft and Blueprint keep their room. The
+    // pill under the list becomes the card's foot strip (Drop files here, and Add files 8px from the corner), the whole card is
+    // the drop target, as Classic's is, and each file's upload is a ring round its round tile, not a line under its icon
+    const clean = (r.closest('[data-style]') || document.documentElement).dataset.style === 'clean';
+    if (clean){
+      dz.replaceWith(html(`<div class="atx-ctx-ft"><span>Drop files here</span><label class="pill line sm atx-add">${I('plus','xs')}Add files<input type="file" multiple class="atx-pick" aria-label="Add files"></label></div>`));
+      c.offs.push(grow(card));
+    }
+    // (the ring is drawn from the top, its ink arc as long as the upload's progress, --p)
+    const RING = '<svg class="atx-ctx-rg" viewBox="0 0 30 30" aria-hidden="true"><circle class="tr" cx="15" cy="15" r="14"/><circle class="pg" cx="15" cy="15" r="14" pathLength="1"/></svg>';
     // what a file takes: its tokens, or for one too big to read whole, the part the agent keeps (a quarter of the window)
     const cost = f => !f.on ? 0 : f.cut ? 32000 : f.tk;
     function total(){
@@ -3255,7 +3282,7 @@ DM.def('attachment-tray', (r, c) => {
         // each file's share takes the next step of the accent, and its row a dot in the same step
         const step = `--c:var(--a${1 + files.length % 4})`;
         f.seg = html(`<i class="live" style="${step}"></i>`); segs.appendChild(f.seg);
-        f.el = html(`<li class="atx-ctx-it atx-popin" style="${step};animation-delay:${i * 90}ms"><div class="atx-ctx-r"><span class="atx-ctx-ic">${atxIcon(t)}<span class="atx-ctx-up" aria-hidden="true"></span></span><span class="atx-ctx-tx"><button type="button" aria-expanded="false" disabled><span>${atxEsc(f.n)}</span>${I('chev-d','xs')}</button><span class="atx-ctx-m">${atxSize(f.sz)} · uploading</span></span><span class="dot atx-ctx-kd" aria-hidden="true"></span><span class="atx-ctx-tk num">–</span><button class="toggle" type="button" role="switch" aria-checked="true" aria-label="Include ${atxEsc(f.n)}" data-tip="Include in context"></button></div><div class="fold shut"><div><div class="atx-ctx-det"></div></div></div></li>`);
+        f.el = html(`<li class="atx-ctx-it atx-popin" style="${step};animation-delay:${i * 90}ms"><div class="atx-ctx-r"><span class="atx-ctx-ic">${atxIcon(t)}${clean ? RING : '<span class="atx-ctx-up" aria-hidden="true"></span>'}</span><span class="atx-ctx-tx"><button type="button" aria-expanded="false" disabled><span>${atxEsc(f.n)}</span>${I('chev-d','xs')}</button><span class="atx-ctx-m">${atxSize(f.sz)} · uploading</span></span><span class="dot atx-ctx-kd" aria-hidden="true"></span><span class="atx-ctx-tk num">–</span><button class="toggle" type="button" role="switch" aria-checked="true" aria-label="Include ${atxEsc(f.n)}" data-tip="Include in context"></button></div><div class="fold shut"><div><div class="atx-ctx-det"></div></div></div></li>`);
         list.appendChild(f.el); files.push(f);
         const tg = $('.toggle', f.el), fb = $('.atx-ctx-tx button', f.el), fold = $('.fold', f.el); fold.inert = true;
         tg.onclick = () => { f.on = !f.on; tg.setAttribute('aria-checked', String(f.on)); f.el.classList.toggle('off', !f.on); f.seg.style.opacity = f.on ? '' : '0'; total(); };
@@ -3267,7 +3294,7 @@ DM.def('attachment-tray', (r, c) => {
           // the tokens count up as the agent reads it, and its share of the window grows with them, ten times a second
           const tk = $('.atx-ctx-tk', f.el), n = REDUCE ? 1 : 11;
           await new Promise(res => { let k = 0; const iv = c.every(100, () => { k++; const p = Math.min(1, k / n); f.p = 1 - Math.pow(1 - p, 3); tk.textContent = atxTk(Math.round(cost({ ...f, on:true }) * f.p)); total(); if (p >= 1){ clearInterval(iv); res(); } }); });
-          f.live = false; f.seg.classList.remove('live'); if (f.cut) f.seg.classList.add('cut'); total();
+          f.live = false; f.seg.classList.remove('live'); if (f.cut) f.seg.classList.add('cut'); if (clean) f.el.classList.add('done'); total();
           fb.disabled = false;
           $('.atx-ctx-det', f.el).innerHTML = (f.cut ? `<p>Too big to read whole: the agent keeps the first ${f.cut.toLocaleString('en-US')} rows.</p>` : f.more ? `<p>${atxEsc(f.more)}</p>` : '') + (f.facts || []).map(x => `<span class="tag">${atxEsc(x)}</span>`).join('');
           swap($('.atx-ctx-m', f.el), f.cut ? `${atxSize(f.sz)} · <span class="w">first ${f.cut.toLocaleString('en-US')} rows</span>` : `${atxSize(f.sz)} · ${f.found || 'read'}`, true);
@@ -3275,7 +3302,7 @@ DM.def('attachment-tray', (r, c) => {
       });
     }
     $('.atx-pick', r).onchange = e => { add(Array.from(e.target.files).map(f => ({ n:f.name, sz:f.size }))); e.target.value = ''; };
-    atxDrop(c, dz, add); atxDrop(c, list, add);
+    if (clean) atxDrop(c, card, add); else { atxDrop(c, dz, add); atxDrop(c, list, add); }
     total();
     c.run(async () => { await c.step(800); if (!files.length) add(ATX_FILES()); });
     c.story(async s => {
