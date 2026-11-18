@@ -13,7 +13,7 @@ DM.def('plan-review', (r, c) => {
   const list = $('.plx-list', r), st = $('.plx-st', r), tm = $('.plx-tm', r), go = $('.plx-go', r), f = $('.plx-f', r);
   const row = (t, i) => `<li class="plx-s"><span class="n">${i + 1}</span><span class="b"><span class="t" contenteditable="true" spellcheck="false" role="textbox" aria-label="Step ${i + 1}">${t[0]}</span><span class="d"><span></span></span></span><button class="ib plx-x" aria-label="Skip step" data-tip="Skip step">${I('x','xs')}</button></li>`;
   list.innerHTML = S.map(row).join(''); stagger($$('.plx-s', list), 60, 100);
-  const count = () => { const on = $$('.plx-s:not(.off)', list); on.forEach((s, i) => $('.n', s).textContent = i + 1); $$('.plx-s.off .n', list).forEach(n => n.textContent = '–'); swap(st, on.length + ' steps, about ' + Math.max(1, Math.round(on.length * .8)) + ' min'); };
+  const count = () => { const on = $$('.plx-s:not(.off)', list); on.forEach((s, i) => $('.n', s).textContent = i + 1); $$('.plx-s.off .n', list).forEach(n => n.textContent = '–'); swap(st, 'About ' + Math.max(1, Math.round(on.length * .8)) + ' min'); };
   function bind(s, done){
     const t = $('.t', s), orig = t.textContent; s._done = done || 'Done';
     t.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); t.blur(); } };
@@ -33,14 +33,15 @@ DM.def('plan-review', (r, c) => {
     $$('.t', list).forEach(t => { t.contentEditable = 'false'; t.removeAttribute('role'); }); $('.plx-add', r).hidden = true;
     // the approved plan is fixed: the skip buttons keep their space but can't be used
     $$('.plx-x', list).forEach(b => { b.disabled = true; b.style.visibility = 'hidden'; });
-    f.innerHTML = `<span class="muted plx-n">Running the approved plan</span><button class="pill ghost sm plx-stop">${I('stop','xs')}Stop</button>`; stagger([...f.children], 50);
+    // the status line says it is running and how long is left; the foot keeps only Stop (no line repeating the head)
+    f.innerHTML = `<span class="muted plx-n"></span><button class="pill ghost sm plx-stop">${I('stop','xs')}Stop</button>`; stagger([...f.children], 50);
     let stop = false; $('.plx-stop', f).onclick = () => stop = true;
     $('.plx-mk', r).classList.add('on');
     const t0 = performance.now(), tick = c.every(250, () => tm.textContent = clock(performance.now() - t0)); tm.textContent = '0:00'; enter(tm);
     const on = $$('.plx-s:not(.off)', list), n = s => $('.n', s), txt = s => $('.t', s);
     try {
       for (let i = 0; i < on.length && !stop; i++){
-        const s = on[i]; s.classList.add('run'); txt(s).classList.add('shim'); n(s).innerHTML = '<span class="spin"></span>'; swap(st, 'Step ' + (i + 1) + ' of ' + on.length); await c.wait(900);
+        const s = on[i]; s.classList.add('run'); txt(s).classList.add('shim'); n(s).innerHTML = '<span class="spin"></span>'; swap(st, 'About ' + Math.max(1, Math.round((on.length - i) * .8)) + ' min left'); await c.wait(900);
         // the second step hits a rate limit: the agent waits it out, counting down, and tries again
         if (s === $$('.plx-s', list)[1] && !stop){
           s.classList.replace('run', 'retry'); txt(s).classList.remove('shim'); n(s).innerHTML = I('clock','xs');

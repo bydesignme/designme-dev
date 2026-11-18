@@ -33,14 +33,14 @@ The agent's web searches, shown as it makes them: each query with how many resul
 
 ### What it does
 
-- A header that says what is happening (Searching for “…”, Reading 4 pages) and, once done, sums it up; it opens and folds the trail.
+- A header that says what is happening (Searching the web, Reading the pages; the queries and pages are in the rows under it) and, once done, sums it up; it opens and folds the trail.
 - Query rows with the query, the result count (No results in the warning colour) and the time; each opens to its pages.
 - A query asked again in other words is marked "Asked again in other words" under it, right after the one that found nothing.
 - Page rows with the site's initial, the title, the site and date, and a tag: Reading (with a spinner), Read, Skimmed, or Skipped with the reason as a warning tag.
-- A stack of up to four site initials in the header, with the rest counted (+3). In Clean a narrow card (400px or less, as on a phone) leaves them out, so the header line fits.
+- Up to four site initials in the header, side by side, with the rest counted (+3). In Clean a narrow card (400px or less, as on a phone) leaves them out, so the header line fits.
 - Citations in the answer ([1], [2]) are buttons: pointing at one or tabbing to it lights the page it came from (or its search, when that is folded) and its site's initial, and its tooltip names the page.
 - Page titles cut short with an ellipsis show in full in a tooltip on hover and on keyboard focus.
-- In Clean it always has its card, `bare` or not, and the card grows and shrinks with what it shows, easing down to the header and the answer as the trail folds.
+- It grows and shrinks with what it shows, easing down to the header and the answer as the trail folds. Every row sits on the header's columns: its mark under the header's, its words where the header's start. In Clean it always has its card, `bare` or not.
 
 ### Accessibility
 
@@ -208,21 +208,20 @@ export function WebSearch({ queries, done = false, answer, open, onOpenChange, b
   const sites = [...new Set(pages.map(p => p.domain))];
   const read = pages.filter(p => p.status === 'read' || p.status === 'skimmed').length;
   const current = queries.find(q => q.status === 'searching'), reading = pages.filter(p => p.status === 'reading').length;
-  const line = done ? `${queries.length} searches, ${read} pages read` : current ? `Searching for “${current.query}”` : reading ? `Reading ${reading} pages` : 'Searching the web';
+  // the head says what is happening; the query and its pages are in the rows under it, so it repeats neither (owner, 18 Nov)
+  const line = done ? `${queries.length} searches, ${read} pages read` : reading && !current ? 'Reading the pages' : 'Searching the web';
   const cited = (n: number) => pages.find(p => p.cite === n);
   // only changes of phase are announced
   const [said, setSaid] = useState('');
   const last = useRef('');
   useEffect(() => { const t = done ? `Done: ${line}` : current ? `Searching for ${current.query}` : ''; if (t && t !== last.current) { last.current = t; setSaid(t); } }, [done, current?.key]); // eslint-disable-line react-hooks/exhaustive-deps
   const hotPage = hot != null ? cited(hot) : undefined;
-  // Clean: the trail is a card that grows and shrinks with what it holds (as grow() on designme.dev): its height follows its
-  // content, eased, as searches arrive and as it folds. Soft and Blueprint keep their own sizing
+  // the trail grows and shrinks with what it holds, in every style (as grow() on designme.dev): its height follows its
+  // content, eased, as searches arrive and as it folds
   const root = useRef<HTMLDivElement>(null), wrap = useRef<HTMLDivElement>(null);
-  const [clean, setClean] = useState(false);
-  useIsoLayoutEffect(() => { setClean(root.current?.closest('[data-style]')?.getAttribute('data-style') === 'clean'); }, []);
   useIsoLayoutEffect(() => {
     const el = root.current, w = wrap.current;
-    if (!clean || !el || !w || typeof ResizeObserver === 'undefined') return;
+    if (!el || !w || typeof ResizeObserver === 'undefined') return;
     let first = true;
     const fit = () => {
       const cs = getComputedStyle(el), h = Math.ceil(w.offsetHeight + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth));
@@ -231,10 +230,10 @@ export function WebSearch({ queries, done = false, answer, open, onOpenChange, b
     };
     const ro = new ResizeObserver(fit); ro.observe(w); fit();
     return () => { ro.disconnect(); el.style.height = ''; };
-  }, [clean]);
+  }, []);
   return (
-    <div data-dm="" ref={root} className={cx('dm-wsx', !bare && 'dm-panel', clean && 'dm-growing', className)} style={bare ? { paddingInline: 0 } : undefined}>
-      <div className="dm-grow" ref={wrap} style={clean ? undefined : { display: 'contents' }}>
+    <div data-dm="" ref={root} className={cx('dm-wsx', !bare && 'dm-panel', 'dm-growing', className)} style={bare ? { paddingInline: 0 } : undefined}>
+      <div className="dm-grow" ref={wrap}>
       <button type="button" className="dm-wsx-h" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
         <span className="dm-wsx-ic">{done ? <Icon name="globe" size="xs" /> : <Spin />}</span>
         <Swap className={cx('dm-wsx-st', !done && 'dm-shim')}>{line}</Swap>

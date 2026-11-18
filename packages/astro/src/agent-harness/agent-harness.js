@@ -101,7 +101,7 @@ DM.def('harness', (r, c) => {
       const pl = t.comp('plan-review'); t.hold(pl, 'Needs your approval', "Noted. Edit a step above to match, or approve the plan as it is and I'll start."); t.ctx(40);
       t.decide(pl, '.plx-go');
       // the plan's own line says how it ended, once its crossfade has landed
-      await t.until(() => { const s = $('.plx-st', pl).textContent; if (/^Step/.test(s)) t.status('run', 'Running the plan', s); return $('.plx-f .pill.soft', pl) && /^(Done|Stopped)/.test(s); });
+      await t.until(() => { const s = $('.plx-st', pl).textContent; if (/ left$/.test(s)) t.status('run', 'Running the plan', s); return $('.plx-f .pill.soft', pl) && /^(Done|Stopped)/.test(s); });
       if (/Stopped/.test($('.plx-st', pl).textContent)){ await t.say('Stopped. The finished steps are kept.'); return t.end('Stopped', 'Progress kept'); }
       t.ctx(44); await t.wait(600);
       await t.say('All done. Six files changed, and the pull request is open for review.'); t.ctx(46);

@@ -9,8 +9,8 @@ DM.def('attachment-tray', (r, c) => {
   const clean = (r.closest('[data-style]') || document.documentElement).dataset.style === 'clean';
   if (clean){
     $('.atx-drop', r).remove();
-    list.after(html(`<div class="atx-em"><span class="atx-em-art" aria-hidden="true"></span><b>Drop files here</b><span>or <label class="atx-br">browse your files<input type="file" multiple class="atx-file" aria-label="Choose files"></label></span><button type="button" class="pill line sm atx-smp">${I('plus','xs')}Add sample files</button></div>`));
-    const ft = html(`<div class="atx-ft"><label class="pill line sm atx-add">${I('plus','xs')}Add files<input type="file" multiple class="atx-file" aria-label="Add files"></label></div>`);
+    list.after(html(`<div class="atx-em"><span class="atx-em-art" aria-hidden="true"></span><b>Drop files here</b><span>or <label class="atx-br">browse your files<input type="file" multiple class="atx-file" aria-label="Choose files" title=""></label></span><button type="button" class="pill line sm atx-smp">${I('plus','xs')}Add sample files</button></div>`));
+    const ft = html(`<div class="atx-ft"><label class="pill line sm atx-add">${I('plus','xs')}Add files<input type="file" multiple class="atx-file" aria-label="Add files" title=""></label></div>`);
     sum.replaceWith(ft); ft.prepend(sum);
     c.offs.push(grow(tray));
   }

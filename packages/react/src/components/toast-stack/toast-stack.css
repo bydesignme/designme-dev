@@ -1,7 +1,9 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Toast stack ---------- */
 /* each toast is the same size as the one in Toast: width, padding, type and icons */
-.dm-tsk-stack{position:relative;width:100%;max-width:380px;height:96px;isolation:isolate}
+/* the deck is as tall as the toasts in it (--dm-deckh, set as they arrive), growing with them, never keeping room for three
+   (owner, 18 Nov: containers grow with their content in every style) */
+.dm-tsk-stack{position:relative;width:100%;max-width:380px;height:var(--dm-deckh,96px);isolation:isolate}
 .dm-tsk-stack.dm-fan{height:var(--dm-fanh,96px)}
 @media (hover:hover) and (pointer:fine){.dm-tsk-stack:hover{height:var(--dm-fanh,96px)}}
 .dm-tsk-stack{transition:height .55s var(--dm-ease)}
@@ -15,19 +17,19 @@
 .dm-tsk-c .dm-t{font-size:11.5px;color:var(--dm-muted);align-self:center}
 /* the time sits at the right edge; the close button takes its place on hover */
 .dm-tsk-c .dm-t{transition:opacity .2s}
-.dm-tsk-c .dm-ib{position:absolute;top:50%;right:var(--dm-s-3);margin-top:-15px;opacity:0;transition:opacity .2s}
+.dm-tsk-c .dm-ib{position:absolute;top:50%;right:var(--dm-s-3);width:28px;height:28px;margin-top:-14px;opacity:0;transition:opacity .2s}
 .dm-tsk-c .dm-ib:focus-visible{opacity:1}
 @media (hover:hover) and (pointer:fine){.dm-tsk-c:hover .dm-ib{opacity:1}}
+/* a toast behind the front one in the deck shows only its edge: its words are hidden under the front toast, never
+   showing through it, and come back as the stack fans out (and go once it has folded again) */
+.dm-tsk-c[inert]>*{visibility:hidden;transition:visibility 0s .5s}
 .dm-tsk-c:has(.dm-ib:focus-visible) .dm-t{opacity:0}
 @media (hover:hover) and (pointer:fine){.dm-tsk-c:hover .dm-t{opacity:0}}
 /* Clean (lead, 18 Nov): each toast is the same small card as Toast's: content 16px in from every edge, ordinary 16px corners,
    no blur on the way in or behind the front one. Colour only for meaning: a passed check is green and a warning orange, on
    the icon alone; every other notification (a PR, synced frames, a draft) is grey, never a hue of its own. With no blur to
-   hide it, a new toast turns opaque at once as it rises, so the words of the one it covers never show through. The deck is as
-   tall as the toasts in it, growing as they arrive (--dm-deckh), instead of keeping room for three */
-:root[data-style="clean"] .dm-tsk-stack,:root [data-style="clean"] .dm-tsk-stack,:root [data-style="clean"].dm-tsk-stack{height:var(--dm-deckh,96px);transition:height var(--dm-t) var(--dm-ease)}
-:root[data-style="clean"] .dm-tsk-stack.dm-fan,:root [data-style="clean"] .dm-tsk-stack.dm-fan,:root [data-style="clean"].dm-tsk-stack.dm-fan{height:var(--dm-fanh,96px)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-tsk-stack:hover,:root [data-style="clean"] .dm-tsk-stack:hover,:root [data-style="clean"].dm-tsk-stack:hover{height:var(--dm-fanh,96px)}}
+   hide it, a new toast turns opaque at once as it rises, so the words of the one it covers never show through */
+:root[data-style="clean"] .dm-tsk-stack,:root [data-style="clean"] .dm-tsk-stack,:root [data-style="clean"].dm-tsk-stack{transition:height var(--dm-t) var(--dm-ease)}
 :root[data-style="clean"] .dm-tsk-c,:root [data-style="clean"] .dm-tsk-c,:root [data-style="clean"].dm-tsk-c{gap:12px;padding:16px;border-radius:calc(12px * var(--dm-rk-l,var(--dm-rk)));filter:none!important;transition:transform var(--dm-t) var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease)}
 :root[data-style="clean"] .dm-tsk-c .dm-g,:root [data-style="clean"] .dm-tsk-c .dm-g,:root [data-style="clean"].dm-tsk-c .dm-g{width:20px;height:20px;background:none!important;color:var(--dm-fg2)!important}
 :root[data-style="clean"] .dm-tsk-c .dm-g .dm-i,:root [data-style="clean"] .dm-tsk-c .dm-g .dm-i,:root [data-style="clean"].dm-tsk-c .dm-g .dm-i{width:20px;height:20px}
@@ -35,4 +37,4 @@
 :root[data-style="clean"] .dm-tsk-c .dm-g[data-tone="warn"],:root [data-style="clean"] .dm-tsk-c .dm-g[data-tone="warn"],:root [data-style="clean"].dm-tsk-c .dm-g[data-tone="warn"]{color:var(--dm-warn-mark)!important}
 :root[data-style="clean"] .dm-tsk-c .dm-g[data-tone="bad"],:root [data-style="clean"] .dm-tsk-c .dm-g[data-tone="bad"],:root [data-style="clean"].dm-tsk-c .dm-g[data-tone="bad"]{color:var(--dm-bad-mark)!important}
 :root[data-style="clean"] .dm-tsk-c .dm-t,:root [data-style="clean"] .dm-tsk-c .dm-t,:root [data-style="clean"].dm-tsk-c .dm-t{font-variant-numeric:tabular-nums}
-:root[data-style="clean"] .dm-tsk-c .dm-ib,:root [data-style="clean"] .dm-tsk-c .dm-ib,:root [data-style="clean"].dm-tsk-c .dm-ib{right:16px;width:28px;height:28px;margin-top:-14px}
+:root[data-style="clean"] .dm-tsk-c .dm-ib,:root [data-style="clean"] .dm-tsk-c .dm-ib,:root [data-style="clean"].dm-tsk-c .dm-ib{right:16px}

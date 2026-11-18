@@ -31,7 +31,7 @@ export interface PlanReviewProps {
   onStepsChange?: (steps: PlanReviewStep[]) => void;
   /** review (steps can be edited), running (the agent works through them) or done */
   phase?: PlanPhase;
-  /** The line under the title. Defaults to how many steps are left in and roughly how long they take */
+  /** The line under the title. Defaults to roughly how long the steps left in take (the list shows how many there are) */
   status?: string;
   /** The quiet line in the footer. Defaults to a hint for each phase */
   note?: string;
@@ -46,7 +46,8 @@ export interface PlanReviewProps {
   className?: string;
 }
 
-const NOTE: Record<PlanPhase, string> = { review: 'Click a step to edit it', running: 'Running the approved plan', done: '' };
+// the foot never repeats the head: while the plan runs it has only Stop (owner, 18 Nov)
+const NOTE: Record<PlanPhase, string> = { review: 'Click a step to edit it', running: '', done: '' };
 let added = 0;
 
 /** A plan the agent proposes before it starts: edit a step, skip it, add one, then approve. */
@@ -80,7 +81,7 @@ export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, pha
       <div className="dm-grow" ref={growIn}>
       <div className="dm-plx-h">
         <Think on={phase === 'running'} className="dm-plx-mk" />
-        <div className="dm-plx-ht"><b>{title}</b><Swap className="dm-muted dm-plx-st">{status ?? `${included.length} steps, about ${Math.max(1, Math.round(included.length * .8))} min`}</Swap></div>
+        <div className="dm-plx-ht"><b>{title}</b><Swap className="dm-muted dm-plx-st">{status ?? `About ${Math.max(1, Math.round(included.length * .8))} min`}</Swap></div>
         {meta !== undefined && <span className="dm-plx-tm dm-num">{meta}</span>}
       </div>
       <ol className="dm-plx-list">

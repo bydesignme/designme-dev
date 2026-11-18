@@ -35,7 +35,7 @@ Toast stack collects the notifications an agent sends while it works and piles t
 ### What it does
 
 - Pass `toasts` oldest first. The last item sits at the front and older ones step back, shrink and fade.
-- Hovering the stack fans it into a list that grows to fit the four front toasts. Set `expanded` to fan it yourself. In Clean the stacked deck is as tall as the toasts in it, growing as they arrive.
+- Hovering the stack fans it into a list that grows to fit the four front toasts. Set `expanded` to fan it yourself. Stacked, the deck is as tall as the toasts in it, growing as they arrive, and the toasts behind the front one show only their edges.
 - Each toast has an icon badge, a bold `title`, an optional `detail` line and an optional `time` like "now" or "2m".
 - `tone` colours the badge, with status tones (ok, warn, bad, merge) and colour names like blue, purple and teal. In Clean only the status tones `ok`, `warn` and `bad` take colour, on the icon alone; the rest are grey.
 - The close button calls `onDismiss` with the toast id. Remove it from `toasts` and it slides off to the right as it fades.

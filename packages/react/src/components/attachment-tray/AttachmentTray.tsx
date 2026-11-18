@@ -127,6 +127,7 @@ export function AttachmentTray({ files, onFiles, onRemove, title = 'Drop files h
   // in Clean the card holds the rows and buttons, so moving between them is not leaving it
   const leave = (e: DragEvent) => { if (clean && e.currentTarget.contains(e.relatedTarget as Node | null)) return; setOver(false); };
   const dropped = (e: DragEvent) => { e.preventDefault(); setOver(false); if (e.dataTransfer.files.length) onFiles?.(Array.from(e.dataTransfer.files)); };
+  // (the file inputs carry an empty title, so the browser's own "No file chosen" tip never shows over them)
   const picked = (e: ChangeEvent<HTMLInputElement>) => { if (e.target.files?.length) onFiles?.(Array.from(e.target.files)); e.target.value = ''; };
   const read = files.filter(f => f.progress >= 100 && !f.reading).length;
   const line = summary ?? (read ? `The agent can read ${read} ${read > 1 ? 'files' : 'file'} now` : '');
@@ -152,7 +153,7 @@ export function AttachmentTray({ files, onFiles, onRemove, title = 'Drop files h
   const list = <div className="dm-atx-list">{files.map(f => <Item key={f.id} file={f} delay={seen.delay[f.id] ?? 0} onRemove={onRemove} clean={clean} />)}</div>;
   const body = !clean ? (<>
       <label className={cx('dm-atx-drop', (over || dragging) && 'dm-over')} onDragEnter={hold} onDragOver={hold} onDragLeave={leave} onDrop={dropped}>
-        <input type="file" multiple accept={accept} className="dm-atx-file" aria-label="Choose files" onChange={picked} />
+        <input type="file" multiple accept={accept} className="dm-atx-file" aria-label="Choose files" title="" onChange={picked} />
         <Ants />
         <span className="dm-atx-ic"><Icon name="upload" /></span>
         <b>{title}</b>
@@ -166,7 +167,7 @@ export function AttachmentTray({ files, onFiles, onRemove, title = 'Drop files h
       <div className="dm-atx-em">
         <span className="dm-atx-em-art" aria-hidden="true" />
         <b>{title}</b>
-        <span>or <label className="dm-atx-br">browse your files<input type="file" multiple accept={accept} className="dm-atx-file" aria-label="Choose files" onChange={picked} /></label></span>
+        <span>or <label className="dm-atx-br">browse your files<input type="file" multiple accept={accept} className="dm-atx-file" aria-label="Choose files" title="" onChange={picked} /></label></span>
         {action && <button type="button" className="dm-pill dm-line dm-sm dm-atx-smp" onClick={action.onClick}><Icon name="plus" size="xs" />{action.label.charAt(0).toUpperCase() + action.label.slice(1)}</button>}
       </div>
       <div className="dm-atx-ft">
@@ -175,7 +176,7 @@ export function AttachmentTray({ files, onFiles, onRemove, title = 'Drop files h
           {summary != null ? <span>{summary}</span>
             : <span>The agent can read <span className="dm-atx-roll dm-num"><i key={read} className="dm-in">{read}</i></span> {read > 1 ? 'files' : 'file'} now</span>}
         </>}</div>
-        <label className="dm-pill dm-line dm-sm dm-atx-add"><Icon name="plus" size="xs" />Add files<input type="file" multiple accept={accept} className="dm-atx-file" aria-label="Add files" onChange={picked} /></label>
+        <label className="dm-pill dm-line dm-sm dm-atx-add"><Icon name="plus" size="xs" />Add files<input type="file" multiple accept={accept} className="dm-atx-file" aria-label="Add files" title="" onChange={picked} /></label>
       </div>
   </>);
 

@@ -343,7 +343,8 @@ export default function AgentHarnessDemo() {
       const on = ps.filter(s => !s.skipped);
       const step = (sid: string, state: PlanReviewStep['state']) => { ps = ps.map(s => s.id === sid ? { ...s, state } : s); plan({ steps: ps }); };
       for (let i = 0; i < on.length && !stop.now; i++) {
-        step(on[i].id, 'run'); plan({ status: `Step ${i + 1} of ${on.length}` }); t.status({ state: 'working', label: 'Running the plan', meta: `Step ${i + 1} of ${on.length}` });
+        const left = `About ${Math.max(1, Math.round((on.length - i) * .8))} min left`;
+        step(on[i].id, 'run'); plan({ status: left }); t.status({ state: 'working', label: 'Running the plan', meta: left });
         await t.wait(900); step(on[i].id, 'done');
       }
       plan({ status: stop.now ? 'Stopped, progress kept' : 'Done. 4 frames updated', phase: 'done' });

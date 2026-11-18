@@ -35,7 +35,7 @@ export default function PlanReviewDemo() {
       for (let i = 0; i < on.length && !stop.current; i++) {
         const s = on[i], plan = DONE.get(s.id);
         let done = !plan ? 'Done' : s.edited ? 'Done as you wrote it' : plan.done;
-        mark(s.id, { state: 'run' }); setStatus(`Step ${i + 1} of ${on.length}`); await wait(900);
+        mark(s.id, { state: 'run' }); setStatus(`About ${Math.max(1, Math.round((on.length - i) * .8))} min left`); await wait(900);
         // the second step hits a rate limit: the agent waits it out, counting down, and tries again
         if (s.id === 's1') {
           for (let k = 3; k > 0 && !stop.current; k--) { mark(s.id, { state: 'retry', detail: `Rate limited by the browser tool. Retrying in ${k}s` }); await wait(1000); }

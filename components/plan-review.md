@@ -34,13 +34,13 @@ Plan review shows the plan an agent proposes before it starts work, as a numbere
 
 ### What it does
 
-- Three phases: `review` lets people edit steps, `running` shows progress and a Stop button, and `done` shows See changes.
+- Three phases: `review` lets people edit steps, `running` shows progress and a Stop button (the footer has no line of its own then), and `done` shows See changes.
 - In review, clicking a step makes its text editable. Enter saves it, and the step is marked as edited only if the words really changed.
 - Each step has a skip button. Skipped steps stay in the list, struck through, and lose their number until they are included again.
 - Add a step appends a new row and puts the cursor in it with the text selected.
 - Steps can show `state: 'run'` while the agent works on them, with a spinner and a shimmer on the text, `'retry'` in amber while it waits out a problem like a rate limit, and a check once `done`.
 - Each step can report a `detail` line under it, like "6 frames and 42 tokens read". It opens under the step and crossfades when it changes.
-- The status line defaults to how many steps are left in and about how many minutes they take. `status` and `note` replace the defaults. `meta` adds quiet text at the end of the header, like an elapsed time while the agent works; the demo clears it once the run is over, as a finished plan shows no clock.
+- The status line defaults to about how many minutes the steps left in take (the list shows how many there are). `status` and `note` replace the defaults. `meta` adds quiet text at the end of the header, like an elapsed time while the agent works; the demo clears it once the run is over, as a finished plan shows no clock.
 
 ### Accessibility
 
@@ -94,7 +94,7 @@ export default function PlanReviewDemo() {
       for (let i = 0; i < on.length && !stop.current; i++) {
         const s = on[i], plan = DONE.get(s.id);
         let done = !plan ? 'Done' : s.edited ? 'Done as you wrote it' : plan.done;
-        mark(s.id, { state: 'run' }); setStatus(`Step ${i + 1} of ${on.length}`); await wait(900);
+        mark(s.id, { state: 'run' }); setStatus(`About ${Math.max(1, Math.round((on.length - i) * .8))} min left`); await wait(900);
         // the second step hits a rate limit: the agent waits it out, counting down, and tries again
         if (s.id === 's1') {
           for (let k = 3; k > 0 && !stop.current; k--) { mark(s.id, { state: 'retry', detail: `Rate limited by the browser tool. Retrying in ${k}s` }); await wait(1000); }
@@ -141,7 +141,7 @@ export default function PlanReviewDemo() {
 | `defaultSteps` (optional) | `PlanReviewStep[]` |  |
 | `onStepsChange` (optional) | `(steps: PlanReviewStep[]) => void` |  |
 | `phase` (optional) | `PlanPhase` | review (steps can be edited), running (the agent works through them) or done |
-| `status` (optional) | `string` | The line under the title. Defaults to how many steps are left in and roughly how long they take |
+| `status` (optional) | `string` | The line under the title. Defaults to roughly how long the steps left in take (the list shows how many there are) |
 | `note` (optional) | `string` | The quiet line in the footer. Defaults to a hint for each phase |
 | `meta` (optional) | `ReactNode` | Quiet text at the end of the header, like an elapsed time "0:04" |
 | `onApprove` (optional) | `() => void` |  |
@@ -218,7 +218,7 @@ export interface PlanReviewProps {
   onStepsChange?: (steps: PlanReviewStep[]) => void;
   /** review (steps can be edited), running (the agent works through them) or done */
   phase?: PlanPhase;
-  /** The line under the title. Defaults to how many steps are left in and roughly how long they take */
+  /** The line under the title. Defaults to roughly how long the steps left in take (the list shows how many there are) */
   status?: string;
   /** The quiet line in the footer. Defaults to a hint for each phase */
   note?: string;
@@ -233,7 +233,8 @@ export interface PlanReviewProps {
   className?: string;
 }
 
-const NOTE: Record<PlanPhase, string> = { review: 'Click a step to edit it', running: 'Running the approved plan', done: '' };
+// the foot never repeats the head: while the plan runs it has only Stop (owner, 18 Nov)
+const NOTE: Record<PlanPhase, string> = { review: 'Click a step to edit it', running: '', done: '' };
 let added = 0;
 
 /** A plan the agent proposes before it starts: edit a step, skip it, add one, then approve. */
@@ -267,7 +268,7 @@ export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, pha
       <div className="dm-grow" ref={growIn}>
       <div className="dm-plx-h">
         <Think on={phase === 'running'} className="dm-plx-mk" />
-        <div className="dm-plx-ht"><b>{title}</b><Swap className="dm-muted dm-plx-st">{status ?? `${included.length} steps, about ${Math.max(1, Math.round(included.length * .8))} min`}</Swap></div>
+        <div className="dm-plx-ht"><b>{title}</b><Swap className="dm-muted dm-plx-st">{status ?? `About ${Math.max(1, Math.round(included.length * .8))} min`}</Swap></div>
         {meta !== undefined && <span className="dm-plx-tm dm-num">{meta}</span>}
       </div>
       <ol className="dm-plx-list">

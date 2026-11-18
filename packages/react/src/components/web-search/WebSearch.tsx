@@ -62,21 +62,20 @@ export function WebSearch({ queries, done = false, answer, open, onOpenChange, b
   const sites = [...new Set(pages.map(p => p.domain))];
   const read = pages.filter(p => p.status === 'read' || p.status === 'skimmed').length;
   const current = queries.find(q => q.status === 'searching'), reading = pages.filter(p => p.status === 'reading').length;
-  const line = done ? `${queries.length} searches, ${read} pages read` : current ? `Searching for “${current.query}”` : reading ? `Reading ${reading} pages` : 'Searching the web';
+  // the head says what is happening; the query and its pages are in the rows under it, so it repeats neither (owner, 18 Nov)
+  const line = done ? `${queries.length} searches, ${read} pages read` : reading && !current ? 'Reading the pages' : 'Searching the web';
   const cited = (n: number) => pages.find(p => p.cite === n);
   // only changes of phase are announced
   const [said, setSaid] = useState('');
   const last = useRef('');
   useEffect(() => { const t = done ? `Done: ${line}` : current ? `Searching for ${current.query}` : ''; if (t && t !== last.current) { last.current = t; setSaid(t); } }, [done, current?.key]); // eslint-disable-line react-hooks/exhaustive-deps
   const hotPage = hot != null ? cited(hot) : undefined;
-  // Clean: the trail is a card that grows and shrinks with what it holds (as grow() on designme.dev): its height follows its
-  // content, eased, as searches arrive and as it folds. Soft and Blueprint keep their own sizing
+  // the trail grows and shrinks with what it holds, in every style (as grow() on designme.dev): its height follows its
+  // content, eased, as searches arrive and as it folds
   const root = useRef<HTMLDivElement>(null), wrap = useRef<HTMLDivElement>(null);
-  const [clean, setClean] = useState(false);
-  useIsoLayoutEffect(() => { setClean(root.current?.closest('[data-style]')?.getAttribute('data-style') === 'clean'); }, []);
   useIsoLayoutEffect(() => {
     const el = root.current, w = wrap.current;
-    if (!clean || !el || !w || typeof ResizeObserver === 'undefined') return;
+    if (!el || !w || typeof ResizeObserver === 'undefined') return;
     let first = true;
     const fit = () => {
       const cs = getComputedStyle(el), h = Math.ceil(w.offsetHeight + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth));
@@ -85,10 +84,10 @@ export function WebSearch({ queries, done = false, answer, open, onOpenChange, b
     };
     const ro = new ResizeObserver(fit); ro.observe(w); fit();
     return () => { ro.disconnect(); el.style.height = ''; };
-  }, [clean]);
+  }, []);
   return (
-    <div data-dm="" ref={root} className={cx('dm-wsx', !bare && 'dm-panel', clean && 'dm-growing', className)} style={bare ? { paddingInline: 0 } : undefined}>
-      <div className="dm-grow" ref={wrap} style={clean ? undefined : { display: 'contents' }}>
+    <div data-dm="" ref={root} className={cx('dm-wsx', !bare && 'dm-panel', 'dm-growing', className)} style={bare ? { paddingInline: 0 } : undefined}>
+      <div className="dm-grow" ref={wrap}>
       <button type="button" className="dm-wsx-h" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
         <span className="dm-wsx-ic">{done ? <Icon name="globe" size="xs" /> : <Spin />}</span>
         <Swap className={cx('dm-wsx-st', !done && 'dm-shim')}>{line}</Swap>
