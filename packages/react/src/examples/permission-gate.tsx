@@ -71,7 +71,7 @@ export default function PermissionGateDemo() {
         onRevoke={() => { run.current = { granted: 0, publish: false, skip: false, done: 0, id: r.id + 1 }; setValue(['read', 'edit']); setMs(0); setWorking(false); }}
         working={working} meta={clock(ms)} allowedDetail={detail}
         allowedTitle={title ?? `Allowed ${r.granted} ${r.granted > 1 ? 'scopes' : 'scope'} ${duration === 'Always' ? 'always' : 'for ' + duration.toLowerCase()}`}
-        declinedTitle="The agent will skip the Figma edits" declinedDetail="It will list the fixes in chat instead" declinedSummary="Nothing allowed in Figma" />
+        declinedTitle="The agent will skip the Figma edits" declinedDetail="It will list the fixes in chat instead" />
     </div>
   );
 }

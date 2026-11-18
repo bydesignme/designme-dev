@@ -2626,70 +2626,9 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .pgx-ic{transition:background .32s var(--ease)}
 .pgx.esc .pgx-ic{background:var(--warn-bg)}
 .pgx-scope{display:flex;flex-direction:column;gap:var(--s-3)}
-/* the line in the foot strip once you have answered (Clean only): the scopes you allowed, or that you allowed none */
-.pgx-sum{display:none}
 
-/* Clean (owner, 18 Nov): a card with the question, the scopes and an off-white foot strip. Its content sits 16px from
-   every edge; the controls in the strip sit 8px from the card's edges, their round ends following its corners
-   (22 = 14 + 8), and the duration select lines up with the content above by its text, not its hover box. The ticks are
-   ink and draw in, the count on Allow rolls as boxes are ticked, and once you answer the scopes fold into one summary line
-   in the strip while the card eases to its new height (grow(), centred in its stage). Its height is never kept */
-/* the card clips its strips to its round corners; the duration menu opens out of it (nothing changes height while it is open) */
-:root[data-style="clean"] .pgx.panel{padding:16px 16px 0;overflow:clip;overflow-clip-margin:0px}
-:root[data-style="clean"] .pgx.panel:has(.pgx-pop.open){overflow:visible}
-:root[data-style="clean"] .pgx-ic{border-radius:50%;box-shadow:inset 0 0 0 1px var(--hair)}
-:root[data-style="clean"] .pgx-ht b{line-height:20px;letter-spacing:-.01em}
-:root[data-style="clean"] .pgx-ht span,:root[data-style="clean"] .pgx-o .d,:root[data-style="clean"] .pgx-done .t span{line-height:18px}
-:root[data-style="clean"] :is(.pgx-o,.pgx-done) .t{line-height:20px}
-:root[data-style="clean"] .pgx-o{transition:background-color var(--t-fast) var(--ease)}
-:root[data-style="clean"] .pgx-o .bx{border-radius:50%;background:var(--surface);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--muted) 80%,var(--surface)),var(--track-ring);transition:background .2s var(--ease),box-shadow .2s var(--ease)}
-:root[data-style="clean"] .pgx-o .bx svg{transform:none;stroke-dasharray:21;stroke-dashoffset:21;transition:stroke-dashoffset .3s var(--ease)}
-:root[data-style="clean"] .pgx-o input:checked+.bx{background:linear-gradient(180deg,var(--btn-1),var(--btn-2));box-shadow:inset 0 0 0 1px var(--btn-2),inset 0 2px 3px -1px rgba(255,255,255,.28);color:var(--on-btn)}
-:root[data-style="clean"] .pgx-o input:checked+.bx svg{stroke-dashoffset:0;transition-delay:.06s}
-:root[data-style="clean"] .pgx-o:active .bx{transform:scale(.94);transition:transform var(--t-fast) var(--ease)}
-/* the foot strip: 8px round its 28px controls, so it is 45px tall with its hairline; the scopes end 16px above it (their
-   rows keep 8px of hover room below the text). Lines are whole pixels, so the card's edge meets the strip's exactly */
-:root[data-style="clean"] .pgx.panel .pgx-sc{margin-bottom:-4px}
-:root[data-style="clean"] .pgx.panel .pgx-f{margin:0 -16px;padding:8px;gap:4px;border-top:1px solid var(--line);background:var(--strip);border-radius:0 0 var(--r-card) var(--r-card)}
-:root[data-style="clean"] .pgx-f .pgx-db{padding:0 8px;margin:0;color:var(--fg2);transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
-:root[data-style="clean"] .pgx-f :is(.pgx-db:hover,.pgx-db[aria-expanded="true"],.pill.ghost:hover){background:var(--hover);color:var(--fg)}
-/* on a narrow stage the buttons wrap under the select: the strip's 4px gaps put them 8px under it */
-@container (max-width:340px){:root[data-style="clean"] .pgx-no{margin:0 0 0 auto}:root[data-style="clean"] .pgx-ok{margin-top:0}}
-/* Allow's count rolls: up as a box is ticked, down as one is cleared */
-:root[data-style="clean"] .pgx-cnt{display:inline-grid;overflow:clip}
-:root[data-style="clean"] .pgx-cnt>i{grid-area:1/1;font-style:normal;font-variant-numeric:tabular-nums}
-@keyframes pgxiu{from{transform:translateY(80%);opacity:0}}
-@keyframes pgxou{to{transform:translateY(-80%);opacity:0}}
-@keyframes pgxid{from{transform:translateY(-80%);opacity:0}}
-@keyframes pgxod{to{transform:translateY(80%);opacity:0}}
-:root[data-style="clean"] .pgx-cnt>.iu{animation:pgxiu .3s var(--ease) both}
-:root[data-style="clean"] .pgx-cnt>.ou{animation:pgxou .3s var(--ease) both}
-:root[data-style="clean"] .pgx-cnt>.id{animation:pgxid .3s var(--ease) both}
-:root[data-style="clean"] .pgx-cnt>.od{animation:pgxod .3s var(--ease) both}
-/* answered: the result line where the scopes were (a 32px mark under the question's tile, the words under the question's
-   words, the clock on the right), then the strip with the summary and Revoke or Undo in the corner */
-:root[data-style="clean"] .pgx.panel .pgx-done{display:grid;grid-template-columns:32px minmax(0,1fr) auto;grid-template-rows:auto 45px;column-gap:12px;row-gap:16px;align-items:center;padding:0;border-radius:0;background:none!important}
-:root[data-style="clean"] .pgx.panel .pgx-done>:is(.g,svg){grid-area:1/1}
-:root[data-style="clean"] .pgx.panel .pgx-done>.t{grid-area:1/2}
-:root[data-style="clean"] .pgx.panel .pgx-done .t b{font-weight:500}
-:root[data-style="clean"] .pgx.panel .pgx-done .t b span{font-size:inherit;line-height:inherit;color:inherit}
-:root[data-style="clean"] .pgx.panel .pgx-done .t span{color:var(--muted)}
-:root[data-style="clean"] .pgx.panel .pgx-done>.pgx-tm{grid-area:1/3;justify-self:end}
-:root[data-style="clean"] .pgx.panel .pgx-done>.pill{grid-area:2/3;z-index:1;align-self:end;margin:0 -8px 8px 0;color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth)}
-:root[data-style="clean"] .pgx.panel .pgx-done>.pill:hover{background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-hover)}
-:root[data-style="clean"] .pgx.panel .pgx-done>.pill:active{box-shadow:var(--btn2-press)}
-/* the strip is the summary line itself, edge to edge; Revoke or Undo sits on its right end. Its colour reaches 240px below
-   the card's edge (clipped there), so while the card eases shorter no empty band shows under it */
-:root[data-style="clean"] .pgx.panel .pgx-sum{display:block;grid-area:2/1/3/-1;align-self:stretch;margin:0 -16px -240px;padding:8px 88px 248px 16px;border-top:1px solid var(--line);background:var(--strip);line-height:28px;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-:root[data-style="clean"] .pgx-sum .s{display:none}
-@container (max-width:340px){:root[data-style="clean"] .pgx-sum .l{display:none}:root[data-style="clean"] .pgx-sum .s{display:inline}}
-/* the mark: a neutral circle with the spinner while the agent works; done, its ring turns green and the tick draws in */
-:root[data-style="clean"] .pgx.panel .pgx-done .g{width:32px;height:32px;border-radius:50%;background:var(--chip);box-shadow:inset 0 0 0 1px var(--hair);color:var(--fg2);transition:background-color .3s var(--ease),box-shadow .3s var(--ease)}
-:root[data-style="clean"] .pgx.panel .pgx-done.ok .g{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--ok-mark);color:var(--ok-mark)}
-:root[data-style="clean"] .pgx.panel .pgx-done.ok .g svg{width:16px;height:16px;stroke-width:2;stroke-dasharray:21;animation:pgxdraw .5s var(--ease) .12s both}
-@keyframes pgxdraw{from{stroke-dashoffset:21}to{stroke-dashoffset:0}}
-:root[data-style="clean"] .pgx.panel .pgx-done>svg{width:32px;height:32px;padding:8px;box-sizing:border-box;border-radius:50%;background:var(--chip);box-shadow:inset 0 0 0 1px var(--hair);color:var(--fg2)}
-@media (prefers-reduced-motion:reduce){:root[data-style="clean"] :is(.pgx-o .bx,.pgx-o .bx svg,.pgx-done .g){transition:none}:root[data-style="clean"] :is(.pgx-cnt>i,.pgx-done.ok .g svg){animation:none}}
+/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
+:root[data-style="clean"] .pgx.panel{padding:18px 20px 20px 22px}
 /* ---------- Plan review ---------- */
 /* the plan the agent posts in the chat: no container; with .panel it becomes a card */
 .plx{padding:14px 0;display:flex;flex-direction:column;gap:10px}
@@ -13233,38 +13172,15 @@ DM.def('permission-gate', (r, c) => {
   const root = $('.pgx', r), ok = $('.pgx-ok', r), no = $('.pgx-no', r), sc = $('.pgx-sc', r), title = $('.pgx-ht b', r), sub = $('.pgx-ht .muted', r);
   const first = { sc:sc.innerHTML, title:title.textContent, sub:sub.textContent, no:no.textContent };
   const boxes = () => $$('.pgx-o input', sc);
-  // Clean (owner, 18 Nov) has its own touches: the card fits what it holds at every moment (grow(), never a kept height),
-  // the count on Allow rolls, the answer gets a summary line in the foot strip, and the done mark is a tick that draws.
-  // Soft and Blueprint keep theirs
-  const ds = r.closest('[data-style]'), clean = !!ds && ds.dataset.style === 'clean';
-  // grow() starts once the card's entrance (which scales it from .98) has ended, so it measures the card at its real size
-  if (clean) Promise.resolve().then(() => Promise.all(root.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && root.isConnected) c.offs.push(grow(root)); });
-  // where a result row goes: in the card, or in grow()'s wrapper inside it
-  const into = () => $(':scope>.dm-grow', root) || root;
   // how long: This task, Today or Always, from the dropdown in the footer
   let dur = 'This task';
   const span = () => dur === 'Always' ? 'always' : 'for ' + dur.toLowerCase();
-  const word = n => n > 1 ? 'scopes' : 'scope';
-  // Clean's Allow: its number in a window of its own, so a new count rolls in (up as a box is ticked, down as one clears)
-  const label = n => n ? `<span class="pgx-l">Allow <span class="pgx-cnt"><i>${n}</i></span> <span class="pgx-w">${word(n)}</span></span>` : 'Pick a scope';
-  let shown = 0;
-  const roll = (cnt, n, up) => { const old = cnt.lastElementChild, nu = document.createElement('i'); nu.textContent = n; nu.className = up ? 'iu' : 'id'; if (old){ old.className = up ? 'ou' : 'od'; setTimeout(() => old.remove(), REDUCE ? 0 : 300); } cnt.appendChild(nu); };
-  const count = () => { const n = boxes().filter(b => b.checked).length; ok.disabled = !n;
-    if (!clean) return swap(ok, n ? 'Allow ' + n + (n > 1 ? ' scopes' : ' scope') : 'Pick a scope');
-    const cnt = $('.pgx-cnt', ok);
-    if (n && shown && cnt && !ok._sw){ if (n !== shown){ roll(cnt, n, n > shown); swap($('.pgx-w', ok), word(n)); } }
-    else swap(ok, label(n), true);
-    shown = n; };
-  if (clean){ shown = boxes().filter(b => b.checked).length; ok.innerHTML = label(shown); }
+  const count = () => { const n = boxes().filter(b => b.checked).length; ok.disabled = !n; swap(ok, n ? 'Allow ' + n + (n > 1 ? ' scopes' : ' scope') : 'Pick a scope'); };
   c.on(sc, 'change', count);
   $$('.pgx-pop .mi', r).forEach(m => m.addEventListener('click', () => { dur = m.dataset.v; $$('.pgx-pop .mi', r).forEach(x => x.setAttribute('aria-checked', x === m)); swap($('.pgx-dv', r), dur === 'Always' ? 'Always' : 'For ' + dur.toLowerCase()); }));
   const body = [sc, $('.pgx-f', r)];
-  // the scopes give way to a shorter result row: on the card it keeps the height it had and centres the row (hold). In Clean
-  // the card eases to the row's height instead
-  const show = on => { if (!on && c.card && !clean && !root.classList.contains('held')) hold(root); body.forEach(e => e.hidden = !on); if (on) stagger(body, 50); };
-  // Clean's summary line in the foot strip: the scopes you allowed, by name, or how many on a narrow stage
-  let names = [];
-  const sum = (el, text, short = text) => { if (!clean) return; const s = el.appendChild(html(`<span class="pgx-sum"><span class="l"></span><span class="s"></span></span>`)); s.firstChild.textContent = text; s.lastChild.textContent = short; };
+  // the scopes give way to a shorter result row: on the card it keeps the height it had and centres the row (hold)
+  const show = on => { if (!on && c.card && !root.classList.contains('held')) hold(root); body.forEach(e => e.hidden = !on); if (on) stagger(body, 50); };
   // the frames the agent edits once it may. Plan toggle is a library component, so editing it needs Publish library
   const F = ['Hero', 'Plan cards', 'Compare table', 'FAQ', 'Plan toggle', 'Checkout summary'], LIB = 4;
   const clock = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
@@ -13272,8 +13188,7 @@ DM.def('permission-gate', (r, c) => {
   let granted = 0, publish = false, skip = false, done = 0, ms = 0, run = 0, panel = null;
   function row(){
     panel = html(`<div class="pgx-done run"><span class="g"><span class="spin"></span></span><span class="t"><b class="pgx-a"></b><span class="pgx-d"></span></span><span class="pgx-tm num"></span><button class="pill ghost sm">Revoke</button></div>`);
-    sum(panel, names.join(', '), `${names.length} ${word(names.length)} allowed`);
-    into().appendChild(panel); enter(panel); $('button', panel).onclick = revoke;
+    root.appendChild(panel); enter(panel); $('button', panel).onclick = revoke;
   }
   // the agent works through the frames under what it was given, and stops to ask when it reaches one it may not touch
   function work(){
@@ -13291,7 +13206,7 @@ DM.def('permission-gate', (r, c) => {
           await c.wait(900); if (run !== id) return;
           done++;
         }
-        panel.classList.replace('run', 'ok'); const g = $('.g', panel); g.innerHTML = clean ? I('check') : I('ok'); enter(g);
+        panel.classList.replace('run', 'ok'); const g = $('.g', panel); g.innerHTML = I('ok'); enter(g);
         swap(a, skip ? `Done. ${F.length - 1} frames edited` : `Done. ${F.length} frames edited`);
         swap(d, skip ? 'On a new page. Plan toggle skipped' : 'On a new page. Plan toggle published');
       } finally { clearInterval(tick); if (run === id) ms = now(); }
@@ -13308,44 +13223,33 @@ DM.def('permission-gate', (r, c) => {
     });
   }
   function reset(){
-    run++; granted = done = ms = 0; publish = skip = false; names = [];
+    run++; granted = done = ms = 0; publish = skip = false;
     root.classList.remove('esc'); sc.innerHTML = first.sc; swap(title, first.title); swap(sub, first.sub); no.textContent = first.no; count();
   }
   function revoke(){ const p = panel; panel = null; run++; p.classList.add('leave'); c.later(300, () => { p.remove(); release(root); reset(); show(true); }); }
   ok.onclick = () => c.run(async () => {
     const picked = boxes().filter(b => b.checked); if (!picked.length) return;
     granted += picked.length; if (picked.some(b => b.closest('.pgx-o').dataset.k === 'publish')) publish = true;
-    names.push(...picked.map(b => $('.t', b.closest('.pgx-o')).firstChild.textContent));
     ok.innerHTML = '<span class="spin"></span>'; await c.wait(500);
-    // Clean: the scopes fade up and out before the card eases to the result row's height
-    if (clean){ sc.classList.add('leave'); await c.wait(180); sc.classList.remove('leave'); }
     show(false);
     if (root.classList.contains('esc')){ root.classList.remove('esc'); swap(title, first.title); swap(sub, first.sub); }
     // placed inside another component (Agent harness), it reports back without the run
     if (!c.card){ row(); swap($('.pgx-a', panel), `Allowed ${granted} ${granted > 1 ? 'scopes' : 'scope'} ${span()}`); swap($('.pgx-d', panel), 'Applying the pricing fixes now'); $('.pgx-tm', panel).remove();
-      c.later(1400, () => { if (!panel) return; panel.classList.replace('run', 'ok'); $('.g', panel).innerHTML = clean ? I('check') : I('ok'); swap($('.pgx-d', panel), 'Done. 6 frames edited on a new page'); }); return; }
+      c.later(1400, () => { if (!panel) return; panel.classList.replace('run', 'ok'); $('.g', panel).innerHTML = I('ok'); swap($('.pgx-d', panel), 'Done. 6 frames edited on a new page'); }); return; }
     work();
   });
   no.onclick = () => {
     if (root.classList.contains('esc')){ skip = true; show(false); root.classList.remove('esc'); swap(title, first.title); swap(sub, first.sub); work(); return; }
     show(false); const d = html(`<div class="pgx-done" style="background:var(--chip)">${I('info')}<span class="t">The agent will skip the Figma edits<span>It will list the fixes in chat instead</span></span><button class="pill ghost sm">Undo</button></div>`);
-    sum(d, 'Nothing allowed in Figma'); into().appendChild(d); enter(d); $('button', d).onclick = () => { d.remove(); release(root); show(true); };
+    root.appendChild(d); enter(d); $('button', d).onclick = () => { d.remove(); release(root); show(true); };
   };
   // the preview's story: hold back the risky scope, allow the rest, then grant it when the agent needs it for one frame
   c.story(async s => {
     await s.beat(3);
     const pub = $('[data-k="publish"]', sc);
-    // Clean ticks the box the way a visitor would, without the browser's own input event, which reads as the visitor taking
-    // over and stopped the story after its first tick
-    const tick = async el => {
-      if (!clean) return s.tap(el);
-      await s.point(el, false); const h = $('.hand', c.st); if (h){ h.classList.remove('down'); void h.offsetWidth; h.classList.add('down'); }
-      await s.beat(.32); const i = $('input', el); i.checked = !i.checked; i.dispatchEvent(new Event('change', { bubbles:true }));
-      c.later(340, () => h && h.classList.remove('down'));
-    };
-    await tick(pub); await s.beat(1);
+    await s.tap(pub); await s.beat(1);
     await s.point($('.tag', pub)); await s.beat(3);
-    await tick(pub); await s.beat(2);
+    await s.tap(pub); await s.beat(2);
     await s.tap(ok); s.away();
     await s.until(() => root.classList.contains('esc') && !sc.hidden);
     await s.beat(4);
