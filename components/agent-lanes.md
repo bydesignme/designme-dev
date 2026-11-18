@@ -308,6 +308,7 @@ function Lane({ lane, paused, open, sent, got, ping, onToggle }: { lane: AgentLa
 }
 
 const clock = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+const lc = (t: string) => t.charAt(0).toLowerCase() + t.slice(1);
 
 /** Several agents working side by side, each in its own lane and hue, handing work to one another down a relay line. */
 export function AgentLanes({ lanes, title, seconds, paused, defaultPaused = false, onPausedChange, handoff, expanded, defaultExpanded = [], onExpandedChange, bare = false, className }: AgentLanesProps) {
@@ -367,16 +368,24 @@ export function AgentLanes({ lanes, title, seconds, paused, defaultPaused = fals
   const toneOf = (key: string) => hue(lanes.find(l => l.key === key));
   const head = title ?? (finished ? `All ${lanes.length} agents finished` : isPaused ? 'All agents paused' : `${lanes.length} agents working`);
   const total = lanes.reduce((n, l) => n + (l.steps ?? 3), 0), stepsDone = lanes.reduce((n, l) => n + Math.min(l.done ?? 0, l.steps ?? 3), 0);
+  // the line under the lanes (shown in Clean's foot strip): the hand-off under way, else what the agent at work last did,
+  // and once the run is done, how it went
+  const time = clock(seconds ?? counted), working = lanes.find(l => l.status === 'working'), did = working?.log?.[working.log.length - 1]?.text;
+  const say = finished ? `Done in ${time} · ${total} steps · ${relayed.length} hand-off${relayed.length === 1 ? '' : 's'}`
+    : isPaused ? `Paused at ${time}`
+    : handoff ? `${nameOf(handoff.from)} handed ${handoff.what} to ${nameOf(handoff.to)}`
+    : working ? (did ? `${working.name}: ${lc(did)}` : `${working.name} started: ${lc(working.activity)}`)
+    : stepsDone ? `${stepsDone} of ${total} steps` : `${lanes.length} agents queued`;
 
   return (
     <div data-dm="" className={cx('dm-aln', !bare && 'dm-panel', finished && 'dm-fin', className)} style={bare ? { paddingInline: 0 } : undefined}>
       <div className="dm-aln-h">
         <span className="dm-aln-ic">{finished ? <span key="ok" {...enter()} style={{ display: 'grid' }}><Icon name="ok" /></span> : <Icon name="users" />}</span>
         <Swap className="dm-aln-t">{head}</Swap>
-        <span className="dm-aln-m dm-muted dm-num">{clock(seconds ?? counted)}</span>
+        <span className="dm-aln-m dm-muted dm-num">{time}</span>
         <Swap className="dm-aln-ct dm-num">{`${stepsDone} of ${total} steps`}</Swap>
         {onPausedChange && !finished && (
-          <button type="button" className="dm-pill dm-soft dm-sm" onClick={() => setPaused(!isPaused)}>
+          <button type="button" className="dm-pill dm-soft dm-sm dm-aln-pause" onClick={() => setPaused(!isPaused)}>
             <Icon name={isPaused ? 'play' : 'pause'} size="xs" />{isPaused ? 'Resume' : 'Pause all'}
           </button>
         )}
@@ -399,6 +408,7 @@ export function AgentLanes({ lanes, title, seconds, paused, defaultPaused = fals
           return <span key={k} className="dm-aln-pk" data-k={k} aria-hidden="true" style={{ '--dm-from': `var(--dm-aln-${toneOf(f)},var(--dm-${toneOf(f)}))`, '--dm-to': `var(--dm-aln-${toneOf(g)},var(--dm-${toneOf(g)}))` } as CSSProperties} />;
         })}
       </div>
+      <div className="dm-aln-say" aria-live="polite">{finished && <Icon name="check" size="xs" />}<Swap>{say}</Swap></div>
     </div>
   );
 }

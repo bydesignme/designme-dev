@@ -172,45 +172,56 @@
 .pgx-ht{display:flex;flex-direction:column;min-width:0}
 .pgx-ht b{font-weight:500;font-size:14px}
 .pgx-ht span{font-size:13px}
-.pgx-sc{display:flex;flex-direction:column;margin-inline:-8px}
-.pgx-o{display:flex;align-items:center;gap:var(--dm-s-3);padding:var(--dm-s-2);border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));cursor:pointer;font-size:13.5px;transition:background .25s}
+/* the scopes line up with the head (owner, 18 Nov): each box centred in a 32px column under the icon tile, its words where the
+   question's start, and the row's hover fill exactly the content's width, from the tile's left edge to the right edge the
+   buttons below end on. The box sits 7px inside the fill, and a tag at the row's end sits 7px inside it too */
+.pgx-sc{display:flex;flex-direction:column}
+.pgx-o{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;column-gap:var(--dm-s-3);padding:var(--dm-s-2) 7px var(--dm-s-2) 0;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));cursor:pointer;font-size:13.5px;transition:background .25s}
+.pgx-o>.bx{justify-self:center}
 @media (hover:hover) and (pointer:fine){.pgx-o:hover{background:var(--dm-row)}}
 .pgx-o input{position:absolute;opacity:0;pointer-events:none}
-.pgx-o .bx{width:18px;height:18px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-muted) 80%,var(--dm-surface));display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--dm-ease),box-shadow .3s,color .3s}
+.pgx-o .bx{width:18px;height:18px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));box-shadow:inset 0 0 0 1.5px var(--dm-fg2);display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--dm-ease),box-shadow .3s,color .3s}
 .pgx-o .bx svg{transform:scale(.4);transition:transform .35s var(--dm-ease)}
 .pgx-o input:checked+.bx{background:var(--dm-accent);box-shadow:inset 0 0 0 1.5px var(--dm-accent-mark,var(--dm-accent));color:var(--dm-on-accent)}
 .pgx-o input:checked+.bx svg{transform:none}
 .pgx-o input:focus-visible+.bx{outline:2px solid var(--dm-focus);outline-offset:2px}
 .pgx-o .t{flex:1;min-width:0}
+/* asking again for one scope, every style: nothing to tick, so the scope is a plain row led by a tile like the question's
+   (what it does, in the same 32px column) and the button just says Allow (owner, 18 Nov) */
+.pgx-o.one{cursor:default}
+@media (hover:hover) and (pointer:fine){.pgx-o.one:hover{background:none}}
+.pgx-o.one>.oi{width:32px;height:32px;display:grid;place-items:center;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-chip);color:var(--dm-fg2)}
+:root[data-style="clean"] .pgx-o.one>.oi,:root [data-style="clean"] .pgx-o.one>.oi,:root [data-style="clean"].pgx-o.one>.oi{box-shadow:inset 0 0 0 1px var(--dm-hair)}
 .pgx-o .d{display:block;font-size:12px;color:var(--dm-muted)}
 .pgx-f{display:flex;align-items:center;gap:6px;padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .pgx-f .sp{flex:1}
 /* on a narrow stage the duration gets its own row, and the two buttons stay together under it on the right */
 @container (max-width:340px){.pgx-f{flex-wrap:wrap}.pgx-f .sp{flex-basis:100%}.pgx-no{margin:var(--dm-s-2) 0 0 auto}.pgx-ok{margin-top:var(--dm-s-2)}}
 /* how long: a small dropdown, the way a menu of choices usually looks */
-.pgx-db{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--dm-s-2) 0 10px;margin-left:-2px;border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);white-space:nowrap;transition:background .16s,color .16s}
+.pgx-db{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--dm-s-2) 0 10px;margin-left:0;border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);white-space:nowrap;transition:background .16s,color .16s}
 .pgx-db[aria-expanded="true"]{background:var(--dm-row);color:var(--dm-fg)}
 @media (hover:hover) and (pointer:fine){.pgx-db:hover{background:var(--dm-row);color:var(--dm-fg)}}
 .pgx-db>svg{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
 .pgx-db[aria-expanded="true"]>svg{transform:rotate(180deg)}
 .pgx-pop{min-width:230px}
 .pgx-ok[disabled]{opacity:1;cursor:not-allowed;background:var(--dm-dis-hatch),var(--dm-dis-fill);color:var(--dm-dis);box-shadow:var(--dm-soft-ring)}
-.pgx-done{display:flex;align-items:center;gap:var(--dm-s-3);padding:10px 10px 10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-ok-bg);font-size:13.5px}
-/* its button is a white pill on the tinted row */
-.pgx-done .pill{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-shadow)}
-@media (hover:hover) and (pointer:fine){.pgx-done .pill:hover{background:var(--dm-surface);box-shadow:var(--dm-shadow-pop)}}
+.pgx-done{display:flex;align-items:center;gap:var(--dm-s-3);padding:10px 7px 10px 0;border-radius:var(--dm-r-in);background:var(--dm-chip);font-size:13.5px}
+/* its mark sits centred in the scopes' 32px column, under the head's tile, and its words start on the title's column */
+.pgx-done>svg{margin-inline:8px}
+/* its button is a white pill on the grey row */
+.pgx-done .pill{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-on-tint-btn)}
+@media (hover:hover) and (pointer:fine){.pgx-done .pill:hover{background:var(--dm-surface);box-shadow:var(--dm-on-tint-btn-h)}}
 .pgx-done .t{flex:1;color:var(--dm-fg)}
 .pgx-done .t span{display:block;font-size:12px;color:var(--dm-fg2)}
 .pgx-done>svg{color:var(--dm-ok)}
-/* while the agent works under the permission: a neutral row with a spinner, a live line and a clock; green once done */
-.pgx-done.run{background:var(--dm-chip)}
-.pgx-done .g{width:18px;height:18px;display:grid;place-items:center;flex:none;color:var(--dm-fg2)}
+/* while the agent works under the permission: a neutral row with a spinner and a live line. Once done the spinner becomes the
+   green tick and the row stays neutral: no green fill and no clock (owner, 18 Nov) */
+.pgx-done .g{width:32px;height:18px;display:grid;place-items:center;flex:none;color:var(--dm-fg2)}
 .pgx-done.ok .g{color:var(--dm-ok)}
 .pgx-done .t b{display:block;font-weight:400}
-.pgx-tm{font-size:12px;color:var(--dm-muted)}
 /* asking again mid-run, for one more scope: the tile turns amber */
 .pgx-ic{transition:background .32s var(--dm-ease)}
-.pgx.esc .pgx-ic{background:var(--dm-warn-bg)}
+/* asking again keeps the tile neutral in every style: the Risky tag on the scope carries the warning (owner, 18 Nov) */
 .pgx-scope{display:flex;flex-direction:column;gap:var(--dm-s-3)}
 /* the line in the foot strip once you have answered (Clean only): the scopes you allowed, or that you allowed none */
 .pgx-sum{display:none}
@@ -223,12 +234,20 @@
 /* the card clips its strips to its round corners; the duration menu opens out of it (nothing changes height while it is open) */
 :root[data-style="clean"] .pgx.panel,:root [data-style="clean"] .pgx.panel,:root [data-style="clean"].pgx.panel{padding:16px 16px 0;overflow:clip;overflow-clip-margin:0px}
 :root[data-style="clean"] .pgx.panel:has(.pgx-pop.open),:root [data-style="clean"] .pgx.panel:has(.pgx-pop.open),:root [data-style="clean"].pgx.panel:has(.pgx-pop.open){overflow:visible}
-:root[data-style="clean"] .pgx-ic,:root [data-style="clean"] .pgx-ic,:root [data-style="clean"].pgx-ic{border-radius:50%;box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .pgx-ic,:root [data-style="clean"] .pgx-ic,:root [data-style="clean"].pgx-ic{box-shadow:inset 0 0 0 1px var(--dm-hair)}
+/* asking again keeps the tile neutral: the Risky tag on the scope carries the warning */
 :root[data-style="clean"] .pgx-ht b,:root [data-style="clean"] .pgx-ht b,:root [data-style="clean"].pgx-ht b{line-height:20px;letter-spacing:-.01em}
 :root[data-style="clean"] .pgx-ht span,:root [data-style="clean"] .pgx-ht span,:root [data-style="clean"].pgx-ht span,:root[data-style="clean"] .pgx-o .d,:root [data-style="clean"] .pgx-o .d,:root [data-style="clean"].pgx-o .d,:root[data-style="clean"] .pgx-done .t span,:root [data-style="clean"] .pgx-done .t span,:root [data-style="clean"].pgx-done .t span{line-height:18px}
 :root[data-style="clean"] :is(.pgx-o,.pgx-done) .t,:root [data-style="clean"] :is(.pgx-o,.pgx-done) .t,:root [data-style="clean"]:is(.pgx-o,.pgx-done) .t{line-height:20px}
-:root[data-style="clean"] .pgx-o,:root [data-style="clean"] .pgx-o,:root [data-style="clean"].pgx-o{transition:background-color var(--dm-t-fast) var(--dm-ease)}
-:root[data-style="clean"] .pgx-o .bx,:root [data-style="clean"] .pgx-o .bx,:root [data-style="clean"].pgx-o .bx{border-radius:50%;background:var(--dm-surface);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-muted) 80%,var(--dm-surface)),var(--dm-track-ring);transition:background .2s var(--dm-ease),box-shadow .2s var(--dm-ease)}
+/* a scope row: its box in a 32px column under the question's tile, centred, so its words start where the question's do;
+   hairlines between rows, which give way to the quiet fill of the row under the pointer */
+:root[data-style="clean"] .pgx-o,:root [data-style="clean"] .pgx-o,:root [data-style="clean"].pgx-o{position:relative;display:grid;grid-template-columns:32px minmax(0,1fr) auto;column-gap:12px;transition:background-color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .pgx-o>.bx,:root [data-style="clean"] .pgx-o>.bx,:root [data-style="clean"].pgx-o>.bx{justify-self:center}
+:root[data-style="clean"] .pgx-o+.pgx-o,:root [data-style="clean"] .pgx-o+.pgx-o,:root [data-style="clean"].pgx-o+.pgx-o{background-image:linear-gradient(var(--dm-hair),var(--dm-hair));background-repeat:no-repeat;background-position:0 0;background-size:100% 1px}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] :is(.pgx-o:hover,.pgx-o:hover+.pgx-o),:root [data-style="clean"] :is(.pgx-o:hover,.pgx-o:hover+.pgx-o),:root [data-style="clean"]:is(.pgx-o:hover,.pgx-o:hover+.pgx-o){background-image:none}}
+/* asking again for one scope: nothing to tick, so the scope is an info row, its info mark where the box would be */
+
+:root[data-style="clean"] .pgx-o .bx,:root [data-style="clean"] .pgx-o .bx,:root [data-style="clean"].pgx-o .bx{border-radius:calc(4px * var(--dm-rk-s,var(--dm-rk)));background:var(--dm-surface);box-shadow:inset 0 0 0 1.5px var(--dm-fg2),var(--dm-track-ring);transition:background .2s var(--dm-ease),box-shadow .2s var(--dm-ease)}
 :root[data-style="clean"] .pgx-o .bx svg,:root [data-style="clean"] .pgx-o .bx svg,:root [data-style="clean"].pgx-o .bx svg{transform:none;stroke-dasharray:21;stroke-dashoffset:21;transition:stroke-dashoffset .3s var(--dm-ease)}
 :root[data-style="clean"] .pgx-o input:checked+.bx,:root [data-style="clean"] .pgx-o input:checked+.bx,:root [data-style="clean"].pgx-o input:checked+.bx{background:linear-gradient(180deg,var(--dm-btn-1),var(--dm-btn-2));box-shadow:inset 0 0 0 1px var(--dm-btn-2),inset 0 2px 3px -1px rgba(255,255,255,.28);color:var(--dm-on-btn)}
 :root[data-style="clean"] .pgx-o input:checked+.bx svg,:root [data-style="clean"] .pgx-o input:checked+.bx svg,:root [data-style="clean"].pgx-o input:checked+.bx svg{stroke-dashoffset:0;transition-delay:.06s}
@@ -241,17 +260,19 @@
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .pgx-f :is(.pgx-db:hover,.pgx-db[aria-expanded="true"],.pill.ghost:hover),:root [data-style="clean"] .pgx-f :is(.pgx-db:hover,.pgx-db[aria-expanded="true"],.pill.ghost:hover),:root [data-style="clean"].pgx-f :is(.pgx-db:hover,.pgx-db[aria-expanded="true"],.pill.ghost:hover){background:var(--dm-hover);color:var(--dm-fg)}}
 /* on a narrow stage the buttons wrap under the select: the strip's 4px gaps put them 8px under it */
 @container (max-width:340px){:root[data-style="clean"] .pgx-no,:root [data-style="clean"] .pgx-no,:root [data-style="clean"].pgx-no{margin:0 0 0 auto}:root[data-style="clean"] .pgx-ok,:root [data-style="clean"] .pgx-ok,:root [data-style="clean"].pgx-ok{margin-top:0}}
-/* Allow's count rolls: up as a box is ticked, down as one is cleared */
-:root[data-style="clean"] .pgx-cnt,:root [data-style="clean"] .pgx-cnt,:root [data-style="clean"].pgx-cnt{display:inline-grid;overflow:clip}
+/* Allow's count rolls: up as a box is ticked, down as one is cleared. No window clips it: each number moves a few pixels
+   and fades, so a digit is never seen cut in half */
+:root[data-style="clean"] .pgx-cnt,:root [data-style="clean"] .pgx-cnt,:root [data-style="clean"].pgx-cnt{display:inline-grid}
 :root[data-style="clean"] .pgx-cnt>i,:root [data-style="clean"] .pgx-cnt>i,:root [data-style="clean"].pgx-cnt>i{grid-area:1/1;font-style:normal;font-variant-numeric:tabular-nums}
-@keyframes pgxiu{from{transform:translateY(80%);opacity:0}}
-@keyframes pgxou{to{transform:translateY(-80%);opacity:0}}
-@keyframes pgxid{from{transform:translateY(-80%);opacity:0}}
-@keyframes pgxod{to{transform:translateY(80%);opacity:0}}
-:root[data-style="clean"] .pgx-cnt>.iu,:root [data-style="clean"] .pgx-cnt>.iu,:root [data-style="clean"].pgx-cnt>.iu{animation:pgxiu .3s var(--dm-ease) both}
-:root[data-style="clean"] .pgx-cnt>.ou,:root [data-style="clean"] .pgx-cnt>.ou,:root [data-style="clean"].pgx-cnt>.ou{animation:pgxou .3s var(--dm-ease) both}
-:root[data-style="clean"] .pgx-cnt>.id,:root [data-style="clean"] .pgx-cnt>.id,:root [data-style="clean"].pgx-cnt>.id{animation:pgxid .3s var(--dm-ease) both}
-:root[data-style="clean"] .pgx-cnt>.od,:root [data-style="clean"] .pgx-cnt>.od,:root [data-style="clean"].pgx-cnt>.od{animation:pgxod .3s var(--dm-ease) both}
+@keyframes pgxiu{from{transform:translateY(40%);opacity:0}}
+@keyframes pgxou{to{transform:translateY(-40%);opacity:0}}
+@keyframes pgxid{from{transform:translateY(-40%);opacity:0}}
+@keyframes pgxod{to{transform:translateY(40%);opacity:0}}
+/* the old number leaves first and the new one follows, so the two never sit on top of each other */
+:root[data-style="clean"] .pgx-cnt>.iu,:root [data-style="clean"] .pgx-cnt>.iu,:root [data-style="clean"].pgx-cnt>.iu{animation:pgxiu .22s var(--dm-ease) .1s both}
+:root[data-style="clean"] .pgx-cnt>.ou,:root [data-style="clean"] .pgx-cnt>.ou,:root [data-style="clean"].pgx-cnt>.ou{animation:pgxou .16s var(--dm-ease) both}
+:root[data-style="clean"] .pgx-cnt>.id,:root [data-style="clean"] .pgx-cnt>.id,:root [data-style="clean"].pgx-cnt>.id{animation:pgxid .22s var(--dm-ease) .1s both}
+:root[data-style="clean"] .pgx-cnt>.od,:root [data-style="clean"] .pgx-cnt>.od,:root [data-style="clean"].pgx-cnt>.od{animation:pgxod .16s var(--dm-ease) both}
 /* answered: the result line where the scopes were (a 32px mark under the question's tile, the words under the question's
    words, the clock on the right), then the strip with the summary and Revoke or Undo in the corner */
 :root[data-style="clean"] .pgx.panel .pgx-done,:root [data-style="clean"] .pgx.panel .pgx-done,:root [data-style="clean"].pgx.panel .pgx-done{display:grid;grid-template-columns:32px minmax(0,1fr) auto;grid-template-rows:auto 45px;column-gap:12px;row-gap:16px;align-items:center;padding:0;border-radius:0;background:none!important}
@@ -260,7 +281,6 @@
 :root[data-style="clean"] .pgx.panel .pgx-done .t b,:root [data-style="clean"] .pgx.panel .pgx-done .t b,:root [data-style="clean"].pgx.panel .pgx-done .t b{font-weight:500}
 :root[data-style="clean"] .pgx.panel .pgx-done .t b span,:root [data-style="clean"] .pgx.panel .pgx-done .t b span,:root [data-style="clean"].pgx.panel .pgx-done .t b span{font-size:inherit;line-height:inherit;color:inherit}
 :root[data-style="clean"] .pgx.panel .pgx-done .t span,:root [data-style="clean"] .pgx.panel .pgx-done .t span,:root [data-style="clean"].pgx.panel .pgx-done .t span{color:var(--dm-muted)}
-:root[data-style="clean"] .pgx.panel .pgx-done>.pgx-tm,:root [data-style="clean"] .pgx.panel .pgx-done>.pgx-tm,:root [data-style="clean"].pgx.panel .pgx-done>.pgx-tm{grid-area:1/3;justify-self:end}
 :root[data-style="clean"] .pgx.panel .pgx-done>.pill,:root [data-style="clean"] .pgx.panel .pgx-done>.pill,:root [data-style="clean"].pgx.panel .pgx-done>.pill{grid-area:2/3;z-index:1;align-self:end;margin:0 -8px 8px 0;color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .pgx.panel .pgx-done>.pill:hover,:root [data-style="clean"] .pgx.panel .pgx-done>.pill:hover,:root [data-style="clean"].pgx.panel .pgx-done>.pill:hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
 :root[data-style="clean"] .pgx.panel .pgx-done>.pill:active,:root [data-style="clean"] .pgx.panel .pgx-done>.pill:active,:root [data-style="clean"].pgx.panel .pgx-done>.pill:active{box-shadow:var(--dm-btn2-press)}
@@ -274,7 +294,7 @@
 :root[data-style="clean"] .pgx.panel .pgx-done.ok .g,:root [data-style="clean"] .pgx.panel .pgx-done.ok .g,:root [data-style="clean"].pgx.panel .pgx-done.ok .g{background:var(--dm-surface);box-shadow:inset 0 0 0 1.5px var(--dm-ok-mark);color:var(--dm-ok-mark)}
 :root[data-style="clean"] .pgx.panel .pgx-done.ok .g svg,:root [data-style="clean"] .pgx.panel .pgx-done.ok .g svg,:root [data-style="clean"].pgx.panel .pgx-done.ok .g svg{width:16px;height:16px;stroke-width:2;stroke-dasharray:21;animation:pgxdraw .5s var(--dm-ease) .12s both}
 @keyframes pgxdraw{from{stroke-dashoffset:21}to{stroke-dashoffset:0}}
-:root[data-style="clean"] .pgx.panel .pgx-done>svg,:root [data-style="clean"] .pgx.panel .pgx-done>svg,:root [data-style="clean"].pgx.panel .pgx-done>svg{width:32px;height:32px;padding:8px;box-sizing:border-box;border-radius:50%;background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-hair);color:var(--dm-fg2)}
+:root[data-style="clean"] .pgx.panel .pgx-done>svg,:root [data-style="clean"] .pgx.panel .pgx-done>svg,:root [data-style="clean"].pgx.panel .pgx-done>svg{width:32px;height:32px;margin:0;padding:8px;box-sizing:border-box;border-radius:50%;background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-hair);color:var(--dm-fg2)}
 @media (prefers-reduced-motion:reduce){:root[data-style="clean"] :is(.pgx-o .bx,.pgx-o .bx svg,.pgx-done .g),:root [data-style="clean"] :is(.pgx-o .bx,.pgx-o .bx svg,.pgx-done .g),:root [data-style="clean"]:is(.pgx-o .bx,.pgx-o .bx svg,.pgx-done .g){transition:none}:root[data-style="clean"] :is(.pgx-cnt>i,.pgx-done.ok .g svg),:root [data-style="clean"] :is(.pgx-cnt>i,.pgx-done.ok .g svg),:root [data-style="clean"]:is(.pgx-cnt>i,.pgx-done.ok .g svg){animation:none}}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px + var(--sw,0px))}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px + var(--sw,0px))}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px + var(--sw,0px))}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px + var(--sw,0px))}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -351,9 +371,9 @@
   addEventListener('resize', function(){ cur = -2; mark(); });
   mark();
 })();
-</script><div class="dc-bar"><nav aria-label="On this page"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-ins"><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#e34f26" d="M1.5 0h21l-1.91 21.563L11.977 24l-8.564-2.438L1.5 0z"/><path fill="#fff" d="M8.531 9.75l-.232-2.718 10.059.003.23-2.622L5.412 4.41l.698 8.01h9.126l-.326 3.426-2.91.804-2.955-.81-.188-2.11H6.248l.33 4.171L12 19.351l5.379-1.443.744-8.157H8.531z"/></svg>HTML, CSS and JS</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">permission-gate</span></code><button class="cp-copy" type="button" data-copy="npx designme add permission-gate" data-label="Copy" aria-label="Copy the HTML install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">permission-gate</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add permission-gate --react" data-label="Copy" aria-label="Copy the React install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#bc52ee" d="M8.358 20.162c-1.186-1.07-1.532-3.316-1.038-4.944.856 1.026 2.043 1.352 3.272 1.535 1.897.283 3.76.177 5.522-.678.202-.098.388-.229.608-.36.166.473.209.95.151 1.437-.14 1.185-.738 2.1-1.688 2.794-.38.277-.782.525-1.175.787-1.205.804-1.531 1.747-1.078 3.119l.044.148a3.158 3.158 0 0 1-1.407-1.188 3.31 3.31 0 0 1-.544-1.815c-.004-.32-.004-.642-.048-.958-.106-.769-.472-1.113-1.161-1.133-.707-.02-1.267.411-1.415 1.09-.012.053-.028.104-.045.165h.002zm-5.961-4.445s3.24-1.575 6.49-1.575l2.451-7.565c.092-.366.36-.614.662-.614.302 0 .57.248.662.614l2.45 7.565c3.85 0 6.491 1.575 6.491 1.575L16.088.727C15.93.285 15.663 0 15.303 0H8.697c-.36 0-.615.285-.784.727l-5.516 14.99z"/></svg>Astro</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">permission-gate</span> <span class="cp-w">--astro</span></code><button class="cp-copy" type="button" data-copy="npx designme add permission-gate --astro" data-label="Copy" aria-label="Copy the Astro install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>shadcn, React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>permission-gate.json</code><button class="cp-copy" type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/permission-gate.json" data-label="Copy" aria-label="Copy the shadcn command for React">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#bc52ee" d="M8.358 20.162c-1.186-1.07-1.532-3.316-1.038-4.944.856 1.026 2.043 1.352 3.272 1.535 1.897.283 3.76.177 5.522-.678.202-.098.388-.229.608-.36.166.473.209.95.151 1.437-.14 1.185-.738 2.1-1.688 2.794-.38.277-.782.525-1.175.787-1.205.804-1.531 1.747-1.078 3.119l.044.148a3.158 3.158 0 0 1-1.407-1.188 3.31 3.31 0 0 1-.544-1.815c-.004-.32-.004-.642-.048-.958-.106-.769-.472-1.113-1.161-1.133-.707-.02-1.267.411-1.415 1.09-.012.053-.028.104-.045.165h.002zm-5.961-4.445s3.24-1.575 6.49-1.575l2.451-7.565c.092-.366.36-.614.662-.614.302 0 .57.248.662.614l2.45 7.565c3.85 0 6.491 1.575 6.491 1.575L16.088.727C15.93.285 15.663 0 15.303 0H8.697c-.36 0-.615.285-.784.727l-5.516 14.99z"/></svg>shadcn, Astro</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>astro/<wbr>permission-gate.json</code><button class="cp-copy" type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/astro/permission-gate.json" data-label="Copy" aria-label="Copy the shadcn command for Astro">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. Where each version lands, what it needs and the shadcn theme bridge: <a href="/docs/installation">Installation</a>.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Permission gate is the card an agent shows when it wants to do something it has not been allowed to do yet, like editing Figma frames. The person ticks which scopes to grant, picks how long the permission lasts, and allows or declines, and they can revoke or undo that choice afterwards.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When the agent is about to use a new tool or touch a new part of a workspace for the first time.</li><li>When a request bundles several powers and people should be able to grant only some of them.</li><li>When the agent is already running and reaches something it needs one more scope for, so it asks again for just that scope.</li><li>When one of the scopes is risky, like publishing a shared library, and you want it flagged.</li><li>When a permission should last only for this task or for today.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li>Each scope has a checkbox, a <code>label</code>, an optional <code>detail</code> line and an optional <code>risk</code> tag such as "Risky".</li><li>A small dropdown in the footer picks how long it lasts. <code>durations</code> defaults to This task, Today and Always, and <code>durationDetails</code> adds a line under each in the menu, like "Until midnight".</li><li>The Allow button counts the ticked scopes, like "Allow 2 scopes". It reads "Pick a scope" and stays disabled when none are ticked.</li><li><code>onAllow</code> receives the ticked keys and the duration. Return a promise and the button shows a spinner until it settles.</li><li>After allowing, the card shows what was granted and for how long, with an <code>allowedDetail</code> line that crossfades and a Revoke button. <code>allowedTitle</code> replaces the first line, like "Done. 6 frames edited".</li><li>While the agent works under the permission, <code>working</code> shows a spinner on a neutral row instead of the green check, and <code>meta</code> adds quiet text at the end of it, like an elapsed time.</li><li><code>followUp</code> marks a second ask in the middle of a run, for one more scope: the icon tile turns amber, and <code>declineLabel</code> can say what declining means, like "Skip this frame". A scope's <code>riskDetail</code> is what its risk tag shows on hover.</li><li>After Not now, the card shows <code>declinedTitle</code> and <code>declinedDetail</code> with an Undo button that brings the scopes back.</li><li>In Clean, the answer folds into one line in the foot strip: the scopes allowed, by name (how many on a narrow screen), or <code>declinedSummary</code> after Not now, "Nothing allowed" by default. The card eases to each new height, and the count on Allow rolls as boxes are ticked.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>Each scope is a native checkbox inside its label, so the whole row is clickable and keyboard reachable.</li><li>How long is a menu button with <code>aria-haspopup</code> and <code>aria-expanded</code>; its choices are <code>menuitemradio</code> items with <code>aria-checked</code>.</li><li>From the keyboard, Enter, Space or the down arrow opens a menu with the focus on its picked item, or its first (the up arrow, on its last); the arrow keys move through it and wrap, Home and End jump to the ends, Tab closes it and moves on, and closing it gives the focus back to its button.</li><li>The Allow button is a disabled button until at least one scope is ticked.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it in React and drive it from your own state, or place it in an Astro page.</p></div><div class="cp-box"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>React</h3><pre class="cp-pre" data-name="React import"><code>import { PermissionGate } from &#39;@/components/designme/permission-gate/PermissionGate&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">React example</h3><p class="pg-d">The demo above as a React component, 78 lines you can copy.</p><pre class="cp-pre" data-name="React example"><code>&#39;use client&#39;;
+</script><div class="dc-bar"><nav aria-label="On this page"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-ins"><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#e34f26" d="M1.5 0h21l-1.91 21.563L11.977 24l-8.564-2.438L1.5 0z"/><path fill="#fff" d="M8.531 9.75l-.232-2.718 10.059.003.23-2.622L5.412 4.41l.698 8.01h9.126l-.326 3.426-2.91.804-2.955-.81-.188-2.11H6.248l.33 4.171L12 19.351l5.379-1.443.744-8.157H8.531z"/></svg>HTML, CSS and JS</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">permission-gate</span></code><button class="cp-copy" type="button" data-copy="npx designme add permission-gate" data-label="Copy" aria-label="Copy the HTML install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">permission-gate</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add permission-gate --react" data-label="Copy" aria-label="Copy the React install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#bc52ee" d="M8.358 20.162c-1.186-1.07-1.532-3.316-1.038-4.944.856 1.026 2.043 1.352 3.272 1.535 1.897.283 3.76.177 5.522-.678.202-.098.388-.229.608-.36.166.473.209.95.151 1.437-.14 1.185-.738 2.1-1.688 2.794-.38.277-.782.525-1.175.787-1.205.804-1.531 1.747-1.078 3.119l.044.148a3.158 3.158 0 0 1-1.407-1.188 3.31 3.31 0 0 1-.544-1.815c-.004-.32-.004-.642-.048-.958-.106-.769-.472-1.113-1.161-1.133-.707-.02-1.267.411-1.415 1.09-.012.053-.028.104-.045.165h.002zm-5.961-4.445s3.24-1.575 6.49-1.575l2.451-7.565c.092-.366.36-.614.662-.614.302 0 .57.248.662.614l2.45 7.565c3.85 0 6.491 1.575 6.491 1.575L16.088.727C15.93.285 15.663 0 15.303 0H8.697c-.36 0-.615.285-.784.727l-5.516 14.99z"/></svg>Astro</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">permission-gate</span> <span class="cp-w">--astro</span></code><button class="cp-copy" type="button" data-copy="npx designme add permission-gate --astro" data-label="Copy" aria-label="Copy the Astro install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>shadcn, React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>permission-gate.json</code><button class="cp-copy" type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/permission-gate.json" data-label="Copy" aria-label="Copy the shadcn command for React">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#bc52ee" d="M8.358 20.162c-1.186-1.07-1.532-3.316-1.038-4.944.856 1.026 2.043 1.352 3.272 1.535 1.897.283 3.76.177 5.522-.678.202-.098.388-.229.608-.36.166.473.209.95.151 1.437-.14 1.185-.738 2.1-1.688 2.794-.38.277-.782.525-1.175.787-1.205.804-1.531 1.747-1.078 3.119l.044.148a3.158 3.158 0 0 1-1.407-1.188 3.31 3.31 0 0 1-.544-1.815c-.004-.32-.004-.642-.048-.958-.106-.769-.472-1.113-1.161-1.133-.707-.02-1.267.411-1.415 1.09-.012.053-.028.104-.045.165h.002zm-5.961-4.445s3.24-1.575 6.49-1.575l2.451-7.565c.092-.366.36-.614.662-.614.302 0 .57.248.662.614l2.45 7.565c3.85 0 6.491 1.575 6.491 1.575L16.088.727C15.93.285 15.663 0 15.303 0H8.697c-.36 0-.615.285-.784.727l-5.516 14.99z"/></svg>shadcn, Astro</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>astro/<wbr>permission-gate.json</code><button class="cp-copy" type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/astro/permission-gate.json" data-label="Copy" aria-label="Copy the shadcn command for Astro">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. Where each version lands, what it needs and the shadcn theme bridge: <a href="/docs/installation">Installation</a>.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Permission gate is the card an agent shows when it wants to do something it has not been allowed to do yet, like editing Figma frames. The person ticks which scopes to grant, picks how long the permission lasts, and allows or declines, and they can revoke or undo that choice afterwards.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When the agent is about to use a new tool or touch a new part of a workspace for the first time.</li><li>When a request bundles several powers and people should be able to grant only some of them.</li><li>When the agent is already running and reaches something it needs one more scope for, so it asks again for just that scope.</li><li>When one of the scopes is risky, like publishing a shared library, and you want it flagged.</li><li>When a permission should last only for this task or for today.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li>Each scope has a checkbox, a <code>label</code>, an optional <code>detail</code> line and an optional <code>risk</code> tag such as "Risky".</li><li>A small dropdown in the footer picks how long it lasts. <code>durations</code> defaults to This task, Today and Always, and <code>durationDetails</code> adds a line under each in the menu, like "Until midnight".</li><li>The Allow button counts the ticked scopes, like "Allow 2 scopes". It reads "Pick a scope" and stays disabled when none are ticked.</li><li><code>onAllow</code> receives the ticked keys and the duration. Return a promise and the button shows a spinner until it settles.</li><li>After allowing, the card shows what was granted and for how long, with an <code>allowedDetail</code> line that crossfades and a Revoke button. <code>allowedTitle</code> replaces the first line, like "Done. 6 frames edited".</li><li>While the agent works under the permission, <code>working</code> shows a spinner on the allowed row instead of the green check. The row stays neutral in both states.</li><li><code>followUp</code> marks a second ask in the middle of a run, for one more scope: a single scope shows as a row led by a tile, with a plain Allow as there is nothing to tick (the icon tile stays neutral; the scope's risk tag carries the warning), and <code>declineLabel</code> can say what declining means, like "Skip this frame". A scope's <code>riskDetail</code> is what its risk tag shows on hover.</li><li>After Not now, the card shows <code>declinedTitle</code> and <code>declinedDetail</code> with an Undo button that brings the scopes back.</li><li>In Clean, the answer folds into one line in the foot strip: the scopes allowed, by name (how many on a narrow screen), or <code>declinedSummary</code> after Not now, "Nothing allowed" by default. The card eases to each new height, and the count on Allow rolls as boxes are ticked.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>Each scope is a native checkbox inside its label, so the whole row is clickable and keyboard reachable.</li><li>How long is a menu button with <code>aria-haspopup</code> and <code>aria-expanded</code>; its choices are <code>menuitemradio</code> items with <code>aria-checked</code>.</li><li>From the keyboard, Enter, Space or the down arrow opens a menu with the focus on its picked item, or its first (the up arrow, on its last); the arrow keys move through it and wrap, Home and End jump to the ends, Tab closes it and moves on, and closing it gives the focus back to its button.</li><li>The Allow button is a disabled button until at least one scope is ticked.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it in React and drive it from your own state, or place it in an Astro page.</p></div><div class="cp-box"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>React</h3><pre class="cp-pre" data-name="React import"><code>import { PermissionGate } from &#39;@/components/designme/permission-gate/PermissionGate&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">React example</h3><p class="pg-d">The demo above as a React component, 70 lines you can copy.</p><pre class="cp-pre" data-name="React example"><code>&#39;use client&#39;;
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useEffect, useRef, useState } from &#39;react&#39;;
+import { useRef, useState } from &#39;react&#39;;
 import { PermissionGate, type PermissionScope, type PermissionStatus } from &#39;./PermissionGate&#39;;
 import { Icon } from &#39;../lib/icons&#39;;
 import { useStory, useWait } from &#39;../lib/useScript&#39;;
@@ -367,7 +387,6 @@ const FIRST: PermissionScope[] = [
 const MORE: PermissionScope[] = [{ key: &#39;publish&#39;, label: &#39;Publish library&#39;, detail: &#39;Updates Checkout, Marketing site, Email kit and Docs&#39;, risk: &#39;Risky&#39; }];
 // the frames the agent edits once it may. Plan toggle is a library component, so editing it needs Publish library
 const FRAMES = [&#39;Hero&#39;, &#39;Plan cards&#39;, &#39;Compare table&#39;, &#39;FAQ&#39;, &#39;Plan toggle&#39;, &#39;Checkout summary&#39;], LIB = 4;
-const clock = (ms: number) =&gt; { const s = Math.floor(ms / 1000); return Math.floor(s / 60) + &#39;:&#39; + String(s % 60).padStart(2, &#39;0&#39;); };
 
 export default function PermissionGateDemo() {
   const ref = useRef&lt;HTMLDivElement&gt;(null);
@@ -380,13 +399,6 @@ export default function PermissionGateDemo() {
   const [title, setTitle] = useState&lt;string&gt;();
   const [detail, setDetail] = useState&lt;string&gt;();
   const run = useRef({ granted: 0, publish: false, skip: false, done: 0, id: 0 });
-  // the clock counts the agent&#39;s working time only, not the time it waits for you
-  const [ms, setMs] = useState(0);
-  useEffect(() =&gt; {
-    if (!working) return;
-    const from = performance.now() - ms, t = setInterval(() =&gt; setMs(performance.now() - from), 250);
-    return () =&gt; clearInterval(t);
-  }, [working]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // the agent works through the frames under what it was given, and stops to ask when it reaches one it may not touch
   const work = async () =&gt; {
@@ -421,8 +433,8 @@ export default function PermissionGateDemo() {
         status={status} onStatusChange={setStatus} followUp={more} declineLabel={more ? &#39;Skip this frame&#39; : &#39;Not now&#39;}
         onAllow={async keys =&gt; { r.granted += keys.length; if (keys.includes(&#39;publish&#39;)) r.publish = true; await wait(500); setMore(false); void work(); }}
         onDecline={() =&gt; { if (!more) return; r.skip = true; setMore(false); void work(); }}
-        onRevoke={() =&gt; { run.current = { granted: 0, publish: false, skip: false, done: 0, id: r.id + 1 }; setValue([&#39;read&#39;, &#39;edit&#39;]); setMs(0); setWorking(false); }}
-        working={working} meta={clock(ms)} allowedDetail={detail}
+        onRevoke={() =&gt; { run.current = { granted: 0, publish: false, skip: false, done: 0, id: r.id + 1 }; setValue([&#39;read&#39;, &#39;edit&#39;]); setWorking(false); }}
+        working={working} allowedDetail={detail}
         allowedTitle={title ?? `Allowed ${r.granted} ${r.granted &gt; 1 ? &#39;scopes&#39; : &#39;scope&#39;} ${duration === &#39;Always&#39; ? &#39;always&#39; : &#39;for &#39; + duration.toLowerCase()}`}
         declinedTitle=&quot;The agent will skip the Figma edits&quot; declinedDetail=&quot;It will list the fixes in chat instead&quot; declinedSummary=&quot;Nothing allowed in Figma&quot; /&gt;
     &lt;/div&gt;
@@ -432,7 +444,7 @@ export default function PermissionGateDemo() {
 import PermissionGate from &#39;../components/designme/permission-gate/PermissionGate.astro&#39;;
 ---
 &lt;PermissionGate /&gt;
-&lt;PermissionGate data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything PermissionGate takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>title</code><span class="opt">required</span></td><td><code>ReactNode</code></td><td>The question, like &quot;Allow the agent to edit Figma?&quot;</td></tr><tr><td><code>subtitle</code></td><td><code>ReactNode</code></td><td>Why it asks</td></tr><tr><td><code>icon</code></td><td><code>ReactNode</code></td><td>Shown in the tile beside the question. Defaults to a shield</td></tr><tr><td><code>scopes</code><span class="opt">required</span></td><td><code>PermissionScope[]</code></td><td></td></tr><tr><td><code>value</code></td><td><code>string[]</code></td><td>Keys of the ticked scopes. Leave it out to let the checkboxes hold their own</td></tr><tr><td><code>defaultValue</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onValueChange</code></td><td><code>(keys: string[]) =&gt; void</code></td><td></td></tr><tr><td><code>durations</code></td><td><code>string[]</code></td><td>How long the permission lasts, picked from a small dropdown in the footer. Defaults to This task, Today and Always</td></tr><tr><td><code>durationDetails</code></td><td><code>Record&lt;string, string&gt;</code></td><td>The quiet line under each duration in its menu, by duration, like { Today: &#39;Until midnight&#39; }</td></tr><tr><td><code>duration</code></td><td><code>string</code></td><td></td></tr><tr><td><code>defaultDuration</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onDurationChange</code></td><td><code>(duration: string) =&gt; void</code></td><td></td></tr><tr><td><code>status</code></td><td><code>PermissionStatus</code></td><td>asking, allowed or declined. Leave it out to let the buttons move it</td></tr><tr><td><code>defaultStatus</code></td><td><code>PermissionStatus</code></td><td></td></tr><tr><td><code>onStatusChange</code></td><td><code>(status: PermissionStatus) =&gt; void</code></td><td></td></tr><tr><td><code>onAllow</code></td><td><code>(keys: string[], duration: string) =&gt; void | Promise&lt;void&gt;</code></td><td>Called with the ticked scopes and the duration. Return a promise and the button spins until it settles</td></tr><tr><td><code>onDecline</code></td><td><code>() =&gt; void</code></td><td></td></tr><tr><td><code>onRevoke</code></td><td><code>() =&gt; void</code></td><td>Called by Revoke, after allowing</td></tr><tr><td><code>onUndo</code></td><td><code>() =&gt; void</code></td><td>Called by Undo, after declining</td></tr><tr><td><code>allowedDetail</code></td><td><code>string</code></td><td>The line under &quot;Allowed …&quot;, like &quot;Applying the pricing fixes now&quot;. Crossfades when it changes</td></tr><tr><td><code>allowedTitle</code></td><td><code>string</code></td><td>Replaces &quot;Allowed 2 scopes for this task&quot;, like &quot;Done. 6 frames edited&quot;. Crossfades when it changes</td></tr><tr><td><code>working</code></td><td><code>boolean</code></td><td>The agent is still working under the permission: a spinner on a neutral row instead of the green check</td></tr><tr><td><code>meta</code></td><td><code>ReactNode</code></td><td>Quiet text at the end of the allowed row, like an elapsed time &quot;0:04&quot;</td></tr><tr><td><code>followUp</code></td><td><code>boolean</code></td><td>A follow-up ask in the middle of a run, for one more scope: the icon tile turns amber</td></tr><tr><td><code>declineLabel</code></td><td><code>string</code></td><td>The decline button. Defaults to &quot;Not now&quot;; a follow-up ask might say &quot;Skip this frame&quot;</td></tr><tr><td><code>declinedTitle</code></td><td><code>ReactNode</code></td><td>Shown after Not now</td></tr><tr><td><code>declinedDetail</code></td><td><code>ReactNode</code></td><td></td></tr><tr><td><code>declinedSummary</code></td><td><code>string</code></td><td>Clean only: the line in the foot strip after Not now. Defaults to &quot;Nothing allowed&quot;</td></tr><tr><td><code>bare</code></td><td><code>boolean</code></td><td>Draws its own container (the default, as on designme.dev). Set true to sit it flat in a chat thread</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>PermissionGate.tsx<span class="l">React · 225 lines</span></summary><pre class="cp-pre" data-name="PermissionGate.tsx"><code>&#39;use client&#39;;
+&lt;PermissionGate data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything PermissionGate takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>title</code><span class="opt">required</span></td><td><code>ReactNode</code></td><td>The question, like &quot;Allow the agent to edit Figma?&quot;</td></tr><tr><td><code>subtitle</code></td><td><code>ReactNode</code></td><td>Why it asks</td></tr><tr><td><code>icon</code></td><td><code>ReactNode</code></td><td>Shown in the tile beside the question. Defaults to a shield</td></tr><tr><td><code>scopes</code><span class="opt">required</span></td><td><code>PermissionScope[]</code></td><td></td></tr><tr><td><code>value</code></td><td><code>string[]</code></td><td>Keys of the ticked scopes. Leave it out to let the checkboxes hold their own</td></tr><tr><td><code>defaultValue</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onValueChange</code></td><td><code>(keys: string[]) =&gt; void</code></td><td></td></tr><tr><td><code>durations</code></td><td><code>string[]</code></td><td>How long the permission lasts, picked from a small dropdown in the footer. Defaults to This task, Today and Always</td></tr><tr><td><code>durationDetails</code></td><td><code>Record&lt;string, string&gt;</code></td><td>The quiet line under each duration in its menu, by duration, like { Today: &#39;Until midnight&#39; }</td></tr><tr><td><code>duration</code></td><td><code>string</code></td><td></td></tr><tr><td><code>defaultDuration</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onDurationChange</code></td><td><code>(duration: string) =&gt; void</code></td><td></td></tr><tr><td><code>status</code></td><td><code>PermissionStatus</code></td><td>asking, allowed or declined. Leave it out to let the buttons move it</td></tr><tr><td><code>defaultStatus</code></td><td><code>PermissionStatus</code></td><td></td></tr><tr><td><code>onStatusChange</code></td><td><code>(status: PermissionStatus) =&gt; void</code></td><td></td></tr><tr><td><code>onAllow</code></td><td><code>(keys: string[], duration: string) =&gt; void | Promise&lt;void&gt;</code></td><td>Called with the ticked scopes and the duration. Return a promise and the button spins until it settles</td></tr><tr><td><code>onDecline</code></td><td><code>() =&gt; void</code></td><td></td></tr><tr><td><code>onRevoke</code></td><td><code>() =&gt; void</code></td><td>Called by Revoke, after allowing</td></tr><tr><td><code>onUndo</code></td><td><code>() =&gt; void</code></td><td>Called by Undo, after declining</td></tr><tr><td><code>allowedDetail</code></td><td><code>string</code></td><td>The line under &quot;Allowed …&quot;, like &quot;Applying the pricing fixes now&quot;. Crossfades when it changes</td></tr><tr><td><code>allowedTitle</code></td><td><code>string</code></td><td>Replaces &quot;Allowed 2 scopes for this task&quot;, like &quot;Done. 6 frames edited&quot;. Crossfades when it changes</td></tr><tr><td><code>working</code></td><td><code>boolean</code></td><td>The agent is still working under the permission: a spinner instead of the green check, on the same neutral row</td></tr><tr><td><code>followUp</code></td><td><code>boolean</code></td><td>A follow-up ask in the middle of a run, for one more scope. A single scope shows as a row led by a tile (nothing to tick) with a plain Allow; the icon tile stays neutral, and the scope&#39;s risk tag carries the warning</td></tr><tr><td><code>declineLabel</code></td><td><code>string</code></td><td>The decline button. Defaults to &quot;Not now&quot;; a follow-up ask might say &quot;Skip this frame&quot;</td></tr><tr><td><code>declinedTitle</code></td><td><code>ReactNode</code></td><td>Shown after Not now</td></tr><tr><td><code>declinedDetail</code></td><td><code>ReactNode</code></td><td></td></tr><tr><td><code>declinedSummary</code></td><td><code>string</code></td><td>Clean only: the line in the foot strip after Not now. Defaults to &quot;Nothing allowed&quot;</td></tr><tr><td><code>bare</code></td><td><code>boolean</code></td><td>Draws its own container (the default, as on designme.dev). Set true to sit it flat in a chat thread</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>PermissionGate.tsx<span class="l">React · 228 lines</span></summary><pre class="cp-pre" data-name="PermissionGate.tsx"><code>&#39;use client&#39;;
 import { useEffect, useRef, useState, type ReactNode } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from &#39;../lib/hooks&#39;;
@@ -491,11 +503,10 @@ export interface PermissionGateProps {
   allowedDetail?: string;
   /** Replaces &quot;Allowed 2 scopes for this task&quot;, like &quot;Done. 6 frames edited&quot;. Crossfades when it changes */
   allowedTitle?: string;
-  /** The agent is still working under the permission: a spinner on a neutral row instead of the green check */
+  /** The agent is still working under the permission: a spinner instead of the green check, on the same neutral row */
   working?: boolean;
-  /** Quiet text at the end of the allowed row, like an elapsed time &quot;0:04&quot; */
-  meta?: ReactNode;
-  /** A follow-up ask in the middle of a run, for one more scope: the icon tile turns amber */
+  /** A follow-up ask in the middle of a run, for one more scope. A single scope shows as a row led by a tile (nothing to
+   *  tick) with a plain Allow; the icon tile stays neutral, and the scope&#39;s risk tag carries the warning */
   followUp?: boolean;
   /** The decline button. Defaults to &quot;Not now&quot;; a follow-up ask might say &quot;Skip this frame&quot; */
   declineLabel?: string;
@@ -534,7 +545,7 @@ function Count({ n }: { n: number }) {
 /** The agent asks before it acts: pick the scopes and how long they last, then allow or decline. */
 export function PermissionGate({
   title, subtitle, icon, scopes, value, defaultValue = [], onValueChange, durations = DURATIONS, durationDetails = DETAILS, duration, defaultDuration, onDurationChange,
-  status, defaultStatus = &#39;asking&#39;, onStatusChange, onAllow, onDecline, onRevoke, onUndo, allowedDetail, allowedTitle, working = false, meta, followUp = false,
+  status, defaultStatus = &#39;asking&#39;, onStatusChange, onAllow, onDecline, onRevoke, onUndo, allowedDetail, allowedTitle, working = false, followUp = false,
   declineLabel = &#39;Not now&#39;, declinedTitle = &#39;The agent will skip these changes&#39;, declinedDetail, declinedSummary = &#39;Nothing allowed&#39;, bare = false, className
 }: PermissionGateProps) {
   const [ticked, setTicked] = useControllable(value, defaultValue, onValueChange);
@@ -549,14 +560,14 @@ export function PermissionGate({
   const [granted, setGranted] = useState(0);
   // the names of the scopes allowed, for Clean&#39;s summary line in the foot strip
   const [names, setNames] = useState&lt;string[]&gt;([]);
-  // the scopes give way to a shorter result row: the gate keeps the height it had and centres the row in it, until Revoke or Undo.
-  // In Clean (owner, 18 Nov) it never keeps a height: it grows and shrinks with what it holds, eased (as grow() on the site)
+  // the gate never keeps a height, in any style (owner, 17 and 18 Nov): it grows and shrinks with what it holds, eased, as
+  // grow() does on the site
   const root = useRef&lt;HTMLDivElement&gt;(null), inner = useRef&lt;HTMLDivElement&gt;(null);
   const [clean, setClean] = useState(false);
   useIsoLayoutEffect(() =&gt; { setClean(root.current?.closest(&#39;[data-style]&#39;)?.getAttribute(&#39;data-style&#39;) === &#39;clean&#39;); }, []);
   useIsoLayoutEffect(() =&gt; {
     const el = root.current, w = inner.current;
-    if (!clean || !el || !w || typeof ResizeObserver === &#39;undefined&#39;) return;
+    if (!el || !w || typeof ResizeObserver === &#39;undefined&#39;) return;
     let first = true;
     const box = () =&gt; { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
     const fit = () =&gt; {
@@ -566,37 +577,39 @@ export function PermissionGate({
     };
     const ro = new ResizeObserver(fit); ro.observe(w); fit();
     return () =&gt; { ro.disconnect(); el.style.height = &#39;&#39;; };
-  }, [clean]);
-  const [held, setHeld] = useState&lt;number&gt;();
-  const hold = () =&gt; { if (!clean) setHeld(h =&gt; h ?? root.current?.offsetHeight); };
+  }, []);
   // Clean: the scopes fade up and out before the card eases to the result row&#39;s height
   const [fading, setFading] = useState(false);
-  const n = ticked.length;
+  // asking again for one scope: nothing to tick, so the scope is a row led by a tile like the question&#39;s, and the button
+  // just says Allow (every style)
+  const single = followUp &amp;&amp; state === &#39;asking&#39; &amp;&amp; scopes.length === 1;
+  const keys = single ? [scopes[0].key] : ticked;
+  const n = keys.length;
 
   useEffect(() =&gt; {
     if (!leaving) return;
-    const t = setTimeout(() =&gt; { setLeaving(false); setHeld(undefined); setState(&#39;asking&#39;); setBack(b =&gt; b + 1); onRevoke?.(); }, 300);
+    const t = setTimeout(() =&gt; { setLeaving(false); setState(&#39;asking&#39;); setBack(b =&gt; b + 1); onRevoke?.(); }, 300);
     return () =&gt; clearTimeout(t);
   }, [leaving]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggle = (key: string) =&gt; setTicked(ticked.includes(key) ? ticked.filter(k =&gt; k !== key) : scopes.map(s =&gt; s.key).filter(k =&gt; k === key || ticked.includes(k)));
   const allow = async () =&gt; {
     if (!n || waiting) return;
-    setWaiting(true); setGranted(n); const picked = scopes.filter(s =&gt; ticked.includes(s.key)).map(s =&gt; s.label); setNames(was =&gt; followUp ? [...was, ...picked] : picked);
-    try { await onAllow?.(ticked, dur); } finally { setWaiting(false); }
+    setWaiting(true); setGranted(n); const picked = scopes.filter(s =&gt; keys.includes(s.key)).map(s =&gt; s.label); setNames(was =&gt; followUp ? [...was, ...picked] : picked);
+    try { await onAllow?.(keys, dur); } finally { setWaiting(false); }
     if (clean) { setFading(true); await new Promise(r =&gt; setTimeout(r, 180)); setFading(false); }
-    hold(); setState(&#39;allowed&#39;);
+    setState(&#39;allowed&#39;);
   };
-  const decline = () =&gt; { hold(); setState(&#39;declined&#39;); onDecline?.(); };
-  const undo = () =&gt; { setHeld(undefined); setState(&#39;asking&#39;); setBack(b =&gt; b + 1); onUndo?.(); };
+  const decline = () =&gt; { setState(&#39;declined&#39;); onDecline?.(); };
+  const undo = () =&gt; { setState(&#39;asking&#39;); setBack(b =&gt; b + 1); onUndo?.(); };
   const again = (i: number) =&gt; (back ? { className: &#39;dm-enter&#39;, style: enter(i * 50).style, key: back } : { className: undefined, style: undefined, key: 0 });
 
   const allowLabel = n ? `Allow ${n} ${word(n)}` : &#39;Pick a scope&#39;;
 
   return (
-    &lt;div data-dm=&quot;&quot; ref={root} className={cx(&#39;dm-pgx&#39;, !bare &amp;&amp; &#39;dm-panel&#39;, clean &amp;&amp; &#39;dm-growing&#39;, followUp &amp;&amp; state === &#39;asking&#39; &amp;&amp; &#39;dm-esc&#39;, held &amp;&amp; &#39;dm-held&#39;, className)} style={held ? { minHeight: held } : undefined}&gt;
+    &lt;div data-dm=&quot;&quot; ref={root} className={cx(&#39;dm-pgx&#39;, !bare &amp;&amp; &#39;dm-panel&#39;, &#39;dm-growing&#39;, followUp &amp;&amp; state === &#39;asking&#39; &amp;&amp; &#39;dm-esc&#39;, className)}&gt;
       {/* grow()&#39;s wrapper in Clean; elsewhere it takes no box of its own */}
-      &lt;div ref={inner} className=&quot;dm-grow dm-dm-grow&quot; style={clean ? undefined : { display: &#39;contents&#39; }}&gt;
+      &lt;div ref={inner} className=&quot;dm-grow dm-dm-grow&quot;&gt;
       &lt;div className=&quot;dm-pgx-h&quot;&gt;
         &lt;span className=&quot;dm-pgx-ic&quot;&gt;{icon ?? &lt;Icon name=&quot;shield&quot; /&gt;}&lt;/span&gt;
         &lt;div className=&quot;dm-pgx-ht&quot;&gt;&lt;b&gt;{title}&lt;/b&gt;{subtitle &amp;&amp; &lt;span className=&quot;dm-muted&quot;&gt;{subtitle}&lt;/span&gt;}&lt;/div&gt;
@@ -604,21 +617,24 @@ export function PermissionGate({
       {state === &#39;asking&#39; &amp;&amp; (
         &lt;&gt;
           &lt;div key={&#39;sc&#39; + again(0).key} className={cx(&#39;dm-pgx-sc&#39;, again(0).className, fading &amp;&amp; &#39;dm-leave&#39;)} style={again(0).style}&gt;
-            {scopes.map(s =&gt; (
-              &lt;label key={s.key} className=&quot;dm-pgx-o&quot;&gt;
-                &lt;input type=&quot;checkbox&quot; checked={ticked.includes(s.key)} onChange={() =&gt; toggle(s.key)} /&gt;
-                &lt;span className=&quot;dm-bx&quot;&gt;&lt;Icon name=&quot;check&quot; size=&quot;xs&quot; /&gt;&lt;/span&gt;
-                &lt;span className=&quot;dm-t&quot;&gt;{s.label}{s.detail &amp;&amp; &lt;span className=&quot;dm-d&quot;&gt;{s.detail}&lt;/span&gt;}&lt;/span&gt;
-                {s.risk &amp;&amp; (s.riskDetail ? &lt;Tip label={s.riskDetail}&gt;&lt;span className=&quot;dm-tag dm-warn&quot;&gt;{s.risk}&lt;/span&gt;&lt;/Tip&gt; : &lt;span className=&quot;dm-tag dm-warn&quot;&gt;{s.risk}&lt;/span&gt;)}
-              &lt;/label&gt;
-            ))}
+            {scopes.map(s =&gt; {
+              const risk = s.risk &amp;&amp; (s.riskDetail ? &lt;Tip label={s.riskDetail}&gt;&lt;span className=&quot;dm-tag dm-warn&quot;&gt;{s.risk}&lt;/span&gt;&lt;/Tip&gt; : &lt;span className=&quot;dm-tag dm-warn&quot;&gt;{s.risk}&lt;/span&gt;);
+              const words = &lt;span className=&quot;dm-t&quot;&gt;{s.label}{s.detail &amp;&amp; &lt;span className=&quot;dm-d&quot;&gt;{s.detail}&lt;/span&gt;}&lt;/span&gt;;
+              return single
+                ? &lt;div key={s.key} className=&quot;dm-pgx-o dm-one&quot;&gt;&lt;span className=&quot;dm-oi&quot;&gt;&lt;Icon name=&quot;upload&quot; /&gt;&lt;/span&gt;{words}{risk}&lt;/div&gt;
+                : &lt;label key={s.key} className=&quot;dm-pgx-o&quot;&gt;
+                    &lt;input type=&quot;checkbox&quot; checked={ticked.includes(s.key)} onChange={() =&gt; toggle(s.key)} /&gt;
+                    &lt;span className=&quot;dm-bx&quot;&gt;&lt;Icon name=&quot;check&quot; size=&quot;xs&quot; /&gt;&lt;/span&gt;
+                    {words}{risk}
+                  &lt;/label&gt;;
+            })}
           &lt;/div&gt;
           &lt;div key={&#39;f&#39; + again(1).key} className={cx(&#39;dm-pgx-f&#39;, again(1).className)} style={again(1).style}&gt;
             &lt;button {...durMenu.trigger} type=&quot;button&quot; className=&quot;dm-pgx-db&quot; aria-label=&quot;How long&quot;&gt;&lt;Swap className=&quot;dm-pgx-dv&quot;&gt;{durLabel(dur)}&lt;/Swap&gt;&lt;Icon name=&quot;chev-d&quot; size=&quot;xs&quot; /&gt;&lt;/button&gt;
             &lt;span className=&quot;dm-sp&quot; /&gt;
             &lt;button type=&quot;button&quot; className=&quot;dm-pill dm-ghost dm-sm dm-pgx-no&quot; onClick={decline}&gt;{declineLabel}&lt;/button&gt;
             &lt;button type=&quot;button&quot; className=&quot;dm-pill dm-primary dm-sm dm-pgx-ok&quot; disabled={!n} onClick={allow}&gt;
-              {waiting ? &lt;Spin /&gt; : clean &amp;&amp; n
+              {waiting ? &lt;Spin /&gt; : single ? &lt;Swap&gt;Allow&lt;/Swap&gt; : clean &amp;&amp; n
                 ? &lt;span className=&quot;dm-pgx-l&quot;&gt;Allow &lt;Count n={n} /&gt; &lt;Swap className=&quot;dm-pgx-w&quot;&gt;{word(n)}&lt;/Swap&gt;&lt;/span&gt;
                 : &lt;Swap&gt;{allowLabel}&lt;/Swap&gt;}
             &lt;/button&gt;
@@ -639,7 +655,6 @@ export function PermissionGate({
             &lt;b className=&quot;dm-pgx-a&quot;&gt;&lt;Swap&gt;{allowedTitle ?? `Allowed ${granted || n} ${(granted || n) &gt; 1 ? &#39;scopes&#39; : &#39;scope&#39;} ${durSpan(dur)}`}&lt;/Swap&gt;&lt;/b&gt;
             {allowedDetail !== undefined &amp;&amp; &lt;Swap&gt;{allowedDetail}&lt;/Swap&gt;}
           &lt;/span&gt;
-          {meta !== undefined &amp;&amp; &lt;span className=&quot;dm-pgx-tm dm-num&quot;&gt;{meta}&lt;/span&gt;}
           &lt;button type=&quot;button&quot; className=&quot;dm-pill dm-ghost dm-sm&quot; onClick={() =&gt; setLeaving(true)}&gt;Revoke&lt;/button&gt;
           &lt;span className=&quot;dm-pgx-sum&quot;&gt;&lt;span className=&quot;dm-l&quot;&gt;{names.join(&#39;, &#39;)}&lt;/span&gt;&lt;span className=&quot;dm-s&quot;&gt;{`${names.length} ${word(names.length)} allowed`}&lt;/span&gt;&lt;/span&gt;
         &lt;/div&gt;
@@ -656,7 +671,7 @@ export function PermissionGate({
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>permission-gate.css<span class="l">React · 116 lines</span></summary><pre class="cp-pre" data-name="permission-gate.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>permission-gate.css<span class="l">React · 136 lines</span></summary><pre class="cp-pre" data-name="permission-gate.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Permission gate ---------- */
 /* the agent asks in the chat as one card: the question, the scopes to tick, and a footer with how long and the two
    answers. Without .panel it sits flat in the thread */
@@ -667,45 +682,56 @@ export function PermissionGate({
 .dm-pgx-ht{display:flex;flex-direction:column;min-width:0}
 .dm-pgx-ht b{font-weight:500;font-size:14px}
 .dm-pgx-ht span{font-size:13px}
-.dm-pgx-sc{display:flex;flex-direction:column;margin-inline:-8px}
-.dm-pgx-o{display:flex;align-items:center;gap:var(--dm-s-3);padding:var(--dm-s-2);border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));cursor:pointer;font-size:13.5px;transition:background .25s}
+/* the scopes line up with the head (owner, 18 Nov): each box centred in a 32px column under the icon tile, its words where the
+   question&#39;s start, and the row&#39;s hover fill exactly the content&#39;s width, from the tile&#39;s left edge to the right edge the
+   buttons below end on. The box sits 7px inside the fill, and a tag at the row&#39;s end sits 7px inside it too */
+.dm-pgx-sc{display:flex;flex-direction:column}
+.dm-pgx-o{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;column-gap:var(--dm-s-3);padding:var(--dm-s-2) 7px var(--dm-s-2) 0;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));cursor:pointer;font-size:13.5px;transition:background .25s}
+.dm-pgx-o&gt;.dm-bx{justify-self:center}
 @media (hover:hover) and (pointer:fine){.dm-pgx-o:hover{background:var(--dm-row)}}
 .dm-pgx-o input{position:absolute;opacity:0;pointer-events:none}
-.dm-pgx-o .dm-bx{width:18px;height:18px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-muted) 80%,var(--dm-surface));display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--dm-ease),box-shadow .3s,color .3s}
+.dm-pgx-o .dm-bx{width:18px;height:18px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));box-shadow:inset 0 0 0 1.5px var(--dm-fg2);display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--dm-ease),box-shadow .3s,color .3s}
 .dm-pgx-o .dm-bx svg{transform:scale(.4);transition:transform .35s var(--dm-ease)}
 .dm-pgx-o input:checked+.dm-bx{background:var(--dm-accent);box-shadow:inset 0 0 0 1.5px var(--dm-accent-mark,var(--dm-accent));color:var(--dm-on-accent)}
 .dm-pgx-o input:checked+.dm-bx svg{transform:none}
 .dm-pgx-o input:focus-visible+.dm-bx{outline:2px solid var(--dm-focus);outline-offset:2px}
 .dm-pgx-o .dm-t{flex:1;min-width:0}
+/* asking again for one scope, every style: nothing to tick, so the scope is a plain row led by a tile like the question&#39;s
+   (what it does, in the same 32px column) and the button just says Allow (owner, 18 Nov) */
+.dm-pgx-o.dm-one{cursor:default}
+@media (hover:hover) and (pointer:fine){.dm-pgx-o.dm-one:hover{background:none}}
+.dm-pgx-o.dm-one&gt;.dm-oi{width:32px;height:32px;display:grid;place-items:center;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-chip);color:var(--dm-fg2)}
+:root[data-style=&quot;clean&quot;] .dm-pgx-o.dm-one&gt;.dm-oi,:root [data-style=&quot;clean&quot;] .dm-pgx-o.dm-one&gt;.dm-oi,:root [data-style=&quot;clean&quot;].dm-pgx-o.dm-one&gt;.dm-oi{box-shadow:inset 0 0 0 1px var(--dm-hair)}
 .dm-pgx-o .dm-d{display:block;font-size:12px;color:var(--dm-muted)}
 .dm-pgx-f{display:flex;align-items:center;gap:6px;padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .dm-pgx-f .dm-sp{flex:1}
 /* on a narrow stage the duration gets its own row, and the two buttons stay together under it on the right */
 @container (max-width:340px){.dm-pgx-f{flex-wrap:wrap}.dm-pgx-f .dm-sp{flex-basis:100%}.dm-pgx-no{margin:var(--dm-s-2) 0 0 auto}.dm-pgx-ok{margin-top:var(--dm-s-2)}}
 /* how long: a small dropdown, the way a menu of choices usually looks */
-.dm-pgx-db{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--dm-s-2) 0 10px;margin-left:-2px;border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);white-space:nowrap;transition:background .16s,color .16s}
+.dm-pgx-db{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--dm-s-2) 0 10px;margin-left:0;border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);white-space:nowrap;transition:background .16s,color .16s}
 .dm-pgx-db[aria-expanded=&quot;true&quot;]{background:var(--dm-row);color:var(--dm-fg)}
 @media (hover:hover) and (pointer:fine){.dm-pgx-db:hover{background:var(--dm-row);color:var(--dm-fg)}}
 .dm-pgx-db&gt;svg{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
 .dm-pgx-db[aria-expanded=&quot;true&quot;]&gt;svg{transform:rotate(180deg)}
 .dm-pgx-pop{min-width:230px}
 .dm-pgx-ok[disabled]{opacity:1;cursor:not-allowed;background:var(--dm-dis-hatch),var(--dm-dis-fill);color:var(--dm-dis);box-shadow:var(--dm-soft-ring)}
-.dm-pgx-done{display:flex;align-items:center;gap:var(--dm-s-3);padding:10px 10px 10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-ok-bg);font-size:13.5px}
-/* its button is a white pill on the tinted row */
-.dm-pgx-done .dm-pill{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-shadow)}
-@media (hover:hover) and (pointer:fine){.dm-pgx-done .dm-pill:hover{background:var(--dm-surface);box-shadow:var(--dm-shadow-pop)}}
+.dm-pgx-done{display:flex;align-items:center;gap:var(--dm-s-3);padding:10px 7px 10px 0;border-radius:var(--dm-r-in);background:var(--dm-chip);font-size:13.5px}
+/* its mark sits centred in the scopes&#39; 32px column, under the head&#39;s tile, and its words start on the title&#39;s column */
+.dm-pgx-done&gt;svg{margin-inline:8px}
+/* its button is a white pill on the grey row */
+.dm-pgx-done .dm-pill{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-on-tint-btn)}
+@media (hover:hover) and (pointer:fine){.dm-pgx-done .dm-pill:hover{background:var(--dm-surface);box-shadow:var(--dm-on-tint-btn-h)}}
 .dm-pgx-done .dm-t{flex:1;color:var(--dm-fg)}
 .dm-pgx-done .dm-t span{display:block;font-size:12px;color:var(--dm-fg2)}
 .dm-pgx-done&gt;svg{color:var(--dm-ok)}
-/* while the agent works under the permission: a neutral row with a spinner, a live line and a clock; green once done */
-.dm-pgx-done.dm-run{background:var(--dm-chip)}
-.dm-pgx-done .dm-g{width:18px;height:18px;display:grid;place-items:center;flex:none;color:var(--dm-fg2)}
+/* while the agent works under the permission: a neutral row with a spinner and a live line. Once done the spinner becomes the
+   green tick and the row stays neutral: no green fill and no clock (owner, 18 Nov) */
+.dm-pgx-done .dm-g{width:32px;height:18px;display:grid;place-items:center;flex:none;color:var(--dm-fg2)}
 .dm-pgx-done.dm-ok .dm-g{color:var(--dm-ok)}
 .dm-pgx-done .dm-t b{display:block;font-weight:400}
-.dm-pgx-tm{font-size:12px;color:var(--dm-muted)}
 /* asking again mid-run, for one more scope: the tile turns amber */
 .dm-pgx-ic{transition:background .32s var(--dm-ease)}
-.dm-pgx.dm-esc .dm-pgx-ic{background:var(--dm-warn-bg)}
+/* asking again keeps the tile neutral in every style: the Risky tag on the scope carries the warning (owner, 18 Nov) */
 .dm-pgx-scope{display:flex;flex-direction:column;gap:var(--dm-s-3)}
 /* the line in the foot strip once you have answered (Clean only): the scopes you allowed, or that you allowed none */
 .dm-pgx-sum{display:none}
@@ -718,12 +744,20 @@ export function PermissionGate({
 /* the card clips its strips to its round corners; the duration menu opens out of it (nothing changes height while it is open) */
 :root[data-style=&quot;clean&quot;] .dm-pgx.dm-panel,:root [data-style=&quot;clean&quot;] .dm-pgx.dm-panel,:root [data-style=&quot;clean&quot;].dm-pgx.dm-panel{padding:16px 16px 0;overflow:clip;overflow-clip-margin:0px}
 :root[data-style=&quot;clean&quot;] .dm-pgx.dm-panel:has(.dm-pgx-pop.dm-open),:root [data-style=&quot;clean&quot;] .dm-pgx.dm-panel:has(.dm-pgx-pop.dm-open),:root [data-style=&quot;clean&quot;].dm-pgx.dm-panel:has(.dm-pgx-pop.dm-open){overflow:visible}
-:root[data-style=&quot;clean&quot;] .dm-pgx-ic,:root [data-style=&quot;clean&quot;] .dm-pgx-ic,:root [data-style=&quot;clean&quot;].dm-pgx-ic{border-radius:50%;box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style=&quot;clean&quot;] .dm-pgx-ic,:root [data-style=&quot;clean&quot;] .dm-pgx-ic,:root [data-style=&quot;clean&quot;].dm-pgx-ic{box-shadow:inset 0 0 0 1px var(--dm-hair)}
+/* asking again keeps the tile neutral: the Risky tag on the scope carries the warning */
 :root[data-style=&quot;clean&quot;] .dm-pgx-ht b,:root [data-style=&quot;clean&quot;] .dm-pgx-ht b,:root [data-style=&quot;clean&quot;].dm-pgx-ht b{line-height:20px;letter-spacing:-.01em}
 :root[data-style=&quot;clean&quot;] .dm-pgx-ht span,:root [data-style=&quot;clean&quot;] .dm-pgx-ht span,:root [data-style=&quot;clean&quot;].dm-pgx-ht span,:root[data-style=&quot;clean&quot;] .dm-pgx-o .dm-d,:root [data-style=&quot;clean&quot;] .dm-pgx-o .dm-d,:root [data-style=&quot;clean&quot;].dm-pgx-o .dm-d,:root[data-style=&quot;clean&quot;] .dm-pgx-done .dm-t span,:root [data-style=&quot;clean&quot;] .dm-pgx-done .dm-t span,:root [data-style=&quot;clean&quot;].dm-pgx-done .dm-t span{line-height:18px}
 :root[data-style=&quot;clean&quot;] :is(.dm-pgx-o,.dm-pgx-done) .dm-t,:root [data-style=&quot;clean&quot;] :is(.dm-pgx-o,.dm-pgx-done) .dm-t,:root [data-style=&quot;clean&quot;]:is(.dm-pgx-o,.dm-pgx-done) .dm-t{line-height:20px}
-:root[data-style=&quot;clean&quot;] .dm-pgx-o,:root [data-style=&quot;clean&quot;] .dm-pgx-o,:root [data-style=&quot;clean&quot;].dm-pgx-o{transition:background-color var(--dm-t-fast) var(--dm-ease)}
-:root[data-style=&quot;clean&quot;] .dm-pgx-o .dm-bx,:root [data-style=&quot;clean&quot;] .dm-pgx-o .dm-bx,:root [data-style=&quot;clean&quot;].dm-pgx-o .dm-bx{border-radius:50%;background:var(--dm-surface);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-muted) 80%,var(--dm-surface)),var(--dm-track-ring);transition:background .2s var(--dm-ease),box-shadow .2s var(--dm-ease)}
+/* a scope row: its box in a 32px column under the question&#39;s tile, centred, so its words start where the question&#39;s do;
+   hairlines between rows, which give way to the quiet fill of the row under the pointer */
+:root[data-style=&quot;clean&quot;] .dm-pgx-o,:root [data-style=&quot;clean&quot;] .dm-pgx-o,:root [data-style=&quot;clean&quot;].dm-pgx-o{position:relative;display:grid;grid-template-columns:32px minmax(0,1fr) auto;column-gap:12px;transition:background-color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style=&quot;clean&quot;] .dm-pgx-o&gt;.dm-bx,:root [data-style=&quot;clean&quot;] .dm-pgx-o&gt;.dm-bx,:root [data-style=&quot;clean&quot;].dm-pgx-o&gt;.dm-bx{justify-self:center}
+:root[data-style=&quot;clean&quot;] .dm-pgx-o+.dm-pgx-o,:root [data-style=&quot;clean&quot;] .dm-pgx-o+.dm-pgx-o,:root [data-style=&quot;clean&quot;].dm-pgx-o+.dm-pgx-o{background-image:linear-gradient(var(--dm-hair),var(--dm-hair));background-repeat:no-repeat;background-position:0 0;background-size:100% 1px}
+@media (hover:hover) and (pointer:fine){:root[data-style=&quot;clean&quot;] :is(.dm-pgx-o:hover,.dm-pgx-o:hover+.dm-pgx-o),:root [data-style=&quot;clean&quot;] :is(.dm-pgx-o:hover,.dm-pgx-o:hover+.dm-pgx-o),:root [data-style=&quot;clean&quot;]:is(.dm-pgx-o:hover,.dm-pgx-o:hover+.dm-pgx-o){background-image:none}}
+/* asking again for one scope: nothing to tick, so the scope is an info row, its info mark where the box would be */
+
+:root[data-style=&quot;clean&quot;] .dm-pgx-o .dm-bx,:root [data-style=&quot;clean&quot;] .dm-pgx-o .dm-bx,:root [data-style=&quot;clean&quot;].dm-pgx-o .dm-bx{border-radius:calc(4px * var(--dm-rk-s,var(--dm-rk)));background:var(--dm-surface);box-shadow:inset 0 0 0 1.5px var(--dm-fg2),var(--dm-track-ring);transition:background .2s var(--dm-ease),box-shadow .2s var(--dm-ease)}
 :root[data-style=&quot;clean&quot;] .dm-pgx-o .dm-bx svg,:root [data-style=&quot;clean&quot;] .dm-pgx-o .dm-bx svg,:root [data-style=&quot;clean&quot;].dm-pgx-o .dm-bx svg{transform:none;stroke-dasharray:21;stroke-dashoffset:21;transition:stroke-dashoffset .3s var(--dm-ease)}
 :root[data-style=&quot;clean&quot;] .dm-pgx-o input:checked+.dm-bx,:root [data-style=&quot;clean&quot;] .dm-pgx-o input:checked+.dm-bx,:root [data-style=&quot;clean&quot;].dm-pgx-o input:checked+.dm-bx{background:linear-gradient(180deg,var(--dm-btn-1),var(--dm-btn-2));box-shadow:inset 0 0 0 1px var(--dm-btn-2),inset 0 2px 3px -1px rgba(255,255,255,.28);color:var(--dm-on-btn)}
 :root[data-style=&quot;clean&quot;] .dm-pgx-o input:checked+.dm-bx svg,:root [data-style=&quot;clean&quot;] .dm-pgx-o input:checked+.dm-bx svg,:root [data-style=&quot;clean&quot;].dm-pgx-o input:checked+.dm-bx svg{stroke-dashoffset:0;transition-delay:.06s}
@@ -736,17 +770,19 @@ export function PermissionGate({
 @media (hover:hover) and (pointer:fine){:root[data-style=&quot;clean&quot;] .dm-pgx-f :is(.dm-pgx-db:hover,.dm-pgx-db[aria-expanded=&quot;true&quot;],.dm-pill.dm-ghost:hover),:root [data-style=&quot;clean&quot;] .dm-pgx-f :is(.dm-pgx-db:hover,.dm-pgx-db[aria-expanded=&quot;true&quot;],.dm-pill.dm-ghost:hover),:root [data-style=&quot;clean&quot;].dm-pgx-f :is(.dm-pgx-db:hover,.dm-pgx-db[aria-expanded=&quot;true&quot;],.dm-pill.dm-ghost:hover){background:var(--dm-hover);color:var(--dm-fg)}}
 /* on a narrow stage the buttons wrap under the select: the strip&#39;s 4px gaps put them 8px under it */
 @container (max-width:340px){:root[data-style=&quot;clean&quot;] .dm-pgx-no,:root [data-style=&quot;clean&quot;] .dm-pgx-no,:root [data-style=&quot;clean&quot;].dm-pgx-no{margin:0 0 0 auto}:root[data-style=&quot;clean&quot;] .dm-pgx-ok,:root [data-style=&quot;clean&quot;] .dm-pgx-ok,:root [data-style=&quot;clean&quot;].dm-pgx-ok{margin-top:0}}
-/* Allow&#39;s count rolls: up as a box is ticked, down as one is cleared */
-:root[data-style=&quot;clean&quot;] .dm-pgx-cnt,:root [data-style=&quot;clean&quot;] .dm-pgx-cnt,:root [data-style=&quot;clean&quot;].dm-pgx-cnt{display:inline-grid;overflow:clip}
+/* Allow&#39;s count rolls: up as a box is ticked, down as one is cleared. No window clips it: each number moves a few pixels
+   and fades, so a digit is never seen cut in half */
+:root[data-style=&quot;clean&quot;] .dm-pgx-cnt,:root [data-style=&quot;clean&quot;] .dm-pgx-cnt,:root [data-style=&quot;clean&quot;].dm-pgx-cnt{display:inline-grid}
 :root[data-style=&quot;clean&quot;] .dm-pgx-cnt&gt;i,:root [data-style=&quot;clean&quot;] .dm-pgx-cnt&gt;i,:root [data-style=&quot;clean&quot;].dm-pgx-cnt&gt;i{grid-area:1/1;font-style:normal;font-variant-numeric:tabular-nums}
-@keyframes dm-pgxiu{from{transform:translateY(80%);opacity:0}}
-@keyframes dm-pgxou{to{transform:translateY(-80%);opacity:0}}
-@keyframes dm-pgxid{from{transform:translateY(-80%);opacity:0}}
-@keyframes dm-pgxod{to{transform:translateY(80%);opacity:0}}
-:root[data-style=&quot;clean&quot;] .dm-pgx-cnt&gt;.dm-iu,:root [data-style=&quot;clean&quot;] .dm-pgx-cnt&gt;.dm-iu,:root [data-style=&quot;clean&quot;].dm-pgx-cnt&gt;.dm-iu{animation:dm-pgxiu .3s var(--dm-ease) both}
-:root[data-style=&quot;clean&quot;] .dm-pgx-cnt&gt;.dm-ou,:root [data-style=&quot;clean&quot;] .dm-pgx-cnt&gt;.dm-ou,:root [data-style=&quot;clean&quot;].dm-pgx-cnt&gt;.dm-ou{animation:dm-pgxou .3s var(--dm-ease) both}
-:root[data-style=&quot;clean&quot;] .dm-pgx-cnt&gt;.dm-id,:root [data-style=&quot;clean&quot;] .dm-pgx-cnt&gt;.dm-id,:root [data-style=&quot;clean&quot;].dm-pgx-cnt&gt;.dm-id{animation:dm-pgxid .3s var(--dm-ease) both}
-:root[data-style=&quot;clean&quot;] .dm-pgx-cnt&gt;.dm-od,:root [data-style=&quot;clean&quot;] .dm-pgx-cnt&gt;.dm-od,:root [data-style=&quot;clean&quot;].dm-pgx-cnt&gt;.dm-od{animation:dm-pgxod .3s var(--dm-ease) both}
+@keyframes dm-pgxiu{from{transform:translateY(40%);opacity:0}}
+@keyframes dm-pgxou{to{transform:translateY(-40%);opacity:0}}
+@keyframes dm-pgxid{from{transform:translateY(-40%);opacity:0}}
+@keyframes dm-pgxod{to{transform:translateY(40%);opacity:0}}
+/* the old number leaves first and the new one follows, so the two never sit on top of each other */
+:root[data-style=&quot;clean&quot;] .dm-pgx-cnt&gt;.dm-iu,:root [data-style=&quot;clean&quot;] .dm-pgx-cnt&gt;.dm-iu,:root [data-style=&quot;clean&quot;].dm-pgx-cnt&gt;.dm-iu{animation:dm-pgxiu .22s var(--dm-ease) .1s both}
+:root[data-style=&quot;clean&quot;] .dm-pgx-cnt&gt;.dm-ou,:root [data-style=&quot;clean&quot;] .dm-pgx-cnt&gt;.dm-ou,:root [data-style=&quot;clean&quot;].dm-pgx-cnt&gt;.dm-ou{animation:dm-pgxou .16s var(--dm-ease) both}
+:root[data-style=&quot;clean&quot;] .dm-pgx-cnt&gt;.dm-id,:root [data-style=&quot;clean&quot;] .dm-pgx-cnt&gt;.dm-id,:root [data-style=&quot;clean&quot;].dm-pgx-cnt&gt;.dm-id{animation:dm-pgxid .22s var(--dm-ease) .1s both}
+:root[data-style=&quot;clean&quot;] .dm-pgx-cnt&gt;.dm-od,:root [data-style=&quot;clean&quot;] .dm-pgx-cnt&gt;.dm-od,:root [data-style=&quot;clean&quot;].dm-pgx-cnt&gt;.dm-od{animation:dm-pgxod .16s var(--dm-ease) both}
 /* answered: the result line where the scopes were (a 32px mark under the question&#39;s tile, the words under the question&#39;s
    words, the clock on the right), then the strip with the summary and Revoke or Undo in the corner */
 :root[data-style=&quot;clean&quot;] .dm-pgx.dm-panel .dm-pgx-done,:root [data-style=&quot;clean&quot;] .dm-pgx.dm-panel .dm-pgx-done,:root [data-style=&quot;clean&quot;].dm-pgx.dm-panel .dm-pgx-done{display:grid;grid-template-columns:32px minmax(0,1fr) auto;grid-template-rows:auto 45px;column-gap:12px;row-gap:16px;align-items:center;padding:0;border-radius:0;background:none!important}
@@ -755,7 +791,6 @@ export function PermissionGate({
 :root[data-style=&quot;clean&quot;] .dm-pgx.dm-panel .dm-pgx-done .dm-t b,:root [data-style=&quot;clean&quot;] .dm-pgx.dm-panel .dm-pgx-done .dm-t b,:root [data-style=&quot;clean&quot;].dm-pgx.dm-panel .dm-pgx-done .dm-t b{font-weight:500}
 :root[data-style=&quot;clean&quot;] .dm-pgx.dm-panel .dm-pgx-done .dm-t b span,:root [data-style=&quot;clean&quot;] .dm-pgx.dm-panel .dm-pgx-done .dm-t b span,:root [data-style=&quot;clean&quot;].dm-pgx.dm-panel .dm-pgx-done .dm-t b span{font-size:inherit;line-height:inherit;color:inherit}
 :root[data-style=&quot;clean&quot;] .dm-pgx.dm-panel .dm-pgx-done .dm-t span,:root [data-style=&quot;clean&quot;] .dm-pgx.dm-panel .dm-pgx-done .dm-t span,:root [data-style=&quot;clean&quot;].dm-pgx.dm-panel .dm-pgx-done .dm-t span{color:var(--dm-muted)}
-:root[data-style=&quot;clean&quot;] .dm-pgx.dm-panel .dm-pgx-done&gt;.dm-pgx-tm,:root [data-style=&quot;clean&quot;] .dm-pgx.dm-panel .dm-pgx-done&gt;.dm-pgx-tm,:root [data-style=&quot;clean&quot;].dm-pgx.dm-panel .dm-pgx-done&gt;.dm-pgx-tm{grid-area:1/3;justify-self:end}
 :root[data-style=&quot;clean&quot;] .dm-pgx.dm-panel .dm-pgx-done&gt;.dm-pill,:root [data-style=&quot;clean&quot;] .dm-pgx.dm-panel .dm-pgx-done&gt;.dm-pill,:root [data-style=&quot;clean&quot;].dm-pgx.dm-panel .dm-pgx-done&gt;.dm-pill{grid-area:2/3;z-index:1;align-self:end;margin:0 -8px 8px 0;color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
 @media (hover:hover) and (pointer:fine){:root[data-style=&quot;clean&quot;] .dm-pgx.dm-panel .dm-pgx-done&gt;.dm-pill:hover,:root [data-style=&quot;clean&quot;] .dm-pgx.dm-panel .dm-pgx-done&gt;.dm-pill:hover,:root [data-style=&quot;clean&quot;].dm-pgx.dm-panel .dm-pgx-done&gt;.dm-pill:hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
 :root[data-style=&quot;clean&quot;] .dm-pgx.dm-panel .dm-pgx-done&gt;.dm-pill:active,:root [data-style=&quot;clean&quot;] .dm-pgx.dm-panel .dm-pgx-done&gt;.dm-pill:active,:root [data-style=&quot;clean&quot;].dm-pgx.dm-panel .dm-pgx-done&gt;.dm-pill:active{box-shadow:var(--dm-btn2-press)}
@@ -769,7 +804,7 @@ export function PermissionGate({
 :root[data-style=&quot;clean&quot;] .dm-pgx.dm-panel .dm-pgx-done.dm-ok .dm-g,:root [data-style=&quot;clean&quot;] .dm-pgx.dm-panel .dm-pgx-done.dm-ok .dm-g,:root [data-style=&quot;clean&quot;].dm-pgx.dm-panel .dm-pgx-done.dm-ok .dm-g{background:var(--dm-surface);box-shadow:inset 0 0 0 1.5px var(--dm-ok-mark);color:var(--dm-ok-mark)}
 :root[data-style=&quot;clean&quot;] .dm-pgx.dm-panel .dm-pgx-done.dm-ok .dm-g svg,:root [data-style=&quot;clean&quot;] .dm-pgx.dm-panel .dm-pgx-done.dm-ok .dm-g svg,:root [data-style=&quot;clean&quot;].dm-pgx.dm-panel .dm-pgx-done.dm-ok .dm-g svg{width:16px;height:16px;stroke-width:2;stroke-dasharray:21;animation:dm-pgxdraw .5s var(--dm-ease) .12s both}
 @keyframes dm-pgxdraw{from{stroke-dashoffset:21}to{stroke-dashoffset:0}}
-:root[data-style=&quot;clean&quot;] .dm-pgx.dm-panel .dm-pgx-done&gt;svg,:root [data-style=&quot;clean&quot;] .dm-pgx.dm-panel .dm-pgx-done&gt;svg,:root [data-style=&quot;clean&quot;].dm-pgx.dm-panel .dm-pgx-done&gt;svg{width:32px;height:32px;padding:8px;box-sizing:border-box;border-radius:50%;background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-hair);color:var(--dm-fg2)}
+:root[data-style=&quot;clean&quot;] .dm-pgx.dm-panel .dm-pgx-done&gt;svg,:root [data-style=&quot;clean&quot;] .dm-pgx.dm-panel .dm-pgx-done&gt;svg,:root [data-style=&quot;clean&quot;].dm-pgx.dm-panel .dm-pgx-done&gt;svg{width:32px;height:32px;margin:0;padding:8px;box-sizing:border-box;border-radius:50%;background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-hair);color:var(--dm-fg2)}
 @media (prefers-reduced-motion:reduce){:root[data-style=&quot;clean&quot;] :is(.dm-pgx-o .dm-bx,.dm-pgx-o .dm-bx svg,.dm-pgx-done .dm-g),:root [data-style=&quot;clean&quot;] :is(.dm-pgx-o .dm-bx,.dm-pgx-o .dm-bx svg,.dm-pgx-done .dm-g),:root [data-style=&quot;clean&quot;]:is(.dm-pgx-o .dm-bx,.dm-pgx-o .dm-bx svg,.dm-pgx-done .dm-g){transition:none}:root[data-style=&quot;clean&quot;] :is(.dm-pgx-cnt&gt;i,.dm-pgx-done.dm-ok .dm-g svg),:root [data-style=&quot;clean&quot;] :is(.dm-pgx-cnt&gt;i,.dm-pgx-done.dm-ok .dm-g svg),:root [data-style=&quot;clean&quot;]:is(.dm-pgx-cnt&gt;i,.dm-pgx-done.dm-ok .dm-g svg){animation:none}}
 </code></pre></details><details class="cp-file"><summary>PermissionGate.astro<span class="l">Astro · 37 lines</span></summary><pre class="cp-pre" data-name="PermissionGate.astro"><code>---
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
@@ -825,7 +860,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>permission-gate.css<span class="l">HTML · 115 lines</span></summary><pre class="cp-pre" data-name="permission-gate.css"><code>/* ---------- Permission gate ---------- */
+</code></pre></details><details class="cp-file"><summary>permission-gate.css<span class="l">HTML · 135 lines</span></summary><pre class="cp-pre" data-name="permission-gate.css"><code>/* ---------- Permission gate ---------- */
 /* the agent asks in the chat as one card: the question, the scopes to tick, and a footer with how long and the two
    answers. Without .panel it sits flat in the thread */
 .pgx{position:relative;width:100%;max-width:400px;margin:0 auto;padding:var(--dm-s-1) 0;display:flex;flex-direction:column;gap:var(--dm-s-3)}
@@ -835,45 +870,56 @@ const { class: className, ...rest } = Astro.props;
 .pgx-ht{display:flex;flex-direction:column;min-width:0}
 .pgx-ht b{font-weight:500;font-size:14px}
 .pgx-ht span{font-size:13px}
-.pgx-sc{display:flex;flex-direction:column;margin-inline:-8px}
-.pgx-o{display:flex;align-items:center;gap:var(--dm-s-3);padding:var(--dm-s-2);border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));cursor:pointer;font-size:13.5px;transition:background .25s}
+/* the scopes line up with the head (owner, 18 Nov): each box centred in a 32px column under the icon tile, its words where the
+   question&#39;s start, and the row&#39;s hover fill exactly the content&#39;s width, from the tile&#39;s left edge to the right edge the
+   buttons below end on. The box sits 7px inside the fill, and a tag at the row&#39;s end sits 7px inside it too */
+.pgx-sc{display:flex;flex-direction:column}
+.pgx-o{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;column-gap:var(--dm-s-3);padding:var(--dm-s-2) 7px var(--dm-s-2) 0;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));cursor:pointer;font-size:13.5px;transition:background .25s}
+.pgx-o&gt;.bx{justify-self:center}
 @media (hover:hover) and (pointer:fine){.pgx-o:hover{background:var(--dm-row)}}
 .pgx-o input{position:absolute;opacity:0;pointer-events:none}
-.pgx-o .bx{width:18px;height:18px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-muted) 80%,var(--dm-surface));display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--dm-ease),box-shadow .3s,color .3s}
+.pgx-o .bx{width:18px;height:18px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));box-shadow:inset 0 0 0 1.5px var(--dm-fg2);display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--dm-ease),box-shadow .3s,color .3s}
 .pgx-o .bx svg{transform:scale(.4);transition:transform .35s var(--dm-ease)}
 .pgx-o input:checked+.bx{background:var(--dm-accent);box-shadow:inset 0 0 0 1.5px var(--dm-accent-mark,var(--dm-accent));color:var(--dm-on-accent)}
 .pgx-o input:checked+.bx svg{transform:none}
 .pgx-o input:focus-visible+.bx{outline:2px solid var(--dm-focus);outline-offset:2px}
 .pgx-o .t{flex:1;min-width:0}
+/* asking again for one scope, every style: nothing to tick, so the scope is a plain row led by a tile like the question&#39;s
+   (what it does, in the same 32px column) and the button just says Allow (owner, 18 Nov) */
+.pgx-o.one{cursor:default}
+@media (hover:hover) and (pointer:fine){.pgx-o.one:hover{background:none}}
+.pgx-o.one&gt;.oi{width:32px;height:32px;display:grid;place-items:center;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-chip);color:var(--dm-fg2)}
+:root[data-style=&quot;clean&quot;] .pgx-o.one&gt;.oi,:root [data-style=&quot;clean&quot;] .pgx-o.one&gt;.oi,:root [data-style=&quot;clean&quot;].pgx-o.one&gt;.oi{box-shadow:inset 0 0 0 1px var(--dm-hair)}
 .pgx-o .d{display:block;font-size:12px;color:var(--dm-muted)}
 .pgx-f{display:flex;align-items:center;gap:6px;padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .pgx-f .sp{flex:1}
 /* on a narrow stage the duration gets its own row, and the two buttons stay together under it on the right */
 @container (max-width:340px){.pgx-f{flex-wrap:wrap}.pgx-f .sp{flex-basis:100%}.pgx-no{margin:var(--dm-s-2) 0 0 auto}.pgx-ok{margin-top:var(--dm-s-2)}}
 /* how long: a small dropdown, the way a menu of choices usually looks */
-.pgx-db{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--dm-s-2) 0 10px;margin-left:-2px;border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);white-space:nowrap;transition:background .16s,color .16s}
+.pgx-db{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--dm-s-2) 0 10px;margin-left:0;border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);white-space:nowrap;transition:background .16s,color .16s}
 .pgx-db[aria-expanded=&quot;true&quot;]{background:var(--dm-row);color:var(--dm-fg)}
 @media (hover:hover) and (pointer:fine){.pgx-db:hover{background:var(--dm-row);color:var(--dm-fg)}}
 .pgx-db&gt;svg{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
 .pgx-db[aria-expanded=&quot;true&quot;]&gt;svg{transform:rotate(180deg)}
 .pgx-pop{min-width:230px}
 .pgx-ok[disabled]{opacity:1;cursor:not-allowed;background:var(--dm-dis-hatch),var(--dm-dis-fill);color:var(--dm-dis);box-shadow:var(--dm-soft-ring)}
-.pgx-done{display:flex;align-items:center;gap:var(--dm-s-3);padding:10px 10px 10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-ok-bg);font-size:13.5px}
-/* its button is a white pill on the tinted row */
-.pgx-done .pill{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-shadow)}
-@media (hover:hover) and (pointer:fine){.pgx-done .pill:hover{background:var(--dm-surface);box-shadow:var(--dm-shadow-pop)}}
+.pgx-done{display:flex;align-items:center;gap:var(--dm-s-3);padding:10px 7px 10px 0;border-radius:var(--dm-r-in);background:var(--dm-chip);font-size:13.5px}
+/* its mark sits centred in the scopes&#39; 32px column, under the head&#39;s tile, and its words start on the title&#39;s column */
+.pgx-done&gt;svg{margin-inline:8px}
+/* its button is a white pill on the grey row */
+.pgx-done .pill{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-on-tint-btn)}
+@media (hover:hover) and (pointer:fine){.pgx-done .pill:hover{background:var(--dm-surface);box-shadow:var(--dm-on-tint-btn-h)}}
 .pgx-done .t{flex:1;color:var(--dm-fg)}
 .pgx-done .t span{display:block;font-size:12px;color:var(--dm-fg2)}
 .pgx-done&gt;svg{color:var(--dm-ok)}
-/* while the agent works under the permission: a neutral row with a spinner, a live line and a clock; green once done */
-.pgx-done.run{background:var(--dm-chip)}
-.pgx-done .g{width:18px;height:18px;display:grid;place-items:center;flex:none;color:var(--dm-fg2)}
+/* while the agent works under the permission: a neutral row with a spinner and a live line. Once done the spinner becomes the
+   green tick and the row stays neutral: no green fill and no clock (owner, 18 Nov) */
+.pgx-done .g{width:32px;height:18px;display:grid;place-items:center;flex:none;color:var(--dm-fg2)}
 .pgx-done.ok .g{color:var(--dm-ok)}
 .pgx-done .t b{display:block;font-weight:400}
-.pgx-tm{font-size:12px;color:var(--dm-muted)}
 /* asking again mid-run, for one more scope: the tile turns amber */
 .pgx-ic{transition:background .32s var(--dm-ease)}
-.pgx.esc .pgx-ic{background:var(--dm-warn-bg)}
+/* asking again keeps the tile neutral in every style: the Risky tag on the scope carries the warning (owner, 18 Nov) */
 .pgx-scope{display:flex;flex-direction:column;gap:var(--dm-s-3)}
 /* the line in the foot strip once you have answered (Clean only): the scopes you allowed, or that you allowed none */
 .pgx-sum{display:none}
@@ -886,12 +932,20 @@ const { class: className, ...rest } = Astro.props;
 /* the card clips its strips to its round corners; the duration menu opens out of it (nothing changes height while it is open) */
 :root[data-style=&quot;clean&quot;] .pgx.panel,:root [data-style=&quot;clean&quot;] .pgx.panel,:root [data-style=&quot;clean&quot;].pgx.panel{padding:16px 16px 0;overflow:clip;overflow-clip-margin:0px}
 :root[data-style=&quot;clean&quot;] .pgx.panel:has(.pgx-pop.open),:root [data-style=&quot;clean&quot;] .pgx.panel:has(.pgx-pop.open),:root [data-style=&quot;clean&quot;].pgx.panel:has(.pgx-pop.open){overflow:visible}
-:root[data-style=&quot;clean&quot;] .pgx-ic,:root [data-style=&quot;clean&quot;] .pgx-ic,:root [data-style=&quot;clean&quot;].pgx-ic{border-radius:50%;box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style=&quot;clean&quot;] .pgx-ic,:root [data-style=&quot;clean&quot;] .pgx-ic,:root [data-style=&quot;clean&quot;].pgx-ic{box-shadow:inset 0 0 0 1px var(--dm-hair)}
+/* asking again keeps the tile neutral: the Risky tag on the scope carries the warning */
 :root[data-style=&quot;clean&quot;] .pgx-ht b,:root [data-style=&quot;clean&quot;] .pgx-ht b,:root [data-style=&quot;clean&quot;].pgx-ht b{line-height:20px;letter-spacing:-.01em}
 :root[data-style=&quot;clean&quot;] .pgx-ht span,:root [data-style=&quot;clean&quot;] .pgx-ht span,:root [data-style=&quot;clean&quot;].pgx-ht span,:root[data-style=&quot;clean&quot;] .pgx-o .d,:root [data-style=&quot;clean&quot;] .pgx-o .d,:root [data-style=&quot;clean&quot;].pgx-o .d,:root[data-style=&quot;clean&quot;] .pgx-done .t span,:root [data-style=&quot;clean&quot;] .pgx-done .t span,:root [data-style=&quot;clean&quot;].pgx-done .t span{line-height:18px}
 :root[data-style=&quot;clean&quot;] :is(.pgx-o,.pgx-done) .t,:root [data-style=&quot;clean&quot;] :is(.pgx-o,.pgx-done) .t,:root [data-style=&quot;clean&quot;]:is(.pgx-o,.pgx-done) .t{line-height:20px}
-:root[data-style=&quot;clean&quot;] .pgx-o,:root [data-style=&quot;clean&quot;] .pgx-o,:root [data-style=&quot;clean&quot;].pgx-o{transition:background-color var(--dm-t-fast) var(--dm-ease)}
-:root[data-style=&quot;clean&quot;] .pgx-o .bx,:root [data-style=&quot;clean&quot;] .pgx-o .bx,:root [data-style=&quot;clean&quot;].pgx-o .bx{border-radius:50%;background:var(--dm-surface);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-muted) 80%,var(--dm-surface)),var(--dm-track-ring);transition:background .2s var(--dm-ease),box-shadow .2s var(--dm-ease)}
+/* a scope row: its box in a 32px column under the question&#39;s tile, centred, so its words start where the question&#39;s do;
+   hairlines between rows, which give way to the quiet fill of the row under the pointer */
+:root[data-style=&quot;clean&quot;] .pgx-o,:root [data-style=&quot;clean&quot;] .pgx-o,:root [data-style=&quot;clean&quot;].pgx-o{position:relative;display:grid;grid-template-columns:32px minmax(0,1fr) auto;column-gap:12px;transition:background-color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style=&quot;clean&quot;] .pgx-o&gt;.bx,:root [data-style=&quot;clean&quot;] .pgx-o&gt;.bx,:root [data-style=&quot;clean&quot;].pgx-o&gt;.bx{justify-self:center}
+:root[data-style=&quot;clean&quot;] .pgx-o+.pgx-o,:root [data-style=&quot;clean&quot;] .pgx-o+.pgx-o,:root [data-style=&quot;clean&quot;].pgx-o+.pgx-o{background-image:linear-gradient(var(--dm-hair),var(--dm-hair));background-repeat:no-repeat;background-position:0 0;background-size:100% 1px}
+@media (hover:hover) and (pointer:fine){:root[data-style=&quot;clean&quot;] :is(.pgx-o:hover,.pgx-o:hover+.pgx-o),:root [data-style=&quot;clean&quot;] :is(.pgx-o:hover,.pgx-o:hover+.pgx-o),:root [data-style=&quot;clean&quot;]:is(.pgx-o:hover,.pgx-o:hover+.pgx-o){background-image:none}}
+/* asking again for one scope: nothing to tick, so the scope is an info row, its info mark where the box would be */
+
+:root[data-style=&quot;clean&quot;] .pgx-o .bx,:root [data-style=&quot;clean&quot;] .pgx-o .bx,:root [data-style=&quot;clean&quot;].pgx-o .bx{border-radius:calc(4px * var(--dm-rk-s,var(--dm-rk)));background:var(--dm-surface);box-shadow:inset 0 0 0 1.5px var(--dm-fg2),var(--dm-track-ring);transition:background .2s var(--dm-ease),box-shadow .2s var(--dm-ease)}
 :root[data-style=&quot;clean&quot;] .pgx-o .bx svg,:root [data-style=&quot;clean&quot;] .pgx-o .bx svg,:root [data-style=&quot;clean&quot;].pgx-o .bx svg{transform:none;stroke-dasharray:21;stroke-dashoffset:21;transition:stroke-dashoffset .3s var(--dm-ease)}
 :root[data-style=&quot;clean&quot;] .pgx-o input:checked+.bx,:root [data-style=&quot;clean&quot;] .pgx-o input:checked+.bx,:root [data-style=&quot;clean&quot;].pgx-o input:checked+.bx{background:linear-gradient(180deg,var(--dm-btn-1),var(--dm-btn-2));box-shadow:inset 0 0 0 1px var(--dm-btn-2),inset 0 2px 3px -1px rgba(255,255,255,.28);color:var(--dm-on-btn)}
 :root[data-style=&quot;clean&quot;] .pgx-o input:checked+.bx svg,:root [data-style=&quot;clean&quot;] .pgx-o input:checked+.bx svg,:root [data-style=&quot;clean&quot;].pgx-o input:checked+.bx svg{stroke-dashoffset:0;transition-delay:.06s}
@@ -904,17 +958,19 @@ const { class: className, ...rest } = Astro.props;
 @media (hover:hover) and (pointer:fine){:root[data-style=&quot;clean&quot;] .pgx-f :is(.pgx-db:hover,.pgx-db[aria-expanded=&quot;true&quot;],.pill.ghost:hover),:root [data-style=&quot;clean&quot;] .pgx-f :is(.pgx-db:hover,.pgx-db[aria-expanded=&quot;true&quot;],.pill.ghost:hover),:root [data-style=&quot;clean&quot;].pgx-f :is(.pgx-db:hover,.pgx-db[aria-expanded=&quot;true&quot;],.pill.ghost:hover){background:var(--dm-hover);color:var(--dm-fg)}}
 /* on a narrow stage the buttons wrap under the select: the strip&#39;s 4px gaps put them 8px under it */
 @container (max-width:340px){:root[data-style=&quot;clean&quot;] .pgx-no,:root [data-style=&quot;clean&quot;] .pgx-no,:root [data-style=&quot;clean&quot;].pgx-no{margin:0 0 0 auto}:root[data-style=&quot;clean&quot;] .pgx-ok,:root [data-style=&quot;clean&quot;] .pgx-ok,:root [data-style=&quot;clean&quot;].pgx-ok{margin-top:0}}
-/* Allow&#39;s count rolls: up as a box is ticked, down as one is cleared */
-:root[data-style=&quot;clean&quot;] .pgx-cnt,:root [data-style=&quot;clean&quot;] .pgx-cnt,:root [data-style=&quot;clean&quot;].pgx-cnt{display:inline-grid;overflow:clip}
+/* Allow&#39;s count rolls: up as a box is ticked, down as one is cleared. No window clips it: each number moves a few pixels
+   and fades, so a digit is never seen cut in half */
+:root[data-style=&quot;clean&quot;] .pgx-cnt,:root [data-style=&quot;clean&quot;] .pgx-cnt,:root [data-style=&quot;clean&quot;].pgx-cnt{display:inline-grid}
 :root[data-style=&quot;clean&quot;] .pgx-cnt&gt;i,:root [data-style=&quot;clean&quot;] .pgx-cnt&gt;i,:root [data-style=&quot;clean&quot;].pgx-cnt&gt;i{grid-area:1/1;font-style:normal;font-variant-numeric:tabular-nums}
-@keyframes pgxiu{from{transform:translateY(80%);opacity:0}}
-@keyframes pgxou{to{transform:translateY(-80%);opacity:0}}
-@keyframes pgxid{from{transform:translateY(-80%);opacity:0}}
-@keyframes pgxod{to{transform:translateY(80%);opacity:0}}
-:root[data-style=&quot;clean&quot;] .pgx-cnt&gt;.iu,:root [data-style=&quot;clean&quot;] .pgx-cnt&gt;.iu,:root [data-style=&quot;clean&quot;].pgx-cnt&gt;.iu{animation:pgxiu .3s var(--dm-ease) both}
-:root[data-style=&quot;clean&quot;] .pgx-cnt&gt;.ou,:root [data-style=&quot;clean&quot;] .pgx-cnt&gt;.ou,:root [data-style=&quot;clean&quot;].pgx-cnt&gt;.ou{animation:pgxou .3s var(--dm-ease) both}
-:root[data-style=&quot;clean&quot;] .pgx-cnt&gt;.id,:root [data-style=&quot;clean&quot;] .pgx-cnt&gt;.id,:root [data-style=&quot;clean&quot;].pgx-cnt&gt;.id{animation:pgxid .3s var(--dm-ease) both}
-:root[data-style=&quot;clean&quot;] .pgx-cnt&gt;.od,:root [data-style=&quot;clean&quot;] .pgx-cnt&gt;.od,:root [data-style=&quot;clean&quot;].pgx-cnt&gt;.od{animation:pgxod .3s var(--dm-ease) both}
+@keyframes pgxiu{from{transform:translateY(40%);opacity:0}}
+@keyframes pgxou{to{transform:translateY(-40%);opacity:0}}
+@keyframes pgxid{from{transform:translateY(-40%);opacity:0}}
+@keyframes pgxod{to{transform:translateY(40%);opacity:0}}
+/* the old number leaves first and the new one follows, so the two never sit on top of each other */
+:root[data-style=&quot;clean&quot;] .pgx-cnt&gt;.iu,:root [data-style=&quot;clean&quot;] .pgx-cnt&gt;.iu,:root [data-style=&quot;clean&quot;].pgx-cnt&gt;.iu{animation:pgxiu .22s var(--dm-ease) .1s both}
+:root[data-style=&quot;clean&quot;] .pgx-cnt&gt;.ou,:root [data-style=&quot;clean&quot;] .pgx-cnt&gt;.ou,:root [data-style=&quot;clean&quot;].pgx-cnt&gt;.ou{animation:pgxou .16s var(--dm-ease) both}
+:root[data-style=&quot;clean&quot;] .pgx-cnt&gt;.id,:root [data-style=&quot;clean&quot;] .pgx-cnt&gt;.id,:root [data-style=&quot;clean&quot;].pgx-cnt&gt;.id{animation:pgxid .22s var(--dm-ease) .1s both}
+:root[data-style=&quot;clean&quot;] .pgx-cnt&gt;.od,:root [data-style=&quot;clean&quot;] .pgx-cnt&gt;.od,:root [data-style=&quot;clean&quot;].pgx-cnt&gt;.od{animation:pgxod .16s var(--dm-ease) both}
 /* answered: the result line where the scopes were (a 32px mark under the question&#39;s tile, the words under the question&#39;s
    words, the clock on the right), then the strip with the summary and Revoke or Undo in the corner */
 :root[data-style=&quot;clean&quot;] .pgx.panel .pgx-done,:root [data-style=&quot;clean&quot;] .pgx.panel .pgx-done,:root [data-style=&quot;clean&quot;].pgx.panel .pgx-done{display:grid;grid-template-columns:32px minmax(0,1fr) auto;grid-template-rows:auto 45px;column-gap:12px;row-gap:16px;align-items:center;padding:0;border-radius:0;background:none!important}
@@ -923,7 +979,6 @@ const { class: className, ...rest } = Astro.props;
 :root[data-style=&quot;clean&quot;] .pgx.panel .pgx-done .t b,:root [data-style=&quot;clean&quot;] .pgx.panel .pgx-done .t b,:root [data-style=&quot;clean&quot;].pgx.panel .pgx-done .t b{font-weight:500}
 :root[data-style=&quot;clean&quot;] .pgx.panel .pgx-done .t b span,:root [data-style=&quot;clean&quot;] .pgx.panel .pgx-done .t b span,:root [data-style=&quot;clean&quot;].pgx.panel .pgx-done .t b span{font-size:inherit;line-height:inherit;color:inherit}
 :root[data-style=&quot;clean&quot;] .pgx.panel .pgx-done .t span,:root [data-style=&quot;clean&quot;] .pgx.panel .pgx-done .t span,:root [data-style=&quot;clean&quot;].pgx.panel .pgx-done .t span{color:var(--dm-muted)}
-:root[data-style=&quot;clean&quot;] .pgx.panel .pgx-done&gt;.pgx-tm,:root [data-style=&quot;clean&quot;] .pgx.panel .pgx-done&gt;.pgx-tm,:root [data-style=&quot;clean&quot;].pgx.panel .pgx-done&gt;.pgx-tm{grid-area:1/3;justify-self:end}
 :root[data-style=&quot;clean&quot;] .pgx.panel .pgx-done&gt;.pill,:root [data-style=&quot;clean&quot;] .pgx.panel .pgx-done&gt;.pill,:root [data-style=&quot;clean&quot;].pgx.panel .pgx-done&gt;.pill{grid-area:2/3;z-index:1;align-self:end;margin:0 -8px 8px 0;color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
 @media (hover:hover) and (pointer:fine){:root[data-style=&quot;clean&quot;] .pgx.panel .pgx-done&gt;.pill:hover,:root [data-style=&quot;clean&quot;] .pgx.panel .pgx-done&gt;.pill:hover,:root [data-style=&quot;clean&quot;].pgx.panel .pgx-done&gt;.pill:hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
 :root[data-style=&quot;clean&quot;] .pgx.panel .pgx-done&gt;.pill:active,:root [data-style=&quot;clean&quot;] .pgx.panel .pgx-done&gt;.pill:active,:root [data-style=&quot;clean&quot;].pgx.panel .pgx-done&gt;.pill:active{box-shadow:var(--dm-btn2-press)}
@@ -937,19 +992,20 @@ const { class: className, ...rest } = Astro.props;
 :root[data-style=&quot;clean&quot;] .pgx.panel .pgx-done.ok .g,:root [data-style=&quot;clean&quot;] .pgx.panel .pgx-done.ok .g,:root [data-style=&quot;clean&quot;].pgx.panel .pgx-done.ok .g{background:var(--dm-surface);box-shadow:inset 0 0 0 1.5px var(--dm-ok-mark);color:var(--dm-ok-mark)}
 :root[data-style=&quot;clean&quot;] .pgx.panel .pgx-done.ok .g svg,:root [data-style=&quot;clean&quot;] .pgx.panel .pgx-done.ok .g svg,:root [data-style=&quot;clean&quot;].pgx.panel .pgx-done.ok .g svg{width:16px;height:16px;stroke-width:2;stroke-dasharray:21;animation:pgxdraw .5s var(--dm-ease) .12s both}
 @keyframes pgxdraw{from{stroke-dashoffset:21}to{stroke-dashoffset:0}}
-:root[data-style=&quot;clean&quot;] .pgx.panel .pgx-done&gt;svg,:root [data-style=&quot;clean&quot;] .pgx.panel .pgx-done&gt;svg,:root [data-style=&quot;clean&quot;].pgx.panel .pgx-done&gt;svg{width:32px;height:32px;padding:8px;box-sizing:border-box;border-radius:50%;background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-hair);color:var(--dm-fg2)}
+:root[data-style=&quot;clean&quot;] .pgx.panel .pgx-done&gt;svg,:root [data-style=&quot;clean&quot;] .pgx.panel .pgx-done&gt;svg,:root [data-style=&quot;clean&quot;].pgx.panel .pgx-done&gt;svg{width:32px;height:32px;margin:0;padding:8px;box-sizing:border-box;border-radius:50%;background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-hair);color:var(--dm-fg2)}
 @media (prefers-reduced-motion:reduce){:root[data-style=&quot;clean&quot;] :is(.pgx-o .bx,.pgx-o .bx svg,.pgx-done .g),:root [data-style=&quot;clean&quot;] :is(.pgx-o .bx,.pgx-o .bx svg,.pgx-done .g),:root [data-style=&quot;clean&quot;]:is(.pgx-o .bx,.pgx-o .bx svg,.pgx-done .g){transition:none}:root[data-style=&quot;clean&quot;] :is(.pgx-cnt&gt;i,.pgx-done.ok .g svg),:root [data-style=&quot;clean&quot;] :is(.pgx-cnt&gt;i,.pgx-done.ok .g svg),:root [data-style=&quot;clean&quot;]:is(.pgx-cnt&gt;i,.pgx-done.ok .g svg){animation:none}}
-</code></pre></details><details class="cp-file"><summary>permission-gate.js<span class="l">HTML · 126 lines</span></summary><pre class="cp-pre" data-name="permission-gate.js"><code>DM.def(&#39;permission-gate&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>permission-gate.js<span class="l">HTML · 124 lines</span></summary><pre class="cp-pre" data-name="permission-gate.js"><code>DM.def(&#39;permission-gate&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{figma}&#39;, I(&#39;figma&#39;)).replace(/\{chk\}/g, I(&#39;check&#39;,&#39;xs&#39;)).replace(&#39;{chev}&#39;, I(&#39;chev-d&#39;,&#39;xs&#39;));
   const root = $(&#39;.pgx&#39;, r), ok = $(&#39;.pgx-ok&#39;, r), no = $(&#39;.pgx-no&#39;, r), sc = $(&#39;.pgx-sc&#39;, r), title = $(&#39;.pgx-ht b&#39;, r), sub = $(&#39;.pgx-ht .muted&#39;, r);
   const first = { sc:sc.innerHTML, title:title.textContent, sub:sub.textContent, no:no.textContent };
   const boxes = () =&gt; $$(&#39;.pgx-o input&#39;, sc);
-  // Clean (owner, 18 Nov) has its own touches: the card fits what it holds at every moment (grow(), never a kept height),
+  // the card fits what it holds at every moment, in every style (grow(), never a kept height: owner, 17 and 18 Nov). Clean
+  // (owner, 18 Nov) has its own touches:
   // the count on Allow rolls, the answer gets a summary line in the foot strip, and the done mark is a tick that draws.
   // Soft and Blueprint keep theirs
   const ds = r.closest(&#39;[data-style]&#39;), clean = !!ds &amp;&amp; ds.dataset.style === &#39;clean&#39;;
   // grow() starts once the card&#39;s entrance (which scales it from .98) has ended, so it measures the card at its real size
-  if (clean) Promise.resolve().then(() =&gt; Promise.all(root.getAnimations().map(a =&gt; a.finished.catch(() =&gt; {})))).then(() =&gt; { if (!c.dead &amp;&amp; root.isConnected) c.offs.push(grow(root)); });
+  Promise.resolve().then(() =&gt; Promise.all(root.getAnimations().map(a =&gt; a.finished.catch(() =&gt; {})))).then(() =&gt; { if (!c.dead &amp;&amp; root.isConnected) c.offs.push(grow(root)); });
   // where a result row goes: in the card, or in grow()&#39;s wrapper inside it
   const into = () =&gt; $(&#39;:scope&gt;.dm-grow&#39;, root) || root;
   // how long: This task, Today or Always, from the dropdown in the footer
@@ -960,7 +1016,10 @@ const { class: className, ...rest } = Astro.props;
   const label = n =&gt; n ? `&lt;span class=&quot;pgx-l&quot;&gt;Allow &lt;span class=&quot;pgx-cnt&quot;&gt;&lt;i&gt;${n}&lt;/i&gt;&lt;/span&gt; &lt;span class=&quot;pgx-w&quot;&gt;${word(n)}&lt;/span&gt;&lt;/span&gt;` : &#39;Pick a scope&#39;;
   let shown = 0;
   const roll = (cnt, n, up) =&gt; { const old = cnt.lastElementChild, nu = document.createElement(&#39;i&#39;); nu.textContent = n; nu.className = up ? &#39;iu&#39; : &#39;id&#39;; if (old){ old.className = up ? &#39;ou&#39; : &#39;od&#39;; setTimeout(() =&gt; old.remove(), REDUCE ? 0 : 300); } cnt.appendChild(nu); };
-  const count = () =&gt; { const n = boxes().filter(b =&gt; b.checked).length; ok.disabled = !n;
+  // Clean asks again for its one scope as a plain row (nothing to tick), and its button just says Allow
+  const one = () =&gt; $(&#39;.pgx-o.one&#39;, sc);
+  const count = () =&gt; { if (one()){ ok.disabled = false; shown = 0; return swap(ok, &#39;Allow&#39;); }
+    const n = boxes().filter(b =&gt; b.checked).length; ok.disabled = !n;
     if (!clean) return swap(ok, n ? &#39;Allow &#39; + n + (n &gt; 1 ? &#39; scopes&#39; : &#39; scope&#39;) : &#39;Pick a scope&#39;);
     const cnt = $(&#39;.pgx-cnt&#39;, ok);
     if (n &amp;&amp; shown &amp;&amp; cnt &amp;&amp; !ok._sw){ if (n !== shown){ roll(cnt, n, n &gt; shown); swap($(&#39;.pgx-w&#39;, ok), word(n)); } }
@@ -970,42 +1029,34 @@ const { class: className, ...rest } = Astro.props;
   c.on(sc, &#39;change&#39;, count);
   $$(&#39;.pgx-pop .mi&#39;, r).forEach(m =&gt; m.addEventListener(&#39;click&#39;, () =&gt; { dur = m.dataset.v; $$(&#39;.pgx-pop .mi&#39;, r).forEach(x =&gt; x.setAttribute(&#39;aria-checked&#39;, x === m)); swap($(&#39;.pgx-dv&#39;, r), dur === &#39;Always&#39; ? &#39;Always&#39; : &#39;For &#39; + dur.toLowerCase()); }));
   const body = [sc, $(&#39;.pgx-f&#39;, r)];
-  // the scopes give way to a shorter result row: on the card it keeps the height it had and centres the row (hold). In Clean
-  // the card eases to the row&#39;s height instead
-  const show = on =&gt; { if (!on &amp;&amp; c.card &amp;&amp; !clean &amp;&amp; !root.classList.contains(&#39;held&#39;)) hold(root); body.forEach(e =&gt; e.hidden = !on); if (on) stagger(body, 50); };
+  // the scopes give way to a shorter result row, and the card eases to its height (grow())
+  const show = on =&gt; { body.forEach(e =&gt; e.hidden = !on); if (on) stagger(body, 50); };
   // Clean&#39;s summary line in the foot strip: the scopes you allowed, by name, or how many on a narrow stage
   let names = [];
   const sum = (el, text, short = text) =&gt; { if (!clean) return; const s = el.appendChild(html(`&lt;span class=&quot;pgx-sum&quot;&gt;&lt;span class=&quot;l&quot;&gt;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&lt;/span&gt;&lt;/span&gt;`)); s.firstChild.textContent = text; s.lastChild.textContent = short; };
   // the frames the agent edits once it may. Plan toggle is a library component, so editing it needs Publish library
   const F = [&#39;Hero&#39;, &#39;Plan cards&#39;, &#39;Compare table&#39;, &#39;FAQ&#39;, &#39;Plan toggle&#39;, &#39;Checkout summary&#39;], LIB = 4;
-  const clock = s =&gt; Math.floor(s / 60) + &#39;:&#39; + String(s % 60).padStart(2, &#39;0&#39;);
-  // the clock counts the agent&#39;s working time only, not the time it waits for you
-  let granted = 0, publish = false, skip = false, done = 0, ms = 0, run = 0, panel = null;
+  let granted = 0, publish = false, skip = false, done = 0, run = 0, panel = null;
   function row(){
-    panel = html(`&lt;div class=&quot;pgx-done run&quot;&gt;&lt;span class=&quot;g&quot;&gt;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;t&quot;&gt;&lt;b class=&quot;pgx-a&quot;&gt;&lt;/b&gt;&lt;span class=&quot;pgx-d&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;pgx-tm num&quot;&gt;&lt;/span&gt;&lt;button class=&quot;pill ghost sm&quot;&gt;Revoke&lt;/button&gt;&lt;/div&gt;`);
+    panel = html(`&lt;div class=&quot;pgx-done run&quot;&gt;&lt;span class=&quot;g&quot;&gt;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;t&quot;&gt;&lt;b class=&quot;pgx-a&quot;&gt;&lt;/b&gt;&lt;span class=&quot;pgx-d&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;button class=&quot;pill ghost sm&quot;&gt;Revoke&lt;/button&gt;&lt;/div&gt;`);
     sum(panel, names.join(&#39;, &#39;), `${names.length} ${word(names.length)} allowed`);
     into().appendChild(panel); enter(panel); $(&#39;button&#39;, panel).onclick = revoke;
   }
   // the agent works through the frames under what it was given, and stops to ask when it reaches one it may not touch
   function work(){
     const id = ++run; if (!panel) row();
-    const a = $(&#39;.pgx-a&#39;, panel), d = $(&#39;.pgx-d&#39;, panel), tm = $(&#39;.pgx-tm&#39;, panel);
+    const a = $(&#39;.pgx-a&#39;, panel), d = $(&#39;.pgx-d&#39;, panel);
     swap(a, `Allowed ${granted} ${granted &gt; 1 ? &#39;scopes&#39; : &#39;scope&#39;} ${span()}`);
-    const t0 = performance.now(), now = () =&gt; ms + performance.now() - t0;
-    tm.textContent = clock(Math.floor(ms / 1000));
     c.run(async () =&gt; {
-      const tick = c.every(250, () =&gt; { if (run === id) tm.textContent = clock(Math.floor(now() / 1000)); });
-      try {
-        while (done &lt; F.length){
-          if (done === LIB &amp;&amp; !publish &amp;&amp; !skip) return ask();
-          swap(d, done === LIB &amp;&amp; skip ? `Skipping ${F[done]}` : `Editing ${F[done]} · ${done + 1} of ${F.length}`);
-          await c.wait(900); if (run !== id) return;
-          done++;
-        }
-        panel.classList.replace(&#39;run&#39;, &#39;ok&#39;); const g = $(&#39;.g&#39;, panel); g.innerHTML = clean ? I(&#39;check&#39;) : I(&#39;ok&#39;); enter(g);
-        swap(a, skip ? `Done. ${F.length - 1} frames edited` : `Done. ${F.length} frames edited`);
-        swap(d, skip ? &#39;On a new page. Plan toggle skipped&#39; : &#39;On a new page. Plan toggle published&#39;);
-      } finally { clearInterval(tick); if (run === id) ms = now(); }
+      while (done &lt; F.length){
+        if (done === LIB &amp;&amp; !publish &amp;&amp; !skip) return ask();
+        swap(d, done === LIB &amp;&amp; skip ? `Skipping ${F[done]}` : `Editing ${F[done]} · ${done + 1} of ${F.length}`);
+        await c.wait(900); if (run !== id) return;
+        done++;
+      }
+      panel.classList.replace(&#39;run&#39;, &#39;ok&#39;); const g = $(&#39;.g&#39;, panel); g.innerHTML = clean ? I(&#39;check&#39;) : I(&#39;ok&#39;); enter(g);
+      swap(a, skip ? `Done. ${F.length - 1} frames edited` : `Done. ${F.length} frames edited`);
+      swap(d, skip ? &#39;On a new page. Plan toggle skipped&#39; : &#39;On a new page. Plan toggle published&#39;);
     });
   }
   // asks again, for only the scope it now needs
@@ -1014,33 +1065,35 @@ const { class: className, ...rest } = Astro.props;
     root.classList.add(&#39;esc&#39;); swap(title, &#39;Also allow Publish library?&#39;); swap(sub, `${F[LIB]}, frame ${LIB + 1} of ${F.length}, is a library component`);
     c.later(300, () =&gt; {
       p.remove();
-      sc.innerHTML = `&lt;label class=&quot;pgx-o&quot; data-k=&quot;publish&quot;&gt;&lt;input type=&quot;checkbox&quot; checked&gt;&lt;span class=&quot;bx&quot;&gt;${I(&#39;check&#39;,&#39;xs&#39;)}&lt;/span&gt;&lt;span class=&quot;t&quot;&gt;Publish library&lt;span class=&quot;d&quot;&gt;Updates Checkout, Marketing site, Email kit and Docs&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;tag warn&quot;&gt;Risky&lt;/span&gt;&lt;/label&gt;`;
+      sc.innerHTML = clean
+        ? `&lt;div class=&quot;pgx-o one&quot; data-k=&quot;publish&quot;&gt;&lt;span class=&quot;oi&quot;&gt;${I(&#39;upload&#39;)}&lt;/span&gt;&lt;span class=&quot;t&quot;&gt;Publish library&lt;span class=&quot;d&quot;&gt;Updates Checkout, Marketing site, Email kit and Docs&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;tag warn&quot;&gt;Risky&lt;/span&gt;&lt;/div&gt;`
+        : `&lt;label class=&quot;pgx-o&quot; data-k=&quot;publish&quot;&gt;&lt;input type=&quot;checkbox&quot; checked&gt;&lt;span class=&quot;bx&quot;&gt;${I(&#39;check&#39;,&#39;xs&#39;)}&lt;/span&gt;&lt;span class=&quot;t&quot;&gt;Publish library&lt;span class=&quot;d&quot;&gt;Updates Checkout, Marketing site, Email kit and Docs&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;tag warn&quot;&gt;Risky&lt;/span&gt;&lt;/label&gt;`;
       no.textContent = &#39;Skip this frame&#39;; count(); show(true);
     });
   }
   function reset(){
-    run++; granted = done = ms = 0; publish = skip = false; names = [];
+    run++; granted = done = 0; publish = skip = false; names = [];
     root.classList.remove(&#39;esc&#39;); sc.innerHTML = first.sc; swap(title, first.title); swap(sub, first.sub); no.textContent = first.no; count();
   }
-  function revoke(){ const p = panel; panel = null; run++; p.classList.add(&#39;leave&#39;); c.later(300, () =&gt; { p.remove(); release(root); reset(); show(true); }); }
+  function revoke(){ const p = panel; panel = null; run++; p.classList.add(&#39;leave&#39;); c.later(300, () =&gt; { p.remove(); reset(); show(true); }); }
   ok.onclick = () =&gt; c.run(async () =&gt; {
-    const picked = boxes().filter(b =&gt; b.checked); if (!picked.length) return;
-    granted += picked.length; if (picked.some(b =&gt; b.closest(&#39;.pgx-o&#39;).dataset.k === &#39;publish&#39;)) publish = true;
-    names.push(...picked.map(b =&gt; $(&#39;.t&#39;, b.closest(&#39;.pgx-o&#39;)).firstChild.textContent));
+    const picked = one() ? [one()] : boxes().filter(b =&gt; b.checked).map(b =&gt; b.closest(&#39;.pgx-o&#39;)); if (!picked.length) return;
+    granted += picked.length; if (picked.some(o =&gt; o.dataset.k === &#39;publish&#39;)) publish = true;
+    names.push(...picked.map(o =&gt; $(&#39;.t&#39;, o).firstChild.textContent));
     ok.innerHTML = &#39;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&#39;; await c.wait(500);
     // Clean: the scopes fade up and out before the card eases to the result row&#39;s height
     if (clean){ sc.classList.add(&#39;leave&#39;); await c.wait(180); sc.classList.remove(&#39;leave&#39;); }
     show(false);
     if (root.classList.contains(&#39;esc&#39;)){ root.classList.remove(&#39;esc&#39;); swap(title, first.title); swap(sub, first.sub); }
     // placed inside another component (Agent harness), it reports back without the run
-    if (!c.card){ row(); swap($(&#39;.pgx-a&#39;, panel), `Allowed ${granted} ${granted &gt; 1 ? &#39;scopes&#39; : &#39;scope&#39;} ${span()}`); swap($(&#39;.pgx-d&#39;, panel), &#39;Applying the pricing fixes now&#39;); $(&#39;.pgx-tm&#39;, panel).remove();
+    if (!c.card){ row(); swap($(&#39;.pgx-a&#39;, panel), `Allowed ${granted} ${granted &gt; 1 ? &#39;scopes&#39; : &#39;scope&#39;} ${span()}`); swap($(&#39;.pgx-d&#39;, panel), &#39;Applying the pricing fixes now&#39;);
       c.later(1400, () =&gt; { if (!panel) return; panel.classList.replace(&#39;run&#39;, &#39;ok&#39;); $(&#39;.g&#39;, panel).innerHTML = clean ? I(&#39;check&#39;) : I(&#39;ok&#39;); swap($(&#39;.pgx-d&#39;, panel), &#39;Done. 6 frames edited on a new page&#39;); }); return; }
     work();
   });
   no.onclick = () =&gt; {
     if (root.classList.contains(&#39;esc&#39;)){ skip = true; show(false); root.classList.remove(&#39;esc&#39;); swap(title, first.title); swap(sub, first.sub); work(); return; }
     show(false); const d = html(`&lt;div class=&quot;pgx-done&quot; style=&quot;background:var(--dm-chip)&quot;&gt;${I(&#39;info&#39;)}&lt;span class=&quot;t&quot;&gt;The agent will skip the Figma edits&lt;span&gt;It will list the fixes in chat instead&lt;/span&gt;&lt;/span&gt;&lt;button class=&quot;pill ghost sm&quot;&gt;Undo&lt;/button&gt;&lt;/div&gt;`);
-    sum(d, &#39;Nothing allowed in Figma&#39;); into().appendChild(d); enter(d); $(&#39;button&#39;, d).onclick = () =&gt; { d.remove(); release(root); show(true); };
+    sum(d, &#39;Nothing allowed in Figma&#39;); into().appendChild(d); enter(d); $(&#39;button&#39;, d).onclick = () =&gt; { d.remove(); show(true); };
   };
   // the preview&#39;s story: hold back the risky scope, allow the rest, then grant it when the agent needs it for one frame
   c.story(async s =&gt; {
@@ -1405,12 +1458,13 @@ const fitHits = window.dmFitHits || (() => {
   const root = $('.pgx', r), ok = $('.pgx-ok', r), no = $('.pgx-no', r), sc = $('.pgx-sc', r), title = $('.pgx-ht b', r), sub = $('.pgx-ht .muted', r);
   const first = { sc:sc.innerHTML, title:title.textContent, sub:sub.textContent, no:no.textContent };
   const boxes = () => $$('.pgx-o input', sc);
-  // Clean (owner, 18 Nov) has its own touches: the card fits what it holds at every moment (grow(), never a kept height),
+  // the card fits what it holds at every moment, in every style (grow(), never a kept height: owner, 17 and 18 Nov). Clean
+  // (owner, 18 Nov) has its own touches:
   // the count on Allow rolls, the answer gets a summary line in the foot strip, and the done mark is a tick that draws.
   // Soft and Blueprint keep theirs
   const ds = r.closest('[data-style]'), clean = !!ds && ds.dataset.style === 'clean';
   // grow() starts once the card's entrance (which scales it from .98) has ended, so it measures the card at its real size
-  if (clean) Promise.resolve().then(() => Promise.all(root.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && root.isConnected) c.offs.push(grow(root)); });
+  Promise.resolve().then(() => Promise.all(root.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && root.isConnected) c.offs.push(grow(root)); });
   // where a result row goes: in the card, or in grow()'s wrapper inside it
   const into = () => $(':scope>.dm-grow', root) || root;
   // how long: This task, Today or Always, from the dropdown in the footer
@@ -1421,7 +1475,10 @@ const fitHits = window.dmFitHits || (() => {
   const label = n => n ? `<span class="pgx-l">Allow <span class="pgx-cnt"><i>${n}</i></span> <span class="pgx-w">${word(n)}</span></span>` : 'Pick a scope';
   let shown = 0;
   const roll = (cnt, n, up) => { const old = cnt.lastElementChild, nu = document.createElement('i'); nu.textContent = n; nu.className = up ? 'iu' : 'id'; if (old){ old.className = up ? 'ou' : 'od'; setTimeout(() => old.remove(), REDUCE ? 0 : 300); } cnt.appendChild(nu); };
-  const count = () => { const n = boxes().filter(b => b.checked).length; ok.disabled = !n;
+  // Clean asks again for its one scope as a plain row (nothing to tick), and its button just says Allow
+  const one = () => $('.pgx-o.one', sc);
+  const count = () => { if (one()){ ok.disabled = false; shown = 0; return swap(ok, 'Allow'); }
+    const n = boxes().filter(b => b.checked).length; ok.disabled = !n;
     if (!clean) return swap(ok, n ? 'Allow ' + n + (n > 1 ? ' scopes' : ' scope') : 'Pick a scope');
     const cnt = $('.pgx-cnt', ok);
     if (n && shown && cnt && !ok._sw){ if (n !== shown){ roll(cnt, n, n > shown); swap($('.pgx-w', ok), word(n)); } }
@@ -1431,42 +1488,34 @@ const fitHits = window.dmFitHits || (() => {
   c.on(sc, 'change', count);
   $$('.pgx-pop .mi', r).forEach(m => m.addEventListener('click', () => { dur = m.dataset.v; $$('.pgx-pop .mi', r).forEach(x => x.setAttribute('aria-checked', x === m)); swap($('.pgx-dv', r), dur === 'Always' ? 'Always' : 'For ' + dur.toLowerCase()); }));
   const body = [sc, $('.pgx-f', r)];
-  // the scopes give way to a shorter result row: on the card it keeps the height it had and centres the row (hold). In Clean
-  // the card eases to the row's height instead
-  const show = on => { if (!on && c.card && !clean && !root.classList.contains('held')) hold(root); body.forEach(e => e.hidden = !on); if (on) stagger(body, 50); };
+  // the scopes give way to a shorter result row, and the card eases to its height (grow())
+  const show = on => { body.forEach(e => e.hidden = !on); if (on) stagger(body, 50); };
   // Clean's summary line in the foot strip: the scopes you allowed, by name, or how many on a narrow stage
   let names = [];
   const sum = (el, text, short = text) => { if (!clean) return; const s = el.appendChild(html(`<span class="pgx-sum"><span class="l"></span><span class="s"></span></span>`)); s.firstChild.textContent = text; s.lastChild.textContent = short; };
   // the frames the agent edits once it may. Plan toggle is a library component, so editing it needs Publish library
   const F = ['Hero', 'Plan cards', 'Compare table', 'FAQ', 'Plan toggle', 'Checkout summary'], LIB = 4;
-  const clock = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
-  // the clock counts the agent's working time only, not the time it waits for you
-  let granted = 0, publish = false, skip = false, done = 0, ms = 0, run = 0, panel = null;
+  let granted = 0, publish = false, skip = false, done = 0, run = 0, panel = null;
   function row(){
-    panel = html(`<div class="pgx-done run"><span class="g"><span class="spin"></span></span><span class="t"><b class="pgx-a"></b><span class="pgx-d"></span></span><span class="pgx-tm num"></span><button class="pill ghost sm">Revoke</button></div>`);
+    panel = html(`<div class="pgx-done run"><span class="g"><span class="spin"></span></span><span class="t"><b class="pgx-a"></b><span class="pgx-d"></span></span><button class="pill ghost sm">Revoke</button></div>`);
     sum(panel, names.join(', '), `${names.length} ${word(names.length)} allowed`);
     into().appendChild(panel); enter(panel); $('button', panel).onclick = revoke;
   }
   // the agent works through the frames under what it was given, and stops to ask when it reaches one it may not touch
   function work(){
     const id = ++run; if (!panel) row();
-    const a = $('.pgx-a', panel), d = $('.pgx-d', panel), tm = $('.pgx-tm', panel);
+    const a = $('.pgx-a', panel), d = $('.pgx-d', panel);
     swap(a, `Allowed ${granted} ${granted > 1 ? 'scopes' : 'scope'} ${span()}`);
-    const t0 = performance.now(), now = () => ms + performance.now() - t0;
-    tm.textContent = clock(Math.floor(ms / 1000));
     c.run(async () => {
-      const tick = c.every(250, () => { if (run === id) tm.textContent = clock(Math.floor(now() / 1000)); });
-      try {
-        while (done < F.length){
-          if (done === LIB && !publish && !skip) return ask();
-          swap(d, done === LIB && skip ? `Skipping ${F[done]}` : `Editing ${F[done]} · ${done + 1} of ${F.length}`);
-          await c.wait(900); if (run !== id) return;
-          done++;
-        }
-        panel.classList.replace('run', 'ok'); const g = $('.g', panel); g.innerHTML = clean ? I('check') : I('ok'); enter(g);
-        swap(a, skip ? `Done. ${F.length - 1} frames edited` : `Done. ${F.length} frames edited`);
-        swap(d, skip ? 'On a new page. Plan toggle skipped' : 'On a new page. Plan toggle published');
-      } finally { clearInterval(tick); if (run === id) ms = now(); }
+      while (done < F.length){
+        if (done === LIB && !publish && !skip) return ask();
+        swap(d, done === LIB && skip ? `Skipping ${F[done]}` : `Editing ${F[done]} · ${done + 1} of ${F.length}`);
+        await c.wait(900); if (run !== id) return;
+        done++;
+      }
+      panel.classList.replace('run', 'ok'); const g = $('.g', panel); g.innerHTML = clean ? I('check') : I('ok'); enter(g);
+      swap(a, skip ? `Done. ${F.length - 1} frames edited` : `Done. ${F.length} frames edited`);
+      swap(d, skip ? 'On a new page. Plan toggle skipped' : 'On a new page. Plan toggle published');
     });
   }
   // asks again, for only the scope it now needs
@@ -1475,33 +1524,35 @@ const fitHits = window.dmFitHits || (() => {
     root.classList.add('esc'); swap(title, 'Also allow Publish library?'); swap(sub, `${F[LIB]}, frame ${LIB + 1} of ${F.length}, is a library component`);
     c.later(300, () => {
       p.remove();
-      sc.innerHTML = `<label class="pgx-o" data-k="publish"><input type="checkbox" checked><span class="bx">${I('check','xs')}</span><span class="t">Publish library<span class="d">Updates Checkout, Marketing site, Email kit and Docs</span></span><span class="tag warn">Risky</span></label>`;
+      sc.innerHTML = clean
+        ? `<div class="pgx-o one" data-k="publish"><span class="oi">${I('upload')}</span><span class="t">Publish library<span class="d">Updates Checkout, Marketing site, Email kit and Docs</span></span><span class="tag warn">Risky</span></div>`
+        : `<label class="pgx-o" data-k="publish"><input type="checkbox" checked><span class="bx">${I('check','xs')}</span><span class="t">Publish library<span class="d">Updates Checkout, Marketing site, Email kit and Docs</span></span><span class="tag warn">Risky</span></label>`;
       no.textContent = 'Skip this frame'; count(); show(true);
     });
   }
   function reset(){
-    run++; granted = done = ms = 0; publish = skip = false; names = [];
+    run++; granted = done = 0; publish = skip = false; names = [];
     root.classList.remove('esc'); sc.innerHTML = first.sc; swap(title, first.title); swap(sub, first.sub); no.textContent = first.no; count();
   }
-  function revoke(){ const p = panel; panel = null; run++; p.classList.add('leave'); c.later(300, () => { p.remove(); release(root); reset(); show(true); }); }
+  function revoke(){ const p = panel; panel = null; run++; p.classList.add('leave'); c.later(300, () => { p.remove(); reset(); show(true); }); }
   ok.onclick = () => c.run(async () => {
-    const picked = boxes().filter(b => b.checked); if (!picked.length) return;
-    granted += picked.length; if (picked.some(b => b.closest('.pgx-o').dataset.k === 'publish')) publish = true;
-    names.push(...picked.map(b => $('.t', b.closest('.pgx-o')).firstChild.textContent));
+    const picked = one() ? [one()] : boxes().filter(b => b.checked).map(b => b.closest('.pgx-o')); if (!picked.length) return;
+    granted += picked.length; if (picked.some(o => o.dataset.k === 'publish')) publish = true;
+    names.push(...picked.map(o => $('.t', o).firstChild.textContent));
     ok.innerHTML = '<span class="spin"></span>'; await c.wait(500);
     // Clean: the scopes fade up and out before the card eases to the result row's height
     if (clean){ sc.classList.add('leave'); await c.wait(180); sc.classList.remove('leave'); }
     show(false);
     if (root.classList.contains('esc')){ root.classList.remove('esc'); swap(title, first.title); swap(sub, first.sub); }
     // placed inside another component (Agent harness), it reports back without the run
-    if (!c.card){ row(); swap($('.pgx-a', panel), `Allowed ${granted} ${granted > 1 ? 'scopes' : 'scope'} ${span()}`); swap($('.pgx-d', panel), 'Applying the pricing fixes now'); $('.pgx-tm', panel).remove();
+    if (!c.card){ row(); swap($('.pgx-a', panel), `Allowed ${granted} ${granted > 1 ? 'scopes' : 'scope'} ${span()}`); swap($('.pgx-d', panel), 'Applying the pricing fixes now');
       c.later(1400, () => { if (!panel) return; panel.classList.replace('run', 'ok'); $('.g', panel).innerHTML = clean ? I('check') : I('ok'); swap($('.pgx-d', panel), 'Done. 6 frames edited on a new page'); }); return; }
     work();
   });
   no.onclick = () => {
     if (root.classList.contains('esc')){ skip = true; show(false); root.classList.remove('esc'); swap(title, first.title); swap(sub, first.sub); work(); return; }
     show(false); const d = html(`<div class="pgx-done" style="background:var(--dm-chip)">${I('info')}<span class="t">The agent will skip the Figma edits<span>It will list the fixes in chat instead</span></span><button class="pill ghost sm">Undo</button></div>`);
-    sum(d, 'Nothing allowed in Figma'); into().appendChild(d); enter(d); $('button', d).onclick = () => { d.remove(); release(root); show(true); };
+    sum(d, 'Nothing allowed in Figma'); into().appendChild(d); enter(d); $('button', d).onclick = () => { d.remove(); show(true); };
   };
   // the preview's story: hold back the risky scope, allow the rest, then grant it when the agent needs it for one frame
   c.story(async s => {

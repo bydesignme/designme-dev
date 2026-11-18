@@ -3,10 +3,13 @@
 /* a trigger that names the model and how hard it thinks, over the open list: speed, quality and cost as five-step meters
    with the real numbers on hover, and the thinking effort under them as a small dropdown */
 .mpk{position:relative;display:flex;flex-direction:column;gap:var(--dm-s-2);width:100%;max-width:420px;margin:0 auto}
-.mpk-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 2px}
+.mpk-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .mpk-lb{font-size:12.5px}
-.mpk-tr{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 10px 0 6px;border-radius:var(--dm-r-pill);background:var(--dm-surface);box-shadow:var(--dm-shadow);font-size:13px;font-weight:500;white-space:nowrap;transition:box-shadow .16s}
-@media (hover:hover) and (pointer:fine){.mpk-tr:hover{box-shadow:var(--dm-shadow-pop)}}
+/* Soft's model trigger is a flat button with a faint hairline (owner, 18 Nov: minimal), a step stronger under the pointer */
+.mpk-tr{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 10px 0 6px;border-radius:var(--dm-r-pill);background:var(--dm-surface);box-shadow:var(--dm-on-tint-btn);font-size:13px;font-weight:500;white-space:nowrap;transition:box-shadow .16s}
+@media (hover:hover) and (pointer:fine){.mpk-tr:hover{box-shadow:var(--dm-on-tint-btn-h)}}
+:root:not([data-style="soft"],[data-style="clean"]) .mpk-tr:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:var(--dm-shadow)}
+@media (hover:hover) and (pointer:fine){:root:not([data-style="soft"],[data-style="clean"]) .mpk-tr:hover:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:var(--dm-shadow-pop)}}
 .mpk-tr>svg{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
 .mpk-tr[aria-expanded="true"]>svg{transform:rotate(180deg)}
 .mpk-tr:focus-visible{outline:2px solid var(--dm-focus);outline-offset:2px}
@@ -34,18 +37,24 @@
 .mpk-m i{flex:1;border-radius:var(--dm-r-tiny,2px);background:var(--dm-rail);transition:background .32s}
 .mpk-m i.on{background:var(--dm-fg2)}
 .mpk-o[aria-checked="true"]:not(.busy) .mpk-m i.on{background:var(--dm-accent-mark,var(--dm-accent))}
-/* the way out when a model can't take the request: wait for it, or a close match that starts now */
-.mpk-sg{margin:var(--dm-s-1) var(--dm-s-1) 2px;padding:10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-warn-bg);display:flex;flex-direction:column;gap:var(--dm-s-2)}
-.mpk-sgt{margin:0;font-size:12.5px;line-height:1.45}
-.mpk-sga{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:6px}
-/* on the amber notice the secondary button is white, not grey */
-.mpk-sg .pill.ghost{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-shadow)}
-@media (hover:hover) and (pointer:fine){.mpk-sg .pill.ghost:hover{box-shadow:var(--dm-shadow-pop)}}
-.mpk-th{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--dm-s-2) var(--dm-s-3);padding:var(--dm-s-3) 10px 6px;margin:6px var(--dm-s-1) 0;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.mpk-thh{display:flex;flex-direction:column;min-width:0;font-size:13px}
-.mpk-thh b{font-weight:500;display:flex;align-items:center;gap:6px}
-.mpk-thh b svg{color:var(--dm-muted)}
-.mpk-thd{font-size:12px}
+/* the way out when a model can't take the request: wait for it, or a close match that starts now. A warning notice (owner,
+   18 Nov): a faint warning tint as wide as the rows' fills, the filled warning sign in the rows' tile column, the words in
+   the text colour on the names' column, and the action in its status tint (.pill.warn), ending where the meters end */
+.mpk-sg{margin:var(--dm-s-1) 0 2px;padding:10px;border-radius:var(--dm-r-in);background:color-mix(in srgb,var(--dm-warn-bg) 45%,transparent);display:grid;grid-template-columns:20px minmax(0,1fr);align-items:start;gap:10px}
+.mpk-sgi{grid-area:1/1;justify-self:center;width:16px;height:16px;margin-top:1px;overflow:visible}
+.mpk-sgi .a{fill:var(--dm-warn-mark);stroke:var(--dm-warn-mark);stroke-width:2;stroke-linejoin:round}
+.mpk-sgi .b{fill:none;stroke:var(--dm-surface);stroke-width:2.2;stroke-linecap:round}
+.mpk-sgt{grid-area:1/2;margin:0;font-size:12.5px;line-height:18px;color:var(--dm-fg)}
+.mpk-sga{grid-area:2/1/3/3;display:flex;justify-content:flex-end;flex-wrap:wrap;gap:6px}
+/* on the tinted notice the secondary button is white, not grey */
+.mpk-sg .pill.ghost{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-on-tint-btn)}
+@media (hover:hover) and (pointer:fine){.mpk-sg .pill.ghost:hover{box-shadow:var(--dm-on-tint-btn-h)}}
+.mpk-th{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--dm-s-2) var(--dm-s-3);padding:var(--dm-s-3) 10px 6px;margin:6px 0 0;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+/* Thinking sits on the rows' columns: its icon centred in the tiles' column, its words on the names' column */
+.mpk-thh{display:grid;grid-template-columns:20px minmax(0,1fr);align-items:center;column-gap:10px;min-width:0;font-size:13px}
+.mpk-thh b{font-weight:500;display:contents}
+.mpk-thh b svg{justify-self:center;color:var(--dm-muted)}
+.mpk-thd{grid-column:2;font-size:12px}
 .mpk-eb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--dm-s-2) 0 10px;border-radius:var(--dm-r-pill);background:var(--dm-chip);font-size:13px;transition:background .16s}
 .mpk-eb[aria-expanded="true"]{background:var(--dm-hover)}
 @media (hover:hover) and (pointer:fine){.mpk-eb:hover{background:var(--dm-hover)}}
@@ -56,7 +65,7 @@
 .mpk-note svg{color:var(--dm-ok);flex:none}
 /* phones: the line under each name wraps, and the meters keep room for their labels */
 /* on a phone the meters close up so a model's line keeps two or three words to a row */
-@media (max-width:480px){.mpk-hd,.mpk-o{grid-template-columns:20px minmax(0,1fr) repeat(3,34px);gap:6px}.mpk-hd{font-size:10.5px;padding-inline:6px}.mpk-o{padding-inline:6px}.mpk-o .d{white-space:normal}}
+@media (max-width:480px){.mpk-hd,.mpk-o{grid-template-columns:20px minmax(0,1fr) repeat(3,34px);gap:6px}.mpk-hd{font-size:10.5px;padding-inline:6px}.mpk-o,.mpk-th,.mpk-sg{padding-inline:6px}:is(.mpk-sg,.mpk-thh){column-gap:6px}.mpk-o .d{white-space:normal}}
 /* Clean (owner, 18 Nov): one measure inside the popover. Its content sits 16px in from each edge: the column heads, each
    row's mark and meters (the rows sit 8px in, with 8px of their own) and the foot's text. The picked row's fill is
    concentric with the popover's corners (22px = its 14px + the 8px inset), and the foot strip's select sits 8px from the
@@ -65,12 +74,14 @@
    from it */
 :root[data-style="clean"] .mpk-tr,:root [data-style="clean"] .mpk-tr,:root [data-style="clean"].mpk-tr{gap:8px;padding:0 10px 0 6px;color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth);transition:box-shadow var(--dm-t-fast) var(--dm-ease),transform var(--dm-t-fast) var(--dm-ease)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .mpk-tr:hover,:root [data-style="clean"] .mpk-tr:hover,:root [data-style="clean"].mpk-tr:hover{box-shadow:var(--dm-btn2-hover)}}
-:root[data-style="clean"] .mpk-tr:active,:root [data-style="clean"] .mpk-tr:active,:root [data-style="clean"].mpk-tr:active{transform:scale(.97);box-shadow:var(--dm-btn2-press)}
+:root[data-style="clean"] .mpk-tr:active,:root [data-style="clean"] .mpk-tr:active,:root [data-style="clean"].mpk-tr:active{box-shadow:var(--dm-btn2-press)}
 :root[data-style="clean"] .mpk-tr>svg,:root [data-style="clean"] .mpk-tr>svg,:root [data-style="clean"].mpk-tr>svg{transition:transform var(--dm-t) var(--dm-ease)}
 :root[data-style="clean"] .mpk-p.panel,:root [data-style="clean"] .mpk-p.panel,:root [data-style="clean"].mpk-p.panel{padding:0;transform-origin:top right;transition:opacity var(--dm-t) var(--dm-ease),transform .32s var(--dm-ease)}
 :root[data-style="clean"] .mpk-fold.shut .mpk-p,:root [data-style="clean"] .mpk-fold.shut .mpk-p,:root [data-style="clean"].mpk-fold.shut .mpk-p{opacity:0;transform:translateY(-4px) scale(.96)}
 :root[data-style="clean"] :is(.mpk-hd,.mpk-o),:root [data-style="clean"] :is(.mpk-hd,.mpk-o),:root [data-style="clean"]:is(.mpk-hd,.mpk-o){grid-template-columns:20px minmax(0,1fr) repeat(3,40px);gap:10px}
-:root[data-style="clean"] .mpk-hd,:root [data-style="clean"] .mpk-hd,:root [data-style="clean"].mpk-hd{padding:16px 16px 4px;line-height:16px}
+/* the column heads take only their own line: 16px from the top edge, the first row straight under them (no band above or
+   below them) */
+:root[data-style="clean"] .mpk-hd,:root [data-style="clean"] .mpk-hd,:root [data-style="clean"].mpk-hd{padding:16px 16px 0;line-height:13px}
 :root[data-style="clean"] .mpk-list,:root [data-style="clean"] .mpk-list,:root [data-style="clean"].mpk-list{padding:0 8px 8px}
 :root[data-style="clean"] .mpk-o,:root [data-style="clean"] .mpk-o,:root [data-style="clean"].mpk-o{padding:8px;border-radius:calc(var(--dm-r-card) - 8px);transition:background-color var(--dm-t-fast) var(--dm-ease)}
 :root[data-style="clean"] .mpk-o[aria-checked="true"],:root [data-style="clean"] .mpk-o[aria-checked="true"],:root [data-style="clean"].mpk-o[aria-checked="true"]{background:var(--dm-chip)}
@@ -98,30 +109,37 @@
 :root[data-style="clean"] .mpk-m i:nth-child(3),:root [data-style="clean"] .mpk-m i:nth-child(3),:root [data-style="clean"].mpk-m i:nth-child(3){--dm-mpi:2}
 :root[data-style="clean"] .mpk-m i:nth-child(4),:root [data-style="clean"] .mpk-m i:nth-child(4),:root [data-style="clean"].mpk-m i:nth-child(4){--dm-mpi:3}
 :root[data-style="clean"] .mpk-m i:nth-child(5),:root [data-style="clean"] .mpk-m i:nth-child(5),:root [data-style="clean"].mpk-m i:nth-child(5){--dm-mpi:4}
-/* the way out when a model is busy: its own section under the rows, between hairlines, with its buttons 16px in */
-:root[data-style="clean"] .mpk-sg,:root [data-style="clean"] .mpk-sg,:root [data-style="clean"].mpk-sg{margin:0;padding:16px;border-radius:0;background:none;border-top:1px solid var(--dm-line);gap:12px}
-:root[data-style="clean"] .mpk-sgt,:root [data-style="clean"] .mpk-sgt,:root [data-style="clean"].mpk-sgt{color:var(--dm-fg2)}
+/* the way out when a model is busy: the warning notice under the rows, as wide as their fills and with their corners, its sign
+   in their tile column, its words on the names' column and its buttons ending where the meters end */
+:root[data-style="clean"] .mpk-sg,:root [data-style="clean"] .mpk-sg,:root [data-style="clean"].mpk-sg{margin:4px 8px 8px;padding:12px 8px;border-radius:calc(var(--dm-r-card) - 8px);gap:12px 10px}
 :root[data-style="clean"] .mpk-sga,:root [data-style="clean"] .mpk-sga,:root [data-style="clean"].mpk-sga{gap:8px}
 :root[data-style="clean"] .mpk-sg .pill.ghost,:root [data-style="clean"] .mpk-sg .pill.ghost,:root [data-style="clean"].mpk-sg .pill.ghost{color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .mpk-sg .pill.ghost:hover,:root [data-style="clean"] .mpk-sg .pill.ghost:hover,:root [data-style="clean"].mpk-sg .pill.ghost:hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
 :root[data-style="clean"] .mpk-sg .pill.ghost:active,:root [data-style="clean"] .mpk-sg .pill.ghost:active,:root [data-style="clean"].mpk-sg .pill.ghost:active{box-shadow:var(--dm-btn2-press)}
 /* the foot strip: thinking on one line, 16px in, and its select a secondary pill 8px from the corner */
 :root[data-style="clean"] .mpk-th,:root [data-style="clean"] .mpk-th,:root [data-style="clean"].mpk-th{flex-wrap:nowrap;gap:12px;margin:0;padding:8px 8px 8px 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
-:root[data-style="clean"] .mpk-thh,:root [data-style="clean"] .mpk-thh,:root [data-style="clean"].mpk-thh{flex-direction:row;align-items:baseline;gap:8px;min-width:0;white-space:nowrap}
-:root[data-style="clean"] .mpk-thh b,:root [data-style="clean"] .mpk-thh b,:root [data-style="clean"].mpk-thh b{flex:none;align-self:center}
+:root[data-style="clean"] .mpk-thh,:root [data-style="clean"] .mpk-thh,:root [data-style="clean"].mpk-thh{display:flex;flex-direction:row;align-items:center;gap:8px;min-width:0;white-space:nowrap;line-height:20px}
+:root[data-style="clean"] .mpk-thh b,:root [data-style="clean"] .mpk-thh b,:root [data-style="clean"].mpk-thh b{display:flex;align-items:center;gap:6px;flex:none}
+:root[data-style="clean"] .mpk-thd,:root [data-style="clean"] .mpk-thd,:root [data-style="clean"].mpk-thd{grid-column:auto}
 :root[data-style="clean"] .mpk-thd,:root [data-style="clean"] .mpk-thd,:root [data-style="clean"].mpk-thd{min-width:0;overflow:hidden;text-overflow:ellipsis}
 :root[data-style="clean"] .mpk-eb,:root [data-style="clean"] .mpk-eb,:root [data-style="clean"].mpk-eb{flex:none;gap:6px;height:28px;padding:0 10px 0 12px;font-weight:500;color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth);transition:box-shadow var(--dm-t-fast) var(--dm-ease),transform var(--dm-t-fast) var(--dm-ease)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] :is(.mpk-eb:hover,.mpk-eb[aria-expanded="true"]),:root [data-style="clean"] :is(.mpk-eb:hover,.mpk-eb[aria-expanded="true"]),:root [data-style="clean"]:is(.mpk-eb:hover,.mpk-eb[aria-expanded="true"]){background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
-:root[data-style="clean"] .mpk-eb:active,:root [data-style="clean"] .mpk-eb:active,:root [data-style="clean"].mpk-eb:active{transform:scale(.97);box-shadow:var(--dm-btn2-press)}
+:root[data-style="clean"] .mpk-eb:active,:root [data-style="clean"] .mpk-eb:active,:root [data-style="clean"].mpk-eb:active{box-shadow:var(--dm-btn2-press)}
 :root[data-style="clean"] .mpk-pop,:root [data-style="clean"] .mpk-pop,:root [data-style="clean"].mpk-pop{padding:6px;border-radius:var(--dm-r-card)}
 :root[data-style="clean"] .mpk-pop .mi,:root [data-style="clean"] .mpk-pop .mi,:root [data-style="clean"].mpk-pop .mi{border-radius:calc(var(--dm-r-card) - 6px)}
 /* the confirmation under the popover takes no room until it has something to say, and opens smoothly when it does */
 :root[data-style="clean"] .mpk-note,:root [data-style="clean"] .mpk-note,:root [data-style="clean"].mpk-note{min-height:0;max-height:0;margin-top:-8px;opacity:0;overflow:hidden;transition:max-height var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease),opacity var(--dm-t) var(--dm-ease)}
 :root[data-style="clean"] .mpk-note:not(:empty),:root [data-style="clean"] .mpk-note:not(:empty),:root [data-style="clean"].mpk-note:not(:empty){max-height:40px;margin-top:0;opacity:1}
+/* the confirmation is the card's last strip, under Thinking: it opens once there is something to say, its words 16px in,
+   and the strip above it gives the card's round foot to it while it shows. Nothing sits under the card */
+:root[data-style="clean"] .mpk-p>.mpk-note,:root [data-style="clean"] .mpk-p>.mpk-note,:root [data-style="clean"].mpk-p>.mpk-note{margin:0;padding:0 16px;gap:8px;background:var(--dm-strip);border-top:0 solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card);line-height:28px;white-space:nowrap;transition:max-height var(--dm-t) var(--dm-ease),padding var(--dm-t) var(--dm-ease),opacity var(--dm-t) var(--dm-ease)}
+:root[data-style="clean"] .mpk-p>.mpk-note:not(:empty),:root [data-style="clean"] .mpk-p>.mpk-note:not(:empty),:root [data-style="clean"].mpk-p>.mpk-note:not(:empty){max-height:45px;padding:8px 16px;border-top-width:1px}
+:root[data-style="clean"] .mpk-p>.mpk-note span,:root [data-style="clean"] .mpk-p>.mpk-note span,:root [data-style="clean"].mpk-p>.mpk-note span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+:root[data-style="clean"] .mpk-p:has(>.mpk-note:not(:empty)) .mpk-th,:root [data-style="clean"] .mpk-p:has(>.mpk-note:not(:empty)) .mpk-th,:root [data-style="clean"].mpk-p:has(>.mpk-note:not(:empty)) .mpk-th{border-radius:0}
 :root[data-style="clean"] .mpk-note svg,:root [data-style="clean"] .mpk-note svg,:root [data-style="clean"].mpk-note svg{color:var(--dm-ok-mark)}
 /* phones: the thinking line goes under its label rather than being cut, and the select turns into a text control aligned by
    its text, its chevron 16px from the edge like the meters above it */
-@media (max-width:480px){:root[data-style="clean"] :is(.mpk-hd,.mpk-o),:root [data-style="clean"] :is(.mpk-hd,.mpk-o),:root [data-style="clean"]:is(.mpk-hd,.mpk-o){grid-template-columns:20px minmax(0,1fr) repeat(3,36px);gap:8px}:root[data-style="clean"] .mpk-hd,:root [data-style="clean"] .mpk-hd,:root [data-style="clean"].mpk-hd{padding-inline:16px}:root[data-style="clean"] .mpk-o,:root [data-style="clean"] .mpk-o,:root [data-style="clean"].mpk-o{padding-inline:8px}
+@media (max-width:480px){:root[data-style="clean"] :is(.mpk-hd,.mpk-o),:root [data-style="clean"] :is(.mpk-hd,.mpk-o),:root [data-style="clean"]:is(.mpk-hd,.mpk-o){grid-template-columns:20px minmax(0,1fr) repeat(3,36px);gap:8px}:root[data-style="clean"] .mpk-sg,:root [data-style="clean"] .mpk-sg,:root [data-style="clean"].mpk-sg{column-gap:8px}:root[data-style="clean"] .mpk-hd,:root [data-style="clean"] .mpk-hd,:root [data-style="clean"].mpk-hd{padding-inline:16px}:root[data-style="clean"] .mpk-o,:root [data-style="clean"] .mpk-o,:root [data-style="clean"].mpk-o{padding-inline:8px}
   :root[data-style="clean"] .mpk-th,:root [data-style="clean"] .mpk-th,:root [data-style="clean"].mpk-th{padding:12px 16px}:root[data-style="clean"] .mpk-thh,:root [data-style="clean"] .mpk-thh,:root [data-style="clean"].mpk-thh{flex-direction:column;align-items:flex-start;gap:0;white-space:normal}:root[data-style="clean"] .mpk-thh b,:root [data-style="clean"] .mpk-thh b,:root [data-style="clean"].mpk-thh b{align-self:auto}
   :root[data-style="clean"] .mpk-eb,:root [data-style="clean"] .mpk-eb,:root [data-style="clean"].mpk-eb{margin-right:-10px;background:none;box-shadow:none}
   @media (hover:hover) and (pointer:fine){:root[data-style="clean"] :is(.mpk-eb:hover,.mpk-eb[aria-expanded="true"]),:root [data-style="clean"] :is(.mpk-eb:hover,.mpk-eb[aria-expanded="true"]),:root [data-style="clean"]:is(.mpk-eb:hover,.mpk-eb[aria-expanded="true"]){margin-right:-10px;background:none;box-shadow:none}}@media (hover:hover) and (pointer:fine){:root[data-style="clean"] :is(.mpk-eb:hover,.mpk-eb[aria-expanded="true"]),:root [data-style="clean"] :is(.mpk-eb:hover,.mpk-eb[aria-expanded="true"]),:root [data-style="clean"]:is(.mpk-eb:hover,.mpk-eb[aria-expanded="true"]){background:var(--dm-hover)}}}

@@ -57,11 +57,10 @@ export interface PermissionGateProps {
   allowedDetail?: string;
   /** Replaces "Allowed 2 scopes for this task", like "Done. 6 frames edited". Crossfades when it changes */
   allowedTitle?: string;
-  /** The agent is still working under the permission: a spinner on a neutral row instead of the green check */
+  /** The agent is still working under the permission: a spinner instead of the green check, on the same neutral row */
   working?: boolean;
-  /** Quiet text at the end of the allowed row, like an elapsed time "0:04" */
-  meta?: ReactNode;
-  /** A follow-up ask in the middle of a run, for one more scope: the icon tile turns amber */
+  /** A follow-up ask in the middle of a run, for one more scope. A single scope shows as a row led by a tile (nothing to
+   *  tick) with a plain Allow; the icon tile stays neutral, and the scope's risk tag carries the warning */
   followUp?: boolean;
   /** The decline button. Defaults to "Not now"; a follow-up ask might say "Skip this frame" */
   declineLabel?: string;
@@ -100,7 +99,7 @@ function Count({ n }: { n: number }) {
 /** The agent asks before it acts: pick the scopes and how long they last, then allow or decline. */
 export function PermissionGate({
   title, subtitle, icon, scopes, value, defaultValue = [], onValueChange, durations = DURATIONS, durationDetails = DETAILS, duration, defaultDuration, onDurationChange,
-  status, defaultStatus = 'asking', onStatusChange, onAllow, onDecline, onRevoke, onUndo, allowedDetail, allowedTitle, working = false, meta, followUp = false,
+  status, defaultStatus = 'asking', onStatusChange, onAllow, onDecline, onRevoke, onUndo, allowedDetail, allowedTitle, working = false, followUp = false,
   declineLabel = 'Not now', declinedTitle = 'The agent will skip these changes', declinedDetail, declinedSummary = 'Nothing allowed', bare = false, className
 }: PermissionGateProps) {
   const [ticked, setTicked] = useControllable(value, defaultValue, onValueChange);
@@ -115,14 +114,14 @@ export function PermissionGate({
   const [granted, setGranted] = useState(0);
   // the names of the scopes allowed, for Clean's summary line in the foot strip
   const [names, setNames] = useState<string[]>([]);
-  // the scopes give way to a shorter result row: the gate keeps the height it had and centres the row in it, until Revoke or Undo.
-  // In Clean (owner, 18 Nov) it never keeps a height: it grows and shrinks with what it holds, eased (as grow() on the site)
+  // the gate never keeps a height, in any style (owner, 17 and 18 Nov): it grows and shrinks with what it holds, eased, as
+  // grow() does on the site
   const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
   const [clean, setClean] = useState(false);
   useIsoLayoutEffect(() => { setClean(root.current?.closest('[data-style]')?.getAttribute('data-style') === 'clean'); }, []);
   useIsoLayoutEffect(() => {
     const el = root.current, w = inner.current;
-    if (!clean || !el || !w || typeof ResizeObserver === 'undefined') return;
+    if (!el || !w || typeof ResizeObserver === 'undefined') return;
     let first = true;
     const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
     const fit = () => {
@@ -132,37 +131,39 @@ export function PermissionGate({
     };
     const ro = new ResizeObserver(fit); ro.observe(w); fit();
     return () => { ro.disconnect(); el.style.height = ''; };
-  }, [clean]);
-  const [held, setHeld] = useState<number>();
-  const hold = () => { if (!clean) setHeld(h => h ?? root.current?.offsetHeight); };
+  }, []);
   // Clean: the scopes fade up and out before the card eases to the result row's height
   const [fading, setFading] = useState(false);
-  const n = ticked.length;
+  // asking again for one scope: nothing to tick, so the scope is a row led by a tile like the question's, and the button
+  // just says Allow (every style)
+  const single = followUp && state === 'asking' && scopes.length === 1;
+  const keys = single ? [scopes[0].key] : ticked;
+  const n = keys.length;
 
   useEffect(() => {
     if (!leaving) return;
-    const t = setTimeout(() => { setLeaving(false); setHeld(undefined); setState('asking'); setBack(b => b + 1); onRevoke?.(); }, 300);
+    const t = setTimeout(() => { setLeaving(false); setState('asking'); setBack(b => b + 1); onRevoke?.(); }, 300);
     return () => clearTimeout(t);
   }, [leaving]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggle = (key: string) => setTicked(ticked.includes(key) ? ticked.filter(k => k !== key) : scopes.map(s => s.key).filter(k => k === key || ticked.includes(k)));
   const allow = async () => {
     if (!n || waiting) return;
-    setWaiting(true); setGranted(n); const picked = scopes.filter(s => ticked.includes(s.key)).map(s => s.label); setNames(was => followUp ? [...was, ...picked] : picked);
-    try { await onAllow?.(ticked, dur); } finally { setWaiting(false); }
+    setWaiting(true); setGranted(n); const picked = scopes.filter(s => keys.includes(s.key)).map(s => s.label); setNames(was => followUp ? [...was, ...picked] : picked);
+    try { await onAllow?.(keys, dur); } finally { setWaiting(false); }
     if (clean) { setFading(true); await new Promise(r => setTimeout(r, 180)); setFading(false); }
-    hold(); setState('allowed');
+    setState('allowed');
   };
-  const decline = () => { hold(); setState('declined'); onDecline?.(); };
-  const undo = () => { setHeld(undefined); setState('asking'); setBack(b => b + 1); onUndo?.(); };
+  const decline = () => { setState('declined'); onDecline?.(); };
+  const undo = () => { setState('asking'); setBack(b => b + 1); onUndo?.(); };
   const again = (i: number) => (back ? { className: 'dm-enter', style: enter(i * 50).style, key: back } : { className: undefined, style: undefined, key: 0 });
 
   const allowLabel = n ? `Allow ${n} ${word(n)}` : 'Pick a scope';
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-pgx', !bare && 'dm-panel', clean && 'dm-growing', followUp && state === 'asking' && 'dm-esc', held && 'dm-held', className)} style={held ? { minHeight: held } : undefined}>
+    <div data-dm="" ref={root} className={cx('dm-pgx', !bare && 'dm-panel', 'dm-growing', followUp && state === 'asking' && 'dm-esc', className)}>
       {/* grow()'s wrapper in Clean; elsewhere it takes no box of its own */}
-      <div ref={inner} className="dm-grow dm-dm-grow" style={clean ? undefined : { display: 'contents' }}>
+      <div ref={inner} className="dm-grow dm-dm-grow">
       <div className="dm-pgx-h">
         <span className="dm-pgx-ic">{icon ?? <Icon name="shield" />}</span>
         <div className="dm-pgx-ht"><b>{title}</b>{subtitle && <span className="dm-muted">{subtitle}</span>}</div>
@@ -170,21 +171,24 @@ export function PermissionGate({
       {state === 'asking' && (
         <>
           <div key={'sc' + again(0).key} className={cx('dm-pgx-sc', again(0).className, fading && 'dm-leave')} style={again(0).style}>
-            {scopes.map(s => (
-              <label key={s.key} className="dm-pgx-o">
-                <input type="checkbox" checked={ticked.includes(s.key)} onChange={() => toggle(s.key)} />
-                <span className="dm-bx"><Icon name="check" size="xs" /></span>
-                <span className="dm-t">{s.label}{s.detail && <span className="dm-d">{s.detail}</span>}</span>
-                {s.risk && (s.riskDetail ? <Tip label={s.riskDetail}><span className="dm-tag dm-warn">{s.risk}</span></Tip> : <span className="dm-tag dm-warn">{s.risk}</span>)}
-              </label>
-            ))}
+            {scopes.map(s => {
+              const risk = s.risk && (s.riskDetail ? <Tip label={s.riskDetail}><span className="dm-tag dm-warn">{s.risk}</span></Tip> : <span className="dm-tag dm-warn">{s.risk}</span>);
+              const words = <span className="dm-t">{s.label}{s.detail && <span className="dm-d">{s.detail}</span>}</span>;
+              return single
+                ? <div key={s.key} className="dm-pgx-o dm-one"><span className="dm-oi"><Icon name="upload" /></span>{words}{risk}</div>
+                : <label key={s.key} className="dm-pgx-o">
+                    <input type="checkbox" checked={ticked.includes(s.key)} onChange={() => toggle(s.key)} />
+                    <span className="dm-bx"><Icon name="check" size="xs" /></span>
+                    {words}{risk}
+                  </label>;
+            })}
           </div>
           <div key={'f' + again(1).key} className={cx('dm-pgx-f', again(1).className)} style={again(1).style}>
             <button {...durMenu.trigger} type="button" className="dm-pgx-db" aria-label="How long"><Swap className="dm-pgx-dv">{durLabel(dur)}</Swap><Icon name="chev-d" size="xs" /></button>
             <span className="dm-sp" />
             <button type="button" className="dm-pill dm-ghost dm-sm dm-pgx-no" onClick={decline}>{declineLabel}</button>
             <button type="button" className="dm-pill dm-primary dm-sm dm-pgx-ok" disabled={!n} onClick={allow}>
-              {waiting ? <Spin /> : clean && n
+              {waiting ? <Spin /> : single ? <Swap>Allow</Swap> : clean && n
                 ? <span className="dm-pgx-l">Allow <Count n={n} /> <Swap className="dm-pgx-w">{word(n)}</Swap></span>
                 : <Swap>{allowLabel}</Swap>}
             </button>
@@ -205,7 +209,6 @@ export function PermissionGate({
             <b className="dm-pgx-a"><Swap>{allowedTitle ?? `Allowed ${granted || n} ${(granted || n) > 1 ? 'scopes' : 'scope'} ${durSpan(dur)}`}</Swap></b>
             {allowedDetail !== undefined && <Swap>{allowedDetail}</Swap>}
           </span>
-          {meta !== undefined && <span className="dm-pgx-tm dm-num">{meta}</span>}
           <button type="button" className="dm-pill dm-ghost dm-sm" onClick={() => setLeaving(true)}>Revoke</button>
           <span className="dm-pgx-sum"><span className="dm-l">{names.join(', ')}</span><span className="dm-s">{`${names.length} ${word(names.length)} allowed`}</span></span>
         </div>

@@ -37,7 +37,7 @@ Model picker is the control a person uses to choose which model answers in a cha
 - Each model row has a coloured tile, a name, a one-line `note`, and three five-step meters for `speed`, `quality` and `cost`. `speedDetail`, `qualityDetail` and `costDetail` show on hover, like "74 tokens a second".
 - The picked row is tinted and checked, and its meters turn the accent colour. The trigger above the list shows the picked model and effort, and both crossfade when they change.
 - A model's `status` can be `checking`, which spins beside its name, or `busy`, which turns its tile and line amber. `statusText` replaces the note, like "At capacity, about 20s wait".
-- `suggestion` opens a short message under the list with its buttons, the last one filled, like Wait for Opus and Use Sonnet on high. It opens and closes by its height.
+- `suggestion` opens a warning notice under the list: a warning sign, its words, and its buttons, the last one in the warning tint, like Wait for Opus and Use Sonnet on high. It opens and closes by its height.
 - The thinking effort is a small dropdown under the list. `efforts` defaults to Off, Low, Medium and High, each with a line shown in the menu and under "Thinking", like "Up to 8k thinking tokens".
 - `note` adds a confirmation with a green check under the picker. The trigger opens and closes the list.
 
@@ -281,6 +281,12 @@ export function ModelPicker({
     rows.current[i]?.focus(); setCur(models[i].id);
   };
 
+  const noteLine = (
+    <p className="dm-mpk-note dm-muted" aria-live="polite">
+      {note && <><Icon name="ok" size="xs" /><span key={noteKey} {...enter()}>{note}</span></>}
+    </p>
+  );
+
   return (
     <div ref={root} data-dm="" className={cx('dm-mpk', className)} onKeyDown={e => { if (e.key === 'Escape' && isOpen) { setOpen(false); trigger.current?.focus(); } }}>
       <div className="dm-mpk-top">
@@ -310,9 +316,11 @@ export function ModelPicker({
           </div>
           <Fold open={!!suggestion}>
             <div className="dm-mpk-sg" aria-live="polite">
+              {/* a warning notice: the filled warning sign, the words, and the way out in the warning tint (dm-warn) */}
+              <svg className="dm-mpk-sgi" viewBox="0 0 24 24" aria-hidden="true"><path className="dm-a" d="M12 3.6 2.6 19.9h18.8z" /><path className="dm-b" d="M12 9.6v4.4M12 17v.01" /></svg>
               <p className="dm-mpk-sgt">{suggestion?.text}</p>
               <div className="dm-mpk-sga">
-                {suggestion?.actions.map((a, i, all) => <button key={a.label} type="button" className={cx('dm-pill dm-sm', i === all.length - 1 ? 'dm-primary' : 'dm-ghost')} onClick={a.onClick}>{a.label}</button>)}
+                {suggestion?.actions.map((a, i, all) => <button key={a.label} type="button" className={cx('dm-pill dm-sm', i === all.length - 1 ? 'dm-warn' : 'dm-ghost')} onClick={a.onClick}>{a.label}</button>)}
               </div>
             </div>
           </Fold>
@@ -320,6 +328,8 @@ export function ModelPicker({
             <div className="dm-mpk-thh"><b><Icon name="brain" size="xs" />Thinking</b><Swap className="dm-muted dm-mpk-thd">{efforts.find(e => e.label === eff)?.detail ?? ''}</Swap></div>
             <button {...effMenu.trigger} type="button" className="dm-mpk-eb" aria-label="Thinking effort"><Swap className="dm-mpk-ev">{eff}</Swap><Icon name="chev-d" size="xs" /></button>
           </div>
+          {/* in Clean the confirmation is the card's last strip, under Thinking */}
+          {clean && noteLine}
         </div>
       </Fold>
       <div {...effMenu.pop} className={cx(effMenu.pop.className, 'dm-mpk-pop')} role="menu" aria-label="Thinking effort">
@@ -329,9 +339,7 @@ export function ModelPicker({
           </button>
         ))}
       </div>
-      <p className="dm-mpk-note dm-muted" aria-live="polite">
-        {note && <><Icon name="ok" size="xs" /><span key={noteKey} {...enter()}>{note}</span></>}
-      </p>
+      {!clean && noteLine}
     </div>
   );
 }

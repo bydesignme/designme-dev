@@ -522,8 +522,8 @@
 .aln-lane{border-radius:calc(14px * var(--dm-rk-l,var(--dm-rk)));transition:background .3s}
 @media (hover:hover) and (pointer:fine){.aln-lane:hover{background:var(--dm-row)}}
 /* the lane at work carries a wash of its hue from the left */
-.aln-lane[data-s="working"]{background:linear-gradient(90deg,color-mix(in srgb,var(--dm-c) 8%,transparent),transparent 72%)}
-@media (hover:hover) and (pointer:fine){.aln-lane[data-s="working"]:hover{background:linear-gradient(90deg,color-mix(in srgb,var(--dm-c) 8%,transparent),transparent 72%),var(--dm-row)}}
+/* the agent at work gets no tinted band behind its row: its pulsing badge and the Working spinner say it is active (owner,
+   18 Nov) */
 /* the relay line runs from badge to badge, through the lanes and the hand-offs between them, and stops short of each badge */
 .aln-rows>*::before{content:"";position:absolute;left:26px;width:2px;top:0;bottom:0;background:var(--dm-line);pointer-events:none}
 .aln-lane::before{top:48px}
@@ -589,14 +589,47 @@
 :root:not([data-style="soft"],[data-style="clean"]) .aln-av:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-c) 35%,transparent)}
 :root:not([data-style="soft"],[data-style="clean"]) .aln-lane[data-s="working"] .aln-av:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation:alnbp 1.1s steps(1,end) infinite}
 @keyframes alnbp{0%,55%{box-shadow:inset 0 0 0 1px var(--dm-c)}56%,100%{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-c) 35%,transparent)}}
-:root:not([data-style="soft"],[data-style="clean"]) .aln-lane[data-s="working"]:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){background:color-mix(in srgb,var(--dm-c) 5%,transparent)}
 :root:not([data-style="soft"],[data-style="clean"]) .aln-tr i:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){height:8px}
 :root:not([data-style="soft"],[data-style="clean"]) .aln-tr i.run:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *))::after{background:repeating-linear-gradient(135deg,var(--dm-cm) 0 4px,color-mix(in srgb,var(--dm-cm) 55%,var(--dm-surface)) 4px 7px);animation:none}
 :root:not([data-style="soft"],[data-style="clean"]) .aln-pk:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){width:1px;left:26.5px;border-radius:0;background:var(--dm-to)}
 :root:not([data-style="soft"],[data-style="clean"]) .aln-av.ping:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *))::before{animation:alnpingbp .6s steps(3,end)}
 @keyframes alnpingbp{from{box-shadow:0 0 0 1px var(--dm-c)}to{box-shadow:0 0 0 7px transparent}}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .aln.panel,:root [data-style="clean"] .aln.panel,:root [data-style="clean"].aln.panel{padding:12px 20px 20px 20px}
+/* the line saying what just happened, and once the run is done, how it went: Clean's foot strip shows it */
+.aln-say{display:none}
+/* Clean (owner, 18 Nov): a card with a foot strip. The head and the lanes sit 16px in from the card's edges; Pause all moves
+   down into the off-white foot strip, 8px from its edges (a 28px pill in the 22px corner), beside the line saying what just
+   happened, and when the run is done the strip closes the card with a summary. The parts are placed on one grid, so the
+   markup stays Soft's. The relay line joins the badges as one unbroken line (it meets each badge) and stops at the last one */
+:root[data-style="clean"] .aln.panel,:root [data-style="clean"] .aln.panel,:root [data-style="clean"].aln.panel{display:grid;grid-template-columns:auto auto auto minmax(0,1fr) auto;grid-template-rows:auto auto 44px;padding:0;background:linear-gradient(var(--dm-line),var(--dm-line)) 0 calc(100% - 44px)/100% 1px no-repeat,linear-gradient(var(--dm-strip),var(--dm-strip)) 0 100%/100% 43px no-repeat,var(--dm-surface)}
+:root[data-style="clean"] .aln.panel .aln-h,:root [data-style="clean"] .aln.panel .aln-h,:root [data-style="clean"].aln.panel .aln-h{display:contents}
+:root[data-style="clean"] .aln.panel .aln-h>*,:root [data-style="clean"] .aln.panel .aln-h>*,:root [data-style="clean"].aln.panel .aln-h>*{grid-row:1;align-self:center;margin-top:16px;margin-bottom:4px}
+:root[data-style="clean"] .aln.panel .aln-ic,:root [data-style="clean"] .aln.panel .aln-ic,:root [data-style="clean"].aln.panel .aln-ic{grid-column:1;margin-left:16px;margin-right:10px}
+:root[data-style="clean"] .aln.panel .aln-t,:root [data-style="clean"] .aln.panel .aln-t,:root [data-style="clean"].aln.panel .aln-t{grid-column:2;margin-right:10px}
+:root[data-style="clean"] .aln.panel .aln-m,:root [data-style="clean"] .aln.panel .aln-m,:root [data-style="clean"].aln.panel .aln-m{grid-column:3;margin-right:6px}
+:root[data-style="clean"] .aln.panel .aln-ct,:root [data-style="clean"] .aln.panel .aln-ct,:root [data-style="clean"].aln.panel .aln-ct{grid-column:4;margin-right:16px}
+:root[data-style="clean"] .aln.panel .aln-pause,:root [data-style="clean"] .aln.panel .aln-pause,:root [data-style="clean"].aln.panel .aln-pause{position:absolute;right:8px;bottom:8px;margin:0}
+:root[data-style="clean"] .aln.panel .aln-rows,:root [data-style="clean"] .aln.panel .aln-rows,:root [data-style="clean"].aln.panel .aln-rows{grid-row:2;grid-column:1 / -1;margin:4px 8px 8px}
+:root[data-style="clean"] .aln.panel .aln-say,:root [data-style="clean"] .aln.panel .aln-say,:root [data-style="clean"].aln.panel .aln-say{display:block;grid-row:3;grid-column:1 / -1;align-self:center;min-width:0;margin:0 16px;font-size:12.5px;line-height:20px;color:var(--dm-fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Pause all is pinned in the strip's corner rather than placed on the grid, so its width never squeezes the head on a phone;
+   the line beside it keeps clear of it (the button and a 12px gap) until the run is done and the button goes */
+:root[data-style="clean"] .aln.panel:has(.aln-pause) .aln-say,:root [data-style="clean"] .aln.panel:has(.aln-pause) .aln-say,:root [data-style="clean"].aln.panel:has(.aln-pause) .aln-say{margin-right:116px}
+/* the summary's words start where the title's do (its 12px tick and 12px gap match the head's 14px icon and 10px gap) */
+:root[data-style="clean"] .aln-say .i,:root [data-style="clean"] .aln-say .i,:root [data-style="clean"].aln-say .i{color:color-mix(in srgb,var(--dm-ok-mark) 85%,var(--dm-ok));vertical-align:-2px;margin-right:12px}
+:root[data-style="clean"] .aln.fin .aln-ic,:root [data-style="clean"] .aln.fin .aln-ic,:root [data-style="clean"].aln.fin .aln-ic{color:color-mix(in srgb,var(--dm-ok-mark) 85%,var(--dm-ok))}
+/* the lanes: their fills 8px in from the card, so a lane's corner is the card's less 8px; their content 16px in */
+:root[data-style="clean"] .aln-lane,:root [data-style="clean"] .aln-lane,:root [data-style="clean"].aln-lane{border-radius:14px}
+:root[data-style="clean"] .aln-row,:root [data-style="clean"] .aln-row,:root [data-style="clean"].aln-row{padding:8px}
+:root[data-style="clean"] .aln-det,:root [data-style="clean"] .aln-det,:root [data-style="clean"].aln-det{padding:0 8px 8px 54px}
+:root[data-style="clean"] .aln-hand,:root [data-style="clean"] .aln-hand,:root [data-style="clean"].aln-hand{padding:6px 8px 6px 54px}
+:root[data-style="clean"] .aln-rows>*::before,:root [data-style="clean"] .aln-rows>*::before,:root [data-style="clean"].aln-rows>*::before,:root[data-style="clean"] .aln-lane::after,:root [data-style="clean"] .aln-lane::after,:root [data-style="clean"].aln-lane::after{left:24.25px;width:1.5px;border-radius:1px;background:var(--dm-faint)}
+:root[data-style="clean"] .aln-lane::before,:root [data-style="clean"] .aln-lane::before,:root [data-style="clean"].aln-lane::before{top:42px}
+:root[data-style="clean"] .aln-lane::after,:root [data-style="clean"] .aln-lane::after,:root [data-style="clean"].aln-lane::after{height:8px}
+:root[data-style="clean"] .aln-lane:not(:has(~.aln-lane))::before,:root [data-style="clean"] .aln-lane:not(:has(~.aln-lane))::before,:root [data-style="clean"].aln-lane:not(:has(~.aln-lane))::before{display:none}
+:root[data-style="clean"] .aln-rows>.aln-lane.sent::before,:root [data-style="clean"] .aln-rows>.aln-lane.sent::before,:root [data-style="clean"].aln-rows>.aln-lane.sent::before,:root[data-style="clean"] .aln-rows>.aln-lane.got::after,:root [data-style="clean"] .aln-rows>.aln-lane.got::after,:root [data-style="clean"].aln-rows>.aln-lane.got::after,:root[data-style="clean"] .aln-rows>.aln-hf.lit::before,:root [data-style="clean"] .aln-rows>.aln-hf.lit::before,:root [data-style="clean"].aln-rows>.aln-hf.lit::before{background:transparent}
+:root[data-style="clean"] .aln-pk,:root [data-style="clean"] .aln-pk,:root [data-style="clean"].aln-pk{left:24.25px;width:1.5px;border-radius:1px;box-sizing:content-box;padding:4px 0;margin-top:-4px}
+/* a track and the steps still to come are neutral; an agent's colour shows only on the steps it is running or has done */
+:root[data-style="clean"] .aln-tr i,:root [data-style="clean"] .aln-tr i,:root [data-style="clean"].aln-tr i{background:var(--dm-rail)}
+@media (max-width:400px){:root[data-style="clean"] .aln.panel .aln-t,:root [data-style="clean"] .aln.panel .aln-t,:root [data-style="clean"].aln.panel .aln-t{margin-left:16px}}
 </style><style>/* ---------- Context meter ---------- */
 /* a pill with the ring opens what fills the context: one bar split by kind, a legend whose rows list their items, and Compact */
 /* it never anchors the page's scroll, so the page can't follow it as it changes; on a card it sits in the middle of its room */
@@ -720,45 +753,56 @@
 .pgx-ht{display:flex;flex-direction:column;min-width:0}
 .pgx-ht b{font-weight:500;font-size:14px}
 .pgx-ht span{font-size:13px}
-.pgx-sc{display:flex;flex-direction:column;margin-inline:-8px}
-.pgx-o{display:flex;align-items:center;gap:var(--dm-s-3);padding:var(--dm-s-2);border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));cursor:pointer;font-size:13.5px;transition:background .25s}
+/* the scopes line up with the head (owner, 18 Nov): each box centred in a 32px column under the icon tile, its words where the
+   question's start, and the row's hover fill exactly the content's width, from the tile's left edge to the right edge the
+   buttons below end on. The box sits 7px inside the fill, and a tag at the row's end sits 7px inside it too */
+.pgx-sc{display:flex;flex-direction:column}
+.pgx-o{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;column-gap:var(--dm-s-3);padding:var(--dm-s-2) 7px var(--dm-s-2) 0;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));cursor:pointer;font-size:13.5px;transition:background .25s}
+.pgx-o>.bx{justify-self:center}
 @media (hover:hover) and (pointer:fine){.pgx-o:hover{background:var(--dm-row)}}
 .pgx-o input{position:absolute;opacity:0;pointer-events:none}
-.pgx-o .bx{width:18px;height:18px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-muted) 80%,var(--dm-surface));display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--dm-ease),box-shadow .3s,color .3s}
+.pgx-o .bx{width:18px;height:18px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));box-shadow:inset 0 0 0 1.5px var(--dm-fg2);display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--dm-ease),box-shadow .3s,color .3s}
 .pgx-o .bx svg{transform:scale(.4);transition:transform .35s var(--dm-ease)}
 .pgx-o input:checked+.bx{background:var(--dm-accent);box-shadow:inset 0 0 0 1.5px var(--dm-accent-mark,var(--dm-accent));color:var(--dm-on-accent)}
 .pgx-o input:checked+.bx svg{transform:none}
 .pgx-o input:focus-visible+.bx{outline:2px solid var(--dm-focus);outline-offset:2px}
 .pgx-o .t{flex:1;min-width:0}
+/* asking again for one scope, every style: nothing to tick, so the scope is a plain row led by a tile like the question's
+   (what it does, in the same 32px column) and the button just says Allow (owner, 18 Nov) */
+.pgx-o.one{cursor:default}
+@media (hover:hover) and (pointer:fine){.pgx-o.one:hover{background:none}}
+.pgx-o.one>.oi{width:32px;height:32px;display:grid;place-items:center;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-chip);color:var(--dm-fg2)}
+:root[data-style="clean"] .pgx-o.one>.oi,:root [data-style="clean"] .pgx-o.one>.oi,:root [data-style="clean"].pgx-o.one>.oi{box-shadow:inset 0 0 0 1px var(--dm-hair)}
 .pgx-o .d{display:block;font-size:12px;color:var(--dm-muted)}
 .pgx-f{display:flex;align-items:center;gap:6px;padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .pgx-f .sp{flex:1}
 /* on a narrow stage the duration gets its own row, and the two buttons stay together under it on the right */
 @container (max-width:340px){.pgx-f{flex-wrap:wrap}.pgx-f .sp{flex-basis:100%}.pgx-no{margin:var(--dm-s-2) 0 0 auto}.pgx-ok{margin-top:var(--dm-s-2)}}
 /* how long: a small dropdown, the way a menu of choices usually looks */
-.pgx-db{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--dm-s-2) 0 10px;margin-left:-2px;border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);white-space:nowrap;transition:background .16s,color .16s}
+.pgx-db{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--dm-s-2) 0 10px;margin-left:0;border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);white-space:nowrap;transition:background .16s,color .16s}
 .pgx-db[aria-expanded="true"]{background:var(--dm-row);color:var(--dm-fg)}
 @media (hover:hover) and (pointer:fine){.pgx-db:hover{background:var(--dm-row);color:var(--dm-fg)}}
 .pgx-db>svg{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
 .pgx-db[aria-expanded="true"]>svg{transform:rotate(180deg)}
 .pgx-pop{min-width:230px}
 .pgx-ok[disabled]{opacity:1;cursor:not-allowed;background:var(--dm-dis-hatch),var(--dm-dis-fill);color:var(--dm-dis);box-shadow:var(--dm-soft-ring)}
-.pgx-done{display:flex;align-items:center;gap:var(--dm-s-3);padding:10px 10px 10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-ok-bg);font-size:13.5px}
-/* its button is a white pill on the tinted row */
-.pgx-done .pill{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-shadow)}
-@media (hover:hover) and (pointer:fine){.pgx-done .pill:hover{background:var(--dm-surface);box-shadow:var(--dm-shadow-pop)}}
+.pgx-done{display:flex;align-items:center;gap:var(--dm-s-3);padding:10px 7px 10px 0;border-radius:var(--dm-r-in);background:var(--dm-chip);font-size:13.5px}
+/* its mark sits centred in the scopes' 32px column, under the head's tile, and its words start on the title's column */
+.pgx-done>svg{margin-inline:8px}
+/* its button is a white pill on the grey row */
+.pgx-done .pill{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-on-tint-btn)}
+@media (hover:hover) and (pointer:fine){.pgx-done .pill:hover{background:var(--dm-surface);box-shadow:var(--dm-on-tint-btn-h)}}
 .pgx-done .t{flex:1;color:var(--dm-fg)}
 .pgx-done .t span{display:block;font-size:12px;color:var(--dm-fg2)}
 .pgx-done>svg{color:var(--dm-ok)}
-/* while the agent works under the permission: a neutral row with a spinner, a live line and a clock; green once done */
-.pgx-done.run{background:var(--dm-chip)}
-.pgx-done .g{width:18px;height:18px;display:grid;place-items:center;flex:none;color:var(--dm-fg2)}
+/* while the agent works under the permission: a neutral row with a spinner and a live line. Once done the spinner becomes the
+   green tick and the row stays neutral: no green fill and no clock (owner, 18 Nov) */
+.pgx-done .g{width:32px;height:18px;display:grid;place-items:center;flex:none;color:var(--dm-fg2)}
 .pgx-done.ok .g{color:var(--dm-ok)}
 .pgx-done .t b{display:block;font-weight:400}
-.pgx-tm{font-size:12px;color:var(--dm-muted)}
 /* asking again mid-run, for one more scope: the tile turns amber */
 .pgx-ic{transition:background .32s var(--dm-ease)}
-.pgx.esc .pgx-ic{background:var(--dm-warn-bg)}
+/* asking again keeps the tile neutral in every style: the Risky tag on the scope carries the warning (owner, 18 Nov) */
 .pgx-scope{display:flex;flex-direction:column;gap:var(--dm-s-3)}
 /* the line in the foot strip once you have answered (Clean only): the scopes you allowed, or that you allowed none */
 .pgx-sum{display:none}
@@ -771,12 +815,20 @@
 /* the card clips its strips to its round corners; the duration menu opens out of it (nothing changes height while it is open) */
 :root[data-style="clean"] .pgx.panel,:root [data-style="clean"] .pgx.panel,:root [data-style="clean"].pgx.panel{padding:16px 16px 0;overflow:clip;overflow-clip-margin:0px}
 :root[data-style="clean"] .pgx.panel:has(.pgx-pop.open),:root [data-style="clean"] .pgx.panel:has(.pgx-pop.open),:root [data-style="clean"].pgx.panel:has(.pgx-pop.open){overflow:visible}
-:root[data-style="clean"] .pgx-ic,:root [data-style="clean"] .pgx-ic,:root [data-style="clean"].pgx-ic{border-radius:50%;box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .pgx-ic,:root [data-style="clean"] .pgx-ic,:root [data-style="clean"].pgx-ic{box-shadow:inset 0 0 0 1px var(--dm-hair)}
+/* asking again keeps the tile neutral: the Risky tag on the scope carries the warning */
 :root[data-style="clean"] .pgx-ht b,:root [data-style="clean"] .pgx-ht b,:root [data-style="clean"].pgx-ht b{line-height:20px;letter-spacing:-.01em}
 :root[data-style="clean"] .pgx-ht span,:root [data-style="clean"] .pgx-ht span,:root [data-style="clean"].pgx-ht span,:root[data-style="clean"] .pgx-o .d,:root [data-style="clean"] .pgx-o .d,:root [data-style="clean"].pgx-o .d,:root[data-style="clean"] .pgx-done .t span,:root [data-style="clean"] .pgx-done .t span,:root [data-style="clean"].pgx-done .t span{line-height:18px}
 :root[data-style="clean"] :is(.pgx-o,.pgx-done) .t,:root [data-style="clean"] :is(.pgx-o,.pgx-done) .t,:root [data-style="clean"]:is(.pgx-o,.pgx-done) .t{line-height:20px}
-:root[data-style="clean"] .pgx-o,:root [data-style="clean"] .pgx-o,:root [data-style="clean"].pgx-o{transition:background-color var(--dm-t-fast) var(--dm-ease)}
-:root[data-style="clean"] .pgx-o .bx,:root [data-style="clean"] .pgx-o .bx,:root [data-style="clean"].pgx-o .bx{border-radius:50%;background:var(--dm-surface);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-muted) 80%,var(--dm-surface)),var(--dm-track-ring);transition:background .2s var(--dm-ease),box-shadow .2s var(--dm-ease)}
+/* a scope row: its box in a 32px column under the question's tile, centred, so its words start where the question's do;
+   hairlines between rows, which give way to the quiet fill of the row under the pointer */
+:root[data-style="clean"] .pgx-o,:root [data-style="clean"] .pgx-o,:root [data-style="clean"].pgx-o{position:relative;display:grid;grid-template-columns:32px minmax(0,1fr) auto;column-gap:12px;transition:background-color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .pgx-o>.bx,:root [data-style="clean"] .pgx-o>.bx,:root [data-style="clean"].pgx-o>.bx{justify-self:center}
+:root[data-style="clean"] .pgx-o+.pgx-o,:root [data-style="clean"] .pgx-o+.pgx-o,:root [data-style="clean"].pgx-o+.pgx-o{background-image:linear-gradient(var(--dm-hair),var(--dm-hair));background-repeat:no-repeat;background-position:0 0;background-size:100% 1px}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] :is(.pgx-o:hover,.pgx-o:hover+.pgx-o),:root [data-style="clean"] :is(.pgx-o:hover,.pgx-o:hover+.pgx-o),:root [data-style="clean"]:is(.pgx-o:hover,.pgx-o:hover+.pgx-o){background-image:none}}
+/* asking again for one scope: nothing to tick, so the scope is an info row, its info mark where the box would be */
+
+:root[data-style="clean"] .pgx-o .bx,:root [data-style="clean"] .pgx-o .bx,:root [data-style="clean"].pgx-o .bx{border-radius:calc(4px * var(--dm-rk-s,var(--dm-rk)));background:var(--dm-surface);box-shadow:inset 0 0 0 1.5px var(--dm-fg2),var(--dm-track-ring);transition:background .2s var(--dm-ease),box-shadow .2s var(--dm-ease)}
 :root[data-style="clean"] .pgx-o .bx svg,:root [data-style="clean"] .pgx-o .bx svg,:root [data-style="clean"].pgx-o .bx svg{transform:none;stroke-dasharray:21;stroke-dashoffset:21;transition:stroke-dashoffset .3s var(--dm-ease)}
 :root[data-style="clean"] .pgx-o input:checked+.bx,:root [data-style="clean"] .pgx-o input:checked+.bx,:root [data-style="clean"].pgx-o input:checked+.bx{background:linear-gradient(180deg,var(--dm-btn-1),var(--dm-btn-2));box-shadow:inset 0 0 0 1px var(--dm-btn-2),inset 0 2px 3px -1px rgba(255,255,255,.28);color:var(--dm-on-btn)}
 :root[data-style="clean"] .pgx-o input:checked+.bx svg,:root [data-style="clean"] .pgx-o input:checked+.bx svg,:root [data-style="clean"].pgx-o input:checked+.bx svg{stroke-dashoffset:0;transition-delay:.06s}
@@ -789,17 +841,19 @@
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .pgx-f :is(.pgx-db:hover,.pgx-db[aria-expanded="true"],.pill.ghost:hover),:root [data-style="clean"] .pgx-f :is(.pgx-db:hover,.pgx-db[aria-expanded="true"],.pill.ghost:hover),:root [data-style="clean"].pgx-f :is(.pgx-db:hover,.pgx-db[aria-expanded="true"],.pill.ghost:hover){background:var(--dm-hover);color:var(--dm-fg)}}
 /* on a narrow stage the buttons wrap under the select: the strip's 4px gaps put them 8px under it */
 @container (max-width:340px){:root[data-style="clean"] .pgx-no,:root [data-style="clean"] .pgx-no,:root [data-style="clean"].pgx-no{margin:0 0 0 auto}:root[data-style="clean"] .pgx-ok,:root [data-style="clean"] .pgx-ok,:root [data-style="clean"].pgx-ok{margin-top:0}}
-/* Allow's count rolls: up as a box is ticked, down as one is cleared */
-:root[data-style="clean"] .pgx-cnt,:root [data-style="clean"] .pgx-cnt,:root [data-style="clean"].pgx-cnt{display:inline-grid;overflow:clip}
+/* Allow's count rolls: up as a box is ticked, down as one is cleared. No window clips it: each number moves a few pixels
+   and fades, so a digit is never seen cut in half */
+:root[data-style="clean"] .pgx-cnt,:root [data-style="clean"] .pgx-cnt,:root [data-style="clean"].pgx-cnt{display:inline-grid}
 :root[data-style="clean"] .pgx-cnt>i,:root [data-style="clean"] .pgx-cnt>i,:root [data-style="clean"].pgx-cnt>i{grid-area:1/1;font-style:normal;font-variant-numeric:tabular-nums}
-@keyframes pgxiu{from{transform:translateY(80%);opacity:0}}
-@keyframes pgxou{to{transform:translateY(-80%);opacity:0}}
-@keyframes pgxid{from{transform:translateY(-80%);opacity:0}}
-@keyframes pgxod{to{transform:translateY(80%);opacity:0}}
-:root[data-style="clean"] .pgx-cnt>.iu,:root [data-style="clean"] .pgx-cnt>.iu,:root [data-style="clean"].pgx-cnt>.iu{animation:pgxiu .3s var(--dm-ease) both}
-:root[data-style="clean"] .pgx-cnt>.ou,:root [data-style="clean"] .pgx-cnt>.ou,:root [data-style="clean"].pgx-cnt>.ou{animation:pgxou .3s var(--dm-ease) both}
-:root[data-style="clean"] .pgx-cnt>.id,:root [data-style="clean"] .pgx-cnt>.id,:root [data-style="clean"].pgx-cnt>.id{animation:pgxid .3s var(--dm-ease) both}
-:root[data-style="clean"] .pgx-cnt>.od,:root [data-style="clean"] .pgx-cnt>.od,:root [data-style="clean"].pgx-cnt>.od{animation:pgxod .3s var(--dm-ease) both}
+@keyframes pgxiu{from{transform:translateY(40%);opacity:0}}
+@keyframes pgxou{to{transform:translateY(-40%);opacity:0}}
+@keyframes pgxid{from{transform:translateY(-40%);opacity:0}}
+@keyframes pgxod{to{transform:translateY(40%);opacity:0}}
+/* the old number leaves first and the new one follows, so the two never sit on top of each other */
+:root[data-style="clean"] .pgx-cnt>.iu,:root [data-style="clean"] .pgx-cnt>.iu,:root [data-style="clean"].pgx-cnt>.iu{animation:pgxiu .22s var(--dm-ease) .1s both}
+:root[data-style="clean"] .pgx-cnt>.ou,:root [data-style="clean"] .pgx-cnt>.ou,:root [data-style="clean"].pgx-cnt>.ou{animation:pgxou .16s var(--dm-ease) both}
+:root[data-style="clean"] .pgx-cnt>.id,:root [data-style="clean"] .pgx-cnt>.id,:root [data-style="clean"].pgx-cnt>.id{animation:pgxid .22s var(--dm-ease) .1s both}
+:root[data-style="clean"] .pgx-cnt>.od,:root [data-style="clean"] .pgx-cnt>.od,:root [data-style="clean"].pgx-cnt>.od{animation:pgxod .16s var(--dm-ease) both}
 /* answered: the result line where the scopes were (a 32px mark under the question's tile, the words under the question's
    words, the clock on the right), then the strip with the summary and Revoke or Undo in the corner */
 :root[data-style="clean"] .pgx.panel .pgx-done,:root [data-style="clean"] .pgx.panel .pgx-done,:root [data-style="clean"].pgx.panel .pgx-done{display:grid;grid-template-columns:32px minmax(0,1fr) auto;grid-template-rows:auto 45px;column-gap:12px;row-gap:16px;align-items:center;padding:0;border-radius:0;background:none!important}
@@ -808,7 +862,6 @@
 :root[data-style="clean"] .pgx.panel .pgx-done .t b,:root [data-style="clean"] .pgx.panel .pgx-done .t b,:root [data-style="clean"].pgx.panel .pgx-done .t b{font-weight:500}
 :root[data-style="clean"] .pgx.panel .pgx-done .t b span,:root [data-style="clean"] .pgx.panel .pgx-done .t b span,:root [data-style="clean"].pgx.panel .pgx-done .t b span{font-size:inherit;line-height:inherit;color:inherit}
 :root[data-style="clean"] .pgx.panel .pgx-done .t span,:root [data-style="clean"] .pgx.panel .pgx-done .t span,:root [data-style="clean"].pgx.panel .pgx-done .t span{color:var(--dm-muted)}
-:root[data-style="clean"] .pgx.panel .pgx-done>.pgx-tm,:root [data-style="clean"] .pgx.panel .pgx-done>.pgx-tm,:root [data-style="clean"].pgx.panel .pgx-done>.pgx-tm{grid-area:1/3;justify-self:end}
 :root[data-style="clean"] .pgx.panel .pgx-done>.pill,:root [data-style="clean"] .pgx.panel .pgx-done>.pill,:root [data-style="clean"].pgx.panel .pgx-done>.pill{grid-area:2/3;z-index:1;align-self:end;margin:0 -8px 8px 0;color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .pgx.panel .pgx-done>.pill:hover,:root [data-style="clean"] .pgx.panel .pgx-done>.pill:hover,:root [data-style="clean"].pgx.panel .pgx-done>.pill:hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
 :root[data-style="clean"] .pgx.panel .pgx-done>.pill:active,:root [data-style="clean"] .pgx.panel .pgx-done>.pill:active,:root [data-style="clean"].pgx.panel .pgx-done>.pill:active{box-shadow:var(--dm-btn2-press)}
@@ -822,7 +875,7 @@
 :root[data-style="clean"] .pgx.panel .pgx-done.ok .g,:root [data-style="clean"] .pgx.panel .pgx-done.ok .g,:root [data-style="clean"].pgx.panel .pgx-done.ok .g{background:var(--dm-surface);box-shadow:inset 0 0 0 1.5px var(--dm-ok-mark);color:var(--dm-ok-mark)}
 :root[data-style="clean"] .pgx.panel .pgx-done.ok .g svg,:root [data-style="clean"] .pgx.panel .pgx-done.ok .g svg,:root [data-style="clean"].pgx.panel .pgx-done.ok .g svg{width:16px;height:16px;stroke-width:2;stroke-dasharray:21;animation:pgxdraw .5s var(--dm-ease) .12s both}
 @keyframes pgxdraw{from{stroke-dashoffset:21}to{stroke-dashoffset:0}}
-:root[data-style="clean"] .pgx.panel .pgx-done>svg,:root [data-style="clean"] .pgx.panel .pgx-done>svg,:root [data-style="clean"].pgx.panel .pgx-done>svg{width:32px;height:32px;padding:8px;box-sizing:border-box;border-radius:50%;background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-hair);color:var(--dm-fg2)}
+:root[data-style="clean"] .pgx.panel .pgx-done>svg,:root [data-style="clean"] .pgx.panel .pgx-done>svg,:root [data-style="clean"].pgx.panel .pgx-done>svg{width:32px;height:32px;margin:0;padding:8px;box-sizing:border-box;border-radius:50%;background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-hair);color:var(--dm-fg2)}
 @media (prefers-reduced-motion:reduce){:root[data-style="clean"] :is(.pgx-o .bx,.pgx-o .bx svg,.pgx-done .g),:root [data-style="clean"] :is(.pgx-o .bx,.pgx-o .bx svg,.pgx-done .g),:root [data-style="clean"]:is(.pgx-o .bx,.pgx-o .bx svg,.pgx-done .g){transition:none}:root[data-style="clean"] :is(.pgx-cnt>i,.pgx-done.ok .g svg),:root [data-style="clean"] :is(.pgx-cnt>i,.pgx-done.ok .g svg),:root [data-style="clean"]:is(.pgx-cnt>i,.pgx-done.ok .g svg){animation:none}}
 </style><style>/* ---------- Decision prompt ---------- */
 /* the agent asks in the chat: no container; with .panel it becomes a card */
@@ -1226,6 +1279,7 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
     <div class="aln panel">
       <div class="aln-h"><span class="aln-ic"><svg class="i s"><use href="#i-users"/></svg></span><span class="aln-t">3 agents working</span><span class="aln-m muted num">0:00</span><span class="aln-ct num">0 of 9 steps</span><button class="pill soft sm aln-pause"><svg class="i xs"><use href="#i-pause"/></svg>Pause all</button></div>
       <div class="aln-rows"></div>
+      <div class="aln-say" aria-live="polite">3 agents queued</div>
     </div>
   </div>
 </div>
@@ -4278,7 +4332,7 @@ const fitHits = window.dmFitHits || (() => {
     { n:'Designer', ic:'palette', t:'pl', wait:'Waiting for the brief', acts:['Laying out pricing cards','Setting type and spacing','Exporting frames'], log:['Made 3 card variants','Applied spacing tokens','Exported 4 frames'] },
     { n:'Reviewer', ic:'eye', t:'pm', wait:'Waiting for the designer', acts:['Checking contrast','Checking copy','Signing off'], log:['Contrast passes AA','Fixed 2 lines of copy','Approved'] }
   ];
-  const root = $('.aln', r), rows = $('.aln-rows', r), ct = $('.aln-ct', r), STEPS = L.length * 3;
+  const root = $('.aln', r), rows = $('.aln-rows', r), ct = $('.aln-ct', r), say = $('.aln-say', r), STEPS = L.length * 3;
   L.forEach(l => {
     l.el = html(`<div class="aln-lane" data-s="queued" style="--dm-c:var(--dm-${l.t});--dm-cb:var(--dm-${l.t}-bg);--dm-cm:var(--dm-aln-${l.t},var(--dm-${l.t}))"><button class="aln-row" aria-expanded="false"><span class="aln-av">${I(l.ic)}</span><span class="aln-who"><span class="aln-n">${l.n}</span><span class="aln-a">${l.wait || 'Queued'}</span></span><span class="aln-tr" aria-hidden="true"><i></i><i></i><i></i></span><span class="aln-st"><span class="tag">Queued</span></span></button><div class="fold shut"><div><div class="aln-det"></div></div></div></div>`);
     rows.appendChild(l.el); const b = $('.aln-row', l.el), f = $('.fold', l.el);
@@ -4287,24 +4341,33 @@ const fitHits = window.dmFitHits || (() => {
   const TAG = { queued:'<span class="tag">Queued</span>', waiting:`<span class="tag">${I('clock','xs')}Waiting</span>`, working:'<span class="tag aln-tg"><span class="spin"></span>Working</span>', paused:'<span class="tag warn">Paused</span>', done:`<span class="tag ok">${I('check','xs')}Done</span>` };
   const state = (l, s) => { l.el.dataset.s = s; const t = $('.aln-st', l.el); t.innerHTML = TAG[s]; enter(t.firstElementChild); };
   const act = (l, t, live) => { const a = $('.aln-a', l.el); a.classList.toggle('live', !!live); a.classList.toggle('shim', !!live); swap(a, t); };
-  let paused = false, secs = 0, finished = false, steps = 0;
+  let paused = false, secs = 0, finished = false, steps = 0, hand = '', hands = 0;
   const count = () => swap(ct, `${steps} of ${STEPS} steps`);
+  const clk = () => Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0'), lc = t => t.charAt(0).toLowerCase() + t.slice(1);
+  // the line under the lanes (shown in Clean's foot strip): the hand-off under way, else what the agent at work last did,
+  // and once the run is done, how it went
+  const tell = () => { if (!say) return;
+    if (finished) return swap(say, `${I('check','xs')}Done in ${clk()} · ${STEPS} steps · ${hands} hand-off${hands === 1 ? '' : 's'}`, true);
+    if (paused) return swap(say, `Paused at ${clk()}`);
+    if (hand) return swap(say, hand);
+    const w = L.find(l => l.running);
+    swap(say, w ? (w.did ? `${w.n}: ${lc(w.did)}` : `${w.n} started: ${lc(w.acts[0])}`) : steps ? `${steps} of ${STEPS} steps` : `${L.length} agents queued`); };
   const pb = $('.aln-pause', r);
   pb.onclick = () => { paused = !paused; pb.innerHTML = I(paused ? 'play' : 'pause','xs') + (paused ? 'Resume' : 'Pause all'); swap($('.aln-t', r), paused ? 'All agents paused' : '3 agents working');
-    L.forEach(l => { if (l.running){ state(l, paused ? 'paused' : 'working'); $('.aln-a', l.el).classList.toggle('shim', !paused); } }); };
-  c.every(1000, () => { if (!paused && !finished){ secs++; $('.aln-m', r).textContent = Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0'); } });
+    L.forEach(l => { if (l.running){ state(l, paused ? 'paused' : 'working'); $('.aln-a', l.el).classList.toggle('shim', !paused); } }); tell(); };
+  c.every(1000, () => { if (!paused && !finished){ secs++; $('.aln-m', r).textContent = clk(); } });
   // time only passes for the agents while they aren't paused; each() hears how far through the wait they are
   const hold = async (ms, each) => { let t = 0; while (t < ms){ await c.wait(100); if (!paused){ t += 100; each && each(t / ms); } } };
   async function work(l){
-    l.running = true; state(l, 'working');
+    l.running = true; l.did = ''; state(l, 'working'); tell();
     const bars = $$('.aln-tr i', l.el), det = $('.aln-det', l.el);
     for (let i = 0; i < 3; i++){
       bars[i].classList.add('run'); act(l, l.acts[i], true);
       await hold(1500, p => bars[i].style.setProperty('--dm-p', p.toFixed(3)));
-      bars[i].classList.replace('run', 'on'); steps++; count();
+      bars[i].classList.replace('run', 'on'); steps++; count(); l.did = l.log[i]; tell();
       const d = html(`<div><span>${l.log[i]}</span><span class="muted">${secs}s</span></div>`); det.appendChild(d); enter(d);
     }
-    l.running = false; act(l, l.log[2]); state(l, 'done');
+    l.running = false; act(l, l.log[2]); state(l, 'done'); tell();
   }
   // the relay line draws itself from one badge down to the next, the badge it reaches rings, and the stroke stays as the lit
   // stretch: one line from badge to badge that follows them as the hand-off line opens and shuts (the grey under it steps aside)
@@ -4320,11 +4383,11 @@ const fitHits = window.dmFitHits || (() => {
   }
   async function handoff(from, to, txt){
     const h = html(`<div class="fold shut aln-hf" style="--dm-from:var(--dm-${from.t});--dm-to:var(--dm-${to.t})"><div><div class="aln-hand"><b class="f">${from.n}</b> handed ${txt} to <b class="t">${to.n}</b></div></div></div>`);
-    to.el.before(h); void h.offsetWidth; h.classList.remove('shut'); enter($('.aln-hand', h), 80);
+    to.el.before(h); void h.offsetWidth; h.classList.remove('shut'); enter($('.aln-hand', h), 80); hand = `${from.n} handed ${txt} to ${to.n}`; hands++; tell();
     await c.wait(REDUCE ? 0 : 500); await carry(from, to);
     from.el.classList.add('sent'); h.classList.add('lit'); to.el.classList.add('got');
     const av = $('.aln-av', to.el); av.classList.add('ping'); c.later(950, () => av.classList.remove('ping'));
-    await c.wait(1300); h.classList.add('shut'); await c.wait(REDUCE ? 0 : 700); h.remove();
+    await c.wait(1300); h.classList.add('shut'); hand = ''; tell(); await c.wait(REDUCE ? 0 : 700); h.remove();
   }
   c.run(async () => {
     await c.wait(600);
@@ -4334,7 +4397,7 @@ const fitHits = window.dmFitHits || (() => {
     await work(L[1]); await handoff(L[1], L[2], '4 frames');
     await work(L[2]);
     finished = true; root.classList.add('fin'); $('.aln-ic', r).innerHTML = I('ok'); enter($('.aln-ic', r).firstElementChild);
-    swap($('.aln-t', r), 'All 3 agents finished'); pb.remove();
+    swap($('.aln-t', r), 'All 3 agents finished'); pb.remove(); tell();
   });
 });
 </script><script>DM.def('context-meter', (r, c) => {
@@ -4471,12 +4534,13 @@ const fitHits = window.dmFitHits || (() => {
   const root = $('.pgx', r), ok = $('.pgx-ok', r), no = $('.pgx-no', r), sc = $('.pgx-sc', r), title = $('.pgx-ht b', r), sub = $('.pgx-ht .muted', r);
   const first = { sc:sc.innerHTML, title:title.textContent, sub:sub.textContent, no:no.textContent };
   const boxes = () => $$('.pgx-o input', sc);
-  // Clean (owner, 18 Nov) has its own touches: the card fits what it holds at every moment (grow(), never a kept height),
+  // the card fits what it holds at every moment, in every style (grow(), never a kept height: owner, 17 and 18 Nov). Clean
+  // (owner, 18 Nov) has its own touches:
   // the count on Allow rolls, the answer gets a summary line in the foot strip, and the done mark is a tick that draws.
   // Soft and Blueprint keep theirs
   const ds = r.closest('[data-style]'), clean = !!ds && ds.dataset.style === 'clean';
   // grow() starts once the card's entrance (which scales it from .98) has ended, so it measures the card at its real size
-  if (clean) Promise.resolve().then(() => Promise.all(root.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && root.isConnected) c.offs.push(grow(root)); });
+  Promise.resolve().then(() => Promise.all(root.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && root.isConnected) c.offs.push(grow(root)); });
   // where a result row goes: in the card, or in grow()'s wrapper inside it
   const into = () => $(':scope>.dm-grow', root) || root;
   // how long: This task, Today or Always, from the dropdown in the footer
@@ -4487,7 +4551,10 @@ const fitHits = window.dmFitHits || (() => {
   const label = n => n ? `<span class="pgx-l">Allow <span class="pgx-cnt"><i>${n}</i></span> <span class="pgx-w">${word(n)}</span></span>` : 'Pick a scope';
   let shown = 0;
   const roll = (cnt, n, up) => { const old = cnt.lastElementChild, nu = document.createElement('i'); nu.textContent = n; nu.className = up ? 'iu' : 'id'; if (old){ old.className = up ? 'ou' : 'od'; setTimeout(() => old.remove(), REDUCE ? 0 : 300); } cnt.appendChild(nu); };
-  const count = () => { const n = boxes().filter(b => b.checked).length; ok.disabled = !n;
+  // Clean asks again for its one scope as a plain row (nothing to tick), and its button just says Allow
+  const one = () => $('.pgx-o.one', sc);
+  const count = () => { if (one()){ ok.disabled = false; shown = 0; return swap(ok, 'Allow'); }
+    const n = boxes().filter(b => b.checked).length; ok.disabled = !n;
     if (!clean) return swap(ok, n ? 'Allow ' + n + (n > 1 ? ' scopes' : ' scope') : 'Pick a scope');
     const cnt = $('.pgx-cnt', ok);
     if (n && shown && cnt && !ok._sw){ if (n !== shown){ roll(cnt, n, n > shown); swap($('.pgx-w', ok), word(n)); } }
@@ -4497,42 +4564,34 @@ const fitHits = window.dmFitHits || (() => {
   c.on(sc, 'change', count);
   $$('.pgx-pop .mi', r).forEach(m => m.addEventListener('click', () => { dur = m.dataset.v; $$('.pgx-pop .mi', r).forEach(x => x.setAttribute('aria-checked', x === m)); swap($('.pgx-dv', r), dur === 'Always' ? 'Always' : 'For ' + dur.toLowerCase()); }));
   const body = [sc, $('.pgx-f', r)];
-  // the scopes give way to a shorter result row: on the card it keeps the height it had and centres the row (hold). In Clean
-  // the card eases to the row's height instead
-  const show = on => { if (!on && c.card && !clean && !root.classList.contains('held')) hold(root); body.forEach(e => e.hidden = !on); if (on) stagger(body, 50); };
+  // the scopes give way to a shorter result row, and the card eases to its height (grow())
+  const show = on => { body.forEach(e => e.hidden = !on); if (on) stagger(body, 50); };
   // Clean's summary line in the foot strip: the scopes you allowed, by name, or how many on a narrow stage
   let names = [];
   const sum = (el, text, short = text) => { if (!clean) return; const s = el.appendChild(html(`<span class="pgx-sum"><span class="l"></span><span class="s"></span></span>`)); s.firstChild.textContent = text; s.lastChild.textContent = short; };
   // the frames the agent edits once it may. Plan toggle is a library component, so editing it needs Publish library
   const F = ['Hero', 'Plan cards', 'Compare table', 'FAQ', 'Plan toggle', 'Checkout summary'], LIB = 4;
-  const clock = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
-  // the clock counts the agent's working time only, not the time it waits for you
-  let granted = 0, publish = false, skip = false, done = 0, ms = 0, run = 0, panel = null;
+  let granted = 0, publish = false, skip = false, done = 0, run = 0, panel = null;
   function row(){
-    panel = html(`<div class="pgx-done run"><span class="g"><span class="spin"></span></span><span class="t"><b class="pgx-a"></b><span class="pgx-d"></span></span><span class="pgx-tm num"></span><button class="pill ghost sm">Revoke</button></div>`);
+    panel = html(`<div class="pgx-done run"><span class="g"><span class="spin"></span></span><span class="t"><b class="pgx-a"></b><span class="pgx-d"></span></span><button class="pill ghost sm">Revoke</button></div>`);
     sum(panel, names.join(', '), `${names.length} ${word(names.length)} allowed`);
     into().appendChild(panel); enter(panel); $('button', panel).onclick = revoke;
   }
   // the agent works through the frames under what it was given, and stops to ask when it reaches one it may not touch
   function work(){
     const id = ++run; if (!panel) row();
-    const a = $('.pgx-a', panel), d = $('.pgx-d', panel), tm = $('.pgx-tm', panel);
+    const a = $('.pgx-a', panel), d = $('.pgx-d', panel);
     swap(a, `Allowed ${granted} ${granted > 1 ? 'scopes' : 'scope'} ${span()}`);
-    const t0 = performance.now(), now = () => ms + performance.now() - t0;
-    tm.textContent = clock(Math.floor(ms / 1000));
     c.run(async () => {
-      const tick = c.every(250, () => { if (run === id) tm.textContent = clock(Math.floor(now() / 1000)); });
-      try {
-        while (done < F.length){
-          if (done === LIB && !publish && !skip) return ask();
-          swap(d, done === LIB && skip ? `Skipping ${F[done]}` : `Editing ${F[done]} · ${done + 1} of ${F.length}`);
-          await c.wait(900); if (run !== id) return;
-          done++;
-        }
-        panel.classList.replace('run', 'ok'); const g = $('.g', panel); g.innerHTML = clean ? I('check') : I('ok'); enter(g);
-        swap(a, skip ? `Done. ${F.length - 1} frames edited` : `Done. ${F.length} frames edited`);
-        swap(d, skip ? 'On a new page. Plan toggle skipped' : 'On a new page. Plan toggle published');
-      } finally { clearInterval(tick); if (run === id) ms = now(); }
+      while (done < F.length){
+        if (done === LIB && !publish && !skip) return ask();
+        swap(d, done === LIB && skip ? `Skipping ${F[done]}` : `Editing ${F[done]} · ${done + 1} of ${F.length}`);
+        await c.wait(900); if (run !== id) return;
+        done++;
+      }
+      panel.classList.replace('run', 'ok'); const g = $('.g', panel); g.innerHTML = clean ? I('check') : I('ok'); enter(g);
+      swap(a, skip ? `Done. ${F.length - 1} frames edited` : `Done. ${F.length} frames edited`);
+      swap(d, skip ? 'On a new page. Plan toggle skipped' : 'On a new page. Plan toggle published');
     });
   }
   // asks again, for only the scope it now needs
@@ -4541,33 +4600,35 @@ const fitHits = window.dmFitHits || (() => {
     root.classList.add('esc'); swap(title, 'Also allow Publish library?'); swap(sub, `${F[LIB]}, frame ${LIB + 1} of ${F.length}, is a library component`);
     c.later(300, () => {
       p.remove();
-      sc.innerHTML = `<label class="pgx-o" data-k="publish"><input type="checkbox" checked><span class="bx">${I('check','xs')}</span><span class="t">Publish library<span class="d">Updates Checkout, Marketing site, Email kit and Docs</span></span><span class="tag warn">Risky</span></label>`;
+      sc.innerHTML = clean
+        ? `<div class="pgx-o one" data-k="publish"><span class="oi">${I('upload')}</span><span class="t">Publish library<span class="d">Updates Checkout, Marketing site, Email kit and Docs</span></span><span class="tag warn">Risky</span></div>`
+        : `<label class="pgx-o" data-k="publish"><input type="checkbox" checked><span class="bx">${I('check','xs')}</span><span class="t">Publish library<span class="d">Updates Checkout, Marketing site, Email kit and Docs</span></span><span class="tag warn">Risky</span></label>`;
       no.textContent = 'Skip this frame'; count(); show(true);
     });
   }
   function reset(){
-    run++; granted = done = ms = 0; publish = skip = false; names = [];
+    run++; granted = done = 0; publish = skip = false; names = [];
     root.classList.remove('esc'); sc.innerHTML = first.sc; swap(title, first.title); swap(sub, first.sub); no.textContent = first.no; count();
   }
-  function revoke(){ const p = panel; panel = null; run++; p.classList.add('leave'); c.later(300, () => { p.remove(); release(root); reset(); show(true); }); }
+  function revoke(){ const p = panel; panel = null; run++; p.classList.add('leave'); c.later(300, () => { p.remove(); reset(); show(true); }); }
   ok.onclick = () => c.run(async () => {
-    const picked = boxes().filter(b => b.checked); if (!picked.length) return;
-    granted += picked.length; if (picked.some(b => b.closest('.pgx-o').dataset.k === 'publish')) publish = true;
-    names.push(...picked.map(b => $('.t', b.closest('.pgx-o')).firstChild.textContent));
+    const picked = one() ? [one()] : boxes().filter(b => b.checked).map(b => b.closest('.pgx-o')); if (!picked.length) return;
+    granted += picked.length; if (picked.some(o => o.dataset.k === 'publish')) publish = true;
+    names.push(...picked.map(o => $('.t', o).firstChild.textContent));
     ok.innerHTML = '<span class="spin"></span>'; await c.wait(500);
     // Clean: the scopes fade up and out before the card eases to the result row's height
     if (clean){ sc.classList.add('leave'); await c.wait(180); sc.classList.remove('leave'); }
     show(false);
     if (root.classList.contains('esc')){ root.classList.remove('esc'); swap(title, first.title); swap(sub, first.sub); }
     // placed inside another component (Agent harness), it reports back without the run
-    if (!c.card){ row(); swap($('.pgx-a', panel), `Allowed ${granted} ${granted > 1 ? 'scopes' : 'scope'} ${span()}`); swap($('.pgx-d', panel), 'Applying the pricing fixes now'); $('.pgx-tm', panel).remove();
+    if (!c.card){ row(); swap($('.pgx-a', panel), `Allowed ${granted} ${granted > 1 ? 'scopes' : 'scope'} ${span()}`); swap($('.pgx-d', panel), 'Applying the pricing fixes now');
       c.later(1400, () => { if (!panel) return; panel.classList.replace('run', 'ok'); $('.g', panel).innerHTML = clean ? I('check') : I('ok'); swap($('.pgx-d', panel), 'Done. 6 frames edited on a new page'); }); return; }
     work();
   });
   no.onclick = () => {
     if (root.classList.contains('esc')){ skip = true; show(false); root.classList.remove('esc'); swap(title, first.title); swap(sub, first.sub); work(); return; }
     show(false); const d = html(`<div class="pgx-done" style="background:var(--dm-chip)">${I('info')}<span class="t">The agent will skip the Figma edits<span>It will list the fixes in chat instead</span></span><button class="pill ghost sm">Undo</button></div>`);
-    sum(d, 'Nothing allowed in Figma'); into().appendChild(d); enter(d); $('button', d).onclick = () => { d.remove(); release(root); show(true); };
+    sum(d, 'Nothing allowed in Figma'); into().appendChild(d); enter(d); $('button', d).onclick = () => { d.remove(); show(true); };
   };
   // the preview's story: hold back the risky scope, allow the rest, then grant it when the agent needs it for one frame
   c.story(async s => {
