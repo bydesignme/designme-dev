@@ -1378,6 +1378,8 @@
 :root[data-style="clean"] .v2 .aln-lane:not(:has(~.aln-lane))::before{display:none}
 :root[data-style="clean"] .v2 .aln-rows>.aln-lane.sent::before,:root[data-style="clean"] .v2 .aln-rows>.aln-lane.got::after,:root[data-style="clean"] .v2 .aln-rows>.aln-hf.lit::before{background:transparent}
 :root[data-style="clean"] .v2 .aln-pk{left:24.25px;width:1.5px;border-radius:1px;box-sizing:content-box;padding:4px 0;margin-top:-4px}
+/* a track and the steps still to come are neutral; an agent's colour shows only on the steps it is running or has done */
+:root[data-style="clean"] .v2 .aln-tr i{background:var(--rail)}
 @media (max-width:400px){:root[data-style="clean"] .v2 .aln.panel .aln-t{margin-left:16px}}
 /* ---------- Agent lanes designs ---------- */
 /* the card's three designs, picked in the switch under it: Classic (the component above, as it ships), Swimlanes and Crew, each filling the width and
@@ -1490,6 +1492,11 @@
 :root[data-style="clean"] .v2 .aln-sw-live{grid-row:3;grid-column:2;align-self:end;margin:8px 8px 8px 0}
 :root[data-style="clean"] .v2 .aln-sw-pause{grid-row:3;grid-column:3;align-self:end;margin:8px 8px 8px 0}
 :root[data-style="clean"] .v2 .aln-sw-lane{border:solid transparent;border-width:0 8px 0 10px}
+/* the lanes and what is still to come are neutral: a grey track with the clock's lines, steps not yet started as a grey dashed
+   outline and a wait as grey hatching. An agent's colour shows only on a step it is running or has done */
+:root[data-style="clean"] .v2 .aln-sw-lane{background:linear-gradient(90deg,transparent 1px,color-mix(in srgb,var(--line) 80%,transparent) 1px 2px,transparent 2px) -1px 0/25% 100%,color-mix(in srgb,var(--fg) 4%,var(--surface))}
+:root[data-style="clean"] .v2 .aln-sw-b:not(.run,.done){border-color:var(--faint)}
+:root[data-style="clean"] .v2 .aln-sw-w{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--fg) 12%,transparent) 0 2px,transparent 2px 6px)}
 :root[data-style="clean"] .v2 .aln-sw-ax{margin-left:calc(var(--lab) + 10px);margin-right:8px}
 :root[data-style="clean"] .v2 .aln-sw-ticks span{transition:opacity var(--t-fast) var(--ease)}
 :root[data-style="clean"] .v2 .aln-sw-ticks span.hid{opacity:0}
@@ -2533,7 +2540,9 @@
 :root[data-style="clean"] .v2 .mpk-p.panel{padding:0;transform-origin:top right;transition:opacity var(--t) var(--ease),transform .32s var(--ease)}
 :root[data-style="clean"] .v2 .mpk-fold.shut .mpk-p{opacity:0;transform:translateY(-4px) scale(.96)}
 :root[data-style="clean"] .v2 :is(.mpk-hd,.mpk-o){grid-template-columns:20px minmax(0,1fr) repeat(3,40px);gap:10px}
-:root[data-style="clean"] .v2 .mpk-hd{padding:16px 16px 4px;line-height:16px}
+/* the column heads take only their own line: 16px from the top edge, the first row straight under them (no band above or
+   below them) */
+:root[data-style="clean"] .v2 .mpk-hd{padding:16px 16px 0;line-height:13px}
 :root[data-style="clean"] .v2 .mpk-list{padding:0 8px 8px}
 :root[data-style="clean"] .v2 .mpk-o{padding:8px;border-radius:calc(var(--r-card) - 8px);transition:background-color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .v2 .mpk-o[aria-checked="true"]{background:var(--chip)}
@@ -2581,6 +2590,12 @@
 /* the confirmation under the popover takes no room until it has something to say, and opens smoothly when it does */
 :root[data-style="clean"] .v2 .mpk-note{min-height:0;max-height:0;margin-top:-8px;opacity:0;overflow:hidden;transition:max-height var(--t) var(--ease),margin-top var(--t) var(--ease),opacity var(--t) var(--ease)}
 :root[data-style="clean"] .v2 .mpk-note:not(:empty){max-height:40px;margin-top:0;opacity:1}
+/* the confirmation is the card's last strip, under Thinking: it opens once there is something to say, its words 16px in,
+   and the strip above it gives the card's round foot to it while it shows. Nothing sits under the card */
+:root[data-style="clean"] .v2 .mpk-p>.mpk-note{margin:0;padding:0 16px;gap:8px;background:var(--strip);border-top:0 solid var(--line);border-radius:0 0 var(--r-card) var(--r-card);line-height:28px;white-space:nowrap;transition:max-height var(--t) var(--ease),padding var(--t) var(--ease),opacity var(--t) var(--ease)}
+:root[data-style="clean"] .v2 .mpk-p>.mpk-note:not(:empty){max-height:45px;padding:8px 16px;border-top-width:1px}
+:root[data-style="clean"] .v2 .mpk-p>.mpk-note span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+:root[data-style="clean"] .v2 .mpk-p:has(>.mpk-note:not(:empty)) .mpk-th{border-radius:0}
 :root[data-style="clean"] .v2 .mpk-note svg{color:var(--ok-mark)}
 /* phones: the thinking line goes under its label rather than being cut, and the select turns into a text control aligned by
    its text, its chevron 16px from the edge like the meters above it */
@@ -2783,12 +2798,23 @@
 /* the card clips its strips to its round corners; the duration menu opens out of it (nothing changes height while it is open) */
 :root[data-style="clean"] .v2 .pgx.panel{padding:16px 16px 0;overflow:clip;overflow-clip-margin:0px}
 :root[data-style="clean"] .v2 .pgx.panel:has(.pgx-pop.open){overflow:visible}
-:root[data-style="clean"] .v2 .pgx-ic{border-radius:50%;box-shadow:inset 0 0 0 1px var(--hair)}
+:root[data-style="clean"] .v2 .pgx-ic{box-shadow:inset 0 0 0 1px var(--hair)}
+/* asking again keeps the tile neutral: the Risky tag on the scope carries the warning */
+:root[data-style="clean"] .v2 .pgx.esc .pgx-ic{background:var(--chip)}
 :root[data-style="clean"] .v2 .pgx-ht b{line-height:20px;letter-spacing:-.01em}
 :root[data-style="clean"] .v2 .pgx-ht span,:root[data-style="clean"] .v2 .pgx-o .d,:root[data-style="clean"] .v2 .pgx-done .t span{line-height:18px}
 :root[data-style="clean"] .v2 :is(.pgx-o,.pgx-done) .t{line-height:20px}
-:root[data-style="clean"] .v2 .pgx-o{transition:background-color var(--t-fast) var(--ease)}
-:root[data-style="clean"] .v2 .pgx-o .bx{border-radius:50%;background:var(--surface);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--muted) 80%,var(--surface)),var(--track-ring);transition:background .2s var(--ease),box-shadow .2s var(--ease)}
+/* a scope row: its box in a 32px column under the question's tile, centred, so its words start where the question's do;
+   hairlines between rows, which give way to the quiet fill of the row under the pointer */
+:root[data-style="clean"] .v2 .pgx-o{position:relative;display:grid;grid-template-columns:32px minmax(0,1fr) auto;column-gap:12px;transition:background-color var(--t-fast) var(--ease)}
+:root[data-style="clean"] .v2 .pgx-o>.bx{justify-self:center}
+:root[data-style="clean"] .v2 .pgx-o+.pgx-o{background-image:linear-gradient(var(--hair),var(--hair));background-repeat:no-repeat;background-position:8px 0;background-size:calc(100% - 16px) 1px}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 :is(.pgx-o:hover,.pgx-o:hover+.pgx-o){background-image:none}}
+/* asking again for one scope: nothing to tick, so the scope is an info row, its info mark where the box would be */
+:root[data-style="clean"] .v2 .pgx-o.one{cursor:default}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .pgx-o.one:hover{background:none}}
+:root[data-style="clean"] .v2 .pgx-o.one>.oi{justify-self:center;display:grid;place-items:center;color:var(--fg2)}
+:root[data-style="clean"] .v2 .pgx-o .bx{border-radius:calc(4px * var(--rk-s,var(--rk)));background:var(--surface);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--muted) 80%,var(--surface)),var(--track-ring);transition:background .2s var(--ease),box-shadow .2s var(--ease)}
 :root[data-style="clean"] .v2 .pgx-o .bx svg{transform:none;stroke-dasharray:21;stroke-dashoffset:21;transition:stroke-dashoffset .3s var(--ease)}
 :root[data-style="clean"] .v2 .pgx-o input:checked+.bx{background:linear-gradient(180deg,var(--btn-1),var(--btn-2));box-shadow:inset 0 0 0 1px var(--btn-2),inset 0 2px 3px -1px rgba(255,255,255,.28);color:var(--on-btn)}
 :root[data-style="clean"] .v2 .pgx-o input:checked+.bx svg{stroke-dashoffset:0;transition-delay:.06s}
@@ -2801,17 +2827,19 @@
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .pgx-f :is(.pgx-db:hover,.pgx-db[aria-expanded="true"],.pill.ghost:hover){background:var(--hover);color:var(--fg)}}
 /* on a narrow stage the buttons wrap under the select: the strip's 4px gaps put them 8px under it */
 @container (max-width:340px){:root[data-style="clean"] .v2 .pgx-no{margin:0 0 0 auto}:root[data-style="clean"] .v2 .pgx-ok{margin-top:0}}
-/* Allow's count rolls: up as a box is ticked, down as one is cleared */
-:root[data-style="clean"] .v2 .pgx-cnt{display:inline-grid;overflow:clip}
+/* Allow's count rolls: up as a box is ticked, down as one is cleared. No window clips it: each number moves a few pixels
+   and fades, so a digit is never seen cut in half */
+:root[data-style="clean"] .v2 .pgx-cnt{display:inline-grid}
 :root[data-style="clean"] .v2 .pgx-cnt>i{grid-area:1/1;font-style:normal;font-variant-numeric:tabular-nums}
-@keyframes v2-pgxiu{from{transform:translateY(80%);opacity:0}}
-@keyframes v2-pgxou{to{transform:translateY(-80%);opacity:0}}
-@keyframes v2-pgxid{from{transform:translateY(-80%);opacity:0}}
-@keyframes v2-pgxod{to{transform:translateY(80%);opacity:0}}
-:root[data-style="clean"] .v2 .pgx-cnt>.iu{animation:v2-pgxiu .3s var(--ease) both}
-:root[data-style="clean"] .v2 .pgx-cnt>.ou{animation:v2-pgxou .3s var(--ease) both}
-:root[data-style="clean"] .v2 .pgx-cnt>.id{animation:v2-pgxid .3s var(--ease) both}
-:root[data-style="clean"] .v2 .pgx-cnt>.od{animation:v2-pgxod .3s var(--ease) both}
+@keyframes v2-pgxiu{from{transform:translateY(40%);opacity:0}}
+@keyframes v2-pgxou{to{transform:translateY(-40%);opacity:0}}
+@keyframes v2-pgxid{from{transform:translateY(-40%);opacity:0}}
+@keyframes v2-pgxod{to{transform:translateY(40%);opacity:0}}
+/* the old number leaves first and the new one follows, so the two never sit on top of each other */
+:root[data-style="clean"] .v2 .pgx-cnt>.iu{animation:v2-pgxiu .22s var(--ease) .1s both}
+:root[data-style="clean"] .v2 .pgx-cnt>.ou{animation:v2-pgxou .16s var(--ease) both}
+:root[data-style="clean"] .v2 .pgx-cnt>.id{animation:v2-pgxid .22s var(--ease) .1s both}
+:root[data-style="clean"] .v2 .pgx-cnt>.od{animation:v2-pgxod .16s var(--ease) both}
 /* answered: the result line where the scopes were (a 32px mark under the question's tile, the words under the question's
    words, the clock on the right), then the strip with the summary and Revoke or Undo in the corner */
 :root[data-style="clean"] .v2 .pgx.panel .pgx-done{display:grid;grid-template-columns:32px minmax(0,1fr) auto;grid-template-rows:auto 45px;column-gap:12px;row-gap:16px;align-items:center;padding:0;border-radius:0;background:none!important}

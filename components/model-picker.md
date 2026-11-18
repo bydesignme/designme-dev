@@ -281,6 +281,12 @@ export function ModelPicker({
     rows.current[i]?.focus(); setCur(models[i].id);
   };
 
+  const noteLine = (
+    <p className="dm-mpk-note dm-muted" aria-live="polite">
+      {note && <><Icon name="ok" size="xs" /><span key={noteKey} {...enter()}>{note}</span></>}
+    </p>
+  );
+
   return (
     <div ref={root} data-dm="" className={cx('dm-mpk', className)} onKeyDown={e => { if (e.key === 'Escape' && isOpen) { setOpen(false); trigger.current?.focus(); } }}>
       <div className="dm-mpk-top">
@@ -320,6 +326,8 @@ export function ModelPicker({
             <div className="dm-mpk-thh"><b><Icon name="brain" size="xs" />Thinking</b><Swap className="dm-muted dm-mpk-thd">{efforts.find(e => e.label === eff)?.detail ?? ''}</Swap></div>
             <button {...effMenu.trigger} type="button" className="dm-mpk-eb" aria-label="Thinking effort"><Swap className="dm-mpk-ev">{eff}</Swap><Icon name="chev-d" size="xs" /></button>
           </div>
+          {/* in Clean the confirmation is the card's last strip, under Thinking */}
+          {clean && noteLine}
         </div>
       </Fold>
       <div {...effMenu.pop} className={cx(effMenu.pop.className, 'dm-mpk-pop')} role="menu" aria-label="Thinking effort">
@@ -329,9 +337,7 @@ export function ModelPicker({
           </button>
         ))}
       </div>
-      <p className="dm-mpk-note dm-muted" aria-live="polite">
-        {note && <><Icon name="ok" size="xs" /><span key={noteKey} {...enter()}>{note}</span></>}
-      </p>
+      {!clean && noteLine}
     </div>
   );
 }

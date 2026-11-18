@@ -61,7 +61,8 @@ export interface PermissionGateProps {
   working?: boolean;
   /** Quiet text at the end of the allowed row, like an elapsed time "0:04" */
   meta?: ReactNode;
-  /** A follow-up ask in the middle of a run, for one more scope: the icon tile turns amber */
+  /** A follow-up ask in the middle of a run, for one more scope: the icon tile turns amber. In Clean the tile stays neutral,
+   *  and a single scope shows as an info row (nothing to tick) with a plain Allow */
   followUp?: boolean;
   /** The decline button. Defaults to "Not now"; a follow-up ask might say "Skip this frame" */
   declineLabel?: string;
@@ -137,7 +138,10 @@ export function PermissionGate({
   const hold = () => { if (!clean) setHeld(h => h ?? root.current?.offsetHeight); };
   // Clean: the scopes fade up and out before the card eases to the result row's height
   const [fading, setFading] = useState(false);
-  const n = ticked.length;
+  // Clean asks again for one scope as an info row: nothing to tick, and the button just says Allow
+  const single = clean && followUp && state === 'asking' && scopes.length === 1;
+  const keys = single ? [scopes[0].key] : ticked;
+  const n = keys.length;
 
   useEffect(() => {
     if (!leaving) return;
@@ -148,8 +152,8 @@ export function PermissionGate({
   const toggle = (key: string) => setTicked(ticked.includes(key) ? ticked.filter(k => k !== key) : scopes.map(s => s.key).filter(k => k === key || ticked.includes(k)));
   const allow = async () => {
     if (!n || waiting) return;
-    setWaiting(true); setGranted(n); const picked = scopes.filter(s => ticked.includes(s.key)).map(s => s.label); setNames(was => followUp ? [...was, ...picked] : picked);
-    try { await onAllow?.(ticked, dur); } finally { setWaiting(false); }
+    setWaiting(true); setGranted(n); const picked = scopes.filter(s => keys.includes(s.key)).map(s => s.label); setNames(was => followUp ? [...was, ...picked] : picked);
+    try { await onAllow?.(keys, dur); } finally { setWaiting(false); }
     if (clean) { setFading(true); await new Promise(r => setTimeout(r, 180)); setFading(false); }
     hold(); setState('allowed');
   };
@@ -170,21 +174,24 @@ export function PermissionGate({
       {state === 'asking' && (
         <>
           <div key={'sc' + again(0).key} className={cx('dm-pgx-sc', again(0).className, fading && 'dm-leave')} style={again(0).style}>
-            {scopes.map(s => (
-              <label key={s.key} className="dm-pgx-o">
-                <input type="checkbox" checked={ticked.includes(s.key)} onChange={() => toggle(s.key)} />
-                <span className="dm-bx"><Icon name="check" size="xs" /></span>
-                <span className="dm-t">{s.label}{s.detail && <span className="dm-d">{s.detail}</span>}</span>
-                {s.risk && (s.riskDetail ? <Tip label={s.riskDetail}><span className="dm-tag dm-warn">{s.risk}</span></Tip> : <span className="dm-tag dm-warn">{s.risk}</span>)}
-              </label>
-            ))}
+            {scopes.map(s => {
+              const risk = s.risk && (s.riskDetail ? <Tip label={s.riskDetail}><span className="dm-tag dm-warn">{s.risk}</span></Tip> : <span className="dm-tag dm-warn">{s.risk}</span>);
+              const words = <span className="dm-t">{s.label}{s.detail && <span className="dm-d">{s.detail}</span>}</span>;
+              return single
+                ? <div key={s.key} className="dm-pgx-o dm-one"><span className="dm-oi"><Icon name="info" /></span>{words}{risk}</div>
+                : <label key={s.key} className="dm-pgx-o">
+                    <input type="checkbox" checked={ticked.includes(s.key)} onChange={() => toggle(s.key)} />
+                    <span className="dm-bx"><Icon name="check" size="xs" /></span>
+                    {words}{risk}
+                  </label>;
+            })}
           </div>
           <div key={'f' + again(1).key} className={cx('dm-pgx-f', again(1).className)} style={again(1).style}>
             <button {...durMenu.trigger} type="button" className="dm-pgx-db" aria-label="How long"><Swap className="dm-pgx-dv">{durLabel(dur)}</Swap><Icon name="chev-d" size="xs" /></button>
             <span className="dm-sp" />
             <button type="button" className="dm-pill dm-ghost dm-sm dm-pgx-no" onClick={decline}>{declineLabel}</button>
             <button type="button" className="dm-pill dm-primary dm-sm dm-pgx-ok" disabled={!n} onClick={allow}>
-              {waiting ? <Spin /> : clean && n
+              {waiting ? <Spin /> : single ? <Swap>Allow</Swap> : clean && n
                 ? <span className="dm-pgx-l">Allow <Count n={n} /> <Swap className="dm-pgx-w">{word(n)}</Swap></span>
                 : <Swap>{allowLabel}</Swap>}
             </button>

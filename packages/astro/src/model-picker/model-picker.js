@@ -59,7 +59,11 @@ DM.def('model-picker', (r, c) => {
   // the trigger sits centred on its own, and glides up as the list folds open; it aims for the open list's own height,
   // not the one it is easing through, so the two move as one
   const mpk = $('.mpk', r), effp = $('.mpk-pop', r);
-  const centred = centre(c, mpk, () => { const shut = fold.classList.contains('shut'), sgx = sgf.classList.contains('shut') ? 0 : sgf.firstElementChild.scrollHeight;
+  // Clean: the confirmation is the card's own foot strip, not a line under it
+  if (clean) $('.mpk-p', r).appendChild(note);
+  // Clean leaves the centring to its stage, which centres it at every moment as the list folds open and the confirmation
+  // strip opens and shuts (centre() measured the homepage card before its stage was laid out and kept it 145px too high)
+  const centred = clean ? () => {} : centre(c, mpk, () => { const shut = fold.classList.contains('shut'), sgx = sgf.classList.contains('shut') ? 0 : sgf.firstElementChild.scrollHeight;
     let h = mpk.offsetHeight - fold.offsetHeight + (shut ? 0 : fold.firstElementChild.scrollHeight - sgf.offsetHeight + sgx);
     return effp.classList.contains('open') ? Math.max(h, effp.offsetTop + effp.offsetHeight) : h; }, [fold.firstElementChild, effp]);
   const open = v => { fold.classList.toggle('shut', !v); fold.inert = !v; tr.setAttribute('aria-expanded', v); centred(); };

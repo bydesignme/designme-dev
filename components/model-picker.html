@@ -231,7 +231,9 @@
 :root[data-style="clean"] .mpk-p.panel,:root [data-style="clean"] .mpk-p.panel,:root [data-style="clean"].mpk-p.panel{padding:0;transform-origin:top right;transition:opacity var(--dm-t) var(--dm-ease),transform .32s var(--dm-ease)}
 :root[data-style="clean"] .mpk-fold.shut .mpk-p,:root [data-style="clean"] .mpk-fold.shut .mpk-p,:root [data-style="clean"].mpk-fold.shut .mpk-p{opacity:0;transform:translateY(-4px) scale(.96)}
 :root[data-style="clean"] :is(.mpk-hd,.mpk-o),:root [data-style="clean"] :is(.mpk-hd,.mpk-o),:root [data-style="clean"]:is(.mpk-hd,.mpk-o){grid-template-columns:20px minmax(0,1fr) repeat(3,40px);gap:10px}
-:root[data-style="clean"] .mpk-hd,:root [data-style="clean"] .mpk-hd,:root [data-style="clean"].mpk-hd{padding:16px 16px 4px;line-height:16px}
+/* the column heads take only their own line: 16px from the top edge, the first row straight under them (no band above or
+   below them) */
+:root[data-style="clean"] .mpk-hd,:root [data-style="clean"] .mpk-hd,:root [data-style="clean"].mpk-hd{padding:16px 16px 0;line-height:13px}
 :root[data-style="clean"] .mpk-list,:root [data-style="clean"] .mpk-list,:root [data-style="clean"].mpk-list{padding:0 8px 8px}
 :root[data-style="clean"] .mpk-o,:root [data-style="clean"] .mpk-o,:root [data-style="clean"].mpk-o{padding:8px;border-radius:calc(var(--dm-r-card) - 8px);transition:background-color var(--dm-t-fast) var(--dm-ease)}
 :root[data-style="clean"] .mpk-o[aria-checked="true"],:root [data-style="clean"] .mpk-o[aria-checked="true"],:root [data-style="clean"].mpk-o[aria-checked="true"]{background:var(--dm-chip)}
@@ -279,6 +281,12 @@
 /* the confirmation under the popover takes no room until it has something to say, and opens smoothly when it does */
 :root[data-style="clean"] .mpk-note,:root [data-style="clean"] .mpk-note,:root [data-style="clean"].mpk-note{min-height:0;max-height:0;margin-top:-8px;opacity:0;overflow:hidden;transition:max-height var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease),opacity var(--dm-t) var(--dm-ease)}
 :root[data-style="clean"] .mpk-note:not(:empty),:root [data-style="clean"] .mpk-note:not(:empty),:root [data-style="clean"].mpk-note:not(:empty){max-height:40px;margin-top:0;opacity:1}
+/* the confirmation is the card's last strip, under Thinking: it opens once there is something to say, its words 16px in,
+   and the strip above it gives the card's round foot to it while it shows. Nothing sits under the card */
+:root[data-style="clean"] .mpk-p>.mpk-note,:root [data-style="clean"] .mpk-p>.mpk-note,:root [data-style="clean"].mpk-p>.mpk-note{margin:0;padding:0 16px;gap:8px;background:var(--dm-strip);border-top:0 solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card);line-height:28px;white-space:nowrap;transition:max-height var(--dm-t) var(--dm-ease),padding var(--dm-t) var(--dm-ease),opacity var(--dm-t) var(--dm-ease)}
+:root[data-style="clean"] .mpk-p>.mpk-note:not(:empty),:root [data-style="clean"] .mpk-p>.mpk-note:not(:empty),:root [data-style="clean"].mpk-p>.mpk-note:not(:empty){max-height:45px;padding:8px 16px;border-top-width:1px}
+:root[data-style="clean"] .mpk-p>.mpk-note span,:root [data-style="clean"] .mpk-p>.mpk-note span,:root [data-style="clean"].mpk-p>.mpk-note span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+:root[data-style="clean"] .mpk-p:has(>.mpk-note:not(:empty)) .mpk-th,:root [data-style="clean"] .mpk-p:has(>.mpk-note:not(:empty)) .mpk-th,:root [data-style="clean"].mpk-p:has(>.mpk-note:not(:empty)) .mpk-th{border-radius:0}
 :root[data-style="clean"] .mpk-note svg,:root [data-style="clean"] .mpk-note svg,:root [data-style="clean"].mpk-note svg{color:var(--dm-ok-mark)}
 /* phones: the thinking line goes under its label rather than being cut, and the select turns into a text control aligned by
    its text, its chevron 16px from the edge like the meters above it */
@@ -434,7 +442,7 @@ export default function ModelPickerDemo() {
 import ModelPicker from &#39;../components/designme/model-picker/ModelPicker.astro&#39;;
 ---
 &lt;ModelPicker /&gt;
-&lt;ModelPicker data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything ModelPicker takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>models</code><span class="opt">required</span></td><td><code>ModelOption[]</code></td><td></td></tr><tr><td><code>value</code></td><td><code>string</code></td><td>The picked model&#39;s id. Leave it out to let the list hold its own</td></tr><tr><td><code>defaultValue</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onValueChange</code></td><td><code>(id: string) =&gt; void</code></td><td>Called when a row is picked, busy or not, so you can check the model first</td></tr><tr><td><code>efforts</code></td><td><code>ThinkingEffort[]</code></td><td>Defaults to Off, Low, Medium and High</td></tr><tr><td><code>effort</code></td><td><code>string</code></td><td></td></tr><tr><td><code>defaultEffort</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onEffortChange</code></td><td><code>(effort: string) =&gt; void</code></td><td></td></tr><tr><td><code>suggestion</code></td><td><code>{ text: ReactNode; actions: { label: string; onClick: () =&gt; void }[] }</code></td><td>A way out when the picked model can&#39;t take the request: a short text and its buttons, the last one filled</td></tr><tr><td><code>note</code></td><td><code>string</code></td><td>The confirmation under the picker, like &quot;Set for this chat: Sonnet 5.5, high thinking&quot;. Shown with a green check</td></tr><tr><td><code>label</code></td><td><code>ReactNode</code></td><td>The label beside the trigger. Defaults to &quot;Model for this chat&quot;</td></tr><tr><td><code>open</code></td><td><code>boolean</code></td><td>Whether the list is open. Leave it out to let the trigger and Escape open and close it</td></tr><tr><td><code>defaultOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>ModelPicker.tsx<span class="l">React · 159 lines</span></summary><pre class="cp-pre" data-name="ModelPicker.tsx"><code>&#39;use client&#39;;
+&lt;ModelPicker data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything ModelPicker takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>models</code><span class="opt">required</span></td><td><code>ModelOption[]</code></td><td></td></tr><tr><td><code>value</code></td><td><code>string</code></td><td>The picked model&#39;s id. Leave it out to let the list hold its own</td></tr><tr><td><code>defaultValue</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onValueChange</code></td><td><code>(id: string) =&gt; void</code></td><td>Called when a row is picked, busy or not, so you can check the model first</td></tr><tr><td><code>efforts</code></td><td><code>ThinkingEffort[]</code></td><td>Defaults to Off, Low, Medium and High</td></tr><tr><td><code>effort</code></td><td><code>string</code></td><td></td></tr><tr><td><code>defaultEffort</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onEffortChange</code></td><td><code>(effort: string) =&gt; void</code></td><td></td></tr><tr><td><code>suggestion</code></td><td><code>{ text: ReactNode; actions: { label: string; onClick: () =&gt; void }[] }</code></td><td>A way out when the picked model can&#39;t take the request: a short text and its buttons, the last one filled</td></tr><tr><td><code>note</code></td><td><code>string</code></td><td>The confirmation under the picker, like &quot;Set for this chat: Sonnet 5.5, high thinking&quot;. Shown with a green check</td></tr><tr><td><code>label</code></td><td><code>ReactNode</code></td><td>The label beside the trigger. Defaults to &quot;Model for this chat&quot;</td></tr><tr><td><code>open</code></td><td><code>boolean</code></td><td>Whether the list is open. Leave it out to let the trigger and Escape open and close it</td></tr><tr><td><code>defaultOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>ModelPicker.tsx<span class="l">React · 165 lines</span></summary><pre class="cp-pre" data-name="ModelPicker.tsx"><code>&#39;use client&#39;;
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable } from &#39;../lib/hooks&#39;;
@@ -538,6 +546,12 @@ export function ModelPicker({
     rows.current[i]?.focus(); setCur(models[i].id);
   };
 
+  const noteLine = (
+    &lt;p className=&quot;dm-mpk-note dm-muted&quot; aria-live=&quot;polite&quot;&gt;
+      {note &amp;&amp; &lt;&gt;&lt;Icon name=&quot;ok&quot; size=&quot;xs&quot; /&gt;&lt;span key={noteKey} {...enter()}&gt;{note}&lt;/span&gt;&lt;/&gt;}
+    &lt;/p&gt;
+  );
+
   return (
     &lt;div ref={root} data-dm=&quot;&quot; className={cx(&#39;dm-mpk&#39;, className)} onKeyDown={e =&gt; { if (e.key === &#39;Escape&#39; &amp;&amp; isOpen) { setOpen(false); trigger.current?.focus(); } }}&gt;
       &lt;div className=&quot;dm-mpk-top&quot;&gt;
@@ -577,6 +591,8 @@ export function ModelPicker({
             &lt;div className=&quot;dm-mpk-thh&quot;&gt;&lt;b&gt;&lt;Icon name=&quot;brain&quot; size=&quot;xs&quot; /&gt;Thinking&lt;/b&gt;&lt;Swap className=&quot;dm-muted dm-mpk-thd&quot;&gt;{efforts.find(e =&gt; e.label === eff)?.detail ?? &#39;&#39;}&lt;/Swap&gt;&lt;/div&gt;
             &lt;button {...effMenu.trigger} type=&quot;button&quot; className=&quot;dm-mpk-eb&quot; aria-label=&quot;Thinking effort&quot;&gt;&lt;Swap className=&quot;dm-mpk-ev&quot;&gt;{eff}&lt;/Swap&gt;&lt;Icon name=&quot;chev-d&quot; size=&quot;xs&quot; /&gt;&lt;/button&gt;
           &lt;/div&gt;
+          {/* in Clean the confirmation is the card&#39;s last strip, under Thinking */}
+          {clean &amp;&amp; noteLine}
         &lt;/div&gt;
       &lt;/Fold&gt;
       &lt;div {...effMenu.pop} className={cx(effMenu.pop.className, &#39;dm-mpk-pop&#39;)} role=&quot;menu&quot; aria-label=&quot;Thinking effort&quot;&gt;
@@ -586,13 +602,11 @@ export function ModelPicker({
           &lt;/button&gt;
         ))}
       &lt;/div&gt;
-      &lt;p className=&quot;dm-mpk-note dm-muted&quot; aria-live=&quot;polite&quot;&gt;
-        {note &amp;&amp; &lt;&gt;&lt;Icon name=&quot;ok&quot; size=&quot;xs&quot; /&gt;&lt;span key={noteKey} {...enter()}&gt;{note}&lt;/span&gt;&lt;/&gt;}
-      &lt;/p&gt;
+      {!clean &amp;&amp; noteLine}
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>model-picker.css<span class="l">React · 129 lines</span></summary><pre class="cp-pre" data-name="model-picker.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>model-picker.css<span class="l">React · 137 lines</span></summary><pre class="cp-pre" data-name="model-picker.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Model picker ---------- */
 /* a trigger that names the model and how hard it thinks, over the open list: speed, quality and cost as five-step meters
    with the real numbers on hover, and the thinking effort under them as a small dropdown */
@@ -664,7 +678,9 @@ export function ModelPicker({
 :root[data-style=&quot;clean&quot;] .dm-mpk-p.dm-panel,:root [data-style=&quot;clean&quot;] .dm-mpk-p.dm-panel,:root [data-style=&quot;clean&quot;].dm-mpk-p.dm-panel{padding:0;transform-origin:top right;transition:opacity var(--dm-t) var(--dm-ease),transform .32s var(--dm-ease)}
 :root[data-style=&quot;clean&quot;] .dm-mpk-fold.dm-shut .dm-mpk-p,:root [data-style=&quot;clean&quot;] .dm-mpk-fold.dm-shut .dm-mpk-p,:root [data-style=&quot;clean&quot;].dm-mpk-fold.dm-shut .dm-mpk-p{opacity:0;transform:translateY(-4px) scale(.96)}
 :root[data-style=&quot;clean&quot;] :is(.dm-mpk-hd,.dm-mpk-o),:root [data-style=&quot;clean&quot;] :is(.dm-mpk-hd,.dm-mpk-o),:root [data-style=&quot;clean&quot;]:is(.dm-mpk-hd,.dm-mpk-o){grid-template-columns:20px minmax(0,1fr) repeat(3,40px);gap:10px}
-:root[data-style=&quot;clean&quot;] .dm-mpk-hd,:root [data-style=&quot;clean&quot;] .dm-mpk-hd,:root [data-style=&quot;clean&quot;].dm-mpk-hd{padding:16px 16px 4px;line-height:16px}
+/* the column heads take only their own line: 16px from the top edge, the first row straight under them (no band above or
+   below them) */
+:root[data-style=&quot;clean&quot;] .dm-mpk-hd,:root [data-style=&quot;clean&quot;] .dm-mpk-hd,:root [data-style=&quot;clean&quot;].dm-mpk-hd{padding:16px 16px 0;line-height:13px}
 :root[data-style=&quot;clean&quot;] .dm-mpk-list,:root [data-style=&quot;clean&quot;] .dm-mpk-list,:root [data-style=&quot;clean&quot;].dm-mpk-list{padding:0 8px 8px}
 :root[data-style=&quot;clean&quot;] .dm-mpk-o,:root [data-style=&quot;clean&quot;] .dm-mpk-o,:root [data-style=&quot;clean&quot;].dm-mpk-o{padding:8px;border-radius:calc(var(--dm-r-card) - 8px);transition:background-color var(--dm-t-fast) var(--dm-ease)}
 :root[data-style=&quot;clean&quot;] .dm-mpk-o[aria-checked=&quot;true&quot;],:root [data-style=&quot;clean&quot;] .dm-mpk-o[aria-checked=&quot;true&quot;],:root [data-style=&quot;clean&quot;].dm-mpk-o[aria-checked=&quot;true&quot;]{background:var(--dm-chip)}
@@ -712,6 +728,12 @@ export function ModelPicker({
 /* the confirmation under the popover takes no room until it has something to say, and opens smoothly when it does */
 :root[data-style=&quot;clean&quot;] .dm-mpk-note,:root [data-style=&quot;clean&quot;] .dm-mpk-note,:root [data-style=&quot;clean&quot;].dm-mpk-note{min-height:0;max-height:0;margin-top:-8px;opacity:0;overflow:hidden;transition:max-height var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease),opacity var(--dm-t) var(--dm-ease)}
 :root[data-style=&quot;clean&quot;] .dm-mpk-note:not(:empty),:root [data-style=&quot;clean&quot;] .dm-mpk-note:not(:empty),:root [data-style=&quot;clean&quot;].dm-mpk-note:not(:empty){max-height:40px;margin-top:0;opacity:1}
+/* the confirmation is the card&#39;s last strip, under Thinking: it opens once there is something to say, its words 16px in,
+   and the strip above it gives the card&#39;s round foot to it while it shows. Nothing sits under the card */
+:root[data-style=&quot;clean&quot;] .dm-mpk-p&gt;.dm-mpk-note,:root [data-style=&quot;clean&quot;] .dm-mpk-p&gt;.dm-mpk-note,:root [data-style=&quot;clean&quot;].dm-mpk-p&gt;.dm-mpk-note{margin:0;padding:0 16px;gap:8px;background:var(--dm-strip);border-top:0 solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card);line-height:28px;white-space:nowrap;transition:max-height var(--dm-t) var(--dm-ease),padding var(--dm-t) var(--dm-ease),opacity var(--dm-t) var(--dm-ease)}
+:root[data-style=&quot;clean&quot;] .dm-mpk-p&gt;.dm-mpk-note:not(:empty),:root [data-style=&quot;clean&quot;] .dm-mpk-p&gt;.dm-mpk-note:not(:empty),:root [data-style=&quot;clean&quot;].dm-mpk-p&gt;.dm-mpk-note:not(:empty){max-height:45px;padding:8px 16px;border-top-width:1px}
+:root[data-style=&quot;clean&quot;] .dm-mpk-p&gt;.dm-mpk-note span,:root [data-style=&quot;clean&quot;] .dm-mpk-p&gt;.dm-mpk-note span,:root [data-style=&quot;clean&quot;].dm-mpk-p&gt;.dm-mpk-note span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+:root[data-style=&quot;clean&quot;] .dm-mpk-p:has(&gt;.dm-mpk-note:not(:empty)) .dm-mpk-th,:root [data-style=&quot;clean&quot;] .dm-mpk-p:has(&gt;.dm-mpk-note:not(:empty)) .dm-mpk-th,:root [data-style=&quot;clean&quot;].dm-mpk-p:has(&gt;.dm-mpk-note:not(:empty)) .dm-mpk-th{border-radius:0}
 :root[data-style=&quot;clean&quot;] .dm-mpk-note svg,:root [data-style=&quot;clean&quot;] .dm-mpk-note svg,:root [data-style=&quot;clean&quot;].dm-mpk-note svg{color:var(--dm-ok-mark)}
 /* phones: the thinking line goes under its label rather than being cut, and the select turns into a text control aligned by
    its text, its chevron 16px from the edge like the meters above it */
@@ -784,7 +806,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>model-picker.css<span class="l">HTML · 128 lines</span></summary><pre class="cp-pre" data-name="model-picker.css"><code>/* ---------- Model picker ---------- */
+</code></pre></details><details class="cp-file"><summary>model-picker.css<span class="l">HTML · 136 lines</span></summary><pre class="cp-pre" data-name="model-picker.css"><code>/* ---------- Model picker ---------- */
 /* a trigger that names the model and how hard it thinks, over the open list: speed, quality and cost as five-step meters
    with the real numbers on hover, and the thinking effort under them as a small dropdown */
 .mpk{position:relative;display:flex;flex-direction:column;gap:var(--dm-s-2);width:100%;max-width:420px;margin:0 auto}
@@ -855,7 +877,9 @@ const { class: className, ...rest } = Astro.props;
 :root[data-style=&quot;clean&quot;] .mpk-p.panel,:root [data-style=&quot;clean&quot;] .mpk-p.panel,:root [data-style=&quot;clean&quot;].mpk-p.panel{padding:0;transform-origin:top right;transition:opacity var(--dm-t) var(--dm-ease),transform .32s var(--dm-ease)}
 :root[data-style=&quot;clean&quot;] .mpk-fold.shut .mpk-p,:root [data-style=&quot;clean&quot;] .mpk-fold.shut .mpk-p,:root [data-style=&quot;clean&quot;].mpk-fold.shut .mpk-p{opacity:0;transform:translateY(-4px) scale(.96)}
 :root[data-style=&quot;clean&quot;] :is(.mpk-hd,.mpk-o),:root [data-style=&quot;clean&quot;] :is(.mpk-hd,.mpk-o),:root [data-style=&quot;clean&quot;]:is(.mpk-hd,.mpk-o){grid-template-columns:20px minmax(0,1fr) repeat(3,40px);gap:10px}
-:root[data-style=&quot;clean&quot;] .mpk-hd,:root [data-style=&quot;clean&quot;] .mpk-hd,:root [data-style=&quot;clean&quot;].mpk-hd{padding:16px 16px 4px;line-height:16px}
+/* the column heads take only their own line: 16px from the top edge, the first row straight under them (no band above or
+   below them) */
+:root[data-style=&quot;clean&quot;] .mpk-hd,:root [data-style=&quot;clean&quot;] .mpk-hd,:root [data-style=&quot;clean&quot;].mpk-hd{padding:16px 16px 0;line-height:13px}
 :root[data-style=&quot;clean&quot;] .mpk-list,:root [data-style=&quot;clean&quot;] .mpk-list,:root [data-style=&quot;clean&quot;].mpk-list{padding:0 8px 8px}
 :root[data-style=&quot;clean&quot;] .mpk-o,:root [data-style=&quot;clean&quot;] .mpk-o,:root [data-style=&quot;clean&quot;].mpk-o{padding:8px;border-radius:calc(var(--dm-r-card) - 8px);transition:background-color var(--dm-t-fast) var(--dm-ease)}
 :root[data-style=&quot;clean&quot;] .mpk-o[aria-checked=&quot;true&quot;],:root [data-style=&quot;clean&quot;] .mpk-o[aria-checked=&quot;true&quot;],:root [data-style=&quot;clean&quot;].mpk-o[aria-checked=&quot;true&quot;]{background:var(--dm-chip)}
@@ -903,6 +927,12 @@ const { class: className, ...rest } = Astro.props;
 /* the confirmation under the popover takes no room until it has something to say, and opens smoothly when it does */
 :root[data-style=&quot;clean&quot;] .mpk-note,:root [data-style=&quot;clean&quot;] .mpk-note,:root [data-style=&quot;clean&quot;].mpk-note{min-height:0;max-height:0;margin-top:-8px;opacity:0;overflow:hidden;transition:max-height var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease),opacity var(--dm-t) var(--dm-ease)}
 :root[data-style=&quot;clean&quot;] .mpk-note:not(:empty),:root [data-style=&quot;clean&quot;] .mpk-note:not(:empty),:root [data-style=&quot;clean&quot;].mpk-note:not(:empty){max-height:40px;margin-top:0;opacity:1}
+/* the confirmation is the card&#39;s last strip, under Thinking: it opens once there is something to say, its words 16px in,
+   and the strip above it gives the card&#39;s round foot to it while it shows. Nothing sits under the card */
+:root[data-style=&quot;clean&quot;] .mpk-p&gt;.mpk-note,:root [data-style=&quot;clean&quot;] .mpk-p&gt;.mpk-note,:root [data-style=&quot;clean&quot;].mpk-p&gt;.mpk-note{margin:0;padding:0 16px;gap:8px;background:var(--dm-strip);border-top:0 solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card);line-height:28px;white-space:nowrap;transition:max-height var(--dm-t) var(--dm-ease),padding var(--dm-t) var(--dm-ease),opacity var(--dm-t) var(--dm-ease)}
+:root[data-style=&quot;clean&quot;] .mpk-p&gt;.mpk-note:not(:empty),:root [data-style=&quot;clean&quot;] .mpk-p&gt;.mpk-note:not(:empty),:root [data-style=&quot;clean&quot;].mpk-p&gt;.mpk-note:not(:empty){max-height:45px;padding:8px 16px;border-top-width:1px}
+:root[data-style=&quot;clean&quot;] .mpk-p&gt;.mpk-note span,:root [data-style=&quot;clean&quot;] .mpk-p&gt;.mpk-note span,:root [data-style=&quot;clean&quot;].mpk-p&gt;.mpk-note span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+:root[data-style=&quot;clean&quot;] .mpk-p:has(&gt;.mpk-note:not(:empty)) .mpk-th,:root [data-style=&quot;clean&quot;] .mpk-p:has(&gt;.mpk-note:not(:empty)) .mpk-th,:root [data-style=&quot;clean&quot;].mpk-p:has(&gt;.mpk-note:not(:empty)) .mpk-th{border-radius:0}
 :root[data-style=&quot;clean&quot;] .mpk-note svg,:root [data-style=&quot;clean&quot;] .mpk-note svg,:root [data-style=&quot;clean&quot;].mpk-note svg{color:var(--dm-ok-mark)}
 /* phones: the thinking line goes under its label rather than being cut, and the select turns into a text control aligned by
    its text, its chevron 16px from the edge like the meters above it */
@@ -911,7 +941,7 @@ const { class: className, ...rest } = Astro.props;
   :root[data-style=&quot;clean&quot;] .mpk-eb,:root [data-style=&quot;clean&quot;] .mpk-eb,:root [data-style=&quot;clean&quot;].mpk-eb{margin-right:-10px;background:none;box-shadow:none}
   @media (hover:hover) and (pointer:fine){:root[data-style=&quot;clean&quot;] :is(.mpk-eb:hover,.mpk-eb[aria-expanded=&quot;true&quot;]),:root [data-style=&quot;clean&quot;] :is(.mpk-eb:hover,.mpk-eb[aria-expanded=&quot;true&quot;]),:root [data-style=&quot;clean&quot;]:is(.mpk-eb:hover,.mpk-eb[aria-expanded=&quot;true&quot;]){margin-right:-10px;background:none;box-shadow:none}}@media (hover:hover) and (pointer:fine){:root[data-style=&quot;clean&quot;] :is(.mpk-eb:hover,.mpk-eb[aria-expanded=&quot;true&quot;]),:root [data-style=&quot;clean&quot;] :is(.mpk-eb:hover,.mpk-eb[aria-expanded=&quot;true&quot;]),:root [data-style=&quot;clean&quot;]:is(.mpk-eb:hover,.mpk-eb[aria-expanded=&quot;true&quot;]){background:var(--dm-hover)}}}
 @media (prefers-reduced-motion:reduce){:root[data-style=&quot;clean&quot;] .mpk-m i.on,:root [data-style=&quot;clean&quot;] .mpk-m i.on,:root [data-style=&quot;clean&quot;].mpk-m i.on{animation:none!important}:root[data-style=&quot;clean&quot;] :is(.mpk-p,.mpk-o .ck svg,.mpk-note,.mpk-m i),:root [data-style=&quot;clean&quot;] :is(.mpk-p,.mpk-o .ck svg,.mpk-note,.mpk-m i),:root [data-style=&quot;clean&quot;]:is(.mpk-p,.mpk-o .ck svg,.mpk-note,.mpk-m i){transition:none!important}}
-</code></pre></details><details class="cp-file"><summary>model-picker.js<span class="l">HTML · 78 lines</span></summary><pre class="cp-pre" data-name="model-picker.js"><code>DM.def(&#39;model-picker&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>model-picker.js<span class="l">HTML · 82 lines</span></summary><pre class="cp-pre" data-name="model-picker.js"><code>DM.def(&#39;model-picker&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(/\{chev\}/g, I(&#39;chev-d&#39;,&#39;xs&#39;)).replace(&#39;{brain}&#39;, I(&#39;brain&#39;,&#39;xs&#39;)).replace(/\{chk\}/g, I(&#39;check&#39;,&#39;xs&#39;));
   // speed, quality and cost out of five, and the numbers behind them: tokens a second, and a typical reply&#39;s seconds and
   // price with no thinking
@@ -970,7 +1000,11 @@ const { class: className, ...rest } = Astro.props;
   // the trigger sits centred on its own, and glides up as the list folds open; it aims for the open list&#39;s own height,
   // not the one it is easing through, so the two move as one
   const mpk = $(&#39;.mpk&#39;, r), effp = $(&#39;.mpk-pop&#39;, r);
-  const centred = centre(c, mpk, () =&gt; { const shut = fold.classList.contains(&#39;shut&#39;), sgx = sgf.classList.contains(&#39;shut&#39;) ? 0 : sgf.firstElementChild.scrollHeight;
+  // Clean: the confirmation is the card&#39;s own foot strip, not a line under it
+  if (clean) $(&#39;.mpk-p&#39;, r).appendChild(note);
+  // Clean leaves the centring to its stage, which centres it at every moment as the list folds open and the confirmation
+  // strip opens and shuts (centre() measured the homepage card before its stage was laid out and kept it 145px too high)
+  const centred = clean ? () =&gt; {} : centre(c, mpk, () =&gt; { const shut = fold.classList.contains(&#39;shut&#39;), sgx = sgf.classList.contains(&#39;shut&#39;) ? 0 : sgf.firstElementChild.scrollHeight;
     let h = mpk.offsetHeight - fold.offsetHeight + (shut ? 0 : fold.firstElementChild.scrollHeight - sgf.offsetHeight + sgx);
     return effp.classList.contains(&#39;open&#39;) ? Math.max(h, effp.offsetTop + effp.offsetHeight) : h; }, [fold.firstElementChild, effp]);
   const open = v =&gt; { fold.classList.toggle(&#39;shut&#39;, !v); fold.inert = !v; tr.setAttribute(&#39;aria-expanded&#39;, v); centred(); };
@@ -1383,7 +1417,11 @@ const fitHits = window.dmFitHits || (() => {
   // the trigger sits centred on its own, and glides up as the list folds open; it aims for the open list's own height,
   // not the one it is easing through, so the two move as one
   const mpk = $('.mpk', r), effp = $('.mpk-pop', r);
-  const centred = centre(c, mpk, () => { const shut = fold.classList.contains('shut'), sgx = sgf.classList.contains('shut') ? 0 : sgf.firstElementChild.scrollHeight;
+  // Clean: the confirmation is the card's own foot strip, not a line under it
+  if (clean) $('.mpk-p', r).appendChild(note);
+  // Clean leaves the centring to its stage, which centres it at every moment as the list folds open and the confirmation
+  // strip opens and shuts (centre() measured the homepage card before its stage was laid out and kept it 145px too high)
+  const centred = clean ? () => {} : centre(c, mpk, () => { const shut = fold.classList.contains('shut'), sgx = sgf.classList.contains('shut') ? 0 : sgf.firstElementChild.scrollHeight;
     let h = mpk.offsetHeight - fold.offsetHeight + (shut ? 0 : fold.firstElementChild.scrollHeight - sgf.offsetHeight + sgx);
     return effp.classList.contains('open') ? Math.max(h, effp.offsetTop + effp.offsetHeight) : h; }, [fold.firstElementChild, effp]);
   const open = v => { fold.classList.toggle('shut', !v); fold.inert = !v; tr.setAttribute('aria-expanded', v); centred(); };

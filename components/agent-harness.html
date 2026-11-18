@@ -625,6 +625,8 @@
 :root[data-style="clean"] .aln-lane:not(:has(~.aln-lane))::before,:root [data-style="clean"] .aln-lane:not(:has(~.aln-lane))::before,:root [data-style="clean"].aln-lane:not(:has(~.aln-lane))::before{display:none}
 :root[data-style="clean"] .aln-rows>.aln-lane.sent::before,:root [data-style="clean"] .aln-rows>.aln-lane.sent::before,:root [data-style="clean"].aln-rows>.aln-lane.sent::before,:root[data-style="clean"] .aln-rows>.aln-lane.got::after,:root [data-style="clean"] .aln-rows>.aln-lane.got::after,:root [data-style="clean"].aln-rows>.aln-lane.got::after,:root[data-style="clean"] .aln-rows>.aln-hf.lit::before,:root [data-style="clean"] .aln-rows>.aln-hf.lit::before,:root [data-style="clean"].aln-rows>.aln-hf.lit::before{background:transparent}
 :root[data-style="clean"] .aln-pk,:root [data-style="clean"] .aln-pk,:root [data-style="clean"].aln-pk{left:24.25px;width:1.5px;border-radius:1px;box-sizing:content-box;padding:4px 0;margin-top:-4px}
+/* a track and the steps still to come are neutral; an agent's colour shows only on the steps it is running or has done */
+:root[data-style="clean"] .aln-tr i,:root [data-style="clean"] .aln-tr i,:root [data-style="clean"].aln-tr i{background:var(--dm-rail)}
 @media (max-width:400px){:root[data-style="clean"] .aln.panel .aln-t,:root [data-style="clean"] .aln.panel .aln-t,:root [data-style="clean"].aln.panel .aln-t{margin-left:16px}}
 </style><style>/* ---------- Context meter ---------- */
 /* a pill with the ring opens what fills the context: one bar split by kind, a legend whose rows list their items, and Compact */
@@ -800,12 +802,23 @@
 /* the card clips its strips to its round corners; the duration menu opens out of it (nothing changes height while it is open) */
 :root[data-style="clean"] .pgx.panel,:root [data-style="clean"] .pgx.panel,:root [data-style="clean"].pgx.panel{padding:16px 16px 0;overflow:clip;overflow-clip-margin:0px}
 :root[data-style="clean"] .pgx.panel:has(.pgx-pop.open),:root [data-style="clean"] .pgx.panel:has(.pgx-pop.open),:root [data-style="clean"].pgx.panel:has(.pgx-pop.open){overflow:visible}
-:root[data-style="clean"] .pgx-ic,:root [data-style="clean"] .pgx-ic,:root [data-style="clean"].pgx-ic{border-radius:50%;box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .pgx-ic,:root [data-style="clean"] .pgx-ic,:root [data-style="clean"].pgx-ic{box-shadow:inset 0 0 0 1px var(--dm-hair)}
+/* asking again keeps the tile neutral: the Risky tag on the scope carries the warning */
+:root[data-style="clean"] .pgx.esc .pgx-ic,:root [data-style="clean"] .pgx.esc .pgx-ic,:root [data-style="clean"].pgx.esc .pgx-ic{background:var(--dm-chip)}
 :root[data-style="clean"] .pgx-ht b,:root [data-style="clean"] .pgx-ht b,:root [data-style="clean"].pgx-ht b{line-height:20px;letter-spacing:-.01em}
 :root[data-style="clean"] .pgx-ht span,:root [data-style="clean"] .pgx-ht span,:root [data-style="clean"].pgx-ht span,:root[data-style="clean"] .pgx-o .d,:root [data-style="clean"] .pgx-o .d,:root [data-style="clean"].pgx-o .d,:root[data-style="clean"] .pgx-done .t span,:root [data-style="clean"] .pgx-done .t span,:root [data-style="clean"].pgx-done .t span{line-height:18px}
 :root[data-style="clean"] :is(.pgx-o,.pgx-done) .t,:root [data-style="clean"] :is(.pgx-o,.pgx-done) .t,:root [data-style="clean"]:is(.pgx-o,.pgx-done) .t{line-height:20px}
-:root[data-style="clean"] .pgx-o,:root [data-style="clean"] .pgx-o,:root [data-style="clean"].pgx-o{transition:background-color var(--dm-t-fast) var(--dm-ease)}
-:root[data-style="clean"] .pgx-o .bx,:root [data-style="clean"] .pgx-o .bx,:root [data-style="clean"].pgx-o .bx{border-radius:50%;background:var(--dm-surface);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-muted) 80%,var(--dm-surface)),var(--dm-track-ring);transition:background .2s var(--dm-ease),box-shadow .2s var(--dm-ease)}
+/* a scope row: its box in a 32px column under the question's tile, centred, so its words start where the question's do;
+   hairlines between rows, which give way to the quiet fill of the row under the pointer */
+:root[data-style="clean"] .pgx-o,:root [data-style="clean"] .pgx-o,:root [data-style="clean"].pgx-o{position:relative;display:grid;grid-template-columns:32px minmax(0,1fr) auto;column-gap:12px;transition:background-color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .pgx-o>.bx,:root [data-style="clean"] .pgx-o>.bx,:root [data-style="clean"].pgx-o>.bx{justify-self:center}
+:root[data-style="clean"] .pgx-o+.pgx-o,:root [data-style="clean"] .pgx-o+.pgx-o,:root [data-style="clean"].pgx-o+.pgx-o{background-image:linear-gradient(var(--dm-hair),var(--dm-hair));background-repeat:no-repeat;background-position:8px 0;background-size:calc(100% - 16px) 1px}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] :is(.pgx-o:hover,.pgx-o:hover+.pgx-o),:root [data-style="clean"] :is(.pgx-o:hover,.pgx-o:hover+.pgx-o),:root [data-style="clean"]:is(.pgx-o:hover,.pgx-o:hover+.pgx-o){background-image:none}}
+/* asking again for one scope: nothing to tick, so the scope is an info row, its info mark where the box would be */
+:root[data-style="clean"] .pgx-o.one,:root [data-style="clean"] .pgx-o.one,:root [data-style="clean"].pgx-o.one{cursor:default}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .pgx-o.one:hover,:root [data-style="clean"] .pgx-o.one:hover,:root [data-style="clean"].pgx-o.one:hover{background:none}}
+:root[data-style="clean"] .pgx-o.one>.oi,:root [data-style="clean"] .pgx-o.one>.oi,:root [data-style="clean"].pgx-o.one>.oi{justify-self:center;display:grid;place-items:center;color:var(--dm-fg2)}
+:root[data-style="clean"] .pgx-o .bx,:root [data-style="clean"] .pgx-o .bx,:root [data-style="clean"].pgx-o .bx{border-radius:calc(4px * var(--dm-rk-s,var(--dm-rk)));background:var(--dm-surface);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-muted) 80%,var(--dm-surface)),var(--dm-track-ring);transition:background .2s var(--dm-ease),box-shadow .2s var(--dm-ease)}
 :root[data-style="clean"] .pgx-o .bx svg,:root [data-style="clean"] .pgx-o .bx svg,:root [data-style="clean"].pgx-o .bx svg{transform:none;stroke-dasharray:21;stroke-dashoffset:21;transition:stroke-dashoffset .3s var(--dm-ease)}
 :root[data-style="clean"] .pgx-o input:checked+.bx,:root [data-style="clean"] .pgx-o input:checked+.bx,:root [data-style="clean"].pgx-o input:checked+.bx{background:linear-gradient(180deg,var(--dm-btn-1),var(--dm-btn-2));box-shadow:inset 0 0 0 1px var(--dm-btn-2),inset 0 2px 3px -1px rgba(255,255,255,.28);color:var(--dm-on-btn)}
 :root[data-style="clean"] .pgx-o input:checked+.bx svg,:root [data-style="clean"] .pgx-o input:checked+.bx svg,:root [data-style="clean"].pgx-o input:checked+.bx svg{stroke-dashoffset:0;transition-delay:.06s}
@@ -818,17 +831,19 @@
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .pgx-f :is(.pgx-db:hover,.pgx-db[aria-expanded="true"],.pill.ghost:hover),:root [data-style="clean"] .pgx-f :is(.pgx-db:hover,.pgx-db[aria-expanded="true"],.pill.ghost:hover),:root [data-style="clean"].pgx-f :is(.pgx-db:hover,.pgx-db[aria-expanded="true"],.pill.ghost:hover){background:var(--dm-hover);color:var(--dm-fg)}}
 /* on a narrow stage the buttons wrap under the select: the strip's 4px gaps put them 8px under it */
 @container (max-width:340px){:root[data-style="clean"] .pgx-no,:root [data-style="clean"] .pgx-no,:root [data-style="clean"].pgx-no{margin:0 0 0 auto}:root[data-style="clean"] .pgx-ok,:root [data-style="clean"] .pgx-ok,:root [data-style="clean"].pgx-ok{margin-top:0}}
-/* Allow's count rolls: up as a box is ticked, down as one is cleared */
-:root[data-style="clean"] .pgx-cnt,:root [data-style="clean"] .pgx-cnt,:root [data-style="clean"].pgx-cnt{display:inline-grid;overflow:clip}
+/* Allow's count rolls: up as a box is ticked, down as one is cleared. No window clips it: each number moves a few pixels
+   and fades, so a digit is never seen cut in half */
+:root[data-style="clean"] .pgx-cnt,:root [data-style="clean"] .pgx-cnt,:root [data-style="clean"].pgx-cnt{display:inline-grid}
 :root[data-style="clean"] .pgx-cnt>i,:root [data-style="clean"] .pgx-cnt>i,:root [data-style="clean"].pgx-cnt>i{grid-area:1/1;font-style:normal;font-variant-numeric:tabular-nums}
-@keyframes pgxiu{from{transform:translateY(80%);opacity:0}}
-@keyframes pgxou{to{transform:translateY(-80%);opacity:0}}
-@keyframes pgxid{from{transform:translateY(-80%);opacity:0}}
-@keyframes pgxod{to{transform:translateY(80%);opacity:0}}
-:root[data-style="clean"] .pgx-cnt>.iu,:root [data-style="clean"] .pgx-cnt>.iu,:root [data-style="clean"].pgx-cnt>.iu{animation:pgxiu .3s var(--dm-ease) both}
-:root[data-style="clean"] .pgx-cnt>.ou,:root [data-style="clean"] .pgx-cnt>.ou,:root [data-style="clean"].pgx-cnt>.ou{animation:pgxou .3s var(--dm-ease) both}
-:root[data-style="clean"] .pgx-cnt>.id,:root [data-style="clean"] .pgx-cnt>.id,:root [data-style="clean"].pgx-cnt>.id{animation:pgxid .3s var(--dm-ease) both}
-:root[data-style="clean"] .pgx-cnt>.od,:root [data-style="clean"] .pgx-cnt>.od,:root [data-style="clean"].pgx-cnt>.od{animation:pgxod .3s var(--dm-ease) both}
+@keyframes pgxiu{from{transform:translateY(40%);opacity:0}}
+@keyframes pgxou{to{transform:translateY(-40%);opacity:0}}
+@keyframes pgxid{from{transform:translateY(-40%);opacity:0}}
+@keyframes pgxod{to{transform:translateY(40%);opacity:0}}
+/* the old number leaves first and the new one follows, so the two never sit on top of each other */
+:root[data-style="clean"] .pgx-cnt>.iu,:root [data-style="clean"] .pgx-cnt>.iu,:root [data-style="clean"].pgx-cnt>.iu{animation:pgxiu .22s var(--dm-ease) .1s both}
+:root[data-style="clean"] .pgx-cnt>.ou,:root [data-style="clean"] .pgx-cnt>.ou,:root [data-style="clean"].pgx-cnt>.ou{animation:pgxou .16s var(--dm-ease) both}
+:root[data-style="clean"] .pgx-cnt>.id,:root [data-style="clean"] .pgx-cnt>.id,:root [data-style="clean"].pgx-cnt>.id{animation:pgxid .22s var(--dm-ease) .1s both}
+:root[data-style="clean"] .pgx-cnt>.od,:root [data-style="clean"] .pgx-cnt>.od,:root [data-style="clean"].pgx-cnt>.od{animation:pgxod .16s var(--dm-ease) both}
 /* answered: the result line where the scopes were (a 32px mark under the question's tile, the words under the question's
    words, the clock on the right), then the strip with the summary and Revoke or Undo in the corner */
 :root[data-style="clean"] .pgx.panel .pgx-done,:root [data-style="clean"] .pgx.panel .pgx-done,:root [data-style="clean"].pgx.panel .pgx-done{display:grid;grid-template-columns:32px minmax(0,1fr) auto;grid-template-rows:auto 45px;column-gap:12px;row-gap:16px;align-items:center;padding:0;border-radius:0;background:none!important}
@@ -4526,7 +4541,10 @@ const fitHits = window.dmFitHits || (() => {
   const label = n => n ? `<span class="pgx-l">Allow <span class="pgx-cnt"><i>${n}</i></span> <span class="pgx-w">${word(n)}</span></span>` : 'Pick a scope';
   let shown = 0;
   const roll = (cnt, n, up) => { const old = cnt.lastElementChild, nu = document.createElement('i'); nu.textContent = n; nu.className = up ? 'iu' : 'id'; if (old){ old.className = up ? 'ou' : 'od'; setTimeout(() => old.remove(), REDUCE ? 0 : 300); } cnt.appendChild(nu); };
-  const count = () => { const n = boxes().filter(b => b.checked).length; ok.disabled = !n;
+  // Clean asks again for its one scope as a plain row (nothing to tick), and its button just says Allow
+  const one = () => clean && $('.pgx-o.one', sc);
+  const count = () => { if (one()){ ok.disabled = false; shown = 0; return swap(ok, 'Allow'); }
+    const n = boxes().filter(b => b.checked).length; ok.disabled = !n;
     if (!clean) return swap(ok, n ? 'Allow ' + n + (n > 1 ? ' scopes' : ' scope') : 'Pick a scope');
     const cnt = $('.pgx-cnt', ok);
     if (n && shown && cnt && !ok._sw){ if (n !== shown){ roll(cnt, n, n > shown); swap($('.pgx-w', ok), word(n)); } }
@@ -4580,7 +4598,9 @@ const fitHits = window.dmFitHits || (() => {
     root.classList.add('esc'); swap(title, 'Also allow Publish library?'); swap(sub, `${F[LIB]}, frame ${LIB + 1} of ${F.length}, is a library component`);
     c.later(300, () => {
       p.remove();
-      sc.innerHTML = `<label class="pgx-o" data-k="publish"><input type="checkbox" checked><span class="bx">${I('check','xs')}</span><span class="t">Publish library<span class="d">Updates Checkout, Marketing site, Email kit and Docs</span></span><span class="tag warn">Risky</span></label>`;
+      sc.innerHTML = clean
+        ? `<div class="pgx-o one" data-k="publish"><span class="oi">${I('info')}</span><span class="t">Publish library<span class="d">Updates Checkout, Marketing site, Email kit and Docs</span></span><span class="tag warn">Risky</span></div>`
+        : `<label class="pgx-o" data-k="publish"><input type="checkbox" checked><span class="bx">${I('check','xs')}</span><span class="t">Publish library<span class="d">Updates Checkout, Marketing site, Email kit and Docs</span></span><span class="tag warn">Risky</span></label>`;
       no.textContent = 'Skip this frame'; count(); show(true);
     });
   }
@@ -4590,9 +4610,9 @@ const fitHits = window.dmFitHits || (() => {
   }
   function revoke(){ const p = panel; panel = null; run++; p.classList.add('leave'); c.later(300, () => { p.remove(); release(root); reset(); show(true); }); }
   ok.onclick = () => c.run(async () => {
-    const picked = boxes().filter(b => b.checked); if (!picked.length) return;
-    granted += picked.length; if (picked.some(b => b.closest('.pgx-o').dataset.k === 'publish')) publish = true;
-    names.push(...picked.map(b => $('.t', b.closest('.pgx-o')).firstChild.textContent));
+    const picked = one() ? [one()] : boxes().filter(b => b.checked).map(b => b.closest('.pgx-o')); if (!picked.length) return;
+    granted += picked.length; if (picked.some(o => o.dataset.k === 'publish')) publish = true;
+    names.push(...picked.map(o => $('.t', o).firstChild.textContent));
     ok.innerHTML = '<span class="spin"></span>'; await c.wait(500);
     // Clean: the scopes fade up and out before the card eases to the result row's height
     if (clean){ sc.classList.add('leave'); await c.wait(180); sc.classList.remove('leave'); }
