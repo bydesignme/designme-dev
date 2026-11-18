@@ -141,14 +141,18 @@ export const Avatar = ({ initials, color, size, className }: { initials: string;
 
 /* ---------- sources ---------- */
 export type SourceKind = 'figma' | 'web' | 'ts' | 'tsx' | 'css' | 'csv' | 'pdf';
-export interface Source { label: string; kind?: SourceKind; tip?: string; onClick?: () => void }
+export interface Source {
+  label: string; kind?: SourceKind; tip?: string; onClick?: () => void;
+  /** Still being read: the label shimmers, as a header does while the agent thinks */
+  reading?: boolean;
+}
 const FT: Partial<Record<SourceKind, string>> = { tsx: 'dm-re', csv: 'dm-csv', pdf: 'dm-pdf' };
 /** A file or link chip, with its type in front */
 export function SourceChip({ source, className, style, tipSide }: { source: Source; className?: string; style?: CSSProperties; tipSide?: 'top' | 'bottom' }) {
-  const { label, kind, tip, onClick } = source;
+  const { label, kind, tip, onClick, reading } = source;
   const mark = kind === 'figma' ? <Icon name="figma" size="xs" /> : kind === 'web' ? <Icon name="globe" size="xs" />
     : kind ? <span className={cx('dm-ft', FT[kind])}>{kind.toUpperCase()}</span> : null;
-  const chip = <button type="button" className={cx('dm-fchip dm-lnk', className)} style={style} onClick={onClick}>{mark}{label}</button>;
+  const chip = <button type="button" className={cx('dm-fchip dm-lnk', className)} style={style} onClick={onClick}>{mark}{reading ? <span className="dm-shim">{label}</span> : label}</button>;
   return tip ? <Tip label={tip} side={tipSide}>{chip}</Tip> : chip;
 }
 
