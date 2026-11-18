@@ -37,7 +37,7 @@ Model picker is the control a person uses to choose which model answers in a cha
 - Each model row has a coloured tile, a name, a one-line `note`, and three five-step meters for `speed`, `quality` and `cost`. `speedDetail`, `qualityDetail` and `costDetail` show on hover, like "74 tokens a second".
 - The picked row is tinted and checked, and its meters turn the accent colour. The trigger above the list shows the picked model and effort, and both crossfade when they change.
 - A model's `status` can be `checking`, which spins beside its name, or `busy`, which turns its tile and line amber. `statusText` replaces the note, like "At capacity, about 20s wait".
-- `suggestion` opens a short message under the list with its buttons, the last one filled, like Wait for Opus and Use Sonnet on high. It opens and closes by its height.
+- `suggestion` opens a warning notice under the list: a warning sign, its words, and its buttons, the last one in the warning tint, like Wait for Opus and Use Sonnet on high. It opens and closes by its height.
 - The thinking effort is a small dropdown under the list. `efforts` defaults to Off, Low, Medium and High, each with a line shown in the menu and under "Thinking", like "Up to 8k thinking tokens".
 - `note` adds a confirmation with a green check under the picker. The trigger opens and closes the list.
 
@@ -316,9 +316,11 @@ export function ModelPicker({
           </div>
           <Fold open={!!suggestion}>
             <div className="dm-mpk-sg" aria-live="polite">
+              {/* a warning notice: the filled warning sign, the words, and the way out in the warning tint (dm-warn) */}
+              <svg className="dm-mpk-sgi" viewBox="0 0 24 24" aria-hidden="true"><path className="dm-a" d="M12 3.6 2.6 19.9h18.8z" /><path className="dm-b" d="M12 9.6v4.4M12 17v.01" /></svg>
               <p className="dm-mpk-sgt">{suggestion?.text}</p>
               <div className="dm-mpk-sga">
-                {suggestion?.actions.map((a, i, all) => <button key={a.label} type="button" className={cx('dm-pill dm-sm', i === all.length - 1 ? 'dm-primary' : 'dm-ghost')} onClick={a.onClick}>{a.label}</button>)}
+                {suggestion?.actions.map((a, i, all) => <button key={a.label} type="button" className={cx('dm-pill dm-sm', i === all.length - 1 ? 'dm-warn' : 'dm-ghost')} onClick={a.onClick}>{a.label}</button>)}
               </div>
             </div>
           </Fold>

@@ -20,7 +20,8 @@ every session and every agent.
 ## Site structure
 - Site navigation lives in the left sidebar: Library (the homepage, selected), Docs, Changelog, Roadmap and FAQ.
   There is no top nav in the header on any page. The header holds the logo, the GitHub stars pill, the style switch and
-  the theme switch.
+  the theme switch. The style switch offers Blueprint, Soft and Clean; Your theme is off it for now (owner, 18 Nov), and a
+  stored pick of it falls back to Soft.
 - The sidebar is the same on every page (homepage, Changelog, Roadmap, FAQ, Docs, component pages): the search field,
   the site links, the compact component groups, and the "work with us" CTA pinned bottom left. Moving between pages
   only moves the active state; nothing in the sidebar jumps or disappears.
@@ -56,6 +57,17 @@ every session and every agent.
   Bars, rings, dots and lines in the warning colour use `--warn-mark` (a bright orange, 3:1), never the dark text `--warn`.
   Same for green: marks use `--ok-mark` (bright, 3:1), text uses `--ok`. Text colours are the most saturated of their hue that
   still keep 4.5:1 on their own tint (owner, 4 Nov: no deep greens or brown oranges); a done chip is green (`--ok-bg` + `--ok`).
+- Warning notices (owner, 18 Nov, after the Claude app's own "needs a new sign-in" banner), in every style:
+  - a faint warning tint (`--warn-bg` at 45%), not the full amber;
+  - the filled warning sign in `--warn-mark`;
+  - the words in the text colour, not amber;
+  - the action that resolves it as `.pill.warn` (the warning tint with `--warn` text, like `.tag.warn`; its hover is
+    `--tint-h`);
+  - a second button beside it stays white in light mode.
+  Model picker's busy notice is the reference. Don't add a red version until its hover passes 4.5:1 (the obvious one
+  doesn't in light).
+- A finished state (owner, 18 Nov) is a neutral row with the green tick: no green fill behind it and no elapsed clock
+  (Permission gate's done row).
 - Charts use the chart palette (`--c1`, the accent, then `--c2` to `--c6`) where more than one series or part needs telling
   apart: Donut, Line chart's comparison series, Stat cards' sparklines, Funnel (accent to violet in Soft). The Bar chart
   is one accent colour with no legend; its breakdown is in the hover readout.
@@ -83,7 +95,8 @@ every session and every agent.
 - Single-field components (Date picker, Search input, Country select, Multi-select and the like) share one field width
   in their stage, and go full width on phones.
 - On a tinted or coloured surface (banners, notices), secondary buttons are white in light mode, not grey. On coloured
-  banners the primary button is white in light mode and the accent in dark mode.
+  banners the primary button is white in light mode and the accent in dark mode. A warning notice's action is `.pill.warn`
+  (see Type and colour).
 - Pricing: only the recommended plan's button is primary (accent); the others are white with a grey outline.
 
 ## Clean (owner, 17 Nov)
@@ -95,8 +108,10 @@ every session and every agent.
   in dark, its own `--btn-*` and `--on-btn` tokens), secondary buttons, switchers, knobs and toggles. Data and status keep
   Soft's colours: `--accent` stays blue for data, selection and links, the chart palette, agents' own colours and pastel
   avatars, and the status colours. Ticks are the vivid green (`--ok-mark`), never black. No red fill behind an error: a
-  failed row keeps its red words and mark on the row as it is. Off-white head and foot strips; buttons have an inner glow at
-  the top and a soft shade at the bottom inside the fill; checkboxes and tracks have inner shadows.
+  failed row keeps its red words and mark on the row as it is. Off-white head and foot strips; checkboxes and tracks have
+  inner shadows. Only the ink primary button has depth (an inner light at the top, a soft shade at the bottom); secondary
+  buttons and dropdown triggers are flat: a hairline border and a light fill that deepens a little on hover and press, with
+  no press scale (owner, 18 Nov). Every button's edge is drawn inside it, so buttons side by side are the same height.
 - Clean's rounding (owner, 18 Nov, replacing "everything fully round" of 17 Nov, which turned heatmap cells, flags, OTP
   boxes, text fields, images, calendar events and whole panels into pills and circles): pills and circles only for controls
   (buttons, chips, tags, toggles, switchers), avatars and dots. Everything else has ordinary rounded corners, a little rounder
@@ -110,15 +125,17 @@ every session and every agent.
   `.cle-em`/`.cle-art`): a small monochrome card sketch, a title, one muted line, an optional outline button.
 - Review Clean work on a separate preview before it reaches staging (owner, 18 Nov): batches of 5 components, each on its own
   lab page (as `lab/six/`), and staging only gets them once the owner approves.
-- Padding is measured, not eyeballed (owner, 17 Nov): every Clean card has its content 20px in from each edge, footer
-  controls included (a button in a foot strip sits 20px from the right and bottom edges). Check with a script that measures
+- Padding is measured, not eyeballed (owner, 17 Nov; 16px and 8px since 18 Nov): every Clean card has its content 16px in
+  from each edge; a control in a head or foot strip sits 8px from the card's edges, as round as the card's corner less 8
+  (a 28px pill in a 22px corner), and a select in a strip lines up by its words, not its hover box. Check with a script that measures
   each card's insets at 1440 and fix every mismatch above 1px. Measure through the whole demo (sampled while it plays, to its
   end state) and in every design a card can switch to, not one settled frame (owner, 18 Nov).
 - Clean has an outer glow only in dark mode, and only around buttons (owner, 18 Nov): a faint neutral glow around the white
   primary button, never around cards, panels or popovers. This is an approved exception to "no glows"; it is white or
   neutral, never a hue. Light mode has no outer glow.
-- Clean's motion is Access Grid-like: ease cubic-bezier(.23,1,.32,1), the card rises 8px from .98 over about 520ms and its
-  pieces follow 40ms apart (`REVEAL.clean`), presses at .97, hovers 150ms, menus scale and fade from their trigger.
+- Clean's motion is Access Grid-like and calm (owner, 18 Nov: "it should be smoother"): ease cubic-bezier(.23,1,.32,1), the
+  card rises 8px from .98 over 680ms and its pieces follow 50ms apart (`REVEAL.clean`), hovers and fades 220ms, moves 340ms,
+  entrances 560ms, only the ink primary presses (at .97), menus scale and fade from their trigger.
 - Soft keeps its look; the "Soft refreshed" lab is dropped. Six components have their Clean touches (Agent tree,
   Agent run timeline, Status pill, Context meter, Run cost, Meeting card); the others render with Clean's tokens and get
   theirs later.
@@ -126,7 +143,9 @@ every session and every agent.
 ## Spacing and radius
 - Soft is plush (owner, 3 Nov): every corner radius in a component is scaled by `--rk` (1.25, and 1.7 where the browser
   draws squircles), and every corner is a squircle (`corner-shape: squircle`, round corners as the fallback), pills,
-  chips, buttons and switchers included. Only true circles (50%: spinners, loader rings, avatars, dots) stay round. Shadows are soft and layered with a faint top highlight (`--shadow`, `--shadow-pop`). Write new radii
+  chips, buttons and switchers included. Only true circles (50%: spinners, loader rings, avatars, dots) stay round. Shadows are soft and layered and come from outside
+  only (`--shadow`, `--shadow-pop`): no highlight on a top edge or glow inside a card or button (owner, 18 Nov). Buttons cast no
+  shadow; a white button on a tinted row or notice has a hairline edge (`--on-tint-btn`). Write new radii
   as `calc(<n>px * var(--rk))` or the radius tokens. Blueprint stays square.
 - Write Soft-only rules as the base rule and override them with `:root[data-style="bp"]`, never as
   `:root:not([data-style="bp"])`: the registry build rewrites the latter into a selector that never matches. Clean rules are
@@ -170,12 +189,29 @@ every session and every agent.
   credited in `NOTICE.md`. They are on the site only (laid over a gradient by `art/art.js`), never in installs. The Carousel demo
   uses them, with and without people.
 
+## Alignment and fit (owner, 18 Nov: "how many times do I have to flag these spacing issues")
+- Every part sits on a shared column. A row's leading mark (icon, tile, checkbox, avatar) sits centred in the same column as
+  the head's icon tile; its words start where the title's words start; a row's hover fill lines up with the head tile's box
+  (the content's width, no wider). A select's words line up with the content's left edge, its hover box reaching out round
+  them. Outside Clean's strips, the last control in a row (a select, a button) ends on the content's right edge, where the
+  meters and tags above end. A label or trigger outside a card lines up with the card's edge.
+- The parts of one row (icon, word, detail, button) share one centre line: never mix `align-items:baseline` with an
+  `align-self:center` child. Buttons side by side are the same drawn height.
+- A menu or popover is never cut off by its stage or page: it opens upwards when there is no room below (`placePop`).
+- A mouse click or tap never leaves a focus ring, even when a modifier key (a screenshot shortcut) follows.
+- No tinted band behind the active row: a pulsing icon and a spinner or "Working" chip say what is running.
+- A chip laid over coloured or hatched areas is opaque and neutral and hides what sits under it; nothing overlaps it.
+- A legend shows the same colours as what it explains. No row of text repeats what a card already says.
+- `IDS=<ids> node tools/site/check-align.js` (all three styles, light and dark, through every design) must report no issues
+  before anything is shown to the owner, and every frame is looked at as well: the script does not replace looking.
+
 ## QA before every push
 - All three styles (Soft, Blueprint and Clean), light and dark, at 1440, 768, 390 and 360.
 - No console errors and no sideways scroll.
 - The type rules above.
 - Centring checked at every settled moment, not only the tallest one.
 - Card heights re-measured (`COMPS=<ids> node tools/site/measure-heights.js`) when a component's height changes.
+- `IDS=<ids> node tools/site/check-align.js` reports no issues (Alignment and fit, above).
 
 ## Build
 From `tools/site`: `npm run patches` (when `make-patches.py` changed), `npm run build`, `npm run react`, `npm run astro`, `npm run pages`.
