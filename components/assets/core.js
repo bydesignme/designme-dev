@@ -220,7 +220,11 @@ function centre(c, el, showing, watch = []){
   const place = () => {
     if (!room.clientHeight) return;
     const rs = getComputedStyle(room), rr = room.getBoundingClientRect(), pt = parseFloat(rs.paddingTop) || 0, pb = parseFloat(rs.paddingBottom) || 0;
-    const now = new DOMMatrixReadOnly(getComputedStyle(el).transform).m42, top = el.getBoundingClientRect().top - now - rr.top;
+    // where the field sits in its layout: its own glide taken off, and any move its parents are still making (the homepage
+    // card's entrance and its own glide as it grows), or a placement measured mid-entrance would stay off for good
+    let now = new DOMMatrixReadOnly(getComputedStyle(el).transform).m42;
+    for (let a = el.parentElement; a && a !== room; a = a.parentElement){ const t = getComputedStyle(a).transform; if (t && t !== 'none') now += new DOMMatrixReadOnly(t).m42; }
+    const top = el.getBoundingClientRect().top - now - rr.top;
     // where the top goes so what is showing sits centred, but never above the stage's own padding
     const want = pt + (room.clientHeight - pt - pb - showing()) / 2;
     el.style.setProperty('--dm-gy', Math.round(Math.max(pt, want) - top) + 'px');
