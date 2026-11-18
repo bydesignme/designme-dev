@@ -9,7 +9,7 @@
   --dm-rte-q:var(--dm-muted);--dm-rte-q2:var(--dm-fg2)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .rte{--dm-rte-q:color-mix(in srgb,var(--dm-fg) 74%,var(--dm-surface));--dm-rte-q2:color-mix(in srgb,var(--dm-fg) 80%,var(--dm-surface))}}
 :root[data-theme="dark"] .rte{--dm-rte-q:color-mix(in srgb,var(--dm-fg) 74%,var(--dm-surface));--dm-rte-q2:color-mix(in srgb,var(--dm-fg) 80%,var(--dm-surface))}
-.rte-tb{display:flex;align-items:center;gap:2px;min-width:0;padding:7px var(--dm-s-2);box-shadow:inset 0 -1px 0 color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.rte-tb{display:flex;align-items:center;gap:2px;min-width:0;padding:7px 7px 7px 11px;box-shadow:inset 0 -1px 0 color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .rte-b{width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:var(--dm-r-sm);color:var(--dm-fg2);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.rte-b:hover{background:var(--dm-row);color:var(--dm-fg)}}
 /* a format the selection has: the accent's tint, with the icon in the accent's text colour */
@@ -49,10 +49,12 @@
 @keyframes rtew{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
 /* the text a menu or the link field is for stays marked while the focus is in them */
 ::highlight(rte-pick){background-color:color-mix(in srgb,var(--dm-accent-mark) 24%,transparent)}
-.rte-ft{display:grid;align-items:center;min-height:46px;padding:6px var(--dm-s-2) 6px 18px;box-shadow:inset 0 1px 0 color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.rte-ft{display:grid;align-items:center;min-height:46px;padding:6px 11px 6px 18px;box-shadow:inset 0 1px 0 color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .rte-idle,.rte-rev{grid-area:1/1;display:flex;align-items:center;gap:var(--dm-s-2);min-width:0;transition:opacity .25s var(--dm-ease),transform .35s var(--dm-ease),visibility 0s}
 .rte-rev,.rte[data-st="review"] .rte-idle{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s var(--dm-ease),transform .35s var(--dm-ease),visibility 0s .35s}
 .rte-rev{transform:translateY(4px)}
+/* Accept's edge ends on the text's right edge, where Redo's icon ends */
+.rte-rev{margin-right:7px}
 .rte[data-st="review"] .rte-idle{transform:translateY(-4px)}
 .rte[data-st="review"] .rte-rev{opacity:1;visibility:visible;pointer-events:auto;transform:none;transition-delay:0s}
 .rte-wc,.rte-hint{font-size:12px;color:var(--dm-rte-q);white-space:nowrap}
@@ -84,19 +86,21 @@
 .rte-ask.show{opacity:1;visibility:visible;transform:none;transition-delay:0s}
 .rte-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 @container rte (max-width:520px){.rte-hint{display:none}}
-@container rte (max-width:400px){.rte-ai{width:30px;padding:0;justify-content:center}.rte-ai span{display:none}.rte-sep{margin:0 2px}.rte-body{padding:14px}.rte-body.empty::before{left:14px;right:14px;top:14px}.rte-ft{padding-left:14px}.rte-rev .kbd{display:none}}
-@container rte (max-width:330px){.rte-tb{gap:0;padding:7px var(--dm-s-1)}.rte-b{width:28px}}
+/* the toolbar's first icon, the text and the foot's words share one left edge (18px in, 14px in a narrow editor), and Ask AI's
+   words (its icon when narrow) and Redo's icon end on the text's right edge (owner, 18 Nov: every part on a shared column) */
+@container rte (max-width:400px){.rte-ai{width:30px;padding:0;justify-content:center}.rte-ai span{display:none}.rte-sep{margin:0 2px}.rte-tb{padding-left:7px;padding-right:6px}.rte-body{padding:14px}.rte-body.empty::before{left:14px;right:14px;top:14px}.rte-ft{padding-left:14px;padding-right:7px}.rte-rev .kbd{display:none}}
+@container rte (max-width:330px){.rte-tb{gap:0;padding:7px 6px 7px 8px}.rte-b{width:28px}}
 :root:not([data-style="soft"],[data-style="clean"]) .rte-b:is([aria-pressed="true"],.on):not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-accent-mark) 50%,transparent)}
 /* Blueprint's lime tint is faint on white, so the suggestion also gets a hairline of the accent's mark under it */
 :root:not([data-style="soft"],[data-style="clean"]) .rte-new:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){background:var(--dm-accent-bg);box-shadow:inset 0 -1px 0 var(--dm-accent-mark)}
 /* Clean (owner, 18 Nov): the toolbar is an off-white head strip and the foot an off-white foot strip, each with a hairline
-   toward the text, and everything in them lines up with the text's 16px edges: the first format's icon and the word count
-   start where the text does, and Ask AI, Accept and Redo's icon end where it ends. Controls are 28px circles and pills, 8px
-   from the strips' top and bottom, so every one in a row is as tall as the next and shares its centre line. The chrome is
+   toward the text. Their controls are 28px circles and pills 8px from the card's edges, as round as its 22px corner less 8,
+   so every one in a row is as tall as the next and shares its centre line; the words in the foot (the word count, the
+   status) start where the text does, 16px in. The chrome is
    monochrome and flat: a format the selection has is white with a grey ring, Ask AI is a secondary button (a hairline and a
    light fill), the status is ink, and Accept is the ink button with its key on it. The suggestion keeps the accent: the new
    words in its tint, the old ones struck through. Words arrive with a fade, no blur */
-:root[data-style="clean"] .rte-tb,:root [data-style="clean"] .rte-tb,:root [data-style="clean"].rte-tb{gap:4px;padding:8px 16px 8px 10px;background:var(--dm-strip);border-bottom:1px solid var(--dm-line);border-radius:var(--dm-r-card) var(--dm-r-card) 0 0;box-shadow:none}
+:root[data-style="clean"] .rte-tb,:root [data-style="clean"] .rte-tb,:root [data-style="clean"].rte-tb{gap:4px;padding:8px;background:var(--dm-strip);border-bottom:1px solid var(--dm-line);border-radius:var(--dm-r-card) var(--dm-r-card) 0 0;box-shadow:none}
 :root[data-style="clean"] .rte-b,:root [data-style="clean"] .rte-b,:root [data-style="clean"].rte-b{width:28px;height:28px;border-radius:50%;color:var(--dm-fg2);transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .rte-b:hover,:root [data-style="clean"] .rte-b:hover,:root [data-style="clean"].rte-b:hover{background:var(--dm-hover);color:var(--dm-fg)}}
 :root[data-style="clean"] .rte-b:is([aria-pressed="true"],.on),:root [data-style="clean"] .rte-b:is([aria-pressed="true"],.on),:root [data-style="clean"].rte-b:is([aria-pressed="true"],.on){background:var(--dm-surface);color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 50%,transparent)}
@@ -110,16 +114,15 @@
 :root[data-style="clean"] .rte-ai:disabled .i,:root [data-style="clean"] .rte-ai:disabled .i,:root [data-style="clean"].rte-ai:disabled .i{color:inherit}
 :root[data-style="clean"] .rte-body,:root [data-style="clean"] .rte-body,:root [data-style="clean"].rte-body{padding:16px;caret-color:var(--dm-fg)}
 :root[data-style="clean"] .rte-body.empty::before,:root [data-style="clean"] .rte-body.empty::before,:root [data-style="clean"].rte-body.empty::before{left:16px;right:16px;top:16px}
-:root[data-style="clean"] .rte-ft,:root [data-style="clean"] .rte-ft,:root [data-style="clean"].rte-ft{min-height:45px;padding:8px 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card);box-shadow:none}
+:root[data-style="clean"] .rte-ft,:root [data-style="clean"] .rte-ft,:root [data-style="clean"].rte-ft{min-height:45px;padding:8px 8px 8px 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card);box-shadow:none}
 :root[data-style="clean"] .rte-idle .ib,:root [data-style="clean"] .rte-idle .ib,:root [data-style="clean"].rte-idle .ib{width:28px;height:28px}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .rte-idle .ib:hover,:root [data-style="clean"] .rte-idle .ib:hover,:root [data-style="clean"].rte-idle .ib:hover{background:var(--dm-hover)}}
-:root[data-style="clean"] .rte-idle .rte-re,:root [data-style="clean"] .rte-idle .rte-re,:root [data-style="clean"].rte-idle .rte-re{margin-right:-7px}
 /* the menu's heading starts where its items' words do; the link field's buttons are as tall as the field */
 :root[data-style="clean"] .rte-menu .ph,:root [data-style="clean"] .rte-menu .ph,:root [data-style="clean"].rte-menu .ph{padding-left:calc(var(--dm-s-2) + 14px + 10px)}
 :root[data-style="clean"] .rte-lnk .pill,:root [data-style="clean"] .rte-lnk .pill,:root [data-style="clean"].rte-lnk .pill{height:32px;padding:0 14px}
 :root[data-style="clean"] .rte-lnk .ib,:root [data-style="clean"] .rte-lnk .ib,:root [data-style="clean"].rte-lnk .ib{width:32px;height:32px}
 :root[data-style="clean"] .rte-st,:root [data-style="clean"] .rte-st,:root [data-style="clean"].rte-st{color:var(--dm-fg2)}
-:root[data-style="clean"] .rte-rev,:root [data-style="clean"] .rte-rev,:root [data-style="clean"].rte-rev{gap:8px}
+:root[data-style="clean"] .rte-rev,:root [data-style="clean"] .rte-rev,:root [data-style="clean"].rte-rev{gap:8px;margin-right:0}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .rte-rev .pill.ghost:hover,:root [data-style="clean"] .rte-rev .pill.ghost:hover,:root [data-style="clean"].rte-rev .pill.ghost:hover{background:var(--dm-hover)}}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .rte-rev .pill.ghost:hover .kbd,:root [data-style="clean"] .rte-rev .pill.ghost:hover .kbd,:root [data-style="clean"].rte-rev .pill.ghost:hover .kbd{background:var(--dm-surface)}}
 /* the key on the ink button: a faint light chip, in the button's own text colour */
@@ -127,4 +130,4 @@
 @keyframes rtewc{from{opacity:0}to{opacity:1}}
 :root[data-style="clean"] .rte-new .w,:root [data-style="clean"] .rte-new .w,:root [data-style="clean"].rte-new .w{animation:rtewc .36s var(--dm-ease) both}
 @container rte (max-width:400px){:root[data-style="clean"] .rte-ai,:root [data-style="clean"] .rte-ai,:root [data-style="clean"].rte-ai{width:28px;padding:0}:root[data-style="clean"] .rte-body,:root [data-style="clean"] .rte-body,:root [data-style="clean"].rte-body{padding:16px}:root[data-style="clean"] .rte-body.empty::before,:root [data-style="clean"] .rte-body.empty::before,:root [data-style="clean"].rte-body.empty::before{left:16px;right:16px;top:16px}:root[data-style="clean"] .rte-ft,:root [data-style="clean"] .rte-ft,:root [data-style="clean"].rte-ft{padding-left:16px}}
-@container rte (max-width:330px){:root[data-style="clean"] .rte-tb,:root [data-style="clean"] .rte-tb,:root [data-style="clean"].rte-tb{gap:0;padding:8px 16px 8px 10px}:root[data-style="clean"] .rte-b,:root [data-style="clean"] .rte-b,:root [data-style="clean"].rte-b{width:28px}}
+@container rte (max-width:330px){:root[data-style="clean"] .rte-tb,:root [data-style="clean"] .rte-tb,:root [data-style="clean"].rte-tb{gap:0;padding:8px}:root[data-style="clean"] .rte-b,:root [data-style="clean"] .rte-b,:root [data-style="clean"].rte-b{width:28px}}

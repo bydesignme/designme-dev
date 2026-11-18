@@ -36,7 +36,7 @@ Answer action bar is the row of actions under an agent's answer: copy, regenerat
 
 - Copy writes the answer's plain text to the clipboard, and its icon turns into a check with a "Copied to clipboard" tooltip for about 1.6 seconds.
 - Regenerate calls `onRegenerate` and spins. With a second version, a pager slides in with previous and next and a count like "2 / 2". While `streaming`, new words fade in, and paging and reading wait.
-- A version's `changed` phrase is highlighted in green, so a new version shows what it fixed. Its `meta` sits after the bar, like "Sonnet 5.5 · 4.8s".
+- A version's `changed` phrase is highlighted in green, so a new version shows what it fixed. Its `meta` sits after the bar, like "Sonnet 5.5 · 4.8s", and shortens rather than wrapping while reading aloud widens the bar; on a phone it takes the line under the bar.
 - Thumbs up and down are toggles, one rating per version. A thumbs down opens "What was off?" with `reasons`, which default to Wrong numbers, Too long, Not our tone and Missed the brief. Picking one calls `onReason` and closes it. In Clean a rated thumb fills in, without a colour.
 - Read aloud widens into a progress bar and a clock, like "0:04 / 0:07", and lights each word in turn (in grey in Clean), 0.28 seconds a word by default. Pressing it again pauses and keeps the place; it doesn't speak, so connect your own text to speech through `reading` and `onReadingChange`.
 - `status` adds a quiet line under the bar. `statusTone` turns it amber for a problem like a dropped connection, or gives it a green check once something worked. In Clean the line takes room only while it says something.
