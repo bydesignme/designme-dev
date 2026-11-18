@@ -439,7 +439,9 @@ function showTip(el){
   tip.style.left = '0px'; tip.style.top = '0px'; tip.classList.add('show'); tip.removeAttribute('aria-hidden');
   const r = el.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
   // it stays inside the component's stage when it fits there, so on a phone it never runs past the card's edge
-  const st = el.closest('.stage-in'), sb = st && st.parentElement.getBoundingClientRect();
+  // (the stage you see: on a component page the stage-in's own parent hugs the component, and a tip near its edge would be
+  // pushed off its button)
+  const st = el.closest('.stage-in'), sb = st && (st.closest('.stage-inner') || st.parentElement).getBoundingClientRect();
   const lo = sb && sb.width >= w + 16 ? Math.max(8, sb.left + 8) : 8, hi = sb && sb.width >= w + 16 ? Math.min(innerWidth, sb.right) - w - 8 : innerWidth - w - 8;
   let x = r.left + r.width / 2 - w / 2; x = Math.max(lo, Math.min(hi, x));
   // above the trigger, or below when there is no room; data-tip-at="below" asks for below first, for a trigger that has
@@ -3057,8 +3059,8 @@ DM.def('attachment-tray', (r, c) => {
   const clean = (r.closest('[data-style]') || document.documentElement).dataset.style === 'clean';
   if (clean){
     $('.atx-drop', r).remove();
-    list.after(html(`<div class="atx-em"><span class="atx-em-art" aria-hidden="true"></span><b>Drop files here</b><span>or <label class="atx-br">browse your files<input type="file" multiple class="atx-file" aria-label="Choose files"></label></span><button type="button" class="pill line sm atx-smp">${I('plus','xs')}Add sample files</button></div>`));
-    const ft = html(`<div class="atx-ft"><label class="pill line sm atx-add">${I('plus','xs')}Add files<input type="file" multiple class="atx-file" aria-label="Add files"></label></div>`);
+    list.after(html(`<div class="atx-em"><span class="atx-em-art" aria-hidden="true"></span><b>Drop files here</b><span>or <label class="atx-br">browse your files<input type="file" multiple class="atx-file" aria-label="Choose files" title=""></label></span><button type="button" class="pill line sm atx-smp">${I('plus','xs')}Add sample files</button></div>`));
+    const ft = html(`<div class="atx-ft"><label class="pill line sm atx-add">${I('plus','xs')}Add files<input type="file" multiple class="atx-file" aria-label="Add files" title=""></label></div>`);
     sum.replaceWith(ft); ft.prepend(sum);
     c.offs.push(grow(tray));
   }
@@ -3162,14 +3164,17 @@ DM.def('attachment-tray', (r, c) => {
     + '<path class="pl tr-f" d="M54.8 30L87.7 49L87.7 55L65.2 68L32.3 49L32.3 43Z"/><path class="ln" d="M54.8 30L87.7 49L65.2 62L32.3 43Z"/><path class="ln" d="M87.7 49L87.7 55L65.2 68L32.3 49L32.3 43"/><path class="ln" d="M65.2 62L65.2 68"/><path class="ln" d="M54.8 33.5L81.7 49L65.2 58.5L38.4 43Z"/><path class="ln tx" d="M38.4 43L38.4 47.5L54.8 38L81.7 53.5L81.7 49M54.8 33.5L54.8 38"/>'
     + '<g class="sh a"><path class="pl" d="M64.1 11.6L73.4 19.9L71.3 25.7L50.7 33.4L37.4 21.6Z"/><path class="ln" d="M64.1 11.6L73.4 19.9L71.3 25.7L50.7 33.4L37.4 21.6ZM73.4 19.9L67.3 22.2L71.3 25.7"/><path class="ln tx" d="M59.6 16.6L67.6 23.7M54.4 18.6L61.1 24.5M49.3 20.5L57.3 27.6"/></g>'
     + '<g class="sh b"><path class="pl" d="M63.1 3.9L76.4 10.1L77.5 16.1L62.1 27.1L43.1 18.2Z"/><path class="ln ac" d="M63.1 3.9L76.4 10.1L77.5 16.1L62.1 27.1L43.1 18.2ZM76.4 10.1L71.8 13.4L77.5 16.1"/><path class="ln tx" d="M61.5 9.5L72.9 14.9M57.7 12.3L66.2 16.3M53.8 15L64.3 19.9"/></g>';
+  // Soft's empty tray (owner, 18 Nov: the line drawing "is too abstract" in Soft, "more similar to clean but softer"): a small file
+  // card with three rows, each a tile and a line, the first file's tile in the accent's tint. Blueprint keeps the line drawing
+  const ATX_CMP_SKETCH = '<span class="atx-cmp-sk" aria-hidden="true">' + '<span class="r"><i class="t"></i><i class="l"></i></span>'.repeat(3) + '</span>';
   const atxCmpTpl = () => `<div class="atx-cmp">
     <div class="atx-cmp-box none">
       <div class="atx-cmp-tray">
-        <div class="atx-cmp-empty"><svg class="atx-cmp-art" viewBox="0 0 120 80" aria-hidden="true" focusable="false">${ATX_CMP_ART}</svg><p><b>Drop files for the agent</b><span>or press + to add them</span></p></div>
+        <div class="atx-cmp-empty"><svg class="atx-cmp-art" viewBox="0 0 120 80" aria-hidden="true" focusable="false">${ATX_CMP_ART}</svg>${ATX_CMP_SKETCH}<p><b>Drop files for the agent</b><span>or press + to add them</span></p></div>
         <div class="atx-cmp-list" role="list" aria-label="Attached files"></div>
       </div>
       <textarea class="atx-cmp-ta" rows="2" aria-label="Message" placeholder="Ask about these files" spellcheck="false"></textarea>
-      <div class="atx-cmp-f"><label class="ib atx-cmp-add" data-tip="Add files">${I('plus')}<input type="file" multiple class="atx-pick" aria-label="Add files"></label><span class="atx-cmp-st" aria-live="polite"></span><button class="atx-cmp-send" type="button" aria-label="Send" data-tip="Send" data-tip-k="↵" disabled>${I('up')}</button></div>
+      <div class="atx-cmp-f"><label class="ib atx-cmp-add" data-tip="Add files">${I('plus')}<input type="file" multiple class="atx-pick" aria-label="Add files" title=""></label><span class="atx-cmp-st" aria-live="polite"></span><button class="atx-cmp-send" type="button" aria-label="Send" data-tip="Send" data-tip-k="↵" disabled>${I('up')}</button></div>
       <div class="atx-cmp-over" aria-hidden="true"><span>${I('upload')}Drop to attach</span></div>
     </div>
   </div>`;
@@ -3273,21 +3278,21 @@ DM.def('attachment-tray', (r, c) => {
     <div class="atx-ctx-bar" role="img" aria-label="Context window, 4k of 128k tokens used"><i class="sys" style="--a:0;--b:3.1"></i><span class="atx-ctx-segs"></span></div>
     <div class="atx-ctx-key"><span><i></i>Instructions 4k</span><span class="atx-ctx-free">124k free</span></div>
     <ol class="atx-ctx-list" aria-label="Files"></ol>
-    <label class="atx-ctx-drop"><input type="file" multiple class="atx-pick" aria-label="Add files">${I('plus','xs')}<span>Drop files or <u>browse</u></span></label>
+    <label class="atx-ctx-drop"><input type="file" multiple class="atx-pick" aria-label="Add files" title="">${I('plus','xs')}<span>Drop files or <u>browse</u></span></label>
   </div>`;
   // Context budget: each file uploads (a line grows under its icon; in Clean a ring closes round it), then the agent counts its tokens and its share of the window grows.
   // A switch leaves a file out, its name opens what the agent found, and a file too big to read whole says what it keeps
   function atxBudget(r, c){
     const list = $('.atx-ctx-list', r), segs = $('.atx-ctx-segs', r), bar = $('.atx-ctx-bar', r), st = $('.atx-ctx-st', r), pc = $('.atx-ctx-pc', r), free = $('.atx-ctx-free', r), dz = $('.atx-ctx-drop', r);
     const WIN = 128000, SYS = 4000, files = [], card = $('.atx-ctx', r);
-    // Clean: the card grows with its files (owner, 17 Nov), as Classic does there; Soft and Blueprint keep their room. The
-    // pill under the list becomes the card's foot strip (Drop files here, and Add files 8px from the corner), the whole card is
-    // the drop target, as Classic's is, and each file's upload is a ring round its round tile, not a line under its icon
+    // the card grows with its files in every style (grow(); owner, 18 Nov: no room kept for the details that open later). In
+    // Clean the pill under the list becomes the card's foot strip (Drop files here, and Add files 8px from the corner), the
+    // whole card is the drop target, as Classic's is, and each file's upload is a ring round its round tile, not a line under it
     const clean = (r.closest('[data-style]') || document.documentElement).dataset.style === 'clean';
     if (clean){
-      dz.replaceWith(html(`<div class="atx-ctx-ft"><span>Drop files here</span><label class="pill line sm atx-add">${I('plus','xs')}Add files<input type="file" multiple class="atx-pick" aria-label="Add files"></label></div>`));
-      c.offs.push(grow(card));
+      dz.replaceWith(html(`<div class="atx-ctx-ft"><span>Drop files here</span><label class="pill line sm atx-add">${I('plus','xs')}Add files<input type="file" multiple class="atx-pick" aria-label="Add files" title=""></label></div>`));
     }
+    c.offs.push(grow(card));
     // (the ring is drawn from the top, its ink arc as long as the upload's progress, --p)
     const RING = '<svg class="atx-ctx-rg" viewBox="0 0 30 30" aria-hidden="true"><circle class="tr" cx="15" cy="15" r="14"/><circle class="pg" cx="15" cy="15" r="14" pathLength="1"/></svg>';
     // what a file takes: its tokens, or for one too big to read whole, the part the agent keeps (a quarter of the window)
