@@ -37,7 +37,7 @@ The agent's web searches, shown as it makes them: each query with how many resul
 - Query rows with the query, the result count (No results in the warning colour) and the time; each opens to its pages.
 - A query asked again in other words is marked "Asked again in other words" under it, right after the one that found nothing.
 - Page rows with the site's initial, the title, the site and date, and a tag: Reading (with a spinner), Read, Skimmed, or Skipped with the reason as a warning tag.
-- A stack of up to four site initials in the header, with the rest counted (+3). In Clean a narrow card (440px or less) leaves them out, so the header line fits.
+- A stack of up to four site initials in the header, with the rest counted (+3). In Clean a narrow card (400px or less, as on a phone) leaves them out, so the header line fits.
 - Citations in the answer ([1], [2]) are buttons: pointing at one or tabbing to it lights the page it came from (or its search, when that is folded) and its site's initial, and its tooltip names the page.
 - Page titles cut short with an ellipsis show in full in a tooltip on hover and on keyboard focus.
 - In Clean it always has its card, `bare` or not, and the card grows and shrinks with what it shows, easing down to the header and the answer as the trail folds.
