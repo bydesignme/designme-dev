@@ -396,16 +396,17 @@ DM.def('context-meter', (r, c) => {
 /* ---------- Toast ---------- */
 DM.def('toast', (r, c) => {
   const slot = $('.tst-slot', r);
+  // each state's icon, colours and words; its tone (data-tone) is what Clean colours: success green, error red, the rest grey
   const V = {
-    ok:{ g:'ok', col:'var(--ok)', bg:'var(--ok-bg)', b:'Changes applied', s:'4 files updated in PricingCard', act:'<button class="pill ghost sm tst-undo">Undo</button>' },
-    err:{ g:'alert', col:'var(--bad)', bg:'var(--bad-bg)', b:'Could not push to main', s:'The branch is protected', act:'<button class="pill primary sm tst-retry">Retry</button>' },
-    info:{ g:'info', col:'var(--pb)', bg:'var(--pb-bg)', b:'Preview is ready', s:'pricing-spacing.preview.app', act:'<button class="pill ghost sm">Open</button>' },
-    load:{ g:'load', col:'var(--fg)', bg:'var(--chip)', b:'Deploying preview', s:'Building 3 pages', act:'' }
+    ok:{ g:'ok', tone:'success', col:'var(--ok)', bg:'var(--ok-bg)', b:'Changes applied', s:'4 files updated in PricingCard', act:'<button class="pill ghost sm tst-undo">Undo</button>' },
+    err:{ g:'alert', tone:'error', col:'var(--bad)', bg:'var(--bad-bg)', b:'Could not push to main', s:'The branch is protected', act:'<button class="pill primary sm tst-retry">Retry</button>' },
+    info:{ g:'info', tone:'info', col:'var(--pb)', bg:'var(--pb-bg)', b:'Preview is ready', s:'pricing-spacing.preview.app', act:'<button class="pill ghost sm">Open</button>' },
+    load:{ g:'load', tone:'loading', col:'var(--fg)', bg:'var(--chip)', b:'Deploying preview', s:'Building 3 pages', act:'' }
   };
   let cur = null;
   let show = function(k){
     const v = V[k];
-    const t = html(`<div class="tst-t tst-in" role="status"><span class="g" style="color:${v.col};background:${v.bg}">${k === 'load' ? '<span class="spin"></span>' : I(v.g)}</span><div class="tx"><b>${v.b}</b><span>${v.s}</span></div><div class="acts">${v.act}<button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div><span class="life"></span></div>`);
+    const t = html(`<div class="tst-t tst-in" role="status"><span class="g" data-tone="${v.tone}" style="color:${v.col};background:${v.bg}">${k === 'load' ? '<span class="spin"></span>' : I(v.g)}</span><div class="tx"><b>${v.b}</b><span>${v.s}</span></div><div class="acts">${v.act}<button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div><span class="life"></span></div>`);
     if (cur){ const old = cur; old.classList.add('tst-out'); setTimeout(() => old.remove(), 300); }
     slot.appendChild(t); cur = t;
     $('.ib', t).onclick = () => { t.classList.add('tst-out'); setTimeout(() => t.remove(), 300); cur = null; };
@@ -429,12 +430,13 @@ DM.def('toast', (r, c) => {
 /* ---------- Toast stack ---------- */
 DM.def('toast-stack', (r, c) => {
   const stack = $('.tsk-stack', r);
+  // each with its tone (data-tone): Clean colours only the status ones, ok and warn, and shows the rest grey
   const pool = [
-    ['ok','var(--ok)','var(--ok-bg)','Tests passed','42 of 42 in 38s'],
-    ['pr','var(--merge)','var(--merge-bg)','PR #412 is ready','Use shared spacing tokens'],
-    ['figma','var(--pl)','var(--pl-bg)','Frames synced','6 frames from Pricing.fig'],
-    ['warn','var(--warn)','var(--warn-bg)','Budget at 80%','1,600 of 2,000 credits'],
-    ['spark','var(--pb)','var(--pb-bg)','Draft written','Launch email, 2 subject lines']
+    ['ok','var(--ok)','var(--ok-bg)','Tests passed','42 of 42 in 38s','ok'],
+    ['pr','var(--merge)','var(--merge-bg)','PR #412 is ready','Use shared spacing tokens','merge'],
+    ['figma','var(--pl)','var(--pl-bg)','Frames synced','6 frames from Pricing.fig','purple'],
+    ['warn','var(--warn)','var(--warn-bg)','Budget at 80%','1,600 of 2,000 credits','warn'],
+    ['spark','var(--pb)','var(--pb-bg)','Draft written','Launch email, 2 subject lines','blue']
   ];
   // the stack fans out under the pointer, or while the focus is in it; a toast that can't be seen can't take the focus
   let items = [], n = 0, hover = false, focused = false;
@@ -442,6 +444,8 @@ DM.def('toast-stack', (r, c) => {
     const fan = hover || focused; let y = 0;
     const hs = items.map(it => it.offsetHeight);
     stack.style.setProperty('--fanh', (hs.slice(-4).reduce((a, b) => a + b + 8, 0) - 8 || 96) + 'px');
+    // the deck's own height: the front toast and the two that peek out above it (Clean sizes the stack to it)
+    stack.style.setProperty('--deckh', Math.ceil(items.slice(-3).reverse().reduce((m, it, k) => Math.max(m, it.offsetHeight * (1 - k * .05) + k * 10), 0)) + 'px');
     stack.classList.toggle('fan', fan);
     items.slice().reverse().forEach((it, i) => {
       if (fan){ it.style.transform = `translateY(${-y}px)`; it.style.opacity = i > 3 ? 0 : 1; it.style.filter = 'none'; if (i < 3) y += hs[items.length - 1 - i] + 8; }
@@ -451,7 +455,7 @@ DM.def('toast-stack', (r, c) => {
   }
   function add(){
     const p = pool[n++ % pool.length];
-    const el = html(`<div class="tsk-c"><span class="g" style="color:${p[1]};background:${p[2]}">${I(p[0])}</span><div class="tx"><b>${p[3]}</b><span>${p[4]}</span></div><span class="t">now</span><button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div>`);
+    const el = html(`<div class="tsk-c"><span class="g" data-tone="${p[5]}" style="color:${p[1]};background:${p[2]}">${I(p[0])}</span><div class="tx"><b>${p[3]}</b><span>${p[4]}</span></div><span class="t">now</span><button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div>`);
     el.style.transform = 'translateY(24px) scale(.96)'; el.style.opacity = 0; el.style.filter = 'blur(6px)';
     stack.appendChild(el); items.push(el);
     $('.ib', el).onclick = () => { items = items.filter(x => x !== el); el.style.opacity = 0; el.style.transform += ' translateX(30px)'; setTimeout(() => el.remove(), 400); layout(); };
@@ -562,6 +566,10 @@ DM.def('web-search', (r, c) => {
   const ST = { read:['Read', ''], skim:['Skimmed', ''], paywall:['Skipped: paywall', 'warn'], blocked:['Skipped: blocked', 'warn'], timeout:['Skipped: timeout', 'warn'] };
   const root = $('.wsx', r), head = $('.wsx-h', r), ic = $('.wsx-ic', r), st = $('.wsx-st', r), marks = $('.wsx-marks', r), fold = $('.wsx-fold', r), list = $('.wsx-list', r), ans = $('.wsx-ans', r), sr = $('.wsx-sr', r);
   const say = t => { sr.textContent = t; };
+  // Clean (lead, 18 Nov): the card grows and shrinks with what it holds (grow()), eased and centred, instead of keeping the
+  // height it had once the trail folds (hold)
+  const ds = r.closest('[data-style]'), clean = !!ds && ds.dataset.style === 'clean';
+  if (clean) c.offs.push(grow(root));
   const setOpen = o => { head.setAttribute('aria-expanded', o); fold.classList.toggle('shut', !o); };
   head.onclick = () => setOpen(head.getAttribute('aria-expanded') !== 'true');
   const sites = [];
@@ -596,7 +604,7 @@ DM.def('web-search', (r, c) => {
     done = true; ic.innerHTML = I('globe','xs'); st.classList.remove('shim');
     const read = Q.flatMap(q => q.p || []).filter(p => p[3] === 'read' || p[3] === 'skim').length;
     swap(st, `${Q.length} searches, ${read} pages read`); say(`Done: ${Q.length} searches, ${read} pages read`);
-    await c.wait(400); hold(root); setOpen(false);
+    await c.wait(400); if (!clean) hold(root); setOpen(false);
     const A = 'Stripe caps metered usage at 100 million events a month for each meter [1]. Metronome and Orb both take events in bulk with no monthly cap [2]. At your volume Stripe still fits, with room to grow.'.split(' ');
     for (let i = 1; i <= A.length; i++){ ans.innerHTML = A.slice(0, i).join(' ').replace(/\[(\d)\]/g, (m, k) => `<button class="wsx-cite" data-n="${k}" aria-label="Source ${k}: ${$('.t', pages[k].li).textContent}, ${pages[k].d}" data-tip="${$('.t', pages[k].li).textContent} · ${pages[k].d}">${k}</button>`); await c.wait(50); }
 

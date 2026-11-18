@@ -12,7 +12,7 @@ export type ToastTone = 'success' | 'error' | 'info' | 'loading';
 export interface ToastData {
   /** A new id slides a new toast in and the old one away. Keep the id to change the text in place */
   id: string | number;
-  /** Picks the icon and its colour. loading spins */
+  /** Picks the icon and its colour (in Clean only success and error take colour). loading spins */
   tone?: ToastTone;
   title: string;
   /** The quieter line under the title. Crossfades when it changes */
@@ -40,7 +40,7 @@ function Card({ toast, leaving, onDismiss }: { toast: ToastData; leaving: boolea
   const tone = TONES[toast.tone ?? 'success'], a = toast.action;
   return (
     <div className={cx('dm-tst-t', leaving ? 'dm-tst-out' : 'dm-tst-in')} role="status" inert={leaving}>
-      <span className="dm-g" style={{ color: tone.color, background: tone.bg }}>{tone.icon ? <Icon name={tone.icon} /> : <Spin />}</span>
+      <span className="dm-g" data-tone={toast.tone ?? 'success'} style={{ color: tone.color, background: tone.bg }}>{tone.icon ? <Icon name={tone.icon} /> : <Spin />}</span>
       <div className="dm-tx"><b>{toast.title}</b>{toast.description !== undefined && <Swap>{toast.description}</Swap>}</div>
       <div className="dm-acts">
         {a && <button type="button" className={cx('dm-pill dm-sm', a.variant === 'primary' || a.variant === 'ink' ? 'dm-primary' : 'dm-ghost')} aria-busy={a.busy || undefined} onClick={() => { if (!a.busy) a.onClick(); }}>{a.busy ? <Spin /> : a.label}</button>}

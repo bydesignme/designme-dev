@@ -38,7 +38,7 @@ Thinking states is a set of six indicators for the moment an agent is thinking, 
 - Pass `steps`, a list of status lines. Leave `current` out and they take turns every `interval` milliseconds (2600 by default), or set `current` to show the step your agent reports.
 - A new line crossfades in, except in Stream, where it types out a letter at a time.
 - `seconds` shows the time so far at the end of the line. Left out, it counts by itself; `false` hides it.
-- Marks use the accent and everything else stays grey. In Soft the tile and marks are squircles; in Blueprint the tile is square with a hairline edge, marks tick in steps, Stream's caret is a block.
+- Marks use the accent and everything else stays grey. In Soft the tile and marks are squircles; in Blueprint the tile is square with a hairline edge, marks tick in steps, Stream's caret is a block. In Clean the tile is a neutral rounded square with a hairline, and the marks keep the accent.
 - On designme.dev the switch under the demo picks the variant, and the HTML install ships both the switch and every variant.
 
 ### Accessibility

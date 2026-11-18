@@ -1,7 +1,7 @@
 'use client';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import { cx } from '../../lib/cx';
-import { useControllable } from '../../lib/hooks';
+import { useControllable, useIsoLayoutEffect } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
 import { Fold, Spin, Swap, Tip } from '../../lib/motion';
 import '../../designme.css';
@@ -42,7 +42,7 @@ export interface WebSearchProps {
   /** Whether the trail is open. Left to the component, it folds once `done` turns true */
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  /** Without the panel, for a chat stream (true) */
+  /** Without the panel, for a chat stream (true). Clean keeps its card either way */
   bare?: boolean;
   className?: string;
 }
@@ -69,8 +69,26 @@ export function WebSearch({ queries, done = false, answer, open, onOpenChange, b
   const last = useRef('');
   useEffect(() => { const t = done ? `Done: ${line}` : current ? `Searching for ${current.query}` : ''; if (t && t !== last.current) { last.current = t; setSaid(t); } }, [done, current?.key]); // eslint-disable-line react-hooks/exhaustive-deps
   const hotPage = hot != null ? cited(hot) : undefined;
+  // Clean: the trail is a card that grows and shrinks with what it holds (as grow() on designme.dev): its height follows its
+  // content, eased, as searches arrive and as it folds. Soft and Blueprint keep their own sizing
+  const root = useRef<HTMLDivElement>(null), wrap = useRef<HTMLDivElement>(null);
+  const [clean, setClean] = useState(false);
+  useIsoLayoutEffect(() => { setClean(root.current?.closest('[data-style]')?.getAttribute('data-style') === 'clean'); }, []);
+  useIsoLayoutEffect(() => {
+    const el = root.current, w = wrap.current;
+    if (!clean || !el || !w || typeof ResizeObserver === 'undefined') return;
+    let first = true;
+    const fit = () => {
+      const cs = getComputedStyle(el), h = Math.ceil(w.offsetHeight + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth));
+      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
+      else el.style.height = h + 'px';
+    };
+    const ro = new ResizeObserver(fit); ro.observe(w); fit();
+    return () => { ro.disconnect(); el.style.height = ''; };
+  }, [clean]);
   return (
-    <div data-dm="" className={cx('dm-wsx', !bare && 'dm-panel', className)} style={bare ? { paddingInline: 0 } : undefined}>
+    <div data-dm="" ref={root} className={cx('dm-wsx', !bare && 'dm-panel', clean && 'dm-growing', className)} style={bare ? { paddingInline: 0 } : undefined}>
+      <div className="dm-grow" ref={wrap} style={clean ? undefined : { display: 'contents' }}>
       <button type="button" className="dm-wsx-h" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
         <span className="dm-wsx-ic">{done ? <Icon name="globe" size="xs" /> : <Spin />}</span>
         <Swap className={cx('dm-wsx-st', !done && 'dm-shim')}>{line}</Swap>
@@ -110,6 +128,7 @@ export function WebSearch({ queries, done = false, answer, open, onOpenChange, b
         return <Tip key={i} label={p ? `${p.title} · ${p.domain}` : `Source ${n}`}><button type="button" className={cx('dm-wsx-cite', hot === n && 'dm-on')} aria-label={p ? `Source ${n}: ${p.title}, ${p.domain}` : `Source ${n}`}
           onPointerEnter={() => setHot(n)} onPointerLeave={() => setHot(null)} onFocus={() => setHot(n)} onBlur={() => setHot(null)}>{n}</button></Tip>; })}</div>}
       <p className="dm-wsx-sr" role="status">{said}</p>
+      </div>
     </div>
   );
 }

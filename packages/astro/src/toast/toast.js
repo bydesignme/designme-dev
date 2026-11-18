@@ -2,16 +2,17 @@
 import { $, $$, DM, I, html, seg, swap } from '../core/core.js';
 DM.def('toast', (r, c) => {
   const slot = $('.tst-slot', r);
+  // each state's icon, colours and words; its tone (data-tone) is what Clean colours: success green, error red, the rest grey
   const V = {
-    ok:{ g:'ok', col:'var(--dm-ok)', bg:'var(--dm-ok-bg)', b:'Changes applied', s:'4 files updated in PricingCard', act:'<button class="pill ghost sm tst-undo">Undo</button>' },
-    err:{ g:'alert', col:'var(--dm-bad)', bg:'var(--dm-bad-bg)', b:'Could not push to main', s:'The branch is protected', act:'<button class="pill primary sm tst-retry">Retry</button>' },
-    info:{ g:'info', col:'var(--dm-pb)', bg:'var(--dm-pb-bg)', b:'Preview is ready', s:'pricing-spacing.preview.app', act:'<button class="pill ghost sm">Open</button>' },
-    load:{ g:'load', col:'var(--dm-fg)', bg:'var(--dm-chip)', b:'Deploying preview', s:'Building 3 pages', act:'' }
+    ok:{ g:'ok', tone:'success', col:'var(--dm-ok)', bg:'var(--dm-ok-bg)', b:'Changes applied', s:'4 files updated in PricingCard', act:'<button class="pill ghost sm tst-undo">Undo</button>' },
+    err:{ g:'alert', tone:'error', col:'var(--dm-bad)', bg:'var(--dm-bad-bg)', b:'Could not push to main', s:'The branch is protected', act:'<button class="pill primary sm tst-retry">Retry</button>' },
+    info:{ g:'info', tone:'info', col:'var(--dm-pb)', bg:'var(--dm-pb-bg)', b:'Preview is ready', s:'pricing-spacing.preview.app', act:'<button class="pill ghost sm">Open</button>' },
+    load:{ g:'load', tone:'loading', col:'var(--dm-fg)', bg:'var(--dm-chip)', b:'Deploying preview', s:'Building 3 pages', act:'' }
   };
   let cur = null;
   let show = function(k){
     const v = V[k];
-    const t = html(`<div class="tst-t tst-in" role="status"><span class="g" style="color:${v.col};background:${v.bg}">${k === 'load' ? '<span class="spin"></span>' : I(v.g)}</span><div class="tx"><b>${v.b}</b><span>${v.s}</span></div><div class="acts">${v.act}<button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div><span class="life"></span></div>`);
+    const t = html(`<div class="tst-t tst-in" role="status"><span class="g" data-tone="${v.tone}" style="color:${v.col};background:${v.bg}">${k === 'load' ? '<span class="spin"></span>' : I(v.g)}</span><div class="tx"><b>${v.b}</b><span>${v.s}</span></div><div class="acts">${v.act}<button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div><span class="life"></span></div>`);
     if (cur){ const old = cur; old.classList.add('tst-out'); setTimeout(() => old.remove(), 300); }
     slot.appendChild(t); cur = t;
     $('.ib', t).onclick = () => { t.classList.add('tst-out'); setTimeout(() => t.remove(), 300); cur = null; };

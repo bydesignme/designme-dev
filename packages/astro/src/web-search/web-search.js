@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, enter, hold, html, swap } from '../core/core.js';
+import { $, $$, DM, I, enter, grow, hold, html, swap } from '../core/core.js';
 DM.def('web-search', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{chev}', I('chev-d','xs'));
   // the searches: what was asked, how many results, how long it took, and the pages it opened. The first finds nothing and is
@@ -16,6 +16,10 @@ DM.def('web-search', (r, c) => {
   const ST = { read:['Read', ''], skim:['Skimmed', ''], paywall:['Skipped: paywall', 'warn'], blocked:['Skipped: blocked', 'warn'], timeout:['Skipped: timeout', 'warn'] };
   const root = $('.wsx', r), head = $('.wsx-h', r), ic = $('.wsx-ic', r), st = $('.wsx-st', r), marks = $('.wsx-marks', r), fold = $('.wsx-fold', r), list = $('.wsx-list', r), ans = $('.wsx-ans', r), sr = $('.wsx-sr', r);
   const say = t => { sr.textContent = t; };
+  // Clean (lead, 18 Nov): the card grows and shrinks with what it holds (grow()), eased and centred, instead of keeping the
+  // height it had once the trail folds (hold)
+  const ds = r.closest('[data-style]'), clean = !!ds && ds.dataset.style === 'clean';
+  if (clean) c.offs.push(grow(root));
   const setOpen = o => { head.setAttribute('aria-expanded', o); fold.classList.toggle('shut', !o); };
   head.onclick = () => setOpen(head.getAttribute('aria-expanded') !== 'true');
   const sites = [];
@@ -50,7 +54,7 @@ DM.def('web-search', (r, c) => {
     done = true; ic.innerHTML = I('globe','xs'); st.classList.remove('shim');
     const read = Q.flatMap(q => q.p || []).filter(p => p[3] === 'read' || p[3] === 'skim').length;
     swap(st, `${Q.length} searches, ${read} pages read`); say(`Done: ${Q.length} searches, ${read} pages read`);
-    await c.wait(400); hold(root); setOpen(false);
+    await c.wait(400); if (!clean) hold(root); setOpen(false);
     const A = 'Stripe caps metered usage at 100 million events a month for each meter [1]. Metronome and Orb both take events in bulk with no monthly cap [2]. At your volume Stripe still fits, with room to grow.'.split(' ');
     for (let i = 1; i <= A.length; i++){ ans.innerHTML = A.slice(0, i).join(' ').replace(/\[(\d)\]/g, (m, k) => `<button class="wsx-cite" data-n="${k}" aria-label="Source ${k}: ${$('.t', pages[k].li).textContent}, ${pages[k].d}" data-tip="${$('.t', pages[k].li).textContent} · ${pages[k].d}">${k}</button>`); await c.wait(50); }
 
