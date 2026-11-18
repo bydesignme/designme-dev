@@ -1,9 +1,9 @@
 'use client';
-import { useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
+import { useRef, type CSSProperties, type KeyboardEvent } from 'react';
 import { cx } from '../../lib/cx';
-import { useControllable, useIsoLayoutEffect } from '../../lib/hooks';
+import { useControllable } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
-import { enter, Fold, Swap, Tip } from '../../lib/motion';
+import { enter, Fold, Swap, Tip, useGrow } from '../../lib/motion';
 import '../../designme.css';
 import './trace-view.css';
 
@@ -27,9 +27,10 @@ export interface TraceSpan {
 }
 
 export interface TraceViewProps {
-  /** The run's name, like "Pricing research" */
+  /** The run's name, like "Pricing research". The run itself is the head, with its total tokens and time, so its spans
+      start at the top level */
   title: string;
-  /** The run's top spans, usually one root with everything nested under it */
+  /** The run's spans: its steps at the top level, and the spans a sub-agent starts nested under it */
   spans: TraceSpan[];
   /** Seconds into the run while it streams in: spans that start later stay hidden, and running ones reach this far.
       Leave it out once the run is over */
@@ -56,31 +57,17 @@ const tokensOf = (s: TraceSpan): number => s.tokens ?? (s.children ?? []).reduce
 
 type Row = { s: TraceSpan; lv: number; up?: Row };
 
-/** One agent run as an observability waterfall: every span (LLM call, tool call, retrieval, sub-agent) on a shared time
-    axis, nested under the span that started it with a tree's guides, with its tokens and latency. Each kind has its colour
-    and a count in the key; while the run streams a playhead marks now and running bars glow at their leading edge. A slow
-    tool call turns amber and hatched, and any span opens to show where it sat in the run, its input, output, latency and tokens. */
+/** One agent run as an observability waterfall: the run's name, total tokens and time in the head, and every span (LLM
+    call, tool call, retrieval, sub-agent) on a shared time axis, nested under the span that started it with a tree's guides,
+    with its tokens and latency. Each kind has its colour and a count in the key; while the run streams a playhead marks now.
+    A slow tool call turns amber and hatched, and any span opens to show where it sat in the run, its input, output, latency
+    and tokens. */
 export function TraceView({ title, spans, time, axis, slowAfter = 2, status, selected, defaultSelected = null, onSelectedChange, className }: TraceViewProps) {
   const [open, setOpen] = useControllable(selected, defaultSelected, onSelectedChange);
   const rows = useRef<HTMLDivElement>(null);
-  // Clean (owner, 18 Nov) keeps no room for spans still to come: the card grows and shrinks with what it holds, eased, as
-  // each span starts and the details open and shut (as grow() on the site)
-  const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
-  const [clean, setClean] = useState(false);
-  useIsoLayoutEffect(() => { setClean(root.current?.closest('[data-style]')?.getAttribute('data-style') === 'clean'); }, []);
-  useIsoLayoutEffect(() => {
-    const el = root.current, w = inner.current;
-    if (!clean || !el || !w || typeof ResizeObserver === 'undefined') return;
-    let first = true;
-    const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
-    const fit = () => {
-      const h = Math.ceil(w.offsetHeight + box());
-      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
-      else el.style.height = h + 'px';
-    };
-    const ro = new ResizeObserver(fit); ro.observe(w); fit();
-    return () => { ro.disconnect(); el.style.height = ''; };
-  }, [clean]);
+  // the card keeps no room for spans still to come (owner, 18 Nov): it grows and shrinks with what it holds, eased, as each
+  // span starts and the details open and shut (as grow() on the site)
+  const [root, inner] = useGrow();
   const all: Row[] = [];
   (function walk(list: TraceSpan[], lv: number, up?: Row) { list.forEach(s => { const row = { s, lv, up }; all.push(row); if (s.children) walk(s.children, lv + 1, row); }); })(spans, 0);
   const end = Math.max(0, ...all.map(({ s }) => s.start + (s.duration ?? Math.max(0, (time ?? s.start) - s.start))));
@@ -103,6 +90,9 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
   const slow = (s: TraceSpan) => s.kind === 'tool' && took(s) > slowAfter;
   const nSlow = shown.filter(({ s }) => slow(s)).length;
   const live = shown.some(({ s }) => running(s));
+  // the run's total tokens, of the spans that have started (an agent span with its own count stands for those under it)
+  const spent = (s: TraceSpan): number => s.start > now ? 0 : s.tokens ?? (s.children ?? []).reduce((a, k) => a + spent(k), 0);
+  const total = spans.reduce((a, s) => a + spent(s), 0);
   const line = status ?? (live ? `Running · ${shown.length} span${shown.length === 1 ? '' : 's'}` : `Done · ${shown.length} spans${nSlow ? `, ${nSlow} slow` : ''}`);
   // a label every other tick, and a faint line on every tick
   const tick = span <= 6 ? 1 : span <= 15 ? 2 : span <= 30 ? 5 : 10;
@@ -127,13 +117,14 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
   };
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-trv dm-panel', clean && 'dm-growing', live && time !== undefined && time > 0 && 'dm-live', className)} style={{ '--dm-now': Math.min(end, now) / span } as CSSProperties}
+    <div data-dm="" ref={root} className={cx('dm-trv dm-panel dm-growing', live && time !== undefined && time > 0 && 'dm-live', className)} style={{ '--dm-now': Math.min(end, now) / span } as CSSProperties}
       onKeyDown={e => { if (e.key === 'Escape' && open) close(true); }}>
-      <div ref={inner} className="dm-grow" style={clean ? undefined : { display: 'contents' }}>
+      <div ref={inner} className="dm-grow">
       <div className="dm-trv-h">
-        {/* Clean's head has the run's mark in a tile, the column every span's mark is centred in */}
-        {clean && <span className="dm-trv-hi" aria-hidden="true"><Icon name="cpu" /></span>}
+        {/* the head has the run's mark in a tile, the column every span's mark is centred in, and its total tokens beside its time */}
+        <span className="dm-trv-hi" aria-hidden="true"><Icon name="cpu" /></span>
         <div className="dm-trv-ht"><b>{title}</b><span className="dm-muted dm-trv-st" aria-live="polite"><Swap>{line}</Swap></span></div>
+        <span className="dm-trv-tt dm-muted dm-num">{short(total)} tokens</span>
         <span className="dm-trv-tot dm-num">{sec(Math.min(end, now))}</span>
       </div>
       <div className="dm-trv-lg" role="list" aria-label="Spans by kind">
@@ -145,13 +136,13 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
         <span className="dm-trv-sc">{labels.map(v => <span key={v} style={{ left: `${(v / span) * 100}%` }}>{v}s</span>)}</span>
         <span className="dm-trv-tk">Tokens</span><span className="dm-trv-ms">Time</span>
       </div>
-      <div ref={rows} className={cx('dm-trv-rows', sel && 'dm-sel')} style={{ '--dm-n': all.length } as CSSProperties} role="group" aria-label="Spans" onKeyDown={onKey}>
+      <div ref={rows} className={cx('dm-trv-rows', sel && 'dm-sel')} role="group" aria-label="Spans" onKeyDown={onKey}>
         {shown.map(row => {
           const { s, lv } = row;
           const [kind, icon, col] = KIND[s.kind], w = took(s), tk = tokensOf(s), run = running(s), sl = slow(s);
           const why = `Over the ${slowAfter}s budget for a tool call`;
           return (
-            <button key={s.id} type="button" data-id={s.id} data-k={s.kind} className={cx('dm-trv-r dm-enter', !lv && 'dm-root', run && 'dm-run', sl && 'dm-slow')}
+            <button key={s.id} type="button" data-id={s.id} data-k={s.kind} className={cx('dm-trv-r dm-enter', run && 'dm-run', sl && 'dm-slow')}
               style={{ '--dm-k': col, '--dm-lv': lv } as CSSProperties} aria-expanded={open === s.id}
               aria-label={`${s.name}, ${kind}, ${run ? 'running, ' : ''}${sec(w)}, ${Math.round(tk).toLocaleString('en-US')} tokens${sl ? ', slow' : ''}`}
               onClick={() => setOpen(open === s.id ? null : s.id)}>

@@ -13,13 +13,12 @@ DM.def('agent-inbox', (r, c) => {
     { id:'aud', t:'Audit pricing contrast', a:'QA agent', g:'done', ago:'25m ago' }
   ];
   const GR = [['needs', 'Needs you'], ['run', 'Running'], ['done', 'Done']];
-  const gs = $('.aib-gs', r), st = $('.aib-st', r);
+  const gs = $('.aib-gs', r);
   // the panel fits its rows at every moment (owner, 18 Nov: no room kept for a group that has gone): as a group goes or
   // comes back, its height eases with grow(), and it stays centred in its stage
   const ib = r.classList.contains('aib') ? r : $('.aib', r);
-  // Clean (owner, 18 Nov): the head has a neutral mark in a tile, the column the agents' marks sit in
-  const ds = r.closest('[data-style]');
-  if (ib && ds && ds.dataset.style === 'clean') $('.aib-h', ib).prepend(html(`<span class="aib-hi" aria-hidden="true">${I('mail')}</span>`));
+  // the head has a neutral mark in a tile, the column the agents' marks sit in (owner, 18 Nov)
+  if (ib) $('.aib-h', ib).prepend(html(`<span class="aib-hi" aria-hidden="true">${I('mail')}</span>`));
   if (ib) c.offs.push(grow(ib));
   gs.innerHTML = GR.map(([k, n]) => `<section class="aib-g" data-g="${k}" aria-label="${n}"><div class="aib-gh"><span>${n}</span><span class="n"></span></div><div class="aib-gl" role="list"></div></section>`).join('');
   const clock = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
@@ -41,11 +40,8 @@ DM.def('agent-inbox', (r, c) => {
   const list = g => $(`.aib-g[data-g="${g}"] .aib-gl`, gs);
   R.forEach(x => list(x.g).appendChild(row(x)));
   function counts(){
-    // a group with nothing in it goes away, and the line at the top says what is left
+    // each group shows its count, and a group with nothing in it goes away
     GR.forEach(([k]) => { const n = R.filter(x => x.g === k).length, sec = $(`.aib-g[data-g="${k}"]`, gs); $('.n', sec).textContent = n; sec.hidden = !n; });
-    const need = R.filter(x => x.g === 'needs').length, run = R.filter(x => x.g === 'run').length, done = R.filter(x => x.g === 'done').length;
-    const t = need ? `${need} need${need > 1 ? '' : 's'} you` : run ? `${run} running` : `All clear · ${done} done today`;
-    if (!st.textContent) st.textContent = t; else swap(st, t);
   }
   counts();
   // a run that moves glides to its place in the new group: rows and group titles are measured before and after, and eased

@@ -928,19 +928,25 @@
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .atr-cm-b[data-s="fail"] .bg{background-image:repeating-linear-gradient(135deg,transparent 0 4px,color-mix(in srgb,var(--bad) 14%,transparent) 4px 5px)}
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .atr-cm-lg .own{border-radius:0}
 /* ---------- Agent inbox ---------- */
-/* every run in one list, grouped by what it needs: Needs you, Running, Done. A run glides to its new group when it moves */
-.v2 .aib{width:100%;max-width:440px;margin:0 auto;padding:6px}
-.v2 .aib-h{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s-3);padding:var(--s-2) 10px 6px}
-.v2 .aib-h b{font-weight:500;font-size:14px}
-.v2 .aib-st{font-size:12.5px}
+/* every run in one list, grouped by what it needs: Needs you, Running, Done. A run glides to its new group when it moves.
+   The card sits on two columns (owner, 18 Nov), its content 16px from every edge: the head's neutral mark in a 28px column
+   with the agents' marks under it, and the title and each run's words 12px after it; the buttons and the clocks end on the
+   content's right edge, and each row shares one centre line. Each group's name and count is a section label on the
+   content's left edge, over the marks, so it never reads as another run's words. A run's row is not a button, so it has no
+   hover fill, and one that failed keeps its red words and Retry with no red band behind them; a run that moves glides
+   without lifting */
+.v2 .aib{width:100%;max-width:440px;margin:0 auto;padding:16px 16px 6px}
+.v2 .aib-h{display:flex;align-items:center;gap:12px;padding:0 0 4px}
+.v2 .aib-hi{width:28px;height:28px;display:grid;place-items:center;flex:none;border-radius:var(--r-sm);color:var(--fg2);background:var(--chip)}
+.v2 .aib-h b{flex:1;min-width:0;font-weight:500;font-size:14px;line-height:20px}
 .v2 .aib-g{display:flex;flex-direction:column}
-.v2 .aib-gh{display:flex;align-items:center;gap:var(--s-2);padding:var(--s-3) 10px var(--s-1);font-size:12px;color:var(--muted)}
+.v2 .aib-gh{display:flex;align-items:center;gap:var(--s-2);padding:12px 0 4px;font-size:12px;line-height:18px;color:var(--muted)}
 .v2 .aib-gh .n{font-variant-numeric:tabular-nums}
 .v2 .aib-gl{display:flex;flex-direction:column}
-.v2 .aib-i{display:flex;align-items:center;gap:10px;padding:var(--s-2) 10px;border-radius:calc(10px * var(--rk-m,var(--rk)));font-size:13px;transition:background .16s}
-@media (hover:hover) and (pointer:fine){.v2 .aib-i:hover{background:var(--row)}}
-.v2 .aib-i.mv{position:relative;z-index:1;background:var(--surface);box-shadow:var(--shadow)}
-.v2 .aib-i.mv.fail{background:var(--bad-bg)}
+.v2 .aib-i{display:flex;align-items:center;gap:12px;padding:8px 0;border-radius:calc(10px * var(--rk-m,var(--rk)));font-size:13px;transition:background .16s}
+.v2 .aib-i.mv{position:relative;z-index:1;background:var(--surface)}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink primary alone presses */
+.v2 .aib :is(.ib,.pill):active,:root[data-style="clean"] .v2 .aib .ib:active{transform:none}
 .v2 .aib-av{width:28px;height:28px;border-radius:var(--r-sm);display:grid;place-items:center;flex:none;font-size:11px;font-weight:500}
 .v2 .aib-t{flex:1;min-width:0;display:flex;flex-direction:column}
 .v2 .aib-t b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -949,67 +955,66 @@
 .v2 .aib-r{display:flex;align-items:center;gap:6px;flex:none;font-size:12.5px;color:var(--fg2)}
 .v2 .aib-r .spin{width:11px;height:11px;color:var(--accent-fg,var(--accent))}
 .v2 .aib-r .ok{color:var(--ok);display:grid}
-.v2 .aib-i.fail{background:var(--bad-bg)}
 .v2 .aib-i.fail .aib-r .pill{background:var(--surface);color:var(--fg);box-shadow:var(--on-tint-btn)}
-/* Clean (owner, 18 Nov): a card on two columns, its content 16px from every edge. The head's neutral mark sits in a 28px
-   column, the agents' marks in the same column under it, and the title, the group names and each run's words start 12px
-   after it; the line beside the title, the buttons and the clocks end on the content's right edge, and each row shares one
-   centre line. A run's row is not a button, so it has no hover fill (nor a red one when it failed: its words and mark stay
-   red), and a run that moves glides without lifting. The done ticks are the vivid mark green, never the darker text green */
-.v2 .aib-hi{display:none}
-:root[data-style="clean"] .v2 .aib.panel{padding:16px 16px 6px}
-:root[data-style="clean"] .v2 .aib.panel .aib-h{align-items:center;gap:12px;padding:0 0 4px}
-:root[data-style="clean"] .v2 .aib.panel .aib-hi{width:28px;height:28px;display:grid;place-items:center;flex:none;border-radius:var(--r-sm);color:var(--fg2);background:var(--chip);box-shadow:inset 0 0 0 1px var(--hair)}
-:root[data-style="clean"] .v2 .aib.panel .aib-h b{flex:1;line-height:20px}
-:root[data-style="clean"] .v2 .aib.panel .aib-st{line-height:18px}
-:root[data-style="clean"] .v2 .aib.panel .aib-gh{padding:12px 0 4px 40px;line-height:18px}
-:root[data-style="clean"] .v2 .aib.panel .aib-i{gap:12px;padding:8px 0;border-radius:0}
-:root[data-style="clean"] .v2 .aib.panel .aib-i.fail{background:none}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .aib.panel .aib-i:hover{background:none}}
-:root[data-style="clean"] .v2 .aib.panel .aib-i.mv{background:var(--surface);box-shadow:none}
+@media (hover:hover) and (pointer:fine){.v2 .aib-i.fail .aib-r .pill:hover{box-shadow:var(--on-tint-btn-h)}}
+/* Clean (owner, 18 Nov): the head's mark has a hairline like the other tiles; the done ticks are the vivid mark green,
+   never the darker text green; Retry is the secondary button as Clean draws it everywhere (its tokens) */
+:root[data-style="clean"] .v2 .aib-hi{box-shadow:inset 0 0 0 1px var(--hair)}
+/* a group's name is the list's section label (owner, 18 Nov), in the smaller muted label type of a menu's group heading, so
+   it never reads as a run's description; a little more room above it sets the groups apart */
+:root[data-style="clean"] .v2 .aib-gh{padding-top:16px;font-size:11.5px;line-height:16px}
 :root[data-style="clean"] .v2 .aib-r .ok{color:var(--ok-mark)}
-/* Retry is the secondary button, as Clean draws it everywhere (its tokens), with no press scale */
 :root[data-style="clean"] .v2 .aib-i.fail .aib-r .pill{color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .aib-i.fail .aib-r .pill:hover{color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth)}}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .aib-i.fail .aib-r .pill:hover{box-shadow:var(--btn2-hover)}}
-:root[data-style="clean"] .v2 .aib-i.fail .aib-r .pill:active{transform:none;box-shadow:var(--btn2-press)}
+:root[data-style="clean"] .v2 .aib-i.fail .aib-r .pill:active{box-shadow:var(--btn2-press)}
 /* ---------- Trace view ---------- */
 /* one agent run as a waterfall: every span on a shared time axis, nested under the span that started it, with its tokens
-   and latency. Each kind has its colour (the chart palette's identity slots): its mark, its bar and its count in the key.
-   While the run streams, a playhead marks now and the running bars glow at their leading edge. A span over its time budget
-   turns amber and hatched, and any span opens to show where it sat in the run, its input and its output */
-.v2 .trv{width:100%;max-width:720px;margin:0 auto;padding:6px;container-type:inline-size;--cols:minmax(0,11fr) minmax(0,8fr) 40px 44px}
-.v2 .trv-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);padding:var(--s-2) 10px 6px}
-.v2 .trv-ht{display:flex;flex-direction:column;min-width:0}
-.v2 .trv-ht b{font-weight:500;font-size:14px}
-.v2 .trv-st{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+   and latency. The run itself is the head: its mark, its name, how it is going, and its total tokens and time. The card
+   sits on two columns (owner, 18 Nov): the head's mark in a 32px column with the title's words 12px after it; each span's
+   mark is centred in that column (nested ones step in 16px a level) and the top spans' names start where the title's
+   words do, as do the key and the Span heading. A row's hover and selection fill is a quiet grey that spans the content box,
+   no wider; the times and tokens sit 8px inside it, with the run's totals over them. Each kind has its colour (the chart
+   palette's identity slots): its bar and its count in the key, drawn at full strength so the key matches them. While the
+   run streams, a playhead marks now and the running bars grow with a bright leading edge. A span over its time budget
+   turns amber and hatched, and any span opens to show where it sat in the run, its input and its output, on the same
+   columns. The card keeps no room for spans still to come: it grows as each one starts (grow()) and stays centred */
+.v2 .trv{width:100%;max-width:720px;margin:0 auto;padding:15px 16px 0;container-type:inline-size;--cols:minmax(0,11fr) minmax(0,8fr) 40px 44px}
+.v2 .trv.growing{overflow-clip-margin:0px}
+.v2 .trv-h{display:flex;align-items:center;gap:12px;padding:0 8px 0 0}
+.v2 .trv-hi{width:32px;height:32px;display:grid;place-items:center;flex:none;border-radius:calc(9px * var(--rk-m,var(--rk)));color:var(--fg2);background:var(--chip)}
+.v2 .trv-ht{flex:1;display:flex;flex-direction:column;min-width:0}
+.v2 .trv-ht b{font-weight:500;font-size:14px;line-height:20px}
+.v2 .trv-st{font-size:12.5px;line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* the run's totals: its tokens, quiet, then its time over the Time column */
+.v2 .trv-tt{flex:none;margin-right:-4px;font-size:12.5px;white-space:nowrap}
 .v2 .trv-tot{font-size:14px;font-weight:500;flex:none}
 /* the key: each kind with its colour and how many of its spans have started */
-.v2 .trv-lg{display:flex;flex-wrap:wrap;gap:2px var(--s-3);padding:0 10px var(--s-2);font-size:12px;color:var(--muted)}
+.v2 .trv-lg{display:flex;flex-wrap:wrap;gap:2px var(--s-3);padding:8px 0 12px 44px;font-size:12px;color:var(--muted)}
 .v2 .trv-lg span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;transition:color .3s}
 .v2 .trv-lg i{width:8px;height:8px;border-radius:var(--r-tiny,2px);background:var(--k);flex:none}
 .v2 .trv-lg b{font-weight:500;color:var(--fg2)}
 .v2 .trv-lg span.z{color:var(--dis)}.v2 .trv-lg span.z b{color:inherit}.v2 .trv-lg span.z i{opacity:.45}
-.v2 .trv-ax,.v2 .trv-r{display:grid;grid-template-columns:var(--cols);align-items:center;gap:var(--s-2);padding:0 10px}
+.v2 .trv-ax,.v2 .trv-r{display:grid;grid-template-columns:var(--cols);align-items:center;gap:var(--s-2);padding:0 8px 0 0}
 .v2 .trv-ax{height:30px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12px;color:var(--muted)}
+.v2 .trv-ax>span:first-child{padding-left:44px}
 .v2 .trv-tk,.v2 .trv-ms{text-align:right;white-space:nowrap}
 .v2 .trv-sc{position:relative;height:18px}
 .v2 .trv-sc span{position:absolute;top:0;transform:translateX(-50%);font-size:12px}
 .v2 .trv-sc span:first-child{transform:none}
-.v2 .trv-rows{display:flex;flex-direction:column;padding-bottom:var(--s-1);min-height:calc(var(--n,0) * 32px + var(--s-1))}
+.v2 .trv-rows{display:flex;flex-direction:column;padding-bottom:9px}
 .v2 .trv-r{width:100%;min-height:32px;border-radius:calc(10px * var(--rk-m,var(--rk)));font-size:13px;text-align:left;transition:background .16s}
+.v2 .trv-r[aria-expanded="true"]{background:var(--row)}
 @media (hover:hover) and (pointer:fine){.v2 .trv-r:hover{background:var(--row)}}
-.v2 .trv-r[aria-expanded="true"]{background:var(--sel)}
 .v2 .trv-r[aria-expanded="true"] .trv-tk{color:var(--fg2)}
 .v2 .trv-r:focus-visible{outline:0;box-shadow:inset 0 0 0 2px var(--focus)}
-.v2 .trv-n{position:relative;display:flex;align-items:center;gap:6px;min-width:0;align-self:stretch;padding-left:calc(var(--lv,0) * 16px)}
+.v2 .trv-n{position:relative;display:flex;align-items:center;gap:19px;min-width:0;align-self:stretch;padding-left:calc(7px + var(--lv,0) * 16px)}
 .v2 .trv-k{position:relative;z-index:1;width:18px;height:18px;display:grid;place-items:center;flex:none;border-radius:var(--r-tiny,5px);color:color-mix(in srgb,var(--k) 70%,var(--fg));background:color-mix(in srgb,var(--k) 13%,var(--surface))}
 .v2 .trv-nm{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.v2 .trv-r.root .trv-nm{font-weight:500}
-.v2 .trv-n .tag{flex:none}
+.v2 .trv-n .tag{flex:none;margin-left:-11px}
 /* the tree: a guide from each parent's mark down past its children, with an elbow into each child */
 .v2 .trv-g{position:absolute;top:0;bottom:0;left:0;pointer-events:none}
-.v2 .trv-g i{position:absolute;top:0;bottom:0;left:calc(var(--x) * 16px + 8.5px);width:1px;background:color-mix(in srgb,var(--rail) 60%,transparent)}
+.v2 .trv-g i{position:absolute;top:0;bottom:0;left:calc(var(--x) * 16px + 15.5px);width:1px;background:color-mix(in srgb,var(--rail) 60%,transparent)}
 .v2 .trv-g i.end{bottom:50%}
 .v2 .trv-g i.el::after{content:"";position:absolute;left:0;top:calc(50% - 1px);width:7px;height:1px;background:inherit}
 .v2 .trv-g i.end.el::after{top:auto;bottom:-1px}
@@ -1018,11 +1023,8 @@
 .v2 .trv-b{position:relative;height:20px;background:linear-gradient(to right,var(--line) 1px,transparent 1px) 0 0/20% 100%}
 /* a bar is laid out once at its full length; while it runs, --f (0 to 1) reveals it with a clip and moves its bright edge with a
    transform, so a streaming run repaints without laying the page out again */
-.v2 .trv-b i{position:absolute;top:5px;height:10px;min-width:3px;border-radius:var(--r-tiny,3px);clip-path:inset(-6px calc((1 - var(--f,1)) * 100% - 2px) -6px -6px);background:linear-gradient(90deg,color-mix(in srgb,var(--k) 70%,var(--surface)),var(--k));transition:background .3s,opacity .3s}
-/* a running bar has a light passing along it and a bright leading edge */
-.v2 .trv-r.run .trv-b i{background:linear-gradient(90deg,color-mix(in srgb,var(--k) 55%,var(--surface)) 0 30%,color-mix(in srgb,var(--k) 25%,var(--surface)) 45%,var(--k) 60% 100%) 0 0/250% 100%;animation:v2-trvsheen 1.4s linear infinite}
+.v2 .trv-b i{position:absolute;top:5px;height:10px;min-width:3px;border-radius:var(--r-tiny,3px);clip-path:inset(-6px calc((1 - var(--f,1)) * 100% - 2px) -6px -6px);background:var(--k);transition:background .3s,opacity .3s}
 .v2 .trv-r.run:not([data-k="agent"]) .trv-b i::after{content:"";position:absolute;left:0;right:0;top:-2px;bottom:-2px;--e:var(--k);background:linear-gradient(to left,var(--e) 0 2px,transparent 2px);transform:translateX(calc(var(--f,1) * 100% - 100% + 1px))}
-@keyframes v2-trvsheen{from{background-position:100% 0}to{background-position:-150% 0}}
 /* an agent span holds the others, so it is drawn as a bracket over the time they take */
 .v2 .trv-r[data-k="agent"] .trv-b i,.v2 .trv-r.run[data-k="agent"] .trv-b i{top:9px;height:2px;border-radius:1px;background:var(--faint);animation:none}
 .v2 .trv-r[data-k="agent"] .trv-b i::before,.v2 .trv-r[data-k="agent"] .trv-b i::after{content:"";position:absolute;top:-3px;width:2px;height:8px;border-radius:1px;background:var(--faint)}
@@ -1034,16 +1036,20 @@
 .v2 .trv-r .trv-tk{font-size:12px;color:var(--muted)}
 .v2 .trv-r .trv-ms{font-size:12.5px;color:var(--fg2)}
 .v2 .trv-r.slow .trv-ms{color:var(--warn)}
-/* with a span open, the other bars step back */
-.v2 .trv-rows.sel .trv-r:not([aria-expanded="true"]) .trv-b i{opacity:.35}
 /* the playhead: where the run is now, one line down every bar's track while it streams */
 .v2 .trv-b::after,.v2 .trv-sc::after{content:"";position:absolute;left:0;right:0;top:-6px;bottom:-6px;background:linear-gradient(90deg,var(--accent-mark,var(--accent)) 0 1px,transparent 1px);transform:translateX(calc(var(--now,0) * 100% - .5px));opacity:0;transition:opacity .4s;pointer-events:none}
 .v2 .trv-sc::after{top:12px;bottom:-6px}
 .v2 .trv.live .trv-b::after,.v2 .trv.live .trv-sc::after{opacity:.75}
-.v2 .trv-dc{display:flex;flex-direction:column;gap:10px;margin-top:2px;padding:6px 10px var(--s-2);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
-.v2 .trv-dh{display:flex;align-items:center;gap:var(--s-2);min-width:0;font-size:13px}
+/* an open span's details, at the card's foot on the same columns: its mark under the head's, its words on the names'
+   column, its close button's glyph on the Time column */
+.v2 .trv-dt{margin:0 -16px}
+.v2 .trv-dc{display:flex;flex-direction:column;gap:12px;padding:10px 24px 16px 60px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.v2 .trv-dh{position:relative;display:flex;align-items:center;gap:var(--s-2);min-width:0;min-height:28px;font-size:13px}
+.v2 .trv-dh>.trv-k{position:absolute;left:-37px;top:5px}
 .v2 .trv-dh b{min-width:0;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.v2 .trv-dh .ib{margin:0 -6px 0 auto}
+.v2 .trv-dh .ib{width:28px;height:28px;margin:0 -7px 0 auto}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov) */
+.v2 .trv :is(.ib,.pill):active,:root[data-style="clean"] .v2 .trv .ib:active{transform:none}
 /* where the open span sat in the run */
 .v2 .trv-pos{position:relative;height:6px;border-radius:var(--r-tiny,3px);background:var(--line)}
 .v2 .trv-pos i{position:absolute;top:0;bottom:0;min-width:3px;border-radius:var(--r-tiny,3px);background:var(--k);transition:width .25s linear}
@@ -1053,58 +1059,27 @@
 .v2 .trv-kv b{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .v2 .trv-io{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:6px 10px;font-size:12px;color:var(--muted)}
 .v2 .trv-io code{font-family:var(--mono);font-size:12px;color:var(--fg2);background:var(--chip);padding:5px var(--s-2);border-radius:var(--r-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-:root:not([data-style="soft"],[data-style="clean"]) .v2 .trv-r:not(.slow) .trv-b i{background:var(--k)}
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .trv-r.run:not(.slow):not([data-k="agent"]) .trv-b i{background:repeating-linear-gradient(90deg,var(--k) 0 4px,color-mix(in srgb,var(--k) 55%,var(--surface)) 4px 6px);animation:none}
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .trv-r.run:not([data-k="agent"]) .trv-b i::after{filter:none;background:linear-gradient(to left,var(--e) 0 1px,transparent 1px);transform:translateX(calc(var(--f,1) * 100% - 100%))}
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .trv-g i,:root:not([data-style="soft"],[data-style="clean"]) .v2 .trv-g i.el::after{background:var(--faint)}
 /* narrow: the names keep their room. Tokens move into each span's details, the slow tag leaves the amber bar and time to
-   say it (the time keeps its tooltip), the tree draws closer, and the details give the start its own line */
-@container (max-width:330px){.v2 .trv-ax,.v2 .trv-r{grid-template-columns:minmax(0,1fr) 72px 44px}.v2 .trv-tk,.v2 .trv-n .tag{display:none}.v2 .trv-n{padding-left:calc(var(--lv,0) * 10px)}.v2 .trv-g{display:none}.v2 .trv-kv{grid-template-columns:repeat(2,minmax(0,1fr))}}
-/* Clean (owner, 18 Nov): a card on two columns. Its content sits 16px from every edge, the head's neutral mark (the run's
-   agent) in a 32px column with the title's words 12px after it; each span's mark is centred in that column (nested ones
-   step in 16px a level) and the root span's name starts where the title's does, as do the key and the Span heading. A row's
-   hover and selection fill spans the content box, no wider, and is a neutral grey; the times and tokens sit 8px inside it,
-   with the run's total over them. It keeps no room for spans still to come: it grows as each span starts (grow()) and stays
-   centred in its stage. The kinds keep their colours on the bars and the key (chart data), drawn flat and at full strength
-   so the key matches them; the marks beside the names are one neutral grey, as file types are. An open span's details are
-   an off-white foot strip, edge to edge, on the same columns */
-.v2 .trv-hi{display:none}
-:root[data-style="clean"] .v2 .trv.panel{padding:15px 16px 0;overflow:clip;overflow-clip-margin:0px}
-:root[data-style="clean"] .v2 .trv.panel .trv-h{gap:12px;justify-content:flex-start;padding:0 8px 0 0}
-:root[data-style="clean"] .v2 .trv.panel .trv-hi{width:32px;height:32px;display:grid;place-items:center;flex:none;border-radius:calc(9px * var(--rk-m,var(--rk)));color:var(--fg2);background:var(--chip);box-shadow:inset 0 0 0 1px var(--hair)}
-:root[data-style="clean"] .v2 .trv.panel .trv-ht{flex:1}
-:root[data-style="clean"] .v2 .trv.panel .trv-ht b{line-height:20px}
-:root[data-style="clean"] .v2 .trv.panel .trv-st{line-height:18px}
-:root[data-style="clean"] .v2 .trv.panel .trv-lg{padding:8px 0 12px 44px}
-:root[data-style="clean"] .v2 .trv.panel :is(.trv-ax,.trv-r){padding:0 8px 0 0}
-:root[data-style="clean"] .v2 .trv.panel .trv-ax>span:first-child{padding-left:44px}
-:root[data-style="clean"] .v2 .trv.panel .trv-n{gap:19px;padding-left:calc(7px + var(--lv,0) * 16px)}
-:root[data-style="clean"] .v2 .trv.panel .trv-n .tag{margin-left:-11px}
-:root[data-style="clean"] .v2 .trv.panel .trv-g i{left:calc(var(--x) * 16px + 15.5px)}
-:root[data-style="clean"] .v2 .trv-rows,:root[data-style="clean"] .v2 .trv.panel .trv-rows{min-height:0;padding-bottom:9px}
-:root[data-style="clean"] .v2 .trv-r{transition:background-color var(--t-fast) var(--ease)}
-:root[data-style="clean"] .v2 .trv-r[aria-expanded="true"]{background:var(--row)}
-:root[data-style="clean"] .v2 .trv-rows.sel .trv-r:not([aria-expanded="true"]) .trv-b i{opacity:1}
-:root[data-style="clean"] .v2 .trv-k{color:var(--fg2);background:var(--chip);box-shadow:inset 0 0 0 1px var(--hair)}
-:root[data-style="clean"] .v2 .trv-r:not(.slow):not([data-k="agent"]) .trv-b i{background:var(--k);animation:none}
-:root[data-style="clean"] .v2 .trv-r.run:not([data-k="agent"]) .trv-b i::after{display:none}
-:root[data-style="clean"] .v2 .trv.panel .trv-dt{margin:0 -16px}
-:root[data-style="clean"] .v2 .trv.panel .trv-dc{gap:12px;margin-top:0;padding:10px 24px 16px 60px;background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
-:root[data-style="clean"] .v2 .trv.panel .trv-dh{position:relative;gap:8px;min-height:28px}
-:root[data-style="clean"] .v2 .trv.panel .trv-dh>.trv-k{position:absolute;left:-37px;top:5px}
-:root[data-style="clean"] .v2 .trv.panel .trv-dh .ib{width:28px;height:28px;margin:0 -6px 0 auto}
-:root[data-style="clean"] .v2 .trv-io code{background:var(--surface);box-shadow:inset 0 0 0 1px var(--hair)}
-/* narrow: the names keep their room. The head's mark is a 24px tile with the words 8px after it, the same columns run down
-   the card, the tree steps in 10px a level, and the time axis is a little shorter */
+   say it (the time keeps its tooltip), the tree draws closer, and the details give the start its own line. The head's mark
+   is a 24px tile with the words 8px after it, the same columns run down the card, and the time axis is a little shorter */
 @container (max-width:330px){
-  :root[data-style="clean"] .v2 .trv.panel .trv-h{gap:8px}
-  :root[data-style="clean"] .v2 .trv.panel .trv-hi{width:24px;height:24px;border-radius:var(--r-sm)}
-  :root[data-style="clean"] .v2 .trv.panel .trv-lg,:root[data-style="clean"] .v2 .trv.panel .trv-ax>span:first-child{padding-left:32px}
-  :root[data-style="clean"] .v2 .trv.panel .trv-n{gap:11px;padding-left:calc(3px + var(--lv,0) * 10px)}
-  :root[data-style="clean"] .v2 .trv.panel :is(.trv-ax,.trv-r){grid-template-columns:minmax(0,1fr) 60px 44px}
-  :root[data-style="clean"] .v2 .trv.panel .trv-dc{padding-left:48px}
-  :root[data-style="clean"] .v2 .trv.panel .trv-dh>.trv-k{left:-29px}
+  .v2 .trv-ax,.v2 .trv-r{grid-template-columns:minmax(0,1fr) 60px 44px}.v2 .trv-tk,.v2 .trv-n .tag{display:none}.v2 .trv-g{display:none}.v2 .trv-kv{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .v2 .trv-h{gap:8px}.v2 .trv-hi{width:24px;height:24px;border-radius:var(--r-sm)}.v2 .trv-tt{margin-right:0}
+  .v2 .trv-lg,.v2 .trv-ax>span:first-child{padding-left:32px}
+  .v2 .trv-n{gap:11px;padding-left:calc(3px + var(--lv,0) * 10px)}
+  .v2 .trv-dc{padding-left:48px}.v2 .trv-dh>.trv-k{left:-29px}
 }
+/* Clean (owner, 18 Nov): the marks beside the names are one neutral grey, as file types are, and the head's has a hairline
+   like them; running bars are flat, with no bright edge; an open span's details are an off-white foot strip, edge to edge */
+:root[data-style="clean"] .v2 .trv-hi{box-shadow:inset 0 0 0 1px var(--hair)}
+:root[data-style="clean"] .v2 .trv-r{transition:background-color var(--t-fast) var(--ease)}
+:root[data-style="clean"] .v2 .trv-k{color:var(--fg2);background:var(--chip);box-shadow:inset 0 0 0 1px var(--hair)}
+:root[data-style="clean"] .v2 .trv-r.run:not([data-k="agent"]) .trv-b i::after{display:none}
+:root[data-style="clean"] .v2 .trv-dc{background:var(--strip);border-top-color:var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
+:root[data-style="clean"] .v2 .trv-io code{background:var(--surface);box-shadow:inset 0 0 0 1px var(--hair)}
 /* ---------- Run cost ---------- */
 .v2 .rc{padding:18px}
 .v2 .rc-h{display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
@@ -1826,11 +1801,16 @@
 :root[data-style="clean"] .v2 .art-row[data-s="fail"] .art-bar{background:repeating-linear-gradient(135deg,var(--bad-mark) 0 2px,transparent 2px 5px);box-shadow:inset 0 0 0 1px var(--bad-mark)}
 :root[data-style="clean"] .v2 .art-f{margin:var(--s-3) -20px 0;padding:18px 20px 17px;background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
 /* ---------- Live answer ---------- */
-.v2 .lva{display:flex;flex-direction:column;gap:14px}
+/* it sits on the stage, not on a card, so its hover fill is a quiet step darker than whatever is under it (the surface's own
+   --row matches the stage in light mode and would not show); every hover box reaches out round its glyph or chip, which line
+   up with the answer's words (owner, 18 Nov) */
+.v2 .lva{display:flex;flex-direction:column;gap:14px;--row:color-mix(in srgb,var(--fg) 5%,transparent)}
+/* grow() keeps the hover boxes that reach out past the answer's edge */
+.v2 .lva.growing{overflow-clip-margin:12px}
 .v2 .lva-q{display:flex;justify-content:flex-end}
-.v2 .lva-a{display:flex;flex-direction:column;gap:14px;min-height:230px}
-/* on a card the first answer keeps the room its sources and follow-ups fill, so nothing climbs when they arrive */
-.v2.stage-in>.lva .lva-a{min-height:324px}
+/* no room is kept for the answer to come (owner, 18 Nov): the turn grows as the answer streams in (grow()) and stays centred
+   in its stage */
+.v2 .lva-a{display:flex;flex-direction:column;gap:14px}
 .v2 .lva-turn{display:flex;flex-direction:column;gap:var(--s-3)}
 .v2 .lva-th{display:flex;align-items:center;gap:var(--s-2);font-size:13.5px;color:var(--muted)}
 .v2 .lva-tb{display:inline-flex;gap:6px;align-self:flex-start;padding:2px var(--s-2);margin-left:-8px;border-radius:var(--r-pill);transition:color var(--t-fast),background var(--t-fast)}
@@ -1851,13 +1831,19 @@
 @media (hover:hover) and (pointer:fine){.v2 .lva-sb:hover{background:var(--row);color:var(--fg)}}
 .v2 .lva-sb>.i{color:var(--muted);transition:transform .35s var(--ease)}
 .v2 .lva-sb[aria-expanded="true"]>.i{transform:rotate(180deg)}
-.v2 .lva-fav{display:flex}
-.v2 .lva-fav span{width:18px;height:18px;border-radius:var(--r-tiny,5px);display:grid;place-items:center;font-size:9.5px;font-weight:500;color:#fff;background-image:linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.3));margin-left:-4px;box-shadow:0 0 0 1.5px var(--surface);transition:margin .3s var(--ease)}
-.v2 .lva-fav span:first-child{margin-left:0}
-@media (hover:hover) and (pointer:fine){.v2 .lva-sb:hover .lva-fav span:not(:first-child){margin-left:2px}}
-.v2 .lva-acts{display:flex;gap:2px;margin-left:-6px}
+/* the sources' badges sit side by side, never over each other (owner, 18 Nov) */
+.v2 .lva-fav{display:flex;gap:2px}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov) */
+.v2 .lva :is(.ib,.pill):active,:root[data-style="clean"] .v2 .lva .ib:active{transform:none}
+.v2 .lva-fav span{width:18px;height:18px;border-radius:var(--r-tiny,5px);display:grid;place-items:center;font-size:9.5px;font-weight:500;color:#fff;background-image:linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.3))}
+/* a badge on a vivid fill of its own (the avatar colours, owner, 18 Nov) is drawn as it is, with that fill's ink (white,
+   4.5:1 and APCA Lc 76 or more); any other colour is darkened a little so its white letter keeps its contrast */
+.v2 .lva-fav span.vivid{background-image:none;color:var(--fav-ink,#fff)}
+/* the first glyph (Copy) starts on the answer's edge, its hover box reaching out round it */
+.v2 .lva-acts{display:flex;gap:2px;margin-left:-10px}
 .v2 .lva-acts .ib{width:28px;height:28px}
-.v2 .lva-ll{display:flex;flex-direction:column;gap:2px}
+/* the sources' number chips line up with the answer's words, each row's hover fill reaching 8px out round them */
+.v2 .lva-ll{display:flex;flex-direction:column;gap:2px;margin:0 -8px}
 .v2 .lva-s{display:flex;align-items:center;gap:10px;width:100%;padding:7px var(--s-2);border-radius:calc(10px * var(--rk-m,var(--rk)));font-size:13px;text-align:left;color:var(--fg);transition:background .2s}
 .v2 .lva-s.on{background:var(--row)}
 @media (hover:hover) and (pointer:fine){.v2 .lva-s:hover{background:var(--row)}}
@@ -1870,46 +1856,49 @@
 .v2 .lva-fu{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
 .v2 .lva-fu button{display:inline-flex;align-items:center;gap:var(--s-2);padding:6px var(--s-3) 6px 10px;border-radius:var(--r-pill);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent);font-size:13px;color:var(--fg2);transition:color .2s,box-shadow .2s,transform .2s var(--ease)}
 @media (hover:hover) and (pointer:fine){.v2 .lva-fu button:hover{color:var(--fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--faint) 50%,transparent)}}
-/* Clean (owner, 18 Nov): no room kept for the answer to come. The turn grows as the answer streams in (grow()) and stays
-   centred in its stage. Words fade in without a blur, and the sources' badges are one neutral grey, not a colour each, side
-   by side rather than overlapping */
-:root[data-style="clean"] .v2 .lva-a,:root[data-style="clean"] .v2 .stage-in>.lva .lva-a{min-height:0}
+/* Clean (owner, 18 Nov): words fade in without a blur, and the sources' badges are one neutral grey, not a colour each */
 @keyframes v2-lvwc{from{opacity:0}to{opacity:1}}
 :root[data-style="clean"] .v2 :is(.lva-p .w,.lva-p .cite){animation-name:v2-lvwc}
-:root[data-style="clean"] .v2 .lva-fav{gap:2px}
-:root[data-style="clean"] .v2 .lva-fav span{margin-left:0;background:var(--chip)!important;color:var(--fg2);box-shadow:inset 0 0 0 1px var(--hair)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .lva-sb:hover .lva-fav span:not(:first-child){margin-left:0;background:var(--chip)!important;color:var(--fg2);box-shadow:inset 0 0 0 1px var(--hair)}}
+:root[data-style="clean"] .v2 .lva-fav span{background:var(--chip)!important;color:var(--fg2);box-shadow:inset 0 0 0 1px var(--hair)}
 :root[data-style="clean"] .v2 :is(.lva-tb,.lva-sb,.lva-s,.lva-fu button){transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
 /* ---------- Composer ---------- */
 .v2 .cpx{display:flex;flex-direction:column;justify-content:flex-end;gap:14px;overflow-anchor:none;container-type:inline-size}
 /* neither the composer nor the box it sits in anchors the page's scroll, so the page stays put as the thread grows and clears */
 .v2.stage-in:has(>.cpx){overflow-anchor:none}
-/* on a card the composer keeps the room the conversation will take, with the box at its foot, so the box stays put */
-.v2.stage-in>.cpx{min-height:inherit}
+/* no room is kept for the conversation (owner, 18 Nov): the thread and the box grow together (grow()) and stay centred in the
+   stage. Its menus open over it from their buttons, down when there is room and up when there isn't, and the composer never
+   moves for them (the visitor's clicks never move it). grow() must not clip the menus */
+.v2 .cpx.growing{overflow:visible}
 .v2 .cpx-thread{display:flex;flex-direction:column;gap:var(--s-3)}
 .v2 .cpx-thread:empty{display:none}
 .v2 .cpx-ag{font-size:14px;color:var(--fg2);display:flex;gap:var(--s-2);align-items:center}
 /* the composer is a component, not a field: a quiet hairline and a soft shadow, the same while you type in it */
 .v2 .cpx-box{position:relative;background:var(--surface);border-radius:var(--r-box);box-shadow:var(--shadow);transition:box-shadow var(--t-fast)}
 @supports (corner-shape:squircle){.v2 .cpx-box{corner-shape:squircle;border-radius:var(--r-box-sq)}}
-.v2 .cpx-att{display:flex;gap:6px;flex-wrap:wrap;padding:var(--s-3) 14px 0}
+/* everything in the box sits 16px from its edges (owner, 18 Nov): the attachments, the text, Send's edge and the dictation
+   line; the attach button's glyph lines up with the text, and the toolbar's controls share one centre line */
+.v2 .cpx-att{display:flex;gap:6px;flex-wrap:wrap;padding:16px 16px 0}
 .v2 .cpx-att:empty{display:none}
 .v2 .cpx-att .fchip{transition:color .32s,background .32s}
+/* a chip never runs past the box on a narrow card: it shrinks to the row and its name trims */
+.v2 .cpx-att .fchip{max-width:100%;min-width:0}
+.v2 .cpx-att .fchip .n{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .v2 .cpx-att .fchip .x,.v2 .cpx-att .fchip .rt{display:grid;place-items:center;width:18px;height:18px;border-radius:50%;margin-right:-4px;color:var(--muted)}
 @media (hover:hover) and (pointer:fine){.v2 .cpx-att .fchip .x:hover,.v2 .cpx-att .fchip .rt:hover{background:var(--row);color:var(--fg)}}
 .v2 .cpx-att .fchip .spin{width:10px;height:10px}
 .v2 .cpx-att .fchip.ld{color:var(--muted)}
 .v2 .cpx-att .fchip.err{color:var(--bad);background:var(--bad-bg);box-shadow:none}
 .v2 .cpx-att .fchip.err .rt{color:var(--bad)}
-.v2 .cpx-ta{display:block;width:100%;border:0;outline:0;resize:none;background:none;color:var(--fg);font:inherit;font-size:14px;line-height:1.5;padding:15px 17px var(--s-1);min-height:54px;max-height:160px;transition:color .32s}
+.v2 .cpx-ta{display:block;width:100%;border:0;outline:0;resize:none;background:none;color:var(--fg);font:inherit;font-size:14px;line-height:1.5;padding:14px 16px var(--s-1);min-height:54px;max-height:160px;transition:color .32s}
 .v2 .cpx-ta::placeholder{color:var(--muted)}
 .v2 .cpx-box[data-mode="voice"] .cpx-ta{color:var(--fg2)}
-.v2 .cpx-rows{display:grid;padding:6px 10px 10px}
+.v2 .cpx-rows{display:grid;padding:4px 16px 16px}
 .v2 .cpx-bar,.v2 .cpx-voice{grid-area:1/1;display:flex;align-items:center;gap:var(--s-1);min-width:0;transition:opacity .32s var(--ease),transform .42s var(--ease)}
 .v2 .cpx-voice{opacity:0;transform:translateY(6px);pointer-events:none;visibility:hidden;transition:opacity .32s var(--ease),transform .42s var(--ease),visibility 0s .32s}
 .v2 .cpx-box[data-mode="voice"] .cpx-bar{opacity:0;transform:translateY(-6px);pointer-events:none}
 .v2 .cpx-box[data-mode="voice"] .cpx-voice{opacity:1;transform:none;pointer-events:auto;visibility:visible;transition-delay:0s}
 .v2 .cpx-bar>.ib{width:32px;height:32px;flex:none}
+.v2 .cpx-bar>.cpx-add{margin-left:-9px}
 .v2 .cpx-add[aria-expanded="true"]{background:var(--chip);color:var(--fg)}
 .v2 .cpx-bar .chip{height:32px;padding:0 10px;gap:6px;background:none;min-width:0;font-size:13px;color:var(--fg2)}
 .v2 .cpx-bar .chip[aria-expanded="true"]{background:var(--row);color:var(--fg)}
@@ -1920,31 +1909,23 @@
 @container (max-width:400px){.v2 .cpx-bar .chip{padding:0 8px}.v2 .cpx-bar .chip>span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.v2 .cpx-bar .chip>svg:last-child{display:none}}
 .v2 .cpx-send{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent,#fff);flex:none;transition:opacity .32s,transform .16s,background .16s}
 @media (hover:hover) and (pointer:fine){.v2 .cpx-send:hover{background:var(--accent-2)}}
-.v2 .cpx-send:active{transform:scale(.92)}
 .v2 .cpx-send[disabled]{opacity:1;cursor:not-allowed;background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring)}
 /* dictation: a red dot and a clock while it listens, the words arriving in the box, then Cancel or Done */
-.v2 .cpx-rec{display:inline-flex;align-items:center;gap:var(--s-2);padding-left:var(--s-2);font-size:13px;color:var(--fg)}
+.v2 .cpx-rec{display:inline-flex;align-items:center;gap:var(--s-2);font-size:13px;color:var(--fg)}
 .v2 .cpx-dot{width:8px;height:8px;border-radius:50%;background:var(--bad-mark);animation:v2-cpxrec 1.6s var(--ease-io) infinite}
 @keyframes v2-cpxrec{50%{opacity:.35}}
 .v2 .cpx-tm{font-size:13px;margin-left:var(--s-1)}
 .v2 .cpx-voice .pill{flex:none}
 .v2 .pp-plus,.v2 .pp-ctx,.v2 .pp-mode{width:264px}
 .v2 .cpx-bar>.cpx-send{flex:none}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink Send alone presses */
+.v2 .cpx :is(.ib,.pill,.chip):active,:root[data-style="clean"] .v2 .cpx .ib:active{transform:none}
 @media (max-width:480px){.v2 .cpx-bar .cpx-ctx>span{max-width:88px}}
-/* Clean (owner, 18 Nov): the box takes the card's 22px round corners, with everything in it 16px from its edges: the
-   attachments, the text, Send's edge and the dictation line; the attach button's glyph lines up with the text, and the
-   toolbar's 28px controls share one centre line. Send is the ink button. A file that failed keeps the chip's white with its
-   words and mark in red, no red fill. No room is kept for the conversation: the thread and the box grow together (grow())
-   and stay centred in the stage */
-:root[data-style="clean"] .v2 .stage-in>.cpx{min-height:0}
-/* its menus open above the box, past the top of the composer: grow() must not clip them */
-:root[data-style="clean"] .v2 .cpx.growing{overflow:visible}
+/* Clean (owner, 18 Nov): the box takes the card's 22px round corners and its toolbar's controls are 28px. Send is the ink
+   button. A file that failed keeps the chip's white with its words and mark in red, no red fill */
 :root[data-style="clean"] .v2 .cpx-box{border-radius:var(--r-card)}
-:root[data-style="clean"] .v2 .cpx-att{gap:4px;padding:16px 16px 0}
-:root[data-style="clean"] .v2 .cpx-ta{padding:14px 16px 4px}
-:root[data-style="clean"] .v2 .cpx-rows{padding:4px 16px 16px}
-:root[data-style="clean"] .v2 .cpx-bar>.cpx-add{margin-left:-6px}
-:root[data-style="clean"] .v2 .cpx-rec{padding-left:0}
+:root[data-style="clean"] .v2 .cpx-att{gap:4px}
+:root[data-style="clean"] .v2 .cpx-bar>.cpx-add{margin-left:-7px}
 :root[data-style="clean"] .v2 .cpx-bar>.ib{width:28px;height:28px}
 :root[data-style="clean"] .v2 .cpx-bar .chip{height:28px;padding:0 8px;transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .v2 .cpx-add[aria-expanded="true"]{background:var(--hover)}
@@ -2049,10 +2030,10 @@
    of its versions. Each plays its writing state, then opens, copies, downloads and switches versions the same way */
 /* the reader opens over the card's nearest positioned ancestor: on this page the stage, in an app its chat column */
 .v2 .afx{--afx-t2:var(--muted)}
-/* the variants share one room, as tall as the tallest moment (the compact card with its versions open), so switching
-   never moves what is below and an open menu still sits centred */
-.v2 .afx.dm>.afx-main{position:relative;min-height:452px;justify-content:center}
-@container (max-width:400px){.v2 .afx.dm>.afx-main{min-height:474px}}
+/* the variants keep no room for their tallest moment (owner, 18 Nov): each sits centred in the stage, and stays where it
+   is as a version menu opens over it, down from its button or up when there is no room below (the visitor's clicks never
+   move it) */
+.v2 .afx.dm>.afx-main{position:relative;justify-content:center}
 /* secondary text: the core's grey in light mode; in dark mode a lighter grey, because the core's reaches 4.5:1 there but
    not APCA Lc 60, which small text needs */
 :root[data-theme="dark"] .v2 .afx{--afx-t2:#c0c0c0}
@@ -2092,19 +2073,26 @@
 .v2 .afx-card .afx-open{transform:none!important}
 .v2 .afx-card :is(.afx-copy,.afx-dl,.afx-vb){position:relative;z-index:1}
 .v2 .afx .copied .afx-lbl{color:var(--fg)}
-/* the opened file: a reader over the stage, the stage fading back behind it */
-.v2 .afx-sheet{position:absolute;inset:0;z-index:20;border-radius:inherit;overflow:hidden}
-.v2 .afx-scrim{position:absolute;inset:0;background:color-mix(in srgb,var(--stage) 78%,transparent)}
+/* a button that did its job swaps its icon for a tick in the vivid mark green for a moment, in place, at the same size */
+.v2 .afx .ib.copied{color:var(--ok-mark)!important}
+@media (hover:hover) and (pointer:fine){.v2 .afx .ib.copied:hover{color:var(--ok-mark)!important}}
+/* the opened file: a reader over the stage, the stage fading back behind it. Nothing clips it (owner, 18 Nov): its shadow
+   shows whole, and the fade reaches past the cards behind it so none of their shadows is sliced at its edge */
+.v2 .afx-sheet{position:absolute;inset:0;z-index:20;border-radius:inherit}
+.v2 .afx-scrim{position:absolute;inset:0 -40px -24px;background:color-mix(in srgb,var(--stage) 78%,transparent)}
 .v2 .afx-pan{position:absolute;display:flex;flex-direction:column;background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow-pop);overflow:hidden;outline:none}
-/* a view fills the stage; a page is narrower and grows out of the preview or sheet it came from */
-.v2 .afx-pan.afx-view{inset:0}
-.v2 .afx-pan.afx-page{inset:0;margin:auto;width:min(400px,100%);transform-origin:0 0}
-.v2 .afx-ph{display:flex;align-items:center;gap:10px;padding:10px var(--s-2) 10px 14px;border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+/* the reader is as tall as the file (it scrolls past the room it has), centred in it; a view is as wide as the room, a
+   page narrower, growing out of the preview or sheet it came from */
+.v2 .afx-pan.afx-view{inset:0;margin:auto 0;height:fit-content;max-height:100%}
+.v2 .afx-pan.afx-page{inset:0;margin:auto;width:min(400px,100%);height:fit-content;max-height:100%;transform-origin:0 0}
+.v2 .afx-ph{display:flex;align-items:center;gap:10px;padding:10px 9px 10px 16px;border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+/* Close sits on the title's first line, its glyph on the content's right edge, 16px in */
+.v2 .afx-ph .afx-x{align-self:flex-start;margin-top:calc(10.5px - 15px)}
 .v2 .afx-ph .afx-ic{width:30px;height:30px;border-radius:var(--r-sm)}
 .v2 .afx-ptx{flex:1;min-width:0}
 .v2 .afx-pt{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .v2 .afx-pm{font-size:12.5px;color:var(--afx-t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.v2 .afx-pb{flex:1;min-height:0;overflow:auto;padding:14px 18px 18px;font-size:13.5px;line-height:1.6;outline:none}
+.v2 .afx-pb{flex:1;min-height:0;overflow:auto;padding:14px 16px 18px;font-size:13.5px;line-height:1.6;outline:none}
 .v2 .afx-pb:focus-visible{box-shadow:inset 0 0 0 2px var(--focus)}
 .v2 .afx-pb h3{margin:var(--s-4) 0 var(--s-1);font-size:12.5px;font-weight:500;color:var(--afx-t2)}
 .v2 .afx-pb p{margin:0}
@@ -2116,15 +2104,18 @@
 .v2 .afx-tb thead th{font-size:12.5px;color:var(--afx-t2);font-weight:500}
 .v2 .afx-tb .num{text-align:right}
 .v2 .afx-tb tbody th{font-weight:500}
-.v2 .afx-pf{display:flex;align-items:center;gap:6px;padding:10px 14px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
-.v2 .afx-pf .pill .afx-lbl{min-width:58px;text-align:left}
+.v2 .afx-pf{display:flex;align-items:center;gap:6px;padding:10px 16px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+/* Copy and Download are each as wide as their words: pressed, the tick and "Copied" come in and the width eases to fit, with
+   no room kept for the longer word */
+.v2 .afx-pf .pill{overflow:hidden;white-space:nowrap}
 .v2 .afx-pf .pill.copied{color:var(--fg)!important}
-.v2 .afx-pf .pill.copied .i{color:var(--ok)}
+.v2 .afx-pf .pill.copied .i{color:var(--ok-mark)}
 /* compact: an icon, the name, one line of meta and Open, dense enough to stack several in a thread */
 .v2 .afx-cp{max-width:440px;display:flex;flex-direction:column;gap:14px}
 .v2 .afx-cp-a{margin:0;font-size:14px;line-height:1.6;text-wrap:pretty}
 .v2 .afx-cp-list{display:flex;flex-direction:column;gap:var(--s-2)}
-.v2 .afx-cp-card{display:flex;align-items:center;gap:var(--s-3);padding:10px var(--s-2) 10px 10px;border-radius:var(--r-in);background:var(--surface);box-shadow:var(--shadow);transition:background var(--t-fast),box-shadow var(--t-fast);overflow:hidden}
+/* its content 16px from every edge: the mark on the left, Open ending on the right (owner, 18 Nov) */
+.v2 .afx-cp-card{display:flex;align-items:center;gap:var(--s-3);padding:16px;border-radius:var(--r-in);background:var(--surface);box-shadow:var(--shadow);transition:background var(--t-fast),box-shadow var(--t-fast);overflow:hidden}
 @media (hover:hover) and (pointer:fine){.v2 .afx-cp-card:not(.is-writing):hover{background:var(--wash)}}
 @media (hover:hover) and (pointer:fine){:root:not([data-style="soft"],[data-style="clean"]) .v2 .afx-cp-card:not(.is-writing):hover{box-shadow:0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}}
 .v2 .afx-cp-tx{flex:1;min-width:0}
@@ -2137,7 +2128,7 @@
 .v2 .afx-cp-bar{position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--accent-mark);transform-origin:left center;transform:scaleX(0);opacity:0;transition:transform .9s var(--ease),opacity .3s var(--ease)}
 .v2 .is-writing .afx-cp-bar{opacity:1}
 /* in a narrow column the meta drops the word "edited" before it truncates, and Open keeps only its icon */
-@container (max-width:400px){.v2 .afx-ed{display:none}.v2 .afx-fin{gap:var(--s-1)}.v2 .afx-card .afx-ic{width:32px;height:32px;border-radius:calc(9px * var(--rk-m,var(--rk)))}.v2 .afx-card :is(.afx-copy,.afx-dl,.ib.afx-open){width:28px;height:28px}.v2 .afx-cp-act,.v2 .afx-pv-act{gap:0}.v2 .afx-cp-card{padding-right:6px;gap:10px}.v2 .afx-pv-meta{gap:10px;padding-right:6px}.v2 .afx-pv-meta .afx-ic{display:none}.v2 .afx-cp-act .pill .afx-lbl{display:none}.v2 .afx-cp-act .pill{width:28px;height:28px;padding:0;margin-left:2px}}
+@container (max-width:400px){.v2 .afx-ed{display:none}.v2 .afx-fin{gap:var(--s-1)}.v2 .afx-card .afx-ic{width:32px;height:32px;border-radius:calc(9px * var(--rk-m,var(--rk)))}.v2 .afx-card :is(.afx-copy,.afx-dl,.ib.afx-open){width:28px;height:28px}.v2 .afx-cp-act,.v2 .afx-pv-act{gap:0}.v2 .afx-cp-card{gap:10px}.v2 .afx-pv-meta{gap:10px;padding-right:10px}.v2 .afx-pv-meta .afx-ic{display:none}.v2 .afx-cp-act .pill .afx-lbl{display:none}.v2 .afx-cp-act .pill{width:28px;height:28px;padding:0;margin-left:2px}}
 /* preview: the same card with the first page showing, so drafts are easy to tell apart */
 .v2 .afx-pv{width:min(100%,380px)}
 .v2 .afx-pv-card{border-radius:var(--r-card);background:var(--surface);box-shadow:var(--shadow);transition:box-shadow var(--t-fast)}
@@ -2146,17 +2137,15 @@
 .v2 .afx-pv-prev{position:relative;height:164px;overflow:hidden;padding:18px 22px 0;border-radius:var(--r-card) var(--r-card) 0 0;background:var(--stage);border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .v2 .afx-pv-page{height:100%;padding:14px var(--s-4) 0;border-radius:var(--r-sm) var(--r-sm) 0 0;background:var(--surface);box-shadow:var(--shadow);transition:transform var(--t) var(--ease)}
 @media (hover:hover) and (pointer:fine){.v2 .afx-pv-card:not(.is-writing):hover .afx-pv-page{transform:translateY(-3px)}}
-.v2 .afx-pv-k{font-size:11px;line-height:16px;color:var(--afx-t2)}
-.v2 .afx-pv-k .afx-wr,.v2 .is-writing .afx-pv-k .afx-fin{display:none}
-.v2 .is-writing .afx-pv-k .afx-wr{display:inline}
-.v2 .afx-pv-h{margin-top:2px;font-size:13px;font-weight:500;line-height:18px}
-.v2 .afx-pv-p{margin:6px 0 0;min-height:54px;font-size:11.5px;line-height:18px;color:var(--fg);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+/* the page shows the file's first words, not its name and version again: those are on the meta line under it (owner, 18 Nov) */
+.v2 .afx-pv-p{margin:0;min-height:54px;font-size:11.5px;line-height:18px;color:var(--fg);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .v2 .afx-caret{display:inline-block;width:1.5px;height:12px;margin-left:1px;vertical-align:-2px;background:var(--accent-mark);animation:v2-bpblink 1s steps(1,end) infinite}
 /* the drawn lines stand for the rest of the page: decoration, kept faint */
 .v2 .afx-pv-ls{display:flex;flex-direction:column;gap:var(--s-2);margin-top:10px;-webkit-mask-image:linear-gradient(#000 0,transparent 44px);mask-image:linear-gradient(#000 0,transparent 44px)}
 .v2 .afx-pv-ls i{display:block;height:4px;border-radius:var(--r-tiny,2px);width:var(--w);background:color-mix(in srgb,var(--fg) 8%,var(--surface));transform-origin:left center;transition:width var(--t) var(--ease)}
 .v2 .is-writing .afx-pv-ls i{transform:scaleX(0)}
-.v2 .afx-pv-meta{display:flex;align-items:center;gap:var(--s-3);padding:var(--s-3) var(--s-2) var(--s-3) 14px}
+/* the name 16px in, and the last action's glyph 16px from the right edge */
+.v2 .afx-pv-meta{display:flex;align-items:center;gap:var(--s-3);padding:var(--s-3) 9px var(--s-3) 16px}
 .v2 .afx-pv-tx{flex:1;min-width:0}
 .v2 .afx-pv-t{font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .v2 .afx-pv-act{display:flex;align-items:center;gap:2px;flex:none;transition:opacity var(--t) var(--ease)}
@@ -2207,9 +2196,11 @@
 .v2 .afx-st:not(.fan) .afx-sh[aria-checked="true"]{box-shadow:var(--shadow-pop)}
 .v2 .afx-st.is-writing .afx-sh{cursor:default}
 .v2 .afx-pg{position:absolute;inset:0;display:flex;flex-direction:column;padding:var(--s-3);border-radius:inherit;overflow:hidden}
-.v2 .afx-st-k{display:flex;align-items:center;justify-content:space-between;font-size:11px;line-height:14px;color:var(--afx-t2)}
-.v2 .afx-st-h{min-height:32px;margin-top:var(--s-1);font-size:12.5px;font-weight:500;line-height:16px;color:var(--fg)}
-.v2 .afx-st-ls{display:flex;flex-direction:column;gap:7px;margin-top:10px}
+/* a sheet is a drawn page, a heading bar and its lines: the name and version are said once, in the caption under the stack
+   (owner, 18 Nov) */
+.v2 .afx-st-ls{display:flex;flex-direction:column;gap:7px}
+.v2 .afx-r.h{height:6px;margin-bottom:5px}
+.v2 .afx-r.h i{height:5px;background:color-mix(in srgb,var(--fg) 45%,var(--surface))}
 .v2 .afx-r{position:relative;display:flex;align-items:center;gap:5px;height:4px}
 .v2 .afx-r i{display:block;height:3px;border-radius:var(--r-tiny,2px);width:var(--w);background:var(--ln);transform-origin:left center}
 .v2 .afx-r b{flex:none;width:4px;height:4px;border-radius:50%;background:var(--ln)}
@@ -2217,7 +2208,7 @@
 .v2 .afx-gap{height:3px}
 .v2 .afx-st .blank .afx-r :is(i,b){transform:scaleX(0)}
 .v2 .afx-pen{position:absolute;left:0;top:0;width:7px;height:7px;border-radius:50%;background:var(--accent-mark);box-shadow:0 0 0 3px var(--surface);opacity:0;pointer-events:none}
-@container (max-width:360px){.v2 .afx-st-ls{gap:6px;margin-top:var(--s-2)}.v2 .afx-st-ls>:nth-child(n+7){display:none}}
+@container (max-width:360px){.v2 .afx-st-ls{gap:6px}.v2 .afx-st-ls>:nth-child(n+7){display:none}}
 .v2 .afx-tab{position:absolute;left:50%;top:calc(100% + 10px);display:inline-flex;align-items:center;gap:var(--s-1);transform:translateX(-50%);white-space:nowrap;font-size:11.5px;color:var(--afx-t2);opacity:0;transition:opacity var(--t) var(--ease)}
 .v2 .afx-tab .i{display:none;color:var(--accent-fg,var(--accent))}
 .v2 .afx-st.fan .afx-tab{opacity:1}
@@ -2229,17 +2220,25 @@
 .v2 .afx-st-t{font-size:14px;font-weight:500}
 .v2 .afx-st-m{justify-content:center;max-width:100%}
 .v2 .afx-note{padding-top:2px;font-size:12.5px;color:var(--fg)}
-.v2 .afx-st-act{display:flex;align-items:center;gap:var(--s-1);transition:opacity var(--t) var(--ease)}
+/* the stack keeps no room for its buttons while the page is written: they unfold under the caption once it is done */
+.v2 .afx-st-act{display:flex;align-items:center;gap:var(--s-1);max-height:32px;transition:opacity var(--t) var(--ease),max-height var(--t) var(--ease),margin var(--t) var(--ease)}
 .v2 .afx-st-act .pill{gap:6px}
-.v2 .afx-st.is-writing .afx-st-act{opacity:0;visibility:hidden}
+.v2 .afx-st.is-writing .afx-st-act{opacity:0;visibility:hidden;max-height:0;margin-top:-18px}
+/* the desk keeps 12px over the sheets for them to peek into on hover; at rest the older ones show 3px of it, so the stack
+   starts 9px higher and what shows sits centred in the stage */
+.v2 .afx-desk{margin-top:-9px}
+/* the words that sum the file up in a message come once it is written */
+.v2 .afx-in-after{margin-top:-10px}
+.v2 .afx-in-after p{padding-top:10px}
+/* the reader's title has no mark, so its words line up with the page's under it */
+.v2 .afx-ph .afx-ic{display:none}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink primary alone presses */
+.v2 .afx :is(.ib,.pill,.afx-vb):active,:root[data-style="clean"] .v2 .afx .ib:active{transform:none}
 /* Clean (owner, 18 Nov): a file's mark is one neutral grey whatever its type (no hue per type). The compact card and the
    preview card take the card's 22px round corners with their content 16px from every edge (a quiet icon button by its
    glyph, a filled one by its edge); the preview's page sits on an off-white head. The reader's words start 16px in, under
-   its title (its header has no mark, so the two line up), and Copy and Download sit in an off-white foot strip, 16px in
-   from its sides. The variants keep no room for the tallest moment: each sits centred in the stage, and a version menu
-   glides it up so the two sit centred together. The inline chip's closing words wait until the file is written, and the
-   stack's lines are all grey, the pen alone in the accent while it writes */
-:root[data-style="clean"] .v2 .afx.dm>.afx-main{min-height:0}
+   its title, and Copy and Download sit in an off-white foot strip, 16px in from its sides. The stack's lines are all grey,
+   the pen alone in the accent while it writes */
 :root[data-style="clean"] .v2 .afx-ic{color:var(--fg2);background:var(--chip);box-shadow:inset 0 0 0 1px var(--hair)}
 :root[data-style="clean"] .v2 .afx-in-ic{color:var(--fg2)}
 :root[data-style="clean"] .v2 .afx-cp-card{gap:12px;padding:14px 16px 13px;border-radius:var(--r-card);transition:background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
@@ -2250,19 +2249,11 @@
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .afx-pv-card:not(.is-writing):hover{background:var(--wash);box-shadow:var(--shadow)}}
 :root[data-style="clean"] .v2 .afx-pv-meta{gap:12px;padding:14px 9px 13px 16px}
 :root[data-style="clean"] .v2 .afx-ph{gap:12px;padding:16px 10px 16px 16px}
-:root[data-style="clean"] .v2 .afx-ph .afx-ic{display:none}
-:root[data-style="clean"] .v2 .afx-ph .afx-x{width:28px;height:28px;margin-right:0}
+/* the head is a strip: Close sits 8px from the card's top and right edges, a 28px circle in its 22px corner */
+:root[data-style="clean"] .v2 .afx-ph .afx-x{width:28px;height:28px;margin:-8px -2px 0 0}
 :root[data-style="clean"] .v2 .afx-pb{padding:16px}
 :root[data-style="clean"] .v2 .afx-pf{gap:8px;padding:8px 16px;background:var(--strip);border-top:1px solid var(--line)}
 :root[data-style="clean"] .v2 .afx-r.n b{background:var(--ln)}
-/* the stack keeps no room for its buttons while the page is written: they unfold under the caption once it is done */
-:root[data-style="clean"] .v2 .afx-st-act{max-height:32px;transition:opacity var(--t) var(--ease),max-height var(--t) var(--ease),margin var(--t) var(--ease)}
-:root[data-style="clean"] .v2 .afx-st.is-writing .afx-st-act{max-height:0;margin-top:-18px}
-/* the desk keeps 12px over the sheets for them to peek into on hover; at rest the older ones show 3px of it, so the stack
-   starts 9px higher and what shows sits centred in the stage */
-:root[data-style="clean"] .v2 .afx-desk{margin-top:-9px}
-:root[data-style="clean"] .v2 .afx-in-after{margin-top:-10px}
-:root[data-style="clean"] .v2 .afx-in-after p{padding-top:10px}
 @container (max-width:400px){:root[data-style="clean"] .v2 .afx-cp-card{gap:10px}:root[data-style="clean"] .v2 .afx-pv-meta{gap:10px;padding-right:10px}}
 /* ---------- Attachment tray ---------- */
 /* a drop zone, then the files as plain rows. Each file wears its type's hue: its badge, its ring and the wash that fills its

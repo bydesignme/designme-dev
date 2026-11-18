@@ -973,19 +973,25 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 :root[data-style="bp"] .atr-cm-b[data-s="fail"] .bg{background-image:repeating-linear-gradient(135deg,transparent 0 4px,color-mix(in srgb,var(--bad) 14%,transparent) 4px 5px)}
 :root[data-style="bp"] .atr-cm-lg .own{border-radius:0}
 /* ---------- Agent inbox ---------- */
-/* every run in one list, grouped by what it needs: Needs you, Running, Done. A run glides to its new group when it moves */
-.aib{width:100%;max-width:440px;margin:0 auto;padding:6px}
-.aib-h{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s-3);padding:var(--s-2) 10px 6px}
-.aib-h b{font-weight:500;font-size:14px}
-.aib-st{font-size:12.5px}
+/* every run in one list, grouped by what it needs: Needs you, Running, Done. A run glides to its new group when it moves.
+   The card sits on two columns (owner, 18 Nov), its content 16px from every edge: the head's neutral mark in a 28px column
+   with the agents' marks under it, and the title and each run's words 12px after it; the buttons and the clocks end on the
+   content's right edge, and each row shares one centre line. Each group's name and count is a section label on the
+   content's left edge, over the marks, so it never reads as another run's words. A run's row is not a button, so it has no
+   hover fill, and one that failed keeps its red words and Retry with no red band behind them; a run that moves glides
+   without lifting */
+.aib{width:100%;max-width:440px;margin:0 auto;padding:16px 16px 6px}
+.aib-h{display:flex;align-items:center;gap:12px;padding:0 0 4px}
+.aib-hi{width:28px;height:28px;display:grid;place-items:center;flex:none;border-radius:var(--r-sm);color:var(--fg2);background:var(--chip)}
+.aib-h b{flex:1;min-width:0;font-weight:500;font-size:14px;line-height:20px}
 .aib-g{display:flex;flex-direction:column}
-.aib-gh{display:flex;align-items:center;gap:var(--s-2);padding:var(--s-3) 10px var(--s-1);font-size:12px;color:var(--muted)}
+.aib-gh{display:flex;align-items:center;gap:var(--s-2);padding:12px 0 4px;font-size:12px;line-height:18px;color:var(--muted)}
 .aib-gh .n{font-variant-numeric:tabular-nums}
 .aib-gl{display:flex;flex-direction:column}
-.aib-i{display:flex;align-items:center;gap:10px;padding:var(--s-2) 10px;border-radius:calc(10px * var(--rk-m,var(--rk)));font-size:13px;transition:background .16s}
-.aib-i:hover{background:var(--row)}
-.aib-i.mv{position:relative;z-index:1;background:var(--surface);box-shadow:var(--shadow)}
-.aib-i.mv.fail{background:var(--bad-bg)}
+.aib-i{display:flex;align-items:center;gap:12px;padding:8px 0;border-radius:calc(10px * var(--rk-m,var(--rk)));font-size:13px;transition:background .16s}
+.aib-i.mv{position:relative;z-index:1;background:var(--surface)}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink primary alone presses */
+.aib :is(.ib,.pill):active,:root[data-style="clean"] .aib .ib:active{transform:none}
 .aib-av{width:28px;height:28px;border-radius:var(--r-sm);display:grid;place-items:center;flex:none;font-size:11px;font-weight:500}
 .aib-t{flex:1;min-width:0;display:flex;flex-direction:column}
 .aib-t b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -994,65 +1000,64 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .aib-r{display:flex;align-items:center;gap:6px;flex:none;font-size:12.5px;color:var(--fg2)}
 .aib-r .spin{width:11px;height:11px;color:var(--accent)}
 .aib-r .ok{color:var(--ok);display:grid}
-.aib-i.fail{background:var(--bad-bg)}
 .aib-i.fail .aib-r .pill{background:var(--surface);color:var(--fg);box-shadow:var(--on-tint-btn)}
-/* Clean (owner, 18 Nov): a card on two columns, its content 16px from every edge. The head's neutral mark sits in a 28px
-   column, the agents' marks in the same column under it, and the title, the group names and each run's words start 12px
-   after it; the line beside the title, the buttons and the clocks end on the content's right edge, and each row shares one
-   centre line. A run's row is not a button, so it has no hover fill (nor a red one when it failed: its words and mark stay
-   red), and a run that moves glides without lifting. The done ticks are the vivid mark green, never the darker text green */
-.aib-hi{display:none}
-:root[data-style="clean"] .aib.panel{padding:16px 16px 6px}
-:root[data-style="clean"] .aib.panel .aib-h{align-items:center;gap:12px;padding:0 0 4px}
-:root[data-style="clean"] .aib.panel .aib-hi{width:28px;height:28px;display:grid;place-items:center;flex:none;border-radius:var(--r-sm);color:var(--fg2);background:var(--chip);box-shadow:inset 0 0 0 1px var(--hair)}
-:root[data-style="clean"] .aib.panel .aib-h b{flex:1;line-height:20px}
-:root[data-style="clean"] .aib.panel .aib-st{line-height:18px}
-:root[data-style="clean"] .aib.panel .aib-gh{padding:12px 0 4px 40px;line-height:18px}
-:root[data-style="clean"] .aib.panel .aib-i{gap:12px;padding:8px 0;border-radius:0}
-:root[data-style="clean"] .aib.panel .aib-i:hover,:root[data-style="clean"] .aib.panel .aib-i.fail{background:none}
-:root[data-style="clean"] .aib.panel .aib-i.mv{background:var(--surface);box-shadow:none}
+.aib-i.fail .aib-r .pill:hover{box-shadow:var(--on-tint-btn-h)}
+/* Clean (owner, 18 Nov): the head's mark has a hairline like the other tiles; the done ticks are the vivid mark green,
+   never the darker text green; Retry is the secondary button as Clean draws it everywhere (its tokens) */
+:root[data-style="clean"] .aib-hi{box-shadow:inset 0 0 0 1px var(--hair)}
+/* a group's name is the list's section label (owner, 18 Nov), in the smaller muted label type of a menu's group heading, so
+   it never reads as a run's description; a little more room above it sets the groups apart */
+:root[data-style="clean"] .aib-gh{padding-top:16px;font-size:11.5px;line-height:16px}
 :root[data-style="clean"] .aib-r .ok{color:var(--ok-mark)}
-/* Retry is the secondary button, as Clean draws it everywhere (its tokens), with no press scale */
 :root[data-style="clean"] .aib-i.fail .aib-r .pill,:root[data-style="clean"] .aib-i.fail .aib-r .pill:hover{color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth)}
 :root[data-style="clean"] .aib-i.fail .aib-r .pill:hover{box-shadow:var(--btn2-hover)}
-:root[data-style="clean"] .aib-i.fail .aib-r .pill:active{transform:none;box-shadow:var(--btn2-press)}
+:root[data-style="clean"] .aib-i.fail .aib-r .pill:active{box-shadow:var(--btn2-press)}
 /* ---------- Trace view ---------- */
 /* one agent run as a waterfall: every span on a shared time axis, nested under the span that started it, with its tokens
-   and latency. Each kind has its colour (the chart palette's identity slots): its mark, its bar and its count in the key.
-   While the run streams, a playhead marks now and the running bars glow at their leading edge. A span over its time budget
-   turns amber and hatched, and any span opens to show where it sat in the run, its input and its output */
-.trv{width:100%;max-width:720px;margin:0 auto;padding:6px;container-type:inline-size;--cols:minmax(0,11fr) minmax(0,8fr) 40px 44px}
-.trv-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);padding:var(--s-2) 10px 6px}
-.trv-ht{display:flex;flex-direction:column;min-width:0}
-.trv-ht b{font-weight:500;font-size:14px}
-.trv-st{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+   and latency. The run itself is the head: its mark, its name, how it is going, and its total tokens and time. The card
+   sits on two columns (owner, 18 Nov): the head's mark in a 32px column with the title's words 12px after it; each span's
+   mark is centred in that column (nested ones step in 16px a level) and the top spans' names start where the title's
+   words do, as do the key and the Span heading. A row's hover and selection fill is a quiet grey that spans the content box,
+   no wider; the times and tokens sit 8px inside it, with the run's totals over them. Each kind has its colour (the chart
+   palette's identity slots): its bar and its count in the key, drawn at full strength so the key matches them. While the
+   run streams, a playhead marks now and the running bars grow with a bright leading edge. A span over its time budget
+   turns amber and hatched, and any span opens to show where it sat in the run, its input and its output, on the same
+   columns. The card keeps no room for spans still to come: it grows as each one starts (grow()) and stays centred */
+.trv{width:100%;max-width:720px;margin:0 auto;padding:15px 16px 0;container-type:inline-size;--cols:minmax(0,11fr) minmax(0,8fr) 40px 44px}
+.trv.growing{overflow-clip-margin:0px}
+.trv-h{display:flex;align-items:center;gap:12px;padding:0 8px 0 0}
+.trv-hi{width:32px;height:32px;display:grid;place-items:center;flex:none;border-radius:calc(9px * var(--rk-m,var(--rk)));color:var(--fg2);background:var(--chip)}
+.trv-ht{flex:1;display:flex;flex-direction:column;min-width:0}
+.trv-ht b{font-weight:500;font-size:14px;line-height:20px}
+.trv-st{font-size:12.5px;line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* the run's totals: its tokens, quiet, then its time over the Time column */
+.trv-tt{flex:none;margin-right:-4px;font-size:12.5px;white-space:nowrap}
 .trv-tot{font-size:14px;font-weight:500;flex:none}
 /* the key: each kind with its colour and how many of its spans have started */
-.trv-lg{display:flex;flex-wrap:wrap;gap:2px var(--s-3);padding:0 10px var(--s-2);font-size:12px;color:var(--muted)}
+.trv-lg{display:flex;flex-wrap:wrap;gap:2px var(--s-3);padding:8px 0 12px 44px;font-size:12px;color:var(--muted)}
 .trv-lg span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;transition:color .3s}
 .trv-lg i{width:8px;height:8px;border-radius:var(--r-tiny,2px);background:var(--k);flex:none}
 .trv-lg b{font-weight:500;color:var(--fg2)}
 .trv-lg span.z{color:var(--dis)}.trv-lg span.z b{color:inherit}.trv-lg span.z i{opacity:.45}
-.trv-ax,.trv-r{display:grid;grid-template-columns:var(--cols);align-items:center;gap:var(--s-2);padding:0 10px}
+.trv-ax,.trv-r{display:grid;grid-template-columns:var(--cols);align-items:center;gap:var(--s-2);padding:0 8px 0 0}
 .trv-ax{height:30px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12px;color:var(--muted)}
+.trv-ax>span:first-child{padding-left:44px}
 .trv-tk,.trv-ms{text-align:right;white-space:nowrap}
 .trv-sc{position:relative;height:18px}
 .trv-sc span{position:absolute;top:0;transform:translateX(-50%);font-size:12px}
 .trv-sc span:first-child{transform:none}
-.trv-rows{display:flex;flex-direction:column;padding-bottom:var(--s-1);min-height:calc(var(--n,0) * 32px + var(--s-1))}
+.trv-rows{display:flex;flex-direction:column;padding-bottom:9px}
 .trv-r{width:100%;min-height:32px;border-radius:calc(10px * var(--rk-m,var(--rk)));font-size:13px;text-align:left;transition:background .16s}
-.trv-r:hover{background:var(--row)}
-.trv-r[aria-expanded="true"]{background:var(--sel)}
+.trv-r:hover,.trv-r[aria-expanded="true"]{background:var(--row)}
 .trv-r[aria-expanded="true"] .trv-tk{color:var(--fg2)}
 .trv-r:focus-visible{outline:0;box-shadow:inset 0 0 0 2px var(--focus)}
-.trv-n{position:relative;display:flex;align-items:center;gap:6px;min-width:0;align-self:stretch;padding-left:calc(var(--lv,0) * 16px)}
+.trv-n{position:relative;display:flex;align-items:center;gap:19px;min-width:0;align-self:stretch;padding-left:calc(7px + var(--lv,0) * 16px)}
 .trv-k{position:relative;z-index:1;width:18px;height:18px;display:grid;place-items:center;flex:none;border-radius:var(--r-tiny,5px);color:color-mix(in srgb,var(--k) 70%,var(--fg));background:color-mix(in srgb,var(--k) 13%,var(--surface))}
 .trv-nm{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.trv-r.root .trv-nm{font-weight:500}
-.trv-n .tag{flex:none}
+.trv-n .tag{flex:none;margin-left:-11px}
 /* the tree: a guide from each parent's mark down past its children, with an elbow into each child */
 .trv-g{position:absolute;top:0;bottom:0;left:0;pointer-events:none}
-.trv-g i{position:absolute;top:0;bottom:0;left:calc(var(--x) * 16px + 8.5px);width:1px;background:color-mix(in srgb,var(--rail) 60%,transparent)}
+.trv-g i{position:absolute;top:0;bottom:0;left:calc(var(--x) * 16px + 15.5px);width:1px;background:color-mix(in srgb,var(--rail) 60%,transparent)}
 .trv-g i.end{bottom:50%}
 .trv-g i.el::after{content:"";position:absolute;left:0;top:calc(50% - 1px);width:7px;height:1px;background:inherit}
 .trv-g i.end.el::after{top:auto;bottom:-1px}
@@ -1061,11 +1066,8 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .trv-b{position:relative;height:20px;background:linear-gradient(to right,var(--line) 1px,transparent 1px) 0 0/20% 100%}
 /* a bar is laid out once at its full length; while it runs, --f (0 to 1) reveals it with a clip and moves its bright edge with a
    transform, so a streaming run repaints without laying the page out again */
-.trv-b i{position:absolute;top:5px;height:10px;min-width:3px;border-radius:var(--r-tiny,3px);clip-path:inset(-6px calc((1 - var(--f,1)) * 100% - 2px) -6px -6px);background:linear-gradient(90deg,color-mix(in srgb,var(--k) 70%,var(--surface)),var(--k));transition:background .3s,opacity .3s}
-/* a running bar has a light passing along it and a bright leading edge */
-.trv-r.run .trv-b i{background:linear-gradient(90deg,color-mix(in srgb,var(--k) 55%,var(--surface)) 0 30%,color-mix(in srgb,var(--k) 25%,var(--surface)) 45%,var(--k) 60% 100%) 0 0/250% 100%;animation:trvsheen 1.4s linear infinite}
+.trv-b i{position:absolute;top:5px;height:10px;min-width:3px;border-radius:var(--r-tiny,3px);clip-path:inset(-6px calc((1 - var(--f,1)) * 100% - 2px) -6px -6px);background:var(--k);transition:background .3s,opacity .3s}
 .trv-r.run:not([data-k="agent"]) .trv-b i::after{content:"";position:absolute;left:0;right:0;top:-2px;bottom:-2px;--e:var(--k);background:linear-gradient(to left,var(--e) 0 2px,transparent 2px);transform:translateX(calc(var(--f,1) * 100% - 100% + 1px))}
-@keyframes trvsheen{from{background-position:100% 0}to{background-position:-150% 0}}
 /* an agent span holds the others, so it is drawn as a bracket over the time they take */
 .trv-r[data-k="agent"] .trv-b i,.trv-r.run[data-k="agent"] .trv-b i{top:9px;height:2px;border-radius:1px;background:var(--faint);animation:none}
 .trv-r[data-k="agent"] .trv-b i::before,.trv-r[data-k="agent"] .trv-b i::after{content:"";position:absolute;top:-3px;width:2px;height:8px;border-radius:1px;background:var(--faint)}
@@ -1077,16 +1079,20 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .trv-r .trv-tk{font-size:12px;color:var(--muted)}
 .trv-r .trv-ms{font-size:12.5px;color:var(--fg2)}
 .trv-r.slow .trv-ms{color:var(--warn)}
-/* with a span open, the other bars step back */
-.trv-rows.sel .trv-r:not([aria-expanded="true"]) .trv-b i{opacity:.35}
 /* the playhead: where the run is now, one line down every bar's track while it streams */
 .trv-b::after,.trv-sc::after{content:"";position:absolute;left:0;right:0;top:-6px;bottom:-6px;background:linear-gradient(90deg,var(--accent-mark,var(--accent)) 0 1px,transparent 1px);transform:translateX(calc(var(--now,0) * 100% - .5px));opacity:0;transition:opacity .4s;pointer-events:none}
 .trv-sc::after{top:12px;bottom:-6px}
 .trv.live .trv-b::after,.trv.live .trv-sc::after{opacity:.75}
-.trv-dc{display:flex;flex-direction:column;gap:10px;margin-top:2px;padding:6px 10px var(--s-2);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
-.trv-dh{display:flex;align-items:center;gap:var(--s-2);min-width:0;font-size:13px}
+/* an open span's details, at the card's foot on the same columns: its mark under the head's, its words on the names'
+   column, its close button's glyph on the Time column */
+.trv-dt{margin:0 -16px}
+.trv-dc{display:flex;flex-direction:column;gap:12px;padding:10px 24px 16px 60px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.trv-dh{position:relative;display:flex;align-items:center;gap:var(--s-2);min-width:0;min-height:28px;font-size:13px}
+.trv-dh>.trv-k{position:absolute;left:-37px;top:5px}
 .trv-dh b{min-width:0;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.trv-dh .ib{margin:0 -6px 0 auto}
+.trv-dh .ib{width:28px;height:28px;margin:0 -7px 0 auto}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov) */
+.trv :is(.ib,.pill):active,:root[data-style="clean"] .trv .ib:active{transform:none}
 /* where the open span sat in the run */
 .trv-pos{position:relative;height:6px;border-radius:var(--r-tiny,3px);background:var(--line)}
 .trv-pos i{position:absolute;top:0;bottom:0;min-width:3px;border-radius:var(--r-tiny,3px);background:var(--k);transition:width .25s linear}
@@ -1096,58 +1102,27 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .trv-kv b{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .trv-io{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:6px 10px;font-size:12px;color:var(--muted)}
 .trv-io code{font-family:var(--mono);font-size:12px;color:var(--fg2);background:var(--chip);padding:5px var(--s-2);border-radius:var(--r-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-:root[data-style="bp"] .trv-r:not(.slow) .trv-b i{background:var(--k)}
 :root[data-style="bp"] .trv-r.run:not(.slow):not([data-k="agent"]) .trv-b i{background:repeating-linear-gradient(90deg,var(--k) 0 4px,color-mix(in srgb,var(--k) 55%,var(--surface)) 4px 6px);animation:none}
 :root[data-style="bp"] .trv-r.run:not([data-k="agent"]) .trv-b i::after{filter:none;background:linear-gradient(to left,var(--e) 0 1px,transparent 1px);transform:translateX(calc(var(--f,1) * 100% - 100%))}
 :root[data-style="bp"] .trv-g i,:root[data-style="bp"] .trv-g i.el::after{background:var(--faint)}
 /* narrow: the names keep their room. Tokens move into each span's details, the slow tag leaves the amber bar and time to
-   say it (the time keeps its tooltip), the tree draws closer, and the details give the start its own line */
-@container (max-width:330px){.trv-ax,.trv-r{grid-template-columns:minmax(0,1fr) 72px 44px}.trv-tk,.trv-n .tag{display:none}.trv-n{padding-left:calc(var(--lv,0) * 10px)}.trv-g{display:none}.trv-kv{grid-template-columns:repeat(2,minmax(0,1fr))}}
-/* Clean (owner, 18 Nov): a card on two columns. Its content sits 16px from every edge, the head's neutral mark (the run's
-   agent) in a 32px column with the title's words 12px after it; each span's mark is centred in that column (nested ones
-   step in 16px a level) and the root span's name starts where the title's does, as do the key and the Span heading. A row's
-   hover and selection fill spans the content box, no wider, and is a neutral grey; the times and tokens sit 8px inside it,
-   with the run's total over them. It keeps no room for spans still to come: it grows as each span starts (grow()) and stays
-   centred in its stage. The kinds keep their colours on the bars and the key (chart data), drawn flat and at full strength
-   so the key matches them; the marks beside the names are one neutral grey, as file types are. An open span's details are
-   an off-white foot strip, edge to edge, on the same columns */
-.trv-hi{display:none}
-:root[data-style="clean"] .trv.panel{padding:15px 16px 0;overflow:clip;overflow-clip-margin:0px}
-:root[data-style="clean"] .trv.panel .trv-h{gap:12px;justify-content:flex-start;padding:0 8px 0 0}
-:root[data-style="clean"] .trv.panel .trv-hi{width:32px;height:32px;display:grid;place-items:center;flex:none;border-radius:calc(9px * var(--rk-m,var(--rk)));color:var(--fg2);background:var(--chip);box-shadow:inset 0 0 0 1px var(--hair)}
-:root[data-style="clean"] .trv.panel .trv-ht{flex:1}
-:root[data-style="clean"] .trv.panel .trv-ht b{line-height:20px}
-:root[data-style="clean"] .trv.panel .trv-st{line-height:18px}
-:root[data-style="clean"] .trv.panel .trv-lg{padding:8px 0 12px 44px}
-:root[data-style="clean"] .trv.panel :is(.trv-ax,.trv-r){padding:0 8px 0 0}
-:root[data-style="clean"] .trv.panel .trv-ax>span:first-child{padding-left:44px}
-:root[data-style="clean"] .trv.panel .trv-n{gap:19px;padding-left:calc(7px + var(--lv,0) * 16px)}
-:root[data-style="clean"] .trv.panel .trv-n .tag{margin-left:-11px}
-:root[data-style="clean"] .trv.panel .trv-g i{left:calc(var(--x) * 16px + 15.5px)}
-:root[data-style="clean"] .trv-rows,:root[data-style="clean"] .trv.panel .trv-rows{min-height:0;padding-bottom:9px}
-:root[data-style="clean"] .trv-r{transition:background-color var(--t-fast) var(--ease)}
-:root[data-style="clean"] .trv-r[aria-expanded="true"]{background:var(--row)}
-:root[data-style="clean"] .trv-rows.sel .trv-r:not([aria-expanded="true"]) .trv-b i{opacity:1}
-:root[data-style="clean"] .trv-k{color:var(--fg2);background:var(--chip);box-shadow:inset 0 0 0 1px var(--hair)}
-:root[data-style="clean"] .trv-r:not(.slow):not([data-k="agent"]) .trv-b i{background:var(--k);animation:none}
-:root[data-style="clean"] .trv-r.run:not([data-k="agent"]) .trv-b i::after{display:none}
-:root[data-style="clean"] .trv.panel .trv-dt{margin:0 -16px}
-:root[data-style="clean"] .trv.panel .trv-dc{gap:12px;margin-top:0;padding:10px 24px 16px 60px;background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
-:root[data-style="clean"] .trv.panel .trv-dh{position:relative;gap:8px;min-height:28px}
-:root[data-style="clean"] .trv.panel .trv-dh>.trv-k{position:absolute;left:-37px;top:5px}
-:root[data-style="clean"] .trv.panel .trv-dh .ib{width:28px;height:28px;margin:0 -6px 0 auto}
-:root[data-style="clean"] .trv-io code{background:var(--surface);box-shadow:inset 0 0 0 1px var(--hair)}
-/* narrow: the names keep their room. The head's mark is a 24px tile with the words 8px after it, the same columns run down
-   the card, the tree steps in 10px a level, and the time axis is a little shorter */
+   say it (the time keeps its tooltip), the tree draws closer, and the details give the start its own line. The head's mark
+   is a 24px tile with the words 8px after it, the same columns run down the card, and the time axis is a little shorter */
 @container (max-width:330px){
-  :root[data-style="clean"] .trv.panel .trv-h{gap:8px}
-  :root[data-style="clean"] .trv.panel .trv-hi{width:24px;height:24px;border-radius:var(--r-sm)}
-  :root[data-style="clean"] .trv.panel .trv-lg,:root[data-style="clean"] .trv.panel .trv-ax>span:first-child{padding-left:32px}
-  :root[data-style="clean"] .trv.panel .trv-n{gap:11px;padding-left:calc(3px + var(--lv,0) * 10px)}
-  :root[data-style="clean"] .trv.panel :is(.trv-ax,.trv-r){grid-template-columns:minmax(0,1fr) 60px 44px}
-  :root[data-style="clean"] .trv.panel .trv-dc{padding-left:48px}
-  :root[data-style="clean"] .trv.panel .trv-dh>.trv-k{left:-29px}
+  .trv-ax,.trv-r{grid-template-columns:minmax(0,1fr) 60px 44px}.trv-tk,.trv-n .tag{display:none}.trv-g{display:none}.trv-kv{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .trv-h{gap:8px}.trv-hi{width:24px;height:24px;border-radius:var(--r-sm)}.trv-tt{margin-right:0}
+  .trv-lg,.trv-ax>span:first-child{padding-left:32px}
+  .trv-n{gap:11px;padding-left:calc(3px + var(--lv,0) * 10px)}
+  .trv-dc{padding-left:48px}.trv-dh>.trv-k{left:-29px}
 }
+/* Clean (owner, 18 Nov): the marks beside the names are one neutral grey, as file types are, and the head's has a hairline
+   like them; running bars are flat, with no bright edge; an open span's details are an off-white foot strip, edge to edge */
+:root[data-style="clean"] .trv-hi{box-shadow:inset 0 0 0 1px var(--hair)}
+:root[data-style="clean"] .trv-r{transition:background-color var(--t-fast) var(--ease)}
+:root[data-style="clean"] .trv-k{color:var(--fg2);background:var(--chip);box-shadow:inset 0 0 0 1px var(--hair)}
+:root[data-style="clean"] .trv-r.run:not([data-k="agent"]) .trv-b i::after{display:none}
+:root[data-style="clean"] .trv-dc{background:var(--strip);border-top-color:var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
+:root[data-style="clean"] .trv-io code{background:var(--surface);box-shadow:inset 0 0 0 1px var(--hair)}
 /* ---------- Run cost ---------- */
 .rc{padding:18px}
 .rc-h{display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
@@ -1863,11 +1838,16 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 :root[data-style="clean"] .art-row[data-s="fail"] .art-bar{background:repeating-linear-gradient(135deg,var(--bad-mark) 0 2px,transparent 2px 5px);box-shadow:inset 0 0 0 1px var(--bad-mark)}
 :root[data-style="clean"] .art-f{margin:var(--s-3) -20px 0;padding:18px 20px 17px;background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
 /* ---------- Live answer ---------- */
-.lva{display:flex;flex-direction:column;gap:14px}
+/* it sits on the stage, not on a card, so its hover fill is a quiet step darker than whatever is under it (the surface's own
+   --row matches the stage in light mode and would not show); every hover box reaches out round its glyph or chip, which line
+   up with the answer's words (owner, 18 Nov) */
+.lva{display:flex;flex-direction:column;gap:14px;--row:color-mix(in srgb,var(--fg) 5%,transparent)}
+/* grow() keeps the hover boxes that reach out past the answer's edge */
+.lva.growing{overflow-clip-margin:12px}
 .lva-q{display:flex;justify-content:flex-end}
-.lva-a{display:flex;flex-direction:column;gap:14px;min-height:230px}
-/* on a card the first answer keeps the room its sources and follow-ups fill, so nothing climbs when they arrive */
-.stage-in>.lva .lva-a{min-height:324px}
+/* no room is kept for the answer to come (owner, 18 Nov): the turn grows as the answer streams in (grow()) and stays centred
+   in its stage */
+.lva-a{display:flex;flex-direction:column;gap:14px}
 .lva-turn{display:flex;flex-direction:column;gap:var(--s-3)}
 .lva-th{display:flex;align-items:center;gap:var(--s-2);font-size:13.5px;color:var(--muted)}
 .lva-tb{display:inline-flex;gap:6px;align-self:flex-start;padding:2px var(--s-2);margin-left:-8px;border-radius:var(--r-pill);transition:color var(--t-fast),background var(--t-fast)}
@@ -1886,13 +1866,19 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .lva-sb:hover,.lva-sb[aria-expanded="true"]{background:var(--row);color:var(--fg)}
 .lva-sb>.i{color:var(--muted);transition:transform .35s var(--ease)}
 .lva-sb[aria-expanded="true"]>.i{transform:rotate(180deg)}
-.lva-fav{display:flex}
-.lva-fav span{width:18px;height:18px;border-radius:var(--r-tiny,5px);display:grid;place-items:center;font-size:9.5px;font-weight:500;color:#fff;background-image:linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.3));margin-left:-4px;box-shadow:0 0 0 1.5px var(--surface);transition:margin .3s var(--ease)}
-.lva-fav span:first-child{margin-left:0}
-.lva-sb:hover .lva-fav span:not(:first-child){margin-left:2px}
-.lva-acts{display:flex;gap:2px;margin-left:-6px}
+/* the sources' badges sit side by side, never over each other (owner, 18 Nov) */
+.lva-fav{display:flex;gap:2px}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov) */
+.lva :is(.ib,.pill):active,:root[data-style="clean"] .lva .ib:active{transform:none}
+.lva-fav span{width:18px;height:18px;border-radius:var(--r-tiny,5px);display:grid;place-items:center;font-size:9.5px;font-weight:500;color:#fff;background-image:linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.3))}
+/* a badge on a vivid fill of its own (the avatar colours, owner, 18 Nov) is drawn as it is, with that fill's ink (white,
+   4.5:1 and APCA Lc 76 or more); any other colour is darkened a little so its white letter keeps its contrast */
+.lva-fav span.vivid{background-image:none;color:var(--fav-ink,#fff)}
+/* the first glyph (Copy) starts on the answer's edge, its hover box reaching out round it */
+.lva-acts{display:flex;gap:2px;margin-left:-10px}
 .lva-acts .ib{width:28px;height:28px}
-.lva-ll{display:flex;flex-direction:column;gap:2px}
+/* the sources' number chips line up with the answer's words, each row's hover fill reaching 8px out round them */
+.lva-ll{display:flex;flex-direction:column;gap:2px;margin:0 -8px}
 .lva-s{display:flex;align-items:center;gap:10px;width:100%;padding:7px var(--s-2);border-radius:calc(10px * var(--rk-m,var(--rk)));font-size:13px;text-align:left;color:var(--fg);transition:background .2s}
 .lva-s:hover,.lva-s.on{background:var(--row)}
 .lva-s .n{width:17px;height:17px;border-radius:var(--r-tiny,5px);background:var(--hover);display:grid;place-items:center;font-size:10.5px;font-weight:500;color:var(--fg2);flex:none;transition:background .2s,color .2s}
@@ -1903,45 +1889,49 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .lva-fu{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
 .lva-fu button{display:inline-flex;align-items:center;gap:var(--s-2);padding:6px var(--s-3) 6px 10px;border-radius:var(--r-pill);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent);font-size:13px;color:var(--fg2);transition:color .2s,box-shadow .2s,transform .2s var(--ease)}
 .lva-fu button:hover{color:var(--fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--faint) 50%,transparent)}
-/* Clean (owner, 18 Nov): no room kept for the answer to come. The turn grows as the answer streams in (grow()) and stays
-   centred in its stage. Words fade in without a blur, and the sources' badges are one neutral grey, not a colour each, side
-   by side rather than overlapping */
-:root[data-style="clean"] .lva-a,:root[data-style="clean"] .stage-in>.lva .lva-a{min-height:0}
+/* Clean (owner, 18 Nov): words fade in without a blur, and the sources' badges are one neutral grey, not a colour each */
 @keyframes lvwc{from{opacity:0}to{opacity:1}}
 :root[data-style="clean"] :is(.lva-p .w,.lva-p .cite){animation-name:lvwc}
-:root[data-style="clean"] .lva-fav{gap:2px}
-:root[data-style="clean"] .lva-fav span,:root[data-style="clean"] .lva-sb:hover .lva-fav span:not(:first-child){margin-left:0;background:var(--chip)!important;color:var(--fg2);box-shadow:inset 0 0 0 1px var(--hair)}
+:root[data-style="clean"] .lva-fav span{background:var(--chip)!important;color:var(--fg2);box-shadow:inset 0 0 0 1px var(--hair)}
 :root[data-style="clean"] :is(.lva-tb,.lva-sb,.lva-s,.lva-fu button){transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
 /* ---------- Composer ---------- */
 .cpx{display:flex;flex-direction:column;justify-content:flex-end;gap:14px;overflow-anchor:none;container-type:inline-size}
 /* neither the composer nor the box it sits in anchors the page's scroll, so the page stays put as the thread grows and clears */
 .stage-in:has(>.cpx){overflow-anchor:none}
-/* on a card the composer keeps the room the conversation will take, with the box at its foot, so the box stays put */
-.stage-in>.cpx{min-height:inherit}
+/* no room is kept for the conversation (owner, 18 Nov): the thread and the box grow together (grow()) and stay centred in the
+   stage. Its menus open over it from their buttons, down when there is room and up when there isn't, and the composer never
+   moves for them (the visitor's clicks never move it). grow() must not clip the menus */
+.cpx.growing{overflow:visible}
 .cpx-thread{display:flex;flex-direction:column;gap:var(--s-3)}
 .cpx-thread:empty{display:none}
 .cpx-ag{font-size:14px;color:var(--fg2);display:flex;gap:var(--s-2);align-items:center}
 /* the composer is a component, not a field: a quiet hairline and a soft shadow, the same while you type in it */
 .cpx-box{position:relative;background:var(--surface);border-radius:var(--r-box);box-shadow:var(--shadow);transition:box-shadow var(--t-fast)}
 @supports (corner-shape:squircle){.cpx-box{corner-shape:squircle;border-radius:var(--r-box-sq)}}
-.cpx-att{display:flex;gap:6px;flex-wrap:wrap;padding:var(--s-3) 14px 0}
+/* everything in the box sits 16px from its edges (owner, 18 Nov): the attachments, the text, Send's edge and the dictation
+   line; the attach button's glyph lines up with the text, and the toolbar's controls share one centre line */
+.cpx-att{display:flex;gap:6px;flex-wrap:wrap;padding:16px 16px 0}
 .cpx-att:empty{display:none}
 .cpx-att .fchip{transition:color .32s,background .32s}
+/* a chip never runs past the box on a narrow card: it shrinks to the row and its name trims */
+.cpx-att .fchip{max-width:100%;min-width:0}
+.cpx-att .fchip .n{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .cpx-att .fchip .x,.cpx-att .fchip .rt{display:grid;place-items:center;width:18px;height:18px;border-radius:50%;margin-right:-4px;color:var(--muted)}
 .cpx-att .fchip .x:hover,.cpx-att .fchip .rt:hover{background:var(--row);color:var(--fg)}
 .cpx-att .fchip .spin{width:10px;height:10px}
 .cpx-att .fchip.ld{color:var(--muted)}
 .cpx-att .fchip.err{color:var(--bad);background:var(--bad-bg);box-shadow:none}
 .cpx-att .fchip.err .rt{color:var(--bad)}
-.cpx-ta{display:block;width:100%;border:0;outline:0;resize:none;background:none;color:var(--fg);font:inherit;font-size:14px;line-height:1.5;padding:15px 17px var(--s-1);min-height:54px;max-height:160px;transition:color .32s}
+.cpx-ta{display:block;width:100%;border:0;outline:0;resize:none;background:none;color:var(--fg);font:inherit;font-size:14px;line-height:1.5;padding:14px 16px var(--s-1);min-height:54px;max-height:160px;transition:color .32s}
 .cpx-ta::placeholder{color:var(--muted)}
 .cpx-box[data-mode="voice"] .cpx-ta{color:var(--fg2)}
-.cpx-rows{display:grid;padding:6px 10px 10px}
+.cpx-rows{display:grid;padding:4px 16px 16px}
 .cpx-bar,.cpx-voice{grid-area:1/1;display:flex;align-items:center;gap:var(--s-1);min-width:0;transition:opacity .32s var(--ease),transform .42s var(--ease)}
 .cpx-voice{opacity:0;transform:translateY(6px);pointer-events:none;visibility:hidden;transition:opacity .32s var(--ease),transform .42s var(--ease),visibility 0s .32s}
 .cpx-box[data-mode="voice"] .cpx-bar{opacity:0;transform:translateY(-6px);pointer-events:none}
 .cpx-box[data-mode="voice"] .cpx-voice{opacity:1;transform:none;pointer-events:auto;visibility:visible;transition-delay:0s}
 .cpx-bar>.ib{width:32px;height:32px;flex:none}
+.cpx-bar>.cpx-add{margin-left:-9px}
 .cpx-add[aria-expanded="true"]{background:var(--chip);color:var(--fg)}
 .cpx-bar .chip{height:32px;padding:0 10px;gap:6px;background:none;min-width:0;font-size:13px;color:var(--fg2)}
 .cpx-bar .chip:hover,.cpx-bar .chip[aria-expanded="true"]{background:var(--row);color:var(--fg)}
@@ -1951,31 +1941,23 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 @container (max-width:400px){.cpx-bar .chip{padding:0 8px}.cpx-bar .chip>span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.cpx-bar .chip>svg:last-child{display:none}}
 .cpx-send{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent);flex:none;transition:opacity .32s,transform .16s,background .16s}
 .cpx-send:hover{background:var(--accent-2)}
-.cpx-send:active{transform:scale(.92)}
 .cpx-send[disabled]{opacity:1;cursor:not-allowed;background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring)}
 /* dictation: a red dot and a clock while it listens, the words arriving in the box, then Cancel or Done */
-.cpx-rec{display:inline-flex;align-items:center;gap:var(--s-2);padding-left:var(--s-2);font-size:13px;color:var(--fg)}
+.cpx-rec{display:inline-flex;align-items:center;gap:var(--s-2);font-size:13px;color:var(--fg)}
 .cpx-dot{width:8px;height:8px;border-radius:50%;background:var(--bad-mark);animation:cpxrec 1.6s var(--ease-io) infinite}
 @keyframes cpxrec{50%{opacity:.35}}
 .cpx-tm{font-size:13px;margin-left:var(--s-1)}
 .cpx-voice .pill{flex:none}
 .pp-plus,.pp-ctx,.pp-mode{width:264px}
 .cpx-bar>.cpx-send{flex:none}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink Send alone presses */
+.cpx :is(.ib,.pill,.chip):active,:root[data-style="clean"] .cpx .ib:active{transform:none}
 @media (max-width:480px){.cpx-bar .cpx-ctx>span{max-width:88px}}
-/* Clean (owner, 18 Nov): the box takes the card's 22px round corners, with everything in it 16px from its edges: the
-   attachments, the text, Send's edge and the dictation line; the attach button's glyph lines up with the text, and the
-   toolbar's 28px controls share one centre line. Send is the ink button. A file that failed keeps the chip's white with its
-   words and mark in red, no red fill. No room is kept for the conversation: the thread and the box grow together (grow())
-   and stay centred in the stage */
-:root[data-style="clean"] .stage-in>.cpx{min-height:0}
-/* its menus open above the box, past the top of the composer: grow() must not clip them */
-:root[data-style="clean"] .cpx.growing{overflow:visible}
+/* Clean (owner, 18 Nov): the box takes the card's 22px round corners and its toolbar's controls are 28px. Send is the ink
+   button. A file that failed keeps the chip's white with its words and mark in red, no red fill */
 :root[data-style="clean"] .cpx-box{border-radius:var(--r-card)}
-:root[data-style="clean"] .cpx-att{gap:4px;padding:16px 16px 0}
-:root[data-style="clean"] .cpx-ta{padding:14px 16px 4px}
-:root[data-style="clean"] .cpx-rows{padding:4px 16px 16px}
-:root[data-style="clean"] .cpx-bar>.cpx-add{margin-left:-6px}
-:root[data-style="clean"] .cpx-rec{padding-left:0}
+:root[data-style="clean"] .cpx-att{gap:4px}
+:root[data-style="clean"] .cpx-bar>.cpx-add{margin-left:-7px}
 :root[data-style="clean"] .cpx-bar>.ib{width:28px;height:28px}
 :root[data-style="clean"] .cpx-bar .chip{height:28px;padding:0 8px;transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .cpx-add[aria-expanded="true"]{background:var(--hover)}
@@ -2079,10 +2061,10 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
    of its versions. Each plays its writing state, then opens, copies, downloads and switches versions the same way */
 /* the reader opens over the card's nearest positioned ancestor: on this page the stage, in an app its chat column */
 .afx{--afx-t2:var(--muted)}
-/* the variants share one room, as tall as the tallest moment (the compact card with its versions open), so switching
-   never moves what is below and an open menu still sits centred */
-.afx.dm>.afx-main{position:relative;min-height:452px;justify-content:center}
-@container (max-width:400px){.afx.dm>.afx-main{min-height:474px}}
+/* the variants keep no room for their tallest moment (owner, 18 Nov): each sits centred in the stage, and stays where it
+   is as a version menu opens over it, down from its button or up when there is no room below (the visitor's clicks never
+   move it) */
+.afx.dm>.afx-main{position:relative;justify-content:center}
 /* secondary text: the core's grey in light mode; in dark mode a lighter grey, because the core's reaches 4.5:1 there but
    not APCA Lc 60, which small text needs */
 :root[data-theme="dark"] .afx{--afx-t2:#c0c0c0}
@@ -2120,19 +2102,25 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .afx-card .afx-open{transform:none!important}
 .afx-card :is(.afx-copy,.afx-dl,.afx-vb){position:relative;z-index:1}
 .afx .copied .afx-lbl{color:var(--fg)}
-/* the opened file: a reader over the stage, the stage fading back behind it */
-.afx-sheet{position:absolute;inset:0;z-index:20;border-radius:inherit;overflow:hidden}
-.afx-scrim{position:absolute;inset:0;background:color-mix(in srgb,var(--stage) 78%,transparent)}
+/* a button that did its job swaps its icon for a tick in the vivid mark green for a moment, in place, at the same size */
+.afx .ib.copied,.afx .ib.copied:hover{color:var(--ok-mark)!important}
+/* the opened file: a reader over the stage, the stage fading back behind it. Nothing clips it (owner, 18 Nov): its shadow
+   shows whole, and the fade reaches past the cards behind it so none of their shadows is sliced at its edge */
+.afx-sheet{position:absolute;inset:0;z-index:20;border-radius:inherit}
+.afx-scrim{position:absolute;inset:0 -40px -24px;background:color-mix(in srgb,var(--stage) 78%,transparent)}
 .afx-pan{position:absolute;display:flex;flex-direction:column;background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow-pop);overflow:hidden;outline:none}
-/* a view fills the stage; a page is narrower and grows out of the preview or sheet it came from */
-.afx-pan.afx-view{inset:0}
-.afx-pan.afx-page{inset:0;margin:auto;width:min(400px,100%);transform-origin:0 0}
-.afx-ph{display:flex;align-items:center;gap:10px;padding:10px var(--s-2) 10px 14px;border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+/* the reader is as tall as the file (it scrolls past the room it has), centred in it; a view is as wide as the room, a
+   page narrower, growing out of the preview or sheet it came from */
+.afx-pan.afx-view{inset:0;margin:auto 0;height:fit-content;max-height:100%}
+.afx-pan.afx-page{inset:0;margin:auto;width:min(400px,100%);height:fit-content;max-height:100%;transform-origin:0 0}
+.afx-ph{display:flex;align-items:center;gap:10px;padding:10px 9px 10px 16px;border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+/* Close sits on the title's first line, its glyph on the content's right edge, 16px in */
+.afx-ph .afx-x{align-self:flex-start;margin-top:calc(10.5px - 15px)}
 .afx-ph .afx-ic{width:30px;height:30px;border-radius:var(--r-sm)}
 .afx-ptx{flex:1;min-width:0}
 .afx-pt{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .afx-pm{font-size:12.5px;color:var(--afx-t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.afx-pb{flex:1;min-height:0;overflow:auto;padding:14px 18px 18px;font-size:13.5px;line-height:1.6;outline:none}
+.afx-pb{flex:1;min-height:0;overflow:auto;padding:14px 16px 18px;font-size:13.5px;line-height:1.6;outline:none}
 .afx-pb:focus-visible{box-shadow:inset 0 0 0 2px var(--focus)}
 .afx-pb h3{margin:var(--s-4) 0 var(--s-1);font-size:12.5px;font-weight:500;color:var(--afx-t2)}
 .afx-pb p{margin:0}
@@ -2144,15 +2132,18 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .afx-tb thead th{font-size:12.5px;color:var(--afx-t2);font-weight:500}
 .afx-tb .num{text-align:right}
 .afx-tb tbody th{font-weight:500}
-.afx-pf{display:flex;align-items:center;gap:6px;padding:10px 14px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
-.afx-pf .pill .afx-lbl{min-width:58px;text-align:left}
+.afx-pf{display:flex;align-items:center;gap:6px;padding:10px 16px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+/* Copy and Download are each as wide as their words: pressed, the tick and "Copied" come in and the width eases to fit, with
+   no room kept for the longer word */
+.afx-pf .pill{overflow:hidden;white-space:nowrap}
 .afx-pf .pill.copied{color:var(--fg)!important}
-.afx-pf .pill.copied .i{color:var(--ok)}
+.afx-pf .pill.copied .i{color:var(--ok-mark)}
 /* compact: an icon, the name, one line of meta and Open, dense enough to stack several in a thread */
 .afx-cp{max-width:440px;display:flex;flex-direction:column;gap:14px}
 .afx-cp-a{margin:0;font-size:14px;line-height:1.6;text-wrap:pretty}
 .afx-cp-list{display:flex;flex-direction:column;gap:var(--s-2)}
-.afx-cp-card{display:flex;align-items:center;gap:var(--s-3);padding:10px var(--s-2) 10px 10px;border-radius:var(--r-in);background:var(--surface);box-shadow:var(--shadow);transition:background var(--t-fast),box-shadow var(--t-fast);overflow:hidden}
+/* its content 16px from every edge: the mark on the left, Open ending on the right (owner, 18 Nov) */
+.afx-cp-card{display:flex;align-items:center;gap:var(--s-3);padding:16px;border-radius:var(--r-in);background:var(--surface);box-shadow:var(--shadow);transition:background var(--t-fast),box-shadow var(--t-fast);overflow:hidden}
 .afx-cp-card:not(.is-writing):hover{background:var(--wash)}
 :root[data-style="bp"] .afx-cp-card:not(.is-writing):hover{box-shadow:0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}
 .afx-cp-tx{flex:1;min-width:0}
@@ -2165,7 +2156,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .afx-cp-bar{position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--accent-mark);transform-origin:left center;transform:scaleX(0);opacity:0;transition:transform .9s var(--ease),opacity .3s var(--ease)}
 .is-writing .afx-cp-bar{opacity:1}
 /* in a narrow column the meta drops the word "edited" before it truncates, and Open keeps only its icon */
-@container (max-width:400px){.afx-ed{display:none}.afx-fin{gap:var(--s-1)}.afx-card .afx-ic{width:32px;height:32px;border-radius:calc(9px * var(--rk-m,var(--rk)))}.afx-card :is(.afx-copy,.afx-dl,.ib.afx-open){width:28px;height:28px}.afx-cp-act,.afx-pv-act{gap:0}.afx-cp-card{padding-right:6px;gap:10px}.afx-pv-meta{gap:10px;padding-right:6px}.afx-pv-meta .afx-ic{display:none}.afx-cp-act .pill .afx-lbl{display:none}.afx-cp-act .pill{width:28px;height:28px;padding:0;margin-left:2px}}
+@container (max-width:400px){.afx-ed{display:none}.afx-fin{gap:var(--s-1)}.afx-card .afx-ic{width:32px;height:32px;border-radius:calc(9px * var(--rk-m,var(--rk)))}.afx-card :is(.afx-copy,.afx-dl,.ib.afx-open){width:28px;height:28px}.afx-cp-act,.afx-pv-act{gap:0}.afx-cp-card{gap:10px}.afx-pv-meta{gap:10px;padding-right:10px}.afx-pv-meta .afx-ic{display:none}.afx-cp-act .pill .afx-lbl{display:none}.afx-cp-act .pill{width:28px;height:28px;padding:0;margin-left:2px}}
 /* preview: the same card with the first page showing, so drafts are easy to tell apart */
 .afx-pv{width:min(100%,380px)}
 .afx-pv-card{border-radius:var(--r-card);background:var(--surface);box-shadow:var(--shadow);transition:box-shadow var(--t-fast)}
@@ -2174,17 +2165,15 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .afx-pv-prev{position:relative;height:164px;overflow:hidden;padding:18px 22px 0;border-radius:var(--r-card) var(--r-card) 0 0;background:var(--stage);border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .afx-pv-page{height:100%;padding:14px var(--s-4) 0;border-radius:var(--r-sm) var(--r-sm) 0 0;background:var(--surface);box-shadow:var(--shadow);transition:transform var(--t) var(--ease)}
 .afx-pv-card:not(.is-writing):hover .afx-pv-page{transform:translateY(-3px)}
-.afx-pv-k{font-size:11px;line-height:16px;color:var(--afx-t2)}
-.afx-pv-k .afx-wr,.is-writing .afx-pv-k .afx-fin{display:none}
-.is-writing .afx-pv-k .afx-wr{display:inline}
-.afx-pv-h{margin-top:2px;font-size:13px;font-weight:500;line-height:18px}
-.afx-pv-p{margin:6px 0 0;min-height:54px;font-size:11.5px;line-height:18px;color:var(--fg);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+/* the page shows the file's first words, not its name and version again: those are on the meta line under it (owner, 18 Nov) */
+.afx-pv-p{margin:0;min-height:54px;font-size:11.5px;line-height:18px;color:var(--fg);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .afx-caret{display:inline-block;width:1.5px;height:12px;margin-left:1px;vertical-align:-2px;background:var(--accent-mark);animation:bpblink 1s steps(1,end) infinite}
 /* the drawn lines stand for the rest of the page: decoration, kept faint */
 .afx-pv-ls{display:flex;flex-direction:column;gap:var(--s-2);margin-top:10px;-webkit-mask-image:linear-gradient(#000 0,transparent 44px);mask-image:linear-gradient(#000 0,transparent 44px)}
 .afx-pv-ls i{display:block;height:4px;border-radius:var(--r-tiny,2px);width:var(--w);background:color-mix(in srgb,var(--fg) 8%,var(--surface));transform-origin:left center;transition:width var(--t) var(--ease)}
 .is-writing .afx-pv-ls i{transform:scaleX(0)}
-.afx-pv-meta{display:flex;align-items:center;gap:var(--s-3);padding:var(--s-3) var(--s-2) var(--s-3) 14px}
+/* the name 16px in, and the last action's glyph 16px from the right edge */
+.afx-pv-meta{display:flex;align-items:center;gap:var(--s-3);padding:var(--s-3) 9px var(--s-3) 16px}
 .afx-pv-tx{flex:1;min-width:0}
 .afx-pv-t{font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .afx-pv-act{display:flex;align-items:center;gap:2px;flex:none;transition:opacity var(--t) var(--ease)}
@@ -2234,9 +2223,11 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .afx-st:not(.fan) .afx-sh[aria-checked="true"]{box-shadow:var(--shadow-pop)}
 .afx-st.is-writing .afx-sh{cursor:default}
 .afx-pg{position:absolute;inset:0;display:flex;flex-direction:column;padding:var(--s-3);border-radius:inherit;overflow:hidden}
-.afx-st-k{display:flex;align-items:center;justify-content:space-between;font-size:11px;line-height:14px;color:var(--afx-t2)}
-.afx-st-h{min-height:32px;margin-top:var(--s-1);font-size:12.5px;font-weight:500;line-height:16px;color:var(--fg)}
-.afx-st-ls{display:flex;flex-direction:column;gap:7px;margin-top:10px}
+/* a sheet is a drawn page, a heading bar and its lines: the name and version are said once, in the caption under the stack
+   (owner, 18 Nov) */
+.afx-st-ls{display:flex;flex-direction:column;gap:7px}
+.afx-r.h{height:6px;margin-bottom:5px}
+.afx-r.h i{height:5px;background:color-mix(in srgb,var(--fg) 45%,var(--surface))}
 .afx-r{position:relative;display:flex;align-items:center;gap:5px;height:4px}
 .afx-r i{display:block;height:3px;border-radius:var(--r-tiny,2px);width:var(--w);background:var(--ln);transform-origin:left center}
 .afx-r b{flex:none;width:4px;height:4px;border-radius:50%;background:var(--ln)}
@@ -2244,7 +2235,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .afx-gap{height:3px}
 .afx-st .blank .afx-r :is(i,b){transform:scaleX(0)}
 .afx-pen{position:absolute;left:0;top:0;width:7px;height:7px;border-radius:50%;background:var(--accent-mark);box-shadow:0 0 0 3px var(--surface);opacity:0;pointer-events:none}
-@container (max-width:360px){.afx-st-ls{gap:6px;margin-top:var(--s-2)}.afx-st-ls>:nth-child(n+7){display:none}}
+@container (max-width:360px){.afx-st-ls{gap:6px}.afx-st-ls>:nth-child(n+7){display:none}}
 .afx-tab{position:absolute;left:50%;top:calc(100% + 10px);display:inline-flex;align-items:center;gap:var(--s-1);transform:translateX(-50%);white-space:nowrap;font-size:11.5px;color:var(--afx-t2);opacity:0;transition:opacity var(--t) var(--ease)}
 .afx-tab .i{display:none;color:var(--accent-fg,var(--accent))}
 .afx-st.fan .afx-tab{opacity:1}
@@ -2256,17 +2247,25 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .afx-st-t{font-size:14px;font-weight:500}
 .afx-st-m{justify-content:center;max-width:100%}
 .afx-note{padding-top:2px;font-size:12.5px;color:var(--fg)}
-.afx-st-act{display:flex;align-items:center;gap:var(--s-1);transition:opacity var(--t) var(--ease)}
+/* the stack keeps no room for its buttons while the page is written: they unfold under the caption once it is done */
+.afx-st-act{display:flex;align-items:center;gap:var(--s-1);max-height:32px;transition:opacity var(--t) var(--ease),max-height var(--t) var(--ease),margin var(--t) var(--ease)}
 .afx-st-act .pill{gap:6px}
-.afx-st.is-writing .afx-st-act{opacity:0;visibility:hidden}
+.afx-st.is-writing .afx-st-act{opacity:0;visibility:hidden;max-height:0;margin-top:-18px}
+/* the desk keeps 12px over the sheets for them to peek into on hover; at rest the older ones show 3px of it, so the stack
+   starts 9px higher and what shows sits centred in the stage */
+.afx-desk{margin-top:-9px}
+/* the words that sum the file up in a message come once it is written */
+.afx-in-after{margin-top:-10px}
+.afx-in-after p{padding-top:10px}
+/* the reader's title has no mark, so its words line up with the page's under it */
+.afx-ph .afx-ic{display:none}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink primary alone presses */
+.afx :is(.ib,.pill,.afx-vb):active,:root[data-style="clean"] .afx .ib:active{transform:none}
 /* Clean (owner, 18 Nov): a file's mark is one neutral grey whatever its type (no hue per type). The compact card and the
    preview card take the card's 22px round corners with their content 16px from every edge (a quiet icon button by its
    glyph, a filled one by its edge); the preview's page sits on an off-white head. The reader's words start 16px in, under
-   its title (its header has no mark, so the two line up), and Copy and Download sit in an off-white foot strip, 16px in
-   from its sides. The variants keep no room for the tallest moment: each sits centred in the stage, and a version menu
-   glides it up so the two sit centred together. The inline chip's closing words wait until the file is written, and the
-   stack's lines are all grey, the pen alone in the accent while it writes */
-:root[data-style="clean"] .afx.dm>.afx-main{min-height:0}
+   its title, and Copy and Download sit in an off-white foot strip, 16px in from its sides. The stack's lines are all grey,
+   the pen alone in the accent while it writes */
 :root[data-style="clean"] .afx-ic{color:var(--fg2);background:var(--chip);box-shadow:inset 0 0 0 1px var(--hair)}
 :root[data-style="clean"] .afx-in-ic{color:var(--fg2)}
 :root[data-style="clean"] .afx-cp-card{gap:12px;padding:14px 16px 13px;border-radius:var(--r-card);transition:background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
@@ -2277,19 +2276,11 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 :root[data-style="clean"] .afx-pv-card:not(.is-writing):hover{background:var(--wash);box-shadow:var(--shadow)}
 :root[data-style="clean"] .afx-pv-meta{gap:12px;padding:14px 9px 13px 16px}
 :root[data-style="clean"] .afx-ph{gap:12px;padding:16px 10px 16px 16px}
-:root[data-style="clean"] .afx-ph .afx-ic{display:none}
-:root[data-style="clean"] .afx-ph .afx-x{width:28px;height:28px;margin-right:0}
+/* the head is a strip: Close sits 8px from the card's top and right edges, a 28px circle in its 22px corner */
+:root[data-style="clean"] .afx-ph .afx-x{width:28px;height:28px;margin:-8px -2px 0 0}
 :root[data-style="clean"] .afx-pb{padding:16px}
 :root[data-style="clean"] .afx-pf{gap:8px;padding:8px 16px;background:var(--strip);border-top:1px solid var(--line)}
 :root[data-style="clean"] .afx-r.n b{background:var(--ln)}
-/* the stack keeps no room for its buttons while the page is written: they unfold under the caption once it is done */
-:root[data-style="clean"] .afx-st-act{max-height:32px;transition:opacity var(--t) var(--ease),max-height var(--t) var(--ease),margin var(--t) var(--ease)}
-:root[data-style="clean"] .afx-st.is-writing .afx-st-act{max-height:0;margin-top:-18px}
-/* the desk keeps 12px over the sheets for them to peek into on hover; at rest the older ones show 3px of it, so the stack
-   starts 9px higher and what shows sits centred in the stage */
-:root[data-style="clean"] .afx-desk{margin-top:-9px}
-:root[data-style="clean"] .afx-in-after{margin-top:-10px}
-:root[data-style="clean"] .afx-in-after p{padding-top:10px}
 @container (max-width:400px){:root[data-style="clean"] .afx-cp-card{gap:10px}:root[data-style="clean"] .afx-pv-meta{gap:10px;padding-right:10px}}
 /* ---------- Attachment tray ---------- */
 /* a drop zone, then the files as plain rows. Each file wears its type's hue: its badge, its ring and the wash that fills its
@@ -7861,7 +7852,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <div class="card-h"><div><h3>Agent inbox</h3><p>Every run that needs you, is running or is done, in one list.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="aib panel">
-  <div class="aib-h"><b>Inbox</b><span class="muted aib-st" aria-live="polite"></span></div>
+  <div class="aib-h"><b>Inbox</b></div>
   <div class="aib-gs"></div>
 </div></template>
   <div class="card-f"><span>Approve a run, retry a failure</span><span class="sp"></span><button class="replay" aria-label="Replay Agent inbox"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
@@ -7976,10 +7967,10 @@ button.pvb-row:focus-visible{outline-offset:-2px}
     <textarea class="cpx-ta" rows="1" aria-label="Message" placeholder="Ask the design agent, or attach a frame"></textarea>
     <div class="cpx-rows">
       <div class="cpx-bar">
-        <button class="ib cpx-add" aria-label="Attach" data-tip="Attach a file or a frame" data-pop=".pp-plus" data-pop-pos="up">{clip}</button>
-        <button class="chip cpx-ctx" data-pop=".pp-ctx" data-pop-pos="up" data-tip="What the agent works on">{figma}<span class="cpx-ctx-n">Pricing v4</span>{chev}</button>
+        <button class="ib cpx-add" aria-label="Attach" data-tip="Attach a file or a frame" data-pop=".pp-plus">{clip}</button>
+        <button class="chip cpx-ctx" data-pop=".pp-ctx" data-tip="What the agent works on">{figma}<span class="cpx-ctx-n">Pricing v4</span>{chev}</button>
         <span class="sp"></span>
-        <button class="chip cpx-mode" data-pop=".pp-mode" data-pop-pos="up" data-pop-align="end" data-tip="What the agent may do">{eye}<span class="cpx-mode-n">Ask</span>{chev}</button>
+        <button class="chip cpx-mode" data-pop=".pp-mode" data-pop-align="end" data-tip="What the agent may do">{eye}<span class="cpx-mode-n">Ask</span>{chev}</button>
         <button class="ib cpx-mic" aria-label="Dictate" data-tip="Dictate">{mic}</button>
         <button class="cpx-send" aria-label="Send" data-tip="Send" data-tip-k="↵" disabled>{up}</button>
       </div>
@@ -9719,7 +9710,7 @@ document.addEventListener('click', e => { const b = e.target.closest && e.target
 const DM = {
   defs:{},
   // agents at work: their demos keep playing while a mouse rests on them, instead of holding (see mount)
-  PLAYS:new Set(['status-pill','step-loader','thinking','reasoning-trail','agent-lanes','agent-run-timeline','trace-view','agent-tree','terminal-stream','attachment-tray','progress','web-search','thinking-states','run-drawer']),
+  PLAYS:new Set(['status-pill','step-loader','thinking','reasoning-trail','agent-lanes','agent-run-timeline','trace-view','agent-tree','terminal-stream','attachment-tray','progress','web-search','thinking-states','run-drawer','live-answer']),
   def(id, fn){ this.defs[id] = fn; },
   /* the markup a card starts from: its <template>, or, when the markup is written out in its stage, what the stage holds
      before it first mounts, kept as a template so Replay starts from it again */
@@ -11079,13 +11070,12 @@ DM.def('agent-inbox', (r, c) => {
     { id:'aud', t:'Audit pricing contrast', a:'QA agent', g:'done', ago:'25m ago' }
   ];
   const GR = [['needs', 'Needs you'], ['run', 'Running'], ['done', 'Done']];
-  const gs = $('.aib-gs', r), st = $('.aib-st', r);
+  const gs = $('.aib-gs', r);
   // the panel fits its rows at every moment (owner, 18 Nov: no room kept for a group that has gone): as a group goes or
   // comes back, its height eases with grow(), and it stays centred in its stage
   const ib = r.classList.contains('aib') ? r : $('.aib', r);
-  // Clean (owner, 18 Nov): the head has a neutral mark in a tile, the column the agents' marks sit in
-  const ds = r.closest('[data-style]');
-  if (ib && ds && ds.dataset.style === 'clean') $('.aib-h', ib).prepend(html(`<span class="aib-hi" aria-hidden="true">${I('mail')}</span>`));
+  // the head has a neutral mark in a tile, the column the agents' marks sit in (owner, 18 Nov)
+  if (ib) $('.aib-h', ib).prepend(html(`<span class="aib-hi" aria-hidden="true">${I('mail')}</span>`));
   if (ib) c.offs.push(grow(ib));
   gs.innerHTML = GR.map(([k, n]) => `<section class="aib-g" data-g="${k}" aria-label="${n}"><div class="aib-gh"><span>${n}</span><span class="n"></span></div><div class="aib-gl" role="list"></div></section>`).join('');
   const clock = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
@@ -11107,11 +11097,8 @@ DM.def('agent-inbox', (r, c) => {
   const list = g => $(`.aib-g[data-g="${g}"] .aib-gl`, gs);
   R.forEach(x => list(x.g).appendChild(row(x)));
   function counts(){
-    // a group with nothing in it goes away, and the line at the top says what is left
+    // each group shows its count, and a group with nothing in it goes away
     GR.forEach(([k]) => { const n = R.filter(x => x.g === k).length, sec = $(`.aib-g[data-g="${k}"]`, gs); $('.n', sec).textContent = n; sec.hidden = !n; });
-    const need = R.filter(x => x.g === 'needs').length, run = R.filter(x => x.g === 'run').length, done = R.filter(x => x.g === 'done').length;
-    const t = need ? `${need} need${need > 1 ? '' : 's'} you` : run ? `${run} running` : `All clear · ${done} done today`;
-    if (!st.textContent) st.textContent = t; else swap(st, t);
   }
   counts();
   // a run that moves glides to its place in the new group: rows and group titles are measured before and after, and eased
@@ -11150,29 +11137,28 @@ DM.def('trace-view', (r, c) => {
   // the kinds of span, each with its mark and colour: the identity slots of the chart palette, and grey for the agents
   // that hold the other spans. The name is always on the mark, in a tooltip, and in the span's label
   const K = { agent:['Agent','cpu','var(--muted)'], llm:['LLM call','spark','var(--c2)'], tool:['Tool call','term','var(--c6)'], ret:['Retrieval','search','var(--c3)'] };
-  // one run, in seconds from its start. A tool call that takes longer than SLOW seconds is flagged
+  // one run, in seconds from its start. The run itself is the head (its name, its total tokens and time), so its spans start
+  // at the top level (owner, 18 Nov: no row repeating the run's name). A tool call that takes longer than SLOW seconds is flagged
   const SPAN = 5, SLOW = 2, PACE = 1.5;
   const S = [
-    { id:'run', k:'agent', n:'Pricing research', s:0, d:4.82, lv:0, in:"Compare Northwind's plans with ours", out:'3 prices saved to Pricing research' },
-    { id:'plan', k:'llm', n:'Plan the steps', s:.04, d:.62, tk:1240, lv:1, in:'The task and 2 earlier messages', out:'Search notes, fetch the page, summarise' },
-    { id:'notes', k:'ret', n:'Search saved notes', s:.7, d:.38, tk:910, lv:1, in:'"northwind pricing", top 4', out:'4 notes, best match 0.82' },
-    { id:'fetch', k:'tool', n:'fetch_page', s:1.12, d:2.46, tk:3120, lv:1, in:'GET northwind.app/pricing', out:'200 OK, 48 KB, 3 plans' },
-    { id:'sum', k:'agent', n:'Summariser', s:3.62, d:1.02, lv:1, in:'The page and 4 notes', out:'A 120-word summary' },
-    { id:'write', k:'llm', n:'Write the summary', s:3.66, d:.94, tk:2380, lv:2, in:'Page text and notes, 2,050 tokens', out:'120 words, 3 prices' },
-    { id:'ans', k:'llm', n:'Final answer', s:4.66, d:.16, tk:560, lv:1, in:'The summary', out:'3 prices saved to Pricing research' }
+    { id:'plan', k:'llm', n:'Plan the steps', s:.04, d:.62, tk:1240, lv:0, in:'The task and 2 earlier messages', out:'Search notes, fetch the page, summarise' },
+    { id:'notes', k:'ret', n:'Search saved notes', s:.7, d:.38, tk:910, lv:0, in:'"northwind pricing", top 4', out:'4 notes, best match 0.82' },
+    { id:'fetch', k:'tool', n:'fetch_page', s:1.12, d:2.46, tk:3120, lv:0, in:'GET northwind.app/pricing', out:'200 OK, 48 KB, 3 plans' },
+    { id:'sum', k:'agent', n:'Summariser', s:3.62, d:1.02, lv:0, in:'The page and 4 notes', out:'A 120-word summary' },
+    { id:'write', k:'llm', n:'Write the summary', s:3.66, d:.94, tk:2380, lv:1, in:'Page text and notes, 2,050 tokens', out:'120 words, 3 prices' },
+    { id:'ans', k:'llm', n:'Final answer', s:4.66, d:.16, tk:560, lv:0, in:'The summary', out:'3 prices saved to Pricing research' }
   ];
   const END = Math.max(...S.map(x => x.s + x.d));
   // an agent span counts the tokens of every span under it
   S.forEach((x, i) => { x.kids = []; for (let j = i + 1; j < S.length && S[j].lv > x.lv; j++) x.kids.push(S[j]); });
   const root = $('.trv', r), rows = $('.trv-rows', r), stEl = $('.trv-st', r), tot = $('.trv-tot', r), dt = $('.trv-dt', r), dc = $('.trv-dc', r), lg = $('.trv-lg', r);
-  // room for every span from the start, so the panel never grows (and re-centres in its stage) as spans arrive
-  rows.style.setProperty('--n', S.length);
-  // Clean (owner, 18 Nov) keeps no room: the card grows as each span starts and as the details open (grow(), centred in its
-  // stage), once its entrance (which scales it from .98) has ended, so it measures the card at its real size
-  const ds = r.closest('[data-style]'), clean = !!ds && ds.dataset.style === 'clean';
-  // Clean's head has the run's mark in a tile, the column every span's mark is centred in
-  if (clean) $('.trv-h', r).prepend(html(`<span class="trv-hi" aria-hidden="true">${I('cpu')}</span>`));
-  if (clean) Promise.resolve().then(() => Promise.all(root.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && root.isConnected) c.offs.push(grow(root)); });
+  // the head has the run's mark in a tile, the column every span's mark is centred in, and its total tokens beside its time
+  const head = $('.trv-h', r);
+  head.prepend(html(`<span class="trv-hi" aria-hidden="true">${I('cpu')}</span>`));
+  const ttEl = html('<span class="trv-tt muted num"></span>'); tot.before(ttEl);
+  // the card keeps no room for spans still to come (owner, 18 Nov): it grows as each span starts and as the details open
+  // (grow(), centred in its stage), once its entrance (which scales it) has ended, so it measures the card at its real size
+  Promise.resolve().then(() => Promise.all(root.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && root.isConnected) c.offs.push(grow(root)); });
   // the key: every kind but the agents, with its colour and how many of its spans have started
   const KEYS = ['llm', 'tool', 'ret'];
   lg.innerHTML = KEYS.map(k => `<span role="listitem" class="z" data-k="${k}" style="--k:${K[k][2]}"><i></i>${K[k][0]} <b class="num">0</b></span>`).join('');
@@ -11183,7 +11169,7 @@ DM.def('trace-view', (r, c) => {
   let T = 0, sel = null, said = '';
   S.forEach(x => {
     const [kind, icon, col] = K[x.k];
-    x.el = html(`<button type="button" class="trv-r${x.lv ? '' : ' root'}" data-k="${x.k}" aria-expanded="false" style="--k:${col};--lv:${x.lv}" hidden><span class="trv-n"><span class="trv-g" aria-hidden="true"></span><span class="trv-k" data-tip="${kind}">${I(icon,'xs')}</span><span class="trv-nm">${x.n}</span></span><span class="trv-b"><i style="left:${x.s / SPAN * 100}%;width:${x.d / SPAN * 100}%"></i></span><span class="trv-tk num"></span><span class="trv-ms num"></span></button>`);
+    x.el = html(`<button type="button" class="trv-r" data-k="${x.k}" aria-expanded="false" style="--k:${col};--lv:${x.lv}" hidden><span class="trv-n"><span class="trv-g" aria-hidden="true"></span><span class="trv-k" data-tip="${kind}">${I(icon,'xs')}</span><span class="trv-nm">${x.n}</span></span><span class="trv-b"><i style="left:${x.s / SPAN * 100}%;width:${x.d / SPAN * 100}%"></i></span><span class="trv-tk num"></span><span class="trv-ms num"></span></button>`);
     x.el.onclick = () => open(x === sel ? null : x);
     rows.appendChild(x.el);
   });
@@ -11228,7 +11214,7 @@ DM.def('trace-view', (r, c) => {
       KEYS.forEach(k => { const n = S.filter(x => x.k === k && vis(x)).length, el = $(`[data-k="${k}"]`, lg), b = $('b', el); el.classList.toggle('z', !n); if (b.textContent !== String(n)){ b.textContent = n; if (n) enter(b); } }); }
     // the playhead runs down every track while the run streams, and fades once it is done
     root.style.setProperty('--now', Math.min(T, END) / SPAN); root.classList.toggle('live', T > 0 && T < END);
-    if (txt) tot.textContent = sec(Math.min(T, END));
+    if (txt){ tot.textContent = sec(Math.min(T, END)); ttEl.textContent = tks(S.reduce((n, x) => n + (x.k === 'agent' ? 0 : used(x)), 0)) + ' tokens'; }
     const slow = S.filter(x => x.slow).length;
     const line = T >= END ? `Done · ${S.length} spans${slow ? `, ${slow} slow` : ''}` : `Running · ${shown} span${shown > 1 ? 's' : ''}`;
     if (line !== said){ said = line; swap($('.m', stEl), line); }
@@ -11911,12 +11897,13 @@ DM.def('agent-run-timeline', (r, c) => {
 /* ---------- Live answer ---------- */
 DM.def('live-answer', (r, c) => {
   const A = $('.lva-a', r);
-  // Clean (owner, 18 Nov) keeps no room for the answer: the turn grows as it streams in (grow()), centred in its stage
-  // (in a chat around it, like the Agent harness, the chat lays it out)
-  const ds = r.closest('[data-style]'), lva = $('.lva', r) || r;
-  if (r === c.st && ds && ds.dataset.style === 'clean') Promise.resolve().then(() => Promise.all(lva.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && lva.isConnected) c.offs.push(grow(lva)); });
+  // no room is kept for the answer (owner, 18 Nov): the turn grows as it streams in (grow()), centred in its stage (in a
+  // chat around it, like the Agent harness, the chat lays it out)
+  const lva = $('.lva', r) || r;
+  if (r === c.st) Promise.resolve().then(() => Promise.all(lva.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && lva.isConnected) c.offs.push(grow(lva)); });
   const srcs = { 1:'Funnel data, last 30 days', 2:'Session notes from 8 interviews', 3:'Onboarding.fig, step 2' };
-  const S = [[1,'F','#7a5af8','Funnel data','Amplitude, last 30 days'],[2,'N','#0ea5a4','Session notes','Notion, 8 interviews'],[3,'S','#f97316','Onboarding.fig','Figma, step 2']];
+  // each source's badge on a vivid fill of its own (owner, 18 Nov: saturated, clearly different hues), white letters on each
+  const S = [[1,'F','var(--av-l)','Funnel data','Amplitude, last 30 days'],[2,'N','var(--av-b)','Session notes','Notion, 8 interviews'],[3,'S','var(--av-r)','Onboarding.fig','Figma, step 2']];
   const T = {
     '': 'Most people leave at the workspace step [1]. It asks for a team name before anyone has made anything, and five of eight people in interviews paused there [2]. Moving it after the first project, and filling the name from the email domain, should help [3].',
     'Show the drop-off by device': 'On mobile the workspace step loses 41% [1], on desktop 23% [1]. Most of the mobile drop comes from the keyboard covering the Continue button [3].',
@@ -11941,7 +11928,7 @@ DM.def('live-answer', (r, c) => {
       else p.insertAdjacentHTML('beforeend', `<span class="w">${tok} </span>`);
       await c.wait(55 + Math.random() * 45);
     }
-    const src = html(`<div class="lva-src"><span class="lva-acts"><button class="ib" aria-label="Copy" data-tip="Copy">${I('copy')}</button><button class="ib" aria-label="Good answer" data-tip="Good answer">${I('up-thumb')}</button><button class="ib" aria-label="Bad answer" data-tip="Bad answer">${I('down-thumb')}</button><button class="ib" aria-label="Try again" data-tip="Try again">${I('refresh')}</button></span><button class="lva-sb" aria-expanded="false"><span class="lva-fav">${S.map(x => `<span style="background-color:${x[2]}">${x[1]}</span>`).join('')}</span>3 sources${I('chev-d','xs')}</button></div>`);
+    const src = html(`<div class="lva-src"><span class="lva-acts"><button class="ib" aria-label="Copy" data-tip="Copy">${I('copy')}</button><button class="ib" aria-label="Good answer" data-tip="Good answer">${I('up-thumb')}</button><button class="ib" aria-label="Bad answer" data-tip="Bad answer">${I('down-thumb')}</button><button class="ib" aria-label="Try again" data-tip="Try again">${I('refresh')}</button></span><button class="lva-sb" aria-expanded="false"><span class="lva-fav">${S.map(x => `<span class="vivid" style="background-color:${x[2]}">${x[1]}</span>`).join('')}</span>3 sources${I('chev-d','xs')}</button></div>`);
     const ls = html(`<div class="fold shut lva-ls"><div><div class="lva-ll">${S.map(x => `<button class="lva-s" data-n="${x[0]}"><span class="n">${x[0]}</span><span class="t">${x[3]}</span><span class="d">${x[4]}</span>${I('ext','xs')}</button>`).join('')}</div></div></div>`);
     turn.appendChild(src); turn.appendChild(ls); enter(src);
     const sb = $('.lva-sb', src), open = o => { ls.classList.toggle('shut', !o); sb.setAttribute('aria-expanded', o); };
@@ -11976,19 +11963,10 @@ DM.def('composer', (r, c) => {
   const icons = { clip:'clip', figma:'figma', eye:'eye', edit:'edit', list:'list', code:'code', mic:'mic', up:'up', check:'check', file:'file-text', image:'image' };
   r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) => k === 'chev' ? I('chev-d','xs') : icons[k] ? I(icons[k]) : m);
   const box = $('.cpx-box', r), ta = $('.cpx-ta', r), send = $('.cpx-bar .cpx-send', r), thread = $('.cpx-thread', r), att = $('.cpx-att', r), PH = ta.placeholder;
-  // Clean (owner, 18 Nov) keeps no room for the conversation: the thread and the box grow together (grow()), centred in the
-  // stage, once the entrance (which scales it from .98) has ended
-  const ds = r.closest('[data-style]'), cpx = $('.cpx', r);
-  if (r === c.st && cpx && ds && ds.dataset.style === 'clean'){
-    Promise.resolve().then(() => Promise.all(cpx.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && cpx.isConnected) c.offs.push(grow(cpx)); });
-    // a menu opens above the box: the composer glides down by half of what the menu reaches past its top, so the two sit
-    // centred together in the stage, and back as it shuts
-    const pops = $$('.pop', box), glide = () => { const op = pops.find(p => p.classList.contains('open'));
-      const over = op ? box.getBoundingClientRect().top - cpx.getBoundingClientRect().top + op.offsetTop : 0;
-      cpx.style.setProperty('--gy', Math.max(0, Math.round(-over / 2)) + 'px'); };
-    cpx.classList.add('glide');
-    const mo = new MutationObserver(glide); pops.forEach(p => mo.observe(p, { attributes:true, attributeFilter:['class'] })); c.offs.push(() => mo.disconnect());
-  }
+  // no room is kept for the conversation (owner, 18 Nov): the thread and the box grow together (grow()), centred in the
+  // stage, once the entrance (which scales it) has ended. Its menus open over it (placePop) and it never moves for them
+  const cpx = $('.cpx', r);
+  if (r === c.st && cpx) Promise.resolve().then(() => Promise.all(cpx.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && cpx.isConnected) c.offs.push(grow(cpx)); });
   const fit = () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 160) + 'px'; };
   // send waits for text or a file, and for every file to finish loading
   const sync = () => { send.disabled = (!ta.value.trim() && !att.children.length) || !!$('.fchip.ld,.fchip.err', att); fit(); };
@@ -12759,9 +12737,6 @@ DM.def('artifact-card', (r, c) => {
       rows:[['Plan', 'Ours', 'Northwind', 'Halcyon', 'Fernway'], ['Team', '$29', '$22', '$25', '$28'], ['Business', '$79', '$69', '$75', '$89']] }] };
 
   const own = r === c.st, root = $('.afx', r), main = $('.afx-main', r), demo = $(':scope>.demo', root);
-  // Clean (owner, 18 Nov) keeps no room for the tallest moment: the variant sits centred in its stage, and a menu is centred
-  // with it in the stage's room
-  const ds = r.closest('[data-style]'), clean = !!ds && ds.dataset.style === 'clean';
   // inside another component (Agent harness puts it in a chat) the card is just the file: no chat around it, no switcher
   if (!own){ root.classList.remove('dm'); if (demo) demo.remove(); }
   let art = REPORT, opts = {}, view = 'compact', K = null, now = { ready:false, m:null };
@@ -12803,18 +12778,22 @@ DM.def('artifact-card', (r, c) => {
   const live = html('<div class="afx-live afx-sr" role="status" aria-live="polite"></div>');
   root.append(live);
   const say = msg => { live.textContent = ''; c.later(60, () => { live.textContent = msg; }); };
-  /* feedback on a button that did something: a check, a word in the tooltip or the label, then back */
+  /* feedback on a button that did something: its icon swaps for a tick, in place, and a word in the tooltip or the label
+     says what happened, then it all goes back. The button never collapses: a labelled one eases its width to its new words */
   function flash(btn, label){
     const use = $('use', btn), lb = $('.afx-lbl', btn);
     const o = btn._fl || (btn._fl = { href:use && use.getAttribute('href'), tip:btn.dataset.tip, txt:lb && lb.textContent });
     clearTimeout(o.t);
-    if (use) use.setAttribute('href', o.href.replace(/[\w-]+$/, 'check'));
-    if (lb) lb.textContent = label;
+    // the icon's id keeps its sprite's prefix (the site's are "v2i-…", an install's "i-…"): only the name changes
+    const words = t => { const w0 = btn.getBoundingClientRect().width; lb.textContent = t; const w1 = btn.getBoundingClientRect().width;
+      if (!REDUCE && Math.abs(w1 - w0) > .5) btn.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:cssMs(root, '--t'), easing:cssEase(root) }); };
+    if (use) use.setAttribute('href', o.href.replace(/i-[\w-]+$/, 'i-check'));
+    if (lb) words(label);
     btn.classList.add('copied');
     if (o.tip !== undefined){ btn.dataset.tip = label; showTip(btn); }
     o.t = setTimeout(() => {
       if (use) use.setAttribute('href', o.href);
-      if (lb) lb.textContent = o.txt;
+      if (lb) words(o.txt);
       btn.classList.remove('copied');
       if (o.tip !== undefined){ btn.dataset.tip = o.tip; if (tipFor === btn) hideTip(true); }
     }, 1600);
@@ -12829,47 +12808,39 @@ DM.def('artifact-card', (r, c) => {
     setTimeout(() => URL.revokeObjectURL(url), 5000);
     flash(btn, 'Downloaded'); say(`Downloaded ${name}`);
   }
-  /* the variant moves up as a menu opens under its button, so the two sit centred together in the card's room (above the
-     switcher, where it shows), as dropdowns do across the library. The menu opens where the button is going, so it never
-     reaches past the room on the way. Returns how far the variant still has to move. In a chat, which scrolls, it stays */
-  function glide(wrap, btn, menu){
-    if (!own) return 0;
-    const cur = new DOMMatrixReadOnly(getComputedStyle(wrap).transform).m42;
-    if (!menu){ wrap.style.transform = ''; return -cur; }
-    const w = wrap.getBoundingClientRect(), b = btn.getBoundingClientRect(), rr = root.getBoundingClientRect();
-    let top0 = rr.top, bot0 = demo && demo.offsetParent ? demo.getBoundingClientRect().top - (parseFloat(getComputedStyle(root).rowGap) || 0) : rr.bottom;
-    // Clean: the room is the stage's, inside its padding (and above the switcher, where it shows)
-    const room = clean && (root.closest('.stage-inner') || root.closest('.stage'));
-    if (room){ const sr = room.getBoundingClientRect(), cs = getComputedStyle(room); top0 = Math.min(top0, sr.top + parseFloat(cs.paddingTop)); if (!(demo && demo.offsetParent)) bot0 = Math.max(bot0, sr.bottom - parseFloat(cs.paddingBottom)); }
-    const mt = b.bottom - cur + 6, top = Math.min(w.top - cur, mt), bot = Math.max(w.bottom - cur, mt + menu.offsetHeight);
-    const d = Math.max(top0 - top, (top0 + bot0) / 2 - (top + bot) / 2), to = Math.abs(d) > .5 ? Math.round(d) : 0;
-    wrap.style.transform = to ? `translateY(${to}px)` : '';
-    return to - cur;
-  }
   /* versions: a menu button with one radio item per version, newest first. Arrow keys move, Enter picks, Esc closes */
   function vmenu(k, m, btn, wrap, o = {}){
     const id = uid(), vs = m.a.versions;
     const menu = html(`<div class="pop afx-menu" id="${id}" role="menu" aria-label="Versions of ${esc(m.a.title)}" inert><div class="ph" aria-hidden="true">Versions</div>${vs.map((v, j) => j).reverse().map(j => `<button type="button" class="mi" role="menuitemradio" tabindex="-1" data-i="${j}" aria-checked="false"><span class="afx-mb"><span>v${j + 1}<span class="afx-mw"> · ${esc(vs[j].ago)}</span></span><span class="d">${esc(vs[j].note)}</span></span>${ic('check', 's ck')}</button>`).join('')}</div>`);
-    // on the card's own stage the menu sits in the room, not in the variant, so it can open where the variant is going
+    // on the card's own stage the menu sits in the room, over the variant; in a chat it goes with the card
     const host = own ? main : wrap; host.append(menu);
     btn.setAttribute('aria-haspopup', 'menu'); btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-controls', id);
     const items = () => $$('.mi', menu);
     let open = false;
-    const place = (dy = 0) => {
+    // the menu opens over the card from its button: down when it fits below, up when it doesn't and fits above or has more
+    // room there (as placePop), within the stage's room (inside its padding, above a switcher) so it never covers the
+    // stage's own controls or gets cut off; the card itself never moves (owner, 18 Nov)
+    const place = () => {
       const hr = host.getBoundingClientRect(), wr = wrap.getBoundingClientRect(), br = btn.getBoundingClientRect(), rr = root.getBoundingClientRect(), mw = menu.offsetWidth;
       const lo = Math.max(rr.left, wr.left), hi = Math.min(rr.right, wr.right) - mw, x = Math.max(lo, Math.min(br.left - 6, hi));
-      menu.style.left = Math.round(x - hr.left) + 'px'; menu.style.top = Math.round(br.bottom + dy - hr.top + 6) + 'px';
+      const room = popRoom(btn), st = own && (root.closest('.stage-inner') || root.closest('.stage'));
+      if (st){ const sr = st.getBoundingClientRect(), cs = getComputedStyle(st); room.top = Math.max(room.top, sr.top + parseFloat(cs.paddingTop)); room.bottom = Math.min(room.bottom, sr.bottom - parseFloat(cs.paddingBottom)); }
+      if (own && demo && demo.offsetParent) room.bottom = Math.min(room.bottom, demo.getBoundingClientRect().top);
+      const need = menu.offsetHeight + 12, below = room.bottom - br.bottom, above = br.top - room.top, up = below < need && (above >= need || above > below);
+      menu.style.left = Math.round(x - hr.left) + 'px';
+      menu.style.top = Math.round(up ? br.top - hr.top - menu.offsetHeight - 6 : br.bottom - hr.top + 6) + 'px';
+      menu.style.setProperty('--origin', (up ? 'bottom' : 'top') + ' left');
     };
     // the visitor's open puts the focus on the picked version; a demo's open leaves the focus where it is
     const show = (focus = true) => {
       items().forEach(b => b.setAttribute('aria-checked', String(+b.dataset.i === m.i)));
-      open = true; hideTip(); menu.inert = false; o.onOpen && o.onOpen(); place(glide(wrap, btn, menu)); menu.classList.add('open'); btn.setAttribute('aria-expanded', 'true');
+      open = true; hideTip(); menu.inert = false; o.onOpen && o.onOpen(); place(); menu.classList.add('open'); btn.setAttribute('aria-expanded', 'true');
       if (focus) (items().find(b => b.getAttribute('aria-checked') === 'true') || items()[0]).focus({ preventScroll:true });
     };
     const hide = refocus => {
       if (!open) return; open = false; menu.classList.remove('open'); btn.setAttribute('aria-expanded', 'false');
       if (refocus) btn.focus({ preventScroll:true });
-      menu.inert = true; glide(wrap, btn, null); o.onClose && o.onClose();
+      menu.inert = true; o.onClose && o.onClose();
     };
     k.on(btn, 'click', e => { e.stopPropagation(); open ? hide(false) : show(e.isTrusted); });
     k.on(btn, 'keydown', e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); show(); } });
@@ -12911,7 +12882,8 @@ DM.def('artifact-card', (r, c) => {
       else pan.animate([{ transform:'translateY(16px)', opacity:0 }, { transform:'none', opacity:1 }], { duration:D, easing:E });
     }
     if (src) src.style.visibility = 'hidden';
-    $('.afx-x', layer).focus({ preventScroll:true });
+    // Close takes the focus, with a ring only when the reader was opened from the keyboard (a click never leaves one)
+    giveBack($('.afx-x', layer));
     let closing = false;
     const close = async () => {
       if (closing) return; closing = true; hideTip();
@@ -12922,7 +12894,7 @@ DM.def('artifact-card', (r, c) => {
       }
       if (k.dead) return;
       layer.remove(); main.inert = false; if (demo) demo.inert = false; if (src) src.style.visibility = '';
-      opener.focus({ preventScroll:true });
+      giveBack(opener);
     };
     k.on($('.afx-x', layer), 'click', close);
     k.on(scrim, 'click', close);
@@ -12991,8 +12963,7 @@ DM.def('artifact-card', (r, c) => {
     const a = art, m = model(a), W = [[96, 88, 70, 82], [92, 84, 90, 64], [90, 78, 86, 72]];
     main.innerHTML = `<div class="afx-w afx-pv"><div class="afx-pv-card afx-card is-writing">
       <div class="afx-pv-prev" aria-hidden="true"><div class="afx-pv-page">
-        <div class="afx-pv-k"><span class="afx-wr">Writing…</span><span class="afx-fin"></span></div>
-        <div class="afx-pv-h">${esc(a.title)}</div><p class="afx-pv-p"></p>
+        <p class="afx-pv-p"></p>
         <div class="afx-pv-ls"><i></i><i></i><i></i><i></i></div>
       </div></div>
       <div class="afx-pv-meta"><span class="afx-ic"><span class="spin" aria-hidden="true"></span>${ic(a.icon)}</span>
@@ -13000,11 +12971,11 @@ DM.def('artifact-card', (r, c) => {
         <div class="afx-pv-act">${acts(a, `<button type="button" class="ib afx-open" aria-label="Open ${esc(a.title)}" data-tip="Open">${ic('max')}</button>`)}</div>
       </div>
     </div></div>`;
-    const wrap = $('.afx-w', main), card = $('.afx-pv-card', main), op = $('.afx-open', card), p = $('.afx-pv-p', main), kick = $('.afx-pv-k .afx-fin', main);
+    const wrap = $('.afx-w', main), card = $('.afx-pv-card', main), op = $('.afx-open', card), p = $('.afx-pv-p', main);
     const fill = i => { $$('.afx-pv-ls i', main).forEach((e, j) => e.style.setProperty('--w', W[i % 3][j] + '%')); };
     const last = a.versions.length - 1, sum = i => a.versions[i].summary || '';
-    now.m = m; bindMeta(card, m); fill(m.i); openTip(op); kick.textContent = `${a.kind} · v${m.i + 1}`;
-    m.on(i => { swap(kick, `${a.kind} · v${i + 1}`); swap(p, sum(i)); fill(i); });
+    now.m = m; bindMeta(card, m); fill(m.i); openTip(op);
+    m.on(i => { swap(p, sum(i)); fill(i); });
     const vb = $('.afx-vb', card); if (vb) vmenu(k, m, vb, wrap);
     k.on($('.afx-copy', card), 'click', e => doCopy(e.currentTarget, m));
     k.on($('.afx-dl', card), 'click', e => doDownload(e.currentTarget, m));
@@ -13040,7 +13011,7 @@ DM.def('artifact-card', (r, c) => {
           <button type="button" class="ib afx-dl" aria-label="Download ${esc(a.title)}" data-tip="Download">${ic('down', 's')}</button>
         </span></span>
       </span>
-      ${!own ? '' : clean ? '<div class="fold shut afx-in-after"><div><p>The short version: the plan table is where people stall, and three small changes should move most of them on.</p></div></div>' : '<p>The short version: the plan table is where people stall, and three small changes should move most of them on.</p>'}
+      ${own ? '<div class="fold shut afx-in-after"><div><p>The short version: the plan table is where people stall, and three small changes should move most of them on.</p></div></div>' : ''}
     </div></div>`;
     const wrap = $('.afx-w', main), chip = $('.afx-chip', main), btn = $('.afx-in-main', main), vb = $('.afx-vb3', main);
     now.m = m; bindMeta(chip, m);
@@ -13053,7 +13024,7 @@ DM.def('artifact-card', (r, c) => {
       await k.wait(300);
       await phases(k, a, $('.afx-in-m .afx-wr', chip));
       btn.disabled = false; settle(chip, m);
-      // Clean: the words that sum the file up come once it is written
+      // the words that sum the file up come once it is written
       const after = $('.afx-in-after', main); if (after) after.classList.remove('shut');
     });
   }
@@ -13061,15 +13032,16 @@ DM.def('artifact-card', (r, c) => {
   /* stack: the report as a stack of paper. The newest page is written onto it; Versions lays the sheets out to pick one */
   function stack(k){
     const a = art, m = model(a), N = a.versions.length, top = N - 1, T = a.title;
-    // the drawn lines stand for each page's text: p a paragraph line, b a bullet, n a numbered fix, s a gap
+    // the drawn lines stand for each page's text: h its heading, p a paragraph line, b a bullet, n a numbered fix, s a gap.
+    // The page is drawn, not written out: its name and version are said once, in the caption under the stack (owner, 18 Nov)
     const LINES = [
-      [['p', 94], ['p', 72], ['s'], ['b', 82], ['b', 74], ['b', 66], ['b', 78], ['s'], ['p', 88], ['p', 52]],
-      [['p', 92], ['p', 86], ['p', 56], ['s'], ['b', 80], ['b', 72], ['b', 86], ['b', 64], ['s'], ['p', 70]],
-      [['p', 90], ['p', 78], ['s'], ['n', 84], ['n', 70], ['n', 78], ['s'], ['b', 76], ['b', 68], ['b', 82]]
+      [['h', 62], ['p', 94], ['p', 72], ['s'], ['b', 82], ['b', 74], ['b', 66], ['b', 78], ['s'], ['p', 88], ['p', 52]],
+      [['h', 56], ['p', 92], ['p', 86], ['p', 56], ['s'], ['b', 80], ['b', 72], ['b', 86], ['b', 64], ['s'], ['p', 70]],
+      [['h', 66], ['p', 90], ['p', 78], ['s'], ['n', 84], ['n', 70], ['n', 78], ['s'], ['b', 76], ['b', 68], ['b', 82]]
     ];
-    const lines = j => LINES[j === top ? 2 : j % 2].map(([t, w]) => t === 's' ? '<span class="afx-gap"></span>' : `<span class="afx-r ${t}">${t === 'p' ? '' : '<b></b>'}<i style="--w:${w}%"></i></span>`).join('');
+    const lines = j => LINES[j === top ? 2 : j % 2].map(([t, w]) => t === 's' ? '<span class="afx-gap"></span>' : `<span class="afx-r ${t}">${t === 'p' || t === 'h' ? '' : '<b></b>'}<i style="--w:${w}%"></i></span>`).join('');
     main.innerHTML = `<div class="afx-w afx-st is-writing">
-      <div class="afx-desk"><div class="afx-stack" role="menu" aria-label="Versions of ${esc(T)}" aria-hidden="true">${a.versions.map((v, j) => `<button type="button" class="afx-sh${j === top ? ' blank' : ''}" role="menuitemradio" tabindex="-1" data-i="${j}" aria-checked="${j === top}" aria-label="v${j + 1}, ${esc(v.when)}: ${esc(v.note)}"><span class="afx-pg" aria-hidden="true"><span class="afx-st-k"><span>${j === top ? 'Writing…' : 'v' + (j + 1)}</span></span><span class="afx-st-h">${j === top ? '' : esc(T)}</span><span class="afx-st-ls">${lines(j)}</span>${j === top ? '<span class="afx-pen"></span>' : ''}</span><span class="afx-tab" aria-hidden="true">${ic('check', 'xs')}<span>v${j + 1}</span><span class="afx-ta"> · ${esc(v.ago)}</span></span></button>`).join('')}</div></div>
+      <div class="afx-desk"><div class="afx-stack" role="menu" aria-label="Versions of ${esc(T)}" aria-hidden="true">${a.versions.map((v, j) => `<button type="button" class="afx-sh${j === top ? ' blank' : ''}" role="menuitemradio" tabindex="-1" data-i="${j}" aria-checked="${j === top}" aria-label="v${j + 1}, ${esc(v.when)}: ${esc(v.note)}"><span class="afx-pg" aria-hidden="true"><span class="afx-st-ls">${lines(j)}</span>${j === top ? '<span class="afx-pen"></span>' : ''}</span><span class="afx-tab" aria-hidden="true">${ic('check', 'xs')}<span>v${j + 1}</span><span class="afx-ta"> · ${esc(v.ago)}</span></span></button>`).join('')}</div></div>
       <div class="afx-cap">
         <div class="afx-st-t">${esc(T)}</div>
         <div class="afx-meta afx-st-m"><span class="afx-wr shim">${esc(a.steps[0])}</span><span class="afx-fin"></span></div>
@@ -13130,21 +13102,19 @@ DM.def('artifact-card', (r, c) => {
     k.on($('.afx-copy', main), 'click', e => doCopy(e.currentTarget, m));
     k.on($('.afx-dl', main), 'click', e => doDownload(e.currentTarget, m));
     k.on(op, 'click', () => { if (writing) return; if (fanned) setFan(false); open(k, m, wrap, { kind:'page', opener:op, src:sheets[m.i] }); });
-    // writing: a blank sheet drops onto the stack, the title is typed, and a pen draws each line of the new page
+    // writing: a blank sheet drops onto the stack, and a pen draws its heading and each line of the new page
     c.run(async () => {
-      const sh = sheets[top], pen = $('.afx-pen', sh), title = $('.afx-st-h', sh), kick = $('.afx-st-k span', sh), E = cssEase(root);
+      const sh = sheets[top], pen = $('.afx-pen', sh), E = cssEase(root);
       if (!REDUCE) sh.animate([{ transform:'translateY(-36px)', opacity:0 }, { transform:'none', opacity:1 }], { duration:cssMs(root, '--t-slow'), easing:E, composite:'add' });
       await k.wait(300);
       const w = $('.afx-st-m .afx-wr', main), st = a.steps;
       swap(w, st[0]);
-      if (REDUCE){ await k.wait(500); title.textContent = T; }
-      else for (let n = 1; n <= T.length; n++){ title.textContent = T.slice(0, n); await k.wait(40); }
-      await k.wait(REDUCE ? 0 : 250);
-      swap(w, st[1]);
+      await k.wait(REDUCE ? 500 : 400);
       const rows = $$('.afx-r', sh).filter(x => x.offsetParent);
       for (let j = 0; j < rows.length; j++){
         const x = rows[j], line = $('i', x), dot = $('b', x);
-        if (j === 3) swap(w, st[2]);
+        if (j === 1) swap(w, st[1]);
+        if (j === 4) swap(w, st[2]);
         if (REDUCE){ await k.wait(150); continue; }
         const x0 = x.offsetLeft + line.offsetLeft, x1 = x0 + line.offsetWidth, y = x.offsetTop + x.offsetHeight / 2 - 3.5, ms = 260 + line.offsetWidth * 1.4;
         if (dot) dot.animate([{ transform:'scaleX(0)' }, { transform:'none' }], { duration:120, fill:'forwards' });
@@ -13154,7 +13124,7 @@ DM.def('artifact-card', (r, c) => {
       }
       pen.getAnimations().forEach(x => x.cancel());
       $$('.afx-r :is(i,b)', sh).forEach(e => e.getAnimations().forEach(x => x.cancel()));
-      sh.classList.remove('blank'); title.textContent = T; kick.textContent = 'v' + N;
+      sh.classList.remove('blank');
       if (!REDUCE) sh.animate([{ transform:'translateY(-6px)' }, { transform:'none' }], { duration:cssMs(root, '--t'), easing:E, composite:'add' });
       writing = false; settle(el, m);
     });

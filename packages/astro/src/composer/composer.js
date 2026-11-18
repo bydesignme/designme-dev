@@ -4,19 +4,10 @@ DM.def('composer', (r, c) => {
   const icons = { clip:'clip', figma:'figma', eye:'eye', edit:'edit', list:'list', code:'code', mic:'mic', up:'up', check:'check', file:'file-text', image:'image' };
   r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) => k === 'chev' ? I('chev-d','xs') : icons[k] ? I(icons[k]) : m);
   const box = $('.cpx-box', r), ta = $('.cpx-ta', r), send = $('.cpx-bar .cpx-send', r), thread = $('.cpx-thread', r), att = $('.cpx-att', r), PH = ta.placeholder;
-  // Clean (owner, 18 Nov) keeps no room for the conversation: the thread and the box grow together (grow()), centred in the
-  // stage, once the entrance (which scales it from .98) has ended
-  const ds = r.closest('[data-style]'), cpx = $('.cpx', r);
-  if (r === c.st && cpx && ds && ds.dataset.style === 'clean'){
-    Promise.resolve().then(() => Promise.all(cpx.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && cpx.isConnected) c.offs.push(grow(cpx)); });
-    // a menu opens above the box: the composer glides down by half of what the menu reaches past its top, so the two sit
-    // centred together in the stage, and back as it shuts
-    const pops = $$('.pop', box), glide = () => { const op = pops.find(p => p.classList.contains('open'));
-      const over = op ? box.getBoundingClientRect().top - cpx.getBoundingClientRect().top + op.offsetTop : 0;
-      cpx.style.setProperty('--dm-gy', Math.max(0, Math.round(-over / 2)) + 'px'); };
-    cpx.classList.add('glide');
-    const mo = new MutationObserver(glide); pops.forEach(p => mo.observe(p, { attributes:true, attributeFilter:['class'] })); c.offs.push(() => mo.disconnect());
-  }
+  // no room is kept for the conversation (owner, 18 Nov): the thread and the box grow together (grow()), centred in the
+  // stage, once the entrance (which scales it) has ended. Its menus open over it (placePop) and it never moves for them
+  const cpx = $('.cpx', r);
+  if (r === c.st && cpx) Promise.resolve().then(() => Promise.all(cpx.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && cpx.isConnected) c.offs.push(grow(cpx)); });
   const fit = () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 160) + 'px'; };
   // send waits for text or a file, and for every file to finish loading
   const sync = () => { send.disabled = (!ta.value.trim() && !att.children.length) || !!$('.fchip.ld,.fchip.err', att); fit(); };

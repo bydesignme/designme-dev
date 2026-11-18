@@ -35,8 +35,8 @@ Agent inbox puts every agent run in one list, grouped by what it needs from you:
 ### What it does
 
 - `runs` is the list. Each run has a `title`, the `agent` running it, a `group` of `needs`, `running` or `done`, and a `detail` line, like "Waiting for your approval" or "Editing frame 3 of 6".
-- Each group shows its count, and a group with nothing in it is hidden. The line beside the title reads "2 need you", then "2 running" once nothing needs you, and "All clear · 4 done today" when every run is done.
-- `onApprove` adds a filled Approve button to the runs that need you. A run with `failed` turns red and gets a white Retry button instead, through `onRetry`; `why` adds a tooltip on its detail line.
+- Each group shows its count beside its name, and a group with nothing in it is hidden. The head has a neutral mark and the title, with no summary beside it: the counts are on the groups.
+- `onApprove` adds a filled Approve button to the runs that need you. A run with `failed` has its detail line in red and gets a white Retry button instead, through `onRetry`; `why` adds a tooltip on its detail line.
 - A running run spins and its clock counts on from its `seconds`. A finished one shows a green check, when it `ended`, and its agent.
 - Each row starts with the agent's first letter on its `color`.
 - When a run moves to another group, every row and group title glides to its new place and the moving row rides above the rest.
@@ -45,7 +45,6 @@ Agent inbox puts every agent run in one list, grouped by what it needs from you:
 
 - Each group is a labelled `section`, and its runs form a list.
 - Approve and Retry are buttons named for their run, like "Approve Publish the pricing page".
-- The line beside the title is announced politely when it changes.
 - With reduced motion the rows move without gliding.
 
 ## Usage in React
@@ -112,8 +111,7 @@ export default function AgentInboxDemo() {
 | `runs` | `InboxRun[]` |  |
 | `onApprove` (optional) | `(id: string) => void` | Adds Approve to the runs that need you and haven't failed |
 | `onRetry` (optional) | `(id: string) => void` | Adds Retry to the runs that failed |
-| `title` (optional) | `string` | Defaults to "Inbox" |
-| `status` (optional) | `string` | The line beside the title. Defaults to "2 need you", then "2 running" once nothing needs you, then "All clear · 4 done today" |
+| `title` (optional) | `string` | Defaults to "Inbox". Each group shows its own count, so the head has only its mark and title |
 | `className` (optional) | `string` |  |
 
 ## Usage in Astro
@@ -143,7 +141,7 @@ No. Pass the `seconds` a run has been going and its clock counts on by itself. P
 
 **Can I name the groups differently?**
 
-Not yet. The groups are Needs you, Running and Done; `title` and `status` change the header.
+Not yet. The groups are Needs you, Running and Done; `title` changes the header.
 
 ## Source
 
@@ -155,7 +153,7 @@ import { useEffect, useRef, useState } from 'react';
 import { cx } from '../lib/cx';
 import { useIsoLayoutEffect, useReducedMotion, useSeconds } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { avatarInk, enter, Spin, Swap, Tip } from '../lib/motion';
+import { avatarInk, enter, Spin, Swap, Tip, useGrow } from '../lib/motion';
 import '../designme.css';
 import './agent-inbox.css';
 
@@ -172,7 +170,7 @@ export interface InboxRun {
   group: InboxGroup;
   /** The line under the title: why it needs you, or what it is doing now. A finished run shows its agent instead */
   detail?: string;
-  /** Marks a run that needs you because it failed: its row turns red and offers Retry instead of Approve */
+  /** Marks a run that needs you because it failed: its detail turns red and it offers Retry instead of Approve */
   failed?: boolean;
   /** More on the failure, in a tooltip on its detail line */
   why?: string;
@@ -188,10 +186,8 @@ export interface AgentInboxProps {
   onApprove?: (id: string) => void;
   /** Adds Retry to the runs that failed */
   onRetry?: (id: string) => void;
-  /** Defaults to "Inbox" */
+  /** Defaults to "Inbox". Each group shows its own count, so the head has only its mark and title */
   title?: string;
-  /** The line beside the title. Defaults to "2 need you", then "2 running" once nothing needs you, then "All clear · 4 done today" */
-  status?: string;
   className?: string;
 }
 
@@ -200,26 +196,11 @@ const clock = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2,
 
 /** Every agent run in one list, grouped as Needs you, Running and Done, with live clocks on the running ones. Approve
     starts a run that waits for you and Retry tries a failed one again; a run that changes group glides to its place. */
-export function AgentInbox({ runs, onApprove, onRetry, title = 'Inbox', status, className }: AgentInboxProps) {
+export function AgentInbox({ runs, onApprove, onRetry, title = 'Inbox', className }: AgentInboxProps) {
   const reduce = useReducedMotion();
   const list = useRef<HTMLDivElement>(null);
-  // Clean (owner, 18 Nov): the inbox grows and shrinks with its rows, eased (as grow() on the site)
-  const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
-  const [clean, setClean] = useState(false);
-  useIsoLayoutEffect(() => { setClean(root.current?.closest('[data-style]')?.getAttribute('data-style') === 'clean'); }, []);
-  useIsoLayoutEffect(() => {
-    const el = root.current, w = inner.current;
-    if (!clean || !el || !w || typeof ResizeObserver === 'undefined') return;
-    let first = true;
-    const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
-    const fit = () => {
-      const h = Math.ceil(w.offsetHeight + box());
-      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
-      else el.style.height = h + 'px';
-    };
-    const ro = new ResizeObserver(fit); ro.observe(w); fit();
-    return () => { ro.disconnect(); el.style.height = ''; };
-  }, [clean]);
+  // the inbox grows and shrinks with its rows, eased (as grow() on the site)
+  const [root, inner] = useGrow();
   // what changes after the first render plays its entrance; what is there from the start just appears
   const ready = useRef(false);
   useEffect(() => { ready.current = true; }, []);
@@ -232,9 +213,6 @@ export function AgentInbox({ runs, onApprove, onRetry, title = 'Inbox', status, 
     return b.s + tick - b.at;
   };
   for (const id of [...base.current.keys()]) if (!runs.some(r => r.id === id && r.group === 'running')) base.current.delete(id);
-
-  const need = runs.filter(r => r.group === 'needs').length, running = runs.filter(r => r.group === 'running').length, done = runs.filter(r => r.group === 'done').length;
-  const line = status ?? (need ? `${need} need${need > 1 ? '' : 's'} you` : running ? `${running} running` : `All clear · ${done} done today`);
 
   // a run that changes group glides there: rows and group titles are measured after each move and eased from where
   // they were, the moving row rides above the rest, and a group that comes back fades in
@@ -258,12 +236,12 @@ export function AgentInbox({ runs, onApprove, onRetry, title = 'Inbox', status, 
   }, [sig]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-aib dm-panel', clean && 'dm-growing', className)}>
-      <div ref={inner} className="dm-grow" style={clean ? undefined : { display: 'contents' }}>
+    <div data-dm="" ref={root} className={cx('dm-aib dm-panel dm-growing', className)}>
+      <div ref={inner} className="dm-grow">
       <div className="dm-aib-h">
-        {/* Clean's head has a neutral mark in a tile, the column the agents' marks sit in */}
-        {clean && <span className="dm-aib-hi" aria-hidden="true"><Icon name="mail" /></span>}
-        <b>{title}</b><span aria-live="polite"><Swap className="dm-muted dm-aib-st">{line}</Swap></span>
+        {/* the head has a neutral mark in a tile, the column the agents' marks sit in; each group carries its own count */}
+        <span className="dm-aib-hi" aria-hidden="true"><Icon name="mail" /></span>
+        <b>{title}</b>
       </div>
       <div ref={list}>
         {GROUPS.map(([g, name]) => {

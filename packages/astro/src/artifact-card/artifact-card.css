@@ -4,10 +4,10 @@
    of its versions. Each plays its writing state, then opens, copies, downloads and switches versions the same way */
 /* the reader opens over the card's nearest positioned ancestor: on this page the stage, in an app its chat column */
 .afx{--dm-afx-t2:var(--dm-muted)}
-/* the variants share one room, as tall as the tallest moment (the compact card with its versions open), so switching
-   never moves what is below and an open menu still sits centred */
-.afx.dm>.afx-main{position:relative;min-height:452px;justify-content:center}
-@container (max-width:400px){.afx.dm>.afx-main{min-height:474px}}
+/* the variants keep no room for their tallest moment (owner, 18 Nov): each sits centred in the stage, and stays where it
+   is as a version menu opens over it, down from its button or up when there is no room below (the visitor's clicks never
+   move it) */
+.afx.dm>.afx-main{position:relative;justify-content:center}
 /* secondary text: the core's grey in light mode; in dark mode a lighter grey, because the core's reaches 4.5:1 there but
    not APCA Lc 60, which small text needs */
 :root[data-theme="dark"] .afx{--dm-afx-t2:#c0c0c0}
@@ -47,19 +47,26 @@
 .afx-card .afx-open{transform:none!important}
 .afx-card :is(.afx-copy,.afx-dl,.afx-vb){position:relative;z-index:1}
 .afx .copied .afx-lbl{color:var(--dm-fg)}
-/* the opened file: a reader over the stage, the stage fading back behind it */
-.afx-sheet{position:absolute;inset:0;z-index:20;border-radius:inherit;overflow:hidden}
-.afx-scrim{position:absolute;inset:0;background:color-mix(in srgb,var(--dm-stage) 78%,transparent)}
+/* a button that did its job swaps its icon for a tick in the vivid mark green for a moment, in place, at the same size */
+.afx .ib.copied{color:var(--dm-ok-mark)!important}
+@media (hover:hover) and (pointer:fine){.afx .ib.copied:hover{color:var(--dm-ok-mark)!important}}
+/* the opened file: a reader over the stage, the stage fading back behind it. Nothing clips it (owner, 18 Nov): its shadow
+   shows whole, and the fade reaches past the cards behind it so none of their shadows is sliced at its edge */
+.afx-sheet{position:absolute;inset:0;z-index:20;border-radius:inherit}
+.afx-scrim{position:absolute;inset:0 -40px -24px;background:color-mix(in srgb,var(--dm-stage) 78%,transparent)}
 .afx-pan{position:absolute;display:flex;flex-direction:column;background:var(--dm-surface);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow-pop);overflow:hidden;outline:none}
-/* a view fills the stage; a page is narrower and grows out of the preview or sheet it came from */
-.afx-pan.afx-view{inset:0}
-.afx-pan.afx-page{inset:0;margin:auto;width:min(400px,100%);transform-origin:0 0}
-.afx-ph{display:flex;align-items:center;gap:10px;padding:10px var(--dm-s-2) 10px 14px;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+/* the reader is as tall as the file (it scrolls past the room it has), centred in it; a view is as wide as the room, a
+   page narrower, growing out of the preview or sheet it came from */
+.afx-pan.afx-view{inset:0;margin:auto 0;height:fit-content;max-height:100%}
+.afx-pan.afx-page{inset:0;margin:auto;width:min(400px,100%);height:fit-content;max-height:100%;transform-origin:0 0}
+.afx-ph{display:flex;align-items:center;gap:10px;padding:10px 9px 10px 16px;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+/* Close sits on the title's first line, its glyph on the content's right edge, 16px in */
+.afx-ph .afx-x{align-self:flex-start;margin-top:calc(10.5px - 15px)}
 .afx-ph .afx-ic{width:30px;height:30px;border-radius:var(--dm-r-sm)}
 .afx-ptx{flex:1;min-width:0}
 .afx-pt{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .afx-pm{font-size:12.5px;color:var(--dm-afx-t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.afx-pb{flex:1;min-height:0;overflow:auto;padding:14px 18px 18px;font-size:13.5px;line-height:1.6;outline:none}
+.afx-pb{flex:1;min-height:0;overflow:auto;padding:14px 16px 18px;font-size:13.5px;line-height:1.6;outline:none}
 .afx-pb:focus-visible{box-shadow:inset 0 0 0 2px var(--dm-focus)}
 .afx-pb h3{margin:var(--dm-s-4) 0 var(--dm-s-1);font-size:12.5px;font-weight:500;color:var(--dm-afx-t2)}
 .afx-pb p{margin:0}
@@ -71,15 +78,18 @@
 .afx-tb thead th{font-size:12.5px;color:var(--dm-afx-t2);font-weight:500}
 .afx-tb .num{text-align:right}
 .afx-tb tbody th{font-weight:500}
-.afx-pf{display:flex;align-items:center;gap:6px;padding:10px 14px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.afx-pf .pill .afx-lbl{min-width:58px;text-align:left}
+.afx-pf{display:flex;align-items:center;gap:6px;padding:10px 16px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+/* Copy and Download are each as wide as their words: pressed, the tick and "Copied" come in and the width eases to fit, with
+   no room kept for the longer word */
+.afx-pf .pill{overflow:hidden;white-space:nowrap}
 .afx-pf .pill.copied{color:var(--dm-fg)!important}
-.afx-pf .pill.copied .i{color:var(--dm-ok)}
+.afx-pf .pill.copied .i{color:var(--dm-ok-mark)}
 /* compact: an icon, the name, one line of meta and Open, dense enough to stack several in a thread */
 .afx-cp{max-width:440px;display:flex;flex-direction:column;gap:14px}
 .afx-cp-a{margin:0;font-size:14px;line-height:1.6;text-wrap:pretty}
 .afx-cp-list{display:flex;flex-direction:column;gap:var(--dm-s-2)}
-.afx-cp-card{display:flex;align-items:center;gap:var(--dm-s-3);padding:10px var(--dm-s-2) 10px 10px;border-radius:var(--dm-r-in);background:var(--dm-surface);box-shadow:var(--dm-shadow);transition:background var(--dm-t-fast),box-shadow var(--dm-t-fast);overflow:hidden}
+/* its content 16px from every edge: the mark on the left, Open ending on the right (owner, 18 Nov) */
+.afx-cp-card{display:flex;align-items:center;gap:var(--dm-s-3);padding:16px;border-radius:var(--dm-r-in);background:var(--dm-surface);box-shadow:var(--dm-shadow);transition:background var(--dm-t-fast),box-shadow var(--dm-t-fast);overflow:hidden}
 @media (hover:hover) and (pointer:fine){.afx-cp-card:not(.is-writing):hover{background:var(--dm-wash)}}
 @media (hover:hover) and (pointer:fine){:root:not([data-style="soft"],[data-style="clean"]) .afx-cp-card:not(.is-writing):hover:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent)}}
 .afx-cp-tx{flex:1;min-width:0}
@@ -92,7 +102,7 @@
 .afx-cp-bar{position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--dm-accent-mark);transform-origin:left center;transform:scaleX(0);opacity:0;transition:transform .9s var(--dm-ease),opacity .3s var(--dm-ease)}
 .is-writing .afx-cp-bar{opacity:1}
 /* in a narrow column the meta drops the word "edited" before it truncates, and Open keeps only its icon */
-@container (max-width:400px){.afx-ed{display:none}.afx-fin{gap:var(--dm-s-1)}.afx-card .afx-ic{width:32px;height:32px;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)))}.afx-card :is(.afx-copy,.afx-dl,.ib.afx-open){width:28px;height:28px}.afx-cp-act,.afx-pv-act{gap:0}.afx-cp-card{padding-right:6px;gap:10px}.afx-pv-meta{gap:10px;padding-right:6px}.afx-pv-meta .afx-ic{display:none}.afx-cp-act .pill .afx-lbl{display:none}.afx-cp-act .pill{width:28px;height:28px;padding:0;margin-left:2px}}
+@container (max-width:400px){.afx-ed{display:none}.afx-fin{gap:var(--dm-s-1)}.afx-card .afx-ic{width:32px;height:32px;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)))}.afx-card :is(.afx-copy,.afx-dl,.ib.afx-open){width:28px;height:28px}.afx-cp-act,.afx-pv-act{gap:0}.afx-cp-card{gap:10px}.afx-pv-meta{gap:10px;padding-right:10px}.afx-pv-meta .afx-ic{display:none}.afx-cp-act .pill .afx-lbl{display:none}.afx-cp-act .pill{width:28px;height:28px;padding:0;margin-left:2px}}
 /* preview: the same card with the first page showing, so drafts are easy to tell apart */
 .afx-pv{width:min(100%,380px)}
 .afx-pv-card{border-radius:var(--dm-r-card);background:var(--dm-surface);box-shadow:var(--dm-shadow);transition:box-shadow var(--dm-t-fast)}
@@ -101,17 +111,15 @@
 .afx-pv-prev{position:relative;height:164px;overflow:hidden;padding:18px 22px 0;border-radius:var(--dm-r-card) var(--dm-r-card) 0 0;background:var(--dm-stage);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .afx-pv-page{height:100%;padding:14px var(--dm-s-4) 0;border-radius:var(--dm-r-sm) var(--dm-r-sm) 0 0;background:var(--dm-surface);box-shadow:var(--dm-shadow);transition:transform var(--dm-t) var(--dm-ease)}
 @media (hover:hover) and (pointer:fine){.afx-pv-card:not(.is-writing):hover .afx-pv-page{transform:translateY(-3px)}}
-.afx-pv-k{font-size:11px;line-height:16px;color:var(--dm-afx-t2)}
-.afx-pv-k .afx-wr,.is-writing .afx-pv-k .afx-fin{display:none}
-.is-writing .afx-pv-k .afx-wr{display:inline}
-.afx-pv-h{margin-top:2px;font-size:13px;font-weight:500;line-height:18px}
-.afx-pv-p{margin:6px 0 0;min-height:54px;font-size:11.5px;line-height:18px;color:var(--dm-fg);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+/* the page shows the file's first words, not its name and version again: those are on the meta line under it (owner, 18 Nov) */
+.afx-pv-p{margin:0;min-height:54px;font-size:11.5px;line-height:18px;color:var(--dm-fg);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .afx-caret{display:inline-block;width:1.5px;height:12px;margin-left:1px;vertical-align:-2px;background:var(--dm-accent-mark);animation:bpblink 1s steps(1,end) infinite}
 /* the drawn lines stand for the rest of the page: decoration, kept faint */
 .afx-pv-ls{display:flex;flex-direction:column;gap:var(--dm-s-2);margin-top:10px;-webkit-mask-image:linear-gradient(#000 0,transparent 44px);mask-image:linear-gradient(#000 0,transparent 44px)}
 .afx-pv-ls i{display:block;height:4px;border-radius:var(--dm-r-tiny,2px);width:var(--dm-w);background:color-mix(in srgb,var(--dm-fg) 8%,var(--dm-surface));transform-origin:left center;transition:width var(--dm-t) var(--dm-ease)}
 .is-writing .afx-pv-ls i{transform:scaleX(0)}
-.afx-pv-meta{display:flex;align-items:center;gap:var(--dm-s-3);padding:var(--dm-s-3) var(--dm-s-2) var(--dm-s-3) 14px}
+/* the name 16px in, and the last action's glyph 16px from the right edge */
+.afx-pv-meta{display:flex;align-items:center;gap:var(--dm-s-3);padding:var(--dm-s-3) 9px var(--dm-s-3) 16px}
 .afx-pv-tx{flex:1;min-width:0}
 .afx-pv-t{font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .afx-pv-act{display:flex;align-items:center;gap:2px;flex:none;transition:opacity var(--dm-t) var(--dm-ease)}
@@ -162,9 +170,11 @@
 .afx-st:not(.fan) .afx-sh[aria-checked="true"]{box-shadow:var(--dm-shadow-pop)}
 .afx-st.is-writing .afx-sh{cursor:default}
 .afx-pg{position:absolute;inset:0;display:flex;flex-direction:column;padding:var(--dm-s-3);border-radius:inherit;overflow:hidden}
-.afx-st-k{display:flex;align-items:center;justify-content:space-between;font-size:11px;line-height:14px;color:var(--dm-afx-t2)}
-.afx-st-h{min-height:32px;margin-top:var(--dm-s-1);font-size:12.5px;font-weight:500;line-height:16px;color:var(--dm-fg)}
-.afx-st-ls{display:flex;flex-direction:column;gap:7px;margin-top:10px}
+/* a sheet is a drawn page, a heading bar and its lines: the name and version are said once, in the caption under the stack
+   (owner, 18 Nov) */
+.afx-st-ls{display:flex;flex-direction:column;gap:7px}
+.afx-r.h{height:6px;margin-bottom:5px}
+.afx-r.h i{height:5px;background:color-mix(in srgb,var(--dm-fg) 45%,var(--dm-surface))}
 .afx-r{position:relative;display:flex;align-items:center;gap:5px;height:4px}
 .afx-r i{display:block;height:3px;border-radius:var(--dm-r-tiny,2px);width:var(--dm-w);background:var(--dm-ln);transform-origin:left center}
 .afx-r b{flex:none;width:4px;height:4px;border-radius:50%;background:var(--dm-ln)}
@@ -172,7 +182,7 @@
 .afx-gap{height:3px}
 .afx-st .blank .afx-r :is(i,b){transform:scaleX(0)}
 .afx-pen{position:absolute;left:0;top:0;width:7px;height:7px;border-radius:50%;background:var(--dm-accent-mark);box-shadow:0 0 0 3px var(--dm-surface);opacity:0;pointer-events:none}
-@container (max-width:360px){.afx-st-ls{gap:6px;margin-top:var(--dm-s-2)}.afx-st-ls>:nth-child(n+7){display:none}}
+@container (max-width:360px){.afx-st-ls{gap:6px}.afx-st-ls>:nth-child(n+7){display:none}}
 .afx-tab{position:absolute;left:50%;top:calc(100% + 10px);display:inline-flex;align-items:center;gap:var(--dm-s-1);transform:translateX(-50%);white-space:nowrap;font-size:11.5px;color:var(--dm-afx-t2);opacity:0;transition:opacity var(--dm-t) var(--dm-ease)}
 .afx-tab .i{display:none;color:var(--dm-accent-fg,var(--dm-accent))}
 .afx-st.fan .afx-tab{opacity:1}
@@ -184,17 +194,25 @@
 .afx-st-t{font-size:14px;font-weight:500}
 .afx-st-m{justify-content:center;max-width:100%}
 .afx-note{padding-top:2px;font-size:12.5px;color:var(--dm-fg)}
-.afx-st-act{display:flex;align-items:center;gap:var(--dm-s-1);transition:opacity var(--dm-t) var(--dm-ease)}
+/* the stack keeps no room for its buttons while the page is written: they unfold under the caption once it is done */
+.afx-st-act{display:flex;align-items:center;gap:var(--dm-s-1);max-height:32px;transition:opacity var(--dm-t) var(--dm-ease),max-height var(--dm-t) var(--dm-ease),margin var(--dm-t) var(--dm-ease)}
 .afx-st-act .pill{gap:6px}
-.afx-st.is-writing .afx-st-act{opacity:0;visibility:hidden}
+.afx-st.is-writing .afx-st-act{opacity:0;visibility:hidden;max-height:0;margin-top:-18px}
+/* the desk keeps 12px over the sheets for them to peek into on hover; at rest the older ones show 3px of it, so the stack
+   starts 9px higher and what shows sits centred in the stage */
+.afx-desk{margin-top:-9px}
+/* the words that sum the file up in a message come once it is written */
+.afx-in-after{margin-top:-10px}
+.afx-in-after p{padding-top:10px}
+/* the reader's title has no mark, so its words line up with the page's under it */
+.afx-ph .afx-ic{display:none}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink primary alone presses */
+.afx :is(.ib,.pill,.afx-vb):active,:root[data-style="clean"] .afx .ib:active,:root [data-style="clean"] .afx .ib:active,:root [data-style="clean"].afx .ib:active{transform:none}
 /* Clean (owner, 18 Nov): a file's mark is one neutral grey whatever its type (no hue per type). The compact card and the
    preview card take the card's 22px round corners with their content 16px from every edge (a quiet icon button by its
    glyph, a filled one by its edge); the preview's page sits on an off-white head. The reader's words start 16px in, under
-   its title (its header has no mark, so the two line up), and Copy and Download sit in an off-white foot strip, 16px in
-   from its sides. The variants keep no room for the tallest moment: each sits centred in the stage, and a version menu
-   glides it up so the two sit centred together. The inline chip's closing words wait until the file is written, and the
-   stack's lines are all grey, the pen alone in the accent while it writes */
-:root[data-style="clean"] .afx.dm>.afx-main,:root [data-style="clean"] .afx.dm>.afx-main,:root [data-style="clean"].afx.dm>.afx-main{min-height:0}
+   its title, and Copy and Download sit in an off-white foot strip, 16px in from its sides. The stack's lines are all grey,
+   the pen alone in the accent while it writes */
 :root[data-style="clean"] .afx-ic,:root [data-style="clean"] .afx-ic,:root [data-style="clean"].afx-ic{color:var(--dm-fg2);background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-hair)}
 :root[data-style="clean"] .afx-in-ic,:root [data-style="clean"] .afx-in-ic,:root [data-style="clean"].afx-in-ic{color:var(--dm-fg2)}
 :root[data-style="clean"] .afx-cp-card,:root [data-style="clean"] .afx-cp-card,:root [data-style="clean"].afx-cp-card{gap:12px;padding:14px 16px 13px;border-radius:var(--dm-r-card);transition:background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
@@ -205,17 +223,9 @@
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .afx-pv-card:not(.is-writing):hover,:root [data-style="clean"] .afx-pv-card:not(.is-writing):hover,:root [data-style="clean"].afx-pv-card:not(.is-writing):hover{background:var(--dm-wash);box-shadow:var(--dm-shadow)}}
 :root[data-style="clean"] .afx-pv-meta,:root [data-style="clean"] .afx-pv-meta,:root [data-style="clean"].afx-pv-meta{gap:12px;padding:14px 9px 13px 16px}
 :root[data-style="clean"] .afx-ph,:root [data-style="clean"] .afx-ph,:root [data-style="clean"].afx-ph{gap:12px;padding:16px 10px 16px 16px}
-:root[data-style="clean"] .afx-ph .afx-ic,:root [data-style="clean"] .afx-ph .afx-ic,:root [data-style="clean"].afx-ph .afx-ic{display:none}
-:root[data-style="clean"] .afx-ph .afx-x,:root [data-style="clean"] .afx-ph .afx-x,:root [data-style="clean"].afx-ph .afx-x{width:28px;height:28px;margin-right:0}
+/* the head is a strip: Close sits 8px from the card's top and right edges, a 28px circle in its 22px corner */
+:root[data-style="clean"] .afx-ph .afx-x,:root [data-style="clean"] .afx-ph .afx-x,:root [data-style="clean"].afx-ph .afx-x{width:28px;height:28px;margin:-8px -2px 0 0}
 :root[data-style="clean"] .afx-pb,:root [data-style="clean"] .afx-pb,:root [data-style="clean"].afx-pb{padding:16px}
 :root[data-style="clean"] .afx-pf,:root [data-style="clean"] .afx-pf,:root [data-style="clean"].afx-pf{gap:8px;padding:8px 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line)}
 :root[data-style="clean"] .afx-r.n b,:root [data-style="clean"] .afx-r.n b,:root [data-style="clean"].afx-r.n b{background:var(--dm-ln)}
-/* the stack keeps no room for its buttons while the page is written: they unfold under the caption once it is done */
-:root[data-style="clean"] .afx-st-act,:root [data-style="clean"] .afx-st-act,:root [data-style="clean"].afx-st-act{max-height:32px;transition:opacity var(--dm-t) var(--dm-ease),max-height var(--dm-t) var(--dm-ease),margin var(--dm-t) var(--dm-ease)}
-:root[data-style="clean"] .afx-st.is-writing .afx-st-act,:root [data-style="clean"] .afx-st.is-writing .afx-st-act,:root [data-style="clean"].afx-st.is-writing .afx-st-act{max-height:0;margin-top:-18px}
-/* the desk keeps 12px over the sheets for them to peek into on hover; at rest the older ones show 3px of it, so the stack
-   starts 9px higher and what shows sits centred in the stage */
-:root[data-style="clean"] .afx-desk,:root [data-style="clean"] .afx-desk,:root [data-style="clean"].afx-desk{margin-top:-9px}
-:root[data-style="clean"] .afx-in-after,:root [data-style="clean"] .afx-in-after,:root [data-style="clean"].afx-in-after{margin-top:-10px}
-:root[data-style="clean"] .afx-in-after p,:root [data-style="clean"] .afx-in-after p,:root [data-style="clean"].afx-in-after p{padding-top:10px}
 @container (max-width:400px){:root[data-style="clean"] .afx-cp-card,:root [data-style="clean"] .afx-cp-card,:root [data-style="clean"].afx-cp-card{gap:10px}:root[data-style="clean"] .afx-pv-meta,:root [data-style="clean"] .afx-pv-meta,:root [data-style="clean"].afx-pv-meta{gap:10px;padding-right:10px}}

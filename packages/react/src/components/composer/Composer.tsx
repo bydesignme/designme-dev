@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useSeconds } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
-import { Spin, Swap, Tip } from '../../lib/motion';
+import { Spin, Swap, Tip, useGrow } from '../../lib/motion';
 import { focusMenu, menuStep } from '../../lib/popover';
 import '../../designme.css';
 import './composer.css';
@@ -106,29 +106,14 @@ export function Composer({
   const counted = useSeconds(dictating && dictationSeconds === undefined);
 
   const box = useRef<HTMLDivElement>(null), ta = useRef<HTMLTextAreaElement>(null);
-  // Clean (owner, 18 Nov) keeps no room for the conversation: the thread and the box grow and shrink together, eased (as
-  // grow() on the site)
-  const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
-  const [clean, setClean] = useState(false);
-  useIsoLayoutEffect(() => { setClean(root.current?.closest('[data-style]')?.getAttribute('data-style') === 'clean'); }, []);
-  useIsoLayoutEffect(() => {
-    const el = root.current, w = inner.current;
-    if (!clean || !el || !w || typeof ResizeObserver === 'undefined') return;
-    let first = true;
-    const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
-    const fit = () => {
-      const h = Math.ceil(w.offsetHeight + box());
-      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
-      else el.style.height = h + 'px';
-    };
-    const ro = new ResizeObserver(fit); ro.observe(w); fit();
-    return () => { ro.disconnect(); el.style.height = ''; };
-  }, [clean]);
+  // no room is kept for the conversation (owner, 18 Nov): the thread and the box grow and shrink together, eased (as grow()
+  // on the site)
+  const [root, inner] = useGrow();
   // the text box grows with its text, up to 160px
   useIsoLayoutEffect(() => { const t = ta.current; if (!t) return; t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 160) + 'px'; }, [text, dictating]);
 
-  /* ---------- menus: open above their button, close on a click outside, Escape or a pick ---------- */
-  const [gy, setGy] = useState(0);
+  /* ---------- menus: open over the composer from their button, down when there is room and up when there isn't, and close
+     on a click outside, Escape or a pick. The composer never moves for them ---------- */
   const [pop, setPop] = useState<PopName | null>(null);
   const [place, setPlace] = useState<Partial<Record<PopName, CSSProperties>>>({});
   const triggers = useRef<Partial<Record<PopName, HTMLButtonElement | null>>>({});
@@ -148,12 +133,10 @@ export function Composer({
     const hr = host.getBoundingClientRect(), br = btn.getBoundingClientRect(), end = pop === 'mode';
     let x = end ? br.right - hr.left - el.offsetWidth : br.left - hr.left;
     x = Math.max(-hr.left + 8, Math.min(x, innerWidth - hr.left - el.offsetWidth - 8));
-    const top = br.top - hr.top - el.offsetHeight - 6;
-    setPlace(p => ({ ...p, [pop]: { left: x, top, '--dm-origin': 'bottom ' + (end ? 'right' : 'left') } as CSSProperties }));
-    // Clean: the composer glides down by half of what the menu reaches past its top, so the two sit centred together
-    const rt = root.current; if (clean && rt) setGy(Math.max(0, Math.round(-(hr.top - rt.getBoundingClientRect().top + top) / 2)));
+    const up = br.bottom + el.offsetHeight + 12 > innerHeight && br.top - el.offsetHeight > 12;
+    const top = up ? br.top - hr.top - el.offsetHeight - 6 : br.bottom - hr.top + 6;
+    setPlace(p => ({ ...p, [pop]: { left: x, top, '--dm-origin': (up ? 'bottom ' : 'top ') + (end ? 'right' : 'left') } as CSSProperties }));
   }, [pop]);
-  useIsoLayoutEffect(() => { if (!pop) setGy(0); }, [pop]);
   useEffect(() => {
     if (!pop) return;
     const click = (e: MouseEvent) => { const t = e.target as Node; if (!pops.current[pop]?.contains(t) && !triggers.current[pop]?.contains(t)) setPop(null); };
@@ -212,8 +195,8 @@ export function Composer({
   };
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-cpx', clean && 'dm-growing dm-glide', className)} style={clean ? { '--dm-gy': gy + 'px' } as CSSProperties : undefined}>
-      <div ref={inner} className="dm-grow" style={clean ? undefined : { display: 'contents' }}>
+    <div data-dm="" ref={root} className={cx('dm-cpx dm-growing', className)}>
+      <div ref={inner} className="dm-grow">
       <div className="dm-cpx-thread" aria-live="polite">{thread}</div>
       <div ref={box} className="dm-cpx-box" data-mode={dictating ? 'voice' : 'idle'}>
         <div className="dm-cpx-att">{files.map(f => (

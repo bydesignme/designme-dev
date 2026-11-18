@@ -34,19 +34,19 @@ Trace view lays one agent run out as an observability waterfall: every span, whe
 
 ### What it does
 
-- `spans` is the run as a tree: each span has a `name`, a `kind` of `agent`, `llm`, `tool` or `retrieval`, a `start` and a `duration` in seconds, its `tokens`, and `children`. An agent span without its own `tokens` adds up every span under it.
-- Each kind has its own mark and colour, and its name in a tooltip on the mark. In Clean the marks are one neutral grey, the colour stays on the bars and the key, and the head has the run's own mark in a tile, the column every span's mark is centred in. A key under the title counts the LLM calls, tool calls and retrievals that have started. Guides join each span to the one that started it.
-- Each row shows its bar on the time axis, its tokens and its latency; the header shows the run's total time. An agent span is drawn as a bracket over the time its spans take.
-- `time` streams a run in: spans that start later stay hidden, a span without a `duration` grows up to it with a light passing along its bar and a bright leading edge (in Clean, a flat bar), and a playhead marks `time` down every track. Leave it out once the run is over and the playhead fades.
+- `spans` is the run as a tree. The run itself is the head, named by `title`, so its steps are the top-level spans: each span has a `name`, a `kind` of `agent`, `llm`, `tool` or `retrieval`, a `start` and a `duration` in seconds, its `tokens`, and `children`. An agent span without its own `tokens` adds up every span under it.
+- Each kind has its own mark and colour, and its name in a tooltip on the mark. In Clean the marks are one neutral grey, and the colour stays on the bars and the key. The head has the run's own mark in a tile, the column every span's mark is centred in. A key under the title counts the LLM calls, tool calls and retrievals that have started. Guides join each span to the one that started it.
+- Each row shows its bar on the time axis, its tokens and its latency; the header shows the run's total tokens and its total time. An agent span is drawn as a bracket over the time its spans take.
+- `time` streams a run in: spans that start later stay hidden, a span without a `duration` grows up to it with a bright leading edge (in Clean, a flat bar), and a playhead marks `time` down every track. Leave it out once the run is over and the playhead fades.
 - A tool call that takes longer than `slowAfter` seconds (2 by default) turns amber and hatched and gets a slow tag, with the budget in its tooltip.
-- Pressing a span opens its details under the waterfall: a bar showing where it sat in the run, its kind, start, latency, tokens, input and output, while the other bars step back (in Clean the bars stay as they are, the open span's row takes a grey fill and the details are an off-white strip at the card's foot). Pressing it again, the close button or Escape shuts them.
+- Pressing a span opens its details at the card's foot, under the waterfall: a bar showing where it sat in the run, its kind, start, latency, tokens, input and output. The open span's row takes a grey fill and the other bars stay as they are (in Clean the details are an off-white strip). Pressing it again, the close button or Escape shuts them.
 - On a narrow card the names keep their room: the tokens column, the slow tag and the guides give way, the amber bar and time still mark a slow span, and every span's tokens stay in its details.
 
 ### Accessibility
 
 - Each span is a button in a labelled group, named with its name, kind, latency and tokens, and whether it is still running or slow.
 - Each span says whether its details are open, and the details are a labelled region.
-- The key is a labelled list, so the counts by kind are read out too. The guides, the playhead, the bar in the details and Clean's head mark are decoration and hidden from screen readers.
+- The key is a labelled list, so the counts by kind are read out too. The guides, the playhead, the bar in the details and the head's mark are decoration and hidden from screen readers.
 - The arrow keys, Home and End move between spans, and Escape closes the details and puts focus back on the span.
 - The line under the title is announced politely when it changes.
 - With reduced motion nothing slides, fades or shimmers; the bars, the playhead and the numbers still update.
@@ -67,15 +67,15 @@ import { TraceView, type TraceSpan } from './TraceView';
 import { useStory } from '../lib/useScript';
 
 /* ---------- Trace view: the run streams in, the page fetch runs long and turns amber, and the person opens it ---------- */
+// the run itself is the head (its name, total tokens and time), so its steps are the top-level spans
 type Flat = Omit<TraceSpan, 'children'> & { duration: number; parent?: string };
 const RUN: Flat[] = [
-  { id: 'run', kind: 'agent', name: 'Pricing research', start: 0, duration: 4.82, input: "Compare Northwind's plans with ours", output: '3 prices saved to Pricing research' },
-  { id: 'plan', parent: 'run', kind: 'llm', name: 'Plan the steps', start: .04, duration: .62, tokens: 1240, input: 'The task and 2 earlier messages', output: 'Search notes, fetch the page, summarise' },
-  { id: 'notes', parent: 'run', kind: 'retrieval', name: 'Search saved notes', start: .7, duration: .38, tokens: 910, input: '"northwind pricing", top 4', output: '4 notes, best match 0.82' },
-  { id: 'fetch', parent: 'run', kind: 'tool', name: 'fetch_page', start: 1.12, duration: 2.46, tokens: 3120, input: 'GET northwind.app/pricing', output: '200 OK, 48 KB, 3 plans' },
-  { id: 'sum', parent: 'run', kind: 'agent', name: 'Summariser', start: 3.62, duration: 1.02, input: 'The page and 4 notes', output: 'A 120-word summary' },
+  { id: 'plan', kind: 'llm', name: 'Plan the steps', start: .04, duration: .62, tokens: 1240, input: 'The task and 2 earlier messages', output: 'Search notes, fetch the page, summarise' },
+  { id: 'notes', kind: 'retrieval', name: 'Search saved notes', start: .7, duration: .38, tokens: 910, input: '"northwind pricing", top 4', output: '4 notes, best match 0.82' },
+  { id: 'fetch', kind: 'tool', name: 'fetch_page', start: 1.12, duration: 2.46, tokens: 3120, input: 'GET northwind.app/pricing', output: '200 OK, 48 KB, 3 plans' },
+  { id: 'sum', kind: 'agent', name: 'Summariser', start: 3.62, duration: 1.02, input: 'The page and 4 notes', output: 'A 120-word summary' },
   { id: 'write', parent: 'sum', kind: 'llm', name: 'Write the summary', start: 3.66, duration: .94, tokens: 2380, input: 'Page text and notes, 2,050 tokens', output: '120 words, 3 prices' },
-  { id: 'ans', parent: 'run', kind: 'llm', name: 'Final answer', start: 4.66, duration: .16, tokens: 560, input: 'The summary', output: '3 prices saved to Pricing research' }
+  { id: 'ans', kind: 'llm', name: 'Final answer', start: 4.66, duration: .16, tokens: 560, input: 'The summary', output: '3 prices saved to Pricing research' }
 ];
 const END = 4.82, PACE = 1.5;
 
@@ -117,8 +117,8 @@ export default function TraceViewDemo() {
 
 | Prop | Type | What it does |
 | --- | --- | --- |
-| `title` | `string` | The run's name, like "Pricing research" |
-| `spans` | `TraceSpan[]` | The run's top spans, usually one root with everything nested under it |
+| `title` | `string` | The run's name, like "Pricing research". The run itself is the head, with its total tokens and time, so its spans start at the top level |
+| `spans` | `TraceSpan[]` | The run's spans: its steps at the top level, and the spans a sub-agent starts nested under it |
 | `time` (optional) | `number` | Seconds into the run while it streams in: spans that start later stay hidden, and running ones reach this far. Leave it out once the run is over |
 | `axis` (optional) | `number` | Seconds the time axis covers. Defaults to the run's length, rounded up to a whole second |
 | `slowAfter` (optional) | `number` | A tool call that takes longer than this many seconds turns amber and is tagged slow. Defaults to 2 |
@@ -163,11 +163,11 @@ Not as it is. They open under the waterfall, so the card stays narrow enough to 
 
 ```tsx
 'use client';
-import { useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
+import { useRef, type CSSProperties, type KeyboardEvent } from 'react';
 import { cx } from '../lib/cx';
-import { useControllable, useIsoLayoutEffect } from '../lib/hooks';
+import { useControllable } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
-import { enter, Fold, Swap, Tip } from '../lib/motion';
+import { enter, Fold, Swap, Tip, useGrow } from '../lib/motion';
 import '../designme.css';
 import './trace-view.css';
 
@@ -191,9 +191,10 @@ export interface TraceSpan {
 }
 
 export interface TraceViewProps {
-  /** The run's name, like "Pricing research" */
+  /** The run's name, like "Pricing research". The run itself is the head, with its total tokens and time, so its spans
+      start at the top level */
   title: string;
-  /** The run's top spans, usually one root with everything nested under it */
+  /** The run's spans: its steps at the top level, and the spans a sub-agent starts nested under it */
   spans: TraceSpan[];
   /** Seconds into the run while it streams in: spans that start later stay hidden, and running ones reach this far.
       Leave it out once the run is over */
@@ -220,31 +221,17 @@ const tokensOf = (s: TraceSpan): number => s.tokens ?? (s.children ?? []).reduce
 
 type Row = { s: TraceSpan; lv: number; up?: Row };
 
-/** One agent run as an observability waterfall: every span (LLM call, tool call, retrieval, sub-agent) on a shared time
-    axis, nested under the span that started it with a tree's guides, with its tokens and latency. Each kind has its colour
-    and a count in the key; while the run streams a playhead marks now and running bars glow at their leading edge. A slow
-    tool call turns amber and hatched, and any span opens to show where it sat in the run, its input, output, latency and tokens. */
+/** One agent run as an observability waterfall: the run's name, total tokens and time in the head, and every span (LLM
+    call, tool call, retrieval, sub-agent) on a shared time axis, nested under the span that started it with a tree's guides,
+    with its tokens and latency. Each kind has its colour and a count in the key; while the run streams a playhead marks now.
+    A slow tool call turns amber and hatched, and any span opens to show where it sat in the run, its input, output, latency
+    and tokens. */
 export function TraceView({ title, spans, time, axis, slowAfter = 2, status, selected, defaultSelected = null, onSelectedChange, className }: TraceViewProps) {
   const [open, setOpen] = useControllable(selected, defaultSelected, onSelectedChange);
   const rows = useRef<HTMLDivElement>(null);
-  // Clean (owner, 18 Nov) keeps no room for spans still to come: the card grows and shrinks with what it holds, eased, as
-  // each span starts and the details open and shut (as grow() on the site)
-  const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
-  const [clean, setClean] = useState(false);
-  useIsoLayoutEffect(() => { setClean(root.current?.closest('[data-style]')?.getAttribute('data-style') === 'clean'); }, []);
-  useIsoLayoutEffect(() => {
-    const el = root.current, w = inner.current;
-    if (!clean || !el || !w || typeof ResizeObserver === 'undefined') return;
-    let first = true;
-    const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
-    const fit = () => {
-      const h = Math.ceil(w.offsetHeight + box());
-      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
-      else el.style.height = h + 'px';
-    };
-    const ro = new ResizeObserver(fit); ro.observe(w); fit();
-    return () => { ro.disconnect(); el.style.height = ''; };
-  }, [clean]);
+  // the card keeps no room for spans still to come (owner, 18 Nov): it grows and shrinks with what it holds, eased, as each
+  // span starts and the details open and shut (as grow() on the site)
+  const [root, inner] = useGrow();
   const all: Row[] = [];
   (function walk(list: TraceSpan[], lv: number, up?: Row) { list.forEach(s => { const row = { s, lv, up }; all.push(row); if (s.children) walk(s.children, lv + 1, row); }); })(spans, 0);
   const end = Math.max(0, ...all.map(({ s }) => s.start + (s.duration ?? Math.max(0, (time ?? s.start) - s.start))));
@@ -267,6 +254,9 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
   const slow = (s: TraceSpan) => s.kind === 'tool' && took(s) > slowAfter;
   const nSlow = shown.filter(({ s }) => slow(s)).length;
   const live = shown.some(({ s }) => running(s));
+  // the run's total tokens, of the spans that have started (an agent span with its own count stands for those under it)
+  const spent = (s: TraceSpan): number => s.start > now ? 0 : s.tokens ?? (s.children ?? []).reduce((a, k) => a + spent(k), 0);
+  const total = spans.reduce((a, s) => a + spent(s), 0);
   const line = status ?? (live ? `Running · ${shown.length} span${shown.length === 1 ? '' : 's'}` : `Done · ${shown.length} spans${nSlow ? `, ${nSlow} slow` : ''}`);
   // a label every other tick, and a faint line on every tick
   const tick = span <= 6 ? 1 : span <= 15 ? 2 : span <= 30 ? 5 : 10;
@@ -291,13 +281,14 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
   };
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-trv dm-panel', clean && 'dm-growing', live && time !== undefined && time > 0 && 'dm-live', className)} style={{ '--dm-now': Math.min(end, now) / span } as CSSProperties}
+    <div data-dm="" ref={root} className={cx('dm-trv dm-panel dm-growing', live && time !== undefined && time > 0 && 'dm-live', className)} style={{ '--dm-now': Math.min(end, now) / span } as CSSProperties}
       onKeyDown={e => { if (e.key === 'Escape' && open) close(true); }}>
-      <div ref={inner} className="dm-grow" style={clean ? undefined : { display: 'contents' }}>
+      <div ref={inner} className="dm-grow">
       <div className="dm-trv-h">
-        {/* Clean's head has the run's mark in a tile, the column every span's mark is centred in */}
-        {clean && <span className="dm-trv-hi" aria-hidden="true"><Icon name="cpu" /></span>}
+        {/* the head has the run's mark in a tile, the column every span's mark is centred in, and its total tokens beside its time */}
+        <span className="dm-trv-hi" aria-hidden="true"><Icon name="cpu" /></span>
         <div className="dm-trv-ht"><b>{title}</b><span className="dm-muted dm-trv-st" aria-live="polite"><Swap>{line}</Swap></span></div>
+        <span className="dm-trv-tt dm-muted dm-num">{short(total)} tokens</span>
         <span className="dm-trv-tot dm-num">{sec(Math.min(end, now))}</span>
       </div>
       <div className="dm-trv-lg" role="list" aria-label="Spans by kind">
@@ -309,13 +300,13 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
         <span className="dm-trv-sc">{labels.map(v => <span key={v} style={{ left: `${(v / span) * 100}%` }}>{v}s</span>)}</span>
         <span className="dm-trv-tk">Tokens</span><span className="dm-trv-ms">Time</span>
       </div>
-      <div ref={rows} className={cx('dm-trv-rows', sel && 'dm-sel')} style={{ '--dm-n': all.length } as CSSProperties} role="group" aria-label="Spans" onKeyDown={onKey}>
+      <div ref={rows} className={cx('dm-trv-rows', sel && 'dm-sel')} role="group" aria-label="Spans" onKeyDown={onKey}>
         {shown.map(row => {
           const { s, lv } = row;
           const [kind, icon, col] = KIND[s.kind], w = took(s), tk = tokensOf(s), run = running(s), sl = slow(s);
           const why = `Over the ${slowAfter}s budget for a tool call`;
           return (
-            <button key={s.id} type="button" data-id={s.id} data-k={s.kind} className={cx('dm-trv-r dm-enter', !lv && 'dm-root', run && 'dm-run', sl && 'dm-slow')}
+            <button key={s.id} type="button" data-id={s.id} data-k={s.kind} className={cx('dm-trv-r dm-enter', run && 'dm-run', sl && 'dm-slow')}
               style={{ '--dm-k': col, '--dm-lv': lv } as CSSProperties} aria-expanded={open === s.id}
               aria-label={`${s.name}, ${kind}, ${run ? 'running, ' : ''}${sec(w)}, ${Math.round(tk).toLocaleString('en-US')} tokens${sl ? ', slow' : ''}`}
               onClick={() => setOpen(open === s.id ? null : s.id)}>

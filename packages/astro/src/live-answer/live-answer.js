@@ -2,12 +2,13 @@
 import { $, $$, DM, I, copied, enter, grow, html, stagger } from '../core/core.js';
 DM.def('live-answer', (r, c) => {
   const A = $('.lva-a', r);
-  // Clean (owner, 18 Nov) keeps no room for the answer: the turn grows as it streams in (grow()), centred in its stage
-  // (in a chat around it, like the Agent harness, the chat lays it out)
-  const ds = r.closest('[data-style]'), lva = $('.lva', r) || r;
-  if (r === c.st && ds && ds.dataset.style === 'clean') Promise.resolve().then(() => Promise.all(lva.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && lva.isConnected) c.offs.push(grow(lva)); });
+  // no room is kept for the answer (owner, 18 Nov): the turn grows as it streams in (grow()), centred in its stage (in a
+  // chat around it, like the Agent harness, the chat lays it out)
+  const lva = $('.lva', r) || r;
+  if (r === c.st) Promise.resolve().then(() => Promise.all(lva.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && lva.isConnected) c.offs.push(grow(lva)); });
   const srcs = { 1:'Funnel data, last 30 days', 2:'Session notes from 8 interviews', 3:'Onboarding.fig, step 2' };
-  const S = [[1,'F','#7a5af8','Funnel data','Amplitude, last 30 days'],[2,'N','#0ea5a4','Session notes','Notion, 8 interviews'],[3,'S','#f97316','Onboarding.fig','Figma, step 2']];
+  // each source's badge on a vivid fill of its own (owner, 18 Nov: saturated, clearly different hues), white letters on each
+  const S = [[1,'F','var(--dm-av-l)','Funnel data','Amplitude, last 30 days'],[2,'N','var(--dm-av-b)','Session notes','Notion, 8 interviews'],[3,'S','var(--dm-av-r)','Onboarding.fig','Figma, step 2']];
   const T = {
     '': 'Most people leave at the workspace step [1]. It asks for a team name before anyone has made anything, and five of eight people in interviews paused there [2]. Moving it after the first project, and filling the name from the email domain, should help [3].',
     'Show the drop-off by device': 'On mobile the workspace step loses 41% [1], on desktop 23% [1]. Most of the mobile drop comes from the keyboard covering the Continue button [3].',
@@ -32,7 +33,7 @@ DM.def('live-answer', (r, c) => {
       else p.insertAdjacentHTML('beforeend', `<span class="w">${tok} </span>`);
       await c.wait(55 + Math.random() * 45);
     }
-    const src = html(`<div class="lva-src"><span class="lva-acts"><button class="ib" aria-label="Copy" data-tip="Copy">${I('copy')}</button><button class="ib" aria-label="Good answer" data-tip="Good answer">${I('up-thumb')}</button><button class="ib" aria-label="Bad answer" data-tip="Bad answer">${I('down-thumb')}</button><button class="ib" aria-label="Try again" data-tip="Try again">${I('refresh')}</button></span><button class="lva-sb" aria-expanded="false"><span class="lva-fav">${S.map(x => `<span style="background-color:${x[2]}">${x[1]}</span>`).join('')}</span>3 sources${I('chev-d','xs')}</button></div>`);
+    const src = html(`<div class="lva-src"><span class="lva-acts"><button class="ib" aria-label="Copy" data-tip="Copy">${I('copy')}</button><button class="ib" aria-label="Good answer" data-tip="Good answer">${I('up-thumb')}</button><button class="ib" aria-label="Bad answer" data-tip="Bad answer">${I('down-thumb')}</button><button class="ib" aria-label="Try again" data-tip="Try again">${I('refresh')}</button></span><button class="lva-sb" aria-expanded="false"><span class="lva-fav">${S.map(x => `<span class="vivid" style="background-color:${x[2]}">${x[1]}</span>`).join('')}</span>3 sources${I('chev-d','xs')}</button></div>`);
     const ls = html(`<div class="fold shut lva-ls"><div><div class="lva-ll">${S.map(x => `<button class="lva-s" data-n="${x[0]}"><span class="n">${x[0]}</span><span class="t">${x[3]}</span><span class="d">${x[4]}</span>${I('ext','xs')}</button>`).join('')}</div></div></div>`);
     turn.appendChild(src); turn.appendChild(ls); enter(src);
     const sb = $('.lva-sb', src), open = o => { ls.classList.toggle('shut', !o); sb.setAttribute('aria-expanded', o); };
