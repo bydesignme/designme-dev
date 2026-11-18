@@ -466,12 +466,26 @@ const needDefs = id => Promise.all(partsOf(id).map(loadPart));
 /* ---------- card heights: each card keeps the tallest height its component reaches, measured by measure-heights.js, so
    nothing below it moves as the component starts and plays. Unlayered, so it outranks the site's own minimums ---------- */
 const HEIGHTS = fs.existsSync(path.join(__dirname, 'card-heights.json')) ? JSON.parse(fs.readFileSync(path.join(__dirname, 'card-heights.json'), 'utf8')) : null;
+// a component that changes height without easing it (no grow()) would jump to its new centre; it glides there instead,
+// from where its top was, so it reads as growing in place and settling into the middle
+const GLIDE = `
+<script id="card-glide">
+(() => { if (!('ResizeObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const ro = new ResizeObserver(es => es.forEach(e => { const el = e.target, h = el.offsetHeight, was = el._gh; el._gh = h;
+    if (was === undefined || Math.abs(h - was) < 2 || el.querySelector('.growing')) return;
+    el.animate([{ transform:'translateY(' + (h - was) / 2 + 'px)' }, { transform:'none' }], { duration:440, easing:'cubic-bezier(.23,1,.32,1)', composite:'add' }); }));
+  const watch = () => document.querySelectorAll('.v2-host>.v2.stage-in').forEach(el => { if (!el._gw){ el._gw = 1; ro.observe(el); } });
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watch); else watch(); })();
+</script>`;
 const HEIGHTS_CSS = !HEIGHTS ? '' : '\n<style id="card-heights">\n' + HEIGHTS.bands.map(([b, w], i) => {
   // Soft's height for the component, and Blueprint's and Clean's where they were measured on their own
-  const rule = `:is(.lib-sec,.launch) .comp>.stage{min-height:var(--rh-${b},420px)}:is(.lib-sec,.launch) .comp>.stage .v2.stage-in{min-height:var(--rc-${b},0px)}:root${BP_ROOT} :is(.lib-sec,.launch) .comp>.stage .v2.stage-in{min-height:var(--rcb-${b},var(--rc-${b},0px))}:root${CLEAN} :is(.lib-sec,.launch) .comp>.stage .v2.stage-in{min-height:var(--rcc-${b},var(--rc-${b},0px))}`;
+  // the card keeps the stage's tallest height so nothing below it moves, and the component sits centred in it at every
+  // moment, growing up and down from the middle (owner, 18 Nov); it no longer keeps its own tallest height inside
+  const rule = `:is(.lib-sec,.launch) .comp>.stage{min-height:var(--rh-${b},420px)}`;
   return i ? `@media (max-width:${HEIGHTS.bands[i - 1][1] - 1}px){${rule}}` : rule;
-}).join('\n') + '\n</style>';
-// the card's stage keeps its tallest height, and inside it the component keeps its own, so it grows downwards as it plays
+}).join('\n') + '\n</style>' + GLIDE;
+// the card's stage keeps its tallest height (--rh); the component's own measured heights (--rc, --rcb, --rcc) are kept
+// for measure-heights.js, but no longer reserve room, so the component stays centred as it grows
 const heightsOf = id => !HEIGHTS || !HEIGHTS.heights[id] ? '' : ` style="${HEIGHTS.bands.map(([b], i) => `--rh-${b}:${HEIGHTS.heights[id][i]}px` + (HEIGHTS.components ? `;--rc-${b}:${HEIGHTS.components[id][i]}px` : '') + (HEIGHTS.componentsBp && HEIGHTS.componentsBp[id] ? `;--rcb-${b}:${HEIGHTS.componentsBp[id][i]}px` : '') + (HEIGHTS.componentsClean && HEIGHTS.componentsClean[id] ? `;--rcc-${b}:${HEIGHTS.componentsClean[id][i]}px` : '')).join(';')}"`;
 
 /* ---------- site: keep the site's own CSS below the components' ---------- */

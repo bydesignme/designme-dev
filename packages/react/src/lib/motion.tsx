@@ -279,7 +279,7 @@ export function useGrow<T extends HTMLElement = HTMLDivElement>() {
     let first = true;
     const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
     const fit = () => {
-      const h = Math.ceil(w.getBoundingClientRect().height + box());
+      const h = Math.ceil(w.offsetHeight + box());
       if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
       else el.style.height = h + 'px';
     };
