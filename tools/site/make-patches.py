@@ -1640,5 +1640,11 @@ body.ui .launch.filtered-out,body.ui .launch:not(:has(.comp)){display:none}
 .launch:has(.comp) + .lib-sec .sec-head{padding-top:44px}
 """
 
+CSS += """
+/* a section file that didn't load: a quiet note with a retry, never an empty stage (build.js writes the note) */
+.dm-lf{display:flex;flex-direction:column;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
+.dm-lf button{font:inherit;font-weight:500;color:var(--fg);background:var(--surface,#fff);border:1px solid color-mix(in srgb,var(--line) 50%,transparent);border-radius:8px;padding:6px 12px;cursor:pointer}
+"""
+
 json.dump({ 'patches': P, 'css': CSS },open(os.path.join(HERE, 'site-patches.json'), 'w'), indent=1)
 print(len(P), 'patches')
