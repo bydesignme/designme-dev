@@ -185,7 +185,9 @@ function previewScript({ out = '' } = {}){
       t.focus({ preventScroll:true });
     }
   };
-  try { if (localStorage.getItem('dmui-style') === 'mine') apply(true); } catch(e){}
+  // Your theme is off the style switch for now (owner, 18 Nov): a visitor who had picked it gets Soft, and the pasted theme
+  // stays stored, unused, for when it comes back
+  try { if (localStorage.getItem('dmui-style') === 'mine') localStorage.setItem('dmui-style', 'soft'); } catch(e){}
 })();`;
 }
 module.exports.previewScript = previewScript;

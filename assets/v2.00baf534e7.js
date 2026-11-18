@@ -312,8 +312,9 @@ function carousel(c, tr, o = {}){
    names where it starts, so it ends on whatever the element's own styles say, and leaves nothing behind */
 const REVEAL = {
   soft:{ root:[{ opacity:0, transform:'translateY(14px)' }], rootMs:820, part:[{ opacity:0, filter:'blur(6px)', transform:'translateY(8px)' }], partMs:760, first:110, step:65, max:620, ease:'cubic-bezier(.16,1,.3,1)' },
-  // Clean: the card fades and rises 8px from .98 over 520ms, then its pieces follow 40ms apart, each rising 6px (owner, 17 Nov)
-  clean:{ root:[{ opacity:0, transform:'translateY(8px) scale(.98)' }], rootMs:520, part:[{ opacity:0, transform:'translateY(6px)' }], partMs:440, first:120, step:40, max:440, ease:'cubic-bezier(.23,1,.32,1)' },
+  // Clean: the card fades and rises 8px from .98 over 680ms, then its pieces follow 50ms apart, each rising 6px (owner, 17 Nov;
+  // calmer on 18 Nov)
+  clean:{ root:[{ opacity:0, transform:'translateY(8px) scale(.98)' }], rootMs:680, part:[{ opacity:0, transform:'translateY(6px)' }], partMs:560, first:140, step:50, max:520, ease:'cubic-bezier(.23,1,.32,1)' },
   bp:{ root:[{ opacity:0, clipPath:'inset(0 0 100% 0)' }, { opacity:1, clipPath:'inset(0 0 0% 0)', offset:.35 }, { clipPath:'inset(0 0 0% 0)' }], rootMs:520, part:[{ opacity:0, transform:'translateY(4px)' }], partMs:320, first:160, step:45, max:420, ease:'cubic-bezier(.65,0,.25,1)' }
 };
 function revealParts(root){
@@ -477,16 +478,34 @@ function copied(btn, text, label = 'Copied to clipboard'){
 let openPop = null;
 // closing hands the focus back to the popover's button when it was inside, so a pick or Tab never drops it on the page; while
 // it fades out it is inert, and after that hidden (CSS)
-/* how the last thing was done, with a pointer or the keyboard: focus handed back to a popover's button after a click shows
-   no ring (a mouse or a tap never shows one); after a key it does */
+/* how the last thing was done, with a pointer or the keyboard: a control pressed with a mouse or a finger, or focus handed
+   back to a popover's button after a click, shows no ring (a mouse or a tap never shows one); a key that moves or acts does.
+   A modifier on its own (Shift, Cmd, Ctrl, Alt: a screenshot shortcut, say) is not one, though the browser counts it */
 let byKey = false;
-addEventListener('keydown', e => { if (e.metaKey || e.ctrlKey || e.altKey) return; byKey = true; const a = document.activeElement; if (a && a.dataset && 'nofv' in a.dataset) delete a.dataset.nofv; }, true);
-addEventListener('pointerdown', () => { byKey = false; }, true);
+const MODS = new Set(['Shift', 'Meta', 'Control', 'Alt', 'AltGraph', 'CapsLock', 'Fn', 'OS']);
+addEventListener('keydown', e => { if (e.metaKey || e.ctrlKey || e.altKey || MODS.has(e.key)) return; byKey = true; const a = document.activeElement; if (a && a.dataset && 'nofv' in a.dataset) delete a.dataset.nofv; }, true);
+addEventListener('pointerdown', e => { byKey = false;
+  const t = e.target && e.target.closest && e.target.closest('button,a[href],summary,[tabindex],[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],label,input,select');
+  const f = t && t.tagName === 'LABEL' ? t.control : t;
+  if (f && f.dataset && !('nofv' in f.dataset)){ f.dataset.nofv = ''; f.addEventListener('blur', () => { delete f.dataset.nofv; }, { once:true }); }
+}, true);
 function giveBack(btn){ btn.focus({ preventScroll:true, focusVisible:byKey }); if (!byKey){ btn.dataset.nofv = ''; btn.addEventListener('blur', () => { delete btn.dataset.nofv; }, { once:true }); } }
 function closePops(){ if (!openPop) return; const { pop:p, btn } = openPop, back = p.contains(document.activeElement); p.classList.remove('open'); p.inert = true; btn.setAttribute('aria-expanded','false'); openPop = null; if (back && btn.isConnected) giveBack(btn); setTimeout(() => { p.inert = false; if (!p.classList.contains('open')){ p.style.left = '0px'; p.style.top = '0px'; } }, 300); }
+/* the room a popover may open into: the window, cut by any box around the component that clips what spills out of it (a
+   homepage card's stage, a component page's demo), so a menu is never cropped (owner, 18 Nov) */
+function popRoom(btn){
+  let top = 0, bottom = innerHeight;
+  for (let a = (btn.closest('.stage-in') || btn).parentElement; a && a !== document.documentElement; a = a.parentElement){
+    if (getComputedStyle(a).overflowY === 'visible') continue;
+    const r = a.getBoundingClientRect(); top = Math.max(top, r.top); bottom = Math.min(bottom, r.bottom);
+  }
+  return { top, bottom };
+}
 function placePop(btn, pop){
   const host = pop.offsetParent || pop.parentElement; const hr = host.getBoundingClientRect(), br = btn.getBoundingClientRect();
-  const up = btn.dataset.popPos === 'up' || (btn.dataset.popPos !== 'down' && br.bottom + pop.offsetHeight + 12 > innerHeight && br.top - pop.offsetHeight > 12);
+  // below when it fits there; above when it doesn't and fits above, or has more room there
+  const room = popRoom(btn), need = pop.offsetHeight + 12, below = room.bottom - br.bottom, above = br.top - room.top;
+  const up = btn.dataset.popPos === 'up' || (btn.dataset.popPos !== 'down' && below < need && (above >= need || above > below));
   let x = br.left - hr.left; if (btn.dataset.popAlign === 'end') x = br.right - hr.left - pop.offsetWidth;
   const cb = (btn.closest('.comp') || document.body).getBoundingClientRect(), lo = Math.max(0, cb.left) + 8, hi = Math.min(innerWidth, cb.right) - 8;
   x = Math.max(lo - hr.left, Math.min(x, hi - hr.left - pop.offsetWidth));
@@ -1703,7 +1722,7 @@ DM.def('agent-lanes', (r, c) => {
       a.el = html(`<div class="aln-cw-c" data-s="idle" style="--a:var(--av-${a.av});--ai:var(--av-${a.av}-ink)"><div class="aln-cw-top"><span class="aln-cw-av" aria-hidden="true">${I(a.ic)}</span><span class="aln-cw-tx"><b>${a.n}</b><span>Starts soon</span></span><span class="tag aln-cw-tag">Up next</span><span class="aln-cw-acts"><button class="ib aln-cw-hold" type="button" aria-pressed="false" aria-label="Pause ${a.n}" data-tip="Pause this agent">${I('pause','xs')}</button><button class="ib aln-cw-sb" type="button" aria-expanded="false" aria-label="Steer ${a.n}" data-tip="Steer">${I('wand','xs')}</button></span></div><div class="aln-cw-meter"><span class="aln-cw-tr" role="progressbar" aria-label="${a.n}’s steps" aria-valuemin="0" aria-valuemax="${N}" aria-valuenow="0" style="--n:${N}"><span class="aln-cw-ln"><i></i></span>${'<b></b>'.repeat(N)}</span><span class="aln-cw-num"><span><b class="aln-cw-sn">0</b> of ${N} steps</span><span class="aln-cw-tkn"><b class="aln-cw-tk">0</b> tokens</span><b class="aln-cw-cs">$0.00</b></span></div><div class="fold shut"><div><form class="aln-cw-steer"><input aria-label="A note for the ${a.n.toLowerCase()}" placeholder="Tell the ${a.n.toLowerCase()} what to change"><button class="ib" type="submit" aria-label="Send" data-tip="Send">${I('send','xs')}</button></form></div></div><div class="aln-cw-nts"></div></div>`);
       list.appendChild(a.el);
       a.tr = $('.aln-cw-tr', a.el); a.ln = $('.aln-cw-ln i', a.el); a.dots = $$('.aln-cw-tr b', a.el); a.sn = $('.aln-cw-sn', a.el); a.tkEl = $('.aln-cw-tk', a.el); a.csEl = $('.aln-cw-cs', a.el);
-      if (i < A.length - 1){ const h = H[i]; h.el = html(`<div class="aln-cw-ho"><span>${a.n}</span><span class="ln"></span><span class="tag">${I('clock','xs')}${h.what}</span><span class="ln"></span><span>${A[i + 1].n}</span></div>`); list.appendChild(h.el); }
+      // no hand-off row between the cards (owner, 18 Nov): each waiting card already says what it waits for
       const hold = $('.aln-cw-hold', a.el), sb = $('.aln-cw-sb', a.el), fold = $('.fold', a.el), form = $('.aln-cw-steer', a.el), inp = $('input', form);
       fold.inert = true;
       hold.onclick = () => { a.held = !a.held; hold.setAttribute('aria-pressed', String(a.held)); hold.innerHTML = I(a.held ? 'play' : 'pause','xs'); hold.dataset.tip = a.held ? 'Resume this agent' : 'Pause this agent'; hold.setAttribute('aria-label', (a.held ? 'Resume ' : 'Pause ') + a.n); paint(a); };
@@ -1738,7 +1757,7 @@ DM.def('agent-lanes', (r, c) => {
         const tk = Math.round(a.tk).toLocaleString('en-US'), cs = '$' + a.spent.toFixed(2);
         if (a.tkEl.textContent !== tk) a.tkEl.textContent = tk; if (a.csEl.textContent !== cs) a.csEl.textContent = cs;
       });
-      H.forEach(h => { if (!h.on && A[h.from].t >= h.at){ h.on = true; h.el.classList.add('on'); const tg = $('.tag', h.el); tg.className = 'tag ok'; tg.innerHTML = I('check','xs') + h.what; } });
+      H.forEach(h => { if (!h.on && A[h.from].t >= h.at) h.on = true; });
       const ts = '$' + spent.toFixed(2); if (tot.textContent !== ts) tot.textContent = ts;
       if (!fin && A.every(a => a.t >= ALN_END)){ fin = true; swap(tt, 'All 3 agents finished'); $('.aln-cw-ic', r).innerHTML = I('ok'); }
       if (sum){ if (!fin) ticks++; const k = alnClock(ticks / 10), n = A.reduce((m, a) => m + (a.done || 0), 0);
@@ -3445,7 +3464,11 @@ DM.def('model-picker', (r, c) => {
   // the trigger sits centred on its own, and glides up as the list folds open; it aims for the open list's own height,
   // not the one it is easing through, so the two move as one
   const mpk = $('.mpk', r), effp = $('.mpk-pop', r);
-  const centred = centre(c, mpk, () => { const shut = fold.classList.contains('shut'), sgx = sgf.classList.contains('shut') ? 0 : sgf.firstElementChild.scrollHeight;
+  // Clean: the confirmation is the card's own foot strip, not a line under it
+  if (clean) $('.mpk-p', r).appendChild(note);
+  // Clean leaves the centring to its stage, which centres it at every moment as the list folds open and the confirmation
+  // strip opens and shuts (centre() measured the homepage card before its stage was laid out and kept it 145px too high)
+  const centred = clean ? () => {} : centre(c, mpk, () => { const shut = fold.classList.contains('shut'), sgx = sgf.classList.contains('shut') ? 0 : sgf.firstElementChild.scrollHeight;
     let h = mpk.offsetHeight - fold.offsetHeight + (shut ? 0 : fold.firstElementChild.scrollHeight - sgf.offsetHeight + sgx);
     return effp.classList.contains('open') ? Math.max(h, effp.offsetTop + effp.offsetHeight) : h; }, [fold.firstElementChild, effp]);
   const open = v => { fold.classList.toggle('shut', !v); fold.inert = !v; tr.setAttribute('aria-expanded', v); centred(); };
@@ -3578,7 +3601,10 @@ DM.def('permission-gate', (r, c) => {
   const label = n => n ? `<span class="pgx-l">Allow <span class="pgx-cnt"><i>${n}</i></span> <span class="pgx-w">${word(n)}</span></span>` : 'Pick a scope';
   let shown = 0;
   const roll = (cnt, n, up) => { const old = cnt.lastElementChild, nu = document.createElement('i'); nu.textContent = n; nu.className = up ? 'iu' : 'id'; if (old){ old.className = up ? 'ou' : 'od'; setTimeout(() => old.remove(), REDUCE ? 0 : 300); } cnt.appendChild(nu); };
-  const count = () => { const n = boxes().filter(b => b.checked).length; ok.disabled = !n;
+  // Clean asks again for its one scope as a plain row (nothing to tick), and its button just says Allow
+  const one = () => clean && $('.pgx-o.one', sc);
+  const count = () => { if (one()){ ok.disabled = false; shown = 0; return swap(ok, 'Allow'); }
+    const n = boxes().filter(b => b.checked).length; ok.disabled = !n;
     if (!clean) return swap(ok, n ? 'Allow ' + n + (n > 1 ? ' scopes' : ' scope') : 'Pick a scope');
     const cnt = $('.pgx-cnt', ok);
     if (n && shown && cnt && !ok._sw){ if (n !== shown){ roll(cnt, n, n > shown); swap($('.pgx-w', ok), word(n)); } }
@@ -3632,7 +3658,9 @@ DM.def('permission-gate', (r, c) => {
     root.classList.add('esc'); swap(title, 'Also allow Publish library?'); swap(sub, `${F[LIB]}, frame ${LIB + 1} of ${F.length}, is a library component`);
     c.later(300, () => {
       p.remove();
-      sc.innerHTML = `<label class="pgx-o" data-k="publish"><input type="checkbox" checked><span class="bx">${I('check','xs')}</span><span class="t">Publish library<span class="d">Updates Checkout, Marketing site, Email kit and Docs</span></span><span class="tag warn">Risky</span></label>`;
+      sc.innerHTML = clean
+        ? `<div class="pgx-o one" data-k="publish"><span class="oi">${I('info')}</span><span class="t">Publish library<span class="d">Updates Checkout, Marketing site, Email kit and Docs</span></span><span class="tag warn">Risky</span></div>`
+        : `<label class="pgx-o" data-k="publish"><input type="checkbox" checked><span class="bx">${I('check','xs')}</span><span class="t">Publish library<span class="d">Updates Checkout, Marketing site, Email kit and Docs</span></span><span class="tag warn">Risky</span></label>`;
       no.textContent = 'Skip this frame'; count(); show(true);
     });
   }
@@ -3642,9 +3670,9 @@ DM.def('permission-gate', (r, c) => {
   }
   function revoke(){ const p = panel; panel = null; run++; p.classList.add('leave'); c.later(300, () => { p.remove(); release(root); reset(); show(true); }); }
   ok.onclick = () => c.run(async () => {
-    const picked = boxes().filter(b => b.checked); if (!picked.length) return;
-    granted += picked.length; if (picked.some(b => b.closest('.pgx-o').dataset.k === 'publish')) publish = true;
-    names.push(...picked.map(b => $('.t', b.closest('.pgx-o')).firstChild.textContent));
+    const picked = one() ? [one()] : boxes().filter(b => b.checked).map(b => b.closest('.pgx-o')); if (!picked.length) return;
+    granted += picked.length; if (picked.some(o => o.dataset.k === 'publish')) publish = true;
+    names.push(...picked.map(o => $('.t', o).firstChild.textContent));
     ok.innerHTML = '<span class="spin"></span>'; await c.wait(500);
     // Clean: the scopes fade up and out before the card eases to the result row's height
     if (clean){ sc.classList.add('leave'); await c.wait(180); sc.classList.remove('leave'); }

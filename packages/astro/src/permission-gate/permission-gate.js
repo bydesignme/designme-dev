@@ -21,7 +21,10 @@ DM.def('permission-gate', (r, c) => {
   const label = n => n ? `<span class="pgx-l">Allow <span class="pgx-cnt"><i>${n}</i></span> <span class="pgx-w">${word(n)}</span></span>` : 'Pick a scope';
   let shown = 0;
   const roll = (cnt, n, up) => { const old = cnt.lastElementChild, nu = document.createElement('i'); nu.textContent = n; nu.className = up ? 'iu' : 'id'; if (old){ old.className = up ? 'ou' : 'od'; setTimeout(() => old.remove(), REDUCE ? 0 : 300); } cnt.appendChild(nu); };
-  const count = () => { const n = boxes().filter(b => b.checked).length; ok.disabled = !n;
+  // Clean asks again for its one scope as a plain row (nothing to tick), and its button just says Allow
+  const one = () => clean && $('.pgx-o.one', sc);
+  const count = () => { if (one()){ ok.disabled = false; shown = 0; return swap(ok, 'Allow'); }
+    const n = boxes().filter(b => b.checked).length; ok.disabled = !n;
     if (!clean) return swap(ok, n ? 'Allow ' + n + (n > 1 ? ' scopes' : ' scope') : 'Pick a scope');
     const cnt = $('.pgx-cnt', ok);
     if (n && shown && cnt && !ok._sw){ if (n !== shown){ roll(cnt, n, n > shown); swap($('.pgx-w', ok), word(n)); } }
@@ -75,7 +78,9 @@ DM.def('permission-gate', (r, c) => {
     root.classList.add('esc'); swap(title, 'Also allow Publish library?'); swap(sub, `${F[LIB]}, frame ${LIB + 1} of ${F.length}, is a library component`);
     c.later(300, () => {
       p.remove();
-      sc.innerHTML = `<label class="pgx-o" data-k="publish"><input type="checkbox" checked><span class="bx">${I('check','xs')}</span><span class="t">Publish library<span class="d">Updates Checkout, Marketing site, Email kit and Docs</span></span><span class="tag warn">Risky</span></label>`;
+      sc.innerHTML = clean
+        ? `<div class="pgx-o one" data-k="publish"><span class="oi">${I('info')}</span><span class="t">Publish library<span class="d">Updates Checkout, Marketing site, Email kit and Docs</span></span><span class="tag warn">Risky</span></div>`
+        : `<label class="pgx-o" data-k="publish"><input type="checkbox" checked><span class="bx">${I('check','xs')}</span><span class="t">Publish library<span class="d">Updates Checkout, Marketing site, Email kit and Docs</span></span><span class="tag warn">Risky</span></label>`;
       no.textContent = 'Skip this frame'; count(); show(true);
     });
   }
@@ -85,9 +90,9 @@ DM.def('permission-gate', (r, c) => {
   }
   function revoke(){ const p = panel; panel = null; run++; p.classList.add('leave'); c.later(300, () => { p.remove(); release(root); reset(); show(true); }); }
   ok.onclick = () => c.run(async () => {
-    const picked = boxes().filter(b => b.checked); if (!picked.length) return;
-    granted += picked.length; if (picked.some(b => b.closest('.pgx-o').dataset.k === 'publish')) publish = true;
-    names.push(...picked.map(b => $('.t', b.closest('.pgx-o')).firstChild.textContent));
+    const picked = one() ? [one()] : boxes().filter(b => b.checked).map(b => b.closest('.pgx-o')); if (!picked.length) return;
+    granted += picked.length; if (picked.some(o => o.dataset.k === 'publish')) publish = true;
+    names.push(...picked.map(o => $('.t', o).firstChild.textContent));
     ok.innerHTML = '<span class="spin"></span>'; await c.wait(500);
     // Clean: the scopes fade up and out before the card eases to the result row's height
     if (clean){ sc.classList.add('leave'); await c.wait(180); sc.classList.remove('leave'); }
