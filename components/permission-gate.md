@@ -40,7 +40,7 @@ Permission gate is the card an agent shows when it wants to do something it has 
 - The Allow button counts the ticked scopes, like "Allow 2 scopes". It reads "Pick a scope" and stays disabled when none are ticked.
 - `onAllow` receives the ticked keys and the duration. Return a promise and the button shows a spinner until it settles.
 - After allowing, the card shows what was granted and for how long, with an `allowedDetail` line that crossfades and a Revoke button. `allowedTitle` replaces the first line, like "Done. 6 frames edited".
-- While the agent works under the permission, `working` shows a spinner on a neutral row instead of the green check, and `meta` adds quiet text at the end of it, like an elapsed time.
+- While the agent works under the permission, `working` shows a spinner on the allowed row instead of the green check. The row stays neutral in both states.
 - `followUp` marks a second ask in the middle of a run, for one more scope: a single scope shows as a row led by a tile, with a plain Allow as there is nothing to tick (the icon tile stays neutral; the scope's risk tag carries the warning), and `declineLabel` can say what declining means, like "Skip this frame". A scope's `riskDetail` is what its risk tag shows on hover.
 - After Not now, the card shows `declinedTitle` and `declinedDetail` with an Undo button that brings the scopes back.
 - In Clean, the answer folds into one line in the foot strip: the scopes allowed, by name (how many on a narrow screen), or `declinedSummary` after Not now, "Nothing allowed" by default. The card eases to each new height, and the count on Allow rolls as boxes are ticked.
@@ -63,7 +63,7 @@ import { PermissionGate } from '@/components/designme/permission-gate/Permission
 ```tsx
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { PermissionGate, type PermissionScope, type PermissionStatus } from './PermissionGate';
 import { Icon } from '../lib/icons';
 import { useStory, useWait } from '../lib/useScript';
@@ -77,7 +77,6 @@ const FIRST: PermissionScope[] = [
 const MORE: PermissionScope[] = [{ key: 'publish', label: 'Publish library', detail: 'Updates Checkout, Marketing site, Email kit and Docs', risk: 'Risky' }];
 // the frames the agent edits once it may. Plan toggle is a library component, so editing it needs Publish library
 const FRAMES = ['Hero', 'Plan cards', 'Compare table', 'FAQ', 'Plan toggle', 'Checkout summary'], LIB = 4;
-const clock = (ms: number) => { const s = Math.floor(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
 
 export default function PermissionGateDemo() {
   const ref = useRef<HTMLDivElement>(null);
@@ -90,13 +89,6 @@ export default function PermissionGateDemo() {
   const [title, setTitle] = useState<string>();
   const [detail, setDetail] = useState<string>();
   const run = useRef({ granted: 0, publish: false, skip: false, done: 0, id: 0 });
-  // the clock counts the agent's working time only, not the time it waits for you
-  const [ms, setMs] = useState(0);
-  useEffect(() => {
-    if (!working) return;
-    const from = performance.now() - ms, t = setInterval(() => setMs(performance.now() - from), 250);
-    return () => clearInterval(t);
-  }, [working]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // the agent works through the frames under what it was given, and stops to ask when it reaches one it may not touch
   const work = async () => {
@@ -131,8 +123,8 @@ export default function PermissionGateDemo() {
         status={status} onStatusChange={setStatus} followUp={more} declineLabel={more ? 'Skip this frame' : 'Not now'}
         onAllow={async keys => { r.granted += keys.length; if (keys.includes('publish')) r.publish = true; await wait(500); setMore(false); void work(); }}
         onDecline={() => { if (!more) return; r.skip = true; setMore(false); void work(); }}
-        onRevoke={() => { run.current = { granted: 0, publish: false, skip: false, done: 0, id: r.id + 1 }; setValue(['read', 'edit']); setMs(0); setWorking(false); }}
-        working={working} meta={clock(ms)} allowedDetail={detail}
+        onRevoke={() => { run.current = { granted: 0, publish: false, skip: false, done: 0, id: r.id + 1 }; setValue(['read', 'edit']); setWorking(false); }}
+        working={working} allowedDetail={detail}
         allowedTitle={title ?? `Allowed ${r.granted} ${r.granted > 1 ? 'scopes' : 'scope'} ${duration === 'Always' ? 'always' : 'for ' + duration.toLowerCase()}`}
         declinedTitle="The agent will skip the Figma edits" declinedDetail="It will list the fixes in chat instead" declinedSummary="Nothing allowed in Figma" />
     </div>
@@ -165,8 +157,7 @@ export default function PermissionGateDemo() {
 | `onUndo` (optional) | `() => void` | Called by Undo, after declining |
 | `allowedDetail` (optional) | `string` | The line under "Allowed …", like "Applying the pricing fixes now". Crossfades when it changes |
 | `allowedTitle` (optional) | `string` | Replaces "Allowed 2 scopes for this task", like "Done. 6 frames edited". Crossfades when it changes |
-| `working` (optional) | `boolean` | The agent is still working under the permission: a spinner on a neutral row instead of the green check |
-| `meta` (optional) | `ReactNode` | Quiet text at the end of the allowed row, like an elapsed time "0:04" |
+| `working` (optional) | `boolean` | The agent is still working under the permission: a spinner instead of the green check, on the same neutral row |
 | `followUp` (optional) | `boolean` | A follow-up ask in the middle of a run, for one more scope. A single scope shows as a row led by a tile (nothing to tick) with a plain Allow; the icon tile stays neutral, and the scope's risk tag carries the warning |
 | `declineLabel` (optional) | `string` | The decline button. Defaults to "Not now"; a follow-up ask might say "Skip this frame" |
 | `declinedTitle` (optional) | `ReactNode` | Shown after Not now |
@@ -268,10 +259,8 @@ export interface PermissionGateProps {
   allowedDetail?: string;
   /** Replaces "Allowed 2 scopes for this task", like "Done. 6 frames edited". Crossfades when it changes */
   allowedTitle?: string;
-  /** The agent is still working under the permission: a spinner on a neutral row instead of the green check */
+  /** The agent is still working under the permission: a spinner instead of the green check, on the same neutral row */
   working?: boolean;
-  /** Quiet text at the end of the allowed row, like an elapsed time "0:04" */
-  meta?: ReactNode;
   /** A follow-up ask in the middle of a run, for one more scope. A single scope shows as a row led by a tile (nothing to
    *  tick) with a plain Allow; the icon tile stays neutral, and the scope's risk tag carries the warning */
   followUp?: boolean;
@@ -312,7 +301,7 @@ function Count({ n }: { n: number }) {
 /** The agent asks before it acts: pick the scopes and how long they last, then allow or decline. */
 export function PermissionGate({
   title, subtitle, icon, scopes, value, defaultValue = [], onValueChange, durations = DURATIONS, durationDetails = DETAILS, duration, defaultDuration, onDurationChange,
-  status, defaultStatus = 'asking', onStatusChange, onAllow, onDecline, onRevoke, onUndo, allowedDetail, allowedTitle, working = false, meta, followUp = false,
+  status, defaultStatus = 'asking', onStatusChange, onAllow, onDecline, onRevoke, onUndo, allowedDetail, allowedTitle, working = false, followUp = false,
   declineLabel = 'Not now', declinedTitle = 'The agent will skip these changes', declinedDetail, declinedSummary = 'Nothing allowed', bare = false, className
 }: PermissionGateProps) {
   const [ticked, setTicked] = useControllable(value, defaultValue, onValueChange);
@@ -422,7 +411,6 @@ export function PermissionGate({
             <b className="dm-pgx-a"><Swap>{allowedTitle ?? `Allowed ${granted || n} ${(granted || n) > 1 ? 'scopes' : 'scope'} ${durSpan(dur)}`}</Swap></b>
             {allowedDetail !== undefined && <Swap>{allowedDetail}</Swap>}
           </span>
-          {meta !== undefined && <span className="dm-pgx-tm dm-num">{meta}</span>}
           <button type="button" className="dm-pill dm-ghost dm-sm" onClick={() => setLeaving(true)}>Revoke</button>
           <span className="dm-pgx-sum"><span className="dm-l">{names.join(', ')}</span><span className="dm-s">{`${names.length} ${word(names.length)} allowed`}</span></span>
         </div>

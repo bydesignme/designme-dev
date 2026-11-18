@@ -96,7 +96,11 @@ function ctl(up){
         await s.point(el, false); hand.classList.remove('down'); void hand.offsetWidth; hand.classList.add('down');
         // a label is pressed through its control: clicking the label itself would focus the control, and the page would
         // scroll to it while the visitor reads somewhere else. Whatever the press does, the page stays where it is
-        await sleep(160); check(); const y = scrollY, x = scrollX; (el.matches('label') && el.control ? el.control : el).click(); if (scrollY !== y || scrollX !== x) scrollTo(x, y);
+        // the browser marks the input and change events of a scripted click on a checkbox or radio as trusted, so the press is
+        // flagged as the story's own (c.own) and doesn't read as the visitor taking over
+        await sleep(160); check(); const y = scrollY, x = scrollX; c.own = (c.own || 0) + 1;
+        try { (el.matches('label') && el.control ? el.control : el).click(); } finally { c.own--; }
+        if (scrollY !== y || scrollX !== x) scrollTo(x, y);
         c.later(340, () => hand && hand.classList.remove('down'));
       },
       away: () => { unTip(); if (hand) hand.classList.remove('on', 'down'); },
@@ -387,7 +391,7 @@ const DM = {
     // whether the component is on screen or near it, so frame loops and canvases rest while it is far away
     if ('IntersectionObserver' in window){ const io = new IntersectionObserver(e => { c.seen = e[e.length - 1].isIntersecting; }, { rootMargin:'200px 0px' }); io.observe(st); c.offs.push(() => io.disconnect()); }
     // the visitor's first real click, key, typing or focus in the component stops its demo (c.mine)
-    const mine = e => { if (e.isTrusted) c.mine = true; };
+    const mine = e => { if (e.isTrusted && !c.own) c.mine = true; };
     ['pointerdown', 'keydown', 'input', 'click'].forEach(t => c.on(st, t, mine, true));
     c.on(st, 'focusin', e => { if (e.isTrusted && e.timeStamp - lastInput < 100) c.mine = true; }, true);
     try { this.defs[id] && this.defs[id](st, c, card); } catch(e){ console.error(id, e); }

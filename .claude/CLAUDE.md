@@ -57,6 +57,17 @@ every session and every agent.
   Bars, rings, dots and lines in the warning colour use `--warn-mark` (a bright orange, 3:1), never the dark text `--warn`.
   Same for green: marks use `--ok-mark` (bright, 3:1), text uses `--ok`. Text colours are the most saturated of their hue that
   still keep 4.5:1 on their own tint (owner, 4 Nov: no deep greens or brown oranges); a done chip is green (`--ok-bg` + `--ok`).
+- Warning notices (owner, 18 Nov, after the Claude app's own "needs a new sign-in" banner), in every style:
+  - a faint warning tint (`--warn-bg` at 45%), not the full amber;
+  - the filled warning sign in `--warn-mark`;
+  - the words in the text colour, not amber;
+  - the action that resolves it as `.pill.warn` (the warning tint with `--warn` text, like `.tag.warn`; its hover is
+    `--tint-h`);
+  - a second button beside it stays white in light mode.
+  Model picker's busy notice is the reference. Don't add a red version until its hover passes 4.5:1 (the obvious one
+  doesn't in light).
+- A finished state (owner, 18 Nov) is a neutral row with the green tick: no green fill behind it and no elapsed clock
+  (Permission gate's done row).
 - Charts use the chart palette (`--c1`, the accent, then `--c2` to `--c6`) where more than one series or part needs telling
   apart: Donut, Line chart's comparison series, Stat cards' sparklines, Funnel (accent to violet in Soft). The Bar chart
   is one accent colour with no legend; its breakdown is in the hover readout.
@@ -84,7 +95,8 @@ every session and every agent.
 - Single-field components (Date picker, Search input, Country select, Multi-select and the like) share one field width
   in their stage, and go full width on phones.
 - On a tinted or coloured surface (banners, notices), secondary buttons are white in light mode, not grey. On coloured
-  banners the primary button is white in light mode and the accent in dark mode.
+  banners the primary button is white in light mode and the accent in dark mode. A warning notice's action is `.pill.warn`
+  (see Type and colour).
 - Pricing: only the recommended plan's button is primary (accent); the others are white with a grey outline.
 
 ## Clean (owner, 17 Nov)
