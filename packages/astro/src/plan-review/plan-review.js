@@ -54,6 +54,8 @@ DM.def('plan-review', (r, c) => {
     } finally { clearInterval(tick); }
     $('.plx-mk', r).classList.remove('on');
     $$('.plx-s.run', list).forEach(s => { s.classList.remove('run', 'retry'); txt(s).classList.remove('shim'); n(s).textContent = '–'; note(s, 'Not started'); });
+    // a finished plan has no elapsed clock (owner, 18 Nov): the status line says how long it took
+    tm.textContent = '';
     swap(st, stop ? 'Stopped, progress kept' : 'Done in ' + clock(performance.now() - t0) + '. 4 frames updated'); f.innerHTML = `<span class="muted plx-n"></span><button class="pill soft sm">${I('eye','xs')}See changes</button>`; enter(f.lastElementChild);
   });
   // the preview's story: rewrite a step, approve, and watch the agent work through a rate limit to the end

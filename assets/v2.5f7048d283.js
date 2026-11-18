@@ -96,7 +96,11 @@ function ctl(up){
         await s.point(el, false); hand.classList.remove('down'); void hand.offsetWidth; hand.classList.add('down');
         // a label is pressed through its control: clicking the label itself would focus the control, and the page would
         // scroll to it while the visitor reads somewhere else. Whatever the press does, the page stays where it is
-        await sleep(160); check(); const y = scrollY, x = scrollX; (el.matches('label') && el.control ? el.control : el).click(); if (scrollY !== y || scrollX !== x) scrollTo(x, y);
+        // the browser marks the input and change events of a scripted click on a checkbox or radio as trusted, so the press is
+        // flagged as the story's own (c.own) and doesn't read as the visitor taking over
+        await sleep(160); check(); const y = scrollY, x = scrollX; c.own = (c.own || 0) + 1;
+        try { (el.matches('label') && el.control ? el.control : el).click(); } finally { c.own--; }
+        if (scrollY !== y || scrollX !== x) scrollTo(x, y);
         c.later(340, () => hand && hand.classList.remove('down'));
       },
       away: () => { unTip(); if (hand) hand.classList.remove('on', 'down'); },
@@ -387,7 +391,7 @@ const DM = {
     // whether the component is on screen or near it, so frame loops and canvases rest while it is far away
     if ('IntersectionObserver' in window){ const io = new IntersectionObserver(e => { c.seen = e[e.length - 1].isIntersecting; }, { rootMargin:'200px 0px' }); io.observe(st); c.offs.push(() => io.disconnect()); }
     // the visitor's first real click, key, typing or focus in the component stops its demo (c.mine)
-    const mine = e => { if (e.isTrusted) c.mine = true; };
+    const mine = e => { if (e.isTrusted && !c.own) c.mine = true; };
     ['pointerdown', 'keydown', 'input', 'click'].forEach(t => c.on(st, t, mine, true));
     c.on(st, 'focusin', e => { if (e.isTrusted && e.timeStamp - lastInput < 100) c.mine = true; }, true);
     try { this.defs[id] && this.defs[id](st, c, card); } catch(e){ console.error(id, e); }
@@ -3622,34 +3626,27 @@ DM.def('permission-gate', (r, c) => {
   const sum = (el, text, short = text) => { if (!clean) return; const s = el.appendChild(html(`<span class="pgx-sum"><span class="l"></span><span class="s"></span></span>`)); s.firstChild.textContent = text; s.lastChild.textContent = short; };
   // the frames the agent edits once it may. Plan toggle is a library component, so editing it needs Publish library
   const F = ['Hero', 'Plan cards', 'Compare table', 'FAQ', 'Plan toggle', 'Checkout summary'], LIB = 4;
-  const clock = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
-  // the clock counts the agent's working time only, not the time it waits for you
-  let granted = 0, publish = false, skip = false, done = 0, ms = 0, run = 0, panel = null;
+  let granted = 0, publish = false, skip = false, done = 0, run = 0, panel = null;
   function row(){
-    panel = html(`<div class="pgx-done run"><span class="g"><span class="spin"></span></span><span class="t"><b class="pgx-a"></b><span class="pgx-d"></span></span><span class="pgx-tm num"></span><button class="pill ghost sm">Revoke</button></div>`);
+    panel = html(`<div class="pgx-done run"><span class="g"><span class="spin"></span></span><span class="t"><b class="pgx-a"></b><span class="pgx-d"></span></span><button class="pill ghost sm">Revoke</button></div>`);
     sum(panel, names.join(', '), `${names.length} ${word(names.length)} allowed`);
     into().appendChild(panel); enter(panel); $('button', panel).onclick = revoke;
   }
   // the agent works through the frames under what it was given, and stops to ask when it reaches one it may not touch
   function work(){
     const id = ++run; if (!panel) row();
-    const a = $('.pgx-a', panel), d = $('.pgx-d', panel), tm = $('.pgx-tm', panel);
+    const a = $('.pgx-a', panel), d = $('.pgx-d', panel);
     swap(a, `Allowed ${granted} ${granted > 1 ? 'scopes' : 'scope'} ${span()}`);
-    const t0 = performance.now(), now = () => ms + performance.now() - t0;
-    tm.textContent = clock(Math.floor(ms / 1000));
     c.run(async () => {
-      const tick = c.every(250, () => { if (run === id) tm.textContent = clock(Math.floor(now() / 1000)); });
-      try {
-        while (done < F.length){
-          if (done === LIB && !publish && !skip) return ask();
-          swap(d, done === LIB && skip ? `Skipping ${F[done]}` : `Editing ${F[done]} · ${done + 1} of ${F.length}`);
-          await c.wait(900); if (run !== id) return;
-          done++;
-        }
-        panel.classList.replace('run', 'ok'); const g = $('.g', panel); g.innerHTML = clean ? I('check') : I('ok'); enter(g);
-        swap(a, skip ? `Done. ${F.length - 1} frames edited` : `Done. ${F.length} frames edited`);
-        swap(d, skip ? 'On a new page. Plan toggle skipped' : 'On a new page. Plan toggle published');
-      } finally { clearInterval(tick); if (run === id) ms = now(); }
+      while (done < F.length){
+        if (done === LIB && !publish && !skip) return ask();
+        swap(d, done === LIB && skip ? `Skipping ${F[done]}` : `Editing ${F[done]} · ${done + 1} of ${F.length}`);
+        await c.wait(900); if (run !== id) return;
+        done++;
+      }
+      panel.classList.replace('run', 'ok'); const g = $('.g', panel); g.innerHTML = clean ? I('check') : I('ok'); enter(g);
+      swap(a, skip ? `Done. ${F.length - 1} frames edited` : `Done. ${F.length} frames edited`);
+      swap(d, skip ? 'On a new page. Plan toggle skipped' : 'On a new page. Plan toggle published');
     });
   }
   // asks again, for only the scope it now needs
@@ -3665,7 +3662,7 @@ DM.def('permission-gate', (r, c) => {
     });
   }
   function reset(){
-    run++; granted = done = ms = 0; publish = skip = false; names = [];
+    run++; granted = done = 0; publish = skip = false; names = [];
     root.classList.remove('esc'); sc.innerHTML = first.sc; swap(title, first.title); swap(sub, first.sub); no.textContent = first.no; count();
   }
   function revoke(){ const p = panel; panel = null; run++; p.classList.add('leave'); c.later(300, () => { p.remove(); reset(); show(true); }); }
@@ -3679,7 +3676,7 @@ DM.def('permission-gate', (r, c) => {
     show(false);
     if (root.classList.contains('esc')){ root.classList.remove('esc'); swap(title, first.title); swap(sub, first.sub); }
     // placed inside another component (Agent harness), it reports back without the run
-    if (!c.card){ row(); swap($('.pgx-a', panel), `Allowed ${granted} ${granted > 1 ? 'scopes' : 'scope'} ${span()}`); swap($('.pgx-d', panel), 'Applying the pricing fixes now'); $('.pgx-tm', panel).remove();
+    if (!c.card){ row(); swap($('.pgx-a', panel), `Allowed ${granted} ${granted > 1 ? 'scopes' : 'scope'} ${span()}`); swap($('.pgx-d', panel), 'Applying the pricing fixes now');
       c.later(1400, () => { if (!panel) return; panel.classList.replace('run', 'ok'); $('.g', panel).innerHTML = clean ? I('check') : I('ok'); swap($('.pgx-d', panel), 'Done. 6 frames edited on a new page'); }); return; }
     work();
   });
@@ -3711,7 +3708,7 @@ DM.def('permission-gate', (r, c) => {
   });
 });
 /* ---------- the sections' components, loaded the first time a section comes near (DEF_PARTS in build.js) ---------- */
-const PARTS = {"files":{"s-status":"/assets/v2-status.8c4efd583a.js","s-product":"/assets/v2-product.c6072ab581.js","s-review":"/assets/v2-review.c0bf5d98c9.js","s-data":"/assets/v2-data.ef15935ec3.js","s-workspace":"/assets/v2-workspace.d0cd114b57.js","s-harness":"/assets/v2-harness.7f9eee6c97.js","s-charts":"/assets/v2-charts.9a7629fce0.js","s-dates":"/assets/v2-dates.b72ddce6b1.js","s-forms":"/assets/v2-forms.1157041b0f.js","s-collab":"/assets/v2-collab.257770798d.js"},"of":{"status-pill":"s-status","step-loader":"s-status","thinking-states":"s-status","reasoning-trail":"s-status","thinking":"s-status","context-meter":"s-status","toast":"s-status","toast-stack":"s-status","pricing-cards":"s-product","stepper":"s-product","set-limit":"s-product","currency-converter":"s-product","agent-run-timeline":"s-status","decision-prompt":"s-review","proposal-card":"s-review","rewrite-toolbar":"s-review","plan-review":"s-review","inline-text-diff":"s-review","draft-review":"s-review","eval-results":"s-review","source-stack":"s-data","metric-insight":"s-data","task-table":"s-data","terminal-stream":"s-data","details-panel":"s-data","citation-hover":"s-data","workspace-rail":"s-workspace","command-palette":"s-workspace","agent-settings":"s-workspace","file-explorer":"s-workspace","automation-canvas":"s-workspace","canvas-toolbar":"s-workspace","data-picker":"s-workspace","run-drawer":"s-workspace","memory-panel":"s-workspace","tool-connections":"s-workspace","knowledge-sources":"s-workspace","scheduled-runs":"s-workspace","harness":"s-harness","line-chart":"s-charts","bar-chart":"s-charts","donut-chart":"s-charts","funnel":"s-charts","top-pages":"s-charts","health-score":"s-charts","activity-heatmap":"s-charts","stat-cards":"s-charts","account-table":"s-charts","date-picker":"s-dates","segmented-control":"s-dates","date-range-picker":"s-dates","event-calendar":"s-dates","agenda":"s-dates","meeting-card":"s-dates","buttons":"s-forms","badge":"s-forms","tooltip":"s-forms","search-input":"s-forms","country-select":"s-forms","multi-select":"s-forms","social-signin":"s-forms","sign-in":"s-forms","otp-field":"s-forms","form":"s-forms","payment-form":"s-forms","comments":"s-collab","notifications":"s-collab","banner":"s-collab","invite":"s-collab","reactions":"s-collab","profile-menu":"s-collab","context-switcher":"s-collab","filter-menu":"s-collab","number-field":"s-collab","ticket-list":"s-collab","kanban":"s-collab","context-menu":"s-collab","progress":"s-forms","radar-chart":"s-charts","radial-goals":"s-charts","scatter-chart":"s-charts","score-breakdown":"s-charts","slider":"s-forms","carousel":"s-forms","web-search":"s-status"},"all":["harness"]};
+const PARTS = {"files":{"s-status":"/assets/v2-status.8c4efd583a.js","s-product":"/assets/v2-product.c6072ab581.js","s-review":"/assets/v2-review.8e732de133.js","s-data":"/assets/v2-data.ef15935ec3.js","s-workspace":"/assets/v2-workspace.d0cd114b57.js","s-harness":"/assets/v2-harness.7f9eee6c97.js","s-charts":"/assets/v2-charts.9a7629fce0.js","s-dates":"/assets/v2-dates.b72ddce6b1.js","s-forms":"/assets/v2-forms.1157041b0f.js","s-collab":"/assets/v2-collab.257770798d.js"},"of":{"status-pill":"s-status","step-loader":"s-status","thinking-states":"s-status","reasoning-trail":"s-status","thinking":"s-status","context-meter":"s-status","toast":"s-status","toast-stack":"s-status","pricing-cards":"s-product","stepper":"s-product","set-limit":"s-product","currency-converter":"s-product","agent-run-timeline":"s-status","decision-prompt":"s-review","proposal-card":"s-review","rewrite-toolbar":"s-review","plan-review":"s-review","inline-text-diff":"s-review","draft-review":"s-review","eval-results":"s-review","source-stack":"s-data","metric-insight":"s-data","task-table":"s-data","terminal-stream":"s-data","details-panel":"s-data","citation-hover":"s-data","workspace-rail":"s-workspace","command-palette":"s-workspace","agent-settings":"s-workspace","file-explorer":"s-workspace","automation-canvas":"s-workspace","canvas-toolbar":"s-workspace","data-picker":"s-workspace","run-drawer":"s-workspace","memory-panel":"s-workspace","tool-connections":"s-workspace","knowledge-sources":"s-workspace","scheduled-runs":"s-workspace","harness":"s-harness","line-chart":"s-charts","bar-chart":"s-charts","donut-chart":"s-charts","funnel":"s-charts","top-pages":"s-charts","health-score":"s-charts","activity-heatmap":"s-charts","stat-cards":"s-charts","account-table":"s-charts","date-picker":"s-dates","segmented-control":"s-dates","date-range-picker":"s-dates","event-calendar":"s-dates","agenda":"s-dates","meeting-card":"s-dates","buttons":"s-forms","badge":"s-forms","tooltip":"s-forms","search-input":"s-forms","country-select":"s-forms","multi-select":"s-forms","social-signin":"s-forms","sign-in":"s-forms","otp-field":"s-forms","form":"s-forms","payment-form":"s-forms","comments":"s-collab","notifications":"s-collab","banner":"s-collab","invite":"s-collab","reactions":"s-collab","profile-menu":"s-collab","context-switcher":"s-collab","filter-menu":"s-collab","number-field":"s-collab","ticket-list":"s-collab","kanban":"s-collab","context-menu":"s-collab","progress":"s-forms","radar-chart":"s-charts","radial-goals":"s-charts","scatter-chart":"s-charts","score-breakdown":"s-charts","slider":"s-forms","carousel":"s-forms","web-search":"s-status"},"all":["harness"]};
 const partRun = src => eval(src);
 // the markup of the cards whose section has a file of its own comes with that file
 const TPLS = {};

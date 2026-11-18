@@ -40,7 +40,7 @@ Plan review shows the plan an agent proposes before it starts work, as a numbere
 - Add a step appends a new row and puts the cursor in it with the text selected.
 - Steps can show `state: 'run'` while the agent works on them, with a spinner and a shimmer on the text, `'retry'` in amber while it waits out a problem like a rate limit, and a check once `done`.
 - Each step can report a `detail` line under it, like "6 frames and 42 tokens read". It opens under the step and crossfades when it changes.
-- The status line defaults to how many steps are left in and about how many minutes they take. `status` and `note` replace the defaults. `meta` adds quiet text at the end of the header, like an elapsed time.
+- The status line defaults to how many steps are left in and about how many minutes they take. `status` and `note` replace the defaults. `meta` adds quiet text at the end of the header, like an elapsed time while the agent works; the demo clears it once the run is over, as a finished plan shows no clock.
 
 ### Accessibility
 
@@ -119,10 +119,11 @@ export default function PlanReviewDemo() {
     stop.current = false; setNote(undefined); setPhase('running');
   });
 
+  // the header's clock runs while the agent works; a finished plan has none (owner, 18 Nov), its status line says how long it took
   return (
     <div ref={ref} style={{ width: '100%' }}>
       <PlanReview title="Plan: redesign the pricing page" steps={steps} onStepsChange={setSteps} phase={phase} status={status} note={note}
-        meta={ms === undefined ? undefined : clock(ms)}
+        meta={ms === undefined || phase === 'done' ? undefined : clock(ms)}
         onRequestChanges={() => setNote('Tell the agent what to change in chat')}
         onApprove={() => { stop.current = false; setNote(undefined); setPhase('running'); }}
         onStop={() => { stop.current = true; }} onSeeChanges={() => {}} />

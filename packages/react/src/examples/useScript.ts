@@ -27,6 +27,9 @@ export function useWait() {
 /* when the visitor last pressed a key or a pointer anywhere: a focus that comes with one (a Tab into the demo) is theirs,
    and a focus a script gives is not */
 let lastInput = -1e9, listening = false;
+// the browser marks the input and change events of a scripted click on a checkbox or radio as trusted, so a press the script
+// makes is flagged as its own while it runs, and doesn't read as the visitor taking over
+let own = 0;
 function trackInput() {
   if (listening || typeof window === 'undefined') return;
   listening = true;
@@ -36,7 +39,7 @@ function trackInput() {
 /** Calls `take` at the visitor's first real click, key, typing or focus inside `el`, or a wheel a component there takes for itself. Returns a function that stops watching */
 function watchTakeover(el: HTMLElement, take: () => void) {
   trackInput();
-  const mine = (e: Event) => { if (e.isTrusted) take(); };
+  const mine = (e: Event) => { if (e.isTrusted && !own) take(); };
   const focus = (e: Event) => { if (e.isTrusted && e.timeStamp - lastInput < 100) take(); };
   const types = ['pointerdown', 'keydown', 'input', 'click'];
   // a wheel a component takes for itself (a canvas that pans with it) is the visitor's too; one that scrolls the page is not
@@ -81,7 +84,7 @@ export function useStory(ref: RefObject<HTMLElement | null>, run: (s: Story) => 
     const leave = () => { if (!held) return; held = false; due.splice(0).forEach(f => f()); };
     el?.addEventListener('pointerenter', enter); el?.addEventListener('pointerleave', leave);
     const wait = (ms: number) => new Promise<void>(res => { timers.push(setTimeout(() => { const go = () => { if (alive) res(); }; if (held && !mine) due.push(go); else go(); }, ms)); });
-    const press = (selector: string) => { if (alive) el?.querySelector<HTMLElement>(selector)?.click(); };
+    const press = (selector: string) => { if (!alive) return; own++; try { el?.querySelector<HTMLElement>(selector)?.click(); } finally { own--; } };
     const taken = (fn: () => void) => { if (mine) fn(); else undo.push(fn); };
     run({ wait, press, taken }).catch(e => console.error(e));
     return () => { stop(); off(); el?.removeEventListener('pointerenter', enter); el?.removeEventListener('pointerleave', leave); };

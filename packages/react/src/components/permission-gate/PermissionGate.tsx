@@ -57,10 +57,8 @@ export interface PermissionGateProps {
   allowedDetail?: string;
   /** Replaces "Allowed 2 scopes for this task", like "Done. 6 frames edited". Crossfades when it changes */
   allowedTitle?: string;
-  /** The agent is still working under the permission: a spinner on a neutral row instead of the green check */
+  /** The agent is still working under the permission: a spinner instead of the green check, on the same neutral row */
   working?: boolean;
-  /** Quiet text at the end of the allowed row, like an elapsed time "0:04" */
-  meta?: ReactNode;
   /** A follow-up ask in the middle of a run, for one more scope. A single scope shows as a row led by a tile (nothing to
    *  tick) with a plain Allow; the icon tile stays neutral, and the scope's risk tag carries the warning */
   followUp?: boolean;
@@ -101,7 +99,7 @@ function Count({ n }: { n: number }) {
 /** The agent asks before it acts: pick the scopes and how long they last, then allow or decline. */
 export function PermissionGate({
   title, subtitle, icon, scopes, value, defaultValue = [], onValueChange, durations = DURATIONS, durationDetails = DETAILS, duration, defaultDuration, onDurationChange,
-  status, defaultStatus = 'asking', onStatusChange, onAllow, onDecline, onRevoke, onUndo, allowedDetail, allowedTitle, working = false, meta, followUp = false,
+  status, defaultStatus = 'asking', onStatusChange, onAllow, onDecline, onRevoke, onUndo, allowedDetail, allowedTitle, working = false, followUp = false,
   declineLabel = 'Not now', declinedTitle = 'The agent will skip these changes', declinedDetail, declinedSummary = 'Nothing allowed', bare = false, className
 }: PermissionGateProps) {
   const [ticked, setTicked] = useControllable(value, defaultValue, onValueChange);
@@ -211,7 +209,6 @@ export function PermissionGate({
             <b className="dm-pgx-a"><Swap>{allowedTitle ?? `Allowed ${granted || n} ${(granted || n) > 1 ? 'scopes' : 'scope'} ${durSpan(dur)}`}</Swap></b>
             {allowedDetail !== undefined && <Swap>{allowedDetail}</Swap>}
           </span>
-          {meta !== undefined && <span className="dm-pgx-tm dm-num">{meta}</span>}
           <button type="button" className="dm-pill dm-ghost dm-sm" onClick={() => setLeaving(true)}>Revoke</button>
           <span className="dm-pgx-sum"><span className="dm-l">{names.join(', ')}</span><span className="dm-s">{`${names.length} ${word(names.length)} allowed`}</span></span>
         </div>

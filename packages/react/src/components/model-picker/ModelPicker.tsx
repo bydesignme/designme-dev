@@ -137,9 +137,11 @@ export function ModelPicker({
           </div>
           <Fold open={!!suggestion}>
             <div className="dm-mpk-sg" aria-live="polite">
+              {/* a warning notice: the filled warning sign, the words, and the way out in the warning tint (dm-warn) */}
+              <svg className="dm-mpk-sgi" viewBox="0 0 24 24" aria-hidden="true"><path className="dm-a" d="M12 3.6 2.6 19.9h18.8z" /><path className="dm-b" d="M12 9.6v4.4M12 17v.01" /></svg>
               <p className="dm-mpk-sgt">{suggestion?.text}</p>
               <div className="dm-mpk-sga">
-                {suggestion?.actions.map((a, i, all) => <button key={a.label} type="button" className={cx('dm-pill dm-sm', i === all.length - 1 ? 'dm-primary' : 'dm-ghost')} onClick={a.onClick}>{a.label}</button>)}
+                {suggestion?.actions.map((a, i, all) => <button key={a.label} type="button" className={cx('dm-pill dm-sm', i === all.length - 1 ? 'dm-warn' : 'dm-ghost')} onClick={a.onClick}>{a.label}</button>)}
               </div>
             </div>
           </Fold>

@@ -60,10 +60,11 @@ export default function PlanReviewDemo() {
     stop.current = false; setNote(undefined); setPhase('running');
   });
 
+  // the header's clock runs while the agent works; a finished plan has none (owner, 18 Nov), its status line says how long it took
   return (
     <div ref={ref} style={{ width: '100%' }}>
       <PlanReview title="Plan: redesign the pricing page" steps={steps} onStepsChange={setSteps} phase={phase} status={status} note={note}
-        meta={ms === undefined ? undefined : clock(ms)}
+        meta={ms === undefined || phase === 'done' ? undefined : clock(ms)}
         onRequestChanges={() => setNote('Tell the agent what to change in chat')}
         onApprove={() => { stop.current = false; setNote(undefined); setPhase('running'); }}
         onStop={() => { stop.current = true; }} onSeeChanges={() => {}} />
