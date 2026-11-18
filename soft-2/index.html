@@ -2021,6 +2021,62 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 :root[data-style="bp"] .atx-drop.over .atx-ic::after{animation:none}
 @keyframes atxringbp{from{opacity:.6;transform:scale(1)}to{opacity:0;transform:scale(1.6)}}
 :root[data-style="bp"] .atx-ok .i{animation:none}
+/* Clean (owner, 18 Nov): one card that grows as files arrive (grow()), its content 16px from each edge. The drop zone is a
+   pill well inside it with a track's inner shadow, its upload button a secondary circle 8px in from the well's round end, so
+   the two are concentric; a file dragged over lifts the well to the surface with a stronger hairline. Files are rows with
+   hairline dividers under their text: a neutral circle with the type's colour as a small dot, and while a file uploads its
+   divider becomes a rail that fills with ink, a soft sheen running along it while the agent reads, then fades as a green tick
+   draws itself. The closing line is the foot strip, its count rolling as each file is read */
+:root[data-style="clean"] .atx{gap:0;background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow);overflow:clip}
+:root[data-style="clean"] .atx-ants{display:none}
+:root[data-style="clean"] .atx-drop{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;justify-items:start;column-gap:12px;row-gap:0;margin:16px 16px 0;padding:8px 16px 8px 8px;border-radius:26px;background:var(--row);box-shadow:var(--track-ring);font-size:13px;line-height:18px;text-align:left;transition:background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
+:root[data-style="clean"] .atx-drop:hover,:root[data-style="clean"] .atx-drop.over{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line-strong) 45%,transparent)}
+:root[data-style="clean"] .atx-drop.over{transform:none}
+:root[data-style="clean"] .atx-drop b{align-self:end;font-weight:500}
+:root[data-style="clean"] .atx-drop .muted{align-self:start;font-size:12.5px}
+:root[data-style="clean"] .atx-ic{grid-row:span 2;width:36px;height:36px;border-radius:50%;color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth);transition:transform var(--t) var(--ease),box-shadow var(--t-fast) var(--ease)}
+:root[data-style="clean"] .atx-drop:hover .atx-ic,:root[data-style="clean"] .atx-drop.over .atx-ic{transform:translateY(-2px);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-hover);color:var(--fg)}
+:root[data-style="clean"] .atx-drop.over .atx-ic::before,:root[data-style="clean"] .atx-drop.over .atx-ic::after{animation:none}
+:root[data-style="clean"] .atx-list{gap:0;padding:0 16px}
+:root[data-style="clean"] .atx-list:not(:empty){padding-block:6px}
+/* while the last file is still going up, its rail is the lowest thing in the card, so the list keeps it 16px from the edge */
+:root[data-style="clean"] .atx-list:has(>.atx-it:last-child :is(.atx-ring,.atx-rd)){padding-bottom:16px}
+:root[data-style="clean"] .atx-it{gap:12px;padding:10px 0;border-radius:0;overflow:visible;background:none}
+:root[data-style="clean"] .atx-it.up{background:none}
+/* the divider under a row's text (.atx-ln, Clean's own), which is the upload's rail while the file goes up, its ink fill
+   clipped to the progress with a soft sheen running along it; a file that is read keeps the hairline, the last one none */
+.atx-ln{position:absolute;left:44px;right:0;bottom:0;height:1px;border-radius:999px;background:var(--line);pointer-events:none;transition:height var(--t) var(--ease),background-color var(--t) var(--ease)}
+.atx-it:last-child .atx-ln{background:transparent}
+.atx-it:not(:has(.atx-ok)) .atx-ln{height:2px;background:var(--rail)}
+.atx-ln i{position:absolute;inset:0;border-radius:inherit;background:linear-gradient(90deg,var(--fg) 40%,color-mix(in srgb,var(--fg) 35%,var(--surface)) 50%,var(--fg) 60%) 0 0/250% 100%;clip-path:inset(0 calc(100% - var(--p)) 0 0 round 999px);transition:clip-path .2s linear,opacity .4s var(--ease);animation:atxsheen 1.6s linear infinite}
+.atx-it:has(.atx-ok) .atx-ln i{opacity:0;animation:none}
+@keyframes atxsheen{from{background-position:100% 0}to{background-position:0 0}}
+:root[data-style="clean"] .atx-ti{position:relative;width:32px;height:32px;border-radius:50%;font-size:9.5px;color:var(--fg2);background:var(--chip)}
+/* the file type's colour, as a small dot on the neutral circle */
+.atx-td{position:absolute;right:-1px;bottom:-1px;width:8px;height:8px;border-radius:50%;background:var(--c);box-shadow:0 0 0 2px var(--surface)}
+:root[data-style="clean"] .atx-it .atx-m,:root[data-style="clean"] .atx-it:not(.up) .atx-m{color:var(--muted)}
+/* the upload's own ring stays for screen readers; the rail shows the progress */
+:root[data-style="clean"] .atx-ring{opacity:0}
+:root[data-style="clean"] .atx-rd{color:var(--muted)}
+/* read: a green disc lands and its tick draws itself */
+.atx-okc{display:grid;place-items:center;width:16px;height:16px;border-radius:50%;background:var(--ok-mark);color:var(--surface);animation:atxokin .32s var(--ease) backwards}
+.atx-okc svg{width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.atx-okc path{stroke-dasharray:1;stroke-dashoffset:1;animation:atxokdraw .34s var(--ease) .16s forwards}
+@keyframes atxokin{from{opacity:0;transform:scale(.5)}}
+@keyframes atxokdraw{to{stroke-dashoffset:0}}
+:root[data-style="clean"] .atx-it .ib{width:28px;height:28px;margin-right:-8px;color:var(--muted)}
+:root[data-style="clean"] .atx-it .ib:hover{background:var(--row);color:var(--fg)}
+/* the foot strip: what the agent can read now, its count rolling up as each file is read */
+:root[data-style="clean"] .atx-sum{display:flex;align-items:center;gap:8px;min-height:0;padding:13px 16px;font-size:12.5px;line-height:18px;text-align:left;color:var(--fg2);background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
+:root[data-style="clean"] .atx-sum:empty{display:none}
+/* (a step of --ok in the vivid green keeps the small tick at 3:1 on the off-white strip) */
+:root[data-style="clean"] .atx-tk{display:grid;place-items:center;flex:none;color:color-mix(in srgb,var(--ok-mark) 80%,var(--ok))}
+:root[data-style="clean"] .atx-tk .i{stroke-width:2.2}
+.atx-roll{display:inline-grid;overflow:hidden;height:1lh;vertical-align:top}
+.atx-roll i{font-style:normal}
+.atx-roll i.in{animation:atxroll .32s var(--ease) both}
+@keyframes atxroll{from{opacity:0;transform:translateY(60%)}}
+@media (prefers-reduced-motion:reduce){.atx-ln i,.atx-okc,.atx-roll i.in{animation:none}.atx-okc path{animation:none;stroke-dashoffset:0}.atx-ln,:root[data-style="clean"] .atx-drop,:root[data-style="clean"] .atx-ic{transition:none}}
 /* ---------- Attachment tray designs ---------- */
 /* the card's three designs, picked in the switch under it: Classic (the component above, as it ships), Composer and Context budget. Each fills the
    width and sits centred in the room kept for the tallest of them. Classic keeps room for its three sample files, so its
@@ -2028,6 +2084,8 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .dm.atx-dm{min-height:0}
 .atx-dm>.dm-main>*{align-self:stretch}
 .atx-dm .atx-list{min-height:164.5px}
+/* in Clean the card grows with its files instead (owner, 17 Nov: no room kept for a later state) */
+:root[data-style="clean"] .atx-dm .atx-list{min-height:0}
 /* what both designs share: a clear file input over the control that opens it, and a grey picture of what is in each file
    (a page for a PDF, frames for a Figma file, a grid for a sheet, a scene for an image), its kind in the site's grey tag */
 .atx-pick{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:0}
@@ -2144,6 +2202,19 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 :root[data-style="bp"] .atx-cmp-box.thud{animation:none}
 :root[data-style="bp"] .atx-cmp-art .sh{animation:none}
 :root[data-style="bp"] .atx-cmp-empty.out .sh{transition:transform .2s steps(2,end),opacity .2s steps(2,end)}
+/* Clean: the box takes the card's 22px corners, and + and send sit 8px from its edges (send is 28px, so its round end follows
+   the corner; + lines its glyph up with the field above). Send is the ink button. The empty tray is a well with a track's
+   inner shadow, concentric with the box, and the previews are rounded pictures, not circles */
+:root[data-style="clean"] .atx-cmp-box{border-radius:var(--r-card)}
+:root[data-style="clean"] .atx-cmp-empty{border:0;border-radius:14px;background:var(--row);box-shadow:var(--track-ring)}
+:root[data-style="clean"] .atx-cmp-it,:root[data-style="clean"] .atx-cmp-th,:root[data-style="clean"] .atx-cmp-it:focus-visible{border-radius:12px}
+:root[data-style="clean"] .atx-cmp-f{padding:8px 0 0}
+:root[data-style="clean"] .atx-cmp-add{margin-left:1px}
+:root[data-style="clean"] .atx-cmp-send{width:28px;height:28px;transition:transform var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
+:root[data-style="clean"] .atx-cmp-send:not([disabled]){color:var(--on-btn);background:linear-gradient(180deg,var(--btn-1),var(--btn-2));box-shadow:var(--btn-depth)}
+:root[data-style="clean"] .atx-cmp-send:not([disabled]):hover{background:linear-gradient(180deg,color-mix(in srgb,var(--btn-1) 88%,#808080),var(--btn-2))}
+:root[data-style="clean"] .atx-cmp-send:not([disabled]):active{transform:scale(.97);box-shadow:var(--btn-press)}
+:root[data-style="clean"] .atx-cmp-ok{background:var(--ok-mark);color:var(--surface)}
 
 /* Context budget: what each file costs the agent's context. The window bar has the instructions first in grey, then each
    file in a step of the accent, as wide as its share; the same step marks the file's row. Each part is drawn across the
@@ -2203,6 +2274,14 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 :root[data-style="bp"] .atx-ctx-bar i,:root[data-style="bp"] .atx-ctx-segs i{transition:clip-path .4s steps(5,end),opacity .2s}
 :root[data-style="bp"] .atx-ctx-ic{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent)}
 :root[data-style="bp"] .atx-ctx-up{transition:transform .2s steps(2,end)}
+/* Clean: content 16px from the card's edges, the card grows with its files (grow()) rather than keeping room for three,
+   icons are circles, the upload line is ink, and the drop zone is a pill well with a track's inner shadow */
+:root[data-style="clean"] .atx-ctx{padding:16px}
+:root[data-style="clean"] .atx-ctx-list{min-height:0}
+:root[data-style="clean"] .atx-ctx-ic{border-radius:50%}
+:root[data-style="clean"] .atx-ctx-up{background:var(--fg)}
+:root[data-style="clean"] .atx-ctx-drop{background:var(--row);box-shadow:var(--track-ring);border-radius:999px}
+:root[data-style="clean"] .atx-ctx-drop:hover,:root[data-style="clean"] .atx-ctx-drop.over{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line-strong) 45%,transparent)}
 /* ---------- Response versions ---------- */
 .rvx{display:flex;flex-direction:column;gap:14px}
 .rvx-a{display:flex;flex-direction:column;gap:var(--s-2);padding:0 2px}
@@ -12412,10 +12491,13 @@ DM.def('attachment-tray', (r, c) => {
   const size = b => b > 1e6 ? (b / 1e6).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1e3)) + ' KB';
   const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
   let read = 0;
+  // Clean: the tray is a card that grows with its files (grow()), and its foot strip's count rolls; Soft and Blueprint as they were
+  const clean = (r.closest('[data-style]') || document.documentElement).dataset.style === 'clean';
+  if (clean) c.offs.push(grow($('.atx', r)));
   // a file uploads (its row fills with its hue and its ring closes), then the agent reads it and says what it found
   function add(name, bytes, i = 0, found){
     const k = kind(name), sz = size(bytes);
-    const it = html(`<div class="atx-it" style="--c:${k[1]};--cb:${k[2]}"><span class="atx-ti">${k[0]}</span><span class="atx-n"><span class="atx-nm">${esc(name)}</span><span class="atx-m"><span>${sz} · <span class="num pc">0%</span></span></span></span><svg class="atx-ring" viewBox="0 0 22 22" role="progressbar" aria-label="Uploading ${esc(name).replace(/"/g, '&quot;')}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><circle cx="11" cy="11" r="8" fill="none" stroke="var(--line)" stroke-width="2"/><circle cx="11" cy="11" r="8" fill="none" stroke="${k[1]}" stroke-width="2" stroke-linecap="round" stroke-dasharray="50.3" stroke-dashoffset="50.3" transform="rotate(-90 11 11)"/></svg><button class="ib" aria-label="Remove ${esc(name).replace(/"/g, '&quot;')}" data-tip="Remove">${I('x','xs')}</button></div>`);
+    const it = html(`<div class="atx-it" style="--c:${k[1]};--cb:${k[2]}"><span class="atx-ti">${k[0]}${clean ? '<span class="atx-td"></span>' : ''}</span><span class="atx-n"><span class="atx-nm">${esc(name)}</span><span class="atx-m"><span>${sz} · <span class="num pc">0%</span></span></span></span><svg class="atx-ring" viewBox="0 0 22 22" role="progressbar" aria-label="Uploading ${esc(name).replace(/"/g, '&quot;')}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><circle cx="11" cy="11" r="8" fill="none" stroke="var(--line)" stroke-width="2"/><circle cx="11" cy="11" r="8" fill="none" stroke="${k[1]}" stroke-width="2" stroke-linecap="round" stroke-dasharray="50.3" stroke-dashoffset="50.3" transform="rotate(-90 11 11)"/></svg><button class="ib" aria-label="Remove ${esc(name).replace(/"/g, '&quot;')}" data-tip="Remove">${I('x','xs')}</button>${clean ? '<span class="atx-ln" aria-hidden="true"><i></i></span>' : ''}</div>`);
     list.appendChild(it); enter(it, i * 80);
     $('.ib', it).onclick = () => { it.classList.add('leave'); setTimeout(() => it.remove(), 320); };
     const svg = $('.atx-ring', it), ring = $$('circle', it)[1], m = $('.atx-m', it); let p = 0;
@@ -12427,8 +12509,13 @@ DM.def('attachment-tray', (r, c) => {
       // reading: the ring gives way to a spinner and the line shimmers, then says what the agent found
       svg.outerHTML = '<span class="atx-rd"><span class="spin"></span></span>'; swap(m, `<span class="shim">${sz} · Reading</span>`, true);
       c.later(REDUCE ? 0 : 900, () => {
-        const rd = $('.atx-rd', it); if (rd) rd.outerHTML = `<span class="atx-ok">${I('ok')}</span>`;
-        swap(m, found ? `${sz} · ${found}` : sz); read++; swap(sum, 'The agent can read ' + read + (read > 1 ? ' files' : ' file') + ' now');
+        const rd = $('.atx-rd', it); if (rd) rd.outerHTML = `<span class="atx-ok">${clean ? '<span class="atx-okc"><svg viewBox="0 0 16 16" aria-hidden="true"><path pathLength="1" d="M4.6 8.3l2.3 2.3 4.5-4.8"/></svg></span>' : I('ok')}</span>`;
+        swap(m, found ? `${sz} · ${found}` : sz); read++;
+        if (!clean) { swap(sum, 'The agent can read ' + read + (read > 1 ? ' files' : ' file') + ' now'); return; }
+        // Clean: the foot strip opens with a green tick, and from then on only its count rolls
+        const w = read > 1 ? 'files' : 'file', rl = $('.atx-roll', sum);
+        if (!rl) swap(sum, `<span class="atx-tk">${I('check','xs')}</span><span>The agent can read <span class="atx-roll num"><i>${read}</i></span> <span class="atx-w">${w}</span> now</span>`, true);
+        else { rl.innerHTML = `<i class="in">${read}</i>`; $('.atx-w', sum).textContent = w; }
       });
     });
   }
@@ -12610,6 +12697,8 @@ DM.def('attachment-tray', (r, c) => {
   function atxBudget(r, c){
     const list = $('.atx-ctx-list', r), segs = $('.atx-ctx-segs', r), bar = $('.atx-ctx-bar', r), st = $('.atx-ctx-st', r), pc = $('.atx-ctx-pc', r), free = $('.atx-ctx-free', r), dz = $('.atx-ctx-drop', r);
     const WIN = 128000, SYS = 4000, files = [];
+    // Clean: the card grows with its files (owner, 17 Nov), as Classic does there; Soft and Blueprint keep their room
+    if ((r.closest('[data-style]') || document.documentElement).dataset.style === 'clean') c.offs.push(grow($('.atx-ctx', r)));
     // what a file takes: its tokens, or for one too big to read whole, the part the agent keeps (a quarter of the window)
     const cost = f => !f.on ? 0 : f.cut ? 32000 : f.tk;
     function total(){
