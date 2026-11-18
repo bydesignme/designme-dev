@@ -1463,8 +1463,10 @@ patch("""</head>""", """<script>
 # inlined in the head by build.js) applies it and draws the panel. Reset in the panel forgets the theme and picks Soft. While a
 # pasted theme is on, the accent picker is hidden (it would do nothing); Reset brings it back.
 # Blueprint and Soft work as before. The component and docs pages have the same option (tools/pages/src/layouts/Page.astro)
+# Your theme is off the switch for now (owner, 18 Nov): its button is left out here and on the pages, and theme-bridge.js turns a
+# stored "mine" back into Soft; the bridge and its panel stay, for when it returns
 patch("""<span>Soft</span></button></div>""",
-      """<span>Soft</span></button><button data-v="clean"><svg class="ss-ic ss-pill" viewBox="0 0 256 256" aria-hidden="true"><rect x="24" y="76" width="208" height="104" rx="52" opacity="0.2"/><rect x="24" y="76" width="208" height="104" rx="52" fill="none" stroke="currentColor" stroke-width="16"/></svg><span>Clean</span></button><button data-v="mine" aria-haspopup="dialog"><svg class="ss-ic ss-pal" viewBox="0 0 256 256" aria-hidden="true"><circle cx="128" cy="128" r="96" opacity="0.2"/><circle cx="128" cy="128" r="96" fill="none" stroke="currentColor" stroke-width="16"/><circle cx="92" cy="104" r="14"/><circle cx="144" cy="84" r="14"/><circle cx="172" cy="132" r="14"/></svg><span>Your theme</span></button></div>""")
+      """<span>Soft</span></button><button data-v="clean"><svg class="ss-ic ss-pill" viewBox="0 0 256 256" aria-hidden="true"><rect x="24" y="76" width="208" height="104" rx="52" opacity="0.2"/><rect x="24" y="76" width="208" height="104" rx="52" fill="none" stroke="currentColor" stroke-width="16"/></svg><span>Clean</span></button></div>""")
 patch("""const cur = root.getAttribute('data-style') || 'blueprint';""",
       """let cur = root.getAttribute('data-style') || 'blueprint';
     try { if (localStorage.getItem('dmui-style') === 'mine') cur = 'mine'; } catch(e) {}""")
@@ -1638,6 +1640,12 @@ body.ui .launch{margin-top:28px;gap:24px}
 body.ui .launch.filtered-out,body.ui .launch:not(:has(.comp)){display:none}
 /* the lead has three normal-width cards: the last one takes the whole row rather than leave half of it empty */
 .launch:has(.comp) + .lib-sec .sec-head{padding-top:44px}
+"""
+
+CSS += """
+/* a section file that didn't load: a quiet note with a retry, never an empty stage (build.js writes the note) */
+.dm-lf{display:flex;flex-direction:column;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
+.dm-lf button{font:inherit;font-weight:500;color:var(--fg);background:var(--surface,#fff);border:1px solid color-mix(in srgb,var(--line) 50%,transparent);border-radius:8px;padding:6px 12px;cursor:pointer}
 """
 
 json.dump({ 'patches': P, 'css': CSS },open(os.path.join(HERE, 'site-patches.json'), 'w'), indent=1)
