@@ -1503,9 +1503,12 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .aln-sw-ho{position:absolute;z-index:2;left:calc(var(--lab) + var(--x0) * (100% - var(--lab)));width:calc((var(--x1) - var(--x0)) * (100% - var(--lab)));top:calc(var(--from) * (var(--rh) + var(--gap)) + var(--rh) / 2 + var(--bh) / 2);height:calc((var(--to) - var(--from)) * (var(--rh) + var(--gap)) - var(--bh) / 2);border-left:1.5px solid var(--hc);border-bottom:1.5px solid var(--hc);border-bottom-left-radius:5px;pointer-events:none;clip-path:inset(0 -10px 100% -4px);transition:clip-path .5s var(--ease)}
 .aln-sw-ho.on{clip-path:inset(0 -10px -8px -4px)}
 .aln-sw-ho i{position:absolute;right:-6px;bottom:-4.75px;width:0;height:0;border-left:6px solid var(--hc);border-top:4px solid transparent;border-bottom:4px solid transparent}
-.aln-sw-tg{position:absolute;z-index:3;left:calc(var(--lab) + var(--x0) * (100% - var(--lab)));top:calc(var(--to) * (var(--rh) + var(--gap)) + var(--rh) / 2 - 10px);background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 1px var(--line);opacity:0;transform:translate(calc(-100% - 7px),4px);transition:opacity .3s,transform .45s var(--ease);pointer-events:none}
+.aln-sw-tg{position:absolute;z-index:3;left:calc(var(--lab) + var(--x0) * (100% - var(--lab)));top:calc(var(--to) * (var(--rh) + var(--gap)) + var(--rh) / 2 - 10px);background:color-mix(in srgb,var(--c) 22%,var(--surface));color:var(--fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 40%,transparent);gap:4px;padding:0 10px 0 7px;opacity:0;transform:translate(calc(-100% - 7px),4px);transition:opacity .3s,transform .45s var(--ease);pointer-events:none}
 .aln-sw-tg.on{opacity:1;transform:translate(calc(-100% - 7px),0)}
-.aln-sw-tg .i{color:var(--muted)}
+.aln-sw-tg .i{color:var(--c)}
+/* Blueprint keeps its neutral tag (owner, 18 Nov: "blueprint looks good as is") */
+:root[data-style="bp"] .aln-sw-tg{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);gap:5px;padding:0 7px}
+:root[data-style="bp"] .aln-sw-tg .i{color:var(--muted)}
 /* the playhead: a grey line through the lanes and the time on a white tag, green once the run is done */
 .aln-sw-ph{position:absolute;z-index:4;top:0;bottom:0;left:var(--lab);right:0;pointer-events:none;outline:0}
 .aln-sw-ph i{position:absolute;top:20px;bottom:-4px;left:-.75px;width:1.5px;background:var(--fg2);transition:transform .1s linear}
@@ -1526,6 +1529,18 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 :root[data-style="bp"] .aln-sw-ho{border-left-width:1px;border-bottom-width:1px}
 :root[data-style="bp"] .aln-sw-ph i{width:1px;left:-.5px}
 :root[data-style="bp"] .aln-sw-ho,:root[data-style="bp"] .aln-sw-tg{transition-timing-function:steps(4,end)}
+/* Soft and Clean give each lane's steps room inside the track (owner, 18 Nov: Soft had none): 10px at the start and 8px at the
+   end, the clock running between them; Blueprint keeps its steps flush with the track (owner: "blueprint looks good as is") */
+.aln-sw-lane{border:solid transparent;border-width:0 8px 0 10px}
+.aln-sw-ax{margin-left:calc(var(--lab) + 10px);margin-right:8px}
+.aln-sw-ph{left:calc(var(--lab) + 10px);right:8px}
+.aln-sw-ho{left:calc(var(--lab) + 10px + var(--x0) * (100% - var(--lab) - 18px));width:calc((var(--x1) - var(--x0)) * (100% - var(--lab) - 18px))}
+.aln-sw-tg{left:calc(var(--lab) + 10px + var(--x0) * (100% - var(--lab) - 18px))}
+:root[data-style="bp"] .aln-sw-lane{border:0}
+:root[data-style="bp"] .aln-sw-ax{margin-left:var(--lab);margin-right:0}
+:root[data-style="bp"] .aln-sw-ph{left:var(--lab);right:0}
+:root[data-style="bp"] .aln-sw-ho{left:calc(var(--lab) + var(--x0) * (100% - var(--lab)));width:calc((var(--x1) - var(--x0)) * (100% - var(--lab)))}
+:root[data-style="bp"] .aln-sw-tg{left:calc(var(--lab) + var(--x0) * (100% - var(--lab)))}
 /* Clean (owner, 18 Nov): the head and the lanes 16px in from the card's edges, and an off-white foot strip with the line saying
    what happened; Pause and Back to now sit in it, 8px from its edges, as round as the card's corner less 8px. The parts are
    placed on one grid, so the markup stays Soft's. Each lane's steps sit inside its track with even room all round: the track
@@ -1540,7 +1555,6 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 :root[data-style="clean"] .aln-sw-say{grid-row:3;grid-column:1;align-self:center;margin:0 12px 0 16px;line-height:20px}
 :root[data-style="clean"] .aln-sw-live{grid-row:3;grid-column:2;align-self:end;margin:8px 8px 8px 0}
 :root[data-style="clean"] .aln-sw-pause{grid-row:3;grid-column:3;align-self:end;margin:8px 8px 8px 0}
-:root[data-style="clean"] .aln-sw-lane{border:solid transparent;border-width:0 8px 0 10px}
 /* the lanes and what is still to come are neutral: a grey track with the clock's lines, steps not yet started as a grey dashed
    outline and a wait as grey hatching. An agent's colour shows only on a step it is running or has done */
 :root[data-style="clean"] .aln-sw-lane{background:linear-gradient(90deg,transparent 1px,color-mix(in srgb,var(--line) 80%,transparent) 1px 2px,transparent 2px) -1px 0/25% 100%,color-mix(in srgb,var(--fg) 4%,var(--surface))}
@@ -1548,12 +1562,8 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 :root[data-style="clean"] .aln-sw-w{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--fg) 12%,transparent) 0 2px,transparent 2px 6px)}
 :root[data-style="clean"] .aln-sw-key .next{box-shadow:inset 0 0 0 1px var(--faint)}
 :root[data-style="clean"] .aln-sw-key .wait{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--fg) 30%,transparent) 0 1px,transparent 1px 3px)}
-:root[data-style="clean"] .aln-sw-ax{margin-left:calc(var(--lab) + 10px);margin-right:8px}
 :root[data-style="clean"] .aln-sw-ticks span{transition:opacity var(--t-fast) var(--ease)}
 :root[data-style="clean"] .aln-sw-ticks span.hid{opacity:0}
-:root[data-style="clean"] .aln-sw-ph{left:calc(var(--lab) + 10px);right:8px}
-:root[data-style="clean"] .aln-sw-ho{left:calc(var(--lab) + 10px + var(--x0) * (100% - var(--lab) - 18px));width:calc((var(--x1) - var(--x0)) * (100% - var(--lab) - 18px))}
-:root[data-style="clean"] .aln-sw-tg{left:calc(var(--lab) + 10px + var(--x0) * (100% - var(--lab) - 18px))}
 
 
 /* Crew: a card per agent, each on its own clock, so pausing one or steering it leaves the others running. Its avatar is in
@@ -2830,25 +2840,31 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .pgx-ht span{font-size:13px}
 /* the scopes line up with the head (owner, 18 Nov): each box centred in a 32px column under the icon tile, its words where the
    question's start, and the row's hover fill exactly the content's width, from the tile's left edge to the right edge the
-   buttons below end on */
+   buttons below end on. The box sits 7px inside the fill, and a tag at the row's end sits 7px inside it too */
 .pgx-sc{display:flex;flex-direction:column}
-.pgx-o{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;column-gap:var(--s-3);padding:var(--s-2) 0;border-radius:calc(10px * var(--rk-m,var(--rk)));cursor:pointer;font-size:13.5px;transition:background .25s}
+.pgx-o{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;column-gap:var(--s-3);padding:var(--s-2) 7px var(--s-2) 0;border-radius:calc(10px * var(--rk-m,var(--rk)));cursor:pointer;font-size:13.5px;transition:background .25s}
 .pgx-o>.bx{justify-self:center}
 .pgx-o:hover{background:var(--row)}
 .pgx-o input{position:absolute;opacity:0;pointer-events:none}
-.pgx-o .bx{width:18px;height:18px;border-radius:calc(6px * var(--rk-s,var(--rk)));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--muted) 80%,var(--surface));display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--ease),box-shadow .3s,color .3s}
+.pgx-o .bx{width:18px;height:18px;border-radius:calc(6px * var(--rk-s,var(--rk)));box-shadow:inset 0 0 0 1.5px var(--fg2);display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--ease),box-shadow .3s,color .3s}
 .pgx-o .bx svg{transform:scale(.4);transition:transform .35s var(--ease)}
 .pgx-o input:checked+.bx{background:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent-mark,var(--accent));color:var(--on-accent)}
 .pgx-o input:checked+.bx svg{transform:none}
 .pgx-o input:focus-visible+.bx{outline:2px solid var(--focus);outline-offset:2px}
 .pgx-o .t{flex:1;min-width:0}
+/* asking again for one scope, every style: nothing to tick, so the scope is a plain row led by a tile like the question's
+   (what it does, in the same 32px column) and the button just says Allow (owner, 18 Nov) */
+.pgx-o.one{cursor:default}
+.pgx-o.one:hover{background:none}
+.pgx-o.one>.oi{width:32px;height:32px;display:grid;place-items:center;border-radius:calc(9px * var(--rk-m,var(--rk)));background:var(--chip);color:var(--fg2)}
+:root[data-style="clean"] .pgx-o.one>.oi{box-shadow:inset 0 0 0 1px var(--hair)}
 .pgx-o .d{display:block;font-size:12px;color:var(--muted)}
 .pgx-f{display:flex;align-items:center;gap:6px;padding-top:var(--s-3);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .pgx-f .sp{flex:1}
 /* on a narrow stage the duration gets its own row, and the two buttons stay together under it on the right */
 @container (max-width:340px){.pgx-f{flex-wrap:wrap}.pgx-f .sp{flex-basis:100%}.pgx-no{margin:var(--s-2) 0 0 auto}.pgx-ok{margin-top:var(--s-2)}}
 /* how long: a small dropdown, the way a menu of choices usually looks */
-.pgx-db{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--s-2) 0 10px;margin-left:-10px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);white-space:nowrap;transition:background .16s,color .16s}
+.pgx-db{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--s-2) 0 10px;margin-left:0;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);white-space:nowrap;transition:background .16s,color .16s}
 .pgx-db:hover,.pgx-db[aria-expanded="true"]{background:var(--row);color:var(--fg)}
 .pgx-db>svg{color:var(--muted);transition:transform .32s var(--ease)}
 .pgx-db[aria-expanded="true"]>svg{transform:rotate(180deg)}
@@ -2869,7 +2885,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .pgx-tm{font-size:12px;color:var(--muted)}
 /* asking again mid-run, for one more scope: the tile turns amber */
 .pgx-ic{transition:background .32s var(--ease)}
-.pgx.esc .pgx-ic{background:var(--warn-bg)}
+/* asking again keeps the tile neutral in every style: the Risky tag on the scope carries the warning (owner, 18 Nov) */
 .pgx-scope{display:flex;flex-direction:column;gap:var(--s-3)}
 /* the line in the foot strip once you have answered (Clean only): the scopes you allowed, or that you allowed none */
 .pgx-sum{display:none}
@@ -2884,7 +2900,6 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 :root[data-style="clean"] .pgx.panel:has(.pgx-pop.open){overflow:visible}
 :root[data-style="clean"] .pgx-ic{box-shadow:inset 0 0 0 1px var(--hair)}
 /* asking again keeps the tile neutral: the Risky tag on the scope carries the warning */
-:root[data-style="clean"] .pgx.esc .pgx-ic{background:var(--chip)}
 :root[data-style="clean"] .pgx-ht b{line-height:20px;letter-spacing:-.01em}
 :root[data-style="clean"] .pgx-ht span,:root[data-style="clean"] .pgx-o .d,:root[data-style="clean"] .pgx-done .t span{line-height:18px}
 :root[data-style="clean"] :is(.pgx-o,.pgx-done) .t{line-height:20px}
@@ -2895,10 +2910,8 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 :root[data-style="clean"] .pgx-o+.pgx-o{background-image:linear-gradient(var(--hair),var(--hair));background-repeat:no-repeat;background-position:0 0;background-size:100% 1px}
 :root[data-style="clean"] :is(.pgx-o:hover,.pgx-o:hover+.pgx-o){background-image:none}
 /* asking again for one scope: nothing to tick, so the scope is an info row, its info mark where the box would be */
-:root[data-style="clean"] .pgx-o.one{cursor:default}
-:root[data-style="clean"] .pgx-o.one:hover{background:none}
-:root[data-style="clean"] .pgx-o.one>.oi{justify-self:center;display:grid;place-items:center;color:var(--fg2)}
-:root[data-style="clean"] .pgx-o .bx{border-radius:calc(4px * var(--rk-s,var(--rk)));background:var(--surface);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--muted) 80%,var(--surface)),var(--track-ring);transition:background .2s var(--ease),box-shadow .2s var(--ease)}
+
+:root[data-style="clean"] .pgx-o .bx{border-radius:calc(4px * var(--rk-s,var(--rk)));background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--fg2),var(--track-ring);transition:background .2s var(--ease),box-shadow .2s var(--ease)}
 :root[data-style="clean"] .pgx-o .bx svg{transform:none;stroke-dasharray:21;stroke-dashoffset:21;transition:stroke-dashoffset .3s var(--ease)}
 :root[data-style="clean"] .pgx-o input:checked+.bx{background:linear-gradient(180deg,var(--btn-1),var(--btn-2));box-shadow:inset 0 0 0 1px var(--btn-2),inset 0 2px 3px -1px rgba(255,255,255,.28);color:var(--on-btn)}
 :root[data-style="clean"] .pgx-o input:checked+.bx svg{stroke-dashoffset:0;transition-delay:.06s}
@@ -13581,12 +13594,13 @@ DM.def('permission-gate', (r, c) => {
   const root = $('.pgx', r), ok = $('.pgx-ok', r), no = $('.pgx-no', r), sc = $('.pgx-sc', r), title = $('.pgx-ht b', r), sub = $('.pgx-ht .muted', r);
   const first = { sc:sc.innerHTML, title:title.textContent, sub:sub.textContent, no:no.textContent };
   const boxes = () => $$('.pgx-o input', sc);
-  // Clean (owner, 18 Nov) has its own touches: the card fits what it holds at every moment (grow(), never a kept height),
+  // the card fits what it holds at every moment, in every style (grow(), never a kept height: owner, 17 and 18 Nov). Clean
+  // (owner, 18 Nov) has its own touches:
   // the count on Allow rolls, the answer gets a summary line in the foot strip, and the done mark is a tick that draws.
   // Soft and Blueprint keep theirs
   const ds = r.closest('[data-style]'), clean = !!ds && ds.dataset.style === 'clean';
   // grow() starts once the card's entrance (which scales it from .98) has ended, so it measures the card at its real size
-  if (clean) Promise.resolve().then(() => Promise.all(root.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && root.isConnected) c.offs.push(grow(root)); });
+  Promise.resolve().then(() => Promise.all(root.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && root.isConnected) c.offs.push(grow(root)); });
   // where a result row goes: in the card, or in grow()'s wrapper inside it
   const into = () => $(':scope>.dm-grow', root) || root;
   // how long: This task, Today or Always, from the dropdown in the footer
@@ -13598,7 +13612,7 @@ DM.def('permission-gate', (r, c) => {
   let shown = 0;
   const roll = (cnt, n, up) => { const old = cnt.lastElementChild, nu = document.createElement('i'); nu.textContent = n; nu.className = up ? 'iu' : 'id'; if (old){ old.className = up ? 'ou' : 'od'; setTimeout(() => old.remove(), REDUCE ? 0 : 300); } cnt.appendChild(nu); };
   // Clean asks again for its one scope as a plain row (nothing to tick), and its button just says Allow
-  const one = () => clean && $('.pgx-o.one', sc);
+  const one = () => $('.pgx-o.one', sc);
   const count = () => { if (one()){ ok.disabled = false; shown = 0; return swap(ok, 'Allow'); }
     const n = boxes().filter(b => b.checked).length; ok.disabled = !n;
     if (!clean) return swap(ok, n ? 'Allow ' + n + (n > 1 ? ' scopes' : ' scope') : 'Pick a scope');
@@ -13610,9 +13624,8 @@ DM.def('permission-gate', (r, c) => {
   c.on(sc, 'change', count);
   $$('.pgx-pop .mi', r).forEach(m => m.addEventListener('click', () => { dur = m.dataset.v; $$('.pgx-pop .mi', r).forEach(x => x.setAttribute('aria-checked', x === m)); swap($('.pgx-dv', r), dur === 'Always' ? 'Always' : 'For ' + dur.toLowerCase()); }));
   const body = [sc, $('.pgx-f', r)];
-  // the scopes give way to a shorter result row: on the card it keeps the height it had and centres the row (hold). In Clean
-  // the card eases to the row's height instead
-  const show = on => { if (!on && c.card && !clean && !root.classList.contains('held')) hold(root); body.forEach(e => e.hidden = !on); if (on) stagger(body, 50); };
+  // the scopes give way to a shorter result row, and the card eases to its height (grow())
+  const show = on => { body.forEach(e => e.hidden = !on); if (on) stagger(body, 50); };
   // Clean's summary line in the foot strip: the scopes you allowed, by name, or how many on a narrow stage
   let names = [];
   const sum = (el, text, short = text) => { if (!clean) return; const s = el.appendChild(html(`<span class="pgx-sum"><span class="l"></span><span class="s"></span></span>`)); s.firstChild.textContent = text; s.lastChild.textContent = short; };
@@ -13655,7 +13668,7 @@ DM.def('permission-gate', (r, c) => {
     c.later(300, () => {
       p.remove();
       sc.innerHTML = clean
-        ? `<div class="pgx-o one" data-k="publish"><span class="oi">${I('info')}</span><span class="t">Publish library<span class="d">Updates Checkout, Marketing site, Email kit and Docs</span></span><span class="tag warn">Risky</span></div>`
+        ? `<div class="pgx-o one" data-k="publish"><span class="oi">${I('upload')}</span><span class="t">Publish library<span class="d">Updates Checkout, Marketing site, Email kit and Docs</span></span><span class="tag warn">Risky</span></div>`
         : `<label class="pgx-o" data-k="publish"><input type="checkbox" checked><span class="bx">${I('check','xs')}</span><span class="t">Publish library<span class="d">Updates Checkout, Marketing site, Email kit and Docs</span></span><span class="tag warn">Risky</span></label>`;
       no.textContent = 'Skip this frame'; count(); show(true);
     });
@@ -13664,7 +13677,7 @@ DM.def('permission-gate', (r, c) => {
     run++; granted = done = ms = 0; publish = skip = false; names = [];
     root.classList.remove('esc'); sc.innerHTML = first.sc; swap(title, first.title); swap(sub, first.sub); no.textContent = first.no; count();
   }
-  function revoke(){ const p = panel; panel = null; run++; p.classList.add('leave'); c.later(300, () => { p.remove(); release(root); reset(); show(true); }); }
+  function revoke(){ const p = panel; panel = null; run++; p.classList.add('leave'); c.later(300, () => { p.remove(); reset(); show(true); }); }
   ok.onclick = () => c.run(async () => {
     const picked = one() ? [one()] : boxes().filter(b => b.checked).map(b => b.closest('.pgx-o')); if (!picked.length) return;
     granted += picked.length; if (picked.some(o => o.dataset.k === 'publish')) publish = true;
@@ -13682,7 +13695,7 @@ DM.def('permission-gate', (r, c) => {
   no.onclick = () => {
     if (root.classList.contains('esc')){ skip = true; show(false); root.classList.remove('esc'); swap(title, first.title); swap(sub, first.sub); work(); return; }
     show(false); const d = html(`<div class="pgx-done" style="background:var(--chip)">${I('info')}<span class="t">The agent will skip the Figma edits<span>It will list the fixes in chat instead</span></span><button class="pill ghost sm">Undo</button></div>`);
-    sum(d, 'Nothing allowed in Figma'); into().appendChild(d); enter(d); $('button', d).onclick = () => { d.remove(); release(root); show(true); };
+    sum(d, 'Nothing allowed in Figma'); into().appendChild(d); enter(d); $('button', d).onclick = () => { d.remove(); show(true); };
   };
   // the preview's story: hold back the risky scope, allow the rest, then grant it when the agent needs it for one frame
   c.story(async s => {

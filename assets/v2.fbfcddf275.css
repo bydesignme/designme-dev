@@ -2808,25 +2808,31 @@
 .v2 .pgx-ht span{font-size:13px}
 /* the scopes line up with the head (owner, 18 Nov): each box centred in a 32px column under the icon tile, its words where the
    question's start, and the row's hover fill exactly the content's width, from the tile's left edge to the right edge the
-   buttons below end on */
+   buttons below end on. The box sits 7px inside the fill, and a tag at the row's end sits 7px inside it too */
 .v2 .pgx-sc{display:flex;flex-direction:column}
-.v2 .pgx-o{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;column-gap:var(--s-3);padding:var(--s-2) 0;border-radius:calc(10px * var(--rk-m,var(--rk)));cursor:pointer;font-size:13.5px;transition:background .25s}
+.v2 .pgx-o{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;column-gap:var(--s-3);padding:var(--s-2) 7px var(--s-2) 0;border-radius:calc(10px * var(--rk-m,var(--rk)));cursor:pointer;font-size:13.5px;transition:background .25s}
 .v2 .pgx-o>.bx{justify-self:center}
 @media (hover:hover) and (pointer:fine){.v2 .pgx-o:hover{background:var(--row)}}
 .v2 .pgx-o input{position:absolute;opacity:0;pointer-events:none}
-.v2 .pgx-o .bx{width:18px;height:18px;border-radius:calc(6px * var(--rk-s,var(--rk)));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--muted) 80%,var(--surface));display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--ease),box-shadow .3s,color .3s}
+.v2 .pgx-o .bx{width:18px;height:18px;border-radius:calc(6px * var(--rk-s,var(--rk)));box-shadow:inset 0 0 0 1.5px var(--fg2);display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--ease),box-shadow .3s,color .3s}
 .v2 .pgx-o .bx svg{transform:scale(.4);transition:transform .35s var(--ease)}
 .v2 .pgx-o input:checked+.bx{background:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent-mark,var(--accent));color:var(--on-accent,#fff)}
 .v2 .pgx-o input:checked+.bx svg{transform:none}
 .v2 .pgx-o input:focus-visible+.bx{outline:2px solid var(--focus);outline-offset:2px}
 .v2 .pgx-o .t{flex:1;min-width:0}
+/* asking again for one scope, every style: nothing to tick, so the scope is a plain row led by a tile like the question's
+   (what it does, in the same 32px column) and the button just says Allow (owner, 18 Nov) */
+.v2 .pgx-o.one{cursor:default}
+@media (hover:hover) and (pointer:fine){.v2 .pgx-o.one:hover{background:none}}
+.v2 .pgx-o.one>.oi{width:32px;height:32px;display:grid;place-items:center;border-radius:calc(9px * var(--rk-m,var(--rk)));background:var(--chip);color:var(--fg2)}
+:root[data-style="clean"] .v2 .pgx-o.one>.oi{box-shadow:inset 0 0 0 1px var(--hair)}
 .v2 .pgx-o .d{display:block;font-size:12px;color:var(--muted)}
 .v2 .pgx-f{display:flex;align-items:center;gap:6px;padding-top:var(--s-3);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .v2 .pgx-f .sp{flex:1}
 /* on a narrow stage the duration gets its own row, and the two buttons stay together under it on the right */
 @container (max-width:340px){.v2 .pgx-f{flex-wrap:wrap}.v2 .pgx-f .sp{flex-basis:100%}.v2 .pgx-no{margin:var(--s-2) 0 0 auto}.v2 .pgx-ok{margin-top:var(--s-2)}}
 /* how long: a small dropdown, the way a menu of choices usually looks */
-.v2 .pgx-db{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--s-2) 0 10px;margin-left:-10px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);white-space:nowrap;transition:background .16s,color .16s}
+.v2 .pgx-db{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--s-2) 0 10px;margin-left:0;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);white-space:nowrap;transition:background .16s,color .16s}
 .v2 .pgx-db[aria-expanded="true"]{background:var(--row);color:var(--fg)}
 @media (hover:hover) and (pointer:fine){.v2 .pgx-db:hover{background:var(--row);color:var(--fg)}}
 .v2 .pgx-db>svg{color:var(--muted);transition:transform .32s var(--ease)}
@@ -2848,7 +2854,7 @@
 .v2 .pgx-tm{font-size:12px;color:var(--muted)}
 /* asking again mid-run, for one more scope: the tile turns amber */
 .v2 .pgx-ic{transition:background .32s var(--ease)}
-.v2 .pgx.esc .pgx-ic{background:var(--warn-bg)}
+/* asking again keeps the tile neutral in every style: the Risky tag on the scope carries the warning (owner, 18 Nov) */
 .v2 .pgx-scope{display:flex;flex-direction:column;gap:var(--s-3)}
 /* the line in the foot strip once you have answered (Clean only): the scopes you allowed, or that you allowed none */
 .v2 .pgx-sum{display:none}
@@ -2863,7 +2869,6 @@
 :root[data-style="clean"] .v2 .pgx.panel:has(.pgx-pop.open){overflow:visible}
 :root[data-style="clean"] .v2 .pgx-ic{box-shadow:inset 0 0 0 1px var(--hair)}
 /* asking again keeps the tile neutral: the Risky tag on the scope carries the warning */
-:root[data-style="clean"] .v2 .pgx.esc .pgx-ic{background:var(--chip)}
 :root[data-style="clean"] .v2 .pgx-ht b{line-height:20px;letter-spacing:-.01em}
 :root[data-style="clean"] .v2 .pgx-ht span,:root[data-style="clean"] .v2 .pgx-o .d,:root[data-style="clean"] .v2 .pgx-done .t span{line-height:18px}
 :root[data-style="clean"] .v2 :is(.pgx-o,.pgx-done) .t{line-height:20px}
@@ -2874,10 +2879,8 @@
 :root[data-style="clean"] .v2 .pgx-o+.pgx-o{background-image:linear-gradient(var(--hair),var(--hair));background-repeat:no-repeat;background-position:0 0;background-size:100% 1px}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 :is(.pgx-o:hover,.pgx-o:hover+.pgx-o){background-image:none}}
 /* asking again for one scope: nothing to tick, so the scope is an info row, its info mark where the box would be */
-:root[data-style="clean"] .v2 .pgx-o.one{cursor:default}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .pgx-o.one:hover{background:none}}
-:root[data-style="clean"] .v2 .pgx-o.one>.oi{justify-self:center;display:grid;place-items:center;color:var(--fg2)}
-:root[data-style="clean"] .v2 .pgx-o .bx{border-radius:calc(4px * var(--rk-s,var(--rk)));background:var(--surface);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--muted) 80%,var(--surface)),var(--track-ring);transition:background .2s var(--ease),box-shadow .2s var(--ease)}
+
+:root[data-style="clean"] .v2 .pgx-o .bx{border-radius:calc(4px * var(--rk-s,var(--rk)));background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--fg2),var(--track-ring);transition:background .2s var(--ease),box-shadow .2s var(--ease)}
 :root[data-style="clean"] .v2 .pgx-o .bx svg{transform:none;stroke-dasharray:21;stroke-dashoffset:21;transition:stroke-dashoffset .3s var(--ease)}
 :root[data-style="clean"] .v2 .pgx-o input:checked+.bx{background:linear-gradient(180deg,var(--btn-1),var(--btn-2));box-shadow:inset 0 0 0 1px var(--btn-2),inset 0 2px 3px -1px rgba(255,255,255,.28);color:var(--on-btn)}
 :root[data-style="clean"] .v2 .pgx-o input:checked+.bx svg{stroke-dashoffset:0;transition-delay:.06s}

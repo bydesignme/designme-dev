@@ -1,16 +1,17 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, REDUCE, enter, grow, hold, html, release, stagger, swap } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, enter, grow, html, stagger, swap } from '../core/core.js';
 DM.def('permission-gate', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{figma}', I('figma')).replace(/\{chk\}/g, I('check','xs')).replace('{chev}', I('chev-d','xs'));
   const root = $('.pgx', r), ok = $('.pgx-ok', r), no = $('.pgx-no', r), sc = $('.pgx-sc', r), title = $('.pgx-ht b', r), sub = $('.pgx-ht .muted', r);
   const first = { sc:sc.innerHTML, title:title.textContent, sub:sub.textContent, no:no.textContent };
   const boxes = () => $$('.pgx-o input', sc);
-  // Clean (owner, 18 Nov) has its own touches: the card fits what it holds at every moment (grow(), never a kept height),
+  // the card fits what it holds at every moment, in every style (grow(), never a kept height: owner, 17 and 18 Nov). Clean
+  // (owner, 18 Nov) has its own touches:
   // the count on Allow rolls, the answer gets a summary line in the foot strip, and the done mark is a tick that draws.
   // Soft and Blueprint keep theirs
   const ds = r.closest('[data-style]'), clean = !!ds && ds.dataset.style === 'clean';
   // grow() starts once the card's entrance (which scales it from .98) has ended, so it measures the card at its real size
-  if (clean) Promise.resolve().then(() => Promise.all(root.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && root.isConnected) c.offs.push(grow(root)); });
+  Promise.resolve().then(() => Promise.all(root.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && root.isConnected) c.offs.push(grow(root)); });
   // where a result row goes: in the card, or in grow()'s wrapper inside it
   const into = () => $(':scope>.dm-grow', root) || root;
   // how long: This task, Today or Always, from the dropdown in the footer
@@ -22,7 +23,7 @@ DM.def('permission-gate', (r, c) => {
   let shown = 0;
   const roll = (cnt, n, up) => { const old = cnt.lastElementChild, nu = document.createElement('i'); nu.textContent = n; nu.className = up ? 'iu' : 'id'; if (old){ old.className = up ? 'ou' : 'od'; setTimeout(() => old.remove(), REDUCE ? 0 : 300); } cnt.appendChild(nu); };
   // Clean asks again for its one scope as a plain row (nothing to tick), and its button just says Allow
-  const one = () => clean && $('.pgx-o.one', sc);
+  const one = () => $('.pgx-o.one', sc);
   const count = () => { if (one()){ ok.disabled = false; shown = 0; return swap(ok, 'Allow'); }
     const n = boxes().filter(b => b.checked).length; ok.disabled = !n;
     if (!clean) return swap(ok, n ? 'Allow ' + n + (n > 1 ? ' scopes' : ' scope') : 'Pick a scope');
@@ -34,9 +35,8 @@ DM.def('permission-gate', (r, c) => {
   c.on(sc, 'change', count);
   $$('.pgx-pop .mi', r).forEach(m => m.addEventListener('click', () => { dur = m.dataset.v; $$('.pgx-pop .mi', r).forEach(x => x.setAttribute('aria-checked', x === m)); swap($('.pgx-dv', r), dur === 'Always' ? 'Always' : 'For ' + dur.toLowerCase()); }));
   const body = [sc, $('.pgx-f', r)];
-  // the scopes give way to a shorter result row: on the card it keeps the height it had and centres the row (hold). In Clean
-  // the card eases to the row's height instead
-  const show = on => { if (!on && c.card && !clean && !root.classList.contains('held')) hold(root); body.forEach(e => e.hidden = !on); if (on) stagger(body, 50); };
+  // the scopes give way to a shorter result row, and the card eases to its height (grow())
+  const show = on => { body.forEach(e => e.hidden = !on); if (on) stagger(body, 50); };
   // Clean's summary line in the foot strip: the scopes you allowed, by name, or how many on a narrow stage
   let names = [];
   const sum = (el, text, short = text) => { if (!clean) return; const s = el.appendChild(html(`<span class="pgx-sum"><span class="l"></span><span class="s"></span></span>`)); s.firstChild.textContent = text; s.lastChild.textContent = short; };
@@ -79,7 +79,7 @@ DM.def('permission-gate', (r, c) => {
     c.later(300, () => {
       p.remove();
       sc.innerHTML = clean
-        ? `<div class="pgx-o one" data-k="publish"><span class="oi">${I('info')}</span><span class="t">Publish library<span class="d">Updates Checkout, Marketing site, Email kit and Docs</span></span><span class="tag warn">Risky</span></div>`
+        ? `<div class="pgx-o one" data-k="publish"><span class="oi">${I('upload')}</span><span class="t">Publish library<span class="d">Updates Checkout, Marketing site, Email kit and Docs</span></span><span class="tag warn">Risky</span></div>`
         : `<label class="pgx-o" data-k="publish"><input type="checkbox" checked><span class="bx">${I('check','xs')}</span><span class="t">Publish library<span class="d">Updates Checkout, Marketing site, Email kit and Docs</span></span><span class="tag warn">Risky</span></label>`;
       no.textContent = 'Skip this frame'; count(); show(true);
     });
@@ -88,7 +88,7 @@ DM.def('permission-gate', (r, c) => {
     run++; granted = done = ms = 0; publish = skip = false; names = [];
     root.classList.remove('esc'); sc.innerHTML = first.sc; swap(title, first.title); swap(sub, first.sub); no.textContent = first.no; count();
   }
-  function revoke(){ const p = panel; panel = null; run++; p.classList.add('leave'); c.later(300, () => { p.remove(); release(root); reset(); show(true); }); }
+  function revoke(){ const p = panel; panel = null; run++; p.classList.add('leave'); c.later(300, () => { p.remove(); reset(); show(true); }); }
   ok.onclick = () => c.run(async () => {
     const picked = one() ? [one()] : boxes().filter(b => b.checked).map(b => b.closest('.pgx-o')); if (!picked.length) return;
     granted += picked.length; if (picked.some(o => o.dataset.k === 'publish')) publish = true;
@@ -106,7 +106,7 @@ DM.def('permission-gate', (r, c) => {
   no.onclick = () => {
     if (root.classList.contains('esc')){ skip = true; show(false); root.classList.remove('esc'); swap(title, first.title); swap(sub, first.sub); work(); return; }
     show(false); const d = html(`<div class="pgx-done" style="background:var(--dm-chip)">${I('info')}<span class="t">The agent will skip the Figma edits<span>It will list the fixes in chat instead</span></span><button class="pill ghost sm">Undo</button></div>`);
-    sum(d, 'Nothing allowed in Figma'); into().appendChild(d); enter(d); $('button', d).onclick = () => { d.remove(); release(root); show(true); };
+    sum(d, 'Nothing allowed in Figma'); into().appendChild(d); enter(d); $('button', d).onclick = () => { d.remove(); show(true); };
   };
   // the preview's story: hold back the risky scope, allow the rest, then grant it when the agent needs it for one frame
   c.story(async s => {

@@ -61,8 +61,8 @@ export interface PermissionGateProps {
   working?: boolean;
   /** Quiet text at the end of the allowed row, like an elapsed time "0:04" */
   meta?: ReactNode;
-  /** A follow-up ask in the middle of a run, for one more scope: the icon tile turns amber. In Clean the tile stays neutral,
-   *  and a single scope shows as an info row (nothing to tick) with a plain Allow */
+  /** A follow-up ask in the middle of a run, for one more scope. A single scope shows as a row led by a tile (nothing to
+   *  tick) with a plain Allow; the icon tile stays neutral, and the scope's risk tag carries the warning */
   followUp?: boolean;
   /** The decline button. Defaults to "Not now"; a follow-up ask might say "Skip this frame" */
   declineLabel?: string;
@@ -116,14 +116,14 @@ export function PermissionGate({
   const [granted, setGranted] = useState(0);
   // the names of the scopes allowed, for Clean's summary line in the foot strip
   const [names, setNames] = useState<string[]>([]);
-  // the scopes give way to a shorter result row: the gate keeps the height it had and centres the row in it, until Revoke or Undo.
-  // In Clean (owner, 18 Nov) it never keeps a height: it grows and shrinks with what it holds, eased (as grow() on the site)
+  // the gate never keeps a height, in any style (owner, 17 and 18 Nov): it grows and shrinks with what it holds, eased, as
+  // grow() does on the site
   const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
   const [clean, setClean] = useState(false);
   useIsoLayoutEffect(() => { setClean(root.current?.closest('[data-style]')?.getAttribute('data-style') === 'clean'); }, []);
   useIsoLayoutEffect(() => {
     const el = root.current, w = inner.current;
-    if (!clean || !el || !w || typeof ResizeObserver === 'undefined') return;
+    if (!el || !w || typeof ResizeObserver === 'undefined') return;
     let first = true;
     const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
     const fit = () => {
@@ -133,19 +133,18 @@ export function PermissionGate({
     };
     const ro = new ResizeObserver(fit); ro.observe(w); fit();
     return () => { ro.disconnect(); el.style.height = ''; };
-  }, [clean]);
-  const [held, setHeld] = useState<number>();
-  const hold = () => { if (!clean) setHeld(h => h ?? root.current?.offsetHeight); };
+  }, []);
   // Clean: the scopes fade up and out before the card eases to the result row's height
   const [fading, setFading] = useState(false);
-  // Clean asks again for one scope as an info row: nothing to tick, and the button just says Allow
-  const single = clean && followUp && state === 'asking' && scopes.length === 1;
+  // asking again for one scope: nothing to tick, so the scope is a row led by a tile like the question's, and the button
+  // just says Allow (every style)
+  const single = followUp && state === 'asking' && scopes.length === 1;
   const keys = single ? [scopes[0].key] : ticked;
   const n = keys.length;
 
   useEffect(() => {
     if (!leaving) return;
-    const t = setTimeout(() => { setLeaving(false); setHeld(undefined); setState('asking'); setBack(b => b + 1); onRevoke?.(); }, 300);
+    const t = setTimeout(() => { setLeaving(false); setState('asking'); setBack(b => b + 1); onRevoke?.(); }, 300);
     return () => clearTimeout(t);
   }, [leaving]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -155,18 +154,18 @@ export function PermissionGate({
     setWaiting(true); setGranted(n); const picked = scopes.filter(s => keys.includes(s.key)).map(s => s.label); setNames(was => followUp ? [...was, ...picked] : picked);
     try { await onAllow?.(keys, dur); } finally { setWaiting(false); }
     if (clean) { setFading(true); await new Promise(r => setTimeout(r, 180)); setFading(false); }
-    hold(); setState('allowed');
+    setState('allowed');
   };
-  const decline = () => { hold(); setState('declined'); onDecline?.(); };
-  const undo = () => { setHeld(undefined); setState('asking'); setBack(b => b + 1); onUndo?.(); };
+  const decline = () => { setState('declined'); onDecline?.(); };
+  const undo = () => { setState('asking'); setBack(b => b + 1); onUndo?.(); };
   const again = (i: number) => (back ? { className: 'dm-enter', style: enter(i * 50).style, key: back } : { className: undefined, style: undefined, key: 0 });
 
   const allowLabel = n ? `Allow ${n} ${word(n)}` : 'Pick a scope';
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-pgx', !bare && 'dm-panel', clean && 'dm-growing', followUp && state === 'asking' && 'dm-esc', held && 'dm-held', className)} style={held ? { minHeight: held } : undefined}>
+    <div data-dm="" ref={root} className={cx('dm-pgx', !bare && 'dm-panel', 'dm-growing', followUp && state === 'asking' && 'dm-esc', className)}>
       {/* grow()'s wrapper in Clean; elsewhere it takes no box of its own */}
-      <div ref={inner} className="dm-grow dm-dm-grow" style={clean ? undefined : { display: 'contents' }}>
+      <div ref={inner} className="dm-grow dm-dm-grow">
       <div className="dm-pgx-h">
         <span className="dm-pgx-ic">{icon ?? <Icon name="shield" />}</span>
         <div className="dm-pgx-ht"><b>{title}</b>{subtitle && <span className="dm-muted">{subtitle}</span>}</div>
@@ -178,7 +177,7 @@ export function PermissionGate({
               const risk = s.risk && (s.riskDetail ? <Tip label={s.riskDetail}><span className="dm-tag dm-warn">{s.risk}</span></Tip> : <span className="dm-tag dm-warn">{s.risk}</span>);
               const words = <span className="dm-t">{s.label}{s.detail && <span className="dm-d">{s.detail}</span>}</span>;
               return single
-                ? <div key={s.key} className="dm-pgx-o dm-one"><span className="dm-oi"><Icon name="info" /></span>{words}{risk}</div>
+                ? <div key={s.key} className="dm-pgx-o dm-one"><span className="dm-oi"><Icon name="upload" /></span>{words}{risk}</div>
                 : <label key={s.key} className="dm-pgx-o">
                     <input type="checkbox" checked={ticked.includes(s.key)} onChange={() => toggle(s.key)} />
                     <span className="dm-bx"><Icon name="check" size="xs" /></span>

@@ -54,7 +54,8 @@ function sample(id){
     const corner = row && row.items.some(x => x.k === 'ctl' && ((x.box || x.b).right > C.right - 9.5) && ((x.box || x.b).bottom > C.bottom - 9.5 || (x.box || x.b).top < C.top + 9.5));
     return corner ? ((C.bottom - cy) < (cy - C.top) ? 'foot' : 'head') : -1; };
   // a right edge counts for controls, and for words set against the right (a number, a time, a status), not for ragged text
-  const rightSet = a => a && (a.k === 'ctl' || (a.k === 'text' && a.set === 'right' && !a.wraps));
+  // (a tag at the end of a row with a hover fill sits inside the fill's padding, so it is not held to a button's edge)
+  const rightSet = a => a && ((a.k === 'ctl' && !a.e.matches('.tag')) || (a.k === 'text' && a.set === 'right' && !a.wraps));
   // columns: the first mark, first words and last control of each row, against every other row's
   const lead = rows.map(r => ({ mark:r.items.find(a => a.k === 'mark'), text:r.items.find(a => a.k === 'text' && a.set === 'left'), last:[...r.items].reverse().find(a => a.k === 'ctl' || a.k === 'text') }));
   lead.forEach((l, i) => { l.band = band(rows[i].items[0], rows[i]); });
