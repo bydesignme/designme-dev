@@ -1396,7 +1396,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 :root[data-style="clean"] .aln.panel .aln-h>*{grid-row:1;align-self:center;margin-top:16px;margin-bottom:4px}
 :root[data-style="clean"] .aln.panel .aln-ic{grid-column:1;margin-left:16px;margin-right:10px}
 :root[data-style="clean"] .aln.panel .aln-t{grid-column:2;margin-right:10px}
-:root[data-style="clean"] .aln.panel .aln-m{grid-column:3;margin-right:10px}
+:root[data-style="clean"] .aln.panel .aln-m{grid-column:3;margin-right:6px}
 :root[data-style="clean"] .aln.panel .aln-ct{grid-column:4;margin-right:16px}
 :root[data-style="clean"] .aln.panel .aln-pause{grid-row:3;grid-column:5;align-self:end;margin:8px 8px 8px 0}
 :root[data-style="clean"] .aln.panel .aln-rows{grid-row:2;grid-column:1 / -1;margin:4px 8px 8px}
@@ -1545,6 +1545,8 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .aln-cw-ic .i{color:inherit}
 .aln-cw-tt{flex:1;font-weight:500}
 .aln-cw-tot{font-size:13px;color:var(--fg2)}
+/* the run so far, and once it is done how it went: Clean shows it under the title */
+.aln-cw-sum{display:none}
 .aln-cw-list{display:flex;flex-direction:column}
 .aln-cw-c{position:relative;display:flex;flex-direction:column;padding:var(--s-3);border-radius:var(--r-card);background:var(--surface);box-shadow:var(--shadow);transition:opacity .3s}
 .aln-cw-c[data-s="hold"]{opacity:.8}
@@ -1605,7 +1607,13 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
    little, its hairline steps up and its progress line runs a soft sheen), its step dots fill in from the rim as they finish,
    and a hand-off travels: the line from the sender draws, the chip slides along it and ticks, then the line on to the receiver
    draws. The others sit flat on their hairline */
-:root[data-style="clean"] .aln-cw-h{padding:0 16px}
+:root[data-style="clean"] .aln-cw-h{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:0 var(--s-2);align-items:center;padding:0 16px}
+:root[data-style="clean"] .aln-cw-ic{grid-row:1;grid-column:1}
+:root[data-style="clean"] .aln-cw-tt{grid-row:1;grid-column:2}
+:root[data-style="clean"] .aln-cw-sum{display:block;grid-row:2;grid-column:2;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root[data-style="clean"] .aln-cw-tot{grid-row:1;grid-column:3}
+/* the agent at work has its presence from its card, so its badge holds still */
+:root[data-style="clean"] .aln-cw-c[data-s="work"] .aln-cw-av{animation:none}
 :root[data-style="clean"] .aln-cw-ic:has([href="#i-ok"]){color:var(--ok-mark)}
 :root[data-style="clean"] .aln-cw-c{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;grid-template-rows:auto auto auto 44px;padding:0;background:linear-gradient(var(--line),var(--line)) 0 calc(100% - 44px)/100% 1px no-repeat,linear-gradient(var(--strip),var(--strip)) 0 100%/100% 43px no-repeat,var(--surface);box-shadow:0 0 0 1px var(--line);transition:opacity .3s,box-shadow .52s var(--ease),transform .52s var(--ease)}
 :root[data-style="clean"] .aln-cw-c[data-s="work"]{box-shadow:0 0 0 1px color-mix(in srgb,var(--fg) 16%,transparent),var(--shadow-pop);transform:translateY(-2px)}
@@ -1640,8 +1648,8 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 :root[data-style="clean"] .aln-cw-ho.on .tag~.ln{transition-delay:.34s}
 :root[data-style="clean"] .aln-cw-ho>span:last-child{transition:color .3s var(--ease) .6s}
 :root[data-style="clean"] .aln-cw-ho.on>span:last-child,:root[data-style="clean"] .aln-cw-ho.on>span:first-child{color:var(--fg2)}
-:root[data-style="clean"] .aln-cw-ho.on .tag{animation:alncwtravel .56s var(--ease) backwards}
-@keyframes alncwtravel{from{opacity:0;transform:translateX(-22px)}}
+:root[data-style="clean"] .aln-cw-ho.on .tag{animation:alncwtravel .6s var(--ease) backwards}
+@keyframes alncwtravel{from{opacity:0;transform:translateX(-32px)}}
 :root[data-style="clean"] .aln-cw-ho.on .tag .i{stroke-dasharray:20;stroke-dashoffset:20;animation:alncwtick .32s var(--ease) .3s forwards}
 @keyframes alncwtick{to{stroke-dashoffset:0}}
 /* ---------- Agent run timeline ---------- */
@@ -11391,11 +11399,13 @@ DM.def('agent-lanes', (r, c) => {
     });
   }
 
-  const alnCrewTpl = () => `<div class="aln-cw"><div class="aln-cw-h"><span class="aln-cw-ic">${I('users')}</span><b class="aln-cw-tt">3 agents working</b><span class="aln-cw-tot num">$0.00</span></div><div class="aln-cw-list"></div></div>`;
+  const alnCrewTpl = () => `<div class="aln-cw"><div class="aln-cw-h"><span class="aln-cw-ic">${I('users')}</span><b class="aln-cw-tt">3 agents working</b><span class="aln-cw-sum num">0:00 · 0 of 11 steps</span><span class="aln-cw-tot num">$0.00</span></div><div class="aln-cw-list"></div></div>`;
   // Crew: each agent keeps its own clock, which stops while you pause it, and a hand-off waits for the agent before it
   function alnCrew(r, c){
     const A = ALN_RUN(), H = ALN_HAND.map(h => ({ ...h })), list = $('.aln-cw-list', r), tot = $('.aln-cw-tot', r), tt = $('.aln-cw-tt', r);
-    let fin = false;
+    // the line under the title (Clean shows it): the time and the steps so far, and once all are done, how the run went
+    const sum = $('.aln-cw-sum', r), ALL = A.reduce((n, a) => n + a.steps.length, 0);
+    let fin = false, ticks = 0;
     A.forEach((a, i) => {
       a.held = false; a.tk = 0; a.spent = 0; a.t = 0; const N = a.steps.length;
       a.el = html(`<div class="aln-cw-c" data-s="idle" style="--a:var(--av-${a.av});--ai:var(--av-${a.av}-ink)"><div class="aln-cw-top"><span class="aln-cw-av" aria-hidden="true">${I(a.ic)}</span><span class="aln-cw-tx"><b>${a.n}</b><span>Starts soon</span></span><span class="tag aln-cw-tag">Up next</span><span class="aln-cw-acts"><button class="ib aln-cw-hold" type="button" aria-pressed="false" aria-label="Pause ${a.n}" data-tip="Pause this agent">${I('pause','xs')}</button><button class="ib aln-cw-sb" type="button" aria-expanded="false" aria-label="Steer ${a.n}" data-tip="Steer">${I('wand','xs')}</button></span></div><div class="aln-cw-meter"><span class="aln-cw-tr" role="progressbar" aria-label="${a.n}’s steps" aria-valuemin="0" aria-valuemax="${N}" aria-valuenow="0" style="--n:${N}"><span class="aln-cw-ln"><i></i></span>${'<b></b>'.repeat(N)}</span><span class="aln-cw-num"><span><b class="aln-cw-sn">0</b> of ${N} steps</span><span class="aln-cw-tkn"><b class="aln-cw-tk">0</b> tokens</span><b class="aln-cw-cs">$0.00</b></span></div><div class="fold shut"><div><form class="aln-cw-steer"><input aria-label="A note for the ${a.n.toLowerCase()}" placeholder="Tell the ${a.n.toLowerCase()} what to change"><button class="ib" type="submit" aria-label="Send" data-tip="Send">${I('send','xs')}</button></form></div></div><div class="aln-cw-nts"></div></div>`);
@@ -11439,6 +11449,8 @@ DM.def('agent-lanes', (r, c) => {
       H.forEach(h => { if (!h.on && A[h.from].t >= h.at){ h.on = true; h.el.classList.add('on'); const tg = $('.tag', h.el); tg.className = 'tag ok'; tg.innerHTML = I('check','xs') + h.what; } });
       const ts = '$' + spent.toFixed(2); if (tot.textContent !== ts) tot.textContent = ts;
       if (!fin && A.every(a => a.t >= ALN_END)){ fin = true; swap(tt, 'All 3 agents finished'); $('.aln-cw-ic', r).innerHTML = I('ok'); }
+      if (sum){ if (!fin) ticks++; const k = alnClock(ticks / 10), n = A.reduce((m, a) => m + (a.done || 0), 0);
+        const ss = fin ? `Done in ${k} · ${ALL} steps · ${H.length} hand-offs` : `${k} · ${n} of ${ALL} steps`; if (sum.dmSaid !== ss){ sum.dmSaid = ss; fin ? swap(sum, ss) : (sum.textContent = ss); } }
     });
     A.forEach(paint);
     // the story: someone steers the designer while it works, then pauses the reviewer for a moment
