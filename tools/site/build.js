@@ -294,6 +294,10 @@ const defs = DEFS_JS.replace(/href="#i-/g, 'href="#v2i-').replace(/closest\('\.c
 if (!defs.includes(".v2-layer') || document.body).appendChild(ghost)")) throw new Error('ghost patch failed');
 for (const [a, b] of [["e.target.closest('.v2 [data-tip]')", 3], ["closest('.v2 [data-pop]')", 1], ['card.dataset.v2', 1]]) if (core.split(a).length - 1 !== b) throw new Error('core patch failed: ' + a);
 if (/#i-/.test(core + defs)) throw new Error('icon id left over');
+// the cards' own markup (each <template>, in the page or in its section's file) draws icons from the same renamed sprite: an
+// icon written into a template as <use href="#i-..."> pointed at nothing on the homepage (Step loader's, Reasoning trail's
+// and Thinking's chevrons, Toast stack's bell). Both forms: as written, and escaped inside a section file's string
+const v2Icons = s => s.replace(/href=(\\?)"#i-/g, 'href=$1"#v2i-');
 /* ---------- the components' own code loads a section at a time ----------
    Nearly all of the components' script is their DM.def blocks (1.2 MB of 1.3), and a visit sees a few of them. So the
    homepage's script holds the core, the code of the first section (Conversation, in the first screen) and anything more than
@@ -557,7 +561,7 @@ main = main.replace(/<article([^>]*\bid="(c\d+)"[^>]*)>([\s\S]*?)<\/article>/g, 
       .map(t => `        <button class="tab" role="tab" aria-selected="${t[1]}" data-v="${t[2]}">${t[3]}</button>`).join('\n');
     left = `<div class="tabs" role="tablist" aria-label="${sw[1]}" data-tabs="v2-${id}">\n${tabs}\n      </div>`;
   } else left = `<span class="mono-xs">${C.hint}</span>`;
-  const foot = `<div class="comp-foot">\n      ${left}\n    </div>\n    <template>${C.tpl}</template>\n  `;
+  const foot = `<div class="comp-foot">\n      ${left}\n    </div>\n    <template>${v2Icons(C.tpl)}</template>\n  `;
   body = body.slice(0, sA) + stage + foot;
   /* the card's buttons are written the way the site's script leaves them on a touch screen or a phone-sized window
      (placeCodeBtns in make-patches.py): each label in a span the icon row can hide, each button named after the component,
@@ -851,8 +855,10 @@ let SECTION_ORDER = null;
   // carry markup for components nobody scrolls to (DM.tpl reads TPLS, below)
   site = site.replace(/(<article\b[^>]*\bdata-v2="([\w-]+)"[^>]*>[\s\S]*?)<template>([\s\S]*?)<\/template>(\s*<\/article>)/g, (m, head, id, tpl, end) => {
     const k = sectionOf[id]; if (!P.files[k] || head.includes('</article>')) return m;
-    P.files[k] = `TPLS[${JSON.stringify(id)}] = ${JSON.stringify(tpl)};\n` + P.files[k]; return head + end;
+    P.files[k] = v2Icons(`TPLS[${JSON.stringify(id)}] = ${JSON.stringify(tpl)};\n`) + P.files[k]; return head + end;
   });
+  { const left = [site, ...Object.values(P.files)].filter(t => /href=\\?"#i-/.test(t)).length;
+    if (left) throw new Error('card markup still names an icon as #i- (the homepage sprite is #v2i-)'); }
   for (const [k, text] of Object.entries(P.files)){ const f = hashedAsset('v2-' + k.replace(/^s-/, '').replace(/^_$/, 'other'), 'js', text); V2_PARTS.push(f); files[k] = f.url; }
   const js = V2JS.replace('/*@@V2DEFS@@*/', () => P.main).replace('/*@@V2PARTS@@*/null', () => JSON.stringify({ files, of:P.of, all:P.all }));
   console.log(`components script: ${Math.round(js.length / 1024)} KB with ${order[0]}, ${V2_PARTS.length} section files of ${Math.round(V2_PARTS.reduce((n, f) => n + f.text.length, 0) / 1024)} KB, waiting for every section: ${P.all.join(', ') || 'none'}`);
