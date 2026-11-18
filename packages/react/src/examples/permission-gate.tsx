@@ -1,6 +1,6 @@
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { PermissionGate, type PermissionScope, type PermissionStatus } from '../components/permission-gate/PermissionGate';
 import { Icon } from '../lib/icons';
 import { useStory, useWait } from './useScript';
@@ -14,7 +14,6 @@ const FIRST: PermissionScope[] = [
 const MORE: PermissionScope[] = [{ key: 'publish', label: 'Publish library', detail: 'Updates Checkout, Marketing site, Email kit and Docs', risk: 'Risky' }];
 // the frames the agent edits once it may. Plan toggle is a library component, so editing it needs Publish library
 const FRAMES = ['Hero', 'Plan cards', 'Compare table', 'FAQ', 'Plan toggle', 'Checkout summary'], LIB = 4;
-const clock = (ms: number) => { const s = Math.floor(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
 
 export default function PermissionGateDemo() {
   const ref = useRef<HTMLDivElement>(null);
@@ -27,13 +26,6 @@ export default function PermissionGateDemo() {
   const [title, setTitle] = useState<string>();
   const [detail, setDetail] = useState<string>();
   const run = useRef({ granted: 0, publish: false, skip: false, done: 0, id: 0 });
-  // the clock counts the agent's working time only, not the time it waits for you
-  const [ms, setMs] = useState(0);
-  useEffect(() => {
-    if (!working) return;
-    const from = performance.now() - ms, t = setInterval(() => setMs(performance.now() - from), 250);
-    return () => clearInterval(t);
-  }, [working]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // the agent works through the frames under what it was given, and stops to ask when it reaches one it may not touch
   const work = async () => {
@@ -68,8 +60,8 @@ export default function PermissionGateDemo() {
         status={status} onStatusChange={setStatus} followUp={more} declineLabel={more ? 'Skip this frame' : 'Not now'}
         onAllow={async keys => { r.granted += keys.length; if (keys.includes('publish')) r.publish = true; await wait(500); setMore(false); void work(); }}
         onDecline={() => { if (!more) return; r.skip = true; setMore(false); void work(); }}
-        onRevoke={() => { run.current = { granted: 0, publish: false, skip: false, done: 0, id: r.id + 1 }; setValue(['read', 'edit']); setMs(0); setWorking(false); }}
-        working={working} meta={clock(ms)} allowedDetail={detail}
+        onRevoke={() => { run.current = { granted: 0, publish: false, skip: false, done: 0, id: r.id + 1 }; setValue(['read', 'edit']); setWorking(false); }}
+        working={working} allowedDetail={detail}
         allowedTitle={title ?? `Allowed ${r.granted} ${r.granted > 1 ? 'scopes' : 'scope'} ${duration === 'Always' ? 'always' : 'for ' + duration.toLowerCase()}`}
         declinedTitle="The agent will skip the Figma edits" declinedDetail="It will list the fixes in chat instead" declinedSummary="Nothing allowed in Figma" />
     </div>
