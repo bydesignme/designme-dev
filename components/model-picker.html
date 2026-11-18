@@ -220,8 +220,75 @@
 /* phones: the line under each name wraps, and the meters keep room for their labels */
 /* on a phone the meters close up so a model's line keeps two or three words to a row */
 @media (max-width:480px){.mpk-hd,.mpk-o{grid-template-columns:20px minmax(0,1fr) repeat(3,34px);gap:6px}.mpk-hd{font-size:10.5px;padding-inline:6px}.mpk-o{padding-inline:6px}.mpk-o .d{white-space:normal}}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .mpk-p.panel,:root [data-style="clean"] .mpk-p.panel,:root [data-style="clean"].mpk-p.panel{padding:15px 20px 12px 20px}
+/* Clean (owner, 18 Nov): one measure inside the popover. Its content sits 16px in from each edge: the column heads, each
+   row's mark and meters (the rows sit 8px in, with 8px of their own) and the foot's text. The picked row's fill is
+   concentric with the popover's corners (22px = its 14px + the 8px inset), and the foot strip's select sits 8px from the
+   right and bottom edges, a 28px pill (14 + 8 = 22). Selection is neutral: a grey row fill, an ink check, meters one step
+   darker; the models' marks keep their own colours. The trigger is a secondary pill, and the popover scales and fades in
+   from it */
+:root[data-style="clean"] .mpk-tr,:root [data-style="clean"] .mpk-tr,:root [data-style="clean"].mpk-tr{gap:8px;padding:0 10px 0 6px;color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth);transition:box-shadow var(--dm-t-fast) var(--dm-ease),transform var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .mpk-tr:hover,:root [data-style="clean"] .mpk-tr:hover,:root [data-style="clean"].mpk-tr:hover{box-shadow:var(--dm-btn2-hover)}}
+:root[data-style="clean"] .mpk-tr:active,:root [data-style="clean"] .mpk-tr:active,:root [data-style="clean"].mpk-tr:active{transform:scale(.97);box-shadow:var(--dm-btn2-press)}
+:root[data-style="clean"] .mpk-tr>svg,:root [data-style="clean"] .mpk-tr>svg,:root [data-style="clean"].mpk-tr>svg{transition:transform var(--dm-t) var(--dm-ease)}
+:root[data-style="clean"] .mpk-p.panel,:root [data-style="clean"] .mpk-p.panel,:root [data-style="clean"].mpk-p.panel{padding:0;transform-origin:top right;transition:opacity var(--dm-t) var(--dm-ease),transform .32s var(--dm-ease)}
+:root[data-style="clean"] .mpk-fold.shut .mpk-p,:root [data-style="clean"] .mpk-fold.shut .mpk-p,:root [data-style="clean"].mpk-fold.shut .mpk-p{opacity:0;transform:translateY(-4px) scale(.96)}
+:root[data-style="clean"] :is(.mpk-hd,.mpk-o),:root [data-style="clean"] :is(.mpk-hd,.mpk-o),:root [data-style="clean"]:is(.mpk-hd,.mpk-o){grid-template-columns:20px minmax(0,1fr) repeat(3,40px);gap:10px}
+:root[data-style="clean"] .mpk-hd,:root [data-style="clean"] .mpk-hd,:root [data-style="clean"].mpk-hd{padding:16px 16px 4px;line-height:16px}
+:root[data-style="clean"] .mpk-list,:root [data-style="clean"] .mpk-list,:root [data-style="clean"].mpk-list{padding:0 8px 8px}
+:root[data-style="clean"] .mpk-o,:root [data-style="clean"] .mpk-o,:root [data-style="clean"].mpk-o{padding:8px;border-radius:calc(var(--dm-r-card) - 8px);transition:background-color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .mpk-o[aria-checked="true"],:root [data-style="clean"] .mpk-o[aria-checked="true"],:root [data-style="clean"].mpk-o[aria-checked="true"]{background:var(--dm-chip)}
+:root[data-style="clean"] .mpk-o[aria-checked="true"] .t b,:root [data-style="clean"] .mpk-o[aria-checked="true"] .t b,:root [data-style="clean"].mpk-o[aria-checked="true"] .t b{color:var(--dm-fg)}
+:root[data-style="clean"] .mpk-mk,:root [data-style="clean"] .mpk-mk,:root [data-style="clean"].mpk-mk{border-radius:50%}
+/* the check is ink and draws itself in when its row is picked */
+:root[data-style="clean"] .mpk-o .ck,:root [data-style="clean"] .mpk-o .ck,:root [data-style="clean"].mpk-o .ck{color:var(--dm-fg);opacity:1;transform:none}
+:root[data-style="clean"] .mpk-o .ck svg,:root [data-style="clean"] .mpk-o .ck svg,:root [data-style="clean"].mpk-o .ck svg{stroke-dasharray:22;stroke-dashoffset:22;transition:stroke-dashoffset .1s var(--dm-ease)}
+:root[data-style="clean"] .mpk-o[aria-checked="true"] .ck svg,:root [data-style="clean"] .mpk-o[aria-checked="true"] .ck svg,:root [data-style="clean"].mpk-o[aria-checked="true"] .ck svg{stroke-dashoffset:0;transition:stroke-dashoffset .42s var(--dm-ease) .06s}
+/* meters: ink pips on a faint grey track, one step darker on the picked row. As the popover opens they fill left to right,
+   row by row */
+@keyframes mpkpip{from{background-color:var(--dm-rail)}}
+:root[data-style="clean"] .mpk-m,:root [data-style="clean"] .mpk-m,:root [data-style="clean"].mpk-m{gap:2px}
+:root[data-style="clean"] .mpk-m i,:root [data-style="clean"] .mpk-m i,:root [data-style="clean"].mpk-m i{background:var(--dm-rail);transition:background-color .32s var(--dm-ease)}
+:root[data-style="clean"] .mpk-m i.on,:root [data-style="clean"] .mpk-m i.on,:root [data-style="clean"].mpk-m i.on{background:var(--dm-fg2)}
+:root[data-style="clean"] .mpk-o[aria-checked="true"] .mpk-m i:not(.on),:root [data-style="clean"] .mpk-o[aria-checked="true"] .mpk-m i:not(.on),:root [data-style="clean"].mpk-o[aria-checked="true"] .mpk-m i:not(.on){background:var(--dm-faint)}
+:root[data-style="clean"] .mpk-o[aria-checked="true"]:not(.busy) .mpk-m i.on,:root [data-style="clean"] .mpk-o[aria-checked="true"]:not(.busy) .mpk-m i.on,:root [data-style="clean"].mpk-o[aria-checked="true"]:not(.busy) .mpk-m i.on{background:var(--dm-fg)}
+:root[data-style="clean"] .mpk-fold:not(.shut) .mpk-m i.on,:root [data-style="clean"] .mpk-fold:not(.shut) .mpk-m i.on,:root [data-style="clean"].mpk-fold:not(.shut) .mpk-m i.on{animation:mpkpip .36s var(--dm-ease) backwards;animation-delay:calc(140ms + var(--dm-mpr,0) * 70ms + var(--dm-mpm,0) * 110ms + var(--dm-mpi,0) * 35ms)}
+:root[data-style="clean"] .mpk-o:nth-child(2),:root [data-style="clean"] .mpk-o:nth-child(2),:root [data-style="clean"].mpk-o:nth-child(2){--dm-mpr:1}
+:root[data-style="clean"] .mpk-o:nth-child(3),:root [data-style="clean"] .mpk-o:nth-child(3),:root [data-style="clean"].mpk-o:nth-child(3){--dm-mpr:2}
+:root[data-style="clean"] .mpk-o:nth-child(n+4),:root [data-style="clean"] .mpk-o:nth-child(n+4),:root [data-style="clean"].mpk-o:nth-child(n+4){--dm-mpr:3}
+:root[data-style="clean"] .mpk-m:nth-child(4),:root [data-style="clean"] .mpk-m:nth-child(4),:root [data-style="clean"].mpk-m:nth-child(4){--dm-mpm:1}
+:root[data-style="clean"] .mpk-m:nth-child(5),:root [data-style="clean"] .mpk-m:nth-child(5),:root [data-style="clean"].mpk-m:nth-child(5){--dm-mpm:2}
+:root[data-style="clean"] .mpk-m i:nth-child(2),:root [data-style="clean"] .mpk-m i:nth-child(2),:root [data-style="clean"].mpk-m i:nth-child(2){--dm-mpi:1}
+:root[data-style="clean"] .mpk-m i:nth-child(3),:root [data-style="clean"] .mpk-m i:nth-child(3),:root [data-style="clean"].mpk-m i:nth-child(3){--dm-mpi:2}
+:root[data-style="clean"] .mpk-m i:nth-child(4),:root [data-style="clean"] .mpk-m i:nth-child(4),:root [data-style="clean"].mpk-m i:nth-child(4){--dm-mpi:3}
+:root[data-style="clean"] .mpk-m i:nth-child(5),:root [data-style="clean"] .mpk-m i:nth-child(5),:root [data-style="clean"].mpk-m i:nth-child(5){--dm-mpi:4}
+/* the way out when a model is busy: its own section under the rows, between hairlines, with its buttons 16px in */
+:root[data-style="clean"] .mpk-sg,:root [data-style="clean"] .mpk-sg,:root [data-style="clean"].mpk-sg{margin:0;padding:16px;border-radius:0;background:none;border-top:1px solid var(--dm-line);gap:12px}
+:root[data-style="clean"] .mpk-sgt,:root [data-style="clean"] .mpk-sgt,:root [data-style="clean"].mpk-sgt{color:var(--dm-fg2)}
+:root[data-style="clean"] .mpk-sga,:root [data-style="clean"] .mpk-sga,:root [data-style="clean"].mpk-sga{gap:8px}
+:root[data-style="clean"] .mpk-sg .pill.ghost,:root [data-style="clean"] .mpk-sg .pill.ghost,:root [data-style="clean"].mpk-sg .pill.ghost{color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .mpk-sg .pill.ghost:hover,:root [data-style="clean"] .mpk-sg .pill.ghost:hover,:root [data-style="clean"].mpk-sg .pill.ghost:hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
+:root[data-style="clean"] .mpk-sg .pill.ghost:active,:root [data-style="clean"] .mpk-sg .pill.ghost:active,:root [data-style="clean"].mpk-sg .pill.ghost:active{box-shadow:var(--dm-btn2-press)}
+/* the foot strip: thinking on one line, 16px in, and its select a secondary pill 8px from the corner */
+:root[data-style="clean"] .mpk-th,:root [data-style="clean"] .mpk-th,:root [data-style="clean"].mpk-th{flex-wrap:nowrap;gap:12px;margin:0;padding:8px 8px 8px 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+:root[data-style="clean"] .mpk-thh,:root [data-style="clean"] .mpk-thh,:root [data-style="clean"].mpk-thh{flex-direction:row;align-items:baseline;gap:8px;min-width:0;white-space:nowrap}
+:root[data-style="clean"] .mpk-thh b,:root [data-style="clean"] .mpk-thh b,:root [data-style="clean"].mpk-thh b{flex:none;align-self:center}
+:root[data-style="clean"] .mpk-thd,:root [data-style="clean"] .mpk-thd,:root [data-style="clean"].mpk-thd{min-width:0;overflow:hidden;text-overflow:ellipsis}
+:root[data-style="clean"] .mpk-eb,:root [data-style="clean"] .mpk-eb,:root [data-style="clean"].mpk-eb{flex:none;gap:6px;height:28px;padding:0 10px 0 12px;font-weight:500;color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth);transition:box-shadow var(--dm-t-fast) var(--dm-ease),transform var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] :is(.mpk-eb:hover,.mpk-eb[aria-expanded="true"]),:root [data-style="clean"] :is(.mpk-eb:hover,.mpk-eb[aria-expanded="true"]),:root [data-style="clean"]:is(.mpk-eb:hover,.mpk-eb[aria-expanded="true"]){background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
+:root[data-style="clean"] .mpk-eb:active,:root [data-style="clean"] .mpk-eb:active,:root [data-style="clean"].mpk-eb:active{transform:scale(.97);box-shadow:var(--dm-btn2-press)}
+:root[data-style="clean"] .mpk-pop,:root [data-style="clean"] .mpk-pop,:root [data-style="clean"].mpk-pop{padding:6px;border-radius:var(--dm-r-card)}
+:root[data-style="clean"] .mpk-pop .mi,:root [data-style="clean"] .mpk-pop .mi,:root [data-style="clean"].mpk-pop .mi{border-radius:calc(var(--dm-r-card) - 6px)}
+/* the confirmation under the popover takes no room until it has something to say, and opens smoothly when it does */
+:root[data-style="clean"] .mpk-note,:root [data-style="clean"] .mpk-note,:root [data-style="clean"].mpk-note{min-height:0;max-height:0;margin-top:-8px;opacity:0;overflow:hidden;transition:max-height var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease),opacity var(--dm-t) var(--dm-ease)}
+:root[data-style="clean"] .mpk-note:not(:empty),:root [data-style="clean"] .mpk-note:not(:empty),:root [data-style="clean"].mpk-note:not(:empty){max-height:40px;margin-top:0;opacity:1}
+:root[data-style="clean"] .mpk-note svg,:root [data-style="clean"] .mpk-note svg,:root [data-style="clean"].mpk-note svg{color:var(--dm-ok-mark)}
+/* phones: the thinking line goes under its label rather than being cut, and the select turns into a text control aligned by
+   its text, its chevron 16px from the edge like the meters above it */
+@media (max-width:480px){:root[data-style="clean"] :is(.mpk-hd,.mpk-o),:root [data-style="clean"] :is(.mpk-hd,.mpk-o),:root [data-style="clean"]:is(.mpk-hd,.mpk-o){grid-template-columns:20px minmax(0,1fr) repeat(3,36px);gap:8px}:root[data-style="clean"] .mpk-hd,:root [data-style="clean"] .mpk-hd,:root [data-style="clean"].mpk-hd{padding-inline:16px}:root[data-style="clean"] .mpk-o,:root [data-style="clean"] .mpk-o,:root [data-style="clean"].mpk-o{padding-inline:8px}
+  :root[data-style="clean"] .mpk-th,:root [data-style="clean"] .mpk-th,:root [data-style="clean"].mpk-th{padding:12px 16px}:root[data-style="clean"] .mpk-thh,:root [data-style="clean"] .mpk-thh,:root [data-style="clean"].mpk-thh{flex-direction:column;align-items:flex-start;gap:0;white-space:normal}:root[data-style="clean"] .mpk-thh b,:root [data-style="clean"] .mpk-thh b,:root [data-style="clean"].mpk-thh b{align-self:auto}
+  :root[data-style="clean"] .mpk-eb,:root [data-style="clean"] .mpk-eb,:root [data-style="clean"].mpk-eb{margin-right:-10px;background:none;box-shadow:none}
+  @media (hover:hover) and (pointer:fine){:root[data-style="clean"] :is(.mpk-eb:hover,.mpk-eb[aria-expanded="true"]),:root [data-style="clean"] :is(.mpk-eb:hover,.mpk-eb[aria-expanded="true"]),:root [data-style="clean"]:is(.mpk-eb:hover,.mpk-eb[aria-expanded="true"]){margin-right:-10px;background:none;box-shadow:none}}@media (hover:hover) and (pointer:fine){:root[data-style="clean"] :is(.mpk-eb:hover,.mpk-eb[aria-expanded="true"]),:root [data-style="clean"] :is(.mpk-eb:hover,.mpk-eb[aria-expanded="true"]),:root [data-style="clean"]:is(.mpk-eb:hover,.mpk-eb[aria-expanded="true"]){background:var(--dm-hover)}}}
+@media (prefers-reduced-motion:reduce){:root[data-style="clean"] .mpk-m i.on,:root [data-style="clean"] .mpk-m i.on,:root [data-style="clean"].mpk-m i.on{animation:none!important}:root[data-style="clean"] :is(.mpk-p,.mpk-o .ck svg,.mpk-note,.mpk-m i),:root [data-style="clean"] :is(.mpk-p,.mpk-o .ck svg,.mpk-note,.mpk-m i),:root [data-style="clean"]:is(.mpk-p,.mpk-o .ck svg,.mpk-note,.mpk-m i){transition:none!important}}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px + var(--sw,0px))}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px + var(--sw,0px))}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px + var(--sw,0px))}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px + var(--sw,0px))}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -369,7 +436,7 @@ export default function ModelPickerDemo() {
 import ModelPicker from &#39;../components/designme/model-picker/ModelPicker.astro&#39;;
 ---
 &lt;ModelPicker /&gt;
-&lt;ModelPicker data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything ModelPicker takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>models</code><span class="opt">required</span></td><td><code>ModelOption[]</code></td><td></td></tr><tr><td><code>value</code></td><td><code>string</code></td><td>The picked model&#39;s id. Leave it out to let the list hold its own</td></tr><tr><td><code>defaultValue</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onValueChange</code></td><td><code>(id: string) =&gt; void</code></td><td>Called when a row is picked, busy or not, so you can check the model first</td></tr><tr><td><code>efforts</code></td><td><code>ThinkingEffort[]</code></td><td>Defaults to Off, Low, Medium and High</td></tr><tr><td><code>effort</code></td><td><code>string</code></td><td></td></tr><tr><td><code>defaultEffort</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onEffortChange</code></td><td><code>(effort: string) =&gt; void</code></td><td></td></tr><tr><td><code>suggestion</code></td><td><code>{ text: ReactNode; actions: { label: string; onClick: () =&gt; void }[] }</code></td><td>A way out when the picked model can&#39;t take the request: a short text and its buttons, the last one filled</td></tr><tr><td><code>note</code></td><td><code>string</code></td><td>The confirmation under the picker, like &quot;Set for this chat: Sonnet 5.5, high thinking&quot;. Shown with a green check</td></tr><tr><td><code>label</code></td><td><code>ReactNode</code></td><td>The label beside the trigger. Defaults to &quot;Model for this chat&quot;</td></tr><tr><td><code>open</code></td><td><code>boolean</code></td><td>Whether the list is open. Leave it out to let the trigger and Escape open and close it</td></tr><tr><td><code>defaultOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>ModelPicker.tsx<span class="l">React · 155 lines</span></summary><pre class="cp-pre" data-name="ModelPicker.tsx"><code>&#39;use client&#39;;
+&lt;ModelPicker data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything ModelPicker takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>models</code><span class="opt">required</span></td><td><code>ModelOption[]</code></td><td></td></tr><tr><td><code>value</code></td><td><code>string</code></td><td>The picked model&#39;s id. Leave it out to let the list hold its own</td></tr><tr><td><code>defaultValue</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onValueChange</code></td><td><code>(id: string) =&gt; void</code></td><td>Called when a row is picked, busy or not, so you can check the model first</td></tr><tr><td><code>efforts</code></td><td><code>ThinkingEffort[]</code></td><td>Defaults to Off, Low, Medium and High</td></tr><tr><td><code>effort</code></td><td><code>string</code></td><td></td></tr><tr><td><code>defaultEffort</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onEffortChange</code></td><td><code>(effort: string) =&gt; void</code></td><td></td></tr><tr><td><code>suggestion</code></td><td><code>{ text: ReactNode; actions: { label: string; onClick: () =&gt; void }[] }</code></td><td>A way out when the picked model can&#39;t take the request: a short text and its buttons, the last one filled</td></tr><tr><td><code>note</code></td><td><code>string</code></td><td>The confirmation under the picker, like &quot;Set for this chat: Sonnet 5.5, high thinking&quot;. Shown with a green check</td></tr><tr><td><code>label</code></td><td><code>ReactNode</code></td><td>The label beside the trigger. Defaults to &quot;Model for this chat&quot;</td></tr><tr><td><code>open</code></td><td><code>boolean</code></td><td>Whether the list is open. Leave it out to let the trigger and Escape open and close it</td></tr><tr><td><code>defaultOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>ModelPicker.tsx<span class="l">React · 159 lines</span></summary><pre class="cp-pre" data-name="ModelPicker.tsx"><code>&#39;use client&#39;;
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable } from &#39;../lib/hooks&#39;;
@@ -440,9 +507,9 @@ const EFFORTS: ThinkingEffort[] = [
   { label: &#39;Medium&#39;, detail: &#39;Up to 8k thinking tokens&#39; }, { label: &#39;High&#39;, detail: &#39;Up to 24k thinking tokens&#39; }
 ];
 
-const Meter = ({ value, tip }: { value: number; tip?: string }) =&gt; {
+const Meter = ({ value, tip, below }: { value: number; tip?: string; below?: boolean }) =&gt; {
   const bars = &lt;span className=&quot;dm-mpk-m&quot; aria-hidden={tip ? undefined : true}&gt;{[1, 2, 3, 4, 5].map(k =&gt; &lt;i key={k} className={k &lt;= value ? &#39;dm-on&#39; : undefined} /&gt;)}&lt;/span&gt;;
-  return tip ? &lt;Tip label={tip}&gt;{bars}&lt;/Tip&gt; : bars;
+  return tip ? &lt;Tip label={tip} side={below ? &#39;bottom&#39; : &#39;top&#39;}&gt;{bars}&lt;/Tip&gt; : bars;
 };
 
 /** Choose the model for a chat by speed, quality and cost, and how hard it thinks, with what the next reply will take. */
@@ -458,6 +525,10 @@ export function ModelPicker({
   const picked = models.find(m =&gt; m.id === cur) ?? models[0];
   const rows = useRef&lt;(HTMLButtonElement | null)[]&gt;([]);
   const trigger = useRef&lt;HTMLButtonElement&gt;(null);
+  // in Clean the first row&#39;s numbers show under its meters, so they never sit over the column heads
+  const root = useRef&lt;HTMLDivElement&gt;(null);
+  const [clean, setClean] = useState(false);
+  useEffect(() =&gt; { setClean(root.current?.closest(&#39;[data-style]&#39;)?.getAttribute(&#39;data-style&#39;) === &#39;clean&#39;); }, []);
   // the confirmation enters each time it changes
   const [noteKey, setNoteKey] = useState(0);
   useEffect(() =&gt; { if (note) setNoteKey(k =&gt; k + 1); }, [note]);
@@ -470,7 +541,7 @@ export function ModelPicker({
   };
 
   return (
-    &lt;div data-dm=&quot;&quot; className={cx(&#39;dm-mpk&#39;, className)} onKeyDown={e =&gt; { if (e.key === &#39;Escape&#39; &amp;&amp; isOpen) { setOpen(false); trigger.current?.focus(); } }}&gt;
+    &lt;div ref={root} data-dm=&quot;&quot; className={cx(&#39;dm-mpk&#39;, className)} onKeyDown={e =&gt; { if (e.key === &#39;Escape&#39; &amp;&amp; isOpen) { setOpen(false); trigger.current?.focus(); } }}&gt;
       &lt;div className=&quot;dm-mpk-top&quot;&gt;
         &lt;span className=&quot;dm-muted dm-mpk-lb&quot;&gt;{label}&lt;/span&gt;
         &lt;button ref={trigger} type=&quot;button&quot; className=&quot;dm-mpk-tr&quot; aria-haspopup=&quot;true&quot; aria-expanded={isOpen} onClick={() =&gt; setOpen(!isOpen)}&gt;
@@ -492,7 +563,7 @@ export function ModelPicker({
                   &lt;b&gt;{m.name}&lt;span className=&quot;dm-ck&quot;&gt;{m.status === &#39;checking&#39; ? &lt;Spin /&gt; : &lt;Icon name=&quot;check&quot; size=&quot;xs&quot; /&gt;}&lt;/span&gt;&lt;/b&gt;
                   &lt;Swap className=&quot;dm-d&quot;&gt;{(m.status &amp;&amp; m.status !== &#39;ready&#39; &amp;&amp; m.statusText) || m.note || &#39;&#39;}&lt;/Swap&gt;
                 &lt;/span&gt;
-                &lt;Meter value={m.speed} tip={m.speedDetail} /&gt;&lt;Meter value={m.quality} tip={m.qualityDetail} /&gt;&lt;Meter value={m.cost} tip={m.costDetail} /&gt;
+                &lt;Meter value={m.speed} tip={m.speedDetail} below={clean &amp;&amp; !i} /&gt;&lt;Meter value={m.quality} tip={m.qualityDetail} below={clean &amp;&amp; !i} /&gt;&lt;Meter value={m.cost} tip={m.costDetail} below={clean &amp;&amp; !i} /&gt;
               &lt;/button&gt;
             ))}
           &lt;/div&gt;
@@ -523,7 +594,7 @@ export function ModelPicker({
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>model-picker.css<span class="l">React · 62 lines</span></summary><pre class="cp-pre" data-name="model-picker.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>model-picker.css<span class="l">React · 129 lines</span></summary><pre class="cp-pre" data-name="model-picker.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Model picker ---------- */
 /* a trigger that names the model and how hard it thinks, over the open list: speed, quality and cost as five-step meters
    with the real numbers on hover, and the thinking effort under them as a small dropdown */
@@ -582,8 +653,75 @@ export function ModelPicker({
 /* phones: the line under each name wraps, and the meters keep room for their labels */
 /* on a phone the meters close up so a model&#39;s line keeps two or three words to a row */
 @media (max-width:480px){.dm-mpk-hd,.dm-mpk-o{grid-template-columns:20px minmax(0,1fr) repeat(3,34px);gap:6px}.dm-mpk-hd{font-size:10.5px;padding-inline:6px}.dm-mpk-o{padding-inline:6px}.dm-mpk-o .dm-d{white-space:normal}}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style=&quot;clean&quot;] .dm-mpk-p.dm-panel,:root [data-style=&quot;clean&quot;] .dm-mpk-p.dm-panel,:root [data-style=&quot;clean&quot;].dm-mpk-p.dm-panel{padding:15px 20px 12px 20px}
+/* Clean (owner, 18 Nov): one measure inside the popover. Its content sits 16px in from each edge: the column heads, each
+   row&#39;s mark and meters (the rows sit 8px in, with 8px of their own) and the foot&#39;s text. The picked row&#39;s fill is
+   concentric with the popover&#39;s corners (22px = its 14px + the 8px inset), and the foot strip&#39;s select sits 8px from the
+   right and bottom edges, a 28px pill (14 + 8 = 22). Selection is neutral: a grey row fill, an ink check, meters one step
+   darker; the models&#39; marks keep their own colours. The trigger is a secondary pill, and the popover scales and fades in
+   from it */
+:root[data-style=&quot;clean&quot;] .dm-mpk-tr,:root [data-style=&quot;clean&quot;] .dm-mpk-tr,:root [data-style=&quot;clean&quot;].dm-mpk-tr{gap:8px;padding:0 10px 0 6px;color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth);transition:box-shadow var(--dm-t-fast) var(--dm-ease),transform var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style=&quot;clean&quot;] .dm-mpk-tr:hover,:root [data-style=&quot;clean&quot;] .dm-mpk-tr:hover,:root [data-style=&quot;clean&quot;].dm-mpk-tr:hover{box-shadow:var(--dm-btn2-hover)}}
+:root[data-style=&quot;clean&quot;] .dm-mpk-tr:active,:root [data-style=&quot;clean&quot;] .dm-mpk-tr:active,:root [data-style=&quot;clean&quot;].dm-mpk-tr:active{transform:scale(.97);box-shadow:var(--dm-btn2-press)}
+:root[data-style=&quot;clean&quot;] .dm-mpk-tr&gt;svg,:root [data-style=&quot;clean&quot;] .dm-mpk-tr&gt;svg,:root [data-style=&quot;clean&quot;].dm-mpk-tr&gt;svg{transition:transform var(--dm-t) var(--dm-ease)}
+:root[data-style=&quot;clean&quot;] .dm-mpk-p.dm-panel,:root [data-style=&quot;clean&quot;] .dm-mpk-p.dm-panel,:root [data-style=&quot;clean&quot;].dm-mpk-p.dm-panel{padding:0;transform-origin:top right;transition:opacity var(--dm-t) var(--dm-ease),transform .32s var(--dm-ease)}
+:root[data-style=&quot;clean&quot;] .dm-mpk-fold.dm-shut .dm-mpk-p,:root [data-style=&quot;clean&quot;] .dm-mpk-fold.dm-shut .dm-mpk-p,:root [data-style=&quot;clean&quot;].dm-mpk-fold.dm-shut .dm-mpk-p{opacity:0;transform:translateY(-4px) scale(.96)}
+:root[data-style=&quot;clean&quot;] :is(.dm-mpk-hd,.dm-mpk-o),:root [data-style=&quot;clean&quot;] :is(.dm-mpk-hd,.dm-mpk-o),:root [data-style=&quot;clean&quot;]:is(.dm-mpk-hd,.dm-mpk-o){grid-template-columns:20px minmax(0,1fr) repeat(3,40px);gap:10px}
+:root[data-style=&quot;clean&quot;] .dm-mpk-hd,:root [data-style=&quot;clean&quot;] .dm-mpk-hd,:root [data-style=&quot;clean&quot;].dm-mpk-hd{padding:16px 16px 4px;line-height:16px}
+:root[data-style=&quot;clean&quot;] .dm-mpk-list,:root [data-style=&quot;clean&quot;] .dm-mpk-list,:root [data-style=&quot;clean&quot;].dm-mpk-list{padding:0 8px 8px}
+:root[data-style=&quot;clean&quot;] .dm-mpk-o,:root [data-style=&quot;clean&quot;] .dm-mpk-o,:root [data-style=&quot;clean&quot;].dm-mpk-o{padding:8px;border-radius:calc(var(--dm-r-card) - 8px);transition:background-color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style=&quot;clean&quot;] .dm-mpk-o[aria-checked=&quot;true&quot;],:root [data-style=&quot;clean&quot;] .dm-mpk-o[aria-checked=&quot;true&quot;],:root [data-style=&quot;clean&quot;].dm-mpk-o[aria-checked=&quot;true&quot;]{background:var(--dm-chip)}
+:root[data-style=&quot;clean&quot;] .dm-mpk-o[aria-checked=&quot;true&quot;] .dm-t b,:root [data-style=&quot;clean&quot;] .dm-mpk-o[aria-checked=&quot;true&quot;] .dm-t b,:root [data-style=&quot;clean&quot;].dm-mpk-o[aria-checked=&quot;true&quot;] .dm-t b{color:var(--dm-fg)}
+:root[data-style=&quot;clean&quot;] .dm-mpk-mk,:root [data-style=&quot;clean&quot;] .dm-mpk-mk,:root [data-style=&quot;clean&quot;].dm-mpk-mk{border-radius:50%}
+/* the check is ink and draws itself in when its row is picked */
+:root[data-style=&quot;clean&quot;] .dm-mpk-o .dm-ck,:root [data-style=&quot;clean&quot;] .dm-mpk-o .dm-ck,:root [data-style=&quot;clean&quot;].dm-mpk-o .dm-ck{color:var(--dm-fg);opacity:1;transform:none}
+:root[data-style=&quot;clean&quot;] .dm-mpk-o .dm-ck svg,:root [data-style=&quot;clean&quot;] .dm-mpk-o .dm-ck svg,:root [data-style=&quot;clean&quot;].dm-mpk-o .dm-ck svg{stroke-dasharray:22;stroke-dashoffset:22;transition:stroke-dashoffset .1s var(--dm-ease)}
+:root[data-style=&quot;clean&quot;] .dm-mpk-o[aria-checked=&quot;true&quot;] .dm-ck svg,:root [data-style=&quot;clean&quot;] .dm-mpk-o[aria-checked=&quot;true&quot;] .dm-ck svg,:root [data-style=&quot;clean&quot;].dm-mpk-o[aria-checked=&quot;true&quot;] .dm-ck svg{stroke-dashoffset:0;transition:stroke-dashoffset .42s var(--dm-ease) .06s}
+/* meters: ink pips on a faint grey track, one step darker on the picked row. As the popover opens they fill left to right,
+   row by row */
+@keyframes dm-mpkpip{from{background-color:var(--dm-rail)}}
+:root[data-style=&quot;clean&quot;] .dm-mpk-m,:root [data-style=&quot;clean&quot;] .dm-mpk-m,:root [data-style=&quot;clean&quot;].dm-mpk-m{gap:2px}
+:root[data-style=&quot;clean&quot;] .dm-mpk-m i,:root [data-style=&quot;clean&quot;] .dm-mpk-m i,:root [data-style=&quot;clean&quot;].dm-mpk-m i{background:var(--dm-rail);transition:background-color .32s var(--dm-ease)}
+:root[data-style=&quot;clean&quot;] .dm-mpk-m i.dm-on,:root [data-style=&quot;clean&quot;] .dm-mpk-m i.dm-on,:root [data-style=&quot;clean&quot;].dm-mpk-m i.dm-on{background:var(--dm-fg2)}
+:root[data-style=&quot;clean&quot;] .dm-mpk-o[aria-checked=&quot;true&quot;] .dm-mpk-m i:not(.dm-on),:root [data-style=&quot;clean&quot;] .dm-mpk-o[aria-checked=&quot;true&quot;] .dm-mpk-m i:not(.dm-on),:root [data-style=&quot;clean&quot;].dm-mpk-o[aria-checked=&quot;true&quot;] .dm-mpk-m i:not(.dm-on){background:var(--dm-faint)}
+:root[data-style=&quot;clean&quot;] .dm-mpk-o[aria-checked=&quot;true&quot;]:not(.dm-busy) .dm-mpk-m i.dm-on,:root [data-style=&quot;clean&quot;] .dm-mpk-o[aria-checked=&quot;true&quot;]:not(.dm-busy) .dm-mpk-m i.dm-on,:root [data-style=&quot;clean&quot;].dm-mpk-o[aria-checked=&quot;true&quot;]:not(.dm-busy) .dm-mpk-m i.dm-on{background:var(--dm-fg)}
+:root[data-style=&quot;clean&quot;] .dm-mpk-fold:not(.dm-shut) .dm-mpk-m i.dm-on,:root [data-style=&quot;clean&quot;] .dm-mpk-fold:not(.dm-shut) .dm-mpk-m i.dm-on,:root [data-style=&quot;clean&quot;].dm-mpk-fold:not(.dm-shut) .dm-mpk-m i.dm-on{animation:dm-mpkpip .36s var(--dm-ease) backwards;animation-delay:calc(140ms + var(--dm-mpr,0) * 70ms + var(--dm-mpm,0) * 110ms + var(--dm-mpi,0) * 35ms)}
+:root[data-style=&quot;clean&quot;] .dm-mpk-o:nth-child(2),:root [data-style=&quot;clean&quot;] .dm-mpk-o:nth-child(2),:root [data-style=&quot;clean&quot;].dm-mpk-o:nth-child(2){--dm-mpr:1}
+:root[data-style=&quot;clean&quot;] .dm-mpk-o:nth-child(3),:root [data-style=&quot;clean&quot;] .dm-mpk-o:nth-child(3),:root [data-style=&quot;clean&quot;].dm-mpk-o:nth-child(3){--dm-mpr:2}
+:root[data-style=&quot;clean&quot;] .dm-mpk-o:nth-child(n+4),:root [data-style=&quot;clean&quot;] .dm-mpk-o:nth-child(n+4),:root [data-style=&quot;clean&quot;].dm-mpk-o:nth-child(n+4){--dm-mpr:3}
+:root[data-style=&quot;clean&quot;] .dm-mpk-m:nth-child(4),:root [data-style=&quot;clean&quot;] .dm-mpk-m:nth-child(4),:root [data-style=&quot;clean&quot;].dm-mpk-m:nth-child(4){--dm-mpm:1}
+:root[data-style=&quot;clean&quot;] .dm-mpk-m:nth-child(5),:root [data-style=&quot;clean&quot;] .dm-mpk-m:nth-child(5),:root [data-style=&quot;clean&quot;].dm-mpk-m:nth-child(5){--dm-mpm:2}
+:root[data-style=&quot;clean&quot;] .dm-mpk-m i:nth-child(2),:root [data-style=&quot;clean&quot;] .dm-mpk-m i:nth-child(2),:root [data-style=&quot;clean&quot;].dm-mpk-m i:nth-child(2){--dm-mpi:1}
+:root[data-style=&quot;clean&quot;] .dm-mpk-m i:nth-child(3),:root [data-style=&quot;clean&quot;] .dm-mpk-m i:nth-child(3),:root [data-style=&quot;clean&quot;].dm-mpk-m i:nth-child(3){--dm-mpi:2}
+:root[data-style=&quot;clean&quot;] .dm-mpk-m i:nth-child(4),:root [data-style=&quot;clean&quot;] .dm-mpk-m i:nth-child(4),:root [data-style=&quot;clean&quot;].dm-mpk-m i:nth-child(4){--dm-mpi:3}
+:root[data-style=&quot;clean&quot;] .dm-mpk-m i:nth-child(5),:root [data-style=&quot;clean&quot;] .dm-mpk-m i:nth-child(5),:root [data-style=&quot;clean&quot;].dm-mpk-m i:nth-child(5){--dm-mpi:4}
+/* the way out when a model is busy: its own section under the rows, between hairlines, with its buttons 16px in */
+:root[data-style=&quot;clean&quot;] .dm-mpk-sg,:root [data-style=&quot;clean&quot;] .dm-mpk-sg,:root [data-style=&quot;clean&quot;].dm-mpk-sg{margin:0;padding:16px;border-radius:0;background:none;border-top:1px solid var(--dm-line);gap:12px}
+:root[data-style=&quot;clean&quot;] .dm-mpk-sgt,:root [data-style=&quot;clean&quot;] .dm-mpk-sgt,:root [data-style=&quot;clean&quot;].dm-mpk-sgt{color:var(--dm-fg2)}
+:root[data-style=&quot;clean&quot;] .dm-mpk-sga,:root [data-style=&quot;clean&quot;] .dm-mpk-sga,:root [data-style=&quot;clean&quot;].dm-mpk-sga{gap:8px}
+:root[data-style=&quot;clean&quot;] .dm-mpk-sg .dm-pill.dm-ghost,:root [data-style=&quot;clean&quot;] .dm-mpk-sg .dm-pill.dm-ghost,:root [data-style=&quot;clean&quot;].dm-mpk-sg .dm-pill.dm-ghost{color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
+@media (hover:hover) and (pointer:fine){:root[data-style=&quot;clean&quot;] .dm-mpk-sg .dm-pill.dm-ghost:hover,:root [data-style=&quot;clean&quot;] .dm-mpk-sg .dm-pill.dm-ghost:hover,:root [data-style=&quot;clean&quot;].dm-mpk-sg .dm-pill.dm-ghost:hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
+:root[data-style=&quot;clean&quot;] .dm-mpk-sg .dm-pill.dm-ghost:active,:root [data-style=&quot;clean&quot;] .dm-mpk-sg .dm-pill.dm-ghost:active,:root [data-style=&quot;clean&quot;].dm-mpk-sg .dm-pill.dm-ghost:active{box-shadow:var(--dm-btn2-press)}
+/* the foot strip: thinking on one line, 16px in, and its select a secondary pill 8px from the corner */
+:root[data-style=&quot;clean&quot;] .dm-mpk-th,:root [data-style=&quot;clean&quot;] .dm-mpk-th,:root [data-style=&quot;clean&quot;].dm-mpk-th{flex-wrap:nowrap;gap:12px;margin:0;padding:8px 8px 8px 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+:root[data-style=&quot;clean&quot;] .dm-mpk-thh,:root [data-style=&quot;clean&quot;] .dm-mpk-thh,:root [data-style=&quot;clean&quot;].dm-mpk-thh{flex-direction:row;align-items:baseline;gap:8px;min-width:0;white-space:nowrap}
+:root[data-style=&quot;clean&quot;] .dm-mpk-thh b,:root [data-style=&quot;clean&quot;] .dm-mpk-thh b,:root [data-style=&quot;clean&quot;].dm-mpk-thh b{flex:none;align-self:center}
+:root[data-style=&quot;clean&quot;] .dm-mpk-thd,:root [data-style=&quot;clean&quot;] .dm-mpk-thd,:root [data-style=&quot;clean&quot;].dm-mpk-thd{min-width:0;overflow:hidden;text-overflow:ellipsis}
+:root[data-style=&quot;clean&quot;] .dm-mpk-eb,:root [data-style=&quot;clean&quot;] .dm-mpk-eb,:root [data-style=&quot;clean&quot;].dm-mpk-eb{flex:none;gap:6px;height:28px;padding:0 10px 0 12px;font-weight:500;color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth);transition:box-shadow var(--dm-t-fast) var(--dm-ease),transform var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style=&quot;clean&quot;] :is(.dm-mpk-eb:hover,.dm-mpk-eb[aria-expanded=&quot;true&quot;]),:root [data-style=&quot;clean&quot;] :is(.dm-mpk-eb:hover,.dm-mpk-eb[aria-expanded=&quot;true&quot;]),:root [data-style=&quot;clean&quot;]:is(.dm-mpk-eb:hover,.dm-mpk-eb[aria-expanded=&quot;true&quot;]){background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
+:root[data-style=&quot;clean&quot;] .dm-mpk-eb:active,:root [data-style=&quot;clean&quot;] .dm-mpk-eb:active,:root [data-style=&quot;clean&quot;].dm-mpk-eb:active{transform:scale(.97);box-shadow:var(--dm-btn2-press)}
+:root[data-style=&quot;clean&quot;] .dm-mpk-pop,:root [data-style=&quot;clean&quot;] .dm-mpk-pop,:root [data-style=&quot;clean&quot;].dm-mpk-pop{padding:6px;border-radius:var(--dm-r-card)}
+:root[data-style=&quot;clean&quot;] .dm-mpk-pop .dm-mi,:root [data-style=&quot;clean&quot;] .dm-mpk-pop .dm-mi,:root [data-style=&quot;clean&quot;].dm-mpk-pop .dm-mi{border-radius:calc(var(--dm-r-card) - 6px)}
+/* the confirmation under the popover takes no room until it has something to say, and opens smoothly when it does */
+:root[data-style=&quot;clean&quot;] .dm-mpk-note,:root [data-style=&quot;clean&quot;] .dm-mpk-note,:root [data-style=&quot;clean&quot;].dm-mpk-note{min-height:0;max-height:0;margin-top:-8px;opacity:0;overflow:hidden;transition:max-height var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease),opacity var(--dm-t) var(--dm-ease)}
+:root[data-style=&quot;clean&quot;] .dm-mpk-note:not(:empty),:root [data-style=&quot;clean&quot;] .dm-mpk-note:not(:empty),:root [data-style=&quot;clean&quot;].dm-mpk-note:not(:empty){max-height:40px;margin-top:0;opacity:1}
+:root[data-style=&quot;clean&quot;] .dm-mpk-note svg,:root [data-style=&quot;clean&quot;] .dm-mpk-note svg,:root [data-style=&quot;clean&quot;].dm-mpk-note svg{color:var(--dm-ok-mark)}
+/* phones: the thinking line goes under its label rather than being cut, and the select turns into a text control aligned by
+   its text, its chevron 16px from the edge like the meters above it */
+@media (max-width:480px){:root[data-style=&quot;clean&quot;] :is(.dm-mpk-hd,.dm-mpk-o),:root [data-style=&quot;clean&quot;] :is(.dm-mpk-hd,.dm-mpk-o),:root [data-style=&quot;clean&quot;]:is(.dm-mpk-hd,.dm-mpk-o){grid-template-columns:20px minmax(0,1fr) repeat(3,36px);gap:8px}:root[data-style=&quot;clean&quot;] .dm-mpk-hd,:root [data-style=&quot;clean&quot;] .dm-mpk-hd,:root [data-style=&quot;clean&quot;].dm-mpk-hd{padding-inline:16px}:root[data-style=&quot;clean&quot;] .dm-mpk-o,:root [data-style=&quot;clean&quot;] .dm-mpk-o,:root [data-style=&quot;clean&quot;].dm-mpk-o{padding-inline:8px}
+  :root[data-style=&quot;clean&quot;] .dm-mpk-th,:root [data-style=&quot;clean&quot;] .dm-mpk-th,:root [data-style=&quot;clean&quot;].dm-mpk-th{padding:12px 16px}:root[data-style=&quot;clean&quot;] .dm-mpk-thh,:root [data-style=&quot;clean&quot;] .dm-mpk-thh,:root [data-style=&quot;clean&quot;].dm-mpk-thh{flex-direction:column;align-items:flex-start;gap:0;white-space:normal}:root[data-style=&quot;clean&quot;] .dm-mpk-thh b,:root [data-style=&quot;clean&quot;] .dm-mpk-thh b,:root [data-style=&quot;clean&quot;].dm-mpk-thh b{align-self:auto}
+  :root[data-style=&quot;clean&quot;] .dm-mpk-eb,:root [data-style=&quot;clean&quot;] .dm-mpk-eb,:root [data-style=&quot;clean&quot;].dm-mpk-eb{margin-right:-10px;background:none;box-shadow:none}
+  @media (hover:hover) and (pointer:fine){:root[data-style=&quot;clean&quot;] :is(.dm-mpk-eb:hover,.dm-mpk-eb[aria-expanded=&quot;true&quot;]),:root [data-style=&quot;clean&quot;] :is(.dm-mpk-eb:hover,.dm-mpk-eb[aria-expanded=&quot;true&quot;]),:root [data-style=&quot;clean&quot;]:is(.dm-mpk-eb:hover,.dm-mpk-eb[aria-expanded=&quot;true&quot;]){margin-right:-10px;background:none;box-shadow:none}}@media (hover:hover) and (pointer:fine){:root[data-style=&quot;clean&quot;] :is(.dm-mpk-eb:hover,.dm-mpk-eb[aria-expanded=&quot;true&quot;]),:root [data-style=&quot;clean&quot;] :is(.dm-mpk-eb:hover,.dm-mpk-eb[aria-expanded=&quot;true&quot;]),:root [data-style=&quot;clean&quot;]:is(.dm-mpk-eb:hover,.dm-mpk-eb[aria-expanded=&quot;true&quot;]){background:var(--dm-hover)}}}
+@media (prefers-reduced-motion:reduce){:root[data-style=&quot;clean&quot;] .dm-mpk-m i.dm-on,:root [data-style=&quot;clean&quot;] .dm-mpk-m i.dm-on,:root [data-style=&quot;clean&quot;].dm-mpk-m i.dm-on{animation:none!important}:root[data-style=&quot;clean&quot;] :is(.dm-mpk-p,.dm-mpk-o .dm-ck svg,.dm-mpk-note,.dm-mpk-m i),:root [data-style=&quot;clean&quot;] :is(.dm-mpk-p,.dm-mpk-o .dm-ck svg,.dm-mpk-note,.dm-mpk-m i),:root [data-style=&quot;clean&quot;]:is(.dm-mpk-p,.dm-mpk-o .dm-ck svg,.dm-mpk-note,.dm-mpk-m i){transition:none!important}}
 </code></pre></details><details class="cp-file"><summary>ModelPicker.astro<span class="l">Astro · 42 lines</span></summary><pre class="cp-pre" data-name="ModelPicker.astro"><code>---
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
 // Model picker: Pick a model by speed, quality and cost, and how hard it thinks.
@@ -648,7 +786,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>model-picker.css<span class="l">HTML · 61 lines</span></summary><pre class="cp-pre" data-name="model-picker.css"><code>/* ---------- Model picker ---------- */
+</code></pre></details><details class="cp-file"><summary>model-picker.css<span class="l">HTML · 128 lines</span></summary><pre class="cp-pre" data-name="model-picker.css"><code>/* ---------- Model picker ---------- */
 /* a trigger that names the model and how hard it thinks, over the open list: speed, quality and cost as five-step meters
    with the real numbers on hover, and the thinking effort under them as a small dropdown */
 .mpk{position:relative;display:flex;flex-direction:column;gap:var(--dm-s-2);width:100%;max-width:420px;margin:0 auto}
@@ -706,9 +844,76 @@ const { class: className, ...rest } = Astro.props;
 /* phones: the line under each name wraps, and the meters keep room for their labels */
 /* on a phone the meters close up so a model&#39;s line keeps two or three words to a row */
 @media (max-width:480px){.mpk-hd,.mpk-o{grid-template-columns:20px minmax(0,1fr) repeat(3,34px);gap:6px}.mpk-hd{font-size:10.5px;padding-inline:6px}.mpk-o{padding-inline:6px}.mpk-o .d{white-space:normal}}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style=&quot;clean&quot;] .mpk-p.panel,:root [data-style=&quot;clean&quot;] .mpk-p.panel,:root [data-style=&quot;clean&quot;].mpk-p.panel{padding:15px 20px 12px 20px}
-</code></pre></details><details class="cp-file"><summary>model-picker.js<span class="l">HTML · 76 lines</span></summary><pre class="cp-pre" data-name="model-picker.js"><code>DM.def(&#39;model-picker&#39;, (r, c) =&gt; {
+/* Clean (owner, 18 Nov): one measure inside the popover. Its content sits 16px in from each edge: the column heads, each
+   row&#39;s mark and meters (the rows sit 8px in, with 8px of their own) and the foot&#39;s text. The picked row&#39;s fill is
+   concentric with the popover&#39;s corners (22px = its 14px + the 8px inset), and the foot strip&#39;s select sits 8px from the
+   right and bottom edges, a 28px pill (14 + 8 = 22). Selection is neutral: a grey row fill, an ink check, meters one step
+   darker; the models&#39; marks keep their own colours. The trigger is a secondary pill, and the popover scales and fades in
+   from it */
+:root[data-style=&quot;clean&quot;] .mpk-tr,:root [data-style=&quot;clean&quot;] .mpk-tr,:root [data-style=&quot;clean&quot;].mpk-tr{gap:8px;padding:0 10px 0 6px;color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth);transition:box-shadow var(--dm-t-fast) var(--dm-ease),transform var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style=&quot;clean&quot;] .mpk-tr:hover,:root [data-style=&quot;clean&quot;] .mpk-tr:hover,:root [data-style=&quot;clean&quot;].mpk-tr:hover{box-shadow:var(--dm-btn2-hover)}}
+:root[data-style=&quot;clean&quot;] .mpk-tr:active,:root [data-style=&quot;clean&quot;] .mpk-tr:active,:root [data-style=&quot;clean&quot;].mpk-tr:active{transform:scale(.97);box-shadow:var(--dm-btn2-press)}
+:root[data-style=&quot;clean&quot;] .mpk-tr&gt;svg,:root [data-style=&quot;clean&quot;] .mpk-tr&gt;svg,:root [data-style=&quot;clean&quot;].mpk-tr&gt;svg{transition:transform var(--dm-t) var(--dm-ease)}
+:root[data-style=&quot;clean&quot;] .mpk-p.panel,:root [data-style=&quot;clean&quot;] .mpk-p.panel,:root [data-style=&quot;clean&quot;].mpk-p.panel{padding:0;transform-origin:top right;transition:opacity var(--dm-t) var(--dm-ease),transform .32s var(--dm-ease)}
+:root[data-style=&quot;clean&quot;] .mpk-fold.shut .mpk-p,:root [data-style=&quot;clean&quot;] .mpk-fold.shut .mpk-p,:root [data-style=&quot;clean&quot;].mpk-fold.shut .mpk-p{opacity:0;transform:translateY(-4px) scale(.96)}
+:root[data-style=&quot;clean&quot;] :is(.mpk-hd,.mpk-o),:root [data-style=&quot;clean&quot;] :is(.mpk-hd,.mpk-o),:root [data-style=&quot;clean&quot;]:is(.mpk-hd,.mpk-o){grid-template-columns:20px minmax(0,1fr) repeat(3,40px);gap:10px}
+:root[data-style=&quot;clean&quot;] .mpk-hd,:root [data-style=&quot;clean&quot;] .mpk-hd,:root [data-style=&quot;clean&quot;].mpk-hd{padding:16px 16px 4px;line-height:16px}
+:root[data-style=&quot;clean&quot;] .mpk-list,:root [data-style=&quot;clean&quot;] .mpk-list,:root [data-style=&quot;clean&quot;].mpk-list{padding:0 8px 8px}
+:root[data-style=&quot;clean&quot;] .mpk-o,:root [data-style=&quot;clean&quot;] .mpk-o,:root [data-style=&quot;clean&quot;].mpk-o{padding:8px;border-radius:calc(var(--dm-r-card) - 8px);transition:background-color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style=&quot;clean&quot;] .mpk-o[aria-checked=&quot;true&quot;],:root [data-style=&quot;clean&quot;] .mpk-o[aria-checked=&quot;true&quot;],:root [data-style=&quot;clean&quot;].mpk-o[aria-checked=&quot;true&quot;]{background:var(--dm-chip)}
+:root[data-style=&quot;clean&quot;] .mpk-o[aria-checked=&quot;true&quot;] .t b,:root [data-style=&quot;clean&quot;] .mpk-o[aria-checked=&quot;true&quot;] .t b,:root [data-style=&quot;clean&quot;].mpk-o[aria-checked=&quot;true&quot;] .t b{color:var(--dm-fg)}
+:root[data-style=&quot;clean&quot;] .mpk-mk,:root [data-style=&quot;clean&quot;] .mpk-mk,:root [data-style=&quot;clean&quot;].mpk-mk{border-radius:50%}
+/* the check is ink and draws itself in when its row is picked */
+:root[data-style=&quot;clean&quot;] .mpk-o .ck,:root [data-style=&quot;clean&quot;] .mpk-o .ck,:root [data-style=&quot;clean&quot;].mpk-o .ck{color:var(--dm-fg);opacity:1;transform:none}
+:root[data-style=&quot;clean&quot;] .mpk-o .ck svg,:root [data-style=&quot;clean&quot;] .mpk-o .ck svg,:root [data-style=&quot;clean&quot;].mpk-o .ck svg{stroke-dasharray:22;stroke-dashoffset:22;transition:stroke-dashoffset .1s var(--dm-ease)}
+:root[data-style=&quot;clean&quot;] .mpk-o[aria-checked=&quot;true&quot;] .ck svg,:root [data-style=&quot;clean&quot;] .mpk-o[aria-checked=&quot;true&quot;] .ck svg,:root [data-style=&quot;clean&quot;].mpk-o[aria-checked=&quot;true&quot;] .ck svg{stroke-dashoffset:0;transition:stroke-dashoffset .42s var(--dm-ease) .06s}
+/* meters: ink pips on a faint grey track, one step darker on the picked row. As the popover opens they fill left to right,
+   row by row */
+@keyframes mpkpip{from{background-color:var(--dm-rail)}}
+:root[data-style=&quot;clean&quot;] .mpk-m,:root [data-style=&quot;clean&quot;] .mpk-m,:root [data-style=&quot;clean&quot;].mpk-m{gap:2px}
+:root[data-style=&quot;clean&quot;] .mpk-m i,:root [data-style=&quot;clean&quot;] .mpk-m i,:root [data-style=&quot;clean&quot;].mpk-m i{background:var(--dm-rail);transition:background-color .32s var(--dm-ease)}
+:root[data-style=&quot;clean&quot;] .mpk-m i.on,:root [data-style=&quot;clean&quot;] .mpk-m i.on,:root [data-style=&quot;clean&quot;].mpk-m i.on{background:var(--dm-fg2)}
+:root[data-style=&quot;clean&quot;] .mpk-o[aria-checked=&quot;true&quot;] .mpk-m i:not(.on),:root [data-style=&quot;clean&quot;] .mpk-o[aria-checked=&quot;true&quot;] .mpk-m i:not(.on),:root [data-style=&quot;clean&quot;].mpk-o[aria-checked=&quot;true&quot;] .mpk-m i:not(.on){background:var(--dm-faint)}
+:root[data-style=&quot;clean&quot;] .mpk-o[aria-checked=&quot;true&quot;]:not(.busy) .mpk-m i.on,:root [data-style=&quot;clean&quot;] .mpk-o[aria-checked=&quot;true&quot;]:not(.busy) .mpk-m i.on,:root [data-style=&quot;clean&quot;].mpk-o[aria-checked=&quot;true&quot;]:not(.busy) .mpk-m i.on{background:var(--dm-fg)}
+:root[data-style=&quot;clean&quot;] .mpk-fold:not(.shut) .mpk-m i.on,:root [data-style=&quot;clean&quot;] .mpk-fold:not(.shut) .mpk-m i.on,:root [data-style=&quot;clean&quot;].mpk-fold:not(.shut) .mpk-m i.on{animation:mpkpip .36s var(--dm-ease) backwards;animation-delay:calc(140ms + var(--dm-mpr,0) * 70ms + var(--dm-mpm,0) * 110ms + var(--dm-mpi,0) * 35ms)}
+:root[data-style=&quot;clean&quot;] .mpk-o:nth-child(2),:root [data-style=&quot;clean&quot;] .mpk-o:nth-child(2),:root [data-style=&quot;clean&quot;].mpk-o:nth-child(2){--dm-mpr:1}
+:root[data-style=&quot;clean&quot;] .mpk-o:nth-child(3),:root [data-style=&quot;clean&quot;] .mpk-o:nth-child(3),:root [data-style=&quot;clean&quot;].mpk-o:nth-child(3){--dm-mpr:2}
+:root[data-style=&quot;clean&quot;] .mpk-o:nth-child(n+4),:root [data-style=&quot;clean&quot;] .mpk-o:nth-child(n+4),:root [data-style=&quot;clean&quot;].mpk-o:nth-child(n+4){--dm-mpr:3}
+:root[data-style=&quot;clean&quot;] .mpk-m:nth-child(4),:root [data-style=&quot;clean&quot;] .mpk-m:nth-child(4),:root [data-style=&quot;clean&quot;].mpk-m:nth-child(4){--dm-mpm:1}
+:root[data-style=&quot;clean&quot;] .mpk-m:nth-child(5),:root [data-style=&quot;clean&quot;] .mpk-m:nth-child(5),:root [data-style=&quot;clean&quot;].mpk-m:nth-child(5){--dm-mpm:2}
+:root[data-style=&quot;clean&quot;] .mpk-m i:nth-child(2),:root [data-style=&quot;clean&quot;] .mpk-m i:nth-child(2),:root [data-style=&quot;clean&quot;].mpk-m i:nth-child(2){--dm-mpi:1}
+:root[data-style=&quot;clean&quot;] .mpk-m i:nth-child(3),:root [data-style=&quot;clean&quot;] .mpk-m i:nth-child(3),:root [data-style=&quot;clean&quot;].mpk-m i:nth-child(3){--dm-mpi:2}
+:root[data-style=&quot;clean&quot;] .mpk-m i:nth-child(4),:root [data-style=&quot;clean&quot;] .mpk-m i:nth-child(4),:root [data-style=&quot;clean&quot;].mpk-m i:nth-child(4){--dm-mpi:3}
+:root[data-style=&quot;clean&quot;] .mpk-m i:nth-child(5),:root [data-style=&quot;clean&quot;] .mpk-m i:nth-child(5),:root [data-style=&quot;clean&quot;].mpk-m i:nth-child(5){--dm-mpi:4}
+/* the way out when a model is busy: its own section under the rows, between hairlines, with its buttons 16px in */
+:root[data-style=&quot;clean&quot;] .mpk-sg,:root [data-style=&quot;clean&quot;] .mpk-sg,:root [data-style=&quot;clean&quot;].mpk-sg{margin:0;padding:16px;border-radius:0;background:none;border-top:1px solid var(--dm-line);gap:12px}
+:root[data-style=&quot;clean&quot;] .mpk-sgt,:root [data-style=&quot;clean&quot;] .mpk-sgt,:root [data-style=&quot;clean&quot;].mpk-sgt{color:var(--dm-fg2)}
+:root[data-style=&quot;clean&quot;] .mpk-sga,:root [data-style=&quot;clean&quot;] .mpk-sga,:root [data-style=&quot;clean&quot;].mpk-sga{gap:8px}
+:root[data-style=&quot;clean&quot;] .mpk-sg .pill.ghost,:root [data-style=&quot;clean&quot;] .mpk-sg .pill.ghost,:root [data-style=&quot;clean&quot;].mpk-sg .pill.ghost{color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
+@media (hover:hover) and (pointer:fine){:root[data-style=&quot;clean&quot;] .mpk-sg .pill.ghost:hover,:root [data-style=&quot;clean&quot;] .mpk-sg .pill.ghost:hover,:root [data-style=&quot;clean&quot;].mpk-sg .pill.ghost:hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
+:root[data-style=&quot;clean&quot;] .mpk-sg .pill.ghost:active,:root [data-style=&quot;clean&quot;] .mpk-sg .pill.ghost:active,:root [data-style=&quot;clean&quot;].mpk-sg .pill.ghost:active{box-shadow:var(--dm-btn2-press)}
+/* the foot strip: thinking on one line, 16px in, and its select a secondary pill 8px from the corner */
+:root[data-style=&quot;clean&quot;] .mpk-th,:root [data-style=&quot;clean&quot;] .mpk-th,:root [data-style=&quot;clean&quot;].mpk-th{flex-wrap:nowrap;gap:12px;margin:0;padding:8px 8px 8px 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+:root[data-style=&quot;clean&quot;] .mpk-thh,:root [data-style=&quot;clean&quot;] .mpk-thh,:root [data-style=&quot;clean&quot;].mpk-thh{flex-direction:row;align-items:baseline;gap:8px;min-width:0;white-space:nowrap}
+:root[data-style=&quot;clean&quot;] .mpk-thh b,:root [data-style=&quot;clean&quot;] .mpk-thh b,:root [data-style=&quot;clean&quot;].mpk-thh b{flex:none;align-self:center}
+:root[data-style=&quot;clean&quot;] .mpk-thd,:root [data-style=&quot;clean&quot;] .mpk-thd,:root [data-style=&quot;clean&quot;].mpk-thd{min-width:0;overflow:hidden;text-overflow:ellipsis}
+:root[data-style=&quot;clean&quot;] .mpk-eb,:root [data-style=&quot;clean&quot;] .mpk-eb,:root [data-style=&quot;clean&quot;].mpk-eb{flex:none;gap:6px;height:28px;padding:0 10px 0 12px;font-weight:500;color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth);transition:box-shadow var(--dm-t-fast) var(--dm-ease),transform var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style=&quot;clean&quot;] :is(.mpk-eb:hover,.mpk-eb[aria-expanded=&quot;true&quot;]),:root [data-style=&quot;clean&quot;] :is(.mpk-eb:hover,.mpk-eb[aria-expanded=&quot;true&quot;]),:root [data-style=&quot;clean&quot;]:is(.mpk-eb:hover,.mpk-eb[aria-expanded=&quot;true&quot;]){background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
+:root[data-style=&quot;clean&quot;] .mpk-eb:active,:root [data-style=&quot;clean&quot;] .mpk-eb:active,:root [data-style=&quot;clean&quot;].mpk-eb:active{transform:scale(.97);box-shadow:var(--dm-btn2-press)}
+:root[data-style=&quot;clean&quot;] .mpk-pop,:root [data-style=&quot;clean&quot;] .mpk-pop,:root [data-style=&quot;clean&quot;].mpk-pop{padding:6px;border-radius:var(--dm-r-card)}
+:root[data-style=&quot;clean&quot;] .mpk-pop .mi,:root [data-style=&quot;clean&quot;] .mpk-pop .mi,:root [data-style=&quot;clean&quot;].mpk-pop .mi{border-radius:calc(var(--dm-r-card) - 6px)}
+/* the confirmation under the popover takes no room until it has something to say, and opens smoothly when it does */
+:root[data-style=&quot;clean&quot;] .mpk-note,:root [data-style=&quot;clean&quot;] .mpk-note,:root [data-style=&quot;clean&quot;].mpk-note{min-height:0;max-height:0;margin-top:-8px;opacity:0;overflow:hidden;transition:max-height var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease),opacity var(--dm-t) var(--dm-ease)}
+:root[data-style=&quot;clean&quot;] .mpk-note:not(:empty),:root [data-style=&quot;clean&quot;] .mpk-note:not(:empty),:root [data-style=&quot;clean&quot;].mpk-note:not(:empty){max-height:40px;margin-top:0;opacity:1}
+:root[data-style=&quot;clean&quot;] .mpk-note svg,:root [data-style=&quot;clean&quot;] .mpk-note svg,:root [data-style=&quot;clean&quot;].mpk-note svg{color:var(--dm-ok-mark)}
+/* phones: the thinking line goes under its label rather than being cut, and the select turns into a text control aligned by
+   its text, its chevron 16px from the edge like the meters above it */
+@media (max-width:480px){:root[data-style=&quot;clean&quot;] :is(.mpk-hd,.mpk-o),:root [data-style=&quot;clean&quot;] :is(.mpk-hd,.mpk-o),:root [data-style=&quot;clean&quot;]:is(.mpk-hd,.mpk-o){grid-template-columns:20px minmax(0,1fr) repeat(3,36px);gap:8px}:root[data-style=&quot;clean&quot;] .mpk-hd,:root [data-style=&quot;clean&quot;] .mpk-hd,:root [data-style=&quot;clean&quot;].mpk-hd{padding-inline:16px}:root[data-style=&quot;clean&quot;] .mpk-o,:root [data-style=&quot;clean&quot;] .mpk-o,:root [data-style=&quot;clean&quot;].mpk-o{padding-inline:8px}
+  :root[data-style=&quot;clean&quot;] .mpk-th,:root [data-style=&quot;clean&quot;] .mpk-th,:root [data-style=&quot;clean&quot;].mpk-th{padding:12px 16px}:root[data-style=&quot;clean&quot;] .mpk-thh,:root [data-style=&quot;clean&quot;] .mpk-thh,:root [data-style=&quot;clean&quot;].mpk-thh{flex-direction:column;align-items:flex-start;gap:0;white-space:normal}:root[data-style=&quot;clean&quot;] .mpk-thh b,:root [data-style=&quot;clean&quot;] .mpk-thh b,:root [data-style=&quot;clean&quot;].mpk-thh b{align-self:auto}
+  :root[data-style=&quot;clean&quot;] .mpk-eb,:root [data-style=&quot;clean&quot;] .mpk-eb,:root [data-style=&quot;clean&quot;].mpk-eb{margin-right:-10px;background:none;box-shadow:none}
+  @media (hover:hover) and (pointer:fine){:root[data-style=&quot;clean&quot;] :is(.mpk-eb:hover,.mpk-eb[aria-expanded=&quot;true&quot;]),:root [data-style=&quot;clean&quot;] :is(.mpk-eb:hover,.mpk-eb[aria-expanded=&quot;true&quot;]),:root [data-style=&quot;clean&quot;]:is(.mpk-eb:hover,.mpk-eb[aria-expanded=&quot;true&quot;]){margin-right:-10px;background:none;box-shadow:none}}@media (hover:hover) and (pointer:fine){:root[data-style=&quot;clean&quot;] :is(.mpk-eb:hover,.mpk-eb[aria-expanded=&quot;true&quot;]),:root [data-style=&quot;clean&quot;] :is(.mpk-eb:hover,.mpk-eb[aria-expanded=&quot;true&quot;]),:root [data-style=&quot;clean&quot;]:is(.mpk-eb:hover,.mpk-eb[aria-expanded=&quot;true&quot;]){background:var(--dm-hover)}}}
+@media (prefers-reduced-motion:reduce){:root[data-style=&quot;clean&quot;] .mpk-m i.on,:root [data-style=&quot;clean&quot;] .mpk-m i.on,:root [data-style=&quot;clean&quot;].mpk-m i.on{animation:none!important}:root[data-style=&quot;clean&quot;] :is(.mpk-p,.mpk-o .ck svg,.mpk-note,.mpk-m i),:root [data-style=&quot;clean&quot;] :is(.mpk-p,.mpk-o .ck svg,.mpk-note,.mpk-m i),:root [data-style=&quot;clean&quot;]:is(.mpk-p,.mpk-o .ck svg,.mpk-note,.mpk-m i){transition:none!important}}
+</code></pre></details><details class="cp-file"><summary>model-picker.js<span class="l">HTML · 78 lines</span></summary><pre class="cp-pre" data-name="model-picker.js"><code>DM.def(&#39;model-picker&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(/\{chev\}/g, I(&#39;chev-d&#39;,&#39;xs&#39;)).replace(&#39;{brain}&#39;, I(&#39;brain&#39;,&#39;xs&#39;)).replace(/\{chk\}/g, I(&#39;check&#39;,&#39;xs&#39;));
   // speed, quality and cost out of five, and the numbers behind them: tokens a second, and a typical reply&#39;s seconds and
   // price with no thinking
@@ -720,8 +925,10 @@ const { class: className, ...rest } = Astro.props;
   // thinking effort, and what it may spend
   const E = [[&#39;Off&#39;, &#39;Answers straight away&#39;], [&#39;Low&#39;, &#39;Up to 2k thinking tokens&#39;], [&#39;Medium&#39;, &#39;Up to 8k thinking tokens&#39;], [&#39;High&#39;, &#39;Up to 24k thinking tokens&#39;]];
   const list = $(&#39;.mpk-list&#39;, r), tr = $(&#39;.mpk-tr&#39;, r), fold = $(&#39;.mpk-fold&#39;, r), sgf = $(&#39;.mpk-sgf&#39;, r), sgt = $(&#39;.mpk-sgt&#39;, r), note = $(&#39;.mpk-note&#39;, r), thd = $(&#39;.mpk-thd&#39;, r), ev = $(&#39;.mpk-ev&#39;, r), items = $$(&#39;.mpk-pop .mi&#39;, r);
-  const meter = (v, tip) =&gt; `&lt;span class=&quot;mpk-m&quot; data-tip=&quot;${tip}&quot;&gt;${[1, 2, 3, 4, 5].map(k =&gt; `&lt;i${k &lt;= v ? &#39; class=&quot;on&quot;&#39; : &#39;&#39;}&gt;&lt;/i&gt;`).join(&#39;&#39;)}&lt;/span&gt;`;
-  list.innerHTML = M.map((x, i) =&gt; `&lt;button class=&quot;mpk-o&quot; role=&quot;radio&quot; aria-checked=&quot;false&quot; tabindex=&quot;-1&quot; data-i=&quot;${i}&quot;&gt;&lt;span class=&quot;mpk-mk&quot; style=&quot;--dm-mc:${x.c};--dm-mt:${x.t}&quot;&gt;${x.m}&lt;/span&gt;&lt;span class=&quot;t&quot;&gt;&lt;b&gt;${x.n}&lt;span class=&quot;ck&quot;&gt;${I(&#39;check&#39;,&#39;xs&#39;)}&lt;/span&gt;&lt;/b&gt;&lt;span class=&quot;d&quot;&gt;${x.d}&lt;/span&gt;&lt;/span&gt;${meter(x.s, x.tps + &#39; tokens a second&#39;)}${meter(x.q, &#39;Quality &#39; + x.q + &#39; of 5&#39;)}${meter(x.p, &#39;$&#39; + x.cost.toFixed(3) + &#39; a reply&#39;)}&lt;/button&gt;`).join(&#39;&#39;);
+  // in Clean the first row&#39;s numbers show under its meters, so they never sit over the column heads
+  const clean = r.closest(&#39;[data-style]&#39;)?.dataset.style === &#39;clean&#39;;
+  const meter = (v, tip, i) =&gt; `&lt;span class=&quot;mpk-m&quot; data-tip=&quot;${tip}&quot;${clean &amp;&amp; !i ? &#39; data-tip-at=&quot;below&quot;&#39; : &#39;&#39;}&gt;${[1, 2, 3, 4, 5].map(k =&gt; `&lt;i${k &lt;= v ? &#39; class=&quot;on&quot;&#39; : &#39;&#39;}&gt;&lt;/i&gt;`).join(&#39;&#39;)}&lt;/span&gt;`;
+  list.innerHTML = M.map((x, i) =&gt; `&lt;button class=&quot;mpk-o&quot; role=&quot;radio&quot; aria-checked=&quot;false&quot; tabindex=&quot;-1&quot; data-i=&quot;${i}&quot;&gt;&lt;span class=&quot;mpk-mk&quot; style=&quot;--dm-mc:${x.c};--dm-mt:${x.t}&quot;&gt;${x.m}&lt;/span&gt;&lt;span class=&quot;t&quot;&gt;&lt;b&gt;${x.n}&lt;span class=&quot;ck&quot;&gt;${I(&#39;check&#39;,&#39;xs&#39;)}&lt;/span&gt;&lt;/b&gt;&lt;span class=&quot;d&quot;&gt;${x.d}&lt;/span&gt;&lt;/span&gt;${meter(x.s, x.tps + &#39; tokens a second&#39;, i)}${meter(x.q, &#39;Quality &#39; + x.q + &#39; of 5&#39;, i)}${meter(x.p, &#39;$&#39; + x.cost.toFixed(3) + &#39; a reply&#39;, i)}&lt;/button&gt;`).join(&#39;&#39;);
   const rows = $$(&#39;.mpk-o&#39;, list);
   // Opus is at capacity when the demo starts (busy is its wait in seconds), and free again once you&#39;ve waited it out
   let cur = 1, eff = 2, busy = 20, waiting = false;
@@ -1131,8 +1338,10 @@ const fitHits = window.dmFitHits || (() => {
   // thinking effort, and what it may spend
   const E = [['Off', 'Answers straight away'], ['Low', 'Up to 2k thinking tokens'], ['Medium', 'Up to 8k thinking tokens'], ['High', 'Up to 24k thinking tokens']];
   const list = $('.mpk-list', r), tr = $('.mpk-tr', r), fold = $('.mpk-fold', r), sgf = $('.mpk-sgf', r), sgt = $('.mpk-sgt', r), note = $('.mpk-note', r), thd = $('.mpk-thd', r), ev = $('.mpk-ev', r), items = $$('.mpk-pop .mi', r);
-  const meter = (v, tip) => `<span class="mpk-m" data-tip="${tip}">${[1, 2, 3, 4, 5].map(k => `<i${k <= v ? ' class="on"' : ''}></i>`).join('')}</span>`;
-  list.innerHTML = M.map((x, i) => `<button class="mpk-o" role="radio" aria-checked="false" tabindex="-1" data-i="${i}"><span class="mpk-mk" style="--dm-mc:${x.c};--dm-mt:${x.t}">${x.m}</span><span class="t"><b>${x.n}<span class="ck">${I('check','xs')}</span></b><span class="d">${x.d}</span></span>${meter(x.s, x.tps + ' tokens a second')}${meter(x.q, 'Quality ' + x.q + ' of 5')}${meter(x.p, '$' + x.cost.toFixed(3) + ' a reply')}</button>`).join('');
+  // in Clean the first row's numbers show under its meters, so they never sit over the column heads
+  const clean = r.closest('[data-style]')?.dataset.style === 'clean';
+  const meter = (v, tip, i) => `<span class="mpk-m" data-tip="${tip}"${clean && !i ? ' data-tip-at="below"' : ''}>${[1, 2, 3, 4, 5].map(k => `<i${k <= v ? ' class="on"' : ''}></i>`).join('')}</span>`;
+  list.innerHTML = M.map((x, i) => `<button class="mpk-o" role="radio" aria-checked="false" tabindex="-1" data-i="${i}"><span class="mpk-mk" style="--dm-mc:${x.c};--dm-mt:${x.t}">${x.m}</span><span class="t"><b>${x.n}<span class="ck">${I('check','xs')}</span></b><span class="d">${x.d}</span></span>${meter(x.s, x.tps + ' tokens a second', i)}${meter(x.q, 'Quality ' + x.q + ' of 5', i)}${meter(x.p, '$' + x.cost.toFixed(3) + ' a reply', i)}</button>`).join('');
   const rows = $$('.mpk-o', list);
   // Opus is at capacity when the demo starts (busy is its wait in seconds), and free again once you've waited it out
   let cur = 1, eff = 2, busy = 20, waiting = false;
