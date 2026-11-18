@@ -1271,10 +1271,10 @@ DM.def('agent-inbox', (r, c) => {
   ];
   const GR = [['needs', 'Needs you'], ['run', 'Running'], ['done', 'Done']];
   const gs = $('.aib-gs', r), st = $('.aib-st', r);
-  // the inbox is at its fullest when it first shows; once a run leaves it the panel keeps that height, so it never shrinks in
-  // its stage and stays centred (16 Nov)
+  // the panel fits its rows at every moment (owner, 18 Nov: no room kept for a group that has gone): as a group goes or
+  // comes back, its height eases with grow(), and it stays centred in its stage
   const ib = r.classList.contains('aib') ? r : $('.aib', r);
-  if (ib) c.later(900, () => { ib.style.minHeight = Math.ceil(ib.getBoundingClientRect().height) + 'px'; });
+  if (ib) c.offs.push(grow(ib));
   gs.innerHTML = GR.map(([k, n]) => `<section class="aib-g" data-g="${k}" aria-label="${n}"><div class="aib-gh"><span>${n}</span><span class="n"></span></div><div class="aib-gl" role="list"></div></section>`).join('');
   const clock = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
   const meta = x => x.g === 'needs' ? x.why : x.g === 'run' ? x.doing : x.a;

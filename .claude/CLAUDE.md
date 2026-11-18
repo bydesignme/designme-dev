@@ -103,9 +103,11 @@ every session and every agent.
   and `--r-tiny`, large ones with `--rk-l`; write new radii as `calc(<n>px * var(--rk-s|m|l,var(--rk)))`.
 - Padding is measured, not eyeballed (owner, 17 Nov): every Clean card has its content 20px in from each edge, footer
   controls included (a button in a foot strip sits 20px from the right and bottom edges). Check with a script that measures
-  each card's insets at 1440 and fix every mismatch above 1px.
-- Clean has an outer glow only in dark mode: a faint neutral glow around card outlines and the white primary button. This is
-  an approved exception to "no glows"; it is white or neutral, never a hue. Light mode has no outer glow.
+  each card's insets at 1440 and fix every mismatch above 1px. Measure through the whole demo (sampled while it plays, to its
+  end state) and in every design a card can switch to, not one settled frame (owner, 18 Nov).
+- Clean has an outer glow only in dark mode, and only around buttons (owner, 18 Nov): a faint neutral glow around the white
+  primary button, never around cards, panels or popovers. This is an approved exception to "no glows"; it is white or
+  neutral, never a hue. Light mode has no outer glow.
 - Clean's motion is Access Grid-like: ease cubic-bezier(.23,1,.32,1), the card rises 8px from .98 over about 520ms and its
   pieces follow 40ms apart (`REVEAL.clean`), presses at .97, hovers 150ms, menus scale and fade from their trigger.
 - Soft keeps its look; the "Soft refreshed" lab is dropped. Six components have their Clean touches (Agent tree,

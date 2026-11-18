@@ -812,6 +812,11 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 :root[data-style="clean"] .atr-ln .r{stroke:var(--line)}
 :root[data-style="clean"] .atr-ln .bad{stroke:color-mix(in srgb,var(--bad-mark) 55%,var(--surface))}
 :root[data-style="clean"] .atr:not(.bare) .atr-f{margin:var(--s-1) -12px 0;padding:18px 20px;background:var(--strip);border-top-color:var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
+/* Cost tree and Cost map have no foot strip, so the card keeps 20px under its last row too (owner, 18 Nov): Cost tree's
+   rows bring 8px of their own, and Cost map's content sits 20px in from every edge, its key's marks in line with the title */
+:root[data-style="clean"] .atr-ct:not(.bare){padding-bottom:10px}
+:root[data-style="clean"] .atr-cm:not(.bare){padding:14px 20px 12px}
+:root[data-style="clean"] .atr-cm:not(.bare) .atr-cm-key li{padding:0}
 /* ---------- Agent tree designs ---------- */
 /* the card's design switch: Classic, Cost tree and Cost map, with the switch under the tree (on designme.dev it is the
    card's footer tabs). Each design sits centred in the room the card keeps for the tallest of them, and grows from there
@@ -6864,7 +6869,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
    rows and fields are pills or circles (the radii scale with --rk-s, --rk-m and --r-tiny), and cards, panels and popovers
    take 22px round corners (--rk-l), never squircles. Buttons have depth inside their fill: a blurred light along the top,
    a soft shade along the bottom and a near-solid edge; checkboxes and tracks have a soft inner shadow. In dark only, a faint
-   neutral glow sits around card outlines and around the white primary button (an approved exception to "no glows": white
+   neutral glow sits around the white primary button, never around cards (owner, 18 Nov; an approved exception to "no glows": white
    or neutral only, never a hue). Status colour only on small marks. Motion is calm: ease-out quint, hovers 150ms, presses
    at .97, menus scale and fade from their trigger, and a card rises 8px from .98 with its pieces 40ms apart (REVEAL.clean) */
 :root[data-style="clean"]{
@@ -6907,7 +6912,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   --soft:#1f1f1f; --soft-h:#262626; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.06); --dis:#666666;
   --ghost:#262626; --ghost-2:#1e1e1e;
   --ink:#f5f5f5; --on-ink:#0a0a0a; --on-btn:#0a0a0a;
-  --shadow:0 0 0 1px rgba(255,255,255,.1),0 0 0 4px rgba(255,255,255,.02),0 0 32px 4px rgba(255,255,255,.05),0 1px 1px rgba(0,0,0,.5),0 2px 10px -4px rgba(0,0,0,.6);
+  --shadow:0 0 0 1px rgba(255,255,255,.1),0 1px 1px rgba(0,0,0,.5),0 2px 10px -4px rgba(0,0,0,.6);
   --shadow-pop:0 0 0 1px rgba(255,255,255,.1),0 1px 1px rgba(0,0,0,.5),0 12px 28px -12px rgba(0,0,0,.8);
   --tip-bg:#1f1f1f; --tip-fg:#f5f5f5; --tip-ring:0 0 0 1px rgba(255,255,255,.1),0 6px 16px -6px rgba(0,0,0,.7);
   --btn-1:#ffffff; --btn-2:#e0e0e0;
@@ -6928,7 +6933,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   --soft:#1f1f1f; --soft-h:#262626; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.06); --dis:#666666;
   --ghost:#262626; --ghost-2:#1e1e1e;
   --ink:#f5f5f5; --on-ink:#0a0a0a; --on-btn:#0a0a0a;
-  --shadow:0 0 0 1px rgba(255,255,255,.1),0 0 0 4px rgba(255,255,255,.02),0 0 32px 4px rgba(255,255,255,.05),0 1px 1px rgba(0,0,0,.5),0 2px 10px -4px rgba(0,0,0,.6);
+  --shadow:0 0 0 1px rgba(255,255,255,.1),0 1px 1px rgba(0,0,0,.5),0 2px 10px -4px rgba(0,0,0,.6);
   --shadow-pop:0 0 0 1px rgba(255,255,255,.1),0 1px 1px rgba(0,0,0,.5),0 12px 28px -12px rgba(0,0,0,.8);
   --tip-bg:#1f1f1f; --tip-fg:#f5f5f5; --tip-ring:0 0 0 1px rgba(255,255,255,.1),0 6px 16px -6px rgba(0,0,0,.7);
   --btn-1:#ffffff; --btn-2:#e0e0e0;
@@ -10344,10 +10349,10 @@ DM.def('agent-inbox', (r, c) => {
   ];
   const GR = [['needs', 'Needs you'], ['run', 'Running'], ['done', 'Done']];
   const gs = $('.aib-gs', r), st = $('.aib-st', r);
-  // the inbox is at its fullest when it first shows; once a run leaves it the panel keeps that height, so it never shrinks in
-  // its stage and stays centred (16 Nov)
+  // the panel fits its rows at every moment (owner, 18 Nov: no room kept for a group that has gone): as a group goes or
+  // comes back, its height eases with grow(), and it stays centred in its stage
   const ib = r.classList.contains('aib') ? r : $('.aib', r);
-  if (ib) c.later(900, () => { ib.style.minHeight = Math.ceil(ib.getBoundingClientRect().height) + 'px'; });
+  if (ib) c.offs.push(grow(ib));
   gs.innerHTML = GR.map(([k, n]) => `<section class="aib-g" data-g="${k}" aria-label="${n}"><div class="aib-gh"><span>${n}</span><span class="n"></span></div><div class="aib-gl" role="list"></div></section>`).join('');
   const clock = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
   const meta = x => x.g === 'needs' ? x.why : x.g === 'run' ? x.doing : x.a;
