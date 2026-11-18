@@ -27,7 +27,8 @@ const HEAD = '/* Generated from designme.dev by scripts/sync.mjs. Edit the site,
 const P = 'dm-';
 // classes that only lay out the site's preview cards; a React component brings its own page around it
 const SHELL = /\.(?:stage-in|card|dm|dm-main|demo)(?![\w-])/;
-const prefixSelector = sel => sel.replace(/\[[^\]]*\]|"[^"]*"|'[^']*'|\.(-?[_a-zA-Z][\w-]*)/g, (m, c) => c ? '.' + P + c : m);
+// dm-grow is already the runtime's own name (grow() / useGrow() add it as is), so it keeps it
+const prefixSelector = sel => sel.replace(/\[[^\]]*\]|"[^"]*"|'[^']*'|\.(-?[_a-zA-Z][\w-]*)/g, (m, c) => c ? (c === 'dm-grow' ? m : '.' + P + c) : m);
 // splits on commas that are not inside brackets, like the ones in :is(a, b)
 const splitList = sel => { const out = []; let depth = 0, from = 0;
   for (let i = 0; i < sel.length; i++) { const ch = sel[i]; if (ch === '(' || ch === '[') depth++; else if (ch === ')' || ch === ']') depth--; else if (ch === ',' && !depth) { out.push(sel.slice(from, i)); from = i + 1; } }

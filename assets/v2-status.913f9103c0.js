@@ -6,7 +6,7 @@ TPLS["toast-stack"] = "<div class=\"tsk dm\">\n  <div class=\"dm-main\"><div cla
 TPLS["context-meter"] = "<div class=\"ctm\" data-open=\"1\">\n  <button class=\"ctm-tg\" aria-expanded=\"true\" aria-label=\"Context\"><span class=\"ctm-ring\" aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\"><circle class=\"tr\" cx=\"10\" cy=\"10\" r=\"7.5\"/><circle class=\"fl\" cx=\"10\" cy=\"10\" r=\"7.5\" pathLength=\"100\"/></svg></span><span><span class=\"ctm-pc num\">0%</span> of context used</span>{chev}</button>\n  <div class=\"ctm-pop panel\" role=\"region\" aria-label=\"What fills the context\">\n    <div class=\"ctm-ph\"><span>In context</span><span class=\"num\"><b class=\"ctm-tot\">0k</b> of 200k tokens</span></div>\n    <div class=\"ctm-bar\" aria-hidden=\"true\"></div>\n    <div class=\"ctm-leg\"></div>\n    <div class=\"ctm-msg\" aria-live=\"polite\"><span></span></div>\n    <div class=\"ctm-f\"><span class=\"ctm-hint\">Summarises older turns</span><button class=\"pill ghost sm ctm-go\">Compact</button></div>\n  </div>\n</div>";
 TPLS["agent-run-timeline"] = "<div class=\"art panel\">\n  <div class=\"art-h\"><div class=\"art-hd\"><div class=\"art-t\">Run 4821, update the pricing page</div><div class=\"art-s muted num\">Starting</div></div><span class=\"art-tag tag\"><span class=\"spin\" aria-hidden=\"true\"></span>Running</span></div>\n  <div class=\"art-key num\" role=\"list\" aria-label=\"Time by kind of step\"></div>\n  <div class=\"art-grid\">\n    <div class=\"art-axis\" aria-hidden=\"true\"><span></span><div class=\"art-ticks\"></div><span></span></div>\n    <div class=\"art-past\" aria-hidden=\"true\"></div>\n    <div class=\"art-rows\"></div>\n    <div class=\"art-head\" aria-hidden=\"true\"><i></i><span class=\"art-now num\">0.0s</span></div>\n  </div>\n  <div class=\"art-f muted num\"></div>\n</div>";
 TPLS["web-search"] = "<div class=\"wsx panel\">\n  <button class=\"wsx-h\" aria-expanded=\"true\"><span class=\"wsx-ic\"><span class=\"spin\"></span></span><span class=\"wsx-st shim\">Searching the web</span><span class=\"wsx-marks\" aria-hidden=\"true\"></span>{chev}</button>\n  <div class=\"fold wsx-fold\"><div><div class=\"wsx-list\"></div></div></div>\n  <div class=\"wsx-ans\"></div>\n  <p class=\"wsx-sr\" role=\"status\"></p>\n</div>";
-TPLS["reasoning-trail"] = "<div class=\"rtr-dm dm\"><div class=\"dm-main\"><div class=\"rtr panel\">\n  <button class=\"rtr-h\" aria-expanded=\"true\">\n    <span class=\"think on rtr-mark\"><i></i><i></i><i></i><i></i></span>\n    <span class=\"rtr-title shim\">Reasoning</span><span class=\"rtr-time num muted\">0s</span>\n    <svg class=\"i xs rtr-chev\"><use href=\"#i-chev-d\"/></svg>\n  </button>\n  <div class=\"fold rtr-fold\"><div>\n    <div class=\"rtr-body\"></div>\n  </div></div>\n</div></div>\n  <div class=\"demo\"><div class=\"seg2\" role=\"group\" aria-label=\"View\"><button aria-pressed=\"true\" data-v=\"plan\">Plan</button><button aria-pressed=\"false\" data-v=\"notes\">Notes</button><button aria-pressed=\"false\" data-v=\"sources\">Sources</button><button aria-pressed=\"false\" data-v=\"edits\">Edits</button></div></div>\n</div>";
+TPLS["reasoning-trail"] = "<div class=\"rtr-dm dm\"><div class=\"dm-main\"><div class=\"rtr panel\">\n  <button class=\"rtr-h\" aria-expanded=\"true\">\n    <span class=\"think on rtr-mark\"><i></i><i></i><i></i><i></i></span>\n    <span class=\"rtr-title shim\">Reasoning</span><span class=\"rtr-time num muted\">0s</span>\n    <svg class=\"i xs rtr-chev\"><use href=\"#i-chev-d\"/></svg>\n  </button>\n  <div class=\"fold rtr-fold\"><div>\n    <div class=\"rtr-body\"></div>\n    <div class=\"fold rtr-ff shut\"><div><p class=\"rtr-f\"><span class=\"rtr-fk\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\"><path d=\"m5 12.5 4.5 4.5L19 7.5\"/></svg></span><span class=\"rtr-fd\"></span><span class=\"rtr-fs\"></span></p></div></div>\n  </div></div>\n</div></div>\n  <div class=\"demo\"><div class=\"seg2\" role=\"group\" aria-label=\"View\"><button aria-pressed=\"true\" data-v=\"plan\">Plan</button><button aria-pressed=\"false\" data-v=\"notes\">Notes</button><button aria-pressed=\"false\" data-v=\"sources\">Sources</button><button aria-pressed=\"false\" data-v=\"edits\">Edits</button></div></div>\n</div>";
 TPLS["thinking"] = "<div class=\"tk\" data-open=\"1\">\n  <button class=\"tk-h\" aria-expanded=\"true\">\n    <span class=\"tk-mark\"><span class=\"think on\"><i></i><i></i><i></i><i></i></span></span>\n    <span class=\"tk-title shim\">Checking the pricing page</span><span class=\"tk-time num\">0s</span>\n    <svg class=\"i xs tk-chev\"><use href=\"#i-chev-d\"/></svg>\n  </button>\n  <div class=\"fold tk-fold\"><div><ol class=\"tk-list\" aria-live=\"polite\"></ol></div></div>\n</div>";
 /* ---------- Status pill ---------- */
 DM.def('status-pill', (r, c) => {
@@ -155,15 +155,21 @@ DM.def('thinking-states', (r, c) => {
 /* ---------- Reasoning trail ---------- */
 DM.def('reasoning-trail', (r, c) => {
   const body = $('.rtr-body', r), head = $('.rtr-h', r), fold = $('.rtr-fold', r), title = $('.rtr-title', r), time = $('.rtr-time', r), mark = $('.rtr-mark', r);
-  let tab = 'plan', planDone = 0, secs = 0, finished = false;
+  let tab = 'plan', planDone = 0, secs = 0, finished = false, just = -1;
   const plan = [['Open the onboarding file','4 frames'],['Compare it with the design system','12 components'],['Find spacing that breaks the 8px grid','3 frames'],['Draft fixes for review','Ready']];
+  // each step carries Clean's own mark (.rtr-m) beside Soft's glyph; the style shows one of them. The step that has just
+  // finished (just) and the one it hands on to play Clean's tick and rail once
+  const tick = '<svg viewBox="0 0 24 24"><path pathLength="1" d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
   const views = {
-    plan: () => plan.map((p, i) => `<div class="rtr-li ${i === planDone && !finished ? 'now' : ''}"><span class="g">${i < planDone ? `<span style="color:var(--ok)">${I('check','xs')}</span>` : i === planDone && !finished ? '<span class="pulse"></span>' : '<span class="dot" style="color:var(--faint)"></span>'}</span><span>${p[0]}<span class="d">${i < planDone ? p[1] : i === planDone && !finished ? 'Working' : 'Next'}</span></span></div>`).join(''),
+    plan: () => plan.map((p, i) => { const s = i < planDone ? 'done' : i === planDone && !finished ? 'now' : 'next';
+      return `<div class="rtr-li ${s === 'now' ? 'now' : ''}${i === just ? ' just' : ''}${i === just + 1 && s === 'now' ? ' next-in' : ''}" data-s="${s}"><span class="g">${i < planDone ? `<span style="color:var(--ok)">${I('check','xs')}</span>` : i === planDone && !finished ? '<span class="pulse"></span>' : '<span class="dot" style="color:var(--faint)"></span>'}<span class="rtr-m" aria-hidden="true">${s === 'done' ? tick : ''}</span></span><span>${p[0]}<span class="d">${i < planDone ? p[1] : i === planDone && !finished ? 'Working' : 'Next'}</span></span></div>`; }).join(''),
     notes: () => ['The hero card uses 20px padding, every other card uses 24px.','Mobile frames already follow the grid, desktop drifted.','Two buttons use a hard-coded grey instead of a token.'].map(t => `<div class="rtr-li"><span class="g"><span class="dot" style="color:var(--faint)"></span></span><span>${t}</span></div>`).join(''),
     sources: () => `<div class="rtr-src"><button class="fchip lnk" data-tip-at="below" data-tip="Figma, 4 frames read">${I('figma','xs')}Onboarding.fig</button><button class="fchip lnk" data-tip-at="below" data-tip="src/styles/tokens.ts, 212 lines"><span class="ft">TS</span>tokens.ts</button><button class="fchip lnk" data-tip-at="below" data-tip="src/components/Card.tsx, 2 edits"><span class="ft re">TSX</span>Card.tsx</button><button class="fchip lnk" data-tip-at="below" data-tip="designme.dev/guide/spacing">${I('globe','xs')}Spacing guide</button></div>`,
     edits: () => `<div class="rtr-li"><span class="g">${I('edit','xs')}</span><span>Card.tsx<span class="d">2 lines</span></span></div><div class="rtr-edit"><div class="x">padding: 20px;</div><div class="a">padding: var(--space-6);</div></div><div class="rtr-li"><span class="g">${I('edit','xs')}</span><span>Button.tsx<span class="d">1 line</span></span></div><div class="rtr-edit"><div class="x">color: #8a8a8a;</div><div class="a">color: var(--text-dim);</div></div>`
   };
-  const paint = anim => { body.innerHTML = views[tab](); if (anim) stagger(Array.from(body.children), 50); };
+  const paint = anim => { body.dataset.v = tab; body.innerHTML = views[tab](); if (anim) stagger(Array.from(body.children), 50); };
+  // Clean: the card grows with what it holds instead of keeping the room of its tallest view (grow()), and stays centred
+  const clean = (r.closest('[data-style]') || document.documentElement).dataset.style === 'clean';
   // the header opens and folds the trail, by click, Enter or Space, and aria-expanded always says which
   let open = true;
   const setOpen = o => { open = o; fold.classList.toggle('shut', !o); fold.inert = !o; head.setAttribute('aria-expanded', o); };
@@ -182,24 +188,34 @@ DM.def('reasoning-trail', (r, c) => {
     ghost.remove(); main.style.minHeight = Math.ceil(h) + 'px'; main.style.justifyContent = 'center';
   };
   // switching views grows or shrinks the open trail to its new height instead of jumping to it
-  const grow = from => {
-    if (REDUCE || !open) return; const to = body.offsetHeight; if (Math.abs(to - from) < 1) return;
+  const ease = from => {
+    if (REDUCE || !open || clean) return; const to = body.offsetHeight; if (Math.abs(to - from) < 1) return;
     const cs = getComputedStyle(body), ms = parseFloat(cs.getPropertyValue('--t')) * 1000 || 450;
     if (body._a) body._a.cancel();
     body.style.overflow = 'hidden';
     body._a = body.animate([{ height:from + 'px' }, { height:to + 'px' }], { duration:ms, easing:cs.getPropertyValue('--ease').trim() || 'ease' });
     body._a.onfinish = body._a.oncancel = () => { body.style.overflow = ''; body._a = null; };
   };
-  seg($('.seg2', r), v => { const from = body.offsetHeight; tab = v; paint(true); grow(from); });
-  paint(true); fit();
-  const ro = new ResizeObserver(fit); ro.observe(main || rtr); c.offs.push(() => ro.disconnect());
-  if (document.fonts) document.fonts.ready.then(() => { if (!c.dead){ fitW = 0; fit(); } });
+  seg($('.seg2', r), v => { const from = body.offsetHeight; tab = v; paint(true); ease(from); });
+  paint(true);
+  // grow() starts once the card's entrance has settled: it measures the content on screen, and the entrance's .98 scale
+  // would otherwise leave the card that much short of it
+  if (clean) requestAnimationFrame(() => { const run = []; for (let e = rtr; e; e = e.parentElement) run.push(...e.getAnimations().filter(a => a.effect && a.effect.getComputedTiming().endTime !== Infinity));
+    Promise.all(run.map(a => a.finished.catch(() => {}))).then(() => { if (!c.dead) c.offs.push(grow(rtr)); }); });
+  else {
+    fit();
+    const ro = new ResizeObserver(fit); ro.observe(main || rtr); c.offs.push(() => ro.disconnect());
+    if (document.fonts) document.fonts.ready.then(() => { if (!c.dead){ fitW = 0; fit(); } });
+  }
   c.every(1000, () => { if (!finished){ secs++; time.textContent = secs + 's'; } });
   c.run(async () => {
     for (planDone = 0; planDone < plan.length; ){
-      await c.wait(1500); planDone++; if (tab === 'plan') paint(false);
+      await c.wait(1500); planDone++; just = planDone - 1; if (tab === 'plan') paint(false); just = -1;
     }
-    finished = true; title.classList.remove('shim'); mark.classList.remove('on'); swap(title, 'Reasoned for ' + Math.max(secs, 5) + 's'); time.textContent = ''; if (tab === 'plan') paint(false);
+    finished = true; title.classList.remove('shim'); mark.classList.remove('on'); swap(title, 'Reasoned for ' + Math.max(secs, 5) + 's'); time.textContent = ''; just = plan.length - 1; if (tab === 'plan') paint(false); just = -1;
+    // Clean closes the trail with its foot strip: the plan done, and what the agent read and changed
+    $('.rtr-fd', r).textContent = `All ${plan.length} steps done`; $('.rtr-fs', r).textContent = '4 sources · 2 edits';
+    $('.rtr-ff', r).classList.remove('shut');
   });
 });
 /* ---------- Thinking ---------- */

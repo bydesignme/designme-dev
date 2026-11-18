@@ -202,7 +202,9 @@ function grow(el){
   el.appendChild(w); el.classList.add('growing');
   const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
   let first = true;
-  const fit = () => { const h = Math.ceil(w.getBoundingClientRect().height + box());
+  // the wrapper's layout height (offsetHeight), not its box on screen, so an entrance that scales the card (.98 in Clean)
+  // never leaves it short
+  const fit = () => { const h = Math.ceil(w.offsetHeight + box());
     if (first){ el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; } else el.style.height = h + 'px'; };
   const ro = new ResizeObserver(fit); ro.observe(w); fit();
   return el._grow = () => { ro.disconnect(); el._grow = null; el.style.height = ''; el.classList.remove('growing'); };

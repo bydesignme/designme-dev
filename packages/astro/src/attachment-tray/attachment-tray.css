@@ -56,3 +56,61 @@
 :root:not([data-style="soft"],[data-style="clean"]) .atx-drop.over .atx-ic:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *))::after{animation:none}
 @keyframes atxringbp{from{opacity:.6;transform:scale(1)}to{opacity:0;transform:scale(1.6)}}
 :root:not([data-style="soft"],[data-style="clean"]) .atx-ok .i:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation:none}
+/* Clean (owner, 18 Nov): one card that grows as files arrive (grow()), its content 16px from each edge. The drop zone is a
+   pill well inside it with a track's inner shadow, its upload button a secondary circle 8px in from the well's round end, so
+   the two are concentric; a file dragged over lifts the well to the surface with a stronger hairline. Files are rows with
+   hairline dividers under their text: a neutral circle with the type's colour as a small dot, and while a file uploads its
+   divider becomes a rail that fills with ink, a soft sheen running along it while the agent reads, then fades as a green tick
+   draws itself. The closing line is the foot strip, its count rolling as each file is read */
+:root[data-style="clean"] .atx,:root [data-style="clean"] .atx,:root [data-style="clean"].atx{gap:0;background:var(--dm-surface);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow);overflow:clip}
+:root[data-style="clean"] .atx-ants,:root [data-style="clean"] .atx-ants,:root [data-style="clean"].atx-ants{display:none}
+:root[data-style="clean"] .atx-drop,:root [data-style="clean"] .atx-drop,:root [data-style="clean"].atx-drop{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;justify-items:start;column-gap:12px;row-gap:0;margin:16px 16px 0;padding:8px 16px 8px 8px;border-radius:26px;background:var(--dm-row);box-shadow:var(--dm-track-ring);font-size:13px;line-height:18px;text-align:left;transition:background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .atx-drop.over,:root [data-style="clean"] .atx-drop.over,:root [data-style="clean"].atx-drop.over{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 45%,transparent)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .atx-drop:hover,:root [data-style="clean"] .atx-drop:hover,:root [data-style="clean"].atx-drop:hover{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 45%,transparent)}}
+:root[data-style="clean"] .atx-drop.over,:root [data-style="clean"] .atx-drop.over,:root [data-style="clean"].atx-drop.over{transform:none}
+:root[data-style="clean"] .atx-drop b,:root [data-style="clean"] .atx-drop b,:root [data-style="clean"].atx-drop b{align-self:end;font-weight:500}
+:root[data-style="clean"] .atx-drop .muted,:root [data-style="clean"] .atx-drop .muted,:root [data-style="clean"].atx-drop .muted{align-self:start;font-size:12.5px}
+:root[data-style="clean"] .atx-ic,:root [data-style="clean"] .atx-ic,:root [data-style="clean"].atx-ic{grid-row:span 2;width:36px;height:36px;border-radius:50%;color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth);transition:transform var(--dm-t) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .atx-drop.over .atx-ic,:root [data-style="clean"] .atx-drop.over .atx-ic,:root [data-style="clean"].atx-drop.over .atx-ic{transform:translateY(-2px);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover);color:var(--dm-fg)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .atx-drop:hover .atx-ic,:root [data-style="clean"] .atx-drop:hover .atx-ic,:root [data-style="clean"].atx-drop:hover .atx-ic{transform:translateY(-2px);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover);color:var(--dm-fg)}}
+:root[data-style="clean"] .atx-drop.over .atx-ic::before,:root [data-style="clean"] .atx-drop.over .atx-ic::before,:root [data-style="clean"].atx-drop.over .atx-ic::before,:root[data-style="clean"] .atx-drop.over .atx-ic::after,:root [data-style="clean"] .atx-drop.over .atx-ic::after,:root [data-style="clean"].atx-drop.over .atx-ic::after{animation:none}
+:root[data-style="clean"] .atx-list,:root [data-style="clean"] .atx-list,:root [data-style="clean"].atx-list{gap:0;padding:0 16px}
+:root[data-style="clean"] .atx-list:not(:empty),:root [data-style="clean"] .atx-list:not(:empty),:root [data-style="clean"].atx-list:not(:empty){padding-block:6px}
+/* while the last file is still going up, its rail is the lowest thing in the card, so the list keeps it 16px from the edge */
+:root[data-style="clean"] .atx-list:has(>.atx-it:last-child :is(.atx-ring,.atx-rd)),:root [data-style="clean"] .atx-list:has(>.atx-it:last-child :is(.atx-ring,.atx-rd)),:root [data-style="clean"].atx-list:has(>.atx-it:last-child :is(.atx-ring,.atx-rd)){padding-bottom:16px}
+:root[data-style="clean"] .atx-it,:root [data-style="clean"] .atx-it,:root [data-style="clean"].atx-it{gap:12px;padding:10px 0;border-radius:0;overflow:visible;background:none}
+:root[data-style="clean"] .atx-it.up,:root [data-style="clean"] .atx-it.up,:root [data-style="clean"].atx-it.up{background:none}
+/* the divider under a row's text (.atx-ln, Clean's own), which is the upload's rail while the file goes up, its ink fill
+   clipped to the progress with a soft sheen running along it; a file that is read keeps the hairline, the last one none */
+.atx-ln{position:absolute;left:44px;right:0;bottom:0;height:1px;border-radius:999px;background:var(--dm-line);pointer-events:none;transition:height var(--dm-t) var(--dm-ease),background-color var(--dm-t) var(--dm-ease)}
+.atx-it:last-child .atx-ln{background:transparent}
+.atx-it:not(:has(.atx-ok)) .atx-ln{height:2px;background:var(--dm-rail)}
+.atx-ln i{position:absolute;inset:0;border-radius:inherit;background:linear-gradient(90deg,var(--dm-fg) 40%,color-mix(in srgb,var(--dm-fg) 35%,var(--dm-surface)) 50%,var(--dm-fg) 60%) 0 0/250% 100%;clip-path:inset(0 calc(100% - var(--dm-p)) 0 0 round 999px);transition:clip-path .2s linear,opacity .4s var(--dm-ease);animation:atxsheen 1.6s linear infinite}
+.atx-it:has(.atx-ok) .atx-ln i{opacity:0;animation:none}
+@keyframes atxsheen{from{background-position:100% 0}to{background-position:0 0}}
+:root[data-style="clean"] .atx-ti,:root [data-style="clean"] .atx-ti,:root [data-style="clean"].atx-ti{position:relative;width:32px;height:32px;border-radius:50%;font-size:9.5px;color:var(--dm-fg2);background:var(--dm-chip)}
+/* the file type's colour, as a small dot on the neutral circle */
+.atx-td{position:absolute;right:-1px;bottom:-1px;width:8px;height:8px;border-radius:50%;background:var(--dm-c);box-shadow:0 0 0 2px var(--dm-surface)}
+:root[data-style="clean"] .atx-it .atx-m,:root [data-style="clean"] .atx-it .atx-m,:root [data-style="clean"].atx-it .atx-m,:root[data-style="clean"] .atx-it:not(.up) .atx-m,:root [data-style="clean"] .atx-it:not(.up) .atx-m,:root [data-style="clean"].atx-it:not(.up) .atx-m{color:var(--dm-muted)}
+/* the upload's own ring stays for screen readers; the rail shows the progress */
+:root[data-style="clean"] .atx-ring,:root [data-style="clean"] .atx-ring,:root [data-style="clean"].atx-ring{opacity:0}
+:root[data-style="clean"] .atx-rd,:root [data-style="clean"] .atx-rd,:root [data-style="clean"].atx-rd{color:var(--dm-muted)}
+/* read: a green disc lands and its tick draws itself */
+.atx-okc{display:grid;place-items:center;width:16px;height:16px;border-radius:50%;background:var(--dm-ok-mark);color:var(--dm-surface);animation:atxokin .32s var(--dm-ease) backwards}
+.atx-okc svg{width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.atx-okc path{stroke-dasharray:1;stroke-dashoffset:1;animation:atxokdraw .34s var(--dm-ease) .16s forwards}
+@keyframes atxokin{from{opacity:0;transform:scale(.5)}}
+@keyframes atxokdraw{to{stroke-dashoffset:0}}
+:root[data-style="clean"] .atx-it .ib,:root [data-style="clean"] .atx-it .ib,:root [data-style="clean"].atx-it .ib{width:28px;height:28px;margin-right:-8px;color:var(--dm-muted)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .atx-it .ib:hover,:root [data-style="clean"] .atx-it .ib:hover,:root [data-style="clean"].atx-it .ib:hover{background:var(--dm-row);color:var(--dm-fg)}}
+/* the foot strip: what the agent can read now, its count rolling up as each file is read */
+:root[data-style="clean"] .atx-sum,:root [data-style="clean"] .atx-sum,:root [data-style="clean"].atx-sum{display:flex;align-items:center;gap:8px;min-height:0;padding:13px 16px;font-size:12.5px;line-height:18px;text-align:left;color:var(--dm-fg2);background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+:root[data-style="clean"] .atx-sum:empty,:root [data-style="clean"] .atx-sum:empty,:root [data-style="clean"].atx-sum:empty{display:none}
+/* (a step of --dm-ok in the vivid green keeps the small tick at 3:1 on the off-white strip) */
+:root[data-style="clean"] .atx-tk,:root [data-style="clean"] .atx-tk,:root [data-style="clean"].atx-tk{display:grid;place-items:center;flex:none;color:color-mix(in srgb,var(--dm-ok-mark) 80%,var(--dm-ok))}
+:root[data-style="clean"] .atx-tk .i,:root [data-style="clean"] .atx-tk .i,:root [data-style="clean"].atx-tk .i{stroke-width:2.2}
+.atx-roll{display:inline-grid;overflow:hidden;height:1lh;vertical-align:top}
+.atx-roll i{font-style:normal}
+.atx-roll i.in{animation:atxroll .32s var(--dm-ease) both}
+@keyframes atxroll{from{opacity:0;transform:translateY(60%)}}
+@media (prefers-reduced-motion:reduce){.atx-ln i,.atx-okc,.atx-roll i.in{animation:none}.atx-okc path{animation:none;stroke-dashoffset:0}.atx-ln,:root[data-style="clean"] .atx-drop,:root [data-style="clean"] .atx-drop,:root [data-style="clean"].atx-drop,:root[data-style="clean"] .atx-ic,:root [data-style="clean"] .atx-ic,:root [data-style="clean"].atx-ic{transition:none}}
