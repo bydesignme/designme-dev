@@ -579,9 +579,23 @@
     { k:'agent', l:'Agent suggestions', mk:'agent', A:[{ k:'agent', v:'sug', neg:false }] },
   ];
   const SUGK = { slip:'new date', follow:'follow-up', resched:'to book', book:'to book', qbr:'to book', fix:'data fix' };
-  band.innerHTML = BAND.map(b => `<button class="crm-kpi panel" data-b="${b.k}" aria-pressed="false"><span class="k">${b.mk === 'agent' ? `<span class="ic">${I('spark', 'xs')}</span>` : b.mk ? `<i class="mk" data-mk="${b.mk}"></i>` : ''}<span>${b.l}</span></span><b class="v num"></b><span class="s"></span></button>`).join('');
+  band.innerHTML = BAND.map(b => `<button class="crm-kpi panel" data-b="${b.k}" aria-pressed="false"><span class="k">${b.mk === 'agent' ? `<span class="ic">${I('spark', 'xs')}</span>` : b.mk ? `<i class="mk" data-mk="${b.mk}"></i>` : ''}<span>${b.l}</span></span><b class="v num"></b><span class="s"></span><span class="crm-kv" aria-hidden="true"></span></button>`).join('');
+  // each card's bar, one shape for all four: the open pipeline by stage in the stages' own colours, the share of it past its
+  // close date, the accounts by health in the status marks, and the accounts the agent has a suggestion for. A part's width
+  // eases to its new share when the data changes; its tooltip says what it is
+  // the stages' parts are the chart palette, each stage on the chart colour of its own label's hue (Negotiation blue is the
+  // accent, Discovery teal, Demo violet, Proposal orange), so the bar reads with the chips in the table
+  const SC = { disc:'var(--dm-c6)', demo:'var(--dm-c2)', prop:'var(--dm-c4)', nego:'var(--crm-nego)' };
+  const paintBar = (el, parts) => { const P = parts.filter(p => p.v > 0), key = P.map(p => p.k).join();
+    if (el.dataset.key !== key){ el.dataset.key = key; el.innerHTML = P.map(p => `<i data-p="${p.k}" style="flex-grow:0;background:${p.c}"></i>`).join(''); void el.offsetWidth; }
+    P.forEach(p => { const i = $(`[data-p="${p.k}"]`, el); i.style.flexGrow = p.v; i.dataset.tip = p.t; }); };
   function paintBand(){
     const open = DE.filter(d => !closed(d)), late = open.filter(slipping), risk = CO.filter(c => c.hb === 'bad'), sg = CO.filter(c => c.sug);
+    const pipe = sum(open, d => d.v), lateV = sum(late, d => d.v), hb = k => CO.filter(c => c.hb === k).length;
+    paintBar($('[data-b="all"] .crm-kv', band), STAGES.filter(s => !closed({ st:s.k })).map(s => { const v = sum(open.filter(d => d.st === s.k), d => d.v); return { k:s.k, v, c:SC[s.k], t:`${s.t}: ${kmoney(v)}` }; }));
+    paintBar($('[data-b="late"] .crm-kv', band), [{ k:'late', v:lateV, c:'var(--dm-warn-mark)', t:`${Math.round(lateV / (pipe || 1) * 100)}% of the open pipeline is past its close date` }, { k:'rest', v:pipe - lateV, c:'var(--crm-kvt)', t:`${kmoney(pipe - lateV)} on time` }]);
+    paintBar($('[data-b="risk"] .crm-kv', band), [['ok', 'var(--dm-ok-mark)'], ['mid', 'var(--dm-warn-mark)'], ['bad', 'var(--dm-bad-mark,var(--dm-bad))']].map(([k, c]) => ({ k, v:hb(k), c, t:`${plural(hb(k), 'account')} ${{ ok:'healthy', mid:'on watch', bad:'at risk' }[k]}` })));
+    paintBar($('[data-b="agent"] .crm-kv', band), [{ k:'sug', v:sg.length, c:'var(--dm-accent-mark,var(--dm-accent))', t:`${sg.length} of ${plural(CO.length, 'account')} have a suggestion` }, { k:'rest', v:CO.length - sg.length, c:'var(--crm-kvt)', t:`${CO.length - sg.length} without one` }]);
     const kinds = {}; sg.forEach(c => { const k = SUGK[c.sug.k] || 'other'; kinds[k] = (kinds[k] || 0) + 1; });
     const V = {
       all:[kmoney(sum(open, d => d.v)), `${plural(open.length, 'open deal')} · ${kmoney(sum(open, d => d.v * d.p / 100))} weighted`],
