@@ -103,6 +103,19 @@ export function Tip({ label, kbd, open: forced, off, side = 'top', children }: {
     const y = side === 'bottom' ? (down + h > innerHeight - 8 ? up : down) : (up < 8 ? down : up);
     setAt({ ...at, x, y }); requestAnimationFrame(() => setShow(true));
   }, [at]);
+  // the tip goes where its target goes: a demo that keeps playing under the pointer (rows growing in, a card resizing)
+  // carries it along instead of leaving it behind. Only the target's box is read each frame, and only while the tip shows
+  useEffect(() => {
+    if (!show) return;
+    let raf = 0, last = '';
+    const follow = () => {
+      const el = target.current;
+      if (el){ const r = el.getBoundingClientRect(), k = `${r.left},${r.top},${r.width},${r.height}`; if (last && k !== last) setAt(a => a && { x: 0, y: 0, r }); last = k; }
+      raf = requestAnimationFrame(follow);
+    };
+    raf = requestAnimationFrame(follow);
+    return () => cancelAnimationFrame(raf);
+  }, [show]);
 
   const enterEl = (el: Element | null) => { over.current = true; if (!off) open(el); };
   const leave = () => { over.current = false; if (!forced) close(); };

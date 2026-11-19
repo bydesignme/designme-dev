@@ -143,10 +143,13 @@ export default function ComposerDemo() {
         contexts={CONTEXTS} context={ctx} onContextChange={setCtx} mode={mode} onModeChange={setMode}
         onDictate={dictate} dictating={dictating} onDictationEnd={() => { take.current++; setDictating(false); }}
         thread={thread.map(m => m.from === 'you'
-          ? <div key={m.id} className="dm-bub dm-enter">
-              {m.files?.length ? <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: m.text ? 6 : 0 }}>{m.files.map((f, i) => <span key={i} className="dm-fchip"><Icon name="clip" size="xs" />{f}</span>)}</div> : null}
-              {m.text}
-            </div>
+          // a message that is only attachments shows the files on their own at the right edge, never in an empty bubble
+          ? !m.text
+            ? <div key={m.id} className="dm-cpx-files dm-enter">{m.files?.map((f, i) => <span key={i} className="dm-fchip"><Icon name="clip" size="xs" />{f}</span>)}</div>
+            : <div key={m.id} className="dm-bub dm-enter">
+                {m.files?.length ? <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 6 }}>{m.files.map((f, i) => <span key={i} className="dm-fchip"><Icon name="clip" size="xs" />{f}</span>)}</div> : null}
+                {m.text}
+              </div>
           : <div key={m.id + (m.working ? 'w' : 'd')} className="dm-cpx-ag dm-enter">
               {m.working ? <><Think /><span className="dm-shim">{m.text}</span></> : <span>{m.text}</span>}
             </div>)} />
@@ -227,7 +230,7 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 import { cx } from '../lib/cx';
 import { useControllable, useIsoLayoutEffect, useSeconds } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
-import { Spin, Swap, Tip } from '../lib/motion';
+import { Spin, Swap, Tip, useGrow } from '../lib/motion';
 import { focusMenu, menuStep } from '../lib/popover';
 import '../designme.css';
 import './composer.css';
@@ -330,10 +333,14 @@ export function Composer({
   const counted = useSeconds(dictating && dictationSeconds === undefined);
 
   const box = useRef<HTMLDivElement>(null), ta = useRef<HTMLTextAreaElement>(null);
+  // no room is kept for the conversation (owner, 18 Nov): the thread and the box grow and shrink together, eased (as grow()
+  // on the site)
+  const [root, inner] = useGrow();
   // the text box grows with its text, up to 160px
   useIsoLayoutEffect(() => { const t = ta.current; if (!t) return; t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 160) + 'px'; }, [text, dictating]);
 
-  /* ---------- menus: open above their button, close on a click outside, Escape or a pick ---------- */
+  /* ---------- menus: open over the composer from their button, down when there is room and up when there isn't, and close
+     on a click outside, Escape or a pick. The composer never moves for them ---------- */
   const [pop, setPop] = useState<PopName | null>(null);
   const [place, setPlace] = useState<Partial<Record<PopName, CSSProperties>>>({});
   const triggers = useRef<Partial<Record<PopName, HTMLButtonElement | null>>>({});
@@ -353,7 +360,9 @@ export function Composer({
     const hr = host.getBoundingClientRect(), br = btn.getBoundingClientRect(), end = pop === 'mode';
     let x = end ? br.right - hr.left - el.offsetWidth : br.left - hr.left;
     x = Math.max(-hr.left + 8, Math.min(x, innerWidth - hr.left - el.offsetWidth - 8));
-    setPlace(p => ({ ...p, [pop]: { left: x, top: br.top - hr.top - el.offsetHeight - 6, '--dm-origin': 'bottom ' + (end ? 'right' : 'left') } as CSSProperties }));
+    const up = br.bottom + el.offsetHeight + 12 > innerHeight && br.top - el.offsetHeight > 12;
+    const top = up ? br.top - hr.top - el.offsetHeight - 6 : br.bottom - hr.top + 6;
+    setPlace(p => ({ ...p, [pop]: { left: x, top, '--dm-origin': (up ? 'bottom ' : 'top ') + (end ? 'right' : 'left') } as CSSProperties }));
   }, [pop]);
   useEffect(() => {
     if (!pop) return;
@@ -413,7 +422,8 @@ export function Composer({
   };
 
   return (
-    <div data-dm="" className={cx('dm-cpx', className)}>
+    <div data-dm="" ref={root} className={cx('dm-cpx dm-growing', className)}>
+      <div ref={inner} className="dm-grow">
       <div className="dm-cpx-thread" aria-live="polite">{thread}</div>
       <div ref={box} className="dm-cpx-box" data-mode={dictating ? 'voice' : 'idle'}>
         <div className="dm-cpx-att">{files.map(f => (
@@ -461,6 +471,7 @@ export function Composer({
           <div className="dm-ph">The agent may</div>
           {modes.map(o => <button key={o.value} type="button" role="menuitemradio" aria-checked={o.value === md} className="dm-mi" onClick={pick(() => setMd(o.value))}><Icon name={o.icon ?? 'edit'} /><span>{o.label ?? o.value}{o.detail && <span className="dm-d">{o.detail}</span>}</span><Check /></button>)}
         </div>
+      </div>
       </div>
     </div>
   );

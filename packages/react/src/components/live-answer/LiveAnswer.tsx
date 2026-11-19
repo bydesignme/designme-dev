@@ -1,9 +1,9 @@
 'use client';
-import { Fragment, useState } from 'react';
+import { Fragment, useState, type CSSProperties } from 'react';
 import { cx } from '../../lib/cx';
 import { useCopied, useSeconds } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { enter, Fold, Think, Tip } from '../../lib/motion';
+import { avatarInk, enter, Fold, Think, Tip, useGrow } from '../../lib/motion';
 import '../../designme.css';
 import './live-answer.css';
 
@@ -18,7 +18,8 @@ export interface AnswerSource {
   tip?: string;
   /** The letter on its badge. Defaults to the title's first letter */
   mark?: string;
-  /** Badge colour, any CSS colour */
+  /** Badge colour, any CSS colour. An avatar colour, like 'var(--dm-av-l)', is drawn as it is with its own ink; any other
+      colour is darkened a little so its white letter keeps its contrast */
   color?: string;
 }
 
@@ -155,7 +156,8 @@ function Turn({ turn, followUps, onFollowUp, onRetry, onRate, onCopy, onSourceCl
             </span>
             {sources.length > 0 && (
               <button type="button" className="dm-lva-sb" aria-expanded={listOpen} onClick={() => setListOpen(!listOpen)}>
-                <span className="dm-lva-fav">{sources.map(s => <span key={s.n} style={{ backgroundColor: s.color ?? 'var(--dm-c1)' }}>{s.mark ?? s.title.charAt(0)}</span>)}</span>
+                <span className="dm-lva-fav">{sources.map(s => { const col = s.color ?? 'var(--dm-c1)', ink = avatarInk(col);
+                  return <span key={s.n} className={cx(ink && 'dm-vivid')} style={{ backgroundColor: col, ...(ink && { '--dm-fav-ink': ink }) } as CSSProperties}>{s.mark ?? s.title.charAt(0)}</span>; })}</span>
                 {sources.length} {sources.length === 1 ? 'source' : 'sources'}<Icon name="chev-d" size="xs" />
               </button>
             )}
@@ -197,8 +199,12 @@ function TurnSlot(props: TurnProps) {
 /** A question and an answer that streams in word by word, with citations, sources and follow-ups, then more turns below it. */
 export function LiveAnswer({ turns, followUps, onFollowUp, onRetry, onRate, onCopy, onSourceClick, className }: LiveAnswerProps) {
   const last = turns.length - 1;
+  // no room is kept for the answer (owner, 18 Nov): it grows and shrinks with what it holds, eased, as it streams in (as
+  // grow() on the site)
+  const [root, inner] = useGrow();
   return (
-    <div data-dm="" className={cx('dm-lva', className)}>
+    <div data-dm="" ref={root} className={cx('dm-lva dm-growing', className)}>
+      <div ref={inner} className="dm-grow">
       {turns.length > 0 && turns[0].question && <div className="dm-lva-q"><div className="dm-bub">{turns[0].question}</div></div>}
       <div className="dm-lva-a">
         {turns.map((t, i) => (
@@ -208,6 +214,7 @@ export function LiveAnswer({ turns, followUps, onFollowUp, onRetry, onRate, onCo
               onRetry={onRetry && (() => onRetry(i))} onRate={onRate && (r => onRate(i, r))} onCopy={onCopy && (x => onCopy(i, x))} onSourceClick={onSourceClick} />
           </Fragment>
         ))}
+      </div>
       </div>
     </div>
   );

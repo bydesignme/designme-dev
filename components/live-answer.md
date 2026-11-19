@@ -59,8 +59,8 @@ import { LiveAnswer } from '@/components/designme/live-answer/LiveAnswer';
 ```tsx
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useCallback, useEffect, useState } from 'react';
-import { useWait } from '../lib/useScript';
+import { useCallback, useRef, useState } from 'react';
+import { useStory, useWait } from '../lib/useScript';
 import { LiveAnswer, type AnswerSource, type AnswerTurn } from './LiveAnswer';
 
 /* ---------- Live answer: it thinks, streams a cited answer, then offers follow-ups that add turns ---------- */
@@ -72,31 +72,34 @@ const ANSWERS: Record<string, string> = {
 };
 const THOUGHTS = ['Read the funnel for the last 30 days', 'Matched the drop to the interview notes', 'Checked step 2 in Onboarding.fig'];
 const SOURCES: AnswerSource[] = [
-  { n: 1, mark: 'F', color: '#7a5af8', title: 'Funnel data', detail: 'Amplitude, last 30 days', tip: 'Funnel data, last 30 days' },
-  { n: 2, mark: 'N', color: '#0ea5a4', title: 'Session notes', detail: 'Notion, 8 interviews', tip: 'Session notes from 8 interviews' },
-  { n: 3, mark: 'S', color: '#f97316', title: 'Onboarding.fig', detail: 'Figma, step 2', tip: 'Onboarding.fig, step 2' }
+  { n: 1, mark: 'F', color: 'var(--dm-av-l)', title: 'Funnel data', detail: 'Amplitude, last 30 days', tip: 'Funnel data, last 30 days' },
+  { n: 2, mark: 'N', color: 'var(--dm-av-b)', title: 'Session notes', detail: 'Notion, 8 interviews', tip: 'Session notes from 8 interviews' },
+  { n: 3, mark: 'S', color: 'var(--dm-av-r)', title: 'Onboarding.fig', detail: 'Figma, step 2', tip: 'Onboarding.fig, step 2' }
 ];
 
 export default function LiveAnswerDemo() {
   const [turns, setTurns] = useState<AnswerTurn[]>([{ key: 0, question: FIRST, state: 'waiting' }]);
   const [asked, setAsked] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
   const wait = useWait();
 
   // streams the answer to question q into turn i, one word at a time
-  const answer = useCallback(async (i: number, q: string) => {
+  const answer = useCallback(async (i: number, q: string, w: (ms: number) => Promise<void> = wait) => {
     const set = (patch: Partial<AnswerTurn>) => setTurns(ts => ts.map((t, k) => k === i ? { ...t, ...patch } : t));
     set({ state: 'thinking', text: '' });
-    await wait(1300);
+    await w(1300);
     set({ state: 'answering', thoughts: THOUGHTS, thoughtFor: 2 });
     let text = '';
     for (const tok of ANSWERS[q].split(' ')) {
       text += (text ? ' ' : '') + tok; set({ text });
-      await wait(55 + Math.random() * 45);
+      await w(55 + Math.random() * 45);
     }
     set({ state: 'done', sources: SOURCES });
   }, [wait]);
 
-  useEffect(() => { answer(0, FIRST); }, [answer]);
+  // the first answer is the preview's story: an agent at work, so it carries on under the pointer ({ hold: false }), and it
+  // stops for good once the visitor takes over; what they start (a follow-up, Try again) plays out in full
+  useStory(ref, async ({ wait: w }) => { await answer(0, FIRST, w); }, { hold: false });
 
   const ask = async (q: string) => {
     const i = turns.length;
@@ -107,8 +110,8 @@ export default function LiveAnswerDemo() {
   const retry = (i: number) => { if (turns[i].state === 'done') answer(i, turns[i].question ?? ''); };
 
   return (
-    // keeps the room the first answer fills with its sources and follow-ups, so nothing climbs when they arrive
-    <div style={{ width: '100%', minHeight: 376 }}>
+    // no room is kept for the answer (owner, 18 Nov): it grows as it streams in, centred where it sits
+    <div ref={ref} style={{ width: '100%' }}>
       <LiveAnswer turns={turns} followUps={asked ? undefined : ['Show the drop-off by device', 'Draft a fix for the workspace step']} onFollowUp={ask} onRetry={retry} />
     </div>
   );
@@ -163,11 +166,11 @@ Yes. Leave out `question` on a turn and no bubble is drawn for it, so only the a
 
 ```tsx
 'use client';
-import { Fragment, useState } from 'react';
+import { Fragment, useState, type CSSProperties } from 'react';
 import { cx } from '../lib/cx';
 import { useCopied, useSeconds } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { enter, Fold, Think, Tip } from '../lib/motion';
+import { avatarInk, enter, Fold, Think, Tip, useGrow } from '../lib/motion';
 import '../designme.css';
 import './live-answer.css';
 
@@ -182,7 +185,8 @@ export interface AnswerSource {
   tip?: string;
   /** The letter on its badge. Defaults to the title's first letter */
   mark?: string;
-  /** Badge colour, any CSS colour */
+  /** Badge colour, any CSS colour. An avatar colour, like 'var(--dm-av-l)', is drawn as it is with its own ink; any other
+      colour is darkened a little so its white letter keeps its contrast */
   color?: string;
 }
 
@@ -319,7 +323,8 @@ function Turn({ turn, followUps, onFollowUp, onRetry, onRate, onCopy, onSourceCl
             </span>
             {sources.length > 0 && (
               <button type="button" className="dm-lva-sb" aria-expanded={listOpen} onClick={() => setListOpen(!listOpen)}>
-                <span className="dm-lva-fav">{sources.map(s => <span key={s.n} style={{ backgroundColor: s.color ?? 'var(--dm-c1)' }}>{s.mark ?? s.title.charAt(0)}</span>)}</span>
+                <span className="dm-lva-fav">{sources.map(s => { const col = s.color ?? 'var(--dm-c1)', ink = avatarInk(col);
+                  return <span key={s.n} className={cx(ink && 'dm-vivid')} style={{ backgroundColor: col, ...(ink && { '--dm-fav-ink': ink }) } as CSSProperties}>{s.mark ?? s.title.charAt(0)}</span>; })}</span>
                 {sources.length} {sources.length === 1 ? 'source' : 'sources'}<Icon name="chev-d" size="xs" />
               </button>
             )}
@@ -361,8 +366,12 @@ function TurnSlot(props: TurnProps) {
 /** A question and an answer that streams in word by word, with citations, sources and follow-ups, then more turns below it. */
 export function LiveAnswer({ turns, followUps, onFollowUp, onRetry, onRate, onCopy, onSourceClick, className }: LiveAnswerProps) {
   const last = turns.length - 1;
+  // no room is kept for the answer (owner, 18 Nov): it grows and shrinks with what it holds, eased, as it streams in (as
+  // grow() on the site)
+  const [root, inner] = useGrow();
   return (
-    <div data-dm="" className={cx('dm-lva', className)}>
+    <div data-dm="" ref={root} className={cx('dm-lva dm-growing', className)}>
+      <div ref={inner} className="dm-grow">
       {turns.length > 0 && turns[0].question && <div className="dm-lva-q"><div className="dm-bub">{turns[0].question}</div></div>}
       <div className="dm-lva-a">
         {turns.map((t, i) => (
@@ -372,6 +381,7 @@ export function LiveAnswer({ turns, followUps, onFollowUp, onRetry, onRate, onCo
               onRetry={onRetry && (() => onRetry(i))} onRate={onRate && (r => onRate(i, r))} onCopy={onCopy && (x => onCopy(i, x))} onSourceClick={onSourceClick} />
           </Fragment>
         ))}
+      </div>
       </div>
     </div>
   );

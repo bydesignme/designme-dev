@@ -2,7 +2,7 @@
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useRef, useState } from 'react';
 import { ArtifactCard, type ArtifactCardProps, type ArtifactVersion } from '../components/artifact-card/ArtifactCard';
-import { Seg } from '../lib/motion';
+import { Fold, Seg } from '../lib/motion';
 import { Demo } from './Demo';
 import { useScript, useStory } from './useScript';
 
@@ -81,7 +81,8 @@ export default function ArtifactCardDemo() {
       <div className="dm-afx-in-msg">
         <p>I went through the pricing page from top to bottom and wrote up what to fix first.</p>
         {report}
-        <p>The short version: the plan table is where people stall, and three small changes should move most of them on.</p>
+        {/* the words that sum the file up come once it is written */}
+        <Fold open={!writing} className="dm-afx-in-after"><p>The short version: the plan table is where people stall, and three small changes should move most of them on.</p></Fold>
       </div>
     </div>
   ) : report;
