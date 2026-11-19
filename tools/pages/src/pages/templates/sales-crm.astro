@@ -13,8 +13,11 @@ import path from 'node:path';
 import Page from '../../layouts/Page.astro';
 import { ROOT, COMPONENTS } from '../../lib/data.mjs';
 
-// the components the screen is made of, by their registry name: each one's installed CSS is on the page
-const USES = ['agent-harness', 'task-table', 'progress', 'kanban-board', 'details-panel', 'filter-menu', 'search-input', 'form', 'toast',
+// the components the screen is made of, by their registry name: each one's installed CSS is on the page. The accounts table and
+// the account panel started from Task table and Details panel, but carry their own markup, so they have their own copy of
+// those styles under CRM classes (crmt-* and crmd-*, at the top of crm.css): a new look for either component never reaches
+// the CRM (19 Nov)
+const USES = ['agent-harness', 'progress', 'kanban-board', 'filter-menu', 'search-input', 'form', 'toast',
   'activity-heatmap', 'notifications', 'profile-menu', 'command-palette', 'stat-cards', 'line-chart', 'radial-goals', 'funnel-chart',
   'event-calendar', 'agent-inbox', 'health-score', 'decision-prompt', 'date-picker', 'banner', 'draft-review', 'rewrite-toolbar',
   'inline-text-diff', 'bar-chart', 'top-pages', 'agenda'];
@@ -88,9 +91,9 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
 
       <!-- Accounts: the task table's header, bulk bar, sort buttons and checkboxes, with Filter menu's chips and Search input's
            field and answer line in the toolbar -->
-      <section class="crm-view ttx crm-co" id="crm-v-accounts" aria-label="Accounts">
-        <div class="ttx-hd crm-hd">
-          <div class="ttx-ti crm-fbar" role="toolbar" aria-label="Filter, search and sort">
+      <section class="crm-view crmt crm-co" id="crm-v-accounts" aria-label="Accounts">
+        <div class="crmt-hd crm-hd">
+          <div class="crmt-ti crm-fbar" role="toolbar" aria-label="Filter, search and sort">
             <!-- the owners, as on the Pipeline board: pick one or more to see only their accounts (owner, 10 Nov) -->
             <div class="kbx-fp crm-afp" role="group" aria-label="Filter by owner"></div>
             <div class="crm-chips" hidden>
@@ -107,20 +110,20 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
               <button class="pill primary sm crm-new" aria-label="Add account"><Fragment set:html={I('plus', 'xs')} /><span>Add account</span></button>
             </div>
           </div>
-          <div class="ttx-sb" inert><span class="ttx-n num"></span><button class="pill ghost sm" data-pop="#crm-p-assign" aria-haspopup="menu"><Fragment set:html={I('user', 'xs')} />Assign owner</button><button class="pill ghost sm" data-pop="#crm-p-move" aria-haspopup="menu"><Fragment set:html={I('right', 'xs')} />Move stage</button><button class="pill ghost sm" data-a="export"><Fragment set:html={I('down', 'xs')} />Export</button><button class="pill ghost sm ttx-del" data-a="delete"><Fragment set:html={I('trash', 'xs')} />Delete</button><span class="ttx-sp"></span><button class="pill ghost sm ttx-clr">Clear</button></div>
+          <div class="crmt-sb" inert><span class="crmt-n num"></span><button class="pill ghost sm" data-pop="#crm-p-assign" aria-haspopup="menu"><Fragment set:html={I('user', 'xs')} />Assign owner</button><button class="pill ghost sm" data-pop="#crm-p-move" aria-haspopup="menu"><Fragment set:html={I('right', 'xs')} />Move stage</button><button class="pill ghost sm" data-a="export"><Fragment set:html={I('down', 'xs')} />Export</button><button class="pill ghost sm crmt-del" data-a="delete"><Fragment set:html={I('trash', 'xs')} />Delete</button><span class="crmt-sp"></span><button class="pill ghost sm crmt-clr">Clear</button></div>
         </div>
         <div class="crm-ans" hidden><div class="six-ans"><Fragment set:html={I('spark', 'xs')} /><span class="t" aria-live="polite"></span><button class="pill ghost sm crm-ansx">Clear</button></div></div>
         <div class="pop crm-pop crm-sug" role="group" aria-label="Try asking"></div>
-        <div class="ttx-sc crm-sc" tabindex="0" role="region" aria-label="Accounts table">
-          <table class="ttx-t crm-t">
+        <div class="crmt-sc crm-sc" tabindex="0" role="region" aria-label="Accounts table">
+          <table class="crmt-t crm-t">
             <thead><tr>
-              <th class="ck stk"><button class="ttx-cb ttx-all" role="checkbox" aria-checked="false" aria-label="Select all accounts in view"></button></th>
-              <th class="stk2"><button class="ttx-s" data-k="name"><Fragment set:html={I('globe', 'xs')} />Account</button></th>
-              <th><button class="ttx-s" data-k="stage"><Fragment set:html={I('layers', 'xs')} />Stage</button></th>
-              <th><button class="ttx-s" data-k="next"><Fragment set:html={I('cal', 'xs')} />Next step</button></th>
-              <th><button class="ttx-s" data-k="owner"><Fragment set:html={I('user', 'xs')} />Owner</button></th>
-              <th class="r"><button class="ttx-s" data-k="value"><Fragment set:html={I('dollar', 'xs')} />Pipeline</button></th>
-              <th class="crm-hc"><button class="ttx-s" data-k="health"><Fragment set:html={I('gauge', 'xs')} />Health</button></th>
+              <th class="ck stk"><button class="crmt-cb crmt-all" role="checkbox" aria-checked="false" aria-label="Select all accounts in view"></button></th>
+              <th class="stk2"><button class="crmt-s" data-k="name"><Fragment set:html={I('globe', 'xs')} />Account</button></th>
+              <th><button class="crmt-s" data-k="stage"><Fragment set:html={I('layers', 'xs')} />Stage</button></th>
+              <th><button class="crmt-s" data-k="next"><Fragment set:html={I('cal', 'xs')} />Next step</button></th>
+              <th><button class="crmt-s" data-k="owner"><Fragment set:html={I('user', 'xs')} />Owner</button></th>
+              <th class="r"><button class="crmt-s" data-k="value"><Fragment set:html={I('dollar', 'xs')} />Pipeline</button></th>
+              <th class="crm-hc"><button class="crmt-s" data-k="health"><Fragment set:html={I('gauge', 'xs')} />Health</button></th>
               <th><span class="crm-thi"><Fragment set:html={I('spark', 'xs')} />Agent</span></th>
               <th class="r crm-actc"><span class="pg-sr">Actions</span></th>
             </tr></thead>
@@ -225,7 +228,7 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
 
       <!-- the account's details: the Details panel's sections and rows, as a sheet over the right of the screen -->
       <!-- the sheet slides inside a clipping layer, so its slide never widens the page -->
-      <div class="crm-sheetw"><aside class="crm-sheet" role="dialog" aria-modal="false" aria-label="Account details" inert><div class="dtp crm-dtp"></div></aside></div>
+      <div class="crm-sheetw"><aside class="crm-sheet" role="dialog" aria-modal="false" aria-label="Account details" inert><div class="crmd crm-dtp"></div></aside></div>
     </div>
     <!-- a dimmed overlay under the open sheet, over the rest of the app; a click on it closes the sheet -->
     <div class="crm-shade" aria-hidden="true"></div>
