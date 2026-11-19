@@ -21,18 +21,19 @@ like `library.html`.
 ## The landing page
 
 `src/pages/index.astro` is the page at `/`: full width, with the site's header and footer and no sidebar. It shows what
-the library is with the components themselves: the title and the buttons over the two templates, live in a frame and
-taking turns (`src/device/frame.js`, with each template's `?embed=1`, which hides its header); a wall of every component,
-rows of pictures that drift in turn left and right, each linking to its page; four small screens, each two agent
-components side by side in one window, playing their demos; Blueprint, Soft and Clean to pick from (a pick restyles the
-whole page, the templates and the wall's pictures included); how to install, with the files `npx designme add` writes
-shown in an editor (each file's name, length and first lines, read from the registry); what every component comes with;
-and questions. The templates, the wall, the screens, the styles demo and the editor sit on backdrops of soft colour washes
-made from the accent and the chart palette, so they follow the style, the theme and a picked accent; that is the only
-colour the page adds. `/?headings=large` shows the section headings large, to compare with the page as it is. Each demo is the installed HTML,
-CSS and JS on the shared core, as on a component page, loaded from the registry (`/r/<name>.json`) when it comes within a
-screen of the view; each stage fits the tallest its component gets in the style on screen (`tools/site/card-heights.json`),
-so nothing below it moves while it plays. Its counts come from the library's sections.
+the library is with the components themselves: a centred title, one line and two buttons; right under them, a bento of
+fourteen of the library's most distinctive components playing live, mostly the agent's own, at varied sizes (no row of
+metric cards); the two templates, live in one frame with a switch over it and taking turns (`src/device/frame.js`, with each
+template's `?embed=1`, which hides its header); a wall of every component, rows of pictures that drift in turn left and
+right, each linking to its page; Blueprint, Soft and Clean to pick from (a pick restyles the whole page, the templates and
+the wall's pictures included); how to install, with the files `npx designme add` writes in an editor (each file's name,
+length and first lines, read from the registry, beside the component they make, live); and questions, then Book a call. Its section headings are large and centred (the landing page's exception to the 14px type rule;
+`/?headings=small` shows them at 14px). The templates, the wall, the styles demo and the editor sit on backdrops of soft
+colour washes made from the accent and the chart palette, so they follow the style, the theme and a picked accent. Each
+demo is the installed HTML, CSS and JS on the shared core, as on a component page, loaded from the registry
+(`/r/<name>.json`) when it comes within a screen of the view; each stage fits the tallest its component gets in the style
+on screen (`tools/site/card-heights.json`), so nothing below it moves while it plays. Its counts come from the library's
+sections.
 
 ## What each page shows
 
