@@ -2,8 +2,9 @@
 // The landing page at / (owner, 19 Nov): what designme.dev is, shown with the components themselves. The library it leads to is
 // at /library (tools/site builds it as library.html). A full-width page with the site's header and footer and no sidebar.
 // Sections, in order:
-//   hero      the title, the lead, Browse the library and the docs, the install command and a style switch, then the two
-//             templates (whole apps made of the components) live in a frame, taking turns
+//   hero      the title, one short line, Browse the library and Read the docs, then the two templates (whole apps made
+//             of the components) live in a frame, taking turns (owner, 19 Nov: a quiet first screen; the install command is
+//             in Install, and the styles are switched in the header and in Three styles)
 //   wall      every component, as rows of pictures that drift in turn left and right, each linking to its page
 //   live      agent components playing their demos, each named and linked to its page
 //   styles    Blueprint, Soft and Clean to pick from, with a demo beside them; a pick restyles the whole page
@@ -53,12 +54,8 @@ const bandCss = [pick(''), ...PHONE.map((x, k) => `@media (max-width:${(k ? PHON
 
 // the component the install commands name
 const HERO = comp('agent-tree');
-// the templates, whole apps made of the components, shown live in the first screen (with ?embed=1, only the app); each
-// says what is in it, from tools/pages/README.md
-const TEMPLATES = [
-  ['sales-crm', 'Sales CRM', 'Accounts, an agent inbox, a week calendar, a deals board and a forecast, with an agent working beside the rep.'],
-  ['workflow-editor', 'Workflow editor', 'A canvas of steps that pans and zooms, a step inspector, and test runs with a trace, a log and each step\'s data.'],
-].map(([slug, name, desc]) => ({ slug, name, desc, url:`/templates/${slug}` }));
+// the templates, whole apps made of the components, shown live in the first screen (with ?embed=1, only the app)
+const TEMPLATES = [['sales-crm', 'Sales CRM'], ['workflow-editor', 'Workflow editor']].map(([slug, name]) => ({ slug, name, url:`/templates/${slug}` }));
 // the wall: every component in the library, in its order, as four rows that drift in turn left and right
 const ROWS = [0, 1, 2, 3].map(i => COMPONENTS.slice(Math.round(i * COMPONENTS.length / 4), Math.round((i + 1) * COMPONENTS.length / 4)));
 if (ROWS.flat().length !== total) throw new Error('landing: the wall shows ' + ROWS.flat().length + ' of ' + total + ' components');
@@ -110,7 +107,6 @@ const PROMPT = `Read ${SITE}/llms.txt and pick the components for our screen.\nF
 const BOOK = 'https://www.designme.agency/intro?utm_source=designme.dev&utm_medium=referral&utm_campaign=book_a_call';
 const GITHUB = 'https://github.com/bydesignme/designme-dev';
 const GH_MARK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>';
-const copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>';
 const replayIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>';
 const arrow = icon('arrow_forward', 'lp-ar');
 // a command in words that each stay whole, so on a phone it wraps at a space (an address may also wrap after a slash)
@@ -145,36 +141,24 @@ const jsonld = [
 
       /* ---- hero: the words, then a row with the buttons, the install command and the style switch, then the templates ---- */
       .lp-hero{padding-top:56px}
-      .lp-kick{display:flex;flex-wrap:wrap;gap:4px 8px;margin:0;color:var(--pg-muted);font-size:13px;line-height:20px}
-      .lp-kick span+span::before{content:"·";margin-right:8px;color:var(--pg-muted)}
       /* the page's title: the one text over 14px (the page-title exception, .pg-h1) */
-      .pg-h1.lp-h1{max-width:1000px;margin:16px 0 0;font-size:clamp(34px,3.6vw,52px);line-height:1.08;font-weight:500;letter-spacing:-.034em;text-wrap:balance}
-      .lp-lead{margin:20px 0 0;max-width:72ch;font-size:14px;line-height:1.65;color:var(--pg-dim);text-wrap:pretty}
-      .lp-cta{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px}
-      .lp-acts{display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px;margin-top:28px}
-      .lp-acts .lp-cta{margin:0}
+      .pg-h1.lp-h1{max-width:1000px;margin:0;font-size:clamp(34px,3.6vw,52px);line-height:1.08;font-weight:500;letter-spacing:-.034em;text-wrap:balance}
+      .lp-lead{margin:20px 0 0;max-width:1000px;font-size:14px;line-height:1.65;color:var(--pg-dim);text-wrap:balance}
+      .lp-cta{display:flex;flex-wrap:wrap;gap:8px;margin-top:32px}
       /* buttons: the components' own (.pill, .pill.primary on the accent, .pill.line), a step taller on the page */
       .lp .lp-btn{height:40px;padding:0 18px;font-size:14px;text-decoration:none;gap:8px}
       .lp .lp-btn svg{width:14px;height:14px}
-      .lp-cmd{margin:0}
-      .lp .lp-cmd code{background:none;padding:0;border-radius:0;font:inherit;color:inherit}
-      .lp .lp-cmd .d{color:var(--pg-muted)}
-      .lp-cmd .c span{white-space:nowrap}
-      .lp-try{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-left:auto}
-      .lp-try-l{font-size:13px;color:var(--pg-muted)}
-      .lp-try .pg-seg button{height:28px;padding:0 12px}
-      @media (max-width:1099px){.lp-try{margin-left:0}}
-      /* the templates: a row with the switch between them, what the one on show holds and a link to it, over the frame */
-      .lp-show-w{margin-top:48px}
-      .lp-show-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin-bottom:12px}
+      /* the templates: one quiet row, the switch between them on the left and Open on the right, over the frame */
+      .lp-show-w{margin-top:56px}
+      .lp-show-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:12px}
       .lp-show-bar .pg-seg button{height:28px;padding:0 12px}
-      .lp-show-d{flex:1;min-width:240px;margin:0;font-size:14px;line-height:20px;color:var(--pg-dim)}
-      .lp-show-bar .lp-more{margin-left:auto}
+      .lp-open .lp-ar{transform:rotate(-45deg)}
+      .lp-more.lp-open:hover .lp-ar{transform:rotate(-45deg) translateX(2px)}
       /* the frame keeps its size from the start (the app inside fades in once it has loaded): the app at the content's width,
          800px tall, scaled down below 1280px wide; on a phone, the app's phone layout in a phone's frame */
       .lp-show{--dvf-line:var(--pg-line2);--dvf-bg:var(--pg-bg);width:100%;aspect-ratio:16/10;max-height:800px;border-radius:12px;background:var(--pg-soft)}
       .lp-show-ph{position:absolute;inset:0;display:grid;place-items:center;margin:0;color:var(--pg-muted);font-size:13px}
-      @media (max-width:640px){.lp-show{aspect-ratio:auto;height:600px;border-radius:14px}.lp-show-w{margin-top:40px}}
+      @media (max-width:640px){.lp-show{aspect-ratio:auto;height:600px;border-radius:14px}.lp-show-w{margin-top:48px}}
 
       /* ---- the wall: every component, four rows that drift in turn left and right, across the whole window. A row holds still
          under the pointer or while a tile in it has the focus; with reduced motion the rows stand still and scroll by hand ---- */
@@ -352,25 +336,16 @@ const jsonld = [
 
   <div class="lp">
     <section class="lp-in lp-hero" aria-labelledby="content">
-      <p class="lp-kick"><span>Free and MIT licensed</span><span>HTML, React and Astro</span></p>
       <h1 class="pg-h1 lp-h1" id="content" tabindex="-1">UI components for the AI agents in your product</h1>
-      <p class="lp-lead">{total} free components for products built around agents: {nAgent} for the agent itself, like agent trees, traces, live answers and permission gates, and {nBasics} app basics around it. Copy the source into your project as HTML, React or Astro, in three styles with light and dark mode.</p>
-      <div class="lp-acts">
-        <div class="lp-cta">
-          <a class="pill primary lp-btn" href="/library">Browse the library<Fragment set:html={arrow} /></a>
-          <a class="pill line lp-btn" href="/docs/introduction">Read the docs</a>
-        </div>
-        <div class="pg-cmd lp-cmd"><code class="d" aria-hidden="true">$</code><code class="c" set:html={words(`npx designme add ${HERO.reg}`)} /><button type="button" data-copy={`npx designme add ${HERO.reg}`} aria-label="Copy install command" set:html={copyIcon} /></div>
-        <div class="lp-try">
-          <span class="lp-try-l" id="lp-try-l">Try a style on this page</span>
-          <div class="pg-seg" role="radiogroup" aria-labelledby="lp-try-l">{STYLES.map(([v, n]) => <button type="button" role="radio" aria-checked="false" data-style-set={v}>{n}</button>)}</div>
-        </div>
+      <p class="lp-lead">{total} free, MIT-licensed components for AI agent products, in HTML, React or Astro and three styles.</p>
+      <div class="lp-cta">
+        <a class="pill primary lp-btn" href="/library">Browse the library<Fragment set:html={arrow} /></a>
+        <a class="pill line lp-btn" href="/docs/introduction">Read the docs</a>
       </div>
       <div class="lp-show-w">
         <div class="lp-show-bar">
           <div class="pg-seg lp-tpls" role="radiogroup" aria-label="Templates">{TEMPLATES.map((t, i) => <button type="button" role="radio" aria-checked={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1} data-tpl={i}>{t.name}</button>)}</div>
-          <p class="lp-show-d" id="lp-show-d">{TEMPLATES[0].desc}</p>
-          <a class="lp-more lp-open" href={TEMPLATES[0].url} target="_blank" rel="noopener" aria-label={`Open ${TEMPLATES[0].name}, opens in a new tab`}><span>Open {TEMPLATES[0].name}</span><Fragment set:html={arrow} /></a>
+          <a class="lp-more lp-open" href={TEMPLATES[0].url} target="_blank" rel="noopener" aria-label={`Open ${TEMPLATES[0].name}, opens in a new tab`}>Open<Fragment set:html={arrow} /></a>
         </div>
         <div class="lp-show dvf" role="group" aria-roledescription="template" aria-label={`${TEMPLATES[0].name}, live`} data-tpls={JSON.stringify(TEMPLATES)}><p class="lp-show-ph">{TEMPLATES[0].name}, live</p></div>
       </div>
@@ -578,7 +553,7 @@ const jsonld = [
       // On a phone the app shows its phone layout in a phone's frame
       var box = document.querySelector('.lp-show'); if (!box || !window.dmFrame) return;
       var T = JSON.parse(box.dataset.tpls), segs = [].slice.call(document.querySelectorAll('.lp-tpls [data-tpl]'));
-      var desc = document.getElementById('lp-show-d'), open = document.querySelector('.lp-open'), ph = box.querySelector('.lp-show-ph');
+      var open = document.querySelector('.lp-open'), ph = box.querySelector('.lp-show-ph');
       var phone = matchMedia('(max-width:640px)'), reduce = matchMedia('(prefers-reduced-motion: reduce)');
       var at = 0, done = reduce.matches, held = false, seen = true, started = false;
       var stop = function(){ done = true; };
@@ -587,7 +562,7 @@ const jsonld = [
       var show = function(i){
         at = i; var t = T[i];
         segs.forEach(function(b, k){ var on = k === i; b.setAttribute('aria-checked', String(on)); b.tabIndex = on ? 0 : -1; });
-        desc.textContent = t.desc; open.href = t.url; open.setAttribute('aria-label', 'Open ' + t.name + ', opens in a new tab'); open.firstChild.textContent = 'Open ' + t.name;
+        open.href = t.url; open.setAttribute('aria-label', 'Open ' + t.name + ', opens in a new tab');
         box.setAttribute('aria-label', t.name + ', live');
         // the page's file, so it loads from any static server (Cloudflare Pages sends it on to the page's own address,
         // keeping ?embed=1; the page also knows it is framed here)
