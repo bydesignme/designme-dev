@@ -102,9 +102,11 @@
   const ROLE = ['Head of operations', 'VP of finance', 'IT lead', 'Procurement lead', 'COO', 'Product lead', 'Head of data', 'CFO'];
   const peopleOf = i => Array.from({ length:2 + i % 2 }, (_, k) => ({ n:FN[(i * 3 + k * 7) % FN.length] + ' ' + LN_[(i * 5 + k * 3) % LN_.length], r:ROLE[(i + k * 3) % ROLE.length] }));
   const ini = n => n.split(' ').map(w => w[0]).join('');
-  // a contact's avatar: the same --dm-av pairs as the owners', picked by their name so it never changes
-  // a customer's people: initials in a quiet neutral circle (the team has photos)
-  const avn = (n, cls = '') => `<span class="av crm-avn${cls ? ' ' + cls : ''}" aria-hidden="true">${ini(n)}</span>`;
+  // a customer's people: their initials (the team has photos), on a vivid fill picked by their name so it never changes, one of
+  // the avatar colours that carry white letters (blue, violet, pink); Clean keeps them monochrome (elevation pass, 19 Nov)
+  const AVN = ['b', 'l', 'k'];
+  const avn = (n, cls = '') => { const h = AVN[[...n].reduce((a, ch) => a + ch.charCodeAt(0), 0) % 3];
+    return `<span class="av crm-avn${cls ? ' ' + cls : ''}" style="--crm-avc:var(--dm-av-${h});--crm-avi:var(--dm-av-${h}-ink)" aria-hidden="true">${ini(n)}</span>`; };
   // twelve weeks of meetings, calls and emails: none since the last touch, a steady few before it
   const trendOf = (i, last) => { let s = i * 7919 + 17; const r = () => (s = (s * 16807) % 2147483647) / 2147483647;
     return Array.from({ length:12 }, (_, w) => (11 - w) * 7 + 3 < last ? 0 : Math.round(1 + r() * 5 + (last < 10 ? w / 3 : 0))); };
@@ -339,6 +341,8 @@
     last:{ l:'Last touch', ic:'history', ops:['within', 'older than'], o:() => [{ v:7, l:'7 days' }, { v:14, l:'14 days' }, { v:30, l:'30 days' }], test:(c, v) => c.last <= v },
     value:{ l:'Pipeline', ic:'dollar', ops:['over', 'up to'], o:() => [...new Set([50000, 100000, 250000, 500000, ...F.A.filter(f => f.k === 'value').map(f => f.v)])].sort((a, b) => a - b).map(v => ({ v, l:kmoney(v) })), test:(c, v) => c.value > v },
     health:{ l:'Health', ic:'gauge', ops:['is', 'is not'], o:() => [{ v:'ok', l:'Healthy' }, { v:'mid', l:'Watch' }, { v:'bad', l:'At risk' }], test:(c, v) => c.hb === v },
+    // the agent's suggestion for the account, the one in the table's Agent column (elevation pass, 19 Nov)
+    agent:{ l:'Agent', ic:'spark', ops:['has', 'has no'], o:() => [{ v:'sug', l:'Suggestion' }], test:c => !!c.sug },
   };
   // the saved views in the sidebar are filters too
   const SAVED = { closing:['Closing this month', [{ k:'close', v:'month', neg:false }]], nostep:['No next step', [{ k:'next', v:'none', neg:false }]], quiet:['Quiet for 2+ weeks', [{ k:'last', v:14, neg:true }]] };
@@ -408,7 +412,9 @@
       min:['Lowest', r => [r.length ? Math.min(...r.map(c => c.health)) : 0, 'lowest']], risk:['At risk', r => [r.filter(c => c.hb === 'bad').length, 'at risk']] },
     agent:{ sug:['Suggestions', r => [r.filter(c => c.sug).length, 'suggested']] },
   };
-  const calcOn = { value:'sum', health:'avg' };
+  // the summary band above the table already says the open pipeline, so the foot starts on Health's average alone (19 Nov);
+  // Pipeline's sum is one hover away
+  const calcOn = { health:'avg' };
   const tfKeys = [null, 'name', 'stage', 'next', 'owner', 'value', 'health', 'agent', null], colName = {};
   $$('.crm-t thead th', app).forEach((th, i) => { if (tfKeys[i]) colName[tfKeys[i]] = th.textContent.trim(); });
   const tfr = $('.crm-t', app).createTFoot().insertRow(); tfr.className = 'crm-tf';
@@ -528,8 +534,10 @@
   const chip = t => `<span class="tag ${HUE[t] || 'bltmprky'[[...t].reduce((a, ch) => a + ch.charCodeAt(0), 0) % 8]}">${esc(t)}</span>`;
   // the next step: what it is and when, from the calendar; red when it is overdue or missing
   // the pipeline cell's second line: how many deals, or, while a close date filter is on, the deal it matched and when it closes
-  const dueLine = c => { const f = F.A.find(x => x.k === 'close' && !x.neg); if (!f) return `<span class="muted">${plural(c.deals, 'open deal')}</span>`;
-    const d = openOf(c).filter(CLOSE[f.v][1]).sort((a, b) => a.close - b.close)[0]; if (!d) return `<span class="muted">${plural(c.deals, 'open deal')}</span>`;
+  // (elevation pass, 19 Nov: the count of deals is the value's tooltip and the account panel's, so a row is one figure; the line
+  // under it is only there while a close date filter asks which deal it matched)
+  const dueLine = c => { const f = F.A.find(x => x.k === 'close' && !x.neg); if (!f) return '';
+    const d = openOf(c).filter(CLOSE[f.v][1]).sort((a, b) => a.close - b.close)[0]; if (!d) return '';
     return d.close < 0 ? `<span class="crm-due late">Overdue, due ${fmtD(d.close)}</span>` : `<span class="crm-due">Closes ${fmtD(d.close)}</span>`; };
   const nextCell = c => { const m = c.next;
     if (!m) return `<span class="crm-nx none"><span class="k">No next step</span><span class="d">Last touch ${c.last === 0 ? 'today' : c.last + 'd ago'}</span></span>`;
@@ -543,8 +551,8 @@
   const row = c => `<tr data-id="${c.id}" tabindex="-1" class="${sel.has(c.id) ? 'sel' : ''}${sheetFor === c.id ? ' open' : ''}" aria-label="${esc(c.n)}">`
     + `<td class="ck stk"><button class="crmt-cb" role="checkbox" aria-checked="${sel.has(c.id)}" aria-label="Select ${esc(c.n)}" tabindex="-1">${tick}</button></td>`
     + `<td class="stk2"><span class="nm"><span class="pfm-lg sm" aria-hidden="true">${esc(c.n[0])}</span><span class="tx"><span class="t" title="${esc(c.n)}">${esc(c.n)}</span><span class="s">${esc(c.seg)}</span></span></span></td>`
-    + `<td>${pill(c.st)}</td><td>${nextCell(c)}</td><td><span class="ag">${av(c.own)}${esc(P[c.own][0])}</span></td>`
-    + `<td class="r"><span class="crm-pv"><b class="num">${money(c.value)}</b>${dueLine(c)}</span></td><td class="crm-hc">${healthCell(c)}</td><td class="crm-agc">${agentCell(c)}</td>`
+    + `<td>${pill(c.st)}</td><td>${nextCell(c)}</td><td><span class="ag" data-tip="${esc(P[c.own][0])}">${av(c.own)}<span class="t">${esc(first(c.own))}</span><span class="pg-sr">${esc(P[c.own][0].slice(first(c.own).length))}</span></span></td>`
+    + `<td class="r"><span class="crm-pv"><b class="num" data-tip="${plural(c.deals, 'open deal')}">${money(c.value)}</b>${dueLine(c)}</span></td><td class="crm-hc">${healthCell(c)}</td><td class="crm-agc">${agentCell(c)}</td>`
     + `<td class="r"><button class="ib crm-rm" data-pop="#crm-p-row" data-pop-align="end" aria-haspopup="menu" aria-label="Actions for ${esc(c.n)}" tabindex="-1">${I('more', 'xs')}</button></td></tr>`;
   let rows = [], focusId = null;
   function renderTable(){
@@ -558,8 +566,36 @@
     $$('.crm-t .crmt-s', app).forEach(b => { const on = b.dataset.k === F.S[0].k; b.classList.toggle('on', on); b.classList.toggle('desc', on && F.S[0].desc); b.closest('th').setAttribute('aria-sort', on ? (F.S[0].desc ? 'descending' : 'ascending') : 'none'); });
     swap($('.crm-sort .v', app), sortLabel());
     $$('button', acFp).forEach(b => b.setAttribute('aria-pressed', F.own.has(b.dataset.who))); acFp.classList.toggle('some', F.own.size > 0);
-    syncSel(); chips(); counts(); paintCalcs(); COLS.apply(); histNote();
+    syncSel(); chips(); counts(); paintCalcs(); COLS.apply(); paintBand(); histNote();
   }
+  /* ---------- the book at a glance (elevation pass, 19 Nov): four cards over the table, one big number each, worked out from the
+     same deals as everything else; each is a quick filter for the table, pressed while its filter is the one in use, and a
+     second press takes it off. Open pipeline is the whole book ---------- */
+  const band = $('.crm-band', app);
+  const BAND = [
+    { k:'all', l:'Open pipeline', A:[] },
+    { k:'late', l:'Past close date', mk:'warn', A:[{ k:'close', v:'late', neg:false }] },
+    { k:'risk', l:'At risk', mk:'bad', A:[{ k:'health', v:'bad', neg:false }] },
+    { k:'agent', l:'Agent suggestions', mk:'agent', A:[{ k:'agent', v:'sug', neg:false }] },
+  ];
+  const SUGK = { slip:'new date', follow:'follow-up', resched:'to book', book:'to book', qbr:'to book', fix:'data fix' };
+  band.innerHTML = BAND.map(b => `<button class="crm-kpi panel" data-b="${b.k}" aria-pressed="false"><span class="k">${b.mk === 'agent' ? `<span class="ic">${I('spark', 'xs')}</span>` : b.mk ? `<i class="mk" data-mk="${b.mk}"></i>` : ''}<span>${b.l}</span></span><b class="v num"></b><span class="s"></span></button>`).join('');
+  function paintBand(){
+    const open = DE.filter(d => !closed(d)), late = open.filter(slipping), risk = CO.filter(c => c.hb === 'bad'), sg = CO.filter(c => c.sug);
+    const kinds = {}; sg.forEach(c => { const k = SUGK[c.sug.k] || 'other'; kinds[k] = (kinds[k] || 0) + 1; });
+    const V = {
+      all:[kmoney(sum(open, d => d.v)), `${plural(open.length, 'open deal')} · ${kmoney(sum(open, d => d.v * d.p / 100))} weighted`],
+      late:[kmoney(sum(late, d => d.v)), late.length ? `${plural(late.length, 'deal')} on ${plural(new Set(late.map(d => d.co)).size, 'account')}` : 'Every deal is on time'],
+      risk:[String(risk.length), risk.length ? `${kmoney(sum(risk, c => c.value))} of pipeline` : 'No account is at risk'],
+      // the two kinds there are most of, and how many more
+      agent:[String(sg.length), sg.length ? (E => E.slice(0, 2).map(([k, n]) => k === 'to book' ? `${n} to book` : plural(n, k)).join(' · ') + (E.length > 2 ? ` · ${sum(E.slice(2), e => e[1])} more` : ''))(Object.entries(kinds).sort((a, b) => b[1] - a[1])) : 'Nothing to suggest'],
+    };
+    BAND.forEach(b => { const el = $(`[data-b="${b.k}"]`, band), [v, s] = V[b.k], on = b.k === 'all' ? !F.A.length : sameA(F.A, b.A);
+      swap($('.v', el), v); swap($('.s', el), s); el.setAttribute('aria-pressed', on);
+      el.setAttribute('aria-label', `${b.l}: ${v}, ${s}. ${b.k === 'all' ? 'Show every account' : on ? 'Take this filter off' : 'Show only these accounts'}`); });
+  }
+  band.addEventListener('click', e => { const el = e.target.closest('.crm-kpi'); if (!el) return; const b = BAND.find(x => x.k === el.dataset.b), on = el.getAttribute('aria-pressed') === 'true';
+    if (b.k === 'all' && on) return; F.A = on ? [] : b.A.map(x => ({ ...x })); said(''); renderTable(); });
   function syncSel(){
     [...sel].forEach(id => { if (!coOf(id)) sel.delete(id); });
     $$('tr[data-id]', tbody).forEach(tr => { const on = sel.has(tr.dataset.id); tr.classList.toggle('sel', on); $('.crmt-cb', tr).setAttribute('aria-checked', on); });
@@ -654,12 +690,13 @@
     if (take(/\b(at risk|at-risk|unhealthy|low health|poor health|risky)\b/)) A.push({ k:'health', v:'bad', neg:false });
     else if (take(/\b(on watch|watch|fair health|fair)\b/)) A.push({ k:'health', v:'mid', neg:false });
     else if (take(/\b(healthy|good health)\b/)) A.push({ k:'health', v:'ok', neg:false });
+    if (take(/\b(the )?(agent'?s? )?(suggest(ion|ions|ed)|next moves?)\b/)) A.push({ k:'agent', v:'sug', neg:false });
     const o = OWN.find(x => take(new RegExp('\\b' + first(x).toLowerCase() + "('s)?\\b"))); if (o) A.push({ k:'owner', v:o, neg:false });
     const st = STAGES.find(x => !closed({ st:x.k }) && take(new RegExp('\\b' + x.t.toLowerCase() + '\\b'))); if (st) A.push({ k:'stage', v:st.k, neg:false });
     const rest = t.split(/[^a-z0-9$%+&'-]+/).filter(w => w && !FILLER.has(w));
     return { A, rest };
   }
-  const READ = { close:{ week:'a deal closing this week', month:'a deal closing this month or overdue', quarter:'a deal closing this quarter', late:'a deal past its close date' }, next:{ none:'no next step', late:'an overdue next step', week:'a step in the next 7 days' }, last:{ 14:'no touch in 14+ days' }, health:{ bad:'health at risk', mid:'health on watch', ok:'healthy' } };
+  const READ = { close:{ week:'a deal closing this week', month:'a deal closing this month or overdue', quarter:'a deal closing this quarter', late:'a deal past its close date' }, next:{ none:'no next step', late:'an overdue next step', week:'a step in the next 7 days' }, last:{ 14:'no touch in 14+ days' }, health:{ bad:'health at risk', mid:'health on watch', ok:'healthy' }, agent:{ sug:'an agent suggestion' } };
   const readOf = f => f.k === 'owner' ? 'owned by ' + P[f.v][0] : f.k === 'stage' ? 'in ' + ST[f.v].t : f.k === 'value' ? `pipeline ${f.neg ? 'of ' + kmoney(f.v) + ' or less' : 'over ' + kmoney(f.v)}` : READ[f.k][f.v];
   function said(t){ const was = ans.hidden; F.said = t; ans.hidden = !t; if (t) $('.t', ans).textContent = t; if (t && was) glide(ans, { transform:'translateY(-4px)' }, 220); }
   function runAsk(){
@@ -1697,13 +1734,15 @@
       + `<button class="kbx-mv" data-pop="#crm-p-mv" data-pop-align="end" aria-haspopup="menu" aria-label="Move ${esc(d.n)}" data-tip="Move to" tabindex="-1">${I('more', 'xs')}</button></div>`; };
   const card = d => { const c = coOf(d.co), late = slipping(d);
     if (K.view === 'list') return listRow(d);
-    return `<div class="kbx-k${d.st === 'won' ? ' won' : ''}${d.st === 'lost' ? ' lost' : ''}${sheetFor === d.co ? ' open' : ''}" data-id="${d.id}" role="listitem" tabindex="-1" aria-label="${esc(d.n)}, ${esc(c.n)}, ${money(d.v)}, ${ST[d.st].t}${late ? ', past its close date' : ''}">`
-      + `<div class="kbx-k1"><span class="kbx-id num">${d.id}</span><span class="kbx-sp"></span><span class="kbx-who" data-tip="${P[d.own][0]}">${av(d.own)}</span><button class="kbx-mv" data-pop="#crm-p-mv" data-pop-align="end" aria-haspopup="menu" aria-label="Move ${esc(d.n)}" data-tip="Move to" tabindex="-1">${I('more', 'xs')}</button></div>`
-      // the chips: its priority (open deals) and its account, side by side, the way Kanban board pairs a priority and a project
-      + `<div class="kbx-tags crm-pri">${closed(d) ? '' : (pr => `<span class="tag ${pr[1]}">${pr[0]}</span>`)(prioOf(d))}<span class="crm-kacc"><span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span><span class="crm-kan">${esc(c.n)}</span></span></div>`
+    // a card is three lines (elevation pass, 19 Nov): the deal with its owner's face, its account, then its priority and close date
+    // with the value on the right. The ID is the list's; the win chance is the date's tooltip and the account panel's
+    return `<div class="kbx-k crm-kc${d.st === 'won' ? ' won' : ''}${d.st === 'lost' ? ' lost' : ''}${sheetFor === d.co ? ' open' : ''}" data-id="${d.id}" role="listitem" tabindex="-1" aria-label="${esc(d.n)}, ${esc(c.n)}, ${money(d.v)}, ${ST[d.st].t}${closed(d) ? '' : `, ${d.p}% to win`}${late ? ', past its close date' : ''}">`
       + `<div class="t">${esc(d.n)}</div>`
-      + `<div class="kbx-m"><span class="kbx-mt v num">${money(d.v)}</span>`
-      + `<span class="kbx-mt num${late ? ' late' : ''}">${I(late ? 'alert' : 'cal', 'xs')}${whenOf(d)}</span>${closed(d) ? '' : `<span class="kbx-mt num">${d.p}%</span>`}</div>${d.st === 'lost' && d.why ? `<div class="crm-why">${esc(d.why)}</div>` : ''}</div>`; };
+      + `<div class="kbx-k1"><span class="kbx-who" data-tip="${P[d.own][0]}">${av(d.own)}</span><button class="kbx-mv" data-pop="#crm-p-mv" data-pop-align="end" aria-haspopup="menu" aria-label="Move ${esc(d.n)}" data-tip="Move to" tabindex="-1">${I('more', 'xs')}</button></div>`
+      + `<div class="crm-kco"><span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span><span class="crm-kan">${esc(c.n)}</span></div>`
+      + `<div class="kbx-m">${closed(d) ? '' : (pr => `<span class="tag ${pr[1]}">${pr[0]}</span>`)(prioOf(d))}`
+      + `<span class="kbx-mt num${late ? ' late' : ''}"${closed(d) ? '' : ` data-tip="${d.p}% to win"`}>${I(late ? 'alert' : 'cal', 'xs')}${whenOf(d)}</span><span class="kbx-sp"></span><span class="kbx-mt v num">${money(d.v)}</span></div>`
+      + `${d.st === 'lost' && d.why ? `<div class="crm-why">${esc(d.why)}</div>` : ''}</div>`; };
   // the + puts a draft at the top of its column: write the deal's name, pick the account (the one touched last by default),
   // Enter or Add adds it with Undo, Escape or Cancel drops it
   const draftCard = () => { const dr = K.draft, c = coOf(dr.co);
@@ -2353,7 +2392,6 @@
   function setView(k){
     const was = view; view = k; app.dataset.view = k;
     Object.keys(VIEWS).forEach(v => $('#crm-v-' + v, app).hidden = v !== k);
-    if (was !== k) glide($('#crm-v-' + k, app), { transform:'translateY(3px)' }, 220);
     swap($('.crm-h1t', app), VIEWS[k]);
     if (k !== 'calendar') closeCalPop();
     if (k === 'forecast'){ closeSheet(); renderForecast(); }
@@ -2362,6 +2400,16 @@
     if (k === 'inbox') renderInbox(); else pvOpen(false);
     if (k === 'calendar' && was !== 'calendar') renderCal();
     counts(); drawer(false);
+    if (was !== k) reveal($('#crm-v-' + k, app));
+  }
+  // a view arrives calmly (elevation pass, 19 Nov): its cards rise 8px and fade in, 45ms apart, in the library's ease; the
+  // board's columns and the band's cards each count as a card. Nothing moves with reduced motion
+  function reveal(v){
+    if (REDUCE || !v || !v.animate) return;
+    const els = v.id === 'crm-v-accounts' ? [...$$('.crm-kpi', v), $('.crm-hd', v), $('.crm-sc', v)]
+      : v.id === 'crm-v-pipeline' ? [$('.kbx-hd', v), ...$$('.kbx-c:not(.gone)', v)]
+      : [...v.children].filter(e => !e.hidden && e.offsetParent && !e.matches('.pop'));
+    els.filter(Boolean).slice(0, 12).forEach((e, i) => e.animate([{ opacity:0, transform:'translateY(8px)' }, { opacity:1, transform:'none' }], { duration:520, delay:i * 45, easing:EASE, fill:'backwards' }));
   }
   function navCurrent(){
     const sv = view === 'accounts' ? savedOn() : null;
@@ -2370,19 +2418,19 @@
   }
   function counts(){
     const set = (k, v) => $$(`[data-count="${k}"]`, app).forEach(x => x.textContent = v);
-    const open = DE.filter(d => !closed(d)), pipe = sum(open, d => d.v), slip = open.filter(slipping).length, w = waiting();
-    set('accounts', CO.length); set('deals', open.length); set('meetings', meetingsIn(0).length);
+    const w = waiting();
     set('inbox', w.length || ''); $('.crm-wait', app).hidden = !w.length;
     Object.keys(SAVED).forEach(k => set(k, savedCount(k)));
     $('[data-go="inbox"]', app).setAttribute('aria-label', `Agent inbox, ${w.length} waiting`);
-    const cnt = k => w.filter(x => x.kind === k).length;
-    // each summary in full, and a shorter one for a phone's header
+    // each summary in full, and a shorter one for a phone's header. A view's header says only what the view under it doesn't
+    // (elevation pass, 19 Nov): Accounts has its band, the inbox its groups' counts, the calendar its week, the forecast its total
+    const ko = (K.sum || '').match(/^(\d+) open · (\$[\d.]+[kM]?)/), kopen = ko ? `${ko[2]} open in ${plural(+ko[1], 'deal')}` : '';
     const S = {
-      accounts:[`${plural(CO.length, 'account')} · ${kmoney(pipe)} open · ${slip} slipping`, `${plural(CO.length, 'account')} · ${kmoney(pipe)} · ${slip} slipping`],
-      inbox:w.length ? [[`${w.length} waiting`, cnt('follow') && plural(cnt('follow'), 'follow-up'), cnt('slip') && `${cnt('slip')} past close`, cnt('fix') && plural(cnt('fix'), 'data fix', 'data fixes')].filter(Boolean).join(' · '), `${w.length} waiting for you`] : ['Nothing waiting', 'Nothing waiting'],
-      calendar:[`${weekLabel().replace(/, \d{4}$/, '')} · ${plural(meetingsIn().length, 'meeting')} · ${closingIn()} closing`, `${plural(meetingsIn().length, 'meeting')} · ${closingIn()} closing`],
-      pipeline:[(K.own.size || K.q || K.A.length ? 'Shown: ' : '') + (K.sum || '').replace(/^(\d+) open · (\$[\d.]+[kM]?)/, (m, n, v) => `${plural(+n, 'open deal')} · ${v} open`), K.sum || ''],
-      forecast:[`Q${Math.floor(today.getMonth() / 3) + 1} ${today.getFullYear()} · week ${clamp(WK + 1, 1, 13)} of 13 · ${kmoney(wonOf(OWN))} closed won`, `Week ${clamp(WK + 1, 1, 13)} of 13 · ${kmoney(wonOf(OWN))} won`],
+      accounts:['', ''],
+      inbox:['', ''],
+      calendar:[`${plural(meetingsIn().length, 'meeting')} · ${closingIn()} closing`, `${plural(meetingsIn().length, 'meeting')} · ${closingIn()} closing`],
+      pipeline:[(K.own.size || K.q || K.A.length ? 'Shown: ' : '') + kopen, kopen],
+      forecast:[`Q${Math.floor(today.getMonth() / 3) + 1} ${today.getFullYear()} · week ${clamp(WK + 1, 1, 13)} of 13`, `Week ${clamp(WK + 1, 1, 13)} of 13`],
       reports:[`Q${Math.floor(today.getMonth() / 3) + 1} ${today.getFullYear()} · ${plural(DE.filter(d => d.close >= -qDay && d.close <= eoq).length, 'deal')} this quarter · ${plural(OWN.length, 'rep')}`, `${plural(DE.filter(d => d.close >= -qDay && d.close <= eoq).length, 'deal')} this quarter`],
     };
     swap($('.crm-sum', app), `<span class="lg">${S[view][0]}</span><span class="sh">${S[view][1]}</span>`, true);
@@ -2620,7 +2668,7 @@
   const tsc = $('.crm-sc', app); tsc.addEventListener('scroll', () => tsc.classList.toggle('sx', tsc.scrollLeft > 2), { passive:true });
   // the account column sticks right after the checkbox column, however wide that column comes out, so nothing shows between them
   const stk = $('.crm-t th.stk', app); new ResizeObserver(() => $('.crm-t', app).style.setProperty('--crm-stk', stk.getBoundingClientRect().width + 'px')).observe(stk);
-  derive(); renderTable(); renderBoard(); renderInbox(); setView('accounts'); stagger($$('tr[data-id]', tbody).slice(0, 16), 22);
+  derive(); renderTable(); renderBoard(); renderInbox(); setView('accounts'); stagger($$('.crm-kpi', band), 50); stagger($$('tr[data-id]', tbody).slice(0, 16), 22, 120);
   // a link to an account (#c3) opens it
   const h = location.hash.slice(1); if (h && coOf(h)) openSheet(h);
 })();

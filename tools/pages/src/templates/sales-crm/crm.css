@@ -1591,3 +1591,127 @@ body:has(.crm) .dmf{display:none}
 :root:not([data-style="soft"],[data-style="clean"]) .crm-co>.crmt-sb.crm-flt,:root:not([data-style="soft"],[data-style="clean"]) .crm-flt .pill{border-radius:0;corner-shape:round}
 @media (max-width:640px){.crm-co>.crmt-sb.crm-flt{inset:auto auto var(--dm-s-4) 50%;max-width:calc(100% - var(--dm-s-6))}.crm-co>.crmt-sb.crm-flt .pill.sm{font-size:0;gap:0;width:36px;padding:0;justify-content:center}.crm-co>.crmt-sb.crm-flt .pill .i{display:inline-block}}
 @media (prefers-reduced-motion:reduce){.crm-co>.crmt-sb.crm-flt{transition:opacity .2s}}
+
+/* ========== elevation pass (19 Nov: "quite busy... very rigid... a bit more modern and visually stunning") ==========
+   Fewer things on each screen, more room around them, one strong title per view and quiet metadata. Colour stays for what
+   it means: the stage labels, the people, the health marks, the agent and the charts. */
+
+/* ---------- the view's title: the screen's page title (20px, as the site's page titles), its metadata quiet beside it ---------- */
+.crm-h1{font-size:20px;line-height:1.3;letter-spacing:-.02em}
+.crm-ttl{gap:var(--dm-s-3)}
+.crm-sum{font-size:12.5px}
+.crm-sum:has(.lg:empty){display:none}
+
+/* ---------- Accounts: the band, four cards of one big number each ---------- */
+.crm-band{flex:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--dm-s-3);padding:var(--dm-s-4) var(--dm-s-5) var(--dm-s-2)}
+.crm-kpi.panel{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0;padding:14px var(--dm-s-4) var(--dm-s-3);border:0;font:inherit;text-align:left;color:var(--dm-fg);cursor:pointer;
+  transition:box-shadow var(--dm-t-fast) var(--dm-ease),background-color var(--dm-t-fast) var(--dm-ease)}
+@supports (corner-shape:squircle){:root:is([data-style="soft"]) .crm-kpi.panel{corner-shape:squircle}}
+.crm-kpi .k{display:flex;align-items:center;gap:6px;min-height:20px;font-size:12.5px;color:var(--dm-muted)}
+.crm-kpi .mk{flex:none;width:8px;height:8px;border-radius:50%}
+.crm-kpi .mk[data-mk="warn"]{background:var(--dm-warn-mark)}
+.crm-kpi .mk[data-mk="bad"]{background:var(--dm-bad-mark,var(--dm-bad))}
+.crm-kpi .ic{display:grid;place-items:center;width:20px;height:20px;margin-left:-2px;border-radius:calc(6px * var(--dm-rk));background:var(--dm-sel);color:var(--dm-accent-fg,var(--dm-accent))}
+.crm-kpi .v{margin-top:4px;font-size:24px;line-height:30px;font-weight:500;letter-spacing:-.025em;color:var(--dm-fg)}
+.crm-kpi .s{max-width:100%;font-size:12px;line-height:18px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (hover:hover) and (pointer:fine){.crm-kpi.panel:hover{background:color-mix(in srgb,var(--dm-fg) 2.5%,var(--dm-surface))}}
+/* the card in use: a stronger grey edge, as a picked card in a picker (never the accent) */
+.crm-kpi.panel[aria-pressed="true"]{box-shadow:var(--dm-shadow),inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 70%,transparent)}
+/* Blueprint: square, on its hairline; the agent's tile is its ink chip */
+:root:not([data-style="soft"],[data-style="clean"]) .crm-kpi .ic{border-radius:0;background:var(--dm-chip);color:var(--dm-fg)}
+/* Clean: the agent's tile is its monochrome chip; pills and circles only for controls */
+:root[data-style="clean"] .crm-kpi .ic{border-radius:7px;background:var(--dm-chip);color:var(--dm-fg)}
+@media (max-width:1023px){.crm-band{padding-left:var(--dm-s-4);padding-right:var(--dm-s-4)}}
+/* tablets and phones: the four cards in one row that scrolls sideways, so the table keeps the screen */
+@media (max-width:900px){
+  .crm-band{display:flex;gap:var(--dm-s-2);padding-top:var(--dm-s-3);padding-bottom:var(--dm-s-1);overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;scroll-padding:0 var(--dm-s-4)}
+  .crm-band::-webkit-scrollbar{display:none}
+  .crm-kpi.panel{flex:0 0 228px;scroll-snap-align:start;padding:var(--dm-s-3)}
+  .crm-kpi .v{font-size:20px;line-height:26px}
+}
+@media (max-width:640px){.crm-kpi.panel{flex-basis:min(64%,224px)}}
+/* the table fits the landing page's 1280px frame without scrolling sideways: the foot's waiting "Add calculation" labels no
+   longer widen their columns (they cut short instead) */
+.crm-t.crmt-t{min-width:980px}
+.crm-t .crm-tfb{width:0;min-width:100%}
+@media (min-width:761px){.crm-t .crm-hc{padding-right:var(--dm-s-4)}.crm-t tr>:last-child{padding-left:0}}
+/* Blueprint dark: the table sits on the view's own colour, so its sticky header, foot and account column take that colour
+   too, not a lighter band */
+:root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .crm-t{--dm-surface:var(--dm-stage)}
+@media (prefers-color-scheme:dark){:root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .crm-t{--dm-surface:var(--dm-stage)}}
+
+/* ---------- Accounts: a calmer table ---------- */
+/* no lines between the columns: rows are set apart by their hairlines and room (the column handles show on the header's hover) */
+.crm-t :is(th,td):is(:nth-child(2),:nth-child(3),:nth-child(4),:nth-child(5),:nth-child(6),:nth-child(7)){box-shadow:none}
+.crm-t tfoot td,.crm-t tfoot td:is(:nth-child(2),:nth-child(3),:nth-child(4),:nth-child(5),:nth-child(6),:nth-child(7)){box-shadow:inset 0 1px 0 var(--crm-hair)}
+@media (hover:hover) and (pointer:fine){.crm-t thead:hover .crm-rz::after{background:var(--crm-hair)}}
+/* taller rows and wider cells */
+.crm-t td{height:60px}
+.crm-t th{height:40px}
+.crm-t :is(th,td):is(:nth-child(3),:nth-child(4),:nth-child(5),:nth-child(6),:nth-child(7),:nth-child(8)){padding-left:var(--dm-s-4)}
+.crm-t thead th:nth-child(2),.crm-t tbody td:nth-child(2){padding-left:var(--dm-s-1);padding-right:var(--dm-s-4)}
+/* the account: a larger tile and a name that leads */
+.crm-co .nm{gap:var(--dm-s-3)}
+.crm-co .crm-t .nm .pfm-lg.sm{width:28px;height:28px;font-size:12px;border-radius:calc(8px * var(--dm-rk))}
+.crm-co .nm .tx{gap:1px}
+/* the owner: the face and first name */
+.crm-t .ag{gap:var(--dm-s-2);color:var(--dm-fg)}
+.crm-t .ag .av{width:22px;height:22px}
+/* the row's menu waits for the pointer or the keyboard (always there on a touch screen) */
+.crm-t .crm-rm{opacity:0;transition:opacity var(--dm-t-fast) var(--dm-ease),background-color var(--dm-t-fast)}
+.crm-t tr:is(:focus-within,.open) .crm-rm,.crm-t .crm-rm[aria-expanded="true"]{opacity:1}
+@media (hover:hover) and (pointer:fine){.crm-t tr:hover .crm-rm{opacity:1}}
+@media (hover:none){.crm-t .crm-rm{opacity:1}}
+/* the toolbar: a quiet row of ghost buttons, the one filled button last */
+.crm-acts{gap:var(--dm-s-1)}
+.crm-acts .crm-ask{margin-right:var(--dm-s-2)}
+.crm-acts .crm-new{margin-left:var(--dm-s-2)}
+.crm-acts .pill.ghost .i{color:var(--dm-muted);transition:color var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.crm-acts .pill.ghost:hover .i{color:var(--dm-fg)}}
+.crm-acts .ib.crm-export{width:28px;height:28px;color:var(--dm-fg2)}
+.crm-ftr.on{background:var(--dm-chip);color:var(--dm-fg)}
+@media (max-width:520px){.crm-acts .ib.crm-export{width:32px;height:32px}.crm-acts .crm-new{margin-left:0}.crm-acts .crm-ask{margin-right:0}}
+
+/* ---------- Pipeline: three-line cards on a calmer board ---------- */
+.crm-kb:not(.list) .kbx-k.crm-kc{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;column-gap:var(--dm-s-2);row-gap:2px;padding:14px 14px 12px}
+.crm-kc>.t{grid-column:1;grid-row:1;font-weight:500;line-height:20px}
+.crm-kc>.kbx-k1{grid-column:2;grid-row:1;height:20px}
+.crm-kc>.crm-kco{grid-column:1/-1;display:flex;align-items:center;gap:6px;min-width:0;height:20px;font-size:12px;color:var(--dm-fg2)}
+.crm-kco .pfm-lg.xs{flex:none;width:16px;height:16px;font-size:9px}
+.crm-kco .crm-kan{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crm-kc>.kbx-m{grid-column:1/-1;flex-wrap:nowrap;margin-top:var(--dm-s-3);gap:var(--dm-s-2)}
+.crm-kc>.kbx-m .tag{flex:none;height:20px}
+.crm-kc>.kbx-m .kbx-mt{min-width:0}
+.crm-kc>.kbx-m .kbx-mt.v{flex:none;font-size:13px}
+.crm-kc>.crm-why{grid-column:1/-1;margin-top:var(--dm-s-1)}
+.crm-kb.kbx{padding-top:var(--dm-s-4)}
+.crm-kb .kbx-cols{gap:var(--dm-s-3)}
+.crm-kb .kbx-list{gap:var(--dm-s-2)}
+.crm-kb .crm-kftr.on{background:var(--dm-chip);color:var(--dm-fg)}
+.crm-kb :is(.crm-kftr,.crm-ksort) .i{color:var(--dm-muted)}
+
+/* ---------- Agent inbox: the agent's mark on the list, rows that breathe, their buttons waiting for the pointer ---------- */
+.crm-aib .aib-h{gap:12px;padding:var(--dm-s-3) 10px var(--dm-s-2)}
+.crm-aibh.aib-hi{background:var(--dm-sel);color:var(--dm-accent-fg,var(--dm-accent))}
+:root:not([data-style="soft"],[data-style="clean"]) .crm-aibh.aib-hi,:root[data-style="clean"] .crm-aibh.aib-hi{background:var(--dm-chip);color:var(--dm-fg)}
+.crm-aib .aib-i{gap:12px;padding:10px 6px 10px 10px}
+.crm-aib .aib-gh{padding-top:var(--dm-s-4)}
+/* a row's Dismiss, Edit and Approve show on its hover, while it is the one in the preview, or from the keyboard; always on a
+   touch screen. They keep their room, so nothing moves when they appear */
+.crm-aib .aib-r .ib{opacity:0;transition:opacity var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast)}
+.crm-aib .aib-i:is(.on,:focus-within) .aib-r .ib{opacity:1}
+@media (hover:hover) and (pointer:fine){.crm-aib .aib-i:hover .aib-r .ib{opacity:1}}
+@media (hover:none){.crm-aib .aib-r .ib{opacity:1}}
+
+/* ---------- a customer's people: their initials on a vivid fill with white letters (Soft and Blueprint); Clean keeps its
+   monochrome marks ---------- */
+.crm .av.crm-avn{background:var(--crm-avc,var(--dm-chip));color:var(--crm-avi,var(--dm-fg2));box-shadow:none;font-weight:500}
+:root[data-style="clean"] .crm .av.crm-avn{background:var(--dm-chip);color:var(--dm-fg2);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
+
+/* ---------- Reports: one big number in each stat card, and the heatmap filling its card ---------- */
+.crm-rp .scx-c{gap:var(--dm-s-1)}
+.crm-rp .scx-v{margin-top:2px}
+.crm-rp .scx-v b{font-size:24px;line-height:30px;letter-spacing:-.025em}
+.crm-rp .crm-hm .hmx-wrap{flex:1 1 auto;display:flex;flex-direction:column;margin-top:var(--dm-s-2)}
+.crm-rp .crm-hm .hmx-sc{flex:1 1 auto;grid-template-rows:minmax(var(--crm-ph),1fr) auto}
+.crm-rp .crm-hm :is(.hmx-grid,.hmx-days){height:auto}

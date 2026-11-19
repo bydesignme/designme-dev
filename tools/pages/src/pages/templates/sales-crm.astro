@@ -50,11 +50,12 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
     <aside class="ahx-side crm-side" aria-label="Workspace">
       <div class="ahx-ws"><button class="ahx-wsb crm-wsb" data-pop="#crm-p-ws" aria-haspopup="menu"><span class="pfm-lg" data-t="pb">L</span><span class="crm-wst"><span class="t">Larkfield Sales</span><span class="s">8 people</span></span><Fragment set:html={I('unfold', 'xs')} /></button></div>
       <nav class="crm-nav" aria-label="Views">
-        <button class="ahx-cv" data-go="accounts"><Fragment set:html={I('table')} /><span class="t">Accounts</span><span class="n num" data-count="accounts"></span></button>
-        <button class="ahx-cv" data-go="pipeline"><Fragment set:html={I('grid')} /><span class="t">Pipeline</span><span class="n num" data-count="deals"></span></button>
+        <!-- the views carry no counts: each view says its own (elevation pass, 19 Nov: no number said twice) -->
+        <button class="ahx-cv" data-go="accounts"><Fragment set:html={I('table')} /><span class="t">Accounts</span></button>
+        <button class="ahx-cv" data-go="pipeline"><Fragment set:html={I('grid')} /><span class="t">Pipeline</span></button>
         <button class="ahx-cv" data-go="forecast"><Fragment set:html={I('chart')} /><span class="t">Forecast</span></button>
         <button class="ahx-cv" data-go="reports"><Fragment set:html={I('bars')} /><span class="t">Reports</span></button>
-        <button class="ahx-cv" data-go="calendar"><Fragment set:html={I('cal')} /><span class="t">Calendar</span><span class="n num" data-count="meetings" data-tip="Meetings booked this week"></span></button>
+        <button class="ahx-cv" data-go="calendar"><Fragment set:html={I('cal')} /><span class="t">Calendar</span></button>
       </nav>
       <div class="ahx-lh"><span>Agent</span></div>
       <nav class="crm-nav" aria-label="Agent">
@@ -92,6 +93,9 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
       <!-- Accounts: the task table's header, bulk bar, sort buttons and checkboxes, with Filter menu's chips and Search input's
            field and answer line in the toolbar -->
       <section class="crm-view crmt crm-co" id="crm-v-accounts" aria-label="Accounts">
+        <!-- the book at a glance (elevation pass, 19 Nov): four cards, one big number each from the same data, each a quick filter
+             for the table under it; the one in use is pressed -->
+        <div class="crm-band" role="group" aria-label="Accounts at a glance"></div>
         <div class="crmt-hd crm-hd">
           <div class="crmt-ti crm-fbar" role="toolbar" aria-label="Filter, search and sort">
             <!-- the owners, as on the Pipeline board: pick one or more to see only their accounts (owner, 10 Nov) -->
@@ -104,9 +108,10 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
             </div>
             <div class="crm-acts">
               <div class="six-box crm-ask"><div class="six-in"><Fragment set:html={I('search', 'xs')} /><input type="search" placeholder="Search, or ask in plain words" aria-label="Search accounts, or ask in plain words and press Enter" autocomplete="off" spellcheck="false"><button class="ib six-x" aria-label="Clear the search" hidden><Fragment set:html={I('x', 'xs')} /></button></div></div>
-              <button class="pill line sm flm-tr crm-ftr" data-pop="#crm-p-flt" data-pop-align="end" aria-haspopup="menu" aria-label="Filter"><Fragment set:html={I('filter', 'xs')} /><span>Filter</span></button>
-              <button class="pill line sm crm-sort" data-pop="#crm-p-sort" data-pop-align="end" aria-haspopup="dialog" aria-label="Sort"><Fragment set:html={I('sort', 'xs')} /><span class="v">Pipeline</span></button>
-              <button class="pill line sm crm-export" aria-label="Export accounts in view as CSV"><Fragment set:html={I('down', 'xs')} /><span>Export CSV</span></button>
+              <!-- Filter and Sort are quiet ghost buttons and Export an icon, so the one filled button, Add account, leads (19 Nov) -->
+              <button class="pill ghost sm flm-tr crm-ftr" data-pop="#crm-p-flt" data-pop-align="end" aria-haspopup="menu" aria-label="Filter"><Fragment set:html={I('filter', 'xs')} /><span>Filter</span></button>
+              <button class="pill ghost sm crm-sort" data-pop="#crm-p-sort" data-pop-align="end" aria-haspopup="dialog" aria-label="Sort"><Fragment set:html={I('sort', 'xs')} /><span class="v">Pipeline</span></button>
+              <button class="ib crm-export" aria-label="Export accounts in view as CSV" data-tip="Export CSV"><Fragment set:html={I('down', 'xs')} /></button>
               <button class="pill primary sm crm-new" aria-label="Add account"><Fragment set:html={I('plus', 'xs')} /><span>Add account</span></button>
             </div>
           </div>
@@ -135,7 +140,8 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
       <!-- Agent inbox: Agent inbox's grouped list on the left, a preview of the selected item on the right (a sheet on a phone) -->
       <section class="crm-view crm-ib" id="crm-v-inbox" aria-label="Agent inbox" hidden>
         <div class="aib panel crm-aib">
-          <div class="aib-h"><b>Prepared by the agent</b><span class="muted aib-st" aria-live="polite"></span></div>
+          <!-- the agent's mark leads the list; how many wait is the sidebar's count and each group's, so it is only read out (19 Nov) -->
+          <div class="aib-h"><span class="aib-hi crm-aibh" aria-hidden="true"><Fragment set:html={I('spark', 'xs')} /></span><b>Prepared by the agent</b><span class="pg-sr aib-st" aria-live="polite"></span></div>
           <div class="aib-gs"></div>
         </div>
         <div class="panel crm-ipv" role="region" aria-label="Preview"></div>
@@ -155,7 +161,7 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
       <!-- Pipeline: the Kanban board, with the stages as columns -->
       <section class="crm-view crm-deals" id="crm-v-pipeline" aria-label="Pipeline" hidden>
         <div class="kbx crm-kb">
-          <div class="kbx-hd"><div class="kbx-ti"><b>Open deals by stage</b><span class="num crm-kbsum"></span></div><div class="kbx-fp" role="group" aria-label="Filter by owner"></div><div class="flm-chips crm-kfch" role="list" aria-label="Filters"></div><button class="pill ghost sm kbx-clr" hidden>Clear</button><div class="crm-dock" role="group" aria-label="Hidden stages" hidden><span class="crm-dkl">Hidden</span><div class="crm-dks"></div></div><span class="kbx-sp"></span><label class="kbx-q"><Fragment set:html={I('search', 'xs')} /><input type="search" placeholder="Search deals" aria-label="Search deals" autocomplete="off"><button class="ib kbx-qx" aria-label="Clear the search" hidden><Fragment set:html={I('x', 'xs')} /></button></label><button class="pill line sm flm-tr crm-kftr" data-pop="#crm-p-kflt" data-pop-align="end" aria-haspopup="menu" aria-label="Filter"><Fragment set:html={I('filter', 'xs')} /><span>Filter</span></button><button class="pill line sm crm-ksort" data-pop="#crm-p-ksort" data-pop-align="end" aria-haspopup="dialog" aria-label="Sort"><Fragment set:html={I('sort', 'xs')} /><span class="v">Close date</span></button><div class="seg2 kbx-vw" role="group" aria-label="Layout"><button aria-pressed="true" data-v="board" aria-label="Board"><Fragment set:html={I('grid', 'xs')} /><span class="lb">Board</span></button><button aria-pressed="false" data-v="list" aria-label="List"><Fragment set:html={I('list', 'xs')} /><span class="lb">List</span></button></div></div>
+          <div class="kbx-hd"><div class="kbx-ti"><b>Open deals by stage</b><span class="num crm-kbsum"></span></div><div class="kbx-fp" role="group" aria-label="Filter by owner"></div><div class="flm-chips crm-kfch" role="list" aria-label="Filters"></div><button class="pill ghost sm kbx-clr" hidden>Clear</button><div class="crm-dock" role="group" aria-label="Hidden stages" hidden><span class="crm-dkl">Hidden</span><div class="crm-dks"></div></div><span class="kbx-sp"></span><label class="kbx-q"><Fragment set:html={I('search', 'xs')} /><input type="search" placeholder="Search deals" aria-label="Search deals" autocomplete="off"><button class="ib kbx-qx" aria-label="Clear the search" hidden><Fragment set:html={I('x', 'xs')} /></button></label><button class="pill ghost sm flm-tr crm-kftr" data-pop="#crm-p-kflt" data-pop-align="end" aria-haspopup="menu" aria-label="Filter"><Fragment set:html={I('filter', 'xs')} /><span>Filter</span></button><button class="pill ghost sm crm-ksort"data-pop="#crm-p-ksort" data-pop-align="end" aria-haspopup="dialog" aria-label="Sort"><Fragment set:html={I('sort', 'xs')} /><span class="v">Close date</span></button><div class="seg2 kbx-vw" role="group" aria-label="Layout"><button aria-pressed="true" data-v="board" aria-label="Board"><Fragment set:html={I('grid', 'xs')} /><span class="lb">Board</span></button><button aria-pressed="false" data-v="list" aria-label="List"><Fragment set:html={I('list', 'xs')} /><span class="lb">List</span></button></div></div>
           <div class="kbx-bar"><div class="seg2 kbx-tabs" role="group" aria-label="Stage"></div></div>
           <div class="kbx-bd"><div class="crm-lhd" role="presentation" hidden><span class="kbx-id">ID</span><span class="t">Deal</span><span class="co">Account</span><span class="ow">Owner</span><span class="cl">Closes</span><span class="pr">Win</span><span class="v">Value</span><span class="mv"></span></div><div class="kbx-cols"></div><div class="crm-lsum" role="group" aria-label="Summary of the deals in view" hidden></div><div class="kbx-em" hidden><span class="ic"><Fragment set:html={I('filter')} /></span><b>No deals match</b><span class="crm-emn">Try another owner, date or search.</span><button class="pill line sm crm-kbclr">Clear filters</button></div><div class="kbx-em crm-allhid" role="status" hidden><span class="ic"><Fragment set:html={I('eye')} /></span><b>All stages are hidden</b><span class="crm-ahn"></span><button class="pill line sm">Show all stages</button></div></div>
           <div class="kbx-sr" aria-live="polite"></div>
