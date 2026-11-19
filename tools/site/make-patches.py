@@ -465,7 +465,10 @@ patch("""Every week. Each release is listed in the """, """Often. Each release i
 patch("""Webflow and Framer exports are coming soon. Until then""",
       """Webflow and Framer exports are planned, and you can follow them on the <a href="#/roadmap">roadmap</a>. Until then""")
 patch("""Blueprint is technical and square with an orange accent, Soft is rounded with pastel colours, and both work in light and dark mode.""",
-      """Blueprint is technical and square with a lime accent, Soft is rounded and plush with a blue accent, and both work in light and dark mode. Until you pick one, the site follows your theme: light opens in Soft, dark in Blueprint.""")
+      """Blueprint is technical and square with a lime accent, Soft is rounded and plush with a blue accent, and Clean is black, white and grey with fully round controls. All three work in light and dark mode. Until you pick one, the site follows your theme: light opens in Soft, dark in Blueprint.""")
+# three styles since Clean (owner, 17 Nov): the question names all three
+patch("""What are Blueprint and Soft?</span>""", """What are Blueprint, Soft and Clean?</span>""")
+patch("""Two visual styles for the same components.""", """Three visual styles for the same components.""")
 
 # ---------- a search from another page ----------
 # the docs and component pages have the same sidebar search; pressing Enter there opens the library at /?q=<words>, which

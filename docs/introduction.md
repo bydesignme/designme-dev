@@ -10,7 +10,7 @@ Designme.dev docs. The same page with navigation: https://designme.dev/docs/intr
 
 Every component plays as a demo in the [library](https://designme.dev/library), and has a page of its own with its install command, React props, code and questions.
 
-## Two styles, light and dark
+## Three styles, light and dark
 
 ### Soft
 
@@ -18,7 +18,11 @@ Quiet, rounded surfaces with a blue accent. designme.dev opens in Soft in light 
 
 ### Blueprint
 
-The same components drawn as a technical sheet, with square corners, hairline edges and a lime accent.
+The same components drawn as a technical sheet, with square corners, hairline edges and a lime accent. designme.dev opens in Blueprint in dark mode.
+
+### Clean
+
+Black, white and grey, with an ink primary button and fully round controls. Data, selection and status keep their colours.
 
 Each style has a light and a dark theme. Switch them in the header of any page here. In your own project, two attributes on `<html>` pick them. See [Theming](https://designme.dev/docs/theming.md).
 

@@ -1053,17 +1053,19 @@ Every CSS variable starts with \`--dm-\` in every version, and in the React vers
 <script>try{var t=localStorage.getItem('dmui-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
 <style>
 ${fonts}
-:root{--bg:#fff;--fg:#121212;--dim:#525252;--stage:#fafafa;--line:rgba(18,18,18,.08);--ink:#121212;--on-ink:#fff;color-scheme:light}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111111;--fg:#f2f2f2;--dim:#c9c9c9;--stage:#1c1c1c;--line:rgba(255,255,255,.08);--ink:#f5f5f5;--on-ink:#121212;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#111111;--fg:#f2f2f2;--dim:#c9c9c9;--stage:#1c1c1c;--line:rgba(255,255,255,.08);--ink:#f5f5f5;--on-ink:#121212;color-scheme:dark}
+:root{--bg:#fff;--fg:#121212;--dim:#525252;--stage:#fafafa;--line:rgba(18,18,18,.08);--ink:#121212;--on-ink:#fff;--focus:#858585;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111111;--fg:#f2f2f2;--dim:#c9c9c9;--stage:#1c1c1c;--line:rgba(255,255,255,.08);--ink:#f5f5f5;--on-ink:#121212;--focus:#808080;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#111111;--fg:#f2f2f2;--dim:#c9c9c9;--stage:#1c1c1c;--line:rgba(255,255,255,.08);--ink:#f5f5f5;--on-ink:#121212;--focus:#808080;color-scheme:dark}
 *{box-sizing:border-box}
 body{margin:0;min-height:100vh;display:flex;flex-direction:column;background:var(--bg);color:var(--fg);font:14px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 header{padding:18px 24px;border-bottom:1px solid var(--line)}
 header a{display:inline-block;color:var(--fg)}
 header svg{display:block;height:21px;width:auto}
 main{flex:1;width:100%;max-width:560px;margin:0 auto;padding:12vh 24px 64px}
-.code{font:500 12px/1 "JetBrains Mono",ui-monospace,Menlo,monospace;color:var(--dim);letter-spacing:.04em}
-h1{margin:10px 0 8px;font-size:26px;line-height:1.2;font-weight:600;letter-spacing:-.02em}
+/* the page's title is the one text over 14px, at the site's page-title size (.pg-h1: 20px, weight 500); the rest is 14px
+   or less, nothing heavier than 500, and no monospace outside code */
+.code{font:500 13px/1 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--dim)}
+h1{margin:10px 0 8px;font-size:20px;line-height:1.3;font-weight:500;letter-spacing:-.022em}
 p{margin:0;color:var(--dim)}
 p code{font:12.5px ui-monospace,Menlo,monospace;color:var(--fg);background:var(--stage);padding:2px 6px;border-radius:6px;word-break:break-all}
 .hits{display:grid;gap:8px;margin:28px 0 0}
@@ -1076,7 +1078,8 @@ p code{font:12.5px ui-monospace,Menlo,monospace;color:var(--fg);background:var(-
 .acts{display:flex;flex-wrap:wrap;gap:8px;margin:28px 0 0}
 .btn{display:inline-flex;align-items:center;height:36px;padding:0 16px;border-radius:999px;font-weight:500;text-decoration:none;color:var(--fg);box-shadow:inset 0 0 0 1px var(--line)}
 .btn.ink{background:var(--ink);color:var(--on-ink);box-shadow:none}
-.btn:focus-visible,.hit:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+/* keyboard focus: the site's quiet grey ring, never black */
+.btn:focus-visible,.hit:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 /* Skip to content: out of sight until Tab reaches it (it is the first thing there), then a small pill top left */
 .skip{position:fixed;top:8px;left:16px;z-index:10;display:inline-flex;align-items:center;height:32px;padding:0 12px;border-radius:999px;background:var(--bg);color:var(--fg);box-shadow:inset 0 0 0 1px var(--line);font-weight:500;font-size:13px;line-height:1;text-decoration:none;white-space:nowrap;opacity:0;transform:translateY(-48px);pointer-events:none}
 .skip:focus{opacity:1;transform:none;pointer-events:auto;outline:2px solid var(--focus,var(--fg));outline-offset:2px}
@@ -1087,7 +1090,7 @@ main:focus{outline:none}
 <header><a href="/" aria-label="Designme.dev home">${logo}</a></header>
 <main id="content" tabindex="-1">
   <div class="code">404</div>
-  <h1>Page not found</h1>
+  <h1 class="pg-h1">Page not found</h1>
   <p>There's no page at <code id="where">this address</code>.</p>
   <div class="hits" id="hits" hidden></div>
   <div class="acts"><a class="btn ink" href="/library">All components</a><a class="btn" href="/library#/changelog">Changelog</a></div>

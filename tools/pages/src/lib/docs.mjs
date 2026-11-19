@@ -75,11 +75,12 @@ const BODY = {
         ['p', `${count} free components: ${nOf('agent')} for the agent itself, like status pills, reasoning trails, agent trees, permission gates, plan reviews and run costs, and ${nOf('basics')} app basics around it.`],
         ['p', 'Every component plays as a demo in the [library](/library), and has a page of its own with its install command, React props, code and questions.'],
       ]],
-      ['Two styles, light and dark', [
+      ['Three styles, light and dark', [
         ['styles', 'decision-prompt'],
         ['items', [
           ['Soft', [['p', 'Quiet, rounded surfaces with a blue accent. designme.dev opens in Soft in light mode.']]],
-          ['Blueprint', [['p', 'The same components drawn as a technical sheet, with square corners, hairline edges and a lime accent.']]],
+          ['Blueprint', [['p', 'The same components drawn as a technical sheet, with square corners, hairline edges and a lime accent. designme.dev opens in Blueprint in dark mode.']]],
+          ['Clean', [['p', 'Black, white and grey, with an ink primary button and fully round controls. Data, selection and status keep their colours.']]],
         ]],
         ['p', `Each style has a light and a dark theme. Switch them in the header of any page here. In your own project, two attributes on \`<html>\` pick them. See ${D('theming')}.`],
       ]],
