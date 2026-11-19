@@ -74,12 +74,15 @@ PW=$(npm root -g)/playwright node shots.mjs [names] # about 15 minutes for all 8
 npm run build
 ```
 
-`wall.mjs` takes the landing page's wall pictures: every component once its demo has played (the moments and framing
-`shots.mjs` uses), in each style and theme, 480×300, in `public/components/wall/<style>-<theme>/` (one page per style and
-theme plays them all at once, so the six sets take minutes). Take them again after a component's look changes:
+`wall.mjs` takes the landing page's wall pictures: every component, framed as `shots.mjs` frames the thumbnails, in each
+style and theme, 480×300, in `public/components/wall/<style>-<theme>/`. A page plays 25 components at once and stops each
+at `shots.mjs`'s moment, so the six sets take minutes. A component that moment catches thin (an answer not yet written, a
+closed picker) is taken again with `BEST=1`: it plays alone, and its picture is the moment it showed the most text. Take them
+again after a component's look changes:
 
 ```sh
-PW=$(npm root -g)/playwright node wall.mjs [names]  # needs ffmpeg
+PW=$(npm root -g)/playwright node wall.mjs [names]    # needs ffmpeg
+PW=$(npm root -g)/playwright BEST=1 node wall.mjs live-answer response-versions rich-text-editor answer-action-bar toast-stack status-pill thinking-states web-search agent-harness date-picker context-switcher step-loader toast thinking
 ```
 
 `og.mjs` draws the site's share image, `og.png` at the repository root (1200×630), which a link to the landing page or the
