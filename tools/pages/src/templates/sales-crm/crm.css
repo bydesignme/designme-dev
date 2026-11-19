@@ -1603,50 +1603,26 @@ body:has(.crm) .dmf{display:none}
 .crm-sum:has(.lg:empty){display:none}
 @media (max-width:760px){.crm-h1{font-size:18px}}
 
-/* ---------- Accounts: the band, four cards of one big number each ---------- */
-.crm-band{flex:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--dm-s-3);padding:var(--dm-s-4) var(--dm-s-5) var(--dm-s-2)}
-.crm-kpi.panel{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0;padding:var(--dm-s-4);border:0;font:inherit;text-align:left;color:var(--dm-fg);cursor:pointer;
-  transition:box-shadow var(--dm-t-fast) var(--dm-ease),background-color var(--dm-t-fast) var(--dm-ease)}
-@supports (corner-shape:squircle){:root:is([data-style="soft"]) .crm-kpi.panel{corner-shape:squircle}}
-.crm-kpi .k{display:flex;align-items:center;gap:6px;min-height:20px;font-size:12.5px;color:var(--dm-muted)}
-.crm-kpi .mk{flex:none;width:8px;height:8px;border-radius:50%}
-.crm-kpi .mk[data-mk="warn"]{background:var(--dm-warn-mark)}
-.crm-kpi .mk[data-mk="bad"]{background:var(--dm-bad-mark,var(--dm-bad))}
-.crm-kpi .ic{display:grid;place-items:center;width:20px;height:20px;margin-left:-2px;border-radius:calc(6px * var(--dm-rk));background:var(--dm-sel);color:var(--dm-accent-fg,var(--dm-accent))}
-.crm-kpi .v{margin-top:4px;font-size:24px;line-height:30px;font-weight:500;letter-spacing:-.025em;color:var(--dm-fg)}
-.crm-kpi .s{max-width:100%;font-size:12px;line-height:18px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-@media (hover:hover) and (pointer:fine){.crm-kpi.panel:hover{background:color-mix(in srgb,var(--dm-fg) 2.5%,var(--dm-surface))}}
-/* each card's bar: its parts side by side with a hairline of room between them, the rest of a share on the grey track */
-.crm-kpi{--crm-kvt:color-mix(in srgb,var(--dm-fg) 9%,transparent);--crm-nego:var(--dm-c1)}
-/* Blueprint's accent is its lime, so Negotiation keeps its blue there */
-:root:not([data-style="soft"],[data-style="clean"]) .crm-kpi{--crm-nego:var(--dm-av-b)}
-.crm-kv{display:flex;gap:2px;width:100%;height:6px;margin-top:var(--dm-s-3)}
-.crm-kv i{min-width:3px;height:100%;border-radius:calc(3px * var(--dm-rk));transition:flex-grow .7s var(--dm-ease)}
-:root:not([data-style="soft"],[data-style="clean"]) .crm-kv i{border-radius:0}
-:root[data-style="clean"] .crm-kv i{border-radius:3px}
-@media (prefers-reduced-motion:reduce){.crm-kv i{transition:none}}
-/* the card in use: a stronger grey edge, as a picked card in a picker (never the accent) */
-.crm-kpi.panel[aria-pressed="true"]{box-shadow:var(--dm-shadow),inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 70%,transparent)}
-/* the agent's card takes the agent's tint in Soft, as its suggestion in the account panel and its mark in the inbox do */
-:root[data-style="soft"] .crm-kpi.panel[data-b="agent"]{background:var(--dm-accent-bg)}
-@media (hover:hover) and (pointer:fine){:root[data-style="soft"] .crm-kpi.panel[data-b="agent"]:hover{background:color-mix(in srgb,var(--dm-accent) 12%,var(--dm-surface))}}
-:root[data-style="soft"] .crm-kpi[data-b="agent"] .ic{background:var(--dm-surface)}
+/* ---------- Accounts: the views as quiet tabs over the table (owner, 19 Nov: "this is a crm page not some dashboard") ----------
+   Words on the page with a count beside them, the one in use in the text colour with a 2px rule under it on the row's hairline;
+   the agent's tab carries its mark in the accent. No boxes and no big numbers */
+.crm-vt{flex:none;display:flex;align-items:stretch;gap:var(--dm-s-6);height:44px;padding:0 var(--dm-s-5);border-bottom:1px solid var(--crm-hair);overflow-x:auto;scrollbar-width:none}
+.crm-vt::-webkit-scrollbar{display:none}
+.crm-vt button{position:relative;flex:none;display:inline-flex;align-items:center;gap:6px;padding:0;border:0;background:none;font:inherit;font-size:13px;color:var(--dm-muted);white-space:nowrap;cursor:pointer;transition:color var(--dm-t-fast) var(--dm-ease)}
+.crm-vt button::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;border-radius:2px 2px 0 0;background:var(--dm-fg);opacity:0;transform:scaleX(.6);transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease)}
+.crm-vt button[aria-pressed="true"]{color:var(--dm-fg)}
+.crm-vt button[aria-pressed="true"]::after{opacity:1;transform:none}
+@media (hover:hover) and (pointer:fine){.crm-vt button:hover{color:var(--dm-fg)}}
+.crm-vt .n{font-size:12px;color:var(--dm-muted)}
+.crm-vt .i{color:var(--dm-accent-fg,var(--dm-accent))}
+:root:not([data-style="soft"],[data-style="clean"]) .crm-vt button::after{border-radius:0}
+@media (prefers-reduced-motion:reduce){.crm-vt button::after{transition:none}}
+/* on Accounts the tabs sit straight under the title, so the header needs no line of its own */
+.crm[data-view="accounts"] .crm-top{border-bottom-color:transparent}
+@media (max-width:1023px){.crm-vt{padding-left:var(--dm-s-4);padding-right:var(--dm-s-4);gap:var(--dm-s-5)}}
 /* the account panel's suggestion: whose it is over why */
 .crm-sagt{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
 .crm-sagt b{font-size:12px;font-weight:500;color:var(--dm-fg)}
-/* Blueprint: square, on its hairline; the agent's tile is its ink chip */
-:root:not([data-style="soft"],[data-style="clean"]) .crm-kpi .ic{border-radius:0;background:var(--dm-chip);color:var(--dm-fg)}
-/* Clean: the agent's tile is its monochrome chip; pills and circles only for controls */
-:root[data-style="clean"] .crm-kpi .ic{border-radius:7px;background:var(--dm-chip);color:var(--dm-fg)}
-@media (max-width:1023px){.crm-band{padding-left:var(--dm-s-4);padding-right:var(--dm-s-4)}}
-/* tablets and phones: the four cards in one row that scrolls sideways, so the table keeps the screen */
-@media (max-width:900px){
-  .crm-band{display:flex;gap:var(--dm-s-2);padding-top:var(--dm-s-3);padding-bottom:var(--dm-s-1);overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;scroll-padding:0 var(--dm-s-4)}
-  .crm-band::-webkit-scrollbar{display:none}
-  .crm-kpi.panel{flex:0 0 228px;scroll-snap-align:start;padding:var(--dm-s-3)}
-  .crm-kpi .v{font-size:20px;line-height:26px}
-}
-@media (max-width:640px){.crm-kpi.panel{flex-basis:min(64%,224px)}}
 /* the table fits the landing page's 1280px frame without scrolling sideways: the foot's waiting "Add calculation" labels no
    longer widen their columns (they cut short instead) */
 @media (min-width:761px){.crm-t.crmt-t{min-width:980px}}
@@ -1670,6 +1646,18 @@ body:has(.crm) .dmf{display:none}
 .crm-co .nm{gap:var(--dm-s-3)}
 .crm-co .crm-t .nm .pfm-lg.sm{width:28px;height:28px;font-size:12px;border-radius:calc(8px * var(--dm-rk))}
 .crm-co .nm .tx{gap:1px}
+/* an account's tile: its initial on its own vivid colour wherever the account shows (Soft and Blueprint); Clean keeps its
+   monochrome marks */
+:root:not([data-style="clean"]) .crm .pfm-lg.crm-at{background:var(--crm-ac);color:var(--crm-ai);font-weight:500;box-shadow:none}
+/* the stage chips a step stronger: the label's colour at 16% over the surface, its words in the label's text colour */
+:root .crm .crmt-st.crm-sg[data-h="t"]{background:color-mix(in srgb,var(--dm-pt) 16%,var(--dm-surface))}
+:root .crm .crmt-st.crm-sg[data-h="l"]{background:color-mix(in srgb,var(--dm-pl) 16%,var(--dm-surface))}
+:root .crm .crmt-st.crm-sg[data-h="p"]{background:color-mix(in srgb,var(--dm-pp) 16%,var(--dm-surface))}
+:root .crm .crmt-st.crm-sg[data-h="b"]{background:color-mix(in srgb,var(--dm-pb) 16%,var(--dm-surface))}
+.crm-t .crmt-st{height:24px;padding:0 10px 0 8px}
+/* health: the ring a step larger in the table */
+.crm-t .crm-hs svg{width:22px;height:22px}
+.crm-t .crm-hs circle{stroke-width:3}
 /* the owner: the face and first name */
 .crm-t .ag{gap:var(--dm-s-2);color:var(--dm-fg)}
 .crm-t .ag .av{width:22px;height:22px}
@@ -1728,10 +1716,7 @@ body:has(.crm) .dmf{display:none}
 .crm .av.crm-avn{background:var(--crm-avc,var(--dm-chip));color:var(--crm-avi,var(--dm-fg2));box-shadow:none;font-weight:500}
 :root[data-style="clean"] .crm .av.crm-avn{background:var(--dm-chip);color:var(--dm-fg2);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
 
-/* ---------- Reports: one big number in each stat card, and the heatmap filling its card ---------- */
-.crm-rp .scx-c{gap:var(--dm-s-1)}
-.crm-rp .scx-v{margin-top:2px}
-.crm-rp .scx-v b{font-size:24px;line-height:30px;letter-spacing:-.025em}
+/* ---------- Reports: the heatmap fills its card, with no gap above it ---------- */
 .crm-rp .crm-hm .hmx-wrap{flex:1 1 auto;display:flex;flex-direction:column;margin-top:var(--dm-s-2)}
 .crm-rp .crm-hm .hmx-sc{flex:1 1 auto;grid-template-rows:minmax(var(--crm-ph),1fr) auto}
 .crm-rp .crm-hm :is(.hmx-grid,.hmx-days){height:auto}
