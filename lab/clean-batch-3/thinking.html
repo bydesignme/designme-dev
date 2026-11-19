@@ -175,7 +175,7 @@
 .tk.growing{overflow-clip-margin:12px}
 .tk-h{display:flex;align-items:center;gap:10px;width:calc(100% + 16px);margin:0 -8px;padding:6px var(--dm-s-2);border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));text-align:left;transition:background var(--dm-t-fast)}
 /* the header's hover is a quiet fill round the chevron, never a band wider than the trace (owner, 18 Nov) */
-@media (hover:hover) and (pointer:fine){.tk-h:hover .tk-chev{background:var(--dm-row);box-shadow:0 0 0 6px var(--dm-row);color:var(--dm-fg)}}
+@media (hover:hover) and (pointer:fine){.tk-h:hover .tk-chev{background:color-mix(in srgb,var(--dm-fg) 5%,transparent);box-shadow:0 0 0 6px color-mix(in srgb,var(--dm-fg) 5%,transparent);color:var(--dm-fg)}}
 .tk-mark{width:18px;height:18px;flex:none;display:grid;place-items:center;color:var(--dm-accent-mark,var(--dm-accent));transition:color .3s}
 .tk-h.tk-fin .tk-mark{color:var(--dm-ok)}
 /* a finished state has no elapsed clock (owner, 18 Nov): the clock goes once the header says what the work came to */
@@ -213,7 +213,8 @@
 .tk-st .res>span{overflow:hidden;min-height:0}
 .tk-st .res .w{display:inline-block;white-space:pre;animation:tkword .42s var(--dm-ease) backwards}
 @keyframes tkword{from{opacity:0;transform:translateY(3px);filter:blur(2px)}}
-.tk-st.retry .res{color:var(--dm-warn)}
+/* a retry's words are amber; the colour changes with the words, so the ones fading out keep theirs */
+.tk-st .res .warn{color:var(--dm-warn)}
 .tk-st .res [data-tip]{text-decoration:underline dotted var(--dm-faint);text-underline-offset:3px;cursor:default}
 :root:not([data-style="soft"],[data-style="clean"]) .tk-st.run .mk:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)),:root:not([data-style="soft"],[data-style="clean"]) .tk-st.retry .mk:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation:none}
 :root:not([data-style="soft"],[data-style="clean"]) .tk-st.run .mk:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:inset 0 0 0 1px var(--dm-accent-mark)}
@@ -244,17 +245,17 @@
 :root[data-style="clean"] .tk-mark,:root [data-style="clean"] .tk-mark,:root [data-style="clean"].tk-mark{width:16px;height:16px;margin-right:2px;color:var(--dm-fg)}
 :root[data-style="clean"] .tk-h.tk-fin .tk-mark,:root [data-style="clean"] .tk-h.tk-fin .tk-mark,:root [data-style="clean"].tk-h.tk-fin .tk-mark{width:16px;height:16px;border-radius:50%;background:var(--dm-ok-mark);color:var(--dm-surface);animation:tkdisc var(--dm-t) var(--dm-ease) backwards}
 :root[data-style="clean"] .tk-h.tk-fin .tk-mark .i,:root [data-style="clean"] .tk-h.tk-fin .tk-mark .i,:root [data-style="clean"].tk-h.tk-fin .tk-mark .i{width:10px;height:10px;stroke-width:3.2;stroke-dasharray:21;animation:tkdraw var(--dm-t) var(--dm-ease) .14s backwards}
-/* the steps are as tall as Soft's, so the card keeps its stage's height in every style: 5px above and below each step,
-   and its last words 16px from the card's foot */
-:root[data-style="clean"] .tk-list,:root [data-style="clean"] .tk-list,:root [data-style="clean"].tk-list{padding:8px 16px 10px;border-top:1px solid var(--dm-line)}
+/* the first step's words 16px under the header's hairline and the last ones 16px from the card's foot, 5px above and below
+   each step; the card is no taller than Soft's trace, so its stage keeps its height in every style */
+:root[data-style="clean"] .tk-list,:root [data-style="clean"] .tk-list,:root [data-style="clean"].tk-list{padding:10px 16px;border-top:1px solid var(--dm-line)}
 :root[data-style="clean"] .tk-st,:root [data-style="clean"] .tk-st,:root [data-style="clean"].tk-st{padding:5px 0}
 /* a step's time sits on its first line's centre line, and ends where the chevron does */
 :root[data-style="clean"] .tk-st .tk-ln,:root [data-style="clean"] .tk-st .tk-ln,:root [data-style="clean"].tk-st .tk-ln{align-items:flex-start}
-:root[data-style="clean"] .tk-st .lab,:root [data-style="clean"] .tk-st .lab,:root [data-style="clean"].tk-st .lab,:root[data-style="clean"] .tk-st .tk-dur,:root [data-style="clean"] .tk-st .tk-dur,:root [data-style="clean"].tk-st .tk-dur{line-height:20px}
+:root[data-style="clean"] .tk-st .lab,:root [data-style="clean"] .tk-st .lab,:root [data-style="clean"].tk-st .lab,:root[data-style="clean"] .tk-st .tk-dur,:root [data-style="clean"] .tk-st .tk-dur,:root [data-style="clean"].tk-st .tk-dur{line-height:19px}
 :root[data-style="clean"] .tk-st .res,:root [data-style="clean"] .tk-st .res,:root [data-style="clean"].tk-st .res{line-height:17px}
 :root[data-style="clean"] .tk-st .tk-dur,:root [data-style="clean"] .tk-st .tk-dur,:root [data-style="clean"].tk-st .tk-dur{font-variant-numeric:tabular-nums}
 /* the marks: 16px discs 16px in from the card's edge, centred on the step's first line, under the header's mark */
-:root[data-style="clean"] .tk-st .mk,:root [data-style="clean"] .tk-st .mk,:root [data-style="clean"].tk-st .mk{width:16px;height:16px;margin:2px 2px 0 0;color:var(--dm-fg);background:none;transition:none}
+:root[data-style="clean"] .tk-st .mk,:root [data-style="clean"] .tk-st .mk,:root [data-style="clean"].tk-st .mk{width:16px;height:16px;margin:1.5px 2px 0 0;color:var(--dm-fg);background:none;transition:none}
 :root[data-style="clean"] .tk-st.run .mk,:root [data-style="clean"] .tk-st.run .mk,:root [data-style="clean"].tk-st.run .mk{background:none;animation:none}
 :root[data-style="clean"] .tk-st.run .mk .spin,:root [data-style="clean"] .tk-st.run .mk .spin,:root [data-style="clean"].tk-st.run .mk .spin{box-sizing:border-box;width:16px;height:16px;border:1.5px solid var(--dm-line);border-top-color:var(--dm-fg);animation:rot .9s linear infinite}
 :root[data-style="clean"] .tk-st.done .mk,:root [data-style="clean"] .tk-st.done .mk,:root [data-style="clean"].tk-st.done .mk{background:var(--dm-ok-mark);color:var(--dm-surface);animation:tkdisc var(--dm-t) var(--dm-ease) backwards}
@@ -264,7 +265,7 @@
 @keyframes tkdisc{from{opacity:0;transform:scale(.5)}}
 @keyframes tkdraw{from{stroke-dashoffset:21}}
 /* the hairline from under each mark to just above the next, darkening down into the next step once this one is done */
-:root[data-style="clean"] .tk-st:not(:last-child)::before,:root [data-style="clean"] .tk-st:not(:last-child)::before,:root [data-style="clean"].tk-st:not(:last-child)::before,:root[data-style="clean"] .tk-st.done:not(:last-child)::after,:root [data-style="clean"] .tk-st.done:not(:last-child)::after,:root [data-style="clean"].tk-st.done:not(:last-child)::after{left:7.5px;top:27px;bottom:-3px;width:1px;border-radius:0;background:var(--dm-line)}
+:root[data-style="clean"] .tk-st:not(:last-child)::before,:root [data-style="clean"] .tk-st:not(:last-child)::before,:root [data-style="clean"].tk-st:not(:last-child)::before,:root[data-style="clean"] .tk-st.done:not(:last-child)::after,:root [data-style="clean"] .tk-st.done:not(:last-child)::after,:root [data-style="clean"].tk-st.done:not(:last-child)::after{left:7.5px;top:26.5px;bottom:-2.5px;width:1px;border-radius:0;background:var(--dm-line)}
 :root[data-style="clean"] .tk-st.done:not(:last-child)::after,:root [data-style="clean"] .tk-st.done:not(:last-child)::after,:root [data-style="clean"].tk-st.done:not(:last-child)::after{background:var(--dm-line-strong);animation:tkgrow var(--dm-t-slow) var(--dm-ease-io) .2s backwards}
 /* what a step found writes itself in a word at a time: a fade and a 3px rise, no blur */
 @keyframes tkwordc{from{opacity:0;transform:translateY(3px)}}
@@ -387,7 +388,7 @@ export default function ThinkingDemo() {
 import Thinking from &#39;../components/designme/thinking/Thinking.astro&#39;;
 ---
 &lt;Thinking /&gt;
-&lt;Thinking data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything Thinking takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>steps</code><span class="opt">required</span></td><td><code>ThinkingStep[]</code></td><td></td></tr><tr><td><code>running</code><span class="opt">required</span></td><td><code>boolean</code></td><td>Spins, counts seconds and keeps the trace open while true</td></tr><tr><td><code>seconds</code></td><td><code>number</code></td><td>Seconds to show. Leave it out to let it count while running</td></tr><tr><td><code>title</code></td><td><code>string</code></td><td>The header while it runs, like &quot;Checking the pricing page&quot;</td></tr><tr><td><code>summary</code></td><td><code>string</code></td><td>The header once it is done: what the work came to, like &quot;3 cards to fix, 2 changes planned&quot;. Defaults to the number of steps</td></tr><tr><td><code>collapseWhenDone</code></td><td><code>boolean</code></td><td>Folds the trace away a moment after it finishes</td></tr><tr><td><code>open</code></td><td><code>boolean</code></td><td>Whether the trace is open. Leave it out to let the header toggle it</td></tr><tr><td><code>defaultOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>Thinking.tsx<span class="l">React · 137 lines</span></summary><pre class="cp-pre" data-name="Thinking.tsx"><code>&#39;use client&#39;;
+&lt;Thinking data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything Thinking takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>steps</code><span class="opt">required</span></td><td><code>ThinkingStep[]</code></td><td></td></tr><tr><td><code>running</code><span class="opt">required</span></td><td><code>boolean</code></td><td>Spins, counts seconds and keeps the trace open while true</td></tr><tr><td><code>seconds</code></td><td><code>number</code></td><td>Seconds to show. Leave it out to let it count while running</td></tr><tr><td><code>title</code></td><td><code>string</code></td><td>The header while it runs, like &quot;Checking the pricing page&quot;</td></tr><tr><td><code>summary</code></td><td><code>string</code></td><td>The header once it is done: what the work came to, like &quot;3 cards to fix, 2 changes planned&quot;. Defaults to the number of steps</td></tr><tr><td><code>collapseWhenDone</code></td><td><code>boolean</code></td><td>Folds the trace away a moment after it finishes</td></tr><tr><td><code>open</code></td><td><code>boolean</code></td><td>Whether the trace is open. Leave it out to let the header toggle it</td></tr><tr><td><code>defaultOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>Thinking.tsx<span class="l">React · 152 lines</span></summary><pre class="cp-pre" data-name="Thinking.tsx"><code>&#39;use client&#39;;
 import { useEffect, useRef, useState } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable, useIsoLayoutEffect, useReducedMotion, useSeconds } from &#39;../lib/hooks&#39;;
@@ -452,6 +453,21 @@ function Words({ text }: { text: string }) {
   return &lt;&gt;{w.map((x, i) =&gt; &lt;span key={i} className=&quot;dm-w&quot; style={{ animationDelay: `${i * 45}ms` }}&gt;{x}{i &lt; w.length - 1 ? &#39; &#39; : &#39;&#39;}&lt;/span&gt;)}&lt;/&gt;;
 }
 
+/** A step&#39;s result line while it runs, in amber while the step waits out a problem. The colour changes with the words
+    (Swap writes them 170ms on), so the words fading out keep theirs */
+function Result({ text, warn }: { text: string; warn: boolean }) {
+  const reduce = useReducedMotion();
+  const [tone, setTone] = useState(warn);
+  const said = useRef(text);
+  useEffect(() =&gt; {
+    const was = said.current; said.current = text;
+    if (reduce || !was.trim() || was === text) { setTone(warn); return; }
+    const t = setTimeout(() =&gt; setTone(warn), 170);
+    return () =&gt; clearTimeout(t);
+  }, [text, warn, reduce]);
+  return &lt;Swap className={tone ? &#39;dm-warn&#39; : undefined}&gt;{text}&lt;/Swap&gt;;
+}
+
 function Mark({ state }: { state: ThinkingStep[&#39;state&#39;] }) {
   if (state === &#39;running&#39;) return &lt;Spin /&gt;;
   // keyed so each new mark plays its entrance once
@@ -512,7 +528,7 @@ export function Thinking({ steps, running, seconds, title = &#39;Working on it&#
                 &lt;span className={cx(&#39;dm-res&#39;, s.result &amp;&amp; &#39;dm-on&#39;)}&gt;
                   {s.state === &#39;done&#39; &amp;&amp; s.result
                     ? &lt;span key={&#39;w&#39; + s.result}&gt;{s.resultTip ? &lt;Tip label={s.resultTip}&gt;&lt;span tabIndex={0} data-tip=&quot;&quot;&gt;&lt;Words text={s.result} /&gt;&lt;/span&gt;&lt;/Tip&gt; : &lt;Words text={s.result} /&gt;}&lt;/span&gt;
-                    : &lt;Swap&gt;{s.result ?? &#39;&#39;}&lt;/Swap&gt;}
+                    : &lt;Result text={s.result ?? &#39;&#39;} warn={s.state === &#39;retry&#39;} /&gt;}
                 &lt;/span&gt;
               &lt;/div&gt;
             &lt;/li&gt;
@@ -523,7 +539,7 @@ export function Thinking({ steps, running, seconds, title = &#39;Working on it&#
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>thinking.css<span class="l">React · 109 lines</span></summary><pre class="cp-pre" data-name="thinking.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>thinking.css<span class="l">React · 110 lines</span></summary><pre class="cp-pre" data-name="thinking.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Thinking ---------- */
 /* the steps the agent takes, on a line that turns green as each one finishes; the step in hand turns in the accent with a
    soft halo, and what each step found writes itself in under it. The header ends as a summary of the work */
@@ -537,7 +553,7 @@ export function Thinking({ steps, running, seconds, title = &#39;Working on it&#
 .dm-tk.dm-growing{overflow-clip-margin:12px}
 .dm-tk-h{display:flex;align-items:center;gap:10px;width:calc(100% + 16px);margin:0 -8px;padding:6px var(--dm-s-2);border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));text-align:left;transition:background var(--dm-t-fast)}
 /* the header&#39;s hover is a quiet fill round the chevron, never a band wider than the trace (owner, 18 Nov) */
-@media (hover:hover) and (pointer:fine){.dm-tk-h:hover .dm-tk-chev{background:var(--dm-row);box-shadow:0 0 0 6px var(--dm-row);color:var(--dm-fg)}}
+@media (hover:hover) and (pointer:fine){.dm-tk-h:hover .dm-tk-chev{background:color-mix(in srgb,var(--dm-fg) 5%,transparent);box-shadow:0 0 0 6px color-mix(in srgb,var(--dm-fg) 5%,transparent);color:var(--dm-fg)}}
 .dm-tk-mark{width:18px;height:18px;flex:none;display:grid;place-items:center;color:var(--dm-accent-mark,var(--dm-accent));transition:color .3s}
 .dm-tk-h.dm-tk-fin .dm-tk-mark{color:var(--dm-ok)}
 /* a finished state has no elapsed clock (owner, 18 Nov): the clock goes once the header says what the work came to */
@@ -575,7 +591,8 @@ export function Thinking({ steps, running, seconds, title = &#39;Working on it&#
 .dm-tk-st .dm-res&gt;span{overflow:hidden;min-height:0}
 .dm-tk-st .dm-res .dm-w{display:inline-block;white-space:pre;animation:dm-tkword .42s var(--dm-ease) backwards}
 @keyframes dm-tkword{from{opacity:0;transform:translateY(3px);filter:blur(2px)}}
-.dm-tk-st.dm-retry .dm-res{color:var(--dm-warn)}
+/* a retry&#39;s words are amber; the colour changes with the words, so the ones fading out keep theirs */
+.dm-tk-st .dm-res .dm-warn{color:var(--dm-warn)}
 .dm-tk-st .dm-res [data-tip]{text-decoration:underline dotted var(--dm-faint);text-underline-offset:3px;cursor:default}
 :root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .dm-tk-st.dm-run .dm-mk:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *)),:root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .dm-tk-st.dm-retry .dm-mk:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *)){animation:none}
 :root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .dm-tk-st.dm-run .dm-mk:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *)){box-shadow:inset 0 0 0 1px var(--dm-accent-mark)}
@@ -606,17 +623,17 @@ export function Thinking({ steps, running, seconds, title = &#39;Working on it&#
 :root[data-style=&quot;clean&quot;] .dm-tk-mark,:root [data-style=&quot;clean&quot;] .dm-tk-mark,:root [data-style=&quot;clean&quot;].dm-tk-mark{width:16px;height:16px;margin-right:2px;color:var(--dm-fg)}
 :root[data-style=&quot;clean&quot;] .dm-tk-h.dm-tk-fin .dm-tk-mark,:root [data-style=&quot;clean&quot;] .dm-tk-h.dm-tk-fin .dm-tk-mark,:root [data-style=&quot;clean&quot;].dm-tk-h.dm-tk-fin .dm-tk-mark{width:16px;height:16px;border-radius:50%;background:var(--dm-ok-mark);color:var(--dm-surface);animation:dm-tkdisc var(--dm-t) var(--dm-ease) backwards}
 :root[data-style=&quot;clean&quot;] .dm-tk-h.dm-tk-fin .dm-tk-mark .dm-i,:root [data-style=&quot;clean&quot;] .dm-tk-h.dm-tk-fin .dm-tk-mark .dm-i,:root [data-style=&quot;clean&quot;].dm-tk-h.dm-tk-fin .dm-tk-mark .dm-i{width:10px;height:10px;stroke-width:3.2;stroke-dasharray:21;animation:dm-tkdraw var(--dm-t) var(--dm-ease) .14s backwards}
-/* the steps are as tall as Soft&#39;s, so the card keeps its stage&#39;s height in every style: 5px above and below each step,
-   and its last words 16px from the card&#39;s foot */
-:root[data-style=&quot;clean&quot;] .dm-tk-list,:root [data-style=&quot;clean&quot;] .dm-tk-list,:root [data-style=&quot;clean&quot;].dm-tk-list{padding:8px 16px 10px;border-top:1px solid var(--dm-line)}
+/* the first step&#39;s words 16px under the header&#39;s hairline and the last ones 16px from the card&#39;s foot, 5px above and below
+   each step; the card is no taller than Soft&#39;s trace, so its stage keeps its height in every style */
+:root[data-style=&quot;clean&quot;] .dm-tk-list,:root [data-style=&quot;clean&quot;] .dm-tk-list,:root [data-style=&quot;clean&quot;].dm-tk-list{padding:10px 16px;border-top:1px solid var(--dm-line)}
 :root[data-style=&quot;clean&quot;] .dm-tk-st,:root [data-style=&quot;clean&quot;] .dm-tk-st,:root [data-style=&quot;clean&quot;].dm-tk-st{padding:5px 0}
 /* a step&#39;s time sits on its first line&#39;s centre line, and ends where the chevron does */
 :root[data-style=&quot;clean&quot;] .dm-tk-st .dm-tk-ln,:root [data-style=&quot;clean&quot;] .dm-tk-st .dm-tk-ln,:root [data-style=&quot;clean&quot;].dm-tk-st .dm-tk-ln{align-items:flex-start}
-:root[data-style=&quot;clean&quot;] .dm-tk-st .dm-lab,:root [data-style=&quot;clean&quot;] .dm-tk-st .dm-lab,:root [data-style=&quot;clean&quot;].dm-tk-st .dm-lab,:root[data-style=&quot;clean&quot;] .dm-tk-st .dm-tk-dur,:root [data-style=&quot;clean&quot;] .dm-tk-st .dm-tk-dur,:root [data-style=&quot;clean&quot;].dm-tk-st .dm-tk-dur{line-height:20px}
+:root[data-style=&quot;clean&quot;] .dm-tk-st .dm-lab,:root [data-style=&quot;clean&quot;] .dm-tk-st .dm-lab,:root [data-style=&quot;clean&quot;].dm-tk-st .dm-lab,:root[data-style=&quot;clean&quot;] .dm-tk-st .dm-tk-dur,:root [data-style=&quot;clean&quot;] .dm-tk-st .dm-tk-dur,:root [data-style=&quot;clean&quot;].dm-tk-st .dm-tk-dur{line-height:19px}
 :root[data-style=&quot;clean&quot;] .dm-tk-st .dm-res,:root [data-style=&quot;clean&quot;] .dm-tk-st .dm-res,:root [data-style=&quot;clean&quot;].dm-tk-st .dm-res{line-height:17px}
 :root[data-style=&quot;clean&quot;] .dm-tk-st .dm-tk-dur,:root [data-style=&quot;clean&quot;] .dm-tk-st .dm-tk-dur,:root [data-style=&quot;clean&quot;].dm-tk-st .dm-tk-dur{font-variant-numeric:tabular-nums}
 /* the marks: 16px discs 16px in from the card&#39;s edge, centred on the step&#39;s first line, under the header&#39;s mark */
-:root[data-style=&quot;clean&quot;] .dm-tk-st .dm-mk,:root [data-style=&quot;clean&quot;] .dm-tk-st .dm-mk,:root [data-style=&quot;clean&quot;].dm-tk-st .dm-mk{width:16px;height:16px;margin:2px 2px 0 0;color:var(--dm-fg);background:none;transition:none}
+:root[data-style=&quot;clean&quot;] .dm-tk-st .dm-mk,:root [data-style=&quot;clean&quot;] .dm-tk-st .dm-mk,:root [data-style=&quot;clean&quot;].dm-tk-st .dm-mk{width:16px;height:16px;margin:1.5px 2px 0 0;color:var(--dm-fg);background:none;transition:none}
 :root[data-style=&quot;clean&quot;] .dm-tk-st.dm-run .dm-mk,:root [data-style=&quot;clean&quot;] .dm-tk-st.dm-run .dm-mk,:root [data-style=&quot;clean&quot;].dm-tk-st.dm-run .dm-mk{background:none;animation:none}
 :root[data-style=&quot;clean&quot;] .dm-tk-st.dm-run .dm-mk .dm-spin,:root [data-style=&quot;clean&quot;] .dm-tk-st.dm-run .dm-mk .dm-spin,:root [data-style=&quot;clean&quot;].dm-tk-st.dm-run .dm-mk .dm-spin{box-sizing:border-box;width:16px;height:16px;border:1.5px solid var(--dm-line);border-top-color:var(--dm-fg);animation:dm-rot .9s linear infinite}
 :root[data-style=&quot;clean&quot;] .dm-tk-st.dm-done .dm-mk,:root [data-style=&quot;clean&quot;] .dm-tk-st.dm-done .dm-mk,:root [data-style=&quot;clean&quot;].dm-tk-st.dm-done .dm-mk{background:var(--dm-ok-mark);color:var(--dm-surface);animation:dm-tkdisc var(--dm-t) var(--dm-ease) backwards}
@@ -626,7 +643,7 @@ export function Thinking({ steps, running, seconds, title = &#39;Working on it&#
 @keyframes dm-tkdisc{from{opacity:0;transform:scale(.5)}}
 @keyframes dm-tkdraw{from{stroke-dashoffset:21}}
 /* the hairline from under each mark to just above the next, darkening down into the next step once this one is done */
-:root[data-style=&quot;clean&quot;] .dm-tk-st:not(:last-child)::before,:root [data-style=&quot;clean&quot;] .dm-tk-st:not(:last-child)::before,:root [data-style=&quot;clean&quot;].dm-tk-st:not(:last-child)::before,:root[data-style=&quot;clean&quot;] .dm-tk-st.dm-done:not(:last-child)::after,:root [data-style=&quot;clean&quot;] .dm-tk-st.dm-done:not(:last-child)::after,:root [data-style=&quot;clean&quot;].dm-tk-st.dm-done:not(:last-child)::after{left:7.5px;top:27px;bottom:-3px;width:1px;border-radius:0;background:var(--dm-line)}
+:root[data-style=&quot;clean&quot;] .dm-tk-st:not(:last-child)::before,:root [data-style=&quot;clean&quot;] .dm-tk-st:not(:last-child)::before,:root [data-style=&quot;clean&quot;].dm-tk-st:not(:last-child)::before,:root[data-style=&quot;clean&quot;] .dm-tk-st.dm-done:not(:last-child)::after,:root [data-style=&quot;clean&quot;] .dm-tk-st.dm-done:not(:last-child)::after,:root [data-style=&quot;clean&quot;].dm-tk-st.dm-done:not(:last-child)::after{left:7.5px;top:26.5px;bottom:-2.5px;width:1px;border-radius:0;background:var(--dm-line)}
 :root[data-style=&quot;clean&quot;] .dm-tk-st.dm-done:not(:last-child)::after,:root [data-style=&quot;clean&quot;] .dm-tk-st.dm-done:not(:last-child)::after,:root [data-style=&quot;clean&quot;].dm-tk-st.dm-done:not(:last-child)::after{background:var(--dm-line-strong);animation:dm-tkgrow var(--dm-t-slow) var(--dm-ease-io) .2s backwards}
 /* what a step found writes itself in a word at a time: a fade and a 3px rise, no blur */
 @keyframes dm-tkwordc{from{opacity:0;transform:translateY(3px)}}
@@ -673,7 +690,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>thinking.css<span class="l">HTML · 108 lines</span></summary><pre class="cp-pre" data-name="thinking.css"><code>/* ---------- Thinking ---------- */
+</code></pre></details><details class="cp-file"><summary>thinking.css<span class="l">HTML · 109 lines</span></summary><pre class="cp-pre" data-name="thinking.css"><code>/* ---------- Thinking ---------- */
 /* the steps the agent takes, on a line that turns green as each one finishes; the step in hand turns in the accent with a
    soft halo, and what each step found writes itself in under it. The header ends as a summary of the work */
 /* neither the trace nor the box it sits in anchors the page&#39;s scroll: a centred demo that grows would otherwise pull
@@ -686,7 +703,7 @@ const { class: className, ...rest } = Astro.props;
 .tk.growing{overflow-clip-margin:12px}
 .tk-h{display:flex;align-items:center;gap:10px;width:calc(100% + 16px);margin:0 -8px;padding:6px var(--dm-s-2);border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));text-align:left;transition:background var(--dm-t-fast)}
 /* the header&#39;s hover is a quiet fill round the chevron, never a band wider than the trace (owner, 18 Nov) */
-@media (hover:hover) and (pointer:fine){.tk-h:hover .tk-chev{background:var(--dm-row);box-shadow:0 0 0 6px var(--dm-row);color:var(--dm-fg)}}
+@media (hover:hover) and (pointer:fine){.tk-h:hover .tk-chev{background:color-mix(in srgb,var(--dm-fg) 5%,transparent);box-shadow:0 0 0 6px color-mix(in srgb,var(--dm-fg) 5%,transparent);color:var(--dm-fg)}}
 .tk-mark{width:18px;height:18px;flex:none;display:grid;place-items:center;color:var(--dm-accent-mark,var(--dm-accent));transition:color .3s}
 .tk-h.tk-fin .tk-mark{color:var(--dm-ok)}
 /* a finished state has no elapsed clock (owner, 18 Nov): the clock goes once the header says what the work came to */
@@ -724,7 +741,8 @@ const { class: className, ...rest } = Astro.props;
 .tk-st .res&gt;span{overflow:hidden;min-height:0}
 .tk-st .res .w{display:inline-block;white-space:pre;animation:tkword .42s var(--dm-ease) backwards}
 @keyframes tkword{from{opacity:0;transform:translateY(3px);filter:blur(2px)}}
-.tk-st.retry .res{color:var(--dm-warn)}
+/* a retry&#39;s words are amber; the colour changes with the words, so the ones fading out keep theirs */
+.tk-st .res .warn{color:var(--dm-warn)}
 .tk-st .res [data-tip]{text-decoration:underline dotted var(--dm-faint);text-underline-offset:3px;cursor:default}
 :root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .tk-st.run .mk:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *)),:root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .tk-st.retry .mk:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *)){animation:none}
 :root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .tk-st.run .mk:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *)){box-shadow:inset 0 0 0 1px var(--dm-accent-mark)}
@@ -755,17 +773,17 @@ const { class: className, ...rest } = Astro.props;
 :root[data-style=&quot;clean&quot;] .tk-mark,:root [data-style=&quot;clean&quot;] .tk-mark,:root [data-style=&quot;clean&quot;].tk-mark{width:16px;height:16px;margin-right:2px;color:var(--dm-fg)}
 :root[data-style=&quot;clean&quot;] .tk-h.tk-fin .tk-mark,:root [data-style=&quot;clean&quot;] .tk-h.tk-fin .tk-mark,:root [data-style=&quot;clean&quot;].tk-h.tk-fin .tk-mark{width:16px;height:16px;border-radius:50%;background:var(--dm-ok-mark);color:var(--dm-surface);animation:tkdisc var(--dm-t) var(--dm-ease) backwards}
 :root[data-style=&quot;clean&quot;] .tk-h.tk-fin .tk-mark .i,:root [data-style=&quot;clean&quot;] .tk-h.tk-fin .tk-mark .i,:root [data-style=&quot;clean&quot;].tk-h.tk-fin .tk-mark .i{width:10px;height:10px;stroke-width:3.2;stroke-dasharray:21;animation:tkdraw var(--dm-t) var(--dm-ease) .14s backwards}
-/* the steps are as tall as Soft&#39;s, so the card keeps its stage&#39;s height in every style: 5px above and below each step,
-   and its last words 16px from the card&#39;s foot */
-:root[data-style=&quot;clean&quot;] .tk-list,:root [data-style=&quot;clean&quot;] .tk-list,:root [data-style=&quot;clean&quot;].tk-list{padding:8px 16px 10px;border-top:1px solid var(--dm-line)}
+/* the first step&#39;s words 16px under the header&#39;s hairline and the last ones 16px from the card&#39;s foot, 5px above and below
+   each step; the card is no taller than Soft&#39;s trace, so its stage keeps its height in every style */
+:root[data-style=&quot;clean&quot;] .tk-list,:root [data-style=&quot;clean&quot;] .tk-list,:root [data-style=&quot;clean&quot;].tk-list{padding:10px 16px;border-top:1px solid var(--dm-line)}
 :root[data-style=&quot;clean&quot;] .tk-st,:root [data-style=&quot;clean&quot;] .tk-st,:root [data-style=&quot;clean&quot;].tk-st{padding:5px 0}
 /* a step&#39;s time sits on its first line&#39;s centre line, and ends where the chevron does */
 :root[data-style=&quot;clean&quot;] .tk-st .tk-ln,:root [data-style=&quot;clean&quot;] .tk-st .tk-ln,:root [data-style=&quot;clean&quot;].tk-st .tk-ln{align-items:flex-start}
-:root[data-style=&quot;clean&quot;] .tk-st .lab,:root [data-style=&quot;clean&quot;] .tk-st .lab,:root [data-style=&quot;clean&quot;].tk-st .lab,:root[data-style=&quot;clean&quot;] .tk-st .tk-dur,:root [data-style=&quot;clean&quot;] .tk-st .tk-dur,:root [data-style=&quot;clean&quot;].tk-st .tk-dur{line-height:20px}
+:root[data-style=&quot;clean&quot;] .tk-st .lab,:root [data-style=&quot;clean&quot;] .tk-st .lab,:root [data-style=&quot;clean&quot;].tk-st .lab,:root[data-style=&quot;clean&quot;] .tk-st .tk-dur,:root [data-style=&quot;clean&quot;] .tk-st .tk-dur,:root [data-style=&quot;clean&quot;].tk-st .tk-dur{line-height:19px}
 :root[data-style=&quot;clean&quot;] .tk-st .res,:root [data-style=&quot;clean&quot;] .tk-st .res,:root [data-style=&quot;clean&quot;].tk-st .res{line-height:17px}
 :root[data-style=&quot;clean&quot;] .tk-st .tk-dur,:root [data-style=&quot;clean&quot;] .tk-st .tk-dur,:root [data-style=&quot;clean&quot;].tk-st .tk-dur{font-variant-numeric:tabular-nums}
 /* the marks: 16px discs 16px in from the card&#39;s edge, centred on the step&#39;s first line, under the header&#39;s mark */
-:root[data-style=&quot;clean&quot;] .tk-st .mk,:root [data-style=&quot;clean&quot;] .tk-st .mk,:root [data-style=&quot;clean&quot;].tk-st .mk{width:16px;height:16px;margin:2px 2px 0 0;color:var(--dm-fg);background:none;transition:none}
+:root[data-style=&quot;clean&quot;] .tk-st .mk,:root [data-style=&quot;clean&quot;] .tk-st .mk,:root [data-style=&quot;clean&quot;].tk-st .mk{width:16px;height:16px;margin:1.5px 2px 0 0;color:var(--dm-fg);background:none;transition:none}
 :root[data-style=&quot;clean&quot;] .tk-st.run .mk,:root [data-style=&quot;clean&quot;] .tk-st.run .mk,:root [data-style=&quot;clean&quot;].tk-st.run .mk{background:none;animation:none}
 :root[data-style=&quot;clean&quot;] .tk-st.run .mk .spin,:root [data-style=&quot;clean&quot;] .tk-st.run .mk .spin,:root [data-style=&quot;clean&quot;].tk-st.run .mk .spin{box-sizing:border-box;width:16px;height:16px;border:1.5px solid var(--dm-line);border-top-color:var(--dm-fg);animation:rot .9s linear infinite}
 :root[data-style=&quot;clean&quot;] .tk-st.done .mk,:root [data-style=&quot;clean&quot;] .tk-st.done .mk,:root [data-style=&quot;clean&quot;].tk-st.done .mk{background:var(--dm-ok-mark);color:var(--dm-surface);animation:tkdisc var(--dm-t) var(--dm-ease) backwards}
@@ -775,12 +793,12 @@ const { class: className, ...rest } = Astro.props;
 @keyframes tkdisc{from{opacity:0;transform:scale(.5)}}
 @keyframes tkdraw{from{stroke-dashoffset:21}}
 /* the hairline from under each mark to just above the next, darkening down into the next step once this one is done */
-:root[data-style=&quot;clean&quot;] .tk-st:not(:last-child)::before,:root [data-style=&quot;clean&quot;] .tk-st:not(:last-child)::before,:root [data-style=&quot;clean&quot;].tk-st:not(:last-child)::before,:root[data-style=&quot;clean&quot;] .tk-st.done:not(:last-child)::after,:root [data-style=&quot;clean&quot;] .tk-st.done:not(:last-child)::after,:root [data-style=&quot;clean&quot;].tk-st.done:not(:last-child)::after{left:7.5px;top:27px;bottom:-3px;width:1px;border-radius:0;background:var(--dm-line)}
+:root[data-style=&quot;clean&quot;] .tk-st:not(:last-child)::before,:root [data-style=&quot;clean&quot;] .tk-st:not(:last-child)::before,:root [data-style=&quot;clean&quot;].tk-st:not(:last-child)::before,:root[data-style=&quot;clean&quot;] .tk-st.done:not(:last-child)::after,:root [data-style=&quot;clean&quot;] .tk-st.done:not(:last-child)::after,:root [data-style=&quot;clean&quot;].tk-st.done:not(:last-child)::after{left:7.5px;top:26.5px;bottom:-2.5px;width:1px;border-radius:0;background:var(--dm-line)}
 :root[data-style=&quot;clean&quot;] .tk-st.done:not(:last-child)::after,:root [data-style=&quot;clean&quot;] .tk-st.done:not(:last-child)::after,:root [data-style=&quot;clean&quot;].tk-st.done:not(:last-child)::after{background:var(--dm-line-strong);animation:tkgrow var(--dm-t-slow) var(--dm-ease-io) .2s backwards}
 /* what a step found writes itself in a word at a time: a fade and a 3px rise, no blur */
 @keyframes tkwordc{from{opacity:0;transform:translateY(3px)}}
 :root[data-style=&quot;clean&quot;] .tk-st .res .w,:root [data-style=&quot;clean&quot;] .tk-st .res .w,:root [data-style=&quot;clean&quot;].tk-st .res .w{animation:tkwordc var(--dm-t-slow) var(--dm-ease) backwards}
-</code></pre></details><details class="cp-file"><summary>thinking.js<span class="l">HTML · 57 lines</span></summary><pre class="cp-pre" data-name="thinking.js"><code>DM.def(&#39;thinking&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>thinking.js<span class="l">HTML · 59 lines</span></summary><pre class="cp-pre" data-name="thinking.js"><code>DM.def(&#39;thinking&#39;, (r, c) =&gt; {
   const tk = $(&#39;.tk&#39;, r), list = $(&#39;.tk-list&#39;, r), title = $(&#39;.tk-title&#39;, r), time = $(&#39;.tk-time&#39;, r), head = $(&#39;.tk-h&#39;, r), fold = $(&#39;.tk-fold&#39;, r), mark = $(&#39;.tk-mark&#39;, r);
   // each step: what the agent does and what it found. Measuring the cards times out once, counts down and tries again
   const S = [
@@ -804,9 +822,11 @@ const { class: className, ...rest } = Astro.props;
   // the line under a step opens and then crossfades; what the step found writes itself in a word at a time, and a tip on it
   // holds the detail
   const words = t =&gt; t.split(&#39; &#39;).map((w, i, a) =&gt; `&lt;span class=&quot;w&quot; style=&quot;animation-delay:${i * 45}ms&quot;&gt;${w}${i &lt; a.length - 1 ? &#39; &#39; : &#39;&#39;}&lt;/span&gt;`).join(&#39;&#39;);
-  const note = (li, text, tip, found) =&gt; { const res = $(&#39;.res&#39;, li), sp = res.firstElementChild; res.classList.add(&#39;on&#39;);
-    if (found){ sp._sw = null; sp.classList.remove(&#39;out&#39;); sp.innerHTML = tip ? `&lt;span data-tip=&quot;${tip}&quot;&gt;${words(text)}&lt;/span&gt;` : words(text); }
-    else swap(sp, text); };
+  // (warn: the step is waiting out a problem; its amber lands with its words, 170ms on as swap() writes them)
+  const note = (li, text, tip, found, warn = false) =&gt; { const res = $(&#39;.res&#39;, li), sp = res.firstElementChild; res.classList.add(&#39;on&#39;);
+    clearTimeout(sp._tone); const set = () =&gt; sp.classList.toggle(&#39;warn&#39;, warn);
+    if (found){ set(); sp._sw = null; sp.classList.remove(&#39;out&#39;); sp.innerHTML = tip ? `&lt;span data-tip=&quot;${tip}&quot;&gt;${words(text)}&lt;/span&gt;` : words(text); }
+    else { const lag = !REDUCE &amp;&amp; !!sp.textContent.trim() &amp;&amp; sp.textContent !== text; swap(sp, text); if (lag) sp._tone = setTimeout(set, 170); else set(); } };
   const glyph = (li, g) =&gt; { const mk = $(&#39;.mk&#39;, li); mk.innerHTML = g; enter(mk.firstElementChild); };
   let secs = 0, live = true; c.every(1000, () =&gt; { if (live){ secs++; time.textContent = secs + &#39;s&#39;; } });
   c.run(async () =&gt; {
@@ -818,7 +838,7 @@ const { class: className, ...rest } = Astro.props;
       await c.wait(ms);
       if (x &amp;&amp; x.retry){
         li.classList.replace(&#39;run&#39;, &#39;retry&#39;); l.classList.remove(&#39;shim&#39;); glyph(li, I(&#39;clock&#39;,&#39;xs&#39;));
-        for (let k = 2; k &gt; 0; k--){ note(li, `${x.retry}. Trying again in ${k}s`); await c.wait(1000); }
+        for (let k = 2; k &gt; 0; k--){ note(li, `${x.retry}. Trying again in ${k}s`, null, false, true); await c.wait(1000); }
         li.classList.replace(&#39;retry&#39;, &#39;run&#39;); l.classList.add(&#39;shim&#39;); glyph(li, &#39;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&#39;); note(li, &#39;Trying again&#39;); await c.wait(900); took += 2900;
       }
       li.classList.replace(&#39;run&#39;, &#39;done&#39;); l.classList.remove(&#39;shim&#39;); glyph(li, I(&#39;check&#39;,&#39;xs&#39;)); note(li, res, x &amp;&amp; x.tip, true);
@@ -836,7 +856,7 @@ const { class: className, ...rest } = Astro.props;
     s.away(); await s.beat(1);
   });
 });
-</code></pre></details></div></section><section class="cp-sec" id="questions"><div class="pg-sh"><span class="n">06</span><h2>Questions</h2><p>What people ask about it.</p></div><dl class="cp-qs"><div><dt class="pg-t">How do I show a step that is waiting out a problem?</dt><dd>Set its <code>state</code> to <code>'retry'</code> and put what it waits on in <code>result</code>, like "Figma didn't answer. Trying again in 2s". Update the result each second for a countdown, then set the state back to <code>'running'</code> and finally <code>'done'</code> with what it found.</dd></div><div><dt class="pg-t">What does the header say when the work is done?</dt><dd>Whatever you pass as <code>summary</code>, which should say what the work came to. Without it, the header says how many steps there were.</dd></div><div><dt class="pg-t">Can I keep the trace open after it finishes?</dt><dd>Yes. Set <code>collapseWhenDone</code> to false, or control it with <code>open</code> and <code>onOpenChange</code>.</dd></div></dl></section><section class="cp-sec" id="more"><div class="pg-sh"><span class="n">07</span><h2>More in Agent status</h2><p>Show what the agent is doing, how far along it is, and what it is working with.</p></div><div class="pg-cards"><div class="pg-card"><a class="pg-t pg-link" href="/components/reasoning-trail">Reasoning trail</a><span class="pg-d">The agent&#39;s plan, notes, sources and edits, after it thinks.</span><span class="pg-thumb" data-reg="reasoning-trail" data-h="455"><img class="lt" src="/components/thumbs/reasoning-trail-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/reasoning-trail-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/agent-lanes">Agent lanes</a><span class="pg-d">Several agents working in parallel, each with its own lane and hand-offs.</span><span class="pg-thumb" data-reg="agent-lanes" data-h="623" data-wide="1"><img class="lt" src="/components/thumbs/agent-lanes-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/agent-lanes-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/agent-tree">Agent tree</a><span class="pg-d">An orchestrator and its sub-agents, with cost rolled up per branch.</span><span class="pg-thumb" data-reg="agent-tree" data-h="571" data-wide="1"><img class="lt" src="/components/thumbs/agent-tree-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/agent-tree-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/agent-inbox">Agent inbox</a><span class="pg-d">Every run that needs you, is running or is done, in one list.</span><span class="pg-thumb" data-reg="agent-inbox" data-h="583" data-wide="1"><img class="lt" src="/components/thumbs/agent-inbox-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/agent-inbox-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/trace-view">Trace view</a><span class="pg-d">One agent run as a waterfall of spans, with latency and tokens.</span><span class="pg-thumb" data-reg="trace-view" data-h="645" data-wide="1"><img class="lt" src="/components/thumbs/trace-view-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/trace-view-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/web-search">Web search</a><span class="pg-d">The agent&#39;s searches as a trail: what it asked, what came back, what it read or skipped, and the answer with its sources.</span><span class="pg-thumb" data-reg="web-search" data-h="524" data-wide="1"><img class="lt" src="/components/thumbs/web-search-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/web-search-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/agent-run-timeline">Agent run timeline</a><span class="pg-d">Every model and tool step of a run on one time axis.</span><span class="pg-thumb" data-reg="agent-run-timeline" data-h="553" data-wide="1"><img class="lt" src="/components/thumbs/agent-run-timeline-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/agent-run-timeline-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/context-meter">Context meter</a><span class="pg-d">How full the context is and what fills it, with Compact to free room.</span><span class="pg-thumb" data-reg="context-meter" data-h="463"><img class="lt" src="/components/thumbs/context-meter-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/context-meter-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div></div><a class="cp-all" href="/#s-status">All 15 in Agent status →</a></section><nav class="dc-pn" aria-label="Previous and next component"><a href="/components/feedback-sheet" rel="prev"><span class="pg-d"><svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"/></svg>Previous</span><span class="pg-t">Feedback sheet</span></a><a href="/components/reasoning-trail" rel="next" class="n"><span class="pg-d">Next<svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span><span class="pg-t">Reasoning trail</span></a></nav></div></div></div><script>
+</code></pre></details></div></section><section class="cp-sec" id="questions"><div class="pg-sh"><span class="n">06</span><h2>Questions</h2><p>What people ask about it.</p></div><dl class="cp-qs"><div><dt class="pg-t">How do I show a step that is waiting out a problem?</dt><dd>Set its <code>state</code> to <code>'retry'</code> and put what it waits on in <code>result</code>, like "Figma didn't answer. Trying again in 2s". Update the result each second for a countdown, then set the state back to <code>'running'</code> and finally <code>'done'</code> with what it found.</dd></div><div><dt class="pg-t">What does the header say when the work is done?</dt><dd>Whatever you pass as <code>summary</code>, which should say what the work came to. Without it, the header says how many steps there were.</dd></div><div><dt class="pg-t">Can I keep the trace open after it finishes?</dt><dd>Yes. Set <code>collapseWhenDone</code> to false, or control it with <code>open</code> and <code>onOpenChange</code>.</dd></div></dl></section><section class="cp-sec" id="more"><div class="pg-sh"><span class="n">07</span><h2>More in Agent status</h2><p>Show what the agent is doing, how far along it is, and what it is working with.</p></div><div class="pg-cards"><div class="pg-card"><a class="pg-t pg-link" href="/components/reasoning-trail">Reasoning trail</a><span class="pg-d">The agent&#39;s plan, notes, sources and edits, after it thinks.</span><span class="pg-thumb" data-reg="reasoning-trail" data-h="455"><img class="lt" src="/components/thumbs/reasoning-trail-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/reasoning-trail-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/agent-lanes">Agent lanes</a><span class="pg-d">Several agents working in parallel, each with its own lane and hand-offs.</span><span class="pg-thumb" data-reg="agent-lanes" data-h="623" data-wide="1"><img class="lt" src="/components/thumbs/agent-lanes-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/agent-lanes-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/agent-tree">Agent tree</a><span class="pg-d">An orchestrator and its sub-agents, with cost rolled up per branch.</span><span class="pg-thumb" data-reg="agent-tree" data-h="571" data-wide="1"><img class="lt" src="/components/thumbs/agent-tree-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/agent-tree-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/agent-inbox">Agent inbox</a><span class="pg-d">Every run that needs you, is running or is done, in one list.</span><span class="pg-thumb" data-reg="agent-inbox" data-h="595" data-wide="1"><img class="lt" src="/components/thumbs/agent-inbox-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/agent-inbox-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/trace-view">Trace view</a><span class="pg-d">One agent run as a waterfall of spans, with latency and tokens.</span><span class="pg-thumb" data-reg="trace-view" data-h="631" data-wide="1"><img class="lt" src="/components/thumbs/trace-view-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/trace-view-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/web-search">Web search</a><span class="pg-d">The agent&#39;s searches as a trail: what it asked, what came back, what it read or skipped, and the answer with its sources.</span><span class="pg-thumb" data-reg="web-search" data-h="524" data-wide="1"><img class="lt" src="/components/thumbs/web-search-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/web-search-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/agent-run-timeline">Agent run timeline</a><span class="pg-d">Every model and tool step of a run on one time axis.</span><span class="pg-thumb" data-reg="agent-run-timeline" data-h="553" data-wide="1"><img class="lt" src="/components/thumbs/agent-run-timeline-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/agent-run-timeline-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/context-meter">Context meter</a><span class="pg-d">How full the context is and what fills it, with Compact to free room.</span><span class="pg-thumb" data-reg="context-meter" data-h="463"><img class="lt" src="/components/thumbs/context-meter-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/context-meter-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div></div><a class="cp-all" href="/#s-status">All 15 in Agent status →</a></section><nav class="dc-pn" aria-label="Previous and next component"><a href="/components/feedback-sheet" rel="prev"><span class="pg-d"><svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"/></svg>Previous</span><span class="pg-t">Feedback sheet</span></a><a href="/components/reasoning-trail" rel="next" class="n"><span class="pg-d">Next<svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span><span class="pg-t">Reasoning trail</span></a></nav></div></div></div><script>
 // the sidebar, as the homepage's behaves
 (function(){
   var side = document.getElementById('side');
@@ -1196,9 +1216,11 @@ const fitHits = window.dmFitHits || (() => {
   // the line under a step opens and then crossfades; what the step found writes itself in a word at a time, and a tip on it
   // holds the detail
   const words = t => t.split(' ').map((w, i, a) => `<span class="w" style="animation-delay:${i * 45}ms">${w}${i < a.length - 1 ? ' ' : ''}</span>`).join('');
-  const note = (li, text, tip, found) => { const res = $('.res', li), sp = res.firstElementChild; res.classList.add('on');
-    if (found){ sp._sw = null; sp.classList.remove('out'); sp.innerHTML = tip ? `<span data-tip="${tip}">${words(text)}</span>` : words(text); }
-    else swap(sp, text); };
+  // (warn: the step is waiting out a problem; its amber lands with its words, 170ms on as swap() writes them)
+  const note = (li, text, tip, found, warn = false) => { const res = $('.res', li), sp = res.firstElementChild; res.classList.add('on');
+    clearTimeout(sp._tone); const set = () => sp.classList.toggle('warn', warn);
+    if (found){ set(); sp._sw = null; sp.classList.remove('out'); sp.innerHTML = tip ? `<span data-tip="${tip}">${words(text)}</span>` : words(text); }
+    else { const lag = !REDUCE && !!sp.textContent.trim() && sp.textContent !== text; swap(sp, text); if (lag) sp._tone = setTimeout(set, 170); else set(); } };
   const glyph = (li, g) => { const mk = $('.mk', li); mk.innerHTML = g; enter(mk.firstElementChild); };
   let secs = 0, live = true; c.every(1000, () => { if (live){ secs++; time.textContent = secs + 's'; } });
   c.run(async () => {
@@ -1210,7 +1232,7 @@ const fitHits = window.dmFitHits || (() => {
       await c.wait(ms);
       if (x && x.retry){
         li.classList.replace('run', 'retry'); l.classList.remove('shim'); glyph(li, I('clock','xs'));
-        for (let k = 2; k > 0; k--){ note(li, `${x.retry}. Trying again in ${k}s`); await c.wait(1000); }
+        for (let k = 2; k > 0; k--){ note(li, `${x.retry}. Trying again in ${k}s`, null, false, true); await c.wait(1000); }
         li.classList.replace('retry', 'run'); l.classList.add('shim'); glyph(li, '<span class="spin"></span>'); note(li, 'Trying again'); await c.wait(900); took += 2900;
       }
       li.classList.replace('run', 'done'); l.classList.remove('shim'); glyph(li, I('check','xs')); note(li, res, x && x.tip, true);
