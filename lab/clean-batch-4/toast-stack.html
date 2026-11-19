@@ -314,7 +314,7 @@ export default function ToastStackDemo() {
 import ToastStack from &#39;../components/designme/toast-stack/ToastStack.astro&#39;;
 ---
 &lt;ToastStack /&gt;
-&lt;ToastStack data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything ToastStack takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>toasts</code><span class="opt">required</span></td><td><code>StackToast[]</code></td><td>Oldest first. The last one sits in front</td></tr><tr><td><code>onDismiss</code></td><td><code>(id: StackToast[&#39;id&#39;]) =&gt; void</code></td><td>Called when a toast&#39;s close button is pressed. Remove it from `toasts` and it slides away</td></tr><tr><td><code>expanded</code></td><td><code>boolean</code></td><td>Fans the stack out. Leave it out to fan it while the pointer is over it</td></tr><tr><td><code>max</code></td><td><code>number</code></td><td>How many toasts stay mounted. Older ones drop off the back</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>ToastStack.tsx<span class="l">React · 143 lines</span></summary><pre class="cp-pre" data-name="ToastStack.tsx"><code>&#39;use client&#39;;
+&lt;ToastStack data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything ToastStack takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>toasts</code><span class="opt">required</span></td><td><code>StackToast[]</code></td><td>Oldest first. The last one sits in front</td></tr><tr><td><code>onDismiss</code></td><td><code>(id: StackToast[&#39;id&#39;]) =&gt; void</code></td><td>Called when a toast&#39;s close button is pressed. Remove it from `toasts` and it slides away</td></tr><tr><td><code>expanded</code></td><td><code>boolean</code></td><td>Fans the stack out. Leave it out to fan it while the pointer is over it</td></tr><tr><td><code>max</code></td><td><code>number</code></td><td>How many toasts stay mounted. Older ones drop off the back</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>ToastStack.tsx<span class="l">React · 144 lines</span></summary><pre class="cp-pre" data-name="ToastStack.tsx"><code>&#39;use client&#39;;
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useIsoLayoutEffect } from &#39;../lib/hooks&#39;;
@@ -394,12 +394,17 @@ export function ToastStack({ toasts, onDismiss, expanded, max = 6, className }: 
     return () =&gt; ro.disconnect();
   }, [ids]);
 
+  // the toasts a new one covers lose their words as it starts to rise (Clean shows them through no blur), until the stack fans out
+  const [under, setUnder] = useState&lt;Set&lt;StackToast[&#39;id&#39;]&gt;&gt;(() =&gt; new Set());
+  if (fan &amp;&amp; under.size) setUnder(new Set());
   // new toasts wait two frames in their arriving pose, so the move to their place animates
   const [placed, setPlaced] = useState&lt;Set&lt;StackToast[&#39;id&#39;]&gt;&gt;(() =&gt; new Set());
   useEffect(() =&gt; {
     const fresh = live.filter(t =&gt; !placed.has(t.id)).map(t =&gt; t.id);
     if (!fresh.length) return;
-    let raf = requestAnimationFrame(() =&gt; { raf = requestAnimationFrame(() =&gt; setPlaced(p =&gt; new Set([...p, ...fresh]))); });
+    // as they start to rise into place, the toasts they cover lose their words at once (Clean shows them through no blur)
+    const behind = live.filter(t =&gt; !fresh.includes(t.id)).map(t =&gt; t.id);
+    let raf = requestAnimationFrame(() =&gt; { raf = requestAnimationFrame(() =&gt; { setPlaced(p =&gt; new Set([...p, ...fresh])); if (!fan) setUnder(new Set(behind)); }); });
     return () =&gt; cancelAnimationFrame(raf);
   }, [ids]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -408,12 +413,8 @@ export function ToastStack({ toasts, onDismiss, expanded, max = 6, className }: 
   type Leaving = { toast: StackToast; style: CSSProperties; at: number };
   const [prev, setPrev] = useState({ ids, live, fan, hs });
   const [leaving, setLeaving] = useState&lt;Leaving[]&gt;([]);
-  // the toasts a new one covers lose their words at once (Clean shows them through no blur), until the stack fans out
-  const [under, setUnder] = useState&lt;Set&lt;StackToast[&#39;id&#39;]&gt;&gt;(() =&gt; new Set());
-  if (fan &amp;&amp; under.size) setUnder(new Set());
   if (prev.ids !== ids) {
-    const now = new Set(live.map(t =&gt; t.id)), n = prev.live.length, was = new Set(prev.live.map(t =&gt; t.id));
-    if (!fan &amp;&amp; live.some(t =&gt; !was.has(t.id))) setUnder(new Set(prev.live.map(t =&gt; t.id)));
+    const now = new Set(live.map(t =&gt; t.id)), n = prev.live.length;
     const gone = prev.live.flatMap((t, at): Leaving[] =&gt; {
       if (now.has(t.id) || leaving.some(l =&gt; l.toast.id === t.id)) return [];
       const was = place(n - 1 - at, prev.fan, prev.hs);
@@ -573,7 +574,7 @@ const { class: className, ...rest } = Astro.props;
 :root[data-style=&quot;clean&quot;] .tsk-c .g[data-tone=&quot;warn&quot;],:root [data-style=&quot;clean&quot;] .tsk-c .g[data-tone=&quot;warn&quot;],:root [data-style=&quot;clean&quot;].tsk-c .g[data-tone=&quot;warn&quot;]{color:var(--dm-warn-mark)!important}
 :root[data-style=&quot;clean&quot;] .tsk-c .g[data-tone=&quot;bad&quot;],:root [data-style=&quot;clean&quot;] .tsk-c .g[data-tone=&quot;bad&quot;],:root [data-style=&quot;clean&quot;].tsk-c .g[data-tone=&quot;bad&quot;]{color:var(--dm-bad-mark)!important}
 :root[data-style=&quot;clean&quot;] .tsk-c .t,:root [data-style=&quot;clean&quot;] .tsk-c .t,:root [data-style=&quot;clean&quot;].tsk-c .t{font-variant-numeric:tabular-nums}
-</code></pre></details><details class="cp-file"><summary>toast-stack.js<span class="l">HTML · 49 lines</span></summary><pre class="cp-pre" data-name="toast-stack.js"><code>DM.def(&#39;toast-stack&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>toast-stack.js<span class="l">HTML · 51 lines</span></summary><pre class="cp-pre" data-name="toast-stack.js"><code>DM.def(&#39;toast-stack&#39;, (r, c) =&gt; {
   const stack = $(&#39;.tsk-stack&#39;, r);
   // each with its tone (data-tone): Clean colours only the status ones, ok and warn, and shows the rest grey
   const pool = [
@@ -587,6 +588,9 @@ const { class: className, ...rest } = Astro.props;
   let items = [], n = 0, hover = false, focused = false;
   function layout(){
     const fan = hover || focused; let y = 0;
+    // as a new toast starts to rise into place, the toasts it covers lose their words at once (Clean shows them through no
+    // blur): .tsk-under, until the stack fans out
+    const front = items[items.length - 1]; if (front &amp;&amp; front._new){ front._new = false; if (!fan) items.forEach(it =&gt; it !== front &amp;&amp; it.classList.add(&#39;tsk-under&#39;)); }
     const hs = items.map(it =&gt; it.offsetHeight);
     stack.style.setProperty(&#39;--dm-fanh&#39;, (hs.slice(-4).reduce((a, b) =&gt; a + b + 8, 0) - 8 || 96) + &#39;px&#39;);
     // the deck&#39;s own height: the front toast and the two that peek out above it (Clean sizes the stack to it)
@@ -602,8 +606,7 @@ const { class: className, ...rest } = Astro.props;
     const p = pool[n++ % pool.length];
     const el = html(`&lt;div class=&quot;tsk-c&quot;&gt;&lt;span class=&quot;g&quot; data-tone=&quot;${p[5]}&quot; style=&quot;color:${p[1]};background:${p[2]}&quot;&gt;${I(p[0])}&lt;/span&gt;&lt;div class=&quot;tx&quot;&gt;&lt;b&gt;${p[3]}&lt;/b&gt;&lt;span&gt;${p[4]}&lt;/span&gt;&lt;/div&gt;&lt;span class=&quot;t&quot;&gt;now&lt;/span&gt;&lt;button class=&quot;ib&quot; aria-label=&quot;Dismiss&quot; data-tip=&quot;Dismiss&quot;&gt;${I(&#39;x&#39;)}&lt;/button&gt;&lt;/div&gt;`);
     el.style.transform = &#39;translateY(24px) scale(.96)&#39;; el.style.opacity = 0; el.style.filter = &#39;blur(6px)&#39;;
-    // the toasts it covers lose their words at once (Clean shows them through no blur): .tsk-under, until the stack fans out
-    items.forEach(it =&gt; it.classList.add(&#39;tsk-under&#39;));
+    el._new = true;
     stack.appendChild(el); items.push(el);
     $(&#39;.ib&#39;, el).onclick = () =&gt; { items = items.filter(x =&gt; x !== el); el.style.opacity = 0; el.style.transform += &#39; translateX(30px)&#39;; setTimeout(() =&gt; el.remove(), 400); layout(); };
     if (items.length &gt; 6){ const old = items.shift(); old.remove(); }
@@ -971,6 +974,9 @@ const fitHits = window.dmFitHits || (() => {
   let items = [], n = 0, hover = false, focused = false;
   function layout(){
     const fan = hover || focused; let y = 0;
+    // as a new toast starts to rise into place, the toasts it covers lose their words at once (Clean shows them through no
+    // blur): .tsk-under, until the stack fans out
+    const front = items[items.length - 1]; if (front && front._new){ front._new = false; if (!fan) items.forEach(it => it !== front && it.classList.add('tsk-under')); }
     const hs = items.map(it => it.offsetHeight);
     stack.style.setProperty('--dm-fanh', (hs.slice(-4).reduce((a, b) => a + b + 8, 0) - 8 || 96) + 'px');
     // the deck's own height: the front toast and the two that peek out above it (Clean sizes the stack to it)
@@ -986,8 +992,7 @@ const fitHits = window.dmFitHits || (() => {
     const p = pool[n++ % pool.length];
     const el = html(`<div class="tsk-c"><span class="g" data-tone="${p[5]}" style="color:${p[1]};background:${p[2]}">${I(p[0])}</span><div class="tx"><b>${p[3]}</b><span>${p[4]}</span></div><span class="t">now</span><button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div>`);
     el.style.transform = 'translateY(24px) scale(.96)'; el.style.opacity = 0; el.style.filter = 'blur(6px)';
-    // the toasts it covers lose their words at once (Clean shows them through no blur): .tsk-under, until the stack fans out
-    items.forEach(it => it.classList.add('tsk-under'));
+    el._new = true;
     stack.appendChild(el); items.push(el);
     $('.ib', el).onclick = () => { items = items.filter(x => x !== el); el.style.opacity = 0; el.style.transform += ' translateX(30px)'; setTimeout(() => el.remove(), 400); layout(); };
     if (items.length > 6){ const old = items.shift(); old.remove(); }

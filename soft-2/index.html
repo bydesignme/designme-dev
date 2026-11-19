@@ -11545,6 +11545,9 @@ DM.def('toast-stack', (r, c) => {
   let items = [], n = 0, hover = false, focused = false;
   function layout(){
     const fan = hover || focused; let y = 0;
+    // as a new toast starts to rise into place, the toasts it covers lose their words at once (Clean shows them through no
+    // blur): .tsk-under, until the stack fans out
+    const front = items[items.length - 1]; if (front && front._new){ front._new = false; if (!fan) items.forEach(it => it !== front && it.classList.add('tsk-under')); }
     const hs = items.map(it => it.offsetHeight);
     stack.style.setProperty('--fanh', (hs.slice(-4).reduce((a, b) => a + b + 8, 0) - 8 || 96) + 'px');
     // the deck's own height: the front toast and the two that peek out above it (Clean sizes the stack to it)
@@ -11560,8 +11563,7 @@ DM.def('toast-stack', (r, c) => {
     const p = pool[n++ % pool.length];
     const el = html(`<div class="tsk-c"><span class="g" data-tone="${p[5]}" style="color:${p[1]};background:${p[2]}">${I(p[0])}</span><div class="tx"><b>${p[3]}</b><span>${p[4]}</span></div><span class="t">now</span><button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div>`);
     el.style.transform = 'translateY(24px) scale(.96)'; el.style.opacity = 0; el.style.filter = 'blur(6px)';
-    // the toasts it covers lose their words at once (Clean shows them through no blur): .tsk-under, until the stack fans out
-    items.forEach(it => it.classList.add('tsk-under'));
+    el._new = true;
     stack.appendChild(el); items.push(el);
     $('.ib', el).onclick = () => { items = items.filter(x => x !== el); el.style.opacity = 0; el.style.transform += ' translateX(30px)'; setTimeout(() => el.remove(), 400); layout(); };
     if (items.length > 6){ const old = items.shift(); old.remove(); }

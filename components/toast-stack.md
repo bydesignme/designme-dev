@@ -226,12 +226,17 @@ export function ToastStack({ toasts, onDismiss, expanded, max = 6, className }: 
     return () => ro.disconnect();
   }, [ids]);
 
+  // the toasts a new one covers lose their words as it starts to rise (Clean shows them through no blur), until the stack fans out
+  const [under, setUnder] = useState<Set<StackToast['id']>>(() => new Set());
+  if (fan && under.size) setUnder(new Set());
   // new toasts wait two frames in their arriving pose, so the move to their place animates
   const [placed, setPlaced] = useState<Set<StackToast['id']>>(() => new Set());
   useEffect(() => {
     const fresh = live.filter(t => !placed.has(t.id)).map(t => t.id);
     if (!fresh.length) return;
-    let raf = requestAnimationFrame(() => { raf = requestAnimationFrame(() => setPlaced(p => new Set([...p, ...fresh]))); });
+    // as they start to rise into place, the toasts they cover lose their words at once (Clean shows them through no blur)
+    const behind = live.filter(t => !fresh.includes(t.id)).map(t => t.id);
+    let raf = requestAnimationFrame(() => { raf = requestAnimationFrame(() => { setPlaced(p => new Set([...p, ...fresh])); if (!fan) setUnder(new Set(behind)); }); });
     return () => cancelAnimationFrame(raf);
   }, [ids]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -240,12 +245,8 @@ export function ToastStack({ toasts, onDismiss, expanded, max = 6, className }: 
   type Leaving = { toast: StackToast; style: CSSProperties; at: number };
   const [prev, setPrev] = useState({ ids, live, fan, hs });
   const [leaving, setLeaving] = useState<Leaving[]>([]);
-  // the toasts a new one covers lose their words at once (Clean shows them through no blur), until the stack fans out
-  const [under, setUnder] = useState<Set<StackToast['id']>>(() => new Set());
-  if (fan && under.size) setUnder(new Set());
   if (prev.ids !== ids) {
-    const now = new Set(live.map(t => t.id)), n = prev.live.length, was = new Set(prev.live.map(t => t.id));
-    if (!fan && live.some(t => !was.has(t.id))) setUnder(new Set(prev.live.map(t => t.id)));
+    const now = new Set(live.map(t => t.id)), n = prev.live.length;
     const gone = prev.live.flatMap((t, at): Leaving[] => {
       if (now.has(t.id) || leaving.some(l => l.toast.id === t.id)) return [];
       const was = place(n - 1 - at, prev.fan, prev.hs);
