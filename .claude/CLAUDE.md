@@ -35,6 +35,9 @@ every session and every agent.
 ## Layout
 - Cards (a border, a fill, padding) are only for things you can click. Facts, requirements, frameworks, notes and
   descriptions are plain text or a plain list, one under another, with no card, border or padding.
+- No row of summary or stat cards on top of a page or screen (owner, 19 Nov: "do not add cards, every AI adds 4 cards at the
+  top, this is a crm page not some dashboard"). An app page is its list or its work; filters are tabs, a segmented row or a
+  menu, not boxes with big numbers. Avoid the patterns every AI-made page has; show something only we can show.
 - In-page links (tables of contents, section anchors) scroll smoothly, and not at all with reduced motion.
 
 ## Type and colour
