@@ -167,7 +167,7 @@ every session and every agent.
   `c.loop`, story beats; `useStory` in React), so the hold reaches it.
 - Except an agent at work (owner, 3 Nov): agent progress and loading demos (`DM.PLAYS`: Status pill, Step loader, Thinking,
   Reasoning trail, Agent lanes, Agent run timeline, Trace view, Agent tree, Run queue, Terminal stream, Browser session,
-  Action log, Attachment tray, Live answer; `useStory(ref, run, { hold: false })` in React) keep playing while the pointer
+  Action log, Attachment tray, Live answer, Agent harness; `useStory(ref, run, { hold: false })` in React) keep playing while the pointer
   rests on them.
 - Loader text, the words that say what is running ("Writing the findings…", "Searching…"), uses the highlight sweep
   (`.shim`, `dm-shim` in React) in every style (owner, 19 Nov: "use it everywhere for loaders").

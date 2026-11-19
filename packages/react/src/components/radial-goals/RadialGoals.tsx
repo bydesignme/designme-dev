@@ -22,7 +22,7 @@ export interface RadialGoalsProps<R extends string = string> {
   /** Two to five goals, outermost first. Three read best: the fewer the rings, the thicker they are */
   goals: RadialGoal[];
   title?: string;
-  /** The line under the title. Defaults to "1 of 3 on target" */
+  /** The line under the title, like the period it covers ("This week"). Leave it out for none */
   subtitle?: string;
   /** A switch for the period, like Week and Month */
   ranges?: { value: R; label: string }[];
@@ -31,7 +31,7 @@ export interface RadialGoalsProps<R extends string = string> {
   className?: string;
 }
 
-const PAL = ['var(--dm-c1)', 'var(--dm-c3)', 'var(--dm-c4)', 'var(--dm-c2)', 'var(--dm-c5)'];
+const PAL = ['var(--dm-c1)', 'var(--dm-c2)', 'var(--dm-c3)', 'var(--dm-c4)', 'var(--dm-c5)'];
 const pc = (x: number) => Math.round(x * 100) + '%';
 
 /** Concentric rings, one per agent, each its share of its own target; past the target a ring goes round again with a marker. */
@@ -44,11 +44,10 @@ export function RadialGoals<R extends string = string>({ goals, title = 'Agent g
   const share = (g: RadialGoal) => g.target ? g.value / g.target : 0;
   const overall = goals.reduce((t, g) => t + share(g), 0) / Math.max(1, goals.length);
   const mid = useTween(focus < 0 ? overall : share(goals[focus]), 600, 0);
-  const on = goals.filter(g => share(g) >= 1).length;
   return (
     <div data-dm="" className={cx('dm-rgx dm-panel', className)}>
       <div className="dm-rgx-h">
-        <div className="dm-rgx-t"><b>{title}</b><Swap className="dm-muted dm-rgx-sub">{subtitle ?? `${on} of ${goals.length} on target`}</Swap></div>
+        <div className="dm-rgx-t"><b>{title}</b>{subtitle && <Swap className="dm-muted dm-rgx-sub">{subtitle}</Swap>}</div>
         {ranges && range !== undefined && onRangeChange && <Seg className="dm-rgx-sg" label="Range" options={ranges} value={range} onChange={onRangeChange} />}
       </div>
       <div className="dm-rgx-b">

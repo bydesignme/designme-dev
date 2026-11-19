@@ -1,7 +1,7 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
 import { $, $$, DM, stagger, tween } from '../core/core.js';
 DM.def('donut-chart', (r, c) => {
-  const D = [['Design reviews',14.2,'var(--dm-c1)'],['Code changes',9.6,'var(--dm-c2)'],['Research',6.1,'var(--dm-c3)'],['Copy edits',3.4,'var(--dm-c4)'],['Other',1.7,'var(--dm-faint)']];
+  const D = [['Design reviews',14.2,'var(--dm-c1)'],['Code changes',9.6,'var(--dm-c2)'],['Research',6.1,'var(--dm-c3)'],['Copy edits',3.4,'var(--dm-c4)'],['Other',1.7,'var(--dm-line-strong)']];
   const tot = D.reduce((a, d) => a + d[1], 0), C = 2 * Math.PI * 48, gap = 2;
   const svg = $('svg', r), lg = $('.dnx-lg', r), ring = $('.dnx-ring', r), v = $('.dnx-v', r), l = $('.dnx-l', r);
   let off = 0;

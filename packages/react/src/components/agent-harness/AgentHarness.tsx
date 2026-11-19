@@ -354,7 +354,8 @@ export function AgentHarness({
 
   const q = query.trim().toLowerCase(), listed = conversations.filter(c => !q || c.title.toLowerCase().includes(q));
   const wsNow = workspaces.find(w => w.name === ws) ?? workspaces[0];
-  const tile = (w: AgentHarnessWorkspace) => ({ background: w.color ?? 'var(--dm-primary)', color: w.color ? '#fff' : 'var(--dm-on-ink)' });
+  // the workspace's tile: ink by default, as the site draws it
+  const tile = (w: AgentHarnessWorkspace) => ({ background: w.color ?? 'var(--dm-ink)', color: w.color ? '#fff' : 'var(--dm-on-ink)' });
   const ph = home ? placeholders?.home ?? 'Ask the agent to do something' : busy ? placeholders?.working ?? 'The agent is working…' : placeholders?.reply ?? 'Reply';
   const box = (
     <Composer {...cp} value={text} onValueChange={setText} onSubmit={send} placeholder={ph}

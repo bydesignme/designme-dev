@@ -25,6 +25,8 @@ DM.def('line-chart', (r, c) => {
     `<g clip-path="url(#lnc)"><path class="ar" d="${smooth(pa)} L320 140 L0 140 Z" fill="url(#lng)"/><path class="ln l1" d="${smooth(pb)}" stroke="var(--c2)" stroke-dasharray="4 4"/><path class="ln l0" d="${smooth(pa)}" stroke="var(--accent-mark,var(--accent))"/></g>`;
   ch.insertAdjacentHTML('beforeend', '<span class="lnx-pt on" style="color:var(--accent-mark,var(--accent))"></span><span class="lnx-pt on" style="color:var(--c2)"></span>');
   const pts = $$('.lnx-pt', ch), on = [true, true];
+  // each month's label sits under its own point
+  $$('.lnx-ax span', r).forEach(sp => { const i = MO.indexOf(sp.textContent.trim()); if (i < 0) return; sp.style.left = i / 11 * 100 + '%'; sp.classList.toggle('e', i === 11); });
   // the line draws and the number counts once the chart has risen into view, so the draw is seen from its start
   v.textContent = '0';
   c.later(260, () => {
@@ -32,9 +34,11 @@ DM.def('line-chart', (r, c) => {
     tween(0, A[11], 1300, n => v.textContent = Math.round(n).toLocaleString('en-US'));
   });
   c.on(ch, 'pointermove', e => { const b = ch.getBoundingClientRect(); const i = Math.max(0, Math.min(11, Math.round((e.clientX - b.left) / b.width * 11))); const px = i / 11 * b.width;
-    x.style.left = px + 'px'; tt.style.left = Math.max(50, Math.min(px, b.width - 50)) + 'px';
+    x.style.left = px + 'px';
     [pa, pb].forEach((p, k) => { pts[k].style.left = px + 'px'; pts[k].style.top = p[i][1] / 140 * b.height + 'px'; pts[k].classList.toggle('on', on[k]); });
     $('b', tt).textContent = (on[0] ? A[i].toLocaleString('en-US') : B[i].toLocaleString('en-US')) + ' editors'; const dv = Math.round((A[i] / B[i] - 1) * 100); $('span', tt).textContent = MO[i] + (on[0] && on[1] ? ', ' + (dv < 0 ? '−' : '+') + Math.abs(dv) + '% vs last year' : '');
+    // the readout sits beside the guide line: on its right while it fits there, then on its left, and always inside the chart
+    const w = tt.offsetWidth, gap = 12; tt.style.left = Math.max(0, px + gap + w <= b.width ? px + gap : px - gap - w) + 'px';
     v.textContent = (on[0] ? A[i] : B[i]).toLocaleString('en-US'); });
   c.on(ch, 'pointerleave', () => v.textContent = (on[0] ? A[11] : B[11]).toLocaleString('en-US'));
   $$('.lnx-k', r).forEach(k => k.onclick = () => { const s = +k.dataset.s; if (on[s] && !on[1 - s]) return; on[s] = !on[s]; k.classList.toggle('on', on[s]); $('.l' + s, svg).classList.toggle('off', !on[s]); if (s === 0) $('.ar', svg).style.opacity = on[0] ? 1 : 0;
@@ -48,21 +52,31 @@ DM.def('bar-chart', (r, c) => {
     m:{ l:['W1','W2','W3','W4','W5','W6','W7'], d:[[180,40,9],[210,44,12],[236,51,8],[262,48,10],[251,39,6],[298,52,7],[321,47,5]] }
   };
   const ch = $('.bcx-ch', r), v = $('.bcx-v', r); let tot = 0;
-  ch.innerHTML = D.w.l.map(() => `<div class="bcx-b"><div class="bcx-tt"><b class="num"></b><span></span></div><div class="bcx-st"><i></i></div><div class="bcx-l"></div></div>`).join('');
+  ch.innerHTML = D.w.l.map(() => `<div class="bcx-b"><div class="bcx-tt"></div><div class="bcx-st"><i></i></div><div class="bcx-l"></div></div>`).join('');
   const bars = $$('.bcx-b', ch);
   function draw(k){
     const d = D[k], mx = Math.max(...d.d.map(x => x[0] + x[1] + x[2])) * 1.08, H = ch.clientHeight - 22;
     bars.forEach((b, i) => { const x = d.d[i], s = x[0] + x[1] + x[2];
       c.later(i * 45, () => { $('.bcx-st i', b).style.height = Math.max(s ? 3 : 0, s / mx * H) + 'px'; });
-      $('.bcx-l', b).textContent = d.l[i]; $('.bcx-tt b', b).textContent = s + ' runs'; $('.bcx-tt span', b).textContent = `${x[0]} shipped, ${x[1]} reviewed, ${x[2]} failed`; });
+      $('.bcx-l', b).textContent = d.l[i];
+      // the readout: the bar's total, then each part on a line of its own, so it stays narrow enough to sit beside its bar
+      $('.bcx-tt', b).innerHTML = `<b class="num">${s} runs</b><span class="num">${x[0]} shipped</span><span class="num">${x[1]} reviewed</span><span class="num">${x[2]} failed</span>`; });
     const t = d.d.reduce((a, x) => a + x[0] + x[1] + x[2], 0); tween(tot, t, 900, n => { tot = n; v.textContent = Math.round(n).toLocaleString('en-US'); });
   }
+  // a bar's readout sits beside it, level with its top: on its right while it fits there, then on its left, and always inside
+  // the chart (on a narrow one it may cover part of its own bar), over the bars and clear of the labels under them
+  const place = b => { const tt = $('.bcx-tt', b), st = $('.bcx-st', b), H = ch.clientHeight, w = tt.offsetWidth, h = tt.offsetHeight, bl = b.offsetLeft, bw = b.offsetWidth, base = H - st.offsetTop - st.offsetHeight;
+    tt.style.bottom = Math.max(base, Math.min(H - h, base + st.offsetHeight - h)) + 'px'; tt.style.left = Math.max(-bl, Math.min(ch.clientWidth - bl - w, bl + bw + 6 + w <= ch.clientWidth ? bw + 6 : -w - 6)) + 'px'; };
+  // it follows its bar while the bar grows or the range changes under the pointer
+  let hot = null;
+  const follow = () => { if (!hot || c.dead) return; place(hot); requestAnimationFrame(follow); };
+  bars.forEach(b => { c.on(b, 'pointerenter', () => { const was = hot; hot = b; if (!was) follow(); }); c.on(b, 'pointerleave', () => { if (hot === b) hot = null; }); });
   seg($('.bcx-rg', r), draw);
   c.later(280, () => draw('w'));
 });
 /* ---------- Donut chart ---------- */
 DM.def('donut-chart', (r, c) => {
-  const D = [['Design reviews',14.2,'var(--c1)'],['Code changes',9.6,'var(--c2)'],['Research',6.1,'var(--c3)'],['Copy edits',3.4,'var(--c4)'],['Other',1.7,'var(--faint)']];
+  const D = [['Design reviews',14.2,'var(--c1)'],['Code changes',9.6,'var(--c2)'],['Research',6.1,'var(--c3)'],['Copy edits',3.4,'var(--c4)'],['Other',1.7,'var(--line-strong)']];
   const tot = D.reduce((a, d) => a + d[1], 0), C = 2 * Math.PI * 48, gap = 2;
   const svg = $('svg', r), lg = $('.dnx-lg', r), ring = $('.dnx-ring', r), v = $('.dnx-v', r), l = $('.dnx-l', r);
   let off = 0;
@@ -465,8 +479,8 @@ DM.def('radial-goals', (r, c) => {
   // each agent, what it counts, and what it did against its target this week and this month
   const A = [
     { n:'Support agent', u:'tickets', c:'var(--c1)', w:[412, 375], m:[1490, 1600] },
-    { n:'QA agent', u:'checks', c:'var(--c3)', w:[136, 160], m:[702, 640] },
-    { n:'Research agent', u:'reports', c:'var(--c4)', w:[18, 24], m:[71, 96] }
+    { n:'QA agent', u:'checks', c:'var(--c2)', w:[136, 160], m:[702, 640] },
+    { n:'Research agent', u:'reports', c:'var(--c3)', w:[18, 24], m:[71, 96] }
   ];
   const svg = $('.rgx-ring svg', r), ring = $('.rgx-ring', r), lg = $('.rgx-lg', r), cb = $('.rgx-c b', r), cl = $('.rgx-c .muted', r), sub = $('.rgx-sub', r), tb = $('.rgx-sr tbody', r);
   // three thick rings, 14 units wide with a 4 unit gap between them, leaving room in the middle for the readout
@@ -491,7 +505,7 @@ DM.def('radial-goals', (r, c) => {
       row.setAttribute('aria-label', `${a.n}: ${a[k][0]} of ${a[k][1]} ${a.u}, ${pc(s)} of target`); });
     tb.innerHTML = A.map(a => `<tr><th>${a.n}</th><td>${a[k][0]} ${a.u}</td><td>${a[k][1]}</td><td>${pc(share(a))}</td></tr>`).join('');
     centre();
-    const on = A.filter(a => share(a) >= 1).length; swap(sub, `${k === 'w' ? 'This week' : 'This month'}, ${on} of ${A.length} on target`);
+    swap(sub, k === 'w' ? 'This week' : 'This month');
   }
   // the middle shows the overall share, or the agent in focus
   function centre(){ const t = focus < 0 ? overall() : share(A[focus]), from = shown; shown = t; tween(from, t, 600, x => cb.textContent = pc(x)); swap(cl, focus < 0 ? 'of targets' : A[focus].n.replace(' agent', '')); }

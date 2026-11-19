@@ -38,7 +38,7 @@ Concentric rings, one for each agent, each filled to its share of that agent's o
 - The middle shows the average share across the goals, or the share of the goal you point at, counting to the new value.
 - Legend rows print each goal's done / target with its unit and its share.
 - Pointing at a ring or a row, or moving the focus to a row, lights both and dims the other rings.
-- An optional range switch (`ranges`, `range`, `onRangeChange`), and a line under the title that says how many are on target.
+- An optional range switch (`ranges`, `range`, `onRangeChange`), and an optional line under the title (`subtitle`), like the period it covers.
 
 ### Accessibility
 
@@ -64,9 +64,9 @@ import { useStory } from '../lib/useScript';
 
 const DATA: Record<'w' | 'm', RadialGoal[]> = {
   w: [{ key: 'support', label: 'Support agent', unit: 'tickets', value: 412, target: 375 }, { key: 'qa', label: 'QA agent', unit: 'checks', value: 136, target: 160 },
-    { key: 'research', label: 'Research agent', unit: 'reports', value: 18, target: 24, color: 'var(--dm-c4)' }],
+    { key: 'research', label: 'Research agent', unit: 'reports', value: 18, target: 24 }],
   m: [{ key: 'support', label: 'Support agent', unit: 'tickets', value: 1490, target: 1600 }, { key: 'qa', label: 'QA agent', unit: 'checks', value: 702, target: 640 },
-    { key: 'research', label: 'Research agent', unit: 'reports', value: 71, target: 96, color: 'var(--dm-c4)' }]
+    { key: 'research', label: 'Research agent', unit: 'reports', value: 71, target: 96 }]
 };
 const EMPTY = DATA.w.map(g => ({ ...g, value: 0 }));
 
@@ -77,10 +77,9 @@ export default function RadialGoalsDemo() {
   const [drawn, setDrawn] = useState(false);
   useEffect(() => { const t = setTimeout(() => setDrawn(true), 260); return () => clearTimeout(t); }, []);
   useStory(ref, async ({ wait }) => { await wait(7000); setRange('m'); await wait(2000); setRange('w'); });
-  const on = DATA[range].filter(g => g.value >= g.target).length;
   return (
     <div ref={ref} style={{ width: '100%' }}>
-      <RadialGoals goals={drawn ? DATA[range] : EMPTY} subtitle={`${range === 'w' ? 'This week' : 'This month'}, ${on} of ${DATA[range].length} on target`}
+      <RadialGoals goals={drawn ? DATA[range] : EMPTY} subtitle={range === 'w' ? 'This week' : 'This month'}
         ranges={[{ value: 'w', label: 'Week' }, { value: 'm', label: 'Month' }]} range={range} onRangeChange={setRange} />
     </div>
   );
@@ -93,7 +92,7 @@ export default function RadialGoalsDemo() {
 | --- | --- | --- |
 | `goals` | `RadialGoal[]` | Two to five goals, outermost first. Three read best: the fewer the rings, the thicker they are |
 | `title` (optional) | `string` |  |
-| `subtitle` (optional) | `string` | The line under the title. Defaults to "1 of 3 on target" |
+| `subtitle` (optional) | `string` | The line under the title, like the period it covers ("This week"). Leave it out for none |
 | `ranges` (optional) | `{ value: R; label: string }[]` | A switch for the period, like Week and Month |
 | `range` (optional) | `R` |  |
 | `onRangeChange` (optional) | `(range: R) => void` |  |
@@ -124,7 +123,7 @@ It is the average of each goal's share, so a goal past its target can lift the a
 
 **Can I leave out the range switch?**
 
-Yes. Leave out `ranges`, or `onRangeChange`, and the header shows the title and its line only.
+Yes. Leave out `ranges`, or `onRangeChange`, and the header shows the title, with its `subtitle` under it when you pass one.
 
 ## Source
 
@@ -155,7 +154,7 @@ export interface RadialGoalsProps<R extends string = string> {
   /** Two to five goals, outermost first. Three read best: the fewer the rings, the thicker they are */
   goals: RadialGoal[];
   title?: string;
-  /** The line under the title. Defaults to "1 of 3 on target" */
+  /** The line under the title, like the period it covers ("This week"). Leave it out for none */
   subtitle?: string;
   /** A switch for the period, like Week and Month */
   ranges?: { value: R; label: string }[];
@@ -164,7 +163,7 @@ export interface RadialGoalsProps<R extends string = string> {
   className?: string;
 }
 
-const PAL = ['var(--dm-c1)', 'var(--dm-c3)', 'var(--dm-c4)', 'var(--dm-c2)', 'var(--dm-c5)'];
+const PAL = ['var(--dm-c1)', 'var(--dm-c2)', 'var(--dm-c3)', 'var(--dm-c4)', 'var(--dm-c5)'];
 const pc = (x: number) => Math.round(x * 100) + '%';
 
 /** Concentric rings, one per agent, each its share of its own target; past the target a ring goes round again with a marker. */
@@ -177,11 +176,10 @@ export function RadialGoals<R extends string = string>({ goals, title = 'Agent g
   const share = (g: RadialGoal) => g.target ? g.value / g.target : 0;
   const overall = goals.reduce((t, g) => t + share(g), 0) / Math.max(1, goals.length);
   const mid = useTween(focus < 0 ? overall : share(goals[focus]), 600, 0);
-  const on = goals.filter(g => share(g) >= 1).length;
   return (
     <div data-dm="" className={cx('dm-rgx dm-panel', className)}>
       <div className="dm-rgx-h">
-        <div className="dm-rgx-t"><b>{title}</b><Swap className="dm-muted dm-rgx-sub">{subtitle ?? `${on} of ${goals.length} on target`}</Swap></div>
+        <div className="dm-rgx-t"><b>{title}</b>{subtitle && <Swap className="dm-muted dm-rgx-sub">{subtitle}</Swap>}</div>
         {ranges && range !== undefined && onRangeChange && <Seg className="dm-rgx-sg" label="Range" options={ranges} value={range} onChange={onRangeChange} />}
       </div>
       <div className="dm-rgx-b">

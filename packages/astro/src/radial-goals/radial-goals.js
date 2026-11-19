@@ -4,8 +4,8 @@ DM.def('radial-goals', (r, c) => {
   // each agent, what it counts, and what it did against its target this week and this month
   const A = [
     { n:'Support agent', u:'tickets', c:'var(--dm-c1)', w:[412, 375], m:[1490, 1600] },
-    { n:'QA agent', u:'checks', c:'var(--dm-c3)', w:[136, 160], m:[702, 640] },
-    { n:'Research agent', u:'reports', c:'var(--dm-c4)', w:[18, 24], m:[71, 96] }
+    { n:'QA agent', u:'checks', c:'var(--dm-c2)', w:[136, 160], m:[702, 640] },
+    { n:'Research agent', u:'reports', c:'var(--dm-c3)', w:[18, 24], m:[71, 96] }
   ];
   const svg = $('.rgx-ring svg', r), ring = $('.rgx-ring', r), lg = $('.rgx-lg', r), cb = $('.rgx-c b', r), cl = $('.rgx-c .muted', r), sub = $('.rgx-sub', r), tb = $('.rgx-sr tbody', r);
   // three thick rings, 14 units wide with a 4 unit gap between them, leaving room in the middle for the readout
@@ -30,7 +30,7 @@ DM.def('radial-goals', (r, c) => {
       row.setAttribute('aria-label', `${a.n}: ${a[k][0]} of ${a[k][1]} ${a.u}, ${pc(s)} of target`); });
     tb.innerHTML = A.map(a => `<tr><th>${a.n}</th><td>${a[k][0]} ${a.u}</td><td>${a[k][1]}</td><td>${pc(share(a))}</td></tr>`).join('');
     centre();
-    const on = A.filter(a => share(a) >= 1).length; swap(sub, `${k === 'w' ? 'This week' : 'This month'}, ${on} of ${A.length} on target`);
+    swap(sub, k === 'w' ? 'This week' : 'This month');
   }
   // the middle shows the overall share, or the agent in focus
   function centre(){ const t = focus < 0 ? overall() : share(A[focus]), from = shown; shown = t; tween(from, t, 600, x => cb.textContent = pc(x)); swap(cl, focus < 0 ? 'of targets' : A[focus].n.replace(' agent', '')); }

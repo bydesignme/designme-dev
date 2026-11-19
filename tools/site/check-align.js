@@ -20,7 +20,8 @@ function sample(id){
   const comp = document.querySelector(`.comp[data-v2="${id}"]`), sin = comp.querySelector('.v2.stage-in');
   const out = [];
   if (sin.getAnimations({ subtree:true }).some(a => a.playState === 'running' && a.effect && a.effect.getComputedTiming().iterations !== Infinity)) return { skip:true };
-  const vis = e => { for (let a = e; a && a !== sin; a = a.parentElement){ const cs = getComputedStyle(a); if (cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity < .1 || a.hidden || a.matches('.hand,.tip')) return false; } return true; };
+  // (text kept for screen readers only, clipped to nothing with clip-path: inset(50%), is not on screen either)
+  const vis = e => { for (let a = e; a && a !== sin; a = a.parentElement){ const cs = getComputedStyle(a); if (cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity < .1 || a.hidden || a.matches('.hand,.tip') || cs.clipPath === 'inset(50%)') return false; } return true; };
   const name = e => (typeof e.className === 'string' && e.className.trim() ? '.' + e.className.trim().split(/\s+/).slice(0, 2).join('.') : e.tagName.toLowerCase()) + (e.textContent && e.textContent.trim() ? ` "${e.textContent.trim().slice(0, 18)}"` : '');
   // the card: the outermost element with a radius and an edge
   const card = [...sin.querySelectorAll('*')].find(e => { const cs = getComputedStyle(e); return parseFloat(cs.borderTopLeftRadius) >= 8 && (cs.boxShadow !== 'none' || parseFloat(cs.borderTopWidth) > 0) && e.getBoundingClientRect().width > 200 && !e.closest('.pop,.hand,button'); }) || sin;
@@ -32,8 +33,11 @@ function sample(id){
     if (!card.contains(e) || !vis(e) || (e.closest('svg') && e.tagName.toLowerCase() !== 'svg') || e.closest('button,.pill,.tag,.pop')) return;
     const b = e.getBoundingClientRect(); if (b.width < 6 || b.height < 6 || b.width > 64) return; A.push({ k:'mark', e, b }); });
   const bare = e => { const cs = getComputedStyle(e); return cs.backgroundColor === 'rgba(0, 0, 0, 0)' && cs.backgroundImage === 'none' && cs.boxShadow === 'none' && parseFloat(cs.borderTopWidth) === 0; };
+  // a button that is a whole row of a list (as wide as the list it sits in, like a chat in a side list) is measured by what it
+  // shows, as a bare one is: its hover or selection fill reaches out round its words by design, so the fill is not its edge
+  const listRow = e => { const p = e.parentElement, w = e.getBoundingClientRect().width; return !!p && w > 120 && w >= p.clientWidth - 1 && [...p.children].filter(k => k.matches('button')).length > 2; };
   const inner = e => { const r = document.createRange(); r.selectNodeContents(e); const b = r.getBoundingClientRect(); return b.width ? b : e.getBoundingClientRect(); };
-  sin.querySelectorAll('button,.pill,.ib,.tag,[role="switch"]').forEach(e => { if (!card.contains(e) || !vis(e) || e.closest('.pop') || (e.parentElement && e.parentElement.closest('button,.pill,.tag'))) return; const b = e.getBoundingClientRect(); if (b.width < 8 || b.height < 8 || b.width > C.width * .6) return; A.push({ k:'ctl', e, b:bare(e) ? inner(e) : b, box:b }); });
+  sin.querySelectorAll('button,.pill,.ib,.tag,[role="switch"]').forEach(e => { if (!card.contains(e) || !vis(e) || e.closest('.pop') || (e.parentElement && e.parentElement.closest('button,.pill,.tag'))) return; const b = e.getBoundingClientRect(); if (b.width < 8 || b.height < 8 || b.width > C.width * .6) return; A.push({ k:'ctl', e, b:bare(e) || listRow(e) ? inner(e) : b, box:b }); });
   const tw = document.createTreeWalker(card, NodeFilter.SHOW_TEXT); let n;
   const sets = e => { const cs = getComputedStyle(e), pe = e.parentElement, ps = pe && getComputedStyle(pe);
     if (/center/.test(cs.textAlign) || (ps && /grid|flex/.test(ps.display) && (/center/.test(ps.justifyContent) || /center/.test(ps.justifyItems) || /center/.test(ps.placeItems))) || (/grid|flex/.test(cs.display) && /center/.test(cs.justifyContent + cs.justifyItems))) return 'centre';
@@ -89,7 +93,8 @@ function sample(id){
     const p = await b.newPage({ viewport:{ width:W, height:1000 } });
     await p.addInitScript(([s, t]) => { try { localStorage.setItem('dmui-style', s); localStorage.setItem('dmui-theme', t); } catch(e){} }, [st, th]);
     await p.route(/plausible|api\.github\.com|supabase|fonts\.g/, r => r.abort());
-    await p.goto(`http://127.0.0.1:${port}${LIB}`, { waitUntil:'load' }); await p.evaluate(() => document.fonts.ready);
+    // (both groups of the library on show, so an App basics card is checked as it plays, not hidden behind the group switch)
+    await p.goto(`http://127.0.0.1:${port}${LIB}`, { waitUntil:'load' }); await p.evaluate(() => { document.documentElement.classList.add('grp-all'); return document.fonts.ready; });
     for (const id of ids){
       const card = p.locator(`.comp[data-v2="${id}"]`); await card.evaluate(e => e.scrollIntoView({ block:'center' })); await p.waitForTimeout(300);
       const tabs = card.locator('.comp-foot [data-tabs] button'), nt = await tabs.count();
