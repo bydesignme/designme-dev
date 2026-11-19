@@ -369,7 +369,7 @@ document.addEventListener('click', e => { const b = e.target.closest && e.target
 const DM = {
   defs:{},
   // agents at work: their demos keep playing while a mouse rests on them, instead of holding (see mount)
-  PLAYS:new Set(['status-pill','step-loader','thinking','reasoning-trail','agent-lanes','agent-run-timeline','trace-view','agent-tree','terminal-stream','attachment-tray','progress','web-search','thinking-states','run-drawer']),
+  PLAYS:new Set(['status-pill','step-loader','thinking','reasoning-trail','agent-lanes','agent-run-timeline','trace-view','agent-tree','terminal-stream','attachment-tray','progress','web-search','thinking-states','run-drawer','response-versions']),
   def(id, fn){ this.defs[id] = fn; },
   /* the markup a card starts from: its <template>, or, when the markup is written out in its stage, what the stage holds
      before it first mounts, kept as a template so Replay starts from it again */
@@ -3410,7 +3410,10 @@ DM.def('feedback-sheet', (r, c) => {
   dn.onclick = e => down(e.isTrusted);
   $('.fbx-x', r).onclick = () => { box.classList.add('shut'); dn.classList.remove('on'); };
   go.onclick = () => c.run(async () => {
-    go.innerHTML = '<span class="spin"></span>'; await c.wait(800);
+    // the button is as wide as what it shows, and eases to the spinner's width
+    const w0 = go.offsetWidth; go.innerHTML = '<span class="spin"></span>'; const w1 = go.offsetWidth;
+    if (!REDUCE && w0 !== w1) go.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:220, easing:'cubic-bezier(.23,1,.32,1)' });
+    await c.wait(800);
     box.classList.add('shut'); await c.wait(300);
     const n = chips.filter(x => x.classList.contains('on')).length;
     const thx = html(`<div class="fbx-thx">${I('ok')}<span>Thanks. The agent will ${n ? 'avoid this' : 'use this'} next time in this project.</span></div>`);

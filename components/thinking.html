@@ -175,7 +175,7 @@
 .tk.growing{overflow-clip-margin:12px}
 .tk-h{display:flex;align-items:center;gap:10px;width:calc(100% + 16px);margin:0 -8px;padding:6px var(--dm-s-2);border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));text-align:left;transition:background var(--dm-t-fast)}
 /* the header's hover is a quiet fill round the chevron, never a band wider than the trace (owner, 18 Nov) */
-@media (hover:hover) and (pointer:fine){.tk-h:hover .tk-chev{background:var(--dm-row);box-shadow:0 0 0 6px var(--dm-row);color:var(--dm-fg)}}
+@media (hover:hover) and (pointer:fine){.tk-h:hover .tk-chev{background:color-mix(in srgb,var(--dm-fg) 5%,transparent);box-shadow:0 0 0 6px color-mix(in srgb,var(--dm-fg) 5%,transparent);color:var(--dm-fg)}}
 .tk-mark{width:18px;height:18px;flex:none;display:grid;place-items:center;color:var(--dm-accent-mark,var(--dm-accent));transition:color .3s}
 .tk-h.tk-fin .tk-mark{color:var(--dm-ok)}
 /* a finished state has no elapsed clock (owner, 18 Nov): the clock goes once the header says what the work came to */
@@ -244,17 +244,17 @@
 :root[data-style="clean"] .tk-mark,:root [data-style="clean"] .tk-mark,:root [data-style="clean"].tk-mark{width:16px;height:16px;margin-right:2px;color:var(--dm-fg)}
 :root[data-style="clean"] .tk-h.tk-fin .tk-mark,:root [data-style="clean"] .tk-h.tk-fin .tk-mark,:root [data-style="clean"].tk-h.tk-fin .tk-mark{width:16px;height:16px;border-radius:50%;background:var(--dm-ok-mark);color:var(--dm-surface);animation:tkdisc var(--dm-t) var(--dm-ease) backwards}
 :root[data-style="clean"] .tk-h.tk-fin .tk-mark .i,:root [data-style="clean"] .tk-h.tk-fin .tk-mark .i,:root [data-style="clean"].tk-h.tk-fin .tk-mark .i{width:10px;height:10px;stroke-width:3.2;stroke-dasharray:21;animation:tkdraw var(--dm-t) var(--dm-ease) .14s backwards}
-/* the steps are as tall as Soft's, so the card keeps its stage's height in every style: 5px above and below each step,
-   and its last words 16px from the card's foot */
-:root[data-style="clean"] .tk-list,:root [data-style="clean"] .tk-list,:root [data-style="clean"].tk-list{padding:8px 16px 10px;border-top:1px solid var(--dm-line)}
+/* the first step's words 16px under the header's hairline and the last ones 16px from the card's foot, 5px above and below
+   each step; the card is no taller than Soft's trace, so its stage keeps its height in every style */
+:root[data-style="clean"] .tk-list,:root [data-style="clean"] .tk-list,:root [data-style="clean"].tk-list{padding:10px 16px;border-top:1px solid var(--dm-line)}
 :root[data-style="clean"] .tk-st,:root [data-style="clean"] .tk-st,:root [data-style="clean"].tk-st{padding:5px 0}
 /* a step's time sits on its first line's centre line, and ends where the chevron does */
 :root[data-style="clean"] .tk-st .tk-ln,:root [data-style="clean"] .tk-st .tk-ln,:root [data-style="clean"].tk-st .tk-ln{align-items:flex-start}
-:root[data-style="clean"] .tk-st .lab,:root [data-style="clean"] .tk-st .lab,:root [data-style="clean"].tk-st .lab,:root[data-style="clean"] .tk-st .tk-dur,:root [data-style="clean"] .tk-st .tk-dur,:root [data-style="clean"].tk-st .tk-dur{line-height:20px}
+:root[data-style="clean"] .tk-st .lab,:root [data-style="clean"] .tk-st .lab,:root [data-style="clean"].tk-st .lab,:root[data-style="clean"] .tk-st .tk-dur,:root [data-style="clean"] .tk-st .tk-dur,:root [data-style="clean"].tk-st .tk-dur{line-height:19px}
 :root[data-style="clean"] .tk-st .res,:root [data-style="clean"] .tk-st .res,:root [data-style="clean"].tk-st .res{line-height:17px}
 :root[data-style="clean"] .tk-st .tk-dur,:root [data-style="clean"] .tk-st .tk-dur,:root [data-style="clean"].tk-st .tk-dur{font-variant-numeric:tabular-nums}
 /* the marks: 16px discs 16px in from the card's edge, centred on the step's first line, under the header's mark */
-:root[data-style="clean"] .tk-st .mk,:root [data-style="clean"] .tk-st .mk,:root [data-style="clean"].tk-st .mk{width:16px;height:16px;margin:2px 2px 0 0;color:var(--dm-fg);background:none;transition:none}
+:root[data-style="clean"] .tk-st .mk,:root [data-style="clean"] .tk-st .mk,:root [data-style="clean"].tk-st .mk{width:16px;height:16px;margin:1.5px 2px 0 0;color:var(--dm-fg);background:none;transition:none}
 :root[data-style="clean"] .tk-st.run .mk,:root [data-style="clean"] .tk-st.run .mk,:root [data-style="clean"].tk-st.run .mk{background:none;animation:none}
 :root[data-style="clean"] .tk-st.run .mk .spin,:root [data-style="clean"] .tk-st.run .mk .spin,:root [data-style="clean"].tk-st.run .mk .spin{box-sizing:border-box;width:16px;height:16px;border:1.5px solid var(--dm-line);border-top-color:var(--dm-fg);animation:rot .9s linear infinite}
 :root[data-style="clean"] .tk-st.done .mk,:root [data-style="clean"] .tk-st.done .mk,:root [data-style="clean"].tk-st.done .mk{background:var(--dm-ok-mark);color:var(--dm-surface);animation:tkdisc var(--dm-t) var(--dm-ease) backwards}
@@ -264,7 +264,7 @@
 @keyframes tkdisc{from{opacity:0;transform:scale(.5)}}
 @keyframes tkdraw{from{stroke-dashoffset:21}}
 /* the hairline from under each mark to just above the next, darkening down into the next step once this one is done */
-:root[data-style="clean"] .tk-st:not(:last-child)::before,:root [data-style="clean"] .tk-st:not(:last-child)::before,:root [data-style="clean"].tk-st:not(:last-child)::before,:root[data-style="clean"] .tk-st.done:not(:last-child)::after,:root [data-style="clean"] .tk-st.done:not(:last-child)::after,:root [data-style="clean"].tk-st.done:not(:last-child)::after{left:7.5px;top:27px;bottom:-3px;width:1px;border-radius:0;background:var(--dm-line)}
+:root[data-style="clean"] .tk-st:not(:last-child)::before,:root [data-style="clean"] .tk-st:not(:last-child)::before,:root [data-style="clean"].tk-st:not(:last-child)::before,:root[data-style="clean"] .tk-st.done:not(:last-child)::after,:root [data-style="clean"] .tk-st.done:not(:last-child)::after,:root [data-style="clean"].tk-st.done:not(:last-child)::after{left:7.5px;top:26.5px;bottom:-2.5px;width:1px;border-radius:0;background:var(--dm-line)}
 :root[data-style="clean"] .tk-st.done:not(:last-child)::after,:root [data-style="clean"] .tk-st.done:not(:last-child)::after,:root [data-style="clean"].tk-st.done:not(:last-child)::after{background:var(--dm-line-strong);animation:tkgrow var(--dm-t-slow) var(--dm-ease-io) .2s backwards}
 /* what a step found writes itself in a word at a time: a fade and a 3px rise, no blur */
 @keyframes tkwordc{from{opacity:0;transform:translateY(3px)}}
@@ -537,7 +537,7 @@ export function Thinking({ steps, running, seconds, title = &#39;Working on it&#
 .dm-tk.dm-growing{overflow-clip-margin:12px}
 .dm-tk-h{display:flex;align-items:center;gap:10px;width:calc(100% + 16px);margin:0 -8px;padding:6px var(--dm-s-2);border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));text-align:left;transition:background var(--dm-t-fast)}
 /* the header&#39;s hover is a quiet fill round the chevron, never a band wider than the trace (owner, 18 Nov) */
-@media (hover:hover) and (pointer:fine){.dm-tk-h:hover .dm-tk-chev{background:var(--dm-row);box-shadow:0 0 0 6px var(--dm-row);color:var(--dm-fg)}}
+@media (hover:hover) and (pointer:fine){.dm-tk-h:hover .dm-tk-chev{background:color-mix(in srgb,var(--dm-fg) 5%,transparent);box-shadow:0 0 0 6px color-mix(in srgb,var(--dm-fg) 5%,transparent);color:var(--dm-fg)}}
 .dm-tk-mark{width:18px;height:18px;flex:none;display:grid;place-items:center;color:var(--dm-accent-mark,var(--dm-accent));transition:color .3s}
 .dm-tk-h.dm-tk-fin .dm-tk-mark{color:var(--dm-ok)}
 /* a finished state has no elapsed clock (owner, 18 Nov): the clock goes once the header says what the work came to */
@@ -606,17 +606,17 @@ export function Thinking({ steps, running, seconds, title = &#39;Working on it&#
 :root[data-style=&quot;clean&quot;] .dm-tk-mark,:root [data-style=&quot;clean&quot;] .dm-tk-mark,:root [data-style=&quot;clean&quot;].dm-tk-mark{width:16px;height:16px;margin-right:2px;color:var(--dm-fg)}
 :root[data-style=&quot;clean&quot;] .dm-tk-h.dm-tk-fin .dm-tk-mark,:root [data-style=&quot;clean&quot;] .dm-tk-h.dm-tk-fin .dm-tk-mark,:root [data-style=&quot;clean&quot;].dm-tk-h.dm-tk-fin .dm-tk-mark{width:16px;height:16px;border-radius:50%;background:var(--dm-ok-mark);color:var(--dm-surface);animation:dm-tkdisc var(--dm-t) var(--dm-ease) backwards}
 :root[data-style=&quot;clean&quot;] .dm-tk-h.dm-tk-fin .dm-tk-mark .dm-i,:root [data-style=&quot;clean&quot;] .dm-tk-h.dm-tk-fin .dm-tk-mark .dm-i,:root [data-style=&quot;clean&quot;].dm-tk-h.dm-tk-fin .dm-tk-mark .dm-i{width:10px;height:10px;stroke-width:3.2;stroke-dasharray:21;animation:dm-tkdraw var(--dm-t) var(--dm-ease) .14s backwards}
-/* the steps are as tall as Soft&#39;s, so the card keeps its stage&#39;s height in every style: 5px above and below each step,
-   and its last words 16px from the card&#39;s foot */
-:root[data-style=&quot;clean&quot;] .dm-tk-list,:root [data-style=&quot;clean&quot;] .dm-tk-list,:root [data-style=&quot;clean&quot;].dm-tk-list{padding:8px 16px 10px;border-top:1px solid var(--dm-line)}
+/* the first step&#39;s words 16px under the header&#39;s hairline and the last ones 16px from the card&#39;s foot, 5px above and below
+   each step; the card is no taller than Soft&#39;s trace, so its stage keeps its height in every style */
+:root[data-style=&quot;clean&quot;] .dm-tk-list,:root [data-style=&quot;clean&quot;] .dm-tk-list,:root [data-style=&quot;clean&quot;].dm-tk-list{padding:10px 16px;border-top:1px solid var(--dm-line)}
 :root[data-style=&quot;clean&quot;] .dm-tk-st,:root [data-style=&quot;clean&quot;] .dm-tk-st,:root [data-style=&quot;clean&quot;].dm-tk-st{padding:5px 0}
 /* a step&#39;s time sits on its first line&#39;s centre line, and ends where the chevron does */
 :root[data-style=&quot;clean&quot;] .dm-tk-st .dm-tk-ln,:root [data-style=&quot;clean&quot;] .dm-tk-st .dm-tk-ln,:root [data-style=&quot;clean&quot;].dm-tk-st .dm-tk-ln{align-items:flex-start}
-:root[data-style=&quot;clean&quot;] .dm-tk-st .dm-lab,:root [data-style=&quot;clean&quot;] .dm-tk-st .dm-lab,:root [data-style=&quot;clean&quot;].dm-tk-st .dm-lab,:root[data-style=&quot;clean&quot;] .dm-tk-st .dm-tk-dur,:root [data-style=&quot;clean&quot;] .dm-tk-st .dm-tk-dur,:root [data-style=&quot;clean&quot;].dm-tk-st .dm-tk-dur{line-height:20px}
+:root[data-style=&quot;clean&quot;] .dm-tk-st .dm-lab,:root [data-style=&quot;clean&quot;] .dm-tk-st .dm-lab,:root [data-style=&quot;clean&quot;].dm-tk-st .dm-lab,:root[data-style=&quot;clean&quot;] .dm-tk-st .dm-tk-dur,:root [data-style=&quot;clean&quot;] .dm-tk-st .dm-tk-dur,:root [data-style=&quot;clean&quot;].dm-tk-st .dm-tk-dur{line-height:19px}
 :root[data-style=&quot;clean&quot;] .dm-tk-st .dm-res,:root [data-style=&quot;clean&quot;] .dm-tk-st .dm-res,:root [data-style=&quot;clean&quot;].dm-tk-st .dm-res{line-height:17px}
 :root[data-style=&quot;clean&quot;] .dm-tk-st .dm-tk-dur,:root [data-style=&quot;clean&quot;] .dm-tk-st .dm-tk-dur,:root [data-style=&quot;clean&quot;].dm-tk-st .dm-tk-dur{font-variant-numeric:tabular-nums}
 /* the marks: 16px discs 16px in from the card&#39;s edge, centred on the step&#39;s first line, under the header&#39;s mark */
-:root[data-style=&quot;clean&quot;] .dm-tk-st .dm-mk,:root [data-style=&quot;clean&quot;] .dm-tk-st .dm-mk,:root [data-style=&quot;clean&quot;].dm-tk-st .dm-mk{width:16px;height:16px;margin:2px 2px 0 0;color:var(--dm-fg);background:none;transition:none}
+:root[data-style=&quot;clean&quot;] .dm-tk-st .dm-mk,:root [data-style=&quot;clean&quot;] .dm-tk-st .dm-mk,:root [data-style=&quot;clean&quot;].dm-tk-st .dm-mk{width:16px;height:16px;margin:1.5px 2px 0 0;color:var(--dm-fg);background:none;transition:none}
 :root[data-style=&quot;clean&quot;] .dm-tk-st.dm-run .dm-mk,:root [data-style=&quot;clean&quot;] .dm-tk-st.dm-run .dm-mk,:root [data-style=&quot;clean&quot;].dm-tk-st.dm-run .dm-mk{background:none;animation:none}
 :root[data-style=&quot;clean&quot;] .dm-tk-st.dm-run .dm-mk .dm-spin,:root [data-style=&quot;clean&quot;] .dm-tk-st.dm-run .dm-mk .dm-spin,:root [data-style=&quot;clean&quot;].dm-tk-st.dm-run .dm-mk .dm-spin{box-sizing:border-box;width:16px;height:16px;border:1.5px solid var(--dm-line);border-top-color:var(--dm-fg);animation:dm-rot .9s linear infinite}
 :root[data-style=&quot;clean&quot;] .dm-tk-st.dm-done .dm-mk,:root [data-style=&quot;clean&quot;] .dm-tk-st.dm-done .dm-mk,:root [data-style=&quot;clean&quot;].dm-tk-st.dm-done .dm-mk{background:var(--dm-ok-mark);color:var(--dm-surface);animation:dm-tkdisc var(--dm-t) var(--dm-ease) backwards}
@@ -626,7 +626,7 @@ export function Thinking({ steps, running, seconds, title = &#39;Working on it&#
 @keyframes dm-tkdisc{from{opacity:0;transform:scale(.5)}}
 @keyframes dm-tkdraw{from{stroke-dashoffset:21}}
 /* the hairline from under each mark to just above the next, darkening down into the next step once this one is done */
-:root[data-style=&quot;clean&quot;] .dm-tk-st:not(:last-child)::before,:root [data-style=&quot;clean&quot;] .dm-tk-st:not(:last-child)::before,:root [data-style=&quot;clean&quot;].dm-tk-st:not(:last-child)::before,:root[data-style=&quot;clean&quot;] .dm-tk-st.dm-done:not(:last-child)::after,:root [data-style=&quot;clean&quot;] .dm-tk-st.dm-done:not(:last-child)::after,:root [data-style=&quot;clean&quot;].dm-tk-st.dm-done:not(:last-child)::after{left:7.5px;top:27px;bottom:-3px;width:1px;border-radius:0;background:var(--dm-line)}
+:root[data-style=&quot;clean&quot;] .dm-tk-st:not(:last-child)::before,:root [data-style=&quot;clean&quot;] .dm-tk-st:not(:last-child)::before,:root [data-style=&quot;clean&quot;].dm-tk-st:not(:last-child)::before,:root[data-style=&quot;clean&quot;] .dm-tk-st.dm-done:not(:last-child)::after,:root [data-style=&quot;clean&quot;] .dm-tk-st.dm-done:not(:last-child)::after,:root [data-style=&quot;clean&quot;].dm-tk-st.dm-done:not(:last-child)::after{left:7.5px;top:26.5px;bottom:-2.5px;width:1px;border-radius:0;background:var(--dm-line)}
 :root[data-style=&quot;clean&quot;] .dm-tk-st.dm-done:not(:last-child)::after,:root [data-style=&quot;clean&quot;] .dm-tk-st.dm-done:not(:last-child)::after,:root [data-style=&quot;clean&quot;].dm-tk-st.dm-done:not(:last-child)::after{background:var(--dm-line-strong);animation:dm-tkgrow var(--dm-t-slow) var(--dm-ease-io) .2s backwards}
 /* what a step found writes itself in a word at a time: a fade and a 3px rise, no blur */
 @keyframes dm-tkwordc{from{opacity:0;transform:translateY(3px)}}
@@ -686,7 +686,7 @@ const { class: className, ...rest } = Astro.props;
 .tk.growing{overflow-clip-margin:12px}
 .tk-h{display:flex;align-items:center;gap:10px;width:calc(100% + 16px);margin:0 -8px;padding:6px var(--dm-s-2);border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));text-align:left;transition:background var(--dm-t-fast)}
 /* the header&#39;s hover is a quiet fill round the chevron, never a band wider than the trace (owner, 18 Nov) */
-@media (hover:hover) and (pointer:fine){.tk-h:hover .tk-chev{background:var(--dm-row);box-shadow:0 0 0 6px var(--dm-row);color:var(--dm-fg)}}
+@media (hover:hover) and (pointer:fine){.tk-h:hover .tk-chev{background:color-mix(in srgb,var(--dm-fg) 5%,transparent);box-shadow:0 0 0 6px color-mix(in srgb,var(--dm-fg) 5%,transparent);color:var(--dm-fg)}}
 .tk-mark{width:18px;height:18px;flex:none;display:grid;place-items:center;color:var(--dm-accent-mark,var(--dm-accent));transition:color .3s}
 .tk-h.tk-fin .tk-mark{color:var(--dm-ok)}
 /* a finished state has no elapsed clock (owner, 18 Nov): the clock goes once the header says what the work came to */
@@ -755,17 +755,17 @@ const { class: className, ...rest } = Astro.props;
 :root[data-style=&quot;clean&quot;] .tk-mark,:root [data-style=&quot;clean&quot;] .tk-mark,:root [data-style=&quot;clean&quot;].tk-mark{width:16px;height:16px;margin-right:2px;color:var(--dm-fg)}
 :root[data-style=&quot;clean&quot;] .tk-h.tk-fin .tk-mark,:root [data-style=&quot;clean&quot;] .tk-h.tk-fin .tk-mark,:root [data-style=&quot;clean&quot;].tk-h.tk-fin .tk-mark{width:16px;height:16px;border-radius:50%;background:var(--dm-ok-mark);color:var(--dm-surface);animation:tkdisc var(--dm-t) var(--dm-ease) backwards}
 :root[data-style=&quot;clean&quot;] .tk-h.tk-fin .tk-mark .i,:root [data-style=&quot;clean&quot;] .tk-h.tk-fin .tk-mark .i,:root [data-style=&quot;clean&quot;].tk-h.tk-fin .tk-mark .i{width:10px;height:10px;stroke-width:3.2;stroke-dasharray:21;animation:tkdraw var(--dm-t) var(--dm-ease) .14s backwards}
-/* the steps are as tall as Soft&#39;s, so the card keeps its stage&#39;s height in every style: 5px above and below each step,
-   and its last words 16px from the card&#39;s foot */
-:root[data-style=&quot;clean&quot;] .tk-list,:root [data-style=&quot;clean&quot;] .tk-list,:root [data-style=&quot;clean&quot;].tk-list{padding:8px 16px 10px;border-top:1px solid var(--dm-line)}
+/* the first step&#39;s words 16px under the header&#39;s hairline and the last ones 16px from the card&#39;s foot, 5px above and below
+   each step; the card is no taller than Soft&#39;s trace, so its stage keeps its height in every style */
+:root[data-style=&quot;clean&quot;] .tk-list,:root [data-style=&quot;clean&quot;] .tk-list,:root [data-style=&quot;clean&quot;].tk-list{padding:10px 16px;border-top:1px solid var(--dm-line)}
 :root[data-style=&quot;clean&quot;] .tk-st,:root [data-style=&quot;clean&quot;] .tk-st,:root [data-style=&quot;clean&quot;].tk-st{padding:5px 0}
 /* a step&#39;s time sits on its first line&#39;s centre line, and ends where the chevron does */
 :root[data-style=&quot;clean&quot;] .tk-st .tk-ln,:root [data-style=&quot;clean&quot;] .tk-st .tk-ln,:root [data-style=&quot;clean&quot;].tk-st .tk-ln{align-items:flex-start}
-:root[data-style=&quot;clean&quot;] .tk-st .lab,:root [data-style=&quot;clean&quot;] .tk-st .lab,:root [data-style=&quot;clean&quot;].tk-st .lab,:root[data-style=&quot;clean&quot;] .tk-st .tk-dur,:root [data-style=&quot;clean&quot;] .tk-st .tk-dur,:root [data-style=&quot;clean&quot;].tk-st .tk-dur{line-height:20px}
+:root[data-style=&quot;clean&quot;] .tk-st .lab,:root [data-style=&quot;clean&quot;] .tk-st .lab,:root [data-style=&quot;clean&quot;].tk-st .lab,:root[data-style=&quot;clean&quot;] .tk-st .tk-dur,:root [data-style=&quot;clean&quot;] .tk-st .tk-dur,:root [data-style=&quot;clean&quot;].tk-st .tk-dur{line-height:19px}
 :root[data-style=&quot;clean&quot;] .tk-st .res,:root [data-style=&quot;clean&quot;] .tk-st .res,:root [data-style=&quot;clean&quot;].tk-st .res{line-height:17px}
 :root[data-style=&quot;clean&quot;] .tk-st .tk-dur,:root [data-style=&quot;clean&quot;] .tk-st .tk-dur,:root [data-style=&quot;clean&quot;].tk-st .tk-dur{font-variant-numeric:tabular-nums}
 /* the marks: 16px discs 16px in from the card&#39;s edge, centred on the step&#39;s first line, under the header&#39;s mark */
-:root[data-style=&quot;clean&quot;] .tk-st .mk,:root [data-style=&quot;clean&quot;] .tk-st .mk,:root [data-style=&quot;clean&quot;].tk-st .mk{width:16px;height:16px;margin:2px 2px 0 0;color:var(--dm-fg);background:none;transition:none}
+:root[data-style=&quot;clean&quot;] .tk-st .mk,:root [data-style=&quot;clean&quot;] .tk-st .mk,:root [data-style=&quot;clean&quot;].tk-st .mk{width:16px;height:16px;margin:1.5px 2px 0 0;color:var(--dm-fg);background:none;transition:none}
 :root[data-style=&quot;clean&quot;] .tk-st.run .mk,:root [data-style=&quot;clean&quot;] .tk-st.run .mk,:root [data-style=&quot;clean&quot;].tk-st.run .mk{background:none;animation:none}
 :root[data-style=&quot;clean&quot;] .tk-st.run .mk .spin,:root [data-style=&quot;clean&quot;] .tk-st.run .mk .spin,:root [data-style=&quot;clean&quot;].tk-st.run .mk .spin{box-sizing:border-box;width:16px;height:16px;border:1.5px solid var(--dm-line);border-top-color:var(--dm-fg);animation:rot .9s linear infinite}
 :root[data-style=&quot;clean&quot;] .tk-st.done .mk,:root [data-style=&quot;clean&quot;] .tk-st.done .mk,:root [data-style=&quot;clean&quot;].tk-st.done .mk{background:var(--dm-ok-mark);color:var(--dm-surface);animation:tkdisc var(--dm-t) var(--dm-ease) backwards}
@@ -775,7 +775,7 @@ const { class: className, ...rest } = Astro.props;
 @keyframes tkdisc{from{opacity:0;transform:scale(.5)}}
 @keyframes tkdraw{from{stroke-dashoffset:21}}
 /* the hairline from under each mark to just above the next, darkening down into the next step once this one is done */
-:root[data-style=&quot;clean&quot;] .tk-st:not(:last-child)::before,:root [data-style=&quot;clean&quot;] .tk-st:not(:last-child)::before,:root [data-style=&quot;clean&quot;].tk-st:not(:last-child)::before,:root[data-style=&quot;clean&quot;] .tk-st.done:not(:last-child)::after,:root [data-style=&quot;clean&quot;] .tk-st.done:not(:last-child)::after,:root [data-style=&quot;clean&quot;].tk-st.done:not(:last-child)::after{left:7.5px;top:27px;bottom:-3px;width:1px;border-radius:0;background:var(--dm-line)}
+:root[data-style=&quot;clean&quot;] .tk-st:not(:last-child)::before,:root [data-style=&quot;clean&quot;] .tk-st:not(:last-child)::before,:root [data-style=&quot;clean&quot;].tk-st:not(:last-child)::before,:root[data-style=&quot;clean&quot;] .tk-st.done:not(:last-child)::after,:root [data-style=&quot;clean&quot;] .tk-st.done:not(:last-child)::after,:root [data-style=&quot;clean&quot;].tk-st.done:not(:last-child)::after{left:7.5px;top:26.5px;bottom:-2.5px;width:1px;border-radius:0;background:var(--dm-line)}
 :root[data-style=&quot;clean&quot;] .tk-st.done:not(:last-child)::after,:root [data-style=&quot;clean&quot;] .tk-st.done:not(:last-child)::after,:root [data-style=&quot;clean&quot;].tk-st.done:not(:last-child)::after{background:var(--dm-line-strong);animation:tkgrow var(--dm-t-slow) var(--dm-ease-io) .2s backwards}
 /* what a step found writes itself in a word at a time: a fade and a 3px rise, no blur */
 @keyframes tkwordc{from{opacity:0;transform:translateY(3px)}}

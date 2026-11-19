@@ -163,7 +163,7 @@ No. Thumbs up closes the sheet if it was open and shows a short thanks. Only thu
 'use client';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
-import { useControllable, useIsoLayoutEffect } from '../lib/hooks';
+import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../lib/hooks';
 import { Icon } from '../lib/icons';
 import { Fold, Spin, Swap, Tip } from '../lib/motion';
 import '../designme.css';
@@ -244,6 +244,13 @@ export function FeedbackSheet({ children, rating, defaultRating = null, onRating
   // sent, it says so once: the thank-you line under the bar, nothing beside the thumbs
   const status = sent ? '' : rate === 'up' ? 'Thanks, noted' : '';
   const box = useRef<HTMLTextAreaElement>(null);
+  // Send is as wide as what it shows (its word, or the spinner while it sends) and eases between the two
+  const go = useRef<HTMLButtonElement>(null), goW = useRef(0), reduce = useReducedMotion();
+  useIsoLayoutEffect(() => {
+    const b = go.current; if (!b) return; const w = b.offsetWidth;
+    if (goW.current && w && goW.current !== w && !reduce) b.animate([{ width: goW.current + 'px' }, { width: w + 'px' }], { duration: 220, easing: 'cubic-bezier(.23,1,.32,1)' });
+    goW.current = w;
+  }, [sending]);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const later = (ms: number, fn: () => void) => { timers.current.push(setTimeout(fn, ms)); };
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
@@ -288,7 +295,7 @@ export function FeedbackSheet({ children, rating, defaultRating = null, onRating
           <div className="dm-fbx-f">
             <span className="dm-muted dm-fbx-n">{note}</span>
             <button type="button" className="dm-pill dm-ghost dm-sm dm-fbx-x" onClick={() => { setOpen(false); setRate(null); }}>Cancel</button>
-            <button type="button" className="dm-pill dm-primary dm-sm dm-fbx-go" disabled={!(picked.length || comment.trim())} aria-busy={sending} onClick={send}>{sending ? <Spin /> : 'Send'}</button>
+            <button ref={go} type="button" className="dm-pill dm-primary dm-sm dm-fbx-go" disabled={!(picked.length || comment.trim())} aria-busy={sending} onClick={send}>{sending ? <Spin /> : 'Send'}</button>
           </div>
         </div>
       </Fold>

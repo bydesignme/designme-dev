@@ -628,7 +628,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .tk.growing{overflow-clip-margin:12px}
 .tk-h{display:flex;align-items:center;gap:10px;width:calc(100% + 16px);margin:0 -8px;padding:6px var(--s-2);border-radius:calc(10px * var(--rk-m,var(--rk)));text-align:left;transition:background var(--t-fast)}
 /* the header's hover is a quiet fill round the chevron, never a band wider than the trace (owner, 18 Nov) */
-.tk-h:hover .tk-chev{background:var(--row);box-shadow:0 0 0 6px var(--row);color:var(--fg)}
+.tk-h:hover .tk-chev{background:color-mix(in srgb,var(--fg) 5%,transparent);box-shadow:0 0 0 6px color-mix(in srgb,var(--fg) 5%,transparent);color:var(--fg)}
 .tk-mark{width:18px;height:18px;flex:none;display:grid;place-items:center;color:var(--accent-mark,var(--accent));transition:color .3s}
 .tk-h.tk-fin .tk-mark{color:var(--ok)}
 /* a finished state has no elapsed clock (owner, 18 Nov): the clock goes once the header says what the work came to */
@@ -697,17 +697,17 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 :root[data-style="clean"] .tk-mark{width:16px;height:16px;margin-right:2px;color:var(--fg)}
 :root[data-style="clean"] .tk-h.tk-fin .tk-mark{width:16px;height:16px;border-radius:50%;background:var(--ok-mark);color:var(--surface);animation:tkdisc var(--t) var(--ease) backwards}
 :root[data-style="clean"] .tk-h.tk-fin .tk-mark .i{width:10px;height:10px;stroke-width:3.2;stroke-dasharray:21;animation:tkdraw var(--t) var(--ease) .14s backwards}
-/* the steps are as tall as Soft's, so the card keeps its stage's height in every style: 5px above and below each step,
-   and its last words 16px from the card's foot */
-:root[data-style="clean"] .tk-list{padding:8px 16px 10px;border-top:1px solid var(--line)}
+/* the first step's words 16px under the header's hairline and the last ones 16px from the card's foot, 5px above and below
+   each step; the card is no taller than Soft's trace, so its stage keeps its height in every style */
+:root[data-style="clean"] .tk-list{padding:10px 16px;border-top:1px solid var(--line)}
 :root[data-style="clean"] .tk-st{padding:5px 0}
 /* a step's time sits on its first line's centre line, and ends where the chevron does */
 :root[data-style="clean"] .tk-st .tk-ln{align-items:flex-start}
-:root[data-style="clean"] .tk-st .lab,:root[data-style="clean"] .tk-st .tk-dur{line-height:20px}
+:root[data-style="clean"] .tk-st .lab,:root[data-style="clean"] .tk-st .tk-dur{line-height:19px}
 :root[data-style="clean"] .tk-st .res{line-height:17px}
 :root[data-style="clean"] .tk-st .tk-dur{font-variant-numeric:tabular-nums}
 /* the marks: 16px discs 16px in from the card's edge, centred on the step's first line, under the header's mark */
-:root[data-style="clean"] .tk-st .mk{width:16px;height:16px;margin:2px 2px 0 0;color:var(--fg);background:none;transition:none}
+:root[data-style="clean"] .tk-st .mk{width:16px;height:16px;margin:1.5px 2px 0 0;color:var(--fg);background:none;transition:none}
 :root[data-style="clean"] .tk-st.run .mk{background:none;animation:none}
 :root[data-style="clean"] .tk-st.run .mk .spin{box-sizing:border-box;width:16px;height:16px;border:1.5px solid var(--line);border-top-color:var(--fg);animation:rot .9s linear infinite}
 :root[data-style="clean"] .tk-st.done .mk{background:var(--ok-mark);color:var(--surface);animation:tkdisc var(--t) var(--ease) backwards}
@@ -717,7 +717,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 @keyframes tkdisc{from{opacity:0;transform:scale(.5)}}
 @keyframes tkdraw{from{stroke-dashoffset:21}}
 /* the hairline from under each mark to just above the next, darkening down into the next step once this one is done */
-:root[data-style="clean"] .tk-st:not(:last-child)::before,:root[data-style="clean"] .tk-st.done:not(:last-child)::after{left:7.5px;top:27px;bottom:-3px;width:1px;border-radius:0;background:var(--line)}
+:root[data-style="clean"] .tk-st:not(:last-child)::before,:root[data-style="clean"] .tk-st.done:not(:last-child)::after{left:7.5px;top:26.5px;bottom:-2.5px;width:1px;border-radius:0;background:var(--line)}
 :root[data-style="clean"] .tk-st.done:not(:last-child)::after{background:var(--line-strong);animation:tkgrow var(--t-slow) var(--ease-io) .2s backwards}
 /* what a step found writes itself in a word at a time: a fade and a 3px rise, no blur */
 @keyframes tkwordc{from{opacity:0;transform:translateY(3px)}}
@@ -1954,7 +1954,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
   --rte-q:var(--muted);--rte-q2:var(--fg2)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .rte{--rte-q:color-mix(in srgb,var(--fg) 74%,var(--surface));--rte-q2:color-mix(in srgb,var(--fg) 80%,var(--surface))}}
 :root[data-theme="dark"] .rte{--rte-q:color-mix(in srgb,var(--fg) 74%,var(--surface));--rte-q2:color-mix(in srgb,var(--fg) 80%,var(--surface))}
-.rte-tb{display:flex;align-items:center;gap:2px;min-width:0;padding:7px 7px 7px 11px;box-shadow:inset 0 -1px 0 color-mix(in srgb,var(--line) 50%,transparent)}
+.rte-tb{display:flex;align-items:center;gap:2px;min-width:0;padding:7px 5px 7px 9px;box-shadow:inset 0 -1px 0 color-mix(in srgb,var(--line) 50%,transparent)}
 .rte-b{width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:var(--r-sm);color:var(--fg2);transition:background var(--t-fast),color var(--t-fast)}
 .rte-b:hover{background:var(--row);color:var(--fg)}
 /* a format the selection has: the accent's tint, with the icon in the accent's text colour */
@@ -1966,7 +1966,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .rte-ai:hover,.rte-ai[aria-expanded="true"]{background:var(--row)}
 .rte-ai:disabled .i{color:inherit}
 /* the text: one quiet size, a heading set apart by weight and room rather than size, and nothing heavier than medium */
-.rte-body{position:relative;height:256px;overflow-y:auto;padding:var(--s-4) 18px;outline:0;font-size:14px;line-height:1.65;color:var(--fg);white-space:pre-wrap;overflow-wrap:break-word;caret-color:var(--accent-fg);cursor:text}
+.rte-body{position:relative;height:256px;overflow-y:auto;padding:14px var(--s-4) var(--s-4);outline:0;font-size:14px;line-height:1.65;color:var(--fg);white-space:pre-wrap;overflow-wrap:break-word;caret-color:var(--accent-fg);cursor:text}
 .rte-body>*{margin:0;padding:0}
 .rte-body>*+*{margin-top:6px}
 .rte-body>*+h2{margin-top:14px}
@@ -1984,7 +1984,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .rte-body blockquote{padding-left:14px;box-shadow:inset 2px 0 0 var(--rte-q);color:var(--rte-q2)}
 /* quote lines one after another read as one quote */
 .rte-body blockquote+blockquote{margin-top:0;padding-top:6px}
-.rte-body.empty::before{content:attr(data-placeholder);position:absolute;left:18px;right:18px;top:16px;color:var(--rte-q);pointer-events:none}
+.rte-body.empty::before{content:attr(data-placeholder);position:absolute;left:16px;right:16px;top:14px;color:var(--rte-q);pointer-events:none}
 /* the suggestion: the words it replaces struck through, the new ones in the accent's tint as they arrive */
 .rte-old{color:var(--rte-q);text-decoration:line-through;text-decoration-color:var(--rte-q)}
 .rte-new{color:var(--accent-fg);background:var(--sel);border-radius:var(--r-tiny,3px)}
@@ -1993,7 +1993,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 @keyframes rtew{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
 /* the text a menu or the link field is for stays marked while the focus is in them */
 ::highlight(rte-pick){background-color:color-mix(in srgb,var(--accent-mark) 24%,transparent)}
-.rte-ft{display:grid;align-items:center;min-height:46px;padding:6px 11px 6px 18px;box-shadow:inset 0 1px 0 color-mix(in srgb,var(--line) 50%,transparent)}
+.rte-ft{display:grid;align-items:center;min-height:46px;padding:6px 9px 6px 16px;box-shadow:inset 0 1px 0 color-mix(in srgb,var(--line) 50%,transparent)}
 .rte-idle,.rte-rev{grid-area:1/1;display:flex;align-items:center;gap:var(--s-2);min-width:0;transition:opacity .25s var(--ease),transform .35s var(--ease),visibility 0s}
 .rte-rev,.rte[data-st="review"] .rte-idle{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s var(--ease),transform .35s var(--ease),visibility 0s .35s}
 .rte-rev{transform:translateY(4px)}
@@ -2036,10 +2036,10 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .rte-ask.show{opacity:1;visibility:visible;transform:none;transition-delay:0s}
 .rte-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 @container rte (max-width:520px){.rte-hint{display:none}}
-/* the toolbar's first icon, the text and the foot's words share one left edge (18px in, 14px in a narrow editor), and Ask AI's
-   words (its icon when narrow) and Redo's icon end on the text's right edge (owner, 18 Nov: every part on a shared column) */
-@container rte (max-width:400px){.rte-ai{width:30px;padding:0;justify-content:center}.rte-ai span{display:none}.rte-sep{margin:0 2px}.rte-tb{padding-left:7px;padding-right:6px}.rte-body{padding:14px}.rte-body.empty::before{left:14px;right:14px;top:14px}.rte-ft{padding-left:14px;padding-right:7px}.rte-rev .kbd{display:none}}
-@container rte (max-width:330px){.rte-tb{gap:0;padding:7px 6px 7px 8px}.rte-b{width:28px}}
+/* the toolbar's first icon, the text and the foot's words share one left edge 16px in, and Ask AI's words (its icon when
+   narrow), Redo's icon and Accept end 16px from the right edge, at every width (owner, 18 and 19 Nov) */
+@container rte (max-width:400px){.rte-ai{width:30px;padding:0;justify-content:center}.rte-ai span{display:none}.rte-sep{margin:0 2px}.rte-tb{padding-left:9px;padding-right:8px}.rte-ft{padding-left:16px;padding-right:9px}.rte-rev .kbd{display:none}}
+@container rte (max-width:330px){.rte-tb{gap:0;padding:7px 8px 7px 10px}.rte-b{width:28px}}
 :root[data-style="bp"] .rte-b:is([aria-pressed="true"],.on){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent-mark) 50%,transparent)}
 /* Blueprint's lime tint is faint on white, so the suggestion also gets a hairline of the accent's mark under it */
 :root[data-style="bp"] .rte-new{background:var(--accent-bg);box-shadow:inset 0 -1px 0 var(--accent-mark)}
@@ -2062,13 +2062,10 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 :root[data-style="clean"] .rte-ai:active{background:var(--hover)}
 :root[data-style="clean"] .rte-ai:disabled{background:var(--surface);color:var(--dis)}
 :root[data-style="clean"] .rte-ai:disabled .i{color:inherit}
-:root[data-style="clean"] .rte-body{padding:16px;caret-color:var(--fg)}
-:root[data-style="clean"] .rte-body.empty::before{left:16px;right:16px;top:16px}
+:root[data-style="clean"] .rte-body{caret-color:var(--fg)}
 :root[data-style="clean"] .rte-ft{min-height:45px;padding:8px 8px 8px 16px;background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card);box-shadow:none}
 :root[data-style="clean"] .rte-idle .ib{width:28px;height:28px}
 :root[data-style="clean"] .rte-idle .ib:hover{background:var(--hover)}
-/* the menu's heading starts where its items' words do */
-:root[data-style="clean"] .rte-menu .ph{padding-left:calc(var(--s-2) + 14px + 10px)}
 :root[data-style="clean"] .rte-st{color:var(--fg2)}
 :root[data-style="clean"] .rte-rev{gap:8px;margin-right:0}
 :root[data-style="clean"] .rte-rev .pill.ghost:hover{background:var(--hover)}
@@ -2077,7 +2074,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 :root[data-style="clean"] .rte-ok:not([disabled]) .kbd{background:color-mix(in srgb,var(--on-btn) 18%,transparent);color:var(--on-btn)}
 @keyframes rtewc{from{opacity:0}to{opacity:1}}
 :root[data-style="clean"] .rte-new .w{animation:rtewc var(--t-slow) var(--ease) both}
-@container rte (max-width:400px){:root[data-style="clean"] .rte-ai{width:28px;padding:0}:root[data-style="clean"] .rte-body{padding:16px}:root[data-style="clean"] .rte-body.empty::before{left:16px;right:16px;top:16px}:root[data-style="clean"] .rte-ft{padding-left:16px}}
+@container rte (max-width:400px){:root[data-style="clean"] .rte-ai{width:28px;padding:0}:root[data-style="clean"] .rte-ft{padding-left:16px}}
 @container rte (max-width:330px){:root[data-style="clean"] .rte-tb{gap:0;padding:8px}:root[data-style="clean"] .rte-b{width:28px}}
 /* ---------- Artifact card ---------- */
 /* a file the agent made, shown four ways: a compact row, a card with its first page, a chip inside the message, and a stack
@@ -2672,17 +2669,19 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .rvx-pg{display:flex;align-items:center;gap:0}
 .rvx-pg .ib{width:26px;height:26px}
 .rvx-pg .ib[disabled]{opacity:1;cursor:not-allowed;background:none;color:var(--dis)}
+/* the bar sits on the stage, where --row is the stage's own colour: its hover is a quiet 5% of the text colour */
+.rvx-bar .ib:not([disabled]):hover{background:color-mix(in srgb,var(--fg) 5%,transparent)}
 .rvx-n{font-size:12px;color:var(--muted);min-width:34px;text-align:center}
 .rvx-re svg{transition:transform .7s var(--ease)}
 .rvx-re.go svg{transform:rotate(360deg)}
 .rvx-st{font-size:12px;margin-left:6px}
 /* Clean (owner, 18 Nov): the answer, the bar's first icon and the bubble share the column's edges; words fade in and out
-   without a blur, and Copy's tick is the vivid green */
+   without a blur */
 @keyframes rvwc{from{opacity:0}to{opacity:1}}
 @keyframes rvoc{to{opacity:0;transform:translateY(-2px)}}
 :root[data-style="clean"] .rvx-t .w{animation-name:rvwc;animation-duration:var(--t-slow)}
 :root[data-style="clean"] .rvx-t.out{animation-name:rvoc;animation-duration:var(--t)}
-:root[data-style="clean"] .rvx-cp.copied{color:var(--ok-mark)!important}
+.rvx-cp.copied,.aab-cp.copied{color:var(--ok-mark)!important}
 /* ---------- Feedback sheet ---------- */
 .fbx{display:flex;flex-direction:column;gap:var(--s-2)}
 /* the first thumb's icon starts where the answer does */
@@ -2691,6 +2690,8 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .fbx-bar .ib.on svg{transform:rotate(-8deg)}
 /* nothing in the row shrinks or swells on a click (owner, 18 Nov): a rated thumb only tilts */
 .fbx-bar .ib:active,.fbx-f .pill.ghost:active{transform:none}
+/* the thumbs sit on the stage, where --row is the stage's own colour: their hover is a quiet 5% of the text colour */
+.fbx-bar .ib:hover{background:color-mix(in srgb,var(--fg) 5%,transparent)}
 :root[data-style="clean"] .fbx-bar .ib:active{transform:none}
 .fbx-dn.on{background:var(--bad-bg);color:var(--bad)}
 .fbx-st{font-size:12.5px;margin-left:6px}
@@ -2720,7 +2721,6 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
    thumb fills in ink (no red fill, no tilt) and a picked reason is an ink chip like a toggle that is on */
 :root[data-style="clean"] .fbx-bar .ib.on svg{transform:none}
 :root[data-style="clean"] .fbx-bar .ib.on{background:none;color:var(--fg)}
-:root[data-style="clean"] .fbx-bar .ib.on:hover{background:var(--row)}
 :root[data-style="clean"] .fbx-bar .ib.on svg{fill:currentColor}
 :root[data-style="clean"] .fbx-in.panel{gap:12px;margin:4px 0 0;padding:16px 16px 0;overflow:clip}
 :root[data-style="clean"] .fbx-q{font-size:14px;line-height:20px}
@@ -2948,7 +2948,6 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 :root[data-style="clean"] .aab-rd[aria-pressed="true"]{background:var(--chip);color:var(--fg)}
 :root[data-style="clean"] .aab-rd:hover{background:var(--hover)}
 :root[data-style="clean"] .aab-ch .chip.on{background:var(--btn-2);color:var(--on-btn);box-shadow:inset 0 0 0 1px var(--btn-2)}
-:root[data-style="clean"] .aab-cp.copied{color:var(--ok-mark)!important}
 :root[data-style="clean"] .aab-st.ok svg{color:var(--ok-mark)}
 /* ---------- Decision prompt ---------- */
 /* the agent asks in the chat: no container; with .panel it becomes a card */
@@ -9788,7 +9787,7 @@ document.addEventListener('click', e => { const b = e.target.closest && e.target
 const DM = {
   defs:{},
   // agents at work: their demos keep playing while a mouse rests on them, instead of holding (see mount)
-  PLAYS:new Set(['status-pill','step-loader','thinking','reasoning-trail','agent-lanes','agent-run-timeline','trace-view','agent-tree','terminal-stream','attachment-tray','progress','web-search','thinking-states','run-drawer']),
+  PLAYS:new Set(['status-pill','step-loader','thinking','reasoning-trail','agent-lanes','agent-run-timeline','trace-view','agent-tree','terminal-stream','attachment-tray','progress','web-search','thinking-states','run-drawer','response-versions']),
   def(id, fn){ this.defs[id] = fn; },
   /* the markup a card starts from: its <template>, or, when the markup is written out in its stage, what the stage holds
      before it first mounts, kept as a template so Replay starts from it again */
@@ -13591,7 +13590,10 @@ DM.def('feedback-sheet', (r, c) => {
   dn.onclick = e => down(e.isTrusted);
   $('.fbx-x', r).onclick = () => { box.classList.add('shut'); dn.classList.remove('on'); };
   go.onclick = () => c.run(async () => {
-    go.innerHTML = '<span class="spin"></span>'; await c.wait(800);
+    // the button is as wide as what it shows, and eases to the spinner's width
+    const w0 = go.offsetWidth; go.innerHTML = '<span class="spin"></span>'; const w1 = go.offsetWidth;
+    if (!REDUCE && w0 !== w1) go.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:220, easing:'cubic-bezier(.23,1,.32,1)' });
+    await c.wait(800);
     box.classList.add('shut'); await c.wait(300);
     const n = chips.filter(x => x.classList.contains('on')).length;
     const thx = html(`<div class="fbx-thx">${I('ok')}<span>Thanks. The agent will ${n ? 'avoid this' : 'use this'} next time in this project.</span></div>`);

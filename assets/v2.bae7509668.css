@@ -582,7 +582,7 @@
 .v2 .tk.growing{overflow-clip-margin:12px}
 .v2 .tk-h{display:flex;align-items:center;gap:10px;width:calc(100% + 16px);margin:0 -8px;padding:6px var(--s-2);border-radius:calc(10px * var(--rk-m,var(--rk)));text-align:left;transition:background var(--t-fast)}
 /* the header's hover is a quiet fill round the chevron, never a band wider than the trace (owner, 18 Nov) */
-@media (hover:hover) and (pointer:fine){.v2 .tk-h:hover .tk-chev{background:var(--row);box-shadow:0 0 0 6px var(--row);color:var(--fg)}}
+@media (hover:hover) and (pointer:fine){.v2 .tk-h:hover .tk-chev{background:color-mix(in srgb,var(--fg) 5%,transparent);box-shadow:0 0 0 6px color-mix(in srgb,var(--fg) 5%,transparent);color:var(--fg)}}
 .v2 .tk-mark{width:18px;height:18px;flex:none;display:grid;place-items:center;color:var(--accent-mark,var(--accent));transition:color .3s}
 .v2 .tk-h.tk-fin .tk-mark{color:var(--ok)}
 /* a finished state has no elapsed clock (owner, 18 Nov): the clock goes once the header says what the work came to */
@@ -651,17 +651,17 @@
 :root[data-style="clean"] .v2 .tk-mark{width:16px;height:16px;margin-right:2px;color:var(--fg)}
 :root[data-style="clean"] .v2 .tk-h.tk-fin .tk-mark{width:16px;height:16px;border-radius:50%;background:var(--ok-mark);color:var(--surface);animation:v2-tkdisc var(--t) var(--ease) backwards}
 :root[data-style="clean"] .v2 .tk-h.tk-fin .tk-mark .i{width:10px;height:10px;stroke-width:3.2;stroke-dasharray:21;animation:v2-tkdraw var(--t) var(--ease) .14s backwards}
-/* the steps are as tall as Soft's, so the card keeps its stage's height in every style: 5px above and below each step,
-   and its last words 16px from the card's foot */
-:root[data-style="clean"] .v2 .tk-list{padding:8px 16px 10px;border-top:1px solid var(--line)}
+/* the first step's words 16px under the header's hairline and the last ones 16px from the card's foot, 5px above and below
+   each step; the card is no taller than Soft's trace, so its stage keeps its height in every style */
+:root[data-style="clean"] .v2 .tk-list{padding:10px 16px;border-top:1px solid var(--line)}
 :root[data-style="clean"] .v2 .tk-st{padding:5px 0}
 /* a step's time sits on its first line's centre line, and ends where the chevron does */
 :root[data-style="clean"] .v2 .tk-st .tk-ln{align-items:flex-start}
-:root[data-style="clean"] .v2 .tk-st .lab,:root[data-style="clean"] .v2 .tk-st .tk-dur{line-height:20px}
+:root[data-style="clean"] .v2 .tk-st .lab,:root[data-style="clean"] .v2 .tk-st .tk-dur{line-height:19px}
 :root[data-style="clean"] .v2 .tk-st .res{line-height:17px}
 :root[data-style="clean"] .v2 .tk-st .tk-dur{font-variant-numeric:tabular-nums}
 /* the marks: 16px discs 16px in from the card's edge, centred on the step's first line, under the header's mark */
-:root[data-style="clean"] .v2 .tk-st .mk{width:16px;height:16px;margin:2px 2px 0 0;color:var(--fg);background:none;transition:none}
+:root[data-style="clean"] .v2 .tk-st .mk{width:16px;height:16px;margin:1.5px 2px 0 0;color:var(--fg);background:none;transition:none}
 :root[data-style="clean"] .v2 .tk-st.run .mk{background:none;animation:none}
 :root[data-style="clean"] .v2 .tk-st.run .mk .spin{box-sizing:border-box;width:16px;height:16px;border:1.5px solid var(--line);border-top-color:var(--fg);animation:v2-rot .9s linear infinite}
 :root[data-style="clean"] .v2 .tk-st.done .mk{background:var(--ok-mark);color:var(--surface);animation:v2-tkdisc var(--t) var(--ease) backwards}
@@ -671,7 +671,7 @@
 @keyframes v2-tkdisc{from{opacity:0;transform:scale(.5)}}
 @keyframes v2-tkdraw{from{stroke-dashoffset:21}}
 /* the hairline from under each mark to just above the next, darkening down into the next step once this one is done */
-:root[data-style="clean"] .v2 .tk-st:not(:last-child)::before,:root[data-style="clean"] .v2 .tk-st.done:not(:last-child)::after{left:7.5px;top:27px;bottom:-3px;width:1px;border-radius:0;background:var(--line)}
+:root[data-style="clean"] .v2 .tk-st:not(:last-child)::before,:root[data-style="clean"] .v2 .tk-st.done:not(:last-child)::after{left:7.5px;top:26.5px;bottom:-2.5px;width:1px;border-radius:0;background:var(--line)}
 :root[data-style="clean"] .v2 .tk-st.done:not(:last-child)::after{background:var(--line-strong);animation:v2-tkgrow var(--t-slow) var(--ease-io) .2s backwards}
 /* what a step found writes itself in a word at a time: a fade and a 3px rise, no blur */
 @keyframes v2-tkwordc{from{opacity:0;transform:translateY(3px)}}
@@ -1920,7 +1920,7 @@
   --rte-q:var(--muted);--rte-q2:var(--fg2)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .v2 .rte{--rte-q:color-mix(in srgb,var(--fg) 74%,var(--surface));--rte-q2:color-mix(in srgb,var(--fg) 80%,var(--surface))}}
 :root[data-theme="dark"] .v2 .rte{--rte-q:color-mix(in srgb,var(--fg) 74%,var(--surface));--rte-q2:color-mix(in srgb,var(--fg) 80%,var(--surface))}
-.v2 .rte-tb{display:flex;align-items:center;gap:2px;min-width:0;padding:7px 7px 7px 11px;box-shadow:inset 0 -1px 0 color-mix(in srgb,var(--line) 50%,transparent)}
+.v2 .rte-tb{display:flex;align-items:center;gap:2px;min-width:0;padding:7px 5px 7px 9px;box-shadow:inset 0 -1px 0 color-mix(in srgb,var(--line) 50%,transparent)}
 .v2 .rte-b{width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:var(--r-sm);color:var(--fg2);transition:background var(--t-fast),color var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.v2 .rte-b:hover{background:var(--row);color:var(--fg)}}
 /* a format the selection has: the accent's tint, with the icon in the accent's text colour */
@@ -1933,7 +1933,7 @@
 @media (hover:hover) and (pointer:fine){.v2 .rte-ai:hover{background:var(--row)}}
 .v2 .rte-ai:disabled .i{color:inherit}
 /* the text: one quiet size, a heading set apart by weight and room rather than size, and nothing heavier than medium */
-.v2 .rte-body{position:relative;height:256px;overflow-y:auto;padding:var(--s-4) 18px;outline:0;font-size:14px;line-height:1.65;color:var(--fg);white-space:pre-wrap;overflow-wrap:break-word;caret-color:var(--accent-fg);cursor:text}
+.v2 .rte-body{position:relative;height:256px;overflow-y:auto;padding:14px var(--s-4) var(--s-4);outline:0;font-size:14px;line-height:1.65;color:var(--fg);white-space:pre-wrap;overflow-wrap:break-word;caret-color:var(--accent-fg);cursor:text}
 .v2 .rte-body>*{margin:0;padding:0}
 .v2 .rte-body>*+*{margin-top:6px}
 .v2 .rte-body>*+h2{margin-top:14px}
@@ -1951,7 +1951,7 @@
 .v2 .rte-body blockquote{padding-left:14px;box-shadow:inset 2px 0 0 var(--rte-q);color:var(--rte-q2)}
 /* quote lines one after another read as one quote */
 .v2 .rte-body blockquote+blockquote{margin-top:0;padding-top:6px}
-.v2 .rte-body.empty::before{content:attr(data-placeholder);position:absolute;left:18px;right:18px;top:16px;color:var(--rte-q);pointer-events:none}
+.v2 .rte-body.empty::before{content:attr(data-placeholder);position:absolute;left:16px;right:16px;top:14px;color:var(--rte-q);pointer-events:none}
 /* the suggestion: the words it replaces struck through, the new ones in the accent's tint as they arrive */
 .v2 .rte-old{color:var(--rte-q);text-decoration:line-through;text-decoration-color:var(--rte-q)}
 .v2 .rte-new{color:var(--accent-fg);background:var(--sel);border-radius:var(--r-tiny,3px)}
@@ -1960,7 +1960,7 @@
 @keyframes v2-rtew{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
 /* the text a menu or the link field is for stays marked while the focus is in them */
 .v2 ::highlight(rte-pick){background-color:color-mix(in srgb,var(--accent-mark) 24%,transparent)}
-.v2 .rte-ft{display:grid;align-items:center;min-height:46px;padding:6px 11px 6px 18px;box-shadow:inset 0 1px 0 color-mix(in srgb,var(--line) 50%,transparent)}
+.v2 .rte-ft{display:grid;align-items:center;min-height:46px;padding:6px 9px 6px 16px;box-shadow:inset 0 1px 0 color-mix(in srgb,var(--line) 50%,transparent)}
 .v2 .rte-idle,.v2 .rte-rev{grid-area:1/1;display:flex;align-items:center;gap:var(--s-2);min-width:0;transition:opacity .25s var(--ease),transform .35s var(--ease),visibility 0s}
 .v2 .rte-rev,.v2 .rte[data-st="review"] .rte-idle{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s var(--ease),transform .35s var(--ease),visibility 0s .35s}
 .v2 .rte-rev{transform:translateY(4px)}
@@ -2003,10 +2003,10 @@
 .v2 .rte-ask.show{opacity:1;visibility:visible;transform:none;transition-delay:0s}
 .v2 .rte-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 @container rte (max-width:520px){.v2 .rte-hint{display:none}}
-/* the toolbar's first icon, the text and the foot's words share one left edge (18px in, 14px in a narrow editor), and Ask AI's
-   words (its icon when narrow) and Redo's icon end on the text's right edge (owner, 18 Nov: every part on a shared column) */
-@container rte (max-width:400px){.v2 .rte-ai{width:30px;padding:0;justify-content:center}.v2 .rte-ai span{display:none}.v2 .rte-sep{margin:0 2px}.v2 .rte-tb{padding-left:7px;padding-right:6px}.v2 .rte-body{padding:14px}.v2 .rte-body.empty::before{left:14px;right:14px;top:14px}.v2 .rte-ft{padding-left:14px;padding-right:7px}.v2 .rte-rev .kbd{display:none}}
-@container rte (max-width:330px){.v2 .rte-tb{gap:0;padding:7px 6px 7px 8px}.v2 .rte-b{width:28px}}
+/* the toolbar's first icon, the text and the foot's words share one left edge 16px in, and Ask AI's words (its icon when
+   narrow), Redo's icon and Accept end 16px from the right edge, at every width (owner, 18 and 19 Nov) */
+@container rte (max-width:400px){.v2 .rte-ai{width:30px;padding:0;justify-content:center}.v2 .rte-ai span{display:none}.v2 .rte-sep{margin:0 2px}.v2 .rte-tb{padding-left:9px;padding-right:8px}.v2 .rte-ft{padding-left:16px;padding-right:9px}.v2 .rte-rev .kbd{display:none}}
+@container rte (max-width:330px){.v2 .rte-tb{gap:0;padding:7px 8px 7px 10px}.v2 .rte-b{width:28px}}
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .rte-b:is([aria-pressed="true"],.on){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent-mark) 50%,transparent)}
 /* Blueprint's lime tint is faint on white, so the suggestion also gets a hairline of the accent's mark under it */
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .rte-new{background:var(--accent-bg);box-shadow:inset 0 -1px 0 var(--accent-mark)}
@@ -2029,13 +2029,10 @@
 :root[data-style="clean"] .v2 .rte-ai:active{background:var(--hover)}
 :root[data-style="clean"] .v2 .rte-ai:disabled{background:var(--surface);color:var(--dis)}
 :root[data-style="clean"] .v2 .rte-ai:disabled .i{color:inherit}
-:root[data-style="clean"] .v2 .rte-body{padding:16px;caret-color:var(--fg)}
-:root[data-style="clean"] .v2 .rte-body.empty::before{left:16px;right:16px;top:16px}
+:root[data-style="clean"] .v2 .rte-body{caret-color:var(--fg)}
 :root[data-style="clean"] .v2 .rte-ft{min-height:45px;padding:8px 8px 8px 16px;background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card);box-shadow:none}
 :root[data-style="clean"] .v2 .rte-idle .ib{width:28px;height:28px}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .rte-idle .ib:hover{background:var(--hover)}}
-/* the menu's heading starts where its items' words do */
-:root[data-style="clean"] .v2 .rte-menu .ph{padding-left:calc(var(--s-2) + 14px + 10px)}
 :root[data-style="clean"] .v2 .rte-st{color:var(--fg2)}
 :root[data-style="clean"] .v2 .rte-rev{gap:8px;margin-right:0}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .rte-rev .pill.ghost:hover{background:var(--hover)}}
@@ -2044,7 +2041,7 @@
 :root[data-style="clean"] .v2 .rte-ok:not([disabled]) .kbd{background:color-mix(in srgb,var(--on-btn) 18%,transparent);color:var(--on-btn)}
 @keyframes v2-rtewc{from{opacity:0}to{opacity:1}}
 :root[data-style="clean"] .v2 .rte-new .w{animation:v2-rtewc var(--t-slow) var(--ease) both}
-@container rte (max-width:400px){:root[data-style="clean"] .v2 .rte-ai{width:28px;padding:0}:root[data-style="clean"] .v2 .rte-body{padding:16px}:root[data-style="clean"] .v2 .rte-body.empty::before{left:16px;right:16px;top:16px}:root[data-style="clean"] .v2 .rte-ft{padding-left:16px}}
+@container rte (max-width:400px){:root[data-style="clean"] .v2 .rte-ai{width:28px;padding:0}:root[data-style="clean"] .v2 .rte-ft{padding-left:16px}}
 @container rte (max-width:330px){:root[data-style="clean"] .v2 .rte-tb{gap:0;padding:8px}:root[data-style="clean"] .v2 .rte-b{width:28px}}
 /* ---------- Artifact card ---------- */
 /* a file the agent made, shown four ways: a compact row, a card with its first page, a chip inside the message, and a stack
@@ -2647,17 +2644,19 @@
 .v2 .rvx-pg{display:flex;align-items:center;gap:0}
 .v2 .rvx-pg .ib{width:26px;height:26px}
 .v2 .rvx-pg .ib[disabled]{opacity:1;cursor:not-allowed;background:none;color:var(--dis)}
+/* the bar sits on the stage, where --row is the stage's own colour: its hover is a quiet 5% of the text colour */
+@media (hover:hover) and (pointer:fine){.v2 .rvx-bar .ib:not([disabled]):hover{background:color-mix(in srgb,var(--fg) 5%,transparent)}}
 .v2 .rvx-n{font-size:12px;color:var(--muted);min-width:34px;text-align:center}
 .v2 .rvx-re svg{transition:transform .7s var(--ease)}
 .v2 .rvx-re.go svg{transform:rotate(360deg)}
 .v2 .rvx-st{font-size:12px;margin-left:6px}
 /* Clean (owner, 18 Nov): the answer, the bar's first icon and the bubble share the column's edges; words fade in and out
-   without a blur, and Copy's tick is the vivid green */
+   without a blur */
 @keyframes v2-rvwc{from{opacity:0}to{opacity:1}}
 @keyframes v2-rvoc{to{opacity:0;transform:translateY(-2px)}}
 :root[data-style="clean"] .v2 .rvx-t .w{animation-name:v2-rvwc;animation-duration:var(--t-slow)}
 :root[data-style="clean"] .v2 .rvx-t.out{animation-name:v2-rvoc;animation-duration:var(--t)}
-:root[data-style="clean"] .v2 .rvx-cp.copied{color:var(--ok-mark)!important}
+.v2 .rvx-cp.copied,.v2 .aab-cp.copied{color:var(--ok-mark)!important}
 /* ---------- Feedback sheet ---------- */
 .v2 .fbx{display:flex;flex-direction:column;gap:var(--s-2)}
 /* the first thumb's icon starts where the answer does */
@@ -2666,6 +2665,8 @@
 .v2 .fbx-bar .ib.on svg{transform:rotate(-8deg)}
 /* nothing in the row shrinks or swells on a click (owner, 18 Nov): a rated thumb only tilts */
 .v2 .fbx-bar .ib:active,.v2 .fbx-f .pill.ghost:active{transform:none}
+/* the thumbs sit on the stage, where --row is the stage's own colour: their hover is a quiet 5% of the text colour */
+@media (hover:hover) and (pointer:fine){.v2 .fbx-bar .ib:hover{background:color-mix(in srgb,var(--fg) 5%,transparent)}}
 :root[data-style="clean"] .v2 .fbx-bar .ib:active{transform:none}
 .v2 .fbx-dn.on{background:var(--bad-bg);color:var(--bad)}
 .v2 .fbx-st{font-size:12.5px;margin-left:6px}
@@ -2695,7 +2696,6 @@
    thumb fills in ink (no red fill, no tilt) and a picked reason is an ink chip like a toggle that is on */
 :root[data-style="clean"] .v2 .fbx-bar .ib.on svg{transform:none}
 :root[data-style="clean"] .v2 .fbx-bar .ib.on{background:none;color:var(--fg)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .fbx-bar .ib.on:hover{background:var(--row)}}
 :root[data-style="clean"] .v2 .fbx-bar .ib.on svg{fill:currentColor}
 :root[data-style="clean"] .v2 .fbx-in.panel{gap:12px;margin:4px 0 0;padding:16px 16px 0;overflow:clip}
 :root[data-style="clean"] .v2 .fbx-q{font-size:14px;line-height:20px}
@@ -2925,7 +2925,6 @@
 :root[data-style="clean"] .v2 .aab-rd[aria-pressed="true"]{background:var(--chip);color:var(--fg)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .aab-rd:hover{background:var(--hover)}}
 :root[data-style="clean"] .v2 .aab-ch .chip.on{background:var(--btn-2);color:var(--on-btn);box-shadow:inset 0 0 0 1px var(--btn-2)}
-:root[data-style="clean"] .v2 .aab-cp.copied{color:var(--ok-mark)!important}
 :root[data-style="clean"] .v2 .aab-st.ok svg{color:var(--ok-mark)}
 /* ---------- Decision prompt ---------- */
 /* the agent asks in the chat: no container; with .panel it becomes a card */

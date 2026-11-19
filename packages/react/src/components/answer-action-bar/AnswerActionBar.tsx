@@ -178,7 +178,7 @@ export function AnswerActionBar({
         </div>
       </Fold>
       <p className={cx('dm-aab-st dm-muted', statusTone && 'dm-' + statusTone, !status && 'dm-off')} aria-live="polite">
-        {statusTone === 'ok' && status ? <><Icon name="ok" size="xs" /><span key={status} {...enter()}>{status}</span></> : <Swap className={streaming && status ? 'dm-shim' : undefined}>{status}</Swap>}
+        {statusTone === 'ok' && status ? <><Icon name="ok" size="xs" /><span key={status} {...enter()}>{status}</span></> : <Swap className={streaming && status && statusTone !== 'warn' ? 'dm-shim' : undefined}>{status}</Swap>}
       </p>
       </div>
     </div>
