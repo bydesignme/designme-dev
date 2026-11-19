@@ -91,7 +91,7 @@ The CLI installs from the registry: each component as JSON, at `/r/<name>.json` 
 - [Introduction](https://designme.dev/docs/introduction.md): What designme.dev is: free components for AI agent products, in HTML, React or Astro, in three styles with light and dark mode.
 - [Installation](https://designme.dev/docs/installation.md): Add components with the designme CLI or the shadcn CLI, as HTML, CSS and JavaScript, React or Astro, and give them your Tailwind v4 theme.
 - [Astro](https://designme.dev/docs/astro.md): Add the components to an Astro project as .astro files, with the same markup, CSS and script as the HTML version.
-- [Theming](https://designme.dev/docs/theming.md): Switch between Soft and Blueprint, light and dark, and set your own accent and its roles.
+- [Theming](https://designme.dev/docs/theming.md): Switch between Blueprint, Soft and Clean, light and dark, and set your own accent and its roles.
 - [Accessibility](https://designme.dev/docs/accessibility.md): The roles, keyboard support, touch tap areas, reduced motion and contrast work built into the components.
 
 All components: https://designme.dev/llms.txt

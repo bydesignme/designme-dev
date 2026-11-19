@@ -31,16 +31,17 @@ Each component ships in HTML (`soft-2/index.html`) and React (`packages/react`),
 
 Generated, don't edit by hand:
 
-- `index.html` and `assets/` (its styles and scripts), `404.html`, `llms.txt` and `code-data.json`
+- `library.html` (the library, at `/library`) and `assets/` (its styles and scripts), `404.html`, `llms.txt` and
+  `code-data.json`
 - `r/`: the HTML registry, plus `r/react`, `r/astro`, `r/shadcn` and `r/theme-bridge.json`
-- `components/`, `docs/`, `sitemap.xml` and `_redirects`
+- `index.html` (the landing page, at `/`), `components/`, `docs/`, `sitemap.xml` and `_redirects`
 - `packages/astro/src` and `packages/astro/manifest.json`
 - In `packages/react`: each component's `.css`, `src/designme.css`, `src/index.ts`, and the icon, logo, flag and
   hit-area files in `src/lib` (the sync writes a "Generated" header on each)
-- `tools/site/site-patches.json`, `tools/site/card-heights.json` and the pictures in
-  `tools/pages/public/components` (generated, but committed so a build doesn't need Python or a browser)
+- `tools/site/site-patches.json`, `tools/site/card-heights.json`, the pictures in `tools/pages/public/components` and
+  `og.png`, the share image (generated, but committed so a build doesn't need Python or a browser)
 
-Written by hand and served as they are: `_headers`, `robots.txt`, `og.png` and the favicons.
+Written by hand and served as they are: `_headers`, `robots.txt` and the favicons.
 
 ## Build
 
@@ -53,10 +54,10 @@ From `tools/site`:
 npm install
 npm run base      # once: writes site-main.html, the original page, from commit 56e4f0b (ignored by git)
 npm run patches   # only after editing make-patches.py: rewrites site-patches.json
-npm run build     # ../../index.html and ../../assets, code-data.json, r/*.json, llms.txt and 404.html
+npm run build     # ../../library.html and ../../assets, code-data.json, r/*.json, llms.txt and 404.html
 npm run react     # the React CSS and r/react, with a type check
 npm run astro     # packages/astro, r/astro, r/shadcn and the theme bridge, then builds them all
-npm run pages     # the component and docs pages, their Markdown copies and the sitemap
+npm run pages     # the landing page (index.html), the component and docs pages, their Markdown copies and the sitemap
 ```
 
 Run `npm install` once in `packages/react`, `packages/astro` and `tools/pages` before `react`, `astro` and `pages`.
@@ -72,6 +73,8 @@ own source keeps the short names.
   `COMPS=<ids> PW=$(npm root -g)/playwright node measure-heights.js` (from `tools/site`, needs Playwright).
 - Component pictures: `PW=$(npm root -g)/playwright node shots.mjs [names]` from `tools/pages`, after a component's look
   changes.
+- The share image (`og.png`): `PW=$(npm root -g)/playwright node og.mjs` from `tools/pages` (needs ffmpeg), after the
+  count changes or a component on it changes its look.
 - Sounds: `python3 make-sounds.py` from `tools/site` (needs ffmpeg and numpy).
 - Carousel and Image generation photos (Pexels): `python3 art/get-photos.py` from the root (needs Pillow with WebP).
 

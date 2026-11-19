@@ -37,5 +37,5 @@ These are part of the site, not of anything you install.
 - **Sounds** in `sounds/`, `lab/sounds/` and `tools/site/sounds-src/`: recordings from Kenney's
   [Interface Sounds](https://kenney.nl/assets/interface-sounds) and [UI Audio](https://kenney.nl/assets/ui-audio)
   packs, CC0 1.0 (`tools/site/sounds-src/License-*.txt`).
-- **Avatars in `og.png`** (the site's share image): [DiceBear](https://www.dicebear.com), Micah style by Micah Lanier,
-  CC BY 4.0.
+- **The share image** `og.png` is drawn from the components themselves (`tools/pages/og.mjs`), so the credits above for
+  their brand marks apply to it too.

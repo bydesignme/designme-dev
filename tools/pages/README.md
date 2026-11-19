@@ -1,20 +1,32 @@
 # Component pages
 
-The pages beside the homepage, built with Astro: a page per component (`/components/composer`), a Markdown copy of each
-(`/components/composer.md`) for AI tools, the docs (`/docs/introduction` and its `.md`), the sitemap and `_redirects`. The homepage lists every component, so there is no
-separate list: `/components` redirects to it, and each old section page (`/components/status`) to its section there
-(`/#s-status`).
+The pages beside the library, built with Astro: the landing page at `/` (`src/pages/index.astro`), a page per component
+(`/components/composer`), a Markdown copy of each (`/components/composer.md`) for AI tools, the docs (`/docs/introduction`
+and its `.md`), the sitemap and `_redirects`. The library (`/library`) lists every component, so there is no separate list:
+`/components` redirects to it, and each old section page (`/components/status`) to its section there (`/library#s-status`).
+The library used to be the home page: the landing page sends its old addresses (`/#/changelog`, `/#s-status`) on to it.
 
-The homepage itself is still built by `tools/site`. These pages read what that build writes, so build it first:
+The library itself is still built by `tools/site`, as `library.html`. These pages read what that build writes, so build it
+first:
 
 ```sh
 cd ../site && npm run build      # writes ../pages/data/site.json, the sections and cards in page order
 cd ../pages && npm install
-npm run build                    # builds into dist/, then copies components/ and sitemap.xml to the repository root and writes _redirects
+npm run build                    # builds into dist/, then copies index.html, components/ and sitemap.xml to the repository root and writes _redirects
 ```
 
 (or `npm run pages` from `tools/site`). Cloudflare Pages serves the repository as it is, so the built pages are committed,
-like `index.html`.
+like `library.html`.
+
+## The landing page
+
+`src/pages/index.astro` is the page at `/`: full width, with the site's header and footer and no sidebar. It shows what
+the library is with the components themselves: Agent tree live in the first screen beside a style switch, a grid of agent
+components playing their demos, Blueprint, Soft and Clean to pick from (a pick restyles the whole page), how to install,
+what is in the library, what every component comes with, and questions. Each demo is the installed HTML, CSS and JS on the
+shared core, as on a component page: the first screen's is in the page, the others load from the registry
+(`/r/<name>.json`) when they come within a screen of the view, and each stage keeps the tallest its component gets in
+any style (`tools/site/card-heights.json`), so nothing below it moves. Its counts come from the library's sections.
 
 ## What each page shows
 
@@ -60,6 +72,15 @@ PW=$(npm root -g)/playwright node shots.mjs [names] # about 15 minutes for all 8
 npm run build
 ```
 
+`og.mjs` draws the site's share image, `og.png` at the repository root (1200×630), which a link to the landing page or the
+library shows: the count and the title beside a wall of real agent components in Blueprint dark, each the installed
+component on the shared core, stopped at a moment that shows it whole. Draw it again when the count changes or one of its
+components changes its look:
+
+```sh
+PW=$(npm root -g)/playwright node og.mjs            # needs ffmpeg
+```
+
 ## The written copy
 
 `content/<name>.json` holds each page's own text: a summary, when to use it, what it does, accessibility facts and
@@ -85,8 +106,8 @@ file still gets a page, with its one-line description.
   written copy. `src/pages/docs/[slug].md.ts` writes their Markdown copies.
 - `src/pages/components/[slug].md.ts` writes the Markdown copies;
   `src/pages/components/assets/` the shared core for the demos; `src/pages/sitemap.xml.ts` the sitemap.
-- `shots.mjs` takes the pictures (see above).
-- `publish.mjs` copies the build (`components/`, `docs/` and `sitemap.xml`) to the repository root and stops if the build holds
+- `shots.mjs` takes the pictures and `og.mjs` draws the share image (see above).
+- `publish.mjs` copies the build (`index.html`, `components/`, `docs/` and `sitemap.xml`) to the repository root and stops if the build holds
   anything it doesn't expect.
 
 Astro is pinned to 7.3.8, the newest release that runs on Node 22.12.

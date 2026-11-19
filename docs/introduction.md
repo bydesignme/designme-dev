@@ -8,7 +8,7 @@ Designme.dev docs. The same page with navigation: https://designme.dev/docs/intr
 
 100 free components: 51 for the agent itself, like status pills, reasoning trails, agent trees, permission gates, plan reviews and run costs, and 49 app basics around it.
 
-Every component plays as a demo on the [homepage](https://designme.dev/), and has a page of its own with its install command, React props, code and questions.
+Every component plays as a demo in the [library](https://designme.dev/library), and has a page of its own with its install command, React props, code and questions.
 
 ## Two styles, light and dark
 
@@ -93,7 +93,7 @@ Each style has a light and a dark theme. Switch them in the header of any page h
 
 - [Agent harness](https://designme.dev/components/agent-harness.md)
 
-There are also 49 app basics, like charts, date pickers and forms, for the product around the agent. They are all in the [library](https://designme.dev/#s-charts).
+There are also 49 app basics, like charts, date pickers and forms, for the product around the agent. They are all in the [library](https://designme.dev/library#s-charts).
 
 ## HTML, React or Astro
 
@@ -111,7 +111,7 @@ Avatars, icons, flags, brand logos and fonts keep their own licences. They are l
 
 - [Installation](https://designme.dev/docs/installation.md): Add components with the designme CLI or the shadcn CLI, as HTML, CSS and JavaScript, React or Astro, and give them your Tailwind v4 theme.
 - [Astro](https://designme.dev/docs/astro.md): Add the components to an Astro project as .astro files, with the same markup, CSS and script as the HTML version.
-- [Theming](https://designme.dev/docs/theming.md): Switch between Soft and Blueprint, light and dark, and set your own accent and its roles.
+- [Theming](https://designme.dev/docs/theming.md): Switch between Blueprint, Soft and Clean, light and dark, and set your own accent and its roles.
 - [Accessibility](https://designme.dev/docs/accessibility.md): The roles, keyboard support, touch tap areas, reduced motion and contrast work built into the components.
 - [Using with AI](https://designme.dev/docs/using-with-ai.md): Point a coding agent at the Markdown copy of every page and at llms.txt, and prompt it to install components with the CLI.
 
@@ -119,7 +119,7 @@ Avatars, icons, flags, brand logos and fonts keep their own licences. They are l
 
 - [Installation](https://designme.dev/docs/installation.md): Add components with the designme CLI or the shadcn CLI, as HTML, CSS and JavaScript, React or Astro, and give them your Tailwind v4 theme.
 - [Astro](https://designme.dev/docs/astro.md): Add the components to an Astro project as .astro files, with the same markup, CSS and script as the HTML version.
-- [Theming](https://designme.dev/docs/theming.md): Switch between Soft and Blueprint, light and dark, and set your own accent and its roles.
+- [Theming](https://designme.dev/docs/theming.md): Switch between Blueprint, Soft and Clean, light and dark, and set your own accent and its roles.
 - [Accessibility](https://designme.dev/docs/accessibility.md): The roles, keyboard support, touch tap areas, reduced motion and contrast work built into the components.
 - [Using with AI](https://designme.dev/docs/using-with-ai.md): Point a coding agent at the Markdown copy of every page and at llms.txt, and prompt it to install components with the CLI.
 

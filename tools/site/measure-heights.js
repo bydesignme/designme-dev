@@ -32,7 +32,8 @@ const serve = page => page.route('**/*', route => {
 });
 
 (async () => {
-  const url = 'http://dm.local/';
+  // the library: library.html since the landing page took / (19 Nov), or index.html on a build from before then
+  const url = fs.existsSync(path.join(ROOT, 'library.html')) ? 'http://dm.local/library.html' : 'http://dm.local/';
   // PW_EXEC points at a Chromium of your own, if Playwright's isn't installed
   const browser = await chromium.launch(process.env.PW_EXEC ? { executablePath: process.env.PW_EXEC } : {});
   const spill = [];

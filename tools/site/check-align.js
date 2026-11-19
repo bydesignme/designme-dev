@@ -1,4 +1,4 @@
-// Alignment and fit check for homepage cards (owner, 18 Nov: "how can I make sure you're not making them again and again").
+// Alignment and fit check for the library's cards (owner, 18 Nov: "how can I make sure you're not making them again and again").
 // Plays each card, in every design it can switch to, and samples it while it plays. It reports:
 //   columns  a row's leading mark, first words or last control that sits 1 to 8px off the same edge or centre line in
 //            another row of the card (a near miss reads as misaligned; equal or clearly different is fine)
@@ -82,12 +82,14 @@ function sample(id){
 }
 
 (async () => {
+  // the library's cards: /library.html since the landing page took / (19 Nov), or / on a build from before then
+  const LIB = await fetch(`http://127.0.0.1:${port}/library.html`, { method:'HEAD' }).then(r => r.ok ? '/library.html' : '/', () => '/');
   const b = await chromium.launch(); const report = []; let issues = 0;
   for (const st of styles) for (const th of themes){
     const p = await b.newPage({ viewport:{ width:W, height:1000 } });
     await p.addInitScript(([s, t]) => { try { localStorage.setItem('dmui-style', s); localStorage.setItem('dmui-theme', t); } catch(e){} }, [st, th]);
     await p.route(/plausible|api\.github\.com|supabase|fonts\.g/, r => r.abort());
-    await p.goto(`http://127.0.0.1:${port}/`, { waitUntil:'load' }); await p.evaluate(() => document.fonts.ready);
+    await p.goto(`http://127.0.0.1:${port}${LIB}`, { waitUntil:'load' }); await p.evaluate(() => document.fonts.ready);
     for (const id of ids){
       const card = p.locator(`.comp[data-v2="${id}"]`); await card.evaluate(e => e.scrollIntoView({ block:'center' })); await p.waitForTimeout(300);
       const tabs = card.locator('.comp-foot [data-tabs] button'), nt = await tabs.count();

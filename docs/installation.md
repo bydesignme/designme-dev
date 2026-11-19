@@ -240,7 +240,7 @@ It reads these variables from your theme and sets our tokens from them, the same
 - Contrast: the accent's text and marks take your `--primary` as it is, so check that it reads on your cards.
 - Your theme's own `--accent`, `--muted` and the rest stay as they are for your page: our tokens all start with `--dm-`.
 
-On designme.dev, pick Your theme in the style switch in the header (or in the menu on a phone) to paste a theme: the demos on the homepage and on the component pages preview with it through the same bridge. It stays in your browser. While a pasted theme is on, the accent picker is hidden, as it would do nothing; Reset in the panel forgets the theme and brings it back.
+On designme.dev, pick Your theme in the style switch in the header (or in the menu on a phone) to paste a theme: the demos in the library and on the component pages preview with it through the same bridge. It stays in your browser. While a pasted theme is on, the accent picker is hidden, as it would do nothing; Reset in the panel forgets the theme and brings it back.
 
 ## Frameworks
 
@@ -277,7 +277,7 @@ The CLI downloads each component from designme.dev and skips files that are alre
 
 - [Introduction](https://designme.dev/docs/introduction.md): What designme.dev is: free components for AI agent products, in HTML, React or Astro, in three styles with light and dark mode.
 - [Astro](https://designme.dev/docs/astro.md): Add the components to an Astro project as .astro files, with the same markup, CSS and script as the HTML version.
-- [Theming](https://designme.dev/docs/theming.md): Switch between Soft and Blueprint, light and dark, and set your own accent and its roles.
+- [Theming](https://designme.dev/docs/theming.md): Switch between Blueprint, Soft and Clean, light and dark, and set your own accent and its roles.
 - [Accessibility](https://designme.dev/docs/accessibility.md): The roles, keyboard support, touch tap areas, reduced motion and contrast work built into the components.
 - [Using with AI](https://designme.dev/docs/using-with-ai.md): Point a coding agent at the Markdown copy of every page and at llms.txt, and prompt it to install components with the CLI.
 

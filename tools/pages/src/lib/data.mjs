@@ -20,8 +20,8 @@ export const SETS = site.sets;
 export const LOGO = site.logo;
 // the foot of the homepage's sidebar: the DesignMe sticker and credit line, and Book a call (tools/site/build.js copies it)
 export const SIDE_FOOT = site.sideFoot || '';
-// a section lives on the homepage, which lists every component; /components/<section> redirects there (see publish.mjs)
-export const SECTIONS = site.sections.map(s => ({ ...s, set:SETS[s.grp], url:`/#${s.id}` }));
+// a section lives in the library (/library), which lists every component; /components/<section> redirects there (see publish.mjs)
+export const SECTIONS = site.sections.map(s => ({ ...s, set:SETS[s.grp], url:`/library#${s.id}` }));
 
 /* ---- the props of a React component, from its TypeScript interfaces and their doc comments ---- */
 function propsOf(src){

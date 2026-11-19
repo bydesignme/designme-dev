@@ -1,10 +1,11 @@
 # Site build
 
-`index.html` at the root of this repository is generated. It is the original designme.dev page (commit `56e4f0b`) with every
+`library.html` at the root of this repository is generated: the library, served at `/library` (the landing page at `/` is
+`index.html`, built by `tools/pages`). It is the original designme.dev page (commit `56e4f0b`) with every
 component card swapped for its Soft 2 / Blueprint 2 version from `soft-2/index.html`, plus a few edits to the site's own UI.
 The same build writes the HTML registry in `r/` that `npx designme add` downloads.
 
-Don't edit `index.html` or `r/*.json` by hand: the next build overwrites them.
+Don't edit `library.html` or `r/*.json` by hand: the next build overwrites them.
 
 ## Where to change things
 
@@ -23,7 +24,7 @@ CSS (and so the registry, `core.css` and the React CSS) and on the site's own, `
 pages' styles, and the builds stop if a `:hover` rule is left outside it. Write hover rules as usual.
 
 The original page's stylesheet (with `make-patches.py`'s CSS, in `@layer site`) ships only the rules the site still uses.
-`site-css-unused.txt` lists the rest, and `build.js` leaves them out of `index.html`. Its header says how the list was
+`site-css-unused.txt` lists the rest, and `build.js` leaves them out of `library.html`. Its header says how the list was
 made. Each line starts with a hash of the rule, so a listed rule that you change ships again. A new rule always ships.
 
 ## Build
@@ -34,7 +35,7 @@ From this folder:
 npm install          # acorn and postcss
 npm run base         # writes site-main.html, the original page, from git history (needs a full clone, not a shallow one)
 npm run patches      # only after editing make-patches.py: rewrites site-patches.json
-npm run build        # writes ../../index.html and ../../assets, ../../code-data.json, ../../r/*.json, ../../llms.txt and ../../404.html
+npm run build        # writes ../../library.html and ../../assets, ../../code-data.json, ../../r/*.json, ../../llms.txt and ../../404.html
 npm run react        # regenerates the React CSS and registry (r/react) from the new build, and type-checks them
 npm run astro        # regenerates the Astro components (packages/astro), r/astro, r/shadcn and the theme bridge, and builds them all
 npm run pages        # builds the component pages, their Markdown copies and the sitemap (see ../pages/README.md)
@@ -77,7 +78,8 @@ Then check the site locally before pushing:
 
 ```sh
 cd ../.. && python3 -m http.server 8790
-# open http://localhost:8790/ in Blueprint and Soft, light and dark, at desktop and phone widths
+# open http://localhost:8790/library.html (the library) and http://localhost:8790/ (the landing page) in Blueprint, Soft
+# and Clean, light and dark, at desktop and phone widths
 ```
 
 Pushing `staging` deploys https://staging.designme-dev.pages.dev; `main` deploys https://designme.dev.
@@ -90,15 +92,15 @@ Pushing `staging` deploys https://staging.designme-dev.pages.dev; `main` deploys
 - `site-patches.json` is generated, but committed so a build doesn't need Python.
 - `measure-heights.js` writes `card-heights.json`, the height each card keeps, committed for the same reason.
 - The build also writes `llms.txt`, a Markdown index of every component for AI tools, and `404.html`, which Cloudflare
-  Pages serves with a 404 for any address that isn't a file (without it, every address got the homepage). The 404 page
+  Pages serves with a 404 for any address that isn't a file (without it, every address got the home page). The 404 page
   knows every component, so a mistyped address like `/composer` offers the Composer page. `robots.txt` is written by
   hand; `sitemap.xml` comes from `tools/pages`. The build also writes `../pages/data/site.json` for those pages, and
-  links each card's title on the homepage to its page.
+  links each card's title in the library to its page.
 - `site-main.html` is the original page, taken from git and not committed.
 - `split-assets.js` moves the page's big styles and scripts into `../../assets`, each named by a hash of its content
-  (`v2.<hash>.css`, `site.<hash>.js`, `v2.<hash>.js`), so `_headers` can cache them for a year while `index.html` revalidates.
+  (`v2.<hash>.css`, `site.<hash>.js`, `v2.<hash>.js`), so `_headers` can cache them for a year while `library.html` revalidates.
   The site's own stylesheet and the small scripts that must run before the first paint stay inline. The components' script
   holds the core and the first section's components; every other section's components (their code and their card's
   markup) are a file of their own, `v2-<section>.<hash>.js`, loaded the first time the section comes within a screen of the
   view or one of its cards is asked to start (`DEF_PARTS` in `build.js`). Files a new build no longer names are deleted, so
-  commit `assets/` with `index.html`.
+  commit `assets/` with `library.html`.

@@ -1,6 +1,7 @@
 // Builds the staging site: the live designme.dev page with every component swapped for its
 // Soft 2 / Blueprint 2 version from soft-2/index.html. The site's own UI is left as it is.
 // usage (from tools/site, see README.md): node build.js <site index.html> <soft-2 index.html> <out.html> [<registry dir>]
+// The library is written to library.html, served at /library (owner, 19 Nov); / is the landing page, which tools/pages builds
 const fs = require('fs'), path = require('path');
 // edits to the site's own UI, written by make-patches.py
 const SITE_PATCHES = JSON.parse(fs.readFileSync(path.join(__dirname, 'site-patches.json'), 'utf8'));
@@ -966,7 +967,7 @@ site = site.replace(/(<style(?![^>]*id="v2-css")[^>]*>)([\s\S]*?)(<\/style>)/g, 
 }
 const split = splitAssets(site, path.dirname(OUT), V2_PARTS);
 fs.writeFileSync(OUT, split.html);
-console.log('assets:', split.files.join(' ') + '; index.html', split.html.length, 'bytes');
+console.log('assets:', split.files.join(' ') + '; ' + path.basename(OUT), split.html.length, 'bytes');
 console.log('swapped', done.length, 'cards; size', site.length);
 
 /* ---------- llms.txt: a plain Markdown index of every component for AI tools, in the page's own order ---------- */
@@ -997,7 +998,7 @@ Install with the CLI, which copies each component's source into your project so 
 - Astro: \`npx designme add <name> --astro\` adds an \`.astro\` component with the HTML version's CSS and script, and the shared core.
 - shadcn CLI: \`npx shadcn@latest add https://designme.dev/r/shadcn/<name>.json\` (React) or \`https://designme.dev/r/shadcn/astro/<name>.json\` (Astro). The index of the React items is https://designme.dev/r/shadcn/registry.json.
 
-Every CSS variable starts with \`--dm-\` in every version, and in the React version every class and animation name starts with \`dm-\` too, so the components sit beside Tailwind, shadcn/ui or any other CSS. Each component below links to its page as Markdown: what it is for, how to install and use it, its React props, questions and its React source. The same page with a live demo is at the same address without \`.md\`, and every component is on the homepage, https://designme.dev/.
+Every CSS variable starts with \`--dm-\` in every version, and in the React version every class and animation name starts with \`dm-\` too, so the components sit beside Tailwind, shadcn/ui or any other CSS. Each component below links to its page as Markdown: what it is for, how to install and use it, its React props, questions and its React source. The same page with a live demo is at the same address without \`.md\`, and every component is in the library, https://designme.dev/library.
 `;
   // the docs pages that tools/pages builds, each as Markdown too
   const DOCS = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../pages/src/lib/docs-list.json'), 'utf8'));
@@ -1009,7 +1010,7 @@ Every CSS variable starts with \`--dm-\` in every version, and in the React vers
       md += sec.cards.map(c => `- [${c.t}](https://designme.dev/components/${c.reg}.md): ${c.d} Install: \`npx designme add ${c.reg}\``).join('\n') + '\n';
     }
   }
-  md += `\n## Optional\n\n- [Component pages](https://designme.dev/components/composer): one page per component, at /components/<name>, with its demo, install, usage, props and code.\n- [The homepage](https://designme.dev/): every demo on one page, in both styles.\n- [Registry](https://designme.dev/r/react/composer.json): each component's React source as JSON, at /r/react/<name>.json (HTML at /r/<name>.json, Astro at /r/astro/<name>.json, shadcn items at /r/shadcn/<name>.json).\n`;
+  md += `\n## Optional\n\n- [Component pages](https://designme.dev/components/composer): one page per component, at /components/<name>, with its demo, install, usage, props and code.\n- [The library](https://designme.dev/library): every demo on one page, in all three styles.\n- [Registry](https://designme.dev/r/react/composer.json): each component's React source as JSON, at /r/react/<name>.json (HTML at /r/<name>.json, Astro at /r/astro/<name>.json, shadcn items at /r/shadcn/<name>.json).\n`;
   if (count !== done.length) warn.push(`llms.txt lists ${count} of ${done.length} components`);
   // the same sections and cards, in page order, for the component pages that tools/pages builds
   const PAGES_DATA = path.resolve(__dirname, '../pages/data/site.json');
@@ -1089,7 +1090,7 @@ main:focus{outline:none}
   <h1>Page not found</h1>
   <p>There's no page at <code id="where">this address</code>.</p>
   <div class="hits" id="hits" hidden></div>
-  <div class="acts"><a class="btn ink" href="/">All components</a><a class="btn" href="/#/changelog">Changelog</a></div>
+  <div class="acts"><a class="btn ink" href="/library">All components</a><a class="btn" href="/library#/changelog">Changelog</a></div>
 </main>
 <script>
 (function(){

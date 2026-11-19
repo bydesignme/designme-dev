@@ -7,7 +7,7 @@ reasoning trails, agent trees, permission gates, plan reviews, run costs and mor
 Each one comes as plain HTML, CSS and JavaScript, as a typed React component, or as an Astro component. Every component
 comes in three styles, Soft, Blueprint and Clean, with light and dark mode.
 
-[Browse the library](https://designme.dev) · [Docs](https://designme.dev/docs) · [Changelog](https://designme.dev/#/changelog)
+[Browse the library](https://designme.dev/library) · [Docs](https://designme.dev/docs) · [Changelog](https://designme.dev/library#/changelog)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset=".github/screenshot-dark.webp">
@@ -115,9 +115,9 @@ from them.
 
 | Sources (edit these) | Generated (don't edit by hand) |
 | --- | --- |
-| `soft-2/index.html`: every HTML component | `index.html` and its `assets/`, `404.html`, `llms.txt`, `code-data.json` |
+| `soft-2/index.html`: every HTML component | `library.html` (the library) and its `assets/`, `404.html`, `llms.txt`, `code-data.json` |
 | `packages/react`: the React components (`.tsx`) | `r/`: the registries the CLI and shadcn read |
-| `tools/pages/content/<id>.json`: each component's docs copy | `components/`, `docs/`, `sitemap.xml`, `_redirects` |
+| `tools/pages/content/<id>.json`: each component's docs copy | `index.html` (the landing page), `components/`, `docs/`, `sitemap.xml`, `_redirects` |
 | `tools/site/*` and `tools/pages/*`: the build | `packages/astro/src`: the Astro components |
 | `packages/designme`: the CLI | In `packages/react`: the CSS, `src/index.ts` and the files in `src/lib` marked "Generated" |
 
@@ -127,10 +127,10 @@ Build from `tools/site`:
 npm install
 npm run base      # once: writes site-main.html, the original page, from git history (needs a full clone)
 npm run patches   # only when make-patches.py changed
-npm run build     # index.html, the HTML registry in r/, llms.txt, 404.html
+npm run build     # library.html, the HTML registry in r/, llms.txt, 404.html
 npm run react     # the React CSS and r/react
 npm run astro     # packages/astro, r/astro, r/shadcn and the theme bridge
-npm run pages     # the component and docs pages, and the sitemap
+npm run pages     # the landing page, the component and docs pages, and the sitemap
 ```
 
 [CONTRIBUTING.md](CONTRIBUTING.md) has the details: what each step needs, local checks, and how to propose a component.

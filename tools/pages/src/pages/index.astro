@@ -1,0 +1,497 @@
+---
+// The landing page at / (owner, 19 Nov): what designme.dev is, shown with the components themselves. The library it leads to is
+// at /library (tools/site builds it as library.html). A full-width page with the site's header and footer and no sidebar.
+// Sections, in order:
+//   hero      the title, the lead, Browse the library and the docs, the install command, a style switch, and Agent tree live
+//   live      agent components playing their demos, each named and linked to its page
+//   styles    Blueprint, Soft and Clean to pick from, with a demo beside them; a pick restyles the whole page
+//   install   how to add a component: the CLI in HTML, React or Astro, and the shadcn CLI
+//   inside    every group in the library, with its count, linked to it, and the templates
+//   built     what comes with every component, as a plain list
+//   start     Browse the library, GitHub, and DesignMe's Book a call
+//   faq       questions, with their answers
+// Every number and claim here is read from the code or true of it: the counts come from the library's own sections, the
+// facts from the README, the CLI and the docs. The demos are the installed HTML, CSS and JS on the shared core, as on a
+// component page: the hero's is in the page, the others load from the registry (/r/<name>.json) when they come near the
+// screen, and each keeps the tallest its component gets (tools/site/card-heights.json), so nothing below it moves.
+import fs from 'node:fs';
+import path from 'node:path';
+import Page from '../layouts/Page.astro';
+import { ROOT, SITE, COMPONENTS, SECTIONS, SETS, BANDS, icon, MARKS, shadcnUrl } from '../lib/data.mjs';
+
+const comp = reg => { const c = COMPONENTS.find(x => x.reg === reg); if (!c) throw new Error('landing: no component called ' + reg); return c; };
+const total = COMPONENTS.length;
+const nOf = g => SECTIONS.filter(s => s.grp === g).reduce((n, s) => n + s.cards.length, 0);
+const nAgent = nOf('agent'), nBasics = nOf('basics');
+
+// the tallest each component gets in any of the three styles, at each band of screen widths (measure-heights.js), and the
+// stage around it: 56px above and below (52px on a phone), so the component sits in the middle with Animate clear of it
+const MEASURED = JSON.parse(fs.readFileSync(path.join(ROOT, 'tools/site/card-heights.json'), 'utf8'));
+const tallest = c => BANDS.map((_, i) => Math.max(...['components', 'componentsBp', 'componentsClean'].map(k => (MEASURED[k] && MEASURED[k][c.v2] && MEASURED[k][c.v2][i]) || 0)));
+const stageVars = c => tallest(c).map((h, i) => `--h-${BANDS[i][0]}:${(h || 320) + (BANDS[i][1] <= 640 ? 104 : 112)}px`).join(';');
+// each band's height applies from its own width up to the next band's
+const bandCss = BANDS.map(([b], i) => i ? `@media (max-width:${BANDS[i - 1][1] - 1}px){.lp-demo{min-height:var(--h-${b})}}` : `.lp-demo{min-height:var(--h-${b})}`).join('\n');
+
+const HERO = comp('agent-tree');
+// the agent components playing on the page: a wide one beside a narrow one on wide screens (7 and 5 of 12 columns), the
+// wide ones across the row below 1400px, one under another below 1100px
+const LIVE = [['trace-view', 'w'], ['live-answer', 'n5'], ['composer', 'n5'], ['agent-lanes', 'w'], ['reasoning-trail', ''], ['context-meter', '']].map(([reg, k]) => ({ c:comp(reg), k }));
+const STYLE_DEMO = comp('permission-gate');
+
+const STYLES = [
+  ['bp', 'Blueprint', 'Square corners, hairline edges and a lime accent, like a technical sheet.', '<html>'],
+  ['soft', 'Soft', 'Rounded, plush surfaces with a blue accent.', '<html data-style="soft">'],
+  ['clean', 'Clean', 'Black, white and grey, with fully round controls. Data keeps its colours.', '<html data-style="clean">'],
+];
+
+const INSTALL = [
+  ['html', 'HTML, CSS and JS', MARKS.html, `npx designme add ${HERO.reg}`, 'Each component lands in its own folder in ./designme, with its .html, .css and .js and a demo.html you can open straight away. The shared core is added once.'],
+  ['react', 'React', MARKS.react, `npx designme add ${HERO.reg} --react`, 'A typed .tsx component and its CSS in src/components/designme. Needs React 19, and works in Next.js, Vite and Astro islands.'],
+  ['astro', 'Astro', MARKS.astro, `npx designme add ${HERO.reg} --astro`, 'An .astro component with the same markup, CSS and script as the HTML version, in src/components/designme.'],
+  ['shadcn', 'shadcn CLI', MARKS.react, `npx shadcn@latest add ${shadcnUrl(HERO.reg)}`, 'Every component is also a shadcn registry item, in React and in Astro (at /r/shadcn/astro/), for a project set up for shadcn/ui.'],
+];
+
+// the library's groups, each with a few of its components
+const groups = g => SECTIONS.filter(s => s.grp === g).map(s => ({ ...s, some:s.cards.slice(0, 3).map(c => c.title), more:Math.max(0, s.cards.length - 3) }));
+const list = n => n.length > 1 ? n.slice(0, -1).join(', ') + ' and ' + n[n.length - 1] : n[0];
+
+const BUILT = [
+  ['code', 'You own the code', 'The CLI copies the source into your project: HTML, CSS and JavaScript, a typed React component or an Astro component. Change anything.'],
+  ['tune', 'Three styles, light and dark', 'Blueprint, Soft and Clean, each with a light and a dark theme, picked with two attributes on <html>.'],
+  ['dashboard', 'No clashes with your CSS', 'Every CSS variable starts with --dm-, and in React every class and animation name with dm-, so they sit beside Tailwind, shadcn/ui or your own styles.'],
+  ['stars', 'Your theme, if you want it', 'Add the theme bridge with --theme-bridge and the components take the colours and corners of your shadcn/ui or Tailwind v4 theme.'],
+  ['check_circle', 'Accessible', 'ARIA roles and labels, live regions for what the agent is doing, keyboard support in most components, tap areas on touch screens and reduced motion.'],
+  ['description', 'Ready for AI coding tools', 'Every component and docs page has a Markdown copy at its address plus .md, and llms.txt lists them all with their install commands.'],
+];
+
+const FAQ = [
+  ['Is it free?', 'Yes. Every component is free for personal and commercial work under the MIT licence. Fonts, icons, flags and brand marks from other projects keep their own licences, listed in NOTICE.md.'],
+  ['What do I need?', 'Node 18 or later to run the CLI. The React components need React 19 and work in Next.js, Vite and Astro islands. The HTML version needs only the shared core, which the CLI adds once.'],
+  ['Do I need Tailwind or shadcn/ui?', 'No. The components bring their own CSS. If your project uses shadcn/ui or Tailwind v4, the theme bridge (--theme-bridge) gives them your theme, and the shadcn CLI can add any of them.'],
+  ['Will their CSS clash with mine?', 'No. Every CSS variable starts with --dm-, and in React every class and animation name starts with dm- too, so nothing meets your own names.'],
+  ['What are Blueprint, Soft and Clean?', 'Three styles for the same components: Blueprint is technical and square with a lime accent, Soft is rounded with a blue accent, and Clean is black, white and grey with fully round controls. Each has a light and a dark theme. In your project, data-style on <html> picks one.'],
+  ['Can AI coding tools use it?', 'Yes. Every component and docs page has a Markdown copy at its address plus .md, and llms.txt lists every component with its install command. The Using with AI page in the docs has prompts to start from.'],
+  ['Is there a Figma file?', 'It is in progress on the roadmap. Leave your email in the library and you will get it when it lands.'],
+  ['Who made it?', 'DesignMe, a design and development studio working with startups and enterprises. If you want help building your product, book a call.'],
+];
+
+// the prompt the docs give a coding agent (Using with AI), for any screen
+const PROMPT = `Read ${SITE}/llms.txt and pick the components for our screen.\nFor each one, read its .md page, then install it with:\n  npx designme add <name> --react\nKeep the installed files as they are and drive the components through their props from our state.`;
+const BOOK = 'https://www.designme.agency/intro?utm_source=designme.dev&utm_medium=referral&utm_campaign=book_a_call';
+const GITHUB = 'https://github.com/bydesignme/designme-dev';
+const GH_MARK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>';
+const copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>';
+const replayIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>';
+const arrow = icon('arrow_forward', 'lp-ar');
+// a command in words that each stay whole, so on a phone it wraps at a space (an address may also wrap after a slash)
+const words = cmd => cmd.split(' ').map(w => /^https?:/.test(w) ? w.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/\//g, '/<wbr>') : `<span class="lp-w">${w.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</span>`).join(' ');
+// `code` in the copy becomes <code>
+const md = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/(--[\w-]+|&lt;html&gt;|NOTICE\.md|\.md\b|llms\.txt|data-style)/g, '<code>$1</code>');
+
+const title = 'Designme.dev: free UI components for AI agent products';
+const description = `${total} free, MIT-licensed UI components for products built around AI agents, in HTML, React or Astro, in three styles with light and dark mode.`;
+const jsonld = [
+  { '@context':'https://schema.org', '@type':'WebSite', name:'Designme.dev', url:SITE + '/', description,
+    publisher:{ '@type':'Organization', name:'DesignMe', url:'https://designme.agency' } },
+  { '@context':'https://schema.org', '@type':'FAQPage', mainEntity:FAQ.map(([q, a]) => ({ '@type':'Question', name:q, acceptedAnswer:{ '@type':'Answer', text:a } })) },
+];
+---
+<Page title={title} description={description} path="/" jsonld={jsonld}>
+  <Fragment slot="head">
+    <script is:inline>
+    // the library used to be here: its old addresses (/#/changelog, /#s-status, /#/agent-tree, /?q=…) open it at /library
+    (function(){ var h = location.hash, q = /[?&]q=/.test(location.search); if (q || /^#(\/|s-|c-|components$)/.test(h)) location.replace('/library' + location.search + h); })();
+    </script>
+    <script async src="https://plausible.io/js/pa-0ymYxWA7A4pvtqpGbOCwQ.js"></script>
+    <script is:inline>window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};plausible.init()</script>
+    <link rel="stylesheet" href="/components/assets/core.css">
+    <style is:inline set:html={HERO.html.css} />
+    <style is:inline set:html={bandCss} />
+    <style is:global>
+      .pg-main:has(.lp){padding:0}
+      .lp-in{max-width:1464px;margin:0 auto;padding:0 32px}
+      .lp code{font:500 12.5px/1.4 var(--pg-mono);font-variant-ligatures:none;background:var(--pg-chip);padding:1px 5px;border-radius:5px;color:var(--pg-fg)}
+      .lp-ar{display:block;width:14px;height:14px;flex:none}
+
+      /* ---- hero: the words on the left, Agent tree live on the right; one under the other below 1100px ---- */
+      .lp-hero{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:48px;align-items:center;padding-top:64px;padding-bottom:24px}
+      .lp-kick{display:flex;flex-wrap:wrap;gap:4px 8px;margin:0;color:var(--pg-muted);font-size:13px;line-height:20px}
+      .lp-kick span+span::before{content:"·";margin-right:8px;color:var(--pg-muted)}
+      /* the page's title: the one text over 14px (the page-title exception, .pg-h1) */
+      .pg-h1.lp-h1{margin:16px 0 0;font-size:clamp(34px,3.6vw,52px);line-height:1.08;font-weight:500;letter-spacing:-.034em;text-wrap:balance}
+      .lp-lead{margin:20px 0 0;max-width:52ch;font-size:14px;line-height:1.65;color:var(--pg-dim);text-wrap:pretty}
+      .lp-cta{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px}
+      /* buttons: the components' own (.pill, .pill.primary on the accent, .pill.line), a step taller on the page */
+      .lp .lp-btn{height:40px;padding:0 18px;font-size:14px;text-decoration:none;gap:8px}
+      .lp .lp-btn svg{width:14px;height:14px}
+      .lp-cmd{margin-top:16px}
+      .lp .lp-cmd code{background:none;padding:0;border-radius:0;font:inherit;color:inherit}
+      .lp .lp-cmd .d{color:var(--pg-muted)}
+      .lp-cmd .c span{white-space:nowrap}
+      .lp-try{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:28px}
+      .lp-try-l{font-size:13px;color:var(--pg-muted)}
+      .lp-try .pg-seg button{height:28px;padding:0 12px}
+      .lp-hero-d{min-width:0}
+      @media (max-width:1099px){.lp-hero{grid-template-columns:minmax(0,1fr);gap:40px;padding-top:48px}.lp-lead{max-width:64ch}}
+
+      /* ---- a demo's stage: the component in the middle of the site's grey, as on a component page ---- */
+      .lp-stage{position:relative;display:flex;flex-direction:column;border-radius:14px;background:var(--pg-soft);overflow:hidden}
+      :root[data-style="clean"] .lp-stage{background:var(--dm-stage)}
+      :root:not([data-style="soft"],[data-style="clean"]){--lp-grid:rgba(20,20,12,.018)}
+      @media (prefers-color-scheme: dark){:root:not([data-theme="light"]):not([data-style="soft"],[data-style="clean"]){--lp-grid:rgba(255,255,255,.014)}}
+      :root[data-theme="dark"]:not([data-style="soft"],[data-style="clean"]){--lp-grid:rgba(255,255,255,.014)}
+      :root:not([data-style="soft"],[data-style="clean"]) .lp-stage{background-image:linear-gradient(var(--lp-grid) 1px,transparent 1px),linear-gradient(90deg,var(--lp-grid) 1px,transparent 1px);background-size:24px 24px;background-position:-1px -1px}
+      .lp-demo{flex:1;display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;align-items:center;padding:56px 24px;overflow-anchor:none}
+      .lp-demo>.card{min-width:0;align-self:stretch;display:grid;place-items:center}
+      .lp-anim{position:absolute;top:12px;right:12px;z-index:3;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border:0;border-radius:999px;background:var(--pg-bg);box-shadow:inset 0 0 0 1px var(--pg-line);color:var(--pg-dim);font:500 13px/1 var(--pg-sans);cursor:pointer;transition:color .2s}
+      .lp-anim:hover{color:var(--pg-fg)}
+      .lp-anim svg{width:14px;height:14px}
+      .lp-cap{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;margin:12px 2px 0;font-size:14px;line-height:20px}
+      .lp-name{font-weight:500;color:var(--pg-fg);text-decoration:none}
+      .lp-name:hover{text-decoration:underline;text-decoration-color:var(--pg-line2);text-underline-offset:3px}
+      .lp-desc{color:var(--pg-dim)}
+      /* a demo that couldn't load says so and links to its page */
+      .lp-miss{margin:0;color:var(--pg-dim);font-size:14px}
+
+      /* ---- sections: a line across the column, then the heading and what the section is ---- */
+      .lp-sec{padding-top:120px}
+      .lp-sh{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:8px 48px;padding-top:20px;margin-bottom:32px;border-top:1px solid var(--pg-line)}
+      .lp-sh h2{margin:0;font-size:14px;line-height:20px;font-weight:500;letter-spacing:0;color:var(--pg-fg)}
+      .lp-sh p{margin:0;max-width:64ch;font-size:14px;line-height:1.6;color:var(--pg-dim)}
+      .lp-sh .lp-more{grid-column:2;justify-self:start}
+      .lp-more{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:500;color:var(--pg-fg);text-decoration:none}
+      .lp-more:hover .lp-ar{transform:translateX(2px)}
+      .lp-more .lp-ar{transition:transform .2s ease}
+      @media (max-width:860px){.lp-sh{grid-template-columns:minmax(0,1fr)}.lp-sh .lp-more{grid-column:1}}
+      /* a text section: its heading and what it is on the left, its content on the right, on the hero's columns */
+      .lp-two{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:24px 48px;padding-top:20px;border-top:1px solid var(--pg-line)}
+      .lp-two+.lp-two{margin-top:56px}
+      .lp-h h2{margin:0;font-size:14px;line-height:20px;font-weight:500;letter-spacing:0;color:var(--pg-fg)}
+      .lp-h p{margin:8px 0 0;max-width:52ch;font-size:14px;line-height:1.6;color:var(--pg-dim)}
+      .lp-h .lp-more{margin-top:16px}
+      .lp-h p a{color:var(--pg-fg)}
+      @media (max-width:860px){.lp-two{grid-template-columns:minmax(0,1fr)}}
+
+      /* ---- live: a grid of demos ---- */
+      .lp-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:40px 16px}
+      .lp-fig{display:flex;flex-direction:column;min-width:0;margin:0}
+      .lp-fig>.lp-stage{flex:1}
+      .lp-tile{grid-column:span 12}
+      @media (min-width:1100px){.lp-tile{grid-column:span 6}.lp-tile.w{grid-column:span 12}}
+      @media (min-width:1400px){.lp-tile.w{grid-column:span 7}.lp-tile.n5{grid-column:span 5}}
+
+      /* ---- styles: the three to pick from, and a demo beside them ---- */
+      .lp-sty{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:16px 48px;align-items:stretch}
+      .lp-opts{display:flex;flex-direction:column;gap:8px}
+      /* each style is a choice: white with a quiet edge, a stronger edge and a filled dot when it's picked */
+      .lp-opt{display:grid;grid-template-columns:16px minmax(0,1fr);gap:4px 12px;align-items:start;width:100%;padding:16px;border:0;border-radius:14px;background:var(--pg-bg);box-shadow:inset 0 0 0 1px var(--pg-line2);color:var(--pg-fg);font:inherit;text-align:left;cursor:pointer;transition:background-color .2s ease,box-shadow .2s ease}
+      @supports (corner-shape:squircle){.lp-opt{corner-shape:squircle;border-radius:22px}}
+      .lp-opt:hover{background:var(--pg-soft)}
+      .lp-opt[aria-checked="true"]{box-shadow:inset 0 0 0 1px var(--pg-field)}
+      .lp-opt .lp-dot{grid-row:span 3;width:16px;height:16px;margin-top:2px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--pg-field);transition:box-shadow .2s ease,background-color .2s ease}
+      .lp-opt[aria-checked="true"] .lp-dot{background:var(--pg-fg);box-shadow:inset 0 0 0 4.5px var(--pg-fg),inset 0 0 0 16px var(--pg-bg)}
+      .lp-opt b{font-weight:500;font-size:14px;line-height:20px}
+      .lp-opt span:not(.lp-dot){font-size:14px;line-height:20px;color:var(--pg-dim)}
+      .lp-opt code{justify-self:start;margin-top:6px;font-size:12px}
+      .lp-opt:focus-visible{outline:2px solid var(--pg-focus);outline-offset:2px}
+      .lp-theme{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:12px;font-size:13px;color:var(--pg-muted)}
+      .lp-theme .pg-seg button{height:28px;padding:0 12px}
+      @media (max-width:1099px){.lp-sty{grid-template-columns:minmax(0,1fr)}}
+
+      /* ---- install: three steps, one under another; the second holds the command for each way to add it ---- */
+      .lp-steps{display:flex;flex-direction:column;gap:32px;margin:0;padding:0;list-style:none;counter-reset:st}
+      .lp-steps>li{counter-increment:st;display:grid;grid-template-columns:22px minmax(0,1fr);gap:4px 14px;align-content:start}
+      .lp-steps>li::before{content:counter(st);grid-row:span 3;display:grid;place-items:center;width:22px;height:22px;margin-top:-1px;border-radius:50%;background:var(--pg-chip);color:var(--pg-dim);font-size:12px;font-weight:500}
+      .lp-steps b{font-weight:500;font-size:14px;line-height:20px}
+      .lp-steps p{margin:0;font-size:14px;line-height:1.6;color:var(--pg-dim)}
+      .lp-add{min-width:0;margin-top:12px}
+      .lp-steps p a{color:var(--pg-fg)}
+      .lp-prompt{position:relative}
+      .lp-prompt pre{margin:0;padding:14px 88px 14px 16px;border-radius:12px;background:var(--pg-soft);box-shadow:inset 0 0 0 1px var(--pg-line);font:500 12.5px/1.65 var(--pg-mono);font-variant-ligatures:none;color:var(--pg-fg);white-space:pre-wrap;overflow-wrap:anywhere}
+      .lp .lp-prompt pre code{background:none;padding:0;border-radius:0;font:inherit;color:inherit}
+      .lp-prompt .lp-copy{position:absolute;top:10px;right:10px}
+      .lp-tl{display:flex;gap:4px;margin:0 0 16px;overflow-x:auto;scrollbar-width:none;box-shadow:inset 0 -1px 0 var(--pg-line)}
+      @media (pointer:coarse){.lp-tl{padding:2px 0;margin:-2px 0 14px;box-shadow:none;background:linear-gradient(var(--pg-line),var(--pg-line)) 0 calc(100% - 2px)/100% 1px no-repeat}}
+      .lp-tl button{position:relative;flex:none;display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 10px;border:0;background:none;color:var(--pg-dim);font:400 14px/1 var(--pg-sans);cursor:pointer;transition:color .16s ease}
+      .lp-tl button:first-child{padding-left:0}
+      .lp-tl button:first-child::after{left:0}
+      .lp-tl button:hover,.lp-tl button[aria-selected="true"]{color:var(--pg-fg)}
+      .lp-tl button::after{content:"";position:absolute;left:10px;right:10px;bottom:0;height:2px;border-radius:2px;background:var(--pg-fg);transform:scaleX(0);transition:transform .32s cubic-bezier(.16,1,.3,1)}
+      .lp-tl button[aria-selected="true"]::after{transform:scaleX(1)}
+      .lp-tl .cp-mk{width:16px;height:16px}
+      .lp-line{display:flex;align-items:center;gap:10px;min-width:0;min-height:48px;padding:7px 6px 7px 14px;border-radius:12px;background:var(--pg-soft);box-shadow:inset 0 0 0 1px var(--pg-line)}
+      .lp .lp-line code{background:none;padding:0;border-radius:0;color:var(--pg-fg)}
+      .lp .lp-line .d{flex:none;color:var(--pg-muted);font:500 13px/1 var(--pg-mono)}
+      .lp .lp-line .c{flex:1;min-width:0;overflow-wrap:anywhere;font:500 13px/1.5 var(--pg-mono)}
+      .lp-line .lp-w{white-space:nowrap}
+      .lp-copy{flex:none;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border:0;border-radius:999px;background:var(--pg-bg);color:var(--pg-fg);box-shadow:inset 0 0 0 1px var(--pg-line2);font:500 13px/1 var(--pg-sans);cursor:pointer;transition:background-color .2s}
+      .lp-copy:hover{background:var(--pg-chip)}
+      .lp-copy svg{width:14px;height:14px}
+      .lp-tp p{margin:12px 0 0;max-width:72ch;font-size:14px;line-height:1.6;color:var(--pg-dim)}
+
+      /* ---- inside: the library's groups, in two columns, as plain lists ---- */
+      .lp-sets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:40px 32px}
+      .lp-set h3{display:flex;align-items:baseline;gap:8px;margin:0 0 4px;font-size:14px;line-height:20px;font-weight:500}
+      .lp-set h3 span,.lp-g .n{color:var(--pg-muted);font-weight:400;font-variant-numeric:tabular-nums}
+      .lp-gs{margin:0;padding:0;list-style:none}
+      .lp-g{padding:14px 0;border-bottom:1px solid color-mix(in srgb,var(--pg-line2) 50%,transparent)}
+      .lp-g a{display:inline-flex;align-items:baseline;gap:8px;font-size:14px;line-height:20px;font-weight:500;color:var(--pg-fg);text-decoration:none}
+      .lp-g a:hover{text-decoration:underline;text-decoration-color:var(--pg-line2);text-underline-offset:3px}
+      .lp-g p{margin:2px 0 0;font-size:14px;line-height:20px;color:var(--pg-dim)}
+      @media (max-width:640px){.lp-sets{grid-template-columns:minmax(0,1fr)}}
+
+      /* ---- built in: facts as a plain list, two across ---- */
+      .lp-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px;margin:0;padding:0;list-style:none}
+      .lp-facts li{display:grid;grid-template-columns:20px minmax(0,1fr);gap:4px 12px;align-content:start}
+      .lp-facts svg{grid-row:span 2;width:20px;height:20px;color:var(--pg-dim)}
+      .lp-facts b{font-weight:500;font-size:14px;line-height:20px}
+      .lp-facts p{margin:0;font-size:14px;line-height:1.6;color:var(--pg-dim)}
+      @media (max-width:640px){.lp-facts{grid-template-columns:minmax(0,1fr)}}
+
+      /* ---- start: the library and GitHub, then DesignMe ---- */
+      .lp-act{margin:0;max-width:60ch;font-size:14px;line-height:1.6;color:var(--pg-dim)}
+      .lp-act+.lp-cta{margin-top:20px}
+      .lp-gh svg{width:16px;height:16px}
+      /* Book a call, the site's own: a rectangle with the fields' squircle corners, as tall as the buttons beside it */
+      .lp-book{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 14px 0 16px;border-radius:10px;background:var(--pg-bg);box-shadow:inset 0 0 0 1px var(--pg-line2);color:var(--pg-fg);font-size:14px;font-weight:500;text-decoration:none;transition:background-color .2s ease}
+      @supports (corner-shape:squircle){.lp-book{corner-shape:squircle;border-radius:16px}}
+      .lp-book:hover{background:var(--pg-chip)}
+      .lp-mail{display:inline-flex;align-items:center;height:40px;font-size:14px;color:var(--pg-dim)}
+      .lp-mail a{margin-left:4px;color:var(--pg-fg)}
+
+      /* ---- questions: a plain list that opens one answer at a time ---- */
+      .lp-faq{margin:-14px 0 0}
+      .lp-faq details{border-bottom:1px solid color-mix(in srgb,var(--pg-line2) 50%,transparent)}
+      .lp-faq summary{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:52px;padding:14px 0;font-size:14px;line-height:20px;font-weight:500;cursor:pointer;list-style:none}
+      .lp-faq summary::-webkit-details-marker{display:none}
+      .lp-faq summary::after{content:"";flex:none;width:7px;height:7px;margin-right:4px;border-right:1.5px solid var(--pg-muted);border-bottom:1.5px solid var(--pg-muted);transform:translateY(-2px) rotate(45deg);transition:transform .25s ease}
+      .lp-faq details[open] summary::after{transform:translateY(2px) rotate(225deg)}
+      .lp-faq summary:hover{color:var(--pg-dim)}
+      .lp-faq p{margin:0;padding:0 32px 18px 0;max-width:72ch;font-size:14px;line-height:1.65;color:var(--pg-dim)}
+      .lp-end{height:120px}
+
+      /* tablets and phones: the page's edges as on every other page, and less room between sections */
+      @media (max-width:960px){.lp-in{padding:0 24px}.lp-sec{padding-top:96px}.lp-end{height:96px}}
+      @media (max-width:640px){
+        .lp-in{padding:0 16px}
+        .lp-hero{padding-top:32px;gap:32px}
+        .pg-h1.lp-h1{font-size:34px}
+        .lp-sec{padding-top:72px}
+        .lp-demo{padding:52px 16px}
+        .lp-end{height:72px}
+        .lp-cta .lp-btn{flex:1 1 auto}
+      }
+      @media (max-width:380px){.pg-h1.lp-h1{font-size:32px}}
+      @media (prefers-reduced-motion:reduce){.lp-tl button::after,.lp-faq summary::after,.lp-opt,.lp-opt .lp-dot,.lp-more .lp-ar{transition:none}}
+    </style>
+  </Fragment>
+
+  <div class="lp">
+    <section class="lp-in lp-hero" aria-labelledby="content">
+      <div class="lp-hero-t">
+        <p class="lp-kick"><span>Free and MIT licensed</span><span>HTML, React and Astro</span></p>
+        <h1 class="pg-h1 lp-h1" id="content" tabindex="-1">UI components for the AI agents in your product</h1>
+        <p class="lp-lead">{total} free components for products built around agents: {nAgent} for the agent itself, like agent trees, traces, live answers and permission gates, and {nBasics} app basics around it. Copy the source into your project as HTML, React or Astro, in three styles with light and dark mode.</p>
+        <div class="lp-cta">
+          <a class="pill primary lp-btn" href="/library">Browse the library<Fragment set:html={arrow} /></a>
+          <a class="pill line lp-btn" href="/docs/introduction">Read the docs</a>
+        </div>
+        <div class="pg-cmd lp-cmd"><code class="d" aria-hidden="true">$</code><code class="c" set:html={words(`npx designme add ${HERO.reg}`)} /><button type="button" data-copy={`npx designme add ${HERO.reg}`} aria-label="Copy install command" set:html={copyIcon} /></div>
+        <div class="lp-try">
+          <span class="lp-try-l" id="lp-try-l">Try a style on this page</span>
+          <div class="pg-seg" role="radiogroup" aria-labelledby="lp-try-l">{STYLES.map(([v, n]) => <button type="button" role="radio" aria-checked="false" data-style-set={v}>{n}</button>)}</div>
+        </div>
+      </div>
+      <div class="lp-hero-d">
+        <div class="lp-stage" role="group" aria-label={`${HERO.title} demo`}>
+          <button type="button" class="lp-anim" data-replay><Fragment set:html={replayIcon} />Animate</button>
+          <div class="lp-demo stage-inner" style={stageVars(HERO)} set:html={HERO.html.html} />
+        </div>
+        <p class="lp-cap"><a class="lp-name" href={HERO.url}>{HERO.title}</a><span class="lp-desc">{HERO.desc}</span></p>
+      </div>
+    </section>
+
+    <section class="lp-in lp-sec" id="live" aria-labelledby="live-h">
+      <div class="lp-sh">
+        <h2 id="live-h">Agents at work, live on the page</h2>
+        <p>Every demo here is the component itself, playing a scripted run in your browser. Click into one to take it over, and Animate plays it again.</p>
+        <a class="lp-more" href="/library">All {nAgent} agent components<Fragment set:html={arrow} /></a>
+      </div>
+      <div class="lp-grid">
+        {LIVE.map(({ c, k }) => <figure class:list={['lp-fig', 'lp-tile', k]}>
+          <div class="lp-stage" role="group" aria-label={`${c.title} demo`}>
+            <button type="button" class="lp-anim" data-replay><Fragment set:html={replayIcon} />Animate</button>
+            <div class="lp-demo stage-inner" data-reg={c.reg} style={stageVars(c)}></div>
+          </div>
+          <figcaption class="lp-cap"><a class="lp-name" href={c.url}>{c.title}</a><span class="lp-desc">{c.desc}</span></figcaption>
+        </figure>)}
+      </div>
+    </section>
+
+    <section class="lp-in lp-sec" id="styles" aria-labelledby="styles-h">
+      <div class="lp-sh">
+        <h2 id="styles-h">Three styles, light and dark</h2>
+        <p>One set of components, drawn three ways. Pick one and this whole page changes with it, demos and all. In your project, an attribute on <code>&lt;html&gt;</code> does the same.</p>
+      </div>
+      <div class="lp-sty">
+        <div>
+          <div class="lp-opts" role="radiogroup" aria-labelledby="styles-h">
+            {STYLES.map(([v, n, d, code]) => <button type="button" class="lp-opt" role="radio" aria-checked="false" data-style-set={v}><span class="lp-dot" aria-hidden="true"></span><b>{n}</b><span>{d}</span><code>{code}</code></button>)}
+          </div>
+          <div class="lp-theme"><span id="lp-theme-l">Each in light or dark</span><div class="pg-seg" role="radiogroup" aria-labelledby="lp-theme-l"><button type="button" role="radio" aria-checked="false" data-theme-set="light">Light</button><button type="button" role="radio" aria-checked="false" data-theme-set="dark">Dark</button></div></div>
+        </div>
+        <figure class="lp-fig">
+          <div class="lp-stage" role="group" aria-label={`${STYLE_DEMO.title} demo`}>
+            <button type="button" class="lp-anim" data-replay><Fragment set:html={replayIcon} />Animate</button>
+            <div class="lp-demo stage-inner" data-reg={STYLE_DEMO.reg} style={stageVars(STYLE_DEMO)}></div>
+          </div>
+          <figcaption class="lp-cap"><a class="lp-name" href={STYLE_DEMO.url}>{STYLE_DEMO.title}</a><span class="lp-desc">{STYLE_DEMO.desc}</span></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="lp-in lp-sec" id="install" aria-labelledby="install-h">
+      <div class="lp-two">
+        <div class="lp-h">
+          <h2 id="install-h">One command, and the code is yours</h2>
+          <p>The designme CLI copies each component's source into your project, so you own it and can change anything. It needs Node 18 or later.</p>
+          <a class="lp-more" href="/docs/installation">Installation<Fragment set:html={arrow} /></a>
+        </div>
+        <ol class="lp-steps">
+          <li><b>Find a component</b><p>Browse the library, where every component plays live, or list them all with <code>npx designme list</code>. Each has a page with its install name, props and code.</p></li>
+          <li><b>Add it</b><p>One command copies its files into your project. Add as many names as you like at once.</p>
+            <div class="lp-add">
+              <div class="lp-tl" role="tablist" aria-label="How to add it">{INSTALL.map(([id, n, mk], i) => <button type="button" role="tab" id={`in-t-${id}`} aria-controls={`in-p-${id}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}><Fragment set:html={mk} />{n}</button>)}</div>
+              {INSTALL.map(([id, n, , cmd, note], i) => <div class="lp-tp" role="tabpanel" id={`in-p-${id}`} aria-labelledby={`in-t-${id}`} hidden={i !== 0}>
+                <div class="lp-line"><code class="d" aria-hidden="true">$</code><code class="c" set:html={words(cmd)} /><button class="lp-copy" type="button" data-copy={cmd} data-label="Copy" aria-label={`Copy the ${n} command`}>Copy</button></div>
+                <p>{note}</p>
+              </div>)}
+            </div>
+          </li>
+          <li><b>Make it yours</b><p>It is your code now, beside your own: change the markup, the words, the tokens and the demo data.</p></li>
+          <li><b>Or hand it to your coding agent</b><p>Every page has a Markdown copy, and <a href="/llms.txt">llms.txt</a> lists every component with its install command. A prompt to start from:</p>
+            <div class="lp-add lp-prompt"><pre data-name="Prompt for a coding agent"><code>{PROMPT}</code></pre><button class="lp-copy" type="button" data-copy={PROMPT} data-label="Copy" aria-label="Copy the prompt">Copy</button></div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="lp-in lp-sec" id="inside" aria-labelledby="inside-h">
+      <div class="lp-two">
+        <div class="lp-h">
+          <h2 id="inside-h">{total} components: {nAgent} for the agent, {nBasics} around it</h2>
+          <p>The agent's own interface, from its status to its questions, and the app basics a product around it needs. Every one in all three styles, light and dark.</p>
+          <p>And two whole app screens made of them: <a href="/templates/sales-crm" target="_blank" rel="noopener" aria-label="Sales CRM, opens in a new tab">Sales CRM</a> and <a href="/templates/workflow-editor" target="_blank" rel="noopener" aria-label="Workflow editor, opens in a new tab">Workflow editor</a>.</p>
+          <a class="lp-more" href="/library">Open the library<Fragment set:html={arrow} /></a>
+        </div>
+        <div class="lp-sets">
+          {Object.keys(SETS).map(g => <div class="lp-set">
+            <h3>{SETS[g]}<span>{nOf(g)}</span></h3>
+            <ul class="lp-gs">{groups(g).map(s => <li class="lp-g">
+              <a href={s.url}>{s.title}<span class="n">{s.cards.length}</span></a>
+              <p>{s.more ? `${s.some.join(', ')} and ${s.more} more` : list(s.some)}</p>
+            </li>)}</ul>
+          </div>)}
+        </div>
+      </div>
+    </section>
+
+    <section class="lp-in lp-sec" id="built" aria-labelledby="built-h">
+      <div class="lp-two">
+        <div class="lp-h">
+          <h2 id="built-h">Built to drop into a real product</h2>
+          <p>What every component comes with, whichever version you add.</p>
+        </div>
+        <ul class="lp-facts">{BUILT.map(([ic, t, d]) => <li><Fragment set:html={icon(ic)} /><b>{t}</b><p set:html={md(d)} /></li>)}</ul>
+      </div>
+    </section>
+
+    <section class="lp-in lp-sec" id="start" aria-labelledby="start-h">
+      <div class="lp-two">
+        <div class="lp-h"><h2 id="start-h">Start with the library</h2></div>
+        <div>
+          <p class="lp-act">Every component, live, in three styles, each with its install command, React props and code a click away.</p>
+          <div class="lp-cta">
+            <a class="pill primary lp-btn" href="/library">Browse the library<Fragment set:html={arrow} /></a>
+            <a class="pill line lp-btn lp-gh" href={GITHUB}><Fragment set:html={GH_MARK} />Star on GitHub</a>
+          </div>
+        </div>
+      </div>
+      <div class="lp-two" id="work">
+        <div class="lp-h"><h2>Want it designed into your product?</h2></div>
+        <div>
+          <p class="lp-act">DesignMe made designme.dev. We give expert design and dev support to startups and enterprises, from Astro sites to React apps and AI products.</p>
+          <div class="lp-cta">
+            <a class="lp-book" href={BOOK} target="_blank" rel="noopener">Book a call<Fragment set:html={arrow} /></a>
+            <span class="lp-mail">or write to<a href="mailto:hello@designme.agency">hello@designme.agency</a></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="lp-in lp-sec" id="faq" aria-labelledby="faq-h">
+      <div class="lp-two">
+        <div class="lp-h">
+          <h2 id="faq-h">Questions</h2>
+          <p>What people ask before they start.</p>
+          <a class="lp-more" href="/library#/faq">More in the FAQ<Fragment set:html={arrow} /></a>
+        </div>
+        <div class="lp-faq">{FAQ.map(([q, a]) => <details><summary>{q}</summary><p set:html={md(a)} /></details>)}</div>
+      </div>
+    </section>
+    <div class="lp-end" aria-hidden="true"></div>
+  </div>
+
+  <Fragment slot="end">
+    <script is:inline src="/components/assets/core.js"></script>
+    <script is:inline set:html={HERO.html.js} />
+    <script is:inline>
+    (function(){
+      if (typeof DM === 'undefined') return;
+      // the demos below the hero: each one's files come from the registry (/r/<name>.json) once it is within a screen of
+      // the view, and it starts once a quarter of it is on screen, as the core starts the hero's
+      var got = {};
+      var files = function(reg){ return got[reg] || (got[reg] = fetch('/r/' + reg + '.json').then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); }).then(function(d){
+        var f = function(ext){ var x = d.files.filter(function(x){ return x.path.slice(-ext.length) === ext; })[0]; return x ? x.content : ''; };
+        var st = document.createElement('style'); st.textContent = f('.css'); document.head.appendChild(st);
+        var sc = document.createElement('script'); sc.textContent = f('.js'); document.body.appendChild(sc);
+        return f('.html');
+      })); };
+      var start = new IntersectionObserver(function(es){ es.forEach(function(en){ if (!en.isIntersecting) return; start.unobserve(en.target); DM.mount(en.target); }); }, { threshold:.25 });
+      var near = new IntersectionObserver(function(es){ es.forEach(function(en){
+        if (!en.isIntersecting) return; var box = en.target; near.unobserve(box);
+        files(box.dataset.reg).then(function(html){
+          box.innerHTML = html; var card = box.firstElementChild;
+          if (card && DM.defs[card.dataset.c]) start.observe(card);
+        }).catch(function(){
+          var a = box.closest('.lp-fig').querySelector('.lp-name');
+          box.innerHTML = '<p class="lp-miss">This demo didn’t load. <a href="' + a.getAttribute('href') + '">See it on its page</a>.</p>';
+        });
+      }); }, { rootMargin:'100% 0px' });
+      [].slice.call(document.querySelectorAll('.lp-demo[data-reg]')).forEach(function(box){ near.observe(box); });
+      var cardOf = function(stage){ return stage.querySelector('.lp-demo > .card[data-c]'); };
+      // Animate plays a demo again, from the start, including one the visitor has taken over
+      document.querySelectorAll('[data-replay]').forEach(function(b){ b.addEventListener('click', function(){ var card = cardOf(b.closest('.lp-stage')); if (card && DM.defs[card.dataset.c]) DM.mount(card); }); });
+      // a new style starts the demos that are playing again, as a component page does; one the visitor has taken over stays
+      // theirs until Animate
+      document.addEventListener('pg-style', function(){ document.querySelectorAll('.lp-demo > .card[data-c]').forEach(function(card){ if (card._c && !card._c.mine) DM.mount(card); }); });
+    })();
+    (function(){
+      // the styles to pick from are one group of radio buttons: the arrow keys move through them and pick (the header's
+      // script handles every [data-style-set])
+      document.querySelectorAll('.lp-opts[role="radiogroup"]').forEach(function(g){ g.addEventListener('keydown', function(e){
+        var d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
+        var bs = [].slice.call(g.querySelectorAll('[role="radio"]')), i = bs.indexOf(document.activeElement);
+        if (!d || i < 0) return; e.preventDefault(); var n = bs[(i + d + bs.length) % bs.length]; n.click(); n.focus();
+      }); });
+      // how to add it: a click or the arrow keys show one way at a time
+      var tabs = [].slice.call(document.querySelectorAll('.lp-tl [role="tab"]'));
+      var pick = function(t, focus){ tabs.forEach(function(b){ var on = b === t; b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1; document.getElementById(b.getAttribute('aria-controls')).hidden = !on; }); if (focus) t.focus(); };
+      tabs.forEach(function(b, i){
+        b.addEventListener('click', function(){ pick(b); });
+        b.addEventListener('keydown', function(e){ var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0; if (e.key === 'Home') d = -i; if (e.key === 'End') d = tabs.length - 1 - i; if (!d) return; e.preventDefault(); pick(tabs[(i + d + tabs.length) % tabs.length], true); });
+      });
+    })();
+    </script>
+  </Fragment>
+</Page>

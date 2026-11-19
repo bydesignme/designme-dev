@@ -73,7 +73,7 @@ const BODY = {
     sections: [
       ['What it is', [
         ['p', `${count} free components: ${nOf('agent')} for the agent itself, like status pills, reasoning trails, agent trees, permission gates, plan reviews and run costs, and ${nOf('basics')} app basics around it.`],
-        ['p', 'Every component plays as a demo on the [homepage](/), and has a page of its own with its install command, React props, code and questions.'],
+        ['p', 'Every component plays as a demo in the [library](/library), and has a page of its own with its install command, React props, code and questions.'],
       ]],
       ['Two styles, light and dark', [
         ['styles', 'decision-prompt'],
@@ -84,7 +84,7 @@ const BODY = {
         ['p', `Each style has a light and a dark theme. Switch them in the header of any page here. In your own project, two attributes on \`<html>\` pick them. See ${D('theming')}.`],
       ]],
       ['What is in it', [
-        ['agents', `There are also ${nOf('basics')} app basics, like charts, date pickers and forms, for the product around the agent. They are all in the [library](/#${inSet('basics')[0].id}).`],
+        ['agents', `There are also ${nOf('basics')} app basics, like charts, date pickers and forms, for the product around the agent. They are all in the [library](/library#${inSet('basics')[0].id}).`],
       ]],
       ['HTML, React or Astro', [
         ['p', 'Every component comes in three versions. One is HTML, CSS and JavaScript on a small shared core that holds the tokens, icons and helpers. Another is a typed React component for React 19, with no dependencies beyond React, that works in Next.js, Vite and Astro islands. The third is an Astro component with the same markup, CSS and script as the HTML version.'],
@@ -191,7 +191,7 @@ const BODY = {
           'Contrast: the accent\'s text and marks take your `--primary` as it is, so check that it reads on your cards.',
           'Your theme\'s own `--accent`, `--muted` and the rest stay as they are for your page: our tokens all start with `--dm-`.',
         ]],
-        ['p', 'On designme.dev, pick Your theme in the style switch in the header (or in the menu on a phone) to paste a theme: the demos on the homepage and on the component pages preview with it through the same bridge. It stays in your browser. While a pasted theme is on, the accent picker is hidden, as it would do nothing; Reset in the panel forgets the theme and brings it back.'],
+        ['p', 'On designme.dev, pick Your theme in the style switch in the header (or in the menu on a phone) to paste a theme: the demos in the library and on the component pages preview with it through the same bridge. It stays in your browser. While a pasted theme is on, the accent picker is hidden, as it would do nothing; Reset in the panel forgets the theme and brings it back.'],
       ]],
       ['Frameworks', [
         ['items', [
@@ -310,7 +310,7 @@ const BODY = {
         ['p', 'The names are the same in HTML, React and Astro. For other shades in dark mode, repeat the rule under `:root[data-theme="dark"]` and under `@media (prefers-color-scheme: dark)` with `:root:not([data-theme="light"])`.'],
       ]],
       ['Picking an accent on designme.dev', [
-        ['p', 'On the homepage, the dot beside the style switch picks an accent. On smaller screens it is in the menu. The site then works out the other roles from your colour:'],
+        ['p', 'In the library, the dot beside the style switch picks an accent. On smaller screens it is in the menu. The site then works out the other roles from your colour:'],
         ['ul', [
           'Text on a fill is white or near-black, whichever APCA says reads better. The fill then moves a little darker or lighter until that text reaches 4.5:1 and APCA Lc 60.',
           'Text and marks start from your colour and are darkened on a light page, or lightened on a dark one, until text reaches 4.5:1 and APCA Lc 60, and marks 3:1. If text would need too big a change, it uses the ink colour instead.',
