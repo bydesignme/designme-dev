@@ -89,7 +89,8 @@ function sample(id){
     const p = await b.newPage({ viewport:{ width:W, height:1000 } });
     await p.addInitScript(([s, t]) => { try { localStorage.setItem('dmui-style', s); localStorage.setItem('dmui-theme', t); } catch(e){} }, [st, th]);
     await p.route(/plausible|api\.github\.com|supabase|fonts\.g/, r => r.abort());
-    await p.goto(`http://127.0.0.1:${port}${LIB}`, { waitUntil:'load' }); await p.evaluate(() => document.fonts.ready);
+    // (both groups of the library on show, so an App basics card is checked as it plays, not hidden behind the group switch)
+    await p.goto(`http://127.0.0.1:${port}${LIB}`, { waitUntil:'load' }); await p.evaluate(() => { document.documentElement.classList.add('grp-all'); return document.fonts.ready; });
     for (const id of ids){
       const card = p.locator(`.comp[data-v2="${id}"]`); await card.evaluate(e => e.scrollIntoView({ block:'center' })); await p.waitForTimeout(300);
       const tabs = card.locator('.comp-foot [data-tabs] button'), nt = await tabs.count();
