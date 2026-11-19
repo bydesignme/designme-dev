@@ -233,6 +233,9 @@
 .cpx.growing{overflow:visible}
 .cpx-thread{display:flex;flex-direction:column;gap:var(--dm-s-3)}
 .cpx-thread:empty{display:none}
+/* a message that is only attachments (owner, 19 Nov): the files sit on their own at the thread's right edge, as a chat app shows
+   them, never in an empty bubble; with words they stay in the bubble, above the words */
+.cpx-files{align-self:flex-end;max-width:85%;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px}
 .cpx-ag{font-size:14px;color:var(--dm-fg2);display:flex;gap:var(--dm-s-2);align-items:center}
 /* the composer is a component, not a field: a quiet hairline and a soft shadow, the same while you type in it */
 .cpx-box{position:relative;background:var(--dm-surface);border-radius:var(--dm-r-box);box-shadow:var(--dm-shadow);transition:box-shadow var(--dm-t-fast)}
@@ -375,6 +378,11 @@
 .afx-tb :is(th,td){padding:7px var(--dm-s-2);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);text-align:left;font-weight:400}
 .afx-tb thead th{font-size:12.5px;color:var(--dm-afx-t2);font-weight:500}
 .afx-tb .num{text-align:right}
+/* its words line up with the reader's title and end on the content's right edge, and its head row starts as close under the
+   divider as any first line of the file (owner, 19 Nov) */
+.afx-tb :is(th,td):first-child{padding-left:0}
+.afx-tb :is(th,td):last-child{padding-right:0}
+.afx-tb thead th{padding-top:0}
 .afx-tb tbody th{font-weight:500}
 .afx-pf{display:flex;align-items:center;gap:6px;padding:10px 16px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 /* Copy and Download are each as wide as their words: pressed, the tick and "Copied" come in and the width eases to fit, with
@@ -3893,7 +3901,8 @@ const fitHits = window.dmFitHits || (() => {
     if (send.disabled) return;
     const v = ta.value.trim(), files = $$('.fchip', att).map(f => $('.n', f).textContent), mode = $('.cpx-mode-n', r).textContent, ctx = $('.cpx-ctx-n', r).textContent;
     ta.value = ''; att.innerHTML = ''; sync();
-    const b = html(`<div class="bub">${files.length ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:${v ? 6 : 0}px">${files.map(f => `<span class="fchip">${I('clip','xs')}${f}</span>`).join('')}</div>` : ''}${v.replace(/</g,'&lt;')}</div>`); thread.appendChild(b); enter(b);
+    const chips = files.map(f => `<span class="fchip">${I('clip','xs')}${f}</span>`).join('');
+    const b = html(v ? `<div class="bub">${files.length ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">${chips}</div>` : ''}${v.replace(/</g,'&lt;')}</div>` : `<div class="cpx-files">${chips}</div>`); thread.appendChild(b); enter(b);
     const a = html(`<div class="cpx-ag wk"><span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Working</span></div>`); thread.appendChild(a); enter(a);
     while (thread.children.length > 4) thread.firstElementChild.remove();
     const say = { Ask:`Looking at ${ctx}. I won't change anything.`, Edit:`On it. I'll make the changes on a new page in ${ctx}.`, Plan:`I'll write a plan for ${ctx} first, then wait for you.` }[mode];

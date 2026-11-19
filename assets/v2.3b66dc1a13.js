@@ -422,7 +422,7 @@ const DM = {
 // it is out of the accessibility tree while it shows nothing, so screen readers never meet an empty tooltip
 const tip = document.createElement('div'); tip.className = 'tip'; tip.setAttribute('role','tooltip'); tip.setAttribute('aria-hidden','true');
 // tipNext is the trigger whose tip is on its way, so moving across its own icon and padding doesn't start the wait again
-let tipT = 0, tipFor = null, tipNext = null;
+let tipT = 0, tipFor = null, tipNext = null, tipRaf = 0, tipAt = '';
 // a trigger whose menu is open shows its menu, not its tip
 const menuOpen = el => el.getAttribute('aria-expanded') === 'true' && (el.hasAttribute('data-pop') || (el.hasAttribute('aria-haspopup') && el.getAttribute('aria-haspopup') !== 'false'));
 // a tip goes when its trigger does: removed, hidden, or its menu opened
@@ -437,6 +437,17 @@ function showTip(el){
   tipWatch.observe(document.body, { childList:true, subtree:true, attributes:true, attributeFilter:['aria-expanded', 'hidden'] });
   tip.innerHTML = el.dataset.tip.replace(/</g,'&lt;') + (k ? `<span class="kbd">${k}</span>` : '');
   tip.style.left = '0px'; tip.style.top = '0px'; tip.classList.add('show'); tip.removeAttribute('aria-hidden');
+  placeTip(el); tipAt = ''; cancelAnimationFrame(tipRaf); tipRaf = requestAnimationFrame(tipFollow);
+}
+// the tip goes where its trigger goes: a demo that keeps playing under the pointer (rows growing in, a card resizing) carries
+// it along instead of leaving it behind (owner, 19 Nov). Only the trigger's box is read each frame, and only while a tip shows
+function tipFollow(){
+  tipRaf = 0; if (!tipFor) return;
+  const r = tipFor.getBoundingClientRect(), at = `${r.left},${r.top},${r.width},${r.height}`;
+  if (tipAt && at !== tipAt) placeTip(tipFor);
+  tipAt = at; tipRaf = requestAnimationFrame(tipFollow);
+}
+function placeTip(el){
   const r = el.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
   // it stays inside the component's stage when it fits there, so on a phone it never runs past the card's edge
   const st = el.closest('.stage-in'), sb = st && st.parentElement.getBoundingClientRect();
@@ -456,7 +467,7 @@ let tipHid = -1e9;
 function hideTip(force){
   const on = tipFor || tipNext, ev = window.event;
   if (!force && on && on.isConnected && on.matches(':hover') && !(ev && ev.isTrusted)) return;
-  clearTimeout(tipT); tipFor = null; tipNext = null; tipWatch.disconnect(); if (tip.classList.contains('show')) tipHid = performance.now(); tip.classList.remove('show'); tip.setAttribute('aria-hidden','true'); }
+  clearTimeout(tipT); cancelAnimationFrame(tipRaf); tipRaf = 0; tipFor = null; tipNext = null; tipWatch.disconnect(); if (tip.classList.contains('show')) tipHid = performance.now(); tip.classList.remove('show'); tip.setAttribute('aria-hidden','true'); }
 document.addEventListener('pointerover', e => { const el = e.target.closest('.v2 [data-tip]'); if (!el || el === tipFor) return; if (el === tipNext) return; clearTimeout(tipT); tipNext = el; tipT = setTimeout(() => { tipNext = null; showTip(el); }, tip.classList.contains('show') || performance.now() - tipHid < 120 ? 0 : 380); });
 document.addEventListener('pointerout', e => { const el = e.target.closest('.v2 [data-tip]'); if (el && !el.contains(e.relatedTarget)) hideTip(); });
 document.addEventListener('focusin', e => { const el = e.target.closest('.v2 [data-tip]'); if (el && el.matches(':focus-visible')) showTip(el); });
@@ -1922,7 +1933,8 @@ DM.def('composer', (r, c) => {
     if (send.disabled) return;
     const v = ta.value.trim(), files = $$('.fchip', att).map(f => $('.n', f).textContent), mode = $('.cpx-mode-n', r).textContent, ctx = $('.cpx-ctx-n', r).textContent;
     ta.value = ''; att.innerHTML = ''; sync();
-    const b = html(`<div class="bub">${files.length ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:${v ? 6 : 0}px">${files.map(f => `<span class="fchip">${I('clip','xs')}${f}</span>`).join('')}</div>` : ''}${v.replace(/</g,'&lt;')}</div>`); thread.appendChild(b); enter(b);
+    const chips = files.map(f => `<span class="fchip">${I('clip','xs')}${f}</span>`).join('');
+    const b = html(v ? `<div class="bub">${files.length ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">${chips}</div>` : ''}${v.replace(/</g,'&lt;')}</div>` : `<div class="cpx-files">${chips}</div>`); thread.appendChild(b); enter(b);
     const a = html(`<div class="cpx-ag wk"><span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Working</span></div>`); thread.appendChild(a); enter(a);
     while (thread.children.length > 4) thread.firstElementChild.remove();
     const say = { Ask:`Looking at ${ctx}. I won't change anything.`, Edit:`On it. I'll make the changes on a new page in ${ctx}.`, Plan:`I'll write a plan for ${ctx} first, then wait for you.` }[mode];

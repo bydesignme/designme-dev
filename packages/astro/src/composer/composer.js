@@ -58,7 +58,8 @@ DM.def('composer', (r, c) => {
     if (send.disabled) return;
     const v = ta.value.trim(), files = $$('.fchip', att).map(f => $('.n', f).textContent), mode = $('.cpx-mode-n', r).textContent, ctx = $('.cpx-ctx-n', r).textContent;
     ta.value = ''; att.innerHTML = ''; sync();
-    const b = html(`<div class="bub">${files.length ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:${v ? 6 : 0}px">${files.map(f => `<span class="fchip">${I('clip','xs')}${f}</span>`).join('')}</div>` : ''}${v.replace(/</g,'&lt;')}</div>`); thread.appendChild(b); enter(b);
+    const chips = files.map(f => `<span class="fchip">${I('clip','xs')}${f}</span>`).join('');
+    const b = html(v ? `<div class="bub">${files.length ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">${chips}</div>` : ''}${v.replace(/</g,'&lt;')}</div>` : `<div class="cpx-files">${chips}</div>`); thread.appendChild(b); enter(b);
     const a = html(`<div class="cpx-ag wk"><span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Working</span></div>`); thread.appendChild(a); enter(a);
     while (thread.children.length > 4) thread.firstElementChild.remove();
     const say = { Ask:`Looking at ${ctx}. I won't change anything.`, Edit:`On it. I'll make the changes on a new page in ${ctx}.`, Plan:`I'll write a plan for ${ctx} first, then wait for you.` }[mode];

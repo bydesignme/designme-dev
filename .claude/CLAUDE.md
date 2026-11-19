@@ -165,6 +165,9 @@ every session and every agent.
   Reasoning trail, Agent lanes, Agent run timeline, Trace view, Agent tree, Run queue, Terminal stream, Browser session,
   Action log, Attachment tray, Live answer; `useStory(ref, run, { hold: false })` in React) keep playing while the pointer
   rests on them.
+- Loader text, the words that say what is running ("Writing the findings…", "Searching…"), uses the highlight sweep
+  (`.shim`, `dm-shim` in React) in every style (owner, 19 Nov: "use it everywhere for loaders").
+- A tooltip follows its trigger while a demo moves it (owner, 19 Nov). Nothing places a tooltip once and leaves it.
 - A component never reserves room for a later state: its container grows with its content, smoothly (`grow()` /
   `useGrow()`), and shrinks the same way. It stays centred in its stage as it grows (owner, 17 Nov). This replaces keeping a
   height with `hold()` / `release()` for content that arrives.

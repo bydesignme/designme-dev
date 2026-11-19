@@ -143,10 +143,13 @@ export default function ComposerDemo() {
         contexts={CONTEXTS} context={ctx} onContextChange={setCtx} mode={mode} onModeChange={setMode}
         onDictate={dictate} dictating={dictating} onDictationEnd={() => { take.current++; setDictating(false); }}
         thread={thread.map(m => m.from === 'you'
-          ? <div key={m.id} className="dm-bub dm-enter">
-              {m.files?.length ? <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: m.text ? 6 : 0 }}>{m.files.map((f, i) => <span key={i} className="dm-fchip"><Icon name="clip" size="xs" />{f}</span>)}</div> : null}
-              {m.text}
-            </div>
+          // a message that is only attachments shows the files on their own at the right edge, never in an empty bubble
+          ? !m.text
+            ? <div key={m.id} className="dm-cpx-files dm-enter">{m.files?.map((f, i) => <span key={i} className="dm-fchip"><Icon name="clip" size="xs" />{f}</span>)}</div>
+            : <div key={m.id} className="dm-bub dm-enter">
+                {m.files?.length ? <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 6 }}>{m.files.map((f, i) => <span key={i} className="dm-fchip"><Icon name="clip" size="xs" />{f}</span>)}</div> : null}
+                {m.text}
+              </div>
           : <div key={m.id + (m.working ? 'w' : 'd')} className="dm-cpx-ag dm-enter">
               {m.working ? <><Think /><span className="dm-shim">{m.text}</span></> : <span>{m.text}</span>}
             </div>)} />
