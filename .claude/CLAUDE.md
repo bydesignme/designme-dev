@@ -18,15 +18,19 @@ every session and every agent.
   "blueprint" of the logo).
 
 ## Site structure
-- Site navigation lives in the left sidebar: Library (the homepage, selected), Docs, Changelog, Roadmap and FAQ.
+- The homepage (`/`) is a landing page (owner, 19 Nov): full width, with the site header and no sidebar. It reaches the
+  library, the docs and Book a call through its own buttons and links. Source: `tools/pages/src/pages/index.astro`.
+- On every other page, site navigation lives in the left sidebar: Library (`/library`), Docs, Changelog, Roadmap and FAQ.
   There is no top nav in the header on any page. The header holds the logo, the GitHub stars pill, the style switch and
   the theme switch. The style switch offers Blueprint, Soft and Clean; Your theme is off it for now (owner, 18 Nov), and a
   stored pick of it falls back to Soft.
-- The sidebar is the same on every page (homepage, Changelog, Roadmap, FAQ, Docs, component pages): the search field,
+- The sidebar is the same on every page that has one (library, Changelog, Roadmap, FAQ, Docs, component pages): the search field,
   the site links, the compact component groups, and the "work with us" CTA pinned bottom left. Moving between pages
   only moves the active state; nothing in the sidebar jumps or disappears.
 - Hover and active fills in the sidebar are light and quiet. Don't make them darker or more saturated.
-- The homepage is the component library. There is no separate components page.
+- The component library is at `/library` (`library.html`, built by `tools/site`), with Library selected in its sidebar;
+  Changelog, Roadmap and FAQ open over it (`/library#/changelog`). There is no separate components page: `/components`
+  redirects to `/library`, and old library addresses on `/` (`/#/changelog`, `/#s-status`) are sent on to it.
 
 ## Layout
 - Cards (a border, a fill, padding) are only for things you can click. Facts, requirements, frameworks, notes and
@@ -173,7 +177,7 @@ every session and every agent.
   height with `hold()` / `release()` for content that arrives.
 - Every component sits centred in its stage at every moment: its tallest state, its end state, and closed dropdowns. Dropdowns use `centre()`: the closed field
   sits centred and glides up as its list opens.
-- Component pages show every state the homepage card does (owner, 4 Nov). A card with designs under review (a
+- Component pages show every state the library card does (owner, 4 Nov). A card with designs under review (a
   `data-designs="card"` switch) shows them on its page too, switched under the demo (`designsOf` in `tools/site/build.js`
   writes `tools/pages/data/designs.json`), with a note that the CLI installs Classic. The registry still installs Classic only.
   On a component page the switch under a demo sits at the demo's foot (24px up) and never moves as the designs change height;
@@ -218,4 +222,4 @@ every session and every agent.
 
 ## Build
 From `tools/site`: `npm run patches` (when `make-patches.py` changed), `npm run build`, `npm run react`, `npm run astro`, `npm run pages`.
-`index.html`, `components/` and `docs/` are generated: edit the sources, not the output.
+`index.html` (the landing page), `library.html`, `components/` and `docs/` are generated: edit the sources, not the output.
