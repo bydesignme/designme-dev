@@ -13,8 +13,11 @@ import path from 'node:path';
 import Page from '../../layouts/Page.astro';
 import { ROOT, COMPONENTS } from '../../lib/data.mjs';
 
-// the components the screen is made of, by their registry name: each one's installed CSS is on the page
-const USES = ['agent-harness', 'task-table', 'progress', 'kanban-board', 'details-panel', 'filter-menu', 'search-input', 'form', 'toast',
+// the components the screen is made of, by their registry name: each one's installed CSS is on the page. The accounts table and
+// the account panel started from Task table and Details panel, but carry their own markup, so they have their own copy of
+// those styles under CRM classes (crmt-* and crmd-*, at the top of crm.css): a new look for either component never reaches
+// the CRM (19 Nov)
+const USES = ['agent-harness', 'progress', 'kanban-board', 'filter-menu', 'search-input', 'form', 'toast',
   'activity-heatmap', 'notifications', 'profile-menu', 'command-palette', 'stat-cards', 'line-chart', 'radial-goals', 'funnel-chart',
   'event-calendar', 'agent-inbox', 'health-score', 'decision-prompt', 'date-picker', 'banner', 'draft-review', 'rewrite-toolbar',
   'inline-text-diff', 'bar-chart', 'top-pages', 'agenda'];
@@ -47,11 +50,12 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
     <aside class="ahx-side crm-side" aria-label="Workspace">
       <div class="ahx-ws"><button class="ahx-wsb crm-wsb" data-pop="#crm-p-ws" aria-haspopup="menu"><span class="pfm-lg" data-t="pb">L</span><span class="crm-wst"><span class="t">Larkfield Sales</span><span class="s">8 people</span></span><Fragment set:html={I('unfold', 'xs')} /></button></div>
       <nav class="crm-nav" aria-label="Views">
-        <button class="ahx-cv" data-go="accounts"><Fragment set:html={I('table')} /><span class="t">Accounts</span><span class="n num" data-count="accounts"></span></button>
-        <button class="ahx-cv" data-go="pipeline"><Fragment set:html={I('grid')} /><span class="t">Pipeline</span><span class="n num" data-count="deals"></span></button>
+        <!-- the views carry no counts: each view says its own (elevation pass, 19 Nov: no number said twice) -->
+        <button class="ahx-cv" data-go="accounts"><Fragment set:html={I('table')} /><span class="t">Accounts</span></button>
+        <button class="ahx-cv" data-go="pipeline"><Fragment set:html={I('grid')} /><span class="t">Pipeline</span></button>
         <button class="ahx-cv" data-go="forecast"><Fragment set:html={I('chart')} /><span class="t">Forecast</span></button>
         <button class="ahx-cv" data-go="reports"><Fragment set:html={I('bars')} /><span class="t">Reports</span></button>
-        <button class="ahx-cv" data-go="calendar"><Fragment set:html={I('cal')} /><span class="t">Calendar</span><span class="n num" data-count="meetings" data-tip="Meetings booked this week"></span></button>
+        <button class="ahx-cv" data-go="calendar"><Fragment set:html={I('cal')} /><span class="t">Calendar</span></button>
       </nav>
       <div class="ahx-lh"><span>Agent</span></div>
       <nav class="crm-nav" aria-label="Agent">
@@ -88,9 +92,12 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
 
       <!-- Accounts: the task table's header, bulk bar, sort buttons and checkboxes, with Filter menu's chips and Search input's
            field and answer line in the toolbar -->
-      <section class="crm-view ttx crm-co" id="crm-v-accounts" aria-label="Accounts">
-        <div class="ttx-hd crm-hd">
-          <div class="ttx-ti crm-fbar" role="toolbar" aria-label="Filter, search and sort">
+      <section class="crm-view crmt crm-co" id="crm-v-accounts" aria-label="Accounts">
+        <!-- the account views as quiet tabs over the table (owner, 19 Nov: "this is a crm page not some dashboard"): All accounts,
+             then the ones that need a look, each with how many; the one in use is underlined -->
+        <div class="crm-vt" role="group" aria-label="Account views"></div>
+        <div class="crmt-hd crm-hd">
+          <div class="crmt-ti crm-fbar" role="toolbar" aria-label="Filter, search and sort">
             <!-- the owners, as on the Pipeline board: pick one or more to see only their accounts (owner, 10 Nov) -->
             <div class="kbx-fp crm-afp" role="group" aria-label="Filter by owner"></div>
             <div class="crm-chips" hidden>
@@ -101,26 +108,27 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
             </div>
             <div class="crm-acts">
               <div class="six-box crm-ask"><div class="six-in"><Fragment set:html={I('search', 'xs')} /><input type="search" placeholder="Search, or ask in plain words" aria-label="Search accounts, or ask in plain words and press Enter" autocomplete="off" spellcheck="false"><button class="ib six-x" aria-label="Clear the search" hidden><Fragment set:html={I('x', 'xs')} /></button></div></div>
-              <button class="pill line sm flm-tr crm-ftr" data-pop="#crm-p-flt" data-pop-align="end" aria-haspopup="menu" aria-label="Filter"><Fragment set:html={I('filter', 'xs')} /><span>Filter</span></button>
-              <button class="pill line sm crm-sort" data-pop="#crm-p-sort" data-pop-align="end" aria-haspopup="dialog" aria-label="Sort"><Fragment set:html={I('sort', 'xs')} /><span class="v">Pipeline</span></button>
-              <button class="pill line sm crm-export" aria-label="Export accounts in view as CSV"><Fragment set:html={I('down', 'xs')} /><span>Export CSV</span></button>
+              <!-- Filter and Sort are quiet ghost buttons and Export an icon, so the one filled button, Add account, leads (19 Nov) -->
+              <button class="pill ghost sm flm-tr crm-ftr" data-pop="#crm-p-flt" data-pop-align="end" aria-haspopup="menu" aria-label="Filter"><Fragment set:html={I('filter', 'xs')} /><span>Filter</span></button>
+              <button class="pill ghost sm crm-sort" data-pop="#crm-p-sort" data-pop-align="end" aria-haspopup="dialog" aria-label="Sort"><Fragment set:html={I('sort', 'xs')} /><span class="v">Pipeline</span></button>
+              <button class="ib crm-export" aria-label="Export accounts in view as CSV" data-tip="Export CSV"><Fragment set:html={I('down', 'xs')} /></button>
               <button class="pill primary sm crm-new" aria-label="Add account"><Fragment set:html={I('plus', 'xs')} /><span>Add account</span></button>
             </div>
           </div>
-          <div class="ttx-sb" inert><span class="ttx-n num"></span><button class="pill ghost sm" data-pop="#crm-p-assign" aria-haspopup="menu"><Fragment set:html={I('user', 'xs')} />Assign owner</button><button class="pill ghost sm" data-pop="#crm-p-move" aria-haspopup="menu"><Fragment set:html={I('right', 'xs')} />Move stage</button><button class="pill ghost sm" data-a="export"><Fragment set:html={I('down', 'xs')} />Export</button><button class="pill ghost sm ttx-del" data-a="delete"><Fragment set:html={I('trash', 'xs')} />Delete</button><span class="ttx-sp"></span><button class="pill ghost sm ttx-clr">Clear</button></div>
+          <div class="crmt-sb" inert><span class="crmt-n num"></span><button class="pill ghost sm" data-pop="#crm-p-assign" aria-haspopup="menu"><Fragment set:html={I('user', 'xs')} />Assign owner</button><button class="pill ghost sm" data-pop="#crm-p-move" aria-haspopup="menu"><Fragment set:html={I('right', 'xs')} />Move stage</button><button class="pill ghost sm" data-a="export"><Fragment set:html={I('down', 'xs')} />Export</button><button class="pill ghost sm crmt-del" data-a="delete"><Fragment set:html={I('trash', 'xs')} />Delete</button><span class="crmt-sp"></span><button class="pill ghost sm crmt-clr">Clear</button></div>
         </div>
         <div class="crm-ans" hidden><div class="six-ans"><Fragment set:html={I('spark', 'xs')} /><span class="t" aria-live="polite"></span><button class="pill ghost sm crm-ansx">Clear</button></div></div>
         <div class="pop crm-pop crm-sug" role="group" aria-label="Try asking"></div>
-        <div class="ttx-sc crm-sc" tabindex="0" role="region" aria-label="Accounts table">
-          <table class="ttx-t crm-t">
+        <div class="crmt-sc crm-sc" tabindex="0" role="region" aria-label="Accounts table">
+          <table class="crmt-t crm-t">
             <thead><tr>
-              <th class="ck stk"><button class="ttx-cb ttx-all" role="checkbox" aria-checked="false" aria-label="Select all accounts in view"></button></th>
-              <th class="stk2"><button class="ttx-s" data-k="name"><Fragment set:html={I('globe', 'xs')} />Account</button></th>
-              <th><button class="ttx-s" data-k="stage"><Fragment set:html={I('layers', 'xs')} />Stage</button></th>
-              <th><button class="ttx-s" data-k="next"><Fragment set:html={I('cal', 'xs')} />Next step</button></th>
-              <th><button class="ttx-s" data-k="owner"><Fragment set:html={I('user', 'xs')} />Owner</button></th>
-              <th class="r"><button class="ttx-s" data-k="value"><Fragment set:html={I('dollar', 'xs')} />Pipeline</button></th>
-              <th class="crm-hc"><button class="ttx-s" data-k="health"><Fragment set:html={I('gauge', 'xs')} />Health</button></th>
+              <th class="ck stk"><button class="crmt-cb crmt-all" role="checkbox" aria-checked="false" aria-label="Select all accounts in view"></button></th>
+              <th class="stk2"><button class="crmt-s" data-k="name"><Fragment set:html={I('globe', 'xs')} />Account</button></th>
+              <th><button class="crmt-s" data-k="stage"><Fragment set:html={I('layers', 'xs')} />Stage</button></th>
+              <th><button class="crmt-s" data-k="next"><Fragment set:html={I('cal', 'xs')} />Next step</button></th>
+              <th><button class="crmt-s" data-k="owner"><Fragment set:html={I('user', 'xs')} />Owner</button></th>
+              <th class="r"><button class="crmt-s" data-k="value"><Fragment set:html={I('dollar', 'xs')} />Pipeline</button></th>
+              <th class="crm-hc"><button class="crmt-s" data-k="health"><Fragment set:html={I('gauge', 'xs')} />Health</button></th>
               <th><span class="crm-thi"><Fragment set:html={I('spark', 'xs')} />Agent</span></th>
               <th class="r crm-actc"><span class="pg-sr">Actions</span></th>
             </tr></thead>
@@ -132,7 +140,8 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
       <!-- Agent inbox: Agent inbox's grouped list on the left, a preview of the selected item on the right (a sheet on a phone) -->
       <section class="crm-view crm-ib" id="crm-v-inbox" aria-label="Agent inbox" hidden>
         <div class="aib panel crm-aib">
-          <div class="aib-h"><b>Prepared by the agent</b><span class="muted aib-st" aria-live="polite"></span></div>
+          <!-- the agent's mark leads the list; how many wait is the sidebar's count and each group's, so it is only read out (19 Nov) -->
+          <div class="aib-h"><span class="aib-hi crm-aibh" aria-hidden="true"><Fragment set:html={I('spark', 'xs')} /></span><b>Prepared by the agent</b><span class="pg-sr aib-st" aria-live="polite"></span></div>
           <div class="aib-gs"></div>
         </div>
         <div class="panel crm-ipv" role="region" aria-label="Preview"></div>
@@ -152,7 +161,7 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
       <!-- Pipeline: the Kanban board, with the stages as columns -->
       <section class="crm-view crm-deals" id="crm-v-pipeline" aria-label="Pipeline" hidden>
         <div class="kbx crm-kb">
-          <div class="kbx-hd"><div class="kbx-ti"><b>Open deals by stage</b><span class="num crm-kbsum"></span></div><div class="kbx-fp" role="group" aria-label="Filter by owner"></div><div class="flm-chips crm-kfch" role="list" aria-label="Filters"></div><button class="pill ghost sm kbx-clr" hidden>Clear</button><div class="crm-dock" role="group" aria-label="Hidden stages" hidden><span class="crm-dkl">Hidden</span><div class="crm-dks"></div></div><span class="kbx-sp"></span><label class="kbx-q"><Fragment set:html={I('search', 'xs')} /><input type="search" placeholder="Search deals" aria-label="Search deals" autocomplete="off"><button class="ib kbx-qx" aria-label="Clear the search" hidden><Fragment set:html={I('x', 'xs')} /></button></label><button class="pill line sm flm-tr crm-kftr" data-pop="#crm-p-kflt" data-pop-align="end" aria-haspopup="menu" aria-label="Filter"><Fragment set:html={I('filter', 'xs')} /><span>Filter</span></button><button class="pill line sm crm-ksort" data-pop="#crm-p-ksort" data-pop-align="end" aria-haspopup="dialog" aria-label="Sort"><Fragment set:html={I('sort', 'xs')} /><span class="v">Close date</span></button><div class="seg2 kbx-vw" role="group" aria-label="Layout"><button aria-pressed="true" data-v="board" aria-label="Board"><Fragment set:html={I('grid', 'xs')} /><span class="lb">Board</span></button><button aria-pressed="false" data-v="list" aria-label="List"><Fragment set:html={I('list', 'xs')} /><span class="lb">List</span></button></div></div>
+          <div class="kbx-hd"><div class="kbx-ti"><b>Open deals by stage</b><span class="num crm-kbsum"></span></div><div class="kbx-fp" role="group" aria-label="Filter by owner"></div><div class="flm-chips crm-kfch" role="list" aria-label="Filters"></div><button class="pill ghost sm kbx-clr" hidden>Clear</button><div class="crm-dock" role="group" aria-label="Hidden stages" hidden><span class="crm-dkl">Hidden</span><div class="crm-dks"></div></div><span class="kbx-sp"></span><label class="kbx-q"><Fragment set:html={I('search', 'xs')} /><input type="search" placeholder="Search deals" aria-label="Search deals" autocomplete="off"><button class="ib kbx-qx" aria-label="Clear the search" hidden><Fragment set:html={I('x', 'xs')} /></button></label><button class="pill ghost sm flm-tr crm-kftr" data-pop="#crm-p-kflt" data-pop-align="end" aria-haspopup="menu" aria-label="Filter"><Fragment set:html={I('filter', 'xs')} /><span>Filter</span></button><button class="pill ghost sm crm-ksort"data-pop="#crm-p-ksort" data-pop-align="end" aria-haspopup="dialog" aria-label="Sort"><Fragment set:html={I('sort', 'xs')} /><span class="v">Close date</span></button><div class="seg2 kbx-vw" role="group" aria-label="Layout"><button aria-pressed="true" data-v="board" aria-label="Board"><Fragment set:html={I('grid', 'xs')} /><span class="lb">Board</span></button><button aria-pressed="false" data-v="list" aria-label="List"><Fragment set:html={I('list', 'xs')} /><span class="lb">List</span></button></div></div>
           <div class="kbx-bar"><div class="seg2 kbx-tabs" role="group" aria-label="Stage"></div></div>
           <div class="kbx-bd"><div class="crm-lhd" role="presentation" hidden><span class="kbx-id">ID</span><span class="t">Deal</span><span class="co">Account</span><span class="ow">Owner</span><span class="cl">Closes</span><span class="pr">Win</span><span class="v">Value</span><span class="mv"></span></div><div class="kbx-cols"></div><div class="crm-lsum" role="group" aria-label="Summary of the deals in view" hidden></div><div class="kbx-em" hidden><span class="ic"><Fragment set:html={I('filter')} /></span><b>No deals match</b><span class="crm-emn">Try another owner, date or search.</span><button class="pill line sm crm-kbclr">Clear filters</button></div><div class="kbx-em crm-allhid" role="status" hidden><span class="ic"><Fragment set:html={I('eye')} /></span><b>All stages are hidden</b><span class="crm-ahn"></span><button class="pill line sm">Show all stages</button></div></div>
           <div class="kbx-sr" aria-live="polite"></div>
@@ -225,7 +234,7 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
 
       <!-- the account's details: the Details panel's sections and rows, as a sheet over the right of the screen -->
       <!-- the sheet slides inside a clipping layer, so its slide never widens the page -->
-      <div class="crm-sheetw"><aside class="crm-sheet" role="dialog" aria-modal="false" aria-label="Account details" inert><div class="dtp crm-dtp"></div></aside></div>
+      <div class="crm-sheetw"><aside class="crm-sheet" role="dialog" aria-modal="false" aria-label="Account details" inert><div class="crmd crm-dtp"></div></aside></div>
     </div>
     <!-- a dimmed overlay under the open sheet, over the rest of the app; a click on it closes the sheet -->
     <div class="crm-shade" aria-hidden="true"></div>

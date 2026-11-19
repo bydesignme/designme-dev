@@ -1,11 +1,99 @@
 /* Sales CRM template: the layout around the components. Every colour, radius and space is a component token (--dm-*), so
-   the screen follows Soft and Blueprint, light and dark. The parts themselves are the components' own classes:
-   Agent harness (the sidebar's rows and workspace button), Task table (the accounts table's header, bulk bar, sort buttons
-   and checkboxes), Filter menu (the Filter button, its two-step menu and the filter chips), Search input (the search and
-   ask field and the agent's answer line), Health score (the health gauge in each row and in the sheet), Agent inbox (the
-   inbox's groups and rows), Event calendar (the week), Kanban board (the deals board), Details panel (the sheet), Progress
-   (the quota meters), Form (Add account), Toast, Notifications, Profile menu, Command palette, Stat cards, Line chart,
-   Activity heatmap, Radial goals and Funnel. Hover styles are only for a mouse (hover:hover and pointer:fine). */
+   the screen follows Blueprint, Soft and Clean, light and dark. The parts themselves are the components' own classes:
+   Agent harness (the sidebar's rows and workspace button), Filter menu (the Filter button, its two-step menu and the filter
+   chips), Search input (the search and ask field and the agent's answer line), Health score (the health gauge in each row
+   and in the sheet), Agent inbox (the inbox's groups and rows), Event calendar (the week), Kanban board (the deals board),
+   Progress (the quota meters), Form (Add account), Toast, Notifications, Profile menu, Command palette, Stat cards, Line
+   chart, Activity heatmap, Radial goals and Funnel. The accounts table and the account panel are the CRM's own (crmt-* and
+   crmd-*, below): they began as Task table and Details panel and keep those styles as they were, so a change to either
+   component never moves the CRM. Hover styles are only for a mouse (hover:hover and pointer:fine). */
+
+/* ---------- the CRM's own table (crmt-*): Task table's styles as of 19 Nov, under the CRM's names ---------- */
+.crmt{overflow:hidden;position:relative}
+/* the header holds the toolbar, or, while rows are picked, what you can do to them */
+.crmt-hd{position:relative;height:50px;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.crmt-ti,.crmt-sb{position:absolute;inset:0;display:flex;align-items:center;transition:opacity .28s var(--dm-ease),transform .45s var(--dm-ease),filter .28s var(--dm-ease)}
+.crmt-ti{gap:10px;padding:0 var(--dm-s-4)}
+.crmt-sb{gap:2px;padding:0 10px 0 var(--dm-s-4);opacity:0;transform:translateY(10px);filter:blur(3px);pointer-events:none}
+.crmt.selecting .crmt-ti{opacity:0;transform:translateY(-10px);filter:blur(3px);pointer-events:none}
+.crmt.selecting .crmt-sb{opacity:1;transform:none;filter:none;pointer-events:auto}
+.crmt-n{margin-right:var(--dm-s-2);font-size:13px;font-weight:500;white-space:nowrap}
+.crmt-sp{flex:1}
+.crmt-sb .pill.crmt-del{color:var(--dm-bad)}
+@media (hover:hover) and (pointer:fine){.crmt-sb .pill.crmt-del:hover{background:color-mix(in srgb,var(--dm-bad) 10%,transparent);color:var(--dm-bad)}}
+.crmt-sc{overflow-x:auto}
+.crmt-t{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
+.crmt-t th{height:36px;padding:0 var(--dm-s-2);text-align:left;font-weight:500;font-size:12px;color:var(--dm-muted);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);white-space:nowrap}
+.crmt-t th.ck,.crmt-t td.ck{width:36px;padding-left:var(--dm-s-4)}
+.crmt-t th.r,.crmt-t td.r{text-align:right}
+.crmt-t th:last-child,.crmt-t td:last-child{padding-right:var(--dm-s-4)}
+/* a header sorts its column: a quiet arrow shows on hover and stays on the column the rows are sorted by */
+.crmt-s{display:inline-flex;align-items:center;gap:3px;height:24px;margin:0 -6px;padding:0 6px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));color:inherit;font:inherit;transition:color .2s,background-color .2s}
+@media (hover:hover) and (pointer:fine){.crmt-s:hover{color:var(--dm-fg);background:var(--dm-row)}}
+.crmt-s .ar{display:grid;opacity:0;transition:opacity .2s,transform .35s var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){.crmt-s:hover .ar{opacity:.45}}
+.crmt-s.on{color:var(--dm-fg)}
+.crmt-s.on .ar{opacity:1}
+.crmt-s.on.desc .ar{transform:rotate(180deg)}
+.crmt-t td{height:46px;padding:0 var(--dm-s-2);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);white-space:nowrap}
+.crmt-t tbody tr:last-child td{border-bottom:0}
+/* rows: the shared hover, and a slightly deeper grey while picked */
+.crmt-t tbody tr[data-id]{cursor:pointer;transition:background-color .25s var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){.crmt-t tbody tr[data-id]:hover{background:var(--dm-row)}}
+.crmt-t tbody tr.sel{background:color-mix(in srgb,var(--dm-fg) 6%,transparent)}
+@media (hover:hover) and (pointer:fine){.crmt-t tbody tr.sel:hover{background:color-mix(in srgb,var(--dm-fg) 8%,transparent)}}
+.crmt-t .nm{font-weight:500}
+.crmt-t .ag{display:flex;align-items:center;gap:7px;color:var(--dm-fg2)}
+.crmt-t .ag .av{width:20px;height:20px;font-size:11px}
+/* checkboxes: the tick springs in; select-all shows a dash while only some rows are picked */
+.crmt-cb{display:grid;place-items:center;width:16px;height:16px;border-radius:var(--dm-r-tiny,5px);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-muted) 80%,var(--dm-surface));color:var(--dm-on-accent,#fff);transition:background-color .2s,box-shadow .2s}
+@media (hover:hover) and (pointer:fine){.crmt-cb:hover{box-shadow:inset 0 0 0 1.5px var(--dm-muted)}}
+.crmt-cb[aria-checked="true"],.crmt-cb[aria-checked="mixed"]{background:var(--dm-accent);box-shadow:inset 0 0 0 1px var(--dm-accent-mark,var(--dm-accent))}
+.crmt-cb svg{grid-area:1/1;width:11px;height:11px;opacity:0;transform:scale(.4);transition:opacity .15s,transform .3s cubic-bezier(.34,1.4,.64,1)}
+.crmt-cb[aria-checked="true"] .ck-y,.crmt-cb[aria-checked="mixed"] .ck-m{opacity:1;transform:none}
+/* a stage or status: a soft pill in its colour (the stage colours are further down) */
+.crmt-st{--dm-sc:var(--dm-muted);display:inline-flex;align-items:center;height:22px;padding:0 9px 0 7px;border-radius:var(--dm-r-pill);font-size:12px;font-weight:500;color:var(--dm-sc);background:color-mix(in srgb,var(--dm-sc) 11%,transparent);transition:color .35s var(--dm-ease),background-color .35s var(--dm-ease)}
+.crmt-st .sv{display:inline-flex;align-items:center;gap:6px}
+.crmt-st[data-s="run"]{--dm-sc:var(--dm-accent-fg,var(--dm-accent));background:color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 11%,transparent)}
+.crmt-st[data-s="done"]{--dm-sc:var(--dm-ok)}
+.crmt-st[data-s="fail"]{--dm-sc:var(--dm-bad)}
+.crmt-st .i{width:12px;height:12px}
+.crmt-t tbody tr.crmt-out{opacity:0;transform:translateX(14px);transition:opacity .24s var(--dm-ease),transform .24s var(--dm-ease)}
+/* nothing matches */
+.crmt-em{display:flex;flex-direction:column;align-items:center;gap:3px}
+.crmt-em .ic{display:grid;place-items:center;width:36px;height:36px;margin-bottom:var(--dm-s-2);border-radius:var(--dm-r-in);background:var(--dm-chip);color:var(--dm-muted)}
+.crmt-em b{font-size:13px;font-weight:500}
+.crmt-em span{font-size:12px;color:var(--dm-muted)}
+.crmt-em .pill{margin-top:10px}
+
+/* ---------- the CRM's own account panel (crmd-*): Details panel's styles as of 19 Nov, under the CRM's names ---------- */
+.crmd{padding:var(--dm-s-3);display:flex;flex-direction:column;gap:6px}
+.crmd-h{display:flex;align-items:center;gap:var(--dm-s-2);padding:2px var(--dm-s-1) 6px;font-size:13px}
+.crmd-h b{font-weight:500;flex:1;min-width:0}
+.crmd-sh{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dm-muted);padding:6px var(--dm-s-1);width:100%;text-align:left}
+@media (hover:hover) and (pointer:fine){.crmd-sh:hover{color:var(--dm-fg)}}
+.crmd-sh svg{transition:transform .4s var(--dm-ease);transform:rotate(90deg)}
+.crmd-sh[aria-expanded="false"] svg{transform:none}
+.crmd-rows{display:flex;flex-direction:column}
+/* a section's rows settle 4px as it folds open, and lift away as it folds shut */
+.crmd .fold .crmd-rows{transition:transform var(--dm-t) var(--dm-ease)}
+.crmd .fold.shut .crmd-rows{transform:translateY(-4px)}
+.crmd-r{display:grid;grid-template-columns:84px 1fr;align-items:center;min-height:34px;font-size:13px;position:relative}
+.crmd-r .k{color:var(--dm-muted);padding-left:var(--dm-s-1)}
+.crmd-v{display:inline-flex;align-items:center;gap:7px;justify-self:start;height:28px;padding:0 var(--dm-s-2);margin-left:-8px;border-radius:var(--dm-r-sm);transition:background .2s;color:var(--dm-fg)}
+/* a value that starts with a photo sits as far from the box's left edge as from its top and bottom (owner, 10 Nov) */
+.crmd-v:has(>.av:first-child){padding:0 6px 0 4px;margin-left:-4px}
+:where(.crm) button.crmd-v[aria-expanded="true"]{background:var(--dm-row)}
+@media (hover:hover) and (pointer:fine){:where(.crm) button.crmd-v:hover{background:var(--dm-row)}}
+.crmd-v .av{width:20px;height:20px;font-size:11px}
+.crmd-v>svg{color:var(--dm-muted)}
+.crmd-v.flash{animation:crmdf .9s var(--dm-ease)}
+@keyframes crmdf{30%{background:var(--dm-accent-bg)}}
+.crmd-tags{display:flex;gap:var(--dm-s-1);align-items:center;flex-wrap:wrap}
+.crmd-add{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));display:grid;place-items:center;color:var(--dm-muted);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
+@media (hover:hover) and (pointer:fine){.crmd-add:hover{color:var(--dm-fg);background:var(--dm-row)}}
+.crmd .mi .av{width:20px;height:20px;font-size:11px}
+.crmd .pop{min-width:180px}
 
 /* ---------- the page: the app fills the window under the site's header ---------- */
 .pg-app{display:block;height:calc(100dvh - var(--pg-head));overflow:hidden}
@@ -20,12 +108,12 @@ body:has(.crm) .dmf{display:none}
 /* the template's hairlines: the line colour, a step toward the text colour so rows and sections read in dark as in light */
 /* the CRM's grey dividers, at half strength (owner, 9 Nov) */
 .crm[data-c]{--crm-hair:color-mix(in srgb,color-mix(in srgb,var(--dm-line),var(--dm-fg) 9%) 50%,transparent)}
-.crm .ttx-hd,.crm .ttx-t th,.crm .ttx-t td,.crm .ecx-h,.crm .ecx-dh{border-bottom-color:var(--crm-hair)}
+.crm .crmt-hd,.crm .crmt-t th,.crm .crmt-t td,.crm .ecx-h,.crm .ecx-dh{border-bottom-color:var(--crm-hair)}
 .crm .ecx-day{border-left-color:var(--crm-hair)}
 .crm .ecx-col{background-image:linear-gradient(var(--crm-hair) 1px,transparent 1px)}
 .crm .ahx-side{border-right-color:var(--crm-hair)}
 .crm .kbx.list .kbx-k{box-shadow:inset 0 -1px 0 var(--crm-hair)}
-.crm .dtp-add{box-shadow:inset 0 0 0 1px var(--crm-hair)}
+.crm .crmd-add{box-shadow:inset 0 0 0 1px var(--crm-hair)}
 .crm[data-c]{width:100%;max-width:none;height:100%;display:grid;grid-template-columns:240px minmax(0,1fr);position:relative;overflow:hidden;background:var(--dm-surface);color:var(--dm-fg);font-size:13px;text-align:left}
 :where(.crm) :where(h1,h2,h3,p){margin:0;font:inherit}
 .crm .muted{color:var(--dm-muted)}
@@ -73,10 +161,10 @@ body:has(.crm) .dmf{display:none}
 .crm-view[hidden]{display:none}
 
 /* ---------- Accounts: the Task table, with Filter menu and Search input in its toolbar ---------- */
-.crm-co.ttx{display:flex;flex-direction:column;overflow:hidden;container-type:normal}
+.crm-co.crmt{display:flex;flex-direction:column;overflow:hidden;container-type:normal}
 /* the toolbar is one row while it fits; with filters on, the search, Sort, Export and Add account wrap onto a second */
-.crm-hd.ttx-hd{flex:none;height:auto;min-height:52px}
-.crm-fbar.ttx-ti{position:relative;flex-wrap:wrap;gap:6px;row-gap:var(--dm-s-2);padding:12px var(--dm-s-5) 9px;overflow:visible}
+.crm-hd.crmt-hd{flex:none;height:auto;min-height:52px}
+.crm-fbar.crmt-ti{position:relative;flex-wrap:wrap;gap:6px;row-gap:var(--dm-s-2);padding:12px var(--dm-s-5) 9px;overflow:visible}
 .crm-chips,.crm-acts{display:flex;align-items:center;gap:6px}
 .crm-chips>*,.crm-acts>*{flex:none}
 .crm-acts{margin-left:auto}
@@ -100,10 +188,10 @@ body:has(.crm) .dmf{display:none}
 .crm-ans .six-ans>svg{margin-top:0}
 .crm-ans .t{flex:1;min-width:0}
 .crm-ans .pill{flex:none}
-.crm-hd .ttx-sb{padding-left:var(--dm-s-5)}
-.crm-sc.ttx-sc{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;outline:0}
+.crm-hd .crmt-sb{padding-left:var(--dm-s-5)}
+.crm-sc.crmt-sc{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;outline:0}
 .crm-sc:focus-visible{box-shadow:inset 0 0 0 2px var(--dm-focus)}
-.crm-t.ttx-t{min-width:1060px}
+.crm-t.crmt-t{min-width:1060px}
 .crm-t th{position:sticky;top:0;z-index:2;background:var(--dm-surface);height:38px}
 .crm-t td{height:54px}
 .crm-t th,.crm-t td{padding:0 var(--dm-s-2)}
@@ -118,8 +206,8 @@ body:has(.crm) .dmf{display:none}
 .crm-co .nm .s{font-size:12px;font-weight:400;color:var(--dm-muted)}
 .crm .pfm-lg.sm{width:24px;height:24px;font-size:11px;border-radius:calc(6px * var(--dm-rk))}
 .crm .pfm-lg.xs{width:16px;height:16px;font-size:9px;border-radius:calc(4px * var(--dm-rk))}
-.crm-t .ttx-st{height:22px;font-size:12px}
-.crm-t .ttx-st .dot{width:6px;height:6px}
+.crm-t .crmt-st{height:22px;font-size:12px}
+.crm-t .crmt-st .dot{width:6px;height:6px}
 /* the next step, from the calendar: what it is, then when; overdue and missing read red */
 .crm-nx{display:flex;flex-direction:column;line-height:1.35;min-width:0;max-width:200px}
 .crm-nx .k{color:var(--dm-fg);overflow:hidden;text-overflow:ellipsis}
@@ -148,7 +236,7 @@ body:has(.crm) .dmf{display:none}
 .crm-t .ib.crm-rm{width:28px;height:28px;color:var(--dm-muted)}
 .crm-t .ib.crm-rm[aria-expanded="true"]{background:var(--dm-row);color:var(--dm-fg)}
 .crm-empty td{height:auto;padding:56px var(--dm-s-4)!important;text-align:center;white-space:normal}
-.crm-t tbody tr.ttx-out{opacity:0;transform:translateX(14px);transition:opacity .24s var(--dm-ease),transform .24s var(--dm-ease)}
+.crm-t tbody tr.crmt-out{opacity:0;transform:translateX(14px);transition:opacity .24s var(--dm-ease),transform .24s var(--dm-ease)}
 /* the Filter menu's two steps, and a stage's dot in it */
 .crm-flt.pop{width:248px}
 .crm-flt .mi>.i:last-child{color:var(--dm-muted)}
@@ -189,13 +277,13 @@ body:has(.crm) .dmf{display:none}
 .crm-pvr{display:grid;grid-template-columns:112px minmax(0,1fr);align-items:center;min-height:36px;font-size:13px}
 .crm-pvr .k{color:var(--dm-muted)}
 .crm-pvr .v{display:flex;align-items:center;gap:var(--dm-s-2);min-width:0}
-.crm-pvr .v>span:not(.ttx-st):not(.av):not(.pfm-lg){min-width:0}
+.crm-pvr .v>span:not(.crmt-st):not(.av):not(.pfm-lg){min-width:0}
 .crm-pvr .v>*{flex:none}
 .crm-pvr .v>span:first-of-type:not(.av):not(.pfm-lg),.crm-pvr .v>.av+span,.crm-pvr .v>.pfm-lg+span{flex:0 1 auto}
 .crm-pvr .v .av{width:22px;height:22px;font-size:9.5px}
 .crm-pvr .v .i{color:var(--dm-muted)}
-.crm-pvr .ttx-st{height:20px;font-size:11.5px}
-.crm-pvr .ttx-st .dot{width:6px;height:6px}
+.crm-pvr .crmt-st{height:20px;font-size:11.5px}
+.crm-pvr .crmt-st .dot{width:6px;height:6px}
 .crm-was{color:var(--dm-muted);text-decoration:line-through}
 .crm-bad{color:var(--dm-bad)}
 .crm-pvb{white-space:pre-wrap;font-size:13.5px;line-height:1.6;color:var(--dm-fg)}
@@ -255,8 +343,8 @@ body:has(.crm) .dmf{display:none}
 .crm-cpop .crm-pacc{margin:2px 0 2px -6px;padding:0 6px;height:28px;gap:6px}
 .crm-pdl{display:flex;align-items:center;gap:var(--dm-s-2);margin:var(--dm-s-2) 0 0 18px;font-size:12.5px}
 .crm-pdl .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--dm-fg)}
-.crm-pdl .ttx-st{height:20px;font-size:11.5px;flex:none}
-.crm-pdl .ttx-st .dot{width:6px;height:6px}
+.crm-pdl .crmt-st{height:20px;font-size:11.5px;flex:none}
+.crm-pdl .crmt-st .dot{width:6px;height:6px}
 .crm-pdl .num{color:var(--dm-fg2);flex:none}
 .crm-leg{display:flex;flex-wrap:wrap;justify-content:center;gap:var(--dm-s-1) var(--dm-s-3);padding:10px var(--dm-s-3);border-top:1px solid var(--crm-hair);font-size:12px}
 .crm-leg span{display:inline-flex;align-items:center;gap:6px}
@@ -314,7 +402,7 @@ body:has(.crm) .dmf{display:none}
 .crm-draft .t[contenteditable="true"]{min-height:calc(13px * 1.4 + 6px);padding-top:3px;padding-bottom:3px}
 .crm-draft .t:empty::before{content:attr(data-ph);color:var(--dm-muted);pointer-events:none}
 .crm-drw{display:flex;flex-wrap:wrap;align-items:center;gap:8px 6px;min-width:0}
-.crm-drw .dtp-v.crm-dacc{flex:1 1 100%;min-width:0;width:auto;max-width:none;height:30px;padding:0 8px;gap:6px;font-size:12px}
+.crm-drw .crmd-v.crm-dacc{flex:1 1 100%;min-width:0;width:auto;max-width:none;height:30px;padding:0 8px;gap:6px;font-size:12px}
 .crm-dacc .i:last-child{margin-left:auto}
 .crm-dacc span:not(.pfm-lg){min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .crm-drw .pill{flex:none}
@@ -393,27 +481,27 @@ body:has(.crm) .dmf{display:none}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .crm-shade{background:rgba(0,0,0,.56)}}
 .crm-sheet{position:absolute;top:var(--crm-top-h,56px);right:0;bottom:0;z-index:20;width:min(440px,100%);background:var(--dm-surface);border-left:1px solid var(--crm-hair);overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;opacity:0;visibility:hidden;transform:translateX(12px);transition:opacity .18s var(--dm-ease),transform .32s var(--dm-ease),visibility 0s .32s}
 .crm-sheet.on{opacity:1;visibility:visible;transform:none;transition:opacity .22s var(--dm-ease),transform .36s var(--dm-ease),visibility 0s}
-.crm-dtp.dtp{padding:var(--dm-s-4);gap:var(--dm-s-1)}
-.crm-dtp .dtp-h{padding:0;gap:10px}
-.crm-dtp .dtp-h>.ib:last-child{margin-right:-7px}
-.crm-dtp .dtp-h .pfm-lg{width:32px;height:32px;font-size:13px}
-.crm-dtp .dtp-h .tx{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.35}
-.crm-dtp .dtp-h .tx b{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.crm-dtp .dtp-h .tx span{font-size:12px;color:var(--dm-muted)}
-.crm-dtp .dtp-h .ib{width:28px;height:28px;color:var(--dm-muted)}
-.crm-dtp .dtp-sh{padding-left:0;margin-top:var(--dm-s-1)}
-.crm-dtp .dtp-r{grid-template-columns:112px minmax(0,1fr)}
-.crm-dtp .dtp-r .k{padding-left:0}
+.crm-dtp.crmd{padding:var(--dm-s-4);gap:var(--dm-s-1)}
+.crm-dtp .crmd-h{padding:0;gap:10px}
+.crm-dtp .crmd-h>.ib:last-child{margin-right:-7px}
+.crm-dtp .crmd-h .pfm-lg{width:32px;height:32px;font-size:13px}
+.crm-dtp .crmd-h .tx{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.35}
+.crm-dtp .crmd-h .tx b{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crm-dtp .crmd-h .tx span{font-size:12px;color:var(--dm-muted)}
+.crm-dtp .crmd-h .ib{width:28px;height:28px;color:var(--dm-muted)}
+.crm-dtp .crmd-sh{padding-left:0;margin-top:var(--dm-s-1)}
+.crm-dtp .crmd-r{grid-template-columns:112px minmax(0,1fr)}
+.crm-dtp .crmd-r .k{padding-left:0}
 /* tags wrap onto even rows: the label sits level with the first row, every tag and the add button share one height and
-   centre line. The row is its own grid rather than a .dtp-r, so the rows' label rules (.dtp-r .k) never reach the pink tag,
+   centre line. The row is its own grid rather than a .crmd-r, so the rows' label rules (.crmd-r .k) never reach the pink tag,
    which is .tag.k */
 .crm-dtp .crm-tg{display:grid;grid-template-columns:112px minmax(0,1fr);align-items:start;font-size:13px}
 .crm-dtp .crm-tgk{color:var(--dm-muted);line-height:20px;margin-top:7px}
-.crm-dtp .crm-tg .dtp-tags{padding:7px 0;gap:6px;align-items:center}
-.crm-dtp .crm-tg .dtp-tags>*{flex:none;height:20px;box-sizing:border-box;display:inline-flex;align-items:center;line-height:1}
-.crm-dtp .crm-tg .dtp-add{width:20px;justify-content:center}
-.crm-dtp .dtp-v{max-width:100%}
-.crm-dtp .dtp-v.static{margin-left:0;padding:0}
+.crm-dtp .crm-tg .crmd-tags{padding:7px 0;gap:6px;align-items:center}
+.crm-dtp .crm-tg .crmd-tags>*{flex:none;height:20px;box-sizing:border-box;display:inline-flex;align-items:center;line-height:1}
+.crm-dtp .crm-tg .crmd-add{width:20px;justify-content:center}
+.crm-dtp .crmd-v{max-width:100%}
+.crm-dtp .crmd-v.static{margin-left:0;padding:0}
 /* the agent's suggestion for the account, and its health: Health score's gauge and checks, smaller */
 .crm-sag.six-ans{margin:var(--dm-s-2) 0 0;align-items:center}
 .crm-sag>span{flex:1;min-width:0}
@@ -440,8 +528,8 @@ body:has(.crm) .dmf{display:none}
 .crm-dl .t .w{display:block;font-size:12px;color:var(--dm-muted)}
 .crm-dl .t .w.late{color:var(--dm-bad)}
 .crm-dl button{padding-top:5px;padding-bottom:5px}
-.crm-dl .ttx-st{height:20px;font-size:11.5px}
-.crm-dl .ttx-st .dot{width:6px;height:6px}
+.crm-dl .crmt-st{height:20px;font-size:11.5px}
+.crm-dl .crmt-st .dot{width:6px;height:6px}
 .crm-dl button>.num{font-size:12.5px;color:var(--dm-fg2);text-align:right;min-width:64px}
 .crm-tl{display:flex;flex-direction:column;margin:2px 0 0;padding:0;list-style:none}
 .crm-tl li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;padding:6px 0;font-size:13px;line-height:1.4}
@@ -455,7 +543,7 @@ body:has(.crm) .dmf{display:none}
    Sections are divided by hairlines so the panel reads as stacked groups */
 .crm-dtp .crm-sec{border-top:1px solid var(--crm-hair);padding-top:var(--dm-s-3);margin-top:var(--dm-s-2)}
 .crm-shr{display:flex;align-items:center;gap:var(--dm-s-1)}
-.crm-shr .dtp-sh{flex:1;min-width:0;min-height:32px;margin-top:0}
+.crm-shr .crmd-sh{flex:1;min-width:0;min-height:32px;margin-top:0}
 .crm-sn{color:var(--dm-muted);font-size:12px}
 .crm-sadd.ib{width:28px;height:28px;color:var(--dm-muted);flex:none}
 @media (hover:hover) and (pointer:fine){.crm-sadd.ib:hover{color:var(--dm-fg)}}
@@ -463,14 +551,14 @@ body:has(.crm) .dmf{display:none}
 .crm-hsum .crm-hs{gap:6px}
 .crm-hsum .crm-hs b{min-width:0}
 .crm-hsum .muted{font-size:12px;white-space:nowrap}
-.crm-dtp .dtp-sh[data-sec="health"]{color:var(--dm-muted)}
+.crm-dtp .crmd-sh[data-sec="health"]{color:var(--dm-muted)}
 
 /* ---------- round 3 ---------- */
 /* the sheet slides inside a layer that clips it, so the page never gets wider; the toolbar's bulk bar scrolls inside itself */
 .crm-sheetw{position:absolute;inset:0;z-index:20;overflow:hidden;pointer-events:none}
 .crm-sheet{pointer-events:auto}
-.crm-hd .ttx-sb{overflow-x:auto;scrollbar-width:none}
-.crm-hd .ttx-sb::-webkit-scrollbar{display:none}
+.crm-hd .crmt-sb{overflow-x:auto;scrollbar-width:none}
+.crm-hd .crmt-sb::-webkit-scrollbar{display:none}
 /* health: a quiet score for Good, the gauge only where it says something (Fair and At risk) */
 .crm-hs[data-h="ok"] b{color:var(--dm-fg2);font-weight:400}
 /* the deal a close date filter matched, under the pipeline value */
@@ -610,7 +698,7 @@ body:has(.crm) .dmf{display:none}
 .crm :focus-visible{outline:2px solid var(--dm-focus)}
 /* Blueprint: its lime marks the primary action and what is picked or current, nothing else. The stage in play, the agent's chips
    and asks, the inbox count, proposed slots and Fair health are ink and grey there */
-:root:not([data-style="soft"],[data-style="clean"]) .crm .ttx-st[data-s="run"]{--dm-sc:var(--dm-fg);background:color-mix(in srgb,var(--dm-fg) 10%,transparent)}
+:root:not([data-style="soft"],[data-style="clean"]) .crm .crmt-st[data-s="run"]{--dm-sc:var(--dm-fg);background:color-mix(in srgb,var(--dm-fg) 10%,transparent)}
 :root:not([data-style="soft"],[data-style="clean"]) .crm-nav .ahx-cv .n.crm-wait{background:var(--dm-chip);color:var(--dm-fg)}
 :root:not([data-style="soft"],[data-style="clean"]) .crm .six-ans{background:var(--dm-row);color:var(--dm-fg2)}
 :root:not([data-style="soft"],[data-style="clean"]) .crm .six-ans>svg{color:var(--dm-fg2)}
@@ -689,7 +777,7 @@ body:has(.crm) .dmf{display:none}
   .crm-menu{display:inline-grid}
   .crm-main{grid-column:1}
   .crm-top{padding-left:var(--dm-s-4);padding-right:var(--dm-s-4)}
-  .crm-fbar.ttx-ti,.crm-hd .ttx-sb{padding-left:var(--dm-s-4);padding-right:var(--dm-s-4)}
+  .crm-fbar.crmt-ti,.crm-hd .crmt-sb{padding-left:var(--dm-s-4);padding-right:var(--dm-s-4)}
   .crm-t th.ck,.crm-t td.ck{padding-left:var(--dm-s-4)}
   .crm-kb.kbx{padding-left:var(--dm-s-4);padding-right:var(--dm-s-4)}
   .crm-kb.kbx>.kbx-bd{margin-left:calc(-1 * var(--dm-s-4));margin-right:calc(-1 * var(--dm-s-4));padding-left:var(--dm-s-4);padding-right:var(--dm-s-4)}
@@ -716,12 +804,12 @@ body:has(.crm) .dmf{display:none}
   .crm-c4,.crm-c3,.crm-own{grid-column:span 12}
   .crm-fc .scx-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .crm-co .nm{max-width:150px}
-  .crm-t.ttx-t{min-width:1000px}
+  .crm-t.crmt-t{min-width:1000px}
   .crm-toasts{right:var(--dm-s-2);bottom:var(--dm-s-2);width:calc(100% - 16px)}
 }
 @media (max-width:520px){
   /* each account on two lines: its name and value, then its stage, next step and health; the wide columns go */
-  .crm-t.ttx-t{min-width:0;display:block}
+  .crm-t.crmt-t{min-width:0;display:block}
   .crm-t thead{display:none}
   .crm-t tbody{display:block}
   .crm-t tbody tr[data-id]{display:grid;grid-template-columns:44px auto minmax(0,1fr) auto;grid-template-rows:auto auto;align-items:center;column-gap:var(--dm-s-2);row-gap:4px;padding:10px var(--dm-s-4) 10px 0;border-bottom:1px solid var(--crm-hair)}
@@ -742,7 +830,7 @@ body:has(.crm) .dmf{display:none}
   .crm-t .crm-nx .d::before{content:"· "}
   .crm-t .crm-pv .muted,.crm-t .crm-due{display:none}
   .crm-t .crm-hs .l{display:none}
-  .crm-t .ttx-st{height:20px}
+  .crm-t .crmt-st{height:20px}
   .crm-sum .lg{display:none}
   .crm-sum .sh{display:inline}
   .crm-ask.six-box{min-width:0}
@@ -775,10 +863,10 @@ body:has(.crm) .dmf{display:none}
 /* ---------- stage colours (owner, 9 Nov) ---------- */
 /* a stage is a label: Discovery teal, Demo violet, Proposal orange, Negotiation blue, in both styles; won and lost stay the
    ok and bad statuses */
-:root .crm .ttx-st.crm-sg[data-h="t"]{--dm-sc:var(--dm-pt);background:var(--dm-pt-bg)}
-:root .crm .ttx-st.crm-sg[data-h="l"]{--dm-sc:var(--dm-pl);background:var(--dm-pl-bg)}
-:root .crm .ttx-st.crm-sg[data-h="p"]{--dm-sc:var(--dm-pp);background:var(--dm-pp-bg)}
-:root .crm .ttx-st.crm-sg[data-h="b"]{--dm-sc:var(--dm-pb);background:var(--dm-pb-bg)}
+:root .crm .crmt-st.crm-sg[data-h="t"]{--dm-sc:var(--dm-pt);background:var(--dm-pt-bg)}
+:root .crm .crmt-st.crm-sg[data-h="l"]{--dm-sc:var(--dm-pl);background:var(--dm-pl-bg)}
+:root .crm .crmt-st.crm-sg[data-h="p"]{--dm-sc:var(--dm-pp);background:var(--dm-pp-bg)}
+:root .crm .crmt-st.crm-sg[data-h="b"]{--dm-sc:var(--dm-pb);background:var(--dm-pb-bg)}
 .crm-sd[data-s="disc"]{color:var(--dm-pt)}
 .crm-sd[data-s="demo"]{color:var(--dm-pl)}
 .crm-sd[data-s="prop"]{color:var(--dm-pp)}
@@ -969,7 +1057,7 @@ body:has(.crm) .dmf{display:none}
 .crm-dat td .muted{font-size:12px}
 .crm-dc,.crm-do{display:inline-flex;align-items:center;gap:8px;vertical-align:middle}
 .crm-do .av{width:20px;height:20px}
-.crm-dat .ttx-st{height:20px;font-size:11.5px}
+.crm-dat .crmt-st{height:20px;font-size:11.5px}
 .crm-da.won{color:var(--dm-ok)}
 .crm-da.lost{color:var(--dm-muted);text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--dm-muted) 60%,transparent)}
 .crm-dempty td{color:var(--dm-muted);text-align:center;padding:var(--dm-s-5) 0;cursor:default}
@@ -1013,7 +1101,7 @@ body:has(.crm) .dmf{display:none}
 .crm-afs{width:1px;height:16px;background:color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .crm-thi{display:inline-flex;align-items:center;gap:6px}
 .crm-thi .i{color:var(--dm-muted)}
-#crm-p-af .mi .ttx-st .dot{width:6px;height:6px}
+#crm-p-af .mi .crmt-st .dot{width:6px;height:6px}
 #crm-p-af .mi>.i{color:var(--dm-muted)}
 .crm-afl{display:flex;align-items:center;gap:var(--dm-s-2);flex-wrap:wrap}
 .crm-af .i{color:var(--dm-muted)}
@@ -1087,7 +1175,7 @@ body:has(.crm) .dmf{display:none}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .crm-asq{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-fg) 22%,var(--dm-surface))}}
 :root[data-theme="dark"] .crm-asq{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-fg) 22%,var(--dm-surface))}
 /* the accounts table's headers carry their field's icon, as Deal activity's do (owner, 10 Nov) */
-.crm-t .ttx-s>.i:first-child{margin-right:3px;color:var(--dm-muted)}
+.crm-t .crmt-s>.i:first-child{margin-right:3px;color:var(--dm-muted)}
 .crm-t th>.crm-thi{height:24px;vertical-align:middle}
 /* the forecast's card heads: the title, a muted line under it, the controls on the right, the same in every card (owner, 10 Nov) */
 .crm-fc .crm-ht{display:flex;flex-direction:column;gap:2px;min-width:0;font-size:13.5px;line-height:1.4}
@@ -1358,7 +1446,7 @@ body:has(.crm) .dmf{display:none}
 /* the summary's sum ends on its column's values */
 .crm-tfb[data-k="value"]{padding-right:var(--dm-s-2)}
 /* the selection bar that replaces the toolbar keeps its right edge and its centre line */
-.crm-hd .ttx-sb{padding-right:var(--dm-s-5);padding-top:1px}
+.crm-hd .crmt-sb{padding-right:var(--dm-s-5);padding-top:1px}
 /* ---------- the reviewer's judgement calls (owner, 14 Nov) ---------- */
 /* Forecast: a card's switch sits on its title's line, as the past-due chip does */
 .crm-fc :is(.hmx-h,.tpx-h)>.seg2{margin-top:-5.5px}
@@ -1481,25 +1569,156 @@ body:has(.crm) .dmf{display:none}
 
 /* ---------- Accounts: the bulk actions as a floating bar at the foot of the table (owner, 17 Nov) ---------- */
 .crm-co{position:relative}
-.crm-co.selecting .crm-hd .ttx-ti{opacity:1;transform:none;filter:none;pointer-events:auto}
-.crm-co>.ttx-sb.crm-flt{position:absolute;z-index:6;inset:auto auto var(--dm-s-6) 50%;width:max-content;max-width:calc(100% - var(--dm-s-8));height:44px;padding:0 var(--dm-s-2) 0 var(--dm-s-1);gap:2px;
+.crm-co.selecting .crm-hd .crmt-ti{opacity:1;transform:none;filter:none;pointer-events:auto}
+.crm-co>.crmt-sb.crm-flt{position:absolute;z-index:6;inset:auto auto var(--dm-s-6) 50%;width:max-content;max-width:calc(100% - var(--dm-s-8));height:44px;padding:0 var(--dm-s-2) 0 var(--dm-s-1);gap:2px;
   border-radius:calc(14px * var(--dm-rk));background:var(--dm-fg);color:var(--dm-surface);box-shadow:var(--dm-shadow-pop);
   --crm-fbd:#ff8a80;transform:translate(-50%,14px) scale(.98);opacity:0;filter:blur(4px);
   transition:opacity .28s var(--dm-ease),transform .5s cubic-bezier(.22,1,.36,1),filter .28s var(--dm-ease);overflow-x:auto;scrollbar-width:none}
-@supports (corner-shape:squircle){.crm-co>.ttx-sb.crm-flt{corner-shape:squircle}}
-.crm-co.selecting>.ttx-sb.crm-flt{opacity:1;transform:translate(-50%,0);filter:none;pointer-events:auto}
-:root[data-theme="dark"] .crm-co>.ttx-sb.crm-flt{--crm-fbd:#c4314b}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .crm-co>.ttx-sb.crm-flt{--crm-fbd:#c4314b}}
-.crm-flt .ttx-sp{display:none}
-.crm-flt .ttx-n{display:inline-flex;align-items:center;height:24px;padding:0 var(--dm-s-3) 0 var(--dm-s-1);margin-right:var(--dm-s-1);border-right:1px solid color-mix(in srgb,var(--dm-surface) 20%,transparent);font-size:13px;color:var(--dm-surface);white-space:nowrap}
+@supports (corner-shape:squircle){.crm-co>.crmt-sb.crm-flt{corner-shape:squircle}}
+.crm-co.selecting>.crmt-sb.crm-flt{opacity:1;transform:translate(-50%,0);filter:none;pointer-events:auto}
+:root[data-theme="dark"] .crm-co>.crmt-sb.crm-flt{--crm-fbd:#c4314b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .crm-co>.crmt-sb.crm-flt{--crm-fbd:#c4314b}}
+.crm-flt .crmt-sp{display:none}
+.crm-flt .crmt-n{display:inline-flex;align-items:center;height:24px;padding:0 var(--dm-s-3) 0 var(--dm-s-1);margin-right:var(--dm-s-1);border-right:1px solid color-mix(in srgb,var(--dm-surface) 20%,transparent);font-size:13px;color:var(--dm-surface);white-space:nowrap}
 .crm-flt .pill{height:32px;padding:0 var(--dm-s-3);gap:6px;background:transparent;color:var(--dm-surface);box-shadow:none;white-space:nowrap}
 .crm-flt .pill .i{display:inline-block}
 @media (hover:hover) and (pointer:fine){.crm-flt .pill:hover{background:color-mix(in srgb,var(--dm-surface) 12%,transparent);color:var(--dm-surface)}}
-.crm-flt .pill.ttx-del{color:var(--crm-fbd);margin-left:var(--dm-s-1);position:relative}
-.crm-flt .pill.ttx-del::before{content:"";position:absolute;left:calc(-1 * var(--dm-s-1) - 1px);top:6px;bottom:6px;border-left:1px solid color-mix(in srgb,var(--dm-surface) 20%,transparent)}
-@media (hover:hover) and (pointer:fine){.crm-flt .pill.ttx-del:hover{background:color-mix(in srgb,var(--crm-fbd) 16%,transparent);color:var(--crm-fbd)}}
+.crm-flt .pill.crmt-del{color:var(--crm-fbd);margin-left:var(--dm-s-1);position:relative}
+.crm-flt .pill.crmt-del::before{content:"";position:absolute;left:calc(-1 * var(--dm-s-1) - 1px);top:6px;bottom:6px;border-left:1px solid color-mix(in srgb,var(--dm-surface) 20%,transparent)}
+@media (hover:hover) and (pointer:fine){.crm-flt .pill.crmt-del:hover{background:color-mix(in srgb,var(--crm-fbd) 16%,transparent);color:var(--crm-fbd)}}
 .crm-flt .crm-fx{width:32px;padding:0;justify-content:center;color:color-mix(in srgb,var(--dm-surface) 70%,transparent)}
 .crm-flt :focus-visible{outline:2px solid color-mix(in srgb,var(--dm-surface) 45%,transparent);outline-offset:-2px}
-:root:not([data-style="soft"],[data-style="clean"]) .crm-co>.ttx-sb.crm-flt,:root:not([data-style="soft"],[data-style="clean"]) .crm-flt .pill{border-radius:0;corner-shape:round}
-@media (max-width:640px){.crm-co>.ttx-sb.crm-flt{inset:auto auto var(--dm-s-4) 50%;max-width:calc(100% - var(--dm-s-6))}.crm-co>.ttx-sb.crm-flt .pill.sm{font-size:0;gap:0;width:36px;padding:0;justify-content:center}.crm-co>.ttx-sb.crm-flt .pill .i{display:inline-block}}
-@media (prefers-reduced-motion:reduce){.crm-co>.ttx-sb.crm-flt{transition:opacity .2s}}
+:root:not([data-style="soft"],[data-style="clean"]) .crm-co>.crmt-sb.crm-flt,:root:not([data-style="soft"],[data-style="clean"]) .crm-flt .pill{border-radius:0;corner-shape:round}
+@media (max-width:640px){.crm-co>.crmt-sb.crm-flt{inset:auto auto var(--dm-s-4) 50%;max-width:calc(100% - var(--dm-s-6))}.crm-co>.crmt-sb.crm-flt .pill.sm{font-size:0;gap:0;width:36px;padding:0;justify-content:center}.crm-co>.crmt-sb.crm-flt .pill .i{display:inline-block}}
+@media (prefers-reduced-motion:reduce){.crm-co>.crmt-sb.crm-flt{transition:opacity .2s}}
+
+/* ========== elevation pass (19 Nov: "quite busy... very rigid... a bit more modern and visually stunning") ==========
+   Fewer things on each screen, more room around them, one strong title per view and quiet metadata. Colour stays for what
+   it means: the stage labels, the people, the health marks, the agent and the charts. */
+
+/* ---------- the view's title: the screen's page title (20px, as the site's page titles), its metadata quiet beside it ---------- */
+.crm-h1{font-size:20px;line-height:1.3;letter-spacing:-.02em}
+.crm-ttl{gap:var(--dm-s-3)}
+.crm-sum{font-size:12.5px}
+.crm-sum:has(.lg:empty){display:none}
+@media (max-width:760px){.crm-h1{font-size:18px}}
+
+/* ---------- Accounts: the views as quiet tabs over the table (owner, 19 Nov: "this is a crm page not some dashboard") ----------
+   Words on the page with a count beside them, the one in use in the text colour with a 2px rule under it on the row's hairline;
+   the agent's tab carries its mark in the accent. No boxes and no big numbers */
+.crm-vt{flex:none;display:flex;align-items:stretch;gap:var(--dm-s-6);height:44px;padding:0 var(--dm-s-5);border-bottom:1px solid var(--crm-hair);overflow-x:auto;scrollbar-width:none}
+.crm-vt::-webkit-scrollbar{display:none}
+.crm-vt button{position:relative;flex:none;display:inline-flex;align-items:center;gap:6px;padding:0;border:0;background:none;font:inherit;font-size:13px;color:var(--dm-muted);white-space:nowrap;cursor:pointer;transition:color var(--dm-t-fast) var(--dm-ease)}
+.crm-vt button::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;border-radius:2px 2px 0 0;background:var(--dm-fg);opacity:0;transform:scaleX(.6);transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease)}
+.crm-vt button[aria-pressed="true"]{color:var(--dm-fg)}
+.crm-vt button[aria-pressed="true"]::after{opacity:1;transform:none}
+@media (hover:hover) and (pointer:fine){.crm-vt button:hover{color:var(--dm-fg)}}
+.crm-vt .n{font-size:12px;color:var(--dm-muted)}
+.crm-vt .i{color:var(--dm-accent-fg,var(--dm-accent))}
+:root:not([data-style="soft"],[data-style="clean"]) .crm-vt button::after{border-radius:0}
+@media (prefers-reduced-motion:reduce){.crm-vt button::after{transition:none}}
+/* on Accounts the tabs sit straight under the title, so the header needs no line of its own */
+.crm[data-view="accounts"] .crm-top{border-bottom-color:transparent}
+@media (max-width:1023px){.crm-vt{padding-left:var(--dm-s-4);padding-right:var(--dm-s-4);gap:var(--dm-s-5)}}
+/* the account panel's suggestion: whose it is over why */
+.crm-sagt{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.crm-sagt b{font-size:12px;font-weight:500;color:var(--dm-fg)}
+/* the table fits the landing page's 1280px frame without scrolling sideways: the foot's waiting "Add calculation" labels no
+   longer widen their columns (they cut short instead) */
+@media (min-width:761px){.crm-t.crmt-t{min-width:980px}}
+.crm-t .crm-tfb{width:0;min-width:100%}
+@media (min-width:761px){.crm-t .crm-hc{padding-right:var(--dm-s-4)}.crm-t tr>:last-child{padding-left:0}}
+/* Blueprint dark: the table sits on the view's own colour, so its sticky header, foot and account column take that colour
+   too, not a lighter band */
+:root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .crm-t{--dm-surface:var(--dm-stage)}
+@media (prefers-color-scheme:dark){:root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .crm-t{--dm-surface:var(--dm-stage)}}
+
+/* ---------- Accounts: a calmer table ---------- */
+/* no lines between the columns: rows are set apart by their hairlines and room (the column handles show on the header's hover) */
+.crm-t :is(th,td):is(:nth-child(2),:nth-child(3),:nth-child(4),:nth-child(5),:nth-child(6),:nth-child(7)){box-shadow:none}
+.crm-t tfoot td,.crm-t tfoot td:is(:nth-child(2),:nth-child(3),:nth-child(4),:nth-child(5),:nth-child(6),:nth-child(7)){box-shadow:inset 0 1px 0 var(--crm-hair)}
+@media (hover:hover) and (pointer:fine){.crm-t thead:hover .crm-rz::after{background:var(--crm-hair)}}
+/* taller rows and wider cells */
+.crm-t td{height:60px}
+.crm-t th{height:40px}
+.crm-t thead th:nth-child(2),.crm-t tbody td:nth-child(2){padding-left:var(--dm-s-1);padding-right:var(--dm-s-4)}
+/* the account: a larger tile and a name that leads */
+.crm-co .nm{gap:var(--dm-s-3)}
+.crm-co .crm-t .nm .pfm-lg.sm{width:28px;height:28px;font-size:12px;border-radius:calc(8px * var(--dm-rk))}
+.crm-co .nm .tx{gap:1px}
+/* an account's tile: its initial on its own vivid colour wherever the account shows (Soft and Blueprint); Clean keeps its
+   monochrome marks */
+:root:not([data-style="clean"]) .crm .pfm-lg.crm-at{background:var(--crm-ac);color:var(--crm-ai);font-weight:500;box-shadow:none}
+/* the stage chips a step stronger: the label's colour at 16% over the surface, its words in the label's text colour */
+:root .crm .crmt-st.crm-sg[data-h="t"]{background:color-mix(in srgb,var(--dm-pt) 16%,var(--dm-surface))}
+:root .crm .crmt-st.crm-sg[data-h="l"]{background:color-mix(in srgb,var(--dm-pl) 16%,var(--dm-surface))}
+:root .crm .crmt-st.crm-sg[data-h="p"]{background:color-mix(in srgb,var(--dm-pp) 16%,var(--dm-surface))}
+:root .crm .crmt-st.crm-sg[data-h="b"]{background:color-mix(in srgb,var(--dm-pb) 16%,var(--dm-surface))}
+.crm-t .crmt-st{height:24px;padding:0 10px 0 8px}
+/* health: the ring a step larger in the table */
+.crm-t .crm-hs svg{width:22px;height:22px}
+.crm-t .crm-hs circle{stroke-width:3}
+/* the owner: the face and first name */
+.crm-t .ag{gap:var(--dm-s-2);color:var(--dm-fg)}
+.crm-t .ag .av{width:22px;height:22px}
+/* the row's menu waits for the pointer or the keyboard (always there on a touch screen) */
+.crm-t .crm-rm{opacity:0;transition:opacity var(--dm-t-fast) var(--dm-ease),background-color var(--dm-t-fast)}
+.crm-t tr:is(:focus-within,.open) .crm-rm,.crm-t .crm-rm[aria-expanded="true"]{opacity:1}
+@media (hover:hover) and (pointer:fine){.crm-t tr:hover .crm-rm{opacity:1}}
+@media (hover:none){.crm-t .crm-rm{opacity:1}}
+/* the toolbar: a quiet row of ghost buttons, the one filled button last */
+.crm-acts{gap:var(--dm-s-1)}
+.crm-acts .crm-ask{margin-right:var(--dm-s-2)}
+.crm-acts .crm-new{margin-left:var(--dm-s-2)}
+.crm-acts .pill.ghost .i{color:var(--dm-muted);transition:color var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.crm-acts .pill.ghost:hover .i{color:var(--dm-fg)}}
+.crm-acts .ib.crm-export{width:28px;height:28px;color:var(--dm-fg2)}
+.crm-ftr.on{background:var(--dm-chip);color:var(--dm-fg)}
+@media (max-width:520px){.crm-acts .ib.crm-export{width:32px;height:32px}.crm-acts .crm-new{margin-left:0}.crm-acts .crm-ask{margin-right:0}}
+
+/* ---------- Pipeline: three-line cards on a calmer board ---------- */
+.crm-kb:not(.list) .kbx-k.crm-kc{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;column-gap:var(--dm-s-2);row-gap:2px;padding:14px 14px 12px}
+.crm-kc>.t{grid-column:1;grid-row:1;font-weight:500;line-height:20px}
+.crm-kc>.kbx-k1{grid-column:2;grid-row:1;height:20px}
+.crm-kc>.crm-kco{grid-column:1/-1;display:flex;align-items:center;gap:6px;min-width:0;height:20px;font-size:12px;color:var(--dm-fg2)}
+.crm-kco .pfm-lg.xs{flex:none;width:16px;height:16px;font-size:9px}
+.crm-kco .crm-kan{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crm-kc>.kbx-m{grid-column:1/-1;flex-wrap:nowrap;margin-top:var(--dm-s-3);gap:var(--dm-s-2)}
+.crm-kc>.kbx-m .tag{flex:none;height:20px}
+.crm-kc>.kbx-m .kbx-mt{min-width:0}
+.crm-kc>.kbx-m .kbx-mt.v{flex:none;font-size:13px}
+.crm-kc>.crm-why{grid-column:1/-1;margin-top:var(--dm-s-1)}
+.crm-kb.kbx{padding-top:var(--dm-s-4)}
+.crm-kb .kbx-cols{gap:var(--dm-s-3)}
+.crm-kb .kbx-list{gap:var(--dm-s-2)}
+.crm-kb .crm-kftr.on{background:var(--dm-chip);color:var(--dm-fg)}
+.crm-kb :is(.crm-kftr,.crm-ksort) .i{color:var(--dm-muted)}
+/* dark mode: on a card's raised surface the High and Low tags' words are lifted a step, so they keep APCA Lc 60 at 11px */
+:root[data-theme="dark"] .crm-kc .tag.p{color:color-mix(in srgb,var(--dm-pp) 80%,#fff)}
+:root[data-theme="dark"] .crm-kc .tag.b{color:color-mix(in srgb,var(--dm-pb) 80%,#fff)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .crm-kc .tag.p{color:color-mix(in srgb,var(--dm-pp) 80%,#fff)}:root:not([data-theme="light"]) .crm-kc .tag.b{color:color-mix(in srgb,var(--dm-pb) 80%,#fff)}}
+
+/* ---------- Agent inbox: the agent's mark on the list, rows that breathe, their buttons waiting for the pointer ---------- */
+.crm-aib .aib-h{gap:12px;padding:var(--dm-s-3) 10px var(--dm-s-2)}
+.crm-aibh.aib-hi{background:var(--dm-sel);color:var(--dm-accent-fg,var(--dm-accent))}
+:root:not([data-style="soft"],[data-style="clean"]) .crm-aibh.aib-hi,:root[data-style="clean"] .crm-aibh.aib-hi{background:var(--dm-chip);color:var(--dm-fg)}
+.crm-aib .aib-i{gap:12px;padding:10px 6px 10px 10px}
+.crm-aib .aib-gh{padding-top:var(--dm-s-4)}
+/* a row's Dismiss, Edit and Approve show on its hover, while it is the one in the preview, or from the keyboard; always on a
+   touch screen. They keep their room, so nothing moves when they appear */
+.crm-aib .aib-r .ib{opacity:0;transition:opacity var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast)}
+.crm-aib .aib-i:is(.on,:focus-within) .aib-r .ib{opacity:1}
+@media (hover:hover) and (pointer:fine){.crm-aib .aib-i:hover .aib-r .ib{opacity:1}}
+@media (hover:none){.crm-aib .aib-r .ib{opacity:1}}
+
+/* ---------- a customer's people: their initials on a vivid fill with white letters (Soft and Blueprint); Clean keeps its
+   monochrome marks ---------- */
+.crm .av.crm-avn{background:var(--crm-avc,var(--dm-chip));color:var(--crm-avi,var(--dm-fg2));box-shadow:none;font-weight:500}
+:root[data-style="clean"] .crm .av.crm-avn{background:var(--dm-chip);color:var(--dm-fg2);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
+
+/* ---------- Reports: the heatmap fills its card, with no gap above it ---------- */
+.crm-rp .crm-hm .hmx-wrap{flex:1 1 auto;display:flex;flex-direction:column;margin-top:var(--dm-s-2)}
+.crm-rp .crm-hm .hmx-sc{flex:1 1 auto;grid-template-rows:minmax(var(--crm-ph),1fr) auto}
+.crm-rp .crm-hm :is(.hmx-grid,.hmx-days){height:auto}
+/* no monospace in the interface: Quota attainment's ranks are the sans with even figures */
+.crm .tpx-r .rk{font-family:inherit;font-variant-numeric:tabular-nums}
