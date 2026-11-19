@@ -77,6 +77,8 @@ own source keeps the short names.
   count changes or a component on it changes its look.
 - The landing page's wall: `PW=$(npm root -g)/playwright node wall.mjs [names]` from `tools/pages` (needs ffmpeg), after a
   component's look changes or one is added.
+- The landing page's bento heights (`tools/pages/data/bento-heights.json`): `PW=$(npm root -g)/playwright node bento.mjs`
+  from `tools/pages`, after a component in the bento changes its look or its demo, then build again.
 - Sounds: `python3 make-sounds.py` from `tools/site` (needs ffmpeg and numpy).
 - Carousel and Image generation photos (Pexels): `python3 art/get-photos.py` from the root (needs Pillow with WebP).
 
