@@ -240,8 +240,12 @@ export function ToastStack({ toasts, onDismiss, expanded, max = 6, className }: 
   type Leaving = { toast: StackToast; style: CSSProperties; at: number };
   const [prev, setPrev] = useState({ ids, live, fan, hs });
   const [leaving, setLeaving] = useState<Leaving[]>([]);
+  // the toasts a new one covers lose their words at once (Clean shows them through no blur), until the stack fans out
+  const [under, setUnder] = useState<Set<StackToast['id']>>(() => new Set());
+  if (fan && under.size) setUnder(new Set());
   if (prev.ids !== ids) {
-    const now = new Set(live.map(t => t.id)), n = prev.live.length;
+    const now = new Set(live.map(t => t.id)), n = prev.live.length, was = new Set(prev.live.map(t => t.id));
+    if (!fan && live.some(t => !was.has(t.id))) setUnder(new Set(prev.live.map(t => t.id)));
     const gone = prev.live.flatMap((t, at): Leaving[] => {
       if (now.has(t.id) || leaving.some(l => l.toast.id === t.id)) return [];
       const was = place(n - 1 - at, prev.fan, prev.hs);
@@ -265,7 +269,7 @@ export function ToastStack({ toasts, onDismiss, expanded, max = 6, className }: 
   const card = (t: StackToast, style: CSSProperties, gone = false) => {
     const [fg, bg] = TONE[t.tone ?? 'neutral'];
     return (
-      <div key={t.id} className="dm-tsk-c" style={style} inert={gone || (fan ? front.indexOf(t) > 3 : front.indexOf(t) > 0)} ref={el => { if (gone) return; if (el) els.current.set(t.id, el); else els.current.delete(t.id); }}>
+      <div key={t.id} className={cx('dm-tsk-c', !gone && under.has(t.id) && front.indexOf(t) > 0 && 'dm-tsk-under')} style={style} inert={gone || (fan ? front.indexOf(t) > 3 : front.indexOf(t) > 0)} ref={el => { if (gone) return; if (el) els.current.set(t.id, el); else els.current.delete(t.id); }}>
         <span className="dm-g" data-tone={t.tone ?? 'neutral'} style={{ color: `var(${fg})`, background: `var(${bg})` }}><Icon name={t.icon} /></span>
         <div className="dm-tx"><b>{t.title}</b>{t.detail && <span>{t.detail}</span>}</div>
         {t.time && <span className="dm-t">{t.time}</span>}

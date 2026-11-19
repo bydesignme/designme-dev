@@ -457,13 +457,15 @@ DM.def('toast-stack', (r, c) => {
     items.slice().reverse().forEach((it, i) => {
       if (fan){ it.style.transform = `translateY(${-y}px)`; it.style.opacity = i > 3 ? 0 : 1; it.style.filter = 'none'; if (i < 3) y += hs[items.length - 1 - i] + 8; }
       else { const k = Math.min(i, 3); it.style.transform = `translateY(${-k * 10}px) scale(${1 - k * .05})`; it.style.opacity = i > 2 ? 0 : 1 - k * .15; it.style.filter = i ? 'blur(.3px)' : 'none'; }
-      it.style.zIndex = 100 - i; it.inert = fan ? i > 3 : i > 0;
+      it.style.zIndex = 100 - i; it.inert = fan ? i > 3 : i > 0; if (fan || !i) it.classList.remove('tsk-under');
     });
   }
   function add(){
     const p = pool[n++ % pool.length];
     const el = html(`<div class="tsk-c"><span class="g" data-tone="${p[5]}" style="color:${p[1]};background:${p[2]}">${I(p[0])}</span><div class="tx"><b>${p[3]}</b><span>${p[4]}</span></div><span class="t">now</span><button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div>`);
     el.style.transform = 'translateY(24px) scale(.96)'; el.style.opacity = 0; el.style.filter = 'blur(6px)';
+    // the toasts it covers lose their words at once (Clean shows them through no blur): .tsk-under, until the stack fans out
+    items.forEach(it => it.classList.add('tsk-under'));
     stack.appendChild(el); items.push(el);
     $('.ib', el).onclick = () => { items = items.filter(x => x !== el); el.style.opacity = 0; el.style.transform += ' translateX(30px)'; setTimeout(() => el.remove(), 400); layout(); };
     if (items.length > 6){ const old = items.shift(); old.remove(); }

@@ -193,6 +193,9 @@
    the icon alone; every other notification (a PR, synced frames, a draft) is grey, never a hue of its own. With no blur to
    hide it, a new toast turns opaque at once as it rises, so the words of the one it covers never show through */
 :root[data-style="clean"] .tsk-stack,:root [data-style="clean"] .tsk-stack,:root [data-style="clean"].tsk-stack{transition:height var(--dm-t) var(--dm-ease)}
+/* a toast covered by a new one loses its words at once, not after the half second a stack folding back keeps them for, so
+   they never show through the new toast as it fades in */
+:root[data-style="clean"] .tsk-c.tsk-under>*,:root [data-style="clean"] .tsk-c.tsk-under>*,:root [data-style="clean"].tsk-c.tsk-under>*{visibility:hidden;transition:none}
 :root[data-style="clean"] .tsk-c,:root [data-style="clean"] .tsk-c,:root [data-style="clean"].tsk-c{gap:12px;padding:16px;border-radius:calc(12px * var(--dm-rk-l,var(--dm-rk)));filter:none!important;transition:transform var(--dm-t) var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease)}
 :root[data-style="clean"] .tsk-c .g,:root [data-style="clean"] .tsk-c .g,:root [data-style="clean"].tsk-c .g{width:20px;height:20px;margin-top:calc(8.775px - 10px);background:none!important;color:var(--dm-fg2)!important}
 :root[data-style="clean"] .tsk-c .g .i,:root [data-style="clean"] .tsk-c .g .i,:root [data-style="clean"].tsk-c .g .i{width:20px;height:20px}
@@ -311,7 +314,7 @@ export default function ToastStackDemo() {
 import ToastStack from &#39;../components/designme/toast-stack/ToastStack.astro&#39;;
 ---
 &lt;ToastStack /&gt;
-&lt;ToastStack data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything ToastStack takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>toasts</code><span class="opt">required</span></td><td><code>StackToast[]</code></td><td>Oldest first. The last one sits in front</td></tr><tr><td><code>onDismiss</code></td><td><code>(id: StackToast[&#39;id&#39;]) =&gt; void</code></td><td>Called when a toast&#39;s close button is pressed. Remove it from `toasts` and it slides away</td></tr><tr><td><code>expanded</code></td><td><code>boolean</code></td><td>Fans the stack out. Leave it out to fan it while the pointer is over it</td></tr><tr><td><code>max</code></td><td><code>number</code></td><td>How many toasts stay mounted. Older ones drop off the back</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>ToastStack.tsx<span class="l">React · 139 lines</span></summary><pre class="cp-pre" data-name="ToastStack.tsx"><code>&#39;use client&#39;;
+&lt;ToastStack data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything ToastStack takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>toasts</code><span class="opt">required</span></td><td><code>StackToast[]</code></td><td>Oldest first. The last one sits in front</td></tr><tr><td><code>onDismiss</code></td><td><code>(id: StackToast[&#39;id&#39;]) =&gt; void</code></td><td>Called when a toast&#39;s close button is pressed. Remove it from `toasts` and it slides away</td></tr><tr><td><code>expanded</code></td><td><code>boolean</code></td><td>Fans the stack out. Leave it out to fan it while the pointer is over it</td></tr><tr><td><code>max</code></td><td><code>number</code></td><td>How many toasts stay mounted. Older ones drop off the back</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>ToastStack.tsx<span class="l">React · 143 lines</span></summary><pre class="cp-pre" data-name="ToastStack.tsx"><code>&#39;use client&#39;;
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useIsoLayoutEffect } from &#39;../lib/hooks&#39;;
@@ -405,8 +408,12 @@ export function ToastStack({ toasts, onDismiss, expanded, max = 6, className }: 
   type Leaving = { toast: StackToast; style: CSSProperties; at: number };
   const [prev, setPrev] = useState({ ids, live, fan, hs });
   const [leaving, setLeaving] = useState&lt;Leaving[]&gt;([]);
+  // the toasts a new one covers lose their words at once (Clean shows them through no blur), until the stack fans out
+  const [under, setUnder] = useState&lt;Set&lt;StackToast[&#39;id&#39;]&gt;&gt;(() =&gt; new Set());
+  if (fan &amp;&amp; under.size) setUnder(new Set());
   if (prev.ids !== ids) {
-    const now = new Set(live.map(t =&gt; t.id)), n = prev.live.length;
+    const now = new Set(live.map(t =&gt; t.id)), n = prev.live.length, was = new Set(prev.live.map(t =&gt; t.id));
+    if (!fan &amp;&amp; live.some(t =&gt; !was.has(t.id))) setUnder(new Set(prev.live.map(t =&gt; t.id)));
     const gone = prev.live.flatMap((t, at): Leaving[] =&gt; {
       if (now.has(t.id) || leaving.some(l =&gt; l.toast.id === t.id)) return [];
       const was = place(n - 1 - at, prev.fan, prev.hs);
@@ -430,7 +437,7 @@ export function ToastStack({ toasts, onDismiss, expanded, max = 6, className }: 
   const card = (t: StackToast, style: CSSProperties, gone = false) =&gt; {
     const [fg, bg] = TONE[t.tone ?? &#39;neutral&#39;];
     return (
-      &lt;div key={t.id} className=&quot;dm-tsk-c&quot; style={style} inert={gone || (fan ? front.indexOf(t) &gt; 3 : front.indexOf(t) &gt; 0)} ref={el =&gt; { if (gone) return; if (el) els.current.set(t.id, el); else els.current.delete(t.id); }}&gt;
+      &lt;div key={t.id} className={cx(&#39;dm-tsk-c&#39;, !gone &amp;&amp; under.has(t.id) &amp;&amp; front.indexOf(t) &gt; 0 &amp;&amp; &#39;dm-tsk-under&#39;)} style={style} inert={gone || (fan ? front.indexOf(t) &gt; 3 : front.indexOf(t) &gt; 0)} ref={el =&gt; { if (gone) return; if (el) els.current.set(t.id, el); else els.current.delete(t.id); }}&gt;
         &lt;span className=&quot;dm-g&quot; data-tone={t.tone ?? &#39;neutral&#39;} style={{ color: `var(${fg})`, background: `var(${bg})` }}&gt;&lt;Icon name={t.icon} /&gt;&lt;/span&gt;
         &lt;div className=&quot;dm-tx&quot;&gt;&lt;b&gt;{t.title}&lt;/b&gt;{t.detail &amp;&amp; &lt;span&gt;{t.detail}&lt;/span&gt;}&lt;/div&gt;
         {t.time &amp;&amp; &lt;span className=&quot;dm-t&quot;&gt;{t.time}&lt;/span&gt;}
@@ -449,7 +456,7 @@ export function ToastStack({ toasts, onDismiss, expanded, max = 6, className }: 
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>toast-stack.css<span class="l">React · 40 lines</span></summary><pre class="cp-pre" data-name="toast-stack.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>toast-stack.css<span class="l">React · 43 lines</span></summary><pre class="cp-pre" data-name="toast-stack.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Toast stack ---------- */
 /* each toast is the same size as the one in Toast: width, padding, type and icons */
 /* the deck is as tall as the toasts in it (--dm-deckh, set as they arrive), growing with them, never keeping room for three
@@ -481,6 +488,9 @@ export function ToastStack({ toasts, onDismiss, expanded, max = 6, className }: 
    the icon alone; every other notification (a PR, synced frames, a draft) is grey, never a hue of its own. With no blur to
    hide it, a new toast turns opaque at once as it rises, so the words of the one it covers never show through */
 :root[data-style=&quot;clean&quot;] .dm-tsk-stack,:root [data-style=&quot;clean&quot;] .dm-tsk-stack,:root [data-style=&quot;clean&quot;].dm-tsk-stack{transition:height var(--dm-t) var(--dm-ease)}
+/* a toast covered by a new one loses its words at once, not after the half second a stack folding back keeps them for, so
+   they never show through the new toast as it fades in */
+:root[data-style=&quot;clean&quot;] .dm-tsk-c.dm-tsk-under&gt;*,:root [data-style=&quot;clean&quot;] .dm-tsk-c.dm-tsk-under&gt;*,:root [data-style=&quot;clean&quot;].dm-tsk-c.dm-tsk-under&gt;*{visibility:hidden;transition:none}
 :root[data-style=&quot;clean&quot;] .dm-tsk-c,:root [data-style=&quot;clean&quot;] .dm-tsk-c,:root [data-style=&quot;clean&quot;].dm-tsk-c{gap:12px;padding:16px;border-radius:calc(12px * var(--dm-rk-l,var(--dm-rk)));filter:none!important;transition:transform var(--dm-t) var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease)}
 :root[data-style=&quot;clean&quot;] .dm-tsk-c .dm-g,:root [data-style=&quot;clean&quot;] .dm-tsk-c .dm-g,:root [data-style=&quot;clean&quot;].dm-tsk-c .dm-g{width:20px;height:20px;margin-top:calc(8.775px - 10px);background:none!important;color:var(--dm-fg2)!important}
 :root[data-style=&quot;clean&quot;] .dm-tsk-c .dm-g .dm-i,:root [data-style=&quot;clean&quot;] .dm-tsk-c .dm-g .dm-i,:root [data-style=&quot;clean&quot;].dm-tsk-c .dm-g .dm-i{width:20px;height:20px}
@@ -522,7 +532,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>toast-stack.css<span class="l">HTML · 39 lines</span></summary><pre class="cp-pre" data-name="toast-stack.css"><code>/* ---------- Toast stack ---------- */
+</code></pre></details><details class="cp-file"><summary>toast-stack.css<span class="l">HTML · 42 lines</span></summary><pre class="cp-pre" data-name="toast-stack.css"><code>/* ---------- Toast stack ---------- */
 /* each toast is the same size as the one in Toast: width, padding, type and icons */
 /* the deck is as tall as the toasts in it (--dm-deckh, set as they arrive), growing with them, never keeping room for three
    (owner, 18 Nov: containers grow with their content in every style) */
@@ -553,6 +563,9 @@ const { class: className, ...rest } = Astro.props;
    the icon alone; every other notification (a PR, synced frames, a draft) is grey, never a hue of its own. With no blur to
    hide it, a new toast turns opaque at once as it rises, so the words of the one it covers never show through */
 :root[data-style=&quot;clean&quot;] .tsk-stack,:root [data-style=&quot;clean&quot;] .tsk-stack,:root [data-style=&quot;clean&quot;].tsk-stack{transition:height var(--dm-t) var(--dm-ease)}
+/* a toast covered by a new one loses its words at once, not after the half second a stack folding back keeps them for, so
+   they never show through the new toast as it fades in */
+:root[data-style=&quot;clean&quot;] .tsk-c.tsk-under&gt;*,:root [data-style=&quot;clean&quot;] .tsk-c.tsk-under&gt;*,:root [data-style=&quot;clean&quot;].tsk-c.tsk-under&gt;*{visibility:hidden;transition:none}
 :root[data-style=&quot;clean&quot;] .tsk-c,:root [data-style=&quot;clean&quot;] .tsk-c,:root [data-style=&quot;clean&quot;].tsk-c{gap:12px;padding:16px;border-radius:calc(12px * var(--dm-rk-l,var(--dm-rk)));filter:none!important;transition:transform var(--dm-t) var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease)}
 :root[data-style=&quot;clean&quot;] .tsk-c .g,:root [data-style=&quot;clean&quot;] .tsk-c .g,:root [data-style=&quot;clean&quot;].tsk-c .g{width:20px;height:20px;margin-top:calc(8.775px - 10px);background:none!important;color:var(--dm-fg2)!important}
 :root[data-style=&quot;clean&quot;] .tsk-c .g .i,:root [data-style=&quot;clean&quot;] .tsk-c .g .i,:root [data-style=&quot;clean&quot;].tsk-c .g .i{width:20px;height:20px}
@@ -560,7 +573,7 @@ const { class: className, ...rest } = Astro.props;
 :root[data-style=&quot;clean&quot;] .tsk-c .g[data-tone=&quot;warn&quot;],:root [data-style=&quot;clean&quot;] .tsk-c .g[data-tone=&quot;warn&quot;],:root [data-style=&quot;clean&quot;].tsk-c .g[data-tone=&quot;warn&quot;]{color:var(--dm-warn-mark)!important}
 :root[data-style=&quot;clean&quot;] .tsk-c .g[data-tone=&quot;bad&quot;],:root [data-style=&quot;clean&quot;] .tsk-c .g[data-tone=&quot;bad&quot;],:root [data-style=&quot;clean&quot;].tsk-c .g[data-tone=&quot;bad&quot;]{color:var(--dm-bad-mark)!important}
 :root[data-style=&quot;clean&quot;] .tsk-c .t,:root [data-style=&quot;clean&quot;] .tsk-c .t,:root [data-style=&quot;clean&quot;].tsk-c .t{font-variant-numeric:tabular-nums}
-</code></pre></details><details class="cp-file"><summary>toast-stack.js<span class="l">HTML · 47 lines</span></summary><pre class="cp-pre" data-name="toast-stack.js"><code>DM.def(&#39;toast-stack&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>toast-stack.js<span class="l">HTML · 49 lines</span></summary><pre class="cp-pre" data-name="toast-stack.js"><code>DM.def(&#39;toast-stack&#39;, (r, c) =&gt; {
   const stack = $(&#39;.tsk-stack&#39;, r);
   // each with its tone (data-tone): Clean colours only the status ones, ok and warn, and shows the rest grey
   const pool = [
@@ -582,13 +595,15 @@ const { class: className, ...rest } = Astro.props;
     items.slice().reverse().forEach((it, i) =&gt; {
       if (fan){ it.style.transform = `translateY(${-y}px)`; it.style.opacity = i &gt; 3 ? 0 : 1; it.style.filter = &#39;none&#39;; if (i &lt; 3) y += hs[items.length - 1 - i] + 8; }
       else { const k = Math.min(i, 3); it.style.transform = `translateY(${-k * 10}px) scale(${1 - k * .05})`; it.style.opacity = i &gt; 2 ? 0 : 1 - k * .15; it.style.filter = i ? &#39;blur(.3px)&#39; : &#39;none&#39;; }
-      it.style.zIndex = 100 - i; it.inert = fan ? i &gt; 3 : i &gt; 0;
+      it.style.zIndex = 100 - i; it.inert = fan ? i &gt; 3 : i &gt; 0; if (fan || !i) it.classList.remove(&#39;tsk-under&#39;);
     });
   }
   function add(){
     const p = pool[n++ % pool.length];
     const el = html(`&lt;div class=&quot;tsk-c&quot;&gt;&lt;span class=&quot;g&quot; data-tone=&quot;${p[5]}&quot; style=&quot;color:${p[1]};background:${p[2]}&quot;&gt;${I(p[0])}&lt;/span&gt;&lt;div class=&quot;tx&quot;&gt;&lt;b&gt;${p[3]}&lt;/b&gt;&lt;span&gt;${p[4]}&lt;/span&gt;&lt;/div&gt;&lt;span class=&quot;t&quot;&gt;now&lt;/span&gt;&lt;button class=&quot;ib&quot; aria-label=&quot;Dismiss&quot; data-tip=&quot;Dismiss&quot;&gt;${I(&#39;x&#39;)}&lt;/button&gt;&lt;/div&gt;`);
     el.style.transform = &#39;translateY(24px) scale(.96)&#39;; el.style.opacity = 0; el.style.filter = &#39;blur(6px)&#39;;
+    // the toasts it covers lose their words at once (Clean shows them through no blur): .tsk-under, until the stack fans out
+    items.forEach(it =&gt; it.classList.add(&#39;tsk-under&#39;));
     stack.appendChild(el); items.push(el);
     $(&#39;.ib&#39;, el).onclick = () =&gt; { items = items.filter(x =&gt; x !== el); el.style.opacity = 0; el.style.transform += &#39; translateX(30px)&#39;; setTimeout(() =&gt; el.remove(), 400); layout(); };
     if (items.length &gt; 6){ const old = items.shift(); old.remove(); }
@@ -964,13 +979,15 @@ const fitHits = window.dmFitHits || (() => {
     items.slice().reverse().forEach((it, i) => {
       if (fan){ it.style.transform = `translateY(${-y}px)`; it.style.opacity = i > 3 ? 0 : 1; it.style.filter = 'none'; if (i < 3) y += hs[items.length - 1 - i] + 8; }
       else { const k = Math.min(i, 3); it.style.transform = `translateY(${-k * 10}px) scale(${1 - k * .05})`; it.style.opacity = i > 2 ? 0 : 1 - k * .15; it.style.filter = i ? 'blur(.3px)' : 'none'; }
-      it.style.zIndex = 100 - i; it.inert = fan ? i > 3 : i > 0;
+      it.style.zIndex = 100 - i; it.inert = fan ? i > 3 : i > 0; if (fan || !i) it.classList.remove('tsk-under');
     });
   }
   function add(){
     const p = pool[n++ % pool.length];
     const el = html(`<div class="tsk-c"><span class="g" data-tone="${p[5]}" style="color:${p[1]};background:${p[2]}">${I(p[0])}</span><div class="tx"><b>${p[3]}</b><span>${p[4]}</span></div><span class="t">now</span><button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div>`);
     el.style.transform = 'translateY(24px) scale(.96)'; el.style.opacity = 0; el.style.filter = 'blur(6px)';
+    // the toasts it covers lose their words at once (Clean shows them through no blur): .tsk-under, until the stack fans out
+    items.forEach(it => it.classList.add('tsk-under'));
     stack.appendChild(el); items.push(el);
     $('.ib', el).onclick = () => { items = items.filter(x => x !== el); el.style.opacity = 0; el.style.transform += ' translateX(30px)'; setTimeout(() => el.remove(), 400); layout(); };
     if (items.length > 6){ const old = items.shift(); old.remove(); }
