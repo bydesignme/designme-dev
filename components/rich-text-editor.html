@@ -3265,7 +3265,9 @@ DM.def('rich-text-editor', (r, c) => {
 
      var v = dmFrame(box, { onUse: fn })   box: an element with a size of its own (the frame fills it, centred)
                                            fill: true lets a desktop page be as wide as a box wider than 1280px, so it
-                                           fills it (the landing page's templates); otherwise it stays 1280px, centred
+                                           fills it; a number is the least width the page is laid out at, scaled down
+                                           to fit a narrower box (the landing page's templates); otherwise it stays
+                                           1280px, centred
      v.show(src, device)                   'desktop' | 'tablet' | 'mobile'; a page already loaded is shown again, not reloaded
      v.device(device)                      changes the width of the page on show
      v.reload()                            loads the page on show again (the demos start over)
@@ -3295,7 +3297,7 @@ DM.def('rich-text-editor', (r, c) => {
     var use = function(){ if (used) return; used = true; if (opts.onUse) opts.onUse(); };
     function place(f){
       if (!f) return;
-      var bw = box.clientWidth, bh = box.clientHeight, w = dev === 'desktop' && opts.fill ? Math.max(W.desktop, bw) : W[dev], pad = PAD[dev];
+      var bw = box.clientWidth, bh = box.clientHeight, w = dev === 'desktop' && opts.fill ? Math.max(typeof opts.fill === 'number' ? opts.fill : W.desktop, bw) : W[dev], pad = PAD[dev];
       if (!bw || !bh) return;
       var k = Math.min(1, (bw - (dev === 'desktop' ? 0 : 32)) / w), h = Math.max(200, (bh - pad * 2) / k);
       for (var d in W) f.wrap.classList.toggle(d, d === dev);
