@@ -261,6 +261,16 @@ export function AnswerActionBar({
   const [asked, setAsked] = useState<Record<number, string>>({});
   const [copied, copyText] = useCopied();
   const [spin, setSpin] = useState(false);
+  // the status's tone changes with its words (Swap writes them 170ms on), so the words fading out keep their colour
+  const [tone, setTone] = useState(statusTone);
+  const said = useRef(status);
+  useEffect(() => {
+    const was = said.current; said.current = status;
+    if (reduce || statusTone === 'ok' || !was.trim() || was === status) { setTone(statusTone); return; }
+    const t = setTimeout(() => setTone(statusTone), 170);
+    return () => clearTimeout(t);
+  }, [status, statusTone, reduce]);
+  const shownTone = statusTone === 'ok' ? 'ok' : tone;
 
   // the words, with the changed phrase marked
   const text = v?.text ?? '';
@@ -364,7 +374,7 @@ export function AnswerActionBar({
           </div>
         </div>
       </Fold>
-      <p className={cx('dm-aab-st dm-muted', statusTone && 'dm-' + statusTone, !status && 'dm-off')} aria-live="polite">
+      <p className={cx('dm-aab-st dm-muted', shownTone && 'dm-' + shownTone, !status && 'dm-off')} aria-live="polite">
         {statusTone === 'ok' && status ? <><Icon name="ok" size="xs" /><span key={status} {...enter()}>{status}</span></> : <Swap className={streaming && status && statusTone !== 'warn' ? 'dm-shim' : undefined}>{status}</Swap>}
       </p>
       </div>

@@ -214,6 +214,21 @@ function Words({ text }: { text: string }) {
   return <>{w.map((x, i) => <span key={i} className="dm-w" style={{ animationDelay: `${i * 45}ms` }}>{x}{i < w.length - 1 ? ' ' : ''}</span>)}</>;
 }
 
+/** A step's result line while it runs, in amber while the step waits out a problem. The colour changes with the words
+    (Swap writes them 170ms on), so the words fading out keep theirs */
+function Result({ text, warn }: { text: string; warn: boolean }) {
+  const reduce = useReducedMotion();
+  const [tone, setTone] = useState(warn);
+  const said = useRef(text);
+  useEffect(() => {
+    const was = said.current; said.current = text;
+    if (reduce || !was.trim() || was === text) { setTone(warn); return; }
+    const t = setTimeout(() => setTone(warn), 170);
+    return () => clearTimeout(t);
+  }, [text, warn, reduce]);
+  return <Swap className={tone ? 'dm-warn' : undefined}>{text}</Swap>;
+}
+
 function Mark({ state }: { state: ThinkingStep['state'] }) {
   if (state === 'running') return <Spin />;
   // keyed so each new mark plays its entrance once
@@ -274,7 +289,7 @@ export function Thinking({ steps, running, seconds, title = 'Working on it', sum
                 <span className={cx('dm-res', s.result && 'dm-on')}>
                   {s.state === 'done' && s.result
                     ? <span key={'w' + s.result}>{s.resultTip ? <Tip label={s.resultTip}><span tabIndex={0} data-tip=""><Words text={s.result} /></span></Tip> : <Words text={s.result} />}</span>
-                    : <Swap>{s.result ?? ''}</Swap>}
+                    : <Result text={s.result ?? ''} warn={s.state === 'retry'} />}
                 </span>
               </div>
             </li>
