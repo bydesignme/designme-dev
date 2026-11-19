@@ -109,7 +109,7 @@ An orchestrator and its sub-agents, with cost rolled up per branch.
 
 **AgentInbox** · `agent-inbox/AgentInbox.tsx`  
 Every run that needs you, is running or is done, in one list.  
-`runs: { id, title, agent, color?, group: 'needs' | 'running' | 'done', detail?, failed?, why?, seconds?, ended? }[]` (running clocks count on from `seconds`), `onApprove(id)`, `onRetry(id)` (each adds its button), `title`, `status` (defaults to "2 need you", "2 running" once nothing needs you, or "All clear · 4 done today"). A group with no runs is hidden, and a run that changes group glides to its new place.
+`runs: { id, title, agent, color?, group: 'needs' | 'running' | 'done', detail?, failed?, why?, seconds?, ended? }[]` (running clocks count on from `seconds`), `onApprove(id)`, `onRetry(id)` (each adds its button), `title`. Each group shows its count, a group with no runs is hidden, and a run that changes group glides to its new place.
 
 **WebSearch** · `web-search/WebSearch.tsx`  
 The agent's searches as a trail, with the answer and its sources.  
@@ -117,7 +117,7 @@ The agent's searches as a trail, with the answer and its sources.
 
 **TraceView** · `trace-view/TraceView.tsx`  
 One agent run as a waterfall of spans, with latency and tokens.  
-`title`, `spans: { id, name, kind: 'agent' | 'llm' | 'tool' | 'retrieval', start, duration?, tokens?, input?, output?, children? }[]` (an agent span without `tokens` adds up the spans under it; guides join each span to its parent, and a key counts the spans of each kind), `time` (seconds into the run while it streams, marked by a playhead; leave out `duration` on a span still running and its bar glows as it grows), `axis` (seconds the axis covers), `slowAfter` (a tool call over it turns amber and is tagged slow; 2 by default), `status`, `selected` / `defaultSelected` / `onSelectedChange` (the span whose input, output, latency and tokens show under the waterfall). The arrow keys move between spans and Escape closes the details.
+`title` (the run's name, in the head with its total tokens and time), `spans: { id, name, kind: 'agent' | 'llm' | 'tool' | 'retrieval', start, duration?, tokens?, input?, output?, children? }[]` (the run's steps at the top level; an agent span without `tokens` adds up the spans under it; guides join each span to its parent, and a key counts the spans of each kind), `time` (seconds into the run while it streams, marked by a playhead; leave out `duration` on a span still running and its bar grows up to `time`), `axis` (seconds the axis covers), `slowAfter` (a tool call over it turns amber and is tagged slow; 2 by default), `status`, `selected` / `defaultSelected` / `onSelectedChange` (the span whose input, output, latency and tokens show under the waterfall). The arrow keys move between spans and Escape closes the details.
 
 **AgentRunTimeline** · `agent-run-timeline/AgentRunTimeline.tsx`  
 Every model and tool step of a run on one time axis.  

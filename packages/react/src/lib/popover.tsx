@@ -10,7 +10,9 @@ if (typeof window !== 'undefined') {
   addEventListener('keydown', e => { if (e.metaKey || e.ctrlKey || e.altKey) return; byKey = true; const a = document.activeElement as HTMLElement | null; if (a?.dataset && 'nofv' in a.dataset) delete a.dataset.nofv; }, true);
   addEventListener('pointerdown', () => { byKey = false; }, true);
 }
-const giveBack = (b: HTMLElement) => {
+/** Puts the focus on `b` with a ring only when the last thing was done from the keyboard: after a click or a tap it shows
+    none (designme.dev's rule), until a key that moves or acts is pressed */
+export const giveBack = (b: HTMLElement) => {
   b.focus({ preventScroll: true, focusVisible: byKey } as FocusOptions);
   if (!byKey) { b.dataset.nofv = ''; b.addEventListener('blur', () => { delete b.dataset.nofv; }, { once: true }); }
 };

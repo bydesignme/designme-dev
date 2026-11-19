@@ -4,10 +4,10 @@
    of its versions. Each plays its writing state, then opens, copies, downloads and switches versions the same way */
 /* the reader opens over the card's nearest positioned ancestor: on this page the stage, in an app its chat column */
 .dm-afx{--dm-afx-t2:var(--dm-muted)}
-/* the variants share one room, as tall as the tallest moment (the compact card with its versions open), so switching
-   never moves what is below and an open menu still sits centred */
-.dm-afx.dm-dm>.dm-afx-main{position:relative;min-height:452px;justify-content:center}
-@container (max-width:400px){.dm-afx.dm-dm>.dm-afx-main{min-height:474px}}
+/* the variants keep no room for their tallest moment (owner, 18 Nov): each sits centred in the stage, and stays where it
+   is as a version menu opens over it, down from its button or up when there is no room below (the visitor's clicks never
+   move it) */
+.dm-afx.dm-dm>.dm-afx-main{position:relative;justify-content:center}
 /* secondary text: the core's grey in light mode; in dark mode a lighter grey, because the core's reaches 4.5:1 there but
    not APCA Lc 60, which small text needs */
 :root[data-theme="dark"] .dm-afx{--dm-afx-t2:#c0c0c0}
@@ -47,19 +47,26 @@
 .dm-afx-card .dm-afx-open{transform:none!important}
 .dm-afx-card :is(.dm-afx-copy,.dm-afx-dl,.dm-afx-vb){position:relative;z-index:1}
 .dm-afx .dm-copied .dm-afx-lbl{color:var(--dm-fg)}
-/* the opened file: a reader over the stage, the stage fading back behind it */
-.dm-afx-sheet{position:absolute;inset:0;z-index:20;border-radius:inherit;overflow:hidden}
-.dm-afx-scrim{position:absolute;inset:0;background:color-mix(in srgb,var(--dm-stage) 78%,transparent)}
+/* a button that did its job swaps its icon for a tick in the vivid mark green for a moment, in place, at the same size */
+.dm-afx .dm-ib.dm-copied{color:var(--dm-ok-mark)!important}
+@media (hover:hover) and (pointer:fine){.dm-afx .dm-ib.dm-copied:hover{color:var(--dm-ok-mark)!important}}
+/* the opened file: a reader over the stage, the stage fading back behind it. Nothing clips it (owner, 18 Nov): its shadow
+   shows whole, and the fade reaches past the cards behind it so none of their shadows is sliced at its edge */
+.dm-afx-sheet{position:absolute;inset:0;z-index:20;border-radius:inherit}
+.dm-afx-scrim{position:absolute;inset:0 -40px -24px;background:color-mix(in srgb,var(--dm-stage) 78%,transparent)}
 .dm-afx-pan{position:absolute;display:flex;flex-direction:column;background:var(--dm-surface);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow-pop);overflow:hidden;outline:none}
-/* a view fills the stage; a page is narrower and grows out of the preview or sheet it came from */
-.dm-afx-pan.dm-afx-view{inset:0}
-.dm-afx-pan.dm-afx-page{inset:0;margin:auto;width:min(400px,100%);transform-origin:0 0}
-.dm-afx-ph{display:flex;align-items:center;gap:10px;padding:10px var(--dm-s-2) 10px 14px;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+/* the reader is as tall as the file (it scrolls past the room it has), centred in it; a view is as wide as the room, a
+   page narrower, growing out of the preview or sheet it came from */
+.dm-afx-pan.dm-afx-view{inset:0;margin:auto 0;height:fit-content;max-height:100%}
+.dm-afx-pan.dm-afx-page{inset:0;margin:auto;width:min(400px,100%);height:fit-content;max-height:100%;transform-origin:0 0}
+.dm-afx-ph{display:flex;align-items:center;gap:10px;padding:10px 9px 10px 16px;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+/* Close sits on the title's first line, its glyph on the content's right edge, 16px in */
+.dm-afx-ph .dm-afx-x{align-self:flex-start;margin-top:calc(10.5px - 15px)}
 .dm-afx-ph .dm-afx-ic{width:30px;height:30px;border-radius:var(--dm-r-sm)}
 .dm-afx-ptx{flex:1;min-width:0}
 .dm-afx-pt{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dm-afx-pm{font-size:12.5px;color:var(--dm-afx-t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dm-afx-pb{flex:1;min-height:0;overflow:auto;padding:14px 18px 18px;font-size:13.5px;line-height:1.6;outline:none}
+.dm-afx-pb{flex:1;min-height:0;overflow:auto;padding:14px 16px 18px;font-size:13.5px;line-height:1.6;outline:none}
 .dm-afx-pb:focus-visible{box-shadow:inset 0 0 0 2px var(--dm-focus)}
 .dm-afx-pb h3{margin:var(--dm-s-4) 0 var(--dm-s-1);font-size:12.5px;font-weight:500;color:var(--dm-afx-t2)}
 .dm-afx-pb p{margin:0}
@@ -70,16 +77,24 @@
 .dm-afx-tb :is(th,td){padding:7px var(--dm-s-2);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);text-align:left;font-weight:400}
 .dm-afx-tb thead th{font-size:12.5px;color:var(--dm-afx-t2);font-weight:500}
 .dm-afx-tb .dm-num{text-align:right}
+/* its words line up with the reader's title and end on the content's right edge, and its head row starts as close under the
+   divider as any first line of the file (owner, 19 Nov) */
+.dm-afx-tb :is(th,td):first-child{padding-left:0}
+.dm-afx-tb :is(th,td):last-child{padding-right:0}
+.dm-afx-tb thead th{padding-top:0}
 .dm-afx-tb tbody th{font-weight:500}
-.dm-afx-pf{display:flex;align-items:center;gap:6px;padding:10px 14px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.dm-afx-pf .dm-pill .dm-afx-lbl{min-width:58px;text-align:left}
+.dm-afx-pf{display:flex;align-items:center;gap:6px;padding:10px 16px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+/* Copy and Download are each as wide as their words: pressed, the tick and "Copied" come in and the width eases to fit, with
+   no room kept for the longer word */
+.dm-afx-pf .dm-pill{overflow:hidden;white-space:nowrap}
 .dm-afx-pf .dm-pill.dm-copied{color:var(--dm-fg)!important}
-.dm-afx-pf .dm-pill.dm-copied .dm-i{color:var(--dm-ok)}
+.dm-afx-pf .dm-pill.dm-copied .dm-i{color:var(--dm-ok-mark)}
 /* compact: an icon, the name, one line of meta and Open, dense enough to stack several in a thread */
 .dm-afx-cp{max-width:440px;display:flex;flex-direction:column;gap:14px}
 .dm-afx-cp-a{margin:0;font-size:14px;line-height:1.6;text-wrap:pretty}
 .dm-afx-cp-list{display:flex;flex-direction:column;gap:var(--dm-s-2)}
-.dm-afx-cp-card{display:flex;align-items:center;gap:var(--dm-s-3);padding:10px var(--dm-s-2) 10px 10px;border-radius:var(--dm-r-in);background:var(--dm-surface);box-shadow:var(--dm-shadow);transition:background var(--dm-t-fast),box-shadow var(--dm-t-fast);overflow:hidden}
+/* its content 16px from every edge: the mark on the left, Open ending on the right (owner, 18 Nov) */
+.dm-afx-cp-card{display:flex;align-items:center;gap:var(--dm-s-3);padding:16px;border-radius:var(--dm-r-in);background:var(--dm-surface);box-shadow:var(--dm-shadow);transition:background var(--dm-t-fast),box-shadow var(--dm-t-fast);overflow:hidden}
 @media (hover:hover) and (pointer:fine){.dm-afx-cp-card:not(.dm-is-writing):hover{background:var(--dm-wash)}}
 @media (hover:hover) and (pointer:fine){:root:not([data-style="soft"],[data-style="clean"]) .dm-afx-cp-card:not(.dm-is-writing):hover:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent)}}
 .dm-afx-cp-tx{flex:1;min-width:0}
@@ -92,7 +107,7 @@
 .dm-afx-cp-bar{position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--dm-accent-mark);transform-origin:left center;transform:scaleX(0);opacity:0;transition:transform .9s var(--dm-ease),opacity .3s var(--dm-ease)}
 .dm-is-writing .dm-afx-cp-bar{opacity:1}
 /* in a narrow column the meta drops the word "edited" before it truncates, and Open keeps only its icon */
-@container (max-width:400px){.dm-afx-ed{display:none}.dm-afx-fin{gap:var(--dm-s-1)}.dm-afx-card .dm-afx-ic{width:32px;height:32px;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)))}.dm-afx-card :is(.dm-afx-copy,.dm-afx-dl,.dm-ib.dm-afx-open){width:28px;height:28px}.dm-afx-cp-act,.dm-afx-pv-act{gap:0}.dm-afx-cp-card{padding-right:6px;gap:10px}.dm-afx-pv-meta{gap:10px;padding-right:6px}.dm-afx-pv-meta .dm-afx-ic{display:none}.dm-afx-cp-act .dm-pill .dm-afx-lbl{display:none}.dm-afx-cp-act .dm-pill{width:28px;height:28px;padding:0;margin-left:2px}}
+@container (max-width:400px){.dm-afx-ed{display:none}.dm-afx-fin{gap:var(--dm-s-1)}.dm-afx-card .dm-afx-ic{width:32px;height:32px;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)))}.dm-afx-card :is(.dm-afx-copy,.dm-afx-dl,.dm-ib.dm-afx-open){width:28px;height:28px}.dm-afx-cp-act,.dm-afx-pv-act{gap:0}.dm-afx-cp-card{gap:10px}.dm-afx-pv-meta{gap:10px;padding-right:10px}.dm-afx-pv-meta .dm-afx-ic{display:none}.dm-afx-cp-act .dm-pill .dm-afx-lbl{display:none}.dm-afx-cp-act .dm-pill{width:28px;height:28px;padding:0;margin-left:2px}}
 /* preview: the same card with the first page showing, so drafts are easy to tell apart */
 .dm-afx-pv{width:min(100%,380px)}
 .dm-afx-pv-card{border-radius:var(--dm-r-card);background:var(--dm-surface);box-shadow:var(--dm-shadow);transition:box-shadow var(--dm-t-fast)}
@@ -101,17 +116,15 @@
 .dm-afx-pv-prev{position:relative;height:164px;overflow:hidden;padding:18px 22px 0;border-radius:var(--dm-r-card) var(--dm-r-card) 0 0;background:var(--dm-stage);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .dm-afx-pv-page{height:100%;padding:14px var(--dm-s-4) 0;border-radius:var(--dm-r-sm) var(--dm-r-sm) 0 0;background:var(--dm-surface);box-shadow:var(--dm-shadow);transition:transform var(--dm-t) var(--dm-ease)}
 @media (hover:hover) and (pointer:fine){.dm-afx-pv-card:not(.dm-is-writing):hover .dm-afx-pv-page{transform:translateY(-3px)}}
-.dm-afx-pv-k{font-size:11px;line-height:16px;color:var(--dm-afx-t2)}
-.dm-afx-pv-k .dm-afx-wr,.dm-is-writing .dm-afx-pv-k .dm-afx-fin{display:none}
-.dm-is-writing .dm-afx-pv-k .dm-afx-wr{display:inline}
-.dm-afx-pv-h{margin-top:2px;font-size:13px;font-weight:500;line-height:18px}
-.dm-afx-pv-p{margin:6px 0 0;min-height:54px;font-size:11.5px;line-height:18px;color:var(--dm-fg);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+/* the page shows the file's first words, not its name and version again: those are on the meta line under it (owner, 18 Nov) */
+.dm-afx-pv-p{margin:0;min-height:54px;font-size:11.5px;line-height:18px;color:var(--dm-fg);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .dm-afx-caret{display:inline-block;width:1.5px;height:12px;margin-left:1px;vertical-align:-2px;background:var(--dm-accent-mark);animation:dm-bpblink 1s steps(1,end) infinite}
 /* the drawn lines stand for the rest of the page: decoration, kept faint */
 .dm-afx-pv-ls{display:flex;flex-direction:column;gap:var(--dm-s-2);margin-top:10px;-webkit-mask-image:linear-gradient(#000 0,transparent 44px);mask-image:linear-gradient(#000 0,transparent 44px)}
 .dm-afx-pv-ls i{display:block;height:4px;border-radius:var(--dm-r-tiny,2px);width:var(--dm-w);background:color-mix(in srgb,var(--dm-fg) 8%,var(--dm-surface));transform-origin:left center;transition:width var(--dm-t) var(--dm-ease)}
 .dm-is-writing .dm-afx-pv-ls i{transform:scaleX(0)}
-.dm-afx-pv-meta{display:flex;align-items:center;gap:var(--dm-s-3);padding:var(--dm-s-3) var(--dm-s-2) var(--dm-s-3) 14px}
+/* the name 16px in, and the last action's glyph 16px from the right edge */
+.dm-afx-pv-meta{display:flex;align-items:center;gap:var(--dm-s-3);padding:var(--dm-s-3) 9px var(--dm-s-3) 16px}
 .dm-afx-pv-tx{flex:1;min-width:0}
 .dm-afx-pv-t{font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dm-afx-pv-act{display:flex;align-items:center;gap:2px;flex:none;transition:opacity var(--dm-t) var(--dm-ease)}
@@ -162,9 +175,11 @@
 .dm-afx-st:not(.dm-fan) .dm-afx-sh[aria-checked="true"]{box-shadow:var(--dm-shadow-pop)}
 .dm-afx-st.dm-is-writing .dm-afx-sh{cursor:default}
 .dm-afx-pg{position:absolute;inset:0;display:flex;flex-direction:column;padding:var(--dm-s-3);border-radius:inherit;overflow:hidden}
-.dm-afx-st-k{display:flex;align-items:center;justify-content:space-between;font-size:11px;line-height:14px;color:var(--dm-afx-t2)}
-.dm-afx-st-h{min-height:32px;margin-top:var(--dm-s-1);font-size:12.5px;font-weight:500;line-height:16px;color:var(--dm-fg)}
-.dm-afx-st-ls{display:flex;flex-direction:column;gap:7px;margin-top:10px}
+/* a sheet is a drawn page, a heading bar and its lines: the name and version are said once, in the caption under the stack
+   (owner, 18 Nov) */
+.dm-afx-st-ls{display:flex;flex-direction:column;gap:7px}
+.dm-afx-r.dm-h{height:6px;margin-bottom:5px}
+.dm-afx-r.dm-h i{height:5px;background:color-mix(in srgb,var(--dm-fg) 45%,var(--dm-surface))}
 .dm-afx-r{position:relative;display:flex;align-items:center;gap:5px;height:4px}
 .dm-afx-r i{display:block;height:3px;border-radius:var(--dm-r-tiny,2px);width:var(--dm-w);background:var(--dm-ln);transform-origin:left center}
 .dm-afx-r b{flex:none;width:4px;height:4px;border-radius:50%;background:var(--dm-ln)}
@@ -172,7 +187,7 @@
 .dm-afx-gap{height:3px}
 .dm-afx-st .dm-blank .dm-afx-r :is(i,b){transform:scaleX(0)}
 .dm-afx-pen{position:absolute;left:0;top:0;width:7px;height:7px;border-radius:50%;background:var(--dm-accent-mark);box-shadow:0 0 0 3px var(--dm-surface);opacity:0;pointer-events:none}
-@container (max-width:360px){.dm-afx-st-ls{gap:6px;margin-top:var(--dm-s-2)}.dm-afx-st-ls>:nth-child(n+7){display:none}}
+@container (max-width:360px){.dm-afx-st-ls{gap:6px}.dm-afx-st-ls>:nth-child(n+7){display:none}}
 .dm-afx-tab{position:absolute;left:50%;top:calc(100% + 10px);display:inline-flex;align-items:center;gap:var(--dm-s-1);transform:translateX(-50%);white-space:nowrap;font-size:11.5px;color:var(--dm-afx-t2);opacity:0;transition:opacity var(--dm-t) var(--dm-ease)}
 .dm-afx-tab .dm-i{display:none;color:var(--dm-accent-fg,var(--dm-accent))}
 .dm-afx-st.dm-fan .dm-afx-tab{opacity:1}
@@ -184,6 +199,38 @@
 .dm-afx-st-t{font-size:14px;font-weight:500}
 .dm-afx-st-m{justify-content:center;max-width:100%}
 .dm-afx-note{padding-top:2px;font-size:12.5px;color:var(--dm-fg)}
-.dm-afx-st-act{display:flex;align-items:center;gap:var(--dm-s-1);transition:opacity var(--dm-t) var(--dm-ease)}
+/* the stack keeps no room for its buttons while the page is written: they unfold under the caption once it is done */
+.dm-afx-st-act{display:flex;align-items:center;gap:var(--dm-s-1);max-height:32px;transition:opacity var(--dm-t) var(--dm-ease),max-height var(--dm-t) var(--dm-ease),margin var(--dm-t) var(--dm-ease)}
 .dm-afx-st-act .dm-pill{gap:6px}
-.dm-afx-st.dm-is-writing .dm-afx-st-act{opacity:0;visibility:hidden}
+.dm-afx-st.dm-is-writing .dm-afx-st-act{opacity:0;visibility:hidden;max-height:0;margin-top:-18px}
+/* the desk keeps 12px over the sheets for them to peek into on hover; at rest the older ones show 3px of it, so the stack
+   starts 9px higher and what shows sits centred in the stage */
+.dm-afx-desk{margin-top:-9px}
+/* the words that sum the file up in a message come once it is written */
+.dm-afx-in-after{margin-top:-10px}
+.dm-afx-in-after p{padding-top:10px}
+/* the reader's title has no mark, so its words line up with the page's under it */
+.dm-afx-ph .dm-afx-ic{display:none}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink primary alone presses */
+.dm-afx :is(.dm-ib,.dm-pill,.dm-afx-vb):active,:root[data-style="clean"] .dm-afx .dm-ib:active,:root [data-style="clean"] .dm-afx .dm-ib:active,:root [data-style="clean"].dm-afx .dm-ib:active{transform:none}
+/* Clean (owner, 18 Nov): a file's mark is one neutral grey whatever its type (no hue per type). The compact card and the
+   preview card take the card's 22px round corners with their content 16px from every edge (a quiet icon button by its
+   glyph, a filled one by its edge); the preview's page sits on an off-white head. The reader's words start 16px in, under
+   its title, and Copy and Download sit in an off-white foot strip, 16px in from its sides. The stack's lines are all grey,
+   the pen alone in the accent while it writes */
+:root[data-style="clean"] .dm-afx-ic,:root [data-style="clean"] .dm-afx-ic,:root [data-style="clean"].dm-afx-ic{color:var(--dm-fg2);background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .dm-afx-in-ic,:root [data-style="clean"] .dm-afx-in-ic,:root [data-style="clean"].dm-afx-in-ic{color:var(--dm-fg2)}
+:root[data-style="clean"] .dm-afx-cp-card,:root [data-style="clean"] .dm-afx-cp-card,:root [data-style="clean"].dm-afx-cp-card{gap:12px;padding:14px 16px 13px;border-radius:var(--dm-r-card);transition:background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .dm-afx-cp-act .dm-pill,:root [data-style="clean"] .dm-afx-cp-act .dm-pill,:root [data-style="clean"].dm-afx-cp-act .dm-pill{margin-left:4px}
+:root[data-style="clean"] .dm-afx-pv-prev,:root [data-style="clean"] .dm-afx-pv-prev,:root [data-style="clean"].dm-afx-pv-prev{padding:16px 16px 0;background:var(--dm-strip);border-bottom:1px solid var(--dm-line)}
+/* pointing at the preview card fills it with the quietest grey (its page still lifts), rather than raising its shadow */
+:root[data-style="clean"] .dm-afx-pv-card,:root [data-style="clean"] .dm-afx-pv-card,:root [data-style="clean"].dm-afx-pv-card{transition:background-color var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-afx-pv-card:not(.dm-is-writing):hover,:root [data-style="clean"] .dm-afx-pv-card:not(.dm-is-writing):hover,:root [data-style="clean"].dm-afx-pv-card:not(.dm-is-writing):hover{background:var(--dm-wash);box-shadow:var(--dm-shadow)}}
+:root[data-style="clean"] .dm-afx-pv-meta,:root [data-style="clean"] .dm-afx-pv-meta,:root [data-style="clean"].dm-afx-pv-meta{gap:12px;padding:14px 9px 13px 16px}
+:root[data-style="clean"] .dm-afx-ph,:root [data-style="clean"] .dm-afx-ph,:root [data-style="clean"].dm-afx-ph{gap:12px;padding:16px 10px 16px 16px}
+/* the head is a strip: Close sits 8px from the card's top and right edges, a 28px circle in its 22px corner */
+:root[data-style="clean"] .dm-afx-ph .dm-afx-x,:root [data-style="clean"] .dm-afx-ph .dm-afx-x,:root [data-style="clean"].dm-afx-ph .dm-afx-x{width:28px;height:28px;margin:-8px -2px 0 0}
+:root[data-style="clean"] .dm-afx-pb,:root [data-style="clean"] .dm-afx-pb,:root [data-style="clean"].dm-afx-pb{padding:16px}
+:root[data-style="clean"] .dm-afx-pf,:root [data-style="clean"] .dm-afx-pf,:root [data-style="clean"].dm-afx-pf{gap:8px;padding:8px 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line)}
+:root[data-style="clean"] .dm-afx-r.dm-n b,:root [data-style="clean"] .dm-afx-r.dm-n b,:root [data-style="clean"].dm-afx-r.dm-n b{background:var(--dm-ln)}
+@container (max-width:400px){:root[data-style="clean"] .dm-afx-cp-card,:root [data-style="clean"] .dm-afx-cp-card,:root [data-style="clean"].dm-afx-cp-card{gap:10px}:root[data-style="clean"] .dm-afx-pv-meta,:root [data-style="clean"] .dm-afx-pv-meta,:root [data-style="clean"].dm-afx-pv-meta{gap:10px;padding-right:10px}}

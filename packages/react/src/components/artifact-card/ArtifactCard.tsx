@@ -4,7 +4,7 @@ import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
 import { Spin, Swap, Tip } from '../../lib/motion';
-import { usePopover } from '../../lib/popover';
+import { giveBack, usePopover } from '../../lib/popover';
 import '../../designme.css';
 import './artifact-card.css';
 
@@ -112,6 +112,17 @@ function Reader({ title, icon, meta, label, children, kind, src, opener, onCopy,
 }) {
   const pan = useRef<HTMLDivElement>(null), scrim = useRef<HTMLDivElement>(null), x = useRef<HTMLButtonElement>(null);
   const reduce = useReducedMotion(), closing = useRef(false);
+  // Copy and Download are each as wide as their words: when a word changes ("Copied", "Downloaded" and back) the button eases
+  // to its new width, with no room kept for the longer word
+  const foot = useRef<HTMLDivElement>(null), widths = useRef<number[]>([]);
+  useIsoLayoutEffect(() => {
+    const bs = [...(foot.current?.querySelectorAll<HTMLElement>('button') ?? [])];
+    bs.forEach((b, i) => {
+      const w1 = b.getBoundingClientRect().width, w0 = widths.current[i];
+      if (w0 && !reduce && Math.abs(w1 - w0) > .5) b.animate([{ width: w0 + 'px' }, { width: w1 + 'px' }], { duration: cssMs(b, '--dm-t'), easing: cssEase(b) });
+      widths.current[i] = w1;
+    });
+  }, [flashed]);
   const morph = (back: boolean) => {
     const p = pan.current!, a = src!.getBoundingClientRect(), b = p.getBoundingClientRect(), D = cssMs(p, '--dm-t', kind === 'page' ? 1.3 : 1.1);
     const f = { transform: `translate(${a.left - b.left}px,${a.top - b.top}px) scale(${a.width / b.width},${a.height / b.height})` };
@@ -120,7 +131,8 @@ function Reader({ title, icon, meta, label, children, kind, src, opener, onCopy,
   };
   useIsoLayoutEffect(() => {
     const p = pan.current; if (!p) return;
-    x.current?.focus({ preventScroll: true });
+    // Close takes the focus, with a ring only when the reader was opened from the keyboard (a click never leaves one)
+    if (x.current) giveBack(x.current);
     if (src) src.style.visibility = 'hidden';
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
       const D = cssMs(p, '--dm-t', kind === 'page' ? 1.3 : 1.1);
@@ -138,7 +150,7 @@ function Reader({ title, icon, meta, label, children, kind, src, opener, onCopy,
       scrim.current?.animate([{ opacity: 1 }, { opacity: 0 }], { duration: out, fill: 'forwards' });
       try { await (src ? morph(true) : p.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateY(16px)', opacity: 0 }], { duration: out, easing: cssEase(p), fill: 'forwards' }).finished); } catch { /* unmounted */ }
     }
-    onClosed(); opener?.focus({ preventScroll: true });
+    onClosed(); if (opener) giveBack(opener);
   };
   const keys = (e: KeyboardEvent) => {
     if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); void close(); return; }
@@ -157,7 +169,7 @@ function Reader({ title, icon, meta, label, children, kind, src, opener, onCopy,
           <Tip label="Close" kbd="Esc"><button type="button" className="dm-ib dm-afx-x" aria-label="Close" ref={x} onClick={() => void close()}><Icon name="x" /></button></Tip>
         </div>
         <div className="dm-afx-pb" tabIndex={0} role="region" aria-label={label}>{children}</div>
-        <div className="dm-afx-pf">
+        <div className="dm-afx-pf" ref={foot}>
           <button type="button" className={cx('dm-pill dm-sm dm-line dm-afx-copy', flashed === 'rcopy' && 'dm-copied')} onClick={onCopy}><Icon name={flashed === 'rcopy' ? 'check' : 'copy'} /><span className="dm-afx-lbl">{flashed === 'rcopy' ? 'Copied' : 'Copy'}</span></button>
           <button type="button" className={cx('dm-pill dm-sm dm-line dm-afx-dl', flashed === 'rdl' && 'dm-copied')} onClick={onDownload}><Icon name={flashed === 'rdl' ? 'check' : 'down'} /><span className="dm-afx-lbl">{flashed === 'rdl' ? 'Downloaded' : 'Download'}</span></button>
         </div>
@@ -166,11 +178,12 @@ function Reader({ title, icon, meta, label, children, kind, src, opener, onCopy,
   );
 }
 
-// the stack's drawn lines stand for each page's text: p a paragraph line, b a bullet, n a numbered fix, s a gap
+// the stack's drawn lines stand for each page's text: h its heading, p a paragraph line, b a bullet, n a numbered fix, s a
+// gap. The page is drawn, not written out: its name and version are said once, in the caption under the stack
 const LINES: [string, number?][][] = [
-  [['p', 94], ['p', 72], ['s'], ['b', 82], ['b', 74], ['b', 66], ['b', 78], ['s'], ['p', 88], ['p', 52]],
-  [['p', 92], ['p', 86], ['p', 56], ['s'], ['b', 80], ['b', 72], ['b', 86], ['b', 64], ['s'], ['p', 70]],
-  [['p', 90], ['p', 78], ['s'], ['n', 84], ['n', 70], ['n', 78], ['s'], ['b', 76], ['b', 68], ['b', 82]]
+  [['h', 62], ['p', 94], ['p', 72], ['s'], ['b', 82], ['b', 74], ['b', 66], ['b', 78], ['s'], ['p', 88], ['p', 52]],
+  [['h', 56], ['p', 92], ['p', 86], ['p', 56], ['s'], ['b', 80], ['b', 72], ['b', 86], ['b', 64], ['s'], ['p', 70]],
+  [['h', 66], ['p', 90], ['p', 78], ['s'], ['n', 84], ['n', 70], ['n', 78], ['s'], ['b', 76], ['b', 68], ['b', 82]]
 ];
 // the preview's lines, a little different for each version so drafts are easy to tell apart
 const WIDTHS = [[96, 88, 70, 82], [92, 84, 90, 64], [90, 78, 86, 72]];
@@ -213,7 +226,8 @@ export function ArtifactCard({
   };
 
   /* versions: a menu button with one radio item per version, newest first. Arrow keys move, Enter picks, Esc closes */
-  const menu = usePopover({ side: 'down' });
+  // the version menu opens over the card from its button, down when it fits and up when it doesn't; the card never moves
+  const menu = usePopover();
   const items = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!menu.open) return;
@@ -276,7 +290,6 @@ export function ArtifactCard({
   const desk = useRef<HTMLDivElement>(null);
   const [fanned, setFanned] = useState(false);
   const [peek, setPeek] = useState<number | null>(null);
-  const [typed, setTyped] = useState<number | null>(null);
   const topSheet = () => desk.current?.querySelector<HTMLElement>(`[data-i="${i}"]`) ?? null;
   const fanBtn = useRef<HTMLButtonElement>(null);
   const fan = (on: boolean, focus = false) => {
@@ -288,7 +301,7 @@ export function ArtifactCard({
     const down = (e: PointerEvent) => { const t = e.target as Node; if (!desk.current?.contains(t) && !fanBtn.current?.contains(t)) fan(false); };
     document.addEventListener('pointerdown', down); return () => document.removeEventListener('pointerdown', down);
   }, [fanned]); // eslint-disable-line react-hooks/exhaustive-deps
-  // writing: a blank sheet drops onto the stack, the title is typed, and a pen draws each line of the new page
+  // writing: a blank sheet drops onto the stack, and a pen draws its heading and each line of the new page
   useEffect(() => {
     if (variant !== 'stack' || !writing) return;
     const sh = desk.current?.querySelector<HTMLElement>(`[data-i="${last}"]`); if (!sh) return;
@@ -297,11 +310,7 @@ export function ArtifactCard({
     const motion = !matchMedia('(prefers-reduced-motion: reduce)').matches, E = cssEase(sh);
     (async () => {
       if (motion) anims.push(sh.animate([{ transform: 'translateY(-36px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: cssMs(sh, '--dm-t-slow'), easing: E, composite: 'add' }));
-      setTyped(0); await sleep(300);
-      const T = versions[last].title;
-      if (!motion) setTyped(T.length);
-      else for (let n = 1; n <= T.length; n++) { setTyped(n); await sleep(40); }
-      await sleep(motion ? 250 : 0);
+      await sleep(motion ? 700 : 800);
       const pen = sh.querySelector<HTMLElement>('.dm-afx-pen'), rows = [...sh.querySelectorAll<HTMLElement>('.dm-afx-r')].filter(x => x.offsetParent);
       for (const x of rows) {
         const line = x.querySelector('i')!, dot = x.querySelector('b');
@@ -315,7 +324,7 @@ export function ArtifactCard({
       pen?.getAnimations().forEach(a => a.cancel());
     })().catch(() => {});
     return () => {
-      alive = false; timers.forEach(clearTimeout); anims.forEach(a => a.cancel()); setTyped(null);
+      alive = false; timers.forEach(clearTimeout); anims.forEach(a => a.cancel());
       if (motion && sh.isConnected) sh.animate([{ transform: 'translateY(-6px)' }, { transform: 'none' }], { duration: cssMs(sh, '--dm-t'), easing: E, composite: 'add' });
     };
   }, [variant, writing]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -348,8 +357,6 @@ export function ArtifactCard({
         <div className={cx('dm-afx-pv-card dm-afx-card', writing && 'dm-is-writing')}>
           <div className="dm-afx-pv-prev" aria-hidden="true">
             <div className="dm-afx-pv-page" data-src="">
-              <div className="dm-afx-pv-k"><span className="dm-afx-wr">Writing…</span><span className="dm-afx-fin"><Swap>{`${kind} · v${i + 1}`}</Swap></span></div>
-              <div className="dm-afx-pv-h">{v.title}</div>
               <p className="dm-afx-pv-p">{writing ? <>{sum}<span className="dm-afx-caret" /></> : <Swap>{sum}</Swap>}</p>
               <div className="dm-afx-pv-ls">{w.map((x, k) => <i key={k} style={{ ['--dm-w' as string]: x + '%', transition: reduce ? undefined : `width var(--dm-t) var(--dm-ease),transform .42s var(--dm-ease) ${k * 180}ms` }} />)}</div>
             </div>
@@ -389,7 +396,6 @@ export function ArtifactCard({
       </div>
     );
   } else if (variant === 'stack') {
-    const T = versions[last].title;
     body = (
       <div className={cx('dm-afx-w dm-afx-st', writing && 'dm-is-writing', fanned && 'dm-fan')}>
         <div className="dm-afx-desk">
@@ -402,9 +408,7 @@ export function ArtifactCard({
                   onClick={e => { if (writing) return; if (fanned) { pick(n); fan(false); fanBtn.current?.focus({ preventScroll: true }); } else open('page', e.currentTarget.closest('.dm-afx-st')?.querySelector<HTMLElement>('.dm-afx-open') ?? null, e.currentTarget); }}
                   onPointerEnter={() => fanned && setPeek(n)} onPointerLeave={() => fanned && setPeek(null)} onFocus={() => fanned && setPeek(n)} onBlur={() => fanned && setPeek(null)}>
                   <span className="dm-afx-pg" aria-hidden="true">
-                    <span className="dm-afx-st-k"><span>{blank ? 'Writing…' : 'v' + (n + 1)}</span></span>
-                    <span className="dm-afx-st-h">{blank ? T.slice(0, typed ?? T.length) : x.title}</span>
-                    <span className="dm-afx-st-ls">{LINES[n === last ? 2 : n % 2].map(([t, w], k) => t === 's' ? <span key={k} className="dm-afx-gap" /> : <span key={k} className={cx('dm-afx-r', 'dm-' + t)}>{t !== 'p' && <b />}<i style={{ ['--dm-w' as string]: w + '%' }} /></span>)}</span>
+                    <span className="dm-afx-st-ls">{LINES[n === last ? 2 : n % 2].map(([t, w], k) => t === 's' ? <span key={k} className="dm-afx-gap" /> : <span key={k} className={cx('dm-afx-r', 'dm-' + t)}>{t !== 'p' && t !== 'h' && <b />}<i style={{ ['--dm-w' as string]: w + '%' }} /></span>)}</span>
                     {n === last && <span className="dm-afx-pen" />}
                   </span>
                   <span className="dm-afx-tab" aria-hidden="true"><Icon name="check" size="xs" /><span>v{n + 1}</span><span className="dm-afx-ta"> · {ago(x.meta)}</span></span>

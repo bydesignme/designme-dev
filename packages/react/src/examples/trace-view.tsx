@@ -5,15 +5,15 @@ import { TraceView, type TraceSpan } from '../components/trace-view/TraceView';
 import { useStory } from './useScript';
 
 /* ---------- Trace view: the run streams in, the page fetch runs long and turns amber, and the person opens it ---------- */
+// the run itself is the head (its name, total tokens and time), so its steps are the top-level spans
 type Flat = Omit<TraceSpan, 'children'> & { duration: number; parent?: string };
 const RUN: Flat[] = [
-  { id: 'run', kind: 'agent', name: 'Pricing research', start: 0, duration: 4.82, input: "Compare Northwind's plans with ours", output: '3 prices saved to Pricing research' },
-  { id: 'plan', parent: 'run', kind: 'llm', name: 'Plan the steps', start: .04, duration: .62, tokens: 1240, input: 'The task and 2 earlier messages', output: 'Search notes, fetch the page, summarise' },
-  { id: 'notes', parent: 'run', kind: 'retrieval', name: 'Search saved notes', start: .7, duration: .38, tokens: 910, input: '"northwind pricing", top 4', output: '4 notes, best match 0.82' },
-  { id: 'fetch', parent: 'run', kind: 'tool', name: 'fetch_page', start: 1.12, duration: 2.46, tokens: 3120, input: 'GET northwind.app/pricing', output: '200 OK, 48 KB, 3 plans' },
-  { id: 'sum', parent: 'run', kind: 'agent', name: 'Summariser', start: 3.62, duration: 1.02, input: 'The page and 4 notes', output: 'A 120-word summary' },
+  { id: 'plan', kind: 'llm', name: 'Plan the steps', start: .04, duration: .62, tokens: 1240, input: 'The task and 2 earlier messages', output: 'Search notes, fetch the page, summarise' },
+  { id: 'notes', kind: 'retrieval', name: 'Search saved notes', start: .7, duration: .38, tokens: 910, input: '"northwind pricing", top 4', output: '4 notes, best match 0.82' },
+  { id: 'fetch', kind: 'tool', name: 'fetch_page', start: 1.12, duration: 2.46, tokens: 3120, input: 'GET northwind.app/pricing', output: '200 OK, 48 KB, 3 plans' },
+  { id: 'sum', kind: 'agent', name: 'Summariser', start: 3.62, duration: 1.02, input: 'The page and 4 notes', output: 'A 120-word summary' },
   { id: 'write', parent: 'sum', kind: 'llm', name: 'Write the summary', start: 3.66, duration: .94, tokens: 2380, input: 'Page text and notes, 2,050 tokens', output: '120 words, 3 prices' },
-  { id: 'ans', parent: 'run', kind: 'llm', name: 'Final answer', start: 4.66, duration: .16, tokens: 560, input: 'The summary', output: '3 prices saved to Pricing research' }
+  { id: 'ans', kind: 'llm', name: 'Final answer', start: 4.66, duration: .16, tokens: 560, input: 'The summary', output: '3 prices saved to Pricing research' }
 ];
 const END = 4.82, PACE = 1.5;
 

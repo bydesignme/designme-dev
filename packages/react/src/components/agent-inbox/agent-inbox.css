@@ -1,18 +1,24 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Agent inbox ---------- */
-/* every run in one list, grouped by what it needs: Needs you, Running, Done. A run glides to its new group when it moves */
-.dm-aib{width:100%;max-width:440px;margin:0 auto;padding:6px}
-.dm-aib-h{display:flex;align-items:baseline;justify-content:space-between;gap:var(--dm-s-3);padding:var(--dm-s-2) 10px 6px}
-.dm-aib-h b{font-weight:500;font-size:14px}
-.dm-aib-st{font-size:12.5px}
+/* every run in one list, grouped by what it needs: Needs you, Running, Done. A run glides to its new group when it moves.
+   The card sits on two columns (owner, 18 Nov), its content 16px from every edge: the head's neutral mark in a 28px column
+   with the agents' marks under it, and the title and each run's words 12px after it; the buttons and the clocks end on the
+   content's right edge, and each row shares one centre line. Each group's name and count is a section label on the
+   content's left edge, over the marks, so it never reads as another run's words. A run's row is not a button, so it has no
+   hover fill, and one that failed keeps its red words and Retry with no red band behind them; a run that moves glides
+   without lifting */
+.dm-aib{width:100%;max-width:440px;margin:0 auto;padding:16px 16px 6px}
+.dm-aib-h{display:flex;align-items:center;gap:12px;padding:0 0 4px}
+.dm-aib-hi{width:28px;height:28px;display:grid;place-items:center;flex:none;border-radius:var(--dm-r-sm);color:var(--dm-fg2);background:var(--dm-chip)}
+.dm-aib-h b{flex:1;min-width:0;font-weight:500;font-size:14px;line-height:20px}
 .dm-aib-g{display:flex;flex-direction:column}
-.dm-aib-gh{display:flex;align-items:center;gap:var(--dm-s-2);padding:var(--dm-s-3) 10px var(--dm-s-1);font-size:12px;color:var(--dm-muted)}
+.dm-aib-gh{display:flex;align-items:center;gap:var(--dm-s-2);padding:12px 0 4px;font-size:12px;line-height:18px;color:var(--dm-muted)}
 .dm-aib-gh .dm-n{font-variant-numeric:tabular-nums}
 .dm-aib-gl{display:flex;flex-direction:column}
-.dm-aib-i{display:flex;align-items:center;gap:10px;padding:var(--dm-s-2) 10px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;transition:background .16s}
-@media (hover:hover) and (pointer:fine){.dm-aib-i:hover{background:var(--dm-row)}}
-.dm-aib-i.dm-mv{position:relative;z-index:1;background:var(--dm-surface);box-shadow:var(--dm-shadow)}
-.dm-aib-i.dm-mv.dm-fail{background:var(--dm-bad-bg)}
+.dm-aib-i{display:flex;align-items:center;gap:12px;padding:8px 0;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;transition:background .16s}
+.dm-aib-i.dm-mv{position:relative;z-index:1;background:var(--dm-surface)}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink primary alone presses */
+.dm-aib :is(.dm-ib,.dm-pill):active,:root[data-style="clean"] .dm-aib .dm-ib:active,:root [data-style="clean"] .dm-aib .dm-ib:active,:root [data-style="clean"].dm-aib .dm-ib:active{transform:none}
 .dm-aib-av{width:28px;height:28px;border-radius:var(--dm-r-sm);display:grid;place-items:center;flex:none;font-size:11px;font-weight:500}
 .dm-aib-t{flex:1;min-width:0;display:flex;flex-direction:column}
 .dm-aib-t b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -21,7 +27,16 @@
 .dm-aib-r{display:flex;align-items:center;gap:6px;flex:none;font-size:12.5px;color:var(--dm-fg2)}
 .dm-aib-r .dm-spin{width:11px;height:11px;color:var(--dm-accent-fg,var(--dm-accent))}
 .dm-aib-r .dm-ok{color:var(--dm-ok);display:grid}
-.dm-aib-i.dm-fail{background:var(--dm-bad-bg)}
 .dm-aib-i.dm-fail .dm-aib-r .dm-pill{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-on-tint-btn)}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .dm-aib.dm-panel,:root [data-style="clean"] .dm-aib.dm-panel,:root [data-style="clean"].dm-aib.dm-panel{padding:10px 10px 10px 10px}
+@media (hover:hover) and (pointer:fine){.dm-aib-i.dm-fail .dm-aib-r .dm-pill:hover{box-shadow:var(--dm-on-tint-btn-h)}}
+/* Clean (owner, 18 Nov): the head's mark has a hairline like the other tiles; the done ticks are the vivid mark green,
+   never the darker text green; Retry is the secondary button as Clean draws it everywhere (its tokens) */
+:root[data-style="clean"] .dm-aib-hi,:root [data-style="clean"] .dm-aib-hi,:root [data-style="clean"].dm-aib-hi{box-shadow:inset 0 0 0 1px var(--dm-hair)}
+/* a group's name is the list's section label (owner, 18 Nov), in the smaller muted label type of a menu's group heading, so
+   it never reads as a run's description; a little more room above it sets the groups apart */
+:root[data-style="clean"] .dm-aib-gh,:root [data-style="clean"] .dm-aib-gh,:root [data-style="clean"].dm-aib-gh{padding-top:16px;font-size:11.5px;line-height:16px}
+:root[data-style="clean"] .dm-aib-r .dm-ok,:root [data-style="clean"] .dm-aib-r .dm-ok,:root [data-style="clean"].dm-aib-r .dm-ok{color:var(--dm-ok-mark)}
+:root[data-style="clean"] .dm-aib-i.dm-fail .dm-aib-r .dm-pill,:root [data-style="clean"] .dm-aib-i.dm-fail .dm-aib-r .dm-pill,:root [data-style="clean"].dm-aib-i.dm-fail .dm-aib-r .dm-pill{color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-aib-i.dm-fail .dm-aib-r .dm-pill:hover,:root [data-style="clean"] .dm-aib-i.dm-fail .dm-aib-r .dm-pill:hover,:root [data-style="clean"].dm-aib-i.dm-fail .dm-aib-r .dm-pill:hover{color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-aib-i.dm-fail .dm-aib-r .dm-pill:hover,:root [data-style="clean"] .dm-aib-i.dm-fail .dm-aib-r .dm-pill:hover,:root [data-style="clean"].dm-aib-i.dm-fail .dm-aib-r .dm-pill:hover{box-shadow:var(--dm-btn2-hover)}}
+:root[data-style="clean"] .dm-aib-i.dm-fail .dm-aib-r .dm-pill:active,:root [data-style="clean"] .dm-aib-i.dm-fail .dm-aib-r .dm-pill:active,:root [data-style="clean"].dm-aib-i.dm-fail .dm-aib-r .dm-pill:active{box-shadow:var(--dm-btn2-press)}
