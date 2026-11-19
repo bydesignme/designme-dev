@@ -852,8 +852,11 @@ let SECTION_ORDER = null;
   // carry markup for components nobody scrolls to (DM.tpl reads TPLS, below)
   site = site.replace(/(<article\b[^>]*\bdata-v2="([\w-]+)"[^>]*>[\s\S]*?)<template>([\s\S]*?)<\/template>(\s*<\/article>)/g, (m, head, id, tpl, end) => {
     const k = sectionOf[id]; if (!P.files[k] || head.includes('</article>')) return m;
-    P.files[k] = `TPLS[${JSON.stringify(id)}] = ${JSON.stringify(tpl)};\n` + P.files[k]; return head + end;
+    // its icons point at the site's sprite (#v2i-), as the markup left in the page does: a template that writes <use href="#i-…">
+    // itself (Reasoning trail's, Thinking's and Step loader's chevrons, Toast stack's bell) drew blank once it moved here
+    P.files[k] = `TPLS[${JSON.stringify(id)}] = ${JSON.stringify(tpl.replace(/href="#i-/g, 'href="#v2i-'))};\n` + P.files[k]; return head + end;
   });
+  for (const [k, text] of Object.entries(P.files)) if (/href=\\?"#i-/.test(text)) throw new Error('icon id left over in section ' + k);
   for (const [k, text] of Object.entries(P.files)){ const f = hashedAsset('v2-' + k.replace(/^s-/, '').replace(/^_$/, 'other'), 'js', text); V2_PARTS.push(f); files[k] = f.url; }
   const js = V2JS.replace('/*@@V2DEFS@@*/', () => P.main).replace('/*@@V2PARTS@@*/null', () => JSON.stringify({ files, of:P.of, all:P.all }));
   console.log(`components script: ${Math.round(js.length / 1024)} KB with ${order[0]}, ${V2_PARTS.length} section files of ${Math.round(V2_PARTS.reduce((n, f) => n + f.text.length, 0) / 1024)} KB, waiting for every section: ${P.all.join(', ') || 'none'}`);
