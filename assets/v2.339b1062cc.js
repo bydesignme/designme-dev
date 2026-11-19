@@ -373,7 +373,7 @@ document.addEventListener('click', e => { const b = e.target.closest && e.target
 const DM = {
   defs:{},
   // agents at work: their demos keep playing while a mouse rests on them, instead of holding (see mount)
-  PLAYS:new Set(['status-pill','step-loader','thinking','reasoning-trail','agent-lanes','agent-run-timeline','trace-view','agent-tree','terminal-stream','attachment-tray','progress','web-search','thinking-states','run-drawer']),
+  PLAYS:new Set(['status-pill','step-loader','thinking','reasoning-trail','agent-lanes','agent-run-timeline','trace-view','agent-tree','terminal-stream','attachment-tray','progress','web-search','thinking-states','run-drawer','live-answer']),
   def(id, fn){ this.defs[id] = fn; },
   /* the markup a card starts from: its <template>, or, when the markup is written out in its stage, what the stage holds
      before it first mounts, kept as a template so Replay starts from it again */
@@ -426,7 +426,7 @@ const DM = {
 // it is out of the accessibility tree while it shows nothing, so screen readers never meet an empty tooltip
 const tip = document.createElement('div'); tip.className = 'tip'; tip.setAttribute('role','tooltip'); tip.setAttribute('aria-hidden','true');
 // tipNext is the trigger whose tip is on its way, so moving across its own icon and padding doesn't start the wait again
-let tipT = 0, tipFor = null, tipNext = null;
+let tipT = 0, tipFor = null, tipNext = null, tipRaf = 0, tipAt = '';
 // a trigger whose menu is open shows its menu, not its tip
 const menuOpen = el => el.getAttribute('aria-expanded') === 'true' && (el.hasAttribute('data-pop') || (el.hasAttribute('aria-haspopup') && el.getAttribute('aria-haspopup') !== 'false'));
 // a tip goes when its trigger does: removed, hidden, or its menu opened
@@ -441,6 +441,17 @@ function showTip(el){
   tipWatch.observe(document.body, { childList:true, subtree:true, attributes:true, attributeFilter:['aria-expanded', 'hidden'] });
   tip.innerHTML = el.dataset.tip.replace(/</g,'&lt;') + (k ? `<span class="kbd">${k}</span>` : '');
   tip.style.left = '0px'; tip.style.top = '0px'; tip.classList.add('show'); tip.removeAttribute('aria-hidden');
+  placeTip(el); tipAt = ''; cancelAnimationFrame(tipRaf); tipRaf = requestAnimationFrame(tipFollow);
+}
+// the tip goes where its trigger goes: a demo that keeps playing under the pointer (rows growing in, a card resizing) carries
+// it along instead of leaving it behind (owner, 19 Nov). Only the trigger's box is read each frame, and only while a tip shows
+function tipFollow(){
+  tipRaf = 0; if (!tipFor) return;
+  const r = tipFor.getBoundingClientRect(), at = `${r.left},${r.top},${r.width},${r.height}`;
+  if (tipAt && at !== tipAt) placeTip(tipFor);
+  tipAt = at; tipRaf = requestAnimationFrame(tipFollow);
+}
+function placeTip(el){
   const r = el.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
   // it stays inside the component's stage when it fits there, so on a phone it never runs past the card's edge
   // (the stage you see: on a component page the stage-in's own parent hugs the component, and a tip near its edge would be
@@ -462,7 +473,7 @@ let tipHid = -1e9;
 function hideTip(force){
   const on = tipFor || tipNext, ev = window.event;
   if (!force && on && on.isConnected && on.matches(':hover') && !(ev && ev.isTrusted)) return;
-  clearTimeout(tipT); tipFor = null; tipNext = null; tipWatch.disconnect(); if (tip.classList.contains('show')) tipHid = performance.now(); tip.classList.remove('show'); tip.setAttribute('aria-hidden','true'); }
+  clearTimeout(tipT); cancelAnimationFrame(tipRaf); tipRaf = 0; tipFor = null; tipNext = null; tipWatch.disconnect(); if (tip.classList.contains('show')) tipHid = performance.now(); tip.classList.remove('show'); tip.setAttribute('aria-hidden','true'); }
 document.addEventListener('pointerover', e => { const el = e.target.closest('.v2 [data-tip]'); if (!el || el === tipFor) return; if (el === tipNext) return; clearTimeout(tipT); tipNext = el; tipT = setTimeout(() => { tipNext = null; showTip(el); }, tip.classList.contains('show') || performance.now() - tipHid < 120 ? 0 : 380); });
 document.addEventListener('pointerout', e => { const el = e.target.closest('.v2 [data-tip]'); if (el && !el.contains(e.relatedTarget)) hideTip(); });
 document.addEventListener('focusin', e => { const el = e.target.closest('.v2 [data-tip]'); if (el && el.matches(':focus-visible')) showTip(el); });
@@ -1301,10 +1312,12 @@ DM.def('agent-inbox', (r, c) => {
     { id:'aud', t:'Audit pricing contrast', a:'QA agent', g:'done', ago:'25m ago' }
   ];
   const GR = [['needs', 'Needs you'], ['run', 'Running'], ['done', 'Done']];
-  const gs = $('.aib-gs', r), st = $('.aib-st', r);
+  const gs = $('.aib-gs', r);
   // the panel fits its rows at every moment (owner, 18 Nov: no room kept for a group that has gone): as a group goes or
   // comes back, its height eases with grow(), and it stays centred in its stage
   const ib = r.classList.contains('aib') ? r : $('.aib', r);
+  // the head has a neutral mark in a tile, the column the agents' marks sit in (owner, 18 Nov)
+  if (ib) $('.aib-h', ib).prepend(html(`<span class="aib-hi" aria-hidden="true">${I('mail')}</span>`));
   if (ib) c.offs.push(grow(ib));
   gs.innerHTML = GR.map(([k, n]) => `<section class="aib-g" data-g="${k}" aria-label="${n}"><div class="aib-gh"><span>${n}</span><span class="n"></span></div><div class="aib-gl" role="list"></div></section>`).join('');
   const clock = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
@@ -1326,11 +1339,8 @@ DM.def('agent-inbox', (r, c) => {
   const list = g => $(`.aib-g[data-g="${g}"] .aib-gl`, gs);
   R.forEach(x => list(x.g).appendChild(row(x)));
   function counts(){
-    // a group with nothing in it goes away, and the line at the top says what is left
+    // each group shows its count, and a group with nothing in it goes away
     GR.forEach(([k]) => { const n = R.filter(x => x.g === k).length, sec = $(`.aib-g[data-g="${k}"]`, gs); $('.n', sec).textContent = n; sec.hidden = !n; });
-    const need = R.filter(x => x.g === 'needs').length, run = R.filter(x => x.g === 'run').length, done = R.filter(x => x.g === 'done').length;
-    const t = need ? `${need} need${need > 1 ? '' : 's'} you` : run ? `${run} running` : `All clear · ${done} done today`;
-    if (!st.textContent) st.textContent = t; else swap(st, t);
   }
   counts();
   // a run that moves glides to its place in the new group: rows and group titles are measured before and after, and eased
@@ -1369,23 +1379,28 @@ DM.def('trace-view', (r, c) => {
   // the kinds of span, each with its mark and colour: the identity slots of the chart palette, and grey for the agents
   // that hold the other spans. The name is always on the mark, in a tooltip, and in the span's label
   const K = { agent:['Agent','cpu','var(--muted)'], llm:['LLM call','spark','var(--c2)'], tool:['Tool call','term','var(--c6)'], ret:['Retrieval','search','var(--c3)'] };
-  // one run, in seconds from its start. A tool call that takes longer than SLOW seconds is flagged
+  // one run, in seconds from its start. The run itself is the head (its name, its total tokens and time), so its spans start
+  // at the top level (owner, 18 Nov: no row repeating the run's name). A tool call that takes longer than SLOW seconds is flagged
   const SPAN = 5, SLOW = 2, PACE = 1.5;
   const S = [
-    { id:'run', k:'agent', n:'Pricing research', s:0, d:4.82, lv:0, in:"Compare Northwind's plans with ours", out:'3 prices saved to Pricing research' },
-    { id:'plan', k:'llm', n:'Plan the steps', s:.04, d:.62, tk:1240, lv:1, in:'The task and 2 earlier messages', out:'Search notes, fetch the page, summarise' },
-    { id:'notes', k:'ret', n:'Search saved notes', s:.7, d:.38, tk:910, lv:1, in:'"northwind pricing", top 4', out:'4 notes, best match 0.82' },
-    { id:'fetch', k:'tool', n:'fetch_page', s:1.12, d:2.46, tk:3120, lv:1, in:'GET northwind.app/pricing', out:'200 OK, 48 KB, 3 plans' },
-    { id:'sum', k:'agent', n:'Summariser', s:3.62, d:1.02, lv:1, in:'The page and 4 notes', out:'A 120-word summary' },
-    { id:'write', k:'llm', n:'Write the summary', s:3.66, d:.94, tk:2380, lv:2, in:'Page text and notes, 2,050 tokens', out:'120 words, 3 prices' },
-    { id:'ans', k:'llm', n:'Final answer', s:4.66, d:.16, tk:560, lv:1, in:'The summary', out:'3 prices saved to Pricing research' }
+    { id:'plan', k:'llm', n:'Plan the steps', s:.04, d:.62, tk:1240, lv:0, in:'The task and 2 earlier messages', out:'Search notes, fetch the page, summarise' },
+    { id:'notes', k:'ret', n:'Search saved notes', s:.7, d:.38, tk:910, lv:0, in:'"northwind pricing", top 4', out:'4 notes, best match 0.82' },
+    { id:'fetch', k:'tool', n:'fetch_page', s:1.12, d:2.46, tk:3120, lv:0, in:'GET northwind.app/pricing', out:'200 OK, 48 KB, 3 plans' },
+    { id:'sum', k:'agent', n:'Summariser', s:3.62, d:1.02, lv:0, in:'The page and 4 notes', out:'A 120-word summary' },
+    { id:'write', k:'llm', n:'Write the summary', s:3.66, d:.94, tk:2380, lv:1, in:'Page text and notes, 2,050 tokens', out:'120 words, 3 prices' },
+    { id:'ans', k:'llm', n:'Final answer', s:4.66, d:.16, tk:560, lv:0, in:'The summary', out:'3 prices saved to Pricing research' }
   ];
   const END = Math.max(...S.map(x => x.s + x.d));
   // an agent span counts the tokens of every span under it
   S.forEach((x, i) => { x.kids = []; for (let j = i + 1; j < S.length && S[j].lv > x.lv; j++) x.kids.push(S[j]); });
   const root = $('.trv', r), rows = $('.trv-rows', r), stEl = $('.trv-st', r), tot = $('.trv-tot', r), dt = $('.trv-dt', r), dc = $('.trv-dc', r), lg = $('.trv-lg', r);
-  // room for every span from the start, so the panel never grows (and re-centres in its stage) as spans arrive
-  rows.style.setProperty('--n', S.length);
+  // the head has the run's mark in a tile, the column every span's mark is centred in, and its total tokens beside its time
+  const head = $('.trv-h', r);
+  head.prepend(html(`<span class="trv-hi" aria-hidden="true">${I('cpu')}</span>`));
+  const ttEl = html('<span class="trv-tt muted num"></span>'); tot.before(ttEl);
+  // the card keeps no room for spans still to come (owner, 18 Nov): it grows as each span starts and as the details open
+  // (grow(), centred in its stage), once its entrance (which scales it) has ended, so it measures the card at its real size
+  Promise.resolve().then(() => Promise.all(root.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && root.isConnected) c.offs.push(grow(root)); });
   // the key: every kind but the agents, with its colour and how many of its spans have started
   const KEYS = ['llm', 'tool', 'ret'];
   lg.innerHTML = KEYS.map(k => `<span role="listitem" class="z" data-k="${k}" style="--k:${K[k][2]}"><i></i>${K[k][0]} <b class="num">0</b></span>`).join('');
@@ -1396,7 +1411,7 @@ DM.def('trace-view', (r, c) => {
   let T = 0, sel = null, said = '';
   S.forEach(x => {
     const [kind, icon, col] = K[x.k];
-    x.el = html(`<button type="button" class="trv-r${x.lv ? '' : ' root'}" data-k="${x.k}" aria-expanded="false" style="--k:${col};--lv:${x.lv}" hidden><span class="trv-n"><span class="trv-g" aria-hidden="true"></span><span class="trv-k" data-tip="${kind}">${I(icon,'xs')}</span><span class="trv-nm">${x.n}</span></span><span class="trv-b"><i style="left:${x.s / SPAN * 100}%;width:${x.d / SPAN * 100}%"></i></span><span class="trv-tk num"></span><span class="trv-ms num"></span></button>`);
+    x.el = html(`<button type="button" class="trv-r" data-k="${x.k}" aria-expanded="false" style="--k:${col};--lv:${x.lv}" hidden><span class="trv-n"><span class="trv-g" aria-hidden="true"></span><span class="trv-k" data-tip="${kind}">${I(icon,'xs')}</span><span class="trv-nm">${x.n}</span></span><span class="trv-b"><i style="left:${x.s / SPAN * 100}%;width:${x.d / SPAN * 100}%"></i></span><span class="trv-tk num"></span><span class="trv-ms num"></span></button>`);
     x.el.onclick = () => open(x === sel ? null : x);
     rows.appendChild(x.el);
   });
@@ -1441,7 +1456,7 @@ DM.def('trace-view', (r, c) => {
       KEYS.forEach(k => { const n = S.filter(x => x.k === k && vis(x)).length, el = $(`[data-k="${k}"]`, lg), b = $('b', el); el.classList.toggle('z', !n); if (b.textContent !== String(n)){ b.textContent = n; if (n) enter(b); } }); }
     // the playhead runs down every track while the run streams, and fades once it is done
     root.style.setProperty('--now', Math.min(T, END) / SPAN); root.classList.toggle('live', T > 0 && T < END);
-    if (txt) tot.textContent = sec(Math.min(T, END));
+    if (txt){ tot.textContent = sec(Math.min(T, END)); ttEl.textContent = tks(S.reduce((n, x) => n + (x.k === 'agent' ? 0 : used(x)), 0)) + ' tokens'; }
     const slow = S.filter(x => x.slow).length;
     const line = T >= END ? `Done · ${S.length} spans${slow ? `, ${slow} slow` : ''}` : `Running · ${shown} span${shown > 1 ? 's' : ''}`;
     if (line !== said){ said = line; swap($('.m', stEl), line); }
@@ -1804,8 +1819,13 @@ DM.def('agent-lanes', (r, c) => {
 /* ---------- Live answer ---------- */
 DM.def('live-answer', (r, c) => {
   const A = $('.lva-a', r);
+  // no room is kept for the answer (owner, 18 Nov): the turn grows as it streams in (grow()), centred in its stage (in a
+  // chat around it, like the Agent harness, the chat lays it out)
+  const lva = $('.lva', r) || r;
+  if (r === c.st) Promise.resolve().then(() => Promise.all(lva.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && lva.isConnected) c.offs.push(grow(lva)); });
   const srcs = { 1:'Funnel data, last 30 days', 2:'Session notes from 8 interviews', 3:'Onboarding.fig, step 2' };
-  const S = [[1,'F','#7a5af8','Funnel data','Amplitude, last 30 days'],[2,'N','#0ea5a4','Session notes','Notion, 8 interviews'],[3,'S','#f97316','Onboarding.fig','Figma, step 2']];
+  // each source's badge on a vivid fill of its own (owner, 18 Nov: saturated, clearly different hues), white letters on each
+  const S = [[1,'F','var(--av-l)','Funnel data','Amplitude, last 30 days'],[2,'N','var(--av-b)','Session notes','Notion, 8 interviews'],[3,'S','var(--av-r)','Onboarding.fig','Figma, step 2']];
   const T = {
     '': 'Most people leave at the workspace step [1]. It asks for a team name before anyone has made anything, and five of eight people in interviews paused there [2]. Moving it after the first project, and filling the name from the email domain, should help [3].',
     'Show the drop-off by device': 'On mobile the workspace step loses 41% [1], on desktop 23% [1]. Most of the mobile drop comes from the keyboard covering the Continue button [3].',
@@ -1830,7 +1850,7 @@ DM.def('live-answer', (r, c) => {
       else p.insertAdjacentHTML('beforeend', `<span class="w">${tok} </span>`);
       await c.wait(55 + Math.random() * 45);
     }
-    const src = html(`<div class="lva-src"><span class="lva-acts"><button class="ib" aria-label="Copy" data-tip="Copy">${I('copy')}</button><button class="ib" aria-label="Good answer" data-tip="Good answer">${I('up-thumb')}</button><button class="ib" aria-label="Bad answer" data-tip="Bad answer">${I('down-thumb')}</button><button class="ib" aria-label="Try again" data-tip="Try again">${I('refresh')}</button></span><button class="lva-sb" aria-expanded="false"><span class="lva-fav">${S.map(x => `<span style="background-color:${x[2]}">${x[1]}</span>`).join('')}</span>3 sources${I('chev-d','xs')}</button></div>`);
+    const src = html(`<div class="lva-src"><span class="lva-acts"><button class="ib" aria-label="Copy" data-tip="Copy">${I('copy')}</button><button class="ib" aria-label="Good answer" data-tip="Good answer">${I('up-thumb')}</button><button class="ib" aria-label="Bad answer" data-tip="Bad answer">${I('down-thumb')}</button><button class="ib" aria-label="Try again" data-tip="Try again">${I('refresh')}</button></span><button class="lva-sb" aria-expanded="false"><span class="lva-fav">${S.map(x => `<span class="vivid" style="background-color:${x[2]}">${x[1]}</span>`).join('')}</span>3 sources${I('chev-d','xs')}</button></div>`);
     const ls = html(`<div class="fold shut lva-ls"><div><div class="lva-ll">${S.map(x => `<button class="lva-s" data-n="${x[0]}"><span class="n">${x[0]}</span><span class="t">${x[3]}</span><span class="d">${x[4]}</span>${I('ext','xs')}</button>`).join('')}</div></div></div>`);
     turn.appendChild(src); turn.appendChild(ls); enter(src);
     const sb = $('.lva-sb', src), open = o => { ls.classList.toggle('shut', !o); sb.setAttribute('aria-expanded', o); };
@@ -1865,9 +1885,13 @@ DM.def('composer', (r, c) => {
   const icons = { clip:'clip', figma:'figma', eye:'eye', edit:'edit', list:'list', code:'code', mic:'mic', up:'up', check:'check', file:'file-text', image:'image' };
   r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) => k === 'chev' ? I('chev-d','xs') : icons[k] ? I(icons[k]) : m);
   const box = $('.cpx-box', r), ta = $('.cpx-ta', r), send = $('.cpx-bar .cpx-send', r), thread = $('.cpx-thread', r), att = $('.cpx-att', r), PH = ta.placeholder;
-  const grow = () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 160) + 'px'; };
+  // no room is kept for the conversation (owner, 18 Nov): the thread and the box grow together (grow()), centred in the
+  // stage, once the entrance (which scales it) has ended. Its menus open over it (placePop) and it never moves for them
+  const cpx = $('.cpx', r);
+  if (r === c.st && cpx) Promise.resolve().then(() => Promise.all(cpx.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && cpx.isConnected) c.offs.push(grow(cpx)); });
+  const fit = () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 160) + 'px'; };
   // send waits for text or a file, and for every file to finish loading
-  const sync = () => { send.disabled = (!ta.value.trim() && !att.children.length) || !!$('.fchip.ld,.fchip.err', att); grow(); };
+  const sync = () => { send.disabled = (!ta.value.trim() && !att.children.length) || !!$('.fchip.ld,.fchip.err', att); fit(); };
   c.on(ta, 'input', sync);
   c.on(r, 'keydown', e => { if (e.target === ta && e.key === 'Enter' && !e.shiftKey && box.dataset.mode === 'idle'){ e.preventDefault(); submit(); } if (e.key === 'Escape' && box.dataset.mode === 'voice') stopVoice(false, true); });
   /* attachments load before they can be sent. The first Figma link can't be opened, so the error shows, and Try again fetches it */
@@ -1901,10 +1925,10 @@ DM.def('composer', (r, c) => {
   let before = '', vc = null;
   async function dictate(){
     if (vc) vc.stop(); vc = ctl(c); const k = vc; c.offs.push(() => k.stop());
-    before = ta.value; box.dataset.mode = 'voice'; ta.value = ''; ta.placeholder = 'Listening…'; grow();
+    before = ta.value; box.dataset.mode = 'voice'; ta.value = ''; ta.placeholder = 'Listening…'; fit();
     const t0 = performance.now(), tm = $('.cpx-tm', r); tm.textContent = '0:00';
     k.every(250, () => { const s = Math.floor((performance.now() - t0) / 1000); tm.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); });
-    await k.run(async () => { await k.wait(700); for (const w of said.split(' ')){ ta.value += (ta.value ? ' ' : '') + w; grow(); await k.wait(160 + Math.random() * 120); } });
+    await k.run(async () => { await k.wait(700); for (const w of said.split(' ')){ ta.value += (ta.value ? ' ' : '') + w; fit(); await k.wait(160 + Math.random() * 120); } });
   }
   function stopVoice(keep, mine){ if (vc) vc.stop(); box.dataset.mode = 'idle'; ta.placeholder = PH; if (!keep) ta.value = before; sync(); if (mine) ta.focus({ preventScroll:true }); }
   $('.cpx-mic', r).onclick = dictate;
@@ -1915,7 +1939,8 @@ DM.def('composer', (r, c) => {
     if (send.disabled) return;
     const v = ta.value.trim(), files = $$('.fchip', att).map(f => $('.n', f).textContent), mode = $('.cpx-mode-n', r).textContent, ctx = $('.cpx-ctx-n', r).textContent;
     ta.value = ''; att.innerHTML = ''; sync();
-    const b = html(`<div class="bub">${files.length ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:${v ? 6 : 0}px">${files.map(f => `<span class="fchip">${I('clip','xs')}${f}</span>`).join('')}</div>` : ''}${v.replace(/</g,'&lt;')}</div>`); thread.appendChild(b); enter(b);
+    const chips = files.map(f => `<span class="fchip">${I('clip','xs')}${f}</span>`).join('');
+    const b = html(v ? `<div class="bub">${files.length ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">${chips}</div>` : ''}${v.replace(/</g,'&lt;')}</div>` : `<div class="cpx-files">${chips}</div>`); thread.appendChild(b); enter(b);
     const a = html(`<div class="cpx-ag wk"><span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Working</span></div>`); thread.appendChild(a); enter(a);
     while (thread.children.length > 4) thread.firstElementChild.remove();
     const say = { Ask:`Looking at ${ctx}. I won't change anything.`, Edit:`On it. I'll make the changes on a new page in ${ctx}.`, Plan:`I'll write a plan for ${ctx} first, then wait for you.` }[mode];
@@ -2676,18 +2701,22 @@ DM.def('artifact-card', (r, c) => {
   const live = html('<div class="afx-live afx-sr" role="status" aria-live="polite"></div>');
   root.append(live);
   const say = msg => { live.textContent = ''; c.later(60, () => { live.textContent = msg; }); };
-  /* feedback on a button that did something: a check, a word in the tooltip or the label, then back */
+  /* feedback on a button that did something: its icon swaps for a tick, in place, and a word in the tooltip or the label
+     says what happened, then it all goes back. The button never collapses: a labelled one eases its width to its new words */
   function flash(btn, label){
     const use = $('use', btn), lb = $('.afx-lbl', btn);
     const o = btn._fl || (btn._fl = { href:use && use.getAttribute('href'), tip:btn.dataset.tip, txt:lb && lb.textContent });
     clearTimeout(o.t);
-    if (use) use.setAttribute('href', o.href.replace(/[\w-]+$/, 'check'));
-    if (lb) lb.textContent = label;
+    // the icon's id keeps its sprite's prefix (the site's are "v2i-…", an install's "i-…"): only the name changes
+    const words = t => { const w0 = btn.getBoundingClientRect().width; lb.textContent = t; const w1 = btn.getBoundingClientRect().width;
+      if (!REDUCE && Math.abs(w1 - w0) > .5) btn.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:cssMs(root, '--t'), easing:cssEase(root) }); };
+    if (use) use.setAttribute('href', o.href.replace(/i-[\w-]+$/, 'i-check'));
+    if (lb) words(label);
     btn.classList.add('copied');
     if (o.tip !== undefined){ btn.dataset.tip = label; showTip(btn); }
     o.t = setTimeout(() => {
       if (use) use.setAttribute('href', o.href);
-      if (lb) lb.textContent = o.txt;
+      if (lb) words(o.txt);
       btn.classList.remove('copied');
       if (o.tip !== undefined){ btn.dataset.tip = o.tip; if (tipFor === btn) hideTip(true); }
     }, 1600);
@@ -2702,44 +2731,39 @@ DM.def('artifact-card', (r, c) => {
     setTimeout(() => URL.revokeObjectURL(url), 5000);
     flash(btn, 'Downloaded'); say(`Downloaded ${name}`);
   }
-  /* the variant moves up as a menu opens under its button, so the two sit centred together in the card's room (above the
-     switcher, where it shows), as dropdowns do across the library. The menu opens where the button is going, so it never
-     reaches past the room on the way. Returns how far the variant still has to move. In a chat, which scrolls, it stays */
-  function glide(wrap, btn, menu){
-    if (!own) return 0;
-    const cur = new DOMMatrixReadOnly(getComputedStyle(wrap).transform).m42;
-    if (!menu){ wrap.style.transform = ''; return -cur; }
-    const w = wrap.getBoundingClientRect(), b = btn.getBoundingClientRect(), rr = root.getBoundingClientRect();
-    const top0 = rr.top, bot0 = demo && demo.offsetParent ? demo.getBoundingClientRect().top - (parseFloat(getComputedStyle(root).rowGap) || 0) : rr.bottom;
-    const mt = b.bottom - cur + 6, top = Math.min(w.top - cur, mt), bot = Math.max(w.bottom - cur, mt + menu.offsetHeight);
-    const d = Math.max(top0 - top, (top0 + bot0) / 2 - (top + bot) / 2), to = Math.abs(d) > .5 ? Math.round(d) : 0;
-    wrap.style.transform = to ? `translateY(${to}px)` : '';
-    return to - cur;
-  }
   /* versions: a menu button with one radio item per version, newest first. Arrow keys move, Enter picks, Esc closes */
   function vmenu(k, m, btn, wrap, o = {}){
     const id = uid(), vs = m.a.versions;
     const menu = html(`<div class="pop afx-menu" id="${id}" role="menu" aria-label="Versions of ${esc(m.a.title)}" inert><div class="ph" aria-hidden="true">Versions</div>${vs.map((v, j) => j).reverse().map(j => `<button type="button" class="mi" role="menuitemradio" tabindex="-1" data-i="${j}" aria-checked="false"><span class="afx-mb"><span>v${j + 1}<span class="afx-mw"> · ${esc(vs[j].ago)}</span></span><span class="d">${esc(vs[j].note)}</span></span>${ic('check', 's ck')}</button>`).join('')}</div>`);
-    // on the card's own stage the menu sits in the room, not in the variant, so it can open where the variant is going
+    // on the card's own stage the menu sits in the room, over the variant; in a chat it goes with the card
     const host = own ? main : wrap; host.append(menu);
     btn.setAttribute('aria-haspopup', 'menu'); btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-controls', id);
     const items = () => $$('.mi', menu);
     let open = false;
-    const place = (dy = 0) => {
+    // the menu opens over the card from its button: down when it fits below, up when it doesn't and fits above or has more
+    // room there (as placePop), within the stage's room (inside its padding, above a switcher) so it never covers the
+    // stage's own controls or gets cut off; the card itself never moves (owner, 18 Nov)
+    const place = () => {
       const hr = host.getBoundingClientRect(), wr = wrap.getBoundingClientRect(), br = btn.getBoundingClientRect(), rr = root.getBoundingClientRect(), mw = menu.offsetWidth;
       const lo = Math.max(rr.left, wr.left), hi = Math.min(rr.right, wr.right) - mw, x = Math.max(lo, Math.min(br.left - 6, hi));
-      menu.style.left = Math.round(x - hr.left) + 'px'; menu.style.top = Math.round(br.bottom + dy - hr.top + 6) + 'px';
+      const room = popRoom(btn), st = own && (root.closest('.stage-inner') || root.closest('.stage'));
+      if (st){ const sr = st.getBoundingClientRect(), cs = getComputedStyle(st); room.top = Math.max(room.top, sr.top + parseFloat(cs.paddingTop)); room.bottom = Math.min(room.bottom, sr.bottom - parseFloat(cs.paddingBottom)); }
+      if (own && demo && demo.offsetParent) room.bottom = Math.min(room.bottom, demo.getBoundingClientRect().top);
+      const need = menu.offsetHeight + 12, below = room.bottom - br.bottom, above = br.top - room.top, up = below < need && (above >= need || above > below);
+      menu.style.left = Math.round(x - hr.left) + 'px';
+      menu.style.top = Math.round(up ? br.top - hr.top - menu.offsetHeight - 6 : br.bottom - hr.top + 6) + 'px';
+      menu.style.setProperty('--origin', (up ? 'bottom' : 'top') + ' left');
     };
     // the visitor's open puts the focus on the picked version; a demo's open leaves the focus where it is
     const show = (focus = true) => {
       items().forEach(b => b.setAttribute('aria-checked', String(+b.dataset.i === m.i)));
-      open = true; hideTip(); menu.inert = false; o.onOpen && o.onOpen(); place(glide(wrap, btn, menu)); menu.classList.add('open'); btn.setAttribute('aria-expanded', 'true');
+      open = true; hideTip(); menu.inert = false; o.onOpen && o.onOpen(); place(); menu.classList.add('open'); btn.setAttribute('aria-expanded', 'true');
       if (focus) (items().find(b => b.getAttribute('aria-checked') === 'true') || items()[0]).focus({ preventScroll:true });
     };
     const hide = refocus => {
       if (!open) return; open = false; menu.classList.remove('open'); btn.setAttribute('aria-expanded', 'false');
       if (refocus) btn.focus({ preventScroll:true });
-      menu.inert = true; glide(wrap, btn, null); o.onClose && o.onClose();
+      menu.inert = true; o.onClose && o.onClose();
     };
     k.on(btn, 'click', e => { e.stopPropagation(); open ? hide(false) : show(e.isTrusted); });
     k.on(btn, 'keydown', e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); show(); } });
@@ -2781,7 +2805,8 @@ DM.def('artifact-card', (r, c) => {
       else pan.animate([{ transform:'translateY(16px)', opacity:0 }, { transform:'none', opacity:1 }], { duration:D, easing:E });
     }
     if (src) src.style.visibility = 'hidden';
-    $('.afx-x', layer).focus({ preventScroll:true });
+    // Close takes the focus, with a ring only when the reader was opened from the keyboard (a click never leaves one)
+    giveBack($('.afx-x', layer));
     let closing = false;
     const close = async () => {
       if (closing) return; closing = true; hideTip();
@@ -2792,7 +2817,7 @@ DM.def('artifact-card', (r, c) => {
       }
       if (k.dead) return;
       layer.remove(); main.inert = false; if (demo) demo.inert = false; if (src) src.style.visibility = '';
-      opener.focus({ preventScroll:true });
+      giveBack(opener);
     };
     k.on($('.afx-x', layer), 'click', close);
     k.on(scrim, 'click', close);
@@ -2861,8 +2886,7 @@ DM.def('artifact-card', (r, c) => {
     const a = art, m = model(a), W = [[96, 88, 70, 82], [92, 84, 90, 64], [90, 78, 86, 72]];
     main.innerHTML = `<div class="afx-w afx-pv"><div class="afx-pv-card afx-card is-writing">
       <div class="afx-pv-prev" aria-hidden="true"><div class="afx-pv-page">
-        <div class="afx-pv-k"><span class="afx-wr">Writing…</span><span class="afx-fin"></span></div>
-        <div class="afx-pv-h">${esc(a.title)}</div><p class="afx-pv-p"></p>
+        <p class="afx-pv-p"></p>
         <div class="afx-pv-ls"><i></i><i></i><i></i><i></i></div>
       </div></div>
       <div class="afx-pv-meta"><span class="afx-ic"><span class="spin" aria-hidden="true"></span>${ic(a.icon)}</span>
@@ -2870,11 +2894,11 @@ DM.def('artifact-card', (r, c) => {
         <div class="afx-pv-act">${acts(a, `<button type="button" class="ib afx-open" aria-label="Open ${esc(a.title)}" data-tip="Open">${ic('max')}</button>`)}</div>
       </div>
     </div></div>`;
-    const wrap = $('.afx-w', main), card = $('.afx-pv-card', main), op = $('.afx-open', card), p = $('.afx-pv-p', main), kick = $('.afx-pv-k .afx-fin', main);
+    const wrap = $('.afx-w', main), card = $('.afx-pv-card', main), op = $('.afx-open', card), p = $('.afx-pv-p', main);
     const fill = i => { $$('.afx-pv-ls i', main).forEach((e, j) => e.style.setProperty('--w', W[i % 3][j] + '%')); };
     const last = a.versions.length - 1, sum = i => a.versions[i].summary || '';
-    now.m = m; bindMeta(card, m); fill(m.i); openTip(op); kick.textContent = `${a.kind} · v${m.i + 1}`;
-    m.on(i => { swap(kick, `${a.kind} · v${i + 1}`); swap(p, sum(i)); fill(i); });
+    now.m = m; bindMeta(card, m); fill(m.i); openTip(op);
+    m.on(i => { swap(p, sum(i)); fill(i); });
     const vb = $('.afx-vb', card); if (vb) vmenu(k, m, vb, wrap);
     k.on($('.afx-copy', card), 'click', e => doCopy(e.currentTarget, m));
     k.on($('.afx-dl', card), 'click', e => doDownload(e.currentTarget, m));
@@ -2910,7 +2934,7 @@ DM.def('artifact-card', (r, c) => {
           <button type="button" class="ib afx-dl" aria-label="Download ${esc(a.title)}" data-tip="Download">${ic('down', 's')}</button>
         </span></span>
       </span>
-      ${own ? '<p>The short version: the plan table is where people stall, and three small changes should move most of them on.</p>' : ''}
+      ${own ? '<div class="fold shut afx-in-after"><div><p>The short version: the plan table is where people stall, and three small changes should move most of them on.</p></div></div>' : ''}
     </div></div>`;
     const wrap = $('.afx-w', main), chip = $('.afx-chip', main), btn = $('.afx-in-main', main), vb = $('.afx-vb3', main);
     now.m = m; bindMeta(chip, m);
@@ -2923,21 +2947,24 @@ DM.def('artifact-card', (r, c) => {
       await k.wait(300);
       await phases(k, a, $('.afx-in-m .afx-wr', chip));
       btn.disabled = false; settle(chip, m);
+      // the words that sum the file up come once it is written
+      const after = $('.afx-in-after', main); if (after) after.classList.remove('shut');
     });
   }
 
   /* stack: the report as a stack of paper. The newest page is written onto it; Versions lays the sheets out to pick one */
   function stack(k){
     const a = art, m = model(a), N = a.versions.length, top = N - 1, T = a.title;
-    // the drawn lines stand for each page's text: p a paragraph line, b a bullet, n a numbered fix, s a gap
+    // the drawn lines stand for each page's text: h its heading, p a paragraph line, b a bullet, n a numbered fix, s a gap.
+    // The page is drawn, not written out: its name and version are said once, in the caption under the stack (owner, 18 Nov)
     const LINES = [
-      [['p', 94], ['p', 72], ['s'], ['b', 82], ['b', 74], ['b', 66], ['b', 78], ['s'], ['p', 88], ['p', 52]],
-      [['p', 92], ['p', 86], ['p', 56], ['s'], ['b', 80], ['b', 72], ['b', 86], ['b', 64], ['s'], ['p', 70]],
-      [['p', 90], ['p', 78], ['s'], ['n', 84], ['n', 70], ['n', 78], ['s'], ['b', 76], ['b', 68], ['b', 82]]
+      [['h', 62], ['p', 94], ['p', 72], ['s'], ['b', 82], ['b', 74], ['b', 66], ['b', 78], ['s'], ['p', 88], ['p', 52]],
+      [['h', 56], ['p', 92], ['p', 86], ['p', 56], ['s'], ['b', 80], ['b', 72], ['b', 86], ['b', 64], ['s'], ['p', 70]],
+      [['h', 66], ['p', 90], ['p', 78], ['s'], ['n', 84], ['n', 70], ['n', 78], ['s'], ['b', 76], ['b', 68], ['b', 82]]
     ];
-    const lines = j => LINES[j === top ? 2 : j % 2].map(([t, w]) => t === 's' ? '<span class="afx-gap"></span>' : `<span class="afx-r ${t}">${t === 'p' ? '' : '<b></b>'}<i style="--w:${w}%"></i></span>`).join('');
+    const lines = j => LINES[j === top ? 2 : j % 2].map(([t, w]) => t === 's' ? '<span class="afx-gap"></span>' : `<span class="afx-r ${t}">${t === 'p' || t === 'h' ? '' : '<b></b>'}<i style="--w:${w}%"></i></span>`).join('');
     main.innerHTML = `<div class="afx-w afx-st is-writing">
-      <div class="afx-desk"><div class="afx-stack" role="menu" aria-label="Versions of ${esc(T)}" aria-hidden="true">${a.versions.map((v, j) => `<button type="button" class="afx-sh${j === top ? ' blank' : ''}" role="menuitemradio" tabindex="-1" data-i="${j}" aria-checked="${j === top}" aria-label="v${j + 1}, ${esc(v.when)}: ${esc(v.note)}"><span class="afx-pg" aria-hidden="true"><span class="afx-st-k"><span>${j === top ? 'Writing…' : 'v' + (j + 1)}</span></span><span class="afx-st-h">${j === top ? '' : esc(T)}</span><span class="afx-st-ls">${lines(j)}</span>${j === top ? '<span class="afx-pen"></span>' : ''}</span><span class="afx-tab" aria-hidden="true">${ic('check', 'xs')}<span>v${j + 1}</span><span class="afx-ta"> · ${esc(v.ago)}</span></span></button>`).join('')}</div></div>
+      <div class="afx-desk"><div class="afx-stack" role="menu" aria-label="Versions of ${esc(T)}" aria-hidden="true">${a.versions.map((v, j) => `<button type="button" class="afx-sh${j === top ? ' blank' : ''}" role="menuitemradio" tabindex="-1" data-i="${j}" aria-checked="${j === top}" aria-label="v${j + 1}, ${esc(v.when)}: ${esc(v.note)}"><span class="afx-pg" aria-hidden="true"><span class="afx-st-ls">${lines(j)}</span>${j === top ? '<span class="afx-pen"></span>' : ''}</span><span class="afx-tab" aria-hidden="true">${ic('check', 'xs')}<span>v${j + 1}</span><span class="afx-ta"> · ${esc(v.ago)}</span></span></button>`).join('')}</div></div>
       <div class="afx-cap">
         <div class="afx-st-t">${esc(T)}</div>
         <div class="afx-meta afx-st-m"><span class="afx-wr shim">${esc(a.steps[0])}</span><span class="afx-fin"></span></div>
@@ -2998,21 +3025,19 @@ DM.def('artifact-card', (r, c) => {
     k.on($('.afx-copy', main), 'click', e => doCopy(e.currentTarget, m));
     k.on($('.afx-dl', main), 'click', e => doDownload(e.currentTarget, m));
     k.on(op, 'click', () => { if (writing) return; if (fanned) setFan(false); open(k, m, wrap, { kind:'page', opener:op, src:sheets[m.i] }); });
-    // writing: a blank sheet drops onto the stack, the title is typed, and a pen draws each line of the new page
+    // writing: a blank sheet drops onto the stack, and a pen draws its heading and each line of the new page
     c.run(async () => {
-      const sh = sheets[top], pen = $('.afx-pen', sh), title = $('.afx-st-h', sh), kick = $('.afx-st-k span', sh), E = cssEase(root);
+      const sh = sheets[top], pen = $('.afx-pen', sh), E = cssEase(root);
       if (!REDUCE) sh.animate([{ transform:'translateY(-36px)', opacity:0 }, { transform:'none', opacity:1 }], { duration:cssMs(root, '--t-slow'), easing:E, composite:'add' });
       await k.wait(300);
       const w = $('.afx-st-m .afx-wr', main), st = a.steps;
       swap(w, st[0]);
-      if (REDUCE){ await k.wait(500); title.textContent = T; }
-      else for (let n = 1; n <= T.length; n++){ title.textContent = T.slice(0, n); await k.wait(40); }
-      await k.wait(REDUCE ? 0 : 250);
-      swap(w, st[1]);
+      await k.wait(REDUCE ? 500 : 400);
       const rows = $$('.afx-r', sh).filter(x => x.offsetParent);
       for (let j = 0; j < rows.length; j++){
         const x = rows[j], line = $('i', x), dot = $('b', x);
-        if (j === 3) swap(w, st[2]);
+        if (j === 1) swap(w, st[1]);
+        if (j === 4) swap(w, st[2]);
         if (REDUCE){ await k.wait(150); continue; }
         const x0 = x.offsetLeft + line.offsetLeft, x1 = x0 + line.offsetWidth, y = x.offsetTop + x.offsetHeight / 2 - 3.5, ms = 260 + line.offsetWidth * 1.4;
         if (dot) dot.animate([{ transform:'scaleX(0)' }, { transform:'none' }], { duration:120, fill:'forwards' });
@@ -3022,7 +3047,7 @@ DM.def('artifact-card', (r, c) => {
       }
       pen.getAnimations().forEach(x => x.cancel());
       $$('.afx-r :is(i,b)', sh).forEach(e => e.getAnimations().forEach(x => x.cancel()));
-      sh.classList.remove('blank'); title.textContent = T; kick.textContent = 'v' + N;
+      sh.classList.remove('blank');
       if (!REDUCE) sh.animate([{ transform:'translateY(-6px)' }, { transform:'none' }], { duration:cssMs(root, '--t'), easing:E, composite:'add' });
       writing = false; settle(el, m);
     });

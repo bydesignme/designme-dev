@@ -1,26 +1,31 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, DM, I, enter, html, swap } from '../core/core.js';
+import { $, DM, I, enter, grow, html, swap } from '../core/core.js';
 DM.def('trace-view', (r, c) => {
   // the kinds of span, each with its mark and colour: the identity slots of the chart palette, and grey for the agents
   // that hold the other spans. The name is always on the mark, in a tooltip, and in the span's label
   const K = { agent:['Agent','cpu','var(--dm-muted)'], llm:['LLM call','spark','var(--dm-c2)'], tool:['Tool call','term','var(--dm-c6)'], ret:['Retrieval','search','var(--dm-c3)'] };
-  // one run, in seconds from its start. A tool call that takes longer than SLOW seconds is flagged
+  // one run, in seconds from its start. The run itself is the head (its name, its total tokens and time), so its spans start
+  // at the top level (owner, 18 Nov: no row repeating the run's name). A tool call that takes longer than SLOW seconds is flagged
   const SPAN = 5, SLOW = 2, PACE = 1.5;
   const S = [
-    { id:'run', k:'agent', n:'Pricing research', s:0, d:4.82, lv:0, in:"Compare Northwind's plans with ours", out:'3 prices saved to Pricing research' },
-    { id:'plan', k:'llm', n:'Plan the steps', s:.04, d:.62, tk:1240, lv:1, in:'The task and 2 earlier messages', out:'Search notes, fetch the page, summarise' },
-    { id:'notes', k:'ret', n:'Search saved notes', s:.7, d:.38, tk:910, lv:1, in:'"northwind pricing", top 4', out:'4 notes, best match 0.82' },
-    { id:'fetch', k:'tool', n:'fetch_page', s:1.12, d:2.46, tk:3120, lv:1, in:'GET northwind.app/pricing', out:'200 OK, 48 KB, 3 plans' },
-    { id:'sum', k:'agent', n:'Summariser', s:3.62, d:1.02, lv:1, in:'The page and 4 notes', out:'A 120-word summary' },
-    { id:'write', k:'llm', n:'Write the summary', s:3.66, d:.94, tk:2380, lv:2, in:'Page text and notes, 2,050 tokens', out:'120 words, 3 prices' },
-    { id:'ans', k:'llm', n:'Final answer', s:4.66, d:.16, tk:560, lv:1, in:'The summary', out:'3 prices saved to Pricing research' }
+    { id:'plan', k:'llm', n:'Plan the steps', s:.04, d:.62, tk:1240, lv:0, in:'The task and 2 earlier messages', out:'Search notes, fetch the page, summarise' },
+    { id:'notes', k:'ret', n:'Search saved notes', s:.7, d:.38, tk:910, lv:0, in:'"northwind pricing", top 4', out:'4 notes, best match 0.82' },
+    { id:'fetch', k:'tool', n:'fetch_page', s:1.12, d:2.46, tk:3120, lv:0, in:'GET northwind.app/pricing', out:'200 OK, 48 KB, 3 plans' },
+    { id:'sum', k:'agent', n:'Summariser', s:3.62, d:1.02, lv:0, in:'The page and 4 notes', out:'A 120-word summary' },
+    { id:'write', k:'llm', n:'Write the summary', s:3.66, d:.94, tk:2380, lv:1, in:'Page text and notes, 2,050 tokens', out:'120 words, 3 prices' },
+    { id:'ans', k:'llm', n:'Final answer', s:4.66, d:.16, tk:560, lv:0, in:'The summary', out:'3 prices saved to Pricing research' }
   ];
   const END = Math.max(...S.map(x => x.s + x.d));
   // an agent span counts the tokens of every span under it
   S.forEach((x, i) => { x.kids = []; for (let j = i + 1; j < S.length && S[j].lv > x.lv; j++) x.kids.push(S[j]); });
   const root = $('.trv', r), rows = $('.trv-rows', r), stEl = $('.trv-st', r), tot = $('.trv-tot', r), dt = $('.trv-dt', r), dc = $('.trv-dc', r), lg = $('.trv-lg', r);
-  // room for every span from the start, so the panel never grows (and re-centres in its stage) as spans arrive
-  rows.style.setProperty('--dm-n', S.length);
+  // the head has the run's mark in a tile, the column every span's mark is centred in, and its total tokens beside its time
+  const head = $('.trv-h', r);
+  head.prepend(html(`<span class="trv-hi" aria-hidden="true">${I('cpu')}</span>`));
+  const ttEl = html('<span class="trv-tt muted num"></span>'); tot.before(ttEl);
+  // the card keeps no room for spans still to come (owner, 18 Nov): it grows as each span starts and as the details open
+  // (grow(), centred in its stage), once its entrance (which scales it) has ended, so it measures the card at its real size
+  Promise.resolve().then(() => Promise.all(root.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && root.isConnected) c.offs.push(grow(root)); });
   // the key: every kind but the agents, with its colour and how many of its spans have started
   const KEYS = ['llm', 'tool', 'ret'];
   lg.innerHTML = KEYS.map(k => `<span role="listitem" class="z" data-k="${k}" style="--dm-k:${K[k][2]}"><i></i>${K[k][0]} <b class="num">0</b></span>`).join('');
@@ -31,7 +36,7 @@ DM.def('trace-view', (r, c) => {
   let T = 0, sel = null, said = '';
   S.forEach(x => {
     const [kind, icon, col] = K[x.k];
-    x.el = html(`<button type="button" class="trv-r${x.lv ? '' : ' root'}" data-k="${x.k}" aria-expanded="false" style="--dm-k:${col};--dm-lv:${x.lv}" hidden><span class="trv-n"><span class="trv-g" aria-hidden="true"></span><span class="trv-k" data-tip="${kind}">${I(icon,'xs')}</span><span class="trv-nm">${x.n}</span></span><span class="trv-b"><i style="left:${x.s / SPAN * 100}%;width:${x.d / SPAN * 100}%"></i></span><span class="trv-tk num"></span><span class="trv-ms num"></span></button>`);
+    x.el = html(`<button type="button" class="trv-r" data-k="${x.k}" aria-expanded="false" style="--dm-k:${col};--dm-lv:${x.lv}" hidden><span class="trv-n"><span class="trv-g" aria-hidden="true"></span><span class="trv-k" data-tip="${kind}">${I(icon,'xs')}</span><span class="trv-nm">${x.n}</span></span><span class="trv-b"><i style="left:${x.s / SPAN * 100}%;width:${x.d / SPAN * 100}%"></i></span><span class="trv-tk num"></span><span class="trv-ms num"></span></button>`);
     x.el.onclick = () => open(x === sel ? null : x);
     rows.appendChild(x.el);
   });
@@ -76,7 +81,7 @@ DM.def('trace-view', (r, c) => {
       KEYS.forEach(k => { const n = S.filter(x => x.k === k && vis(x)).length, el = $(`[data-k="${k}"]`, lg), b = $('b', el); el.classList.toggle('z', !n); if (b.textContent !== String(n)){ b.textContent = n; if (n) enter(b); } }); }
     // the playhead runs down every track while the run streams, and fades once it is done
     root.style.setProperty('--dm-now', Math.min(T, END) / SPAN); root.classList.toggle('live', T > 0 && T < END);
-    if (txt) tot.textContent = sec(Math.min(T, END));
+    if (txt){ tot.textContent = sec(Math.min(T, END)); ttEl.textContent = tks(S.reduce((n, x) => n + (x.k === 'agent' ? 0 : used(x)), 0)) + ' tokens'; }
     const slow = S.filter(x => x.slow).length;
     const line = T >= END ? `Done · ${S.length} spans${slow ? `, ${slow} slow` : ''}` : `Running · ${shown} span${shown > 1 ? 's' : ''}`;
     if (line !== said){ said = line; swap($('.m', stEl), line); }

@@ -373,7 +373,7 @@ document.addEventListener('click', e => { const b = e.target.closest && e.target
 const DM = {
   defs:{},
   // agents at work: their demos keep playing while a mouse rests on them, instead of holding (see mount)
-  PLAYS:new Set(['status-pill','step-loader','thinking','reasoning-trail','agent-lanes','agent-run-timeline','trace-view','agent-tree','terminal-stream','attachment-tray','progress','web-search','thinking-states','run-drawer']),
+  PLAYS:new Set(['status-pill','step-loader','thinking','reasoning-trail','agent-lanes','agent-run-timeline','trace-view','agent-tree','terminal-stream','attachment-tray','progress','web-search','thinking-states','run-drawer','live-answer']),
   def(id, fn){ this.defs[id] = fn; },
   /* the markup a card starts from: its <template>, or, when the markup is written out in its stage, what the stage holds
      before it first mounts, kept as a template so Replay starts from it again */
@@ -426,7 +426,7 @@ const DM = {
 // it is out of the accessibility tree while it shows nothing, so screen readers never meet an empty tooltip
 const tip = document.createElement('div'); tip.className = 'tip'; tip.setAttribute('role','tooltip'); tip.setAttribute('aria-hidden','true');
 // tipNext is the trigger whose tip is on its way, so moving across its own icon and padding doesn't start the wait again
-let tipT = 0, tipFor = null, tipNext = null;
+let tipT = 0, tipFor = null, tipNext = null, tipRaf = 0, tipAt = '';
 // a trigger whose menu is open shows its menu, not its tip
 const menuOpen = el => el.getAttribute('aria-expanded') === 'true' && (el.hasAttribute('data-pop') || (el.hasAttribute('aria-haspopup') && el.getAttribute('aria-haspopup') !== 'false'));
 // a tip goes when its trigger does: removed, hidden, or its menu opened
@@ -441,6 +441,17 @@ function showTip(el){
   tipWatch.observe(document.body, { childList:true, subtree:true, attributes:true, attributeFilter:['aria-expanded', 'hidden'] });
   tip.innerHTML = el.dataset.tip.replace(/</g,'&lt;') + (k ? `<span class="kbd">${k}</span>` : '');
   tip.style.left = '0px'; tip.style.top = '0px'; tip.classList.add('show'); tip.removeAttribute('aria-hidden');
+  placeTip(el); tipAt = ''; cancelAnimationFrame(tipRaf); tipRaf = requestAnimationFrame(tipFollow);
+}
+// the tip goes where its trigger goes: a demo that keeps playing under the pointer (rows growing in, a card resizing) carries
+// it along instead of leaving it behind (owner, 19 Nov). Only the trigger's box is read each frame, and only while a tip shows
+function tipFollow(){
+  tipRaf = 0; if (!tipFor) return;
+  const r = tipFor.getBoundingClientRect(), at = `${r.left},${r.top},${r.width},${r.height}`;
+  if (tipAt && at !== tipAt) placeTip(tipFor);
+  tipAt = at; tipRaf = requestAnimationFrame(tipFollow);
+}
+function placeTip(el){
   const r = el.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
   // it stays inside the component's stage when it fits there, so on a phone it never runs past the card's edge
   // (the stage you see: on a component page the stage-in's own parent hugs the component, and a tip near its edge would be
@@ -462,7 +473,7 @@ let tipHid = -1e9;
 function hideTip(force){
   const on = tipFor || tipNext, ev = window.event;
   if (!force && on && on.isConnected && on.matches(':hover') && !(ev && ev.isTrusted)) return;
-  clearTimeout(tipT); tipFor = null; tipNext = null; tipWatch.disconnect(); if (tip.classList.contains('show')) tipHid = performance.now(); tip.classList.remove('show'); tip.setAttribute('aria-hidden','true'); }
+  clearTimeout(tipT); cancelAnimationFrame(tipRaf); tipRaf = 0; tipFor = null; tipNext = null; tipWatch.disconnect(); if (tip.classList.contains('show')) tipHid = performance.now(); tip.classList.remove('show'); tip.setAttribute('aria-hidden','true'); }
 document.addEventListener('pointerover', e => { const el = e.target.closest('[data-tip]'); if (!el || el === tipFor) return; if (el === tipNext) return; clearTimeout(tipT); tipNext = el; tipT = setTimeout(() => { tipNext = null; showTip(el); }, tip.classList.contains('show') || performance.now() - tipHid < 120 ? 0 : 380); });
 document.addEventListener('pointerout', e => { const el = e.target.closest('[data-tip]'); if (el && !el.contains(e.relatedTarget)) hideTip(); });
 document.addEventListener('focusin', e => { const el = e.target.closest('[data-tip]'); if (el && el.matches(':focus-visible')) showTip(el); });
@@ -661,4 +672,4 @@ const mountAll = () => {
 document.addEventListener('DOMContentLoaded', mountAll);
 document.addEventListener('astro:page-load', mountAll);
 
-export { $, $$, AV, BRAND, DM, FLAG, FLAGS, I, MODS, REDUCE, REVEAL, SPRITE, byKey, carousel, centre, closePops, copied, ctl, enter, fitHits, giveBack, grow, hideTip, hold, html, isMenu, lastInput, menuOpen, openPop, placePop, popFocus, popItems, popRoom, popStep, reflow, release, reveal, revealParts, seg, showTip, stagger, swap, tip, tipFor, tipHid, tipNext, tipT, tipWatch, tween };
+export { $, $$, AV, BRAND, DM, FLAG, FLAGS, I, MODS, REDUCE, REVEAL, SPRITE, byKey, carousel, centre, closePops, copied, ctl, enter, fitHits, giveBack, grow, hideTip, hold, html, isMenu, lastInput, menuOpen, openPop, placePop, placeTip, popFocus, popItems, popRoom, popStep, reflow, release, reveal, revealParts, seg, showTip, stagger, swap, tip, tipAt, tipFollow, tipFor, tipHid, tipNext, tipRaf, tipT, tipWatch, tween };
