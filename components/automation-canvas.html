@@ -2986,10 +2986,12 @@ const fitHits = window.dmFitHits || (() => {
 });
 </script><script>/* Device frames: a page shown at a desktop, tablet or phone width (1280, 820 or 390 CSS px) inside a box of any size, scaled
    down to fit its width. The page is an iframe of the same site with ?embed=1, which hides the site's own chrome around it.
-   Used by the homepage's showcase (tools/site/build.js inlines this file), the template pages and the pages of full-screen
+   Used by the landing page's templates (src/pages/index.astro), the template pages and the pages of full-screen
    components (tools/pages inlines it there).
 
      var v = dmFrame(box, { onUse: fn })   box: an element with a size of its own (the frame fills it, centred)
+                                           fill: true lets a desktop page be as wide as a box wider than 1280px, so it
+                                           fills it (the landing page's templates); otherwise it stays 1280px, centred
      v.show(src, device)                   'desktop' | 'tablet' | 'mobile'; a page already loaded is shown again, not reloaded
      v.device(device)                      changes the width of the page on show
      v.reload()                            loads the page on show again (the demos start over)
@@ -3019,7 +3021,7 @@ const fitHits = window.dmFitHits || (() => {
     var use = function(){ if (used) return; used = true; if (opts.onUse) opts.onUse(); };
     function place(f){
       if (!f) return;
-      var bw = box.clientWidth, bh = box.clientHeight, w = W[dev], pad = PAD[dev];
+      var bw = box.clientWidth, bh = box.clientHeight, w = dev === 'desktop' && opts.fill ? Math.max(W.desktop, bw) : W[dev], pad = PAD[dev];
       if (!bw || !bh) return;
       var k = Math.min(1, (bw - (dev === 'desktop' ? 0 : 32)) / w), h = Math.max(200, (bh - pad * 2) / k);
       for (var d in W) f.wrap.classList.toggle(d, d === dev);

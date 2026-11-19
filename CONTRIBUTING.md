@@ -38,8 +38,8 @@ Generated, don't edit by hand:
 - `packages/astro/src` and `packages/astro/manifest.json`
 - In `packages/react`: each component's `.css`, `src/designme.css`, `src/index.ts`, and the icon, logo, flag and
   hit-area files in `src/lib` (the sync writes a "Generated" header on each)
-- `tools/site/site-patches.json`, `tools/site/card-heights.json`, the pictures in `tools/pages/public/components` and
-  `og.png`, the share image (generated, but committed so a build doesn't need Python or a browser)
+- `tools/site/site-patches.json`, `tools/site/card-heights.json`, the pictures in `tools/pages/public/components` (the
+  thumbnails and the landing page's wall) and `og.png`, the share image (generated, but committed so a build doesn't need Python or a browser)
 
 Written by hand and served as they are: `_headers`, `robots.txt` and the favicons.
 
@@ -75,6 +75,8 @@ own source keeps the short names.
   changes.
 - The share image (`og.png`): `PW=$(npm root -g)/playwright node og.mjs` from `tools/pages` (needs ffmpeg), after the
   count changes or a component on it changes its look.
+- The landing page's wall: `PW=$(npm root -g)/playwright node wall.mjs [names]` from `tools/pages` (needs ffmpeg), after a
+  component's look changes or one is added.
 - Sounds: `python3 make-sounds.py` from `tools/site` (needs ffmpeg and numpy).
 - Carousel and Image generation photos (Pexels): `python3 art/get-photos.py` from the root (needs Pillow with WebP).
 

@@ -21,12 +21,14 @@ like `library.html`.
 ## The landing page
 
 `src/pages/index.astro` is the page at `/`: full width, with the site's header and footer and no sidebar. It shows what
-the library is with the components themselves: Agent tree live in the first screen beside a style switch, a grid of agent
-components playing their demos, Blueprint, Soft and Clean to pick from (a pick restyles the whole page), how to install,
-what is in the library, what every component comes with, and questions. Each demo is the installed HTML, CSS and JS on the
-shared core, as on a component page: the first screen's is in the page, the others load from the registry
-(`/r/<name>.json`) when they come within a screen of the view, and each stage keeps the tallest its component gets in
-any style (`tools/site/card-heights.json`), so nothing below it moves. Its counts come from the library's sections.
+the library is with the components themselves: the title and the buttons over the two templates, live in a frame and
+taking turns (`src/device/frame.js`, with each template's `?embed=1`, which hides its header); a wall of every component,
+rows of pictures that drift in turn left and right, each linking to its page; a grid of agent components playing their
+demos; Blueprint, Soft and Clean to pick from (a pick restyles the whole page, the templates and the wall's pictures
+included); how to install; what is in the library; what every component comes with; and questions. Each demo is the
+installed HTML, CSS and JS on the shared core, as on a component page, loaded from the registry (`/r/<name>.json`) when it
+comes within a screen of the view; each stage fits the tallest its component gets in the style on screen
+(`tools/site/card-heights.json`), so nothing below it moves while it plays. Its counts come from the library's sections.
 
 ## What each page shows
 
@@ -72,6 +74,14 @@ PW=$(npm root -g)/playwright node shots.mjs [names] # about 15 minutes for all 8
 npm run build
 ```
 
+`wall.mjs` takes the landing page's wall pictures: every component once its demo has played (the moments and framing
+`shots.mjs` uses), in each style and theme, 480×300, in `public/components/wall/<style>-<theme>/` (one page per style and
+theme plays them all at once, so the six sets take minutes). Take them again after a component's look changes:
+
+```sh
+PW=$(npm root -g)/playwright node wall.mjs [names]  # needs ffmpeg
+```
+
 `og.mjs` draws the site's share image, `og.png` at the repository root (1200×630), which a link to the landing page or the
 library shows: the count and the title beside a wall of real agent components in Blueprint dark, each the installed
 component on the shared core, stopped at a moment that shows it whole. Draw it again when the count changes or one of its
@@ -106,7 +116,7 @@ file still gets a page, with its one-line description.
   written copy. `src/pages/docs/[slug].md.ts` writes their Markdown copies.
 - `src/pages/components/[slug].md.ts` writes the Markdown copies;
   `src/pages/components/assets/` the shared core for the demos; `src/pages/sitemap.xml.ts` the sitemap.
-- `shots.mjs` takes the pictures and `og.mjs` draws the share image (see above).
+- `shots.mjs` takes the pictures, `wall.mjs` the landing page's wall and `og.mjs` draws the share image (see above).
 - `publish.mjs` copies the build (`index.html`, `components/`, `docs/` and `sitemap.xml`) to the repository root and stops if the build holds
   anything it doesn't expect.
 

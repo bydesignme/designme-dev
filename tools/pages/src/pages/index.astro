@@ -2,7 +2,9 @@
 // The landing page at / (owner, 19 Nov): what designme.dev is, shown with the components themselves. The library it leads to is
 // at /library (tools/site builds it as library.html). A full-width page with the site's header and footer and no sidebar.
 // Sections, in order:
-//   hero      the title, the lead, Browse the library and the docs, the install command, a style switch, and Agent tree live
+//   hero      the title, the lead, Browse the library and the docs, the install command and a style switch, then the two
+//             templates (whole apps made of the components) live in a frame, taking turns
+//   wall      every component, as rows of pictures that drift in turn left and right, each linking to its page
 //   live      agent components playing their demos, each named and linked to its page
 //   styles    Blueprint, Soft and Clean to pick from, with a demo beside them; a pick restyles the whole page
 //   install   how to add a component: the CLI in HTML, React or Astro, and the shadcn CLI
@@ -12,30 +14,58 @@
 //   faq       questions, with their answers
 // Every number and claim here is read from the code or true of it: the counts come from the library's own sections, the
 // facts from the README, the CLI and the docs. The demos are the installed HTML, CSS and JS on the shared core, as on a
-// component page: the hero's is in the page, the others load from the registry (/r/<name>.json) when they come near the
-// screen, and each keeps the tallest its component gets (tools/site/card-heights.json), so nothing below it moves.
+// component page: they load from the registry (/r/<name>.json) when they come near the screen, and each stage fits the tallest its component gets in the style on screen (tools/site/card-heights.json), so
+// nothing below it moves while it plays and no stage keeps room for another style.
 import fs from 'node:fs';
 import path from 'node:path';
 import Page from '../layouts/Page.astro';
 import { ROOT, SITE, COMPONENTS, SECTIONS, SETS, BANDS, icon, MARKS, shadcnUrl } from '../lib/data.mjs';
+import { FRAME_CSS, FRAME_JS } from '../lib/templates.mjs';
 
 const comp = reg => { const c = COMPONENTS.find(x => x.reg === reg); if (!c) throw new Error('landing: no component called ' + reg); return c; };
 const total = COMPONENTS.length;
 const nOf = g => SECTIONS.filter(s => s.grp === g).reduce((n, s) => n + s.cards.length, 0);
 const nAgent = nOf('agent'), nBasics = nOf('basics');
 
-// the tallest each component gets in any of the three styles, at each band of screen widths (measure-heights.js), and the
-// stage around it: 56px above and below (52px on a phone), so the component sits in the middle with Animate clear of it
+// each stage is as tall as its component gets in the style on screen (measure-heights.js measures each style: components is
+// Soft), with 48px above and below it, so the component sits in the middle, clear of Animate, and nothing below the stage
+// moves while it plays. Picking another style fits the stages to it. From 641px up every stage here gives its component
+// its whole width (440px, or 720px for a wide one, and never less than the library's card at the same width), so the
+// tallest it gets is the most the library measured where its cards were at least that wide: band a, then c to i (b is
+// the library's tight two-up band). On a phone the stages are as wide as the library's, so each band is its own
 const MEASURED = JSON.parse(fs.readFileSync(path.join(ROOT, 'tools/site/card-heights.json'), 'utf8'));
-const tallest = c => BANDS.map((_, i) => Math.max(...['components', 'componentsBp', 'componentsClean'].map(k => (MEASURED[k] && MEASURED[k][c.v2] && MEASURED[k][c.v2][i]) || 0)));
-const stageVars = c => tallest(c).map((h, i) => `--h-${BANDS[i][0]}:${(h || 320) + (BANDS[i][1] <= 640 ? 104 : 112)}px`).join(';');
-// each band's height applies from its own width up to the next band's
-const bandCss = BANDS.map(([b], i) => i ? `@media (max-width:${BANDS[i - 1][1] - 1}px){.lp-demo{min-height:var(--h-${b})}}` : `.lp-demo{min-height:var(--h-${b})}`).join('\n');
+const KEYS = { soft:'components', bp:'componentsBp', clean:'componentsClean' }, PAD = 48;
+const ROOMY = BANDS.map(([b, w], i) => ({ b, w, i })).filter(x => x.w > 640 && x.b !== 'b'), PHONE = BANDS.map(([b, w], i) => ({ b, w, i })).filter(x => x.w <= 640);
+const row = (c, style) => {
+  const r = (MEASURED[KEYS[style]] || {})[c.v2], soft = MEASURED.components[c.v2];
+  if (!soft) throw new Error('landing: no measured height for ' + c.v2 + ': measure it with measure-heights.js');
+  return r && r.length === BANDS.length ? r : soft;
+};
+// a component with a switch under it (its views or designs, in a .dm frame) keeps 40px more for the switch, as on its own page
+// (the library shows that switch in the card's footer, so its measurement leaves it out)
+const SW = c => /class="[^"]*(?<![\w-])dm(?![\w-])/.test(c.html.html) ? 40 : 0;
+// and 4px to spare, for the pixel or two a component can reach past what was measured at another width in its band
+const stageVars = c => Object.keys(KEYS).flatMap(st => { const r = row(c, st), add = 2 * PAD + SW(c) + 4;
+  return [`--lh-${st}:${Math.max(...ROOMY.map(x => r[x.i])) + add}px`, ...PHONE.map(x => `--lh-${st}-${x.b}:${r[x.i] + add}px`)]; }).join(';');
+// Blueprint draws when <html> has no data-style; each phone band applies from its own width up to the next one's
+const pick = sfx => `.lp-demo{--lh:var(--lh-bp${sfx})}:root[data-style="soft"] .lp-demo{--lh:var(--lh-soft${sfx})}:root[data-style="clean"] .lp-demo{--lh:var(--lh-clean${sfx})}`;
+const bandCss = [pick(''), ...PHONE.map((x, k) => `@media (max-width:${(k ? PHONE[k - 1].w : 641) - 1}px){${pick('-' + x.b)}}`), '.lp-demo{min-height:var(--lh)}'].join('\n');
 
+// the component the install commands name
 const HERO = comp('agent-tree');
-// the agent components playing on the page: a wide one beside a narrow one on wide screens (7 and 5 of 12 columns), the
-// wide ones across the row below 1400px, one under another below 1100px
-const LIVE = [['trace-view', 'w'], ['live-answer', 'n5'], ['composer', 'n5'], ['agent-lanes', 'w'], ['reasoning-trail', ''], ['context-meter', '']].map(([reg, k]) => ({ c:comp(reg), k }));
+// the templates, whole apps made of the components, shown live in the first screen (with ?embed=1, only the app); each
+// says what is in it, from tools/pages/README.md
+const TEMPLATES = [
+  ['sales-crm', 'Sales CRM', 'Accounts, an agent inbox, a week calendar, a deals board and a forecast, with an agent working beside the rep.'],
+  ['workflow-editor', 'Workflow editor', 'A canvas of steps that pans and zooms, a step inspector, and test runs with a trace, a log and each step\'s data.'],
+].map(([slug, name, desc]) => ({ slug, name, desc, url:`/templates/${slug}` }));
+// the wall: every component in the library, in its order, as four rows that drift in turn left and right
+const ROWS = [0, 1, 2, 3].map(i => COMPONENTS.slice(Math.round(i * COMPONENTS.length / 4), Math.round((i + 1) * COMPONENTS.length / 4)));
+if (ROWS.flat().length !== total) throw new Error('landing: the wall shows ' + ROWS.flat().length + ' of ' + total + ' components');
+// the agent components playing on the page, two to a row, each beside one about as tall so neither stage is stretched
+// much: the two wide ones (each across the row from 1100 to 1399px, where two side by side would squeeze them), then Live
+// answer and Composer, then Reasoning trail and Context meter; one under another below 1100px
+const LIVE = [['trace-view', 'w'], ['agent-lanes', 'w'], ['live-answer', ''], ['composer', ''], ['reasoning-trail', ''], ['context-meter', '']].map(([reg, k]) => ({ c:comp(reg), k }));
 const STYLE_DEMO = comp('permission-gate');
 
 const STYLES = [
@@ -105,7 +135,7 @@ const jsonld = [
     <script async src="https://plausible.io/js/pa-0ymYxWA7A4pvtqpGbOCwQ.js"></script>
     <script is:inline>window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};plausible.init()</script>
     <link rel="stylesheet" href="/components/assets/core.css">
-    <style is:inline set:html={HERO.html.css} />
+    <style is:inline set:html={FRAME_CSS} />
     <style is:inline set:html={bandCss} />
     <style is:global>
       .pg-main:has(.lp){padding:0}
@@ -113,26 +143,56 @@ const jsonld = [
       .lp code{font:500 12.5px/1.4 var(--pg-mono);font-variant-ligatures:none;background:var(--pg-chip);padding:1px 5px;border-radius:5px;color:var(--pg-fg)}
       .lp-ar{display:block;width:14px;height:14px;flex:none}
 
-      /* ---- hero: the words on the left, Agent tree live on the right; one under the other below 1100px ---- */
-      .lp-hero{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:48px;align-items:center;padding-top:64px;padding-bottom:24px}
+      /* ---- hero: the words, then a row with the buttons, the install command and the style switch, then the templates ---- */
+      .lp-hero{padding-top:56px}
       .lp-kick{display:flex;flex-wrap:wrap;gap:4px 8px;margin:0;color:var(--pg-muted);font-size:13px;line-height:20px}
       .lp-kick span+span::before{content:"·";margin-right:8px;color:var(--pg-muted)}
       /* the page's title: the one text over 14px (the page-title exception, .pg-h1) */
-      .pg-h1.lp-h1{margin:16px 0 0;font-size:clamp(34px,3.6vw,52px);line-height:1.08;font-weight:500;letter-spacing:-.034em;text-wrap:balance}
-      .lp-lead{margin:20px 0 0;max-width:52ch;font-size:14px;line-height:1.65;color:var(--pg-dim);text-wrap:pretty}
+      .pg-h1.lp-h1{max-width:1000px;margin:16px 0 0;font-size:clamp(34px,3.6vw,52px);line-height:1.08;font-weight:500;letter-spacing:-.034em;text-wrap:balance}
+      .lp-lead{margin:20px 0 0;max-width:72ch;font-size:14px;line-height:1.65;color:var(--pg-dim);text-wrap:pretty}
       .lp-cta{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px}
+      .lp-acts{display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px;margin-top:28px}
+      .lp-acts .lp-cta{margin:0}
       /* buttons: the components' own (.pill, .pill.primary on the accent, .pill.line), a step taller on the page */
       .lp .lp-btn{height:40px;padding:0 18px;font-size:14px;text-decoration:none;gap:8px}
       .lp .lp-btn svg{width:14px;height:14px}
-      .lp-cmd{margin-top:16px}
+      .lp-cmd{margin:0}
       .lp .lp-cmd code{background:none;padding:0;border-radius:0;font:inherit;color:inherit}
       .lp .lp-cmd .d{color:var(--pg-muted)}
       .lp-cmd .c span{white-space:nowrap}
-      .lp-try{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:28px}
+      .lp-try{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-left:auto}
       .lp-try-l{font-size:13px;color:var(--pg-muted)}
       .lp-try .pg-seg button{height:28px;padding:0 12px}
-      .lp-hero-d{min-width:0}
-      @media (max-width:1099px){.lp-hero{grid-template-columns:minmax(0,1fr);gap:40px;padding-top:48px}.lp-lead{max-width:64ch}}
+      @media (max-width:1099px){.lp-try{margin-left:0}}
+      /* the templates: a row with the switch between them, what the one on show holds and a link to it, over the frame */
+      .lp-show-w{margin-top:48px}
+      .lp-show-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin-bottom:12px}
+      .lp-show-bar .pg-seg button{height:28px;padding:0 12px}
+      .lp-show-d{flex:1;min-width:240px;margin:0;font-size:14px;line-height:20px;color:var(--pg-dim)}
+      .lp-show-bar .lp-more{margin-left:auto}
+      /* the frame keeps its size from the start (the app inside fades in once it has loaded): the app at the content's width,
+         800px tall, scaled down below 1280px wide; on a phone, the app's phone layout in a phone's frame */
+      .lp-show{--dvf-line:var(--pg-line2);--dvf-bg:var(--pg-bg);width:100%;aspect-ratio:16/10;max-height:800px;border-radius:12px;background:var(--pg-soft)}
+      .lp-show-ph{position:absolute;inset:0;display:grid;place-items:center;margin:0;color:var(--pg-muted);font-size:13px}
+      @media (max-width:640px){.lp-show{aspect-ratio:auto;height:600px;border-radius:14px}.lp-show-w{margin-top:40px}}
+
+      /* ---- the wall: every component, four rows that drift in turn left and right, across the whole window. A row holds still
+         under the pointer or while a tile in it has the focus; with reduced motion the rows stand still and scroll by hand ---- */
+      .lp-wall{padding-top:72px}
+      .lp-rows{display:flex;flex-direction:column;gap:12px}
+      .lp-row{overflow:hidden}
+      .lp-track{display:flex;width:max-content;animation:lp-drift var(--dur,200s) linear infinite}
+      .lp-row.rev .lp-track{animation-direction:reverse}
+      .lp-set{display:flex;gap:12px;padding-right:12px}
+      @keyframes lp-drift{to{transform:translateX(-50%)}}
+      .lp-row:hover .lp-track,.lp-row:focus-within .lp-track{animation-play-state:paused}
+      .lp-wt{flex:none;display:flex;flex-direction:column;gap:8px;width:240px;padding:6px 6px 10px;border-radius:14px;background:var(--pg-bg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pg-line2) 70%,transparent);color:var(--pg-fg);text-decoration:none;transition:background-color .2s ease}
+      .lp-wt:hover{background:var(--pg-soft)}
+      .lp-wt:focus-visible{outline:2px solid var(--pg-focus);outline-offset:-2px}
+      .lp-wt img{display:block;width:100%;height:auto;aspect-ratio:16/10;border-radius:9px;background:var(--pg-soft)}
+      .lp-wt span{padding:0 4px;font-size:13px;line-height:18px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      @media (max-width:640px){.lp-wt{width:176px}.lp-wall{padding-top:56px}}
+      @media (prefers-reduced-motion:reduce){.lp-track{animation:none}.lp-set[aria-hidden]{display:none}.lp-row{overflow-x:auto;scrollbar-width:none}.lp-row::-webkit-scrollbar{display:none}}
 
       /* ---- a demo's stage: the component in the middle of the site's grey, as on a component page ---- */
       .lp-stage{position:relative;display:flex;flex-direction:column;border-radius:14px;background:var(--pg-soft);overflow:hidden}
@@ -141,7 +201,9 @@ const jsonld = [
       @media (prefers-color-scheme: dark){:root:not([data-theme="light"]):not([data-style="soft"],[data-style="clean"]){--lp-grid:rgba(255,255,255,.014)}}
       :root[data-theme="dark"]:not([data-style="soft"],[data-style="clean"]){--lp-grid:rgba(255,255,255,.014)}
       :root:not([data-style="soft"],[data-style="clean"]) .lp-stage{background-image:linear-gradient(var(--lp-grid) 1px,transparent 1px),linear-gradient(90deg,var(--lp-grid) 1px,transparent 1px);background-size:24px 24px;background-position:-1px -1px}
-      .lp-demo{flex:1;display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;align-items:center;padding:56px 24px;overflow-anchor:none}
+      .lp-demo{flex:1;display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;align-items:center;padding:48px 24px;overflow-anchor:none}
+      /* a picked style fits each stage to it; the visitor's own click, so the page may move then */
+      @media (prefers-reduced-motion:no-preference){.lp-demo{transition:min-height .34s cubic-bezier(.23,1,.32,1)}}
       .lp-demo>.card{min-width:0;align-self:stretch;display:grid;place-items:center}
       .lp-anim{position:absolute;top:12px;right:12px;z-index:3;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border:0;border-radius:999px;background:var(--pg-bg);box-shadow:inset 0 0 0 1px var(--pg-line);color:var(--pg-dim);font:500 13px/1 var(--pg-sans);cursor:pointer;transition:color .2s}
       .lp-anim:hover{color:var(--pg-fg)}
@@ -178,7 +240,7 @@ const jsonld = [
       .lp-fig>.lp-stage{flex:1}
       .lp-tile{grid-column:span 12}
       @media (min-width:1100px){.lp-tile{grid-column:span 6}.lp-tile.w{grid-column:span 12}}
-      @media (min-width:1400px){.lp-tile.w{grid-column:span 7}.lp-tile.n5{grid-column:span 5}}
+      @media (min-width:1400px){.lp-tile.w{grid-column:span 6}}
 
       /* ---- styles: the three to pick from, and a demo beside them ---- */
       .lp-sty{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:16px 48px;align-items:stretch}
@@ -276,10 +338,10 @@ const jsonld = [
       @media (max-width:960px){.lp-in{padding:0 24px}.lp-sec{padding-top:96px}.lp-end{height:96px}}
       @media (max-width:640px){
         .lp-in{padding:0 16px}
-        .lp-hero{padding-top:32px;gap:32px}
+        .lp-hero{padding-top:32px}
         .pg-h1.lp-h1{font-size:34px}
         .lp-sec{padding-top:72px}
-        .lp-demo{padding:52px 16px}
+        .lp-demo{padding:48px 16px}
         .lp-end{height:72px}
         .lp-cta .lp-btn{flex:1 1 auto}
       }
@@ -290,10 +352,10 @@ const jsonld = [
 
   <div class="lp">
     <section class="lp-in lp-hero" aria-labelledby="content">
-      <div class="lp-hero-t">
-        <p class="lp-kick"><span>Free and MIT licensed</span><span>HTML, React and Astro</span></p>
-        <h1 class="pg-h1 lp-h1" id="content" tabindex="-1">UI components for the AI agents in your product</h1>
-        <p class="lp-lead">{total} free components for products built around agents: {nAgent} for the agent itself, like agent trees, traces, live answers and permission gates, and {nBasics} app basics around it. Copy the source into your project as HTML, React or Astro, in three styles with light and dark mode.</p>
+      <p class="lp-kick"><span>Free and MIT licensed</span><span>HTML, React and Astro</span></p>
+      <h1 class="pg-h1 lp-h1" id="content" tabindex="-1">UI components for the AI agents in your product</h1>
+      <p class="lp-lead">{total} free components for products built around agents: {nAgent} for the agent itself, like agent trees, traces, live answers and permission gates, and {nBasics} app basics around it. Copy the source into your project as HTML, React or Astro, in three styles with light and dark mode.</p>
+      <div class="lp-acts">
         <div class="lp-cta">
           <a class="pill primary lp-btn" href="/library">Browse the library<Fragment set:html={arrow} /></a>
           <a class="pill line lp-btn" href="/docs/introduction">Read the docs</a>
@@ -304,13 +366,44 @@ const jsonld = [
           <div class="pg-seg" role="radiogroup" aria-labelledby="lp-try-l">{STYLES.map(([v, n]) => <button type="button" role="radio" aria-checked="false" data-style-set={v}>{n}</button>)}</div>
         </div>
       </div>
-      <div class="lp-hero-d">
-        <div class="lp-stage" role="group" aria-label={`${HERO.title} demo`}>
-          <button type="button" class="lp-anim" data-replay><Fragment set:html={replayIcon} />Animate</button>
-          <div class="lp-demo stage-inner" style={stageVars(HERO)} set:html={HERO.html.html} />
+      <div class="lp-show-w">
+        <div class="lp-show-bar">
+          <div class="pg-seg lp-tpls" role="radiogroup" aria-label="Templates">{TEMPLATES.map((t, i) => <button type="button" role="radio" aria-checked={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1} data-tpl={i}>{t.name}</button>)}</div>
+          <p class="lp-show-d" id="lp-show-d">{TEMPLATES[0].desc}</p>
+          <a class="lp-more lp-open" href={TEMPLATES[0].url} target="_blank" rel="noopener" aria-label={`Open ${TEMPLATES[0].name}, opens in a new tab`}><span>Open {TEMPLATES[0].name}</span><Fragment set:html={arrow} /></a>
         </div>
-        <p class="lp-cap"><a class="lp-name" href={HERO.url}>{HERO.title}</a><span class="lp-desc">{HERO.desc}</span></p>
+        <div class="lp-show dvf" role="group" aria-roledescription="template" aria-label={`${TEMPLATES[0].name}, live`} data-tpls={JSON.stringify(TEMPLATES)}><p class="lp-show-ph">{TEMPLATES[0].name}, live</p></div>
       </div>
+    </section>
+
+    <section class="lp-sec lp-wall" id="all" aria-labelledby="all-h">
+      <div class="lp-in"><div class="lp-sh">
+        <h2 id="all-h">All {total} components</h2>
+        <p>{nAgent} for the agent and {nBasics} app basics around it, each with a page of its own: its demo, install command, props and code.</p>
+        <a class="lp-more" href="/library">Open the library<Fragment set:html={arrow} /></a>
+      </div></div>
+      <div class="lp-rows">
+        {ROWS.map((row, i) => <div class:list={['lp-row', { rev:i % 2 === 1 }]} style={`--dur:${[210, 240, 225, 255][i]}s`}>
+          <div class="lp-track">
+            <div class="lp-set">{row.map(c => <a class="lp-wt" href={c.url} data-reg={c.reg}><img alt="" width="480" height="300" loading="lazy" decoding="async"><span>{c.title}</span></a>)}</div>
+            <div class="lp-set" aria-hidden="true">{row.map(c => <a class="lp-wt" href={c.url} data-reg={c.reg} tabindex="-1"><img alt="" width="480" height="300" loading="lazy" decoding="async"><span>{c.title}</span></a>)}</div>
+          </div>
+        </div>)}
+      </div>
+      <script is:inline>
+      // each picture in the style and theme on screen (tools/pages/wall.mjs takes a set of each), swapped when either changes
+      (function(){
+        var root = document.documentElement, mq = matchMedia('(prefers-color-scheme: dark)'), imgs = [].slice.call(document.querySelectorAll('.lp-wt img'));
+        var set = function(){
+          var s = root.getAttribute('data-style'), t = root.getAttribute('data-theme') || (mq.matches ? 'dark' : 'light');
+          var dir = '/components/wall/' + (s === 'soft' || s === 'clean' ? s : 'bp') + '-' + (t === 'dark' ? 'dark' : 'light') + '/';
+          imgs.forEach(function(i){ var u = dir + i.parentNode.getAttribute('data-reg') + '.webp'; if (i.getAttribute('src') !== u) i.setAttribute('src', u); });
+        };
+        set();
+        new MutationObserver(set).observe(root, { attributes:true, attributeFilter:['data-style', 'data-theme'] });
+        if (mq.addEventListener) mq.addEventListener('change', set);
+      })();
+      </script>
     </section>
 
     <section class="lp-in lp-sec" id="live" aria-labelledby="live-h">
@@ -446,12 +539,12 @@ const jsonld = [
 
   <Fragment slot="end">
     <script is:inline src="/components/assets/core.js"></script>
-    <script is:inline set:html={HERO.html.js} />
+    <script is:inline set:html={FRAME_JS} />
     <script is:inline>
     (function(){
       if (typeof DM === 'undefined') return;
-      // the demos below the hero: each one's files come from the registry (/r/<name>.json) once it is within a screen of
-      // the view, and it starts once a quarter of it is on screen, as the core starts the hero's
+      // the demos: each one's files come from the registry (/r/<name>.json) once it is within a screen of the view, and it
+      // starts once a quarter of it is on screen
       var got = {};
       var files = function(reg){ return got[reg] || (got[reg] = fetch('/r/' + reg + '.json').then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); }).then(function(d){
         var f = function(ext){ var x = d.files.filter(function(x){ return x.path.slice(-ext.length) === ext; })[0]; return x ? x.content : ''; };
@@ -477,6 +570,37 @@ const jsonld = [
       // a new style starts the demos that are playing again, as a component page does; one the visitor has taken over stays
       // theirs until Animate
       document.addEventListener('pg-style', function(){ document.querySelectorAll('.lp-demo > .card[data-c]').forEach(function(card){ if (card._c && !card._c.mine) DM.mount(card); }); });
+    })();
+    (function(){
+      // the templates, live in the first screen: the first loads once the page has (so it never holds up the page), and the
+      // two take turns every 9 seconds while the frame is on screen. A mouse resting on the frame holds the turn; a click,
+      // key or scroll inside the app, or a pick on the switch, ends the turns for good. With reduced motion they never turn.
+      // On a phone the app shows its phone layout in a phone's frame
+      var box = document.querySelector('.lp-show'); if (!box || !window.dmFrame) return;
+      var T = JSON.parse(box.dataset.tpls), segs = [].slice.call(document.querySelectorAll('.lp-tpls [data-tpl]'));
+      var desc = document.getElementById('lp-show-d'), open = document.querySelector('.lp-open'), ph = box.querySelector('.lp-show-ph');
+      var phone = matchMedia('(max-width:640px)'), reduce = matchMedia('(prefers-reduced-motion: reduce)');
+      var at = 0, done = reduce.matches, held = false, seen = true, started = false;
+      var stop = function(){ done = true; };
+      var v = window.dmFrame(box, { fill:true, title:function(src){ var t = T.filter(function(x){ return src.indexOf(x.url) === 0; })[0]; return (t ? t.name : 'Template') + ', live'; }, onUse:stop,
+        onLoad:function(){ if (ph) ph.hidden = true; } });
+      var show = function(i){
+        at = i; var t = T[i];
+        segs.forEach(function(b, k){ var on = k === i; b.setAttribute('aria-checked', String(on)); b.tabIndex = on ? 0 : -1; });
+        desc.textContent = t.desc; open.href = t.url; open.setAttribute('aria-label', 'Open ' + t.name + ', opens in a new tab'); open.firstChild.textContent = 'Open ' + t.name;
+        box.setAttribute('aria-label', t.name + ', live');
+        // the page's file, so it loads from any static server (Cloudflare Pages sends it on to the page's own address,
+        // keeping ?embed=1; the page also knows it is framed here)
+        v.show(t.url + '.html?embed=1', phone.matches ? 'mobile' : 'desktop');
+      };
+      segs.forEach(function(b){ b.addEventListener('click', function(e){ if (e.isTrusted) stop(); show(+b.dataset.tpl); }); });
+      box.addEventListener('mouseenter', function(){ held = true; }); box.addEventListener('mouseleave', function(){ held = false; });
+      if ('IntersectionObserver' in window) new IntersectionObserver(function(es){ seen = es[es.length - 1].isIntersecting; }).observe(box);
+      if (phone.addEventListener) phone.addEventListener('change', function(){ if (started) v.device(phone.matches ? 'mobile' : 'desktop'); });
+      if (reduce.addEventListener) reduce.addEventListener('change', function(){ if (reduce.matches) stop(); });
+      var begin = function(){ if (started) return; started = true; show(at);
+        setInterval(function(){ if (done || held || !seen || document.hidden || box.matches(':hover')) return; show((at + 1) % T.length); }, 9000); };
+      if (document.readyState === 'complete') setTimeout(begin, 100); else addEventListener('load', function(){ setTimeout(begin, 100); });
     })();
     (function(){
       // the styles to pick from are one group of radio buttons: the arrow keys move through them and pick (the header's
