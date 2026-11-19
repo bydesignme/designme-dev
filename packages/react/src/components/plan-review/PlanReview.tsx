@@ -81,7 +81,7 @@ export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, pha
       <div className="dm-grow" ref={growIn}>
       <div className="dm-plx-h">
         <Think on={phase === 'running'} className="dm-plx-mk" />
-        <div className="dm-plx-ht"><b>{title}</b><Swap className="dm-muted dm-plx-st">{status ?? `About ${Math.max(1, Math.round(included.length * .8))} min`}</Swap></div>
+        <div className="dm-plx-ht"><b>{title}</b><Swap className={cx('dm-muted dm-plx-st', phase === 'running' && 'dm-shim')}>{status ?? `About ${Math.max(1, Math.round(included.length * .8))} min`}</Swap></div>
         {meta !== undefined && <span className="dm-plx-tm dm-num">{meta}</span>}
       </div>
       <ol className="dm-plx-list">
@@ -100,7 +100,7 @@ export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, pha
                 onBlur={e => { const text = e.currentTarget.textContent ?? ''; if (text !== s.text) update(s.id, { text, edited: text.trim() !== original.current.get(s.id) }); }}>
                 {s.text}
               </span>
-              <span className={cx('dm-d', s.detail && 'dm-on', s.state === 'retry' && 'dm-warn')}><Swap>{s.detail ?? ''}</Swap></span>
+              <span className={cx('dm-d', s.detail && 'dm-on', s.state === 'retry' && 'dm-warn')}><Swap className={s.state === 'run' && s.detail ? 'dm-shim' : undefined}>{s.detail ?? ''}</Swap></span>
               </span>
               {editable && (
                 <Tip label={s.skipped ? 'Include step' : 'Skip step'}>

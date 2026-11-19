@@ -39,7 +39,7 @@ export default function ToastDemo() {
     const id = ++next.current;
     current.current = id; setKind(k);
     if (k === 'ok') setToast({ id, tone: 'success', title: 'Changes applied', description: '4 files updated in PricingCard',
-      action: { label: 'Undo', onClick: () => update(id, { title: 'Changes undone', description: 'PricingCard is back as it was', action: undefined }) } });
+      action: { label: 'Undo', onClick: () => update(id, { title: 'Changes undone', description: 'PricingCard is back as it was', action: { label: 'Undo', doneLabel: 'Undone', done: true, onClick: () => {} } }) } });
     if (k === 'err') setToast({ id, tone: 'error', title: 'Could not push to main', description: 'The branch is protected',
       action: { label: 'Retry', variant: 'primary', onClick: () => {
         setToast(t => (t && t.id === id && t.action ? { ...t, action: { ...t.action, busy: true } } : t));

@@ -408,10 +408,11 @@
 /* ---------- Thinking states ---------- */
 /* six ways to show that the agent is thinking, to pick from: each is a small mark on a tile beside one status line that
    steps through what the agent is doing, and a screen reader hears each step once (the polite status), never each frame.
-   Orbit, Morph, Scan and Stream are dot grids like Matrix, each at its own density (owner, 5 Nov). Orbit: a light round the edge,
-   the line shimmering. Morph: a rectangle, a circle, a triangle. Scan: a column sweeping lines of dots. Stream: three lines of dots
+   Orbit, Morph, Scan and Stream are dot grids like Matrix, each at its own density (owner, 5 Nov). Orbit: a light round the edge.
+   Morph: a rectangle, a circle, a triangle. Scan: a column sweeping lines of dots. Stream: three lines of dots
    filling one by one, then fading, the line typed out behind a caret. Matrix: a grid
-   of dots lighting up at random. Stack: pages shuffling to the front. Marks are the accent and everything else is grey;
+   of dots lighting up at random. Stack: pages shuffling to the front. In every state the line has the loader's highlight
+   sweep (.shim, owner, 19 Nov). Marks are the accent and everything else is grey;
    with reduced motion every mark holds still in a legible pose and only the line changes */
 .v2 .ths{width:100%;max-width:264px;margin-inline:auto;min-height:84px;display:flex;flex-direction:column;justify-content:center;gap:var(--s-3);position:relative}
 .v2 .ths-row{display:flex;align-items:center;gap:10px;min-width:0}
@@ -1078,19 +1079,27 @@
 :root[data-style="clean"] .v2 .rc-go{transition:transform var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 @media (prefers-reduced-motion:reduce){:root[data-style="clean"] .v2 .rc-rows>div{transition:none}}
 /* ---------- Toast ---------- */
-/* the toast on its way out and the one coming in share one cell, so each keeps its full width while they cross; a toast
-   shorter than the cell sits centred in it, so it is centred in its stage (owner, 18 Nov) */
-.v2 .tst-slot{min-height:64px;width:100%;display:grid;justify-items:center;align-items:center}
+/* the toast on its way out and the one coming in share one cell, so each keeps its full width while they cross; the cell is
+   as tall as its toast and keeps no room when there is none (owner, 18 and 19 Nov) */
+.v2 .tst-slot{width:100%;display:grid;justify-items:center;align-items:center}
 .v2 .tst-slot>*{grid-area:1/1}
 /* the same size as a toast in Toast stack: width, padding, type and icons */
-.v2 .tst-t{display:flex;align-items:center;gap:var(--s-3);padding:var(--s-3);background:var(--raised);border-radius:var(--r-card);box-shadow:var(--shadow-toast);max-width:380px;width:100%;position:relative;overflow:hidden}
-.v2 .tst-t .g{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;flex:none}
+/* 16px in all round (owner, 19 Nov). The icon, the title, the action and Close share the title's line (Close on the title's
+   first line, its glyph on the content's right edge and its hover circle reaching out round it); the second line runs under
+   the title. Hover fills are a quiet 5% so they show on the white toast */
+.v2 .tst-t{display:flex;align-items:flex-start;gap:var(--s-3);padding:var(--s-4);--row:color-mix(in srgb,var(--fg) 5%,transparent);background:var(--raised);border-radius:var(--r-card);box-shadow:var(--shadow-toast);max-width:380px;width:100%;position:relative;overflow:hidden}
+.v2 .tst-t .g{width:28px;height:28px;margin-top:calc(8.775px - 14px);border-radius:50%;display:grid;place-items:center;flex:none}
 .v2 .tst-t .tx{flex:1;min-width:0;font-size:13px;line-height:1.35}
 .v2 .tst-t .tx b{font-weight:500;display:block}
 .v2 .tst-t .tx span{font-size:12px;color:var(--muted)}
-.v2 .tst-t .acts{display:flex;align-items:center;gap:2px}
+.v2 .tst-t .acts{display:flex;align-items:center;gap:2px;margin:calc(8.775px - 14px) -6px 0 0}
 /* the buttons in its row are one height in every style: the close button is as tall as the 28px pill beside it */
 .v2 .tst-t .ib{width:28px;height:28px}
+/* a pressed action never goes blank: Undo turns into the vivid green tick (a done confirmation), Retry into a spinner, each
+   as wide as what it shows, easing to it */
+.v2 .tst-t .acts .pill{overflow:hidden}
+.v2 .tst-t .acts .pill.done{color:var(--ok-mark);pointer-events:none}
+.v2 .tst-t .acts .pill.done .i{width:16px;height:16px;stroke-width:2}
 .v2 .tst-t .life{display:none}
 .v2 .tst-in{animation:v2-tstin .6s var(--ease) both}
 @keyframes v2-tstin{from{opacity:0;transform:translateY(14px) scale(.97);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}
@@ -1101,7 +1110,7 @@
    success, red for an error; info and loading stay grey, so a toast carries two hues at most. It rises 8px from .98 and
    leaves with a fade, with no blur */
 :root[data-style="clean"] .v2 .tst-t{gap:12px;padding:16px;border-radius:calc(12px * var(--rk-l,var(--rk)))}
-:root[data-style="clean"] .v2 .tst-t .g{width:20px;height:20px;background:none!important;color:var(--fg2)!important}
+:root[data-style="clean"] .v2 .tst-t .g{width:20px;height:20px;margin-top:calc(8.775px - 10px);background:none!important;color:var(--fg2)!important}
 :root[data-style="clean"] .v2 .tst-t .g .i{width:20px;height:20px}
 :root[data-style="clean"] .v2 .tst-t .g .spin{width:14px;height:14px}
 :root[data-style="clean"] .v2 .tst-t .g[data-tone="success"]{color:var(--ok-mark)!important}
@@ -1120,17 +1129,17 @@
 .v2 .tsk-stack.fan{height:var(--fanh,96px)}
 @media (hover:hover) and (pointer:fine){.v2 .tsk-stack:hover{height:var(--fanh,96px)}}
 .v2 .tsk-stack{transition:height .55s var(--ease)}
-.v2 .tsk-c{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;gap:var(--s-3);padding:var(--s-3);background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow-toast);transition:transform .55s var(--ease),opacity .45s var(--ease),filter .45s;transform-origin:bottom center}
-.v2 .tsk-c .g{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;flex:none}
+/* 16px in all round (owner, 19 Nov); the icon, the title and the time share the title's line, and Close takes the time's
+   place on it, its glyph on the content's right edge; hover fills are a quiet 5% so they show on the white toast */
+.v2 .tsk-c{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:flex-start;gap:var(--s-3);padding:var(--s-4);--row:color-mix(in srgb,var(--fg) 5%,transparent);background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow-toast);transition:transform .55s var(--ease),opacity .45s var(--ease),filter .45s;transform-origin:bottom center}
+.v2 .tsk-c .g{width:28px;height:28px;margin-top:calc(8.775px - 14px);border-radius:50%;display:grid;place-items:center;flex:none}
 .v2 .tsk-c .tx{flex:1;min-width:0;font-size:13px;line-height:1.35}
 .v2 .tsk-c .tx b{font-weight:500;display:block}
 .v2 .tsk-c .tx span{font-size:12px;color:var(--muted)}
-/* the time shares the toast's centre line with its icon and words, where the close button takes its place on hover (owner,
-   18 Nov: the parts of one row share one centre line) */
-.v2 .tsk-c .t{font-size:11.5px;color:var(--muted);align-self:center}
+.v2 .tsk-c .t{font-size:11.5px;line-height:17.55px;color:var(--muted)}
 /* the time sits at the right edge; the close button takes its place on hover */
 .v2 .tsk-c .t{transition:opacity .2s}
-.v2 .tsk-c .ib{position:absolute;top:50%;right:var(--s-3);width:28px;height:28px;margin-top:-14px;opacity:0;transition:opacity .2s}
+.v2 .tsk-c .ib{position:absolute;top:calc(var(--s-4) + 8.775px - 14px);right:calc(var(--s-4) - 6px);width:28px;height:28px;opacity:0;transition:opacity .2s}
 .v2 .tsk-c .ib:focus-visible{opacity:1}
 @media (hover:hover) and (pointer:fine){.v2 .tsk-c:hover .ib{opacity:1}}
 /* a toast behind the front one in the deck shows only its edge: its words are hidden under the front toast, never
@@ -1144,13 +1153,12 @@
    hide it, a new toast turns opaque at once as it rises, so the words of the one it covers never show through */
 :root[data-style="clean"] .v2 .tsk-stack{transition:height var(--t) var(--ease)}
 :root[data-style="clean"] .v2 .tsk-c{gap:12px;padding:16px;border-radius:calc(12px * var(--rk-l,var(--rk)));filter:none!important;transition:transform var(--t) var(--ease),opacity var(--t-fast) var(--ease)}
-:root[data-style="clean"] .v2 .tsk-c .g{width:20px;height:20px;background:none!important;color:var(--fg2)!important}
+:root[data-style="clean"] .v2 .tsk-c .g{width:20px;height:20px;margin-top:calc(8.775px - 10px);background:none!important;color:var(--fg2)!important}
 :root[data-style="clean"] .v2 .tsk-c .g .i{width:20px;height:20px}
 :root[data-style="clean"] .v2 .tsk-c .g[data-tone="ok"]{color:var(--ok-mark)!important}
 :root[data-style="clean"] .v2 .tsk-c .g[data-tone="warn"]{color:var(--warn-mark)!important}
 :root[data-style="clean"] .v2 .tsk-c .g[data-tone="bad"]{color:var(--bad-mark)!important}
 :root[data-style="clean"] .v2 .tsk-c .t{font-variant-numeric:tabular-nums}
-:root[data-style="clean"] .v2 .tsk-c .ib{right:16px}
 /* ---------- Pricing cards ---------- */
 .v2 .pcx{display:flex;flex-direction:column;gap:14px;width:100%}
 .v2 .pcx-top{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);flex-wrap:wrap}
@@ -3025,8 +3033,8 @@
 @media (prefers-reduced-motion:reduce){:root[data-style="clean"] .v2 :is(.pgx-o .bx,.pgx-o .bx svg,.pgx-done .g){transition:none}:root[data-style="clean"] .v2 :is(.pgx-cnt>i,.pgx-done.ok .g svg){animation:none}}
 /* ---------- Plan review ---------- */
 /* the plan the agent posts in the chat: no container; with .panel it becomes a card */
-.v2 .plx{padding:14px 0;display:flex;flex-direction:column;gap:10px}
-.v2 .plx.panel{padding:14px}
+.v2 .plx{padding:14px 0;display:flex;flex-direction:column;gap:10px;--row:color-mix(in srgb,var(--fg) 5%,transparent)}
+.v2 .plx.panel{padding:var(--s-4)}
 .v2 .plx-h{display:flex;align-items:center;gap:10px}
 /* the header's mark sits in the steps' 32px number column, centred */
 .v2 .plx-mk{color:var(--accent-fg,var(--accent));margin-inline:9px}
@@ -3046,6 +3054,8 @@
 .v2 .plx-s .d{font-size:12px;color:var(--muted);display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s var(--ease)}
 .v2 .plx-s .d.on{grid-template-rows:1fr}
 .v2 .plx-s .d>span{overflow:hidden;min-height:0}
+/* a running step's note ("Retrying") has the loader's sweep; the note it replaces fades out in its own colour, unswept */
+.v2 .plx-s .d>.shim.out{color:inherit;background:none;animation:none}
 .v2 .plx-s .d.warn{color:var(--warn)}
 .v2 .plx-tm{margin-left:auto;font-size:12px;color:var(--muted)}
 .v2 .plx-tm:empty{display:none}
@@ -3065,6 +3075,8 @@
 .v2 .plx-add .i{margin-inline:10px}
 @media (hover:hover) and (pointer:fine){.v2 .plx-add:hover{color:var(--fg);background:var(--row)}}
 .v2 .plx-f{display:flex;align-items:center;gap:6px}
+/* Stop, the footer's last control, has its word on the content's right edge and its hover box reaching out round it */
+.v2 .plx-f .plx-stop:last-child{margin-right:-11px}
 .v2 .plx-n{flex:1;font-size:12px;min-width:0}
 @media (max-width:480px){.v2 .plx-n{display:none}}
 /* Clean (lead and owner, 18 Nov): a card with the plan and an off-white foot strip, everything on shared columns. Its
@@ -3097,6 +3109,7 @@
 :root[data-style="clean"] .v2 .plx-s.edited .t::after{color:var(--muted)}
 :root[data-style="clean"] .v2 .plx-add{align-self:stretch;gap:12px;margin:-4px 0 0;padding:6px 0;border-radius:calc(7px * var(--rk-m,var(--rk)));transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .v2 .plx-add .i{margin-inline:10px}
+:root[data-style="clean"] .v2 .plx.panel .plx-f .plx-stop{margin-right:0}
 :root[data-style="clean"] .v2 .plx.panel .plx-f{justify-content:flex-end;gap:4px;margin:6px -16px 0;padding:8px;border-top:1px solid var(--line);background:var(--strip);border-radius:0 0 var(--r-card) var(--r-card)}
 :root[data-style="clean"] .v2 .plx.panel .plx-n{padding-left:8px}
 /* ---------- Inline text diff ---------- */
@@ -7317,7 +7330,8 @@
 /* ---------- Web search ---------- */
 /* the agent's searches as a trail: each query with what came back, each page with whether it was read, skimmed or skipped and
    why; once done it folds to one line, and the answer under it points back at its pages */
-.v2 .wsx{padding:6px;display:flex;flex-direction:column;font-size:13px}
+/* hover fills are a quiet 5%, so they show wherever the trail sits (on the stage, --row is the stage's own colour) */
+.v2 .wsx{padding:6px;display:flex;flex-direction:column;font-size:13px;--row:color-mix(in srgb,var(--fg) 5%,transparent)}
 .v2 .wsx-h{display:flex;align-items:center;gap:10px;width:100%;padding:var(--s-2) 10px;border-radius:var(--r-in);text-align:left;font-size:13.5px;transition:background var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.v2 .wsx-h:hover{background:var(--row)}}
 /* every part on shared columns, in every style (owner, 18 Nov): the head's mark and every row's mark (the search glass, the
@@ -7339,8 +7353,12 @@
 .v2 .wsx-q.hl>.wsx-qh{background:var(--row)}
 @media (hover:hover) and (pointer:fine){.v2 .wsx-qh:hover{background:var(--row)}}
 .v2 .wsx-qh>.i:first-child{justify-self:center;color:var(--muted)}
-.v2 .wsx-qh .t{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--fg)}
+.v2 .wsx-qh .t{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .v2 .wsx-qh .n,.v2 .wsx-qh .tm{font-size:12px;color:var(--muted);white-space:nowrap}
+/* a query and its Searching have the loader's sweep (.shim) while it runs: their own colours step aside for it */
+.v2 .wsx-qh .t:not(.shim){color:var(--fg)}
+.v2 .wsx-qh .n.shim{color:transparent}
+@media (prefers-reduced-motion:reduce){.v2 .wsx-qh .n.shim{color:var(--fg)}}
 .v2 .wsx-qh .n{margin-right:-2px}
 .v2 .wsx-qh .n.none{color:var(--warn)}
 .v2 .wsx-qh>.i:last-child{color:var(--muted);transition:transform .32s var(--ease)}
@@ -7388,7 +7406,9 @@
 :root[data-style="clean"] .v2 .wsx-marks{margin-right:2px}
 :root[data-style="clean"] .v2 .wsx-h>.i{width:14px;height:14px;border-radius:50%;box-shadow:0 0 0 7px transparent;transition:transform var(--t) var(--ease),background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .wsx-h:hover>.i{background:var(--hover);box-shadow:0 0 0 7px var(--hover);color:var(--fg)}}
-:root[data-style="clean"] .v2 .wsx-list{gap:0;padding:8px 16px;border-top:1px solid var(--line)}
+/* the first row's words sit 16px under the divider, its hover box reaching out 6px round them (owner, 19 Nov: a body's
+   first row sits 16px under a divider, no more), and the list ends as far under its last row */
+:root[data-style="clean"] .v2 .wsx-list{gap:0;padding:10px 16px;border-top:1px solid var(--line)}
 :root[data-style="clean"] .v2 .wsx-qh{grid-template-columns:28px minmax(0,1fr) auto auto 28px;column-gap:12px;padding:6px 0;border-radius:calc(7px * var(--rk-m,var(--rk)));transition:background-color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .v2 .wsx-qh>.i{justify-self:center}
 :root[data-style="clean"] .v2 .wsx-qh .n{margin-right:-4px}
@@ -7398,7 +7418,7 @@
 :root[data-style="clean"] .v2 .wsx-rs{padding:0 0 4px;gap:0}
 :root[data-style="clean"] .v2 .wsx-r{grid-template-columns:28px minmax(0,1fr) auto;column-gap:12px;padding:6px 8px 6px 0;border-radius:calc(7px * var(--rk-m,var(--rk)));transition:background-color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .v2 .wsx-fav{justify-self:center;border-radius:calc(4px * var(--rk-s,var(--rk)));box-shadow:inset 0 0 0 1px var(--hair)}
-:root[data-style="clean"] .v2 .wsx-ans{padding:14px 16px 16px;border-top:1px solid var(--line);line-height:22px}
+:root[data-style="clean"] .v2 .wsx-ans{padding:16px;border-top:1px solid var(--line);line-height:22px}
 :root[data-style="clean"] .v2 .wsx-cite{transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 /* ---------- Blueprint 2 ---------- */
 /* Blueprint 2: the same components drawn as a technical sheet. Square corners, hairline edges instead of shadows,

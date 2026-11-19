@@ -2,7 +2,8 @@
 /* ---------- Web search ---------- */
 /* the agent's searches as a trail: each query with what came back, each page with whether it was read, skimmed or skipped and
    why; once done it folds to one line, and the answer under it points back at its pages */
-.dm-wsx{padding:6px;display:flex;flex-direction:column;font-size:13px}
+/* hover fills are a quiet 5%, so they show wherever the trail sits (on the stage, --dm-row is the stage's own colour) */
+.dm-wsx{padding:6px;display:flex;flex-direction:column;font-size:13px;--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
 .dm-wsx-h{display:flex;align-items:center;gap:10px;width:100%;padding:var(--dm-s-2) 10px;border-radius:var(--dm-r-in);text-align:left;font-size:13.5px;transition:background var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.dm-wsx-h:hover{background:var(--dm-row)}}
 /* every part on shared columns, in every style (owner, 18 Nov): the head's mark and every row's mark (the search glass, the
@@ -24,8 +25,12 @@
 .dm-wsx-q.dm-hl>.dm-wsx-qh{background:var(--dm-row)}
 @media (hover:hover) and (pointer:fine){.dm-wsx-qh:hover{background:var(--dm-row)}}
 .dm-wsx-qh>.dm-i:first-child{justify-self:center;color:var(--dm-muted)}
-.dm-wsx-qh .dm-t{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--dm-fg)}
+.dm-wsx-qh .dm-t{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dm-wsx-qh .dm-n,.dm-wsx-qh .dm-tm{font-size:12px;color:var(--dm-muted);white-space:nowrap}
+/* a query and its Searching have the loader's sweep (.shim) while it runs: their own colours step aside for it */
+.dm-wsx-qh .dm-t:not(.dm-shim){color:var(--dm-fg)}
+.dm-wsx-qh .dm-n.dm-shim{color:transparent}
+@media (prefers-reduced-motion:reduce){.dm-wsx-qh .dm-n.dm-shim{color:var(--dm-fg)}}
 .dm-wsx-qh .dm-n{margin-right:-2px}
 .dm-wsx-qh .dm-n.dm-none{color:var(--dm-warn)}
 .dm-wsx-qh>.dm-i:last-child{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
@@ -73,7 +78,9 @@
 :root[data-style="clean"] .dm-wsx-marks,:root [data-style="clean"] .dm-wsx-marks,:root [data-style="clean"].dm-wsx-marks{margin-right:2px}
 :root[data-style="clean"] .dm-wsx-h>.dm-i,:root [data-style="clean"] .dm-wsx-h>.dm-i,:root [data-style="clean"].dm-wsx-h>.dm-i{width:14px;height:14px;border-radius:50%;box-shadow:0 0 0 7px transparent;transition:transform var(--dm-t) var(--dm-ease),background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-wsx-h:hover>.dm-i,:root [data-style="clean"] .dm-wsx-h:hover>.dm-i,:root [data-style="clean"].dm-wsx-h:hover>.dm-i{background:var(--dm-hover);box-shadow:0 0 0 7px var(--dm-hover);color:var(--dm-fg)}}
-:root[data-style="clean"] .dm-wsx-list,:root [data-style="clean"] .dm-wsx-list,:root [data-style="clean"].dm-wsx-list{gap:0;padding:8px 16px;border-top:1px solid var(--dm-line)}
+/* the first row's words sit 16px under the divider, its hover box reaching out 6px round them (owner, 19 Nov: a body's
+   first row sits 16px under a divider, no more), and the list ends as far under its last row */
+:root[data-style="clean"] .dm-wsx-list,:root [data-style="clean"] .dm-wsx-list,:root [data-style="clean"].dm-wsx-list{gap:0;padding:10px 16px;border-top:1px solid var(--dm-line)}
 :root[data-style="clean"] .dm-wsx-qh,:root [data-style="clean"] .dm-wsx-qh,:root [data-style="clean"].dm-wsx-qh{grid-template-columns:28px minmax(0,1fr) auto auto 28px;column-gap:12px;padding:6px 0;border-radius:calc(7px * var(--dm-rk-m,var(--dm-rk)));transition:background-color var(--dm-t-fast) var(--dm-ease)}
 :root[data-style="clean"] .dm-wsx-qh>.dm-i,:root [data-style="clean"] .dm-wsx-qh>.dm-i,:root [data-style="clean"].dm-wsx-qh>.dm-i{justify-self:center}
 :root[data-style="clean"] .dm-wsx-qh .dm-n,:root [data-style="clean"] .dm-wsx-qh .dm-n,:root [data-style="clean"].dm-wsx-qh .dm-n{margin-right:-4px}
@@ -83,5 +90,5 @@
 :root[data-style="clean"] .dm-wsx-rs,:root [data-style="clean"] .dm-wsx-rs,:root [data-style="clean"].dm-wsx-rs{padding:0 0 4px;gap:0}
 :root[data-style="clean"] .dm-wsx-r,:root [data-style="clean"] .dm-wsx-r,:root [data-style="clean"].dm-wsx-r{grid-template-columns:28px minmax(0,1fr) auto;column-gap:12px;padding:6px 8px 6px 0;border-radius:calc(7px * var(--dm-rk-m,var(--dm-rk)));transition:background-color var(--dm-t-fast) var(--dm-ease)}
 :root[data-style="clean"] .dm-wsx-fav,:root [data-style="clean"] .dm-wsx-fav,:root [data-style="clean"].dm-wsx-fav{justify-self:center;border-radius:calc(4px * var(--dm-rk-s,var(--dm-rk)));box-shadow:inset 0 0 0 1px var(--dm-hair)}
-:root[data-style="clean"] .dm-wsx-ans,:root [data-style="clean"] .dm-wsx-ans,:root [data-style="clean"].dm-wsx-ans{padding:14px 16px 16px;border-top:1px solid var(--dm-line);line-height:22px}
+:root[data-style="clean"] .dm-wsx-ans,:root [data-style="clean"] .dm-wsx-ans,:root [data-style="clean"].dm-wsx-ans{padding:16px;border-top:1px solid var(--dm-line);line-height:22px}
 :root[data-style="clean"] .dm-wsx-cite,:root [data-style="clean"] .dm-wsx-cite,:root [data-style="clean"].dm-wsx-cite{transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}

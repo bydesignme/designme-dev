@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, enter, grow, html, stagger, swap } from '../core/core.js';
+import { $, $$, DM, I, ctl, enter, grow, html, stagger, swap } from '../core/core.js';
 DM.def('plan-review', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{plus}', I('plus','xs'));
   // each step, and the line it reports when it's done
@@ -29,6 +29,10 @@ DM.def('plan-review', (r, c) => {
   $('.plx-chg', r).onclick = () => { swap($('.plx-n', r), 'Tell the agent what to change in chat'); };
   const clock = ms => { const s = Math.floor(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
   const note = (s, text, tone) => { const d = $('.d', s); d.className = 'd on' + (tone ? ' ' + tone : ''); swap(d.firstElementChild, text); };
+  // the person's turn (editing and approving the plan) holds under a resting mouse, so it never moves what they are about to
+  // click; once approved, the agent's run keeps working under it, as an agent at work does (DM.PLAYS): its waits go through a
+  // controller of its own, which nothing holds, and stop with the demo
+  const agent = ctl(); c.offs.push(() => agent.stop());
   go.onclick = () => c.run(async () => {
     $$('.t', list).forEach(t => { t.contentEditable = 'false'; t.removeAttribute('role'); }); $('.plx-add', r).hidden = true;
     // the approved plan is fixed: the skip buttons keep their space but can't be used
@@ -37,26 +41,26 @@ DM.def('plan-review', (r, c) => {
     f.innerHTML = `<span class="muted plx-n"></span><button class="pill ghost sm plx-stop">${I('stop','xs')}Stop</button>`; stagger([...f.children], 50);
     let stop = false; $('.plx-stop', f).onclick = () => stop = true;
     $('.plx-mk', r).classList.add('on');
-    const t0 = performance.now(), tick = c.every(250, () => tm.textContent = clock(performance.now() - t0)); tm.textContent = '0:00'; enter(tm);
+    const t0 = performance.now(), tick = agent.every(250, () => tm.textContent = clock(performance.now() - t0)); tm.textContent = '0:00'; enter(tm);
     const on = $$('.plx-s:not(.off)', list), n = s => $('.n', s), txt = s => $('.t', s);
     try {
       for (let i = 0; i < on.length && !stop; i++){
-        const s = on[i]; s.classList.add('run'); txt(s).classList.add('shim'); n(s).innerHTML = '<span class="spin"></span>'; swap(st, 'About ' + Math.max(1, Math.round((on.length - i) * .8)) + ' min left'); await c.wait(900);
+        const s = on[i]; s.classList.add('run'); txt(s).classList.add('shim'); n(s).innerHTML = '<span class="spin"></span>'; st.classList.add('shim'); swap(st, 'About ' + Math.max(1, Math.round((on.length - i) * .8)) + ' min left'); await agent.wait(900);
         // the second step hits a rate limit: the agent waits it out, counting down, and tries again
         if (s === $$('.plx-s', list)[1] && !stop){
           s.classList.replace('run', 'retry'); txt(s).classList.remove('shim'); n(s).innerHTML = I('clock','xs');
-          for (let k = 3; k > 0 && !stop; k--){ note(s, `Rate limited by the browser tool. Retrying in ${k}s`, 'warn'); await c.wait(1000); }
+          for (let k = 3; k > 0 && !stop; k--){ note(s, `Rate limited by the browser tool. Retrying in ${k}s`, 'warn'); await agent.wait(1000); }
           if (stop) break;
-          s.classList.replace('retry', 'run'); txt(s).classList.add('shim'); n(s).innerHTML = '<span class="spin"></span>'; note(s, 'Retrying'); await c.wait(700);
+          s.classList.replace('retry', 'run'); txt(s).classList.add('shim'); n(s).innerHTML = '<span class="spin"></span>'; note(s, 'Retrying'); $('.d>span', s).classList.add('shim'); await agent.wait(700);
           s._done += ', after 1 retry';
         }
-        s.classList.remove('run'); txt(s).classList.remove('shim'); s.classList.add('done'); n(s).innerHTML = I('check','xs'); enter(n(s).firstElementChild); note(s, s._done);
+        s.classList.remove('run'); txt(s).classList.remove('shim'); $('.d>span', s).classList.remove('shim'); s.classList.add('done'); n(s).innerHTML = I('check','xs'); enter(n(s).firstElementChild); note(s, s._done);
       }
     } finally { clearInterval(tick); }
     $('.plx-mk', r).classList.remove('on');
-    $$('.plx-s.run', list).forEach(s => { s.classList.remove('run', 'retry'); txt(s).classList.remove('shim'); n(s).textContent = '–'; note(s, 'Not started'); });
+    $$('.plx-s.run', list).forEach(s => { s.classList.remove('run', 'retry'); txt(s).classList.remove('shim'); $('.d>span', s).classList.remove('shim'); n(s).textContent = '–'; note(s, 'Not started'); });
     // a finished plan has no elapsed clock (owner, 18 Nov): the status line says how long it took
-    tm.textContent = '';
+    tm.textContent = ''; st.classList.remove('shim');
     swap(st, stop ? 'Stopped, progress kept' : 'Done in ' + clock(performance.now() - t0) + '. 4 frames updated'); f.innerHTML = `<span class="muted plx-n"></span><button class="pill soft sm">${I('eye','xs')}See changes</button>`; enter(f.lastElementChild);
   });
   // the preview's story: rewrite a step, approve, and watch the agent work through a rate limit to the end

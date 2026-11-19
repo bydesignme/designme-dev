@@ -127,13 +127,13 @@ DM.def('thinking-states', (r, c) => {
   let v = box.dataset.v || 'orbit', at = 0, secs = 0, typed = 0;
   // the agent's own pace: these waits are not shortened under reduced motion, so the line still changes every few seconds
   const pause = ms => new Promise(res => c.later(ms, res));
-  // Stream types the line out behind its caret; the others crossfade it (Orbit shimmering). A newer line cancels the typing
+  // Stream types the line out behind its caret; the others crossfade it. Every state's line sweeps (.shim). A newer line cancels the typing
   const type = async t => {
     const k = ++typed; if (tx._sw){ clearTimeout(tx._sw.t); tx._sw = null; } tx.classList.remove('out'); tx.textContent = '';
     for (let i = 1; i <= t.length; i++){ await pause(32); if (k !== typed) return; tx.textContent = t.slice(0, i); }
   };
   const show = (t, fresh) => {
-    tx.classList.toggle('shim', v === 'orbit'); car.hidden = v !== 'stream';
+    car.hidden = v !== 'stream';
     if (v === 'stream' && fresh && !REDUCE) type(t);
     else { typed++; if (fresh) swap(tx, t); else { if (tx._sw){ clearTimeout(tx._sw.t); tx._sw = null; } tx.classList.remove('out'); tx.textContent = t; } }
     // a screen reader hears each new step once, never the letters as they type
@@ -403,16 +403,23 @@ DM.def('toast', (r, c) => {
     info:{ g:'info', tone:'info', col:'var(--pb)', bg:'var(--pb-bg)', b:'Preview is ready', s:'pricing-spacing.preview.app', act:'<button class="pill ghost sm">Open</button>' },
     load:{ g:'load', tone:'loading', col:'var(--fg)', bg:'var(--chip)', b:'Deploying preview', s:'Building 3 pages', act:'' }
   };
-  let cur = null;
+  let cur = null; const agent = ctl(); c.offs.push(() => agent.stop());
+  // a pressed button never goes blank and keeps no room for what it turns into: it shows its new content and eases from its
+  // old width to its new one (owner, 19 Nov)
+  const relabel = (btn, inner) => { const w0 = btn.offsetWidth; btn.innerHTML = inner; const w1 = btn.offsetWidth, cs = getComputedStyle(btn);
+    if (!REDUCE && Math.abs(w1 - w0) > .5) btn.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:(parseFloat(cs.getPropertyValue('--t')) || .34) * 1000, easing:cs.getPropertyValue('--ease').trim() || 'ease' }); };
   let show = function(k){
     const v = V[k];
-    const t = html(`<div class="tst-t tst-in" role="status"><span class="g" data-tone="${v.tone}" style="color:${v.col};background:${v.bg}">${k === 'load' ? '<span class="spin"></span>' : I(v.g)}</span><div class="tx"><b>${v.b}</b><span>${v.s}</span></div><div class="acts">${v.act}<button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div><span class="life"></span></div>`);
+    const t = html(`<div class="tst-t tst-in" role="status"><span class="g" data-tone="${v.tone}" style="color:${v.col};background:${v.bg}">${k === 'load' ? '<span class="spin"></span>' : I(v.g)}</span><div class="tx"><b${k === 'load' ? ' class="shim"' : ''}>${v.b}</b><span>${v.s}</span></div><div class="acts">${v.act}<button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div><span class="life"></span></div>`);
     if (cur){ const old = cur; old.classList.add('tst-out'); setTimeout(() => old.remove(), 300); }
     slot.appendChild(t); cur = t;
     $('.ib', t).onclick = () => { t.classList.add('tst-out'); setTimeout(() => t.remove(), 300); cur = null; };
-    const u = $('.tst-undo', t); if (u) u.onclick = () => { $('.tx b', t).textContent = 'Changes undone'; swap($('.tx span', t), 'PricingCard is back as it was'); u.remove(); };
-    const rt = $('.tst-retry', t); if (rt) rt.onclick = () => { rt.innerHTML = '<span class="spin"></span>'; setTimeout(() => { if (t.isConnected) show('ok'); }, 1200); };
-    if (k === 'load') c.later(2600, () => { if (cur === t) show('info'); });
+    const u = $('.tst-undo', t); if (u) u.onclick = () => { $('.tx b', t).textContent = 'Changes undone'; swap($('.tx span', t), 'PricingCard is back as it was');
+      relabel(u, I('check')); u.classList.add('done'); u.setAttribute('aria-label', 'Undone'); u.setAttribute('aria-disabled', 'true'); u.onclick = null; };
+    const rt = $('.tst-retry', t); if (rt) rt.onclick = () => { relabel(rt, '<span class="spin"></span>'); rt.setAttribute('aria-busy', 'true'); rt.onclick = null; setTimeout(() => { if (t.isConnected) show('ok'); }, 1200); };
+    // a loading toast keeps loading under a resting mouse, as a loader does (DM.PLAYS): the deploy finishes on its own clock,
+    // which nothing holds
+    if (k === 'load') agent.later(2600, () => { if (cur === t) show('info'); });
     if (k === 'ok' || k === 'info'){
       // it times out like a real toast: hovering holds it, and when it runs out it leaves and the same one comes back (until
       // you take over: then it stays gone until you pick one)
@@ -579,20 +586,20 @@ DM.def('web-search', (r, c) => {
   c.run(async () => {
     await c.wait(500);
     for (const [k, q] of Q.entries()){
-      const el = html(`<div class="wsx-q" data-k="${k}"><button class="wsx-qh${q.n ? '' : ' empty'}" aria-expanded="false">${I('search','xs')}<span class="t shim">${q.q}</span><span class="n">Searching</span><span class="tm num"></span>${I('chev-r','xs')}</button>${q.from != null ? `<span class="wsx-rw">${I('refresh','xs')}Asked again in other words</span>` : ''}${q.p ? '<div class="fold shut"><div><ul class="wsx-rs"></ul></div></div>' : ''}</div>`);
+      const el = html(`<div class="wsx-q" data-k="${k}"><button class="wsx-qh${q.n ? '' : ' empty'}" aria-expanded="false">${I('search','xs')}<span class="t shim">${q.q}</span><span class="n shim">Searching</span><span class="tm num"></span>${I('chev-r','xs')}</button>${q.from != null ? `<span class="wsx-rw">${I('refresh','xs')}Asked again in other words</span>` : ''}${q.p ? '<div class="fold shut"><div><ul class="wsx-rs"></ul></div></div>' : ''}</div>`);
       // the head says what is happening; the query and its pages are in the rows under it, so it repeats neither (owner, 18 Nov)
       list.appendChild(el); enter(el); swap(st, 'Searching the web');
       const b = $('.wsx-qh', el); b.onclick = () => { if ($('.fold', el)) qOpen(el, b.getAttribute('aria-expanded') !== 'true'); };
       await c.wait(1100);
       $('.t', b).classList.remove('shim'); $('.tm', b).textContent = q.ms;
-      const n = $('.n', b); n.textContent = q.n ? `${q.n} results` : 'No results'; n.classList.toggle('none', !q.n);
+      const n = $('.n', b); n.classList.remove('shim'); n.textContent = q.n ? `${q.n} results` : 'No results'; n.classList.toggle('none', !q.n);
       b.setAttribute('aria-label', `${q.q}: ${q.n ? q.n + ' results' : 'no results'}, ${q.ms}`);
       say(q.n ? `${q.n} results for ${q.q}` : `No results for ${q.q}. Asking again in other words`);
       if (!q.p){ await c.wait(500); continue; }
       qOpen(el, true); const ul = $('.wsx-rs', el);
       swap(st, 'Reading the pages');
       for (const [t, d, when, s, cite] of q.p){
-        const li = html(`<li class="wsx-r" tabindex="0" data-tip="${t} · ${d}"><span class="wsx-fav" aria-hidden="true">${d[0].toUpperCase()}</span><span class="tx"><span class="t">${t}</span><span class="d">${d} · ${when}</span></span><span class="tag"><span class="spin"></span>Reading</span></li>`);
+        const li = html(`<li class="wsx-r" tabindex="0" data-tip="${t} · ${d}"><span class="wsx-fav" aria-hidden="true">${d[0].toUpperCase()}</span><span class="tx"><span class="t">${t}</span><span class="d">${d} · ${when}</span></span><span class="tag"><span class="spin"></span><span class="shim">Reading</span></span></li>`);
         ul.appendChild(li); enter(li); sites.push(d); drawMarks(); if (cite) pages[cite] = { li, q:el, d };
         await c.wait(420);
         const g = $('.tag', li); g.className = 'tag ' + ST[s][1]; g.textContent = ST[s][0]; li.classList.toggle('skip', s !== 'read' && s !== 'skim');

@@ -33,7 +33,7 @@ The agent's web searches, shown as it makes them: each query with how many resul
 
 ### What it does
 
-- A header that says what is happening (Searching the web, Reading the pages; the queries and pages are in the rows under it) and, once done, sums it up; it opens and folds the trail.
+- A header that says what is happening (Searching the web, Reading the pages; the queries and pages are in the rows under it) and, once done, sums it up; it opens and folds the trail. While something runs, its words have a highlight sweeping across them: the header, a query and its Searching, and a page's Reading.
 - Query rows with the query, the result count (No results in the warning colour) and the time; each opens to its pages.
 - A query asked again in other words is marked "Asked again in other words" under it, right after the one that found nothing.
 - Page rows with the site's initial, the title, the site and date, and a tag: Reading (with a spinner), Read, Skimmed, or Skipped with the reason as a warning tag.
@@ -168,7 +168,7 @@ export interface WebPage {
 export interface WebQuery {
   key: string;
   query: string;
-  /** searching shimmers; done shows the count and the time */
+  /** searching has the loader's highlight sweep; done shows the count and the time */
   status: 'searching' | 'done';
   /** How many results came back; 0 says No results */
   results?: number;
@@ -250,7 +250,7 @@ export function WebSearch({ queries, done = false, answer, open, onOpenChange, b
                 <button type="button" className={cx('dm-wsx-qh', !has && 'dm-empty')} aria-expanded={o} onClick={() => has && setQOpen({ ...qOpen, [q.key]: !o })}
                   aria-label={q.status === 'done' ? `${q.query}: ${q.results ? q.results + ' results' : 'no results'}${q.time ? ', ' + q.time : ''}` : undefined}>
                   <Icon name="search" size="xs" /><span className={cx('dm-t', q.status === 'searching' && 'dm-shim')}>{q.query}</span>
-                  <span className={cx('dm-n', q.status === 'done' && !q.results && 'dm-none')}>{q.status === 'searching' ? 'Searching' : q.results ? `${q.results} results` : 'No results'}</span>
+                  <span className={cx('dm-n', q.status === 'searching' && 'dm-shim', q.status === 'done' && !q.results && 'dm-none')}>{q.status === 'searching' ? 'Searching' : q.results ? `${q.results} results` : 'No results'}</span>
                   <span className="dm-tm dm-num">{q.status === 'done' ? q.time : ''}</span><Icon name="chev-r" size="xs" />
                 </button>
                 {q.rewritten && <span className="dm-wsx-rw"><Icon name="refresh" size="xs" />Asked again in other words</span>}
@@ -260,7 +260,7 @@ export function WebSearch({ queries, done = false, answer, open, onOpenChange, b
                       aria-label={`${p.title}, ${p.domain}${p.date ? ', ' + p.date : ''}: ${STATUS[p.status][0]}`}>
                       <span className="dm-wsx-fav" aria-hidden="true">{p.domain[0].toUpperCase()}</span>
                       <span className="dm-tx"><span className="dm-t">{p.title}</span><span className="dm-d">{p.domain}{p.date ? ' · ' + p.date : ''}</span></span>
-                      <span className={cx('dm-tag', STATUS[p.status][1])}>{p.status === 'reading' && <Spin />}{STATUS[p.status][0]}</span>
+                      <span className={cx('dm-tag', STATUS[p.status][1])}>{p.status === 'reading' ? <><Spin /><span className="dm-shim">Reading</span></> : STATUS[p.status][0]}</span>
                     </li>
                   </Tip>))}</ul></Fold>}
               </div>

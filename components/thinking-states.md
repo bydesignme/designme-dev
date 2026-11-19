@@ -34,9 +34,9 @@ Thinking states is a set of six indicators for the moment an agent is thinking, 
 
 ### What it does
 
-- `variant` picks the indicator. Five of them are grids of dots, each at its own density: `orbit` (5 by 5, a light running round the edge with a fading tail and a dot breathing in the middle, the line shimmering), `morph` (7 by 7, the dots drawing a rectangle, then a circle, then a triangle), `scan` (6 by 6, a column of light sweeping three lines of text in dots), `stream` (three lines of four dots, the same size as Matrix, that light up one by one, line by line, then fade out together, the line typed out behind a caret), `matrix` (a four by four grid of dots, each lighting up on its own beat) or `stack` (pages shuffling to the front).
+- `variant` picks the indicator. Five of them are grids of dots, each at its own density: `orbit` (5 by 5, a light running round the edge with a fading tail and a dot breathing in the middle), `morph` (7 by 7, the dots drawing a rectangle, then a circle, then a triangle), `scan` (6 by 6, a column of light sweeping three lines of text in dots), `stream` (three lines of four dots, the same size as Matrix, that light up one by one, line by line, then fade out together, the line typed out behind a caret), `matrix` (a four by four grid of dots, each lighting up on its own beat) or `stack` (pages shuffling to the front).
 - Pass `steps`, a list of status lines. Leave `current` out and they take turns every `interval` milliseconds (2600 by default), or set `current` to show the step your agent reports.
-- A new line crossfades in, except in Stream, where it types out a letter at a time.
+- The status line has a highlight sweeping across it while the agent works, in every variant. A new line crossfades in, except in Stream, where it types out a letter at a time.
 - `seconds` shows the time so far at the end of the line. Left out, it counts by itself; `false` hides it.
 - Marks use the accent and everything else stays grey. In Soft the tile and marks are squircles; in Blueprint the tile is square with a hairline edge, marks tick in steps, Stream's caret is a block. In Clean the tile is a neutral rounded square with a hairline, and the marks keep the accent.
 - On designme.dev the switch under the demo picks the variant, and the HTML install ships both the switch and every variant.
@@ -221,7 +221,7 @@ export function ThinkingStates({ variant = 'orbit', steps = ['Thinking'], curren
       <div className="dm-ths-row">
         <span className="dm-ths-mk" aria-hidden="true"><Mark variant={variant} /></span>
         <span className="dm-ths-l" aria-hidden="true">
-          {stream ? <span className="dm-ths-tx">{text.slice(0, typed)}</span> : <Swap className={cx('dm-ths-tx', variant === 'orbit' && 'dm-shim')}>{text}</Swap>}
+          {stream ? <span className="dm-ths-tx dm-shim">{text.slice(0, typed)}</span> : <Swap className="dm-ths-tx dm-shim">{text}</Swap>}
           {stream && <span className="dm-ths-car" />}
         </span>
         {secs !== null && <span className="dm-ths-t dm-num" aria-hidden="true">{secs}s</span>}

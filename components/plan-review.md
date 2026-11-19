@@ -38,9 +38,9 @@ Plan review shows the plan an agent proposes before it starts work, as a numbere
 - In review, clicking a step makes its text editable. Enter saves it, and the step is marked as edited only if the words really changed.
 - Each step has a skip button. Skipped steps stay in the list, struck through, and lose their number until they are included again.
 - Add a step appends a new row and puts the cursor in it with the text selected.
-- Steps can show `state: 'run'` while the agent works on them, with a spinner and a shimmer on the text, `'retry'` in amber while it waits out a problem like a rate limit, and a check once `done`.
+- Steps can show `state: 'run'` while the agent works on them, with a spinner and a highlight sweeping across the text (and across its `detail`, like "Retrying"), `'retry'` in amber while it waits out a problem like a rate limit, and a check once `done`.
 - Each step can report a `detail` line under it, like "6 frames and 42 tokens read". It opens under the step and crossfades when it changes.
-- The status line defaults to about how many minutes the steps left in take (the list shows how many there are). `status` and `note` replace the defaults. `meta` adds quiet text at the end of the header, like an elapsed time while the agent works; the demo clears it once the run is over, as a finished plan shows no clock.
+- The status line defaults to about how many minutes the steps left in take (the list shows how many there are). `status` and `note` replace the defaults. `meta` adds quiet text at the end of the header, like an elapsed time while the agent works; the demo clears it once the run is over, as a finished plan shows no clock. While `phase` is `running` the status line has the same sweep.
 
 ### Accessibility
 
@@ -268,7 +268,7 @@ export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, pha
       <div className="dm-grow" ref={growIn}>
       <div className="dm-plx-h">
         <Think on={phase === 'running'} className="dm-plx-mk" />
-        <div className="dm-plx-ht"><b>{title}</b><Swap className="dm-muted dm-plx-st">{status ?? `About ${Math.max(1, Math.round(included.length * .8))} min`}</Swap></div>
+        <div className="dm-plx-ht"><b>{title}</b><Swap className={cx('dm-muted dm-plx-st', phase === 'running' && 'dm-shim')}>{status ?? `About ${Math.max(1, Math.round(included.length * .8))} min`}</Swap></div>
         {meta !== undefined && <span className="dm-plx-tm dm-num">{meta}</span>}
       </div>
       <ol className="dm-plx-list">
@@ -287,7 +287,7 @@ export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, pha
                 onBlur={e => { const text = e.currentTarget.textContent ?? ''; if (text !== s.text) update(s.id, { text, edited: text.trim() !== original.current.get(s.id) }); }}>
                 {s.text}
               </span>
-              <span className={cx('dm-d', s.detail && 'dm-on', s.state === 'retry' && 'dm-warn')}><Swap>{s.detail ?? ''}</Swap></span>
+              <span className={cx('dm-d', s.detail && 'dm-on', s.state === 'retry' && 'dm-warn')}><Swap className={s.state === 'run' && s.detail ? 'dm-shim' : undefined}>{s.detail ?? ''}</Swap></span>
               </span>
               {editable && (
                 <Tip label={s.skipped ? 'Include step' : 'Skip step'}>

@@ -454,10 +454,11 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 /* ---------- Thinking states ---------- */
 /* six ways to show that the agent is thinking, to pick from: each is a small mark on a tile beside one status line that
    steps through what the agent is doing, and a screen reader hears each step once (the polite status), never each frame.
-   Orbit, Morph, Scan and Stream are dot grids like Matrix, each at its own density (owner, 5 Nov). Orbit: a light round the edge,
-   the line shimmering. Morph: a rectangle, a circle, a triangle. Scan: a column sweeping lines of dots. Stream: three lines of dots
+   Orbit, Morph, Scan and Stream are dot grids like Matrix, each at its own density (owner, 5 Nov). Orbit: a light round the edge.
+   Morph: a rectangle, a circle, a triangle. Scan: a column sweeping lines of dots. Stream: three lines of dots
    filling one by one, then fading, the line typed out behind a caret. Matrix: a grid
-   of dots lighting up at random. Stack: pages shuffling to the front. Marks are the accent and everything else is grey;
+   of dots lighting up at random. Stack: pages shuffling to the front. In every state the line has the loader's highlight
+   sweep (.shim, owner, 19 Nov). Marks are the accent and everything else is grey;
    with reduced motion every mark holds still in a legible pose and only the line changes */
 .ths{width:100%;max-width:264px;margin-inline:auto;min-height:84px;display:flex;flex-direction:column;justify-content:center;gap:var(--s-3);position:relative}
 .ths-row{display:flex;align-items:center;gap:10px;min-width:0}
@@ -1123,19 +1124,27 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 :root[data-style="clean"] .rc-go{transition:transform var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 @media (prefers-reduced-motion:reduce){:root[data-style="clean"] .rc-rows>div{transition:none}}
 /* ---------- Toast ---------- */
-/* the toast on its way out and the one coming in share one cell, so each keeps its full width while they cross; a toast
-   shorter than the cell sits centred in it, so it is centred in its stage (owner, 18 Nov) */
-.tst-slot{min-height:64px;width:100%;display:grid;justify-items:center;align-items:center}
+/* the toast on its way out and the one coming in share one cell, so each keeps its full width while they cross; the cell is
+   as tall as its toast and keeps no room when there is none (owner, 18 and 19 Nov) */
+.tst-slot{width:100%;display:grid;justify-items:center;align-items:center}
 .tst-slot>*{grid-area:1/1}
 /* the same size as a toast in Toast stack: width, padding, type and icons */
-.tst-t{display:flex;align-items:center;gap:var(--s-3);padding:var(--s-3);background:var(--raised);border-radius:var(--r-card);box-shadow:var(--shadow-toast);max-width:380px;width:100%;position:relative;overflow:hidden}
-.tst-t .g{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;flex:none}
+/* 16px in all round (owner, 19 Nov). The icon, the title, the action and Close share the title's line (Close on the title's
+   first line, its glyph on the content's right edge and its hover circle reaching out round it); the second line runs under
+   the title. Hover fills are a quiet 5% so they show on the white toast */
+.tst-t{display:flex;align-items:flex-start;gap:var(--s-3);padding:var(--s-4);--row:color-mix(in srgb,var(--fg) 5%,transparent);background:var(--raised);border-radius:var(--r-card);box-shadow:var(--shadow-toast);max-width:380px;width:100%;position:relative;overflow:hidden}
+.tst-t .g{width:28px;height:28px;margin-top:calc(8.775px - 14px);border-radius:50%;display:grid;place-items:center;flex:none}
 .tst-t .tx{flex:1;min-width:0;font-size:13px;line-height:1.35}
 .tst-t .tx b{font-weight:500;display:block}
 .tst-t .tx span{font-size:12px;color:var(--muted)}
-.tst-t .acts{display:flex;align-items:center;gap:2px}
+.tst-t .acts{display:flex;align-items:center;gap:2px;margin:calc(8.775px - 14px) -6px 0 0}
 /* the buttons in its row are one height in every style: the close button is as tall as the 28px pill beside it */
 .tst-t .ib{width:28px;height:28px}
+/* a pressed action never goes blank: Undo turns into the vivid green tick (a done confirmation), Retry into a spinner, each
+   as wide as what it shows, easing to it */
+.tst-t .acts .pill{overflow:hidden}
+.tst-t .acts .pill.done{color:var(--ok-mark);pointer-events:none}
+.tst-t .acts .pill.done .i{width:16px;height:16px;stroke-width:2}
 .tst-t .life{display:none}
 .tst-in{animation:tstin .6s var(--ease) both}
 @keyframes tstin{from{opacity:0;transform:translateY(14px) scale(.97);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}
@@ -1146,7 +1155,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
    success, red for an error; info and loading stay grey, so a toast carries two hues at most. It rises 8px from .98 and
    leaves with a fade, with no blur */
 :root[data-style="clean"] .tst-t{gap:12px;padding:16px;border-radius:calc(12px * var(--rk-l,var(--rk)))}
-:root[data-style="clean"] .tst-t .g{width:20px;height:20px;background:none!important;color:var(--fg2)!important}
+:root[data-style="clean"] .tst-t .g{width:20px;height:20px;margin-top:calc(8.775px - 10px);background:none!important;color:var(--fg2)!important}
 :root[data-style="clean"] .tst-t .g .i{width:20px;height:20px}
 :root[data-style="clean"] .tst-t .g .spin{width:14px;height:14px}
 :root[data-style="clean"] .tst-t .g[data-tone="success"]{color:var(--ok-mark)!important}
@@ -1164,17 +1173,17 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .tsk-stack{position:relative;width:100%;max-width:380px;height:var(--deckh,96px);isolation:isolate}
 .tsk-stack:hover,.tsk-stack.fan{height:var(--fanh,96px)}
 .tsk-stack{transition:height .55s var(--ease)}
-.tsk-c{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;gap:var(--s-3);padding:var(--s-3);background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow-toast);transition:transform .55s var(--ease),opacity .45s var(--ease),filter .45s;transform-origin:bottom center}
-.tsk-c .g{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;flex:none}
+/* 16px in all round (owner, 19 Nov); the icon, the title and the time share the title's line, and Close takes the time's
+   place on it, its glyph on the content's right edge; hover fills are a quiet 5% so they show on the white toast */
+.tsk-c{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:flex-start;gap:var(--s-3);padding:var(--s-4);--row:color-mix(in srgb,var(--fg) 5%,transparent);background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow-toast);transition:transform .55s var(--ease),opacity .45s var(--ease),filter .45s;transform-origin:bottom center}
+.tsk-c .g{width:28px;height:28px;margin-top:calc(8.775px - 14px);border-radius:50%;display:grid;place-items:center;flex:none}
 .tsk-c .tx{flex:1;min-width:0;font-size:13px;line-height:1.35}
 .tsk-c .tx b{font-weight:500;display:block}
 .tsk-c .tx span{font-size:12px;color:var(--muted)}
-/* the time shares the toast's centre line with its icon and words, where the close button takes its place on hover (owner,
-   18 Nov: the parts of one row share one centre line) */
-.tsk-c .t{font-size:11.5px;color:var(--muted);align-self:center}
+.tsk-c .t{font-size:11.5px;line-height:17.55px;color:var(--muted)}
 /* the time sits at the right edge; the close button takes its place on hover */
 .tsk-c .t{transition:opacity .2s}
-.tsk-c .ib{position:absolute;top:50%;right:var(--s-3);width:28px;height:28px;margin-top:-14px;opacity:0;transition:opacity .2s}
+.tsk-c .ib{position:absolute;top:calc(var(--s-4) + 8.775px - 14px);right:calc(var(--s-4) - 6px);width:28px;height:28px;opacity:0;transition:opacity .2s}
 .tsk-c:hover .ib,.tsk-c .ib:focus-visible{opacity:1}
 /* a toast behind the front one in the deck shows only its edge: its words are hidden under the front toast, never
    showing through it, and come back as the stack fans out (and go once it has folded again) */
@@ -1186,13 +1195,12 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
    hide it, a new toast turns opaque at once as it rises, so the words of the one it covers never show through */
 :root[data-style="clean"] .tsk-stack{transition:height var(--t) var(--ease)}
 :root[data-style="clean"] .tsk-c{gap:12px;padding:16px;border-radius:calc(12px * var(--rk-l,var(--rk)));filter:none!important;transition:transform var(--t) var(--ease),opacity var(--t-fast) var(--ease)}
-:root[data-style="clean"] .tsk-c .g{width:20px;height:20px;background:none!important;color:var(--fg2)!important}
+:root[data-style="clean"] .tsk-c .g{width:20px;height:20px;margin-top:calc(8.775px - 10px);background:none!important;color:var(--fg2)!important}
 :root[data-style="clean"] .tsk-c .g .i{width:20px;height:20px}
 :root[data-style="clean"] .tsk-c .g[data-tone="ok"]{color:var(--ok-mark)!important}
 :root[data-style="clean"] .tsk-c .g[data-tone="warn"]{color:var(--warn-mark)!important}
 :root[data-style="clean"] .tsk-c .g[data-tone="bad"]{color:var(--bad-mark)!important}
 :root[data-style="clean"] .tsk-c .t{font-variant-numeric:tabular-nums}
-:root[data-style="clean"] .tsk-c .ib{right:16px}
 /* ---------- Pricing cards ---------- */
 .pcx{display:flex;flex-direction:column;gap:14px;width:100%}
 .pcx-top{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);flex-wrap:wrap}
@@ -3046,8 +3054,8 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 @media (prefers-reduced-motion:reduce){:root[data-style="clean"] :is(.pgx-o .bx,.pgx-o .bx svg,.pgx-done .g){transition:none}:root[data-style="clean"] :is(.pgx-cnt>i,.pgx-done.ok .g svg){animation:none}}
 /* ---------- Plan review ---------- */
 /* the plan the agent posts in the chat: no container; with .panel it becomes a card */
-.plx{padding:14px 0;display:flex;flex-direction:column;gap:10px}
-.plx.panel{padding:14px}
+.plx{padding:14px 0;display:flex;flex-direction:column;gap:10px;--row:color-mix(in srgb,var(--fg) 5%,transparent)}
+.plx.panel{padding:var(--s-4)}
 .plx-h{display:flex;align-items:center;gap:10px}
 /* the header's mark sits in the steps' 32px number column, centred */
 .plx-mk{color:var(--accent);margin-inline:9px}
@@ -3067,6 +3075,8 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .plx-s .d{font-size:12px;color:var(--muted);display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s var(--ease)}
 .plx-s .d.on{grid-template-rows:1fr}
 .plx-s .d>span{overflow:hidden;min-height:0}
+/* a running step's note ("Retrying") has the loader's sweep; the note it replaces fades out in its own colour, unswept */
+.plx-s .d>.shim.out{color:inherit;background:none;animation:none}
 .plx-s .d.warn{color:var(--warn)}
 .plx-tm{margin-left:auto;font-size:12px;color:var(--muted)}
 .plx-tm:empty{display:none}
@@ -3085,6 +3095,8 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .plx-add .i{margin-inline:10px}
 .plx-add:hover{color:var(--fg);background:var(--row)}
 .plx-f{display:flex;align-items:center;gap:6px}
+/* Stop, the footer's last control, has its word on the content's right edge and its hover box reaching out round it */
+.plx-f .plx-stop:last-child{margin-right:-11px}
 .plx-n{flex:1;font-size:12px;min-width:0}
 @media (max-width:480px){.plx-n{display:none}}
 /* Clean (lead and owner, 18 Nov): a card with the plan and an off-white foot strip, everything on shared columns. Its
@@ -3117,6 +3129,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 :root[data-style="clean"] .plx-s.edited .t::after{color:var(--muted)}
 :root[data-style="clean"] .plx-add{align-self:stretch;gap:12px;margin:-4px 0 0;padding:6px 0;border-radius:calc(7px * var(--rk-m,var(--rk)));transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .plx-add .i{margin-inline:10px}
+:root[data-style="clean"] .plx.panel .plx-f .plx-stop{margin-right:0}
 :root[data-style="clean"] .plx.panel .plx-f{justify-content:flex-end;gap:4px;margin:6px -16px 0;padding:8px;border-top:1px solid var(--line);background:var(--strip);border-radius:0 0 var(--r-card) var(--r-card)}
 :root[data-style="clean"] .plx.panel .plx-n{padding-left:8px}
 /* ---------- Inline text diff ---------- */
@@ -7293,7 +7306,8 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 /* ---------- Web search ---------- */
 /* the agent's searches as a trail: each query with what came back, each page with whether it was read, skimmed or skipped and
    why; once done it folds to one line, and the answer under it points back at its pages */
-.wsx{padding:6px;display:flex;flex-direction:column;font-size:13px}
+/* hover fills are a quiet 5%, so they show wherever the trail sits (on the stage, --row is the stage's own colour) */
+.wsx{padding:6px;display:flex;flex-direction:column;font-size:13px;--row:color-mix(in srgb,var(--fg) 5%,transparent)}
 .wsx-h{display:flex;align-items:center;gap:10px;width:100%;padding:var(--s-2) 10px;border-radius:var(--r-in);text-align:left;font-size:13.5px;transition:background var(--t-fast)}
 .wsx-h:hover{background:var(--row)}
 /* every part on shared columns, in every style (owner, 18 Nov): the head's mark and every row's mark (the search glass, the
@@ -7314,8 +7328,12 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 .wsx-qh{display:grid;grid-template-columns:20px minmax(0,1fr) auto auto 12px;align-items:center;column-gap:10px;width:100%;padding:6px 10px;border-radius:calc(10px * var(--rk-m,var(--rk)));text-align:left;transition:background var(--t-fast)}
 .wsx-qh:hover,.wsx-q.hl>.wsx-qh{background:var(--row)}
 .wsx-qh>.i:first-child{justify-self:center;color:var(--muted)}
-.wsx-qh .t{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--fg)}
+.wsx-qh .t{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wsx-qh .n,.wsx-qh .tm{font-size:12px;color:var(--muted);white-space:nowrap}
+/* a query and its Searching have the loader's sweep (.shim) while it runs: their own colours step aside for it */
+.wsx-qh .t:not(.shim){color:var(--fg)}
+.wsx-qh .n.shim{color:transparent}
+@media (prefers-reduced-motion:reduce){.wsx-qh .n.shim{color:var(--fg)}}
 .wsx-qh .n{margin-right:-2px}
 .wsx-qh .n.none{color:var(--warn)}
 .wsx-qh>.i:last-child{color:var(--muted);transition:transform .32s var(--ease)}
@@ -7361,7 +7379,9 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 :root[data-style="clean"] .wsx-marks{margin-right:2px}
 :root[data-style="clean"] .wsx-h>.i{width:14px;height:14px;border-radius:50%;box-shadow:0 0 0 7px transparent;transition:transform var(--t) var(--ease),background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .wsx-h:hover>.i{background:var(--hover);box-shadow:0 0 0 7px var(--hover);color:var(--fg)}
-:root[data-style="clean"] .wsx-list{gap:0;padding:8px 16px;border-top:1px solid var(--line)}
+/* the first row's words sit 16px under the divider, its hover box reaching out 6px round them (owner, 19 Nov: a body's
+   first row sits 16px under a divider, no more), and the list ends as far under its last row */
+:root[data-style="clean"] .wsx-list{gap:0;padding:10px 16px;border-top:1px solid var(--line)}
 :root[data-style="clean"] .wsx-qh{grid-template-columns:28px minmax(0,1fr) auto auto 28px;column-gap:12px;padding:6px 0;border-radius:calc(7px * var(--rk-m,var(--rk)));transition:background-color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .wsx-qh>.i{justify-self:center}
 :root[data-style="clean"] .wsx-qh .n{margin-right:-4px}
@@ -7371,7 +7391,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 :root[data-style="clean"] .wsx-rs{padding:0 0 4px;gap:0}
 :root[data-style="clean"] .wsx-r{grid-template-columns:28px minmax(0,1fr) auto;column-gap:12px;padding:6px 8px 6px 0;border-radius:calc(7px * var(--rk-m,var(--rk)));transition:background-color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .wsx-fav{justify-self:center;border-radius:calc(4px * var(--rk-s,var(--rk)));box-shadow:inset 0 0 0 1px var(--hair)}
-:root[data-style="clean"] .wsx-ans{padding:14px 16px 16px;border-top:1px solid var(--line);line-height:22px}
+:root[data-style="clean"] .wsx-ans{padding:16px;border-top:1px solid var(--line);line-height:22px}
 :root[data-style="clean"] .wsx-cite{transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 /* ---------- Blueprint 2 ---------- */
 /* Blueprint 2: the same components drawn as a technical sheet. Square corners, hairline edges instead of shadows,
@@ -10179,13 +10199,13 @@ DM.def('thinking-states', (r, c) => {
   let v = box.dataset.v || 'orbit', at = 0, secs = 0, typed = 0;
   // the agent's own pace: these waits are not shortened under reduced motion, so the line still changes every few seconds
   const pause = ms => new Promise(res => c.later(ms, res));
-  // Stream types the line out behind its caret; the others crossfade it (Orbit shimmering). A newer line cancels the typing
+  // Stream types the line out behind its caret; the others crossfade it. Every state's line sweeps (.shim). A newer line cancels the typing
   const type = async t => {
     const k = ++typed; if (tx._sw){ clearTimeout(tx._sw.t); tx._sw = null; } tx.classList.remove('out'); tx.textContent = '';
     for (let i = 1; i <= t.length; i++){ await pause(32); if (k !== typed) return; tx.textContent = t.slice(0, i); }
   };
   const show = (t, fresh) => {
-    tx.classList.toggle('shim', v === 'orbit'); car.hidden = v !== 'stream';
+    car.hidden = v !== 'stream';
     if (v === 'stream' && fresh && !REDUCE) type(t);
     else { typed++; if (fresh) swap(tx, t); else { if (tx._sw){ clearTimeout(tx._sw.t); tx._sw = null; } tx.classList.remove('out'); tx.textContent = t; } }
     // a screen reader hears each new step once, never the letters as they type
@@ -11330,16 +11350,23 @@ DM.def('toast', (r, c) => {
     info:{ g:'info', tone:'info', col:'var(--pb)', bg:'var(--pb-bg)', b:'Preview is ready', s:'pricing-spacing.preview.app', act:'<button class="pill ghost sm">Open</button>' },
     load:{ g:'load', tone:'loading', col:'var(--fg)', bg:'var(--chip)', b:'Deploying preview', s:'Building 3 pages', act:'' }
   };
-  let cur = null;
+  let cur = null; const agent = ctl(); c.offs.push(() => agent.stop());
+  // a pressed button never goes blank and keeps no room for what it turns into: it shows its new content and eases from its
+  // old width to its new one (owner, 19 Nov)
+  const relabel = (btn, inner) => { const w0 = btn.offsetWidth; btn.innerHTML = inner; const w1 = btn.offsetWidth, cs = getComputedStyle(btn);
+    if (!REDUCE && Math.abs(w1 - w0) > .5) btn.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:(parseFloat(cs.getPropertyValue('--t')) || .34) * 1000, easing:cs.getPropertyValue('--ease').trim() || 'ease' }); };
   let show = function(k){
     const v = V[k];
-    const t = html(`<div class="tst-t tst-in" role="status"><span class="g" data-tone="${v.tone}" style="color:${v.col};background:${v.bg}">${k === 'load' ? '<span class="spin"></span>' : I(v.g)}</span><div class="tx"><b>${v.b}</b><span>${v.s}</span></div><div class="acts">${v.act}<button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div><span class="life"></span></div>`);
+    const t = html(`<div class="tst-t tst-in" role="status"><span class="g" data-tone="${v.tone}" style="color:${v.col};background:${v.bg}">${k === 'load' ? '<span class="spin"></span>' : I(v.g)}</span><div class="tx"><b${k === 'load' ? ' class="shim"' : ''}>${v.b}</b><span>${v.s}</span></div><div class="acts">${v.act}<button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div><span class="life"></span></div>`);
     if (cur){ const old = cur; old.classList.add('tst-out'); setTimeout(() => old.remove(), 300); }
     slot.appendChild(t); cur = t;
     $('.ib', t).onclick = () => { t.classList.add('tst-out'); setTimeout(() => t.remove(), 300); cur = null; };
-    const u = $('.tst-undo', t); if (u) u.onclick = () => { $('.tx b', t).textContent = 'Changes undone'; swap($('.tx span', t), 'PricingCard is back as it was'); u.remove(); };
-    const rt = $('.tst-retry', t); if (rt) rt.onclick = () => { rt.innerHTML = '<span class="spin"></span>'; setTimeout(() => { if (t.isConnected) show('ok'); }, 1200); };
-    if (k === 'load') c.later(2600, () => { if (cur === t) show('info'); });
+    const u = $('.tst-undo', t); if (u) u.onclick = () => { $('.tx b', t).textContent = 'Changes undone'; swap($('.tx span', t), 'PricingCard is back as it was');
+      relabel(u, I('check')); u.classList.add('done'); u.setAttribute('aria-label', 'Undone'); u.setAttribute('aria-disabled', 'true'); u.onclick = null; };
+    const rt = $('.tst-retry', t); if (rt) rt.onclick = () => { relabel(rt, '<span class="spin"></span>'); rt.setAttribute('aria-busy', 'true'); rt.onclick = null; setTimeout(() => { if (t.isConnected) show('ok'); }, 1200); };
+    // a loading toast keeps loading under a resting mouse, as a loader does (DM.PLAYS): the deploy finishes on its own clock,
+    // which nothing holds
+    if (k === 'load') agent.later(2600, () => { if (cur === t) show('info'); });
     if (k === 'ok' || k === 'info'){
       // it times out like a real toast: hovering holds it, and when it runs out it leaves and the same one comes back (until
       // you take over: then it stays gone until you pick one)
@@ -13979,6 +14006,10 @@ DM.def('plan-review', (r, c) => {
   $('.plx-chg', r).onclick = () => { swap($('.plx-n', r), 'Tell the agent what to change in chat'); };
   const clock = ms => { const s = Math.floor(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
   const note = (s, text, tone) => { const d = $('.d', s); d.className = 'd on' + (tone ? ' ' + tone : ''); swap(d.firstElementChild, text); };
+  // the person's turn (editing and approving the plan) holds under a resting mouse, so it never moves what they are about to
+  // click; once approved, the agent's run keeps working under it, as an agent at work does (DM.PLAYS): its waits go through a
+  // controller of its own, which nothing holds, and stop with the demo
+  const agent = ctl(); c.offs.push(() => agent.stop());
   go.onclick = () => c.run(async () => {
     $$('.t', list).forEach(t => { t.contentEditable = 'false'; t.removeAttribute('role'); }); $('.plx-add', r).hidden = true;
     // the approved plan is fixed: the skip buttons keep their space but can't be used
@@ -13987,26 +14018,26 @@ DM.def('plan-review', (r, c) => {
     f.innerHTML = `<span class="muted plx-n"></span><button class="pill ghost sm plx-stop">${I('stop','xs')}Stop</button>`; stagger([...f.children], 50);
     let stop = false; $('.plx-stop', f).onclick = () => stop = true;
     $('.plx-mk', r).classList.add('on');
-    const t0 = performance.now(), tick = c.every(250, () => tm.textContent = clock(performance.now() - t0)); tm.textContent = '0:00'; enter(tm);
+    const t0 = performance.now(), tick = agent.every(250, () => tm.textContent = clock(performance.now() - t0)); tm.textContent = '0:00'; enter(tm);
     const on = $$('.plx-s:not(.off)', list), n = s => $('.n', s), txt = s => $('.t', s);
     try {
       for (let i = 0; i < on.length && !stop; i++){
-        const s = on[i]; s.classList.add('run'); txt(s).classList.add('shim'); n(s).innerHTML = '<span class="spin"></span>'; swap(st, 'About ' + Math.max(1, Math.round((on.length - i) * .8)) + ' min left'); await c.wait(900);
+        const s = on[i]; s.classList.add('run'); txt(s).classList.add('shim'); n(s).innerHTML = '<span class="spin"></span>'; st.classList.add('shim'); swap(st, 'About ' + Math.max(1, Math.round((on.length - i) * .8)) + ' min left'); await agent.wait(900);
         // the second step hits a rate limit: the agent waits it out, counting down, and tries again
         if (s === $$('.plx-s', list)[1] && !stop){
           s.classList.replace('run', 'retry'); txt(s).classList.remove('shim'); n(s).innerHTML = I('clock','xs');
-          for (let k = 3; k > 0 && !stop; k--){ note(s, `Rate limited by the browser tool. Retrying in ${k}s`, 'warn'); await c.wait(1000); }
+          for (let k = 3; k > 0 && !stop; k--){ note(s, `Rate limited by the browser tool. Retrying in ${k}s`, 'warn'); await agent.wait(1000); }
           if (stop) break;
-          s.classList.replace('retry', 'run'); txt(s).classList.add('shim'); n(s).innerHTML = '<span class="spin"></span>'; note(s, 'Retrying'); await c.wait(700);
+          s.classList.replace('retry', 'run'); txt(s).classList.add('shim'); n(s).innerHTML = '<span class="spin"></span>'; note(s, 'Retrying'); $('.d>span', s).classList.add('shim'); await agent.wait(700);
           s._done += ', after 1 retry';
         }
-        s.classList.remove('run'); txt(s).classList.remove('shim'); s.classList.add('done'); n(s).innerHTML = I('check','xs'); enter(n(s).firstElementChild); note(s, s._done);
+        s.classList.remove('run'); txt(s).classList.remove('shim'); $('.d>span', s).classList.remove('shim'); s.classList.add('done'); n(s).innerHTML = I('check','xs'); enter(n(s).firstElementChild); note(s, s._done);
       }
     } finally { clearInterval(tick); }
     $('.plx-mk', r).classList.remove('on');
-    $$('.plx-s.run', list).forEach(s => { s.classList.remove('run', 'retry'); txt(s).classList.remove('shim'); n(s).textContent = '–'; note(s, 'Not started'); });
+    $$('.plx-s.run', list).forEach(s => { s.classList.remove('run', 'retry'); txt(s).classList.remove('shim'); $('.d>span', s).classList.remove('shim'); n(s).textContent = '–'; note(s, 'Not started'); });
     // a finished plan has no elapsed clock (owner, 18 Nov): the status line says how long it took
-    tm.textContent = '';
+    tm.textContent = ''; st.classList.remove('shim');
     swap(st, stop ? 'Stopped, progress kept' : 'Done in ' + clock(performance.now() - t0) + '. 4 frames updated'); f.innerHTML = `<span class="muted plx-n"></span><button class="pill soft sm">${I('eye','xs')}See changes</button>`; enter(f.lastElementChild);
   });
   // the preview's story: rewrite a step, approve, and watch the agent work through a rate limit to the end
@@ -21194,20 +21225,20 @@ DM.def('web-search', (r, c) => {
   c.run(async () => {
     await c.wait(500);
     for (const [k, q] of Q.entries()){
-      const el = html(`<div class="wsx-q" data-k="${k}"><button class="wsx-qh${q.n ? '' : ' empty'}" aria-expanded="false">${I('search','xs')}<span class="t shim">${q.q}</span><span class="n">Searching</span><span class="tm num"></span>${I('chev-r','xs')}</button>${q.from != null ? `<span class="wsx-rw">${I('refresh','xs')}Asked again in other words</span>` : ''}${q.p ? '<div class="fold shut"><div><ul class="wsx-rs"></ul></div></div>' : ''}</div>`);
+      const el = html(`<div class="wsx-q" data-k="${k}"><button class="wsx-qh${q.n ? '' : ' empty'}" aria-expanded="false">${I('search','xs')}<span class="t shim">${q.q}</span><span class="n shim">Searching</span><span class="tm num"></span>${I('chev-r','xs')}</button>${q.from != null ? `<span class="wsx-rw">${I('refresh','xs')}Asked again in other words</span>` : ''}${q.p ? '<div class="fold shut"><div><ul class="wsx-rs"></ul></div></div>' : ''}</div>`);
       // the head says what is happening; the query and its pages are in the rows under it, so it repeats neither (owner, 18 Nov)
       list.appendChild(el); enter(el); swap(st, 'Searching the web');
       const b = $('.wsx-qh', el); b.onclick = () => { if ($('.fold', el)) qOpen(el, b.getAttribute('aria-expanded') !== 'true'); };
       await c.wait(1100);
       $('.t', b).classList.remove('shim'); $('.tm', b).textContent = q.ms;
-      const n = $('.n', b); n.textContent = q.n ? `${q.n} results` : 'No results'; n.classList.toggle('none', !q.n);
+      const n = $('.n', b); n.classList.remove('shim'); n.textContent = q.n ? `${q.n} results` : 'No results'; n.classList.toggle('none', !q.n);
       b.setAttribute('aria-label', `${q.q}: ${q.n ? q.n + ' results' : 'no results'}, ${q.ms}`);
       say(q.n ? `${q.n} results for ${q.q}` : `No results for ${q.q}. Asking again in other words`);
       if (!q.p){ await c.wait(500); continue; }
       qOpen(el, true); const ul = $('.wsx-rs', el);
       swap(st, 'Reading the pages');
       for (const [t, d, when, s, cite] of q.p){
-        const li = html(`<li class="wsx-r" tabindex="0" data-tip="${t} · ${d}"><span class="wsx-fav" aria-hidden="true">${d[0].toUpperCase()}</span><span class="tx"><span class="t">${t}</span><span class="d">${d} · ${when}</span></span><span class="tag"><span class="spin"></span>Reading</span></li>`);
+        const li = html(`<li class="wsx-r" tabindex="0" data-tip="${t} · ${d}"><span class="wsx-fav" aria-hidden="true">${d[0].toUpperCase()}</span><span class="tx"><span class="t">${t}</span><span class="d">${d} · ${when}</span></span><span class="tag"><span class="spin"></span><span class="shim">Reading</span></span></li>`);
         ul.appendChild(li); enter(li); sites.push(d); drawMarks(); if (cite) pages[cite] = { li, q:el, d };
         await c.wait(420);
         const g = $('.tag', li); g.className = 'tag ' + ST[s][1]; g.textContent = ST[s][0]; li.classList.toggle('skip', s !== 'read' && s !== 'skim');
