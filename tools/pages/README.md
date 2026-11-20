@@ -22,9 +22,11 @@ like `library.html`.
 
 `src/pages/index.astro` is the page at `/`: full width, with the site's header and footer and no sidebar. It shows what
 the library is with the components themselves: a centred title, one line and two buttons; right under them, a bento of
-twelve of the library's most distinctive components playing live, mostly the agent's own, each its own card on the page in
-one of three stacks (no row of metric cards). A card is as tall as it is right now and grows and shrinks as it plays,
-pushing only what is under it in its stack, so no card has room left empty under it. Then the two templates, live in one
+twelve of the library's most distinctive components playing live, each its own card on the page in one of three stacks
+(two from 1100px, placed by a small script; no row of metric cards). A card is as tall as it is right now and grows and
+shrinks as it plays, pushing only what is under it in its stack, so no card has room left empty under it; the cards and
+their stacks are chosen, from each candidate's height sampled live over a full run in every style, so the stacks' feet stay
+close to level. Then the two templates, live in one
 frame on the site's grey with a switch over it, taking turns (`src/device/frame.js`, with each template's `?embed=1`, which
 hides its header; the Workflow editor opens on its last test run); a wall of every component on the grey, rows of pictures
 that drift in turn left and right and fade out at both sides, each linking to its page; Light or Dark and Blueprint, Soft
@@ -33,7 +35,10 @@ how to install, with the files `npx designme add` writes in an editor (each file
 the registry, beside the component they make, live); questions, the heading kept in view beside the list; and DesignMe's
 Book a call. Its section headings are large and centred (the landing page's exception to the 14px type rule;
 `/?headings=small` shows them at 14px). There are no gradients: the page is white, with the site's grey behind the
-templates, the wall and the styles demo. Each demo is the installed HTML, CSS and JS on the shared core, as on a component
+templates, the wall and the styles demo. Nothing the reader is looking at
+moves: the page does its own scroll anchoring, the same in every browser (a block wholly above the view that changes height
+moves the view by as much, and a pick of style or theme keeps the control picked where it was), and the styles demo keeps
+one height in every style. Each demo is the installed HTML, CSS and JS on the shared core, as on a component
 page, loaded from the registry (`/r/<name>.json`) when it comes within a screen of the view; outside the bento, each stage
 fits the tallest its component gets in the style on screen (`tools/site/card-heights.json`), so nothing below it moves
 while it plays. Its counts come from the library's sections.
