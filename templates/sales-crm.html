@@ -3354,6 +3354,33 @@ body:has(.crm) .dmf{display:none}
 .crm-rp .crm-hm :is(.hmx-grid,.hmx-days){height:auto}
 /* no monospace in the interface: Quota attainment's ranks are the sans with even figures */
 .crm .tpx-r .rk{font-family:inherit;font-variant-numeric:tabular-nums}
+
+/* ---------- owner, 20 Nov ---------- */
+/* the toolbar's search: its 13px words sit on the baseline of the 12px buttons beside it (they sat a pixel low; measured) */
+.crm-ask .six-in input{position:relative;top:-1px}
+/* Clean: a card's edge is Clean's own hairline ring, never that ring and a second hairline inside it ("why is the border so
+   strong?") */
+@media (min-width:761px){:root[data-style="clean"] :is(.crm-fc .panel,.crm-ib .panel,.crm-cal .ecx){box-shadow:var(--dm-shadow)}}
+/* Clean: the inbox's open item and a hovered one are a quiet fill, no ring */
+:root[data-style="clean"] .crm-aib .aib-i.on{box-shadow:none;background:color-mix(in srgb,var(--dm-fg) 6%,transparent)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .crm-aib .aib-i:not(.on):hover{background:color-mix(in srgb,var(--dm-fg) 4%,transparent)}}
+/* Clean: every card in Reports and Forecast has its content 16px in from each edge, as in Soft, so cards side by side line up
+   (the library's Clean cards each had their own 16 to 23px) */
+:root[data-style="clean"] .crm-fc :is(.scx-c,.stx,.hmx,.fnx,.rgx,.tpx,.agx,.lnx,.bcx).panel{padding:var(--dm-s-4)}
+/* the calendar keeps its colours: a meeting that has happened is drawn as fully as one to come (owner, 20 Nov: "where are our
+   colors?"; this replaces the faded earlier events of 10 Nov). The now line says where the day is */
+.crm-ecx .ecx-e.past,.crm-mce.past{opacity:1}
+@media (hover:hover) and (pointer:fine){.crm-ecx .ecx-e.past:hover{opacity:1}}
+/* a meeting's hover and its open state are a deeper fill in its own colour: no lift, no shadow, no grey ring */
+.crm-ecx .ecx-e{--crm-el:0 0 #0000;transition:box-shadow var(--dm-t-fast) var(--dm-ease)}
+.crm-ecx .ecx-e.late{--crm-el:inset 2px 0 0 var(--dm-bad)}
+@media (hover:hover) and (pointer:fine){.crm-ecx .ecx-e:not(.sug,.drag):hover{transform:none;box-shadow:var(--crm-el),inset 0 0 0 100vmax color-mix(in srgb,currentColor 7%,transparent)}}
+.crm-ecx .ecx-e.on:not(.sug,.drag){box-shadow:var(--crm-el),inset 0 0 0 100vmax color-mix(in srgb,currentColor 10%,transparent),inset 0 0 0 1px color-mix(in srgb,currentColor 35%,transparent)}
+/* the meeting card: what sits under the title starts at the card's left edge, so both sides have the same room */
+.crm-cpop :is(.ecx-pt,.ecx-pw,.ecx-note,.ecx-pa,.crm-pdl){margin-left:0}
+:root[data-style="clean"] .crm-cpop.ecx-pop{padding:var(--dm-s-4)}
+/* Team quotas: the legend's percentages end on the card's content edge, its rows' hover boxes reaching out round them */
+.crm-fc .rgx-lg{margin-right:-8px}
 </style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -5007,7 +5034,9 @@ const fitHits = window.dmFitHits || (() => {
   // the meeting's card: the account, the deal and its stage, the people, Prep with agent and Open account
   const cpop = html('<div class="ecx-pop crm-cpop" role="dialog" aria-label="Meeting"></div>'); ecx.appendChild(cpop);
   let popFor = null;
-  const closeCalPop = () => { if (!popFor) return; const back = cpop.contains(document.activeElement) && popFor; const m = popFor._m; cpop.classList.remove('open'); popFor = null;
+  // the meeting whose card is open keeps a quiet open state in its own colour (owner, 20 Nov: no lift, no shadow)
+  const markOpen = el => { $$('.ecx-e.on', cgrid).forEach(x => { if (x !== el) x.classList.toggle('on', false); }); el.classList.add('on'); };
+  const closeCalPop = () => { if (!popFor) return; const back = cpop.contains(document.activeElement) && popFor; const m = popFor._m; cpop.classList.remove('open'); popFor.classList.toggle('on', false); popFor = null;
     if (m && m.fresh){ MT = MT.filter(x => x !== m); renderCal(); return; } if (back && back.isConnected) back.focus({ preventScroll:true }); };
   // who is in a meeting: its owner, then people from the account and from the team, saved with the meeting (m.who)
   const pkey = (co, i) => `c:${co}:${i}`;
@@ -5033,7 +5062,7 @@ const fitHits = window.dmFitHits || (() => {
   function openCalPop(el){
     const m = el._m; if (popFor === el){ closeCalPop(); return; }
     if (popFor && popFor._m.fresh && popFor._m !== m) closeCalPop();
-    popFor = el; const c = coOf(m.co), d = dealOf(m.deal) || c.lead, col = P[m.own][1], done = !m.fresh && isPast(m);
+    popFor = el; markOpen(el); const c = coOf(m.co), d = dealOf(m.deal) || c.lead, col = P[m.own][1], done = !m.fresh && isPast(m);
     cpop.innerHTML = `<div class="ecx-ph"><i style="background:var(--dm-p${col})"></i>${m.fresh ? `<input class="ecx-ti" placeholder="Call" aria-label="Meeting title" value="">` : `<b>${esc(c.n)}</b>`}<button class="ib ecx-px" aria-label="Close" data-tip="Close">${I('x', 'xs')}</button></div>`
       + (m.fresh ? `<div class="ecx-pt"><button class="crmd-v crm-pacc" data-pop="#crm-p-acc" aria-haspopup="menu" aria-label="Account: ${esc(c.n)}. Change it"><span class="pfm-lg xs crm-at" aria-hidden="true" style="${acs(c)}">${esc(c.n[0])}</span><span>${esc(c.n)}</span>${I('chev-d', 'xs')}</button></div>` : `<div class="ecx-pt">${esc(m.kind)}${m.st === 'held' ? ', held' : m.day < 0 ? ', overdue' : ''}</div>`)
       + (m.st === 'held' ? `<div class="ecx-pt num">${fmtDW(m.day)}, ${tm(m.h)} – ${tm(m.h + m.dur)}</div>`
@@ -5124,7 +5153,7 @@ const fitHits = window.dmFitHits || (() => {
     if (!inWeek(m.day)){ wk = Math.floor((m.day - baseMon) / 7); cday = -1; }
     if (cdays.getClientRects().length) cday = m.day - mon();
     renderCal(true);
-    const el = $(`.ecx-e[data-m="${m.id}"]`, cgrid); if (el){ popFor = el; placeCard(el); }
+    const el = $(`.ecx-e[data-m="${m.id}"]`, cgrid); if (el){ popFor = el; markOpen(el); placeCard(el); }
     const w = $('.crm-pwhen span', cpop); if (w) w.textContent = `${fmtDW(m.day)}, ${tm(m.h)} – ${tm(m.h + m.dur)}`;
     if (!m.fresh) refreshMeeting(m);
   }
