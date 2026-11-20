@@ -8,13 +8,19 @@
                                            fills it; a number is the least width the page is laid out at, scaled down
                                            to fit a narrower box (the landing page's templates); otherwise it stays
                                            1280px, centred
+                                           passWheel: true (the landing page) never lets the app trap the reader's
+                                           scrolling: a mouse wheel over the frame scrolls the page until the reader
+                                           clicks inside, and then the app has it until the pointer leaves the frame; a
+                                           swipe up or down always scrolls the page, and a tap still reaches the app.
+                                           Hover and the app's own demos are untouched
      v.show(src, device)                   'desktop' | 'tablet' | 'mobile'; a page already loaded is shown again, not reloaded
      v.device(device)                      changes the width of the page on show
      v.reload()                            loads the page on show again (the demos start over)
 
    Only the page on show is loaded; a page shown before stays loaded, hidden, so going back to it is instant. The page in the
    frame follows the site's style, theme and accent as they change. onUse runs the first time a person clicks, types or
-   scrolls inside a frame. */
+   scrolls inside a frame (with passWheel, the first click, tap, key or swipe across: a wheel or swipe the page takes isn't
+   the app's). */
 (function(){
   if (window.dmFrame) return;
   var W = { desktop:1280, tablet:820, mobile:390 };
@@ -32,7 +38,7 @@
   }
   window.dmFrame = function(box, opts){
     opts = opts || {};
-    var frames = [], cur = null, dev = 'desktop', used = false;
+    var frames = [], cur = null, dev = 'desktop', used = false, engaged = false, touching = false;
     var reduce = matchMedia('(prefers-reduced-motion: reduce)');
     var use = function(){ if (used) return; used = true; if (opts.onUse) opts.onUse(); };
     function place(f){
@@ -57,12 +63,98 @@
         f.ready = true; wrap.classList.add('ready');
         try {
           var w = el.contentWindow, d = el.contentDocument; look(d);
-          ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach(function(t){ w.addEventListener(t, function(e){ if (e.isTrusted) use(); }, { capture:true, passive:true }); });
+          if (opts.passWheel) pass(w, el);
+          (opts.passWheel ? ['keydown'] : ['pointerdown', 'keydown', 'wheel', 'touchstart']).forEach(function(t){ w.addEventListener(t, function(e){ if (e.isTrusted) use(); }, { capture:true, passive:true }); });
           if (opts.onLoad) opts.onLoad(f, w.location.pathname);
         } catch(e){}
       });
       frames.push(f); place(f); return f;
     }
+    // passWheel: the page around the frame takes the wheel, until a click inside, and every swipe up or down. A wheel's
+    // notch glides the page frame by frame, each frame covering part of what is left (settled in about a quarter of a
+    // second, like the browser's own wheel), so notches add up. Not the browser's smooth scroll: the landing page's
+    // self-anchoring corrects the page with instant scrolls, which cut a smooth scroll short; here they add to the glide
+    var left = 0, tau = 80, gliding = false, last = 0;
+    var cap = { capture:true, passive:true }, held = { capture:true, passive:false };
+    // moves the page by dy now; false at the page's top or end
+    function by(dy){
+      var y = window.scrollY, max = document.documentElement.scrollHeight - innerHeight;
+      if ((dy > 0 && y >= max - .5) || (dy < 0 && y <= .5)) return false;
+      window.scrollTo({ top:y + dy, behavior:'instant' }); return true;
+    }
+    // the reader is scrolling the page (the landing page's self-anchoring lets go of a pick, as it does for its own wheel)
+    function scrolling(){ dispatchEvent(new CustomEvent('dm-frame-scroll')); }
+    function glide(dy, t){
+      left += dy; tau = t;
+      if (gliding) return;
+      gliding = true; last = performance.now();
+      requestAnimationFrame(function go(now){
+        // (a late frame covers more, so a busy page still gets there on time)
+        var dt = Math.max(1, now - last); last = now;
+        var s = Math.abs(left) < 1 ? left : left * (1 - Math.exp(-dt / tau));
+        left -= s;
+        if (!by(s) || Math.abs(left) < .5){ left = 0; gliding = false; return; }
+        requestAnimationFrame(go);
+      });
+    }
+    function pass(w, el){
+      w.addEventListener('wheel', function(e){
+        if (engaged || e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+        // not the app's (its own wheel handlers, like the workflow board's pan, don't see it either)
+        e.stopPropagation();
+        // a wheel that can't be held back is part of a scroll the browser started on the page before the frame came under
+        // the pointer: the browser scrolls the page with it already
+        if (!e.cancelable) return;
+        e.preventDefault(); scrolling();
+        var dy = e.deltaY * (e.deltaMode === 1 ? 40 : e.deltaMode === 2 ? innerHeight : 1);
+        // a touchpad's many small steps are smooth already; with reduced motion nothing glides
+        if (reduce.matches || (e.deltaMode === 0 && Math.abs(dy) < 50)) by(dy); else glide(dy, 80);
+      }, held);
+      // a mouse or pen click hands the app the wheel until the pointer leaves the frame
+      w.addEventListener('mouseout', function(e){ if (!e.relatedTarget) engaged = false; }, cap);
+      // a finger: once it has moved 6px, more up or down than across, the page follows it and the app doesn't see the drag;
+      // a quick swipe carries on after the finger lifts, slowing down (not with reduced motion). A tap, or a swipe across,
+      // is the app's. Where the finger is, in the page's view (the frame moving under it doesn't feed back)
+      var t0 = null;
+      var at = function(e){ var r = el.getBoundingClientRect(), k = r.height / el.offsetHeight; return { x:r.left + e.clientX * k, y:r.top + e.clientY * k }; };
+      w.addEventListener('pointerdown', function(e){
+        if (!e.isTrusted) return;
+        left = 0;
+        if (e.pointerType !== 'touch'){ engaged = true; use(); return; }
+        var f = at(e);
+        t0 = e.isPrimary ? { id:e.pointerId, x:f.x, y:f.y, ly:f.y, lt:e.timeStamp, page:null, v:0 } : null;
+        touching = !!t0;
+      }, cap);
+      w.addEventListener('pointermove', function(e){
+        if (!t0 || e.pointerId !== t0.id) return;
+        // (a page no longer on show can't say where the finger is: that swipe is over. The landing page holds the turn while
+        // a finger is down, so this is only a template picked meanwhile)
+        if (!el.offsetHeight){ t0 = null; touching = false; return; }
+        var f = at(e);
+        if (t0.page === null){
+          var dx = f.x - t0.x, dy = f.y - t0.y;
+          if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+          t0.page = Math.abs(dy) >= Math.abs(dx);
+          if (t0.page) scrolling();
+        }
+        if (!t0.page) return;
+        e.stopPropagation();
+        var step = t0.ly - f.y, dt = e.timeStamp - t0.lt;
+        if (dt > 0) t0.v = .8 * step / dt + .2 * t0.v;
+        t0.ly = f.y; t0.lt = e.timeStamp;
+        by(step);
+      }, cap);
+      // (a swipe the browser is already scrolling, or will, isn't followed: it ends with a pointercancel)
+      w.addEventListener('touchmove', function(e){ if (t0 && t0.page){ if (e.cancelable) e.preventDefault(); else { t0 = null; touching = false; } } }, held);
+      w.addEventListener('pointerup', function(e){
+        if (!t0 || e.pointerId !== t0.id) return;
+        var t = t0; t0 = null; touching = false;
+        if (!t.page) use();
+        else if (!reduce.matches && e.timeStamp - t.lt < 60 && Math.abs(t.v) > .2) glide(t.v * 325, 325);
+      }, cap);
+      w.addEventListener('pointercancel', function(e){ if (t0 && e.pointerId === t0.id){ t0 = null; touching = false; } }, cap);
+    }
+    if (opts.passWheel) box.addEventListener('mouseleave', function(){ engaged = false; });
     function show(src, d){
       if (d) dev = d;
       var f = frames.filter(function(x){ return x.src === src; })[0] || make(src);
@@ -85,6 +177,8 @@
       reload:function(){ if (cur){ cur.ready = false; cur.wrap.classList.remove('ready'); try { cur.el.contentWindow.location.reload(); } catch(e){ cur.el.src = cur.src; } } },
       get current(){ return cur; },
       get used(){ return used; },
+      // a finger is on the page on show (passWheel): what is under it shouldn't change
+      get touching(){ return touching; },
     };
   };
 })();

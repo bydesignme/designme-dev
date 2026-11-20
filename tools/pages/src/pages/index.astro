@@ -734,8 +734,10 @@ const jsonld = [
     })();
     (function(){
       // the templates: the first loads once its frame comes within a screen of the view (so it never holds up the page), and
-      // the two take turns every 9 seconds while the frame is on screen. A mouse resting on the frame holds the turn; a click,
-      // key or scroll inside the app, or a pick on the switch, ends the turns for good. With reduced motion they never turn.
+      // the two take turns every 9 seconds while the frame is on screen. A mouse resting on the frame, or a finger on it, holds
+      // the turn; a click, tap or key inside the app, or a pick on the switch, ends the turns for good. With reduced motion
+      // they never turn. The app never traps the page's scrolling: a wheel over it scrolls the page until the reader clicks
+      // inside (then the app has it until the pointer leaves the frame), and a swipe up or down over it always scrolls the page.
       // On a phone the app shows its phone layout in a phone's frame. On a desktop the app is laid out at least 1376px wide
       // (the Sales CRM's table needs about 1312px) and scaled down to the frame's width when that is narrower
       var box = document.querySelector('.lp-show'); if (!box || !window.dmFrame) return;
@@ -744,7 +746,7 @@ const jsonld = [
       var phone = matchMedia('(max-width:640px)'), reduce = matchMedia('(prefers-reduced-motion: reduce)');
       var at = 0, done = reduce.matches, held = false, seen = false, started = false;
       var stop = function(){ done = true; };
-      var v = window.dmFrame(box, { fill:1376, title:function(src){ var t = T.filter(function(x){ return src.indexOf(x.url) === 0; })[0]; return (t ? t.name : 'Template') + ', live'; }, onUse:stop,
+      var v = window.dmFrame(box, { fill:1376, passWheel:true, title:function(src){ var t = T.filter(function(x){ return src.indexOf(x.url) === 0; })[0]; return (t ? t.name : 'Template') + ', live'; }, onUse:stop,
         onLoad:function(){ if (ph) ph.hidden = true; } });
       var show = function(i){
         at = i; var t = T[i];
@@ -756,7 +758,7 @@ const jsonld = [
         v.show(t.url + '.html?embed=1' + (t.at || ''), phone.matches ? 'mobile' : 'desktop');
       };
       var begin = function(){ if (started) return; started = true; show(at);
-        setInterval(function(){ if (done || held || !seen || document.hidden || box.matches(':hover')) return; show((at + 1) % T.length); }, 9000); };
+        setInterval(function(){ if (done || held || v.touching || !seen || document.hidden || box.matches(':hover')) return; show((at + 1) % T.length); }, 9000); };
       segs.forEach(function(b){ b.addEventListener('click', function(e){ if (e.isTrusted) stop(); begin(); show(+b.dataset.tpl); }); });
       box.addEventListener('mouseenter', function(){ held = true; }); box.addEventListener('mouseleave', function(){ held = false; });
       if ('IntersectionObserver' in window){
@@ -808,8 +810,8 @@ const jsonld = [
         var el = still ? middle() : b; pin = { el:el, top:el.getBoundingClientRect().top, until:performance.now() + 1600, frames:0 }; }, true);
       // after the switch's own handler has restyled the page, in the same task, before anything is painted
       document.addEventListener('click', function(){ if (pin) hold(); });
-      // the reader scrolling ends the hold
-      ['wheel', 'touchmove'].forEach(function(t){ addEventListener(t, function(){ pin = null; }, { passive:true }); });
+      // the reader scrolling ends the hold (over the templates' frame, the frame scrolls the page and says so)
+      ['wheel', 'touchmove', 'dm-frame-scroll'].forEach(function(t){ addEventListener(t, function(){ pin = null; }, { passive:true }); });
       addEventListener('keydown', function(e){ if (/^(PageUp|PageDown|Home|End|ArrowUp|ArrowDown| )$/.test(e.key) && !(e.target.closest && e.target.closest('[role="radiogroup"],[role="tablist"],input,textarea,[contenteditable]'))) pin = null; });
     })();
     (function(){

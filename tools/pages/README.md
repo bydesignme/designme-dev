@@ -28,7 +28,9 @@ shrinks as it plays, pushing only what is under it in its stack, so no card has 
 their stacks are chosen, from each candidate's height sampled live over a full run in every style, so the stacks' feet stay
 close to level. Then the two templates, live in one
 frame on the site's grey with a switch over it, taking turns (`src/device/frame.js`, with each template's `?embed=1`, which
-hides its header; the Workflow editor opens on its last test run); a wall of every component on the grey, rows of pictures
+hides its header; the Workflow editor opens on its last test run). The apps never trap the page's scrolling (`passWheel`):
+a mouse wheel over the frame scrolls the page until the reader clicks inside, and the app has it from then until the pointer
+leaves the frame; a swipe up or down over it always scrolls the page, and a tap reaches the app; a wall of every component on the grey, rows of pictures
 that drift in turn left and right and fade out at both sides, each linking to its page; Light or Dark and Blueprint, Soft
 or Clean as two switches beside a demo (a pick restyles the whole page, the templates and the wall's pictures included);
 how to install, with the files `npx designme add` writes in an editor (each file's name, length and first lines, read from
