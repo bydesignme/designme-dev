@@ -33,17 +33,19 @@ function sample(id){
     if (!card.contains(e) || !vis(e) || (e.closest('svg') && e.tagName.toLowerCase() !== 'svg') || e.closest('button,.pill,.tag,.pop')) return;
     const b = e.getBoundingClientRect(); if (b.width < 6 || b.height < 6 || b.width > 64) return; A.push({ k:'mark', e, b }); });
   const bare = e => { const cs = getComputedStyle(e); return cs.backgroundColor === 'rgba(0, 0, 0, 0)' && cs.backgroundImage === 'none' && cs.boxShadow === 'none' && parseFloat(cs.borderTopWidth) === 0; };
+  const inner = e => { const r = document.createRange(); r.selectNodeContents(e); const b = r.getBoundingClientRect(); return b.width ? b : e.getBoundingClientRect(); };
   // a button that is a whole row of a list (as wide as the list it sits in, like a chat in a side list) is measured by what it
   // shows, as a bare one is: its hover or selection fill reaches out round its words by design, so the fill is not its edge
   const listRow = e => { const p = e.parentElement, w = e.getBoundingClientRect().width; return !!p && w > 120 && w >= p.clientWidth - 1 && [...p.children].filter(k => k.matches('button')).length > 2; };
-  const inner = e => { const r = document.createRange(); r.selectNodeContents(e); const b = r.getBoundingClientRect(); return b.width ? b : e.getBoundingClientRect(); };
-  sin.querySelectorAll('button,.pill,.ib,.tag,[role="switch"]').forEach(e => { if (!card.contains(e) || !vis(e) || e.closest('.pop') || (e.parentElement && e.parentElement.closest('button,.pill,.tag'))) return; const b = e.getBoundingClientRect(); if (b.width < 8 || b.height < 8 || b.width > C.width * .6) return; A.push({ k:'ctl', e, b:bare(e) || listRow(e) ? inner(e) : b, box:b }); });
+  // words and controls a script places by coordinates (a chart's axis labels round a radar, a point's label) sit where the chart's
+  // geometry puts them, not on the card's columns, so they are left out of the column checks
+  const placed = e => { for (let a = e; a && a !== card; a = a.parentElement) if (/(^|;)\s*(left|--x0)\s*:/.test(a.getAttribute('style') || '')) return true; return false; };
+  sin.querySelectorAll('button,.pill,.ib,.tag,[role="switch"]').forEach(e => { if (!card.contains(e) || !vis(e) || e.closest('.pop') || placed(e) || (e.parentElement && e.parentElement.closest('button,.pill,.tag'))) return; const b = e.getBoundingClientRect(); if (b.width < 8 || b.height < 8 || b.width > C.width * .6) return; A.push({ k:'ctl', e, b:bare(e) || listRow(e) ? inner(e) : b, box:b }); });
   const tw = document.createTreeWalker(card, NodeFilter.SHOW_TEXT); let n;
   const sets = e => { const cs = getComputedStyle(e), pe = e.parentElement, ps = pe && getComputedStyle(pe);
     if (/center/.test(cs.textAlign) || (ps && /grid|flex/.test(ps.display) && (/center/.test(ps.justifyContent) || /center/.test(ps.justifyItems) || /center/.test(ps.placeItems))) || (/grid|flex/.test(cs.display) && /center/.test(cs.justifyContent + cs.justifyItems))) return 'centre';
     if (/right|end/.test(cs.textAlign) || (ps && /flex/.test(ps.display) && /end|space-between/.test(ps.justifyContent) && [...pe.children].filter(k => k.offsetParent).pop() === e)) return 'right';
     return 'left'; };
-  const placed = e => { for (let a = e; a && a !== card; a = a.parentElement) if (/(^|;)\s*(left|--x0)\s*:/.test(a.getAttribute('style') || '')) return true; return false; };
   while ((n = tw.nextNode())){ const e = n.parentElement; if (!n.textContent.trim() || !vis(e) || e.closest('button,.pill,.tag,.pop,.hand') || placed(e)) continue; const r = document.createRange(); r.selectNodeContents(n); const lines = [...r.getClientRects()].filter(b => b.width > 2), set = sets(e); lines.forEach(b => A.push({ k:'text', e, b, set, wraps:lines.length > 1 })); }
   // rows: anchors that share a line
   const rows = []; A.sort((a, b) => a.b.top - b.b.top);

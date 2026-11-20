@@ -33,9 +33,9 @@ Concentric rings, one for each agent, each filled to its share of that agent's o
 
 ### What it does
 
-- A thick ring per goal, outermost first, in the chart palette, on a grey track. Three goals read best; the rings share the space between the edge and the readout, so the more goals there are, the thinner each ring.
-- Past its target a ring goes round again from the top, its end cutting into the ring under it (in Soft) with a small marker on it, and its share shows as a green tag ("110%").
-- The middle shows the average share across the goals, or the share of the goal you point at, counting to the new value.
+- A thick ring per goal, outermost first, in the chart palette, on a grey track. What is still to go, from the share to the target, is a fine diagonal hatch in the ring's own colour. Three goals read best; the rings share the space between the edge and the readout, so the more goals there are, the thinner each ring.
+- Past its target a ring is whole and goes round again from the top in a deeper shade of its colour (a brighter one in dark mode), its end cutting into the ring under it with a small cap on it, and its share shows as a green tag ("110%"). The hatch, the lap and the cap move with the ring as it draws.
+- The middle shows the average share across the goals as one large figure, or the share of the goal you point at, counting to the new value. Screen readers hear what it is a share of, like "90% of targets".
 - Legend rows print each goal's done / target with its unit and its share.
 - Pointing at a ring or a row, or moving the focus to a row, lights both and dims the other rings.
 - An optional range switch (`ranges`, `range`, `onRangeChange`), and an optional line under the title (`subtitle`), like the period it covers.
@@ -131,7 +131,7 @@ Yes. Leave out `ranges`, or `onRangeChange`, and the header shows the title, wit
 
 ```tsx
 'use client';
-import { useState, type CSSProperties } from 'react';
+import { useId, useState, type CSSProperties } from 'react';
 import { cx } from '../lib/cx';
 import { useTween } from '../lib/hooks';
 import { Seg, Swap } from '../lib/motion';
@@ -166,7 +166,8 @@ export interface RadialGoalsProps<R extends string = string> {
 const PAL = ['var(--dm-c1)', 'var(--dm-c2)', 'var(--dm-c3)', 'var(--dm-c4)', 'var(--dm-c5)'];
 const pc = (x: number) => Math.round(x * 100) + '%';
 
-/** Concentric rings, one per agent, each its share of its own target; past the target a ring goes round again with a marker. */
+/** Concentric rings, one per agent, each its share of its own target. What is still to go is hatched in the ring's colour; past
+    the target the ring goes round again over its start in a deeper shade, with a small cap where it ends. */
 export function RadialGoals<R extends string = string>({ goals, title = 'Agent goals', subtitle, ranges, range, onRangeChange, className }: RadialGoalsProps<R>) {
   const [focus, setFocus] = useState(-1);
   // the rings share the band from the outer edge (85) to the readout in the middle (34) with a 4 unit gap between them, so
@@ -176,6 +177,8 @@ export function RadialGoals<R extends string = string>({ goals, title = 'Agent g
   const share = (g: RadialGoal) => g.target ? g.value / g.target : 0;
   const overall = goals.reduce((t, g) => t + share(g), 0) / Math.max(1, goals.length);
   const mid = useTween(focus < 0 ? overall : share(goals[focus]), 600, 0);
+  // each ring's hatch is a pattern of its own, named after this chart so two charts on a page keep theirs apart
+  const uid = useId().replace(/[^\w-]/g, '');
   return (
     <div data-dm="" className={cx('dm-rgx dm-panel', className)}>
       <div className="dm-rgx-h">
@@ -185,20 +188,30 @@ export function RadialGoals<R extends string = string>({ goals, title = 'Agent g
       <div className="dm-rgx-b">
         <div className={cx('dm-rgx-ring', focus >= 0 && 'dm-hov')}>
           <svg viewBox="0 0 180 180" aria-hidden="true" style={{ ['--dm-rw' as string]: W } as CSSProperties}>
-            {goals.map((g, i) => { const s = share(g), c = g.color ?? PAL[i % PAL.length], an = (s > 1 ? s - 1 : s) * 2 * Math.PI;
+            <defs>
+              {goals.map((g, i) => (
+                <pattern key={g.key} id={`${uid}-${i}`} className="dm-rgx-hp" style={{ ['--dm-rc' as string]: g.color ?? PAL[i % PAL.length] } as CSSProperties}
+                  patternUnits="userSpaceOnUse" width={4} height={4} patternTransform="rotate(45)"><rect width={1.3} height={4} /></pattern>
+              ))}
+            </defs>
+            {goals.map((g, i) => { const s = share(g), c = g.color ?? PAL[i % PAL.length];
               return (
-                <g key={g.key} className={cx(i === focus && 'dm-on', s > 1 && 'dm-lap')} style={{ stroke: c }} onPointerEnter={e => { if (e.pointerType !== 'touch') setFocus(i); }} onPointerLeave={() => setFocus(-1)}>
+                <g key={g.key} className={cx(i === focus && 'dm-on', s > 1 && 'dm-lap')} style={{ ['--dm-rc' as string]: c } as CSSProperties} onPointerEnter={e => { if (e.pointerType !== 'touch') setFocus(i); }} onPointerLeave={() => setFocus(-1)}>
                   <circle className="dm-tr" cx={90} cy={90} r={RAD[i]} />
+                  {/* what is still to go, from the share to the target, hatched in the ring's colour */}
+                  <circle className="dm-rm" cx={90} cy={90} r={RAD[i]} pathLength={100} strokeDasharray={`${Math.max(0, 1 - s) * 100} 100`} strokeDashoffset={-Math.min(1, s) * 100} style={{ stroke: `url(#${uid}-${i})` }} />
                   <circle className="dm-fl" cx={90} cy={90} r={RAD[i]} pathLength={100} strokeDasharray={`${Math.max(0, Math.min(1, s) * 100 - .01)} 100`} />
-                  {/* past the target the ring goes round again from the top, and a marker sits where it ends */}
+                  {/* past the target the ring goes round again from the top in a deeper shade, and a cap sits where it ends */}
                   {/* under the lap's end only, a band of the surface a little wider than the ring, so the end cuts into the ring under it */}
                   <circle className="dm-ovb" cx={90} cy={90} r={RAD[i]} pathLength={100} strokeDasharray={`${Math.min(3, Math.max(0, s - 1) * 100)} 100`} strokeDashoffset={-Math.max(0, (s - 1) * 100 - 3)} />
                   <circle className="dm-ov" cx={90} cy={90} r={RAD[i]} pathLength={100} strokeDasharray={`${Math.max(0, s - 1) * 100} 100`} />
-                  <circle className="dm-mk" r={Math.max(2.5, W * .29)} cx={90 + Math.cos(an) * RAD[i]} cy={90 + Math.sin(an) * RAD[i]} style={{ stroke: c }} />
+                  {/* the cap turns round the middle with the lap's end, so the two move together */}
+                  <circle className="dm-mk" r={Math.max(2.5, W * .29)} cx={90 + RAD[i]} cy={90} style={{ transform: `rotate(${Math.max(0, s - 1) * 360}deg)` }} />
                 </g>
               ); })}
           </svg>
-          <div className="dm-rgx-c"><b className="dm-num">{pc(mid)}</b><Swap className="dm-muted">{focus < 0 ? 'of targets' : goals[focus].label.replace(/ agent$/, '')}</Swap></div>
+          {/* the one big figure; what it is a share of is for screen readers only */}
+          <div className="dm-rgx-c"><b className="dm-num">{pc(mid)}</b><span className="dm-rgx-cl">{focus < 0 ? 'of targets' : `of the ${goals[focus].label}'s target`}</span></div>
         </div>
         <div className="dm-rgx-lg">
           {goals.map((g, i) => { const s = share(g);
