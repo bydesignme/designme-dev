@@ -1372,7 +1372,9 @@
   // the meeting's card: the account, the deal and its stage, the people, Prep with agent and Open account
   const cpop = html('<div class="ecx-pop crm-cpop" role="dialog" aria-label="Meeting"></div>'); ecx.appendChild(cpop);
   let popFor = null;
-  const closeCalPop = () => { if (!popFor) return; const back = cpop.contains(document.activeElement) && popFor; const m = popFor._m; cpop.classList.remove('open'); popFor = null;
+  // the meeting whose card is open keeps a quiet open state in its own colour (owner, 20 Nov: no lift, no shadow)
+  const markOpen = el => { $$('.ecx-e.on', cgrid).forEach(x => { if (x !== el) x.classList.toggle('on', false); }); el.classList.add('on'); };
+  const closeCalPop = () => { if (!popFor) return; const back = cpop.contains(document.activeElement) && popFor; const m = popFor._m; cpop.classList.remove('open'); popFor.classList.toggle('on', false); popFor = null;
     if (m && m.fresh){ MT = MT.filter(x => x !== m); renderCal(); return; } if (back && back.isConnected) back.focus({ preventScroll:true }); };
   // who is in a meeting: its owner, then people from the account and from the team, saved with the meeting (m.who)
   const pkey = (co, i) => `c:${co}:${i}`;
@@ -1398,7 +1400,7 @@
   function openCalPop(el){
     const m = el._m; if (popFor === el){ closeCalPop(); return; }
     if (popFor && popFor._m.fresh && popFor._m !== m) closeCalPop();
-    popFor = el; const c = coOf(m.co), d = dealOf(m.deal) || c.lead, col = P[m.own][1], done = !m.fresh && isPast(m);
+    popFor = el; markOpen(el); const c = coOf(m.co), d = dealOf(m.deal) || c.lead, col = P[m.own][1], done = !m.fresh && isPast(m);
     cpop.innerHTML = `<div class="ecx-ph"><i style="background:var(--dm-p${col})"></i>${m.fresh ? `<input class="ecx-ti" placeholder="Call" aria-label="Meeting title" value="">` : `<b>${esc(c.n)}</b>`}<button class="ib ecx-px" aria-label="Close" data-tip="Close">${I('x', 'xs')}</button></div>`
       + (m.fresh ? `<div class="ecx-pt"><button class="crmd-v crm-pacc" data-pop="#crm-p-acc" aria-haspopup="menu" aria-label="Account: ${esc(c.n)}. Change it"><span class="pfm-lg xs crm-at" aria-hidden="true" style="${acs(c)}">${esc(c.n[0])}</span><span>${esc(c.n)}</span>${I('chev-d', 'xs')}</button></div>` : `<div class="ecx-pt">${esc(m.kind)}${m.st === 'held' ? ', held' : m.day < 0 ? ', overdue' : ''}</div>`)
       + (m.st === 'held' ? `<div class="ecx-pt num">${fmtDW(m.day)}, ${tm(m.h)} – ${tm(m.h + m.dur)}</div>`
@@ -1489,7 +1491,7 @@
     if (!inWeek(m.day)){ wk = Math.floor((m.day - baseMon) / 7); cday = -1; }
     if (cdays.getClientRects().length) cday = m.day - mon();
     renderCal(true);
-    const el = $(`.ecx-e[data-m="${m.id}"]`, cgrid); if (el){ popFor = el; placeCard(el); }
+    const el = $(`.ecx-e[data-m="${m.id}"]`, cgrid); if (el){ popFor = el; markOpen(el); placeCard(el); }
     const w = $('.crm-pwhen span', cpop); if (w) w.textContent = `${fmtDW(m.day)}, ${tm(m.h)} – ${tm(m.h + m.dur)}`;
     if (!m.fresh) refreshMeeting(m);
   }
