@@ -7,7 +7,7 @@ export default function DonutChartDemo() {
     <div style={{ width: '100%' }}>
       <DonutChart label="Agent time" unit="h" segments={[
         { label: 'Design reviews', value: 14.2 }, { label: 'Code changes', value: 9.6 }, { label: 'Research', value: 6.1 },
-        { label: 'Copy edits', value: 3.4 }, { label: 'Other', value: 1.7, color: 'var(--dm-faint)' }
+        { label: 'Copy edits', value: 3.4 }, { label: 'Other', value: 1.7, color: 'var(--dm-line-strong)' }
       ]} />
     </div>
   );

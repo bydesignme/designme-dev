@@ -1530,18 +1530,14 @@ for pre in ('<a class="hire-btn" id="hire-btn" href=',
 patch("""c.closest('.lib-sec').querySelector('h2').textContent.toLowerCase().includes(q);""", """(c.closest('.lib-sec') || document.getElementById(c.dataset.home) || c).querySelector('h2')?.textContent.toLowerCase().includes(q);""")
 patch("""s:(c.closest('.lib-sec') || {}).querySelector ? c.closest('.lib-sec').querySelector('h2').textContent : '' }));""", """s:((c.closest('.lib-sec') || document.getElementById(c.dataset.home || '')) || { querySelector:() => null }).querySelector('h2')?.textContent || '' }));""")
 
-# the intro strip: the install command, a Star link that keeps its word beside the count, and Book a call on one row;
-# then four of this week's components (still pictures of the live demos, linking to their pages); then the list,
-# led by the Figma library, which is not ready yet
-FEAT = [('agent-tree', 'Agent tree'), ('trace-view', 'Trace view'), ('agent-lanes', 'Agent lanes'), ('permission-gate', 'Permission gate')]
-feat = ''.join(
-  '<a href="/components/' + slug + '"><span class="ft-pic"><img class="ft-lt" src="/components/thumbs/' + slug + '-light.webp" alt="" width="640" height="400"><img class="ft-dk" src="/components/thumbs/' + slug + '-dark.webp" alt="" width="640" height="400"></span><span class="ft-n">' + name + '</span></a>'
-  for slug, name in FEAT)
+# the intro strip: the install command and a Star link that keeps its word beside the count, on one row; then the list,
+# led by the Figma library, which is not ready yet. The row of four featured components under the strip and the strip's
+# Book a call (the sidebar keeps its own) were removed (owner, 20 Nov: "can you remove the cards from here?", "can you
+# remove this button from the hero")
 patch(
   """  <div class="intro-get"><button class="cdm-cmd intro-cmd" data-cmd="npx designme add live-answer --react" title="Copy install command"><span class="d">$</span><span class="c">npx designme add live-answer --react</span><span class="ms sm">content_copy</span></button></div>
   <div class="m-cta"><div class="t">Need expert design and dev support?</div><a class="hire-btn m-cta-btn" href=\"""" + BOOK + """\" target="_blank" rel="noopener">Book a call<span class="ms">arrow_forward</span></a></div>""",
-  """  <div class="intro-get"><button class="cdm-cmd intro-cmd" data-cmd="npx designme add live-answer --react" title="Copy install command"><span class="d">$</span><span class="c">npx designme add live-answer --react</span><span class="ms sm">content_copy</span></button><a class="gh-pill" href="https://github.com/bydesignme/designme-dev" aria-label="Star designme.dev on GitHub" data-gh-stars><svg viewBox="0 0 24 24" aria-hidden="true">""" + GH_MARK + """</svg><span class="gh-l">Star</span><span class="gh-n" hidden></span></a><a class="hire-btn" href=\"""" + BOOK + """\" target="_blank" rel="noopener">Book a call<span class="ms">arrow_forward</span></a></div>
-  <div class="intro-feat">""" + feat + """</div>
+  """  <div class="intro-get"><button class="cdm-cmd intro-cmd" data-cmd="npx designme add live-answer --react" title="Copy install command"><span class="d">$</span><span class="c">npx designme add live-answer --react</span><span class="ms sm">content_copy</span></button><a class="gh-pill" href="https://github.com/bydesignme/designme-dev" aria-label="Star designme.dev on GitHub" data-gh-stars><svg viewBox="0 0 24 24" aria-hidden="true">""" + GH_MARK + """</svg><span class="gh-l">Star</span><span class="gh-n" hidden></span></a></div>
   <div class="su" id="su-fig"><p class="su-lead">The Figma library is coming soon. Leave your email and you'll get it when it lands.</p><div class="su-row" id="su-fig-row"><input id="su-fig-email" type="email" placeholder="you@company.com" autocomplete="email" aria-label="Email address"><button class="su-btn" id="su-fig-go" type="button">Sign up</button></div><div class="su-msg" id="su-fig-msg" role="status"></div><div class="su-note">Unsubscribe any time. Read the <a href="#/privacy">privacy notice</a>.</div></div>""")
 
 # Popular (the default) opens on this week's agent components. Recent puts them back in their own sections.
@@ -1630,23 +1626,9 @@ patch("""</header>
 // the GitHub pill""")
 
 CSS += """
-/* the intro strip: Star and Book a call sit with the install command */
-.intro-get .hire-btn{margin-top:0;height:32px}
+/* the intro strip: Star sits with the install command */
 .intro-get .gh-pill{height:32px;padding:0 12px 0 10px}
-/* four featured components, stills of the live demos, each linking to its page */
-.intro-feat{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:22px}
-.intro-feat a{display:flex;flex-direction:column;gap:8px;min-width:0;color:var(--sh-text);text-decoration:none}
-.intro-feat a:hover .ft-n{text-decoration:underline;text-underline-offset:2px}
-.ft-pic{position:relative;display:block;aspect-ratio:16/10;border-radius:calc(8px * var(--rk,1));corner-shape:squircle;overflow:hidden;background:var(--sh-stage);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--sh-line) 50%,transparent)}
-:root:not([data-style="soft"]) .ft-pic{border-radius:0}
-.ft-pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.ft-pic .ft-dk{display:none}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ft-pic .ft-lt{display:none}:root:not([data-theme="light"]) .ft-pic .ft-dk{display:block}}
-:root[data-theme="dark"] .ft-pic .ft-lt{display:none}
-:root[data-theme="dark"] .ft-pic .ft-dk{display:block}
-.ft-n{font-size:13px;font-weight:500;letter-spacing:-.011em}
-@media (max-width:800px){.intro-feat{grid-template-columns:1fr 1fr}}
-/* the list in the intro, under the featured row. The Figma line stays: the library is not ready */
+/* the list in the intro, under the install strip. The Figma line stays: the library is not ready */
 .intro > .su .su-lead{display:block;margin:0 0 10px;max-width:52ch;font-size:14px;line-height:1.5;color:var(--sh-dim)}
 /* this week's agent components, ahead of the sections, on the default view and on Popular */
 body.ui .launch{margin-top:28px;gap:24px}

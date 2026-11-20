@@ -167,7 +167,11 @@
 /* a whole agent app in one card: chats down the side, tabs across the top, a New chat home with suggestions, and the
    conversations themselves, told with the components above */
 .card.wide .stage-in:has(>.ahx){max-width:960px}
-.ahx{display:flex;height:620px;overflow:hidden;container:ahx/inline-size;text-align:left;position:relative}
+/* the side's columns (owner, 18 Nov): its rows' fills sit 8px in from its edges and their words 16px in, under the workspace's
+   tile; New chat's pencil is centred under the tile and its words start where the workspace's name does; the side's buttons
+   and the chats' marks end on one right edge, the glyphs centred over the marks. The workspace switcher shares the tab strip's
+   centre line, and a hover is a quiet fill that shows in light mode on whatever it sits on */
+.ahx{display:flex;height:620px;overflow:hidden;container:ahx/inline-size;text-align:left;position:relative;--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
 .ahx-side{flex:none;width:236px;display:flex;flex-direction:column;gap:2px;padding:10px;background:var(--dm-surface);border-right:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);transition:margin-left var(--dm-t) var(--dm-ease),transform var(--dm-t) var(--dm-ease),box-shadow var(--dm-t) var(--dm-ease)}
 .ahx.ns .ahx-side{margin-left:-236px}
 .ahx-ws{display:flex;align-items:center;gap:2px;margin-bottom:6px}
@@ -185,6 +189,8 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .ahx-lg{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));display:grid;place-items:center;flex:none;background:var(--dm-ink);color:var(--dm-on-ink);font-size:11px;font-weight:500;transition:background var(--dm-t) var(--dm-ease)}
 .ahx-ws .ib,.ahx-top>.ib,.ahx-lh .ib{width:28px;height:28px;color:var(--dm-muted)}
 @media (hover:hover) and (pointer:fine){.ahx-ws .ib:hover,.ahx-top>.ib:hover,.ahx-lh .ib:hover{color:var(--dm-fg)}}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink primary alone presses */
+.ahx :is(.ib,.pill):active,:root[data-style="clean"] .ahx .ib:active,:root [data-style="clean"] .ahx .ib:active,:root [data-style="clean"].ahx .ib:active{transform:none}
 .ahx-wsp{width:212px}
 .ahx-wsp .ahx-lg{width:18px;height:18px;font-size:11px}
 .ahx-nav,.ahx-cv{display:flex;align-items:center;gap:9px;width:100%;min-height:32px;padding:0 9px;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;text-align:left;color:var(--dm-fg2);transition:background var(--dm-t-fast),box-shadow var(--dm-t-fast),color var(--dm-t-fast)}
@@ -197,21 +203,30 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .ahx-cv:focus-visible,.ahx-tb:focus-visible{outline-offset:-2px}
 .ahx-lh{display:flex;align-items:center;justify-content:space-between;padding:var(--dm-s-3) 1px 2px 9px;font-size:11px;color:var(--dm-muted)}
 .ahx-lh .ib{width:24px;height:24px}
-.ahx-si{display:block;width:100%;height:32px;margin:var(--dm-s-1) 0 6px;padding:0 10px;border:0;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);font-size:13px;outline:0;transition:box-shadow var(--dm-t-fast)}
+/* the harness's own side (the templates borrow these classes and keep their own measures): its rows' fills 8px in from its
+   edges, its words 16px in under the workspace's tile, New chat's pencil centred under the tile and its words under the
+   workspace's name, and the side's buttons ending where the chats' marks do */
+.ahx>.ahx-side{padding:var(--dm-s-2)}
+.ahx .ahx-ws{height:30px;margin-bottom:var(--dm-s-2)}
+.ahx .ahx-wsb{height:30px;padding:0 var(--dm-s-2)}
+.ahx :is(.ahx-nav,.ahx-cv){padding:0 7px 0 var(--dm-s-2)}
+.ahx .ahx-nav{padding-left:11px;gap:12px}
+.ahx .ahx-lh{padding:var(--dm-s-3) 2px 2px var(--dm-s-2)}
+.ahx-si{display:block;width:100%;height:32px;margin:var(--dm-s-1) 0 6px;padding:0 var(--dm-s-2);border:0;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);font-size:13px;outline:0;transition:box-shadow var(--dm-t-fast)}
 @supports (corner-shape:squircle){.ahx-si{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
 .ahx-si:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
 .ahx-si::placeholder{color:var(--dm-muted)}
 .ahx-si::-webkit-search-cancel-button{display:none}
 .ahx-list{flex:1;min-height:0;display:flex;flex-direction:column;gap:2px;overflow-y:auto;scrollbar-width:none}
-.ahx-none{margin:0;padding:6px 9px;font-size:12px;color:var(--dm-muted)}
-.ahx-mk{display:grid;place-items:center;width:10px;flex:none}
+.ahx-none{margin:0;padding:6px var(--dm-s-2);font-size:12px;color:var(--dm-muted)}
+.ahx-mk{display:grid;place-items:center;width:14px;flex:none}
 .ahx-mk:empty{display:none}
 .ahx-mk .spin{width:10px;height:10px;color:var(--dm-muted)}
 .ahx-main{flex:1;min-width:0;display:flex;flex-direction:column;position:relative;container:ahm/inline-size}
 /* the tabs: a chat opens or comes to the front, × closes it, + opens New chat */
-.ahx-top{flex:none;display:flex;align-items:center;gap:var(--dm-s-1);height:46px;padding:0 10px 0 var(--dm-s-2);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.ahx-top{flex:none;display:flex;align-items:center;gap:var(--dm-s-1);height:47px;padding:0 9px 0 6px;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .ahx-menu{display:none}
-.ahx.ns .ahx-menu{display:inline-grid}
+.ahx.ns .ahx-menu{display:inline-grid;margin-left:2px}
 .ahx-tabs{position:relative;display:flex;align-items:center;gap:2px;min-width:0;padding:2px;overflow-x:auto;scrollbar-width:none}
 .ahx-tabs::-webkit-scrollbar{display:none}
 .ahx-tab{flex:0 1 164px;min-width:108px;display:flex;align-items:center;height:30px;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));overflow:hidden;color:var(--dm-fg2);transition:background var(--dm-t-fast),box-shadow var(--dm-t-fast),color var(--dm-t-fast)}
@@ -263,6 +278,11 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .ahx-fs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
 .ahx-fs:last-child{margin-bottom:0}
 .ahx-msg{min-width:0}
+/* the person's words end where the composer's send button does: a bubble's words sit 16px in, as the composer's do */
+.ahx-col .bub{padding-inline:var(--dm-s-4)}
+/* the sources button of an answer in the chat keeps its words on the column's edge when it reaches it (on a phone), its hover
+   box reaching out round them; on a phone it ends the row, under the tab strip's last glyph (16px in, as the panel's close is) */
+.ahx-col .lva-sb{margin-right:-9px}
 /* a component in the chat lines up with the messages on the left, instead of centring itself as it does on its own */
 .ahx-col .ahx-msg>*{margin-left:0;margin-right:auto}
 /* chat components sit on the chat itself, the way a bare card shows them; an artifact and a diff keep their card */
@@ -275,12 +295,14 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .ahx-wh{display:inline-flex;align-items:center;gap:var(--dm-s-2);height:28px;padding:0 9px 0 7px;margin-left:-7px;border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.ahx-wh:hover{background:var(--dm-row);color:var(--dm-fg)}}
 .ahx-wh .g{display:grid;place-items:center;width:14px;color:var(--dm-muted)}
+.ahx-wh .g:has(>svg){color:var(--dm-ok)}
+:root[data-style="clean"] .ahx-wh .g:has(>svg),:root [data-style="clean"] .ahx-wh .g:has(>svg),:root [data-style="clean"].ahx-wh .g:has(>svg){color:var(--dm-ok-mark)}
 .ahx-wh .m{color:var(--dm-muted);font-size:12px}
 .ahx-wh>.i{color:var(--dm-muted);transition:transform var(--dm-t) var(--dm-ease)}
 .ahx-wh[aria-expanded="true"]>.i{transform:rotate(180deg)}
 .ahx-wb{align-self:stretch}
 .ahx-wl{display:flex;flex-direction:column;gap:var(--dm-s-4);margin:var(--dm-s-2) 0 2px 6px;padding-left:18px;border-left:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.ahx-bot{flex:none;position:relative;padding:0 var(--dm-s-6) 18px}
+.ahx-bot{flex:none;position:relative;padding:0 28px 18px}
 .ahx-bot::before{content:"";position:absolute;left:0;right:10px;bottom:100%;height:28px;background:linear-gradient(transparent,var(--dm-surface));pointer-events:none}
 .ahx-bot .cpx{max-width:632px;margin:0 auto}
 .ahx .cpx-thread{display:none}
@@ -293,7 +315,7 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .ahx-pane{flex:none;width:0;overflow:hidden;background:var(--dm-surface);border-left:1px solid transparent;visibility:hidden;transition:width var(--dm-t) var(--dm-ease),border-color var(--dm-t) var(--dm-ease),visibility 0s var(--dm-t)}
 .ahx.pn .ahx-pane{width:300px;border-left-color:color-mix(in srgb,var(--dm-line) 50%,transparent);visibility:visible;transition-delay:0s}
 .ahx-pi{width:300px;height:100%;display:flex;flex-direction:column}
-.ahx-ph{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:46px;padding:0 var(--dm-s-2) 0 14px;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13px;font-weight:500}
+.ahx-ph{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:47px;padding:0 9px 0 var(--dm-s-4);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13px;font-weight:500}
 .ahx-ph .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ahx-ph>.i{color:var(--dm-pb)}
 .ahx-ph .ib{width:28px;height:28px;color:var(--dm-muted)}
@@ -303,19 +325,24 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .ahx-pn b{font-weight:500;color:var(--dm-fg)}
 .ahx-pn p{margin:0 0 10px}
 /* the report opened in the panel: drawn flat, with the chart it describes */
-.ahx-doc{padding:var(--dm-s-4) var(--dm-s-4) var(--dm-s-3)}
-.ahx-dh{font-weight:500;font-size:14px}
-.ahx-dp{margin-top:var(--dm-s-1);font-size:12px;line-height:1.5;color:var(--dm-fg2);min-height:38px;text-wrap:pretty}
+/* its words sit on the panel's 16px edges, as the notes under it do; the head already names it, so it has no title of its own */
+.ahx-doc{padding:0}
+.ahx-dp{font-size:12px;line-height:1.5;color:var(--dm-fg2);text-wrap:pretty}
 .ahx-kp{display:flex;align-items:baseline;gap:var(--dm-s-2);margin-top:10px}
 .ahx-kp b{font-size:14px;font-weight:500;letter-spacing:-.02em}
 .ahx-dd{font-size:12px;color:var(--dm-ok)}
 .ahx-ch{display:block;width:100%;height:56px;margin-top:var(--dm-s-2);overflow:visible}
 .ahx-ch .ln{fill:none;stroke:var(--dm-accent-mark,var(--dm-accent));stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
-.ahx-ax{display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--dm-muted)}
+.ahx-ax{position:relative;height:16px;margin-top:6px;font-size:11px;line-height:16px;color:var(--dm-muted)}
+/* each month's label sits under its own point: the first starts on the chart's left edge and the last ends on its right */
+.ahx-ax span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
+.ahx-ax span:first-child{transform:none}
+.ahx-ax span:last-child{transform:translateX(-100%)}
 .ahx-scrim{display:none}
 /* a narrow chat, beside the panel or on a phone: the composer keeps only what it needs */
 @container ahm (max-width:560px){
   .ahx .ctm-ft>span,.ahx .cpx-bar .cpx-ctx,.ahx-spl .spl-in .m{display:none}
+  .ahx-col .lva-src{justify-content:space-between}
 }
 /* phone: the chats slide in from the side, the tabs fold into one, the panel covers the chat */
 @container ahx (max-width:620px){
@@ -323,8 +350,8 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
   .ahx.dr .ahx-side{transform:none;box-shadow:var(--dm-shadow-pop)}
   .ahx-scrim{display:block;position:absolute;inset:0;z-index:5;background:rgba(0,0,0,.2);opacity:0;pointer-events:none;transition:opacity var(--dm-t) var(--dm-ease)}
   .ahx.dr .ahx-scrim{opacity:1;pointer-events:auto}
-  .ahx .ahx-menu{display:inline-grid}
-  .ahx-top{padding:0 6px}
+  .ahx .ahx-menu{display:inline-grid;margin-left:2px}
+  .ahx-top{padding:0 9px 0 6px}
   .ahx-spl{display:none}
   /* the tabs fold into one: the chat on screen fills the row, and a count of the open chats lists them all */
   .ahx-tabs{flex:1}
@@ -337,13 +364,28 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
   .ahx.pn .ahx-pane{visibility:visible;transition-delay:0s}
   .ahx-home{padding:var(--dm-s-4) 10px var(--dm-s-2)}
   .ahx-col{padding:18px var(--dm-s-4) var(--dm-s-6)}
-  .ahx-bot{padding:0 10px 10px}
+  .ahx-bot{padding:0 var(--dm-s-4) var(--dm-s-4)}
   .ahx-pane{position:absolute;z-index:4;top:0;right:0;bottom:0;border-left:0}
   .ahx.pn .ahx-pane{width:100%}
   .ahx-pi{width:100%}
 }
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .ahx.panel,:root [data-style="clean"] .ahx.panel,:root [data-style="clean"].ahx.panel{padding:12px 0px 0px 10px}
+/* Clean (owner, 18 Nov): an app screen as Clean draws one. The chats down the side, the tab strip and the panel's head are
+   off-white strips over the white chat, edged with a hairline. In the strips every control is 28px and sits 8px from the
+   strip's edges: the workspace switcher, the tabs (pills, the open one white with a hairline, as the open chat is), +, the
+   status pill and the panel's buttons */
+:root[data-style="clean"] .ahx>.ahx-side,:root [data-style="clean"] .ahx>.ahx-side,:root [data-style="clean"].ahx>.ahx-side{background:var(--dm-strip);border-right-color:var(--dm-line)}
+:root[data-style="clean"] .ahx .ahx-ws,:root [data-style="clean"] .ahx .ahx-ws,:root [data-style="clean"].ahx .ahx-ws{height:28px}
+:root[data-style="clean"] .ahx .ahx-wsb,:root [data-style="clean"] .ahx .ahx-wsb,:root [data-style="clean"].ahx .ahx-wsb{height:28px}
+:root[data-style="clean"] :is(.ahx-top,.ahx-ph),:root [data-style="clean"] :is(.ahx-top,.ahx-ph),:root [data-style="clean"]:is(.ahx-top,.ahx-ph){height:45px;background:var(--dm-strip);border-bottom-color:var(--dm-line)}
+:root[data-style="clean"] .ahx-tabs,:root [data-style="clean"] .ahx-tabs,:root [data-style="clean"].ahx-tabs{padding:0}
+:root[data-style="clean"] .ahx-top,:root [data-style="clean"] .ahx-top,:root [data-style="clean"].ahx-top{padding-inline:var(--dm-s-2)}
+:root[data-style="clean"] .ahx.ns .ahx-menu,:root [data-style="clean"] .ahx.ns .ahx-menu,:root [data-style="clean"].ahx.ns .ahx-menu{margin-left:0}
+:root[data-style="clean"] .ahx-tab,:root [data-style="clean"] .ahx-tab,:root [data-style="clean"].ahx-tab{height:28px;border-radius:var(--dm-r-pill)}
+:root[data-style="clean"] .ahx :is(.ahx-tab.on,.ahx-cv[aria-current="true"]),:root [data-style="clean"] .ahx :is(.ahx-tab.on,.ahx-cv[aria-current="true"]),:root [data-style="clean"].ahx :is(.ahx-tab.on,.ahx-cv[aria-current="true"]){box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .ahx-spl .spl-pill,:root [data-style="clean"] .ahx-spl .spl-pill,:root [data-style="clean"].ahx-spl .spl-pill{height:28px}
+:root[data-style="clean"] .ahx-ph,:root [data-style="clean"] .ahx-ph,:root [data-style="clean"].ahx-ph{padding-right:var(--dm-s-2)}
+:root[data-style="clean"] .ahx.pn .ahx-pane,:root [data-style="clean"] .ahx.pn .ahx-pane,:root [data-style="clean"].ahx.pn .ahx-pane{border-left-color:var(--dm-line)}
+@container ahx (max-width:620px){:root[data-style="clean"] .ahx .ahx-menu,:root [data-style="clean"] .ahx .ahx-menu,:root [data-style="clean"].ahx .ahx-menu{margin-left:0}}
 
 /* Progress and meter */
 /* ---------- Progress and meter ---------- */
@@ -975,37 +1017,55 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 
 /* Line chart */
 /* ---------- Line chart ---------- */
-.lnx{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:10px}
+/* this year against last year: a headline number, a legend that turns each line on and off, and a readout that follows the
+   pointer. The gridlines are a neutral grey at half strength, and each month's label sits under its own point. The readout is
+   the page's tooltip (opaque and neutral) beside the guide line, on the side with room, so it never covers the points it reads
+   or passes the chart's edge. The content sits 16px in from every edge: the legend's words end on the right edge and their
+   hover box reaches out round them, a quiet fill that shows in light mode */
+.lnx{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:10px;--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
 .lnx-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
-.lnx-h>div:first-child{display:flex;flex-direction:column;font-size:12px}
-.lnx-v{font-size:14px;font-weight:500;letter-spacing:-.02em;color:var(--dm-fg)}
-.lnx-lg{display:flex;gap:var(--dm-s-1)}
-.lnx-k{display:flex;align-items:center;gap:6px;height:26px;padding:0 9px;border-radius:var(--dm-r-pill);font-size:12px;color:var(--dm-muted);transition:color .2s,background .2s}
+.lnx-h>div:first-child{display:flex;flex-direction:column;font-size:12px;line-height:18px}
+.lnx-v{font-size:14px;line-height:20px;font-weight:500;letter-spacing:-.02em;color:var(--dm-fg)}
+/* the toggles sit on the label's line, their words ending on the content's right edge */
+.lnx-lg{display:flex;gap:var(--dm-s-1);margin:-4px -9px 0 0}
+.lnx-k{display:flex;align-items:center;gap:6px;height:26px;padding:0 9px;border-radius:var(--dm-r-pill);font-size:12px;color:var(--dm-muted);transition:color var(--dm-t-fast) var(--dm-ease),background-color var(--dm-t-fast) var(--dm-ease)}
 @media (hover:hover) and (pointer:fine){.lnx-k:hover{background:var(--dm-row)}}
 .lnx-k.on{color:var(--dm-fg)}
-.lnx-k i{width:8px;height:8px;border-radius:50%;transition:transform .3s var(--dm-ease),opacity .3s}
+.lnx-k i{width:8px;height:8px;border-radius:50%;transition:transform var(--dm-t) var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease)}
 .lnx-k:not(.on) i{opacity:.3;transform:scale(.6)}
 .lnx-ch{position:relative;height:150px}
 .lnx-svg{width:100%;height:100%;display:block;overflow:visible}
-.lnx-svg .gl{stroke:var(--dm-line);stroke-width:1;vector-effect:non-scaling-stroke}
-.lnx-svg .ln{fill:none;stroke-width:2;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round;transition:opacity .4s}
+.lnx-svg .gl{stroke:color-mix(in srgb,var(--dm-line) 50%,transparent);stroke-width:1;vector-effect:non-scaling-stroke}
+.lnx-svg .ln{fill:none;stroke-width:2;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round;transition:opacity var(--dm-t) var(--dm-ease)}
 .lnx-svg .ln.off{opacity:0}
-.lnx-svg .ar{transition:opacity .4s}
-.lnx-x{position:absolute;top:0;bottom:0;width:1px;background:var(--dm-faint);opacity:0;transition:opacity .2s;pointer-events:none}
-.lnx-tt{position:absolute;top:-6px;padding:6px 9px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-ink);color:var(--dm-on-ink);font-size:11px;display:flex;flex-direction:column;opacity:0;transform:translate(-50%,-100%) translateY(4px);transition:opacity .2s,transform .25s var(--dm-ease);pointer-events:none;white-space:nowrap}
-.lnx-tt span{opacity:.7}
+.lnx-svg .ar{transition:opacity var(--dm-t) var(--dm-ease)}
+.lnx-x{position:absolute;top:0;bottom:0;width:1px;background:var(--dm-faint);opacity:0;transition:opacity var(--dm-t-fast) var(--dm-ease);pointer-events:none}
+/* the readout: the page's tooltip, beside the guide line (the script picks the side with room) */
+.lnx-tt{position:absolute;top:0;left:0;z-index:2;padding:6px 9px;border-radius:var(--dm-r-sm);background:var(--dm-tip-bg,var(--dm-ink));color:var(--dm-tip-fg,var(--dm-on-ink));box-shadow:var(--dm-tip-ring,none);font-size:12px;line-height:1.35;display:flex;flex-direction:column;opacity:0;transform:translateY(4px);transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease);pointer-events:none;white-space:nowrap}
+.lnx-tt b{font-weight:500}
+.lnx-tt span{color:color-mix(in srgb,var(--dm-tip-fg,var(--dm-on-ink)) 76%,var(--dm-tip-bg,var(--dm-ink)))}
 @media (hover:hover) and (pointer:fine){.lnx-ch:hover .lnx-x,.lnx-ch:hover .lnx-tt{opacity:1}}
-@media (hover:hover) and (pointer:fine){.lnx-ch:hover .lnx-tt{transform:translate(-50%,-100%)}}
-.lnx-pt{position:absolute;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:var(--dm-surface);box-shadow:0 0 0 2px currentColor;opacity:0;transition:opacity .2s;pointer-events:none}
+@media (hover:hover) and (pointer:fine){.lnx-ch:hover .lnx-tt{transform:none}}
+.lnx-pt{position:absolute;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:var(--dm-surface);box-shadow:0 0 0 2px currentColor;opacity:0;transition:opacity var(--dm-t-fast) var(--dm-ease);pointer-events:none}
 @media (hover:hover) and (pointer:fine){.lnx-ch:hover .lnx-pt.on{opacity:1}}
-.lnx-ax{display:flex;justify-content:space-between;font-size:11px}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .lnx.panel,:root [data-style="clean"] .lnx.panel,:root [data-style="clean"].lnx.panel{padding:20px 20px 18px 20px}
+/* each label sits centred under its own point (the script places them); the first starts on the chart's left edge and one on
+   the last point ends on its right edge */
+.lnx-ax{position:relative;height:16px;font-size:11px;line-height:16px}
+.lnx-ax span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
+.lnx-ax span:first-child{transform:none}
+.lnx-ax span.e{transform:translateX(-100%)}
 
 /* Radial goals */
 /* ---------- Radial goals ---------- */
-/* one ring per agent, each its share of its own target; past the target the ring goes round again, with a marker where it ends */
-.rgx{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-4)}
+/* one ring per agent, each its share of its own target, in the chart palette's colours in order on a neutral track. What is
+   still to go, from the share to the target, is a fine diagonal hatch in the ring's colour over the track (owner, 20 Nov), so
+   the gap reads at a glance; past the target the ring is whole and the extra goes round again over its start as a second lap
+   in a deeper shade of its colour (a brighter one in dark), cutting into the ring under it, with a small cap where it ends.
+   Everything moves with the ring as it draws. The middle is the one big number in the card (the type rules' exception for a
+   data card's figure), with its words for screen readers only. The content sits 16px in from every edge: each row's mark sits
+   on the content's left edge under the title and its share ends on the right edge, and its hover is a quiet fill that reaches
+   out round them */
+.rgx{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-4);--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
 .rgx-h{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .rgx-t{display:flex;flex-direction:column;font-size:13px;line-height:1.4}
 .rgx-t b{font-weight:500}
@@ -1014,20 +1074,30 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .rgx-b{display:flex;align-items:center;gap:var(--dm-s-5);flex-wrap:wrap;justify-content:center}
 .rgx-ring{position:relative;width:172px;height:172px;flex:none}
 .rgx-ring svg{width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
-.rgx-ring circle{fill:none;stroke-width:var(--dm-rw,14);transition:opacity .3s}
+.rgx-ring circle{fill:none;stroke-width:var(--dm-rw,14);transition:opacity var(--dm-t-fast) var(--dm-ease)}
+.rgx-ring g{--dm-rgx-deep:color-mix(in oklab,var(--dm-rc) 70%,var(--dm-rgx-shade,#000))}
 .rgx-ring .tr{stroke:var(--dm-chip)}
-.rgx-ring .fl,.rgx-ring .ov,.rgx-ring .ovb{stroke-linecap:round;transition:stroke-dasharray .9s var(--dm-ease),stroke-dashoffset .9s var(--dm-ease),opacity .3s}
-/* the end of a lap past the target sits on a slightly wider band of the surface, so it cuts into the ring under it and reads as a second lap */
+.rgx-ring .fl{stroke:var(--dm-rc)}
+.rgx-ring :is(.fl,.ov,.ovb,.rm){transition:stroke-dasharray .9s var(--dm-ease),stroke-dashoffset .9s var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease)}
+.rgx-ring :is(.fl,.ov,.ovb){stroke-linecap:round}
+/* what is still to go: the ring's own colour as a fine diagonal hatch (each line a full-strength mark) over the track */
+.rgx-hp rect{fill:var(--dm-rc)}
+/* the lap past the target, a deeper shade of the ring's colour; its end sits on a slightly wider band of the surface, so it
+   cuts into the ring under it and reads as a second lap, and a small cap marks where it ends */
+.rgx-ring .ov{stroke:var(--dm-rgx-deep)}
 .rgx-ring .ovb{stroke:var(--dm-surface);stroke-width:calc(var(--dm-rw,14) * 1px + 3px)}
-.rgx-ring .mk{fill:var(--dm-surface);stroke-width:2.5;transition:opacity .3s}
-.rgx-ring.hov g:not(.on) :is(.fl,.ov,.mk){opacity:.25}
+.rgx-ring .mk{fill:var(--dm-surface);stroke:var(--dm-rgx-deep);stroke-width:2.5;transform-box:view-box;transform-origin:90px 90px;transition:transform .9s var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease)}
+.rgx-ring.hov g:not(.on) :is(.fl,.ov,.mk,.rm){opacity:.25}
+:root[data-theme="dark"] .rgx{--dm-rgx-shade:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .rgx{--dm-rgx-shade:#fff}}
 /* a ring short of its target has no lap and no marker */
 .rgx-ring g:not(.lap) :is(.ov,.ovb,.mk){opacity:0!important}
 .rgx-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;line-height:1.3;text-align:center}
-.rgx-c b{font-size:14px;font-weight:500}
-.rgx-c .muted{font-size:11px;max-width:72px}
-.rgx-lg{flex:1 1 180px;min-width:0;display:flex;flex-direction:column;gap:2px}
-.rgx-r{display:grid;grid-template-columns:auto 1fr auto;column-gap:9px;row-gap:1px;align-items:center;width:100%;padding:6px var(--dm-s-2);border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;text-align:left;transition:background .2s;cursor:default}
+/* the one big figure in the card: as large as the innermost ring comfortably holds, at the data card's weight */
+.rgx-c b{font-size:22px;font-weight:600;letter-spacing:-.03em;line-height:1}
+.rgx-c .rgx-cl{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.rgx-lg{flex:1 1 180px;min-width:0;display:flex;flex-direction:column;gap:2px;margin:-6px -8px}
+.rgx-r{display:grid;grid-template-columns:auto 1fr auto;column-gap:9px;row-gap:1px;align-items:center;width:100%;padding:6px var(--dm-s-2);border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;text-align:left;transition:background-color var(--dm-t-fast) var(--dm-ease);cursor:default}
 .rgx-r.on{background:var(--dm-row)}
 @media (hover:hover) and (pointer:fine){.rgx-r:hover{background:var(--dm-row)}}
 .rgx-r i{width:8px;height:8px;border-radius:50%}
@@ -1039,8 +1109,8 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .rgx{container-type:inline-size}
 @container (max-width:300px){.rgx-lg{min-width:0}.rgx-h{flex-wrap:wrap}}
 .rgx-sr table{table-layout:fixed;width:1px;border-collapse:collapse}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .rgx.panel,:root [data-style="clean"] .rgx.panel,:root [data-style="clean"].rgx.panel{padding:19px 18px 20px 21px}
+/* (the table is for screen readers only; its headings keep the type's 500 at most all the same) */
+.rgx-sr :is(th,caption){font-weight:500}
 
 /* Funnel chart */
 /* ---------- Funnel ---------- */
@@ -1550,30 +1620,31 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 
 /* Bar chart */
 /* ---------- Bar chart ---------- */
+/* agent runs a day: one bar each in the accent, with no legend, and each bar's breakdown in its hover readout. The readout
+   is the page's tooltip (opaque and neutral) beside the bar it reads, level with its top, on the side with room and always
+   inside the chart (the script places it, and it follows the bar as it grows). The content sits 16px in from every edge */
 .bcx{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-3)}
 .bcx-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-.bcx-h>div:first-child{display:flex;flex-direction:column;font-size:12px}
-.bcx-v{font-size:14px;font-weight:500;letter-spacing:-.02em}
+.bcx-h>div:first-child{display:flex;flex-direction:column;font-size:12px;line-height:18px}
+.bcx-v{font-size:14px;line-height:20px;font-weight:500;letter-spacing:-.02em}
 .bcx-rg button{font-size:12px;height:26px;padding:0 10px}
 .bcx-ch{display:flex;align-items:flex-end;gap:var(--dm-s-2);height:150px;position:relative}
 .bcx-b{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;gap:0;position:relative;cursor:default}
-.bcx-st{display:flex;flex-direction:column-reverse;gap:2px;border-radius:calc(7px * var(--dm-rk-m,var(--dm-rk)));overflow:hidden;transition:opacity .25s}
+.bcx-st{display:flex;flex-direction:column-reverse;gap:2px;border-radius:calc(7px * var(--dm-rk-m,var(--dm-rk)));overflow:hidden;transition:opacity var(--dm-t-fast) var(--dm-ease)}
 .bcx-st i{display:block;height:0;transition:height .7s var(--dm-ease)}
 .bcx-st i:nth-child(1){background:var(--dm-c1)}
 @media (hover:hover) and (pointer:fine){.bcx-ch:hover .bcx-b:not(:hover) .bcx-st{opacity:.4}}
-.bcx-l{font-size:11px;color:var(--dm-muted);text-align:center;margin-top:6px;height:14px}
-.bcx-tt{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translate(-50%,4px);padding:6px 9px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-ink);color:var(--dm-on-ink);font-size:11px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s,transform .25s var(--dm-ease);z-index:2;display:flex;flex-direction:column}
-.bcx-tt span{opacity:.75}
-@media (hover:hover) and (pointer:fine){.bcx-b:hover .bcx-tt{opacity:1;transform:translate(-50%,0)}}
-.bcx-b:first-child .bcx-tt{left:0;transform:translate(0,4px)}@media (hover:hover) and (pointer:fine){.bcx-b:first-child:hover .bcx-tt{transform:none}}
-.bcx-b:last-child .bcx-tt{left:auto;right:0;transform:translate(0,4px)}@media (hover:hover) and (pointer:fine){.bcx-b:last-child:hover .bcx-tt{transform:none}}
-/* on a phone the bars are too thin for the second and second-last tips to sit centred without passing the edge */
-@container (max-width:400px){.bcx-b:nth-child(2) .bcx-tt{left:0;transform:translate(0,4px)}@media (hover:hover) and (pointer:fine){.bcx-b:nth-child(2):hover .bcx-tt{transform:none}}.bcx-b:nth-last-child(2) .bcx-tt{left:auto;right:0;transform:translate(0,4px)}@media (hover:hover) and (pointer:fine){.bcx-b:nth-last-child(2):hover .bcx-tt{transform:none}}}
+.bcx-l{font-size:11px;line-height:14px;color:var(--dm-muted);text-align:center;margin-top:6px;height:14px}
+.bcx-tt{position:absolute;left:0;bottom:calc(100% + 6px);z-index:2;padding:6px 9px;border-radius:var(--dm-r-sm);background:var(--dm-tip-bg,var(--dm-ink));color:var(--dm-tip-fg,var(--dm-on-ink));box-shadow:var(--dm-tip-ring,none);font-size:12px;line-height:1.35;white-space:nowrap;opacity:0;pointer-events:none;transform:translateY(4px);transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease);display:flex;flex-direction:column}
+.bcx-tt b{font-weight:500}
+.bcx-tt span{color:color-mix(in srgb,var(--dm-tip-fg,var(--dm-on-ink)) 76%,var(--dm-tip-bg,var(--dm-ink)))}
+@media (hover:hover) and (pointer:fine){.bcx-b:hover .bcx-tt{opacity:1;transform:none}}
 .bcx-lg{display:flex;gap:14px;font-size:12px;flex-wrap:wrap}
 .bcx-lg span{display:flex;align-items:center;gap:6px}
 .bcx-lg i{width:8px;height:8px;border-radius:var(--dm-r-tiny,3px)}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .bcx.panel,:root [data-style="clean"] .bcx.panel,:root [data-style="clean"].bcx.panel{padding:19px 21px 21px 23px}
+/* Clean: the bars stand on a hairline baseline (half strength) with their tops rounded, as a bar chart is usually drawn */
+:root[data-style="clean"] .bcx-st,:root [data-style="clean"] .bcx-st,:root [data-style="clean"].bcx-st{border-radius:calc(6px * var(--dm-rk-m,var(--dm-rk))) calc(6px * var(--dm-rk-m,var(--dm-rk))) 2px 2px}
+:root[data-style="clean"] .bcx-ch,:root [data-style="clean"] .bcx-ch,:root [data-style="clean"].bcx-ch{background:linear-gradient(color-mix(in srgb,var(--dm-line) 50%,transparent),color-mix(in srgb,var(--dm-line) 50%,transparent)) left 0 bottom 20px/100% 1px no-repeat}
 
 /* Top pages */
 /* ---------- Top pages ---------- */

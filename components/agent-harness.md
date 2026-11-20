@@ -59,8 +59,9 @@ import { AgentHarness } from '@/components/designme/agent-harness/AgentHarness';
 
 ```tsx
 'use client';
-// The preview from designme.dev, rebuilt from the React component. Nothing plays by itself: New chat waits with the composer at
-// its foot, and a story plays once a message is sent. Every approval waits for a click, and the five past chats open on
+// The preview from designme.dev, rebuilt from the React component. New chat waits with the composer at its foot; a moment
+// later the person in the preview asks where onboarding loses people, the agent answers and writes a doc, and the person opens
+// it beside the chat. A message you send plays its own story, every approval waits for a click, and the five past chats open on
 // their last state. An example of driving the harness from your own state.
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -76,7 +77,7 @@ import type { PlanReviewStep } from '../plan-review/PlanReview';
 import type { StackSource } from '../source-stack/SourceStack';
 import type { ThinkingStep } from '../thinking/Thinking';
 import { Icon, type IconName } from '../lib/icons';
-import { useWait } from '../lib/useScript';
+import { useStory, useWait } from '../lib/useScript';
 
 // the mark over New chat's greeting: the DesignMe smiley, as on designme.dev (swap in your product's own)
 const MARK = <svg viewBox="0 0 759 632" focusable="false"><path fill="currentColor" d="M149.497 283.784C149.477 284.047 149.474 284.311 149.487 284.575C156.385 340.034 183.548 391.116 225.9 428.196C267.989 465.044 322.188 485.532 378.414 485.855L379.743 485.859C436.453 485.868 491.188 465.353 533.619 428.212C575.912 391.194 603.062 340.216 610.018 284.856L610.018 281.512C610.008 277.337 608.324 273.315 605.303 270.335C602.277 267.351 598.155 265.656 593.837 265.656L165.647 265.656C161.338 265.656 157.226 267.349 154.21 270.331C151.198 273.309 149.524 277.326 149.523 281.491L149.523 283.437L149.497 283.784ZM114.378 247.395C118.396 247.391 122.254 245.919 125.214 243.29C128.063 240.759 129.887 237.33 130.396 233.629L130.396 233.35L130.437 232.917C136.355 171.634 165.162 114.754 211.202 73.3687C257.239 31.9859 317.206 9.06063 379.393 9.04448L379.396 9.04448C441.593 9.04583 501.574 31.964 547.624 73.3482C593.677 114.735 622.491 171.624 628.411 232.917L628.453 233.35L628.453 233.643C628.953 237.344 630.773 240.774 633.621 243.304C636.58 245.932 640.437 247.399 644.452 247.395L725.644 247.395C728.882 247.404 732.089 248.06 735.071 249.329C738.055 250.598 740.753 252.453 743.001 254.787C745.252 257.123 747.005 259.891 748.151 262.924C749.296 265.954 749.81 269.183 749.662 272.418L749.663 272.418C745.484 366.797 704.617 455.919 635.615 521.211C566.616 586.499 474.809 622.924 379.338 622.924C283.872 622.924 192.071 586.496 123.081 521.206C54.0935 455.917 13.2412 366.804 9.07133 272.438L9.07036 272.438L9.07036 272.436C9.07007 272.43 9.06967 272.423 9.06938 272.417L9.07036 272.417C8.92272 269.182 9.43655 265.953 10.5811 262.924C11.7276 259.89 13.481 257.123 15.7315 254.787C17.9805 252.452 20.6797 250.597 23.6622 249.329C26.6443 248.06 29.8504 247.404 33.0889 247.395L114.378 247.395Z" /></svg>;
@@ -254,14 +255,14 @@ function DocPanel({ v }: { v: (typeof CHURN)[number] }) {
   return (
     <>
       <div className="dm-ahx-doc dm-enter" style={{ animationDelay: '140ms' }}>
-        <div className="dm-ahx-dh">{DOC_TITLE}</div>
         <div className="dm-ahx-dp">{v.text}</div>
         <div className="dm-ahx-kp"><b className="dm-num">{v.value}</b><span className="dm-ahx-dd">{v.change}</span></div>
         <svg className="dm-ahx-ch" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
           <defs><linearGradient id="ahx-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style={{ stopColor: 'var(--dm-accent-mark,var(--dm-accent))', stopOpacity: .16 }} /><stop offset="1" style={{ stopColor: 'var(--dm-accent-mark,var(--dm-accent))', stopOpacity: 0 }} /></linearGradient></defs>
           <path fill="url(#ahx-g)" d={`${d} L${W} ${H} L0 ${H} Z`} /><path className="dm-ln" d={d} />
         </svg>
-        <div className="dm-ahx-ax">{AXIS.map(a => <span key={a}>{a}</span>)}</div>
+        {/* each month's label sits under its own point */}
+        <div className="dm-ahx-ax">{AXIS.map((a, k) => <span key={a} style={{ left: k / (AXIS.length - 1) * 100 + '%' }}>{a}</span>)}</div>
       </div>
       <div className="dm-ahx-pn dm-enter" style={{ animationDelay: '210ms' }}>
         <b>What moved it</b><p>The July spike lines up with the pricing change on July 3. Churn settled once the onboarding emails went out in August.</p>
@@ -475,7 +476,8 @@ export default function AgentHarnessDemo() {
         progress: ((step ?? 0) + 1) / DOC_STEPS.length, onVersionChange: x => doc(x), onOpen: () => { setVersion(v); setPanel('doc'); } } }); };
       doc(2, 0); t.ctx(24);
       t.wait(1400).then(() => doc(2, 1)); t.wait(2500).then(() => doc(2, 2)); t.wait(3600).then(() => doc(2));
-      await t.wait(4600); t.end('Answered', '3 sources');
+      // the pill says it is writing until the doc is written
+      await t.wait(4000); t.end('Answered', '3 sources');
     },
 
     async annual(t) {
@@ -539,8 +541,27 @@ export default function AgentHarnessDemo() {
   // opening a chat clears its unread dot
   const seen = (ts: AgentHarnessTab[], key: string) => { const id = ts.find(t => t.key === key)?.chat; if (id) edit(id, c => c.unread ? { ...c, unread: false } : c); };
   const docPanel: AgentHarnessPanel | null = panel === 'doc' ? { title: DOC_TITLE, link: DOC_LINK, children: <DocPanel v={CHURN[version]} /> } : null;
+
+  /* the preview's story: a moment after New chat shows, the person asks where onboarding loses people and sends it, and once
+     the agent has answered and written the doc, opens it beside the chat. The agent keeps working under the pointer; the
+     person's own steps wait while a mouse rests on the harness, and stop for good at the visitor's first click, key or typing */
+  const ref = useRef<HTMLDivElement>(null);
+  const [draft, setDraft] = useState('');
+  useStory(ref, async ({ wait, press, taken }) => {
+    await wait(1500);
+    const ask = S.dropoff.ask;
+    taken(() => setDraft(d => d === ask ? '' : d));
+    for (let i = 1; i <= ask.length; i++) { setDraft(ask.slice(0, i)); await wait(25); }
+    await wait(500); press('.dm-cpx-send');
+    for (;;) {
+      await wait(200);
+      const { tabs: ts, tab: k, convs: cs } = live.current, id = ts.find(x => x.key === k)?.chat;
+      if (cs.find(c => c.id === id)?.state === 'done') break;
+    }
+    await wait(1000); press('.dm-ahx-col:not(.dm-off) .dm-afx-open');
+  });
   return (
-    <div style={{ width: '100%' }}>
+    <div ref={ref} style={{ width: '100%' }}>
       <AgentHarness logo={MARK} conversations={convs} tabs={tabs} onTabsChange={ts => { setTabs(ts); seen(ts, tab); }} tab={tab} onTabChange={key => { setTab(key); seen(tabs, key); }}
         onSend={({ text, attachments }, id) => {
           const files = attachments.map(a => a.label), v = text || 'Have a look at these files.';
@@ -549,7 +570,7 @@ export default function AgentHarnessDemo() {
         }}
         onFollowUp={(text, id) => converse(id, text)}
         workspaces={[{ name: 'DesignMe Studio', mark: 'D' }, { name: 'Personal', mark: 'P', color: 'var(--dm-pl)' }]}
-        panel={docPanel} onPanelClose={() => setPanel(null)} model="Opus 5.5"
+        panel={docPanel} onPanelClose={() => setPanel(null)} model="Opus 5.5" draft={draft} onDraftChange={setDraft}
         composer={{ contexts: [{ value: 'Pricing v4', detail: 'Figma, 6 frames', icon: 'figma' }, { value: 'Marketing site', detail: 'Code, main branch', icon: 'code' }] }} />
     </div>
   );
@@ -976,7 +997,8 @@ export function AgentHarness({
 
   const q = query.trim().toLowerCase(), listed = conversations.filter(c => !q || c.title.toLowerCase().includes(q));
   const wsNow = workspaces.find(w => w.name === ws) ?? workspaces[0];
-  const tile = (w: AgentHarnessWorkspace) => ({ background: w.color ?? 'var(--dm-primary)', color: w.color ? '#fff' : 'var(--dm-on-ink)' });
+  // the workspace's tile: ink by default, as the site draws it
+  const tile = (w: AgentHarnessWorkspace) => ({ background: w.color ?? 'var(--dm-ink)', color: w.color ? '#fff' : 'var(--dm-on-ink)' });
   const ph = home ? placeholders?.home ?? 'Ask the agent to do something' : busy ? placeholders?.working ?? 'The agent is working…' : placeholders?.reply ?? 'Reply';
   const box = (
     <Composer {...cp} value={text} onValueChange={setText} onSubmit={send} placeholder={ph}

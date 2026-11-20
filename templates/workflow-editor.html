@@ -167,7 +167,11 @@
 /* a whole agent app in one card: chats down the side, tabs across the top, a New chat home with suggestions, and the
    conversations themselves, told with the components above */
 .card.wide .stage-in:has(>.ahx){max-width:960px}
-.ahx{display:flex;height:620px;overflow:hidden;container:ahx/inline-size;text-align:left;position:relative}
+/* the side's columns (owner, 18 Nov): its rows' fills sit 8px in from its edges and their words 16px in, under the workspace's
+   tile; New chat's pencil is centred under the tile and its words start where the workspace's name does; the side's buttons
+   and the chats' marks end on one right edge, the glyphs centred over the marks. The workspace switcher shares the tab strip's
+   centre line, and a hover is a quiet fill that shows in light mode on whatever it sits on */
+.ahx{display:flex;height:620px;overflow:hidden;container:ahx/inline-size;text-align:left;position:relative;--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
 .ahx-side{flex:none;width:236px;display:flex;flex-direction:column;gap:2px;padding:10px;background:var(--dm-surface);border-right:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);transition:margin-left var(--dm-t) var(--dm-ease),transform var(--dm-t) var(--dm-ease),box-shadow var(--dm-t) var(--dm-ease)}
 .ahx.ns .ahx-side{margin-left:-236px}
 .ahx-ws{display:flex;align-items:center;gap:2px;margin-bottom:6px}
@@ -185,6 +189,8 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .ahx-lg{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));display:grid;place-items:center;flex:none;background:var(--dm-ink);color:var(--dm-on-ink);font-size:11px;font-weight:500;transition:background var(--dm-t) var(--dm-ease)}
 .ahx-ws .ib,.ahx-top>.ib,.ahx-lh .ib{width:28px;height:28px;color:var(--dm-muted)}
 @media (hover:hover) and (pointer:fine){.ahx-ws .ib:hover,.ahx-top>.ib:hover,.ahx-lh .ib:hover{color:var(--dm-fg)}}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink primary alone presses */
+.ahx :is(.ib,.pill):active,:root[data-style="clean"] .ahx .ib:active,:root [data-style="clean"] .ahx .ib:active,:root [data-style="clean"].ahx .ib:active{transform:none}
 .ahx-wsp{width:212px}
 .ahx-wsp .ahx-lg{width:18px;height:18px;font-size:10px}
 .ahx-nav,.ahx-cv{display:flex;align-items:center;gap:9px;width:100%;min-height:32px;padding:0 9px;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;text-align:left;color:var(--dm-fg2);transition:background var(--dm-t-fast),box-shadow var(--dm-t-fast),color var(--dm-t-fast)}
@@ -197,21 +203,30 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .ahx-cv:focus-visible,.ahx-tb:focus-visible{outline-offset:-2px}
 .ahx-lh{display:flex;align-items:center;justify-content:space-between;padding:var(--dm-s-3) 1px 2px 9px;font-size:11.5px;color:var(--dm-muted)}
 .ahx-lh .ib{width:24px;height:24px}
-.ahx-si{display:block;width:100%;height:32px;margin:var(--dm-s-1) 0 6px;padding:0 10px;border:0;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);font-size:13px;outline:0;transition:box-shadow var(--dm-t-fast)}
+/* the harness's own side (the templates borrow these classes and keep their own measures): its rows' fills 8px in from its
+   edges, its words 16px in under the workspace's tile, New chat's pencil centred under the tile and its words under the
+   workspace's name, and the side's buttons ending where the chats' marks do */
+.ahx>.ahx-side{padding:var(--dm-s-2)}
+.ahx .ahx-ws{height:30px;margin-bottom:var(--dm-s-2)}
+.ahx .ahx-wsb{height:30px;padding:0 var(--dm-s-2)}
+.ahx :is(.ahx-nav,.ahx-cv){padding:0 7px 0 var(--dm-s-2)}
+.ahx .ahx-nav{padding-left:11px;gap:12px}
+.ahx .ahx-lh{padding:var(--dm-s-3) 2px 2px var(--dm-s-2)}
+.ahx-si{display:block;width:100%;height:32px;margin:var(--dm-s-1) 0 6px;padding:0 var(--dm-s-2);border:0;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);font-size:13px;outline:0;transition:box-shadow var(--dm-t-fast)}
 @supports (corner-shape:squircle){.ahx-si{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
 .ahx-si:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
 .ahx-si::placeholder{color:var(--dm-muted)}
 .ahx-si::-webkit-search-cancel-button{display:none}
 .ahx-list{flex:1;min-height:0;display:flex;flex-direction:column;gap:2px;overflow-y:auto;scrollbar-width:none}
-.ahx-none{margin:0;padding:6px 9px;font-size:12.5px;color:var(--dm-muted)}
-.ahx-mk{display:grid;place-items:center;width:10px;flex:none}
+.ahx-none{margin:0;padding:6px var(--dm-s-2);font-size:12.5px;color:var(--dm-muted)}
+.ahx-mk{display:grid;place-items:center;width:14px;flex:none}
 .ahx-mk:empty{display:none}
 .ahx-mk .spin{width:10px;height:10px;color:var(--dm-muted)}
 .ahx-main{flex:1;min-width:0;display:flex;flex-direction:column;position:relative;container:ahm/inline-size}
 /* the tabs: a chat opens or comes to the front, × closes it, + opens New chat */
-.ahx-top{flex:none;display:flex;align-items:center;gap:var(--dm-s-1);height:46px;padding:0 10px 0 var(--dm-s-2);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.ahx-top{flex:none;display:flex;align-items:center;gap:var(--dm-s-1);height:47px;padding:0 9px 0 6px;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .ahx-menu{display:none}
-.ahx.ns .ahx-menu{display:inline-grid}
+.ahx.ns .ahx-menu{display:inline-grid;margin-left:2px}
 .ahx-tabs{position:relative;display:flex;align-items:center;gap:2px;min-width:0;padding:2px;overflow-x:auto;scrollbar-width:none}
 .ahx-tabs::-webkit-scrollbar{display:none}
 .ahx-tab{flex:0 1 164px;min-width:108px;display:flex;align-items:center;height:30px;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));overflow:hidden;color:var(--dm-fg2);transition:background var(--dm-t-fast),box-shadow var(--dm-t-fast),color var(--dm-t-fast)}
@@ -263,6 +278,11 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .ahx-fs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
 .ahx-fs:last-child{margin-bottom:0}
 .ahx-msg{min-width:0}
+/* the person's words end where the composer's send button does: a bubble's words sit 16px in, as the composer's do */
+.ahx-col .bub{padding-inline:var(--dm-s-4)}
+/* the sources button of an answer in the chat keeps its words on the column's edge when it reaches it (on a phone), its hover
+   box reaching out round them; on a phone it ends the row, under the tab strip's last glyph (16px in, as the panel's close is) */
+.ahx-col .lva-sb{margin-right:-9px}
 /* a component in the chat lines up with the messages on the left, instead of centring itself as it does on its own */
 .ahx-col .ahx-msg>*{margin-left:0;margin-right:auto}
 /* chat components sit on the chat itself, the way a bare card shows them; an artifact and a diff keep their card */
@@ -275,12 +295,14 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .ahx-wh{display:inline-flex;align-items:center;gap:var(--dm-s-2);height:28px;padding:0 9px 0 7px;margin-left:-7px;border-radius:var(--dm-r-pill);font-size:13.5px;color:var(--dm-fg2);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.ahx-wh:hover{background:var(--dm-row);color:var(--dm-fg)}}
 .ahx-wh .g{display:grid;place-items:center;width:14px;color:var(--dm-muted)}
+.ahx-wh .g:has(>svg){color:var(--dm-ok)}
+:root[data-style="clean"] .ahx-wh .g:has(>svg),:root [data-style="clean"] .ahx-wh .g:has(>svg),:root [data-style="clean"].ahx-wh .g:has(>svg){color:var(--dm-ok-mark)}
 .ahx-wh .m{color:var(--dm-muted);font-size:12.5px}
 .ahx-wh>.i{color:var(--dm-muted);transition:transform var(--dm-t) var(--dm-ease)}
 .ahx-wh[aria-expanded="true"]>.i{transform:rotate(180deg)}
 .ahx-wb{align-self:stretch}
 .ahx-wl{display:flex;flex-direction:column;gap:var(--dm-s-4);margin:var(--dm-s-2) 0 2px 6px;padding-left:18px;border-left:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.ahx-bot{flex:none;position:relative;padding:0 var(--dm-s-6) 18px}
+.ahx-bot{flex:none;position:relative;padding:0 28px 18px}
 .ahx-bot::before{content:"";position:absolute;left:0;right:10px;bottom:100%;height:28px;background:linear-gradient(transparent,var(--dm-surface));pointer-events:none}
 .ahx-bot .cpx{max-width:632px;margin:0 auto}
 .ahx .cpx-thread{display:none}
@@ -293,7 +315,7 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .ahx-pane{flex:none;width:0;overflow:hidden;background:var(--dm-surface);border-left:1px solid transparent;visibility:hidden;transition:width var(--dm-t) var(--dm-ease),border-color var(--dm-t) var(--dm-ease),visibility 0s var(--dm-t)}
 .ahx.pn .ahx-pane{width:300px;border-left-color:color-mix(in srgb,var(--dm-line) 50%,transparent);visibility:visible;transition-delay:0s}
 .ahx-pi{width:300px;height:100%;display:flex;flex-direction:column}
-.ahx-ph{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:46px;padding:0 var(--dm-s-2) 0 14px;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13px;font-weight:500}
+.ahx-ph{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:47px;padding:0 9px 0 var(--dm-s-4);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13px;font-weight:500}
 .ahx-ph .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ahx-ph>.i{color:var(--dm-pb)}
 .ahx-ph .ib{width:28px;height:28px;color:var(--dm-muted)}
@@ -303,19 +325,24 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .ahx-pn b{font-weight:500;color:var(--dm-fg)}
 .ahx-pn p{margin:0 0 10px}
 /* the report opened in the panel: drawn flat, with the chart it describes */
-.ahx-doc{padding:var(--dm-s-4) var(--dm-s-4) var(--dm-s-3)}
-.ahx-dh{font-weight:500;font-size:14px}
-.ahx-dp{margin-top:var(--dm-s-1);font-size:12.5px;line-height:1.5;color:var(--dm-fg2);min-height:38px;text-wrap:pretty}
+/* its words sit on the panel's 16px edges, as the notes under it do; the head already names it, so it has no title of its own */
+.ahx-doc{padding:0}
+.ahx-dp{font-size:12.5px;line-height:1.5;color:var(--dm-fg2);text-wrap:pretty}
 .ahx-kp{display:flex;align-items:baseline;gap:var(--dm-s-2);margin-top:10px}
 .ahx-kp b{font-size:14px;font-weight:500;letter-spacing:-.02em}
 .ahx-dd{font-size:12px;color:var(--dm-ok)}
 .ahx-ch{display:block;width:100%;height:56px;margin-top:var(--dm-s-2);overflow:visible}
 .ahx-ch .ln{fill:none;stroke:var(--dm-accent-mark,var(--dm-accent));stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
-.ahx-ax{display:flex;justify-content:space-between;margin-top:6px;font-size:10.5px;color:var(--dm-muted)}
+.ahx-ax{position:relative;height:16px;margin-top:6px;font-size:10.5px;line-height:16px;color:var(--dm-muted)}
+/* each month's label sits under its own point: the first starts on the chart's left edge and the last ends on its right */
+.ahx-ax span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
+.ahx-ax span:first-child{transform:none}
+.ahx-ax span:last-child{transform:translateX(-100%)}
 .ahx-scrim{display:none}
 /* a narrow chat, beside the panel or on a phone: the composer keeps only what it needs */
 @container ahm (max-width:560px){
   .ahx .ctm-ft>span,.ahx .cpx-bar .cpx-ctx,.ahx-spl .spl-in .m{display:none}
+  .ahx-col .lva-src{justify-content:space-between}
 }
 /* phone: the chats slide in from the side, the tabs fold into one, the panel covers the chat */
 @container ahx (max-width:620px){
@@ -323,8 +350,8 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
   .ahx.dr .ahx-side{transform:none;box-shadow:var(--dm-shadow-pop)}
   .ahx-scrim{display:block;position:absolute;inset:0;z-index:5;background:rgba(0,0,0,.2);opacity:0;pointer-events:none;transition:opacity var(--dm-t) var(--dm-ease)}
   .ahx.dr .ahx-scrim{opacity:1;pointer-events:auto}
-  .ahx .ahx-menu{display:inline-grid}
-  .ahx-top{padding:0 6px}
+  .ahx .ahx-menu{display:inline-grid;margin-left:2px}
+  .ahx-top{padding:0 9px 0 6px}
   .ahx-spl{display:none}
   /* the tabs fold into one: the chat on screen fills the row, and a count of the open chats lists them all */
   .ahx-tabs{flex:1}
@@ -337,13 +364,28 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
   .ahx.pn .ahx-pane{visibility:visible;transition-delay:0s}
   .ahx-home{padding:var(--dm-s-4) 10px var(--dm-s-2)}
   .ahx-col{padding:18px var(--dm-s-4) var(--dm-s-6)}
-  .ahx-bot{padding:0 10px 10px}
+  .ahx-bot{padding:0 var(--dm-s-4) var(--dm-s-4)}
   .ahx-pane{position:absolute;z-index:4;top:0;right:0;bottom:0;border-left:0}
   .ahx.pn .ahx-pane{width:100%}
   .ahx-pi{width:100%}
 }
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .ahx.panel,:root [data-style="clean"] .ahx.panel,:root [data-style="clean"].ahx.panel{padding:12px 0px 0px 10px}
+/* Clean (owner, 18 Nov): an app screen as Clean draws one. The chats down the side, the tab strip and the panel's head are
+   off-white strips over the white chat, edged with a hairline. In the strips every control is 28px and sits 8px from the
+   strip's edges: the workspace switcher, the tabs (pills, the open one white with a hairline, as the open chat is), +, the
+   status pill and the panel's buttons */
+:root[data-style="clean"] .ahx>.ahx-side,:root [data-style="clean"] .ahx>.ahx-side,:root [data-style="clean"].ahx>.ahx-side{background:var(--dm-strip);border-right-color:var(--dm-line)}
+:root[data-style="clean"] .ahx .ahx-ws,:root [data-style="clean"] .ahx .ahx-ws,:root [data-style="clean"].ahx .ahx-ws{height:28px}
+:root[data-style="clean"] .ahx .ahx-wsb,:root [data-style="clean"] .ahx .ahx-wsb,:root [data-style="clean"].ahx .ahx-wsb{height:28px}
+:root[data-style="clean"] :is(.ahx-top,.ahx-ph),:root [data-style="clean"] :is(.ahx-top,.ahx-ph),:root [data-style="clean"]:is(.ahx-top,.ahx-ph){height:45px;background:var(--dm-strip);border-bottom-color:var(--dm-line)}
+:root[data-style="clean"] .ahx-tabs,:root [data-style="clean"] .ahx-tabs,:root [data-style="clean"].ahx-tabs{padding:0}
+:root[data-style="clean"] .ahx-top,:root [data-style="clean"] .ahx-top,:root [data-style="clean"].ahx-top{padding-inline:var(--dm-s-2)}
+:root[data-style="clean"] .ahx.ns .ahx-menu,:root [data-style="clean"] .ahx.ns .ahx-menu,:root [data-style="clean"].ahx.ns .ahx-menu{margin-left:0}
+:root[data-style="clean"] .ahx-tab,:root [data-style="clean"] .ahx-tab,:root [data-style="clean"].ahx-tab{height:28px;border-radius:var(--dm-r-pill)}
+:root[data-style="clean"] .ahx :is(.ahx-tab.on,.ahx-cv[aria-current="true"]),:root [data-style="clean"] .ahx :is(.ahx-tab.on,.ahx-cv[aria-current="true"]),:root [data-style="clean"].ahx :is(.ahx-tab.on,.ahx-cv[aria-current="true"]){box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .ahx-spl .spl-pill,:root [data-style="clean"] .ahx-spl .spl-pill,:root [data-style="clean"].ahx-spl .spl-pill{height:28px}
+:root[data-style="clean"] .ahx-ph,:root [data-style="clean"] .ahx-ph,:root [data-style="clean"].ahx-ph{padding-right:var(--dm-s-2)}
+:root[data-style="clean"] .ahx.pn .ahx-pane,:root [data-style="clean"] .ahx.pn .ahx-pane,:root [data-style="clean"].ahx.pn .ahx-pane{border-left-color:var(--dm-line)}
+@container ahx (max-width:620px){:root[data-style="clean"] .ahx .ahx-menu,:root [data-style="clean"] .ahx .ahx-menu,:root [data-style="clean"].ahx .ahx-menu{margin-left:0}}
 
 /* Automation canvas */
 /* ---------- Automation canvas ---------- */

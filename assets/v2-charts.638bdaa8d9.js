@@ -7,7 +7,7 @@ TPLS["score-breakdown"] = "<div class=\"sbx panel\">\n  <div class=\"sbx-top\">\
 TPLS["health-score"] = "<div class=\"hsc-dm dm\"><div class=\"dm-main\">\n  <div class=\"hsc panel\" role=\"group\" aria-label=\"Account health\">\n    <div class=\"hsc-ac\"><b></b><span></span></div>\n    <div class=\"hsc-h\">\n      <div class=\"hsc-ring\" role=\"img\" aria-label=\"Health score\"><svg viewBox=\"0 0 44 44\" aria-hidden=\"true\"><circle class=\"tr\" cx=\"22\" cy=\"22\" r=\"18\"/><circle class=\"fl\" cx=\"22\" cy=\"22\" r=\"18\" stroke-dasharray=\"113.1\" stroke-dashoffset=\"113.1\"/></svg><b class=\"num\" aria-hidden=\"true\">0</b></div>\n      <div class=\"hsc-ht\"><b class=\"hsc-vd\"></b><span class=\"hsc-sub\"></span></div>\n      <span class=\"hsc-dl num\"></span>\n    </div>\n    <div class=\"hsc-l\"></div>\n    <div class=\"hsc-s\">{spark}<span class=\"hsc-st\"></span><button type=\"button\" class=\"pill primary sm hsc-go\"></button></div>\n    <p class=\"hsc-sr\" aria-live=\"polite\"></p>\n  </div>\n  </div>\n  <div class=\"demo\"><div class=\"seg2\" role=\"group\" aria-label=\"Account\"><button aria-pressed=\"false\" data-v=\"0\">Healthy</button><button aria-pressed=\"true\" data-v=\"1\">Watch</button><button aria-pressed=\"false\" data-v=\"2\">At risk</button></div></div>\n</div>";
 TPLS["top-pages"] = "<div class=\"tpx panel\">\n  <div class=\"tpx-h\"><div><b>Top pages</b><span class=\"muted tpx-sub\"><span class=\"num tpx-tot\">0</span> views, last 30 days</span></div><div class=\"seg2 tpx-sg\" role=\"group\" aria-label=\"Sort\"><button aria-pressed=\"true\" data-v=\"v\">Views</button><button aria-pressed=\"false\" data-v=\"c\">Change</button></div></div>\n  <div class=\"tpx-list\"></div>\n</div>";
 TPLS["funnel"] = "<div class=\"fnx panel\">\n  <div class=\"fnx-h\"><b>Signup to paid</b><div class=\"seg2 fnx-sg\" role=\"group\" aria-label=\"Segment\"><button aria-pressed=\"true\" data-v=\"all\">All</button><button aria-pressed=\"false\" data-v=\"team\">Teams</button><button aria-pressed=\"false\" data-v=\"solo\">Solo</button></div></div>\n  <div class=\"fnx-rows\"></div>\n  <div class=\"fnx-ins\"><span class=\"fnx-ic\">{spark}</span><span class=\"fnx-t\"></span></div>\n</div>";
-TPLS["radial-goals"] = "<div class=\"rgx panel\">\n  <div class=\"rgx-h\">\n    <div class=\"rgx-t\"><b>Agent goals</b><span class=\"muted rgx-sub\">This week</span></div>\n    <div class=\"seg2 rgx-sg\" role=\"group\" aria-label=\"Range\"><button aria-pressed=\"true\" data-v=\"w\">Week</button><button aria-pressed=\"false\" data-v=\"m\">Month</button></div>\n  </div>\n  <div class=\"rgx-b\">\n    <div class=\"rgx-ring\"><svg viewBox=\"0 0 180 180\" aria-hidden=\"true\"></svg><div class=\"rgx-c\"><b class=\"num\">0%</b><span class=\"muted\">of targets</span></div></div>\n    <div class=\"rgx-lg\"></div>\n  </div>\n  <div class=\"rgx-sr\"><table><caption>Agent goals</caption><thead><tr><th>Agent</th><th>Done</th><th>Target</th><th>Share</th></tr></thead><tbody></tbody></table></div>\n</div>";
+TPLS["radial-goals"] = "<div class=\"rgx panel\">\n  <div class=\"rgx-h\">\n    <div class=\"rgx-t\"><b>Agent goals</b><span class=\"muted rgx-sub\">This week</span></div>\n    <div class=\"seg2 rgx-sg\" role=\"group\" aria-label=\"Range\"><button aria-pressed=\"true\" data-v=\"w\">Week</button><button aria-pressed=\"false\" data-v=\"m\">Month</button></div>\n  </div>\n  <div class=\"rgx-b\">\n    <div class=\"rgx-ring\"><svg viewBox=\"0 0 180 180\" aria-hidden=\"true\"></svg><div class=\"rgx-c\"><b class=\"num\">0%</b><span class=\"rgx-cl\">of targets</span></div></div>\n    <div class=\"rgx-lg\"></div>\n  </div>\n  <div class=\"rgx-sr\"><table><caption>Agent goals</caption><thead><tr><th>Agent</th><th>Done</th><th>Target</th><th>Share</th></tr></thead><tbody></tbody></table></div>\n</div>";
 TPLS["donut-chart"] = "<div class=\"dnx panel\">\n  <div class=\"dnx-ring\"><svg viewBox=\"0 0 120 120\"></svg><div class=\"dnx-c\"><b class=\"num dnx-v\">0h</b><span class=\"muted dnx-l\">Agent time</span></div></div>\n  <div class=\"dnx-lg\"></div>\n</div>";
 TPLS["bar-chart"] = "<div class=\"bcx panel\">\n  <div class=\"bcx-h\"><div><span class=\"muted\">Agent runs</span><b class=\"num bcx-v\">0</b></div><div class=\"seg2 bcx-rg\" role=\"group\" aria-label=\"Range\"><button aria-pressed=\"true\" data-v=\"w\">Week</button><button aria-pressed=\"false\" data-v=\"m\">Month</button></div></div>\n  <div class=\"bcx-ch\"></div>\n</div>";
 TPLS["line-chart"] = "<div class=\"lnx panel\">\n  <div class=\"lnx-h\"><div><span class=\"muted\">Active editors</span><b class=\"num lnx-v\">0</b></div><div class=\"lnx-lg\"><button class=\"lnx-k on\" data-s=\"0\"><i style=\"background:var(--accent-mark,var(--accent))\"></i>This year</button><button class=\"lnx-k on\" data-s=\"1\"><i style=\"background:var(--c2)\"></i>Last year</button></div></div>\n  <div class=\"lnx-ch\"><svg class=\"lnx-svg\" viewBox=\"0 0 320 140\" preserveAspectRatio=\"none\"></svg><div class=\"lnx-x\"></div><div class=\"lnx-tt\"><b class=\"num\"></b><span></span></div></div>\n  <div class=\"lnx-ax muted num\"><span>Jan</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span><span>Nov</span></div>\n</div>";
@@ -25,6 +25,8 @@ DM.def('line-chart', (r, c) => {
     `<g clip-path="url(#lnc)"><path class="ar" d="${smooth(pa)} L320 140 L0 140 Z" fill="url(#lng)"/><path class="ln l1" d="${smooth(pb)}" stroke="var(--c2)" stroke-dasharray="4 4"/><path class="ln l0" d="${smooth(pa)}" stroke="var(--accent-mark,var(--accent))"/></g>`;
   ch.insertAdjacentHTML('beforeend', '<span class="lnx-pt on" style="color:var(--accent-mark,var(--accent))"></span><span class="lnx-pt on" style="color:var(--c2)"></span>');
   const pts = $$('.lnx-pt', ch), on = [true, true];
+  // each month's label sits under its own point
+  $$('.lnx-ax span', r).forEach(sp => { const i = MO.indexOf(sp.textContent.trim()); if (i < 0) return; sp.style.left = i / 11 * 100 + '%'; sp.classList.toggle('e', i === 11); });
   // the line draws and the number counts once the chart has risen into view, so the draw is seen from its start
   v.textContent = '0';
   c.later(260, () => {
@@ -32,9 +34,11 @@ DM.def('line-chart', (r, c) => {
     tween(0, A[11], 1300, n => v.textContent = Math.round(n).toLocaleString('en-US'));
   });
   c.on(ch, 'pointermove', e => { const b = ch.getBoundingClientRect(); const i = Math.max(0, Math.min(11, Math.round((e.clientX - b.left) / b.width * 11))); const px = i / 11 * b.width;
-    x.style.left = px + 'px'; tt.style.left = Math.max(50, Math.min(px, b.width - 50)) + 'px';
+    x.style.left = px + 'px';
     [pa, pb].forEach((p, k) => { pts[k].style.left = px + 'px'; pts[k].style.top = p[i][1] / 140 * b.height + 'px'; pts[k].classList.toggle('on', on[k]); });
     $('b', tt).textContent = (on[0] ? A[i].toLocaleString('en-US') : B[i].toLocaleString('en-US')) + ' editors'; const dv = Math.round((A[i] / B[i] - 1) * 100); $('span', tt).textContent = MO[i] + (on[0] && on[1] ? ', ' + (dv < 0 ? '−' : '+') + Math.abs(dv) + '% vs last year' : '');
+    // the readout sits beside the guide line: on its right while it fits there, then on its left, and always inside the chart
+    const w = tt.offsetWidth, gap = 12; tt.style.left = Math.max(0, px + gap + w <= b.width ? px + gap : px - gap - w) + 'px';
     v.textContent = (on[0] ? A[i] : B[i]).toLocaleString('en-US'); });
   c.on(ch, 'pointerleave', () => v.textContent = (on[0] ? A[11] : B[11]).toLocaleString('en-US'));
   $$('.lnx-k', r).forEach(k => k.onclick = () => { const s = +k.dataset.s; if (on[s] && !on[1 - s]) return; on[s] = !on[s]; k.classList.toggle('on', on[s]); $('.l' + s, svg).classList.toggle('off', !on[s]); if (s === 0) $('.ar', svg).style.opacity = on[0] ? 1 : 0;
@@ -48,21 +52,31 @@ DM.def('bar-chart', (r, c) => {
     m:{ l:['W1','W2','W3','W4','W5','W6','W7'], d:[[180,40,9],[210,44,12],[236,51,8],[262,48,10],[251,39,6],[298,52,7],[321,47,5]] }
   };
   const ch = $('.bcx-ch', r), v = $('.bcx-v', r); let tot = 0;
-  ch.innerHTML = D.w.l.map(() => `<div class="bcx-b"><div class="bcx-tt"><b class="num"></b><span></span></div><div class="bcx-st"><i></i></div><div class="bcx-l"></div></div>`).join('');
+  ch.innerHTML = D.w.l.map(() => `<div class="bcx-b"><div class="bcx-tt"></div><div class="bcx-st"><i></i></div><div class="bcx-l"></div></div>`).join('');
   const bars = $$('.bcx-b', ch);
   function draw(k){
     const d = D[k], mx = Math.max(...d.d.map(x => x[0] + x[1] + x[2])) * 1.08, H = ch.clientHeight - 22;
     bars.forEach((b, i) => { const x = d.d[i], s = x[0] + x[1] + x[2];
       c.later(i * 45, () => { $('.bcx-st i', b).style.height = Math.max(s ? 3 : 0, s / mx * H) + 'px'; });
-      $('.bcx-l', b).textContent = d.l[i]; $('.bcx-tt b', b).textContent = s + ' runs'; $('.bcx-tt span', b).textContent = `${x[0]} shipped, ${x[1]} reviewed, ${x[2]} failed`; });
+      $('.bcx-l', b).textContent = d.l[i];
+      // the readout: the bar's total, then each part on a line of its own, so it stays narrow enough to sit beside its bar
+      $('.bcx-tt', b).innerHTML = `<b class="num">${s} runs</b><span class="num">${x[0]} shipped</span><span class="num">${x[1]} reviewed</span><span class="num">${x[2]} failed</span>`; });
     const t = d.d.reduce((a, x) => a + x[0] + x[1] + x[2], 0); tween(tot, t, 900, n => { tot = n; v.textContent = Math.round(n).toLocaleString('en-US'); });
   }
+  // a bar's readout sits beside it, level with its top: on its right while it fits there, then on its left, and always inside
+  // the chart (on a narrow one it may cover part of its own bar), over the bars and clear of the labels under them
+  const place = b => { const tt = $('.bcx-tt', b), st = $('.bcx-st', b), H = ch.clientHeight, w = tt.offsetWidth, h = tt.offsetHeight, bl = b.offsetLeft, bw = b.offsetWidth, base = H - st.offsetTop - st.offsetHeight;
+    tt.style.bottom = Math.max(base, Math.min(H - h, base + st.offsetHeight - h)) + 'px'; tt.style.left = Math.max(-bl, Math.min(ch.clientWidth - bl - w, bl + bw + 6 + w <= ch.clientWidth ? bw + 6 : -w - 6)) + 'px'; };
+  // it follows its bar while the bar grows or the range changes under the pointer
+  let hot = null;
+  const follow = () => { if (!hot || c.dead) return; place(hot); requestAnimationFrame(follow); };
+  bars.forEach(b => { c.on(b, 'pointerenter', () => { const was = hot; hot = b; if (!was) follow(); }); c.on(b, 'pointerleave', () => { if (hot === b) hot = null; }); });
   seg($('.bcx-rg', r), draw);
   c.later(280, () => draw('w'));
 });
 /* ---------- Donut chart ---------- */
 DM.def('donut-chart', (r, c) => {
-  const D = [['Design reviews',14.2,'var(--c1)'],['Code changes',9.6,'var(--c2)'],['Research',6.1,'var(--c3)'],['Copy edits',3.4,'var(--c4)'],['Other',1.7,'var(--faint)']];
+  const D = [['Design reviews',14.2,'var(--c1)'],['Code changes',9.6,'var(--c2)'],['Research',6.1,'var(--c3)'],['Copy edits',3.4,'var(--c4)'],['Other',1.7,'var(--line-strong)']];
   const tot = D.reduce((a, d) => a + d[1], 0), C = 2 * Math.PI * 48, gap = 2;
   const svg = $('svg', r), lg = $('.dnx-lg', r), ring = $('.dnx-ring', r), v = $('.dnx-v', r), l = $('.dnx-l', r);
   let off = 0;
@@ -465,13 +479,17 @@ DM.def('radial-goals', (r, c) => {
   // each agent, what it counts, and what it did against its target this week and this month
   const A = [
     { n:'Support agent', u:'tickets', c:'var(--c1)', w:[412, 375], m:[1490, 1600] },
-    { n:'QA agent', u:'checks', c:'var(--c3)', w:[136, 160], m:[702, 640] },
-    { n:'Research agent', u:'reports', c:'var(--c4)', w:[18, 24], m:[71, 96] }
+    { n:'QA agent', u:'checks', c:'var(--c2)', w:[136, 160], m:[702, 640] },
+    { n:'Research agent', u:'reports', c:'var(--c3)', w:[18, 24], m:[71, 96] }
   ];
-  const svg = $('.rgx-ring svg', r), ring = $('.rgx-ring', r), lg = $('.rgx-lg', r), cb = $('.rgx-c b', r), cl = $('.rgx-c .muted', r), sub = $('.rgx-sub', r), tb = $('.rgx-sr tbody', r);
+  const svg = $('.rgx-ring svg', r), ring = $('.rgx-ring', r), lg = $('.rgx-lg', r), cb = $('.rgx-c b', r), cl = $('.rgx-c .rgx-cl', r), sub = $('.rgx-sub', r), tb = $('.rgx-sr tbody', r);
   // three thick rings, 14 units wide with a 4 unit gap between them, leaving room in the middle for the readout
   const RAD = [78, 60, 42];
-  svg.innerHTML = A.map((a, i) => `<g data-i="${i}" style="stroke:${a.c}"><circle class="tr" cx="90" cy="90" r="${RAD[i]}"/><circle class="fl" cx="90" cy="90" r="${RAD[i]}" pathLength="100" stroke-dasharray="0 100"/><circle class="ovb" cx="90" cy="90" r="${RAD[i]}" pathLength="100" stroke-dasharray="0 100"/><circle class="ov" cx="90" cy="90" r="${RAD[i]}" pathLength="100" stroke-dasharray="0 100"/><circle class="mk" r="4" cx="${90 + RAD[i]}" cy="90"/></g>`).join('');
+  // each ring: the track, what is still to go (hatched, through its own pattern), the share, and the lap past the target with
+  // its band and its cap. A pattern's id is the card's own, so two of these on one page keep theirs apart
+  const uid = 'rgx' + Math.random().toString(36).slice(2, 8);
+  svg.innerHTML = `<defs>${A.map((a, i) => `<pattern id="${uid}-${i}" class="rgx-hp" style="--rc:${a.c}" patternUnits="userSpaceOnUse" width="4" height="4" patternTransform="rotate(45)"><rect width="1.3" height="4"/></pattern>`).join('')}</defs>`
+    + A.map((a, i) => `<g data-i="${i}" style="--rc:${a.c}"><circle class="tr" cx="90" cy="90" r="${RAD[i]}"/><circle class="rm" cx="90" cy="90" r="${RAD[i]}" pathLength="100" stroke-dasharray="100 100" style="stroke:url(#${uid}-${i})"/><circle class="fl" cx="90" cy="90" r="${RAD[i]}" pathLength="100" stroke-dasharray="0 100"/><circle class="ovb" cx="90" cy="90" r="${RAD[i]}" pathLength="100" stroke-dasharray="0 100"/><circle class="ov" cx="90" cy="90" r="${RAD[i]}" pathLength="100" stroke-dasharray="0 100"/><circle class="mk" r="4" cx="${90 + RAD[i]}" cy="90"/></g>`).join('');
   lg.innerHTML = A.map((a, i) => `<div class="rgx-r" data-i="${i}" tabindex="0"><i style="background:${a.c}"></i><span class="n">${a.n}</span><span class="p num"></span><span class="v num"></span></div>`).join('');
   const G = $$('g', svg), rows = $$('.rgx-r', lg);
   let k = 'w', focus = -1, shown = 0;
@@ -481,20 +499,23 @@ DM.def('radial-goals', (r, c) => {
     A.forEach((a, i) => { const s = share(a), g = G[i];
       // (a hair short of the share: a dash that ends exactly on a quarter of the circle draws a stray notch in Chrome)
       $('.fl', g).setAttribute('stroke-dasharray', `${Math.max(0, Math.min(1, s) * 100 - .01)} 100`);
+      // what is still to go starts where the share ends and runs to the target
+      const rm = $('.rm', g); rm.setAttribute('stroke-dasharray', `${Math.max(0, 1 - s) * 100} 100`); rm.setAttribute('stroke-dashoffset', -Math.min(1, s) * 100);
       // past the target the ring goes round again from the top, and a marker sits where it ends
       const lap = Math.max(0, s - 1) * 100, cut = Math.min(3, lap), ovb = $('.ovb', g);
       $('.ov', g).setAttribute('stroke-dasharray', `${lap} 100`);
       // under the lap's end only, a band of the surface a little wider than the ring, so the end cuts into the ring under it
       ovb.setAttribute('stroke-dasharray', `${cut} 100`); ovb.setAttribute('stroke-dashoffset', -(lap - cut)); g.classList.toggle('lap', s > 1);
-      const mk = $('.mk', g), an = (s > 1 ? s - 1 : s) * 2 * Math.PI; mk.setAttribute('cx', 90 + Math.cos(an) * RAD[i]); mk.setAttribute('cy', 90 + Math.sin(an) * RAD[i]); mk.style.stroke = a.c;
+      // the cap turns round the middle with the lap's end, so the two move together
+      $('.mk', g).style.transform = `rotate(${(s > 1 ? s - 1 : 0) * 360}deg)`;
       const row = rows[i]; $('.p', row).innerHTML = s >= 1 ? `<span class="tag ok">${pc(s)}</span>` : pc(s); $('.v', row).textContent = `${a[k][0].toLocaleString('en-US')} / ${a[k][1].toLocaleString('en-US')} ${a.u}`;
       row.setAttribute('aria-label', `${a.n}: ${a[k][0]} of ${a[k][1]} ${a.u}, ${pc(s)} of target`); });
     tb.innerHTML = A.map(a => `<tr><th>${a.n}</th><td>${a[k][0]} ${a.u}</td><td>${a[k][1]}</td><td>${pc(share(a))}</td></tr>`).join('');
     centre();
-    const on = A.filter(a => share(a) >= 1).length; swap(sub, `${k === 'w' ? 'This week' : 'This month'}, ${on} of ${A.length} on target`);
+    swap(sub, k === 'w' ? 'This week' : 'This month');
   }
   // the middle shows the overall share, or the agent in focus
-  function centre(){ const t = focus < 0 ? overall() : share(A[focus]), from = shown; shown = t; tween(from, t, 600, x => cb.textContent = pc(x)); swap(cl, focus < 0 ? 'of targets' : A[focus].n.replace(' agent', '')); }
+  function centre(){ const t = focus < 0 ? overall() : share(A[focus]), from = shown; shown = t; tween(from, t, 600, x => cb.textContent = pc(x)); cl.textContent = focus < 0 ? 'of targets' : `of the ${A[focus].n}'s target`; }
   const hl = i => { if (focus === i) return; focus = i; ring.classList.toggle('hov', i >= 0); G.forEach((g, j) => g.classList.toggle('on', j === i)); rows.forEach((x, j) => x.classList.toggle('on', j === i)); centre(); };
   [...G, ...rows].forEach(el => { const i = +el.dataset.i; c.on(el, 'pointerenter', e => { if (e.pointerType !== 'touch') hl(i); }); c.on(el, 'pointerleave', () => { if (!lg.contains(document.activeElement)) hl(-1); }); });
   rows.forEach((x, i) => { c.on(x, 'focus', () => hl(i)); c.on(x, 'blur', () => hl(-1)); });

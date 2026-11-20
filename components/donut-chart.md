@@ -62,7 +62,7 @@ export default function DonutChartDemo() {
     <div style={{ width: '100%' }}>
       <DonutChart label="Agent time" unit="h" segments={[
         { label: 'Design reviews', value: 14.2 }, { label: 'Code changes', value: 9.6 }, { label: 'Research', value: 6.1 },
-        { label: 'Copy edits', value: 3.4 }, { label: 'Other', value: 1.7, color: 'var(--dm-faint)' }
+        { label: 'Copy edits', value: 3.4 }, { label: 'Other', value: 1.7, color: 'var(--dm-line-strong)' }
       ]} />
     </div>
   );
@@ -97,7 +97,7 @@ It plays its demo; change `donut-chart.js` to show your own data. `data-style="s
 
 **How do I grey out an "Other" slice?**
 
-Give that segment its own `color`, like 'var(--dm-faint)'. Segments without a color take the next palette colour.
+Give that segment its own `color`, like 'var(--dm-line-strong)', a mid grey that still stands out from the card. Segments without a color take the next palette colour.
 
 **Can I highlight a slice from somewhere else on the page?**
 

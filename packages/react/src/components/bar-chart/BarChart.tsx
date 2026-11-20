@@ -1,5 +1,5 @@
 'use client';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { formatCount, useStagger } from '../../lib/chart';
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useTween } from '../../lib/hooks';
@@ -72,6 +72,26 @@ export function BarChart({ label, series, ranges, range, defaultRange, onRangeCh
   useIsoLayoutEffect(() => { if (ch.current) setRoom(ch.current.clientHeight - 22); }, []);
   const color = (j: number) => series[j]?.color ?? PALETTE[j % PALETTE.length];
 
+  // a bar's readout sits beside it, level with its top: on its right while it fits there, then on its left, and always inside
+  // the chart, over the bars and clear of the labels under them. It follows its bar while the bar grows or the range changes
+  const cols = useRef<(HTMLDivElement | null)[]>([]);
+  const [hot, setHot] = useState<number | null>(null);
+  useEffect(() => {
+    if (hot == null) return;
+    let raf = 0;
+    const place = () => {
+      const b = cols.current[hot], c = ch.current, tt = b?.querySelector<HTMLElement>('.dm-bcx-tt'), st = b?.querySelector<HTMLElement>('.dm-bcx-st');
+      if (b && c && tt && st) {
+        const H = c.clientHeight, w = tt.offsetWidth, h = tt.offsetHeight, base = H - st.offsetTop - st.offsetHeight;
+        tt.style.bottom = Math.max(base, Math.min(H - h, base + st.offsetHeight - h)) + 'px';
+        tt.style.left = Math.max(-b.offsetLeft, Math.min(c.clientWidth - b.offsetLeft - w, b.offsetLeft + b.offsetWidth + 6 + w <= c.clientWidth ? b.offsetWidth + 6 : -w - 6)) + 'px';
+      }
+      raf = requestAnimationFrame(place);
+    };
+    place();
+    return () => cancelAnimationFrame(raf);
+  }, [hot]);
+
   return (
     <div data-dm="" className={cx('dm-bcx dm-panel', className)}>
       <div className="dm-bcx-h">
@@ -85,10 +105,11 @@ export function BarChart({ label, series, ranges, range, defaultRange, onRangeCh
           const r = byKey(at[i]), bar = r?.bars[i], top = r ? Math.max(...r.bars.map(sum)) * 1.08 : 1;
           const tip = shown?.bars[i];
           return (
-            <div key={i} className="dm-bcx-b">
+            <div key={i} className="dm-bcx-b" ref={el => { cols.current[i] = el; }} onPointerEnter={() => setHot(i)} onPointerLeave={() => setHot(h => h === i ? null : h)}>
               <div className="dm-bcx-tt">
                 <b className="dm-num">{tip && `${format(sum(tip))}${unit ? ' ' + unit : ''}`}</b>
-                <span>{tip && tip.values.map((v, j) => `${format(v)} ${series[j]?.tipLabel ?? series[j]?.label.toLowerCase() ?? ''}`).join(', ')}</span>
+                {/* each part on a line of its own, so the readout stays narrow enough to sit beside its bar */}
+                {tip && tip.values.map((v, j) => <span key={j} className="dm-num">{`${format(v)} ${series[j]?.tipLabel ?? series[j]?.label.toLowerCase() ?? ''}`}</span>)}
               </div>
               <div className="dm-bcx-st">
                 {stacked ? series.map((_, j) => {

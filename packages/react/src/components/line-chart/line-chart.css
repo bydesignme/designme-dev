@@ -1,28 +1,39 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Line chart ---------- */
-.dm-lnx{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:10px}
+/* this year against last year: a headline number, a legend that turns each line on and off, and a readout that follows the
+   pointer. The gridlines are a neutral grey at half strength, and each month's label sits under its own point. The readout is
+   the page's tooltip (opaque and neutral) beside the guide line, on the side with room, so it never covers the points it reads
+   or passes the chart's edge. The content sits 16px in from every edge: the legend's words end on the right edge and their
+   hover box reaches out round them, a quiet fill that shows in light mode */
+.dm-lnx{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:10px;--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
 .dm-lnx-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
-.dm-lnx-h>div:first-child{display:flex;flex-direction:column;font-size:12.5px}
-.dm-lnx-v{font-size:14px;font-weight:500;letter-spacing:-.02em;color:var(--dm-fg)}
-.dm-lnx-lg{display:flex;gap:var(--dm-s-1)}
-.dm-lnx-k{display:flex;align-items:center;gap:6px;height:26px;padding:0 9px;border-radius:var(--dm-r-pill);font-size:12px;color:var(--dm-muted);transition:color .2s,background .2s}
+.dm-lnx-h>div:first-child{display:flex;flex-direction:column;font-size:12.5px;line-height:18px}
+.dm-lnx-v{font-size:14px;line-height:20px;font-weight:500;letter-spacing:-.02em;color:var(--dm-fg)}
+/* the toggles sit on the label's line, their words ending on the content's right edge */
+.dm-lnx-lg{display:flex;gap:var(--dm-s-1);margin:-4px -9px 0 0}
+.dm-lnx-k{display:flex;align-items:center;gap:6px;height:26px;padding:0 9px;border-radius:var(--dm-r-pill);font-size:12px;color:var(--dm-muted);transition:color var(--dm-t-fast) var(--dm-ease),background-color var(--dm-t-fast) var(--dm-ease)}
 @media (hover:hover) and (pointer:fine){.dm-lnx-k:hover{background:var(--dm-row)}}
 .dm-lnx-k.dm-on{color:var(--dm-fg)}
-.dm-lnx-k i{width:8px;height:8px;border-radius:50%;transition:transform .3s var(--dm-ease),opacity .3s}
+.dm-lnx-k i{width:8px;height:8px;border-radius:50%;transition:transform var(--dm-t) var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease)}
 .dm-lnx-k:not(.dm-on) i{opacity:.3;transform:scale(.6)}
 .dm-lnx-ch{position:relative;height:150px}
 .dm-lnx-svg{width:100%;height:100%;display:block;overflow:visible}
-.dm-lnx-svg .dm-gl{stroke:var(--dm-line);stroke-width:1;vector-effect:non-scaling-stroke}
-.dm-lnx-svg .dm-ln{fill:none;stroke-width:2;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round;transition:opacity .4s}
+.dm-lnx-svg .dm-gl{stroke:color-mix(in srgb,var(--dm-line) 50%,transparent);stroke-width:1;vector-effect:non-scaling-stroke}
+.dm-lnx-svg .dm-ln{fill:none;stroke-width:2;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round;transition:opacity var(--dm-t) var(--dm-ease)}
 .dm-lnx-svg .dm-ln.dm-off{opacity:0}
-.dm-lnx-svg .dm-ar{transition:opacity .4s}
-.dm-lnx-x{position:absolute;top:0;bottom:0;width:1px;background:var(--dm-faint);opacity:0;transition:opacity .2s;pointer-events:none}
-.dm-lnx-tt{position:absolute;top:-6px;padding:6px 9px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-ink);color:var(--dm-on-ink);font-size:11.5px;display:flex;flex-direction:column;opacity:0;transform:translate(-50%,-100%) translateY(4px);transition:opacity .2s,transform .25s var(--dm-ease);pointer-events:none;white-space:nowrap}
-.dm-lnx-tt span{opacity:.7}
+.dm-lnx-svg .dm-ar{transition:opacity var(--dm-t) var(--dm-ease)}
+.dm-lnx-x{position:absolute;top:0;bottom:0;width:1px;background:var(--dm-faint);opacity:0;transition:opacity var(--dm-t-fast) var(--dm-ease);pointer-events:none}
+/* the readout: the page's tooltip, beside the guide line (the script picks the side with room) */
+.dm-lnx-tt{position:absolute;top:0;left:0;z-index:2;padding:6px 9px;border-radius:var(--dm-r-sm);background:var(--dm-tip-bg,var(--dm-ink));color:var(--dm-tip-fg,var(--dm-on-ink));box-shadow:var(--dm-tip-ring,none);font-size:12px;line-height:1.35;display:flex;flex-direction:column;opacity:0;transform:translateY(4px);transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease);pointer-events:none;white-space:nowrap}
+.dm-lnx-tt b{font-weight:500}
+.dm-lnx-tt span{color:color-mix(in srgb,var(--dm-tip-fg,var(--dm-on-ink)) 76%,var(--dm-tip-bg,var(--dm-ink)))}
 @media (hover:hover) and (pointer:fine){.dm-lnx-ch:hover .dm-lnx-x,.dm-lnx-ch:hover .dm-lnx-tt{opacity:1}}
-@media (hover:hover) and (pointer:fine){.dm-lnx-ch:hover .dm-lnx-tt{transform:translate(-50%,-100%)}}
-.dm-lnx-pt{position:absolute;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:var(--dm-surface);box-shadow:0 0 0 2px currentColor;opacity:0;transition:opacity .2s;pointer-events:none}
+@media (hover:hover) and (pointer:fine){.dm-lnx-ch:hover .dm-lnx-tt{transform:none}}
+.dm-lnx-pt{position:absolute;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:var(--dm-surface);box-shadow:0 0 0 2px currentColor;opacity:0;transition:opacity var(--dm-t-fast) var(--dm-ease);pointer-events:none}
 @media (hover:hover) and (pointer:fine){.dm-lnx-ch:hover .dm-lnx-pt.dm-on{opacity:1}}
-.dm-lnx-ax{display:flex;justify-content:space-between;font-size:11px}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .dm-lnx.dm-panel,:root [data-style="clean"] .dm-lnx.dm-panel,:root [data-style="clean"].dm-lnx.dm-panel{padding:20px 20px 18px 20px}
+/* each label sits centred under its own point (the script places them); the first starts on the chart's left edge and one on
+   the last point ends on its right edge */
+.dm-lnx-ax{position:relative;height:16px;font-size:11px;line-height:16px}
+.dm-lnx-ax span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
+.dm-lnx-ax span:first-child{transform:none}
+.dm-lnx-ax span.dm-e{transform:translateX(-100%)}
