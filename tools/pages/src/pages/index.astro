@@ -65,18 +65,21 @@ const bandCss = [pick(''), ...PHONE.map((x, k) => `@media (max-width:${(k ? PHON
 // tile"). No row of metric cards (owner, 19 Nov: "this is not some dashboard"); only components with a card of their own, so
 // nothing sits loose on the page. Each card fills its stack's width and is as tall as it is right now, so the stacks are
 // chosen to end close to level while every card plays (owner, 20 Nov: "do not leave spaces"): each candidate's height was
-// sampled live over 75 seconds at a stack's width in each style, and these twelve, in these stacks, keep the stacks' feet
-// within about 80px of each other for 90% of the run (Trace view, whose detail opens for a few seconds and lifts its stack
-// by 200px, and the others whose height swings the most, are left out). Three stacks from 1440px (the first wider, for
-// Activity heatmap), two from 1100px (placed by the script under the bento), one below, in the three stacks' order
+// sampled live for 110 seconds, every card in view, at a stack's width in each style, and these twelve, in these stacks,
+// keep the stacks' feet within about 70px of each other for 90% of the time, also when the cards start at different
+// moments. Agent tree (it grows by 260px over its run and starts again), Trace view (its detail lifts it by 390px for a few
+// seconds), Eval results and Agent inbox (each empties for a moment as it starts again) are left out, and so is Top pages
+// (its ranks are set in monospace). Three stacks from
+// 1440px (the first wider, for Activity heatmap), two from 1100px (placed by the script under the bento), one below, in the
+// three stacks' order. When a card here changes its height, sample them again and choose again
 const BENTO3 = [
-  ['activity-heatmap', 'agent-tree', 'radial-goals', 'top-pages'],
-  ['donut-chart', 'radar-chart', 'knowledge-sources', 'line-chart'],
-  ['plan-review', 'run-cost', 'agent-lanes', 'funnel-chart'],
+  ['activity-heatmap', 'knowledge-sources', 'scheduled-runs', 'funnel-chart'],
+  ['donut-chart', 'plan-review', 'radar-chart', 'agent-lanes'],
+  ['agent-run-timeline', 'radial-goals', 'run-cost', 'line-chart'],
 ];
 const BENTO2 = [
-  ['activity-heatmap', 'agent-tree', 'top-pages', 'run-cost', 'funnel-chart', 'line-chart'],
-  ['donut-chart', 'radar-chart', 'plan-review', 'knowledge-sources', 'radial-goals', 'agent-lanes'],
+  ['activity-heatmap', 'agent-run-timeline', 'radial-goals', 'run-cost', 'line-chart', 'scheduled-runs'],
+  ['donut-chart', 'plan-review', 'radar-chart', 'knowledge-sources', 'funnel-chart', 'agent-lanes'],
 ];
 if ([...BENTO3.flat()].sort().join() !== [...BENTO2.flat()].sort().join()) throw new Error('landing: the bento\'s two layouts hold different cards');
 const BENTO = BENTO3.map(stack => stack.map(comp));
@@ -777,9 +780,11 @@ const jsonld = [
       var blocks = [].slice.call(document.querySelectorAll('.lp-hero, .lp-bento, .lp-show-w, .lp-rows, .lp-sty, .lp-cmd, .lp-ed-art, .lp-agent, .lp-qa, .lp-work, .lp > section > .lp-sh, .lp-wall > .lp-in')).filter(function(e, i, all){ return !all.some(function(o){ return o !== e && o.contains(e); }); });
       var head = function(){ return parseFloat(getComputedStyle(root).getPropertyValue('--pg-head')) || 0; };
       var jump = function(d){ var to = Math.round(window.scrollY + d); if (to !== Math.round(window.scrollY)) window.scrollTo({ top:to, behavior:'instant' }); };
-      // the anchor: the first block that isn't wholly above the view (under the header). Only blocks wholly above it can move
-      // it, so keeping its top where it was makes up for them, and only for them
-      var pick = function(){ var h0 = head(); anchor = blocks.filter(function(b){ return b.getBoundingClientRect().bottom > h0 + .5; })[0] || null; atTop = anchor ? anchor.getBoundingClientRect().top : 0; atY = Math.round(window.scrollY); };
+      // the anchor: the first block that starts in the view (under the header), or, when one block fills the view, that one.
+      // Keeping its top where it was makes up for every block above it, including one cut by the top of the view
+      var pick = function(){ var h0 = head(), rs = blocks.map(function(b){ return b.getBoundingClientRect(); }), i = rs.findIndex(function(r){ return r.top >= h0 - .5 && r.top < innerHeight; });
+        if (i < 0) i = rs.findIndex(function(r){ return r.bottom > h0 + .5; });
+        anchor = i < 0 ? null : blocks[i]; atTop = i < 0 ? 0 : rs[i].top; atY = Math.round(window.scrollY); };
       // the hold lasts 1.6s and at least 48 frames, so a slow machine, whose frames come late, gets the same hold
       var hold = function(){ if (!pin) return false; if (performance.now() > pin.until && pin.frames > 48){ pin = null; pick(); return false; } jump(pin.el.getBoundingClientRect().top - pin.top); pick(); return true; };
       // looked at at the start of every frame (so even a script reading the page in that frame sees nothing moved), when a block
@@ -790,7 +795,7 @@ const jsonld = [
         if (!anchor || Math.round(window.scrollY) !== atY){ pick(); return; }
         // measured against where the anchor was when the reader last scrolled, so fractions of a pixel never add up
         var d = anchor.getBoundingClientRect().top - atTop;
-        if (window.scrollY > 0 && Math.abs(d) >= 1){ jump(d); atY = Math.round(window.scrollY); }
+        if (window.scrollY > 0 && Math.abs(d) >= .5){ jump(d); atY = Math.round(window.scrollY); }
       };
       var ro = new ResizeObserver(check);
       new MutationObserver(check).observe(document.querySelector('.lp-bento'), { subtree:true, childList:true, attributes:true, characterData:true });
