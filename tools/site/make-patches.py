@@ -1530,13 +1530,14 @@ for pre in ('<a class="hire-btn" id="hire-btn" href=',
 patch("""c.closest('.lib-sec').querySelector('h2').textContent.toLowerCase().includes(q);""", """(c.closest('.lib-sec') || document.getElementById(c.dataset.home) || c).querySelector('h2')?.textContent.toLowerCase().includes(q);""")
 patch("""s:(c.closest('.lib-sec') || {}).querySelector ? c.closest('.lib-sec').querySelector('h2').textContent : '' }));""", """s:((c.closest('.lib-sec') || document.getElementById(c.dataset.home || '')) || { querySelector:() => null }).querySelector('h2')?.textContent || '' }));""")
 
-# the intro strip: the install command, a Star link that keeps its word beside the count, and Book a call on one row;
-# then the list, led by the Figma library, which is not ready yet (the row of four featured components under the strip
-# was removed, owner, 20 Nov: "can you remove the cards from here?")
+# the intro strip: the install command and a Star link that keeps its word beside the count, on one row; then the list,
+# led by the Figma library, which is not ready yet. The row of four featured components under the strip and the strip's
+# Book a call (the sidebar keeps its own) were removed (owner, 20 Nov: "can you remove the cards from here?", "can you
+# remove this button from the hero")
 patch(
   """  <div class="intro-get"><button class="cdm-cmd intro-cmd" data-cmd="npx designme add live-answer --react" title="Copy install command"><span class="d">$</span><span class="c">npx designme add live-answer --react</span><span class="ms sm">content_copy</span></button></div>
   <div class="m-cta"><div class="t">Need expert design and dev support?</div><a class="hire-btn m-cta-btn" href=\"""" + BOOK + """\" target="_blank" rel="noopener">Book a call<span class="ms">arrow_forward</span></a></div>""",
-  """  <div class="intro-get"><button class="cdm-cmd intro-cmd" data-cmd="npx designme add live-answer --react" title="Copy install command"><span class="d">$</span><span class="c">npx designme add live-answer --react</span><span class="ms sm">content_copy</span></button><a class="gh-pill" href="https://github.com/bydesignme/designme-dev" aria-label="Star designme.dev on GitHub" data-gh-stars><svg viewBox="0 0 24 24" aria-hidden="true">""" + GH_MARK + """</svg><span class="gh-l">Star</span><span class="gh-n" hidden></span></a><a class="hire-btn" href=\"""" + BOOK + """\" target="_blank" rel="noopener">Book a call<span class="ms">arrow_forward</span></a></div>
+  """  <div class="intro-get"><button class="cdm-cmd intro-cmd" data-cmd="npx designme add live-answer --react" title="Copy install command"><span class="d">$</span><span class="c">npx designme add live-answer --react</span><span class="ms sm">content_copy</span></button><a class="gh-pill" href="https://github.com/bydesignme/designme-dev" aria-label="Star designme.dev on GitHub" data-gh-stars><svg viewBox="0 0 24 24" aria-hidden="true">""" + GH_MARK + """</svg><span class="gh-l">Star</span><span class="gh-n" hidden></span></a></div>
   <div class="su" id="su-fig"><p class="su-lead">The Figma library is coming soon. Leave your email and you'll get it when it lands.</p><div class="su-row" id="su-fig-row"><input id="su-fig-email" type="email" placeholder="you@company.com" autocomplete="email" aria-label="Email address"><button class="su-btn" id="su-fig-go" type="button">Sign up</button></div><div class="su-msg" id="su-fig-msg" role="status"></div><div class="su-note">Unsubscribe any time. Read the <a href="#/privacy">privacy notice</a>.</div></div>""")
 
 # Popular (the default) opens on this week's agent components. Recent puts them back in their own sections.
@@ -1625,8 +1626,7 @@ patch("""</header>
 // the GitHub pill""")
 
 CSS += """
-/* the intro strip: Star and Book a call sit with the install command */
-.intro-get .hire-btn{margin-top:0;height:32px}
+/* the intro strip: Star sits with the install command */
 .intro-get .gh-pill{height:32px;padding:0 12px 0 10px}
 /* the list in the intro, under the install strip. The Figma line stays: the library is not ready */
 .intro > .su .su-lead{display:block;margin:0 0 10px;max-width:52ch;font-size:14px;line-height:1.5;color:var(--sh-dim)}
