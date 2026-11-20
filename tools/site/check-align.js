@@ -20,7 +20,8 @@ function sample(id){
   const comp = document.querySelector(`.comp[data-v2="${id}"]`), sin = comp.querySelector('.v2.stage-in');
   const out = [];
   if (sin.getAnimations({ subtree:true }).some(a => a.playState === 'running' && a.effect && a.effect.getComputedTiming().iterations !== Infinity)) return { skip:true };
-  const vis = e => { for (let a = e; a && a !== sin; a = a.parentElement){ const cs = getComputedStyle(a); if (cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity < .1 || a.hidden || a.matches('.hand,.tip')) return false; } return true; };
+  // (text kept for screen readers only, clipped to nothing with clip-path: inset(50%), is not on screen either)
+  const vis = e => { for (let a = e; a && a !== sin; a = a.parentElement){ const cs = getComputedStyle(a); if (cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity < .1 || a.hidden || a.matches('.hand,.tip') || cs.clipPath === 'inset(50%)') return false; } return true; };
   const name = e => (typeof e.className === 'string' && e.className.trim() ? '.' + e.className.trim().split(/\s+/).slice(0, 2).join('.') : e.tagName.toLowerCase()) + (e.textContent && e.textContent.trim() ? ` "${e.textContent.trim().slice(0, 18)}"` : '');
   // the card: the outermost element with a radius and an edge
   const card = [...sin.querySelectorAll('*')].find(e => { const cs = getComputedStyle(e); return parseFloat(cs.borderTopLeftRadius) >= 8 && (cs.boxShadow !== 'none' || parseFloat(cs.borderTopWidth) > 0) && e.getBoundingClientRect().width > 200 && !e.closest('.pop,.hand,button'); }) || sin;
@@ -33,13 +34,18 @@ function sample(id){
     const b = e.getBoundingClientRect(); if (b.width < 6 || b.height < 6 || b.width > 64) return; A.push({ k:'mark', e, b }); });
   const bare = e => { const cs = getComputedStyle(e); return cs.backgroundColor === 'rgba(0, 0, 0, 0)' && cs.backgroundImage === 'none' && cs.boxShadow === 'none' && parseFloat(cs.borderTopWidth) === 0; };
   const inner = e => { const r = document.createRange(); r.selectNodeContents(e); const b = r.getBoundingClientRect(); return b.width ? b : e.getBoundingClientRect(); };
-  sin.querySelectorAll('button,.pill,.ib,.tag,[role="switch"]').forEach(e => { if (!card.contains(e) || !vis(e) || e.closest('.pop') || (e.parentElement && e.parentElement.closest('button,.pill,.tag'))) return; const b = e.getBoundingClientRect(); if (b.width < 8 || b.height < 8 || b.width > C.width * .6) return; A.push({ k:'ctl', e, b:bare(e) ? inner(e) : b, box:b }); });
+  // a button that is a whole row of a list (as wide as the list it sits in, like a chat in a side list) is measured by what it
+  // shows, as a bare one is: its hover or selection fill reaches out round its words by design, so the fill is not its edge
+  const listRow = e => { const p = e.parentElement, w = e.getBoundingClientRect().width; return !!p && w > 120 && w >= p.clientWidth - 1 && [...p.children].filter(k => k.matches('button')).length > 2; };
+  // words and controls a script places by coordinates (a chart's axis labels round a radar, a point's label) sit where the chart's
+  // geometry puts them, not on the card's columns, so they are left out of the column checks
+  const placed = e => { for (let a = e; a && a !== card; a = a.parentElement) if (/(^|;)\s*(left|--x0)\s*:/.test(a.getAttribute('style') || '')) return true; return false; };
+  sin.querySelectorAll('button,.pill,.ib,.tag,[role="switch"]').forEach(e => { if (!card.contains(e) || !vis(e) || e.closest('.pop') || placed(e) || (e.parentElement && e.parentElement.closest('button,.pill,.tag'))) return; const b = e.getBoundingClientRect(); if (b.width < 8 || b.height < 8 || b.width > C.width * .6) return; A.push({ k:'ctl', e, b:bare(e) || listRow(e) ? inner(e) : b, box:b }); });
   const tw = document.createTreeWalker(card, NodeFilter.SHOW_TEXT); let n;
   const sets = e => { const cs = getComputedStyle(e), pe = e.parentElement, ps = pe && getComputedStyle(pe);
     if (/center/.test(cs.textAlign) || (ps && /grid|flex/.test(ps.display) && (/center/.test(ps.justifyContent) || /center/.test(ps.justifyItems) || /center/.test(ps.placeItems))) || (/grid|flex/.test(cs.display) && /center/.test(cs.justifyContent + cs.justifyItems))) return 'centre';
     if (/right|end/.test(cs.textAlign) || (ps && /flex/.test(ps.display) && /end|space-between/.test(ps.justifyContent) && [...pe.children].filter(k => k.offsetParent).pop() === e)) return 'right';
     return 'left'; };
-  const placed = e => { for (let a = e; a && a !== card; a = a.parentElement) if (/(^|;)\s*(left|--x0)\s*:/.test(a.getAttribute('style') || '')) return true; return false; };
   while ((n = tw.nextNode())){ const e = n.parentElement; if (!n.textContent.trim() || !vis(e) || e.closest('button,.pill,.tag,.pop,.hand') || placed(e)) continue; const r = document.createRange(); r.selectNodeContents(n); const lines = [...r.getClientRects()].filter(b => b.width > 2), set = sets(e); lines.forEach(b => A.push({ k:'text', e, b, set, wraps:lines.length > 1 })); }
   // rows: anchors that share a line
   const rows = []; A.sort((a, b) => a.b.top - b.b.top);
