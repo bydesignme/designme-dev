@@ -3,20 +3,23 @@
 // at /library (tools/site builds it as library.html). A full-width page with the site's header and footer and no sidebar.
 // Sections, in order (owner, 19 Nov, after AlignUI, BoardUI and AffectUI: "I told you what to change from the references"):
 //   hero      centred: the title, one short line, Browse the library and Read the docs
-//   bento     right under it, on a backdrop the window's width: twelve of the most distinctive components playing live,
-//             mostly the agent's own, each its own card in one of three stacks that end at different heights (no row of
-//             metric cards); two stacks from 1100px, one below
-//   screens   the two templates, whole apps made of the components, live in one frame on a backdrop, with a switch over it
-//   wall      every component, as rows of pictures that drift in turn left and right across a backdrop, each linking to
-//             its page, with Browse the library and GitHub
-//   styles    Blueprint, Soft and Clean to pick from, with a demo beside them; a pick restyles the whole page
+//   bento     right under it, on the page itself: twelve of the most distinctive components playing live, mostly the
+//             agent's own, each its own card in one of three stacks (two from 1100px, one below). A card is as tall as it is
+//             right now and grows and shrinks as it plays, pushing only what is under it in its stack (owner, 20 Nov: "let it
+//             live and grow"), so no card ever has room left empty under it
+//   screens   the two templates, whole apps made of the components, live in one frame on the site's grey, with a switch
+//   wall      every component, as rows of pictures that drift in turn left and right across the site's grey, fading out at
+//             both sides, each linking to its page, with Browse the library and GitHub
+//   styles    Light or Dark, then Blueprint, Soft and Clean as a switch with the picked one's line and its <html> under it,
+//             beside a demo on the site's grey; a pick restyles the whole page
 //   install   the CLI in HTML, React or Astro and the shadcn CLI, then an editor of what it writes: each file, its first
 //             lines as installed (read from the registry) and the component they make, live; then a prompt for a coding agent
-//   faq       questions, with their answers, then DesignMe's Book a call
+//   faq       questions, with their answers: the heading on the left, kept in view, and the list on the right
+//   work      DesignMe's Book a call, the page's last word
 // Section headings are large and centred, with one grey line under them: the landing page's exception to the 14px type rule
 // (owner, 19 Nov, .claude/CLAUDE.md). /?headings=small shows them at 14px, to compare.
-// The backdrops are soft washes of the accent and the chart palette (--dm-accent, --dm-c2 to --dm-c6), so they follow the
-// style, the theme and a picked accent. Shadows stay the neutral --dm-shadow and --dm-shadow-pop.
+// No gradients (owner, 20 Nov: "lets go the minimal way"): the page is white, with the site's grey behind the templates, the
+// wall and the styles demo. Shadows stay the neutral --dm-shadow and --dm-shadow-pop.
 // Every number and claim here is read from the code or true of it: the counts come from the library's own sections, the
 // file names, lengths and lines from the registry (/r), the facts from the README, the CLI and the docs. The demos are the
 // installed HTML, CSS and JS on the shared core, as on a component page: they load from the registry (/r/<name>.json) when
@@ -57,27 +60,19 @@ const stageVars = (c, pad = PAD) => Object.keys(KEYS).flatMap(st => { const r = 
 const pick = sfx => `.lp-demo{--lh:var(--lh-bp${sfx})}:root[data-style="soft"] .lp-demo{--lh:var(--lh-soft${sfx})}:root[data-style="clean"] .lp-demo{--lh:var(--lh-clean${sfx})}`;
 const bandCss = [pick(''), ...PHONE.map((x, k) => `@media (max-width:${(k ? PHONE[k - 1].w : 641) - 1}px){${pick('-' + x.b)}}`), '.lp-demo{min-height:var(--lh)}'].join('\n');
 
-// the bento: the library's most distinctive components, mostly the agent's own, each its own card on a backdrop (owner, 19
-// Nov: "the component is the tile"), in three stacks that end at different heights: a wider one for the components with a
-// wide layout and two narrower ones. No row of metric cards (owner, 19 Nov: "this is not some dashboard"); only components
-// with a card of their own, so nothing sits loose on the backdrop. Each card fills its stack's width
+// the bento: the library's most distinctive components, mostly the agent's own, each its own card on the page (owner, 19
+// Nov: "the component is the tile"), in three stacks: a wider one for the components with a wide layout and two narrower
+// ones. No row of metric cards (owner, 19 Nov: "this is not some dashboard"); only components with a card of their own, so
+// nothing sits loose on the page. Each card fills its stack's width and is as tall as it is right now
 const BENTO = [
   ['activity-heatmap', 'agent-tree', 'trace-view', 'agent-lanes'],
   ['radial-goals', 'run-cost', 'eval-results', 'funnel-chart'],
   ['donut-chart', 'agent-inbox', 'plan-review', 'radar-chart'],
 ].map(stack => stack.map(comp));
-// how tall each card gets while its demo plays, at the width its stack has, in each style and at each layout of the bento
-// (tools/pages/bento.mjs measures them on this page and writes data/bento-heights.json): its place keeps that much room, so
-// nothing below it moves. Three stacks from 1440px (the bento is 1376px wide there, whatever the window), two from 1100px,
-// one from 641px (each card at most 720px wide) and on a phone, where each band is its own
-const BH = (() => { try { return JSON.parse(fs.readFileSync(path.join(ROOT, 'tools/pages/data/bento-heights.json'), 'utf8')); } catch(e){ return null; } })();
-const TIERS = [['t3', '(min-width:1440px)'], ['t2', '(min-width:1100px) and (max-width:1439px)'], ['t1', '(min-width:641px) and (max-width:1099px)'],
-  ['j', '(min-width:520px) and (max-width:640px)'], ['k', '(min-width:430px) and (max-width:519px)'], ['l', '(min-width:390px) and (max-width:429px)'], ['m', '(max-width:389px)']];
-const bentoVars = c => { const h = BH && BH.heights[c.reg]; if (!h) return '';
-  return Object.keys(KEYS).flatMap(st => TIERS.map(([t]) => `--bh-${st}-${t}:${Math.ceil(h[st][t]) + 4}px`)).join(';'); };
-const bentoCss = TIERS.map(([t, q]) => `@media ${q}{.lp-bt{--bh:var(--bh-bp-${t})}:root[data-style="soft"] .lp-bt{--bh:var(--bh-soft-${t})}:root[data-style="clean"] .lp-bt{--bh:var(--bh-clean-${t})}}`).join('\n');
 // the templates, whole apps made of the components, shown live in one frame (with ?embed=1, only the app)
-const TEMPLATES = [['sales-crm', 'Sales CRM'], ['workflow-editor', 'Workflow editor']].map(([slug, name]) => ({ slug, name, url:`/templates/${slug}` }));
+// The Workflow editor opens on its last test run (its own #run= address), so the run drawer under the canvas shows the run's
+// steps and the screen is full, not a short flow on a tall empty canvas
+const TEMPLATES = [['sales-crm', 'Sales CRM', ''], ['workflow-editor', 'Workflow editor', '#run=2087']].map(([slug, name, at]) => ({ slug, name, url:`/templates/${slug}`, at }));
 // the wall: every component in the library, in its order, as four rows that drift in turn left and right
 const ROWS = [0, 1, 2, 3].map(i => COMPONENTS.slice(Math.round(i * COMPONENTS.length / 4), Math.round((i + 1) * COMPONENTS.length / 4)));
 if (ROWS.flat().length !== total) throw new Error('landing: the wall shows ' + ROWS.flat().length + ' of ' + total + ' components');
@@ -151,9 +146,9 @@ const FILES = (() => {
 
 const INSTALL = [
   ['html', 'HTML', MARKS.html, `npx designme add ${HERO.reg}`, 'Open demo.html to see it working, then copy its markup into your page.'],
-  ['react', 'React', MARKS.react, `npx designme add ${HERO.reg} --react`, 'A typed component that imports its own CSS. Needs React 19, and works in Next.js, Vite and Astro islands.'],
-  ['astro', 'Astro', MARKS.astro, `npx designme add ${HERO.reg} --astro`, 'The same markup, CSS and script as the HTML version, as an .astro component.'],
-  ['shadcn', 'shadcn', MARKS.react, `npx shadcn@latest add ${shadcnUrl(HERO.reg)}`, 'Every component is also a shadcn registry item, in React and in Astro (at /r/shadcn/astro/), for a project set up for shadcn/ui.'],
+  ['react', 'React', MARKS.react, `npx designme add ${HERO.reg} --react`, 'A typed component that brings its own CSS, for React 19 and up.'],
+  ['astro', 'Astro', MARKS.astro, `npx designme add ${HERO.reg} --astro`, 'The same markup, CSS and script as the HTML one, as an .astro component.'],
+  ['shadcn', 'shadcn', MARKS.react, `npx shadcn@latest add ${shadcnUrl(HERO.reg)}`, 'Every component is also a shadcn registry item, in React or in Astro.'],
 ];
 
 const FAQ = [
@@ -203,7 +198,6 @@ const jsonld = [
     <link rel="stylesheet" href="/components/assets/core.css">
     <style is:inline set:html={FRAME_CSS} />
     <style is:inline set:html={bandCss} />
-    <style is:inline set:html={bentoCss} />
     <style is:global>
       .pg-main:has(.lp){padding:0}
       /* one rhythm for the whole page: sections 160px apart (120px on a tablet, 96px on a phone), everything else on the 4px
@@ -214,7 +208,7 @@ const jsonld = [
       :root[data-style="clean"] .lp{--lp-r2:22px;--lp-r3:30px}
       @supports (corner-shape:squircle){
         :root[data-style="soft"] .lp{--lp-r1:16px;--lp-r2:26px;--lp-r3:44px}
-        :root[data-style="soft"] :is(.lp-art,.lp-win,.lp-show,.lp-show .dvf-dev:not(.mobile),.lp-wt,.lp-wt img,.lp-opt,.lp-line,.lp-prompt pre){corner-shape:squircle}
+        :root[data-style="soft"] :is(.lp-bg,.lp-win,.lp-show,.lp-show .dvf-dev:not(.mobile),.lp-wt,.lp-wt img,.lp-line,.lp-prompt pre){corner-shape:squircle}
       }
       .lp-in{max-width:1464px;margin:0 auto;padding-inline:32px}
       .lp code{font:500 12.5px/1.4 var(--pg-mono);font-variant-ligatures:none;background:var(--pg-chip);padding:1px 5px;border-radius:5px;color:var(--pg-fg)}
@@ -236,7 +230,7 @@ const jsonld = [
       .lp-sec{padding-top:var(--lp-sec)}
       .lp-sh{display:flex;flex-direction:column;align-items:center;gap:16px;max-width:760px;margin:0 auto 56px;text-align:center}
       .lp-sh h2{margin:0;font-size:clamp(30px,3.2vw,44px);line-height:1.1;font-weight:500;letter-spacing:-.032em;text-wrap:balance;color:var(--pg-fg)}
-      .lp-sh p{margin:0;max-width:60ch;font-size:14px;line-height:1.6;color:var(--pg-dim);text-wrap:balance}
+      .lp-sh p{margin:0;max-width:540px;font-size:14px;line-height:1.6;color:var(--pg-dim);text-wrap:balance}
       .lp-sh .lp-more{margin-top:4px}
       :root[data-lp-h="small"] .lp-sh{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);align-items:start;gap:8px 48px;max-width:none;margin:0 0 48px;padding-top:24px;border-top:1px solid var(--pg-line);text-align:left}
       :root[data-lp-h="small"] .lp-sh h2{font-size:14px;line-height:20px;letter-spacing:0}
@@ -260,34 +254,24 @@ const jsonld = [
       @media (prefers-reduced-motion:no-preference){.lp-demo{transition:min-height 340ms var(--lp-ease)}}
       .lp-demo>.card{min-width:0;align-self:stretch;display:grid;place-items:center}
       .lp-miss{margin:0;color:var(--pg-dim);font-size:14px}
-      :root:not([data-style="soft"],[data-style="clean"]){--lp-grid:rgba(20,20,12,.018)}
-      @media (prefers-color-scheme: dark){:root:not([data-theme="light"]):not([data-style="soft"],[data-style="clean"]){--lp-grid:rgba(255,255,255,.014)}}
-      :root[data-theme="dark"]:not([data-style="soft"],[data-style="clean"]){--lp-grid:rgba(255,255,255,.014)}
-      .lp-anim{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;height:28px;padding:0 12px;border:0;border-radius:999px;background:var(--pg-bg);box-shadow:inset 0 0 0 1px var(--pg-line2);color:var(--pg-dim);font:500 13px/1 var(--pg-sans);cursor:pointer;transition:color 220ms var(--lp-ease),background-color 220ms var(--lp-ease)}
+            .lp-anim{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;height:28px;padding:0 12px;border:0;border-radius:999px;background:var(--pg-bg);box-shadow:inset 0 0 0 1px var(--pg-line2);color:var(--pg-dim);font:500 13px/1 var(--pg-sans);cursor:pointer;transition:color 220ms var(--lp-ease),background-color 220ms var(--lp-ease)}
       .lp-anim:hover{color:var(--pg-fg);background:var(--pg-soft)}
       .lp-anim svg{width:14px;height:14px}
 
-      /* ---- the bento: each component its own card, straight on a backdrop that runs the window's width, in stacks that end
-         at different heights; under each card its name, and a button that plays it again (on hover; always on a touch
-         screen). Each card's place keeps the room its tallest moment needs, so nothing moves while it plays ---- */
-      .lp .lp-bento-w{margin-top:80px;padding:56px 32px;border-radius:0}
+      /* ---- the bento: each component its own card, straight on the page, in stacks. A card is as tall as it is right now:
+         it grows and shrinks as its demo plays and pushes only the cards under it in its own stack, so no card ever has
+         room left empty under it (owner, 20 Nov: "let it live and grow") ---- */
+      .lp .lp-bento-w{margin-top:80px;padding:0 32px}
       .lp-bento{display:grid;grid-template-columns:minmax(0,1fr);gap:24px;max-width:1376px;margin:0 auto;align-items:start}
       .lp-stack{display:flex;flex-direction:column;gap:24px;min-width:0}
-      .lp-bt{display:flex;flex-direction:column;min-width:0;margin:0}
-      /* the card's place: as tall as it gets, open lists and popovers included, with its name under that room, so nothing
-         the card opens ever covers it */
-      .lp .lp-bt .lp-bc{display:block;flex:none;min-height:var(--bh,0px);padding:0}
+      .lp-bt{min-width:0}
+      .lp .lp-bt .lp-bc{display:block;min-height:0;padding:0}
+      /* until its component has loaded, a card's place is about as tall as the library measured it, so what is further down
+         the page (the templates, the wall's pictures) isn't brought near the view and loaded with the first screen */
+      .lp .lp-bt .lp-bc:empty{min-height:var(--ph,320px)}
       .lp .lp-bt .lp-bc>.card{display:block;width:100%;max-width:none}
       /* the card fills its stack: its own widest size (a max-width the component keeps for a stage) gives way here */
       .lp-bt .stage-in,.lp-bt .stage-in>*{max-width:none}
-      .lp-bt-f{display:flex;align-items:center;justify-content:space-between;gap:8px;height:28px;margin-top:8px;padding:0 0 0 4px}
-      .lp-bt-f a{font-size:13px;line-height:20px;font-weight:500;color:var(--pg-fg);text-decoration:none}
-      .lp-bt-f a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-color:color-mix(in srgb,var(--pg-fg) 40%,transparent)}
-      .lp-bt-f a:focus-visible{outline:2px solid var(--pg-focus);outline-offset:2px;border-radius:4px}
-      .lp-bt-f .lp-anim{width:28px;padding:0;opacity:0;transition:opacity 220ms var(--lp-ease),color 220ms var(--lp-ease),background-color 220ms var(--lp-ease)}
-      .lp-bt:hover .lp-bt-f .lp-anim,.lp-bt:focus-within .lp-bt-f .lp-anim{opacity:1}
-      @media (hover:none){.lp-bt-f .lp-anim{opacity:1}}
-      .lp-bt-f .lp-anim:focus-visible{outline:2px solid var(--pg-focus);outline-offset:0}
       @media (min-width:641px) and (max-width:1099px){.lp-bt{width:100%;max-width:720px;margin-inline:auto}}
       @media (min-width:1100px){
         .lp-bento{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);grid-template-rows:min-content 1fr}
@@ -300,7 +284,7 @@ const jsonld = [
         .lp-stack:nth-child(3){grid-column:auto}
       }
 
-      /* ---- screens: the templates, live in one frame on a backdrop, with the switch between them over it ---- */
+      /* ---- screens: the templates, live in one frame on the site's grey, with the switch between them over it ---- */
       .lp-show-bar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;margin-bottom:24px}
       .lp-show-bar .pg-seg{grid-column:2}
       .lp-show-bar .pg-seg button{height:32px;padding:0 14px}
@@ -313,28 +297,9 @@ const jsonld = [
       .lp-show .dvf-dev:not(.mobile){border-radius:var(--lp-r2)}
       .lp-show-ph{position:absolute;inset:0;display:grid;place-items:center;margin:0;color:var(--pg-dim);font-size:13px}
 
-      /* ---- a backdrop: soft washes of the accent and three of the chart colours from the corners, over the site's grey.
-         What sits on it keeps its own neutral surfaces and shadows. Fainter in dark mode and in Clean; Blueprint lays its
-         sheet's grid over it ---- */
-      .lp-art{--a1:var(--dm-accent);--a2:var(--dm-c2);--a3:var(--dm-c6);--a4:var(--dm-c5);--lp-k:1;position:relative;isolation:isolate;padding:56px;border-radius:var(--lp-r3);overflow:hidden;
-        background:
-          radial-gradient(64% 88% at 0% 0%,color-mix(in srgb,var(--a1) calc(52% * var(--lp-k)),transparent),transparent 72%),
-          radial-gradient(58% 82% at 100% 0%,color-mix(in srgb,var(--a2) calc(46% * var(--lp-k)),transparent),transparent 72%),
-          radial-gradient(62% 86% at 100% 100%,color-mix(in srgb,var(--a3) calc(42% * var(--lp-k)),transparent),transparent 72%),
-          radial-gradient(56% 80% at 0% 100%,color-mix(in srgb,var(--a4) calc(36% * var(--lp-k)),transparent),transparent 72%),
-          var(--pg-soft)}
-      .lp-art[data-art="sty"]{--a1:var(--dm-accent);--a2:var(--dm-c6);--a3:var(--dm-c2);--a4:var(--dm-c3)}
-      .lp-art[data-art="code"]{--a1:var(--dm-c2);--a2:var(--dm-c6);--a3:var(--dm-accent);--a4:var(--dm-c4)}
-      .lp-art[data-art="wall"]{--a1:var(--dm-c6);--a2:var(--dm-c2);--a3:var(--dm-accent);--a4:var(--dm-c4)}
-      .lp-art[data-art="bento"]{--a1:var(--dm-c2);--a2:var(--dm-c6);--a3:var(--dm-c5);--a4:var(--dm-accent)}
-      :root[data-style="clean"] .lp-art{--lp-k:.7}
-      :root[data-theme="dark"] .lp-art{--lp-k:.74}
-      :root[data-theme="dark"][data-style="clean"] .lp-art{--lp-k:.56}
-      @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .lp-art{--lp-k:.74}:root:not([data-theme="light"])[data-style="clean"] .lp-art{--lp-k:.56}}
-      :root:not([data-style="soft"],[data-style="clean"]) .lp-art::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background-image:linear-gradient(var(--lp-sheet) 1px,transparent 1px),linear-gradient(90deg,var(--lp-sheet) 1px,transparent 1px);background-size:32px 32px;background-position:-1px -1px}
-      .lp{--lp-sheet:rgba(20,20,12,.06)}
-      :root[data-theme="dark"] .lp{--lp-sheet:rgba(255,255,255,.045)}
-      @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .lp{--lp-sheet:rgba(255,255,255,.045)}}
+      /* ---- the site's grey behind the templates and the styles demo, as a component's stage has it ---- */
+      .lp-bg{position:relative;padding:56px;border-radius:var(--lp-r3);background:var(--pg-soft)}
+      :root[data-style="clean"] .lp-bg{background:var(--dm-stage)}
 
       /* ---- a window: a title bar, then what is in it ---- */
       .lp-win{position:relative;display:flex;flex-direction:column;max-width:1216px;margin:0 auto;border-radius:var(--lp-r2);background:var(--pg-bg);box-shadow:var(--dm-shadow-pop);overflow:hidden}
@@ -346,13 +311,16 @@ const jsonld = [
       .lp-bar a:focus-visible{outline:2px solid var(--pg-focus);outline-offset:2px;border-radius:4px}
       .lp-panes{display:grid;grid-template-columns:minmax(0,1fr);background:var(--pg-soft)}
       :root[data-style="clean"] .lp-panes{background:var(--dm-stage)}
-      :root:not([data-style="soft"],[data-style="clean"]) .lp-panes{background-image:linear-gradient(var(--lp-grid) 1px,transparent 1px),linear-gradient(90deg,var(--lp-grid) 1px,transparent 1px);background-size:24px 24px;background-position:-1px -1px}
       .lp-pane{display:flex;flex-direction:column;min-width:0}
 
-      /* ---- the wall: every component, four rows that drift in turn left and right across a backdrop the full width of the
-         window. A row holds still under the pointer or while a tile in it has the focus; with reduced motion the rows stand
-         still and scroll by hand ---- */
-      .lp .lp-rows{display:flex;flex-direction:column;gap:16px;padding:56px 0;border-radius:0}
+      /* ---- the wall: every component, four rows that drift in turn left and right across the site's grey the full width of
+         the window, fading out into the grey at both sides. A row holds still under the pointer or while a tile in it has the
+         focus; with reduced motion the rows stand still and scroll by hand ---- */
+      .lp .lp-rows{--lp-wg:var(--pg-soft);position:relative;display:flex;flex-direction:column;gap:16px;padding:56px 0;background:var(--lp-wg)}
+      :root[data-style="clean"] .lp .lp-rows{--lp-wg:var(--dm-stage)}
+      .lp-rows::before,.lp-rows::after{content:"";position:absolute;top:0;bottom:0;z-index:2;width:min(160px,12vw);pointer-events:none}
+      .lp-rows::before{left:0;background:linear-gradient(90deg,var(--lp-wg),transparent)}
+      .lp-rows::after{right:0;background:linear-gradient(270deg,var(--lp-wg),transparent)}
       /* each row clips the tiles that drift past its ends, with room above and below for their shadows */
       .lp-row{overflow:hidden;padding:16px 0;margin:-16px 0}
       .lp-track{display:flex;width:max-content;animation:lp-drift var(--dur,200s) linear infinite}
@@ -368,21 +336,21 @@ const jsonld = [
       @media (max-width:640px){.lp-wt{width:176px}.lp .lp-rows{padding:24px 0;margin:0}}
       @media (prefers-reduced-motion:reduce){.lp-track{animation:none}.lp-set[aria-hidden]{display:none}.lp-row{overflow-x:auto;scrollbar-width:none}.lp-row::-webkit-scrollbar{display:none}}
 
-      /* ---- styles: the three to pick from, and a demo beside them on a backdrop ---- */
-      .lp-sty{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:24px 48px;align-items:start}
-      .lp-opts{display:flex;flex-direction:column;gap:8px}
-      /* each style is a choice: white with a quiet edge, a stronger edge and a filled dot when it's picked */
-      .lp-opt{display:grid;grid-template-columns:16px minmax(0,1fr);gap:4px 12px;align-items:start;width:100%;padding:16px;border:0;border-radius:var(--lp-r2);background:var(--pg-bg);box-shadow:inset 0 0 0 1px var(--pg-line2);color:var(--pg-fg);font:inherit;text-align:left;cursor:pointer;transition:background-color 220ms var(--lp-ease),box-shadow 220ms var(--lp-ease)}
-      .lp-opt:hover{background:var(--pg-soft)}
-      .lp-opt[aria-checked="true"]{box-shadow:inset 0 0 0 1px var(--pg-field)}
-      .lp-opt .lp-dot{grid-row:span 3;width:16px;height:16px;margin-top:2px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--pg-field);transition:box-shadow 220ms var(--lp-ease),background-color 220ms var(--lp-ease)}
-      .lp-opt[aria-checked="true"] .lp-dot{background:var(--pg-fg);box-shadow:inset 0 0 0 4.5px var(--pg-fg),inset 0 0 0 16px var(--pg-bg)}
-      .lp-opt b{font-weight:500;font-size:14px;line-height:20px}
-      .lp-opt span:not(.lp-dot){font-size:14px;line-height:20px;color:var(--pg-dim)}
-      .lp-opt code{justify-self:start;margin-top:8px;font-size:12px}
-      .lp-opt:focus-visible{outline:2px solid var(--pg-focus);outline-offset:2px}
-      .lp-theme{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:16px;font-size:13px;color:var(--pg-muted)}
-      .lp-theme .pg-seg button{height:28px;padding:0 12px}
+      /* ---- styles: Light or Dark, then the three styles, each a switch of the site's own (.pg-seg), with the picked style's
+         line and its attribute under them; beside them the demo, alone on the site's grey ---- */
+      .lp-sty{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:32px 48px;align-items:center}
+      .lp-pick{display:flex;flex-direction:column;align-items:flex-start;gap:20px}
+      .lp-pk{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+      .lp-pkl{font-size:13px;line-height:20px;color:var(--pg-muted)}
+      .lp .lp-seg button{height:32px;padding:0 16px;font-size:14px}
+      .lp-sd{display:flex;flex-direction:column;align-items:flex-start;gap:12px;max-width:44ch}
+      .lp-sd[hidden]{display:none}
+      .lp-sd p{margin:0;font-size:14px;line-height:1.6;color:var(--pg-dim)}
+      .lp-sd code{font-size:12px}
+      .lp-stg{padding:0;overflow:hidden}
+      .lp-stg .lp-rp{position:absolute;top:12px;right:12px;z-index:3;width:28px;padding:0;opacity:0;transition:opacity 220ms var(--lp-ease),color 220ms var(--lp-ease),background-color 220ms var(--lp-ease)}
+      .lp-stg:hover .lp-rp,.lp-stg:focus-within .lp-rp{opacity:1}
+      @media (hover:none){.lp-stg .lp-rp{opacity:1}}
       @media (max-width:1099px){.lp-sty{grid-template-columns:minmax(0,1fr)}}
 
       /* ---- install: the command for each way to add it, centred, then the editor of what it writes ---- */
@@ -403,10 +371,11 @@ const jsonld = [
       .lp-copy{flex:none;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border:0;border-radius:999px;background:var(--pg-bg);color:var(--pg-fg);box-shadow:inset 0 0 0 1px var(--pg-line2);font:500 13px/1 var(--pg-sans);cursor:pointer;transition:background-color 220ms var(--lp-ease)}
       .lp-copy:hover{background:var(--pg-chip)}
       .lp-copy svg{width:14px;height:14px}
-      .lp-tp>p{margin:16px 0 0;text-align:center;font-size:14px;line-height:1.6;color:var(--pg-dim)}
+      .lp-tp>p{margin:16px 0 0;text-align:center;font-size:14px;line-height:1.6;color:var(--pg-dim);text-wrap:balance}
       /* the editor: the files on the left as a tree (the component's own, then the shared ones it adds once per project),
          the first lines of the one picked in the middle, and the component they make on the right, live */
       .lp-ed-art{margin-top:48px}
+      .lp-ed-art .lp-win{max-width:1216px}
       .lp-ed .lp-bar{justify-content:flex-start}
       .lp .lp-ed .lp-bar code{font-size:12px}
       .lp-ed-b{display:grid;grid-template-columns:248px minmax(0,1fr);grid-template-areas:"tree code" "pv pv"}
@@ -447,7 +416,6 @@ const jsonld = [
       .lp-pv{grid-area:pv;display:flex;flex-direction:column;min-width:0;background:var(--pg-soft);box-shadow:inset 0 1px 0 var(--lp-hair)}
       @media (min-width:1100px){.lp-pv{box-shadow:inset 1px 0 0 var(--lp-hair)}}
       :root[data-style="clean"] .lp-pv{background:var(--dm-stage)}
-      :root:not([data-style="soft"],[data-style="clean"]) .lp-pv{background-image:linear-gradient(var(--lp-grid) 1px,transparent 1px),linear-gradient(90deg,var(--lp-grid) 1px,transparent 1px);background-size:24px 24px;background-position:-1px -1px}
       .lp-pvh{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px;padding:8px 8px 8px 16px;box-shadow:inset 0 -1px 0 var(--lp-hair);font-size:12px;line-height:20px;color:var(--pg-muted)}
       @media (max-width:640px){.lp-ed-b{grid-template-columns:minmax(0,1fr);grid-template-areas:"tree" "code" "pv"}.lp-tree{box-shadow:inset 0 -1px 0 var(--lp-hair)}.lp-code{height:400px}}
       .lp-prompt{position:relative}
@@ -458,39 +426,49 @@ const jsonld = [
       /* on a phone the tabs lose their marks so all four fit, and the prompt starts under its Copy button */
       @media (max-width:640px){.lp-tl .cp-mk{display:none}.lp-tl button{padding:0 8px}.lp-tl button::after{left:8px;right:8px}.lp-prompt pre{padding:52px 16px 16px}}
 
-      /* ---- the wall's buttons, and DesignMe at the end ---- */
+      /* ---- the wall's buttons ---- */
       .lp-sh .lp-cta{justify-content:center;margin-top:8px}
       :root[data-lp-h="small"] .lp-sh .lp-cta{grid-column:2;justify-content:flex-start;margin-top:0}
       @media (max-width:860px){:root[data-lp-h="small"] .lp-sh .lp-cta{grid-column:1}}
       .lp-gh svg{width:16px;height:16px}
-      .lp-work{max-width:640px;margin:120px auto 0;text-align:center}
-      .lp-work p{text-wrap:balance}
-      .lp-work h3{margin:0;font-size:14px;line-height:20px;font-weight:500}
-      .lp-work p{margin:8px 0 0;font-size:14px;line-height:1.6;color:var(--pg-dim)}
-      .lp-work .lp-cta{justify-content:center;margin-top:20px}
-      /* Book a call, the site's own: a rectangle with the fields' squircle corners, as tall as the buttons beside it */
-      .lp-book{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 14px 0 16px;border-radius:10px;background:var(--pg-bg);box-shadow:inset 0 0 0 1px var(--pg-line2);color:var(--pg-fg);font-size:14px;font-weight:500;text-decoration:none;transition:background-color 220ms var(--lp-ease)}
-      @supports (corner-shape:squircle){.lp-book{corner-shape:squircle;border-radius:16px}}
-      .lp-book:hover{background:var(--pg-chip)}
+
+      /* ---- the last word: DesignMe's Book a call, the site's own squircle rectangle, on the accent as a primary button,
+         and the address beside it ---- */
+      .lp-work{padding-bottom:var(--lp-sec)}
+      .lp-work .lp-cta{justify-content:center;align-items:center;gap:8px 16px;margin-top:0}
+      .lp .lp-book{border-radius:10px}
+      @supports (corner-shape:squircle){.lp .lp-book{corner-shape:squircle;border-radius:16px}}
       .lp-mail{display:inline-flex;align-items:center;height:40px;font-size:14px;color:var(--pg-dim)}
       .lp-mail a{margin-left:4px;color:var(--pg-fg)}
 
-      /* ---- questions: a plain list that opens one answer at a time ---- */
-      .lp-faq{max-width:760px;margin:0 auto}
+      /* ---- questions: the heading on the left, kept in view while the list scrolls past, and the list on the right; an
+         answer opens smoothly, with Clean's easing (instantly with reduced motion) ---- */
+      .lp-qa{display:grid;grid-template-columns:minmax(0,1fr);gap:40px}
+      .lp-faq{min-width:0;interpolate-size:allow-keywords}
       .lp-faq details{border-bottom:1px solid var(--lp-hair)}
       .lp-faq details:first-child{border-top:1px solid var(--lp-hair)}
-      .lp-faq summary{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:56px;padding:16px 0;font-size:14px;line-height:20px;font-weight:500;cursor:pointer;list-style:none}
+      .lp-faq summary{display:flex;align-items:center;justify-content:space-between;gap:24px;min-height:64px;padding:20px 0;font-size:14px;line-height:24px;font-weight:500;cursor:pointer;list-style:none;transition:color 220ms var(--lp-ease)}
       .lp-faq summary::-webkit-details-marker{display:none}
-      .lp-faq summary::after{content:"";flex:none;width:7px;height:7px;margin-right:4px;border-right:1.5px solid var(--pg-muted);border-bottom:1.5px solid var(--pg-muted);transform:translateY(-2px) rotate(45deg);transition:transform 220ms var(--lp-ease)}
+      .lp-faq summary::after{content:"";flex:none;width:7px;height:7px;margin-right:4px;border-right:1.5px solid var(--pg-muted);border-bottom:1.5px solid var(--pg-muted);transform:translateY(-2px) rotate(45deg);transition:transform 340ms var(--lp-ease)}
       .lp-faq details[open] summary::after{transform:translateY(2px) rotate(225deg)}
       .lp-faq summary:hover{color:var(--pg-dim)}
-      .lp-faq p{margin:0;padding:0 32px 20px 0;font-size:14px;line-height:1.65;color:var(--pg-dim)}
-      .lp-end{height:var(--lp-sec)}
+      .lp-faq summary:focus-visible{outline:2px solid var(--pg-focus);outline-offset:2px;border-radius:4px}
+      .lp-fa p{margin:0;padding:0 40px 24px 0;max-width:64ch;font-size:14px;line-height:1.7;color:var(--pg-dim)}
+      @media (prefers-reduced-motion:no-preference){
+        .lp-faq details::details-content{height:0;overflow:clip;opacity:0;transition:height 340ms var(--lp-ease),opacity 220ms var(--lp-ease),content-visibility 340ms allow-discrete}
+        .lp-faq details[open]::details-content{height:auto;opacity:1}
+      }
+      @media (min-width:961px){
+        .lp-qa{grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:48px;align-items:start}
+        .lp-qa .lp-qh{position:sticky;top:calc(var(--pg-head) + 48px);align-items:flex-start;max-width:none;margin:0;text-align:left}
+        :root[data-lp-h="small"] .lp-qa .lp-qh{display:flex;padding-top:0;border-top:0}
+      }
+      .lp-end{height:0}
 
       /* smaller screens: the backdrops' room shrinks first, then the page's edges and the room between sections; on a phone
          a backdrop runs to the window's edges */
-      @media (max-width:1199px){.lp-art{padding:32px}}
-      @media (max-width:960px){.lp{--lp-sec:120px}.lp-in{padding-inline:24px}.lp-hero{padding-top:80px}.lp .lp-bento-w{margin-top:64px;padding:48px 24px}}
+      @media (max-width:1199px){.lp-bg{padding:32px}.lp-bg.lp-stg{padding:0}}
+      @media (max-width:960px){.lp{--lp-sec:120px}.lp-in{padding-inline:24px}.lp-hero{padding-top:80px}.lp .lp-bento-w{margin-top:64px;padding:0 24px}}
       @media (max-width:640px){
         .lp{--lp-sec:96px}
         .lp-in{padding-inline:16px}
@@ -498,9 +476,11 @@ const jsonld = [
         .pg-h1.lp-h1{font-size:36px}
         .lp-sh{margin-bottom:40px;gap:12px}
         .lp-sh h2{font-size:28px}
-        .lp .lp-bento-w{margin:48px 0 0;padding:32px 16px}
+        .lp .lp-bento-w{margin:48px 0 0;padding:0 16px}
         .lp-bento,.lp-stack{gap:20px}
-        .lp-art{margin:0 -16px;padding:16px;border-radius:0}
+        .lp-bg{margin:0 -16px;padding:16px;border-radius:0}
+        .lp-bg.lp-stg{padding:0}
+        .lp-ed-art{margin-top:32px}
         .lp-demo{padding:48px 16px}
         .lp-cta .lp-btn{flex:1 1 auto}
         .lp-show{aspect-ratio:auto;height:600px;background:transparent;box-shadow:none}
@@ -510,10 +490,9 @@ const jsonld = [
         .lp-open{grid-column:2}
         .lp-ed-art{margin-top:32px}
         .lp-agent{margin-top:72px}
-        .lp-work{margin-top:96px}
       }
       @media (max-width:380px){.pg-h1.lp-h1{font-size:32px}}
-      @media (prefers-reduced-motion:reduce){.lp-tl button::after,.lp-faq summary::after,.lp-opt,.lp-opt .lp-dot,.lp-more .lp-ar,.lp-wt,.lp-bar a,.lp-anim,.lp-bt-f a,button.lp-tr{transition:none}}
+      @media (prefers-reduced-motion:reduce){.lp-tl button::after,.lp-faq summary::after,.lp-more .lp-ar,.lp-wt,.lp-bar a,.lp-anim,button.lp-tr{transition:none}}
     </style>
   </Fragment>
 
@@ -527,26 +506,25 @@ const jsonld = [
       </div>
     </section>
 
-    <section class="lp-bento-w lp-art" data-art="bento" id="live" aria-label="Components, live">
+    <section class="lp-bento-w" id="live" aria-label="Components, live">
       <div class="lp-bento">
-        {BENTO.map(stack => <div class="lp-stack">{stack.map(c => <figure class="lp-bt" role="group" aria-label={`${c.title} demo`} style={bentoVars(c)}>
-          <div class="lp-demo lp-bc" data-reg={c.reg} data-url={c.url}></div>
-          <figcaption class="lp-bt-f"><a href={c.url}>{c.title}</a><button type="button" class="lp-anim" data-replay aria-label={`Play ${c.title} again`}><Fragment set:html={replayIcon} /></button></figcaption>
-        </figure>)}</div>)}
+        {BENTO.map(stack => <div class="lp-stack">{stack.map(c => <div class="lp-bt" role="group" aria-label={`${c.title}, live`}>
+          <div class="lp-demo lp-bc" data-reg={c.reg} data-url={c.url} style={`--ph:${heights(c, 'soft')[0]}px`}></div>
+        </div>)}</div>)}
       </div>
     </section>
 
     <section class="lp-in lp-sec" id="screens" aria-labelledby="screens-h">
       <div class="lp-sh">
         <h2 id="screens-h">Whole apps, made of the components</h2>
-        <p>Two templates, live: a sales CRM with an agent beside the rep, and an agent workflow editor. Open either and take it apart.</p>
+        <p>Two templates, live: a sales CRM with an agent beside the rep, and an agent workflow editor.</p>
       </div>
       <div class="lp-show-w">
         <div class="lp-show-bar">
           <div class="pg-seg lp-tpls" role="radiogroup" aria-label="Templates">{TEMPLATES.map((t, i) => <button type="button" role="radio" aria-checked={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1} data-tpl={i}>{t.name}</button>)}</div>
           <a class="lp-more lp-open" href={TEMPLATES[0].url} target="_blank" rel="noopener" aria-label={`Open ${TEMPLATES[0].name}, opens in a new tab`}>Open<Fragment set:html={arrow} /></a>
         </div>
-        <div class="lp-art" data-art="hero">
+        <div class="lp-bg">
           <div class="lp-show dvf" role="group" aria-roledescription="template" aria-label={`${TEMPLATES[0].name}, live`} data-tpls={JSON.stringify(TEMPLATES)}><p class="lp-show-ph">{TEMPLATES[0].name}, live</p></div>
         </div>
       </div>
@@ -555,13 +533,13 @@ const jsonld = [
     <section class="lp-sec lp-wall" id="all" aria-labelledby="all-h">
       <div class="lp-in"><div class="lp-sh">
         <h2 id="all-h">All {total} components</h2>
-        <p>{nAgent} for the agent and {nBasics} app basics around it, each with a page of its own: its demo, install command, props and code.</p>
+        <p>{nAgent} for the agent and {nBasics} app basics around it, each with its own page, demo and code.</p>
         <div class="lp-cta">
           <a class="pill primary lp-btn" href="/library">Browse the library<Fragment set:html={arrow} /></a>
           <a class="pill line lp-btn lp-gh" href={GITHUB}><Fragment set:html={GH_MARK} />Star on GitHub</a>
         </div>
       </div></div>
-      <div class="lp-rows lp-art" data-art="wall">
+      <div class="lp-rows">
         {ROWS.map((row, i) => <div class:list={['lp-row', { rev:i % 2 === 1 }]} style={`--dur:${[210, 240, 225, 255][i]}s`}>
           <div class="lp-track">
             <div class="lp-set">{row.map(c => <a class="lp-wt" href={c.url} data-reg={c.reg}><img alt="" width="480" height="300" loading="lazy" decoding="async"><span>{c.title}</span></a>)}</div>
@@ -570,15 +548,18 @@ const jsonld = [
         </div>)}
       </div>
       <script is:inline>
-      // each picture in the style and theme on screen (tools/pages/wall.mjs takes a set of each), swapped when either changes
+      // each picture in the style and theme on screen (tools/pages/wall.mjs takes a set of each), swapped when either changes.
+      // The pictures are asked for once the wall comes within a screen of the view, not with the first screen
       (function(){
-        var root = document.documentElement, mq = matchMedia('(prefers-color-scheme: dark)'), imgs = [].slice.call(document.querySelectorAll('.lp-wt img'));
-        var set = function(){
+        var root = document.documentElement, mq = matchMedia('(prefers-color-scheme: dark)'), imgs = [].slice.call(document.querySelectorAll('.lp-wt img')), near = false;
+        var set = function(){ if (!near) return;
           var s = root.getAttribute('data-style'), t = root.getAttribute('data-theme') || (mq.matches ? 'dark' : 'light');
           var dir = '/components/wall/' + (s === 'soft' || s === 'clean' ? s : 'bp') + '-' + (t === 'dark' ? 'dark' : 'light') + '/';
           imgs.forEach(function(i){ var u = dir + i.parentNode.getAttribute('data-reg') + '.webp'; if (i.getAttribute('src') !== u) i.setAttribute('src', u); });
         };
-        set();
+        var rows = document.querySelector('.lp-rows');
+        if ('IntersectionObserver' in window && rows){ var io = new IntersectionObserver(function(es){ if (!es[es.length - 1].isIntersecting) return; io.disconnect(); near = true; set(); }, { rootMargin:'100% 0px' }); io.observe(rows); }
+        else { near = true; set(); }
         new MutationObserver(set).observe(root, { attributes:true, attributeFilter:['data-style', 'data-theme'] });
         if (mq.addEventListener) mq.addEventListener('change', set);
       })();
@@ -588,20 +569,23 @@ const jsonld = [
     <section class="lp-in lp-sec" id="styles" aria-labelledby="styles-h">
       <div class="lp-sh">
         <h2 id="styles-h">Three styles, light and dark</h2>
-        <p>One set of components, drawn three ways. Pick one and this whole page changes with it, demos and all. In your project, an attribute on <code>&lt;html&gt;</code> does the same.</p>
+        <p>One set of components, drawn three ways. Pick one and this whole page follows, demos and all.</p>
       </div>
       <div class="lp-sty">
-        <div>
-          <div class="lp-opts" role="radiogroup" aria-labelledby="styles-h">
-            {STYLES.map(([v, n, d, code]) => <button type="button" class="lp-opt" role="radio" aria-checked="false" data-style-set={v}><span class="lp-dot" aria-hidden="true"></span><b>{n}</b><span>{d}</span><code>{code}</code></button>)}
+        <div class="lp-pick">
+          <div class="lp-pk">
+            <span class="lp-pkl" id="lp-theme-l">Theme</span>
+            <div class="pg-seg lp-seg" role="radiogroup" aria-labelledby="lp-theme-l"><button type="button" role="radio" aria-checked="false" data-theme-set="light">Light</button><button type="button" role="radio" aria-checked="false" data-theme-set="dark">Dark</button></div>
           </div>
-          <div class="lp-theme"><span id="lp-theme-l">Each in light or dark</span><div class="pg-seg" role="radiogroup" aria-labelledby="lp-theme-l"><button type="button" role="radio" aria-checked="false" data-theme-set="light">Light</button><button type="button" role="radio" aria-checked="false" data-theme-set="dark">Dark</button></div></div>
+          <div class="lp-pk">
+            <span class="lp-pkl" id="lp-style-l">Style</span>
+            <div class="pg-seg lp-seg" role="radiogroup" aria-labelledby="lp-style-l">{STYLES.map(([v, n]) => <button type="button" role="radio" aria-checked="false" data-style-set={v}>{n}</button>)}</div>
+          </div>
+          {STYLES.map(([v, , d, code]) => <div class="lp-sd" data-for={v} hidden={v !== 'bp'}><p>{d}</p><code>{code}</code></div>)}
         </div>
-        <div class="lp-art" data-art="sty">
-          <div class="lp-win" role="group" aria-label={`${STYLE_DEMO.title}, live`}>
-            <div class="lp-bar"><span class="lp-bar-l"><a href={STYLE_DEMO.url}>{STYLE_DEMO.title}</a></span><button type="button" class="lp-anim" data-replay><Fragment set:html={replayIcon} />Animate</button></div>
-            <div class="lp-panes"><div class="lp-pane" role="group" aria-label={`${STYLE_DEMO.title} demo`}><div class="lp-demo stage-inner" data-reg={STYLE_DEMO.reg} data-url={STYLE_DEMO.url} style={stageVars(STYLE_DEMO)}></div></div></div>
-          </div>
+        <div class="lp-bg lp-stg" role="group" aria-label={`${STYLE_DEMO.title}, live`}>
+          <button type="button" class="lp-anim lp-rp" data-replay aria-label={`Play ${STYLE_DEMO.title} again`}><Fragment set:html={replayIcon} /></button>
+          <div class="lp-demo stage-inner" data-reg={STYLE_DEMO.reg} data-url={STYLE_DEMO.url} style={stageVars(STYLE_DEMO)}></div>
         </div>
       </div>
     </section>
@@ -609,7 +593,7 @@ const jsonld = [
     <section class="lp-in lp-sec" id="install" aria-labelledby="install-h">
       <div class="lp-sh">
         <h2 id="install-h">One command, and the code is yours</h2>
-        <p>The designme CLI copies a component's source into your project, one file for each part, so you own it and can change anything. It needs Node 18 or later.</p>
+        <p>The CLI copies a component into your project, one file for each part, so the code is yours.</p>
         <a class="lp-more" href="/docs/installation">Installation<Fragment set:html={arrow} /></a>
       </div>
       <div class="lp-add">
@@ -620,7 +604,7 @@ const jsonld = [
             <p>{note}</p>
           </div>)}
         </div>
-        <div class="lp-art lp-ed-art" data-art="code">
+        <div class="lp-ed-art">
           <div class="lp-win lp-ed" role="group" aria-label="The files it writes, and the component they make">
             <div class="lp-bar"><span class="lp-bar-l">{INSTALL.map(([id], i) => { const f = FILES[id]; return <span data-tab={id} hidden={i !== 0}>{f.alias ? 'It writes, into the components folder of your shadcn/ui project' : <Fragment>It writes, into <code>{f.root}</code>{id !== 'html' && <Fragment> (<code>components/designme/</code> without a src folder)</Fragment>}</Fragment>}</span>; })}</span></div>
             <div class="lp-ed-b">
@@ -658,19 +642,24 @@ const jsonld = [
     </section>
 
     <section class="lp-in lp-sec" id="faq" aria-labelledby="faq-h">
-      <div class="lp-sh">
-        <h2 id="faq-h">Questions</h2>
-        <p>What people ask before they start.</p>
-        <a class="lp-more" href="/library#/faq">More in the FAQ<Fragment set:html={arrow} /></a>
-      </div>
-      <div class="lp-faq">{FAQ.map(([q, a]) => <details><summary>{q}</summary><p set:html={md(a)} /></details>)}</div>
-      <div class="lp-work" id="work">
-        <h3>Want it designed into your product?</h3>
-        <p>DesignMe made designme.dev. We give expert design and dev support to startups and enterprises, from Astro sites to React apps and AI products.</p>
-        <div class="lp-cta">
-          <a class="lp-book" href={BOOK} target="_blank" rel="noopener">Book a call<Fragment set:html={arrow} /></a>
-          <span class="lp-mail">or write to<a href="mailto:hello@designme.agency">hello@designme.agency</a></span>
+      <div class="lp-qa">
+        <div class="lp-sh lp-qh">
+          <h2 id="faq-h">Questions</h2>
+          <p>What people ask before they start.</p>
+          <a class="lp-more" href="/library#/faq">More in the FAQ<Fragment set:html={arrow} /></a>
         </div>
+        <div class="lp-faq">{FAQ.map(([q, a]) => <details><summary>{q}</summary><div class="lp-fa"><p set:html={md(a)} /></div></details>)}</div>
+      </div>
+    </section>
+
+    <section class="lp-in lp-sec lp-work" id="work" aria-labelledby="work-h">
+      <div class="lp-sh">
+        <h2 id="work-h">Want it designed into your product?</h2>
+        <p>DesignMe made designme.dev. We design and build AI products, React apps and Astro sites.</p>
+      </div>
+      <div class="lp-cta">
+        <a class="pill primary lp-btn lp-book" href={BOOK} target="_blank" rel="noopener">Book a call<Fragment set:html={arrow} /></a>
+        <span class="lp-mail">or write to<a href="mailto:hello@designme.agency">hello@designme.agency</a></span>
       </div>
     </section>
     <div class="lp-end" aria-hidden="true"></div>
@@ -704,7 +693,7 @@ const jsonld = [
       [].slice.call(document.querySelectorAll('.lp-demo[data-reg]')).forEach(function(box){ near.observe(box); });
       // a replay button plays every demo in its tile or window again, from the start, including one the visitor has taken over
       document.querySelectorAll('[data-replay]').forEach(function(b){ b.addEventListener('click', function(){
-        b.closest('.lp-bt, .lp-win').querySelectorAll('.lp-demo > .card[data-c]').forEach(function(card){ if (DM.defs[card.dataset.c]) DM.mount(card); });
+        b.closest('.lp-stg, .lp-win').querySelectorAll('.lp-demo > .card[data-c]').forEach(function(card){ if (DM.defs[card.dataset.c]) DM.mount(card); });
       }); });
       // a new style starts the demos that are playing again, as a component page does; one the visitor has taken over stays
       // theirs until it is played again
@@ -731,7 +720,7 @@ const jsonld = [
         box.setAttribute('aria-label', t.name + ', live');
         // the page's file, so it loads from any static server (Cloudflare Pages sends it on to the page's own address,
         // keeping ?embed=1; the page also knows it is framed here)
-        v.show(t.url + '.html?embed=1', phone.matches ? 'mobile' : 'desktop');
+        v.show(t.url + '.html?embed=1' + (t.at || ''), phone.matches ? 'mobile' : 'desktop');
       };
       var begin = function(){ if (started) return; started = true; show(at);
         setInterval(function(){ if (done || held || !seen || document.hidden || box.matches(':hover')) return; show((at + 1) % T.length); }, 9000); };
@@ -747,9 +736,12 @@ const jsonld = [
       if (reduce.addEventListener) reduce.addEventListener('change', function(){ if (reduce.matches) stop(); });
     })();
     (function(){
-      // the styles to pick from are one group of radio buttons: the arrow keys move through them and pick (the header's
-      // script handles every [data-style-set])
-      document.querySelectorAll('.lp-opts[role="radiogroup"]').forEach(function(g){ g.addEventListener('keydown', function(e){
+      // the theme and the style are each one group of radio buttons: the arrow keys move through them and pick (the header's
+      // script handles every [data-theme-set] and [data-style-set]). Under the styles, the picked one's line and attribute
+      var sd = [].slice.call(document.querySelectorAll('.lp-sd'));
+      var showStyle = function(){ var s = document.documentElement.getAttribute('data-style'); s = s === 'soft' || s === 'clean' ? s : 'bp'; sd.forEach(function(x){ x.hidden = x.dataset.for !== s; }); };
+      showStyle(); new MutationObserver(showStyle).observe(document.documentElement, { attributes:true, attributeFilter:['data-style'] });
+      document.querySelectorAll('.lp-pick [role="radiogroup"]').forEach(function(g){ g.addEventListener('keydown', function(e){
         var d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
         var bs = [].slice.call(g.querySelectorAll('[role="radio"]')), i = bs.indexOf(document.activeElement);
         if (!d || i < 0) return; e.preventDefault(); var n = bs[(i + d + bs.length) % bs.length]; n.click(); n.focus();

@@ -22,19 +22,21 @@ like `library.html`.
 
 `src/pages/index.astro` is the page at `/`: full width, with the site's header and footer and no sidebar. It shows what
 the library is with the components themselves: a centred title, one line and two buttons; right under them, a bento of
-twelve of the library's most distinctive components playing live, mostly the agent's own, each its own card straight on a
-backdrop, in stacks that end at different heights (no row of metric cards; each place keeps the room `bento.mjs` measured
-for its card, in `data/bento-heights.json`); the two templates, live in one frame with a switch over it and taking turns (`src/device/frame.js`, with each
-template's `?embed=1`, which hides its header); a wall of every component, rows of pictures that drift in turn left and
-right, each linking to its page; Blueprint, Soft and Clean to pick from (a pick restyles the whole page, the templates and
-the wall's pictures included); how to install, with the files `npx designme add` writes in an editor (each file's name,
-length and first lines, read from the registry, beside the component they make, live); and questions, then Book a call. Its section headings are large and centred (the landing page's exception to the 14px type rule;
-`/?headings=small` shows them at 14px). The bento, the templates, the wall, the styles demo and the editor sit on backdrops of soft
-colour washes made from the accent and the chart palette, so they follow the style, the theme and a picked accent. Each
-demo is the installed HTML, CSS and JS on the shared core, as on a component page, loaded from the registry
-(`/r/<name>.json`) when it comes within a screen of the view; each stage fits the tallest its component gets in the style
-on screen (`tools/site/card-heights.json`), so nothing below it moves while it plays. Its counts come from the library's
-sections.
+twelve of the library's most distinctive components playing live, mostly the agent's own, each its own card on the page in
+one of three stacks (no row of metric cards). A card is as tall as it is right now and grows and shrinks as it plays,
+pushing only what is under it in its stack, so no card has room left empty under it. Then the two templates, live in one
+frame on the site's grey with a switch over it, taking turns (`src/device/frame.js`, with each template's `?embed=1`, which
+hides its header; the Workflow editor opens on its last test run); a wall of every component on the grey, rows of pictures
+that drift in turn left and right and fade out at both sides, each linking to its page; Light or Dark and Blueprint, Soft
+or Clean as two switches beside a demo (a pick restyles the whole page, the templates and the wall's pictures included);
+how to install, with the files `npx designme add` writes in an editor (each file's name, length and first lines, read from
+the registry, beside the component they make, live); questions, the heading kept in view beside the list; and DesignMe's
+Book a call. Its section headings are large and centred (the landing page's exception to the 14px type rule;
+`/?headings=small` shows them at 14px). There are no gradients: the page is white, with the site's grey behind the
+templates, the wall and the styles demo. Each demo is the installed HTML, CSS and JS on the shared core, as on a component
+page, loaded from the registry (`/r/<name>.json`) when it comes within a screen of the view; outside the bento, each stage
+fits the tallest its component gets in the style on screen (`tools/site/card-heights.json`), so nothing below it moves
+while it plays. Its counts come from the library's sections.
 
 ## What each page shows
 
@@ -91,18 +93,6 @@ PW=$(npm root -g)/playwright node wall.mjs [names]    # needs ffmpeg
 PW=$(npm root -g)/playwright BEST=1 node wall.mjs live-answer response-versions rich-text-editor answer-action-bar toast-stack status-pill thinking-states web-search agent-harness date-picker context-switcher step-loader toast thinking
 ```
 
-`bento.mjs` measures the landing page's bento: each component there is its own card, as wide as its stack, so the room its
-place keeps is its own height on that page, not the library's. It plays every card at both ends of each layout's widths
-(three stacks from 1440px, two from 1100px, one from 641px, and each phone band), in each style, and writes the most each
-one drew below its top, open lists and popovers included, to `data/bento-heights.json`, which the page reads. Measure again,
-then build, when a component in the bento changes its look or its demo, or the bento changes; `VERIFY=1` plays the page as
-built and reports any card that reached past its place or whose place grew:
-
-```sh
-npm run build && PW=$(npm root -g)/playwright node bento.mjs && npm run build
-PW=$(npm root -g)/playwright VERIFY=1 node bento.mjs
-```
-
 `og.mjs` draws the site's share image, `og.png` at the repository root (1200×630), which a link to the landing page or the
 library shows: the count and the title beside a wall of real agent components in Blueprint dark, each the installed
 component on the shared core, stopped at a moment that shows it whole. Draw it again when the count changes or one of its
@@ -137,8 +127,7 @@ file still gets a page, with its one-line description.
   written copy. `src/pages/docs/[slug].md.ts` writes their Markdown copies.
 - `src/pages/components/[slug].md.ts` writes the Markdown copies;
   `src/pages/components/assets/` the shared core for the demos; `src/pages/sitemap.xml.ts` the sitemap.
-- `shots.mjs` takes the pictures, `wall.mjs` the landing page's wall, `bento.mjs` measures its bento and `og.mjs` draws the
-  share image (see above).
+- `shots.mjs` takes the pictures, `wall.mjs` the landing page's wall and `og.mjs` draws the share image (see above).
 - `publish.mjs` copies the build (`index.html`, `components/`, `docs/` and `sitemap.xml`) to the repository root and stops if the build holds
   anything it doesn't expect.
 
