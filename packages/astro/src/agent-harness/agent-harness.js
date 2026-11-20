@@ -7,9 +7,12 @@ DM.def('harness', (r, c) => {
   r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) => IC[k] || m);
   const root = $('.ahx', r), main = $('.ahx-main', r), list = $('.ahx-list', r), tabsEl = $('.ahx-tabs', r), feed = $('.ahx-feed', r), cols = $('.ahx-cols', r);
   const bot = $('.ahx-bot', r), pane = $('.ahx-pane', r), wsp = $('.ahx-wsp', r);
-  const pill = $('.ahx-spl .spl-pill', r), pin = $('.spl-in', pill);
   // the templates live on the components' own cards: here and on designme.dev every card is on the page; on your own page, add the cards it uses
   const tplOf = k => { const card = $(`.card[data-c="${k}"], .comp[data-v2="${k}"]`); return card && DM.tpl(card); };
+  // the line beside the tabs is Status pill's own pill, taken from its card as the composer and the context ring are, so the
+  // Status pill (and how it looks) comes along wherever the harness goes
+  { const spT = tplOf('status-pill'), sp = spT && $('.spl-pill', spT.content); if (sp) $('.ahx-spl .spl-pill', r).replaceWith(sp.cloneNode(true)); }
+  const pill = $('.ahx-spl .spl-pill', r), pin = $('.spl-in', pill);
   const BOXED = ['artifact-card'];
   const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
   /* a clock of its own: a past chat replays at speed out of sight, so opening it shows its end at once.
@@ -128,8 +131,9 @@ DM.def('harness', (r, c) => {
       await t.until(() => { t.status(...($('.lva-p', la) ? ['run', 'Answering'] : ['think', 'Thinking'])); return $('.lva-fu', la); });
       t.ctx(19); await t.wait(700);
       await t.say("I also put last quarter's churn numbers in a doc you can share with the team.");
-      t.status('run', 'Writing the doc'); t.doc(t.comp('artifact-card')); t.ctx(24);
-      await t.wait(4600); t.end('Answered', '3 sources');
+      t.status('run', 'Writing the doc'); const af = t.comp('artifact-card'); t.doc(af); t.ctx(24);
+      await t.until(() => !$('.afx', af) || ($('.afx-open', af) && !$('.is-writing', af)));
+      await t.wait(400); t.end('Answered', '3 sources');
     } },
     annual:{ ask:'Why do annual plans convert better for us?', title:'Why annual converts', nt:'Annual vs monthly conversion', ic:'coins', end:{ g:'ok', t:'Answered', m:'8 sources' }, ctx:17, run:async t => {
       await t.ask(); t.ctx(8);
@@ -422,7 +426,9 @@ DM.def('harness', (r, c) => {
   $('.ahx-hi span', r).textContent = hr < 5 || hr >= 18 ? 'Good evening' : hr < 12 ? 'Good morning' : 'Good afternoon';
   function start(text, files, s){
     if (!at || at.cv) return;
-    // a chat started now gets a title of its own, beside the past chat of the same story
+    // a chat started now gets a title of its own, beside the past chat of the same story (a message that is one of the stories'
+    // own asks takes that story's title, as the React harness does)
+    s = s || KEYS.find(k => S[k].ask === text);
     const title = s ? S[s].nt : (w => w ? w[0].toUpperCase() + w.slice(1) : 'New chat')(text.replace(/[.?!][\s\S]*$/, '').split(/\s+/).slice(0, 5).join(' '));
     const cv = conv(title, { state:'run' });
     CV.unshift(cv); list.prepend(row(cv)); enter(cv.row); filter();
@@ -461,9 +467,9 @@ DM.def('harness', (r, c) => {
     const v = CHURN.versions[i], M = ['April','May','June','July','August','September'], last = v.b[v.b.length - 1], top = Math.max(...v.b), id = 'ahx-g' + Math.random().toString(36).slice(2, 8);
     const p = v.b.map((x, k) => [k / (v.b.length - 1) * 300, 52 - (x - 2.6) / 3.6 * 46]);
     const d = p.reduce((s, q, k, a) => { if (!k) return `M${q[0]} ${q[1]}`; const p0 = a[k - 2] || a[k - 1], p1 = a[k - 1], p3 = a[k + 1] || q, t = .18; return s + ` C${p1[0] + (q[0] - p0[0]) * t} ${p1[1] + (q[1] - p0[1]) * t} ${q[0] - (p3[0] - p1[0]) * t} ${q[1] - (p3[1] - p1[1]) * t} ${q[0]} ${q[1]}`; }, '');
-    return html(`<div class="ahx-doc"><div class="ahx-dh">${CHURN.title}</div><div class="ahx-dp">${v.summary}</div><div class="ahx-kp"><b class="num">${last.toFixed(1)}%</b><span class="ahx-dd">−${(top - last).toFixed(1)} pts since ${M[v.b.indexOf(top)]}</span></div>`
+    return html(`<div class="ahx-doc"><div class="ahx-dp">${v.summary}</div><div class="ahx-kp"><b class="num">${last.toFixed(1)}%</b><span class="ahx-dd">−${(top - last).toFixed(1)} pts since ${M[v.b.indexOf(top)]}</span></div>`
       + `<svg class="ahx-ch" viewBox="0 0 300 56" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--dm-accent-mark,var(--dm-accent));stop-opacity:.16"/><stop offset="1" style="stop-color:var(--dm-accent-mark,var(--dm-accent));stop-opacity:0"/></linearGradient></defs><path fill="url(#${id})" d="${d} L300 56 L0 56 Z"/><path class="ln" d="${d}"/></svg>`
-      + `<div class="ahx-ax"><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span></div></div>`);
+      + `<div class="ahx-ax">${['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'].map((m, k) => `<span style="left:${k * 20}%">${m}</span>`).join('')}</div></div>`);
   }
   let paneFrom = null;
   function openPane(cv, i){
@@ -486,4 +492,20 @@ DM.def('harness', (r, c) => {
   KEYS.forEach(s => { const cv = conv(S[s].title, { s, past:true, st:S[s].end, ctx:S[s].ctx, state:'done', unread:s === 'sync' }); CV.push(cv); list.appendChild(row(cv)); });
   activate(tab(null), true);
   CV.forEach((cv, i) => c.later(400 + i * 140, () => warm(cv)));
+
+  /* the preview's story, on the card only: a moment after New chat shows, the person asks where onboarding loses people and
+     sends it, the agent answers in the chat and writes the churn doc, and the person opens the doc beside the chat. The agent
+     keeps working under the pointer (DM.PLAYS); the person's own steps wait while a mouse rests on the harness, so nothing
+     moves under it. A click, a key or typing in the harness takes over, and whatever the agent has started carries on */
+  if (r === c.st && ta) c.story(async s => {
+    const free = () => s.until(() => !r.matches(':hover'));
+    await s.beat(3); await free();
+    await s.point(ta, false); await s.type(ta, S.dropoff.ask, { n:.05, each:input, keep:true });
+    await s.beat(1); await free();
+    await s.tap($('.cpx-bar .cpx-send', bot)); s.away();
+    const cv = vis; await s.until(() => !cv || cv.state === 'done');
+    await s.beat(2); await free();
+    const go = cv && $('[data-tip="Open beside the chat"]', cv.col);
+    if (go && !go.disabled){ await s.tap(go); s.away(); await s.beat(8); }
+  });
 });

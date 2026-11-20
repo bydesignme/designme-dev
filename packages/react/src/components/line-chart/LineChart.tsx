@@ -1,8 +1,8 @@
 'use client';
-import { useId, useState, type PointerEvent } from 'react';
+import { useId, useRef, useState, type PointerEvent } from 'react';
 import { formatCount } from '../../lib/chart';
 import { cx } from '../../lib/cx';
-import { useControllable, useTween } from '../../lib/hooks';
+import { useControllable, useIsoLayoutEffect, useTween } from '../../lib/hooks';
 import '../../designme.css';
 import './line-chart.css';
 
@@ -13,7 +13,7 @@ export interface LineChartSeries {
   label: string;
   /** One value per point, oldest first */
   values: number[];
-  /** Defaults to the chart palette: the accent for the first series, then violet, green and so on */
+  /** Defaults to the chart palette: the accent's mark for the first series, then violet, green and so on */
   color?: string;
 }
 
@@ -24,7 +24,7 @@ export interface LineChartProps {
   series: LineChartSeries[];
   /** One name per point, shown in the hover readout, like the months */
   points: string[];
-  /** Labels spread along the bottom. Defaults to every other point */
+  /** Labels along the bottom, each under its own point when it names one in `points` (spread evenly otherwise). Defaults to every other point */
   axis?: string[];
   /** The values at the bottom and top of the chart. Defaults to the data's range with a little room */
   range?: [number, number];
@@ -58,7 +58,7 @@ export function LineChart({ label, series, points, axis, range, unit, compareLab
   const [lo, hi] = range ?? [min - (max - min) * .11, max + (max - min) * .08];
   const y = (d: number) => 136 - (d - lo) / (hi - lo || 1) * 128;
   const paths = series.map(s => s.values.map((d, i): [number, number] => [i / last * W, y(d)]));
-  const color = (k: number) => series[k].color ?? (k ? `var(--dm-c${k % 6 + 1})` : 'var(--dm-accent)');
+  const color = (k: number) => series[k].color ?? `var(--dm-c${k % 6 + 1})`;
 
   // the lines draw in from the left while the big number counts up
   const clip = useTween(W, 1400, 0);
@@ -79,9 +79,14 @@ export function LineChart({ label, series, points, axis, range, unit, compareLab
 
   const ids = useId().replace(/[^\w-]/g, '');
   const px = at ? at.i / last * at.w : 0;
+  // the readout sits beside the guide line: on its right while it fits there, then on its left, and always inside the chart
+  const tt = useRef<HTMLDivElement>(null), [tw, setTw] = useState(0);
+  useIsoLayoutEffect(() => { const w = tt.current?.offsetWidth ?? 0; if (w !== tw) setTw(w); });
+  const tx = at ? Math.max(0, px + 12 + tw <= at.w ? px + 12 : px - 12 - tw) : 0;
   const value = inside && at ? series[lead].values[at.i] : counted;
   const pct = at && series[1] ? Math.round((series[0].values[at.i] / series[1].values[at.i] - 1) * 100) : 0;
-  const ticks = axis ?? points.filter((_, i) => i % 2 === 0);
+  // each label sits under its own point; labels that name no point are spread evenly
+  const ticks = (axis ?? points.filter((_, i) => i % 2 === 0)).map((t, k, all) => { const i = points.indexOf(t); return { t, x: i >= 0 ? i / last : k / Math.max(1, all.length - 1) }; });
 
   return (
     <div data-dm="" className={cx('dm-lnx dm-panel', className)}>
@@ -114,7 +119,7 @@ export function LineChart({ label, series, points, axis, range, unit, compareLab
           </g>
         </svg>
         <div className="dm-lnx-x" style={at ? { left: px } : undefined} />
-        <div className="dm-lnx-tt" style={at ? { left: Math.max(50, Math.min(px, at.w - 50)) } : undefined}>
+        <div className="dm-lnx-tt" ref={tt} style={at ? { left: tx } : undefined}>
           <b className="dm-num">{at && `${format(series[lead].values[at.i])}${unit ? ' ' + unit : ''}`}</b>
           <span>{at && points[at.i] + (compareLabel && shown[0] && shown[1] ? `, ${pct < 0 ? '−' : '+'}${Math.abs(pct)}% ${compareLabel}` : '')}</span>
         </div>
@@ -122,7 +127,7 @@ export function LineChart({ label, series, points, axis, range, unit, compareLab
           <span key={s.key} className={cx('dm-lnx-pt', shown[k] && 'dm-on')} style={{ color: color(k), ...(at && { left: px, top: paths[k][at.i][1] / H * at.h }) }} />
         ))}
       </div>
-      <div className="dm-lnx-ax dm-muted dm-num">{ticks.map((t, i) => <span key={i}>{t}</span>)}</div>
+      <div className="dm-lnx-ax dm-muted dm-num">{ticks.map(({ t, x }, i) => <span key={i} className={i && x >= 1 ? 'dm-e' : undefined} style={{ left: x * 100 + '%' }}>{t}</span>)}</div>
     </div>
   );
 }

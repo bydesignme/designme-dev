@@ -45,6 +45,8 @@ every session and every agent.
   one big number in a data card (Health score's score) is the other (owner, 3 Nov). The landing page's section headings
   (`.lp-sh h2`: large, centred, weight 500, with one grey line under them) are a third, on the landing page only (owner,
   19 Nov); the library, the docs and every other page keep 14px. `/?headings=small` shows the landing page with them at 14px.
+  Radial goals' centre figure (22px, weight 600, with no "of targets" under it) is a fourth (owner, 20 Nov: "bigger bolder
+  text").
 - No monospace fonts in the interface, keyboard hints included. Code blocks and inline code are the exception.
 - Until a visitor picks a style, it follows their theme (owner, 4 Nov): light opens in Soft, dark opens in Blueprint; Blueprint's default accent is lime `#d4f84a`. Primary buttons use the accent, with
   `--on-accent` icons and text on accent fills: dark on Blueprint's lime, white on Soft's blue.
@@ -172,7 +174,7 @@ every session and every agent.
   `c.loop`, story beats; `useStory` in React), so the hold reaches it.
 - Except an agent at work (owner, 3 Nov): agent progress and loading demos (`DM.PLAYS`: Status pill, Step loader, Thinking,
   Reasoning trail, Agent lanes, Agent run timeline, Trace view, Agent tree, Run queue, Terminal stream, Browser session,
-  Action log, Attachment tray, Live answer; `useStory(ref, run, { hold: false })` in React) keep playing while the pointer
+  Action log, Attachment tray, Live answer, Agent harness; `useStory(ref, run, { hold: false })` in React) keep playing while the pointer
   rests on them.
 - Loader text, the words that say what is running ("Writing the findings…", "Searching…"), uses the highlight sweep
   (`.shim`, `dm-shim` in React) in every style (owner, 19 Nov: "use it everywhere for loaders").

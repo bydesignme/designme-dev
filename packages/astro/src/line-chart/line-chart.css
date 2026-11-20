@@ -1,28 +1,39 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Line chart ---------- */
-.lnx{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:10px}
+/* this year against last year: a headline number, a legend that turns each line on and off, and a readout that follows the
+   pointer. The gridlines are a neutral grey at half strength, and each month's label sits under its own point. The readout is
+   the page's tooltip (opaque and neutral) beside the guide line, on the side with room, so it never covers the points it reads
+   or passes the chart's edge. The content sits 16px in from every edge: the legend's words end on the right edge and their
+   hover box reaches out round them, a quiet fill that shows in light mode */
+.lnx{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:10px;--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
 .lnx-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
-.lnx-h>div:first-child{display:flex;flex-direction:column;font-size:12.5px}
-.lnx-v{font-size:14px;font-weight:500;letter-spacing:-.02em;color:var(--dm-fg)}
-.lnx-lg{display:flex;gap:var(--dm-s-1)}
-.lnx-k{display:flex;align-items:center;gap:6px;height:26px;padding:0 9px;border-radius:var(--dm-r-pill);font-size:12px;color:var(--dm-muted);transition:color .2s,background .2s}
+.lnx-h>div:first-child{display:flex;flex-direction:column;font-size:12.5px;line-height:18px}
+.lnx-v{font-size:14px;line-height:20px;font-weight:500;letter-spacing:-.02em;color:var(--dm-fg)}
+/* the toggles sit on the label's line, their words ending on the content's right edge */
+.lnx-lg{display:flex;gap:var(--dm-s-1);margin:-4px -9px 0 0}
+.lnx-k{display:flex;align-items:center;gap:6px;height:26px;padding:0 9px;border-radius:var(--dm-r-pill);font-size:12px;color:var(--dm-muted);transition:color var(--dm-t-fast) var(--dm-ease),background-color var(--dm-t-fast) var(--dm-ease)}
 @media (hover:hover) and (pointer:fine){.lnx-k:hover{background:var(--dm-row)}}
 .lnx-k.on{color:var(--dm-fg)}
-.lnx-k i{width:8px;height:8px;border-radius:50%;transition:transform .3s var(--dm-ease),opacity .3s}
+.lnx-k i{width:8px;height:8px;border-radius:50%;transition:transform var(--dm-t) var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease)}
 .lnx-k:not(.on) i{opacity:.3;transform:scale(.6)}
 .lnx-ch{position:relative;height:150px}
 .lnx-svg{width:100%;height:100%;display:block;overflow:visible}
-.lnx-svg .gl{stroke:var(--dm-line);stroke-width:1;vector-effect:non-scaling-stroke}
-.lnx-svg .ln{fill:none;stroke-width:2;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round;transition:opacity .4s}
+.lnx-svg .gl{stroke:color-mix(in srgb,var(--dm-line) 50%,transparent);stroke-width:1;vector-effect:non-scaling-stroke}
+.lnx-svg .ln{fill:none;stroke-width:2;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round;transition:opacity var(--dm-t) var(--dm-ease)}
 .lnx-svg .ln.off{opacity:0}
-.lnx-svg .ar{transition:opacity .4s}
-.lnx-x{position:absolute;top:0;bottom:0;width:1px;background:var(--dm-faint);opacity:0;transition:opacity .2s;pointer-events:none}
-.lnx-tt{position:absolute;top:-6px;padding:6px 9px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-ink);color:var(--dm-on-ink);font-size:11.5px;display:flex;flex-direction:column;opacity:0;transform:translate(-50%,-100%) translateY(4px);transition:opacity .2s,transform .25s var(--dm-ease);pointer-events:none;white-space:nowrap}
-.lnx-tt span{opacity:.7}
+.lnx-svg .ar{transition:opacity var(--dm-t) var(--dm-ease)}
+.lnx-x{position:absolute;top:0;bottom:0;width:1px;background:var(--dm-faint);opacity:0;transition:opacity var(--dm-t-fast) var(--dm-ease);pointer-events:none}
+/* the readout: the page's tooltip, beside the guide line (the script picks the side with room) */
+.lnx-tt{position:absolute;top:0;left:0;z-index:2;padding:6px 9px;border-radius:var(--dm-r-sm);background:var(--dm-tip-bg,var(--dm-ink));color:var(--dm-tip-fg,var(--dm-on-ink));box-shadow:var(--dm-tip-ring,none);font-size:12px;line-height:1.35;display:flex;flex-direction:column;opacity:0;transform:translateY(4px);transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease);pointer-events:none;white-space:nowrap}
+.lnx-tt b{font-weight:500}
+.lnx-tt span{color:color-mix(in srgb,var(--dm-tip-fg,var(--dm-on-ink)) 76%,var(--dm-tip-bg,var(--dm-ink)))}
 @media (hover:hover) and (pointer:fine){.lnx-ch:hover .lnx-x,.lnx-ch:hover .lnx-tt{opacity:1}}
-@media (hover:hover) and (pointer:fine){.lnx-ch:hover .lnx-tt{transform:translate(-50%,-100%)}}
-.lnx-pt{position:absolute;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:var(--dm-surface);box-shadow:0 0 0 2px currentColor;opacity:0;transition:opacity .2s;pointer-events:none}
+@media (hover:hover) and (pointer:fine){.lnx-ch:hover .lnx-tt{transform:none}}
+.lnx-pt{position:absolute;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:var(--dm-surface);box-shadow:0 0 0 2px currentColor;opacity:0;transition:opacity var(--dm-t-fast) var(--dm-ease);pointer-events:none}
 @media (hover:hover) and (pointer:fine){.lnx-ch:hover .lnx-pt.on{opacity:1}}
-.lnx-ax{display:flex;justify-content:space-between;font-size:11px}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .lnx.panel,:root [data-style="clean"] .lnx.panel,:root [data-style="clean"].lnx.panel{padding:20px 20px 18px 20px}
+/* each label sits centred under its own point (the script places them); the first starts on the chart's left edge and one on
+   the last point ends on its right edge */
+.lnx-ax{position:relative;height:16px;font-size:11px;line-height:16px}
+.lnx-ax span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
+.lnx-ax span:first-child{transform:none}
+.lnx-ax span.e{transform:translateX(-100%)}

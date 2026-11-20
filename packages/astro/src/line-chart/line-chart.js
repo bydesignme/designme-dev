@@ -12,6 +12,8 @@ DM.def('line-chart', (r, c) => {
     `<g clip-path="url(#lnc)"><path class="ar" d="${smooth(pa)} L320 140 L0 140 Z" fill="url(#lng)"/><path class="ln l1" d="${smooth(pb)}" stroke="var(--dm-c2)" stroke-dasharray="4 4"/><path class="ln l0" d="${smooth(pa)}" stroke="var(--dm-accent-mark,var(--dm-accent))"/></g>`;
   ch.insertAdjacentHTML('beforeend', '<span class="lnx-pt on" style="color:var(--dm-accent-mark,var(--dm-accent))"></span><span class="lnx-pt on" style="color:var(--dm-c2)"></span>');
   const pts = $$('.lnx-pt', ch), on = [true, true];
+  // each month's label sits under its own point
+  $$('.lnx-ax span', r).forEach(sp => { const i = MO.indexOf(sp.textContent.trim()); if (i < 0) return; sp.style.left = i / 11 * 100 + '%'; sp.classList.toggle('e', i === 11); });
   // the line draws and the number counts once the chart has risen into view, so the draw is seen from its start
   v.textContent = '0';
   c.later(260, () => {
@@ -19,9 +21,11 @@ DM.def('line-chart', (r, c) => {
     tween(0, A[11], 1300, n => v.textContent = Math.round(n).toLocaleString('en-US'));
   });
   c.on(ch, 'pointermove', e => { const b = ch.getBoundingClientRect(); const i = Math.max(0, Math.min(11, Math.round((e.clientX - b.left) / b.width * 11))); const px = i / 11 * b.width;
-    x.style.left = px + 'px'; tt.style.left = Math.max(50, Math.min(px, b.width - 50)) + 'px';
+    x.style.left = px + 'px';
     [pa, pb].forEach((p, k) => { pts[k].style.left = px + 'px'; pts[k].style.top = p[i][1] / 140 * b.height + 'px'; pts[k].classList.toggle('on', on[k]); });
     $('b', tt).textContent = (on[0] ? A[i].toLocaleString('en-US') : B[i].toLocaleString('en-US')) + ' editors'; const dv = Math.round((A[i] / B[i] - 1) * 100); $('span', tt).textContent = MO[i] + (on[0] && on[1] ? ', ' + (dv < 0 ? '−' : '+') + Math.abs(dv) + '% vs last year' : '');
+    // the readout sits beside the guide line: on its right while it fits there, then on its left, and always inside the chart
+    const w = tt.offsetWidth, gap = 12; tt.style.left = Math.max(0, px + gap + w <= b.width ? px + gap : px - gap - w) + 'px';
     v.textContent = (on[0] ? A[i] : B[i]).toLocaleString('en-US'); });
   c.on(ch, 'pointerleave', () => v.textContent = (on[0] ? A[11] : B[11]).toLocaleString('en-US'));
   $$('.lnx-k', r).forEach(k => k.onclick = () => { const s = +k.dataset.s; if (on[s] && !on[1 - s]) return; on[s] = !on[s]; k.classList.toggle('on', on[s]); $('.l' + s, svg).classList.toggle('off', !on[s]); if (s === 0) $('.ar', svg).style.opacity = on[0] ? 1 : 0;
