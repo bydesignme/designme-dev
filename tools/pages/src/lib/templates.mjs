@@ -151,8 +151,6 @@ export const TEMPLATES = LIST.map(t => {
     seoTitle:SEO[t.slug][0], seoDesc:SEO[t.slug][1] };
 });
 
-// the components whose demo is a whole app or a canvas that fills its card: their pages get the device switch
-export const FULL_SCREEN = ['agent-harness', 'automation-canvas', 'canvas-toolbar', 'event-calendar', 'kanban-board', 'rich-text-editor'];
 // the device frames' own styles and script (src/device), for the pages that show them
 export const FRAME_CSS = fs.readFileSync(path.join(ROOT, 'tools/pages/src/device/frame.css'), 'utf8');
 export const FRAME_JS = fs.readFileSync(path.join(ROOT, 'tools/pages/src/device/frame.js'), 'utf8');

@@ -1,7 +1,7 @@
 /* Device frames: a page shown at a desktop, tablet or phone width (1280, 820 or 390 CSS px) inside a box of any size, scaled
    down to fit its width. The page is an iframe of the same site with ?embed=1, which hides the site's own chrome around it.
-   Used by the landing page's templates (src/pages/index.astro), the template pages and the pages of full-screen
-   components (tools/pages inlines it there).
+   Used by the landing page's views of the templates (src/pages/index.astro, which inlines it). The component pages' Desktop /
+   Tablet / Mobile switch is gone (owner, 21 Nov).
 
      var v = dmFrame(box, { onUse: fn })   box: an element with a size of its own (the frame fills it, centred)
                                            fill: true lets a desktop page be as wide as a box wider than 1280px, so it

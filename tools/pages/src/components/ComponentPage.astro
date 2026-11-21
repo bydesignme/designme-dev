@@ -8,7 +8,6 @@ import Page from '../layouts/Page.astro';
 import SiteShell from './SiteShell.astro';
 import SectionBar from './SectionBar.astro';
 import { SITE, COMPONENTS, BANDS, borrows, icon, MARKS, shadcnUrl } from '../lib/data.mjs';
-import { FULL_SCREEN, FRAME_CSS, FRAME_JS } from '../lib/templates.mjs';
 // the cards under More in … play their component live while they're on screen; one that tells its story with other
 // components (Agent harness) keeps its picture
 const full = x => COMPONENTS.find(y => y.reg === x.reg);
@@ -26,8 +25,6 @@ const lent = borrows(c);
 const dsn = c.designs;
 const list = n => n.length > 1 ? n.slice(0, -1).join(', ') + ' and ' + n[n.length - 1] : n[0];
 const dsnNote = dsn ? `The demo switches between ${list(dsn.names)}. The CLI installs ${dsn.classic || dsn.names[0]}; the others are previews for now.` : '';
-// a component that is a whole app or a canvas gets the Desktop / Tablet / Mobile switch over its demo (src/device)
-const fullScreen = FULL_SCREEN.includes(c.reg);
 // demos that fill the stage to its edges, with their own header in the top left
 const EDGE = ['automation-canvas', 'canvas-toolbar'];
 const others = sec.cards.filter(x => x.reg !== c.reg), shown = others.slice(0, 8);
@@ -233,29 +230,6 @@ const words = cmd => cmd.split(' ').map(w => /^https?:/.test(w) ? w.replace(/&/g
       }
     </style>
     <style is:inline set:html={demoCss} />
-    {fullScreen && <Fragment>
-      <script is:inline>if (/[?&]embed=1(&|$)/.test(location.search)) document.documentElement.setAttribute('data-embed', '');</script>
-      <style is:inline set:html={FRAME_CSS} />
-      <style is:global>
-        /* Desktop / Tablet / Mobile, top left of the demo: Desktop is the demo itself, the others show this page, with
-           ?embed=1, in a frame of that width */
-        .cp-dev{position:absolute;top:12px;left:12px;z-index:3}
-        /* a demo that runs to the stage's edges (the canvases) gets a strip above it for the switch, so the switch never sits
-           on the component's own header (Automation canvas's title and toggle, top left); the others have room already */
-        @media (min-width:861px){.cp-demo[data-edge] .cp-dev ~ .pg-demo{margin-top:52px}}
-        .cp-view{display:none;height:760px;--dvf-line:var(--pg-line2);--dvf-bg:var(--pg-bg)}
-        .cp-demo.framed .cp-view{display:block;margin-top:52px;height:708px}
-        .cp-demo.framed .pg-demo{display:none}
-        @media (max-width:860px){.pg-seg.cp-dev{display:none}}
-        /* ?embed=1: only the demo, filling the window */
-        html[data-embed],html[data-embed] body{height:100%;overflow:hidden}
-        html[data-embed] body{visibility:hidden}
-        html[data-embed] .cp-demo{visibility:visible;position:fixed;inset:0;z-index:100;margin:0;border-radius:0;overflow:auto;overscroll-behavior:contain}
-        html[data-embed] body>.tip{visibility:visible}
-        html[data-embed] :is(.cp-dev,.cp-anim){display:none}
-        html[data-embed] .pg-demo{min-height:100%}
-      </style>
-    </Fragment>}
   </Fragment>
 
   <SiteShell reg={c.reg} where={sec.title} title={c.title}>
@@ -270,10 +244,8 @@ const words = cmd => cmd.split(' ').map(w => /^https?:/.test(w) ? w.replace(/&/g
     <p class="cp-studio">Need this designed into your product? <a href={BOOK} target="_blank" rel="noopener">Book a call</a></p>
 
     <section class="cp-demo" data-edge={EDGE.includes(c.reg) ? "" : undefined} aria-label={`${c.title} demo`}>
-      {fullScreen && <div class="pg-seg cp-dev" role="radiogroup" aria-label="Preview width"><button type="button" role="radio" aria-checked="true" data-dev="desktop">Desktop</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-dev="tablet">Tablet</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-dev="mobile">Mobile</button></div>}
       <button type="button" class="cp-anim" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Animate</button>
       <div class="pg-demo stage-inner" style={demoVars} set:html={dsn ? dsn.html : c.html.html} />
-      {fullScreen && <div class="cp-view dvf" aria-label={`${c.title} at another width`}></div>}
     </section>
     {dsn && <p class="cp-note cp-dsn">{dsnNote}</p>}
     {lent.length > 0 && <div hidden aria-hidden="true" set:html={lent.map(x => x.html.html).join('\n')} />}
@@ -351,29 +323,6 @@ const words = cmd => cmd.split(' ').map(w => /^https?:/.test(w) ? w.replace(/&/g
     {lent.map(x => <script is:inline set:html={x.html.js} />)}
     <script is:inline set:html={c.html.js} />
     {dsn && <script is:inline set:html={dsn.js} />}
-    {fullScreen && <script is:inline set:html={FRAME_JS} />}
-    {fullScreen && <script is:inline>
-    // Desktop / Tablet / Mobile over the demo: the others show this page with ?embed=1 in a frame of that width, and Animate
-    // loads it again
-    (function(){
-      var sw = document.querySelector('.cp-dev'), demo = document.querySelector('.cp-demo'), view = document.querySelector('.cp-view'), frame = null;
-      if (!sw || document.documentElement.hasAttribute('data-embed')) return;
-      var pick = function(dev){
-        sw.querySelectorAll('[data-dev]').forEach(function(b){ var on = b.dataset.dev === dev; b.setAttribute('aria-checked', String(on)); b.tabIndex = on ? 0 : -1; });
-        demo.classList.toggle('framed', dev !== 'desktop');
-        if (dev === 'desktop') return;
-        frame = frame || window.dmFrame(view, { title:function(){ return document.querySelector('.pg-h1').textContent + ' demo, ' + dev; } });
-        frame.show(location.pathname + '?embed=1', dev);
-      };
-      sw.querySelectorAll('[data-dev]').forEach(function(b){ b.addEventListener('click', function(){ pick(b.dataset.dev); }); });
-      sw.addEventListener('keydown', function(e){
-        var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0, bs = [].slice.call(sw.querySelectorAll('[data-dev]')), i = bs.indexOf(document.activeElement);
-        if (!d || i < 0) return; e.preventDefault(); var n = bs[(i + d + bs.length) % bs.length]; n.click(); n.focus();
-      });
-      document.getElementById('cp-replay').addEventListener('click', function(){ if (frame && demo.classList.contains('framed')) frame.reload(); });
-      matchMedia('(max-width:860px)').addEventListener('change', function(m){ if (m.matches) pick('desktop'); });
-    })();
-    </script>}
     <script is:inline>
     (function(){
       var card = document.querySelector('.pg-demo > .card[data-c]');
