@@ -60,16 +60,23 @@
   const VIA = { 'Slack message':'a Slack message', Email:'an email', 'In the app':'the app' };
   const TYPES = { trigger:{ k:'Trigger', ic:'bolt' }, ai:{ k:'AI step', ic:'spark' }, tool:{ k:'Tool', ic:'globe' }, app:{ k:'App step', ic:'send' },
     branch:{ k:'Branch', ic:'branch' }, wait:{ k:'Wait', ic:'clock' }, approval:{ k:'Approval', ic:'user' }, output:{ k:'Output', ic:'hash' } };
+  // the kind of a step, for its colour (owner, 21 Nov, after Attio's workflow builder): what it does, not only its type, so an
+  // app step that sends (an email, a Slack post, a page) is told apart from one that writes (a CRM record, a list) or reads
+  // (usage numbers). Tools find or read; a branch is a condition. One hue per kind wherever a step's tile shows (wf.css)
+  const SENDS = new Set(['mail', 'hash', 'bell', 'send', 'comment']);
+  const kindOf = n => !n ? 'write' : n.type === 'tool' ? 'read' : n.type === 'output' ? 'send'
+    : n.type === 'app' ? (SENDS.has(n.ic) ? 'send' : /^(pull|find|get|look|read|search)\b/i.test(n.t) ? 'read' : 'write') : n.type;
   const MODELS = [['Sonnet 5.5', 'Balanced, the default'], ['Opus 5.5', 'Deepest reasoning, slower'], ['Haiku 5.5', 'Fastest and cheapest']];
   const CONNS = { mail:['sales@fernhill.co', 'ana@fernhill.co'], hash:['Fernhill on Slack'], users:['Email marketing'], db:['Fernhill CRM', 'Data warehouse'], globe:['Company data API', 'Web search'], other:['Fernhill CRM', 'Webhook'] };
-  // the tools an AI step can call: icon, name, connection, what it does, what it hands on, and its kind (its tile's colour)
+  // the tools an AI step can call: icon, name, connection, what it does, what it hands on, and where it comes from (Data, Web or
+  // Built in). Every tool finds or reads, so its tile is that kind's colour
   const TOOLS = [['globe', 'Company lookup', 'Company data API', 'Finds a company by its email domain', [['employees', 'number', '420'], ['industry', 'text', 'Software']], 'data'],
     ['search', 'Web search', 'Web search', 'Searches the web and keeps the top results', [['results', 'list', '5 pages'], ['top_url', 'text', 'corvid.io/about']], 'web'],
     ['db', 'CRM lookup', 'Fernhill CRM', 'Reads a contact and its deals from the CRM', [['contact', 'text', 'Priya Shah'], ['open_deals', 'number', '0']], 'data'],
     ['file-text', 'Read a page', 'Web search', 'Reads the text of a web page', [['text', 'text', 'Corvid builds analytics']], 'web'],
     ['code', 'Run code', 'Built in', 'Runs a short script on the data so far', [['result', 'object', '{ 3 fields }']], 'code'],
     ['file', 'Read a file', 'Built in', 'Reads the text of an attached PDF or document', [['text', 'text', 'Order form, 2 pages']], 'code']];
-  const TKIND = { data:['Data', 'pt'], web:['Web', 'pb'], code:['Built in', 'pk'] };
+  const TKIND = { data:['Data'], web:['Web'], code:['Built in'] };
   // the tools the workspace has turned on; Connected apps adds the others
   const WS_TOOLS = new Set(['Company lookup', 'Web search', 'CRM lookup', 'Read a page']);
   // the CRM's sign-in has expired until it is connected again (Connected apps), so the workflows that use it fail with a 401
@@ -311,7 +318,7 @@
       branch:() => [rule.v ? `${rule.v.split('.')[1]} ${rule.op.replace('is ', '')} ${rule.n}` : 'No rule yet'], approval:() => [c.who.map(first).join(' or ')], app:() => [c.list || c.conn], output:() => [c.channel || c.conn], wait:() => [c.for] }[n.type] || (() => []))();
     return m.filter(Boolean).map(t => `<span class="tag">${esc(t)}</span>`).join('') + (n.off ? '<span class="tag">Off</span>' : '');
   };
-  const tile = (n, cls = '') => `<span class="wfx-ic${n.type === 'ai' ? ' ai' : ''}${cls}" data-k="${n.type}" aria-hidden="true">${I(n.ic, 'xs')}</span>`;
+  const tile = (n, cls = '') => `<span class="wfx-ic${n.type === 'ai' ? ' ai' : ''}${cls}" data-k="${kindOf(n)}" aria-hidden="true">${I(n.ic, 'xs')}</span>`;
   function nodeHTML(n){
     const p = POS[n.id];
     return `<button class="wfx-node${n.type === 'tool' ? ' tool' : ''}${n.off ? ' off' : ''}${selId === n.id ? ' sel' : ''}" data-id="${n.id}" data-type="${n.type}" style="left:${p.x}px;top:${p.y - NH / 2}px" aria-pressed="${selId === n.id}" aria-label="${esc(TYPES[n.type].k + ': ' + n.t)}">`
@@ -557,8 +564,8 @@
     let k = 0, h = '';
     pItems = [];
     CAT.forEach(g => { const its = g.items.filter(it => hit(it.t + ' ' + it.d)); if (!its.length) return;
-      h += `<div role="group" aria-label="${g.g}"><div class="acx-gh" aria-hidden="true">${g.g}</div>` + its.map(it => { pItems.push(it); const i = k++; return `<div class="acx-o" role="option" id="wf-pk-${i}" aria-selected="false" data-i="${i}"><span class="ic wfx-ic${it.type === 'ai' ? ' ai' : ''}">${I(it.ic, 'xs')}</span><span>${esc(it.t)}</span></div>`; }).join('') + '</div>'; });
-    if (v){ pItems.push({ ask:true, q:pq.value.trim() }); h += `<div role="group" aria-label="Agent"><div class="acx-gh" aria-hidden="true">Agent</div><div class="acx-o wfx-pick-ask" role="option" id="wf-pk-${k}" aria-selected="false" data-i="${k}"><span class="ic wfx-ic ai">${I('spark', 'xs')}</span><span>Build “${esc(pq.value.trim())}”</span></div></div>`; }
+      h += `<div role="group" aria-label="${g.g}"><div class="acx-gh" aria-hidden="true">${g.g}</div>` + its.map(it => { pItems.push(it); const i = k++; return `<div class="acx-o" role="option" id="wf-pk-${i}" aria-selected="false" data-i="${i}"><span class="ic wfx-ic${it.type === 'ai' ? ' ai' : ''}" data-k="${kindOf(it)}">${I(it.ic, 'xs')}</span><span>${esc(it.t)}</span></div>`; }).join('') + '</div>'; });
+    if (v){ pItems.push({ ask:true, q:pq.value.trim() }); h += `<div role="group" aria-label="Agent"><div class="acx-gh" aria-hidden="true">Agent</div><div class="acx-o wfx-pick-ask" role="option" id="wf-pk-${k}" aria-selected="false" data-i="${k}"><span class="ic wfx-ic ai" data-k="ai">${I('spark', 'xs')}</span><span>Build “${esc(pq.value.trim())}”</span></div></div>`; }
     listTo(pls, h, '.acx-gh, .acx-o', x => x.matches('.wfx-pick-ask') ? 'ask' : (x.matches('.acx-gh') ? 'g:' : 'o:') + x.textContent, pq.value, pk); pHi = 0; hiPick(0);
   }
   function hiPick(i){
@@ -608,7 +615,7 @@
   const tok = (v, attrs = '', ok = null, empty = 'Pick data') => { const { n, k } = vref(v);
     if (!v) return `<span class="sti-tok none"${attrs}>${I('plus', 'xs')}<span>${empty}</span></span>`;
     if (!n || ok === false) return `<span class="sti-tok bad"${attrs} data-tip="${n ? 'Not from an earlier step' : 'That step is gone'}">${I('alert', 'xs')}<span class="s">${esc(n ? n.t : v.split('.')[0])}</span><span class="sep" aria-hidden="true">›</span><span class="f">${esc(k || '')}</span></span>`;
-    return `<span class="sti-tok"${attrs}><span class="sti-ti" data-k="${n.type}" aria-hidden="true">${I(n.ic, 'xs')}</span><span class="s">${esc(n.t)}</span><span class="sep" aria-hidden="true">›</span><span class="f">${esc(k)}</span></span>`; };
+    return `<span class="sti-tok"${attrs}><span class="sti-ti" data-k="${kindOf(n)}" aria-hidden="true">${I(n.ic, 'xs')}</span><span class="s">${esc(n.t)}</span><span class="sep" aria-hidden="true">›</span><span class="f">${esc(k)}</span></span>`; };
   // each data type in its colour: text blue, numbers green, lists orange, objects pink
   const TYPE_TONE = { text:'b', number:'m', list:'p', object:'k', bool:'y', date:'t' };
   const vp2 = $('#wf-p-var', app), vq = $('.wf-var-q', vp2), vls = $('.fpk-ls', vp2), vn = $('.wf-var-n', vp2);
@@ -617,7 +624,7 @@
     const n = byId(vTarget.node), v = vq.value.trim().toLowerCase(); let h = '', k = 0; vItems = [];
     const ups = upstream(vTarget.node);
     ups.forEach((u, ui) => { const fs = u.out.filter(o => !v || (u.t + ' ' + o[0]).toLowerCase().includes(v)); if (!fs.length) return;
-      h += `<div role="group" aria-labelledby="wf-vg-${ui}"><div class="fpk-g" id="wf-vg-${ui}"><span class="fpk-ti" data-k="${u.type}" aria-hidden="true">${I(u.ic, 'xs')}</span><b>${esc(u.t)}</b><span class="n">${TYPES[u.type].k}</span></div>` + fs.map(o => { const ref = u.ref + '.' + o[0], i = k++; vItems.push(ref);
+      h += `<div role="group" aria-labelledby="wf-vg-${ui}"><div class="fpk-g" id="wf-vg-${ui}"><span class="fpk-ti" data-k="${kindOf(u)}" aria-hidden="true">${I(u.ic, 'xs')}</span><b>${esc(u.t)}</b><span class="n">${TYPES[u.type].k}</span></div>` + fs.map(o => { const ref = u.ref + '.' + o[0], i = k++; vItems.push(ref);
         return `<div class="fpk-o" role="option" id="wf-vo-${i}" aria-selected="false" data-i="${i}" aria-label="${esc(o[0])}, ${o[1]}, from ${esc(u.t)}"><span class="k">${esc(o[0])}</span><span class="tag ${TYPE_TONE[o[1]] || 'b'}">${o[1]}</span><span class="ex">${esc(o[2])}</span></div>`; }).join('') + '</div>'; });
     listTo(vls, h || `<p class="fpk-e">${ups.length ? 'No field matches' : `${esc(n.t)} is the first step, so there is no data before it`}</p>`, '.fpk-g, .fpk-o, .fpk-e', x => x.getAttribute('aria-label') || x.textContent, vq.value, vp2);
     vn.textContent = ups.length ? `From the ${ups.length} ${ups.length === 1 ? 'step' : 'steps'} before ${n.t}` : 'Nothing runs before this step';
@@ -643,7 +650,7 @@
   const num = (f, v, lo, hi, label) => `<span class="sti-num" role="group" aria-label="${esc(label)}"><button class="ib" data-f="${f}" data-d="-1" aria-label="Fewer ${label.toLowerCase()}" data-tip="Fewer" ${v <= lo ? 'aria-disabled="true"' : ''}>${I('minus', 'xs')}</button><span class="num" aria-live="polite">${v}</span><button class="ib" data-f="${f}" data-d="1" aria-label="More ${label.toLowerCase()}" data-tip="More" ${v >= hi ? 'aria-disabled="true"' : ''}>${I('plus', 'xs')}</button></span>`;
   const segBtns = (f, v, opts, label) => `<div class="seg2 sti-seg" role="group" aria-label="${esc(label)}" data-f="${f}">${opts.map(([k, t]) => `<button aria-pressed="${v === k}" data-v="${k}">${t}</button>`).join('')}</div>`;
   const toggle = (f, on, label) => `<button class="wfx-tg" role="switch" aria-checked="${on}" data-f="${f}"><span class="toggle" aria-hidden="true"></span><span>${esc(label)}</span></button>`;
-  const stile = (n, s = 'xs') => `<span class="sti-ti" data-k="${n.type}" aria-hidden="true">${I(n.ic, s)}</span>`;
+  const stile = (n, s = 'xs') => `<span class="sti-ti" data-k="${kindOf(n)}" aria-hidden="true">${I(n.ic, s)}</span>`;
   // the instructions: their text with each {{step.field}} as a token, and back
   const insHTML = (n, ok) => esc(n.cfg.prompt).replace(/\{\{\s*([\w]+\.[\w]+)\s*\}\}/g, (m, r) => tok(r, ` contenteditable="false" data-ref="${r}"`, ok.has(r)));
   const readIns = el => [...el.childNodes].map(x => x.nodeType === 3 ? x.textContent : x.dataset && x.dataset.ref ? `{{${x.dataset.ref}}}` : x.nodeName === 'BR' ? '\n' : '\n' + x.textContent).join('');
@@ -943,7 +950,7 @@
       clearTimeout(dr._anim); dr.classList.add('anim'); settle(); setH(h); dr._anim = setTimeout(() => dr.classList.remove('anim'), REDUCE ? 0 : MT('--dm-t') + 50); }); }
 
   // the kind of each span, for its tile and its bar's colour: a step's own kind, its model and tool calls, a wait to retry
-  const kOf = s => s.k === 'step' ? byId(s.node)?.type || 'app' : s.k;
+  const kOf = s => s.k === 'step' ? kindOf(byId(s.node)) : s.k === 'tool' ? 'read' : s.k;
   const stOf = (s, t) => s.e == null ? (R && R.state === 'stopped' ? 'stop' : 'wait') : t < s.e ? (s.k === 'retry' ? 'retry' : 'run') : s.st;
   let rowEls = new Map(), axisN = 0, nodeCache = new Map(), logN = 0;
   function startRun({ only = null, lead = W.lead } = {}){
@@ -1098,7 +1105,7 @@
     const t = R.now, ready = W.nodes.filter(n => R.C.out[n.ref] && R.C.spans.some(s => s.node === n.id && s.e != null && s.e <= t + 1e-6 && s.st !== 'bad'));
     if (!ready.length){ dsEl.innerHTML = ''; ioEl.innerHTML = '<p class="rdr-de">No step has finished yet.</p>'; return; }
     if (!ready.some(n => n.ref === dataTab)) dataTab = ready[ready.length - 1].ref;
-    dsEl.innerHTML = ready.map(n => `<button data-ref="${n.ref}" aria-pressed="${n.ref === dataTab}"><span class="rdr-ti" data-k="${n.type}" aria-hidden="true">${I(n.ic, 'xs')}</span><span>${esc(n.t)}</span></button>`).join('');
+    dsEl.innerHTML = ready.map(n => `<button data-ref="${n.ref}" aria-pressed="${n.ref === dataTab}"><span class="rdr-ti" data-k="${kindOf(n)}" aria-hidden="true">${I(n.ic, 'xs')}</span><span>${esc(n.t)}</span></button>`).join('');
     const n = byRef(dataTab);
     ioEl.innerHTML = `<h4>Input</h4><pre class="rdr-json" tabindex="0" aria-label="${esc(n.t)} input">${jsonHTML(inOf(n, R.C))}</pre><h4>Output</h4><pre class="rdr-json" tabindex="0" aria-label="${esc(n.t)} output">${jsonHTML(R.C.out[dataTab])}</pre>`;
   }
@@ -1447,7 +1454,7 @@
   const nOf = (k, one, many) => `${k} ${k === 1 ? one : many}`;
   const usedTxt = a => { const k = usersOf(a).length; return k ? `Used by ${nOf(k, 'workflow', 'workflows')}` : 'No workflow uses it yet'; };
   const toolUse = t => { const k = FLOWS.filter(f => load(f).nodes.some(n => n.type === 'tool' && n.t === t)).length; return k ? `Used in ${nOf(k, 'workflow', 'workflows')}` : 'Ready for AI steps'; };
-  const tTile = t => `<span class="wfx-lg" data-tone="${TKIND[t[5]][1]}" aria-hidden="true">${I(t[0], 'xs')}</span>`;
+  const tTile = t => `<span class="wfx-lg" data-k="read" aria-hidden="true">${I(t[0], 'xs')}</span>`;
   function paintAppsN(){ $('.n', appsBtn).textContent = APPS.length; }
   let aView = 'list', aSel = null, aBack = null, aHi = 0, aHits = [], aBusy = 0;
   const head = (t, back) => `<div class="wfx-apps-h${back ? ' bk' : ''}">${back ? `<button class="ib wfx-back" data-back aria-label="Back to Connected apps" data-tip="Back" data-tip-k="Esc">${I('chev-l', 's')}</button>` : ''}${t}</div>`;

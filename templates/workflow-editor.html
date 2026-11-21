@@ -1116,21 +1116,14 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
    installed CSS as it was then (the registry's, with the dm- prefix), so the inspector and the run log look as they did. */
 /* Step inspector */
 /* ---------- Step inspector ---------- */
-/* the settings of one step in an agent workflow. Its tile says its kind in colour (the trigger orange, AI steps violet,
-   tools teal, app steps and outputs blue, a branch yellow, a wait pink, an approval green), then its name, where it sits
+/* the settings of one step in an agent workflow. Its tile says its kind in colour (the kinds and their hues are in wf.css,
+   "the kinds of step in colour", one hue per kind across the editor), then its name, where it sits
    and Test and More. Under it, sections that fold: what the step does, the data it reads, what it hands on and what happens
    if it fails. Data mapped from an earlier step is a token, the step and then its field; data that no earlier step gives is
    a red token with a line saying why. Data types are coloured chips; every line and edge is grey */
 .sti{width:100%;max-width:360px;margin-inline:auto;padding:var(--dm-s-3) var(--dm-s-4) var(--dm-s-1);display:flex;flex-direction:column;text-align:left}
 .sti-ti{width:18px;height:18px;flex:none;display:grid;place-items:center;border-radius:calc(5px * var(--dm-rk));background:var(--dm-sti-kb,var(--dm-chip));color:var(--dm-sti-kf,var(--dm-fg2))}
 .sti-ti .i{width:11px;height:11px}
-.sti-ti[data-k="trigger"]{--dm-sti-kb:var(--dm-pp-bg);--dm-sti-kf:var(--dm-pp)}
-.sti-ti[data-k="ai"]{--dm-sti-kb:var(--dm-pl-bg);--dm-sti-kf:var(--dm-pl)}
-.sti-ti[data-k="tool"]{--dm-sti-kb:var(--dm-pt-bg);--dm-sti-kf:var(--dm-pt)}
-.sti-ti:is([data-k="app"],[data-k="output"]){--dm-sti-kb:var(--dm-pb-bg);--dm-sti-kf:var(--dm-pb)}
-.sti-ti[data-k="branch"]{--dm-sti-kb:var(--dm-py-bg);--dm-sti-kf:var(--dm-py)}
-.sti-ti[data-k="wait"]{--dm-sti-kb:var(--dm-pk-bg);--dm-sti-kf:var(--dm-pk)}
-.sti-ti[data-k="approval"]{--dm-sti-kb:var(--dm-pm-bg);--dm-sti-kf:var(--dm-pm)}
 .sti-h{display:flex;align-items:center;gap:10px;padding:2px 0 var(--dm-s-3);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .sti-h>.sti-ti{width:32px;height:32px;border-radius:calc(9px * var(--dm-rk))}
 .sti-h>.sti-ti .i{width:14px;height:14px}
@@ -1288,8 +1281,30 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 body:has(.wf) .dmf{display:none}
 
 /* ---------- the app ---------- */
-.wf[data-c]{--wf-ns:var(--dm-shadow);--wf-nb:color-mix(in srgb,var(--dm-line) 60%,transparent);--wf-dot:color-mix(in srgb,var(--dm-fg) 8%,transparent);width:100%;max-width:none;height:100%;display:grid;grid-template-columns:240px minmax(0,1fr);position:relative;overflow:hidden;background:var(--dm-surface);color:var(--dm-fg);font-size:13px;text-align:left}
-:root:not([data-style="soft"],[data-style="clean"]) .wf[data-c]{--wf-ns:0 0 #0000;--wf-nb:color-mix(in srgb,var(--dm-line-strong) 45%,transparent);--wf-dot:color-mix(in srgb,var(--dm-fg) 7%,transparent)}
+.wf[data-c]{width:100%;max-width:none;height:100%;display:grid;grid-template-columns:240px minmax(0,1fr);position:relative;overflow:hidden;background:var(--dm-surface);color:var(--dm-fg);font-size:13px;text-align:left}
+/* the grounds (owner, 21 Nov: "soft should have everything on white... since it's already elevated with shadow... the clean,
+   we can keep the color as we have on the soft"): --wf-ground is the frame, the sidebar and the canvas. In light mode Soft's
+   are white, its raised panel and the steps told apart by their shadows, and Clean's take the grey Soft had (#fafafa);
+   Blueprint and dark mode keep each style's stage. --wf-cv is the canvas's own colour (Blueprint dark's is its surface).
+   The workflow on it is half as strong as it was (owner, 21 Nov: "the dotted background, and the workflows themselves a bit
+   lighter... 50% off the opacity"): the dots (--wf-dot), the wires and pins (--wf-edge, opaque so crossings don't darken),
+   the steps' edges (--wf-nb) and their shadows (--wf-ns, each layer of the style's shadow at half its alpha). The steps' words,
+   icons and kind colours keep their full strength */
+.wf[data-c]{--wf-ground:var(--dm-stage);--wf-cv:var(--wf-ground);--wf-edge:color-mix(in srgb,var(--dm-faint) 50%,var(--wf-cv));
+  --wf-ns:0 0 0 1px rgba(0,0,0,.015),0 1px 1px rgba(0,0,0,.0125),0 2px 4px -1px rgba(0,0,0,.015),0 8px 16px -6px rgba(0,0,0,.025),0 20px 36px -14px rgba(0,0,0,.04);
+  --wf-nb:color-mix(in srgb,var(--dm-line) 30%,transparent);--wf-dot:color-mix(in srgb,var(--dm-fg) 4%,transparent)}
+:root[data-style="soft"] .wf[data-c]{--wf-ground:var(--dm-surface)}
+:root[data-style="clean"] .wf[data-c]{--wf-ground:#fafafa;--wf-nb:color-mix(in srgb,var(--dm-line) 50%,transparent);
+  --wf-ns:0 0 0 1px rgba(0,0,0,.035),0 1px 1px rgba(0,0,0,.02),0 2px 10px -4px rgba(0,0,0,.06)}
+:root:is([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wf[data-c]{--wf-ground:var(--dm-stage)}
+:root[data-style="soft"][data-theme="dark"] .wf[data-c]{--wf-ns:0 0 0 1px rgba(255,255,255,.0225),0 1px 2px rgba(0,0,0,.14),0 6px 14px -6px rgba(0,0,0,.18),0 20px 36px -14px rgba(0,0,0,.225)}
+:root[data-style="clean"][data-theme="dark"] .wf[data-c]{--wf-ns:0 0 0 1px rgba(255,255,255,.05),0 1px 1px rgba(0,0,0,.25),0 2px 10px -4px rgba(0,0,0,.3)}
+@media (prefers-color-scheme:dark){
+  :root:is([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wf[data-c]{--wf-ground:var(--dm-stage)}
+  :root[data-style="soft"]:not([data-theme="light"]) .wf[data-c]{--wf-ns:0 0 0 1px rgba(255,255,255,.0225),0 1px 2px rgba(0,0,0,.14),0 6px 14px -6px rgba(0,0,0,.18),0 20px 36px -14px rgba(0,0,0,.225)}
+  :root[data-style="clean"]:not([data-theme="light"]) .wf[data-c]{--wf-ns:0 0 0 1px rgba(255,255,255,.05),0 1px 1px rgba(0,0,0,.25),0 2px 10px -4px rgba(0,0,0,.3)}
+}
+:root:not([data-style="soft"],[data-style="clean"]) .wf[data-c]{--wf-ns:0 0 #0000;--wf-nb:color-mix(in srgb,var(--dm-line-strong) 22.5%,transparent);--wf-dot:color-mix(in srgb,var(--dm-fg) 3.5%,transparent)}
 :where(.wf) :where(h1,h2,h3,p,ul,ol){margin:0}
 .wf .muted{color:var(--dm-muted)}
 .wf-sp{flex:1}
@@ -1347,7 +1362,7 @@ body:has(.wf) .dmf{display:none}
 .wf-work{position:relative;flex:1;min-width:0;display:flex;flex-direction:column;container:wfw/inline-size}
 
 /* ---------- wfx-node and the canvas: a board of steps that pans and zooms ---------- */
-.wfx-cv{position:relative;flex:1;min-height:0;outline:0;background:var(--dm-stage)}
+.wfx-cv{position:relative;flex:1;min-height:0;outline:0;background:var(--wf-cv)}
 .wfx-cv:focus-visible{box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--dm-field-line-strong) 60%,transparent)}
 .wfx-vp{position:absolute;inset:0;overflow:hidden;overflow:clip;touch-action:none;user-select:none;-webkit-user-select:none;background-image:radial-gradient(circle at center,var(--wf-dot) 1.1px,transparent 1.6px);background-size:16px 16px}
 .wfx-cv[data-tool="hand"] .wfx-vp,.wfx-cv[data-tool="hand"] .wfx-node{cursor:grab}
@@ -1356,7 +1371,7 @@ body:has(.wf) .dmf{display:none}
 .wfx-cv.anim .wfx-world{transition:transform .3s var(--dm-ease)}
 .wfx-cv.anim .wfx-vp{transition:background-position .3s var(--dm-ease),background-size .3s var(--dm-ease)}
 .wfx-svg{position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible}
-.wfx-svg path.e{fill:none;stroke:var(--dm-faint);stroke-width:1.5;transition:stroke .4s var(--dm-ease),opacity .4s}
+.wfx-svg path.e{fill:none;stroke:var(--wf-edge);stroke-width:1.5;transition:stroke .4s var(--dm-ease),opacity .4s}
 .wfx-svg path.e.tool{stroke-dasharray:3 3}
 .wfx-svg path.e.done{stroke:color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 75%,var(--dm-faint))}
 .wfx-svg path.e.skip{stroke-dasharray:4 4;opacity:.55}
@@ -1364,8 +1379,8 @@ body:has(.wf) .dmf{display:none}
 .wfx-nodes{position:absolute;left:0;top:0}
 .wfx-node{position:absolute;width:172px;height:66px;padding:10px 10px 9px;display:flex;flex-direction:column;justify-content:space-between;border-radius:calc(12px * var(--dm-rk));background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--wf-nb),var(--wf-ns);text-align:left;cursor:pointer;user-select:none;transition:box-shadow .25s,opacity .3s}
 @supports (corner-shape:squircle){.wfx-node{corner-shape:squircle}}
-@media (hover:hover) and (pointer:fine){.wfx-node:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 50%,transparent),var(--wf-ns)}}
-.wfx-node.tool{background:color-mix(in srgb,var(--dm-surface) 55%,var(--dm-stage))}
+@media (hover:hover) and (pointer:fine){.wfx-node:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 25%,transparent),var(--wf-ns)}}
+.wfx-node.tool{background:color-mix(in srgb,var(--dm-surface) 55%,var(--wf-cv))}
 .wfx-node.sel{box-shadow:0 0 0 1.5px color-mix(in srgb,var(--dm-pick-on) 75%,transparent),var(--dm-shadow-pop)}
 .wfx-node:focus-visible{outline:2px solid var(--dm-focus);outline-offset:2px}
 .wfx-node.drag{z-index:3;cursor:grabbing;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-on) 50%,transparent),var(--dm-shadow-pop);transition:none}
@@ -1374,16 +1389,43 @@ body:has(.wf) .dmf{display:none}
 .wfx-node.off{opacity:.55}
 .wfx-n1{display:flex;align-items:center;gap:6px;min-width:0}
 .wfx-n1 .wfx-ic{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk))}
-/* the kind of step in colour (owner, 8 Nov): the trigger orange, AI steps violet, tools teal, app steps and outputs blue, a
-   branch yellow, a wait pink, an approval green. The step's run state keeps its own ring and badge on top of this */
-.wfx-ic[data-k]{background:var(--wf-kb);color:var(--wf-kf)}
-.wfx-ic[data-k="trigger"]{--wf-kb:var(--dm-pp-bg);--wf-kf:var(--dm-pp)}
-.wfx-ic[data-k="ai"]{--wf-kb:var(--dm-pl-bg);--wf-kf:var(--dm-pl)}
-.wfx-ic[data-k="tool"]{--wf-kb:var(--dm-pt-bg);--wf-kf:var(--dm-pt)}
-.wfx-ic:is([data-k="app"],[data-k="output"]){--wf-kb:var(--dm-pb-bg);--wf-kf:var(--dm-pb)}
-.wfx-ic[data-k="branch"]{--wf-kb:var(--dm-py-bg);--wf-kf:var(--dm-py)}
-.wfx-ic[data-k="wait"]{--wf-kb:var(--dm-pk-bg);--wf-kf:var(--dm-pk)}
-.wfx-ic[data-k="approval"]{--wf-kb:var(--dm-pm-bg);--wf-kf:var(--dm-pm)}
+/* the kinds of step in colour (owner, 21 Nov, after Attio's workflow builder; the hues of 8 Nov kept where a kind had one).
+   Each kind has one hue wherever its tile shows (the canvas, the inspector and its tokens, the step picker, the data picker,
+   the run drawer's rows, bars and data, Connected apps' tools): its icon in a saturated mark of the hue on that hue's light
+   tint. The hues are the core tag and avatar hues: the trigger orange, a branch yellow, AI steps violet, steps that find or
+   read teal, steps that create or update blue, steps that send or notify pink, an approval green and a wait rose (wf.js,
+   kindOf). A mark is the avatar hue where it keeps 3:1 on its tint and on every surface it sits on; orange, yellow, green and
+   teal are too light for that in light mode, so they lean toward their tag ink (45% avatar hue), and in dark mode blue,
+   violet, pink and rose lean toward their light tag ink (50%). The step's run state keeps its own ring and badge on top */
+.wf[data-c]{--wf-hb:var(--dm-av-b);--wf-hl:var(--dm-av-l);--wf-hk:var(--dm-av-k);--wf-hr:var(--dm-av-r);
+  --wf-hp:color-mix(in oklab,var(--dm-av-p) 45%,var(--dm-pp));--wf-hy:color-mix(in oklab,var(--dm-av-y) 45%,var(--dm-py));
+  --wf-hm:color-mix(in oklab,var(--dm-av-m) 45%,var(--dm-pm));--wf-ht:color-mix(in oklab,var(--dm-av-t) 45%,var(--dm-pt))}
+:root[data-theme="dark"] .wf[data-c]{--wf-hb:color-mix(in oklab,var(--dm-av-b) 50%,var(--dm-pb));--wf-hl:color-mix(in oklab,var(--dm-av-l) 50%,var(--dm-pl));
+  --wf-hk:color-mix(in oklab,var(--dm-av-k) 50%,var(--dm-pk));--wf-hr:color-mix(in oklab,var(--dm-av-r) 50%,var(--dm-pr));
+  --wf-hp:var(--dm-av-p);--wf-hy:var(--dm-av-y);--wf-hm:var(--dm-av-m);--wf-ht:var(--dm-av-t)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .wf[data-c]{--wf-hb:color-mix(in oklab,var(--dm-av-b) 50%,var(--dm-pb));--wf-hl:color-mix(in oklab,var(--dm-av-l) 50%,var(--dm-pl));
+  --wf-hk:color-mix(in oklab,var(--dm-av-k) 50%,var(--dm-pk));--wf-hr:color-mix(in oklab,var(--dm-av-r) 50%,var(--dm-pr));
+  --wf-hp:var(--dm-av-p);--wf-hy:var(--dm-av-y);--wf-hm:var(--dm-av-m);--wf-ht:var(--dm-av-t)}}
+.wf [data-k="trigger"]{--wf-kb:var(--dm-pp-bg);--wf-kf:var(--wf-hp)}
+.wf [data-k="branch"]{--wf-kb:var(--dm-py-bg);--wf-kf:var(--wf-hy)}
+.wf :is([data-k="ai"],[data-k="model"]){--wf-kb:var(--dm-pl-bg);--wf-kf:var(--wf-hl)}
+.wf [data-k="read"]{--wf-kb:var(--dm-pt-bg);--wf-kf:var(--wf-ht)}
+.wf [data-k="write"]{--wf-kb:var(--dm-pb-bg);--wf-kf:var(--wf-hb)}
+.wf [data-k="send"]{--wf-kb:var(--dm-pk-bg);--wf-kf:var(--wf-hk)}
+.wf [data-k="approval"]{--wf-kb:var(--dm-pm-bg);--wf-kf:var(--wf-hm)}
+.wf [data-k="wait"]{--wf-kb:var(--dm-pr-bg);--wf-kf:var(--wf-hr)}
+/* a model call's bar is its step's violet, a little lighter; a wait to try again keeps the warning colour */
+.wf [data-k="model"]{--wf-kc:color-mix(in oklab,var(--wf-hl) 82%,var(--dm-surface))}
+.wf [data-k="retry"]{--wf-kb:var(--dm-warn-bg);--wf-kf:var(--dm-warn);--wf-kc:var(--dm-warn-mark)}
+/* the tiles: the template's own (wfx-ic, wfx-lg) and the components' (Step inspector, Data picker, Run drawer), each with a
+   faint edge in its own hue, as in the reference (Blueprint's a little stronger, as its tiles had) */
+.wf[data-c]{--wf-ke:20%}
+:root:not([data-style="soft"],[data-style="clean"]) .wf[data-c]{--wf-ke:30%}
+.wf :is(.wfx-ic,.wfx-lg)[data-k]{background:var(--wf-kb);color:var(--wf-kf)}
+.wf :is(.wfx-ic,.wfx-lg,.sti-ti,.fpk-ti,.rdr-ti)[data-k]{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--wf-kf) var(--wf-ke),transparent)}
+.wf .sti-ti[data-k]{--dm-sti-kb:var(--wf-kb);--dm-sti-kf:var(--wf-kf)}
+.wf .fpk-ti[data-k]{--dm-fpk-kb:var(--wf-kb);--dm-fpk-kf:var(--wf-kf)}
+.wf :is(.rdr-ti,.rdr-r)[data-k]{--dm-rdr-kb:var(--wf-kb);--dm-rdr-kf:var(--wf-kf);--dm-rdr-kc:var(--wf-kc,var(--wf-kf))}
 .wfx-n1 .t{min-width:0;font-size:12.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wfx-n2{display:flex;align-items:center;height:20px;min-width:0}
 .wfx-n2 .m{display:flex;gap:var(--dm-s-1);min-width:0;overflow:hidden}
@@ -1410,7 +1452,7 @@ body:has(.wf) .dmf{display:none}
 .wfx-node:is([data-st="retry"],[data-st="wait"]) .wfx-st{background:var(--dm-warn-bg);color:var(--dm-warn);box-shadow:none}
 @keyframes acxs{from{opacity:0;transform:scale(.6)}}
 /* where a wire meets a step */
-.wfx-pin{position:absolute;width:8px;height:8px;border-radius:50%;background:var(--dm-surface);box-shadow:0 0 0 1.5px var(--dm-faint)}
+.wfx-pin{position:absolute;width:8px;height:8px;border-radius:50%;background:var(--dm-surface);box-shadow:0 0 0 1.5px var(--wf-edge)}
 .wfx-pin.in{left:-4px;top:calc(50% - 4px)}
 .wfx-pin.out{right:-4px;top:calc(50% - 4px)}
 .wfx-pin.top{top:-4px;left:calc(50% - 4px)}
@@ -1426,18 +1468,19 @@ body:has(.wf) .dmf{display:none}
 @media (hover:none){.wfx-ins{opacity:1;transform:none}}
 .wfx-cv.move .wfx-ins{opacity:0}
 /* wfx-elab: a branch's path, on its wire */
-.wfx-elab{position:absolute;transform:translate(-50%,-50%);height:18px;padding:0 6px;display:grid;place-items:center;border-radius:var(--dm-r-tag);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 60%,transparent);font-size:11px;font-weight:500;color:var(--dm-fg2);pointer-events:none;transition:opacity .3s}
+.wfx-elab{position:absolute;transform:translate(-50%,-50%);height:18px;padding:0 6px;display:grid;place-items:center;border-radius:var(--dm-r-tag);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 30%,transparent);font-size:11px;font-weight:500;color:var(--dm-fg2);pointer-events:none;transition:opacity .3s}
 .wfx-elab.skip{opacity:.5}
 .wfx-elab.done{color:var(--dm-fg)}
 /* who the test pretends to be, over the canvas's top left */
-.wf-lead{position:absolute;left:var(--dm-s-3);top:var(--dm-s-3);z-index:5;display:inline-flex;align-items:center;gap:var(--dm-s-2);max-width:calc(100% - 24px);height:32px;padding:0 10px 0 6px;border-radius:var(--dm-r-pill);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent),var(--wf-ns);font-size:12.5px;color:var(--dm-fg2);white-space:nowrap;transition:box-shadow var(--dm-t-fast)}
+.wf-lead{position:absolute;left:var(--dm-s-3);top:var(--dm-s-3);z-index:5;display:inline-flex;align-items:center;gap:var(--dm-s-2);max-width:calc(100% - 24px);height:32px;padding:0 10px 0 6px;border-radius:var(--dm-r-pill);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 35%,transparent),var(--wf-ns);font-size:12.5px;color:var(--dm-fg2);white-space:nowrap;transition:box-shadow var(--dm-t-fast)}
 @supports (corner-shape:squircle){.wf-lead{corner-shape:squircle}}
 .wf-lead>span:not(.av):not(.wfx-ic){min-width:0;overflow:hidden;text-overflow:ellipsis}
 .wf-lead b{font-weight:500;color:var(--dm-fg)}
 .wf-lead .av{width:20px;height:20px;font-size:8.5px}
 .wf-lead .wfx-ic{width:20px;height:20px}
 .wf-lead>.i{color:var(--dm-muted)}
-@media (hover:hover) and (pointer:fine){.wf-lead:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 50%,transparent),var(--wf-ns)}}
+/* the test chip's edge is lighter than a button's (owner, 21 Nov: "the border is a bit too dark"), at rest and on hover */
+@media (hover:hover) and (pointer:fine){.wf-lead:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 30%,transparent),var(--wf-ns)}}
 .wf-bar.ctb-bar{transform:translateX(-50%)}
 .wf-bar .ctb-b[aria-disabled="true"]{cursor:not-allowed}
 
@@ -1581,7 +1624,11 @@ body:has(.wf) .dmf{display:none}
 .wf-pop .mi[aria-disabled="true"]{color:var(--dm-dis);cursor:not-allowed}
 .wf-pop .mi .kbd{margin-left:auto}
 .wf-pop .mi .av{flex:none}
-.wf .pop{box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 70%,transparent),var(--dm-shadow-pop)}
+/* every menu's edge is the half-strength hairline, lighter than it was (owner, 21 Nov, on the test chip's menu: "the border is a
+   bit too dark") */
+.wf .pop{box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent),var(--dm-shadow-pop)}
+/* Clean's menus have their own single edge, not a second hairline over it (owner, 21 Nov) */
+:root[data-style="clean"] .wf .pop{box-shadow:var(--dm-shadow-pop)}
 .wfx-pick.acx-pk{width:272px}
 .wfx-pick .acx-ls{max-height:260px}
 .wfx-pick .acx-o .ic.wfx-ic{width:22px;height:22px;border-radius:calc(6px * var(--dm-rk))}
@@ -1764,10 +1811,12 @@ body:has(.wf) .dmf{display:none}
 @supports (corner-shape:squircle){.wf-edited,.wfx-st,.wfx-pin,.wfx-ins,.wfx-ver-m,.wf-checks .g,.wfx-app-wf .dot{corner-shape:round}}
 
 /* ---------- dividers (owner, 9 Nov) ---------- */
-/* every hairline in the editor a step stronger, in light and dark: the line token they mix from is darker (lighter in dark) */
-.wf[data-c]{--dm-line:color-mix(in srgb,var(--dm-line-strong) 22%,#e8e8e8)}
-:root[data-theme="dark"] .wf[data-c]{--dm-line:#474747}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .wf[data-c]{--dm-line:#474747}}
+/* every hairline in the editor a step stronger, in light and dark: the line token they mix from is darker (lighter in dark).
+   Not in Clean, whose lines are its own lighter hairline (owner, 21 Nov: "on the clean version, the borders around components
+   are definitely too strong") */
+:root:not([data-style="clean"]) .wf[data-c]{--dm-line:color-mix(in srgb,var(--dm-line-strong) 22%,#e8e8e8)}
+:root:not([data-style="clean"])[data-theme="dark"] .wf[data-c]{--dm-line:#474747}
+@media (prefers-color-scheme:dark){:root:not([data-style="clean"]):not([data-theme="light"]) .wf[data-c]{--dm-line:#474747}}
 /* the side panel's edge: in light mode the same half-strength hairline as every other line; in dark mode the full line,
    which reads on the dark surface (owner, 10 Nov) */
 :root[data-theme="dark"] .wf.pn .wf-panel{border-left-color:var(--dm-line)}
@@ -1776,16 +1825,21 @@ body:has(.wf) .dmf{display:none}
 /* ---------- lists a filter or a search changes ---------- */
 /* the copies the core's reflow() leaves where rows went sit inside their own list, so they scroll and clip with it */
 .wf :is(.acx-ls,.fpk-ls,.rdr-log,.wfx-apps-l,.wf-runs){position:relative}
-/* the app's frame, as the Sales CRM's: the sidebar on the stage colour, one step below the content; in Soft the content is a
-   rounded panel raised on that frame, with a hairline in dark mode; Blueprint stays flush and square (owner, 10 Nov) */
-.wf-side.ahx-side{background:var(--dm-stage)}
+/* the app's frame, as the Sales CRM's: the sidebar on the ground (--wf-ground: the stage colour, one step below the content,
+   and white in Soft light, owner 21 Nov); in Soft the content is a rounded panel raised on that frame, with a hairline in
+   dark mode; Blueprint stays flush and square (owner, 10 Nov) */
+.wf-side.ahx-side{background:var(--wf-ground)}
 @media (min-width:1024px){
-  :root:is([data-style="soft"],[data-style="clean"]) .wf[data-c]{background:var(--dm-stage)}
+  :root:is([data-style="soft"],[data-style="clean"]) .wf[data-c]{background:var(--wf-ground)}
   :root:is([data-style="soft"],[data-style="clean"]) .wf .ahx-side{border-right-color:transparent}
   :root:is([data-style="soft"],[data-style="clean"]) .wf-main{margin:var(--dm-s-2) var(--dm-s-2) var(--dm-s-2) 0;border-radius:calc(12px * var(--dm-rk));background:var(--dm-surface);box-shadow:var(--dm-shadow)}
   @supports (corner-shape:squircle){:root:is([data-style="soft"],[data-style="clean"]) .wf-main{corner-shape:squircle}}
   :root:is([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wf-main{box-shadow:var(--dm-shadow),0 0 0 1px color-mix(in srgb,var(--dm-fg) 10%,transparent)}
   @media (prefers-color-scheme:dark){:root:is([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wf-main{box-shadow:var(--dm-shadow),0 0 0 1px color-mix(in srgb,var(--dm-fg) 10%,transparent)}}
+  /* Clean's panel has one edge, its shadow's ring at half strength, and no second hairline in dark mode (owner, 21 Nov) */
+  :root[data-style="clean"] .wf-main{box-shadow:0 0 0 1px rgba(0,0,0,.035),0 1px 1px rgba(0,0,0,.04),0 2px 10px -4px rgba(0,0,0,.12)}
+  :root[data-style="clean"][data-theme="dark"] .wf-main{box-shadow:0 0 0 1px rgba(255,255,255,.05),0 1px 1px rgba(0,0,0,.5),0 2px 10px -4px rgba(0,0,0,.6)}
+  @media (prefers-color-scheme:dark){:root[data-style="clean"]:not([data-theme="light"]) .wf-main{box-shadow:0 0 0 1px rgba(255,255,255,.05),0 1px 1px rgba(0,0,0,.5),0 2px 10px -4px rgba(0,0,0,.6)}}
 }
 /* owner's review 10 Nov: the workspace switcher sits on the header row's centre line, the sidebar's footer divider and the
    run bar's top edge are one line, and the usage count carries a token icon */
@@ -1825,7 +1879,7 @@ body:has(.wf) .dmf{display:none}
    darkest tone and the canvas is the one lighter area inside it; the sidebar's edge runs the full height, the top bar's line
    runs the full width (through the workspace switcher's row), and the run bar's top edge, the usage meter's line and the step
    panel's foot line are one line from edge to edge. A switch is a dark track with an outline and a lighter knob */
-:root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wf{--wf-g:color-mix(in srgb,var(--dm-fg) 14%,transparent)}
+:root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wf{--wf-g:color-mix(in srgb,var(--dm-fg) 14%,transparent);--wf-cv:var(--dm-surface)}
 :root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] :is(.wf-side.ahx-side,.wf-top,.wf.pn .wf-panel,.wf .rdr-dw,.wf-insp .wfx-insp-f,.wfx-cv .ctb-bar){background:var(--dm-stage)}
 :root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wfx-cv{background:var(--dm-surface)}
 :root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wf .ahx-side{border-right:1px solid var(--wf-g)}
@@ -1837,7 +1891,7 @@ body:has(.wf) .dmf{display:none}
 :root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wf-insp .wfx-insp-f{box-sizing:border-box;min-height:58px;border-top:1px solid var(--wf-g)}
 :root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wfx-cv .ctb-bar{box-shadow:0 0 0 1px var(--wf-g)}
 @media (prefers-color-scheme:dark){
-  :root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wf{--wf-g:color-mix(in srgb,var(--dm-fg) 14%,transparent)}
+  :root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wf{--wf-g:color-mix(in srgb,var(--dm-fg) 14%,transparent);--wf-cv:var(--dm-surface)}
   :root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) :is(.wf-side.ahx-side,.wf-top,.wf.pn .wf-panel,.wf .rdr-dw,.wf-insp .wfx-insp-f,.wfx-cv .ctb-bar){background:var(--dm-stage)}
   :root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wfx-cv{background:var(--dm-surface)}
   :root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wf .ahx-side{border-right:1px solid var(--wf-g)}
@@ -1945,7 +1999,8 @@ body:has(.wf) .dmf{display:none}
 @media (hover:hover) and (pointer:fine){.sti-addw:hover{background:var(--dm-row);color:var(--dm-fg)}}
 .sti-addw[aria-expanded="true"]{background:var(--dm-row);color:var(--dm-fg)}
 @supports (corner-shape:squircle){:root:is([data-style="soft"],[data-style="clean"]) .sti-addw{corner-shape:squircle}}
-/* Soft's sidebar sits on the frame's grey, where the row grey doesn't show: its hover is a step darker than the frame */
+/* Soft's and Clean's sidebar sits on the ground (--wf-ground), where the row grey doesn't show (on Clean's grey and in dark mode)
+   or barely shows (on Soft light's white): its hover is a step darker than the ground */
 @media (hover:hover) and (pointer:fine){:root:is([data-style="soft"],[data-style="clean"]) .wf-side :is(.ahx-cv,.ahx-wsb):not([aria-current="true"]):hover{background:color-mix(in srgb,var(--dm-fg) 5%,transparent)}}
 /* the reviewer's pass (owner, 12 Nov): the run bar's switch is the 28px of the buttons beside it */
 .wf .rdr-tabs button{height:24px}
@@ -1954,6 +2009,18 @@ body:has(.wf) .dmf{display:none}
 .wf-pbar{padding-left:var(--dm-s-4);padding-right:var(--dm-s-4)}
 /* the reviewer's judgement calls (owner, 14 Nov): the limit's value sits on its title's line */
 .wf-limp .slx-v{margin-top:-1px}
+/* owner's notes, 21 Nov */
+/* the Test run split's arrow opens the test chip's menu too, so in Soft light the split has the chip's lighter edge; dark mode
+   keeps the line buttons' own edge */
+:root[data-style="soft"] .wf-split .wf-test{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 35%,transparent)}
+:root[data-style="soft"] .wf-split .wf-testm{box-shadow:inset 1px 0 0 color-mix(in srgb,var(--dm-line) 35%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 35%,transparent)}
+:root[data-style="soft"][data-theme="dark"] .wf-split :is(.wf-test,.wf-testm){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-fg) 22%,var(--dm-surface))}
+@media (prefers-color-scheme:dark){:root[data-style="soft"]:not([data-theme="light"]) .wf-split :is(.wf-test,.wf-testm){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-fg) 22%,var(--dm-surface))}}
+/* the run drawer's Log: its level switch has even room above it (from the head's switch) and below it (to the first line's tag
+   and words), measured at 14.5px and 15px (owner, 21 Nov: "a lot of space up top and not enough at the bottom"). The head is
+   49px in Soft and Clean beside the sidebar and 57px everywhere else */
+.wf .rdr-dw .rdr-lf{padding:0 0 10px}
+@media (min-width:1024px){:root:is([data-style="soft"],[data-style="clean"]) .wf .rdr-dw .rdr-lf{padding-top:4px}}
 </style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -2290,16 +2357,23 @@ const fitHits = window.dmFitHits || (() => {
   const VIA = { 'Slack message':'a Slack message', Email:'an email', 'In the app':'the app' };
   const TYPES = { trigger:{ k:'Trigger', ic:'bolt' }, ai:{ k:'AI step', ic:'spark' }, tool:{ k:'Tool', ic:'globe' }, app:{ k:'App step', ic:'send' },
     branch:{ k:'Branch', ic:'branch' }, wait:{ k:'Wait', ic:'clock' }, approval:{ k:'Approval', ic:'user' }, output:{ k:'Output', ic:'hash' } };
+  // the kind of a step, for its colour (owner, 21 Nov, after Attio's workflow builder): what it does, not only its type, so an
+  // app step that sends (an email, a Slack post, a page) is told apart from one that writes (a CRM record, a list) or reads
+  // (usage numbers). Tools find or read; a branch is a condition. One hue per kind wherever a step's tile shows (wf.css)
+  const SENDS = new Set(['mail', 'hash', 'bell', 'send', 'comment']);
+  const kindOf = n => !n ? 'write' : n.type === 'tool' ? 'read' : n.type === 'output' ? 'send'
+    : n.type === 'app' ? (SENDS.has(n.ic) ? 'send' : /^(pull|find|get|look|read|search)\b/i.test(n.t) ? 'read' : 'write') : n.type;
   const MODELS = [['Sonnet 5.5', 'Balanced, the default'], ['Opus 5.5', 'Deepest reasoning, slower'], ['Haiku 5.5', 'Fastest and cheapest']];
   const CONNS = { mail:['sales@fernhill.co', 'ana@fernhill.co'], hash:['Fernhill on Slack'], users:['Email marketing'], db:['Fernhill CRM', 'Data warehouse'], globe:['Company data API', 'Web search'], other:['Fernhill CRM', 'Webhook'] };
-  // the tools an AI step can call: icon, name, connection, what it does, what it hands on, and its kind (its tile's colour)
+  // the tools an AI step can call: icon, name, connection, what it does, what it hands on, and where it comes from (Data, Web or
+  // Built in). Every tool finds or reads, so its tile is that kind's colour
   const TOOLS = [['globe', 'Company lookup', 'Company data API', 'Finds a company by its email domain', [['employees', 'number', '420'], ['industry', 'text', 'Software']], 'data'],
     ['search', 'Web search', 'Web search', 'Searches the web and keeps the top results', [['results', 'list', '5 pages'], ['top_url', 'text', 'corvid.io/about']], 'web'],
     ['db', 'CRM lookup', 'Fernhill CRM', 'Reads a contact and its deals from the CRM', [['contact', 'text', 'Priya Shah'], ['open_deals', 'number', '0']], 'data'],
     ['file-text', 'Read a page', 'Web search', 'Reads the text of a web page', [['text', 'text', 'Corvid builds analytics']], 'web'],
     ['code', 'Run code', 'Built in', 'Runs a short script on the data so far', [['result', 'object', '{ 3 fields }']], 'code'],
     ['file', 'Read a file', 'Built in', 'Reads the text of an attached PDF or document', [['text', 'text', 'Order form, 2 pages']], 'code']];
-  const TKIND = { data:['Data', 'pt'], web:['Web', 'pb'], code:['Built in', 'pk'] };
+  const TKIND = { data:['Data'], web:['Web'], code:['Built in'] };
   // the tools the workspace has turned on; Connected apps adds the others
   const WS_TOOLS = new Set(['Company lookup', 'Web search', 'CRM lookup', 'Read a page']);
   // the CRM's sign-in has expired until it is connected again (Connected apps), so the workflows that use it fail with a 401
@@ -2541,7 +2615,7 @@ const fitHits = window.dmFitHits || (() => {
       branch:() => [rule.v ? `${rule.v.split('.')[1]} ${rule.op.replace('is ', '')} ${rule.n}` : 'No rule yet'], approval:() => [c.who.map(first).join(' or ')], app:() => [c.list || c.conn], output:() => [c.channel || c.conn], wait:() => [c.for] }[n.type] || (() => []))();
     return m.filter(Boolean).map(t => `<span class="tag">${esc(t)}</span>`).join('') + (n.off ? '<span class="tag">Off</span>' : '');
   };
-  const tile = (n, cls = '') => `<span class="wfx-ic${n.type === 'ai' ? ' ai' : ''}${cls}" data-k="${n.type}" aria-hidden="true">${I(n.ic, 'xs')}</span>`;
+  const tile = (n, cls = '') => `<span class="wfx-ic${n.type === 'ai' ? ' ai' : ''}${cls}" data-k="${kindOf(n)}" aria-hidden="true">${I(n.ic, 'xs')}</span>`;
   function nodeHTML(n){
     const p = POS[n.id];
     return `<button class="wfx-node${n.type === 'tool' ? ' tool' : ''}${n.off ? ' off' : ''}${selId === n.id ? ' sel' : ''}" data-id="${n.id}" data-type="${n.type}" style="left:${p.x}px;top:${p.y - NH / 2}px" aria-pressed="${selId === n.id}" aria-label="${esc(TYPES[n.type].k + ': ' + n.t)}">`
@@ -2787,8 +2861,8 @@ const fitHits = window.dmFitHits || (() => {
     let k = 0, h = '';
     pItems = [];
     CAT.forEach(g => { const its = g.items.filter(it => hit(it.t + ' ' + it.d)); if (!its.length) return;
-      h += `<div role="group" aria-label="${g.g}"><div class="acx-gh" aria-hidden="true">${g.g}</div>` + its.map(it => { pItems.push(it); const i = k++; return `<div class="acx-o" role="option" id="wf-pk-${i}" aria-selected="false" data-i="${i}"><span class="ic wfx-ic${it.type === 'ai' ? ' ai' : ''}">${I(it.ic, 'xs')}</span><span>${esc(it.t)}</span></div>`; }).join('') + '</div>'; });
-    if (v){ pItems.push({ ask:true, q:pq.value.trim() }); h += `<div role="group" aria-label="Agent"><div class="acx-gh" aria-hidden="true">Agent</div><div class="acx-o wfx-pick-ask" role="option" id="wf-pk-${k}" aria-selected="false" data-i="${k}"><span class="ic wfx-ic ai">${I('spark', 'xs')}</span><span>Build “${esc(pq.value.trim())}”</span></div></div>`; }
+      h += `<div role="group" aria-label="${g.g}"><div class="acx-gh" aria-hidden="true">${g.g}</div>` + its.map(it => { pItems.push(it); const i = k++; return `<div class="acx-o" role="option" id="wf-pk-${i}" aria-selected="false" data-i="${i}"><span class="ic wfx-ic${it.type === 'ai' ? ' ai' : ''}" data-k="${kindOf(it)}">${I(it.ic, 'xs')}</span><span>${esc(it.t)}</span></div>`; }).join('') + '</div>'; });
+    if (v){ pItems.push({ ask:true, q:pq.value.trim() }); h += `<div role="group" aria-label="Agent"><div class="acx-gh" aria-hidden="true">Agent</div><div class="acx-o wfx-pick-ask" role="option" id="wf-pk-${k}" aria-selected="false" data-i="${k}"><span class="ic wfx-ic ai" data-k="ai">${I('spark', 'xs')}</span><span>Build “${esc(pq.value.trim())}”</span></div></div>`; }
     listTo(pls, h, '.acx-gh, .acx-o', x => x.matches('.wfx-pick-ask') ? 'ask' : (x.matches('.acx-gh') ? 'g:' : 'o:') + x.textContent, pq.value, pk); pHi = 0; hiPick(0);
   }
   function hiPick(i){
@@ -2838,7 +2912,7 @@ const fitHits = window.dmFitHits || (() => {
   const tok = (v, attrs = '', ok = null, empty = 'Pick data') => { const { n, k } = vref(v);
     if (!v) return `<span class="sti-tok none"${attrs}>${I('plus', 'xs')}<span>${empty}</span></span>`;
     if (!n || ok === false) return `<span class="sti-tok bad"${attrs} data-tip="${n ? 'Not from an earlier step' : 'That step is gone'}">${I('alert', 'xs')}<span class="s">${esc(n ? n.t : v.split('.')[0])}</span><span class="sep" aria-hidden="true">›</span><span class="f">${esc(k || '')}</span></span>`;
-    return `<span class="sti-tok"${attrs}><span class="sti-ti" data-k="${n.type}" aria-hidden="true">${I(n.ic, 'xs')}</span><span class="s">${esc(n.t)}</span><span class="sep" aria-hidden="true">›</span><span class="f">${esc(k)}</span></span>`; };
+    return `<span class="sti-tok"${attrs}><span class="sti-ti" data-k="${kindOf(n)}" aria-hidden="true">${I(n.ic, 'xs')}</span><span class="s">${esc(n.t)}</span><span class="sep" aria-hidden="true">›</span><span class="f">${esc(k)}</span></span>`; };
   // each data type in its colour: text blue, numbers green, lists orange, objects pink
   const TYPE_TONE = { text:'b', number:'m', list:'p', object:'k', bool:'y', date:'t' };
   const vp2 = $('#wf-p-var', app), vq = $('.wf-var-q', vp2), vls = $('.fpk-ls', vp2), vn = $('.wf-var-n', vp2);
@@ -2847,7 +2921,7 @@ const fitHits = window.dmFitHits || (() => {
     const n = byId(vTarget.node), v = vq.value.trim().toLowerCase(); let h = '', k = 0; vItems = [];
     const ups = upstream(vTarget.node);
     ups.forEach((u, ui) => { const fs = u.out.filter(o => !v || (u.t + ' ' + o[0]).toLowerCase().includes(v)); if (!fs.length) return;
-      h += `<div role="group" aria-labelledby="wf-vg-${ui}"><div class="fpk-g" id="wf-vg-${ui}"><span class="fpk-ti" data-k="${u.type}" aria-hidden="true">${I(u.ic, 'xs')}</span><b>${esc(u.t)}</b><span class="n">${TYPES[u.type].k}</span></div>` + fs.map(o => { const ref = u.ref + '.' + o[0], i = k++; vItems.push(ref);
+      h += `<div role="group" aria-labelledby="wf-vg-${ui}"><div class="fpk-g" id="wf-vg-${ui}"><span class="fpk-ti" data-k="${kindOf(u)}" aria-hidden="true">${I(u.ic, 'xs')}</span><b>${esc(u.t)}</b><span class="n">${TYPES[u.type].k}</span></div>` + fs.map(o => { const ref = u.ref + '.' + o[0], i = k++; vItems.push(ref);
         return `<div class="fpk-o" role="option" id="wf-vo-${i}" aria-selected="false" data-i="${i}" aria-label="${esc(o[0])}, ${o[1]}, from ${esc(u.t)}"><span class="k">${esc(o[0])}</span><span class="tag ${TYPE_TONE[o[1]] || 'b'}">${o[1]}</span><span class="ex">${esc(o[2])}</span></div>`; }).join('') + '</div>'; });
     listTo(vls, h || `<p class="fpk-e">${ups.length ? 'No field matches' : `${esc(n.t)} is the first step, so there is no data before it`}</p>`, '.fpk-g, .fpk-o, .fpk-e', x => x.getAttribute('aria-label') || x.textContent, vq.value, vp2);
     vn.textContent = ups.length ? `From the ${ups.length} ${ups.length === 1 ? 'step' : 'steps'} before ${n.t}` : 'Nothing runs before this step';
@@ -2873,7 +2947,7 @@ const fitHits = window.dmFitHits || (() => {
   const num = (f, v, lo, hi, label) => `<span class="sti-num" role="group" aria-label="${esc(label)}"><button class="ib" data-f="${f}" data-d="-1" aria-label="Fewer ${label.toLowerCase()}" data-tip="Fewer" ${v <= lo ? 'aria-disabled="true"' : ''}>${I('minus', 'xs')}</button><span class="num" aria-live="polite">${v}</span><button class="ib" data-f="${f}" data-d="1" aria-label="More ${label.toLowerCase()}" data-tip="More" ${v >= hi ? 'aria-disabled="true"' : ''}>${I('plus', 'xs')}</button></span>`;
   const segBtns = (f, v, opts, label) => `<div class="seg2 sti-seg" role="group" aria-label="${esc(label)}" data-f="${f}">${opts.map(([k, t]) => `<button aria-pressed="${v === k}" data-v="${k}">${t}</button>`).join('')}</div>`;
   const toggle = (f, on, label) => `<button class="wfx-tg" role="switch" aria-checked="${on}" data-f="${f}"><span class="toggle" aria-hidden="true"></span><span>${esc(label)}</span></button>`;
-  const stile = (n, s = 'xs') => `<span class="sti-ti" data-k="${n.type}" aria-hidden="true">${I(n.ic, s)}</span>`;
+  const stile = (n, s = 'xs') => `<span class="sti-ti" data-k="${kindOf(n)}" aria-hidden="true">${I(n.ic, s)}</span>`;
   // the instructions: their text with each {{step.field}} as a token, and back
   const insHTML = (n, ok) => esc(n.cfg.prompt).replace(/\{\{\s*([\w]+\.[\w]+)\s*\}\}/g, (m, r) => tok(r, ` contenteditable="false" data-ref="${r}"`, ok.has(r)));
   const readIns = el => [...el.childNodes].map(x => x.nodeType === 3 ? x.textContent : x.dataset && x.dataset.ref ? `{{${x.dataset.ref}}}` : x.nodeName === 'BR' ? '\n' : '\n' + x.textContent).join('');
@@ -3173,7 +3247,7 @@ const fitHits = window.dmFitHits || (() => {
       clearTimeout(dr._anim); dr.classList.add('anim'); settle(); setH(h); dr._anim = setTimeout(() => dr.classList.remove('anim'), REDUCE ? 0 : MT('--dm-t') + 50); }); }
 
   // the kind of each span, for its tile and its bar's colour: a step's own kind, its model and tool calls, a wait to retry
-  const kOf = s => s.k === 'step' ? byId(s.node)?.type || 'app' : s.k;
+  const kOf = s => s.k === 'step' ? kindOf(byId(s.node)) : s.k === 'tool' ? 'read' : s.k;
   const stOf = (s, t) => s.e == null ? (R && R.state === 'stopped' ? 'stop' : 'wait') : t < s.e ? (s.k === 'retry' ? 'retry' : 'run') : s.st;
   let rowEls = new Map(), axisN = 0, nodeCache = new Map(), logN = 0;
   function startRun({ only = null, lead = W.lead } = {}){
@@ -3328,7 +3402,7 @@ const fitHits = window.dmFitHits || (() => {
     const t = R.now, ready = W.nodes.filter(n => R.C.out[n.ref] && R.C.spans.some(s => s.node === n.id && s.e != null && s.e <= t + 1e-6 && s.st !== 'bad'));
     if (!ready.length){ dsEl.innerHTML = ''; ioEl.innerHTML = '<p class="rdr-de">No step has finished yet.</p>'; return; }
     if (!ready.some(n => n.ref === dataTab)) dataTab = ready[ready.length - 1].ref;
-    dsEl.innerHTML = ready.map(n => `<button data-ref="${n.ref}" aria-pressed="${n.ref === dataTab}"><span class="rdr-ti" data-k="${n.type}" aria-hidden="true">${I(n.ic, 'xs')}</span><span>${esc(n.t)}</span></button>`).join('');
+    dsEl.innerHTML = ready.map(n => `<button data-ref="${n.ref}" aria-pressed="${n.ref === dataTab}"><span class="rdr-ti" data-k="${kindOf(n)}" aria-hidden="true">${I(n.ic, 'xs')}</span><span>${esc(n.t)}</span></button>`).join('');
     const n = byRef(dataTab);
     ioEl.innerHTML = `<h4>Input</h4><pre class="rdr-json" tabindex="0" aria-label="${esc(n.t)} input">${jsonHTML(inOf(n, R.C))}</pre><h4>Output</h4><pre class="rdr-json" tabindex="0" aria-label="${esc(n.t)} output">${jsonHTML(R.C.out[dataTab])}</pre>`;
   }
@@ -3677,7 +3751,7 @@ const fitHits = window.dmFitHits || (() => {
   const nOf = (k, one, many) => `${k} ${k === 1 ? one : many}`;
   const usedTxt = a => { const k = usersOf(a).length; return k ? `Used by ${nOf(k, 'workflow', 'workflows')}` : 'No workflow uses it yet'; };
   const toolUse = t => { const k = FLOWS.filter(f => load(f).nodes.some(n => n.type === 'tool' && n.t === t)).length; return k ? `Used in ${nOf(k, 'workflow', 'workflows')}` : 'Ready for AI steps'; };
-  const tTile = t => `<span class="wfx-lg" data-tone="${TKIND[t[5]][1]}" aria-hidden="true">${I(t[0], 'xs')}</span>`;
+  const tTile = t => `<span class="wfx-lg" data-k="read" aria-hidden="true">${I(t[0], 'xs')}</span>`;
   function paintAppsN(){ $('.n', appsBtn).textContent = APPS.length; }
   let aView = 'list', aSel = null, aBack = null, aHi = 0, aHits = [], aBusy = 0;
   const head = (t, back) => `<div class="wfx-apps-h${back ? ' bk' : ''}">${back ? `<button class="ib wfx-back" data-back aria-label="Back to Connected apps" data-tip="Back" data-tip-k="Esc">${I('chev-l', 's')}</button>` : ''}${t}</div>`;
