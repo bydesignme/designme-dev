@@ -126,9 +126,9 @@ every session and every agent.
   rules (the "Clean" CSS section for tokens and shared treatments, each component's own section for its touches). The build
   writes Blueprint as `:not([data-style="soft"],[data-style="clean"])`, so Blueprint rules never reach Clean.
 - Clean's chrome is monochrome (owner, 17 Nov): surfaces, text, hairlines, the primary button (ink: black in light, white
-  in dark, its own `--btn-*` and `--on-btn` tokens), secondary buttons, switchers, knobs and toggles. Data and status keep
-  Soft's colours: `--accent` stays blue for data, selection and links, the chart palette, agents' own colours and pastel
-  avatars, and the status colours. Ticks are the vivid green (`--ok-mark`), never black. No red fill behind an error: a
+  in dark, its own `--btn-*` and `--on-btn` tokens), secondary buttons, switchers, knobs and toggles. In light mode, data and
+  status keep Soft's colours: `--accent` stays blue for data, selection and links. In dark mode Clean's accent is white (see
+  below). Both modes keep the chart palette's other colours, agents' own colours, pastel avatars and the status colours. Ticks are the vivid green (`--ok-mark`), never black. No red fill behind an error: a
   failed row keeps its red words and mark on the row as it is. Off-white head and foot strips; checkboxes and tracks have
   inner shadows. Only the ink primary button has depth (an inner light at the top, a soft shade at the bottom); secondary
   buttons and dropdown triggers are flat: a hairline border and a light fill that deepens a little on hover and press, with
@@ -146,9 +146,11 @@ every session and every agent.
   `.cle-em`/`.cle-art`): a small monochrome card sketch, a title, one muted line, an optional outline button.
 - Review Clean work on a separate preview before it reaches staging (owner, 18 Nov): batches of 5 components, each on its own
   lab page (as `lab/six/`), and staging only gets them once the owner approves.
-- Padding is measured, not eyeballed (owner, 17 Nov; 16px and 8px since 18 Nov): every Clean card has its content 16px in
-  from each edge; a control in a head or foot strip sits 8px from the card's edges, as round as the card's corner less 8
-  (a 28px pill in a 22px corner), and a select in a strip lines up by its words, not its hover box. Check with a script that measures
+- Padding is measured, not eyeballed (owner, 17 Nov; 16px since 18 Nov): every Clean card has its content 16px in from each
+  edge, and so do the controls in its head and foot strips (owner, 21 Nov, replacing the 18 Nov 8px for strip controls: a
+  strip's "Connect a tool" and "Test all" sat 8px off the rows' tiles and buttons). A strip control sits on the content's
+  16px column at the sides and 8px from the strip's own top and bottom; a select in a strip lines up by its words, not its
+  hover box. Check with a script that measures
   each card's insets at 1440 and fix every mismatch above 1px. Measure through the whole demo (sampled while it plays, to its
   end state) and in every design a card can switch to, not one settled frame (owner, 18 Nov).
 - Clean has an outer glow only in dark mode, and only around buttons (owner, 18 Nov): a faint neutral glow around the white
@@ -157,9 +159,12 @@ every session and every agent.
 - Clean's motion is Access Grid-like and calm (owner, 18 Nov: "it should be smoother"): ease cubic-bezier(.23,1,.32,1), the
   card rises 8px from .98 over 680ms and its pieces follow 50ms apart (`REVEAL.clean`), hovers and fades 220ms, moves 340ms,
   entrances 560ms, only the ink primary presses (at .97), menus scale and fade from their trigger.
-- Clean's loaders and progress marks (spinners, animated dots, step and progress bars, relevance meters) are white in dark
-  mode and the accent in light mode (owner, 21 Nov, said three times: "white in dark mode, accent color in light mode for
-  clean"). This is the clearest difference between Clean and Soft. An animated loader mark has no tile or fill behind it.
+- Clean's accent is white in dark mode and the accent colour in light mode (owner, 21 Nov, said four times: "dark mode clean
+  has white as accents and accent color in light mode"). Everything drawn in the accent turns white in Clean dark, with dark
+  text on white fills: count badges, loaders and spinners, animated dots, step and progress bars, relevance meters, selected
+  marks, toggles, links and accent text. Links keep an underline, so they still read as links. This is the clearest
+  difference between Clean and Soft. Set it in Clean dark's tokens, not per component. Status colours, agents' own colours,
+  avatars and the chart palette's other series keep their hues. An animated loader mark has no tile or fill behind it.
 - Soft keeps its look; the "Soft refreshed" lab is dropped. Six components have their Clean touches (Agent tree,
   Agent run timeline, Status pill, Context meter, Run cost, Meeting card); the others render with Clean's tokens and get
   theirs later.
@@ -220,7 +225,7 @@ every session and every agent.
 - Every part sits on a shared column. A row's leading mark (icon, tile, checkbox, avatar) sits centred in the same column as
   the head's icon tile; its words start where the title's words start; a row's hover fill lines up with the head tile's box
   (the content's width, no wider). A select's words line up with the content's left edge, its hover box reaching out round
-  them. Outside Clean's strips, the last control in a row (a select, a button) ends on the content's right edge, where the
+  them. The last control in a row (a select, a button), in Clean's strips too, ends on the content's right edge, where the
   meters and tags above end. A label or trigger outside a card lines up with the card's edge.
 - The parts of one row (icon, word, detail, button) share one centre line: never mix `align-items:baseline` with an
   `align-self:center` child. Buttons side by side are the same drawn height.

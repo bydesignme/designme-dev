@@ -33,7 +33,12 @@ function sample(id){
   const isCtl = e => e.matches('button,.pill,.ib,.tag,[role="switch"],select,input:not([type="checkbox"]):not([type="radio"]):not([type="file"])');
   sin.querySelectorAll('svg,.bx,.av,[class$="-ic"],[class*="-ic "],[class$="-mk"],[class*="-mk "],[class$="-av"],[class*="-av "]').forEach(e => {
     if (!card.contains(e) || !vis(e) || (e.closest('svg') && e.tagName.toLowerCase() !== 'svg') || e.closest('button,.pill,.tag,.pop')) return;
-    const b = e.getBoundingClientRect(); if (b.width < 6 || b.height < 6 || b.width > 64) return; A.push({ k:'mark', e, b }); });
+    const b = e.getBoundingClientRect(); if (b.width < 6 || b.height < 6 || b.width > 64) return;
+    // an icon in a tile of its own (a small square box with a fill, an edge or a ring and nothing else in it) is measured by
+    // its tile, whatever the tile's class is called
+    const t = e.parentElement; if (t && t !== card && t.children.length === 1 && !t.matches('button,.pill,.tag')){ const tb = t.getBoundingClientRect(), ts = getComputedStyle(t);
+      if (tb.width >= 16 && tb.width <= 64 && Math.abs(tb.width - tb.height) <= 4 && (ts.backgroundColor !== 'rgba(0, 0, 0, 0)' || parseFloat(ts.borderTopWidth) > 0 || ts.boxShadow !== 'none')){ if (!A.some(x => x.e === t)) A.push({ k:'mark', e:t, b:tb }); return; } }
+    A.push({ k:'mark', e, b }); });
   const bare = e => { const cs = getComputedStyle(e); return cs.backgroundColor === 'rgba(0, 0, 0, 0)' && cs.backgroundImage === 'none' && cs.boxShadow === 'none' && parseFloat(cs.borderTopWidth) === 0; };
   const inner = e => { const r = document.createRange(); r.selectNodeContents(e); const b = r.getBoundingClientRect(); return b.width ? b : e.getBoundingClientRect(); };
   // a button that is a whole row of a list (as wide as the list it sits in, like a chat in a side list) is measured by what it
@@ -54,23 +59,25 @@ function sample(id){
   for (const a of A){ const cy = (a.b.top + a.b.bottom) / 2; const r = rows.find(r => cy > r.top && cy < r.bottom); if (r){ r.items.push(a); r.top = Math.min(r.top, a.b.top); r.bottom = Math.max(r.bottom, a.b.bottom); } else rows.push({ top:a.b.top, bottom:a.b.bottom, items:[a] }); }
   rows.forEach(r => r.items.sort((a, b) => a.b.left - b.b.left));
   const near = (x, y) => { const d = Math.abs(x - y); return d > .75 && d <= 8; };
-  // bands: a head or foot strip (a full-width band with its own fill at the card's top or bottom) lines up within itself;
-  // its controls sit 8px from the card's edges by design, so they are not held to the content's 16px edge
+  // strips: a head or foot strip (a full-width band with its own fill at the card's top or bottom). Its controls sit on the
+  // content's 16px column like every other row (owner, 21 Nov, replacing the 18 Nov 8px for strip controls), so a strip's
+  // rows are held to the same columns as the content's; the strips are still found, for the insets check below
   const cbg = getComputedStyle(card).backgroundColor;
   const strips = [...card.querySelectorAll('*')].filter(e => { const b = e.getBoundingClientRect(), cs = getComputedStyle(e); return vis(e) && b.width > C.width - 4 && b.height > 20 && cs.backgroundColor !== 'rgba(0, 0, 0, 0)' && cs.backgroundColor !== cbg && (Math.abs(Math.min(b.bottom, C.bottom) - C.bottom) < 3 || Math.abs(b.top - C.top) < 3); });
-  const band = (a, row) => { const cy = (a.b.top + a.b.bottom) / 2; const s = strips.find(s => { const r = s.getBoundingClientRect(); return cy > r.top && cy < Math.min(r.bottom, C.bottom); }); if (s) return strips.indexOf(s);
-    const corner = row && row.items.some(x => x.k === 'ctl' && ((x.box || x.b).right > C.right - 9.5) && ((x.box || x.b).bottom > C.bottom - 9.5 || (x.box || x.b).top < C.top + 9.5));
-    return corner ? ((C.bottom - cy) < (cy - C.top) ? 'foot' : 'head') : -1; };
+  const band = () => -1;
   // a right edge counts for controls, and for words set against the right (a number, a time, a status), not for ragged text
   // (a tag at the end of a row with a hover fill sits inside the fill's padding, so it is not held to a button's edge)
   const rightSet = a => a && ((a.k === 'ctl' && !a.e.matches('.tag')) || (a.k === 'text' && a.set === 'right' && !a.wraps));
   // columns: the first mark, first words and last control of each row, against every other row's
-  const lead = rows.map(r => ({ mark:r.items.find(a => a.k === 'mark'), text:r.items.find(a => a.k === 'text' && a.set === 'left'), last:[...r.items].reverse().find(a => a.k === 'ctl' || a.k === 'text') }));
+  const lead = rows.map(r => ({ mark:r.items.find(a => a.k === 'mark'), text:r.items.find(a => a.k === 'text' && a.set === 'left'), last:[...r.items].reverse().find(a => a.k === 'ctl' || a.k === 'text'), first:r.items.find(a => a.k === 'mark' || (a.k === 'ctl' && !a.e.matches('.tag') && a.b === a.box)) }));
   lead.forEach((l, i) => { l.band = band(rows[i].items[0], rows[i]); });
   for (let i = 0; i < lead.length; i++) for (let j = i + 1; j < lead.length; j++){
     const a = lead[i], b = lead[j]; if (a.band !== b.band) continue;
     if (a.mark && b.mark){ const ca = (a.mark.b.left + a.mark.b.right) / 2, cb = (b.mark.b.left + b.mark.b.right) / 2; if (near(ca, cb) && near(a.mark.b.left, b.mark.b.left)) out.push(`columns: marks ${Math.round(ca - C.left)} and ${Math.round(cb - C.left)} (centres) ${name(a.mark.e)} / ${name(b.mark.e)}`); }
     if (a.text && b.text && near(a.text.b.left, b.text.b.left) && !(a.mark && b.mark && a.mark.b.left < a.text.b.left && b.mark.b.left > b.text.b.left)) out.push(`columns: words start at ${Math.round(a.text.b.left - C.left)} and ${Math.round(b.text.b.left - C.left)} ${name(a.text.e)} / ${name(b.text.e)}`);
+    // a row that starts with a drawn control (a strip's outlined button; not a bare select, whose words line up instead)
+    // against a row that starts with a mark: their left edges
+    const fa = a.first, fb = b.first; if (fa && fb && fa.k !== fb.k && fa.b.left - C.left < C.width / 3 && fb.b.left - C.left < C.width / 3){ const la = fa.b.left, lb = fb.b.left; if (near(la, lb)) out.push(`columns: left edges at ${Math.round(la - C.left)} and ${Math.round(lb - C.left)} from the card's edge ${name(fa.e)} / ${name(fb.e)}`); }
     if (rightSet(a.last) && rightSet(b.last) && near(a.last.b.right, b.last.b.right)) out.push(`columns: right edges at ${Math.round(C.right - a.last.b.right)} and ${Math.round(C.right - b.last.b.right)} from the card's edge ${name(a.last.e)} / ${name(b.last.e)}`);
   }
   // centres: single-line rows of a flex container
@@ -91,17 +98,18 @@ function sample(id){
   // above plus the fills inside the card (a highlighted row, a quote box), each clipped to the scroll box it sits in; lines of
   // 2px or less, fills as wide as the card and the head and foot strips are left out (they meet the edges by design), and an
   // edge a strip covers is not measured
-  if (card !== sin){
+  // (a slim pill or bar found as the card, like an inline chip, has its own padding by design, so it isn't measured)
+  if (card !== sin && C.height >= 60){
     const clip = (e, b) => { let r = { left:b.left, right:b.right, top:b.top, bottom:b.bottom }; for (let a = e.parentElement; a && a !== card; a = a.parentElement){ const cs = getComputedStyle(a); if (cs.overflowX === 'visible' && cs.overflowY === 'visible') continue; const q = a.getBoundingClientRect(); r = { left:Math.max(r.left, q.left), right:Math.min(r.right, q.right), top:Math.max(r.top, q.top), bottom:Math.min(r.bottom, q.bottom) }; } return r; };
     const inStrip = e => strips.some(s => s.contains(e));
     const boxes = A.filter(a => !inStrip(a.e)).map(a => clip(a.e, a.box || a.b));
-    card.querySelectorAll('*').forEach(e => { if (!vis(e) || inStrip(e) || e.closest('.pop,.hand,.tip')) return; const cs = getComputedStyle(e); if (cs.backgroundColor === 'rgba(0, 0, 0, 0)' || cs.backgroundColor === cbg) return; const b = e.getBoundingClientRect(); if (b.height <= 2 || b.width <= 2 || b.width > C.width - 4) return; boxes.push(clip(e, b)); });
+    card.querySelectorAll('*').forEach(e => { if (!vis(e) || inStrip(e) || e.closest('.pop,.hand,.tip')) return; const cs = getComputedStyle(e); if ((cs.backgroundColor === 'rgba(0, 0, 0, 0)' || cs.backgroundColor === cbg) && !(parseFloat(cs.borderTopWidth) > 0 || parseFloat(cs.borderLeftWidth) > 0) && cs.boxShadow === 'none') return; const b = e.getBoundingClientRect(); if (b.height <= 2 || b.width <= 2 || b.width > C.width - 4) return; boxes.push(clip(e, b)); });
     const live = boxes.filter(r => r.right - r.left > 1 && r.bottom - r.top > 1);
     if (live.length){
       const sT = strips.some(s => Math.abs(s.getBoundingClientRect().top - C.top) < 3), sB = strips.some(s => Math.abs(Math.min(s.getBoundingClientRect().bottom, C.bottom) - C.bottom) < 3);
-      const ins = { left:Math.min(...live.map(r => r.left)) - C.left, right:C.right - Math.max(...live.map(r => r.right)), top:sT ? null : Math.min(...live.map(r => r.top)) - C.top, bottom:sB ? null : C.bottom - Math.max(...live.map(r => r.bottom)) };
+      const ins = { left:Math.min(...live.map(r => r.left)) - C.left, right:Math.max(...live.map(r => r.right)) < C.left + C.width * .66 ? null : C.right - Math.max(...live.map(r => r.right)), top:sT ? null : Math.min(...live.map(r => r.top)) - C.top, bottom:sB ? null : C.bottom - Math.max(...live.map(r => r.bottom)) };
       const vals = Object.values(ins).filter(v => v !== null);
-      if (Math.max(...vals) - Math.min(...vals) > 2.5) out.push(`insets: ${Object.entries(ins).map(([k, v]) => `${k} ${v === null ? 'strip' : Math.round(v)}`).join(', ')}`);
+      if (Math.max(...vals) - Math.min(...vals) > 2.5) out.push(`insets: ${Object.entries(ins).map(([k, v]) => `${k} ${v === null ? (k === 'right' ? 'ragged' : 'strip') : Math.round(v)}`).join(', ')}`);
     }
   }
   return { out };
