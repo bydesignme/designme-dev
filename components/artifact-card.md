@@ -591,9 +591,11 @@ export function ArtifactCard({
           <Tip label={openLabel ?? ''} off={writing || !openLabel}>
             <button type="button" className="dm-afx-in-main" disabled={writing} onClick={e => open('view', e.currentTarget)}>
               <span className="dm-afx-in-ic"><Spin /><Icon name={icon} /></span>
-              <span className="dm-afx-in-t"><span className="dm-afx-sr">Open </span>{v.title}</span>
-              <span className="dm-afx-in-m"><span className="dm-afx-wr dm-shim">{status}</span>
-                <span className={cx('dm-afx-fin', settled && 'dm-enter')}><span className="dm-afx-v">v{i + 1}</span><span className="dm-afx-msep" aria-hidden="true">·</span><span className="dm-afx-when"><When meta={v.meta} /></span></span></span>
+              <span className="dm-afx-in-tx">
+                <span className="dm-afx-in-t"><span className="dm-afx-sr">Open </span>{v.title}</span>
+                <span className="dm-afx-in-m"><span className="dm-afx-wr dm-shim">{status}</span>
+                  <span className={cx('dm-afx-fin', settled && 'dm-enter')}><span className="dm-afx-v">v{i + 1}</span><span className="dm-afx-msep" aria-hidden="true">·</span><span className="dm-afx-when"><When meta={v.meta} /></span></span></span>
+              </span>
             </button>
           </Tip>
           <span className="dm-afx-tray"><span>

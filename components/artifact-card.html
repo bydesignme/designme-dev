@@ -304,6 +304,9 @@
 .afx-in-ic .spin{display:none;width:11px;height:11px}
 .is-writing .afx-in-ic .spin{display:inline-block}
 .is-writing .afx-in-ic svg{display:none}
+/* the name and its detail share one baseline (13px and 12.5px, centred one by one, sat 0.6px apart; owner, 21 Nov), and the
+   pair is centred with the icon */
+.afx-in-tx{display:inline-flex;align-items:baseline;gap:var(--dm-s-2);min-width:0}
 .afx-in-t{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .afx-in-m{color:var(--dm-afx-t2);white-space:nowrap;font-size:12.5px}
 .afx-in-m .afx-wr{display:none}
@@ -563,7 +566,7 @@ export default function ArtifactCardDemo() {
 import ArtifactCard from &#39;../components/designme/artifact-card/ArtifactCard.astro&#39;;
 ---
 &lt;ArtifactCard /&gt;
-&lt;ArtifactCard data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything ArtifactCard takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>variant</code></td><td><code>&#39;compact&#39; | &#39;preview&#39; | &#39;inline&#39; | &#39;stack&#39;</code></td><td>How the card shows the file: a compact row, a card with its first page, a chip inside a message, or a stack of its versions</td></tr><tr><td><code>versions</code><span class="opt">required</span></td><td><code>ArtifactVersion[]</code></td><td>Oldest first</td></tr><tr><td><code>version</code></td><td><code>number</code></td><td>Index of the version shown. Leave it out to let the versions menu change it</td></tr><tr><td><code>defaultVersion</code></td><td><code>number</code></td><td>Defaults to the latest version</td></tr><tr><td><code>onVersionChange</code></td><td><code>(version: number) =&gt; void</code></td><td></td></tr><tr><td><code>state</code></td><td><code>&#39;writing&#39; | &#39;ready&#39;</code></td><td>&#39;writing&#39; while the agent is still making the file: the card shows `status` with a spinner and holds its actions back. When it turns &#39;ready&#39; the meta line and the actions come in</td></tr><tr><td><code>status</code></td><td><code>string</code></td><td>The line shown while writing, like &quot;Reading the page…&quot;</td></tr><tr><td><code>progress</code></td><td><code>number</code></td><td>How far the writing has got, from 0 to 1. The compact card draws it as a line along its bottom edge</td></tr><tr><td><code>kind</code></td><td><code>string</code></td><td>The kind of file on the meta line, like &quot;Report&quot; or &quot;Table&quot;</td></tr><tr><td><code>icon</code></td><td><code>IconName</code></td><td>The file&#39;s icon</td></tr><tr><td><code>fileName</code></td><td><code>string</code></td><td>The name Download saves under, before &quot;-v3.md&quot;. Defaults to the title in lowercase, with dashes</td></tr><tr><td><code>ext</code></td><td><code>string</code></td><td>The extension Download saves with. &quot;csv&quot; also shows the content as a table in the reader</td></tr><tr><td><code>onOpen</code></td><td><code>(version: number) =&gt; void</code></td><td>Called when the file is opened, with the version shown. Without it, Open shows the card&#39;s own reader, which covers the card&#39;s nearest positioned ancestor (your chat column, say)</td></tr><tr><td><code>openLabel</code></td><td><code>string</code></td><td>The Open button&#39;s tip, like &quot;Open beside the chat&quot;. Its label stays &quot;Open&quot;</td></tr><tr><td><code>onCopy</code></td><td><code>(version: number) =&gt; void</code></td><td>Called after Copy has put the version&#39;s content on the clipboard</td></tr><tr><td><code>onDownload</code></td><td><code>(version: number) =&gt; void</code></td><td>Called after Download has saved the version&#39;s content as a file</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>ArtifactCard.tsx<span class="l">React · 461 lines</span></summary><pre class="cp-pre" data-name="ArtifactCard.tsx"><code>&#39;use client&#39;;
+&lt;ArtifactCard data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything ArtifactCard takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>variant</code></td><td><code>&#39;compact&#39; | &#39;preview&#39; | &#39;inline&#39; | &#39;stack&#39;</code></td><td>How the card shows the file: a compact row, a card with its first page, a chip inside a message, or a stack of its versions</td></tr><tr><td><code>versions</code><span class="opt">required</span></td><td><code>ArtifactVersion[]</code></td><td>Oldest first</td></tr><tr><td><code>version</code></td><td><code>number</code></td><td>Index of the version shown. Leave it out to let the versions menu change it</td></tr><tr><td><code>defaultVersion</code></td><td><code>number</code></td><td>Defaults to the latest version</td></tr><tr><td><code>onVersionChange</code></td><td><code>(version: number) =&gt; void</code></td><td></td></tr><tr><td><code>state</code></td><td><code>&#39;writing&#39; | &#39;ready&#39;</code></td><td>&#39;writing&#39; while the agent is still making the file: the card shows `status` with a spinner and holds its actions back. When it turns &#39;ready&#39; the meta line and the actions come in</td></tr><tr><td><code>status</code></td><td><code>string</code></td><td>The line shown while writing, like &quot;Reading the page…&quot;</td></tr><tr><td><code>progress</code></td><td><code>number</code></td><td>How far the writing has got, from 0 to 1. The compact card draws it as a line along its bottom edge</td></tr><tr><td><code>kind</code></td><td><code>string</code></td><td>The kind of file on the meta line, like &quot;Report&quot; or &quot;Table&quot;</td></tr><tr><td><code>icon</code></td><td><code>IconName</code></td><td>The file&#39;s icon</td></tr><tr><td><code>fileName</code></td><td><code>string</code></td><td>The name Download saves under, before &quot;-v3.md&quot;. Defaults to the title in lowercase, with dashes</td></tr><tr><td><code>ext</code></td><td><code>string</code></td><td>The extension Download saves with. &quot;csv&quot; also shows the content as a table in the reader</td></tr><tr><td><code>onOpen</code></td><td><code>(version: number) =&gt; void</code></td><td>Called when the file is opened, with the version shown. Without it, Open shows the card&#39;s own reader, which covers the card&#39;s nearest positioned ancestor (your chat column, say)</td></tr><tr><td><code>openLabel</code></td><td><code>string</code></td><td>The Open button&#39;s tip, like &quot;Open beside the chat&quot;. Its label stays &quot;Open&quot;</td></tr><tr><td><code>onCopy</code></td><td><code>(version: number) =&gt; void</code></td><td>Called after Copy has put the version&#39;s content on the clipboard</td></tr><tr><td><code>onDownload</code></td><td><code>(version: number) =&gt; void</code></td><td>Called after Download has saved the version&#39;s content as a file</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>ArtifactCard.tsx<span class="l">React · 463 lines</span></summary><pre class="cp-pre" data-name="ArtifactCard.tsx"><code>&#39;use client&#39;;
 import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from &#39;../lib/hooks&#39;;
@@ -946,9 +949,11 @@ export function ArtifactCard({
           &lt;Tip label={openLabel ?? &#39;&#39;} off={writing || !openLabel}&gt;
             &lt;button type=&quot;button&quot; className=&quot;dm-afx-in-main&quot; disabled={writing} onClick={e =&gt; open(&#39;view&#39;, e.currentTarget)}&gt;
               &lt;span className=&quot;dm-afx-in-ic&quot;&gt;&lt;Spin /&gt;&lt;Icon name={icon} /&gt;&lt;/span&gt;
-              &lt;span className=&quot;dm-afx-in-t&quot;&gt;&lt;span className=&quot;dm-afx-sr&quot;&gt;Open &lt;/span&gt;{v.title}&lt;/span&gt;
-              &lt;span className=&quot;dm-afx-in-m&quot;&gt;&lt;span className=&quot;dm-afx-wr dm-shim&quot;&gt;{status}&lt;/span&gt;
-                &lt;span className={cx(&#39;dm-afx-fin&#39;, settled &amp;&amp; &#39;dm-enter&#39;)}&gt;&lt;span className=&quot;dm-afx-v&quot;&gt;v{i + 1}&lt;/span&gt;&lt;span className=&quot;dm-afx-msep&quot; aria-hidden=&quot;true&quot;&gt;·&lt;/span&gt;&lt;span className=&quot;dm-afx-when&quot;&gt;&lt;When meta={v.meta} /&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+              &lt;span className=&quot;dm-afx-in-tx&quot;&gt;
+                &lt;span className=&quot;dm-afx-in-t&quot;&gt;&lt;span className=&quot;dm-afx-sr&quot;&gt;Open &lt;/span&gt;{v.title}&lt;/span&gt;
+                &lt;span className=&quot;dm-afx-in-m&quot;&gt;&lt;span className=&quot;dm-afx-wr dm-shim&quot;&gt;{status}&lt;/span&gt;
+                  &lt;span className={cx(&#39;dm-afx-fin&#39;, settled &amp;&amp; &#39;dm-enter&#39;)}&gt;&lt;span className=&quot;dm-afx-v&quot;&gt;v{i + 1}&lt;/span&gt;&lt;span className=&quot;dm-afx-msep&quot; aria-hidden=&quot;true&quot;&gt;·&lt;/span&gt;&lt;span className=&quot;dm-afx-when&quot;&gt;&lt;When meta={v.meta} /&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+              &lt;/span&gt;
             &lt;/button&gt;
           &lt;/Tip&gt;
           &lt;span className=&quot;dm-afx-tray&quot;&gt;&lt;span&gt;
@@ -1023,7 +1028,7 @@ export function ArtifactCard({
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>artifact-card.css<span class="l">React · 237 lines</span></summary><pre class="cp-pre" data-name="artifact-card.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>artifact-card.css<span class="l">React · 240 lines</span></summary><pre class="cp-pre" data-name="artifact-card.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Artifact card ---------- */
 /* a file the agent made, shown four ways: a compact row, a card with its first page, a chip inside the message, and a stack
    of its versions. Each plays its writing state, then opens, copies, downloads and switches versions the same way */
@@ -1166,6 +1171,9 @@ export function ArtifactCard({
 .dm-afx-in-ic .dm-spin{display:none;width:11px;height:11px}
 .dm-is-writing .dm-afx-in-ic .dm-spin{display:inline-block}
 .dm-is-writing .dm-afx-in-ic svg{display:none}
+/* the name and its detail share one baseline (13px and 12.5px, centred one by one, sat 0.6px apart; owner, 21 Nov), and the
+   pair is centred with the icon */
+.dm-afx-in-tx{display:inline-flex;align-items:baseline;gap:var(--dm-s-2);min-width:0}
 .dm-afx-in-t{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .dm-afx-in-m{color:var(--dm-afx-t2);white-space:nowrap;font-size:12.5px}
 .dm-afx-in-m .dm-afx-wr{display:none}
@@ -1293,7 +1301,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>artifact-card.css<span class="l">HTML · 236 lines</span></summary><pre class="cp-pre" data-name="artifact-card.css"><code>/* ---------- Artifact card ---------- */
+</code></pre></details><details class="cp-file"><summary>artifact-card.css<span class="l">HTML · 239 lines</span></summary><pre class="cp-pre" data-name="artifact-card.css"><code>/* ---------- Artifact card ---------- */
 /* a file the agent made, shown four ways: a compact row, a card with its first page, a chip inside the message, and a stack
    of its versions. Each plays its writing state, then opens, copies, downloads and switches versions the same way */
 /* the reader opens over the card&#39;s nearest positioned ancestor: on this page the stage, in an app its chat column */
@@ -1435,6 +1443,9 @@ const { class: className, ...rest } = Astro.props;
 .afx-in-ic .spin{display:none;width:11px;height:11px}
 .is-writing .afx-in-ic .spin{display:inline-block}
 .is-writing .afx-in-ic svg{display:none}
+/* the name and its detail share one baseline (13px and 12.5px, centred one by one, sat 0.6px apart; owner, 21 Nov), and the
+   pair is centred with the icon */
+.afx-in-tx{display:inline-flex;align-items:baseline;gap:var(--dm-s-2);min-width:0}
 .afx-in-t{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .afx-in-m{color:var(--dm-afx-t2);white-space:nowrap;font-size:12.5px}
 .afx-in-m .afx-wr{display:none}
@@ -1825,7 +1836,7 @@ const { class: className, ...rest } = Astro.props;
     main.innerHTML = `&lt;div class=&quot;afx-w afx-in&quot;&gt;${own ? &#39;&lt;div class=&quot;bub&quot;&gt;Review our pricing page and tell me what to fix first.&lt;/div&gt;&#39; : &#39;&#39;}&lt;div class=&quot;afx-in-msg&quot;&gt;
       ${own ? &#39;&lt;p&gt;I went through the pricing page from top to bottom and wrote up what to fix first.&lt;/p&gt;&#39; : &#39;&#39;}
       &lt;span class=&quot;afx-chip is-writing&quot;&gt;
-        &lt;button type=&quot;button&quot; class=&quot;afx-in-main&quot; disabled&gt;&lt;span class=&quot;afx-in-ic&quot;&gt;&lt;span class=&quot;spin&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;${ic(a.icon, &#39;s&#39;)}&lt;/span&gt;&lt;span class=&quot;afx-in-t&quot;&gt;&lt;span class=&quot;afx-sr&quot;&gt;Open &lt;/span&gt;${esc(a.title)}&lt;/span&gt;&lt;span class=&quot;afx-in-m&quot;&gt;&lt;span class=&quot;afx-wr shim&quot;&gt;${esc(a.steps[0])}&lt;/span&gt;&lt;span class=&quot;afx-fin&quot;&gt;&lt;span class=&quot;afx-v&quot;&gt;&lt;/span&gt;&lt;span class=&quot;afx-msep&quot; aria-hidden=&quot;true&quot;&gt;·&lt;/span&gt;&lt;span class=&quot;afx-when&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/button&gt;
+        &lt;button type=&quot;button&quot; class=&quot;afx-in-main&quot; disabled&gt;&lt;span class=&quot;afx-in-ic&quot;&gt;&lt;span class=&quot;spin&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;${ic(a.icon, &#39;s&#39;)}&lt;/span&gt;&lt;span class=&quot;afx-in-tx&quot;&gt;&lt;span class=&quot;afx-in-t&quot;&gt;&lt;span class=&quot;afx-sr&quot;&gt;Open &lt;/span&gt;${esc(a.title)}&lt;/span&gt;&lt;span class=&quot;afx-in-m&quot;&gt;&lt;span class=&quot;afx-wr shim&quot;&gt;${esc(a.steps[0])}&lt;/span&gt;&lt;span class=&quot;afx-fin&quot;&gt;&lt;span class=&quot;afx-v&quot;&gt;&lt;/span&gt;&lt;span class=&quot;afx-msep&quot; aria-hidden=&quot;true&quot;&gt;·&lt;/span&gt;&lt;span class=&quot;afx-when&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/button&gt;
         &lt;span class=&quot;afx-tray&quot;&gt;&lt;span&gt;
           &lt;span class=&quot;afx-tsep&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;
           ${a.versions.length &gt; 1 ? `&lt;button type=&quot;button&quot; class=&quot;ib afx-vb3&quot; aria-label=&quot;Versions&quot; data-tip=&quot;Versions&quot;&gt;${ic(&#39;history&#39;, &#39;s&#39;)}&lt;/button&gt;` : &#39;&#39;}
@@ -2610,7 +2621,7 @@ const fitHits = window.dmFitHits || (() => {
     main.innerHTML = `<div class="afx-w afx-in">${own ? '<div class="bub">Review our pricing page and tell me what to fix first.</div>' : ''}<div class="afx-in-msg">
       ${own ? '<p>I went through the pricing page from top to bottom and wrote up what to fix first.</p>' : ''}
       <span class="afx-chip is-writing">
-        <button type="button" class="afx-in-main" disabled><span class="afx-in-ic"><span class="spin" aria-hidden="true"></span>${ic(a.icon, 's')}</span><span class="afx-in-t"><span class="afx-sr">Open </span>${esc(a.title)}</span><span class="afx-in-m"><span class="afx-wr shim">${esc(a.steps[0])}</span><span class="afx-fin"><span class="afx-v"></span><span class="afx-msep" aria-hidden="true">·</span><span class="afx-when"></span></span></span></button>
+        <button type="button" class="afx-in-main" disabled><span class="afx-in-ic"><span class="spin" aria-hidden="true"></span>${ic(a.icon, 's')}</span><span class="afx-in-tx"><span class="afx-in-t"><span class="afx-sr">Open </span>${esc(a.title)}</span><span class="afx-in-m"><span class="afx-wr shim">${esc(a.steps[0])}</span><span class="afx-fin"><span class="afx-v"></span><span class="afx-msep" aria-hidden="true">·</span><span class="afx-when"></span></span></span></span></button>
         <span class="afx-tray"><span>
           <span class="afx-tsep" aria-hidden="true"></span>
           ${a.versions.length > 1 ? `<button type="button" class="ib afx-vb3" aria-label="Versions" data-tip="Versions">${ic('history', 's')}</button>` : ''}

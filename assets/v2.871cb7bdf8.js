@@ -2926,7 +2926,7 @@ DM.def('artifact-card', (r, c) => {
     main.innerHTML = `<div class="afx-w afx-in">${own ? '<div class="bub">Review our pricing page and tell me what to fix first.</div>' : ''}<div class="afx-in-msg">
       ${own ? '<p>I went through the pricing page from top to bottom and wrote up what to fix first.</p>' : ''}
       <span class="afx-chip is-writing">
-        <button type="button" class="afx-in-main" disabled><span class="afx-in-ic"><span class="spin" aria-hidden="true"></span>${ic(a.icon, 's')}</span><span class="afx-in-t"><span class="afx-sr">Open </span>${esc(a.title)}</span><span class="afx-in-m"><span class="afx-wr shim">${esc(a.steps[0])}</span><span class="afx-fin"><span class="afx-v"></span><span class="afx-msep" aria-hidden="true">·</span><span class="afx-when"></span></span></span></button>
+        <button type="button" class="afx-in-main" disabled><span class="afx-in-ic"><span class="spin" aria-hidden="true"></span>${ic(a.icon, 's')}</span><span class="afx-in-tx"><span class="afx-in-t"><span class="afx-sr">Open </span>${esc(a.title)}</span><span class="afx-in-m"><span class="afx-wr shim">${esc(a.steps[0])}</span><span class="afx-fin"><span class="afx-v"></span><span class="afx-msep" aria-hidden="true">·</span><span class="afx-when"></span></span></span></span></button>
         <span class="afx-tray"><span>
           <span class="afx-tsep" aria-hidden="true"></span>
           ${a.versions.length > 1 ? `<button type="button" class="ib afx-vb3" aria-label="Versions" data-tip="Versions">${ic('history', 's')}</button>` : ''}
