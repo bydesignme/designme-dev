@@ -1,0 +1,363 @@
+/* Dashboard builder template: the layout around the components, the palette, the grid, and the parts the library doesn't
+   have yet. Every colour, radius and space is a component token (--dm-*), so the screen follows Blueprint, Soft and Clean,
+   light and dark. The library's parts are their own classes: Agent harness (the sidebar), Profile menu (the store's tile), Stat
+   cards, Line chart, Bar chart, Donut chart, Funnel, Activity heatmap, Top pages, Account table and Notifications (the
+   widgets), and Toast.
+   The parts the library doesn't have yet are prefixed dbb- and self-contained, so each could be promoted to a component:
+     dbb-grid, dbb-cell    the dashboard's grid of three columns and rows, and its empty cells in edit mode
+     dbb-tile, dbb-art     a widget in the palette: a small drawing of its component on a card, its name under it
+     dbb-tb                a widget's toolbar in edit mode: move, remove and its width
+     dbb-lift              the widget in hand while it is dragged, and where it will land (.is-ph)
+     dbb-note              a note on the dashboard
+   Blueprint is the page with no data-style, so its overrides are :root:not([data-style="soft"],[data-style="clean"]). Hover
+   styles are only for a mouse (hover:hover and pointer:fine). Motion uses the library's tokens (--dm-t, --dm-t-fast, --dm-ease);
+   reduced motion turns it off. */
+
+/* ---------- the page: the app fills the window under the site's header ---------- */
+.pg-app{display:block;height:calc(100dvh - var(--pg-head));overflow:hidden}
+.pg-app + .pg-foot{display:none}
+.pg-top .pg-top-in{max-width:none}
+.dbb-name{margin-left:var(--dm-s-3);font-size:13px;color:var(--pg-muted);white-space:nowrap}
+@media (max-width:640px){.dbb-name{display:none}}
+/* the site's smiley button would sit over the app's own controls */
+body:has(.dbb) .dmf{display:none}
+
+/* ---------- the app ---------- */
+.dbb[data-c]{--dbb-hair:color-mix(in srgb,color-mix(in srgb,var(--dm-line),var(--dm-fg) 9%) 50%,transparent);--dbb-row:88px;--dbb-gap:12px;--dbb-pad:var(--dm-s-6);
+  position:relative;width:100%;max-width:none;height:100%;overflow:hidden;background:var(--dm-surface);color:var(--dm-fg);font-size:13px;text-align:left}
+:root[data-style="soft"] .dbb[data-c]{--dbb-gap:16px}
+:where(.dbb) :where(h1,h2,h3,p,ul){margin:0;font:inherit}
+.dbb .muted{color:var(--dm-muted)}
+.dbb-sp{flex:1}
+.dbb-sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* words that depend on the screen: a mouse and keys, a touch screen with the palette beside the canvas, or a phone's sheet */
+.dbb .fine{display:inline}.dbb :is(.coarse,.narrow){display:none}
+@media (pointer:coarse){.dbb .fine{display:none}.dbb .coarse{display:inline}}
+@media (max-width:640px){.dbb :is(.fine,.coarse){display:none}.dbb .narrow{display:inline}}
+.dbb-view{height:100%;display:grid;grid-template-columns:240px minmax(0,1fr)}
+
+/* ---------- the sidebar: Agent harness's side list ---------- */
+.dbb-side.ahx-side{width:auto;min-height:0;overflow-y:auto;scrollbar-width:none;padding:var(--dm-s-2);display:flex;flex-direction:column;background:var(--dm-stage);border-right-color:var(--dbb-hair)}
+.dbb-side::-webkit-scrollbar{display:none}
+.dbb-ws,.dbb-me{display:flex;align-items:center;gap:9px;height:44px;padding:0 8px}
+.dbb-ws .pfm-lg{width:28px;height:28px;--dm-tb:var(--dm-pm-bg);--dm-tc:var(--dm-pm);background:var(--dm-tb);color:var(--dm-tc)}
+.dbb-wst{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3}
+.dbb-wst .t{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dbb-wst .s{font-size:12px;color:var(--dm-muted)}
+.dbb-side .ahx-lh{padding-top:var(--dm-s-4)}
+.dbb-nav{display:flex;flex-direction:column;gap:2px}
+.dbb-nav .ahx-cv>.i{color:var(--dm-muted);transition:color var(--dm-t-fast)}
+.dbb-nav .ahx-cv[aria-current="page"]{background:var(--dm-surface);color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent),0 1px 2px rgba(0,0,0,.04)}
+.dbb-nav .ahx-cv[aria-current="page"]>.i{color:var(--dm-fg)}
+.dbb-lock{display:grid;color:var(--dm-muted)}
+.dbb-me{margin-top:auto;border-top:1px solid var(--dbb-hair);height:56px;padding-top:var(--dm-s-2)}
+.dbb-me .av,.dbb-hav{width:28px;height:28px;font-size:11px}
+
+/* ---------- the dashboard ---------- */
+.dbb-main{position:relative;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden;background:var(--dm-surface)}
+.dbb-sc{flex:1;min-height:0;overflow-y:auto;padding:var(--dm-s-5) var(--dbb-pad) var(--dm-s-8)}
+.dbb-hd{display:flex;align-items:center;gap:var(--dm-s-3);min-height:40px}
+.dbb-hav{width:36px;height:36px;font-size:13px}
+.dbb-ht{min-width:0;display:flex;flex-direction:column;gap:1px}
+.dbb-h1{font-size:14px;font-weight:500;letter-spacing:-.01em;outline:0}
+.dbb-ht p{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dbb-edit .i{color:var(--dm-fg2)}
+.dbb-tabs{display:none}
+/* the section's label: the dashboard's name, and who sees it */
+.dbb-sh{display:flex;align-items:center;gap:var(--dm-s-3);min-height:20px;margin:var(--dm-s-6) 0 var(--dm-s-3)}
+.dbb-sl{font-size:13px;font-weight:500;color:var(--dm-fg2)}
+.dbb-vis{display:inline-flex;align-items:center;gap:6px;font-size:12px}
+.dbb-vis .i{color:var(--dm-muted)}
+/* uppercase section labels, as in a printed report: Clean and Blueprint */
+:root[data-style="clean"] .dbb-sl,:root:not([data-style="soft"],[data-style="clean"]) .dbb-sl{font-size:12px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--dm-muted)}
+
+/* ---------- the grid: three columns, rows of one height ---------- */
+.dbb-grid{position:relative;display:grid;grid-template-columns:repeat(var(--dbb-cols,3),minmax(0,1fr));grid-auto-rows:var(--dbb-row);gap:var(--dbb-gap)}
+.dbb-w{position:relative;min-width:0;min-height:0;container-type:inline-size}
+.dbb-w>.dbb-p{height:100%}
+.dbb-lift>.dbb-p{height:100%}
+
+/* ---------- the widgets: each component's panel fills its cell ---------- */
+.dbb .dbb-p{min-height:0;overflow:hidden;display:flex;flex-direction:column}
+/* a widget head the components don't have: a title, and a muted line beside it */
+.dbb-wh{display:flex;align-items:baseline;justify-content:space-between;gap:var(--dm-s-2);font-size:13px;line-height:20px;min-width:0}
+.dbb-wh b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dbb-wh .muted{font-size:12px;white-space:nowrap}
+/* Stat cards: the icon in a tile, the label and the value, and the sparkline beside them when the card is wide enough */
+.dbb .dbb-met{flex-direction:row;align-items:center;gap:var(--dm-s-4)}
+@media (hover:hover) and (pointer:fine){.dbb .dbb-met.scx-c:hover{transform:none;box-shadow:var(--dm-shadow)}}
+.dbb-mt{flex:none;min-width:0;max-width:100%;display:flex;flex-direction:column;gap:var(--dm-s-2)}
+.dbb-met .scx-k{gap:var(--dm-s-2);font-size:13px;color:var(--dm-fg2);min-width:0}
+.dbb-met .scx-k .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dbb-ic.ic{flex:none;width:24px;height:24px;display:grid;place-items:center;border-radius:calc(7px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-chip);color:var(--dm-fg2)}
+.dbb-met .scx-v{gap:var(--dm-s-2);padding-left:2px}
+.dbb-met .scx-v b{font-size:14px}
+.dbb-met .scx-sp{flex:1;min-width:0;height:36px;margin:0}
+@container (max-width:299px){.dbb-met .scx-sp{display:none}}
+/* Line chart: the legend and the range switch on the right of its head; the chart takes the room left */
+.dbb .dbb-line{gap:var(--dm-s-3)}
+.dbb-lr{display:flex;align-items:center;gap:var(--dm-s-2);margin-left:auto}
+.dbb-line .lnx-lg{margin:0}
+.dbb .dbb-rg button,.dbb .bcx-rg button,.dbb .fnx-sg button,.dbb .hmx-sg button,.dbb .tpx-sg button{font-size:12px;height:26px;padding:0 9px}
+.dbb .lnx-ch{flex:1;height:auto;min-height:60px}
+.dbb .lnx-ax{flex:none}
+@container (max-width:479px){.dbb-line .lnx-lg{display:none}}
+@container (max-width:299px){.dbb-line .lnx-h{flex-wrap:nowrap}.dbb-line .lnx-h>div:first-child{min-width:0}}
+/* Bar chart: the bars take the chart's height, each as tall as its share */
+.dbb .dbb-bar .bcx-ch{flex:1;height:auto;min-height:60px}
+.dbb .bcx-b{min-width:0}
+.dbb .bcx-st{height:calc((100% - 20px) * var(--v,0));min-height:0;transition:height .7s var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease)}
+.dbb .bcx-st i{height:100%}
+.dbb .bcx-st{align-self:center;width:100%;max-width:40px}
+.dbb .bcx-l{white-space:nowrap}
+/* Donut chart: a head, then the ring beside its legend, smaller on a narrow card */
+.dbb .dbb-dn{flex-direction:column;align-items:stretch;flex-wrap:nowrap;justify-content:flex-start;gap:var(--dm-s-3)}
+.dbb-dnb{flex:1;min-height:0;display:flex;align-items:center;gap:var(--dm-s-5)}
+.dbb-dn .dnx-ring{width:132px;height:132px}
+.dbb-dn .dnx-lg{min-width:0;margin:0 -8px 0 0}
+.dbb-dn .dnx-r{padding:5px var(--dm-s-2)}
+.dbb-dn .dnx-r .t{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@container (max-width:339px){.dbb-dnb{gap:var(--dm-s-3)}.dbb-dn .dnx-ring{width:104px;height:104px}.dbb-dn .dnx-r{gap:7px;padding:4px 6px}.dbb-dn .dnx-r .v{display:none}}
+@container (max-width:279px){.dbb-dnb{gap:10px}.dbb-dn .dnx-ring{width:88px;height:88px}.dbb-dn .dnx-r{font-size:12px;padding:4px}.dbb-dn .dnx-lg{margin-right:-4px}.dbb-dn .dnx-c span{display:none}}
+/* Funnel: narrower labels on a narrow card */
+.dbb .dbb-fn .fnx-rows{flex:1}
+@container (max-width:339px){.dbb-fn .fnx-r{grid-template-columns:84px 1fr 34px;gap:var(--dm-s-2)}.dbb-fn .fnx-h{row-gap:var(--dm-s-2)}.dbb-fn .fnx-ins{display:none}}
+.dbb-fn .fnx-r .k{white-space:nowrap}
+/* Activity heatmap: its rows share the card's height */
+.dbb .dbb-hm .hmx-wrap{flex:1;min-height:0;display:flex}
+.dbb .dbb-hm .hmx-sc{flex:1;min-height:0;grid-template-rows:minmax(0,1fr) auto}
+.dbb .dbb-hm .hmx-grid{grid-template-rows:repeat(7,minmax(0,1fr))}
+.dbb .dbb-hm .hmx-grid i{aspect-ratio:auto;max-width:none}
+.dbb .dbb-hm .hmx-days{grid-template-rows:repeat(7,minmax(0,1fr))}
+.dbb .dbb-hm .hmx-lg{flex:none}
+/* Top pages: four rows show; a fifth waits below them for a sort */
+.dbb .dbb-top .tpx-list{flex:1;height:auto;min-height:0;overflow:hidden}
+.dbb .dbb-top .tpx-r{height:44px;grid-template-columns:20px minmax(0,1fr) 44px 52px}
+.dbb .dbb-top .tpx-r.dbb-off{opacity:0;pointer-events:none}
+.dbb .dbb-top .tpx-r .rk{font-family:inherit}
+/* a narrow list: the rank, the product and its units; the change and its sort wait for a wider card */
+@container (max-width:299px){.dbb-top :is(.tpx-sub,.tpx-sg),.dbb .dbb-top .tpx-r .ch{display:none}.dbb .dbb-top .tpx-r{grid-template-columns:16px minmax(0,1fr) auto}.dbb .dbb-top .tpx-r .n{min-width:0}.dbb-top .tpx-h b{white-space:nowrap}}
+/* Account table: recent orders, the table scrolling under its head */
+.dbb .dbb-tb2{display:flex;flex-direction:column}
+.dbb .dbb-tb2 .atb-h{flex:none;justify-content:space-between;padding:var(--dm-s-3) var(--dm-s-4)}
+.dbb-tt{font-weight:500;font-size:13px}
+.dbb .dbb-tb2 .atb-sc{flex:1;min-height:0;overflow:auto}
+.dbb .dbb-tb2 table{min-width:380px}
+.dbb .dbb-tb2 th:first-child,.dbb .dbb-tb2 td:first-child{padding-left:var(--dm-s-4)}
+.dbb .dbb-tb2 th:last-child,.dbb .dbb-tb2 td:last-child{padding-right:var(--dm-s-4)}
+.dbb .dbb-tb2 .nm{font-weight:400}
+.dbb .dbb-tb2 .nm .av{width:22px;height:22px;font-size:9px}
+:root[data-style="clean"] .dbb .atb.panel.dbb-tb2{padding:6px 4px 4px}
+@container (max-width:419px){.dbb .dbb-tb2 .atb-fl{display:none}.dbb .dbb-tb2 table{min-width:0}.dbb .dbb-tb2 :is(th,td){padding-inline:var(--dm-s-2)}.dbb .dbb-tb2 .nm .av{display:none}}
+/* Notifications: the activity, grouped by day; its rows aren't buttons here */
+.dbb .dbb-act{min-height:0}
+.dbb .dbb-act .ntx-list{position:relative;flex:1;min-height:0;overflow:hidden}
+.dbb .dbb-act .ntx-n{cursor:default}
+@media (hover:hover) and (pointer:fine){.dbb .dbb-act .ntx-n:hover{background:none}}
+.dbb .dbb-act .ntx-n .t{color:var(--dm-fg2)}
+.dbb-ag{padding:var(--dm-s-2) var(--dm-s-2) 2px;font-size:12px;color:var(--dm-muted)}
+.dbb-ag:first-child{padding-top:var(--dm-s-1)}
+:root[data-style="clean"] .dbb-ag,:root:not([data-style="soft"],[data-style="clean"]) .dbb-ag{font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+/* the note */
+.dbb-note{padding:var(--dm-s-4);gap:var(--dm-s-3)}
+:root[data-style="clean"] .dbb-note{padding:18px 20px}
+.dbb-md{font-size:13px;line-height:1.55;color:var(--dm-fg2);display:flex;flex-direction:column;gap:var(--dm-s-2)}
+.dbb-md b{color:var(--dm-fg);font-weight:500}
+.dbb-md ul{padding-left:18px;display:flex;flex-direction:column;gap:2px}
+.dbb-md li::marker{color:var(--dm-muted)}
+
+/* ---------- edit mode: the head, the palette and the canvas ---------- */
+.dbb-ed{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;background:var(--dm-surface)}
+.dbb-eh{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:56px;padding:0 var(--dm-s-4) 0 var(--dm-s-3);border-bottom:1px solid var(--dbb-hair)}
+.dbb-x{color:var(--dm-fg2)}
+.dbb-ediv{width:1px;height:24px;margin:0 var(--dm-s-2) 0 var(--dm-s-1);background:var(--dbb-hair)}
+.dbb-et{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;outline:0}
+.dbb-dirty{font-size:12px;margin-left:var(--dm-s-2);white-space:nowrap}
+.dbb-save .i{margin-left:-2px}
+.dbb-eb{flex:1;min-height:0;display:grid;grid-template-columns:264px minmax(0,1fr)}
+/* the palette */
+.dbb-pal{min-height:0;overflow-y:auto;scrollbar-width:thin;border-right:1px solid var(--dbb-hair);background:var(--dm-surface)}
+.dbb-pal-in{padding:var(--dm-s-4) var(--dm-s-5) var(--dm-s-6)}
+.dbb-pal-h{display:flex;align-items:center;gap:var(--dm-s-2);padding-bottom:var(--dm-s-4);margin:0 calc(-1 * var(--dm-s-5)) var(--dm-s-4);padding-inline:var(--dm-s-5);border-bottom:1px solid var(--dbb-hair)}
+.dbb-shown{flex:1;min-width:0;display:flex;align-items:center;gap:var(--dm-s-3)}
+.dbb-shl{font-size:13px;color:var(--dm-muted);white-space:nowrap}
+.dbb-shx{display:none}
+/* a dropdown trigger: a quiet dimmed edge on the surface, a step stronger while it is open or focused */
+.dbb-sel{flex:1;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-2);height:36px;padding:0 10px 0 12px;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);font-size:13px;color:var(--dm-fg);transition:box-shadow var(--dm-t-fast)}
+.dbb-sel .i{color:var(--dm-muted);transition:transform var(--dm-t) var(--dm-ease)}
+.dbb-sel[aria-expanded="true"]{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+.dbb-sel[aria-expanded="true"] .i{transform:rotate(180deg)}
+@media (hover:hover) and (pointer:fine){.dbb-sel:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}}
+/* keyboard focus: the edge one step stronger, as a field's (Country select's trigger), not a ring */
+.dbb-sel:focus-visible{outline:0;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+@supports (corner-shape:squircle){.dbb-sel{border-radius:var(--dm-r-field-sq)}}
+:root[data-style="clean"] .dbb-sel{background:var(--dm-btn2-1);box-shadow:var(--dm-btn2-depth)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dbb-sel:hover{box-shadow:var(--dm-btn2-hover)}}
+:root[data-style="clean"] :is(.dbb-sel[aria-expanded="true"],.dbb-sel:focus-visible){box-shadow:var(--dm-btn2-press)}
+.dbb-hint{font-size:13px;line-height:1.5;margin-bottom:var(--dm-s-4)}
+.dbb-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--dm-s-4) var(--dm-s-3)}
+.dbb-tiles>div{min-width:0}
+/* a widget in the palette: a light tile holding a small card with the drawing, the name under it */
+.dbb-tile{width:100%;display:flex;flex-direction:column;align-items:stretch;gap:var(--dm-s-2);cursor:grab;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
+.dbb-art{position:relative;display:block;aspect-ratio:5/4;padding:12px;border-radius:calc(12px * var(--dm-rk-l,var(--dm-rk)));background:var(--dm-chip);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);transition:background var(--dm-t-fast),box-shadow var(--dm-t-fast)}
+.dbb-card{display:grid;place-items:center;width:100%;height:100%;border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-surface);box-shadow:var(--dm-shadow);transition:transform var(--dm-t) var(--dm-ease),box-shadow var(--dm-t) var(--dm-ease)}
+.dbb-card svg{width:100%;height:100%;max-height:52px;overflow:visible}
+.dbb-tn{font-size:13px;color:var(--dm-fg2);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (hover:hover) and (pointer:fine){.dbb-tile:hover .dbb-art{background:var(--dm-hover)}.dbb-tile:hover .dbb-card{transform:translateY(-1px)}.dbb-tile:hover .dbb-tn{color:var(--dm-fg)}}
+.dbb-tile:active .dbb-card{transform:scale(.97)}
+.dbb-tile:focus-visible{outline:0}
+.dbb-tile:focus-visible .dbb-art{outline:2px solid var(--dm-focus);outline-offset:2px}
+/* the drawings: monochrome, with the accent for the one mark that matters */
+.dbb-art svg :is(.g,.k,.g2,.t,.h,.a,.ring,.aa){stroke:none}
+.dbb-art svg .g{fill:var(--dm-ghost,color-mix(in srgb,var(--dm-fg) 10%,transparent))}
+.dbb-art svg .g2{fill:var(--dm-ghost-2,color-mix(in srgb,var(--dm-fg) 6%,transparent))}
+.dbb-art svg .k{fill:color-mix(in srgb,var(--dm-fg) 70%,transparent)}
+.dbb-art svg .t{fill:color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 22%,transparent)}
+.dbb-art svg rect.a,.dbb-art svg circle.a{fill:var(--dm-accent-mark,var(--dm-accent))}
+.dbb-art svg rect.a.o2{fill:color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 75%,var(--dm-surface))}
+.dbb-art svg rect.a.o3{fill:color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 50%,var(--dm-surface))}
+.dbb-art svg rect.a.o4{fill:color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 30%,var(--dm-surface))}
+.dbb-art svg path.a{fill:none;stroke:var(--dm-accent-mark,var(--dm-accent));stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.dbb-art svg path.a2{fill:none;stroke:color-mix(in srgb,var(--dm-fg) 22%,transparent);stroke-width:1.4;stroke-dasharray:2.5 2.5;stroke-linecap:round}
+.dbb-art svg path.gl{fill:none;stroke:color-mix(in srgb,var(--dm-fg) 7%,transparent);stroke-width:1}
+.dbb-art svg .h{fill:color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) calc(var(--a) * 100%),var(--dm-chip))}
+.dbb-art svg .ring{fill:none;stroke:var(--dm-ghost,color-mix(in srgb,var(--dm-fg) 10%,transparent));stroke-width:5}
+.dbb-art svg .arc{fill:none;stroke:var(--dm-accent-mark,var(--dm-accent));stroke-width:5;stroke-linecap:round}
+.dbb-art svg .aa{fill:var(--dm-fg);font:500 14px/1 var(--dm-sans);letter-spacing:-.01em}
+/* the canvas */
+.dbb-cv{position:relative;min-width:0;min-height:0;overflow-y:auto;overflow-x:hidden;padding:var(--dm-s-2) var(--dbb-pad) 96px;background:var(--dm-stage);overscroll-behavior:contain}
+.dbb-csl{display:block}
+.dbb-cell{border-radius:calc(12px * var(--dm-rk-l,var(--dm-rk)));background:color-mix(in srgb,var(--dm-fg) 3%,transparent);pointer-events:none}
+@supports (corner-shape:squircle){:root[data-style="soft"] .dbb-cell{corner-shape:squircle}}
+:root[data-style="clean"] .dbb-cell{border-radius:calc(14px * var(--dm-rk-l,var(--dm-rk)));background:color-mix(in srgb,var(--dm-fg) 3.5%,transparent)}
+/* Blueprint: drafting paper, the cells drawn as dashed hairlines */
+:root:not([data-style="soft"],[data-style="clean"]) .dbb-cell{background:none;outline:1px dashed color-mix(in srgb,var(--dm-line-strong) 30%,transparent);outline-offset:-1px}
+/* a widget in edit mode: held anywhere to move it; what is inside rests */
+.dbb-ed .dbb-w{cursor:grab;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:pan-y}
+.dbb-ed .dbb-w>.dbb-p{transition:box-shadow var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease)}
+.dbb-ed .dbb-w.held>.dbb-p{transform:scale(.985)}
+.dbb.dragging,.dbb.dragging *{cursor:grabbing!important;user-select:none;-webkit-user-select:none}
+/* picked up from the keyboard: lifted where it stands */
+.dbb-ed .dbb-w.lifted{z-index:3}
+.dbb-ed .dbb-w.lifted>.dbb-p{box-shadow:var(--dm-shadow-pop),0 0 0 2px var(--dm-focus);transform:scale(1.01)}
+/* where the widget in hand will land */
+.dbb-w.is-ph>*{visibility:hidden}
+.dbb-w.is-ph{border-radius:var(--dm-r-card);background:color-mix(in srgb,var(--dm-fg) 6%,var(--dm-stage));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-line-strong) 45%,transparent);cursor:grabbing}
+:root:not([data-style="soft"],[data-style="clean"]) .dbb-w.is-ph{box-shadow:none;outline:1.5px dashed color-mix(in srgb,var(--dm-line-strong) 70%,transparent);outline-offset:-1.5px}
+@supports (corner-shape:squircle){:root[data-style="soft"] .dbb-w.is-ph{corner-shape:squircle}}
+/* the widget in hand, over everything, following the pointer */
+.dbb-lift{position:absolute;left:0;top:0;z-index:90;pointer-events:none;container-type:inline-size;transition:box-shadow var(--dm-t) var(--dm-ease),scale var(--dm-t) var(--dm-ease)}
+.dbb-lift>.dbb-p{box-shadow:var(--dm-shadow)}
+.dbb-lift.up{scale:1.02}
+.dbb-lift.up>.dbb-p,.dbb-lift.up>.dbb-art{box-shadow:var(--dm-shadow-pop)}
+.dbb-lift[data-kind="add"]>.dbb-art{background:var(--dm-surface);box-shadow:var(--dm-shadow-pop)}
+.dbb-lift .dbb-ln{position:absolute;left:0;right:0;top:calc(100% + 6px);font-size:12px;color:var(--dm-fg2);text-align:center}
+.dbb-lift.land .dbb-ln{opacity:0}
+/* the toolbar: move, remove and the width, floating at the widget's foot, shown on hover, keyboard focus or a tap */
+.dbb-tb{position:absolute;left:50%;bottom:var(--dm-s-3);z-index:2;display:flex;align-items:center;gap:6px;transform:translate(-50%,4px);opacity:0;pointer-events:none;transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease)}
+.dbb-w[data-h="1"] .dbb-tb{left:auto;right:var(--dm-s-3);bottom:50%;transform:translate(4px,50%)}
+.dbb-w.sel .dbb-tb,.dbb-w:focus-within .dbb-tb{opacity:1;pointer-events:auto;transform:translate(-50%,0)}
+.dbb-w[data-h="1"]:is(.sel,:focus-within) .dbb-tb{transform:translate(0,50%)}
+@media (hover:hover) and (pointer:fine){.dbb-ed .dbb-w:hover .dbb-tb{opacity:1;pointer-events:auto;transform:translate(-50%,0)}.dbb-ed .dbb-w[data-h="1"]:hover .dbb-tb{transform:translate(0,50%)}}
+.dbb.dragging .dbb-tb,.dbb-w.is-ph .dbb-tb{opacity:0!important;pointer-events:none!important}
+.dbb-tb .ib{width:36px;height:36px;background:var(--dm-raised);box-shadow:var(--dm-shadow-pop);color:var(--dm-fg2)}
+.dbb-tb .dbb-mv{cursor:grab}
+/* remove: the bad colour's tint with its text colour, as a status chip draws it (white on a solid red fill fails in dark mode) */
+.dbb-tb .dbb-del{background:var(--dm-bad-bg);color:var(--dm-bad);box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-bad) 12%,transparent),var(--dm-shadow-pop)}
+@media (hover:hover) and (pointer:fine){.dbb-tb .dbb-mv:hover{background:var(--dm-hover);color:var(--dm-fg)}.dbb-tb .dbb-del:hover{background:color-mix(in srgb,var(--dm-bad) 18%,var(--dm-surface))}}
+.dbb-sz.seg2{background:var(--dm-raised);box-shadow:var(--dm-shadow-pop)}
+.dbb-sz.seg2 button{height:32px;width:38px;padding:0;display:grid;place-items:center}
+.dbb-g{display:block;height:6px;border-radius:3px;background:currentColor;opacity:.55}
+.dbb-sz button[aria-pressed="true"] .dbb-g{opacity:1}
+.dbb-g.g1{width:8px}.dbb-g.g2{width:15px}.dbb-g.g3{width:22px}
+/* one column: there is no width to choose, and the toolbar sits at the widget's top right, where a tall widget's foot
+   may be out of view */
+.dbb[data-cols="1"] .dbb-sz{display:none}
+.dbb[data-cols="1"] .dbb-ed .dbb-w .dbb-tb{left:auto;right:var(--dm-s-3);top:var(--dm-s-3);bottom:auto;transform:translateY(-4px)}
+.dbb[data-cols="1"] .dbb-ed .dbb-w:is(.sel,:focus-within) .dbb-tb{transform:none}
+.dbb[data-cols="1"] .dbb-ed .dbb-w[data-h="1"] .dbb-tb{top:50%;transform:translateY(-50%)}
+/* an empty dashboard: Clean's empty state, over the cells */
+.dbb-empty{position:absolute;left:50%;top:72px;width:min(360px,calc(100% - 2 * var(--dbb-pad)));translate:-50% 0;display:flex;flex-direction:column;align-items:center;gap:4px;padding:var(--dm-s-6) var(--dm-s-5);border-radius:calc(16px * var(--dm-rk-l,var(--dm-rk)));background:var(--dm-stage);text-align:center;pointer-events:none;animation:dbbin var(--dm-t-slow) var(--dm-ease) backwards}
+.dbb-empty b{font-size:13px;font-weight:500;color:var(--dm-fg)}
+.dbb-empty>span:not(.cle-art){max-width:290px;font-size:13px;line-height:1.5;color:var(--dm-muted)}
+.dbb-empty .cle-art{position:relative;display:block;width:136px;height:70px;margin:0 0 var(--dm-s-4);border-radius:calc(10px * var(--dm-rk-l,var(--dm-rk)));background:var(--dm-surface);box-shadow:var(--dm-shadow)}
+.dbb-empty .cle-art::before{content:"";position:absolute;left:14px;top:13px;width:12px;height:12px;border-radius:4px;background:var(--dm-ghost,var(--dm-chip));box-shadow:0 16px 0 var(--dm-ghost,var(--dm-chip)),0 32px 0 var(--dm-ghost-2,var(--dm-chip))}
+.dbb-empty .cle-art::after{content:"";position:absolute;left:32px;top:16px;width:58px;height:6px;border-radius:3px;background:var(--dm-ghost,var(--dm-chip));box-shadow:0 16px 0 var(--dm-ghost,var(--dm-chip)),0 32px 0 var(--dm-ghost-2,var(--dm-chip))}
+@keyframes dbbin{from{opacity:0;transform:translateY(6px)}}
+/* phones: Add widget, and the palette as a sheet */
+.dbb-addw{display:none}
+.dbb-scrim{display:none}
+
+/* the Shown to menu */
+.dbb-pop{min-width:200px}
+.dbb-pop .mi .i{color:var(--dm-fg2)}
+.dbb-pop .mi[aria-checked="true"] .ck{opacity:1}
+
+/* the pointer the demo moves */
+.dbb-hand{z-index:95}
+
+/* ---------- toasts ---------- */
+.dbb-toasts{position:absolute;right:var(--dm-s-4);bottom:var(--dm-s-4);z-index:96;display:flex;flex-direction:column;align-items:flex-end;gap:var(--dm-s-2);width:min(380px,calc(100% - 32px));pointer-events:none}
+.dbb-toasts .tst-t{pointer-events:auto}
+
+/* ---------- Soft and Clean: the content is a rounded panel raised on the frame; Blueprint stays flush and square ---------- */
+@media (min-width:761px){
+  :root:is([data-style="soft"],[data-style="clean"]) .dbb[data-c]{background:var(--dm-stage)}
+  :root:is([data-style="soft"],[data-style="clean"]) .dbb-side.ahx-side{border-right-color:transparent;padding-top:calc(var(--dm-s-2) + 6px)}
+  :root:is([data-style="soft"],[data-style="clean"]) :is(.dbb-main,.dbb-ed){margin:var(--dm-s-2) var(--dm-s-2) var(--dm-s-2) 0;border-radius:calc(12px * var(--dm-rk));background:var(--dm-surface);box-shadow:var(--dm-shadow)}
+  :root:is([data-style="soft"],[data-style="clean"]) .dbb-ed{margin:var(--dm-s-2);overflow:hidden}
+  :root:is([data-style="soft"],[data-style="clean"])[data-theme="dark"] :is(.dbb-main,.dbb-ed){box-shadow:var(--dm-shadow),0 0 0 1px color-mix(in srgb,var(--dm-fg) 10%,transparent)}
+  @media (prefers-color-scheme:dark){:root:is([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) :is(.dbb-main,.dbb-ed){box-shadow:var(--dm-shadow),0 0 0 1px color-mix(in srgb,var(--dm-fg) 10%,transparent)}}
+  @supports (corner-shape:squircle){:root[data-style="soft"] :is(.dbb-main,.dbb-ed){corner-shape:squircle}}
+}
+
+/* ---------- smaller screens ---------- */
+@media (max-width:1100px){.dbb-eb{grid-template-columns:232px minmax(0,1fr)}.dbb-pal-in{padding-inline:var(--dm-s-4)}.dbb-pal-h{margin-inline:calc(-1 * var(--dm-s-4));padding-inline:var(--dm-s-4)}.dbb[data-c]{--dbb-pad:var(--dm-s-5)}}
+@media (max-width:900px){.dbb-eb{grid-template-columns:212px minmax(0,1fr)}.dbb-tiles{gap:var(--dm-s-3) var(--dm-s-2)}.dbb-art{padding:9px}.dbb-shown{flex-direction:column;align-items:stretch;gap:6px}.dbb-shown .dbb-sel{flex:none}.dbb-shl{font-size:12px}.dbb-dirty{display:none}}
+/* tablets and phones: the dashboards are a switch under the header instead of the sidebar */
+@media (max-width:760px){
+  .dbb-view{grid-template-columns:minmax(0,1fr)}
+  .dbb-side.ahx-side{display:none}
+  .dbb-tabs{display:inline-flex;margin-top:var(--dm-s-4)}
+  .dbb-sh{margin-top:var(--dm-s-5)}
+  .dbb[data-c]{--dbb-pad:var(--dm-s-4)}
+}
+@media (max-width:640px){
+  .dbb-sc{padding-top:var(--dm-s-4)}
+  .dbb-hd{gap:10px}
+  .dbb-hav{display:none}
+  .dbb-ht p{white-space:normal}
+  .dbb-edit{padding:0 10px}
+  .dbb-edit span{display:none}
+  .dbb-edit .i{margin:0}
+  .dbb-tabs{display:flex}
+  .dbb-tabs button{flex:1}
+  .dbb-eh{padding:0 var(--dm-s-3) 0 var(--dm-s-2);gap:var(--dm-s-1)}
+  .dbb-ediv,.dbb-cancel,.dbb-dirty{display:none}
+  .dbb-eb{grid-template-columns:minmax(0,1fr)}
+  .dbb-cv{padding:var(--dm-s-2) var(--dm-s-4) 112px}
+  /* the palette: a sheet from the bottom, opened by Add widget */
+  .dbb-addw{display:inline-flex;position:absolute;left:50%;bottom:calc(var(--dm-s-4) + env(safe-area-inset-bottom));z-index:30;transform:translateX(-50%);height:40px;padding:0 18px;box-shadow:var(--dm-shadow-pop)}
+  .dbb-scrim{display:block;position:absolute;inset:0;z-index:40;background:rgba(0,0,0,.24);opacity:0;pointer-events:none;transition:opacity var(--dm-t) var(--dm-ease)}
+  .dbb-scrim.on{opacity:1;pointer-events:auto}
+  .dbb-pal{position:absolute;left:0;right:0;bottom:0;z-index:41;max-height:min(78%,560px);border-right:0;border-radius:calc(18px * var(--dm-rk-l,var(--dm-rk))) calc(18px * var(--dm-rk-l,var(--dm-rk))) 0 0;box-shadow:var(--dm-shadow-pop);transform:translateY(102%);visibility:hidden;transition:transform var(--dm-t) var(--dm-ease),visibility 0s var(--dm-t)}
+  .dbb-pal.open{transform:none;visibility:visible;transition-delay:0s}
+  .dbb-pal-in{padding:var(--dm-s-3) var(--dm-s-4) calc(var(--dm-s-6) + env(safe-area-inset-bottom))}
+  .dbb-pal-h{margin-inline:calc(-1 * var(--dm-s-4));padding-inline:var(--dm-s-4) var(--dm-s-2);padding-bottom:var(--dm-s-3)}
+  .dbb-shown{flex-direction:row;align-items:center}
+  .dbb-shown .dbb-sel{flex:1}
+  .dbb-shx{display:inline-grid}
+  .dbb-tiles{grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--dm-s-3) var(--dm-s-2)}
+  .dbb-art{padding:8px}
+  .dbb-tn{font-size:12px}
+  .dbb-toasts{right:var(--dm-s-2);bottom:calc(var(--dm-s-2) + 56px);width:calc(100% - 16px)}
+  .dbb-empty{left:var(--dm-s-4);right:var(--dm-s-4)}
+}
+@media (max-width:380px){.dbb-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.dbb-art{aspect-ratio:2/1}}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion:reduce){.dbb-tb,.dbb-pal,.dbb-scrim,.dbb-lift,.dbb-card,.dbb-art,.dbb .bcx-st,.dbb-ed .dbb-w>.dbb-p{transition:none}.dbb-empty{animation:none}}
+
+/* ?nav=0: the dashboard alone, with no sidebar (the landing page's showcase) */
+.dbb[data-nav="0"] .dbb-view{grid-template-columns:minmax(0,1fr)}
+.dbb[data-nav="0"] .dbb-side.ahx-side{display:none}

@@ -26,8 +26,8 @@ twelve of the library's most distinctive components playing live, each its own c
 (two from 1100px, placed by a small script; no row of metric cards). A card is as tall as it is right now and grows and
 shrinks as it plays, pushing only what is under it in its stack, so no card has room left empty under it; the cards and
 their stacks are chosen, from each candidate's height sampled live over a full run in every style, so the stacks' feet stay
-close to level. Then the templates' views (the Sales CRM's Accounts, Pipeline, Calendar, Forecast and Reports, and the
-Workflow editor), live in one frame on the site's grey with a switch over it, taking turns (`src/device/frame.js`, with
+close to level. Then the templates' views (the Sales CRM's Accounts, Pipeline, Calendar, Forecast and Reports, the
+Workflow editor and the Dashboard builder), live in one frame on the site's grey with a switch over it, taking turns (`src/device/frame.js`, with
 `?embed=1`, which hides the site's header, `nav=0`, which hides the app's sidebar and the header button that opens it, and
 `view=`, which picks the CRM's view; another view of an open app is switched to in place; the Workflow editor opens on its
 last test run). The apps never trap the page's scrolling (`passWheel`):
@@ -78,6 +78,22 @@ data, run history and versions. Its layout is `src/templates/workflow-editor/wf.
 `src/templates/workflow-editor/wf.js`. The parts the library doesn't have yet are written inside it with a `wfx-` prefix
 (the step node and the + on a wire, the step picker, the data picker, the step inspector, the run drawer, the agent's fix
 card and the version history), each self-contained so it can be promoted to a component later. Noindex, like the Sales CRM.
+
+`/templates/dashboard-builder` (`src/pages/templates/dashboard-builder.astro`) is a store's dashboards (Overview, Sales and
+Customers) and the builder that arranges them, made the same way. Edit widgets opens the builder: a palette of widgets on
+the left, each a small drawing of the component it adds, and the dashboard's grid on a grey canvas, with its empty cells
+showing. A widget is dragged from the palette onto the grid (a mouse or pen drag starts after 6px), or added to the end with
+Enter, a click or a tap; a widget on the grid is dragged to move it (a finger holds it for a moment first), or picked up from
+its move button with Space or Enter and moved with the arrow keys, each move read out to screen readers. Its toolbar sets its
+width (one, two or three columns of a three-column grid) or removes it, with Undo. Cancel goes back to the last saved layout
+and Save changes keeps the new one. On phones the canvas is one column and the palette opens as a sheet from the bottom (Add
+widget). A dashboard is an ordered list of widgets and their widths; the grid places them in order, row by row, each in the
+first place where it fits, and takes two columns, then one, on narrower screens. The widgets are the library's Stat cards, Line
+chart, Bar chart, Donut chart, Funnel, Activity heatmap, Top pages, Account table and Notifications, drawn with their classes,
+and a note. A short scripted demo opens the builder, drags a bar chart onto the dashboard, makes it full width and saves, on
+the controller's waits: a mouse resting on the app holds it, the first click, key or touch ends it, and with reduced motion
+(or `?demo=0`) it doesn't play. Its layout is `src/templates/dashboard-builder/db.css` and its data and interactions
+`src/templates/dashboard-builder/db.js`; the parts the library doesn't have yet have a `dbb-` prefix.
 
 ## Pictures
 
