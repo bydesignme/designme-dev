@@ -8,6 +8,8 @@
    the version history. */
 (() => {
   const app = document.querySelector('.wf'); if (!app) return;
+  // ?nav=0 shows the editor alone, with no sidebar of workflows and no header button for it (the landing page's showcase)
+  if (new URLSearchParams(location.search).get('nav') === '0') app.dataset.nav = '0';
   const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const sum = (a, f = x => x) => a.reduce((t, x) => t + f(x), 0);

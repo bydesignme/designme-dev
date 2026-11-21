@@ -1288,6 +1288,9 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 body:has(.wf) .dmf{display:none}
 
 /* ---------- the app ---------- */
+/* ?nav=0: the editor alone, with no sidebar of workflows and no header button for it (wf.js; the landing page's showcase) */
+.wf[data-c][data-nav="0"]{grid-template-columns:minmax(0,1fr)!important}
+.wf[data-nav="0"] :is(.wf-side,.wf-scrim,.wf-menu){display:none!important}
 .wf[data-c]{--wf-ns:var(--dm-shadow);--wf-nb:color-mix(in srgb,var(--dm-line) 60%,transparent);--wf-dot:color-mix(in srgb,var(--dm-fg) 8%,transparent);width:100%;max-width:none;height:100%;display:grid;grid-template-columns:240px minmax(0,1fr);position:relative;overflow:hidden;background:var(--dm-surface);color:var(--dm-fg);font-size:13px;text-align:left}
 :root:not([data-style="soft"],[data-style="clean"]) .wf[data-c]{--wf-ns:0 0 #0000;--wf-nb:color-mix(in srgb,var(--dm-line-strong) 45%,transparent);--wf-dot:color-mix(in srgb,var(--dm-fg) 7%,transparent)}
 :where(.wf) :where(h1,h2,h3,p,ul,ol){margin:0}
@@ -2238,6 +2241,8 @@ const fitHits = window.dmFitHits || (() => {
    the version history. */
 (() => {
   const app = document.querySelector('.wf'); if (!app) return;
+  // ?nav=0 shows the editor alone, with no sidebar of workflows and no header button for it (the landing page's showcase)
+  if (new URLSearchParams(location.search).get('nav') === '0') app.dataset.nav = '0';
   const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const sum = (a, f = x => x) => a.reduce((t, x) => t + f(x), 0);

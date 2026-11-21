@@ -7,6 +7,10 @@
    always show the same numbers. */
 (() => {
   const app = document.querySelector('.crm'); if (!app) return;
+  // the address can pick what opens: ?view=pipeline opens on that view, and nav=0 shows the view alone, with no sidebar and no
+  // header button for it (the landing page shows the views this way, one at a time)
+  const URLP = new URLSearchParams(location.search);
+  if (URLP.get('nav') === '0') app.dataset.nav = '0';
   const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const sum = (a, f = x => x) => a.reduce((t, x) => t + f(x), 0);
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
@@ -2681,7 +2685,7 @@
   const tsc = $('.crm-sc', app); tsc.addEventListener('scroll', () => tsc.classList.toggle('sx', tsc.scrollLeft > 2), { passive:true });
   // the account column sticks right after the checkbox column, however wide that column comes out, so nothing shows between them
   const stk = $('.crm-t th.stk', app); new ResizeObserver(() => $('.crm-t', app).style.setProperty('--crm-stk', stk.getBoundingClientRect().width + 'px')).observe(stk);
-  derive(); renderTable(); renderBoard(); renderInbox(); setView('accounts'); stagger($$('tr[data-id]', tbody).slice(0, 16), 22, 120);
+  derive(); renderTable(); renderBoard(); renderInbox(); setView(VIEWS[URLP.get('view')] ? URLP.get('view') : 'accounts'); stagger($$('tr[data-id]', tbody).slice(0, 16), 22, 120);
   // a link to an account (#c3) opens it
   const h = location.hash.slice(1); if (h && coOf(h)) openSheet(h);
 })();

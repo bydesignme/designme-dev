@@ -83,10 +83,17 @@ const BENTO2 = [
 ];
 if ([...BENTO3.flat()].sort().join() !== [...BENTO2.flat()].sort().join()) throw new Error('landing: the bento\'s two layouts hold different cards');
 const BENTO = BENTO3.map(stack => stack.map(comp));
-// the templates, whole apps made of the components, shown live in one frame (with ?embed=1, only the app)
-// The Workflow editor opens on its last test run (its own #run= address), so the run drawer under the canvas shows the run's
-// steps and the screen is full, not a short flow on a tall empty canvas
-const TEMPLATES = [['sales-crm', 'Sales CRM', ''], ['workflow-editor', 'Workflow editor', '#run=2087']].map(([slug, name, at]) => ({ slug, name, url:`/templates/${slug}`, at }));
+// the templates' views, whole apps made of the components, each shown live in one frame on its own, without the app's sidebar
+// (?embed=1&nav=0, and ?view= picks the view), so they read as the many views of one product (owner, 21 Nov: "show them, oh wow,
+// there are so many different views"). A template's views share its frame: picking another one switches the view in the app
+// already open. Another template's views join the list as they come (the Dashboard builder's will). The Workflow editor opens
+// on its last test run (its own #run= address), so the run drawer under the canvas shows the run's steps and the screen is
+// full, not a short flow on a tall empty canvas
+const APPS = { 'sales-crm':'Sales CRM', 'workflow-editor':'Workflow editor' };
+const VIEWS = [['sales-crm', 'Accounts', 'accounts'], ['sales-crm', 'Pipeline', 'pipeline'], ['sales-crm', 'Calendar', 'calendar'],
+  ['sales-crm', 'Forecast', 'forecast'], ['sales-crm', 'Reports', 'reports'], ['workflow-editor', 'Workflow', '', '#run=2087']]
+  .map(([slug, name, view, at = '']) => ({ slug, app:APPS[slug], name, view, at, url:`/templates/${slug}` }));
+const openOf = v => v.url + (v.view ? `?view=${v.view}` : '');
 // the wall: every component in the library, in its order, as four rows that drift in turn left and right
 const ROWS = [0, 1, 2, 3].map(i => COMPONENTS.slice(Math.round(i * COMPONENTS.length / 4), Math.round((i + 1) * COMPONENTS.length / 4)));
 if (ROWS.flat().length !== total) throw new Error('landing: the wall shows ' + ROWS.flat().length + ' of ' + total + ' components');
@@ -302,15 +309,16 @@ const jsonld = [
         .lp-stack:nth-child(3){grid-column:auto}
       }
 
-      /* ---- screens: the templates, live in one frame on the site's grey, with the switch between them over it ---- */
+      /* ---- screens: the templates' views, live in one frame on the site's grey, with the switch between them over it. On a
+         phone the switch's row scrolls sideways (the picked view kept in sight) ---- */
       .lp-show-bar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;margin-bottom:24px}
-      .lp-show-bar .pg-seg{grid-column:2}
-      .lp-show-bar .pg-seg button{height:32px;padding:0 14px}
+      .lp-tabs{grid-column:2;min-width:0}
+      .lp-show-bar .pg-seg button{flex:none;height:32px;padding:0 14px;white-space:nowrap}
       .lp-open{grid-column:3;justify-self:end}
       .lp-open .lp-ar{transform:rotate(-45deg)}
       .lp-more.lp-open:hover .lp-ar{transform:rotate(-45deg) translateX(2px)}
-      /* the frame keeps its size from the start (the app inside fades in once it has loaded): the app at the frame's width,
-         800px tall, scaled down below 1376px wide; on a phone, the app's phone layout in a phone's frame */
+      /* the frame keeps its size from the start (the app inside fades in once it has loaded) and whatever the view: the app at
+         the frame's width, 800px tall, scaled down below 1280px wide; on a phone, the app's phone layout in a phone's frame */
       .lp-show{--dvf-line:var(--pg-line2);--dvf-bg:var(--pg-bg);width:100%;aspect-ratio:16/10;max-height:800px;border-radius:var(--lp-r2);background:var(--pg-bg);box-shadow:var(--dm-shadow-pop)}
       .lp-show .dvf-dev:not(.mobile){border-radius:var(--lp-r2)}
       .lp-show-ph{position:absolute;inset:0;display:grid;place-items:center;margin:0;color:var(--pg-dim);font-size:13px}
@@ -509,7 +517,8 @@ const jsonld = [
         .lp-show{aspect-ratio:auto;height:600px;background:transparent;box-shadow:none}
         .lp-show .dvf-dev{box-shadow:0 0 0 1px var(--dvf-line),var(--dm-shadow-pop)}
         .lp-show-bar{grid-template-columns:minmax(0,1fr) auto}
-        .lp-show-bar .pg-seg{grid-column:1;justify-self:start}
+        .lp-tabs{grid-column:1;overflow-x:auto;scrollbar-width:none;margin:-4px 0;padding:4px 0}
+        .lp-tabs::-webkit-scrollbar{display:none}
         .lp-open{grid-column:2}
         .lp-ed-art{margin-top:32px}
         .lp-agent{margin-top:72px}
@@ -553,15 +562,15 @@ const jsonld = [
     <section class="lp-in lp-sec" id="screens" aria-labelledby="screens-h">
       <div class="lp-sh">
         <h2 id="screens-h">Whole apps, made of the components</h2>
-        <p>Two templates, live: a sales CRM with an agent beside the rep, and an agent workflow editor.</p>
+        <p>Views of two templates, live: a sales CRM's accounts, pipeline, calendar, forecast and reports, and an agent workflow editor.</p>
       </div>
       <div class="lp-show-w">
         <div class="lp-show-bar">
-          <div class="pg-seg lp-tpls" role="radiogroup" aria-label="Templates">{TEMPLATES.map((t, i) => <button type="button" role="radio" aria-checked={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1} data-tpl={i}>{t.name}</button>)}</div>
-          <a class="lp-more lp-open" href={TEMPLATES[0].url} target="_blank" rel="noopener" aria-label={`Open ${TEMPLATES[0].name}, opens in a new tab`}>Open<Fragment set:html={arrow} /></a>
+          <div class="lp-tabs"><div class="pg-seg lp-tpls" role="radiogroup" aria-label="Views">{VIEWS.map((t, i) => <button type="button" role="radio" aria-checked={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1} data-tpl={i}>{t.name}</button>)}</div></div>
+          <a class="lp-more lp-open" href={openOf(VIEWS[0])} target="_blank" rel="noopener" aria-label={`Open the ${VIEWS[0].app} on ${VIEWS[0].name}, opens in a new tab`}>Open<Fragment set:html={arrow} /></a>
         </div>
         <div class="lp-bg">
-          <div class="lp-show dvf" role="group" aria-roledescription="template" aria-label={`${TEMPLATES[0].name}, live`} data-tpls={JSON.stringify(TEMPLATES)}><p class="lp-show-ph">{TEMPLATES[0].name}, live</p></div>
+          <div class="lp-show dvf" role="group" aria-roledescription="template" aria-label={`${VIEWS[0].name}, from the ${VIEWS[0].app} template, live`} data-views={JSON.stringify(VIEWS.map(v => ({ ...v, open:openOf(v) })))}><p class="lp-show-ph">{VIEWS[0].name}, live</p></div>
         </div>
       </div>
     </section>
@@ -736,33 +745,55 @@ const jsonld = [
       document.addEventListener('pg-style', function(){ document.querySelectorAll('.lp-demo > .card[data-c]').forEach(function(card){ if (card._c && !card._c.mine) DM.mount(card); }); });
     })();
     (function(){
-      // the templates: the first loads once its frame comes within a screen of the view (so it never holds up the page), and
-      // the two take turns every 9 seconds while the frame is on screen. A mouse resting on the frame, or a finger on it, holds
-      // the turn; a click, tap or key inside the app, or a pick on the switch, ends the turns for good. With reduced motion
-      // they never turn. The app never traps the page's scrolling: a wheel over it scrolls the page until the reader clicks
-      // inside (then the app has it until the pointer leaves the frame), and a swipe up or down over it always scrolls the page.
-      // On a phone the app shows its phone layout in a phone's frame. On a desktop the app is laid out at least 1376px wide
-      // (the Sales CRM's table needs about 1312px) and scaled down to the frame's width when that is narrower
+      // the templates' views: the first loads once its frame comes within a screen of the view (so it never holds up the page),
+      // and the views take turns every 9 seconds while the frame is on screen. A mouse resting on the frame, or a finger on it,
+      // holds the turn; a click, tap or key inside the app, or a pick on the switch, ends the turns for good. With reduced
+      // motion they never turn. Each template opens once, in its own frame, on the view picked (?view=), with no sidebar
+      // (nav=0); another of its views is then switched to in the app that is open, with the app's own view buttons (its hidden
+      // sidebar's [data-go], the app's root saying the view on show in data-view), so it arrives as the app shows any view.
+      // The frame keeps one size whatever the view.
+      // The app never traps the page's scrolling: a wheel over it scrolls the page until the reader clicks inside (then the
+      // app has it until the pointer leaves the frame), and a swipe up or down over it always scrolls the page.
+      // On a phone the app shows its phone layout in a phone's frame. On a desktop the app is laid out at least 1280px wide (its
+      // desktop layout; with no sidebar the Pipeline's five columns need about 1240px) and scaled down to the frame's width
+      // when that is narrower
       var box = document.querySelector('.lp-show'); if (!box || !window.dmFrame) return;
-      var T = JSON.parse(box.dataset.tpls), segs = [].slice.call(document.querySelectorAll('.lp-tpls [data-tpl]'));
-      var open = document.querySelector('.lp-open'), ph = box.querySelector('.lp-show-ph');
+      var T = JSON.parse(box.dataset.views), segs = [].slice.call(document.querySelectorAll('.lp-tpls [data-tpl]'));
+      var tabs = document.querySelector('.lp-tabs'), open = document.querySelector('.lp-open'), ph = box.querySelector('.lp-show-ph');
       var phone = matchMedia('(max-width:640px)'), reduce = matchMedia('(prefers-reduced-motion: reduce)');
       var at = 0, done = reduce.matches, held = false, seen = false, started = false;
+      // per template: the address its frame opened with, and the view it should be on
+      var src = {}, want = {};
       var stop = function(){ done = true; };
-      var v = window.dmFrame(box, { fill:1376, passWheel:true, title:function(src){ var t = T.filter(function(x){ return src.indexOf(x.url) === 0; })[0]; return (t ? t.name : 'Template') + ', live'; }, onUse:stop,
-        onLoad:function(){ if (ph) ph.hidden = true; } });
+      var slugOf = function(path){ return String(path).split('/').pop().replace(/\.html$/, ''); };
+      var viewIn = function(f, view){
+        if (!f || !f.ready || !view) return;
+        try { var d = f.el.contentDocument, app = d.querySelector('[data-c][data-view]'), b = d.querySelector('.ahx-side [data-go="' + view + '"]');
+          if (app && b && app.getAttribute('data-view') !== view) b.click(); } catch(e){}
+      };
+      var v = window.dmFrame(box, { fill:1280, passWheel:true, title:function(s){ return (T.filter(function(x){ return s.indexOf(x.url + '.') === 0; })[0] || { app:'Template' }).app + ', live'; }, onUse:stop,
+        onLoad:function(f, path){ if (ph) ph.hidden = true; viewIn(f, want[slugOf(path)]); } });
+      // the picked view kept in sight in the switch's row when it scrolls (a phone), without moving the page
+      var into = function(b){ if (tabs.scrollWidth <= tabs.clientWidth + 1) return; var tr = tabs.getBoundingClientRect(), br = b.getBoundingClientRect();
+        tabs.scrollTo({ left:Math.max(0, tabs.scrollLeft + br.left - tr.left - (tr.width - br.width) / 2), behavior:reduce.matches ? 'instant' : 'smooth' }); };
       var show = function(i){
         at = i; var t = T[i];
         segs.forEach(function(b, k){ var on = k === i; b.setAttribute('aria-checked', String(on)); b.tabIndex = on ? 0 : -1; });
-        open.href = t.url; open.setAttribute('aria-label', 'Open ' + t.name + ', opens in a new tab');
-        box.setAttribute('aria-label', t.name + ', live');
+        open.href = t.open; open.setAttribute('aria-label', 'Open the ' + t.app + (t.view ? ' on ' + t.name : '') + ', opens in a new tab');
+        box.setAttribute('aria-label', t.name + ', from the ' + t.app + ' template, live');
+        want[t.slug] = t.view;
         // the page's file, so it loads from any static server (Cloudflare Pages sends it on to the page's own address,
-        // keeping ?embed=1; the page also knows it is framed here)
-        v.show(t.url + '.html?embed=1' + (t.at || ''), phone.matches ? 'mobile' : 'desktop');
+        // keeping the query; the page also knows it is framed here)
+        if (!src[t.slug]) src[t.slug] = t.url + '.html?embed=1&nav=0' + (t.view ? '&view=' + t.view : '') + (t.at || '');
+        viewIn(v.show(src[t.slug], phone.matches ? 'mobile' : 'desktop'), t.view);
+        // (in the next frame, after an arrow key's focus has moved the row)
+        requestAnimationFrame(function(){ into(segs[i]); });
       };
       var begin = function(){ if (started) return; started = true; show(at);
         setInterval(function(){ if (done || held || v.touching || !seen || document.hidden || box.matches(':hover')) return; show((at + 1) % T.length); }, 9000); };
-      segs.forEach(function(b){ b.addEventListener('click', function(e){ if (e.isTrusted) stop(); begin(); show(+b.dataset.tpl); }); });
+      // a pick ends the turns: a click or tap, or the arrow keys on the switch (the site's own radio groups move with them and
+      // pick with a click while the focus is still on the view before)
+      segs.forEach(function(b){ b.addEventListener('click', function(e){ if (e.isTrusted || segs.indexOf(document.activeElement) >= 0) stop(); begin(); show(+b.dataset.tpl); }); });
       box.addEventListener('mouseenter', function(){ held = true; }); box.addEventListener('mouseleave', function(){ held = false; });
       if ('IntersectionObserver' in window){
         new IntersectionObserver(function(es){ seen = es[es.length - 1].isIntersecting; }).observe(box);

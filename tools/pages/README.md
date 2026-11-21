@@ -26,9 +26,11 @@ twelve of the library's most distinctive components playing live, each its own c
 (two from 1100px, placed by a small script; no row of metric cards). A card is as tall as it is right now and grows and
 shrinks as it plays, pushing only what is under it in its stack, so no card has room left empty under it; the cards and
 their stacks are chosen, from each candidate's height sampled live over a full run in every style, so the stacks' feet stay
-close to level. Then the two templates, live in one
-frame on the site's grey with a switch over it, taking turns (`src/device/frame.js`, with each template's `?embed=1`, which
-hides its header; the Workflow editor opens on its last test run). The apps never trap the page's scrolling (`passWheel`):
+close to level. Then the templates' views (the Sales CRM's Accounts, Pipeline, Calendar, Forecast and Reports, and the
+Workflow editor), live in one frame on the site's grey with a switch over it, taking turns (`src/device/frame.js`, with
+`?embed=1`, which hides the site's header, `nav=0`, which hides the app's sidebar and the header button that opens it, and
+`view=`, which picks the CRM's view; another view of an open app is switched to in place; the Workflow editor opens on its
+last test run). The apps never trap the page's scrolling (`passWheel`):
 a mouse wheel over the frame scrolls the page until the reader clicks inside, and the app has it from then until the pointer
 leaves the frame; a swipe up or down over it always scrolls the page, and a tap reaches the app; a wall of every component on the grey, rows of pictures
 that drift in turn left and right and fade out at both sides, each linking to its page; Light or Dark and Blueprint, Soft
