@@ -157,6 +157,9 @@ every session and every agent.
 - Clean's motion is Access Grid-like and calm (owner, 18 Nov: "it should be smoother"): ease cubic-bezier(.23,1,.32,1), the
   card rises 8px from .98 over 680ms and its pieces follow 50ms apart (`REVEAL.clean`), hovers and fades 220ms, moves 340ms,
   entrances 560ms, only the ink primary presses (at .97), menus scale and fade from their trigger.
+- Clean's loaders and progress marks (spinners, animated dots, step and progress bars, relevance meters) are white in dark
+  mode and the accent in light mode (owner, 21 Nov, said three times: "white in dark mode, accent color in light mode for
+  clean"). This is the clearest difference between Clean and Soft. An animated loader mark has no tile or fill behind it.
 - Soft keeps its look; the "Soft refreshed" lab is dropped. Six components have their Clean touches (Agent tree,
   Agent run timeline, Status pill, Context meter, Run cost, Meeting card); the others render with Clean's tokens and get
   theirs later.
@@ -221,6 +224,12 @@ every session and every agent.
   meters and tags above end. A label or trigger outside a card lines up with the card's edge.
 - The parts of one row (icon, word, detail, button) share one centre line: never mix `align-items:baseline` with an
   `align-self:center` child. Buttons side by side are the same drawn height.
+- Ghost buttons and icon buttons (Stop, Copy, a head's chevron, a row's Read) share one hover in each style: the same quiet
+  fill in the button's own shape, with no border, shadow or size change (owner, 21 Nov: "you use like 10 different hover
+  styles"). A button whose icon sits beside a word has no tile of its own behind the icon (Continue ↵).
+- A card's footer (its actions, or a status line such as a loader under the content) sits under a hairline divider in Soft and
+  Blueprint; Clean gives it its own foot strip (owner, 21 Nov: "multiple text layers and no segmentation"). A row whose
+  trailing control is missing (no chevron) ends its words on the content's right edge rather than leaving the control's room.
 - A menu or popover is never cut off by its stage or page: it opens upwards when there is no room below (`placePop`).
 - A mouse click or tap never leaves a focus ring, even when a modifier key (a screenshot shortcut) follows.
 - No tinted band behind the active row: a pulsing icon and a spinner or "Working" chip say what is running.
