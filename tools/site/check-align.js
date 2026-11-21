@@ -7,6 +7,8 @@
 //   menus    a menu or popover cut off by the stage or page around the component when its button opens it
 //   ring     a focus ring drawn after a mouse click followed by a modifier key (a screenshot shortcut)
 //   centring the component off centre in its stage by more than 3px at a settled moment
+//   insets   the card's content more than 2.5px further from one edge than another, in every style (head and foot strips
+//            and edges they cover are left out)
 // usage (from the repo root, after a build, with a server on PORT, default 8790):
 //   IDS=permission-gate,model-picker node tools/site/check-align.js     STYLES=clean,soft,blueprint THEMES=light,dark W=1440 SECS=16
 // Nothing reaches the owner until it reports no issues for every style and theme.
@@ -84,6 +86,24 @@ function sample(id){
   // centring in the stage
   const st = comp.querySelector(':scope>.stage').getBoundingClientRect(), si = sin.getBoundingClientRect();
   const off = ((si.top - st.top) - (st.bottom - si.bottom)) / 2; if (Math.abs(off) > 3) out.push(`centring: ${off > 0 ? 'low' : 'high'} by ${Math.abs(off).toFixed(0)}px`);
+  // insets: how far the card's content sits from each of its edges, in every style (owner, 21 Nov: a Task table row's fill 8px
+  // from the bottom against 16px at the sides, the Funnel's insight 7px from the bottom against 20). Content is every anchor
+  // above plus the fills inside the card (a highlighted row, a quote box), each clipped to the scroll box it sits in; lines of
+  // 2px or less, fills as wide as the card and the head and foot strips are left out (they meet the edges by design), and an
+  // edge a strip covers is not measured
+  if (card !== sin){
+    const clip = (e, b) => { let r = { left:b.left, right:b.right, top:b.top, bottom:b.bottom }; for (let a = e.parentElement; a && a !== card; a = a.parentElement){ const cs = getComputedStyle(a); if (cs.overflowX === 'visible' && cs.overflowY === 'visible') continue; const q = a.getBoundingClientRect(); r = { left:Math.max(r.left, q.left), right:Math.min(r.right, q.right), top:Math.max(r.top, q.top), bottom:Math.min(r.bottom, q.bottom) }; } return r; };
+    const inStrip = e => strips.some(s => s.contains(e));
+    const boxes = A.filter(a => !inStrip(a.e)).map(a => clip(a.e, a.box || a.b));
+    card.querySelectorAll('*').forEach(e => { if (!vis(e) || inStrip(e) || e.closest('.pop,.hand,.tip')) return; const cs = getComputedStyle(e); if (cs.backgroundColor === 'rgba(0, 0, 0, 0)' || cs.backgroundColor === cbg) return; const b = e.getBoundingClientRect(); if (b.height <= 2 || b.width <= 2 || b.width > C.width - 4) return; boxes.push(clip(e, b)); });
+    const live = boxes.filter(r => r.right - r.left > 1 && r.bottom - r.top > 1);
+    if (live.length){
+      const sT = strips.some(s => Math.abs(s.getBoundingClientRect().top - C.top) < 3), sB = strips.some(s => Math.abs(Math.min(s.getBoundingClientRect().bottom, C.bottom) - C.bottom) < 3);
+      const ins = { left:Math.min(...live.map(r => r.left)) - C.left, right:C.right - Math.max(...live.map(r => r.right)), top:sT ? null : Math.min(...live.map(r => r.top)) - C.top, bottom:sB ? null : C.bottom - Math.max(...live.map(r => r.bottom)) };
+      const vals = Object.values(ins).filter(v => v !== null);
+      if (Math.max(...vals) - Math.min(...vals) > 2.5) out.push(`insets: ${Object.entries(ins).map(([k, v]) => `${k} ${v === null ? 'strip' : Math.round(v)}`).join(', ')}`);
+    }
+  }
   return { out };
 }
 
