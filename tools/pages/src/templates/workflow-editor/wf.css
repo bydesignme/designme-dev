@@ -25,8 +25,30 @@
 body:has(.wf) .dmf{display:none}
 
 /* ---------- the app ---------- */
-.wf[data-c]{--wf-ns:var(--dm-shadow);--wf-nb:color-mix(in srgb,var(--dm-line) 60%,transparent);--wf-dot:color-mix(in srgb,var(--dm-fg) 8%,transparent);width:100%;max-width:none;height:100%;display:grid;grid-template-columns:240px minmax(0,1fr);position:relative;overflow:hidden;background:var(--dm-surface);color:var(--dm-fg);font-size:13px;text-align:left}
-:root:not([data-style="soft"],[data-style="clean"]) .wf[data-c]{--wf-ns:0 0 #0000;--wf-nb:color-mix(in srgb,var(--dm-line-strong) 45%,transparent);--wf-dot:color-mix(in srgb,var(--dm-fg) 7%,transparent)}
+.wf[data-c]{width:100%;max-width:none;height:100%;display:grid;grid-template-columns:240px minmax(0,1fr);position:relative;overflow:hidden;background:var(--dm-surface);color:var(--dm-fg);font-size:13px;text-align:left}
+/* the grounds (owner, 21 Nov: "soft should have everything on white... since it's already elevated with shadow... the clean,
+   we can keep the color as we have on the soft"): --wf-ground is the frame, the sidebar and the canvas. In light mode Soft's
+   are white, its raised panel and the steps told apart by their shadows, and Clean's take the grey Soft had (#fafafa);
+   Blueprint and dark mode keep each style's stage. --wf-cv is the canvas's own colour (Blueprint dark's is its surface).
+   The workflow on it is half as strong as it was (owner, 21 Nov: "the dotted background, and the workflows themselves a bit
+   lighter... 50% off the opacity"): the dots (--wf-dot), the wires and pins (--wf-edge, opaque so crossings don't darken),
+   the steps' edges (--wf-nb) and their shadows (--wf-ns, each layer of the style's shadow at half its alpha). The steps' words,
+   icons and kind colours keep their full strength */
+.wf[data-c]{--wf-ground:var(--dm-stage);--wf-cv:var(--wf-ground);--wf-edge:color-mix(in srgb,var(--dm-faint) 50%,var(--wf-cv));
+  --wf-ns:0 0 0 1px rgba(0,0,0,.015),0 1px 1px rgba(0,0,0,.0125),0 2px 4px -1px rgba(0,0,0,.015),0 8px 16px -6px rgba(0,0,0,.025),0 20px 36px -14px rgba(0,0,0,.04);
+  --wf-nb:color-mix(in srgb,var(--dm-line) 30%,transparent);--wf-dot:color-mix(in srgb,var(--dm-fg) 4%,transparent)}
+:root[data-style="soft"] .wf[data-c]{--wf-ground:var(--dm-surface)}
+:root[data-style="clean"] .wf[data-c]{--wf-ground:#fafafa;--wf-nb:color-mix(in srgb,var(--dm-line) 50%,transparent);
+  --wf-ns:0 0 0 1px rgba(0,0,0,.035),0 1px 1px rgba(0,0,0,.02),0 2px 10px -4px rgba(0,0,0,.06)}
+:root:is([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wf[data-c]{--wf-ground:var(--dm-stage)}
+:root[data-style="soft"][data-theme="dark"] .wf[data-c]{--wf-ns:0 0 0 1px rgba(255,255,255,.0225),0 1px 2px rgba(0,0,0,.14),0 6px 14px -6px rgba(0,0,0,.18),0 20px 36px -14px rgba(0,0,0,.225)}
+:root[data-style="clean"][data-theme="dark"] .wf[data-c]{--wf-ns:0 0 0 1px rgba(255,255,255,.05),0 1px 1px rgba(0,0,0,.25),0 2px 10px -4px rgba(0,0,0,.3)}
+@media (prefers-color-scheme:dark){
+  :root:is([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wf[data-c]{--wf-ground:var(--dm-stage)}
+  :root[data-style="soft"]:not([data-theme="light"]) .wf[data-c]{--wf-ns:0 0 0 1px rgba(255,255,255,.0225),0 1px 2px rgba(0,0,0,.14),0 6px 14px -6px rgba(0,0,0,.18),0 20px 36px -14px rgba(0,0,0,.225)}
+  :root[data-style="clean"]:not([data-theme="light"]) .wf[data-c]{--wf-ns:0 0 0 1px rgba(255,255,255,.05),0 1px 1px rgba(0,0,0,.25),0 2px 10px -4px rgba(0,0,0,.3)}
+}
+:root:not([data-style="soft"],[data-style="clean"]) .wf[data-c]{--wf-ns:0 0 #0000;--wf-nb:color-mix(in srgb,var(--dm-line-strong) 22.5%,transparent);--wf-dot:color-mix(in srgb,var(--dm-fg) 3.5%,transparent)}
 :where(.wf) :where(h1,h2,h3,p,ul,ol){margin:0}
 .wf .muted{color:var(--dm-muted)}
 .wf-sp{flex:1}
@@ -84,7 +106,7 @@ body:has(.wf) .dmf{display:none}
 .wf-work{position:relative;flex:1;min-width:0;display:flex;flex-direction:column;container:wfw/inline-size}
 
 /* ---------- wfx-node and the canvas: a board of steps that pans and zooms ---------- */
-.wfx-cv{position:relative;flex:1;min-height:0;outline:0;background:var(--dm-stage)}
+.wfx-cv{position:relative;flex:1;min-height:0;outline:0;background:var(--wf-cv)}
 .wfx-cv:focus-visible{box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--dm-field-line-strong) 60%,transparent)}
 .wfx-vp{position:absolute;inset:0;overflow:hidden;overflow:clip;touch-action:none;user-select:none;-webkit-user-select:none;background-image:radial-gradient(circle at center,var(--wf-dot) 1.1px,transparent 1.6px);background-size:16px 16px}
 .wfx-cv[data-tool="hand"] .wfx-vp,.wfx-cv[data-tool="hand"] .wfx-node{cursor:grab}
@@ -93,7 +115,7 @@ body:has(.wf) .dmf{display:none}
 .wfx-cv.anim .wfx-world{transition:transform .3s var(--dm-ease)}
 .wfx-cv.anim .wfx-vp{transition:background-position .3s var(--dm-ease),background-size .3s var(--dm-ease)}
 .wfx-svg{position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible}
-.wfx-svg path.e{fill:none;stroke:var(--dm-faint);stroke-width:1.5;transition:stroke .4s var(--dm-ease),opacity .4s}
+.wfx-svg path.e{fill:none;stroke:var(--wf-edge);stroke-width:1.5;transition:stroke .4s var(--dm-ease),opacity .4s}
 .wfx-svg path.e.tool{stroke-dasharray:3 3}
 .wfx-svg path.e.done{stroke:color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 75%,var(--dm-faint))}
 .wfx-svg path.e.skip{stroke-dasharray:4 4;opacity:.55}
@@ -101,8 +123,8 @@ body:has(.wf) .dmf{display:none}
 .wfx-nodes{position:absolute;left:0;top:0}
 .wfx-node{position:absolute;width:172px;height:66px;padding:10px 10px 9px;display:flex;flex-direction:column;justify-content:space-between;border-radius:calc(12px * var(--dm-rk));background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--wf-nb),var(--wf-ns);text-align:left;cursor:pointer;user-select:none;transition:box-shadow .25s,opacity .3s}
 @supports (corner-shape:squircle){.wfx-node{corner-shape:squircle}}
-@media (hover:hover) and (pointer:fine){.wfx-node:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 50%,transparent),var(--wf-ns)}}
-.wfx-node.tool{background:color-mix(in srgb,var(--dm-surface) 55%,var(--dm-stage))}
+@media (hover:hover) and (pointer:fine){.wfx-node:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 25%,transparent),var(--wf-ns)}}
+.wfx-node.tool{background:color-mix(in srgb,var(--dm-surface) 55%,var(--wf-cv))}
 .wfx-node.sel{box-shadow:0 0 0 1.5px color-mix(in srgb,var(--dm-pick-on) 75%,transparent),var(--dm-shadow-pop)}
 .wfx-node:focus-visible{outline:2px solid var(--dm-focus);outline-offset:2px}
 .wfx-node.drag{z-index:3;cursor:grabbing;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-on) 50%,transparent),var(--dm-shadow-pop);transition:none}
@@ -111,16 +133,43 @@ body:has(.wf) .dmf{display:none}
 .wfx-node.off{opacity:.55}
 .wfx-n1{display:flex;align-items:center;gap:6px;min-width:0}
 .wfx-n1 .wfx-ic{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk))}
-/* the kind of step in colour (owner, 8 Nov): the trigger orange, AI steps violet, tools teal, app steps and outputs blue, a
-   branch yellow, a wait pink, an approval green. The step's run state keeps its own ring and badge on top of this */
-.wfx-ic[data-k]{background:var(--wf-kb);color:var(--wf-kf)}
-.wfx-ic[data-k="trigger"]{--wf-kb:var(--dm-pp-bg);--wf-kf:var(--dm-pp)}
-.wfx-ic[data-k="ai"]{--wf-kb:var(--dm-pl-bg);--wf-kf:var(--dm-pl)}
-.wfx-ic[data-k="tool"]{--wf-kb:var(--dm-pt-bg);--wf-kf:var(--dm-pt)}
-.wfx-ic:is([data-k="app"],[data-k="output"]){--wf-kb:var(--dm-pb-bg);--wf-kf:var(--dm-pb)}
-.wfx-ic[data-k="branch"]{--wf-kb:var(--dm-py-bg);--wf-kf:var(--dm-py)}
-.wfx-ic[data-k="wait"]{--wf-kb:var(--dm-pk-bg);--wf-kf:var(--dm-pk)}
-.wfx-ic[data-k="approval"]{--wf-kb:var(--dm-pm-bg);--wf-kf:var(--dm-pm)}
+/* the kinds of step in colour (owner, 21 Nov, after Attio's workflow builder; the hues of 8 Nov kept where a kind had one).
+   Each kind has one hue wherever its tile shows (the canvas, the inspector and its tokens, the step picker, the data picker,
+   the run drawer's rows, bars and data, Connected apps' tools): its icon in a saturated mark of the hue on that hue's light
+   tint. The hues are the core tag and avatar hues: the trigger orange, a branch yellow, AI steps violet, steps that find or
+   read teal, steps that create or update blue, steps that send or notify pink, an approval green and a wait rose (wf.js,
+   kindOf). A mark is the avatar hue where it keeps 3:1 on its tint and on every surface it sits on; orange, yellow, green and
+   teal are too light for that in light mode, so they lean toward their tag ink (45% avatar hue), and in dark mode blue,
+   violet, pink and rose lean toward their light tag ink (50%). The step's run state keeps its own ring and badge on top */
+.wf[data-c]{--wf-hb:var(--dm-av-b);--wf-hl:var(--dm-av-l);--wf-hk:var(--dm-av-k);--wf-hr:var(--dm-av-r);
+  --wf-hp:color-mix(in oklab,var(--dm-av-p) 45%,var(--dm-pp));--wf-hy:color-mix(in oklab,var(--dm-av-y) 45%,var(--dm-py));
+  --wf-hm:color-mix(in oklab,var(--dm-av-m) 45%,var(--dm-pm));--wf-ht:color-mix(in oklab,var(--dm-av-t) 45%,var(--dm-pt))}
+:root[data-theme="dark"] .wf[data-c]{--wf-hb:color-mix(in oklab,var(--dm-av-b) 50%,var(--dm-pb));--wf-hl:color-mix(in oklab,var(--dm-av-l) 50%,var(--dm-pl));
+  --wf-hk:color-mix(in oklab,var(--dm-av-k) 50%,var(--dm-pk));--wf-hr:color-mix(in oklab,var(--dm-av-r) 50%,var(--dm-pr));
+  --wf-hp:var(--dm-av-p);--wf-hy:var(--dm-av-y);--wf-hm:var(--dm-av-m);--wf-ht:var(--dm-av-t)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .wf[data-c]{--wf-hb:color-mix(in oklab,var(--dm-av-b) 50%,var(--dm-pb));--wf-hl:color-mix(in oklab,var(--dm-av-l) 50%,var(--dm-pl));
+  --wf-hk:color-mix(in oklab,var(--dm-av-k) 50%,var(--dm-pk));--wf-hr:color-mix(in oklab,var(--dm-av-r) 50%,var(--dm-pr));
+  --wf-hp:var(--dm-av-p);--wf-hy:var(--dm-av-y);--wf-hm:var(--dm-av-m);--wf-ht:var(--dm-av-t)}}
+.wf [data-k="trigger"]{--wf-kb:var(--dm-pp-bg);--wf-kf:var(--wf-hp)}
+.wf [data-k="branch"]{--wf-kb:var(--dm-py-bg);--wf-kf:var(--wf-hy)}
+.wf :is([data-k="ai"],[data-k="model"]){--wf-kb:var(--dm-pl-bg);--wf-kf:var(--wf-hl)}
+.wf [data-k="read"]{--wf-kb:var(--dm-pt-bg);--wf-kf:var(--wf-ht)}
+.wf [data-k="write"]{--wf-kb:var(--dm-pb-bg);--wf-kf:var(--wf-hb)}
+.wf [data-k="send"]{--wf-kb:var(--dm-pk-bg);--wf-kf:var(--wf-hk)}
+.wf [data-k="approval"]{--wf-kb:var(--dm-pm-bg);--wf-kf:var(--wf-hm)}
+.wf [data-k="wait"]{--wf-kb:var(--dm-pr-bg);--wf-kf:var(--wf-hr)}
+/* a model call's bar is its step's violet, a little lighter; a wait to try again keeps the warning colour */
+.wf [data-k="model"]{--wf-kc:color-mix(in oklab,var(--wf-hl) 82%,var(--dm-surface))}
+.wf [data-k="retry"]{--wf-kb:var(--dm-warn-bg);--wf-kf:var(--dm-warn);--wf-kc:var(--dm-warn-mark)}
+/* the tiles: the template's own (wfx-ic, wfx-lg) and the components' (Step inspector, Data picker, Run drawer), each with a
+   faint edge in its own hue, as in the reference (Blueprint's a little stronger, as its tiles had) */
+.wf[data-c]{--wf-ke:20%}
+:root:not([data-style="soft"],[data-style="clean"]) .wf[data-c]{--wf-ke:30%}
+.wf :is(.wfx-ic,.wfx-lg)[data-k]{background:var(--wf-kb);color:var(--wf-kf)}
+.wf :is(.wfx-ic,.wfx-lg,.sti-ti,.fpk-ti,.rdr-ti)[data-k]{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--wf-kf) var(--wf-ke),transparent)}
+.wf .sti-ti[data-k]{--dm-sti-kb:var(--wf-kb);--dm-sti-kf:var(--wf-kf)}
+.wf .fpk-ti[data-k]{--dm-fpk-kb:var(--wf-kb);--dm-fpk-kf:var(--wf-kf)}
+.wf :is(.rdr-ti,.rdr-r)[data-k]{--dm-rdr-kb:var(--wf-kb);--dm-rdr-kf:var(--wf-kf);--dm-rdr-kc:var(--wf-kc,var(--wf-kf))}
 .wfx-n1 .t{min-width:0;font-size:12.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wfx-n2{display:flex;align-items:center;height:20px;min-width:0}
 .wfx-n2 .m{display:flex;gap:var(--dm-s-1);min-width:0;overflow:hidden}
@@ -147,7 +196,7 @@ body:has(.wf) .dmf{display:none}
 .wfx-node:is([data-st="retry"],[data-st="wait"]) .wfx-st{background:var(--dm-warn-bg);color:var(--dm-warn);box-shadow:none}
 @keyframes acxs{from{opacity:0;transform:scale(.6)}}
 /* where a wire meets a step */
-.wfx-pin{position:absolute;width:8px;height:8px;border-radius:50%;background:var(--dm-surface);box-shadow:0 0 0 1.5px var(--dm-faint)}
+.wfx-pin{position:absolute;width:8px;height:8px;border-radius:50%;background:var(--dm-surface);box-shadow:0 0 0 1.5px var(--wf-edge)}
 .wfx-pin.in{left:-4px;top:calc(50% - 4px)}
 .wfx-pin.out{right:-4px;top:calc(50% - 4px)}
 .wfx-pin.top{top:-4px;left:calc(50% - 4px)}
@@ -163,18 +212,19 @@ body:has(.wf) .dmf{display:none}
 @media (hover:none){.wfx-ins{opacity:1;transform:none}}
 .wfx-cv.move .wfx-ins{opacity:0}
 /* wfx-elab: a branch's path, on its wire */
-.wfx-elab{position:absolute;transform:translate(-50%,-50%);height:18px;padding:0 6px;display:grid;place-items:center;border-radius:var(--dm-r-tag);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 60%,transparent);font-size:11px;font-weight:500;color:var(--dm-fg2);pointer-events:none;transition:opacity .3s}
+.wfx-elab{position:absolute;transform:translate(-50%,-50%);height:18px;padding:0 6px;display:grid;place-items:center;border-radius:var(--dm-r-tag);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 30%,transparent);font-size:11px;font-weight:500;color:var(--dm-fg2);pointer-events:none;transition:opacity .3s}
 .wfx-elab.skip{opacity:.5}
 .wfx-elab.done{color:var(--dm-fg)}
 /* who the test pretends to be, over the canvas's top left */
-.wf-lead{position:absolute;left:var(--dm-s-3);top:var(--dm-s-3);z-index:5;display:inline-flex;align-items:center;gap:var(--dm-s-2);max-width:calc(100% - 24px);height:32px;padding:0 10px 0 6px;border-radius:var(--dm-r-pill);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent),var(--wf-ns);font-size:12.5px;color:var(--dm-fg2);white-space:nowrap;transition:box-shadow var(--dm-t-fast)}
+.wf-lead{position:absolute;left:var(--dm-s-3);top:var(--dm-s-3);z-index:5;display:inline-flex;align-items:center;gap:var(--dm-s-2);max-width:calc(100% - 24px);height:32px;padding:0 10px 0 6px;border-radius:var(--dm-r-pill);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 35%,transparent),var(--wf-ns);font-size:12.5px;color:var(--dm-fg2);white-space:nowrap;transition:box-shadow var(--dm-t-fast)}
 @supports (corner-shape:squircle){.wf-lead{corner-shape:squircle}}
 .wf-lead>span:not(.av):not(.wfx-ic){min-width:0;overflow:hidden;text-overflow:ellipsis}
 .wf-lead b{font-weight:500;color:var(--dm-fg)}
 .wf-lead .av{width:20px;height:20px;font-size:8.5px}
 .wf-lead .wfx-ic{width:20px;height:20px}
 .wf-lead>.i{color:var(--dm-muted)}
-@media (hover:hover) and (pointer:fine){.wf-lead:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 50%,transparent),var(--wf-ns)}}
+/* the test chip's edge is lighter than a button's (owner, 21 Nov: "the border is a bit too dark"), at rest and on hover */
+@media (hover:hover) and (pointer:fine){.wf-lead:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 30%,transparent),var(--wf-ns)}}
 .wf-bar.ctb-bar{transform:translateX(-50%)}
 .wf-bar .ctb-b[aria-disabled="true"]{cursor:not-allowed}
 
@@ -318,7 +368,11 @@ body:has(.wf) .dmf{display:none}
 .wf-pop .mi[aria-disabled="true"]{color:var(--dm-dis);cursor:not-allowed}
 .wf-pop .mi .kbd{margin-left:auto}
 .wf-pop .mi .av{flex:none}
-.wf .pop{box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 70%,transparent),var(--dm-shadow-pop)}
+/* every menu's edge is the half-strength hairline, lighter than it was (owner, 21 Nov, on the test chip's menu: "the border is a
+   bit too dark") */
+.wf .pop{box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent),var(--dm-shadow-pop)}
+/* Clean's menus have their own single edge, not a second hairline over it (owner, 21 Nov) */
+:root[data-style="clean"] .wf .pop{box-shadow:var(--dm-shadow-pop)}
 .wfx-pick.acx-pk{width:272px}
 .wfx-pick .acx-ls{max-height:260px}
 .wfx-pick .acx-o .ic.wfx-ic{width:22px;height:22px;border-radius:calc(6px * var(--dm-rk))}
@@ -501,10 +555,12 @@ body:has(.wf) .dmf{display:none}
 @supports (corner-shape:squircle){.wf-edited,.wfx-st,.wfx-pin,.wfx-ins,.wfx-ver-m,.wf-checks .g,.wfx-app-wf .dot{corner-shape:round}}
 
 /* ---------- dividers (owner, 9 Nov) ---------- */
-/* every hairline in the editor a step stronger, in light and dark: the line token they mix from is darker (lighter in dark) */
-.wf[data-c]{--dm-line:color-mix(in srgb,var(--dm-line-strong) 22%,#e8e8e8)}
-:root[data-theme="dark"] .wf[data-c]{--dm-line:#474747}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .wf[data-c]{--dm-line:#474747}}
+/* every hairline in the editor a step stronger, in light and dark: the line token they mix from is darker (lighter in dark).
+   Not in Clean, whose lines are its own lighter hairline (owner, 21 Nov: "on the clean version, the borders around components
+   are definitely too strong") */
+:root:not([data-style="clean"]) .wf[data-c]{--dm-line:color-mix(in srgb,var(--dm-line-strong) 22%,#e8e8e8)}
+:root:not([data-style="clean"])[data-theme="dark"] .wf[data-c]{--dm-line:#474747}
+@media (prefers-color-scheme:dark){:root:not([data-style="clean"]):not([data-theme="light"]) .wf[data-c]{--dm-line:#474747}}
 /* the side panel's edge: in light mode the same half-strength hairline as every other line; in dark mode the full line,
    which reads on the dark surface (owner, 10 Nov) */
 :root[data-theme="dark"] .wf.pn .wf-panel{border-left-color:var(--dm-line)}
@@ -513,16 +569,21 @@ body:has(.wf) .dmf{display:none}
 /* ---------- lists a filter or a search changes ---------- */
 /* the copies the core's reflow() leaves where rows went sit inside their own list, so they scroll and clip with it */
 .wf :is(.acx-ls,.fpk-ls,.rdr-log,.wfx-apps-l,.wf-runs){position:relative}
-/* the app's frame, as the Sales CRM's: the sidebar on the stage colour, one step below the content; in Soft the content is a
-   rounded panel raised on that frame, with a hairline in dark mode; Blueprint stays flush and square (owner, 10 Nov) */
-.wf-side.ahx-side{background:var(--dm-stage)}
+/* the app's frame, as the Sales CRM's: the sidebar on the ground (--wf-ground: the stage colour, one step below the content,
+   and white in Soft light, owner 21 Nov); in Soft the content is a rounded panel raised on that frame, with a hairline in
+   dark mode; Blueprint stays flush and square (owner, 10 Nov) */
+.wf-side.ahx-side{background:var(--wf-ground)}
 @media (min-width:1024px){
-  :root:is([data-style="soft"],[data-style="clean"]) .wf[data-c]{background:var(--dm-stage)}
+  :root:is([data-style="soft"],[data-style="clean"]) .wf[data-c]{background:var(--wf-ground)}
   :root:is([data-style="soft"],[data-style="clean"]) .wf .ahx-side{border-right-color:transparent}
   :root:is([data-style="soft"],[data-style="clean"]) .wf-main{margin:var(--dm-s-2) var(--dm-s-2) var(--dm-s-2) 0;border-radius:calc(12px * var(--dm-rk));background:var(--dm-surface);box-shadow:var(--dm-shadow)}
   @supports (corner-shape:squircle){:root:is([data-style="soft"],[data-style="clean"]) .wf-main{corner-shape:squircle}}
   :root:is([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wf-main{box-shadow:var(--dm-shadow),0 0 0 1px color-mix(in srgb,var(--dm-fg) 10%,transparent)}
   @media (prefers-color-scheme:dark){:root:is([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wf-main{box-shadow:var(--dm-shadow),0 0 0 1px color-mix(in srgb,var(--dm-fg) 10%,transparent)}}
+  /* Clean's panel has one edge, its shadow's ring at half strength, and no second hairline in dark mode (owner, 21 Nov) */
+  :root[data-style="clean"] .wf-main{box-shadow:0 0 0 1px rgba(0,0,0,.035),0 1px 1px rgba(0,0,0,.04),0 2px 10px -4px rgba(0,0,0,.12)}
+  :root[data-style="clean"][data-theme="dark"] .wf-main{box-shadow:0 0 0 1px rgba(255,255,255,.05),0 1px 1px rgba(0,0,0,.5),0 2px 10px -4px rgba(0,0,0,.6)}
+  @media (prefers-color-scheme:dark){:root[data-style="clean"]:not([data-theme="light"]) .wf-main{box-shadow:0 0 0 1px rgba(255,255,255,.05),0 1px 1px rgba(0,0,0,.5),0 2px 10px -4px rgba(0,0,0,.6)}}
 }
 /* owner's review 10 Nov: the workspace switcher sits on the header row's centre line, the sidebar's footer divider and the
    run bar's top edge are one line, and the usage count carries a token icon */
@@ -562,7 +623,7 @@ body:has(.wf) .dmf{display:none}
    darkest tone and the canvas is the one lighter area inside it; the sidebar's edge runs the full height, the top bar's line
    runs the full width (through the workspace switcher's row), and the run bar's top edge, the usage meter's line and the step
    panel's foot line are one line from edge to edge. A switch is a dark track with an outline and a lighter knob */
-:root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wf{--wf-g:color-mix(in srgb,var(--dm-fg) 14%,transparent)}
+:root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wf{--wf-g:color-mix(in srgb,var(--dm-fg) 14%,transparent);--wf-cv:var(--dm-surface)}
 :root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] :is(.wf-side.ahx-side,.wf-top,.wf.pn .wf-panel,.wf .rdr-dw,.wf-insp .wfx-insp-f,.wfx-cv .ctb-bar){background:var(--dm-stage)}
 :root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wfx-cv{background:var(--dm-surface)}
 :root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wf .ahx-side{border-right:1px solid var(--wf-g)}
@@ -574,7 +635,7 @@ body:has(.wf) .dmf{display:none}
 :root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wf-insp .wfx-insp-f{box-sizing:border-box;min-height:58px;border-top:1px solid var(--wf-g)}
 :root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .wfx-cv .ctb-bar{box-shadow:0 0 0 1px var(--wf-g)}
 @media (prefers-color-scheme:dark){
-  :root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wf{--wf-g:color-mix(in srgb,var(--dm-fg) 14%,transparent)}
+  :root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wf{--wf-g:color-mix(in srgb,var(--dm-fg) 14%,transparent);--wf-cv:var(--dm-surface)}
   :root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) :is(.wf-side.ahx-side,.wf-top,.wf.pn .wf-panel,.wf .rdr-dw,.wf-insp .wfx-insp-f,.wfx-cv .ctb-bar){background:var(--dm-stage)}
   :root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wfx-cv{background:var(--dm-surface)}
   :root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .wf .ahx-side{border-right:1px solid var(--wf-g)}
@@ -682,7 +743,8 @@ body:has(.wf) .dmf{display:none}
 @media (hover:hover) and (pointer:fine){.sti-addw:hover{background:var(--dm-row);color:var(--dm-fg)}}
 .sti-addw[aria-expanded="true"]{background:var(--dm-row);color:var(--dm-fg)}
 @supports (corner-shape:squircle){:root:is([data-style="soft"],[data-style="clean"]) .sti-addw{corner-shape:squircle}}
-/* Soft's sidebar sits on the frame's grey, where the row grey doesn't show: its hover is a step darker than the frame */
+/* Soft's and Clean's sidebar sits on the ground (--wf-ground), where the row grey doesn't show (on Clean's grey and in dark mode)
+   or barely shows (on Soft light's white): its hover is a step darker than the ground */
 @media (hover:hover) and (pointer:fine){:root:is([data-style="soft"],[data-style="clean"]) .wf-side :is(.ahx-cv,.ahx-wsb):not([aria-current="true"]):hover{background:color-mix(in srgb,var(--dm-fg) 5%,transparent)}}
 /* the reviewer's pass (owner, 12 Nov): the run bar's switch is the 28px of the buttons beside it */
 .wf .rdr-tabs button{height:24px}
@@ -691,3 +753,15 @@ body:has(.wf) .dmf{display:none}
 .wf-pbar{padding-left:var(--dm-s-4);padding-right:var(--dm-s-4)}
 /* the reviewer's judgement calls (owner, 14 Nov): the limit's value sits on its title's line */
 .wf-limp .slx-v{margin-top:-1px}
+/* owner's notes, 21 Nov */
+/* the Test run split's arrow opens the test chip's menu too, so in Soft light the split has the chip's lighter edge; dark mode
+   keeps the line buttons' own edge */
+:root[data-style="soft"] .wf-split .wf-test{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 35%,transparent)}
+:root[data-style="soft"] .wf-split .wf-testm{box-shadow:inset 1px 0 0 color-mix(in srgb,var(--dm-line) 35%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 35%,transparent)}
+:root[data-style="soft"][data-theme="dark"] .wf-split :is(.wf-test,.wf-testm){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-fg) 22%,var(--dm-surface))}
+@media (prefers-color-scheme:dark){:root[data-style="soft"]:not([data-theme="light"]) .wf-split :is(.wf-test,.wf-testm){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-fg) 22%,var(--dm-surface))}}
+/* the run drawer's Log: its level switch has even room above it (from the head's switch) and below it (to the first line's tag
+   and words), measured at 14.5px and 15px (owner, 21 Nov: "a lot of space up top and not enough at the bottom"). The head is
+   49px in Soft and Clean beside the sidebar and 57px everywhere else */
+.wf .rdr-dw .rdr-lf{padding:0 0 10px}
+@media (min-width:1024px){:root:is([data-style="soft"],[data-style="clean"]) .wf .rdr-dw .rdr-lf{padding-top:4px}}
