@@ -174,8 +174,9 @@ every session and every agent.
   - Both ease in and out over Clean's 220ms with its ease, never instantly. In a menu or list, the hover highlight glides
     from row to row as the pointer moves. With reduced motion, it only fades.
   - Borders round Clean controls and pills are half strength.
-- Phase I is the Clean review now under way. Kanban, Pricing cards and Stepper are left out of it and move to Phase II
-  (owner, 21 Nov). Until then they stay as they are on staging.
+- Phase I is the Clean review now under way. These are left out of it and move to Phase II (owner, 21 Nov): Kanban,
+  Pricing cards, Stepper, Scatter chart, Funnel chart, Top pages, Eval radar, Agent harness, Bar chart and Radial goals.
+  Until then they stay as they are on staging. Line chart and Donut chart take the new charts from the charts preview.
 - Soft keeps its look; the "Soft refreshed" lab is dropped. Six components have their Clean touches (Agent tree,
   Agent run timeline, Status pill, Context meter, Run cost, Meeting card); the others render with Clean's tokens and get
   theirs later.
