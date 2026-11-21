@@ -11,6 +11,8 @@ every session and every agent.
 - Don't copy other component libraries' designs, layouts, copy or mascots. Use standard UX patterns, not creative ones.
 - Change only what was asked. If a change would bring back or alter something the owner didn't mention (a layout,
   a nav, a colour), ask first.
+- A polish, elevation or "calmer" pass never removes something the owner set up (lines, controls, columns, chips) without
+  saying so and asking first (owner, 21 Nov: "You made those changes without telling me").
 
 ## Brand
 - The DesignMe wordmark is fixed: never redraw, retype or restyle its letters. Use its existing vector paths as they
@@ -38,6 +40,9 @@ every session and every agent.
 - No row of summary or stat cards on top of a page or screen (owner, 19 Nov: "do not add cards, every AI adds 4 cards at the
   top, this is a crm page not some dashboard"). An app page is its list or its work; filters are tabs, a segmented row or a
   menu, not boxes with big numbers. Avoid the patterns every AI-made page has; show something only we can show.
+- Data tables (the Sales CRM's Accounts above all) keep visible vertical lines between their columns, in every style, and
+  their columns can be resized and moved (owner, 10 Nov; restated 21 Nov: "if we don't have the vertical lines, we don't
+  even know this is a column").
 - In-page links (tables of contents, section anchors) scroll smoothly, and not at all with reduced motion.
 
 ## Type and colour
@@ -82,6 +87,11 @@ every session and every agent.
 - Charts use the chart palette (`--c1`, the accent, then `--c2` to `--c6`) where more than one series or part needs telling
   apart: Donut, Line chart's comparison series, Stat cards' sparklines, Funnel (accent to violet in Soft). The Bar chart
   is one accent colour with no legend; its breakdown is in the hover readout.
+- Colour is saturated, never muted (owner, 21 Nov: "I told you a hundred times, make it more saturated"): chips, tags,
+  stage and category labels, and chart series are as vivid as Attio's chips and Copilot Money's charts, within the contrast
+  rules above.
+- Line charts have straight segments with sharp corners in every style, never smoothed curves; a projection or comparison is
+  a dotted line; the area under a line fades from its colour at the top to transparent (owner, 21 Nov).
 - Use the existing chip, tag and text styles as they are; don't invent new ones. Non-interactive metadata ("12 pages",
   "3 frames", counts, sizes, durations) is a plain grey chip or muted text, never coloured.
   Labels a person sets (tags, segments, Kanban labels) do take colour: the core tag colours (`.tag.b/.l/.m/.p/.r/.y/.k/.t`,
