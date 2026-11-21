@@ -3029,9 +3029,14 @@ body:has(.crm) .dmf{display:none}
    table keeps fixed widths and a cell too narrow for its text cuts it short with an ellipsis */
 .crm-t th{overflow:visible}
 .crm-rz{position:absolute;top:0;bottom:0;right:-4px;z-index:5;width:9px;cursor:col-resize;touch-action:none;outline:0}
-.crm-rz::after{content:"";position:absolute;top:8px;bottom:8px;left:4px;width:1px;border-radius:1px;background:transparent;transition:background var(--dm-t-fast),width var(--dm-t-fast),left var(--dm-t-fast)}
-@media (hover:hover) and (pointer:fine){.crm-rz:hover::after{left:3px;width:3px;background:var(--dm-line-strong)}}
-.crm-rz.on::after,.crm-rz:focus-visible::after{left:3px;width:3px;background:var(--dm-line-strong)}
+/* the column's own line is the handle, never a dash beside it (owner, 21 Nov: "its either a line or a dash, not both... I'd
+   prefer a line btw with highlights"): pointing at it darkens that line across the head; dragging it, or moving it with the
+   arrow keys, lights the whole line down the table in the accent. The highlight sits on the hairline (each cell's right edge) */
+.crm-rz::after{content:"";position:absolute;top:0;bottom:0;left:3px;width:2px;background:transparent;transition:background var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.crm-rz:hover::after{background:var(--dm-line-strong)}}
+.crm-rz.on::after,.crm-rz:focus-visible::after{background:var(--dm-accent-mark,var(--dm-accent))}
+/* (the line down the rows is a layer in the table's scroll box: a header cell can't paint past its own row) */
+.crm-rzl{position:absolute;z-index:6;width:2px;background:var(--dm-accent-mark,var(--dm-accent));pointer-events:none}
 .crm-t.rzing,.crm-t.rzing *{cursor:col-resize!important;user-select:none}
 .crm-t.rz{table-layout:fixed}
 .crm-t.rz :is(th,td):not(.ck){overflow:hidden}
@@ -3112,8 +3117,6 @@ body:has(.crm) .dmf{display:none}
 .crm-t :is(th,td).crm-cdr{background-color:color-mix(in srgb,var(--dm-fg) 4%,var(--dm-surface))}
 .crm-cdi{position:absolute;top:0;z-index:6;width:2px;border-radius:1px;background:var(--dm-accent-mark,var(--dm-accent));pointer-events:none}
 .crm-cghost{position:fixed;left:0;top:0;z-index:2147483000;padding:5px 10px;border-radius:var(--dm-r-sm);background:var(--dm-raised,var(--dm-surface));box-shadow:var(--dm-shadow-pop);font-size:12px;font-weight:500;color:var(--dm-fg);pointer-events:none;white-space:nowrap}
-/* while a column is resized its line is the accent, as the line that shows where a moved column lands (owner, 10 Nov) */
-.crm-rz.on::after{background:var(--dm-accent-mark,var(--dm-accent))}
 /* every view starts at the header title's inset (owner, 10 Nov): the Accounts toolbar, its checkboxes, the board, the calendar
    and the inbox sit 20px in, with their controls on the same centre line in Accounts and Pipeline. The forecast lines up with
    the title and the account menu up to a 16-inch MacBook Pro's widest setting and centres only on wider screens */
@@ -4221,14 +4224,22 @@ const fitHits = window.dmFitHits || (() => {
     RZ.forEach(i => heads[i].insertAdjacentHTML('beforeend', `<span class="crm-rz" role="separator" aria-orientation="vertical" tabindex="0" aria-valuemin="${MIN[i] || 72}" aria-label="Resize ${esc(name(heads[i]))}" data-tip="Drag to resize, double click to reset" data-i="${i}"></span>`));
     tbl.addEventListener('pointerdown', e => { const g = e.target.closest('.crm-rz'); if (!g || e.button) return;
       e.preventDefault(); e.stopPropagation(); hideTip(); measure(); const i = +g.dataset.i, x0 = e.clientX, w0 = colW[i];
-      g.setPointerCapture(e.pointerId); g.classList.add('on'); tbl.classList.add('rzing');
-      const mv = ev => { colW[i] = Math.max(MIN[i] || 72, Math.round(w0 + ev.clientX - x0)); apply(); };
-      const up = () => { g.removeEventListener('pointermove', mv); g.removeEventListener('pointerup', up); g.removeEventListener('pointercancel', up); g.classList.remove('on'); tbl.classList.remove('rzing'); save(); };
+      g.setPointerCapture(e.pointerId); g.classList.add('on'); tbl.classList.add('rzing'); reach(g);
+      const mv = ev => { colW[i] = Math.max(MIN[i] || 72, Math.round(w0 + ev.clientX - x0)); apply(); reach(g); };
+      const up = () => { g.removeEventListener('pointermove', mv); g.removeEventListener('pointerup', up); g.removeEventListener('pointercancel', up); g.classList.remove('on'); tbl.classList.remove('rzing'); unreach(); save(); };
       g.addEventListener('pointermove', mv); g.addEventListener('pointerup', up); g.addEventListener('pointercancel', up); });
+    // how far the line runs while it is dragged or moved with the keys: from the head to the table's foot
+    const rzl = document.createElement('div'); rzl.className = 'crm-rzl'; rzl.hidden = true; rzl.setAttribute('aria-hidden', 'true');
+    const box = tbl.closest('.crm-sc') || tbl.parentElement; if (getComputedStyle(box).position === 'static') box.style.position = 'relative'; box.appendChild(rzl);
+    const reach = g => { const b = box.getBoundingClientRect(), h = g.getBoundingClientRect(), t = tbl.getBoundingClientRect();
+      Object.assign(rzl.style, { left:`${h.left + 3 - b.left + box.scrollLeft}px`, top:`${t.top - b.top + box.scrollTop}px`, height:`${t.height}px` }); rzl.hidden = false; };
+    const unreach = () => { rzl.hidden = true; };
+    tbl.addEventListener('focusin', e => { const g = e.target.closest('.crm-rz'); if (g && g.matches(':focus-visible')) reach(g); });
+    tbl.addEventListener('focusout', e => { if (e.target.closest('.crm-rz') && !e.target.classList.contains('on')) unreach(); });
     tbl.addEventListener('click', e => { if (e.target.closest('.crm-rz')) e.stopPropagation(); }, true);
     tbl.addEventListener('dblclick', e => { if (!e.target.closest('.crm-rz')) return; colW = null; try { sessionStorage.removeItem('crm-colw'); } catch (er) {} apply(); TBLX.note(); });
     tbl.addEventListener('keydown', e => { const g = e.target.closest('.crm-rz'); if (!g || !/^Arrow(Left|Right)$/.test(e.key)) return;
-      e.preventDefault(); e.stopPropagation(); measure(); const i = +g.dataset.i; colW[i] = Math.max(MIN[i] || 72, colW[i] + (e.key === 'ArrowRight' ? 16 : -16)); apply(); save(); });
+      e.preventDefault(); e.stopPropagation(); measure(); const i = +g.dataset.i; colW[i] = Math.max(MIN[i] || 72, colW[i] + (e.key === 'ArrowRight' ? 16 : -16)); apply(); save(); reach(g); });
     wide.addEventListener('change', apply); apply();
   }
   // the summary row (owner, 10 Nov): pinned to the table's foot as it scrolls, the count of accounts in view under Account and a

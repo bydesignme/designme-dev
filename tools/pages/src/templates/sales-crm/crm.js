@@ -410,14 +410,22 @@
     RZ.forEach(i => heads[i].insertAdjacentHTML('beforeend', `<span class="crm-rz" role="separator" aria-orientation="vertical" tabindex="0" aria-valuemin="${MIN[i] || 72}" aria-label="Resize ${esc(name(heads[i]))}" data-tip="Drag to resize, double click to reset" data-i="${i}"></span>`));
     tbl.addEventListener('pointerdown', e => { const g = e.target.closest('.crm-rz'); if (!g || e.button) return;
       e.preventDefault(); e.stopPropagation(); hideTip(); measure(); const i = +g.dataset.i, x0 = e.clientX, w0 = colW[i];
-      g.setPointerCapture(e.pointerId); g.classList.add('on'); tbl.classList.add('rzing');
-      const mv = ev => { colW[i] = Math.max(MIN[i] || 72, Math.round(w0 + ev.clientX - x0)); apply(); };
-      const up = () => { g.removeEventListener('pointermove', mv); g.removeEventListener('pointerup', up); g.removeEventListener('pointercancel', up); g.classList.remove('on'); tbl.classList.remove('rzing'); save(); };
+      g.setPointerCapture(e.pointerId); g.classList.add('on'); tbl.classList.add('rzing'); reach(g);
+      const mv = ev => { colW[i] = Math.max(MIN[i] || 72, Math.round(w0 + ev.clientX - x0)); apply(); reach(g); };
+      const up = () => { g.removeEventListener('pointermove', mv); g.removeEventListener('pointerup', up); g.removeEventListener('pointercancel', up); g.classList.remove('on'); tbl.classList.remove('rzing'); unreach(); save(); };
       g.addEventListener('pointermove', mv); g.addEventListener('pointerup', up); g.addEventListener('pointercancel', up); });
+    // how far the line runs while it is dragged or moved with the keys: from the head to the table's foot
+    const rzl = document.createElement('div'); rzl.className = 'crm-rzl'; rzl.hidden = true; rzl.setAttribute('aria-hidden', 'true');
+    const box = tbl.closest('.crm-sc') || tbl.parentElement; if (getComputedStyle(box).position === 'static') box.style.position = 'relative'; box.appendChild(rzl);
+    const reach = g => { const b = box.getBoundingClientRect(), h = g.getBoundingClientRect(), t = tbl.getBoundingClientRect();
+      Object.assign(rzl.style, { left:`${h.left + 3 - b.left + box.scrollLeft}px`, top:`${t.top - b.top + box.scrollTop}px`, height:`${t.height}px` }); rzl.hidden = false; };
+    const unreach = () => { rzl.hidden = true; };
+    tbl.addEventListener('focusin', e => { const g = e.target.closest('.crm-rz'); if (g && g.matches(':focus-visible')) reach(g); });
+    tbl.addEventListener('focusout', e => { if (e.target.closest('.crm-rz') && !e.target.classList.contains('on')) unreach(); });
     tbl.addEventListener('click', e => { if (e.target.closest('.crm-rz')) e.stopPropagation(); }, true);
     tbl.addEventListener('dblclick', e => { if (!e.target.closest('.crm-rz')) return; colW = null; try { sessionStorage.removeItem('crm-colw'); } catch (er) {} apply(); TBLX.note(); });
     tbl.addEventListener('keydown', e => { const g = e.target.closest('.crm-rz'); if (!g || !/^Arrow(Left|Right)$/.test(e.key)) return;
-      e.preventDefault(); e.stopPropagation(); measure(); const i = +g.dataset.i; colW[i] = Math.max(MIN[i] || 72, colW[i] + (e.key === 'ArrowRight' ? 16 : -16)); apply(); save(); });
+      e.preventDefault(); e.stopPropagation(); measure(); const i = +g.dataset.i; colW[i] = Math.max(MIN[i] || 72, colW[i] + (e.key === 'ArrowRight' ? 16 : -16)); apply(); save(); reach(g); });
     wide.addEventListener('change', apply); apply();
   }
   // the summary row (owner, 10 Nov): pinned to the table's foot as it scrolls, the count of accounts in view under Account and a
