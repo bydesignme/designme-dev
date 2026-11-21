@@ -165,6 +165,17 @@ every session and every agent.
   marks, toggles, links and accent text. Links keep an underline, so they still read as links. This is the clearest
   difference between Clean and Soft. Set it in Clean dark's tokens, not per component. Status colours, agents' own colours,
   avatars and the chart palette's other series keep their hues. An animated loader mark has no tile or fill behind it.
+- Clean's hover and selected states are one system across every component (owner, 21 Nov: "hover and active states are
+  inconsistent for clean style all over the components"; "it should feel premium and elevated"):
+  - One hover: a neutral fill in the item's own shape (a pill for controls and for segments inside a pill; Clean's 10px row
+    corners for menu and list rows), clearly visible in light and dark, not a faint wash.
+  - One selected or active state: the same shape and a stronger neutral fill (and the tick where a menu shows one), never a
+    border or a hue.
+  - Both ease in and out over Clean's 220ms with its ease, never instantly. In a menu or list, the hover highlight glides
+    from row to row as the pointer moves. With reduced motion, it only fades.
+  - Borders round Clean controls and pills are half strength.
+- Phase I is the Clean review now under way. Kanban, Pricing cards and Stepper are left out of it and move to Phase II
+  (owner, 21 Nov). Until then they stay as they are on staging.
 - Soft keeps its look; the "Soft refreshed" lab is dropped. Six components have their Clean touches (Agent tree,
   Agent run timeline, Status pill, Context meter, Run cost, Meeting card); the others render with Clean's tokens and get
   theirs later.
