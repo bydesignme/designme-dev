@@ -1,0 +1,119 @@
+---
+// /templates/dashboard-builder: a dashboard you arrange yourself, made of the library's own components as a showcase of what
+// they build. It opens on a store's Overview dashboard (Sales and Customers are beside it in the sidebar). Edit widgets opens
+// the builder: a palette of widgets on the left (each a small drawing of the component it adds) and the dashboard's grid on a
+// grey canvas. A widget is dragged from the palette onto the grid, or added with Enter or a tap; a widget on the grid is dragged
+// to move it (or picked up from the keyboard and moved with the arrow keys), sized to one, two or three columns of a
+// three-column grid, or removed with Undo. Cancel goes back to the last saved layout; Save changes keeps the new one.
+// The widgets are the library's Stat cards, Line chart, Bar chart, Donut chart, Funnel, Activity heatmap, Top pages, Account
+// table and Notifications, drawn with their classes and driven from here, and a note. Everything is drawn with the components'
+// own classes and tokens, from their installed CSS, so the screen follows Blueprint, Soft and Clean, light and dark, with the
+// site's switches. Its data and interactions are one script (src/templates/dashboard-builder/db.js); the layout around the
+// components, the palette, the grid and the parts the library doesn't have yet (dbb-*) are src/templates/dashboard-builder/db.css.
+import fs from 'node:fs';
+import path from 'node:path';
+import Page from '../../layouts/Page.astro';
+import { ROOT, COMPONENTS } from '../../lib/data.mjs';
+
+// the components the screen is made of, by their registry name: each one's installed CSS is on the page
+const USES = ['agent-harness', 'profile-menu', 'stat-cards', 'line-chart', 'bar-chart', 'donut-chart', 'funnel-chart',
+  'activity-heatmap', 'top-pages', 'account-table', 'notifications', 'toast'];
+// the screen's type scale, as in the Sales CRM: every component's text snaps to the nearest step at or below it (11, 12, 13,
+// 14px), nothing under 11px
+const SCALE = v => v >= 15 ? v : v >= 13.75 ? 14 : v >= 12.75 ? 13 : v >= 11.75 ? 12 : 11;
+const snap = t => t.replace(/font-size:\s*([\d.]+)px/g, (m, v) => 'font-size:' + SCALE(+v) + 'px');
+const css = snap(USES.map(reg => {
+  const c = COMPONENTS.find(x => x.reg === reg);
+  if (!c) throw new Error('dashboard-builder: no component called ' + reg);
+  return `/* ${c.title} */\n` + c.html.css;
+}).join('\n'));
+const DIR = path.join(ROOT, 'tools/pages/src/templates/dashboard-builder');
+const APP_CSS = snap(fs.readFileSync(path.join(DIR, 'db.css'), 'utf8'));
+const APP_JS = fs.readFileSync(path.join(DIR, 'db.js'), 'utf8');
+const title = 'Dashboard builder template, free, open source | Designme.dev';
+const description = 'A free dashboard builder template: drag charts, metrics, tables and notes onto a grid, move and resize them, and save the layout.';
+const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+const DASHES = [['overview', 'Overview', 'home'], ['sales', 'Sales', 'chart'], ['customers', 'Customers', 'users']];
+---
+<Page title={title} description={description} path="/templates/dashboard-builder" app>
+  <Fragment slot="head">
+    <link rel="stylesheet" href="/components/assets/core.css">
+    <style is:inline set:html={css} />
+    <style is:inline set:html={APP_CSS} />
+  </Fragment>
+  <span slot="top" class="dbb-name">Dashboard builder template</span>
+
+  <div class="dbb" data-c="dashboard-builder" data-mode="view">
+    <!-- view mode: the dashboards in Agent harness's side list, and the dashboard that is open -->
+    <div class="dbb-view">
+      <aside class="ahx-side dbb-side" aria-label="Sidebar">
+        <div class="dbb-ws"><span class="pfm-lg" aria-hidden="true">J</span><span class="dbb-wst"><span class="t">Juniper Market</span><span class="s">Online store</span></span></div>
+        <div class="ahx-lh"><span>Dashboards</span></div>
+        <nav class="dbb-nav" aria-label="Dashboards">
+          {DASHES.map(([k, t, ic]) => <button class="ahx-cv" data-dash={k}><Fragment set:html={I(ic)} /><span class="t">{t}</span><span class="dbb-lock" role="img" aria-label="Only you can see it" hidden><Fragment set:html={I('lock', 'xs')} /></span></button>)}
+        </nav>
+        <div class="dbb-me"><span class="av" style="background:var(--dm-av-l);color:var(--dm-av-l-ink)" aria-hidden="true">MK</span><span class="dbb-wst"><span class="t">Maya Kim</span><span class="s">Store manager</span></span></div>
+      </aside>
+
+      <div class="dbb-main">
+        <div class="dbb-sc">
+          <header class="dbb-hd">
+            <span class="av dbb-hav" style="background:var(--dm-av-l);color:var(--dm-av-l-ink)" aria-hidden="true">MK</span>
+            <div class="dbb-ht"><h1 class="dbb-h1" id="content" tabindex="-1">Welcome back, Maya</h1><p class="muted">Here is how Juniper Market is doing today.</p></div>
+            <span class="dbb-sp"></span>
+            <button class="pill line sm dbb-edit"><Fragment set:html={I('edit', 'xs')} /><span>Edit widgets</span></button>
+          </header>
+          <!-- on phones the dashboards are a switch under the header instead of the sidebar -->
+          <div class="seg2 dbb-tabs" role="group" aria-label="Dashboards">
+            {DASHES.map(([k, t]) => <button aria-pressed="false" data-dash={k} data-v={k}>{t}</button>)}
+          </div>
+          <div class="dbb-sh"><h2 class="dbb-sl" id="dbb-sl-v"></h2><span class="dbb-vis muted"></span></div>
+          <div class="dbb-grid dbb-vg" role="list" aria-labelledby="dbb-sl-v"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- edit mode: the head with Cancel and Save changes, the palette of widgets and the canvas -->
+    <section class="dbb-ed" role="region" aria-labelledby="dbb-et" hidden>
+      <header class="dbb-eh">
+        <button class="ib dbb-x" aria-label="Close without saving" data-tip="Close without saving"><Fragment set:html={I('x')} /></button>
+        <span class="dbb-ediv" aria-hidden="true"></span>
+        <h2 class="dbb-et" id="dbb-et" tabindex="-1"></h2>
+        <span class="dbb-dirty muted" aria-live="polite"></span>
+        <span class="dbb-sp"></span>
+        <button class="pill line sm dbb-cancel">Cancel</button>
+        <button class="pill primary sm dbb-save"><Fragment set:html={I('save', 'xs')} /><span>Save changes</span></button>
+      </header>
+      <div class="dbb-eb">
+        <aside class="dbb-pal" aria-label="Widgets">
+          <div class="dbb-pal-in">
+            <div class="dbb-pal-h">
+              <div class="dbb-shown"><span class="dbb-shl" id="dbb-shl">Shown to</span><button class="dbb-sel" data-pop="#dbb-p-shown" aria-haspopup="menu" aria-labelledby="dbb-shl dbb-shv"><span class="v" id="dbb-shv"></span><Fragment set:html={I('chev-d', 'xs')} /></button></div>
+              <button class="ib dbb-shx" aria-label="Close" data-tip="Close"><Fragment set:html={I('x')} /></button>
+            </div>
+            <p class="dbb-hint muted" id="dbb-hint"><span class="fine">Drag a widget onto the canvas, or press Enter on one to add it.</span><span class="coarse">Tap a widget to add it to the end of the dashboard.</span><span class="narrow">Pick a widget to add it to the end of the dashboard.</span></p>
+            <div class="dbb-tiles" role="list" aria-label="Widgets"></div>
+          </div>
+        </aside>
+        <div class="dbb-cv" role="region" aria-label="Canvas">
+          <div class="dbb-sh"><span class="dbb-sl dbb-csl" tabindex="-1"></span></div>
+          <div class="dbb-grid dbb-eg" role="list" aria-label="Widgets on the dashboard"></div>
+        </div>
+      </div>
+      <!-- phones: the palette opens as a sheet from the bottom -->
+      <button class="pill primary dbb-addw" aria-haspopup="dialog"><Fragment set:html={I('plus', 'xs')} /><span>Add widget</span></button>
+      <div class="dbb-scrim" aria-hidden="true"></div>
+      <span class="dbb-sr" id="dbb-mvhelp">Space or Enter picks the widget up. Then the arrow keys move it, Space or Enter drops it and Escape puts it back.</span>
+    </section>
+
+    <!-- the Shown to menu: the shared core opens it from its button (data-pop) -->
+    <div class="pop dbb-pop" id="dbb-p-shown" role="menu" aria-label="Shown to"></div>
+    <div class="dbb-toasts" aria-live="polite"></div>
+    <div class="dbb-sr" id="dbb-live" role="status" aria-live="assertive"></div>
+  </div>
+
+  <Fragment slot="end">
+    <script is:inline src="/components/assets/core.js"></script>
+    <script is:inline set:html={APP_JS} />
+  </Fragment>
+</Page>
