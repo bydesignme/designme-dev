@@ -1502,13 +1502,13 @@ body:has(.crm) .dmf{display:none}
 .crm-hk:not(.big){padding-top:1px}
 .crm-hk:not(.big) .v{min-height:29px}
 .crm-fc .crm-hero.lnx .lnx-ch{height:clamp(180px,15vw,236px)}
-/* Closing next beside it, as Stripe's side panel: the content's grey, no outline */
-.crm-fo .crm-cn.panel{background:var(--dm-row);box-shadow:none}
+/* Closing next beside it is a card like the others, as tall as the chart beside it even when few deals are due (owner, 21
+   Nov: no grey ground, and down to the foot) */
 .crm-fo{align-items:start}
 
 .crm-fc .crm-hero .crm-hh{flex-wrap:wrap;row-gap:var(--dm-s-3)}
 .crm-fc .crm-hero .crm-hh>.lnx-lg{flex:none;margin-left:auto}
-.crm-fo .crm-cn{align-self:start}
+.crm-fo .crm-cn{align-self:stretch}
 @media (max-width:1279px){.crm-fo .crm-cn{grid-column:span 12}}
 @media (max-width:900px){.crm-rpt :is(th,td):nth-child(5){display:none}}
 
@@ -1617,8 +1617,8 @@ body:has(.crm) .dmf{display:none}
 .crm-vt .i{color:var(--dm-accent-fg,var(--dm-accent))}
 :root:not([data-style="soft"],[data-style="clean"]) .crm-vt button::after{border-radius:0}
 @media (prefers-reduced-motion:reduce){.crm-vt button::after{transition:none}}
-/* on Accounts the tabs sit straight under the title, so the header needs no line of its own */
-.crm[data-view="accounts"] .crm-top{border-bottom-color:transparent}
+/* on Accounts the header keeps its line too: the account panel opens right under it, and without the line its top had no
+   edge, its shadow started in mid-air and its words scrolled away into nothing (owner, 21 Nov: "the previous version was better") */
 @media (max-width:1023px){.crm-vt{padding-left:var(--dm-s-4);padding-right:var(--dm-s-4);gap:var(--dm-s-5)}}
 /* the account panel's suggestion: whose it is over why */
 .crm-sagt{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
@@ -1749,3 +1749,27 @@ body:has(.crm) .dmf{display:none}
 :root[data-style="clean"] .crm-cpop.ecx-pop{padding:var(--dm-s-4)}
 /* Team quotas: the legend's percentages end on the card's content edge, its rows' hover boxes reaching out round them */
 .crm-fc .rgx-lg{margin-right:-8px}
+
+/* ---------- owner, 21 Nov ---------- */
+/* the account panel's section arrows: the arrow's drawn glyph sits on the panel's content edge, where the field names start */
+.crm-dtp .crmd-sh svg{margin-left:-4px}
+/* Forecast: room between the next-step cards and the quarter's figures and chart */
+.crm-fo .crm-axs{margin-bottom:var(--dm-s-5)}
+/* the quarter's four figures stand in four fixed columns, so a figure that changes as the chart is hovered never moves the
+   others */
+.crm-fc .lnx-h>.crm-hm4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--dm-s-4) var(--dm-s-5)}
+.crm-hk b{font-variant-numeric:tabular-nums}
+@media (max-width:640px){.crm-fc .lnx-h>.crm-hm4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* Forecast by rep: its title, then an (i) whose tooltip says what the table means */
+.crm-hti{display:flex;align-items:center;gap:2px;min-width:0}
+.crm-hti b{font-weight:500}
+.crm-info.ib{width:24px;height:24px;color:var(--dm-muted)}
+@media (hover:hover) and (pointer:fine){.crm-info.ib:hover{color:var(--dm-fg)}}
+/* its column heads sort: the head's words stay on the column's edge, and the sorted one shows which way it runs */
+.crm-srt{display:inline-flex;align-items:center;gap:4px;padding:0;border:0;background:none;font:inherit;color:inherit;cursor:pointer;border-radius:var(--dm-r-sm)}
+.crm-rpt th.r .crm-srt{flex-direction:row-reverse}
+.crm-srt .i{opacity:0;transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease)}
+.crm-rpt th[aria-sort] .crm-srt{color:var(--dm-fg)}
+.crm-rpt th[aria-sort] .crm-srt .i{opacity:1}
+.crm-rpt th[aria-sort="ascending"] .crm-srt .i{transform:rotate(180deg)}
+@media (hover:hover) and (pointer:fine){.crm-srt:hover{color:var(--dm-fg)}.crm-srt:hover .i{opacity:.5}}

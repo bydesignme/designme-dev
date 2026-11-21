@@ -2054,18 +2054,23 @@
       + [35, 70, 105].map(y => `<line class="gl" x1="0" x2="320" y1="${y}" y2="${y}"/>`).join('')
       + `<path class="ar" d="${smooth(pa)} L320 140 L0 140 Z" fill="url(#crm-lng)" style="opacity:${lineOn[0] ? 1 : 0}"/><path class="ln l1${lineOn[1] ? '' : ' off'}" d="${smooth(pb)}" stroke="var(--dm-c2)" stroke-dasharray="4 4"/><path class="ln l0${lineOn[0] ? '' : ' off'}" d="${smooth(pa)}" stroke="var(--dm-accent-mark,var(--dm-accent))"/>`;
     // the axis: the quarter's first day, two dates between, and Today at the right edge
-    $('.lnx-ax', fc).innerHTML = [0, Math.round(N / 3), Math.round(N * 2 / 3), N].map(d => `<span>${d === N ? 'Today' : fmtD(d - N)}</span>`).join('');
+    // (each label is placed at its day: the library's axis places its labels by position, so a bare list stacked them all
+    // at the left; owner, 21 Nov)
+    $('.lnx-ax', fc).innerHTML = [0, Math.round(N / 3), Math.round(N * 2 / 3), N].map(d => `<span${d === N ? ' class="e"' : ''} style="left:${(d / N * 100).toFixed(2)}%">${d === N ? 'Today' : fmtD(d - N)}</span>`).join('');
     const ch = $('.lnx-ch', fc); $$('.lnx-pt', ch).forEach(x => x.remove());
     ch.insertAdjacentHTML('beforeend', '<span class="lnx-pt on" style="color:var(--dm-accent-mark,var(--dm-accent))"></span><span class="lnx-pt on" style="color:var(--dm-c2)"></span>');
     const lv = $('.lnx-v', fc), latest = () => kmoney(won);
     if (shownLine === null || REDUCE) lv.textContent = latest(); else if (shownLine !== won) tween(shownLine, won, 700, n => lv.textContent = kmoney(n));
     shownLine = won;
     ch.onpointermove = ev => { const b = ch.getBoundingClientRect(), k = clamp(Math.round((ev.clientX - b.left) / b.width * (SI.length - 1)), 0, SI.length - 1), i = SI[k], px = X(i) / 320 * b.width;
-      $('.lnx-x', ch).style.left = px + 'px'; $('.lnx-tt', ch).style.left = clamp(px, 70, b.width - 70) + 'px';
+      $('.lnx-x', ch).style.left = px + 'px';
       const pts = $$('.lnx-pt', ch); [pa, pb].forEach((p, j) => { pts[j].classList.toggle('on', lineOn[j]); pts[j].style.left = px + 'px'; pts[j].style.top = p[k][1] / 140 * b.height + 'px'; });
       const a = AD[i], q = QD[i], when = i === N ? 'today' : fmtD(i - N);
       $('.lnx-tt b', ch).textContent = lineOn[0] ? `${kmoney(a)} won by ${when}` : `${kmoney(q)} by this point in Q3`;
       $('.lnx-tt span', ch).textContent = lineOn[0] && lineOn[1] ? `${a >= q ? '+' : '−'}${kmoney(Math.abs(a - q))} on Q3 at this point` : lineOn[0] ? 'This quarter' : 'Last quarter';
+      // the tooltip sits beside the line, on its right, and turns to its left where it would run out of the chart (as the
+      // library's Line chart does), so it never covers Closing next (owner, 21 Nov)
+      const tt = $('.lnx-tt', ch), tw = tt.offsetWidth, gap = 12; tt.style.left = Math.max(0, px + gap + tw <= b.width ? px + gap : px - gap - tw) + 'px';
       lv.textContent = lineOn[0] ? kmoney(a) : latest(); };
     ch.onpointerleave = () => lv.textContent = latest();
     paintClosing(); paintReps(); paintActions(); paintFbn();
@@ -2149,15 +2154,24 @@
   // it's submitted (the sidebar's "Submit your Q4 commit"). Sorted by attainment, the team's totals underneath
   const SUBMIT = { MK:-2, TR:-1, LN:-1 }, rpb = $('.crm-rpt tbody', fc), rpf = $('.crm-rpt tfoot', fc);
   const bestOf = who => commitOf(who) + sum(DE.filter(d => (d.st === 'disc' || d.st === 'demo') && d.close <= eoq && who.includes(d.own)), d => d.v * d.p / 100);
+  // the table sorts by any column: a click on its head picks it (numbers largest first, names A to Z), a second click turns the
+  // order round; attainment (Closed won against quota) first by default (owner, 21 Nov)
+  const repSort = { k:'w', dir:-1 };
+  const repKey = { n:r => P[r.o][0], q:r => r.q, w:r => r.w / r.q, c:r => r.w + r.c, b:r => r.b, g:r => r.g, s:r => SUBMIT[r.o] === undefined ? 0 : 1 };
+  $$('.crm-rpt .crm-srt', fc).forEach(bt => bt.addEventListener('click', () => {
+    const k = bt.dataset.k; repSort.dir = repSort.k === k ? -repSort.dir : (k === 'n' ? 1 : -1); repSort.k = k;
+    $$('.crm-rpt thead th', fc).forEach(th => { const on = $('.crm-srt', th)?.dataset.k === k; if (on) th.setAttribute('aria-sort', repSort.dir > 0 ? 'ascending' : 'descending'); else th.removeAttribute('aria-sort'); });
+    paintReps(); }));
   function paintReps(){
-    const R = OWN.map(o => { const w = wonOf([o]), c = commitOf([o]); return { o, q:QUOTA[o], w, c, b:w + bestOf([o]), g:Math.max(0, QUOTA[o] - w - c) }; }).sort((a, b) => b.w / b.q - a.w / a.q);
+    const kf = repKey[repSort.k];
+    const R = OWN.map(o => { const w = wonOf([o]), c = commitOf([o]); return { o, q:QUOTA[o], w, c, b:w + bestOf([o]), g:Math.max(0, QUOTA[o] - w - c) }; })
+      .sort((a, b) => { const x = kf(a), y = kf(b); return (typeof x === 'string' ? x.localeCompare(y) : x - y) * repSort.dir || P[a.o][0].localeCompare(P[b.o][0]); });
     const att = (q, w) => { const pct = Math.round(w / q * 100); return `<span class="crm-att"><span class="num">${kmoney(w)}</span><span class="tr" aria-hidden="true"><i style="width:${Math.min(100, pct)}%"></i></span><span class="muted num">${pct}%</span></span>`; };
     rpb.innerHTML = R.map(r => { const sub = SUBMIT[r.o];
       return `<tr data-o="${r.o}"><td><span class="crm-do">${av(r.o)}${esc(P[r.o][0])}</span></td><td class="r num">${kmoney(r.q)}</td><td>${att(r.q, r.w)}</td><td class="r num">${kmoney(r.w + r.c)}</td><td class="r num">${kmoney(r.b)}</td><td class="r num">${r.g ? kmoney(r.g) : '<span class="tag ok">Covered</span>'}</td>`
         + `<td class="r">${sub === undefined ? `<button class="pill line sm crm-sub" data-o="${r.o}" aria-label="Submit ${esc(P[r.o][0])}'s commit, ${money(r.w + r.c)}">Submit</button>` : `<span class="tag ok" data-tip="Submitted ${sub === 0 ? 'today' : fmtD(sub)}">Submitted</span>`}</td></tr>`; }).join('');
     const T = { q:sum(R, r => r.q), w:sum(R, r => r.w), c:sum(R, r => r.c), b:sum(R, r => r.b), g:sum(R, r => r.g) }, n = OWN.filter(o => SUBMIT[o] !== undefined).length;
     rpf.innerHTML = `<tr><td>Team</td><td class="r num">${kmoney(T.q)}</td><td>${att(T.q, T.w)}</td><td class="r num">${kmoney(T.w + T.c)}</td><td class="r num">${kmoney(T.b)}</td><td class="r num">${kmoney(T.g)}</td><td class="r muted num">${n} of ${OWN.length} in</td></tr>`;
-    $('.crm-rps', fc).textContent = `Commit is closed won plus weighted proposals and negotiations · ${n} of ${OWN.length} submitted, due Friday`;
   }
   // Next steps (owner, 16 Nov: the action cards of our dashboards, in Soft and Blueprint): the commit to submit, the close dates
   // to move and the quiet accounts' follow-ups, each counted from the same data, with a small picture of what the button opens:
