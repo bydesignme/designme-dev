@@ -1319,6 +1319,12 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .rc-f{margin:11px -16px 0;padding:8px 16px;border-top:1px solid var(--line);background:var(--strip);border-radius:0 0 var(--r-card) var(--r-card)}
 :root[data-style="clean"] .rc-cap-t{height:28px;padding:0 10px 0 8px;border-radius:var(--r-pill);gap:8px;transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .rc-cap-t:hover{background:var(--hover);color:var(--fg)}
+/* (owner, 22 Nov: "foot buttons aligned") the switch itself sits on the content's 16px column, where Credits used starts, its
+   hover pill reaching 8px out round it */
+:root[data-style="clean"] .rc-cap-t{margin-left:-8px}
+/* the running chip is the accent's tint with its words in the accent's text colour: blue in light mode, white in dark (owner,
+   22 Nov: Clean dark's accents are white) */
+:root[data-style="clean"] .rc-st.b{background:var(--accent-bg);color:var(--accent-fg,var(--accent))}
 :root[data-style="clean"] .rc-go{transition:transform var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 @media (prefers-reduced-motion:reduce){:root[data-style="clean"] .rc-cap-t{transition:none}}
 /* ---------- Toast ---------- */
@@ -4344,6 +4350,22 @@ button.evr-vs-r:focus-visible{outline-offset:-2px;border-radius:calc(10px * var(
 :root[data-style="clean"] .ttx-em .pill{color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth)}
 :root[data-style="clean"] .ttx-em .pill:hover{box-shadow:var(--btn2-hover)}
 :root[data-style="clean"] .ttx-em .pill:active{box-shadow:var(--btn2-press)}
+/* Clean reads as a ruled table (owner, 22 Nov: "more prominent", "horizontal lines"): the head is Clean's off-white strip
+   over a hairline, the table starts 8px under it, and a half-strength hairline runs under the headings and between the
+   rows, in the columns' grey. The rows stand edge to edge with square ends, so the lines run unbroken; a row's hover and
+   picked fill is the same quiet grey between its lines. Soft and Blueprint keep their unruled rows with round fills */
+:root[data-style="clean"] .ttx-hd{margin:-16px -16px 0;padding:10px 16px;background:var(--strip);border-bottom:1px solid var(--line);border-radius:var(--r-card) var(--r-card) 0 0}
+:root[data-style="clean"] .ttx-t{margin:8px 0 0;border-spacing:0}
+:root[data-style="clean"] .ttx-t :is(th,td):not(:first-child):not(:last-child)::after{top:0;bottom:0}
+:root[data-style="clean"] .ttx-t thead th,:root[data-style="clean"] .ttx-t tbody tr[data-id]:not(:last-child)>td{box-shadow:inset 0 -1px 0 var(--ttx-col)}
+:root[data-style="clean"] .ttx-t tbody tr[data-id]>td:is(:first-child,:last-child){border-radius:0}
+@container ttx (max-width:528px){
+  :root[data-style="clean"] .ttx-t thead,:root[data-style="clean"] .ttx-t tbody{gap:0}
+  :root[data-style="clean"] .ttx-t thead th{box-shadow:none}
+  :root[data-style="clean"] .ttx-t tbody tr[data-id]:not(:last-child)>td{box-shadow:none}
+  :root[data-style="clean"] .ttx-t tr{border-radius:0}
+  :root[data-style="clean"] .ttx-t thead tr,:root[data-style="clean"] .ttx-t tbody tr[data-id]:not(:last-child){box-shadow:inset 0 -1px 0 var(--ttx-col)}
+}
 /* ---------- Terminal stream ---------- */
 /* the shell commands the agent runs, as a compact terminal: where it runs and how it is going in the header, then each
    command with its output streaming in under it, and an exit code or a check with how long it took. Output longer than
@@ -4497,6 +4519,11 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
    calm 220ms */
 :root[data-style="clean"] .dtp-add{border-radius:50%;box-shadow:inset 0 0 0 1px var(--hair)}
 :root[data-style="clean"] :is(.dtp-sh,.dtp-v,.dtp-add){transition:color var(--t-fast) var(--ease),background-color var(--t-fast) var(--ease)}
+/* Clean is ruled (owner, 22 Nov: "a divider under the heading, more dividers"): a hairline runs edge to edge under the head
+   and between the sections, each section's label sitting 12px under its line as the first one sits under the head's */
+:root[data-style="clean"] .dtp{padding-top:10px}
+:root[data-style="clean"] .dtp-h{margin:0 -16px;padding:0 16px 10px;border-bottom:1px solid var(--line)}
+:root[data-style="clean"] .dtp-sec+.dtp-sec{margin:8px -16px 0;padding-left:16px;padding-right:16px;border-top:1px solid var(--line)}
 /* ---------- Citation hover card ---------- */
 /* an answer with numbered citations; pointing at one (or focusing or tapping it) shows its source in a card that opens over
    the stage from the citation, below it when there is room and above it when there isn't (placePop), so it is never cut off.
@@ -4690,7 +4717,9 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 /* on an ink-filled bar the ring takes the bar's text colour, so it stands out against the fill in every theme */
 .asx-bar>span{flex:1;min-width:0;display:flex;align-items:center;gap:6px;white-space:nowrap}
 .asx-bar .pill.ghost{color:inherit;opacity:.8}.asx-bar .pill.ghost:hover{background:color-mix(in srgb,currentColor 12%,transparent)}
-.asx.dirty .asx-bar{transform:none;opacity:1;filter:none;pointer-events:auto;height:40px;margin-bottom:calc(-1 * var(--s-4))}
+/* (owner, 22 Nov: "more padding") the bar stands 16px under the last field, as the card's content sits from its edges, and its
+   Reset and Save sit 8px from its top and bottom, as in Clean's strip; its words and Save stay on the 16px column */
+.asx.dirty .asx-bar{transform:none;opacity:1;filter:none;pointer-events:auto;height:44px;padding-block:8px;margin-top:var(--s-4);margin-bottom:calc(-1 * var(--s-4))}
 /* hidden, the bar takes no room at all: its padding goes too, so the panel ends as evenly as it starts (owner, 4 Nov) */
 .asx:not(.dirty) .asx-bar{padding-block:0}
 /* Clean (owner, 18 Nov): Autonomy is a switcher (a white knob on a grey track with an inner shadow), the cap's buttons are flat
@@ -4706,7 +4735,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 :root[data-style="clean"] .asx-cap .ib.fill:hover{box-shadow:var(--btn2-hover)}
 :root[data-style="clean"] .asx-cap .ib.fill:active{box-shadow:var(--btn2-press)}
 :root[data-style="clean"] .asx-bar{margin:10px calc(-1 * var(--s-4)) -10px;padding:0 var(--s-4);border-radius:0 0 var(--r-card) var(--r-card);background:var(--strip);color:var(--fg);border-top:0 solid var(--line);filter:none;transform:translateY(8px);transition:transform var(--t) var(--ease),opacity var(--t-fast) var(--ease),height var(--t) var(--ease),margin var(--t) var(--ease),padding var(--t) var(--ease)}
-:root[data-style="clean"] .asx.dirty .asx-bar{height:44px;margin-bottom:0;padding-block:8px;border-top-width:1px;transform:none}
+:root[data-style="clean"] .asx.dirty .asx-bar{height:44px;margin-top:10px;margin-bottom:0;padding-block:8px;border-top-width:1px;transform:none}
 /* the strip's secondary is flat: a hairline and a light fill (Clean's secondary everywhere) */
 :root[data-style="clean"] :is(.asx-bar,.asx-lp-bar,.asx-tb-bar,.asx-ps-bar) .pill.ghost:not([disabled]){color:var(--fg);opacity:1;background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth)}
 :root[data-style="clean"] :is(.asx-bar,.asx-lp-bar,.asx-tb-bar,.asx-ps-bar) .pill.ghost:not([disabled]):hover{background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-hover)}
@@ -5229,13 +5258,13 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .fpk-ti .i{width:11px;height:11px}
 .fpk-hd .fpk-ti{width:24px;height:24px;border-radius:calc(7px * var(--rk-m,var(--rk)))}
 .fpk-hd .fpk-ti .i{width:12px;height:12px}
-.fpk-ti[data-k="trigger"]{--fpk-kb:var(--pp-bg);--fpk-kf:var(--pp)}
-.fpk-ti[data-k="ai"]{--fpk-kb:var(--pl-bg);--fpk-kf:var(--pl)}
-.fpk-ti[data-k="tool"]{--fpk-kb:var(--pt-bg);--fpk-kf:var(--pt)}
-.fpk-ti:is([data-k="app"],[data-k="output"]){--fpk-kb:var(--pb-bg);--fpk-kf:var(--pb)}
-.fpk-ti[data-k="branch"]{--fpk-kb:var(--py-bg);--fpk-kf:var(--py)}
-.fpk-ti[data-k="wait"]{--fpk-kb:var(--pk-bg);--fpk-kf:var(--pk)}
-.fpk-ti[data-k="approval"]{--fpk-kb:var(--pm-bg);--fpk-kf:var(--pm)}
+:is(.fpk-ti,.fpk-tok)[data-k="trigger"]{--fpk-kb:var(--pp-bg);--fpk-kf:var(--pp)}
+:is(.fpk-ti,.fpk-tok)[data-k="ai"]{--fpk-kb:var(--pl-bg);--fpk-kf:var(--pl)}
+:is(.fpk-ti,.fpk-tok)[data-k="tool"]{--fpk-kb:var(--pt-bg);--fpk-kf:var(--pt)}
+.fpk-ti:is([data-k="app"],[data-k="output"]),.fpk-tok:is([data-k="app"],[data-k="output"]){--fpk-kb:var(--pb-bg);--fpk-kf:var(--pb)}
+:is(.fpk-ti,.fpk-tok)[data-k="branch"]{--fpk-kb:var(--py-bg);--fpk-kf:var(--py)}
+:is(.fpk-ti,.fpk-tok)[data-k="wait"]{--fpk-kb:var(--pk-bg);--fpk-kf:var(--pk)}
+:is(.fpk-ti,.fpk-tok)[data-k="approval"]{--fpk-kb:var(--pm-bg);--fpk-kf:var(--pm)}
 .fpk-f{display:flex;flex-direction:column;gap:6px}
 .fpk-l{font-size:12.5px;color:var(--muted)}
 .fpk-box{display:flex;flex-wrap:wrap;align-items:flex-start;gap:6px;min-height:var(--field-h);padding:6px 6px 6px var(--s-2);border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);transition:box-shadow var(--t-fast)}
@@ -5247,6 +5276,14 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .fpk-tok{display:inline-flex;align-items:center;gap:5px;max-width:100%;min-width:0;height:26px;padding:0 2px 0 4px;border-radius:var(--r-sm);background:var(--chip);font-size:12px;color:var(--fg);white-space:nowrap}
 .fpk-tok .s{min-width:0;max-width:120px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
 .fpk-tok .sep{color:var(--muted)}
+/* a token keeps its step's colour once it is in (owner, 22 Nov: grey tokens looked disabled): the core tag colours, one per
+   kind of step, as its tile in the picker shows it, its words in the tag's text colour on the tag's tint (4.5:1), its icon
+   bare on that tint and its remove in the same colour. Blueprint keeps its outlined tokens */
+.fpk-tok[data-k]{background:var(--fpk-kb);color:var(--fpk-kf)}
+.fpk-tok[data-k] :is(.s,.sep,.fpk-x){color:inherit}
+.fpk-tok[data-k] .sep{opacity:.6}
+.fpk-tok[data-k] .fpk-ti{background:none;box-shadow:none;color:inherit}
+.fpk-tok[data-k] .fpk-x:hover{color:inherit}
 .fpk-tok .f{flex:none;max-width:100%;font-weight:500;overflow:hidden;text-overflow:ellipsis}
 .fpk-tok.new{animation:popin .5s var(--ease) backwards}
 .fpk-tok.out{animation:leave .3s var(--ease) both}
@@ -5284,10 +5321,22 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 @container fpk (max-width:300px){.fpk-ft .kh{display:none}}
 :root[data-style="bp"] .fpk-ti{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--fpk-kf,var(--rail)) 30%,transparent)}
 :root[data-style="bp"] .fpk-tok{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 60%,transparent)}
+:root[data-style="bp"] .fpk-tok[data-k]{color:var(--fg)}
+:root[data-style="bp"] .fpk-tok[data-k] :is(.s,.sep,.fpk-x){color:var(--muted)}
+:root[data-style="bp"] .fpk-tok[data-k] .sep{opacity:1}
+:root[data-style="bp"] .fpk-tok[data-k] .fpk-ti{background:var(--fpk-kb);color:var(--fpk-kf);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--fpk-kf,var(--rail)) 30%,transparent)}
 /* Clean: the steps' tiles are one neutral grey with a hairline, as Trace view's marks are (the data types keep their colours);
    a token is a chip, so it is a pill with a round mark and a round remove, and the + is a circle. The picker is a 22px card with
    its rows' fills concentric with it (14px, 8px in), and its footnote is an off-white foot strip, edge to edge, 16px in */
-:root[data-style="clean"] .fpk-ti{color:var(--fg2);background:var(--chip);box-shadow:inset 0 0 0 1px var(--hair)}
+/* (owner, 22 Nov) the steps in the picker keep their kind's colour, so a token added from one wears the same colour in its
+   field; only the step being edited, in the head, is the neutral tile, its icon in the text colour (white in dark mode, not
+   grey), as the + and the search's glass are. Its states read apart: empty, a muted line; adding, the field's edge one step
+   stronger and its + on Clean's selected fill while the picker is open; added, the coloured token */
+:root[data-style="clean"] .fpk-hd .fpk-ti{color:var(--fg);background:var(--chip);box-shadow:inset 0 0 0 1px var(--hair)}
+:root[data-style="clean"] :is(.fpk-add,.fpk-q>.i,.fpk-q>svg){color:var(--fg2)}
+:root[data-style="clean"] .fpk-add[aria-expanded="true"]{background:var(--row-on);color:var(--fg)}
+@media (prefers-color-scheme:dark){:root[data-style="clean"]:not([data-theme="light"]) :is(.fpk-add,.fpk-q>.i,.fpk-q>svg){color:var(--fg)}}
+:root[data-style="clean"][data-theme="dark"] :is(.fpk-add,.fpk-q>.i,.fpk-q>svg){color:var(--fg)}
 :root[data-style="clean"] .fpk-tok .fpk-ti{border-radius:50%}
 :root[data-style="clean"] .fpk-tok{padding:0 3px 0 4px;border-radius:var(--r-pill)}
 :root[data-style="clean"] :is(.fpk-x,.fpk-add){border-radius:50%;transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
@@ -5360,6 +5409,9 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .rdr-stop,.rdr-again{flex:none}
 .rdr-follow{width:28px;height:28px;flex:none;color:var(--muted)}
 .rdr-follow[aria-pressed="true"]{background:var(--row);color:var(--fg)}
+/* Clean: on, Follow takes Clean's one selected fill, a step stronger than the shared hover, so it never reads as a hover that
+   stuck (owner, 22 Nov); its hover and Stop's are the shared ones */
+:root[data-style="clean"] .rdr-follow[aria-pressed="true"]{background:var(--row-on)}
 .rdr-dw.shut :is(.rdr-tabs,.rdr-follow){display:none}
 .rdr-b{position:relative;flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--rail) transparent;padding:0 var(--s-2) var(--s-2)}
 .rdr-dw.shut .rdr-b{display:none}
@@ -7126,9 +7178,8 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
    inside the card */
 .mtx-who .mtx-narrow{display:none}
 @container mtx (max-width:340px){.mtx-who .mtx-wide{display:none}.mtx-who .mtx-narrow{display:inline-grid}}
-/* the copy button's hover a step darker than the row grey, so it reads in light (owner, 17 Nov); once it has copied, the
-   link's icon is the green tick for a moment, at the same size */
-.mtx-cp:hover{background:color-mix(in srgb,var(--fg) 9%,transparent);color:var(--fg)}
+/* the copy button takes the shared hover of every icon button (owner, 21 Nov: one hover); once it has copied, the link's icon
+   is the green tick for a moment, at the same size */
 .mtx-cp.copied{color:var(--ok-mark)!important}
 .mtx-cp.copied:hover{color:var(--ok-mark)!important}
 /* Join and its menu as one split button: a very light divider, a chevron that opens the meeting's actions */
@@ -18858,7 +18909,7 @@ DM.def('data-picker', (r, c) => {
   const say = t => { live.textContent = ''; c.later(40, () => { live.textContent = t; }); };
   const of = ref => { const [s, f] = ref.split('.'); return { st:S.find(x => x.id === s), f }; };
   const tokHTML = ref => { const { st, f } = of(ref);
-    return `<span class="fpk-tok" data-ref="${ref}"><span class="fpk-ti" data-k="${st.k}" aria-hidden="true">${I(st.ic, 'xs')}</span><span class="s">${st.t}</span><span class="sep" aria-hidden="true">›</span><span class="f">${f}</span><button class="fpk-x" aria-label="Remove ${f} from ${st.t}" data-tip="Remove">${I('x', 'xs')}</button></span>`; };
+    return `<span class="fpk-tok" data-ref="${ref}" data-k="${st.k}"><span class="fpk-ti" data-k="${st.k}" aria-hidden="true">${I(st.ic, 'xs')}</span><span class="s">${st.t}</span><span class="sep" aria-hidden="true">›</span><span class="f">${f}</span><button class="fpk-x" aria-label="Remove ${f} from ${st.t}" data-tip="Remove">${I('x', 'xs')}</button></span>`; };
   const addB = k => `<button class="fpk-add" data-f="${k}" data-pop=".fpk-pop" data-pop-pos="down" data-pop-align="end" aria-haspopup="dialog" aria-expanded="false" aria-label="Insert data into ${F[k].l}" data-tip="Insert data">${I('plus', 's')}</button>`;
   const paintField = k => { $(`.fpk-f[data-f="${k}"] .fpk-box`, r).innerHTML = '<span class="fpk-toks">' + (F[k].v.length ? F[k].v.map(tokHTML).join('') : '<span class="fpk-ph">Pick data from an earlier step</span>') + '</span>' + addB(k); };
   Object.keys(F).forEach(paintField);

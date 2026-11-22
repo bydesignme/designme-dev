@@ -115,7 +115,7 @@ export function DataPicker({ sources, fields, defaultFields = [], onFieldsChange
             {/* the tokens wrap among themselves, so the + stays on the field's first line at its right end */}
             <span className="dm-fpk-toks">
             {fd.refs.length ? fd.refs.map(ref => { const { src, f } = of(ref); return (
-              <span className={cx('dm-fpk-tok', !first.has(fd.key + '|' + ref) && 'dm-new')} key={ref}>
+              <span className={cx('dm-fpk-tok', !first.has(fd.key + '|' + ref) && 'dm-new')} data-k={src?.kind} key={ref}>
                 {src && <Tile kind={src.kind} icon={src.icon} />}<span className="dm-s">{src?.title ?? ref.split('.')[0]}</span><span className="dm-sep" aria-hidden="true">›</span><span className="dm-f">{f}</span>
                 <Tip label="Remove"><button type="button" className="dm-fpk-x" aria-label={`Remove ${f} from ${src?.title ?? ref.split('.')[0]}`} onClick={e => { remove(fd.key, ref); if (e.detail === 0) root.current?.querySelector<HTMLElement>(`[data-add="${CSS.escape(fd.key)}"]`)?.focus(); }}><Icon name="x" size="xs" /></button></Tip>
               </span>); }) : <span className="dm-fpk-ph">Pick data from an earlier step</span>}
