@@ -1,12 +1,10 @@
 'use client';
-import { useEffect, useRef, useState, type CSSProperties, type FocusEvent as ReactFocusEvent, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent } from 'react';
+import { useEffect, useRef, useState, type FocusEvent as ReactFocusEvent, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
 import { Swap, Tip } from '../../lib/motion';
 import '../../designme.css';
-// its menus' rows glide in Clean
-import '../../lib/glide';
 import './automation-canvas.css';
 
 /** A spot on the canvas, as fractions of its width and height */
@@ -31,10 +29,8 @@ export type AutomationVia = 'out' | 'model' | 'tools';
 export interface AutomationNode {
   id: string;
   icon: IconName;
-  /** The icon's colour, like 'var(--dm-pl)'. Its tile is a light tint of it (in Clean every tile is one neutral grey) */
+  /** The icon's colour, like 'var(--dm-pl)'. Its tile is a light tint of it */
   color: string;
-  /** The icon's colour when it should differ from the tint's, like 'var(--dm-accent-fg)' on a 'var(--dm-accent-mark)' tile */
-  ink?: string;
   /** Like "Read frames" */
   title: string;
   /** The setting shown under the title, like "Pricing, Checkout". The popover changes it */
@@ -94,12 +90,10 @@ export interface AutomationCanvasProps {
   tag?: string;
   /** The quiet line beside Test run, like "Every Monday, 9:00". Crossfades when it changes */
   status?: string;
-  /** A run is going: the status line shimmers, as loading text does */
-  running?: boolean;
   nodes: AutomationNode[];
   edges: AutomationEdge[];
   /** The wires a run has reached. A soft light passes along each one as it is added, and it stays lit while it is listed;
-   * clear the list once the run is over, so the wires go back to grey (the ticks say it is done) */
+   * clear the list when a new run starts */
   flowing?: AutomationEdge[];
   /** Spread the columns of cards evenly, with the first and last the same distance in from each side, so the wires on
    * the left and right match at any width. Set false to place every card exactly at its x. Defaults to true */
@@ -182,17 +176,10 @@ function spot(W: number, H: number, w: number, h: number, a: Anchor, hasOut: boo
   const inside = (p: [number, number], b: Box, m: number) => p[0] > b.l - m && p[0] < b.r + m && p[1] > b.t - m && p[1] < b.b + m;
   const ov = (A: Box, B: Box, m: number) => Math.max(0, Math.min(A.r, B.r + m) - Math.max(A.l, B.l - m)) * Math.max(0, Math.min(A.b, B.b + m) - Math.max(A.t, B.t - m));
   let best: Box | null = null, bs = Infinity, soft: Box | null = null, ss = Infinity;
-  // the 8px grid, and the exact spot just after what it hangs from, so a new step lines up with it when that spot is free
-  const xs: number[] = [], ys: number[] = [];
-  for (let x = M; x + w <= W - M; x += 8) xs.push(x);
-  for (let y = M; y + h <= H - M; y += 8) ys.push(y);
-  const ex = Math.round(want[0] - w / 2), ey = Math.round(want[1] - h / 2);
-  if (ex >= M && ex + w <= W - M) xs.push(ex);
-  if (ey >= M && ey + h <= H - M) ys.push(ey);
   // room to spare first; on a crowded canvas, just clear of the rest
   for (const G of [14, 4]) {
     if (best) break;
-    for (const y of ys) for (const x of xs) {
+    for (let y = M; y + h <= H - M; y += 8) for (let x = M; x + w <= W - M; x += 8) {
       const B = mk(x, y, w, h);
       if (hasOut && (narrow ? B.b + 34 > H - 4 : B.r + 34 > W - 4)) continue;
       let sc = Math.hypot(x + w / 2 - want[0], y + h / 2 - want[1]);
@@ -213,7 +200,7 @@ function spot(W: number, H: number, w: number, h: number, a: Anchor, hasOut: boo
  * sits over the top left, Test run and the status over the bottom left, and the zoom in the bottom right. It fills the
  * height it is given (560px, or 640px below 560px wide, when nothing gives it one). */
 export function AutomationCanvas({
-  name, tag, status, running = false, nodes, edges, flowing = [], selected, defaultSelected = null, onSelectedChange, values, defaultValues, onValuesChange,
+  name, tag, status, nodes, edges, flowing = [], selected, defaultSelected = null, onSelectedChange, values, defaultValues, onValuesChange,
   selection, defaultSelection = NONE, onSelectionChange, view: viewProp, defaultView = HOME, onViewChange, label = 'Automation canvas',
   balanced = true, onNodeMove, catalog, onAddNode, maxNodes, onRun, runLabel = 'Test run', doneLabel = 'Done', searchLabel = 'Search steps', className
 }: AutomationCanvasProps) {
@@ -356,9 +343,7 @@ export function AutomationCanvas({
   const subAt = (n: AutomationNode, kind: 'model' | 'tools'): Box | null => {
     const B = boxes[n.id]; if (!B) return null;
     const ks = n.connectors ?? [], g = narrow ? 24 : 8, cxm = B.l + B.w / 2, wOf = (k: string) => knobW[n.id + ':' + k] || 64;
-    // on a narrow canvas two connectors that fit under the step line up with its edges, its left and its right
-    const flush = narrow && ks.length === 2 && wOf(ks[0]) + wOf(ks[1]) + 8 <= B.w;
-    const l = ks.length < 2 ? cxm - wOf(kind) / 2 : flush ? (kind === ks[0] ? B.l : B.r - wOf(kind)) : kind === ks[0] ? cxm - g / 2 - wOf(kind) : cxm + g / 2;
+    const l = ks.length < 2 ? cxm - wOf(kind) / 2 : kind === ks[0] ? cxm - g / 2 - wOf(kind) : cxm + g / 2;
     return mk(l, B.b + 10, wOf(kind), 24);
   };
   const anchorOf = (e: AutomationEdge): Anchor | null => {
@@ -403,7 +388,7 @@ export function AutomationCanvas({
   // fit: every step and its + in view, centred in the band between the name and Test run, never past 100%
   const fitNow = () => {
     const bs = [...Object.values(boxes), ...knobs.map(knobBox).filter((b): b is Box => !!b)]; if (!bs.length || !size) return;
-    const P = 16, BH = H - ins.T - ins.B, x0 = Math.min(...bs.map(b => b.l)), y0 = Math.min(...bs.map(b => b.t)), x1 = Math.max(...bs.map(b => b.r)), y1 = Math.max(...bs.map(b => b.b));
+    const P = 24, BH = H - ins.T - ins.B, x0 = Math.min(...bs.map(b => b.l)), y0 = Math.min(...bs.map(b => b.t)), x1 = Math.max(...bs.map(b => b.r)), y1 = Math.max(...bs.map(b => b.b));
     const z = clamp(Math.min((W - 2 * P) / (x1 - x0), (BH - 2 * P) / (y1 - y0), 1), ZMIN, ZMAX);
     go({ zoom: z, panX: (W - (x1 - x0) * z) / 2 - x0 * z, panY: ins.T + (BH - (y1 - y0) * z) / 2 - y0 * z }); setLive('Fit to screen, ' + pct(z));
   };
@@ -731,13 +716,13 @@ export function AutomationCanvas({
                   choose([n.id]); keyOpen.current = sel !== n.id && ev.detail === 0; setSel(sel === n.id ? null : n.id);
                 }}
                 onKeyDown={ev => { if (ev.key === 'Escape' && sel === n.id) { ev.preventDefault(); setSel(null); } }}>
-                <span className="dm-ic dm-acx-k" style={{ '--dm-k': n.color, ...(n.ink ? { '--dm-kf': n.ink } : {}) } as CSSProperties}><Icon name={n.icon} size="xs" /></span>
+                <span className="dm-ic" style={{ color: n.color, background: `color-mix(in srgb,${n.color} 14%,transparent)` }}><Icon name={n.icon} size="xs" /></span>
                 <span className="dm-t"><b>{n.title}</b><Swap className="dm-d">{valueOf(n)}</Swap></span>
                 {/* the badge pops in once; after that its spinner turns into a check with a short crossfade */}
                 {n.state && (
                   <span className="dm-s">
                     <span key={n.state} className="dm-acx-sv">
-                      {n.state === 'run' ? <span className="dm-spin" style={{ width: 10, height: 10 }} /> : <span className="dm-ok"><Icon name="check" size="xs" /></span>}
+                      {n.state === 'run' ? <span className="dm-spin" style={{ width: 10, height: 10 }} /> : <span style={{ color: 'var(--dm-ok)', display: 'grid' }}><Icon name="check" size="xs" /></span>}
                     </span>
                   </span>
                 )}
@@ -759,7 +744,7 @@ export function AutomationCanvas({
         {/* Test run and the run's status, over the bottom left */}
         <div ref={barEl} className="dm-acx-bar">
           {onRun && <button type="button" className="dm-pill dm-primary dm-sm dm-acx-run" onClick={() => { setSel(null); setPk(null); onRun(); }}><Icon name="play" size="xs" />{runLabel}</button>}
-          {status !== undefined && <Swap className={cx('dm-muted dm-acx-st', running && 'dm-shim')}>{status}</Swap>}
+          {status !== undefined && <Swap className="dm-muted dm-acx-st">{status}</Swap>}
         </div>
         {/* zoom out, the zoom level (which resets to 100%), zoom in and fit, quiet in the corner */}
         <div ref={zmEl} className="dm-acx-zm" role="toolbar" aria-label="Zoom">
@@ -809,7 +794,7 @@ export function AutomationCanvas({
                   {items.map(it => { const i = flat.findIndex(f => f.it === it); return (
                     <div key={it.id} id={`dm-acx-o-${uid}-${i}`} role="option" aria-selected={i === actI} aria-describedby={`dm-acx-od-${uid}-${i}`} className={cx('dm-acx-o', i === actI && 'dm-on')}
                       data-id={it.id} onPointerMove={() => { if (i !== actI) setAct(i); }} onClick={e => { e.stopPropagation(); add(i, e.nativeEvent.isTrusted); }}>
-                      <span className="dm-ic dm-acx-k" style={{ '--dm-k': g.color } as CSSProperties}><Icon name={it.icon} size="xs" /></span>
+                      <span className="dm-ic" style={{ color: g.color, background: `color-mix(in srgb,${g.color} 14%,transparent)` }}><Icon name={it.icon} size="xs" /></span>
                       <span>{marked(it.title)}</span><span id={`dm-acx-od-${uid}-${i}`} hidden>{it.description}</span>
                     </div>
                   ); })}
