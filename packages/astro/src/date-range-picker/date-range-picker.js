@@ -1,11 +1,9 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, REDUCE, centre, closePops, hoverGlide, openPop, stagger, swap } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, stagger } from '../core/core.js';
 DM.def('date-range-picker', (r, c) => {
-  r.innerHTML = r.innerHTML.replace('{right}', I('right','xs')).replace('{cal}', I('cal','xs')).replace('{chev}', I('chev-d','xs'));
+  r.innerHTML = r.innerHTML.replace('{right}', I('right','xs'));
   const TODAY = new Date(2026, 9, 19); let base = new Date(2026, 8, 1), A = null, B = null, hov = null, cursor = null;
-  const cals = $$('.drx-cal', r), ok = $('.drx-ok', r), f = $('.drx-f', r), val = $('.drx-val', r), shown = { t:'' };
-  // Clean's one hover: a neutral pill that glides from day to day, and a row that glides down the ranges (hoverGlide)
-  c.offs.push(hoverGlide($('.drx-cals', r), '.drx-d:not(:empty)', { keep:'.a,.b,.in,.hv' }), hoverGlide($('.drx-side', r), '.drx-p', { keep:'.on' }));
+  const cals = $$('.drx-cal', r), ok = $('.drx-ok', r);
   const key = d => d.getFullYear() * 1e4 + d.getMonth() * 100 + d.getDate();
   const fmt = d => d ? d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : '–';
   /* From and To crossfade to the days picked, and always end on the latest ones: a pick that lands while the last one
@@ -38,18 +36,13 @@ DM.def('date-range-picker', (r, c) => {
     const n = A && B ? Math.round((B - A) / 864e5) + 1 : 0;
     $('.drx-n', r).textContent = n ? n + (n === 1 ? ' day' : ' days') : A ? 'Pick an end date' : 'Pick a start date';
     ok.disabled = !(A && B);
-    // the field reads the range once both ends are set, like "Sep 18 – Oct 19, 2026", and the placeholder until then
-    const t = A && B ? (A.getFullYear() === B.getFullYear() ? A.toLocaleDateString('en-US', { month:'short', day:'numeric' }) + ' – ' + fmt(B) : fmt(A) + ' – ' + fmt(B)) : 'Pick a date range';
-    if (t !== shown.t){ shown.t = t; val.classList.toggle('ph', !(A && B)); swap(val, t); }
   }
   function click(d){ $$('.drx-p', r).forEach(x => x.classList.remove('on')); if (!A || B || d < A){ A = d; B = null; hov = null; } else { B = d; hov = null; } deco(); }
   $$('.drx-p', r).forEach(p => p.onclick = () => { $$('.drx-p', r).forEach(x => x.classList.toggle('on', x === p)); const v = p.dataset.p; B = new Date(TODAY);
     A = new Date(TODAY); if (v === '7') A.setDate(A.getDate() - 6); else if (v === '30') A.setDate(A.getDate() - 29); else if (v === 'q') A = new Date(2026, 9, 1); else A = new Date(2026, 8, 18);
     const nb = new Date(B.getFullYear(), B.getMonth() - 1, 1); hov = null; if (+nb !== +base){ base = nb; build(); } else deco(); stagger($$('.drx-d.in, .drx-d.a, .drx-d.b', r), 8); });
   $('.drx-clr', r).onclick = () => { A = B = hov = null; $$('.drx-p', r).forEach(x => x.classList.remove('on')); deco(); };
-  // Apply sets the range and closes the picker; the field already reads it
-  const isOpen = () => f.getAttribute('aria-expanded') === 'true';
-  ok.onclick = () => { if (A && B && isOpen()) closePops(); };
+  ok.onclick = () => { ok.innerHTML = I('check','xs') + 'Applied'; c.later(1200, () => ok.textContent = 'Apply'); };
   c.on($('.drx-cals', r), 'mouseleave', () => { if (hov){ hov = null; deco(); } });
   // the keyboard in the calendars: the arrows move a day or a week, Home and End go to the start and end of the week, Page Up
   // and Page Down move a month, or a year with Shift, and the months on show follow; Enter or Space picks the day. While the
@@ -67,25 +60,6 @@ DM.def('date-range-picker', (r, c) => {
     if (m0 < base){ base = m0; build(); } else if (m0 > last){ base = new Date(m0.getFullYear(), m0.getMonth() - 1, 1); build(); } else deco();
     const to = $(`.drx-d[data-k="${key(n)}"]`, r); if (to) to.focus({ preventScroll:true });
   });
-  shown.t = val.textContent; build();
-  // opened with the keyboard, the picker takes the focus on the day that has Tab (the end, the start or today)
-  c.on(f, 'click', e => { if (e.isTrusted && !e.detail) requestAnimationFrame(() => { if (!isOpen()) return; const b = $('.drx-d[tabindex="0"]', r); if (b) b.focus({ preventScroll:true }); }); });
-  // the field sits centred on its own, and glides up as the picker opens under it, so the two sit centred together; on
-  // closing, it waits for the picker to fade before it glides back to the middle
-  const box = $('.drx', r), pop = $('.drx-pop', r);
-  const centred = centre(c, box, () => isOpen() ? Math.max(box.offsetHeight, pop.offsetTop + pop.offsetHeight) : box.offsetHeight);
-  // (the wait is the glide's own transition delay, so a busy page can't hold the field up there longer than the fade)
-  const mo = new MutationObserver(() => { box.style.transitionDelay = isOpen() || REDUCE ? '' : '.18s'; centred(); });
-  mo.observe(f, { attributes:true, attributeFilter:['aria-expanded'] }); c.offs.push(() => mo.disconnect());
-  // the picker is never wider than the box around the component, less 8px a side, so a narrow card never cuts it off
-  const fit = () => { const w = r.parentElement && r.parentElement.clientWidth; if (w) box.style.setProperty('--dm-drx-w', (w - 16) + 'px'); };
-  const rf = new ResizeObserver(fit); rf.observe(r); fit(); c.offs.push(() => rf.disconnect());
-  // the preview opens the picker, picks Since pricing launch (its days fill in) and applies it: the closed field reads the
-  // range, centred again. One popover is open at a time on the page, so the preview waits while another card's demo has its
-  // menu open, and never takes it from that card; if another card closes this picker, it opens it again once that card is done
-  const free = async () => { for (let k = 0; k < 40 && openPop && openPop.pop !== pop; k++) await c.step(250); };
-  const again = async () => { if (isOpen()) return; await free(); f.click(); await c.step(400); };
-  c.auto(900, () => c.run(async () => { await free(); f.click();
-    await c.step(900); await again(); $('.drx-p[data-p="sp"]', r).click();
-    await c.step(1900); await again(); ok.click(); }));
+  build();
+  c.later(900, () => $('.drx-p[data-p="sp"]', r).click());
 });

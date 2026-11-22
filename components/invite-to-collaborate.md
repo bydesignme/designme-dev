@@ -38,9 +38,8 @@ Invite to collaborate is a sharing panel where a person types email addresses th
 - Backspace in an empty field removes the last chip, and each chip has its own remove button.
 - Invalid addresses show a warning chip with a "Not a valid email" tip, and Send stays disabled until every chip is valid.
 - The role menu lists `roles` with a short `detail` each; the default roles are Can edit, Can comment and Can view.
-- `onSend` receives the valid addresses and the role; a promise shows a spinner in the button, which keeps its width, then the chips clear. The button reads "Send 2 invites" for more than one.
-- `suggestions` add people in one click, and `link` adds a Copy link button: pressed, its icon turns into a green tick and it reads Link copied, easing to its new width, then goes back.
-- The panel keeps no room: it eases taller as chips wrap to a new line and as invited people join the list.
+- `onSend` receives the valid addresses and the role; a promise shows a spinner, then the chips clear. The button reads "Send 2 invites" for more than one.
+- `suggestions` add people in one click, and `link` adds a Copy link button that confirms with Link copied.
 
 ### Accessibility
 
@@ -171,15 +170,13 @@ Pass `roles` with a `label` and optional `detail` for each. The first role is se
 
 ```tsx
 'use client';
-import { useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useState, type KeyboardEvent, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
-import { useControllable, useCopied, useIsoLayoutEffect, useReducedMotion } from '../lib/hooks';
+import { useControllable, useCopied } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { Avatar, enter, Spin, Swap, Tip, useGrow } from '../lib/motion';
+import { Avatar, enter, Spin, Swap, Tip } from '../lib/motion';
 import { usePopover } from '../lib/popover';
 import '../designme.css';
-// its menus' rows glide in Clean
-import '../lib/glide';
 import './invite-to-collaborate.css';
 
 export interface InviteToCollaborateRole {
@@ -249,7 +246,6 @@ const ROLES: InviteToCollaborateRole[] = [
 ];
 const COLORS = ['var(--dm-av-l)', 'var(--dm-av-m)', 'var(--dm-av-t)', 'var(--dm-av-p)', 'var(--dm-av-k)'];
 const isEmail = (e: string) => /^\S+@\S+\.\S+$/.test(e);
-const cssMs = (el: Element, v: string) => { const t = getComputedStyle(el).getPropertyValue(v).trim(); return (t.endsWith('ms') ? parseFloat(t) : parseFloat(t) * 1000) || 300; };
 const initialsOf = (e: string) => e.split('@')[0].slice(0, 2).toUpperCase();
 
 /** Add teammates by email as chips, set their role, and send the invites. */
@@ -263,20 +259,6 @@ export function InviteToCollaborate({ title = 'Invite to Pricing refresh', subti
   const [copied, copy] = useCopied();
   const [busy, setBusy] = useState(false);
   const [used, setUsed] = useState<string[]>([]);
-  const reduce = useReducedMotion();
-  // the card keeps no room: it eases taller as chips wrap to a new line and as invites go out, and its role menu sits beside it
-  // (in the wrapper), so the card's clip never cuts the menu
-  const [root, inner] = useGrow();
-  // Copy link is as wide as its words: copied, the tick and "Link copied" come in and it eases to its new width, with no room
-  // kept for the longer words. Send keeps its width while its spinner shows, so it never goes blank or jumps
-  const link_ = useRef<HTMLButtonElement>(null), linkW = useRef(0), go = useRef<HTMLButtonElement>(null);
-  const [goW, setGoW] = useState<number | null>(null);
-  useIsoLayoutEffect(() => {
-    const b = link_.current; if (!b) return;
-    const w1 = b.getBoundingClientRect().width, w0 = linkW.current;
-    if (w0 && !reduce && Math.abs(w1 - w0) > .5) b.animate([{ width: w0 + 'px' }, { width: w1 + 'px' }], { duration: cssMs(b, '--dm-t'), easing: getComputedStyle(b).getPropertyValue('--dm-ease').trim() || 'ease' });
-    linkW.current = w1;
-  }, [copied]);
 
   const add = (parts: string[]) => { const next = [...list]; parts.forEach(p => { if (!next.includes(p)) next.push(p); }); setList(next); };
   const commit = (value = text) => {
@@ -291,8 +273,8 @@ export function InviteToCollaborate({ title = 'Invite to Pricing refresh', subti
 
   const valid = list.filter(validate);
   const send = async () => {
-    setGoW(go.current ? go.current.getBoundingClientRect().width : null); setBusy(true);
-    try { await onSend?.(valid, cur); } finally { setBusy(false); setGoW(null); setList([]); }
+    setBusy(true);
+    try { await onSend?.(valid, cur); } finally { setBusy(false); setList([]); }
   };
 
   // members invited after the first render come in one after another
@@ -303,9 +285,7 @@ export function InviteToCollaborate({ title = 'Invite to Pricing refresh', subti
   const delayOf = (m: InviteToCollaborateMember) => seen.get(keyOf(m)) ?? fresh.indexOf(m) * 70;
 
   return (
-    <div data-dm="" className={cx('dm-ivx-w', className)}>
-    <div ref={root} className="dm-ivx dm-panel dm-growing">
-      <div ref={inner} className="dm-grow">
+    <div data-dm="" className={cx('dm-ivx dm-panel', className)}>
       <div className="dm-ivx-h"><b>{title}</b><span className="dm-muted">{subtitle}</span></div>
       <div className="dm-ivx-f">
         <div className="dm-ivx-chips">
@@ -323,6 +303,14 @@ export function InviteToCollaborate({ title = 'Invite to Pricing refresh', subti
         <input placeholder={placeholder} aria-label="Email addresses" spellCheck={false} value={text} onChange={e => setText(e.target.value)}
           onKeyDown={key} onBlur={() => commit()} onPaste={e => { const t = e.currentTarget; setTimeout(() => commit(t.value), 0); }} />
         <button type="button" {...menu.trigger} className="dm-ivx-role"><Swap>{cur}</Swap><Icon name="chev-d" size="xs" /></button>
+      </div>
+      <div {...menu.pop} className={cx(menu.pop.className, 'dm-ivx-rp')} role="menu" aria-label="Role">
+        {roles.map(r => (
+          <button type="button" key={r.label} className="dm-mi" role="menuitemradio" aria-checked={r.label === cur} onClick={() => { setCur(r.label); menu.closeSoon(); }}>
+            <span>{r.label}{r.detail && <span className="dm-d">{r.detail}</span>}</span>
+            <span className="dm-ck"><Icon name="check" size="xs" /></span>
+          </button>
+        ))}
       </div>
       {!!suggestions?.length && (
         <div className="dm-ivx-sg">
@@ -349,26 +337,15 @@ export function InviteToCollaborate({ title = 'Invite to Pricing refresh', subti
       <div className="dm-ivx-ft">
         {link ? (
           <Tip label="Copied to clipboard" open={copied || undefined} off={!copied}>
-            <button type="button" ref={link_} className={cx('dm-pill dm-ghost dm-sm dm-ivx-link', copied && 'dm-copied')} onClick={() => copy(link)}>
-              <Icon name={copied ? 'check' : 'link'} size="xs" /><span>{copied ? copiedLabel : copyLabel}</span>
+            <button type="button" className={cx('dm-pill dm-ghost dm-sm dm-ivx-link', copied && 'dm-copied')} onClick={() => copy(link)}>
+              <Icon name={copied ? 'check' : 'link'} size="xs" />{copied ? copiedLabel : copyLabel}
             </button>
           </Tip>
         ) : <span />}
-        <button type="button" ref={go} className="dm-pill dm-primary dm-sm dm-ivx-go" disabled={!busy && (!valid.length || valid.length < list.length)} aria-busy={busy}
-          style={busy && goW ? { width: goW } : undefined} onClick={() => { if (!busy) send(); }}>
+        <button type="button" className="dm-pill dm-primary dm-sm dm-ivx-go" disabled={!busy && (!valid.length || valid.length < list.length)} aria-busy={busy} onClick={() => { if (!busy) send(); }}>
           {busy ? <Spin /> : valid.length > 1 ? `Send ${valid.length} invites` : 'Send invite'}
         </button>
       </div>
-      </div>
-    </div>
-    <div {...menu.pop} className={cx(menu.pop.className, 'dm-ivx-rp')} role="menu" aria-label="Role">
-      {roles.map(r => (
-        <button type="button" key={r.label} className="dm-mi" role="menuitemradio" aria-checked={r.label === cur} onClick={() => { setCur(r.label); menu.closeSoon(); }}>
-          <span>{r.label}{r.detail && <span className="dm-d">{r.detail}</span>}</span>
-          <span className="dm-ck"><Icon name="check" size="xs" /></span>
-        </button>
-      ))}
-    </div>
     </div>
   );
 }

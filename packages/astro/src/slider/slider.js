@@ -1,9 +1,7 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, REDUCE, grow, swap } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, swap } from '../core/core.js';
 DM.def('slider', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{spark}', I('spark','xs'));
-  // the panel grows and shrinks with the sample line, staying centred, rather than keeping room for its longest (owner, 17 Nov)
-  c.offs.push(grow($('.sdx', r)));
   const q = s => $(`.sdx-tr[data-s="${s}"]`, r);
   /* one track: its knobs, the range they run over and how values read. Pointer: press anywhere on the track and the nearest
      knob comes to it and follows. Keys on a knob: arrows one step, Shift with an arrow or Page Up/Down ten, Home and End the
@@ -13,20 +11,18 @@ DM.def('slider', (r, c) => {
     const pct = x => (x - o.min) / (o.max - o.min) * 100, snap = x => Math.round((x - o.min) / o.step) * o.step + o.min, fix = x => +x.toFixed(4);
     const clamp = (i, x) => { let lo = o.min, hi = o.max; if (ks.length > 1){ if (i === 0) hi = v[1] - o.step; else lo = v[0] + o.step; } return Math.max(lo, Math.min(hi, x)); };
     const paint = () => {
-      ks.forEach((k, i) => { k.style.left = pct(v[i]) + '%'; k.setAttribute('aria-valuemin', ks.length > 1 && i ? fix(v[0] + o.step) : o.min); k.setAttribute('aria-valuemax', ks.length > 1 && !i ? fix(v[1] - o.step) : o.max); k.setAttribute('aria-valuenow', fix(v[i])); k.setAttribute('aria-valuetext', o.text(v[i], i)); });
+      ks.forEach((k, i) => { k.style.left = pct(v[i]) + '%'; $('.sdx-tt', k).textContent = o.fmt(v[i]); k.setAttribute('aria-valuemin', ks.length > 1 && i ? fix(v[0] + o.step) : o.min); k.setAttribute('aria-valuemax', ks.length > 1 && !i ? fix(v[1] - o.step) : o.max); k.setAttribute('aria-valuenow', fix(v[i])); k.setAttribute('aria-valuetext', o.text(v[i], i)); });
       fill.style.left = ks.length > 1 ? pct(v[0]) + '%' : '0'; fill.style.width = (ks.length > 1 ? pct(v[1]) - pct(v[0]) : pct(v[0])) + '%';
       o.change && o.change(v);
     };
     // a little hop when a knob snaps onto the agent's mark
-    // Clean's motion is calm (owner, 18 Nov): its knob glides and lifts, without the hop, the lean and the bounce
-    const calm = () => getComputedStyle(r).getPropertyValue('--dm-motion').trim() === 'clean';
-    const hop = i => { if (REDUCE || calm()) return; $('.sdx-kb', ks[i]).animate([{ transform:'scale(1.2)' }, { transform:'scale(1.38)', offset:.35 }, { transform:'scale(1.2)' }], { duration:320, easing:'cubic-bezier(.34,1.56,.64,1)' }); };
+    const hop = i => { if (REDUCE) return; $('.sdx-kb', ks[i]).animate([{ transform:'scale(1.2)' }, { transform:'scale(1.38)', offset:.35 }, { transform:'scale(1.2)' }], { duration:320, easing:'cubic-bezier(.34,1.56,.64,1)' }); };
     const set = (i, x, near) => { x = clamp(i, snap(x)); let hit = false; if (near != null && o.rec != null && Math.abs(x - o.rec) <= near){ hit = true; x = o.rec; } if (fix(x) === fix(v[i])) return; v[i] = fix(x); paint(); if (hit && tr.classList.contains('drag')) hop(i); };
     // a value set from outside (a stop, the recommended mark, a tick) glides there: the knob and the fill ease across while
     // the value lands at once
     let gt = 0;
     const glide = (i, x) => { say(i); tr.classList.add('glide'); clearTimeout(gt); gt = setTimeout(() => tr.classList.remove('glide'), 500); set(i, x); };
-    const say = i => { ks.forEach((k, j) => k.classList.toggle('on', j === i)); };
+    let sayT = 0; const say = i => { ks.forEach((k, j) => k.classList.toggle('on', j === i)); ks[i].classList.add('say'); clearTimeout(sayT); sayT = setTimeout(() => ks[i].classList.remove('say'), 1200); };
     let act = 0;
     const at = e => { const b = tr.getBoundingClientRect(); return o.min + (o.max - o.min) * Math.max(0, Math.min(1, (e.clientX - b.left) / b.width)); };
     tr.addEventListener('pointerdown', e => {
@@ -38,11 +34,11 @@ DM.def('slider', (r, c) => {
       // it leans into the way it moves, as far as 16 degrees, and rights itself once the pointer rests
       let lx = e.clientX, lt = e.timeStamp, rest = 0; const kb = $('.sdx-kb', ks[act]);
       tr.onpointermove = ev => { set(act, at(ev), (o.max - o.min) * .05);
-        if (REDUCE || calm()) return; const dt = Math.max(8, ev.timeStamp - lt), vx = (ev.clientX - lx) / dt; lx = ev.clientX; lt = ev.timeStamp;
+        if (REDUCE) return; const dt = Math.max(8, ev.timeStamp - lt), vx = (ev.clientX - lx) / dt; lx = ev.clientX; lt = ev.timeStamp;
         kb.style.setProperty('--dm-tilt', Math.max(-16, Math.min(16, vx * 14)).toFixed(1) + 'deg'); clearTimeout(rest); rest = setTimeout(() => kb.style.setProperty('--dm-tilt', '0deg'), 90); };
       tr.onpointerup = tr.onpointercancel = () => { tr.classList.remove('drag'); tr.onpointermove = null; clearTimeout(rest); kb.style.setProperty('--dm-tilt', '0deg');
         // let go, it drops back with a bounce
-        if (!REDUCE && !calm()) kb.animate([{ transform:'scale(1.2)' }, { transform:'scale(.9)', offset:.4 }, { transform:'scale(1.05)', offset:.7 }, { transform:'scale(1)' }], { duration:480, easing:'ease-out' }); };
+        if (!REDUCE) kb.animate([{ transform:'scale(1.2)' }, { transform:'scale(.9)', offset:.4 }, { transform:'scale(1.05)', offset:.7 }, { transform:'scale(1)' }], { duration:480, easing:'ease-out' }); };
     });
     ks.forEach((k, i) => k.addEventListener('keydown', e => {
       k.classList.remove('ptr');

@@ -40,6 +40,7 @@ Details panel lists the properties of an agent run, like its status, owner, mode
 - Tag rows show coloured labels and an optional add button that calls `onAdd`. New tags come in with a short entrance.
 - Sections fold open and closed from their headers: each section's name is a small label on the panel's left edge, with its chevron after it. All start open unless you set `defaultOpen` or control `open`, and the panel follows them as they fold, keeping no room for a shut one.
 - `copyValue` adds a copy button by the title. After a click its icon turns into a green tick and its tooltip says "Copied to clipboard", then it goes back.
+- In Clean (`data-style="clean"`) the panel is ruled: its head is an off-white strip over a hairline, and a hairline runs edge to edge between its sections.
 
 ### Accessibility
 

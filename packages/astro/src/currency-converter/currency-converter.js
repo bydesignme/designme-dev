@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, FLAG, I, swap, tween } from '../core/core.js';
+import { $, $$, DM, FLAG, I, REDUCE, centre, swap, tween } from '../core/core.js';
 DM.def('currency-converter', (r, c) => {
   /* each currency's flag: the ones Country select draws, and the European Union's twelve stars, drawn here the same way */
   const CC = { USD:'US', GBP:'GB', JPY:'JP', CAD:'CA', AUD:'AU' };
@@ -25,6 +25,12 @@ DM.def('currency-converter', (r, c) => {
   const sw = $('.ccx-sw', r);
   sw.onclick = () => { sw.classList.toggle('go'); const n = out; [A, B] = [B, A]; a.value = (B === 'JPY' || A === 'JPY') ? (A === 'JPY' ? Math.round(n) : n.toFixed(2)) : n.toFixed(2); a.value = String(a.value); paint(); };
   paint(260);
+  // the converter sits centred on its own, and glides up as a currency list opens under it, so the two sit centred together
+  // instead of the list running off the stage; on closing, it waits for the list to fade before it glides back to the middle
+  const box = $('.ccx', r), pops = $$('.pop', box), shown = () => pops.find(p => p.classList.contains('open'));
+  const centred = centre(c, box, () => { const p = shown(); return p ? Math.max(box.offsetHeight, p.offsetTop + p.offsetHeight) : box.offsetHeight; });
+  const mo = new MutationObserver(() => shown() ? centred() : c.later(REDUCE ? 0 : 180, centred));
+  pops.forEach(p => mo.observe(p, { attributes:true, attributeFilter:['class'] })); c.offs.push(() => mo.disconnect());
   // once in view it converts a new amount, then swaps the two currencies. Clicking, focusing or typing in it takes over
   c.run(async () => {
     await c.step(1500);

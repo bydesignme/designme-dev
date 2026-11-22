@@ -1,10 +1,8 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, REDUCE, hoverGlide, html } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, html } from '../core/core.js';
 DM.def('canvas-toolbar', (r, c) => {
   r.innerHTML = r.innerHTML.replace(/\{(play|cursor|hand|lasso|comment|fit|minus|plus|more|zoom|trash)\}/g, (m, n) => I(n === 'zoom' ? 'search' : n, n === 'play' || n === 'trash' ? 'xs' : 's'));
   const root = $('.ctb', r), cv = $('.ctb-cv', r), world = $('.ctb-world', r), wires = $('.ctb-w', r), nodes = $('.ctb-nodes', r), bar = $('.ctb-bar', r), live = $('.ctb-live', r);
-  // Clean's one hover: a highlight that glides from button to button, the bar's own and the tools' own (hoverGlide)
-  c.offs.push(hoverGlide(bar, '.ctb-b:not(.ctb-tools .ctb-b),.ctb-z'), hoverGlide($('.ctb-tools', r), '.ctb-b'));
   const runB = $('.ctb-run', r), radios = $$('.ctb-tools [role="radio"]', r), cmB = $('.ctb-cm', r), fitB = $('.ctb-fit', r), zoB = $('.ctb-zo', r), ziB = $('.ctb-zi', r), zl = $('.ctb-z', r);
   const menu = $('.ctb-menu', r), more = $('.ctb-more', r), mq = $('.ctb-mq', r), lz = $('.ctb-lz path', r), sr = $('.ctb-sr', r);
   sr.id = 'ctb-k-' + Math.random().toString(36).slice(2, 7); cv.setAttribute('aria-describedby', sr.id);
@@ -20,7 +18,7 @@ DM.def('canvas-toolbar', (r, c) => {
     { id:'d', ic:'edit', col:'var(--dm-pm)', t:'Draft reply', d:'Agent · for review', w:[624, 48], n:[0, 240] }
   ];
   const E = [['a', 'b'], ['b', 'c'], ['c', 'd']], ORDER = N.map(n => n.id);
-  nodes.innerHTML = N.map(n => `<div class="ctb-n in" data-id="${n.id}"><span class="ic" style="--dm-k:${n.col}${n.fg ? ';--dm-kf:' + n.fg : ''}">${I(n.ic, 'xs')}</span><span class="t"><b>${n.t}</b><span>${n.d}</span></span></div>`).join('');
+  nodes.innerHTML = N.map(n => `<div class="ctb-n in" data-id="${n.id}"><span class="ic" style="color:${n.fg || n.col};background:color-mix(in srgb,${n.col} 14%,transparent)">${I(n.ic, 'xs')}</span><span class="t"><b>${n.t}</b><span>${n.d}</span></span></div>`).join('');
   $$('.ctb-n', nodes).forEach((x, i) => { x.style.animationDelay = i * 90 + 'ms'; });
   const el = id => $(`.ctb-n[data-id="${id}"]`, nodes);
   const box = n => { const e = el(n.id); return { x:n.x, y:n.y, w:e.offsetWidth, h:e.offsetHeight }; };
@@ -60,7 +58,7 @@ DM.def('canvas-toolbar', (r, c) => {
   }
   function zoomAt(nz, cx, cy, anim){ nz = lim(nz); const wx = (cx - px) / z, wy = (cy - py) / z; z = nz; px = cx - wx * z; py = cy - wy * z; moved = true; apply(anim); }
   // the room the workflow has: the canvas above the toolbar
-  const room = () => ({ W:cv.clientWidth, H:cv.clientHeight - bar.offsetHeight - 24 });
+  const room = () => ({ W:cv.clientWidth, H:cv.clientHeight - bar.offsetHeight - 20 });
   const mid = () => { const { W, H } = room(); return [W / 2, H / 2]; };
   const next = d => { const s = d > 0 ? Z.find(x => x > z + 1e-3) : [...Z].reverse().find(x => x < z - 1e-3); return s === undefined ? z : s; };
   function zoomBy(d){ const nz = next(d); if (nz === z) return; zoomAt(nz, ...mid(), true); say('Zoom ' + pct()); emit('canvas-zoom', { zoom:z }); }
@@ -234,10 +232,10 @@ DM.def('canvas-toolbar', (r, c) => {
         mark(ORDER[i], 'run'); await w(i ? 700 : 450); mark(ORDER[i], 'ok');
         if (i < ORDER.length - 1){ wireEl[ORDER[i] + ORDER[i + 1]].classList.add('lit'); await w(250); }
       }
-      await w(500); setRun(false); Object.values(wireEl).forEach(p => p.classList.remove('lit')); say(`Run finished: ${ORDER.length} of ${ORDER.length} steps passed`); emit('canvas-stop', { finished:true });
+      await w(500); setRun(false); say(`Run finished: ${ORDER.length} of ${ORDER.length} steps passed`); emit('canvas-stop', { finished:true });
     });
   }
-  function stop(){ runId++; setRun(false); ORDER.forEach(x => { if (el(x).classList.contains('run')) mark(x, null); }); Object.values(wireEl).forEach(p => p.classList.remove('lit')); say('Run stopped'); emit('canvas-stop', { finished:false }); }
+  function stop(){ runId++; setRun(false); ORDER.forEach(x => { if (el(x).classList.contains('run')) mark(x, null); }); say('Run stopped'); emit('canvas-stop', { finished:false }); }
   runB.onclick = () => running ? stop() : run();
   // the view fits the workflow until someone moves it; a canvas that changes between wide and narrow fits it again
   layout(); fit(false, 1);

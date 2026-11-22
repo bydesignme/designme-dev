@@ -8,7 +8,10 @@ DM.def('number-field', (r, c) => {
     budget:{ min:.25, max:20, step:.25, v:2.5, dp:2, say:x => `$${x.toFixed(2)}` },
     time:{ min:1, max:60, step:1, v:10, dp:0, say:x => `${x} minutes` }
   };
+  const sum = $('.nmf-sum', r);
   const fix = x => +x.toFixed(4);
+  const line = () => `A run stops at ${F.steps.v} steps, $${F.budget.v.toFixed(2)} or ${F.time.v} min, whichever comes first.`;
+  sum.textContent = line();
   $$('.nmf-f', r).forEach(f => {
     const o = F[f.dataset.k], inp = $('input', f), dn = $('.nmf-dn', f), up = $('.nmf-up', f), hint = $('.nmf-hint', f), box = $('.nmf-in', f);
     const base = `${o.dp ? o.min.toFixed(o.dp) : o.min} to ${o.dp ? o.max.toFixed(o.dp) : o.max}${o.step !== 1 ? `, in steps of ${o.dp ? o.step.toFixed(o.dp) : o.step}` : ''}`;
@@ -17,7 +20,7 @@ DM.def('number-field', (r, c) => {
     hint.textContent = base;
     const paint = () => {
       inp.value = o.v.toFixed(o.dp); inp.setAttribute('aria-valuenow', o.v); inp.setAttribute('aria-valuetext', o.say(o.v));
-      dn.disabled = o.v <= o.min; up.disabled = o.v >= o.max;
+      dn.disabled = o.v <= o.min; up.disabled = o.v >= o.max; sum.textContent = line();
     };
     inp.setAttribute('aria-valuemin', o.min); inp.setAttribute('aria-valuemax', o.max);
     // a change from the buttons or the keys: one step, or ten with Shift or Page Up/Down; it stops at the ends and says so

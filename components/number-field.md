@@ -38,7 +38,7 @@ A field for a number you can type or step. Minus and plus sit at the ends of the
 - Minus is disabled at `min` and plus at `max`. Pressing and holding either one steps at once, then repeats, faster as you hold.
 - What you type is checked as you go (anything but digits and a point marks the field in red) and kept on Enter or when you leave: rounded to the step and kept inside the range. Escape puts back the value before.
 - The hint shows the range ("5 to 100, in steps of 5") or, after a value was changed to fit, what changed. Set your own with `hint`.
-- `NumberFieldGroup` is the panel from the demo: a title, a line under it and the fields; `summary` adds a line at the foot.
+- `NumberFieldGroup` is the panel from the demo: a title, a line under it, the fields and a summary at the foot.
 
 ### Accessibility
 
@@ -77,7 +77,8 @@ export default function NumberFieldDemo() {
   });
   return (
     <div ref={ref} style={{ width: '100%' }}>
-      <NumberFieldGroup title="Run limits" description="A run stops at whichever comes first">
+      <NumberFieldGroup title="Run limits" description="For each run of the release agent"
+        summary={`A run stops at ${steps} steps, $${budget.toFixed(2)} or ${time} min, whichever comes first.`}>
         <NumberField label="Max steps" min={5} max={100} step={5} value={steps} onValueChange={setSteps} unit="steps" buttonLabels={['Fewer steps', 'More steps']} />
         <NumberField label="Budget per run" min={0.25} max={20} step={0.25} decimals={2} prefix="$" value={budget} onValueChange={setBudget}
           valueText={v => `$${v.toFixed(2)}`} buttonLabels={['Lower budget', 'Higher budget']} />
@@ -250,8 +251,7 @@ export function NumberField({ label, min = 0, max = 100, step = 1, bigStep = 10,
   );
 }
 
-/** The panel the fields sit in on designme.dev: a title, a line under it and the fields. `summary` adds a line at the foot, for
-    something the fields don't already say */
+/** The panel the fields sit in on designme.dev: a title, a line under it, the fields, and an optional summary at the foot */
 export function NumberFieldGroup({ title, description, summary, children, className }: { title?: string; description?: string; summary?: string; children: ReactNode; className?: string }) {
   return (
     <div data-dm="" className={cx('dm-nmf dm-panel', className)}>

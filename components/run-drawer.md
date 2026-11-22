@@ -40,7 +40,7 @@ Run drawer shows a workflow's run in a drawer under its canvas. Its head says th
 - Log lists the run's lines with their times and levels in colour (debug grey, info blue, warn amber, error red), an error line on a red tint (in Clean, its red level and words on the row as it is). The switch over it shows all of them, the warnings or the errors, with a count.
 - Data lists the steps that have finished; pick one to see its input and output as JSON, keys, strings and numbers each in their colour.
 - Over the drawer, the workflow's steps sit as a strip of tiles in their colours (grey in Clean), linked by grey wires: the step under way is ringed in the accent (amber while it waits or retries), done steps are ticked, and the running step shows its name. Picking a tile, a row or a step in Data picks that step everywhere.
-- Follow the run (on by default) keeps the newest row and line in view, and the running step in the middle of the strip. Turn it off to read without the view moving.
+- Follow the run (on by default) keeps the newest row and line in view, and the running step in the middle of the strip. Turn it off to read without the view moving. On, it sits on a quiet grey fill (a step stronger than a hover in Clean).
 - The fold button folds the drawer down to its head and opens it again. The drawer's top edge drags it taller or shorter, and the arrow keys do the same on it.
 - On designme.dev a test run plays at the pace of a real one: the company lookup is rate limited once, tries again, and the run waits for an approval. In React, pass the run as `spans`, `log` and `steps`, with `time` and `state`, and handle `onApprove`, `onStop` and `onRunAgain`; set `canvas` to put your own canvas over the drawer, or `null` for the drawer on its own.
 

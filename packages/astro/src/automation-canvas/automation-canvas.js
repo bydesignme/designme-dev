@@ -52,7 +52,7 @@ DM.def('automation-canvas', (r, c) => {
   // the summary under both, so no wire runs behind a step)
   const NARROWAT = { t:['c', .07], a:['l', .33], b:['r', .33], c:['c', .66] };
   const pos = (n, W, w) => (narrow() ? n.um : n.uw) || (n.add ? null : narrow() ? { x:({ l:6 + w / 2, r:W - 6 - w / 2, c:W / 2 })[NARROWAT[n.id][0]] / W, y:band(NARROWAT[n.id][1]) } : wide(n, W, w));
-  const nodeHTML = n => `<button class="acx-n${n.kind ? ' sm' : ''}" data-id="${n.id}"><span class="ic acx-k" style="--dm-k:${n.col}${n.fg ? ';--dm-kf:' + n.fg : ''}">${I(n.ic,'xs')}</span><span class="t"><b>${n.t}</b><span class="d">${n.d}</span></span></button>`;
+  const nodeHTML = n => `<button class="acx-n${n.kind ? ' sm' : ''}" data-id="${n.id}"><span class="ic" style="color:${n.fg || n.col};background:color-mix(in srgb,${n.col} 14%,transparent)">${I(n.ic,'xs')}</span><span class="t"><b>${n.t}</b><span class="d">${n.d}</span></span></button>`;
   nodes.innerHTML = N.map(nodeHTML).join('');
   const el = id => $(`.acx-n[data-id="${id}"]`, nodes);
   const byId = id => N.find(n => n.id === id);
@@ -86,7 +86,7 @@ DM.def('automation-canvas', (r, c) => {
   function zoomReset(){ zoomAt(1, cv.clientWidth / 2, cv.clientHeight / 2, true); say('Zoom 100%'); }
   // fit: every step and its + in view, centred in the band between the name and Test run, never past 100%
   function fit(){
-    const W = cv.clientWidth, { T, B } = safe(), H = cv.clientHeight - T - B, P = 16, bs = $$('.acx-n, .acx-h, .acx-sc', nodes).filter(b => b.dataset.on !== '0').map(box);
+    const W = cv.clientWidth, { T, B } = safe(), H = cv.clientHeight - T - B, P = 24, bs = $$('.acx-n, .acx-h, .acx-sc', nodes).filter(b => b.dataset.on !== '0').map(box);
     if (!bs.length) return;
     const x0 = Math.min(...bs.map(b => b.l)), y0 = Math.min(...bs.map(b => b.t)), x1 = Math.max(...bs.map(b => b.r)), y1 = Math.max(...bs.map(b => b.b));
     z = lim(Math.min((W - 2 * P) / (x1 - x0), (H - 2 * P) / (y1 - y0), 1));
@@ -124,9 +124,7 @@ DM.def('automation-canvas', (r, c) => {
   function subAt(n, kind){
     const B = box(el(n.id)), cx = B.l + B.w / 2, g = narrow() ? 24 : 8, kinds = n.sub || [];
     const wOf = k => (knobs[n.id + ':' + k] || {}).offsetWidth || 64;
-    // on a narrow canvas two connectors that fit under the step line up with its edges, its left and its right
-    const flush = narrow() && kinds.length === 2 && wOf(kinds[0]) + wOf(kinds[1]) + 8 <= B.w;
-    const one = kinds.length < 2, l = one ? cx - wOf(kind) / 2 : flush ? (kind === kinds[0] ? B.l : B.r - wOf(kind)) : kind === kinds[0] ? cx - g / 2 - wOf(kind) : cx + g / 2;
+    const one = kinds.length < 2, l = one ? cx - wOf(kind) / 2 : kind === kinds[0] ? cx - g / 2 - wOf(kind) : cx + g / 2;
     return { l, t:B.b + 10, w:wOf(kind), h:24 };
   }
   function placeKnobs(){
@@ -194,9 +192,7 @@ DM.def('automation-canvas', (r, c) => {
     let best = null, bs = Infinity, soft = null, ss = Infinity;
     // room to spare first; on a crowded canvas, just clear of the rest
     for (const G of [14, 4]){ if (best) break;
-    const xs = [], ys = []; for (let x = M; x + w <= W - M; x += 8) xs.push(x); for (let y = M; y + h <= H - M; y += 8) ys.push(y);
-    const ex = Math.round(want[0] - w / 2), ey = Math.round(want[1] - h / 2); if (ex >= M && ex + w <= W - M) xs.push(ex); if (ey >= M && ey + h <= H - M) ys.push(ey);
-    for (const y of ys) for (const x of xs){
+    for (let y = M; y + h <= H - M; y += 8) for (let x = M; x + w <= W - M; x += 8){
       const B = { l:x, t:y, r:x + w, b:y + h, w, h };
       if (!n.kind && (narrow() ? B.b + 34 > H - 4 : B.r + 34 > W - 4)) continue;
       let sc = Math.hypot(x + w / 2 - want[0], y + h / 2 - want[1]);
@@ -305,7 +301,7 @@ DM.def('automation-canvas', (r, c) => {
     const groups = CAT.filter(g => OFFER[kind].includes(g.id)).map(g => ({ g, items:g.items.filter(it => !q || it.t.toLowerCase().includes(q) || it.desc.toLowerCase().includes(q)) })).filter(x => x.items.length);
     const mark = t => { const i = q ? t.toLowerCase().indexOf(q) : -1; return i < 0 ? esc(t) : esc(t.slice(0, i)) + '<mark>' + esc(t.slice(i, i + q.length)) + '</mark>' + esc(t.slice(i + q.length)); };
     let k = 0;
-    ls.innerHTML = groups.length ? groups.map(({ g, items }) => `<div role="group" aria-labelledby="acx-g-${g.id}-${uid}"><div class="acx-gh" id="acx-g-${g.id}-${uid}">${g.label}</div>${items.map(it => { const i = k++; return `<div class="acx-o" role="option" aria-selected="false" id="acx-o-${uid}-${i}" aria-describedby="acx-od-${uid}-${i}" data-g="${g.id}" data-t="${esc(it.t)}"><span class="ic acx-k" style="--dm-k:${g.col}">${I(it.ic,'xs')}</span><span>${mark(it.t)}</span><span id="acx-od-${uid}-${i}" hidden>${esc(it.desc)}</span></div>`; }).join('')}</div>`).join('')
+    ls.innerHTML = groups.length ? groups.map(({ g, items }) => `<div role="group" aria-labelledby="acx-g-${g.id}-${uid}"><div class="acx-gh" id="acx-g-${g.id}-${uid}">${g.label}</div>${items.map(it => { const i = k++; return `<div class="acx-o" role="option" aria-selected="false" id="acx-o-${uid}-${i}" aria-describedby="acx-od-${uid}-${i}" data-g="${g.id}" data-t="${esc(it.t)}"><span class="ic" style="color:${g.col};background:color-mix(in srgb,${g.col} 14%,transparent)">${I(it.ic,'xs')}</span><span>${mark(it.t)}</span><span id="acx-od-${uid}-${i}" hidden>${esc(it.desc)}</span></div>`; }).join('')}</div>`).join('')
       : `<p class="acx-pe">No steps match “${esc(qi.value.trim())}”</p>`;
     opts = $$('.acx-o', ls);
     opts.forEach((o, i) => { o.onpointermove = () => { if (act !== i) hl(i, false); }; o.onclick = e => { e.stopPropagation(); add(o, e.isTrusted); }; });
@@ -468,7 +464,7 @@ DM.def('automation-canvas', (r, c) => {
   // a step's badge pops in once (CSS), and after that its spinner turns into a check with a short crossfade
   const ease = getComputedStyle(r).getPropertyValue('--dm-ease').trim() || 'ease';
   const mark = (id, s) => { const b = el(id); b.classList.toggle('run', s === 'run'); const x = $('.s', b) || b.appendChild(html('<span class="s"></span>'));
-    x.innerHTML = `<span class="acx-sv">${s === 'run' ? '<span class="spin" style="width:10px;height:10px"></span>' : `<span class="ok">${I('check','xs')}</span>`}</span>`; };
+    x.innerHTML = `<span class="acx-sv">${s === 'run' ? '<span class="spin" style="width:10px;height:10px"></span>' : `<span style="color:var(--dm-ok);display:grid">${I('check','xs')}</span>`}</span>`; };
   // a run passes along a wire as one soft light, then leaves the wire lit
   const flow = (a, b) => { const p = wireEl[key(a, b)]; if (!p) return; p.classList.add('done'); if (REDUCE) return;
     const L = p.getTotalLength(), len = Math.min(64, L * .4), q = p.cloneNode(); q.removeAttribute('data-e'); q.setAttribute('class', 'pulse'); q.style.cssText = `stroke-dasharray:${len} ${L + len}`; svg.appendChild(q);
@@ -483,7 +479,7 @@ DM.def('automation-canvas', (r, c) => {
     try {
       // the last run's badges and lit wires fade back before the new run starts
       close(); closePk(); $$('.acx-n .s', nodes).forEach(x => { if (REDUCE) return x.remove(); x.animate([{ opacity:1 }, { opacity:0, transform:'scale(.7)' }], { duration:200, easing:ease }).onfinish = () => x.remove(); });
-      $$('.acx-n.run', nodes).forEach(x => x.classList.remove('run')); $$('path.done', svg).forEach(x => x.classList.remove('done')); st.classList.add('shim'); swap(st, 'Running test');
+      $$('.acx-n.run', nodes).forEach(x => x.classList.remove('run')); $$('path.done', svg).forEach(x => x.classList.remove('done')); swap(st, 'Running test');
       const subs = E.filter(e => e[0] === 'b' && e[2]).map(e => e[1]);
       await wait(220); mark('t', 'run'); await wait(600); mark('t', 'ok');
       flow('t','a'); flow('t','b'); await wait(620);
@@ -492,9 +488,8 @@ DM.def('automation-canvas', (r, c) => {
       mark('c', 'run'); await wait(700); mark('c', 'ok');
       let at = 'c', s = 3.4, nx;
       while ((nx = E.find(e => e[0] === at && !e[2]))){ flow(at, nx[1]); await wait(620); mark(nx[1], 'run'); await wait(700); mark(nx[1], 'ok'); at = nx[1]; s += 1.3; }
-      st.classList.remove('shim'); swap(st, `Test passed in ${s.toFixed(1)}s`);
-      $$('path.done', svg).forEach(x => x.classList.remove('done'));
-    } finally { if (id === runId){ running = false; st.classList.remove('shim'); } }
+      swap(st, `Test passed in ${s.toFixed(1)}s`);
+    } finally { if (id === runId) running = false; }
   });
   svg.classList.add('intro'); c.later(1300, () => svg.classList.remove('intro'));
   // a canvas that switches between wide and stacked lays its steps out afresh, and the view goes back to showing it whole

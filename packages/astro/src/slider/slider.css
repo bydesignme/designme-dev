@@ -1,7 +1,7 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Slider ---------- */
-/* three sliders on one grey track style: a knob you drag or move with the keys, the value beside the slider's name as it
-   moves, and the part of the track it covers in the accent's mark colour */
+/* three sliders on one grey track style: a knob you drag or move with the keys, the value over it while it moves, and the
+   part of the track it covers in the accent */
 .sdx{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-4)}
 .sdx-b{display:flex;flex-direction:column;gap:var(--dm-s-1)}
 .sdx-b+.sdx-b{padding-top:var(--dm-s-4);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
@@ -13,8 +13,7 @@
 /* the knob: a white squircle you drag (owner, 5 Nov), white in dark mode too, on a hairline and a soft shadow; square in Blueprint.
    It is playful in the hand (owner, 5 Nov): grabbed, it springs up and lifts; dragged, it leans into the way it moves and
    rights itself when you stop; let go, it bounces back down; and it gives a little hop when it snaps to the agent's mark.
-   The body (.sdx-kb) moves, so the knob's box (and its focus ring) stays put. A press never shows the focus ring (.ptr); keys
-   do. Clean keeps it calm (below) */
+   The body (.sdx-kb) moves, so the value above it stays upright. A press never shows the focus ring (.ptr); keys do */
 .sdx-k{position:absolute;top:50%;left:0;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));cursor:grab;z-index:2}
 .sdx-kb{position:absolute;inset:0;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));corner-shape:squircle;background:#fff;box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 70%,transparent),0 1px 2px rgba(0,0,0,.12),0 2px 6px rgba(0,0,0,.08);transform:rotate(var(--dm-tilt,0deg)) scale(var(--dm-ks,1));transition:transform .5s cubic-bezier(.34,1.56,.64,1),box-shadow .25s var(--dm-ease)}
 .sdx-tr.drag .sdx-k.on .sdx-kb{--dm-ks:1.2;box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 70%,transparent),0 4px 8px rgba(0,0,0,.12),0 10px 22px rgba(0,0,0,.14);transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .2s var(--dm-ease)}
@@ -27,6 +26,10 @@
 .sdx-tr.glide .sdx-k{transition:left .45s cubic-bezier(.34,1.3,.64,1)}
 .sdx-tr.glide .sdx-fill{transition:left .45s var(--dm-ease),width .45s var(--dm-ease)}
 .sdx-tr.drag .sdx-k.on{cursor:grabbing}
+.sdx-tt{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%) translateY(4px) scale(.7);transform-origin:50% 100%;padding:3px var(--dm-s-2);border-radius:var(--dm-r-pill);background:var(--dm-ink);color:var(--dm-on-ink);font-size:11px;white-space:nowrap;opacity:0;transition:opacity .15s,transform .35s cubic-bezier(.34,1.56,.64,1);pointer-events:none}
+.sdx-k.on.say .sdx-tt,.sdx-tr.drag .sdx-k.on .sdx-tt{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+@media (hover:hover) and (pointer:fine){.sdx-k:hover .sdx-tt{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
+.sdx-tr.drag .sdx-k.on .sdx-tt{transform:translateX(-50%) translateY(-4px) scale(1)}
 /* the value the agent recommends: a mark over the track that you can press, and a notch in it; a knob dropped near it snaps to it */
 .sdx-rec{position:absolute;top:-17px;width:20px;height:20px;margin-left:-10px;display:grid;place-items:center;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));color:var(--dm-accent-fg,var(--dm-accent));z-index:1;transition:background var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.sdx-rec:hover{background:var(--dm-accent-bg)}}
@@ -37,9 +40,7 @@
 .sdx-stops button{height:24px;padding:0 6px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));font-size:12px;color:var(--dm-muted);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.sdx-stops button:hover{background:var(--dm-row);color:var(--dm-fg)}}
 .sdx-stops button[aria-pressed="true"]{color:var(--dm-fg)}
-/* the sample line: the panel grows and shrinks with it (grow()), keeping no room for a longer one */
-.sdx-sm{margin:var(--dm-s-1) 0 0;font-size:13px;line-height:1.5;color:var(--dm-fg2)}
-.sdx.growing{overflow-clip-margin:24px}
+.sdx-sm{margin:var(--dm-s-1) 0 0;min-height:calc(2 * 1.5em);font-size:13px;line-height:1.5;color:var(--dm-fg2)}
 .sdx-ticks{position:relative;height:28px;margin:-6px 10px 0}
 .sdx-ticks button{position:absolute;top:0;display:flex;flex-direction:column;align-items:center;gap:3px;width:32px;margin-left:-16px;padding-top:2px;font-size:11.5px;color:var(--dm-muted);border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));transition:color var(--dm-t-fast)}
 .sdx-ticks button i{width:1px;height:5px;background:var(--dm-faint)}
@@ -48,30 +49,4 @@
 .sdx-ticks button[aria-pressed="true"] i{background:var(--dm-fg2)}
 .sdx-ends{display:flex;justify-content:space-between;font-size:11.5px;margin-top:-2px}
 /* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-/* Clean: the content 16px in from every edge (the panel's own padding); the track has the soft inner shadow of Clean's tracks
-   under its fill; the white knob moves calmly, without the springs: a glide eases at the style's pace, and a grabbed knob lifts on
-   its shadow without growing */
-:root[data-style="clean"] .sdx-rail,:root [data-style="clean"] .sdx-rail,:root [data-style="clean"].sdx-rail{box-shadow:var(--dm-track-ring)}
-:root[data-style="clean"] .sdx-kb,:root [data-style="clean"] .sdx-kb,:root [data-style="clean"].sdx-kb{transition:transform var(--dm-t) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
-:root[data-style="clean"] .sdx-tr.drag .sdx-k.on .sdx-kb,:root [data-style="clean"] .sdx-tr.drag .sdx-k.on .sdx-kb,:root [data-style="clean"].sdx-tr.drag .sdx-k.on .sdx-kb{--dm-ks:1;transition:transform var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
-:root[data-style="clean"] .sdx-tr.glide .sdx-k,:root [data-style="clean"] .sdx-tr.glide .sdx-k,:root [data-style="clean"].sdx-tr.glide .sdx-k{transition:left var(--dm-t) var(--dm-ease)}
-:root[data-style="clean"] .sdx-tr.glide .sdx-fill,:root [data-style="clean"] .sdx-tr.glide .sdx-fill,:root [data-style="clean"].sdx-tr.glide .sdx-fill{transition:left var(--dm-t) var(--dm-ease),width var(--dm-t) var(--dm-ease)}
-/* Clean (owner, 21 Nov: "it looks like soft with rounded corners"). The track is a pill sunk into the card: its inner shadow
-   lies over the fill too, so the fill reads as set into the track, not laid on it. The fill is the accent in light and white in
-   dark (Clean's accent). The knob is Clean's monochrome knob, the one its switchers and toggles have: a circle in --dm-knob with a
-   crisp hairline and a 1px shadow. A drag glides: the knob and the fill trail the pointer by a short ease instead of jumping
-   with it. The agent's ✦ is muted, and its notch is a 1px muted tick across the sunk track at its value, instead of a white
-   cut through the fill. The stops and the ticks are pills with Clean's one hover fill */
-:root[data-style="clean"] .sdx-rail,:root [data-style="clean"] .sdx-rail,:root [data-style="clean"].sdx-rail{height:6px;margin-top:-3px;border-radius:var(--dm-r-pill);background:var(--dm-soft);box-shadow:none}
-:root[data-style="clean"] .sdx-rail::after,:root [data-style="clean"] .sdx-rail::after,:root [data-style="clean"].sdx-rail::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:var(--dm-track-ring);pointer-events:none}
-:root[data-style="clean"] .sdx-notch,:root [data-style="clean"] .sdx-notch,:root [data-style="clean"].sdx-notch{width:1px;margin-left:-.5px;background:var(--dm-muted)}
-:root[data-style="clean"] :is(.sdx-k,.sdx-kb),:root [data-style="clean"] :is(.sdx-k,.sdx-kb),:root [data-style="clean"]:is(.sdx-k,.sdx-kb){border-radius:50%}
-:root[data-style="clean"] .sdx-k,:root [data-style="clean"] .sdx-k,:root [data-style="clean"].sdx-k{width:18px;height:18px;margin:-9px 0 0 -9px}
-:root[data-style="clean"] .sdx-kb,:root [data-style="clean"] .sdx-kb,:root [data-style="clean"].sdx-kb{background:var(--dm-knob);box-shadow:var(--dm-knob-shadow),0 2px 6px -2px rgba(0,0,0,.16)}
-:root[data-style="clean"] .sdx-tr.drag .sdx-k.on .sdx-kb,:root [data-style="clean"] .sdx-tr.drag .sdx-k.on .sdx-kb,:root [data-style="clean"].sdx-tr.drag .sdx-k.on .sdx-kb{box-shadow:var(--dm-knob-shadow),0 4px 12px -4px rgba(0,0,0,.24)}
-:root[data-style="clean"] .sdx-tr.drag .sdx-k,:root [data-style="clean"] .sdx-tr.drag .sdx-k,:root [data-style="clean"].sdx-tr.drag .sdx-k{transition:left 120ms var(--dm-ease)}
-:root[data-style="clean"] .sdx-tr.drag .sdx-fill,:root [data-style="clean"] .sdx-tr.drag .sdx-fill,:root [data-style="clean"].sdx-tr.drag .sdx-fill{transition:left 120ms var(--dm-ease),width 120ms var(--dm-ease)}
-:root[data-style="clean"] .sdx-rec,:root [data-style="clean"] .sdx-rec,:root [data-style="clean"].sdx-rec{color:var(--dm-muted);border-radius:50%;transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .sdx-rec:hover,:root [data-style="clean"] .sdx-rec:hover,:root [data-style="clean"].sdx-rec:hover{background:var(--dm-row);color:var(--dm-fg)}}
-:root[data-style="clean"] :is(.sdx-stops,.sdx-ticks) button,:root [data-style="clean"] :is(.sdx-stops,.sdx-ticks) button,:root [data-style="clean"]:is(.sdx-stops,.sdx-ticks) button{border-radius:var(--dm-r-pill);transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .sdx-ticks button:hover,:root [data-style="clean"] .sdx-ticks button:hover,:root [data-style="clean"].sdx-ticks button:hover{background:var(--dm-row)}}
+:root[data-style="clean"] .sdx.panel,:root [data-style="clean"] .sdx.panel,:root [data-style="clean"].sdx.panel{padding:19px 26px 18px 26px}

@@ -554,7 +554,7 @@ DM.def('automation-canvas', (r, c) => {
   // the summary under both, so no wire runs behind a step)
   const NARROWAT = { t:['c', .07], a:['l', .33], b:['r', .33], c:['c', .66] };
   const pos = (n, W, w) => (narrow() ? n.um : n.uw) || (n.add ? null : narrow() ? { x:({ l:6 + w / 2, r:W - 6 - w / 2, c:W / 2 })[NARROWAT[n.id][0]] / W, y:band(NARROWAT[n.id][1]) } : wide(n, W, w));
-  const nodeHTML = n => `<button class="acx-n${n.kind ? ' sm' : ''}" data-id="${n.id}"><span class="ic acx-k" style="--k:${n.col}${n.fg ? ';--kf:' + n.fg : ''}">${I(n.ic,'xs')}</span><span class="t"><b>${n.t}</b><span class="d">${n.d}</span></span></button>`;
+  const nodeHTML = n => `<button class="acx-n${n.kind ? ' sm' : ''}" data-id="${n.id}"><span class="ic" style="color:${n.fg || n.col};background:color-mix(in srgb,${n.col} 14%,transparent)">${I(n.ic,'xs')}</span><span class="t"><b>${n.t}</b><span class="d">${n.d}</span></span></button>`;
   nodes.innerHTML = N.map(nodeHTML).join('');
   const el = id => $(`.acx-n[data-id="${id}"]`, nodes);
   const byId = id => N.find(n => n.id === id);
@@ -588,7 +588,7 @@ DM.def('automation-canvas', (r, c) => {
   function zoomReset(){ zoomAt(1, cv.clientWidth / 2, cv.clientHeight / 2, true); say('Zoom 100%'); }
   // fit: every step and its + in view, centred in the band between the name and Test run, never past 100%
   function fit(){
-    const W = cv.clientWidth, { T, B } = safe(), H = cv.clientHeight - T - B, P = 16, bs = $$('.acx-n, .acx-h, .acx-sc', nodes).filter(b => b.dataset.on !== '0').map(box);
+    const W = cv.clientWidth, { T, B } = safe(), H = cv.clientHeight - T - B, P = 24, bs = $$('.acx-n, .acx-h, .acx-sc', nodes).filter(b => b.dataset.on !== '0').map(box);
     if (!bs.length) return;
     const x0 = Math.min(...bs.map(b => b.l)), y0 = Math.min(...bs.map(b => b.t)), x1 = Math.max(...bs.map(b => b.r)), y1 = Math.max(...bs.map(b => b.b));
     z = lim(Math.min((W - 2 * P) / (x1 - x0), (H - 2 * P) / (y1 - y0), 1));
@@ -626,9 +626,7 @@ DM.def('automation-canvas', (r, c) => {
   function subAt(n, kind){
     const B = box(el(n.id)), cx = B.l + B.w / 2, g = narrow() ? 24 : 8, kinds = n.sub || [];
     const wOf = k => (knobs[n.id + ':' + k] || {}).offsetWidth || 64;
-    // on a narrow canvas two connectors that fit under the step line up with its edges, its left and its right
-    const flush = narrow() && kinds.length === 2 && wOf(kinds[0]) + wOf(kinds[1]) + 8 <= B.w;
-    const one = kinds.length < 2, l = one ? cx - wOf(kind) / 2 : flush ? (kind === kinds[0] ? B.l : B.r - wOf(kind)) : kind === kinds[0] ? cx - g / 2 - wOf(kind) : cx + g / 2;
+    const one = kinds.length < 2, l = one ? cx - wOf(kind) / 2 : kind === kinds[0] ? cx - g / 2 - wOf(kind) : cx + g / 2;
     return { l, t:B.b + 10, w:wOf(kind), h:24 };
   }
   function placeKnobs(){
@@ -696,9 +694,7 @@ DM.def('automation-canvas', (r, c) => {
     let best = null, bs = Infinity, soft = null, ss = Infinity;
     // room to spare first; on a crowded canvas, just clear of the rest
     for (const G of [14, 4]){ if (best) break;
-    const xs = [], ys = []; for (let x = M; x + w <= W - M; x += 8) xs.push(x); for (let y = M; y + h <= H - M; y += 8) ys.push(y);
-    const ex = Math.round(want[0] - w / 2), ey = Math.round(want[1] - h / 2); if (ex >= M && ex + w <= W - M) xs.push(ex); if (ey >= M && ey + h <= H - M) ys.push(ey);
-    for (const y of ys) for (const x of xs){
+    for (let y = M; y + h <= H - M; y += 8) for (let x = M; x + w <= W - M; x += 8){
       const B = { l:x, t:y, r:x + w, b:y + h, w, h };
       if (!n.kind && (narrow() ? B.b + 34 > H - 4 : B.r + 34 > W - 4)) continue;
       let sc = Math.hypot(x + w / 2 - want[0], y + h / 2 - want[1]);
@@ -807,7 +803,7 @@ DM.def('automation-canvas', (r, c) => {
     const groups = CAT.filter(g => OFFER[kind].includes(g.id)).map(g => ({ g, items:g.items.filter(it => !q || it.t.toLowerCase().includes(q) || it.desc.toLowerCase().includes(q)) })).filter(x => x.items.length);
     const mark = t => { const i = q ? t.toLowerCase().indexOf(q) : -1; return i < 0 ? esc(t) : esc(t.slice(0, i)) + '<mark>' + esc(t.slice(i, i + q.length)) + '</mark>' + esc(t.slice(i + q.length)); };
     let k = 0;
-    ls.innerHTML = groups.length ? groups.map(({ g, items }) => `<div role="group" aria-labelledby="acx-g-${g.id}-${uid}"><div class="acx-gh" id="acx-g-${g.id}-${uid}">${g.label}</div>${items.map(it => { const i = k++; return `<div class="acx-o" role="option" aria-selected="false" id="acx-o-${uid}-${i}" aria-describedby="acx-od-${uid}-${i}" data-g="${g.id}" data-t="${esc(it.t)}"><span class="ic acx-k" style="--k:${g.col}">${I(it.ic,'xs')}</span><span>${mark(it.t)}</span><span id="acx-od-${uid}-${i}" hidden>${esc(it.desc)}</span></div>`; }).join('')}</div>`).join('')
+    ls.innerHTML = groups.length ? groups.map(({ g, items }) => `<div role="group" aria-labelledby="acx-g-${g.id}-${uid}"><div class="acx-gh" id="acx-g-${g.id}-${uid}">${g.label}</div>${items.map(it => { const i = k++; return `<div class="acx-o" role="option" aria-selected="false" id="acx-o-${uid}-${i}" aria-describedby="acx-od-${uid}-${i}" data-g="${g.id}" data-t="${esc(it.t)}"><span class="ic" style="color:${g.col};background:color-mix(in srgb,${g.col} 14%,transparent)">${I(it.ic,'xs')}</span><span>${mark(it.t)}</span><span id="acx-od-${uid}-${i}" hidden>${esc(it.desc)}</span></div>`; }).join('')}</div>`).join('')
       : `<p class="acx-pe">No steps match “${esc(qi.value.trim())}”</p>`;
     opts = $$('.acx-o', ls);
     opts.forEach((o, i) => { o.onpointermove = () => { if (act !== i) hl(i, false); }; o.onclick = e => { e.stopPropagation(); add(o, e.isTrusted); }; });
@@ -970,7 +966,7 @@ DM.def('automation-canvas', (r, c) => {
   // a step's badge pops in once (CSS), and after that its spinner turns into a check with a short crossfade
   const ease = getComputedStyle(r).getPropertyValue('--ease').trim() || 'ease';
   const mark = (id, s) => { const b = el(id); b.classList.toggle('run', s === 'run'); const x = $('.s', b) || b.appendChild(html('<span class="s"></span>'));
-    x.innerHTML = `<span class="acx-sv">${s === 'run' ? '<span class="spin" style="width:10px;height:10px"></span>' : `<span class="ok">${I('check','xs')}</span>`}</span>`; };
+    x.innerHTML = `<span class="acx-sv">${s === 'run' ? '<span class="spin" style="width:10px;height:10px"></span>' : `<span style="color:var(--ok);display:grid">${I('check','xs')}</span>`}</span>`; };
   // a run passes along a wire as one soft light, then leaves the wire lit
   const flow = (a, b) => { const p = wireEl[key(a, b)]; if (!p) return; p.classList.add('done'); if (REDUCE) return;
     const L = p.getTotalLength(), len = Math.min(64, L * .4), q = p.cloneNode(); q.removeAttribute('data-e'); q.setAttribute('class', 'pulse'); q.style.cssText = `stroke-dasharray:${len} ${L + len}`; svg.appendChild(q);
@@ -985,7 +981,7 @@ DM.def('automation-canvas', (r, c) => {
     try {
       // the last run's badges and lit wires fade back before the new run starts
       close(); closePk(); $$('.acx-n .s', nodes).forEach(x => { if (REDUCE) return x.remove(); x.animate([{ opacity:1 }, { opacity:0, transform:'scale(.7)' }], { duration:200, easing:ease }).onfinish = () => x.remove(); });
-      $$('.acx-n.run', nodes).forEach(x => x.classList.remove('run')); $$('path.done', svg).forEach(x => x.classList.remove('done')); st.classList.add('shim'); swap(st, 'Running test');
+      $$('.acx-n.run', nodes).forEach(x => x.classList.remove('run')); $$('path.done', svg).forEach(x => x.classList.remove('done')); swap(st, 'Running test');
       const subs = E.filter(e => e[0] === 'b' && e[2]).map(e => e[1]);
       await wait(220); mark('t', 'run'); await wait(600); mark('t', 'ok');
       flow('t','a'); flow('t','b'); await wait(620);
@@ -994,9 +990,8 @@ DM.def('automation-canvas', (r, c) => {
       mark('c', 'run'); await wait(700); mark('c', 'ok');
       let at = 'c', s = 3.4, nx;
       while ((nx = E.find(e => e[0] === at && !e[2]))){ flow(at, nx[1]); await wait(620); mark(nx[1], 'run'); await wait(700); mark(nx[1], 'ok'); at = nx[1]; s += 1.3; }
-      st.classList.remove('shim'); swap(st, `Test passed in ${s.toFixed(1)}s`);
-      $$('path.done', svg).forEach(x => x.classList.remove('done'));
-    } finally { if (id === runId){ running = false; st.classList.remove('shim'); } }
+      swap(st, `Test passed in ${s.toFixed(1)}s`);
+    } finally { if (id === runId) running = false; }
   });
   svg.classList.add('intro'); c.later(1300, () => svg.classList.remove('intro'));
   // a canvas that switches between wide and stacked lays its steps out afresh, and the view goes back to showing it whole
@@ -1022,8 +1017,6 @@ DM.def('automation-canvas', (r, c) => {
 DM.def('canvas-toolbar', (r, c) => {
   r.innerHTML = r.innerHTML.replace(/\{(play|cursor|hand|lasso|comment|fit|minus|plus|more|zoom|trash)\}/g, (m, n) => I(n === 'zoom' ? 'search' : n, n === 'play' || n === 'trash' ? 'xs' : 's'));
   const root = $('.ctb', r), cv = $('.ctb-cv', r), world = $('.ctb-world', r), wires = $('.ctb-w', r), nodes = $('.ctb-nodes', r), bar = $('.ctb-bar', r), live = $('.ctb-live', r);
-  // Clean's one hover: a highlight that glides from button to button, the bar's own and the tools' own (hoverGlide)
-  c.offs.push(hoverGlide(bar, '.ctb-b:not(.ctb-tools .ctb-b),.ctb-z'), hoverGlide($('.ctb-tools', r), '.ctb-b'));
   const runB = $('.ctb-run', r), radios = $$('.ctb-tools [role="radio"]', r), cmB = $('.ctb-cm', r), fitB = $('.ctb-fit', r), zoB = $('.ctb-zo', r), ziB = $('.ctb-zi', r), zl = $('.ctb-z', r);
   const menu = $('.ctb-menu', r), more = $('.ctb-more', r), mq = $('.ctb-mq', r), lz = $('.ctb-lz path', r), sr = $('.ctb-sr', r);
   sr.id = 'ctb-k-' + Math.random().toString(36).slice(2, 7); cv.setAttribute('aria-describedby', sr.id);
@@ -1039,7 +1032,7 @@ DM.def('canvas-toolbar', (r, c) => {
     { id:'d', ic:'edit', col:'var(--pm)', t:'Draft reply', d:'Agent · for review', w:[624, 48], n:[0, 240] }
   ];
   const E = [['a', 'b'], ['b', 'c'], ['c', 'd']], ORDER = N.map(n => n.id);
-  nodes.innerHTML = N.map(n => `<div class="ctb-n in" data-id="${n.id}"><span class="ic" style="--k:${n.col}${n.fg ? ';--kf:' + n.fg : ''}">${I(n.ic, 'xs')}</span><span class="t"><b>${n.t}</b><span>${n.d}</span></span></div>`).join('');
+  nodes.innerHTML = N.map(n => `<div class="ctb-n in" data-id="${n.id}"><span class="ic" style="color:${n.fg || n.col};background:color-mix(in srgb,${n.col} 14%,transparent)">${I(n.ic, 'xs')}</span><span class="t"><b>${n.t}</b><span>${n.d}</span></span></div>`).join('');
   $$('.ctb-n', nodes).forEach((x, i) => { x.style.animationDelay = i * 90 + 'ms'; });
   const el = id => $(`.ctb-n[data-id="${id}"]`, nodes);
   const box = n => { const e = el(n.id); return { x:n.x, y:n.y, w:e.offsetWidth, h:e.offsetHeight }; };
@@ -1079,7 +1072,7 @@ DM.def('canvas-toolbar', (r, c) => {
   }
   function zoomAt(nz, cx, cy, anim){ nz = lim(nz); const wx = (cx - px) / z, wy = (cy - py) / z; z = nz; px = cx - wx * z; py = cy - wy * z; moved = true; apply(anim); }
   // the room the workflow has: the canvas above the toolbar
-  const room = () => ({ W:cv.clientWidth, H:cv.clientHeight - bar.offsetHeight - 24 });
+  const room = () => ({ W:cv.clientWidth, H:cv.clientHeight - bar.offsetHeight - 20 });
   const mid = () => { const { W, H } = room(); return [W / 2, H / 2]; };
   const next = d => { const s = d > 0 ? Z.find(x => x > z + 1e-3) : [...Z].reverse().find(x => x < z - 1e-3); return s === undefined ? z : s; };
   function zoomBy(d){ const nz = next(d); if (nz === z) return; zoomAt(nz, ...mid(), true); say('Zoom ' + pct()); emit('canvas-zoom', { zoom:z }); }
@@ -1253,10 +1246,10 @@ DM.def('canvas-toolbar', (r, c) => {
         mark(ORDER[i], 'run'); await w(i ? 700 : 450); mark(ORDER[i], 'ok');
         if (i < ORDER.length - 1){ wireEl[ORDER[i] + ORDER[i + 1]].classList.add('lit'); await w(250); }
       }
-      await w(500); setRun(false); Object.values(wireEl).forEach(p => p.classList.remove('lit')); say(`Run finished: ${ORDER.length} of ${ORDER.length} steps passed`); emit('canvas-stop', { finished:true });
+      await w(500); setRun(false); say(`Run finished: ${ORDER.length} of ${ORDER.length} steps passed`); emit('canvas-stop', { finished:true });
     });
   }
-  function stop(){ runId++; setRun(false); ORDER.forEach(x => { if (el(x).classList.contains('run')) mark(x, null); }); Object.values(wireEl).forEach(p => p.classList.remove('lit')); say('Run stopped'); emit('canvas-stop', { finished:false }); }
+  function stop(){ runId++; setRun(false); ORDER.forEach(x => { if (el(x).classList.contains('run')) mark(x, null); }); say('Run stopped'); emit('canvas-stop', { finished:false }); }
   runB.onclick = () => running ? stop() : run();
   // the view fits the workflow until someone moves it; a canvas that changes between wide and narrow fits it again
   layout(); fit(false, 1);
@@ -1311,7 +1304,7 @@ DM.def('data-picker', (r, c) => {
   const say = t => { live.textContent = ''; c.later(40, () => { live.textContent = t; }); };
   const of = ref => { const [s, f] = ref.split('.'); return { st:S.find(x => x.id === s), f }; };
   const tokHTML = ref => { const { st, f } = of(ref);
-    return `<span class="fpk-tok" data-ref="${ref}"><span class="fpk-ti" data-k="${st.k}" aria-hidden="true">${I(st.ic, 'xs')}</span><span class="s">${st.t}</span><span class="sep" aria-hidden="true">›</span><span class="f">${f}</span><button class="fpk-x" aria-label="Remove ${f} from ${st.t}" data-tip="Remove">${I('x', 'xs')}</button></span>`; };
+    return `<span class="fpk-tok" data-ref="${ref}" data-k="${st.k}"><span class="fpk-ti" data-k="${st.k}" aria-hidden="true">${I(st.ic, 'xs')}</span><span class="s">${st.t}</span><span class="sep" aria-hidden="true">›</span><span class="f">${f}</span><button class="fpk-x" aria-label="Remove ${f} from ${st.t}" data-tip="Remove">${I('x', 'xs')}</button></span>`; };
   const addB = k => `<button class="fpk-add" data-f="${k}" data-pop=".fpk-pop" data-pop-pos="down" data-pop-align="end" aria-haspopup="dialog" aria-expanded="false" aria-label="Insert data into ${F[k].l}" data-tip="Insert data">${I('plus', 's')}</button>`;
   const paintField = k => { $(`.fpk-f[data-f="${k}"] .fpk-box`, r).innerHTML = '<span class="fpk-toks">' + (F[k].v.length ? F[k].v.map(tokHTML).join('') : '<span class="fpk-ph">Pick data from an earlier step</span>') + '</span>' + addB(k); };
   Object.keys(F).forEach(paintField);

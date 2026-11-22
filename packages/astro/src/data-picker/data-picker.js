@@ -19,7 +19,7 @@ DM.def('data-picker', (r, c) => {
   const say = t => { live.textContent = ''; c.later(40, () => { live.textContent = t; }); };
   const of = ref => { const [s, f] = ref.split('.'); return { st:S.find(x => x.id === s), f }; };
   const tokHTML = ref => { const { st, f } = of(ref);
-    return `<span class="fpk-tok" data-ref="${ref}"><span class="fpk-ti" data-k="${st.k}" aria-hidden="true">${I(st.ic, 'xs')}</span><span class="s">${st.t}</span><span class="sep" aria-hidden="true">›</span><span class="f">${f}</span><button class="fpk-x" aria-label="Remove ${f} from ${st.t}" data-tip="Remove">${I('x', 'xs')}</button></span>`; };
+    return `<span class="fpk-tok" data-ref="${ref}" data-k="${st.k}"><span class="fpk-ti" data-k="${st.k}" aria-hidden="true">${I(st.ic, 'xs')}</span><span class="s">${st.t}</span><span class="sep" aria-hidden="true">›</span><span class="f">${f}</span><button class="fpk-x" aria-label="Remove ${f} from ${st.t}" data-tip="Remove">${I('x', 'xs')}</button></span>`; };
   const addB = k => `<button class="fpk-add" data-f="${k}" data-pop=".fpk-pop" data-pop-pos="down" data-pop-align="end" aria-haspopup="dialog" aria-expanded="false" aria-label="Insert data into ${F[k].l}" data-tip="Insert data">${I('plus', 's')}</button>`;
   const paintField = k => { $(`.fpk-f[data-f="${k}"] .fpk-box`, r).innerHTML = '<span class="fpk-toks">' + (F[k].v.length ? F[k].v.map(tokHTML).join('') : '<span class="fpk-ph">Pick data from an earlier step</span>') + '</span>' + addB(k); };
   Object.keys(F).forEach(paintField);

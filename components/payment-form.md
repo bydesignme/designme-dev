@@ -23,7 +23,7 @@ npx shadcn@latest add https://designme.dev/r/shadcn/astro/payment-form.json  # A
 
 ## About
 
-Payment form is a plan checkout with a Monthly and Yearly switch, card fields that format themselves as you type, and a summary that shows the seats, the yearly discount and the amount due today. The total rolls to the new price when the billing period changes, and the yearly discount's row folds away on monthly billing. The Pay button shows Processing and then Payment successful, as a neutral button with a green tick. It covers the moment someone upgrades to a paid plan for your agent product.
+Payment form is a plan checkout with a Monthly and Yearly switch, card fields that format themselves as you type, and a summary that shows the seats, the yearly discount and the amount due today. The total rolls to the new price when the billing period changes, and the Pay button shows Processing and then Payment successful. It covers the moment someone upgrades to a paid plan for your agent product.
 
 ### When to use it
 
@@ -39,7 +39,7 @@ Payment form is a plan checkout with a Monthly and Yearly switch, card fields th
 - The summary multiplies `seats` by `price`, applies `yearlyDiscount` on yearly billing, and the total animates to the new amount.
 - On submit it checks for 16 digits, a full expiry and a CVC of at least three digits, and marks any field that fails.
 - `onPay` receives the formatted card, the period and the total; a promise keeps the button on Processing until it settles.
-- A rejected `onPay` shows its message, or `errorLabel`, under the button; otherwise `note` shows there, a quiet line inside the card. Due today, the Pay button and that line share the card's foot, under a hairline; in Clean the foot is the card's off-white foot strip, with the fields and line items above it in the body.
+- A rejected `onPay` shows its message, or `errorLabel`, under the button.
 
 ### Accessibility
 
@@ -74,11 +74,13 @@ export default function PaymentFormDemo() {
     taken(() => { if (typing) setCard(c => ({ ...c, number: '' })); });
     for (const ch of '4242424242424242') { setCard(c => ({ ...c, number: c.number + ch })); await wait(45); }
     typing = false;
+    typing = false;
   });
   return (
-    <div ref={ref} style={{ width: '100%' }}>
-      <PaymentForm card={card} onCardChange={setCard} note="Demo only. Nothing is charged."
+    <div ref={ref} className="dm-pyx-wrap">
+      <PaymentForm card={card} onCardChange={setCard}
         onPay={() => new Promise<void>(res => setTimeout(res, 1200))} />
+      <span className="dm-muted dm-pyx-n">Demo only. Nothing is charged.</span>
     </div>
   );
 }
@@ -107,7 +109,7 @@ export default function PaymentFormDemo() {
 | `paidLabel` (optional) | `string` |  |
 | `discountLabel` (optional) | `string` |  |
 | `dueLabel` (optional) | `string` |  |
-| `note` (optional) | `ReactNode` | A quiet line under the button, inside the card, like "Nothing is charged until your trial ends" |
+| `note` (optional) | `ReactNode` | A quiet line under the button, like "Nothing is charged until your trial ends" |
 | `errorLabel` (optional) | `string` | Shown when onPay rejects without a message of its own |
 | `className` (optional) | `string` |  |
 
@@ -146,7 +148,7 @@ import { useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable, useTween } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { Fold, Seg } from '../lib/motion';
+import { Seg } from '../lib/motion';
 import '../designme.css';
 import './payment-form.css';
 
@@ -189,7 +191,7 @@ export interface PaymentFormProps {
   paidLabel?: string;
   discountLabel?: string;
   dueLabel?: string;
-  /** A quiet line under the button, inside the card, like "Nothing is charged until your trial ends" */
+  /** A quiet line under the button, like "Nothing is charged until your trial ends" */
   note?: ReactNode;
   /** Shown when onPay rejects without a message of its own */
   errorLabel?: string;
@@ -206,8 +208,7 @@ const BRANDS: { test: RegExp; name: string; color: string }[] = [
   { test: /^4/, name: 'VISA', color: '#1a1f71' }, { test: /^5[1-5]/, name: 'MC', color: '#eb001b' }, { test: /^3[47]/, name: 'AMEX', color: '#2e77bb' }
 ];
 
-/** A plan checkout: monthly or yearly, a card that formats itself as you type, and a total that rolls to the new price. The
-    discount row folds away on monthly billing, and a paid button turns neutral with a green tick. */
+/** A plan checkout: monthly or yearly, a card that formats itself as you type, and a total that rolls to the new price. */
 export function PaymentForm({
   plan = 'Pro plan', description = 'For growing design teams', seats = 3, seatLabel = 'editors', price = 24, currency = '$', yearlyDiscount = 0.2,
   period, defaultPeriod = 'yearly', onPeriodChange, card, defaultCard = EMPTY, onCardChange, onPay, payLabel = 'Pay', processingLabel = 'Processing',
@@ -229,10 +230,6 @@ export function PaymentForm({
   const yearly = per === 'yearly', month = price * seats;
   const subtotal = yearly ? month * 12 : month, discount = yearly ? month * 12 * yearlyDiscount : 0, total = subtotal - discount;
   const shown = useTween(total, 600);
-  // the discount row keeps its last amount while it folds away
-  const lastDiscount = useRef(discount);
-  if (yearly) lastDiscount.current = discount;
-  const shownDiscount = yearly ? discount : lastDiscount.current;
   const money = (n: number) => `${currency}${n.toFixed(2)}`;
 
   const edit = (key: CardField, value: string) => {
@@ -283,18 +280,15 @@ export function PaymentForm({
       </div>
       <div className="dm-pyx-sum">
         <div><span>{seats} {seatLabel} × <span className="dm-num dm-pyx-u">{currency}{price}{yearly && ' × 12'}</span></span><span className="dm-num dm-pyx-s">{money(subtotal)}</span></div>
-        <Fold open={yearly} className="dm-pyx-dcf"><div className="dm-pyx-dc"><span>{discountLabel}</span><span className="dm-num dm-pyx-d">−{money(shownDiscount)}</span></div></Fold>
+        <div className={cx('dm-pyx-dc', !yearly && 'dm-off')}><span>{discountLabel}</span><span className="dm-num dm-pyx-d">−{money(discount)}</span></div>
+        <div className="dm-pyx-t"><b>{dueLabel}</b><b className="dm-num dm-pyx-tot">{money(shown)}</b></div>
       </div>
-      {/* the foot: Due today, Pay and the note (Clean's foot strip) */}
-      <div className="dm-pyx-ft">
-      <div className="dm-pyx-t"><b>{dueLabel}</b><b className="dm-num dm-pyx-tot">{money(shown)}</b></div>
       <button type="submit" className={cx('dm-pill dm-accent dm-pyx-go', state === 'paid' && 'dm-ok')} aria-live="polite">
-        {state === 'processing' ? <><span className="dm-spin" aria-hidden="true" /><span className="dm-shim">{processingLabel}</span></>
+        {state === 'processing' ? <><span className="dm-spin" style={{ borderColor: 'rgba(255,255,255,.3)', borderTopColor: '#fff' }} aria-hidden="true" />{processingLabel}</>
           : state === 'paid' ? <><Icon name="check" size="xs" className="dm-enter" />{paidLabel}</>
           : <><Icon name="lock" size="xs" />{payLabel} <span className="dm-num dm-pyx-gt">{money(shown)}</span></>}
       </button>
-      {error ? <p className="dm-muted dm-pyx-n" role="alert" style={{ color: 'var(--dm-bad)' }}>{error}</p> : note && <p className="dm-muted dm-pyx-n">{note}</p>}
-      </div>
+      {error ? <span className="dm-muted dm-pyx-n" role="alert" style={{ color: 'var(--dm-bad)' }}>{error}</span> : note && <span className="dm-muted dm-pyx-n">{note}</span>}
     </form>
   );
 }
