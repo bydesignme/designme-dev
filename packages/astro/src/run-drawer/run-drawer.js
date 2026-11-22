@@ -83,7 +83,7 @@ DM.def('run-drawer', (r, c) => {
     // a person's yes, under the step that waits for it
     const ask = $('.rdr-ask', rowsEl);
     if (R.st === 'wait' && !ask){ const p = R.sp[R.sp.length - 1], x = byId(p.s), el = R.rows.get(p);
-      if (el) el.insertAdjacentHTML('afterend', `<div class="rdr-ask${REDUCE ? '' : ' in'}" role="group" aria-label="${x.t} waits for you"><span class="rdr-ti" data-k="approval" aria-hidden="true">${I('user', 'xs')}</span><span class="tx"><b>${x.t} is waiting for you</b><span>Live runs ask ${x.ask} in Slack. In a test, you decide.</span></span><span class="acts"><button class="pill primary sm" data-a="yes">${I('check', 'xs')}Approve</button><button class="pill line sm" data-a="no">Reject</button></span></div>`); }
+      if (el) el.insertAdjacentHTML('afterend', `<div class="rdr-ask${REDUCE ? '' : ' in'}" role="group" aria-label="${x.t} waits for you"><svg class="rdr-sgi" viewBox="0 0 24 24" aria-hidden="true"><path class="a" d="M12 3.6 2.6 19.9h18.8z"/><path class="b" d="M12 9.6v4.4M12 17v.01"/></svg><span class="tx"><b>${x.t} is waiting for you</b><span>Live runs ask ${x.ask} in Slack. In a test, you decide.</span></span><span class="acts"><button class="pill line sm" data-a="no">Reject</button><button class="pill warn sm" data-a="yes">${I('check', 'xs')}Approve</button></span></div>`); }
     if (R.st !== 'wait' && ask) ask.remove();
     // the log, a line at a time, its levels in colour
     const L = R.log.filter(l => l.at <= t + 1e-6).sort((a, b) => a.at - b.at);

@@ -36,10 +36,10 @@ Answer action bar is the row of actions under an agent's answer: copy, regenerat
 
 - Copy writes the answer's plain text to the clipboard, and its icon turns into a check with a "Copied to clipboard" tooltip for about 1.6 seconds.
 - Regenerate calls `onRegenerate` and spins. With a second version, a pager slides in with previous and next and a count like "2 / 2". While `streaming`, new words fade in, and paging and reading wait.
-- A version's `changed` phrase is highlighted in green, so a new version shows what it fixed. Its `meta` sits after the bar, like "Sonnet 5.5 · 4.8s".
-- Thumbs up and down are toggles, one rating per version. A thumbs down opens "What was off?" with `reasons`, which default to Wrong numbers, Too long, Not our tone and Missed the brief. Picking one calls `onReason` and closes it.
-- Read aloud widens into a progress bar and a clock, like "0:04 / 0:07", and lights each word in turn, 0.28 seconds a word by default. Pressing it again pauses and keeps the place; it doesn't speak, so connect your own text to speech through `reading` and `onReadingChange`.
-- `status` adds a quiet line under the bar. `statusTone` turns it amber for a problem like a dropped connection, or gives it a green check once something worked.
+- A version's `changed` phrase is highlighted in green, so a new version shows what it fixed. Its `meta` sits after the bar, like "Sonnet 5.5 · 4.8s", and shortens rather than wrapping while reading aloud widens the bar; on a phone it takes the line under the bar.
+- Thumbs up and down are toggles, one rating per version. A thumbs down opens "What was off?" with `reasons`, which default to Wrong numbers, Too long, Not our tone and Missed the brief. Picking one calls `onReason` and closes it. In Clean a rated thumb fills in, without a colour.
+- Read aloud widens into a progress bar and a clock, like "0:04 / 0:07", and lights each word in turn (in grey in Clean), 0.28 seconds a word by default. Pressing it again pauses and keeps the place; it doesn't speak, so connect your own text to speech through `reading` and `onReadingChange`.
+- `status` adds a quiet line under the bar. `statusTone` turns it amber for a problem like a dropped connection, or gives it a green check once something worked. The line takes room only while it says something, and the answer only the room its words need.
 
 ### Accessibility
 
@@ -97,13 +97,14 @@ export default function AnswerActionBarDemo() {
     setTone(undefined); setStatus(label); setStreaming(true);
     if (note && !failed.current) {
       failed.current = true; await wait(1200);
-      for (let k = 2; k > 0; k--) { setTone('warn'); setStatus(`Couldn't reach Sonnet 5.5. Retrying in ${k}s`); await wait(1000); }
+      for (let k = 2; k > 0; k--) { setTone('warn'); setStatus(`Couldn't reach the model. Retrying in ${k}s`); await wait(1000); }
       setTone(undefined); setStatus(label);
     }
     const i = versions.length, v = POOL[Math.min(i, POOL.length - 1)];
     setVersions(vs => [...vs, { ...v, text: '' }]); setVersion(i);
     await stream(i, v);
-    setTone('ok'); setStatus(i === 1 ? 'Version 2 fixes the saving: 21%, not 15%' : `Version ${i + 1} of ${i + 1}`);
+    // what the new version fixed, when it answers a reason; the pager already counts the versions
+    if (note) { setTone('ok'); setStatus('Fixes the saving: 21%, not 15%'); } else { setTone(undefined); setStatus(''); }
   };
 
   // the preview's story: listen until the wrong number, pause, rate it down, pick why, then copy the fix
@@ -120,7 +121,7 @@ export default function AnswerActionBarDemo() {
       <AnswerActionBar question="How much do people save on the yearly Pro plan?" versions={versions} version={version} onVersionChange={setVersion}
         streaming={streaming} status={status} statusTone={tone} onRegenerate={() => void regenerate()}
         onReason={(_, reason) => { setTimeout(() => void regenerate(reason), 400); }}
-        onCopy={() => { setTone('ok'); setStatus('Copied without the highlights'); }} />
+ />
     </div>
   );
 }
@@ -187,7 +188,7 @@ Yes. Leave out `onRegenerate` and the button isn't shown. The pager still appear
 'use client';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
-import { useControllable, useCopied, useReducedMotion } from '../lib/hooks';
+import { useControllable, useCopied, useIsoLayoutEffect, useReducedMotion } from '../lib/hooks';
 import { Icon } from '../lib/icons';
 import { enter, Fold, Swap, Tip } from '../lib/motion';
 import '../designme.css';
@@ -260,6 +261,16 @@ export function AnswerActionBar({
   const [asked, setAsked] = useState<Record<number, string>>({});
   const [copied, copyText] = useCopied();
   const [spin, setSpin] = useState(false);
+  // the status's tone changes with its words (Swap writes them 170ms on), so the words fading out keep their colour
+  const [tone, setTone] = useState(statusTone);
+  const said = useRef(status);
+  useEffect(() => {
+    const was = said.current; said.current = status;
+    if (reduce || statusTone === 'ok' || !was.trim() || was === status) { setTone(statusTone); return; }
+    const t = setTimeout(() => setTone(statusTone), 170);
+    return () => clearTimeout(t);
+  }, [status, statusTone, reduce]);
+  const shownTone = statusTone === 'ok' ? 'ok' : tone;
 
   // the words, with the changed phrase marked
   const text = v?.text ?? '';
@@ -283,11 +294,43 @@ export function AnswerActionBar({
   const regenerate = () => { if (streaming) return; setRead('idle'); setPos(0); setSpin(true); setTimeout(() => setSpin(false), 700); onRegenerate?.(); };
   const copy = () => { copyText(text); onCopy?.(text); };
   const why = rating === 'down' && !asked[at];
+  // the container grows with what it holds, eased (grow() on the site), and stays centred wherever it is centred, in every
+  // style (owner, 18 Nov)
+  const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
+  useIsoLayoutEffect(() => {
+    const el = root.current, w = inner.current;
+    if (!el || !w || typeof ResizeObserver === 'undefined') return;
+    let first = true;
+    const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
+    const fit = () => {
+      const h = Math.ceil(w.offsetHeight + box());
+      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
+      else el.style.height = h + 'px';
+    };
+    const ro = new ResizeObserver(fit); ro.observe(w); fit();
+    return () => { ro.disconnect(); el.style.height = ''; };
+  }, []);
+  // while a new version streams in, the answer keeps the height of the one it replaces, then eases to its own
+  const tRef = useRef<HTMLParagraphElement>(null), prevT = useRef({ at: -1, h: 0 });
+  useIsoLayoutEffect(() => {
+    const el = tRef.current; if (!el) return;
+    if (prevT.current.at !== -1 && prevT.current.at !== at && prevT.current.h && streaming) el.style.minHeight = prevT.current.h + 'px';
+    prevT.current = { at: at, h: el.style.minHeight ? prevT.current.h : (el.textContent?.trim() ? el.offsetHeight : 0) };
+  });
+  useEffect(() => {
+    const el = tRef.current; if (!el || streaming || !el.style.minHeight) return;
+    const was = el.offsetHeight; el.style.minHeight = ''; const h = el.offsetHeight;
+    if (h >= was || reduce) return;
+    el.style.minHeight = was + 'px'; void el.offsetHeight; el.style.transition = 'min-height var(--dm-t) var(--dm-ease)'; el.style.minHeight = h + 'px';
+    const t = setTimeout(() => { el.style.transition = ''; el.style.minHeight = ''; }, 460);
+    return () => clearTimeout(t);
+  }, [streaming, at, reduce]);
 
   return (
-    <div data-dm="" className={cx('dm-aab', !bare && 'dm-panel', className)} style={bare ? undefined : { padding: 16 }}>
+    <div data-dm="" ref={root} className={cx('dm-aab', !bare && 'dm-panel', 'dm-growing', className)} style={bare ? undefined : { padding: 16 }}>
+      <div ref={inner} className="dm-grow">
       {question && <div className="dm-bub">{question}</div>}
-      <p className="dm-msg dm-aab-t" aria-live="polite">
+      <p ref={tRef} className="dm-msg dm-aab-t" aria-live="polite">
         {words.map(({ w, nw }, k) => (
           // inside the changed phrase the space is highlighted too, so the phrase reads as one
           <span key={at + ':' + k}>{k ? <span className={nw && words[k - 1].nw ? 'dm-nw' : undefined}> </span> : null}<span className={cx('dm-w dm-in', nw && 'dm-nw', k === lit && 'dm-rd')} style={!streaming && !reduce ? { animationDelay: k * 10 + 'ms' } : undefined}>{w}</span></span>
@@ -331,9 +374,10 @@ export function AnswerActionBar({
           </div>
         </div>
       </Fold>
-      <p className={cx('dm-aab-st dm-muted', statusTone && 'dm-' + statusTone)} aria-live="polite">
-        {statusTone === 'ok' && status ? <><Icon name="ok" size="xs" /><span key={status} {...enter()}>{status}</span></> : <Swap className={streaming && status ? 'dm-shim' : undefined}>{status}</Swap>}
+      <p className={cx('dm-aab-st dm-muted', shownTone && 'dm-' + shownTone, !status && 'dm-off')} aria-live="polite">
+        {statusTone === 'ok' && status ? <><Icon name="ok" size="xs" /><span key={status} {...enter()}>{status}</span></> : <Swap className={streaming && status && statusTone !== 'warn' ? 'dm-shim' : undefined}>{status}</Swap>}
       </p>
+      </div>
     </div>
   );
 }

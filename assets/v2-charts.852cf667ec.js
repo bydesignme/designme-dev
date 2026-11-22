@@ -1,49 +1,164 @@
-TPLS["account-table"] = "<div class=\"atb panel\">\n  <div class=\"atb-h\"><div class=\"atb-s\">{search}<input placeholder=\"Search accounts\" aria-label=\"Search accounts\"></div><div class=\"atb-fl\"><button class=\"chip sm on\" data-p=\"\">All</button><button class=\"chip sm\" data-p=\"Team\">Team</button><button class=\"chip sm\" data-p=\"Pro\">Pro</button><button class=\"chip sm\" data-p=\"Enterprise\">Enterprise</button></div></div>\n  <div class=\"atb-sc\"><table><thead><tr><th>Account</th><th>Plan</th><th>Seats</th><th>Health</th><th class=\"r\">MRR</th></tr></thead><tbody></tbody></table></div>\n</div>";
+TPLS["account-table"] = "<div class=\"atb panel\">\n  <div class=\"atb-h\"><div class=\"atb-s\"><svg class=\"i xs\"><use href=\"#v2i-search\"/></svg><input placeholder=\"Search accounts\" aria-label=\"Search accounts\"></div><div class=\"atb-fl\" role=\"group\" aria-label=\"Plan\"><button class=\"chip sm on\" data-p=\"\" aria-pressed=\"true\">All</button><button class=\"chip sm\" data-p=\"Team\" aria-pressed=\"false\">Team</button><button class=\"chip sm\" data-p=\"Pro\" aria-pressed=\"false\">Pro</button><button class=\"chip sm\" data-p=\"Enterprise\" aria-pressed=\"false\">Enterprise</button></div></div>\n  <div class=\"atb-sc\"><table><thead><tr><th>Account</th><th>Plan</th><th class=\"r\">Seats</th><th>Health</th><th class=\"r\">MRR</th></tr></thead><tbody></tbody></table></div>\n</div>";
 TPLS["stat-cards"] = "<div class=\"scx\">\n  <div class=\"scx-h\"><div class=\"seg2 scx-sg\" role=\"group\" aria-label=\"Period\"><button aria-pressed=\"false\" data-v=\"0\">7 days</button><button aria-pressed=\"true\" data-v=\"1\">30 days</button><button aria-pressed=\"false\" data-v=\"2\">Quarter</button></div></div>\n  <div class=\"scx-grid\"></div>\n</div>";
 TPLS["activity-heatmap"] = "<div class=\"hmx panel\">\n  <div class=\"hmx-h\"><div><b>Activity</b><span class=\"muted hmx-st\">Last 4 weeks</span></div><div class=\"seg2 hmx-sg\" role=\"group\" aria-label=\"Who\"><button aria-pressed=\"true\" data-v=\"agent\">Agent</button><button aria-pressed=\"false\" data-v=\"team\">Team</button></div></div>\n  <div class=\"hmx-wrap\"><div class=\"hmx-sc\"><div class=\"hmx-days muted\"><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span><span>Sun</span></div><div class=\"hmx-grid\"></div>\n  <div class=\"hmx-f muted\"><span class=\"hmx-ax\">12am</span><span class=\"hmx-ax x\">3am</span><span class=\"hmx-ax\">6am</span><span class=\"hmx-ax x\">9am</span><span class=\"hmx-ax\">12pm</span><span class=\"hmx-ax x\">3pm</span><span class=\"hmx-ax\">6pm</span><span class=\"hmx-ax x\">9pm</span></div></div></div>\n  <div class=\"hmx-lg muted\">Less<i style=\"--a:.08\"></i><i style=\"--a:.3\"></i><i style=\"--a:.55\"></i><i style=\"--a:.85\"></i>More</div>\n</div>";
 TPLS["scatter-chart"] = "<div class=\"cvq panel\">\n  <div class=\"cvq-h\">\n    <div class=\"cvq-t\"><b>Cost vs quality</b><span class=\"muted\">48 runs this week, sized by tokens</span></div>\n    <div class=\"cvq-lg\"></div>\n  </div>\n  <div class=\"cvq-pl\" tabindex=\"0\" role=\"group\" aria-roledescription=\"scatter chart\" aria-label=\"Runs by cost and eval score. Arrow keys step through the runs\">\n    <svg class=\"cvq-svg\" aria-hidden=\"true\"></svg>\n    <div class=\"cvq-tt\"><b class=\"num\"></b><span></span></div>\n  </div>\n  <div class=\"cvq-ft\" aria-live=\"polite\"><span class=\"cvq-msg\"></span></div>\n</div>";
 TPLS["radar-chart"] = "<div class=\"rdx panel\">\n  <div class=\"rdx-h\">\n    <div class=\"rdx-t\"><b>Eval scores</b><span class=\"muted\">Run 48 against run 41</span></div>\n    <div class=\"rdx-lg\"><button class=\"rdx-k\" aria-pressed=\"true\" data-s=\"cur\"><i class=\"c\"></i>This run</button><button class=\"rdx-k\" aria-pressed=\"true\" data-s=\"base\"><i class=\"b\"></i>Baseline</button></div>\n  </div>\n  <div class=\"rdx-ch\" role=\"group\" aria-label=\"Scores by axis. Left and Right move between axes\">\n    <svg class=\"rdx-svg\" aria-hidden=\"true\"></svg>\n    <span class=\"rdx-avg num\"><b>0</b><span class=\"muted\">average</span></span>\n  </div>\n  <div class=\"rdx-ro\" aria-live=\"polite\"><span></span></div>\n</div>";
-TPLS["score-breakdown"] = "<div class=\"sbx panel\">\n  <div class=\"sbx-top\">\n    <div class=\"sbx-g\" role=\"meter\" aria-label=\"Quality score\" aria-valuemin=\"0\" aria-valuemax=\"100\"><svg viewBox=\"0 0 200 108\" aria-hidden=\"true\"></svg><div class=\"sbx-v\"><b class=\"num\">0</b><span class=\"muted\">of 100</span></div></div>\n    <div class=\"sbx-s\"><b>Support agent quality</b><span class=\"sbx-band\"><span class=\"muted sbx-bw\">Scoring</span><span class=\"tag ok num sbx-ch\" hidden></span></span></div>\n  </div>\n  <div class=\"sbx-list\"></div>\n</div>";
-TPLS["health-score"] = "<div class=\"hsc-dm dm\"><div class=\"dm-main\">\n  <div class=\"hsc panel\" role=\"group\" aria-label=\"Account health\">\n    <div class=\"hsc-ac\"><b></b><span></span></div>\n    <div class=\"hsc-h\">\n      <div class=\"hsc-ring\" role=\"img\" aria-label=\"Health score\"><svg viewBox=\"0 0 44 44\" aria-hidden=\"true\"><circle class=\"tr\" cx=\"22\" cy=\"22\" r=\"18\"/><circle class=\"fl\" cx=\"22\" cy=\"22\" r=\"18\" stroke-dasharray=\"113.1\" stroke-dashoffset=\"113.1\"/></svg><b class=\"num\" aria-hidden=\"true\">0</b></div>\n      <div class=\"hsc-ht\"><b class=\"hsc-vd\"></b><span class=\"hsc-sub\"></span></div>\n      <span class=\"hsc-dl num\"></span>\n    </div>\n    <div class=\"hsc-l\"></div>\n    <div class=\"hsc-s\">{spark}<span class=\"hsc-st\"></span><button type=\"button\" class=\"pill primary sm hsc-go\"></button></div>\n    <p class=\"hsc-sr\" aria-live=\"polite\"></p>\n  </div>\n  </div>\n  <div class=\"demo\"><div class=\"seg2\" role=\"group\" aria-label=\"Account\"><button aria-pressed=\"false\" data-v=\"0\">Healthy</button><button aria-pressed=\"true\" data-v=\"1\">Watch</button><button aria-pressed=\"false\" data-v=\"2\">At risk</button></div></div>\n</div>";
+TPLS["score-breakdown"] = "<div class=\"sbx panel\">\n  <div class=\"sbx-top\">\n    <div class=\"sbx-g\" role=\"meter\" aria-label=\"Quality score\" aria-valuemin=\"0\" aria-valuemax=\"100\"><svg viewBox=\"0 0 200 108\" aria-hidden=\"true\"></svg><div class=\"sbx-v\"><b class=\"num\">0</b><span class=\"muted\">of 100</span></div></div>\n    <div class=\"sbx-s\"><b>Support agent quality</b><span class=\"sbx-band\"><span class=\"muted sbx-bw shim\">Scoring</span><span class=\"tag ok num sbx-ch\" hidden></span></span></div>\n  </div>\n  <div class=\"sbx-list\"></div>\n</div>";
+TPLS["health-score"] = "<div class=\"hsc-dm dm\"><div class=\"dm-main\">\n  <div class=\"hsc panel\" role=\"group\" aria-label=\"Account health\">\n    <div class=\"hsc-ac\"><b></b><span></span></div>\n    <div class=\"hsc-h\">\n      <div class=\"hsc-ring\" role=\"img\" aria-label=\"Health score\"><svg viewBox=\"0 0 44 44\" aria-hidden=\"true\"><circle class=\"tr\" cx=\"22\" cy=\"22\" r=\"18\"/><circle class=\"fl\" cx=\"22\" cy=\"22\" r=\"18\" stroke-dasharray=\"113.1\" stroke-dashoffset=\"113.1\"/></svg><b class=\"num\" aria-hidden=\"true\">0</b></div>\n      <div class=\"hsc-ht\"><b class=\"hsc-vd\"></b><span class=\"hsc-sub\"></span></div>\n      <span class=\"hsc-dl num\"></span>\n    </div>\n    <div class=\"hsc-l\"></div>\n    <div class=\"hsc-s\"><span class=\"hsc-say\"><svg class=\"i s\"><use href=\"#v2i-spark\"/></svg><span class=\"hsc-st\"></span></span><button type=\"button\" class=\"pill primary sm hsc-go\"></button></div>\n    <p class=\"hsc-sr\" aria-live=\"polite\"></p>\n  </div>\n  </div>\n  <div class=\"demo\"><div class=\"seg2\" role=\"group\" aria-label=\"Account\"><button aria-pressed=\"false\" data-v=\"0\">Healthy</button><button aria-pressed=\"true\" data-v=\"1\">Watch</button><button aria-pressed=\"false\" data-v=\"2\">At risk</button></div></div>\n</div>";
 TPLS["top-pages"] = "<div class=\"tpx panel\">\n  <div class=\"tpx-h\"><div><b>Top pages</b><span class=\"muted tpx-sub\"><span class=\"num tpx-tot\">0</span> views, last 30 days</span></div><div class=\"seg2 tpx-sg\" role=\"group\" aria-label=\"Sort\"><button aria-pressed=\"true\" data-v=\"v\">Views</button><button aria-pressed=\"false\" data-v=\"c\">Change</button></div></div>\n  <div class=\"tpx-list\"></div>\n</div>";
 TPLS["funnel"] = "<div class=\"fnx panel\">\n  <div class=\"fnx-h\"><b>Signup to paid</b><div class=\"seg2 fnx-sg\" role=\"group\" aria-label=\"Segment\"><button aria-pressed=\"true\" data-v=\"all\">All</button><button aria-pressed=\"false\" data-v=\"team\">Teams</button><button aria-pressed=\"false\" data-v=\"solo\">Solo</button></div></div>\n  <div class=\"fnx-rows\"></div>\n  <div class=\"fnx-ins\"><span class=\"fnx-ic\">{spark}</span><span class=\"fnx-t\"></span></div>\n</div>";
 TPLS["radial-goals"] = "<div class=\"rgx panel\">\n  <div class=\"rgx-h\">\n    <div class=\"rgx-t\"><b>Agent goals</b><span class=\"muted rgx-sub\">This week</span></div>\n    <div class=\"seg2 rgx-sg\" role=\"group\" aria-label=\"Range\"><button aria-pressed=\"true\" data-v=\"w\">Week</button><button aria-pressed=\"false\" data-v=\"m\">Month</button></div>\n  </div>\n  <div class=\"rgx-b\">\n    <div class=\"rgx-ring\"><svg viewBox=\"0 0 180 180\" aria-hidden=\"true\"></svg><div class=\"rgx-c\"><b class=\"num\">0%</b><span class=\"rgx-cl\">of targets</span></div></div>\n    <div class=\"rgx-lg\"></div>\n  </div>\n  <div class=\"rgx-sr\"><table><caption>Agent goals</caption><thead><tr><th>Agent</th><th>Done</th><th>Target</th><th>Share</th></tr></thead><tbody></tbody></table></div>\n</div>";
-TPLS["donut-chart"] = "<div class=\"dnx panel\">\n  <div class=\"dnx-ring\"><svg viewBox=\"0 0 120 120\"></svg><div class=\"dnx-c\"><b class=\"num dnx-v\">0h</b><span class=\"muted dnx-l\">Agent time</span></div></div>\n  <div class=\"dnx-lg\"></div>\n</div>";
+TPLS["donut-chart"] = "<div class=\"dnx panel\">\n  <div class=\"dnx-h\">Agent time</div>\n  <div class=\"dnx-g\"><svg class=\"dnx-svg\" viewBox=\"0 0 220 110\" aria-hidden=\"true\"></svg><div class=\"dnx-c\"><b class=\"num dnx-v\">0h</b><span class=\"muted dnx-l\"></span></div></div>\n  <div class=\"dnx-lg\"></div>\n</div>";
 TPLS["bar-chart"] = "<div class=\"bcx panel\">\n  <div class=\"bcx-h\"><div><span class=\"muted\">Agent runs</span><b class=\"num bcx-v\">0</b></div><div class=\"seg2 bcx-rg\" role=\"group\" aria-label=\"Range\"><button aria-pressed=\"true\" data-v=\"w\">Week</button><button aria-pressed=\"false\" data-v=\"m\">Month</button></div></div>\n  <div class=\"bcx-ch\"></div>\n</div>";
-TPLS["line-chart"] = "<div class=\"lnx panel\">\n  <div class=\"lnx-h\"><div><span class=\"muted\">Active editors</span><b class=\"num lnx-v\">0</b></div><div class=\"lnx-lg\"><button class=\"lnx-k on\" data-s=\"0\"><i style=\"background:var(--accent-mark,var(--accent))\"></i>This year</button><button class=\"lnx-k on\" data-s=\"1\"><i style=\"background:var(--c2)\"></i>Last year</button></div></div>\n  <div class=\"lnx-ch\"><svg class=\"lnx-svg\" viewBox=\"0 0 320 140\" preserveAspectRatio=\"none\"></svg><div class=\"lnx-x\"></div><div class=\"lnx-tt\"><b class=\"num\"></b><span></span></div></div>\n  <div class=\"lnx-ax muted num\"><span>Jan</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span><span>Nov</span></div>\n</div>";
+TPLS["line-chart"] = "<div class=\"lnx panel\">\n  <div class=\"lnx-h\">\n    <div class=\"lnx-tl\"><span class=\"lnx-t\">Active editors</span><button class=\"lnx-pk\" data-pop=\"#lnx-pp\" aria-haspopup=\"menu\" aria-expanded=\"false\"><span class=\"lnx-mk\" aria-hidden=\"true\"></span><span class=\"lnx-pn\"></span><svg class=\"i xs\"><use href=\"#v2i-chev-d\"/></svg></button></div>\n    <div class=\"seg2 lnx-rg\" role=\"group\" aria-label=\"Range\"><button aria-pressed=\"true\" data-v=\"d\">Day</button><button aria-pressed=\"false\" data-v=\"w\">Week</button><button aria-pressed=\"false\" data-v=\"m\">Month</button></div>\n  </div>\n  <div class=\"pop lnx-pp\" id=\"lnx-pp\" role=\"menu\" aria-label=\"Project\"></div>\n  <div class=\"lnx-pl\">\n    <div class=\"lnx-y num\" aria-hidden=\"true\"></div>\n    <div class=\"lnx-ch\" tabindex=\"0\" role=\"group\" aria-roledescription=\"line chart\"><svg class=\"lnx-svg\" aria-hidden=\"true\"></svg><span class=\"lnx-x\"></span><span class=\"lnx-pt\" style=\"color:var(--lnx-cmp)\"></span><span class=\"lnx-pt\" style=\"color:var(--lnx-line)\"></span><span class=\"lnx-now\"></span><span class=\"lnx-aim\" aria-hidden=\"true\"></span><div class=\"lnx-tt\" aria-hidden=\"true\"><div class=\"lnx-tt-h\"></div><div class=\"lnx-tt-r\"><i></i><span></span><b class=\"num\"></b></div><div class=\"lnx-tt-r c\"><i></i><span></span><b class=\"num\"></b></div></div></div>\n    <div class=\"lnx-ax num\" aria-hidden=\"true\"></div>\n  </div>\n  <div class=\"lnx-lg\"><button class=\"lnx-k\" aria-pressed=\"true\" data-s=\"a\"><i></i><span></span></button><button class=\"lnx-k p\" aria-pressed=\"true\" data-s=\"p\"><i></i><span>Projected</span></button><button class=\"lnx-k c\" aria-pressed=\"true\" data-s=\"b\"><i></i><span></span></button></div>\n  <p class=\"lnx-sr\" aria-live=\"polite\"></p>\n  <div class=\"lnx-sr\"><table></table></div>\n</div>";
 
 /* ---------- Line chart ---------- */
 DM.def('line-chart', (r, c) => {
-  const A = [820,860,910,980,1040,1130,1210,1180,1320,1460,1540,1620], B = [610,640,660,700,690,760,800,790,850,880,910,960];
-  const MO = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const svg = $('.lnx-svg', r), ch = $('.lnx-ch', r), x = $('.lnx-x', r), tt = $('.lnx-tt', r), v = $('.lnx-v', r);
-  const lo = 500, hi = 1700, P = s => s.map((d, i) => [i / 11 * 320, 136 - (d - lo) / (hi - lo) * 128]);
-  const smooth = p => p.map((q, i) => { if (!i) return `M${q[0]} ${q[1]}`; const a = p[i - 1], m = (q[0] - a[0]) / 2; return `C${a[0] + m} ${a[1]} ${q[0] - m} ${q[1]} ${q[0]} ${q[1]}`; }).join(' ');
-  const pa = P(A), pb = P(B);
-  svg.innerHTML = `<defs><linearGradient id="lng" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--accent-mark,var(--accent))" stop-opacity=".16"/><stop offset="1" stop-color="var(--accent-mark,var(--accent))" stop-opacity="0"/></linearGradient><clipPath id="lnc"><rect class="lnr" x="0" y="-10" width="0" height="160"/></clipPath></defs>` +
-    [35, 70, 105].map(y => `<line class="gl" x1="0" x2="320" y1="${y}" y2="${y}"/>`).join('') +
-    `<g clip-path="url(#lnc)"><path class="ar" d="${smooth(pa)} L320 140 L0 140 Z" fill="url(#lng)"/><path class="ln l1" d="${smooth(pb)}" stroke="var(--c2)" stroke-dasharray="4 4"/><path class="ln l0" d="${smooth(pa)}" stroke="var(--accent-mark,var(--accent))"/></g>`;
-  ch.insertAdjacentHTML('beforeend', '<span class="lnx-pt on" style="color:var(--accent-mark,var(--accent))"></span><span class="lnx-pt on" style="color:var(--c2)"></span>');
-  const pts = $$('.lnx-pt', ch), on = [true, true];
-  // each month's label sits under its own point
-  $$('.lnx-ax span', r).forEach(sp => { const i = MO.indexOf(sp.textContent.trim()); if (i < 0) return; sp.style.left = i / 11 * 100 + '%'; sp.classList.toggle('e', i === 11); });
-  // the line draws and the number counts once the chart has risen into view, so the draw is seen from its start
-  v.textContent = '0';
-  c.later(260, () => {
-    tween(0, 320, 1300, w => $('.lnr', svg).setAttribute('width', w), t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-    tween(0, A[11], 1300, n => v.textContent = Math.round(n).toLocaleString('en-US'));
+  r.innerHTML = r.innerHTML.replace('{chev}', I('chev-d','xs'));
+  const root = $('.lnx', r), ch = $('.lnx-ch', r), svg = $('.lnx-svg', r), yl = $('.lnx-y', r), ax = $('.lnx-ax', r), tt = $('.lnx-tt', r);
+  const mark = $('.lnx-now', r), guide = $('.lnx-x', r), [pc, pm] = $$('.lnx-pt', r), pk = $('.lnx-pk', r), pp = $('.lnx-pp', r), live = $('p.lnx-sr', r), tab = $('.lnx-sr table', r);
+  // the projects the picker offers: name, mark, the mark's colour, and how big each is next to the website
+  const PJ = [['Website', 'W', 'b', 1], ['Mobile app', 'M', 'l', .58], ['Docs', 'D', 'm', .27]];
+  // a small seeded wobble, so each project's numbers differ but are the same on every visit
+  const wob = (s, i) => { const x = Math.sin(s * 91.7 + i * 12.9898) * 43758.5453; return x - Math.floor(x) - .5; };
+  const HRS = Array.from({ length:24 }, (_, h) => (h % 12 || 12) + (h < 12 ? 'am' : 'pm'));
+  const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  // editors at work: an hour of today (it is 2pm on Thursday 19 November), a day of this week, a day of this month. November
+  // starts on a Sunday and October on a Thursday, so their weekends fall on different days
+  const RG = {
+    d:{ pts:HRS, ax:HRS, now:14, a:'Today', b:'Yesterday', each:'Hour', what:'today against yesterday', grid:[1, 2, 3, 4, 6, 12],
+      base:[110, 80, 64, 58, 62, 96, 210, 460, 820, 1120, 1290, 1360, 1180, 1260, 1330, 1250, 1130, 960, 720, 510, 360, 260, 190, 140], ka:1.05, kb:.93 },
+    w:{ pts:DAYS, ax:DAYS.map(d => d.slice(0, 3)), now:3, a:'This week', b:'Last week', each:'Day', what:'this week against last week', grid:[1],
+      base:[4380, 4720, 4610, 4890, 4420, 1680, 1240], ka:1.04, kb:.92 },
+    m:{ pts:Array.from({ length:30 }, (_, d) => 'Nov ' + (d + 1)), ax:Array.from({ length:30 }, (_, d) => 'Nov ' + (d + 1)), now:18, a:'This month', b:'Last month', each:'Day', what:'this month against last month', grid:[1, 7, 14],
+      base:Array.from({ length:30 }, (_, d) => d % 7 === 0 || d % 7 === 6 ? 1500 : 4500), baseB:Array.from({ length:30 }, (_, d) => (4 + d) % 7 === 0 || (4 + d) % 7 === 6 ? 1450 : 4400), ka:1.02, kb:.95 }
+  };
+  /* the rest of the period is projected from now: the latest value carried forward along the shape the period before took over
+     the same points (the month along its own weekdays, as October's weekends fall on other dates) */
+  const data = (p, k) => { const g = RG[k], [, , , sz] = PJ[p];
+    const va = g.base.slice(0, g.now + 1).map((v, i) => Math.round(v * g.ka * sz * (1 + wob(p + 1, i) * .14)));
+    const vb = (g.baseB || g.base).map((v, i) => Math.round(v * g.kb * sz * (1 + wob(p + 7, i) * .14)));
+    const shape = g.baseB ? g.base.map((v, i) => v * (1 + wob(p + 13, i) * .06)) : vb;
+    return { ...g, va, vb, vp:vb.map((_, i) => i < g.now ? null : Math.round(va[g.now] * shape[i] / shape[g.now])) }; };
+  const fmt = n => n.toLocaleString('en-US');
+  const kf = n => n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k' : String(n);
+  // the top of the scale: a round step that gives three or four bands above zero, with a little room over the highest value
+  const scale = m => { const raw = m / 4, p = 10 ** Math.floor(Math.log10(raw || 1)), s = [1, 2, 2.5, 5, 10].map(k => k * p).find(k => k >= raw); return { s, top:Math.ceil(m * 1.04 / s) * s }; };
+  const uid = 'lnx' + Math.random().toString(36).slice(2, 8);
+  let pj = 0, rg = 'd', D = null, S = null, shown = 1, at = -1, clip = null;
+  // which lines show: the legend turns each on and off, and one always stays on
+  const on = { a:true, p:true, b:true }, keys = $$('.lnx-k', r);
+  // where things go: the points spread over the plot's width, less the ring's half when the line ends on the last point
+  const geo = () => { const W = ch.clientWidth, H = ch.clientHeight, n = D.pts.length - 1, xr = W - (D.now === n ? 6 : 0);
+    return { W, H, n, xr, X:i => i / n * xr, Y:v => H - v / S.top * H }; };
+  function draw(){
+    if (!D || !ch.clientWidth) return;
+    const { W, H, n, xr, X, Y } = geo(), A = D.va;
+    const path = vs => vs.map((v, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)} ${Y(v).toFixed(1)}`).join('');
+    // a gridline every few points, as many as fit about 40px apart
+    const k = D.grid.find(g => g * xr / n >= 40) || D.grid[D.grid.length - 1];
+    const gl = []; for (let i = 0; i <= n; i += k){ const x = Math.round(X(i)) + .5; gl.push(`<line class="gl" x1="${x}" x2="${x}" y1="0" y2="${H}"/>`); }
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    const P = D.vp.slice(D.now), pPath = P.map((v, j) => `${j ? 'L' : 'M'}${X(D.now + j).toFixed(1)} ${Y(v).toFixed(1)}`).join('');
+    svg.innerHTML = `<defs><linearGradient id="${uid}g" x1="0" x2="0" y1="0" y2="1"><stop offset="0" style="stop-color:var(--lnx-line);stop-opacity:var(--lnx-fill)"/><stop offset="1" style="stop-color:var(--lnx-line);stop-opacity:0"/></linearGradient>`
+      + `<linearGradient id="${uid}p" x1="0" x2="0" y1="0" y2="1"><stop offset="0" style="stop-color:var(--lnx-line);stop-opacity:var(--lnx-pfill)"/><stop offset="1" style="stop-color:var(--lnx-line);stop-opacity:0"/></linearGradient>`
+      + `<clipPath id="${uid}c"><rect x="-8" y="-8" height="${H + 16}" width="${(W + 16) * shown}"/></clipPath></defs>` + gl.join('')
+      + `<g clip-path="url(#${uid}c)"><path class="cmp" d="${path(D.vb)}"/>`
+      + (P.length > 1 ? `<path class="par" d="${pPath}L${X(n).toFixed(1)} ${H}L${X(D.now).toFixed(1)} ${H}Z" fill="url(#${uid}p)"/>` : '')
+      + `<path class="ar" d="${path(A)}L${X(D.now).toFixed(1)} ${H}L0 ${H}Z" fill="url(#${uid}g)"/>${P.length > 1 ? `<path class="prj" d="${pPath}"/>` : ''}<path class="ln" d="${path(A)}"/></g>`;
+    clip = $('rect', svg);
+    mark.style.left = X(D.now) + 'px'; mark.style.top = Y(A[D.now]) + 'px'; mark.style.opacity = shown * (W + 16) - 8 >= X(D.now) ? 1 : 0;
+    // the values on the left, top to bottom
+    yl.innerHTML = Array.from({ length:S.top / S.s + 1 }, (_, j) => `<span>${kf(S.top - j * S.s)}</span>`).join('');
+    // the axis: the first and last points, and Now under its own point (or the last point named Now when the line ends there)
+    ax.innerHTML = `<span class="lnx-a">${D.ax[0]}</span><span class="lnx-z${D.now === n ? ' lnx-nw' : ''}">${D.now === n ? 'Now' : D.ax[n]}</span>${D.now < n ? '<span class="lnx-nw">Now</span>' : ''}<span class="lnx-tk"></span>`;
+    const put = (el, x) => { const w = el.offsetWidth; el.style.left = Math.max(0, Math.min(xr - w, x - w / 2)) + 'px'; };
+    const z = $('.lnx-z', ax);
+    const nw = $('.lnx-nw:not(.lnx-z)', ax); if (nw){ put(nw, X(D.now)); [$('.lnx-a', ax), z].forEach(l => l.classList.toggle('lnx-hid', near(l, nw))); }
+    if (at >= 0) show(at);
+  }
+  // two labels on the axis touch when their boxes come within 6px
+  const near = (a, b) => { const p = a.offsetLeft, q = b.offsetLeft; return p < q + b.offsetWidth + 6 && q < p + a.offsetWidth + 6; };
+  // a point's readout: the guide, a ring on each line, the card beside the guide on the side with room, and the point's chip
+  function place(i){ const { X, Y } = geo(), x = X(i);
+    [pm, pc].forEach(p => p.style.left = x + 'px');
+    pm.style.top = Y(i <= D.now ? D.va[i] : D.vp[i]) + 'px'; pc.style.top = Y(D.vb[i]) + 'px'; }
+  function show(i, say){
+    if (!D) return; at = i; place(i);
+    // up to now the reading is this period's own; after now it is the projection
+    const { W, H, xr, X, Y } = geo(), x = X(i), ahead = i > D.now, has = ahead ? on.p : on.a, mv = ahead ? D.vp[i] : D.va[i], ml = ahead ? 'Projected' : D.a;
+    root.classList.add('on'); guide.style.left = x + 'px';
+    pm.classList.toggle('on', has && i !== D.now); pc.classList.toggle('on', on.b);
+    $('.lnx-tt-h', tt).textContent = D.pts[i];
+    const [ra, rb] = $$('.lnx-tt-r', tt); ra.hidden = !has; ra.classList.toggle('p', ahead);
+    if (has){ $('span', ra).textContent = ml; $('b', ra).textContent = fmt(mv); }
+    rb.hidden = !on.b; $('span', rb).textContent = D.b; $('b', rb).textContent = fmt(D.vb[i]);
+    // beside the guide on the side with room; on a plot too narrow for either side, centred over the point and above it
+    // (or under it when it sits high), so the card never covers the point it reads
+    const w = tt.offsetWidth, h = tt.offsetHeight, gap = 12, py = Y(has ? mv : D.vb[i]), side = x + gap + w <= W ? x + gap : x - gap - w >= 0 ? x - gap - w : null;
+    tt.style.left = (side ?? Math.max(0, Math.min(W - w, x - w / 2))) + 'px';
+    tt.style.top = (side != null ? Math.max(0, Math.min(H - h, py - h / 2)) : py - gap - h >= -8 ? py - gap - h : py + gap) + 'px';
+    const tk = $('.lnx-tk', ax); tk.textContent = D.ax[i]; const tw = tk.offsetWidth; tk.style.left = Math.max(0, Math.min(xr - tw, x - tw / 2)) + 'px';
+    $$('span:not(.lnx-tk)', ax).forEach(l => l.classList.toggle('lnx-off', l.classList.contains('lnx-hid') || near(l, tk)));
+    if (say) live.textContent = `${D.pts[i]}: ` + [has && `${ml} ${fmt(mv)}`, on.b && `${D.b} ${fmt(D.vb[i])}`].filter(Boolean).join(', ');
+  }
+  function hide(){ at = -1; root.classList.remove('on'); $$('span:not(.lnx-tk)', ax).forEach(l => l.classList.toggle('lnx-off', l.classList.contains('lnx-hid'))); }
+  // a range or a project picked: the numbers change at once and the lines draw in again from the left
+  let tok = 0;
+  function load(){
+    D = data(pj, rg); S = scale(Math.max(...D.va, ...D.vb, ...D.vp.filter(v => v != null)));
+    const p = PJ[pj], mk = $('.lnx-mk', pk);
+    mk.textContent = p[1]; mk.style.cssText = `--mk:var(--av-${p[2]});--mk-ink:var(--av-${p[2]}-ink)`; $('.lnx-pn', pk).textContent = p[0];
+    pk.setAttribute('aria-label', 'Project: ' + p[0]);
+    $$('.mi', pp).forEach((m, k) => m.setAttribute('aria-checked', k === pj));
+    ch.setAttribute('aria-label', `Active editors on ${p[0]}, ${D.what}, the rest projected. The arrow keys read each ${D.each.toLowerCase()}`);
+    tab.innerHTML = `<caption>Active editors on ${p[0]}, ${D.what}, the rest projected</caption><tr><th scope="col">${D.each}</th><th scope="col">${D.a}</th><th scope="col">Projected</th><th scope="col">${D.b}</th></tr>`
+      + D.pts.map((t, i) => `<tr><th scope="row">${t}</th><td>${i <= D.now ? fmt(D.va[i]) : ''}</td><td>${i > D.now ? fmt(D.vp[i]) : ''}</td><td>${fmt(D.vb[i])}</td></tr>`).join('');
+    $('span', keys[0]).textContent = D.a; $('span', keys[2]).textContent = D.b;
+    if (at > D.pts.length - 1) at = D.now;
+    draw();
+  }
+  function reveal(){
+    const k = ++tok; shown = REDUCE ? 1 : 0; draw(); if (shown) return;
+    tween(0, 1, 1100, t => { if (k !== tok) return; shown = t; if (!clip || !clip.isConnected) return; const { W, X } = geo(); clip.setAttribute('width', (W + 16) * t); mark.style.opacity = t * (W + 16) - 8 >= X(D.now) ? 1 : 0; }, t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  }
+  pp.innerHTML = PJ.map((p, k) => `<button class="mi" role="menuitemradio" aria-checked="${k === pj}" data-close data-k="${k}"><span class="lnx-mk" style="--mk:var(--av-${p[2]});--mk-ink:var(--av-${p[2]}-ink)" aria-hidden="true">${p[1]}</span><span>${p[0]}</span><span class="ck">${I('check','xs')}</span></button>`).join('');
+  $$('.mi', pp).forEach(m => m.addEventListener('click', () => { const k = +m.dataset.k; if (k === pj) return; pj = k; load(); reveal(); }));
+  seg($('.lnx-rg', r), v => { if (v === rg) return; rg = v; load(); reveal(); });
+  keys.forEach(k => k.onclick = () => { const s = k.dataset.s; if (on[s] && !Object.keys(on).some(o => o !== s && on[o])) return; on[s] = !on[s];
+    k.setAttribute('aria-pressed', on[s]); root.classList.toggle('lnx-no' + s, !on[s]); if (at >= 0) show(at); });
+  // the pointer, a finger or the keyboard reads the nearest point
+  const idx = e => { const b = ch.getBoundingClientRect(), { n, xr } = geo(); return Math.max(0, Math.min(n, Math.round((e.clientX - b.left) / xr * n))); };
+  c.on(ch, 'pointermove', e => show(idx(e)));
+  c.on(ch, 'pointerdown', e => show(idx(e)));
+  c.on(ch, 'pointerleave', e => { if (e.pointerType !== 'touch' && !ch.matches(':focus-visible')) hide(); });
+  c.on(ch, 'focus', () => { if (ch.matches(':focus-visible')) show(at < 0 ? D.now : at, true); });
+  c.on(ch, 'blur', hide);
+  c.on(ch, 'keydown', e => { const n = D.pts.length - 1, i = at < 0 ? D.now : at;
+    const to = { ArrowLeft:i - 1, ArrowRight:i + 1, Home:0, End:n }[e.key];
+    if (e.key === 'Escape' && at >= 0){ e.preventDefault(); hide(); return; }
+    if (to == null) return; e.preventDefault(); show(Math.max(0, Math.min(n, to)), true); });
+  const ro = new ResizeObserver(() => draw()); ro.observe(ch); c.offs.push(() => ro.disconnect());
+  // the lines draw in once the chart has risen into view, so the draw is seen from its start
+  shown = 0; load();
+  c.later(260, reveal);
+  // the demo reads a few points along today, switches to the week, then picks another project
+  // a readout the demo left showing goes when the visitor takes over, unless they are reading the plot themselves
+  c.taken(() => { if (!ch.matches(':hover,:focus-visible')) hide(); });
+  c.story(async s => {
+    // the demo's pointer goes to the point first, and only then does the readout move there
+    const aim = $('.lnx-aim', r);
+    const read = async i => { const { X, Y } = geo(); aim.style.left = X(i) + 'px'; aim.style.top = Y(i <= D.now ? D.va[i] : D.vp[i]) + 'px'; await s.point(aim, false); show(i); await s.beat(1.4); };
+    await s.beat(4);
+    // (the reading past Now is two points on, so on a phone its chip stays clear of the axis's last label)
+    for (const i of [D.now - 6, D.now - 3, D.now, D.now + 2]) await read(i);
+    hide(); s.away(); await s.beat(1);
+    await s.tap($('.lnx-rg [data-v="w"]', r)); await s.beat(3);
+    await read(D.now + 1); hide(); s.away(); await s.beat(1);
+    await s.tap(pk); await s.beat(1.4);
+    await s.tap($('.mi[data-k="1"]', pp)); await s.beat(3.5);
+    await read(D.now); hide(); s.away(); await s.beat(1);
   });
-  c.on(ch, 'pointermove', e => { const b = ch.getBoundingClientRect(); const i = Math.max(0, Math.min(11, Math.round((e.clientX - b.left) / b.width * 11))); const px = i / 11 * b.width;
-    x.style.left = px + 'px';
-    [pa, pb].forEach((p, k) => { pts[k].style.left = px + 'px'; pts[k].style.top = p[i][1] / 140 * b.height + 'px'; pts[k].classList.toggle('on', on[k]); });
-    $('b', tt).textContent = (on[0] ? A[i].toLocaleString('en-US') : B[i].toLocaleString('en-US')) + ' editors'; const dv = Math.round((A[i] / B[i] - 1) * 100); $('span', tt).textContent = MO[i] + (on[0] && on[1] ? ', ' + (dv < 0 ? '−' : '+') + Math.abs(dv) + '% vs last year' : '');
-    // the readout sits beside the guide line: on its right while it fits there, then on its left, and always inside the chart
-    const w = tt.offsetWidth, gap = 12; tt.style.left = Math.max(0, px + gap + w <= b.width ? px + gap : px - gap - w) + 'px';
-    v.textContent = (on[0] ? A[i] : B[i]).toLocaleString('en-US'); });
-  c.on(ch, 'pointerleave', () => v.textContent = (on[0] ? A[11] : B[11]).toLocaleString('en-US'));
-  $$('.lnx-k', r).forEach(k => k.onclick = () => { const s = +k.dataset.s; if (on[s] && !on[1 - s]) return; on[s] = !on[s]; k.classList.toggle('on', on[s]); $('.l' + s, svg).classList.toggle('off', !on[s]); if (s === 0) $('.ar', svg).style.opacity = on[0] ? 1 : 0;
-    // the big number rolls to the latest value of the line that is showing
-    const from = +v.textContent.replace(/,/g, ''), to = on[0] ? A[11] : B[11]; if (from !== to) tween(from, to, 600, n => v.textContent = Math.round(n).toLocaleString('en-US')); });
 });
 /* ---------- Bar chart ---------- */
 DM.def('bar-chart', (r, c) => {
@@ -76,19 +191,75 @@ DM.def('bar-chart', (r, c) => {
 });
 /* ---------- Donut chart ---------- */
 DM.def('donut-chart', (r, c) => {
-  const D = [['Design reviews',14.2,'var(--c1)'],['Code changes',9.6,'var(--c2)'],['Research',6.1,'var(--c3)'],['Copy edits',3.4,'var(--c4)'],['Other',1.7,'var(--line-strong)']];
-  const tot = D.reduce((a, d) => a + d[1], 0), C = 2 * Math.PI * 48, gap = 2;
-  const svg = $('svg', r), lg = $('.dnx-lg', r), ring = $('.dnx-ring', r), v = $('.dnx-v', r), l = $('.dnx-l', r);
-  let off = 0;
-  svg.innerHTML = D.map((d, i) => { const len = d[1] / tot * C; const s = `<circle cx="60" cy="60" r="48" stroke="${d[2]}" stroke-dasharray="0 ${C}" stroke-dashoffset="${-off}" data-i="${i}" data-len="${len - gap}"/>`; off += len; return s; }).join('');
-  lg.innerHTML = D.map((d, i) => `<div class="dnx-r" data-i="${i}"><i style="background:${d[2]}"></i><span class="t">${d[0]}</span><span class="v num">${d[1]}h · ${Math.round(d[1] / tot * 100)}%</span></div>`).join('');
-  const arcs = $$('circle', svg), rows = $$('.dnx-r', lg);
-  const hl = i => { ring.classList.toggle('hov', i != null); arcs.forEach((a, j) => a.classList.toggle('hl', j === i)); rows.forEach((x, j) => x.classList.toggle('hl', j === i));
-    if (i == null){ v.textContent = tot.toFixed(1) + 'h'; l.textContent = 'Agent time'; } else { v.textContent = D[i][1] + 'h'; l.textContent = D[i][0]; } };
-  [...arcs, ...rows].forEach(el => { el.onmouseenter = () => hl(+el.dataset.i); el.onmouseleave = () => hl(null); });
+  // the week's agent hours by kind of task, out of a 40-hour budget
+  const D = [['Design reviews', 14.2, 'var(--c1)'], ['Code changes', 9.6, 'var(--c2)'], ['Research', 6.1, 'var(--c3)'], ['Copy edits', 5.1, 'var(--c4)']], MAX = 40, OF = 'of 40h this week';
+  const tot = D.reduce((a, d) => a + d[1], 0);
+  const svg = $('.dnx-svg', r), lg = $('.dnx-lg', r), g = $('.dnx-g', r), v = $('.dnx-v', r), l = $('.dnx-l', r), uid = 'dnx' + Math.random().toString(36).slice(2, 8);
+  /* the half ring: centred on the middle of its base, the parts 4px apart. Its thickness and corner radius are the style's
+     (--dnx-th, --dnx-cr: 18px and 4px, Clean 14px and 5px), read when it draws */
+  const CX = 110, CY = 110, RO = 104, GAP = 4;
+  let RI = 86, CR = 4;
+  const geo = () => { const cs = getComputedStyle(svg); RI = RO - (parseFloat(cs.getPropertyValue('--dnx-th')) || 18); CR = parseFloat(cs.getPropertyValue('--dnx-cr')) || 4; };
+  const P = (rho, a) => `${(CX + rho * Math.cos(a)).toFixed(2)} ${(CY - rho * Math.sin(a)).toFixed(2)}`;
+  /* one part, from f0 to f1 of the sweep (left to right over the top). The corners are rounded by a stroke of their radius drawn
+     round the part's shape inset by that radius, so the outline is the part's own and only its corners turn (Blueprint joins
+     the stroke square, which gives the square part). gs and ge are the room left at each end: half the gap where it meets
+     another part, nothing at the ring's own ends */
+  const part = (f0, f1, gs, ge) => {
+    const ts = Math.PI * (1 - f0), te = Math.PI * (1 - f1), ro = RO - CR, ri = RI + CR;
+    let os = ts - Math.asin((gs + CR) / ro), oe = te + Math.asin((ge + CR) / ro), is = ts - Math.asin((gs + CR) / ri), ie = te + Math.asin((ge + CR) / ri);
+    if (os < oe) os = oe = (os + oe) / 2;
+    if (is < ie) is = ie = (is + ie) / 2;
+    return `M${P(ro, os)}A${ro} ${ro} 0 0 1 ${P(ro, oe)}L${P(ri, ie)}A${ri} ${ri} 0 0 0 ${P(ri, is)}Z`;
+  };
+  const cum = []; let acc = 0; D.forEach(d => { cum.push([acc / MAX, (acc + d[1]) / MAX]); acc += d[1]; });
+  /* Clean's inner shadow for the track (Clean's CSS turns it on through --dnx-in): a 1px ring just inside the edge and a soft
+     shade from the top, each the track's own shape cut out of a blurred or shrunk copy of it */
+  svg.style.setProperty('--dnx-in', `url(#${uid}-in)`);
+  svg.innerHTML = `<defs><filter id="${uid}-in" filterUnits="userSpaceOnUse" x="-4" y="-4" width="228" height="118" color-interpolation-filters="sRGB">`
+    + `<feOffset in="SourceAlpha" dy="1" result="o"/><feGaussianBlur in="o" stdDeviation="1.5" result="b"/><feComposite in="SourceAlpha" in2="b" operator="out" result="e"/>`
+    + `<feFlood class="dnx-in-s"/><feComposite in2="e" operator="in" result="s"/>`
+    + `<feMorphology in="SourceAlpha" operator="erode" radius="1" result="k"/><feComposite in="SourceAlpha" in2="k" operator="out" result="q"/>`
+    + `<feFlood class="dnx-in-r"/><feComposite in2="q" operator="in" result="r"/>`
+    + `<feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="s"/><feMergeNode in="r"/></feMerge></filter></defs>`
+    + D.map((d, i) => `<path data-i="${i}" style="fill:${d[2]};stroke:${d[2]}"/>`).join('') + `<path class="tr"/>`;
+  const arcs = $$('path[data-i]', svg), track = $('.tr', svg);
+  // the parts sweep in to the front f, and the track fills what is left after it
+  const draw = f => {
+    geo();
+    cum.forEach(([a, b], i) => { const e = Math.min(b, f); arcs[i].setAttribute('d', e > a + .004 ? part(a, e, a ? GAP / 2 : 0, e < 1 ? GAP / 2 : 0) : ''); });
+    const end = Math.min(f, tot / MAX); track.setAttribute('d', end < .996 ? part(end, 1, end ? GAP / 2 : 0, 0) : '');
+  };
+  lg.innerHTML = `<i class="dnx-hv" aria-hidden="true"></i>` + D.map((d, i) => `<button type="button" class="dnx-r" data-i="${i}" aria-pressed="false"><i style="background:${d[2]}"></i><span class="t">${d[0]}</span><span class="v num">${d[1]}h</span></button>`).join('');
+  lg.classList.add('gl');
+  const rows = $$('.dnx-r', lg), hv = $('.dnx-hv', lg);
+  /* what the middle shows: the part pointed at or focused, else the selected one, else the total. Clean's hover is one fill
+     under the rows that glides to the row in question, appearing where it is the first time rather than sliding in */
+  let hov = null, sel = null, swept = false, hvOn = false;
+  const glide = i => {
+    if (i == null){ hv.style.opacity = '0'; hvOn = false; return; }
+    const y = rows[i].offsetTop, h = rows[i].offsetHeight;
+    if (!hvOn){ hv.style.transition = 'none'; hv.style.transform = `translateY(${y}px)`; hv.style.height = h + 'px'; void hv.offsetWidth; hv.style.transition = ''; }
+    else { hv.style.transform = `translateY(${y}px)`; hv.style.height = h + 'px'; }
+    hv.style.opacity = '1'; hvOn = true;
+  };
+  const show = () => { const i = hov ?? sel; g.classList.toggle('hov', i != null);
+    arcs.forEach((a, j) => a.classList.toggle('hl', j === i)); rows.forEach((x, j) => { x.classList.toggle('hl', j === i); x.classList.toggle('sel', j === sel); x.setAttribute('aria-pressed', String(j === sel)); });
+    glide(hov);
+    if (!swept) return;
+    if (i == null){ v.textContent = tot.toFixed(1) + 'h'; l.textContent = OF; } else { v.textContent = D[i][1] + 'h'; l.textContent = D[i][0]; } };
+  const pick = i => { sel = sel === i ? null : i; show(); };
+  arcs.forEach(el => { el.onmouseenter = () => { hov = +el.dataset.i; show(); }; el.onmouseleave = () => { hov = null; show(); }; el.onclick = () => pick(+el.dataset.i); });
+  // on the legend the pointer moving from row to row keeps the hover (the gap between rows included); it goes when it leaves
+  rows.forEach(el => { el.onmouseenter = () => { hov = +el.dataset.i; show(); }; el.onclick = () => pick(+el.dataset.i);
+    el.onfocus = () => { hov = +el.dataset.i; show(); }; el.onblur = e => { if (!rows.includes(e.relatedTarget)){ hov = null; show(); } };
+    el.onkeydown = e => { if (e.key === 'Escape' && sel != null){ sel = null; show(); } }; });
+  lg.onmouseleave = () => { const f = document.activeElement; if (!(lg.contains(f) && f.matches(':focus-visible'))){ hov = null; show(); } };
   stagger(rows, 60, 150);
-  v.textContent = '0.0h';
-  c.later(260, () => { arcs.forEach((a, i) => c.later(i * 90, () => a.setAttribute('stroke-dasharray', `${a.dataset.len} ${C}`))); tween(0, tot, 1200, n => v.textContent = n.toFixed(1) + 'h'); });
+  v.textContent = '0.0h'; l.textContent = OF; draw(0);
+  // the parts sweep in once the gauge has risen into view, and the total counts up with them (a part pointed at meanwhile is
+  // named in the middle once the count is done)
+  c.later(260, () => tween(0, tot / MAX, REDUCE ? 1 : 1200, (f, p) => { draw(f); if (p >= 1){ swept = true; show(); } else v.textContent = (Math.min(f, tot / MAX) * MAX).toFixed(1) + 'h'; }, t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2));
 });
 /* ---------- Funnel ---------- */
 DM.def('funnel', (r, c) => {
@@ -214,6 +385,8 @@ DM.def('health-score', (r, c) => {
       <span class="hsc-v"><b class="num"></b><span></span></span>${I('chev-d', 'xs hsc-cv')}</button>
     <div class="fold shut hsc-d" id="${id}-d${i}" role="region" aria-label="${L[k]} details"><div><div class="hsc-dc"></div></div></div>`;
   const root = $('.hsc', r), list = $('.hsc-l', root);
+  // Clean's one hover: a highlight that glides from factor to factor (hoverGlide)
+  c.offs.push(hoverGlide(list, '.hsc-t'));
   list.innerHTML = K.map(row).join('');
   const ring = $('.hsc-ring', root), fl = $('.fl', ring), num = $('b', ring), an = $('.hsc-ac b', root), as = $('.hsc-ac span', root);
   const vd = $('.hsc-vd', root), sub = $('.hsc-sub', root), dl = $('.hsc-dl', root), sr = $('.hsc-sr', root);
@@ -298,6 +471,10 @@ DM.def('health-score', (r, c) => {
   const sg = $('.demo .seg2', r);
   seg(sg, v => show(+v));
   show(1, true);
+  // the agent's line eases to a new line count when it changes (an account switch, the agent's work landing), so the card grows
+  // and shrinks smoothly, centred in its stage
+  const say = $('.hsc-say', sug);
+  Promise.resolve().then(() => Promise.all(root.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && say.isConnected) c.offs.push(grow(say)); });
 
   // the preview's story, once: Watch is showing, the person books the check-in the agent suggests and Next step turns green,
   // then they switch to the account at risk. After that it stays as it is, for the visitor
@@ -338,22 +515,30 @@ DM.def('activity-heatmap', (r, c) => {
 });
 /* ---------- Stat cards ---------- */
 DM.def('stat-cards', (r, c) => {
+  // icon, label, [value, change %] for each period, unit, the sparkline's shape, and whether lower is better: spend falling is
+  // good news, so its chip is green when it falls and red when it rises
   const S = [
     ['spark','Agent runs',[[412,12],[1730,18],[4980,22]],'',[3,4,4,5,6,5,7,8]],
     ['users','Active editors',[[318,4],[1130,9],[1620,31]],'',[5,5,6,6,6,7,7,8]],
     ['clock','Hours saved',[[96,15],[402,21],[1180,26]],'h',[2,3,3,4,5,6,6,8]],
-    ['coins','Agent spend',[[84,-6],[341,-3],[960,8]],'$',[6,5,6,5,4,4,4,3]]
+    ['coins','Agent spend',[[84,-6],[341,-3],[960,8]],'$',[6,5,6,5,4,4,4,3],true]
   ];
-  const grid = $('.scx-grid', r); let per = 1;
-  grid.innerHTML = S.map((s, i) => `<div class="scx-c panel"><span class="scx-k"><span class="ic">${I(s[0],'xs')}</span>${s[1]}</span><div class="scx-v"><b class="num">0</b><span class="scx-d num"></span></div><div class="scx-sp"><svg viewBox="0 0 100 30" preserveAspectRatio="none"><path stroke="var(--c${i + 1})" d="M0 30 L100 30"/></svg></div></div>`).join('');
+  const CMP = ['vs previous 7 days','vs previous 30 days','vs last quarter'];
+  const grid = $('.scx-grid', r), uid = Math.random().toString(36).slice(2, 7); let per = 1;
+  // each sparkline is its line and, under it, the area down to the axis, which Clean fills with the line's colour fading to nothing
+  grid.innerHTML = S.map((s, i) => `<div class="scx-c panel"><span class="scx-k"><span class="ic">${I(s[0],'xs')}</span>${s[1]}</span><div class="scx-v"><b class="num">0</b><span class="scx-d num"></span><span class="scx-sr"></span></div><div class="scx-sp"><svg viewBox="0 0 100 30" preserveAspectRatio="none" style="color:var(--c${i + 1})"><defs><linearGradient id="scx-${uid}-${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".22"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path class="ar" style="fill:url(#scx-${uid}-${i})" d="M0 30 L100 30 Z"/><path class="ln" stroke="var(--c${i + 1})" d="M0 30 L100 30"/></svg></div></div>`).join('');
   const cards = $$('.scx-c', grid), cur = S.map(() => 0);
   const fmt = (s, v) => s[3] === '$' ? '$' + Math.round(v).toLocaleString('en-US') : Math.round(v).toLocaleString('en-US') + s[3];
   function draw(p){
     per = p; cards.forEach((el, i) => { const s = S[i], [val, ch] = s[2][p];
       tween(cur[i], val, 900, v => { cur[i] = v; $('b', el).textContent = fmt(s, v); });
-      const d = $('.scx-d', el); d.className = 'tag scx-d num ' + (ch >= 0 ? 'ok up' : 'bad dn'); swap(d, (ch >= 0 ? '+' : '') + ch + '%');
+      // the chip: green when the change is good news, red when it isn't, with a true minus sign; pointing at it says what it
+      // is measured against, and screen readers hear it after the number
+      const good = s[5] ? ch <= 0 : ch >= 0, txt = (ch > 0 ? '+' : ch < 0 ? '\u2212' : '') + Math.abs(ch) + '%';
+      const d = $('.scx-d', el); d.className = 'tag scx-d num ' + (good ? 'ok' : 'bad') + (ch >= 0 ? ' up' : ' dn'); swap(d, txt); d.dataset.tip = CMP[p];
+      $('.scx-sr', el).textContent = CMP[p];
       const pts = s[4].map((y, k) => { const yy = y + Math.sin(k * 1.7 + p * 2) * (p ? 1 : .5); return `${k === 0 ? 'M' : 'L'}${(k / 7 * 100).toFixed(1)} ${(29 - yy * 3.2).toFixed(1)}`; }).join(' ');
-      $('path', el).setAttribute('d', pts); el.dataset.tip = ['vs previous 7 days','vs previous 30 days','vs last quarter'][p]; });
+      $('path.ln', el).setAttribute('d', pts); $('path.ar', el).setAttribute('d', pts + ' L100 30 L0 30 Z'); });
   }
   seg($('.scx-sg', r), v => draw(+v));
   stagger(cards, 70);
@@ -375,12 +560,19 @@ DM.def('account-table', (r, c) => {
   const hc = h => h >= 80 ? 'var(--atb-ok)' : h >= 60 ? 'var(--atb-warn)' : 'var(--atb-bad)';
   // each row is made once and kept, so a search or a plan filter can ease it between places; the note under an open row
   // is its own row, keyed after it
-  const rows = new Map(A.map(a => [a[0], html(`<tr class="row" data-n="${a[0]}"><td><span class="nm"><span class="lg" style="background:var(--av-${a[1]});color:var(--av-${a[1]}-ink)">${a[0][0]}</span>${a[0]}</span></td><td><span class="tag ${a[2] === 'Enterprise' ? 'l' : a[2] === 'Pro' ? 'b' : 't'}">${a[2]}</span></td><td class="num">${a[3]}</td><td><span class="hb"><i><b style="width:${a[4]}%;background:${hc(a[4])}"></b></i><span class="num">${a[4]}</span></span></td><td class="r num">${a[5]}</td></tr>`)]));
-  const none = html('<tr class="atb-empty" data-n=" none"><td colspan="5">No accounts match</td></tr>');
+  const rows = new Map(A.map(a => [a[0], html(`<tr class="row" data-n="${a[0]}" tabindex="0" aria-expanded="false"><td><span class="nm"><span class="lg" style="background:var(--av-${a[1]});color:var(--av-${a[1]}-ink)">${a[0][0]}</span>${a[0]}</span></td><td><span class="tag ${a[2] === 'Enterprise' ? 'l' : a[2] === 'Pro' ? 'b' : 't'}">${a[2]}</span></td><td class="r num">${a[3]}</td><td><span class="hb"><i><b style="width:${a[4]}%;background:${hc(a[4])}"></b></i><span class="num">${a[4]}</span></span></td><td class="r num">${a[5]}</td></tr>`)]));
+  const none = html('<tr class="atb-empty" data-n=" none"><td colspan="5"><div class="atb-em"><span class="atb-em-art" aria-hidden="true"></span><b>No accounts match</b><span>Try another name, or show every plan.</span><button class="pill soft sm">Show all accounts</button></div></td></tr>');
+  $('.pill', none).onclick = () => { q.value = ''; plan = ''; pick($('.atb-fl .chip[data-p=""]', r)); paint(true); };
   let det = null;
   function note(a){
     const d = html(`<tr class="det" data-n="${a[0]} note"><td colspan="5"><div class="fold"><div><div class="atb-note">${I('spark','xs')}<span>${a[6]}</span><button class="pill soft sm">Draft email</button></div></div></div></td></tr>`);
-    const dr = $('.pill', d); dr.onclick = e => { e.stopPropagation(); dr.innerHTML = '<span class="spin"></span>'; c.later(800, () => { dr.innerHTML = I('check','xs') + 'Draft ready'; }); };
+    // pressed, it says Drafting with the loader's sweep, then Draft ready with the green tick; it is always as wide as its
+    // words, easing to each new width, and never goes blank
+    const dr = $('.pill', d);
+    const label = h => { const w0 = dr.getBoundingClientRect().width; dr.innerHTML = h; const w1 = dr.getBoundingClientRect().width;
+      if (!REDUCE && w0 && Math.abs(w1 - w0) > .5) dr.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:(parseFloat(getComputedStyle(dr).getPropertyValue('--t')) || .45) * 1000, easing:getComputedStyle(dr).getPropertyValue('--ease').trim() || 'ease' }); };
+    dr.onclick = e => { e.stopPropagation(); if (dr.dataset.s) return; dr.dataset.s = 'busy'; label('<span class="spin"></span><span class="shim">Drafting</span>');
+      c.later(900, () => { dr.dataset.s = 'done'; label(`<span class="atb-done">${I('check','xs')}</span>Draft ready`); }); };
     return d;
   }
   // the rows that match, in order, with the open row's note under it
@@ -397,12 +589,21 @@ DM.def('account-table', (r, c) => {
     if (det){ const d = det, f = $('.fold', d); d.classList.add('going'); d.removeAttribute('data-n'); f.classList.add('shut'); setTimeout(() => d.remove(), REDUCE ? 0 : (parseFloat(getComputedStyle(r).getPropertyValue('--t')) || .45) * 1000); det = null; }
     open = open === n ? null : n;
     if (open){ det = note(A.find(a => a[0] === open)); det._row = rows.get(open); const f = $('.fold', det); f.classList.add('shut'); rows.get(open).after(det); void f.offsetHeight; f.classList.remove('shut'); enter($('.atb-note', det)); }
-    rows.forEach((tr, k) => tr.classList.toggle('open', k === open));
+    rows.forEach((tr, k) => { tr.classList.toggle('open', k === open); tr.setAttribute('aria-expanded', k === open); });
   }
-  rows.forEach((tr, n) => tr.onclick = () => toggle(n));
+  // a row opens with a click, or with Enter or Space once it has the focus
+  rows.forEach((tr, n) => { tr.onclick = () => toggle(n); tr.onkeydown = e => { if ((e.key === 'Enter' || e.key === ' ') && e.target === tr){ e.preventDefault(); toggle(n); } }; });
   q.oninput = () => paint(true);
-  $$('.atb-fl .chip', r).forEach(ch => ch.onclick = () => { $$('.atb-fl .chip', r).forEach(x => x.classList.toggle('on', x === ch)); plan = ch.dataset.p; paint(true); });
+  const pick = ch => $$('.atb-fl .chip', r).forEach(x => { x.classList.toggle('on', x === ch); x.setAttribute('aria-pressed', x === ch); });
+  $$('.atb-fl .chip', r).forEach(ch => ch.onclick = () => { pick(ch); plan = ch.dataset.p; paint(true); });
   paint(); stagger([...rows.values()], 35);
+  // the columns resize and move as in a spreadsheet (owner, 10 and 21 Nov); Account stays first, and every other header takes
+  // the keyboard's focus, so Alt and an arrow move it
+  $$('thead th', r).forEach((th, i) => { if (i) th.tabIndex = 0; });
+  c.offs.push(cols($('table', r), { move:[1, 2, 3, 4], min:{ 0:150, 1:96, 2:72, 3:112, 4:88 } }));
+  // the rows come in once: a row a search or a filter puts back glides to its place and never plays its entrance again (in
+  // Clean and Blueprint the entrance runs under its own name, which enter() doesn't clear)
+  rows.forEach(tr => { const done = e => { if (e.target !== tr) return; tr.classList.remove('enter'); tr.removeEventListener('animationend', done); }; tr.addEventListener('animationend', done); });
   // the preview opens one account's note on its own, unless you take over first
   c.auto(1200, () => { if (!open) toggle('Lumen Labs'); });
 });
@@ -646,24 +847,27 @@ DM.def('score-breakdown', (r, c) => {
   ];
   const LAST = 77;
   const g = $('.sbx-g', r), svg = $('svg', g), vb = $('.sbx-v b', r), bw = $('.sbx-bw', r), ch = $('.sbx-ch', r), list = $('.sbx-list', r);
+  // Clean's one hover: a highlight that glides from factor to factor (hoverGlide); the lit and the open one keep their own
+  c.offs.push(hoverGlide(list, '.sbx-r', { keep:'.on,.open' }));
   const total = () => F.reduce((t, f) => t + f.e, 0), band = s => s >= 90 ? 'Excellent' : s >= 75 ? 'Good' : s >= 60 ? 'Fair' : 'Needs work';
   const weakest = () => F.reduce((m, f, i) => f.e / f.w < F[m].e / F[m].w ? i : m, 0);
   // the gauge: a half circle split by weight, with a small gap between the segments
-  const CX = 100, CY = 100, RAD = 86, GAP = .04;
+  // (a style with round ends, --sbx-cap, draws each part that much shorter at both ends, so the caps keep the gaps)
+  const CX = 100, CY = 100, RAD = 86, GAP = .04, CAP = (parseFloat(getComputedStyle(g).getPropertyValue('--sbx-cap')) || 0) / RAD;
   const at = a => [CX + Math.cos(a) * RAD, CY + Math.sin(a) * RAD];
   const arc = (a0, a1) => { const [x0, y0] = at(a0), [x1, y1] = at(a1); return `M${x0.toFixed(2)} ${y0.toFixed(2)}A${RAD} ${RAD} 0 0 1 ${x1.toFixed(2)} ${y1.toFixed(2)}`; };
-  let a = Math.PI; const SEG = F.map(f => { const span = f.w / 100 * Math.PI, s = [a + GAP / 2, a + span - GAP / 2]; a += span; return s; });
+  let a = Math.PI; const SEG = F.map(f => { const span = f.w / 100 * Math.PI, s = [a + GAP / 2 + CAP, a + span - GAP / 2 - CAP]; a += span; return s; });
   svg.innerHTML = F.map((f, i) => `<g data-i="${i}"><path class="tr" d="${arc(...SEG[i])}"/><path class="fl" style="stroke:${f.c}" d=""/></g>`).join('');
   const G = $$('g', svg);
   const fill = (i, p) => { const [a0, a1] = SEG[i]; $('.fl', G[i]).setAttribute('d', p > 0 ? arc(a0, a0 + (a1 - a0) * Math.min(1, p)) : ''); };
-  list.innerHTML = F.map((f, i) => `<div class="sbx-r" data-i="${i}"><button class="sbx-rh" aria-expanded="false"><i style="background:${f.c}"></i><span class="n"><span>${f.n}</span></span><span class="e num"></span><span class="bar"><i style="background:${f.c}"></i></span>${I('chev-r','xs')}<span class="sbx-nt">${f.note}</span></button><div class="fold shut"><div><div class="sbx-d"></div></div></div></div>`).join('');
+  list.innerHTML = F.map((f, i) => `<div class="sbx-r" data-i="${i}"><button class="sbx-rh" aria-expanded="false"><i style="background:${f.c}"></i><span class="n"><span>${f.n}</span></span><span class="e num"></span><span class="bar"><i></i></span>${I('chev-r','xs')}<span class="sbx-nt">${f.note}</span></button><div class="fold shut"><div><div class="sbx-d"></div></div></div></div>`).join('');
   const R = $$('.sbx-r', list);
   let score = 0, shownFill = F.map(() => 0);
   function paint(ms = 700){
     const s = total(), w = weakest();
     tween(score, s, ms, x => { vb.textContent = Math.round(x); }); score = s;
     g.setAttribute('aria-valuenow', s); g.setAttribute('aria-valuetext', `${s} of 100, ${band(s).toLowerCase()}, ${s - LAST >= 0 ? 'up' : 'down'} ${Math.abs(s - LAST)} since last week`);
-    swap(bw, band(s)); ch.hidden = false; ch.className = 'tag num sbx-ch ' + (s >= LAST ? 'ok' : 'bad'); swap(ch, `${s >= LAST ? '+' : '−'}${Math.abs(s - LAST)} since last week`);
+    bw.classList.remove('shim'); swap(bw, band(s)); ch.hidden = false; ch.className = 'tag num sbx-ch ' + (s >= LAST ? 'ok' : 'bad'); swap(ch, `${s >= LAST ? '+' : '−'}${Math.abs(s - LAST)} since last week`);
     F.forEach((f, i) => { const row = R[i], from = shownFill[i], to = f.e / f.w; shownFill[i] = to; tween(from, to, ms + i * 120, p => fill(i, p));
       $('.e', row).textContent = `${f.e}/${f.w}`; $('.bar i', row).style.width = to * 100 + '%'; $('.sbx-nt', row).textContent = f.note;
       // the weakest factor is flagged in words
@@ -671,15 +875,22 @@ DM.def('score-breakdown', (r, c) => {
       $('.sbx-rh', row).setAttribute('aria-label', `${f.n}: ${f.e} of ${f.w} points${i === w ? ', weakest' : ''}. ${f.note}`); detail(i); });
   }
   // an open row: the note, and for the factor that can improve, Improve, which asks the agent for a proposal
+  // an open row's detail that changes what it says (the agent looking, its proposal, the result) eases to its new height, so
+  // the card grows and shrinks smoothly round it, centred in its stage
+  const morph = (d, change) => { const h0 = d.offsetHeight; change();
+    if (REDUCE || !d.closest('.sbx-r').classList.contains('open')) return; const h1 = d.offsetHeight; if (Math.abs(h1 - h0) < 1) return;
+    if (d._mo) d._mo.cancel(); d.style.overflow = 'clip'; const cs = getComputedStyle(r);
+    const a = d._mo = d.animate([{ height:h0 + 'px' }, { height:h1 + 'px' }], { duration:(parseFloat(cs.getPropertyValue('--t')) || .34) * 1000, easing:cs.getPropertyValue('--ease').trim() || 'ease' });
+    a.onfinish = a.oncancel = () => { if (d._mo !== a) return; d._mo = null; d.style.overflow = ''; }; };
   function detail(i){ const f = F[i], d = $('.sbx-d', R[i]); if (d.dataset.st === 'busy' || d.dataset.st === 'prop') return;
     const lost = f.w - f.e;
-    d.innerHTML = `<span>${f.done ? f.done + ' ' : ''}${lost ? `Loses ${lost} of its ${f.w} points` : 'Full marks'}${i === weakest() && lost ? ', the most of any factor for its weight.' : '.'}</span>${f.fix ? `<span class="acts"><button class="pill soft sm sbx-imp">${I('wand','xs')}Improve</button></span>` : ''}`;
+    morph(d, () => d.innerHTML = `<span>${f.done ? f.done + ' ' : ''}${lost ? `Loses ${lost} of its ${f.w} points` : 'Full marks'}${i === weakest() && lost ? ', the most of any factor for its weight.' : '.'}</span>${f.fix ? `<span class="acts"><button class="pill soft sm sbx-imp">${I('wand','xs')}Improve</button></span>` : ''}`);
     const b = $('.sbx-imp', d); if (b) b.onclick = () => improve(i); }
   const improve = i => c.run(async () => { const f = F[i], d = $('.sbx-d', R[i]); d.dataset.st = 'busy';
-    d.innerHTML = `<div class="sbx-pr"><span class="k">${I('spark','xs')}<span class="shim">Looking at 120 slow replies</span></span></div>`; enter(d.firstElementChild);
+    morph(d, () => d.innerHTML = `<div class="sbx-pr"><span class="k">${I('spark','xs')}<span class="shim">Looking at 120 slow replies</span></span></div>`); enter(d.firstElementChild);
     await c.wait(1300);
     d.dataset.st = 'prop';
-    d.innerHTML = `<div class="sbx-pr"><span class="k">${I('spark','xs')}Proposal</span><span>${f.fix.t}</span><span class="gain">${f.fix.gain}: ${f.n} <b class="num">${f.e} → ${f.fix.to}</b></span><span class="acts"><button class="pill primary sm sbx-ok">Apply</button><button class="pill ghost sm sbx-no">Not now</button></span></div>`;
+    morph(d, () => d.innerHTML = `<div class="sbx-pr"><span class="k">${I('spark','xs')}Proposal</span><span>${f.fix.t}</span><span class="gain">${f.fix.gain}: ${f.n} <b class="num">${f.e} → ${f.fix.to}</b></span><span class="acts"><button class="pill primary sm sbx-ok">Apply</button><button class="pill ghost sm sbx-no">Not now</button></span></div>`);
     $('.sbx-ok', d).onclick = () => { f.e = f.fix.to; f.note = f.fix.after; f.done = 'Applied: search results are cached and the lookups run together.'; delete f.fix; d.dataset.st = ''; paint(900); };
     $('.sbx-no', d).onclick = () => { d.dataset.st = ''; detail(i); $('.sbx-imp', d) && $('.sbx-imp', d).focus({ preventScroll:true }); };
   });

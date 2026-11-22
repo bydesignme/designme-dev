@@ -13,10 +13,11 @@ DM.def('status-pill', (r, c) => {
     c.later(REDUCE ? 0 : 170, () => { if (id !== morph) return; root.classList.toggle('bar', bar); fit(); });
     c.later(REDUCE ? 0 : 430, () => { if (id !== morph) return; morph = 0; box.classList.remove('out'); root.classList.remove('mo'); });
   });
-  /* both variants hug their content; the bar keeps a little extra room for its track */
+  /* both variants hug their content; the bar keeps a little extra room for its track. Neither is ever wider than the room
+     it has (a phone): its words give way with an ellipsis */
   function fit(){
     box.style.width = 'max-content'; const w = box.scrollWidth; box.style.width = '';
-    pill.style.width = (root.classList.contains('bar') ? Math.max(w + 24, 300) : w) + 'px';
+    pill.style.width = Math.min(root.classList.contains('bar') ? Math.max(w + 24, 300) : w, pill.parentElement.clientWidth || Infinity) + 'px';
   }
   function set(htmlStr, pct){
     pill.style.width = pill.offsetWidth + 'px';
@@ -28,6 +29,8 @@ DM.def('status-pill', (r, c) => {
   const think = '<span class="think on"><i></i><i></i><i></i><i></i></span>';
   box.innerHTML = '<span class="g"><span class="dot" style="color:var(--dm-faint)"></span></span><span class="fg2">Ready for a task</span><span class="end"></span>';
   requestAnimationFrame(fit);
+  // and it fits again when its room changes
+  if (window.ResizeObserver){ let rw = 0; const ro = new ResizeObserver(([e]) => { const w = Math.round(e.contentRect.width); if (w !== rw){ rw = w; fit(); } }); ro.observe(pill.parentElement); c.offs.push(() => ro.disconnect()); }
   const idle = '<span class="g"><span class="dot" style="color:var(--dm-faint)"></span></span><span class="fg2">Ready for a task</span><span class="end"></span>';
   c.run(async () => { for (;;){
     await c.wait(1100);
@@ -42,7 +45,8 @@ DM.def('status-pill', (r, c) => {
     /* waits for Review, and carries on by itself after a while so the loop never stalls; once you have taken over, it waits for you */
     await new Promise(res => { c.later(220, () => { const b = $('.pill', box); if (b) b.onclick = res; }); c.auto(8000, res); });
     set(`<span class="g" style="color:var(--dm-fg)"><span class="spin"></span></span><span class="shim">Applying 4 changes</span><span class="end"></span>`, 88); await c.wait(1600);
-    set(`<span class="g" style="color:var(--dm-ok)">${I('ok')}</span><span>Done</span><span class="m">4 files changed · 18s</span><span class="end"></span>`, 100);
+    // done is a neutral line with the green tick (the mark green), and no elapsed time (owner, 18 Nov)
+    set(`<span class="g" style="color:var(--dm-ok-mark)">${I('ok')}</span><span>Done</span><span class="m">4 files changed</span><span class="end"></span>`, 100);
     await c.wait(3200); set(idle, 0);
   } });
 });

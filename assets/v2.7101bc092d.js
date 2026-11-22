@@ -213,6 +213,176 @@ function grow(el){
   const ro = new ResizeObserver(fit); ro.observe(w); fit();
   return el._grow = () => { ro.disconnect(); el._grow = null; el.style.height = ''; el.classList.remove('growing'); };
 }
+/* hoverGlide(): Clean's one hover in a menu or a list (owner, 21 Nov): a single highlight that glides from row to row as the
+   pointer moves, and fades in as the pointer enters the list and out as it leaves. It follows the keyboard too: the row with
+   the focus (:focus-visible) and the row the arrows are on (o.hl, .hl by default). It is the list's own ::before (or its ::after
+   when that one is taken), placed by CSS variables (--hg-x, --hg-y, --hg-w, --hg-h and the row's own corners, --hg-r) and
+   drawn under the rows, so it adds no element and every :first-child and :last-child rule stays as it is. It eases over
+   Clean's 220ms with its ease; with reduced motion it only fades. Only Clean draws it (the CSS); there the rows' own hover
+   fills give way to it, while a picked row (o.keep) keeps its stronger --row-on fill over it. rows is a selector for the list's
+   rows. Returns a function that stops it */
+function hoverGlide(list, rows = '.mi', o = {}){
+  if (!list) return () => {};
+  if (list._hg) return list._hg;
+  const free = p => { const v = getComputedStyle(list, p).content; return !v || v === 'none' || v === 'normal'; };
+  const side = free('::before') ? 'b' : free('::after') ? 'a' : ''; if (!side) return () => {};
+  const hl = o.hl || '.hl', keep = o.keep || '[aria-selected="true"],[aria-checked="true"],[aria-current]:not([aria-current="false"])';
+  list.dataset.hg = side; list.classList.add('hg'); if (getComputedStyle(list).position === 'static') list.classList.add('hg-pos');
+  const all = () => $$(rows, list).filter(r => !r.hasAttribute('data-ghost'));
+  const ok = r => r && r.isConnected && list.contains(r) && !r.disabled && r.getAttribute('aria-disabled') !== 'true' && r.getClientRects().length;
+  // the rows' own fills give way to the glide, all but a picked one
+  const mark = () => all().forEach(r => { const v = r.matches(keep) ? 'k' : ''; if (r.dataset.hgr !== v) r.dataset.hgr = v; });
+  // where a row sits in the list, from the layout (offsetLeft and offsetTop), so a menu still scaling in is measured as it will
+  // be; a list that scrolls carries the highlight with its rows
+  const off = r => { let x = 0, y = 0, e = r;
+    while (e && e !== list){ x += e.offsetLeft; y += e.offsetTop; const p = e.offsetParent; if (!p || !(p === list || list.contains(p))){ const a = r.getBoundingClientRect(), b = list.getBoundingClientRect(); return [a.left - b.left - list.clientLeft + list.scrollLeft, a.top - b.top - list.clientTop + list.scrollTop]; } if (p !== list){ x += p.clientLeft; y += p.clientTop; } e = p; }
+    return [x, y]; };
+  let at = null, on = false, gone = -1e9, over = false;
+  const set = (k, v) => list.style.setProperty('--hg-' + k, v);
+  const show = r => {
+    if (!ok(r)) r = null;
+    if (!r){ if (on){ on = false; gone = performance.now(); set('o', '0'); } at = null; return; }
+    // coming back from hidden it starts where the row is; a quick return while it still fades glides on from where it was
+    const jump = !on && performance.now() - gone > 200, [x, y] = off(r);
+    if (jump) list.classList.add('hg-jump');
+    set('x', x + 'px'); set('y', y + 'px'); set('w', r.offsetWidth + 'px'); set('h', r.offsetHeight + 'px'); set('r', getComputedStyle(r).borderRadius); set('o', '1');
+    if (jump){ void getComputedStyle(list, side === 'b' ? '::before' : '::after').transform; requestAnimationFrame(() => list.classList.remove('hg-jump')); }
+    // (a new row is watched for its size; watching starts with one report, which only places it again)
+    if (ro && r !== at){ ro.disconnect(); ro.observe(list); ro.observe(r); }
+    at = r; on = true;
+  };
+  // what it rests on when nothing new has moved it: the row under a mouse, the keyboard's row, then the arrows' row
+  const rest = () => { const rs = all().filter(ok), f = document.activeElement;
+    return (over && rs.find(r => r.matches(':hover'))) || (f && list.contains(f) && f.matches(':focus-visible') && rs.find(r => r.contains(f))) || rs.find(r => r.matches(hl)) || null; };
+  const row = t => { const r = t && t.closest && t.closest(rows); return r && list.contains(r) ? r : null; };
+  // (a demo's pointer, which has no type, moves it as a mouse does; a list inside this one, like a toolbar's group of tools,
+  // has a glide of its own, so this one fades while the pointer is in it)
+  const onOver = e => { if (e.pointerType && e.pointerType !== 'mouse') return; over = true; const r = row(e.target); if (r) show(r); else if (e.target.closest('.hg') !== list) show(null); };
+  const onLeave = e => { if ((e.pointerType && e.pointerType !== 'mouse') || (e.relatedTarget && list.contains(e.relatedTarget))) return; over = false; show(rest()); };
+  const onIn = e => { const r = row(e.target); if (r && e.target.matches(':focus-visible')) show(r); };
+  const onOut = () => setTimeout(() => { if (list.isConnected && !list.contains(document.activeElement)) show(rest()); });
+  list.addEventListener('pointerover', onOver); list.addEventListener('pointerout', onLeave);
+  list.addEventListener('focusin', onIn); list.addEventListener('focusout', onOut);
+  // rows drawn again (a search narrowing the list), a row the arrows move to, a row picked; and a menu that closes hides it
+  const mo = new MutationObserver(ms => {
+    ms = ms.filter(m => m.target !== list || m.type !== 'attributes'); if (!ms.length) return;
+    mark(); let to;
+    for (const m of ms) if (m.type === 'attributes' && m.attributeName === 'class' && m.target.matches && m.target.matches(rows) && m.target.matches(hl)) to = m.target;
+    if (to) show(to); else if (!at || !ok(at) || !(over || at.matches(hl) || at.contains(document.activeElement))) show(rest()); else show(at);
+  });
+  mo.observe(list, { childList:true, subtree:true, attributes:true, attributeFilter:['class', 'aria-selected', 'aria-checked', 'aria-current', 'aria-disabled', 'disabled', 'hidden'] });
+  const pop = list.closest('.pop'), po = pop && new MutationObserver(() => { if (!pop.classList.contains('open')){ over = false; on = false; gone = -1e9; set('o', '0'); at = null; } });
+  if (po) po.observe(pop, { attributes:true, attributeFilter:['class'] });
+  const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(() => { if (at) show(at); }) : null;
+  if (ro) ro.observe(list);
+  mark(); show(rest());
+  // (the menus' own catch-all below hands it the row a pointer or the keyboard has just reached)
+  list._hgAt = (r, mouse) => { if (mouse) over = true; show(r); };
+  return list._hg = () => { mo.disconnect(); po && po.disconnect(); ro && ro.disconnect();
+    list.removeEventListener('pointerover', onOver); list.removeEventListener('pointerout', onLeave); list.removeEventListener('focusin', onIn); list.removeEventListener('focusout', onOut);
+    list.classList.remove('hg', 'hg-pos', 'hg-jump'); delete list.dataset.hg; ['x', 'y', 'w', 'h', 'r', 'o'].forEach(k => list.style.removeProperty('--hg-' + k)); all().forEach(r => delete r.dataset.hgr); list._hg = null; list._hgAt = null; };
+}
+/* every menu's rows (.mi) glide in Clean: a menu takes its glide the first time a pointer or the keyboard reaches one of its rows
+   (and as its component mounts), in the scrolling list its rows sit in, or the menu itself. Only the components' menus (in a
+   card's stage) take it: the templates' own menus keep theirs. Kanban and Agent harness keep their menus as they are until
+   their own Clean pass (Phase II, owner, 21 Nov) */
+function menuGlide(mi){
+  if (mi.closest('.kbx,.ahx')) return mi.parentElement;
+  const m = mi.closest('.pop,[role="menu"],[role="listbox"]') || mi.parentElement;
+  let box = m; for (let a = mi.parentElement; a && a !== m; a = a.parentElement){ const oy = getComputedStyle(a).overflowY; if (oy === 'auto' || oy === 'scroll'){ box = a; break; } }
+  // (a row that asks again before it acts, like Delete, keeps its own fill)
+  hoverGlide(box, '.mi', { keep:'[aria-selected="true"],[aria-checked="true"],[aria-current]:not([aria-current="false"]),.ask' }); return box;
+}
+['pointerover', 'focusin'].forEach(t => document.addEventListener(t, e => { const mi = e.target && e.target.closest && e.target.closest('.mi'); if (!mi || !mi.closest('.stage-in')) return; const box = menuGlide(mi);
+  if (!box._hgAt) return; if (t === 'focusin'){ if (e.target.matches(':focus-visible')) box._hgAt(mi); } else if (e.pointerType === 'mouse') box._hgAt(mi, true); }, true));
+/* cols(): a data table's columns, as in a spreadsheet (owner, 10 Nov; restated 21 Nov: "if we don't have the vertical lines,
+   we don't even know this is a column"). Each table draws the lines between its columns in its own CSS; this makes the
+   columns work:
+   - resizing: a handle on each header's right edge (.col-rz, a separator), dragged, or ← and → by 16px while it has the
+     focus; a double click gives every column its natural width back. No column goes under its min width; the last one takes
+     what is left, and once the columns outgrow the box the table scrolls sideways in it (the table's own CSS lets its box
+     scroll once it has a sized column, .cols-rz)
+   - moving: drag a header sideways (its column is tinted, a line shows where it will land and its name follows the
+     pointer), or Alt and ← → on a header or the button in it. Only the o.move columns move, among themselves; a drag never
+     sorts, and a touch on a header scrolls the table as it did
+   Rows added later (a sort, a filter, rows brought back) take the same order on their own. While o.wide() is false (a table
+   drawn as a list of cards on a phone), every row keeps its own order and its natural widths.
+   o: { lock:[indexes with no handle, like a checkbox], move:[indexes that move], min:{ index:px } (64 by default),
+   wide:() => boolean, name:th => the column's name }. Returns a function that stops it */
+function cols(table, o = {}){
+  const head = table.tHead.rows[0], N = head.cells.length, lock = new Set(o.lock || []), mov = o.move || [], wide = o.wide || (() => true);
+  const name = o.name || (th => th.textContent.trim()), min = ci => (o.min && o.min[ci]) || 64, ids = [...Array(N).keys()];
+  const cg = document.createElement('colgroup'); cg.innerHTML = '<col>'.repeat(N); [...cg.children].forEach((c, i) => c.dataset.ci = i); table.prepend(cg);
+  // every cell knows its column by data-ci, so a row can be put in any order and back
+  const tag = r => { if (r.cells.length !== N || r.hasAttribute('data-ghost')) return false; [...r.cells].forEach((td, i) => { if (td.dataset.ci == null) td.dataset.ci = i; }); return true; };
+  let order = [...ids], W = null, was = wide();
+  const shown = () => (wide() ? order : ids);
+  // a row already in order is left alone, so a press on a header isn't swallowed by its cell moving under it
+  const place = (r, cells) => { const s = shown(); if (cells.every((c, i) => +c.dataset.ci === s[i])) return; const by = {}; cells.forEach(c => by[c.dataset.ci] = c); s.forEach(i => r.appendChild(by[i])); };
+  const ths = () => [...head.cells], th = ci => head.querySelector(`:scope>[data-ci="${ci}"]`), px = ci => th(ci).getBoundingClientRect().width, last = () => shown()[N - 1];
+  const apply = () => {
+    [...table.rows].filter(tag).forEach(r => place(r, [...r.cells])); place(cg, [...cg.children]);
+    const on = !!W && wide(); table.classList.toggle('cols-rz', on);
+    [...cg.children].forEach(c => { const ci = +c.dataset.ci; c.style.width = on && ci !== last() ? Math.round(W[ci]) + 'px' : ''; });
+    table.style.width = on ? `max(100%, ${Math.round(shown().slice(0, -1).reduce((a, ci) => a + W[ci], 0) + min(last()))}px)` : '';
+    ths().forEach(h => { const g = h.querySelector(':scope>.col-rz'); if (g) g.setAttribute('aria-valuenow', Math.round(h.getBoundingClientRect().width)); });
+  };
+  ths().forEach((h, i) => { h.dataset.ci = i; if (lock.has(i)) return;
+    h.insertAdjacentHTML('beforeend', `<span class="col-rz" role="separator" aria-orientation="vertical" tabindex="0" aria-valuemin="${min(i)}" aria-label="Resize ${name(h)}" data-tip="Drag to resize, double click to reset" data-rz="${i}"></span>`); });
+  ths().forEach((h, i) => { if (mov.includes(i)) h.setAttribute('aria-keyshortcuts', 'Alt+ArrowLeft Alt+ArrowRight'); });
+  // the widths as they are on screen, the first time one changes
+  const measure = () => { if (W) return; W = {}; ids.forEach(ci => W[ci] = px(ci)); };
+  // a column's new width, never under its own min
+  const size = (ci, w) => { W[ci] = Math.max(min(ci), w); apply(); };
+  const moveTo = (ci, at) => { const s = [...order], from = s.indexOf(ci); s.splice(from, 1); s.splice(at > from ? at - 1 : at, 0, ci); order = s; apply(); };
+  let drag = null, dragged = false;
+  const ghost = document.createElement('div'), bar = document.createElement('div'); ghost.className = 'col-ghost'; bar.className = 'col-at';
+  const down = e => {
+    const g = e.target.closest('.col-rz');
+    if (g){ if (e.button || !wide()) return; e.preventDefault(); e.stopPropagation(); measure();
+      const ci = +g.dataset.rz, x0 = e.clientX, w0 = W[ci]; g.setPointerCapture(e.pointerId); g.classList.add('on'); table.classList.add('cols-rzing');
+      const mv = ev => size(ci, w0 + ev.clientX - x0);
+      const up = () => { g.removeEventListener('pointermove', mv); g.removeEventListener('pointerup', up); g.removeEventListener('pointercancel', up); g.classList.remove('on'); table.classList.remove('cols-rzing'); };
+      g.addEventListener('pointermove', mv); g.addEventListener('pointerup', up); g.addEventListener('pointercancel', up); return; }
+    const h = e.target.closest('th'); if (!h || h.parentElement !== head || e.button || e.pointerType === 'touch' || !wide() || !mov.includes(+h.dataset.ci)) return;
+    drag = { h, ci:+h.dataset.ci, x0:e.clientX, on:false };
+  };
+  const move = e => {
+    if (!drag) return;
+    if (!drag.on){ if (Math.abs(e.clientX - drag.x0) < 6) return; drag.on = true; hideTip(true); table.classList.add('cols-drag');
+      [...table.rows].forEach(r => { const c = [...r.cells].find(x => +x.dataset.ci === drag.ci && r.cells.length === N); if (c) c.classList.add('col-mv'); });
+      // they sit where the tooltip does, on the page in the components' style
+      ghost.textContent = name(drag.h); (tip.parentElement || document.body).append(ghost, bar); }
+    ghost.style.transform = `translate(${e.clientX + 12}px,${e.clientY - 14}px)`;
+    // where it lands: the gap between two movable columns nearest the pointer
+    const hs = ths(), m = hs.map((x, i) => ({ x, i })).filter(z => mov.includes(+z.x.dataset.ci)), tb = table.getBoundingClientRect();
+    let at = m[m.length - 1].i + 1; for (const z of m){ const b = z.x.getBoundingClientRect(); if (e.clientX < b.left + b.width / 2){ at = z.i; break; } }
+    drag.at = at; const x = at < N ? hs[at].getBoundingClientRect().left : tb.right;
+    Object.assign(bar.style, { left:Math.round(x - 1) + 'px', top:Math.round(tb.top) + 'px', height:Math.round(tb.height) + 'px' });
+  };
+  const end = () => { if (!drag) return; const d = drag; drag = null; if (!d.on) return;
+    dragged = true; setTimeout(() => dragged = false, 0); ghost.remove(); bar.remove(); table.classList.remove('cols-drag');
+    table.querySelectorAll('.col-mv').forEach(c => c.classList.remove('col-mv')); moveTo(d.ci, d.at); };
+  // the click a drag ends with never sorts, and a press on a handle never reaches the header's button
+  const click = e => { if (e.target.closest('.col-rz') || (dragged && e.target.closest('thead'))){ e.stopPropagation(); e.preventDefault(); dragged = false; } };
+  const dbl = e => { if (!e.target.closest('.col-rz')) return; W = null; apply(); };
+  const key = e => {
+    const g = e.target.closest('.col-rz');
+    if (g && /^Arrow(Left|Right)$/.test(e.key) && !e.altKey){ if (!wide()) return; e.preventDefault(); e.stopPropagation(); measure(); const ci = +g.dataset.rz; size(ci, W[ci] + (e.key === 'ArrowRight' ? 16 : -16)); return; }
+    const h = e.target.closest('th'); if (!h || h.parentElement !== head || !e.altKey || !/^Arrow(Left|Right)$/.test(e.key) || !wide()) return;
+    const ci = +h.dataset.ci; if (!mov.includes(ci)) return; e.preventDefault(); e.stopPropagation();
+    const slots = order.map((c, i) => mov.includes(c) ? i : -1).filter(i => i >= 0), p = slots.indexOf(order.indexOf(ci)) + (e.key === 'ArrowLeft' ? -1 : 1);
+    if (p < 0 || p >= slots.length) return; const t = e.target; moveTo(ci, e.key === 'ArrowLeft' ? slots[p] : slots[p] + 1); t.focus({ preventScroll:true });
+  };
+  table.addEventListener('pointerdown', down); window.addEventListener('pointermove', move); window.addEventListener('pointerup', end); window.addEventListener('pointercancel', end);
+  table.addEventListener('click', click, true); table.addEventListener('dblclick', dbl); table.addEventListener('keydown', key);
+  // rows that arrive later take the order, and a table that turns into cards (or back) takes its own order (or the chosen one)
+  const mo = new MutationObserver(() => apply()); [...table.tBodies].forEach(b => mo.observe(b, { childList:true }));
+  const ro = new ResizeObserver(() => { const w = wide(); if (w !== was){ was = w; apply(); } }); ro.observe(table.parentElement);
+  apply();
+  return () => { mo.disconnect(); ro.disconnect(); ghost.remove(); bar.remove(); table.removeEventListener('pointerdown', down); window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', end); window.removeEventListener('pointercancel', end);
+    table.removeEventListener('click', click, true); table.removeEventListener('dblclick', dbl); table.removeEventListener('keydown', key); };
+}
 /* centre(): keeps a field centred in the room its stage keeps for it, and glides it up as its list opens, so the field
    and the list sit centred together. showing() is the height on show once things settle; the glide runs at the speed
    folds and lists open with, so the two move as one */
@@ -244,7 +414,7 @@ function centre(c, el, showing, watch = []){
    - the arrows (disabled at the first and last stop), the dots (one per stop, the current one aria-current) and the keys on the
      track: Left and Right go a stop, Home and End to the ends, scrolling smoothly, or jumping with reduced motion
    - a mouse can drag the track like a finger; the click a drag ends with is swallowed
-   - .in on each slide that is at least 70% in view (the CSS brings it into focus), and say(i) once the track settles on the
+   - .in on each slide that is at least 70% in view (for a style that marks it), and say(i) once the track settles on the
      stop that starts with slide i, for a polite live region
    o: { prev, next, dots, dot:i => label, say:i => {}, key:e => {} (other keys on the track) }. Returns { go, at, measure } */
 function carousel(c, tr, o = {}){
@@ -306,7 +476,7 @@ function carousel(c, tr, o = {}){
   };
   c.on(tr, 'pointerup', drop); c.on(tr, 'pointercancel', drop);
   c.on(tr, 'click', e => { if (dragged){ e.preventDefault(); e.stopPropagation(); } }, true);
-  // a slide comes into focus once most of it is in view
+  // .in marks a slide once most of it is in view
   if ('IntersectionObserver' in window){
     const io = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle('in', e.isIntersecting && e.intersectionRatio >= .69)), { root:tr, threshold:[0, .7, 1] });
     S().forEach(s => io.observe(s)); c.offs.push(() => io.disconnect());
@@ -373,7 +543,7 @@ document.addEventListener('click', e => { const b = e.target.closest && e.target
 const DM = {
   defs:{},
   // agents at work: their demos keep playing while a mouse rests on them, instead of holding (see mount)
-  PLAYS:new Set(['status-pill','step-loader','thinking','reasoning-trail','agent-lanes','agent-run-timeline','trace-view','agent-tree','terminal-stream','attachment-tray','progress','web-search','thinking-states','run-drawer','live-answer','harness']),
+  PLAYS:new Set(['status-pill','step-loader','thinking','reasoning-trail','agent-lanes','agent-run-timeline','trace-view','agent-tree','terminal-stream','attachment-tray','progress','web-search','thinking-states','run-drawer','live-answer','harness','response-versions','memory-panel','tool-connections','knowledge-sources','scheduled-runs','event-calendar','otp-field','form','carousel','comments']),
   def(id, fn){ this.defs[id] = fn; },
   /* the markup a card starts from: its <template>, or, when the markup is written out in its stage, what the stage holds
      before it first mounts, kept as a template so Replay starts from it again */
@@ -399,6 +569,8 @@ const DM = {
     ['pointerdown', 'keydown', 'input', 'click'].forEach(t => c.on(st, t, mine, true));
     c.on(st, 'focusin', e => { if (e.isTrusted && e.timeStamp - lastInput < 100) c.mine = true; }, true);
     try { this.defs[id] && this.defs[id](st, c, card); } catch(e){ console.error(id, e); }
+    // its menus' rows glide in Clean (hoverGlide), from the start, so the arrows' row has it before a pointer comes by
+    $$('.mi', st).forEach(mi => { if (!mi.closest('.hg')) menuGlide(mi); });
     // a design picked with the switch under the component swaps in place: the new design fades in where it stands, without
     // the entrance a first visit gets, so picking one never reads as the page reloading (owner, 4 Nov)
     const swapped = card._dmPick && performance.now() - card._dmPick < 600; card._dmPick = 0;
@@ -501,10 +673,11 @@ let openPop = null;
 // it fades out it is inert, and after that hidden (CSS)
 /* how the last thing was done, with a pointer or the keyboard: a control pressed with a mouse or a finger, or focus handed
    back to a popover's button after a click, shows no ring (a mouse or a tap never shows one); a key that moves or acts does.
-   A modifier on its own (Shift, Cmd, Ctrl, Alt: a screenshot shortcut, say) is not one, though the browser counts it */
+   A modifier on its own (Shift, Cmd, Ctrl, Alt: a screenshot shortcut, say) is not one, though the browser counts it, and
+   nor is a key a demo plays (an untrusted event: another card's story pressing keys must not bring back a ring after a click) */
 let byKey = false;
 const MODS = new Set(['Shift', 'Meta', 'Control', 'Alt', 'AltGraph', 'CapsLock', 'Fn', 'OS']);
-addEventListener('keydown', e => { if (e.metaKey || e.ctrlKey || e.altKey || MODS.has(e.key)) return; byKey = true; const a = document.activeElement; if (a && a.dataset && 'nofv' in a.dataset) delete a.dataset.nofv; }, true);
+addEventListener('keydown', e => { if (!e.isTrusted || e.metaKey || e.ctrlKey || e.altKey || MODS.has(e.key)) return; byKey = true; const a = document.activeElement; if (a && a.dataset && 'nofv' in a.dataset) delete a.dataset.nofv; }, true);
 addEventListener('pointerdown', e => { byKey = false;
   const t = e.target && e.target.closest && e.target.closest('button,a[href],summary,[tabindex],[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],label,input,select');
   const f = t && t.tagName === 'LABEL' ? t.control : t;
@@ -527,12 +700,14 @@ function placePop(btn, pop){
   // below when it fits there; above when it doesn't and fits above, or has more room there
   const room = popRoom(btn), need = pop.offsetHeight + 12, below = room.bottom - br.bottom, above = br.top - room.top;
   const up = btn.dataset.popPos === 'up' || (btn.dataset.popPos !== 'down' && below < need && (above >= need || above > below));
-  let x = br.left - hr.left; if (btn.dataset.popAlign === 'end') x = br.right - hr.left - pop.offsetWidth;
+  // lined up with the button's start (the default) or end, or centred under it (a picker wider than its field)
+  const al = btn.dataset.popAlign;
+  let x = br.left - hr.left; if (al === 'end') x = br.right - hr.left - pop.offsetWidth; else if (al === 'center') x = br.left - hr.left + (br.width - pop.offsetWidth) / 2;
   const cb = (btn.closest('.comp') || document.body).getBoundingClientRect(), lo = Math.max(0, cb.left) + 8, hi = Math.min(innerWidth, cb.right) - 8;
   x = Math.max(lo - hr.left, Math.min(x, hi - hr.left - pop.offsetWidth));
   pop.style.left = x + 'px';
   pop.style.top = up ? (br.top - hr.top - pop.offsetHeight - 6) + 'px' : (br.bottom - hr.top + 6) + 'px';
-  pop.style.setProperty('--origin', (up ? 'bottom ' : 'top ') + (btn.dataset.popAlign === 'end' ? 'right' : 'left'));
+  pop.style.setProperty('--origin', (up ? 'bottom ' : 'top ') + (al === 'end' ? 'right' : al === 'center' ? 'center' : 'left'));
 }
 document.addEventListener('click', e => {
   const btn = e.target.closest('.v2 [data-pop]');
@@ -1142,8 +1317,8 @@ DM.def('agent-tree', (r, c) => {
           $('.atr-yes', b).onclick = () => M.ok && M.ok();
           $('.atr-no', b).onclick = e => { n.t = 'On hold'; $(':scope>.atr-b .atr-sub', n.el).textContent = n.t; e.currentTarget.remove(); $('.atr-yes', b).focus({ preventScroll:true }); }; }
       }
-      // done: one line under the tree with the done mark
-      if (ev === 'end'){ sr.textContent = 'Run finished'; const sm = html(`<p class="atr-ct-sum"${REDUCE ? '' : ' data-in'}>${atrG('done')}<span>Done in <b class="num">${atrClock(M.ended)}</b> · 3 agents · <b class="num">${atrMoney(M.sum(M.T))}</b></span></p>`); box.insertBefore(sm, sr); }
+      // done: the head says it (its word, clock and total), so nothing is added under the tree (owner, 18 Nov)
+      if (ev === 'end') sr.textContent = 'Run finished';
       if (L && ev !== 'tick') L.frame(performance.now());
       if (head) paint();
     });
@@ -1173,8 +1348,10 @@ DM.def('agent-tree', (r, c) => {
     // the person in the demo: reads how the design branch's cost splits, takes the fix, then approves the post
     c.story(async s => {
       await s.beat(3); await s.point($(':scope>.atr-b .atr-c', M.by('des').el)); await s.beat(3); s.away();
-      await s.until(() => $('.atr-fix', r)); await s.beat(3); await s.tap($('.atr-fix', r)); s.away();
-      await s.until(() => $('.atr-yes', r)); await s.beat(3); await s.tap($('.atr-yes', r)); s.away();
+      // (the person in the demo may have taken the way on by then: the story only presses what is still there)
+      const tapIf = async el => { if (el && el.isConnected) await s.tap(el); };
+      await s.until(() => $('.atr-fix', r)); await s.beat(3); await tapIf($('.atr-fix', r)); s.away();
+      await s.until(() => $('.atr-yes', r)); await s.beat(3); await tapIf($('.atr-yes', r)); s.away();
       await s.until(() => M.ended); await s.beat(5);
     });
     // it grows with its rows, as Classic does (owner, 17 Nov): no room kept for its tallest moment
@@ -1187,11 +1364,11 @@ DM.def('agent-tree', (r, c) => {
     ${ATR_HEAD('<nav class="atr-cm-crumb atr-t" aria-label="Where you are"></nav>')}
     <div class="atr-cm-map" role="group" aria-label="Cost by agent and step"></div>
     <ul class="atr-cm-lg" aria-label="What the marks mean"><li>${atrG('done')}Done</li><li>${atrG('run')}Running</li><li>${atrG('fail')}Failed</li><li>${atrG('queued')}Queued</li><li><i class="own" aria-hidden="true"></i>Its own work</li></ul>
-    <div class="atr-cm-say" aria-live="polite"></div>
+    <div class="atr-cm-say" aria-live="polite"><span></span></div>
     <ul class="atr-cm-key" aria-label="Agents"></ul>
   </div>`;
   function atrMap(r, c){
-    const map = $('.atr-cm-map', r), crumb = $('.atr-cm-crumb', r), say = $('.atr-cm-say', r), key = $('.atr-cm-key', r);
+    const map = $('.atr-cm-map', r), crumb = $('.atr-cm-crumb', r), sayBox = $('.atr-cm-say', r), say = sayBox.firstElementChild, key = $('.atr-cm-key', r);
     let M, top, W = 0, shown = '', head;
     // each block's place and width, as shares of the branch on show; blocks outside it fade. The branch fills the first row,
     // its children the second and theirs the third, and each branch's own work (what it spends besides its children) closes
@@ -1201,6 +1378,8 @@ DM.def('agent-tree', (r, c) => {
       pos.set(base, { x:0, w:1, lv:0 });
       let x = 0; base.kids.forEach(k => { const w = M.sum(k) / total; pos.set(k, { x, w, lv:1 }); let y = x; k.kids.forEach(g => { const gw = M.sum(k) ? g.cost / M.sum(k) * w : 0; pos.set(g, { x:y, w:gw, lv:2 }); y += gw; }); if (k.kids.length) own.set(k, { x:y, w:M.sum(k) ? k.cost / M.sum(k) * w : 0, lv:2 }); x += w; });
       own.set(base, { x, w:base.cost / total, lv:1 });
+      // as many rows as the branch on show has levels
+      map.style.setProperty('--rows', base.kids.some(k => k.kids.length) ? 3 : 2);
       M.all.forEach(n => { if (!n.ob) return; const p = own.get(n); if (!p || p.w * W < 3){ n.ob.classList.add('gone'); return; } n.ob.classList.remove('gone'); n.ob.style.setProperty('--lv', p.lv); n.ob.style.setProperty('--x', (p.x * W).toFixed(1) + 'px'); n.ob.style.setProperty('--w', Math.max(0, p.w * W - gap).toFixed(1) + 'px'); n.ob.dataset.tip = `${n.lv ? n.n : 'The orchestrator'}'s own work, ${atrMoney(n.cost)}`; });
       M.all.forEach(n => {
         const p = pos.get(n), el = n.b; if (!el) return;
@@ -1219,7 +1398,9 @@ DM.def('agent-tree', (r, c) => {
       $$('button', crumb).forEach(b => b.onclick = () => go(M.by(b.dataset.id)));
     }
     function go(n){ if (!n || !n.kids.length) return; top = n; crumbs(); lay(); if (document.activeElement && map.contains(document.activeElement)) n.b.focus({ preventScroll:true }); }
-    function tell(n){ if (!n){ say.innerHTML = shown; return; } const v = M.sum(n), share = v / Math.max(1e-6, M.sum(M.T)) * 100; say.innerHTML = `<b>${n.n}</b> · ${atrMoney(v)}, ${share.toFixed(0)}% of the run${n.kids.length ? ` · its own ${atrMoney(n.cost)}` : ''}${n.lv ? ' · ' + atrWord[n.s] : ''}`; }
+    // the line under the key opens when there is something to say and closes when there is not
+    function tell(n){ const t = !n ? shown : (() => { const v = M.sum(n), share = v / Math.max(1e-6, M.sum(M.T)) * 100; return `<b>${n.n}</b> · ${atrMoney(v)}, ${share.toFixed(0)}% of the run${n.kids.length ? ` · its own ${atrMoney(n.cost)}` : ''}${n.lv ? ' · ' + atrWord[n.s] : ''}`; })();
+      if (t) say.innerHTML = t; sayBox.classList.toggle('on', !!t); }
     function blocks(){
       M.all.forEach(n => {
         n.b = html(`<button class="atr-cm-b${n.lv ? '' : ' lv0'}" type="button" data-s="${n.s}" aria-label="${n.n}"><span class="bg"></span><span class="atr-cm-l">${atrG(atrM(n))}<b>${n.lv ? n.n : 'Whole run'}</b><span class="v">–</span></span></button>`);
@@ -1254,7 +1435,8 @@ DM.def('agent-tree', (r, c) => {
       if (ev === 'ask' && k === 'ok'){ way(n.parent, 'Approve', 'Post the blurbs to #pricing', () => M.ok && M.ok()); shown = `<b>${n.n}</b> needs your OK`; tell(null); }
       // a way on the demo took goes, and so does what it said
       if (ev === 'state' && n.lv === 2 && (n.dim || n.s === 'done')){ const b = $('.atr-x-fix', n.parent.li); if (b) b.remove(); shown = ''; tell(null); }
-      if (ev === 'end'){ shown = `Done: ${atrMoney(M.sum(M.T))} across 3 agents, most of it on design`; tell(null); }
+      // done: the head says it, and the key shows where the money went, so the line says nothing more (owner, 18 Nov)
+      if (ev === 'end'){ shown = ''; tell(null); }
       paint(ev !== 'tick');
     });
     top = M.T; blocks(); legend(); crumbs(); head = atrHead(r, M); paint(true);
@@ -1263,10 +1445,12 @@ DM.def('agent-tree', (r, c) => {
     c.story(async s => {
       await s.beat(4); await s.point(M.by('des').b); tell(M.by('des')); await s.beat(3); s.away(); tell(null);
       await s.until(() => $('.atr-x-fix', key)); await s.beat(3);
-      await s.tap($('.atr-x-fix', key)); s.away(); await s.beat(2);
+      // (the person in the demo may have taken the way on by then: the story only presses what is still there)
+      const tapIf = async el => { if (el && el.isConnected) await s.tap(el); };
+      await tapIf($('.atr-x-fix', key)); s.away(); await s.beat(2);
       await s.tap(M.by('des').b); s.away(); await s.beat(4);
       await s.tap($('button', crumb)); s.away();
-      await s.until(() => $('.atr-x-fix', key)); await s.beat(3); await s.tap($('.atr-x-fix', key)); s.away();
+      await s.until(() => $('.atr-x-fix', key)); await s.beat(3); await tapIf($('.atr-x-fix', key)); s.away();
       await s.until(() => M.ended); await s.beat(4);
     });
   }
@@ -1300,6 +1484,8 @@ DM.def('agent-tree', (r, c) => {
 }
 /* ---------- Agent inbox ---------- */
 DM.def('agent-inbox', (r, c) => {
+  // Clean's one hover: a highlight that glides from row to row (hoverGlide)
+  c.offs.push(hoverGlide($('.aib', r), '.aib-i', { keep:'.mv' }));
   // the runs, grouped by what they need: one waits for approval, one failed and can be retried, two are running with their
   // clocks, two are done
   const A = { 'Design agent':['D','var(--av-l)'], 'Build agent':['B','var(--av-m)'], 'Research agent':['R','var(--av-t)'], 'Copy agent':['C','var(--av-p)'], 'QA agent':['Q','var(--av-b)'] };
@@ -1508,6 +1694,11 @@ DM.def('trace-view', (r, c) => {
 DM.def('run-cost', (r, c) => {
   // the label crossfades on its own span, so the button itself never blurs
   const go = $('.rc-go', r); go.innerHTML = '<span class="rc-gl">Start run</span>'; const gl = () => $('.rc-gl', go);
+  // the button is as wide as its words and eases to its new width when they change, keeping no room for a longer one (owner, 18 Nov)
+  const easeW = el => { let w = 0, busy = null; const ro = new ResizeObserver(() => { if (busy) return; const w1 = el.getBoundingClientRect().width;
+    if (!REDUCE && w && Math.abs(w1 - w) > .5){ busy = el.animate([{ width:w + 'px' }, { width:w1 + 'px' }], { duration:340, easing:'cubic-bezier(.23,1,.32,1)' }); busy.finished.catch(() => {}).then(() => { busy = null; w = el.getBoundingClientRect().width; }); } w = w1; });
+    ro.observe(el); c.offs.push(() => ro.disconnect()); };
+  easeW(go);
   const tg = $('.toggle', r), cap = $('.rc-cap', r), fill = $('.rc-fill', r), st = $('.rc-st', r), stt = $('.rc-stt', r);
   let used = 0, inT = 0, outT = 0, tools = 0, running = false, limit = 1800, loop = 0;
   const fmt = n => Math.round(n).toLocaleString('en-US');
@@ -1744,17 +1935,18 @@ DM.def('agent-lanes', (r, c) => {
     let fin = false, ticks = 0;
     A.forEach((a, i) => {
       a.held = false; a.tk = 0; a.spent = 0; a.t = 0; const N = a.steps.length;
-      a.el = html(`<div class="aln-cw-c" data-s="idle" style="--a:var(--av-${a.av});--ai:var(--av-${a.av}-ink)"><div class="aln-cw-top"><span class="aln-cw-av" aria-hidden="true">${I(a.ic)}</span><span class="aln-cw-tx"><b>${a.n}</b><span>Starts soon</span></span><span class="tag aln-cw-tag">Up next</span><span class="aln-cw-acts"><button class="ib aln-cw-hold" type="button" aria-pressed="false" aria-label="Pause ${a.n}" data-tip="Pause this agent">${I('pause','xs')}</button><button class="ib aln-cw-sb" type="button" aria-expanded="false" aria-label="Steer ${a.n}" data-tip="Steer">${I('wand','xs')}</button></span></div><div class="aln-cw-meter"><span class="aln-cw-tr" role="progressbar" aria-label="${a.n}’s steps" aria-valuemin="0" aria-valuemax="${N}" aria-valuenow="0" style="--n:${N}"><span class="aln-cw-ln"><i></i></span>${'<b></b>'.repeat(N)}</span><span class="aln-cw-num"><span><b class="aln-cw-sn">0</b> of ${N} steps</span><span class="aln-cw-tkn"><b class="aln-cw-tk">0</b> tokens</span><b class="aln-cw-cs">$0.00</b></span></div><div class="fold shut"><div><form class="aln-cw-steer"><input aria-label="A note for the ${a.n.toLowerCase()}" placeholder="Tell the ${a.n.toLowerCase()} what to change"><button class="ib" type="submit" aria-label="Send" data-tip="Send">${I('send','xs')}</button></form></div></div><div class="aln-cw-nts"></div></div>`);
+      a.el = html(`<div class="aln-cw-c" data-s="idle" style="--a:var(--av-${a.av});--ai:var(--av-${a.av}-ink)"><div class="aln-cw-top"><span class="aln-cw-av" aria-hidden="true">${I(a.ic)}</span><span class="aln-cw-tx"><b>${a.n}</b><span>Starts soon</span></span><span class="tag aln-cw-tag">Up next</span><span class="aln-cw-acts"><button class="ib aln-cw-hold" type="button" aria-pressed="false" aria-label="Pause ${a.n}" data-tip="Pause this agent">${I('pause','xs')}</button><button class="ib aln-cw-sb" type="button" aria-expanded="false" aria-label="Steer ${a.n}" data-tip="Steer">${I('wand','xs')}</button></span></div><div class="aln-cw-meter"><span class="aln-cw-tr" role="progressbar" aria-label="${a.n}’s steps" aria-valuemin="0" aria-valuemax="${N}" aria-valuenow="0" style="--n:${N}"><span class="aln-cw-ln"><i></i></span>${'<b></b>'.repeat(N)}</span><span class="aln-cw-num"><span><b class="aln-cw-sn">0</b> of ${N} steps</span><span class="aln-cw-tkn"><b class="aln-cw-tk">0</b> tokens</span><b class="aln-cw-cs">$0.00</b></span></div><div class="fold shut"><div><form class="aln-cw-steer"><input aria-label="A note for the ${a.n.toLowerCase()}" placeholder="Tell the ${a.n.toLowerCase()} what to change"><button class="ib aln-cw-go" type="submit" aria-label="Send" data-tip="Send" disabled>${I('send','xs')}</button></form></div></div><div class="aln-cw-nts"></div></div>`);
       list.appendChild(a.el);
       a.tr = $('.aln-cw-tr', a.el); a.ln = $('.aln-cw-ln i', a.el); a.dots = $$('.aln-cw-tr b', a.el); a.sn = $('.aln-cw-sn', a.el); a.tkEl = $('.aln-cw-tk', a.el); a.csEl = $('.aln-cw-cs', a.el);
       // no hand-off row between the cards (owner, 18 Nov): each waiting card already says what it waits for
-      const hold = $('.aln-cw-hold', a.el), sb = $('.aln-cw-sb', a.el), fold = $('.fold', a.el), form = $('.aln-cw-steer', a.el), inp = $('input', form);
+      const hold = $('.aln-cw-hold', a.el), sb = $('.aln-cw-sb', a.el), fold = $('.fold', a.el), form = $('.aln-cw-steer', a.el), inp = $('input', form), go = $('.aln-cw-go', form);
+      inp.oninput = () => { go.disabled = !inp.value.trim(); };
       fold.inert = true;
       hold.onclick = () => { a.held = !a.held; hold.setAttribute('aria-pressed', String(a.held)); hold.innerHTML = I(a.held ? 'play' : 'pause','xs'); hold.dataset.tip = a.held ? 'Resume this agent' : 'Pause this agent'; hold.setAttribute('aria-label', (a.held ? 'Resume ' : 'Pause ') + a.n); paint(a); };
       // the note's field takes the focus only when you open it yourself; the demo never moves your focus
       sb.onclick = e => { const on = sb.getAttribute('aria-expanded') !== 'true'; sb.setAttribute('aria-expanded', String(on)); fold.classList.toggle('shut', !on); fold.inert = !on; if (on && e.isTrusted) requestAnimationFrame(() => inp.focus({ preventScroll:true })); };
       // the note shows once its field has shut, so the card never holds both at once
-      form.onsubmit = e => { e.preventDefault(); const v = inp.value.trim(); if (!v) return; inp.value = ''; sb.click(); if (form.contains(document.activeElement)) sb.focus({ preventScroll:true });
+      form.onsubmit = e => { e.preventDefault(); const v = inp.value.trim(); if (!v) return; inp.value = ''; go.disabled = true; sb.click(); if (form.contains(document.activeElement)) sb.focus({ preventScroll:true });
         setTimeout(() => { if (a.el.isConnected) $('.aln-cw-nts', a.el).replaceChildren(html(`<div class="aln-cw-note">${I('check','xs')}<span>Got it: “${v.replace(/&/g, '&amp;').replace(/</g, '&lt;')}”, before the next step</span></div>`)); }, REDUCE ? 0 : 460); };
     });
     function paint(a){
@@ -1793,7 +1985,7 @@ DM.def('agent-lanes', (r, c) => {
     c.story(async s => {
       await s.until(() => A[1].s === 'work' && A[1].t > 5); await s.beat(1);
       await s.tap($('.aln-cw-sb', A[1].el)); s.away();
-      await s.type($('input', A[1].el), 'Make the Pro card stand out', { n:.07, keep:true });
+      await s.type($('input', A[1].el), 'Make the Pro card stand out', { n:.07, keep:true, each:() => $('input', A[1].el).oninput() });
       await s.beat(1); await s.tap($('.aln-cw-steer .ib', A[1].el)); s.away();
       await s.until(() => A[2].s === 'work'); await s.beat(2);
       await s.tap($('.aln-cw-hold', A[2].el)); s.away(); await s.beat(4);
@@ -3396,9 +3588,18 @@ DM.def('response-versions', (r, c) => {
   const vers = [pool[0]]; let cur = 0, busy = false;
   const t = $('.rvx-t', r), n = $('.rvx-n', r), pv = $('.rvx-prev', r), nx = $('.rvx-next', r), re = $('.rvx-re', r), st = $('.rvx-st', r);
   const nav = () => { n.textContent = (cur + 1) + ' / ' + vers.length; pv.disabled = cur === 0 || busy; nx.disabled = cur === vers.length - 1 || busy; };
+  // no room kept for a longer answer, in every style (owner, 18 Nov). The component grows with its words (grow(), once its
+  // entrance has settled), and a version streaming in keeps the height of the one it replaces, then eases to its own
+  const rvx = $('.rvx', r);
+  Promise.resolve().then(() => Promise.all(rvx.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && rvx.isConnected) c.offs.push(grow(rvx)); });
+  const keep = () => { if (t.textContent.trim()) t.style.minHeight = t.offsetHeight + 'px'; };
+  const fit = () => { if (!t.style.minHeight) return; const was = t.offsetHeight; t.style.minHeight = ''; const h = t.offsetHeight; if (h >= was || REDUCE) return;
+    t.style.minHeight = was + 'px'; void t.offsetHeight; t.style.transition = 'min-height var(--t) var(--ease)'; t.style.minHeight = h + 'px';
+    c.later(460, () => { t.style.transition = ''; t.style.minHeight = ''; }); };
   async function stream(s){
-    t.classList.add('out'); await c.wait(260); t.classList.remove('out'); t.innerHTML = '';
+    keep(); t.classList.add('out'); await c.wait(260); t.classList.remove('out'); t.innerHTML = '';
     for (const w of s.split(' ')){ t.insertAdjacentHTML('beforeend', `<span class="w">${w} </span>`); await c.wait(45); }
+    fit();
   }
   async function show(i){ cur = i; nav(); t.classList.add('out'); await c.wait(240); t.classList.remove('out'); t.innerHTML = vers[i].split(' ').map((w, k) => `<span class="w" style="animation-delay:${k * 12}ms">${w} </span>`).join(''); }
   pv.onclick = () => c.run(() => show(cur - 1));
@@ -3417,6 +3618,10 @@ DM.def('response-versions', (r, c) => {
 DM.def('feedback-sheet', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{up}', I('up-thumb')).replace('{dn}', I('down-thumb'));
   const up = $('.fbx-up', r), dn = $('.fbx-dn', r), box = $('.fbx-box', r), st = $('.fbx-st', r), go = $('.fbx-go', r), ta = $('.fbx-ta', r), chips = $$('.fbx-ch .chip', r);
+  // the component grows with what it shows in every style (grow(), once its entrance has settled), so the thanks line
+  // eases in as the sheet folds away
+  const fbx = $('.fbx', r);
+  Promise.resolve().then(() => Promise.all(fbx.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && fbx.isConnected) c.offs.push(grow(fbx)); });
   const ready = () => go.disabled = !(chips.some(x => x.classList.contains('on')) || ta.value.trim());
   chips.forEach(ch => ch.onclick = () => { ch.classList.toggle('on'); ready(); });
   ta.oninput = ready;
@@ -3426,11 +3631,14 @@ DM.def('feedback-sheet', (r, c) => {
   dn.onclick = e => down(e.isTrusted);
   $('.fbx-x', r).onclick = () => { box.classList.add('shut'); dn.classList.remove('on'); };
   go.onclick = () => c.run(async () => {
-    go.innerHTML = '<span class="spin"></span>'; await c.wait(800);
+    // the button is as wide as what it shows, and eases to the spinner's width
+    const w0 = go.offsetWidth; go.innerHTML = '<span class="spin"></span>'; const w1 = go.offsetWidth;
+    if (!REDUCE && w0 !== w1) go.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:220, easing:'cubic-bezier(.23,1,.32,1)' });
+    await c.wait(800);
     box.classList.add('shut'); await c.wait(300);
     const n = chips.filter(x => x.classList.contains('on')).length;
     const thx = html(`<div class="fbx-thx">${I('ok')}<span>Thanks. The agent will ${n ? 'avoid this' : 'use this'} next time in this project.</span></div>`);
-    r.firstElementChild.appendChild(thx); enter(thx); swap(st, 'Feedback sent');
+    ($(':scope>.dm-grow', fbx) || fbx).appendChild(thx); enter(thx); swap(st, '');
   });
   /* once it has entered, it rates the answer down and fills in the sheet by itself. Clicking, focusing or typing in it
      takes over, and what it had typed goes */
@@ -3542,18 +3750,32 @@ DM.def('answer-action-bar', (r, c) => {
   // each word's HTML, with the space before it; inside the changed phrase the space is highlighted too, so the phrase reads as one
   const words = v => { let on = false; return v.t.split(' ').map((w, i) => { const a = w.startsWith('[['), b = w.includes(']]'), inner = on && !a; if (a) on = true;
     const s = (i ? `<span${inner ? ' class="nw"' : ''}> </span>` : '') + `<span class="w${on ? ' nw' : ''}">${w.replace(/\[\[|\]\]/g, '')}</span>`; if (b) on = false; return s; }); };
-  const status = (text, tone) => { st.className = 'aab-st muted' + (tone ? ' ' + tone : ''); if (tone === 'ok') { st.innerHTML = `${I('ok','xs')}<span>${text}</span>`; enter(st); } else swap(st, text); };
+  // the tone changes with the words: the words fading out keep their colour, and the new ones arrive in theirs (swap()
+  // writes them 170ms on)
+  const status = (text, tone) => { clearTimeout(st._tone); const set = () => { st.classList.toggle('warn', tone === 'warn'); st.classList.toggle('ok', tone === 'ok'); };
+    if (tone === 'ok') { set(); st.innerHTML = `${I('ok','xs')}<span>${text}</span>`; enter(st); return; }
+    const lag = !REDUCE && !!st.textContent.trim() && st.textContent !== text; swap(st, text); if (lag) st._tone = setTimeout(set, 170); else set(); };
   function nav(){
     n.textContent = (cur + 1) + ' / ' + vers.length; pg.classList.toggle('on', vers.length > 1); pg.inert = vers.length < 2;
     pv.disabled = cur === 0 || busy; nx.disabled = cur === vers.length - 1 || busy; re.disabled = busy;
     up.setAttribute('aria-pressed', vers[cur].rate === 'up'); dn.setAttribute('aria-pressed', vers[cur].rate === 'down');
     swap(meta, vers[cur].meta);
   }
+  // no room kept for a longer answer or an empty status, in every style (owner, 18 Nov). The component grows with what it
+  // shows (grow(), once its entrance has settled), and a version streaming in keeps the height of the one it replaces, then
+  // eases to its own
+  const aab = $('.aab', r);
+  Promise.resolve().then(() => Promise.all(aab.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && aab.isConnected) c.offs.push(grow(aab)); });
+  const keep = () => { if (t.textContent.trim()) t.style.minHeight = t.offsetHeight + 'px'; };
+  const fit = () => { if (!t.style.minHeight) return; const was = t.offsetHeight; t.style.minHeight = ''; const h = t.offsetHeight; if (h >= was || REDUCE) return;
+    t.style.minHeight = was + 'px'; void t.offsetHeight; t.style.transition = 'min-height var(--t) var(--ease)'; t.style.minHeight = h + 'px';
+    c.later(460, () => { t.style.transition = ''; t.style.minHeight = ''; }); };
   // a version streams in word by word; paging between versions shows one at once
   async function stream(v){
-    t.classList.add('out'); await c.wait(260); t.classList.remove('out'); t.innerHTML = '';
+    keep(); t.classList.add('out'); await c.wait(260); t.classList.remove('out'); t.innerHTML = '';
     const ws = words(v);
     for (let i = 0; i < ws.length; i++){ t.insertAdjacentHTML('beforeend', ws[i]); t.lastElementChild.classList.add('in'); await c.wait(38); }
+    fit();
   }
   async function show(i){ stop(); cur = i; nav(); t.classList.add('out'); await c.wait(240); t.classList.remove('out'); t.innerHTML = words(vers[i]).join(''); $$('.w', t).forEach((w, k) => { w.classList.add('in'); w.style.animationDelay = k * 10 + 'ms'; }); }
   pv.onclick = () => c.run(() => show(cur - 1));
@@ -3564,16 +3786,18 @@ DM.def('answer-action-bar', (r, c) => {
     c.run(async () => {
       if (failOnce){ failOnce = false;
         status('Writing a new version' + (note ? ' with your note' : '')); st.classList.add('shim'); await c.wait(1200); st.classList.remove('shim');
-        for (let k = 2; k > 0; k--){ status(`Couldn't reach Sonnet 5.5. Retrying in ${k}s`, 'warn'); await c.wait(1000); }
+        for (let k = 2; k > 0; k--){ status(`Couldn't reach the model. Retrying in ${k}s`, 'warn'); await c.wait(1000); }
       }
       status('Writing a new version' + (note ? ' with your note' : '')); st.classList.add('shim');
       const v = { ...POOL[Math.min(vers.length, POOL.length - 1)], rate:'' }; vers.push(v); cur = vers.length - 1; nav();
       await stream(v); busy = false; nav(); st.classList.remove('shim');
-      status(cur === 1 ? 'Version 2 fixes the saving: 21%, not 15%' : `Version ${cur + 1} of ${vers.length}`, 'ok');
+      // what the new version fixed, when it answers a reason; the pager already counts the versions
+      if (note) status('Fixes the saving: 21%, not 15%', 'ok'); else status('');
     });
   }
   re.onclick = () => regenerate();
-  cp.onclick = () => { copied(cp, plain(vers[cur])); status('Copied without the highlights', 'ok'); };
+  // the tooltip says it was copied, and how
+  cp.onclick = () => copied(cp, plain(vers[cur]), 'Copied without the highlights');
   // thumbs: up is a quiet thanks; down asks why, and a reason writes a version that answers it
   up.onclick = () => { const v = vers[cur]; v.rate = v.rate === 'up' ? '' : 'up'; why.classList.add('shut'); nav(); status(v.rate ? 'Thanks, noted for this project' : ''); };
   dn.onclick = () => { const v = vers[cur]; v.rate = v.rate === 'down' ? '' : 'down'; why.classList.toggle('shut', v.rate !== 'down'); why.inert = v.rate !== 'down'; nav(); status(''); chips.forEach(x => x.classList.remove('on')); };
@@ -3742,7 +3966,7 @@ DM.def('permission-gate', (r, c) => {
   });
 });
 /* ---------- the sections' components, loaded the first time a section comes near (DEF_PARTS in build.js) ---------- */
-const PARTS = {"files":{"s-status":"/assets/v2-status.410783ca6b.js","s-product":"/assets/v2-product.c6072ab581.js","s-review":"/assets/v2-review.c0bf5d98c9.js","s-data":"/assets/v2-data.ef15935ec3.js","s-workspace":"/assets/v2-workspace.d0cd114b57.js","s-harness":"/assets/v2-harness.d27666f9a8.js","s-charts":"/assets/v2-charts.638bdaa8d9.js","s-dates":"/assets/v2-dates.b72ddce6b1.js","s-forms":"/assets/v2-forms.1157041b0f.js","s-collab":"/assets/v2-collab.257770798d.js"},"of":{"status-pill":"s-status","step-loader":"s-status","thinking-states":"s-status","reasoning-trail":"s-status","thinking":"s-status","context-meter":"s-status","toast":"s-status","toast-stack":"s-status","pricing-cards":"s-product","stepper":"s-product","set-limit":"s-product","currency-converter":"s-product","agent-run-timeline":"s-status","decision-prompt":"s-review","proposal-card":"s-review","rewrite-toolbar":"s-review","plan-review":"s-review","inline-text-diff":"s-review","draft-review":"s-review","eval-results":"s-review","source-stack":"s-data","metric-insight":"s-data","task-table":"s-data","terminal-stream":"s-data","details-panel":"s-data","citation-hover":"s-data","workspace-rail":"s-workspace","command-palette":"s-workspace","agent-settings":"s-workspace","file-explorer":"s-workspace","automation-canvas":"s-workspace","canvas-toolbar":"s-workspace","data-picker":"s-workspace","run-drawer":"s-workspace","memory-panel":"s-workspace","tool-connections":"s-workspace","knowledge-sources":"s-workspace","scheduled-runs":"s-workspace","harness":"s-harness","line-chart":"s-charts","bar-chart":"s-charts","donut-chart":"s-charts","funnel":"s-charts","top-pages":"s-charts","health-score":"s-charts","activity-heatmap":"s-charts","stat-cards":"s-charts","account-table":"s-charts","date-picker":"s-dates","segmented-control":"s-dates","date-range-picker":"s-dates","event-calendar":"s-dates","agenda":"s-dates","meeting-card":"s-dates","buttons":"s-forms","badge":"s-forms","tooltip":"s-forms","search-input":"s-forms","country-select":"s-forms","multi-select":"s-forms","social-signin":"s-forms","sign-in":"s-forms","otp-field":"s-forms","form":"s-forms","payment-form":"s-forms","comments":"s-collab","notifications":"s-collab","banner":"s-collab","invite":"s-collab","reactions":"s-collab","profile-menu":"s-collab","context-switcher":"s-collab","filter-menu":"s-collab","number-field":"s-collab","ticket-list":"s-collab","kanban":"s-collab","context-menu":"s-collab","progress":"s-forms","radar-chart":"s-charts","radial-goals":"s-charts","scatter-chart":"s-charts","score-breakdown":"s-charts","slider":"s-forms","carousel":"s-forms","web-search":"s-status"},"all":["harness"]};
+const PARTS = {"files":{"s-status":"/assets/v2-status.a183ca6d3b.js","s-product":"/assets/v2-product.05517a7b4a.js","s-review":"/assets/v2-review.587b6100c8.js","s-data":"/assets/v2-data.e326fd1bf4.js","s-workspace":"/assets/v2-workspace.391c87eb6b.js","s-harness":"/assets/v2-harness.d27666f9a8.js","s-charts":"/assets/v2-charts.852cf667ec.js","s-dates":"/assets/v2-dates.1331c7e0cb.js","s-forms":"/assets/v2-forms.8480bb0c7a.js","s-collab":"/assets/v2-collab.4643793079.js"},"of":{"status-pill":"s-status","step-loader":"s-status","thinking-states":"s-status","reasoning-trail":"s-status","thinking":"s-status","context-meter":"s-status","toast":"s-status","toast-stack":"s-status","pricing-cards":"s-product","stepper":"s-product","set-limit":"s-product","currency-converter":"s-product","agent-run-timeline":"s-status","decision-prompt":"s-review","proposal-card":"s-review","rewrite-toolbar":"s-review","plan-review":"s-review","inline-text-diff":"s-review","draft-review":"s-review","eval-results":"s-review","source-stack":"s-data","metric-insight":"s-data","task-table":"s-data","terminal-stream":"s-data","details-panel":"s-data","citation-hover":"s-data","workspace-rail":"s-workspace","command-palette":"s-workspace","agent-settings":"s-workspace","file-explorer":"s-workspace","automation-canvas":"s-workspace","canvas-toolbar":"s-workspace","data-picker":"s-workspace","run-drawer":"s-workspace","memory-panel":"s-workspace","tool-connections":"s-workspace","knowledge-sources":"s-workspace","scheduled-runs":"s-workspace","harness":"s-harness","line-chart":"s-charts","bar-chart":"s-charts","donut-chart":"s-charts","funnel":"s-charts","top-pages":"s-charts","health-score":"s-charts","activity-heatmap":"s-charts","stat-cards":"s-charts","account-table":"s-charts","date-picker":"s-dates","segmented-control":"s-dates","date-range-picker":"s-dates","event-calendar":"s-dates","agenda":"s-dates","meeting-card":"s-dates","buttons":"s-forms","badge":"s-forms","tooltip":"s-forms","search-input":"s-forms","country-select":"s-forms","multi-select":"s-forms","social-signin":"s-forms","sign-in":"s-forms","otp-field":"s-forms","form":"s-forms","payment-form":"s-forms","comments":"s-collab","notifications":"s-collab","banner":"s-collab","invite":"s-collab","reactions":"s-collab","profile-menu":"s-collab","context-switcher":"s-collab","filter-menu":"s-collab","number-field":"s-collab","ticket-list":"s-collab","kanban":"s-collab","context-menu":"s-collab","progress":"s-forms","radar-chart":"s-charts","radial-goals":"s-charts","scatter-chart":"s-charts","score-breakdown":"s-charts","slider":"s-forms","carousel":"s-forms","web-search":"s-status"},"all":["harness"]};
 const partRun = src => eval(src);
 // the markup of the cards whose section has a file of its own comes with that file
 const TPLS = {};

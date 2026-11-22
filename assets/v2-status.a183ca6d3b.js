@@ -3,8 +3,8 @@ TPLS["step-loader"] = "<div class=\"stl dm\"><div class=\"dm-main\">\n  <button 
 TPLS["status-pill"] = "<div class=\"spl dm\">\n  <div class=\"spl-stage dm-main\">\n    <div class=\"spl-pill\" aria-live=\"polite\"><div class=\"spl-in\"></div></div>\n  </div>\n  <div class=\"demo\"><div class=\"seg2\" role=\"group\" aria-label=\"Variant\"><button aria-pressed=\"true\" data-v=\"pill\">Pill</button><button aria-pressed=\"false\" data-v=\"bar\">Bar</button></div></div>\n</div>";
 TPLS["toast"] = "<div class=\"tst dm\">\n  <div class=\"dm-main\"><div class=\"tst-slot\" aria-live=\"polite\"></div></div>\n  <div class=\"demo\"><div class=\"seg2\" role=\"group\" aria-label=\"State\"><button aria-pressed=\"true\" data-v=\"ok\">Success</button><button aria-pressed=\"false\" data-v=\"err\">Error</button><button aria-pressed=\"false\" data-v=\"info\">Info</button><button aria-pressed=\"false\" data-v=\"load\">Loading</button></div></div>\n</div>";
 TPLS["toast-stack"] = "<div class=\"tsk dm\">\n  <div class=\"dm-main\"><div class=\"tsk-stack\" aria-live=\"polite\"></div></div>\n  <div class=\"demo\"><button class=\"pill soft sm tsk-add\"><svg class=\"i s\"><use href=\"#v2i-bell\"/></svg>Send notification</button></div>\n</div>";
-TPLS["context-meter"] = "<div class=\"ctm\" data-open=\"1\">\n  <button class=\"ctm-tg\" aria-expanded=\"true\" aria-label=\"Context\"><span class=\"ctm-ring\" aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\"><circle class=\"tr\" cx=\"10\" cy=\"10\" r=\"7.5\"/><circle class=\"fl\" cx=\"10\" cy=\"10\" r=\"7.5\" pathLength=\"100\"/></svg></span><span><span class=\"ctm-pc num\">0%</span> of context used</span>{chev}</button>\n  <div class=\"ctm-pop panel\" role=\"region\" aria-label=\"What fills the context\">\n    <div class=\"ctm-ph\"><span>In context</span><span class=\"num\"><b class=\"ctm-tot\">0k</b> of 200k tokens</span></div>\n    <div class=\"ctm-bar\" aria-hidden=\"true\"></div>\n    <div class=\"ctm-leg\"></div>\n    <div class=\"ctm-msg\" aria-live=\"polite\"><span></span></div>\n    <div class=\"ctm-f\"><span class=\"ctm-hint\">Summarises older turns</span><button class=\"pill ghost sm ctm-go\">Compact</button></div>\n  </div>\n</div>";
-TPLS["agent-run-timeline"] = "<div class=\"art panel\">\n  <div class=\"art-h\"><div class=\"art-hd\"><div class=\"art-t\">Run 4821, update the pricing page</div><div class=\"art-s muted num\">Starting</div></div><span class=\"art-tag tag\"><span class=\"spin\" aria-hidden=\"true\"></span>Running</span></div>\n  <div class=\"art-key num\" role=\"list\" aria-label=\"Time by kind of step\"></div>\n  <div class=\"art-grid\">\n    <div class=\"art-axis\" aria-hidden=\"true\"><span></span><div class=\"art-ticks\"></div><span></span></div>\n    <div class=\"art-past\" aria-hidden=\"true\"></div>\n    <div class=\"art-rows\"></div>\n    <div class=\"art-head\" aria-hidden=\"true\"><i></i><span class=\"art-now num\">0.0s</span></div>\n  </div>\n  <div class=\"art-f muted num\"></div>\n</div>";
+TPLS["context-meter"] = "<div class=\"ctm\" data-open=\"1\">\n  <button class=\"ctm-tg\" aria-expanded=\"true\" aria-label=\"Context\"><span class=\"ctm-ring\" aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\"><circle class=\"tr\" cx=\"10\" cy=\"10\" r=\"7.5\"/><circle class=\"fl\" cx=\"10\" cy=\"10\" r=\"7.5\" pathLength=\"100\"/></svg></span><span><span class=\"ctm-pc num\">0%</span> of context used</span>{chev}</button>\n  <div class=\"ctm-pop panel\" role=\"region\" aria-label=\"What fills the context\">\n    <div class=\"ctm-ph\"><span>In context</span><span class=\"num\"><b class=\"ctm-tot\">0k</b> of 200k tokens</span></div>\n    <div class=\"ctm-bar\" aria-hidden=\"true\"></div>\n    <div class=\"ctm-leg\"></div>\n    <div class=\"ctm-msg\" aria-live=\"polite\"><span></span></div>\n    <div class=\"ctm-f\"><span class=\"ctm-hint\">Summarises older turns</span><button class=\"pill soft sm ctm-go\">Compact</button></div>\n  </div>\n</div>";
+TPLS["agent-run-timeline"] = "<div class=\"art panel\">\n  <div class=\"art-h\"><span class=\"art-hi\" aria-hidden=\"true\"></span><div class=\"art-hd\"><div class=\"art-t\">Run 4821, update the pricing page</div><div class=\"art-s muted num\">Starting</div></div><span class=\"art-tag tag\"><span class=\"spin\" aria-hidden=\"true\"></span>Running</span></div>\n  <div class=\"art-key num\" role=\"list\" aria-label=\"Time by kind of step\"></div>\n  <div class=\"art-grid\">\n    <div class=\"art-axis\" aria-hidden=\"true\"><span></span><div class=\"art-ticks\"></div><span></span></div>\n    <div class=\"art-past\" aria-hidden=\"true\"></div>\n    <div class=\"art-rows\"></div>\n    <div class=\"art-head\" aria-hidden=\"true\"><i></i><span class=\"art-now num\">0.0s</span></div>\n  </div>\n  <div class=\"art-f muted num\"></div>\n</div>";
 TPLS["web-search"] = "<div class=\"wsx panel\">\n  <button class=\"wsx-h\" aria-expanded=\"true\"><span class=\"wsx-ic\"><span class=\"spin\"></span></span><span class=\"wsx-st shim\">Searching the web</span><span class=\"wsx-marks\" aria-hidden=\"true\"></span>{chev}</button>\n  <div class=\"fold wsx-fold\"><div><div class=\"wsx-list\"></div></div></div>\n  <div class=\"wsx-ans\"></div>\n  <p class=\"wsx-sr\" role=\"status\"></p>\n</div>";
 TPLS["reasoning-trail"] = "<div class=\"rtr-dm dm\"><div class=\"dm-main\"><div class=\"rtr panel\">\n  <button class=\"rtr-h\" aria-expanded=\"true\">\n    <span class=\"think on rtr-mark\"><i></i><i></i><i></i><i></i></span>\n    <span class=\"rtr-title shim\">Reasoning</span><span class=\"rtr-time num muted\">0s</span>\n    <svg class=\"i xs rtr-chev\"><use href=\"#v2i-chev-d\"/></svg>\n  </button>\n  <div class=\"fold rtr-fold\"><div>\n    <div class=\"rtr-body\"></div>\n    <div class=\"fold rtr-ff shut\"><div><p class=\"rtr-f\"><span class=\"rtr-fk\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\"><path d=\"m5 12.5 4.5 4.5L19 7.5\"/></svg></span><span class=\"rtr-fd\"></span><span class=\"rtr-fs\"></span></p></div></div>\n  </div></div>\n</div></div>\n  <div class=\"demo\"><div class=\"seg2\" role=\"group\" aria-label=\"View\"><button aria-pressed=\"true\" data-v=\"plan\">Plan</button><button aria-pressed=\"false\" data-v=\"notes\">Notes</button><button aria-pressed=\"false\" data-v=\"sources\">Sources</button><button aria-pressed=\"false\" data-v=\"edits\">Edits</button></div></div>\n</div>";
 TPLS["thinking"] = "<div class=\"tk\" data-open=\"1\">\n  <button class=\"tk-h\" aria-expanded=\"true\">\n    <span class=\"tk-mark\"><span class=\"think on\"><i></i><i></i><i></i><i></i></span></span>\n    <span class=\"tk-title shim\">Checking the pricing page</span><span class=\"tk-time num\">0s</span>\n    <svg class=\"i xs tk-chev\"><use href=\"#v2i-chev-d\"/></svg>\n  </button>\n  <div class=\"fold tk-fold\"><div><ol class=\"tk-list\" aria-live=\"polite\"></ol></div></div>\n</div>";
@@ -22,10 +22,11 @@ DM.def('status-pill', (r, c) => {
     c.later(REDUCE ? 0 : 170, () => { if (id !== morph) return; root.classList.toggle('bar', bar); fit(); });
     c.later(REDUCE ? 0 : 430, () => { if (id !== morph) return; morph = 0; box.classList.remove('out'); root.classList.remove('mo'); });
   });
-  /* both variants hug their content; the bar keeps a little extra room for its track */
+  /* both variants hug their content; the bar keeps a little extra room for its track. Neither is ever wider than the room
+     it has (a phone): its words give way with an ellipsis */
   function fit(){
     box.style.width = 'max-content'; const w = box.scrollWidth; box.style.width = '';
-    pill.style.width = (root.classList.contains('bar') ? Math.max(w + 24, 300) : w) + 'px';
+    pill.style.width = Math.min(root.classList.contains('bar') ? Math.max(w + 24, 300) : w, pill.parentElement.clientWidth || Infinity) + 'px';
   }
   function set(htmlStr, pct){
     pill.style.width = pill.offsetWidth + 'px';
@@ -37,6 +38,8 @@ DM.def('status-pill', (r, c) => {
   const think = '<span class="think on"><i></i><i></i><i></i><i></i></span>';
   box.innerHTML = '<span class="g"><span class="dot" style="color:var(--faint)"></span></span><span class="fg2">Ready for a task</span><span class="end"></span>';
   requestAnimationFrame(fit);
+  // and it fits again when its room changes
+  if (window.ResizeObserver){ let rw = 0; const ro = new ResizeObserver(([e]) => { const w = Math.round(e.contentRect.width); if (w !== rw){ rw = w; fit(); } }); ro.observe(pill.parentElement); c.offs.push(() => ro.disconnect()); }
   const idle = '<span class="g"><span class="dot" style="color:var(--faint)"></span></span><span class="fg2">Ready for a task</span><span class="end"></span>';
   c.run(async () => { for (;;){
     await c.wait(1100);
@@ -51,19 +54,22 @@ DM.def('status-pill', (r, c) => {
     /* waits for Review, and carries on by itself after a while so the loop never stalls; once you have taken over, it waits for you */
     await new Promise(res => { c.later(220, () => { const b = $('.pill', box); if (b) b.onclick = res; }); c.auto(8000, res); });
     set(`<span class="g" style="color:var(--fg)"><span class="spin"></span></span><span class="shim">Applying 4 changes</span><span class="end"></span>`, 88); await c.wait(1600);
-    set(`<span class="g" style="color:var(--ok)">${I('ok')}</span><span>Done</span><span class="m">4 files changed · 18s</span><span class="end"></span>`, 100);
+    // done is a neutral line with the green tick (the mark green), and no elapsed time (owner, 18 Nov)
+    set(`<span class="g" style="color:var(--ok-mark)">${I('ok')}</span><span>Done</span><span class="m">4 files changed</span><span class="end"></span>`, 100);
     await c.wait(3200); set(idle, 0);
   } });
 });
 /* ---------- Step loader ---------- */
 DM.def('step-loader', (r, c) => {
+  // the chevron comes from I(), so it points at the icons wherever the component is mounted (designme.dev's own icon ids)
+  r.innerHTML = r.innerHTML.replace('{chev}', I('chev-d', 'xs stl-chev'));
   const steps = [['Reading Figma frames','Read 4 frames'],['Matching tokens','Matched 18 tokens'],['Writing components','Wrote 3 components'],['Checking contrast','Contrast passes']];
   const row = $('.stl-row', r), lab = $('.stl-lab', r), n = $('.stl-n', r), g = $('.stl-g', r), bars = $$('.stl-track i', r), list = $('.stl-list', r), fold = $('.stl-fold', r);
   let kind = 'radar', cur = 0, done = false;
   const glyph = () => kind === 'radar' ? '<span class="radar"></span>' : kind === 'think' ? '<span class="think on"><i></i><i></i><i></i><i></i></span>' : kind === 'spin' ? '<span class="spin"></span>' : '<span class="bars3"><i></i><i></i><i></i></span>';
   const paint = () => {
-    g.innerHTML = done ? `<span style="color:var(--ok)">${I('ok')}</span>` : glyph();
-    list.innerHTML = steps.map((s, i) => `<li class="${i < cur || done ? 'done' : i === cur ? 'run' : ''}"><span class="g">${i < cur || done ? `<span style="color:var(--ok)">${I('check','xs')}</span>` : i === cur ? glyph() : '<span class="dot" style="color:var(--faint)"></span>'}</span>${i < cur || done ? s[1] : s[0]}</li>`).join('');
+    g.innerHTML = done ? `<span class="stl-ok">${I('ok')}</span>` : glyph();
+    list.innerHTML = steps.map((s, i) => `<li class="${i < cur || done ? 'done' : i === cur ? 'run' : ''}"><span class="g">${i < cur || done ? `<span class="stl-ok">${I('check','xs')}</span>` : i === cur ? glyph() : '<span class="dot" style="color:var(--faint)"></span>'}</span>${i < cur || done ? s[1] : s[0]}</li>`).join('');
   };
   seg($('.seg2', r), v => { kind = v; paint(); });
   row.onclick = () => { const o = fold.classList.toggle('shut'); row.setAttribute('aria-expanded', !o); };
@@ -79,7 +85,8 @@ DM.def('step-loader', (r, c) => {
       done = true; lab.classList.remove('shim'); swap(lab, 'Ready for review'); swap(n, '4/4'); paint();
       /* hold the finished state, then run the steps again */
       await c.wait(3200);
-      done = false; cur = 0; bars.forEach(b => b.classList.remove('on', 'run')); lab.classList.add('shim'); paint();
+      // the pill says what runs again as the track empties, never "Ready for review" over an empty track
+      done = false; cur = 0; bars.forEach(b => b.classList.remove('on', 'run')); lab.classList.add('shim'); swap(lab, steps[0][0]); swap(n, '1/4'); paint();
       await c.wait(700);
     }
   });
@@ -127,13 +134,13 @@ DM.def('thinking-states', (r, c) => {
   let v = box.dataset.v || 'orbit', at = 0, secs = 0, typed = 0;
   // the agent's own pace: these waits are not shortened under reduced motion, so the line still changes every few seconds
   const pause = ms => new Promise(res => c.later(ms, res));
-  // Stream types the line out behind its caret; the others crossfade it (Orbit shimmering). A newer line cancels the typing
+  // Stream types the line out behind its caret; the others crossfade it. Every state's line sweeps (.shim). A newer line cancels the typing
   const type = async t => {
     const k = ++typed; if (tx._sw){ clearTimeout(tx._sw.t); tx._sw = null; } tx.classList.remove('out'); tx.textContent = '';
     for (let i = 1; i <= t.length; i++){ await pause(32); if (k !== typed) return; tx.textContent = t.slice(0, i); }
   };
   const show = (t, fresh) => {
-    tx.classList.toggle('shim', v === 'orbit'); car.hidden = v !== 'stream';
+    car.hidden = v !== 'stream';
     if (v === 'stream' && fresh && !REDUCE) type(t);
     else { typed++; if (fresh) swap(tx, t); else { if (tx._sw){ clearTimeout(tx._sw.t); tx._sw = null; } tx.classList.remove('out'); tx.textContent = t; } }
     // a screen reader hears each new step once, never the letters as they type
@@ -288,20 +295,31 @@ DM.def('thinking', (r, c) => {
   const tk = $('.tk', r), list = $('.tk-list', r), title = $('.tk-title', r), time = $('.tk-time', r), head = $('.tk-h', r), fold = $('.tk-fold', r), mark = $('.tk-mark', r);
   // each step: what the agent does and what it found. Measuring the cards times out once, counts down and tries again
   const S = [
-    ['Open Pricing v4 in Figma', '6 frames, 3 plan cards', 1300],
+    ['Open Pricing v4 in Figma', '6 frames', 1300],
     ['Read the spacing tokens', 'tokens.css, 9 spacing values', 1200],
-    ['Measure the plan cards', '3 cards are off the 8px grid', 1400, { retry:"Figma didn't answer", tip:'Pro has an 18px gap, Team 22px and Enterprise 13px' }],
+    ['Measure the plan cards', 'Off the 8px grid', 1400, { retry:"Figma didn't answer", tip:'Pro has an 18px gap, Team 22px and Enterprise 13px' }],
     ['Check text contrast', 'All 14 text pairs pass AA', 1100],
-    ['Plan the fix', '2 changes, about 3 minutes', 1200]
+    ['Plan the fix', 'About 3 minutes of work', 1200]
   ];
   const setOpen = o => { tk.dataset.open = o ? '1' : '0'; fold.classList.toggle('shut', !o); head.setAttribute('aria-expanded', o); };
   head.onclick = () => setOpen(tk.dataset.open !== '1');
+  // the trace grows with its steps in every style (grow(), started once its entrance has settled, so it measures the card
+  // at its real size), and its header says what the work came to as the last step finishes, never after it (owner, 18 Nov).
+  // Clean draws its finished mark as a tick on a green disc
+  const ds = r.closest('[data-style]'), clean = !!ds && ds.dataset.style === 'clean';
+  Promise.resolve().then(() => Promise.all(tk.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && tk.isConnected) c.offs.push(grow(tk)); });
+  // (the template's chevron names the sprite's icon directly, which the homepage renames, so it is drawn through I())
+  $('.tk-chev', r).outerHTML = I('chev-d', 'xs tk-chev');
+  // the header becomes what the work came to
+  const finish = () => { live = false; head.classList.add('tk-fin'); mark.innerHTML = clean ? I('check','xs') : I('ok'); enter(mark.firstElementChild); title.classList.remove('shim'); swap(title, '3 cards to fix, 2 changes planned'); };
   // the line under a step opens and then crossfades; what the step found writes itself in a word at a time, and a tip on it
   // holds the detail
   const words = t => t.split(' ').map((w, i, a) => `<span class="w" style="animation-delay:${i * 45}ms">${w}${i < a.length - 1 ? ' ' : ''}</span>`).join('');
-  const note = (li, text, tip, found) => { const res = $('.res', li), sp = res.firstElementChild; res.classList.add('on');
-    if (found){ sp._sw = null; sp.classList.remove('out'); sp.innerHTML = tip ? `<span data-tip="${tip}">${words(text)}</span>` : words(text); }
-    else swap(sp, text); };
+  // (warn: the step is waiting out a problem; its amber lands with its words, 170ms on as swap() writes them)
+  const note = (li, text, tip, found, warn = false) => { const res = $('.res', li), sp = res.firstElementChild; res.classList.add('on');
+    clearTimeout(sp._tone); const set = () => sp.classList.toggle('warn', warn);
+    if (found){ set(); sp._sw = null; sp.classList.remove('out'); sp.innerHTML = tip ? `<span data-tip="${tip}">${words(text)}</span>` : words(text); }
+    else { const lag = !REDUCE && !!sp.textContent.trim() && sp.textContent !== text; swap(sp, text); if (lag) sp._tone = setTimeout(set, 170); else set(); } };
   const glyph = (li, g) => { const mk = $('.mk', li); mk.innerHTML = g; enter(mk.firstElementChild); };
   let secs = 0, live = true; c.every(1000, () => { if (live){ secs++; time.textContent = secs + 's'; } });
   c.run(async () => {
@@ -313,16 +331,15 @@ DM.def('thinking', (r, c) => {
       await c.wait(ms);
       if (x && x.retry){
         li.classList.replace('run', 'retry'); l.classList.remove('shim'); glyph(li, I('clock','xs'));
-        for (let k = 2; k > 0; k--){ note(li, `${x.retry}. Trying again in ${k}s`); await c.wait(1000); }
+        for (let k = 2; k > 0; k--){ note(li, `${x.retry}. Trying again in ${k}s`, null, false, true); await c.wait(1000); }
         li.classList.replace('retry', 'run'); l.classList.add('shim'); glyph(li, '<span class="spin"></span>'); note(li, 'Trying again'); await c.wait(900); took += 2900;
       }
       li.classList.replace('run', 'done'); l.classList.remove('shim'); glyph(li, I('check','xs')); note(li, res, x && x.tip, true);
       const t = $('.tk-dur', li); t.textContent = (took / 1000).toFixed(1) + 's'; enter(t);
     }
-    // the header becomes what the work came to, and folds the trace away
-    await c.wait(500); live = false;
-    head.classList.add('tk-fin'); mark.innerHTML = I('ok'); enter(mark.firstElementChild); title.classList.remove('shim'); swap(title, '3 cards to fix, 2 changes planned');
-    await c.wait(2000); setOpen(false);
+    // the header becomes what the work came to as the last step finishes, and folds the trace away
+    finish();
+    await c.wait(2500); setOpen(false);
   });
   // the preview's story: once it has folded, the person opens it again and reads what the cards measured
   if (r === c.st) c.story(async s => {
@@ -336,12 +353,14 @@ DM.def('thinking', (r, c) => {
 DM.def('context-meter', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{chev}', I('chev-d','xs'));
   const LIMIT = 200;
-  // what fills the context, in thousands of tokens; each part lists what's in it on hover
+  // what fills the context, in thousands of tokens; each part lists what's in it on hover. The parts take the chart palette's
+  // accent, violet and teal; the instructions, the quiet part, a neutral grey that keeps 3:1 (green would be Blueprint's
+  // accent again, and orange the warning)
   const P = [
-    { k:'files', l:'Files', v:56.2, c:'var(--pb)', tip:'Pricing.fig export 31.9k, PricingCard.tsx 18.2k, tokens.css 6.1k' },
-    { k:'tools', l:'Tool output', v:41.8, c:'var(--pt)', tip:'Contrast check 17.4k, Figma frames 15.6k, grid audit 8.8k' },
-    { k:'chat', l:'Chat', v:32.1, c:'var(--pl)', tip:'48 turns with Maya Kim since 09:12' },
-    { k:'sys', l:'Instructions', v:6.3, c:'var(--faint)', tip:'Studio guidelines 4.1k, pricing brief 2.2k' }
+    { k:'files', l:'Files', v:56.2, c:'var(--c1)', tip:'Pricing.fig export 31.9k, PricingCard.tsx 18.2k, tokens.css 6.1k' },
+    { k:'tools', l:'Tool output', v:41.8, c:'var(--c2)', tip:'Contrast check 17.4k, Figma frames 15.6k, grid audit 8.8k' },
+    { k:'chat', l:'Chat', v:32.1, c:'var(--c6)', tip:'48 turns with Maya Kim since 09:12' },
+    { k:'sys', l:'Instructions', v:6.3, c:'var(--muted)', tip:'Studio guidelines 4.1k, pricing brief 2.2k' }
   ];
   const root = $('.ctm', r), tg = $('.ctm-tg', r), pop = $('.ctm-pop', r), arc = $('.ctm-ring .fl', r), pc = $('.ctm-pc', r), tot = $('.ctm-tot', r);
   const bar = $('.ctm-bar', r), leg = $('.ctm-leg', r), msg = $('.ctm-msg', r), go = $('.ctm-go', r), hint = $('.ctm-hint', r);
@@ -356,7 +375,10 @@ DM.def('context-meter', (r, c) => {
     const from = total; total = all; tween(from, all, ms, x => { tot.textContent = fmt(x); pc.textContent = Math.round(x / LIMIT * 100) + '%'; });
     arc.style.strokeDasharray = pct + ' 100'; root.classList.toggle('hot', pct >= 85); tg.setAttribute('aria-label', `Context, ${pct}% used`);
   }
-  const say = (text, tone, icon) => { msg.className = 'ctm-msg on ' + tone; swap(msg.firstElementChild, `${I(icon,'xs')}<span>${text}</span>`, true); };
+  // a warning is a warning notice with the filled sign, and Compact, the action that resolves it, takes the warning tint
+  const WARN = '<svg class="ctm-wi" viewBox="0 0 24 24" aria-hidden="true"><path class="a" d="M12 3.6 2.6 19.9h18.8z"/><path class="b" d="M12 9.6v4.4M12 17v.01"/></svg>';
+  const say = (text, tone) => { msg.className = 'ctm-msg on ' + tone; swap(msg.firstElementChild, `${tone === 'warn' ? WARN : I('ok','xs')}<span>${text}</span>`, true); go.classList.toggle('warn', tone === 'warn'); go.classList.toggle('soft', tone !== 'warn'); };
+  const hush = () => { msg.className = 'ctm-msg'; go.classList.remove('warn'); go.classList.add('soft'); };
   // hovering a part lights its share of the bar
   c.on(leg, 'pointerover', e => { const l = e.target.closest('.ctm-l'); if (!l) return; bar.classList.add('hl'); $$('i', bar).forEach(i => i.classList.toggle('on', i.dataset.k === l.dataset.k)); });
   c.on(leg, 'pointerout', e => { if (!leg.contains(e.relatedTarget)) bar.classList.remove('hl'); });
@@ -365,18 +387,24 @@ DM.def('context-meter', (r, c) => {
   tg.onclick = () => setOpen(root.dataset.open !== '1');
   c.on(document, 'keydown', e => { if (e.key === 'Escape' && root.dataset.open === '1' && (root.contains(document.activeElement) || root.matches(':hover'))) setOpen(false, root.contains(document.activeElement)); });
   // new tool output lands and takes the context close to its limit
-  function arrive(){ P[1].v = +(P[1].v + 38.5).toFixed(1); paint(700); say(`${Math.round(sum() / LIMIT * 100)}% full. Older turns start to drop at 200k`, 'warn', 'warn'); }
+  function arrive(){ P[1].v = +(P[1].v + 38.5).toFixed(1); paint(700); say(`${Math.round(sum() / LIMIT * 100)}% full. Older turns start to drop at 200k`, 'warn'); }
   // Compact turns older turns into a summary and trims old tool output; Undo puts them back
   const before = {}; let state = 'full';
+  const run = html('<span class="ctm-run" role="status" hidden><span class="spin"></span><span class="shim">Compacting…</span></span>'); go.after(run);
+  // the button is as wide as its words and eases to its new width when they change (owner, 18 Nov)
+  const label = h => { const w0 = go.getBoundingClientRect().width; go.innerHTML = h; const w1 = go.getBoundingClientRect().width;
+    if (!REDUCE && w0 && Math.abs(w1 - w0) > .5) go.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:340, easing:'cubic-bezier(.23,1,.32,1)' }); };
   go.onclick = () => c.run(async () => {
     if (go._busy) return; go._busy = true;
     if (state === 'full'){
       P.forEach(p => before[p.k] = p.v); const was = sum();
-      go.innerHTML = '<span class="spin"></span>Compacting'; swap(hint, 'Summarising 48 turns'); await c.wait(1000);
+      const had = document.activeElement === go; go.hidden = true; run.hidden = false;
+      swap(hint, '<span class="shim">Summarising 48 turns</span>', true); await c.wait(1000);
       P[2].v = 4.6; P[1].v = +(P[1].v - 13.7).toFixed(1); paint(1100);
-      say(`Freed ${fmt(was - sum())} tokens. 9 decisions kept`, 'ok', 'ok'); swap(hint, 'Older turns are now a summary'); go.textContent = 'Undo'; state = 'compact';
+      say(`Freed ${fmt(was - sum())} tokens. 9 decisions kept`, 'ok'); swap(hint, 'Older turns are now a summary');
+      c.later(REDUCE ? 0 : 170, () => { run.hidden = true; go.innerHTML = 'Undo'; go.hidden = false; enter(go); if (had) go.focus({ preventScroll:true }); }); state = 'compact';
     } else {
-      P.forEach(p => p.v = before[p.k]); paint(700); msg.className = 'ctm-msg'; swap(hint, 'Summarises older turns'); go.textContent = 'Compact'; state = 'full';
+      P.forEach(p => p.v = before[p.k]); paint(700); hush(); swap(hint, 'Summarises older turns'); c.later(REDUCE ? 0 : 170, () => label('Compact')); state = 'full';
     }
     go._busy = false;
   });
@@ -396,22 +424,30 @@ DM.def('context-meter', (r, c) => {
 /* ---------- Toast ---------- */
 DM.def('toast', (r, c) => {
   const slot = $('.tst-slot', r);
+  // each state's icon, colours and words; its tone (data-tone) is what Clean colours: success green, error red, the rest grey
   const V = {
-    ok:{ g:'ok', col:'var(--ok)', bg:'var(--ok-bg)', b:'Changes applied', s:'4 files updated in PricingCard', act:'<button class="pill ghost sm tst-undo">Undo</button>' },
-    err:{ g:'alert', col:'var(--bad)', bg:'var(--bad-bg)', b:'Could not push to main', s:'The branch is protected', act:'<button class="pill primary sm tst-retry">Retry</button>' },
-    info:{ g:'info', col:'var(--pb)', bg:'var(--pb-bg)', b:'Preview is ready', s:'pricing-spacing.preview.app', act:'<button class="pill ghost sm">Open</button>' },
-    load:{ g:'load', col:'var(--fg)', bg:'var(--chip)', b:'Deploying preview', s:'Building 3 pages', act:'' }
+    ok:{ g:'ok', tone:'success', col:'var(--ok)', bg:'var(--ok-bg)', b:'Changes applied', s:'4 files updated in PricingCard', act:'<button class="pill ghost sm tst-undo">Undo</button>' },
+    err:{ g:'alert', tone:'error', col:'var(--bad)', bg:'var(--bad-bg)', b:'Could not push to main', s:'The branch is protected', act:'<button class="pill primary sm tst-retry">Retry</button>' },
+    info:{ g:'info', tone:'info', col:'var(--pb)', bg:'var(--pb-bg)', b:'Preview is ready', s:'pricing-spacing.preview.app', act:'<button class="pill ghost sm">Open</button>' },
+    load:{ g:'load', tone:'loading', col:'var(--fg)', bg:'var(--chip)', b:'Deploying preview', s:'Building 3 pages', act:'' }
   };
-  let cur = null;
+  let cur = null; const agent = ctl(); c.offs.push(() => agent.stop());
+  // a pressed button never goes blank and keeps no room for what it turns into: it shows its new content and eases from its
+  // old width to its new one (owner, 19 Nov)
+  const relabel = (btn, inner) => { const w0 = btn.offsetWidth; btn.innerHTML = inner; const w1 = btn.offsetWidth, cs = getComputedStyle(btn);
+    if (!REDUCE && Math.abs(w1 - w0) > .5) btn.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:(parseFloat(cs.getPropertyValue('--t')) || .34) * 1000, easing:cs.getPropertyValue('--ease').trim() || 'ease' }); };
   let show = function(k){
     const v = V[k];
-    const t = html(`<div class="tst-t tst-in" role="status"><span class="g" style="color:${v.col};background:${v.bg}">${k === 'load' ? '<span class="spin"></span>' : I(v.g)}</span><div class="tx"><b>${v.b}</b><span>${v.s}</span></div><div class="acts">${v.act}<button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div><span class="life"></span></div>`);
+    const t = html(`<div class="tst-t tst-in" role="status"><span class="g" data-tone="${v.tone}" style="color:${v.col};background:${v.bg}">${k === 'load' ? '<span class="spin"></span>' : I(v.g)}</span><div class="tx"><b${k === 'load' ? ' class="shim"' : ''}>${v.b}</b><span>${v.s}</span></div><div class="acts">${v.act}<button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div><span class="life"></span></div>`);
     if (cur){ const old = cur; old.classList.add('tst-out'); setTimeout(() => old.remove(), 300); }
     slot.appendChild(t); cur = t;
     $('.ib', t).onclick = () => { t.classList.add('tst-out'); setTimeout(() => t.remove(), 300); cur = null; };
-    const u = $('.tst-undo', t); if (u) u.onclick = () => { $('.tx b', t).textContent = 'Changes undone'; swap($('.tx span', t), 'PricingCard is back as it was'); u.remove(); };
-    const rt = $('.tst-retry', t); if (rt) rt.onclick = () => { rt.innerHTML = '<span class="spin"></span>'; setTimeout(() => { if (t.isConnected) show('ok'); }, 1200); };
-    if (k === 'load') c.later(2600, () => { if (cur === t) show('info'); });
+    const u = $('.tst-undo', t); if (u) u.onclick = () => { $('.tx b', t).textContent = 'Changes undone'; swap($('.tx span', t), 'PricingCard is back as it was');
+      relabel(u, I('check')); u.classList.add('done'); u.setAttribute('aria-label', 'Undone'); u.setAttribute('aria-disabled', 'true'); u.onclick = null; };
+    const rt = $('.tst-retry', t); if (rt) rt.onclick = () => { relabel(rt, '<span class="spin"></span>'); rt.setAttribute('aria-busy', 'true'); rt.onclick = null; setTimeout(() => { if (t.isConnected) show('ok'); }, 1200); };
+    // a loading toast keeps loading under a resting mouse, as a loader does (DM.PLAYS): the deploy finishes on its own clock,
+    // which nothing holds
+    if (k === 'load') agent.later(2600, () => { if (cur === t) show('info'); });
     if (k === 'ok' || k === 'info'){
       // it times out like a real toast: hovering holds it, and when it runs out it leaves and the same one comes back (until
       // you take over: then it stays gone until you pick one)
@@ -429,30 +465,37 @@ DM.def('toast', (r, c) => {
 /* ---------- Toast stack ---------- */
 DM.def('toast-stack', (r, c) => {
   const stack = $('.tsk-stack', r);
+  // each with its tone (data-tone): Clean colours only the status ones, ok and warn, and shows the rest grey
   const pool = [
-    ['ok','var(--ok)','var(--ok-bg)','Tests passed','42 of 42 in 38s'],
-    ['pr','var(--merge)','var(--merge-bg)','PR #412 is ready','Use shared spacing tokens'],
-    ['figma','var(--pl)','var(--pl-bg)','Frames synced','6 frames from Pricing.fig'],
-    ['warn','var(--warn)','var(--warn-bg)','Budget at 80%','1,600 of 2,000 credits'],
-    ['spark','var(--pb)','var(--pb-bg)','Draft written','Launch email, 2 subject lines']
+    ['ok','var(--ok)','var(--ok-bg)','Tests passed','42 of 42 in 38s','ok'],
+    ['pr','var(--merge)','var(--merge-bg)','PR #412 is ready','Use shared spacing tokens','merge'],
+    ['figma','var(--pl)','var(--pl-bg)','Frames synced','6 frames from Pricing.fig','purple'],
+    ['warn','var(--warn)','var(--warn-bg)','Budget at 80%','1,600 of 2,000 credits','warn'],
+    ['spark','var(--pb)','var(--pb-bg)','Draft written','Launch email, 2 subject lines','blue']
   ];
   // the stack fans out under the pointer, or while the focus is in it; a toast that can't be seen can't take the focus
   let items = [], n = 0, hover = false, focused = false;
   function layout(){
     const fan = hover || focused; let y = 0;
+    // as a new toast starts to rise into place, the toasts it covers lose their words at once (Clean shows them through no
+    // blur): .tsk-under, until the stack fans out
+    const front = items[items.length - 1]; if (front && front._new){ front._new = false; if (!fan) items.forEach(it => it !== front && it.classList.add('tsk-under')); }
     const hs = items.map(it => it.offsetHeight);
     stack.style.setProperty('--fanh', (hs.slice(-4).reduce((a, b) => a + b + 8, 0) - 8 || 96) + 'px');
+    // the deck's own height: the front toast and the two that peek out above it (Clean sizes the stack to it)
+    stack.style.setProperty('--deckh', Math.ceil(items.slice(-3).reverse().reduce((m, it, k) => Math.max(m, it.offsetHeight * (1 - k * .05) + k * 10), 0)) + 'px');
     stack.classList.toggle('fan', fan);
     items.slice().reverse().forEach((it, i) => {
       if (fan){ it.style.transform = `translateY(${-y}px)`; it.style.opacity = i > 3 ? 0 : 1; it.style.filter = 'none'; if (i < 3) y += hs[items.length - 1 - i] + 8; }
       else { const k = Math.min(i, 3); it.style.transform = `translateY(${-k * 10}px) scale(${1 - k * .05})`; it.style.opacity = i > 2 ? 0 : 1 - k * .15; it.style.filter = i ? 'blur(.3px)' : 'none'; }
-      it.style.zIndex = 100 - i; it.inert = fan ? i > 3 : i > 0;
+      it.style.zIndex = 100 - i; it.inert = fan ? i > 3 : i > 0; if (fan || !i) it.classList.remove('tsk-under');
     });
   }
   function add(){
     const p = pool[n++ % pool.length];
-    const el = html(`<div class="tsk-c"><span class="g" style="color:${p[1]};background:${p[2]}">${I(p[0])}</span><div class="tx"><b>${p[3]}</b><span>${p[4]}</span></div><span class="t">now</span><button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div>`);
+    const el = html(`<div class="tsk-c"><span class="g" data-tone="${p[5]}" style="color:${p[1]};background:${p[2]}">${I(p[0])}</span><div class="tx"><b>${p[3]}</b><span>${p[4]}</span></div><span class="t">now</span><button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div>`);
     el.style.transform = 'translateY(24px) scale(.96)'; el.style.opacity = 0; el.style.filter = 'blur(6px)';
+    el._new = true;
     stack.appendChild(el); items.push(el);
     $('.ib', el).onclick = () => { items = items.filter(x => x !== el); el.style.opacity = 0; el.style.transform += ' translateX(30px)'; setTimeout(() => el.remove(), 400); layout(); };
     if (items.length > 6){ const old = items.shift(); old.remove(); }
@@ -487,7 +530,8 @@ DM.def('agent-run-timeline', (r, c) => {
     { l:'Post to Slack', ic:'@slack', k:'app', s:11.1, d:.6, cost:.01 }
   ];
   const T = 12, END = Math.max(...S.map(s => s.s + s.d)), PACE = 1.6, TK = [0, 3, 6, 9, 12];
-  const art = $('.art', r), grid = $('.art-grid', r), rows = $('.art-rows', r), now = $('.art-now', r), st = $('.art-s', r), foot = $('.art-f', r);
+  const art = $('.art', r), grid = $('.art-grid', r), rows = $('.art-rows', r), now = $('.art-now', r), head = $('.art-head', r), st = $('.art-s', r), foot = $('.art-f', r);
+  $('.art-hi', r).innerHTML = I('bolt', 'xs');
   $('.art-ticks', r).innerHTML = TK.map(t => `<span style="left:${t / T * 100}%">${t}s</span>`).join('');
   const ticks = $$('.art-ticks span', r);
   $('.art-key', r).innerHTML = Object.entries(K).map(([id, k]) => `<span role="listitem" style="--k:${k[1]}"><i></i>${k[0]}<b data-k="${id}">0.0s</b></span>`).join('');
@@ -501,7 +545,6 @@ DM.def('agent-run-timeline', (r, c) => {
     rows.appendChild(s.el);
   });
   stagger($$('.art-row', r), 40);
-  const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
   let line = '', ft = '';
   // the run as it stands t seconds in: bars, states, times, the key, the footer and the line under the title
   function draw(t){
@@ -527,6 +570,8 @@ DM.def('agent-run-timeline', (r, c) => {
     // between two steps the line keeps the last one's name, so it never flickers
     if (live.length && live.join(', ') !== line){ line = live.join(', '); st.textContent = line; }
     now.textContent = t.toFixed(1) + 's';
+    // the playhead is placed by the script as it moves (it is no column of the card)
+    head.style.left = `calc(var(--lab) + (100% - var(--lab) - var(--dur)) * ${(t / T).toFixed(4)})`;
     // the time on the playhead covers the axis labels it passes
     const b = now.getBoundingClientRect();
     ticks.forEach(el => { const x = el.getBoundingClientRect(); el.classList.toggle('hid', x.right > b.left - 4 && x.left < b.right + 4); });
@@ -542,7 +587,8 @@ DM.def('agent-run-timeline', (r, c) => {
     st.classList.remove('shim'); st.classList.add('muted');
     now.innerHTML = I('check','xs') + END.toFixed(1) + 's';
     const tag = $('.art-tag', r); tag.className = 'art-tag tag ok'; tag.innerHTML = I('check','xs') + 'Done'; enter(tag);
-    swap(st, `Finished in ${END.toFixed(1)}s, ${plural(S.filter(s => s.fail).length, 'retry', 'retries')}`);
+    // what the run did, not its time or retries again: the totals under the chart already say those (owner, 18 Nov)
+    swap(st, 'Opened a PR and posted to Slack');
   });
 });
 /* ---------- Web search ---------- */
@@ -562,6 +608,9 @@ DM.def('web-search', (r, c) => {
   const ST = { read:['Read', ''], skim:['Skimmed', ''], paywall:['Skipped: paywall', 'warn'], blocked:['Skipped: blocked', 'warn'], timeout:['Skipped: timeout', 'warn'] };
   const root = $('.wsx', r), head = $('.wsx-h', r), ic = $('.wsx-ic', r), st = $('.wsx-st', r), marks = $('.wsx-marks', r), fold = $('.wsx-fold', r), list = $('.wsx-list', r), ans = $('.wsx-ans', r), sr = $('.wsx-sr', r);
   const say = t => { sr.textContent = t; };
+  // the card grows and shrinks with what it holds (grow()), eased and centred, in every style (owner, 18 Nov), instead of
+  // keeping the height it had once the trail folds
+  c.offs.push(grow(root));
   const setOpen = o => { head.setAttribute('aria-expanded', o); fold.classList.toggle('shut', !o); };
   head.onclick = () => setOpen(head.getAttribute('aria-expanded') !== 'true');
   const sites = [];
@@ -572,19 +621,20 @@ DM.def('web-search', (r, c) => {
   c.run(async () => {
     await c.wait(500);
     for (const [k, q] of Q.entries()){
-      const el = html(`<div class="wsx-q" data-k="${k}"><button class="wsx-qh${q.n ? '' : ' empty'}" aria-expanded="false">${I('search','xs')}<span class="t shim">${q.q}</span><span class="n">Searching</span><span class="tm num"></span>${I('chev-r','xs')}</button>${q.from != null ? `<span class="wsx-rw">${I('refresh','xs')}Asked again in other words</span>` : ''}${q.p ? '<div class="fold shut"><div><ul class="wsx-rs"></ul></div></div>' : ''}</div>`);
-      list.appendChild(el); enter(el); swap(st, `Searching for “${q.q}”`);
+      const el = html(`<div class="wsx-q" data-k="${k}"><button class="wsx-qh${q.n ? '' : ' empty'}" aria-expanded="false">${I('search','xs')}<span class="t shim">${q.q}</span><span class="n shim">Searching</span><span class="tm num"></span>${I('chev-r','xs')}</button>${q.from != null ? `<span class="wsx-rw">${I('refresh','xs')}Asked again in other words</span>` : ''}${q.p ? '<div class="fold shut"><div><ul class="wsx-rs"></ul></div></div>' : ''}</div>`);
+      // the head says what is happening; the query and its pages are in the rows under it, so it repeats neither (owner, 18 Nov)
+      list.appendChild(el); enter(el); swap(st, 'Searching the web');
       const b = $('.wsx-qh', el); b.onclick = () => { if ($('.fold', el)) qOpen(el, b.getAttribute('aria-expanded') !== 'true'); };
       await c.wait(1100);
       $('.t', b).classList.remove('shim'); $('.tm', b).textContent = q.ms;
-      const n = $('.n', b); n.textContent = q.n ? `${q.n} results` : 'No results'; n.classList.toggle('none', !q.n);
+      const n = $('.n', b); n.classList.remove('shim'); n.textContent = q.n ? `${q.n} results` : 'No results'; n.classList.toggle('none', !q.n);
       b.setAttribute('aria-label', `${q.q}: ${q.n ? q.n + ' results' : 'no results'}, ${q.ms}`);
       say(q.n ? `${q.n} results for ${q.q}` : `No results for ${q.q}. Asking again in other words`);
       if (!q.p){ await c.wait(500); continue; }
       qOpen(el, true); const ul = $('.wsx-rs', el);
-      swap(st, `Reading ${q.p.length} pages`);
+      swap(st, 'Reading the pages');
       for (const [t, d, when, s, cite] of q.p){
-        const li = html(`<li class="wsx-r" tabindex="0" data-tip="${t} · ${d}"><span class="wsx-fav" aria-hidden="true">${d[0].toUpperCase()}</span><span class="tx"><span class="t">${t}</span><span class="d">${d} · ${when}</span></span><span class="tag"><span class="spin"></span>Reading</span></li>`);
+        const li = html(`<li class="wsx-r" tabindex="0" data-tip="${t} · ${d}"><span class="wsx-fav" aria-hidden="true">${d[0].toUpperCase()}</span><span class="tx"><span class="t">${t}</span><span class="d">${d} · ${when}</span></span><span class="tag"><span class="spin"></span><span class="shim">Reading</span></span></li>`);
         ul.appendChild(li); enter(li); sites.push(d); drawMarks(); if (cite) pages[cite] = { li, q:el, d };
         await c.wait(420);
         const g = $('.tag', li); g.className = 'tag ' + ST[s][1]; g.textContent = ST[s][0]; li.classList.toggle('skip', s !== 'read' && s !== 'skim');
@@ -596,7 +646,7 @@ DM.def('web-search', (r, c) => {
     done = true; ic.innerHTML = I('globe','xs'); st.classList.remove('shim');
     const read = Q.flatMap(q => q.p || []).filter(p => p[3] === 'read' || p[3] === 'skim').length;
     swap(st, `${Q.length} searches, ${read} pages read`); say(`Done: ${Q.length} searches, ${read} pages read`);
-    await c.wait(400); hold(root); setOpen(false);
+    await c.wait(400); setOpen(false);
     const A = 'Stripe caps metered usage at 100 million events a month for each meter [1]. Metronome and Orb both take events in bulk with no monthly cap [2]. At your volume Stripe still fits, with room to grow.'.split(' ');
     for (let i = 1; i <= A.length; i++){ ans.innerHTML = A.slice(0, i).join(' ').replace(/\[(\d)\]/g, (m, k) => `<button class="wsx-cite" data-n="${k}" aria-label="Source ${k}: ${$('.t', pages[k].li).textContent}, ${pages[k].d}" data-tip="${$('.t', pages[k].li).textContent} · ${pages[k].d}">${k}</button>`); await c.wait(50); }
 

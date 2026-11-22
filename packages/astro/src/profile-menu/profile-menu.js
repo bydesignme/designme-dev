@@ -1,9 +1,9 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, REDUCE, enter, hideTip, placePop } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, hideTip, placePop } from '../core/core.js';
 DM.def('profile-menu', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{chev}', I('chev-d','xs')).replace('{moon}', I('moon')).replace('{keyboard}', I('keyboard')).replace('{logout}', I('logout')).replace('{x}', I('x','xs'));
   // the workspaces this account belongs to: initial, name, plan and the tint of its tile
-  const WS = [['N', 'Northwind', 'Pro, 12 members', 'pb'], ['A', 'Acme Labs', 'Free, 3 members', 'pp'], ['P', 'Personal', 'Just you', 'pl']];
+  const WS = [['N', 'Northwind', 'Pro, 12 members', 'pb'], ['A', 'Acme Labs', 'Free, 3 members', 'pk'], ['P', 'Personal', 'Just you', 'pl']];
   const uid = Math.random().toString(36).slice(2, 7);
   const tr = $('.pfm-tr', r), pop = $('.pfm-pop', r), wsl = $('.pfm-wsl', r), th = $('.pfm-th', r), note = $('.pfm-note', r), kf = $('.pfm-kf', r), sin = $('.pfm-in', r), cur = $('.pfm-cur', r), wn = $('.pfm-wn', r);
   // the menu is named by the account it belongs to, and the workspaces by their heading
@@ -14,7 +14,8 @@ DM.def('profile-menu', (r, c) => {
   // the theme switch starts from the page's own theme
   const root = document.documentElement;
   let ws = 0, dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
-  const say = t => { note.innerHTML = t ? `${I('ok','xs')}<span>${t}</span>` : ''; if (t) enter(note); };
+  // what changed is said to screen readers; the bar and the menu show it, so it has no line of its own under the bar
+  const say = t => { note.textContent = t || ''; };
   function paint(){
     const w = WS[ws]; cur.textContent = w[0]; cur.dataset.t = w[3];
     rows.forEach((m, i) => m.setAttribute('aria-checked', i === ws)); th.setAttribute('aria-checked', dark);

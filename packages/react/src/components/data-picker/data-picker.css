@@ -13,13 +13,13 @@
 .dm-fpk-ti .dm-i{width:11px;height:11px}
 .dm-fpk-hd .dm-fpk-ti{width:24px;height:24px;border-radius:calc(7px * var(--dm-rk-m,var(--dm-rk)))}
 .dm-fpk-hd .dm-fpk-ti .dm-i{width:12px;height:12px}
-.dm-fpk-ti[data-k="trigger"]{--dm-fpk-kb:var(--dm-pp-bg);--dm-fpk-kf:var(--dm-pp)}
-.dm-fpk-ti[data-k="ai"]{--dm-fpk-kb:var(--dm-pl-bg);--dm-fpk-kf:var(--dm-pl)}
-.dm-fpk-ti[data-k="tool"]{--dm-fpk-kb:var(--dm-pt-bg);--dm-fpk-kf:var(--dm-pt)}
-.dm-fpk-ti:is([data-k="app"],[data-k="output"]){--dm-fpk-kb:var(--dm-pb-bg);--dm-fpk-kf:var(--dm-pb)}
-.dm-fpk-ti[data-k="branch"]{--dm-fpk-kb:var(--dm-py-bg);--dm-fpk-kf:var(--dm-py)}
-.dm-fpk-ti[data-k="wait"]{--dm-fpk-kb:var(--dm-pk-bg);--dm-fpk-kf:var(--dm-pk)}
-.dm-fpk-ti[data-k="approval"]{--dm-fpk-kb:var(--dm-pm-bg);--dm-fpk-kf:var(--dm-pm)}
+:is(.dm-fpk-ti,.dm-fpk-tok)[data-k="trigger"]{--dm-fpk-kb:var(--dm-pp-bg);--dm-fpk-kf:var(--dm-pp)}
+:is(.dm-fpk-ti,.dm-fpk-tok)[data-k="ai"]{--dm-fpk-kb:var(--dm-pl-bg);--dm-fpk-kf:var(--dm-pl)}
+:is(.dm-fpk-ti,.dm-fpk-tok)[data-k="tool"]{--dm-fpk-kb:var(--dm-pt-bg);--dm-fpk-kf:var(--dm-pt)}
+.dm-fpk-ti:is([data-k="app"],[data-k="output"]),.dm-fpk-tok:is([data-k="app"],[data-k="output"]){--dm-fpk-kb:var(--dm-pb-bg);--dm-fpk-kf:var(--dm-pb)}
+:is(.dm-fpk-ti,.dm-fpk-tok)[data-k="branch"]{--dm-fpk-kb:var(--dm-py-bg);--dm-fpk-kf:var(--dm-py)}
+:is(.dm-fpk-ti,.dm-fpk-tok)[data-k="wait"]{--dm-fpk-kb:var(--dm-pk-bg);--dm-fpk-kf:var(--dm-pk)}
+:is(.dm-fpk-ti,.dm-fpk-tok)[data-k="approval"]{--dm-fpk-kb:var(--dm-pm-bg);--dm-fpk-kf:var(--dm-pm)}
 .dm-fpk-f{display:flex;flex-direction:column;gap:6px}
 .dm-fpk-l{font-size:12.5px;color:var(--dm-muted)}
 .dm-fpk-box{display:flex;flex-wrap:wrap;align-items:flex-start;gap:6px;min-height:var(--dm-field-h);padding:6px 6px 6px var(--dm-s-2);border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);transition:box-shadow var(--dm-t-fast)}
@@ -31,6 +31,14 @@
 .dm-fpk-tok{display:inline-flex;align-items:center;gap:5px;max-width:100%;min-width:0;height:26px;padding:0 2px 0 4px;border-radius:var(--dm-r-sm);background:var(--dm-chip);font-size:12px;color:var(--dm-fg);white-space:nowrap}
 .dm-fpk-tok .dm-s{min-width:0;max-width:120px;color:var(--dm-muted);overflow:hidden;text-overflow:ellipsis}
 .dm-fpk-tok .dm-sep{color:var(--dm-muted)}
+/* a token keeps its step's colour once it is in (owner, 22 Nov: grey tokens looked disabled): the core tag colours, one per
+   kind of step, as its tile in the picker shows it, its words in the tag's text colour on the tag's tint (4.5:1), its icon
+   bare on that tint and its remove in the same colour. Blueprint keeps its outlined tokens */
+.dm-fpk-tok[data-k]{background:var(--dm-fpk-kb);color:var(--dm-fpk-kf)}
+.dm-fpk-tok[data-k] :is(.dm-s,.dm-sep,.dm-fpk-x){color:inherit}
+.dm-fpk-tok[data-k] .dm-sep{opacity:.6}
+.dm-fpk-tok[data-k] .dm-fpk-ti{background:none;box-shadow:none;color:inherit}
+@media (hover:hover) and (pointer:fine){.dm-fpk-tok[data-k] .dm-fpk-x:hover{color:inherit}}
 .dm-fpk-tok .dm-f{flex:none;max-width:100%;font-weight:500;overflow:hidden;text-overflow:ellipsis}
 .dm-fpk-tok.dm-new{animation:dm-popin .5s var(--dm-ease) backwards}
 .dm-fpk-tok.dm-out{animation:dm-leave .3s var(--dm-ease) both}
@@ -68,10 +76,22 @@
 @container fpk (max-width:300px){.dm-fpk-ft .dm-kh{display:none}}
 :root:not([data-style="soft"],[data-style="clean"]) .dm-fpk-ti:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-fpk-kf,var(--dm-rail)) 30%,transparent)}
 :root:not([data-style="soft"],[data-style="clean"]) .dm-fpk-tok:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 60%,transparent)}
+:root:not([data-style="soft"],[data-style="clean"]) .dm-fpk-tok[data-k]:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){color:var(--dm-fg)}
+:root:not([data-style="soft"],[data-style="clean"]) .dm-fpk-tok[data-k] :is(.dm-s,.dm-sep,.dm-fpk-x):not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){color:var(--dm-muted)}
+:root:not([data-style="soft"],[data-style="clean"]) .dm-fpk-tok[data-k] .dm-sep:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){opacity:1}
+:root:not([data-style="soft"],[data-style="clean"]) .dm-fpk-tok[data-k] .dm-fpk-ti:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){background:var(--dm-fpk-kb);color:var(--dm-fpk-kf);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-fpk-kf,var(--dm-rail)) 30%,transparent)}
 /* Clean: the steps' tiles are one neutral grey with a hairline, as Trace view's marks are (the data types keep their colours);
    a token is a chip, so it is a pill with a round mark and a round remove, and the + is a circle. The picker is a 22px card with
    its rows' fills concentric with it (14px, 8px in), and its footnote is an off-white foot strip, edge to edge, 16px in */
-:root[data-style="clean"] .dm-fpk-ti,:root [data-style="clean"] .dm-fpk-ti,:root [data-style="clean"].dm-fpk-ti{color:var(--dm-fg2);background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-hair)}
+/* (owner, 22 Nov) the steps in the picker keep their kind's colour, so a token added from one wears the same colour in its
+   field; only the step being edited, in the head, is the neutral tile, its icon in the text colour (white in dark mode, not
+   grey), as the + and the search's glass are. Its states read apart: empty, a muted line; adding, the field's edge one step
+   stronger and its + on Clean's selected fill while the picker is open; added, the coloured token */
+:root[data-style="clean"] .dm-fpk-hd .dm-fpk-ti,:root [data-style="clean"] .dm-fpk-hd .dm-fpk-ti,:root [data-style="clean"].dm-fpk-hd .dm-fpk-ti{color:var(--dm-fg);background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] :is(.dm-fpk-add,.dm-fpk-q>.dm-i,.dm-fpk-q>svg),:root [data-style="clean"] :is(.dm-fpk-add,.dm-fpk-q>.dm-i,.dm-fpk-q>svg),:root [data-style="clean"]:is(.dm-fpk-add,.dm-fpk-q>.dm-i,.dm-fpk-q>svg){color:var(--dm-fg2)}
+:root[data-style="clean"] .dm-fpk-add[aria-expanded="true"],:root [data-style="clean"] .dm-fpk-add[aria-expanded="true"],:root [data-style="clean"].dm-fpk-add[aria-expanded="true"]{background:var(--dm-row-on);color:var(--dm-fg)}
+@media (prefers-color-scheme:dark){:root[data-style="clean"]:not([data-theme="light"]) :is(.dm-fpk-add,.dm-fpk-q>.dm-i,.dm-fpk-q>svg),:root:not([data-theme="light"]) [data-style="clean"] :is(.dm-fpk-add,.dm-fpk-q>.dm-i,.dm-fpk-q>svg),:root:not([data-theme="light"]) [data-style="clean"]:is(.dm-fpk-add,.dm-fpk-q>.dm-i,.dm-fpk-q>svg){color:var(--dm-fg)}}
+:root[data-style="clean"][data-theme="dark"] :is(.dm-fpk-add,.dm-fpk-q>.dm-i,.dm-fpk-q>svg),:root[data-theme="dark"] [data-style="clean"] :is(.dm-fpk-add,.dm-fpk-q>.dm-i,.dm-fpk-q>svg),:root[data-theme="dark"] [data-style="clean"]:is(.dm-fpk-add,.dm-fpk-q>.dm-i,.dm-fpk-q>svg){color:var(--dm-fg)}
 :root[data-style="clean"] .dm-fpk-tok .dm-fpk-ti,:root [data-style="clean"] .dm-fpk-tok .dm-fpk-ti,:root [data-style="clean"].dm-fpk-tok .dm-fpk-ti{border-radius:50%}
 :root[data-style="clean"] .dm-fpk-tok,:root [data-style="clean"] .dm-fpk-tok,:root [data-style="clean"].dm-fpk-tok{padding:0 3px 0 4px;border-radius:var(--dm-r-pill)}
 :root[data-style="clean"] :is(.dm-fpk-x,.dm-fpk-add),:root [data-style="clean"] :is(.dm-fpk-x,.dm-fpk-add),:root [data-style="clean"]:is(.dm-fpk-x,.dm-fpk-add){border-radius:50%;transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}

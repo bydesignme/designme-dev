@@ -8,13 +8,19 @@
 .nmf-h .muted{font-size:12px}
 .nmf-f{display:flex;flex-direction:column;gap:6px}
 .nmf-l{font-size:13px;color:var(--dm-fg2);cursor:default;align-self:flex-start}
-.nmf-in{display:flex;align-items:center;gap:2px;height:36px;padding:0 3px;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);transition:box-shadow var(--dm-t-fast)}
+/* the field is a standard field (a quiet half-strength edge, a step stronger with the focus), and − and + are neutral ghost
+   buttons inside it (owner, 21 Nov: "border lines with the light blue buttons are contrasting a lot"): no fill at rest, their
+   icons in the secondary text colour, the one hover fill, a brief neutral press, 4px from the field's top, bottom and side and
+   rounded concentric with it (the field's radius less 4px); at a limit a button is dimmed and takes no hover */
+.nmf-in{display:flex;align-items:center;gap:2px;height:36px;padding:0 4px;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);transition:box-shadow var(--dm-t-fast)}
 .nmf-in:focus-within{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
 .nmf-in:has(input[aria-invalid]){box-shadow:inset 0 0 0 1px var(--dm-bad)}
-.nmf-in .ib{width:28px;height:28px;flex:none;border-radius:calc(5px * var(--dm-rk-s,var(--dm-rk)));touch-action:manipulation}
+.nmf-in .ib{width:28px;height:28px;flex:none;border-radius:max(0px,calc(var(--dm-r-field) - 4px));touch-action:manipulation}
 /* the steppers carry the accent (owner, 4 Nov: the field read empty), as small squircles, not circles */
-.nmf-in .ib:not(:disabled){background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}
-@media (hover:hover) and (pointer:fine){.nmf-in .ib:not(:disabled):hover{background:color-mix(in srgb,var(--dm-accent) 18%,transparent)}}
+.nmf-in .ib:not(:disabled){background:none;color:var(--dm-fg2)}
+@media (hover:hover) and (pointer:fine){.nmf-in .ib:not(:disabled):hover{background:var(--dm-row);color:var(--dm-fg)}}
+.nmf-in .ib:not(:disabled):active{background:var(--dm-hover)}
+/* at its end a stepper takes the one disabled look: its fill swaps for --dm-dis-fill (hatched in Blueprint) and its glyph for --dm-dis */
 .nmf-in .ib:disabled{color:var(--dm-dis);background:none;cursor:not-allowed}
 .nmf-v{flex:1;min-width:0;align-self:stretch;display:flex;align-items:center;justify-content:center;gap:3px;cursor:text}
 .nmf-v input{field-sizing:content;min-width:1ch;max-width:100%;height:100%;border:0;outline:0;padding:0;background:none;font:inherit;font-size:14px;color:var(--dm-fg);text-align:center}
@@ -24,6 +30,10 @@
 @keyframes nmfbump{40%{transform:translateY(-1px)}}
 .nmf-hint{font-size:12px;line-height:1.4}
 .nmf-f.noted .nmf-hint{color:var(--dm-fg2)}
+/* an optional line at the foot (React's summary); the site's demo has none, as it would only repeat the fields */
 .nmf-sum{margin:0;padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12px;line-height:1.5}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .nmf.panel,:root [data-style="clean"] .nmf.panel,:root [data-style="clean"].nmf.panel{padding:19px 17px 18px 20px}
+/* nothing grows or shrinks when pressed */
+.nmf .ib:active,:root[data-style="clean"] .nmf .ib:active,:root [data-style="clean"] .nmf .ib:active,:root [data-style="clean"].nmf .ib:active{transform:none}
+/* Clean: the steppers are chrome, so they are monochrome: quiet grey circles that deepen a little under the pointer, the
+   glyph in the text colour; a stepper at its end takes the disabled fill */
+:root[data-style="clean"] .nmf-in .ib:not(:disabled):active,:root [data-style="clean"] .nmf-in .ib:not(:disabled):active,:root [data-style="clean"].nmf-in .ib:not(:disabled):active{background:var(--dm-row-on)}

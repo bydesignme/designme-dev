@@ -16,7 +16,8 @@ DM.def('agent-run-timeline', (r, c) => {
     { l:'Post to Slack', ic:'@slack', k:'app', s:11.1, d:.6, cost:.01 }
   ];
   const T = 12, END = Math.max(...S.map(s => s.s + s.d)), PACE = 1.6, TK = [0, 3, 6, 9, 12];
-  const art = $('.art', r), grid = $('.art-grid', r), rows = $('.art-rows', r), now = $('.art-now', r), st = $('.art-s', r), foot = $('.art-f', r);
+  const art = $('.art', r), grid = $('.art-grid', r), rows = $('.art-rows', r), now = $('.art-now', r), head = $('.art-head', r), st = $('.art-s', r), foot = $('.art-f', r);
+  $('.art-hi', r).innerHTML = I('bolt', 'xs');
   $('.art-ticks', r).innerHTML = TK.map(t => `<span style="left:${t / T * 100}%">${t}s</span>`).join('');
   const ticks = $$('.art-ticks span', r);
   $('.art-key', r).innerHTML = Object.entries(K).map(([id, k]) => `<span role="listitem" style="--dm-k:${k[1]}"><i></i>${k[0]}<b data-k="${id}">0.0s</b></span>`).join('');
@@ -30,7 +31,6 @@ DM.def('agent-run-timeline', (r, c) => {
     rows.appendChild(s.el);
   });
   stagger($$('.art-row', r), 40);
-  const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
   let line = '', ft = '';
   // the run as it stands t seconds in: bars, states, times, the key, the footer and the line under the title
   function draw(t){
@@ -56,6 +56,8 @@ DM.def('agent-run-timeline', (r, c) => {
     // between two steps the line keeps the last one's name, so it never flickers
     if (live.length && live.join(', ') !== line){ line = live.join(', '); st.textContent = line; }
     now.textContent = t.toFixed(1) + 's';
+    // the playhead is placed by the script as it moves (it is no column of the card)
+    head.style.left = `calc(var(--dm-lab) + (100% - var(--dm-lab) - var(--dm-dur)) * ${(t / T).toFixed(4)})`;
     // the time on the playhead covers the axis labels it passes
     const b = now.getBoundingClientRect();
     ticks.forEach(el => { const x = el.getBoundingClientRect(); el.classList.toggle('hid', x.right > b.left - 4 && x.left < b.right + 4); });
@@ -71,6 +73,7 @@ DM.def('agent-run-timeline', (r, c) => {
     st.classList.remove('shim'); st.classList.add('muted');
     now.innerHTML = I('check','xs') + END.toFixed(1) + 's';
     const tag = $('.art-tag', r); tag.className = 'art-tag tag ok'; tag.innerHTML = I('check','xs') + 'Done'; enter(tag);
-    swap(st, `Finished in ${END.toFixed(1)}s, ${plural(S.filter(s => s.fail).length, 'retry', 'retries')}`);
+    // what the run did, not its time or retries again: the totals under the chart already say those (owner, 18 Nov)
+    swap(st, 'Opened a PR and posted to Slack');
   });
 });

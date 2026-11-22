@@ -33,19 +33,22 @@ A table of customer accounts with plan, seats, a health bar and monthly revenue,
 
 ### What it does
 
-- Columns for account (with a coloured letter logo), plan tag, seats, health and MRR.
+- Columns for account (with a coloured letter logo), plan tag, seats, health and MRR. Seats and MRR are right-aligned with their heads, and every other column's content starts where its head's words start.
+- It reads as a table of columns: a hairline runs between every two columns, in every style, and the note under an open row spans them all. Drag a header's right edge to resize its column (double-click the edge for every column's natural width back); a column never goes under its minimum, and the table scrolls sideways once the columns outgrow it. Drag a header sideways to move its column (Account stays first). The order and widths last as long as the table is on screen.
 - Health is a bar coloured green from 80, amber from 60 and red below.
 - Give a logo one of the avatar colours, like `var(--dm-av-b)`, and its letter takes that colour's own ink, white or dark, so it keeps its contrast.
 - A search box matches account names, and plan chips filter by plan; the chips default to the plans found in `accounts`.
-- Clicking a row opens or closes the agent's `note` under it; one row is open at a time.
-- An optional `action` button in the open note; if its `onClick` returns a promise the button spins, then shows `doneLabel`.
-- Plan tags are coloured through `planTones`, and `emptyLabel` shows when nothing matches.
+- Clicking a row opens or closes the agent's `note` under it, as a detail row: it spans every column (the column lines stop at it and start again under it), in an inset panel of the style's quiet fill (in Clean its off-white with 10px corners), with its spark under the logos and its words on the names' column. It opens and shuts by its height, the open account keeps a quiet fill, and one row is open at a time. In Clean the search and the plan filters sit in the card's off-white head strip.
+- An optional `action` button at the open note's right edge; if its `onClick` returns a promise the button shows a spinner and `busyLabel` in the loader's sweep, then the green tick and `doneLabel`, easing to each new width.
+- Plan tags are coloured through `planTones`. When nothing matches, an empty state shows a small sketch of a table, `emptyLabel`, `emptyHint` and a `clearLabel` button that clears the search and the plan filter.
+- A row's hover fill reaches a little past its words on both sides, with rounded corners, and the hairlines round it give way while it shows.
 
 ### Accessibility
 
-- Each account row is focusable with tabIndex 0, exposes aria-expanded, and opens or closes with Enter or Space.
+- Each account row is focusable with tabIndex 0 (in the HTML version too), exposes aria-expanded, and opens or closes with Enter or Space.
 - The plan filter is a role="group" labelled "Plan", and each chip uses aria-pressed.
 - The search input is labelled with its placeholder text, "Search accounts" by default.
+- Every header but Account takes the focus, and Alt with the left or right arrow moves its column one place. Each resize handle is a focusable `separator` labelled like "Resize Plan": the left and right arrows narrow or widen its column by 16px.
 
 ## Usage in React
 
@@ -80,7 +83,7 @@ export default function AccountTableDemo() {
   return (
     <div ref={ref} style={{ width: '100%' }}>
       <AccountTable accounts={ACCOUNTS} plans={['Team', 'Pro', 'Enterprise']} open={open} onOpenChange={setOpen}
-        action={{ label: 'Draft email', doneLabel: 'Draft ready', onClick: () => new Promise(r => setTimeout(r, 800)) }} />
+        action={{ label: 'Draft email', busyLabel: 'Drafting', doneLabel: 'Draft ready', onClick: () => new Promise(r => setTimeout(r, 800)) }} />
     </div>
   );
 }
@@ -102,9 +105,11 @@ export default function AccountTableDemo() {
 | `open` (optional) | `string \| null` | The account whose row is open, or null |
 | `defaultOpen` (optional) | `string \| null` |  |
 | `onOpenChange` (optional) | `(name: string \| null) => void` |  |
-| `action` (optional) | `{ label: string; doneLabel?: string; onClick: (account: AccountTableAccount) => void \| Promise<unknown> }` | A button in the open row's note, like Draft email. Return a promise and it spins until it settles, then shows `doneLabel` |
+| `action` (optional) | `{ label: string; busyLabel?: string; doneLabel?: string; onClick: (account: AccountTableAccount) => void \| Promise<unknown> }` | A button in the open row's note, like Draft email. Return a promise and it says `busyLabel` with a spinner until it settles, then `doneLabel` with a green tick. The button is as wide as its words and eases to each new width |
 | `placeholder` (optional) | `string` |  |
-| `emptyLabel` (optional) | `string` | Shown when nothing matches the search and filter |
+| `emptyLabel` (optional) | `string` | The title of the empty state, when nothing matches the search and filter |
+| `emptyHint` (optional) | `string` | The muted line under it |
+| `clearLabel` (optional) | `string` | Its button, which clears the search and the plan filter |
 | `className` (optional) | `string` |  |
 
 ## Usage in Astro
@@ -122,7 +127,7 @@ It plays its demo; change `account-table.js` to show your own data. `data-style=
 
 **How do I add a "Draft email" button to the agent's note?**
 
-Pass `action` with a `label`, an optional `doneLabel` and an `onClick` that receives the account. Return a promise and the button spins until it resolves, then shows the done label. If it rejects, the button goes back to its label.
+Pass `action` with a `label`, an optional `busyLabel` and `doneLabel`, and an `onClick` that receives the account. Return a promise and the button says `busyLabel` with a spinner until it resolves, then shows the done label with a green tick. If it rejects, the button goes back to its label.
 
 **Can the agent open a row by itself?**
 
@@ -142,11 +147,17 @@ Yes. `note` takes any React node, so it can hold links, bold text or other eleme
 
 ```tsx
 'use client';
-import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
+import { Fragment, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable, useReducedMotion } from '../lib/hooks';
 import { Icon } from '../lib/icons';
 import { avatarInk, enter, Fold, Spin, useMounted, useReflow } from '../lib/motion';
+import { useColumns } from '../lib/columns';
+
+type AccountCol = 'account' | 'plan' | 'seats' | 'health' | 'mrr';
+const COLS: { key: AccountCol; label: string; right?: boolean }[] = [
+  { key: 'account', label: 'Account' }, { key: 'plan', label: 'Plan' }, { key: 'seats', label: 'Seats', right: true }, { key: 'health', label: 'Health' }, { key: 'mrr', label: 'MRR', right: true }
+];
 import '../designme.css';
 import './account-table.css';
 
@@ -186,11 +197,16 @@ export interface AccountTableProps {
   open?: string | null;
   defaultOpen?: string | null;
   onOpenChange?: (name: string | null) => void;
-  /** A button in the open row's note, like Draft email. Return a promise and it spins until it settles, then shows `doneLabel` */
-  action?: { label: string; doneLabel?: string; onClick: (account: AccountTableAccount) => void | Promise<unknown> };
+  /** A button in the open row's note, like Draft email. Return a promise and it says `busyLabel` with a spinner until it
+      settles, then `doneLabel` with a green tick. The button is as wide as its words and eases to each new width */
+  action?: { label: string; busyLabel?: string; doneLabel?: string; onClick: (account: AccountTableAccount) => void | Promise<unknown> };
   placeholder?: string;
-  /** Shown when nothing matches the search and filter */
+  /** The title of the empty state, when nothing matches the search and filter */
   emptyLabel?: string;
+  /** The muted line under it */
+  emptyHint?: string;
+  /** Its button, which clears the search and the plan filter */
+  clearLabel?: string;
   className?: string;
 }
 
@@ -201,7 +217,8 @@ const healthColor = (h: number) => h >= 80 ? 'var(--dm-atb-ok)' : h >= 60 ? 'var
 /** Accounts you can search and filter by plan; a row opens to show what the agent noticed. */
 export function AccountTable({
   accounts, plans, planTones = TONES, plan, defaultPlan = '', onPlanChange, query, defaultQuery = '', onQueryChange,
-  open, defaultOpen = null, onOpenChange, action, placeholder = 'Search accounts', emptyLabel = 'No accounts match', className
+  open, defaultOpen = null, onOpenChange, action, placeholder = 'Search accounts', emptyLabel = 'No accounts match',
+  emptyHint = 'Try another name, or show every plan.', clearLabel = 'Show all accounts', className
 }: AccountTableProps) {
   const [filter, setFilter] = useControllable(plan, defaultPlan, onPlanChange);
   const [text, setText] = useControllable(query, defaultQuery, onQueryChange);
@@ -238,6 +255,20 @@ export function AccountTable({
 
   const toggle = (name: string) => setOpened(opened === name ? null : name);
 
+  // the columns resize and move as in a spreadsheet; Account stays first, and every other header takes the keyboard's focus,
+  // so Alt and an arrow move it
+  const cols = useColumns<AccountCol>(COLS.map(c => c.key), { move: ['plan', 'seats', 'health', 'mrr'], min: { account: 150, plan: 96, seats: 72, health: 112, mrr: 88 }, name: k => COLS.find(c => c.key === k)!.label });
+  const cell = (a: AccountTableAccount, k: AccountCol): ReactNode => {
+    const tone = planTones[a.plan];
+    switch (k) {
+      case 'account': return <td key={k} data-col={k}><span className="dm-nm"><span className="dm-lg" style={{ background: a.color, color: avatarInk(a.color) }}>{a.name[0]}</span>{a.name}</span></td>;
+      case 'plan': return <td key={k} data-col={k}><span className={cx('dm-tag', tone && TONE[tone])}>{a.plan}</span></td>;
+      case 'seats': return <td key={k} data-col={k} className="dm-r dm-num">{a.seats}</td>;
+      case 'health': return <td key={k} data-col={k}><span className="dm-hb"><i><b style={{ width: a.health + '%', background: healthColor(a.health) }} /></i><span className="dm-num">{a.health}</span></span></td>;
+      default: return <td key={k} data-col={k} className="dm-r dm-num">{a.mrr}</td>;
+    }
+  };
+
   return (
     <div data-dm="" ref={box} className={cx('dm-atb dm-panel', className)}>
       <div className="dm-atb-h">
@@ -249,41 +280,58 @@ export function AccountTable({
         </div>
       </div>
       <div className="dm-atb-sc">
-        <table>
-          <thead><tr><th>Account</th><th>Plan</th><th>Seats</th><th>Health</th><th className="dm-r">MRR</th></tr></thead>
+        <table {...cols.table} className={cx(cols.sized && 'dm-cols-rz')}>
+          {cols.colgroup}
+          <thead><tr>{cols.order.map(k => { const c = COLS.find(x => x.key === k)!; return <th key={k} {...cols.head(k)} className={c.right ? 'dm-r' : undefined} tabIndex={k === 'account' ? undefined : 0}>{c.label}{cols.handle(k)}</th>; })}</tr></thead>
           <tbody>
             {rows.length ? rows.map((a, i) => {
-              const isOpen = opened === a.name, tone = planTones[a.plan], e = mounted ? undefined : enter(i * 35);
+              const isOpen = opened === a.name, e = mounted ? undefined : enter(i * 35);
               return (
                 <Fragment key={a.name}>
                   <tr data-key={a.name} className={cx('dm-row', isOpen && 'dm-open', e?.className)} style={e?.style} tabIndex={0} aria-expanded={isOpen}
                     onClick={() => toggle(a.name)} onKeyDown={e => { if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) { e.preventDefault(); toggle(a.name); } }}>
-                    <td><span className="dm-nm"><span className="dm-lg" style={{ background: a.color, color: avatarInk(a.color) }}>{a.name[0]}</span>{a.name}</span></td>
-                    <td><span className={cx('dm-tag', tone && TONE[tone])}>{a.plan}</span></td>
-                    <td className="dm-num">{a.seats}</td>
-                    <td><span className="dm-hb"><i><b style={{ width: a.health + '%', background: healthColor(a.health) }} /></i><span className="dm-num">{a.health}</span></span></td>
-                    <td className="dm-r dm-num">{a.mrr}</td>
+                    {cols.order.map(k => cell(a, k))}
                   </tr>
                   {(isOpen || shut === a.name) && (
                     <Note name={a.name} open={isOpen} onGone={() => setShut(x => x === a.name ? null : x)}>
                           <div className="dm-atb-note dm-enter">
                             <Icon name="spark" size="xs" />
                             <span>{a.note}</span>
-                            {action && (
-                              <button type="button" className="dm-pill dm-soft dm-sm" onClick={e => { e.stopPropagation(); run(a); }}>
-                                {draft === 'busy' ? <Spin /> : draft === 'done' ? <><Icon name="check" size="xs" />{action.doneLabel ?? 'Done'}</> : action.label}
-                              </button>
-                            )}
+                            {action && <ActionButton state={draft} action={action} onClick={() => run(a)} />}
                           </div>
                     </Note>
                   )}
                 </Fragment>
               );
-            }) : <tr className="dm-atb-empty" data-key=" none"><td colSpan={5}>{emptyLabel}</td></tr>}
+            }) : <tr className="dm-atb-empty" data-key=" none"><td colSpan={5}><div className="dm-atb-em">
+              <span className="dm-atb-em-art" aria-hidden="true" /><b>{emptyLabel}</b>{emptyHint && <span>{emptyHint}</span>}
+              <button type="button" className="dm-pill dm-soft dm-sm" onClick={() => { setText(''); setFilter(''); }}>{clearLabel}</button>
+            </div></td></tr>}
           </tbody>
         </table>
       </div>
     </div>
+  );
+}
+
+/** The note's button: its words, then a spinner with the busy words in the loader's sweep, then the green tick with the done
+    words. It is always as wide as its words and eases to each new width, so it never jumps or goes blank */
+function ActionButton({ state, action, onClick }: { state: 'idle' | 'busy' | 'done'; action: NonNullable<AccountTableProps['action']>; onClick: () => void }) {
+  const ref = useRef<HTMLButtonElement>(null), was = useRef<number | null>(null);
+  const reduce = useReducedMotion();
+  // the width it had before this state's words went in, read before the browser paints them
+  const w0 = was.current;
+  useLayoutEffect(() => {
+    const b = ref.current; if (!b) return; const w1 = b.getBoundingClientRect().width; was.current = w1;
+    if (reduce || w0 === null || Math.abs(w1 - w0) < .5 || !b.animate) return;
+    const cs = getComputedStyle(b);
+    b.animate([{ width: w0 + 'px' }, { width: w1 + 'px' }], { duration: (parseFloat(cs.getPropertyValue('--dm-t')) || .45) * 1000, easing: cs.getPropertyValue('--dm-ease').trim() || 'ease' });
+  }, [state]); // eslint-disable-line react-hooks/exhaustive-deps
+  return (
+    <button ref={ref} type="button" className="dm-pill dm-soft dm-sm" aria-busy={state === 'busy'} onClick={e => { e.stopPropagation(); onClick(); }}>
+      {state === 'busy' ? <><Spin /><span className="dm-shim">{action.busyLabel ?? 'Working'}</span></>
+        : state === 'done' ? <><span className="dm-atb-done"><Icon name="check" size="xs" /></span>{action.doneLabel ?? 'Done'}</> : action.label}
+    </button>
   );
 }
 
@@ -308,9 +356,9 @@ function Note({ name, open, onGone, children }: { name: string; open: boolean; o
 
 ## More in Charts and tables
 
-- [Line chart](https://designme.dev/components/line-chart.md): Two series over time with a hover readout and toggles.
+- [Line chart](https://designme.dev/components/line-chart.md): Today so far and projected, against yesterday, with a range switch, a project picker, toggles and a readout.
 - [Bar chart](https://designme.dev/components/bar-chart.md): Weekly agent runs, split by outcome, with a range switch.
-- [Donut chart](https://designme.dev/components/donut-chart.md): Where the agent's time went, by kind of task.
+- [Donut chart](https://designme.dev/components/donut-chart.md): Where the agent's time went this week, as a gauge against its budget, with a part you can select.
 - [Radial goals](https://designme.dev/components/radial-goals.md): Each agent's share of its own target as a ring, with the overall score in the middle.
 - [Funnel chart](https://designme.dev/components/funnel-chart.md): Signup to paid, with the biggest drop called out by the agent.
 - [Top pages](https://designme.dev/components/top-pages.md): Most visited pages with share of traffic and a quick sort.

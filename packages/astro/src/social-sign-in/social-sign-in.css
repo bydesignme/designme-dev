@@ -1,27 +1,49 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Social sign-in ---------- */
-.ssi{padding:28px 22px var(--dm-s-5);display:flex;flex-direction:column;align-items:center;gap:14px;max-width:320px;margin:0 auto;width:100%}
+/* its content 16px in from every edge (owner, 18 Nov). Each provider is a secondary button as tall as a field, its mark and
+   its words on the same two columns in every button; the one used last has a stronger edge and a plain grey Last used tag at
+   its end, inside it. Signing in, the card eases to the welcome's height (grow()) */
+.ssi{padding:var(--dm-s-4);display:flex;flex-direction:column;align-items:center;gap:14px;max-width:320px;margin:0 auto;width:100%}
+.ssi>.dm-grow{align-self:stretch;align-items:center}
 .ssi-h{display:flex;flex-direction:column;align-items:center;gap:var(--dm-s-3);text-align:center}
 .ssi-lg{width:44px;height:44px;border-radius:calc(14px * var(--dm-rk-l,var(--dm-rk)));background:var(--dm-ink);color:var(--dm-on-ink);display:grid;place-items:center}
 .ssi-lg .logo{width:26px;height:26px}
 .ssi-h b{font-weight:500;font-size:14px}
-.ssi-list{display:flex;flex-direction:column;gap:var(--dm-s-2);width:100%}
-.ssi-b{position:relative;display:flex;align-items:center;justify-content:center;gap:10px;height:42px;padding:0 18px;border-radius:var(--dm-r-pill);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent);font-size:13.5px;font-weight:500;transition:background .2s,box-shadow .2s,transform .15s}
+.ssi-list{display:flex;flex-direction:column;gap:var(--dm-s-2);width:100%;container:ssi/inline-size}
+/* each provider's mark and words are centred together in its button, 8px apart, as the card centres everything else (owner,
+   21 Nov: "why are these not center aligned?"); the marks are one size, on the words' centre line */
+.ssi-b{position:relative;display:flex;align-items:center;justify-content:center;gap:var(--dm-s-2);width:100%;height:var(--dm-field-h);padding:0 var(--dm-s-4);border-radius:var(--dm-r-pill);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent);font-size:13.5px;font-weight:500;text-align:center;transition:background var(--dm-t-fast),box-shadow var(--dm-t-fast),opacity var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.ssi-b:hover{background:var(--dm-wash);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-faint) 50%,transparent)}}
-.ssi-b:active{transform:scale(.98)}
 .ssi-b .mk{width:18px;height:18px;display:grid;place-items:center;flex:none}
 .ssi-b .mk svg,.ssi-b .mk img{width:18px;height:18px;display:block}
 .ssi-b .mk .i{width:16px;height:16px}
 .ssi-b .mk .lt{min-width:18px;height:18px;padding:0 3px;border-radius:var(--dm-r-tiny,5px);background:var(--dm-ink);color:var(--dm-on-ink);display:grid;place-items:center;font-size:10px;font-weight:500}
-.ssi-b .last{position:absolute;top:-8px;right:22px;font-size:10.5px;font-weight:500;color:var(--dm-fg2);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent);padding:1px 7px;border-radius:var(--dm-r-pill)}
+.ssi-b .lb{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Last used sits apart at the right end of its button, so its words stay centred like the others'. That button keeps the
+   tag's room on both sides of its words, and where "Continue with" and its name don't fit between (a button under 340px) it
+   says only the provider's name */
+.ssi-b .last{position:absolute;right:10px;top:50%;transform:translateY(-50%)}
+.ssi-b.last-used{container:ssib/inline-size;padding-inline:88px}
+@container ssib (max-width:339px){.ssi-b .lb .pre{display:none}}
+/* on a narrow phone the buttons say only the provider's name, so the one used last keeps its whole name beside its tag (each
+   button keeps "Continue with …" as its name for screen readers) */
+@container ssi (max-width:259px){.ssi-b .lb .pre{display:none}}
 .ssi-b.last-used{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-on) 50%,transparent)}
+/* nothing in it grows or shrinks when pressed */
+.ssi .pill:active{transform:none}
 .ssi-b.busy{pointer-events:none}
 .ssi-list.wait .ssi-b:not(.busy){opacity:.45}
 .ssi-or{display:flex;align-items:center;gap:10px;width:100%;font-size:11.5px;color:var(--dm-muted)}
-.ssi-or::before,.ssi-or::after{content:"";flex:1;height:1px;background:var(--dm-line)}
-.ssi-mail{font-size:12.5px;color:var(--dm-fg2);padding:var(--dm-s-1) 10px;border-radius:var(--dm-r-pill);transition:color .2s,background .2s}
+.ssi-or::before,.ssi-or::after{content:"";flex:1;height:1px;background:color-mix(in srgb,var(--dm-line) 50%,transparent)}
+/* its words end 16px over the card's foot; the hover fill reaches out round them */
+.ssi-mail{font-size:12.5px;color:var(--dm-fg2);padding:var(--dm-s-1) 10px;margin-bottom:calc(-1 * var(--dm-s-1));border-radius:var(--dm-r-pill);transition:color .2s,background .2s}
 @media (hover:hover) and (pointer:fine){.ssi-mail:hover{color:var(--dm-fg);background:var(--dm-row)}}
-.ssi-ok{display:flex;flex-direction:column;align-items:center;gap:var(--dm-s-2);padding:var(--dm-s-2) 0 var(--dm-s-1);text-align:center;font-size:13px}
+.ssi-ok{display:flex;flex-direction:column;align-items:center;gap:var(--dm-s-2);width:100%;padding:var(--dm-s-2) 0 var(--dm-s-1);text-align:center;font-size:13px}
 .ssi-ok .av{width:44px;height:44px;font-size:14px}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .ssi.panel,:root [data-style="clean"] .ssi.panel,:root [data-style="clean"].ssi.panel{padding:11px 20px 20px 20px}
+/* Clean: the providers are its flat secondaries (a hairline and a light fill that deepens a little on hover and press);
+   the one used last has a stronger hairline */
+:root[data-style="clean"] .ssi-b,:root [data-style="clean"] .ssi-b,:root [data-style="clean"].ssi-b{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .ssi-b:hover,:root [data-style="clean"] .ssi-b:hover,:root [data-style="clean"].ssi-b:hover{box-shadow:var(--dm-btn2-hover)}}
+:root[data-style="clean"] .ssi-b:active,:root [data-style="clean"] .ssi-b:active,:root [data-style="clean"].ssi-b:active{box-shadow:var(--dm-btn2-press)}
+:root[data-style="clean"] .ssi-b.last-used,:root [data-style="clean"] .ssi-b.last-used,:root [data-style="clean"].ssi-b.last-used{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-fg) 26%,transparent)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .ssi-b.last-used:hover,:root [data-style="clean"] .ssi-b.last-used:hover,:root [data-style="clean"].ssi-b.last-used:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-fg) 30%,transparent),inset 0 0 0 99px color-mix(in srgb,var(--dm-fg) 2.5%,transparent)}}

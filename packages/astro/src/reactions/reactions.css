@@ -1,8 +1,9 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Reactions ---------- */
-/* an agent message in the feed: no container; with .panel it becomes a card */
-.rxx{padding:14px 0;display:flex;flex-direction:column;gap:10px}
-.rxx.panel{padding:14px}
+/* an agent message in the feed: no container; with .panel it becomes a card, its content 16px from every edge. The reactions
+   start where the message's words start. Hovers are a quiet fill that shows on the page in light mode too (owner, 19 Nov) */
+.rxx{padding:14px 0;display:flex;flex-direction:column;gap:10px;--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
+.rxx.panel{padding:var(--dm-s-4)}
 .rxx-m{display:flex;gap:10px}
 .rxx-ic{width:30px;height:30px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-accent);color:var(--dm-on-accent);display:grid;place-items:center;flex:none}
 .rxx-b{display:flex;flex-direction:column;font-size:13.5px;line-height:1.5;min-width:0}
@@ -12,30 +13,37 @@
 .rxx-b p{margin:2px 0 0;color:var(--dm-fg2)}
 .rxx-row{display:flex;flex-wrap:wrap;gap:5px;padding-left:40px;align-items:center}
 .rxx-list{display:contents}
-.rxx-r{position:relative;display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 9px;border-radius:var(--dm-r-pill);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13px;transition:background .2s,box-shadow .2s,transform .15s,opacity .3s}
-/* white pills with a hairline, so they stand out on a grey page; yours has a stronger grey edge and its count in the accent */
-@media (hover:hover) and (pointer:fine){.rxx-r:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent)}}
-.rxx-r:active{transform:scale(.94)}
-.rxx-r.me{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-on) 50%,transparent)}
+/* white pills with a hairline, so they stand out on a grey page. Under the pointer a quiet, deeper fill; yours takes the
+   accent's tint with its count in the accent's text colour (owner, 20 Nov: hover and selected are a quiet, deeper fill, with
+   no lift, no shadow and no grey ring round a coloured item) */
+.rxx-r{position:relative;display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 9px;border-radius:var(--dm-r-pill);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13px;transition:background-color .2s,box-shadow .2s,transform .3s var(--dm-ease),opacity .3s}
+@media (hover:hover) and (pointer:fine){.rxx-r:hover{background:color-mix(in srgb,var(--dm-fg) 5%,var(--dm-surface))}}
+.rxx-r.me{background:linear-gradient(var(--dm-accent-bg),var(--dm-accent-bg)),var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-accent-mark) 25%,transparent)}
+@media (hover:hover) and (pointer:fine){.rxx-r.me:hover{background:linear-gradient(color-mix(in srgb,var(--dm-fg) 4%,transparent),color-mix(in srgb,var(--dm-fg) 4%,transparent)),linear-gradient(var(--dm-accent-bg),var(--dm-accent-bg)),var(--dm-surface)}}
 .rxx-r .n{display:inline-grid;overflow:hidden;height:16px;font-size:12px;line-height:16px;color:var(--dm-fg2);min-width:8px}
 .rxx-r .n i{grid-area:1/1;font-style:normal;text-align:center}
-.rxx-r.me .n{color:var(--dm-accent-fg,var(--dm-accent));font-weight:500}
+.rxx-r.me .n{color:var(--dm-accent-fg);font-weight:500}
 .rxx-r .n .iu{animation:rxiu .38s var(--dm-ease) both}.rxx-r .n .ou{animation:rxou .38s var(--dm-ease) both}
 .rxx-r .n .id{animation:rxid .38s var(--dm-ease) both}.rxx-r .n .od{animation:rxod .38s var(--dm-ease) both}
 @keyframes rxiu{from{transform:translateY(100%);opacity:0}}@keyframes rxou{to{transform:translateY(-100%);opacity:0}}
 @keyframes rxid{from{transform:translateY(-100%);opacity:0}}@keyframes rxod{to{transform:translateY(100%);opacity:0}}
-.rxx-r::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0}
-.rxx-r.bump::after{animation:rxring .6s var(--dm-ease)}
-@keyframes rxring{0%{opacity:.5;box-shadow:0 0 0 0 var(--dm-accent-mark,var(--dm-accent))}100%{opacity:0;box-shadow:0 0 0 7px var(--dm-accent-mark,var(--dm-accent))}}
 .rxx-r.new{animation:popin .45s var(--dm-ease) backwards}
 .rxx-r.gone{opacity:0;transform:scale(.8)}
+/* the pill itself never grows or shrinks when pressed (owner, 18 Nov); the emoji gives a little jump as you react, with no
+   coloured ring round it (owner, 30 Oct: no coloured glows) */
+.rxx :is(.rxx-r,.rxx-add,.rxx-grid button):active{transform:none}
 .rxx-r .e{display:inline-block}
 .rxx-r.bump .e{animation:rxp .5s var(--dm-ease)}
 @keyframes rxp{0%{transform:scale(1)}35%{transform:scale(1.5) rotate(-12deg)}60%{transform:scale(.92) rotate(4deg)}100%{transform:scale(1)}}
-.rxx-add{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:var(--dm-muted);transition:background .2s,color .2s}
+.rxx-add{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:var(--dm-muted);transition:background-color .2s,color .2s}
 .rxx-add[aria-expanded="true"]{background:var(--dm-row);color:var(--dm-fg)}
 @media (hover:hover) and (pointer:fine){.rxx-add:hover{background:var(--dm-row);color:var(--dm-fg)}}
 .rxx-pk{min-width:0;padding:6px}
 .rxx-grid{display:grid;grid-template-columns:repeat(6,32px);gap:2px}
-.rxx-grid button{width:32px;height:32px;border-radius:var(--dm-r-sm);font-size:17px;transition:background .15s,transform .2s var(--dm-ease)}
-@media (hover:hover) and (pointer:fine){.rxx-grid button:hover{background:var(--dm-row);transform:scale(1.15)}}
+/* the picker's emoji: a quiet fill under the pointer, nothing that grows */
+.rxx-grid button{width:32px;height:32px;border-radius:var(--dm-r-sm);font-size:17px;transition:background-color var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.rxx-grid button:hover{background:color-mix(in srgb,var(--dm-fg) 6%,transparent)}}
+/* Clean: the emoji's jump is calmer, a small lift in size with no turn */
+@keyframes rxpc{0%{transform:scale(1)}40%{transform:scale(1.2)}100%{transform:scale(1)}}
+:root[data-style="clean"] .rxx-r.bump .e,:root [data-style="clean"] .rxx-r.bump .e,:root [data-style="clean"].rxx-r.bump .e{animation:rxpc var(--dm-t-slow) var(--dm-ease)}
+:root[data-style="clean"] .rxx-r.new,:root [data-style="clean"] .rxx-r.new,:root [data-style="clean"].rxx-r.new{animation:clpiece var(--dm-t-slow) var(--dm-ease) backwards}

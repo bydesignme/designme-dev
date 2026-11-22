@@ -154,6 +154,7 @@ import { cx } from '../lib/cx';
 import { useIsoLayoutEffect, useReducedMotion, useSeconds } from '../lib/hooks';
 import { Icon } from '../lib/icons';
 import { avatarInk, enter, Spin, Swap, Tip, useGrow } from '../lib/motion';
+import { useHoverGlide } from '../lib/glide';
 import '../designme.css';
 import './agent-inbox.css';
 
@@ -201,6 +202,8 @@ export function AgentInbox({ runs, onApprove, onRetry, title = 'Inbox', classNam
   const list = useRef<HTMLDivElement>(null);
   // the inbox grows and shrinks with its rows, eased (as grow() on the site)
   const [root, inner] = useGrow();
+  // Clean's one hover: a highlight that glides from run to run; a run on its way to another group keeps its own fill
+  useHoverGlide(root, '.dm-aib-i', { keep: '.dm-mv' });
   // what changes after the first render plays its entrance; what is there from the start just appears
   const ready = useRef(false);
   useEffect(() => { ready.current = true; }, []);

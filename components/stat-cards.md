@@ -23,7 +23,7 @@ npx shadcn@latest add https://designme.dev/r/shadcn/astro/stat-cards.json  # Ast
 
 ## About
 
-A row of headline numbers, each on its own card with an icon, its change against the period before and a sparkline. A period switch, such as 7 days, 30 days and Quarter, rolls every number and line to the new values at once. It works as the top row of an agent dashboard, for numbers like runs, hours saved and spend.
+A row of headline numbers, each on its own card (in Clean, a cell of one panel) with an icon, its change against the period before and a sparkline. A period switch, such as 7 days, 30 days and Quarter, rolls every number and line to the new values at once. It works as the top row of an agent dashboard, for numbers like runs, hours saved and spend.
 
 ### When to use it
 
@@ -33,18 +33,19 @@ A row of headline numbers, each on its own card with an icon, its change against
 
 ### What it does
 
-- Each card shows an icon, a label, a large number that rolls to its value, and a change percentage, green from 0 and red below.
-- A sparkline per card draws in from the left, in the card's `color`, or the chart palette in order: the accent, then violet, green and orange.
+- Each card shows an icon, a label, a large number that rolls to its value, and its change against the period before as a percentage.
+- A sparkline per card draws in from the left, in the card's `color`, or the chart palette in order: the accent, then violet, green and orange. In Clean the four are cells of one panel, split by hairlines, with the period switch in an off-white head strip; each sparkline is a thin line in the same colours (the accent is white in Clean's dark mode), and the area under it fades from the line's colour to nothing.
 - Each stat has one entry in `values` per entry in `periods`, and switching the period updates every card together.
-- Hovering a card shows the period's `compare` text, like "vs previous 30 days".
+- Pointing at the change shows the period's `compare` text, like "vs previous 30 days". The cards aren't buttons, so pointing at a card itself changes nothing.
 - `prefix` and `suffix` wrap the number, like "$" or "h".
 - `sparkRange` puts every sparkline on the same scale; by default each card scales to its own lowest and highest point.
-- The change against the previous period sits in a tinted chip: green with dark text when it rises, red when it falls.
+- The change sits in a tinted chip with dark text in its hue: green when the change is good news, red when it isn't, with a true minus sign. For a number that is better when it falls, like spend, set `lowerIsBetter` and a fall turns green.
 - Four across on a wide screen, and two by two on tablets and phones.
 
 ### Accessibility
 
 - The period switch is a role="group" labelled "Period", with aria-pressed on the active option.
+- Screen readers hear the `compare` text after each number's change, so the comparison doesn't depend on pointing.
 - Sparklines are aria-hidden SVGs.
 - The sparkline draw-in is skipped, and number roll-ups finish at once, when the user prefers reduced motion.
 
@@ -76,7 +77,7 @@ const STATS: StatCardsStat[] = [
   stat('spark', 'Agent runs', [[412, 12], [1730, 18], [4980, 22]], [3, 4, 4, 5, 6, 5, 7, 8]),
   stat('users', 'Active editors', [[318, 4], [1130, 9], [1620, 31]], [5, 5, 6, 6, 6, 7, 7, 8]),
   stat('clock', 'Hours saved', [[96, 15], [402, 21], [1180, 26]], [2, 3, 3, 4, 5, 6, 6, 8], { suffix: 'h' }),
-  stat('coins', 'Agent spend', [[84, -6], [341, -3], [960, 8]], [6, 5, 6, 5, 4, 4, 4, 3], { prefix: '$' })
+  stat('coins', 'Agent spend', [[84, -6], [341, -3], [960, 8]], [6, 5, 6, 5, 4, 4, 4, 3], { prefix: '$', lowerIsBetter: true })
 ];
 
 export default function StatCardsDemo() {
@@ -127,7 +128,7 @@ Pass a single entry in `periods`, with one value per stat. The switch only shows
 
 ```tsx
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable, useTween } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
@@ -138,7 +139,8 @@ import './stat-cards.css';
 export interface StatCardsValue {
   /** The number in large type, which rolls to it */
   value: number;
-  /** Change against the period before, in percent. Green from 0, red below */
+  /** Change against the period before, in percent. Its chip is green when the change is good news and red when it isn't
+      (see `lowerIsBetter`) */
   change: number;
   /** The sparkline, oldest first */
   points: number[];
@@ -158,12 +160,15 @@ export interface StatCardsStat {
   suffix?: string;
   /** The sparkline's colour, any CSS colour. Defaults to the chart palette: the accent for the first card, then violet, green and orange */
   color?: string;
+  /** For a number that is better when it falls, like spend: its chip turns green as it falls and red as it rises */
+  lowerIsBetter?: boolean;
 }
 
 export interface StatCardsPeriod {
   /** The switch label, like "30 days" */
   label: string;
-  /** Shown when you hover a card, like "vs previous 30 days" */
+  /** What the change is measured against, like "vs previous 30 days": shown when you point at the change chip, and read
+      after the number by screen readers */
   compare?: string;
 }
 
@@ -189,25 +194,36 @@ function Card({ stat, index, period, compare, drawn, range }: { stat: StatCardsS
   const d = v.points.map((y, k) => `${k === 0 ? 'M' : 'L'}${(k / Math.max(1, v.points.length - 1) * 100).toFixed(1)} ${(29 - (y - lo) / (hi - lo || 1) * 28).toFixed(1)}`).join(' ');
   const { className: entering, style } = enter(index * 70);
   // the sparkline draws in from the left as its card arrives
-  const spark = useRef<SVGSVGElement>(null);
+  const spark = useRef<SVGSVGElement>(null), gid = 'dm-scx-' + useId().replace(/:/g, '');
   useEffect(() => {
     const el = spark.current; if (!el || !el.animate || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const a = el.animate([{ clipPath: 'inset(-4px 100% -4px 0)' }, { clipPath: 'inset(-4px 0% -4px 0)' }], { duration: 1000, delay: 300 + index * 70, easing: 'cubic-bezier(.45,0,.2,1)', fill: 'backwards' });
     return () => a.cancel();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  const card = (
+  // the chip: green when the change is good news, red when it isn't, with a true minus sign; pointing at it says what it is
+  // measured against. The card isn't a button, so pointing at the card itself changes nothing
+  const good = stat.lowerIsBetter ? v.change <= 0 : v.change >= 0;
+  const text = (v.change > 0 ? '+' : v.change < 0 ? '\u2212' : '') + Math.abs(v.change) + '%';
+  return (
     <div className={cx('dm-scx-c dm-panel', entering)} style={style}>
       <span className="dm-scx-k"><span className="dm-ic"><Icon name={stat.icon} size="xs" /></span>{stat.label}</span>
       <div className="dm-scx-v">
         <b className="dm-num">{(stat.prefix ?? '') + Math.round(shown).toLocaleString('en-US') + (stat.suffix ?? '')}</b>
-        <Swap className={cx('dm-scx-d dm-num', drawn && (v.change >= 0 ? 'dm-tag dm-ok dm-up' : 'dm-tag dm-bad dm-dn'))}>{drawn ? (v.change >= 0 ? '+' : '') + v.change + '%' : ''}</Swap>
+        <Tip label={compare ?? ''} off={!compare || !drawn}>
+          <Swap className={cx('dm-scx-d dm-num', drawn && cx('dm-tag', good ? 'dm-ok' : 'dm-bad', v.change >= 0 ? 'dm-up' : 'dm-dn'))}>{drawn ? text : ''}</Swap>
+        </Tip>
+        {compare && <span className="dm-scx-sr">{compare}</span>}
       </div>
       <div className="dm-scx-sp">
-        <svg ref={spark} viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><path stroke={stat.color ?? `var(--dm-c${index % 6 + 1})`} d={drawn ? d : FLAT} /></svg>
+        {/* the line and, under it, the area down to the axis, which Clean fills with the line's colour fading to nothing */}
+        <svg ref={spark} viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true" style={{ color: stat.color ?? `var(--dm-c${index % 6 + 1})` }}>
+          <defs><linearGradient id={gid} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="currentColor" stopOpacity=".22" /><stop offset="1" stopColor="currentColor" stopOpacity="0" /></linearGradient></defs>
+          <path className="dm-ar" style={{ fill: `url(#${gid})` }} d={(drawn ? d : FLAT) + ' L100 30 L0 30 Z'} />
+          <path className="dm-ln" stroke={stat.color ?? `var(--dm-c${index % 6 + 1})`} d={drawn ? d : FLAT} />
+        </svg>
       </div>
     </div>
   );
-  return <Tip label={compare ?? ''} off={!compare}>{card}</Tip>;
 }
 
 /** A row of numbers with their change and a sparkline. Switch the period and they roll to the new values. */
@@ -234,9 +250,9 @@ export function StatCards({ stats, periods, period, defaultPeriod = 0, onPeriodC
 
 ## More in Charts and tables
 
-- [Line chart](https://designme.dev/components/line-chart.md): Two series over time with a hover readout and toggles.
+- [Line chart](https://designme.dev/components/line-chart.md): Today so far and projected, against yesterday, with a range switch, a project picker, toggles and a readout.
 - [Bar chart](https://designme.dev/components/bar-chart.md): Weekly agent runs, split by outcome, with a range switch.
-- [Donut chart](https://designme.dev/components/donut-chart.md): Where the agent's time went, by kind of task.
+- [Donut chart](https://designme.dev/components/donut-chart.md): Where the agent's time went this week, as a gauge against its budget, with a part you can select.
 - [Radial goals](https://designme.dev/components/radial-goals.md): Each agent's share of its own target as a ring, with the overall score in the middle.
 - [Funnel chart](https://designme.dev/components/funnel-chart.md): Signup to paid, with the biggest drop called out by the agent.
 - [Top pages](https://designme.dev/components/top-pages.md): Most visited pages with share of traffic and a quick sort.

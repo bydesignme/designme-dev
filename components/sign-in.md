@@ -34,13 +34,14 @@ Sign in is a passwordless sign-in card in three steps: the person enters an emai
 
 ### What it does
 
-- The email step checks the address shape and shows `emptyEmailLabel` or `badEmailLabel`, with the field shaking on each failed try.
+- The email step checks the address shape and shows `emptyEmailLabel` or `badEmailLabel` under the field, in red words after an alert mark with no red fill, and the field shakes on each failed try. The line opens and closes instead of keeping room for itself.
 - If `onSendCode` returns a promise, the button spins until it settles, and a rejection's message shows under the field.
-- The code boxes accept typing, Backspace back to the previous box, and a pasted or autofilled code that spreads across the boxes.
-- Pass `inbox` and the email with the code arrives at the top of the code screen, the way a phone shows it, with Copy code. Copy puts the code on the clipboard and calls `onCopyCode`; pasting it into the boxes fills them all.
-- Once every box is filled, `onVerify` runs; returning false clears the boxes and shows `wrongCodeLabel`.
+- The code boxes accept typing, Backspace back to the previous box, and a pasted or autofilled code that spreads across the boxes. Every box has the same fill and edge; the focused box, or with none focused the next one to fill, has the field's focus edge.
+- Pass `inbox` and, a moment after the code screen shows, its code is offered under the boxes the way a phone offers a one-time code: a quiet chip like From Mail 482 157 (`from` names where it came from). Pressing it fills every box and calls `onAutofill`, and the chip folds away; the card grows and shrinks smoothly for it.
+- Once every box is filled, `onVerify` runs while the boxes dim a little and the line under them says Verifying code with a moving highlight; returning false clears the boxes, edges them in red with a short shake (none with reduced motion) and shows `wrongCodeLabel` in red after an alert mark, until typing starts over.
 - A resend countdown runs from `resendIn` seconds, 30 by default, then turns into a Resend code button that calls `onResend`.
-- A confirmed code shows a check, then the done screen with `doneTitle`, kept at the height the code screen had, and calls `onSignedIn`.
+- A confirmed code shows a green tick and Code confirmed, then the done screen with `doneTitle` and a green check, and calls `onSignedIn`. The card eases to the height of each step, so it keeps no room for a later one.
+- Send code, the line under the boxes and the done screen's `doneDetail` share one foot, which keeps its place as the steps change; in Clean it is the card's off-white foot strip, with the fields above it in the card's body.
 
 ### Accessibility
 
@@ -66,7 +67,8 @@ import { useStory, useWait } from '../lib/useScript';
 
 const CODE = '482157';
 
-/* ---------- Sign in: type an email and send it, the email arrives, copy its code and paste it in ---------- */
+/* ---------- Sign in: type an email and send it; the code arrives and Mail offers it; type it with two digits swapped, see it
+   fail, then take the one Mail offers ---------- */
 export default function SignInDemo() {
   const ref = useRef<HTMLDivElement>(null);
   const [email, setEmail] = useState('');
@@ -74,7 +76,7 @@ export default function SignInDemo() {
   const [code, setCode] = useState('');
   const wait = useWait();
 
-  // the preview's story; anyone can take over and go through it with their own email and any 6 digits
+  // the preview's story; anyone can take over and go through it with their own email, typing 482 157 or pressing the chip
   useStory(ref, async ({ wait, press, taken }) => {
     await wait(1000);
     // taking over while it types takes the letters back
@@ -83,15 +85,17 @@ export default function SignInDemo() {
     for (const ch of 'maya@studio.com') { typed += ch; setEmail(typed); await wait(40); }
     typing = false;
     await wait(500); press('.dm-sgx-go');
-    await wait(2800); press('.dm-sgx-cp');
-    await wait(1000); setCode(CODE);
+    await wait(2400);
+    let wrong = '';
+    for (const d of '482175') { wrong += d; setCode(wrong); await wait(250); }
+    await wait(3200); press('.dm-sgx-sug');
   });
 
   return (
     <div ref={ref} style={{ width: '100%' }}>
       <SignIn email={email} onEmailChange={setEmail} step={step} onStepChange={setStep} code={code} onCodeChange={setCode}
-        onSendCode={() => wait(800)} onVerify={() => wait(1100).then(() => true)}
-        inbox={{ code: CODE, text: <>Your sign-in code is <span className="dm-num">482 157</span></> }} hint="Copy it from the email above" />
+        onSendCode={() => wait(800)} onVerify={c => wait(1100).then(() => c === CODE)}
+        inbox={{ code: '482 157' }} />
     </div>
   );
 }
@@ -120,8 +124,8 @@ export default function SignInDemo() {
 | `codeLength` (optional) | `number` | How many boxes. Defaults to 6 |
 | `onVerify` (optional) | `(code: string, email: string) => boolean \| void \| Promise<boolean \| void>` | Called once every box is filled. Return false, or a promise of false, for a wrong code; the boxes clear and say so |
 | `onFillRequest` (optional) | `() => void` | Called when the person clicks the code boxes while some are empty, for filling the code in for them |
-| `inbox` (optional) | `{ from?: ReactNode; text?: ReactNode; code: string; copyLabel?: string; copiedLabel?: string }` | The email with the code, shown arriving at the top of the code screen the way a phone shows it, with Copy code. Copy puts `code` on the clipboard; pasting it into the boxes fills them all |
-| `onCopyCode` (optional) | `(code: string) => void` | Called by Copy code |
+| `inbox` (optional) | `{ from?: ReactNode; code: string }` | The code as it arrives, offered under the boxes the way a phone offers a one-time code: a quiet chip like "From Mail 482 157" that fills every box when pressed. `from` names where it came from (defaults to "Mail") |
+| `onAutofill` (optional) | `(code: string) => void` | Called when the person presses the code chip, with the code it fills in |
 | `hint` (optional) | `ReactNode` | A quiet note after the resend countdown, like "Click the code to fill it" |
 | `resendIn` (optional) | `number` | Seconds before the code can be sent again. Defaults to 30 |
 | `onResend` (optional) | `(email: string) => void` | Called by Resend code, once the countdown ends; the countdown starts again |
@@ -166,11 +170,11 @@ Yes. Set `codeLength` to 4. The default subtitle updates to say how many digits 
 
 ```tsx
 'use client';
-import { useEffect, useRef, useState, type ClipboardEvent, type CSSProperties, type FormEvent, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type ClipboardEvent, type CSSProperties, type FormEvent, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { enter, Fold, Spin, Swap } from '../lib/motion';
+import { enter, Fold, Spin, Swap, useGrow } from '../lib/motion';
 import '../designme.css';
 import './sign-in.css';
 
@@ -208,11 +212,11 @@ export interface SignInProps {
   onVerify?: (code: string, email: string) => boolean | void | Promise<boolean | void>;
   /** Called when the person clicks the code boxes while some are empty, for filling the code in for them */
   onFillRequest?: () => void;
-  /** The email with the code, shown arriving at the top of the code screen the way a phone shows it, with Copy code.
-      Copy puts `code` on the clipboard; pasting it into the boxes fills them all */
-  inbox?: { from?: ReactNode; text?: ReactNode; code: string; copyLabel?: string; copiedLabel?: string };
-  /** Called by Copy code */
-  onCopyCode?: (code: string) => void;
+  /** The code as it arrives, offered under the boxes the way a phone offers a one-time code: a quiet chip like
+      "From Mail 482 157" that fills every box when pressed. `from` names where it came from (defaults to "Mail") */
+  inbox?: { from?: ReactNode; code: string };
+  /** Called when the person presses the code chip, with the code it fills in */
+  onAutofill?: (code: string) => void;
   /** A quiet note after the resend countdown, like "Click the code to fill it" */
   hint?: ReactNode;
   /** Seconds before the code can be sent again. Defaults to 30 */
@@ -238,7 +242,7 @@ const digit = (c: string | undefined) => (c ?? '').replace(/\D/g, '');
 export function SignIn({
   title = 'Sign in', subtitle = 'We will email you a code', label = 'Email', placeholder = 'you@studio.com', sendLabel = 'Send code',
   email, defaultEmail = '', onEmailChange, step, defaultStep = 'email', onStepChange, onSendCode, sending = false,
-  code, defaultCode = '', onCodeChange, codeLength = 6, onVerify, onFillRequest, inbox, onCopyCode, hint, resendIn = 30, onResend, onSignedIn,
+  code, defaultCode = '', onCodeChange, codeLength = 6, onVerify, onFillRequest, inbox, onAutofill, hint, resendIn = 30, onResend, onSignedIn,
   codeTitle = 'Check your inbox', codeSubtitle = `Enter the ${codeLength} digit code`, doneTitle = "You're in", doneDetail = 'Opening your workspace',
   emptyEmailLabel = 'Enter your email', badEmailLabel = 'That email looks incomplete', wrongCodeLabel = "That code didn't work, try again", className
 }: SignInProps) {
@@ -255,23 +259,23 @@ export function SignIn({
   const field = useRef<HTMLLabelElement>(null);
   const boxes = useRef<(HTMLInputElement | null)[]>([]);
   const focusCode = useRef(false);
-  const root = useRef<HTMLDivElement>(null);
-  // the email arrives a moment after the code screen shows, and is copied once
+  const formId = useId();
+  // the card fits each step at every moment: the code arriving, a message under the field and the shorter confirmation all
+  // ease the steps to their height, and the foot eases to its own, so the card (the two together) keeps no room for a later
+  // step and its foot never leaves its bottom edge
+  const [body, bodyIn] = useGrow();
+  const [foot, footIn] = useGrow();
+  // the code arrives a moment after the code screen shows, offered as a chip under the boxes until it is used or the code is in
   const [arrived, setArrived] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [used, setUsed] = useState(false);
   useEffect(() => {
-    if (now !== 'code' || !inbox) { setArrived(false); setCopied(false); return; }
+    if (now !== 'code' || !inbox) { setArrived(false); setUsed(false); return; }
     const t = setTimeout(() => setArrived(true), 900);
     return () => clearTimeout(t);
   }, [now, !!inbox]); // eslint-disable-line react-hooks/exhaustive-deps
-  const copy = () => {
-    if (!inbox) return;
-    try { navigator.clipboard?.writeText(inbox.code).catch(() => {}); } catch { /* the clipboard can be off limits; the code is still on screen */ }
-    setCopied(true); onCopyCode?.(inbox.code);
-    boxes.current.find(b => b && !b.value)?.focus({ preventScroll: true });
-  };
-  // the confirmation keeps the height the code screen had, so it stays centred where it sits
-  const [held, setHeld] = useState<number>();
+  // what is wrong with the email stays on screen while its line closes
+  const [said, setSaid] = useState(error);
+  if (error && said !== error) setSaid(error);
 
   // a new screen slides in, except the one the form starts on; the countdown restarts with every code
   const [seen, setSeen] = useState(now);
@@ -320,14 +324,14 @@ export function SignIn({
       try { ok = await onVerify?.(chars.join(''), mail.trim()); } catch { ok = false; }
       if (!alive) return;
       if (ok === false) { setCheck('idle'); setWrong(true); write([]); boxes.current[0]?.focus({ preventScroll: true }); return; }
-      setCheck('confirmed');
+      setCheck('confirmed'); setUsed(true);
     })();
     return () => { alive = false; };
   }, [full, now]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (check !== 'confirmed') return;
-    const t = setTimeout(() => { setHeld(root.current?.offsetHeight); setStep('done'); onSignedIn?.(mail.trim()); }, 1100);
+    const t = setTimeout(() => { setStep('done'); onSignedIn?.(mail.trim()); }, 1100);
     return () => clearTimeout(t);
   }, [check]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -347,7 +351,7 @@ export function SignIn({
     setBusy(false); write([]); focusCode.current = true; setStep('code');
   };
 
-  const back = () => { setBusy(false); write([]); setStep('email'); };
+  const back = () => { if (check !== 'idle') return; setBusy(false); setWrong(false); write([]); setStep('email'); };
   const resend = () => { onResend?.(mail.trim()); setLeft(resendIn); };
 
   const type = (k: number, value: string) => {
@@ -378,59 +382,77 @@ export function SignIn({
     if (!onFillRequest || full || check !== 'idle') return;
     e.preventDefault(); onFillRequest();
   };
+  // the chip fills every box with the code it offers, and goes
+  const autofill = () => {
+    if (!inbox || check !== 'idle') return;
+    const t = digit(inbox.code).slice(0, codeLength);
+    setUsed(true); setWrong(false); write(t.split('')); onAutofill?.(inbox.code);
+  };
+  // with no box focused, the next one to fill has the focus edge
+  const nextBox = check === 'idle' ? chars.findIndex(c => !c) : -1;
 
   const slide = moved ? 'dm-in' : undefined;
   return (
-    <div data-dm="" ref={root} className={cx('dm-sgx dm-panel', now === 'done' && held && 'dm-held', className)} style={now === 'done' && held ? { minHeight: held } : undefined}>
+    <div data-dm="" className={cx('dm-sgx dm-panel', className)}>
+      <div ref={body} className="dm-sgx-body dm-growing"><div ref={bodyIn} className="dm-grow">
       {now === 'email' && (
-        <form key="email" className={cx('dm-sgx-st dm-sgx-1', slide)} noValidate onSubmit={send}>
+        <form key="email" id={formId} className={cx('dm-sgx-st dm-sgx-1', slide)} noValidate onSubmit={send}>
           <b>{title}</b><span className="dm-muted">{subtitle}</span>
           <label ref={field} className={cx('dm-sgx-f', bad && 'dm-bad')}>
             <span>{label}</span>
             <input type="email" name="email" autoComplete="email" className="dm-sgx-em" placeholder={placeholder} value={mail}
               aria-invalid={bad || undefined} onChange={e => setMail(e.target.value)} />
           </label>
-          <Swap className="dm-sgx-err">{error}</Swap>
-          <button type="submit" className="dm-pill dm-primary dm-sgx-go">{busy || sending ? <Spin /> : sendLabel}</button>
+          <Fold open={!!error} className="dm-sgx-ef"><span className="dm-sgx-err" aria-live="polite"><Icon name="alert" size="xs" /><Swap>{said}</Swap></span></Fold>
         </form>
       )}
       {now === 'code' && (
         <div key="code" className={cx('dm-sgx-st dm-sgx-2', slide)}>
-          {inbox && (
-            <Fold open={arrived} className="dm-sgx-ntf">
-              <div className="dm-sgx-nt" role="status">
-                <span className="dm-sgx-ni"><Icon name="mail" size="xs" /></span>
-                <span className="dm-t"><b>{inbox.from ?? 'Designme'} <span className="dm-muted">now</span></b><span>{inbox.text ?? <>Your sign-in code is <span className="dm-num">{inbox.code}</span></>}</span></span>
-                <button type="button" className="dm-pill dm-sm dm-sgx-cp" disabled={copied} onClick={copy}><Swap>{copied ? inbox.copiedLabel ?? 'Copied' : inbox.copyLabel ?? 'Copy code'}</Swap></button>
-              </div>
-            </Fold>
-          )}
           <button type="button" className="dm-sgx-bk" onClick={back}><Icon name="chev-l" size="xs" /><span className="dm-sgx-to">{mail.trim()}</span></button>
           <b>{codeTitle}</b><span className="dm-muted">{codeSubtitle}</span>
-          <div className={cx('dm-sgx-code', check === 'verifying' && 'dm-vf', check === 'confirmed' && 'dm-ok')} role="group" aria-label="Code" onPointerDown={fill}>
+          <div className={cx('dm-sgx-code', check === 'verifying' && 'dm-vf', check === 'confirmed' && 'dm-ok', wrong && 'dm-bad')} role="group" aria-label="Code" onPointerDown={fill}>
             {chars.map((c, k) => (
               <input key={k} ref={el => { boxes.current[k] = el; }} inputMode="numeric" autoComplete={k === 0 ? 'one-time-code' : 'off'}
-                aria-label={`Digit ${k + 1}`} className={pop.includes(k) ? 'dm-f' : undefined} style={{ '--dm-i': k } as CSSProperties}
+                aria-label={`Digit ${k + 1}`} aria-invalid={wrong || undefined} className={cx(pop.includes(k) && 'dm-f', k === nextBox && 'dm-nx')} style={{ '--dm-i': k } as CSSProperties}
                 value={c} readOnly={check !== 'idle'} onChange={e => type(k, e.target.value)} onKeyDown={e => key(k, e)} onPaste={paste} />
             ))}
           </div>
-          <span className="dm-muted dm-sgx-rs" aria-live="polite">
-            {check === 'verifying' ? <span className="dm-sgx-v"><Spin />Verifying code</span>
-              : check === 'confirmed' ? <span className="dm-sgx-v dm-ok dm-enter"><Icon name="check" size="xs" />Code confirmed</span>
-              : wrong ? <span style={{ color: 'var(--dm-bad)' }}>{wrongCodeLabel}</span>
-              : left > 0 ? <>Resend in <span className="dm-num">{left}</span>s{hint && <> · <span className="dm-sgx-hint">{hint}</span></>}</>
-              : <button type="button" style={{ color: 'var(--dm-accent-fg,var(--dm-accent))', fontWeight: 500 }} onClick={resend}>Resend code</button>}
-          </span>
+          {inbox && (
+            <Fold open={arrived && !used} className="dm-sgx-af">
+              <button type="button" className="dm-chip dm-sgx-sug" aria-label={`Fill in the code from ${typeof inbox.from === 'string' ? inbox.from : 'Mail'}, ${inbox.code}`} onClick={autofill}>
+                <Icon name="mail" size="xs" /><span>From {inbox.from ?? 'Mail'}</span><span className="dm-num">{inbox.code}</span>
+              </button>
+            </Fold>
+          )}
         </div>
       )}
       {now === 'done' && (
         <div className="dm-sgx-done" role="status">
           <svg className="dm-sgx-ck" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" /><path d="m16 27 7 7 13-14" /></svg>
           <b {...enter(250)}>{doneTitle}</b>
-          <span className="dm-muted dm-enter" style={enter(340).style}>{doneDetail}</span>
-          <span className="dm-sgx-bar dm-enter" style={enter(430).style}><i /></span>
         </div>
       )}
+      </div></div>
+      {/* the foot: the step's action or the line that says how it is going, in one place for every step (Clean's foot strip);
+          it changes with the step in the same moment, so it is never empty */}
+      <div ref={foot} className="dm-sgx-ft dm-growing"><div ref={footIn} className="dm-grow">
+        {now === 'email' && <button type="submit" form={formId} className="dm-pill dm-primary dm-sgx-go">{busy || sending ? <Spin /> : sendLabel}</button>}
+        {now === 'code' && (
+          <span className="dm-muted dm-sgx-rs" aria-live="polite">
+            {check === 'verifying' ? <span className="dm-sgx-v"><Spin /><span className="dm-shim">Verifying code</span></span>
+              : check === 'confirmed' ? <span className="dm-sgx-v dm-ok"><Icon name="check" size="xs" />Code confirmed</span>
+              : wrong ? <span className="dm-sgx-v dm-bad"><Icon name="alert" size="xs" />{wrongCodeLabel}</span>
+              : left > 0 ? <>Resend in <span className="dm-num">{left}</span>s{hint && <> · <span className="dm-sgx-hint">{hint}</span></>}</>
+              : <button type="button" className="dm-sgx-re" onClick={resend}>Resend code</button>}
+          </span>
+        )}
+        {now === 'done' && (
+          <span className="dm-sgx-open">
+            <span><span className="dm-shim">{doneDetail}</span></span>
+            <span className="dm-sgx-bar"><i /></span>
+          </span>
+        )}
+      </div></div>
     </div>
   );
 }

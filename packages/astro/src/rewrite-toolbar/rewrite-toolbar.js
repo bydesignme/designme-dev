@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, centre, swap } from '../core/core.js';
+import { $, $$, DM, I, grow, swap } from '../core/core.js';
 DM.def('rewrite-toolbar', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{spark}', I('spark','xs')).replace('{at}', I('wand','xs'));
   const S = [
@@ -10,15 +10,21 @@ DM.def('rewrite-toolbar', (r, c) => {
   const doc = $('.rwx-doc', r), tb = $('.rwx-tb', r), st = $('.rwx-st', r), box = $('.rwx', r);
   doc.innerHTML = S.map((s, i) => `<span class="rwx-s" data-i="${i}">${s[0]}</span>`).join(' ');
   const tbHTML = tb.innerHTML; let sel = null, busy = false;
-  // shorter before a rewrite than during one, it stays centred in the room its stage keeps for it
-  centre(c, box, () => box.offsetHeight);
+  // no room is kept for a rewrite (owner, 18 Nov): the text grows as its words arrive and shrinks once one is kept, and the
+  // card eases with it (grow()), staying centred in its stage. Only the text clips while it eases, so the toolbar never does
+  c.offs.push(grow(doc));
+  // the box is the card's layout box, so a card still scaling in from its entrance places the toolbar where it will be
   function place(el){
-    const br = box.getBoundingClientRect(), rects = el.getClientRects(), f = rects[0];
+    const br = box.getBoundingClientRect(), k = br.width / box.offsetWidth || 1, rects = el.getClientRects(), f = rects[0];
     if (!f) return; // the card is hidden (far off screen, or the other set is showing): nothing to place against
-    const w = tb.offsetWidth; let x = f.left - br.left; x = Math.max(8, Math.min(x, br.width - w - 8));
-    // above the sentence, unless that would cover the header: then under its last line
-    let y = f.top - br.top - tb.offsetHeight - 8; if (y < $('.rwx-h', r).getBoundingClientRect().bottom - br.top) y = rects[rects.length - 1].bottom - br.top + 8;
+    const w = tb.offsetWidth; let x = (f.left - br.left) / k; x = Math.max(8, Math.min(x, box.offsetWidth - w - 8));
+    // above the sentence, unless that would cover the header: then under its last line, gliding down with it as the new
+    // words add lines. A toolbar that isn't showing yet jumps to its place
+    let y = (f.top - br.top) / k - tb.offsetHeight - 8; if (y < ($('.rwx-h', r).getBoundingClientRect().bottom - br.top) / k) y = (rects[rects.length - 1].bottom - br.top) / k + 8;
+    const jump = !tb.classList.contains('show');
+    if (jump) tb.style.transitionProperty = 'opacity,transform,filter';
     tb.style.left = x + 'px'; tb.style.top = y + 'px';
+    if (jump){ void tb.offsetWidth; tb.style.transitionProperty = ''; }
   }
   // hidden, the toolbar takes no focus
   function hide(){ tb.classList.remove('show'); tb.inert = true; }
@@ -32,10 +38,11 @@ DM.def('rewrite-toolbar', (r, c) => {
   c.on(document, 'pointerdown', e => { if (!busy && !r.contains(e.target)) { hide(); $$('.rwx-s', doc).forEach(x => x.classList.remove('sel')); } });
   function rewrite(k){
     const el = sel, i = +el.dataset.i, old = S[i][0], nw = S[i][1][k]; busy = true;
-    tb.classList.add('act'); tb.innerHTML = `<span class="lbl"><span class="think on"><i></i><i></i><i></i><i></i></span>Rewriting</span>`; place(el);
+    tb.classList.add('act'); tb.innerHTML = `<span class="lbl"><span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Rewriting</span></span>`; place(el);
     c.run(async () => {
-      el.innerHTML = `<del>${old}</del> <ins>${nw.split(' ').map(w => `<span class="w">${w} </span>`).join('')}</ins>`; place(el); await c.wait(350);
-      for (const w of $$('ins .w', el)){ w.classList.add('on'); await c.wait(55); }
+      // the new words arrive one at a time after the struck sentence, each only once it is written
+      el.innerHTML = `<del>${old}</del> <ins></ins>`; const ins = $('ins', el); place(el); await c.wait(350);
+      for (const w of nw.split(' ')){ const s = document.createElement('span'); s.className = 'w'; s.textContent = w + ' '; ins.appendChild(s); place(el); await c.wait(55); }
       tb.innerHTML = `<span class="lbl">${I('check','xs')}Rewritten</span><button class="rwx-b rwx-un">Undo</button><button class="pill accent sm rwx-ok">Accept</button>`; place(el);
       // keeping a shorter sentence lets the doc fit its text, with no empty room above or below it
       $('.rwx-ok', tb).onclick = () => { el.textContent = nw; S[i][0] = nw; el.classList.remove('sel'); hide(); busy = false; swap(st, 'Saved'); };

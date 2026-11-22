@@ -1,11 +1,11 @@
-TPLS["workspace-rail"] = "<div class=\"wrx panel\">\n  <nav class=\"wrx-rail\" aria-label=\"Workspace\">\n    <div class=\"wrx-ws\"><span class=\"wrx-lg\"><svg viewBox=\"-20 -83 799 799\" aria-hidden=\"true\" class=\"logo\"><path d=\"M149.497 283.784C149.477 284.047 149.474 284.311 149.487 284.575C156.385 340.034 183.548 391.116 225.9 428.196C267.989 465.044 322.188 485.532 378.414 485.855L379.743 485.859C436.453 485.868 491.188 465.353 533.619 428.212C575.912 391.194 603.062 340.216 610.018 284.856L610.018 281.512C610.008 277.337 608.324 273.315 605.303 270.335C602.277 267.351 598.155 265.656 593.837 265.656L165.647 265.656C161.338 265.656 157.226 267.349 154.21 270.331C151.198 273.309 149.524 277.326 149.523 281.491L149.523 283.437L149.497 283.784ZM114.378 247.395C118.396 247.391 122.254 245.919 125.214 243.29C128.063 240.759 129.887 237.33 130.396 233.629L130.396 233.35L130.437 232.917C136.355 171.634 165.162 114.754 211.202 73.3687C257.239 31.9859 317.206 9.06063 379.393 9.04448L379.396 9.04448C441.593 9.04583 501.574 31.964 547.624 73.3482C593.677 114.735 622.491 171.624 628.411 232.917L628.453 233.35L628.453 233.643C628.953 237.344 630.773 240.774 633.621 243.304C636.58 245.932 640.437 247.399 644.452 247.395L725.644 247.395C728.882 247.404 732.089 248.06 735.071 249.329C738.055 250.598 740.753 252.453 743.001 254.787C745.252 257.123 747.005 259.891 748.151 262.924C749.296 265.954 749.81 269.183 749.662 272.418L749.663 272.418C745.484 366.797 704.617 455.919 635.615 521.211C566.616 586.499 474.809 622.924 379.338 622.924C283.872 622.924 192.071 586.496 123.081 521.206C54.0935 455.917 13.2412 366.804 9.07133 272.438L9.07036 272.438L9.07036 272.436C9.07007 272.43 9.06967 272.423 9.06938 272.417L9.07036 272.417C8.92272 269.182 9.43655 265.953 10.5811 262.924C11.7276 259.89 13.481 257.123 15.7315 254.787C17.9805 252.452 20.6797 250.597 23.6622 249.329C26.6443 248.06 29.8504 247.404 33.0889 247.395L114.378 247.395Z\" fill=\"currentColor\" /></svg></span><span class=\"wrx-lb\"><b>DesignMe</b><span class=\"muted\">Studio</span></span></div>\n    <div class=\"wrx-nav\"><span class=\"wrx-ind\"></span></div>\n    <div class=\"wrx-sp\"></div>\n    <div class=\"wrx-runs\"><span class=\"wrx-lbh\">Running</span></div>\n    <button class=\"wrx-i wrx-pin\" aria-label=\"Pin sidebar\" data-tip=\"Pin open\" data-tip-k=\"⌘B\">{panel}<span class=\"wrx-lb\">Collapse</span></button>\n  </nav>\n  <div class=\"wrx-main\"><div class=\"wrx-mh\"></div><div class=\"wrx-sk\"><i style=\"width:70%\"></i><i style=\"width:92%\"></i><i style=\"width:56%\"></i><i class=\"b\"></i></div></div>\n</div>";
-TPLS["file-explorer"] = "<div class=\"fxp panel\" data-reveal=\"flat\">\n  <div class=\"fxp-h\"><div class=\"fxp-s\">{search}<input placeholder=\"Filter files\" aria-label=\"Filter files\" spellcheck=\"false\"></div><button class=\"ib fxp-ch\" aria-label=\"Only changed\" data-tip=\"Only changed files\">{filter}</button></div>\n  <div class=\"fxp-tree\" role=\"tree\"></div>\n  <div class=\"fxp-f muted\"><span class=\"fxp-st\"></span></div>\n</div>";
-TPLS["scheduled-runs"] = "<div class=\"shx panel\" data-reveal=\"flat\">\n  <div class=\"shx-h\"><div><b>Scheduled runs</b><span class=\"muted shx-st\" aria-live=\"polite\"></span></div></div>\n  <div class=\"shx-list\" role=\"list\" aria-label=\"Schedules\"></div>\n  <button class=\"shx-add\" data-pop=\".shx-pop\" data-pop-pos=\"up\" aria-haspopup=\"dialog\" aria-expanded=\"false\">{plus}New schedule</button>\n  <div class=\"pop shx-pop\" role=\"dialog\" aria-label=\"New schedule\"><form class=\"shx-f\">\n    <h4>New schedule</h4>\n    <input class=\"shx-in\" placeholder=\"What should the agent do?\" aria-label=\"What should the agent do?\" spellcheck=\"false\" autocomplete=\"off\">\n    <div class=\"seg2 shx-rep\" role=\"group\" aria-label=\"Repeat\"><button type=\"button\" aria-pressed=\"true\" data-v=\"day\">Every day</button><button type=\"button\" aria-pressed=\"false\" data-v=\"mon\">Every Monday</button><button type=\"button\" aria-pressed=\"false\" data-v=\"custom\">Custom</button></div>\n    <div class=\"shx-days\" role=\"group\" aria-label=\"Days\" hidden></div>\n    <div class=\"shx-ff\"><span class=\"muted shx-sum\"></span><button class=\"pill accent sm shx-mk\" type=\"submit\" disabled>Create</button></div>\n  </form></div>\n</div>";
-TPLS["knowledge-sources"] = "<div class=\"ksx panel\" data-reveal=\"flat\">\n  <div class=\"ksx-h\"><div><b>Knowledge sources</b><span class=\"muted ksx-st\" aria-live=\"polite\"></span></div></div>\n  <div class=\"ksx-list\" role=\"list\" aria-label=\"Sources\"></div>\n  <button class=\"ksx-add\" data-pop=\".ksx-pop\" data-pop-pos=\"up\" aria-haspopup=\"menu\" aria-expanded=\"false\">{plus}Add source</button>\n  <div class=\"pop ksx-pop\" role=\"menu\" aria-label=\"Add source\"></div>\n  <div class=\"pop ksx-mpop\" role=\"menu\" aria-label=\"Source actions\"><button class=\"mi ksx-rs\" role=\"menuitem\" data-close>{refresh}Re-sync</button><div class=\"sep\"></div><button class=\"mi del ksx-rm\" role=\"menuitem\" data-close>{trash}Remove</button></div>\n  <input class=\"ksx-file\" type=\"file\" multiple hidden>\n</div>";
-TPLS["tool-connections"] = "<div class=\"hnx panel\" data-reveal=\"flat\">\n  <div class=\"hnx-h\"><div><b>Tools and connections</b><span class=\"muted hnx-st\">5 connected</span></div><button class=\"pill ghost sm hnx-test\">{refresh}Test all</button></div>\n  <div class=\"hnx-list\"></div>\n  <button class=\"hnx-add\" data-pop=\".hnx-pop\" data-pop-pos=\"up\">{plus}Connect a tool</button>\n  <div class=\"pop hnx-pop\" role=\"menu\"></div>\n</div>";
+TPLS["workspace-rail"] = "<div class=\"wrx panel\">\n  <nav class=\"wrx-rail\" aria-label=\"Workspace\">\n    <div class=\"wrx-ws\"><span class=\"wrx-lg\"><svg viewBox=\"-20 -83 799 799\" aria-hidden=\"true\" class=\"logo\"><path d=\"M149.497 283.784C149.477 284.047 149.474 284.311 149.487 284.575C156.385 340.034 183.548 391.116 225.9 428.196C267.989 465.044 322.188 485.532 378.414 485.855L379.743 485.859C436.453 485.868 491.188 465.353 533.619 428.212C575.912 391.194 603.062 340.216 610.018 284.856L610.018 281.512C610.008 277.337 608.324 273.315 605.303 270.335C602.277 267.351 598.155 265.656 593.837 265.656L165.647 265.656C161.338 265.656 157.226 267.349 154.21 270.331C151.198 273.309 149.524 277.326 149.523 281.491L149.523 283.437L149.497 283.784ZM114.378 247.395C118.396 247.391 122.254 245.919 125.214 243.29C128.063 240.759 129.887 237.33 130.396 233.629L130.396 233.35L130.437 232.917C136.355 171.634 165.162 114.754 211.202 73.3687C257.239 31.9859 317.206 9.06063 379.393 9.04448L379.396 9.04448C441.593 9.04583 501.574 31.964 547.624 73.3482C593.677 114.735 622.491 171.624 628.411 232.917L628.453 233.35L628.453 233.643C628.953 237.344 630.773 240.774 633.621 243.304C636.58 245.932 640.437 247.399 644.452 247.395L725.644 247.395C728.882 247.404 732.089 248.06 735.071 249.329C738.055 250.598 740.753 252.453 743.001 254.787C745.252 257.123 747.005 259.891 748.151 262.924C749.296 265.954 749.81 269.183 749.662 272.418L749.663 272.418C745.484 366.797 704.617 455.919 635.615 521.211C566.616 586.499 474.809 622.924 379.338 622.924C283.872 622.924 192.071 586.496 123.081 521.206C54.0935 455.917 13.2412 366.804 9.07133 272.438L9.07036 272.438L9.07036 272.436C9.07007 272.43 9.06967 272.423 9.06938 272.417L9.07036 272.417C8.92272 269.182 9.43655 265.953 10.5811 262.924C11.7276 259.89 13.481 257.123 15.7315 254.787C17.9805 252.452 20.6797 250.597 23.6622 249.329C26.6443 248.06 29.8504 247.404 33.0889 247.395L114.378 247.395Z\" fill=\"currentColor\" /></svg></span><span class=\"wrx-lb\"><b>DesignMe</b><span class=\"muted\">Studio</span></span></div>\n    <div class=\"wrx-nav\"><span class=\"wrx-ind\"></span></div>\n    <div class=\"wrx-sp\"></div>\n    <div class=\"wrx-runs\"><span class=\"wrx-lbh\">Running</span></div>\n    <button class=\"wrx-i wrx-pin\" aria-label=\"Pin sidebar\" aria-expanded=\"false\" data-tip=\"Pin open\" data-tip-k=\"⌘B\"><svg class=\"i s\"><use href=\"#v2i-panel\"/></svg><span class=\"wrx-lb\">Collapse</span></button>\n  </nav>\n  <div class=\"wrx-main\"><div class=\"wrx-mh\"></div><div class=\"wrx-sk\"><i style=\"width:70%\"></i><i style=\"width:92%\"></i><i style=\"width:56%\"></i><i class=\"b\"></i></div></div>\n</div>";
+TPLS["file-explorer"] = "<div class=\"fxp panel\" data-reveal=\"flat\">\n  <div class=\"fxp-h\"><div class=\"fxp-s\"><svg class=\"i xs\"><use href=\"#v2i-search\"/></svg><input placeholder=\"Filter files\" aria-label=\"Filter files\" spellcheck=\"false\"></div><button class=\"ib fxp-ch\" aria-label=\"Only changed\" aria-pressed=\"false\" data-tip=\"Only changed files\"><svg class=\"i xs\"><use href=\"#v2i-filter\"/></svg></button></div>\n  <div class=\"fxp-tree\" role=\"tree\" aria-label=\"Files\"></div>\n  <div class=\"fxp-em\" hidden><span class=\"fxp-em-art\" aria-hidden=\"true\"></span><b>No matching files</b><span></span><button class=\"pill line sm\">Clear filter</button></div>\n  <div class=\"fxp-f muted\"><span class=\"fxp-st\"></span></div>\n</div>";
+TPLS["scheduled-runs"] = "<div class=\"shx panel\" data-reveal=\"flat\">\n  <div class=\"shx-h\"><span class=\"shx-hi\" aria-hidden=\"true\"><svg class=\"i xs\"><use href=\"#v2i-clock\"/></svg></span><div><b>Scheduled runs</b></div></div>\n  <div class=\"shx-list\" role=\"list\" aria-label=\"Schedules\"></div>\n  <div class=\"shx-ft\"><button class=\"shx-add\" data-pop=\".shx-pop\" aria-haspopup=\"dialog\" aria-expanded=\"false\"><svg class=\"i xs\"><use href=\"#v2i-plus\"/></svg>New schedule</button></div>\n  <div class=\"pop shx-pop\" role=\"dialog\" aria-label=\"New schedule\"><form class=\"shx-f\">\n    <h4>New schedule</h4>\n    <input class=\"shx-in\" placeholder=\"What should the agent do?\" aria-label=\"What should the agent do?\" spellcheck=\"false\" autocomplete=\"off\">\n    <div class=\"seg2 shx-rep\" role=\"group\" aria-label=\"Repeat\"><button type=\"button\" aria-pressed=\"true\" data-v=\"day\">Every day</button><button type=\"button\" aria-pressed=\"false\" data-v=\"mon\">Every Monday</button><button type=\"button\" aria-pressed=\"false\" data-v=\"custom\">Custom</button></div>\n    <div class=\"shx-days\" role=\"group\" aria-label=\"Days\" hidden></div>\n    <div class=\"shx-ff\"><span class=\"muted shx-sum\"></span><button class=\"pill accent sm shx-mk\" type=\"submit\" disabled>Create</button></div>\n  </form></div>\n</div>";
+TPLS["knowledge-sources"] = "<div class=\"ksx panel\" data-reveal=\"flat\">\n  <div class=\"ksx-h\"><span class=\"ksx-hi\" aria-hidden=\"true\"><svg class=\"i xs\"><use href=\"#v2i-book\"/></svg></span><div><b>Knowledge sources</b><span class=\"muted ksx-st\" aria-live=\"polite\"></span></div></div>\n  <div class=\"ksx-list\" role=\"list\" aria-label=\"Sources\"></div>\n  <div class=\"ksx-em\"><span class=\"ksx-em-art\" aria-hidden=\"true\"></span><b>No sources yet</b><span>Add files, a website or a folder, and the agent reads them.</span><button class=\"pill line sm ksx-add2\" data-pop=\".ksx-pop\" aria-haspopup=\"menu\" aria-expanded=\"false\"><svg class=\"i xs\"><use href=\"#v2i-plus\"/></svg>Add source</button></div>\n  <div class=\"ksx-ft\"><button class=\"ksx-add\" data-pop=\".ksx-pop\" aria-haspopup=\"menu\" aria-expanded=\"false\"><svg class=\"i xs\"><use href=\"#v2i-plus\"/></svg>Add source</button></div>\n  <div class=\"pop ksx-pop\" role=\"menu\" aria-label=\"Add source\"></div>\n  <div class=\"pop ksx-mpop\" role=\"menu\" aria-label=\"Source actions\"><button class=\"mi ksx-rs\" role=\"menuitem\" data-close>{refresh}Re-sync</button><div class=\"sep\"></div><button class=\"mi del ksx-rm\" role=\"menuitem\" data-close>{trash}Remove</button></div>\n  <input class=\"ksx-file\" type=\"file\" multiple hidden>\n</div>";
+TPLS["tool-connections"] = "<div class=\"hnx panel\" data-reveal=\"flat\">\n  <div class=\"hnx-h\"><span class=\"hnx-hi\" aria-hidden=\"true\"><svg class=\"i xs\"><use href=\"#v2i-link\"/></svg></span><div class=\"hnx-ht\"><b>Tools and connections</b></div><button class=\"pill ghost sm hnx-test\"><svg class=\"i xs\"><use href=\"#v2i-refresh\"/></svg><span>Test all</span></button></div>\n  <div class=\"hnx-list\" role=\"list\" aria-label=\"Tools\"></div>\n  <div class=\"hnx-ft\"><button class=\"hnx-add\" data-pop=\".hnx-pop\" aria-haspopup=\"menu\" aria-expanded=\"false\"><svg class=\"i xs\"><use href=\"#v2i-plus\"/></svg>Connect a tool</button><span class=\"muted hnx-st\" aria-live=\"polite\"></span></div>\n  <div class=\"pop hnx-pop\" role=\"menu\" aria-label=\"Connect a tool\"></div>\n</div>";
 TPLS["agent-settings"] = "<div class=\"dm asx-dm\" data-designs=\"card\"><div class=\"dm-main\">\n<div class=\"asx panel\">\n  <div class=\"asx-r asx-col\"><div class=\"asx-l\"><b>Autonomy</b><span class=\"muted asx-ad\">Asks before edits to shared files</span></div>\n    <div class=\"asx-steps\" role=\"radiogroup\" aria-label=\"Autonomy\"><span class=\"asx-knob\"></span><button role=\"radio\" data-v=\"0\">Ask</button><button role=\"radio\" data-v=\"1\" aria-checked=\"true\">Balanced</button><button role=\"radio\" data-v=\"2\">Autopilot</button></div></div>\n  <div class=\"asx-r\"><div class=\"asx-l\"><b>Use team memory</b><span class=\"muted\">Brand rules and past decisions</span></div><button class=\"toggle\" role=\"switch\" aria-checked=\"true\" aria-label=\"Use team memory\"></button></div>\n  <div class=\"asx-r\"><div class=\"asx-l\"><b>Post a summary in Slack</b><span class=\"muted\">#design, after each run</span></div><button class=\"toggle\" role=\"switch\" aria-checked=\"false\" aria-label=\"Post a summary in Slack\"></button></div>\n  <div class=\"asx-r\"><div class=\"asx-l\"><b>Spend cap per run</b><span class=\"muted\">Pauses and asks when reached</span></div><div class=\"asx-cap\"><button class=\"ib fill asx-m\" aria-label=\"Lower cap\">{minus}</button><span class=\"num asx-v\">$5</span><button class=\"ib fill asx-p\" aria-label=\"Raise cap\">{plus}</button></div></div>\n  <div class=\"asx-r asx-col\"><div class=\"asx-l\"><b>Instructions</b></div><textarea class=\"asx-ta\" rows=\"2\" spellcheck=\"false\">Use our tokens only. Keep copy short and friendly.</textarea></div>\n  <div class=\"asx-bar\"><span>Unsaved changes</span><button class=\"pill ghost sm asx-rs\">Reset</button><button class=\"pill accent sm asx-sv\">Save</button></div>\n</div>\n</div>\n<div class=\"demo\"><div class=\"seg2\" role=\"group\" aria-label=\"Agent settings design\"><button aria-pressed=\"true\" data-v=\"classic\">Classic</button><button aria-pressed=\"false\" data-v=\"preview\">Live preview</button><button aria-pressed=\"false\" data-v=\"tabs\">Tabs</button><button aria-pressed=\"false\" data-v=\"presets\">Presets</button></div></div>\n</div>";
-TPLS["memory-panel"] = "<div class=\"mmx panel\" data-reveal=\"flat\">\n  <div class=\"mmx-h\"><span class=\"mmx-ic\">{book}</span><div class=\"mmx-ht\"><b>Team memory</b><span class=\"mmx-sub\"><span class=\"muted mmx-st\">7 memories</span><span class=\"mmx-srcs\" aria-hidden=\"true\"></span></span></div><div class=\"seg2 mmx-tab\" role=\"group\" aria-label=\"Filter\"><button aria-pressed=\"true\" data-v=\"all\">All</button><button aria-pressed=\"false\" data-v=\"brand\">Brand</button><button aria-pressed=\"false\" data-v=\"process\">Process</button></div></div>\n  <div class=\"mmx-list\"></div>\n  <div class=\"mmx-f\" aria-live=\"polite\"><span class=\"mmx-fi\" aria-hidden=\"true\">{spark}</span><span class=\"mmx-ft\">Used in 14 answers this week</span></div>\n</div>";
-TPLS["command-palette"] = "<div class=\"cpl panel\">\n  <div class=\"cpl-in\">{search}<input class=\"cpl-q\" placeholder=\"Search or ask the agent\" aria-label=\"Command\" spellcheck=\"false\"><span class=\"kbd\">esc</span></div>\n  <div class=\"cpl-list\" role=\"listbox\"></div>\n  <div class=\"cpl-f muted\"><span><span class=\"kbd\">↑</span><span class=\"kbd\">↓</span> move</span><span><span class=\"kbd\">↵</span> run</span><span class=\"cpl-st\"></span></div>\n</div>";
+TPLS["memory-panel"] = "<div class=\"mmx panel\" data-reveal=\"flat\">\n  <div class=\"mmx-h\"><span class=\"mmx-ic\"><svg class=\"i s\"><use href=\"#v2i-book\"/></svg></span><b class=\"mmx-ht\">Team memory</b><div class=\"seg2 mmx-tab\" role=\"group\" aria-label=\"Filter\"><button aria-pressed=\"true\" data-v=\"all\">All</button><button aria-pressed=\"false\" data-v=\"brand\">Brand</button><button aria-pressed=\"false\" data-v=\"process\">Process</button></div></div>\n  <div class=\"mmx-list\"></div>\n  <div class=\"mmx-f\" aria-live=\"polite\"><span class=\"mmx-fi\" aria-hidden=\"true\">{spark}</span><span class=\"mmx-ft\">Used in 14 answers this week</span></div>\n</div>";
+TPLS["command-palette"] = "<div class=\"cpl panel\">\n  <div class=\"cpl-in\">{search}<input class=\"cpl-q\" placeholder=\"Search or ask the agent\" aria-label=\"Command\" spellcheck=\"false\"><span class=\"kbd\">esc</span></div>\n  <div class=\"cpl-list\" role=\"listbox\"></div>\n  <div class=\"cpl-f muted\"><span class=\"cpl-st\"></span><span><span class=\"kbd\">↑</span><span class=\"kbd\">↓</span> move</span><span><span class=\"kbd\">↵</span> run</span></div>\n</div>";
 TPLS["run-drawer"] = "<div class=\"rdr\" data-reveal=\"flat\">\n  <div class=\"rdr-cv\"><div class=\"rdr-flow\" role=\"group\" aria-label=\"Steps of the workflow\"></div></div>\n  <div class=\"rdr-dw\" role=\"region\" aria-label=\"Run\">\n    <div class=\"rdr-grip\" role=\"separator\" aria-orientation=\"horizontal\" aria-label=\"Resize the run drawer\" tabindex=\"0\" aria-valuemin=\"120\" aria-valuemax=\"408\" aria-valuenow=\"312\"><i></i></div>\n    <div class=\"rdr-h\">\n      <button class=\"rdr-tg\" aria-expanded=\"true\">{chev-u.xs}<span><span class=\"w\">Test run </span><span class=\"rdr-id num\">#2088</span></span><span class=\"rdr-st tag run\"><span class=\"spin\"></span>Running</span></button>\n      <span class=\"rdr-meta num\"></span>\n      <span class=\"rdr-sp\"></span>\n      <div class=\"seg2 rdr-tabs\" role=\"group\" aria-label=\"Show\"><button aria-pressed=\"true\" data-v=\"steps\">Steps</button><button aria-pressed=\"false\" data-v=\"log\">Log</button><button aria-pressed=\"false\" data-v=\"data\">Data</button></div>\n      <button class=\"pill ghost sm rdr-stop\" aria-label=\"Stop the run\" data-tip=\"Stop the run\">{stop.xs}<span>Stop</span></button>\n      <button class=\"pill ghost sm rdr-again\" aria-label=\"Run again\" data-tip=\"Run again\" hidden>{refresh.xs}<span>Run again</span></button>\n      <button class=\"ib rdr-follow\" aria-pressed=\"true\" aria-label=\"Follow the run\" data-tip=\"Follow the run\">{target}</button>\n    </div>\n    <div class=\"rdr-b\">\n      <div class=\"rdr-v\" data-v=\"steps\"><div class=\"rdr-ax\" aria-hidden=\"true\"><span>Step</span><span class=\"rdr-sc\"></span><span class=\"ms\">Time</span></div><div class=\"rdr-rows\" role=\"group\" aria-label=\"Steps of the run\"></div></div>\n      <div class=\"rdr-v\" data-v=\"log\" hidden><div class=\"rdr-lf\"><div class=\"seg2 rdr-lvs\" role=\"group\" aria-label=\"Level\"><button aria-pressed=\"true\" data-v=\"all\">All</button><button aria-pressed=\"false\" data-v=\"warn\">Warnings</button><button aria-pressed=\"false\" data-v=\"error\">Errors</button></div><span class=\"n num\"></span></div><ol class=\"rdr-log\" aria-label=\"Run log\"></ol></div>\n      <div class=\"rdr-v\" data-v=\"data\" hidden><div class=\"rdr-data\"><div class=\"rdr-ds\" role=\"group\" aria-label=\"Steps\"></div><div class=\"rdr-io\"></div></div></div>\n    </div>\n    <p class=\"rdr-live\" aria-live=\"polite\"></p>\n  </div>\n</div>";
 TPLS["data-picker"] = "<div class=\"fpk panel\">\n  <div class=\"fpk-hd\"><span class=\"fpk-ti\" data-k=\"app\" aria-hidden=\"true\">{mail}</span><b>Send the reply</b><span class=\"muted\">Step 6 of 7</span></div>\n  <div class=\"fpk-f\" data-f=\"to\"><span class=\"fpk-l\">To</span><div class=\"fpk-box\" role=\"group\" aria-label=\"To\"></div></div>\n  <div class=\"fpk-f\" data-f=\"subject\"><span class=\"fpk-l\">Subject</span><div class=\"fpk-box\" role=\"group\" aria-label=\"Subject\"></div></div>\n  <div class=\"fpk-f\" data-f=\"body\"><span class=\"fpk-l\">Body</span><div class=\"fpk-box\" role=\"group\" aria-label=\"Body\"></div></div>\n  <div class=\"pop fpk-pop\" role=\"dialog\" aria-label=\"Pick data from an earlier step\">\n    <div class=\"fpk-q\">{search}<input type=\"text\" role=\"combobox\" aria-expanded=\"true\" aria-autocomplete=\"list\" placeholder=\"Find a field\" aria-label=\"Find a field\" autocomplete=\"off\" spellcheck=\"false\"></div>\n    <div class=\"fpk-ls\" role=\"listbox\" aria-label=\"Fields from earlier steps\"></div>\n    <p class=\"fpk-ft\"><span>From the 4 steps before Send the reply</span><span class=\"kh\" aria-hidden=\"true\"><span class=\"kbd\">↑</span> <span class=\"kbd\">↓</span> <span class=\"kbd\">↵</span></span></p>\n  </div>\n  <p class=\"fpk-live\" aria-live=\"polite\"></p>\n</div>";
 TPLS["canvas-toolbar"] = "<div class=\"ctb\" data-tool=\"select\" data-reveal=\"flat\">\n  <div class=\"ctb-cv\" tabindex=\"0\" role=\"group\" aria-roledescription=\"canvas\" aria-label=\"Workflow canvas\" aria-describedby=\"\">\n    <div class=\"ctb-world\"><svg class=\"ctb-w\" aria-hidden=\"true\"></svg><div class=\"ctb-nodes\"></div></div>\n    <svg class=\"ctb-lz\" aria-hidden=\"true\"><path d=\"\"/></svg>\n    <div class=\"ctb-mq\" hidden></div>\n    <span class=\"ctb-sr\">V, H and L pick a tool, C adds a comment, Shift 1 fits the workflow to the screen, minus and plus zoom, and the arrow keys move the view.</span>\n  </div>\n  <div class=\"ctb-bar\" role=\"toolbar\" aria-label=\"Canvas tools\">\n    <button class=\"pill primary ctb-run\">{play}<span>Run</span></button>\n    <span class=\"ctb-sep\"></span>\n    <div class=\"ctb-tools\" role=\"radiogroup\" aria-label=\"Tool\">\n      <button class=\"ctb-b\" role=\"radio\" aria-checked=\"true\" data-t=\"select\" aria-label=\"Select\" data-tip=\"Select\" data-tip-k=\"V\">{cursor}</button>\n      <button class=\"ctb-b\" role=\"radio\" aria-checked=\"false\" tabindex=\"-1\" data-t=\"hand\" aria-label=\"Hand\" data-tip=\"Pan\" data-tip-k=\"H\">{hand}</button>\n      <button class=\"ctb-b\" role=\"radio\" aria-checked=\"false\" tabindex=\"-1\" data-t=\"lasso\" aria-label=\"Lasso\" data-tip=\"Lasso select\" data-tip-k=\"L\">{lasso}</button>\n    </div>\n    <span class=\"ctb-sep\" data-ovf=\"1\"></span>\n    <button class=\"ctb-b ctb-cm\" data-ovf=\"1\" aria-pressed=\"false\" aria-label=\"Comment\" data-tip=\"Comment\" data-tip-k=\"C\">{comment}</button>\n    <button class=\"ctb-b ctb-fit\" data-ovf=\"1\" aria-label=\"Fit to screen\" data-tip=\"Fit to screen\" data-tip-k=\"⇧1\">{fit}</button>\n    <span class=\"ctb-sep\" data-ovf=\"2\"></span>\n    <button class=\"ctb-b ctb-zo\" data-ovf=\"2\" aria-label=\"Zoom out\" data-tip=\"Zoom out\" data-tip-k=\"−\">{minus}</button>\n    <button class=\"ctb-z num\" data-ovf=\"2\" aria-label=\"Zoom 100%, reset to 100%\" data-tip=\"Zoom to 100%\" data-tip-k=\"⇧0\">100%</button>\n    <button class=\"ctb-b ctb-zi\" data-ovf=\"2\" aria-label=\"Zoom in\" data-tip=\"Zoom in\" data-tip-k=\"+\">{plus}</button>\n    <button class=\"ctb-b ctb-more\" aria-label=\"More tools\" aria-haspopup=\"menu\" aria-expanded=\"false\" data-pop=\".ctb-menu\" data-pop-pos=\"up\" data-pop-align=\"end\" data-tip=\"More\">{more}</button>\n  </div>\n  <div class=\"pop ctb-menu\" role=\"menu\" aria-label=\"More tools\">\n    <button class=\"mi\" role=\"menuitemcheckbox\" aria-checked=\"false\" tabindex=\"-1\" data-a=\"comment\" data-ovf=\"1\" data-close>{comment}<span>Comment</span><span class=\"kbd\">C</span></button>\n    <button class=\"mi\" role=\"menuitem\" tabindex=\"-1\" data-a=\"fit\" data-ovf=\"1\" data-close>{fit}<span>Fit to screen</span><span class=\"kbd\">⇧1</span></button>\n    <button class=\"mi\" role=\"menuitem\" tabindex=\"-1\" data-a=\"out\" data-ovf=\"2\">{minus}<span>Zoom out</span><span class=\"kbd\">−</span></button>\n    <button class=\"mi\" role=\"menuitem\" tabindex=\"-1\" data-a=\"in\" data-ovf=\"2\">{plus}<span>Zoom in</span><span class=\"kbd\">+</span></button>\n    <button class=\"mi\" role=\"menuitem\" tabindex=\"-1\" data-a=\"reset\" data-ovf=\"2\" data-close>{zoom}<span>Zoom to 100%</span><span class=\"r num ctb-zl\">100%</span></button>\n  </div>\n  <div class=\"pop ctb-cp\" role=\"dialog\" aria-label=\"Comment\"><b class=\"ctb-ct\"></b><p class=\"ctb-cw\"></p><button class=\"pill line sm ctb-del\">{trash}Delete</button></div>\n  <p class=\"ctb-live\" aria-live=\"polite\"></p>\n</div>";
@@ -14,22 +14,28 @@ TPLS["automation-canvas"] = "<div class=\"acx\" data-reveal=\"flat\">\n  <div cl
 /* ---------- Workspace rail ---------- */
 DM.def('workspace-rail', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{panel}', I('panel'));
+  // Clean's one hover: a highlight that glides from row to row (hoverGlide)
+  c.offs.push(hoverGlide($('.wrx-rail', r), '.wrx-i,.wrx-run', { keep:'.on' }));
   const N = [['home','Home',0],['spark','Agent',2],['layers','Projects',0],['figma','Frames',0],['book','Memory',0],['gear','Settings',0]];
-  const nav = $('.wrx-nav', r), ind = $('.wrx-ind', r), root = $('.wrx', r), mh = $('.wrx-mh', r);
-  nav.insertAdjacentHTML('beforeend', N.map((n, i) => `<button class="wrx-i${i === 1 ? ' on' : ''}" data-i="${i}" aria-label="${n[1]}" data-tip="${n[1]}">${I(n[0])}${n[2] ? `<span class="bd">${n[2]}</span>` : ''}<span class="wrx-lb">${n[1]}</span></button>`).join(''));
+  const nav = $('.wrx-nav', r), ind = $('.wrx-ind', r), root = $('.wrx', r), mh = $('.wrx-mh', r), pin = $('.wrx-pin', r);
+  // each item: its icon in the rail's column, its label, and a count beside the icon (a dot while the rail is narrow)
+  nav.insertAdjacentHTML('beforeend', N.map((n, i) => `<button class="wrx-i${i === 1 ? ' on' : ''}" data-i="${i}" aria-label="${n[1]}"${i === 1 ? ' aria-current="page"' : ''} data-tip="${n[1]}">${I(n[0])}<span class="wrx-lb">${n[1]}</span>${n[2] ? `<span class="bd" aria-hidden="true">${n[2]}</span>` : ''}</button>`).join(''));
   $('.wrx-runs', r).insertAdjacentHTML('beforeend', ['Pricing audit','Token export'].map(t => `<button class="wrx-run" data-tip="${t}"><span class="think on"><i></i><i></i><i></i><i></i></span><span class="wrx-lb">${t}</span></button>`).join(''));
   const items = $$('.wrx-i[data-i]', nav);
-  function go(b){ items.forEach(x => x.classList.toggle('on', x === b)); ind.style.top = b.offsetTop + 'px'; swap(mh, N[+b.dataset.i][1]); const bd = $('.bd', b); if (bd){ bd.classList.add('leave'); c.later(300, () => bd.remove()); } }
+  function go(b){ items.forEach(x => { x.classList.toggle('on', x === b); if (x === b) x.setAttribute('aria-current', 'page'); else x.removeAttribute('aria-current'); }); ind.style.top = b.offsetTop + 'px'; swap(mh, N[+b.dataset.i][1]); const bd = $('.bd', b); if (bd){ bd.classList.add('leave'); c.later(300, () => bd.remove()); } }
   items.forEach(b => b.onclick = () => go(b));
   const tipSync = () => $$('[data-tip]', $('.wrx-rail', r)).forEach(el => { if (!el.dataset.t0) el.dataset.t0 = el.dataset.tip; if (root.classList.contains('wide') && !el.classList.contains('wrx-pin')) el.removeAttribute('data-tip'); else el.dataset.tip = el.dataset.t0; });
-  $('.wrx-pin', r).onclick = () => { root.classList.toggle('wide'); const w = root.classList.contains('wide'); $('.wrx-pin', r).dataset.t0 = w ? 'Collapse' : 'Pin open'; tipSync(); };
+  const pinned = w => { root.classList.toggle('wide', w); pin.setAttribute('aria-expanded', w); pin.dataset.t0 = w ? 'Collapse' : 'Pin open'; tipSync(); };
+  pin.onclick = () => pinned(!root.classList.contains('wide'));
   mh.textContent = 'Agent'; requestAnimationFrame(() => ind.style.top = items[1].offsetTop + 'px');
   // the preview pins the rail open once on its own, unless you take over first
-  c.auto(1500, () => { root.classList.add('wide'); $('.wrx-pin', r).dataset.t0 = 'Collapse'; tipSync(); });
+  c.auto(1500, () => pinned(true));
 });
 /* ---------- Command palette ---------- */
 DM.def('command-palette', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{search}', I('search'));
+  // Clean's one hover: a highlight that glides from row to row (hoverGlide)
+  c.offs.push(hoverGlide($('.cpl-list', r), '.cpl-i'));
   // [group, icon, label, keys, hint]; each group's tiles take its hue
   const C = [
     ['Agent','spark','Audit this page for contrast',['⌘','J'],'WCAG AA'],
@@ -67,14 +73,18 @@ DM.def('command-palette', (r, c) => {
   const edge = () => list.classList.toggle('more', list.scrollTop + list.clientHeight < list.scrollHeight - 2);
   c.on(list, 'scroll', edge, { passive:true });
   // a command that runs turns its tile into a spinner for a beat, then the footer says what ran
+  // (nothing in it scales when pressed, owner 18 Nov)
   function run(b){
-    b.animate([{ transform:'scale(1)' },{ transform:'scale(.98)' },{ transform:'scale(1)' }], { duration:260, easing:'ease-out' });
     const ic = $('.ic', b), was = ic.innerHTML; ic.innerHTML = '<span class="spin"></span>';
     setTimeout(() => { if (ic.isConnected){ ic.innerHTML = was; enter(ic.firstElementChild); } swap(st, `<span class="dot"></span>${b.dataset.ask ? 'Sent to the agent' : 'Ran: ' + b.dataset.t}`, true); }, REDUCE ? 0 : 650);
   }
   q.oninput = paint;
   q.onkeydown = e => { if (e.key === 'ArrowDown'){ move(1); e.preventDefault(); } else if (e.key === 'ArrowUp'){ move(-1); e.preventDefault(); } else if (e.key === 'Enter' && items[hi]) run(items[hi]); else if (e.key === 'Escape'){ q.value = ''; paint(); } };
   paint();
+  // no room is kept for a longer list (owner, 18 Nov): the box is as tall as what it shows and eases to its new height as a
+  // search narrows or widens it (grow(), centred in its stage), once its entrance (which scales it) has ended
+  const pal = r.classList.contains('cpl') ? r : $('.cpl', r);
+  if (pal && r === c.st) Promise.resolve().then(() => Promise.all(pal.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && pal.isConnected) c.offs.push(grow(pal)); });
   // the preview's story: someone types "tok" and runs the token export, then looks for "invi" and runs the invite; clicking,
   // focusing or typing in it takes over, and what it had typed goes
   c.story(async s => {
@@ -87,6 +97,13 @@ DM.def('command-palette', (r, c) => {
   });
 });
 /* ---------- Agent settings ---------- */
+// a button at work keeps its width, its words hidden under a spinner, and gets them back when it is done
+function asxBusy(b, on){
+  if (on){ if (b._busy != null) return; b._busy = b.innerHTML; b.style.width = b.getBoundingClientRect().width + 'px'; b.classList.add('busy'); b.insertAdjacentHTML('beforeend', '<span class="spin" aria-hidden="true"></span>'); b.setAttribute('aria-busy', 'true'); }
+  else if (b._busy != null){ b.innerHTML = b._busy; b._busy = null; b.style.width = ''; b.classList.remove('busy'); b.removeAttribute('aria-busy'); }
+}
+// the words that say it saved: the green tick, then Saved
+const asxSaved = () => I('check','xs').replace('class="i xs"', 'class="i xs asx-ok"') + '<span>Saved</span>';
 DM.def('agent-settings', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{minus}', I('minus','xs')).replace('{plus}', I('plus','xs'));
   const root = $('.asx', r), steps = $$('.asx-steps button', r), knob = $('.asx-knob', r), ad = $('.asx-ad', r), tg = $$('.toggle', r), v = $('.asx-v', r), ta = $('.asx-ta', r);
@@ -95,7 +112,9 @@ DM.def('agent-settings', (r, c) => {
   let s = { a:1, t:[true,false], cap:2, i:ta.value }, saved = JSON.stringify(s);
   // the bar of unsaved changes is out of reach while it's hidden; when it hides with the focus in it, the focus goes to the
   // top of the form instead of the page
+  const words = $('.asx-bar>span', r);
   const dirty = () => { const bar = $('.asx-bar', r), was = root.classList.contains('dirty'), on = root.classList.toggle('dirty', JSON.stringify(s) !== saved); bar.inert = !on;
+    if (on && !was) words.textContent = 'Unsaved changes';
     if (was && !on && bar.contains(document.activeElement)){ const to = $('[aria-checked="true"]', r) || $('button', r); if (to) to.focus({ preventScroll:true }); } };
   function setA(i, init){ s.a = i; steps.forEach((b, j) => b.setAttribute('aria-checked', j === i)); knob.style.left = `calc(3px + ${i} * (100% - 6px) / 3)`; if (!init) swap(ad, AD[i]); dirty(); }
   steps.forEach((b, i) => b.onclick = () => setA(i));
@@ -105,7 +124,8 @@ DM.def('agent-settings', (r, c) => {
   ta.oninput = () => { s.i = ta.value; dirty(); };
   function apply(o){ s = JSON.parse(o); setA(s.a, true); swap(ad, AD[s.a]); tg.forEach((t, i) => t.setAttribute('aria-checked', s.t[i])); v.textContent = '$' + CAPS[s.cap]; ta.value = s.i; dirty(); }
   $('.asx-rs', r).onclick = () => apply(saved);
-  $('.asx-sv', r).onclick = () => c.run(async () => { const b = $('.asx-sv', r); b.innerHTML = '<span class="spin"></span>'; await c.wait(600); saved = JSON.stringify(s); b.innerHTML = I('check','xs') + 'Saved'; await c.wait(700); dirty(); b.textContent = 'Save'; });
+  // saving: Save keeps its width with a spinner in it, then the bar says Saved with the green tick, and goes
+  $('.asx-sv', r).onclick = () => c.run(async () => { const b = $('.asx-sv', r); if (b._busy != null) return; asxBusy(b, true); await c.wait(600); saved = JSON.stringify(s); asxBusy(b, false); swap(words, asxSaved(), true); await c.wait(900); dirty(); });
   setA(1, true);
   // the preview flips one switch on its own, unless you take over first
   c.auto(1400, () => tg[1].click());
@@ -153,7 +173,7 @@ DM.def('agent-settings', (r, c) => {
     <div class="asx-ps-mx">
       <div class="asx-ps-mh" aria-hidden="true"><span></span><span>Read</span><span>Change</span><span>Publish</span></div>
       <div class="asx-ps-grid" role="grid" aria-label="What the agent may do in each tool"></div>
-      <div class="asx-ps-key" aria-hidden="true"><span class="al"><i></i>Allow</span><span class="as"><i></i>Ask first</span><span class="bl"><i></i>Block</span></div>
+      <div class="asx-ps-key" aria-hidden="true"><span class="al"><i>${I('check','xs')}</i>Allow</span><span class="as"><i>${I('hand','xs')}</i>Ask first</span><span class="bl"><i>${I('slash','xs')}</i>Block</span></div>
     </div>
     <div class="asx-ps-bar"><span class="asx-ps-bt">Balanced preset</span><button class="pill ghost sm asx-ps-rs" type="button" disabled>Reset</button><button class="pill primary sm asx-ps-sv" type="button" disabled>Save</button></div>
   </div>`
@@ -177,7 +197,8 @@ DM.def('agent-settings', (r, c) => {
     let lev = 1, cap = 3, saved = { lev:1, cap:3 }, W = 0;
     const ro = new ResizeObserver(() => { W = sl.clientWidth; th.style.setProperty('--tx', (lev / 2 * W).toFixed(1) + 'px'); }); ro.observe(sl); c.offs.push(() => ro.disconnect());
     // a verdict that changes flips in, one after another: a dip in Soft, a cut in Blueprint
-    const flipIn = (el, d, bp) => { if (REDUCE || !el.animate) return; el.animate(bp ? [{ opacity:0 }, { opacity:1 }] : [{ transform:'none' }, { transform:'translateY(-4px) scale(.94)', opacity:.4, offset:.4 }, { transform:'none' }], { duration:bp ? 300 : 450, delay:d, easing:bp ? 'steps(2,end)' : 'cubic-bezier(.22,1,.36,1)', fill:'backwards' }); };
+    // (it fades and rises a little; nothing scales, owner 18 Nov)
+    const flipIn = (el, d, bp) => { if (REDUCE || !el.animate) return; el.animate(bp ? [{ opacity:0 }, { opacity:1 }] : [{ opacity:.3, transform:'translateY(-3px)' }, { opacity:1, transform:'none' }], { duration:bp ? 300 : 450, delay:d, easing:bp ? 'steps(2,end)' : 'cubic-bezier(.22,1,.36,1)', fill:'backwards' }); };
     function paint(flip){
       const bp = flip && getComputedStyle(root).getPropertyValue('--motion').trim() === 'bp';
       th.style.setProperty('--tx', (lev / 2 * W).toFixed(1) + 'px'); fill.style.setProperty('--v', lev / 2);
@@ -190,7 +211,7 @@ DM.def('agent-settings', (r, c) => {
       // the bar is out of reach while it is hidden; when it hides with the focus in it, the focus goes back to the slider
       const was = root.classList.contains('dirty'); root.classList.toggle('dirty', on); bar.inert = !on;
       if (was && !on && bar.contains(document.activeElement)) sl.focus({ preventScroll:true });
-      $('.asx-lp-bt', r).textContent = n === 1 ? '1 unsaved change' : `${n} unsaved changes`;
+      if (on) $('.asx-lp-bt', r).textContent = n === 1 ? '1 unsaved change' : `${n} unsaved changes`;
     }
     const set = (v, flip = true) => { v = Math.max(0, Math.min(2, v)); if (v === lev) return; lev = v; paint(flip); };
     // the slider: drag the thumb, press a stop's name, or use the arrow keys
@@ -204,7 +225,7 @@ DM.def('agent-settings', (r, c) => {
     ticks.forEach(b => b.onclick = () => set(+b.dataset.v));
     rg.oninput = () => { cap = +rg.value; paint(false); };
     $('.asx-lp-rs', r).onclick = () => { lev = saved.lev; cap = saved.cap; paint(true); };
-    $('.asx-lp-sv', r).onclick = () => c.run(async () => { const b = $('.asx-lp-sv', r); b.innerHTML = '<span class="spin"></span>'; await c.wait(600); saved = { lev, cap }; b.innerHTML = I('check','xs') + 'Saved'; await c.wait(800); paint(false); b.textContent = 'Save'; });
+    $('.asx-lp-sv', r).onclick = () => c.run(async () => { const b = $('.asx-lp-sv', r); if (b._busy != null) return; asxBusy(b, true); await c.wait(600); saved = { lev, cap }; asxBusy(b, false); swap($('.asx-lp-bt', r), asxSaved(), true); await c.wait(900); paint(false); });
     paint(false);
     c.story(async s => {
       await s.beat(3);
@@ -248,7 +269,7 @@ DM.def('agent-settings', (r, c) => {
       const ch = changed(), n = ch.length;
       root.classList.toggle('dirty', n > 0); sv.disabled = !n; rs.disabled = !n;
       const st = n ? `${n} unsaved change${n > 1 ? 's' : ''}` : done ? 'All changes saved' : 'No unsaved changes';
-      if (stEl.textContent !== st) stEl.innerHTML = (!n && done ? I('check','xs') : '') + `<span>${st}</span>`;
+      if (stEl.textContent !== st) stEl.innerHTML = (!n && done ? I('check','xs').replace('class="i xs"', 'class="i xs asx-ok"') : '') + `<span>${st}</span>`;
       tb.forEach((b, i) => { const k = ch.filter(x => F[x].tab === i).length; $('.asx-tb-dot', b).classList.toggle('on', k > 0); b.setAttribute('aria-label', `${T[i]}${k ? `, ${k} unsaved change${k > 1 ? 's' : ''}` : ''}`); });
       $$('.asx-tb-r', pane).forEach(row => { const f = $('[data-f]', row), d = $('.asx-tb-dot', row); if (f && d) d.classList.toggle('on', ch.includes(f.dataset.f)); });
       for (const [k, li] of rows) if (!ch.includes(k)){ li.remove(); rows.delete(k); }
@@ -311,10 +332,10 @@ DM.def('agent-settings', (r, c) => {
       if (saving || !changed().length) return; saving = true;
       if (openPop && r.contains(openPop.pop)) closePops();
       c.run(async () => {
-        sv.innerHTML = '<span class="spin"></span>';
+        asxBusy(sv, true);
         await c.wait(600);
         Object.keys(F).forEach(k => saved[k] = F[k].v); order = []; done = true; saving = false;
-        sv.innerHTML = saveHtml(); bar();
+        asxBusy(sv, false); bar();
         if (cf.contains(document.activeElement) || sv === document.activeElement) tb[cur].focus({ preventScroll:true });
       });
     }
@@ -323,6 +344,9 @@ DM.def('agent-settings', (r, c) => {
     // ⌘S or Ctrl+S saves while the focus is in the settings
     c.on(r, 'keydown', e => { if ((e.metaKey || e.ctrlKey) && !e.altKey && e.key.toLowerCase() === 's'){ e.preventDefault(); save(); } });
     draw(false);
+    // no height is kept for the tallest tab (owner, 17 Nov): the card eases to each tab's height and to the list of changes
+    // (grow(), centred in its stage), once its entrance (which scales it) has ended
+    Promise.resolve().then(() => Promise.all(root.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && root.isConnected) c.offs.push(grow(root)); });
     c.story(async s => {
       await s.beat(3);
       await s.tap($('[data-f="auto"]', pane)); await s.beat(2);
@@ -352,7 +376,8 @@ DM.def('agent-settings', (r, c) => {
     grid.innerHTML = ASX_TOOLS.map(t => `<div class="asx-ps-row" role="row"><span class="asx-ps-tl" role="rowheader">${asxApp(t)}<span>${t[1]}</span></span>${COLS.map((col, j) => `<button class="asx-ps-c" type="button" role="gridcell" data-t="${t[0]}" data-j="${j}" tabindex="-1"></button>`).join('')}</div>`).join('');
     const cells = $$('.asx-ps-c', grid); cells[0].tabIndex = 0;
     // a cell that changes pops in: a little spring in Soft, a cut in Blueprint
-    const popIn = (el, d, bp) => { if (REDUCE || !el.animate) return; el.animate(bp ? [{ opacity:0 }, { opacity:1 }] : [{ transform:'scale(.8)', opacity:.3 }, { transform:'scale(1.06)', offset:.6 }, { transform:'none', opacity:1 }], { duration:bp ? 300 : 400, delay:d, easing:bp ? 'steps(2,end)' : 'cubic-bezier(.22,1,.36,1)', fill:'backwards' }); };
+    // (it fades in; a pressed cell never scales, owner 18 Nov)
+    const popIn = (el, d, bp) => { if (REDUCE || !el.animate) return; el.animate(bp ? [{ opacity:0 }, { opacity:1 }] : [{ opacity:.25 }, { opacity:1 }], { duration:bp ? 300 : 400, delay:d, easing:bp ? 'steps(2,end)' : 'cubic-bezier(.22,1,.36,1)', fill:'backwards' }); };
     let bpM = false;
     function cell(b, v, flip, d = 0){
       if (b.dataset.v === v) return; b.dataset.v = v; b.className = 'asx-ps-c ' + v; b.innerHTML = `${I(ICON[v],'xs')}<span class="lb">${NAME[v]}</span>`;
@@ -376,8 +401,8 @@ DM.def('agent-settings', (r, c) => {
     c.on(grid, 'keydown', e => { const i = cells.indexOf(document.activeElement); if (i < 0) return; const d = { ArrowRight:1, ArrowLeft:-1, ArrowDown:3, ArrowUp:-3 }[e.key]; if (!d) return; e.preventDefault(); const j = i + d; if (!cells[j]) return; cells.forEach(x => x.tabIndex = -1); cells[j].tabIndex = 0; cells[j].focus(); });
     // saving: a spinner, then Saved with a green tick in the bar for a moment
     sv.onclick = () => c.run(async () => {
-      if (busy) return; busy = true; sv.innerHTML = '<span class="spin"></span>'; await c.wait(600);
-      saved = snap(); sv.textContent = 'Save'; bt.innerHTML = `${I('check','xs')}<span>Saved</span>`; state();
+      if (busy) return; busy = true; asxBusy(sv, true); await c.wait(600);
+      saved = snap(); asxBusy(sv, false); bt.innerHTML = asxSaved(); state();
       await c.wait(1200); busy = false; state();
     });
     rs.onclick = () => { motion(); const v = JSON.parse(saved); cells.forEach((b, i) => cell(b, v[i], true, i * 15)); state(); };
@@ -428,6 +453,8 @@ DM.def('agent-settings', (r, c) => {
 /* ---------- File explorer ---------- */
 DM.def('file-explorer', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{search}', I('search','xs')).replace('{filter}', I('filter','xs'));
+  // Clean's one hover: a highlight that glides from row to row (hoverGlide)
+  c.offs.push(hoverGlide($('.fxp-tree', r), '.fxp-n', { keep:'.sel' }));
   const T = { n:'', k:[
     { n:'src', k:[
       { n:'components', k:[ { n:'PlanCard.tsx', s:'M' }, { n:'PriceTag.tsx', s:'A' }, { n:'Button.tsx' }, { n:'LegacyCTA.tsx', s:'D' } ] },
@@ -437,27 +464,42 @@ DM.def('file-explorer', (r, c) => {
     { n:'public', k:[ { n:'og-pricing.png', s:'A' }, { n:'favicon.svg' } ] },
     { n:'package.json' }, { n:'README.md' }
   ]};
-  const tree = $('.fxp-tree', r), inp = $('.fxp-s input', r), chB = $('.fxp-ch', r), st = $('.fxp-st', r);
-  const open = new Set(['src','src/components','src/styles']); let only = false, sel = 'src/components/PlanCard.tsx';
+  const root = $('.fxp', r) || r, tree = $('.fxp-tree', r), inp = $('.fxp-s input', r), chB = $('.fxp-ch', r), st = $('.fxp-st', r), em = $('.fxp-em', r);
+  // the folders open at first: the components the agent changed, with the other folders closed on their dots
+  const open = new Set(['src','src/components']); let only = false, sel = 'src/components/PlanCard.tsx';
   const changed = n => n.s || (n.k && n.k.some(changed));
   const match = (n, q) => !q || n.n.toLowerCase().includes(q) || (n.k && n.k.some(k => match(k, q)));
   const ext = n => /\.(tsx)$/.test(n) ? 'code' : /\.css$/.test(n) ? 'palette' : /\.png|\.svg$/.test(n) ? 'image' : 'file-text';
+  // each level steps in 14px from the top level's 9px, which puts its chevrons under the filter's search glyph
   function build(n, path, d, q){
     return n.k.filter(k => match(k, q) && (!only || changed(k))).map(k => {
       const p = path ? path + '/' + k.n : k.n, isD = !!k.k, op = isD && (open.has(p) || !!q || only);
-      return `<button class="fxp-n${isD && op ? ' open' : ''}${p === sel ? ' sel' : ''}${k.s ? ' ' + k.s : ''}" data-p="${p}" ${isD ? 'data-d="1"' : ''} style="padding-left:${6 + d * 14}px" role="treeitem"><span class="cv">${isD ? I('chev-r','xs') : ''}</span><span class="ic">${I(isD ? 'folder' : ext(k.n),'xs')}</span><span class="nm">${k.n}</span>${k.s ? `<span class="bd ${k.s}">${k.s}</span>` : isD && changed(k) ? '<span class="ag"></span>' : ''}</button>` + (isD ? `<div class="fxp-k${op ? '' : ' shut'}"><div>${build(k, p, d + 1, q)}</div></div>` : '');
+      return `<button class="fxp-n${isD && op ? ' open' : ''}${p === sel ? ' sel' : ''}${k.s ? ' ' + k.s : ''}" data-p="${p}" ${isD ? `data-d="1" aria-expanded="${op}"` : `aria-selected="${p === sel}"`} style="padding-left:${9 + d * 14}px" role="treeitem"><span class="cv">${isD ? I('chev-r','xs') : ''}</span><span class="ic">${I(isD ? 'folder' : ext(k.n),'xs')}</span><span class="nm">${k.n}</span>${k.s ? `<span class="bd ${k.s}" aria-label="${{ M:'Modified', A:'Added', D:'Deleted' }[k.s]}">${k.s}</span>` : isD && changed(k) ? '<span class="ag" aria-hidden="true"></span>' : ''}</button>` + (isD ? `<div class="fxp-k${op ? '' : ' shut'}" role="group"${op ? '' : ' inert'}><div>${build(k, p, d + 1, q)}</div></div>` : '');
     }).join('');
   }
+  // while there is more of the tree below, its last row fades at the edge instead of being cut off
+  // (a row's entrance lifts it a few pixels, so less than half a row more doesn't count)
+  const edge = () => tree.classList.toggle('more', tree.scrollTop + tree.clientHeight < tree.scrollHeight - 12);
+  c.on(tree, 'scroll', edge, { passive:true }); c.on(tree, 'transitionend', edge); c.on(tree, 'animationend', edge);
+  const ro = new ResizeObserver(edge); ro.observe(tree); c.offs.push(() => ro.disconnect());
   function paint(){
-    tree.innerHTML = build(T, '', 0, inp.value.trim().toLowerCase());
+    const q = inp.value.trim().toLowerCase();
+    tree.innerHTML = build(T, '', 0, q);
+    // nothing matches: the empty state says so, and Clear filter brings the tree back
+    em.hidden = !!tree.children.length; tree.hidden = !tree.children.length;
+    if (!tree.children.length) $('span:not(.fxp-em-art)', em).textContent = `Nothing in the project is called “${inp.value.trim()}”.`;
     $$('.fxp-n', tree).forEach(b => b.onclick = () => {
-      if (b.dataset.d){ const p = b.dataset.p, k = b.nextElementSibling; const o = !open.has(p); o ? open.add(p) : open.delete(p); b.classList.toggle('open', o); k.classList.toggle('shut', !o); }
-      else { sel = b.dataset.p; $$('.fxp-n', tree).forEach(x => x.classList.toggle('sel', x === b)); swap(st, sel); }
+      if (b.dataset.d){ const p = b.dataset.p, k = b.nextElementSibling; const o = !open.has(p); o ? open.add(p) : open.delete(p); b.classList.toggle('open', o); b.setAttribute('aria-expanded', o); k.classList.toggle('shut', !o); k.inert = !o; }
+      else { sel = b.dataset.p; $$('.fxp-n:not([data-d])', tree).forEach(x => { x.classList.toggle('sel', x === b); x.setAttribute('aria-selected', x === b); }); swap(st, sel); }
     });
+    requestAnimationFrame(edge);
   }
   inp.oninput = paint;
-  chB.onclick = () => { only = !only; chB.classList.toggle('on', only); swap(st, only ? '6 files changed by the agent' : sel); paint(); stagger($$('.fxp-n', tree), 25); };
+  $('.pill', em).onclick = () => { inp.value = ''; paint(); stagger($$('.fxp-n', tree), 25); inp.focus({ preventScroll:true }); };
+  chB.onclick = () => { only = !only; chB.setAttribute('aria-pressed', only); swap(st, only ? '6 files changed by the agent' : sel); paint(); stagger($$('.fxp-n', tree), 25); };
   st.textContent = sel; paint(); stagger($$('.fxp-n', tree), 25);
+  // the card grows as folders open and shrinks as they close or the filter narrows (owner, 17 Nov: no room kept for later)
+  c.offs.push(grow(root));
 });
 /* ---------- Automation canvas ---------- */
 DM.def('automation-canvas', (r, c) => {
@@ -1262,9 +1304,9 @@ DM.def('data-picker', (r, c) => {
   const say = t => { live.textContent = ''; c.later(40, () => { live.textContent = t; }); };
   const of = ref => { const [s, f] = ref.split('.'); return { st:S.find(x => x.id === s), f }; };
   const tokHTML = ref => { const { st, f } = of(ref);
-    return `<span class="fpk-tok" data-ref="${ref}"><span class="fpk-ti" data-k="${st.k}" aria-hidden="true">${I(st.ic, 'xs')}</span><span class="s">${st.t}</span><span class="sep" aria-hidden="true">›</span><span class="f">${f}</span><button class="fpk-x" aria-label="Remove ${f} from ${st.t}" data-tip="Remove">${I('x', 'xs')}</button></span>`; };
+    return `<span class="fpk-tok" data-ref="${ref}" data-k="${st.k}"><span class="fpk-ti" data-k="${st.k}" aria-hidden="true">${I(st.ic, 'xs')}</span><span class="s">${st.t}</span><span class="sep" aria-hidden="true">›</span><span class="f">${f}</span><button class="fpk-x" aria-label="Remove ${f} from ${st.t}" data-tip="Remove">${I('x', 'xs')}</button></span>`; };
   const addB = k => `<button class="fpk-add" data-f="${k}" data-pop=".fpk-pop" data-pop-pos="down" data-pop-align="end" aria-haspopup="dialog" aria-expanded="false" aria-label="Insert data into ${F[k].l}" data-tip="Insert data">${I('plus', 's')}</button>`;
-  const paintField = k => { $(`.fpk-f[data-f="${k}"] .fpk-box`, r).innerHTML = (F[k].v.length ? F[k].v.map(tokHTML).join('') : '<span class="fpk-ph">Pick data from an earlier step</span>') + addB(k); };
+  const paintField = k => { $(`.fpk-f[data-f="${k}"] .fpk-box`, r).innerHTML = '<span class="fpk-toks">' + (F[k].v.length ? F[k].v.map(tokHTML).join('') : '<span class="fpk-ph">Pick data from an earlier step</span>') + '</span>' + addB(k); };
   Object.keys(F).forEach(paintField);
   const mark = (t, v) => { const i = v ? t.toLowerCase().indexOf(v) : -1; return i < 0 ? t : t.slice(0, i) + '<mark>' + t.slice(i, i + v.length) + '</mark>' + t.slice(i + v.length); };
   function paint(){
@@ -1289,15 +1331,15 @@ DM.def('data-picker', (r, c) => {
     closePops();
     if (F[k].v.includes(ref)){ say(`${F[k].l} already has ${f} from ${st.t}`); return; }
     F[k].v.push(ref);
-    const bx = $(`.fpk-f[data-f="${k}"] .fpk-box`, r), add = $('.fpk-add', bx), ph = $('.fpk-ph', bx); if (ph) ph.remove();
-    add.insertAdjacentHTML('beforebegin', tokHTML(ref)); if (!REDUCE) add.previousElementSibling.classList.add('new');
+    const toks = $(`.fpk-f[data-f="${k}"] .fpk-toks`, r), ph = $('.fpk-ph', toks); if (ph) ph.remove();
+    toks.insertAdjacentHTML('beforeend', tokHTML(ref)); if (!REDUCE) toks.lastElementChild.classList.add('new');
     say(`Added ${f} from ${st.t} to ${F[k].l}`);
   }
   function remove(tk, mine){
-    const k = tk.closest('.fpk-f').dataset.f, ref = tk.dataset.ref, { st, f } = of(ref), add = $('.fpk-add', tk.parentElement);
+    const k = tk.closest('.fpk-f').dataset.f, ref = tk.dataset.ref, { st, f } = of(ref), toks = tk.parentElement, add = $('.fpk-add', tk.closest('.fpk-box'));
     F[k].v = F[k].v.filter(x => x !== ref);
     tk.classList.add('out'); tk.inert = true;
-    setTimeout(() => { tk.remove(); if (!F[k].v.length) add.insertAdjacentHTML('beforebegin', '<span class="fpk-ph">Pick data from an earlier step</span>'); }, REDUCE ? 0 : 280);
+    setTimeout(() => { tk.remove(); if (!F[k].v.length) toks.insertAdjacentHTML('beforeend', '<span class="fpk-ph">Pick data from an earlier step</span>'); }, REDUCE ? 0 : 280);
     if (mine) add.focus({ preventScroll:true });
     say(`Removed ${f} from ${st.t}`);
   }
@@ -1312,8 +1354,9 @@ DM.def('data-picker', (r, c) => {
   c.on(q, 'input', paint);
   // in the search the arrows move through the fields and wrap, Enter puts the one picked in, Escape closes (the core)
   c.on(q, 'keydown', e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); move(e.key === 'ArrowDown' ? 1 : -1); } else if (e.key === 'Enter'){ e.preventDefault(); pick(hi); } });
-  // the fields sit centred, and glide up as the picker opens under one of them
-  const centred = centre(c, box, () => pop.classList.contains('open') ? Math.max(box.offsetHeight, pop.offsetTop + pop.offsetHeight) : box.offsetHeight);
+  // the fields sit centred, and glide up as the picker opens under one of them; the picker is watched too, so when a search
+  // shortens its list the fields and the list settle centred again (they sat high by the rows it lost)
+  const centred = centre(c, box, () => pop.classList.contains('open') ? Math.max(box.offsetHeight, pop.offsetTop + pop.offsetHeight) : box.offsetHeight, [pop]);
   const mo = new MutationObserver(() => { if (pop.classList.contains('open')) centred(); else c.later(REDUCE ? 0 : 180, centred); });
   mo.observe(pop, { attributes:true, attributeFilter:['class'] }); c.offs.push(() => mo.disconnect());
   // the preview's story: take a field out of the subject, then open Body's picker, search for "sc" (the score, and every
@@ -1411,7 +1454,7 @@ DM.def('run-drawer', (r, c) => {
     // a person's yes, under the step that waits for it
     const ask = $('.rdr-ask', rowsEl);
     if (R.st === 'wait' && !ask){ const p = R.sp[R.sp.length - 1], x = byId(p.s), el = R.rows.get(p);
-      if (el) el.insertAdjacentHTML('afterend', `<div class="rdr-ask${REDUCE ? '' : ' in'}" role="group" aria-label="${x.t} waits for you"><span class="rdr-ti" data-k="approval" aria-hidden="true">${I('user', 'xs')}</span><span class="tx"><b>${x.t} is waiting for you</b><span>Live runs ask ${x.ask} in Slack. In a test, you decide.</span></span><span class="acts"><button class="pill primary sm" data-a="yes">${I('check', 'xs')}Approve</button><button class="pill line sm" data-a="no">Reject</button></span></div>`); }
+      if (el) el.insertAdjacentHTML('afterend', `<div class="rdr-ask${REDUCE ? '' : ' in'}" role="group" aria-label="${x.t} waits for you"><svg class="rdr-sgi" viewBox="0 0 24 24" aria-hidden="true"><path class="a" d="M12 3.6 2.6 19.9h18.8z"/><path class="b" d="M12 9.6v4.4M12 17v.01"/></svg><span class="tx"><b>${x.t} is waiting for you</b><span>Live runs ask ${x.ask} in Slack. In a test, you decide.</span></span><span class="acts"><button class="pill line sm" data-a="no">Reject</button><button class="pill warn sm" data-a="yes">${I('check', 'xs')}Approve</button></span></div>`); }
     if (R.st !== 'wait' && ask) ask.remove();
     // the log, a line at a time, its levels in colour
     const L = R.log.filter(l => l.at <= t + 1e-6).sort((a, b) => a.at - b.at);
@@ -1513,14 +1556,14 @@ DM.def('memory-panel', (r, c) => {
     ['process','File design bugs in the Design QA project','linear','DES-214 in Linear, Sep 26'],
     ['brand','No em dashes in product copy','drive','Voice and tone guide in Drive, Oct 2']
   ].map((m, i) => ({ id:i, k:m[0], t:m[1], from:m[2], s:m[3] }));
-  const list = $('.mmx-list', r), st = $('.mmx-st', r), srcs = $('.mmx-srcs', r), fi = $('.mmx-fi', r), ft = $('.mmx-ft', r);
+  const list = $('.mmx-list', r), fi = $('.mmx-fi', r), ft = $('.mmx-ft', r);
   let f = 'all', nid = 100;
-  // the count, and the apps the memories came from
-  const count = () => { swap(st, M.length + (M.length === 1 ? ' memory' : ' memories')); srcs.innerHTML = [...new Set(M.map(m => m.from).filter(s => BRAND[s]))].map(s => `<span>${BRAND[s]}</span>`).join(''); };
+  // the head names the panel only: a count of the memories and a row of their sources' marks repeated what the list shows
+  const count = () => {};
   const meta = m => `<span class="k">${KIND[m.k][0]}</span><span aria-hidden="true">·</span><span class="s">${m.s}</span>${m.isNew ? '<span class="tag nw">New</span>' : ''}${m.used ? '<span class="tag nw">Used</span>' : ''}`;
   const rowOf = m => $(`.mmx-m[data-id="${m.id}"]`, list);
   function item(m){
-    const el = html(`<div class="mmx-m${m.isNew ? ' new' : ''}${m.learn ? ' learn' : ''}" data-id="${m.id}" style="--k:${KIND[m.k][1]}"><span class="mmx-src" aria-hidden="true">${m.learn ? '<span class="spin"></span>' : mark(m.from)}</span><span class="mmx-b"><span class="t${m.learn ? ' shim' : ''}" spellcheck="false">${m.t}</span><span class="mmx-meta">${meta(m)}</span></span><span class="acts"><button class="ib ed" aria-label="Edit" data-tip="Edit">${I('edit','xs')}</button><button class="ib rm" aria-label="Forget" data-tip="Forget">${I('trash','xs')}</button></span></div>`);
+    const el = html(`<div class="mmx-m${m.learn ? ' learn' : ''}" data-id="${m.id}" style="--k:${KIND[m.k][1]}"><span class="mmx-src" aria-hidden="true">${m.learn ? '<span class="spin"></span>' : mark(m.from)}</span><span class="mmx-b"><span class="t${m.learn ? ' shim' : ''}" spellcheck="false">${m.t}</span><span class="mmx-meta">${meta(m)}</span></span><span class="acts"><button class="ib ed" aria-label="Edit" data-tip="Edit">${I('edit','xs')}</button><button class="ib rm" aria-label="Forget" data-tip="Forget">${I('trash','xs')}</button></span></div>`);
     const t = $('.t', el);
     $('.ed', el).onclick = () => { t.contentEditable = 'true'; t.focus({ preventScroll:true }); const s = document.getSelection(); s.selectAllChildren(t); s.collapseToEnd();
       const done = () => { t.contentEditable = 'false'; m.t = t.textContent.trim() || m.t; m.s = 'Edited by you, just now'; m.from = 'edit'; t.textContent = m.t; update(m); count(); };
@@ -1537,32 +1580,19 @@ DM.def('memory-panel', (r, c) => {
     const src = $('.mmx-src', el), t = $('.t', el);
     if (!m.learn && el.classList.contains('learn')){ el.classList.remove('learn'); t.classList.remove('shim'); swap(t, m.t); src.innerHTML = mark(m.from); enter(src.firstElementChild); }
     else if (t.contentEditable !== 'true') src.innerHTML = mark(m.from);
-    el.classList.toggle('new', !!m.isNew);
     $('.mmx-meta', el).innerHTML = meta(m);
     if (pulse){ el.classList.remove('use'); void el.offsetWidth; el.classList.add('use'); }
   }
   function paint(){ list.innerHTML = ''; M.filter(m => f === 'all' || m.k === f).forEach(m => list.appendChild(item(m))); stagger([...list.children], 40); }
   // a row that arrives opens its own height, so the panel grows smoothly instead of jumping
-  const grow = el => { if (REDUCE) return; const cs = getComputedStyle(el), gap = parseFloat(getComputedStyle(list).rowGap) || 0, ease = getComputedStyle(r).getPropertyValue('--ease').trim() || 'ease';
-    el.animate([{ height:'0px', paddingTop:'0px', paddingBottom:'0px', marginBottom:-gap + 'px', opacity:0, filter:'blur(4px)', overflow:'hidden' }, { height:cs.height, paddingTop:cs.paddingTop, paddingBottom:cs.paddingBottom, marginBottom:'0px', opacity:1, filter:'blur(0px)', overflow:'hidden' }], { duration:560, easing:ease }); };
+  const growRow = el => { if (REDUCE) return; const cs = getComputedStyle(el), gap = parseFloat(getComputedStyle(list).rowGap) || 0, ease = getComputedStyle(r).getPropertyValue('--ease').trim() || 'ease', blur = getComputedStyle(r).getPropertyValue('--motion').trim() === 'clean' ? 0 : 4;
+    el.animate([{ height:'0px', paddingTop:'0px', paddingBottom:'0px', marginBottom:-gap + 'px', opacity:0, filter:`blur(${blur}px)`, overflow:'hidden' }, { height:cs.height, paddingTop:cs.paddingTop, paddingBottom:cs.paddingBottom, marginBottom:'0px', opacity:1, filter:'blur(0px)', overflow:'hidden' }], { duration:560, easing:ease }); };
   seg($('.mmx-tab', r), v => { f = v; paint(); });
   count(); paint();
-  // the room the list needs once the agent has learned its new rule (one more row, at the top, with its New tag) is kept from
-  // the start, so the panel never grows in its stage and stays centred (16 Nov; as Agent tree). Measured on a hidden copy at
-  // the panel's width, again when the width changes
+  // no room is kept for the memory still to come (owner, 17 Nov): the panel grows as the new one opens its row, and as a filter
+  // or a forgotten memory changes the list (grow(), centred in its stage), once its entrance (which scales it) has ended
   const mroot = r.classList.contains('mmx') ? r : $('.mmx', r);
-  if (mroot){
-    const tallest = () => {
-      const p = mroot.cloneNode(true);
-      p.style.cssText = `position:absolute;left:0;top:0;width:${mroot.offsetWidth}px;min-height:0;visibility:hidden;pointer-events:none`;
-      p.setAttribute('aria-hidden', 'true'); p.inert = true;
-      $('.mmx-list', p).prepend(item({ id:-1, k:'brand', t:'Use “Start free” instead of “Sign up” on CTAs', from:'figma', s:'Your edit in Pricing v4, just now', isNew:true }));
-      mroot.parentElement.appendChild(p); const h = p.offsetHeight; p.remove(); return h;
-    };
-    let mw = -1;
-    const keep = () => { const w = mroot.offsetWidth; if (!w || w === mw) return; mw = w; mroot.style.minHeight = tallest() + 'px'; };
-    keep(); const ro = new ResizeObserver(keep); ro.observe(mroot); c.offs.push(() => ro.disconnect());
-  }
+  if (mroot && r === c.st) Promise.resolve().then(() => Promise.all(mroot.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && mroot.isConnected) c.offs.push(grow(mroot)); });
   // the preview: the agent learns a rule from your edit in Figma, then drafts an email in Gmail with three memories, which
   // pulse as it reads them. Every state lives in the memories' data, so switching tabs keeps it; taking over settles it
   c.run(async () => {
@@ -1570,7 +1600,7 @@ DM.def('memory-panel', (r, c) => {
     const m = { id:nid++, k:'brand', t:'Learning from your edit in Pricing v4', from:'figma', s:'Just now', learn:true };
     const learnt = () => Object.assign(m, { learn:false, t:'Use “Start free” instead of “Sign up” on CTAs', s:'Your edit in Pricing v4, just now' });
     c.taken(() => { if (m.learn){ learnt(); update(m); } if (ft.classList.contains('shim')){ ft.classList.remove('shim'); fi.innerHTML = I('spark','xs'); swap(ft, 'Used in 14 answers this week'); } });
-    M.unshift(m); count(); if (f === 'brand' || f === 'all'){ const el = item(m); list.prepend(el); grow(el); }
+    M.unshift(m); count(); if (f === 'brand' || f === 'all'){ const el = item(m); list.prepend(el); growRow(el); }
     await c.step(1500);
     learnt(); m.isNew = true; update(m);
     await c.step(2600);
@@ -1586,19 +1616,22 @@ DM.def('memory-panel', (r, c) => {
 });
 /* ---------- Tools and connections ---------- */
 DM.def('tool-connections', (r, c) => {
-  r.innerHTML = r.innerHTML.replace('{refresh}', I('refresh','xs')).replace('{plus}', I('plus','xs'));
+  r.innerHTML = r.innerHTML.replace('{refresh}', I('refresh','xs')).replace('{plus}', I('plus','xs')).replace('{link}', I('link','xs'));
+  // [mark, name, detail, tile colour (a vivid avatar colour, for a mark without a logo), permission 0 Off, 1 Ask, 2 Allow]
   let T = [
-    ['@figma','Figma','Read and edit frames','var(--pl)',1],
-    ['@github','GitHub','designme/web, PRs only','var(--fg)',0],
-    ['@slack','Slack','#design, #launch','var(--pm)',1],
-    ['db','Analytics','Read only, last 90 days','var(--pt)',1],
-    ['globe','Web search','Any public site','var(--pb)',2]
+    ['@figma','Figma','Read and edit frames','',1],
+    ['@github','GitHub','designme/web, PRs only','',0],
+    ['@slack','Slack','#design, #launch','',1],
+    ['db','Analytics','Read only, last 90 days','t',1],
+    ['globe','Web search','Any public site','b',2]
   ];
-  const ADD = [['table','Google Sheets','var(--ok)'],['bell','Linear','var(--pp)'],['mail','Gmail','var(--pr)']];
-  const list = $('.hnx-list', r), st = $('.hnx-st', r), pop = $('.hnx-pop', r);
+  const ADD = [['table','Google Sheets','m'],['@linear','Linear',''],['@gmail','Gmail','']];
+  const root = $('.hnx', r) || r, list = $('.hnx-list', r), st = $('.hnx-st', r), pop = $('.hnx-pop', r);
   const PM = ['Off','Ask','Allow'];
+  // a tool's mark: its logo on a white tile, or its icon on a vivid tile of its colour, with white or the colour's own ink
+  const mark = (m, k) => m[0] === '@' ? `<span class="ic brandic" aria-hidden="true">${BRAND[m.slice(1)]}</span>` : `<span class="ic" style="background:var(--av-${k});color:var(--av-${k}-ink)" aria-hidden="true">${I(m,'xs')}</span>`;
   function row(t){
-    const el = html(`<div class="hnx-t${t[4] === 0 ? ' off' : ''}">${t[0][0] === '@' ? `<span class="ic brandic">${BRAND[t[0].slice(1)]}</span>` : `<span class="ic" style="color:${t[3]};background:color-mix(in srgb,${t[3]} 12%,transparent)">${I(t[0],'xs')}</span>`}<span class="t">${t[1]}<span>${t[2]}</span></span><div class="hnx-pm" role="group" aria-label="${t[1]} permission"><span class="kn"></span>${PM.map((p, i) => `<button aria-pressed="${i === t[4]}" data-tip="${['Agent cannot use it','Agent asks first','Agent uses it freely'][i]}">${p}</button>`).join('')}</div></div>`);
+    const el = html(`<div class="hnx-t${t[4] === 0 ? ' off' : ''}" role="listitem">${mark(t[0], t[3])}<span class="t"><span class="nm"><span>${t[1]}</span><i class="hnx-dot" aria-hidden="true"></i></span><span class="d">${t[2]}</span></span><div class="hnx-pm" role="group" aria-label="${t[1]} permission"><span class="kn"></span>${PM.map((p, i) => `<button aria-pressed="${i === t[4]}" data-tip="${['Agent cannot use it','Agent asks first','Agent uses it freely'][i]}">${p}</button>`).join('')}</div></div>`);
     const g = $('.hnx-pm', el), kn = $('.kn', g), bs = $$('button', g);
     // the knob slides when a choice changes; when the row first appears it is simply in place
     const place = now => { const b = bs[t[4]]; if (now) kn.style.transition = 'none'; kn.style.left = b.offsetLeft + 'px'; kn.style.width = b.offsetWidth + 'px'; if (now){ void kn.offsetWidth; kn.style.transition = ''; } };
@@ -1608,45 +1641,54 @@ DM.def('tool-connections', (r, c) => {
     requestAnimationFrame(() => place(true)); new ResizeObserver(() => place(true)).observe(g);
     el._t = t; return el;
   }
-  // the first count is written straight in, so the header doesn't crossfade from the template's number on load
-  const count = now => { const n = T.filter(t => t[4] > 0).length + ' connected'; if (now) st.textContent = n; else swap(st, n); };
+  // a test's line, in the foot beside Connect a tool, never a count that repeats the list (the owner's notes on batch 2):
+  // while it runs, what it tests, in words that shimmer; once it has run, how many are healthy, with the green tick when
+  // every one is. A change to a switch makes that result old, so the line goes again
+  const write = (h, now) => { if (now) st.innerHTML = h; else swap(st, h, true); };
+  const count = now => write('', now);
+  const healthy = (ok, n) => write((ok === n ? I('ok','xs') : '') + `<span>${ok} of ${n} healthy</span>`);
   T.forEach(t => list.appendChild(row(t))); stagger([...list.children], 50); count(true);
-  function menu(){ pop.innerHTML = ADD.length ? ADD.map((a, i) => `<button class="mi" role="menuitem" data-close data-i="${i}">${I(a[0],'xs')}<span>${a[1]}</span></button>`).join('') : '<div class="ph" style="padding:8px;font-size:12.5px;color:var(--muted)">All tools connected</div>';
+  function menu(){ pop.innerHTML = ADD.length ? ADD.map((a, i) => `<button class="mi" role="menuitem" data-close data-i="${i}">${a[0][0] === '@' ? BRAND[a[0].slice(1)] : I(a[0],'xs')}<span>${a[1]}</span></button>`).join('') : '<div class="ph">All tools connected</div>';
     $$('.mi', pop).forEach(m => m.addEventListener('click', () => { const a = ADD.splice(+m.dataset.i, 1)[0]; const t = [a[0], a[1], 'Just connected', a[2], 1]; T.push(t); const el = row(t); list.appendChild(el); enter(el); count(); menu(); })); }
   menu();
-  // Test all: every connected tool shows a small spinner at once, and they settle one by one; only a failure changes its line
-  const test = $('.hnx-test', r), testWas = test.innerHTML;
+  // a menu opens over the card from its button: down when it fits below, up when it doesn't and fits above or has more room
+  // there (as placePop), within the stage's room, so it never spills over the card's caption under the stage (as Artifact
+  // card's version menu). The side is set on the button just before the menu is placed
+  const side = (btn, pop) => { const room = popRoom(btn), st = btn.closest('.stage-inner') || btn.closest('.stage');
+    if (st){ const sr = st.getBoundingClientRect(), cs = getComputedStyle(st); room.top = Math.max(room.top, sr.top + parseFloat(cs.paddingTop)); room.bottom = Math.min(room.bottom, sr.bottom - parseFloat(cs.paddingBottom)); }
+    const br = btn.getBoundingClientRect(), need = pop.offsetHeight + 12, below = room.bottom - br.bottom, above = br.top - room.top;
+    btn.dataset.popPos = below < need && (above >= need || above > below) ? 'up' : 'down'; };
+  const add = $('.hnx-add', r); c.on(add, 'click', () => { if (!pop.classList.contains('open')) side(add, pop); });
+  // Test all: every connected tool's dot turns at once, and they settle one by one; only a failure changes its line. The
+  // button is as wide as its words and eases to the new ones
+  const test = $('.hnx-test', r);
+  const label = h => { const w0 = test.getBoundingClientRect().width; test.innerHTML = h; const w1 = test.getBoundingClientRect().width;
+    const cs = getComputedStyle(test), t = cs.getPropertyValue('--t').trim();
+    if (!REDUCE && w0 && Math.abs(w1 - w0) > .5) test.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:(t.endsWith('ms') ? parseFloat(t) : parseFloat(t) * 1000) || 340, easing:cs.getPropertyValue('--ease').trim() || 'ease' }); };
+  const idle = I('refresh','xs') + '<span>Test all</span>';
   test.onclick = () => c.run(async () => {
     const rows = [...list.children].filter(el => el._t[4] > 0);
-    test.disabled = true; test.innerHTML = '<span class="spin"></span>Testing'; swap(st, 'Testing ' + rows.length + ' connections');
+    test.disabled = true; label('<span class="spin"></span><span>Testing</span>'); write(`<span class="shim">Testing ${rows.length} connections</span>`);
     rows.forEach(el => el.classList.add('chk'));
     for (const el of rows){ await c.wait(600); el.classList.remove('chk');
-      if (el._t[1] === 'Slack' && !el._t.ok){ el.classList.add('err'); swap($('.t span', el), 'Token expired. Reconnect to use it'); }
+      // the row turns red with its new words, not before them
+      if (el._t[1] === 'Slack' && !el._t.ok){ el._bad = true; swap($('.d', el), 'Token expired. Reconnect to use it'); c.later(REDUCE ? 0 : 170, () => el.classList.add('err')); }
     }
-    test.disabled = false; test.innerHTML = testWas;
-    swap(st, rows.filter(el => !el.classList.contains('err')).length + ' of ' + rows.length + ' healthy');
-    const bad = [...list.children].find(el => el.classList.contains('err'));
+    test.disabled = false; label(idle);
+    healthy(rows.filter(el => !el._bad).length, rows.length);
+    const bad = [...list.children].find(el => el._bad);
     // a second test finds the row already offering Reconnect, so it keeps that button
     const pm = bad && $('.hnx-pm', bad);
     if (pm){ const b = html(`<button class="pill accent sm">Reconnect</button>`); pm.replaceWith(b); enter(b);
-      b.onclick = () => c.run(async () => { b.innerHTML = '<span class="spin"></span>'; await c.wait(900); bad.classList.remove('err'); bad._t.ok = true; const n = row(bad._t); bad.replaceWith(n); swap(st, [...list.children].filter(el => el._t[4] > 0).length + ' of ' + [...list.children].filter(el => el._t[4] > 0).length + ' healthy'); }); }
+      // while it reconnects it keeps its colour and its width, with a spinner in place of its word, and takes no second press
+      b.onclick = () => c.run(async () => { if (b.getAttribute('aria-disabled')) return; b.setAttribute('aria-disabled', 'true'); b.setAttribute('aria-label', 'Reconnecting');
+        const w0 = b.getBoundingClientRect().width; b.innerHTML = '<span class="spin"></span>'; b.style.width = w0 + 'px';
+        await c.wait(900); bad.classList.remove('err'); bad._t.ok = true; const n = row(bad._t); bad.replaceWith(n); enter(n);
+        const on = [...list.children].filter(el => el._t[4] > 0).length; healthy(on, on); }); }
   });
-  // the room the list needs at its tallest (Slack's expired token, which wraps on a narrow panel, with Reconnect in place of
-  // its switch) is kept from the start, so the panel never grows or shrinks in its stage (16 Nov; as Agent tree)
-  const hp = r.classList.contains('hnx') ? r : $('.hnx', r);
-  if (hp){
-    const tallest = () => {
-      const p = hp.cloneNode(true);
-      p.style.cssText = `position:absolute;left:0;top:0;width:${hp.offsetWidth}px;min-height:0;visibility:hidden;pointer-events:none`;
-      p.setAttribute('aria-hidden', 'true'); p.inert = true;
-      const sl = [...p.querySelectorAll('.hnx-t')].find(x => /^Slack/.test(($('.t', x) || x).textContent));
-      if (sl){ sl.classList.add('err'); const d = $('.t span', sl); if (d) d.textContent = 'Token expired. Reconnect to use it'; }
-      hp.parentElement.appendChild(p); const h = p.offsetHeight; p.remove(); return h;
-    };
-    let hw = -1;
-    const keep = () => { const w = hp.offsetWidth; if (!w || w === hw) return; hw = w; hp.style.minHeight = tallest() + 'px'; };
-    keep(); const ro = new ResizeObserver(keep); ro.observe(hp); c.offs.push(() => ro.disconnect());
-  }
+  // the card grows with its rows, and eases when a line wraps or Reconnect takes a switch's place (owner, 17 Nov: no room
+  // kept for a later state)
+  c.offs.push(grow(root));
   // the preview's story: test everything, Slack's token has expired, reconnect it, and every connection is healthy
   c.story(async s => {
     await s.beat(3);
@@ -1658,9 +1700,12 @@ DM.def('tool-connections', (r, c) => {
 });
 /* ---------- Knowledge sources ---------- */
 DM.def('knowledge-sources', (r, c) => {
-  r.innerHTML = r.innerHTML.replace('{plus}', I('plus','xs')).replace('{refresh}', I('refresh','xs')).replace('{trash}', I('trash','xs'));
-  // a source's type gives it its icon: uploaded files, a website the agent crawls, or a connected folder of docs
-  const KIND = { files:['file-text','var(--pp)'], web:['globe','var(--pb)'], folder:['folder','var(--pm)'] };
+  r.innerHTML = r.innerHTML.replace(/\{plus\}/g, I('plus','xs')).replace('{refresh}', I('refresh','xs')).replace('{trash}', I('trash','xs')).replace('{book}', I('book','xs'));
+  // Clean's one hover: a highlight that glides from row to row (hoverGlide)
+  c.offs.push(hoverGlide($('.ksx-list', r), '.ksx-s'));
+  // a source's type gives it its icon, on a vivid tile of its colour: uploaded files, a website the agent crawls, or a
+  // connected folder of docs
+  const KIND = { files:['file-text','p'], web:['globe','b'], folder:['folder','m'] };
   // a connected folder and a set of uploads are ready, and a PDF is being read. One source indexes at a time and the rest
   // wait in line; a source's chunks count once it has been indexed. `ms` is how long a full pass takes in this preview
   const S = [
@@ -1669,19 +1714,24 @@ DM.def('knowledge-sources', (r, c) => {
     { kind:'files', name:'Brand book 2024.pdf', n:24, unit:'pages', chunks:48, st:'queued', ms:19000, fail:{ at:9, why:'Scanned PDF, no text found', fix:'Retry with OCR' } }
   ];
   const FOLDERS = [['Design specs', 'Google Drive', 57, 230], ['Research notes', 'Notion', 31, 124]];
-  const list = $('.ksx-list', r), st = $('.ksx-st', r), add = $('.ksx-add', r), pop = $('.ksx-pop', r), mpop = $('.ksx-mpop', r), file = $('.ksx-file', r);
+  const root = $('.ksx', r) || r, list = $('.ksx-list', r), st = $('.ksx-st', r), pop = $('.ksx-pop', r), mpop = $('.ksx-mpop', r), file = $('.ksx-file', r);
+  // Add source sits under the list, and in the empty state once every source is gone; both open the same menu
+  const add = $('.ksx-add', r), adds = $$('.ksx-add,.ksx-add2', r); let from = add;
   const fmt = n => n.toLocaleString('en-US');
   const of = (n, unit) => fmt(n) + ' ' + (n === 1 ? unit.slice(0, -1) : unit);
-  const line = x => x.st === 'queued' ? (x.ocr ? 'Queued to read with OCR' : 'Queued') : x.st === 'failed' ? x.fail.why : of(x.n, x.unit) + ' · Synced ' + x.ago;
+  const esc = t => t.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  // the line under a source's name, led by its state's mark: a tick once indexed, a clock while it waits, a sign when it failed
+  const line = x => x.st === 'queued' ? I('clock','xs') + `<span>${x.ocr ? 'Queued to read with OCR' : 'Queued'}</span>`
+    : x.st === 'failed' ? I('alert','xs') + `<span>${esc(x.fail.why)}</span>` : I('ok','xs') + `<span>${of(x.n, x.unit)} · Synced ${x.ago}</span>`;
   function row(x){
-    const [ic, col] = KIND[x.kind];
-    x.el = html(`<div class="ksx-s" role="listitem"><span class="ic" style="color:${col};background:color-mix(in srgb,${col} 12%,transparent)" aria-hidden="true">${I(ic,'xs')}</span><span class="t"><span class="nm"></span><span class="d"></span></span><button class="ib ksx-more" aria-haspopup="menu" aria-expanded="false" data-tip="More" data-pop=".ksx-mpop" data-pop-align="end">${I('more')}</button><div class="ksx-fx fold shut" inert><div><div><button class="pill accent sm ksx-fix"></button><button class="pill ghost sm ksx-del">Remove</button></div></div></div></div>`);
+    const [ic, k] = KIND[x.kind];
+    x.el = html(`<div class="ksx-s" role="listitem"><span class="ic" style="background:var(--av-${k});color:var(--av-${k}-ink)" aria-hidden="true">${I(ic,'xs')}</span><span class="t"><span class="nm"></span><span class="d"></span></span><button class="ib ksx-more" aria-haspopup="menu" aria-expanded="false" data-tip="More" data-pop=".ksx-mpop" data-pop-align="end">${I('more')}</button><div class="ksx-fx fold shut" inert><div><div><button class="pill accent sm ksx-fix"></button><button class="pill ghost sm ksx-del">Remove</button></div></div></div></div>`);
     $('.nm', x.el).textContent = x.name; $('.ksx-more', x.el).setAttribute('aria-label', 'Actions for ' + x.name);
     $('.ksx-fix', x.el).onclick = () => { x.ocr = true; x.st = 'queued'; x.ms = 3000; paint(x); next(); };
     $('.ksx-del', x.el).onclick = () => remove(x);
     paint(x, true); return x.el;
   }
-  // the progress bar and its count, while a source is being indexed
+  // the progress bar and its count, while a source is being indexed; the count shimmers, as every line of a process at work
   function prog(x){
     const bar = $('.ksx-bar', x.el); if (!bar) return; const k = Math.floor(x.done);
     $('i', bar).style.width = k / x.n * 100 + '%'; bar.setAttribute('aria-valuenow', k);
@@ -1690,13 +1740,14 @@ DM.def('knowledge-sources', (r, c) => {
   function paint(x, now){
     const d = $('.d', x.el); x.el.dataset.st = x.st;
     // the bar goes through the same swap as the line before it, so a line still swapping in can't land on top of it
-    if (x.st === 'indexing'){ const bar = `<span class="ksx-bar" role="progressbar" aria-label="Indexing ${x.name.replace(/[<&"]/g, '')}" aria-valuemin="0" aria-valuemax="${x.n}"><i style="width:0"></i></span><span class="num"></span>`; if (now){ d.innerHTML = bar; prog(x); } else swap(d, bar, true); }
-    else { const t = document.createElement('span'); t.textContent = line(x); if (now) d.replaceChildren(t); else swap(d, t.outerHTML, true); }
+    if (x.st === 'indexing'){ const bar = `<span class="ksx-bar" role="progressbar" aria-label="Indexing ${x.name.replace(/[<&"]/g, '')}" aria-valuemin="0" aria-valuemax="${x.n}"><i style="width:0"></i></span><span class="num shim"></span>`; if (now){ d.innerHTML = bar; prog(x); } else swap(d, bar, true); }
+    else if (now) d.innerHTML = line(x); else swap(d, line(x), true);
     const fx = $('.ksx-fx', x.el), on = x.st === 'failed';
     if (on) $('.ksx-fix', x.el).textContent = x.fail.fix;
     fx.classList.toggle('shut', !on); fx.inert = !on;
   }
-  const total = () => `${S.length} source${S.length === 1 ? '' : 's'} · ${fmt(S.reduce((a, x) => a + (x.had ? x.chunks : 0), 0))} chunks`;
+  // the line under the title says what the list doesn't: how much of it the agent can search, once it is indexed
+  const total = () => `${fmt(S.reduce((a, x) => a + (x.had ? x.chunks : 0), 0))} chunks indexed`;
   const counts = now => { if (now) st.textContent = total(); else swap(st, total()); };
   // the one being indexed moves on every tick; a scanned PDF stops where its text runs out, until it is read with OCR
   function next(){
@@ -1719,7 +1770,7 @@ DM.def('knowledge-sources', (r, c) => {
   S.forEach(x => list.appendChild(row(x))); stagger([...list.children], 50); counts(true); next();
   // Re-sync and Remove act on the row whose button opened the menu; a source still waiting or indexing can't be re-synced yet
   let cur = null;
-  c.on(list, 'click', e => { const b = e.target.closest('.ksx-more'); if (!b) return; cur = S.find(x => x.el.contains(b)); $('.ksx-rs', mpop).disabled = !cur || cur.st === 'queued' || cur.st === 'indexing'; });
+  c.on(list, 'click', e => { const b = e.target.closest('.ksx-more'); if (!b) return; cur = S.find(x => x.el.contains(b)); $('.ksx-rs', mpop).disabled = !cur || cur.st === 'queued' || cur.st === 'indexing'; if (!mpop.classList.contains('open')) side(b, mpop); });
   $('.ksx-rs', mpop).onclick = () => { if (!cur || !S.includes(cur)) return; cur.st = 'queued'; cur.ms = cur.ocr ? 3000 : cur.fail ? 19000 : 2500; paint(cur); next(); };
   $('.ksx-rm', mpop).onclick = () => cur && remove(cur);
   // Add source: upload files (the file picker), add a website (its address), or connect a folder (from the ones offered)
@@ -1729,12 +1780,21 @@ DM.def('knowledge-sources', (r, c) => {
     else pop.innerHTML = [['upload', 'Upload files', 'files'], ['globe', 'Add a website', 'web'], ['folder', 'Connect a folder', 'folder']].map(([ic, t, k]) => `<button class="mi" role="menuitem" data-v="${k}"${k === 'files' ? ' data-close' : ''}>${I(ic,'xs')}<span>${t}</span></button>`).join('');
   }
   view('main');
-  c.on(add, 'click', () => { if (!pop.classList.contains('open')) view('main'); });
-  // a step inside the menu swaps its content after the click has been handled, so the click still counts as inside it
+  // a menu opens over the card from its button: down when it fits below, up when it doesn't and fits above or has more room
+  // there (as placePop), within the stage's room, so it never spills over the card's caption under the stage (as Artifact
+  // card's version menu). The side is set on the button just before the menu is placed
+  const side = (btn, pop) => { const room = popRoom(btn), st = btn.closest('.stage-inner') || btn.closest('.stage');
+    if (st){ const sr = st.getBoundingClientRect(), cs = getComputedStyle(st); room.top = Math.max(room.top, sr.top + parseFloat(cs.paddingTop)); room.bottom = Math.min(room.bottom, sr.bottom - parseFloat(cs.paddingBottom)); }
+    const br = btn.getBoundingClientRect(), need = pop.offsetHeight + 12, below = room.bottom - br.bottom, above = br.top - room.top;
+    btn.dataset.popPos = below < need && (above >= need || above > below) ? 'up' : 'down'; };
+  adds.forEach(b => c.on(b, 'click', () => { from = b; if (!pop.classList.contains('open')){ view('main'); side(b, pop); } }));
+  // a step inside the menu swaps its content after the click has been handled, so the click still counts as inside it. The
+  // menu keeps the side it opened on: one that opened upwards grows upwards, held by its bottom edge
+  const replace = () => { if (!(pop.style.getPropertyValue('--origin') || '').startsWith('bottom')) side(from, pop); placePop(from, pop); };
   c.on(pop, 'click', e => {
     const m = e.target.closest('.mi'); if (!m) return;
     if (m.dataset.v === 'files') return file.click();
-    if (m.dataset.v){ const v = m.dataset.v, mine = e.isTrusted; c.later(0, () => { view(v); placePop(add, pop); if (mine && v === 'web') $('input', pop).focus({ preventScroll:true }); }); return; }
+    if (m.dataset.v){ const v = m.dataset.v, mine = e.isTrusted; c.later(0, () => { view(v); replace(); if (mine && v === 'web') $('input', pop).focus({ preventScroll:true }); }); return; }
     if (m.dataset.i){ const f = FOLDERS.splice(+m.dataset.i, 1)[0]; addSource({ kind:'folder', name:f[0], n:f[2], unit:'pages', chunks:f[3], ms:3000 }); }
   });
   c.on(pop, 'submit', e => {
@@ -1744,6 +1804,8 @@ DM.def('knowledge-sources', (r, c) => {
   });
   file.onchange = () => { const fs = [...file.files]; if (!fs.length) return;
     addSource({ kind:'files', name:fs.length === 1 ? fs[0].name : fs.length + ' files', n:fs.length, unit:'files', chunks:fs.length * 12, ms:1500 }); file.value = ''; };
+  // the card grows with its rows and shrinks as they go (owner, 17 Nov: no room kept for a later state)
+  c.offs.push(grow(root));
   // the preview's story: add the docs site, which waits its turn; the PDF turns out to be a scan, so read it with OCR, and
   // everything ends up indexed
   c.story(async s => {
@@ -1762,52 +1824,57 @@ DM.def('knowledge-sources', (r, c) => {
 });
 /* ---------- Scheduled runs ---------- */
 DM.def('scheduled-runs', (r, c) => {
-  r.innerHTML = r.innerHTML.replace('{plus}', I('plus','xs'));
-  // in this preview it is Saturday afternoon, so Monday at 9:00 is two days off, and every new schedule runs at 9:00
+  r.innerHTML = r.innerHTML.replace('{plus}', I('plus','xs')).replace('{clock}', I('clock','xs'));
+  // in this preview it is Saturday afternoon, so Monday at 9:00 is two days off, and every new schedule runs at 9:00. A run's
+  // mark is its tool's logo, or its icon on a vivid tile of its colour
   const R = [
-    { mark:'palette', col:'var(--pl)', name:'Weekly design QA', when:'Mondays at 9:00', next:'Next in 2 days', on:true, res:'ok', ago:'5 days ago' },
+    { mark:'palette', col:'l', name:'Weekly design QA', when:'Mondays at 9:00', next:'Next in 2 days', on:true, res:'ok', ago:'5 days ago' },
     { mark:'@figma', name:'Sync tokens from Figma', when:'Every day at 8:00', next:'Next in 17h', on:true, res:'bad', why:'Figma token expired', fix:'Reconnect Figma' },
-    { mark:'chart', col:'var(--pt)', name:'Competitor price check', when:'Fridays at 17:00', next:'Next in 6 days', on:true, res:'ok', ago:'yesterday' }
+    { mark:'chart', col:'t', name:'Competitor price check', when:'Fridays at 17:00', next:'Next in 6 days', on:true, res:'ok', ago:'yesterday' }
   ];
-  const list = $('.shx-list', r), st = $('.shx-st', r), add = $('.shx-add', r), pop = $('.shx-pop', r), form = $('.shx-f', r);
+  const root = $('.shx', r) || r, list = $('.shx-list', r), add = $('.shx-add', r), pop = $('.shx-pop', r), form = $('.shx-f', r);
   const inp = $('.shx-in', r), days = $('.shx-days', r), sum = $('.shx-sum', r), mk = $('.shx-mk', r);
   function row(x){
-    const ic = x.mark[0] === '@' ? `<span class="ic brandic" aria-hidden="true">${BRAND[x.mark.slice(1)]}</span>` : `<span class="ic" style="color:${x.col};background:color-mix(in srgb,${x.col} 12%,transparent)" aria-hidden="true">${I(x.mark,'xs')}</span>`;
+    const ic = x.mark[0] === '@' ? `<span class="ic brandic" aria-hidden="true">${BRAND[x.mark.slice(1)]}</span>` : `<span class="ic" style="background:var(--av-${x.col});color:var(--av-${x.col}-ink)" aria-hidden="true">${I(x.mark,'xs')}</span>`;
     x.el = html(`<div class="shx-r" role="listitem">${ic}<span class="t"><span class="nm"></span><span class="d"></span><span class="res"></span></span><span class="shx-act"><button class="ib shx-run" data-tip="Run now">${I('play')}</button><button class="toggle" role="switch"></button></span><div class="shx-fx fold shut" inert><div><div><button class="pill accent sm shx-fix"></button></div></div></div></div>`);
     $('.nm', x.el).textContent = x.name; $('.shx-run', x.el).setAttribute('aria-label', 'Run ' + x.name + ' now'); $('.toggle', x.el).setAttribute('aria-label', x.name);
     $('.shx-run', x.el).onclick = () => run(x);
-    $('.toggle', x.el).onclick = () => { x.on = !x.on; paint(x); counts(); };
+    $('.toggle', x.el).onclick = () => { x.on = !x.on; paint(x); };
     $('.shx-fix', x.el).onclick = () => fix(x);
     paint(x, true); return x.el;
   }
+  // the result line, led by its mark: a tick when it passed, a sign when it failed, a turning ring while it runs (its words
+  // shimmer, as every line of a process at work)
   function paint(x, now){
     const el = x.el, put = (e, t, h) => now ? (h ? e.innerHTML = t : e.textContent = t) : swap(e, t, h);
     el.classList.toggle('off', !x.on); el.dataset.st = x.run ? 'run' : x.res || 'none';
     const tg = $('.toggle', el); tg.setAttribute('aria-checked', x.on); tg.dataset.tip = x.on ? 'Pause' : 'Resume';
     put($('.d', el), x.when + ' · ' + (x.on ? x.next : 'Paused'));
     const res = document.createElement('span'); res.textContent = x.run ? 'Running now' : x.res === 'ok' ? 'Passed ' + x.ago : x.res === 'bad' ? 'Failed: ' + x.why : 'No runs yet';
-    put($('.res', el), (!x.run && x.res ? I(x.res === 'ok' ? 'ok' : 'alert', 'xs') : '') + res.outerHTML, true);
+    if (x.run) res.className = 'shim';
+    put($('.res', el), (x.run ? '<span class="spin" aria-hidden="true"></span>' : x.res ? I(x.res === 'ok' ? 'ok' : 'alert', 'xs') : '') + res.outerHTML, true);
     $('.shx-run', el).disabled = !!x.run || !x.on;
     const fx = $('.shx-fx', el), on = x.res === 'bad' && !x.run, b = $('.shx-fix', el);
-    if (on && !x.fixing) b.textContent = x.fix;
+    if (on && !x.fixing){ b.textContent = x.fix; b.removeAttribute('aria-disabled'); }
     fx.classList.toggle('shut', !on); fx.inert = !on;
   }
-  function counts(now){
-    const on = R.filter(x => x.on).length, off = R.length - on, bad = R.filter(x => x.on && x.res === 'bad' && !x.run).length;
-    const t = `${on} active` + (bad ? ` · ${bad} failed` : '') + (off ? ` · ${off} paused` : '');
-    if (now) st.textContent = t; else swap(st, t);
-  }
-  // Run now: the dot on its icon turns while it runs, then it passes
+  // Run now: the result's ring turns while it runs, then it passes
   function run(x){
-    if (x.run) return; x.run = true; paint(x); counts();
-    c.later(3000, () => { x.run = false; x.res = 'ok'; x.ago = 'just now'; paint(x); counts(); });
+    if (x.run) return; x.run = true; paint(x);
+    c.later(3000, () => { x.run = false; x.res = 'ok'; x.ago = 'just now'; paint(x); });
   }
-  // the fix for a failed run reconnects, then runs it again straight away
+  // the fix for a failed run reconnects, then runs it again straight away. The button is as wide as its words and eases to
+  // the new ones
   function fix(x){
-    if (x.fixing) return; x.fixing = true; $('.shx-fix', x.el).innerHTML = '<span class="spin"></span>Reconnecting';
+    if (x.fixing) return; x.fixing = true; const b = $('.shx-fix', x.el), w0 = b.getBoundingClientRect().width;
+    // it keeps its colour while it reconnects, and takes no second press
+    b.setAttribute('aria-disabled', 'true'); b.innerHTML = '<span class="spin"></span>Reconnecting'; const w1 = b.getBoundingClientRect().width;
+    const cs = getComputedStyle(b), t = cs.getPropertyValue('--t').trim();
+    if (!REDUCE && Math.abs(w1 - w0) > .5) b.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:(t.endsWith('ms') ? parseFloat(t) : parseFloat(t) * 1000) || 340, easing:cs.getPropertyValue('--ease').trim() || 'ease' });
     c.later(900, () => { x.fixing = false; run(x); });
   }
-  R.forEach(x => list.appendChild(row(x))); stagger([...list.children], 50); counts(true);
+  // the head is the title alone: no count that repeats what the rows say (the owner's notes on batch 2)
+  R.forEach(x => list.appendChild(row(x))); stagger([...list.children], 50);
   // New schedule: a task in words and how often. Custom picks the days; the line under it says when the first run is
   const DAY = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], FULL = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   days.innerHTML = DAY.map((d, i) => `<button type="button" aria-pressed="${i === 0 || i === 2 || i === 4}" aria-label="${FULL[i]}">${d[0]}</button>`).join('');
@@ -1817,15 +1884,26 @@ DM.def('scheduled-runs', (r, c) => {
   // today is Saturday (5) after 9:00, so tomorrow's run is 18 hours off and the rest whole days
   const next = ds => { const n = Math.min(...ds.map(d => (d - 5 + 7) % 7 || 7)); return n === 1 ? 'Next in 18h' : `Next in ${n} days`; };
   function form1(){ const ds = picked(); sum.textContent = ds.length ? next(ds).replace('Next', 'First run') : 'Pick at least one day'; mk.disabled = !inp.value.trim() || !ds.length; }
-  seg($('.shx-rep', r), v => { rep = v; days.hidden = v !== 'custom'; form1(); if (pop.classList.contains('open')) placePop(add, pop); });
+  // a menu opens over the card from its button: down when it fits below, up when it doesn't and fits above or has more room
+  // there (as placePop), within the stage's room, so it never spills over the card's caption under the stage (as Artifact
+  // card's version menu). The side is set on the button just before the menu is placed
+  const side = (btn, pop) => { const room = popRoom(btn), st = btn.closest('.stage-inner') || btn.closest('.stage');
+    if (st){ const sr = st.getBoundingClientRect(), cs = getComputedStyle(st); room.top = Math.max(room.top, sr.top + parseFloat(cs.paddingTop)); room.bottom = Math.min(room.bottom, sr.bottom - parseFloat(cs.paddingBottom)); }
+    const br = btn.getBoundingClientRect(), need = pop.offsetHeight + 12, below = room.bottom - br.bottom, above = br.top - room.top;
+    btn.dataset.popPos = below < need && (above >= need || above > below) ? 'up' : 'down'; };
+  // the form keeps the side it opened on: one that opened upwards grows upwards, held by its bottom edge
+  const replace = () => { if (!(pop.style.getPropertyValue('--origin') || '').startsWith('bottom')) side(add, pop); placePop(add, pop); };
+  seg($('.shx-rep', r), v => { rep = v; days.hidden = v !== 'custom'; form1(); if (pop.classList.contains('open')) replace(); });
   $$('button', days).forEach(b => b.onclick = () => { b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') !== 'true'); form1(); });
   inp.oninput = form1; form1();
-  c.on(add, 'click', e => { if (!pop.classList.contains('open') && e.isTrusted) c.later(0, () => inp.focus({ preventScroll:true })); });
+  c.on(add, 'click', e => { if (pop.classList.contains('open')) return; side(add, pop); if (e.isTrusted) c.later(0, () => inp.focus({ preventScroll:true })); });
   c.on(form, 'submit', e => {
     e.preventDefault(); const ds = picked(); if (!inp.value.trim() || !ds.length) return;
-    const x = { mark:'clock', col:'var(--pb)', name:inp.value.trim(), when:when(ds), next:next(ds), on:true, res:null };
-    R.push(x); list.appendChild(row(x)); enter(x.el); counts(); closePops(); inp.value = ''; form1();
+    const x = { mark:'clock', col:'b', name:inp.value.trim(), when:when(ds), next:next(ds), on:true, res:null };
+    R.push(x); list.appendChild(row(x)); enter(x.el); closePops(); inp.value = ''; form1();
   });
+  // the card grows with its rows, and eases as a fix folds open or shut (owner, 17 Nov: no room kept for a later state)
+  c.offs.push(grow(root));
   // the preview's story: run the design QA now and watch it pass, reconnect Figma so the token sync passes again, then
   // pause the price check
   c.story(async s => {

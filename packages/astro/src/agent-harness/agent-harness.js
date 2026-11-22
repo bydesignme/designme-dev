@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, REDUCE, copied, ctl, enter, hideTip, hold, html, reveal, stagger, swap } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, cols, copied, ctl, enter, hideTip, hold, html, reveal, stagger, swap } from '../core/core.js';
 /* an agent app made only of the components above. Nothing plays by itself: it opens on New chat, a story plays once when
    someone picks a suggestion or sends a message, every approval waits for their click, and a past chat opens on its last state */
 DM.def('harness', (r, c) => {

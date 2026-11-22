@@ -34,10 +34,10 @@ Set limit is a budget card for capping what an agent can spend in a month. A bar
 
 ### What it does
 
-- The bar shows `spent` as a solid fill and `forecast` as a striped fill up to the cap.
+- The bar shows `spent` as a solid fill and `forecast` as a striped fill up to the cap; the legend's swatches are the same fill and stripes.
 - Dragging along the bar snaps the cap to `step`, and the knob glides to new values set any other way.
 - Clicking the big figure lets the person type a cap; Enter or leaving the field keeps it within `min` and `max`, and Escape restores the old value.
-- When the forecast passes the cap, the line warns "Forecast passes your cap around Oct 27" and says what runs will do; otherwise it shows the amount left.
+- When the forecast passes the cap, the line under the bar becomes a warning notice, a faint warning tint with the filled warning sign, that says "Forecast passes your cap around Oct 27" and what runs will do; otherwise it is a plain line with the green tick and the amount left. The card grows and shrinks with it.
 - The At the limit switch sets `mode` to pause, ask or keep, and `message` can replace the line under the bar.
 - `format` controls how amounts are written, and the symbols around the number stay in place while typing.
 
@@ -139,7 +139,7 @@ import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent, typ
 import { cx } from '../lib/cx';
 import { useControllable, useTween } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { Seg } from '../lib/motion';
+import { Seg, useGrow } from '../lib/motion';
 import '../designme.css';
 import './set-limit.css';
 
@@ -198,14 +198,11 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
   const [atLimit, setMode] = useControllable(mode, defaultMode, onModeChange);
   const cap = Math.max(min, Math.min(max, capRaw));
   const [drag, setDrag] = useState(false);
-  // a change from the keys or the field shows the amount over the knob for a moment, so it can be followed there too
-  const [say, setSay] = useState(0);
-  useEffect(() => { if (!say) return; const t = setTimeout(() => setSay(0), 1200); return () => clearTimeout(t); }, [say]);
-  const told = () => setSay(n => n + 1);
   // the bars fill in a moment after the card appears
   const [ready, setReady] = useState(false);
   useEffect(() => { const t = setTimeout(() => setReady(true), 200); return () => clearTimeout(t); }, []);
   const bar = useRef<HTMLDivElement>(null);
+  const [outer, inner] = useGrow();
   // the knob and bars glide to a new cap, except while it is being dragged
   const shown = useTween(cap, drag ? 1 : 450);
   // the figure being typed, while the field has focus
@@ -216,7 +213,7 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
   const commit = () => {
     if (draft === null) return;
     const n = cancel.current || draft === '' ? before.current : clamp(parseInt(draft, 10));
-    setCap(n); if (n !== cap) told(); cancel.current = false; setDraft(null);
+    setCap(n); cancel.current = false; setDraft(null);
   };
   // the symbols around the number in `format`, like the "$" in "$200", stay put while the number is typed
   const text = format(cap), first = text.search(/\d/), last = text.length - [...text].reverse().join('').search(/\d/);
@@ -227,7 +224,7 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
   const at = (e: PointerEvent) => { const b = bar.current!.getBoundingClientRect(); setCap(snap(min + (max - min) * Math.max(0, Math.min(1, (e.clientX - b.left) / b.width)))); };
   const key = (e: KeyboardEvent) => {
     const dir = ({ ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 } as Record<string, number>)[e.key]; if (!dir) return;
-    e.preventDefault(); setCap(Math.max(min, Math.min(max, cap + dir * step))); told();
+    e.preventDefault(); setCap(Math.max(min, Math.min(max, cap + dir * step)));
   };
 
   const over = forecast > cap, left = cap - forecast;
@@ -235,11 +232,12 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
   const fc = ready ? Math.min(pct(shown), forecast / shown * pct(shown)) : 0;
   const figure = draft ?? String(Math.round(shown));
   const line = message ? message({ over, cap, left, mode: atLimit })
-    : over ? <><Icon name="alert" size="xs" />Forecast passes your cap around {passesOn}. Runs will {WILL[atLimit]}.</>
-      : <><Icon name="ok" size="xs" />On track. About {format(left)} left at month end.</>;
+    : over ? <span>Forecast passes your cap around {passesOn}. Runs will {WILL[atLimit]}.</span>
+      : <span>On track. About {format(left)} left at month end.</span>;
 
   return (
-    <div data-dm="" className={cx('dm-slx dm-panel', className)}>
+    // the panel grows and shrinks with the line under the bar, staying centred where it is centred
+    <div data-dm="" ref={outer} className={cx('dm-slx dm-panel dm-growing', className)}><div ref={inner} className="dm-grow">
       <div className="dm-slx-h">
         <div><b>{title}</b>{subtitle && <span className="dm-muted">{subtitle}</span>}</div>
         {editable ? (
@@ -247,11 +245,11 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
           <label className="dm-num dm-slx-v" onPointerDown={e => { if (document.activeElement !== input.current) { e.preventDefault(); input.current?.focus(); } }}>
             {pre}<input ref={input} className="dm-slx-in" inputMode="numeric" autoComplete="off" aria-label={title} value={figure} style={{ width: Math.max(1, figure.length) + 'ch' }}
               onFocus={e => { before.current = cap; setDraft(String(cap)); e.currentTarget.select(); }}
-              onChange={e => { const v = e.target.value.replace(/\D/g, '').slice(0, 6); setDraft(v); const n = +v; if (v && n >= min && n <= max) { setCap(n); told(); } }}
+              onChange={e => { const v = e.target.value.replace(/\D/g, '').slice(0, 6); setDraft(v); const n = +v; if (v && n >= min && n <= max) setCap(n); }}
               onKeyDown={e => {
                 if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); }
                 else if (e.key === 'Escape') { cancel.current = true; e.currentTarget.blur(); }
-                else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); const n = clamp((parseInt(draft ?? '', 10) || cap) + (e.key === 'ArrowUp' ? step : -step)); setDraft(String(n)); setCap(n); told(); }
+                else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); const n = clamp((parseInt(draft ?? '', 10) || cap) + (e.key === 'ArrowUp' ? step : -step)); setDraft(String(n)); setCap(n); }
               }}
               onBlur={commit} />{post}
           </label>
@@ -263,24 +261,27 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
         onPointerUp={() => setDrag(false)} onPointerCancel={() => setDrag(false)}>
         <div className="dm-slx-used" style={{ width: used + '%' }} />
         <div className="dm-slx-fc" style={{ width: fc + '%' }} />
-        <button type="button" className={cx('dm-slx-k', drag && 'dm-drag', say > 0 && 'dm-say')} role="slider" aria-label="Budget cap"
-          aria-valuemin={min} aria-valuemax={max} aria-valuenow={cap} aria-valuetext={format(cap)} style={{ left: pct(shown) + '%' }} onKeyDown={key}>
-          <span className="dm-slx-tt dm-num">{format(cap)}</span>
-        </button>
+        {/* the cap it sets is the figure in the head, so the knob carries no amount of its own */}
+        <button type="button" className={cx('dm-slx-k', drag && 'dm-drag')} role="slider" aria-label="Budget cap"
+          aria-valuemin={min} aria-valuemax={max} aria-valuenow={cap} aria-valuetext={format(cap)} style={{ left: pct(shown) + '%' }} onKeyDown={key} />
       </div>
       <div className="dm-slx-lg dm-muted">
-        <span><i style={{ background: 'var(--dm-accent)' }} />Spent <b className="dm-num">{format(spent)}</b></span>
+        <span><i style={{ background: 'var(--dm-accent-mark,var(--dm-accent))' }} />Spent <b className="dm-num">{format(spent)}</b></span>
         <span><i className="dm-fc" />Forecast <b className="dm-num">{format(forecast)}</b></span>
       </div>
       <div className="dm-slx-warn" aria-live="polite">
         {/* the line comes in again when it changes between on track and over, or the choice at the limit changes */}
-        {ready && <span key={String(over) + atLimit} className={cx(over ? 'dm-w' : 'dm-o', 'dm-enter')}>{line}</span>}
+        {/* on track: a neutral line with the green tick; over: a warning notice, a faint warning tint, the filled warning sign and
+            the words in the text colour */}
+        {ready && <span key={String(over) + atLimit} className={cx(over ? 'dm-w' : 'dm-o', 'dm-enter')}>
+          {over ? <svg className="dm-slx-wi" viewBox="0 0 24 24" aria-hidden="true"><path className="dm-a" d="M12 3.6 2.6 19.9h18.8z" /><path className="dm-b" d="M12 9.6v4.4M12 17v.01" /></svg> : <Icon name="ok" size="xs" />}{line}
+        </span>}
       </div>
       <div className="dm-slx-opt">
         <span className="dm-muted">At the limit</span>
         <Seg className="dm-slx-sg" label="At the limit" value={atLimit} onChange={setMode} options={MODES} />
       </div>
-    </div>
+    </div></div>
   );
 }
 ```

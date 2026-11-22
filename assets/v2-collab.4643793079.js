@@ -1,15 +1,15 @@
 TPLS["kanban"] = "<div class=\"kbx\">\n  <div class=\"kbx-hd\"><div class=\"kbx-ti\"><b>Website refresh</b><span class=\"num\"></span></div><div class=\"kbx-fp\" role=\"group\" aria-label=\"Filter by person\"></div><span class=\"kbx-sp\"></span><label class=\"kbx-q\">{search}<input type=\"search\" placeholder=\"Search cards\" aria-label=\"Search cards\" autocomplete=\"off\"><button class=\"ib kbx-qx\" aria-label=\"Clear the search\" hidden>{x}</button></label><div class=\"seg2 kbx-vw\" role=\"group\" aria-label=\"View\"><button aria-pressed=\"true\" data-v=\"board\">{grid}<span class=\"lb\">Board</span></button><button aria-pressed=\"false\" data-v=\"list\">{list}<span class=\"lb\">List</span></button></div></div>\n  <div class=\"kbx-fl\"><button class=\"pill ghost sm kbx-clr\" hidden>Clear</button><span class=\"kbx-sp\"></span><span class=\"kbx-cnt num\"></span></div>\n  <div class=\"kbx-bd\"><div class=\"kbx-cols\"></div></div>\n  <div class=\"kbx-sr\" aria-live=\"polite\"></div>\n</div>";
 TPLS["ticket-list"] = "<div class=\"tkx panel\">\n  <div class=\"tkx-h\"><b>Support</b><div class=\"seg2 tkx-sg\" role=\"group\" aria-label=\"Filter\"><button aria-pressed=\"true\" data-v=\"open\">Open</button><button aria-pressed=\"false\" data-v=\"done\">Solved</button></div></div>\n  <div class=\"tkx-list\"></div>\n</div>";
-TPLS["number-field"] = "<div class=\"nmf panel\">\n  <div class=\"nmf-h\"><b>Run limits</b><span class=\"muted\">For each run of the release agent</span></div>\n  <div class=\"nmf-f\" data-k=\"steps\">\n    <span class=\"nmf-l\">Max steps</span>\n    <div class=\"nmf-in\"><button class=\"ib nmf-dn\" tabindex=\"-1\" aria-label=\"Fewer steps\">{minus}</button><span class=\"nmf-v\"><input class=\"num\" role=\"spinbutton\" inputmode=\"decimal\" autocomplete=\"off\" spellcheck=\"false\" aria-label=\"Max steps\"><span class=\"nmf-u\">steps</span></span><button class=\"ib nmf-up\" tabindex=\"-1\" aria-label=\"More steps\">{plus}</button></div>\n    <span class=\"nmf-hint muted\"></span>\n  </div>\n  <div class=\"nmf-f\" data-k=\"budget\">\n    <span class=\"nmf-l\">Budget per run</span>\n    <div class=\"nmf-in\"><button class=\"ib nmf-dn\" tabindex=\"-1\" aria-label=\"Lower budget\">{minus}</button><span class=\"nmf-v\"><span class=\"nmf-u\">$</span><input class=\"num\" role=\"spinbutton\" inputmode=\"decimal\" autocomplete=\"off\" spellcheck=\"false\" aria-label=\"Budget per run\"></span><button class=\"ib nmf-up\" tabindex=\"-1\" aria-label=\"Higher budget\">{plus}</button></div>\n    <span class=\"nmf-hint muted\"></span>\n  </div>\n  <div class=\"nmf-f\" data-k=\"time\">\n    <span class=\"nmf-l\">Time limit</span>\n    <div class=\"nmf-in\"><button class=\"ib nmf-dn\" tabindex=\"-1\" aria-label=\"Less time\">{minus}</button><span class=\"nmf-v\"><input class=\"num\" role=\"spinbutton\" inputmode=\"decimal\" autocomplete=\"off\" spellcheck=\"false\" aria-label=\"Time limit\"><span class=\"nmf-u\">min</span></span><button class=\"ib nmf-up\" tabindex=\"-1\" aria-label=\"More time\">{plus}</button></div>\n    <span class=\"nmf-hint muted\"></span>\n  </div>\n  <p class=\"nmf-sum muted\" aria-live=\"polite\"></p>\n</div>";
+TPLS["number-field"] = "<div class=\"nmf panel\">\n  <div class=\"nmf-h\"><b>Run limits</b><span class=\"muted\">A run stops at whichever comes first</span></div>\n  <div class=\"nmf-f\" data-k=\"steps\">\n    <span class=\"nmf-l\">Max steps</span>\n    <div class=\"nmf-in\"><button class=\"ib nmf-dn\" tabindex=\"-1\" aria-label=\"Fewer steps\">{minus}</button><span class=\"nmf-v\"><input class=\"num\" role=\"spinbutton\" inputmode=\"decimal\" autocomplete=\"off\" spellcheck=\"false\" aria-label=\"Max steps\"><span class=\"nmf-u\">steps</span></span><button class=\"ib nmf-up\" tabindex=\"-1\" aria-label=\"More steps\">{plus}</button></div>\n    <span class=\"nmf-hint muted\"></span>\n  </div>\n  <div class=\"nmf-f\" data-k=\"budget\">\n    <span class=\"nmf-l\">Budget per run</span>\n    <div class=\"nmf-in\"><button class=\"ib nmf-dn\" tabindex=\"-1\" aria-label=\"Lower budget\">{minus}</button><span class=\"nmf-v\"><span class=\"nmf-u\">$</span><input class=\"num\" role=\"spinbutton\" inputmode=\"decimal\" autocomplete=\"off\" spellcheck=\"false\" aria-label=\"Budget per run\"></span><button class=\"ib nmf-up\" tabindex=\"-1\" aria-label=\"Higher budget\">{plus}</button></div>\n    <span class=\"nmf-hint muted\"></span>\n  </div>\n  <div class=\"nmf-f\" data-k=\"time\">\n    <span class=\"nmf-l\">Time limit</span>\n    <div class=\"nmf-in\"><button class=\"ib nmf-dn\" tabindex=\"-1\" aria-label=\"Less time\">{minus}</button><span class=\"nmf-v\"><input class=\"num\" role=\"spinbutton\" inputmode=\"decimal\" autocomplete=\"off\" spellcheck=\"false\" aria-label=\"Time limit\"><span class=\"nmf-u\">min</span></span><button class=\"ib nmf-up\" tabindex=\"-1\" aria-label=\"More time\">{plus}</button></div>\n    <span class=\"nmf-hint muted\"></span>\n  </div>\n</div>";
 TPLS["filter-menu"] = "<div class=\"flm panel\">\n  <div class=\"flm-bar\">\n    <button class=\"pill line sm flm-tr\" aria-haspopup=\"menu\" aria-expanded=\"false\" data-pop-pos=\"down\">{filter}Filter</button>\n    <div class=\"flm-chips\" role=\"list\" aria-label=\"Filters\"></div>\n  </div>\n  <div class=\"pop flm-pop\">\n    <div class=\"flm-lv flm-l1\" role=\"menu\" aria-label=\"Filter by\"><div class=\"ph\" role=\"none\">Filter by</div></div>\n    <div class=\"flm-lv flm-l2\" role=\"menu\" hidden></div>\n  </div>\n  <div class=\"flm-sum\"><span class=\"flm-ct num\" aria-live=\"polite\"></span><button class=\"pill ghost sm flm-clr\" hidden>Clear all</button></div>\n  <div class=\"flm-list\"></div>\n</div>";
 TPLS["context-switcher"] = "<div class=\"csw\">\n  <nav class=\"csw-bar panel\" aria-label=\"Context\">\n    <ol class=\"csw-path\">\n      <li class=\"csw-mi\"><button class=\"csw-more\" aria-haspopup=\"menu\" aria-expanded=\"false\" aria-label=\"Organisation and project\" data-tip=\"Organisation and project\">{more}</button></li>\n      <li class=\"csw-sep m\" aria-hidden=\"true\">{crumb}</li>\n      <li class=\"csw-seg\" data-k=\"org\"><button class=\"csw-tr\" aria-haspopup=\"listbox\" aria-expanded=\"false\"><span class=\"csw-lg\"></span><span class=\"csw-nm\"></span><span class=\"csw-bh\"></span>{unfold}</button></li>\n      <li class=\"csw-sep\" aria-hidden=\"true\">{crumb}</li>\n      <li class=\"csw-seg\" data-k=\"project\"><button class=\"csw-tr\" aria-haspopup=\"listbox\" aria-expanded=\"false\"><span class=\"csw-nm\"></span><span class=\"csw-bh\"></span>{unfold}</button></li>\n      <li class=\"csw-sep\" aria-hidden=\"true\">{crumb}</li>\n      <li class=\"csw-seg\" data-k=\"env\"><button class=\"csw-tr\" aria-haspopup=\"listbox\" aria-expanded=\"false\"><span class=\"csw-nm\"></span><span class=\"csw-bh\"></span>{unfold}</button></li>\n    </ol>\n  </nav>\n  <div class=\"pop csw-pop\">\n    <div class=\"csw-sf\">{search}<input class=\"csw-q\" role=\"combobox\" aria-autocomplete=\"list\" aria-expanded=\"false\" spellcheck=\"false\" autocomplete=\"off\"></div>\n    <div class=\"csw-list\" role=\"listbox\"></div>\n  </div>\n  <div class=\"pop csw-mpop\" role=\"menu\" aria-label=\"Organisation and project\"></div>\n  <p class=\"csw-live\" aria-live=\"polite\"></p>\n</div>";
-TPLS["context-menu"] = "<div class=\"cxm\">\n  <div class=\"cxm-msg panel\" tabindex=\"0\" aria-haspopup=\"menu\" aria-label=\"Agent reply. Press Shift+F10 for actions\">\n    <div class=\"cxm-hd\"><span class=\"cxm-av\">{spark}</span><b>Agent</b><span class=\"muted num\">2:14 pm</span><span class=\"cxm-pin\" hidden>{pin}Pinned</span></div>\n    <p class=\"cxm-tx\">Most of the checkout drop-off is on mobile. 61% of the people who leave do it at the address step, where the keyboard covers the Continue button. Moving Continue above the keyboard should win back about 300 orders a week.</p>\n    <div class=\"cxm-out\" aria-live=\"polite\"></div>\n  </div>\n  <p class=\"cxm-note muted\" aria-live=\"polite\"></p>\n  <div class=\"pop cxm-pop\" role=\"menu\" aria-label=\"Reply actions\">\n    <button class=\"mi\" role=\"menuitem\" data-a=\"copy\">{copy}Copy text<span class=\"r\">⌘C</span></button>\n    <button class=\"mi\" role=\"menuitem\" data-a=\"quote\">{quote}Quote in reply<span class=\"r\">R</span></button>\n    <button class=\"mi\" role=\"menuitem\" data-a=\"pin\">{pin}<span class=\"t\">Pin to thread</span><span class=\"r\">P</span></button>\n    <div class=\"sep\" role=\"separator\"></div>\n    <button class=\"mi cxm-sub\" role=\"menuitem\" aria-haspopup=\"menu\" aria-expanded=\"false\" data-a=\"ask\">{spark}Ask the agent<span class=\"r\">{chev-r}</span></button>\n    <button class=\"mi\" role=\"menuitemcheckbox\" aria-checked=\"false\" data-a=\"follow\">{bell}Follow replies<span class=\"ck\">{check}</span></button>\n    <div class=\"sep\" role=\"separator\"></div>\n    <button class=\"mi cxm-del\" role=\"menuitem\" data-a=\"del\">{trash}<span class=\"t\">Delete reply</span><span class=\"r\">⌫</span></button>\n  </div>\n  <div class=\"pop cxm-pop2\" role=\"menu\" aria-label=\"Ask the agent\">\n    <button class=\"mi\" role=\"menuitem\" data-a=\"explain\">{info}Explain</button>\n    <button class=\"mi\" role=\"menuitem\" data-a=\"sum\">{list}Summarise</button>\n    <button class=\"mi\" role=\"menuitem\" data-a=\"rewrite\">{edit}Rewrite shorter</button>\n  </div>\n</div>";
-TPLS["profile-menu"] = "<div class=\"pfm\">\n  <div class=\"pfm-bar panel\">\n    <span class=\"pfm-lg pfm-cur\"></span><span class=\"pfm-ws\"><b class=\"pfm-wn\"></b><span class=\"muted\">Pricing refresh</span></span>\n    <button class=\"pfm-tr\" aria-haspopup=\"menu\" aria-expanded=\"false\" aria-label=\"Account menu, Maya Kim\" data-pop-align=\"end\" data-pop-pos=\"down\"><span class=\"av\">MK</span>{chev}</button>\n    <button class=\"pill line sm pfm-in\" hidden>Sign in</button>\n  </div>\n  <div class=\"pop pfm-pop\" role=\"menu\">\n    <div class=\"pfm-me\" role=\"none\"><span class=\"av\">MK</span><span class=\"t\"><b class=\"pfm-nm\">Maya Kim</b><span class=\"muted pfm-em\">maya@northwind.studio</span></span></div>\n    <div class=\"sep\" role=\"separator\"></div>\n    <div class=\"pfm-grp\" role=\"group\"><div class=\"ph pfm-gl\" role=\"none\">Workspaces</div><div class=\"pfm-wsl\"></div></div>\n    <div class=\"sep\" role=\"separator\"></div>\n    <button class=\"mi pfm-th\" role=\"menuitemcheckbox\" aria-checked=\"false\" tabindex=\"-1\">{moon}<span>Dark theme</span><span class=\"toggle\" aria-hidden=\"true\"></span></button>\n    <button class=\"mi pfm-ky\" role=\"menuitem\" tabindex=\"-1\">{keyboard}<span>Keyboard shortcuts</span><span class=\"kbd\" aria-hidden=\"true\">?</span></button>\n    <div class=\"sep\" role=\"separator\"></div>\n    <button class=\"mi pfm-out\" role=\"menuitem\" tabindex=\"-1\">{logout}<span>Sign out</span></button>\n  </div>\n  <div class=\"fold shut pfm-kf\"><div><div class=\"pfm-keys panel\" role=\"region\" aria-label=\"Keyboard shortcuts\">\n    <div class=\"pfm-kh\"><b>Keyboard shortcuts</b><button class=\"ib pfm-kx\" aria-label=\"Close shortcuts\" data-tip=\"Close\">{x}</button></div>\n    <dl class=\"pfm-kl\"><div><dt><span class=\"kbd\">↑</span><span class=\"kbd\">↓</span></dt><dd>Move through the menu</dd></div><div><dt><span class=\"kbd\">Home</span><span class=\"kbd\">End</span></dt><dd>First or last item</dd></div><div><dt><span class=\"kbd\">Esc</span></dt><dd>Close the menu</dd></div><div><dt><span class=\"kbd\">?</span></dt><dd>Show these shortcuts</dd></div></dl>\n  </div></div></div>\n  <p class=\"pfm-note muted\" aria-live=\"polite\"></p>\n</div>";
+TPLS["context-menu"] = "<div class=\"cxm\">\n  <div class=\"cxm-msg panel\" tabindex=\"0\" aria-haspopup=\"menu\" aria-label=\"Agent reply. Press Shift+F10 for actions\">\n    <div class=\"cxm-hd\"><span class=\"cxm-av\"><svg class=\"i s\"><use href=\"#v2i-spark\"/></svg></span><b>Agent</b><span class=\"muted num\">2:14 pm</span><span class=\"cxm-ok\" hidden></span><span class=\"cxm-pin\" hidden><svg class=\"i s\"><use href=\"#v2i-pin\"/></svg>Pinned</span></div>\n    <p class=\"cxm-tx\">Most of the checkout drop-off is on mobile. 61% of the people who leave do it at the address step, where the keyboard covers the Continue button. Moving Continue above the keyboard should win back about 300 orders a week.</p>\n    <div class=\"cxm-out\" aria-live=\"polite\"></div>\n  </div>\n  <p class=\"cxm-note\" aria-live=\"polite\"></p>\n  <div class=\"pop cxm-pop\" role=\"menu\" aria-label=\"Reply actions\">\n    <button class=\"mi\" role=\"menuitem\" data-a=\"copy\">{copy}Copy text<span class=\"r\">⌘C</span></button>\n    <button class=\"mi\" role=\"menuitem\" data-a=\"quote\">{quote}Quote in reply<span class=\"r\">R</span></button>\n    <button class=\"mi\" role=\"menuitem\" data-a=\"pin\">{pin}<span class=\"t\">Pin to thread</span><span class=\"r\">P</span></button>\n    <div class=\"sep\" role=\"separator\"></div>\n    <button class=\"mi cxm-sub\" role=\"menuitem\" aria-haspopup=\"menu\" aria-expanded=\"false\" data-a=\"ask\">{spark}Ask the agent<span class=\"r\">{chev-r}</span></button>\n    <button class=\"mi\" role=\"menuitemcheckbox\" aria-checked=\"false\" data-a=\"follow\">{bell}Follow replies<span class=\"ck\">{check}</span></button>\n    <div class=\"sep\" role=\"separator\"></div>\n    <button class=\"mi cxm-del\" role=\"menuitem\" data-a=\"del\">{trash}<span class=\"t\">Delete reply</span><span class=\"r\">⌫</span></button>\n  </div>\n  <div class=\"pop cxm-pop2\" role=\"menu\" aria-label=\"Ask the agent\">\n    <button class=\"mi\" role=\"menuitem\" data-a=\"explain\">{info}Explain</button>\n    <button class=\"mi\" role=\"menuitem\" data-a=\"sum\">{list}Summarise</button>\n    <button class=\"mi\" role=\"menuitem\" data-a=\"rewrite\">{edit}Rewrite shorter</button>\n  </div>\n</div>";
+TPLS["profile-menu"] = "<div class=\"pfm\">\n  <div class=\"pfm-bar panel\">\n    <span class=\"pfm-lg pfm-cur\"></span><span class=\"pfm-ws\"><b class=\"pfm-wn\"></b><span class=\"muted\">Pricing refresh</span></span>\n    <button class=\"pfm-tr\" aria-haspopup=\"menu\" aria-expanded=\"false\" aria-label=\"Account menu, Maya Kim\" data-pop-align=\"end\" data-pop-pos=\"down\"><span class=\"av\">MK</span>{chev}</button>\n    <button class=\"pill line sm pfm-in\" hidden>Sign in</button>\n  </div>\n  <div class=\"pop pfm-pop\" role=\"menu\">\n    <div class=\"pfm-me\" role=\"none\"><span class=\"av\">MK</span><span class=\"t\"><b class=\"pfm-nm\">Maya Kim</b><span class=\"muted pfm-em\">maya@northwind.studio</span></span></div>\n    <div class=\"sep\" role=\"separator\"></div>\n    <div class=\"pfm-grp\" role=\"group\"><div class=\"ph pfm-gl\" role=\"none\">Workspaces</div><div class=\"pfm-wsl\"></div></div>\n    <div class=\"sep\" role=\"separator\"></div>\n    <button class=\"mi pfm-th\" role=\"menuitemcheckbox\" aria-checked=\"false\" tabindex=\"-1\">{moon}<span>Dark theme</span><span class=\"toggle\" aria-hidden=\"true\"></span></button>\n    <button class=\"mi pfm-ky\" role=\"menuitem\" tabindex=\"-1\">{keyboard}<span>Keyboard shortcuts</span><span class=\"kbd\" aria-hidden=\"true\">?</span></button>\n    <div class=\"sep\" role=\"separator\"></div>\n    <button class=\"mi pfm-out\" role=\"menuitem\" tabindex=\"-1\">{logout}<span>Sign out</span></button>\n  </div>\n  <div class=\"fold shut pfm-kf\"><div><div class=\"pfm-keys panel\" role=\"region\" aria-label=\"Keyboard shortcuts\">\n    <div class=\"pfm-kh\"><b>Keyboard shortcuts</b><button class=\"ib pfm-kx\" aria-label=\"Close shortcuts\" data-tip=\"Close\">{x}</button></div>\n    <dl class=\"pfm-kl\"><div><dt><span class=\"kbd\">↑</span><span class=\"kbd\">↓</span></dt><dd>Move through the menu</dd></div><div><dt><span class=\"kbd\">Home</span><span class=\"kbd\">End</span></dt><dd>First or last item</dd></div><div><dt><span class=\"kbd\">Esc</span></dt><dd>Close the menu</dd></div><div><dt><span class=\"kbd\">?</span></dt><dd>Show these shortcuts</dd></div></dl>\n  </div></div></div>\n  <p class=\"pfm-note\" aria-live=\"polite\"></p>\n</div>";
 TPLS["reactions"] = "<div class=\"rxx\">\n  <div class=\"rxx-m\"><span class=\"rxx-ic\">{spark}</span><div class=\"rxx-b\"><span class=\"rxx-n\"><b>Design agent</b><span class=\"muted\">10:42</span></span><p>Shipped the pricing update to staging. Trial to paid preview is up 8.1 points against last month.</p></div></div>\n  <div class=\"rxx-row\"><div class=\"rxx-list\"></div><button class=\"rxx-add\" data-pop=\".rxx-pk\" aria-label=\"Add reaction\" data-tip=\"Add reaction\">{smile}</button></div>\n  <div class=\"pop rxx-pk\" role=\"menu\"><div class=\"rxx-grid\"></div></div>\n</div>";
-TPLS["invite"] = "<div class=\"ivx panel\">\n  <div class=\"ivx-h\"><b>Invite to Pricing refresh</b><span class=\"muted\">They can see frames, the brief and agent runs</span></div>\n  <div class=\"ivx-f\"><div class=\"ivx-chips\"></div><input placeholder=\"name@studio.com\" aria-label=\"Email addresses\" spellcheck=\"false\"><button class=\"ivx-role\" data-pop=\".ivx-rp\" data-pop-align=\"end\"><span>Can edit</span>{chev}</button></div>\n  <div class=\"pop ivx-rp\" role=\"menu\"><button class=\"mi\" role=\"menuitemradio\" data-close data-r=\"Can edit\" aria-checked=\"true\"><span>Can edit<span class=\"d\">Change frames, run the agent</span></span><span class=\"ck\">{chk}</span></button><button class=\"mi\" role=\"menuitemradio\" data-close data-r=\"Can comment\" aria-checked=\"false\"><span>Can comment<span class=\"d\">Leave notes, no edits</span></span><span class=\"ck\">{chk}</span></button><button class=\"mi\" role=\"menuitemradio\" data-close data-r=\"Can view\" aria-checked=\"false\"><span>Can view<span class=\"d\">Read only</span></span><span class=\"ck\">{chk}</span></button></div>\n  <div class=\"ivx-sg\"><span class=\"muted\">Suggested</span></div>\n  <div class=\"ivx-mem\"></div>\n  <div class=\"ivx-ft\"><button class=\"pill ghost sm ivx-link\">{link}Copy link</button><button class=\"pill primary sm ivx-go\" disabled>Send invites</button></div>\n</div>";
-TPLS["notifications"] = "<div class=\"ntx panel\">\n  <div class=\"ntx-h\"><b>Inbox</b><span class=\"ntx-ct num\">0</span><span class=\"ntx-sp\"></span><button class=\"pill ghost sm ntx-all\">Mark all read</button></div>\n  <div class=\"ntx-tabs\"><div class=\"seg2\" role=\"group\" aria-label=\"Filter\"><button aria-pressed=\"true\" data-v=\"all\">All</button><button aria-pressed=\"false\" data-v=\"agent\">Agent</button><button aria-pressed=\"false\" data-v=\"men\">Mentions</button></div></div>\n  <div class=\"ntx-list\"></div>\n</div>";
+TPLS["invite"] = "<div class=\"ivx panel\">\n  <div class=\"ivx-h\"><b>Invite to Pricing refresh</b><span class=\"muted\">They can see frames, the brief and agent runs</span></div>\n  <div class=\"ivx-f\"><div class=\"ivx-chips\"></div><input placeholder=\"name@studio.com\" aria-label=\"Email addresses\" spellcheck=\"false\"><button class=\"ivx-role\" data-pop=\".ivx-rp\" data-pop-align=\"end\"><span>Can edit</span>{chev}</button></div>\n  <div class=\"pop ivx-rp\" role=\"menu\"><button class=\"mi\" role=\"menuitemradio\" data-close data-r=\"Can edit\" aria-checked=\"true\"><span>Can edit<span class=\"d\">Change frames, run the agent</span></span><span class=\"ck\">{chk}</span></button><button class=\"mi\" role=\"menuitemradio\" data-close data-r=\"Can comment\" aria-checked=\"false\"><span>Can comment<span class=\"d\">Leave notes, no edits</span></span><span class=\"ck\">{chk}</span></button><button class=\"mi\" role=\"menuitemradio\" data-close data-r=\"Can view\" aria-checked=\"false\"><span>Can view<span class=\"d\">Read only</span></span><span class=\"ck\">{chk}</span></button></div>\n  <div class=\"ivx-sg\"><span class=\"muted\">Suggested</span></div>\n  <div class=\"ivx-mem\"></div>\n  <div class=\"ivx-ft\"><button class=\"pill ghost sm ivx-link\"><svg class=\"i xs\"><use href=\"#v2i-link\"/></svg><span>Copy link</span></button><button class=\"pill primary sm ivx-go\" disabled>Send invites</button></div>\n</div>";
+TPLS["notifications"] = "<div class=\"ntx panel\">\n  <div class=\"ntx-h\"><span class=\"ntx-hi\" aria-hidden=\"true\"><svg class=\"i s\"><use href=\"#v2i-bell\"/></svg></span><b>Inbox</b><span class=\"ntx-ct num\">0</span><span class=\"ntx-sp\"></span><button class=\"pill ghost sm ntx-all\">Mark all read</button></div>\n  <div class=\"ntx-tabs\"><div class=\"seg2\" role=\"group\" aria-label=\"Filter\"><button aria-pressed=\"true\" data-v=\"all\">All</button><button aria-pressed=\"false\" data-v=\"agent\">Agent</button><button aria-pressed=\"false\" data-v=\"men\">Mentions</button></div></div>\n  <div class=\"ntx-list\"></div>\n</div>";
 TPLS["comments"] = "<div class=\"cmx panel\">\n  <div class=\"cmx-h\"><span class=\"cmx-pin\" aria-hidden=\"true\">1</span><b>Pricing, frame 2</b><span class=\"cmx-st num\"></span><button class=\"ib cmx-res\" aria-label=\"Resolve thread\" aria-pressed=\"false\" data-tip=\"Resolve thread\">{check}</button></div>\n  <div class=\"cmx-th\" aria-live=\"polite\"></div>\n  <div class=\"cmx-in\"><div class=\"cmx-box\"><input placeholder=\"Reply, or @agent to ask\" aria-label=\"Reply\" spellcheck=\"false\" autocomplete=\"off\"><button class=\"cmx-go\" aria-label=\"Send\" disabled>{up}</button></div><div class=\"pop cmx-men\" role=\"listbox\"></div></div>\n</div>";
-TPLS["banner"] = "<div class=\"dm bnx-dm\"><div class=\"dm-main bnx-slot\">\n  <div class=\"bnx\" role=\"region\" data-tone=\"accent\" data-art=\"layers\" aria-label=\"Announcement\">\n    <div class=\"bnx-art\" aria-hidden=\"true\"></div>\n    <div class=\"bnx-tx\">\n      <span class=\"bnx-eb\"><span>New</span></span>\n      <p class=\"bnx-t\"><span>Memory that carries across threads</span></p>\n      <p class=\"bnx-d\"><span>Agents keep what they learn about your project, so you only explain things once.</span></p>\n      <div class=\"bnx-acts\"><button class=\"pill primary sm bnx-go\"><span>Turn on memory</span></button><button class=\"bnx-lk\"><span>What it keeps</span></button></div>\n    </div>\n  </div>\n</div>\n<div class=\"demo\"><div class=\"seg2\" role=\"group\" aria-label=\"Banner style\"><button aria-pressed=\"true\" data-v=\"0\">Accent</button><button aria-pressed=\"false\" data-v=\"1\">Violet</button><button aria-pressed=\"false\" data-v=\"2\">Green</button><button aria-pressed=\"false\" data-v=\"3\">Amber</button></div></div>\n</div>";
+TPLS["banner"] = "<div class=\"dm bnx-dm\"><div class=\"dm-main bnx-slot\">\n  <div class=\"bnx\" role=\"region\" data-tone=\"accent\" data-art=\"layers\" aria-label=\"Announcement\">\n    <div class=\"bnx-art\" aria-hidden=\"true\"></div>\n    <div class=\"bnx-tx\">\n      <span class=\"bnx-eb\"><span>New</span></span>\n      <p class=\"bnx-t\"><span>Memory that carries across threads</span></p>\n      <p class=\"bnx-d\"><span>Agents keep what they learn about your project, so you only explain things once.</span></p>\n      <div class=\"bnx-acts\"><button class=\"pill primary sm bnx-go\"><span>Turn on memory</span></button><button class=\"bnx-lk\"><span>What it keeps</span></button></div>\n    </div>\n  </div>\n</div>\n<div class=\"demo\"><div class=\"seg2\" role=\"group\" aria-label=\"Banner style\"><button aria-pressed=\"true\" data-v=\"0\">Accent</button><button aria-pressed=\"false\" data-v=\"1\">Violet</button><button aria-pressed=\"false\" data-v=\"2\">Green</button><button aria-pressed=\"false\" data-v=\"3\">Warning</button></div></div>\n</div>";
 
 /* ---------- Comments ---------- */
 DM.def('comments', (r, c) => {
@@ -20,13 +20,17 @@ DM.def('comments', (r, c) => {
   const fmt = t => esc(t).replace(/@(agent|maya|jon)\b/gi, m => `<span class="m">${m}</span>`);
   // the first comment starts the thread; every later one is a reply, indented on a thin line under it
   let rp = null;
-  const count = () => { const n = rp ? rp.children.length : 0; st.textContent = root.classList.contains('done') ? 'Resolved' : n ? n + (n === 1 ? ' reply' : ' replies') : ''; };
+  // the head says nothing the thread below already shows (owner, 19 Nov: no count of the replies); once the thread is
+  // resolved, a green Resolved chip says so
+  const count = () => { const d = root.classList.contains('done'), had = !!st.firstChild; if (d === had) return; st.innerHTML = d ? '<span class="tag ok">Resolved</span>' : ''; if (d) enter(st.firstChild); };
   function add(who, t, when, ag, agreed = 0){
     const el = html(`<div class="cmx-c${ag ? ' ag' : ''}">${AV(who, P[who][1])}<div class="b"><div class="n"><b>${P[who][0]}</b><span class="t">${when}</span><div class="cmx-tools"><button class="ib cmx-rx" aria-label="Agree" aria-pressed="false" data-tip="Agree">${I('up-thumb','xs')}</button></div></div><div class="tx">${ag ? '' : fmt(t)}</div><div class="cmx-rs"><button class="cmx-rc" aria-pressed="false" hidden>${I('up-thumb','xs')}<span class="num"></span></button></div></div></div>`);
     el._agree = { n:agreed, mine:false }; agree(el);
     $('.cmx-rx', el).onclick = () => agree(el, true); $('.cmx-rc', el).onclick = () => agree(el, true);
-    if (!th.firstElementChild) th.appendChild(el);
-    else { if (!rp){ rp = html('<div class="cmx-rp" role="group" aria-label="Replies"></div>'); th.appendChild(rp); } rp.appendChild(el); }
+    // (once the thread grows with what it holds, its comments live in grow()'s wrapper)
+    const box = $(':scope>.dm-grow', th) || th;
+    if (!box.firstElementChild) box.appendChild(el);
+    else { if (!rp){ rp = html('<div class="cmx-rp" role="group" aria-label="Replies"></div>'); box.appendChild(rp); } rp.appendChild(el); }
     enter(el); count(); return el;
   }
   // Agree: the button by the time and the chip under the text both toggle yours, and the chip counts everyone's
@@ -67,33 +71,50 @@ DM.def('comments', (r, c) => {
     if (e.key === 'Enter'){ const f = mens()[hl]; if (open && f){ f.onmousedown(e); } else send(); }
     if (e.key === 'Escape') shut(); };
   go.onclick = send;
-  // Resolve fades the thread back and turns the pin green; pressed again it reopens
+  // Resolve turns the pin green, says Resolved and folds the reply field away; the thread keeps its colours. Pressed again
+  // it reopens
   rs.onclick = () => { const d = root.classList.toggle('done'); hideTip(); rs.innerHTML = I(d ? 'undo' : 'check', 'xs'); rs.setAttribute('aria-pressed', d); rs.dataset.tip = d ? 'Reopen thread' : 'Resolve thread'; count(); };
+  // no room is kept for what is to come: the thread eases taller as replies arrive and the agent's words stream in (grow()),
+  // and the reply field under it glides down with it, never cut; the card follows, centred in its stage. grow() starts once the
+  // card's entrance (which scales it) has ended, so it measures the thread at its real size
+  Promise.resolve().then(() => Promise.all(root.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && th.isConnected) c.offs.push(grow(th)); });
   // the preview asks the agent in the thread on its own; clicking, focusing or typing in it takes over, and what it had
-  // typed goes
-  c.auto(1000, () => c.run(async () => { await c.type(inp, '@agent can you keep it outlined but darker?', { ms:28, each:() => inp.oninput(), keep:true }); shut(); await c.step(300); send(); }));
+  // typed goes. The agent replying is an agent at work (DM.PLAYS): it carries on under the pointer, while the person's own
+  // typing and sending wait for a mouse resting on the thread to leave, so nothing moves under it
+  const free = async () => { while (r.matches(':hover')) await c.step(200); };
+  c.auto(1000, () => c.run(async () => { await free(); await c.type(inp, '@agent can you keep it outlined but darker?', { ms:28, each:() => inp.oninput(), keep:true }); shut(); await c.step(300); await free(); send(); }));
 });
 /* ---------- Notifications ---------- */
 DM.def('notifications', (r, c) => {
+  r.innerHTML = r.innerHTML.replace('{bell}', I('bell'));
+  // Clean's one hover: a highlight that glides from row to row (hoverGlide)
+  c.offs.push(hoverGlide($('.ntx', r), '.ntx-n'));
+  // what the agent did shows its icon on its status's tint (tone: ok, warn, bad, accent or neutral); people show their avatar
   let N = [
-    { k:'agent', ic:'ok', col:'var(--ok)', t:'<b>Pricing audit</b> finished. 2 fixes ready to review', w:'4 min ago' },
+    { k:'agent', ic:'ok', tone:'ok', t:'<b>Pricing audit</b> finished. 2 fixes ready to review', w:'4 min ago' },
     { k:'men', av:['MK','var(--av-l)'], t:'<b>Maya</b> mentioned you in Checkout flow', w:'20 min ago' },
-    { k:'agent', ic:'alert', col:'var(--warn)', t:'<b>Token export</b> paused at the $5 cap', w:'1 hour ago' },
+    { k:'agent', ic:'alert', tone:'warn', t:'<b>Token export</b> paused at the $5 cap', w:'1 hour ago' },
     { k:'men', av:['JO','var(--av-m)'], t:'<b>Jon</b> asked for your review on PR #284', w:'2 hours ago', read:true }
   ];
-  const list = $('.ntx-list', r), ct = $('.ntx-ct', r); let f = 'all';
+  const root = r.classList.contains('ntx') ? r : $('.ntx', r), list = $('.ntx-list', r), ct = $('.ntx-ct', r); let f = 'all';
   const count = (bump) => { const n = N.filter(x => !x.read).length; ct.textContent = n; ct.classList.toggle('z', !n); if (bump){ ct.classList.remove('bump'); void ct.offsetWidth; ct.classList.add('bump'); } };
-  const row = x => `<button class="ntx-n${x.read ? ' read' : ''}"><span class="ic" ${x.ic ? `style="color:${x.fg || x.col};background:color-mix(in srgb,${x.col} 13%,transparent)"` : ''}>${x.ic ? I(x.ic,'xs') : AV(x.av[0], x.av[1])}</span><span class="t">${x.t}<span>${x.w}</span></span><span class="u"></span></button>`;
-  function paint(anim){ const L = N.filter(x => f === 'all' || x.k === f); list.innerHTML = L.length ? L.map(row).join('') : '<div class="ntx-e">Nothing here yet</div>';
-    $$('.ntx-n', list).forEach((b, i) => b.onclick = () => { L[i].read = !L[i].read; b.classList.toggle('read', L[i].read); count(); });
+  const row = x => `<button class="ntx-n${x.read ? ' read' : ''}" aria-pressed="${!!x.read}"><span class="ic"${x.ic ? ` data-tone="${x.tone || 'neutral'}"` : ''}>${x.ic ? I(x.ic,'xs') : AV(x.av[0], x.av[1])}</span><span class="t">${x.t}<span>${x.w}</span></span><span class="u"></span></button>`;
+  const flip = (b, x) => { x.read = !x.read; b.classList.toggle('read', x.read); b.setAttribute('aria-pressed', x.read); count(); };
+  // an empty filter shows Clean's empty state: a small sketch of a list, a title and one muted line
+  const EMPTY = '<div class="ntx-em"><span class="ntx-em-art" aria-hidden="true"></span><b>Nothing here yet</b><span>New updates and mentions show up here</span></div>';
+  function paint(anim){ const L = N.filter(x => f === 'all' || x.k === f); list.innerHTML = L.length ? L.map(row).join('') : EMPTY;
+    $$('.ntx-n', list).forEach((b, i) => b.onclick = () => flip(b, L[i]));
     if (anim) stagger($$('.ntx-n', list), 40); count(); }
   seg($('.ntx-tabs .seg2', r), v => { f = v; paint(true); });
-  $('.ntx-all', r).onclick = () => { N.forEach(x => x.read = true); $$('.ntx-n', list).forEach((b, i) => c.later(i * 50, () => b.classList.add('read'))); count(); };
+  $('.ntx-all', r).onclick = () => { N.forEach(x => x.read = true); $$('.ntx-n', list).forEach((b, i) => c.later(i * 50, () => { b.classList.add('read'); b.setAttribute('aria-pressed', 'true'); })); count(); };
   paint(true);
-  const incoming = [{ k:'agent', ic:'spark', col:'var(--accent-mark,var(--accent))', fg:'var(--accent-fg,var(--accent))', t:'<b>Weekly design QA</b> started on 12 frames', w:'Just now' }, { k:'men', av:['AR','var(--av-p)'], t:'<b>Ari</b> replied: “Looks great, ship it”', w:'Just now' }];
+  // the card fits its items at every moment (owner, 17 and 18 Nov: no room kept for the ones to come): it eases taller as one
+  // arrives or a filter shows more, and shorter as one shows fewer, centred in its stage (grow(), once its entrance has ended)
+  if (root) Promise.resolve().then(() => Promise.all(root.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && root.isConnected) c.offs.push(grow(root)); });
+  const incoming = [{ k:'agent', ic:'spark', tone:'accent', t:'<b>Weekly design QA</b> started on 12 frames', w:'Just now' }, { k:'men', av:['AR','var(--av-p)'], t:'<b>Ari</b> replied: “Looks great, ship it”', w:'Just now' }];
   // two items arrive while you watch; once you click or type in the inbox the preview leaves it to you, so a tab you
   // picked or a Mark all read stays as you left it
-  incoming.forEach((x, i) => c.later(2200 + i * 2600, () => { if (c.mine) return; N.unshift(x); if (f === 'all' || f === x.k){ const el = html(row(x)); el.classList.add('new'); list.prepend(el); $('.ntx-e', list)?.remove(); el.onclick = () => { x.read = !x.read; el.classList.toggle('read', x.read); count(); }; } count(true); }));
+  incoming.forEach((x, i) => c.later(2200 + i * 2600, () => { if (c.mine) return; N.unshift(x); if (f === 'all' || f === x.k){ const el = html(row(x)); el.classList.add('new'); list.prepend(el); $('.ntx-em', list)?.remove(); el.onclick = () => flip(el, x); } count(true); }));
 });
 /* ---------- Banner ---------- */
 /* the four drawings, each 240 by 160 and written as plain paths, all in one isometric view on a floor grid, with their
@@ -129,7 +150,7 @@ DM.def('banner', (r, c) => {
     { tone:'accent', art:'layers', eb:'New', t:'Memory that carries across threads', d:'Agents keep what they learn about your project, so you only explain things once.', a:'Turn on memory', s:'What it keeps' },
     { tone:'violet', art:'tools', eb:'Beta', t:'Connect your tools in one place', d:'Linear, GitHub and Slack in one list, with access you can scope for each agent.', a:'Connect a tool', s:'Read the docs' },
     { tone:'green', art:'steps', eb:'Guide', t:'Set up your first automation', d:'Five short steps, about ten minutes. The agent can do most of them for you.', a:'Start the guide', s:'Maybe later' },
-    { tone:'amber', art:'path', eb:'Heads-up', t:'Maintenance on Sunday, 02:00 UTC', d:'Agents pause for about an hour, and queued runs pick up where they left off.', a:'Add to calendar', s:'Status page' }
+    { tone:'warning', art:'path', eb:'Heads-up', t:'Maintenance on Sunday, 02:00 UTC', d:'Agents pause for about an hour, and queued runs pick up where they left off.', a:'Add to calendar', s:'Status page' }
   ];
   const show = p => { root.dataset.tone = p.tone; root.dataset.art = p.art; for (const k in T) if (T[k]) swap(T[k], p[k]); draw(); };
   const sg = $('.demo .seg2', r);
@@ -176,9 +197,22 @@ DM.def('invite', (r, c) => {
   $$('.ivx-rp .mi', r).forEach(m => m.addEventListener('click', () => { role = m.dataset.r; $$('.ivx-rp .mi', r).forEach(x => x.setAttribute('aria-checked', x === m)); swap($('.ivx-role span', r), role); }));
   const M = [['MK','var(--av-l)','Maya Kim','Owner'],['JO','var(--av-m)','Jon Ortiz','Can edit']];
   mem.innerHTML = M.map(m => `<div class="ivx-m">${AV(m[0], m[1])}<span class="t">${m[2]}</span><span class="r">${m[3]}</span></div>`).join('');
-  go.onclick = () => c.run(async () => { go.innerHTML = '<span class="spin"></span>'; await c.wait(800); E.filter(ok).forEach((e, i) => { const el = html(`<div class="ivx-m">${AV(ini(e), COL[i % 5])}<span class="t">${e.split('@')[0]}<span>${e}</span></span><span class="r pend">Invited, ${role.toLowerCase()}</span></div>`); mem.appendChild(el); enter(el, i * 70); }); E = []; paint(); });
-  const lk = $('.ivx-link', r); lk.onclick = () => { copied(lk, 'https://designme.dev/join/pricing-refresh'); const t = lk.lastChild; t.textContent = 'Link copied'; clearTimeout(lk._lt); lk._lt = setTimeout(() => { t.textContent = 'Copy link'; }, 1600); };
+  // sending: a spinner in place of the words, the button keeping its width so it never goes blank or jumps; then the people
+  // invited join the list as pending, one after another
+  go.onclick = () => c.run(async () => { go.style.width = go.getBoundingClientRect().width + 'px'; go.innerHTML = '<span class="spin"></span>'; await c.wait(800); go.style.width = ''; E.filter(ok).forEach((e, i) => { const el = html(`<div class="ivx-m">${AV(ini(e), COL[i % 5])}<span class="t">${e.split('@')[0]}<span>${e}</span></span><span class="r pend">Invited, ${role.toLowerCase()}</span></div>`); mem.appendChild(el); enter(el, i * 70); }); E = []; paint(); });
+  // Copy link: its glyph turns into the green tick and its words into Link copied, the button easing to its new width with no
+  // room kept for the longer words (owner, 19 Nov), then it all goes back
+  const lk = $('.ivx-link', r), lb = $('span', lk) || lk;
+  const words = t => { const w0 = lk.getBoundingClientRect().width; lb.textContent = t; const w1 = lk.getBoundingClientRect().width;
+    if (!REDUCE && Math.abs(w1 - w0) > .5){ const cs = getComputedStyle(lk), d = parseFloat(cs.getPropertyValue('--t')) || .34; lk.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:(d < 10 ? d * 1000 : d), easing:cs.getPropertyValue('--ease').trim() || 'ease' }); } };
+  lk.onclick = () => { copied(lk, 'https://designme.dev/join/pricing-refresh'); words('Link copied'); clearTimeout(lk._lt); lk._lt = setTimeout(() => words('Copy link'), 1600); };
   paint();
+  // the card keeps no room for a later state: it grows as chips wrap to a new line and as invites go out, centred in its
+  // stage (grow(), once its entrance has ended). Its role menu opens from the stage, over the card, so the card's clip never
+  // cuts it
+  const root = r.classList.contains('ivx') ? r : $('.ivx', r), rp = $('.ivx-rp', r);
+  if (root && rp && root.contains(rp) && root !== r) r.appendChild(rp);
+  if (root) Promise.resolve().then(() => Promise.all(root.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && root.isConnected) c.offs.push(grow(root)); });
   // the preview adds two people on its own; clicking, focusing or typing in it takes over, and what it had typed goes
   c.auto(900, () => c.run(async () => { await c.type(inp, 'dana@studio.com', { keep:true }); await c.step(40); commit(); await c.type(inp, ' lee@studio', { keep:true }); commit(); }));
 });
@@ -207,7 +241,7 @@ DM.def('reactions', (r, c) => {
 DM.def('profile-menu', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{chev}', I('chev-d','xs')).replace('{moon}', I('moon')).replace('{keyboard}', I('keyboard')).replace('{logout}', I('logout')).replace('{x}', I('x','xs'));
   // the workspaces this account belongs to: initial, name, plan and the tint of its tile
-  const WS = [['N', 'Northwind', 'Pro, 12 members', 'pb'], ['A', 'Acme Labs', 'Free, 3 members', 'pp'], ['P', 'Personal', 'Just you', 'pl']];
+  const WS = [['N', 'Northwind', 'Pro, 12 members', 'pb'], ['A', 'Acme Labs', 'Free, 3 members', 'pk'], ['P', 'Personal', 'Just you', 'pl']];
   const uid = Math.random().toString(36).slice(2, 7);
   const tr = $('.pfm-tr', r), pop = $('.pfm-pop', r), wsl = $('.pfm-wsl', r), th = $('.pfm-th', r), note = $('.pfm-note', r), kf = $('.pfm-kf', r), sin = $('.pfm-in', r), cur = $('.pfm-cur', r), wn = $('.pfm-wn', r);
   // the menu is named by the account it belongs to, and the workspaces by their heading
@@ -218,7 +252,8 @@ DM.def('profile-menu', (r, c) => {
   // the theme switch starts from the page's own theme
   const root = document.documentElement;
   let ws = 0, dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
-  const say = t => { note.innerHTML = t ? `${I('ok','xs')}<span>${t}</span>` : ''; if (t) enter(note); };
+  // what changed is said to screen readers; the bar and the menu show it, so it has no line of its own under the bar
+  const say = t => { note.textContent = t || ''; };
   function paint(){
     const w = WS[ws]; cur.textContent = w[0]; cur.dataset.t = w[3];
     rows.forEach((m, i) => m.setAttribute('aria-checked', i === ws)); th.setAttribute('aria-checked', dark);
@@ -306,6 +341,8 @@ DM.def('profile-menu', (r, c) => {
 /* ---------- Context switcher ---------- */
 DM.def('context-switcher', (r, c) => {
   r.innerHTML = r.innerHTML.replace(/\{unfold\}/g, I('unfold','xs')).replace(/\{crumb\}/g, I('crumb')).replace('{more}', I('more')).replace('{search}', I('search','xs'));
+  // Clean's one hover: a highlight that glides from row to row (hoverGlide)
+  c.offs.push(hoverGlide($('.csw-list', r), '.csw-o'));
   // the organisations this account is in, with their plans; each one's projects, and each project's environments. Each level
   // remembers what was picked in it (on), so an organisation brings back the project you were last in, and a project its
   // environment
@@ -320,11 +357,11 @@ DM.def('context-switcher', (r, c) => {
       { id:'onboard', name:'Onboarding copilot', b:['Paused', 'neutral'], on:'sandbox', items:STD() },
       { id:'notes', name:'Release notes writer', on:'live', items:STD() }
     ] },
-    { id:'quillwork', name:'Quillwork', t:'pp', b:['Free', 'neutral'], on:'coach', items:[
+    { id:'quillwork', name:'Quillwork', t:'pk', b:['Free', 'neutral'], on:'coach', items:[
       { id:'coach', name:'Essay coach', on:'live', items:STD() },
       { id:'cite', name:'Citation checker', b:['Beta', 'teal'], on:'staging', items:STD() }
     ] },
-    { id:'otterline', name:'Otterline Health', t:'pm', b:['Enterprise', 'violet'], on:'intake', items:[
+    { id:'otterline', name:'Otterline Health', t:'pl', b:['Enterprise', 'violet'], on:'intake', items:[
       { id:'intake', name:'Intake assistant', on:'live', items:STD() },
       { id:'claims', name:'Claims summariser', on:'live', items:STD() },
       { id:'handover', name:'Shift handover notes', b:['Beta', 'teal'], on:'sandbox', items:STD() }
@@ -373,7 +410,7 @@ DM.def('context-switcher', (r, c) => {
   }
 
   /* ---- a part's switcher: the search, the list, and Create new at the bottom ---- */
-  let open = null, full = 0, hi = 0, opts = [], mopen = false, made = 0;
+  let open = null, hi = 0, opts = [], mopen = false, made = 0;
   function fill(reset){
     const S = SEG[open], d = KEYS.indexOf(open), p = parent(d), v = q.value.trim(), lv = v.toLowerCase();
     const m = p.items.filter(x => !lv || x.name.toLowerCase().includes(lv));
@@ -405,8 +442,6 @@ DM.def('context-switcher', (r, c) => {
     q.value = ''; q.placeholder = S.find; q.setAttribute('aria-label', S.find); list.setAttribute('aria-label', S.many[0].toUpperCase() + S.many.slice(1));
     trig(k).setAttribute('aria-expanded', 'true'); q.setAttribute('aria-expanded', 'true');
     fill(true); hideTip(); place(pop, anchor(k)); pop.inert = false; pop.classList.add('open');
-    // the bar makes room for the switcher at its fullest, before any filter, so it holds still while typing filters the list
-    full = pop.offsetHeight; centred();
     if (focus) q.focus({ preventScroll:true });
   }
   // closing gives the focus back to the part's button (or the … button, on a phone) when it was in the switcher
@@ -414,8 +449,6 @@ DM.def('context-switcher', (r, c) => {
     if (!open) return; const k = open; open = null;
     pop.classList.remove('open'); pop.inert = true; trig(k).setAttribute('aria-expanded', 'false'); q.setAttribute('aria-expanded', 'false'); q.removeAttribute('aria-activedescendant');
     if (back) anchor(k).focus({ preventScroll:true });
-    // the bar waits for the list to fade before it glides back to the middle
-    if (!next) c.later(REDUCE ? 0 : 180, centred);
     // once it has faded it goes back to the component's corner, so a narrower screen later never scrolls sideways to it
     c.later(320, () => { if (!open){ pop.style.left = '0px'; pop.style.top = '0px'; } });
   }
@@ -437,7 +470,7 @@ DM.def('context-switcher', (r, c) => {
     const go = box.dispatchEvent(new CustomEvent('context-create', { bubbles:true, cancelable:true, detail:{ segment:k, name } }));
     hide(back); if (!go) return;
     const id = 'new-' + (++made), x = { id, name:name || `New ${S.noun}` };
-    if (k === 'org') Object.assign(x, { t:'pl', b:['Free', 'neutral'], on:id + '-p', items:[{ id:id + '-p', name:'First project', on:'sandbox', items:STD() }] });
+    if (k === 'org') Object.assign(x, { t:'pb', b:['Free', 'neutral'], on:id + '-p', items:[{ id:id + '-p', name:'First project', on:'sandbox', items:STD() }] });
     else if (k === 'project') Object.assign(x, { on:'sandbox', items:STD() });
     else x.b = ['Development', KIND.Development];
     p.items.push(x); p.on = id; paint(); tell(k);
@@ -451,13 +484,12 @@ DM.def('context-switcher', (r, c) => {
       if (open) hide(false, true);
       mpop.innerHTML = KEYS.slice(0, -1).map((k, d) => { const x = node(d); return `<button class="mi" role="menuitem" tabindex="-1" data-k="${k}">${d ? I('layers') : tile(x)}<span class="t"><b>${esc(x.name)}</b><span class="d">${SEG[k].label}</span></span>${badge(x)}</button>`; }).join('');
       $$('.mi', mpop).forEach(m => m.onclick = e => { menu(false); show(m.dataset.k, { focus:e.isTrusted }); });
-      hideTip(); place(mpop, more); mpop.inert = false; mpop.classList.add('open'); more.setAttribute('aria-expanded', 'true'); centred();
+      hideTip(); place(mpop, more); mpop.inert = false; mpop.classList.add('open'); more.setAttribute('aria-expanded', 'true');
       if (focus){ const it = $$('.mi', mpop); (focus === 'last' ? it[it.length - 1] : it[0]).focus({ preventScroll:true }); }
     } else {
       const back = mpop.contains(document.activeElement);
       mpop.classList.remove('open'); mpop.inert = true; more.setAttribute('aria-expanded', 'false');
       if (back) more.focus({ preventScroll:true });
-      c.later(REDUCE ? 0 : 180, centred);
       c.later(320, () => { if (!mopen){ mpop.style.left = '0px'; mpop.style.top = '0px'; } });
     }
   }
@@ -504,10 +536,17 @@ DM.def('context-switcher', (r, c) => {
   c.on(window, 'resize', e => { if (e.isTrusted){ hide(false); menu(false); } });
   const ro = new ResizeObserver(tips); ro.observe(bar); c.offs.push(() => ro.disconnect());
 
-  // the bar sits centred on its own, and glides up as a switcher opens under it, so the two sit centred together
-  const centred = centre(c, box, () => open ? Math.max(box.offsetHeight, pop.offsetTop + full) : mopen ? Math.max(box.offsetHeight, mpop.offsetTop + mpop.offsetHeight) : box.offsetHeight);
-  pop.inert = true; mpop.inert = true; paint(true);
-  if (document.fonts) document.fonts.ready.then(() => { if (!c.dead) tips(); });
+  // a switcher opens over the component from its part and never moves the bar (owner, 20 Nov): the component keeps room under
+  // the bar for a switcher at its tallest (its search and a full list, which scrolls past that), so the bar holds still and
+  // nothing is cut off
+  function room(){
+    if (!box.isConnected) return;
+    const tall = pop.offsetHeight - list.offsetHeight + (parseFloat(getComputedStyle(list).maxHeight) || 0);
+    box.style.minHeight = Math.ceil(bar.offsetHeight + 6 + Math.max(tall, mpop.offsetHeight)) + 'px';
+  }
+  pop.inert = true; mpop.inert = true; paint(true); room();
+  if (document.fonts) document.fonts.ready.then(() => { if (!c.dead){ tips(); room(); } });
+  c.on(window, 'resize', () => room());
   // the preview's story: open the project's switcher (through the … menu on a phone), search for "inv" and pick Invoice
   // reader; the environment follows it, from eu-live in Production to staging
   c.story(async s => {
@@ -541,7 +580,10 @@ DM.def('filter-menu', (r, c) => {
     owner:{ l:'Owner', ic:'user', ops:['is', 'is not'], o:Object.entries(OWN).map(([v, l]) => ({ v, l, g:`<span class="av" data-o="${v}">${v}</span>` })), test:(t, v) => t.o === v },
     date:{ l:'Updated', ic:'cal', ops:['within', 'older than'], o:[{ v:1, l:'Past day', c:'1 day' }, { v:7, l:'Past 7 days', c:'7 days' }, { v:30, l:'Past 30 days', c:'30 days' }], test:(t, v) => t.a < v }
   };
-  const tr = $('.flm-tr', r), pop = $('.flm-pop', r), l1 = $('.flm-l1', r), l2 = $('.flm-l2', r), chips = $('.flm-chips', r), ct = $('.flm-ct', r), clr = $('.flm-clr', r), list = $('.flm-list', r);
+  const tr = $('.flm-tr', r), pop = $('.flm-pop', r), l1 = $('.flm-l1', r), l2 = $('.flm-l2', r), chips = $('.flm-chips', r), ct = $('.flm-ct', r), clr = $('.flm-clr', r), shell = $('.flm-list', r);
+  // the list grows and shrinks with what matches, eased (grow()), and keeps no room for rows to come; its rows go in grow()'s
+  // wrapper
+  c.offs.push(grow(shell)); const list = $('.dm-grow', shell);
   // the filters in the order they were added: field, value, and whether it reads the other way (is not, older than)
   let A = [];
   const val = (k, v) => F[k].o.find(o => o.v === v);
@@ -573,7 +615,7 @@ DM.def('filter-menu', (r, c) => {
     // the four most recently updated, and how many more. Issues that still match glide to their new places, new ones fade
     // in and the ones filtered out fade where they were (the first paint is the card's entrance)
     const draw = () => { list.innerHTML = n ? hit.slice(0, 4).map(t => `<div class="flm-r" data-t="${t.t}"><span class="dot" data-s="${t.s}" aria-label="${ST[t.s]}" role="img"></span><span class="t">${t.t}</span><span class="av" data-o="${t.o}" aria-label="${OWN[t.o]}" role="img">${t.o}</span><span class="a">${age(t.a)}</span></div>`).join('') + (n > 4 ? `<div class="flm-more" data-t="more">and ${n - 4} more</div>` : '')
-      : '<div class="flm-e" data-t="none">No issues match these filters</div>'; };
+      : '<div class="flm-em" data-t="none"><span class="flm-em-art" aria-hidden="true"></span><b>No issues match</b><span>Try another value, or clear the filters</span></div>'; };
     if (painted) reflow(() => [...list.children], draw, { by:'data-t', root:$('.flm', r) });
     else { draw(); stagger($$('.flm-r', list), 50); }
     painted = true;
@@ -665,10 +707,7 @@ DM.def('number-field', (r, c) => {
     budget:{ min:.25, max:20, step:.25, v:2.5, dp:2, say:x => `$${x.toFixed(2)}` },
     time:{ min:1, max:60, step:1, v:10, dp:0, say:x => `${x} minutes` }
   };
-  const sum = $('.nmf-sum', r);
   const fix = x => +x.toFixed(4);
-  const line = () => `A run stops at ${F.steps.v} steps, $${F.budget.v.toFixed(2)} or ${F.time.v} min, whichever comes first.`;
-  sum.textContent = line();
   $$('.nmf-f', r).forEach(f => {
     const o = F[f.dataset.k], inp = $('input', f), dn = $('.nmf-dn', f), up = $('.nmf-up', f), hint = $('.nmf-hint', f), box = $('.nmf-in', f);
     const base = `${o.dp ? o.min.toFixed(o.dp) : o.min} to ${o.dp ? o.max.toFixed(o.dp) : o.max}${o.step !== 1 ? `, in steps of ${o.dp ? o.step.toFixed(o.dp) : o.step}` : ''}`;
@@ -677,7 +716,7 @@ DM.def('number-field', (r, c) => {
     hint.textContent = base;
     const paint = () => {
       inp.value = o.v.toFixed(o.dp); inp.setAttribute('aria-valuenow', o.v); inp.setAttribute('aria-valuetext', o.say(o.v));
-      dn.disabled = o.v <= o.min; up.disabled = o.v >= o.max; sum.textContent = line();
+      dn.disabled = o.v <= o.min; up.disabled = o.v >= o.max;
     };
     inp.setAttribute('aria-valuemin', o.min); inp.setAttribute('aria-valuemax', o.max);
     // a change from the buttons or the keys: one step, or ten with Shift or Page Up/Down; it stops at the ends and says so
@@ -735,21 +774,24 @@ DM.def('number-field', (r, c) => {
 });
 /* ---------- Ticket list ---------- */
 DM.def('ticket-list', (r, c) => {
+  // Clean's one hover: a highlight that glides from row to row (hoverGlide)
+  c.offs.push(hoverGlide($('.tkx', r), '.tkx-r', { keep:'.open,[aria-expanded="true"]' }));
   const T = [
-    { p:'var(--bad)', pn:'Urgent', t:'Agent stopped mid export', f:'Northwind', a:['MK','var(--av-l)'], w:'4m', q:'The token export stopped at 60% and nothing has happened for 20 minutes.', s:'Sorry about that. The run paused at your $5 spend cap. I have raised it for this run and it finished just now. Your tokens are in the Exports tab.', st:'open' },
-    { p:'var(--warn)', pn:'High', t:'Figma frames not syncing', f:'Lumen Labs', a:['JO','var(--av-m)'], w:'22m', q:'New frames from this morning are not showing up in DesignMe.', s:'The Figma token for your workspace expired yesterday. Reconnect it from Settings, then the frames will sync within a minute.', st:'open' },
-    { p:'var(--accent-mark,var(--accent))', pn:'Normal', t:'How do I share a run?', f:'Orbit', a:['DA','var(--av-b)'], w:'1h', q:'Can I send an agent run to someone outside my team?', s:'Yes. Open the run, click Share, and turn on "Anyone with the link". They can view it without an account.', st:'open' },
-    { p:'var(--faint)', pn:'Low', t:'Invoice address change', f:'Kite Health', a:['MK','var(--av-l)'], w:'2d', q:'', s:'', st:'done' }
+    { p:'urgent', pn:'Urgent', t:'Agent stopped mid export', f:'Northwind', a:['MK','var(--av-l)'], w:'4m', q:'The token export stopped at 60% and nothing has happened for 20 minutes.', s:'Sorry about that. The run paused at your $5 spend cap. I have raised it for this run and it finished just now. Your tokens are in the Exports tab.', st:'open' },
+    { p:'high', pn:'High', t:'Figma frames not syncing', f:'Lumen Labs', a:['JO','var(--av-m)'], w:'22m', q:'New frames from this morning are not showing up in DesignMe.', s:'The Figma token for your workspace expired yesterday. Reconnect it from Settings, then the frames will sync within a minute.', st:'open' },
+    { p:'normal', pn:'Normal', t:'How do I share a run?', f:'Orbit', a:['DA','var(--av-b)'], w:'1h', q:'Can I send an agent run to someone outside my team?', s:'Yes. Open the run, click Share, and turn on "Anyone with the link". They can view it without an account.', st:'open' },
+    { p:'low', pn:'Low', t:'Invoice address change', f:'Kite Health', a:['MK','var(--av-l)'], w:'2d', q:'', s:'', st:'done' }
   ];
   const list = $('.tkx-list', r); let f = 'open', open = null;
   function paint(anim){
     const L = T.filter(t => t.st === f);
-    list.innerHTML = L.length ? L.map(t => `<div class="tkx-t${open === t ? ' open' : ''}"><button class="tkx-r"><span class="pr" data-tip="${t.pn}"><span class="dot" style="color:${t.p}"></span></span><span class="t"><b>${t.t}</b><span>${t.f}${t.q && open !== t ? ' · ' + t.q : ''}</span></span><span class="m"><span class="w">${t.w}</span>${AV(t.a[0], t.a[1])}</span></button>${open === t ? `<div class="tkx-d"><div class="tkx-q">${t.q}</div><div class="tkx-s"><div class="lb">${I('spark','xs')}Suggested reply</div><div class="tx" contenteditable="true" spellcheck="false">${t.s}</div></div><div class="tkx-a"><button class="pill ghost sm ed">${I('edit','xs')}Edit</button><button class="pill accent sm sd">${I('send','xs')}Send and solve</button></div></div>` : ''}</div>`).join('') : '<div class="tkx-e">All caught up</div>';
+    list.innerHTML = L.length ? L.map(t => `<div class="tkx-t${open === t ? ' open' : ''}"><button class="tkx-r" aria-expanded="${open === t}"><span class="pr" data-tip="${t.pn}"><span class="dot" data-p="${t.p}"></span></span><span class="t"><b>${t.t}</b><span>${t.f}${t.q && open !== t ? ' · ' + t.q : ''}</span></span><span class="m"><span class="w">${t.w}</span>${AV(t.a[0], t.a[1])}</span></button>${open === t ? `<div class="tkx-d"><div class="tkx-q">${t.q}</div><div class="tkx-s"><div class="lb">${I('spark','xs')}Suggested reply</div><div class="tx" contenteditable="true" spellcheck="false">${t.s}</div></div><div class="tkx-a"><button class="pill ghost sm ed">${I('edit','xs')}Edit</button><button class="pill accent sm sd">${I('send','xs')}Send and solve</button></div></div>` : ''}</div>`).join('') : `<div class="tkx-em"><span class="tkx-em-art" aria-hidden="true"></span><b>${f === 'open' ? 'All caught up' : 'Nothing solved yet'}</b><span>${f === 'open' ? 'New tickets show up here' : 'Solved tickets show up here'}</span></div>`;
     if (anim) stagger($$('.tkx-t', list), 40);
     $$('.tkx-t', list).forEach((el, i) => { const t = L[i];
       $('.tkx-r', el).onclick = () => { open = open === t ? null : t; paint(); const d = $('.tkx-d', list); if (d) stagger([...d.children], 50); };
       // a solved ticket fades, then folds its height away, so the tickets under it slide up instead of jumping
-      const sd = $('.sd', el); if (sd) sd.onclick = () => c.run(async () => { sd.innerHTML = '<span class="spin"></span>'; await c.wait(700); t.s = $('.tx', el).textContent; t.st = 'done'; open = null; el.classList.add('leave'); await c.wait(330);
+      // while it sends, a spinner takes the icon's place and the words stay, so the button keeps its width and never goes blank
+      const sd = $('.sd', el); if (sd) sd.onclick = () => c.run(async () => { if (sd.getAttribute('aria-busy') === 'true') return; sd.setAttribute('aria-busy', 'true'); $('.i', sd).replaceWith(html('<span class="spin"></span>')); await c.wait(700); t.s = $('.tx', el).textContent; t.st = 'done'; open = null; el.classList.add('leave'); await c.wait(330);
         if (!REDUCE){ el.style.overflow = 'hidden'; await el.animate([{ height:el.offsetHeight + 'px' }, { height:'0px' }], { duration:260, easing:'cubic-bezier(.22,1,.36,1)', fill:'forwards' }).finished.catch(() => {}); }
         if (!c.dead) paint(); });
       const ed = $('.ed', el); if (ed) ed.onclick = () => { const tx = $('.tx', el); tx.focus({ preventScroll:true }); const s = document.getSelection(); s.selectAllChildren(tx); s.collapseToEnd(); };
@@ -757,8 +799,9 @@ DM.def('ticket-list', (r, c) => {
   }
   seg($('.tkx-sg', r), v => { f = v; open = null; paint(true); });
   paint(true);
-  // as tickets open, close, leave or change with the filter, the panel stays centred in the room its stage keeps for it
-  const root = $('.tkx', r); centre(c, root, () => root.offsetHeight);
+  // as tickets open, close, leave or change with the filter, the card eases to its new height (grow()) and stays centred in its
+  // stage, keeping no room for a ticket to open
+  c.offs.push(grow($('.tkx', r)));
   // the preview opens the first ticket on its own, unless you take over first
   c.auto(1000, () => { if (!open){ open = T[0]; paint(); stagger([...$('.tkx-d', list).children], 50); } });
 });
@@ -1174,8 +1217,14 @@ DM.def('context-menu', (r, c) => {
     const lo = Math.max(card.left, 0) + 8 - rb.left, hi = Math.min(card.right, innerWidth) - 8 - rb.left, w = m.offsetWidth, h = m.offsetHeight;
     if (x + w > hi && left != null) x = left - w; else if (x + w > hi) x = x - w;
     x = Math.max(lo, Math.min(x, hi - w));
-    // near the foot of the screen it opens upward, but only where it fits over the component, so it never covers what is above
-    const up = rb.top + y + h > innerHeight - 8 && y - h >= 0 && rb.top + y - h > 8; if (up) y -= h;
+    // short of room below (the screen's foot, a box that would cut it off, or the end of the demo's stage, past which it would
+    // cover the card's words), it opens upward from the point; where neither way fits, it moves up just enough to end inside
+    // the room, so it is never cut off
+    const room = popRoom(root), st = root.closest('.stage-inner'), sr = st && st.getBoundingClientRect();
+    if (sr){ room.top = Math.max(room.top, sr.top); room.bottom = Math.min(room.bottom, sr.bottom); }
+    const top = room.top + 8 - rb.top, bottom = room.bottom - 8 - rb.top;
+    let up = false;
+    if (y + h > bottom){ if (y - h >= top){ y -= h; up = true; } else y = Math.max(top, bottom - h); }
     m.style.left = x + 'px'; m.style.top = y + 'px'; m.style.setProperty('--origin', (up ? 'bottom ' : 'top ') + 'left');
   };
   const show = (m, on) => { m.classList.toggle('open', on); m.inert = !on; };
@@ -1198,6 +1247,8 @@ DM.def('context-menu', (r, c) => {
   }
   function closeSub(focus){ if (!subOpen) return; subOpen = false; subRow.setAttribute('aria-expanded', 'false'); show(sub, false); if (focus) subRow.focus({ preventScroll:true }); }
   show(pop, false); show(sub, false);
+  // the card grows to hold what the agent writes, and shrinks to the Undo row, eased (grow()); the menus open over it
+  c.offs.push(grow(root));
   // right-click, or a long press on a touch screen
   c.on(msg, 'contextmenu', e => { e.preventDefault(); if (open && performance.now() - openedAt < 600) return; const rb = root.getBoundingClientRect(); openAt(e.clientX - rb.left, e.clientY - rb.top, e.isTrusted && !e.button && e.detail === 0 ? false : e.isTrusted); });
   let press = 0;
@@ -1225,8 +1276,18 @@ DM.def('context-menu', (r, c) => {
     if (to){ e.preventDefault(); to.focus({ preventScroll:true }); if (!inSub && to !== subRow) closeSub(); }
   });
   keys(pop, false); keys(sub, true);
-  // what each item does
-  const say = t => { swap(note, t); };
+  // what each item does. What it did is said to screen readers, and shows for a moment on the reply's head line with a green
+  // tick; a pin shows its own Pinned, and Ask the agent its answer
+  let okT = 0;
+  const say = (t, show = true) => {
+    note.textContent = t || '';
+    const ok = $('.cxm-ok', r); if (!ok) return;
+    clearTimeout(okT);
+    if (!t || !show){ ok.hidden = true; return; }
+    ok.innerHTML = `${I('check','xs')}<span>${t}</span>`; ok.hidden = false; ok.classList.remove('out');
+    okT = setTimeout(() => { ok.classList.add('out'); okT = setTimeout(() => { ok.hidden = true; }, 240); }, 2400);
+  };
+  c.offs.push(() => clearTimeout(okT));
   const words = t => t.split(' ').map((w, i, a) => `<span class="w" style="animation-delay:${i * 45}ms">${w}${i < a.length - 1 ? ' ' : ''}</span>`).join('');
   const ASK = {
     explain:['Explanation', 'info', 'On a phone the keyboard takes the lower half of the screen. The Continue button sits there, so people have to close the keyboard to find it, and many leave instead.'],
@@ -1246,20 +1307,21 @@ DM.def('context-menu', (r, c) => {
   const act = it => {
     const a = it.dataset.a;
     if (a === 'ask'){ subOpen ? closeSub(true) : openSub(true); return; }
-    if (a === 'follow'){ const on = it.getAttribute('aria-checked') !== 'true'; it.setAttribute('aria-checked', on); say(on ? 'You will hear about replies to this' : 'You will not hear about replies'); return; }
+    if (a === 'follow'){ const on = it.getAttribute('aria-checked') !== 'true'; it.setAttribute('aria-checked', on); say(on ? 'Following replies' : 'Not following replies'); return; }
     // deleting asks again in the same row; the second press deletes, with Undo
     if (a === 'del'){
       if (!del.classList.contains('ask')){ del.classList.add('ask'); $('.t', del).textContent = 'Press again to delete'; del.setAttribute('aria-label', 'Delete reply: press again to confirm'); return; }
-      close(); hold(root); const was = msg.innerHTML; msg.hidden = true;
-      const g = html(`<div class="cxm-gone">Reply deleted<button class="pill ghost sm">Undo</button></div>`); root.insertBefore(g, note); enter(g); say('');
-      $('button', g).onclick = () => { g.remove(); msg.hidden = false; msg.innerHTML = was; release(root); msg.focus({ preventScroll:true }); };
+      // the card shrinks to the Undo row smoothly (grow()), and Undo brings the same reply back
+      close(); say(''); msg.hidden = true;
+      const g = html(`<div class="cxm-gone">Reply deleted<button class="pill ghost sm">Undo</button></div>`); note.before(g); enter(g); note.textContent = 'Reply deleted';
+      $('button', g).onclick = () => { g.remove(); msg.hidden = false; note.textContent = 'Reply restored'; msg.focus({ preventScroll:true }); };
       return;
     }
     close(true);
-    if (a === 'copy'){ try { navigator.clipboard.writeText(tx.textContent).catch(() => {}); } catch(e){} say('Copied to clipboard'); }
+    if (a === 'copy'){ try { navigator.clipboard.writeText(tx.textContent).catch(() => {}); } catch(e){} say('Copied'); }
     if (a === 'quote') say('Quoted in your reply');
-    if (a === 'pin'){ pinned = !pinned; $('.cxm-pin', r).hidden = !pinned; $('.t', $('[data-a="pin"]', pop)).textContent = pinned ? 'Unpin' : 'Pin to thread'; say(pinned ? 'Pinned to the thread' : 'Unpinned'); }
-    if (ASK[a]) ask(a);
+    if (a === 'pin'){ pinned = !pinned; $('.cxm-pin', r).hidden = !pinned; $('.t', $('[data-a="pin"]', pop)).textContent = pinned ? 'Unpin' : 'Pin to thread'; say(pinned ? 'Pinned to the thread' : 'Unpinned', false); }
+    if (ASK[a]){ say(''); ask(a); }
   };
   [pop, sub].forEach(m => c.on(m, 'click', e => { const it = e.target.closest('.mi'); if (it) act(it); }));
   // the preview's story: right-click the reply, ask the agent for a summary, and it streams in under the reply

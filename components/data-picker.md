@@ -34,13 +34,13 @@ Data picker maps data from earlier steps of a workflow into a step's inputs. Eac
 
 ### What it does
 
-- The step being set up sits on top with its tile, its name and where it sits. Under it, each input has its label and a box of tokens.
-- A token shows the earlier step's tile in its kind's colour, the step's name and the field. The step's name gives way first when there is no room, so the field stays whole. Each token has a remove button.
-- The + at the end of an input opens the picker under it. On designme.dev the inputs glide up as it opens, so the inputs and the picker stay centred together.
+- The step being set up sits on top with its tile (a neutral one in Clean), its name and where it sits. In Clean the input whose picker is open shows its + on the selected fill. Under it, each input has its label and a box of tokens.
+- A token wears its earlier step's colour, the tag colour of the step's kind that its tile shows in the picker: its icon, the step's name and the field on that colour's tint (Blueprint outlines it instead and keeps the colour on its tile). The step's name gives way first when there is no room, so the field stays whole. Each token has a remove button.
+- The + at the end of an input opens the picker under it. When an input's tokens wrap to a second line, the + stays at the end of its first line. On designme.dev the inputs glide up as the picker opens, so the inputs and the picker stay centred together, and they settle again when a search shortens the list.
 - The picker lists only the fields of the earlier steps, grouped by step in their order, each group with the step's tile, its name and its place. Each field shows its type as a coloured chip, text blue, numbers green, lists orange, objects pink, yes or no yellow and dates teal, and a sample value.
 - Search matches a field's name or its step's name, and underlines the part of a field's name that matched. The up and down arrows move through the fields and wrap, the pointer moves the highlight too, and Enter or a click puts the field in the input it was opened from.
 - A field already in the input isn't added twice; the live region says so.
-- A note under the list says where the fields come from, with the keys that work in it.
+- A note under the list says where the fields come from, with the keys that work in it. The steps' tiles, the search's glass and the notes sit on one column, and the fields' names start where the steps' names do.
 - In React, `fields` and `onFieldsChange` hold the inputs and what is mapped into each, `sources` is the earlier steps, and `open`, `query` and `active` can drive the picker from your own state.
 
 ### Accessibility
@@ -263,11 +263,14 @@ export function DataPicker({ sources, fields, defaultFields = [], onFieldsChange
         <div className="dm-fpk-f" key={fd.key}>
           <span className="dm-fpk-l">{fd.label}</span>
           <div className="dm-fpk-box" role="group" aria-label={fd.label}>
+            {/* the tokens wrap among themselves, so the + stays on the field's first line at its right end */}
+            <span className="dm-fpk-toks">
             {fd.refs.length ? fd.refs.map(ref => { const { src, f } = of(ref); return (
-              <span className={cx('dm-fpk-tok', !first.has(fd.key + '|' + ref) && 'dm-new')} key={ref}>
+              <span className={cx('dm-fpk-tok', !first.has(fd.key + '|' + ref) && 'dm-new')} data-k={src?.kind} key={ref}>
                 {src && <Tile kind={src.kind} icon={src.icon} />}<span className="dm-s">{src?.title ?? ref.split('.')[0]}</span><span className="dm-sep" aria-hidden="true">›</span><span className="dm-f">{f}</span>
                 <Tip label="Remove"><button type="button" className="dm-fpk-x" aria-label={`Remove ${f} from ${src?.title ?? ref.split('.')[0]}`} onClick={e => { remove(fd.key, ref); if (e.detail === 0) root.current?.querySelector<HTMLElement>(`[data-add="${CSS.escape(fd.key)}"]`)?.focus(); }}><Icon name="x" size="xs" /></button></Tip>
               </span>); }) : <span className="dm-fpk-ph">Pick data from an earlier step</span>}
+            </span>
             <Tip label="Insert data" off={openKey === fd.key}>
               <button type="button" className="dm-fpk-add" data-add={fd.key} aria-haspopup="dialog" aria-expanded={openKey === fd.key} aria-label={`Insert data into ${fd.label}`} onClick={e => openFor(fd.key, e.detail === 0)}><Icon name="plus" /></button>
             </Tip>

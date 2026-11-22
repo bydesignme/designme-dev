@@ -34,12 +34,13 @@ Notifications is an inbox panel where updates from the agent and mentions from p
 
 ### What it does
 
-- Agent items show an `icon` on a tile tinted with its `color`; people's items show an `avatar` with initials.
+- Agent items show an `icon` on a tile in the tint of its `tone` (`ok`, `warn`, `bad`, `accent` or `neutral`), with the icon in that status's text colour; people's items show an `avatar` with initials. `color` sets a colour of your own instead.
 - A new id at the top of `items` drops in on its own and makes the unread count bump.
+- The panel keeps no room for items to come: it eases taller as one arrives or a filter shows more, and shorter as it shows fewer.
 - The filter switch shows all items or only those whose `kind` matches, and you can supply your own `filters`.
-- Clicking an item toggles `read`, and the change comes back through `onItemsChange`.
+- Clicking an item toggles `read`, and the change comes back through `onItemsChange`. A read item keeps its colours; only its unread dot goes.
 - Mark all read marks every item read, and the unread dots in view clear one row after another.
-- An empty filter shows `emptyLabel`, which defaults to "Nothing here yet".
+- An empty filter shows a small sketch of a list, `emptyLabel` ("Nothing here yet" by default) and `emptyDetail`, a muted line under it.
 
 ### Accessibility
 
@@ -64,13 +65,13 @@ import { useStory } from '../lib/useScript';
 
 /* ---------- Notifications: an inbox where two new items arrive while you watch ---------- */
 const START: NotificationsItem[] = [
-  { id: 'audit', kind: 'agent', icon: 'ok', color: 'var(--dm-ok)', text: <><b>Pricing audit</b> finished. 2 fixes ready to review</>, time: '4 min ago' },
+  { id: 'audit', kind: 'agent', icon: 'ok', tone: 'ok', text: <><b>Pricing audit</b> finished. 2 fixes ready to review</>, time: '4 min ago' },
   { id: 'maya', kind: 'mention', avatar: { initials: 'MK', color: 'var(--dm-av-l)' }, text: <><b>Maya</b> mentioned you in Checkout flow</>, time: '20 min ago' },
-  { id: 'export', kind: 'agent', icon: 'alert', color: 'var(--dm-warn)', text: <><b>Token export</b> paused at the $5 cap</>, time: '1 hour ago' },
+  { id: 'export', kind: 'agent', icon: 'alert', tone: 'warn', text: <><b>Token export</b> paused at the $5 cap</>, time: '1 hour ago' },
   { id: 'jon', kind: 'mention', avatar: { initials: 'JO', color: 'var(--dm-av-m)' }, text: <><b>Jon</b> asked for your review on PR #284</>, time: '2 hours ago', read: true }
 ];
 const INCOMING: NotificationsItem[] = [
-  { id: 'qa', kind: 'agent', icon: 'spark', color: 'var(--dm-accent)', text: <><b>Weekly design QA</b> started on 12 frames</>, time: 'Just now' },
+  { id: 'qa', kind: 'agent', icon: 'spark', tone: 'accent', text: <><b>Weekly design QA</b> started on 12 frames</>, time: 'Just now' },
   { id: 'ari', kind: 'mention', avatar: { initials: 'AR', color: 'var(--dm-av-p)' }, text: <><b>Ari</b> replied: “Looks great, ship it”</>, time: 'Just now' }
 ];
 
@@ -105,6 +106,7 @@ export default function NotificationsDemo() {
 | `title` (optional) | `string` |  |
 | `markAllLabel` (optional) | `string` |  |
 | `emptyLabel` (optional) | `string` |  |
+| `emptyDetail` (optional) | `string` | The muted line under emptyLabel |
 | `className` (optional) | `string` |  |
 
 ## Usage in Astro
@@ -142,7 +144,8 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
-import { Avatar, enter, Seg } from '../lib/motion';
+import { Avatar, enter, Seg, useGrow } from '../lib/motion';
+import { useHoverGlide } from '../lib/glide';
 import '../designme.css';
 import './notifications.css';
 
@@ -156,7 +159,10 @@ export interface NotificationsItem {
   time: string;
   /** An icon on a tinted tile, for things the agent did */
   icon?: IconName;
-  /** The icon's colour, like 'var(--dm-ok)' */
+  /** What the icon's tile says: 'ok' (green), 'warn' (amber), 'bad' (red), 'accent' or 'neutral' (grey), each its status's
+      tint with its icon in the status's text colour. neutral by default */
+  tone?: 'ok' | 'warn' | 'bad' | 'accent' | 'neutral';
+  /** A colour of your own for the icon instead of a tone, like 'var(--dm-pl)', on a tint of itself */
   color?: string;
   /** An avatar instead of an icon, for people */
   avatar?: { initials: string; color: string };
@@ -183,13 +189,15 @@ export interface NotificationsProps {
   title?: string;
   markAllLabel?: string;
   emptyLabel?: string;
+  /** The muted line under emptyLabel */
+  emptyDetail?: string;
   className?: string;
 }
 
 const FILTERS: NotificationsFilter[] = [{ value: 'all', label: 'All' }, { value: 'agent', label: 'Agent' }, { value: 'mention', label: 'Mentions' }];
 
 /** An inbox where agent updates and mentions arrive live. Click one to mark it read or unread. */
-export function Notifications({ items, defaultItems = [], onItemsChange, filters = FILTERS, filter, defaultFilter = 'all', onFilterChange, title = 'Inbox', markAllLabel = 'Mark all read', emptyLabel = 'Nothing here yet', className }: NotificationsProps) {
+export function Notifications({ items, defaultItems = [], onItemsChange, filters = FILTERS, filter, defaultFilter = 'all', onFilterChange, title = 'Inbox', markAllLabel = 'Mark all read', emptyLabel = 'Nothing here yet', emptyDetail = 'New updates and mentions show up here', className }: NotificationsProps) {
   const [list, setList] = useControllable(items, defaultItems, onItemsChange);
   const [cur, setCur] = useControllable(filter, defaultFilter, onFilterChange);
   const shown = list.filter(x => cur === 'all' || x.kind === cur);
@@ -215,10 +223,17 @@ export function Notifications({ items, defaultItems = [], onItemsChange, filters
     setList(list.map(x => (x.read ? x : { ...x, read: true })));
   };
   const toggle = (id: string) => setList(list.map(x => (x.id === id ? { ...x, read: !x.read } : x)));
+  // the card keeps no room for items to come: it eases taller as one arrives or a filter shows more, and shorter as it shows fewer
+  const [root, inner] = useGrow();
+  // Clean's one hover: a highlight that glides from item to item
+  useHoverGlide(root, '.dm-ntx-n');
 
   return (
-    <div data-dm="" className={cx('dm-ntx dm-panel', className)}>
+    <div data-dm="" ref={root} className={cx('dm-ntx dm-panel dm-growing', className)}>
+      <div ref={inner} className="dm-grow">
       <div className="dm-ntx-h">
+        {/* the inbox's mark, in the column the items' icons and avatars sit in */}
+        <span className="dm-ntx-hi" aria-hidden="true"><Icon name="bell" /></span>
         <b>{title}</b>
         <span key={bump} className={cx('dm-ntx-ct dm-num', !unread && 'dm-z', bump > 0 && 'dm-bump')} aria-label={`${unread} unread`}>{unread}</span>
         <span className="dm-ntx-sp" />
@@ -231,14 +246,19 @@ export function Notifications({ items, defaultItems = [], onItemsChange, filters
           return (
             <button type="button" key={x.id} className={cx('dm-ntx-n', x.read && !pending.includes(x.id) && 'dm-read', e ? e.className : 'dm-new')} style={e?.style}
               aria-pressed={!!x.read} onClick={() => toggle(x.id)}>
-              <span className="dm-ic" style={x.avatar ? undefined : { color: x.color, background: `color-mix(in srgb,${x.color ?? 'currentColor'} 13%,transparent)` }}>
+              <span className="dm-ic" data-tone={x.avatar || x.color ? undefined : x.tone ?? 'neutral'}
+                style={x.avatar || !x.color ? undefined : { color: x.color, background: `color-mix(in srgb,${x.color} 13%,transparent)` }}>
                 {x.avatar ? <Avatar initials={x.avatar.initials} color={x.avatar.color} /> : <Icon name={x.icon ?? 'bell'} size="xs" />}
               </span>
               <span className="dm-t">{x.text}<span>{x.time}</span></span>
               <span className="dm-u" />
             </button>
           );
-        }) : <div className="dm-ntx-e">{emptyLabel}</div>}
+        }) : (
+          // an empty filter: a small sketch of a list, a title and one muted line
+          <div className="dm-ntx-em"><span className="dm-ntx-em-art" aria-hidden="true" /><b>{emptyLabel}</b>{emptyDetail && <span>{emptyDetail}</span>}</div>
+        )}
+      </div>
       </div>
     </div>
   );

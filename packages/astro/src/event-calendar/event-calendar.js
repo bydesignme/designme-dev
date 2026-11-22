@@ -31,17 +31,21 @@ DM.def('event-calendar', (r, c) => {
   let openFor = null;
   const say = t => swap(msg, t);
   // closing gives the focus back to the event when it was in the card
-  const closePop = () => { const back = pop.contains(document.activeElement) && openFor; pop.classList.remove('open'); openFor = null; if (back && back.isConnected) back.focus({ preventScroll:true }); };
+  const closePop = () => { const back = pop.contains(document.activeElement) && openFor; pop.classList.remove('open'); if (openFor) openFor.classList.remove('on'); openFor = null; if (back && back.isConnected) back.focus({ preventScroll:true }); };
   /* the details card opens beside the event and stays inside the calendar */
   function openPop(el){
-    const e = el._e; if (openFor === el){ closePop(); return; } openFor = el; const n = 2 + e[3].length % 3, fresh = e[3] === 'New event';
+    const e = el._e; if (openFor === el){ closePop(); return; } if (openFor) openFor.classList.remove('on'); openFor = el; el.classList.add('on'); const n = 2 + e[3].length % 3, fresh = e[3] === 'New event';
     pop.innerHTML = `<div class="ecx-ph"><i style="background:var(--dm-p${e[4]})"></i>${fresh ? '<input class="ecx-ti" placeholder="Add a title" aria-label="Event title">' : `<b>${e[3]}</b>`}<button class="ib ecx-px" aria-label="Close" data-tip="Close">${I('x','xs')}</button></div><div class="ecx-pt">${DAYN[e[0]]} ${DAYS[e[0]].split(' ')[1]} Oct · ${tm(e[1])} – ${tm(e[1] + e[2])}</div><div class="ecx-pw">${WHO.slice(0, n).map(w => AV(w[0], w[1])).join('')}<span class="muted">${n} people</span></div><div class="ecx-pa">${fresh ? '<button class="pill line sm ecx-del">Discard</button><button class="pill primary sm ecx-save">Save</button>' : `<button class="pill soft sm ecx-prep">${I('spark','xs')}Prep notes</button><button class="pill primary sm">Join</button>`}</div>`;
     const pr = panel.getBoundingClientRect(), er = el.getBoundingClientRect(), w = 248;
-    let x = er.right - pr.left + 8; if (x + w > pr.width - 8) x = er.left - pr.left - w - 8; x = Math.max(8, x);
-    let y = er.top - pr.top; y = Math.max(8, Math.min(y, pr.height - pop.offsetHeight - 8));
-    pop.style.left = x + 'px'; pop.style.top = y + 'px'; pop.classList.remove('open'); void pop.offsetWidth; pop.classList.add('open'); hideTip();
+    let x = er.right - pr.left + 8; if (x + w > pr.width - 16) x = er.left - pr.left - w - 8; x = Math.max(16, x);
+    let y = er.top - pr.top; y = Math.max(16, Math.min(y, pr.height - pop.offsetHeight - 24));
+    // (it scales and fades from the event's side, where Clean's popovers start)
+    pop.style.left = x + 'px'; pop.style.top = y + 'px'; pop.style.setProperty('--dm-origin', (x > er.left - pr.left ? 'left' : 'right') + ' top');
+    pop.classList.remove('open'); void pop.offsetWidth; pop.classList.add('open'); hideTip();
     $('.ecx-px', pop).onclick = closePop;
-    const prep = $('.ecx-prep', pop); if (prep) prep.onclick = () => { prep.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span>Writing'; c.later(1200, () => { if (!prep.isConnected) return; const nt = html(`<div class="ecx-note">${I('spark','xs')}<span>Notes ready: last week's decisions and 3 open questions.</span></div>`); prep.closest('.ecx-pa').before(nt); enter(nt); prep.remove(); }); };
+    // Prep notes: its words shimmer while the agent writes; then the notes arrive above the buttons and the button stays, with
+    // the green tick in place of its spark
+    const prep = $('.ecx-prep', pop); if (prep) prep.onclick = () => { if (prep._busy) return; prep._busy = true; prep.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Writing</span>'; c.later(1200, () => { if (!prep.isConnected) return; const nt = html(`<div class="ecx-note">${I('spark','xs')}<span>Last week's decisions and 3 open questions.</span></div>`); prep.closest('.ecx-pa').before(nt); enter(nt); prep.innerHTML = I('check','xs') + 'Prep notes'; prep.classList.add('done'); prep.setAttribute('aria-disabled', 'true'); }); };
     const ti = $('.ecx-ti', pop); if (ti){ ti.focus({ preventScroll:true });
       const save = () => { const v = ti.value.trim() || 'Untitled'; e[3] = v; $('b', el).textContent = v; el.dataset.tip = v + ', ' + tm(e[1]); closePop(); say('Added ' + v + ', ' + DAYN[e[0]] + ' ' + tm(e[1])); };
       ti.onkeydown = k => { if (k.key === 'Enter') save(); if (k.key === 'Escape'){ el.remove(); closePop(); } };
@@ -79,7 +83,7 @@ DM.def('event-calendar', (r, c) => {
   const tell = t => swap(ask, I('spark','xs') + t, true);
   ask.onclick = () => c.run(async () => {
     $$('.ecx-e.sug', grid).forEach(x => x.remove());
-    ask.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span>Checking 4 calendars'; const sc = $('.ecx-scan', grid); sc.classList.remove('go'); void sc.offsetWidth; sc.classList.add('go');
+    ask.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Checking 4 calendars</span>'; const sc = $('.ecx-scan', grid); sc.classList.remove('go'); void sc.offsetWidth; sc.classList.add('go');
     await c.wait(1300);
     const S = [[2,13.5,.75,'Design review','b'],[4,13,.75,'Design review','b']];
     S.forEach((s, i) => { const el = ev(s, 'sug' + (i ? ' alt' : '')); if (!i) el.insertAdjacentHTML('beforeend', '<div class="ecx-sg"><button class="y">Book</button><button class="n">Other</button></div>'); col(s[0]).appendChild(el); el.style.animationDelay = i * 120 + 'ms'; el.style.height = 'auto'; el.style.minHeight = tall(s[2]); });

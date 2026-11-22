@@ -208,6 +208,8 @@ import { Icon } from '../lib/icons';
 import { enter, Spin, Swap, Tip } from '../lib/motion';
 import { usePopover } from '../lib/popover';
 import '../designme.css';
+// its menus' rows glide in Clean
+import '../lib/glide';
 import './permission-gate.css';
 
 /** Something the agent is asking to be allowed to do */

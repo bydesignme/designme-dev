@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, REDUCE, enter, hideTip, html, placePop, reflow, stagger, swap } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, enter, grow, hideTip, html, placePop, reflow, stagger, swap } from '../core/core.js';
 DM.def('filter-menu', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{filter}', I('filter'));
   const OWN = { MK:'Maya Kim', LP:'Leo Park', AR:'Ana Ruiz', SC:'Sam Cole' };
@@ -21,7 +21,10 @@ DM.def('filter-menu', (r, c) => {
     owner:{ l:'Owner', ic:'user', ops:['is', 'is not'], o:Object.entries(OWN).map(([v, l]) => ({ v, l, g:`<span class="av" data-o="${v}">${v}</span>` })), test:(t, v) => t.o === v },
     date:{ l:'Updated', ic:'cal', ops:['within', 'older than'], o:[{ v:1, l:'Past day', c:'1 day' }, { v:7, l:'Past 7 days', c:'7 days' }, { v:30, l:'Past 30 days', c:'30 days' }], test:(t, v) => t.a < v }
   };
-  const tr = $('.flm-tr', r), pop = $('.flm-pop', r), l1 = $('.flm-l1', r), l2 = $('.flm-l2', r), chips = $('.flm-chips', r), ct = $('.flm-ct', r), clr = $('.flm-clr', r), list = $('.flm-list', r);
+  const tr = $('.flm-tr', r), pop = $('.flm-pop', r), l1 = $('.flm-l1', r), l2 = $('.flm-l2', r), chips = $('.flm-chips', r), ct = $('.flm-ct', r), clr = $('.flm-clr', r), shell = $('.flm-list', r);
+  // the list grows and shrinks with what matches, eased (grow()), and keeps no room for rows to come; its rows go in grow()'s
+  // wrapper
+  c.offs.push(grow(shell)); const list = $('.dm-grow', shell);
   // the filters in the order they were added: field, value, and whether it reads the other way (is not, older than)
   let A = [];
   const val = (k, v) => F[k].o.find(o => o.v === v);
@@ -53,7 +56,7 @@ DM.def('filter-menu', (r, c) => {
     // the four most recently updated, and how many more. Issues that still match glide to their new places, new ones fade
     // in and the ones filtered out fade where they were (the first paint is the card's entrance)
     const draw = () => { list.innerHTML = n ? hit.slice(0, 4).map(t => `<div class="flm-r" data-t="${t.t}"><span class="dot" data-s="${t.s}" aria-label="${ST[t.s]}" role="img"></span><span class="t">${t.t}</span><span class="av" data-o="${t.o}" aria-label="${OWN[t.o]}" role="img">${t.o}</span><span class="a">${age(t.a)}</span></div>`).join('') + (n > 4 ? `<div class="flm-more" data-t="more">and ${n - 4} more</div>` : '')
-      : '<div class="flm-e" data-t="none">No issues match these filters</div>'; };
+      : '<div class="flm-em" data-t="none"><span class="flm-em-art" aria-hidden="true"></span><b>No issues match</b><span>Try another value, or clear the filters</span></div>'; };
     if (painted) reflow(() => [...list.children], draw, { by:'data-t', root:$('.flm', r) });
     else { draw(); stagger($$('.flm-r', list), 50); }
     painted = true;

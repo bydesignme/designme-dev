@@ -33,6 +33,8 @@ DM.def('progress', (r, c) => {
     // the words: Step 3 of 5, indexing files
     const words = { ind:'Preparing the run', run:`Step ${step + 1} of ${S.length}, ${name.toLowerCase()}`, paused:`Paused at step ${step + 1} of ${S.length}`, err:`Failed at step ${step + 1} of ${S.length}`, done:`Indexed 2,000 files in 0:${String(secs).padStart(2, '0')}` }[state];
     if (vt.textContent !== words) vt.textContent = words;
+    // while it works, its words shimmer, as loader text does everywhere (owner, 19 Nov)
+    vt.classList.toggle('shim', state === 'ind' || state === 'run');
     if (shownState !== state){
       swap(tag, TAG[state][0]); tag.className = 'tag prg-st ' + TAG[state][1];
       const b = state === 'paused' ? ['play', 'Resume'] : state === 'done' ? ['refresh', 'Run again'] : ['pause', 'Pause'];

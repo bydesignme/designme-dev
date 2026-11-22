@@ -7,15 +7,21 @@
 .stage-in:has(>.tk){overflow-anchor:none}
 .tk{font-size:14px;width:100%;max-width:420px;margin-inline:auto;overflow-anchor:none}
 /* on a card the trace keeps the room it will fill, so the header stays put as steps arrive */
-.stage-in>.tk{min-height:inherit}
+/* the trace grows with its steps in every style (grow(), owner's notes 18 Nov): no room kept for the steps to come. The
+   header's hover fill reaches 8px past its sides, so the growing box lets that much show */
+.tk.growing{overflow-clip-margin:12px}
 .tk-h{display:flex;align-items:center;gap:10px;width:calc(100% + 16px);margin:0 -8px;padding:6px var(--dm-s-2);border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));text-align:left;transition:background var(--dm-t-fast)}
-@media (hover:hover) and (pointer:fine){.tk-h:hover{background:var(--dm-row)}}
+/* the header's hover is a quiet fill round the chevron, never a band wider than the trace (owner, 18 Nov) */
+@media (hover:hover) and (pointer:fine){.tk-h:hover .tk-chev{background:color-mix(in srgb,var(--dm-fg) 5%,transparent);box-shadow:0 0 0 6px color-mix(in srgb,var(--dm-fg) 5%,transparent);color:var(--dm-fg)}}
 .tk-mark{width:18px;height:18px;flex:none;display:grid;place-items:center;color:var(--dm-accent-mark,var(--dm-accent));transition:color .3s}
 .tk-h.tk-fin .tk-mark{color:var(--dm-ok)}
+/* a finished state has no elapsed clock (owner, 18 Nov): the clock goes once the header says what the work came to */
+.tk-h.tk-fin .tk-time{visibility:hidden}
 .tk-h.tk-fin .tk-mark .i{animation:tkpop .5s var(--dm-ease) backwards}
 .tk-title{flex:1;min-width:0;color:var(--dm-fg)}
 .tk-time{color:var(--dm-muted);font-size:13px}
-.tk-chev{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
+.tk-chev{color:var(--dm-muted);border-radius:50%;transition:transform .32s var(--dm-ease),background-color var(--dm-t-fast),box-shadow var(--dm-t-fast),color var(--dm-t-fast)}
+:root:not([data-style="soft"],[data-style="clean"]) .tk-chev:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){border-radius:0}
 .tk[data-open="0"] .tk-chev{transform:rotate(-90deg)}
 .tk-list{list-style:none;margin:0;padding:6px 0 0;display:flex;flex-direction:column}
 .tk-st{position:relative;display:flex;gap:10px;padding:6px 0}
@@ -44,7 +50,8 @@
 .tk-st .res>span{overflow:hidden;min-height:0}
 .tk-st .res .w{display:inline-block;white-space:pre;animation:tkword .42s var(--dm-ease) backwards}
 @keyframes tkword{from{opacity:0;transform:translateY(3px);filter:blur(2px)}}
-.tk-st.retry .res{color:var(--dm-warn)}
+/* a retry's words are amber; the colour changes with the words, so the ones fading out keep theirs */
+.tk-st .res .warn{color:var(--dm-warn)}
 .tk-st .res [data-tip]{text-decoration:underline dotted var(--dm-faint);text-underline-offset:3px;cursor:default}
 :root:not([data-style="soft"],[data-style="clean"]) .tk-st.run .mk:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)),:root:not([data-style="soft"],[data-style="clean"]) .tk-st.retry .mk:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation:none}
 :root:not([data-style="soft"],[data-style="clean"]) .tk-st.run .mk:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:inset 0 0 0 1px var(--dm-accent-mark)}
@@ -52,3 +59,51 @@
 :root:not([data-style="soft"],[data-style="clean"]) .tk-st:not(:last-child):not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *))::before{width:1px;left:8.5px;background:repeating-linear-gradient(var(--dm-rail) 0 3px,transparent 3px 6px)}
 :root:not([data-style="soft"],[data-style="clean"]) .tk-st.done .mk .i:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)),:root:not([data-style="soft"],[data-style="clean"]) .tk-h.tk-fin .tk-mark .i:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation:none}
 :root:not([data-style="soft"],[data-style="clean"]) .tk-st .res .w:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation:bpin .3s var(--dm-ease) backwards}
+/* Clean (owner, 18 Nov): a card of its own, like Reasoning trail's: a hairline-outlined round card with the header on top
+   and a hairline under it. The card grows with its steps (grow(), never the room it will fill) and folds into its header.
+   Content sits 16px in from every edge, and each step's words start where the header's do. The steps sit on a hairline
+   that darkens down into each step as the one above finishes (grey, never a hue); the step in hand is a turning ring in the accent (white in dark mode),
+   a finished step a green disc whose tick draws in, and a step waiting out a problem an amber clock. The header's dots
+   turn in the accent, and as the last step finishes it becomes what the work came to, with a green disc */
+:root[data-style="clean"] .tk,:root [data-style="clean"] .tk,:root [data-style="clean"].tk{background:var(--dm-surface);box-shadow:var(--dm-shadow);border-radius:var(--dm-r-card);overflow:clip}
+:root[data-style="clean"] .tk.growing,:root [data-style="clean"] .tk.growing,:root [data-style="clean"].tk.growing{overflow-clip-margin:0px}
+:root[data-style="clean"] .tk-h,:root [data-style="clean"] .tk-h,:root [data-style="clean"].tk-h{width:100%;min-height:48px;margin:0;padding:14px 16px;gap:10px;align-items:flex-start;border-radius:0;line-height:20px}
+/* a header that wraps on a phone keeps its mark, time and chevron on the centre line of its first line */
+:root[data-style="clean"] .tk-h>.tk-mark,:root [data-style="clean"] .tk-h>.tk-mark,:root [data-style="clean"].tk-h>.tk-mark{margin-top:2px}
+:root[data-style="clean"] .tk-h>.tk-chev,:root [data-style="clean"] .tk-h>.tk-chev,:root [data-style="clean"].tk-h>.tk-chev{margin-top:3px}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .tk-h:hover,:root [data-style="clean"] .tk-h:hover,:root [data-style="clean"].tk-h:hover{background:none}}
+:root[data-style="clean"] .tk-h:focus-visible,:root [data-style="clean"] .tk-h:focus-visible,:root [data-style="clean"].tk-h:focus-visible{outline-offset:-2px;border-radius:var(--dm-r-card)}
+/* the clock follows the title while it works, as in "Checking the pricing page 7s", and goes once the header says what the
+   work came to (a finished state has no elapsed clock); the chevron keeps the right edge, where the steps' times end too */
+:root[data-style="clean"] .tk-title,:root [data-style="clean"] .tk-title,:root [data-style="clean"].tk-title{flex:0 1 auto;font-weight:500}
+:root[data-style="clean"] .tk-time,:root [data-style="clean"] .tk-time,:root [data-style="clean"].tk-time{margin-right:auto;font-variant-numeric:tabular-nums}
+:root[data-style="clean"] .tk-chev,:root [data-style="clean"] .tk-chev,:root [data-style="clean"].tk-chev{width:14px;height:14px;border-radius:50%;box-shadow:0 0 0 7px transparent;transition:transform var(--dm-t) var(--dm-ease),background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .tk-h:hover .tk-chev,:root [data-style="clean"] .tk-h:hover .tk-chev,:root [data-style="clean"].tk-h:hover .tk-chev{background:var(--dm-row);box-shadow:0 0 0 7px var(--dm-row);color:var(--dm-fg)}}
+:root[data-style="clean"] .tk-mark,:root [data-style="clean"] .tk-mark,:root [data-style="clean"].tk-mark{width:16px;height:16px;margin-right:2px;color:var(--dm-accent-mark)}
+:root[data-style="clean"] .tk-h.tk-fin .tk-mark,:root [data-style="clean"] .tk-h.tk-fin .tk-mark,:root [data-style="clean"].tk-h.tk-fin .tk-mark{width:16px;height:16px;border-radius:50%;background:var(--dm-ok-mark);color:var(--dm-surface);animation:tkdisc var(--dm-t) var(--dm-ease) backwards}
+:root[data-style="clean"] .tk-h.tk-fin .tk-mark .i,:root [data-style="clean"] .tk-h.tk-fin .tk-mark .i,:root [data-style="clean"].tk-h.tk-fin .tk-mark .i{width:10px;height:10px;stroke-width:3.2;stroke-dasharray:21;animation:tkdraw var(--dm-t) var(--dm-ease) .14s backwards}
+/* the first step's words 16px under the header's hairline and the last ones 16px from the card's foot, 5px above and below
+   each step; the card is no taller than Soft's trace, so its stage keeps its height in every style */
+:root[data-style="clean"] .tk-list,:root [data-style="clean"] .tk-list,:root [data-style="clean"].tk-list{padding:10px 16px;border-top:1px solid var(--dm-line)}
+:root[data-style="clean"] .tk-st,:root [data-style="clean"] .tk-st,:root [data-style="clean"].tk-st{padding:5px 0}
+/* a step's time sits on its first line's centre line, and ends where the chevron does */
+:root[data-style="clean"] .tk-st .tk-ln,:root [data-style="clean"] .tk-st .tk-ln,:root [data-style="clean"].tk-st .tk-ln{align-items:flex-start}
+:root[data-style="clean"] .tk-st .lab,:root [data-style="clean"] .tk-st .lab,:root [data-style="clean"].tk-st .lab,:root[data-style="clean"] .tk-st .tk-dur,:root [data-style="clean"] .tk-st .tk-dur,:root [data-style="clean"].tk-st .tk-dur{line-height:19px}
+:root[data-style="clean"] .tk-st .res,:root [data-style="clean"] .tk-st .res,:root [data-style="clean"].tk-st .res{line-height:17px}
+:root[data-style="clean"] .tk-st .tk-dur,:root [data-style="clean"] .tk-st .tk-dur,:root [data-style="clean"].tk-st .tk-dur{font-variant-numeric:tabular-nums}
+/* the marks: 16px discs 16px in from the card's edge, centred on the step's first line, under the header's mark */
+:root[data-style="clean"] .tk-st .mk,:root [data-style="clean"] .tk-st .mk,:root [data-style="clean"].tk-st .mk{width:16px;height:16px;margin:1.5px 2px 0 0;color:var(--dm-fg);background:none;transition:none}
+:root[data-style="clean"] .tk-st.run .mk,:root [data-style="clean"] .tk-st.run .mk,:root [data-style="clean"].tk-st.run .mk{background:none;animation:none}
+:root[data-style="clean"] .tk-st.run .mk .spin,:root [data-style="clean"] .tk-st.run .mk .spin,:root [data-style="clean"].tk-st.run .mk .spin{box-sizing:border-box;width:16px;height:16px;border:1.5px solid var(--dm-line);border-top-color:var(--dm-accent-mark);animation:rot .9s linear infinite}
+:root[data-style="clean"] .tk-st.done .mk,:root [data-style="clean"] .tk-st.done .mk,:root [data-style="clean"].tk-st.done .mk{background:var(--dm-ok-mark);color:var(--dm-surface);animation:tkdisc var(--dm-t) var(--dm-ease) backwards}
+:root[data-style="clean"] .tk-st.done .mk .i,:root [data-style="clean"] .tk-st.done .mk .i,:root [data-style="clean"].tk-st.done .mk .i{width:10px;height:10px;stroke-width:3.2;stroke-dasharray:21;animation:tkdraw var(--dm-t) var(--dm-ease) .14s backwards}
+:root[data-style="clean"] .tk-st.retry .mk,:root [data-style="clean"] .tk-st.retry .mk,:root [data-style="clean"].tk-st.retry .mk{background:none;color:var(--dm-warn-mark);animation:none}
+:root[data-style="clean"] .tk-st.retry .mk .i,:root [data-style="clean"] .tk-st.retry .mk .i,:root [data-style="clean"].tk-st.retry .mk .i{width:16px;height:16px;stroke-width:1.8}
+@keyframes tkdisc{from{opacity:0;transform:scale(.5)}}
+@keyframes tkdraw{from{stroke-dashoffset:21}}
+/* the hairline from under each mark to just above the next, darkening down into the next step once this one is done */
+:root[data-style="clean"] .tk-st:not(:last-child)::before,:root [data-style="clean"] .tk-st:not(:last-child)::before,:root [data-style="clean"].tk-st:not(:last-child)::before,:root[data-style="clean"] .tk-st.done:not(:last-child)::after,:root [data-style="clean"] .tk-st.done:not(:last-child)::after,:root [data-style="clean"].tk-st.done:not(:last-child)::after{left:7.5px;top:26.5px;bottom:-2.5px;width:1px;border-radius:0;background:var(--dm-line)}
+:root[data-style="clean"] .tk-st.done:not(:last-child)::after,:root [data-style="clean"] .tk-st.done:not(:last-child)::after,:root [data-style="clean"].tk-st.done:not(:last-child)::after{background:var(--dm-line-strong);animation:tkgrow var(--dm-t-slow) var(--dm-ease-io) .2s backwards}
+/* what a step found writes itself in a word at a time: a fade and a 3px rise, no blur */
+@keyframes tkwordc{from{opacity:0;transform:translateY(3px)}}
+:root[data-style="clean"] .tk-st .res .w,:root [data-style="clean"] .tk-st .res .w,:root [data-style="clean"].tk-st .res .w{animation:tkwordc var(--dm-t-slow) var(--dm-ease) backwards}

@@ -1,10 +1,10 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I } from '../core/core.js';
+import { $, $$, DM, I, placePop } from '../core/core.js';
 DM.def('citation-hover', (r, c) => {
   const S = [
-    ['B','#4a5a8a','baymard.com','Pricing page UX benchmark','Of 64 SaaS sites tested, those leading with the annual plan saw <mark>a 12 to 20% higher trial to paid rate</mark> than monthly first layouts.','Read 4 days ago'],
-    ['C','#d9480f','cxl.com','Price anchoring in plan selection','When the monthly price stayed visible with a strike through, <mark>annual selection rose by a further 9 points</mark> in the anchored group.','Read 4 days ago'],
-    ['CSV','var(--dm-pm)','Drive','Q3 conversion export.csv','Rows 412 to 480: <mark>trial to paid moves from 18.6% to 26.3%</mark> between Sep 18 and Oct 17.','Your file']
+    ['B','var(--dm-av-b)','baymard.com','Pricing page UX benchmark','Of 64 SaaS sites tested, those leading with the annual plan saw <mark>a 12 to 20% higher trial to paid rate</mark> than monthly first layouts.','Read 4 days ago'],
+    ['C','var(--dm-av-r)','cxl.com','Price anchoring in plan selection','When the monthly price stayed visible with a strike through, <mark>annual selection rose by a further 9 points</mark> in the anchored group.','Read 4 days ago'],
+    ['CSV','var(--dm-av-l)','Drive','Q3 conversion export.csv','Rows 412 to 480: <mark>trial to paid moves from 18.6% to 26.3%</mark> between Sep 18 and Oct 17.','Your file']
   ];
   const card = $('.chx-card', r), inn = $('.chx-in', r), box = $('.chx', r), cites = $$('.chx-c', r);
   let cur = null, hideT, showT, back = false;
@@ -13,12 +13,13 @@ DM.def('citation-hover', (r, c) => {
     clearTimeout(hideT); if (cur === b) return;
     const s = S[+b.dataset.i]; cur = b;
     cites.forEach(x => x.classList.toggle('on', x === b));
-    inn.innerHTML = `<div class="chx-sh"><span class="fv" style="background:${s[1]}">${s[0][0]}</span><span>${s[2]}</span></div><div class="chx-t">${s[3]}</div><div class="chx-q">${s[4]}</div><div class="chx-f"><span>${s[5]}</span><a href="#" onclick="return false">Open source ${I('ext','xs')}</a></div>`;
-    /* restart the entry each time, so it always rises from below in place and never slides sideways */
+    inn.innerHTML = `<div class="chx-sh"><span class="fv" style="background:${s[1]};color:${s[1].replace(')', '-ink)')}">${s[0][0]}</span><span>${s[2]}</span></div><div class="chx-t">${s[3]}</div><div class="chx-q">${s[4]}</div><div class="chx-f"><span>${s[5]}</span><a href="#" onclick="return false">Open source ${I('ext','xs')}</a></div>`;
+    /* restart the entry each time, so it always grows in place and never slides sideways. It opens below its citation when
+       it fits there and above it when it doesn't (placePop), so the stage or the page never cuts it off, and it stays inside
+       the answer's column */
     card.classList.remove('show'); void card.offsetWidth;
-    const br = box.getBoundingClientRect(), cr = b.getBoundingClientRect();
-    const x = Math.max(0, Math.min(cr.left - br.left - 24, br.width - card.offsetWidth));
-    card.style.left = x + 'px'; card.style.top = (cr.bottom - br.top + 8) + 'px';
+    placePop(b, card);
+    card.style.left = Math.max(0, Math.min(parseFloat(card.style.left) || 0, box.clientWidth - card.offsetWidth)) + 'px';
     card.classList.add('show');
   }
   function hide(now){
