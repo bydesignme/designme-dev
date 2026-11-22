@@ -159,6 +159,8 @@ import { useReducedMotion } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
 import { Tip } from '../lib/motion';
 import '../designme.css';
+// its menus' rows glide in Clean
+import '../lib/glide';
 import './rich-text-editor.css';
 
 /** A formatting command, as the toolbar and the shortcuts apply it. `p` turns lines back into plain paragraphs */

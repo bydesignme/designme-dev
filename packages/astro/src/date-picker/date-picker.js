@@ -1,10 +1,12 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, REDUCE, centre, closePops, swap } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, centre, closePops, hoverGlide, openPop, swap } from '../core/core.js';
 DM.def('date-picker', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{cal}', I('cal','xs')).replace('{chev}', I('chev-d','xs')).replace('{l}', I('chev-l','xs')).replace('{r}', I('chev-r','xs'));
   // today is the real today: the calendar opens on its month and the quick picks and typed dates count from it
   const now = new Date(), TODAY = new Date(now.getFullYear(), now.getMonth(), now.getDate()); let view = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1), sel = null;
   const g = $('.dpk-g', r), m = $('.dpk-m', r), val = $('.dpk-val', r), f = $('.dpk-f', r); let cursor = null;
+  // Clean's one hover: a neutral circle that glides from day to day (hoverGlide)
+  c.offs.push(hoverGlide($('.dpk-vp', r), '.dpk-d', { keep:'.s' }));
   val.classList.add('ph');
   const same = (a, b) => a && b && a.toDateString() === b.toDateString();
   const fmt = d => d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
@@ -53,8 +55,20 @@ DM.def('date-picker', (r, c) => {
   // closing, it waits for the calendar to fade before it glides back to the middle
   const box = $('.dpk', r), pop = $('.dpk-pop', r), isOpen = () => f.getAttribute('aria-expanded') === 'true';
   const centred = centre(c, box, () => isOpen() ? Math.max(box.offsetHeight, pop.offsetTop + pop.offsetHeight) : box.offsetHeight);
-  const mo = new MutationObserver(() => isOpen() ? centred() : c.later(REDUCE ? 0 : 180, centred));
+  // (the wait is the glide's own transition delay, so a busy page can't hold the field up there longer than the fade)
+  const mo = new MutationObserver(() => { box.style.transitionDelay = isOpen() || REDUCE ? '' : '.18s'; centred(); });
   mo.observe(f, { attributes:true, attributeFilter:['aria-expanded'] }); c.offs.push(() => mo.disconnect());
-  // the preview opens it and types a date on its own; clicking, focusing or typing in it takes over, and what it had typed goes
-  c.auto(800, () => { f.click(); c.run(async () => { const i = $('.dpk-nl', r); await c.step(500); await c.type(i, 'next friday', { ms:70, each:() => i.oninput({ target:i }) }); }); });
+  // the preview opens it, types a date, and closes it on the day it found: the closed field shows the date, centred again.
+  // Clicking, focusing or typing in it takes over, and what it had typed goes. One popover is open at a time on the page, so
+  // the preview waits while another card's demo has its menu open, and never takes it from that card; if another card closes
+  // this calendar while it types, the typing waits and goes on once the calendar is open again
+  const free = async () => { for (let k = 0; k < 40 && openPop && openPop.pop !== pop; k++) await c.step(250); };
+  const shown = async () => { if (isOpen()) return; await free(); f.click(); await c.step(400); };
+  c.auto(800, () => c.run(async () => {
+    const i = $('.dpk-nl', r); let typed = '';
+    c.taken(() => { if (typed && i.isConnected && i.value === typed){ i.value = ''; i.oninput({ target:i }); } });
+    await shown(); await c.step(100);
+    for (const ch of 'next friday'){ await shown(); await c.step(70); typed += ch; i.value = typed; i.oninput({ target:i }); }
+    typed = '';
+    await shown(); await c.step(2400); if (isOpen()) closePops(); }));
 });

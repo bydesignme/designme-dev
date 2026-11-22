@@ -38,6 +38,7 @@ A date field that opens a small calendar, with a text box at the top that reads 
 - The default parser understands "today", "tomorrow", weekday names and "in N days", "in N weeks" or "in N months".
 - Quick picks from `presets` (Today, Tomorrow and In a week by default) pick a day a set number of days after today.
 - Previous and next month buttons slide the grid in from the side it comes from, and clicking a day picks it and closes the calendar.
+- While the calendar is open, the field's edge is one step stronger and its chevron turns over; the calendar opens under the field, as wide as it.
 - `locale` sets the month and weekday names, `weekStartsOn` starts weeks on Monday or Sunday, and `today` sets the day marked with a dot.
 
 ### Accessibility
@@ -58,7 +59,8 @@ import { DatePicker } from '@/components/designme/date-picker/DatePicker';
 
 ```tsx
 'use client';
-// The preview from designme.dev, rebuilt from the React component: the calendar opens and someone types "next friday".
+// The preview from designme.dev, rebuilt from the React component: the calendar opens, someone types "next friday", and it
+// closes on the day it found.
 import { useRef, useState } from 'react';
 import { DatePicker } from './DatePicker';
 import { useStory } from '../lib/useScript';
@@ -78,6 +80,7 @@ export default function DatePickerDemo() {
     taken(() => { if (typing) setQuery(''); });
     for (let k = 1; k <= s.length; k++) { setQuery(s.slice(0, k)); await wait(70); }
     typing = false;
+    await wait(2400); setOpen(false);
   });
   return (
     <div ref={ref} style={{ width: '100%' }}>
@@ -154,6 +157,7 @@ import { cx } from '../lib/cx';
 import { useControllable, useIsoLayoutEffect } from '../lib/hooks';
 import { Icon } from '../lib/icons';
 import { Swap } from '../lib/motion';
+import { useHoverGlide } from '../lib/glide';
 import { usePopover } from '../lib/popover';
 import '../designme.css';
 import './date-picker.css';
@@ -241,6 +245,9 @@ export function DatePicker({
 
   // arrow keys move the focus a day or a week, across months too
   const grid = useRef<HTMLDivElement>(null);
+  // Clean's one hover: a neutral circle that glides from day to day
+  const vp = useRef<HTMLDivElement>(null);
+  useHoverGlide(vp, '.dm-dpk-d', { keep: '.dm-s' });
   const [focus, setFocus] = useState<string | null>(null);
   useIsoLayoutEffect(() => {
     if (!focus) return;
@@ -280,7 +287,7 @@ export function DatePicker({
           <button type="button" className="dm-ib dm-dpk-nx" aria-label="Next month" onClick={() => setView(startOfMonth(new Date(view.getFullYear(), view.getMonth() + 1, 1)))}><Icon name="chev-r" size="xs" /></button>
         </div>
         <div className="dm-dpk-wd dm-muted" aria-hidden="true">{weekdayNames(locale, weekStartsOn).map((w, i) => <span key={i}>{w}</span>)}</div>
-        <div className="dm-dpk-vp">
+        <div ref={vp} className="dm-dpk-vp">
           <div key={viewKey} ref={grid} className={cx('dm-dpk-g', dir < 0 && 'dm-in-l', dir > 0 && 'dm-in-r')} onKeyDown={keys}>
             {monthGrid(view, weekStartsOn).map(d => (
               <button type="button" key={isoDay(d)} data-date={isoDay(d)}

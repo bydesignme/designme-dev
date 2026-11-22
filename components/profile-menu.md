@@ -34,18 +34,18 @@ Profile menu is the account menu that opens from an avatar in an app's top bar. 
 
 ### What it does
 
-- The menu opens under the avatar, lined up with its right edge, and starts with the person's name and email.
-- The workspaces are a group of radio items, each with a tinted tile, a name and a quiet `detail` like "Free, 3 members". The current one is checked; picking another closes the menu and the bar crossfades to its name.
+- The menu opens under the avatar, lined up with its right edge, and starts with the person's name and email. It opens over the room the component keeps for it under the bar, so the bar never moves as it opens and closes, and the menu is never cut off.
+- The workspaces are a group of radio items, each with its tile, a name and a quiet `detail` like "Free, 3 members". The tile is the workspace's initial on its `tint`, one of the avatars' fills with its own ink (white on blue, violet, red and pink); in Clean every tile is grey. The current one is checked; picking another closes the menu and the bar crossfades to its name.
 - The theme is a switch row. It stays in the menu after a click, so the change shows where it was made. It reports the change through `onDarkChange`; applying the theme is up to you.
 - Keyboard shortcuts shows its key, ?, and opens a short list under the bar. Pressing ? anywhere in the component opens and closes the same list. By default it lists the keys the menu itself answers to.
-- Sign out swaps the avatar for a Sign in button, which swaps it back. `note` shows a confirmation with a green check under the bar, like "Switched to Acme Labs".
+- Sign out swaps the avatar for a Sign in button, which swaps it back. `note` says what just changed, like "Switched to Acme Labs", to screen readers only: the bar and the menu already show it, so there is no line of text under the bar.
 
 ### Accessibility
 
 - The avatar is a button with `aria-haspopup="menu"` and `aria-expanded`, labelled "Account menu" and the person's name.
 - The menu has `role="menu"` and is named by the name and email at its top. The workspaces are `menuitemradio` items in a group named "Workspaces"; the theme row is a `menuitemcheckbox`; the rest are `menuitem`s.
 - Enter, Space or the down arrow on the avatar opens the menu on its first item, and the up arrow on its last. Inside, the arrow keys move and wrap, Home and End jump to the ends, Escape closes it and gives the focus back to the avatar, and Tab closes it and moves on.
-- The confirmation under the bar is a polite live region, so a switch or a theme change is announced.
+- `note` is a polite live region, so a switch or a theme change is announced.
 
 ## Usage in React
 
@@ -65,7 +65,7 @@ import { useStory } from '../lib/useScript';
 /* ---------- Profile menu: open it, switch to Acme Labs, then open it again and flip the theme ---------- */
 const WORKSPACES: ProfileMenuWorkspace[] = [
   { id: 'northwind', name: 'Northwind', detail: 'Pro, 12 members', tint: 'pb' },
-  { id: 'acme', name: 'Acme Labs', detail: 'Free, 3 members', tint: 'pp' },
+  { id: 'acme', name: 'Acme Labs', detail: 'Free, 3 members', tint: 'pk' },
   { id: 'personal', name: 'Personal', detail: 'Just you', tint: 'pl' }
 ];
 
@@ -119,7 +119,7 @@ export default function ProfileMenuDemo() {
 | `signedIn` (optional) | `boolean` | Sign out swaps the avatar for a Sign in button, which swaps it back |
 | `defaultSignedIn` (optional) | `boolean` |  |
 | `onSignedInChange` (optional) | `(signedIn: boolean) => void` |  |
-| `note` (optional) | `string` | A confirmation under the bar, like "Switched to Acme Labs". Shown with a green check |
+| `note` (optional) | `string` | What just changed, like "Switched to Acme Labs", said to screen readers (a polite live region). The bar and the menu already show it, so it is not a line on screen |
 | `open` (optional) | `boolean` | Whether the menu is open. Leave it out to let the avatar, Escape and a click outside open and close it |
 | `defaultOpen` (optional) | `boolean` |  |
 | `onOpenChange` (optional) | `(open: boolean) => void` |  |
@@ -164,12 +164,14 @@ import { useEffect, useId, useRef, useState, type KeyboardEvent, type MouseEvent
 import { cx } from '../lib/cx';
 import { useControllable } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { avatarInk, enter, Fold, Swap, Tip } from '../lib/motion';
+import { avatarInk, Fold, Swap, Tip } from '../lib/motion';
 import { usePopover } from '../lib/popover';
 import '../designme.css';
+// its menus' rows glide in Clean
+import '../lib/glide';
 import './profile-menu.css';
 
-/** The tint of a workspace's tile, from the designme palette */
+/** The colour of a workspace's tile: the avatars' fills (white letters on blue, violet, red and pink). Clean draws every tile grey */
 export type ProfileMenuTint = 'pb' | 'pl' | 'pm' | 'pp' | 'pr' | 'py' | 'pk' | 'pt';
 
 /** One workspace the account belongs to */
@@ -217,7 +219,8 @@ export interface ProfileMenuProps {
   signedIn?: boolean;
   defaultSignedIn?: boolean;
   onSignedInChange?: (signedIn: boolean) => void;
-  /** A confirmation under the bar, like "Switched to Acme Labs". Shown with a green check */
+  /** What just changed, like "Switched to Acme Labs", said to screen readers (a polite live region). The bar and the menu
+      already show it, so it is not a line on screen */
   note?: string;
   /** Whether the menu is open. Leave it out to let the avatar, Escape and a click outside open and close it */
   open?: boolean;
@@ -248,9 +251,6 @@ export function ProfileMenu({
   const id = useId();
   const cur = workspaces.find(w => w.id === ws) ?? workspaces[0];
   const initials = user.initials ?? user.name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
-  // the confirmation enters each time it changes
-  const [noteKey, setNoteKey] = useState(0);
-  useEffect(() => { if (note) setNoteKey(k => k + 1); }, [note]);
 
   // where the focus goes once the menu has opened: the first or last item, or nowhere for a scripted click
   const focusTo = useRef<'first' | 'last' | null>(null);
@@ -274,8 +274,8 @@ export function ProfileMenu({
     if (go) { e.preventDefault(); go.focus(); } else if (e.key === 'Tab') setTimeout(() => menu.close());
   };
   const showKeys = (on: boolean) => setKeysOpen(on);
-  // the menu opens over whatever sits under the bar, so the component keeps room for it below the bar: centred in a
-  // stage, the open menu still ends inside it
+  // the menu opens over the component from the avatar and never moves the bar: the component keeps room for it below the bar,
+  // so centred in a stage, the open menu still ends inside it
   const bar = useRef<HTMLDivElement>(null);
   const [room, setRoom] = useState<number>();
   useEffect(() => {
@@ -337,9 +337,7 @@ export function ProfileMenu({
           </dl>
         </div>
       </Fold>
-      <p className="dm-pfm-note dm-muted" aria-live="polite">
-        {note && <><Icon name="ok" size="xs" /><span key={noteKey} {...enter()}>{note}</span></>}
-      </p>
+      <p className="dm-pfm-note" aria-live="polite">{note}</p>
     </div>
   );
 }

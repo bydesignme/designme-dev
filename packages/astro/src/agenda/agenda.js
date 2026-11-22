@@ -1,6 +1,8 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, AV, DM, I, html, stagger } from '../core/core.js';
+import { $, $$, AV, DM, I, grow, hoverGlide, html, stagger } from '../core/core.js';
 DM.def('agenda', (r, c) => {
+  // Clean's one hover: a highlight that glides from event to event (hoverGlide); the open one keeps its own
+  c.offs.push(hoverGlide($('.agx-list', r), '.agx-e', { keep:'.open' }));
   const E = [
     ['9:00','Standup','15 min, Design team','b',[['MK','var(--dm-av-l)'],['JO','var(--dm-av-m)'],['AR','var(--dm-av-p)']],null,1],
     ['11:30','Agent demo','30 min, Zoom','y',[['SL','var(--dm-av-t)'],['MK','var(--dm-av-l)']],['Demo flow: pricing audit, then the token export','Sam asked about cost limits last time, the cap is now $5'],0],
@@ -10,8 +12,10 @@ DM.def('agenda', (r, c) => {
   const list = $('.agx-list', r);
   list.innerHTML = E.map((e, i) => `<button class="agx-e${e[6] ? ' past' : ''}" data-i="${i}"><span class="tm num">${e[0]}</span><span class="bar"></span><span class="t"><b>${e[1]}</b><span>${e[2]}</span><span class="who">${e[4].map(a => AV(a[0], a[1])).join('')}</span></span></button>`).join('');
   const rows = $$('.agx-e', list);
-  rows[0].after(html('<div class="agx-now"><i></i>10:42</div>'));
+  rows[0].after(html('<div class="agx-now" role="separator" aria-label="Now, 10:42"><span class="tag num">10:42</span><i></i></div>'));
   stagger([...list.children], 60);
+  // the card eases to its new height as an event's prep notes open or fold away (grow())
+  c.offs.push(grow($('.agx', r)));
   rows.forEach((el, i) => el.onclick = () => {
     const open = el.classList.contains('open'); rows.forEach(x => { x.classList.remove('open'); $('.agx-prep', x)?.remove(); });
     if (open || !E[i][5]) return;

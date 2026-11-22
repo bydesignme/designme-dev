@@ -213,6 +213,176 @@ function grow(el){
   const ro = new ResizeObserver(fit); ro.observe(w); fit();
   return el._grow = () => { ro.disconnect(); el._grow = null; el.style.height = ''; el.classList.remove('growing'); };
 }
+/* hoverGlide(): Clean's one hover in a menu or a list (owner, 21 Nov): a single highlight that glides from row to row as the
+   pointer moves, and fades in as the pointer enters the list and out as it leaves. It follows the keyboard too: the row with
+   the focus (:focus-visible) and the row the arrows are on (o.hl, .hl by default). It is the list's own ::before (or its ::after
+   when that one is taken), placed by CSS variables (--hg-x, --hg-y, --hg-w, --hg-h and the row's own corners, --hg-r) and
+   drawn under the rows, so it adds no element and every :first-child and :last-child rule stays as it is. It eases over
+   Clean's 220ms with its ease; with reduced motion it only fades. Only Clean draws it (the CSS); there the rows' own hover
+   fills give way to it, while a picked row (o.keep) keeps its stronger --row-on fill over it. rows is a selector for the list's
+   rows. Returns a function that stops it */
+function hoverGlide(list, rows = '.mi', o = {}){
+  if (!list) return () => {};
+  if (list._hg) return list._hg;
+  const free = p => { const v = getComputedStyle(list, p).content; return !v || v === 'none' || v === 'normal'; };
+  const side = free('::before') ? 'b' : free('::after') ? 'a' : ''; if (!side) return () => {};
+  const hl = o.hl || '.hl', keep = o.keep || '[aria-selected="true"],[aria-checked="true"],[aria-current]:not([aria-current="false"])';
+  list.dataset.hg = side; list.classList.add('hg'); if (getComputedStyle(list).position === 'static') list.classList.add('hg-pos');
+  const all = () => $$(rows, list).filter(r => !r.hasAttribute('data-ghost'));
+  const ok = r => r && r.isConnected && list.contains(r) && !r.disabled && r.getAttribute('aria-disabled') !== 'true' && r.getClientRects().length;
+  // the rows' own fills give way to the glide, all but a picked one
+  const mark = () => all().forEach(r => { const v = r.matches(keep) ? 'k' : ''; if (r.dataset.hgr !== v) r.dataset.hgr = v; });
+  // where a row sits in the list, from the layout (offsetLeft and offsetTop), so a menu still scaling in is measured as it will
+  // be; a list that scrolls carries the highlight with its rows
+  const off = r => { let x = 0, y = 0, e = r;
+    while (e && e !== list){ x += e.offsetLeft; y += e.offsetTop; const p = e.offsetParent; if (!p || !(p === list || list.contains(p))){ const a = r.getBoundingClientRect(), b = list.getBoundingClientRect(); return [a.left - b.left - list.clientLeft + list.scrollLeft, a.top - b.top - list.clientTop + list.scrollTop]; } if (p !== list){ x += p.clientLeft; y += p.clientTop; } e = p; }
+    return [x, y]; };
+  let at = null, on = false, gone = -1e9, over = false;
+  const set = (k, v) => list.style.setProperty('--dm-hg-' + k, v);
+  const show = r => {
+    if (!ok(r)) r = null;
+    if (!r){ if (on){ on = false; gone = performance.now(); set('o', '0'); } at = null; return; }
+    // coming back from hidden it starts where the row is; a quick return while it still fades glides on from where it was
+    const jump = !on && performance.now() - gone > 200, [x, y] = off(r);
+    if (jump) list.classList.add('hg-jump');
+    set('x', x + 'px'); set('y', y + 'px'); set('w', r.offsetWidth + 'px'); set('h', r.offsetHeight + 'px'); set('r', getComputedStyle(r).borderRadius); set('o', '1');
+    if (jump){ void getComputedStyle(list, side === 'b' ? '::before' : '::after').transform; requestAnimationFrame(() => list.classList.remove('hg-jump')); }
+    // (a new row is watched for its size; watching starts with one report, which only places it again)
+    if (ro && r !== at){ ro.disconnect(); ro.observe(list); ro.observe(r); }
+    at = r; on = true;
+  };
+  // what it rests on when nothing new has moved it: the row under a mouse, the keyboard's row, then the arrows' row
+  const rest = () => { const rs = all().filter(ok), f = document.activeElement;
+    return (over && rs.find(r => r.matches(':hover'))) || (f && list.contains(f) && f.matches(':focus-visible') && rs.find(r => r.contains(f))) || rs.find(r => r.matches(hl)) || null; };
+  const row = t => { const r = t && t.closest && t.closest(rows); return r && list.contains(r) ? r : null; };
+  // (a demo's pointer, which has no type, moves it as a mouse does; a list inside this one, like a toolbar's group of tools,
+  // has a glide of its own, so this one fades while the pointer is in it)
+  const onOver = e => { if (e.pointerType && e.pointerType !== 'mouse') return; over = true; const r = row(e.target); if (r) show(r); else if (e.target.closest('.hg') !== list) show(null); };
+  const onLeave = e => { if ((e.pointerType && e.pointerType !== 'mouse') || (e.relatedTarget && list.contains(e.relatedTarget))) return; over = false; show(rest()); };
+  const onIn = e => { const r = row(e.target); if (r && e.target.matches(':focus-visible')) show(r); };
+  const onOut = () => setTimeout(() => { if (list.isConnected && !list.contains(document.activeElement)) show(rest()); });
+  list.addEventListener('pointerover', onOver); list.addEventListener('pointerout', onLeave);
+  list.addEventListener('focusin', onIn); list.addEventListener('focusout', onOut);
+  // rows drawn again (a search narrowing the list), a row the arrows move to, a row picked; and a menu that closes hides it
+  const mo = new MutationObserver(ms => {
+    ms = ms.filter(m => m.target !== list || m.type !== 'attributes'); if (!ms.length) return;
+    mark(); let to;
+    for (const m of ms) if (m.type === 'attributes' && m.attributeName === 'class' && m.target.matches && m.target.matches(rows) && m.target.matches(hl)) to = m.target;
+    if (to) show(to); else if (!at || !ok(at) || !(over || at.matches(hl) || at.contains(document.activeElement))) show(rest()); else show(at);
+  });
+  mo.observe(list, { childList:true, subtree:true, attributes:true, attributeFilter:['class', 'aria-selected', 'aria-checked', 'aria-current', 'aria-disabled', 'disabled', 'hidden'] });
+  const pop = list.closest('.pop'), po = pop && new MutationObserver(() => { if (!pop.classList.contains('open')){ over = false; on = false; gone = -1e9; set('o', '0'); at = null; } });
+  if (po) po.observe(pop, { attributes:true, attributeFilter:['class'] });
+  const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(() => { if (at) show(at); }) : null;
+  if (ro) ro.observe(list);
+  mark(); show(rest());
+  // (the menus' own catch-all below hands it the row a pointer or the keyboard has just reached)
+  list._hgAt = (r, mouse) => { if (mouse) over = true; show(r); };
+  return list._hg = () => { mo.disconnect(); po && po.disconnect(); ro && ro.disconnect();
+    list.removeEventListener('pointerover', onOver); list.removeEventListener('pointerout', onLeave); list.removeEventListener('focusin', onIn); list.removeEventListener('focusout', onOut);
+    list.classList.remove('hg', 'hg-pos', 'hg-jump'); delete list.dataset.hg; ['x', 'y', 'w', 'h', 'r', 'o'].forEach(k => list.style.removeProperty('--dm-hg-' + k)); all().forEach(r => delete r.dataset.hgr); list._hg = null; list._hgAt = null; };
+}
+/* every menu's rows (.mi) glide in Clean: a menu takes its glide the first time a pointer or the keyboard reaches one of its rows
+   (and as its component mounts), in the scrolling list its rows sit in, or the menu itself. Only the components' menus (in a
+   card's stage) take it: the templates' own menus keep theirs. Kanban and Agent harness keep their menus as they are until
+   their own Clean pass (Phase II, owner, 21 Nov) */
+function menuGlide(mi){
+  if (mi.closest('.kbx,.ahx')) return mi.parentElement;
+  const m = mi.closest('.pop,[role="menu"],[role="listbox"]') || mi.parentElement;
+  let box = m; for (let a = mi.parentElement; a && a !== m; a = a.parentElement){ const oy = getComputedStyle(a).overflowY; if (oy === 'auto' || oy === 'scroll'){ box = a; break; } }
+  // (a row that asks again before it acts, like Delete, keeps its own fill)
+  hoverGlide(box, '.mi', { keep:'[aria-selected="true"],[aria-checked="true"],[aria-current]:not([aria-current="false"]),.ask' }); return box;
+}
+['pointerover', 'focusin'].forEach(t => document.addEventListener(t, e => { const mi = e.target && e.target.closest && e.target.closest('.mi'); if (!mi || !mi.closest('.stage-in')) return; const box = menuGlide(mi);
+  if (!box._hgAt) return; if (t === 'focusin'){ if (e.target.matches(':focus-visible')) box._hgAt(mi); } else if (e.pointerType === 'mouse') box._hgAt(mi, true); }, true));
+/* cols(): a data table's columns, as in a spreadsheet (owner, 10 Nov; restated 21 Nov: "if we don't have the vertical lines,
+   we don't even know this is a column"). Each table draws the lines between its columns in its own CSS; this makes the
+   columns work:
+   - resizing: a handle on each header's right edge (.col-rz, a separator), dragged, or ← and → by 16px while it has the
+     focus; a double click gives every column its natural width back. No column goes under its min width; the last one takes
+     what is left, and once the columns outgrow the box the table scrolls sideways in it (the table's own CSS lets its box
+     scroll once it has a sized column, .cols-rz)
+   - moving: drag a header sideways (its column is tinted, a line shows where it will land and its name follows the
+     pointer), or Alt and ← → on a header or the button in it. Only the o.move columns move, among themselves; a drag never
+     sorts, and a touch on a header scrolls the table as it did
+   Rows added later (a sort, a filter, rows brought back) take the same order on their own. While o.wide() is false (a table
+   drawn as a list of cards on a phone), every row keeps its own order and its natural widths.
+   o: { lock:[indexes with no handle, like a checkbox], move:[indexes that move], min:{ index:px } (64 by default),
+   wide:() => boolean, name:th => the column's name }. Returns a function that stops it */
+function cols(table, o = {}){
+  const head = table.tHead.rows[0], N = head.cells.length, lock = new Set(o.lock || []), mov = o.move || [], wide = o.wide || (() => true);
+  const name = o.name || (th => th.textContent.trim()), min = ci => (o.min && o.min[ci]) || 64, ids = [...Array(N).keys()];
+  const cg = document.createElement('colgroup'); cg.innerHTML = '<col>'.repeat(N); [...cg.children].forEach((c, i) => c.dataset.ci = i); table.prepend(cg);
+  // every cell knows its column by data-ci, so a row can be put in any order and back
+  const tag = r => { if (r.cells.length !== N || r.hasAttribute('data-ghost')) return false; [...r.cells].forEach((td, i) => { if (td.dataset.ci == null) td.dataset.ci = i; }); return true; };
+  let order = [...ids], W = null, was = wide();
+  const shown = () => (wide() ? order : ids);
+  // a row already in order is left alone, so a press on a header isn't swallowed by its cell moving under it
+  const place = (r, cells) => { const s = shown(); if (cells.every((c, i) => +c.dataset.ci === s[i])) return; const by = {}; cells.forEach(c => by[c.dataset.ci] = c); s.forEach(i => r.appendChild(by[i])); };
+  const ths = () => [...head.cells], th = ci => head.querySelector(`:scope>[data-ci="${ci}"]`), px = ci => th(ci).getBoundingClientRect().width, last = () => shown()[N - 1];
+  const apply = () => {
+    [...table.rows].filter(tag).forEach(r => place(r, [...r.cells])); place(cg, [...cg.children]);
+    const on = !!W && wide(); table.classList.toggle('cols-rz', on);
+    [...cg.children].forEach(c => { const ci = +c.dataset.ci; c.style.width = on && ci !== last() ? Math.round(W[ci]) + 'px' : ''; });
+    table.style.width = on ? `max(100%, ${Math.round(shown().slice(0, -1).reduce((a, ci) => a + W[ci], 0) + min(last()))}px)` : '';
+    ths().forEach(h => { const g = h.querySelector(':scope>.col-rz'); if (g) g.setAttribute('aria-valuenow', Math.round(h.getBoundingClientRect().width)); });
+  };
+  ths().forEach((h, i) => { h.dataset.ci = i; if (lock.has(i)) return;
+    h.insertAdjacentHTML('beforeend', `<span class="col-rz" role="separator" aria-orientation="vertical" tabindex="0" aria-valuemin="${min(i)}" aria-label="Resize ${name(h)}" data-tip="Drag to resize, double click to reset" data-rz="${i}"></span>`); });
+  ths().forEach((h, i) => { if (mov.includes(i)) h.setAttribute('aria-keyshortcuts', 'Alt+ArrowLeft Alt+ArrowRight'); });
+  // the widths as they are on screen, the first time one changes
+  const measure = () => { if (W) return; W = {}; ids.forEach(ci => W[ci] = px(ci)); };
+  // a column's new width, never under its own min
+  const size = (ci, w) => { W[ci] = Math.max(min(ci), w); apply(); };
+  const moveTo = (ci, at) => { const s = [...order], from = s.indexOf(ci); s.splice(from, 1); s.splice(at > from ? at - 1 : at, 0, ci); order = s; apply(); };
+  let drag = null, dragged = false;
+  const ghost = document.createElement('div'), bar = document.createElement('div'); ghost.className = 'col-ghost'; bar.className = 'col-at';
+  const down = e => {
+    const g = e.target.closest('.col-rz');
+    if (g){ if (e.button || !wide()) return; e.preventDefault(); e.stopPropagation(); measure();
+      const ci = +g.dataset.rz, x0 = e.clientX, w0 = W[ci]; g.setPointerCapture(e.pointerId); g.classList.add('on'); table.classList.add('cols-rzing');
+      const mv = ev => size(ci, w0 + ev.clientX - x0);
+      const up = () => { g.removeEventListener('pointermove', mv); g.removeEventListener('pointerup', up); g.removeEventListener('pointercancel', up); g.classList.remove('on'); table.classList.remove('cols-rzing'); };
+      g.addEventListener('pointermove', mv); g.addEventListener('pointerup', up); g.addEventListener('pointercancel', up); return; }
+    const h = e.target.closest('th'); if (!h || h.parentElement !== head || e.button || e.pointerType === 'touch' || !wide() || !mov.includes(+h.dataset.ci)) return;
+    drag = { h, ci:+h.dataset.ci, x0:e.clientX, on:false };
+  };
+  const move = e => {
+    if (!drag) return;
+    if (!drag.on){ if (Math.abs(e.clientX - drag.x0) < 6) return; drag.on = true; hideTip(true); table.classList.add('cols-drag');
+      [...table.rows].forEach(r => { const c = [...r.cells].find(x => +x.dataset.ci === drag.ci && r.cells.length === N); if (c) c.classList.add('col-mv'); });
+      // they sit where the tooltip does, on the page in the components' style
+      ghost.textContent = name(drag.h); (tip.parentElement || document.body).append(ghost, bar); }
+    ghost.style.transform = `translate(${e.clientX + 12}px,${e.clientY - 14}px)`;
+    // where it lands: the gap between two movable columns nearest the pointer
+    const hs = ths(), m = hs.map((x, i) => ({ x, i })).filter(z => mov.includes(+z.x.dataset.ci)), tb = table.getBoundingClientRect();
+    let at = m[m.length - 1].i + 1; for (const z of m){ const b = z.x.getBoundingClientRect(); if (e.clientX < b.left + b.width / 2){ at = z.i; break; } }
+    drag.at = at; const x = at < N ? hs[at].getBoundingClientRect().left : tb.right;
+    Object.assign(bar.style, { left:Math.round(x - 1) + 'px', top:Math.round(tb.top) + 'px', height:Math.round(tb.height) + 'px' });
+  };
+  const end = () => { if (!drag) return; const d = drag; drag = null; if (!d.on) return;
+    dragged = true; setTimeout(() => dragged = false, 0); ghost.remove(); bar.remove(); table.classList.remove('cols-drag');
+    table.querySelectorAll('.col-mv').forEach(c => c.classList.remove('col-mv')); moveTo(d.ci, d.at); };
+  // the click a drag ends with never sorts, and a press on a handle never reaches the header's button
+  const click = e => { if (e.target.closest('.col-rz') || (dragged && e.target.closest('thead'))){ e.stopPropagation(); e.preventDefault(); dragged = false; } };
+  const dbl = e => { if (!e.target.closest('.col-rz')) return; W = null; apply(); };
+  const key = e => {
+    const g = e.target.closest('.col-rz');
+    if (g && /^Arrow(Left|Right)$/.test(e.key) && !e.altKey){ if (!wide()) return; e.preventDefault(); e.stopPropagation(); measure(); const ci = +g.dataset.rz; size(ci, W[ci] + (e.key === 'ArrowRight' ? 16 : -16)); return; }
+    const h = e.target.closest('th'); if (!h || h.parentElement !== head || !e.altKey || !/^Arrow(Left|Right)$/.test(e.key) || !wide()) return;
+    const ci = +h.dataset.ci; if (!mov.includes(ci)) return; e.preventDefault(); e.stopPropagation();
+    const slots = order.map((c, i) => mov.includes(c) ? i : -1).filter(i => i >= 0), p = slots.indexOf(order.indexOf(ci)) + (e.key === 'ArrowLeft' ? -1 : 1);
+    if (p < 0 || p >= slots.length) return; const t = e.target; moveTo(ci, e.key === 'ArrowLeft' ? slots[p] : slots[p] + 1); t.focus({ preventScroll:true });
+  };
+  table.addEventListener('pointerdown', down); window.addEventListener('pointermove', move); window.addEventListener('pointerup', end); window.addEventListener('pointercancel', end);
+  table.addEventListener('click', click, true); table.addEventListener('dblclick', dbl); table.addEventListener('keydown', key);
+  // rows that arrive later take the order, and a table that turns into cards (or back) takes its own order (or the chosen one)
+  const mo = new MutationObserver(() => apply()); [...table.tBodies].forEach(b => mo.observe(b, { childList:true }));
+  const ro = new ResizeObserver(() => { const w = wide(); if (w !== was){ was = w; apply(); } }); ro.observe(table.parentElement);
+  apply();
+  return () => { mo.disconnect(); ro.disconnect(); ghost.remove(); bar.remove(); table.removeEventListener('pointerdown', down); window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', end); window.removeEventListener('pointercancel', end);
+    table.removeEventListener('click', click, true); table.removeEventListener('dblclick', dbl); table.removeEventListener('keydown', key); };
+}
 /* centre(): keeps a field centred in the room its stage keeps for it, and glides it up as its list opens, so the field
    and the list sit centred together. showing() is the height on show once things settle; the glide runs at the speed
    folds and lists open with, so the two move as one */
@@ -244,7 +414,7 @@ function centre(c, el, showing, watch = []){
    - the arrows (disabled at the first and last stop), the dots (one per stop, the current one aria-current) and the keys on the
      track: Left and Right go a stop, Home and End to the ends, scrolling smoothly, or jumping with reduced motion
    - a mouse can drag the track like a finger; the click a drag ends with is swallowed
-   - .in on each slide that is at least 70% in view (the CSS brings it into focus), and say(i) once the track settles on the
+   - .in on each slide that is at least 70% in view (for a style that marks it), and say(i) once the track settles on the
      stop that starts with slide i, for a polite live region
    o: { prev, next, dots, dot:i => label, say:i => {}, key:e => {} (other keys on the track) }. Returns { go, at, measure } */
 function carousel(c, tr, o = {}){
@@ -306,7 +476,7 @@ function carousel(c, tr, o = {}){
   };
   c.on(tr, 'pointerup', drop); c.on(tr, 'pointercancel', drop);
   c.on(tr, 'click', e => { if (dragged){ e.preventDefault(); e.stopPropagation(); } }, true);
-  // a slide comes into focus once most of it is in view
+  // .in marks a slide once most of it is in view
   if ('IntersectionObserver' in window){
     const io = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle('in', e.isIntersecting && e.intersectionRatio >= .69)), { root:tr, threshold:[0, .7, 1] });
     S().forEach(s => io.observe(s)); c.offs.push(() => io.disconnect());
@@ -373,7 +543,7 @@ document.addEventListener('click', e => { const b = e.target.closest && e.target
 const DM = {
   defs:{},
   // agents at work: their demos keep playing while a mouse rests on them, instead of holding (see mount)
-  PLAYS:new Set(['status-pill','step-loader','thinking','reasoning-trail','agent-lanes','agent-run-timeline','trace-view','agent-tree','terminal-stream','attachment-tray','progress','web-search','thinking-states','run-drawer','live-answer','harness']),
+  PLAYS:new Set(['status-pill','step-loader','thinking','reasoning-trail','agent-lanes','agent-run-timeline','trace-view','agent-tree','terminal-stream','attachment-tray','progress','web-search','thinking-states','run-drawer','live-answer','harness','response-versions','memory-panel','tool-connections','knowledge-sources','scheduled-runs','event-calendar','form','comments']),
   def(id, fn){ this.defs[id] = fn; },
   /* the markup a card starts from: its <template>, or, when the markup is written out in its stage, what the stage holds
      before it first mounts, kept as a template so Replay starts from it again */
@@ -399,6 +569,8 @@ const DM = {
     ['pointerdown', 'keydown', 'input', 'click'].forEach(t => c.on(st, t, mine, true));
     c.on(st, 'focusin', e => { if (e.isTrusted && e.timeStamp - lastInput < 100) c.mine = true; }, true);
     try { this.defs[id] && this.defs[id](st, c, card); } catch(e){ console.error(id, e); }
+    // its menus' rows glide in Clean (hoverGlide), from the start, so the arrows' row has it before a pointer comes by
+    $$('.mi', st).forEach(mi => { if (!mi.closest('.hg')) menuGlide(mi); });
     // a design picked with the switch under the component swaps in place: the new design fades in where it stands, without
     // the entrance a first visit gets, so picking one never reads as the page reloading (owner, 4 Nov)
     const swapped = card._dmPick && performance.now() - card._dmPick < 600; card._dmPick = 0;
@@ -501,10 +673,11 @@ let openPop = null;
 // it fades out it is inert, and after that hidden (CSS)
 /* how the last thing was done, with a pointer or the keyboard: a control pressed with a mouse or a finger, or focus handed
    back to a popover's button after a click, shows no ring (a mouse or a tap never shows one); a key that moves or acts does.
-   A modifier on its own (Shift, Cmd, Ctrl, Alt: a screenshot shortcut, say) is not one, though the browser counts it */
+   A modifier on its own (Shift, Cmd, Ctrl, Alt: a screenshot shortcut, say) is not one, though the browser counts it, and
+   nor is a key a demo plays (an untrusted event: another card's story pressing keys must not bring back a ring after a click) */
 let byKey = false;
 const MODS = new Set(['Shift', 'Meta', 'Control', 'Alt', 'AltGraph', 'CapsLock', 'Fn', 'OS']);
-addEventListener('keydown', e => { if (e.metaKey || e.ctrlKey || e.altKey || MODS.has(e.key)) return; byKey = true; const a = document.activeElement; if (a && a.dataset && 'nofv' in a.dataset) delete a.dataset.nofv; }, true);
+addEventListener('keydown', e => { if (!e.isTrusted || e.metaKey || e.ctrlKey || e.altKey || MODS.has(e.key)) return; byKey = true; const a = document.activeElement; if (a && a.dataset && 'nofv' in a.dataset) delete a.dataset.nofv; }, true);
 addEventListener('pointerdown', e => { byKey = false;
   const t = e.target && e.target.closest && e.target.closest('button,a[href],summary,[tabindex],[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],label,input,select');
   const f = t && t.tagName === 'LABEL' ? t.control : t;
@@ -527,12 +700,14 @@ function placePop(btn, pop){
   // below when it fits there; above when it doesn't and fits above, or has more room there
   const room = popRoom(btn), need = pop.offsetHeight + 12, below = room.bottom - br.bottom, above = br.top - room.top;
   const up = btn.dataset.popPos === 'up' || (btn.dataset.popPos !== 'down' && below < need && (above >= need || above > below));
-  let x = br.left - hr.left; if (btn.dataset.popAlign === 'end') x = br.right - hr.left - pop.offsetWidth;
+  // lined up with the button's start (the default) or end, or centred under it (a picker wider than its field)
+  const al = btn.dataset.popAlign;
+  let x = br.left - hr.left; if (al === 'end') x = br.right - hr.left - pop.offsetWidth; else if (al === 'center') x = br.left - hr.left + (br.width - pop.offsetWidth) / 2;
   const cb = (btn.closest('.card') || document.body).getBoundingClientRect(), lo = Math.max(0, cb.left) + 8, hi = Math.min(innerWidth, cb.right) - 8;
   x = Math.max(lo - hr.left, Math.min(x, hi - hr.left - pop.offsetWidth));
   pop.style.left = x + 'px';
   pop.style.top = up ? (br.top - hr.top - pop.offsetHeight - 6) + 'px' : (br.bottom - hr.top + 6) + 'px';
-  pop.style.setProperty('--dm-origin', (up ? 'bottom ' : 'top ') + (btn.dataset.popAlign === 'end' ? 'right' : 'left'));
+  pop.style.setProperty('--dm-origin', (up ? 'bottom ' : 'top ') + (al === 'end' ? 'right' : al === 'center' ? 'center' : 'left'));
 }
 document.addEventListener('click', e => {
   const btn = e.target.closest('[data-pop]');
@@ -672,4 +847,4 @@ const mountAll = () => {
 document.addEventListener('DOMContentLoaded', mountAll);
 document.addEventListener('astro:page-load', mountAll);
 
-export { $, $$, AV, BRAND, DM, FLAG, FLAGS, I, MODS, REDUCE, REVEAL, SPRITE, byKey, carousel, centre, closePops, copied, ctl, enter, fitHits, giveBack, grow, hideTip, hold, html, isMenu, lastInput, menuOpen, openPop, placePop, placeTip, popFocus, popItems, popRoom, popStep, reflow, release, reveal, revealParts, seg, showTip, stagger, swap, tip, tipAt, tipFollow, tipFor, tipHid, tipNext, tipRaf, tipT, tipWatch, tween };
+export { $, $$, AV, BRAND, DM, FLAG, FLAGS, I, MODS, REDUCE, REVEAL, SPRITE, byKey, carousel, centre, closePops, cols, copied, ctl, enter, fitHits, giveBack, grow, hideTip, hold, hoverGlide, html, isMenu, lastInput, menuGlide, menuOpen, openPop, placePop, placeTip, popFocus, popItems, popRoom, popStep, reflow, release, reveal, revealParts, seg, showTip, stagger, swap, tip, tipAt, tipFollow, tipFor, tipHid, tipNext, tipRaf, tipT, tipWatch, tween };

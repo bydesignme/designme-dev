@@ -38,8 +38,8 @@ Details panel lists the properties of an agent run, like its status, owner, mode
 - Select options can show a coloured dot, an avatar with initials, or a quieter `detail` line in the menu. The value flashes briefly when it changes.
 - Number rows roll to each new value and use `format` to turn it into text, for example a dollar amount.
 - Tag rows show coloured labels and an optional add button that calls `onAdd`. New tags come in with a short entrance.
-- Sections fold open and closed from their headers. All start open unless you set `defaultOpen` or control `open`.
-- `copyValue` adds a copy button by the title that shows "Copied to clipboard" after a click.
+- Sections fold open and closed from their headers: each section's name is a small label on the panel's left edge, with its chevron after it. All start open unless you set `defaultOpen` or control `open`, and the panel follows them as they fold, keeping no room for a shut one.
+- `copyValue` adds a copy button by the title. After a click its icon turns into a green tick and its tooltip says "Copied to clipboard", then it goes back.
 
 ### Accessibility
 
@@ -84,8 +84,8 @@ export default function DetailsPanelDemo() {
           { key: 'props', title: 'Properties', rows: [
             { key: 'status', label: 'Status', type: 'select', defaultValue: 'In review', options: [
               { value: 'In progress', label: 'In progress', color: 'var(--dm-py)' },
-              { value: 'In review', label: 'In review', color: 'var(--dm-accent)' },
-              { value: 'Shipped', label: 'Shipped', color: 'var(--dm-ok)' }] },
+              { value: 'In review', label: 'In review', color: 'var(--dm-accent-mark)' },
+              { value: 'Shipped', label: 'Shipped', color: 'var(--dm-ok-mark)' }] },
             { key: 'owner', label: 'Owner', type: 'select', defaultValue: 'Maya Kim', options: [
               { value: 'Maya Kim', label: 'Maya Kim', avatar: { initials: 'MK', color: 'var(--dm-av-l)' } },
               { value: 'Jon Ortiz', label: 'Jon Ortiz', avatar: { initials: 'JO', color: 'var(--dm-av-m)' } },
@@ -161,6 +161,8 @@ import { Icon } from '../lib/icons';
 import { Avatar, Fold, Swap, Tip } from '../lib/motion';
 import { usePopover } from '../lib/popover';
 import '../designme.css';
+// its menus' rows glide in Clean
+import '../lib/glide';
 import './details-panel.css';
 
 export interface DetailsPanelOption {
@@ -321,8 +323,9 @@ export function DetailsPanel({ title, kind, copyValue, copyLabel = 'Copy run ID'
         const isOpen = shown.includes(s.key);
         return (
           <div key={s.key} className="dm-dtp-sec">
+            {/* a section's name is a label on the content's edge, its chevron after the words */}
             <button type="button" className="dm-dtp-sh" aria-expanded={isOpen} onClick={() => toggle(s.key)}>
-              <Icon name="chev-r" size="xs" /><span>{s.title}</span>
+              <span>{s.title}</span><Icon name="chev-r" size="xs" />
             </button>
             <Fold open={isOpen}>
               <div className="dm-dtp-rows">{s.rows.map(r => <Row key={r.key} row={r} host={host} />)}</div>

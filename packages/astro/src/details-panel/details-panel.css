@@ -1,18 +1,35 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Details panel ---------- */
-.dtp{padding:var(--dm-s-3);display:flex;flex-direction:column;gap:6px}
-.dtp-h{display:flex;align-items:center;gap:var(--dm-s-2);padding:2px var(--dm-s-1) 6px;font-size:13.5px}
-.dtp-h b{font-weight:500;flex:1;min-width:0}
-.dtp-sh{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dm-muted);padding:6px var(--dm-s-1);width:100%;text-align:left}
-@media (hover:hover) and (pointer:fine){.dtp-sh:hover{color:var(--dm-fg)}}
+/* a run's properties in sections that fold, each value changed in place from a small menu. Its content sits 16px from every
+   edge (owner, 18 Nov): the run's kind, its name and the copy button's glyph on the head's line; each section's name is a
+   label on the content's left edge, in the small muted label type with room above it and its chevron after the words; the
+   keys start on that edge too, and the values share one column, a value you can change lining up by its words, its hover
+   box reaching out round them. The card follows its sections as they fold, so it keeps no room for a shut one */
+.dtp{padding:16px 16px 8px;display:flex;flex-direction:column}
+.dtp-h{display:flex;align-items:center;gap:8px;min-height:28px;font-size:13.5px}
+/* the kind is metadata, so it is muted, never coloured */
+.dtp-h .ft{flex:none;color:var(--dm-muted)}
+.dtp-h b{flex:1;min-width:0;font-weight:500;line-height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* the copy button's glyph ends on the content's edge, its hover circle reaching out round it; done, the glyph is the vivid
+   green tick, in place */
+.dtp-cp{width:28px;height:28px;margin-right:-8px}
+.dtp .ib.copied{color:var(--dm-ok-mark)!important}
+@media (hover:hover) and (pointer:fine){.dtp .ib.copied:hover{color:var(--dm-ok-mark)!important}}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov) */
+.dtp :is(.ib,.pill):active,:root[data-style="clean"] .dtp .ib:active,:root [data-style="clean"] .dtp .ib:active,:root [data-style="clean"].dtp .ib:active{transform:none}
+.dtp-sec{display:flex;flex-direction:column;transition:padding var(--dm-t) var(--dm-ease)}
+/* with the last section shut, its label is the panel's last line, and it too sits 16px from the foot */
+.dtp-sec:not(:has(~.dtp-sec)):has(>.fold.shut){padding-bottom:3px}
+.dtp-sh{display:inline-flex;align-self:flex-start;align-items:center;gap:4px;height:24px;margin:12px -6px 2px;padding:0 6px;border-radius:var(--dm-r-sm);font-size:11.5px;color:var(--dm-muted);text-align:left;transition:color var(--dm-t-fast),background-color var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.dtp-sh:hover{color:var(--dm-fg);background:var(--dm-row)}}
 .dtp-sh svg{transition:transform .4s var(--dm-ease);transform:rotate(90deg)}
 .dtp-sh[aria-expanded="false"] svg{transform:none}
 .dtp-rows{display:flex;flex-direction:column}
 /* a section's rows settle 4px as it folds open, and lift away as it folds shut */
 .dtp .fold .dtp-rows{transition:transform var(--dm-t) var(--dm-ease)}
 .dtp .fold.shut .dtp-rows{transform:translateY(-4px)}
-.dtp-r{display:grid;grid-template-columns:84px 1fr;align-items:center;min-height:34px;font-size:13px;position:relative}
-.dtp-r .k{color:var(--dm-muted);padding-left:var(--dm-s-1)}
+.dtp-r{display:grid;grid-template-columns:84px minmax(0,1fr);align-items:center;min-height:32px;font-size:13px;position:relative}
+.dtp-r .k{color:var(--dm-muted)}
 .dtp-v{display:inline-flex;align-items:center;gap:7px;justify-self:start;height:28px;padding:0 var(--dm-s-2);margin-left:-8px;border-radius:var(--dm-r-sm);transition:background .2s;color:var(--dm-fg)}
 /* a value that starts with a photo sits as far from the box's left edge as from its top and bottom (owner, 10 Nov) */
 .dtp-v:has(>.av:first-child){padding:0 6px 0 4px;margin-left:-4px}
@@ -23,9 +40,11 @@
 .dtp-v.flash{animation:dtpf .9s var(--dm-ease)}
 @keyframes dtpf{30%{background:var(--dm-accent-bg)}}
 .dtp-tags{display:flex;gap:var(--dm-s-1);align-items:center;flex-wrap:wrap}
-.dtp-add{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));display:grid;place-items:center;color:var(--dm-muted);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.dtp-add{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));display:grid;place-items:center;color:var(--dm-muted);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);transition:color var(--dm-t-fast),background-color var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.dtp-add:hover{color:var(--dm-fg);background:var(--dm-row)}}
 .dtp .mi .av{width:20px;height:20px;font-size:9.5px}
 .dtp .pop{min-width:180px}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .dtp.panel,:root [data-style="clean"] .dtp.panel,:root [data-style="clean"].dtp.panel{padding:18px 20px 10px 20px}
+/* Clean (owner, 18 Nov): the add button is a circle like Clean's other small controls, and hovers and fades take Clean's
+   calm 220ms */
+:root[data-style="clean"] .dtp-add,:root [data-style="clean"] .dtp-add,:root [data-style="clean"].dtp-add{border-radius:50%;box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] :is(.dtp-sh,.dtp-v,.dtp-add),:root [data-style="clean"] :is(.dtp-sh,.dtp-v,.dtp-add),:root [data-style="clean"]:is(.dtp-sh,.dtp-v,.dtp-add){transition:color var(--dm-t-fast) var(--dm-ease),background-color var(--dm-t-fast) var(--dm-ease)}

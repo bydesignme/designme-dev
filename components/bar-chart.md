@@ -254,8 +254,8 @@ export function BarChart({ label, series, ranges, range, defaultRange, onRangeCh
 
 ## More in Charts and tables
 
-- [Line chart](https://designme.dev/components/line-chart.md): Two series over time with a hover readout and toggles.
-- [Donut chart](https://designme.dev/components/donut-chart.md): Where the agent's time went, by kind of task.
+- [Line chart](https://designme.dev/components/line-chart.md): Today so far and projected, against yesterday, with a range switch, a project picker, toggles and a readout.
+- [Donut chart](https://designme.dev/components/donut-chart.md): Where the agent's time went this week, as a gauge against its budget, with a part you can select.
 - [Radial goals](https://designme.dev/components/radial-goals.md): Each agent's share of its own target as a ring, with the overall score in the middle.
 - [Funnel chart](https://designme.dev/components/funnel-chart.md): Signup to paid, with the biggest drop called out by the agent.
 - [Top pages](https://designme.dev/components/top-pages.md): Most visited pages with share of traffic and a quick sort.

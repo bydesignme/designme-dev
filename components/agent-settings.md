@@ -38,7 +38,7 @@ A settings panel for how much an agent may do on its own: an autonomy scale, on/
 - One switch per entry in `toggles`, each with a label and an optional detail line.
 - A spend cap stepped up and down through the amounts in `caps`, shown with `formatCap`.
 - An instructions text box that is part of the same value.
-- A save bar that appears whenever the value differs from the last saved one. Save calls `onSave`, and if it returns a promise the button spins until it settles; Reset goes back to the last saved settings and calls `onReset`.
+- A save bar that appears whenever the value differs from the last saved one. Save calls `onSave`, and if it returns a promise the button keeps its width with a spinner in it until it settles, then the bar says Saved with a green tick before it goes; Reset goes back to the last saved settings and calls `onReset`.
 - Works controlled through `value` and `onValueChange`, or holds its own state with `defaultValue`.
 
 ### Accessibility
@@ -225,7 +225,7 @@ export function AgentSettings({
     setPhase('saving');
     try { await onSave?.(v); } catch { setPhase('idle'); return; }
     setSaved(v); setPhase('saved');
-    timer.current = setTimeout(() => setPhase('idle'), 700);
+    timer.current = setTimeout(() => setPhase('idle'), 900);
   };
   const reset = () => { setV(saved); onReset?.(); };
 
@@ -258,10 +258,11 @@ export function AgentSettings({
         <textarea className="dm-asx-ta" rows={2} spellCheck={false} aria-label="Instructions" value={v.instructions} onChange={e => set({ instructions: e.target.value })} />
       </div>
       <div ref={bar} className="dm-asx-bar" inert={!dirty} aria-hidden={!dirty}>
-        <span>Unsaved changes</span>
+        <span>{phase === 'saved' ? <><Icon name="check" size="xs" className="dm-asx-ok" /><span>Saved</span></> : 'Unsaved changes'}</span>
         <button type="button" className="dm-pill dm-ghost dm-sm dm-asx-rs" onClick={reset}>Reset</button>
-        <button type="button" className="dm-pill dm-accent dm-sm dm-asx-sv" onClick={save}>
-          {phase === 'saving' ? <Spin /> : phase === 'saved' ? <><Icon name="check" size="xs" />Saved</> : 'Save'}
+        {/* at work, Save keeps its width with a spinner in the middle of it; saved, the bar's words say so */}
+        <button type="button" className={cx('dm-pill dm-accent dm-sm dm-asx-sv', phase === 'saving' && 'dm-busy')} aria-busy={phase === 'saving' || undefined} onClick={save}>
+          Save{phase === 'saving' && <Spin />}
         </button>
       </div>
     </div>

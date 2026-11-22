@@ -1,5 +1,5 @@
-TPLS["meeting-card"] = "<div class=\"mtx panel\">\n  <div class=\"mtx-h\">\n    <b class=\"mtx-t\">Pricing review</b><span class=\"mtx-sub num\">Today, 10:30 to 11:15</span>\n    <span class=\"tag mtx-st\"><span>{clock}In <span class=\"mtx-roll num\"><i>10</i></span> min</span></span>\n  </div>\n  <div class=\"mtx-track\" role=\"img\" aria-label=\"Now 10:20. The meeting runs 10:30 to 11:15\">\n    <span class=\"mtx-blk\"><span class=\"mtx-bp\"></span><span class=\"num\">10:30</span><span class=\"num\">11:15</span></span>\n    <span class=\"mtx-now\"><i></i></span>\n  </div>\n  <div class=\"mtx-f\">\n    <div class=\"mtx-who\"><span class=\"av\" style=\"background:var(--av-l);color:var(--av-l-ink)\" role=\"img\" aria-label=\"Maya Kim\" data-tip=\"Maya Kim\" data-pic=\"people/MK-5876695\">MK</span><span class=\"av\" style=\"background:var(--av-m);color:var(--av-m-ink)\" role=\"img\" aria-label=\"Jon Ortiz\" data-tip=\"Jon Ortiz\" data-pic=\"people/JO-5384445\">JO</span><span class=\"av\" style=\"background:var(--av-p);color:var(--av-p-ink)\" role=\"img\" aria-label=\"Ari Reyes\" data-tip=\"Ari Reyes\" data-pic=\"people/AR-3785077\">AR</span><span class=\"av\" style=\"background:var(--av-t);color:var(--av-t-ink)\" role=\"img\" aria-label=\"Sam Lee\" data-tip=\"Sam Lee\">SL</span><span class=\"av mtx-more\" role=\"img\" aria-label=\"Dev Kapoor, Lena Novak\" data-tip=\"Dev Kapoor, Lena Novak\">+2</span></div>\n    <span class=\"sp\"></span>\n    <button class=\"ib mtx-cp\" aria-label=\"Copy Google Meet link\" data-tip=\"Copy meet.google.com/nax-wqkf-stu\">{link}</button>\n    <div class=\"mtx-jg\"><button class=\"pill primary mtx-join\"><span class=\"mk\">{meet}</span><span class=\"lb\">Join</span></button><button class=\"pill primary mtx-jm\" aria-label=\"More for this meeting\" data-pop=\".mtx-pop\" data-pop-align=\"end\" aria-haspopup=\"menu\">{chev-d}</button><div class=\"pop mtx-pop\" role=\"menu\"><button class=\"mi\" role=\"menuitem\" data-close data-a=\"Invite sent\">{mail}Send invite</button><button class=\"mi\" role=\"menuitem\" data-close data-a=\"Added to calendar\">{cal}Add to calendar</button><button class=\"mi\" role=\"menuitem\" data-close data-a=\"Invitation copied\">{copy}Copy invitation</button></div></div>\n  </div>\n</div>";
-TPLS["agenda"] = "<div class=\"agx panel\">\n  <div class=\"agx-h\"><div><b>Today</b><span class=\"muted\">Monday, Oct 19</span></div><span class=\"tag b agx-n\">4 events</span></div>\n  <div class=\"agx-list\"></div>\n</div>";
+TPLS["meeting-card"] = "<div class=\"mtx panel\">\n  <div class=\"mtx-h\">\n    <b class=\"mtx-t\">Pricing review</b><span class=\"mtx-sub num\">Today, 10:30 to 11:15</span>\n    <span class=\"tag mtx-st\"><span>{clock}In <span class=\"mtx-roll num\"><i>10</i></span> min</span></span>\n  </div>\n  <div class=\"mtx-track\" role=\"img\" aria-label=\"Now 10:20. The meeting runs 10:30 to 11:15\">\n    <span class=\"mtx-blk\"><span class=\"mtx-bp\"></span><span class=\"num\">10:30</span><span class=\"num\">11:15</span></span>\n    <span class=\"mtx-now\"><i></i></span>\n  </div>\n  <div class=\"mtx-f\">\n    <div class=\"mtx-who\"><span class=\"av\" style=\"background:var(--av-l);color:var(--av-l-ink)\" role=\"img\" aria-label=\"Maya Kim\" data-tip=\"Maya Kim\">MK</span><span class=\"av\" style=\"background:var(--av-b);color:var(--av-b-ink)\" role=\"img\" aria-label=\"Jon Ortiz\" data-tip=\"Jon Ortiz\">JO</span><span class=\"av mtx-wide\" style=\"background:var(--av-k);color:var(--av-k-ink)\" role=\"img\" aria-label=\"Ari Reyes\" data-tip=\"Ari Reyes\">AR</span><span class=\"av mtx-wide\" style=\"background:var(--av-r);color:var(--av-r-ink)\" role=\"img\" aria-label=\"Sam Lee\" data-tip=\"Sam Lee\">SL</span><span class=\"av mtx-more mtx-wide\" role=\"img\" aria-label=\"Dev Kapoor, Lena Novak\" data-tip=\"Dev Kapoor, Lena Novak\">+2</span><span class=\"av mtx-more mtx-narrow\" role=\"img\" aria-label=\"Ari Reyes, Sam Lee, Dev Kapoor, Lena Novak\" data-tip=\"Ari Reyes, Sam Lee, Dev Kapoor, Lena Novak\">+4</span></div>\n    <span class=\"sp\"></span>\n    <button class=\"ib mtx-cp\" aria-label=\"Copy Google Meet link\" data-tip=\"Copy meet.google.com/nax-wqkf-stu\">{link}</button>\n    <div class=\"mtx-jg\"><button class=\"pill primary mtx-join\"><span class=\"mk\">{meet}</span><span class=\"lb\">Join</span></button><button class=\"pill primary mtx-jm\" aria-label=\"More for this meeting\" data-pop=\".mtx-pop\" data-pop-align=\"end\" aria-haspopup=\"menu\">{chev-d}</button><div class=\"pop mtx-pop\" role=\"menu\"><button class=\"mi\" role=\"menuitem\" data-close data-a=\"Invite sent\">{mail}Send invite</button><button class=\"mi\" role=\"menuitem\" data-close data-a=\"Added to calendar\">{cal}Add to calendar</button><button class=\"mi\" role=\"menuitem\" data-close data-a=\"Invitation copied\">{copy}Copy invitation</button></div></div>\n  </div>\n</div>";
+TPLS["agenda"] = "<div class=\"agx panel\">\n  <div class=\"agx-h\"><div><b>Today</b><span class=\"muted\">Monday, Oct 19</span></div></div>\n  <div class=\"agx-list\"></div>\n</div>";
 TPLS["event-calendar"] = "<div class=\"ecx panel\">\n  <div class=\"ecx-h\"><b>Oct 19 – 23, 2026</b><span class=\"ecx-sp\"></span><span class=\"ecx-msg muted\"></span><button class=\"pill soft sm ecx-ask\">{spark}Find 45 min for a design review</button></div>\n  <div class=\"ecx-days\" role=\"group\" aria-label=\"Day\"></div>\n  <div class=\"ecx-sc\"><div class=\"ecx-grid\"><div class=\"ecx-tm\"></div></div></div>\n</div>";
 TPLS["date-range-picker"] = "<div class=\"drx panel\">\n  <div class=\"drx-side\"><button class=\"drx-p\" data-p=\"7\">Last 7 days</button><button class=\"drx-p\" data-p=\"30\">Last 30 days</button><button class=\"drx-p\" data-p=\"q\">This quarter</button><button class=\"drx-p\" data-p=\"sp\">Since pricing launch</button></div>\n  <div class=\"drx-main\">\n    <div class=\"drx-top\"><div class=\"drx-in\"><span class=\"muted\">From</span><b class=\"drx-a\">–</b></div>{right}<div class=\"drx-in\"><span class=\"muted\">To</span><b class=\"drx-b\">–</b></div><span class=\"drx-n muted\"></span></div>\n    <div class=\"drx-cals\"><div class=\"drx-cal\" data-o=\"0\"></div><div class=\"drx-cal\" data-o=\"1\"></div></div>\n    <div class=\"drx-f\"><button class=\"pill ghost sm drx-clr\">Clear</button><button class=\"pill primary sm drx-ok\" disabled>Apply</button></div>\n  </div>\n</div>";
 TPLS["segmented-control"] = "<div class=\"sgc panel\">\n  <div class=\"sgc-h\"><div class=\"sgc-ht\"><b>Pricing launch</b></div>\n    <div class=\"sgc-seg\" role=\"tablist\" aria-label=\"View\"><span class=\"sgc-k\" aria-hidden=\"true\"></span><button role=\"tab\" aria-selected=\"true\" data-v=\"day\">Day</button><button role=\"tab\" aria-selected=\"false\" tabindex=\"-1\" data-v=\"week\">Week</button><button role=\"tab\" aria-selected=\"false\" tabindex=\"-1\" data-v=\"month\">Month</button></div></div>\n  <div class=\"sgc-bar\"><span class=\"sgc-r\" aria-live=\"polite\">Friday, Oct 23</span><button class=\"pill ghost sm sgc-td\">Today</button><button class=\"ib sgc-pv\" aria-label=\"Previous day\"></button><button class=\"ib sgc-nx\" aria-label=\"Next day\"></button></div>\n  <div class=\"sgc-p\" role=\"tabpanel\" tabindex=\"0\"><div class=\"sgc-in\"></div></div>\n</div>";
@@ -11,6 +11,8 @@ DM.def('date-picker', (r, c) => {
   // today is the real today: the calendar opens on its month and the quick picks and typed dates count from it
   const now = new Date(), TODAY = new Date(now.getFullYear(), now.getMonth(), now.getDate()); let view = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1), sel = null;
   const g = $('.dpk-g', r), m = $('.dpk-m', r), val = $('.dpk-val', r), f = $('.dpk-f', r); let cursor = null;
+  // Clean's one hover: a neutral circle that glides from day to day (hoverGlide)
+  c.offs.push(hoverGlide($('.dpk-vp', r), '.dpk-d', { keep:'.s' }));
   val.classList.add('ph');
   const same = (a, b) => a && b && a.toDateString() === b.toDateString();
   const fmt = d => d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
@@ -59,15 +61,29 @@ DM.def('date-picker', (r, c) => {
   // closing, it waits for the calendar to fade before it glides back to the middle
   const box = $('.dpk', r), pop = $('.dpk-pop', r), isOpen = () => f.getAttribute('aria-expanded') === 'true';
   const centred = centre(c, box, () => isOpen() ? Math.max(box.offsetHeight, pop.offsetTop + pop.offsetHeight) : box.offsetHeight);
-  const mo = new MutationObserver(() => isOpen() ? centred() : c.later(REDUCE ? 0 : 180, centred));
+  // (the wait is the glide's own transition delay, so a busy page can't hold the field up there longer than the fade)
+  const mo = new MutationObserver(() => { box.style.transitionDelay = isOpen() || REDUCE ? '' : '.18s'; centred(); });
   mo.observe(f, { attributes:true, attributeFilter:['aria-expanded'] }); c.offs.push(() => mo.disconnect());
-  // the preview opens it and types a date on its own; clicking, focusing or typing in it takes over, and what it had typed goes
-  c.auto(800, () => { f.click(); c.run(async () => { const i = $('.dpk-nl', r); await c.step(500); await c.type(i, 'next friday', { ms:70, each:() => i.oninput({ target:i }) }); }); });
+  // the preview opens it, types a date, and closes it on the day it found: the closed field shows the date, centred again.
+  // Clicking, focusing or typing in it takes over, and what it had typed goes. One popover is open at a time on the page, so
+  // the preview waits while another card's demo has its menu open, and never takes it from that card; if another card closes
+  // this calendar while it types, the typing waits and goes on once the calendar is open again
+  const free = async () => { for (let k = 0; k < 40 && openPop && openPop.pop !== pop; k++) await c.step(250); };
+  const shown = async () => { if (isOpen()) return; await free(); f.click(); await c.step(400); };
+  c.auto(800, () => c.run(async () => {
+    const i = $('.dpk-nl', r); let typed = '';
+    c.taken(() => { if (typed && i.isConnected && i.value === typed){ i.value = ''; i.oninput({ target:i }); } });
+    await shown(); await c.step(100);
+    for (const ch of 'next friday'){ await shown(); await c.step(70); typed += ch; i.value = typed; i.oninput({ target:i }); }
+    typed = '';
+    await shown(); await c.step(2400); if (isOpen()) closePops(); }));
 });
 /* ---------- Segmented control ---------- */
 DM.def('segmented-control', (r, c) => {
   const uid = Math.random().toString(36).slice(2, 7);
   const seg = $('.sgc-seg', r), knob = $('.sgc-k', r), tabs = $$('[role="tab"]', seg), panel = $('.sgc-p', r), range = $('.sgc-r', r);
+  // Clean's one hover: a highlight that glides from event to event and day to day (hoverGlide)
+  c.offs.push(hoverGlide(panel, '.sgc-ev,.sgc-wr,.sgc-mo .d', { keep:'.on,.now' }));
   let inner = $('.sgc-in', r);
   tabs.forEach(t => { t.id = `sgc-${t.dataset.v}-${uid}`; t.setAttribute('aria-controls', 'sgc-p-' + uid); });
   panel.id = 'sgc-p-' + uid;
@@ -103,7 +119,7 @@ DM.def('segmented-control', (r, c) => {
     day:[d => mo(d, { weekday:'long', month:'short', day:'numeric' }), d => { const e = evs(d); return e.length ? `<div class="sgc-day">${e.map(([t, n, x, col]) => `<div class="sgc-ev" style="--c:${col}"><span class="num muted">${t}</span><i></i><span class="t">${n}<span>${x}</span></span></div>`).join('')}</div>` : '<div class="sgc-none">Nothing planned</div>'; }],
     week:[d => { const a = mon(d), b = at(a, 4); return mo(a, { month:'short', day:'numeric' }) + ' – ' + (a.getMonth() === b.getMonth() ? b.getDate() : mo(b, { month:'short', day:'numeric' })); },
       d => `<div class="sgc-wk">${Array.from({ length:5 }, (_, i) => at(mon(d), i)).map(x => { const ev = evs(x);
-        return `<button class="sgc-wr${same(x, TODAY) ? ' now' : ''}${ev.length ? '' : ' none'}" data-d="${iso(x)}" aria-label="${mo(x, { weekday:'long', month:'long', day:'numeric' })}, ${ev.length ? ev.length + (ev.length === 1 ? ' event' : ' events') : 'nothing planned'}"><span class="d">${mo(x, { weekday:'short' })} ${x.getDate()}</span>${ev.length ? `<span class="e" style="--c:${ev[0][3]}"><i></i><span>${ev[0][1]}</span></span>${ev.length > 1 ? `<span class="more">+${ev.length - 1} more</span>` : ''}` : '<span class="e">Nothing planned</span>'}</button>`; }).join('')}</div>`],
+        return `<button class="sgc-wr${same(x, TODAY) ? ' now' : ''}${ev.length ? '' : ' none'}" data-d="${iso(x)}" aria-label="${mo(x, { weekday:'long', month:'long', day:'numeric' })}, ${ev.length ? ev.length + (ev.length === 1 ? ' event' : ' events') : 'nothing planned'}"><span class="d">${mo(x, { weekday:'short' })} <b>${x.getDate()}</b></span>${ev.length ? `<span class="e" style="--c:${ev[0][3]}"><i></i><span>${ev[0][1]}</span></span>${ev.length > 1 ? `<span class="more">+${ev.length - 1} more</span>` : ''}` : '<span class="e">Nothing planned</span>'}</button>`; }).join('')}</div>`],
     month:[d => mo(d, { month:'long', year:'numeric' }), d => { const a = new Date(d.getFullYear(), d.getMonth(), 1, 12), lead = (a.getDay() + 6) % 7, len = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
       return `<div class="sgc-mo${lead + len > 35 ? ' r6' : ''}">${['M','T','W','T','F','S','S'].map(w => `<span class="w" aria-hidden="true">${w}</span>`).join('')}${'<span></span>'.repeat(lead)}${Array.from({ length:len }, (_, i) => { const x = at(a, i), n = evs(x).length;
         return `<button class="d num${n ? ' e' : ''}${same(x, TODAY) ? ' now' : ''}${same(x, sel) && !same(x, TODAY) ? ' on' : ''}" data-d="${iso(x)}" aria-label="${mo(x, { weekday:'long', month:'long', day:'numeric' })}, ${n ? n + (n === 1 ? ' event' : ' events') : 'nothing planned'}">${i + 1}</button>`; }).join('')}</div>`; }]
@@ -115,14 +131,14 @@ DM.def('segmented-control', (r, c) => {
   // a day in the week or the month opens that day
   const bind = el => $$('[data-d]', el).forEach(b => b.onclick = () => { const [y, m, dd] = b.dataset.d.split('-').map(Number); sel = new Date(y, m - 1, dd, 12); pick(tabs[0], false, true); });
   // shows the view for the picked date: the range eases over and the new dates crossfade over the old ones, which stay
-  // on screen until they have faded, so no frame is empty
+  // on screen until they have faded, so no frame is empty. The panel eases to the new view's height (grow())
   function show(){
     const v = cur;
     swap(range, V[v][0](sel)); pv.setAttribute('aria-label', 'Previous ' + UNIT[v]); nxB.setAttribute('aria-label', 'Next ' + UNIT[v]);
     const old = inner; inner = html(`<div class="sgc-in fresh">${V[v][1](sel)}</div>`); bind(inner);
     $$('.sgc-in.gone', panel).forEach(x => x.remove());
     old.classList.remove('fresh'); old.classList.add('gone'); old.inert = true; old.setAttribute('aria-hidden', 'true');
-    panel.appendChild(inner);
+    old.parentElement.appendChild(inner);
     c.later(REDUCE ? 0 : 260, () => old.remove());
   }
   function pick(t, focus, force){
@@ -143,7 +159,7 @@ DM.def('segmented-control', (r, c) => {
     const go = { ArrowRight:i + 1, ArrowLeft:i - 1, Home:0, End:tabs.length - 1 }[e.key]; if (go === undefined) return;
     e.preventDefault(); pick(tabs[(go + tabs.length) % tabs.length], true);
   };
-  inner.innerHTML = V.day[1](sel); bind(inner); pick(tabs[0]);
+  inner.innerHTML = V.day[1](sel); bind(inner); pick(tabs[0]); c.offs.push(grow(panel));
   knob.style.transition = 'none'; requestAnimationFrame(() => { place(); requestAnimationFrame(() => { knob.style.transition = ''; }); });
   const ro = new ResizeObserver(place); ro.observe(seg); c.offs.push(() => ro.disconnect());
   // the preview's story: the week, then Tuesday opened from it, a step on to Wednesday, the month, and back to the week
@@ -252,17 +268,21 @@ DM.def('event-calendar', (r, c) => {
   let openFor = null;
   const say = t => swap(msg, t);
   // closing gives the focus back to the event when it was in the card
-  const closePop = () => { const back = pop.contains(document.activeElement) && openFor; pop.classList.remove('open'); openFor = null; if (back && back.isConnected) back.focus({ preventScroll:true }); };
+  const closePop = () => { const back = pop.contains(document.activeElement) && openFor; pop.classList.remove('open'); if (openFor) openFor.classList.remove('on'); openFor = null; if (back && back.isConnected) back.focus({ preventScroll:true }); };
   /* the details card opens beside the event and stays inside the calendar */
   function openPop(el){
-    const e = el._e; if (openFor === el){ closePop(); return; } openFor = el; const n = 2 + e[3].length % 3, fresh = e[3] === 'New event';
+    const e = el._e; if (openFor === el){ closePop(); return; } if (openFor) openFor.classList.remove('on'); openFor = el; el.classList.add('on'); const n = 2 + e[3].length % 3, fresh = e[3] === 'New event';
     pop.innerHTML = `<div class="ecx-ph"><i style="background:var(--p${e[4]})"></i>${fresh ? '<input class="ecx-ti" placeholder="Add a title" aria-label="Event title">' : `<b>${e[3]}</b>`}<button class="ib ecx-px" aria-label="Close" data-tip="Close">${I('x','xs')}</button></div><div class="ecx-pt">${DAYN[e[0]]} ${DAYS[e[0]].split(' ')[1]} Oct · ${tm(e[1])} – ${tm(e[1] + e[2])}</div><div class="ecx-pw">${WHO.slice(0, n).map(w => AV(w[0], w[1])).join('')}<span class="muted">${n} people</span></div><div class="ecx-pa">${fresh ? '<button class="pill line sm ecx-del">Discard</button><button class="pill primary sm ecx-save">Save</button>' : `<button class="pill soft sm ecx-prep">${I('spark','xs')}Prep notes</button><button class="pill primary sm">Join</button>`}</div>`;
     const pr = panel.getBoundingClientRect(), er = el.getBoundingClientRect(), w = 248;
-    let x = er.right - pr.left + 8; if (x + w > pr.width - 8) x = er.left - pr.left - w - 8; x = Math.max(8, x);
-    let y = er.top - pr.top; y = Math.max(8, Math.min(y, pr.height - pop.offsetHeight - 8));
-    pop.style.left = x + 'px'; pop.style.top = y + 'px'; pop.classList.remove('open'); void pop.offsetWidth; pop.classList.add('open'); hideTip();
+    let x = er.right - pr.left + 8; if (x + w > pr.width - 16) x = er.left - pr.left - w - 8; x = Math.max(16, x);
+    let y = er.top - pr.top; y = Math.max(16, Math.min(y, pr.height - pop.offsetHeight - 24));
+    // (it scales and fades from the event's side, where Clean's popovers start)
+    pop.style.left = x + 'px'; pop.style.top = y + 'px'; pop.style.setProperty('--origin', (x > er.left - pr.left ? 'left' : 'right') + ' top');
+    pop.classList.remove('open'); void pop.offsetWidth; pop.classList.add('open'); hideTip();
     $('.ecx-px', pop).onclick = closePop;
-    const prep = $('.ecx-prep', pop); if (prep) prep.onclick = () => { prep.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span>Writing'; c.later(1200, () => { if (!prep.isConnected) return; const nt = html(`<div class="ecx-note">${I('spark','xs')}<span>Notes ready: last week's decisions and 3 open questions.</span></div>`); prep.closest('.ecx-pa').before(nt); enter(nt); prep.remove(); }); };
+    // Prep notes: its words shimmer while the agent writes; then the notes arrive above the buttons and the button stays, with
+    // the green tick in place of its spark
+    const prep = $('.ecx-prep', pop); if (prep) prep.onclick = () => { if (prep._busy) return; prep._busy = true; prep.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Writing</span>'; c.later(1200, () => { if (!prep.isConnected) return; const nt = html(`<div class="ecx-note">${I('spark','xs')}<span>Last week's decisions and 3 open questions.</span></div>`); prep.closest('.ecx-pa').before(nt); enter(nt); prep.innerHTML = I('check','xs') + 'Prep notes'; prep.classList.add('done'); prep.setAttribute('aria-disabled', 'true'); }); };
     const ti = $('.ecx-ti', pop); if (ti){ ti.focus({ preventScroll:true });
       const save = () => { const v = ti.value.trim() || 'Untitled'; e[3] = v; $('b', el).textContent = v; el.dataset.tip = v + ', ' + tm(e[1]); closePop(); say('Added ' + v + ', ' + DAYN[e[0]] + ' ' + tm(e[1])); };
       ti.onkeydown = k => { if (k.key === 'Enter') save(); if (k.key === 'Escape'){ el.remove(); closePop(); } };
@@ -300,7 +320,7 @@ DM.def('event-calendar', (r, c) => {
   const tell = t => swap(ask, I('spark','xs') + t, true);
   ask.onclick = () => c.run(async () => {
     $$('.ecx-e.sug', grid).forEach(x => x.remove());
-    ask.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span>Checking 4 calendars'; const sc = $('.ecx-scan', grid); sc.classList.remove('go'); void sc.offsetWidth; sc.classList.add('go');
+    ask.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Checking 4 calendars</span>'; const sc = $('.ecx-scan', grid); sc.classList.remove('go'); void sc.offsetWidth; sc.classList.add('go');
     await c.wait(1300);
     const S = [[2,13.5,.75,'Design review','b'],[4,13,.75,'Design review','b']];
     S.forEach((s, i) => { const el = ev(s, 'sug' + (i ? ' alt' : '')); if (!i) el.insertAdjacentHTML('beforeend', '<div class="ecx-sg"><button class="y">Book</button><button class="n">Other</button></div>'); col(s[0]).appendChild(el); el.style.animationDelay = i * 120 + 'ms'; el.style.height = 'auto'; el.style.minHeight = tall(s[2]); });
@@ -315,6 +335,8 @@ DM.def('event-calendar', (r, c) => {
 });
 /* ---------- Agenda ---------- */
 DM.def('agenda', (r, c) => {
+  // Clean's one hover: a highlight that glides from event to event (hoverGlide); the open one keeps its own
+  c.offs.push(hoverGlide($('.agx-list', r), '.agx-e', { keep:'.open' }));
   const E = [
     ['9:00','Standup','15 min, Design team','b',[['MK','var(--av-l)'],['JO','var(--av-m)'],['AR','var(--av-p)']],null,1],
     ['11:30','Agent demo','30 min, Zoom','y',[['SL','var(--av-t)'],['MK','var(--av-l)']],['Demo flow: pricing audit, then the token export','Sam asked about cost limits last time, the cap is now $5'],0],
@@ -324,8 +346,10 @@ DM.def('agenda', (r, c) => {
   const list = $('.agx-list', r);
   list.innerHTML = E.map((e, i) => `<button class="agx-e${e[6] ? ' past' : ''}" data-i="${i}"><span class="tm num">${e[0]}</span><span class="bar"></span><span class="t"><b>${e[1]}</b><span>${e[2]}</span><span class="who">${e[4].map(a => AV(a[0], a[1])).join('')}</span></span></button>`).join('');
   const rows = $$('.agx-e', list);
-  rows[0].after(html('<div class="agx-now"><i></i>10:42</div>'));
+  rows[0].after(html('<div class="agx-now" role="separator" aria-label="Now, 10:42"><span class="tag num">10:42</span><i></i></div>'));
   stagger([...list.children], 60);
+  // the card eases to its new height as an event's prep notes open or fold away (grow())
+  c.offs.push(grow($('.agx', r)));
   rows.forEach((el, i) => el.onclick = () => {
     const open = el.classList.contains('open'); rows.forEach(x => { x.classList.remove('open'); $('.agx-prep', x)?.remove(); });
     if (open || !E[i][5]) return;
@@ -368,6 +392,11 @@ DM.def('meeting-card', (r, c) => {
     track.setAttribute('aria-label', ph === 'done' ? 'The meeting ran 10:30 to 11:15 and has ended' : `Now ${clock(m)}. The meeting runs 10:30 to 11:15`);
   };
   set(620);
+  // the button is as wide as its words and eases to its new width when they change, keeping no room for a longer one (owner, 18 Nov)
+  const easeW = el => { let w = 0, busy = null; const ro = new ResizeObserver(() => { if (busy) return; const w1 = el.getBoundingClientRect().width;
+    if (!REDUCE && w && Math.abs(w1 - w) > .5){ busy = el.animate([{ width:w + 'px' }, { width:w1 + 'px' }], { duration:340, easing:'cubic-bezier(.23,1,.32,1)' }); busy.finished.catch(() => {}).then(() => { busy = null; w = el.getBoundingClientRect().width; }); } w = w1; });
+    ro.observe(el); c.offs.push(() => ro.disconnect()); };
+  easeW(join);
   join.onclick = () => {
     join.classList.add('prs'); c.later(110, () => join.classList.remove('prs'));
     const lb = $('.lb', join); swap(lb, 'Opening Meet'); c.later(1600, () => swap(lb, 'Join'));

@@ -23,26 +23,26 @@ npx shadcn@latest add https://designme.dev/r/shadcn/astro/comments.json  # Astro
 
 ## About
 
-Comments is a thread pinned to one spot in a design, where people reply to each other and can bring the agent in by typing @agent. Each comment is an avatar, a name, a time and the text; the first one starts the thread and the replies sit indented under it on a thin line. A quiet Agree button shows beside the time on hover or keyboard focus. The agent's reply shows a thinking mark first, then its words fade in, and it can end with buttons such as Apply to all that turn into a short note once used. The whole thread can be resolved, which fades it back.
+Comments is a thread pinned to one spot in a design, where people reply to each other and can bring the agent in by typing @agent. Each comment is an avatar, a name, a time and the text; the first one starts the thread and the replies sit indented under it on a thin line. A quiet Agree button shows beside the time on hover or keyboard focus. The agent's reply shows a thinking mark first, then its words fade in, and it can end with buttons such as Apply to all that turn into a short note once used. The whole thread can be resolved: the pin turns green, a Resolved chip shows and the reply field folds away, while the thread keeps its colours.
 
 ### When to use it
 
 - When feedback lives on a design or document and the agent should act on it from the thread
 - When people need to @mention teammates and the agent from the same reply field
 - When an agent's suggestion needs a yes or a choice before it changes anything
-- When resolved threads should stay visible but step back
+- When resolved threads should stay visible and say they are resolved
 
 ### What it does
 
-- The first of `comments` starts the thread, and every later one is a reply, indented under it on a thin line. The header counts the replies.
+- The first of `comments` starts the thread, and every later one is a reply, indented under it on one unbroken thin line that runs down from the first avatar, branches to each reply's avatar and ends at the last one, drawing itself down as a reply arrives. A hairline sets the head and the reply field off from the thread; in Clean the head is a strip and the reply field sits in a foot strip. The thread keeps no room for replies to come: it eases taller as they arrive and as the agent's words stream in, and the reply field glides down with it.
 - Typing @ and the start of a handle opens a menu of matching `people`, and Enter or a click inserts the handle.
 - @mentions in plain text comments are highlighted in the accent's tint, limited to known handles when `people` is given.
-- Each comment's Agree button shows on hover or keyboard focus, and always on a touch screen. It toggles yours in `agreed`, and a chip under the text counts everyone who agreed (`agrees` on the comment, plus you); the chip toggles yours too.
+- Each comment's Agree button shows on hover or keyboard focus, and always on a touch screen. It toggles yours in `agreed`, and a chip under the text counts everyone who agreed (`agrees` on the comment, plus you); the chip toggles yours too, and takes the accent's tint once you have agreed.
 - A comment with `thinking` shows the thinking dots; an `agent` comment's words fade in as its `text` grows.
-- `actions` add buttons under a comment, and setting `resolution` replaces them with a confirmation line like "Applied to 3 frames".
-- Enter or the Send button calls `onSend` with the trimmed reply and clears the field; Send is disabled while the field is empty.
+- `actions` add buttons under a comment, and setting `resolution` replaces them with a confirmation line like "Applied to 3 frames", a neutral line with a green tick.
+- Enter or the Send button calls `onSend` with the trimmed reply and clears the field; Send is disabled while the field is empty; in Clean it is a quiet glyph until there is something to send, when the ink button fades in under it.
 - The reply field has a dimmed edge at rest and a step stronger one while it has the focus, with no ring.
-- The Resolve button in the header toggles `resolved`, fades the thread, turns the pin green and marks the thread Resolved.
+- The Resolve button in the header toggles `resolved`: the pin turns green, a green Resolved chip shows beside the title and the reply field folds away. The thread keeps its colours. Pressed again, it reopens the thread.
 
 ### Accessibility
 
@@ -138,7 +138,7 @@ export default function CommentsDemo() {
 | `onValueChange` (optional) | `(value: string) => void` |  |
 | `onSend` (optional) | `(text: string) => void` | Called with the reply when it is sent. Add it to `comments` to show it |
 | `placeholder` (optional) | `string` |  |
-| `resolved` (optional) | `boolean` | Whether the thread is resolved, which fades it. Leave it out to let the Resolve button toggle it |
+| `resolved` (optional) | `boolean` | Whether the thread is resolved: the pin turns green, a Resolved chip shows and the reply field folds away, while the thread keeps its colours. Leave it out to let the Resolve button toggle it |
 | `defaultResolved` (optional) | `boolean` |  |
 | `onResolvedChange` (optional) | `(resolved: boolean) => void` |  |
 | `agreed` (optional) | `string[]` | The ids of the comments you agreed with. Leave it out to let the Agree buttons keep it |
@@ -185,8 +185,10 @@ import { useId, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { Avatar, avatarInk, enter, Think, Tip } from '../lib/motion';
+import { Avatar, avatarInk, enter, Think, Tip, useGrow } from '../lib/motion';
 import '../designme.css';
+// its menus' rows glide in Clean
+import '../lib/glide';
 import './comments.css';
 
 export interface CommentsPerson {
@@ -242,7 +244,8 @@ export interface CommentsProps {
   /** Called with the reply when it is sent. Add it to `comments` to show it */
   onSend?: (text: string) => void;
   placeholder?: string;
-  /** Whether the thread is resolved, which fades it. Leave it out to let the Resolve button toggle it */
+  /** Whether the thread is resolved: the pin turns green, a Resolved chip shows and the reply field folds away, while the
+      thread keeps its colours. Leave it out to let the Resolve button toggle it */
   resolved?: boolean;
   defaultResolved?: boolean;
   onResolvedChange?: (resolved: boolean) => void;
@@ -327,25 +330,30 @@ export function Comments({ title, pin = 1, comments, people, value, defaultValue
 
   const [head, ...replies] = comments;
   const one = (c: CommentsEntry) => <Comment key={c.id} c={c} handles={handles} mine={yes.includes(c.id)} onAgree={() => agree(c.id)} />;
-  const status = done ? 'Resolved' : replies.length ? replies.length + (replies.length === 1 ? ' reply' : ' replies') : '';
+  // the thread keeps no room for replies to come: it eases taller as they arrive and as the agent's words stream in, and the
+  // reply field under it glides down with it
+  const [thRoot, thInner] = useGrow();
 
   return (
     <div data-dm="" className={cx('dm-cmx dm-panel', done && 'dm-done', className)}>
       <div className="dm-cmx-h">
         <span className="dm-cmx-pin" aria-hidden="true">{pin}</span>
         <b>{title}</b>
-        <span className="dm-cmx-st dm-num">{status}</span>
+        {/* the head says nothing the thread already shows (no count of the replies); once resolved, a green chip says so */}
+        <span className="dm-cmx-st">{done && <span className="dm-tag dm-ok dm-enter">Resolved</span>}</span>
         <Tip label={done ? 'Reopen thread' : 'Resolve thread'}>
           <button type="button" className="dm-ib dm-cmx-res" aria-label="Resolve thread" aria-pressed={done} onClick={() => setDone(!done)}>
             <Icon name={done ? 'undo' : 'check'} size="xs" />
           </button>
         </Tip>
       </div>
-      <div className="dm-cmx-th" aria-live="polite">
-        {head && one(head)}
-        {replies.length > 0 && <div className="dm-cmx-rp" role="group" aria-label="Replies">{replies.map(one)}</div>}
+      <div ref={thRoot} className="dm-cmx-th dm-growing" aria-live="polite">
+        <div ref={thInner} className="dm-grow">
+          {head && one(head)}
+          {replies.length > 0 && <div className="dm-cmx-rp" role="group" aria-label="Replies">{replies.map(one)}</div>}
+        </div>
       </div>
-      <div className="dm-cmx-in">
+      <div className="dm-cmx-in" inert={done}>
         <div className="dm-cmx-box">
           <input placeholder={placeholder} aria-label="Reply" spellCheck={false} autoComplete="off" value={draft} onChange={e => setDraft(e.target.value)} onKeyDown={key}
             role="combobox" aria-expanded={menuOpen} aria-autocomplete="list" aria-controls={`${id}-men`} aria-activedescendant={menuOpen ? `${id}-${at}` : undefined} />

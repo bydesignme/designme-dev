@@ -1,9 +1,12 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, DM, I, REDUCE, closePops, enter, html, placePop, stagger, swap } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, closePops, enter, grow, hoverGlide, html, placePop, popRoom, stagger, swap } from '../core/core.js';
 DM.def('knowledge-sources', (r, c) => {
-  r.innerHTML = r.innerHTML.replace('{plus}', I('plus','xs')).replace('{refresh}', I('refresh','xs')).replace('{trash}', I('trash','xs'));
-  // a source's type gives it its icon: uploaded files, a website the agent crawls, or a connected folder of docs
-  const KIND = { files:['file-text','var(--dm-pp)'], web:['globe','var(--dm-pb)'], folder:['folder','var(--dm-pm)'] };
+  r.innerHTML = r.innerHTML.replace(/\{plus\}/g, I('plus','xs')).replace('{refresh}', I('refresh','xs')).replace('{trash}', I('trash','xs')).replace('{book}', I('book','xs'));
+  // Clean's one hover: a highlight that glides from row to row (hoverGlide)
+  c.offs.push(hoverGlide($('.ksx-list', r), '.ksx-s'));
+  // a source's type gives it its icon, on a vivid tile of its colour: uploaded files, a website the agent crawls, or a
+  // connected folder of docs
+  const KIND = { files:['file-text','p'], web:['globe','b'], folder:['folder','m'] };
   // a connected folder and a set of uploads are ready, and a PDF is being read. One source indexes at a time and the rest
   // wait in line; a source's chunks count once it has been indexed. `ms` is how long a full pass takes in this preview
   const S = [
@@ -12,19 +15,24 @@ DM.def('knowledge-sources', (r, c) => {
     { kind:'files', name:'Brand book 2024.pdf', n:24, unit:'pages', chunks:48, st:'queued', ms:19000, fail:{ at:9, why:'Scanned PDF, no text found', fix:'Retry with OCR' } }
   ];
   const FOLDERS = [['Design specs', 'Google Drive', 57, 230], ['Research notes', 'Notion', 31, 124]];
-  const list = $('.ksx-list', r), st = $('.ksx-st', r), add = $('.ksx-add', r), pop = $('.ksx-pop', r), mpop = $('.ksx-mpop', r), file = $('.ksx-file', r);
+  const root = $('.ksx', r) || r, list = $('.ksx-list', r), st = $('.ksx-st', r), pop = $('.ksx-pop', r), mpop = $('.ksx-mpop', r), file = $('.ksx-file', r);
+  // Add source sits under the list, and in the empty state once every source is gone; both open the same menu
+  const add = $('.ksx-add', r), adds = $$('.ksx-add,.ksx-add2', r); let from = add;
   const fmt = n => n.toLocaleString('en-US');
   const of = (n, unit) => fmt(n) + ' ' + (n === 1 ? unit.slice(0, -1) : unit);
-  const line = x => x.st === 'queued' ? (x.ocr ? 'Queued to read with OCR' : 'Queued') : x.st === 'failed' ? x.fail.why : of(x.n, x.unit) + ' · Synced ' + x.ago;
+  const esc = t => t.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  // the line under a source's name, led by its state's mark: a tick once indexed, a clock while it waits, a sign when it failed
+  const line = x => x.st === 'queued' ? I('clock','xs') + `<span>${x.ocr ? 'Queued to read with OCR' : 'Queued'}</span>`
+    : x.st === 'failed' ? I('alert','xs') + `<span>${esc(x.fail.why)}</span>` : I('ok','xs') + `<span>${of(x.n, x.unit)} · Synced ${x.ago}</span>`;
   function row(x){
-    const [ic, col] = KIND[x.kind];
-    x.el = html(`<div class="ksx-s" role="listitem"><span class="ic" style="color:${col};background:color-mix(in srgb,${col} 12%,transparent)" aria-hidden="true">${I(ic,'xs')}</span><span class="t"><span class="nm"></span><span class="d"></span></span><button class="ib ksx-more" aria-haspopup="menu" aria-expanded="false" data-tip="More" data-pop=".ksx-mpop" data-pop-align="end">${I('more')}</button><div class="ksx-fx fold shut" inert><div><div><button class="pill accent sm ksx-fix"></button><button class="pill ghost sm ksx-del">Remove</button></div></div></div></div>`);
+    const [ic, k] = KIND[x.kind];
+    x.el = html(`<div class="ksx-s" role="listitem"><span class="ic" style="background:var(--dm-av-${k});color:var(--dm-av-${k}-ink)" aria-hidden="true">${I(ic,'xs')}</span><span class="t"><span class="nm"></span><span class="d"></span></span><button class="ib ksx-more" aria-haspopup="menu" aria-expanded="false" data-tip="More" data-pop=".ksx-mpop" data-pop-align="end">${I('more')}</button><div class="ksx-fx fold shut" inert><div><div><button class="pill accent sm ksx-fix"></button><button class="pill ghost sm ksx-del">Remove</button></div></div></div></div>`);
     $('.nm', x.el).textContent = x.name; $('.ksx-more', x.el).setAttribute('aria-label', 'Actions for ' + x.name);
     $('.ksx-fix', x.el).onclick = () => { x.ocr = true; x.st = 'queued'; x.ms = 3000; paint(x); next(); };
     $('.ksx-del', x.el).onclick = () => remove(x);
     paint(x, true); return x.el;
   }
-  // the progress bar and its count, while a source is being indexed
+  // the progress bar and its count, while a source is being indexed; the count shimmers, as every line of a process at work
   function prog(x){
     const bar = $('.ksx-bar', x.el); if (!bar) return; const k = Math.floor(x.done);
     $('i', bar).style.width = k / x.n * 100 + '%'; bar.setAttribute('aria-valuenow', k);
@@ -33,13 +41,14 @@ DM.def('knowledge-sources', (r, c) => {
   function paint(x, now){
     const d = $('.d', x.el); x.el.dataset.st = x.st;
     // the bar goes through the same swap as the line before it, so a line still swapping in can't land on top of it
-    if (x.st === 'indexing'){ const bar = `<span class="ksx-bar" role="progressbar" aria-label="Indexing ${x.name.replace(/[<&"]/g, '')}" aria-valuemin="0" aria-valuemax="${x.n}"><i style="width:0"></i></span><span class="num"></span>`; if (now){ d.innerHTML = bar; prog(x); } else swap(d, bar, true); }
-    else { const t = document.createElement('span'); t.textContent = line(x); if (now) d.replaceChildren(t); else swap(d, t.outerHTML, true); }
+    if (x.st === 'indexing'){ const bar = `<span class="ksx-bar" role="progressbar" aria-label="Indexing ${x.name.replace(/[<&"]/g, '')}" aria-valuemin="0" aria-valuemax="${x.n}"><i style="width:0"></i></span><span class="num shim"></span>`; if (now){ d.innerHTML = bar; prog(x); } else swap(d, bar, true); }
+    else if (now) d.innerHTML = line(x); else swap(d, line(x), true);
     const fx = $('.ksx-fx', x.el), on = x.st === 'failed';
     if (on) $('.ksx-fix', x.el).textContent = x.fail.fix;
     fx.classList.toggle('shut', !on); fx.inert = !on;
   }
-  const total = () => `${S.length} source${S.length === 1 ? '' : 's'} · ${fmt(S.reduce((a, x) => a + (x.had ? x.chunks : 0), 0))} chunks`;
+  // the line under the title says what the list doesn't: how much of it the agent can search, once it is indexed
+  const total = () => `${fmt(S.reduce((a, x) => a + (x.had ? x.chunks : 0), 0))} chunks indexed`;
   const counts = now => { if (now) st.textContent = total(); else swap(st, total()); };
   // the one being indexed moves on every tick; a scanned PDF stops where its text runs out, until it is read with OCR
   function next(){
@@ -62,7 +71,7 @@ DM.def('knowledge-sources', (r, c) => {
   S.forEach(x => list.appendChild(row(x))); stagger([...list.children], 50); counts(true); next();
   // Re-sync and Remove act on the row whose button opened the menu; a source still waiting or indexing can't be re-synced yet
   let cur = null;
-  c.on(list, 'click', e => { const b = e.target.closest('.ksx-more'); if (!b) return; cur = S.find(x => x.el.contains(b)); $('.ksx-rs', mpop).disabled = !cur || cur.st === 'queued' || cur.st === 'indexing'; });
+  c.on(list, 'click', e => { const b = e.target.closest('.ksx-more'); if (!b) return; cur = S.find(x => x.el.contains(b)); $('.ksx-rs', mpop).disabled = !cur || cur.st === 'queued' || cur.st === 'indexing'; if (!mpop.classList.contains('open')) side(b, mpop); });
   $('.ksx-rs', mpop).onclick = () => { if (!cur || !S.includes(cur)) return; cur.st = 'queued'; cur.ms = cur.ocr ? 3000 : cur.fail ? 19000 : 2500; paint(cur); next(); };
   $('.ksx-rm', mpop).onclick = () => cur && remove(cur);
   // Add source: upload files (the file picker), add a website (its address), or connect a folder (from the ones offered)
@@ -72,12 +81,21 @@ DM.def('knowledge-sources', (r, c) => {
     else pop.innerHTML = [['upload', 'Upload files', 'files'], ['globe', 'Add a website', 'web'], ['folder', 'Connect a folder', 'folder']].map(([ic, t, k]) => `<button class="mi" role="menuitem" data-v="${k}"${k === 'files' ? ' data-close' : ''}>${I(ic,'xs')}<span>${t}</span></button>`).join('');
   }
   view('main');
-  c.on(add, 'click', () => { if (!pop.classList.contains('open')) view('main'); });
-  // a step inside the menu swaps its content after the click has been handled, so the click still counts as inside it
+  // a menu opens over the card from its button: down when it fits below, up when it doesn't and fits above or has more room
+  // there (as placePop), within the stage's room, so it never spills over the card's caption under the stage (as Artifact
+  // card's version menu). The side is set on the button just before the menu is placed
+  const side = (btn, pop) => { const room = popRoom(btn), st = btn.closest('.stage-inner') || btn.closest('.stage');
+    if (st){ const sr = st.getBoundingClientRect(), cs = getComputedStyle(st); room.top = Math.max(room.top, sr.top + parseFloat(cs.paddingTop)); room.bottom = Math.min(room.bottom, sr.bottom - parseFloat(cs.paddingBottom)); }
+    const br = btn.getBoundingClientRect(), need = pop.offsetHeight + 12, below = room.bottom - br.bottom, above = br.top - room.top;
+    btn.dataset.popPos = below < need && (above >= need || above > below) ? 'up' : 'down'; };
+  adds.forEach(b => c.on(b, 'click', () => { from = b; if (!pop.classList.contains('open')){ view('main'); side(b, pop); } }));
+  // a step inside the menu swaps its content after the click has been handled, so the click still counts as inside it. The
+  // menu keeps the side it opened on: one that opened upwards grows upwards, held by its bottom edge
+  const replace = () => { if (!(pop.style.getPropertyValue('--dm-origin') || '').startsWith('bottom')) side(from, pop); placePop(from, pop); };
   c.on(pop, 'click', e => {
     const m = e.target.closest('.mi'); if (!m) return;
     if (m.dataset.v === 'files') return file.click();
-    if (m.dataset.v){ const v = m.dataset.v, mine = e.isTrusted; c.later(0, () => { view(v); placePop(add, pop); if (mine && v === 'web') $('input', pop).focus({ preventScroll:true }); }); return; }
+    if (m.dataset.v){ const v = m.dataset.v, mine = e.isTrusted; c.later(0, () => { view(v); replace(); if (mine && v === 'web') $('input', pop).focus({ preventScroll:true }); }); return; }
     if (m.dataset.i){ const f = FOLDERS.splice(+m.dataset.i, 1)[0]; addSource({ kind:'folder', name:f[0], n:f[2], unit:'pages', chunks:f[3], ms:3000 }); }
   });
   c.on(pop, 'submit', e => {
@@ -87,6 +105,8 @@ DM.def('knowledge-sources', (r, c) => {
   });
   file.onchange = () => { const fs = [...file.files]; if (!fs.length) return;
     addSource({ kind:'files', name:fs.length === 1 ? fs[0].name : fs.length + ' files', n:fs.length, unit:'files', chunks:fs.length * 12, ms:1500 }); file.value = ''; };
+  // the card grows with its rows and shrinks as they go (owner, 17 Nov: no room kept for a later state)
+  c.offs.push(grow(root));
   // the preview's story: add the docs site, which waits its turn; the PDF turns out to be a scan, so read it with OCR, and
   // everything ends up indexed
   c.story(async s => {

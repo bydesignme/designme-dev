@@ -34,7 +34,7 @@ Reactions puts a row of emoji reactions under a message, set up for an update th
 
 ### What it does
 
-- Clicking a reaction toggles yours: its edge turns a stronger grey and its count takes the accent's text colour, the count rolls up, and it gets a small jump.
+- Clicking a reaction toggles yours: it takes the accent's tint and its count the accent's text colour, the count rolls up, and its emoji gives a small jump. Under the pointer a reaction takes a quiet, slightly deeper fill.
 - Removing the last reaction of a kind fades it out and shrinks it before it leaves the row.
 - The add button opens a picker of `emojis`; picking one you already have pulses it instead of counting twice.
 - Each reaction's tooltip names who reacted, like "You, Maya, Jon and 2 more", using `people` and `meLabel`.

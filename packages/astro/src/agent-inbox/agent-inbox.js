@@ -1,6 +1,8 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, REDUCE, enter, grow, html, swap, tip } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, enter, grow, hoverGlide, html, swap, tip } from '../core/core.js';
 DM.def('agent-inbox', (r, c) => {
+  // Clean's one hover: a highlight that glides from row to row (hoverGlide)
+  c.offs.push(hoverGlide($('.aib', r), '.aib-i', { keep:'.mv' }));
   // the runs, grouped by what they need: one waits for approval, one failed and can be retried, two are running with their
   // clocks, two are done
   const A = { 'Design agent':['D','var(--dm-av-l)'], 'Build agent':['B','var(--dm-av-m)'], 'Research agent':['R','var(--dm-av-t)'], 'Copy agent':['C','var(--dm-av-p)'], 'QA agent':['Q','var(--dm-av-b)'] };

@@ -35,10 +35,10 @@ One account's health at a glance: the score out of 100 in a small ring with its 
 
 - The score sits in a small ring that fills to it and takes the verdict's colour: green from 70, orange from 50 and red below. The verdict word beside it is in the same colour.
 - A line such as "Account health, 2 of 4 on track", and the change against the score 30 days ago, such as "−13 in 30 days".
-- Four full-width rows split by hairlines, each with a status dot, its name, its figure ("11d ago", "0 late", "61%", "None booked") and a chevron. No card, fill or shadow per factor.
+- Four full-width rows split by hairlines, each with a status dot, its name, its figure ("11d ago", "0 late", "61%", "None booked") and a chevron. The rows share the header's columns: each dot sits centred under the ring and each name starts where the verdict does. No card, fill or shadow per factor. In Clean the rows have no hairlines: they are rounded rows under one quiet grey fill that glides to the row under the pointer, the account sits in an off-white head strip, and the agent's next move sits in an off-white foot strip with its button under its words.
 - The weakest factor that is off track is labelled Weakest in ink beside its name. Colour only marks state, in the dots and the ring.
 - Clicking a row opens its detail right under it: what happened, and its points out of its maximum. One row is open at a time.
-- The agent's suggestion is a plain row with the spark icon and a button. Pressing it shows a spinner, then a done chip such as "Booked", and the factors it changed update, for example 58 becoming 78 with Next step turning green.
+- The agent's suggestion is a plain row with the spark icon under the ring and its words on the verdict's column, and a button on the right. Pressing it shows a spinner, then a done chip such as "Booked", and the factors it changed update, for example 58 becoming 78 with Next step turning green. When its words take a line more or less, the row eases to its new height.
 - Switching accounts sweeps the ring and counts the score to the new value, and the words and figures crossfade. An open row stays open on the same factor.
 - Under 360px of room the agent's button goes under its line, so it fits a narrow sheet. In React, `account`, `onAction` and `open` drive it from your own data.
 
@@ -199,7 +199,8 @@ import { Fragment, useEffect, useId, useRef, useState } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable, useTween } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
-import { Fold, Spin, Swap } from '../lib/motion';
+import { Fold, Spin, Swap, useGrow } from '../lib/motion';
+import { useHoverGlide } from '../lib/glide';
 import '../designme.css';
 import './health-score.css';
 
@@ -282,8 +283,9 @@ const RING = 2 * Math.PI * 18;
 const WORD: Record<HealthStatus, string> = { ok: 'On track', warn: 'Watch', bad: 'At risk' };
 
 /** An account's health: the score in a small ring with its verdict and change, a row per factor under a hairline with its
-    status dot and figure (open one for its detail, right under it), and the agent's next move with its button. Colour only
-    marks state: the dots and the ring. Fits a 440px details sheet; under 360px of room the button goes under the agent's line. */
+    status dot and figure (open one for its detail, right under it), and the agent's next move with its button. The rows share
+    the head's columns: each dot under the ring, each name where the verdict starts. Colour only marks state: the dots and the
+    ring. Fits a 440px details sheet; under 360px of room the button goes under the agent's line. */
 export function HealthScore({ account, label = 'Account health', period = '30 days', bands = [70, 50], verdicts, open, defaultOpen = null, onOpenChange, onAction, className }: HealthScoreProps) {
   const [opened, setOpened] = useControllable<string | null>(open, defaultOpen, onOpenChange);
   const { factors, suggestion: sug } = account;
@@ -304,6 +306,9 @@ export function HealthScore({ account, label = 'Account health', period = '30 da
   const who = account.name ?? '';
   const [busy, setBusy] = useState<string | null>(null);
   const btn = useRef<HTMLButtonElement>(null), chip = useRef<HTMLSpanElement>(null), had = useRef(false);
+  // Clean's one hover: a highlight that glides from factor to factor
+  const factorsRef = useRef<HTMLDivElement>(null);
+  useHoverGlide(factorsRef, '.dm-hsc-t');
   const [width, setWidth] = useState<number | undefined>();
   const act = async () => {
     if (busy !== null || !onAction || sug?.done) return;
@@ -322,6 +327,8 @@ export function HealthScore({ account, label = 'Account health', period = '30 da
   }, [done, who, sug]);
 
   const ids = 'dm-hsc' + useId();
+  // the agent's line eases to a new line count when it changes, so the block grows and shrinks smoothly
+  const [sayBox, sayIn] = useGrow<HTMLSpanElement>();
 
   return (
     <div data-dm="" className={cx('dm-hsc dm-panel', className)} data-v={band} role="group" aria-label={label}>
@@ -337,7 +344,7 @@ export function HealthScore({ account, label = 'Account health', period = '30 da
         <div className="dm-hsc-ht"><Swap className="dm-hsc-vd">{verdict}</Swap><Swap className="dm-hsc-sub">{line}</Swap></div>
         {change !== null && <Swap className="dm-hsc-dl dm-num">{`${change >= 0 ? '+' : '−'}${Math.abs(change)} in ${period}`}</Swap>}
       </div>
-      <div className="dm-hsc-l">
+      <div ref={factorsRef} className="dm-hsc-l">
         {factors.map((f, j) => (
           <Fragment key={f.key}>
             <button type="button" className="dm-hsc-t" data-s={f.status} data-weak={f === weak ? '' : undefined} aria-expanded={f.key === opened} aria-controls={`${ids}-${j}`}
@@ -361,8 +368,10 @@ export function HealthScore({ account, label = 'Account health', period = '30 da
       </div>
       {sug && (
         <div className="dm-hsc-s">
-          <Icon name="spark" />
-          <Swap className="dm-hsc-st">{done ? sug.doneText ?? sug.text : sug.text}</Swap>
+          <span ref={sayBox} className="dm-hsc-say dm-growing"><span ref={sayIn} className="dm-grow">
+            <Icon name="spark" size="s" />
+            <Swap className="dm-hsc-st">{done ? sug.doneText ?? sug.text : sug.text}</Swap>
+          </span></span>
           {done
             ? <span key={who + ':done'} ref={chip} className="dm-tag dm-ok dm-hsc-done dm-enter" tabIndex={-1}><Icon name="check" size="xs" />{sug.doneLabel ?? 'Done'}</span>
             : onAction && <button key={who} ref={btn} type="button" className="dm-pill dm-primary dm-sm dm-hsc-go dm-enter" onClick={act} disabled={busy === who} aria-busy={busy === who || undefined}
@@ -379,9 +388,9 @@ export function HealthScore({ account, label = 'Account health', period = '30 da
 
 ## More in Charts and tables
 
-- [Line chart](https://designme.dev/components/line-chart.md): Two series over time with a hover readout and toggles.
+- [Line chart](https://designme.dev/components/line-chart.md): Today so far and projected, against yesterday, with a range switch, a project picker, toggles and a readout.
 - [Bar chart](https://designme.dev/components/bar-chart.md): Weekly agent runs, split by outcome, with a range switch.
-- [Donut chart](https://designme.dev/components/donut-chart.md): Where the agent's time went, by kind of task.
+- [Donut chart](https://designme.dev/components/donut-chart.md): Where the agent's time went this week, as a gauge against its budget, with a part you can select.
 - [Radial goals](https://designme.dev/components/radial-goals.md): Each agent's share of its own target as a ring, with the overall score in the middle.
 - [Funnel chart](https://designme.dev/components/funnel-chart.md): Signup to paid, with the biggest drop called out by the agent.
 - [Top pages](https://designme.dev/components/top-pages.md): Most visited pages with share of traffic and a quick sort.

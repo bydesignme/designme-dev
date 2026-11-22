@@ -34,9 +34,10 @@ Step loader shows an agent task as a short list of named steps, with the current
 
 ### What it does
 
-- Pass `steps` and a `current` index. Setting `current` to `steps.length` marks every step done and shows a check.
+- Pass `steps` and a `current` index. Setting `current` to `steps.length` marks every step done and shows a green check.
 - Each step has a running `label` and an optional `done` text that replaces it once the step is finished.
-- The row label and the count crossfade as the agent moves to the next step.
+- The row label and the count crossfade as the agent moves to the next step, and the label shimmers while its step runs.
+- In the open list, each step's mark sits under the row's loader and its words start where the row's do.
 - `loader` picks the animation beside the running step: `radar`, `dots`, `ring` or `bars`.
 - `doneLabel` sets the text once everything is finished, "Ready for review" by default.
 - The step list can be left to toggle itself, or controlled with `open`, `defaultOpen` and `onOpenChange`.
@@ -173,7 +174,7 @@ export function StepLoader({ steps, current, loader = 'radar', doneLabel = 'Read
   return (
     <div data-dm="" className={cx('dm-stl', className)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
       <button type="button" className="dm-stl-row" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
-        <span className="dm-stl-g">{done ? <span style={{ color: 'var(--dm-ok)', display: 'grid' }}><Icon name="ok" /></span> : <Loader kind={loader} />}</span>
+        <span className="dm-stl-g">{done ? <span className="dm-stl-ok"><Icon name="ok" /></span> : <Loader kind={loader} />}</span>
         <span className="dm-stl-t"><Swap className={cx('dm-stl-lab', !done && 'dm-shim')}>{done ? doneLabel : steps[at].label}</Swap></span>
         <Swap className="dm-stl-n dm-num">{`${done ? n : at + 1}/${n}`}</Swap>
         <Icon name="chev-d" size="xs" className="dm-stl-chev" />
@@ -187,7 +188,7 @@ export function StepLoader({ steps, current, loader = 'radar', doneLabel = 'Read
             const finished = done || i < current, running = !done && i === current;
             return (
               <li key={i} className={cx(finished && 'dm-done', running && 'dm-run')}>
-                <span className="dm-g">{finished ? <span style={{ color: 'var(--dm-ok)', display: 'grid' }}><Icon name="check" size="xs" /></span> : running ? <Loader kind={loader} /> : <Dot color="var(--dm-faint)" />}</span>
+                <span className="dm-g">{finished ? <span className="dm-stl-ok"><Icon name="check" size="xs" /></span> : running ? <Loader kind={loader} /> : <Dot color="var(--dm-faint)" />}</span>
                 {finished ? s.done ?? s.label : s.label}
               </li>
             );

@@ -1,7 +1,9 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, REDUCE, centre, hideTip, swap } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, hideTip, hoverGlide, swap } from '../core/core.js';
 DM.def('context-switcher', (r, c) => {
   r.innerHTML = r.innerHTML.replace(/\{unfold\}/g, I('unfold','xs')).replace(/\{crumb\}/g, I('crumb')).replace('{more}', I('more')).replace('{search}', I('search','xs'));
+  // Clean's one hover: a highlight that glides from row to row (hoverGlide)
+  c.offs.push(hoverGlide($('.csw-list', r), '.csw-o'));
   // the organisations this account is in, with their plans; each one's projects, and each project's environments. Each level
   // remembers what was picked in it (on), so an organisation brings back the project you were last in, and a project its
   // environment
@@ -16,11 +18,11 @@ DM.def('context-switcher', (r, c) => {
       { id:'onboard', name:'Onboarding copilot', b:['Paused', 'neutral'], on:'sandbox', items:STD() },
       { id:'notes', name:'Release notes writer', on:'live', items:STD() }
     ] },
-    { id:'quillwork', name:'Quillwork', t:'pp', b:['Free', 'neutral'], on:'coach', items:[
+    { id:'quillwork', name:'Quillwork', t:'pk', b:['Free', 'neutral'], on:'coach', items:[
       { id:'coach', name:'Essay coach', on:'live', items:STD() },
       { id:'cite', name:'Citation checker', b:['Beta', 'teal'], on:'staging', items:STD() }
     ] },
-    { id:'otterline', name:'Otterline Health', t:'pm', b:['Enterprise', 'violet'], on:'intake', items:[
+    { id:'otterline', name:'Otterline Health', t:'pl', b:['Enterprise', 'violet'], on:'intake', items:[
       { id:'intake', name:'Intake assistant', on:'live', items:STD() },
       { id:'claims', name:'Claims summariser', on:'live', items:STD() },
       { id:'handover', name:'Shift handover notes', b:['Beta', 'teal'], on:'sandbox', items:STD() }
@@ -69,7 +71,7 @@ DM.def('context-switcher', (r, c) => {
   }
 
   /* ---- a part's switcher: the search, the list, and Create new at the bottom ---- */
-  let open = null, full = 0, hi = 0, opts = [], mopen = false, made = 0;
+  let open = null, hi = 0, opts = [], mopen = false, made = 0;
   function fill(reset){
     const S = SEG[open], d = KEYS.indexOf(open), p = parent(d), v = q.value.trim(), lv = v.toLowerCase();
     const m = p.items.filter(x => !lv || x.name.toLowerCase().includes(lv));
@@ -101,8 +103,6 @@ DM.def('context-switcher', (r, c) => {
     q.value = ''; q.placeholder = S.find; q.setAttribute('aria-label', S.find); list.setAttribute('aria-label', S.many[0].toUpperCase() + S.many.slice(1));
     trig(k).setAttribute('aria-expanded', 'true'); q.setAttribute('aria-expanded', 'true');
     fill(true); hideTip(); place(pop, anchor(k)); pop.inert = false; pop.classList.add('open');
-    // the bar makes room for the switcher at its fullest, before any filter, so it holds still while typing filters the list
-    full = pop.offsetHeight; centred();
     if (focus) q.focus({ preventScroll:true });
   }
   // closing gives the focus back to the part's button (or the … button, on a phone) when it was in the switcher
@@ -110,8 +110,6 @@ DM.def('context-switcher', (r, c) => {
     if (!open) return; const k = open; open = null;
     pop.classList.remove('open'); pop.inert = true; trig(k).setAttribute('aria-expanded', 'false'); q.setAttribute('aria-expanded', 'false'); q.removeAttribute('aria-activedescendant');
     if (back) anchor(k).focus({ preventScroll:true });
-    // the bar waits for the list to fade before it glides back to the middle
-    if (!next) c.later(REDUCE ? 0 : 180, centred);
     // once it has faded it goes back to the component's corner, so a narrower screen later never scrolls sideways to it
     c.later(320, () => { if (!open){ pop.style.left = '0px'; pop.style.top = '0px'; } });
   }
@@ -133,7 +131,7 @@ DM.def('context-switcher', (r, c) => {
     const go = box.dispatchEvent(new CustomEvent('context-create', { bubbles:true, cancelable:true, detail:{ segment:k, name } }));
     hide(back); if (!go) return;
     const id = 'new-' + (++made), x = { id, name:name || `New ${S.noun}` };
-    if (k === 'org') Object.assign(x, { t:'pl', b:['Free', 'neutral'], on:id + '-p', items:[{ id:id + '-p', name:'First project', on:'sandbox', items:STD() }] });
+    if (k === 'org') Object.assign(x, { t:'pb', b:['Free', 'neutral'], on:id + '-p', items:[{ id:id + '-p', name:'First project', on:'sandbox', items:STD() }] });
     else if (k === 'project') Object.assign(x, { on:'sandbox', items:STD() });
     else x.b = ['Development', KIND.Development];
     p.items.push(x); p.on = id; paint(); tell(k);
@@ -147,13 +145,12 @@ DM.def('context-switcher', (r, c) => {
       if (open) hide(false, true);
       mpop.innerHTML = KEYS.slice(0, -1).map((k, d) => { const x = node(d); return `<button class="mi" role="menuitem" tabindex="-1" data-k="${k}">${d ? I('layers') : tile(x)}<span class="t"><b>${esc(x.name)}</b><span class="d">${SEG[k].label}</span></span>${badge(x)}</button>`; }).join('');
       $$('.mi', mpop).forEach(m => m.onclick = e => { menu(false); show(m.dataset.k, { focus:e.isTrusted }); });
-      hideTip(); place(mpop, more); mpop.inert = false; mpop.classList.add('open'); more.setAttribute('aria-expanded', 'true'); centred();
+      hideTip(); place(mpop, more); mpop.inert = false; mpop.classList.add('open'); more.setAttribute('aria-expanded', 'true');
       if (focus){ const it = $$('.mi', mpop); (focus === 'last' ? it[it.length - 1] : it[0]).focus({ preventScroll:true }); }
     } else {
       const back = mpop.contains(document.activeElement);
       mpop.classList.remove('open'); mpop.inert = true; more.setAttribute('aria-expanded', 'false');
       if (back) more.focus({ preventScroll:true });
-      c.later(REDUCE ? 0 : 180, centred);
       c.later(320, () => { if (!mopen){ mpop.style.left = '0px'; mpop.style.top = '0px'; } });
     }
   }
@@ -200,10 +197,17 @@ DM.def('context-switcher', (r, c) => {
   c.on(window, 'resize', e => { if (e.isTrusted){ hide(false); menu(false); } });
   const ro = new ResizeObserver(tips); ro.observe(bar); c.offs.push(() => ro.disconnect());
 
-  // the bar sits centred on its own, and glides up as a switcher opens under it, so the two sit centred together
-  const centred = centre(c, box, () => open ? Math.max(box.offsetHeight, pop.offsetTop + full) : mopen ? Math.max(box.offsetHeight, mpop.offsetTop + mpop.offsetHeight) : box.offsetHeight);
-  pop.inert = true; mpop.inert = true; paint(true);
-  if (document.fonts) document.fonts.ready.then(() => { if (!c.dead) tips(); });
+  // a switcher opens over the component from its part and never moves the bar (owner, 20 Nov): the component keeps room under
+  // the bar for a switcher at its tallest (its search and a full list, which scrolls past that), so the bar holds still and
+  // nothing is cut off
+  function room(){
+    if (!box.isConnected) return;
+    const tall = pop.offsetHeight - list.offsetHeight + (parseFloat(getComputedStyle(list).maxHeight) || 0);
+    box.style.minHeight = Math.ceil(bar.offsetHeight + 6 + Math.max(tall, mpop.offsetHeight)) + 'px';
+  }
+  pop.inert = true; mpop.inert = true; paint(true); room();
+  if (document.fonts) document.fonts.ready.then(() => { if (!c.dead){ tips(); room(); } });
+  c.on(window, 'resize', () => room());
   // the preview's story: open the project's switcher (through the … menu on a phone), search for "inv" and pick Invoice
   // reader; the environment follows it, from eu-live in Production to staging
   c.story(async s => {

@@ -34,9 +34,9 @@ Source stack sits under an agent's answer and folds every source it read into on
 
 ### What it does
 
-- The pill shows the marks of the first four sources and a count like "8 sources". Clicking it opens and closes the list.
+- The pill shows the marks of the first four sources side by side and a count like "8 sources". Clicking it opens and closes the list.
 - Filter chips pick sources by `kind`. The defaults are All, Web, Files and Figma, and `filters` replaces them.
-- Each row shows a coloured favicon `mark`, the `title`, the `host` and a small bar for `relevance` from 0 to 1, with the percentage in a tooltip.
+- Each row shows the source's `mark` on its own `color` (white letters, or an avatar colour's own ink; Clean draws every mark in its neutral grey), the `title`, the `host` and a small bar for `relevance` from 0 to 1, with the percentage in a tooltip.
 - Sources with `onOpen` get an open button on their row.
 - The answer itself can go in `children`, shown above the pill.
 - Both the open state and the filter can be controlled with `open`, `filter` and their change handlers.
@@ -65,14 +65,14 @@ import { useStory } from '../lib/useScript';
 
 const open = () => {};
 const SOURCES: StackSource[] = [
-  { kind: 'web', title: 'Baymard: pricing page UX', host: 'baymard.com', relevance: .92, mark: 'B', color: 'var(--dm-pb)', onOpen: open },
-  { kind: 'web', title: 'Annual vs monthly anchoring study', host: 'cxl.com', relevance: .88, mark: 'C', color: '#d9480f', onOpen: open },
-  { kind: 'file', title: 'Q3 conversion export.csv', host: 'Drive', relevance: .84, mark: 'CSV', color: 'var(--dm-pm)', onOpen: open },
-  { kind: 'figma', title: 'Pricing v4, frame 2', host: 'Figma', relevance: .8, mark: 'F', color: 'var(--dm-pl)', onOpen: open },
-  { kind: 'web', title: 'Stripe billing docs', host: 'stripe.com', relevance: .66, mark: 'S', color: '#635bff', onOpen: open },
-  { kind: 'file', title: 'Pricing research notes', host: 'Notion', relevance: .61, mark: 'N', color: 'var(--dm-fg2)', onOpen: open },
-  { kind: 'figma', title: 'Checkout flow', host: 'Figma', relevance: .52, mark: 'F', color: 'var(--dm-pl)', onOpen: open },
-  { kind: 'web', title: 'NN/g on price framing', host: 'nngroup.com', relevance: .48, mark: 'N', color: 'var(--dm-fg2)', onOpen: open }
+  { kind: 'web', title: 'Baymard: pricing page UX', host: 'baymard.com', relevance: .92, mark: 'B', color: 'var(--dm-av-b)', onOpen: open },
+  { kind: 'web', title: 'Annual vs monthly anchoring study', host: 'cxl.com', relevance: .88, mark: 'C', color: 'var(--dm-av-r)', onOpen: open },
+  { kind: 'file', title: 'Q3 conversion export.csv', host: 'Drive', relevance: .84, mark: 'CSV', color: 'var(--dm-av-m)', onOpen: open },
+  { kind: 'figma', title: 'Pricing v4, frame 2', host: 'Figma', relevance: .8, mark: 'F', color: 'var(--dm-av-l)', onOpen: open },
+  { kind: 'web', title: 'Stripe billing docs', host: 'stripe.com', relevance: .66, mark: 'S', color: 'var(--dm-av-k)', onOpen: open },
+  { kind: 'file', title: 'Pricing research notes', host: 'Notion', relevance: .61, mark: 'N', color: 'var(--dm-av-t)', onOpen: open },
+  { kind: 'figma', title: 'Checkout flow', host: 'Figma', relevance: .52, mark: 'F', color: 'var(--dm-av-l)', onOpen: open },
+  { kind: 'web', title: 'NN/g on price framing', host: 'nngroup.com', relevance: .48, mark: 'N', color: 'var(--dm-av-y)', onOpen: open }
 ];
 
 export default function SourceStackDemo() {
@@ -140,7 +140,7 @@ import { useState, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { enter, Fold, Tip } from '../lib/motion';
+import { avatarInk, enter, Fold, Tip } from '../lib/motion';
 import '../designme.css';
 import './source-stack.css';
 
@@ -154,7 +154,8 @@ export interface StackSource {
   relevance: number;
   /** One to three letters in the favicon square, like "B" or "CSV" */
   mark: string;
-  /** The favicon colour, any CSS colour, like '#635bff' or 'var(--dm-pl)' */
+  /** The favicon's fill: a colour dark enough for white letters, like '#635bff', or an avatar colour like 'var(--dm-av-l)',
+      which brings its own ink. Clean draws every mark in its neutral grey */
   color: string;
   /** Adds an open button that shows on hover */
   onOpen?: () => void;
@@ -199,7 +200,7 @@ export function SourceStack({ children, sources, filters = FILTERS, filter, defa
     <div data-dm="" className={cx('dm-ssx', className)}>
       {children !== undefined && <p className="dm-msg">{children}</p>}
       <button type="button" className="dm-ssx-pill" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
-        <span className="dm-ssx-ics">{sources.slice(0, 4).map((s, i) => <span key={i} style={{ background: s.color }}>{s.mark[0]}</span>)}</span>
+        <span className="dm-ssx-ics">{sources.slice(0, 4).map((s, i) => <span key={i} style={{ background: s.color, color: avatarInk(s.color) }}>{s.mark[0]}</span>)}</span>
         <span className="dm-ssx-l">{sources.length} {sources.length === 1 ? 'source' : 'sources'}</span>
         <Icon name="chev-d" size="xs" />
       </button>
@@ -213,8 +214,8 @@ export function SourceStack({ children, sources, filters = FILTERS, filter, defa
               const e = enter(i * 40), pct = Math.round(Math.max(0, Math.min(1, s.relevance)) * 100);
               return (
                 <div key={s.title + i} className={cx('dm-ssx-s', e.className)} style={e.style}>
-                  <span className="dm-fv" style={{ background: `color-mix(in srgb,${s.color} 14%,transparent)`, color: s.color }}>{s.mark}</span>
-                  <span className="dm-t">{s.title}<span className="dm-h"> · {s.host}</span></span>
+                  <span className="dm-fv" style={{ background: s.color, color: avatarInk(s.color) }}>{s.mark}</span>
+                  <span className="dm-t"><span>{s.title}</span><span className="dm-h"> · {s.host}</span></span>
                   <Tip label={`Relevance ${pct}%`}><span className="dm-rel" role="meter" aria-label="Relevance" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct}><i style={{ width: pct + '%' }} /></span></Tip>
                   {s.onOpen && <Tip label="Open"><button type="button" className="dm-ib" aria-label="Open source" onClick={s.onOpen}><Icon name="ext" size="xs" /></button></Tip>}
                 </div>

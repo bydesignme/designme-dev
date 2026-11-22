@@ -2,34 +2,49 @@
 /* ---------- Web search ---------- */
 /* the agent's searches as a trail: each query with what came back, each page with whether it was read, skimmed or skipped and
    why; once done it folds to one line, and the answer under it points back at its pages */
-.wsx{padding:6px;display:flex;flex-direction:column;font-size:13px}
-.wsx-h{display:flex;align-items:center;gap:10px;width:100%;padding:var(--dm-s-2) 10px;border-radius:var(--dm-r-in);text-align:left;font-size:13.5px;transition:background var(--dm-t-fast)}
+/* hover fills are a quiet 5%, so they show wherever the trail sits (on the stage, --dm-row is the stage's own colour) */
+.wsx{padding:6px;display:flex;flex-direction:column;font-size:13px;--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
+/* the head's mark sits as far from the top as from the side: 16px in from the panel's edges (owner, 21 Nov: "more padding at
+   the top of the card?") */
+.wsx-h{display:flex;align-items:center;gap:10px;width:100%;padding:10px;border-radius:var(--dm-r-in);text-align:left;font-size:13.5px;transition:background var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.wsx-h:hover{background:var(--dm-row)}}
-.wsx-ic{width:16px;height:16px;flex:none;display:grid;place-items:center;color:var(--dm-fg2)}
+/* every part on shared columns, in every style (owner, 18 Nov): the head's mark and every row's mark (the search glass, the
+   asked-again arrow, a page's site initial) are centred in one 20px column, and every row's words start where the head's do */
+.wsx-ic{width:20px;height:20px;flex:none;display:grid;place-items:center;color:var(--dm-fg2)}
 .wsx-ic .spin{width:11px;height:11px}
 .wsx-st{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wsx-h>.i{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
 .wsx-h[aria-expanded="false"]>.i{transform:rotate(-90deg)}
 /* the sites it went to, as a small stack of initials, the rest counted */
-.wsx-marks{display:flex;align-items:center}
-.wsx-marks span{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;margin-left:-5px;background:var(--dm-chip);color:var(--dm-fg2);font-size:10.5px;font-weight:500;box-shadow:0 0 0 2px var(--dm-surface);transition:background .2s,color .2s}
-.wsx-marks span.n{background:var(--dm-surface);color:var(--dm-muted);box-shadow:0 0 0 2px var(--dm-surface),inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:10px}
+/* side by side, never stacked over each other (owner, 18 Nov) */
+.wsx-marks{display:flex;align-items:center;gap:2px}
+.wsx-marks span{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:var(--dm-chip);color:var(--dm-fg2);font-size:10.5px;font-weight:500;transition:background .2s,color .2s}
+.wsx-marks span.n{background:var(--dm-surface);color:var(--dm-muted);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:10px}
 .wsx-marks span.hl{background:var(--dm-fg2);color:var(--dm-surface)}
 .wsx-list{display:flex;flex-direction:column;gap:2px;padding:2px 0 var(--dm-s-1)}
 .wsx-q{display:flex;flex-direction:column}
-.wsx-qh{display:grid;grid-template-columns:16px minmax(0,1fr) auto auto 12px;align-items:center;column-gap:var(--dm-s-2);width:100%;padding:6px 10px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));text-align:left;transition:background var(--dm-t-fast)}
+.wsx-qh{display:grid;grid-template-columns:20px minmax(0,1fr) auto auto 12px;align-items:center;column-gap:10px;width:100%;padding:6px 10px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));text-align:left;transition:background var(--dm-t-fast)}
 .wsx-q.hl>.wsx-qh{background:var(--dm-row)}
 @media (hover:hover) and (pointer:fine){.wsx-qh:hover{background:var(--dm-row)}}
-.wsx-qh>.i:first-child{color:var(--dm-muted)}
-.wsx-qh .t{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--dm-fg)}
+.wsx-qh>.i:first-child{justify-self:center;color:var(--dm-muted)}
+.wsx-qh .t{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wsx-qh .n,.wsx-qh .tm{font-size:12px;color:var(--dm-muted);white-space:nowrap}
+/* a query and its Searching have the loader's sweep (.shim) while it runs: their own colours step aside for it */
+.wsx-qh .t:not(.shim){color:var(--dm-fg)}
+.wsx-qh .n.shim{color:transparent}
+@media (prefers-reduced-motion:reduce){.wsx-qh .n.shim{color:var(--dm-fg)}}
+.wsx-qh .n{margin-right:-2px}
 .wsx-qh .n.none{color:var(--dm-warn)}
 .wsx-qh>.i:last-child{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
 .wsx-qh[aria-expanded="true"]>.i:last-child{transform:rotate(90deg)}
-.wsx-qh[aria-expanded="false"].empty>.i:last-child{visibility:hidden}
-.wsx-rw{display:flex;align-items:center;gap:6px;padding:0 10px 2px 34px;font-size:12px;color:var(--dm-muted)}
-.wsx-rs{list-style:none;margin:0;padding:2px 0 var(--dm-s-1) 26px;display:flex;flex-direction:column;gap:2px}
-.wsx-r{display:grid;grid-template-columns:20px minmax(0,1fr) auto;column-gap:var(--dm-s-2);align-items:center;padding:5px var(--dm-s-2);border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));transition:background var(--dm-t-fast);cursor:default}
+/* a search that found nothing has no chevron and keeps no room for one: its count and time end where the chevrons and the
+   pages' tags end (owner, 21 Nov) */
+.wsx-qh.empty{grid-template-columns:20px minmax(0,1fr) auto auto}
+.wsx-qh.empty>.i:last-child{display:none}
+.wsx-rw{display:flex;align-items:center;gap:10px;padding:0 10px 2px;font-size:12px;color:var(--dm-muted)}
+.wsx-rw .i{margin-inline:4px}
+.wsx-rs{list-style:none;margin:0;padding:2px 0 var(--dm-s-1);display:flex;flex-direction:column;gap:2px}
+.wsx-r{display:grid;grid-template-columns:20px minmax(0,1fr) auto;column-gap:10px;align-items:center;padding:5px 10px;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));transition:background var(--dm-t-fast);cursor:default}
 .wsx-r.hl{background:var(--dm-row)}
 @media (hover:hover) and (pointer:fine){.wsx-r:hover{background:var(--dm-row)}}
 .wsx-r:focus-visible{outline-offset:-2px}
@@ -41,7 +56,48 @@
 .wsx-r .tag .spin{width:9px;height:9px}
 .wsx-ans{padding:var(--dm-s-2) 10px 6px;font-size:13.5px;line-height:1.6;color:var(--dm-fg)}
 .wsx-ans:empty{display:none}
-.wsx-cite{display:inline-grid;place-items:center;min-width:18px;height:17px;padding:0 4px;margin:0 1px;border-radius:calc(5px * var(--dm-rk-s,var(--dm-rk)));background:var(--dm-chip);color:var(--dm-fg2);font-size:11px;font-weight:500;vertical-align:1px;transition:background var(--dm-t-fast),color var(--dm-t-fast)}
+/* the number sits in the middle of its circle: its line is as tall as its figures, so a taller line round it (Clean's 22px
+   answer lines set it 2.5px low) never moves it (owner, 21 Nov: "padding is off in this number") */
+.wsx-cite{display:inline-grid;place-items:center;min-width:18px;height:17px;padding:0 4px;margin:0 1px;border-radius:calc(5px * var(--dm-rk-s,var(--dm-rk)));background:var(--dm-chip);color:var(--dm-fg2);font-size:11px;line-height:1;font-weight:500;vertical-align:1px;transition:background var(--dm-t-fast),color var(--dm-t-fast)}
 .wsx-cite.on{background:var(--dm-fg2);color:var(--dm-surface)}
 @media (hover:hover) and (pointer:fine){.wsx-cite:hover{background:var(--dm-fg2);color:var(--dm-surface)}}
 .wsx-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* Clean (lead and owner, 18 Nov): a card of its own, bare or not, as Reasoning trail is: a hairline-outlined round card
+   with the search head on top and a hairline under it, everything on shared columns. Content sits 16px in from the card's
+   edges. The head's spinner (a globe once done) sits in a 28px neutral tile, and every row's leading mark (a query's search
+   glass, the asked-again arrow, a page's site initial) is centred in that same 28px column, so every row's words start where
+   the head's do. A row's hover fill spans the content, from the tile's left edge to the content's right edge, never wider;
+   the chevrons are centred in a 28px column at the end, the one the head's chevron circle (its quiet hover) fills, and a
+   page's tag ends where the chevrons do. The answer is the card's own paragraph under a hairline. The card grows and
+   shrinks with what it holds (grow()), so as the trail folds once the searching is done it eases down to the head and the
+   answer, staying centred. Colour only for meaning: "No results" and a skipped page in the warning colour; sites, counts
+   and pages read are grey */
+:root[data-style="clean"] .wsx.wsx.wsx,:root [data-style="clean"] .wsx.wsx.wsx,:root [data-style="clean"].wsx.wsx.wsx{padding:0;background:var(--dm-surface);box-shadow:var(--dm-shadow);border-radius:var(--dm-r-card);overflow:clip;container-type:inline-size}
+/* on a phone the head drops its stack of site initials, so its words fit: "3 searches, 6 pages read" whole */
+@container (max-width:400px){:root[data-style="clean"] .wsx-marks,:root [data-style="clean"] .wsx-marks,:root [data-style="clean"].wsx-marks{display:none}}
+:root[data-style="clean"] .wsx.growing,:root [data-style="clean"] .wsx.growing,:root [data-style="clean"].wsx.growing{overflow-clip-margin:0px}
+/* the head's tile sits 16px from the top as from the side, and its chevron's circle 16px from the top and the right */
+:root[data-style="clean"] .wsx-h,:root [data-style="clean"] .wsx-h,:root [data-style="clean"].wsx-h{min-height:60px;padding:0 23px 0 16px;gap:12px;border-radius:0;font-size:13.5px}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .wsx-h:hover,:root [data-style="clean"] .wsx-h:hover,:root [data-style="clean"].wsx-h:hover{background:none}}
+:root[data-style="clean"] .wsx-h:focus-visible,:root [data-style="clean"] .wsx-h:focus-visible,:root [data-style="clean"].wsx-h:focus-visible{outline-offset:-2px;border-radius:var(--dm-r-card)}
+:root[data-style="clean"] .wsx-ic,:root [data-style="clean"] .wsx-ic,:root [data-style="clean"].wsx-ic{width:28px;height:28px;border-radius:calc(7px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .wsx-st,:root [data-style="clean"] .wsx-st,:root [data-style="clean"].wsx-st{font-weight:500}
+:root[data-style="clean"] .wsx-st:not(.shim),:root [data-style="clean"] .wsx-st:not(.shim),:root [data-style="clean"].wsx-st:not(.shim){color:var(--dm-fg)}
+:root[data-style="clean"] .wsx-marks,:root [data-style="clean"] .wsx-marks,:root [data-style="clean"].wsx-marks{margin-right:2px}
+:root[data-style="clean"] .wsx-h>.i,:root [data-style="clean"] .wsx-h>.i,:root [data-style="clean"].wsx-h>.i{width:14px;height:14px;border-radius:50%;box-shadow:0 0 0 7px transparent;transition:transform var(--dm-t) var(--dm-ease),background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .wsx-h:hover>.i,:root [data-style="clean"] .wsx-h:hover>.i,:root [data-style="clean"].wsx-h:hover>.i{background:var(--dm-row);box-shadow:0 0 0 7px var(--dm-row);color:var(--dm-fg)}}
+/* the first row's words sit 16px under the divider, its hover box reaching out 6px round them (owner, 19 Nov: a body's
+   first row sits 16px under a divider, no more), and the list ends as far under its last row */
+:root[data-style="clean"] .wsx-list,:root [data-style="clean"] .wsx-list,:root [data-style="clean"].wsx-list{gap:0;padding:10px 16px;border-top:1px solid var(--dm-line)}
+:root[data-style="clean"] .wsx-qh,:root [data-style="clean"] .wsx-qh,:root [data-style="clean"].wsx-qh{grid-template-columns:28px minmax(0,1fr) auto auto 28px;column-gap:12px;padding:6px 0;border-radius:calc(7px * var(--dm-rk-m,var(--dm-rk)));transition:background-color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .wsx-qh>.i,:root [data-style="clean"] .wsx-qh>.i,:root [data-style="clean"].wsx-qh>.i{justify-self:center}
+:root[data-style="clean"] .wsx-qh .n,:root [data-style="clean"] .wsx-qh .n,:root [data-style="clean"].wsx-qh .n{margin-right:-4px}
+:root[data-style="clean"] .wsx-qh.empty,:root [data-style="clean"] .wsx-qh.empty,:root [data-style="clean"].wsx-qh.empty{grid-template-columns:28px minmax(0,1fr) auto auto;padding-right:8px}
+:root[data-style="clean"] .wsx-qh .n,:root [data-style="clean"] .wsx-qh .n,:root [data-style="clean"].wsx-qh .n,:root[data-style="clean"] .wsx-qh .tm,:root [data-style="clean"] .wsx-qh .tm,:root [data-style="clean"].wsx-qh .tm{font-variant-numeric:tabular-nums}
+:root[data-style="clean"] .wsx-rw,:root [data-style="clean"] .wsx-rw,:root [data-style="clean"].wsx-rw{padding:0 0 6px;gap:12px}
+:root[data-style="clean"] .wsx-rw .i,:root [data-style="clean"] .wsx-rw .i,:root [data-style="clean"].wsx-rw .i{margin-inline:8px}
+:root[data-style="clean"] .wsx-rs,:root [data-style="clean"] .wsx-rs,:root [data-style="clean"].wsx-rs{padding:0 0 4px;gap:0}
+:root[data-style="clean"] .wsx-r,:root [data-style="clean"] .wsx-r,:root [data-style="clean"].wsx-r{grid-template-columns:28px minmax(0,1fr) auto;column-gap:12px;padding:6px 8px 6px 0;border-radius:calc(7px * var(--dm-rk-m,var(--dm-rk)));transition:background-color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .wsx-fav,:root [data-style="clean"] .wsx-fav,:root [data-style="clean"].wsx-fav{justify-self:center;border-radius:calc(4px * var(--dm-rk-s,var(--dm-rk)));box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .wsx-ans,:root [data-style="clean"] .wsx-ans,:root [data-style="clean"].wsx-ans{padding:16px;border-top:1px solid var(--dm-line);line-height:22px}
+:root[data-style="clean"] .wsx-cite,:root [data-style="clean"] .wsx-cite,:root [data-style="clean"].wsx-cite{transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}

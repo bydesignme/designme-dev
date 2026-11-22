@@ -2,40 +2,61 @@ TPLS["carousel"] = "<div class=\"crs dm\">\n  <div class=\"dm-main\">\n    <div 
 TPLS["payment-form"] = "<div class=\"pyx-wrap\"><form class=\"pyx panel\" novalidate>\n  <div class=\"pyx-h\"><div><b>Pro plan</b><span class=\"muted\">For growing design teams</span></div><div class=\"seg2 pyx-per\" role=\"group\" aria-label=\"Billing\"><button type=\"button\" aria-pressed=\"false\" data-v=\"m\">Monthly</button><button type=\"button\" aria-pressed=\"true\" data-v=\"y\">Yearly</button></div></div>\n  <label class=\"pyx-f\"><span>Card number</span><div class=\"pyx-in\"><input class=\"pyx-cn\" inputmode=\"numeric\" placeholder=\"1234 1234 1234 1234\" autocomplete=\"off\"><span class=\"pyx-br\"></span></div></label>\n  <div class=\"pyx-2\"><label class=\"pyx-f\"><span>Expiry</span><div class=\"pyx-in\"><input class=\"pyx-ex\" inputmode=\"numeric\" placeholder=\"MM / YY\" autocomplete=\"off\"></div></label><label class=\"pyx-f\"><span>CVC</span><div class=\"pyx-in\"><input class=\"pyx-cv\" inputmode=\"numeric\" placeholder=\"123\" maxlength=\"4\" autocomplete=\"off\"></div></label></div>\n  <div class=\"pyx-sum\"><div><span>3 editors × <span class=\"num pyx-u\">$24</span></span><span class=\"num pyx-s\">$72.00</span></div><div class=\"pyx-dc\"><span>Yearly discount</span><span class=\"num pyx-d\">−$14.40</span></div><div class=\"pyx-t\"><b>Due today</b><b class=\"num pyx-tot\">$691.20</b></div></div>\n  <button class=\"pill accent pyx-go\" type=\"submit\">{lock}Pay <span class=\"num pyx-gt\">$691.20</span></button>\n</form>\n  <span class=\"muted pyx-n pyx-out\">Demo only. Nothing is charged.</span></div>";
 TPLS["form"] = "<form class=\"fmx panel\" novalidate>\n  <div class=\"fmx-h\"><b>New project brief</b><button type=\"button\" class=\"pill soft sm fmx-ai\">{spark}Draft with agent</button></div>\n  <label class=\"fmx-f\"><span>Project name<i class=\"fmx-dr\" aria-hidden=\"true\">{spark}Drafted</i></span><input name=\"n\" placeholder=\"Pricing refresh\" maxlength=\"40\"><em class=\"fmx-c num\">0/40</em></label>\n  <label class=\"fmx-f\"><span>Goal<i class=\"fmx-dr\" aria-hidden=\"true\">{spark}Drafted</i></span><textarea name=\"g\" rows=\"2\" placeholder=\"What should change, and why?\"></textarea></label>\n  <div class=\"fmx-f\"><span>Type</span><div class=\"fmx-ty\"><button type=\"button\" class=\"chip sm\" data-v=\"web\">Website</button><button type=\"button\" class=\"chip sm\" data-v=\"app\">App</button><button type=\"button\" class=\"chip sm\" data-v=\"brand\">Brand</button></div></div>\n  <label class=\"fmx-f\"><span>Due<i class=\"fmx-dr\" aria-hidden=\"true\">{spark}Drafted</i></span><input name=\"d\" type=\"text\" placeholder=\"Nov 14\"></label>\n  <div class=\"fmx-ft\"><span class=\"fmx-ms muted\"></span><button class=\"pill primary sm fmx-go\" type=\"submit\">Create brief</button></div>\n</form>";
 TPLS["otp-field"] = "<div class=\"otp panel\">\n  <span class=\"otp-ic\">{mail}</span>\n  <b class=\"otp-t\">Check your email</b>\n  <p class=\"muted otp-s\">Enter the 6-digit code we sent to maya@designme.studio</p>\n  <div class=\"otp-in\" role=\"group\" aria-label=\"Verification code\"></div>\n  <p class=\"otp-m\" aria-live=\"polite\"></p>\n  <p class=\"muted otp-f\"><span class=\"otp-rs\">Resend code in <span class=\"num\">0:30</span></span></p>\n</div>";
-TPLS["sign-in"] = "<div class=\"sgx panel\">\n  <div class=\"sgx-st sgx-1\">\n    <b>Sign in</b><span class=\"muted\">We will email you a code</span>\n    <label class=\"sgx-f\"><span>Email</span><input type=\"email\" class=\"sgx-em\" placeholder=\"you@studio.com\" autocomplete=\"off\"></label>\n    <span class=\"sgx-err\"></span>\n    <button class=\"pill primary sgx-go\">Send code</button>\n  </div>\n  <div class=\"sgx-st sgx-2\" hidden>\n    <div class=\"fold shut sgx-ntf\"><div><div class=\"sgx-nt\" role=\"status\"><span class=\"sgx-ni\">{mail}</span><span class=\"t\"><b>Designme <span class=\"muted\">now</span></b><span>Your sign-in code is <span class=\"num\">482 157</span></span></span><button class=\"pill sm sgx-cp\">Copy code</button></div></div></div>\n    <button class=\"sgx-bk\">{l}<span class=\"sgx-to\"></span></button>\n    <b>Check your inbox</b><span class=\"muted\">Enter the 6 digit code</span>\n    <div class=\"sgx-code\"></div>\n    <span class=\"muted sgx-rs\">Resend in <span class=\"num\">30</span>s · <span class=\"sgx-hint\">Copy it from the email above</span></span>\n  </div>\n</div>";
+TPLS["sign-in"] = "<div class=\"sgx panel\">\n  <div class=\"sgx-body\">\n  <div class=\"sgx-st sgx-1\">\n    <b>Sign in</b><span class=\"muted\">We will email you a code</span>\n    <label class=\"sgx-f\"><span>Email</span><input type=\"email\" class=\"sgx-em\" placeholder=\"you@studio.com\" autocomplete=\"off\"></label>\n    <div class=\"fold shut sgx-ef\"><div><span class=\"sgx-err\" aria-live=\"polite\"></span></div></div>\n  </div>\n  <div class=\"sgx-st sgx-2\" hidden>\n    <button class=\"sgx-bk\"><svg class=\"i xs\"><use href=\"#v2i-chev-l\"/></svg><span class=\"sgx-to\"></span></button>\n    <b>Check your inbox</b><span class=\"muted\">Enter the 6 digit code</span>\n    <div class=\"sgx-code\" role=\"group\" aria-label=\"Code\"></div>\n    <div class=\"fold shut sgx-af\"><div><button class=\"chip sgx-sug\" type=\"button\" aria-label=\"Fill in the code from Mail, 482 157\"><svg class=\"i xs\"><use href=\"#v2i-mail\"/></svg><span>From Mail</span><span class=\"num\">482 157</span></button></div></div>\n  </div>\n  </div>\n  <div class=\"sgx-ft\">\n    <button class=\"pill primary sgx-go\">Send code</button>\n    <span class=\"muted sgx-rs\" aria-live=\"polite\" hidden></span>\n  </div>\n</div>";
 TPLS["social-signin"] = "<div class=\"ssi panel\">\n  <div class=\"ssi-h\"><span class=\"ssi-lg\"><svg viewBox=\"-20 -83 799 799\" aria-hidden=\"true\" class=\"logo\"><path d=\"M149.497 283.784C149.477 284.047 149.474 284.311 149.487 284.575C156.385 340.034 183.548 391.116 225.9 428.196C267.989 465.044 322.188 485.532 378.414 485.855L379.743 485.859C436.453 485.868 491.188 465.353 533.619 428.212C575.912 391.194 603.062 340.216 610.018 284.856L610.018 281.512C610.008 277.337 608.324 273.315 605.303 270.335C602.277 267.351 598.155 265.656 593.837 265.656L165.647 265.656C161.338 265.656 157.226 267.349 154.21 270.331C151.198 273.309 149.524 277.326 149.523 281.491L149.523 283.437L149.497 283.784ZM114.378 247.395C118.396 247.391 122.254 245.919 125.214 243.29C128.063 240.759 129.887 237.33 130.396 233.629L130.396 233.35L130.437 232.917C136.355 171.634 165.162 114.754 211.202 73.3687C257.239 31.9859 317.206 9.06063 379.393 9.04448L379.396 9.04448C441.593 9.04583 501.574 31.964 547.624 73.3482C593.677 114.735 622.491 171.624 628.411 232.917L628.453 233.35L628.453 233.643C628.953 237.344 630.773 240.774 633.621 243.304C636.58 245.932 640.437 247.399 644.452 247.395L725.644 247.395C728.882 247.404 732.089 248.06 735.071 249.329C738.055 250.598 740.753 252.453 743.001 254.787C745.252 257.123 747.005 259.891 748.151 262.924C749.296 265.954 749.81 269.183 749.662 272.418L749.663 272.418C745.484 366.797 704.617 455.919 635.615 521.211C566.616 586.499 474.809 622.924 379.338 622.924C283.872 622.924 192.071 586.496 123.081 521.206C54.0935 455.917 13.2412 366.804 9.07133 272.438L9.07036 272.438L9.07036 272.436C9.07007 272.43 9.06967 272.423 9.06938 272.417L9.07036 272.417C8.92272 269.182 9.43655 265.953 10.5811 262.924C11.7276 259.89 13.481 257.123 15.7315 254.787C17.9805 252.452 20.6797 250.597 23.6622 249.329C26.6443 248.06 29.8504 247.404 33.0889 247.395L114.378 247.395Z\" fill=\"currentColor\" /></svg></span><b>Sign in to DesignMe</b></div>\n  <div class=\"ssi-list\"></div>\n  <div class=\"ssi-or\">or</div>\n  <button class=\"ssi-mail\">Continue with email</button>\n</div>";
-TPLS["multi-select"] = "<div class=\"msc\">\n  <div class=\"msc-top\"><label class=\"msc-l\">Tags</label><button class=\"msc-clr\" hidden>Clear all</button></div>\n  <div class=\"msc-f\"><input class=\"msc-q\" role=\"combobox\" aria-expanded=\"false\" aria-autocomplete=\"list\" aria-haspopup=\"listbox\" placeholder=\"Add a tag\" spellcheck=\"false\" autocomplete=\"off\"><span class=\"kbd msc-key\" aria-hidden=\"true\"></span></div>\n  <div class=\"msc-pop\"><div class=\"msc-list\" role=\"listbox\" aria-multiselectable=\"true\" aria-label=\"Tags\"></div></div>\n  <span class=\"muted msc-h\">Type to filter. Backspace removes the last tag.</span>\n</div>";
+TPLS["multi-select"] = "<div class=\"msc\">\n  <div class=\"msc-top\"><label class=\"msc-l\">Tags</label><button class=\"msc-clr\" hidden>Clear all</button></div>\n  <div class=\"msc-f\"><input class=\"msc-q\" role=\"combobox\" aria-expanded=\"false\" aria-autocomplete=\"list\" aria-haspopup=\"listbox\" placeholder=\"Add a tag\" spellcheck=\"false\" autocomplete=\"off\"><span class=\"kbd msc-key\" aria-hidden=\"true\"></span></div>\n  <div class=\"pop msc-pop\"><div class=\"msc-list\" role=\"listbox\" aria-multiselectable=\"true\" aria-label=\"Tags\"></div></div>\n  <span class=\"muted msc-h\">Type to filter. Backspace removes the last tag.</span>\n</div>";
 TPLS["country-select"] = "<div class=\"csx\">\n  <label class=\"csx-l\">Billing country</label>\n  <button class=\"csx-f\" aria-haspopup=\"listbox\" aria-expanded=\"false\"><span class=\"csx-fl\"></span><span class=\"csx-v\"></span>{chev}</button>\n  <div class=\"csx-pop\"><input class=\"csx-q\" placeholder=\"Search countries\" aria-label=\"Search countries\" spellcheck=\"false\"><div class=\"csx-list\" role=\"listbox\"></div></div>\n  <span class=\"muted csx-h\">Used for tax and currency</span>\n</div>";
-TPLS["search-input"] = "<div class=\"six\">\n  <div class=\"six-box\">\n    <div class=\"six-in\">{search}<span class=\"six-chips\"></span><input placeholder=\"Search frames, files and docs\" aria-label=\"Search\" spellcheck=\"false\"><span class=\"kbd six-k\">⌘K</span><button class=\"ib six-x\" aria-label=\"Clear\" hidden>{x}</button></div>\n    <div class=\"fold shut six-dd\"><div><div class=\"six-res\"></div></div></div>\n  </div>\n</div>";
-TPLS["tooltip"] = "<div class=\"ttp\">\n  <div class=\"ttp-bar panel\">\n    <button class=\"ib\" aria-label=\"Undo\" data-tip=\"Undo\" data-tip-k=\"⌘Z\">{undo}</button>\n    <button class=\"ib\" aria-label=\"Comment\" data-tip=\"Comment\" data-tip-k=\"C\">{chat}</button>\n    <button class=\"ib\" aria-label=\"Ask agent\" data-tip=\"Ask the agent\" data-tip-k=\"⌘J\">{spark}</button>\n    <span class=\"ttp-sep\"></span>\n    <button class=\"ib\" aria-label=\"Share\" data-tip=\"Share with your team\">{users}</button>\n    <span class=\"ttp-sep\"></span>\n    <span class=\"ttp-avs\"><button class=\"ttp-av\" data-card=\"0\">{a1}</button><button class=\"ttp-av\" data-card=\"1\">{a2}</button></span>\n  </div>\n  <div class=\"ttp-card panel\"><div class=\"ttp-ci\"></div></div>\n  <p class=\"muted ttp-n\">Labels wait a moment, then follow you instantly between buttons.</p>\n</div>";
+TPLS["search-input"] = "<div class=\"six\">\n  <div class=\"six-box\">\n    <div class=\"six-in\"><svg class=\"i xs\"><use href=\"#v2i-search\"/></svg><span class=\"six-chips\"></span><input placeholder=\"Search frames, files and docs\" aria-label=\"Search\" spellcheck=\"false\"><span class=\"kbd six-k\">⌘K</span><button class=\"ib six-x\" aria-label=\"Clear\" hidden><svg class=\"i xs\"><use href=\"#v2i-x\"/></svg></button></div>\n  </div>\n  <div class=\"pop six-pop\"><div class=\"six-res\"></div></div>\n</div>";
+TPLS["tooltip"] = "<div class=\"ttp\">\n  <div class=\"ttp-bar panel\">\n    <button class=\"ib\" aria-label=\"Undo\" data-tip=\"Undo\" data-tip-k=\"⌘Z\">{undo}</button>\n    <button class=\"ib\" aria-label=\"Comment\" data-tip=\"Comment\" data-tip-k=\"C\">{chat}</button>\n    <button class=\"ib\" aria-label=\"Ask agent\" data-tip=\"Ask the agent\" data-tip-k=\"⌘J\">{spark}</button>\n    <span class=\"ttp-sep\"></span>\n    <button class=\"ib\" aria-label=\"Share\" data-tip=\"Share with your team\">{users}</button>\n    <span class=\"ttp-sep\"></span>\n    <span class=\"ttp-avs\"><button class=\"ttp-av\" data-card=\"0\" aria-label=\"Maya Kim\"><span class=\"av\" style=\"background:var(--av-l);color:var(--av-l-ink)\">MK</span></button><button class=\"ttp-av\" data-card=\"1\" aria-label=\"Design agent\"><span class=\"av\" style=\"background:var(--av-b);color:var(--av-b-ink)\">DA</span></button></span>\n  </div>\n  <div class=\"ttp-card panel\" aria-hidden=\"true\"><div class=\"ttp-ci\"></div></div>\n</div>";
 TPLS["slider"] = "<div class=\"sdx panel\">\n  <div class=\"sdx-b\">\n    <div class=\"sdx-h\"><span id=\"sdx-cr\">Creativity</span><span class=\"sdx-v num\"></span></div>\n    <div class=\"sdx-tr\" data-s=\"cr\"><span class=\"sdx-rail\"><i class=\"sdx-fill\"></i></span><button class=\"sdx-rec\" aria-label=\"Use the recommended value\" data-tip=\"Recommended by the agent: 0.4\">{spark}</button><span class=\"sdx-k\" role=\"slider\" tabindex=\"0\" aria-labelledby=\"sdx-cr\"><i class=\"sdx-kb\"></i><span class=\"sdx-tt num\"></span></span></div>\n    <div class=\"sdx-stops\"><button data-v=\"0\">Precise</button><button data-v=\"0.5\">Balanced</button><button data-v=\"1\">Creative</button></div>\n    <p class=\"sdx-sm\" aria-live=\"polite\"><span></span></p>\n  </div>\n  <div class=\"sdx-b\">\n    <div class=\"sdx-h\"><span id=\"sdx-mx\">Tool calls per run</span><span class=\"sdx-v num\"></span></div>\n    <div class=\"sdx-tr\" data-s=\"mx\"><span class=\"sdx-rail\"><i class=\"sdx-fill\"></i></span><span class=\"sdx-k\" role=\"slider\" tabindex=\"0\" aria-labelledby=\"sdx-mx\"><i class=\"sdx-kb\"></i><span class=\"sdx-tt num\"></span></span></div>\n    <div class=\"sdx-ticks num\"></div>\n  </div>\n  <div class=\"sdx-b\">\n    <div class=\"sdx-h\"><span id=\"sdx-co\">Cost per run</span><span class=\"sdx-v num\"></span></div>\n    <div class=\"sdx-tr\" data-s=\"co\"><span class=\"sdx-rail\"><i class=\"sdx-fill\"></i></span><span class=\"sdx-k\" role=\"slider\" tabindex=\"0\" aria-label=\"Lowest cost per run\"><i class=\"sdx-kb\"></i><span class=\"sdx-tt num\"></span></span><span class=\"sdx-k\" role=\"slider\" tabindex=\"0\" aria-label=\"Highest cost per run\"><i class=\"sdx-kb\"></i><span class=\"sdx-tt num\"></span></span></div>\n    <div class=\"sdx-ends muted num\"><span>$0.00</span><span>$1.00</span></div>\n  </div>\n</div>";
 TPLS["progress"] = "<div class=\"dm prg-dm\" data-designs=\"card\"><div class=\"dm-main\"><div class=\"prg panel\" data-s=\"ind\">\n  <div class=\"prg-h\">\n    <span class=\"prg-ring\" role=\"progressbar\" aria-label=\"Run progress\"><svg viewBox=\"0 0 36 36\" aria-hidden=\"true\"><circle class=\"tr\" cx=\"18\" cy=\"18\" r=\"15\"/><circle class=\"fl\" cx=\"18\" cy=\"18\" r=\"15\" pathLength=\"100\"/></svg><span class=\"prg-pc num\"></span></span>\n    <div class=\"prg-t\"><b>Indexing the docs</b><span class=\"muted prg-vt\">Preparing the run</span></div>\n    <span class=\"tag prg-st\">Starting</span>\n    <button class=\"ib prg-btn\" aria-label=\"Pause\" data-tip=\"Pause\">{pause}</button>\n  </div>\n  <div class=\"prg-seg\" role=\"progressbar\" aria-label=\"Steps\" aria-valuemin=\"0\" aria-valuemax=\"5\"><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i></div>\n  <div class=\"prg-ll\"></div>\n  <div class=\"prg-lin ind\" role=\"progressbar\" aria-label=\"This step\" aria-valuemin=\"0\" aria-valuemax=\"100\"><i></i></div>\n  <div class=\"prg-meter\">\n    <div class=\"prg-mh\"><span>Credits this month</span><span class=\"num muted\"><b class=\"prg-mv\">0</b> of 10,000</span></div>\n    <div class=\"prg-mb\" role=\"meter\" aria-label=\"Credits used\" aria-valuemin=\"0\" aria-valuemax=\"10000\"><i class=\"fl\"></i><i class=\"th\" style=\"left:75%\"></i><i class=\"th\" style=\"left:90%\"></i></div>\n    <div class=\"prg-ml\"><span class=\"prg-mw\"></span><span class=\"muted\">Resets Dec 1</span></div>\n  </div>\n  <p class=\"prg-sr\" aria-live=\"polite\"></p>\n</div></div>\n<div class=\"demo\"><div class=\"seg2\" role=\"group\" aria-label=\"Progress design\"><button aria-pressed=\"true\" data-v=\"compact\">Compact</button><button aria-pressed=\"false\" data-v=\"steps\">Steps</button><button aria-pressed=\"false\" data-v=\"budget\">Budget</button></div></div>\n</div>";
 TPLS["badge"] = "<div class=\"bdx\">\n  <div class=\"bdx-row\"><span class=\"bdx-l muted\">Tones</span><div class=\"bdx-set\"><span class=\"bdg\">Draft</span><span class=\"bdg\" data-tone=\"accent\">Beta</span><span class=\"bdg\" data-tone=\"success\">Live</span><span class=\"bdg\" data-tone=\"warning\">Degraded</span><span class=\"bdg\" data-tone=\"danger\">Failed</span></div></div>\n  <div class=\"bdx-row\"><span class=\"bdx-l muted\">Colours</span><div class=\"bdx-set\"><span class=\"bdg\" data-tone=\"blue\">Search</span><span class=\"bdg\" data-tone=\"violet\">Reasoning</span><span class=\"bdg\" data-tone=\"green\">Data</span><span class=\"bdg\" data-tone=\"orange\">Billing</span><span class=\"bdg\" data-tone=\"red\">Urgent</span><span class=\"bdg\" data-tone=\"yellow\">Review</span><span class=\"bdg\" data-tone=\"pink\">Design</span><span class=\"bdg\" data-tone=\"teal\">Ops</span></div></div>\n  <div class=\"bdx-row\"><span class=\"bdx-l muted\">Sizes</span><div class=\"bdx-set\"><span class=\"bdg sm\" data-tone=\"accent\">Pro</span><span class=\"bdg\" data-tone=\"accent\">Pro</span></div></div>\n  <div class=\"bdx-row\"><span class=\"bdx-l muted\">Dot or icon</span><div class=\"bdx-set\"><span class=\"bdg live\" data-tone=\"success\"><span class=\"bdg-dot\"></span>Running</span><span class=\"bdg\"><span class=\"bdg-dot\"></span>Idle</span><span class=\"bdg\">{lock}Private</span><span class=\"bdg\" data-tone=\"accent\">{spark}Agent</span></div></div>\n  <div class=\"bdx-row\"><span class=\"bdx-l muted\">Removable</span><div class=\"bdx-set bdx-rm\"><span class=\"bdg\" data-tone=\"warning\"><span class=\"t\">Production</span><button class=\"bdg-x\" aria-label=\"Remove Production\">{x}</button></span><span class=\"bdg\" data-tone=\"blue\"><span class=\"t\">Staging</span><button class=\"bdg-x\" aria-label=\"Remove Staging\">{x}</button></span><span class=\"bdg\" data-tone=\"violet\"><span class=\"t\">Preview</span><button class=\"bdg-x\" aria-label=\"Remove Preview\">{x}</button></span><button class=\"pill ghost sm bdx-undo\" hidden>Undo</button></div></div>\n  <p class=\"bdx-live\" aria-live=\"polite\"></p>\n</div>";
-TPLS["buttons"] = "<div class=\"btx\">\n  <div class=\"btx-row\"><span class=\"btx-l muted\">Styles</span><button class=\"pill accent btx-trial\">Start free trial</button><button class=\"pill primary btx-run\">Run agent</button><button class=\"pill soft btx-pv\" aria-pressed=\"false\">Preview</button><button class=\"pill line btx-share\" data-pop=\".btx-sp\" aria-haspopup=\"menu\">Share</button><div class=\"pop btx-sp\" role=\"menu\"><button class=\"mi\" role=\"menuitem\" data-close data-a=\"link\">{link}Copy link</button><button class=\"mi\" role=\"menuitem\" data-close data-a=\"slack\">{slack}Send to Slack<span class=\"r\">#design</span></button><button class=\"mi\" role=\"menuitem\" data-close data-a=\"pdf\">{down}Export as PDF</button></div><button class=\"pill ghost\">Cancel</button></div>\n  <div class=\"btx-row\"><span class=\"btx-l muted\">With icon</span><button class=\"pill accent btx-ask\">{spark}Ask agent</button><button class=\"pill soft btx-fig\">{figma}Open in Figma</button><button class=\"ib fill btx-icp\" aria-label=\"Copy\" data-tip=\"Copy\">{copy}</button><button class=\"ib fill btx-more\" aria-label=\"More\" data-tip=\"More\" data-pop=\".btx-mp\" data-pop-align=\"end\" aria-haspopup=\"menu\">{more}</button><div class=\"pop btx-mp\" role=\"menu\"><button class=\"mi\" role=\"menuitem\" data-close data-a=\"Duplicated\">{dup}Duplicate<span class=\"r\">⌘D</span></button><button class=\"mi\" role=\"menuitem\" data-close data-a=\"Renamed\">{edit}Rename</button><button class=\"mi\" role=\"menuitem\" data-close data-a=\"Moved to Website\">{folder}Move to…</button><div class=\"sep\"></div><button class=\"mi del\" role=\"menuitem\" data-close data-a=\"Moved to trash\">{bin}Delete<span class=\"r\">⌫</span></button></div></div>\n  <div class=\"btx-row\"><span class=\"btx-l muted\">States</span><button class=\"pill primary btx-load\">Publish</button><button class=\"pill soft btx-copy\">{copy}Copy link</button><button class=\"pill btx-hold\"><span class=\"fill\"></span><span class=\"lb\">{trash}Hold to delete</span></button><button class=\"pill accent\" disabled>Disabled</button></div>\n  <div class=\"btx-row\"><span class=\"btx-l muted\">Sizes</span><button class=\"pill accent sm\">Small</button><button class=\"pill accent\">Default</button><button class=\"pill accent btx-lg\">Large</button></div>\n</div>";
+TPLS["buttons"] = "<div class=\"btx\">\n  <div class=\"btx-row\"><span class=\"btx-l muted\">Styles</span><button class=\"pill primary btx-trial\">Start free trial</button><button class=\"pill soft btx-pv\" aria-pressed=\"false\">Preview</button><button class=\"pill line btx-share\" data-pop=\".btx-sp\" aria-haspopup=\"menu\">Share</button><div class=\"pop btx-sp\" role=\"menu\"><button class=\"mi\" role=\"menuitem\" data-close data-a=\"link\"><svg class=\"i s\"><use href=\"#v2i-link\"/></svg>Copy link</button><button class=\"mi\" role=\"menuitem\" data-close data-a=\"slack\"><svg class=\"brand\" aria-hidden=\"true\" viewBox=\"0 0 128 128\"><path d=\"M27.255 80.719c0 7.33-5.978 13.317-13.309 13.317C6.616 94.036.63 88.049.63 80.719s5.987-13.317 13.317-13.317h13.309zm6.709 0c0-7.33 5.987-13.317 13.317-13.317s13.317 5.986 13.317 13.317v33.335c0 7.33-5.986 13.317-13.317 13.317-7.33 0-13.317-5.987-13.317-13.317zm0 0\" fill=\"#de1c59\"/><path d=\"M47.281 27.255c-7.33 0-13.317-5.978-13.317-13.309C33.964 6.616 39.951.63 47.281.63s13.317 5.987 13.317 13.317v13.309zm0 6.709c7.33 0 13.317 5.987 13.317 13.317s-5.986 13.317-13.317 13.317H13.946C6.616 60.598.63 54.612.63 47.281c0-7.33 5.987-13.317 13.317-13.317zm0 0\" fill=\"#35c5f0\"/><path d=\"M100.745 47.281c0-7.33 5.978-13.317 13.309-13.317 7.33 0 13.317 5.987 13.317 13.317s-5.987 13.317-13.317 13.317h-13.309zm-6.709 0c0 7.33-5.987 13.317-13.317 13.317s-13.317-5.986-13.317-13.317V13.946C67.402 6.616 73.388.63 80.719.63c7.33 0 13.317 5.987 13.317 13.317zm0 0\" fill=\"#2eb57d\"/><path d=\"M80.719 100.745c7.33 0 13.317 5.978 13.317 13.309 0 7.33-5.987 13.317-13.317 13.317s-13.317-5.987-13.317-13.317v-13.309zm0-6.709c-7.33 0-13.317-5.987-13.317-13.317s5.986-13.317 13.317-13.317h33.335c7.33 0 13.317 5.986 13.317 13.317 0 7.33-5.987 13.317-13.317 13.317zm0 0\" fill=\"#ebb02e\"/></svg>Send to Slack<span class=\"r\">#design</span></button><button class=\"mi\" role=\"menuitem\" data-close data-a=\"pdf\"><svg class=\"i s\"><use href=\"#v2i-down\"/></svg>Export as PDF</button></div><button class=\"pill warn btx-warn\">Sign in again</button><button class=\"pill ghost\">Cancel</button></div>\n  <div class=\"btx-row\"><span class=\"btx-l muted\">With icon</span><button class=\"pill primary btx-ask\"><svg class=\"i xs\"><use href=\"#v2i-spark\"/></svg>Ask agent</button><button class=\"pill soft btx-fig\"><svg class=\"i xs\"><use href=\"#v2i-figma\"/></svg>Open in Figma</button><button class=\"ib fill btx-ib btx-icp\" aria-label=\"Copy\" data-tip=\"Copy\"><svg class=\"i xs\"><use href=\"#v2i-copy\"/></svg></button><button class=\"ib fill btx-ib btx-more\" aria-label=\"More\" data-tip=\"More\" data-pop=\".btx-mp\" data-pop-align=\"end\" aria-haspopup=\"menu\"><svg class=\"i xs\"><use href=\"#v2i-more\"/></svg></button><div class=\"pop btx-mp\" role=\"menu\"><button class=\"mi\" role=\"menuitem\" data-close data-a=\"Duplicated\"><svg class=\"i s\"><use href=\"#v2i-copy\"/></svg>Duplicate<span class=\"r\">⌘D</span></button><button class=\"mi\" role=\"menuitem\" data-close data-a=\"Renamed\"><svg class=\"i s\"><use href=\"#v2i-edit\"/></svg>Rename</button><button class=\"mi\" role=\"menuitem\" data-close data-a=\"Moved to Website\"><svg class=\"i s\"><use href=\"#v2i-folder\"/></svg>Move to…</button><div class=\"sep\"></div><button class=\"mi del\" role=\"menuitem\" data-close data-a=\"Moved to trash\"><svg class=\"i s\"><use href=\"#v2i-trash\"/></svg>Delete<span class=\"r\">⌫</span></button></div></div>\n  <div class=\"btx-row\"><span class=\"btx-l muted\">States</span><button class=\"pill primary btx-load\">Publish</button><button class=\"pill primary btx-run\">Run agent</button><button class=\"pill soft btx-copy\"><svg class=\"i xs\"><use href=\"#v2i-copy\"/></svg>Copy link</button><button class=\"pill btx-hold\"><span class=\"lb\"><svg class=\"i xs\"><use href=\"#v2i-trash\"/></svg>Hold to delete</span><span class=\"fill\" aria-hidden=\"true\"><span class=\"lb\"><svg class=\"i xs\"><use href=\"#v2i-trash\"/></svg>Hold to delete</span></span></button><button class=\"pill primary\" disabled>Disabled</button></div>\n  <div class=\"btx-row\" data-sizes><span class=\"btx-l muted\">Sizes</span><button class=\"pill primary sm\">Small</button><button class=\"pill primary\">Default</button><button class=\"pill primary btx-lg\">Large</button></div>\n</div>";
 
 /* ---------- Buttons ---------- */
 DM.def('buttons', (r, c) => {
-  r.innerHTML = r.innerHTML.replace('{link}', I('link','s')).replace('{slack}', BRAND.slack).replace('{down}', I('down','s')).replace('{spark}', I('spark','xs')).replace('{figma}', I('figma','xs')).replace(/\{copy\}/g, (m, o) => I('copy','xs')).replace('{more}', I('more','xs')).replace('{trash}', I('trash','xs')).replace('{bin}', I('trash','s')).replace('{dup}', I('copy','s')).replace('{edit}', I('edit','s')).replace('{folder}', I('folder','s'));
+  r.innerHTML = r.innerHTML.replace('{link}', I('link','s')).replace('{slack}', BRAND.slack).replace('{down}', I('down','s')).replace('{spark}', I('spark','xs')).replace('{figma}', I('figma','xs')).replace(/\{copy\}/g, (m, o) => I('copy','xs')).replace('{more}', I('more','xs')).replace(/\{trash\}/g, I('trash','xs')).replace('{bin}', I('trash','s')).replace('{dup}', I('copy','s')).replace('{edit}', I('edit','s')).replace('{folder}', I('folder','s'));
+  /* a button is as wide as its words (owner, 18 Nov): when they change, whoever changes them (a click here, swap(), copied()),
+     it eases from the width it showed to its new one, at the style's pace, instead of keeping room for its longest label */
+  const cssV = v => getComputedStyle(r).getPropertyValue(v).trim();
+  const ro = new ResizeObserver(es => es.forEach(e => { e.target._w = e.target.getBoundingClientRect().width; }));
+  const mo = new MutationObserver(ms => new Set(ms.map(m => (m.target.nodeType === 1 ? m.target : m.target.parentElement).closest('.pill'))).forEach(b => {
+    if (!b) return;
+    const from = b._w; b.getAnimations().forEach(a => { if (a.id === 'fit') a.cancel(); });
+    const to = b.getBoundingClientRect().width; b._w = to;
+    if (REDUCE || !from || Math.abs(to - from) < .5) return;
+    const s = cssV('--t'), a = b.animate([{ width:from + 'px' }, { width:to + 'px' }], { duration:(s.endsWith('ms') ? parseFloat(s) : parseFloat(s) * 1000) || 340, easing:cssV('--ease') || 'ease' }); a.id = 'fit';
+  }));
+  $$('.btx-row .pill', r).forEach(b => { b._w = b.getBoundingClientRect().width; ro.observe(b); mo.observe(b, { childList:true, characterData:true, subtree:true }); });
+  c.offs.push(() => { ro.disconnect(); mo.disconnect(); });
+  /* done: the outlined face with the vivid green tick in place of the icon, at the same size, and no green fill (owner, 18 Nov);
+     undone() puts back the face it had */
+  const done = (b, words, el = b) => {
+    if (!b._was){ b._was = ['primary', 'accent', 'soft'].find(k => b.classList.contains(k)) || (b.classList.contains('line') ? '-' : '+'); if (b._was !== '-'){ if (b._was !== '+') b.classList.remove(b._was); b.classList.add('line'); } }
+    b.classList.add('btx-ok'); el.innerHTML = I('check','xs') + words; enter(el.firstChild);
+  };
+  const undone = b => { b.classList.remove('btx-ok'); if (b._was && b._was !== '-'){ b.classList.remove('line'); if (b._was !== '+') b.classList.add(b._was); } b._was = null; };
   const ld = $('.btx-load', r);
   /* busy buttons keep their colour; disabled styling is only for buttons you can't use */
-  ld.onclick = () => c.run(async () => { if (ld._busy) return; ld._busy = true; ld.classList.add('busy'); ld.setAttribute('aria-busy', 'true'); ld.innerHTML = '<span class="spin"></span>Publishing'; await c.wait(1300); ld.classList.remove('busy'); ld.classList.add('ok'); ld.innerHTML = I('check','xs') + 'Published'; enter(ld.firstChild); await c.wait(1800); ld.classList.remove('ok'); ld.textContent = 'Publish'; ld._busy = false; ld.removeAttribute('aria-busy'); });
+  ld.onclick = () => c.run(async () => { if (ld._busy) return; ld._busy = true; ld.classList.add('busy'); ld.setAttribute('aria-busy', 'true'); ld.innerHTML = '<span class="spin"></span>Publishing'; await c.wait(1300); ld.classList.remove('busy'); ld.removeAttribute('aria-busy'); done(ld, 'Published'); await c.wait(1800); undone(ld); ld.textContent = 'Publish'; ld._busy = false; });
   const ask = $('.btx-ask', r);
-  ask.onclick = () => c.run(async () => { if (ask._busy) return; ask._busy = true; ask.classList.add('busy'); ask.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Agent is working</span>';
-    await c.wait(2200); ask.classList.remove('busy'); ask.classList.add('done'); ask.innerHTML = I('check','xs') + 'Draft ready'; enter(ask.firstChild);
-    await c.wait(1800); ask.classList.remove('done'); ask.innerHTML = I('spark','xs') + 'Ask agent'; ask._busy = false; });
+  ask.onclick = () => c.run(async () => { if (ask._busy) return; ask._busy = true; ask.classList.add('busy'); ask.setAttribute('aria-busy', 'true'); ask.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Agent is working</span>';
+    await c.wait(2200); ask.classList.remove('busy'); ask.removeAttribute('aria-busy'); done(ask, 'Draft ready');
+    await c.wait(1800); undone(ask); ask.innerHTML = I('spark','xs') + 'Ask agent'; ask._busy = false; });
   const icp = $('.btx-icp', r); icp.onclick = () => copied(icp, 'https://designme.dev/p/pricing');
   /* Start free trial: a short wait, then a confirmed state */
   const tr = $('.btx-trial', r);
-  tr.onclick = () => c.run(async () => { if (tr._busy) return; tr._busy = true; tr.setAttribute('aria-busy', 'true'); tr.innerHTML = '<span class="spin"></span>Starting'; await c.wait(1100); tr.innerHTML = I('check','xs') + 'Trial started'; enter(tr.firstChild); await c.wait(1800); swap(tr, 'Start free trial'); tr._busy = false; tr.removeAttribute('aria-busy'); });
-  /* Run agent: shows the run time, turns into Stop while you hover it */
+  tr.onclick = () => c.run(async () => { if (tr._busy) return; tr._busy = true; tr.classList.add('busy'); tr.setAttribute('aria-busy', 'true'); tr.innerHTML = '<span class="spin"></span>Starting'; await c.wait(1100); tr.classList.remove('busy'); tr.removeAttribute('aria-busy'); done(tr, 'Trial started'); await c.wait(1800); undone(tr); swap(tr, 'Start free trial'); tr._busy = false; });
+  /* Run agent: shows the run time, turns into Stop while you hover it. Stop keeps the running width, so the button never
+     narrows away from the pointer on it */
   const rn = $('.btx-run', r); let rt = 0, rtick = null, rdone = null;
-  const idle = () => { clearInterval(rtick); clearTimeout(rdone); rn.classList.remove('busy'); rn.removeAttribute('aria-busy'); rn._run = false; };
-  const rlabel = () => { if (!rn._run) return; rn.innerHTML = rn.matches(':hover') ? '<span class="sq"></span>Stop' : `<span class="spin"></span>Running <span class="num">${Math.floor(rt / 60)}:${String(rt % 60).padStart(2, '0')}</span>`; };
+  const idle = () => { clearInterval(rtick); clearTimeout(rdone); rn.classList.remove('busy'); rn.removeAttribute('aria-busy'); rn.style.minWidth = ''; rn._run = false; };
+  const rlabel = () => { if (!rn._run) return; const stop = rn.matches(':hover'); rn.style.minWidth = stop ? rn.getBoundingClientRect().width + 'px' : ''; rn.innerHTML = stop ? '<span class="sq"></span>Stop' : `<span class="spin"></span>Running <span class="num">${Math.floor(rt / 60)}:${String(rt % 60).padStart(2, '0')}</span>`; };
   rn.onclick = () => {
     if (rn._run){ idle(); rn.innerHTML = '<span class="sq"></span>Stopped'; c.later(1200, () => { if (!rn._run) swap(rn, 'Run agent'); }); return; }
-    rn._run = true; rt = 0; rn.classList.add('busy'); rn.setAttribute('aria-busy', 'true'); rlabel();
+    undone(rn); rn._run = true; rt = 0; rn.classList.add('busy'); rn.setAttribute('aria-busy', 'true'); rlabel();
     rtick = setInterval(() => { rt++; rlabel(); }, 1000);
-    rdone = setTimeout(() => { idle(); rn.innerHTML = I('check','xs') + 'Run complete'; enter(rn.firstChild); c.later(1800, () => { if (!rn._run) swap(rn, 'Run agent'); }); }, 3200);
+    rdone = setTimeout(() => { idle(); done(rn, 'Run complete'); c.later(1800, () => { if (!rn._run){ undone(rn); swap(rn, 'Run agent'); } }); }, 3200);
   };
   rn.onmouseenter = rlabel; rn.onmouseleave = rlabel;
   c.offs.push(idle);
@@ -44,34 +65,35 @@ DM.def('buttons', (r, c) => {
   pv.onclick = () => { const on = pv.getAttribute('aria-pressed') !== 'true'; pv.setAttribute('aria-pressed', on); pv.innerHTML = on ? '<span class="btx-live"></span>Previewing' : 'Preview'; };
   /* Share: a small menu, the button says what happened */
   const sh = $('.btx-share', r);
-  const said = (t, ms = 1600) => { sh.innerHTML = I('check','xs') + t; enter(sh.firstChild); clearTimeout(sh._t); sh._t = setTimeout(() => swap(sh, 'Share'), ms); };
+  const said = (t, ms = 1600) => { done(sh, t); clearTimeout(sh._t); sh._t = setTimeout(() => { undone(sh); swap(sh, 'Share'); }, ms); };
   $$('.btx-sp .mi', r).forEach(b => b.addEventListener('click', () => {
     const a = b.dataset.a;
     if (a === 'link'){ try { navigator.clipboard.writeText('https://designme.dev/p/pricing').catch(() => {}); } catch(e){} said('Link copied'); }
     else if (a === 'slack') said('Sent to #design');
-    else { clearTimeout(sh._t); sh.innerHTML = '<span class="spin"></span>Exporting'; sh._t = setTimeout(() => said('PDF ready'), 1100); }
+    else { clearTimeout(sh._t); undone(sh); sh.innerHTML = '<span class="spin"></span>Exporting'; sh._t = setTimeout(() => said('PDF ready'), 1100); }
   }));
   c.offs.push(() => clearTimeout(sh._t));
   /* Open in Figma: a short wait while it opens, then it says where it went */
   const fg = $('.btx-fig', r);
-  fg.onclick = () => c.run(async () => { if (fg._busy) return; fg._busy = true; fg.setAttribute('aria-busy', 'true'); fg.innerHTML = '<span class="spin"></span>Opening'; await c.wait(900);
-    fg.innerHTML = I('ext','xs') + 'Opened in Figma'; enter(fg.firstChild); await c.wait(1800); swap(fg, I('figma','xs') + 'Open in Figma', true); await c.wait(200); fg._busy = false; fg.removeAttribute('aria-busy'); });
-  /* More: a menu of actions; the button flashes a check and says what happened */
-  const mo = $('.btx-more', r), moIc = mo.innerHTML;
+  fg.onclick = () => c.run(async () => { if (fg._busy) return; fg._busy = true; fg.classList.add('busy'); fg.setAttribute('aria-busy', 'true'); fg.innerHTML = '<span class="spin"></span>Opening'; await c.wait(900);
+    fg.classList.remove('busy'); fg.innerHTML = I('ext','xs') + 'Opened in Figma'; enter(fg.firstChild); await c.wait(1800); swap(fg, I('figma','xs') + 'Open in Figma', true); await c.wait(200); fg._busy = false; fg.removeAttribute('aria-busy'); });
+  /* More: a menu of actions; the button flashes the green tick and says what happened */
+  const mo2 = $('.btx-more', r), moIc = mo2.innerHTML;
   // no tooltip over its own open menu
-  const mob = new MutationObserver(() => { if (mo.getAttribute('aria-expanded') === 'true'){ if (tipFor === mo) hideTip(true); delete mo.dataset.tip; } else if (!mo.classList.contains('done')) mo.dataset.tip = 'More'; });
-  mob.observe(mo, { attributes:true, attributeFilter:['aria-expanded'] }); c.offs.push(() => mob.disconnect());
+  const mob = new MutationObserver(() => { if (mo2.getAttribute('aria-expanded') === 'true'){ if (tipFor === mo2) hideTip(true); delete mo2.dataset.tip; } else if (!mo2.classList.contains('done')) mo2.dataset.tip = 'More'; });
+  mob.observe(mo2, { attributes:true, attributeFilter:['aria-expanded'] }); c.offs.push(() => mob.disconnect());
   $$('.btx-mp .mi', r).forEach(b => b.addEventListener('click', () => {
-    clearTimeout(mo._t); c.later(140, () => { mo.innerHTML = I('check','xs'); mo.classList.add('done'); mo.dataset.tip = b.dataset.a; showTip(mo);
-      mo._t = setTimeout(() => { mo.innerHTML = moIc; mo.classList.remove('done'); mo.dataset.tip = 'More'; if (tipFor === mo) hideTip(true); }, 1500); });
+    clearTimeout(mo2._t); c.later(140, () => { mo2.innerHTML = I('check','xs'); mo2.classList.add('done'); mo2.dataset.tip = b.dataset.a; showTip(mo2);
+      mo2._t = setTimeout(() => { mo2.innerHTML = moIc; mo2.classList.remove('done'); mo2.dataset.tip = 'More'; if (tipFor === mo2) hideTip(true); }, 1500); });
   }));
-  c.offs.push(() => clearTimeout(mo._t));
+  c.offs.push(() => clearTimeout(mo2._t));
   const cp = $('.btx-copy', r);
   cp.onclick = () => { copied(cp, 'https://designme.dev/p/pricing'); const t = cp.lastChild; t.textContent = 'Copied'; clearTimeout(cp._lt); cp._lt = setTimeout(() => { t.textContent = 'Copy link'; }, 1600); };
-  const h = $('.btx-hold', r), lb = $('.lb', h); let t;
+  // its words, and their white copy on the fill, change together
+  const h = $('.btx-hold', r), lbs = $$('.lb', h), lb = lbs[0], words = html => lbs.forEach(l => { l.innerHTML = html; }); let t;
   // the label crossfades to Keep holding by hand, so an early release can cancel it before the text lands
-  const start = e => { if (h.classList.contains('done')) return; h.classList.add('h'); lb.classList.add('sw', 'out'); clearTimeout(h._sw); h._sw = setTimeout(() => { lb.textContent = 'Keep holding'; lb.classList.remove('out'); }, REDUCE ? 0 : 170); t = setTimeout(() => { h.classList.remove('h'); h.classList.add('done'); lb.innerHTML = I('check','xs') + 'Deleted'; c.later(1800, () => { h.classList.remove('done'); lb.innerHTML = I('trash','xs') + 'Hold to delete'; }); }, 1200); };
-  const end = () => { if (!h.classList.contains('h')) return; clearTimeout(t); clearTimeout(h._sw); lb.classList.remove('out'); h.classList.remove('h'); lb.innerHTML = I('trash','xs') + 'Hold to delete'; };
+  const start = e => { if (h.classList.contains('btx-ok')) return; h.classList.add('h'); lbs.forEach(l => l.classList.add('sw', 'out')); clearTimeout(h._sw); h._sw = setTimeout(() => { words('Keep holding'); lbs.forEach(l => l.classList.remove('out')); }, REDUCE ? 0 : 170); t = setTimeout(() => { h.classList.remove('h'); done(h, 'Deleted', lb); lbs[1].innerHTML = lb.innerHTML; c.later(1800, () => { undone(h); words(I('trash','xs') + 'Hold to delete'); }); }, 1200); };
+  const end = () => { if (!h.classList.contains('h')) return; clearTimeout(t); clearTimeout(h._sw); lbs.forEach(l => l.classList.remove('out')); h.classList.remove('h'); words(I('trash','xs') + 'Hold to delete'); };
   h.onpointerdown = start; h.onpointerup = end; h.onpointerleave = end;
   h.onkeydown = e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat){ e.preventDefault(); start(); } };
   h.onkeyup = e => { if (e.key === ' ' || e.key === 'Enter') end(); }; h.onblur = end;
@@ -129,13 +151,30 @@ DM.def('badge', (r, c) => {
 DM.def('tooltip', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{undo}', I('undo')).replace('{chat}', I('edit')).replace('{spark}', I('spark')).replace('{users}', I('users')).replace('{a1}', AV('MK','var(--av-l)')).replace('{a2}', AV('DA','var(--av-b)'));
   const P = [['MK','var(--av-l)','Maya Kim','Design lead','Editing Pricing, frame 2'],['DA','var(--av-b)','Design agent','Working for Maya','Auditing contrast, 2 of 6 checks']];
-  const card = $('.ttp-card', r), ci = $('.ttp-ci', r), root = $('.ttp', r); let t;
-  $$('.ttp-av', r).forEach(b => { b.onmouseenter = () => { clearTimeout(t); t = setTimeout(() => { const p = P[+b.dataset.card];
-      ci.innerHTML = `<div class="ttp-ch">${AV(p[0], p[1])}<div><b>${p[2]}</b><span>${p[3]}</span></div></div><div class="ttp-cs">${p[0] === 'DA' ? '<span class="think on" style="color:var(--accent-mark,var(--accent))"><i></i><i></i><i></i><i></i></span>' : '<span class="dot"></span>'}${p[4]}</div>`;
-      const rr = root.getBoundingClientRect(), br = b.getBoundingClientRect(); let x = br.left - rr.left + br.width / 2 - 115; x = Math.max(0, Math.min(x, rr.width - 230));
-      card.style.left = x + 'px'; card.style.top = (br.bottom - rr.top + 10) + 'px'; card.classList.add('show'); }, 300); };
-    b.onmouseleave = () => { clearTimeout(t); card.classList.remove('show'); }; });
-  c.offs.push(() => clearTimeout(t));
+  const card = $('.ttp-card', r), ci = $('.ttp-ci', r), root = $('.ttp', r); let t, on = null, raf = 0, at = '';
+  // Clean's one hover: a highlight that glides from button to button (hoverGlide)
+  c.offs.push(hoverGlide($('.ttp-bar', r), '.ib,.ttp-av'));
+  /* the card sits centred on its avatar, or right-aligned to it (left-aligned on the left) where the stage's edge is near,
+     under it when there is room in the stage and over it when there isn't */
+  const place = b => {
+    const rr = root.getBoundingClientRect(), br = b.getBoundingClientRect(), w = card.offsetWidth, h = card.offsetHeight;
+    const st = root.closest('.stage-in'), sb = st ? (st.closest('.stage-inner') || st.parentElement).getBoundingClientRect() : { left:0, right:innerWidth, top:0, bottom:innerHeight };
+    const lo = Math.max(0, sb.left) + 8, hi = Math.min(innerWidth, sb.right) - 8;
+    let x = br.left + br.width / 2 - w / 2; if (x + w > hi) x = Math.max(lo, br.right - w); else if (x < lo) x = Math.min(hi - w, br.left);
+    const down = br.bottom + 10 + h <= Math.min(innerHeight, sb.bottom) - 8 || br.top - 10 - h < Math.max(0, sb.top) + 8;
+    card.classList.toggle('up', !down);
+    card.style.left = Math.round(x - rr.left) + 'px'; card.style.top = Math.round((down ? br.bottom + 10 : br.top - 10 - h) - rr.top) + 'px';
+  };
+  // while it shows it goes where its avatar goes (owner, 19 Nov: nothing places a tooltip once and leaves it)
+  const follow = () => { raf = 0; if (!on || c.dead) return; const b = on.getBoundingClientRect(), k = `${b.left},${b.top}`; if (k !== at){ at = k; place(on); } raf = requestAnimationFrame(follow); };
+  const open = (b, now) => { clearTimeout(t); t = setTimeout(() => { const p = P[+b.dataset.card];
+      ci.innerHTML = `<div class="ttp-ch">${AV(p[0], p[1])}<div><b>${p[2]}</b><span>${p[3]}</span></div></div><div class="ttp-cs">${p[0] === 'DA' ? '<span class="think on" style="color:var(--accent-mark,var(--accent))"><i></i><i></i><i></i><i></i></span><span class="shim">' + p[4] + '</span>' : '<span class="dot"></span>' + p[4]}</div>`;
+      on = b; at = ''; place(b); card.classList.add('show'); card.removeAttribute('aria-hidden'); cancelAnimationFrame(raf); raf = requestAnimationFrame(follow); }, now ? 0 : 300); };
+  const close = () => { clearTimeout(t); on = null; cancelAnimationFrame(raf); card.classList.remove('show'); card.setAttribute('aria-hidden', 'true'); };
+  // a person's card opens on hover after a short wait, and at once on keyboard focus; it closes as the pointer or focus leaves
+  $$('.ttp-av', r).forEach(b => { b.onmouseenter = () => open(b); b.onmouseleave = () => { if (b !== document.activeElement || !b.matches(':focus-visible')) close(); };
+    b.onfocus = () => { if (b.matches(':focus-visible')) open(b, true); }; b.onblur = close; });
+  c.offs.push(() => { clearTimeout(t); cancelAnimationFrame(raf); });
   // once it has entered, it shows what it does: a shortcut tip, then the agent's card. Pointing at it takes over, as does
   // clicking, focusing or typing in it
   // what the demo opened goes when the pointer comes in, unless it is on that very control: the visitor's own hover decides
@@ -143,72 +182,101 @@ DM.def('tooltip', (r, c) => {
   let touched = false, shown = null;
   c.on(root, 'pointerenter', () => { touched = true;
     if (shown === 'tip' && tipFor && !tipNext && root.contains(tipFor) && !tipFor.matches(':hover')) hideTip();
-    if (shown === 'card' && !$('.ttp-av:hover', r)){ clearTimeout(t); card.classList.remove('show'); }
+    if (shown === 'card' && !$('.ttp-av:hover', r)) close();
     shown = null; });
   const go = () => { if (touched || c.mine) throw 'stop'; };
   c.run(async () => {
     await c.wait(1300); go(); if (tipFor) return;
     const ask = $('[data-tip-k="⌘J"]', r); showTip(ask); shown = 'tip'; await c.wait(1700); go(); if (tipFor === ask) hideTip(true); shown = null;
     await c.wait(500); go();
-    const av = $('.ttp-av[data-card="1"]', r); av.onmouseenter(); shown = 'card'; await c.wait(2600); go(); av.onmouseleave(); shown = null;
+    const av = $('.ttp-av[data-card="1"]', r); open(av); shown = 'card'; await c.wait(2600); go(); close(); shown = null;
   });
 });
 /* ---------- Search input ---------- */
 DM.def('search-input', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{search}', I('search','xs')).replace('{x}', I('x','xs'));
-  const box = $('.six-box', r), inp = $('.six-in input', r), dd = $('.six-dd', r), res = $('.six-res', r), chips = $('.six-chips', r), xB = $('.six-x', r), k = $('.six-k', r);
+  // Clean's one hover: a highlight that glides from row to row (hoverGlide)
+  c.offs.push(hoverGlide($('.six-pop', r), '.six-it'));
+  const root = $('.six', r), box = $('.six-box', r), inp = $('.six-in input', r), pop = $('.six-pop', r), res = $('.six-res', r), chips = $('.six-chips', r), xB = $('.six-x', r), k = $('.six-k', r);
+  const isOpen = () => pop.classList.contains('open');
   const ITEMS = [['figma','Pricing v4','Figma'],['figma','Pricing mobile','Figma'],['file-text','Pricing research notes','Notion'],['code','PricingCard.tsx','GitHub'],['figma','Checkout flow','Figma'],['file-text','Brand voice guide','Notion'],['code','tokens.css','GitHub']];
   const SC = { figma:'Figma', notion:'Notion', github:'GitHub' };
-  let scope = null, at = null, ans = 0, grow = null, hi = -1;
+  let scope = null, at = null, ans = 0, grow = null, growTo = 0, hi = -1, lastPaint = 0;
   res.id = 'six-r-' + Math.random().toString(36).slice(2, 7); res.setAttribute('role', 'listbox'); res.setAttribute('aria-label', 'Suggestions');
   inp.setAttribute('role', 'combobox'); inp.setAttribute('aria-autocomplete', 'list'); inp.setAttribute('aria-expanded', 'false'); inp.setAttribute('aria-controls', res.id);
   // the agent's answer streams in word by word and keeps going while the question is still being typed
   const WS = 'Pricing changed on Sep 18: annual plans first, one CTA per card. Trial to paid is up 8.1 points since.'.split(' ');
   function paint(){
     // the list eases to its new height instead of jumping as the results change
-    const h0 = dd.classList.contains('shut') ? 0 : res.offsetHeight; if (grow) grow.cancel();
+    const h0 = isOpen() ? res.offsetHeight : 0; if (grow) grow.cancel();
     const v = inp.value.trim(); xB.hidden = !v && !scope; k.hidden = !!v || !!scope;
-    let h = '';
+    let h = '', asking = false;
     if (/@\w*$/.test(v)){ const q = v.split('@').pop().toLowerCase(); h = '<div class="six-g">Filter by source</div>' + Object.entries(SC).filter(([key]) => key.startsWith(q)).map(([key, n]) => `<button class="six-it" data-sc="${n}"><span class="ic">${I(key === 'figma' ? 'figma' : key === 'github' ? 'code' : 'file-text','xs')}</span>${n}<span class="d">@${key}</span></button>`).join(''); }
     else if (!v && !scope){ h = '<div class="six-g">Recent</div>' + ['pricing contrast','checkout copy','tokens'].map(q => `<button class="six-it" data-q="${q}"><span class="ic">${I('history','xs')}</span>${q}</button>`).join(''); }
     else {
       const words = v.toLowerCase().split(/[^a-z0-9.]+/).filter(w => w.length > 2 && !['why','did','the','how','what','does'].includes(w)); const hit = i => !v || i[1].toLowerCase().includes(v.toLowerCase()) || words.some(w => i[1].toLowerCase().includes(w));
       const m = ITEMS.filter(i => (!scope || i[2] === scope) && hit(i)); const hw = words.find(w => m.some(i => i[1].toLowerCase().includes(w))) || v;
-      if (v.split(' ').length > 2 || v.endsWith('?')) h += `<div class="six-ans">${I('spark','xs')}<span class="six-at"></span></div>`;
-      h += m.length ? '<div class="six-g">' + m.length + (m.length === 1 ? ' result' : ' results') + '</div>' + m.map(i => `<button class="six-it"><span class="ic">${I(i[0],'xs')}</span><span>${hw ? i[1].replace(new RegExp(hw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), s => `<mark>${s}</mark>`) : i[1]}</span><span class="d">${i[2]}</span></button>`).join('') : '<div class="six-g">No matches. Press Enter to ask the agent</div>';
+      // the answer shows once the agent has its first word, drawn with the words it already has, so the rows under it are
+      // measured where they will stay
+      asking = v.split(' ').length > 2 || v.endsWith('?');
+      if (asking && ans) h += `<div class="six-ans">${I('spark','xs')}<span class="six-at">${WS.slice(0, ans).map(w => `<span class="w done">${w} </span>`).join('')}</span></div>`;
+      h += m.length ? '<div class="six-g">Results</div>' + m.map(i => `<button class="six-it"><span class="ic">${I(i[0],'xs')}</span><span>${hw ? i[1].replace(new RegExp(hw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), s => `<mark>${s}</mark>`) : i[1]}</span><span class="d">${i[2]}</span></button>`).join('') : '<div class="six-g">No matches. Press Enter to ask the agent</div>';
     }
     // rows that were showing a moment ago glide to their new places as the answer line comes and goes or the results narrow,
-    // new rows and the answer fade in, and rows that no longer match fade where they were, so typing never restarts the list
-    reflow(() => [...res.children], () => { res.innerHTML = h; [...res.children].forEach(x => x.dataset.key = x.matches('.six-ans') ? 'ans' : x.matches('.six-g') ? 'g' : x.textContent); }, { root:box });
+    // new rows and the answer fade in, and rows that no longer match fade where they were, so typing never restarts the list.
+    // Keys pressed faster than the rows could move (the preview types a letter every 45ms) redraw the list in place instead,
+    // so no row is left behind its place, over another, while the next letter comes
+    const draw = () => { res.innerHTML = h; [...res.children].forEach(x => x.dataset.key = x.matches('.six-ans') ? 'ans' : x.matches('.six-g') ? 'g' : x.textContent); };
+    const t = performance.now(), quick = t - lastPaint < 150; lastPaint = t;
+    if (quick){ const had = new Set([...res.children].map(x => x.dataset.key)); [...res.children].forEach(x => (x._rf || []).forEach(a => a.cancel())); draw(); [...res.children].forEach(x => { if (!had.has(x.dataset.key)) enter(x); }); }
+    else reflow(() => [...res.children], draw, { root:pop });
     hi = -1; inp.removeAttribute('aria-activedescendant');
     $$('.six-it:not([data-ghost])', res).forEach((b, j) => { b.id = res.id + '-' + j; b.setAttribute('role', 'option'); b.setAttribute('aria-selected', 'false'); b.tabIndex = -1; });
-    const a = $('.six-ans:not([data-ghost]) .six-at', res);
-    if (a){ a.innerHTML = WS.slice(0, ans).map(w => `<span class="w done">${w} </span>`).join('');
-      if (!at && ans < WS.length) at = c.every(45, () => { const el = $('.six-ans:not([data-ghost]) .six-at', res); if (!el || ans >= WS.length){ clearInterval(at); at = null; return; } el.insertAdjacentHTML('beforeend', `<span class="w">${WS[ans++]} </span>`); }); }
+    // a question gets an answer a word every 45ms; its first word brings the answer into the list
+    if (asking){
+      if (!at && ans < WS.length) at = c.every(45, () => { if (ans >= WS.length){ clearInterval(at); at = null; return; } const el = $('.six-ans:not([data-ghost]) .six-at', res); ans++; if (el) el.insertAdjacentHTML('beforeend', `<span class="w">${WS[ans - 1]} </span>`); else paint(); }); }
     else { if (at){ clearInterval(at); at = null; } ans = 0; }
     const h1 = res.offsetHeight;
-    if (h0 && h1 !== h0 && !REDUCE) grow = res.animate([{ height:h0 + 'px', boxSizing:'border-box', overflow:'hidden' }, { height:h1 + 'px', boxSizing:'border-box', overflow:'hidden' }], { duration:280, easing:'cubic-bezier(.22,1,.36,1)' });
+    growTo = h1; if (h0 && h1 !== h0 && !REDUCE) grow = res.animate([{ height:h0 + 'px', boxSizing:'border-box', overflow:'hidden' }, { height:h1 + 'px', boxSizing:'border-box', overflow:'hidden' }], { duration:280, easing:'cubic-bezier(.22,1,.36,1)' });
     $$('.six-it[data-q]', res).forEach(b => b.onmousedown = e => { e.preventDefault(); inp.value = b.dataset.q; paint(); });
     $$('.six-it[data-sc]', res).forEach(b => b.onmousedown = e => { e.preventDefault(); scope = b.dataset.sc; inp.value = inp.value.replace(/@\w*$/, ''); chips.innerHTML = `<span class="six-ch">${scope}<button aria-label="Remove filter">${I('x','xs')}</button></span>`; enter(chips.firstChild); $('button', chips).onmousedown = ev => { ev.preventDefault(); scope = null; chips.innerHTML = ''; paint(); }; paint(); });
   }
-  function shut(){ box.classList.remove('f'); dd.classList.add('shut'); inp.setAttribute('aria-expanded', 'false'); }
-  const list = () => { dd.classList.remove('shut'); inp.setAttribute('aria-expanded', 'true'); };
-  inp.onfocus = () => { box.classList.add('f'); list(); paint(); };
+  // the field sits centred on its own, and glides up as the list opens under it, so the two sit centred together. On a page of
+  // your own the list opens over the field when the window has no room for it under the field (placePop), and keeps that side
+  // while it is open, growing away from the field as the answer and the results come in
+  let up = false;
+  // (while the list eases to a new height, the field goes straight to where that height puts it, rather than chasing it)
+  const listH = () => grow && grow.playState === 'running' ? pop.offsetHeight - res.offsetHeight + growTo : pop.offsetHeight;
+  const centred = centre(c, root, () => isOpen() && !up ? box.offsetHeight + 6 + listH() : root.offsetHeight, [pop]);
+  function place(){
+    up = false; centred();
+    const gy = parseFloat(root.style.getPropertyValue('--gy')) || 0, now = new DOMMatrixReadOnly(getComputedStyle(root).transform).m42, dy = gy - now;
+    const room = popRoom(box), b = box.getBoundingClientRect(), below = room.bottom - b.bottom - dy, above = b.top + dy - room.top;
+    // (in a demo's stage the list always opens under the field, which glides up to make room for it)
+    up = !r.closest('.stage-in') && below < pop.offsetHeight + 12 && above > below; if (up) centred();
+    box.dataset.popPos = up ? 'up' : 'down'; placePop(box, pop);
+    if (up){ pop.style.top = 'auto'; pop.style.bottom = 'calc(100% + 6px)'; } else pop.style.bottom = '';
+  }
+  // on closing, the field waits for the list to fade before it glides back to the middle
+  function close(){ if (!isOpen()) return; pop.classList.remove('open'); inp.setAttribute('aria-expanded', 'false'); inp.removeAttribute('aria-activedescendant'); c.later(REDUCE ? 0 : 180, centred); }
+  function shut(){ box.classList.remove('f'); close(); }
+  const list = () => { if (isOpen()) return; pop.classList.add('open'); inp.setAttribute('aria-expanded', 'true'); place(); };
+  inp.onfocus = () => { box.classList.add('f'); paint(); list(); };
   inp.onblur = shut;
-  inp.oninput = () => { list(); paint(); };
+  inp.oninput = () => { paint(); list(); };
   // the box is a combobox for the list under it: up and down move through the rows and wrap, Enter picks the highlighted
   // one, and Escape closes the list, keeping the focus in the box (a second Escape clears it)
   const light = k => { const all = $$('.six-it:not([data-ghost])', res); if (!all.length) return; hi = (k + all.length) % all.length;
     all.forEach((b, j) => { b.classList.toggle('hl', j === hi); b.setAttribute('aria-selected', j === hi); }); inp.setAttribute('aria-activedescendant', all[hi].id); all[hi].scrollIntoView({ block:'nearest' }); };
   inp.onkeydown = e => {
     if (e.key === 'Backspace' && !inp.value && scope){ scope = null; chips.innerHTML = ''; paint(); }
-    if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); if (dd.classList.contains('shut')){ list(); paint(); } light(hi < 0 ? (e.key === 'ArrowDown' ? 0 : -1) : hi + (e.key === 'ArrowDown' ? 1 : -1)); }
-    if (e.key === 'Enter' && hi >= 0 && !dd.classList.contains('shut')){ const b = $$('.six-it:not([data-ghost])', res)[hi]; if (b && b.onmousedown){ e.preventDefault(); b.onmousedown(e); } }
-    if (e.key === 'Escape'){ e.preventDefault(); if (!dd.classList.contains('shut')){ dd.classList.add('shut'); inp.setAttribute('aria-expanded', 'false'); inp.removeAttribute('aria-activedescendant'); } else if (inp.value || scope){ inp.value = ''; scope = null; chips.innerHTML = ''; paint(); } } };
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); if (!isOpen()){ paint(); list(); } light(hi < 0 ? (e.key === 'ArrowDown' ? 0 : -1) : hi + (e.key === 'ArrowDown' ? 1 : -1)); }
+    if (e.key === 'Enter' && hi >= 0 && isOpen()){ const b = $$('.six-it:not([data-ghost])', res)[hi]; if (b && b.onmousedown){ e.preventDefault(); b.onmousedown(e); } }
+    if (e.key === 'Escape'){ e.preventDefault(); if (isOpen()) close(); else if (inp.value || scope){ inp.value = ''; scope = null; chips.innerHTML = ''; paint(); } } };
   xB.onmousedown = e => { e.preventDefault(); inp.value = ''; scope = null; chips.innerHTML = ''; paint(); };
   c.on(document, 'pointerdown', e => { if (!r.contains(e.target) && document.activeElement !== inp) shut(); });
   // the preview types a question on its own; clicking, focusing or typing in it takes over, and what it had typed goes
-  c.auto(900, () => c.run(async () => { box.classList.add('f'); c.taken(() => { if (document.activeElement !== inp) shut(); }); dd.classList.remove('shut'); paint(); await c.step(600); await c.type(inp, 'why did pricing change?', { ms:45, each:paint }); }));
+  c.auto(900, () => c.run(async () => { box.classList.add('f'); c.taken(() => { if (document.activeElement !== inp) shut(); }); paint(); list(); await c.step(600); await c.type(inp, 'why did pricing change?', { ms:45, each:paint }); }));
 });
 /* ---------- Country select ---------- */
 DM.def('country-select', (r, c) => {
@@ -273,7 +341,9 @@ DM.def('multi-select', (r, c) => {
     clr.hidden = !picked.length;
     place();
   }
-  const place = () => { pop.style.top = (f.offsetTop + f.offsetHeight + 6) + 'px'; };
+  // the list hangs 6px under the box, which grows as the chips wrap; opened over the box, it stands 6px over it
+  let up = false;
+  const place = () => { if (up){ pop.style.top = 'auto'; pop.style.bottom = (box.offsetHeight - f.offsetTop + 6) + 'px'; } else { pop.style.top = (f.offsetTop + f.offsetHeight + 6) + 'px'; pop.style.bottom = ''; } };
   function paint(){
     const v = q.value.trim().toLowerCase(), m = T.filter(([t]) => !v || t.toLowerCase().includes(v));
     list.innerHTML = m.length ? m.map(([t, n], i) => `<div class="msc-o" role="option" id="msc-o-${i}-${uid}" aria-selected="${picked.includes(t)}" data-t="${t}"><span class="bx">${I('check','xs')}</span>${t}<span class="n num">${n}</span></div>`).join('') : '<div class="msc-none">No tags match</div>';
@@ -288,12 +358,21 @@ DM.def('multi-select', (r, c) => {
     if (top < list.scrollTop) list.scrollTop = top; else if (bot > list.scrollTop + list.clientHeight) list.scrollTop = bot - list.clientHeight;
   }
   const isOpen = () => pop.classList.contains('open');
-  // the box sits centred on its own, and glides up once as the list opens; it makes room for the list at its tallest, so it
-  // holds still while typing filters the list. The list's place comes from the box, not its top mid-move, so chips
-  // wrapping onto a new line move both together
+  // the box sits centred on its own, and glides up as the list opens, so the two sit centred together at every moment, as
+  // typing narrows the list too. The list's place comes from the box, not its top mid-move, so chips wrapping onto a new
+  // line move both together
   const box = $('.msc', r), full = () => pop.offsetHeight - list.offsetHeight + parseFloat(getComputedStyle(list).maxHeight);
-  const centred = centre(c, box, () => isOpen() ? Math.max(box.offsetHeight, f.offsetTop + f.offsetHeight + 6 + full()) : box.offsetHeight);
-  function open(){ if (isOpen()) return; place(); pop.classList.add('open'); q.setAttribute('aria-expanded', 'true'); hi = 0; paint(); centred(); }
+  const centred = centre(c, box, () => isOpen() && !up ? Math.max(box.offsetHeight, f.offsetTop + f.offsetHeight + 6 + pop.offsetHeight) : box.offsetHeight, [pop]);
+  // the list opens under the box; on a page of your own, over it when the window has no room under the box (placePop)
+  function drop(){
+    up = false; centred();
+    const gy = parseFloat(box.style.getPropertyValue('--gy')) || 0, now = new DOMMatrixReadOnly(getComputedStyle(box).transform).m42, dy = gy - now;
+    const room = popRoom(f), b = f.getBoundingClientRect(), below = room.bottom - b.bottom - dy, above = b.top + dy - room.top;
+    // (in a demo's stage the list always opens under the field, which glides up to make room for it)
+    up = !r.closest('.stage-in') && below < full() + 12 && above > below; if (up) centred();
+    f.dataset.popPos = up ? 'up' : 'down'; placePop(f, pop); place();
+  }
+  function open(){ if (isOpen()) return; pop.classList.add('open'); q.setAttribute('aria-expanded', 'true'); hi = 0; paint(); drop(); }
   // on closing, the box waits for the list to fade before it glides back to the middle
   function close(){ pop.classList.remove('open'); q.setAttribute('aria-expanded', 'false'); q.removeAttribute('aria-activedescendant'); c.later(REDUCE ? 0 : 180, centred); }
   // Enter or a click picks a tag, or unpicks one already picked; the box clears for the next one
@@ -355,45 +434,87 @@ DM.def('social-signin', (r, c) => {
 /* ---------- Sign in ---------- */
 DM.def('sign-in', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{l}', I('chev-l','xs')).replace('{mail}', I('mail','xs'));
-  const card = $('.sgx', r), ntf = $('.sgx-ntf', r), cp = $('.sgx-cp', r), s1 = $('.sgx-1', r), s2 = $('.sgx-2', r), em = $('.sgx-em', r), err = $('.sgx-err', r), go = $('.sgx-go', r), code = $('.sgx-code', r);
-  code.innerHTML = Array.from({ length:6 }, (_, i) => `<input inputmode="numeric" maxlength="1" autocomplete="${i ? 'off' : 'one-time-code'}" aria-label="Digit ${i + 1}" style="--i:${i}">`).join('');
+  const card = $('.sgx', r), body = $('.sgx-body', r), af = $('.sgx-af', r), sug = $('.sgx-sug', r), s1 = $('.sgx-1', r), s2 = $('.sgx-2', r), ft = $('.sgx-ft', r), em = $('.sgx-em', r), ef = $('.sgx-ef', r), err = $('.sgx-err', r), go = $('.sgx-go', r), rs = $('.sgx-rs', r), code = $('.sgx-code', r);
+  code.innerHTML = Array.from({ length:6 }, (_, i) => `<input inputmode="numeric" maxlength="1" autocomplete="${i ? 'off' : 'one-time-code'}" aria-label="Digit ${i + 1}">`).join('');
   const CODE = '482157';
   const ins = $$('input', code);
+  // the card fits each step at every moment (grow(), never a kept height): the code arriving, a message under the field and
+  // the shorter confirmation all ease the steps to their height, and the foot eases to its own, so the card, which is the two
+  // together, eases with them and its foot never leaves its bottom edge. It starts once the card's entrance has ended
+  Promise.resolve().then(() => Promise.all(card.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && card.isConnected){ c.offs.push(grow(body)); c.offs.push(grow(ft)); } });
+  // what is wrong with the email, in red words after the alert mark; the line opens under the field and closes again, so no
+  // room is kept for it
+  const say = t => {
+    if (!t){ ef.classList.add('shut'); return; }
+    const s = $('span', err);
+    if (s && !ef.classList.contains('shut')) swap(s, t); else err.innerHTML = I('alert','xs') + `<span>${t}</span>`;
+    ef.classList.remove('shut');
+  };
+  // where the code stands: idle (typing), vf (being checked), bad (wrong, until typing starts over) or ok
+  let st = 'idle', n = 30, iv = 0;
+  // with no box focused, the next one to fill has the focus edge
+  const next = () => { const k = st === 'idle' ? ins.findIndex(i => !i.value) : -1; ins.forEach((i, j) => i.classList.toggle('nx', j === k)); };
+  // the line under the boxes, while the code is being typed: the resend countdown, then Resend code. What the foot says
+  // changes in place, with no fade, so the foot is never empty for a moment
+  const idle = () => { if (st !== 'idle') return;
+    if (n > 0){ rs.innerHTML = `Resend in <span class="num">${n}</span>s`; return; }
+    rs.innerHTML = '<button class="sgx-re">Resend code</button>'; $('.sgx-re', rs).onclick = () => { n = 30; idle(); }; };
   const send = demo => c.run(async () => {
     const v = em.value.trim();
-    if (!/^\S+@\S+\.\S+$/.test(v)){ const f = em.parentElement; f.classList.remove('bad'); void f.offsetWidth; f.classList.add('bad'); swap(err, v ? 'That email looks incomplete' : 'Enter your email'); return; }
-    em.parentElement.classList.remove('bad'); swap(err, ''); go.innerHTML = '<span class="spin"></span>'; await c.wait(800);
-    s1.hidden = true; s2.hidden = false; s2.classList.remove('in'); void s2.offsetWidth; s2.classList.add('in'); $('.sgx-to', r).textContent = v; if (demo !== true && c.mine) ins[0].focus({ preventScroll:true }); c.later(900, () => ntf.classList.remove('shut'));
-    let n = 30; const ns = $('.sgx-rs .num', r); const iv = c.every(1000, () => { if (checking || !ns.isConnected) return clearInterval(iv); n--; ns.textContent = n; if (n <= 0){ clearInterval(iv); $('.sgx-rs', r).innerHTML = '<button style="color:var(--accent-fg,var(--accent));font-weight:500">Resend code</button>'; } });
+    if (!/^\S+@\S+\.\S+$/.test(v)){ const f = em.parentElement; f.classList.remove('bad'); void f.offsetWidth; f.classList.add('bad'); em.setAttribute('aria-invalid', 'true'); say(v ? 'That email looks incomplete' : 'Enter your email'); return; }
+    em.parentElement.classList.remove('bad'); em.removeAttribute('aria-invalid'); say(''); go.innerHTML = '<span class="spin"></span>'; await c.wait(800);
+    s1.hidden = true; s2.hidden = false; s2.classList.remove('in'); void s2.offsetWidth; s2.classList.add('in'); $('.sgx-to', r).textContent = v;
+    // the foot swaps Send code for the resend line, in the same place
+    go.hidden = true; rs.hidden = false; st = 'idle'; n = 30; idle(); next();
+    if (demo !== true && c.mine) ins[0].focus({ preventScroll:true });
+    // the email arrives: its code is offered under the boxes, the way a phone offers a one-time code
+    c.later(900, () => { if (st !== 'ok') af.classList.remove('shut'); });
+    clearInterval(iv); iv = c.every(1000, () => { if (st === 'ok' || n <= 0 || s2.hidden) return; n--; idle(); });
   });
   go.onclick = () => send(); em.onkeydown = e => { if (e.key === 'Enter') send(); };
-  $('.sgx-bk', r).onclick = () => { s2.hidden = true; s1.hidden = false; s1.classList.remove('in'); void s1.offsetWidth; s1.classList.add('in'); go.textContent = 'Send code'; ins.forEach(i => i.value = ''); };
-  let checking = false;
-  /* verifying, then each digit turns green in turn, then the confirmed screen */
-  function check(){ if (checking || !ins.every(i => i.value)) return; checking = true; c.run(async () => {
-    const rs = $('.sgx-rs', r); ins.forEach(i => { i.blur(); i.readOnly = true; });
-    code.classList.add('vf'); rs.innerHTML = '<span class="sgx-v"><span class="spin"></span>Verifying code</span>'; await c.wait(1100);
-    code.classList.remove('vf'); code.classList.add('ok'); rs.innerHTML = `<span class="sgx-v ok">${I('check','xs')}Code confirmed</span>`; enter(rs.firstChild); await c.wait(1100);
-    hold(card); [...card.children].forEach(k => k.hidden = true);
-    const d = html(`<div class="sgx-done"><svg class="sgx-ck" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24"/><path d="m16 27 7 7 13-14"/></svg><b>You're in</b><span class="muted">Opening your workspace</span><span class="sgx-bar"><i></i></span></div>`);
-    card.appendChild(d); stagger([...d.children].slice(1), 90, 250); }); }
-  // a pasted code fills every box from the first; any 6 digits go through in the demo
-  const paste = t => { t = t.replace(/\D/g, '').slice(0, 6); if (!t || checking) return; t.split('').forEach((d, j) => { if (ins[j]) ins[j].value = d; }); if (c.mine) ins[Math.min(5, t.length)].focus({ preventScroll:true }); check(); };
-  // Copy puts the code on the clipboard, the way a phone offers it from the email; then it is pasted into the boxes
-  cp.onclick = () => { try { navigator.clipboard.writeText(CODE).catch(() => {}); } catch(e){} swap(cp, 'Copied'); cp.disabled = true; swap($('.sgx-hint', r), 'Paste it into the first box'); const at = ins.find(i => !i.value); if (at && c.mine) at.focus({ preventScroll:true }); };
+  // a wrong code stays marked until typing starts over
+  const fresh = () => { if (st !== 'bad') return; st = 'idle'; code.classList.remove('bad'); ins.forEach(i => i.removeAttribute('aria-invalid')); idle(); };
+  $('.sgx-bk', r).onclick = () => { if (st === 'vf' || st === 'ok') return; fresh(); clearInterval(iv); af.classList.add('shut'); ins.forEach(i => i.value = '');
+    s2.hidden = true; s1.hidden = false; s1.classList.remove('in'); void s1.offsetWidth; s1.classList.add('in'); rs.hidden = true; go.hidden = false; go.textContent = 'Send code'; };
+  // the code is checked once every box is filled: the boxes dim a little while the line says Verifying code; a wrong one
+  // clears them with a red edge and a shake and says so in red; the right one gets the green tick, then the welcome
+  function check(){ if (st !== 'idle' || !ins.every(i => i.value)) return; st = 'vf'; next(); c.run(async () => {
+    ins.forEach(i => { i.blur(); i.readOnly = true; });
+    code.classList.add('vf'); rs.innerHTML = '<span class="sgx-v"><span class="spin"></span><span class="shim">Verifying code</span></span>'; await c.wait(1100);
+    code.classList.remove('vf'); ins.forEach(i => i.readOnly = false);
+    if (ins.map(i => i.value).join('') !== CODE){
+      st = 'bad'; ins.forEach(i => { i.value = ''; i.setAttribute('aria-invalid', 'true'); });
+      code.classList.remove('bad'); void code.offsetWidth; code.classList.add('bad');
+      rs.innerHTML = `<span class="sgx-v bad">${I('alert','xs')}That code didn't work, try again</span>`;
+      if (c.mine) ins[0].focus({ preventScroll:true });
+      return;
+    }
+    st = 'ok'; ins.forEach(i => i.readOnly = true); af.classList.add('shut');
+    rs.innerHTML = `<span class="sgx-v ok">${I('check','xs')}Code confirmed</span>`; await c.wait(1100);
+    // the welcome takes the steps' place, and the foot carries the workspace opening in the same moment, so it is never empty
+    s1.hidden = true; s2.hidden = true; rs.hidden = true;
+    const d = html(`<div class="sgx-done" role="status"><svg class="sgx-ck" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24"/><path d="m16 27 7 7 13-14"/></svg><b>You're in</b></div>`);
+    const op = html('<span class="sgx-open"><span class="shim">Opening your workspace</span><span class="sgx-bar"><i></i></span></span>');
+    ($(':scope>.dm-grow', body) || body).appendChild(d); ($(':scope>.dm-grow', ft) || ft).appendChild(op); stagger([d.lastChild], 90, 250); }); }
+  // a pasted code, or the one Mail offers, fills every box from the first
+  const paste = t => { t = t.replace(/\D/g, '').slice(0, 6); if (!t || st === 'vf' || st === 'ok') return; fresh(); ins.forEach((i, j) => { i.value = t[j] || ''; }); next(); if (c.mine && t.length < 6) ins[t.length].focus({ preventScroll:true }); check(); };
+  sug.onclick = () => { if (st === 'vf' || st === 'ok') return; af.classList.add('shut'); paste(CODE); };
   ins.forEach((i, k) => {
-    i.oninput = () => { i.value = i.value.replace(/\D/g, '').slice(-1); if (i.value && ins[k + 1]) ins[k + 1].focus({ preventScroll:true }); check(); };
-    i.onkeydown = e => { if (e.key === 'Backspace' && !i.value && ins[k - 1]){ ins[k - 1].focus({ preventScroll:true }); ins[k - 1].value = ''; } };
+    i.oninput = () => { fresh(); i.value = i.value.replace(/\D/g, '').slice(-1); if (i.value && ins[k + 1]) ins[k + 1].focus({ preventScroll:true }); next(); check(); };
+    i.onkeydown = e => { if (e.key === 'Backspace' && !i.value && ins[k - 1]){ ins[k - 1].focus({ preventScroll:true }); ins[k - 1].value = ''; next(); } };
     i.onpaste = e => { const t = (e.clipboardData.getData('text') || '').replace(/\D/g, ''); if (!t) return; e.preventDefault(); paste(t); };
   });
-  // the preview's story: type an email and send it, the email arrives, copy its code and paste it in. The visitor can take
-  // over at any point and go through it with their own email and any 6 digits
+  // the preview's story: type an email and send it; the code arrives and Mail offers it; type it from memory with two digits
+  // swapped, see it fail, then take the one Mail offers. The visitor can take over at any point and go through it with their
+  // own email, typing 482 157 or pressing the chip
   c.story(async s => {
     await s.beat(2); await s.tap(em); await s.type(em, 'maya@studio.com', { n:.08 });
     await s.beat(1); await s.tap(go); s.away();
-    await s.until(() => !ntf.classList.contains('shut')); await s.beat(3);
-    await s.tap(cp); s.away(); await s.beat(2);
-    paste(CODE); await s.until(() => !!$('.sgx-done', r)); await s.beat(4);
+    await s.until(() => !af.classList.contains('shut')); await s.beat(2);
+    for (const [j, d] of [...'482175'].entries()){ fresh(); ins[j].value = d; next(); await s.beat(.5); }
+    check(); await s.until(() => st === 'bad'); await s.beat(4);
+    await s.tap(sug); s.away();
+    await s.until(() => !!$('.sgx-done', r)); await s.beat(4);
   });
 });
 /* ---------- OTP field ---------- */
@@ -461,6 +582,11 @@ DM.def('otp-field', (r, c) => {
 DM.def('form', (r, c) => {
   r.innerHTML = r.innerHTML.split('{spark}').join(I('spark','xs'));
   const form = $('.fmx', r), n = $('[name=n]', r), g = $('[name=g]', r), d = $('[name=d]', r), cnt = $('.fmx-c', r), ms = $('.fmx-ms', r);
+  // the card grows with its messages and eases to the confirmation's height, keeping no room for either
+  c.offs.push(grow(form));
+  // a button whose words change eases to their width, with no room kept for the longer ones
+  const label = (b, h) => { const w0 = b.offsetWidth; b.innerHTML = h; const w1 = b.offsetWidth, cs = getComputedStyle(form);
+    if (!REDUCE && w0 && Math.abs(w1 - w0) > .5) b.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:(parseFloat(cs.getPropertyValue('--t')) || .34) * 1000, easing:cs.getPropertyValue('--ease').trim() || 'ease' }); };
   let type = null;
   n.oninput = () => { cnt.textContent = n.value.length + '/40'; clear(n); };
   g.oninput = () => clear(g); d.oninput = () => clear(d);
@@ -469,23 +595,30 @@ DM.def('form', (r, c) => {
   function clear(el){ const f = el.closest('.fmx-f'); f.classList.remove('bad', 'ai'); $('.er', f)?.remove(); }
   function bad(el, t){ const f = el.closest('.fmx-f'); if (f.classList.contains('bad')) return; f.classList.add('bad'); f.insertAdjacentHTML('beforeend', `<span class="er">${t}</span>`); }
   async function type_(el, s){ el.closest('.fmx-f').classList.add('ai'); el.value = ''; for (const ch of s){ el.value += ch; el.dispatchEvent(new Event('input')); el.closest('.fmx-f').classList.add('ai'); await c.wait(18); } }
-  $('.fmx-ai', r).onclick = () => c.run(async () => {
-    const b = $('.fmx-ai', r); b.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span>Drafting';
+  // the agent's draft: the button says Drafting with the highlight sweep while it types, then Drafted with the green tick
+  let drafting = false;
+  $('.fmx-ai', r).onclick = () => { if (drafting) return; drafting = true; c.run(async () => {
+    const b = $('.fmx-ai', r); label(b, '<span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Drafting</span>');
     if (!n.value) await type_(n, 'Pricing refresh');
     await type_(g, 'Lift trial to paid by showing annual plans first and keeping one CTA per card.');
     if (!type) chips[0].click();
     if (!d.value) await type_(d, 'Nov 14');
-    b.innerHTML = I('check','xs') + 'Drafted'; swap(ms, 'Review what the agent drafted');
-  });
-  // the preview has the agent fill it in once on its own, unless you take over first
-  c.auto(1400, () => { if (!n.value) $('.fmx-ai', r).click(); });
+    label(b, I('check','xs') + 'Drafted'); b.classList.add('done'); swap(ms, 'Review what the agent drafted'); drafting = false;
+  }); };
+  // the preview has the agent fill it in once on its own, unless you take over first. The agent's typing keeps going under the
+  // pointer (DM.PLAYS); the press that starts it waits while a mouse rests on the card
+  c.auto(1400, function go(){ if (c.mine) return; if (r.matches(':hover')) return c.later(250, go); if (!n.value) $('.fmx-ai', r).click(); });
+  let sent = false;
   form.onsubmit = e => { e.preventDefault(); let ok = true;
     if (!n.value.trim()){ bad(n, 'Give it a name'); ok = false; }
     if (g.value.trim().length < 12){ bad(g, 'Add a sentence about the goal'); ok = false; }
     if (!type){ bad(chips[0], 'Pick a type'); ok = false; }
     if (!ok) return swap(ms, 'A few fields need a look');
-    c.run(async () => { const go = $('.fmx-go', r); go.innerHTML = '<span class="spin"></span>'; await c.wait(800);
-      hold(form); [...form.children].forEach(k => k.hidden = true); const dn = html(`<div class="fmx-done">${I('ok')}<b>${n.value} created</b><span class="muted">The agent is gathering references now</span></div>`); form.appendChild(dn); stagger([...dn.children], 70); }); };
+    if (sent) return; sent = true;
+    c.run(async () => { const go = $('.fmx-go', r); label(go, '<span class="spin"></span><span class="shim">Creating</span>'); await c.wait(800);
+      // the fields give way to the confirmation, and the card eases to its height
+      const into = $(':scope>.dm-grow', form) || form;
+      [...into.children].forEach(k => k.hidden = true); const dn = html(`<div class="fmx-done" role="status">${I('ok')}<b>${n.value} created</b><span class="muted">The agent is gathering references now</span></div>`); into.appendChild(dn); stagger([...dn.children], 70); }); };
 });
 /* ---------- Payment form ---------- */
 DM.def('payment-form', (r, c) => {
@@ -544,6 +677,8 @@ DM.def('progress', (r, c) => {
     // the words: Step 3 of 5, indexing files
     const words = { ind:'Preparing the run', run:`Step ${step + 1} of ${S.length}, ${name.toLowerCase()}`, paused:`Paused at step ${step + 1} of ${S.length}`, err:`Failed at step ${step + 1} of ${S.length}`, done:`Indexed 2,000 files in 0:${String(secs).padStart(2, '0')}` }[state];
     if (vt.textContent !== words) vt.textContent = words;
+    // while it works, its words shimmer, as loader text does everywhere (owner, 19 Nov)
+    vt.classList.toggle('shim', state === 'ind' || state === 'run');
     if (shownState !== state){
       swap(tag, TAG[state][0]); tag.className = 'tag prg-st ' + TAG[state][1];
       const b = state === 'paused' ? ['play', 'Resume'] : state === 'done' ? ['refresh', 'Run again'] : ['pause', 'Pause'];
