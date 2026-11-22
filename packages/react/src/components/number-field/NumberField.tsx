@@ -110,8 +110,7 @@ export function NumberField({ label, min = 0, max = 100, step = 1, bigStep = 10,
   );
 }
 
-/** The panel the fields sit in on designme.dev: a title, a line under it and the fields. `summary` adds a line at the foot, for
-    something the fields don't already say */
+/** The panel the fields sit in on designme.dev: a title, a line under it, the fields, and an optional summary at the foot */
 export function NumberFieldGroup({ title, description, summary, children, className }: { title?: string; description?: string; summary?: string; children: ReactNode; className?: string }) {
   return (
     <div data-dm="" className={cx('dm-nmf dm-panel', className)}>

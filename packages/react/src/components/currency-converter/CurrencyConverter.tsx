@@ -7,8 +7,6 @@ import { Icon } from '../../lib/icons';
 import { Swap, Tip } from '../../lib/motion';
 import { usePopover } from '../../lib/popover';
 import '../../designme.css';
-// its menus' rows glide in Clean
-import '../../lib/glide';
 import './currency-converter.css';
 
 export interface CurrencyConverterCurrency {
@@ -115,21 +113,17 @@ export function CurrencyConverter({ currencies = CurrencyConverterCurrencies, am
 
   return (
     <div data-dm="" className={cx('dm-ccx dm-panel', className)}>
-      {/* each side is a label over its field; the field holds only the amount and its currency button */}
-      <span className="dm-ccx-lb dm-muted">{payLabel}</span>
       <div className="dm-ccx-row">
         <div className="dm-ccx-in">
+          <span className="dm-muted">{payLabel}</span>
           <input className="dm-ccx-a dm-num" value={text} inputMode="decimal" aria-label="Amount"
             onChange={e => setText(e.target.value.replace(/[^\d.]/g, ''))} onBlur={() => setText((parseFloat(text) || 0).toFixed(2))} />
         </div>
         <button type="button" {...pay.trigger} className="dm-ccx-cur">{flagOf(A)}<Swap className="dm-cd">{A.code}</Swap><Icon name="chev-d" size="xs" /></button>
       </div>
-      <div className="dm-ccx-mid">
-        <span className="dm-ccx-lb dm-muted">{seeLabel}</span>
-        <Tip label="Swap"><button type="button" className={cx('dm-ccx-sw', turned && 'dm-go')} aria-label="Swap currencies" onClick={swap}><Icon name="sort" size="xs" /></button></Tip>
-      </div>
+      <Tip label="Swap"><button type="button" className={cx('dm-ccx-sw', turned && 'dm-go')} aria-label="Swap currencies" onClick={swap}><Icon name="sort" size="xs" /></button></Tip>
       <div className="dm-ccx-row">
-        <div className="dm-ccx-in"><b className="dm-ccx-b dm-num">{out}</b></div>
+        <div className="dm-ccx-in"><span className="dm-muted">{seeLabel}</span><b className="dm-ccx-b dm-num">{out}</b></div>
         <button type="button" {...see.trigger} className="dm-ccx-cur">{flagOf(B)}<Swap className="dm-cd">{B.code}</Swap><Icon name="chev-d" size="xs" /></button>
       </div>
       <div className="dm-ccx-rate dm-muted dm-num"><span className="dm-dot" />1 {A.code} = {(B.rate / A.rate).toFixed(4)} {B.code}{updated && ` · ${updated}`}</div>
