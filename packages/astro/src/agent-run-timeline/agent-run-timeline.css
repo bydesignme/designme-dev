@@ -4,16 +4,19 @@
    are teal and apps orange, each app with its own mark. The playhead runs in the accent with the time on it, and the lanes it
    has passed take a faint wash; once the run is done it stops at the finish and turns green */
 .art{padding:var(--dm-s-4);--dm-lab:176px;--dm-dur:44px}
-.art-h{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--dm-s-3)}
-.art-hd{min-width:0}
-.art-t{font-weight:500}
-.art-s{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* the head has a neutral mark in a tile as big as the steps' icons, so the steps' icons sit in its column and their names
+   start where the title starts (owner, 18 Nov); the key lines up with the title's words too */
+.art-h{display:flex;align-items:center;gap:var(--dm-s-2)}
+.art-hi{width:22px;height:22px;border-radius:calc(7px * var(--dm-rk-m,var(--dm-rk)));display:grid;place-items:center;flex:none;background:var(--dm-chip);color:var(--dm-fg2)}
+.art-hd{flex:1;min-width:0}
+.art-t{font-weight:500;line-height:18px}
+.art-s{font-size:12.5px;line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .art-s.sw{display:block}
 .art-tag{flex:none;transition:background .3s,color .3s}
 .art-tag .spin{width:9px;height:9px}
 .art.live .art-tag{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-fg))}
 /* the key: how long each kind has run so far */
-.art-key{display:flex;flex-wrap:wrap;gap:2px var(--dm-s-4);margin-top:10px;font-size:12px;color:var(--dm-muted)}
+.art-key{display:flex;flex-wrap:wrap;gap:2px var(--dm-s-4);margin-top:10px;padding-left:30px;font-size:12px;color:var(--dm-muted)}
 .art-key span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
 .art-key i{width:8px;height:8px;border-radius:var(--dm-r-tiny,2px);background:var(--dm-k);flex:none}
 .art-key b{font-weight:500;color:var(--dm-fg2)}
@@ -69,12 +72,16 @@
 .art-head i{position:absolute;top:16px;bottom:0;left:-.75px;width:1.5px;border-radius:1px;background:var(--dm-accent-mark,var(--dm-accent));transition:background .4s}
 .art-now{position:absolute;top:0;left:0;transform:translateX(-50%);display:inline-flex;align-items:center;gap:3px;height:16px;padding:0 5px;border-radius:var(--dm-r-tiny,5px);background:var(--dm-accent);color:var(--dm-on-accent);font-size:11px;font-weight:500;line-height:1;white-space:nowrap;transition:background .4s,color .4s}
 .art-now .i{width:10px;height:10px}
-.art.fin .art-head i{background:var(--dm-ok)}
+.art.fin .art-head i{background:var(--dm-ok-mark)}
 .art.fin .art-now{background:var(--dm-ok-bg);color:var(--dm-ok)}
-.art-f{display:flex;flex-wrap:wrap;gap:var(--dm-s-2) var(--dm-s-5);margin-top:var(--dm-s-3);padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12.5px}
-.art-f>span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.art-f{display:flex;flex-wrap:wrap;gap:var(--dm-s-2) var(--dm-s-5);margin-top:var(--dm-s-3);padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12.5px;line-height:16px}
+/* each figure's icon is centred in the steps' icon column (22px) and its words start on their names' column */
+.art-f>span{display:inline-flex;align-items:center;gap:var(--dm-s-2);white-space:nowrap}
+.art-f>span>svg{box-sizing:content-box;padding:0 5px}
 .art-f b{color:var(--dm-fg);font-weight:500}
-@media (max-width:600px){.art{--dm-lab:112px;--dm-dur:38px}.art-lab{gap:6px;padding-right:var(--dm-s-2)}.art-lab .tag{display:none}.art-f{gap:var(--dm-s-2) var(--dm-s-4)}}
+@media (max-width:600px){.art{--dm-lab:112px;--dm-dur:38px}.art-lab{gap:6px;padding-right:var(--dm-s-2)}.art-lab .tag{display:none}.art-f{gap:var(--dm-s-2) var(--dm-s-4)}
+  /* the head's tile, the key and the figures keep the steps' closer columns */
+  .art-h,.art-f>span{gap:6px}.art-key{padding-left:28px}}
 /* a phone: each step's name sits on its own line above its bar, so it is read in full; the bars take the whole width */
 @media (max-width:480px){
   .art{--dm-lab:0px}
@@ -84,7 +91,9 @@
   .art-row .art-lane{grid-column:2;grid-row:2;height:22px}
   .art-row .art-d{grid-column:3;grid-row:2}
   .art-bar{top:4px}
-  .art-ic{width:20px;height:20px}
+  .art-ic,.art-hi{width:20px;height:20px}
+  .art-key{padding-left:26px}
+  .art-f>span>svg{padding:0 4px}
   .art-link{top:-35px;height:39px}
 }
 :root:not([data-style="soft"],[data-style="clean"]) .art-ic:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){--dm-ring:inset 0 0 0 1px color-mix(in srgb,var(--dm-k) 35%,transparent)}
@@ -102,11 +111,14 @@
 @keyframes artdrawbp{from{clip-path:inset(0 100% 100% 0)}to{clip-path:inset(0)}}
 :root:not([data-style="soft"],[data-style="clean"]) .art-past:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){background:repeating-linear-gradient(135deg,transparent 0 5px,var(--dm-grid) 5px 6px)}
 :root:not([data-style="soft"],[data-style="clean"]) .art-head i:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){width:1px;left:-.5px}
-/* Clean (owner, 17 Nov): the kinds of step keep their colours as flat, round bars; the failed run a red hatch with no red
-   fill; round icon tiles; the totals an off-white foot strip */
-:root[data-style="clean"] .art,:root [data-style="clean"] .art,:root [data-style="clean"].art{padding:18px 20px 0}
+/* Clean (owner, 17 and 18 Nov): the kinds of step keep their colours as flat, round bars; the failed run a red hatch with no
+   red fill; round icon tiles, the head's with a hairline; the totals an off-white foot strip. The content sits 16px in from
+   every edge and 16px over the strip */
+:root[data-style="clean"] .art,:root [data-style="clean"] .art,:root [data-style="clean"].art{padding:16px 16px 0}
+:root[data-style="clean"] .art-hi,:root [data-style="clean"] .art-hi,:root [data-style="clean"].art-hi{box-shadow:inset 0 0 0 1px var(--dm-hair)}
 :root[data-style="clean"] .art-lab .tag.bad,:root [data-style="clean"] .art-lab .tag.bad,:root [data-style="clean"].art-lab .tag.bad{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-bad-mark) 45%,transparent)}
 :root[data-style="clean"] .art-bar,:root [data-style="clean"] .art-bar,:root [data-style="clean"].art-bar,:root[data-style="clean"] .art-row[data-s="run"] .art-bar,:root [data-style="clean"] .art-row[data-s="run"] .art-bar,:root [data-style="clean"].art-row[data-s="run"] .art-bar{top:11px;height:10px;border-radius:var(--dm-r-tiny,3px);background:var(--dm-k);animation:none}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .art-bar:hover,:root [data-style="clean"] .art-bar:hover,:root [data-style="clean"].art-bar:hover{filter:none}}
 :root[data-style="clean"] .art-row[data-s="fail"] .art-bar,:root [data-style="clean"] .art-row[data-s="fail"] .art-bar,:root [data-style="clean"].art-row[data-s="fail"] .art-bar{background:repeating-linear-gradient(135deg,var(--dm-bad-mark) 0 2px,transparent 2px 5px);box-shadow:inset 0 0 0 1px var(--dm-bad-mark)}
-:root[data-style="clean"] .art-f,:root [data-style="clean"] .art-f,:root [data-style="clean"].art-f{margin:var(--dm-s-3) -20px 0;padding:18px 20px 17px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+:root[data-style="clean"] .art-f,:root [data-style="clean"] .art-f,:root [data-style="clean"].art-f{margin:11px -16px 0;padding:13px 16px;line-height:18px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+/* (the figures keep the base's columns: each icon centred on the steps' icon column, its words on their names' column) */

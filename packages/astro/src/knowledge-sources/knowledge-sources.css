@@ -1,32 +1,47 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Knowledge sources ---------- */
-/* what the agent knows: each source with its type, its size and how far it is indexed. The dot on its icon is its state,
-   the same dots as Tools and connections; one that failed says why under its name and offers a fix */
-.ksx{padding:var(--dm-s-3);display:flex;flex-direction:column;gap:6px}
-.ksx-h{display:flex;align-items:center;gap:10px;padding:2px 10px var(--dm-s-2)}
-.ksx-h>div{display:flex;flex-direction:column;min-width:0}
-.ksx-h b{font-weight:500;font-size:13.5px}
-.ksx-st{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* what the agent knows: each source with its type, its size and how far it is indexed. The card sits on two columns (owner,
+   18 Nov), its content 16px from every edge: the head's neutral mark in a 28px column with each source's mark under it, and
+   the title and each source's words 12px after it; the menu buttons' glyphs end on the content's right edge. A row is not a
+   button, so it has no hover fill. The line under a source's name is its state, led by its mark (beside it, never over the
+   source's own): a green tick and what it holds once it is indexed, a clock while it waits, a bar and a count that shimmers
+   while it is read, and a red sign with the reason once it has failed, with a fix under it. A type's mark is a vivid tile of
+   its colour with white or the colour's own ink on it. The card grows and shrinks with its rows (grow()) */
+.ksx{padding:var(--dm-s-4);display:flex;flex-direction:column}
+.ksx.growing:has(.pop.open){overflow:visible}
+.ksx-h{display:flex;align-items:center;gap:var(--dm-s-3);padding-bottom:var(--dm-s-2)}
+.ksx-hi{width:28px;height:28px;display:grid;place-items:center;flex:none;border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));color:var(--dm-fg2);background:var(--dm-chip)}
+.ksx-h>div{flex:1;display:flex;flex-direction:column;min-width:0}
+.ksx-h b{font-weight:500;font-size:14px;line-height:20px}
+.ksx-st{font-size:12px;line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ksx-list{display:flex;flex-direction:column}
-.ksx-s{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;column-gap:var(--dm-s-3);padding:var(--dm-s-2) 10px;border-radius:var(--dm-r-in);font-size:13px;transition:background .2s}
-@media (hover:hover) and (pointer:fine){.ksx-s:hover{background:var(--dm-row)}}
-.ksx-s .ic{width:28px;height:28px;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));display:grid;place-items:center;position:relative}
-.ksx-s .ic::after{content:"";position:absolute;right:-2px;bottom:-2px;box-sizing:border-box;width:8px;height:8px;border-radius:50%;background:var(--dm-ok);box-shadow:0 0 0 2px var(--dm-surface);transition:background .3s}
-.ksx-s[data-st="queued"] .ic::after{background:var(--dm-faint)}
-.ksx-s[data-st="failed"] .ic::after{background:var(--dm-bad-mark)}
-.ksx-s[data-st="indexing"] .ic::after{width:10px;height:10px;right:-3px;bottom:-3px;background:var(--dm-surface);border:1.5px solid var(--dm-accent-mark,var(--dm-accent));border-right-color:transparent;animation:rot .8s linear infinite}
+.ksx-s{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;column-gap:var(--dm-s-3);padding:var(--dm-s-2) 0;font-size:13px}
+.ksx-s .ic{width:28px;height:28px;border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));display:grid;place-items:center}
 .ksx-s .t{min-width:0;display:flex;flex-direction:column}
-.ksx-s .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ksx-s .d{display:flex;align-items:center;gap:var(--dm-s-2);min-width:0;height:18px;font-size:12px;color:var(--dm-muted)}
+.ksx-s .nm{line-height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ksx-s .d{display:flex;align-items:center;gap:5px;min-width:0;height:18px;font-size:12px;color:var(--dm-muted)}
 .ksx-s .d>span:last-child{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ksx-s .d>.i{flex:none;color:var(--dm-muted)}
+.ksx-s[data-st="ready"] .d>.i{color:var(--dm-ok-mark)}
 .ksx-s[data-st="failed"] .d{color:var(--dm-bad)}
+/* why it failed is never cut short: on a narrow card it wraps, its sign on the first line */
+.ksx-s[data-st="failed"] .d{height:auto;min-height:18px;align-items:flex-start;line-height:18px}
+.ksx-s[data-st="failed"] .d>.i{margin-top:3px}
+.ksx-s[data-st="failed"] .d>span:last-child{white-space:normal;text-wrap:pretty}
+.ksx-s[data-st="failed"] .d>.i{color:var(--dm-bad-mark)}
+.ksx-s .d .shim{font-size:inherit}
+.ksx-s[data-st="indexing"] .d{gap:var(--dm-s-2)}
 .ksx-bar{width:56px;height:4px;border-radius:var(--dm-r-tiny,2px);background:var(--dm-line);overflow:hidden;flex:none}
 .ksx-bar i{display:block;height:100%;border-radius:inherit;background:var(--dm-accent-mark,var(--dm-accent));transition:width .2s linear}
-.ksx-more{width:28px;height:28px}
+/* the menu button: its glyph on the content's right edge, its hover circle reaching out round it */
+.ksx-more{width:28px;height:28px;margin-right:-7px}
 .ksx-s .ksx-fx{grid-column:2/-1}
 .ksx-fx>div{overflow-clip-margin:0px}
 .ksx-fx>div>div{display:flex;flex-wrap:wrap;gap:6px;padding-top:var(--dm-s-2)}
-.ksx-add{display:flex;align-items:center;gap:var(--dm-s-2);height:30px;padding:0 var(--dm-s-3) 0 10px;font-size:12.5px;color:var(--dm-fg2);border-radius:var(--dm-r-pill);align-self:flex-start;transition:background-color .2s,color .2s}
+/* Add source: its + centred in the marks' column and its words on the title's; the hover box starts on the content's edge */
+.ksx-add{display:flex;align-items:center;gap:var(--dm-s-3);align-self:flex-start;height:32px;margin-top:var(--dm-s-1);padding:0 var(--dm-s-3) 0 0;font-size:13px;color:var(--dm-fg2);border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+.ksx-add>.i{width:28px;padding:0 8px;box-sizing:border-box}
+.ksx-add[aria-expanded="true"]{color:var(--dm-fg);background:var(--dm-row)}
 @media (hover:hover) and (pointer:fine){.ksx-add:hover{color:var(--dm-fg);background:var(--dm-row)}}
 .ksx-pop{width:248px}
 .ksx-mpop{min-width:160px}
@@ -39,6 +54,47 @@
 .ksx-in:has(input:focus){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
 .ksx-in input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--dm-fg)}
 .ksx-in input::placeholder{color:var(--dm-muted)}
-.ksx-in .pill{height:28px}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .ksx.panel,:root [data-style="clean"] .ksx.panel,:root [data-style="clean"].ksx.panel{padding:16px 10px 20px 20px}
+.ksx-in .pill{height:26px}
+/* nothing left: the empty state (the lab's, lab/clean): a small sketch of the list on a white card, a title, one muted line
+   and Add source as an outline button */
+.ksx-em{display:flex;flex-direction:column;align-items:center;gap:4px;padding:16px 16px 20px;text-align:center}
+.ksx-em b{font-size:13.5px;line-height:18px;font-weight:500;color:var(--dm-fg)}
+.ksx-em>span:not(.ksx-em-art){max-width:290px;font-size:12.5px;line-height:1.5;color:var(--dm-muted)}
+.ksx-em .pill{margin-top:12px}
+.ksx-em-art{position:relative;display:block;width:136px;height:70px;margin:0 0 16px;border-radius:calc(10px * var(--dm-rk-l,var(--dm-rk)));background:var(--dm-surface);box-shadow:var(--dm-shadow)}
+.ksx-em-art::before{content:"";position:absolute;left:14px;top:13px;width:12px;height:12px;border-radius:4px;background:var(--dm-ghost,var(--dm-chip));box-shadow:0 16px 0 var(--dm-ghost,var(--dm-chip)),0 32px 0 var(--dm-ghost-2,var(--dm-wash))}
+.ksx-em-art::after{content:"";position:absolute;left:34px;top:16px;width:58px;height:6px;border-radius:3px;background:var(--dm-ghost,var(--dm-chip));box-shadow:0 16px 0 var(--dm-ghost,var(--dm-chip)),0 32px 0 var(--dm-ghost-2,var(--dm-wash))}
+.ksx-list:not(:empty)~.ksx-em,.ksx-list:empty~.ksx-ft{display:none}
+/* the foot sits under a hairline in Soft and Blueprint (owner, 21 Nov), 8px from it on each side, as the rows are spaced;
+   Clean's is a foot strip */
+.ksx-ft{padding-top:var(--dm-s-2);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.ksx-ft .ksx-add{margin-top:0}
+.shx-ft{padding-top:var(--dm-s-2);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.shx-ft .shx-add{margin-top:0}
+:root:not([data-style="soft"],[data-style="clean"]) .ksx-em-art:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-rail) 60%,transparent)}
+:root:not([data-style="soft"],[data-style="clean"]) :is(.ksx-em-art::before,.ksx-em-art::after):not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){border-radius:0}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink primary alone presses */
+.ksx :is(.ib,.pill):active,:root[data-style="clean"] .ksx .ib:active,:root [data-style="clean"] .ksx .ib:active,:root [data-style="clean"].ksx .ib:active{transform:none}
+/* Clean (owner, 17 and 18 Nov): the head an off-white strip with a hairline under it; the sources' marks one neutral grey
+   with a hairline; Add source a flat secondary button on an off-white foot strip, 8px from the card's edges; the content 16px
+   in from each edge and 16px from each strip; menus scale and fade from their button, with the card's corners */
+:root[data-style="clean"] .ksx.panel,:root [data-style="clean"] .ksx.panel,:root [data-style="clean"].ksx.panel{padding:0}
+:root[data-style="clean"] .ksx-h,:root [data-style="clean"] .ksx-h,:root [data-style="clean"].ksx-h{min-height:44px;padding:12px 16px;background:var(--dm-strip);border-bottom:1px solid var(--dm-line);border-radius:var(--dm-r-card) var(--dm-r-card) 0 0}
+:root[data-style="clean"] .ksx-hi,:root [data-style="clean"] .ksx-hi,:root [data-style="clean"].ksx-hi{background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-hair);border-radius:10px}
+:root[data-style="clean"] .ksx-list,:root [data-style="clean"] .ksx-list,:root [data-style="clean"].ksx-list{padding:var(--dm-s-2) var(--dm-s-4)}
+:root[data-style="clean"] .ksx-list:empty,:root [data-style="clean"] .ksx-list:empty,:root [data-style="clean"].ksx-list:empty{padding:0}
+:root[data-style="clean"] .ksx-s .ic,:root [data-style="clean"] .ksx-s .ic,:root [data-style="clean"].ksx-s .ic{background:var(--dm-surface)!important;color:var(--dm-fg2)!important;box-shadow:inset 0 0 0 1px var(--dm-hair);border-radius:10px}
+:root[data-style="clean"] .ksx-s[data-st="ready"] .d>.i,:root [data-style="clean"] .ksx-s[data-st="ready"] .d>.i,:root [data-style="clean"].ksx-s[data-st="ready"] .d>.i{color:color-mix(in srgb,var(--dm-ok-mark) 80%,var(--dm-ok))}
+:root[data-style="clean"] .ksx-ft,:root [data-style="clean"] .ksx-ft,:root [data-style="clean"].ksx-ft{padding:var(--dm-s-2) var(--dm-s-4);background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+:root[data-style="clean"] .ksx-add,:root [data-style="clean"] .ksx-add,:root [data-style="clean"].ksx-add{gap:6px;height:28px;margin:0;padding:0 12px 0 10px;border-radius:var(--dm-r-pill);font-weight:500;color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth);transition:box-shadow var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .ksx-add>.i,:root [data-style="clean"] .ksx-add>.i,:root [data-style="clean"].ksx-add>.i{width:12px;padding:0}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] :is(.ksx-add:hover,.ksx-add[aria-expanded="true"]),:root [data-style="clean"] :is(.ksx-add:hover,.ksx-add[aria-expanded="true"]),:root [data-style="clean"]:is(.ksx-add:hover,.ksx-add[aria-expanded="true"]){background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
+:root[data-style="clean"] .ksx-add:active,:root [data-style="clean"] .ksx-add:active,:root [data-style="clean"].ksx-add:active{box-shadow:var(--dm-btn2-press)}
+:root[data-style="clean"] .ksx .pill.ghost:not([disabled]),:root [data-style="clean"] .ksx .pill.ghost:not([disabled]),:root [data-style="clean"].ksx .pill.ghost:not([disabled]){color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .ksx .pill.ghost:not([disabled]):hover,:root [data-style="clean"] .ksx .pill.ghost:not([disabled]):hover,:root [data-style="clean"].ksx .pill.ghost:not([disabled]):hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
+:root[data-style="clean"] .ksx .pill.ghost:not([disabled]):active,:root [data-style="clean"] .ksx .pill.ghost:not([disabled]):active,:root [data-style="clean"].ksx .pill.ghost:not([disabled]):active{box-shadow:var(--dm-btn2-press)}
+:root[data-style="clean"] :is(.ksx-pop,.ksx-mpop),:root [data-style="clean"] :is(.ksx-pop,.ksx-mpop),:root [data-style="clean"]:is(.ksx-pop,.ksx-mpop){padding:6px;border-radius:var(--dm-r-card)}
+:root[data-style="clean"] :is(.ksx-pop,.ksx-mpop) .mi,:root [data-style="clean"] :is(.ksx-pop,.ksx-mpop) .mi,:root [data-style="clean"]:is(.ksx-pop,.ksx-mpop) .mi{border-radius:calc(var(--dm-r-card) - 6px)}
+:root[data-style="clean"] .ksx-pop .ph,:root [data-style="clean"] .ksx-pop .ph,:root [data-style="clean"].ksx-pop .ph{padding-inline:10px}
+:root[data-style="clean"] .ksx-in,:root [data-style="clean"] .ksx-in,:root [data-style="clean"].ksx-in{margin:0;padding-right:3px;border-radius:calc(var(--dm-r-card) - 6px)}
+:root[data-style="clean"] .ksx-em,:root [data-style="clean"] .ksx-em,:root [data-style="clean"].ksx-em{padding:28px 16px 30px}

@@ -23,7 +23,7 @@ npx shadcn@latest add https://designme.dev/r/shadcn/astro/carousel.json  # Astro
 
 ## About
 
-One carousel with two types, picked with the switch under it. Variants are the pictures an agent made from one brief, in a panel with a title, to browse and keep one. Images is a gallery of pictures with their captions. Both run on the same native scroll-snap track: each slide is a framed picture with its caption, the next one peeking in, with Previous and Next disabled at the ends and a row of dots under the track, the current one drawn longer. A picture sliding into view comes into focus: it is soft and faded while it is mostly out of view and sharpens as it arrives. Blueprint never blurs, so there a veil wipes off it from the left. It doesn't play on its own.
+One carousel with two types, picked with the switch under it. Variants are the pictures an agent made from one brief, in a panel with a title, to browse and keep one. Images is a gallery of pictures with their captions. Both run on the same native scroll-snap track: each slide is a framed picture with its caption, the next one peeking in, with Previous and Next disabled at the ends and a row of dots under the track, the current one drawn longer. A slide peeking in at the edge shows in its full colours, like the rest. It doesn't play on its own.
 
 ### When to use it
 
@@ -39,10 +39,10 @@ One carousel with two types, picked with the switch under it. Variants are the p
 - Slide widths: `slideWidth` ("80%" for images and "84%" for variants let the next one peek in, "100%" shows one at a time, a number is pixels), and each image's `width` overrides it, so slides can mix sizes; `height` gives every picture one height. `align="center"` rests each slide in the middle of the track, `gap` sets the space between slides, and `arrows={false}` and `dots={false}` leave a bare swipeable track.
 - Variants have four states: queued (an empty frame with an image mark and a Queued tag), generating (the frame builds up out of pixels in the picture's colours: a sparse grid of cells twinkles in, a few in the accent, then the picture arrives as coarse blocks that refine in four steps, from 6×4 to 48×32, each settling in its own order, with a Making tag and a readout of how far along it is), ready (the picture comes into focus over the last of the pixels, with what sets it apart and how long it took) and failed (the pixels glitch, lose their colour and fall apart into the reason and a Retry button, with `onRetry`).
 - The pixels take their colours from the picture's `src` when the page can read it (same origin, or served with CORS) and otherwise from its `placeholder` gradient, so a picture without a `src` still builds up in its own colours. Soft rounds the cells and Blueprint keeps them square on a hairline grid. Pass a variant's `progress` (0 to 1) if the model reports it; without it the pixels pace themselves over about three seconds, then shimmer until the variant is ready. The canvas only draws while it is on screen and the tab is open.
-- Keeping a variant fills its button, steps its frame's edge up and dims the others; pressing it again lets it go. The line under the title follows the work: "Making 4 variants, 1 ready", then "3 ready, 1 failed", then "Keeping Variant C".
+- Keeping a variant marks its button (filled in Soft and Blueprint; in Clean a stronger edge and a green tick), which eases to the width of Kept, and steps its frame's edge up, and the other variants stay as they are; pressing it again lets it go. The line under the title follows the work: "Making 4 variants, 1 ready" with the highlight sweep while the agent works, then "3 ready, 1 failed", then "Keeping Variant C". A generating variant's readout sweeps too.
 - Each picture takes `src`, `alt` and a `placeholder`, a CSS background like a gradient of its colours, drawn under it while it loads or in place of it. A variant's `content` shows anything else instead.
 - The first slide in view is controlled with `index` and `onIndexChange`, which fires once the track settles, and the kept variant with `kept` and `onKeptChange`.
-- With reduced motion the track jumps instead of gliding, nothing blurs in, and a generating variant is a still mosaic of the picture's colours until it lands.
+- With reduced motion the track jumps instead of gliding, the words don't sweep, and a generating variant is a still mosaic of the picture's colours until it lands.
 
 ### Accessibility
 
@@ -210,7 +210,7 @@ They are this component now: Variants is the old Variant carousel and Images the
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { useCarousel } from '../lib/carousel';
-import { useControllable, useReducedMotion } from '../lib/hooks';
+import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../lib/hooks';
 import { pixelField, type PixelField } from '../lib/pixels';
 import { Icon } from '../lib/icons';
 import { Spin, Swap, Tip } from '../lib/motion';
@@ -314,8 +314,8 @@ const size = (v: number | string | undefined) => typeof v === 'number' ? `${v}px
 const bg = (src?: string, placeholder?: string) => [src && `url("${src}")`, placeholder].filter(Boolean).join(', ') || undefined;
 
 /** One carousel, two types, on the same native scroll-snap track: a swipe, a trackpad, a mouse drag, the arrows, the dots and
-    the keys all move it, and each slide is a framed picture with its caption, the next one peeking in. A picture comes into
-    focus as it slides into view (Blueprint wipes a veil off it instead). `type="variants"` shows the drafts an agent made,
+    the keys all move it, and each slide is a framed picture with its caption, the next one peeking in, in its full colours.
+    `type="variants"` shows the drafts an agent made,
     each queued, generating, ready or failed, to keep one; `type="images"` is a gallery. */
 export function Carousel(props: CarouselProps) {
   return props.type === 'images' ? <Images {...props} /> : <Variants {...props} />;
@@ -388,7 +388,7 @@ function Variants(p: CarouselVariantsProps) {
   return (
     <div data-dm="" className={cx('dm-crs-c dm-panel', keep && 'dm-kept', className)} data-type="variants" data-align={align === 'center' ? 'center' : undefined} style={vars(p)} role="region" aria-roledescription="carousel" aria-label={title}>
       <div className="dm-crs-h">
-        <div className="dm-crs-t"><b>{title}</b><Swap className="dm-muted dm-crs-sub">{line}</Swap></div>
+        <div className="dm-crs-t"><b>{title}</b><Swap className={cx('dm-muted dm-crs-sub', subtitle == null && !keep && busy && 'dm-shim')}>{line}</Swap></div>
         {arrows && <Nav k={k} noun="variant" />}
       </div>
       <div ref={tr} className={cx('dm-crs-tr', k.dragging && 'dm-drag')} role="group" tabIndex={0} aria-label="Variants. Enter keeps the one in view" {...k.trackProps}>
@@ -410,6 +410,17 @@ function Variants(p: CarouselVariantsProps) {
     picture's colours until it lands */
 function VariantFigure({ v, kept, onKeep, onRetry }: { v: Variant; kept: boolean; onKeep: () => void; onRetry?: (key: string) => void }) {
   const reduce = useReducedMotion();
+  // Keep and Kept are each as wide as their words: the button eases to its new width, with no room kept for the longer one
+  const keepBtn = useRef<HTMLButtonElement>(null), keepW = useRef(0);
+  useIsoLayoutEffect(() => {
+    const b = keepBtn.current; if (!b) { keepW.current = 0; return; }
+    const w1 = b.offsetWidth, w0 = keepW.current; keepW.current = w1;
+    if (!w0 || reduce || Math.abs(w1 - w0) < .5) return;
+    const cs = getComputedStyle(b);
+    b.style.overflow = 'hidden';
+    b.animate([{ width: w0 + 'px' }, { width: w1 + 'px' }], { duration: (parseFloat(cs.getPropertyValue('--dm-t')) || .34) * 1000, easing: cs.getPropertyValue('--dm-ease').trim() || 'ease' })
+      .finished.then(() => { b.style.overflow = ''; }, () => {});
+  }, [kept, v.status]);
   const cv = useRef<HTMLCanvasElement>(null), meta = useRef<HTMLSpanElement>(null), field = useRef<PixelField | null>(null);
   // what the frame is doing as the status moves on: landing (the picture focusing in over the pixels) or glitching out
   const [prev, setPrev] = useState(v.status), [after, setAfter] = useState<'none' | 'land' | 'glitch'>('none');
@@ -454,9 +465,9 @@ function VariantFigure({ v, kept, onKeep, onRetry }: { v: Variant; kept: boolean
               : <div className="dm-enter" style={{ display: 'contents' }}>{v.content}</div>)}
           </div>}
       <figcaption className="dm-crs-f">
-        <div><b>{v.label}</b>{v.status === 'generating' ? <span key="gen" ref={meta} className="dm-muted" /> : <span className="dm-muted">{v.status === 'queued' ? 'Waiting' : v.meta}</span>}</div>
+        <div><b>{v.label}</b>{v.status === 'generating' ? <span key="gen" ref={meta} className="dm-muted dm-shim" /> : <span className="dm-muted">{v.status === 'queued' ? 'Waiting' : v.meta}</span>}</div>
         {v.status === 'ready'
-          ? <button type="button" className="dm-pill dm-line dm-sm dm-crs-keep" aria-pressed={kept} onClick={onKeep}>{kept ? <><Icon name="check" size="xs" />Kept</> : 'Keep'}</button>
+          ? <button ref={keepBtn} type="button" className="dm-pill dm-line dm-sm dm-crs-keep" aria-pressed={kept} onClick={onKeep}>{kept ? <><Icon name="check" size="xs" />Kept</> : 'Keep'}</button>
           : v.status === 'failed' ? <span className="dm-tag dm-bad">Failed</span> : v.status === 'generating' ? <span className="dm-tag"><Spin />Making</span> : <span className="dm-tag">Queued</span>}
       </figcaption>
     </figure>

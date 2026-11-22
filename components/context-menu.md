@@ -34,11 +34,12 @@ A menu that opens where you right-click an agent reply, or where you long-press 
 ### What it does
 
 - Opens at the pointer for a right-click or a long press (half a second), and at the target's top left for Shift+F10 or the Menu key.
-- Turns back from the right edge so it stays inside the card, and near the foot of the screen opens upward where it fits over the reply.
+- Turns back from the right edge so it stays inside the card. Short of room below (the foot of the screen, or a box round it that would cut it off) it opens upward from the point, or moves up just enough to stay whole, so it is never cut off.
 - The submenu opens when the pointer rests on its item, with Right, or with Enter; it sits beside the menu on the right, or on the left when there's no room, and drops under its item on a phone.
 - Items take an icon, a shortcut hint, a hairline above them (`separator`), `checked` for a checkable item, and `danger` for red.
 - `confirmLabel` makes an item ask again: the first press changes its label ("Press again to delete"), the second runs it.
 - A press anywhere outside closes it; choosing an item closes it and calls `onSelect` with the item's key (a checkable item keeps it open).
+- While its menu is open the target takes a quiet, deeper fill. In the demo, what an action did shows for a moment on the reply's head line ("Copied"), and the agent's summary appears under the reply as plain text once it is written; the reply grows to hold it, and shrinks to an Undo row when deleted.
 
 ### Accessibility
 
@@ -61,9 +62,10 @@ import { ContextMenu } from '@/components/designme/context-menu/ContextMenu';
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: right-click the reply, ask the agent for a
 // summary, and it streams in under the reply.
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ContextMenu, type ContextMenuItem } from './ContextMenu';
 import { Icon } from '../lib/icons';
+import { useGrow } from '../lib/motion';
 import { useStory, useWait } from '../lib/useScript';
 
 const TEXT = 'Most of the checkout drop-off is on mobile. 61% of the people who leave do it at the address step, where the keyboard covers the Continue button. Moving Continue above the keyboard should win back about 300 orders a week.';
@@ -79,7 +81,18 @@ export default function ContextMenuDemo() {
   const [follow, setFollow] = useState(false);
   const [pinned, setPinned] = useState(false);
   const [deleted, setDeleted] = useState(false);
+  // what an action did: said to screen readers, and shown for a moment on the reply's head line with a green tick (a pin shows
+  // its own Pinned, Ask the agent its answer)
   const [note, setNote] = useState('');
+  const [ok, setOk] = useState<{ text: string; out: boolean } | null>(null);
+  const confirm = (t: string) => { setNote(t); setOk({ text: t, out: false }); };
+  useEffect(() => {
+    if (!ok) return;
+    const t = setTimeout(() => ok.out ? setOk(null) : setOk({ ...ok, out: true }), ok.out ? 240 : 2400);
+    return () => clearTimeout(t);
+  }, [ok]);
+  // the card grows to hold what the agent writes, and shrinks to the Undo row, eased
+  const [box, boxIn] = useGrow();
   const [out, setOut] = useState<{ k: string; text: string; busy: boolean } | null>(null);
   const run = useRef(0);
   const items: ContextMenuItem[] = [
@@ -97,12 +110,12 @@ export default function ContextMenuDemo() {
     for (let i = 1; i <= text.length && id === run.current; i++) { setOut({ k, text: text.slice(0, i).join(' '), busy: false }); await wait(55); }
   };
   const select = (k: string) => {
-    if (k === 'copy') { navigator.clipboard?.writeText(TEXT).catch(() => {}); setNote('Copied to clipboard'); }
-    if (k === 'quote') setNote('Quoted in your reply');
-    if (k === 'pin') { setPinned(p => !p); setNote(pinned ? 'Unpinned' : 'Pinned to the thread'); }
-    if (k === 'follow') { setFollow(f => !f); setNote(follow ? 'You will not hear about replies' : 'You will hear about replies to this'); }
-    if (k === 'del') { setDeleted(true); setNote(''); }
-    if (ASK[k]) void ask(k);
+    if (k === 'copy') { navigator.clipboard?.writeText(TEXT).catch(() => {}); confirm('Copied'); }
+    if (k === 'quote') confirm('Quoted in your reply');
+    if (k === 'pin') { setPinned(p => !p); setNote(pinned ? 'Unpinned' : 'Pinned to the thread'); setOk(null); }
+    if (k === 'follow') { setFollow(f => !f); confirm(follow ? 'Not following replies' : 'Following replies'); }
+    if (k === 'del') { setDeleted(true); setNote('Reply deleted'); setOk(null); }
+    if (ASK[k]) { setOk(null); void ask(k); }
   };
   // the preview's story: right-click the reply, open Ask the agent, pick Summarise
   useStory(ref, async ({ wait, press }) => {
@@ -114,16 +127,16 @@ export default function ContextMenuDemo() {
     await wait(1000); press('.dm-cxm-pop2 [data-k="sum"]');
   });
   return (
-    <div ref={ref} style={{ width: '100%' }}>
+    <div ref={el => { ref.current = el; box.current = el; }} data-dm="" className="dm-growing" style={{ width: '100%', overflow: 'visible' }}><div ref={boxIn} className="dm-grow">
       {deleted
-        ? <div className="dm-cxm" data-dm=""><div className="dm-cxm-gone">Reply deleted<button type="button" className="dm-pill dm-ghost dm-sm" onClick={() => setDeleted(false)}>Undo</button></div></div>
+        ? <div className="dm-cxm" data-dm=""><div className="dm-cxm-gone dm-enter">Reply deleted<button type="button" className="dm-pill dm-ghost dm-sm" onClick={() => { setDeleted(false); setNote('Reply restored'); }}>Undo</button></div></div>
         : <ContextMenu items={items} onSelect={select} label="Reply actions" targetLabel="Agent reply. Press Shift+F10 for actions">
-            <div className="dm-cxm-hd"><span className="dm-cxm-av"><Icon name="spark" /></span><b>Agent</b><span className="dm-muted dm-num">2:14 pm</span>{pinned && <span className="dm-cxm-pin"><Icon name="pin" />Pinned</span>}</div>
+            <div className="dm-cxm-hd"><span className="dm-cxm-av"><Icon name="spark" /></span><b>Agent</b><span className="dm-muted dm-num">2:14 pm</span>{ok && <span className={ok.out ? 'dm-cxm-ok dm-out' : 'dm-cxm-ok'}><Icon name="check" size="xs" /><span>{ok.text}</span></span>}{pinned && <span className="dm-cxm-pin"><Icon name="pin" />Pinned</span>}</div>
             <p className="dm-cxm-tx">{TEXT}</p>
             <div className="dm-cxm-out" aria-live="polite">{out && <div className="dm-cxm-res dm-enter"><span className="dm-k"><Icon name={ASK[out.k][1]} size="xs" /><span className={out.busy ? 'dm-shim' : undefined}>{out.busy ? `Writing a ${ASK[out.k][0].toLowerCase()}` : ASK[out.k][0]}</span></span><span>{out.text}</span></div>}</div>
           </ContextMenu>}
-      <p className="dm-cxm-note dm-muted" data-dm="" aria-live="polite">{note}</p>
-    </div>
+      <p className="dm-cxm-note" data-dm="" aria-live="polite">{note}</p>
+    </div></div>
   );
 }
 ```
@@ -176,6 +189,8 @@ import { cx } from '../lib/cx';
 import { useIsoLayoutEffect } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
 import '../designme.css';
+// its menus' rows glide in Clean
+import '../lib/glide';
 import './context-menu.css';
 
 export interface ContextMenuItem {
@@ -213,6 +228,16 @@ export interface ContextMenuProps {
 
 type At = { x: number; y: number; keyed: boolean };
 
+/** The room a menu may open into: the window, cut by any box round the target that clips what spills out of it */
+function roomOf(el: HTMLElement) {
+  let top = 0, bottom = innerHeight;
+  for (let a = el.parentElement; a && a !== document.documentElement; a = a.parentElement) {
+    if (getComputedStyle(a).overflowY === 'visible') continue;
+    const r = a.getBoundingClientRect(); top = Math.max(top, r.top); bottom = Math.min(bottom, r.bottom);
+  }
+  return { top, bottom };
+}
+
 /** A menu that opens where you right-click, long-press, or press Shift+F10 or the Menu key, with a submenu, a checkable item and a delete that asks again. */
 export function ContextMenu({ items, onSelect, label = 'Actions', targetLabel = 'Press Shift+F10 for actions', targetClassName = 'dm-cxm-msg dm-panel', children, className }: ContextMenuProps) {
   const root = useRef<HTMLDivElement>(null), target = useRef<HTMLDivElement>(null), menu = useRef<HTMLDivElement>(null), subMenu = useRef<HTMLDivElement>(null);
@@ -229,8 +254,11 @@ export function ContextMenu({ items, onSelect, label = 'Actions', targetLabel = 
     const rb = root.current!.getBoundingClientRect(), { lo, hi } = bounds(), w = m.offsetWidth, h = m.offsetHeight;
     if (rb.left + x + w > hi) x -= w;
     x = Math.max(lo - rb.left, Math.min(x, hi - rb.left - w));
-    // near the foot of the screen it opens upward, but only where it fits over the target, so it never covers what is above
-    const up = rb.top + y + h > innerHeight - 8 && y - h >= 0 && rb.top + y - h > 8; if (up) y -= h;
+    // short of room below (the screen's foot, or a box round it that would cut it off), it opens upward from the point; where
+    // neither way fits, it moves up just enough to end inside the room, so it is never cut off
+    const room = roomOf(root.current!), top = room.top + 8 - rb.top, bottom = room.bottom - 8 - rb.top;
+    let up = false;
+    if (y + h > bottom) { if (y - h >= top) { y -= h; up = true; } else y = Math.max(top, bottom - h); }
     m.style.left = x + 'px'; m.style.top = y + 'px'; m.style.setProperty('--dm-origin', (up ? 'bottom ' : 'top ') + 'left');
   };
   useIsoLayoutEffect(() => { if (at && menu.current) { fit(menu.current, at.x, at.y); if (at.keyed) itemsOf(menu.current)[0]?.focus({ preventScroll: true }); } }, [at]);

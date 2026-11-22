@@ -33,11 +33,11 @@ A score out of 100 with what goes into it on show. The gauge is split into one s
 
 ### What it does
 
-- A half-circle gauge split by weight, with a small gap between segments, each filled to earned / weight in the chart palette.
-- The score counts up to the total of the earned points, with a band word (Excellent from 90, Good from 75, Fair from 60, else Needs work) and the change against `previous` as a green or red tag.
-- Rows with the factor's colour, name, earned / weight, a bar and the agent's note; the weakest factor (the lowest share of its weight) has a Weakest tag.
+- A half-circle gauge split by weight, with a small gap between segments, each filled to earned / weight in the chart palette. Soft draws the segments with round ends, Blueprint and Clean with square ones (Clean's gauge is thinner).
+- The score counts up to the total of the earned points, with a band word (Excellent from 90, Good from 75, Fair from 60, else Needs work) and the change against `previous` as a green or red tag. Until the gauge draws, the band word reads Scoring with a moving highlight.
+- Rows with the factor's colour key (its segment's colour in the gauge), name, earned / weight, a bar in the accent (white in Clean's dark mode) on a neutral track and the agent's note; the weakest factor (the lowest share of its weight) has a Weakest tag.
 - Pointing at a row or its segment, or moving the focus into a row, lights both and dims the other segments.
-- A row opens to say how many points it loses; with `improvable` and `onImprove` it has Improve. While the proposal is on its way the row says what the agent is doing, then shows the proposal, what it gains and the new points, with Apply and Not now.
+- A row opens to say how many points it loses; with `improvable` and `onImprove` it has Improve. While the proposal is on its way the row says what the agent is doing, then shows the proposal, what it gains and the new points, with Apply and Not now. The open row eases to each new height.
 - Apply calls `onApply`; update the factor and the gauge, the score and the rows move to the new values. The open rows can be controlled with `open` and `onOpenChange`.
 
 ### Accessibility
@@ -136,11 +136,12 @@ Health score is an account's health at a glance: a small ring, four factor rows 
 
 ```tsx
 'use client';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable, useTween } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { Fold, Swap } from '../lib/motion';
+import { Fold, Swap, useGrow } from '../lib/motion';
+import { useHoverGlide } from '../lib/glide';
 import '../designme.css';
 import './score-breakdown.css';
 
@@ -205,6 +206,12 @@ function Segment({ a0, a1, share, color, on, onPoint }: { a0: number; a1: number
   );
 }
 
+/** An open row's detail: it eases to its new height when what it says changes (the agent looking, its proposal, the result) */
+function Detail({ children }: { children: ReactNode }) {
+  const [box, inner] = useGrow();
+  return <div ref={box} className="dm-sbx-d dm-growing"><div ref={inner} className="dm-grow">{children}</div></div>;
+}
+
 /** A score out of 100 whose gauge is split by what goes into it, each part filled by the points it earned, with the weakest flagged and an agent's fix one click away. */
 export function ScoreBreakdown({ factors, title = 'Quality score', previous, since = 'since last week', open, defaultOpen = [], onOpenChange, onImprove, onApply, improvingLabel = 'Looking into it', className }: ScoreBreakdownProps) {
   const [opened, setOpened] = useControllable(open, defaultOpen, onOpenChange);
@@ -215,8 +222,14 @@ export function ScoreBreakdown({ factors, title = 'Quality score', previous, sin
   const total = factors.reduce((t, f) => t + f.earned, 0);
   const shown = useTween(drawn ? total : 0, 1000, 0);
   const weakest = factors.reduce((m, f, i) => f.earned / f.weight < factors[m].earned / factors[m].weight ? i : m, 0);
+  // a style with round ends (--dm-sbx-cap: Soft's) draws each part that much shorter at both ends, so the caps keep the gaps
+  const gauge = useRef<HTMLDivElement>(null), [cap, setCap] = useState(0);
+  useEffect(() => { if (gauge.current) setCap((parseFloat(getComputedStyle(gauge.current).getPropertyValue('--dm-sbx-cap')) || 0) / RAD); }, []);
+  // Clean's one hover: a highlight that glides from factor to factor; the lit and the open one keep their own
+  const listRef = useRef<HTMLDivElement>(null);
+  useHoverGlide(listRef, '.dm-sbx-r', { keep: '.dm-on,.dm-open' });
   let a = Math.PI;
-  const seg = factors.map(f => { const span = f.weight / 100 * Math.PI, s = [a + GAP / 2, a + span - GAP / 2]; a += span; return s; });
+  const seg = factors.map(f => { const span = f.weight / 100 * Math.PI, s = [a + GAP / 2 + cap, a + span - GAP / 2 - cap]; a += span; return s; });
   const d = previous === undefined ? null : total - previous;
   const improve = async (f: ScoreFactor) => {
     if (!onImprove) return;
@@ -227,7 +240,7 @@ export function ScoreBreakdown({ factors, title = 'Quality score', previous, sin
   return (
     <div data-dm="" className={cx('dm-sbx dm-panel', className)}>
       <div className="dm-sbx-top">
-        <div className={cx('dm-sbx-g', hot >= 0 && 'dm-hov')} role="meter" aria-label={title} aria-valuemin={0} aria-valuemax={100} aria-valuenow={total}
+        <div ref={gauge} className={cx('dm-sbx-g', hot >= 0 && 'dm-hov')} role="meter" aria-label={title} aria-valuemin={0} aria-valuemax={100} aria-valuenow={total}
           aria-valuetext={`${total} of 100, ${band(total).toLowerCase()}${d === null ? '' : `, ${d >= 0 ? 'up' : 'down'} ${Math.abs(d)} ${since}`}`}>
           <svg viewBox="0 0 200 108" aria-hidden="true">
             {factors.map((f, i) => <Segment key={f.key} a0={seg[i][0]} a1={seg[i][1]} share={drawn ? f.earned / f.weight : 0} color={PAL[i % PAL.length]} on={i === hot} onPoint={o => setHot(o ? i : -1)} />)}
@@ -235,10 +248,10 @@ export function ScoreBreakdown({ factors, title = 'Quality score', previous, sin
           <div className="dm-sbx-v"><b className="dm-num">{Math.round(shown)}</b><span className="dm-muted">of 100</span></div>
         </div>
         <div className="dm-sbx-s"><b>{title}</b>
-          <span className="dm-sbx-band"><Swap className="dm-muted">{drawn ? band(total) : 'Scoring'}</Swap>{d !== null && drawn && <span className={cx('dm-tag dm-num', d >= 0 ? 'dm-ok' : 'dm-bad')}>{d >= 0 ? '+' : '−'}{Math.abs(d)} {since}</span>}</span>
+          <span className="dm-sbx-band"><Swap className={cx('dm-muted', !drawn && 'dm-shim')}>{drawn ? band(total) : 'Scoring'}</Swap>{d !== null && drawn && <span className={cx('dm-tag dm-num', d >= 0 ? 'dm-ok' : 'dm-bad')}>{d >= 0 ? '+' : '−'}{Math.abs(d)} {since}</span>}</span>
         </div>
       </div>
-      <div className="dm-sbx-list" onPointerLeave={e => { if (!e.currentTarget.contains(document.activeElement)) setHot(-1); }} onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setHot(-1); }}>
+      <div ref={listRef} className="dm-sbx-list" onPointerLeave={e => { if (!e.currentTarget.contains(document.activeElement)) setHot(-1); }} onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setHot(-1); }}>
         {factors.map((f, i) => {
           const isOpen = opened.includes(f.key), lost = f.weight - f.earned, pr = props[f.key];
           return (
@@ -246,18 +259,18 @@ export function ScoreBreakdown({ factors, title = 'Quality score', previous, sin
               <button type="button" className="dm-sbx-rh" aria-expanded={isOpen} aria-label={`${f.label}: ${f.earned} of ${f.weight} points${i === weakest ? ', weakest' : ''}. ${f.note}`}
                 onClick={() => setOpened(isOpen ? opened.filter(k => k !== f.key) : [...opened, f.key])}>
                 <i style={{ background: PAL[i % PAL.length] }} /><span className="dm-n"><span>{f.label}</span>{i === weakest && <span className="dm-tag dm-warn">Weakest</span>}</span>
-                <span className="dm-e dm-num">{f.earned}/{f.weight}</span><span className="dm-bar"><i style={{ background: PAL[i % PAL.length], width: drawn ? f.earned / f.weight * 100 + '%' : 0 }} /></span>
+                <span className="dm-e dm-num">{f.earned}/{f.weight}</span><span className="dm-bar"><i style={{ width: drawn ? f.earned / f.weight * 100 + '%' : 0 }} /></span>
                 <Icon name="chev-r" size="xs" /><span className="dm-sbx-nt">{f.note}</span>
               </button>
               <Fold open={isOpen}>
-                <div className="dm-sbx-d">
+                <Detail>
                   {pr === 'busy' ? <div className="dm-sbx-pr dm-enter"><span className="dm-k"><Icon name="spark" size="xs" /><span className="dm-shim">{improvingLabel}</span></span></div>
                     : pr ? <div className="dm-sbx-pr"><span className="dm-k"><Icon name="spark" size="xs" />Proposal</span><span>{pr.text}</span>
                         <span className="dm-gain">{pr.gain ? pr.gain + ': ' : ''}{f.label} <b className="dm-num">{f.earned} → {pr.to}</b></span>
                         <span className="dm-acts"><button type="button" className="dm-pill dm-primary dm-sm" onClick={() => { drop(f.key); onApply?.(f, pr); }}>Apply</button><button type="button" className="dm-pill dm-ghost dm-sm" onClick={() => drop(f.key)}>Not now</button></span></div>
                     : <><span>{f.detail ? f.detail + ' ' : ''}{lost ? `Loses ${lost} of its ${f.weight} points` : 'Full marks'}{i === weakest && lost ? ', the most of any factor for its weight.' : '.'}</span>
                         {f.improvable && onImprove && <span className="dm-acts"><button type="button" className="dm-pill dm-soft dm-sm" onClick={() => improve(f)}><Icon name="wand" size="xs" />Improve</button></span>}</>}
-                </div>
+                </Detail>
               </Fold>
             </div>
           );
@@ -270,9 +283,9 @@ export function ScoreBreakdown({ factors, title = 'Quality score', previous, sin
 
 ## More in Charts and tables
 
-- [Line chart](https://designme.dev/components/line-chart.md): Two series over time with a hover readout and toggles.
+- [Line chart](https://designme.dev/components/line-chart.md): Today so far and projected, against yesterday, with a range switch, a project picker, toggles and a readout.
 - [Bar chart](https://designme.dev/components/bar-chart.md): Weekly agent runs, split by outcome, with a range switch.
-- [Donut chart](https://designme.dev/components/donut-chart.md): Where the agent's time went, by kind of task.
+- [Donut chart](https://designme.dev/components/donut-chart.md): Where the agent's time went this week, as a gauge against its budget, with a part you can select.
 - [Radial goals](https://designme.dev/components/radial-goals.md): Each agent's share of its own target as a ring, with the overall score in the middle.
 - [Funnel chart](https://designme.dev/components/funnel-chart.md): Signup to paid, with the biggest drop called out by the agent.
 - [Top pages](https://designme.dev/components/top-pages.md): Most visited pages with share of traffic and a quick sort.

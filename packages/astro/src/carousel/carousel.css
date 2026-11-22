@@ -18,28 +18,24 @@
 .crs-t b{font-weight:500}
 .crs-sub{font-size:12px}
 .crs-nav{width:32px;padding:0}
-@media (hover:hover) and (pointer:fine){.crs-nav:not(:disabled):hover{background:var(--dm-row)}}
+/* a hover is a quiet fill that shows in light mode, on the panel or on the stage (Clean's secondaries have their own) */
+@media (hover:hover) and (pointer:fine){.crs-c .pill.line:not([disabled],[aria-pressed="true"]):hover{background:color-mix(in srgb,var(--dm-fg) 5%,var(--dm-surface))}}
 .crs-tr{position:relative;display:flex;gap:var(--dm-gap,var(--dm-s-4));overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:calc(14px * var(--dm-rk-l,var(--dm-rk)))}
 .crs-tr::-webkit-scrollbar{display:none}
 .crs-c.panel>.crs-tr{padding:0 var(--dm-s-4);scroll-padding-inline:var(--dm-s-4);border-radius:0}
 .crs-c.panel>.crs-tr:focus-visible{outline-offset:-2px;border-radius:var(--dm-r-in)}
 .crs-tr.drag{scroll-snap-type:none;cursor:grabbing;user-select:none;-webkit-user-select:none}
-.crs-s{flex:0 0 var(--dm-w,80%);min-width:0;display:flex;scroll-snap-align:start;transition:opacity .35s var(--dm-ease)}
+.crs-s{flex:0 0 var(--dm-w,80%);min-width:0;display:flex;scroll-snap-align:start}
 .crs-c[data-align="center"] .crs-s{scroll-snap-align:center}
 .crs-fig{flex:1;min-width:0;margin:0;display:flex;flex-direction:column;background:var(--dm-surface);border:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);border-radius:calc(14px * var(--dm-rk-l,var(--dm-rk)));overflow:hidden;transition:border-color var(--dm-t-fast)}
 .crs-c.panel .crs-fig{border-radius:var(--dm-r-in)}
-/* the picture (or, for a draft, its frame): out of view it is soft and faded, clipped to its frame so the blur never spills
-   onto the caption; in view it comes into focus */
-.crs-pic,.crs-pv{position:relative;aspect-ratio:var(--dm-ar,3/2);height:var(--dm-h,auto);background-color:var(--dm-row);clip-path:inset(0);transition:filter .7s var(--dm-ease),opacity .7s var(--dm-ease)}
+/* the picture (or, for a draft, its frame), clipped to its frame. A slide peeking in at the edge shows in its full colours,
+   as every other slide does: nothing is faded or blurred to say it is out of view (owner, 20 Nov) */
+.crs-pic,.crs-pv{position:relative;aspect-ratio:var(--dm-ar,3/2);height:var(--dm-h,auto);background-color:var(--dm-row);clip-path:inset(0)}
 .crs-pic{background-image:var(--dm-art);background-size:cover;background-position:center}
-.crs-s:not(.in) :is(.crs-pic,.crs-pv){filter:blur(10px);opacity:.6}
-/* Blueprint's veil, the surface over a picture that is out of view, wipes off from the left as the picture comes in */
-.crs-pic::after,.crs-pv::after{content:"";position:absolute;inset:0;z-index:1;background:var(--dm-surface);opacity:0;clip-path:inset(0 0 0 100%);pointer-events:none}
-:root:not([data-style="soft"],[data-style="clean"]) .crs-s:not(.in) :is(.crs-pic,.crs-pv):not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){opacity:1}
-:root:not([data-style="soft"],[data-style="clean"]) :is(.crs-pic,.crs-pv):not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *))::after{opacity:.6;transition:clip-path var(--dm-t-slow) var(--dm-ease)}
-:root:not([data-style="soft"],[data-style="clean"]) .crs-s:not(.in) :is(.crs-pic,.crs-pv):not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *))::after{clip-path:inset(0)}
-/* the caption: the title over a quieter line, as a draft's label sits over its meta, so every slide keeps one height */
-.crs-cap{display:flex;flex-direction:column;padding:10px var(--dm-s-3);font-size:13px;line-height:1.35}
+/* the caption: the title over a quieter line, as a draft's label sits over its meta, so every slide keeps one height. Its
+   words sit 16px in from the slide's outer edges (its 1px border included), as on every card */
+.crs-cap{display:flex;flex-direction:column;padding:var(--dm-s-3) calc(var(--dm-s-4) - 1px) calc(var(--dm-s-4) - 1px);font-size:13px;line-height:1.35}
 .crs-cap b{font-weight:500;color:var(--dm-fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .crs-cap .muted{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* a draft is a 3:2 frame that holds its picture once it arrives (owner, 4 Nov). Until then it is a grey frame with an image
@@ -47,7 +43,7 @@
    into focus over the last of them as it lands. The picture waits in the frame from the start, unseen (.pre), so its colours
    are there to build from */
 .crs-pv{padding:var(--dm-s-4);display:flex;flex-direction:column;justify-content:center;gap:6px;overflow:hidden}
-.crs-pv>.ph{align-self:center;width:24px;height:24px;color:var(--dm-faint)}
+.crs-pv>.ph{align-self:center;width:24px;height:24px;color:var(--dm-muted)}
 .crs-pv.gen>.ph{animation:crsph .5s var(--dm-ease) forwards}
 @keyframes crsph{to{opacity:0;transform:scale(.8)}}
 .crs-px{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
@@ -64,18 +60,27 @@
 .crs-pv.fail .pill{margin-top:6px}
 .crs-pv.fail>*{animation:crsup .4s var(--dm-ease) both}
 @keyframes crsup{from{opacity:0;transform:translateY(4px)}}
-.crs-f{display:flex;align-items:center;gap:var(--dm-s-2);min-height:28px;padding:10px var(--dm-s-3)}
+/* 16px from the slide's outer edge, its 1px border included */
+.crs-f{display:flex;align-items:center;gap:var(--dm-s-2);min-height:28px;padding:var(--dm-s-3) calc(var(--dm-s-4) - 1px) calc(var(--dm-s-4) - 1px)}
 .crs-f>div{flex:1;min-width:0;display:flex;flex-direction:column;font-size:13px;line-height:1.35}
 .crs-f b{font-weight:500}
 .crs-f .muted{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
 .crs-f .tag .spin{width:9px;height:9px}
+.crs-f .shim,.crs-sub.shim{font-size:inherit}
+/* kept: its button fills and its frame's edge steps up; the other drafts stay as they are, in their full colours (nothing
+   fades to say it was not picked, owner 20 Nov) */
 .crs-keep[aria-pressed="true"]{background:var(--dm-accent);color:var(--dm-on-accent);box-shadow:none}
-.crs-c.kept .crs-s:not(.kept){opacity:.45}
 .crs-s.kept .crs-fig{border-color:color-mix(in srgb,var(--dm-pick-on) 70%,transparent)}
+/* nothing in it grows or shrinks when pressed */
+.crs-c :is(.pill,.ib):active{transform:none}
+/* Clean: Keep is chrome, so it stays the white button; kept, its edge is a step stronger and its tick the vivid green */
+:root[data-style="clean"] .pill.crs-keep[aria-pressed="true"]:not([disabled]),:root [data-style="clean"] .pill.crs-keep[aria-pressed="true"]:not([disabled]),:root [data-style="clean"].pill.crs-keep[aria-pressed="true"]:not([disabled]){background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-fg) 26%,transparent)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .pill.crs-keep[aria-pressed="true"]:not([disabled]):hover,:root [data-style="clean"] .pill.crs-keep[aria-pressed="true"]:not([disabled]):hover,:root [data-style="clean"].pill.crs-keep[aria-pressed="true"]:not([disabled]):hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-fg) 26%,transparent)}}
+:root[data-style="clean"] .crs-keep[aria-pressed="true"] .i,:root [data-style="clean"] .crs-keep[aria-pressed="true"] .i,:root [data-style="clean"].crs-keep[aria-pressed="true"] .i{color:var(--dm-ok-mark)}
 .crs-dots{display:flex;justify-content:center;gap:6px}
 .crs-dots[hidden]{display:none}
-.crs-dots button{width:6px;height:6px;border-radius:var(--dm-r-pill);background:var(--dm-rail);transition:width var(--dm-t) var(--dm-ease),background var(--dm-t-fast)}
-@media (hover:hover) and (pointer:fine){.crs-dots button:hover{background:var(--dm-faint)}}
+/* the dots hold 3:1 against the surface; the current one is longer and darker */
+.crs-dots button{width:6px;height:6px;border-radius:var(--dm-r-pill);background:color-mix(in srgb,var(--dm-muted) 72%,var(--dm-surface));transition:width var(--dm-t) var(--dm-ease),background-color var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){.crs-dots button:hover{background:var(--dm-muted)}}
 .crs-dots button[aria-current="true"]{width:16px;background:var(--dm-fg2)}
 .crs-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-@media (prefers-reduced-motion:reduce){:is(.crs-pic,.crs-pv),:is(.crs-pic,.crs-pv)::after,:root:not([data-style="soft"],[data-style="clean"]) :is(.crs-pic,.crs-pv):not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *))::after{transition:none}}

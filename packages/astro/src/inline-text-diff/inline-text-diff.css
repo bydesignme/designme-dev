@@ -8,22 +8,68 @@
 .itd-ht b{font-weight:500;font-size:14px}
 .itd-st{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .itd-a{display:flex;gap:6px;flex:none}
+/* a narrow card (a phone) gives the title and the count their whole line, and the two buttons a row of their own under
+   them, ending on the content's right edge, so the count is never cut short */
+.itd{container-type:inline-size}
+@container (max-width:300px){.itd-h{flex-wrap:wrap;row-gap:var(--dm-s-3)}.itd-ht{flex:1 1 100%}.itd-a{margin-left:auto}}
 .itd-t{margin:0;font-size:14px;line-height:1.8;color:var(--dm-fg)}
-.itd-c{padding:2px 1px;border-radius:var(--dm-r-tiny,5px);cursor:pointer;outline:0;transition:background .16s;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+/* an edit's words start where the line starts (the text's own column), so their tints reach out round them with a shadow
+   rather than pushing them in with padding */
+.itd-c{padding:2px 0;border-radius:var(--dm-r-tiny,5px);cursor:pointer;outline:0;transition:background .16s;-webkit-box-decoration-break:clone;box-decoration-break:clone}
 .itd-c.on{background:var(--dm-row)}
 @media (hover:hover) and (pointer:fine){.itd-c:hover{background:var(--dm-row)}}
 .itd-c:focus-visible{box-shadow:0 0 0 2px var(--dm-focus)}
-.itd-c del{color:var(--dm-del);text-decoration:line-through;text-decoration-thickness:1px;background:color-mix(in srgb,var(--dm-del) 9%,transparent);border-radius:var(--dm-r-tiny,3px);padding:0 2px}
-.itd-c ins{color:var(--dm-add);text-decoration:none;background:color-mix(in srgb,var(--dm-add) 11%,transparent);border-radius:var(--dm-r-tiny,3px);padding:0 2px;margin-left:3px}
-.itd-c.unsure ins{color:var(--dm-warn);background:var(--dm-warn-bg)}
+/* removed words in the red text colour on its tint, struck with the bright red mark; added words in the green text colour on
+   its tint (each 4.5:1 on its tint); an addition the agent isn't sure of in the warning's text colour on its tint */
+/* (each tint is laid over the surface, so the quiet fill under an open edit never shows through it and lowers its contrast;
+   the 2px of padding round the words is taken back by a margin, so the words keep their place on the line) */
+.itd-c del{color:var(--dm-bad);text-decoration:line-through;text-decoration-color:var(--dm-bad-mark);text-decoration-thickness:1px;background:linear-gradient(var(--dm-bad-bg),var(--dm-bad-bg)),var(--dm-surface);border-radius:var(--dm-r-tiny,3px);padding:0 2px;margin:0 6px 0 -2px}
+.itd-c ins{color:var(--dm-ok);text-decoration:none;background:linear-gradient(var(--dm-ok-bg),var(--dm-ok-bg)),var(--dm-surface);border-radius:var(--dm-r-tiny,3px);padding:0 2px;margin-left:-2px}
+.itd-c.unsure ins{color:var(--dm-warn);background:linear-gradient(var(--dm-warn-bg),var(--dm-warn-bg)),var(--dm-surface)}
 .itd-c.acc del,.itd-c.rej ins{display:none}
 .itd-c.acc ins,.itd-c.rej del{color:inherit;background:none;text-decoration:none;margin:0;padding:0}
+/* no room is kept for the end (owner, 18 Nov): the card eases shorter as edits fold into the text and grows for the note at
+   the end (grow()); the toolbar opens out of it, so nothing clips it */
+.itd.growing{overflow:visible}
+/* an edit's toolbar opens under its last line, or over its first when the stage has no room below */
 .itd-bar{position:absolute;left:0;top:0;z-index:5;display:flex;flex-direction:column;gap:var(--dm-s-2);padding:var(--dm-s-2);width:max-content;max-width:260px;border-radius:var(--dm-r-in);background:var(--dm-raised);box-shadow:var(--dm-shadow-pop);opacity:0;transform:translateY(-4px);visibility:hidden;pointer-events:none;transition:opacity .16s,transform .32s var(--dm-ease),visibility 0s .32s}
+.itd-bar.up{transform:translateY(4px)}
 .itd-bar.open{opacity:1;transform:none;visibility:visible;pointer-events:auto;transition-delay:0s}
-.itd-why{margin:0;display:flex;gap:6px;font-size:13px;line-height:1.45;color:var(--dm-warn)}
-.itd-why svg{flex:none;margin-top:3px}
+/* an edit the agent isn't sure of: its toolbar is a warning notice (owner, 18 Nov): a faint warning tint, the filled warning
+   sign in the bright orange, the words in the text colour, and the answer that settles it, Reject, as .pill.warn, with Accept
+   the white button beside it */
+.itd-bar.unsure{background:linear-gradient(color-mix(in srgb,var(--dm-warn-bg) 45%,transparent),color-mix(in srgb,var(--dm-warn-bg) 45%,transparent)),var(--dm-surface)}
+.itd-why{margin:0;display:flex;gap:var(--dm-s-2);padding:2px 2px 0;font-size:12.5px;line-height:18px;color:var(--dm-fg)}
+.itd-wi{width:16px;height:16px;flex:none;margin-top:1px;overflow:visible}
+/* (a step of --dm-warn in the bright orange keeps the sign at 3:1 on the notice's tint, as Attachment tray's strip tick does) */
+.itd-wi .a{fill:color-mix(in srgb,var(--dm-warn-mark) 85%,var(--dm-warn));stroke:color-mix(in srgb,var(--dm-warn-mark) 85%,var(--dm-warn));stroke-width:2;stroke-linejoin:round}
+.itd-wi .b{fill:none;stroke:var(--dm-surface);stroke-width:2.2;stroke-linecap:round}
 .itd-bb{display:flex;gap:6px}
-.itd-f{margin:0;display:flex;align-items:center;gap:6px;font-size:13px;min-height:20px}
-.itd-f svg{color:var(--dm-ok)}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .itd.panel,:root [data-style="clean"] .itd.panel,:root [data-style="clean"].itd.panel{padding:18px 20px 0px 20px}
+.itd-bar.unsure .itd-bb{justify-content:flex-end}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink primary alone presses */
+.itd .pill:active{transform:none}
+.itd-bar.unsure .itd-acc{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-on-tint-btn)}
+@media (hover:hover) and (pointer:fine){.itd-bar.unsure .itd-acc:hover{background:var(--dm-surface);box-shadow:var(--dm-on-tint-btn-h)}}
+/* the end: a neutral line with the green tick (owner, 18 Nov), only once every edit is decided */
+/* the line saying how the review went sits under a hairline in Soft and Blueprint (owner, 21 Nov), 12px from it on each side */
+.itd-f{margin:0;display:flex;align-items:center;gap:6px;padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13px;line-height:20px;color:var(--dm-fg)}
+.itd-f:empty{display:none}
+/* Clean: the line saying how the review went is the card's off-white foot strip (owner, 21 Nov), its words 16px in */
+:root[data-style="clean"] .itd-f,:root [data-style="clean"] .itd-f,:root [data-style="clean"].itd-f{padding-top:0;border-top:0}
+:root[data-style="clean"] .itd.panel .itd-f,:root [data-style="clean"] .itd.panel .itd-f,:root [data-style="clean"].itd.panel .itd-f{margin:var(--dm-s-1) -16px -16px;padding:13px 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card);line-height:18px}
+/* empty, it takes no room (the gap above it is taken back) but stays in place, so the end is read out when it comes */
+.itd-f:empty{min-height:0;margin-top:calc(-1 * var(--dm-s-3))}
+.itd-f svg{flex:none;color:var(--dm-ok-mark)}
+/* Clean (owner, 19 Nov): its content 16px from every edge; the toolbar is a round popover, its corners concentric with its
+   28px buttons 8px in (22px), scaling and fading from the edit; on an unsure edit Accept is Clean's flat white button */
+:root[data-style="clean"] .itd.panel,:root [data-style="clean"] .itd.panel,:root [data-style="clean"].itd.panel{padding:16px}
+:root[data-style="clean"] .itd-ht b,:root [data-style="clean"] .itd-ht b,:root [data-style="clean"].itd-ht b{line-height:20px}
+:root[data-style="clean"] .itd-st,:root [data-style="clean"] .itd-st,:root [data-style="clean"].itd-st{line-height:18px}
+:root[data-style="clean"] .itd-c,:root [data-style="clean"] .itd-c,:root [data-style="clean"].itd-c{transition:background-color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .itd-bar,:root [data-style="clean"] .itd-bar,:root [data-style="clean"].itd-bar{border-radius:var(--dm-r-card);transform:translateY(-4px) scale(.96);transform-origin:top left;transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease),visibility 0s var(--dm-t)}
+:root[data-style="clean"] .itd-bar.up,:root [data-style="clean"] .itd-bar.up,:root [data-style="clean"].itd-bar.up{transform:translateY(4px) scale(.96);transform-origin:bottom left}
+:root[data-style="clean"] .itd-bar.open,:root [data-style="clean"] .itd-bar.open,:root [data-style="clean"].itd-bar.open{transform:none;transition-delay:0s}
+:root[data-style="clean"] .itd-bar.unsure .itd-acc,:root [data-style="clean"] .itd-bar.unsure .itd-acc,:root [data-style="clean"].itd-bar.unsure .itd-acc{color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .itd-bar.unsure .itd-acc:hover,:root [data-style="clean"] .itd-bar.unsure .itd-acc:hover,:root [data-style="clean"].itd-bar.unsure .itd-acc:hover{color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .itd-bar.unsure .itd-acc:hover,:root [data-style="clean"] .itd-bar.unsure .itd-acc:hover,:root [data-style="clean"].itd-bar.unsure .itd-acc:hover{box-shadow:var(--dm-btn2-hover)}}
+:root[data-style="clean"] .itd-bar.unsure .itd-acc:active,:root [data-style="clean"] .itd-bar.unsure .itd-acc:active,:root [data-style="clean"].itd-bar.unsure .itd-acc:active{box-shadow:var(--dm-btn2-press)}

@@ -34,11 +34,12 @@ A search box with a list of commands under it, grouped by heading, where a perso
 
 ### What it does
 
-- Filters `items` as you type, matching the letters of the query in order anywhere in the label, and marks the matching letters in the accent. Rows that come into the list rise in a short cascade.
-- Lists commands under their `group` heading, each with an icon on a tile in its `tone` (blue, purple, green, orange, red, yellow, pink or teal, grey when left out), an optional quiet `hint` after the label, and optional `keys` shown as keyboard chips.
+- Filters `items` as you type, matching the letters of the query in order anywhere in the label, and marks the matching letters in the accent (in Clean, in the text colour a step heavier). Rows that come into the list rise in a short cascade.
+- Lists commands under their `group` heading, each with an icon on a tile in its `tone` (blue, purple, green, orange, red, yellow, pink or teal, grey when left out; Clean draws every tile grey), an optional quiet `hint` after the label, and optional `keys` shown as keyboard chips.
 - A grey highlight glides to the row the arrows or the pointer are on, and the keyboard chips on it turn white.
 - Adds an "Ask the agent" row at the end whenever the box has text, with the text in quotes and Enter shown while it is highlighted, which calls `onAsk` with that text.
-- Runs the highlighted command on click or Enter and calls `onRun` with it. The command's tile spins for a beat, then the footer says what ran, or shows your own `status` text.
+- Runs the highlighted command on click or Enter and calls `onRun` with it. The command's tile spins for a beat, then the footer says what ran on its left, beside the keys, or shows your own `status` text.
+- The list is as tall as the rows it shows, up to about six, and scrolls beyond that, its last row fading at the edge. The palette eases to its new height as a search narrows or widens it.
 - Works controlled through `query` and `onQueryChange`, or holds its own text with `defaultQuery`.
 
 ### Accessibility
@@ -156,6 +157,8 @@ import { Fragment, useEffect, useId, useRef, useState, type CSSProperties, type 
 import { cx } from '../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
+import { useGrow } from '../lib/motion';
+import { useHoverGlide } from '../lib/glide';
 import '../designme.css';
 import './command-palette.css';
 
@@ -231,6 +234,8 @@ export function CommandPalette({ items, query, defaultQuery = '', onQueryChange,
   useEffect(() => { setReady(true); }, []);
 
   const list = useRef<HTMLDivElement>(null);
+  // Clean's one hover: a highlight that glides from row to row (Clean hides the palette's own)
+  useHoverGlide(list, '.dm-cpl-i');
   const btns = useRef<(HTMLButtonElement | null)[]>([]);
   const id = useId(), reduce = useReducedMotion();
   const [top, setTop] = useState<{ for: string; px: number }>();
@@ -247,13 +252,13 @@ export function CommandPalette({ items, query, defaultQuery = '', onQueryChange,
 
   const move = (d: number) => { if (rows.length) setHi({ at: (at + d + rows.length) % rows.length, for: v }); };
   const run = (i: number) => {
-    const row = rows[i], b = btns.current[i];
+    const row = rows[i];
     if (row === undefined) return;
     if (row) onRun?.(row); else onAsk?.(v);
     const said = row ? 'Ran: ' + row.label : 'Sent to the agent', k = row ? row.group + row.label : '\u0000ask';
     setBusy(k); clearTimeout(timer.current);
+    // (nothing in it scales when pressed, owner 18 Nov)
     timer.current = setTimeout(() => { setBusy(b => b === k ? undefined : b); setRan(said); }, reduce ? 0 : 650);
-    b?.animate?.([{ transform: 'scale(1)' }, { transform: 'scale(.98)' }, { transform: 'scale(1)' }], { duration: 260, easing: 'ease-out' });
   };
   const key = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'ArrowDown') { move(1); e.preventDefault(); }
@@ -262,9 +267,13 @@ export function CommandPalette({ items, query, defaultQuery = '', onQueryChange,
     else if (e.key === 'Escape') { if (q) setQ(''); else onClose?.(); }
   };
 
+  // no room is kept for a longer list (owner, 18 Nov): the box is as tall as what it shows and eases to its new height as a
+  // search narrows or widens it (as grow() on the site)
+  const [box, inner] = useGrow();
   let group = '';
   return (
-    <div data-dm="" className={cx('dm-cpl dm-panel', className)}>
+    <div data-dm="" ref={box} className={cx('dm-cpl dm-panel dm-growing', className)}>
+      <div ref={inner} className="dm-grow">
       <div className="dm-cpl-in">
         <Icon name="search" />
         {/* the box keeps the focus and points at the highlighted row, so the rows are not tab stops */}
@@ -298,10 +307,12 @@ export function CommandPalette({ items, query, defaultQuery = '', onQueryChange,
           );
         })}
       </div>
+      {/* what ran last on the left, the keys on the right */}
       <div className="dm-cpl-f dm-muted">
+        <span className="dm-cpl-st">{(status ?? ran) && <span key={status ?? ran} className="dm-enter"><span className="dm-dot" aria-hidden="true" />{status ?? ran}</span>}</span>
         <span><span className="dm-kbd">↑</span><span className="dm-kbd">↓</span> move</span>
         <span><span className="dm-kbd">↵</span> run</span>
-        <span className="dm-cpl-st">{(status ?? ran) && <span key={status ?? ran} className="dm-enter"><span className="dm-dot" aria-hidden="true" />{status ?? ran}</span>}</span>
+      </div>
       </div>
     </div>
   );

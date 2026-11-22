@@ -35,16 +35,17 @@ Agenda lists today's events in time order, with a line that marks where now fall
 ### What it does
 
 - Each row shows the time, title, a quiet detail line and avatars for the people attending.
-- Items marked `past` fade back, and the now line with the `now` time sits right after the last past item.
+- Items marked `past` fade back, and the now line sits right after the last past item: the `now` time as a grey chip in the times' column, then a line from the bars to the right edge.
 - Opening an item reveals its `notes` one by one; items without notes do not open.
 - An `action` adds a pill at the end of the notes, like "Join in 48 min", that calls its own `onClick` without closing the row.
-- Only one item is open at a time, and you can control which with `open` and `onOpenChange` or let each row toggle itself.
-- The corner tag counts the events for you unless you pass your own `count` text.
+- Only one item is open at a time, and you can control which with `open` and `onOpenChange` or let each row toggle itself. The card eases to its new height as notes open and fold away.
+- `count` adds a grey chip in the head's corner, like "3 left". There is none by default, since the list already shows its events.
 
 ### Accessibility
 
 - Each event is a native button, so it is reachable with Tab and opens with Enter or Space.
 - Events that have notes carry `aria-expanded`, which reports whether their notes are open.
+- The now line is a separator labelled with the time, like "Now, 10:42".
 - Attendee avatars are marked `aria-hidden`, so screen readers skip the initials.
 
 ## Usage in React
@@ -93,7 +94,7 @@ export default function AgendaDemo() {
 | `items` | `AgendaItem[]` |  |
 | `title` (optional) | `string` | Like "Today" |
 | `subtitle` (optional) | `string` | Under the title, like "Monday, Oct 19" |
-| `count` (optional) | `string` | The tag in the corner. Defaults to "4 events" |
+| `count` (optional) | `string` | A grey chip in the head's corner, like "3 left". Leave it out for none (the list already shows how many there are) |
 | `now` (optional) | `string` | The time on the now line, like "10:42". Leave it out for no line |
 | `open` (optional) | `string \| null` | The item whose notes are open, by key. Leave it out to let each item toggle |
 | `defaultOpen` (optional) | `string \| null` |  |
@@ -131,11 +132,12 @@ Yes. `notes` is an array of React nodes, so each note can be plain text or your 
 
 ```tsx
 'use client';
-import type { ReactNode } from 'react';
+import { useRef, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { Avatar, enter } from '../lib/motion';
+import { Avatar, enter, useGrow } from '../lib/motion';
+import { useHoverGlide } from '../lib/glide';
 import '../designme.css';
 import './agenda.css';
 
@@ -170,7 +172,7 @@ export interface AgendaProps {
   title?: string;
   /** Under the title, like "Monday, Oct 19" */
   subtitle?: string;
-  /** The tag in the corner. Defaults to "4 events" */
+  /** A grey chip in the head's corner, like "3 left". Leave it out for none (the list already shows how many there are) */
   count?: string;
   /** The time on the now line, like "10:42". Leave it out for no line */
   now?: string;
@@ -186,6 +188,11 @@ const keyOf = (item: AgendaItem) => item.key ?? item.title;
 /** Today's events in order, with a line for now. Open one to see what the agent prepared for it. */
 export function Agenda({ items, title = 'Today', subtitle, count, now, open, defaultOpen = null, onOpenChange, className }: AgendaProps) {
   const [opened, setOpened] = useControllable(open, defaultOpen, onOpenChange);
+  // the card eases to its new height as an item's notes open or fold away
+  const [root, inner] = useGrow();
+  // Clean's one hover: a highlight that glides from event to event; the open one keeps its own
+  const list = useRef<HTMLDivElement>(null);
+  useHoverGlide(list, '.dm-agx-e', { keep: '.dm-open' });
   // the now line goes after the last item that is over
   const lastPast = items.reduce((at, item, i) => item.past ? i : at, -1);
   // rows and the now line stagger in together, in the order they sit
@@ -215,17 +222,19 @@ export function Agenda({ items, title = 'Today', subtitle, count, now, open, def
   };
 
   return (
-    <div data-dm="" className={cx('dm-agx dm-panel', className)}>
-      <div className="dm-agx-h">
-        <div><b>{title}</b>{subtitle && <span className="dm-muted">{subtitle}</span>}</div>
-        <span className="dm-tag dm-b">{count ?? `${items.length} ${items.length === 1 ? 'event' : 'events'}`}</span>
-      </div>
-      <div className="dm-agx-list">
-        {items.flatMap((item, i) => {
-          const out = [row(item)];
-          if (now && i === lastPast) out.push(<div key="now" className="dm-agx-now dm-enter" style={enter(n++ * 60).style}><i />{now}</div>);
-          return out;
-        })}
+    <div data-dm="" ref={root} className={cx('dm-agx dm-panel dm-growing', className)}>
+      <div ref={inner} className="dm-grow">
+        <div className="dm-agx-h">
+          <div><b>{title}</b>{subtitle && <span className="dm-muted">{subtitle}</span>}</div>
+          {count && <span className="dm-tag">{count}</span>}
+        </div>
+        <div ref={list} className="dm-agx-list">
+          {items.flatMap((item, i) => {
+            const out = [row(item)];
+            if (now && i === lastPast) out.push(<div key="now" className="dm-agx-now dm-enter" style={enter(n++ * 60).style} role="separator" aria-label={`Now, ${now}`}><span className="dm-tag dm-num">{now}</span><i /></div>);
+            return out;
+          })}
+        </div>
       </div>
     </div>
   );

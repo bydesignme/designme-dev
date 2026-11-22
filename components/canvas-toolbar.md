@@ -23,7 +23,7 @@ npx shadcn@latest add https://designme.dev/r/shadcn/astro/canvas-toolbar.json  #
 
 ## About
 
-Canvas toolbar is the floating toolbar of a workflow canvas, fixed at the bottom centre of a canvas that fills the component. It has Run (which turns into a red Stop while a run is going), the pointer tools Select, Hand and Lasso, Comment, Fit to screen, and zoom out and in with the zoom level between them. Every icon button shows its shortcut in its tooltip, and the shortcuts work while the canvas has the focus.
+Canvas toolbar is the floating toolbar of a workflow canvas, fixed at the bottom centre of a canvas that fills the component. It has Run (which turns into a red Stop while a run is going; Clean keeps its ink button), the pointer tools Select, Hand and Lasso, Comment, Fit to screen, and zoom out and in with the zoom level between them. Every icon button shows its shortcut in its tooltip, and the shortcuts work while the canvas has the focus.
 
 ### When to use it
 
@@ -34,7 +34,8 @@ Canvas toolbar is the floating toolbar of a workflow canvas, fixed at the bottom
 
 ### What it does
 
-- Run starts a run and turns into Stop, on a red fill, until the run ends. In the demo the steps light up one after another along their wires and the run stops by itself; in React, `onRun` and `onStop` call you, and you set `running`, each node's `state` and the `lit` wires as your run goes.
+- Run starts a run and turns into Stop, on a red fill (in Clean the ink button), until the run ends. In the demo the steps light up one after another along their wires, the run stops by itself and the wires go back to grey; in React, `onRun` and `onStop` call you, and you set `running`, each node's `state` and the `lit` wires as your run goes, and clear `lit` when it is over.
+- In Clean the pointer tools are a segmented switch (the tool in use on a white knob in a sunk grey track), the bar is drawn by a hairline with no lifted shadow, every hover is one grey fill that glides from button to button, and every step's tile is one neutral grey; Soft and Blueprint tint the tool in use with the accent and each tile with its step's colour.
 - Select, Hand and Lasso are one radio group. Select picks a step with a click (Shift adds to the pick), moves the picked steps by dragging, and draws a box round steps on empty canvas; Hand pans; Lasso picks the steps inside the shape you draw. The middle mouse button pans with any tool.
 - Comment is a toggle: the next click on the canvas drops a numbered pin there and turns it off. The HTML fires `canvas-comment` with the spot; in React `onComment` gets it, and `comments` holds the pins.
 - In HTML a pin is a button: a click on it opens its comment, which says the step it sits on or is near, with a Delete button. Delete, or the Delete or Backspace key on a focused pin, fades the pin out and fires `canvas-comment-delete` with its number.
@@ -89,10 +90,10 @@ export default function CanvasToolbarDemo() {
   const [states, setStates] = useState<Record<string, CanvasToolbarNode['state']>>({});
   const [lit, setLit] = useState<CanvasToolbarEdge[]>([]);
 
-  // Run lights each step in turn along its wire, then stops by itself; Stop ends it early
+  // Run lights each step in turn along its wire, then stops by itself and the wires go back to grey; Stop ends it early
   useScript(async ({ wait }) => {
-    // stopped: the step that was running goes back to waiting, the ones done keep their tick
-    if (run < 0) { setStates(s => Object.fromEntries(Object.entries(s).filter(([, v]) => v === 'done'))); return; }
+    // stopped: the step that was running goes back to waiting, the ones done keep their tick, and the wires go back to grey
+    if (run < 0) { setStates(s => Object.fromEntries(Object.entries(s).filter(([, v]) => v === 'done'))); setLit([]); return; }
     if (!run) return;
     setStates({}); setLit([]);
     for (let i = 0; i < NODES.length; i++) {
@@ -100,7 +101,7 @@ export default function CanvasToolbarDemo() {
       setStates(s => ({ ...s, [id]: 'run' })); await wait(i ? 700 : 450); setStates(s => ({ ...s, [id]: 'done' }));
       if (i < EDGES.length) { setLit(l => [...l, EDGES[i]]); await wait(250); }
     }
-    await wait(500); setRun(0);
+    await wait(500); setRun(0); setLit([]);
   }, [run]);
 
   // the preview's story. Your first click or key stops it, and the canvas is yours from wherever it got to
@@ -129,7 +130,7 @@ export default function CanvasToolbarDemo() {
 | --- | --- | --- |
 | `nodes` | `CanvasToolbarNode[]` |  |
 | `edges` (optional) | `CanvasToolbarEdge[]` |  |
-| `lit` (optional) | `CanvasToolbarEdge[]` | The wires a run has reached; they light up in the accent |
+| `lit` (optional) | `CanvasToolbarEdge[]` | The wires a run has reached; they light up in the accent. Clear it once the run is over, so they go back to grey |
 | `running` (optional) | `boolean` | Whether a run is going: Run turns into Stop, on a red fill |
 | `onRun` (optional) | `() => void` | Called by Run. The run is yours: set `running`, each node's state and `lit` as it goes, and `running` back to false |
 | `onStop` (optional) | `() => void` | Called by Stop |
@@ -191,13 +192,15 @@ So the toolbar never wraps or runs past a narrow canvas. Run and the three point
 
 ```tsx
 'use client';
-import { useEffect, useId, useImperativeHandle, useRef, useState, type FocusEvent as ReactFocusEvent, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent, type ReactNode, type Ref } from 'react';
+import { useEffect, useId, useImperativeHandle, useRef, useState, type CSSProperties, type FocusEvent as ReactFocusEvent, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent, type ReactNode, type Ref } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
 import { Tip } from '../lib/motion';
 import { usePopover } from '../lib/popover';
 import '../designme.css';
+// its menus' rows glide in Clean, and so do the bar's hovers
+import { useHoverGlide } from '../lib/glide';
 import './canvas-toolbar.css';
 
 /** The pointer tool: Select picks and moves steps or draws a box round them, Hand pans, Lasso draws a shape round what it picks */
@@ -221,7 +224,7 @@ export interface CanvasPoint {
 export interface CanvasToolbarNode {
   id: string;
   icon: IconName;
-  /** The icon's colour, like 'var(--dm-pb)'. Its tile is a light tint of it */
+  /** The icon's colour, like 'var(--dm-pb)'. Its tile is a light tint of it (in Clean every tile is one neutral grey) */
   color: string;
   /** The icon's own colour when it differs from its tile's, like 'var(--dm-accent-fg)' for an accent tile */
   iconColor?: string;
@@ -256,7 +259,7 @@ export interface CanvasToolbarHandle {
 export interface CanvasToolbarProps {
   nodes: CanvasToolbarNode[];
   edges?: CanvasToolbarEdge[];
-  /** The wires a run has reached; they light up in the accent */
+  /** The wires a run has reached; they light up in the accent. Clear it once the run is over, so they go back to grey */
   lit?: CanvasToolbarEdge[];
   /** Whether a run is going: Run turns into Stop, on a red fill */
   running?: boolean;
@@ -334,6 +337,10 @@ export function CanvasToolbar({
   const uid = useId();
 
   const root = useRef<HTMLDivElement>(null), cv = useRef<HTMLDivElement>(null), bar = useRef<HTMLDivElement>(null);
+  // Clean's one hover: a highlight that glides from button to button, the bar's own and the tools' own
+  const tools = useRef<HTMLDivElement>(null);
+  useHoverGlide(bar, '.dm-ctb-b:not(.dm-ctb-tools .dm-ctb-b),.dm-ctb-z');
+  useHoverGlide(tools, '.dm-ctb-b');
   const els = useRef<Record<string, HTMLDivElement | null>>({});
   const [size, setSize] = useState({ w: 0, h: 0, bar: 40 });
   const [dims, setDims] = useState<Record<string, { w: number; h: number }>>({});
@@ -363,7 +370,7 @@ export function CanvasToolbar({
   const MIN = zoomSteps[0], MAX = zoomSteps[zoomSteps.length - 1];
   const lim = (v: number) => Math.max(MIN, Math.min(MAX, v));
   // the room the workflow has: the canvas above the toolbar
-  const roomH = size.h - size.bar - 20;
+  const roomH = size.h - size.bar - 24;
   const fitView = (cap: number): CanvasView => {
     if (!nodes.length || !size.w) return { panX: 0, panY: 0, zoom: 1 };
     const P = 24, bs = nodes.map(boxOf);
@@ -526,7 +533,7 @@ export function CanvasToolbar({
               return (
                 <div key={n.id} ref={el => { els.current[n.id] = el; }} data-id={n.id} className={cx('dm-ctb-n dm-in', sel.includes(n.id) && 'dm-sel', n.state === 'run' && 'dm-run')}
                   style={{ left: p.x, top: p.y, animationDelay: i * 90 + 'ms' }}>
-                  <span className="dm-ic" style={{ color: n.iconColor ?? n.color, background: `color-mix(in srgb,${n.color} 14%,transparent)` }}><Icon name={n.icon} size="xs" /></span>
+                  <span className="dm-ic" style={{ '--dm-k': n.color, ...(n.iconColor ? { '--dm-kf': n.iconColor } : {}) } as CSSProperties}><Icon name={n.icon} size="xs" /></span>
                   <span className="dm-t"><b>{n.title}</b>{n.detail && <span>{n.detail}</span>}</span>
                   {n.state && <span className="dm-s" aria-hidden="true">{n.state === 'run' ? <span className="dm-spin" /> : <Icon name="check" size="xs" />}</span>}
                 </div>
@@ -544,7 +551,7 @@ export function CanvasToolbar({
           <Icon name={running ? 'stop' : 'play'} size="xs" /><span>{running ? stopLabel : runLabel}</span>
         </button>
         <span className="dm-ctb-sep" />
-        <div className="dm-ctb-tools" role="radiogroup" aria-label="Tool" onKeyDown={toolKeys}>
+        <div ref={tools} className="dm-ctb-tools" role="radiogroup" aria-label="Tool" onKeyDown={toolKeys}>
           {TOOLS.map(x => (
             <Tip key={x.t} label={x.tip} kbd={x.key}>
               <button type="button" className="dm-ctb-b" role="radio" aria-checked={tool === x.t} tabIndex={tool === x.t ? 0 : -1} data-t={x.t} aria-label={NAMES[x.t]} onClick={() => setTool(x.t)}><Icon name={x.icon} /></button>

@@ -21,7 +21,7 @@ DM.def('data-picker', (r, c) => {
   const tokHTML = ref => { const { st, f } = of(ref);
     return `<span class="fpk-tok" data-ref="${ref}"><span class="fpk-ti" data-k="${st.k}" aria-hidden="true">${I(st.ic, 'xs')}</span><span class="s">${st.t}</span><span class="sep" aria-hidden="true">›</span><span class="f">${f}</span><button class="fpk-x" aria-label="Remove ${f} from ${st.t}" data-tip="Remove">${I('x', 'xs')}</button></span>`; };
   const addB = k => `<button class="fpk-add" data-f="${k}" data-pop=".fpk-pop" data-pop-pos="down" data-pop-align="end" aria-haspopup="dialog" aria-expanded="false" aria-label="Insert data into ${F[k].l}" data-tip="Insert data">${I('plus', 's')}</button>`;
-  const paintField = k => { $(`.fpk-f[data-f="${k}"] .fpk-box`, r).innerHTML = (F[k].v.length ? F[k].v.map(tokHTML).join('') : '<span class="fpk-ph">Pick data from an earlier step</span>') + addB(k); };
+  const paintField = k => { $(`.fpk-f[data-f="${k}"] .fpk-box`, r).innerHTML = '<span class="fpk-toks">' + (F[k].v.length ? F[k].v.map(tokHTML).join('') : '<span class="fpk-ph">Pick data from an earlier step</span>') + '</span>' + addB(k); };
   Object.keys(F).forEach(paintField);
   const mark = (t, v) => { const i = v ? t.toLowerCase().indexOf(v) : -1; return i < 0 ? t : t.slice(0, i) + '<mark>' + t.slice(i, i + v.length) + '</mark>' + t.slice(i + v.length); };
   function paint(){
@@ -46,15 +46,15 @@ DM.def('data-picker', (r, c) => {
     closePops();
     if (F[k].v.includes(ref)){ say(`${F[k].l} already has ${f} from ${st.t}`); return; }
     F[k].v.push(ref);
-    const bx = $(`.fpk-f[data-f="${k}"] .fpk-box`, r), add = $('.fpk-add', bx), ph = $('.fpk-ph', bx); if (ph) ph.remove();
-    add.insertAdjacentHTML('beforebegin', tokHTML(ref)); if (!REDUCE) add.previousElementSibling.classList.add('new');
+    const toks = $(`.fpk-f[data-f="${k}"] .fpk-toks`, r), ph = $('.fpk-ph', toks); if (ph) ph.remove();
+    toks.insertAdjacentHTML('beforeend', tokHTML(ref)); if (!REDUCE) toks.lastElementChild.classList.add('new');
     say(`Added ${f} from ${st.t} to ${F[k].l}`);
   }
   function remove(tk, mine){
-    const k = tk.closest('.fpk-f').dataset.f, ref = tk.dataset.ref, { st, f } = of(ref), add = $('.fpk-add', tk.parentElement);
+    const k = tk.closest('.fpk-f').dataset.f, ref = tk.dataset.ref, { st, f } = of(ref), toks = tk.parentElement, add = $('.fpk-add', tk.closest('.fpk-box'));
     F[k].v = F[k].v.filter(x => x !== ref);
     tk.classList.add('out'); tk.inert = true;
-    setTimeout(() => { tk.remove(); if (!F[k].v.length) add.insertAdjacentHTML('beforebegin', '<span class="fpk-ph">Pick data from an earlier step</span>'); }, REDUCE ? 0 : 280);
+    setTimeout(() => { tk.remove(); if (!F[k].v.length) toks.insertAdjacentHTML('beforeend', '<span class="fpk-ph">Pick data from an earlier step</span>'); }, REDUCE ? 0 : 280);
     if (mine) add.focus({ preventScroll:true });
     say(`Removed ${f} from ${st.t}`);
   }
@@ -69,8 +69,9 @@ DM.def('data-picker', (r, c) => {
   c.on(q, 'input', paint);
   // in the search the arrows move through the fields and wrap, Enter puts the one picked in, Escape closes (the core)
   c.on(q, 'keydown', e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); move(e.key === 'ArrowDown' ? 1 : -1); } else if (e.key === 'Enter'){ e.preventDefault(); pick(hi); } });
-  // the fields sit centred, and glide up as the picker opens under one of them
-  const centred = centre(c, box, () => pop.classList.contains('open') ? Math.max(box.offsetHeight, pop.offsetTop + pop.offsetHeight) : box.offsetHeight);
+  // the fields sit centred, and glide up as the picker opens under one of them; the picker is watched too, so when a search
+  // shortens its list the fields and the list settle centred again (they sat high by the rows it lost)
+  const centred = centre(c, box, () => pop.classList.contains('open') ? Math.max(box.offsetHeight, pop.offsetTop + pop.offsetHeight) : box.offsetHeight, [pop]);
   const mo = new MutationObserver(() => { if (pop.classList.contains('open')) centred(); else c.later(REDUCE ? 0 : 180, centred); });
   mo.observe(pop, { attributes:true, attributeFilter:['class'] }); c.offs.push(() => mo.disconnect());
   // the preview's story: take a field out of the subject, then open Body's picker, search for "sc" (the score, and every

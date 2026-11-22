@@ -35,7 +35,7 @@ Currency converter takes an amount in one currency and shows what it comes to in
 ### What it does
 
 - The converted amount rolls to each new value as the amount or currencies change.
-- Each side opens a menu of `currencies` with flag, code and name, and the current one is checked.
+- Each side is a label over its field, and the field holds the amount with the currency button beside it, on one centre line. The swap button sits centred in the gap between the two fields. The button opens a menu of `currencies` with flag, code and name, the current one checked, over the converter from its button: below it, or above it when there is no room below. Opening it never moves the converter.
 - A small flag sits in front of each currency code, in the menus and on the button for each side. USD, EUR, GBP, JPY, CAD and AUD have theirs built in, and a currency of your own takes one through `flag`.
 - Picking the currency already on the other side moves that side to a different currency, so the two never match.
 - Swap flips the currencies and carries the converted amount into the amount field.
@@ -152,6 +152,8 @@ import { Icon } from '../lib/icons';
 import { Swap, Tip } from '../lib/motion';
 import { usePopover } from '../lib/popover';
 import '../designme.css';
+// its menus' rows glide in Clean
+import '../lib/glide';
 import './currency-converter.css';
 
 export interface CurrencyConverterCurrency {
@@ -258,17 +260,21 @@ export function CurrencyConverter({ currencies = CurrencyConverterCurrencies, am
 
   return (
     <div data-dm="" className={cx('dm-ccx dm-panel', className)}>
+      {/* each side is a label over its field; the field holds only the amount and its currency button */}
+      <span className="dm-ccx-lb dm-muted">{payLabel}</span>
       <div className="dm-ccx-row">
         <div className="dm-ccx-in">
-          <span className="dm-muted">{payLabel}</span>
           <input className="dm-ccx-a dm-num" value={text} inputMode="decimal" aria-label="Amount"
             onChange={e => setText(e.target.value.replace(/[^\d.]/g, ''))} onBlur={() => setText((parseFloat(text) || 0).toFixed(2))} />
         </div>
         <button type="button" {...pay.trigger} className="dm-ccx-cur">{flagOf(A)}<Swap className="dm-cd">{A.code}</Swap><Icon name="chev-d" size="xs" /></button>
       </div>
-      <Tip label="Swap"><button type="button" className={cx('dm-ccx-sw', turned && 'dm-go')} aria-label="Swap currencies" onClick={swap}><Icon name="sort" size="xs" /></button></Tip>
+      <div className="dm-ccx-mid">
+        <span className="dm-ccx-lb dm-muted">{seeLabel}</span>
+        <Tip label="Swap"><button type="button" className={cx('dm-ccx-sw', turned && 'dm-go')} aria-label="Swap currencies" onClick={swap}><Icon name="sort" size="xs" /></button></Tip>
+      </div>
       <div className="dm-ccx-row">
-        <div className="dm-ccx-in"><span className="dm-muted">{seeLabel}</span><b className="dm-ccx-b dm-num">{out}</b></div>
+        <div className="dm-ccx-in"><b className="dm-ccx-b dm-num">{out}</b></div>
         <button type="button" {...see.trigger} className="dm-ccx-cur">{flagOf(B)}<Swap className="dm-cd">{B.code}</Swap><Icon name="chev-d" size="xs" /></button>
       </div>
       <div className="dm-ccx-rate dm-muted dm-num"><span className="dm-dot" />1 {A.code} = {(B.rate / A.rate).toFixed(4)} {B.code}{updated && ` · ${updated}`}</div>

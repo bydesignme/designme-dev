@@ -1,6 +1,5 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Account table ---------- */
-.atb{overflow:hidden}
 /* the account table's colours run brighter than the shared tones: its plan tags take a stronger tint with saturated text
    (4.5:1 and APCA Lc 60 on the tint, in every style and theme) and the health bars vivid marks (3:1) */
 .atb{--dm-atb-ok:#1daa51;--dm-atb-warn:#cd7a00;--dm-atb-bad:#f04438;
@@ -12,37 +11,86 @@
 :root[data-theme="dark"] .atb{--dm-atb-ok:#5fcb2a;--dm-atb-warn:#f59e0b;--dm-atb-bad:#fb4849;
   --dm-pb:#a4c9fe;--dm-pb-bg:color-mix(in srgb,#4890fa 22%,transparent);--dm-pl:#c9befe;--dm-pl-bg:color-mix(in srgb,#9776fa 22%,transparent);--dm-pm:#19e285;--dm-pm-bg:color-mix(in srgb,#1fad66 22%,transparent);--dm-pp:#feb68b;--dm-pp-bg:color-mix(in srgb,#dc7019 22%,transparent);
   --dm-pr:#feb1ad;--dm-pr-bg:color-mix(in srgb,#fb4652 22%,transparent);--dm-py:#feba28;--dm-py-bg:color-mix(in srgb,#bb881a 22%,transparent);--dm-pk:#feabcf;--dm-pk-bg:color-mix(in srgb,#fb27a2 22%,transparent);--dm-pt:#19daeb;--dm-pt-bg:color-mix(in srgb,#1fa5b1 22%,transparent)}
-.atb-h{display:flex;align-items:center;gap:var(--dm-s-2);padding:10px;flex-wrap:wrap;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.atb-s{display:flex;align-items:center;gap:var(--dm-s-2);height:32px;padding:0 10px;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);color:var(--dm-muted);flex:1;min-width:160px;transition:box-shadow var(--dm-t-fast)}
+/* the search and the plan filters: 16px in from the card's edges, the last filter ending on the content's right edge. The
+   field's glass sits in the logos' column and its words start on the names' column, as the rows under it do */
+.atb-h{display:flex;align-items:center;gap:var(--dm-s-2);padding:var(--dm-s-4) var(--dm-s-4) var(--dm-s-3);flex-wrap:wrap;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+/* a narrow card (a phone): the search takes the width and the filters go under it, on its left edge */
+.atb{container-type:inline-size}
+@container (max-width:420px){.atb-h{flex-direction:column;align-items:stretch}.atb-h>.atb-s{flex:none;min-width:0}}
+.atb-s{display:flex;align-items:center;gap:var(--dm-s-4);height:32px;padding:0 10px 0 6px;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);color:var(--dm-muted);flex:1;min-width:160px;transition:box-shadow var(--dm-t-fast)}
 @supports (corner-shape:squircle){.atb-s{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
-.atb-s input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--dm-fg)}
+.atb-s input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--dm-fg)}
 .atb-s:has(input:focus){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
 .atb-s input::placeholder{color:var(--dm-muted)}
 .atb-fl{display:flex;gap:var(--dm-s-1);flex-wrap:wrap}
 /* the filters are white chips with a dimmed grey edge; the picked one's edge is a step stronger */
 .atb-fl .chip{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-line) 50%,transparent)}
 @media (hover:hover) and (pointer:fine){.atb-fl .chip:hover{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-faint) 50%,transparent)}}
-.atb-sc{overflow-x:auto}
-.atb table{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
-.atb th{text-align:left;font-weight:500;font-size:12px;color:var(--dm-muted);padding:9px var(--dm-s-3);white-space:nowrap}
+/* the table sits 8px in from the card's sides, and its first and last cells keep 8px more: every column's words start where
+   its head's words start, the first 16px in and the last ending 16px from the right, and a row's hover fill reaches 8px out
+   round them with rounded corners, in place of the hairlines round it (owner, 18 Nov). On a phone the table scrolls sideways */
+/* the rows' fills reach as far toward the foot as toward the sides: 8px */
+.atb-sc{overflow-x:auto;padding:0 var(--dm-s-2) var(--dm-s-2)}
+.atb table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;min-width:560px}
+.atb th{text-align:left;font-weight:500;font-size:12px;line-height:18px;color:var(--dm-muted);padding:10px var(--dm-s-3);white-space:nowrap}
 .atb th.r,.atb td.r{text-align:right}
-.atb td{padding:9px var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);white-space:nowrap}
-.atb tr.row{cursor:pointer;transition:background .2s}
-@media (hover:hover) and (pointer:fine){.atb tr.row:hover{background:var(--dm-row)}}
+/* it reads as a table of columns (owner, 10 and 21 Nov): a hairline after every column but the last, in every style and
+   wherever the columns have been moved; the note under a row spans them all with none. The columns resize and move as in a
+   spreadsheet (cols()): a header takes the keyboard's focus so Alt and an arrow can move it, and sized by hand, a cell too
+   narrow for its words cuts them short */
+.atb{--dm-atb-col:color-mix(in srgb,color-mix(in srgb,var(--dm-line),var(--dm-fg) 9%) 50%,transparent)}
+.atb :is(th,td):not(:last-child){box-shadow:inset -1px 0 0 var(--dm-atb-col)}
+.atb th{position:relative}
+.atb th[tabindex]:focus-visible{outline-offset:-2px;border-radius:var(--dm-r-xs)}
+.atb table.cols-rz td{overflow:hidden;text-overflow:ellipsis}
+.atb td{padding:10px var(--dm-s-3);line-height:20px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);white-space:nowrap;transition:background-color var(--dm-t-fast) var(--dm-ease)}
+.atb :is(th,td):first-child{padding-left:var(--dm-s-2)}
+.atb :is(th,td):last-child{padding-right:var(--dm-s-2)}
+.atb tr.row{cursor:pointer}
+@media (hover:hover) and (pointer:fine){
+  .atb tr.row:hover td{background:color-mix(in srgb,var(--dm-fg) 4%,transparent);border-top-color:transparent}
+  .atb tr.row:hover td:first-child{border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk))) 0 0 calc(8px * var(--dm-rk-m,var(--dm-rk)))}
+  .atb tr.row:hover td:last-child{border-radius:0 calc(8px * var(--dm-rk-m,var(--dm-rk))) calc(8px * var(--dm-rk-m,var(--dm-rk))) 0}
+  .atb tr.row:hover+tr td{border-top-color:transparent}
+}
 /* a row that takes the focus fills the scrolling table, which would cut an outside ring: its ring is drawn inside */
 .atb tr.row:focus-visible{outline-offset:-2px}
-.atb tr.row.open{background:var(--dm-wash)}
-.atb .nm{display:flex;align-items:center;gap:9px;font-weight:500}
+.atb .nm{display:flex;align-items:center;gap:10px;font-weight:500}
 /* brand tiles sit a shade darker than the brand colour, so their white letter reads at 4.5:1 or more */
 .atb .lg{width:24px;height:24px;border-radius:calc(7px * var(--dm-rk-m,var(--dm-rk)));display:grid;place-items:center;font-size:10px;font-weight:500;color:#fff}
 .atb .hb{display:flex;align-items:center;gap:var(--dm-s-2)}
 .atb .hb i{width:54px;height:5px;border-radius:var(--dm-r-tiny,3px);background:var(--dm-line);overflow:hidden;display:block}
 .atb .hb i b{display:block;height:100%;border-radius:var(--dm-r-tiny,3px)}
 .atb .hb span{font-size:12px;color:var(--dm-fg2)}
+/* the agent's note opens under its row, with no hairline between them: the spark centred under the logos, the words on the
+   names' column, and its button ending where MRR ends, centred on the words */
 .atb tr.det td{padding:0;border-top:0}
-.atb-note{display:flex;align-items:center;gap:10px;padding:10px var(--dm-s-3) var(--dm-s-3) 45px;font-size:12.5px;color:var(--dm-fg2);white-space:normal}
-.atb-note>svg{color:var(--dm-accent-fg,var(--dm-accent));flex:none}
+/* the note is a detail row under its account (owner, 21 Nov): it spans every column, so the column lines stop at its top edge and
+   start again under it, and it sits in an inset panel of the style's quiet fill (Clean: its off-white with 10px corners), its
+   spark under the logos and its words on the names' column; the account it belongs to keeps a quiet fill while it is open */
+.atb-note{display:flex;align-items:center;gap:var(--dm-s-3);margin:0 0 var(--dm-s-2);padding:10px var(--dm-s-2) 10px 14px;border-radius:var(--dm-r-in);background:var(--dm-wash);font-size:12.5px;line-height:1.5;color:var(--dm-fg2);white-space:normal}
+.atb-note>svg{color:var(--dm-accent-mark,var(--dm-accent));flex:none;margin-right:4px}
 .atb-note span{flex:1}
-.atb-empty td{text-align:center;color:var(--dm-muted);padding:var(--dm-s-6)}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .atb.panel,:root [data-style="clean"] .atb.panel,:root [data-style="clean"].atb.panel{padding:6px 10px 6px 8px}
+/* Draft email is as wide as its words, and eases to the new width as it says Drafting, then Draft ready with the green tick */
+.atb-note .pill{flex:none;overflow:hidden}
+.atb-note .pill .spin{width:12px;height:12px}
+.atb-note .pill .atb-done{display:grid;color:var(--dm-ok-mark)}
+/* nothing matches: the empty state of the lab's Clean (lab/clean), in every style. A small sketch of a table on a white card,
+   what happened, one muted line and the way back to every account */
+.atb-empty td{padding:28px var(--dm-s-4) 30px;text-align:center;white-space:normal}
+.atb-em{display:flex;flex-direction:column;align-items:center;gap:4px}
+.atb-em b{font-size:13.5px;line-height:18px;font-weight:500;color:var(--dm-fg)}
+.atb-em>span:not(.atb-em-art){max-width:290px;font-size:12.5px;line-height:1.5;color:var(--dm-muted)}
+.atb-em .pill{margin-top:12px}
+.atb-em-art{position:relative;display:block;width:136px;height:70px;margin:0 0 16px;border-radius:calc(10px * var(--dm-rk-l,var(--dm-rk)));background:var(--dm-surface);box-shadow:var(--dm-shadow)}
+.atb-em-art::before{content:"";position:absolute;left:14px;top:14px;width:10px;height:10px;border-radius:3px;background:var(--dm-ghost,var(--dm-chip));box-shadow:0 16px 0 var(--dm-ghost,var(--dm-chip)),0 32px 0 var(--dm-ghost-2,color-mix(in srgb,var(--dm-chip) 60%,var(--dm-surface)))}
+.atb-em-art::after{content:"";position:absolute;left:32px;top:16px;width:58px;height:6px;border-radius:3px;background:var(--dm-ghost,var(--dm-chip));box-shadow:0 16px 0 var(--dm-ghost,var(--dm-chip)),0 32px 0 var(--dm-ghost-2,color-mix(in srgb,var(--dm-chip) 60%,var(--dm-surface)))}
+/* Clean: the same 16px insets, the spark the quiet grey of Clean's chrome */
+:root[data-style="clean"] .atb-note>svg,:root [data-style="clean"] .atb-note>svg,:root [data-style="clean"].atb-note>svg{color:var(--dm-fg2)}
+:root[data-style="clean"] .atb-note,:root [data-style="clean"] .atb-note,:root [data-style="clean"].atb-note{border-radius:10px;background:var(--dm-strip);box-shadow:inset 0 0 0 1px var(--dm-hair)}
+.atb tr.row.open td{background:var(--dm-row);border-top-color:transparent}
+.atb tr.row.open td:first-child{border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk))) 0 0 calc(8px * var(--dm-rk-m,var(--dm-rk)))}
+.atb tr.row.open td:last-child{border-radius:0 calc(8px * var(--dm-rk-m,var(--dm-rk))) calc(8px * var(--dm-rk-m,var(--dm-rk))) 0}
+/* Clean: the search and the plan filters sit in the card's off-white head strip, with a hairline under it (owner, 21 Nov: "add
+   a gray background behind the search accounts"), 16px in at the sides and 8px from its top and bottom */
+:root[data-style="clean"] .atb-h,:root [data-style="clean"] .atb-h,:root [data-style="clean"].atb-h{padding:8px 16px;background:var(--dm-strip);border-bottom:1px solid var(--dm-line);border-radius:var(--dm-r-card) var(--dm-r-card) 0 0}

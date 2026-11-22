@@ -35,7 +35,7 @@ Agent lanes shows several agents working on one job, each in its own row and its
 ### What it does
 
 - Each lane has a `tone` (blue, purple, green, orange, red, yellow, pink or teal) that colours its badge, its track, its Working tag and its stretch of the relay line, in light and dark.
-- Each lane has a `status`: queued, waiting, working, paused or done. A working lane breathes a soft ring round its badge, shimmers its activity and carries a wash of its colour; paused holds; done fills the badge with its colour.
+- Each lane has a `status`: queued, waiting, working, paused or done. A working lane breathes a soft ring round its badge and shimmers its activity; paused holds; done fills the badge with its colour.
 - The `activity` line crossfades when it changes. The track is cut into `steps` (3 by default). The step after `done` fills as `progress` goes from 0 to 1, with a light running along it; without `progress` it fills part way.
 - Setting `handoff` to `{ from, to, what }` opens a line above the receiving lane and sends a light down the relay line from the sender's badge to the receiver's, which rings once. Set it back to undefined and the line slides away; the stretch the light crossed stays lit.
 - The header reads "3 agents working", "All agents paused" or "All 3 agents finished" unless you pass `title`, with a m:ss clock that counts while agents work and, wider than a phone, how many steps of all the lanes are done.

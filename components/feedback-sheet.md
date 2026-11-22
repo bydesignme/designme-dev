@@ -36,7 +36,7 @@ Feedback sheet puts thumbs up and thumbs down under an agent's answer. A thumbs 
 - Thumbs up marks the answer as good and shows "Thanks, noted". Thumbs down opens the sheet and moves the cursor to the comment box once it has opened.
 - The sheet shows a `question` heading, toggleable `reasons` chips, a comment box and a `note` about who sees the feedback.
 - Send stays disabled until a reason is picked or something is written. `onSubmit` receives `{ reasons, comment }`, and if it returns a promise the button shows a spinner until it settles.
-- If `onSubmit` throws, the sheet stays open so the person can try again. On success it closes and a thank-you line appears, which you can change with `thanks`.
+- If `onSubmit` throws, the sheet stays open so the person can try again. On success it closes and a thank-you line appears, which you can change with `thanks`. That line is the only confirmation: nothing beside the thumbs says it again. In Clean a rated thumb fills in, without a colour.
 - Cancel closes the sheet and clears the rating.
 - Rating, open state, picked reasons, comment and sent state can each be controlled or left to the component. `bare={false}` gives it a card of its own.
 
@@ -163,7 +163,7 @@ No. Thumbs up closes the sheet if it was open and shows a short thanks. Only thu
 'use client';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
-import { useControllable } from '../lib/hooks';
+import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../lib/hooks';
 import { Icon } from '../lib/icons';
 import { Fold, Spin, Swap, Tip } from '../lib/motion';
 import '../designme.css';
@@ -225,8 +225,32 @@ export function FeedbackSheet({ children, rating, defaultRating = null, onRating
   const [busy, setBusy] = useState(false);
   const sending = sendingProp ?? busy;
   const [sent, setSent] = useControllable<Feedback | null>(sentProp, null, onSentChange);
-  const status = sent ? 'Feedback sent' : rate === 'up' ? 'Thanks, noted' : '';
+  // the container grows with what it holds, eased (grow() on the site), and stays centred wherever it is centred, in every
+  // style (owner, 18 Nov)
+  const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
+  useIsoLayoutEffect(() => {
+    const el = root.current, w = inner.current;
+    if (!el || !w || typeof ResizeObserver === 'undefined') return;
+    let first = true;
+    const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
+    const fit = () => {
+      const h = Math.ceil(w.offsetHeight + box());
+      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
+      else el.style.height = h + 'px';
+    };
+    const ro = new ResizeObserver(fit); ro.observe(w); fit();
+    return () => { ro.disconnect(); el.style.height = ''; };
+  }, []);
+  // sent, it says so once: the thank-you line under the bar, nothing beside the thumbs
+  const status = sent ? '' : rate === 'up' ? 'Thanks, noted' : '';
   const box = useRef<HTMLTextAreaElement>(null);
+  // Send is as wide as what it shows (its word, or the spinner while it sends) and eases between the two
+  const go = useRef<HTMLButtonElement>(null), goW = useRef(0), reduce = useReducedMotion();
+  useIsoLayoutEffect(() => {
+    const b = go.current; if (!b) return; const w = b.offsetWidth;
+    if (goW.current && w && goW.current !== w && !reduce) b.animate([{ width: goW.current + 'px' }, { width: w + 'px' }], { duration: 220, easing: 'cubic-bezier(.23,1,.32,1)' });
+    goW.current = w;
+  }, [sending]);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const later = (ms: number, fn: () => void) => { timers.current.push(setTimeout(fn, ms)); };
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
@@ -248,7 +272,8 @@ export function FeedbackSheet({ children, rating, defaultRating = null, onRating
   };
 
   return (
-    <div data-dm="" className={cx('dm-fbx', !bare && 'dm-panel', className)} style={bare ? undefined : { padding: 16 }}>
+    <div data-dm="" ref={root} className={cx('dm-fbx', !bare && 'dm-panel', 'dm-growing', className)} style={bare ? undefined : { padding: 16 }}>
+      <div ref={inner} className="dm-grow">
       {children && <div className="dm-msg">{children}</div>}
       <div className="dm-fbx-bar">
         <Tip label="Good answer"><button type="button" className={cx('dm-ib dm-fbx-up', rate === 'up' && 'dm-on')} aria-label="Good answer" aria-pressed={rate === 'up'} onClick={up}><Icon name="up-thumb" /></button></Tip>
@@ -270,11 +295,12 @@ export function FeedbackSheet({ children, rating, defaultRating = null, onRating
           <div className="dm-fbx-f">
             <span className="dm-muted dm-fbx-n">{note}</span>
             <button type="button" className="dm-pill dm-ghost dm-sm dm-fbx-x" onClick={() => { setOpen(false); setRate(null); }}>Cancel</button>
-            <button type="button" className="dm-pill dm-primary dm-sm dm-fbx-go" disabled={!(picked.length || comment.trim())} aria-busy={sending} onClick={send}>{sending ? <Spin /> : 'Send'}</button>
+            <button ref={go} type="button" className="dm-pill dm-primary dm-sm dm-fbx-go" disabled={!(picked.length || comment.trim())} aria-busy={sending} onClick={send}>{sending ? <Spin /> : 'Send'}</button>
           </div>
         </div>
       </Fold>
       {sent && <div className="dm-fbx-thx dm-enter" role="status"><Icon name="ok" /><span>{thanks(sent)}</span></div>}
+      </div>
     </div>
   );
 }

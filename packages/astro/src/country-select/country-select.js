@@ -1,7 +1,7 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, FLAG, I, REDUCE, centre } from '../core/core.js';
+import { $, $$, DM, FLAG, I, REDUCE, centre, hoverGlide, placePop, popRoom } from '../core/core.js';
 DM.def('country-select', (r, c) => {
-  r.innerHTML = r.innerHTML.replace('{chev}', I('chev-d','xs'));
+  r.innerHTML = r.innerHTML.replace('{chev}', I('chev-d','xs')).replace('{search}', I('search','xs'));
   const C = [
     ['United States','US',['#b22234','#fff','#3c3b6e'],1,'USD'],['United Kingdom','GB',['#012169','#fff','#c8102e'],0,'GBP'],['Germany','DE',['#000','#dd0000','#ffce00'],1,'EUR'],['France','FR',['#0055a4','#fff','#ef4135'],0,'EUR'],
     ['Netherlands','NL',['#ae1c28','#fff','#21468b'],1,'EUR'],['Ireland','IE',['#169b62','#fff','#ff883e'],0,'EUR'],['Italy','IT',['#009246','#fff','#ce2b37'],0,'EUR'],['Japan','JP',['#fff','#bc002d','#fff'],0,'JPY'],
@@ -22,23 +22,37 @@ DM.def('country-select', (r, c) => {
     opts.forEach((o, i) => { o.onmouseenter = () => { hi = i; move(0); }; o.onclick = () => { setSel(C.find(x => x[1] === o.dataset.c)); close(); }; });
   }
   function move(d){ if (!opts.length){ q.removeAttribute('aria-activedescendant'); return; } hi = (hi + d + opts.length) % opts.length; opts.forEach((o, i) => o.classList.toggle('hl', i === hi)); opts[hi].scrollIntoView({ block:'nearest' }); q.setAttribute('aria-activedescendant', opts[hi].id); }
+  // Clean's one hover: a highlight that glides to the row under the pointer or the arrows
+  c.offs.push(hoverGlide(list, '.csx-o'));
   list.id = 'csx-l-' + Math.random().toString(36).slice(2, 7); q.setAttribute('role', 'combobox'); q.setAttribute('aria-autocomplete', 'list'); q.setAttribute('aria-expanded', 'true'); q.setAttribute('aria-controls', list.id);
-  // the field sits centred on its own, and glides up once as the list opens; it makes room for the list at its tallest,
-  // so it holds still while typing filters the list
+  // the field sits centred on its own, and glides up as the list opens, so the two sit centred together at every moment, as
+  // typing narrows the list too. On a page of your own the list opens over the field when the window has no room under the
+  // field for it at its tallest (placePop)
   const box = $('.csx', r), full = () => pop.offsetHeight - list.offsetHeight + parseFloat(getComputedStyle(list).maxHeight);
-  const centred = centre(c, box, () => pop.classList.contains('open') ? Math.max(box.offsetHeight, pop.offsetTop + full()) : box.offsetHeight);
-  function open(demo){ pop.classList.add('open'); f.setAttribute('aria-expanded', 'true'); q.value = ''; paint(); centred(); if (!demo) q.focus({ preventScroll:true }); }
+  let up = false;
+  const isOpen = () => pop.classList.contains('open');
+  const centred = centre(c, box, () => isOpen() && !up ? Math.max(box.offsetHeight, f.offsetTop + f.offsetHeight + 6 + pop.offsetHeight) : box.offsetHeight, [pop]);
+  function place(){
+    up = false; centred();
+    const gy = parseFloat(box.style.getPropertyValue('--dm-gy')) || 0, now = new DOMMatrixReadOnly(getComputedStyle(box).transform).m42, dy = gy - now;
+    const room = popRoom(f), b = f.getBoundingClientRect(), below = room.bottom - b.bottom - dy, above = b.top + dy - room.top;
+    // (in a demo's stage the list always opens under the field, which glides up to make room for it)
+    up = !r.closest('.stage-in') && below < full() + 12 && above > below; if (up) centred();
+    f.dataset.popPos = up ? 'up' : 'down'; placePop(f, pop);
+    if (up){ pop.style.top = 'auto'; pop.style.bottom = (box.offsetHeight - f.offsetTop + 6) + 'px'; } else pop.style.bottom = '';
+  }
+  function open(demo){ pop.classList.add('open'); f.setAttribute('aria-expanded', 'true'); q.value = ''; paint(); place(); if (!demo) q.focus({ preventScroll:true }); }
   // on closing, the field waits for the list to fade before it glides back to the middle
-  function close(){ pop.classList.remove('open'); f.setAttribute('aria-expanded', 'false'); c.later(REDUCE ? 0 : 180, centred); }
-  f.onclick = () => pop.classList.contains('open') ? close() : open();
+  function close(){ if (!isOpen()) return; pop.classList.remove('open'); f.setAttribute('aria-expanded', 'false'); c.later(REDUCE ? 0 : 180, centred); }
+  f.onclick = () => isOpen() ? close() : open();
   q.oninput = paint;
   // in the search box the arrows move through the countries and wrap, Enter picks, and Escape closes the list and gives the
   // focus back to the field (Home and End stay with the text)
   q.onkeydown = e => { if (e.key === 'ArrowDown'){ move(1); e.preventDefault(); } else if (e.key === 'ArrowUp'){ move(-1); e.preventDefault(); } else if (e.key === 'Enter'){ e.preventDefault(); if (opts[hi]){ opts[hi].click(); f.focus({ preventScroll:true }); } } else if (e.key === 'Escape'){ e.preventDefault(); close(); f.focus({ preventScroll:true }); } };
   // Tab out of the list closes it
-  c.on(pop, 'focusout', e => { if (pop.classList.contains('open') && e.relatedTarget && !pop.contains(e.relatedTarget) && e.relatedTarget !== f) close(); });
+  c.on(pop, 'focusout', e => { if (isOpen() && e.relatedTarget && !pop.contains(e.relatedTarget) && e.relatedTarget !== f) close(); });
   // the field opens the list with the down and up arrows too, or takes the focus into it when it is already open
-  c.on(f, 'keydown', e => { if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return; e.preventDefault(); if (pop.classList.contains('open')) q.focus({ preventScroll:true }); else open(); });
+  c.on(f, 'keydown', e => { if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return; e.preventDefault(); if (isOpen()) q.focus({ preventScroll:true }); else open(); });
   c.on(document, 'pointerdown', e => { if (!r.contains(e.target)) close(); });
   $('.csx-v', f).textContent = sel[0]; f.insertAdjacentHTML('afterbegin', ''); $('.csx-fl', f).outerHTML = flag(sel);
   // the preview's story: open the list, type "ger", and pick Germany, which closes it on the new country. It stops at the

@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, REDUCE, centre, html } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, centre, html, placePop, popRoom } from '../core/core.js';
 DM.def('multi-select', (r, c) => {
   const uid = Math.random().toString(36).slice(2, 7);
   // tags for the pricing page, and how many files carry each
@@ -15,7 +15,9 @@ DM.def('multi-select', (r, c) => {
     clr.hidden = !picked.length;
     place();
   }
-  const place = () => { pop.style.top = (f.offsetTop + f.offsetHeight + 6) + 'px'; };
+  // the list hangs 6px under the box, which grows as the chips wrap; opened over the box, it stands 6px over it
+  let up = false;
+  const place = () => { if (up){ pop.style.top = 'auto'; pop.style.bottom = (box.offsetHeight - f.offsetTop + 6) + 'px'; } else { pop.style.top = (f.offsetTop + f.offsetHeight + 6) + 'px'; pop.style.bottom = ''; } };
   function paint(){
     const v = q.value.trim().toLowerCase(), m = T.filter(([t]) => !v || t.toLowerCase().includes(v));
     list.innerHTML = m.length ? m.map(([t, n], i) => `<div class="msc-o" role="option" id="msc-o-${i}-${uid}" aria-selected="${picked.includes(t)}" data-t="${t}"><span class="bx">${I('check','xs')}</span>${t}<span class="n num">${n}</span></div>`).join('') : '<div class="msc-none">No tags match</div>';
@@ -30,12 +32,21 @@ DM.def('multi-select', (r, c) => {
     if (top < list.scrollTop) list.scrollTop = top; else if (bot > list.scrollTop + list.clientHeight) list.scrollTop = bot - list.clientHeight;
   }
   const isOpen = () => pop.classList.contains('open');
-  // the box sits centred on its own, and glides up once as the list opens; it makes room for the list at its tallest, so it
-  // holds still while typing filters the list. The list's place comes from the box, not its top mid-move, so chips
-  // wrapping onto a new line move both together
+  // the box sits centred on its own, and glides up as the list opens, so the two sit centred together at every moment, as
+  // typing narrows the list too. The list's place comes from the box, not its top mid-move, so chips wrapping onto a new
+  // line move both together
   const box = $('.msc', r), full = () => pop.offsetHeight - list.offsetHeight + parseFloat(getComputedStyle(list).maxHeight);
-  const centred = centre(c, box, () => isOpen() ? Math.max(box.offsetHeight, f.offsetTop + f.offsetHeight + 6 + full()) : box.offsetHeight);
-  function open(){ if (isOpen()) return; place(); pop.classList.add('open'); q.setAttribute('aria-expanded', 'true'); hi = 0; paint(); centred(); }
+  const centred = centre(c, box, () => isOpen() && !up ? Math.max(box.offsetHeight, f.offsetTop + f.offsetHeight + 6 + pop.offsetHeight) : box.offsetHeight, [pop]);
+  // the list opens under the box; on a page of your own, over it when the window has no room under the box (placePop)
+  function drop(){
+    up = false; centred();
+    const gy = parseFloat(box.style.getPropertyValue('--dm-gy')) || 0, now = new DOMMatrixReadOnly(getComputedStyle(box).transform).m42, dy = gy - now;
+    const room = popRoom(f), b = f.getBoundingClientRect(), below = room.bottom - b.bottom - dy, above = b.top + dy - room.top;
+    // (in a demo's stage the list always opens under the field, which glides up to make room for it)
+    up = !r.closest('.stage-in') && below < full() + 12 && above > below; if (up) centred();
+    f.dataset.popPos = up ? 'up' : 'down'; placePop(f, pop); place();
+  }
+  function open(){ if (isOpen()) return; pop.classList.add('open'); q.setAttribute('aria-expanded', 'true'); hi = 0; paint(); drop(); }
   // on closing, the box waits for the list to fade before it glides back to the middle
   function close(){ pop.classList.remove('open'); q.setAttribute('aria-expanded', 'false'); q.removeAttribute('aria-activedescendant'); c.later(REDUCE ? 0 : 180, centred); }
   // Enter or a click picks a tag, or unpicks one already picked; the box clears for the next one

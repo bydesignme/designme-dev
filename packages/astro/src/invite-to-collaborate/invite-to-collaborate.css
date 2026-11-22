@@ -1,38 +1,75 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Invite ---------- */
-.ivx{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:10px;max-width:420px;margin:0 auto;width:100%}
-.ivx-h{display:flex;flex-direction:column;font-size:14px;margin:0 -14px 2px;padding:0 14px var(--dm-s-3);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+/* a sharing panel: the title and what invitees can see, a hairline from edge to edge, the field where addresses become chips
+   with the role they get, suggested people, who is in already, and under a second hairline Copy link and Send. Its content is
+   16px from every edge in every style, with 16px under each hairline (owner, 18 and 19 Nov); the members' avatars sit on the
+   content's left edge and their roles end on its right edge, where the field and Send end. The field's words are 12px in, as
+   in every field, and a chip's avatar is clearly inside it, never a near miss of the members' column. The card keeps no room:
+   it grows as chips wrap to a new line and as invites go out (grow()), centred in its stage */
+.ivx{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-3);max-width:420px;margin:0 auto;width:100%;--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
+/* (React wraps the card and its role menu in one box, so the menu opens over the card rather than inside it) */
+.ivx-w{position:relative;width:100%;max-width:420px;margin:0 auto}
+.ivx-h{display:flex;flex-direction:column;font-size:14px;line-height:20px;margin:0 calc(-1 * var(--dm-s-4)) var(--dm-s-1);padding:0 var(--dm-s-4) var(--dm-s-4);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .ivx-h b{font-weight:500}
-.ivx-h .muted{font-size:12px}
-.ivx-f{display:flex;align-items:center;flex-wrap:wrap;gap:5px;min-height:var(--dm-field-h);padding:5px 5px 5px 6px;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);transition:box-shadow var(--dm-t-fast)}
+.ivx-h .muted{font-size:12px;line-height:18px}
+.ivx-f{display:flex;align-items:flex-start;align-content:center;flex-wrap:wrap;gap:var(--dm-s-1);min-height:var(--dm-field-h);padding:5px 5px 5px var(--dm-s-2);border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);transition:box-shadow var(--dm-t-fast)}
 @supports (corner-shape:squircle){.ivx-f{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
 .ivx-f:has(input:focus){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
 .ivx-chips{display:contents}
-.ivx-ch{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 var(--dm-s-1) 0 var(--dm-s-1);border-radius:var(--dm-r-tag);background:var(--dm-surface);box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12.5px;animation:popin .4s var(--dm-ease) backwards}
+.ivx-ch{display:inline-flex;align-items:center;gap:6px;height:26px;margin:2px 0;padding:0 var(--dm-s-1) 0 var(--dm-s-1);border-radius:var(--dm-r-tag);background:var(--dm-surface);box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12.5px;animation:popin .4s var(--dm-ease) backwards}
 .ivx-ch .av{width:18px;height:18px;font-size:8.5px}
 .ivx-ch.bad{background:var(--dm-bad-bg);color:var(--dm-bad);box-shadow:none}
+/* a chip that is not a valid address leads with the warning mark in the avatar's 18px, so every chip's words start on one column */
+.ivx-ch.bad>svg{margin:0 3px}
 /* chips already on screen keep still when the row is redrawn; only a new one pops in */
 .ivx-chips .ivx-ch.seen{animation:none}
 .ivx-ch button{display:grid;color:var(--dm-muted)}@media (hover:hover) and (pointer:fine){.ivx-ch button:hover{color:var(--dm-fg)}}
 /* on a chip that failed, its remove button is the chip's own red, stepping to full strength under the pointer */
 .ivx-ch.bad button{color:color-mix(in srgb,var(--dm-bad) 75%,transparent)}@media (hover:hover) and (pointer:fine){.ivx-ch.bad button:hover{color:var(--dm-bad)}}
-.ivx-f input{flex:1;min-width:120px;border:0;outline:0;background:transparent;font:inherit;font-size:13.5px;color:var(--dm-fg);height:28px;padding:0 6px}
+.ivx-f input{flex:1;min-width:120px;border:0;outline:0;background:transparent;font:inherit;font-size:13.5px;line-height:20px;color:var(--dm-fg);height:30px;padding:0 var(--dm-s-1)}
 @supports (corner-shape:squircle){.ivx-ch{corner-shape:squircle;border-radius:var(--dm-r-tag-sq)}}
 .ivx-f input::placeholder{color:var(--dm-muted)}
-.ivx-role{display:flex;align-items:center;gap:var(--dm-s-1);height:30px;padding:0 var(--dm-s-2);border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));font-size:12.5px;color:var(--dm-fg2);margin-left:auto}
+/* the role the invites get: a select at the field's end, in the field's own type so its words share the address's line, and
+   its chevron as far in from the field's edge as the address is from the other */
+.ivx-role{display:flex;align-items:center;gap:var(--dm-s-1);height:30px;padding:0 var(--dm-s-2);border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));font-size:13.5px;line-height:20px;color:var(--dm-fg2);margin-left:auto;transition:background-color var(--dm-t-fast)}
+.ivx-role[aria-expanded="true"]{background:var(--dm-row)}
 @media (hover:hover) and (pointer:fine){.ivx-role:hover{background:var(--dm-row)}}
 .ivx-sg{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px}
 .ivx-sg .chip .av{width:18px;height:18px;font-size:8.5px;margin-left:-6px}
 .ivx-mem{display:flex;flex-direction:column}
-.ivx-m{display:flex;align-items:center;gap:10px;padding:6px 2px;font-size:13px}
-.ivx-m .av{width:26px;height:26px;font-size:10px}
-.ivx-m .t{flex:1;display:flex;flex-direction:column}
-.ivx-m .t span{font-size:11.5px;color:var(--dm-muted)}
+.ivx-m{display:flex;align-items:center;gap:var(--dm-s-3);padding:var(--dm-s-1) 0;font-size:13px;line-height:20px}
+.ivx-m .av{width:24px;height:24px;font-size:10px}
+.ivx-m .t{flex:1;min-width:0;display:flex;flex-direction:column}
+.ivx-m .t span{font-size:11.5px;line-height:16px;color:var(--dm-muted)}
 .ivx-m .r{font-size:12px;color:var(--dm-muted)}
 .ivx-m .r.pend{color:var(--dm-warn)}
-/* the buttons sit under a hairline, with the same room above and below it */
-.ivx-ft{display:flex;justify-content:space-between;gap:6px;margin:0 -14px;padding:10px 14px 0;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+/* the buttons sit under a hairline from edge to edge, 16px under it; Copy link's glyph on the content's left edge, its hover
+   box reaching out round it, and Send on the right edge */
+.ivx-ft{display:flex;justify-content:space-between;align-items:center;gap:6px;margin:0 calc(-1 * var(--dm-s-4)) 0;padding:var(--dm-s-4) var(--dm-s-4) 0;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.ivx-ft .ivx-link{padding:0 var(--dm-s-2);margin-left:calc(-1 * var(--dm-s-2));overflow:hidden;white-space:nowrap}
+/* copied: the link's glyph turns into the green tick, the words stay the text colour, and the button eases to its new width */
+.ivx-link.copied{color:var(--dm-fg)!important}
+@media (hover:hover) and (pointer:fine){.ivx-link.copied:hover{color:var(--dm-fg)!important}}
+.ivx-link.copied .i{color:var(--dm-ok-mark)}
 .ivx-go[disabled]{box-shadow:none}
 @media (hover:hover) and (pointer:fine){.ivx-go[disabled]:hover{box-shadow:none}}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .ivx.panel,:root [data-style="clean"] .ivx.panel,:root [data-style="clean"].ivx.panel{padding:18px 20px 20px 20px}
+/* Send's words change colour at the same moment its fill does (Clean's ink fill is a gradient, which cannot fade), so it never
+   shows white words on the light disabled fill for a moment */
+:root[data-style="clean"] .ivx-go,:root [data-style="clean"] .ivx-go,:root [data-style="clean"].ivx-go{transition:transform var(--dm-t-fast) var(--dm-ease)}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink primary alone presses */
+.ivx :is(.ib,.chip,.ivx-role,.pill):active{transform:none}
+/* Clean: Copy link and Send sit in an off-white foot strip, each 8px from the card's edges (28px pills in its 22px corners),
+   Copy link the flat secondary button; an address that is not valid keeps the chip's white with its words and mark in red, no
+   red fill (owner, 17 Nov) */
+/* the role select in the field's corner: its corners the field's less the 5px round it */
+:root[data-style="clean"] .ivx-role,:root [data-style="clean"] .ivx-role,:root [data-style="clean"].ivx-role{border-radius:calc(var(--dm-r-field) - 5px)}
+:root[data-style="clean"] .ivx-ft,:root [data-style="clean"] .ivx-ft,:root [data-style="clean"].ivx-ft{margin:0 calc(-1 * var(--dm-s-4)) calc(-1 * var(--dm-s-4));padding:var(--dm-s-2) var(--dm-s-4);background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+:root[data-style="clean"] .ivx-ft .ivx-link,:root [data-style="clean"] .ivx-ft .ivx-link,:root [data-style="clean"].ivx-ft .ivx-link{margin-left:0;padding:0 11px;color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .ivx-ft .ivx-link:hover,:root [data-style="clean"] .ivx-ft .ivx-link:hover,:root [data-style="clean"].ivx-ft .ivx-link:hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
+:root[data-style="clean"] .ivx-ft .ivx-link:active,:root [data-style="clean"] .ivx-ft .ivx-link:active,:root [data-style="clean"].ivx-ft .ivx-link:active{box-shadow:var(--dm-btn2-press)}
+:root[data-style="clean"] .ivx-ch.bad,:root [data-style="clean"] .ivx-ch.bad,:root [data-style="clean"].ivx-ch.bad{background:var(--dm-surface);box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
+:root[data-style="clean"] .ivx-ch.bad>svg,:root [data-style="clean"] .ivx-ch.bad>svg,:root [data-style="clean"].ivx-ch.bad>svg{color:var(--dm-bad-mark)}
+/* a new chip scales and fades in from where it lands, with no blur */
+@keyframes ivxchc{from{opacity:0;transform:scale(.96)}}
+:root[data-style="clean"] .ivx-ch,:root [data-style="clean"] .ivx-ch,:root [data-style="clean"].ivx-ch{animation:ivxchc var(--dm-t) var(--dm-ease) backwards}
+:root[data-style="clean"] .ivx-chips .ivx-ch.seen,:root [data-style="clean"] .ivx-chips .ivx-ch.seen,:root [data-style="clean"].ivx-chips .ivx-ch.seen{animation:none}

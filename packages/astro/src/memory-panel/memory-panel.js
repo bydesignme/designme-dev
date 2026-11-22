@@ -15,14 +15,14 @@ DM.def('memory-panel', (r, c) => {
     ['process','File design bugs in the Design QA project','linear','DES-214 in Linear, Sep 26'],
     ['brand','No em dashes in product copy','drive','Voice and tone guide in Drive, Oct 2']
   ].map((m, i) => ({ id:i, k:m[0], t:m[1], from:m[2], s:m[3] }));
-  const list = $('.mmx-list', r), st = $('.mmx-st', r), srcs = $('.mmx-srcs', r), fi = $('.mmx-fi', r), ft = $('.mmx-ft', r);
+  const list = $('.mmx-list', r), fi = $('.mmx-fi', r), ft = $('.mmx-ft', r);
   let f = 'all', nid = 100;
-  // the count, and the apps the memories came from
-  const count = () => { swap(st, M.length + (M.length === 1 ? ' memory' : ' memories')); srcs.innerHTML = [...new Set(M.map(m => m.from).filter(s => BRAND[s]))].map(s => `<span>${BRAND[s]}</span>`).join(''); };
+  // the head names the panel only: a count of the memories and a row of their sources' marks repeated what the list shows
+  const count = () => {};
   const meta = m => `<span class="k">${KIND[m.k][0]}</span><span aria-hidden="true">·</span><span class="s">${m.s}</span>${m.isNew ? '<span class="tag nw">New</span>' : ''}${m.used ? '<span class="tag nw">Used</span>' : ''}`;
   const rowOf = m => $(`.mmx-m[data-id="${m.id}"]`, list);
   function item(m){
-    const el = html(`<div class="mmx-m${m.isNew ? ' new' : ''}${m.learn ? ' learn' : ''}" data-id="${m.id}" style="--dm-k:${KIND[m.k][1]}"><span class="mmx-src" aria-hidden="true">${m.learn ? '<span class="spin"></span>' : mark(m.from)}</span><span class="mmx-b"><span class="t${m.learn ? ' shim' : ''}" spellcheck="false">${m.t}</span><span class="mmx-meta">${meta(m)}</span></span><span class="acts"><button class="ib ed" aria-label="Edit" data-tip="Edit">${I('edit','xs')}</button><button class="ib rm" aria-label="Forget" data-tip="Forget">${I('trash','xs')}</button></span></div>`);
+    const el = html(`<div class="mmx-m${m.learn ? ' learn' : ''}" data-id="${m.id}" style="--dm-k:${KIND[m.k][1]}"><span class="mmx-src" aria-hidden="true">${m.learn ? '<span class="spin"></span>' : mark(m.from)}</span><span class="mmx-b"><span class="t${m.learn ? ' shim' : ''}" spellcheck="false">${m.t}</span><span class="mmx-meta">${meta(m)}</span></span><span class="acts"><button class="ib ed" aria-label="Edit" data-tip="Edit">${I('edit','xs')}</button><button class="ib rm" aria-label="Forget" data-tip="Forget">${I('trash','xs')}</button></span></div>`);
     const t = $('.t', el);
     $('.ed', el).onclick = () => { t.contentEditable = 'true'; t.focus({ preventScroll:true }); const s = document.getSelection(); s.selectAllChildren(t); s.collapseToEnd();
       const done = () => { t.contentEditable = 'false'; m.t = t.textContent.trim() || m.t; m.s = 'Edited by you, just now'; m.from = 'edit'; t.textContent = m.t; update(m); count(); };
@@ -39,32 +39,19 @@ DM.def('memory-panel', (r, c) => {
     const src = $('.mmx-src', el), t = $('.t', el);
     if (!m.learn && el.classList.contains('learn')){ el.classList.remove('learn'); t.classList.remove('shim'); swap(t, m.t); src.innerHTML = mark(m.from); enter(src.firstElementChild); }
     else if (t.contentEditable !== 'true') src.innerHTML = mark(m.from);
-    el.classList.toggle('new', !!m.isNew);
     $('.mmx-meta', el).innerHTML = meta(m);
     if (pulse){ el.classList.remove('use'); void el.offsetWidth; el.classList.add('use'); }
   }
   function paint(){ list.innerHTML = ''; M.filter(m => f === 'all' || m.k === f).forEach(m => list.appendChild(item(m))); stagger([...list.children], 40); }
   // a row that arrives opens its own height, so the panel grows smoothly instead of jumping
-  const grow = el => { if (REDUCE) return; const cs = getComputedStyle(el), gap = parseFloat(getComputedStyle(list).rowGap) || 0, ease = getComputedStyle(r).getPropertyValue('--dm-ease').trim() || 'ease';
-    el.animate([{ height:'0px', paddingTop:'0px', paddingBottom:'0px', marginBottom:-gap + 'px', opacity:0, filter:'blur(4px)', overflow:'hidden' }, { height:cs.height, paddingTop:cs.paddingTop, paddingBottom:cs.paddingBottom, marginBottom:'0px', opacity:1, filter:'blur(0px)', overflow:'hidden' }], { duration:560, easing:ease }); };
+  const growRow = el => { if (REDUCE) return; const cs = getComputedStyle(el), gap = parseFloat(getComputedStyle(list).rowGap) || 0, ease = getComputedStyle(r).getPropertyValue('--dm-ease').trim() || 'ease', blur = getComputedStyle(r).getPropertyValue('--dm-motion').trim() === 'clean' ? 0 : 4;
+    el.animate([{ height:'0px', paddingTop:'0px', paddingBottom:'0px', marginBottom:-gap + 'px', opacity:0, filter:`blur(${blur}px)`, overflow:'hidden' }, { height:cs.height, paddingTop:cs.paddingTop, paddingBottom:cs.paddingBottom, marginBottom:'0px', opacity:1, filter:'blur(0px)', overflow:'hidden' }], { duration:560, easing:ease }); };
   seg($('.mmx-tab', r), v => { f = v; paint(); });
   count(); paint();
-  // the room the list needs once the agent has learned its new rule (one more row, at the top, with its New tag) is kept from
-  // the start, so the panel never grows in its stage and stays centred (16 Nov; as Agent tree). Measured on a hidden copy at
-  // the panel's width, again when the width changes
+  // no room is kept for the memory still to come (owner, 17 Nov): the panel grows as the new one opens its row, and as a filter
+  // or a forgotten memory changes the list (grow(), centred in its stage), once its entrance (which scales it) has ended
   const mroot = r.classList.contains('mmx') ? r : $('.mmx', r);
-  if (mroot){
-    const tallest = () => {
-      const p = mroot.cloneNode(true);
-      p.style.cssText = `position:absolute;left:0;top:0;width:${mroot.offsetWidth}px;min-height:0;visibility:hidden;pointer-events:none`;
-      p.setAttribute('aria-hidden', 'true'); p.inert = true;
-      $('.mmx-list', p).prepend(item({ id:-1, k:'brand', t:'Use “Start free” instead of “Sign up” on CTAs', from:'figma', s:'Your edit in Pricing v4, just now', isNew:true }));
-      mroot.parentElement.appendChild(p); const h = p.offsetHeight; p.remove(); return h;
-    };
-    let mw = -1;
-    const keep = () => { const w = mroot.offsetWidth; if (!w || w === mw) return; mw = w; mroot.style.minHeight = tallest() + 'px'; };
-    keep(); const ro = new ResizeObserver(keep); ro.observe(mroot); c.offs.push(() => ro.disconnect());
-  }
+  if (mroot && r === c.st) Promise.resolve().then(() => Promise.all(mroot.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && mroot.isConnected) c.offs.push(grow(mroot)); });
   // the preview: the agent learns a rule from your edit in Figma, then drafts an email in Gmail with three memories, which
   // pulse as it reads them. Every state lives in the memories' data, so switching tabs keeps it; taking over settles it
   c.run(async () => {
@@ -72,7 +59,7 @@ DM.def('memory-panel', (r, c) => {
     const m = { id:nid++, k:'brand', t:'Learning from your edit in Pricing v4', from:'figma', s:'Just now', learn:true };
     const learnt = () => Object.assign(m, { learn:false, t:'Use “Start free” instead of “Sign up” on CTAs', s:'Your edit in Pricing v4, just now' });
     c.taken(() => { if (m.learn){ learnt(); update(m); } if (ft.classList.contains('shim')){ ft.classList.remove('shim'); fi.innerHTML = I('spark','xs'); swap(ft, 'Used in 14 answers this week'); } });
-    M.unshift(m); count(); if (f === 'brand' || f === 'all'){ const el = item(m); list.prepend(el); grow(el); }
+    M.unshift(m); count(); if (f === 'brand' || f === 'all'){ const el = item(m); list.prepend(el); growRow(el); }
     await c.step(1500);
     learnt(); m.isNew = true; update(m);
     await c.step(2600);

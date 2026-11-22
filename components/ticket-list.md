@@ -34,11 +34,11 @@ Ticket list is a support queue where the agent has already triaged each ticket a
 
 ### What it does
 
-- A coloured dot marks `priority`: urgent red, high amber, normal accent and low grey, with the name in a tooltip.
+- A coloured dot marks `priority`, a vivid mark: urgent red, high orange, normal the accent and low grey, with the name in a tooltip.
 - While shut, each row shows the customer and a preview of their `question`, plus the `waiting` time and assignee avatar.
-- Opening a row shows the question and the agent's `reply` in an editable box; Edit puts the cursor at the end of it.
-- Send and solve calls `onSend` with the ticket and the reply as edited; a promise shows a spinner, then the row fades out, folds its height away so the rows under it slide up, and moves to Solved.
-- An Open and Solved switch filters the list, and an empty filter shows `emptyLabel`, "All caught up" by default.
+- Opening a row shows the question and the agent's `reply` on the title's column. The reply is a field you can edit, its edge a step stronger while you do; Edit puts the cursor at the end of it. The card eases to its new height as a ticket opens or closes.
+- Send and solve calls `onSend` with the ticket and the reply as edited; while a promise is pending a spinner takes the button's icon and its words stay, then the row fades out, folds its height away so the rows under it slide up, and moves to Solved.
+- An Open and Solved switch filters the list. An empty filter shows an empty state: `emptyLabel` ("All caught up", or "Nothing solved yet") and `emptyHint` under it.
 - `tickets`, `filter` and `open` can each be controlled or left to the component.
 
 ### Accessibility
@@ -102,7 +102,8 @@ export default function TicketListDemo() {
 | `onSend` (optional) | `(ticket: TicketListTicket, reply: string) => void \| Promise<void>` | Sends the reply, edited or not. Return a promise and the button spins until it settles; then the ticket fades out and is solved |
 | `title` (optional) | `string` |  |
 | `filterLabels` (optional) | `Record<TicketListStatus, string>` | The switch's two labels |
-| `emptyLabel` (optional) | `string` | Shown when no ticket matches the filter |
+| `emptyLabel` (optional) | `string` | The empty state's title when no ticket matches the filter. Defaults to "All caught up" for open tickets and "Nothing solved yet" |
+| `emptyHint` (optional) | `string` | The empty state's quiet line. Defaults to "New tickets show up here" and "Solved tickets show up here" |
 | `replyLabel` (optional) | `string` |  |
 | `editLabel` (optional) | `string` |  |
 | `sendLabel` (optional) | `string` |  |
@@ -143,7 +144,8 @@ import { useEffect, useRef, useState, type AnimationEvent } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable, useReducedMotion } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { Avatar, enter, Seg, Spin, Tip } from '../lib/motion';
+import { Avatar, enter, Seg, Spin, Tip, useGrow } from '../lib/motion';
+import { useHoverGlide } from '../lib/glide';
 import '../designme.css';
 import './ticket-list.css';
 
@@ -160,7 +162,7 @@ export interface TicketListTicket {
   question?: string;
   /** The reply the agent suggests. People can edit it before sending */
   reply?: string;
-  /** The coloured dot in front: urgent red, high amber, normal accent, low grey */
+  /** The coloured dot in front, a vivid mark: urgent red, high orange, normal the accent, low grey */
   priority?: TicketListPriority;
   /** Who it is assigned to, shown as a small avatar */
   assignee: { initials: string; color: string };
@@ -187,20 +189,17 @@ export interface TicketListProps {
   title?: string;
   /** The switch's two labels */
   filterLabels?: Record<TicketListStatus, string>;
-  /** Shown when no ticket matches the filter */
+  /** The empty state's title when no ticket matches the filter. Defaults to "All caught up" for open tickets and "Nothing solved yet" */
   emptyLabel?: string;
+  /** The empty state's quiet line. Defaults to "New tickets show up here" and "Solved tickets show up here" */
+  emptyHint?: string;
   replyLabel?: string;
   editLabel?: string;
   sendLabel?: string;
   className?: string;
 }
 
-const PRIORITY: Record<TicketListPriority, { label: string; color: string }> = {
-  urgent: { label: 'Urgent', color: 'var(--dm-bad)' },
-  high: { label: 'High', color: 'var(--dm-warn)' },
-  normal: { label: 'Normal', color: 'var(--dm-accent)' },
-  low: { label: 'Low', color: 'var(--dm-faint)' }
-};
+const PRIORITY: Record<TicketListPriority, string> = { urgent: 'Urgent', high: 'High', normal: 'Normal', low: 'Low' };
 
 // how long a solved ticket takes to fade, then to fold its height away
 const FADE = 330, FOLD = 260;
@@ -221,7 +220,7 @@ function Ticket({ ticket, index, isOpen, leaving, busy, onToggle, onSend, labels
     const a = el.animate([{ height: el.offsetHeight + 'px' }, { height: '0px' }], { duration: FOLD, delay: FADE, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' });
     return () => a.cancel();
   }, [leaving, reduce]);
-  const p = PRIORITY[ticket.priority ?? 'normal'];
+  const p = ticket.priority ?? 'normal';
   const edit = () => {
     const el = text.current; if (!el) return;
     el.focus();
@@ -231,7 +230,7 @@ function Ticket({ ticket, index, isOpen, leaving, busy, onToggle, onSend, labels
     <div ref={row} className={cx('dm-tkx-t', isOpen && 'dm-open', entering && 'dm-enter', leaving && 'dm-leave')} style={entering ? enter(index * 40).style : undefined}
       onAnimationEnd={(e: AnimationEvent) => { if (e.target === e.currentTarget && entering) setEntering(false); }}>
       <button type="button" className="dm-tkx-r" aria-expanded={isOpen} onClick={leaving ? undefined : onToggle}>
-        <Tip label={p.label}><span className="dm-pr"><span className="dm-dot" style={{ color: p.color }} /></span></Tip>
+        <Tip label={PRIORITY[p]}><span className="dm-pr"><span className="dm-dot" data-p={p} /></span></Tip>
         <span className="dm-t"><b>{ticket.title}</b><span>{ticket.from}{ticket.question && !isOpen ? ' · ' + ticket.question : ''}</span></span>
         <span className="dm-m"><span className="dm-w">{ticket.waiting}</span><Avatar initials={ticket.assignee.initials} color={ticket.assignee.color} /></span>
       </button>
@@ -244,8 +243,9 @@ function Ticket({ ticket, index, isOpen, leaving, busy, onToggle, onSend, labels
           </div>
           <div className="dm-tkx-a dm-enter" style={enter(100).style}>
             <button type="button" className="dm-pill dm-ghost dm-sm" onClick={edit}><Icon name="edit" size="xs" />{labels.edit}</button>
+            {/* while it sends, a spinner takes the icon's place and the words stay, so the button keeps its width */}
             <button type="button" className="dm-pill dm-accent dm-sm" aria-busy={busy} onClick={() => { if (!busy) onSend(text.current?.textContent ?? ticket.reply ?? ''); }}>
-              {busy ? <Spin /> : <><Icon name="send" size="xs" />{labels.send}</>}
+              {busy ? <Spin /> : <Icon name="send" size="xs" />}{labels.send}
             </button>
           </div>
         </div>
@@ -256,7 +256,7 @@ function Ticket({ ticket, index, isOpen, leaving, busy, onToggle, onSend, labels
 
 /** Support tickets the agent has triaged, with suggested replies. */
 export function TicketList({ tickets, defaultTickets = [], onTicketsChange, filter, defaultFilter = 'open', onFilterChange, open, defaultOpen = null, onOpenChange, onSend,
-  title = 'Support', filterLabels = { open: 'Open', done: 'Solved' }, emptyLabel = 'All caught up', replyLabel = 'Suggested reply', editLabel = 'Edit', sendLabel = 'Send and solve', className }: TicketListProps) {
+  title = 'Support', filterLabels = { open: 'Open', done: 'Solved' }, emptyLabel, emptyHint, replyLabel = 'Suggested reply', editLabel = 'Edit', sendLabel = 'Send and solve', className }: TicketListProps) {
   const [list, setList] = useControllable(tickets, defaultTickets, onTicketsChange);
   const [shown, setShown] = useControllable(filter, defaultFilter, onFilterChange);
   const [openId, setOpen] = useControllable(open, defaultOpen, onOpenChange);
@@ -280,9 +280,13 @@ export function TicketList({ tickets, defaultTickets = [], onTicketsChange, filt
     setList(latest.current.map(x => x.id === t.id ? { ...x, status: 'done', reply } : x));
   };
   const rows = list.filter(t => t.status === shown);
+  // the card eases to its new height as tickets open, close, leave or change with the filter, and keeps no room for one to open
+  const [box, boxIn] = useGrow();
+  // Clean's one hover: a highlight that glides from ticket to ticket; the open one keeps its own fill
+  useHoverGlide(box, '.dm-tkx-r', { keep: '.dm-open,[aria-expanded="true"]' });
 
   return (
-    <div data-dm="" className={cx('dm-tkx dm-panel', className)}>
+    <div data-dm="" ref={box} className={cx('dm-tkx dm-panel dm-growing', className)}><div ref={boxIn} className="dm-grow">
       <div className="dm-tkx-h">
         <b>{title}</b>
         <Seg className="dm-tkx-sg" label="Filter" value={shown} onChange={v => { setOpen(null); setShown(v); }}
@@ -294,9 +298,9 @@ export function TicketList({ tickets, defaultTickets = [], onTicketsChange, filt
           <Ticket key={t.id} ticket={t} index={i} isOpen={openId === t.id} leaving={leaving === t.id} busy={busy === t.id}
             onToggle={() => setOpen(openId === t.id ? null : t.id)} onSend={reply => send(t, reply)}
             labels={{ reply: replyLabel, edit: editLabel, send: sendLabel }} />
-        )) : <div className="dm-tkx-e">{emptyLabel}</div>}
+        )) : <div className="dm-tkx-em"><span className="dm-tkx-em-art" aria-hidden="true" /><b>{emptyLabel ?? (shown === 'open' ? 'All caught up' : 'Nothing solved yet')}</b><span>{emptyHint ?? (shown === 'open' ? 'New tickets show up here' : 'Solved tickets show up here')}</span></div>}
       </div>
-    </div>
+    </div></div>
   );
 }
 ```

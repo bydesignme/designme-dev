@@ -23,7 +23,7 @@ npx shadcn@latest add https://designme.dev/r/shadcn/astro/context-switcher.json 
 
 ## About
 
-Context switcher is the breadcrumb at the top of a developer dashboard that says where you are: an organisation, a project and an environment. Each part shows its name, an optional badge like a plan ("Pro") or an environment ("Production"), and a ⇅ mark, and opens its own switcher with a search, the list with the current one ticked, and Create new at the bottom. Picking an organisation brings its projects, and picking a project brings the environment it was on.
+Context switcher is the breadcrumb at the top of a developer dashboard that says where you are: an organisation, a project and an environment. Each part shows its name, an optional badge like a plan ("Pro") or an environment ("Production"), and a ⇅ mark, and opens its own switcher with a search, the list with the current one marked, and Create new at the bottom. Picking an organisation brings its projects, and picking a project brings the environment it was on.
 
 ### When to use it
 
@@ -34,9 +34,9 @@ Context switcher is the breadcrumb at the top of a developer dashboard that says
 
 ### What it does
 
-- Each part is a button with the item's name, its badge and ⇅. The organisation also has a tile with its initial. When a pick changes a part, its name and badge crossfade.
-- A part's switcher opens under it: a search, a line saying what the list holds ("Projects in Fernhill Labs"), the items with their badges and the current one ticked, and Create new… at the bottom, which reads Create “…” once something is typed. Typing filters the list; with nothing left, it says so.
-- The search looks like every field: a quiet grey edge at rest that turns a step stronger while you type in it, on the list's own surface (white in light mode), with no focus ring. The row under the pointer or the arrow keys keeps that surface with a grey edge rather than taking a grey fill, a step stronger on the current one.
+- Each part is a button with the item's name, its badge and ⇅, its words 16px in from the bar's ends and its hover fill reaching out round them. The organisation also has a tile with its initial: one of the avatars' fills with its own ink (white on blue, violet, red and pink), grey in Clean. When a pick changes a part, its name and badge crossfade.
+- A part's switcher opens under it, over the room the component keeps under the bar for a switcher at its tallest, so the bar never moves and the switcher is never cut off. It holds a search, a line saying what the list holds ("Projects in Fernhill Labs"), the items with their badges, and Create new… at the bottom, which reads Create “…” once something is typed. Typing filters the list; with nothing left, it says so.
+- The search looks like every field: a quiet grey edge at rest that turns a step stronger while you type in it, with no focus ring. The row under the pointer or the arrow keys takes a quiet grey fill, and so does the current one, whose name is a step heavier.
 - Picking an organisation brings its projects and picking a project brings its environments. In the HTML version each level remembers what was last picked in it; in React, the parts after a pick keep their item if their new list has it, and otherwise take the item marked `isDefault`, or the first.
 - As the bar runs short, each part takes an even share of it and never more than it needs, so the names shorten alike with an ellipsis, and a name cut short shows in full in a tooltip. When the component is 560px wide or less the organisation's tile goes, and at 440px or less, phone width, only the last part shows, and a … button opens a menu with the others, each opening its own switcher.
 - In HTML, each change goes out as a `context-change` event with the whole path, and Create new first sends a cancelable `context-create` event with the part and what was typed: left alone, it adds one by that name (an organisation with a first project) and picks it. In React, `onChange` gets the path and the item, and `onCreate` adds the Create new row.
@@ -46,7 +46,7 @@ Context switcher is the breadcrumb at the top of a developer dashboard that says
 - The bar is a `nav` named "Context" holding an ordered list; the slashes between the parts are hidden from screen readers. Each part's button has `aria-haspopup="listbox"`, `aria-expanded` and a name with its badge, like "Environment: eu-live, Production".
 - The search is a combobox with `aria-autocomplete="list"` that keeps the focus while `aria-activedescendant` follows the highlight through the listbox. Rows are options with `aria-selected`; Create new is named "Create new project" until something is typed.
 - Enter, Space or the down arrow on a part opens its switcher with the focus in the search and the current item highlighted; the up arrow opens it on the last row. The arrows move and wrap, Home and End go to the ends, typing filters, Enter picks, Escape closes it and gives the focus back to the part (or to … on a phone), and Tab closes it and moves on. On the bar, the left and right arrows move between the parts; in the search, with nothing typed, they open the part before or after.
-- A polite live region says what changed, like "Switched to Invoice reader (Beta), environment staging (Staging)". Every badge's text is at least 4.5:1 and APCA Lc 60 on the bar and in the list, hovered rows included, in both styles and themes.
+- A polite live region says what changed, like "Switched to Invoice reader (Beta), environment staging (Staging)". Every badge's text is at least 4.5:1 and APCA Lc 60 on the bar and in the list, hovered rows included, in every style and theme.
 
 ## Usage in React
 
@@ -78,11 +78,11 @@ const ORGS: Org[] = [
     { id: 'onboard', name: 'Onboarding copilot', badge: 'Paused', envs: envs('sandbox') },
     { id: 'notes', name: 'Release notes writer', envs: envs('live') }
   ] },
-  { id: 'quillwork', name: 'Quillwork', tile: 'orange', badge: 'Free', projects: [
+  { id: 'quillwork', name: 'Quillwork', tile: 'pink', badge: 'Free', projects: [
     { id: 'coach', name: 'Essay coach', envs: envs('live') },
     { id: 'cite', name: 'Citation checker', badge: { label: 'Beta', tone: 'teal' }, envs: envs('staging') }
   ] },
-  { id: 'otterline', name: 'Otterline Health', tile: 'green', badge: { label: 'Enterprise', tone: 'violet' }, projects: [
+  { id: 'otterline', name: 'Otterline Health', tile: 'violet', badge: { label: 'Enterprise', tone: 'violet' }, projects: [
     { id: 'intake', name: 'Intake assistant', envs: envs('live') },
     { id: 'claims', name: 'Claims summariser', envs: envs('live') },
     { id: 'handover', name: 'Shift handover notes', badge: { label: 'Beta', tone: 'teal' }, envs: envs('sandbox') }
@@ -108,7 +108,7 @@ export default function ContextSwitcherDemo() {
     const id = `new-${Date.now()}`;
     const next = orgs.map(o => ({ ...o, projects: o.projects.map(p => ({ ...p, envs: [...p.envs] })) }));
     const o = next.find(x => x.id === value.org) ?? next[0], p = o.projects.find(x => x.id === value.project) ?? o.projects[0];
-    if (key === 'org') next.push({ id, name: name || 'New organisation', tile: 'violet', badge: 'Free', projects: [{ id: id + '-p', name: 'First project', envs: envs('sandbox') }] });
+    if (key === 'org') next.push({ id, name: name || 'New organisation', tile: 'blue', badge: 'Free', projects: [{ id: id + '-p', name: 'First project', envs: envs('sandbox') }] });
     else if (key === 'project') o.projects.push({ id, name: name || 'New project', envs: envs('sandbox') });
     else p.envs.push(env(name || 'new-environment', 'Development'));
     setOrgs(next); setValue({ ...value, [key]: key === 'env' ? name || 'new-environment' : id });
@@ -188,12 +188,15 @@ import { cx } from '../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../lib/hooks';
 import { Icon } from '../lib/icons';
 import { Swap, Tip } from '../lib/motion';
+import { useHoverGlide } from '../lib/glide';
 import '../designme.css';
+// its menus' rows glide in Clean
+import '../lib/glide';
 import './context-switcher.css';
 
 /** A badge's colour, the same tones as Badge: neutral grey, the accent's tint, the three states, or a tag colour */
 export type ContextSwitcherTone = 'neutral' | 'accent' | 'success' | 'warning' | 'danger' | 'blue' | 'violet' | 'green' | 'orange' | 'red' | 'yellow' | 'pink' | 'teal';
-/** The tint of an item's tile */
+/** The colour of an item's tile: the avatars' fills (white letters on blue, violet, red and pink). Clean draws every tile grey */
 export type ContextSwitcherTint = 'blue' | 'violet' | 'green' | 'orange' | 'red' | 'yellow' | 'pink' | 'teal';
 
 /** One organisation, project or environment */
@@ -299,6 +302,8 @@ export function ContextSwitcher({ segments, value, defaultValue, onChange, onCre
 
   const root = useRef<HTMLDivElement>(null), bar = useRef<HTMLElement>(null), pop = useRef<HTMLDivElement>(null), mpop = useRef<HTMLDivElement>(null);
   const search = useRef<HTMLInputElement>(null), list = useRef<HTMLDivElement>(null), moreBtn = useRef<HTMLButtonElement>(null), mi = useRef<HTMLLIElement>(null);
+  // Clean's one hover: a highlight that glides from row to row
+  useHoverGlide(list, '.dm-csw-o');
   const trigs = useRef<(HTMLButtonElement | null)[]>([]), opts = useRef<(HTMLDivElement | null)[]>([]);
 
   // the switcher keeps showing the part it was opened for while it fades out
@@ -331,6 +336,19 @@ export function ContextSwitcher({ segments, value, defaultValue, onChange, onCre
     const rr = r.getBoundingClientRect(), ar = at.getBoundingClientRect(), br = b.getBoundingClientRect();
     return { left: Math.max(0, Math.min(ar.left - rr.left, rr.width - el.offsetWidth)), top: Math.round(br.bottom - rr.top + 6) };
   };
+  // a switcher opens over the component from its part and never moves the bar: the component keeps room under the bar for a
+  // switcher at its tallest (its search and a full list, which scrolls past that), so centred in a stage nothing is cut off
+  const [room, setRoom] = useState<number>();
+  useEffect(() => {
+    const fit = () => {
+      const b = bar.current, p = pop.current, l = list.current, m = mpop.current; if (!b || !p || !l) return;
+      const tall = p.offsetHeight - l.offsetHeight + (parseFloat(getComputedStyle(l).maxHeight) || 0);
+      setRoom(Math.ceil(b.offsetHeight + 6 + Math.max(tall, m?.offsetHeight ?? 0)));
+    };
+    fit(); const ro = new ResizeObserver(fit);
+    if (bar.current) ro.observe(bar.current);
+    return () => ro.disconnect();
+  }, []);
   // once a closed one has faded it goes back to the component's corner, so a narrower screen later never scrolls sideways to it
   useIsoLayoutEffect(() => {
     if (openKey) { setPlace(placeUnder(pop.current, anchor(openKey))); return; }
@@ -456,7 +474,7 @@ export function ContextSwitcher({ segments, value, defaultValue, onChange, onCre
   const hidden = segments.slice(0, -1), moreLabel = hidden.map(s => s.label).join(' and ');
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-csw', className)}>
+    <div data-dm="" ref={root} className={cx('dm-csw', className)} style={room ? { minHeight: room } : undefined}>
       <nav ref={bar} className="dm-csw-bar dm-panel" aria-label={label}>
         <ol className="dm-csw-path">
           <li ref={mi} className="dm-csw-mi">

@@ -8,6 +8,7 @@
 /* and a list that opens under a gliding field fades in a beat after it starts to move */
 .dm-glide>.dm-csx-pop.dm-open{transition-delay:.08s}
 .dm-glide>.dm-msc-pop.dm-open{transition-delay:.08s,.08s,.08s,0s}
+.dm-glide>.dm-six-pop.dm-open{transition-delay:.08s}
 /* Soft 2: one quiet surface per object, grey type for finished work, motion only on what is happening now */
 :root,[data-style="soft"],[data-style="clean"]{
   --dm-motion:soft;
@@ -124,13 +125,11 @@
 .dm-ecx-now::before{corner-shape:round}
 .dm-fxp-tree::-webkit-scrollbar-thumb{corner-shape:round}
 .dm-hand::before{corner-shape:round}
-.dm-hnx-t .dm-ic::after{corner-shape:round}
-.dm-ksx-s .dm-ic::after{corner-shape:round}
+.dm-hnx-dot{corner-shape:round}
 .dm-pulse::after{corner-shape:round}
 .dm-radar::after{corner-shape:round}
 .dm-radar::before{corner-shape:round}
 .dm-sgc-mo .dm-d.dm-e::after{corner-shape:round}
-.dm-shx-r .dm-ic::after{corner-shape:round}
 .dm-stx-ok::after{corner-shape:round}
 .dm-tmx-body::-webkit-scrollbar-thumb{corner-shape:round}
 .dm-toggle::after{corner-shape:round}
@@ -161,7 +160,6 @@
 .dm-panel{background:var(--dm-surface);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow);position:relative}
 .dm-ib{width:30px;height:30px;border-radius:50%;display:inline-grid;place-items:center;color:var(--dm-fg2);transition:background var(--dm-t-fast),color var(--dm-t-fast),transform .15s}
 @media (hover:hover) and (pointer:fine){.dm-ib:hover{background:var(--dm-row);color:var(--dm-fg)}}
-.dm-ib:active{transform:scale(.94)}
 .dm-ib.dm-fill{background:var(--dm-soft);box-shadow:var(--dm-soft-ring)}
 @media (hover:hover) and (pointer:fine){.dm-ib.dm-fill:hover{background:var(--dm-soft-h)}}
 .dm-ib.dm-on{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}
@@ -169,8 +167,8 @@
 @media (hover:hover) and (pointer:fine){.dm-chip:hover{background:var(--dm-hover);color:var(--dm-fg)}}
 .dm-chip.dm-on{background:var(--dm-surface);color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-on) 50%,transparent)}
 .dm-chip.dm-sm{height:24px;padding:0 9px;font-size:12px}
+/* a click never scales a button or its words (owner, 18 Nov); only Clean's ink primary presses, at .97 (in its own section) */
 .dm-pill{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:32px;padding:0 14px;border-radius:var(--dm-r-pill);font-size:13px;font-weight:500;white-space:nowrap;transition:background var(--dm-t-fast),color var(--dm-t-fast),opacity var(--dm-t-fast),transform .15s}
-.dm-pill:active{transform:scale(.97)}
 /* the primary action is the accent, with --dm-on-accent on it, so it follows the accent and stays readable in any colour */
 .dm-pill.dm-primary{background:var(--dm-accent);color:var(--dm-on-accent)}
 @media (hover:hover) and (pointer:fine){.dm-pill.dm-primary:hover{background:var(--dm-accent-2)}}
@@ -216,6 +214,21 @@
 code.dm-c{font-family:var(--dm-mono);font-size:12.5px;background:var(--dm-chip);padding:1px 5px;border-radius:var(--dm-r-tiny,5px)}
 .dm-av{width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;font-size:10px;font-weight:500;color:#fff;flex:none}
 .dm-hr{height:1px;background:var(--dm-line);border:0;margin:0}
+/* a data table's columns (cols()): the handle on a header's right edge, on the line between two columns, which turns into a
+   3px grey bar while it is pointed at, dragged or has the keyboard's focus; the line where a moved column will land, its name
+   following the pointer, and its cells tinted while it moves. Each table draws the lines between its columns itself */
+.dm-col-rz{position:absolute;top:0;bottom:0;right:-4px;z-index:2;width:9px;cursor:col-resize;touch-action:none;outline:0}
+.dm-col-rz::after{content:"";position:absolute;top:6px;bottom:6px;left:4px;width:1px;border-radius:1px;background:transparent;transition:background-color var(--dm-t-fast),width var(--dm-t-fast),left var(--dm-t-fast)}
+.dm-col-rz.dm-on::after,.dm-col-rz:focus-visible::after{left:3px;width:3px;background:var(--dm-line-strong)}
+@media (hover:hover) and (pointer:fine){.dm-col-rz:hover::after{left:3px;width:3px;background:var(--dm-line-strong)}}
+.dm-col-rz:focus-visible{outline:0}
+th:last-child>.dm-col-rz{display:none}
+.dm-cols-rz{table-layout:fixed}
+.dm-cols-rzing,.dm-cols-rzing *{cursor:col-resize!important;user-select:none;-webkit-user-select:none}
+.dm-cols-drag,.dm-cols-drag *{cursor:grabbing!important;user-select:none;-webkit-user-select:none}
+:is(th,td).dm-col-mv{background-color:color-mix(in srgb,var(--dm-fg) 4%,var(--dm-surface))}
+.dm-col-at{position:fixed;z-index:1001;width:2px;border-radius:1px;background:var(--dm-accent-mark,var(--dm-accent));pointer-events:none}
+.dm-col-ghost{position:fixed;left:0;top:0;z-index:1002;padding:5px 10px;border-radius:var(--dm-r-sm);background:var(--dm-raised);box-shadow:var(--dm-shadow-pop);font-size:12px;font-weight:500;color:var(--dm-fg);pointer-events:none;white-space:nowrap}
 /* an off switch and an empty box are drawn in a grey that holds 3:1 against the surface; an accent fill keeps a hairline of the
    accent's mark, so a light accent like lime still has an edge */
 .dm-toggle{width:30px;height:18px;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));background:color-mix(in srgb,var(--dm-muted) 80%,var(--dm-surface));position:relative;flex:none;transition:background var(--dm-t-fast)}
@@ -229,7 +242,7 @@ code.dm-c{font-family:var(--dm-mono);font-size:12.5px;background:var(--dm-chip);
    The build checks that every selector drawing with a ::before or ::after is in the lists below */
 @media (pointer:coarse){
   :where([data-dm]) :where(button,a[href],summary,[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"],[role="slider"],label:has(input[type="checkbox"],input[type="radio"])){position:relative;--dm-hit-w:40px;--dm-hit-h:40px}
-  :where([data-dm]) :where(button,a[href],summary,[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"],[role="slider"],label:has(input[type="checkbox"],input[type="radio"])):not(:where(.dm-radar,.dm-hand,.dm-mtx-jm,.dm-rtr-li:not(:last-child),.dm-atr-kids,.dm-rc-cap,.dm-rte-body.dm-empty,.dm-rte-hint,.dm-afx-desk,.dm-ahx-bot,.dm-ecx-now,.dm-ssi-or,.dm-cmx-th>.dm-cmx-c:first-child:has(+ .dm-cmx-rp),.dm-cmx-rp>.dm-cmx-c,.dm-aln-ct,.dm-aln-rows>*,.dm-aln-av,.dm-aln-det div,.dm-aln-pk,.dm-trv-r[data-k="agent"] .dm-trv-b i,.dm-tk-st:not(:last-child),.dm-tmx-blk,.dm-atx-ic,.dm-atx-em-art,.dm-pvb-st))::before,:where([data-dm]) :where(button,a[href],summary,[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"],[role="slider"],label:has(input[type="checkbox"],input[type="radio"])):where(.dm-radar,.dm-hand,.dm-mtx-jm,.dm-rtr-li:not(:last-child),.dm-atr-kids,.dm-rc-cap,.dm-rte-body.dm-empty,.dm-rte-hint,.dm-afx-desk,.dm-ahx-bot,.dm-ecx-now,.dm-ssi-or,.dm-cmx-th>.dm-cmx-c:first-child:has(+ .dm-cmx-rp),.dm-cmx-rp>.dm-cmx-c):not(:where(.dm-cmx-rp>.dm-cmx-c:not(:last-child),.dm-aln-lane,.dm-trv-g i.dm-el,.dm-trv-r.dm-run:not([data-k="agent"]) .dm-trv-b i,.dm-trv-r[data-k="agent"] .dm-trv-b i,.dm-trv-b,.dm-trv-sc,.dm-tk-st.dm-done:not(:last-child),.dm-tmx-h,.dm-tmx.dm-live .dm-tmx-body,.dm-atx-ic,.dm-atx-em-art,.dm-toggle,.dm-radar,.dm-pulse,.dm-stl-track i,.dm-stx-ok,.dm-aln-tr i,.dm-afx-card .dm-afx-open,.dm-plx-s.dm-edited .dm-t,.dm-mix-mk,.dm-hnx-t .dm-ic,.dm-ksx-s .dm-ic,.dm-shx-r .dm-ic,.dm-dpk-d.dm-t,.dm-sgc-mo .dm-d.dm-e,.dm-agx-now,.dm-btx-ask,.dm-btx-live,.dm-ssi-or,.dm-rxx-r,.dm-bdg.dm-live .dm-bdg-dot,.dm-crs-pv,.dm-crs-pic,.dm-hmx-sc,.dm-pva-mk>i))::after{content:"";position:absolute;inset:min(0px,(100% - var(--dm-hit-h)) / 2) min(0px,(100% - var(--dm-hit-w)) / 2);--dm-hit:1}
+  :where([data-dm]) :where(button,a[href],summary,[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"],[role="slider"],label:has(input[type="checkbox"],input[type="radio"])):not(:where(.dm-radar,.dm-hand,.dm-mtx-jm,.dm-rtr-li:not(:last-child),.dm-atr-kids,.dm-rc-cap,.dm-rte-body.dm-empty,.dm-rte-hint,.dm-afx-desk,.dm-ahx-bot,.dm-ecx-now,.dm-ssi-or,.dm-cmx-rp>.dm-cmx-c,.dm-aln-ct,.dm-aln-rows>*,.dm-aln-av,.dm-aln-det div,.dm-aln-pk,.dm-trv-r[data-k="agent"] .dm-trv-b i,.dm-tk-st:not(:last-child),.dm-tmx-blk,.dm-atx-ic,.dm-atx-em-art,.dm-pvb-st,:root[data-style="clean"] .dm-plx-h,.dm-evr-em-art,.dm-wrx-lbh,.dm-fxp-n .dm-ag,.dm-fxp-em-art,.dm-ksx-em-art,.dm-atb-em-art,:is(.dm-cmx-th,.dm-cmx-th>.dm-grow)>.dm-cmx-c:first-child:has(+ .dm-cmx-rp),.dm-ntx-em-art,.dm-bnx[data-tone="warning"] .dm-bnx-eb,.dm-flm-em-art,.dm-tkx-em-art,:root[data-style="clean"] :is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go),:root[data-style="clean"] .dm-hg[data-hg="b"],:root[data-style="clean"] .dm-prg-ring,:root[data-style="clean"] .dm-hsc-ring))::before,:where([data-dm]) :where(button,a[href],summary,[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"],[role="slider"],label:has(input[type="checkbox"],input[type="radio"])):where(.dm-radar,.dm-hand,.dm-mtx-jm,.dm-rtr-li:not(:last-child),.dm-atr-kids,.dm-rc-cap,.dm-rte-body.dm-empty,.dm-rte-hint,.dm-afx-desk,.dm-ahx-bot,.dm-ecx-now,.dm-ssi-or,.dm-cmx-rp>.dm-cmx-c,:is(.dm-cmx-th,.dm-cmx-th>.dm-grow)>.dm-cmx-c:first-child:has(+ .dm-cmx-rp),:root[data-style="clean"] :is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go)):not(:where(.dm-cmx-rp>.dm-cmx-c:not(:last-child),.dm-aln-lane,.dm-trv-g i.dm-el,.dm-trv-r.dm-run:not([data-k="agent"]) .dm-trv-b i,.dm-trv-r[data-k="agent"] .dm-trv-b i,.dm-trv-b,.dm-trv-sc,.dm-tk-st.dm-done:not(:last-child),.dm-tmx-h,.dm-tmx.dm-live .dm-tmx-body,.dm-atx-ic,.dm-atx-em-art,.dm-evr-em-art,.dm-toggle,.dm-radar,.dm-pulse,.dm-stl-track i,.dm-stx-ok,.dm-aln-tr i,.dm-afx-card .dm-afx-open,.dm-plx-s.dm-edited .dm-t,.dm-mix-mk,.dm-hnx-t .dm-ic,.dm-ksx-s .dm-ic,.dm-shx-r .dm-ic,.dm-dpk-d.dm-t,.dm-sgc-mo .dm-d.dm-e,.dm-agx-now,.dm-btx-ask,.dm-btx-live,.dm-ssi-or,.dm-bdg.dm-live .dm-bdg-dot,.dm-crs-pv,.dm-crs-pic,.dm-hmx-sc,.dm-pva-mk>i,.dm-fxp-em-art,.dm-ksx-em-art,.dm-atb-em-art,.dm-ntx-em-art,.dm-bnx[data-tone="warning"] .dm-bnx-eb,.dm-flm-em-art,.dm-tkx-em-art,.dm-col-rz,.dm-ttx-t :is(th,td):not(:first-child):not(:last-child),:root[data-style="clean"] .dm-hg[data-hg="a"],:root[data-style="clean"] .dm-sdx-rail,:root[data-style="clean"] .dm-prg :is(.dm-prg-seg i,.dm-prg-lin,.dm-prg-mb),:root[data-style="clean"] .dm-sbx-rh .dm-bar))::after{content:"";position:absolute;inset:min(0px,(100% - var(--dm-hit-h)) / 2) min(0px,(100% - var(--dm-hit-w)) / 2);--dm-hit:1}
 }
 .dm-seg2{display:inline-flex;padding:2px;background:var(--dm-chip);border-radius:var(--dm-r-pill);position:relative}
 .dm-seg2 button{position:relative;z-index:1;height:26px;padding:0 11px;border-radius:var(--dm-r-pill);font-size:12.5px;color:var(--dm-fg2);transition:color var(--dm-t-fast)}
@@ -298,10 +311,8 @@ code.dm-c{font-family:var(--dm-mono);font-size:12.5px;background:var(--dm-chip);
 .dm-tip.dm-show{opacity:1;transform:none;filter:none}
 .dm-copied{color:var(--dm-ok)!important}
 @media (hover:hover) and (pointer:fine){.dm-copied:hover{color:var(--dm-ok)!important}}
-.dm-tip .dm-kbd{background:rgba(255,255,255,.14);color:inherit;margin-left:6px}
-:root[data-theme="dark"] .dm-tip .dm-kbd{background:rgba(0,0,0,.1)}
-:root[data-theme="dark"] .dm-ssx-ics span{color:#0d0d0d!important}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dm-ssx-ics span{color:#0d0d0d!important}}
+/* a shortcut in a tip is a chip of the tip's own text colour, so it shows on a dark tip and on Clean's white one alike */
+.dm-tip .dm-kbd{background:color-mix(in srgb,currentColor 14%,transparent);color:inherit;margin-left:6px}
 /* a closed popover is hidden as well as clear, so Tab and screen readers pass over it: it shows at once as it opens, so the
    focus can go into it, and hides once it has faded out */
 .dm-pop{position:absolute;z-index:50;min-width:200px;background:var(--dm-raised);border-radius:calc(14px * var(--dm-rk-l,var(--dm-rk)));box-shadow:var(--dm-shadow-pop);padding:6px;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(6px) scale(.98);transform-origin:var(--dm-origin,top left);filter:blur(3px);transition:opacity .2s var(--dm-ease),transform .35s var(--dm-ease),filter .2s var(--dm-ease),visibility 0s .2s}
@@ -460,7 +471,10 @@ code.dm-c{font-family:var(--dm-mono);font-size:12.5px;background:var(--dm-chip);
   --dm-page:#f7f7f7; --dm-stage:#f7f7f7; --dm-surface:#ffffff; --dm-raised:#ffffff; --dm-strip:#fafafa;
   --dm-fg:#0a0a0a; --dm-fg2:#404040; --dm-muted:#6b6b6b; --dm-faint:#d4d4d4; --dm-rail:#e5e5e5;
   --dm-line:#e5e5e5; --dm-hair:rgba(0,0,0,.08); --dm-field-line:#e0e0e0; --dm-line-strong:#8f8f8f; --dm-field-line-strong:#b3b3b3;
-  --dm-chip:#f3f3f3; --dm-hover:#ededed; --dm-press:#e6e6e6; --dm-wash:#fafafa; --dm-row:#f7f7f7;
+  /* one hover and one selected fill for every row, option, segment, tab and ghost control (owner, 21 Nov: "hover and active
+     states are inconsistent for clean style all over the components"): see-through, so they read the same on a card, a strip
+     or a menu, and clearly visible in light and dark; selected is the same shape a step stronger */
+  --dm-chip:#f3f3f3; --dm-hover:#ededed; --dm-press:#e6e6e6; --dm-wash:#fafafa; --dm-row:rgba(0,0,0,.05); --dm-row-on:rgba(0,0,0,.09);
   --dm-soft:#f3f3f3; --dm-soft-h:#ededed; --dm-soft-ring:inset 0 0 0 1px rgba(0,0,0,.06); --dm-dis:#a3a3a3;
   --dm-ghost:#ededed; --dm-ghost-2:#f4f4f4;
   --dm-ink:#0a0a0a; --dm-on-ink:#ffffff; --dm-on-btn:#ffffff;
@@ -496,7 +510,7 @@ code.dm-c{font-family:var(--dm-mono);font-size:12.5px;background:var(--dm-chip);
   --dm-page:#0a0a0a; --dm-stage:#0a0a0a; --dm-surface:#141414; --dm-raised:#1c1c1c; --dm-strip:#181818;
   --dm-fg:#f5f5f5; --dm-fg2:#cfcfcf; --dm-muted:#bdbdbd; --dm-faint:#474747; --dm-rail:#2e2e2e;
   --dm-line:#2a2a2a; --dm-hair:rgba(255,255,255,.09); --dm-field-line:#4d4d4d; --dm-line-strong:#7a7a7a; --dm-field-line-strong:#8f8f8f;
-  --dm-chip:#1f1f1f; --dm-hover:#232323; --dm-press:#2a2a2a; --dm-wash:#181818; --dm-row:#1a1a1a;
+  --dm-chip:#1f1f1f; --dm-hover:#232323; --dm-press:#2a2a2a; --dm-wash:#181818; --dm-row:rgba(255,255,255,.07); --dm-row-on:rgba(255,255,255,.12);
   --dm-soft:#1f1f1f; --dm-soft-h:#262626; --dm-soft-ring:inset 0 0 0 1px rgba(255,255,255,.06); --dm-dis:#666666;
   --dm-ghost:#262626; --dm-ghost-2:#1e1e1e;
   --dm-ink:#f5f5f5; --dm-on-ink:#0a0a0a; --dm-on-btn:#0a0a0a;
@@ -512,12 +526,19 @@ code.dm-c{font-family:var(--dm-mono);font-size:12.5px;background:var(--dm-chip);
   --dm-btn2-press:inset 0 0 0 1px rgba(255,255,255,.18),inset 0 0 0 99px rgba(255,255,255,.06);
   --dm-knob:#2a2a2a; --dm-knob-shadow:0 0 0 1px rgba(255,255,255,.08),inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.5); --dm-track-ring:inset 0 0 0 1px rgba(255,255,255,.04),inset 0 1px 3px rgba(0,0,0,.35);
   --dm-area:.09;
+  /* in dark mode Clean's accent is white (owner, 21 Nov, four times: "dark mode clean has white as accents and accent color
+     in light mode"): everything drawn in the accent turns white, with dark words on a white fill: count badges, loaders,
+     spinners, animated dots, step and progress bars, playheads, relevance meters, selected marks, toggles, links (which keep
+     their underline) and accent text. Its tints (--dm-accent-bg, --dm-sel) follow it, so they are neutral greys, and the tracks
+     under its marks stay the neutral rail. Status colours, agents' own colours, avatars and the chart palette's other series
+     keep their hues; the chart's first series follows the accent, so it is white too. Light mode keeps the blue */
+  --dm-accent:#f5f5f5; --dm-accent-2:#ffffff; --dm-on-accent:#0a0a0a; --dm-accent-fg:#f5f5f5; --dm-accent-mark:#f5f5f5;
   color-scheme:dark}}
 :root[data-style="clean"][data-theme="dark"],:root[data-theme="dark"] [data-style="clean"]{
   --dm-page:#0a0a0a; --dm-stage:#0a0a0a; --dm-surface:#141414; --dm-raised:#1c1c1c; --dm-strip:#181818;
   --dm-fg:#f5f5f5; --dm-fg2:#cfcfcf; --dm-muted:#bdbdbd; --dm-faint:#474747; --dm-rail:#2e2e2e;
   --dm-line:#2a2a2a; --dm-hair:rgba(255,255,255,.09); --dm-field-line:#4d4d4d; --dm-line-strong:#7a7a7a; --dm-field-line-strong:#8f8f8f;
-  --dm-chip:#1f1f1f; --dm-hover:#232323; --dm-press:#2a2a2a; --dm-wash:#181818; --dm-row:#1a1a1a;
+  --dm-chip:#1f1f1f; --dm-hover:#232323; --dm-press:#2a2a2a; --dm-wash:#181818; --dm-row:rgba(255,255,255,.07); --dm-row-on:rgba(255,255,255,.12);
   --dm-soft:#1f1f1f; --dm-soft-h:#262626; --dm-soft-ring:inset 0 0 0 1px rgba(255,255,255,.06); --dm-dis:#666666;
   --dm-ghost:#262626; --dm-ghost-2:#1e1e1e;
   --dm-ink:#f5f5f5; --dm-on-ink:#0a0a0a; --dm-on-btn:#0a0a0a;
@@ -533,6 +554,7 @@ code.dm-c{font-family:var(--dm-mono);font-size:12.5px;background:var(--dm-chip);
   --dm-btn2-press:inset 0 0 0 1px rgba(255,255,255,.18),inset 0 0 0 99px rgba(255,255,255,.06);
   --dm-knob:#2a2a2a; --dm-knob-shadow:0 0 0 1px rgba(255,255,255,.08),inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.5); --dm-track-ring:inset 0 0 0 1px rgba(255,255,255,.04),inset 0 1px 3px rgba(0,0,0,.35);
   --dm-area:.09;
+  --dm-accent:#f5f5f5; --dm-accent-2:#ffffff; --dm-on-accent:#0a0a0a; --dm-accent-fg:#f5f5f5; --dm-accent-mark:#f5f5f5;
   color-scheme:dark}
 /* no red fill behind an error (owner, 17 Nov): a failed row in the inbox or the eval results, an error line in the run
    drawer's log and a wrong code digit keep their red words and marks on the row as it is */
@@ -567,15 +589,55 @@ code.dm-c{font-family:var(--dm-mono);font-size:12.5px;background:var(--dm-chip);
 :root[data-style="clean"] :is(.dm-pill.dm-line,.dm-pill.dm-soft):not([disabled]),:root [data-style="clean"] :is(.dm-pill.dm-line,.dm-pill.dm-soft):not([disabled]),:root [data-style="clean"]:is(.dm-pill.dm-line,.dm-pill.dm-soft):not([disabled]){color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] :is(.dm-pill.dm-line,.dm-pill.dm-soft):not([disabled]):hover,:root [data-style="clean"] :is(.dm-pill.dm-line,.dm-pill.dm-soft):not([disabled]):hover,:root [data-style="clean"]:is(.dm-pill.dm-line,.dm-pill.dm-soft):not([disabled]):hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
 :root[data-style="clean"] :is(.dm-pill.dm-line,.dm-pill.dm-soft):not([disabled]):active,:root [data-style="clean"] :is(.dm-pill.dm-line,.dm-pill.dm-soft):not([disabled]):active,:root [data-style="clean"]:is(.dm-pill.dm-line,.dm-pill.dm-soft):not([disabled]):active{box-shadow:var(--dm-btn2-press)}
-/* text buttons: no fill until hovered, then the faintest grey */
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-pill.dm-ghost:hover,:root [data-style="clean"] .dm-pill.dm-ghost:hover,:root [data-style="clean"].dm-pill.dm-ghost:hover{background:var(--dm-row)}}
+/* ghost and icon buttons: no fill until hovered, then the one hover (--dm-row) in the button's own shape, easing in and out over
+   220ms; a button that is on, pressed or holding its menu open has the same shape with the stronger fill (--dm-row-on), never a
+   ring or a hue (owner, 21 and 22 Nov). Components that sit on the stage set --dm-row for their bar, and Clean hands it back */
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] :is(.dm-pill.dm-ghost,.dm-ib:not(.dm-fill)):not([disabled],[aria-pressed="true"],[aria-expanded="true"],.dm-on):hover,:root [data-style="clean"] :is(.dm-pill.dm-ghost,.dm-ib:not(.dm-fill)):not([disabled],[aria-pressed="true"],[aria-expanded="true"],.dm-on):hover,:root [data-style="clean"]:is(.dm-pill.dm-ghost,.dm-ib:not(.dm-fill)):not([disabled],[aria-pressed="true"],[aria-expanded="true"],.dm-on):hover{background-color:var(--dm-row);color:var(--dm-fg)}}
+:root[data-style="clean"] .dm-ib.dm-on,:root [data-style="clean"] .dm-ib.dm-on,:root [data-style="clean"].dm-ib.dm-on{background:var(--dm-row-on);color:var(--dm-fg)}
+/* the controls in a head or foot strip sit on the content's 16px column at the sides, as the rows do, and 8px from the
+   strip's own top and bottom (owner, 21 Nov: "ok do it, apply everywhere", replacing 8px from the card's edges) */
+:root[data-style="clean"] :is(.dm-atx-ft,.dm-atx-ctx-ft),:root [data-style="clean"] :is(.dm-atx-ft,.dm-atx-ctx-ft),:root [data-style="clean"]:is(.dm-atx-ft,.dm-atx-ctx-ft){padding-right:16px}
+/* one hover for every ghost and icon button (owner, 21 Nov: "you use like 10 different hover styles"): the quiet grey of what
+   it sits on (--dm-row) in the button's own shape, with no edge, shadow or change of size, in every style. On an off-white strip
+   the grey is a step under the strip, so it shows as it does on the card. (A remove × inside a filled chip, a tinted banner
+   or the ink save bar takes a little of its own colour instead, color-mix(currentColor 12%), as no grey shows on a fill) */
+/* the cards that set a stronger grey of their own for the stage take Clean's, so every hover in Clean is the same fill */
+:root[data-style="clean"] :is(.dm-tst-t,.dm-tsk-c,.dm-lva,.dm-plx,.dm-ssx,.dm-ahx,.dm-lnx,.dm-dnx,.dm-cmx,.dm-ntx.dm-panel,.dm-ivx,.dm-rxx,.dm-rgx,.dm-wsx,.dm-rvx-bar,.dm-fbx-bar),:root [data-style="clean"] :is(.dm-tst-t,.dm-tsk-c,.dm-lva,.dm-plx,.dm-ssx,.dm-ahx,.dm-lnx,.dm-dnx,.dm-cmx,.dm-ntx.dm-panel,.dm-ivx,.dm-rxx,.dm-rgx,.dm-wsx,.dm-rvx-bar,.dm-fbx-bar),:root [data-style="clean"]:is(.dm-tst-t,.dm-tsk-c,.dm-lva,.dm-plx,.dm-ssx,.dm-ahx,.dm-lnx,.dm-dnx,.dm-cmx,.dm-ntx.dm-panel,.dm-ivx,.dm-rxx,.dm-rgx,.dm-wsx,.dm-rvx-bar,.dm-fbx-bar){--dm-row:inherit}
+/* menus: rows with 10px corners, the hover and the picked row's fill easing in and out over 220ms */
+:root[data-style="clean"] .dm-mi,:root [data-style="clean"] .dm-mi,:root [data-style="clean"].dm-mi{border-radius:10px;transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .dm-pop :is(.dm-mi[aria-checked="true"],.dm-mi[aria-selected="true"],[role="option"][aria-selected="true"]),:root [data-style="clean"] .dm-pop :is(.dm-mi[aria-checked="true"],.dm-mi[aria-selected="true"],[role="option"][aria-selected="true"]),:root [data-style="clean"].dm-pop :is(.dm-mi[aria-checked="true"],.dm-mi[aria-selected="true"],[role="option"][aria-selected="true"]){background:var(--dm-row-on)}
 :root[data-style="clean"] .dm-ib,:root [data-style="clean"] .dm-ib,:root [data-style="clean"].dm-ib{transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease),transform var(--dm-t-fast) var(--dm-ease)}
-:root[data-style="clean"] .dm-ib:active,:root [data-style="clean"] .dm-ib:active,:root [data-style="clean"].dm-ib:active{transform:scale(.94)}
-/* switchers: a white knob with a hairline and a 1px shadow, gliding on a grey track with a soft inner shadow */
-:root[data-style="clean"] .dm-seg2,:root [data-style="clean"] .dm-seg2,:root [data-style="clean"].dm-seg2{box-shadow:var(--dm-track-ring)}
-:root[data-style="clean"] .dm-seg2 .dm-knob,:root [data-style="clean"] .dm-seg2 .dm-knob,:root [data-style="clean"].dm-seg2 .dm-knob{background:var(--dm-knob);box-shadow:var(--dm-knob-shadow);transition:left var(--dm-t) var(--dm-ease),width var(--dm-t) var(--dm-ease)}
-:root[data-style="clean"] .dm-seg2 button,:root [data-style="clean"] .dm-seg2 button,:root [data-style="clean"].dm-seg2 button{color:var(--dm-muted);font-weight:500;transition:color var(--dm-t-fast) var(--dm-ease)}
-:root[data-style="clean"] .dm-seg2 button[aria-pressed="true"],:root [data-style="clean"] .dm-seg2 button[aria-pressed="true"],:root [data-style="clean"].dm-seg2 button[aria-pressed="true"]{color:var(--dm-fg)}
+/* a field's own Send (Comments, Composer, Attachment tray's composer, Agent lanes' note; owner, 21 Nov): it sits in the field's
+   corner with the same room above, below and beside it, and its corners are the field's less that room (each component sets
+   the radius). Empty, it is a quiet glyph with no fill; once there is something to send, the ink button fades in under it.
+   Only the ink presses */
+:root[data-style="clean"] :is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go),:root [data-style="clean"] :is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go),:root [data-style="clean"]:is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go){position:relative;isolation:isolate;background:none;box-shadow:none;transition:transform var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] :is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go)::before,:root [data-style="clean"] :is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go)::before,:root [data-style="clean"]:is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go)::before{content:'';position:absolute;inset:0;z-index:-1;border-radius:inherit;background:linear-gradient(180deg,var(--dm-btn-1),var(--dm-btn-2));box-shadow:var(--dm-btn-depth);opacity:0;pointer-events:none;transition:opacity var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] :is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go):not([disabled]),:root [data-style="clean"] :is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go):not([disabled]),:root [data-style="clean"]:is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go):not([disabled]){color:var(--dm-on-btn)}
+:root[data-style="clean"] :is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go):not([disabled])::before,:root [data-style="clean"] :is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go):not([disabled])::before,:root [data-style="clean"]:is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go):not([disabled])::before{opacity:1}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] :is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go):not([disabled]):hover::before,:root [data-style="clean"] :is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go):not([disabled]):hover::before,:root [data-style="clean"]:is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go):not([disabled]):hover::before{background:linear-gradient(180deg,color-mix(in srgb,var(--dm-btn-1) 88%,#808080),var(--dm-btn-2))}}
+:root[data-style="clean"] :is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go):not([disabled]):active,:root [data-style="clean"] :is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go):not([disabled]):active,:root [data-style="clean"]:is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go):not([disabled]):active{transform:scale(.97)}
+:root[data-style="clean"] :is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go):not([disabled]):active::before,:root [data-style="clean"] :is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go):not([disabled]):active::before,:root [data-style="clean"]:is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go):not([disabled]):active::before{box-shadow:var(--dm-btn-press)}
+:root[data-style="clean"] :is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go)[disabled],:root [data-style="clean"] :is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go)[disabled],:root [data-style="clean"]:is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go)[disabled]{color:var(--dm-dis);transform:none}
+@media (prefers-reduced-motion:reduce){:root[data-style="clean"] :is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go)::before,:root [data-style="clean"] :is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go)::before,:root [data-style="clean"]:is(.dm-cmx-go,.dm-cpx-send,.dm-atx-cmp-send,.dm-aln-cw-go)::before{transition:none}}
+/* the gliding highlight in a menu or a list (hoverGlide() in the core script; owner, 21 Nov): one fill, the list's own ::before
+   or ::after, drawn under its rows. It moves and resizes to the row under the pointer, the keyboard's row or the arrows' row over
+   220ms with Clean's ease, and fades in and out as the pointer enters and leaves the list; with reduced motion it only fades.
+   The rows' own hover fills give way to it; a picked row (data-hgr="k") keeps its stronger fill, which shows over it */
+:root[data-style="clean"] .dm-hg,:root [data-style="clean"] .dm-hg,:root [data-style="clean"].dm-hg{isolation:isolate}
+:root[data-style="clean"] .dm-hg.dm-hg-pos,:root [data-style="clean"] .dm-hg.dm-hg-pos,:root [data-style="clean"].dm-hg.dm-hg-pos{position:relative}
+:root[data-style="clean"] .dm-hg[data-hg="b"]::before,:root [data-style="clean"] .dm-hg[data-hg="b"]::before,:root [data-style="clean"].dm-hg[data-hg="b"]::before,:root[data-style="clean"] .dm-hg[data-hg="a"]::after,:root [data-style="clean"] .dm-hg[data-hg="a"]::after,:root [data-style="clean"].dm-hg[data-hg="a"]::after{content:"";position:absolute;left:0;top:0;z-index:-1;pointer-events:none;width:var(--dm-hg-w,0px);height:var(--dm-hg-h,0px);transform:translate(var(--dm-hg-x,0px),var(--dm-hg-y,0px));border-radius:var(--dm-hg-r,10px);background:var(--dm-hg-bg,var(--dm-row));opacity:var(--dm-hg-o,0);transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t-fast) var(--dm-ease),width var(--dm-t-fast) var(--dm-ease),height var(--dm-t-fast) var(--dm-ease),border-radius var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .dm-hg.dm-hg-jump[data-hg="b"]::before,:root [data-style="clean"] .dm-hg.dm-hg-jump[data-hg="b"]::before,:root [data-style="clean"].dm-hg.dm-hg-jump[data-hg="b"]::before,:root[data-style="clean"] .dm-hg.dm-hg-jump[data-hg="a"]::after,:root [data-style="clean"] .dm-hg.dm-hg-jump[data-hg="a"]::after,:root [data-style="clean"].dm-hg.dm-hg-jump[data-hg="a"]::after{transition:opacity var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .dm-hg [data-hgr=""],:root [data-style="clean"] .dm-hg [data-hgr=""],:root [data-style="clean"].dm-hg [data-hgr=""]{background-color:transparent!important}
+@media (prefers-reduced-motion:reduce){:root[data-style="clean"] .dm-hg[data-hg="b"]::before,:root [data-style="clean"] .dm-hg[data-hg="b"]::before,:root [data-style="clean"].dm-hg[data-hg="b"]::before,:root[data-style="clean"] .dm-hg[data-hg="a"]::after,:root [data-style="clean"] .dm-hg[data-hg="a"]::after,:root [data-style="clean"].dm-hg[data-hg="a"]::after{transition-property:opacity!important;transition-duration:var(--dm-t-fast)!important}}
+/* switchers: a white knob with a hairline and a 1px shadow, gliding on a grey track with a soft inner shadow (the site's own
+   switches and Segmented control's alike) */
+:root[data-style="clean"] :is(.dm-seg2,.dm-sgc-seg),:root [data-style="clean"] :is(.dm-seg2,.dm-sgc-seg),:root [data-style="clean"]:is(.dm-seg2,.dm-sgc-seg){box-shadow:var(--dm-track-ring)}
+:root[data-style="clean"] :is(.dm-seg2 .dm-knob,.dm-sgc-seg .dm-sgc-k),:root [data-style="clean"] :is(.dm-seg2 .dm-knob,.dm-sgc-seg .dm-sgc-k),:root [data-style="clean"]:is(.dm-seg2 .dm-knob,.dm-sgc-seg .dm-sgc-k){background:var(--dm-knob);box-shadow:var(--dm-knob-shadow);transition:left var(--dm-t) var(--dm-ease),width var(--dm-t) var(--dm-ease)}
+:root[data-style="clean"] :is(.dm-seg2,.dm-sgc-seg) button,:root [data-style="clean"] :is(.dm-seg2,.dm-sgc-seg) button,:root [data-style="clean"]:is(.dm-seg2,.dm-sgc-seg) button{color:var(--dm-muted);font-weight:500;transition:color var(--dm-t-fast) var(--dm-ease),background-color var(--dm-t-fast) var(--dm-ease)}
+/* a segment that is not picked takes the one hover under the pointer, a pill in its own shape (owner, 21 Nov) */
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] :is(.dm-seg2,.dm-sgc-seg) button:not([aria-pressed="true"],[aria-selected="true"],[aria-checked="true"],[disabled]):hover,:root [data-style="clean"] :is(.dm-seg2,.dm-sgc-seg) button:not([aria-pressed="true"],[aria-selected="true"],[aria-checked="true"],[disabled]):hover,:root [data-style="clean"]:is(.dm-seg2,.dm-sgc-seg) button:not([aria-pressed="true"],[aria-selected="true"],[aria-checked="true"],[disabled]):hover{background:var(--dm-row);color:var(--dm-fg)}}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] :is(.dm-seg2 button[aria-pressed="true"],.dm-sgc-seg button:is(:hover,[aria-selected="true"],[aria-checked="true"])),:root [data-style="clean"] :is(.dm-seg2 button[aria-pressed="true"],.dm-sgc-seg button:is(:hover,[aria-selected="true"],[aria-checked="true"])),:root [data-style="clean"]:is(.dm-seg2 button[aria-pressed="true"],.dm-sgc-seg button:is(:hover,[aria-selected="true"],[aria-checked="true"])){color:var(--dm-fg)}}
 /* toggles: ink when on (a switcher is chrome), a knob with a hairline, and a soft inner shadow in the track */
 :root[data-style="clean"] .dm-toggle[aria-checked="true"],:root [data-style="clean"] .dm-toggle[aria-checked="true"],:root [data-style="clean"].dm-toggle[aria-checked="true"]{background:var(--dm-btn-2);box-shadow:inset 0 0 0 1px var(--dm-btn-2),inset 0 2px 4px -1px rgba(0,0,0,.3)}
 :root[data-style="clean"] .dm-toggle[aria-checked="true"]::after,:root [data-style="clean"] .dm-toggle[aria-checked="true"]::after,:root [data-style="clean"].dm-toggle[aria-checked="true"]::after{background:var(--dm-on-btn)}

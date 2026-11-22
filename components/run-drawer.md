@@ -35,11 +35,11 @@ Run drawer shows a workflow's run in a drawer under its canvas. Its head says th
 ### What it does
 
 - The head holds a fold button with the run's name and its state, in colour: running in the accent with a spinner, waiting amber, passed green, failed red, stopped grey. Beside it the time, the tokens and the cost so far, then Steps, Log and Data, Stop while the run goes (Run again once it has ended) and Follow the run.
-- Steps is a timeline on an axis that grows with the run. Each step is a row with its tile, and its model and tool calls sit under it, indented. Each bar has its kind's colour: the trigger orange, AI steps and their model calls violet, tools teal, app steps and outputs blue, a branch yellow, an approval green. A failed try is red and says Failed, and the wait before a retry is hatched amber.
-- A step that waits for a person shows a hatched amber bar that grows while it waits, and under it the question with Approve and Reject. Approving lets the run carry on; rejecting fails it.
-- Log lists the run's lines with their times and levels in colour (debug grey, info blue, warn amber, error red), an error line on a red tint. The switch over it shows all of them, the warnings or the errors, with a count.
+- Steps is a timeline on an axis that grows with the run. Each step is a row with its tile, and its model and tool calls sit under it, indented. Each bar has its kind's colour: the trigger orange, AI steps and their model calls violet, tools teal, app steps and outputs blue, a branch yellow, an approval green. In Clean the tiles are one neutral grey and so are the bars, the top steps darker than the calls under them, and the running step's bar is in the accent (white in dark mode, as every Clean loader is). A failed try is red and says Failed, and the wait before a retry is hatched amber.
+- A step that waits for a person shows a hatched amber bar that grows while it waits, and under it a warning notice: a faint amber tint with the filled warning sign, the question in the text colour, Reject in white and Approve in the warning tint. Approving lets the run carry on; rejecting fails it.
+- Log lists the run's lines with their times and levels in colour (debug grey, info blue, warn amber, error red), an error line on a red tint (in Clean, its red level and words on the row as it is). The switch over it shows all of them, the warnings or the errors, with a count.
 - Data lists the steps that have finished; pick one to see its input and output as JSON, keys, strings and numbers each in their colour.
-- Over the drawer, the workflow's steps sit as a strip of tiles in their colours, linked by grey wires: the step under way is ringed in the accent (amber while it waits or retries), done steps are ticked, and the running step shows its name. Picking a tile, a row or a step in Data picks that step everywhere.
+- Over the drawer, the workflow's steps sit as a strip of tiles in their colours (grey in Clean), linked by grey wires: the step under way is ringed in the accent (amber while it waits or retries), done steps are ticked, and the running step shows its name. Picking a tile, a row or a step in Data picks that step everywhere.
 - Follow the run (on by default) keeps the newest row and line in view, and the running step in the middle of the strip. Turn it off to read without the view moving.
 - The fold button folds the drawer down to its head and opens it again. The drawer's top edge drags it taller or shorter, and the arrow keys do the same on it.
 - On designme.dev a test run plays at the pace of a real one: the company lookup is rate limited once, tries again, and the run waits for an approval. In React, pass the run as `spans`, `log` and `steps`, with `time` and `state`, and handle `onApprove`, `onStop` and `onRunAgain`; set `canvas` to put your own canvas over the drawer, or `null` for the drawer on its own.
@@ -427,12 +427,14 @@ export function RunDrawer({ runId, label = 'Test run', state, time, tokens, cost
                   <span className="dm-rdr-ms dm-num">{st === 'wait' ? 'Waiting' : st === 'bad' ? 'Failed' : st === 'stop' ? 'Stopped' : secs(e - s.start)}</span>
                 </button>,
                 waiting && state === 'waiting' && waiting.step === s.step && !s.level && (
+                  // a warning notice (owner, 18 Nov): the filled warning sign, the words in the text colour, Reject white and
+                  // Approve, which resolves it, in the warning tint
                   <div key={s.id + 'ask'} className={cx('dm-rdr-ask', !reduce && 'dm-in')} role="group" aria-label={`${waiting.title} waits for you`}>
-                    <Tile kind="approval" icon="user" />
+                    <svg className="dm-rdr-sgi" viewBox="0 0 24 24" aria-hidden="true"><path className="dm-a" d="M12 3.6 2.6 19.9h18.8z" /><path className="dm-b" d="M12 9.6v4.4M12 17v.01" /></svg>
                     <span className="dm-tx"><b>{waiting.title}</b>{waiting.detail && <span>{waiting.detail}</span>}</span>
                     <span className="dm-acts">
-                      {onApprove && <button type="button" className="dm-pill dm-primary dm-sm" data-a="yes" onClick={onApprove}><Icon name="check" size="xs" />Approve</button>}
                       {onReject && <button type="button" className="dm-pill dm-line dm-sm" data-a="no" onClick={onReject}>Reject</button>}
+                      {onApprove && <button type="button" className="dm-pill dm-warn dm-sm" data-a="yes" onClick={onApprove}><Icon name="check" size="xs" />Approve</button>}
                     </span>
                   </div>
                 )

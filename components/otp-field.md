@@ -23,7 +23,7 @@ npx shadcn@latest add https://designme.dev/r/shadcn/astro/otp-field.json  # Astr
 
 ## About
 
-OTP field takes a one-time code with one box per digit. Typing moves to the next box, Backspace moves back, and pasting the whole code fills every box at once. The code is checked as soon as the last box is filled: a wrong one shakes red and says how many tries are left, and the right one turns green.
+OTP field takes a one-time code with one box per digit. Typing moves to the next box, Backspace moves back, and pasting the whole code fills every box at once. The code is checked as soon as the last box is filled: a wrong one shakes red and says how many tries are left, and the right one is edged in green with a green tick. The line under the boxes folds open only when there is something to say, so the card never keeps room for it.
 
 ### When to use it
 
@@ -37,7 +37,7 @@ OTP field takes a one-time code with one box per digit. Typing moves to the next
 - `length` boxes, six by default, in two halves with a short dash between them.
 - `value`, `defaultValue` and `onValueChange` hold the digits; `onComplete` gets the code once every box is filled.
 - Pasting a code into any box fills them all from the first, ignoring spaces and dashes.
-- `status` shows what's happening: `checking` dims the digits and spins, `error` shakes the boxes and turns them red, `success` turns them green and locks them. Typing after an error starts the code over from the first box.
+- `status` shows what's happening: `checking` locks the boxes and shows a spinner beside the words, which shimmer while it checks; `error` shakes the boxes and turns them red; `success` edges them in green, locks them and shows the green tick, and the footer folds away. Typing after an error starts the code over from the first box.
 - `message` sets the line under the boxes, like "That code doesn't match. 2 tries left". `footer` holds a resend link or its countdown.
 - `title`, `description` and `icon` set the header, like "Check your email" with the address the code went to.
 
@@ -118,9 +118,9 @@ export default function OtpFieldDemo() {
 | `defaultValue` (optional) | `string` |  |
 | `onValueChange` (optional) | `(value: string) => void` |  |
 | `onComplete` (optional) | `(code: string) => void` | Called with the code once every box is filled |
-| `status` (optional) | `OtpStatus` | `checking` dims the digits and spins, `error` shakes them red, `success` turns them green and locks them. Typing after an error starts the code over, so set it back to `idle` when the value changes |
+| `status` (optional) | `OtpStatus` | `checking` locks the boxes and shows a spinner, `error` shakes them red, `success` edges them in green, locks them and shows a green tick. Typing after an error starts the code over, so set it back to `idle` when the value changes |
 | `message` (optional) | `string` | The line under the boxes, like "That code doesn't match. 2 tries left". Defaults to a line for each status |
-| `footer` (optional) | `ReactNode` | Under the message, like a resend link |
+| `footer` (optional) | `ReactNode` | Under the message, like a resend link. It folds away once the code is verified |
 | `className` (optional) | `string` |  |
 
 ## Usage in Astro
@@ -158,11 +158,11 @@ The digits stay red so people can see what they entered. Typing again, or Backsp
 
 ```tsx
 'use client';
-import { useEffect, useRef, useState, type ClipboardEvent, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useRef, type ClipboardEvent, type KeyboardEvent, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
-import { Spin } from '../lib/motion';
+import { Fold, Spin } from '../lib/motion';
 import '../designme.css';
 import './otp-field.css';
 
@@ -183,12 +183,12 @@ export interface OtpFieldProps {
   onValueChange?: (value: string) => void;
   /** Called with the code once every box is filled */
   onComplete?: (code: string) => void;
-  /** `checking` dims the digits and spins, `error` shakes them red, `success` turns them green and locks them.
-      Typing after an error starts the code over, so set it back to `idle` when the value changes */
+  /** `checking` locks the boxes and shows a spinner, `error` shakes them red, `success` edges them in green, locks them and
+      shows a green tick. Typing after an error starts the code over, so set it back to `idle` when the value changes */
   status?: OtpStatus;
   /** The line under the boxes, like "That code doesn't match. 2 tries left". Defaults to a line for each status */
   message?: string;
-  /** Under the message, like a resend link */
+  /** Under the message, like a resend link. It folds away once the code is verified */
   footer?: ReactNode;
   className?: string;
 }
@@ -196,11 +196,11 @@ export interface OtpFieldProps {
 const LINE: Record<OtpStatus, string> = { idle: '', checking: 'Checking the code', error: "That code doesn't match", success: 'Verified' };
 
 /** A one-time code with one box per digit. Typing moves along, Backspace clears and moves back, the arrow keys move,
-    and a paste fills every box. The first box asks for autocomplete="one-time-code", so a phone can offer the code. */
+    and a paste fills every box. The first box asks for autocomplete="one-time-code", so a phone can offer the code.
+    The line under the boxes and the footer fold open and shut, so the card keeps no room for them. */
 export function OtpField({ title = 'Check your email', description, icon = 'mail', length = 6, value, defaultValue = '', onValueChange, onComplete, status = 'idle', message, footer, className }: OtpFieldProps) {
   const [code, setCode] = useControllable(value, defaultValue, onValueChange);
   const ins = useRef<(HTMLInputElement | null)[]>([]);
-  const [popped, setPopped] = useState(-1);
   const locked = status === 'checking' || status === 'success';
   const digits = Array.from({ length }, (_, i) => code[i] ?? '');
   const half = Math.ceil(length / 2);
@@ -211,7 +211,6 @@ export function OtpField({ title = 'Check your email', description, icon = 'mail
     if (code.length === length && code !== last.current && status === 'idle') onComplete?.(code);
     last.current = code;
   }, [code, length, status, onComplete]);
-  useEffect(() => { if (popped < 0) return; const t = setTimeout(() => setPopped(-1), 160); return () => clearTimeout(t); }, [popped]);
 
   const focus = (i: number) => ins.current[Math.max(0, Math.min(length - 1, i))]?.focus();
   // a digit goes in at i; after a wrong code, typing starts the code over from the first box
@@ -219,7 +218,7 @@ export function OtpField({ title = 'Check your email', description, icon = 'mail
     const start = status === 'error' ? '' : code;
     const at = status === 'error' ? 0 : Math.min(i, start.length);
     const next = (start.slice(0, at) + d + start.slice(at + 1)).slice(0, length);
-    setCode(next); setPopped(at);
+    setCode(next);
     if (at + 1 < length) focus(at + 1);
   };
   const fill = (text: string) => {
@@ -239,17 +238,21 @@ export function OtpField({ title = 'Check your email', description, icon = 'mail
     else if (e.key === 'ArrowRight') { e.preventDefault(); focus(i + 1); }
   };
   const line = message ?? LINE[status];
+  // the line folds shut with its last words still on it
+  const shown = useRef({ line, status });
+  if (line) shown.current = { line, status };
+  const said = shown.current;
 
   return (
     <div data-dm="" className={cx('dm-otp dm-panel', className)}>
       {icon && <span className="dm-otp-ic"><Icon name={icon} /></span>}
       <b className="dm-otp-t">{title}</b>
       {description && <p className="dm-muted dm-otp-s">{description}</p>}
-      <div className={cx('dm-otp-in', status === 'checking' && 'dm-vf', status === 'error' && 'dm-bad', status === 'success' && 'dm-ok')} role="group" aria-label="Verification code">
+      <div className={cx('dm-otp-in', status === 'error' && 'dm-bad', status === 'success' && 'dm-ok')} role="group" aria-label="Verification code">
         {digits.map((d, i) => (
           <span key={i} style={{ display: 'contents' }}>
             {i === half && <span className="dm-sep" aria-hidden="true" />}
-            <input ref={el => { ins.current[i] = el; }} className={cx('dm-otp-d', popped === i && 'dm-bump')} value={d} readOnly={locked}
+            <input ref={el => { ins.current[i] = el; }} className="dm-otp-d" value={d} readOnly={locked}
               inputMode="numeric" pattern="[0-9]*" maxLength={1} autoComplete={i ? 'off' : 'one-time-code'} aria-label={`Digit ${i + 1} of ${length}`}
               aria-invalid={status === 'error' || undefined} onKeyDown={onKey(i)} onFocus={e => e.target.select()}
               onChange={e => { const v = e.target.value.replace(/\D/g, ''); if (v.length > 1) fill(v); else if (v) put(i, v); }}
@@ -257,10 +260,14 @@ export function OtpField({ title = 'Check your email', description, icon = 'mail
           </span>
         ))}
       </div>
-      <p className={cx('dm-otp-m', status === 'error' && 'dm-bad', status === 'success' && 'dm-ok')} aria-live="polite">
-        {status === 'checking' ? <Spin /> : status === 'error' ? <Icon name="alert" size="xs" /> : status === 'success' ? <Icon name="ok" size="xs" /> : null}{line}
-      </p>
-      {footer && status !== 'success' && <p className="dm-muted dm-otp-f">{footer}</p>}
+      <Fold open={!!line} className="dm-otp-mf">
+        <p className={cx('dm-otp-m', said.status === 'error' && 'dm-bad', said.status === 'success' && 'dm-ok')} aria-live="polite">
+          <span key={said.status + said.line} className="dm-enter" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            {said.status === 'checking' ? <><Spin /><span className="dm-shim">{said.line}</span></> : <>{said.status === 'error' ? <Icon name="alert" size="xs" /> : said.status === 'success' ? <Icon name="ok" size="xs" /> : null}{said.line}</>}
+          </span>
+        </p>
+      </Fold>
+      {footer && <Fold open={status !== 'success'} className="dm-otp-ff"><p className="dm-muted dm-otp-f">{footer}</p></Fold>}
     </div>
   );
 }

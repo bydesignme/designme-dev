@@ -34,13 +34,13 @@ Status pill is a single line that tells people what the agent is doing right now
 
 ### What it does
 
-- Six states: `idle`, `thinking`, `reading`, `working`, `waiting` and `done`, each with its own glyph and colour.
+- Six states: `idle`, `thinking`, `reading`, `working`, `waiting` and `done`, each with its own glyph and colour. Done is a plain line with the green tick.
 - The label shimmers while the state is thinking, reading or working.
 - A new `state`, `label`, `file` or `action` fades the old line out before the new one comes in. Changing only `meta` or `progress` updates at once.
 - `file` adds a chip with a type badge, like TSX or PDF. `action` adds a button that calls your `onClick`.
-- `variant="bar"` makes it taller with a `progress` track (0 to 100) along the bottom. Switching variants morphs in steps so text and shape never move together.
-- The width is measured from the content, so the pill always hugs its text.
-- Ships in Clean too (`data-style="clean"`): a 36px hairline pill with fully round ends, its marks in their own colours (the green tick, the orange waiting dot), a step crossing with a short fade, Review as the round ink button, and the bar on a round 3px rail.
+- `variant="bar"` makes it a small card with a `progress` track (0 to 100) under the line, both 16px in from every edge; while it holds a button the line grows a little round it, and shrinks back after. Switching variants morphs in steps so text and shape never move together.
+- The width is measured from the content, so the pill always hugs its text, and it is never wider than its container: on a narrow screen the label gives way with an ellipsis.
+- Ships in Clean too (`data-style="clean"`): a 36px hairline pill with fully round ends, its marks in their own colours (the green tick, the orange waiting dot), a step crossing with a short fade, Review as the round ink button, and the bar a round card with a 3px rail and Review a 28px pill.
 
 ### Accessibility
 
@@ -81,7 +81,7 @@ export default function StatusPillDemo() {
       // waits for Review, and carries on by itself after a while so the loop never stalls; once you have taken over, it waits for you
       await new Promise<void>(res => { setP({ state: 'waiting', label: 'Waiting for your approval', action: { label: 'Review', onClick: res }, progress: 72 }); wait(8000).then(() => { if (!mine()) res(); }); });
       setP({ state: 'working', label: 'Applying 4 changes', progress: 88 }); await wait(1600);
-      setP({ state: 'done', label: 'Done', meta: '4 files changed · 18s', progress: 100 }); await wait(3200);
+      setP({ state: 'done', label: 'Done', meta: '4 files changed', progress: 100 }); await wait(3200);
       setP({ state: 'idle', label: 'Ready for a task', progress: 0 });
     }
   });
@@ -173,7 +173,7 @@ function Glyph({ state }: { state: StatusPillState }) {
   if (state === 'reading') return <span className="dm-g" style={{ color: 'var(--dm-fg)' }}><Radar /></span>;
   if (state === 'working') return <span className="dm-g" style={{ color: 'var(--dm-fg)' }}><Spin /></span>;
   if (state === 'waiting') return <span className="dm-g" style={{ color: 'var(--dm-warn-mark)' }}><Dot /></span>;
-  if (state === 'done') return <span className="dm-g" style={{ color: 'var(--dm-ok)' }}><Icon name="ok" /></span>;
+  if (state === 'done') return <span className="dm-g" style={{ color: 'var(--dm-ok-mark)' }}><Icon name="ok" /></span>;
   return <span className="dm-g"><Dot color="var(--dm-faint)" /></span>;
 }
 
@@ -210,18 +210,27 @@ export function StatusPill(props: StatusPillProps) {
     return () => { clearTimeout(a); clearTimeout(b); };
   }, [variant, reduce]);
 
-  // the pill always hugs its content; the bar keeps a little extra room for its track
-  const box = useRef<HTMLDivElement>(null);
+  // the pill always hugs its content; the bar keeps a little extra room for its track. Neither is ever wider than the room
+  // it has (a phone): its words give way with an ellipsis
+  const box = useRef<HTMLDivElement>(null), rootRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState<number>();
+  const [room, setRoom] = useState(Infinity);
+  useEffect(() => {
+    // the room is what its container gives it (the pill itself is only as wide as its words)
+    const r = rootRef.current?.parentElement; if (!r || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(([e]) => setRoom(Math.round(e.contentRect.width) || Infinity));
+    ro.observe(r);
+    return () => ro.disconnect();
+  }, []);
   useIsoLayoutEffect(() => {
     const el = box.current; if (!el) return;
-    const fit = () => { el.style.width = 'max-content'; const w = el.scrollWidth; el.style.width = ''; setWidth(shape === 'bar' ? Math.max(w + 24, 300) : w); };
+    const fit = () => { el.style.width = 'max-content'; const w = el.scrollWidth; el.style.width = ''; setWidth(Math.min(shape === 'bar' ? Math.max(w + 24, 300) : w, room)); };
     fit();
     document.fonts?.ready.then(fit);
-  }, [prevKey, shape, view.meta]);
+  }, [prevKey, shape, view.meta, room]);
 
   return (
-    <div data-dm="" className={cx('dm-spl', shape === 'bar' && 'dm-bar', morphing && 'dm-mo', className)}>
+    <div ref={rootRef} data-dm="" className={cx('dm-spl', shape === 'bar' && 'dm-bar', morphing && 'dm-mo', className)}>
       <div className="dm-spl-pill" style={{ width: width ?? (shape === 'bar' ? 300 : 'max-content') }} aria-live="polite">
         <div ref={box} className={cx('dm-spl-in', (fading || morphing) && 'dm-out')}>
           <Glyph state={state} />
