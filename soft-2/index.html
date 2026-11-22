@@ -3892,7 +3892,9 @@ th:last-child>.col-rz{display:none}
 .evr-run .spin{width:10px;height:10px}
 /* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink primary alone presses */
 :is(.evr,.evr-vs,.evr-jg) :is(.ib,.pill):active,:root[data-style="clean"] :is(.evr,.evr-vs,.evr-jg) .ib:active{transform:none}
-.evr-sum{display:flex;flex-direction:column;gap:var(--s-2);padding:var(--s-3) 10px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+/* the line under the bars (Running 3 of 8, then 7 of 8 passed) sits as far under the bars as over the hairline below it
+   (owner, 22 Nov) */
+.evr-sum{display:flex;flex-direction:column;gap:var(--s-3);padding:var(--s-3) 10px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .evr-segs{display:flex;gap:3px}
 .evr-segs i{flex:1;height:6px;border-radius:var(--r-tiny,3px);background:var(--rail);transition:background .3s}
 .evr-segs i.pass{background:var(--ok-mark)}
@@ -3927,7 +3929,10 @@ th:last-child>.col-rz{display:none}
 .evr-kv .k{width:58px;flex:none;color:var(--muted)}
 .evr-kv .bad{color:var(--bad)}
 /* a white button on the tinted row: a hairline edge and no shadow (owner, 18 Nov: buttons cast none) */
-.evr-fix{align-self:flex-start;margin-top:6px;background:var(--surface);color:var(--fg);box-shadow:var(--on-tint-btn)}
+/* the fix sits under a hairline, apart from the details above it (owner, 22 Nov); the hairline is a step of the words' own
+   colour, so it reads on the row's tint */
+.evr-dd .evr-kv:has(+.evr-fix),.evr-vs-d .evr-vs-kv:has(+.pill){padding-bottom:var(--s-3);border-bottom:1px solid color-mix(in srgb,currentColor 12%,transparent)}
+.evr-fix{align-self:flex-start;margin-top:var(--s-2);background:var(--surface);color:var(--fg);box-shadow:var(--on-tint-btn)}
 .evr-fix:hover{background:var(--surface);box-shadow:var(--on-tint-btn-h)}
 /* nothing to show under a filter: the empty state (the lab's, lab/clean): a small sketch of the list on a white card, the
    title, one muted line and a button back to every case */
@@ -3982,9 +3987,15 @@ th:last-child>.col-rz{display:none}
 .evr-vs-st{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .evr-vs-run{flex:none}
 .evr-vs-run .spin{width:10px;height:10px}
-.evr-vs-score{display:flex;align-items:center;gap:var(--s-2);padding:var(--s-1) 10px 10px}
+/* while the cases run, the count of those done is in the button's words (Running 3/8), not a second count by the score */
+.evr-vs-run .cnt{font-variant-numeric:tabular-nums}
+.evr-vs-score{display:flex;align-items:center;gap:var(--s-2);padding:var(--s-1) 10px var(--s-3)}
 .evr-vs-big{font-size:14px;font-weight:500}
-.evr-vs-f{display:flex;gap:var(--s-1);padding:0 10px var(--s-2);overflow-x:auto;scrollbar-width:none}
+/* no change on the last run is said quietly in muted words beside the score, not in a chip (owner, 22 Nov: "move 'same score
+   as last run'"); a change keeps its green or red tag */
+.evr-vs-dl.quiet{font-size:12.5px;color:var(--muted)}
+/* the filter sits between two hairlines, apart from the score over it and the cases under it (owner, 22 Nov) */
+.evr-vs-f{display:flex;gap:var(--s-1);padding:var(--s-3) 10px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);overflow-x:auto;scrollbar-width:none}
 .evr-vs-f::-webkit-scrollbar{display:none}
 .evr-vs-chip{flex:none}
 .evr-vs-chip .n{color:var(--muted);font-variant-numeric:tabular-nums}
@@ -4000,7 +4011,7 @@ th:last-child>.col-rz{display:none}
 .evr-vs-chip:not([data-f="all"]):hover{background:var(--evr-tb);color:var(--evr-t);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--evr-t) 35%,transparent)}
 .evr-vs-chip.on:not([data-f="all"]){background:var(--surface);color:var(--evr-t);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pick-on) 50%,transparent)}
 .evr-vs-th,.evr-vs-r{display:grid;grid-template-columns:minmax(0,1fr) 30px 16px 30px 40px;align-items:center;column-gap:var(--s-1)}
-.evr-vs-th{padding:var(--s-1) 10px;font-size:11.5px;color:var(--muted);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.evr-vs-th{padding:var(--s-2) 10px var(--s-1);font-size:11.5px;color:var(--muted);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .evr-vs-th span:nth-child(2),.evr-vs-th span:nth-child(4){text-align:center}
 .evr-vs-list{display:flex;flex-direction:column}
 .evr-vs-w.shut>div{visibility:hidden;transition:visibility 0s var(--t)}
@@ -4024,7 +4035,7 @@ button.evr-vs-r:focus-visible{outline-offset:-2px;border-radius:calc(10px * var(
 .evr-vs-d{display:flex;flex-direction:column;gap:6px;padding:0 10px 10px 22px;font-size:12.5px}
 .evr-vs-kv{display:flex;gap:var(--s-2)}
 .evr-vs-kv .k{width:62px;flex:none}
-.evr-vs-d .pill{align-self:flex-start;margin-top:var(--s-1);background:var(--evr-on-warn);color:var(--fg);box-shadow:var(--on-tint-btn)}
+.evr-vs-d .pill{align-self:flex-start;margin-top:calc(var(--s-3) - 6px);background:var(--evr-on-warn);color:var(--fg);box-shadow:var(--on-tint-btn)}
 .evr-vs-d .pill:hover{box-shadow:var(--on-tint-btn-h)}
 /* narrow: a row's tint says regressed or fixed, so its name keeps the room; the count of each stays in the filters */
 @container (max-width:380px){.evr-vs-r .tg{display:none}.evr-vs-th,.evr-vs-r{grid-template-columns:minmax(0,1fr) 24px 12px 24px 34px}}
@@ -17147,7 +17158,7 @@ DM.def('eval-results', (r, c) => {
   const EVR_HTML = {
     runs:`<div class="evr-vs panel">
     <div class="evr-vs-h"><div class="evr-vs-ht"><b>Pricing copy evals</b><span class="evr-vs-st">Copy agent · last run 2h ago</span></div><button class="pill primary sm evr-vs-run" type="button">${I('play','xs')}Run evals</button></div>
-    <div class="evr-vs-score"><span class="evr-vs-big num">7/8</span><span class="evr-vs-dl tag">Same as last run</span></div>
+    <div class="evr-vs-score"><span class="evr-vs-big num">7/8</span><span class="evr-vs-dl quiet">Same score as last run</span></div>
     <div class="evr-vs-f" role="toolbar" aria-label="Show"></div>
     <div class="evr-vs-th" aria-hidden="true"><span>Case</span><span>Last</span><span></span><span>Now</span></div>
     <div class="evr-vs-list" role="list" aria-label="Cases"></div>
@@ -17196,17 +17207,19 @@ DM.def('eval-results', (r, c) => {
       const n = { all:K.length, reg:K.filter(k => ch(k) === 'reg').length, fix:K.filter(k => ch(k) === 'fix').length, fail:K.filter(k => k.s === 'fail').length };
       chips.forEach(b => { $('.n', b).textContent = n[b.dataset.f]; });
       const p = K.filter(k => k.s === 'pass').length, lp = K.filter(k => k.last === 'pass').length, fin = k => k.s === 'pass' || k.s === 'fail', doneAll = K.every(fin);
-      big.textContent = `${doneAll ? p : K.filter(fin).length}/8`;
-      const d = !doneAll ? 'Running' : p > lp ? `+${p - lp} on the last run` : p < lp ? `${p - lp} on the last run` : 'Same score as last run';
-      // while the cases run, the tag's word shimmers as every loader's does
-      if (dl.textContent !== d){ if (doneAll) dl.textContent = d; else dl.innerHTML = '<span class="shim">' + d + '</span>'; dl.className = 'evr-vs-dl tag' + (!doneAll ? '' : p > lp ? ' ok' : p < lp ? ' bad' : ''); }
+      // while the cases run, the score row keeps the last finished run's score, and the count of cases done is in the Run
+      // button's words (owner, 22 Nov: no second count by the score)
+      const cnt = $('.cnt', run); if (cnt) cnt.textContent = `${K.filter(fin).length}/8`;
+      if (doneAll) big.textContent = `${p}/8`;
+      const d = !doneAll ? 'Last run' : p > lp ? `+${p - lp} on the last run` : p < lp ? `${p - lp} on the last run` : 'Same score as last run';
+      if (dl.textContent !== d){ dl.textContent = d; dl.className = 'evr-vs-dl ' + (!doneAll || p === lp ? 'quiet' : p > lp ? 'tag ok' : 'tag bad'); }
       show();
     }
     function show(){ K.forEach(k => { const d = ch(k), on = filter === 'all' || (filter === 'fail' ? k.s === 'fail' : d === filter) || k.again; k.w.classList.toggle('shut', !on); k.w.inert = !on; }); none.hidden = K.some(k => !k.w.classList.contains('shut'));
       if (!none.hidden && NONE[filter]){ $('b', none).textContent = NONE[filter][0]; $('span:not(.evr-em-art)', none).textContent = NONE[filter][1]; } }
     K.forEach(k => paint(k)); counts();
     run.onclick = () => c.run(async () => {
-      if (busy) return; busy = true; run.disabled = true; relabel(run, '<span class="spin"></span>Running');
+      if (busy) return; busy = true; run.disabled = true; relabel(run, '<span class="spin"></span>Running <span class="cnt">0/8</span>');
       K.forEach(k => { k.s = 'idle'; k.open = false; paint(k); }); counts();
       await evrRun(c, K, (k, f) => { paint(k, f); counts(); });
       busy = false; run.disabled = false; relabel(run, I('play','xs') + 'Run again'); swap(st, 'Copy agent · run just now');
