@@ -2073,10 +2073,64 @@
   const sparkPath = (pts) => { const mx = Math.max(...pts), mn = Math.min(...pts); return pts.map((y, k) => `${k ? 'L' : 'M'}${(k / (pts.length - 1) * 100).toFixed(1)} ${(27 - (y - mn) / ((mx - mn) || 1) * 25).toFixed(1)}`).join(' '); };
   const lineOn = [true, true];
   let shownLine = null;
+  /* the closed-won chart: the library's Line chart, drawn in pixels as it is. Closed won day by day from the quarter's first day
+     to today, a solid line in the accent with its fill fading to nothing, ending on today with the open ring (owner, 10 Nov: the
+     chart covers the quarter so far and ends at today on its right edge); Q3 at the same point dotted in the palette's second
+     colour; the values on the left and dashed gridlines a week apart (owner, 21 Nov: straight segments, sharp corners). Pointing
+     at it, or the arrow keys on it, reads a day: a dashed guide, a ring on each line, the readout card beside the guide on the
+     side with room, the day as a chip on the axis, and Closed won above follows it */
+  const fhero = $('.crm-hero', fc), fcc = $('.lnx-ch', fhero), fsvg = $('.lnx-svg', fhero), fyl = $('.lnx-y', fhero), fax = $('.lnx-ax', fhero), ftt = $('.lnx-tt', fhero);
+  const [fpc, fpm] = $$('.lnx-pt', fhero), fmark = $('.lnx-now', fhero), fguide = $('.lnx-x', fhero), flive = $('p.lnx-sr', fhero);
+  const kAxis = v => v >= 1e6 ? '$' + parseFloat((v / 1e6).toFixed(1)) + 'M' : v >= 1e3 ? '$' + Math.round(v / 1e3) + 'k' : '$' + Math.round(v);
+  let FC = null, fcAt = -1;
+  const fcLatest = () => kmoney(FC ? FC.won : 0);
+  const fcGeo = () => { const W = fcc.clientWidth, H = fcc.clientHeight, xr = W - 6; return { W, H, xr, X:d => d / FC.N * xr, Y:v => H - v / FC.top * H }; };
+  const fcNear = (a, b) => { const p = a.offsetLeft, q = b.offsetLeft; return p < q + b.offsetWidth + 6 && q < p + a.offsetWidth + 6; };
+  function drawFc(){
+    if (!FC || !fcc.clientWidth) return;
+    const { W, H, xr, X, Y } = fcGeo(), path = vs => vs.map((v, d) => `${d ? 'L' : 'M'}${X(d).toFixed(1)} ${Y(v).toFixed(1)}`).join('');
+    const gl = []; for (let d = 0; d <= FC.N; d += 7) gl.push(Math.round(X(d)) + .5);
+    fsvg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    fsvg.innerHTML = `<defs><linearGradient id="crm-lng" x1="0" x2="0" y1="0" y2="1"><stop offset="0" style="stop-color:var(--dm-lnx-line);stop-opacity:var(--dm-lnx-fill)"/><stop offset="1" style="stop-color:var(--dm-lnx-line);stop-opacity:0"/></linearGradient></defs>`
+      + gl.map(x => `<line class="gl" x1="${x}" x2="${x}" y1="0" y2="${H}"/>`).join('')
+      + `<path class="cmp" d="${path(FC.QD)}"/><path class="ar" d="${path(FC.AD)}L${X(FC.N).toFixed(1)} ${H}L0 ${H}Z" fill="url(#crm-lng)"/><path class="ln" d="${path(FC.AD)}"/>`;
+    fmark.style.left = X(FC.N) + 'px'; fmark.style.top = Y(FC.AD[FC.N]) + 'px';
+    fyl.innerHTML = Array.from({ length:FC.top / FC.s + 1 }, (_, j) => `<span>${kAxis(FC.top - j * FC.s)}</span>`).join('');
+    fax.innerHTML = `<span class="lnx-a">${fmtD(-FC.N)}</span><span class="lnx-z lnx-nw">Today</span><span class="lnx-tk"></span>`;
+    const z = $('.lnx-z', fax); z.style.left = xr - z.offsetWidth + 'px';
+    if (fcAt >= 0) fcShow(fcAt);
+  }
+  function fcShow(d, say){
+    if (!FC) return; fcAt = d = clamp(d, 0, FC.N);
+    const { W, H, xr, X, Y } = fcGeo(), x = X(d), a = FC.AD[d], q = FC.QD[d], when = d === FC.N ? 'Today' : fmtD(d - FC.N);
+    fhero.classList.add('on'); fguide.style.left = x + 'px';
+    fpm.style.left = fpc.style.left = x + 'px'; fpm.style.top = Y(a) + 'px'; fpc.style.top = Y(q) + 'px';
+    fpm.classList.toggle('on', lineOn[0] && d !== FC.N); fpc.classList.toggle('on', lineOn[1]);
+    $('.lnx-tt-h', ftt).textContent = when;
+    const [ra, rb] = $$('.lnx-tt-r', ftt); ra.hidden = !lineOn[0]; rb.hidden = !lineOn[1];
+    $('b', ra).textContent = kmoney(a); $('b', rb).textContent = kmoney(q);
+    // beside the guide on the side with room; on a plot too narrow for either side, over the point, so it never covers it
+    const w = ftt.offsetWidth, h = ftt.offsetHeight, gap = 12, py = Y(lineOn[0] ? a : q), side = x + gap + w <= W ? x + gap : x - gap - w >= 0 ? x - gap - w : null;
+    ftt.style.left = (side ?? clamp(x - w / 2, 0, W - w)) + 'px';
+    ftt.style.top = (side != null ? clamp(py - h / 2, 0, H - h) : py - gap - h >= -8 ? py - gap - h : py + gap) + 'px';
+    const tk = $('.lnx-tk', fax); tk.textContent = d === FC.N ? 'Today' : fmtD(d - FC.N); tk.style.left = clamp(x - tk.offsetWidth / 2, 0, xr - tk.offsetWidth) + 'px';
+    $$('span:not(.lnx-tk)', fax).forEach(l => l.classList.toggle('lnx-off', fcNear(l, tk)));
+    const lv = $('.lnx-v', fc); if (lv) lv.textContent = lineOn[0] ? kmoney(a) : fcLatest();
+    if (say) flive.textContent = `${when}: ` + [lineOn[0] && `Q4 ${kmoney(a)}`, lineOn[1] && `Q3 ${kmoney(q)}`].filter(Boolean).join(', ');
+  }
+  function fcHide(){ fcAt = -1; fhero.classList.remove('on'); $$('span:not(.lnx-tk)', fax).forEach(l => l.classList.remove('lnx-off')); const lv = $('.lnx-v', fc); if (lv) lv.textContent = fcLatest(); }
+  const fcIdx = e => { const b = fcc.getBoundingClientRect(), { xr } = fcGeo(); return clamp(Math.round((e.clientX - b.left) / xr * FC.N), 0, FC.N); };
+  fcc.addEventListener('pointermove', e => { if (FC) fcShow(fcIdx(e)); });
+  fcc.addEventListener('pointerdown', e => { if (FC) fcShow(fcIdx(e)); });
+  fcc.addEventListener('pointerleave', e => { if (e.pointerType !== 'touch' && !fcc.matches(':focus-visible')) fcHide(); });
+  fcc.addEventListener('focus', () => { if (FC && fcc.matches(':focus-visible')) fcShow(fcAt < 0 ? FC.N : fcAt, true); });
+  fcc.addEventListener('blur', fcHide);
+  fcc.addEventListener('keydown', e => { if (!FC) return; const i = fcAt < 0 ? FC.N : fcAt;
+    if (e.key === 'Escape' && fcAt >= 0){ e.preventDefault(); fcHide(); return; }
+    const to = { ArrowLeft:i - 1, ArrowRight:i + 1, Home:0, End:FC.N }[e.key]; if (to == null) return; e.preventDefault(); fcShow(to, true); });
+  new ResizeObserver(() => drawFc()).observe(fcc);
   function renderForecast(){
-    const open = DE.filter(d => !closed(d)), pipe = sum(open, d => d.v), weighted = sum(open, d => d.v * d.p / 100), won = wonOf(OWN), avg = open.length ? pipe / open.length : 0;
-    // the cumulative won by week, this quarter so far
-    const EV = wonEvents(), A = Array.from({ length:WK + 1 }, (_, i) => sum(EV.filter(e => Math.floor((e.at + qDay) / 7) <= i), e => e.v));
+    const open = DE.filter(d => !closed(d)), won = wonOf(OWN);
     // the quarter's figures against quota (owner, 16 Nov: the forecast page's headline, as a sales CRM shows it)
     const quota = sum(OWN, o => QUOTA[o]), fcEnd = won + sum(DE.filter(d => !closed(d) && d.close <= eoq), d => d.v * d.p / 100);
     const toGo = Math.max(0, quota - won), openQ = sum(open.filter(d => d.close <= eoq), d => d.v), cover = toGo ? openQ / toGo : 0, left = Math.max(0, 12 - WK);
@@ -2084,80 +2138,37 @@
       ['chart', 'Forecast', kmoney(fcEnd), '', `${Math.round(fcEnd / quota * 100)}% of the ${kmoney(quota)} quota`],
       ['target', 'Gap to quota', kmoney(Math.max(0, quota - fcEnd)), '', `${plural(left, 'week')} left in the quarter`],
       ['layers', 'Pipeline coverage', `${cover.toFixed(1)}×`, '', `${kmoney(openQ)} open, ${kmoney(toGo)} to go`]];
-    // the numbers sit on the page, not in cards, Stripe-like: closed won large (the chart's own value, which follows the hover)
+    // the numbers sit over the chart, Stripe-like: closed won large (the chart's own value, which follows the hover)
     $('.crm-hm4', fc).innerHTML = F4.map((f, i) => `<div class="crm-hk${i ? '' : ' big'}"><span class="k">${f[1]}</span><span class="v"><b class="num${i ? '' : ' lnx-v'}">${f[2]}</b>${f[3]}</span><span class="s">${f[4]}</span></div>`).join('');
-    // the line chart: closed won day by day, from the quarter's first day to today, against Q3 at the same point (owner,
-    // 10 Nov: the chart covers the quarter so far and ends at today on its right edge; the quarter-end forecast is a line of
-    // text under the total, not half a chart)
-    const N = Math.max(1, qDay), AD = Array.from({ length:N + 1 }, (_, d) => sum(EV.filter(e => e.at + qDay <= d), e => e.v));
+    // the chart's data: closed won by each day of the quarter so far, and Q3's at the same point
+    const EV = wonEvents(), N = Math.max(1, qDay), AD = Array.from({ length:N + 1 }, (_, d) => sum(EV.filter(e => e.at + qDay <= d), e => e.v));
     const q3At = d => { const w = Math.min(12, Math.floor(d / 7)), prev = w ? Q3W[w - 1] : 0; return prev + (Q3W[w] - prev) * ((d % 7) + 1) / 7; };
-    const QD = AD.map((_, d) => q3At(d));
-    const hi = Math.max(AD[N], QD[N]) * 1.25, X = d => d / N * 320, Y = v => 136 - v / hi * 128;
-    // Line chart's own drawing: a smooth curve through a point every few days, last quarter dashed (owner, 10 Nov)
-    const step = Math.max(1, Math.round(N / 12)), SI = []; for (let d = 0; d < N; d += step) SI.push(d); SI.push(N);
-    const smooth = p => p.map((q, i) => { if (!i) return `M${q[0].toFixed(1)} ${q[1].toFixed(1)}`; const a = p[i - 1], m = (q[0] - a[0]) / 2; return `C${(a[0] + m).toFixed(1)} ${a[1].toFixed(1)} ${(q[0] - m).toFixed(1)} ${q[1].toFixed(1)} ${q[0].toFixed(1)} ${q[1].toFixed(1)}`; }).join(' ');
-    const pa = SI.map(d => [X(d), Y(AD[d])]), pb = SI.map(d => [X(d), Y(QD[d])]);
-    const svg = $('.lnx-svg', fc);
-    svg.innerHTML = `<defs><linearGradient id="crm-lng" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--dm-accent-mark,var(--dm-accent))" stop-opacity=".16"/><stop offset="1" stop-color="var(--dm-accent-mark,var(--dm-accent))" stop-opacity="0"/></linearGradient></defs>`
-      + [35, 70, 105].map(y => `<line class="gl" x1="0" x2="320" y1="${y}" y2="${y}"/>`).join('')
-      + `<path class="ar" d="${smooth(pa)} L320 140 L0 140 Z" fill="url(#crm-lng)" style="opacity:${lineOn[0] ? 1 : 0}"/><path class="ln l1${lineOn[1] ? '' : ' off'}" d="${smooth(pb)}" stroke="var(--dm-c2)" stroke-dasharray="4 4"/><path class="ln l0${lineOn[0] ? '' : ' off'}" d="${smooth(pa)}" stroke="var(--dm-accent-mark,var(--dm-accent))"/>`;
-    // the axis: the quarter's first day, two dates between, and Today at the right edge
-    // (each label is placed at its day: the library's axis places its labels by position, so a bare list stacked them all
-    // at the left; owner, 21 Nov)
-    $('.lnx-ax', fc).innerHTML = [0, Math.round(N / 3), Math.round(N * 2 / 3), N].map(d => `<span${d === N ? ' class="e"' : ''} style="left:${(d / N * 100).toFixed(2)}%">${d === N ? 'Today' : fmtD(d - N)}</span>`).join('');
-    const ch = $('.lnx-ch', fc); $$('.lnx-pt', ch).forEach(x => x.remove());
-    ch.insertAdjacentHTML('beforeend', '<span class="lnx-pt on" style="color:var(--dm-accent-mark,var(--dm-accent))"></span><span class="lnx-pt on" style="color:var(--dm-c2)"></span>');
-    const lv = $('.lnx-v', fc), latest = () => kmoney(won);
-    if (shownLine === null || REDUCE) lv.textContent = latest(); else if (shownLine !== won) tween(shownLine, won, 700, n => lv.textContent = kmoney(n));
+    const QD = AD.map((_, d) => q3At(d)), mx = Math.max(...AD, ...QD), raw = mx / 4 || 1, p10 = 10 ** Math.floor(Math.log10(raw)), st = [1, 2, 2.5, 5, 10].map(k => k * p10).find(k => k >= raw);
+    FC = { N, AD, QD, won, s:st, top:Math.max(st, Math.ceil(mx * 1.04 / st) * st) };
+    fhero.classList.toggle('lnx-noa', !lineOn[0]); fhero.classList.toggle('lnx-nob', !lineOn[1]);
+    // a screen reader reads every week and today from a table
+    const rows = []; for (let d = 0; d < N; d += 7) rows.push(d); rows.push(N);
+    $('.crm-fct', fhero).innerHTML = `<caption>Closed won this quarter against Q3 at the same point</caption><tr><th scope="col">Day</th><th scope="col">Q4</th><th scope="col">Q3</th></tr>`
+      + rows.map(d => `<tr><th scope="row">${d === N ? 'Today' : fmtD(d - N)}</th><td>${kmoney(AD[d])}</td><td>${kmoney(QD[d])}</td></tr>`).join('');
+    drawFc();
+    const lv = $('.lnx-v', fc);
+    if (fcAt >= 0 && lineOn[0]) lv.textContent = kmoney(AD[fcAt]);
+    else if (shownLine === null || REDUCE) lv.textContent = fcLatest(); else if (shownLine !== won) tween(shownLine, won, 700, n => lv.textContent = kmoney(n));
     shownLine = won;
-    ch.onpointermove = ev => { const b = ch.getBoundingClientRect(), k = clamp(Math.round((ev.clientX - b.left) / b.width * (SI.length - 1)), 0, SI.length - 1), i = SI[k], px = X(i) / 320 * b.width;
-      $('.lnx-x', ch).style.left = px + 'px';
-      const pts = $$('.lnx-pt', ch); [pa, pb].forEach((p, j) => { pts[j].classList.toggle('on', lineOn[j]); pts[j].style.left = px + 'px'; pts[j].style.top = p[k][1] / 140 * b.height + 'px'; });
-      const a = AD[i], q = QD[i], when = i === N ? 'today' : fmtD(i - N);
-      $('.lnx-tt b', ch).textContent = lineOn[0] ? `${kmoney(a)} won by ${when}` : `${kmoney(q)} by this point in Q3`;
-      $('.lnx-tt span', ch).textContent = lineOn[0] && lineOn[1] ? `${a >= q ? '+' : '−'}${kmoney(Math.abs(a - q))} on Q3 at this point` : lineOn[0] ? 'This quarter' : 'Last quarter';
-      // the tooltip sits beside the line, on its right, and turns to its left where it would run out of the chart (as the
-      // library's Line chart does), so it never covers Closing next (owner, 21 Nov)
-      const tt = $('.lnx-tt', ch), tw = tt.offsetWidth, gap = 12; tt.style.left = Math.max(0, px + gap + tw <= b.width ? px + gap : px - gap - tw) + 'px';
-      lv.textContent = lineOn[0] ? kmoney(a) : latest(); };
-    ch.onpointerleave = () => lv.textContent = latest();
-    paintClosing(); paintReps(); paintActions(); paintFbn();
+    paintReps(); paintActions(); paintFbn();
   }
-  // Reports: the library's Stat cards, Funnel, Radial goals, Activity heatmap and Top pages, and the quarter's deal activity
+  // Reports: the library's Stat cards, Activity heatmap and Donut chart (Team quotas), and the quarter's deal activity
   function renderReports(){
     const open = DE.filter(d => !closed(d)), pipe = sum(open, d => d.v), weighted = sum(open, d => d.v * d.p / 100), won = wonOf(OWN), avg = open.length ? pipe / open.length : 0;
     const EV = wonEvents(), A = Array.from({ length:WK + 1 }, (_, i) => sum(EV.filter(e => Math.floor((e.at + qDay) / 7) <= i), e => e.v));
     const S = [['chart', 'Open pipeline', pipe, Q3.pipe, [3.3, 3.5, 3.7, 3.8, 4.0, 4.1, pipe / 1e6], 'vs end of Q3'], ['target', 'Weighted forecast', weighted, Q3.weighted, [1.45, 1.6, 1.75, 1.85, 1.95, 2.05, weighted / 1e6], 'vs end of Q3'],
       ['ok', 'Closed won, Q4', won, Q3W[WK], A.map(v => v / 1e6), `vs week ${WK + 1} of Q3`], ['coins', 'Average open deal', avg, Q3.avg, [140, 136, 133, 131, 129, 127, avg / 1e3], 'vs end of Q3']];
     $('.scx-grid', rp).innerHTML = S.map((s, i) => `<div class="scx-c panel"><span class="scx-k"><span class="ic">${I(s[0], 'xs')}</span>${s[1]}</span><div class="scx-v"><b class="num">${kmoney(s[2])}</b>${delta(s[2], s[3])}<span class="crm-vs">${s[5]}</span></div><div class="scx-sp"><svg viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="crm-sg${i}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--dm-c${i + 1})" stop-opacity=".2"/><stop offset="1" stop-color="var(--dm-c${i + 1})" stop-opacity="0"/></linearGradient></defs><path class="ar" style="fill:url(#crm-sg${i})" d="${sparkPath(s[4])} L100 30 L0 30 Z"/><path stroke="var(--dm-c${i + 1})" d="${sparkPath(s[4])}"/></svg></div></div>`).join('');
-    // radial goals: each team's closed won against its quota
-    const RAD = [78, 60, 42], CS = ['var(--dm-c1)', 'var(--dm-c3)', 'var(--dm-c4)'];
-    const share = t => wonOf(t.who) / t.quota;
-    const rsvg = $('.rgx-ring svg', rp);
-    if (!rsvg.children.length) rsvg.innerHTML = TEAMS.map((t, i) => `<g data-i="${i}" style="stroke:${CS[i]}"><circle class="tr" cx="90" cy="90" r="${RAD[i]}"/><circle class="fl" cx="90" cy="90" r="${RAD[i]}" pathLength="100" stroke-dasharray="0 100"/></g>`).join('');
-    TEAMS.forEach((t, i) => $(`g[data-i="${i}"] .fl`, rsvg).setAttribute('stroke-dasharray', `${Math.max(0, Math.min(1, share(t)) * 100 - .01)} 100`));
-    const lg = $('.rgx-lg', rp), pc = x => Math.round(x * 100) + '%';
-    lg.innerHTML = TEAMS.map((t, i) => `<div class="rgx-r" data-i="${i}" tabindex="0" aria-label="${t.t}: ${kmoney(wonOf(t.who))} won, ${pc(share(t))} of a ${kmoney(t.quota)} quota, ${kmoney(commitOf(t.who))} more in commit" data-tip="${kmoney(commitOf(t.who))} more in commit"><i style="background:${CS[i]}"></i><span class="n">${t.t}</span><span class="p num">${share(t) >= 1 ? `<span class="tag ok">${pc(share(t))}</span>` : pc(share(t))}</span><span class="v num">${kmoney(wonOf(t.who))} won of ${kmoney(t.quota)}</span></div>`).join('');
-    const all = sum(TEAMS, t => wonOf(t.who)) / sum(TEAMS, t => t.quota), cb = $('.rgx-c b', rp), cl = $('.rgx-c .muted', rp);
-    const centreOn = i => { const ring = $('.rgx-ring', rp); ring.classList.toggle('hov', i >= 0); $$('g', rsvg).forEach((g, k) => g.classList.toggle('on', k === i)); $$('.rgx-r', lg).forEach((r, k) => r.classList.toggle('on', k === i)); cb.textContent = pc(i < 0 ? all : share(TEAMS[i])); cl.textContent = 'won'; };
-    // the centre holds the percentage and one short word; the team being read is the legend row's highlight
-    centreOn(-1);
-    $$('.rgx-r', lg).forEach((r, i) => { r.onpointerenter = r.onfocus = () => centreOn(i); r.onpointerleave = r.onblur = () => centreOn(-1); });
-    // funnel: how many deals reached each stage, every deal at the furthest stage it got to (a lost deal where it was lost)
-    const FS = STAGES.filter(s => s.k !== 'lost'), fur = d => d.st === 'lost' ? ST[d.at || 'disc'].i : ST[d.st].i;
-    const reach = FS.map(s => DE.filter(d => fur(d) >= ST[s.k].i).length);
-    let worst = 1; reach.forEach((n, i) => { if (i && n / reach[i - 1] < reach[worst] / reach[worst - 1]) worst = i; });
-    $('.crm-fnn', rp).textContent = `${DE.length} deals, each at the furthest stage it reached`;
-    $('.fnx-rows', rp).innerHTML = FS.map((s, i) => { const w = Math.max(6, reach[i] / (reach[0] || 1) * 100);
-      return `<div class="fnx-r${i === worst ? ' drop' : ''}" style="--dm-fc:color-mix(in oklab,var(--dm-c1) ${100 - i * 25}%,var(--dm-c2))"><span class="k">${s.k === 'won' ? 'Won' : s.t}</span><div class="tr" data-tip="${i ? Math.round(reach[i] / reach[0] * 100) + '% of all deals' : 'Every deal starts here'}"><div class="bar" style="width:${w}%"></div><span class="n num${w < 24 ? ' out' : ''}" style="left:${w < 24 ? `calc(${w}% + 8px)` : '10px'}">${reach[i]}</span></div><span class="v num">${i ? '−' + Math.round((1 - reach[i] / (reach[i - 1] || 1)) * 100) + '%' : '100%'}</span></div>`; }).join('');
-    const held = DE.filter(d => fur(d) === worst - 1), lostThere = held.filter(d => d.st === 'lost').length;
-    $('.fnx-t', rp).textContent = `The biggest drop is from ${FS[worst - 1].t.toLowerCase()} to ${FS[worst].t.toLowerCase()}: ${Math.round((1 - reach[worst] / reach[worst - 1]) * 100)}% of the deals that reached ${FS[worst - 1].t.toLowerCase()} got no further, ${held.length - lostThere} still open there and ${lostThere} lost.`;
+    paintQuota();
     // Activity heatmap: the team's calls, meetings and emails by weekday over the last 12 weeks, the same touches as the
     // accounts' activity, or the follow-ups the agent drafted
     renderHeat();
-    // quota attainment: Top pages' ranked rows, each rep's won against quota as the bar, the change on last week as the chip
-    paintTop();
-    paintQsum(); paintAct();
+    paintAct();
   }
   // Bar chart: the open pipeline by when its deals close, week by week (the next 12) or month by month (up to 6, to the last
   // month a deal closes in), with the library chart's Week / Month switch (owner, 10 Nov); a deal past its close date counts in
@@ -2179,24 +2190,7 @@
     if (!REDUCE) $$('.bcx-st', bch).forEach((x, i) => x.animate([{ transform:'scaleY(0)', transformOrigin:'bottom' }, { transform:'none', transformOrigin:'bottom' }], { duration:420, delay:i * 18, easing:EASE, fill:'backwards' }));
   }
   if ($('.crm-bc .bcx-rg', fc)) seg($('.crm-bc .bcx-rg', fc), v => { bcRange = v; paintBars(); });
-  // Closing next: the next open deals by close date, the ones past their date first, as Agenda rows: the date, a rail in the
-  // stage's colour, the deal and its account, and the amount with its win probability. A row opens the account
-  const cnl = $('.crm-cnl', fc);
   const dayOf = n => { const t = new Date(today); t.setDate(t.getDate() + n); return t; };
-  function paintClosing(){
-    if (!cnl) return;
-    const open = DE.filter(d => !closed(d)).sort((a, b) => a.close - b.close || b.v - a.v), next = open.filter(d => d.close >= 0).slice(0, 4), late = open.filter(d => d.close < 0).length;
-    const soon = open.filter(d => d.close >= 0 && d.close <= 14);
-    $('.crm-cns', fc).textContent = `${kmoney(sum(soon, d => d.v))} in the next 14 days`;
-    const cn = $('.crm-cnn', fc); cn.textContent = late ? `${late} past due` : plural(soon.length, 'deal'); cn.classList.toggle('bad', !!late);
-    cnl.innerHTML = next.map(d => { const c = coOf(d.co), t = dayOf(d.close), late = d.close < 0;
-      return `<button class="agx-e crm-cne${late ? ' late' : ''}" role="listitem" data-co="${d.co}" aria-label="${esc(d.n)}, ${esc(c.n)}, ${money(d.v)}, ${late ? 'was due' : 'closes'} ${fmtD(d.close)}">`
-        + `<span class="tm num"><b>${t.toLocaleDateString('en-US', { month:'short', day:'numeric' })}</b><span>${late ? 'Overdue' : d.close === 0 ? 'Today' : t.toLocaleDateString('en-US', { weekday:'short' })}</span></span>`
-        + `<span class="bar crm-sd" data-s="${d.st}"></span>`
-        + `<span class="t"><b>${esc(d.n)}</b><span>${esc(c.n)} · ${ST[d.st].t}</span></span>`
-        + `<span class="crm-cna"><b class="num">${kmoney(d.v)}</b><span class="num">${d.p}%</span></span></button>`; }).join('');
-  }
-  if (cnl) cnl.addEventListener('click', e => { const r = e.target.closest('.crm-cne'); if (r) openSheet(r.dataset.co); });
   // Forecast by rep: each rep's quota, closed won with attainment, commit (closed won plus weighted Proposal and Negotiation),
   // best case (commit plus the earlier open deals that close this quarter, weighted) and the gap; a rep's commit is in once
   // it's submitted (the sidebar's "Submit your Q4 commit"). Sorted by attainment, the team's totals underneath
@@ -2313,10 +2307,6 @@
     fadeOut(fbn); try { sessionStorage.setItem('crm-fbn', 'min'); } catch(e){}
     setTimeout(() => { fbm.hidden = false; enter(fbm); fbm.focus({ preventScroll:true }); }, REDUCE ? 0 : 200); });
   paintFbn();
-  function paintQsum(){
-    const quota = sum(TEAMS, t => t.quota), w = wonOf(OWN), cm = commitOf(OWN), gap = Math.max(0, quota - w - cm);
-    $('.crm-qsum', rp).innerHTML = [['Won', w], ['Commit', cm], ['Gap to quota', gap]].map(([k, v]) => `<div><span>${k}</span><b class="num">${kmoney(v)}</b></div>`).join('');
-  }
   // deal activity: the deals that close this quarter, nearest to today first, filtered by stage, owner and amount, or searched;
   // a row (or its ⋯) opens its account
   const AF = { st:'all', own:'all', amt:'all', sort:'close', desc:false, q:'' }, ACTN = 8, abody = $('.crm-dat tbody', rp); let actPg = 0;
@@ -2402,26 +2392,36 @@
   $('.crm-pgs', rp).addEventListener('click', e => { const b = e.target.closest('[data-p]'); if (!b) return; const to = +b.dataset.p, dir = Math.sign(to - actPg); actPg = to; paintAct(dir); });
   abody.addEventListener('click', e => { const tr = e.target.closest('tr[data-co]'); if (tr) openSheet(tr.dataset.co, true); });
   abody.addEventListener('keydown', e => { const tr = e.target.closest('tr[data-co]'); if (tr && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); openSheet(tr.dataset.co, true); } });
-  // Top pages for quota attainment: the rows keep their place in the DOM and slide to their rank, as the library's do
-  const tpl = $('.crm-tp .tpx-list', rp); let tpSort = 'v';
-  // each rep's share of Q3's won at this week of the quarter (demo history, like Q3W): the chip compares Q4 with it
-  const Q3PACE = { MK:1.12, AR:.84, TR:1.35, JO:.9, LN:1.18, IB:.72, DK:.66, KM:1.04 }, QSUM = sum(Object.values(QUOTA));
-  const q3Rep = o => Math.round(Q3W[WK] * QUOTA[o] / QSUM * Q3PACE[o] / 1000) * 1000;
-  function paintTop(){
-    const R = OWN.map(o => { const w = wonOf([o]), q3 = q3Rep(o); return { o, w, q:QUOTA[o], c:q3 ? Math.round((w / q3 - 1) * 100) : null, add:w - q3, q3 }; });
-    if (!tpl.children.length) tpl.innerHTML = R.map(r => `<div class="tpx-r" role="listitem" data-o="${r.o}"><span class="rk num"></span><span class="pg"><span class="p"></span><span class="tr"><i></i></span></span><span class="n num"></span><span class="tag ch num"></span></div>`).join('');
-    const order = [...R].sort((a, b) => tpSort === 'v' ? b.w / b.q - a.w / a.q : (b.c ?? -1e9) - (a.c ?? -1e9) || b.add - a.add);
-    R.forEach(r => { const row = $(`.tpx-r[data-o="${r.o}"]`, tpl), j = order.indexOf(r), pct = Math.round(r.w / r.q * 100);
-      row.style.transform = `translateY(${Math.min(j, 5) * 50}px)`; $('.rk', row).textContent = j + 1; row.classList.toggle('crm-tpo', j >= 5); row.inert = j >= 5;
-      $('.p', row).innerHTML = `${esc(P[r.o][0])} <span class="muted">${pct}% of ${kmoney(r.q)}</span>`;
-      $('.n', row).textContent = kmoney(r.w);
-      const ch = $('.ch', row), up = r.c === null ? r.w > 0 : r.c >= 0; ch.className = `tag ch num ${r.c === 0 || (r.c === null && !r.w) ? '' : up ? 'ok' : 'bad'}`;
-      ch.textContent = r.c === null ? (r.w ? 'New' : '0%') : `${r.c > 0 ? '+' : r.c < 0 ? '−' : ''}${Math.abs(r.c)}%`;
-      row.dataset.tip = `${kmoney(r.w)} won by week ${WK + 1}, against ${kmoney(r.q3)} by this point in Q3`;
-      row.setAttribute('aria-label', `${P[r.o][0]}: ${money(r.w)} won, ${pct}% of a ${money(r.q)} quota, ${ch.textContent} on Q3 pace`);
-      requestAnimationFrame(() => $('.tr i', row).style.width = Math.min(100, pct) + '%'); });
+  /* Team quotas (owner, 21 Nov): the library's Donut chart gauge, its gaps and corners 2px as eight parts share a quarter of it. Each rep's closed won is a part, in the team's order, in the chart
+     palette (and two more saturated hues for the seventh and eighth rep, which the palette's six don't reach); what is left of the
+     team's quota is the grey track. The middle holds the team's closed won against its quota, the Forecast's own two figures, and a
+     part pointed at, or a row pointed at or focused, puts its rep there. The parts sweep in the first time Reports opens */
+  const qt = $('.crm-qt', rp), qsvg = $('.dnx-svg', qt), qlg = $('.dnx-lg', qt), qg = $('.dnx-g', qt), qv = $('.dnx-v', qt), ql = $('.dnx-l', qt);
+  const QC = ['var(--dm-c1)', 'var(--dm-c2)', 'var(--dm-c3)', 'var(--dm-c4)', 'var(--dm-c5)', 'var(--dm-c6)', 'var(--crm-c7)', 'var(--crm-c8)'];
+  const GX = 110, GY = 110, GO = 104, GI = 86, GR = 2, GG = 2, GP = (r, a) => `${(GX + r * Math.cos(a)).toFixed(2)} ${(GY - r * Math.sin(a)).toFixed(2)}`;
+  // one part from f0 to f1 of the half ring, its corners rounded by a stroke of their radius round the part inset by it
+  const gpart = (f0, f1, gs, ge) => { const ts = Math.PI * (1 - f0), te = Math.PI * (1 - f1), ro = GO - GR, ri = GI + GR;
+    let os = ts - Math.asin((gs + GR) / ro), oe = te + Math.asin((ge + GR) / ro), is = ts - Math.asin((gs + GR) / ri), ie = te + Math.asin((ge + GR) / ri);
+    if (os < oe) os = oe = (os + oe) / 2; if (is < ie) is = ie = (is + ie) / 2;
+    return `M${GP(ro, os)}A${ro} ${ro} 0 0 1 ${GP(ro, oe)}L${GP(ri, ie)}A${ri} ${ri} 0 0 0 ${GP(ri, is)}Z`; };
+  let qShown = false, qHot = -1;
+  function paintQuota(){
+    const quota = sum(OWN, o => QUOTA[o]), won = OWN.map(o => wonOf([o])), total = sum(won), cum = []; let acc = 0;
+    won.forEach(w => { cum.push([acc / quota, (acc + w) / quota]); acc += w; });
+    if (!qsvg.children.length) qsvg.innerHTML = OWN.map((o, i) => `<path data-i="${i}" stroke-width="${GR * 2}" style="fill:${QC[i]};stroke:${QC[i]}"/>`).join('') + `<path class="tr" stroke-width="${GR * 2}"/>`;
+    const arcs = $$('path[data-i]', qsvg), track = $('.tr', qsvg);
+    const to = f => { cum.forEach(([a, b], i) => { const e = Math.min(b, f); arcs[i].setAttribute('d', e > a + .002 ? gpart(a, e, a ? GG / 2 : 0, e < 1 ? GG / 2 : 0) : ''); });
+      const end = Math.min(f, total / quota); track.setAttribute('d', end < .996 ? gpart(end, 1, end ? GG / 2 : 0, 0) : ''); };
+    qlg.innerHTML = OWN.map((o, i) => `<div class="dnx-r" role="listitem" data-i="${i}" tabindex="0" aria-label="${esc(P[o][0])}: ${kmoney(won[i])} won, ${Math.round(won[i] / QUOTA[o] * 100)}% of a ${kmoney(QUOTA[o])} quota"><i style="background:${QC[i]}"></i><span class="t">${esc(P[o][0])}</span><span class="v num">${kmoney(won[i])}</span></div>`).join('');
+    const rows = $$('.dnx-r', qlg);
+    const centre = i => { qHot = i; qg.classList.toggle('hov', i >= 0); arcs.forEach((a, j) => a.classList.toggle('hl', j === i)); rows.forEach((r, j) => r.classList.toggle('hl', j === i));
+      if (i < 0){ qv.textContent = kmoney(total); ql.textContent = `of the ${kmoney(quota)} quota`; } else { qv.textContent = kmoney(won[i]); ql.textContent = `${P[OWN[i]][0]}, ${Math.round(won[i] / QUOTA[OWN[i]] * 100)}%`; } };
+    [...arcs, ...rows].forEach(el => { el.onpointerenter = () => centre(+el.dataset.i); el.onpointerleave = () => centre(-1); });
+    rows.forEach(el => { el.onfocus = () => centre(+el.dataset.i); el.onblur = () => centre(-1); });
+    centre(qHot);
+    if (qShown || REDUCE || rp.hidden){ to(1); return; }
+    qShown = true; to(0); tween(0, 1, 1200, to, f => f < .5 ? 4 * f * f * f : 1 - Math.pow(-2 * f + 2, 3) / 2);
   }
-  seg($('.crm-tp .tpx-sg', rp), v => { tpSort = v; paintTop(); });
   const hm = $('.crm-hm', rp), hmg = $('.hmx-grid', hm), WD = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   let hmWho = 'team', hmShown = false;
   // the working part of the day, 6am to 10pm, sixteen hours a row (owner, 10 Nov: nobody works the whole 24)
@@ -2445,7 +2445,7 @@
     swap($('.hmx-st', hm), hmWho === 'team' ? `${sum(V).toLocaleString('en-US')} touches, busiest ${WD[Math.floor(best / HMN)].slice(0, 3)} ${hrN(HM0 + best % HMN)}` : `${sum(V).toLocaleString('en-US')} follow-ups drafted, mostly before 8am`);
   }
   seg($('.hmx-sg', hm), v => { hmWho = v; renderHeat(); });
-  $$('.lnx-k', fc).forEach(k => k.onclick = () => { const s = +k.dataset.s; if (lineOn[s] && !lineOn[1 - s]) return; lineOn[s] = !lineOn[s]; k.classList.toggle('on', lineOn[s]); k.setAttribute('aria-pressed', lineOn[s]); renderForecast(); });
+  $$('.lnx-k', fc).forEach(k => k.onclick = () => { const s = +k.dataset.s; if (lineOn[s] && !lineOn[1 - s]) return; lineOn[s] = !lineOn[s]; k.setAttribute('aria-pressed', lineOn[s]); renderForecast(); });
 
   /* ---------- views: the sidebar switches them, the header names the one on show with a live summary ---------- */
   const VIEWS = { accounts:'Accounts', inbox:'Agent inbox', calendar:'Calendar', pipeline:'Pipeline', forecast:'Forecast', reports:'Reports' };

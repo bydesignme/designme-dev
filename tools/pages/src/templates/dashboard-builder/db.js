@@ -122,7 +122,6 @@
 
   /* ---------- drawing the widgets ---------- */
   const seg2 = (cls, label, opts, on) => `<div class="seg2 ${cls}" role="group" aria-label="${label}">${opts.map(([v, t]) => `<button aria-pressed="${v === on}" data-v="${v}">${t}</button>`).join('')}</div>`;
-  const smooth = p => p.map((q, i) => { if (!i) return `M${q[0].toFixed(1)} ${q[1].toFixed(1)}`; const a = p[i - 1], m = (q[0] - a[0]) / 2; return `C${(a[0] + m).toFixed(1)} ${a[1].toFixed(1)} ${(q[0] - m).toFixed(1)} ${q[1].toFixed(1)} ${q[0].toFixed(1)} ${q[1].toFixed(1)}`; }).join(' ');
   const spark = s => { const lo = Math.min(...s) - .5, hi = Math.max(...s) + .5; return s.map((y, k) => `${k ? 'L' : 'M'}${(k / (s.length - 1) * 100).toFixed(1)} ${(28 - (y - lo) / (hi - lo) * 26).toFixed(1)}`).join(' '); };
   const MD = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
 
@@ -133,34 +132,74 @@
         $('.scx-sp svg', el).animate([{ clipPath:'inset(-4px 100% -4px 0)' }, { clipPath:'inset(-4px 0% -4px 0)' }], { duration:1000, delay:200, easing:'cubic-bezier(.45,0,.2,1)', fill:'backwards' }); }
     },
     line:{
-      html:(it, u) => { const L = LINE[it.v || 'revenue']; return `<div class="lnx panel dbb-p dbb-line"><div class="lnx-h"><div><span class="muted">${L.k}</span><b class="num lnx-v">0</b></div><div class="dbb-lr"><div class="lnx-lg"><button class="lnx-k on" data-s="0" aria-pressed="true"><i style="background:var(--dm-accent-mark,var(--dm-accent))"></i><span></span></button><button class="lnx-k on" data-s="1" aria-pressed="true"><i style="background:var(--dm-c2)"></i><span></span></button></div>${seg2('dbb-rg', 'Range', [['day', 'Day'], ['week', 'Week'], ['month', 'Month']], 'week')}</div></div><div class="lnx-ch"><svg class="lnx-svg" viewBox="0 0 320 140" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="lng-${u}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--dm-accent-mark,var(--dm-accent))" stop-opacity=".16"/><stop offset="1" stop-color="var(--dm-accent-mark,var(--dm-accent))" stop-opacity="0"/></linearGradient><clipPath id="lnc-${u}"><rect class="lnr" x="0" y="-10" width="320" height="160"/></clipPath></defs><g class="dbb-gl"></g><g clip-path="url(#lnc-${u})"><path class="ar" fill="url(#lng-${u})"/><path class="ln l1" stroke="var(--dm-c2)" stroke-dasharray="4 4"/><path class="ln l0" stroke="var(--dm-accent-mark,var(--dm-accent))"/></g></svg><div class="lnx-x"></div><span class="lnx-pt on" style="color:var(--dm-accent-mark,var(--dm-accent))"></span><span class="lnx-pt on" style="color:var(--dm-c2)"></span><div class="lnx-tt"><b class="num"></b><span></span></div></div><div class="lnx-ax muted num" aria-hidden="true"></div></div>`; },
+      // the library's Line chart (owner, 21 Nov): straight segments with sharp corners, the period before dotted, a fill that fades
+      // from the line to nothing, the values on the left and dashed gridlines at the axis' ticks; the widget's total under its title
+      html:it => { const L = LINE[it.v || 'revenue']; return `<div class="lnx panel dbb-p dbb-line"><div class="lnx-h"><div class="dbb-lt"><span class="muted">${L.k}</span><b class="num lnx-v">0</b></div>${seg2('dbb-rg', 'Range', [['day', 'Day'], ['week', 'Week'], ['month', 'Month']], 'week')}</div>`
+        + `<div class="lnx-pl"><div class="lnx-y num" aria-hidden="true"></div><div class="lnx-ch" tabindex="0" role="group" aria-roledescription="line chart" aria-label="${L.k}, this period against the one before. The arrow keys read each point"><svg class="lnx-svg" aria-hidden="true"></svg><span class="lnx-x"></span><span class="lnx-pt" style="color:var(--dm-lnx-cmp)"></span><span class="lnx-pt" style="color:var(--dm-lnx-line)"></span><span class="lnx-now"></span><div class="lnx-tt" aria-hidden="true"><div class="lnx-tt-h"></div><div class="lnx-tt-r"><i></i><span></span><b class="num"></b></div><div class="lnx-tt-r c"><i></i><span></span><b class="num"></b></div></div></div><div class="lnx-ax num" aria-hidden="true"></div></div>`
+        + `<div class="lnx-lg"><button class="lnx-k" data-s="0" aria-pressed="true"><i></i><span></span></button><button class="lnx-k c" data-s="1" aria-pressed="true"><i></i><span></span></button></div><p class="lnx-sr" aria-live="polite"></p></div>`; },
       draw:(el, it, o) => {
-        const L = LINE[it.v || 'revenue'], svg = $('.lnx-svg', el), ch = $('.lnx-ch', el), v = $('.lnx-v', el), tt = $('.lnx-tt', el), x = $('.lnx-x', el), pts = $$('.lnx-pt', ch), on = [true, true];
-        let R, A, B, pa, pb;
+        const L = LINE[it.v || 'revenue'], ch = $('.lnx-ch', el), svg = $('.lnx-svg', el), yl = $('.lnx-y', el), ax = $('.lnx-ax', el), tt = $('.lnx-tt', el), v = $('.lnx-v', el);
+        const guide = $('.lnx-x', el), mark = $('.lnx-now', el), live = $('p.lnx-sr', el), [pc, pm] = $$('.lnx-pt', el), on = [true, true], u = 'dbl' + Math.random().toString(36).slice(2, 8);
+        const short = n => (L.f === money ? '$' : '') + (n >= 1e3 ? parseFloat((n / 1e3).toFixed(1)) + 'k' : Math.round(n));
+        let R, A, B, S, at = -1, shown = 1, tok = 0;
         const total = () => sum(on[0] ? A : B);
-        function draw(k, anim){
+        const geo = () => { const W = ch.clientWidth, H = ch.clientHeight, n = A.length - 1, xr = W - 6; return { W, H, n, xr, X:i => i / n * xr, Y:val => H - val / S.top * H }; };
+        const near = (p, q) => p.offsetLeft < q.offsetLeft + q.offsetWidth + 6 && q.offsetLeft < p.offsetLeft + p.offsetWidth + 6;
+        function paint(){
+          if (!R || !ch.clientWidth) return;
+          const { W, H, n, xr, X, Y } = geo(), path = vs => vs.map((d, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)} ${Y(d).toFixed(1)}`).join('');
+          svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+          svg.innerHTML = `<defs><linearGradient id="${u}g" x1="0" x2="0" y1="0" y2="1"><stop offset="0" style="stop-color:var(--dm-lnx-line);stop-opacity:var(--dm-lnx-fill)"/><stop offset="1" style="stop-color:var(--dm-lnx-line);stop-opacity:0"/></linearGradient><clipPath id="${u}c"><rect x="-8" y="-8" height="${H + 16}" width="${(W + 16) * shown}"/></clipPath></defs>`
+            + R.ax.map(([i]) => `<line class="gl" x1="${Math.round(X(i)) + .5}" x2="${Math.round(X(i)) + .5}" y1="0" y2="${H}"/>`).join('')
+            + `<g clip-path="url(#${u}c)"><path class="cmp" d="${path(B)}"/><path class="ar" d="${path(A)}L${X(n).toFixed(1)} ${H}L0 ${H}Z" fill="url(#${u}g)"/><path class="ln" d="${path(A)}"/></g>`;
+          mark.style.left = X(n) + 'px'; mark.style.top = Y(A[n]) + 'px'; mark.style.opacity = shown >= 1 ? 1 : 0;
+          yl.innerHTML = Array.from({ length:S.top / S.s + 1 }, (_, j) => `<span>${short(S.top - j * S.s)}</span>`).join('');
+          // the axis: the range's ticks, each under its own point, the first on the left edge and the last on the right
+          ax.innerHTML = R.ax.map(([i, t]) => `<span data-i="${i}">${t}</span>`).join('') + '<span class="lnx-tk"></span>';
+          $$('span[data-i]', ax).forEach(sp => { const i = +sp.dataset.i, w = sp.offsetWidth; sp.style.left = (i === 0 ? 0 : i === n ? xr - w : X(i) - w / 2) + 'px'; });
+          if (at >= 0) show(at);
+        }
+        function show(i, say){
+          at = i; const { W, H, n, xr, X, Y } = geo(), x = X(i);
+          el.classList.add('on'); guide.style.left = pm.style.left = pc.style.left = x + 'px'; pm.style.top = Y(A[i]) + 'px'; pc.style.top = Y(B[i]) + 'px';
+          pm.classList.toggle('on', on[0] && i !== n); pc.classList.toggle('on', on[1]);
+          $('.lnx-tt-h', tt).textContent = R.at(i);
+          const [ra, rb] = $$('.lnx-tt-r', tt); ra.hidden = !on[0]; rb.hidden = !on[1];
+          $('span', ra).textContent = R.la; $('b', ra).textContent = L.f(A[i]); $('span', rb).textContent = R.lb; $('b', rb).textContent = L.f(B[i]);
+          const w = tt.offsetWidth, h = tt.offsetHeight, gap = 12, py = Y(on[0] ? A[i] : B[i]), side = x + gap + w <= W ? x + gap : x - gap - w >= 0 ? x - gap - w : null;
+          tt.style.left = (side ?? clamp(x - w / 2, 0, W - w)) + 'px';
+          tt.style.top = (side != null ? clamp(py - h / 2, 0, H - h) : py - gap - h >= -8 ? py - gap - h : py + gap) + 'px';
+          const tk = $('.lnx-tk', ax); tk.textContent = (R.ax.find(([j]) => j === i) || [0, R.at(i)])[1]; tk.style.left = clamp(x - tk.offsetWidth / 2, 0, xr - tk.offsetWidth) + 'px';
+          $$('span[data-i]', ax).forEach(l => l.classList.toggle('lnx-off', near(l, tk)));
+          if (say) live.textContent = `${R.at(i)}: ` + [on[0] && `${R.la} ${L.f(A[i])}`, on[1] && `${R.lb} ${L.f(B[i])}`].filter(Boolean).join(', ');
+        }
+        function hide(){ at = -1; el.classList.remove('on'); $$('span[data-i]', ax).forEach(l => l.classList.remove('lnx-off')); }
+        function load(k, anim){
           R = RANGES[k]; A = R.a.map(n => n * L.s); B = R.b.map(n => n * L.s);
-          const all = [...A, ...B], lo = Math.min(...all) * .92, hi = Math.max(...all) * 1.04, n = A.length - 1;
-          const P = s => s.map((d, i) => [i / n * 320, 136 - (d - lo) / (hi - lo) * 128]); pa = P(A); pb = P(B);
-          $('.dbb-gl', svg).innerHTML = [35, 70, 105].map(y => `<line class="gl" x1="0" x2="320" y1="${y}" y2="${y}"/>`).join('');
-          $('.ar', svg).setAttribute('d', smooth(pa) + ' L320 140 L0 140 Z'); $('.l0', svg).setAttribute('d', smooth(pa)); $('.l1', svg).setAttribute('d', smooth(pb));
-          $$('.lnx-k span', el).forEach((s, i) => { s.textContent = i ? R.lb : R.la; });
-          $('.lnx-ax', el).innerHTML = R.ax.map(([i, t]) => `<span style="left:${i / n * 100}%"${i === n ? ' class="e"' : ''}>${t}</span>`).join('');
-          if (anim && !REDUCE){ tween(0, 320, 1100, w => $('.lnr', svg).setAttribute('width', w), t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2); tween(0, total(), 1100, n => { v.textContent = L.f(n); }).then(() => { v.textContent = L.f(total()); }); }
+          const mx = Math.max(...A, ...B), raw = mx / 4, p10 = 10 ** Math.floor(Math.log10(raw)), st = [1, 2, 2.5, 5, 10].map(m => m * p10).find(m => m >= raw);
+          S = { s:st, top:Math.max(st, Math.ceil(mx * 1.04 / st) * st) };
+          $$('.lnx-k span', el).forEach((sp, i) => { sp.textContent = i ? R.lb : R.la; });
+          if (at > A.length - 1) at = A.length - 1;
+          const t = ++tok; shown = anim && !REDUCE ? 0 : 1; paint();
+          if (shown < 1){ tween(0, 1, 1100, f => { if (t !== tok) return; shown = f; const r = $('clipPath rect', svg); if (r) r.setAttribute('width', (ch.clientWidth + 16) * f); mark.style.opacity = f >= 1 ? 1 : 0; }, f => f < .5 ? 4 * f * f * f : 1 - Math.pow(-2 * f + 2, 3) / 2);
+            tween(0, total(), 1100, n => { v.textContent = L.f(n); }).then(() => { v.textContent = L.f(total()); }); }
           else v.textContent = L.f(total());
         }
-        draw('week', o.anim);
+        load('week', o.anim);
+        new ResizeObserver(() => paint()).observe(ch);
         if (!o.live) return;
-        seg($('.dbb-rg', el), k => draw(k, true));
-        ch.addEventListener('pointermove', e => {
-          const b = ch.getBoundingClientRect(), n = A.length - 1, i = clamp(Math.round((e.clientX - b.left) / b.width * n), 0, n), px = i / n * b.width;
-          x.style.left = px + 'px';
-          [pa, pb].forEach((p, k) => { pts[k].style.left = px + 'px'; pts[k].style.top = p[i][1] / 140 * b.height + 'px'; pts[k].classList.toggle('on', on[k]); });
-          const a = on[0] ? A[i] : B[i], dv = Math.round((A[i] / B[i] - 1) * 100);
-          $('b', tt).textContent = L.f(a); $('span', tt).textContent = R.at(i) + (on[0] && on[1] ? `, ${dv < 0 ? '−' : '+'}${Math.abs(dv)}% on ${R.vs}` : '');
-          const w = tt.offsetWidth; tt.style.left = Math.max(0, px + 12 + w <= b.width ? px + 12 : px - 12 - w) + 'px';
-        });
-        $$('.lnx-k', el).forEach(k => k.addEventListener('click', () => { const s = +k.dataset.s; if (on[s] && !on[1 - s]) return; on[s] = !on[s]; k.classList.toggle('on', on[s]); k.setAttribute('aria-pressed', on[s]); $('.l' + s, svg).classList.toggle('off', !on[s]); if (s === 0) $('.ar', svg).style.opacity = on[0] ? 1 : 0; v.textContent = L.f(total()); }));
+        seg($('.dbb-rg', el), k => load(k, true));
+        const idx = e => { const b = ch.getBoundingClientRect(), { n, xr } = geo(); return clamp(Math.round((e.clientX - b.left) / xr * n), 0, n); };
+        ch.addEventListener('pointermove', e => show(idx(e)));
+        ch.addEventListener('pointerdown', e => show(idx(e)));
+        ch.addEventListener('pointerleave', e => { if (e.pointerType !== 'touch' && !ch.matches(':focus-visible')) hide(); });
+        ch.addEventListener('focus', () => { if (ch.matches(':focus-visible')) show(at < 0 ? A.length - 1 : at, true); });
+        ch.addEventListener('blur', hide);
+        ch.addEventListener('keydown', e => { const n = A.length - 1, i = at < 0 ? n : at;
+          if (e.key === 'Escape' && at >= 0){ e.preventDefault(); hide(); return; }
+          const to = { ArrowLeft:i - 1, ArrowRight:i + 1, Home:0, End:n }[e.key]; if (to == null) return; e.preventDefault(); show(clamp(to, 0, n), true); });
+        $$('.lnx-k', el).forEach(k => k.addEventListener('click', () => { const s = +k.dataset.s; if (on[s] && !on[1 - s]) return; on[s] = !on[s]; k.setAttribute('aria-pressed', on[s]);
+          el.classList.toggle('lnx-noa', !on[0]); el.classList.toggle('lnx-nob', !on[1]); v.textContent = L.f(total()); if (at >= 0) show(at); }));
       }
     },
     bar:{
@@ -189,19 +228,30 @@
       }
     },
     donut:{
-      html:() => `<div class="dnx panel dbb-p dbb-dn"><div class="dbb-wh"><b>Sales by channel</b><span class="muted">This month</span></div><div class="dbb-dnb"><div class="dnx-ring"><svg viewBox="0 0 120 120" aria-hidden="true"></svg><div class="dnx-c"><b class="num dnx-v"></b><span class="muted dnx-l">All channels</span></div></div><div class="dnx-lg"></div></div></div>`,
+      // the library's Donut chart, a gauge (owner, 21 Nov): the channels as a half ring of parts beside the legend, the month's total
+      // in the middle; pointing at a part or a row puts its share there
+      html:() => `<div class="dnx panel dbb-p dbb-dn"><div class="dbb-wh"><b>Sales by channel</b><span class="muted">This month</span></div><div class="dbb-dnb"><div class="dnx-g"><svg class="dnx-svg" viewBox="0 0 220 110" aria-hidden="true"></svg><div class="dnx-c"><b class="num dnx-v"></b><span class="muted dnx-l">All channels</span></div></div><div class="dnx-lg"></div></div></div>`,
       draw:(el, it, o) => {
-        const tot = sum(CHANNELS.map(d => d[1])), C = 2 * Math.PI * 48, gap = 2, svg = $('svg', el), lg = $('.dnx-lg', el), ring = $('.dnx-ring', el), v = $('.dnx-v', el), l = $('.dnx-l', el);
-        let off = 0;
-        svg.innerHTML = CHANNELS.map((d, i) => { const len = d[1] / tot * C; const s = `<circle cx="60" cy="60" r="48" stroke="${d[2]}" stroke-dasharray="${o.anim && !REDUCE ? 0 : len - gap} ${C}" stroke-dashoffset="${-off}" data-i="${i}" data-len="${len - gap}"/>`; off += len; return s; }).join('');
-        lg.innerHTML = CHANNELS.map((d, i) => `<div class="dnx-r" data-i="${i}"><i style="background:${d[2]}"></i><span class="t">${d[0]}</span><span class="v num">$${d[1].toFixed(1)}k</span></div>`).join('');
-        const arcs = $$('circle', svg), rows = $$('.dnx-r', lg), whole = '$' + tot.toFixed(1) + 'k';
+        const tot = sum(CHANNELS.map(d => d[1])), svg = $('.dnx-svg', el), lg = $('.dnx-lg', el), g = $('.dnx-g', el), v = $('.dnx-v', el), l = $('.dnx-l', el), whole = '$' + tot.toFixed(1) + 'k';
+        // the half ring, 18px thick at its full size, the parts 4px apart with 4px corners (a stroke of the corner's radius round
+        // each part's shape inset by it; Blueprint joins it square)
+        const CX = 110, CY = 110, RO = 104, RI = 86, CR = 4, GAP = 4, P = (r, a) => `${(CX + r * Math.cos(a)).toFixed(2)} ${(CY - r * Math.sin(a)).toFixed(2)}`;
+        const part = (f0, f1, gs, ge) => { const ts = Math.PI * (1 - f0), te = Math.PI * (1 - f1), ro = RO - CR, ri = RI + CR;
+          let os = ts - Math.asin((gs + CR) / ro), oe = te + Math.asin((ge + CR) / ro), is = ts - Math.asin((gs + CR) / ri), ie = te + Math.asin((ge + CR) / ri);
+          if (os < oe) os = oe = (os + oe) / 2; if (is < ie) is = ie = (is + ie) / 2;
+          return `M${P(ro, os)}A${ro} ${ro} 0 0 1 ${P(ro, oe)}L${P(ri, ie)}A${ri} ${ri} 0 0 0 ${P(ri, is)}Z`; };
+        const cum = []; let acc = 0; CHANNELS.forEach(d => { cum.push([acc / tot, (acc + d[1]) / tot]); acc += d[1]; });
+        svg.innerHTML = CHANNELS.map((d, i) => `<path data-i="${i}" stroke-width="${CR * 2}" style="fill:${d[2]};stroke:${d[2]}"/>`).join('');
+        const arcs = $$('path', svg), to = f => cum.forEach(([a, b], i) => { const e = Math.min(b, f); arcs[i].setAttribute('d', e > a + .004 ? part(a, e, a ? GAP / 2 : 0, e < .999 ? GAP / 2 : 0) : ''); });
+        lg.innerHTML = CHANNELS.map((d, i) => `<div class="dnx-r" data-i="${i}"${o.live ? ' tabindex="0"' : ''}><i style="background:${d[2]}"></i><span class="t">${d[0]}</span><span class="v num">$${d[1].toFixed(1)}k</span></div>`).join('');
+        const rows = $$('.dnx-r', lg);
         v.textContent = whole;
-        if (o.anim && !REDUCE) setTimeout(() => arcs.forEach((a, i) => setTimeout(() => a.setAttribute('stroke-dasharray', `${a.dataset.len} ${C}`), i * 90)), 200);
+        if (o.anim && !REDUCE){ to(0); setTimeout(() => tween(0, 1, 1100, to, f => f < .5 ? 4 * f * f * f : 1 - Math.pow(-2 * f + 2, 3) / 2), 200); } else to(1);
         if (!o.live) return;
-        const hl = i => { ring.classList.toggle('hov', i != null); arcs.forEach((a, j) => a.classList.toggle('hl', j === i)); rows.forEach((x, j) => x.classList.toggle('hl', j === i));
+        const hl = i => { g.classList.toggle('hov', i != null); arcs.forEach((a, j) => a.classList.toggle('hl', j === i)); rows.forEach((x, j) => x.classList.toggle('hl', j === i));
           if (i == null){ v.textContent = whole; l.textContent = 'All channels'; } else { v.textContent = Math.round(CHANNELS[i][1] / tot * 100) + '%'; l.textContent = CHANNELS[i][0]; } };
         [...arcs, ...rows].forEach(x => { x.addEventListener('pointerenter', () => hl(+x.dataset.i)); x.addEventListener('pointerleave', () => hl(null)); });
+        rows.forEach(x => { x.addEventListener('focus', () => hl(+x.dataset.i)); x.addEventListener('blur', () => hl(null)); });
       }
     },
     funnel:{
