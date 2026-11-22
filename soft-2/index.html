@@ -9770,6 +9770,13 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 .wsx-r .d{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wsx-r.skip .t{color:var(--muted)}
 .wsx-r .tag .spin{width:9px;height:9px}
+/* on a hovered or lit row the grey Read and Skimmed chips lift to white (one step lighter in dark mode), so they stand out
+   against the row's hover fill rather than melting into it (owner, 22 Nov), in every style */
+.wsx{--wsx-lift:var(--surface)}
+:root[data-theme="dark"] .wsx{--wsx-lift:var(--hover)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .wsx{--wsx-lift:var(--hover)}}
+.wsx-r .tag{transition:background-color var(--t-fast)}
+.wsx-r:is(:hover,.hl) .tag:not(.warn){background:var(--wsx-lift)}
 .wsx-ans{padding:var(--s-2) 10px 6px;font-size:13.5px;line-height:1.6;color:var(--fg)}
 .wsx-ans:empty{display:none}
 /* the number sits in the middle of its circle: its line is as tall as its figures, so a taller line round it (Clean's 22px
@@ -9783,8 +9790,9 @@ button.pvb-row:focus-visible{outline-offset:-2px}
    edges. The head's spinner (a globe once done) sits in a 28px neutral tile, and every row's leading mark (a query's search
    glass, the asked-again arrow, a page's site initial) is centred in that same 28px column, so every row's words start where
    the head's do. A row's hover fill spans the content, from the tile's left edge to the content's right edge, never wider;
-   the chevrons are centred in a 28px column at the end, the one the head's chevron circle (its quiet hover) fills, and a
-   page's tag ends where the chevrons do. The answer is the card's own paragraph under a hairline. The card grows and
+   the chevrons are centred in a 28px column at the end, the one the head's chevron circle (its quiet hover) fills. A row
+   with no chevron (a page, a search that found nothing) keeps no room for one: its tag or time ends on the content's right
+   edge (owner, 22 Nov). The answer is the card's own paragraph under a hairline. The card grows and
    shrinks with what it holds (grow()), so as the trail folds once the searching is done it eases down to the head and the
    answer, staying centred. Colour only for meaning: "No results" and a skipped page in the warning colour; sites, counts
    and pages read are grey */
@@ -9808,14 +9816,17 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 :root[data-style="clean"] .wsx-qh{grid-template-columns:28px minmax(0,1fr) auto auto 28px;column-gap:12px;padding:6px 0;border-radius:calc(7px * var(--rk-m,var(--rk)));transition:background-color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .wsx-qh>.i{justify-self:center}
 :root[data-style="clean"] .wsx-qh .n{margin-right:-4px}
-:root[data-style="clean"] .wsx-qh.empty{grid-template-columns:28px minmax(0,1fr) auto auto;padding-right:8px}
+:root[data-style="clean"] .wsx-qh.empty{grid-template-columns:28px minmax(0,1fr) auto auto}
 :root[data-style="clean"] .wsx-qh .n,:root[data-style="clean"] .wsx-qh .tm{font-variant-numeric:tabular-nums}
 :root[data-style="clean"] .wsx-rw{padding:0 0 6px;gap:12px}
 :root[data-style="clean"] .wsx-rw .i{margin-inline:8px}
 :root[data-style="clean"] .wsx-rs{padding:0 0 4px;gap:0}
-:root[data-style="clean"] .wsx-r{grid-template-columns:28px minmax(0,1fr) auto;column-gap:12px;padding:6px 8px 6px 0;border-radius:calc(7px * var(--rk-m,var(--rk)));transition:background-color var(--t-fast) var(--ease)}
+:root[data-style="clean"] .wsx-r{grid-template-columns:28px minmax(0,1fr) auto;column-gap:12px;padding:6px 0;border-radius:calc(7px * var(--rk-m,var(--rk)));transition:background-color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .wsx-fav{justify-self:center;border-radius:calc(4px * var(--rk-s,var(--rk)));box-shadow:inset 0 0 0 1px var(--hair)}
 :root[data-style="clean"] .wsx-ans{padding:16px;border-top:1px solid var(--line);line-height:22px}
+/* Clean dark's hover fill is lighter than its --hover, so a lifted chip steps further up to stand out on it */
+:root[data-style="clean"][data-theme="dark"] .wsx{--wsx-lift:color-mix(in srgb,var(--fg) 16%,var(--surface))}
+@media (prefers-color-scheme:dark){:root[data-style="clean"]:not([data-theme="light"]) .wsx{--wsx-lift:color-mix(in srgb,var(--fg) 16%,var(--surface))}}
 :root[data-style="clean"] .wsx-cite{transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 /* ---------- Blueprint 2 ---------- */
 /* Blueprint 2: the same components drawn as a technical sheet. Square corners, hairline edges instead of shadows,
