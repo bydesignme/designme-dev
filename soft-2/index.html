@@ -505,17 +505,19 @@ th:last-child>.col-rz{display:none}
 .bars3 i:nth-child(2){animation-delay:.15s}.bars3 i:nth-child(3){animation-delay:.3s}
 @keyframes b3{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}
 /* ---------- Thinking states ---------- */
-/* six ways to show that the agent is thinking, to pick from: each is a small mark on a tile beside one status line that
+/* six ways to show that the agent is thinking, to pick from: each is a small mark (on a tile in Blueprint only) beside one status line that
    steps through what the agent is doing, and a screen reader hears each step once (the polite status), never each frame.
    Orbit, Morph, Scan and Stream are dot grids like Matrix, each at its own density (owner, 5 Nov). Orbit: a light round the edge.
    Morph: a rectangle, a circle, a triangle. Scan: a column sweeping lines of dots. Stream: three lines of dots
    filling one by one, then fading, the line typed out behind a caret. Matrix: a grid
    of dots lighting up at random. Stack: pages shuffling to the front. In every state the line has the loader's highlight
-   sweep (.shim, owner, 19 Nov). Marks are the accent and everything else is grey;
+   sweep (.shim, owner, 19 Nov). Marks are the accent (ink in Clean) and everything else is grey;
    with reduced motion every mark holds still in a legible pose and only the line changes */
 .ths{width:100%;max-width:264px;margin-inline:auto;min-height:84px;display:flex;flex-direction:column;justify-content:center;gap:var(--s-3);position:relative}
 .ths-row{display:flex;align-items:center;gap:10px;min-width:0}
-.ths-mk{position:relative;width:28px;height:28px;flex:none;display:grid;place-items:center;border-radius:calc(9px * var(--rk-m,var(--rk)));background:var(--chip);color:var(--accent-mark,var(--accent))}
+/* the animated mark has no tile or fill behind it in Soft and Clean (owner, 22 Nov: "remove the background container"): it sits
+   in a 20px box on the line's centre line, the words 10px after it. Blueprint keeps its hairline tile */
+.ths-mk{position:relative;width:20px;height:20px;flex:none;display:grid;place-items:center;color:var(--accent-mark,var(--accent))}
 .ths-l{flex:0 1 auto;min-width:0;font-size:14px;line-height:20px;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ths-car{display:inline-block;width:2px;height:15px;margin-left:2px;vertical-align:-3px;border-radius:1px;background:var(--accent-mark,var(--accent));animation:thsblink 1s steps(1,end) infinite}
 @keyframes thsblink{50%{opacity:0}}
@@ -590,16 +592,19 @@ th:last-child>.col-rz{display:none}
    words, a lit diamond, a stack), the caret stays lit and the sweep goes */
 @media (prefers-reduced-motion:reduce){.ths-mk *,.ths-car{animation:none!important}.ths-dg .p{opacity:1}.ths-mtx i:is(:nth-child(2),:nth-child(5),:nth-child(7),:nth-child(10),:nth-child(12),:nth-child(15)){opacity:1}}
 /* Blueprint: a square tile with a hairline, square dots, marks that tick in steps and a block caret */
-:root[data-style="bp"] .ths-mk{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}
+:root[data-style="bp"] .ths-mk{width:28px;height:28px;border-radius:calc(9px * var(--rk-m,var(--rk)));background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}
 :root[data-style="bp"] .ths-dg i{border-radius:0}
 :root[data-style="bp"] .ths-car{width:7px;vertical-align:-3px}
 :root[data-style="bp"] .ths-mtx i{animation-timing-function:steps(1,end)}
 :root[data-style="bp"] .ths-stk i{animation-timing-function:steps(3)}
 /* Clean (lead, 18 Nov; owner, 21 Nov): it stays bare, the line it is in a chat. The animated mark has no tile, fill or padding
    behind it ("I don't think we need bg padding behind the animated dots"): it sits in a 20px box on the line's centre line,
-   with the words 10px after it. The mark is the accent, which is white in Clean's dark mode, the one
-   thing that moves; the seconds count in even figures */
-:root[data-style="clean"] .ths-mk{width:20px;height:20px;border-radius:0;background:none;box-shadow:none}
+   with the words 10px after it. Clean is monochrome here (owner, 22 Nov): the mark, the caret and the front page of the stack
+   are ink, not the accent (ink is white in dark mode, as the accent is there), the one thing that moves; the seconds count in
+   even figures */
+:root[data-style="clean"] .ths-mk{color:var(--fg)}
+:root[data-style="clean"] .ths-car{background:var(--fg)}
+:root[data-style="clean"] .ths-stk{--accent-mark:var(--fg)}
 :root[data-style="clean"] .ths-t{font-variant-numeric:tabular-nums}
 /* ---------- Reasoning trail ---------- */
 .rtr{width:100%;padding:6px}
@@ -1352,6 +1357,21 @@ th:last-child>.col-rz{display:none}
 .tst-t .acts .pill.done{color:var(--ok-mark);pointer-events:none}
 .tst-t .acts .pill.done .i{width:16px;height:16px;stroke-width:2}
 .tst-t .life{display:none}
+/* the action sits on the toast's own row, just before Close (the message, the action as a ghost button, Close at the far end:
+   the usual snackbar). When the toast is narrow (a phone) or its words run past two lines (.wrap, set as it shows), the action
+   moves to a row of its own under the message, its words ending under Close's glyph, and Close stays at the top end
+   (owner, 22 Nov) */
+.tst-slot{container:tst/inline-size}
+.tst-t.wrap{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:start;row-gap:var(--s-1)}
+.tst-t.wrap .acts{display:contents}
+.tst-t.wrap .ib{grid-area:1/3;margin:calc(8.775px - 14px) -6px 0 0}
+.tst-t.wrap .acts .pill{grid-area:2/2/3/4;justify-self:end;margin:0 -10px -6px 0}
+@container tst (max-width:340px){
+  .tst-t{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:start;row-gap:var(--s-1)}
+  .tst-t .acts{display:contents}
+  .tst-t .ib{grid-area:1/3;margin:calc(8.775px - 14px) -6px 0 0}
+  .tst-t .acts .pill{grid-area:2/2/3/4;justify-self:end;margin:0 -10px -6px 0}
+}
 .tst-in{animation:tstin .6s var(--ease) both}
 @keyframes tstin{from{opacity:0;transform:translateY(14px) scale(.97);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}
 .tst-out{animation:tstout .35s var(--ease) both}
@@ -3362,7 +3382,6 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .dpx.panel .dpx-f.run{padding-left:16px}
 /* (a step of --ok in the vivid green keeps the tick at 3:1 on the off-white strip, as Attachment tray's does) */
 :root[data-style="clean"] .dpx.panel .dpx-ok{color:color-mix(in srgb,var(--ok-mark) 80%,var(--ok))}
-:root[data-style="clean"] .dpx-f .pill.ghost:hover{background:var(--row)}
 /* ---------- Proposal card ---------- */
 /* a suggestion posted in the chat: no container; with .panel it becomes a card, its content 16px from every edge */
 .prx{padding:var(--s-4) 0;display:flex;flex-direction:column;gap:var(--s-3);container-type:inline-size}
@@ -3393,14 +3412,18 @@ th:last-child>.col-rz{display:none}
 .prx-alt-t.open svg{transform:rotate(90deg)}
 /* the other options: each row's fill is the content's width, no wider, and its swatch and value sit on the columns of the
    change above (10px and 36px in) */
-.prx-alts{display:flex;flex-direction:column;gap:2px;padding-top:var(--s-1)}
+/* the folded options keep no room: the fold takes back the card's gap before it, so the footer sits as far under the toggle as
+   the card's other parts sit apart, and opened, the options start 16px under the toggle as before */
+.prx-alt{margin-top:calc(-1 * var(--s-3))}
+.prx-alts{display:flex;flex-direction:column;gap:2px;padding-top:calc(var(--s-1) + var(--s-3))}
 .prx-a{display:flex;align-items:center;gap:var(--s-2);padding:7px 10px;border-radius:var(--r-in);font-size:13px;text-align:left;transition:background-color var(--t-fast) var(--ease)}
 .prx-a:hover{background:var(--row)}
 .prx-a .d{margin-left:auto;font-size:12px;color:var(--muted)}
 /* narrow (a phone): each other option's line goes under its name, the swatch centred beside the two */
 @container (max-width:300px){.prx-a{display:grid;grid-template-columns:18px minmax(0,1fr);column-gap:var(--s-2)}.prx-a .prx-c{grid-row:1/3;align-self:center}.prx-a .d{grid-column:2;margin-left:0}}
-/* the footer sits under a hairline in Soft and Blueprint (owner, 21 Nov), 12px from it on each side; Clean's is a foot strip */
-.prx-f{display:flex;align-items:center;justify-content:flex-end;gap:6px;padding-top:var(--s-3);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+/* the footer sits under a hairline in Soft and Blueprint (owner, 21 and 22 Nov), 16px under the content and 16px over its
+   buttons, as the card's own edges are; Clean's is a foot strip */
+.prx-f{display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-top:var(--s-1);padding-top:var(--s-4);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 /* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink primary alone presses */
 .prx .pill:active{transform:none}
 /* accepted: a neutral line with the green tick (owner, 18 Nov), and Undo */
@@ -3408,7 +3431,7 @@ th:last-child>.col-rz{display:none}
 .prx-done>svg{flex:none;color:var(--ok-mark)}
 /* Clean (owner, 19 Nov): a round card with its content 16px from every edge and an off-white foot strip, 16px under the
    options, whose buttons sit 8px from the card's edges, round in its 22px corners; once you answer, the strip holds what
-   happened (its words 16px in) and Undo. The head's tile is the neutral one with a hairline, as every Clean tile */
+   happened (its tick on the content's 16px column, owner 22 Nov) and Undo. The head's tile is the neutral one with a hairline, as every Clean tile */
 :root[data-style="clean"] .prx.panel{padding:16px 16px 0}
 :root[data-style="clean"] .prx-ic{background:var(--chip);color:var(--fg2);box-shadow:inset 0 0 0 1px var(--hair)}
 :root[data-style="clean"] .prx-ht b{line-height:20px}
@@ -3417,10 +3440,8 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .prx-alt-t svg{transition:transform var(--t) var(--ease)}
 :root[data-style="clean"] .prx-alt-t:hover,:root[data-style="clean"] .prx-a:hover{background:var(--row)}
 :root[data-style="clean"] .prx.panel .prx-f{margin:4px -16px 0;padding:8px 16px;gap:4px;min-height:45px;border-top:1px solid var(--line);background:var(--strip);border-radius:0 0 var(--r-card) var(--r-card)}
-:root[data-style="clean"] .prx.panel .prx-done{padding-left:8px}
 /* (a step of --ok in the vivid green keeps the tick at 3:1 on the off-white strip, as Attachment tray's does) */
 :root[data-style="clean"] .prx.panel .prx-done>svg{color:color-mix(in srgb,var(--ok-mark) 80%,var(--ok))}
-:root[data-style="clean"] .prx-f .pill.ghost:hover{background:var(--row)}
 /* ---------- Rewrite toolbar ---------- */
 /* a document whose sentences you click; a small toolbar over the one you pick offers rewrites, and the new sentence is
    written in after the old one, struck, a word at a time, to accept or undo. No room is kept for the words to come (owner,
@@ -3758,6 +3779,9 @@ th:last-child>.col-rz{display:none}
 /* Clean (owner, 19 Nov): its content 16px from every edge; the toolbar is a round popover, its corners concentric with its
    28px buttons 8px in (22px), scaling and fading from the edit; on an unsure edit Accept is Clean's flat white button */
 :root[data-style="clean"] .itd.panel{padding:16px}
+/* the head sits over a hairline that runs edge to edge, 16px under it, and the text starts 16px under the hairline (owner,
+   22 Nov: a divider at the top for Clean, so its parts read as segments, as the foot strip does at the bottom) */
+:root[data-style="clean"] .itd.panel .itd-h{margin-inline:-16px;padding:0 16px 16px;border-bottom:1px solid var(--line)}
 :root[data-style="clean"] .itd-ht b{line-height:20px}
 :root[data-style="clean"] .itd-st{line-height:18px}
 :root[data-style="clean"] .itd-c{transition:background-color var(--t-fast) var(--ease)}
@@ -3775,6 +3799,10 @@ th:last-child>.col-rz{display:none}
    centred under the head's tile, their words on the title's words, their buttons ending on the content's right edge, their
    tint reaching 8px out round them */
 .drf{position:relative;width:100%;max-width:440px;margin:0 auto;padding:var(--s-4);display:flex;flex-direction:column;gap:var(--s-3)}
+/* Soft's card is plush: its content 20px in from every edge (owner, 22 Nov: "more padding inside"); Blueprint and Clean keep
+   16px */
+.drf.panel{padding:var(--s-5)}
+:root[data-style="bp"] .drf.panel{padding:var(--s-4)}
 .drf-h{display:flex;align-items:center;gap:var(--s-3)}
 .drf-ag{width:32px;height:32px;border-radius:calc(9px * var(--rk-m,var(--rk)));background:var(--chip);color:var(--fg2);display:grid;place-items:center;flex:none}
 .drf-ht{flex:1;min-width:0;display:flex;flex-direction:column}
@@ -3870,7 +3898,9 @@ th:last-child>.col-rz{display:none}
 .evr-run .spin{width:10px;height:10px}
 /* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink primary alone presses */
 :is(.evr,.evr-vs,.evr-jg) :is(.ib,.pill):active,:root[data-style="clean"] :is(.evr,.evr-vs,.evr-jg) .ib:active{transform:none}
-.evr-sum{display:flex;flex-direction:column;gap:var(--s-2);padding:var(--s-3) 10px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+/* the line under the bars (Running 3 of 8, then 7 of 8 passed) sits as far under the bars as over the hairline below it
+   (owner, 22 Nov) */
+.evr-sum{display:flex;flex-direction:column;gap:var(--s-3);padding:var(--s-3) 10px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .evr-segs{display:flex;gap:3px}
 .evr-segs i{flex:1;height:6px;border-radius:var(--r-tiny,3px);background:var(--rail);transition:background .3s}
 .evr-segs i.pass{background:var(--ok-mark)}
@@ -3905,7 +3935,10 @@ th:last-child>.col-rz{display:none}
 .evr-kv .k{width:58px;flex:none;color:var(--muted)}
 .evr-kv .bad{color:var(--bad)}
 /* a white button on the tinted row: a hairline edge and no shadow (owner, 18 Nov: buttons cast none) */
-.evr-fix{align-self:flex-start;margin-top:6px;background:var(--surface);color:var(--fg);box-shadow:var(--on-tint-btn)}
+/* the fix sits under a hairline, apart from the details above it (owner, 22 Nov); the hairline is a step of the words' own
+   colour, so it reads on the row's tint */
+.evr-dd .evr-kv:has(+.evr-fix),.evr-vs-d .evr-vs-kv:has(+.pill){padding-bottom:var(--s-3);border-bottom:1px solid color-mix(in srgb,currentColor 12%,transparent)}
+.evr-fix{align-self:flex-start;margin-top:var(--s-2);background:var(--surface);color:var(--fg);box-shadow:var(--on-tint-btn)}
 .evr-fix:hover{background:var(--surface);box-shadow:var(--on-tint-btn-h)}
 /* nothing to show under a filter: the empty state (the lab's, lab/clean): a small sketch of the list on a white card, the
    title, one muted line and a button back to every case */
@@ -3960,9 +3993,15 @@ th:last-child>.col-rz{display:none}
 .evr-vs-st{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .evr-vs-run{flex:none}
 .evr-vs-run .spin{width:10px;height:10px}
-.evr-vs-score{display:flex;align-items:center;gap:var(--s-2);padding:var(--s-1) 10px 10px}
+/* while the cases run, the count of those done is in the button's words (Running 3/8), not a second count by the score */
+.evr-vs-run .cnt{font-variant-numeric:tabular-nums}
+.evr-vs-score{display:flex;align-items:center;gap:var(--s-2);padding:var(--s-1) 10px var(--s-3)}
 .evr-vs-big{font-size:14px;font-weight:500}
-.evr-vs-f{display:flex;gap:var(--s-1);padding:0 10px var(--s-2);overflow-x:auto;scrollbar-width:none}
+/* no change on the last run is said quietly in muted words beside the score, not in a chip (owner, 22 Nov: "move 'same score
+   as last run'"); a change keeps its green or red tag */
+.evr-vs-dl.quiet{font-size:12.5px;color:var(--muted)}
+/* the filter sits between two hairlines, apart from the score over it and the cases under it (owner, 22 Nov) */
+.evr-vs-f{display:flex;gap:var(--s-1);padding:var(--s-3) 10px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);overflow-x:auto;scrollbar-width:none}
 .evr-vs-f::-webkit-scrollbar{display:none}
 .evr-vs-chip{flex:none}
 .evr-vs-chip .n{color:var(--muted);font-variant-numeric:tabular-nums}
@@ -3978,7 +4017,7 @@ th:last-child>.col-rz{display:none}
 .evr-vs-chip:not([data-f="all"]):hover{background:var(--evr-tb);color:var(--evr-t);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--evr-t) 35%,transparent)}
 .evr-vs-chip.on:not([data-f="all"]){background:var(--surface);color:var(--evr-t);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pick-on) 50%,transparent)}
 .evr-vs-th,.evr-vs-r{display:grid;grid-template-columns:minmax(0,1fr) 30px 16px 30px 40px;align-items:center;column-gap:var(--s-1)}
-.evr-vs-th{padding:var(--s-1) 10px;font-size:11.5px;color:var(--muted);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.evr-vs-th{padding:var(--s-2) 10px var(--s-1);font-size:11.5px;color:var(--muted);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .evr-vs-th span:nth-child(2),.evr-vs-th span:nth-child(4){text-align:center}
 .evr-vs-list{display:flex;flex-direction:column}
 .evr-vs-w.shut>div{visibility:hidden;transition:visibility 0s var(--t)}
@@ -4002,7 +4041,7 @@ button.evr-vs-r:focus-visible{outline-offset:-2px;border-radius:calc(10px * var(
 .evr-vs-d{display:flex;flex-direction:column;gap:6px;padding:0 10px 10px 22px;font-size:12.5px}
 .evr-vs-kv{display:flex;gap:var(--s-2)}
 .evr-vs-kv .k{width:62px;flex:none}
-.evr-vs-d .pill{align-self:flex-start;margin-top:var(--s-1);background:var(--evr-on-warn);color:var(--fg);box-shadow:var(--on-tint-btn)}
+.evr-vs-d .pill{align-self:flex-start;margin-top:calc(var(--s-3) - 6px);background:var(--evr-on-warn);color:var(--fg);box-shadow:var(--on-tint-btn)}
 .evr-vs-d .pill:hover{box-shadow:var(--on-tint-btn-h)}
 /* narrow: a row's tint says regressed or fixed, so its name keeps the room; the count of each stays in the filters */
 @container (max-width:380px){.evr-vs-r .tg{display:none}.evr-vs-th,.evr-vs-r{grid-template-columns:minmax(0,1fr) 24px 12px 24px 34px}}
@@ -6107,6 +6146,313 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 :root[data-style="clean"] .ahx-ph{padding-right:var(--s-2)}
 :root[data-style="clean"] .ahx.pn .ahx-pane{border-left-color:var(--line)}
 @container ahx (max-width:620px){:root[data-style="clean"] .ahx .ahx-menu{margin-left:0}}
+/* (Agent harness: staging look, start) */
+/* Phase II (owner, 21 Nov): Agent harness stays as it is on staging until its own Clean pass, and so do the parts it embeds
+   (Composer's Send, Status pill, Thinking, Permission gate, Plan review, Decision prompt, Source stack, the menus' rows),
+   whatever their own reviews have changed since. Their staging rules are repeated here, scoped to the harness at a weight
+   (.ahx four times) that wins over the reviewed ones, with Clean's tokens as they were on staging: the solid row fill and, in
+   dark mode, the blue accent rather than the white one. Generated from staging's stylesheet; drop it at the harness's Clean pass */
+:root[data-style="clean"] .ahx.ahx.ahx.ahx{--row:#f7f7f7;--row-on:#f7f7f7}
+:root[data-style="clean"][data-theme="dark"] .ahx.ahx.ahx.ahx{--row:#1a1a1a;--row-on:#1a1a1a;--accent:#116ff8;--accent-2:color-mix(in srgb,#116ff8 84%,#fff);--on-accent:#ffffff;--accent-fg:#9dc4ff;--accent-mark:#2f86ff;--accent-bg:color-mix(in srgb,#116ff8 13%,transparent);--sel:color-mix(in srgb,#116ff8 9%,transparent)}
+@media (prefers-color-scheme:dark){:root[data-style="clean"]:not([data-theme="light"]) .ahx.ahx.ahx.ahx{--row:#1a1a1a;--row-on:#1a1a1a;--accent:#116ff8;--accent-2:color-mix(in srgb,#116ff8 84%,#fff);--on-accent:#ffffff;--accent-fg:#9dc4ff;--accent-mark:#2f86ff;--accent-bg:color-mix(in srgb,#116ff8 13%,transparent);--sel:color-mix(in srgb,#116ff8 9%,transparent)}}
+@supports (corner-shape:squircle){.ahx.ahx.ahx.ahx .cpx-send,.ahx.ahx.ahx.ahx .plx-s .n,.ahx.ahx.ahx.ahx .ssx-ics span,.ahx.ahx.ahx.ahx .think i,.ahx.ahx.ahx.ahx .tk-st .mk{corner-shape:round}}
+.ahx.ahx.ahx.ahx .think{width:14px;height:14px;position:relative;flex:none;display:inline-block}
+.ahx.ahx.ahx.ahx .think i{position:absolute;width:3.4px;height:3.4px;border-radius:50%;background:currentColor;left:50%;top:50%;margin:-1.7px}
+.ahx.ahx.ahx.ahx .think i:nth-child(1){transform:translate(-3.6px,-3.6px)}
+.ahx.ahx.ahx.ahx .think i:nth-child(2){transform:translate(3.6px,-3.6px)}
+.ahx.ahx.ahx.ahx .think i:nth-child(3){transform:translate(3.6px,3.6px)}
+.ahx.ahx.ahx.ahx .think i:nth-child(4){transform:translate(-3.6px,3.6px)}
+.ahx.ahx.ahx.ahx .think.on{animation:thinkrot 1.6s var(--ease-io) infinite}
+.ahx.ahx.ahx.ahx .think.on i{animation:thinkpulse 1.6s var(--ease-io) infinite}
+.ahx.ahx.ahx.ahx .think.on i:nth-child(2){animation-delay:.2s}
+.ahx.ahx.ahx.ahx .think.on i:nth-child(3){animation-delay:.4s}
+.ahx.ahx.ahx.ahx .think.on i:nth-child(4){animation-delay:.6s}
+:root[data-theme="dark"] .ahx.ahx.ahx.ahx .ssx-ics span{color:#0d0d0d!important}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ahx.ahx.ahx.ahx .ssx-ics span{color:#0d0d0d!important}}
+.ahx.ahx.ahx.ahx .mi{display:flex;align-items:center;gap:10px;width:100%;padding:7px var(--s-2);border-radius:calc(9px * var(--rk-m,var(--rk)));font-size:13px;text-align:left;color:var(--fg);transition:background var(--t-fast)}
+.ahx.ahx.ahx.ahx .mi:hover,.ahx.ahx.ahx.ahx .mi.hl{background:var(--row)}
+.ahx.ahx.ahx.ahx .mi+.mi{margin-top:2px}
+.ahx.ahx.ahx.ahx .mi .i{color:var(--fg2)}
+.ahx.ahx.ahx.ahx .mi .d{display:block;font-size:12px;color:var(--muted)}
+.ahx.ahx.ahx.ahx .mi:is(:hover,.hl,[aria-checked="true"]) .d{color:var(--fg2)}
+.ahx.ahx.ahx.ahx .mi .r{margin-left:auto;color:var(--muted);font-size:12px}
+.ahx.ahx.ahx.ahx .mi .ck{margin-left:auto;color:var(--accent);opacity:0;transition:opacity var(--t-fast)}
+.ahx.ahx.ahx.ahx .mi[aria-checked="true"] .ck{opacity:1}
+.ahx.ahx.ahx.ahx .mi[aria-checked="true"]{background:var(--row);font-weight:500}
+:root[data-theme="dark"] .ahx.ahx.ahx.ahx :is(.plx-s:hover .n,.tpx-r:hover .tr){background:var(--hover)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ahx.ahx.ahx.ahx :is(.plx-s:hover .n,.tpx-r:hover .tr){background:var(--hover)}}
+.ahx.ahx.ahx.ahx .spl-pill{background:var(--surface);border-radius:var(--r-pill);box-shadow:var(--shadow);height:40px;display:flex;align-items:center;overflow:hidden;transition:width .6s var(--ease),border-radius .5s var(--ease),height .5s var(--ease)}
+.ahx.ahx.ahx.ahx .spl-in{display:flex;align-items:center;gap:9px;padding:0 6px 0 14px;height:100%;white-space:nowrap;font-size:13.5px;transition:opacity .32s var(--ease),filter .32s var(--ease)}
+.ahx.ahx.ahx.ahx .spl-in.out{opacity:0;filter:blur(4px);transition-duration:.16s}
+.ahx.ahx.ahx.ahx .spl-in .g{display:grid;place-items:center;width:16px;color:var(--fg2)}
+.ahx.ahx.ahx.ahx .spl-in .m{color:var(--muted);font-variant-numeric:tabular-nums}
+.ahx.ahx.ahx.ahx .spl-in .end{width:0}
+.ahx.ahx.ahx.ahx .spl-in .pill{height:28px;margin-left:var(--s-1)}
+.ahx.ahx.ahx.ahx .spl.bar .spl-pill{border-radius:var(--r-card);height:62px;align-items:flex-start}
+.ahx.ahx.ahx.ahx .spl.bar .spl-in{height:46px;width:100%;padding:0 var(--s-4)}
+.ahx.ahx.ahx.ahx .spl.bar .spl-in .m,.ahx.ahx.ahx.ahx .spl.bar .spl-in .pill{margin-left:auto}
+.ahx.ahx.ahx.ahx .spl.bar .spl-in .end{display:none}
+.ahx.ahx.ahx.ahx .spl-pill{position:relative}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .spl-pill{height:36px;border-radius:999px;background:var(--surface);box-shadow:var(--shadow);transition:width .3s var(--ease),border-radius .42s var(--ease),height .42s var(--ease)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .spl-in{gap:8px;padding:0 5px 0 13px;font-size:13px;color:var(--fg);transition:opacity .24s var(--ease),transform .24s var(--ease)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .spl-in.out{opacity:0;filter:none;transform:translateY(-3px);transition:opacity .15s ease-in-out,transform .15s ease-in-out}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .spl-in .m{color:var(--muted)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .spl-in .pill{height:26px;padding:0 11px;border-radius:999px;margin-left:2px}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .spl.bar .spl-pill{height:58px;border-radius:var(--r-card)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .spl.bar .spl-in{height:42px;padding:0 14px}
+@media (prefers-reduced-motion:reduce){:root[data-style="clean"] .ahx.ahx.ahx.ahx :is(.spl-pill,.spl-in,.spl-in.out,.spl-fill){transition:none!important}}
+.ahx.ahx.ahx.ahx .stage-in:has(>.tk){overflow-anchor:none}
+.ahx.ahx.ahx.ahx .tk{font-size:14px;width:100%;max-width:420px;margin-inline:auto;overflow-anchor:none}
+.ahx.ahx.ahx.ahx .stage-in>.tk{min-height:inherit}
+.ahx.ahx.ahx.ahx .tk-h{display:flex;align-items:center;gap:10px;width:calc(100% + 16px);margin:0 -8px;padding:6px var(--s-2);border-radius:calc(10px * var(--rk-m,var(--rk)));text-align:left;transition:background var(--t-fast)}
+.ahx.ahx.ahx.ahx .tk-h:hover{background:var(--row)}
+.ahx.ahx.ahx.ahx .tk-mark{width:18px;height:18px;flex:none;display:grid;place-items:center;color:var(--accent-mark,var(--accent));transition:color .3s}
+.ahx.ahx.ahx.ahx .tk-h.tk-fin .tk-mark{color:var(--ok)}
+.ahx.ahx.ahx.ahx .tk-h.tk-fin .tk-mark .i{animation:tkpop .5s var(--ease) backwards}
+.ahx.ahx.ahx.ahx .tk-title{flex:1;min-width:0;color:var(--fg)}
+.ahx.ahx.ahx.ahx .tk-time{color:var(--muted);font-size:13px}
+.ahx.ahx.ahx.ahx .tk-chev{color:var(--muted);transition:transform .32s var(--ease)}
+.ahx.ahx.ahx.ahx .tk[data-open="0"] .tk-chev{transform:rotate(-90deg)}
+.ahx.ahx.ahx.ahx .tk-list{list-style:none;margin:0;padding:6px 0 0;display:flex;flex-direction:column}
+.ahx.ahx.ahx.ahx .tk-st{position:relative;display:flex;gap:10px;padding:6px 0}
+.ahx.ahx.ahx.ahx .tk-st .mk{position:relative;width:18px;height:18px;flex:none;margin-top:1px;display:grid;place-items:center;border-radius:50%;color:var(--muted);transition:background .32s,color .32s}
+.ahx.ahx.ahx.ahx .tk-st .mk .spin{width:10px;height:10px}
+.ahx.ahx.ahx.ahx .tk-st.run .mk{color:var(--accent-mark,var(--accent));background:var(--accent-bg);animation:tkhalo 1.8s var(--ease-io) infinite}
+.ahx.ahx.ahx.ahx .tk-st.done .mk{background:var(--ok-bg);color:var(--ok)}
+.ahx.ahx.ahx.ahx .tk-st.done .mk .i{animation:tkpop .45s var(--ease) backwards}
+.ahx.ahx.ahx.ahx .tk-st.retry .mk{background:var(--warn-bg);color:var(--warn);animation:tkhalow 1.8s var(--ease-io) infinite}
+.ahx.ahx.ahx.ahx .tk-st .tx{flex:1;min-width:0;display:flex;flex-direction:column}
+.ahx.ahx.ahx.ahx .tk-st .tk-ln{display:flex;align-items:baseline;gap:var(--s-2)}
+.ahx.ahx.ahx.ahx .tk-st .lab{flex:1;min-width:0;color:var(--fg);transition:color .32s}
+.ahx.ahx.ahx.ahx .tk-st.done .lab{color:var(--fg2)}
+.ahx.ahx.ahx.ahx .tk-st .tk-dur{flex:none;font-size:12px;color:var(--muted)}
+.ahx.ahx.ahx.ahx .tk-st .res{display:grid;grid-template-rows:0fr;font-size:13px;color:var(--muted);transition:grid-template-rows .32s var(--ease),color .32s}
+.ahx.ahx.ahx.ahx .tk-st .res.on{grid-template-rows:1fr}
+.ahx.ahx.ahx.ahx .tk-st .res>span{overflow:hidden;min-height:0}
+.ahx.ahx.ahx.ahx .tk-st .res .w{display:inline-block;white-space:pre;animation:tkword .42s var(--ease) backwards}
+.ahx.ahx.ahx.ahx .tk-st.retry .res{color:var(--warn)}
+.ahx.ahx.ahx.ahx .tk-st .res [data-tip]{text-decoration:underline dotted var(--faint);text-underline-offset:3px;cursor:default}
+:root[data-style="bp"] .ahx.ahx.ahx.ahx .tk-st.run .mk,:root[data-style="bp"] .ahx.ahx.ahx.ahx .tk-st.retry .mk{animation:none}
+:root[data-style="bp"] .ahx.ahx.ahx.ahx .tk-st.run .mk{box-shadow:inset 0 0 0 1px var(--accent-mark)}
+:root[data-style="bp"] .ahx.ahx.ahx.ahx .tk-st.done .mk .i,:root[data-style="bp"] .ahx.ahx.ahx.ahx .tk-h.tk-fin .tk-mark .i{animation:none}
+:root[data-style="bp"] .ahx.ahx.ahx.ahx .tk-st .res .w{animation:bpin .3s var(--ease) backwards}
+.ahx.ahx.ahx.ahx .cpx-send{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent);flex:none;transition:opacity .32s,transform .16s,background .16s}
+.ahx.ahx.ahx.ahx .cpx-send:hover{background:var(--accent-2)}
+.ahx.ahx.ahx.ahx .cpx-send[disabled]{opacity:1;cursor:not-allowed;background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring)}
+.ahx.ahx.ahx.ahx .cpx-bar>.cpx-send{flex:none}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .cpx-send{width:28px;height:28px;transition:transform var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .cpx-send:not([disabled]){color:var(--on-btn);background:linear-gradient(180deg,var(--btn-1),var(--btn-2));box-shadow:var(--btn-depth)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .cpx-send:not([disabled]):hover{background:linear-gradient(180deg,color-mix(in srgb,var(--btn-1) 88%,#808080),var(--btn-2))}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .cpx-send:not([disabled]):active{transform:scale(.97);box-shadow:var(--btn-press)}
+.ahx.ahx.ahx.ahx .dpx{padding:var(--s-4) 0;display:flex;flex-direction:column;gap:var(--s-3);outline:0;border-radius:var(--r-in)}
+.ahx.ahx.ahx.ahx .dpx.panel{padding:var(--s-4);border-radius:var(--r-card)}
+.ahx.ahx.ahx.ahx .dpx:focus-visible{outline:2px solid var(--focus);outline-offset:6px}
+.ahx.ahx.ahx.ahx .dpx-h{display:flex;align-items:center;justify-content:space-between}
+.ahx.ahx.ahx.ahx .dpx-k{font-size:12px}
+.ahx.ahx.ahx.ahx .dpx-dots{display:flex;gap:var(--s-1)}
+.ahx.ahx.ahx.ahx .dpx-dots i{width:6px;height:6px;border-radius:var(--r-tiny,3px);background:var(--line);transition:width .45s var(--ease),background .35s}
+.ahx.ahx.ahx.ahx .dpx-dots i.on{width:16px;background:var(--accent-mark,var(--accent))}
+.ahx.ahx.ahx.ahx .dpx-dots i.done{background:var(--accent-mark,var(--accent));opacity:.4}
+.ahx.ahx.ahx.ahx .dpx-body{min-height:168px}
+.ahx.ahx.ahx.ahx .dpx-q{font-size:14px;font-weight:500;margin-bottom:10px;text-wrap:balance}
+.ahx.ahx.ahx.ahx .dpx-o{display:flex;align-items:center;gap:10px;width:calc(100% + 20px);margin-inline:-10px;padding:9px 10px;border-radius:var(--r-in);font-size:13.5px;text-align:left;color:var(--fg2);transition:background .25s,color .25s}
+.ahx.ahx.ahx.ahx .dpx-o:hover{background:var(--row);color:var(--fg)}
+.ahx.ahx.ahx.ahx .dpx-o.on{background:var(--sel);color:var(--fg)}
+.ahx.ahx.ahx.ahx .dpx-o .kbd{width:20px;text-align:center;transition:background .25s,color .25s}
+.ahx.ahx.ahx.ahx .dpx-o.on .kbd{background:var(--accent);color:var(--on-accent)}
+.ahx.ahx.ahx.ahx .dpx-o .d{margin-left:auto;font-size:12px;color:var(--muted)}
+.ahx.ahx.ahx.ahx .dpx-f{display:flex;justify-content:flex-end;gap:6px}
+.ahx.ahx.ahx.ahx .dpx-sum{display:flex;flex-direction:column;gap:6px}
+.ahx.ahx.ahx.ahx .dpx-sr{display:flex;gap:10px;font-size:13px;padding:7px 0;border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.ahx.ahx.ahx.ahx .dpx-sr:last-child{border:0}
+.ahx.ahx.ahx.ahx .dpx-sr span{color:var(--muted);width:92px;flex:none}
+.ahx.ahx.ahx.ahx .dpx-run{display:flex;align-items:center;gap:var(--s-2);font-size:13px;margin-top:6px}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .dpx.panel{padding:19px 30px 20px 30px}
+.ahx.ahx.ahx.ahx .pgx{position:relative;width:100%;max-width:400px;margin:0 auto;padding:var(--s-1) 0;display:flex;flex-direction:column;gap:var(--s-3)}
+.ahx.ahx.ahx.ahx .pgx.panel{padding:var(--s-4)}
+.ahx.ahx.ahx.ahx .pgx-h{display:flex;gap:var(--s-3);align-items:center}
+.ahx.ahx.ahx.ahx .pgx-ic{width:32px;height:32px;border-radius:calc(9px * var(--rk-m,var(--rk)));background:var(--chip);display:grid;place-items:center;flex:none}
+.ahx.ahx.ahx.ahx .pgx-ht{display:flex;flex-direction:column;min-width:0}
+.ahx.ahx.ahx.ahx .pgx-ht b{font-weight:500;font-size:14px}
+.ahx.ahx.ahx.ahx .pgx-ht span{font-size:13px}
+.ahx.ahx.ahx.ahx .pgx-sc{display:flex;flex-direction:column}
+.ahx.ahx.ahx.ahx .pgx-o{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;column-gap:var(--s-3);padding:var(--s-2) 7px var(--s-2) 0;border-radius:calc(10px * var(--rk-m,var(--rk)));cursor:pointer;font-size:13.5px;transition:background .25s}
+.ahx.ahx.ahx.ahx .pgx-o>.bx{justify-self:center}
+.ahx.ahx.ahx.ahx .pgx-o:hover{background:var(--row)}
+.ahx.ahx.ahx.ahx .pgx-o input{position:absolute;opacity:0;pointer-events:none}
+.ahx.ahx.ahx.ahx .pgx-o .bx{width:18px;height:18px;border-radius:calc(6px * var(--rk-s,var(--rk)));box-shadow:inset 0 0 0 1.5px var(--fg2);display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--ease),box-shadow .3s,color .3s}
+.ahx.ahx.ahx.ahx .pgx-o .bx svg{transform:scale(.4);transition:transform .35s var(--ease)}
+.ahx.ahx.ahx.ahx .pgx-o input:checked+.bx{background:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent-mark,var(--accent));color:var(--on-accent)}
+.ahx.ahx.ahx.ahx .pgx-o input:checked+.bx svg{transform:none}
+.ahx.ahx.ahx.ahx .pgx-o input:focus-visible+.bx{outline:2px solid var(--focus);outline-offset:2px}
+.ahx.ahx.ahx.ahx .pgx-o .t{flex:1;min-width:0}
+.ahx.ahx.ahx.ahx .pgx-o.one{cursor:default}
+.ahx.ahx.ahx.ahx .pgx-o.one:hover{background:none}
+.ahx.ahx.ahx.ahx .pgx-o.one>.oi{width:32px;height:32px;display:grid;place-items:center;border-radius:calc(9px * var(--rk-m,var(--rk)));background:var(--chip);color:var(--fg2)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o.one>.oi{box-shadow:inset 0 0 0 1px var(--hair)}
+.ahx.ahx.ahx.ahx .pgx-o .d{display:block;font-size:12px;color:var(--muted)}
+.ahx.ahx.ahx.ahx .pgx-f{display:flex;align-items:center;gap:6px;padding-top:var(--s-3);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.ahx.ahx.ahx.ahx .pgx-f .sp{flex:1}
+@container (max-width:340px){.ahx.ahx.ahx.ahx .pgx-f{flex-wrap:wrap}.ahx.ahx.ahx.ahx .pgx-f .sp{flex-basis:100%}.ahx.ahx.ahx.ahx .pgx-no{margin:var(--s-2) 0 0 auto}.ahx.ahx.ahx.ahx .pgx-ok{margin-top:var(--s-2)}}
+.ahx.ahx.ahx.ahx .pgx-db{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--s-2) 0 10px;margin-left:0;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);white-space:nowrap;transition:background .16s,color .16s}
+.ahx.ahx.ahx.ahx .pgx-db:hover,.ahx.ahx.ahx.ahx .pgx-db[aria-expanded="true"]{background:var(--row);color:var(--fg)}
+.ahx.ahx.ahx.ahx .pgx-db>svg{color:var(--muted);transition:transform .32s var(--ease)}
+.ahx.ahx.ahx.ahx .pgx-db[aria-expanded="true"]>svg{transform:rotate(180deg)}
+.ahx.ahx.ahx.ahx .pgx-pop{min-width:230px}
+.ahx.ahx.ahx.ahx .pgx-ok[disabled]{opacity:1;cursor:not-allowed;background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring)}
+.ahx.ahx.ahx.ahx .pgx-done{display:flex;align-items:center;gap:var(--s-3);padding:10px 7px 10px 0;border-radius:var(--r-in);background:var(--chip);font-size:13.5px}
+.ahx.ahx.ahx.ahx .pgx-done>svg{margin-inline:8px}
+.ahx.ahx.ahx.ahx .pgx-done .pill{background:var(--surface);color:var(--fg);box-shadow:var(--on-tint-btn)}
+.ahx.ahx.ahx.ahx .pgx-done .pill:hover{background:var(--surface);box-shadow:var(--on-tint-btn-h)}
+.ahx.ahx.ahx.ahx .pgx-done .t{flex:1;color:var(--fg)}
+.ahx.ahx.ahx.ahx .pgx-done .t span{display:block;font-size:12px;color:var(--fg2)}
+.ahx.ahx.ahx.ahx .pgx-done>svg{color:var(--ok)}
+.ahx.ahx.ahx.ahx .pgx-done .g{width:32px;height:18px;display:grid;place-items:center;flex:none;color:var(--fg2)}
+.ahx.ahx.ahx.ahx .pgx-done.ok .g{color:var(--ok)}
+.ahx.ahx.ahx.ahx .pgx-done .t b{display:block;font-weight:400}
+.ahx.ahx.ahx.ahx .pgx-ic{transition:background .32s var(--ease)}
+.ahx.ahx.ahx.ahx .pgx-scope{display:flex;flex-direction:column;gap:var(--s-3)}
+.ahx.ahx.ahx.ahx .pgx-sum{display:none}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel{padding:16px 16px 0;overflow:clip;overflow-clip-margin:0px}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel:has(.pgx-pop.open){overflow:visible}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-ic{box-shadow:inset 0 0 0 1px var(--hair)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-ht b{line-height:20px;letter-spacing:-.01em}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-ht span,:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o .d,:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-done .t span{line-height:18px}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx :is(.pgx-o,.pgx-done) .t{line-height:20px}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o{position:relative;display:grid;grid-template-columns:32px minmax(0,1fr) auto;column-gap:12px;transition:background-color var(--t-fast) var(--ease)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o>.bx{justify-self:center}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o+.pgx-o{background-image:linear-gradient(var(--hair),var(--hair));background-repeat:no-repeat;background-position:0 0;background-size:100% 1px}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx :is(.pgx-o:hover,.pgx-o:hover+.pgx-o){background-image:none}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o .bx{border-radius:calc(4px * var(--rk-s,var(--rk)));background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--fg2),var(--track-ring);transition:background .2s var(--ease),box-shadow .2s var(--ease)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o .bx svg{transform:none;stroke-dasharray:21;stroke-dashoffset:21;transition:stroke-dashoffset .3s var(--ease)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o input:checked+.bx{background:linear-gradient(180deg,var(--btn-1),var(--btn-2));box-shadow:inset 0 0 0 1px var(--btn-2),inset 0 2px 3px -1px rgba(255,255,255,.28);color:var(--on-btn)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o input:checked+.bx svg{stroke-dashoffset:0;transition-delay:.06s}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o:active .bx{transform:scale(.94);transition:transform var(--t-fast) var(--ease)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-sc{margin-bottom:-4px}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-f{margin:0 -16px;padding:8px;gap:4px;border-top:1px solid var(--line);background:var(--strip);border-radius:0 0 var(--r-card) var(--r-card)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-f .pgx-db{padding:0 8px;margin:0;color:var(--fg2);transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-f :is(.pgx-db:hover,.pgx-db[aria-expanded="true"],.pill.ghost:hover){background:var(--hover);color:var(--fg)}
+@container (max-width:340px){:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-no{margin:0 0 0 auto}:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-ok{margin-top:0}}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-cnt{display:inline-grid}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-cnt>i{grid-area:1/1;font-style:normal;font-variant-numeric:tabular-nums}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-cnt>.iu{animation:pgxiu .22s var(--ease) .1s both}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-cnt>.ou{animation:pgxou .16s var(--ease) both}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-cnt>.id{animation:pgxid .22s var(--ease) .1s both}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-cnt>.od{animation:pgxod .16s var(--ease) both}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done{display:grid;grid-template-columns:32px minmax(0,1fr) auto;grid-template-rows:auto 45px;column-gap:12px;row-gap:16px;align-items:center;padding:0;border-radius:0;background:none!important}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done>:is(.g,svg){grid-area:1/1}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done>.t{grid-area:1/2}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done .t b{font-weight:500}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done .t b span{font-size:inherit;line-height:inherit;color:inherit}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done .t span{color:var(--muted)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done>.pill{grid-area:2/3;z-index:1;align-self:end;margin:0 -8px 8px 0;color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done>.pill:hover{background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-hover)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done>.pill:active{box-shadow:var(--btn2-press)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-sum{display:block;grid-area:2/1/3/-1;align-self:stretch;margin:0 -16px -240px;padding:8px 88px 248px 16px;border-top:1px solid var(--line);background:var(--strip);line-height:28px;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-sum .s{display:none}
+@container (max-width:340px){:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-sum .l{display:none}:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-sum .s{display:inline}}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done .g{width:32px;height:32px;border-radius:50%;background:var(--chip);box-shadow:inset 0 0 0 1px var(--hair);color:var(--fg2);transition:background-color .3s var(--ease),box-shadow .3s var(--ease)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done.ok .g{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--ok-mark);color:var(--ok-mark)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done.ok .g svg{width:16px;height:16px;stroke-width:2;stroke-dasharray:21;animation:pgxdraw .5s var(--ease) .12s both}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done>svg{width:32px;height:32px;margin:0;padding:8px;box-sizing:border-box;border-radius:50%;background:var(--chip);box-shadow:inset 0 0 0 1px var(--hair);color:var(--fg2)}
+@media (prefers-reduced-motion:reduce){:root[data-style="clean"] .ahx.ahx.ahx.ahx :is(.pgx-o .bx,.pgx-o .bx svg,.pgx-done .g){transition:none}:root[data-style="clean"] .ahx.ahx.ahx.ahx :is(.pgx-cnt>i,.pgx-done.ok .g svg){animation:none}}
+.ahx.ahx.ahx.ahx .plx{padding:14px 0;display:flex;flex-direction:column;gap:10px}
+.ahx.ahx.ahx.ahx .plx.panel{padding:14px}
+.ahx.ahx.ahx.ahx .plx-h{display:flex;align-items:center;gap:10px}
+.ahx.ahx.ahx.ahx .plx-mk{color:var(--accent)}
+.ahx.ahx.ahx.ahx .plx-ht{display:flex;flex-direction:column;min-width:0}
+.ahx.ahx.ahx.ahx .plx-ht b{font-weight:500;font-size:13.5px}
+.ahx.ahx.ahx.ahx .plx-st{font-size:12.5px}
+.ahx.ahx.ahx.ahx .plx-list{list-style:none;margin:0 -6px;padding:0;display:flex;flex-direction:column;counter-reset:s}
+.ahx.ahx.ahx.ahx .plx-s{display:flex;align-items:flex-start;gap:10px;padding:7px 6px;border-radius:calc(10px * var(--rk-m,var(--rk)));font-size:13px;transition:background .25s,opacity .35s;position:relative}
+.ahx.ahx.ahx.ahx .plx-s:hover{background:var(--row)}
+.ahx.ahx.ahx.ahx .plx-s .n{width:20px;height:20px;border-radius:50%;background:var(--chip);display:grid;place-items:center;font-size:11px;font-variant-numeric:tabular-nums;color:var(--muted);flex:none;transition:background .35s,color .35s}
+.ahx.ahx.ahx.ahx .plx-s:hover .n{background:var(--surface)}
+.ahx.ahx.ahx.ahx .plx-s .b{flex:1;min-width:0;display:flex;flex-direction:column}
+.ahx.ahx.ahx.ahx .plx-s .t{min-width:0;outline:0;border-radius:var(--r-tiny,5px);padding:1px 3px;margin:0 -3px;line-height:1.5}
+.ahx.ahx.ahx.ahx .plx-s .d{font-size:12px;color:var(--muted);display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s var(--ease)}
+.ahx.ahx.ahx.ahx .plx-s .d.on{grid-template-rows:1fr}
+.ahx.ahx.ahx.ahx .plx-s .d>span{overflow:hidden;min-height:0}
+.ahx.ahx.ahx.ahx .plx-s .d.warn{color:var(--warn)}
+.ahx.ahx.ahx.ahx .plx-tm{margin-left:auto;font-size:12px;color:var(--muted)}
+.ahx.ahx.ahx.ahx .plx-tm:empty{display:none}
+.ahx.ahx.ahx.ahx .plx-s .n .spin{width:10px;height:10px}
+.ahx.ahx.ahx.ahx .plx-s .t:focus{background:var(--surface);box-shadow:0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
+.ahx.ahx.ahx.ahx .plx-s .ib{width:24px;height:24px;opacity:0;transition:opacity .2s}
+.ahx.ahx.ahx.ahx .plx-s:hover .ib,.ahx.ahx.ahx.ahx .plx-s .ib:focus-visible{opacity:1}
+.ahx.ahx.ahx.ahx .plx-s.off{opacity:.45}
+.ahx.ahx.ahx.ahx .plx-s.off .t{text-decoration:line-through}
+.ahx.ahx.ahx.ahx .plx-s.run .n{background:var(--accent-bg);color:var(--accent)}
+.ahx.ahx.ahx.ahx .plx-s.done .n{background:var(--ok-bg);color:var(--ok)}
+.ahx.ahx.ahx.ahx .plx-s.retry .n{background:var(--warn-bg);color:var(--warn)}
+.ahx.ahx.ahx.ahx .plx-add{display:flex;align-items:center;gap:var(--s-2);font-size:12.5px;color:var(--fg2);padding:var(--s-1) 10px;margin-inline:-10px;align-self:flex-start;border-radius:var(--r-pill)}
+.ahx.ahx.ahx.ahx .plx-add:hover{color:var(--fg);background:var(--row)}
+.ahx.ahx.ahx.ahx .plx-f{display:flex;align-items:center;gap:6px}
+.ahx.ahx.ahx.ahx .plx-n{flex:1;font-size:12px;min-width:0}
+@media (max-width:480px){.ahx.ahx.ahx.ahx .plx-n{display:none}}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .plx.panel{padding:18px 20px 26px 30px}
+.ahx.ahx.ahx.ahx .ssx{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.ahx.ahx.ahx.ahx .ssx-pill{display:inline-flex;align-items:center;gap:var(--s-2);height:30px;padding:0 10px 0 5px;border-radius:var(--r-pill);background:var(--chip);font-size:12.5px;color:var(--fg2);transition:background .25s,color .25s}
+.ahx.ahx.ahx.ahx .ssx-pill:hover{background:var(--hover);color:var(--fg)}
+.ahx.ahx.ahx.ahx .ssx-pill>svg{transition:transform .4s var(--ease)}
+.ahx.ahx.ahx.ahx .ssx-pill[aria-expanded="true"]>svg{transform:rotate(180deg)}
+.ahx.ahx.ahx.ahx .ssx-ics{display:flex}
+.ahx.ahx.ahx.ahx .ssx-ics span{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:9px;font-weight:500;color:#fff;box-shadow:0 0 0 2px var(--chip);margin-right:-6px;transition:margin .4s var(--ease)}
+.ahx.ahx.ahx.ahx .ssx-pill:hover .ssx-ics span{margin-right:-3px}
+.ahx.ahx.ahx.ahx .ssx-ics span:last-child{margin-right:0}
+.ahx.ahx.ahx.ahx .ssx-box{width:100%}
+.ahx.ahx.ahx.ahx .ssx-in{padding:2px 0 var(--s-1);display:flex;flex-direction:column;gap:var(--s-2)}
+.ahx.ahx.ahx.ahx .ssx-fl{display:flex;gap:var(--s-1);flex-wrap:wrap}
+.ahx.ahx.ahx.ahx .ssx-fl .chip{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pick-line) 50%,transparent)}
+.ahx.ahx.ahx.ahx .ssx-fl .chip:hover{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--faint) 50%,transparent)}
+.ahx.ahx.ahx.ahx .ssx-list{display:flex;flex-direction:column;gap:2px;margin-inline:-6px}
+.ahx.ahx.ahx.ahx .ssx-s{display:flex;align-items:center;gap:10px;padding:7px 6px;border-radius:calc(10px * var(--rk-m,var(--rk)));font-size:13px;transition:background .25s}
+.ahx.ahx.ahx.ahx .ssx-s:hover{background:var(--row)}
+.ahx.ahx.ahx.ahx .ssx-s .fv{width:22px;height:22px;border-radius:calc(7px * var(--rk-m,var(--rk)));display:grid;place-items:center;font-size:9.5px;font-weight:500;flex:none}
+.ahx.ahx.ahx.ahx .ssx-s .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ahx.ahx.ahx.ahx .ssx-s .h{font-size:12px;color:var(--muted)}
+.ahx.ahx.ahx.ahx .ssx-s .rel{width:36px;height:4px;border-radius:var(--r-tiny,2px);background:var(--line);overflow:hidden;flex:none}
+.ahx.ahx.ahx.ahx .ssx-s .rel i{display:block;height:100%;background:var(--accent-mark,var(--accent));border-radius:var(--r-tiny,2px);transform-origin:left;animation:ssrel .8s var(--ease) both}
+.ahx.ahx.ahx.ahx .ssx-s .ib{width:24px;height:24px;opacity:0;transition:opacity .2s}
+.ahx.ahx.ahx.ahx .ssx-s:hover .ib{opacity:1}
+.ahx.ahx.ahx.ahx .ssx-s .ib:focus-visible{opacity:1}
+.ahx.ahx.ahx.ahx .mi.hl .bdg{color:color-mix(in srgb,var(--bdg-fg) 85%,var(--fg))}
+.ahx.ahx.ahx.ahx .mi:hover .bdg{color:color-mix(in srgb,var(--bdg-fg) 85%,var(--fg))}
+.ahx.ahx.ahx.ahx .mi:is(:hover,.hl) .bdg{--cb-bg:color-mix(in srgb,var(--cb-fg) 16%,var(--surface));--bdg-bg:color-mix(in srgb,var(--bdg-fg) 16%,var(--surface))}
+.ahx.ahx.ahx.ahx .mi:is(:hover,.hl) .bdg:is(:not([data-tone]),[data-tone="neutral"]){--cb-bg:var(--surface);--bdg-bg:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}
+.ahx.ahx.ahx.ahx .ahx-tp .mi .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ahx.ahx.ahx.ahx .ahx-tp .mi .ahx-mk:empty{display:grid}
+.ahx.ahx.ahx.ahx .ahx-spl .spl-pill{height:30px;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent)}
+.ahx.ahx.ahx.ahx .ahx-spl .spl-in{gap:7px;padding:0 var(--s-1) 0 11px;font-size:12.5px}
+.ahx.ahx.ahx.ahx .ahx-spl .spl-in .g{width:14px}
+.ahx.ahx.ahx.ahx .ahx-spl .spl-in .pill{height:22px;padding:0 9px;margin-left:1px;font-size:12px}
+.ahx.ahx.ahx.ahx .ahx-msg:not(.box)>.panel:not(.keep){background:none;box-shadow:none;padding-left:0;padding-right:0;border-radius:0}
+.ahx.ahx.ahx.ahx .ahx-msg .dpx-body{min-height:0}
+.ahx.ahx.ahx.ahx .ahx-msg .dpx-f.leave{display:none}
+.ahx.ahx.ahx.ahx.ahx.busy .cpx-bar .cpx-send{background:var(--rail);color:var(--surface);pointer-events:none}
+@container ahm (max-width:560px){.ahx.ahx.ahx.ahx .ahx-spl .spl-in .m{display:none}}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .ahx-spl .spl-pill{height:28px}
+/* what the reviews added that staging did not have, put back as it was there */
+.ahx.ahx.ahx.ahx .plx{--row:inherit}
+.ahx.ahx.ahx.ahx .plx-h::before{content:none}
+.ahx.ahx.ahx.ahx .plx-mk{margin-inline:0}
+.ahx.ahx.ahx.ahx .plx-s .n{margin-inline:0;box-shadow:none}
+.ahx.ahx.ahx.ahx .plx-s .n .spin{border:1.5px solid currentColor;border-right-color:transparent;animation-duration:.8s}
+.ahx.ahx.ahx.ahx .plx-s.edited .t::after{color:var(--accent)}
+.ahx.ahx.ahx.ahx .plx-add{margin:0 -10px}
+.ahx.ahx.ahx.ahx .plx-add .i{margin-inline:0}
+.ahx.ahx.ahx.ahx .plx-f{justify-content:normal;margin:0;padding:0;border-top:0;background:none;border-radius:0}
+.ahx.ahx.ahx.ahx .plx-f .plx-stop:last-child{margin-right:0}
+.ahx.ahx.ahx.ahx .dpx-f{min-height:0;margin:0;padding:0;border-top:0;background:none;border-radius:0}
+.ahx.ahx.ahx.ahx .ssx-ics{gap:normal}
+.ahx.ahx.ahx.ahx .ssx-ics span{box-shadow:0 0 0 2px var(--chip);color:#fff!important}
+.ahx.ahx.ahx.ahx .ssx-s .fv{box-shadow:none}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .cpx-send{isolation:auto}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .cpx-send::before{content:none}
+.ahx.ahx.ahx.ahx .ahx-col .ahx-msg>*{margin-left:0;margin-right:auto}
+.ahx.ahx.ahx.ahx .tk{background:none;box-shadow:none;border-radius:0;overflow:visible}
+:root[data-style="bp"] .ahx.ahx.ahx.ahx .ssx-fl .chip.on{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--faint) 50%,transparent)}
+/* (Agent harness: staging look, end) */
 /* ---------- Line chart ---------- */
 /* one metric over a period, against the period before (owner, 21 Nov): straight segments with sharp joins, a saturated line in the accent, and a fill that fades from the line's colour
    at the top to nothing at the bottom. A quiet head: the title, a picker for whose numbers they are, and the range switch, with
@@ -8666,6 +9012,13 @@ button.kbx-pv:hover,button.kbx-pv[aria-expanded="true"]{background:var(--row)}
   .kbx-bk .n{margin-right:auto}
 }
 
+/* Phase II (owner, 21 Nov): Kanban stays as it is on staging until its own Clean pass, so its menus keep the rows they had
+   there in Clean: Clean's solid row fill for hover and picked rows, the rows' own rounding, and in dark mode the blue accent
+   for the ticks, not the white one Clean's reviewed components took on 21 Nov */
+:root[data-style="clean"] .kbx{--row:#f7f7f7;--row-on:#f7f7f7}
+:root[data-style="clean"][data-theme="dark"] .kbx{--row:#1a1a1a;--row-on:#1a1a1a;--accent:#116ff8;--accent-2:color-mix(in srgb,#116ff8 84%,#fff);--on-accent:#ffffff;--accent-fg:#9dc4ff;--accent-mark:#2f86ff;--accent-bg:color-mix(in srgb,#116ff8 13%,transparent);--sel:color-mix(in srgb,#116ff8 9%,transparent)}
+@media (prefers-color-scheme:dark){:root[data-style="clean"]:not([data-theme="light"]) .kbx{--row:#1a1a1a;--row-on:#1a1a1a;--accent:#116ff8;--accent-2:color-mix(in srgb,#116ff8 84%,#fff);--on-accent:#ffffff;--accent-fg:#9dc4ff;--accent-mark:#2f86ff;--accent-bg:color-mix(in srgb,#116ff8 13%,transparent);--sel:color-mix(in srgb,#116ff8 9%,transparent)}}
+:root[data-style="clean"] .kbx .mi{border-radius:calc(9px * var(--rk-m,var(--rk)));transition:background var(--t-fast)}
 /* ---------- Context menu ---------- */
 /* an agent reply with a menu of its own: right-click, long-press, Shift+F10 or the Menu key opens it where you are, over the
    reply, and the reply never moves. The reply's content sits 16px in from every edge in every style. While its menu is open
@@ -9591,6 +9944,13 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 .wsx-r .d{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wsx-r.skip .t{color:var(--muted)}
 .wsx-r .tag .spin{width:9px;height:9px}
+/* on a hovered or lit row the grey Read and Skimmed chips lift to white (one step lighter in dark mode), so they stand out
+   against the row's hover fill rather than melting into it (owner, 22 Nov), in every style */
+.wsx{--wsx-lift:var(--surface)}
+:root[data-theme="dark"] .wsx{--wsx-lift:var(--hover)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .wsx{--wsx-lift:var(--hover)}}
+.wsx-r .tag{transition:background-color var(--t-fast)}
+.wsx-r:is(:hover,.hl) .tag:not(.warn){background:var(--wsx-lift)}
 .wsx-ans{padding:var(--s-2) 10px 6px;font-size:13.5px;line-height:1.6;color:var(--fg)}
 .wsx-ans:empty{display:none}
 /* the number sits in the middle of its circle: its line is as tall as its figures, so a taller line round it (Clean's 22px
@@ -9604,8 +9964,9 @@ button.pvb-row:focus-visible{outline-offset:-2px}
    edges. The head's spinner (a globe once done) sits in a 28px neutral tile, and every row's leading mark (a query's search
    glass, the asked-again arrow, a page's site initial) is centred in that same 28px column, so every row's words start where
    the head's do. A row's hover fill spans the content, from the tile's left edge to the content's right edge, never wider;
-   the chevrons are centred in a 28px column at the end, the one the head's chevron circle (its quiet hover) fills, and a
-   page's tag ends where the chevrons do. The answer is the card's own paragraph under a hairline. The card grows and
+   the chevrons are centred in a 28px column at the end, the one the head's chevron circle (its quiet hover) fills. A row
+   with no chevron (a page, a search that found nothing) keeps no room for one: its tag or time ends on the content's right
+   edge (owner, 22 Nov). The answer is the card's own paragraph under a hairline. The card grows and
    shrinks with what it holds (grow()), so as the trail folds once the searching is done it eases down to the head and the
    answer, staying centred. Colour only for meaning: "No results" and a skipped page in the warning colour; sites, counts
    and pages read are grey */
@@ -9629,14 +9990,17 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 :root[data-style="clean"] .wsx-qh{grid-template-columns:28px minmax(0,1fr) auto auto 28px;column-gap:12px;padding:6px 0;border-radius:calc(7px * var(--rk-m,var(--rk)));transition:background-color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .wsx-qh>.i{justify-self:center}
 :root[data-style="clean"] .wsx-qh .n{margin-right:-4px}
-:root[data-style="clean"] .wsx-qh.empty{grid-template-columns:28px minmax(0,1fr) auto auto;padding-right:8px}
+:root[data-style="clean"] .wsx-qh.empty{grid-template-columns:28px minmax(0,1fr) auto auto}
 :root[data-style="clean"] .wsx-qh .n,:root[data-style="clean"] .wsx-qh .tm{font-variant-numeric:tabular-nums}
 :root[data-style="clean"] .wsx-rw{padding:0 0 6px;gap:12px}
 :root[data-style="clean"] .wsx-rw .i{margin-inline:8px}
 :root[data-style="clean"] .wsx-rs{padding:0 0 4px;gap:0}
-:root[data-style="clean"] .wsx-r{grid-template-columns:28px minmax(0,1fr) auto;column-gap:12px;padding:6px 8px 6px 0;border-radius:calc(7px * var(--rk-m,var(--rk)));transition:background-color var(--t-fast) var(--ease)}
+:root[data-style="clean"] .wsx-r{grid-template-columns:28px minmax(0,1fr) auto;column-gap:12px;padding:6px 0;border-radius:calc(7px * var(--rk-m,var(--rk)));transition:background-color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .wsx-fav{justify-self:center;border-radius:calc(4px * var(--rk-s,var(--rk)));box-shadow:inset 0 0 0 1px var(--hair)}
 :root[data-style="clean"] .wsx-ans{padding:16px;border-top:1px solid var(--line);line-height:22px}
+/* Clean dark's hover fill is lighter than its --hover, so a lifted chip steps further up to stand out on it */
+:root[data-style="clean"][data-theme="dark"] .wsx{--wsx-lift:color-mix(in srgb,var(--fg) 16%,var(--surface))}
+@media (prefers-color-scheme:dark){:root[data-style="clean"]:not([data-theme="light"]) .wsx{--wsx-lift:color-mix(in srgb,var(--fg) 16%,var(--surface))}}
 :root[data-style="clean"] .wsx-cite{transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 /* ---------- Blueprint 2 ---------- */
 /* Blueprint 2: the same components drawn as a technical sheet. Square corners, hairline edges instead of shadows,
@@ -13899,7 +14263,7 @@ DM.def('toast', (r, c) => {
   // each state's icon, colours and words; its tone (data-tone) is what Clean colours: success green, error red, the rest grey
   const V = {
     ok:{ g:'ok', tone:'success', col:'var(--ok)', bg:'var(--ok-bg)', b:'Changes applied', s:'4 files updated in PricingCard', act:'<button class="pill ghost sm tst-undo">Undo</button>' },
-    err:{ g:'alert', tone:'error', col:'var(--bad)', bg:'var(--bad-bg)', b:'Could not push to main', s:'The branch is protected', act:'<button class="pill primary sm tst-retry">Retry</button>' },
+    err:{ g:'alert', tone:'error', col:'var(--bad)', bg:'var(--bad-bg)', b:'Could not push to main', s:'The branch is protected', act:'<button class="pill ghost sm tst-retry">Retry</button>' },
     info:{ g:'info', tone:'info', col:'var(--pb)', bg:'var(--pb-bg)', b:'Preview is ready', s:'pricing-spacing.preview.app', act:'<button class="pill ghost sm">Open</button>' },
     load:{ g:'load', tone:'loading', col:'var(--fg)', bg:'var(--chip)', b:'Deploying preview', s:'Building 3 pages', act:'' }
   };
@@ -13913,6 +14277,10 @@ DM.def('toast', (r, c) => {
     const t = html(`<div class="tst-t tst-in" role="status"><span class="g" data-tone="${v.tone}" style="color:${v.col};background:${v.bg}">${k === 'load' ? '<span class="spin"></span>' : I(v.g)}</span><div class="tx"><b${k === 'load' ? ' class="shim"' : ''}>${v.b}</b><span>${v.s}</span></div><div class="acts">${v.act}<button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div><span class="life"></span></div>`);
     if (cur){ const old = cur; old.classList.add('tst-out'); setTimeout(() => old.remove(), 300); }
     slot.appendChild(t); cur = t;
+    // words that run past two lines beside the action give it a row of its own under them
+    const lines = new Set(), tw = document.createTreeWalker($('.tx', t), NodeFilter.SHOW_TEXT);
+    for (let n; (n = tw.nextNode());){ const g = document.createRange(); g.selectNodeContents(n); [...g.getClientRects()].forEach(b => b.width > 1 && lines.add(Math.round(b.top / 4))); }
+    if (v.act && lines.size > 2) t.classList.add('wrap');
     $('.ib', t).onclick = () => { t.classList.add('tst-out'); setTimeout(() => t.remove(), 300); cur = null; };
     const u = $('.tst-undo', t); if (u) u.onclick = () => { $('.tx b', t).textContent = 'Changes undone'; swap($('.tx span', t), 'PricingCard is back as it was');
       relabel(u, I('check')); u.classList.add('done'); u.setAttribute('aria-label', 'Undone'); u.setAttribute('aria-disabled', 'true'); u.onclick = null; };
@@ -13922,8 +14290,8 @@ DM.def('toast', (r, c) => {
     if (k === 'load') agent.later(2600, () => { if (cur === t) show('info'); });
     if (k === 'ok' || k === 'info'){
       // it times out like a real toast: hovering holds it, and when it runs out it leaves and the same one comes back (until
-      // you take over: then it stays gone until you pick one)
-      const life = $('.life', t).animate([{ transform:'scaleX(1)' }, { transform:'scaleX(0)' }], { duration:5200, fill:'forwards' });
+      // you take over: then it stays gone until you pick one). A toast with an action stays 10 seconds, long enough to reach it
+      const life = $('.life', t).animate([{ transform:'scaleX(1)' }, { transform:'scaleX(0)' }], { duration:10000, fill:'forwards' });
       t.addEventListener('pointerenter', () => life.pause()); t.addEventListener('pointerleave', () => life.play());
       life.finished.then(() => { if (cur !== t || c.dead) return; t.classList.add('tst-out'); cur = null; setTimeout(() => t.remove(), 300); c.auto(1100, () => { if (!cur) show(k); }); }).catch(() => {});
     }
@@ -16928,7 +17296,7 @@ DM.def('eval-results', (r, c) => {
   const EVR_HTML = {
     runs:`<div class="evr-vs panel">
     <div class="evr-vs-h"><div class="evr-vs-ht"><b>Pricing copy evals</b><span class="evr-vs-st">Copy agent · last run 2h ago</span></div><button class="pill primary sm evr-vs-run" type="button">${I('play','xs')}Run evals</button></div>
-    <div class="evr-vs-score"><span class="evr-vs-big num">7/8</span><span class="evr-vs-dl tag">Same as last run</span></div>
+    <div class="evr-vs-score"><span class="evr-vs-big num">7/8</span><span class="evr-vs-dl quiet">Same score as last run</span></div>
     <div class="evr-vs-f" role="toolbar" aria-label="Show"></div>
     <div class="evr-vs-th" aria-hidden="true"><span>Case</span><span>Last</span><span></span><span>Now</span></div>
     <div class="evr-vs-list" role="list" aria-label="Cases"></div>
@@ -16977,17 +17345,19 @@ DM.def('eval-results', (r, c) => {
       const n = { all:K.length, reg:K.filter(k => ch(k) === 'reg').length, fix:K.filter(k => ch(k) === 'fix').length, fail:K.filter(k => k.s === 'fail').length };
       chips.forEach(b => { $('.n', b).textContent = n[b.dataset.f]; });
       const p = K.filter(k => k.s === 'pass').length, lp = K.filter(k => k.last === 'pass').length, fin = k => k.s === 'pass' || k.s === 'fail', doneAll = K.every(fin);
-      big.textContent = `${doneAll ? p : K.filter(fin).length}/8`;
-      const d = !doneAll ? 'Running' : p > lp ? `+${p - lp} on the last run` : p < lp ? `${p - lp} on the last run` : 'Same score as last run';
-      // while the cases run, the tag's word shimmers as every loader's does
-      if (dl.textContent !== d){ if (doneAll) dl.textContent = d; else dl.innerHTML = '<span class="shim">' + d + '</span>'; dl.className = 'evr-vs-dl tag' + (!doneAll ? '' : p > lp ? ' ok' : p < lp ? ' bad' : ''); }
+      // while the cases run, the score row keeps the last finished run's score, and the count of cases done is in the Run
+      // button's words (owner, 22 Nov: no second count by the score)
+      const cnt = $('.cnt', run); if (cnt) cnt.textContent = `${K.filter(fin).length}/8`;
+      if (doneAll) big.textContent = `${p}/8`;
+      const d = !doneAll ? 'Last run' : p > lp ? `+${p - lp} on the last run` : p < lp ? `${p - lp} on the last run` : 'Same score as last run';
+      if (dl.textContent !== d){ dl.textContent = d; dl.className = 'evr-vs-dl ' + (!doneAll || p === lp ? 'quiet' : p > lp ? 'tag ok' : 'tag bad'); }
       show();
     }
     function show(){ K.forEach(k => { const d = ch(k), on = filter === 'all' || (filter === 'fail' ? k.s === 'fail' : d === filter) || k.again; k.w.classList.toggle('shut', !on); k.w.inert = !on; }); none.hidden = K.some(k => !k.w.classList.contains('shut'));
       if (!none.hidden && NONE[filter]){ $('b', none).textContent = NONE[filter][0]; $('span:not(.evr-em-art)', none).textContent = NONE[filter][1]; } }
     K.forEach(k => paint(k)); counts();
     run.onclick = () => c.run(async () => {
-      if (busy) return; busy = true; run.disabled = true; relabel(run, '<span class="spin"></span>Running');
+      if (busy) return; busy = true; run.disabled = true; relabel(run, '<span class="spin"></span>Running <span class="cnt">0/8</span>');
       K.forEach(k => { k.s = 'idle'; k.open = false; paint(k); }); counts();
       await evrRun(c, K, (k, f) => { paint(k, f); counts(); });
       busy = false; run.disabled = false; relabel(run, I('play','xs') + 'Run again'); swap(st, 'Copy agent · run just now');
@@ -19351,6 +19721,17 @@ DM.def('harness', (r, c) => {
   { const spT = tplOf('status-pill'), sp = spT && $('.spl-pill', spT.content); if (sp) $('.ahx-spl .spl-pill', r).replaceWith(sp.cloneNode(true)); }
   const pill = $('.ahx-spl .spl-pill', r), pin = $('.spl-in', pill);
   const BOXED = ['artifact-card'];
+  // Phase II: inside the harness, Source stack keeps its staging marks (white initials on each source's colour in the pill; a
+  // 14% tint of it with the initials in that colour in the list), whatever the reviewed component now draws. Inline and
+  // important, so they hold over Clean's grey marks; a list drawn again is caught as it lands
+  const stagingSources = host => {
+    const bgOf = e => e.style.getPropertyValue('background') || e.style.getPropertyValue('background-color');
+    const fix = () => {
+      $$('.ssx-ics span', host).forEach(e => { const bg = bgOf(e); if (!bg || e.dataset.st) return; e.dataset.st = '1'; e.style.setProperty('background', bg, 'important'); e.style.setProperty('color', ''); });
+      $$('.ssx-s .fv', host).forEach(e => { const bg = bgOf(e); if (!bg || e.dataset.st) return; e.dataset.st = '1'; e.style.setProperty('background', `color-mix(in srgb,${bg} 14%,transparent)`, 'important'); e.style.setProperty('color', bg, 'important'); });
+    };
+    fix(); const mo = new MutationObserver(fix); mo.observe(host, { childList:true, subtree:true }); c.offs.push(() => mo.disconnect());
+  };
   const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
   /* a clock of its own: a past chat replays at speed out of sight, so opening it shows its end at once.
      The tiny waits of a replay go through a message, which the browser runs at once, where a timer would be held back */
@@ -19569,6 +19950,7 @@ DM.def('harness', (r, c) => {
         if (tp) host.append(tp.content.cloneNode(true));
         into.appendChild(host);
         if (tp && DM.defs[name]) try { DM.defs[name](host, paced(k, f), host); } catch(e){ console.error(name, e); }
+        if (name === 'source-stack') stagingSources(host);
         if (!ff) reveal(host);
         return host;
       },
@@ -23943,7 +24325,8 @@ DM.def('scatter-chart', (r, c) => {
     put(...a); await s.beat(1); rings = false;
     await tween(0, 1, 900, t => { box = [a[0], a[1], a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]; put(box[2], box[3]); draw(); });
     sel = R.map((p, i) => i).filter(i => R[i].x >= .03 && R[i].x <= .2 && R[i].y >= 88 && R[i].y <= 97); selected(); await s.beat(3);
-    await s.tap($('.cvq-ask', ft)); s.away(); await s.beat(10);
+    // (on a narrow phone the box can catch no run, and then there is no button to press)
+    const ask = $('.cvq-ask', ft); if (ask) await s.tap(ask); s.away(); await s.beat(10);
   });
 });
 /* ---------- Score breakdown ---------- */

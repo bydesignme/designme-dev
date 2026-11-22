@@ -17,7 +17,9 @@ export interface ToastData {
   title: string;
   /** The quieter line under the title. Crossfades when it changes */
   description?: string;
-  /** A button before the close button, like Undo or Retry: ghost, or primary on the accent (ink, the old name, still works).
+  /** The one action, a button on the toast's row just before the close button, like Undo or Retry: ghost (the usual), or
+      primary on the accent (ink, the old name, still works). On a narrow toast, or when the words run past two lines, it
+      moves to a row of its own under them, at the end. A toast with an action should stay at least 10 seconds.
       busy swaps its label for a spinner; done swaps it for the green tick and turns the button off (Undo once it has undone).
       Either way the button eases to its new width */
   action?: { label: string; onClick: () => void; variant?: 'ghost' | 'primary' | 'ink'; busy?: boolean; done?: boolean; doneLabel?: string };
@@ -44,7 +46,16 @@ function Card({ toast, leaving, onDismiss }: { toast: ToastData; leaving: boolea
   const tone = TONES[toast.tone ?? 'success'], a = toast.action;
   // a pressed action never goes blank and keeps no room for what it turns into: it shows its new content and eases from its
   // old width to its new one
-  const reduce = useReducedMotion(), btn = useRef<HTMLButtonElement>(null), w = useRef(0);
+  const reduce = useReducedMotion(), btn = useRef<HTMLButtonElement>(null), w = useRef(0), tx = useRef<HTMLDivElement>(null);
+  // the action sits on the toast's row, before the close button; when the words run past two lines beside it, it moves to a
+  // row of its own under them (on a narrow toast, a phone, the stylesheet does that whatever the words)
+  const [wrap, setWrap] = useState(false);
+  useIsoLayoutEffect(() => {
+    const el = tx.current; if (!el || !a) { setWrap(false); return; }
+    const lines = new Set<number>(), tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    for (let n = tw.nextNode(); n; n = tw.nextNode()) { const g = document.createRange(); g.selectNodeContents(n); Array.from(g.getClientRects()).forEach(b => { if (b.width > 1) lines.add(Math.round(b.top / 4)); }); }
+    if (lines.size > 2) setWrap(true);
+  }, [toast.id, !!a]);
   const look = a ? (a.done ? 'done' : a.busy ? 'busy' : a.label) : '';
   useIsoLayoutEffect(() => {
     const b = btn.current; if (!b) { w.current = 0; return; }
@@ -52,9 +63,9 @@ function Card({ toast, leaving, onDismiss }: { toast: ToastData; leaving: boolea
     if (w0 && !reduce && Math.abs(w1 - w0) > .5) b.animate([{ width: w0 + 'px' }, { width: w1 + 'px' }], { duration: cssMs(b, '--dm-t'), easing: getComputedStyle(b).getPropertyValue('--dm-ease').trim() || 'ease' });
   }, [look]);
   return (
-    <div className={cx('dm-tst-t', leaving ? 'dm-tst-out' : 'dm-tst-in')} role="status" inert={leaving}>
+    <div className={cx('dm-tst-t', leaving ? 'dm-tst-out' : 'dm-tst-in', wrap && 'dm-wrap')} role="status" inert={leaving}>
       <span className="dm-g" data-tone={toast.tone ?? 'success'} style={{ color: tone.color, background: tone.bg }}>{tone.icon ? <Icon name={tone.icon} /> : <Spin />}</span>
-      <div className="dm-tx"><b className={toast.tone === 'loading' ? 'dm-shim' : undefined}>{toast.title}</b>{toast.description !== undefined && <Swap>{toast.description}</Swap>}</div>
+      <div className="dm-tx" ref={tx}><b className={toast.tone === 'loading' ? 'dm-shim' : undefined}>{toast.title}</b>{toast.description !== undefined && <Swap>{toast.description}</Swap>}</div>
       <div className="dm-acts">
         {a && <button type="button" ref={btn} className={cx('dm-pill dm-sm', a.variant === 'primary' || a.variant === 'ink' ? 'dm-primary' : 'dm-ghost', a.done && 'dm-done')} aria-busy={a.busy || undefined}
           aria-disabled={a.done || undefined} aria-label={a.done ? a.doneLabel ?? 'Done' : undefined} onClick={() => { if (!a.busy && !a.done) a.onClick(); }}>{a.done ? <Icon name="check" /> : a.busy ? <Spin /> : a.label}</button>}
