@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, AV, DM, I, enter, hideTip, html } from '../core/core.js';
+import { $, $$, AV, DM, I, enter, grow, hideTip, html } from '../core/core.js';
 DM.def('comments', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{check}', I('check','xs')).replace('{up}', I('up','xs'));
   const root = $('.cmx', r), th = $('.cmx-th', r), inp = $('.cmx-box input', r), go = $('.cmx-go', r), men = $('.cmx-men', r), st = $('.cmx-st', r), rs = $('.cmx-res', r);
@@ -8,13 +8,17 @@ DM.def('comments', (r, c) => {
   const fmt = t => esc(t).replace(/@(agent|maya|jon)\b/gi, m => `<span class="m">${m}</span>`);
   // the first comment starts the thread; every later one is a reply, indented on a thin line under it
   let rp = null;
-  const count = () => { const n = rp ? rp.children.length : 0; st.textContent = root.classList.contains('done') ? 'Resolved' : n ? n + (n === 1 ? ' reply' : ' replies') : ''; };
+  // the head says nothing the thread below already shows (owner, 19 Nov: no count of the replies); once the thread is
+  // resolved, a green Resolved chip says so
+  const count = () => { const d = root.classList.contains('done'), had = !!st.firstChild; if (d === had) return; st.innerHTML = d ? '<span class="tag ok">Resolved</span>' : ''; if (d) enter(st.firstChild); };
   function add(who, t, when, ag, agreed = 0){
     const el = html(`<div class="cmx-c${ag ? ' ag' : ''}">${AV(who, P[who][1])}<div class="b"><div class="n"><b>${P[who][0]}</b><span class="t">${when}</span><div class="cmx-tools"><button class="ib cmx-rx" aria-label="Agree" aria-pressed="false" data-tip="Agree">${I('up-thumb','xs')}</button></div></div><div class="tx">${ag ? '' : fmt(t)}</div><div class="cmx-rs"><button class="cmx-rc" aria-pressed="false" hidden>${I('up-thumb','xs')}<span class="num"></span></button></div></div></div>`);
     el._agree = { n:agreed, mine:false }; agree(el);
     $('.cmx-rx', el).onclick = () => agree(el, true); $('.cmx-rc', el).onclick = () => agree(el, true);
-    if (!th.firstElementChild) th.appendChild(el);
-    else { if (!rp){ rp = html('<div class="cmx-rp" role="group" aria-label="Replies"></div>'); th.appendChild(rp); } rp.appendChild(el); }
+    // (once the thread grows with what it holds, its comments live in grow()'s wrapper)
+    const box = $(':scope>.dm-grow', th) || th;
+    if (!box.firstElementChild) box.appendChild(el);
+    else { if (!rp){ rp = html('<div class="cmx-rp" role="group" aria-label="Replies"></div>'); box.appendChild(rp); } rp.appendChild(el); }
     enter(el); count(); return el;
   }
   // Agree: the button by the time and the chip under the text both toggle yours, and the chip counts everyone's
@@ -55,9 +59,16 @@ DM.def('comments', (r, c) => {
     if (e.key === 'Enter'){ const f = mens()[hl]; if (open && f){ f.onmousedown(e); } else send(); }
     if (e.key === 'Escape') shut(); };
   go.onclick = send;
-  // Resolve fades the thread back and turns the pin green; pressed again it reopens
+  // Resolve turns the pin green, says Resolved and folds the reply field away; the thread keeps its colours. Pressed again
+  // it reopens
   rs.onclick = () => { const d = root.classList.toggle('done'); hideTip(); rs.innerHTML = I(d ? 'undo' : 'check', 'xs'); rs.setAttribute('aria-pressed', d); rs.dataset.tip = d ? 'Reopen thread' : 'Resolve thread'; count(); };
+  // no room is kept for what is to come: the thread eases taller as replies arrive and the agent's words stream in (grow()),
+  // and the reply field under it glides down with it, never cut; the card follows, centred in its stage. grow() starts once the
+  // card's entrance (which scales it) has ended, so it measures the thread at its real size
+  Promise.resolve().then(() => Promise.all(root.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && th.isConnected) c.offs.push(grow(th)); });
   // the preview asks the agent in the thread on its own; clicking, focusing or typing in it takes over, and what it had
-  // typed goes
-  c.auto(1000, () => c.run(async () => { await c.type(inp, '@agent can you keep it outlined but darker?', { ms:28, each:() => inp.oninput(), keep:true }); shut(); await c.step(300); send(); }));
+  // typed goes. The agent replying is an agent at work (DM.PLAYS): it carries on under the pointer, while the person's own
+  // typing and sending wait for a mouse resting on the thread to leave, so nothing moves under it
+  const free = async () => { while (r.matches(':hover')) await c.step(200); };
+  c.auto(1000, () => c.run(async () => { await free(); await c.type(inp, '@agent can you keep it outlined but darker?', { ms:28, each:() => inp.oninput(), keep:true }); shut(); await c.step(300); await free(); send(); }));
 });

@@ -1,10 +1,10 @@
-TPLS["eval-results"] = "<div class=\"dm evr-dm\" data-designs=\"card\"><div class=\"dm-main\">\n<div class=\"evr panel\">\n  <div class=\"evr-h\"><div class=\"evr-ht\"><b>Pricing copy evals</b><span class=\"muted evr-st\">Copy agent · 8 cases · run 2h ago</span></div><button class=\"pill primary sm evr-run\">{play}Run evals</button></div>\n  <div class=\"evr-sum\"><div class=\"evr-segs\" aria-hidden=\"true\"></div><div class=\"evr-nums\"><span class=\"evr-pass num\" aria-live=\"polite\"></span><span class=\"tag evr-dl\"></span></div></div>\n  <div class=\"evr-tabs\"><div class=\"seg2\" role=\"group\" aria-label=\"Show\"><button aria-pressed=\"true\" data-v=\"all\">All <span class=\"n num\"></span></button><button aria-pressed=\"false\" data-v=\"fail\">Failed <span class=\"n num\"></span></button></div></div>\n  <div class=\"evr-list\" role=\"list\" aria-label=\"Cases\"></div>\n  <p class=\"evr-none\" hidden>No failed cases</p>\n</div>\n</div>\n<div class=\"demo\"><div class=\"seg2\" role=\"group\" aria-label=\"Eval results design\"><button aria-pressed=\"true\" data-v=\"classic\">Classic</button><button aria-pressed=\"false\" data-v=\"runs\">Run vs run</button><button aria-pressed=\"false\" data-v=\"judge\">Score &amp; judge</button></div></div>\n</div>";
-TPLS["draft-review"] = "<div class=\"drf panel\">\n  <div class=\"drf-h\"><span class=\"drf-ag\">{spark}</span><div class=\"drf-ht\"><b>Draft from the agent</b><span class=\"muted\">After the pricing review with Maya</span></div><span class=\"tag drf-tag\">Not sent</span></div>\n  <div class=\"drf-fs\">\n    <div class=\"drf-r\"><span class=\"drf-l\">To</span><span class=\"drf-p\">{av}Maya Kim</span></div>\n    <label class=\"drf-r\"><span class=\"drf-l\">Subject</span><input class=\"drf-s\" value=\"Pricing v4: what changed\" aria-label=\"Subject\"></label>\n  </div>\n  <div class=\"drf-b\" contenteditable=\"true\" role=\"textbox\" aria-multiline=\"true\" aria-label=\"Message\" spellcheck=\"false\">Hi Maya,<br><br>Here's what changed on the pricing page: one button per plan, the yearly price first, and the FAQ under the comparison table. The full list is in the attached summary.<br><br>Ready for your sign-off when you are.</div>\n  <div class=\"drf-att\"></div>\n  <div class=\"fold shut drf-wf\"><div><div class=\"drf-w\"><p>{warn}<span>You mention an attachment, but nothing is attached.</span></p><div class=\"drf-wa\"><button class=\"pill ghost sm drf-any\">Send anyway</button><button class=\"pill primary sm drf-at\">{clip}Attach the summary</button></div></div></div></div>\n  <div class=\"drf-f\">\n    <button class=\"pill ghost sm drf-x\">{trash}Discard</button><span class=\"sp\"></span><span class=\"muted drf-when\"></span>\n    <div class=\"drf-mg\"><button class=\"pill primary sm drf-go\">{send}Send</button><button class=\"pill primary sm drf-dd\" aria-label=\"When to send\" aria-haspopup=\"menu\" aria-expanded=\"false\" data-pop=\".drf-pop\" data-pop-align=\"end\">{chev}</button></div>\n  </div>\n  <div class=\"pop drf-pop\" role=\"menu\" aria-label=\"When to send\">\n    <button class=\"mi\" role=\"menuitemradio\" aria-checked=\"true\" data-close data-w=\"now\"><span>Send now</span><span class=\"ck\">{chk}</span></button>\n    <button class=\"mi\" role=\"menuitemradio\" aria-checked=\"false\" data-close data-w=\"Tomorrow at 09:00\"><span>Tomorrow at 09:00<span class=\"d\">The start of Maya's day</span></span><span class=\"ck\">{chk}</span></button>\n    <button class=\"mi\" role=\"menuitemradio\" aria-checked=\"false\" data-close data-w=\"Monday at 09:00\"><span>Monday at 09:00<span class=\"d\">The start of next week</span></span><span class=\"ck\">{chk}</span></button>\n  </div>\n</div>";
-TPLS["inline-text-diff"] = "<div class=\"itd panel\">\n  <div class=\"itd-h\"><div class=\"itd-ht\"><b>Pricing intro</b><span class=\"muted itd-st\">4 edits to review</span></div><div class=\"itd-a\"><button class=\"pill ghost sm itd-no\">Reject all</button><button class=\"pill primary sm itd-ok\">Accept all</button></div></div>\n  <p class=\"itd-t\"></p>\n  <p class=\"itd-f muted\" aria-live=\"polite\"></p>\n  <div class=\"itd-bar\" role=\"dialog\" aria-label=\"Edit\">\n    <p class=\"itd-why\">{warn}<span></span></p>\n    <div class=\"itd-bb\"><button class=\"pill primary sm itd-acc\">{chk}Accept</button><button class=\"pill ghost sm itd-rej\">{x}Reject</button></div>\n  </div>\n</div>";
+TPLS["eval-results"] = "<div class=\"dm evr-dm\" data-designs=\"card\"><div class=\"dm-main\">\n<div class=\"evr panel\">\n  <div class=\"evr-h\"><div class=\"evr-ht\"><b>Pricing copy evals</b><span class=\"muted evr-st\">Copy agent · run 2h ago</span></div><button class=\"pill primary sm evr-run\"><svg class=\"i xs\"><use href=\"#v2i-play\"/></svg>Run evals</button></div>\n  <div class=\"evr-sum\"><div class=\"evr-segs\" aria-hidden=\"true\"></div><div class=\"evr-nums\"><span class=\"evr-pass num\" aria-live=\"polite\"></span><span class=\"tag evr-dl\"></span></div></div>\n  <div class=\"evr-tabs\"><div class=\"seg2\" role=\"group\" aria-label=\"Show\"><button aria-pressed=\"true\" data-v=\"all\">All <span class=\"n num\"></span></button><button aria-pressed=\"false\" data-v=\"fail\">Failed <span class=\"n num\"></span></button></div></div>\n  <div class=\"evr-list\" role=\"list\" aria-label=\"Cases\"></div>\n  <div class=\"evr-em evr-none\" hidden><span class=\"evr-em-art\" aria-hidden=\"true\"></span><b>No failed cases</b><span>Every case passed in this run.</span><button class=\"pill line sm evr-all\">Show all cases</button></div>\n</div>\n</div>\n<div class=\"demo\"><div class=\"seg2\" role=\"group\" aria-label=\"Eval results design\"><button aria-pressed=\"true\" data-v=\"classic\">Classic</button><button aria-pressed=\"false\" data-v=\"runs\">Run vs run</button><button aria-pressed=\"false\" data-v=\"judge\">Score &amp; judge</button></div></div>\n</div>";
+TPLS["draft-review"] = "<div class=\"drf panel\">\n  <div class=\"drf-h\"><span class=\"drf-ag\">{spark}</span><div class=\"drf-ht\"><b>Draft from the agent</b><span class=\"muted\">After the pricing review with Maya</span></div><span class=\"tag drf-tag\">Not sent</span></div>\n  <div class=\"drf-fs\">\n    <div class=\"drf-r\"><span class=\"drf-l\">To</span><span class=\"drf-p\">{av}Maya Kim</span></div>\n    <label class=\"drf-r\"><span class=\"drf-l\">Subject</span><input class=\"drf-s\" value=\"Pricing v4: what changed\" aria-label=\"Subject\"></label>\n  </div>\n  <div class=\"drf-b\" contenteditable=\"true\" role=\"textbox\" aria-multiline=\"true\" aria-label=\"Message\" spellcheck=\"false\">Hi Maya,<br><br>Here's what changed on the pricing page: one button per plan, the yearly price first, and the FAQ under the comparison table. The full list is in the attached summary.<br><br>Ready for your sign-off when you are.</div>\n  <div class=\"drf-att\"></div>\n  <div class=\"fold shut drf-wf\"><div><div class=\"drf-w\" role=\"alert\"><svg class=\"drf-wi\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path class=\"a\" d=\"M12 3.6 2.6 19.9h18.8z\"/><path class=\"b\" d=\"M12 9.6v4.4M12 17v.01\"/></svg><p>You mention an attachment, but nothing is attached.</p><div class=\"drf-wa\"><button class=\"pill ghost sm drf-any\">Send anyway</button><button class=\"pill warn sm drf-at\"><svg class=\"i xs\"><use href=\"#v2i-clip\"/></svg>Attach the summary</button></div></div></div></div>\n  <div class=\"drf-f\">\n    <button class=\"pill ghost sm drf-x\">{trash}Discard</button><span class=\"sp\"></span><span class=\"muted drf-when\"></span>\n    <div class=\"drf-mg\"><button class=\"pill primary sm drf-go\">{send}Send</button><button class=\"pill primary sm drf-dd\" aria-label=\"When to send\" aria-haspopup=\"menu\" aria-expanded=\"false\" data-pop=\".drf-pop\" data-pop-align=\"end\">{chev}</button></div>\n  </div>\n  <div class=\"pop drf-pop\" role=\"menu\" aria-label=\"When to send\">\n    <button class=\"mi\" role=\"menuitemradio\" aria-checked=\"true\" data-close data-w=\"now\"><span>Send now</span><span class=\"ck\">{chk}</span></button>\n    <button class=\"mi\" role=\"menuitemradio\" aria-checked=\"false\" data-close data-w=\"Tomorrow at 09:00\"><span>Tomorrow at 09:00<span class=\"d\">The start of Maya's day</span></span><span class=\"ck\">{chk}</span></button>\n    <button class=\"mi\" role=\"menuitemradio\" aria-checked=\"false\" data-close data-w=\"Monday at 09:00\"><span>Monday at 09:00<span class=\"d\">The start of next week</span></span><span class=\"ck\">{chk}</span></button>\n  </div>\n</div>";
+TPLS["inline-text-diff"] = "<div class=\"itd panel\">\n  <div class=\"itd-h\"><div class=\"itd-ht\"><b>Pricing intro</b><span class=\"muted itd-st\" aria-live=\"polite\">4 edits to review</span></div><div class=\"itd-a\"><button class=\"pill ghost sm itd-no\">Reject all</button><button class=\"pill primary sm itd-ok\">Accept all</button></div></div>\n  <p class=\"itd-t\"></p>\n  <p class=\"itd-f\" aria-live=\"polite\"></p>\n  <div class=\"itd-bar\" role=\"dialog\" aria-label=\"Edit\">\n    <p class=\"itd-why\"><svg class=\"itd-wi\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path class=\"a\" d=\"M12 3.6 2.6 19.9h18.8z\"/><path class=\"b\" d=\"M12 9.6v4.4M12 17v.01\"/></svg><span></span></p>\n    <div class=\"itd-bb\"><button class=\"pill primary sm itd-acc\"><svg class=\"i xs\"><use href=\"#v2i-check\"/></svg>Accept</button><button class=\"pill ghost sm itd-rej\"><svg class=\"i xs\"><use href=\"#v2i-x\"/></svg>Reject</button></div>\n  </div>\n</div>";
 TPLS["rewrite-toolbar"] = "<div class=\"rwx panel\">\n  <div class=\"rwx-h\"><span class=\"ft\">DOC</span><span>Onboarding intro</span><span class=\"muted rwx-st\">Click a sentence</span></div>\n  <div class=\"rwx-doc\"></div>\n  <div class=\"rwx-tb\" role=\"toolbar\" aria-label=\"Rewrite\">\n    <button class=\"rwx-b\" data-k=\"clear\">{spark}Clearer</button><button class=\"rwx-b\" data-k=\"short\">Shorter</button><button class=\"rwx-b\" data-k=\"warm\">Friendlier</button><span class=\"rwx-sep\"></span><button class=\"rwx-b ic\" aria-label=\"Ask the agent\" data-tip=\"Ask the agent\" data-tip-k=\"⌘K\">{at}</button>\n  </div>\n</div>";
 TPLS["proposal-card"] = "<div class=\"prx panel\">\n  <div class=\"prx-h\"><span class=\"prx-ic\">{wand}</span><div class=\"prx-ht\"><b>Raise contrast on the secondary button</b><span class=\"muted\">Pricing, frame 2 of 3</span></div></div>\n  <div class=\"prx-diff\"><div class=\"prx-sw\"><span class=\"prx-c\" style=\"background:#c9cfd8\"></span><span class=\"num\">#C9CFD8</span><span class=\"tag bad\">2.1 : 1</span></div><span class=\"prx-ar\">{right}</span><div class=\"prx-sw prx-new\"><span class=\"prx-c\" style=\"background:#5b6472\"></span><span class=\"num\">#5B6472</span><span class=\"tag ok\"><span class=\"prx-rt\">5.9 : 1</span></span></div></div>\n  <div class=\"prx-cf\"><span class=\"muted\">Confidence</span><div class=\"prx-seg\"><i></i><i></i><i></i><i></i><i></i></div><span class=\"num prx-pc\">0%</span></div>\n  <button class=\"prx-alt-t\">{chev}<span>2 other options</span></button>\n  <div class=\"fold shut prx-alt\"><div><div class=\"prx-alts\"></div></div></div>\n  <div class=\"prx-f\"><button class=\"pill ghost sm prx-no\">Not now</button><button class=\"pill primary sm prx-ok\">Accept</button></div>\n</div>";
 TPLS["decision-prompt"] = "<div class=\"dpx panel\" tabindex=\"0\">\n  <div class=\"dpx-h\"><span class=\"dpx-k muted num\">Question 1 of 3</span><div class=\"dpx-dots\"><i class=\"on\"></i><i></i><i></i></div></div>\n  <div class=\"dpx-body\"></div>\n  <div class=\"dpx-f\"><button class=\"pill ghost sm dpx-skip\">Skip</button><button class=\"pill primary sm dpx-go\">Continue <span class=\"kbd\">↵</span></button></div>\n</div>";
-TPLS["plan-review"] = "<div class=\"plx panel\">\n  <div class=\"plx-h\"><span class=\"think plx-mk\"><i></i><i></i><i></i><i></i></span><div class=\"plx-ht\"><b>Plan: redesign the pricing page</b><span class=\"muted plx-st\">5 steps, about 4 min</span></div><span class=\"plx-tm num\" aria-label=\"Elapsed\"></span></div>\n  <ol class=\"plx-list\"></ol>\n  <button class=\"plx-add\">{plus}Add a step</button>\n  <div class=\"plx-f\"><span class=\"muted plx-n\">Click a step to edit it</span><button class=\"pill ghost sm plx-chg\">Ask for changes</button><button class=\"pill primary sm plx-go\">Approve plan</button></div>\n</div>";
+TPLS["plan-review"] = "<div class=\"plx panel\">\n  <div class=\"plx-h\"><span class=\"think plx-mk\"><i></i><i></i><i></i><i></i></span><div class=\"plx-ht\"><b>Plan: redesign the pricing page</b><span class=\"muted plx-st\">About 4 min</span></div><span class=\"plx-tm num\" aria-label=\"Elapsed\"></span></div>\n  <ol class=\"plx-list\"></ol>\n  <button class=\"plx-add\">{plus}Add a step</button>\n  <div class=\"plx-f\"><span class=\"muted plx-n\">Click a step to edit it</span><button class=\"pill ghost sm plx-chg\">Ask for changes</button><button class=\"pill primary sm plx-go\">Approve plan</button></div>\n</div>";
 
 /* ---------- Decision prompt ---------- */
 DM.def('decision-prompt', (r, c) => {
@@ -14,23 +14,33 @@ DM.def('decision-prompt', (r, c) => {
     ['Where should the result go?', 'Output', [['New Figma page','Keeps the original'],['Branch in the repo','Opens a PR'],['Both','Recommended']]]
   ];
   const ans = []; let qi = 0, sel = 0, done = false;
-  const body = $('.dpx-body', r), k = $('.dpx-k', r), dots = $$('.dpx-dots i', r), go = $('.dpx-go', r), skip = $('.dpx-skip', r), card = $('.dpx', r);
+  const body = $('.dpx-body', r), k = $('.dpx-k', r), dots = $$('.dpx-dots i', r), go = $('.dpx-go', r), skip = $('.dpx-skip', r), card = $('.dpx', r), foot = $('.dpx-f', r);
+  // no room is kept for the next question or the summary: the card grows and shrinks with them, once its entrance (which
+  // scales it from .98 in Clean) has ended, so it measures the card at its real size
+  Promise.resolve().then(() => Promise.all(card.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && card.isConnected) c.offs.push(grow(card)); });
   function paint(){
     k.textContent = 'Question ' + (qi + 1) + ' of 3';
     dots.forEach((d, i) => { d.classList.toggle('on', i === qi); d.classList.toggle('done', i < qi); });
     const q = Q[qi];
-    body.innerHTML = `<div class="dpx-q">${q[0]}</div>` + q[2].map((o, i) => `<button class="dpx-o${i === sel ? ' on' : ''}" data-i="${i}"><span class="kbd">${i + 1}</span>${o[0]}<span class="d">${o[1]}</span></button>`).join('');
-    enter($('.dpx-q', body)); stagger($$('.dpx-o', body), 50, 60);
+    body.innerHTML = `<div class="dpx-q">${q[0]}</div><div class="dpx-opts" role="radiogroup" aria-label="${q[0]}">` + q[2].map((o, i) => `<button class="dpx-o${i === sel ? ' on' : ''}" role="radio" aria-checked="${i === sel}" data-i="${i}"><span class="kbd">${i + 1}</span>${o[0]}<span class="d">${o[1]}</span></button>`).join('') + '</div>';
+    // the next question plays its entrance; the first comes in with the card's own entrance and is drawn from the start, so a
+    // frame that doesn't animate yet (a small live preview off screen, as on the docs' Introduction) still shows it
+    if (qi){ enter($('.dpx-q', body)); stagger($$('.dpx-o', body), 50, 60); }
     $$('.dpx-o', body).forEach(b => { b.onclick = () => choose(+b.dataset.i); b.ondblclick = next; });
   }
-  function choose(i){ sel = i; $$('.dpx-o', body).forEach((b, j) => b.classList.toggle('on', j === i)); }
+  function choose(i){ sel = i; $$('.dpx-o', body).forEach((b, j) => { b.classList.toggle('on', j === i); b.setAttribute('aria-checked', j === i); }); }
   function next(skipped){
     if (done) return; ans.push(skipped === true ? 'Agent decides' : Q[qi][2][sel][0]); qi++; sel = 0;
     if (qi < Q.length) return paint();
-    done = true; dots.forEach(d => { d.classList.remove('on'); d.classList.add('done'); }); k.textContent = 'All set';
-    go.parentElement.classList.add('leave');
-    body.innerHTML = `<div class="dpx-sum">${Q.map((q, i) => `<div class="dpx-sr"><span>${q[1]}</span>${ans[i]}</div>`).join('')}<div class="dpx-run"><span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Starting the redesign</span></div></div>`;
-    stagger($$('.dpx-sr, .dpx-run', body), 70);
+    // the steps are over: the dots fade away where they are (owner, 21 Nov), and the head keeps its place
+    done = true; dots.forEach(d => { d.classList.remove('on'); d.classList.add('done'); }); $('.dpx-dots', r).classList.add('gone'); k.textContent = 'All set';
+    // the buttons give way to the line saying the agent has started (its words shimmer while it gets going); a focus that
+    // was on them comes back to the card
+    const had = foot.contains(document.activeElement);
+    body.innerHTML = `<div class="dpx-sum">${Q.map((q, i) => `<div class="dpx-sr"><span>${q[1]}</span>${ans[i]}</div>`).join('')}</div>`;
+    foot.classList.add('run'); foot.innerHTML = `<div class="dpx-run" aria-live="polite"><span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Starting the redesign</span></div>`;
+    if (had) giveBack(card);
+    stagger([...$$('.dpx-sr', body), $('.dpx-run', foot)], 70);
   }
   go.onclick = () => next(); skip.onclick = () => next(true);
   c.on(card, 'keydown', e => { if (done) return; if (/^[1-3]$/.test(e.key)){ choose(+e.key - 1); e.preventDefault(); } else if (e.key === 'Enter'){ next(); e.preventDefault(); } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ choose((sel + (e.key === 'ArrowDown' ? 1 : 2)) % 3); e.preventDefault(); } });
@@ -74,15 +84,21 @@ DM.def('rewrite-toolbar', (r, c) => {
   const doc = $('.rwx-doc', r), tb = $('.rwx-tb', r), st = $('.rwx-st', r), box = $('.rwx', r);
   doc.innerHTML = S.map((s, i) => `<span class="rwx-s" data-i="${i}">${s[0]}</span>`).join(' ');
   const tbHTML = tb.innerHTML; let sel = null, busy = false;
-  // shorter before a rewrite than during one, it stays centred in the room its stage keeps for it
-  centre(c, box, () => box.offsetHeight);
+  // no room is kept for a rewrite (owner, 18 Nov): the text grows as its words arrive and shrinks once one is kept, and the
+  // card eases with it (grow()), staying centred in its stage. Only the text clips while it eases, so the toolbar never does
+  c.offs.push(grow(doc));
+  // the box is the card's layout box, so a card still scaling in from its entrance places the toolbar where it will be
   function place(el){
-    const br = box.getBoundingClientRect(), rects = el.getClientRects(), f = rects[0];
+    const br = box.getBoundingClientRect(), k = br.width / box.offsetWidth || 1, rects = el.getClientRects(), f = rects[0];
     if (!f) return; // the card is hidden (far off screen, or the other set is showing): nothing to place against
-    const w = tb.offsetWidth; let x = f.left - br.left; x = Math.max(8, Math.min(x, br.width - w - 8));
-    // above the sentence, unless that would cover the header: then under its last line
-    let y = f.top - br.top - tb.offsetHeight - 8; if (y < $('.rwx-h', r).getBoundingClientRect().bottom - br.top) y = rects[rects.length - 1].bottom - br.top + 8;
+    const w = tb.offsetWidth; let x = (f.left - br.left) / k; x = Math.max(8, Math.min(x, box.offsetWidth - w - 8));
+    // above the sentence, unless that would cover the header: then under its last line, gliding down with it as the new
+    // words add lines. A toolbar that isn't showing yet jumps to its place
+    let y = (f.top - br.top) / k - tb.offsetHeight - 8; if (y < ($('.rwx-h', r).getBoundingClientRect().bottom - br.top) / k) y = (rects[rects.length - 1].bottom - br.top) / k + 8;
+    const jump = !tb.classList.contains('show');
+    if (jump) tb.style.transitionProperty = 'opacity,transform,filter';
     tb.style.left = x + 'px'; tb.style.top = y + 'px';
+    if (jump){ void tb.offsetWidth; tb.style.transitionProperty = ''; }
   }
   // hidden, the toolbar takes no focus
   function hide(){ tb.classList.remove('show'); tb.inert = true; }
@@ -96,10 +112,11 @@ DM.def('rewrite-toolbar', (r, c) => {
   c.on(document, 'pointerdown', e => { if (!busy && !r.contains(e.target)) { hide(); $$('.rwx-s', doc).forEach(x => x.classList.remove('sel')); } });
   function rewrite(k){
     const el = sel, i = +el.dataset.i, old = S[i][0], nw = S[i][1][k]; busy = true;
-    tb.classList.add('act'); tb.innerHTML = `<span class="lbl"><span class="think on"><i></i><i></i><i></i><i></i></span>Rewriting</span>`; place(el);
+    tb.classList.add('act'); tb.innerHTML = `<span class="lbl"><span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Rewriting</span></span>`; place(el);
     c.run(async () => {
-      el.innerHTML = `<del>${old}</del> <ins>${nw.split(' ').map(w => `<span class="w">${w} </span>`).join('')}</ins>`; place(el); await c.wait(350);
-      for (const w of $$('ins .w', el)){ w.classList.add('on'); await c.wait(55); }
+      // the new words arrive one at a time after the struck sentence, each only once it is written
+      el.innerHTML = `<del>${old}</del> <ins></ins>`; const ins = $('ins', el); place(el); await c.wait(350);
+      for (const w of nw.split(' ')){ const s = document.createElement('span'); s.className = 'w'; s.textContent = w + ' '; ins.appendChild(s); place(el); await c.wait(55); }
       tb.innerHTML = `<span class="lbl">${I('check','xs')}Rewritten</span><button class="rwx-b rwx-un">Undo</button><button class="pill accent sm rwx-ok">Accept</button>`; place(el);
       // keeping a shorter sentence lets the doc fit its text, with no empty room above or below it
       $('.rwx-ok', tb).onclick = () => { el.textContent = nw; S[i][0] = nw; el.classList.remove('sel'); hide(); busy = false; swap(st, 'Saved'); };
@@ -130,7 +147,7 @@ DM.def('plan-review', (r, c) => {
   const list = $('.plx-list', r), st = $('.plx-st', r), tm = $('.plx-tm', r), go = $('.plx-go', r), f = $('.plx-f', r);
   const row = (t, i) => `<li class="plx-s"><span class="n">${i + 1}</span><span class="b"><span class="t" contenteditable="true" spellcheck="false" role="textbox" aria-label="Step ${i + 1}">${t[0]}</span><span class="d"><span></span></span></span><button class="ib plx-x" aria-label="Skip step" data-tip="Skip step">${I('x','xs')}</button></li>`;
   list.innerHTML = S.map(row).join(''); stagger($$('.plx-s', list), 60, 100);
-  const count = () => { const on = $$('.plx-s:not(.off)', list); on.forEach((s, i) => $('.n', s).textContent = i + 1); $$('.plx-s.off .n', list).forEach(n => n.textContent = '–'); swap(st, on.length + ' steps, about ' + Math.max(1, Math.round(on.length * .8)) + ' min'); };
+  const count = () => { const on = $$('.plx-s:not(.off)', list); on.forEach((s, i) => $('.n', s).textContent = i + 1); $$('.plx-s.off .n', list).forEach(n => n.textContent = '–'); swap(st, 'About ' + Math.max(1, Math.round(on.length * .8)) + ' min'); };
   function bind(s, done){
     const t = $('.t', s), orig = t.textContent; s._done = done || 'Done';
     t.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); t.blur(); } };
@@ -146,31 +163,38 @@ DM.def('plan-review', (r, c) => {
   $('.plx-chg', r).onclick = () => { swap($('.plx-n', r), 'Tell the agent what to change in chat'); };
   const clock = ms => { const s = Math.floor(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
   const note = (s, text, tone) => { const d = $('.d', s); d.className = 'd on' + (tone ? ' ' + tone : ''); swap(d.firstElementChild, text); };
+  // the person's turn (editing and approving the plan) holds under a resting mouse, so it never moves what they are about to
+  // click; once approved, the agent's run keeps working under it, as an agent at work does (DM.PLAYS): its waits go through a
+  // controller of its own, which nothing holds, and stop with the demo
+  const agent = ctl(); c.offs.push(() => agent.stop());
   go.onclick = () => c.run(async () => {
     $$('.t', list).forEach(t => { t.contentEditable = 'false'; t.removeAttribute('role'); }); $('.plx-add', r).hidden = true;
     // the approved plan is fixed: the skip buttons keep their space but can't be used
     $$('.plx-x', list).forEach(b => { b.disabled = true; b.style.visibility = 'hidden'; });
-    f.innerHTML = `<span class="muted plx-n">Running the approved plan</span><button class="pill ghost sm plx-stop">${I('stop','xs')}Stop</button>`; stagger([...f.children], 50);
+    // the status line says it is running and how long is left; the foot keeps only Stop (no line repeating the head)
+    f.innerHTML = `<span class="muted plx-n"></span><button class="pill ghost sm plx-stop">${I('stop','xs')}Stop</button>`; stagger([...f.children], 50);
     let stop = false; $('.plx-stop', f).onclick = () => stop = true;
     $('.plx-mk', r).classList.add('on');
-    const t0 = performance.now(), tick = c.every(250, () => tm.textContent = clock(performance.now() - t0)); tm.textContent = '0:00'; enter(tm);
+    const t0 = performance.now(), tick = agent.every(250, () => tm.textContent = clock(performance.now() - t0)); tm.textContent = '0:00'; enter(tm);
     const on = $$('.plx-s:not(.off)', list), n = s => $('.n', s), txt = s => $('.t', s);
     try {
       for (let i = 0; i < on.length && !stop; i++){
-        const s = on[i]; s.classList.add('run'); txt(s).classList.add('shim'); n(s).innerHTML = '<span class="spin"></span>'; swap(st, 'Step ' + (i + 1) + ' of ' + on.length); await c.wait(900);
+        const s = on[i]; s.classList.add('run'); txt(s).classList.add('shim'); n(s).innerHTML = '<span class="spin"></span>'; st.classList.add('shim'); swap(st, 'About ' + Math.max(1, Math.round((on.length - i) * .8)) + ' min left'); await agent.wait(900);
         // the second step hits a rate limit: the agent waits it out, counting down, and tries again
         if (s === $$('.plx-s', list)[1] && !stop){
           s.classList.replace('run', 'retry'); txt(s).classList.remove('shim'); n(s).innerHTML = I('clock','xs');
-          for (let k = 3; k > 0 && !stop; k--){ note(s, `Rate limited by the browser tool. Retrying in ${k}s`, 'warn'); await c.wait(1000); }
+          for (let k = 3; k > 0 && !stop; k--){ note(s, `Rate limited by the browser tool. Retrying in ${k}s`, 'warn'); await agent.wait(1000); }
           if (stop) break;
-          s.classList.replace('retry', 'run'); txt(s).classList.add('shim'); n(s).innerHTML = '<span class="spin"></span>'; note(s, 'Retrying'); await c.wait(700);
+          s.classList.replace('retry', 'run'); txt(s).classList.add('shim'); n(s).innerHTML = '<span class="spin"></span>'; note(s, 'Retrying'); $('.d>span', s).classList.add('shim'); await agent.wait(700);
           s._done += ', after 1 retry';
         }
-        s.classList.remove('run'); txt(s).classList.remove('shim'); s.classList.add('done'); n(s).innerHTML = I('check','xs'); enter(n(s).firstElementChild); note(s, s._done);
+        s.classList.remove('run'); txt(s).classList.remove('shim'); $('.d>span', s).classList.remove('shim'); s.classList.add('done'); n(s).innerHTML = I('check','xs'); enter(n(s).firstElementChild); note(s, s._done);
       }
     } finally { clearInterval(tick); }
     $('.plx-mk', r).classList.remove('on');
-    $$('.plx-s.run', list).forEach(s => { s.classList.remove('run', 'retry'); txt(s).classList.remove('shim'); n(s).textContent = '–'; note(s, 'Not started'); });
+    $$('.plx-s.run', list).forEach(s => { s.classList.remove('run', 'retry'); txt(s).classList.remove('shim'); $('.d>span', s).classList.remove('shim'); n(s).textContent = '–'; note(s, 'Not started'); });
+    // a finished plan has no elapsed clock (owner, 18 Nov): the status line says how long it took
+    tm.textContent = ''; st.classList.remove('shim');
     swap(st, stop ? 'Stopped, progress kept' : 'Done in ' + clock(performance.now() - t0) + '. 4 frames updated'); f.innerHTML = `<span class="muted plx-n"></span><button class="pill soft sm">${I('eye','xs')}See changes</button>`; enter(f.lastElementChild);
   });
   // the preview's story: rewrite a step, approve, and watch the agent work through a rate limit to the end
@@ -188,11 +212,14 @@ DM.def('plan-review', (r, c) => {
 });
 /* ---------- Inline text diff ---------- */
 DM.def('inline-text-diff', (r, c) => {
-  r.innerHTML = r.innerHTML.replace('{chk}', I('check','xs')).replace('{x}', I('x','xs')).replace('{warn}', I('alert','xs'));
+  r.innerHTML = r.innerHTML.replace('{chk}', I('check','xs')).replace('{x}', I('x','xs'));
   // the copy, and the agent's edits to it: what it said, what the agent suggests, and why, when the agent isn't sure
   const T = [{ o:'Pick', n:'Choose' }, ' a plan that ', { o:'fits your team', n:'grows with your studio' }, '. Every plan ', { o:'includes', n:'comes with' }, ' unlimited projects, and ', { o:'you can cancel at any time', n:'your first month is free', why:'Not in the pricing brief: there is no free month' }, '.'];
   const E = T.filter(x => typeof x === 'object');
-  const root = $('.itd', r), tx = $('.itd-t', r), st = $('.itd-st', r), bar = $('.itd-bar', r), why = $('.itd-why', r), f = $('.itd-f', r), acts = $('.itd-a', r);
+  const root = $('.itd', r), tx = $('.itd-t', r), st = $('.itd-st', r), bar = $('.itd-bar', r), why = $('.itd-why', r), f = $('.itd-f', r), acts = $('.itd-a', r), acc = $('.itd-acc', r), rej = $('.itd-rej', r);
+  // no room is kept for the end: the card eases shorter as edits fold into the text, and grows for the note at the end.
+  // grow() starts once the card's entrance (which scales it from .98 in Clean) has ended, so it measures its real size
+  Promise.resolve().then(() => Promise.all(root.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && root.isConnected) c.offs.push(grow(root)); });
   tx.innerHTML = T.map(x => typeof x === 'string' ? x : `<span class="itd-c${x.why ? ' unsure' : ''}" role="button" tabindex="0" aria-haspopup="dialog" aria-expanded="false"><del>${x.o}</del><ins>${x.n}</ins></span>`).join('');
   const chunks = $$('.itd-c', tx);
   E.forEach((e, i) => { e.s = ''; chunks[i].setAttribute('aria-label', `Edit ${i + 1} of ${E.length}: ${e.o}, suggested ${e.n}`); });
@@ -200,24 +227,30 @@ DM.def('inline-text-diff', (r, c) => {
   function tally(){
     const n = E.filter(e => !e.s).length, a = E.filter(e => e.s === 'acc').length;
     swap(st, n === E.length ? `${n} edits to review` : n ? `${n} of ${E.length} left` : `${a} accepted, ${E.length - a} rejected`);
-    if (!n && !f.textContent){ acts.hidden = true; f.innerHTML = `${I('ok','xs')}<span>Saved to Pricing v4</span>`; enter(f); }
+    // the note comes in a beat after the card starts to grow for it, so it never shows past the card's edge
+    if (!n && !f.textContent){ acts.hidden = true; f.innerHTML = `${I('ok','xs')}<span>Saved to Pricing v4</span>`; enter(f, 220); }
   }
   const close = () => { bar.classList.remove('open'); bar.inert = true; chunks.forEach(x => { x.classList.remove('on'); x.setAttribute('aria-expanded', false); }); cur = -1; };
-  // the toolbar opens under the edit's last line; inside a scaled preview the offsets are divided by its scale
+  // the toolbar opens under the edit's last line, or over its first when the stage or the page has no room below it;
+  // inside a scaled preview the offsets are divided by its scale
   function open(i){
     cur = i; const el = chunks[i], e = E[i];
     chunks.forEach((x, k) => { x.classList.toggle('on', k === i); x.setAttribute('aria-expanded', k === i); });
     why.hidden = !e.why; $('span', why).textContent = e.why || '';
-    const rb = root.getBoundingClientRect(), k = rb.width / root.offsetWidth || 1, rs = el.getClientRects(), cr = rs[rs.length - 1] || el.getBoundingClientRect();
-    bar.inert = false; bar.classList.add('open');
-    bar.style.left = Math.max(12, Math.min((cr.left - rb.left) / k, root.offsetWidth - bar.offsetWidth - 12)) + 'px';
-    bar.style.top = ((cr.bottom - rb.top) / k + 6) + 'px';
+    // an edit the agent isn't sure of: the toolbar is a warning notice, and Reject, which settles it, is .pill.warn
+    bar.classList.toggle('unsure', !!e.why);
+    acc.className = 'pill sm itd-acc ' + (e.why ? 'ghost' : 'primary'); rej.className = 'pill sm itd-rej ' + (e.why ? 'warn' : 'ghost');
+    const rb = root.getBoundingClientRect(), k = rb.width / root.offsetWidth || 1, rs = el.getClientRects(), cr = rs[rs.length - 1] || el.getBoundingClientRect(), c0 = rs[0] || cr;
+    const room = popRoom(el), up = cr.bottom + 6 + bar.offsetHeight * k > room.bottom - 8 && c0.top - 6 - bar.offsetHeight * k >= room.top + 8;
+    bar.inert = false; bar.classList.toggle('up', up); void bar.offsetWidth; bar.classList.add('open');
+    bar.style.left = Math.max(12, Math.min(((up ? c0 : cr).left - rb.left) / k, root.offsetWidth - bar.offsetWidth - 12)) + 'px';
+    bar.style.top = (up ? (c0.top - rb.top) / k - 6 - bar.offsetHeight : (cr.bottom - rb.top) / k + 6) + 'px';
   }
-  // each decision folds an edit into plain text, and the last swaps the actions for a short note: from the first one the
-  // card keeps the height it had with every edit open, and centres what is left in it (hold)
-  function decide(i, s){ if (!root.classList.contains('held')) hold(root); E[i].s = s; chunks[i].classList.remove('acc', 'rej'); chunks[i].classList.add(s); tally(); }
+  // each decision folds an edit into plain text, and the last swaps the actions for a short note; the card eases to fit
+  function decide(i, s){ E[i].s = s; chunks[i].classList.remove('acc', 'rej'); chunks[i].classList.add(s); tally(); }
   // a click anywhere else on the page can close the toolbar between the story's taps, and then there is no edit to decide
-  const pick = s => { const i = cur; if (i < 0) return; const back = bar.contains(document.activeElement); close(); decide(i, s); if (back) chunks[i].focus({ preventScroll:true }); };
+  // the focus goes back to the edit, with a ring only when the answer came from the keyboard (a click never leaves one)
+  const pick = s => { const i = cur; if (i < 0) return; const back = bar.contains(document.activeElement); close(); decide(i, s); if (back) giveBack(chunks[i]); };
   // Enter or Space opens an edit's toolbar with the focus on Accept, as a dialog takes the focus; Escape brings it back
   chunks.forEach((el, i) => { el.onclick = () => cur === i ? close() : open(i); el.onkeydown = ev => { if (ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); el.click(); if (cur === i) $('.itd-acc', r).focus({ preventScroll:true }); } }; });
   // the left and right arrows move between Accept and Reject
@@ -244,26 +277,33 @@ DM.def('inline-text-diff', (r, c) => {
 });
 /* ---------- Draft review ---------- */
 DM.def('draft-review', (r, c) => {
-  const IC = { spark:I('spark'), warn:I('alert','xs'), clip:I('clip','xs'), send:I('send','xs'), chev:I('chev-d','xs'), chk:I('check','xs'), trash:I('trash','xs'), av:AV('MK','var(--av-l)') };
+  const IC = { spark:I('spark'), clip:I('clip','xs'), send:I('send','xs'), chev:I('chev-d','xs'), chk:I('check','xs'), trash:I('trash','xs'), av:AV('MK','var(--av-l)') };
   r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) => IC[k] || m);
   const root = $('.drf', r), go = $('.drf-go', r), dd = $('.drf-dd', r), att = $('.drf-att', r), wf = $('.drf-wf', r), when = $('.drf-when', r), f = $('.drf-f', r), tag = $('.drf-tag', r), body = $('.drf-b', r), fields = [$('.drf-fs', r), body, att];
   const items = $$('.drf-pop .mi', r);
+  // the card fits what it holds at every moment, easing to it (grow()), once its entrance has ended so it measures the card at
+  // its real size; the result row goes into grow()'s wrapper
+  Promise.resolve().then(() => Promise.all(root.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && root.isConnected) c.offs.push(grow(root)); });
+  const into = () => $(':scope>.dm-grow', root) || root;
   let at = 'now', file = false, done = null, run = 0;
   const label = () => (at === 'now' ? I('send','xs') + 'Send' : I('clock','xs') + 'Schedule');
+  // a button whose words change is as wide as its words and eases to its new width (owner, 18 Nov)
+  const relabel = (b, h) => { const w0 = b.getBoundingClientRect().width; b.innerHTML = h; const w1 = b.getBoundingClientRect().width, cs = getComputedStyle(b);
+    if (!REDUCE && w0 && Math.abs(w1 - w0) > .5) b.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:(parseFloat(cs.getPropertyValue('--t')) || .34) * 1000, easing:cs.getPropertyValue('--ease').trim() || 'ease' }); };
   // when to send: now, or a set time from the menu beside the button
-  items.forEach(m => m.addEventListener('click', () => { at = m.dataset.w; items.forEach(x => x.setAttribute('aria-checked', x === m)); go.innerHTML = label(); swap(when, at === 'now' ? '' : at); }));
+  items.forEach(m => m.addEventListener('click', () => { at = m.dataset.w; items.forEach(x => x.setAttribute('aria-checked', x === m)); relabel(go, label()); swap(when, at === 'now' ? '' : at); }));
   const warn = on => { wf.classList.toggle('shut', !on); wf.inert = !on; };
   warn(false);
   // the result of sending, scheduling or discarding takes the footer's place, with a white button to take it back
   function row(ic, t, sub, btn, fn, cls){
     f.hidden = true; root.classList.add('sent'); fields.forEach(e => e.inert = true); body.contentEditable = 'false';
-    done = html(`<div class="drf-done ${cls || ''}">${ic}<span class="t">${t}<span class="muted drf-sub">${sub}</span></span>${btn ? `<button class="pill sm">${btn}</button>` : ''}</div>`);
-    root.appendChild(done); enter(done); if (btn) $('button', done).onclick = fn; return done;
+    done = html(`<div class="drf-done ${cls || ''}"><span class="g">${ic}</span><span class="t">${t}<span class="muted drf-sub">${sub}</span></span>${btn ? `<button class="pill sm">${btn}</button>` : ''}</div>`);
+    into().appendChild(done); enter(done); if (btn) $('button', done).onclick = fn; return done;
   }
   function back(){
     run++; if (done){ done.remove(); done = null; }
     f.hidden = false; root.classList.remove('sent'); fields.forEach(e => e.inert = false); body.contentEditable = 'true';
-    go.disabled = dd.disabled = false; go.innerHTML = label(); swap(tag, 'Not sent'); tag.className = 'tag drf-tag';
+    go.disabled = dd.disabled = false; relabel(go, label()); swap(tag, 'Not sent'); tag.className = 'tag drf-tag';
   }
   function send(force){
     // the message talks about an attachment that isn't there: say so before it goes
@@ -271,7 +311,7 @@ DM.def('draft-review', (r, c) => {
     warn(false);
     const id = ++run;
     c.run(async () => {
-      go.disabled = dd.disabled = true; go.innerHTML = `<span class="spin"></span>${at === 'now' ? 'Sending' : 'Scheduling'}`;
+      go.disabled = dd.disabled = true; relabel(go, `<span class="spin"></span>${at === 'now' ? 'Sending' : 'Scheduling'}`);
       await c.wait(900); if (id !== run) return;
       if (at !== 'now'){ row(I('clock'), `Scheduled for ${at.replace(/^\w/, ch => ch.toLowerCase())}`, 'To Maya Kim', 'Cancel', back, 'later'); swap(tag, 'Scheduled'); tag.className = 'tag b drf-tag'; return; }
       // a few seconds to take it back before it really goes
@@ -288,7 +328,7 @@ DM.def('draft-review', (r, c) => {
     att.appendChild(chip); enter(chip);
     await c.wait(1200); $('.drf-fz', chip).textContent = '240 KB'; file = true;
   });
-  $('.drf-x', r).onclick = () => { warn(false); row(I('trash','xs'), 'Draft discarded', 'Nothing was sent', 'Undo', back, 'bin'); };
+  $('.drf-x', r).onclick = () => { warn(false); row(I('trash'), 'Draft discarded', 'Nothing was sent', 'Undo', back, 'bin'); };
   // the preview's story: send, get stopped by the missing attachment, attach it, send, and let the undo window pass
   c.story(async s => {
     await s.beat(3);
@@ -317,7 +357,13 @@ DM.def('eval-results', (r, c) => {
   ].map(k => ({ ...k, s:'pass' }));
   const LAST = 8;
   const list = $('.evr-list', r), segs = $('.evr-segs', r), pass = $('.evr-pass', r), dl = $('.evr-dl', r), st = $('.evr-st', r), run = $('.evr-run', r), none = $('.evr-none', r), sg = $('.evr-tabs .seg2', r);
+  // no room is kept for the cases a filter hides or the empty state: the card eases to what it shows (owner, 17 Nov)
+  c.offs.push(grow($('.evr', r)));
+  $('.evr-all', none).onclick = () => $('[data-v="all"]', sg).click();
   const G = { run:'<span class="spin"></span>', pass:I('ok','xs'), fail:I('alert','xs'), queued:'<span class="dot"></span>' };
+  // a button whose words change is as wide as its words and eases to its new width (owner, 18 Nov)
+  const relabel = (b, h) => { const w0 = b.getBoundingClientRect().width; b.innerHTML = h; const w1 = b.getBoundingClientRect().width, cs = getComputedStyle(b);
+    if (!REDUCE && w0 && Math.abs(w1 - w0) > .5) b.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:(parseFloat(cs.getPropertyValue('--t')) || .34) * 1000, easing:cs.getPropertyValue('--ease').trim() || 'ease' }); };
   let filter = 'all', busy = false, ran = false;
   K.forEach((k, i) => {
     k.w = html(`<div class="fold evr-w"><div><div class="evr-i" role="listitem"></div></div></div>`); k.el = $('.evr-i', k.w); k.i = i; list.appendChild(k.w);
@@ -342,6 +388,7 @@ DM.def('eval-results', (r, c) => {
   function counts(){
     const p = K.filter(k => k.s === 'pass').length, f = K.filter(k => k.s === 'fail').length, done = K.every(k => k.s === 'pass' || k.s === 'fail');
     swap(pass, done ? `${p} of ${K.length} passed` : busy ? `Running ${K.filter(k => k.s === 'pass' || k.s === 'fail').length + 1} of ${K.length}` : 'Running the case again');
+    pass.classList.toggle('shim', !done);
     const d = !ran || !done ? '' : p < LAST ? `${LAST - p} fewer than the last run` : 'All passing';
     if (dl.textContent !== d){ dl.textContent = d; dl.className = 'tag evr-dl ' + (p < LAST ? 'bad' : 'ok'); if (d) enter(dl); }
     $('[data-v="all"] .n', sg).textContent = K.length; $('[data-v="fail"] .n', sg).textContent = f;
@@ -349,29 +396,31 @@ DM.def('eval-results', (r, c) => {
   }
   // All shows every case; Failed folds the others away
   function show(){
-    K.forEach(k => { const on = filter === 'all' || k.s === 'fail'; k.w.classList.toggle('shut', !on); k.w.inert = !on; });
-    none.hidden = !(filter === 'fail' && !K.some(k => k.s === 'fail'));
+    K.forEach(k => { const on = filter === 'all' || k.s === 'fail' || k.again; k.w.classList.toggle('shut', !on); k.w.inert = !on; });
+    none.hidden = !(filter === 'fail' && !K.some(k => k.s === 'fail' || k.again));
   }
   seg(sg, v => { filter = v; show(); });
   K.forEach(k => paint(k)); counts();
   // a run checks the cases one after another; the price check fails until the copy is fixed
   run.onclick = () => c.run(async () => {
-    if (busy) return; busy = true; ran = true; run.disabled = true; run.innerHTML = '<span class="spin"></span>Running';
+    if (busy) return; busy = true; ran = true; run.disabled = true; relabel(run, '<span class="spin"></span>Running');
     K.forEach(k => { k.s = 'queued'; k.open = false; paint(k); }); counts();
     for (const k of K){
       k.s = 'run'; paint(k, true); counts();
       await c.wait(500);
       k.s = k.bad ? 'fail' : 'pass'; paint(k, true); counts();
     }
-    busy = false; run.disabled = false; run.innerHTML = I('play','xs') + 'Run again'; swap(st, 'Copy agent · 8 cases · run just now');
+    busy = false; run.disabled = false; relabel(run, I('play','xs') + 'Run again'); swap(st, 'Copy agent · run just now');
   });
   // the fix changes the copy to the billing table's price and runs that case again
   function fix(k){
     if (busy) return;
     c.run(async () => {
-      k.bad = false; k.open = false; k.s = 'run'; paint(k, true); counts();
+      k.bad = false; k.open = false; k.again = true; k.s = 'run'; paint(k, true); counts();
       await c.wait(1000);
       k.s = 'pass'; paint(k, true); counts();
+      // its pass shows in place for a moment before the Failed view lets it go
+      await c.wait(900); k.again = false; show();
     });
   }
   // the preview's story: run the evals, see one fail against the last run, open it, take the fix, and see all eight pass
@@ -406,6 +455,9 @@ DM.def('eval-results', (r, c) => {
     { n:'Free plan says no card is needed', k:'fmt', tm:.6, last:'pass' }
   ].map(x => ({ ...x, s:'idle' }));
   const EVR_KIND = { acc:'Accuracy', tone:'Tone', fmt:'Format' };
+  // a button whose words change is as wide as its words and eases to its new width (owner, 18 Nov)
+  const relabel = (b, h) => { const w0 = b.getBoundingClientRect().width; b.innerHTML = h; const w1 = b.getBoundingClientRect().width, cs = getComputedStyle(b);
+    if (!REDUCE && w0 && Math.abs(w1 - w0) > .5) b.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:(parseFloat(cs.getPropertyValue('--t')) || .34) * 1000, easing:cs.getPropertyValue('--ease').trim() || 'ease' }); };
   const evrDot = s => `<span class="evr-dot ${s}">${s === 'pass' ? I('check','xs') : s === 'fail' ? I('x','xs') : s === 'run' ? '<span class="spin"></span>' : ''}</span>`;
   const EVR_EXP = '$24 a seat, billed yearly';
   // a run checks the cases one after another; the price check fails until its copy is fixed
@@ -413,14 +465,14 @@ DM.def('eval-results', (r, c) => {
   async function evrFix(c, k, each){ k.bad = false; k.s = 'run'; each(k); await c.wait(900); k.s = 'pass'; each(k, true); }
   const EVR_HTML = {
     runs:`<div class="evr-vs panel">
-    <div class="evr-vs-h"><div class="evr-vs-ht"><b>Pricing copy evals</b><span class="evr-vs-st">Copy agent · 8 cases · last run 2h ago</span></div><button class="pill primary sm evr-vs-run" type="button">${I('play','xs')}Run evals</button></div>
-    <div class="evr-vs-score"><span class="evr-vs-big num">7/8</span><span class="evr-vs-dl tag">Same as last run</span><span class="evr-vs-mv"></span></div>
+    <div class="evr-vs-h"><div class="evr-vs-ht"><b>Pricing copy evals</b><span class="evr-vs-st">Copy agent · last run 2h ago</span></div><button class="pill primary sm evr-vs-run" type="button">${I('play','xs')}Run evals</button></div>
+    <div class="evr-vs-score"><span class="evr-vs-big num">7/8</span><span class="evr-vs-dl tag">Same as last run</span></div>
     <div class="evr-vs-f" role="toolbar" aria-label="Show"></div>
     <div class="evr-vs-th" aria-hidden="true"><span>Case</span><span>Last</span><span></span><span>Now</span></div>
     <div class="evr-vs-list" role="list" aria-label="Cases"></div>
   </div>`,
     judge:`<div class="evr-jg panel">
-    <div class="evr-jg-h"><div class="evr-jg-ht"><b>Pricing copy evals</b><span class="evr-jg-st">Judged by the review model · 8 cases</span></div><button class="ib evr-jg-run" type="button" aria-label="Run evals" data-tip="Run again">${I('refresh')}</button></div>
+    <div class="evr-jg-h"><div class="evr-jg-ht"><b>Pricing copy evals</b><span class="evr-jg-st">Judged by the review model</span></div><button class="ib evr-jg-run" type="button" aria-label="Run evals" data-tip="Run again">${I('refresh')}</button></div>
     <div class="evr-jg-top">
       <div class="evr-jg-g"><span class="evr-jg-arc" aria-hidden="true"><span class="tr"></span><i></i></span><span class="evr-jg-gv num">0%</span><span class="evr-jg-gl">7 of 8 passed</span></div>
       <ul class="evr-jg-cats" aria-label="By kind of check"></ul>
@@ -431,7 +483,9 @@ DM.def('eval-results', (r, c) => {
   // Run vs run: each case's result last run and this run side by side. A filter shows only the regressions, the fixes or
   // the cases failing now, and a regression opens to what was expected and what came back
   function evrRuns(r, c){
-    const K = EVR_K(), list = $('.evr-vs-list', r), bar = $('.evr-vs-f', r), run = $('.evr-vs-run', r), big = $('.evr-vs-big', r), dl = $('.evr-vs-dl', r), mv = $('.evr-vs-mv', r), st = $('.evr-vs-st', r);
+    const K = EVR_K(), list = $('.evr-vs-list', r), bar = $('.evr-vs-f', r), run = $('.evr-vs-run', r), big = $('.evr-vs-big', r), dl = $('.evr-vs-dl', r), st = $('.evr-vs-st', r);
+    // no room is kept for rows a filter hides: the card eases to what it shows (owner, 17 Nov)
+    c.offs.push(grow($('.evr-vs', r)));
     // before the first run, "now" is the last run's result
     K.forEach(k => { k.s = k.last; });
     let filter = 'all', busy = false;
@@ -442,7 +496,9 @@ DM.def('eval-results', (r, c) => {
     chips.forEach(b => b.onclick = () => { filter = b.dataset.f; chips.forEach(x => { x.setAttribute('aria-pressed', String(x === b)); x.classList.toggle('on', x === b); }); show(); });
     c.on(bar, 'keydown', e => { const i = chips.indexOf(document.activeElement); if (i < 0) return; const j = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : null; if (j === null) return; e.preventDefault(); chips[(j + chips.length) % chips.length].focus(); });
     K.forEach(k => { k.w = html('<div class="fold evr-vs-w"><div><div class="evr-vs-i" role="listitem"></div></div></div>'); k.el = $('.evr-vs-i', k.w); list.appendChild(k.w); });
-    const none = html('<p class="evr-vs-none" hidden>Nothing here this run</p>'); list.appendChild(none);
+    const NONE = { reg:['Nothing regressed', 'No case that passed last time fails now.'], fix:['Nothing fixed', 'No case that failed last time passes now.'], fail:['Nothing failing', 'Every case passes in this run.'] };
+    const none = html('<div class="evr-em evr-vs-none" hidden><span class="evr-em-art" aria-hidden="true"></span><b></b><span></span><button class="pill line sm" type="button">Show all cases</button></div>'); list.appendChild(none);
+    $('.pill', none).onclick = () => chips[0].click();
     function paint(k, fresh){
       const d = ch(k), open = d === 'reg' && k.open;
       k.el.className = 'evr-vs-i' + (d ? ' ' + d : '');
@@ -451,7 +507,7 @@ DM.def('eval-results', (r, c) => {
       if (d === 'reg'){
         const f = $('.fold', k.el), b = $('.evr-vs-r', k.el); f.inert = !open;
         b.onclick = () => { k.open = !k.open; b.setAttribute('aria-expanded', String(k.open)); f.classList.toggle('shut', !k.open); f.inert = !k.open; };
-        $('.pill', k.el).onclick = () => { if (busy) return; k.open = false; c.run(() => evrFix(c, k, paint).then(counts)); };
+        $('.pill', k.el).onclick = () => { if (busy) return; k.open = false; k.again = true; c.run(() => evrFix(c, k, (x, f) => { paint(x, f); counts(); }).then(() => c.wait(900)).then(() => { k.again = false; show(); })); };
       }
       if (fresh){ const dots = $$('.evr-dot', k.el); if (dots[1]) dots[1].classList.add('bump'); }
     }
@@ -461,17 +517,18 @@ DM.def('eval-results', (r, c) => {
       const p = K.filter(k => k.s === 'pass').length, lp = K.filter(k => k.last === 'pass').length, fin = k => k.s === 'pass' || k.s === 'fail', doneAll = K.every(fin);
       big.textContent = `${doneAll ? p : K.filter(fin).length}/8`;
       const d = !doneAll ? 'Running' : p > lp ? `+${p - lp} on the last run` : p < lp ? `${p - lp} on the last run` : 'Same score as last run';
-      if (dl.textContent !== d){ dl.textContent = d; dl.className = 'evr-vs-dl tag' + (!doneAll ? '' : p > lp ? ' ok' : p < lp ? ' bad' : ''); }
-      mv.textContent = doneAll && (n.reg || n.fix) ? `${n.reg} regressed, ${n.fix} fixed` : '';
+      // while the cases run, the tag's word shimmers as every loader's does
+      if (dl.textContent !== d){ if (doneAll) dl.textContent = d; else dl.innerHTML = '<span class="shim">' + d + '</span>'; dl.className = 'evr-vs-dl tag' + (!doneAll ? '' : p > lp ? ' ok' : p < lp ? ' bad' : ''); }
       show();
     }
-    function show(){ K.forEach(k => { const d = ch(k), on = filter === 'all' || (filter === 'fail' ? k.s === 'fail' : d === filter); k.w.classList.toggle('shut', !on); k.w.inert = !on; }); none.hidden = K.some(k => !k.w.classList.contains('shut')); }
+    function show(){ K.forEach(k => { const d = ch(k), on = filter === 'all' || (filter === 'fail' ? k.s === 'fail' : d === filter) || k.again; k.w.classList.toggle('shut', !on); k.w.inert = !on; }); none.hidden = K.some(k => !k.w.classList.contains('shut'));
+      if (!none.hidden && NONE[filter]){ $('b', none).textContent = NONE[filter][0]; $('span:not(.evr-em-art)', none).textContent = NONE[filter][1]; } }
     K.forEach(k => paint(k)); counts();
     run.onclick = () => c.run(async () => {
-      if (busy) return; busy = true; run.disabled = true; run.innerHTML = '<span class="spin"></span>Running';
+      if (busy) return; busy = true; run.disabled = true; relabel(run, '<span class="spin"></span>Running');
       K.forEach(k => { k.s = 'idle'; k.open = false; paint(k); }); counts();
       await evrRun(c, K, (k, f) => { paint(k, f); counts(); });
-      busy = false; run.disabled = false; run.innerHTML = I('play','xs') + 'Run again'; swap(st, 'Copy agent · 8 cases · run just now');
+      busy = false; run.disabled = false; relabel(run, I('play','xs') + 'Run again'); swap(st, 'Copy agent · run just now');
     });
     c.story(async s => {
       await s.beat(3); await s.tap(run); s.away();
@@ -487,6 +544,8 @@ DM.def('eval-results', (r, c) => {
   // failed, with the wrong words marked, a thumb for whether it was a fair call, and the fix
   function evrJudge(r, c){
     const K = EVR_K(), g = $('.evr-jg-g', r), gv = $('.evr-jg-gv', r), gl = $('.evr-jg-gl', r), cats = $('.evr-jg-cats', r), j = $('.evr-jg-j', r), run = $('.evr-jg-run', r);
+    // no room is kept for the judge's part: the card eases to what it holds (owner, 17 Nov)
+    c.offs.push(grow($('.evr-jg', r)));
     // last run's score by kind, so each bar says how it moved
     const LAST = { acc:3, tone:2, fmt:2 };
     cats.innerHTML = Object.entries(EVR_KIND).map(([k, n]) => `<li data-k="${k}"><span class="t">${n}</span><span class="s num"></span><span class="b"><i></i></span></li>`).join('');
@@ -494,7 +553,7 @@ DM.def('eval-results', (r, c) => {
     function score(){
       const fin = k => k.s === 'pass' || k.s === 'fail', done = K.filter(fin), p = K.filter(k => k.s === 'pass').length;
       const f = done.length ? p / K.length : 0;
-      g.style.setProperty('--p', f.toFixed(3)); g.style.setProperty('--gc', f === 1 ? 'var(--ok)' : f >= .8 ? 'var(--accent-mark)' : 'var(--warn-mark)');
+      g.style.setProperty('--p', f.toFixed(3)); g.style.setProperty('--gc', f === 1 ? 'var(--ok-mark)' : f >= .8 ? 'var(--accent-mark)' : 'var(--warn-mark)');
       gl.textContent = done.length < K.length ? `${done.length} of 8 checked` : `${p} of 8 passed`;
       // the score counts to its value as the arc fills, its text changing at most ten times a second
       const to = Math.round(f * 100), me = ++tw; let at = -1e9;
@@ -508,8 +567,8 @@ DM.def('eval-results', (r, c) => {
     // the judge's part for the failed case: what the copy said, why it is wrong, and your call
     function judge(){
       const k = K.find(x => x.s === 'fail');
-      if (!k){ j.innerHTML = K.every(x => x.s === 'pass') ? `<div class="evr-jg-ok">${I('ok')}<b>All 8 pass</b><span>The judge found nothing to fix in this run</span></div>` : '<div class="evr-jg-ok"><span class="spin"></span><span>The judge is reading the copy</span></div>'; return; }
-      j.innerHTML = `<div class="evr-jg-jh">${evrDot('fail')}<b>${k.n}</b><span class="tag warn">Regressed</span></div><p class="evr-jg-jq">Pro is <span class="evr-mk">$29 a seat</span>, billed yearly, with SSO and audit logs.</p><p class="evr-jg-jr"><span class="who">${I('spark','xs')}Judge</span>The billing table has Pro at <span class="evr-gd">$24 a seat</span> when billed yearly. The copy agent's last edit used the monthly price.</p><div class="evr-jg-ja"><span class="lbl">Fair call?</span><button class="ib evr-jg-y" type="button" aria-pressed="false" aria-label="Agree with the judge" data-tip="Agree">${I('up-thumb','xs')}</button><button class="ib evr-jg-n" type="button" aria-pressed="false" aria-label="Disagree with the judge" data-tip="Disagree">${I('down-thumb','xs')}</button><span class="sp"></span><button class="pill primary sm evr-jg-fix" type="button">Use $24 and rerun</button></div>`;
+      if (!k){ j.innerHTML = K.every(x => x.s === 'pass') ? `<div class="evr-jg-ok">${I('ok')}<b>All 8 pass</b><span>Nothing to fix in this run</span></div>` : '<div class="evr-jg-ok"><span class="spin"></span><span class="shim">The judge is reading the copy</span></div>'; return; }
+      j.innerHTML = `<div class="evr-jg-jh">${evrDot('fail')}<b>${k.n}</b><span class="tag warn">Regressed</span></div><p class="evr-jg-jq">Pro is <span class="evr-mk">$29 a seat</span>, billed yearly, with SSO and audit logs.</p><p class="evr-jg-jr">${I('spark','xs')}<span><span class="who">Judge</span>The billing table has Pro at <span class="evr-gd">$24 a seat</span> when billed yearly. The copy agent's last edit used the monthly price.</span></p><div class="evr-jg-ja"><span class="lbl">Fair call?</span><button class="ib evr-jg-y" type="button" aria-pressed="false" aria-label="Agree with the judge" data-tip="Agree">${I('up-thumb','xs')}</button><button class="ib evr-jg-n" type="button" aria-pressed="false" aria-label="Disagree with the judge" data-tip="Disagree">${I('down-thumb','xs')}</button><span class="sp"></span><button class="pill primary sm evr-jg-fix" type="button">Use $24 and rerun</button></div>`;
       const y = $('.evr-jg-y', j), n = $('.evr-jg-n', j); [y, n].forEach(b => b.onclick = () => { const on = b.getAttribute('aria-pressed') !== 'true'; [y, n].forEach(x => x.setAttribute('aria-pressed', String(x === b && on))); });
       $('.evr-jg-fix', j).onclick = () => { if (busy) return; busy = true; c.run(async () => { await evrFix(c, k, () => score()); busy = false; judge(); again(); }); };
       again();

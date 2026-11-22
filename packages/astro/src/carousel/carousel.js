@@ -207,9 +207,10 @@ DM.def('carousel', (r, c, card) => {
     if (k === 'wait' || k === 'gen'){
       if (!img || !img.classList.contains('pre')) pv.innerHTML = I('image', 'ph') + pre(v);
       if (k === 'gen' && !$('.crs-px', pv)) $('.crs-img', pv).insertAdjacentHTML('beforebegin', '<canvas class="crs-px" aria-hidden="true"></canvas>');
+      meta.classList.toggle('shim', k === 'gen');
       meta.textContent = k === 'gen' ? 'Making' : 'Waiting'; x.innerHTML = k === 'gen' ? '<span class="tag"><span class="spin"></span>Making</span>' : '<span class="tag">Queued</span>';
     }
-    else if (k === 'fail'){ pv.innerHTML = `${I('alert')}<b>Couldn't make this picture</b><span class="muted">The image model timed out</span><button class="pill line sm crs-retry">${I('refresh','xs')}Retry</button>`; meta.textContent = v.d; x.innerHTML = '<span class="tag bad">Failed</span>'; $('.crs-retry', pv).onclick = () => retry(i); }
+    else if (k === 'fail'){ meta.classList.remove('shim'); pv.innerHTML = `${I('alert')}<b>Couldn't make this picture</b><span class="muted">The image model timed out</span><button class="pill line sm crs-retry">${I('refresh','xs')}Retry</button>`; meta.textContent = v.d; x.innerHTML = '<span class="tag bad">Failed</span>'; $('.crs-retry', pv).onclick = () => retry(i); }
     else {
       // the picture comes into focus over the last of the pixels, which go once it is in
       if (img && img.classList.contains('pre')){
@@ -217,17 +218,23 @@ DM.def('carousel', (r, c, card) => {
         const ph = $('.ph', pv); if (ph) ph.remove();
         const px = $('.crs-px', pv); if (px){ const rm = () => px.remove(); img.addEventListener('animationend', rm, { once:true }); c.later(1500, rm); }
       } else if (!img) pv.innerHTML = `<span class="crs-img" role="img" aria-label="${v.alt}" data-pic="${v.art}" style="--dm-art:${v.g}"></span>`;
-      meta.textContent = `${v.d} · ${v.t}`; x.innerHTML = `<button class="pill line sm crs-keep" aria-pressed="${kept === i}">${kept === i ? I('check','xs') + 'Kept' : 'Keep'}</button>`; $('.crs-keep', x).onclick = () => keep(i);
+      meta.classList.remove('shim'); meta.textContent = `${v.d} · ${v.t}`; x.innerHTML = `<button class="pill line sm crs-keep" aria-pressed="${kept === i}">${kept === i ? I('check','xs') + 'Kept' : 'Keep'}</button>`; $('.crs-keep', x).onclick = () => keep(i);
     }
   }
-  function keep(i){ if (st[i] !== 'ready') return; kept = kept === i ? -1 : i; vb.classList.toggle('kept', kept >= 0); S.forEach((s, j) => { s.classList.toggle('kept', j === kept); if (st[j] === 'ready') draw(j); }); swap(sub, kept >= 0 ? `Keeping ${V[kept].l}` : head()); say(kept >= 0 ? `Kept ${V[i].l}` : `${V[i].l} no longer kept`); }
+  // Keep and Kept are each as wide as their words: the button eases to its new width, with no room kept for the longer one
+  const ease = (b, w0) => { const w1 = b.offsetWidth, cs = getComputedStyle(b); if (REDUCE || !w0 || Math.abs(w1 - w0) < .5) return;
+    b.style.overflow = 'hidden'; b.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:(parseFloat(cs.getPropertyValue('--dm-t')) || .34) * 1000, easing:cs.getPropertyValue('--dm-ease').trim() || 'ease' }).finished.then(() => { b.style.overflow = ''; }, () => {}); };
+  function keep(i){ if (st[i] !== 'ready') return; kept = kept === i ? -1 : i; vb.classList.toggle('kept', kept >= 0);
+    S.forEach((s, j) => { s.classList.toggle('kept', j === kept); if (st[j] !== 'ready') return; const was = $('.crs-keep', s), w0 = was ? was.offsetWidth : 0, f = was && document.activeElement === was; draw(j); const now = $('.crs-keep', s); if (f) now.focus({ preventScroll:true }); ease(now, w0); }); line(kept >= 0 ? `Keeping ${V[kept].l}` : head()); say(kept >= 0 ? `Kept ${V[i].l}` : `${V[i].l} no longer kept`); }
+  // the line under the title says what the agent is doing, with the highlight sweep while it is still making drafts
+  const line = t => { swap(sub, t); sub.classList.toggle('shim', kept < 0 && st.some(x => x === 'wait' || x === 'gen')); };
   const head = () => { const done = st.filter(x => x === 'ready').length, bad = st.filter(x => x === 'fail').length, busy = st.some(x => x === 'wait' || x === 'gen'); return busy ? `Making ${V.length} variants, ${done} ready` : `${done} ready${bad ? `, ${bad} failed` : ''}`; };
   // a swipe, a drag, the arrows, the dots and the keys all move the one track; Enter on it keeps the draft in view
   const vk = carousel(c, vtr, { prev:$('.crs-prev', vb), next:$('.crs-next', vb), dots:$('.crs-dots', vb), dot:i => `Go to ${V[i].l}`, say:i => say(`${V[i].l}, ${i + 1} of ${V.length}`),
     key:e => { if (e.key === 'Enter'){ e.preventDefault(); keep(vk.stop.i); } } });
   /* the drafts being built share one frame loop. It runs only while one is building, the carousel is on screen or near it,
-     the tab is open and no pointer holds the demo; otherwise it rests, looking again four times a second. Time only moves
-     while it runs, so a held draft picks up where it was */
+     and the tab is open (a pointer resting on it doesn't stop it: the agent keeps working, DM.PLAYS); otherwise it rests,
+     looking again four times a second. Time only moves while it runs, so a draft picks up where it was */
   const live = new Set(); let raf = 0, nap = 0, last = 0;
   const wake = () => { if (!raf && !nap && !c.dead && live.size) raf = requestAnimationFrame(tick); };
   const tick = t => {
@@ -242,13 +249,13 @@ DM.def('carousel', (r, c, card) => {
   // shows a still mosaic of the picture's colours until it lands
   async function make(i){
     const v = V[i], s = S[i], meta = $('.crs-f .muted', s);
-    st[i] = 'gen'; draw(i); swap(sub, head());
+    st[i] = 'gen'; draw(i); line(head());
     const f = crsPixels($('.crs-px', s), { g:v.g, pic:$('.crs-img', s), pace:v.p, on:(p, ph) => { if (st[i] === 'gen') meta.textContent = `${ph} · ${p}%`; } });
     const bad = v.fail === 1;
     if (!f || REDUCE){ if (f) f.still(); await new Promise(res => c.later(bad ? 1400 : 1800 * v.p, res)); }
     else { live.add(f); wake(); await f.when(bad ? .5 : 1); if (bad) await f.fail(); live.delete(f); }
     if (bad){ v.fail = 2; st[i] = 'fail'; draw(i); say(`${v.l} failed`); } else { st[i] = 'ready'; draw(i); say(`${v.l} ready`); }
-    if (kept < 0) swap(sub, head());
+    if (kept < 0) line(head());
   }
   function retry(i){ c.run(async () => { await make(i); }); }
   const startV = () => { if (started) return; started = true; V.forEach((v, i) => c.run(async () => { await c.wait(500 + i * 350); await make(i); })); };
@@ -282,9 +289,10 @@ DM.def('carousel', (r, c, card) => {
   // the preview's story, for the type on show. Variants: once the four are in, flip to the third and keep it. Images: the
   // next two pictures, the last one from the dots, then back one. A switch to the other type ends it, and the next play is
   // the other type's
+  // the drafts keep building under the pointer (DM.PLAYS); the person's own steps wait while a mouse rests on the card
   if (r === c.st) c.story(async s => {
     const t0 = type, on = () => type === t0, b = box[t0];
-    const step = async (el, n) => { if (!on()) throw 'switched'; await s.tap(el); s.away(); await s.beat(n); };
+    const step = async (el, n) => { await s.until(() => !r.matches(':hover')); if (!on()) throw 'switched'; await s.tap(el); s.away(); await s.beat(n); };
     try {
       if (t0 === 'variants'){
         await s.until(() => !on() || st.every(x => x === 'ready' || x === 'fail')); if (!on()) return; await s.beat(3);

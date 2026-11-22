@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, enter, hold, html, release, swap } from '../core/core.js';
+import { $, $$, DM, I, enter, grow, html, popRoom } from '../core/core.js';
 DM.def('context-menu', (r, c) => {
   const ICON = { spark:'spark', copy:'copy', quote:'quote', pin:'pin', 'chev-r':'chev-r', bell:'bell', check:'check', trash:'trash', info:'info', list:'list', edit:'edit' };
   r.innerHTML = r.innerHTML.replace(/\{([\w-]+)\}/g, (m, k) => ICON[k] ? I(ICON[k], k === 'chev-r' || k === 'check' ? 'xs' : 's') : m);
@@ -13,8 +13,14 @@ DM.def('context-menu', (r, c) => {
     const lo = Math.max(card.left, 0) + 8 - rb.left, hi = Math.min(card.right, innerWidth) - 8 - rb.left, w = m.offsetWidth, h = m.offsetHeight;
     if (x + w > hi && left != null) x = left - w; else if (x + w > hi) x = x - w;
     x = Math.max(lo, Math.min(x, hi - w));
-    // near the foot of the screen it opens upward, but only where it fits over the component, so it never covers what is above
-    const up = rb.top + y + h > innerHeight - 8 && y - h >= 0 && rb.top + y - h > 8; if (up) y -= h;
+    // short of room below (the screen's foot, a box that would cut it off, or the end of the demo's stage, past which it would
+    // cover the card's words), it opens upward from the point; where neither way fits, it moves up just enough to end inside
+    // the room, so it is never cut off
+    const room = popRoom(root), st = root.closest('.stage-inner'), sr = st && st.getBoundingClientRect();
+    if (sr){ room.top = Math.max(room.top, sr.top); room.bottom = Math.min(room.bottom, sr.bottom); }
+    const top = room.top + 8 - rb.top, bottom = room.bottom - 8 - rb.top;
+    let up = false;
+    if (y + h > bottom){ if (y - h >= top){ y -= h; up = true; } else y = Math.max(top, bottom - h); }
     m.style.left = x + 'px'; m.style.top = y + 'px'; m.style.setProperty('--dm-origin', (up ? 'bottom ' : 'top ') + 'left');
   };
   const show = (m, on) => { m.classList.toggle('open', on); m.inert = !on; };
@@ -37,6 +43,8 @@ DM.def('context-menu', (r, c) => {
   }
   function closeSub(focus){ if (!subOpen) return; subOpen = false; subRow.setAttribute('aria-expanded', 'false'); show(sub, false); if (focus) subRow.focus({ preventScroll:true }); }
   show(pop, false); show(sub, false);
+  // the card grows to hold what the agent writes, and shrinks to the Undo row, eased (grow()); the menus open over it
+  c.offs.push(grow(root));
   // right-click, or a long press on a touch screen
   c.on(msg, 'contextmenu', e => { e.preventDefault(); if (open && performance.now() - openedAt < 600) return; const rb = root.getBoundingClientRect(); openAt(e.clientX - rb.left, e.clientY - rb.top, e.isTrusted && !e.button && e.detail === 0 ? false : e.isTrusted); });
   let press = 0;
@@ -64,8 +72,18 @@ DM.def('context-menu', (r, c) => {
     if (to){ e.preventDefault(); to.focus({ preventScroll:true }); if (!inSub && to !== subRow) closeSub(); }
   });
   keys(pop, false); keys(sub, true);
-  // what each item does
-  const say = t => { swap(note, t); };
+  // what each item does. What it did is said to screen readers, and shows for a moment on the reply's head line with a green
+  // tick; a pin shows its own Pinned, and Ask the agent its answer
+  let okT = 0;
+  const say = (t, show = true) => {
+    note.textContent = t || '';
+    const ok = $('.cxm-ok', r); if (!ok) return;
+    clearTimeout(okT);
+    if (!t || !show){ ok.hidden = true; return; }
+    ok.innerHTML = `${I('check','xs')}<span>${t}</span>`; ok.hidden = false; ok.classList.remove('out');
+    okT = setTimeout(() => { ok.classList.add('out'); okT = setTimeout(() => { ok.hidden = true; }, 240); }, 2400);
+  };
+  c.offs.push(() => clearTimeout(okT));
   const words = t => t.split(' ').map((w, i, a) => `<span class="w" style="animation-delay:${i * 45}ms">${w}${i < a.length - 1 ? ' ' : ''}</span>`).join('');
   const ASK = {
     explain:['Explanation', 'info', 'On a phone the keyboard takes the lower half of the screen. The Continue button sits there, so people have to close the keyboard to find it, and many leave instead.'],
@@ -85,20 +103,21 @@ DM.def('context-menu', (r, c) => {
   const act = it => {
     const a = it.dataset.a;
     if (a === 'ask'){ subOpen ? closeSub(true) : openSub(true); return; }
-    if (a === 'follow'){ const on = it.getAttribute('aria-checked') !== 'true'; it.setAttribute('aria-checked', on); say(on ? 'You will hear about replies to this' : 'You will not hear about replies'); return; }
+    if (a === 'follow'){ const on = it.getAttribute('aria-checked') !== 'true'; it.setAttribute('aria-checked', on); say(on ? 'Following replies' : 'Not following replies'); return; }
     // deleting asks again in the same row; the second press deletes, with Undo
     if (a === 'del'){
       if (!del.classList.contains('ask')){ del.classList.add('ask'); $('.t', del).textContent = 'Press again to delete'; del.setAttribute('aria-label', 'Delete reply: press again to confirm'); return; }
-      close(); hold(root); const was = msg.innerHTML; msg.hidden = true;
-      const g = html(`<div class="cxm-gone">Reply deleted<button class="pill ghost sm">Undo</button></div>`); root.insertBefore(g, note); enter(g); say('');
-      $('button', g).onclick = () => { g.remove(); msg.hidden = false; msg.innerHTML = was; release(root); msg.focus({ preventScroll:true }); };
+      // the card shrinks to the Undo row smoothly (grow()), and Undo brings the same reply back
+      close(); say(''); msg.hidden = true;
+      const g = html(`<div class="cxm-gone">Reply deleted<button class="pill ghost sm">Undo</button></div>`); note.before(g); enter(g); note.textContent = 'Reply deleted';
+      $('button', g).onclick = () => { g.remove(); msg.hidden = false; note.textContent = 'Reply restored'; msg.focus({ preventScroll:true }); };
       return;
     }
     close(true);
-    if (a === 'copy'){ try { navigator.clipboard.writeText(tx.textContent).catch(() => {}); } catch(e){} say('Copied to clipboard'); }
+    if (a === 'copy'){ try { navigator.clipboard.writeText(tx.textContent).catch(() => {}); } catch(e){} say('Copied'); }
     if (a === 'quote') say('Quoted in your reply');
-    if (a === 'pin'){ pinned = !pinned; $('.cxm-pin', r).hidden = !pinned; $('.t', $('[data-a="pin"]', pop)).textContent = pinned ? 'Unpin' : 'Pin to thread'; say(pinned ? 'Pinned to the thread' : 'Unpinned'); }
-    if (ASK[a]) ask(a);
+    if (a === 'pin'){ pinned = !pinned; $('.cxm-pin', r).hidden = !pinned; $('.t', $('[data-a="pin"]', pop)).textContent = pinned ? 'Unpin' : 'Pin to thread'; say(pinned ? 'Pinned to the thread' : 'Unpinned', false); }
+    if (ASK[a]){ say(''); ask(a); }
   };
   [pop, sub].forEach(m => c.on(m, 'click', e => { const it = e.target.closest('.mi'); if (it) act(it); }));
   // the preview's story: right-click the reply, ask the agent for a summary, and it streams in under the reply

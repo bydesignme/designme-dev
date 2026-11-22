@@ -34,19 +34,20 @@ Banner puts one announcement in front of people: an eyebrow, a title, a line of 
 
 ### What it does
 
-- Six tones: `accent` (the default, the accent's own tint), `neutral`, and tints of the tag colours `blue`, `violet`, `green` and `amber`. Each sets the fill, the eyebrow's colour and the drawing's colour. The tint is the banner's edge: it has no border.
+- Seven tones: `accent` (the default, the accent's own tint), `neutral`, `warning`, and tints of the tag colours `blue`, `violet`, `green` and `amber`. Each sets the fill, the eyebrow's colour and the drawing's colour. The tint is the banner's edge: it has no border.
+- `warning` is a warning notice, as the warning notices are everywhere on designme.dev: a faint warning tint, the filled warning sign before the eyebrow, every word in the text colour, the drawing in the warning's bright orange, and the action in the warning's own tint with its dark text, a step deeper under the pointer.
 - Four drawings, drawn as hairlines in one isometric view, each standing on a dashed floor grid and centred in the same box, so switching between them doesn't jump: `layers` (a stack of plates pulled apart), `steps` (a staircase up to a flag, on a floor that follows its footprint), `tools` (five tool tiles, Slack, GitHub, Linear, Gmail and Apollo, each with its mark on top, all the same size) and `path` (a dotted route across the floor to a raised tile). Pass your own SVG element to `art` instead, or `null` for none.
 - Each drawing draws itself in, line by line, when it appears. Under the pointer its parts pull apart a little by their depth. Nothing loops, and there are no blur filters.
 - On a wide banner the drawing sits on the right, shown at its own size and cropped by its area, so a narrower banner shows less of it rather than a smaller one.
 - In a column narrower than 480px the drawing becomes a strip across the top that fades out before the text starts, so nothing is drawn behind the words.
-- `action` is the primary button and `secondary` a quieter underlined link. Each takes an `onClick`, or an `href` to make it a link. On a coloured banner the primary button is white in light mode, with the text colour on it, and the accent in dark mode; on a `neutral` banner it is the accent in both.
-- In HTML, a close button is optional: put `<button class="ib bnx-x" aria-label="Dismiss">` inside the banner and it sits in the top right corner. It first sends a cancelable `banner-dismiss` event from the banner, then the banner plays out and is hidden. The demo here has none.
+- `action` is the primary button and `secondary` a quieter underlined link. Each takes an `onClick`, or an `href` to make it a link. On a coloured banner the primary button is white in light mode, with the text colour on it and a hairline edge, and the accent in dark mode (Clean's ink button there); on a `neutral` banner it is the accent in both; on a `warning` banner it is the warning's tint. Under the pointer it takes a slightly deeper fill, with no shadow.
+- In HTML, a close button is optional: put `<button class="ib bnx-x" aria-label="Dismiss">` inside the banner. In Clean it sits in the top right corner, 8px from the edges; in Soft and Blueprint it sits on the first line of the words, which then start at the top. It first sends a cancelable `banner-dismiss` event from the banner, then the banner plays out and is hidden. The demo here has none.
 - Text passed as a string crossfades when it changes, so one banner can turn into the next in place. On designme.dev a switcher under the banner flips through four of its styles; the demo goes through them twice and stops.
 
 ### Accessibility
 
 - The banner is a region named by `label` (Announcement by default), and the drawing is hidden from screen readers with `aria-hidden`.
-- Every text colour is checked on every tone, in Soft and Blueprint, light and dark: 4.5:1 and APCA Lc 60 or more. That includes the primary button, white with the text colour in light mode and the accent in dark mode. The drawing's lines are 3:1 on the fill.
+- Every text colour is checked on every tone, in Soft, Blueprint and Clean, light and dark: 4.5:1 and APCA Lc 60 or more. That includes the primary button, white with the text colour in light mode and the accent in dark mode. The drawing's lines are 3:1 on the fill.
 - The optional close button is a real button named "Dismiss". Once the banner is hidden, move the focus somewhere useful in your `banner-dismiss` handler, such as the content the banner sat above.
 - With reduced motion the drawing shows complete at once, its parts don't move under the pointer, and the demo on designme.dev doesn't play.
 
@@ -65,24 +66,25 @@ import { useRef, useState } from 'react';
 import { Banner, type BannerArtName, type BannerTone } from './Banner';
 import { useStory } from '../lib/useScript';
 
-/* ---------- Banner: three announcements one after another, each with its own tone and drawing, then the last one is
-   dismissed and brought back with Undo ---------- */
+/* ---------- Banner: four announcements one after another, each with its own tone and drawing (the last a warning), then
+   the warning is dismissed and brought back with Undo ---------- */
 const BANNERS: { tone: BannerTone; art: BannerArtName; eyebrow: string; title: string; description: string; action: string; secondary: string }[] = [
   { tone: 'accent', art: 'layers', eyebrow: 'New', title: 'Memory that carries across threads', description: 'Agents keep what they learn about your project, so you only explain things once.', action: 'Turn on memory', secondary: 'What it keeps' },
   { tone: 'violet', art: 'tools', eyebrow: 'Beta', title: 'Connect your tools in one place', description: 'Linear, GitHub and Slack in one list, with access you can scope for each agent.', action: 'Connect a tool', secondary: 'Read the docs' },
   { tone: 'green', art: 'steps', eyebrow: 'Guide', title: 'Set up your first automation', description: 'Five short steps, about ten minutes. The agent can do most of them for you.', action: 'Start the guide', secondary: 'Maybe later' },
-  { tone: 'amber', art: 'path', eyebrow: 'Heads-up', title: 'Maintenance on Sunday, 02:00 UTC', description: 'Agents pause for about an hour, and queued runs pick up where they left off.', action: 'Add to calendar', secondary: 'Status page' }
+  { tone: 'warning', art: 'path', eyebrow: 'Heads-up', title: 'Maintenance on Sunday, 02:00 UTC', description: 'Agents pause for about an hour, and queued runs pick up where they left off.', action: 'Add to calendar', secondary: 'Status page' }
 ];
 
 export default function BannerDemo() {
   const ref = useRef<HTMLDivElement>(null);
   const [i, setI] = useState(0);
   const [open, setOpen] = useState(true);
-  // the preview's story: the next two banners take the first one's place, then the last is dismissed and comes back with
+  // the preview's story: the next three banners take the first one's place, then the last is dismissed and comes back with
   // Undo. Your first click, key or focus stops it, and a mouse resting on it holds it where it is
   useStory(ref, async ({ wait, press }) => {
     await wait(4000); setI(1);
     await wait(4000); setI(2);
+    await wait(4000); setI(3);
     await wait(4000); press('.dm-bnx-x');
     await wait(3000); press('.dm-bnx-undo');
   });
@@ -101,12 +103,12 @@ export default function BannerDemo() {
 
 | Prop | Type | What it does |
 | --- | --- | --- |
-| `tone` (optional) | `BannerTone` | The tint, and the colour the eyebrow and the drawing take. accent by default |
+| `tone` (optional) | `BannerTone` | The tint, and the colour the eyebrow and the drawing take. accent by default. warning makes it a warning notice |
 | `art` (optional) | `BannerArtName \| ReactElement \| null` | One of the four drawings, or your own SVG (240 by 160 is the size it is shown at). null for none. layers by default |
 | `eyebrow` (optional) | `string` | A short label over the title, like New or Beta |
 | `title` | `ReactNode` |  |
 | `description` (optional) | `ReactNode` | One line or two under the title |
-| `action` (optional) | `BannerAction` | The primary button, on the accent |
+| `action` (optional) | `BannerAction` | The primary button: white on a coloured banner in light mode and the accent in dark mode, the accent on a neutral one, and the warning's own tint on a warning |
 | `secondary` (optional) | `BannerAction` | A quieter link beside it |
 | `onDismiss` (optional) | `() => void` | Called by the dismiss button |
 | `dismissible` (optional) | `boolean` | Shows the dismiss button. true by default |
@@ -160,8 +162,10 @@ import { Swap, Tip } from '../lib/motion';
 import '../designme.css';
 import './banner.css';
 
-/** The tint the banner sits on. `accent` is the accent's own tint; the others are tints of the tag colours */
-export type BannerTone = 'accent' | 'neutral' | 'blue' | 'violet' | 'green' | 'amber';
+/** The tint the banner sits on. `accent` is the accent's own tint; `warning` is a warning notice (a faint warning tint, the
+    filled warning sign, words in the text colour and the action in the warning's own tint); the others are tints of the tag
+    colours */
+export type BannerTone = 'accent' | 'neutral' | 'blue' | 'violet' | 'green' | 'amber' | 'warning';
 /** The four drawings that come with it */
 export type BannerArtName = 'layers' | 'steps' | 'tools' | 'path';
 
@@ -173,7 +177,7 @@ export interface BannerAction {
 }
 
 export interface BannerProps {
-  /** The tint, and the colour the eyebrow and the drawing take. accent by default */
+  /** The tint, and the colour the eyebrow and the drawing take. accent by default. warning makes it a warning notice */
   tone?: BannerTone;
   /** One of the four drawings, or your own SVG (240 by 160 is the size it is shown at). null for none. layers by default */
   art?: BannerArtName | ReactElement | null;
@@ -182,7 +186,8 @@ export interface BannerProps {
   title: ReactNode;
   /** One line or two under the title */
   description?: ReactNode;
-  /** The primary button, on the accent */
+  /** The primary button: white on a coloured banner in light mode and the accent in dark mode, the accent on a neutral one,
+      and the warning's own tint on a warning */
   action?: BannerAction;
   /** A quieter link beside it */
   secondary?: BannerAction;

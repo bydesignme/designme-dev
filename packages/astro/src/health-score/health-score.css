@@ -7,7 +7,7 @@
 .hsc{display:flex;flex-direction:column;gap:var(--dm-s-3);width:100%;padding:var(--dm-s-4);container-type:inline-size;--dm-vm:var(--dm-ok-mark);--dm-vf:var(--dm-ok)}
 .hsc[data-v="warn"]{--dm-vm:var(--dm-warn-mark);--dm-vf:var(--dm-warn)}
 .hsc[data-v="bad"]{--dm-vm:var(--dm-bad-mark);--dm-vf:var(--dm-bad)}
-.hsc-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.hsc-sr{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 /* the account it is about, when the block stands on its own (a details sheet that names the account leaves it out) */
 .hsc-ac{display:flex;flex-direction:column;align-items:flex-start;padding-bottom:var(--dm-s-3);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);line-height:1.4}
 .hsc-ac b{font-size:14px;font-weight:500}
@@ -34,6 +34,12 @@
 .hsc-k{grid-area:k;display:flex;align-items:center;gap:6px;min-width:0;font-size:13px;line-height:20px;color:var(--dm-fg2);transition:color var(--dm-t-fast)}
 .hsc-n{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hsc-dot{flex:none;width:8px;height:8px;border-radius:50%;background:var(--dm-sm);transition:background var(--dm-t) var(--dm-ease)}
+/* under the score's head the rows share its columns (owner, 18 Nov): the status dot centred under the ring's 44px column, the
+   name and an open row's detail where the verdict's words start. (Rows on their own, as in a sheet that shows only the
+   factors, keep the dot before the name) */
+.hsc-h~.hsc-l .hsc-k{position:relative;padding-left:56px}
+.hsc-h~.hsc-l .hsc-dot{position:absolute;left:18px;top:6px}
+.hsc-h~.hsc-l .hsc-dc{padding-left:56px}
 /* the weakest factor that is off track says so in ink, never with a fill */
 .hsc-wk{flex:none;display:none;margin-left:2px;font-size:11px;font-weight:500;line-height:16px;color:var(--dm-fg)}
 .hsc-t[data-weak] .hsc-wk{display:block}
@@ -53,9 +59,13 @@
 .hsc-dp+.hsc-dp{margin-top:2px;color:var(--dm-fg2)}
 .hsc-pt{display:flex;align-items:center;gap:var(--dm-s-2);margin:var(--dm-s-2) 0 0;font-size:12px;color:var(--dm-muted)}
 .hsc-pt i{width:4px;height:4px;border-radius:50%;background:var(--dm-faint)}
-/* the agent's next move: a plain row under a hairline, the spark in the accent, one line and its button */
-.hsc-s{display:flex;align-items:center;gap:var(--dm-s-2);min-height:44px;padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12.5px;line-height:1.45;color:var(--dm-fg2)}
-.hsc-s>.i{flex:none;align-self:flex-start;margin-top:3px;color:var(--dm-accent-mark,var(--dm-accent))}
+/* the agent's next move: a plain row under a hairline, the spark centred in the ring's column on the first line of its words,
+   the words on the verdict's column, and its button on the content's right edge, centred on the words */
+.hsc-s{display:flex;align-items:center;gap:var(--dm-s-3);min-height:44px;padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12.5px;line-height:1.45;color:var(--dm-fg2)}
+.hsc-say{flex:1;min-width:0;display:flex;align-items:flex-start}
+.hsc-say .i{flex:none;margin:2px 27px 0 15px;color:var(--dm-accent-mark,var(--dm-accent))}
+/* its words ease to a new line count rather than jump (grow()), the spark and words staying side by side */
+.hsc-say>.dm-grow{flex:1 1 auto;min-width:0;flex-direction:row;align-items:flex-start}
 .hsc-st{flex:1;min-width:0;text-wrap:pretty}
 .hsc-s .pill{flex:none}
 .hsc-s .pill .spin{width:12px;height:12px}
@@ -64,9 +74,34 @@
 /* Blueprint: square marks, labels in small capitals */
 :root:not([data-style="soft"],[data-style="clean"]) :is(.hsc-k,.hsc-pt):not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase}
 :root:not([data-style="soft"],[data-style="clean"]) .hsc-done:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){font-size:11px}
+/* Clean (owner, 18 Nov): the content 16px in from every edge; a factor row's hover is a quiet fill as wide as the content (the
+   ring's box) with rounded corners, in place of the hairlines round it, and the chevron sits 8px inside it. The spark is the
+   quiet grey of Clean's chrome */
+:root[data-style="clean"] .hsc-h~.hsc-l .hsc-t,:root [data-style="clean"] .hsc-h~.hsc-l .hsc-t,:root [data-style="clean"].hsc-h~.hsc-l .hsc-t{padding-right:var(--dm-s-2);transition:background-color var(--dm-t-fast) var(--dm-ease),border-color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .hsc-say .i,:root [data-style="clean"] .hsc-say .i,:root [data-style="clean"].hsc-say .i{color:var(--dm-fg2)}
+/* Clean (owner, 21 Nov: "clean up the bottom part… make it look more like the Clean component… try not to break the text into
+   three lines… if you have to, make the text span full width and add a button below that… Clean is just Soft with a different
+   corner radius"). The account sits in an off-white head strip and the agent's next move in an off-white foot strip, each
+   under a hairline, edge to edge. In the foot its words run the strip's width (two lines at most) on the verdict's column, the
+   spark in the ring's, and its button (or Booked) sits under them on the same column. The factors are Clean's 10px rows with no
+   hairlines between them, under one gliding hover (hoverGlide); the ring's track is sunk with Clean's inner shadow */
+:root[data-style="clean"] .hsc.panel,:root [data-style="clean"] .hsc.panel,:root [data-style="clean"].hsc.panel{padding:0 16px}
+:root[data-style="clean"] .hsc-ac,:root [data-style="clean"] .hsc-ac,:root [data-style="clean"].hsc-ac{margin:0 -16px;padding:12px 16px;background:var(--dm-strip);border-bottom:1px solid var(--dm-line);border-radius:var(--dm-r-card) var(--dm-r-card) 0 0}
+:root[data-style="clean"] .hsc-h,:root [data-style="clean"] .hsc-h,:root [data-style="clean"].hsc-h{margin-top:4px}
+:root[data-style="clean"] .hsc-ring .tr,:root [data-style="clean"] .hsc-ring .tr,:root [data-style="clean"].hsc-ring .tr{stroke:transparent}
+:root[data-style="clean"] .hsc-ring::before,:root [data-style="clean"] .hsc-ring::before,:root [data-style="clean"].hsc-ring::before{content:"";position:absolute;inset:calc(100% * 2 / 44);border-radius:50%;background:var(--dm-soft);box-shadow:var(--dm-track-ring);-webkit-mask:radial-gradient(circle closest-side,transparent calc(80% - .5px),#000 80%);mask:radial-gradient(circle closest-side,transparent calc(80% - .5px),#000 80%)}
+:root[data-style="clean"] .hsc-h~.hsc-l,:root [data-style="clean"] .hsc-h~.hsc-l,:root [data-style="clean"].hsc-h~.hsc-l{gap:2px}
+:root[data-style="clean"] .hsc-h~.hsc-l .hsc-t,:root [data-style="clean"] .hsc-h~.hsc-l .hsc-t,:root [data-style="clean"].hsc-h~.hsc-l .hsc-t{border-top:0;border-radius:10px;padding-right:var(--dm-s-2)}
+:root[data-style="clean"] .hsc-s,:root [data-style="clean"] .hsc-s,:root [data-style="clean"].hsc-s{flex-direction:column;align-items:flex-start;gap:8px;margin:4px -16px 0;padding:12px 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+:root[data-style="clean"] .hsc-say,:root [data-style="clean"] .hsc-say,:root [data-style="clean"].hsc-say{align-self:stretch;flex:none}
+/* (on a narrow block the foot keeps its one column: the words, then the button under them, never a second column) */
+:root[data-style="clean"] .hsc-s,:root [data-style="clean"] .hsc-s,:root [data-style="clean"].hsc-s{flex-wrap:nowrap}
+:root[data-style="clean"] .hsc-s :is(.pill,.hsc-done),:root [data-style="clean"] .hsc-s :is(.pill,.hsc-done),:root [data-style="clean"].hsc-s :is(.pill,.hsc-done){margin-left:56px}
 /* a narrow block (a phone, a slim sheet): the button goes under the agent's line */
 @container (max-width:359px){
+  .hsc-h~.hsc-l .hsc-k{flex-direction:column;align-items:flex-start;gap:0}
+  .hsc-h~.hsc-l .hsc-wk{margin-left:0}
   .hsc-s{flex-wrap:wrap;row-gap:var(--dm-s-2)}
-  .hsc-st{flex:1 1 calc(100% - 26px)}
-  .hsc-s :is(.pill,.hsc-done){margin-left:22px}
+  .hsc-say{flex:1 1 100%}
+  .hsc-s :is(.pill,.hsc-done){margin-left:56px}
 }

@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, REDUCE, enter, html, seg, swap, tween } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, enter, grow, hoverGlide, html, seg, swap, tween } from '../core/core.js';
 /* three accounts on Mon Nov 9. A factor's points add up to the score: contact 30, deals on time 25, win chance 25 and next
    step 20. Each factor has its status (ok, warn, bad), its figure and unit, a line for screen readers (say) and the lines its
    detail shows. The agent's suggestion has its button, what it says once done, and the factors it changes (after) */
@@ -68,6 +68,8 @@ DM.def('health-score', (r, c) => {
       <span class="hsc-v"><b class="num"></b><span></span></span>${I('chev-d', 'xs hsc-cv')}</button>
     <div class="fold shut hsc-d" id="${id}-d${i}" role="region" aria-label="${L[k]} details"><div><div class="hsc-dc"></div></div></div>`;
   const root = $('.hsc', r), list = $('.hsc-l', root);
+  // Clean's one hover: a highlight that glides from factor to factor (hoverGlide)
+  c.offs.push(hoverGlide(list, '.hsc-t'));
   list.innerHTML = K.map(row).join('');
   const ring = $('.hsc-ring', root), fl = $('.fl', ring), num = $('b', ring), an = $('.hsc-ac b', root), as = $('.hsc-ac span', root);
   const vd = $('.hsc-vd', root), sub = $('.hsc-sub', root), dl = $('.hsc-dl', root), sr = $('.hsc-sr', root);
@@ -152,6 +154,10 @@ DM.def('health-score', (r, c) => {
   const sg = $('.demo .seg2', r);
   seg(sg, v => show(+v));
   show(1, true);
+  // the agent's line eases to a new line count when it changes (an account switch, the agent's work landing), so the card grows
+  // and shrinks smoothly, centred in its stage
+  const say = $('.hsc-say', sug);
+  Promise.resolve().then(() => Promise.all(root.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && say.isConnected) c.offs.push(grow(say)); });
 
   // the preview's story, once: Watch is showing, the person books the check-in the agent suggests and Next step turns green,
   // then they switch to the account at risk. After that it stays as it is, for the visitor

@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, BRAND, DM, I, copied, hideTip, showTip, swap, tipFor } from '../core/core.js';
+import { $, $$, BRAND, DM, I, REDUCE, copied, hideTip, showTip, swap, tipFor } from '../core/core.js';
 DM.def('meeting-card', (r, c) => {
   r.innerHTML = r.innerHTML.replace(/\{([\w-]+)\}/g, (m, k) => k === 'meet' ? BRAND.meet : I(k, k === 'clock' || k === 'chev-d' ? 'xs' : 's'));
   // the row runs 10:15 to 11:30 in minutes of the day; the meeting is 10:30 to 11:15, 45 minutes
@@ -31,6 +31,11 @@ DM.def('meeting-card', (r, c) => {
     track.setAttribute('aria-label', ph === 'done' ? 'The meeting ran 10:30 to 11:15 and has ended' : `Now ${clock(m)}. The meeting runs 10:30 to 11:15`);
   };
   set(620);
+  // the button is as wide as its words and eases to its new width when they change, keeping no room for a longer one (owner, 18 Nov)
+  const easeW = el => { let w = 0, busy = null; const ro = new ResizeObserver(() => { if (busy) return; const w1 = el.getBoundingClientRect().width;
+    if (!REDUCE && w && Math.abs(w1 - w) > .5){ busy = el.animate([{ width:w + 'px' }, { width:w1 + 'px' }], { duration:340, easing:'cubic-bezier(.23,1,.32,1)' }); busy.finished.catch(() => {}).then(() => { busy = null; w = el.getBoundingClientRect().width; }); } w = w1; });
+    ro.observe(el); c.offs.push(() => ro.disconnect()); };
+  easeW(join);
   join.onclick = () => {
     join.classList.add('prs'); c.later(110, () => join.classList.remove('prs'));
     const lb = $('.lb', join); swap(lb, 'Opening Meet'); c.later(1600, () => swap(lb, 'Join'));

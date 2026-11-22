@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, DM, I, enter, html, seg, swap } from '../core/core.js';
+import { $, DM, I, REDUCE, enter, grow, html, seg, swap } from '../core/core.js';
 DM.def('eval-results', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{play}', I('play','xs'));
   // eight checks on the pricing page's copy. The price check fails after the copy agent's latest edit, until it's fixed
@@ -15,7 +15,13 @@ DM.def('eval-results', (r, c) => {
   ].map(k => ({ ...k, s:'pass' }));
   const LAST = 8;
   const list = $('.evr-list', r), segs = $('.evr-segs', r), pass = $('.evr-pass', r), dl = $('.evr-dl', r), st = $('.evr-st', r), run = $('.evr-run', r), none = $('.evr-none', r), sg = $('.evr-tabs .seg2', r);
+  // no room is kept for the cases a filter hides or the empty state: the card eases to what it shows (owner, 17 Nov)
+  c.offs.push(grow($('.evr', r)));
+  $('.evr-all', none).onclick = () => $('[data-v="all"]', sg).click();
   const G = { run:'<span class="spin"></span>', pass:I('ok','xs'), fail:I('alert','xs'), queued:'<span class="dot"></span>' };
+  // a button whose words change is as wide as its words and eases to its new width (owner, 18 Nov)
+  const relabel = (b, h) => { const w0 = b.getBoundingClientRect().width; b.innerHTML = h; const w1 = b.getBoundingClientRect().width, cs = getComputedStyle(b);
+    if (!REDUCE && w0 && Math.abs(w1 - w0) > .5) b.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:(parseFloat(cs.getPropertyValue('--dm-t')) || .34) * 1000, easing:cs.getPropertyValue('--dm-ease').trim() || 'ease' }); };
   let filter = 'all', busy = false, ran = false;
   K.forEach((k, i) => {
     k.w = html(`<div class="fold evr-w"><div><div class="evr-i" role="listitem"></div></div></div>`); k.el = $('.evr-i', k.w); k.i = i; list.appendChild(k.w);
@@ -40,6 +46,7 @@ DM.def('eval-results', (r, c) => {
   function counts(){
     const p = K.filter(k => k.s === 'pass').length, f = K.filter(k => k.s === 'fail').length, done = K.every(k => k.s === 'pass' || k.s === 'fail');
     swap(pass, done ? `${p} of ${K.length} passed` : busy ? `Running ${K.filter(k => k.s === 'pass' || k.s === 'fail').length + 1} of ${K.length}` : 'Running the case again');
+    pass.classList.toggle('shim', !done);
     const d = !ran || !done ? '' : p < LAST ? `${LAST - p} fewer than the last run` : 'All passing';
     if (dl.textContent !== d){ dl.textContent = d; dl.className = 'tag evr-dl ' + (p < LAST ? 'bad' : 'ok'); if (d) enter(dl); }
     $('[data-v="all"] .n', sg).textContent = K.length; $('[data-v="fail"] .n', sg).textContent = f;
@@ -47,29 +54,31 @@ DM.def('eval-results', (r, c) => {
   }
   // All shows every case; Failed folds the others away
   function show(){
-    K.forEach(k => { const on = filter === 'all' || k.s === 'fail'; k.w.classList.toggle('shut', !on); k.w.inert = !on; });
-    none.hidden = !(filter === 'fail' && !K.some(k => k.s === 'fail'));
+    K.forEach(k => { const on = filter === 'all' || k.s === 'fail' || k.again; k.w.classList.toggle('shut', !on); k.w.inert = !on; });
+    none.hidden = !(filter === 'fail' && !K.some(k => k.s === 'fail' || k.again));
   }
   seg(sg, v => { filter = v; show(); });
   K.forEach(k => paint(k)); counts();
   // a run checks the cases one after another; the price check fails until the copy is fixed
   run.onclick = () => c.run(async () => {
-    if (busy) return; busy = true; ran = true; run.disabled = true; run.innerHTML = '<span class="spin"></span>Running';
+    if (busy) return; busy = true; ran = true; run.disabled = true; relabel(run, '<span class="spin"></span>Running');
     K.forEach(k => { k.s = 'queued'; k.open = false; paint(k); }); counts();
     for (const k of K){
       k.s = 'run'; paint(k, true); counts();
       await c.wait(500);
       k.s = k.bad ? 'fail' : 'pass'; paint(k, true); counts();
     }
-    busy = false; run.disabled = false; run.innerHTML = I('play','xs') + 'Run again'; swap(st, 'Copy agent · 8 cases · run just now');
+    busy = false; run.disabled = false; relabel(run, I('play','xs') + 'Run again'); swap(st, 'Copy agent · run just now');
   });
   // the fix changes the copy to the billing table's price and runs that case again
   function fix(k){
     if (busy) return;
     c.run(async () => {
-      k.bad = false; k.open = false; k.s = 'run'; paint(k, true); counts();
+      k.bad = false; k.open = false; k.again = true; k.s = 'run'; paint(k, true); counts();
       await c.wait(1000);
       k.s = 'pass'; paint(k, true); counts();
+      // its pass shows in place for a moment before the Failed view lets it go
+      await c.wait(900); k.again = false; show();
     });
   }
   // the preview's story: run the evals, see one fail against the last run, open it, take the fix, and see all eight pass

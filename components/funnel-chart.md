@@ -214,9 +214,9 @@ export function FunnelChart({ title, stages, views, view, defaultView, onViewCha
 
 ## More in Charts and tables
 
-- [Line chart](https://designme.dev/components/line-chart.md): Two series over time with a hover readout and toggles.
+- [Line chart](https://designme.dev/components/line-chart.md): Today so far and projected, against yesterday, with a range switch, a project picker, toggles and a readout.
 - [Bar chart](https://designme.dev/components/bar-chart.md): Weekly agent runs, split by outcome, with a range switch.
-- [Donut chart](https://designme.dev/components/donut-chart.md): Where the agent's time went, by kind of task.
+- [Donut chart](https://designme.dev/components/donut-chart.md): Where the agent's time went this week, as a gauge against its budget, with a part you can select.
 - [Radial goals](https://designme.dev/components/radial-goals.md): Each agent's share of its own target as a ring, with the overall score in the middle.
 - [Top pages](https://designme.dev/components/top-pages.md): Most visited pages with share of traffic and a quick sort.
 - [Health score](https://designme.dev/components/health-score.md): An account's health: a score ring, four factors that open, and the agent's next move.

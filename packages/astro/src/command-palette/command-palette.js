@@ -1,7 +1,9 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, REDUCE, enter, swap } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, enter, grow, hoverGlide, swap } from '../core/core.js';
 DM.def('command-palette', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{search}', I('search'));
+  // Clean's one hover: a highlight that glides from row to row (hoverGlide)
+  c.offs.push(hoverGlide($('.cpl-list', r), '.cpl-i'));
   // [group, icon, label, keys, hint]; each group's tiles take its hue
   const C = [
     ['Agent','spark','Audit this page for contrast',['⌘','J'],'WCAG AA'],
@@ -39,14 +41,18 @@ DM.def('command-palette', (r, c) => {
   const edge = () => list.classList.toggle('more', list.scrollTop + list.clientHeight < list.scrollHeight - 2);
   c.on(list, 'scroll', edge, { passive:true });
   // a command that runs turns its tile into a spinner for a beat, then the footer says what ran
+  // (nothing in it scales when pressed, owner 18 Nov)
   function run(b){
-    b.animate([{ transform:'scale(1)' },{ transform:'scale(.98)' },{ transform:'scale(1)' }], { duration:260, easing:'ease-out' });
     const ic = $('.ic', b), was = ic.innerHTML; ic.innerHTML = '<span class="spin"></span>';
     setTimeout(() => { if (ic.isConnected){ ic.innerHTML = was; enter(ic.firstElementChild); } swap(st, `<span class="dot"></span>${b.dataset.ask ? 'Sent to the agent' : 'Ran: ' + b.dataset.t}`, true); }, REDUCE ? 0 : 650);
   }
   q.oninput = paint;
   q.onkeydown = e => { if (e.key === 'ArrowDown'){ move(1); e.preventDefault(); } else if (e.key === 'ArrowUp'){ move(-1); e.preventDefault(); } else if (e.key === 'Enter' && items[hi]) run(items[hi]); else if (e.key === 'Escape'){ q.value = ''; paint(); } };
   paint();
+  // no room is kept for a longer list (owner, 18 Nov): the box is as tall as what it shows and eases to its new height as a
+  // search narrows or widens it (grow(), centred in its stage), once its entrance (which scales it) has ended
+  const pal = r.classList.contains('cpl') ? r : $('.cpl', r);
+  if (pal && r === c.st) Promise.resolve().then(() => Promise.all(pal.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && pal.isConnected) c.offs.push(grow(pal)); });
   // the preview's story: someone types "tok" and runs the token export, then looks for "invi" and runs the invite; clicking,
   // focusing or typing in it takes over, and what it had typed goes
   c.story(async s => {

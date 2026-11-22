@@ -34,14 +34,14 @@ Context meter shows how full an agent's context window is and what fills it. A s
 
 ### What it does
 
-- `parts` are the kinds of thing in the context, each with a `label`, a `tokens` count, an optional `color` and `items`, the list shown on hover. `limit` is the size of the window.
+- `parts` are the kinds of thing in the context, each with a `label`, a `tokens` count, an optional `color` (by default the accent, violet, teal and a neutral grey, in order) and `items`, the list shown on hover. `limit` is the size of the window.
 - The pill shows the ring and the share used. From `warnAt` of the limit, 85% by default, the ring turns orange.
 - The bar and the numbers count to their new values whenever `parts` change, so a compaction counts down.
 - Hovering a legend row lights its share of the bar and shows its `items`.
-- `message` adds a line under the legend, in orange with a warning sign for `messageTone: 'warn'` or in green with a check for `'ok'`, like "Freed 41.2k tokens. 9 decisions kept". The line keeps its room while empty, so a message fades in without the panel changing height.
-- Compact calls `onCompact`. Return a promise and the button spins until it settles. Set `compacted` and the button becomes Undo, which calls `onUndo`.
-- The pill opens and shuts the panel, and `open`, `defaultOpen` and `onOpenChange` let you control it. The panel keeps its room while shut, so nothing around it moves.
-- Ships in Clean too (`data-style="clean"`): the pill is a white control with its depth inside the fill, the panel is a round card with off-white head and foot strips and 20px all round, the bar and its parts keep their colours on round tracks, and the panel folds away when shut.
+- `message` adds a line under the legend. With `messageTone: 'warn'` it is a warning notice: a faint warning tint, the filled warning sign and the words in the text colour, and Compact takes the warning tint as the action that resolves it. With `'ok'` it is a plain line with the green tick, like "Freed 41.2k tokens. 9 decisions kept". The line takes no room while empty and opens smoothly when a message comes.
+- Compact calls `onCompact`. Return a promise and, until it settles, the button gives way to a status in its place, a spinner and "Compacting…" with a moving highlight (nothing to press while it runs), while the line beside it says `busyHint` with the same highlight; the row keeps its height. Set `compacted` and the button becomes Undo, which calls `onUndo`.
+- The pill opens and shuts the panel, and `open`, `defaultOpen` and `onOpenChange` let you control it. The panel folds away when shut and opens back smoothly.
+- Ships in Clean too (`data-style="clean"`): the pill is a flat secondary control (a hairline and a light fill), the panel is a round card with off-white head and foot strips and its content 16px in from every edge, the bar and its parts keep their colours on round tracks, Compact is a 28px secondary pill 8px from the foot strip's top and bottom and 16px in from the side, on the content's column, and the panel folds away when shut.
 
 ### Accessibility
 
@@ -105,7 +105,7 @@ export default function ContextMeterDemo() {
   return (
     <div ref={ref} style={{ width: '100%' }}>
       <ContextMeter parts={parts} limit={LIMIT} message={message?.text} messageTone={message?.tone} onCompact={compact} compacted={!!before} onUndo={undo}
-        hint={before ? 'Older turns are now a summary' : undefined} open={open} onOpenChange={setOpen} />
+        hint={before ? 'Older turns are now a summary' : undefined} busyHint="Summarising 48 turns" open={open} onOpenChange={setOpen} />
     </div>
   );
 }
@@ -119,11 +119,12 @@ export default function ContextMeterDemo() {
 | `limit` | `number` | The size of the context window, in tokens, like 200000 |
 | `warnAt` (optional) | `number` | From this share of the limit (0 to 1) the ring turns orange. Defaults to 0.85 |
 | `message` (optional) | `string` | A line under the legend, like "Freed 41.2k tokens. 9 decisions kept". Crossfades when it changes |
-| `messageTone` (optional) | `'warn' \| 'ok'` | warn shows the message in orange with a warning sign, ok in green with a check |
-| `onCompact` (optional) | `() => void \| Promise<void>` | Called by Compact. Return a promise and the button spins until it settles |
+| `messageTone` (optional) | `'warn' \| 'ok'` | warn shows the message as a warning notice (a faint warning tint, the filled warning sign, the words in the text colour) and puts Compact in the warning tint, as the action that resolves it; ok shows it as a plain line with the green tick |
+| `onCompact` (optional) | `() => void \| Promise<void>` | Called by Compact. Return a promise and, until it settles, the button gives way to a "Compacting…" status line with a spinner |
 | `compacted` (optional) | `boolean` | Set once the context is compacted: the button turns into Undo, which calls onUndo |
 | `onUndo` (optional) | `() => void` |  |
 | `hint` (optional) | `string` | The quiet line beside the button. Defaults to what Compact does |
+| `busyHint` (optional) | `string` | The line beside the button while Compact runs, with a moving highlight. Defaults to "Summarising older turns" |
 | `open` (optional) | `boolean` | Whether the panel is open. Leave it out to let the pill toggle it |
 | `defaultOpen` (optional) | `boolean` |  |
 | `onOpenChange` (optional) | `(open: boolean) => void` |  |
@@ -160,9 +161,9 @@ When the tokens in `parts` add up to `warnAt` of `limit` or more. `warnAt` is 0.
 
 ```tsx
 'use client';
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type RefObject } from 'react';
 import { cx } from '../lib/cx';
-import { useControllable, useTween } from '../lib/hooks';
+import { useControllable, useReducedMotion, useTween } from '../lib/hooks';
 import { Icon } from '../lib/icons';
 import { Spin, Swap, Tip } from '../lib/motion';
 import '../designme.css';
@@ -175,7 +176,7 @@ export interface ContextPart {
   label: string;
   /** How many tokens it takes */
   tokens: number;
-  /** Its colour in the bar and the legend. Defaults to blue, teal, violet and grey, in order */
+  /** Its colour in the bar and the legend. Defaults to the accent, violet, teal and a neutral grey, in order */
   color?: string;
   /** What is in it, shown when you hover its row, like "PricingCard.tsx 18.2k, tokens.css 6.1k" */
   items?: string;
@@ -189,15 +190,18 @@ export interface ContextMeterProps {
   warnAt?: number;
   /** A line under the legend, like "Freed 41.2k tokens. 9 decisions kept". Crossfades when it changes */
   message?: string;
-  /** warn shows the message in orange with a warning sign, ok in green with a check */
+  /** warn shows the message as a warning notice (a faint warning tint, the filled warning sign, the words in the text colour)
+      and puts Compact in the warning tint, as the action that resolves it; ok shows it as a plain line with the green tick */
   messageTone?: 'warn' | 'ok';
-  /** Called by Compact. Return a promise and the button spins until it settles */
+  /** Called by Compact. Return a promise and, until it settles, the button gives way to a "Compacting…" status line with a spinner */
   onCompact?: () => void | Promise<void>;
   /** Set once the context is compacted: the button turns into Undo, which calls onUndo */
   compacted?: boolean;
   onUndo?: () => void;
   /** The quiet line beside the button. Defaults to what Compact does */
   hint?: string;
+  /** The line beside the button while Compact runs, with a moving highlight. Defaults to "Summarising older turns" */
+  busyHint?: string;
   /** Whether the panel is open. Leave it out to let the pill toggle it */
   open?: boolean;
   defaultOpen?: boolean;
@@ -205,7 +209,28 @@ export interface ContextMeterProps {
   className?: string;
 }
 
-const PALETTE = ['var(--dm-pb)', 'var(--dm-pt)', 'var(--dm-pl)', 'var(--dm-faint)'];
+
+/** A button as wide as its words: when they change it eases to its new width, keeping no room for a longer word */
+function useEaseWidth(ref: RefObject<HTMLElement | null>) {
+  const reduce = useReducedMotion();
+  useEffect(() => {
+    const el = ref.current; if (!el || reduce || typeof ResizeObserver === 'undefined') return;
+    let w = 0, busy: Animation | null = null;
+    const ro = new ResizeObserver(() => {
+      if (busy) return;
+      const w1 = el.getBoundingClientRect().width;
+      if (w && Math.abs(w1 - w) > .5) {
+        busy = el.animate([{ width: w + 'px' }, { width: w1 + 'px' }], { duration: 340, easing: 'cubic-bezier(.23,1,.32,1)' });
+        busy.finished.catch(() => {}).then(() => { busy = null; w = el.getBoundingClientRect().width; });
+      }
+      w = w1;
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref, reduce]);
+}
+
+const PALETTE = ['var(--dm-c1)', 'var(--dm-c2)', 'var(--dm-c6)', 'var(--dm-muted)'];
 const k = (n: number) => (n / 1000).toFixed(1) + 'k';
 
 /** A number that counts to its new value (it starts on its first value) */
@@ -216,14 +241,15 @@ function Count({ value, ms = 900, format }: { value: number; ms?: number; format
 /** How full the context is and what fills it: a pill with a ring that opens one bar split by kind, a legend whose rows list
  *  what is in them, and Compact. Escape closes it. */
 export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone = 'ok', onCompact, compacted = false, onUndo,
-  hint = 'Summarises older turns', open, defaultOpen = true, onOpenChange, className }: ContextMeterProps) {
+  hint = 'Summarises older turns', busyHint = 'Summarising older turns', open, defaultOpen = true, onOpenChange, className }: ContextMeterProps) {
   const [isOpen, setOpen] = useControllable(open, defaultOpen, onOpenChange);
   const [busy, setBusy] = useState(false);
   const [lit, setLit] = useState<string | null>(null);
   // it opens on its real numbers; they only count when something changes
   const ready = true;
   const total = parts.reduce((t, p) => t + p.tokens, 0), share = ready ? total / limit : 0, pct = Math.round(share * 100);
-  const root = useRef<HTMLDivElement>(null), tg = useRef<HTMLButtonElement>(null);
+  const root = useRef<HTMLDivElement>(null), tg = useRef<HTMLButtonElement>(null), go = useRef<HTMLButtonElement>(null);
+  useEaseWidth(go);
   // Escape shuts the panel while the pointer or the focus is on the meter
   useEffect(() => {
     if (!isOpen) return;
@@ -268,12 +294,18 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
           })}
         </div>
         <div className={cx('dm-ctm-msg', message && 'dm-on', message && 'dm-' + messageTone)} aria-live="polite">
-          <span>{message && <><Icon name={messageTone === 'warn' ? 'warn' : 'ok'} size="xs" /><Swap>{message}</Swap></>}</span>
+          <span>{message && <>{messageTone === 'warn'
+            ? <svg className="dm-ctm-wi" viewBox="0 0 24 24" aria-hidden="true"><path className="dm-a" d="M12 3.6 2.6 19.9h18.8z" /><path className="dm-b" d="M12 9.6v4.4M12 17v.01" /></svg>
+            : <Icon name="ok" size="xs" />}<Swap>{message}</Swap></>}</span>
         </div>
         {(onCompact || onUndo) && (
           <div className="dm-ctm-f">
-            <Swap className="dm-ctm-hint">{hint}</Swap>
-            <button type="button" className="dm-pill dm-ghost dm-sm dm-ctm-go" onClick={compact}>{busy ? <><Spin />Compacting</> : compacted ? 'Undo' : 'Compact'}</button>
+            {busy ? <span className="dm-ctm-hint"><span className="dm-shim">{busyHint}</span></span> : <Swap className="dm-ctm-hint">{hint}</Swap>}
+            {/* while it compacts nothing can be pressed, so it says so where the button was, in the loader's sweep, and the button
+                comes back as Undo once it is done */}
+            {busy
+              ? <span className="dm-ctm-run" role="status"><Spin /><span className="dm-shim">Compacting…</span></span>
+              : <button ref={go} type="button" className={cx('dm-pill dm-sm dm-ctm-go', message && messageTone === 'warn' ? 'dm-warn' : 'dm-soft')} onClick={compact}>{compacted ? 'Undo' : 'Compact'}</button>}
           </div>
         )}
       </div>

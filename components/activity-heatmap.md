@@ -23,7 +23,7 @@ npx shadcn@latest add https://designme.dev/r/shadcn/astro/activity-heatmap.json 
 
 ## About
 
-A grid of 7 days by 24 hours where darker cells mean busier hours, so people can see when the agent and the team do their work. Hovering a cell gives the exact count for that day and hour. A switch flips between series, such as the agent's runs and the team's edits, and the cells refill in a wave.
+A grid of 7 days by 24 hours where stronger cells mean busier hours, so people can see when the agent and the team do their work. Hovering a cell gives the exact count for that day and hour. A switch flips between series, such as the agent's runs and the team's edits, and the cells refill in a wave.
 
 ### When to use it
 
@@ -33,13 +33,14 @@ A grid of 7 days by 24 hours where darker cells mean busier hours, so people can
 
 ### What it does
 
-- Takes 168 values from 0 to 1 per series, one per hour starting Monday 12am, and shades each cell by its value.
+- Takes 168 values from 0 to 1 per series, one per hour starting Monday 12am, and shades each cell by its value, from a light tint of the chart's mark colour (the accent) to a strong shade of it, so the busiest hours keep at least 3:1 against the card.
 - Hovering a cell shows a tooltip like "Monday 9am: 40 runs", using the series' `max` and `unit`.
 - With two or more entries in `series`, a switch picks which one shows.
 - The line under the title shows the series' `note`, or `period` when it has none.
 - Cells fill in as a wave from the top left when the card appears and when the series changes.
-- Day labels down the side, hour labels along the bottom and a Less to More legend.
-- In a narrow card (400px or less, as on a phone) the grid shows half the day at a time in bigger cells and scrolls sideways by touch or trackpad, starting at the latest hours. The day labels stay put, the side with more to see fades out, and the hour labels come every three hours.
+- Day labels down the side, hour labels along the bottom and a Less to More key in the cells' own shades.
+- On a wider card all 24 hours show at once, the cells sharing its width as squares.
+- In a narrow card (400px or less, as on a phone) the grid scrolls sideways by touch or trackpad in 20px cells, about half the day at a time on a phone, starting at the latest hours. The day labels stay put, the side with more to see fades out, and the hour labels come every three hours.
 
 ### Accessibility
 
@@ -218,9 +219,9 @@ export function ActivityHeatmap({ series, value, defaultValue, onValueChange, ti
 
 ## More in Charts and tables
 
-- [Line chart](https://designme.dev/components/line-chart.md): Two series over time with a hover readout and toggles.
+- [Line chart](https://designme.dev/components/line-chart.md): Today so far and projected, against yesterday, with a range switch, a project picker, toggles and a readout.
 - [Bar chart](https://designme.dev/components/bar-chart.md): Weekly agent runs, split by outcome, with a range switch.
-- [Donut chart](https://designme.dev/components/donut-chart.md): Where the agent's time went, by kind of task.
+- [Donut chart](https://designme.dev/components/donut-chart.md): Where the agent's time went this week, as a gauge against its budget, with a part you can select.
 - [Radial goals](https://designme.dev/components/radial-goals.md): Each agent's share of its own target as a ring, with the overall score in the middle.
 - [Funnel chart](https://designme.dev/components/funnel-chart.md): Signup to paid, with the biggest drop called out by the agent.
 - [Top pages](https://designme.dev/components/top-pages.md): Most visited pages with share of traffic and a quick sort.

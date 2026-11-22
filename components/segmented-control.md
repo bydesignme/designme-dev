@@ -38,7 +38,7 @@ Segmented control is a row of two to five choices where exactly one is picked, s
 - `value`, `defaultValue` and `onValueChange` hold the pick.
 - `as="tabs"` (the default) makes it a tab list for switching a panel; `as="radio"` makes it a radio group for setting an option.
 - `id` ties the tabs to their panel: the panel takes `id="<id>-panel"` and `aria-labelledby="<id>-<value>"`.
-- The demo switches the pricing launch between a day of events, a working week with each weekday's first event and a count of the rest, and a month with a dot on each busy day. Previous and next step a day, a week or a month at a time, Today comes back to the current date, and a day in the week or the month opens it in the day view. The range above the panel crossfades as it changes.
+- The demo switches the pricing launch between a day of events, a working week with each weekday's first event and a count of the rest, and a month with a dot on each busy day, today's date in an accent circle. Previous and next step a day, a week or a month at a time, Today comes back to the current date, and a day in the week or the month opens it in the day view. The range above the panel crossfades as it changes, and the panel eases to each view's height.
 
 ### Accessibility
 
@@ -63,8 +63,9 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { SegmentedControl } from './SegmentedControl';
 import { cx } from '../lib/cx';
 import { Icon } from '../lib/icons';
-import { Swap } from '../lib/motion';
+import { Swap, useGrow } from '../lib/motion';
 import { useStory } from '../lib/useScript';
+import { useHoverGlide } from '../lib/glide';
 
 /* ---------- Segmented control: the pricing launch as a day, a week or a month, stepped through and opened a day at a time ---------- */
 type View = 'day' | 'week' | 'month';
@@ -120,7 +121,7 @@ function Panel({ view, date, open }: { view: View; date: Date; open: (d: Date) =
         return (
           <button key={iso(d)} type="button" aria-label={label(d, ev.length)} onClick={() => open(d)}
             className={['dm-sgc-wr', same(d, TODAY) && 'dm-now', !ev.length && 'dm-none'].filter(Boolean).join(' ')}>
-            <span className="dm-d">{fmt(d, { weekday: 'short' })} {d.getDate()}</span>
+            <span className="dm-d">{fmt(d, { weekday: 'short' })} <b>{d.getDate()}</b></span>
             {ev.length
               ? <><span className="dm-e" style={{ '--dm-c': ev[0][3] } as CSSProperties}><i /><span>{ev[0][1]}</span></span>{ev.length > 1 && <span className="dm-more">+{ev.length - 1} more</span>}</>
               : <span className="dm-e">Nothing planned</span>}
@@ -159,6 +160,10 @@ export default function SegmentedControlDemo() {
   // previous and next step by the view's unit; Today comes back to the 23rd
   const step = (k: number) => setDate(d => view === 'day' ? at(d, k) : view === 'week' ? at(d, 7 * k) : new Date(d.getFullYear(), d.getMonth() + k, 1, 12));
   const open = (d: Date) => { setDate(d); setView('day'); };
+  // the panel is as tall as the view on show and eases to the next one's height
+  const [panel, panelIn] = useGrow();
+  // Clean's one hover: a highlight that glides from event to event and day to day
+  useHoverGlide(panel, '.dm-sgc-ev,.dm-sgc-wr,.dm-sgc-mo .dm-d', { keep: '.dm-on,.dm-now' });
 
   // the preview's story: the week, then Tuesday opened from it, a step on to Wednesday, the month, and back to the week
   useStory(ref, async ({ wait, press }) => {
@@ -183,12 +188,14 @@ export default function SegmentedControlDemo() {
           <button type="button" className="dm-ib dm-sgc-pv" aria-label={'Previous ' + view} onClick={() => step(-1)}><Icon name="chev-l" size="xs" /></button>
           <button type="button" className="dm-ib dm-sgc-nx" aria-label={'Next ' + view} onClick={() => step(1)}><Icon name="chev-r" size="xs" /></button>
         </div>
-        <div className="dm-sgc-p" id="launch-view-panel" role="tabpanel" aria-labelledby={`launch-view-${view}`} tabIndex={0}>
-          {layers.map((l, i) => (
-            <div key={l.key} className={cx('dm-sgc-in', l.gone ? 'dm-gone' : i > 0 && 'dm-fresh')} inert={l.gone} aria-hidden={l.gone || undefined}>
-              <Panel view={l.view} date={l.date} open={open} />
-            </div>
-          ))}
+        <div ref={panel} className="dm-sgc-p dm-growing" id="launch-view-panel" role="tabpanel" aria-labelledby={`launch-view-${view}`} tabIndex={0}>
+          <div ref={panelIn} className="dm-grow">
+            {layers.map((l, i) => (
+              <div key={l.key} className={cx('dm-sgc-in', l.gone ? 'dm-gone' : i > 0 && 'dm-fresh')} inert={l.gone} aria-hidden={l.gone || undefined}>
+                <Panel view={l.view} date={l.date} open={open} />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

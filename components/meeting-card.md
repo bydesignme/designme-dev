@@ -38,10 +38,10 @@ Meeting card follows one meeting from countdown to wrap-up. A status chip counts
 - The track runs from half an hour before `start` to half an hour after `end` unless you set `from` and `to`. The meeting sits on it in the accent tint, with its start and end times on the block itself.
 - The part of the meeting that has run is hatched with fine 45° lines in the accent, inside the meeting block only, and the now line moves through it. Once the meeting is over the whole block is hatched and the now line fades.
 - Join is a split button: a very light divider, then a chevron that opens the meeting's actions (Send invite, Add to calendar, Copy invitation). The chevron flashes a check and says what happened.
-- `people` shows as an avatar stack, up to `max` and then "+N". Each avatar names its person in a tooltip, and the stack spreads a little on hover.
-- Join carries the Google Meet mark and stays available while the meeting runs, breathing a shade darker and back while it is live. It presses with a small settle, says it is opening for a moment, and is disabled once the meeting has ended. `onJoin` replaces opening the link in a new tab, and `provider` and `mark` change the service.
-- The copy button puts the link on the clipboard, turns into a check and says "Copied", and calls `onCopy`.
-- Ships in Clean too (`data-style="clean"`): the people and actions sit on an off-white foot strip, the track, the block and its time chips are pills in their own colours, and Join is the ink split button.
+- `people` shows as initials avatars side by side, never over each other, up to `max` and then "+N"; on a narrow card (a phone) the first two and a count of the rest, so the row stays inside the card. Each avatar names its person in a tooltip.
+- Join carries the Google Meet mark and stays available while the meeting runs, breathing a shade darker and back while it is live. It says it is opening for a moment, and is disabled once the meeting has ended. `onJoin` replaces opening the link in a new tab, and `provider` and `mark` change the service.
+- The copy button puts the link on the clipboard, turns into the green tick and says "Copied", and calls `onCopy`.
+- Ships in Clean too (`data-style="clean"`): the people and actions sit on an off-white foot strip, the copy button and Join 28px pills 8px from its top and bottom and 16px in from the sides, on the content's columns; the track and the block have round corners in their own colours, the time chips are pills, and Join is the ink split button.
 
 ### Accessibility
 
@@ -67,9 +67,9 @@ import { MeetingCard, type MeetingCardPerson } from './MeetingCard';
 import { useStory } from '../lib/useScript';
 
 const PEOPLE: MeetingCardPerson[] = [
-  { initials: 'MK', color: 'var(--dm-av-l)', name: 'Maya Kim' }, { initials: 'JO', color: 'var(--dm-av-m)', name: 'Jon Ortiz' },
-  { initials: 'AR', color: 'var(--dm-av-p)', name: 'Ari Reyes' }, { initials: 'SL', color: 'var(--dm-av-t)', name: 'Sam Lee' },
-  { initials: 'DK', color: 'var(--dm-av-b)', name: 'Dev Kapoor' }, { initials: 'LN', color: 'var(--dm-av-y)', name: 'Lena Novak' }
+  { initials: 'MK', color: 'var(--dm-av-l)', name: 'Maya Kim' }, { initials: 'JO', color: 'var(--dm-av-b)', name: 'Jon Ortiz' },
+  { initials: 'AR', color: 'var(--dm-av-k)', name: 'Ari Reyes' }, { initials: 'SL', color: 'var(--dm-av-r)', name: 'Sam Lee' },
+  { initials: 'DK', color: 'var(--dm-av-b)', name: 'Dev Kapoor' }, { initials: 'LN', color: 'var(--dm-av-l)', name: 'Lena Novak' }
 ];
 const clock = (m: number) => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
 
@@ -160,14 +160,16 @@ Yes. Set `provider` to the service's name and pass its logo as `mark`. Join and 
 
 ```tsx
 'use client';
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from 'react';
 import { Brand } from '../lib/brands';
 import { cx } from '../lib/cx';
-import { useCopied } from '../lib/hooks';
+import { useCopied, useReducedMotion } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
 import { usePopover } from '../lib/popover';
 import { avatarInk, Swap, Tip } from '../lib/motion';
 import '../designme.css';
+// its menus' rows glide in Clean
+import '../lib/glide';
 import './meeting-card.css';
 
 export interface MeetingCardAction {
@@ -238,6 +240,27 @@ export interface MeetingCardProps {
   className?: string;
 }
 
+
+/** A button as wide as its words: when they change it eases to its new width, keeping no room for a longer word */
+function useEaseWidth(ref: RefObject<HTMLElement | null>) {
+  const reduce = useReducedMotion();
+  useEffect(() => {
+    const el = ref.current; if (!el || reduce || typeof ResizeObserver === 'undefined') return;
+    let w = 0, busy: Animation | null = null;
+    const ro = new ResizeObserver(() => {
+      if (busy) return;
+      const w1 = el.getBoundingClientRect().width;
+      if (w && Math.abs(w1 - w) > .5) {
+        busy = el.animate([{ width: w + 'px' }, { width: w1 + 'px' }], { duration: 340, easing: 'cubic-bezier(.23,1,.32,1)' });
+        busy.finished.catch(() => {}).then(() => { busy = null; w = el.getBoundingClientRect().width; });
+      }
+      w = w1;
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref, reduce]);
+}
+
 const mins = (t: string) => { const [h, m] = t.split(':').map(Number); return h * 60 + (m || 0); };
 const clock = (m: number) => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
 
@@ -260,6 +283,8 @@ export function MeetingCard({ title, subtitle, start, end, now, from, to, people
   const chip = status ?? null;
   // Join presses with a small settle and says it is opening for a moment
   const [label, setLabel] = useState(joinLabel), [pressed, setPressed] = useState(false);
+  const joinRef = useRef<HTMLButtonElement>(null);
+  useEaseWidth(joinRef);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
   useEffect(() => setLabel(joinLabel), [joinLabel]);
@@ -276,7 +301,7 @@ export function MeetingCard({ title, subtitle, start, end, now, from, to, people
     onAction?.(a.key); menu.closeSoon();
     timers.current.push(setTimeout(() => setDid(a.done ?? a.label), 140), setTimeout(() => setDid(null), 1640));
   };
-  const shown = people.slice(0, max), rest = people.slice(max);
+  const shown = people.slice(0, max), rest = people.slice(max), narrowRest = people.slice(Math.min(2, shown.length));
   const live = phase === 'start' || phase === 'live';
   const past = { ['--dm-p' as string]: pc(t) + '%' } as CSSProperties;
 
@@ -301,14 +326,20 @@ export function MeetingCard({ title, subtitle, start, end, now, from, to, people
       </div>
       <div className="dm-mtx-f">
         <div className="dm-mtx-who">
-          {shown.map(p => (
+          {shown.map((p, i) => (
             <Tip key={p.name} label={p.name}>
-              <span className="dm-av" role="img" aria-label={p.name} style={{ background: p.color, color: avatarInk(p.color) }}>{p.initials}</span>
+              <span className={cx('dm-av', i >= 2 && 'dm-mtx-wide')} role="img" aria-label={p.name} style={{ background: p.color, color: avatarInk(p.color) }}>{p.initials}</span>
             </Tip>
           ))}
           {rest.length > 0 && (
             <Tip label={rest.map(p => p.name).join(', ')}>
-              <span className="dm-av dm-mtx-more" role="img" aria-label={rest.map(p => p.name).join(', ')}>+{rest.length}</span>
+              <span className={cx('dm-av dm-mtx-more', narrowRest.length > rest.length && 'dm-mtx-wide')} role="img" aria-label={rest.map(p => p.name).join(', ')}>+{rest.length}</span>
+            </Tip>
+          )}
+          {/* a narrow card (a phone) shows the first two people and counts the rest */}
+          {narrowRest.length > rest.length && (
+            <Tip label={narrowRest.map(p => p.name).join(', ')}>
+              <span className="dm-av dm-mtx-more dm-mtx-narrow" role="img" aria-label={narrowRest.map(p => p.name).join(', ')}>+{narrowRest.length}</span>
             </Tip>
           )}
         </div>
@@ -319,7 +350,7 @@ export function MeetingCard({ title, subtitle, start, end, now, from, to, people
           </button>
         </Tip>
         <div className="dm-mtx-jg">
-          <button type="button" className={cx('dm-pill dm-primary dm-mtx-join', pressed && 'dm-prs')} disabled={phase === 'done'} onClick={join}>
+          <button ref={joinRef} type="button" className={cx('dm-pill dm-primary dm-mtx-join', pressed && 'dm-prs')} disabled={phase === 'done'} onClick={join}>
             <span className="dm-mk">{mark ?? <Brand name="meet" />}</span><Swap className="dm-lb">{label}</Swap>
           </button>
           {actions.length > 0 && <>

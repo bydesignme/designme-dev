@@ -34,12 +34,14 @@ Buttons is a set of pill and icon buttons that show what an action is doing whil
 
 ### What it does
 
-- `Button` comes in five variants (primary, accent, soft, line, ghost) and three sizes, with `busy`, `done` and `pressed` states and labels for each.
-- If `onClick` returns a promise, the button goes busy until it settles, then shows the done face for `doneFor` ms before returning to its label.
+- `Button` comes in six variants (primary, soft, line, ghost, warn, and accent, which looks the same as primary) and three sizes, with `busy`, `done` and `pressed` states and labels for each. `warn` is the action that resolves a warning notice: the warning tint with the warning text.
+- If `onClick` returns a promise, the button goes busy until it settles, then shows the done face for `doneFor` ms before returning to its label. A done face with the check is the outlined face with the vivid green tick in place of the icon, never a green fill; `success={false}` keeps it on the button's own fill.
+- A button is as wide as its words: when they change (Publishing, Copied, Running 0:03) it eases to its new width instead of keeping room for its longest label. Hovered while it runs, the run button keeps its width as it reads Stop, so it never narrows away from the pointer.
 - `busyGlyph="think"` swaps the spinner for the agent's four turning dots with a shimmering label.
 - `ButtonRun` shows Running with an m:ss timer, reads Stop on hover, and shows Stopped or Run complete when it ends.
-- `ButtonHold` fills up while held and calls `onConfirm` after 1.2 seconds; letting go early cancels it.
-- `ButtonCopy`, `ButtonMenu` and `ButtonIconMenu` copy text or pick from a menu, then flash a check and a short status.
+- `ButtonHold` fills up from the left while held, its words white on the fill and red on the tint, and calls `onConfirm` after 1.2 seconds; letting go early cancels it.
+- `ButtonCopy`, `ButtonMenu` and `ButtonIconMenu` copy text or pick from a menu, then show the green tick and a short status. Icon buttons are 32px, as tall as the pills beside them.
+- A click never scales a button. In Clean the primary is ink with a little depth and presses to .97; secondary buttons and icon buttons are flat, with a hairline and a light fill.
 
 ### Accessibility
 
@@ -109,18 +111,18 @@ export default function ButtonsDemo() {
   return (
     <Buttons rows={[
       { label: 'Styles', children: <>
-        <Button variant="accent" className="dm-btx-trial" busyLabel="Starting" doneLabel="Trial started" onClick={() => wait(1100)}>Start free trial</Button>
-        <ButtonRun state={run} seconds={secs} onRun={() => { setSecs(0); setRun('running'); }} onStop={() => setRun('stopped')} />
+        <Button variant="primary" className="dm-btx-trial" busyLabel="Starting" doneLabel="Trial started" onClick={() => wait(1100)}>Start free trial</Button>
         <Button variant="soft" className="dm-btx-pv" pressed={preview} onClick={() => setPreview(p => !p)}>{preview ? <><span className="dm-btx-live" />Previewing</> : 'Preview'}</Button>
         <ButtonMenu label="Share" className="dm-btx-share" status={share} onSelect={pick} items={[
           { key: 'link', icon: 'link', label: 'Copy link' },
           { key: 'slack', brand: 'slack', label: 'Send to Slack', detail: '#design' },
           { key: 'pdf', icon: 'down', label: 'Export as PDF' }
         ]} />
+        <Button variant="warn" className="dm-btx-warn">Sign in again</Button>
         <Button variant="ghost">Cancel</Button>
       </> },
       { label: 'With icon', children: <>
-        <Button variant="accent" className="dm-btx-ask" icon="spark" busyGlyph="think" busyLabel="Agent is working" doneLabel="Draft ready" fadeBack={false} onClick={() => wait(2200)}>Ask agent</Button>
+        <Button variant="primary" className="dm-btx-ask" icon="spark" busyGlyph="think" busyLabel="Agent is working" doneLabel="Draft ready" fadeBack={false} onClick={() => wait(2200)}>Ask agent</Button>
         <Button variant="soft" icon="figma" className="dm-btx-fig" busyLabel="Opening" doneLabel="Opened in Figma" doneIcon="ext" onClick={() => wait(900)}>Open in Figma</Button>
         <ButtonCopy text={LINK} className="dm-btx-icp" />
         <ButtonIconMenu label="More" status={more} onSelect={did} items={[
@@ -131,15 +133,16 @@ export default function ButtonsDemo() {
         ]} />
       </> },
       { label: 'States', children: <>
-        <Button variant="primary" className="dm-btx-load" success fadeBack={false} busyLabel="Publishing" doneLabel="Published" onClick={() => wait(1300)}>Publish</Button>
+        <Button variant="primary" className="dm-btx-load" fadeBack={false} busyLabel="Publishing" doneLabel="Published" onClick={() => wait(1300)}>Publish</Button>
+        <ButtonRun state={run} seconds={secs} onRun={() => { setSecs(0); setRun('running'); }} onStop={() => setRun('stopped')} />
         <ButtonCopy text={LINK} label="Copy link" />
         <ButtonHold />
-        <Button variant="accent" disabled>Disabled</Button>
+        <Button variant="primary" disabled>Disabled</Button>
       </> },
       { label: 'Sizes', children: <>
-        <Button variant="accent" size="sm">Small</Button>
-        <Button variant="accent">Default</Button>
-        <Button variant="accent" size="lg">Large</Button>
+        <Button variant="primary" size="sm">Small</Button>
+        <Button variant="primary">Default</Button>
+        <Button variant="primary" size="lg">Large</Button>
       </> }
     ]} />
   );
@@ -157,7 +160,7 @@ export default function ButtonsDemo() {
 
 ### ButtonProps
 
-primary is the main action, on the accent. ink is the old name for primary and still works */ export type ButtonVariant = 'primary' | 'accent' | 'soft' | 'line' | 'ghost' | 'ink'; /** The class for a variant: ink, the old name, draws as primary */ const variantClass = (v?: ButtonVariant) => v && 'dm-' + (v === 'ink' ? 'primary' : v); export type ButtonSize = 'sm' | 'md' | 'lg'; // a button used on its own still needs the resets that [data-dm] gives its contents, without adding a box to the layout const ROOT = { display: 'contents' } as const; // the content of a button sits in one span, so it can blur out and back in as a whole, like the site's swap() const FACE = { display: 'inline-flex', alignItems: 'center', gap: 7 } as const; /** Shows `children`. When `id` changes to a face that should `fade`, the old one blurs out first; any other change is instant */ function Face({ id, fade, children }: { id: string; fade: boolean; children: ReactNode }) { const [cur, setCur] = useState<{ id: string; node: ReactNode }>({ id, node: children }); const [out, setOut] = useState(false); const reduce = useReducedMotion(); if (id !== cur.id && !fade) setCur({ id, node: children }); useEffect(() => { if (id === cur.id || !fade) return; setOut(true); const t = setTimeout(() => { setCur({ id, node: children }); setOut(false); }, reduce ? 0 : 170); return () => clearTimeout(t); }, [id, fade]); // eslint-disable-line react-hooks/exhaustive-deps return <span className={cx('dm-sw', out && 'dm-out')} style={FACE}>{id === cur.id ? children : cur.node}</span>; } const glyph = (icon: IconName | ReactElement | undefined) => icon === undefined ? null : isValidElement(icon) ? icon : <Icon name={icon as IconName} size="xs" />; const Check = () => <Icon name="check" size="xs" className="dm-enter" />; /* ---------- Button ----------
+primary is the main action, on the accent (accent looks the same); soft and line for the rest, ghost the quietest, and warn the action that resolves a warning notice (the warning tint with the warning text). ink is the old name for primary and still works */ export type ButtonVariant = 'primary' | 'accent' | 'soft' | 'line' | 'ghost' | 'warn' | 'ink'; /** The class for a variant: ink, the old name, draws as primary */ const variantClass = (v?: ButtonVariant) => v && 'dm-' + (v === 'ink' ? 'primary' : v); export type ButtonSize = 'sm' | 'md' | 'lg'; // a button used on its own still needs the resets that [data-dm] gives its contents, without adding a box to the layout const ROOT = { display: 'contents' } as const; // the content of a button sits in one span, so it can blur out and back in as a whole, like the site's swap() const FACE = { display: 'inline-flex', alignItems: 'center', gap: 7 } as const; /** Shows `children`. When `id` changes to a face that should `fade`, the old one blurs out first; any other change is instant */ function Face({ id, fade, children }: { id: string; fade: boolean; children: ReactNode }) { const [cur, setCur] = useState<{ id: string; node: ReactNode }>({ id, node: children }); const [out, setOut] = useState(false); const reduce = useReducedMotion(); if (id !== cur.id && !fade) setCur({ id, node: children }); useEffect(() => { if (id === cur.id || !fade) return; setOut(true); const t = setTimeout(() => { setCur({ id, node: children }); setOut(false); }, reduce ? 0 : 170); return () => clearTimeout(t); }, [id, fade]); // eslint-disable-line react-hooks/exhaustive-deps return <span className={cx('dm-sw', out && 'dm-out')} style={FACE}>{id === cur.id ? children : cur.node}</span>; } /** A button is as wide as its words: when they change, it eases from the width it showed to its new one at the style's pace, instead of keeping room for its longest label (any change to what it shows counts, a new face or a ticking clock) */ function useEaseWidth(ref: RefObject<HTMLElement | null>) { const reduce = useReducedMotion(); useEffect(() => { const b = ref.current; if (!b || typeof ResizeObserver === 'undefined') return; let w = b.getBoundingClientRect().width; const ro = new ResizeObserver(() => { w = b.getBoundingClientRect().width; }); const mo = new MutationObserver(() => { const from = w; b.getAnimations().forEach(a => { if (a.id === 'dm-fit') a.cancel(); }); const to = b.getBoundingClientRect().width; w = to; if (reduce || !from || Math.abs(to - from) < .5) return; const cs = getComputedStyle(b), t = cs.getPropertyValue('--dm-t').trim(); const a = b.animate([{ width: from + 'px' }, { width: to + 'px' }], { duration: (t.endsWith('ms') ? parseFloat(t) : parseFloat(t) * 1000) || 340, easing: cs.getPropertyValue('--dm-ease').trim() || 'ease' }); a.id = 'dm-fit'; }); ro.observe(b); mo.observe(b, { childList: true, characterData: true, subtree: true }); return () => { ro.disconnect(); mo.disconnect(); }; }, [ref, reduce]); } const glyph = (icon: IconName | ReactElement | undefined) => icon === undefined ? null : isValidElement(icon) ? icon : <Icon name={icon as IconName} size="xs" />; const Check = () => <Icon name="check" size="xs" className="dm-enter" />; /* ---------- Button ----------
 
 | Prop | Type | What it does |
 | --- | --- | --- |
@@ -172,7 +175,7 @@ primary is the main action, on the accent. ink is the old name for primary and s
 | `doneLabel` (optional) | `ReactNode` | The label once done, like "Published". Defaults to the label |
 | `doneIcon` (optional) | `IconName \| ReactElement` | The icon on the done face, like "ext" for something that opened elsewhere. Defaults to a check that pops in |
 | `busyGlyph` (optional) | `'spin' \| 'think'` | spin, or think: the agent's four turning dots with a shimmering label |
-| `success` (optional) | `boolean` | The done face turns green |
+| `success` (optional) | `boolean` | A done face with the check (no `doneIcon`) is the outlined face with the vivid green tick in place of the icon, never a green fill. false keeps it on the button's own fill |
 | `doneFor` (optional) | `number` | How long the done face stays when the button runs itself |
 | `fadeBack` (optional) | `boolean` | Going back from done to the label blurs across (the default) instead of switching at once |
 | `pressed` (optional) | `boolean` | For a toggle: whether it is on, as aria-pressed |
@@ -183,7 +186,7 @@ Also takes the props of `Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children
 
 ### ButtonIconProps
 
-primary (or accent, which looks the same) for the main action, soft and line for the rest, ghost for the quietest. Left out, a plain pill. ink is the old name for primary */ variant?: ButtonVariant; size?: ButtonSize; /** An icon before the label: an icon name, or your own element (like a Brand) */ icon?: IconName | ReactElement; children?: ReactNode; /** Return a promise and the button runs by itself: busy until it settles, then done for `doneFor` ms */ onClick?: (e: MouseEvent<HTMLButtonElement>) => void | Promise<unknown>; /** Shows the busy face: a spinner (or the thinking dots) and `busyLabel`. Clicks are ignored */ busy?: boolean; /** Shows the done face: a check that pops in and `doneLabel`. Clicks are ignored */ done?: boolean; /** The label while busy, like "Publishing". Defaults to the label */ busyLabel?: ReactNode; /** The label once done, like "Published". Defaults to the label */ doneLabel?: ReactNode; /** The icon on the done face, like "ext" for something that opened elsewhere. Defaults to a check that pops in */ doneIcon?: IconName | ReactElement; /** spin, or think: the agent's four turning dots with a shimmering label */ busyGlyph?: 'spin' | 'think'; /** The done face turns green */ success?: boolean; /** How long the done face stays when the button runs itself */ doneFor?: number; /** Going back from done to the label blurs across (the default) instead of switching at once */ fadeBack?: boolean; /** For a toggle: whether it is on, as aria-pressed */ pressed?: boolean; /** A tooltip, with an optional shortcut after it */ tip?: string; kbd?: string; } /** A pill button in one of the site's five styles and three sizes, with busy, done and pressed states. */ export function Button({ variant, size = 'md', icon, children, onClick, busy, done, busyLabel, doneLabel, doneIcon, busyGlyph = 'spin', success, doneFor = 1800, fadeBack = true, pressed, tip, kbd, className, ...rest }: ButtonProps) { // an onClick that returns a promise drives the button itself const [auto, setAuto] = useState<'idle' | 'busy' | 'done'>('idle'); const alive = useRef(true), timer = useRef<ReturnType<typeof setTimeout>>(undefined); useEffect(() => { alive.current = true; return () => { alive.current = false; clearTimeout(timer.current); }; }, []); const isBusy = busy ?? auto === 'busy', isDone = !isBusy && (done ?? auto === 'done'); const face = isBusy ? 'busy' : isDone ? 'done' : 'idle'; const click = (e: MouseEvent<HTMLButtonElement>) => { if (isBusy || isDone) return; const r = onClick?.(e); if (!r || typeof r.then !== 'function') return; setAuto('busy'); r.then(() => { if (!alive.current) return; setAuto('done'); timer.current = setTimeout(() => setAuto('idle'), doneFor); }, () => { if (alive.current) setAuto('idle'); }); }; const think = isBusy && busyGlyph === 'think'; const label = isBusy ? busyLabel ?? children : isDone ? doneLabel ?? children : children; const button = ( <button type="button" {...rest} className={cx('dm-pill', variantClass(variant), size === 'sm' && 'dm-sm', size === 'lg' && 'dm-btx-lg', isBusy && 'dm-busy', isDone && 'dm-done', isDone && success && 'dm-btx-load dm-ok', className)} aria-busy={isBusy || undefined} aria-pressed={pressed} onClick={click}> <Face id={face} fade={fadeBack && face === 'idle'}> {isBusy ? (think ? <Think /> : <Spin />) : isDone ? (doneIcon === undefined ? <Check /> : <span className="dm-enter" style={FACE}>{glyph(doneIcon)}</span>) : glyph(icon)} {think ? <span className="dm-shim">{label}</span> : label} </Face> </button> ); return <span data-dm="" style={ROOT}>{tip ? <Tip label={tip} kbd={kbd}>{button}</Tip> : button}</span>; } /* ---------- ButtonIcon ----------
+primary (or accent, which looks the same) for the main action, soft and line for the rest, ghost for the quietest. Left out, a plain pill. ink is the old name for primary */ variant?: ButtonVariant; size?: ButtonSize; /** An icon before the label: an icon name, or your own element (like a Brand) */ icon?: IconName | ReactElement; children?: ReactNode; /** Return a promise and the button runs by itself: busy until it settles, then done for `doneFor` ms */ onClick?: (e: MouseEvent<HTMLButtonElement>) => void | Promise<unknown>; /** Shows the busy face: a spinner (or the thinking dots) and `busyLabel`. Clicks are ignored */ busy?: boolean; /** Shows the done face: a check that pops in and `doneLabel`. Clicks are ignored */ done?: boolean; /** The label while busy, like "Publishing". Defaults to the label */ busyLabel?: ReactNode; /** The label once done, like "Published". Defaults to the label */ doneLabel?: ReactNode; /** The icon on the done face, like "ext" for something that opened elsewhere. Defaults to a check that pops in */ doneIcon?: IconName | ReactElement; /** spin, or think: the agent's four turning dots with a shimmering label */ busyGlyph?: 'spin' | 'think'; /** A done face with the check (no `doneIcon`) is the outlined face with the vivid green tick in place of the icon, never a green fill. false keeps it on the button's own fill */ success?: boolean; /** How long the done face stays when the button runs itself */ doneFor?: number; /** Going back from done to the label blurs across (the default) instead of switching at once */ fadeBack?: boolean; /** For a toggle: whether it is on, as aria-pressed */ pressed?: boolean; /** A tooltip, with an optional shortcut after it */ tip?: string; kbd?: string; } /** A pill button in one of the site's six styles and three sizes, with busy, done and pressed states. */ export function Button({ variant, size = 'md', icon, children, onClick, busy, done, busyLabel, doneLabel, doneIcon, busyGlyph = 'spin', success, doneFor = 1800, fadeBack = true, pressed, tip, kbd, className, ...rest }: ButtonProps) { // an onClick that returns a promise drives the button itself const [auto, setAuto] = useState<'idle' | 'busy' | 'done'>('idle'); const alive = useRef(true), timer = useRef<ReturnType<typeof setTimeout>>(undefined); useEffect(() => { alive.current = true; return () => { alive.current = false; clearTimeout(timer.current); }; }, []); const isBusy = busy ?? auto === 'busy', isDone = !isBusy && (done ?? auto === 'done'); const face = isBusy ? 'busy' : isDone ? 'done' : 'idle'; // done with the check: the outlined face and the green tick const ok = isDone && doneIcon === undefined && success !== false; const ref = useRef<HTMLButtonElement>(null); useEaseWidth(ref); const click = (e: MouseEvent<HTMLButtonElement>) => { if (isBusy || isDone) return; const r = onClick?.(e); if (!r || typeof r.then !== 'function') return; setAuto('busy'); r.then(() => { if (!alive.current) return; setAuto('done'); timer.current = setTimeout(() => setAuto('idle'), doneFor); }, () => { if (alive.current) setAuto('idle'); }); }; const think = isBusy && busyGlyph === 'think'; const label = isBusy ? busyLabel ?? children : isDone ? doneLabel ?? children : children; const button = ( <button ref={ref} type="button" {...rest} className={cx('dm-pill', variantClass(ok ? 'line' : variant), size === 'sm' && 'dm-sm', size === 'lg' && 'dm-btx-lg', isBusy && 'dm-busy', isDone && 'dm-done', ok && 'dm-btx-ok', className)} aria-busy={isBusy || undefined} aria-pressed={pressed} onClick={click}> <Face id={face} fade={fadeBack && face === 'idle'}> {isBusy ? (think ? <Think /> : <Spin />) : isDone ? (doneIcon === undefined ? <Check /> : <span className="dm-enter" style={FACE}>{glyph(doneIcon)}</span>) : glyph(icon)} {think ? <span className="dm-shim">{label}</span> : label} </Face> </button> ); return <span data-dm="" style={ROOT}>{tip ? <Tip label={tip} kbd={kbd}>{button}</Tip> : button}</span>; } /* ---------- ButtonIcon ----------
 
 | Prop | Type | What it does |
 | --- | --- | --- |
@@ -197,7 +200,7 @@ Also takes the props of `Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children
 
 ### ButtonCopyProps
 
-Read out and shown in the tooltip */ label: string; /** A shortcut shown after the label in the tooltip */ kbd?: string; /** The filled round style (the default), or the bare one */ fill?: boolean; iconSize?: 'xs' | 's' | 'm' | 'l'; } /** A round icon-only button with a tooltip. */ export function ButtonIcon({ icon, label, kbd, fill = true, iconSize = 'xs', className, ...rest }: ButtonIconProps) { return ( <span data-dm="" style={ROOT}> <Tip label={label} kbd={kbd}> <button type="button" {...rest} className={cx('dm-ib', fill && 'dm-fill', className)} aria-label={label}><Icon name={icon} size={iconSize} /></button> </Tip> </span> ); } /* ---------- ButtonCopy ----------
+Read out and shown in the tooltip */ label: string; /** A shortcut shown after the label in the tooltip */ kbd?: string; /** The filled round style (the default), or the bare one */ fill?: boolean; iconSize?: 'xs' | 's' | 'm' | 'l'; } /** A round icon-only button with a tooltip. */ export function ButtonIcon({ icon, label, kbd, fill = true, iconSize = 'xs', className, ...rest }: ButtonIconProps) { return ( <span data-dm="" style={ROOT}> <Tip label={label} kbd={kbd}> <button type="button" {...rest} className={cx('dm-ib dm-btx-ib', fill && 'dm-fill', className)} aria-label={label}><Icon name={icon} size={iconSize} /></button> </Tip> </span> ); } /* ---------- ButtonCopy ----------
 
 | Prop | Type | What it does |
 | --- | --- | --- |
@@ -211,7 +214,7 @@ Read out and shown in the tooltip */ label: string; /** A shortcut shown after t
 
 ### ButtonIconMenuProps
 
-What goes on the clipboard */ text: string; /** The pill's label, like "Copy link". Left out, it is a round icon button */ label?: string; /** The label for a moment after copying */ copiedLabel?: string; /** The icon button's tooltip and name */ tip?: string; variant?: ButtonVariant; onCopy?: (text: string) => void; className?: string; } /** Copies text, then flashes a check and says so for a moment, like every copy button on the site. */ export function ButtonCopy({ text, label, copiedLabel = 'Copied', tip = 'Copy', variant = 'soft', onCopy, className }: ButtonCopyProps) { const [copied, copy] = useCopied(); const click = () => { copy(text); onCopy?.(text); }; const mark = <Icon name={copied ? 'check' : 'copy'} size="xs" />; return ( <span data-dm="" style={ROOT}> {label === undefined ? <Tip label={copied ? 'Copied to clipboard' : tip} open={copied || undefined}> <button type="button" className={cx('dm-ib dm-fill', copied && 'dm-copied', className)} aria-label={tip} onClick={click}>{mark}</button> </Tip> : <Tip label="Copied to clipboard" open={copied || undefined} off={!copied}> <button type="button" className={cx('dm-pill', variantClass(variant), 'dm-btx-copy', copied && 'dm-copied', className)} onClick={click}>{mark}{copied ? copiedLabel : label}</button> </Tip>} </span> ); } /* ---------- ButtonMenu ---------- */ export interface ButtonMenuItem { key: string; label: string; /** An icon before the label, or `brand` for a service's own mark */ icon?: IconName; brand?: BrandName; /** Quiet text at the end of the row, like "#design" or a shortcut */ detail?: string; /** A destructive action, like Delete: drawn in the danger colour */ danger?: boolean; /** Starts a new group: a line above this item */ divider?: boolean; } function MenuItems({ items, onPick }: { items: ButtonMenuItem[]; onPick: (key: string) => void }) { return <>{items.map(it => ( <Fragment key={it.key}> {it.divider && <div className="dm-sep" role="separator" />} <button type="button" role="menuitem" className={cx('dm-mi', it.danger && 'dm-del')} onClick={() => onPick(it.key)}> {it.brand ? <Brand name={it.brand} /> : it.icon && <Icon name={it.icon} />} {it.label} {it.detail && <span className="dm-r">{it.detail}</span>} </button> </Fragment> ))}</>; } export interface ButtonMenuProps { label: string; items: ButtonMenuItem[]; /** Called with the picked item's key. The menu closes a moment later */ onSelect?: (key: string) => void; /** What the button says after a pick, like { label: 'Link copied' }, or { label: 'Exporting', busy: true }. Clear it and the label comes back */ status?: { label: string; busy?: boolean } | null; variant?: ButtonVariant; /** Which edge of the button the menu lines up with */ align?: 'start' | 'end'; /** Whether the menu is open. Leave it out to let the button toggle it */ open?: boolean; defaultOpen?: boolean; onOpenChange?: (open: boolean) => void; className?: string; } /** A button that opens a small menu and then says what happened, like Share. */ export function ButtonMenu({ label, items, onSelect, status, variant = 'line', align = 'start', open, defaultOpen, onOpenChange, className }: ButtonMenuProps) { const menu = usePopover({ align, open, defaultOpen, onOpenChange }); const face = status ? (status.busy ? 'busy:' : 'done:') + status.label : 'idle'; return ( <span data-dm="" style={{ position: 'relative', display: 'inline-flex' }}> <button type="button" {...menu.trigger} className={cx('dm-pill', variantClass(variant), className)} aria-busy={status?.busy || undefined}> <Face id={face} fade={!status}> {status && (status.busy ? <Spin /> : <Check />)} {status ? status.label : label} </Face> </button> <div {...menu.pop} className={cx(menu.pop.className, 'dm-btx-sp')} role="menu"> <MenuItems items={items} onPick={key => { onSelect?.(key); menu.closeSoon(); }} /> </div> </span> ); } /* ---------- ButtonIconMenu ----------
+What goes on the clipboard */ text: string; /** The pill's label, like "Copy link". Left out, it is a round icon button */ label?: string; /** The label for a moment after copying */ copiedLabel?: string; /** The icon button's tooltip and name */ tip?: string; variant?: ButtonVariant; onCopy?: (text: string) => void; className?: string; } /** Copies text, then flashes a check and says so for a moment, like every copy button on the site. */ export function ButtonCopy({ text, label, copiedLabel = 'Copied', tip = 'Copy', variant = 'soft', onCopy, className }: ButtonCopyProps) { const [copied, copy] = useCopied(); const click = () => { copy(text); onCopy?.(text); }; const ref = useRef<HTMLButtonElement>(null); useEaseWidth(ref); const mark = <Icon name={copied ? 'check' : 'copy'} size="xs" />; return ( <span data-dm="" style={ROOT}> {label === undefined ? <Tip label={copied ? 'Copied to clipboard' : tip} open={copied || undefined}> <button type="button" className={cx('dm-ib dm-fill dm-btx-ib', copied && 'dm-copied', className)} aria-label={tip} onClick={click}>{mark}</button> </Tip> : <Tip label="Copied to clipboard" open={copied || undefined} off={!copied}> <button ref={ref} type="button" className={cx('dm-pill', variantClass(variant), 'dm-btx-copy', copied && 'dm-copied', className)} onClick={click}>{mark}{copied ? copiedLabel : label}</button> </Tip>} </span> ); } /* ---------- ButtonMenu ---------- */ export interface ButtonMenuItem { key: string; label: string; /** An icon before the label, or `brand` for a service's own mark */ icon?: IconName; brand?: BrandName; /** Quiet text at the end of the row, like "#design" or a shortcut */ detail?: string; /** A destructive action, like Delete: drawn in the danger colour */ danger?: boolean; /** Starts a new group: a line above this item */ divider?: boolean; } function MenuItems({ items, onPick }: { items: ButtonMenuItem[]; onPick: (key: string) => void }) { return <>{items.map(it => ( <Fragment key={it.key}> {it.divider && <div className="dm-sep" role="separator" />} <button type="button" role="menuitem" className={cx('dm-mi', it.danger && 'dm-del')} onClick={() => onPick(it.key)}> {it.brand ? <Brand name={it.brand} /> : it.icon && <Icon name={it.icon} />} {it.label} {it.detail && <span className="dm-r">{it.detail}</span>} </button> </Fragment> ))}</>; } export interface ButtonMenuProps { label: string; items: ButtonMenuItem[]; /** Called with the picked item's key. The menu closes a moment later */ onSelect?: (key: string) => void; /** What the button says after a pick, like { label: 'Link copied' }, or { label: 'Exporting', busy: true }. Clear it and the label comes back */ status?: { label: string; busy?: boolean } | null; variant?: ButtonVariant; /** Which edge of the button the menu lines up with */ align?: 'start' | 'end'; /** Whether the menu is open. Leave it out to let the button toggle it */ open?: boolean; defaultOpen?: boolean; onOpenChange?: (open: boolean) => void; className?: string; } /** A button that opens a small menu and then says what happened, like Share. */ export function ButtonMenu({ label, items, onSelect, status, variant = 'line', align = 'start', open, defaultOpen, onOpenChange, className }: ButtonMenuProps) { const menu = usePopover({ align, open, defaultOpen, onOpenChange }); const face = status ? (status.busy ? 'busy:' : 'done:') + status.label : 'idle'; useEaseWidth(menu.trigger.ref as RefObject<HTMLElement | null>); // what happened: the green tick and the words, on the outlined face const ok = !!status && !status.busy; return ( <span data-dm="" style={{ position: 'relative', display: 'inline-flex' }}> <button type="button" {...menu.trigger} className={cx('dm-pill', variantClass(ok ? 'line' : variant), ok && 'dm-btx-ok', className)} aria-busy={status?.busy || undefined}> <Face id={face} fade={!status}> {status && (status.busy ? <Spin /> : <Check />)} {status ? status.label : label} </Face> </button> <div {...menu.pop} className={cx(menu.pop.className, 'dm-btx-sp')} role="menu"> <MenuItems items={items} onPick={key => { onSelect?.(key); menu.closeSoon(); }} /> </div> </span> ); } /* ---------- ButtonIconMenu ----------
 
 | Prop | Type | What it does |
 | --- | --- | --- |
@@ -228,7 +231,7 @@ What goes on the clipboard */ text: string; /** The pill's label, like "Copy lin
 
 ### ButtonHoldProps
 
-The icon on the button. Defaults to the three dots */ icon?: IconName; /** Read out and shown in the tooltip */ label: string; items: ButtonMenuItem[]; /** Called with the picked item's key. The menu closes a moment later */ onSelect?: (key: string) => void; /** What just happened, like "Duplicated": the icon turns into a check and the tooltip says it. Clear it and the icon comes back */ status?: string | null; /** Which edge of the button the menu lines up with */ align?: 'start' | 'end'; /** Whether the menu is open. Leave it out to let the button toggle it */ open?: boolean; defaultOpen?: boolean; onOpenChange?: (open: boolean) => void; className?: string; } /** A round icon button that opens a menu of actions, like More, then flashes a check and says what happened. */ export function ButtonIconMenu({ icon = 'more', label, items, onSelect, status, align = 'end', open, defaultOpen, onOpenChange, className }: ButtonIconMenuProps) { const menu = usePopover({ align, open, defaultOpen, onOpenChange }); return ( <span data-dm="" style={{ position: 'relative', display: 'inline-flex' }}> {/* no tooltip over its own open menu */} <Tip label={status || label} open={status ? true : undefined} off={menu.open && !status}> <button type="button" {...menu.trigger} className={cx('dm-ib dm-fill dm-btx-more', status && 'dm-done', className)} aria-label={label}> <Icon name={status ? 'check' : icon} size="xs" /> </button> </Tip> <div {...menu.pop} className={cx(menu.pop.className, 'dm-btx-mp')} role="menu"> <MenuItems items={items} onPick={key => { onSelect?.(key); menu.closeSoon(); }} /> </div> </span> ); } /* ---------- ButtonRun ---------- */ export type ButtonRunState = 'idle' | 'running' | 'stopped' | 'complete'; export interface ButtonRunProps { state: ButtonRunState; /** How long it has been running, shown as m:ss */ seconds?: number; label?: string; /** Clicked while not running */ onRun?: () => void; /** Clicked while running. Hovering a running button already reads Stop */ onStop?: () => void; variant?: ButtonVariant; className?: string; } const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s) % 60).padStart(2, '0')}`; /** Starts a run and shows its time; while it runs, hovering turns it into Stop. */ export function ButtonRun({ state, seconds = 0, label = 'Run agent', onRun, onStop, variant = 'primary', className }: ButtonRunProps) { const [hover, setHover] = useState(false); const running = state === 'running'; const face = running ? (hover ? 'stop' : 'run') : state; return ( <span data-dm="" style={ROOT}> <button type="button" className={cx('dm-pill', variantClass(variant), 'dm-btx-run', running && 'dm-busy', className)} aria-busy={running || undefined} onPointerEnter={() => setHover(true)} onPointerLeave={() => setHover(false)} onClick={() => (running ? onStop : onRun)?.()}> <Face id={face} fade={state === 'idle'}> {face === 'stop' || face === 'stopped' ? <span className="dm-sq" /> : face === 'run' ? <Spin /> : face === 'complete' ? <Check /> : null} {face === 'stop' ? 'Stop' : face === 'stopped' ? 'Stopped' : face === 'complete' ? 'Run complete' : face === 'run' ? 'Running' : label} {face === 'run' && <span className="dm-num">{clock(seconds)}</span>} </Face> </button> </span> ); } /* ---------- ButtonHold ----------
+The icon on the button. Defaults to the three dots */ icon?: IconName; /** Read out and shown in the tooltip */ label: string; items: ButtonMenuItem[]; /** Called with the picked item's key. The menu closes a moment later */ onSelect?: (key: string) => void; /** What just happened, like "Duplicated": the icon turns into a check and the tooltip says it. Clear it and the icon comes back */ status?: string | null; /** Which edge of the button the menu lines up with */ align?: 'start' | 'end'; /** Whether the menu is open. Leave it out to let the button toggle it */ open?: boolean; defaultOpen?: boolean; onOpenChange?: (open: boolean) => void; className?: string; } /** A round icon button that opens a menu of actions, like More, then flashes a check and says what happened. */ export function ButtonIconMenu({ icon = 'more', label, items, onSelect, status, align = 'end', open, defaultOpen, onOpenChange, className }: ButtonIconMenuProps) { const menu = usePopover({ align, open, defaultOpen, onOpenChange }); return ( <span data-dm="" style={{ position: 'relative', display: 'inline-flex' }}> {/* no tooltip over its own open menu */} <Tip label={status || label} open={status ? true : undefined} off={menu.open && !status}> <button type="button" {...menu.trigger} className={cx('dm-ib dm-fill dm-btx-ib dm-btx-more', status && 'dm-done', className)} aria-label={label}> <Icon name={status ? 'check' : icon} size="xs" /> </button> </Tip> <div {...menu.pop} className={cx(menu.pop.className, 'dm-btx-mp')} role="menu"> <MenuItems items={items} onPick={key => { onSelect?.(key); menu.closeSoon(); }} /> </div> </span> ); } /* ---------- ButtonRun ---------- */ export type ButtonRunState = 'idle' | 'running' | 'stopped' | 'complete'; export interface ButtonRunProps { state: ButtonRunState; /** How long it has been running, shown as m:ss */ seconds?: number; label?: string; /** Clicked while not running */ onRun?: () => void; /** Clicked while running. Hovering a running button already reads Stop */ onStop?: () => void; variant?: ButtonVariant; className?: string; } const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s) % 60).padStart(2, '0')}`; /** Starts a run and shows its time; while it runs, hovering turns it into Stop. */ export function ButtonRun({ state, seconds = 0, label = 'Run agent', onRun, onStop, variant = 'primary', className }: ButtonRunProps) { const [hover, setHover] = useState(false); const running = state === 'running', ok = state === 'complete'; const face = running ? (hover ? 'stop' : 'run') : state; const ref = useRef<HTMLButtonElement>(null); useEaseWidth(ref); // Stop keeps the running width, so the button never narrows away from the pointer on it useEffect(() => { const b = ref.current; if (b) b.style.minWidth = running && hover ? b.getBoundingClientRect().width + 'px' : ''; }, [running, hover]); return ( <span data-dm="" style={ROOT}> <button ref={ref} type="button" className={cx('dm-pill', variantClass(ok ? 'line' : variant), 'dm-btx-run', running && 'dm-busy', ok && 'dm-btx-ok', className)} aria-busy={running || undefined} onPointerEnter={() => setHover(true)} onPointerLeave={() => setHover(false)} onClick={() => (running ? onStop : onRun)?.()}> <Face id={face} fade={state === 'idle'}> {face === 'stop' || face === 'stopped' ? <span className="dm-sq" /> : face === 'run' ? <Spin /> : face === 'complete' ? <Check /> : null} {face === 'stop' ? 'Stop' : face === 'stopped' ? 'Stopped' : face === 'complete' ? 'Run complete' : face === 'run' ? 'Running' : label} {face === 'run' && <span className="dm-num">{clock(seconds)}</span>} </Face> </button> </span> ); } /* ---------- ButtonHold ----------
 
 | Prop | Type | What it does |
 | --- | --- | --- |
@@ -275,7 +278,7 @@ You pass `seconds` and it formats them as m:ss. You also set `state` to idle, ru
 
 ```tsx
 'use client';
-import { Fragment, isValidElement, useEffect, useRef, useState, type ButtonHTMLAttributes, type MouseEvent, type ReactElement, type ReactNode } from 'react';
+import { Fragment, isValidElement, useEffect, useRef, useState, type ButtonHTMLAttributes, type MouseEvent, type ReactElement, type ReactNode, type RefObject } from 'react';
 import { cx } from '../lib/cx';
 import { useCopied, useReducedMotion } from '../lib/hooks';
 import { Brand, type BrandName } from '../lib/brands';
@@ -283,10 +286,13 @@ import { Icon, type IconName } from '../lib/icons';
 import { Spin, Think, Tip } from '../lib/motion';
 import { usePopover } from '../lib/popover';
 import '../designme.css';
+// its menus' rows glide in Clean
+import '../lib/glide';
 import './buttons.css';
 
-/** primary is the main action, on the accent. ink is the old name for primary and still works */
-export type ButtonVariant = 'primary' | 'accent' | 'soft' | 'line' | 'ghost' | 'ink';
+/** primary is the main action, on the accent (accent looks the same); soft and line for the rest, ghost the quietest, and warn the
+ *  action that resolves a warning notice (the warning tint with the warning text). ink is the old name for primary and still works */
+export type ButtonVariant = 'primary' | 'accent' | 'soft' | 'line' | 'ghost' | 'warn' | 'ink';
 /** The class for a variant: ink, the old name, draws as primary */
 const variantClass = (v?: ButtonVariant) => v && 'dm-' + (v === 'ink' ? 'primary' : v);
 export type ButtonSize = 'sm' | 'md' | 'lg';
@@ -309,6 +315,27 @@ function Face({ id, fade, children }: { id: string; fade: boolean; children: Rea
     return () => clearTimeout(t);
   }, [id, fade]); // eslint-disable-line react-hooks/exhaustive-deps
   return <span className={cx('dm-sw', out && 'dm-out')} style={FACE}>{id === cur.id ? children : cur.node}</span>;
+}
+
+/** A button is as wide as its words: when they change, it eases from the width it showed to its new one at the style's pace,
+ *  instead of keeping room for its longest label (any change to what it shows counts, a new face or a ticking clock) */
+function useEaseWidth(ref: RefObject<HTMLElement | null>) {
+  const reduce = useReducedMotion();
+  useEffect(() => {
+    const b = ref.current; if (!b || typeof ResizeObserver === 'undefined') return;
+    let w = b.getBoundingClientRect().width;
+    const ro = new ResizeObserver(() => { w = b.getBoundingClientRect().width; });
+    const mo = new MutationObserver(() => {
+      const from = w; b.getAnimations().forEach(a => { if (a.id === 'dm-fit') a.cancel(); });
+      const to = b.getBoundingClientRect().width; w = to;
+      if (reduce || !from || Math.abs(to - from) < .5) return;
+      const cs = getComputedStyle(b), t = cs.getPropertyValue('--dm-t').trim();
+      const a = b.animate([{ width: from + 'px' }, { width: to + 'px' }], { duration: (t.endsWith('ms') ? parseFloat(t) : parseFloat(t) * 1000) || 340, easing: cs.getPropertyValue('--dm-ease').trim() || 'ease' });
+      a.id = 'dm-fit';
+    });
+    ro.observe(b); mo.observe(b, { childList: true, characterData: true, subtree: true });
+    return () => { ro.disconnect(); mo.disconnect(); };
+  }, [ref, reduce]);
 }
 
 const glyph = (icon: IconName | ReactElement | undefined) =>
@@ -338,7 +365,8 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
   doneIcon?: IconName | ReactElement;
   /** spin, or think: the agent's four turning dots with a shimmering label */
   busyGlyph?: 'spin' | 'think';
-  /** The done face turns green */
+  /** A done face with the check (no `doneIcon`) is the outlined face with the vivid green tick in place of the icon, never a
+   *  green fill. false keeps it on the button's own fill */
   success?: boolean;
   /** How long the done face stays when the button runs itself */
   doneFor?: number;
@@ -351,7 +379,7 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
   kbd?: string;
 }
 
-/** A pill button in one of the site's five styles and three sizes, with busy, done and pressed states. */
+/** A pill button in one of the site's six styles and three sizes, with busy, done and pressed states. */
 export function Button({ variant, size = 'md', icon, children, onClick, busy, done, busyLabel, doneLabel, doneIcon, busyGlyph = 'spin', success, doneFor = 1800,
   fadeBack = true, pressed, tip, kbd, className, ...rest }: ButtonProps) {
   // an onClick that returns a promise drives the button itself
@@ -360,6 +388,10 @@ export function Button({ variant, size = 'md', icon, children, onClick, busy, do
   useEffect(() => { alive.current = true; return () => { alive.current = false; clearTimeout(timer.current); }; }, []);
   const isBusy = busy ?? auto === 'busy', isDone = !isBusy && (done ?? auto === 'done');
   const face = isBusy ? 'busy' : isDone ? 'done' : 'idle';
+  // done with the check: the outlined face and the green tick
+  const ok = isDone && doneIcon === undefined && success !== false;
+  const ref = useRef<HTMLButtonElement>(null);
+  useEaseWidth(ref);
 
   const click = (e: MouseEvent<HTMLButtonElement>) => {
     if (isBusy || isDone) return;
@@ -373,9 +405,9 @@ export function Button({ variant, size = 'md', icon, children, onClick, busy, do
   const think = isBusy && busyGlyph === 'think';
   const label = isBusy ? busyLabel ?? children : isDone ? doneLabel ?? children : children;
   const button = (
-    <button type="button" {...rest}
-      className={cx('dm-pill', variantClass(variant), size === 'sm' && 'dm-sm', size === 'lg' && 'dm-btx-lg',
-        isBusy && 'dm-busy', isDone && 'dm-done', isDone && success && 'dm-btx-load dm-ok', className)}
+    <button ref={ref} type="button" {...rest}
+      className={cx('dm-pill', variantClass(ok ? 'line' : variant), size === 'sm' && 'dm-sm', size === 'lg' && 'dm-btx-lg',
+        isBusy && 'dm-busy', isDone && 'dm-done', ok && 'dm-btx-ok', className)}
       aria-busy={isBusy || undefined} aria-pressed={pressed} onClick={click}>
       <Face id={face} fade={fadeBack && face === 'idle'}>
         {isBusy ? (think ? <Think /> : <Spin />) : isDone ? (doneIcon === undefined ? <Check /> : <span className="dm-enter" style={FACE}>{glyph(doneIcon)}</span>) : glyph(icon)}
@@ -404,7 +436,7 @@ export function ButtonIcon({ icon, label, kbd, fill = true, iconSize = 'xs', cla
   return (
     <span data-dm="" style={ROOT}>
       <Tip label={label} kbd={kbd}>
-        <button type="button" {...rest} className={cx('dm-ib', fill && 'dm-fill', className)} aria-label={label}><Icon name={icon} size={iconSize} /></button>
+        <button type="button" {...rest} className={cx('dm-ib dm-btx-ib', fill && 'dm-fill', className)} aria-label={label}><Icon name={icon} size={iconSize} /></button>
       </Tip>
     </span>
   );
@@ -430,15 +462,17 @@ export interface ButtonCopyProps {
 export function ButtonCopy({ text, label, copiedLabel = 'Copied', tip = 'Copy', variant = 'soft', onCopy, className }: ButtonCopyProps) {
   const [copied, copy] = useCopied();
   const click = () => { copy(text); onCopy?.(text); };
+  const ref = useRef<HTMLButtonElement>(null);
+  useEaseWidth(ref);
   const mark = <Icon name={copied ? 'check' : 'copy'} size="xs" />;
   return (
     <span data-dm="" style={ROOT}>
       {label === undefined
         ? <Tip label={copied ? 'Copied to clipboard' : tip} open={copied || undefined}>
-            <button type="button" className={cx('dm-ib dm-fill', copied && 'dm-copied', className)} aria-label={tip} onClick={click}>{mark}</button>
+            <button type="button" className={cx('dm-ib dm-fill dm-btx-ib', copied && 'dm-copied', className)} aria-label={tip} onClick={click}>{mark}</button>
           </Tip>
         : <Tip label="Copied to clipboard" open={copied || undefined} off={!copied}>
-            <button type="button" className={cx('dm-pill', variantClass(variant), 'dm-btx-copy', copied && 'dm-copied', className)} onClick={click}>{mark}{copied ? copiedLabel : label}</button>
+            <button ref={ref} type="button" className={cx('dm-pill', variantClass(variant), 'dm-btx-copy', copied && 'dm-copied', className)} onClick={click}>{mark}{copied ? copiedLabel : label}</button>
           </Tip>}
     </span>
   );
@@ -494,9 +528,13 @@ export interface ButtonMenuProps {
 export function ButtonMenu({ label, items, onSelect, status, variant = 'line', align = 'start', open, defaultOpen, onOpenChange, className }: ButtonMenuProps) {
   const menu = usePopover({ align, open, defaultOpen, onOpenChange });
   const face = status ? (status.busy ? 'busy:' : 'done:') + status.label : 'idle';
+  useEaseWidth(menu.trigger.ref as RefObject<HTMLElement | null>);
+  // what happened: the green tick and the words, on the outlined face
+  const ok = !!status && !status.busy;
   return (
     <span data-dm="" style={{ position: 'relative', display: 'inline-flex' }}>
-      <button type="button" {...menu.trigger} className={cx('dm-pill', variantClass(variant), className)} aria-busy={status?.busy || undefined}>
+      <button type="button" {...menu.trigger}
+        className={cx('dm-pill', variantClass(ok ? 'line' : variant), ok && 'dm-btx-ok', className)} aria-busy={status?.busy || undefined}>
         <Face id={face} fade={!status}>
           {status && (status.busy ? <Spin /> : <Check />)}
           {status ? status.label : label}
@@ -537,7 +575,7 @@ export function ButtonIconMenu({ icon = 'more', label, items, onSelect, status, 
     <span data-dm="" style={{ position: 'relative', display: 'inline-flex' }}>
       {/* no tooltip over its own open menu */}
       <Tip label={status || label} open={status ? true : undefined} off={menu.open && !status}>
-        <button type="button" {...menu.trigger} className={cx('dm-ib dm-fill dm-btx-more', status && 'dm-done', className)} aria-label={label}>
+        <button type="button" {...menu.trigger} className={cx('dm-ib dm-fill dm-btx-ib dm-btx-more', status && 'dm-done', className)} aria-label={label}>
           <Icon name={status ? 'check' : icon} size="xs" />
         </button>
       </Tip>
@@ -570,11 +608,15 @@ const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s) % 60)
 /** Starts a run and shows its time; while it runs, hovering turns it into Stop. */
 export function ButtonRun({ state, seconds = 0, label = 'Run agent', onRun, onStop, variant = 'primary', className }: ButtonRunProps) {
   const [hover, setHover] = useState(false);
-  const running = state === 'running';
+  const running = state === 'running', ok = state === 'complete';
   const face = running ? (hover ? 'stop' : 'run') : state;
+  const ref = useRef<HTMLButtonElement>(null);
+  useEaseWidth(ref);
+  // Stop keeps the running width, so the button never narrows away from the pointer on it
+  useEffect(() => { const b = ref.current; if (b) b.style.minWidth = running && hover ? b.getBoundingClientRect().width + 'px' : ''; }, [running, hover]);
   return (
     <span data-dm="" style={ROOT}>
-      <button type="button" className={cx('dm-pill', variantClass(variant), 'dm-btx-run', running && 'dm-busy', className)} aria-busy={running || undefined}
+      <button ref={ref} type="button" className={cx('dm-pill', variantClass(ok ? 'line' : variant), 'dm-btx-run', running && 'dm-busy', ok && 'dm-btx-ok', className)} aria-busy={running || undefined}
         onPointerEnter={() => setHover(true)} onPointerLeave={() => setHover(false)} onClick={() => (running ? onStop : onRun)?.()}>
         <Face id={face} fade={state === 'idle'}>
           {face === 'stop' || face === 'stopped' ? <span className="dm-sq" /> : face === 'run' ? <Spin /> : face === 'complete' ? <Check /> : null}
@@ -623,17 +665,20 @@ export function ButtonHold({ label = 'Hold to delete', holdingLabel = 'Keep hold
     });
   };
   const end = () => { if (state !== 'holding') return; clear(); setState('idle'); setSaid(false); setOut(false); };
+  const ref = useRef<HTMLButtonElement>(null);
+  useEaseWidth(ref);
+  // the words, and their white copy on the fill that the hold uncovers, so every letter reads on what is under it
+  const words = state === 'done' ? <><Icon name="check" size="xs" />{doneLabel}</> : said ? holdingLabel : <><Icon name={icon} size="xs" />{label}</>;
+  const lb = cx('dm-lb', state === 'holding' && 'dm-sw', out && 'dm-out');
 
   return (
     <span data-dm="" style={ROOT}>
-      <button type="button" className={cx('dm-pill dm-btx-hold', state === 'holding' && 'dm-h', state === 'done' && 'dm-done', className)}
+      <button ref={ref} type="button" className={cx('dm-pill dm-btx-hold', state === 'holding' && 'dm-h', state === 'done' && 'dm-line dm-btx-ok', className)}
         onPointerDown={start} onPointerUp={end} onPointerLeave={end} onBlur={end}
         onKeyDown={e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); start(); } }}
         onKeyUp={e => { if (e.key === ' ' || e.key === 'Enter') end(); }}>
-        <span className="dm-fill" />
-        <span className={cx('dm-lb', state === 'holding' && 'dm-sw', out && 'dm-out')}>
-          {state === 'done' ? <><Icon name="check" size="xs" />{doneLabel}</> : said ? holdingLabel : <><Icon name={icon} size="xs" />{label}</>}
-        </span>
+        <span className={lb}>{words}</span>
+        <span className="dm-fill" aria-hidden="true"><span className={lb}>{words}</span></span>
       </button>
     </span>
   );

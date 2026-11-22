@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, seg, stagger, swap, tween } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, seg, stagger, swap, tween } from '../core/core.js';
 DM.def('metric-insight', (r, c) => {
   r.innerHTML = r.innerHTML.replace(/\{spark\}/g, I('spark','xs'));
   const D = {
@@ -32,12 +32,17 @@ DM.def('metric-insight', (r, c) => {
   seg($('.mix-rg', r), v => { cur = +v; draw(cur); });
   $('b', mk).dataset.tip = 'Pricing page update shipped';
   const why = $('.mix-why', r), box = $('.mix-box', r), rs = $('.mix-rs', r);
+  // the button is as wide as its words: a new label comes in and its width eases to fit (no room kept for a longer one)
+  const label = h => { const w0 = why.getBoundingClientRect().width; why.innerHTML = h; const w1 = why.getBoundingClientRect().width;
+    if (!REDUCE && w0 && Math.abs(w1 - w0) > .5){ const cs = getComputedStyle(r), t = cs.getPropertyValue('--dm-t').trim(); why.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:(t.endsWith('ms') ? parseFloat(t) : parseFloat(t) * 1000) || 340, easing:cs.getPropertyValue('--dm-ease').trim() || 'ease' }); } };
   why.onclick = () => c.run(async () => {
-    if (!box.classList.contains('shut')){ box.classList.add('shut'); why.setAttribute('aria-expanded', 'false'); swap(why, 'Why did it move?'); return; }
-    why.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span>Looking into it'; await c.wait(900);
-    const R = [['Annual plan shown first', 54, 'var(--dm-accent-mark,var(--dm-accent))'], ['One CTA per card', 27, 'var(--dm-pl)'], ['Seasonal traffic', 12, 'var(--dm-pt)'], ['Unexplained', 7, 'var(--dm-faint)']];
-    rs.innerHTML = R.map(q => `<div class="mix-r"><span class="dot" style="color:${q[2]}"></span><span class="t">${q[0]}</span><span class="bar"><i style="width:${q[1]}%;background:${q[2]}"></i></span><span class="v num">${q[1]}%</span></div>`).join('');
-    box.classList.remove('shut'); why.setAttribute('aria-expanded', 'true'); stagger($$('.mix-r', rs), 60); swap(why, 'Hide the breakdown');
+    if (!box.classList.contains('shut')){ box.classList.add('shut'); why.setAttribute('aria-expanded', 'false'); label('Why did it move?'); return; }
+    // the words shimmer while the agent looks into it
+    label('<span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Looking into it</span>'); await c.wait(900);
+    // the drivers, each a bar in the accent on a neutral track; what it could not explain is a grey that keeps 3:1 on the track
+    const R = [['Annual plan shown first', 54], ['One CTA per card', 27], ['Seasonal traffic', 12], ['Unexplained', 7, 'var(--dm-muted)']];
+    rs.innerHTML = R.map(q => `<div class="mix-r"><span class="t">${q[0]}</span><span class="bar"><i style="width:${q[1]}%${q[2] ? ';--dm-k:' + q[2] : ''}"></i></span><span class="v num">${q[1]}%</span></div>`).join('');
+    box.classList.remove('shut'); why.setAttribute('aria-expanded', 'true'); stagger($$('.mix-r', rs), 60); label('Hide the breakdown');
   });
   c.later(400, () => draw(30));
 });

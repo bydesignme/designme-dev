@@ -1,5 +1,5 @@
-TPLS["task-table"] = "<div class=\"ttx panel\" data-reveal=\"flat\">\n  <div class=\"ttx-hd\">\n    <div class=\"ttx-ti\"><b>Agent tasks</b><span class=\"muted num ttx-sum\">6 tasks, 2 running</span></div>\n    <div class=\"ttx-sb\" inert><span class=\"ttx-n num\">2 selected</span><button class=\"pill ghost sm\" data-a=\"pause\">{pause}Pause</button><button class=\"pill ghost sm\" data-a=\"retry\">{refresh}Retry</button><button class=\"pill ghost sm ttx-del\" data-a=\"cancel\">{x}Cancel</button><span class=\"ttx-sp\"></span><button class=\"pill ghost sm ttx-clr\">Clear</button></div>\n  </div>\n  <div class=\"ttx-sc\"><table class=\"ttx-t\">\n    <thead><tr><th class=\"ck\"><button class=\"ttx-cb ttx-all\" role=\"checkbox\" aria-checked=\"false\" aria-label=\"Select all\"></button></th><th><button class=\"ttx-s\" data-k=\"0\">Task</button></th><th><button class=\"ttx-s\" data-k=\"1\">Status</button></th><th><button class=\"ttx-s\" data-k=\"2\">Agent</button></th><th class=\"r\"><button class=\"ttx-s\" data-k=\"3\">Cost</button></th><th class=\"r\"><button class=\"ttx-s\" data-k=\"4\">Updated</button></th></tr></thead>\n    <tbody></tbody>\n  </table></div>\n</div>";
-TPLS["details-panel"] = "<div class=\"dtp panel\">\n  <div class=\"dtp-h\"><span class=\"ft\">RUN</span><b>Pricing page redesign</b><button class=\"ib dtp-cp\" aria-label=\"Copy run ID\" data-tip=\"Copy run ID\">{link}</button></div>\n  <div class=\"dtp-sec\">\n    <button class=\"dtp-sh\" aria-expanded=\"true\">{chev}<span>Properties</span></button>\n    <div class=\"fold dtp-f1\"><div><div class=\"dtp-rows\">\n      <div class=\"dtp-r\"><span class=\"k\">Status</span><button class=\"dtp-v dtp-stat\" data-pop=\".dtp-pst\"><span class=\"dot\" style=\"color:var(--accent-mark,var(--accent))\"></span><span>In review</span></button>\n        <div class=\"pop dtp-pst\" role=\"menu\"><button class=\"mi\" role=\"menuitem\" data-close data-s=\"In progress\" data-col=\"var(--py)\"><span class=\"dot\" style=\"color:var(--py)\"></span><span>In progress</span></button><button class=\"mi\" role=\"menuitem\" data-close data-s=\"In review\" data-col=\"var(--accent-mark,var(--accent))\"><span class=\"dot\" style=\"color:var(--accent-mark,var(--accent))\"></span><span>In review</span></button><button class=\"mi\" role=\"menuitem\" data-close data-s=\"Shipped\" data-col=\"var(--ok)\"><span class=\"dot\" style=\"color:var(--ok)\"></span><span>Shipped</span></button></div></div>\n      <div class=\"dtp-r\"><span class=\"k\">Owner</span><button class=\"dtp-v dtp-own\" data-pop=\".dtp-pow\">{avm}<span>Maya Kim</span></button>\n        <div class=\"pop dtp-pow\" role=\"menu\"><button class=\"mi\" role=\"menuitem\" data-close data-o=\"Maya Kim\" data-i=\"MK\" data-col=\"var(--av-l)\">{avm}<span>Maya Kim</span></button><button class=\"mi\" role=\"menuitem\" data-close data-o=\"Jon Ortiz\" data-i=\"JO\" data-col=\"var(--av-m)\">{avj}<span>Jon Ortiz</span></button><button class=\"mi\" role=\"menuitem\" data-close data-o=\"Design agent\" data-i=\"DA\" data-col=\"var(--av-b)\">{ava}<span>Design agent</span></button></div></div>\n      <div class=\"dtp-r\"><span class=\"k\">Model</span><button class=\"dtp-v\" data-pop=\".dtp-pmo\"><span class=\"dtp-mo\">Opus</span>{chevd}</button>\n        <div class=\"pop dtp-pmo\" role=\"menu\"><button class=\"mi\" role=\"menuitem\" data-close data-m=\"Opus\"><span>Opus<span class=\"d\">Best for design</span></span></button><button class=\"mi\" role=\"menuitem\" data-close data-m=\"Sonnet\"><span>Sonnet<span class=\"d\">Faster, cheaper</span></span></button><button class=\"mi\" role=\"menuitem\" data-close data-m=\"Haiku\"><span>Haiku<span class=\"d\">Quick edits</span></span></button></div></div>\n      <div class=\"dtp-r\"><span class=\"k\">Due</span><span class=\"dtp-v num\">Oct 24</span></div>\n      <div class=\"dtp-r\"><span class=\"k\">Labels</span><span class=\"dtp-tags\"><span class=\"tag b\">Pricing</span><span class=\"tag p\">Web</span><button class=\"dtp-add\" aria-label=\"Add label\" data-tip=\"Add label\">{plus}</button></span></div>\n    </div></div></div>\n  </div>\n  <div class=\"dtp-sec\">\n    <button class=\"dtp-sh\" aria-expanded=\"true\">{chev}<span>Usage</span></button>\n    <div class=\"fold dtp-f2\"><div><div class=\"dtp-rows\">\n      <div class=\"dtp-r\"><span class=\"k\">Tokens</span><span class=\"dtp-v num dtp-tok\">0</span></div>\n      <div class=\"dtp-r\"><span class=\"k\">Cost</span><span class=\"dtp-v num dtp-cost\">$0.00</span></div>\n      <div class=\"dtp-r\"><span class=\"k\">Run time</span><span class=\"dtp-v num\">4m 12s</span></div>\n    </div></div></div>\n  </div>\n</div>";
+TPLS["task-table"] = "<div class=\"ttx panel\" data-reveal=\"flat\">\n  <div class=\"ttx-hd\">\n    <span class=\"ttx-hi\" aria-hidden=\"true\"><svg class=\"i s\"><use href=\"#v2i-list\"/></svg></span>\n    <div class=\"ttx-hx\">\n      <div class=\"ttx-ti\"><b>Agent tasks</b><span class=\"muted num ttx-sum\">6 tasks, 2 running</span></div>\n      <div class=\"ttx-sb\" inert><span class=\"ttx-n num\">2 selected</span><button class=\"pill ghost sm\" data-a=\"pause\"><svg class=\"i xs\"><use href=\"#v2i-pause\"/></svg>Pause</button><button class=\"pill ghost sm\" data-a=\"retry\"><svg class=\"i xs\"><use href=\"#v2i-refresh\"/></svg>Retry</button><button class=\"pill ghost sm ttx-del\" data-a=\"cancel\"><svg class=\"i xs\"><use href=\"#v2i-x\"/></svg>Cancel</button><span class=\"ttx-sp\"></span><button class=\"pill ghost sm ttx-clr\">Clear</button></div>\n    </div>\n  </div>\n  <div class=\"ttx-sc\"><table class=\"ttx-t\">\n    <thead><tr><th class=\"ck\"><button class=\"ttx-cb ttx-all\" role=\"checkbox\" aria-checked=\"false\" aria-label=\"Select all\"></button></th><th class=\"nm\"><button class=\"ttx-s\" data-k=\"0\">Task</button></th><th><button class=\"ttx-s\" data-k=\"1\">Status</button></th><th><button class=\"ttx-s\" data-k=\"2\">Agent</button></th><th class=\"r\"><button class=\"ttx-s\" data-k=\"3\">Cost</button></th><th class=\"r\"><button class=\"ttx-s\" data-k=\"4\">Updated</button></th></tr></thead>\n    <tbody></tbody>\n  </table></div>\n</div>";
+TPLS["details-panel"] = "<div class=\"dtp panel\">\n  <div class=\"dtp-h\"><span class=\"ft\">RUN</span><b>Pricing page redesign</b><button class=\"ib dtp-cp\" aria-label=\"Copy run ID\" data-tip=\"Copy run ID\">{link}</button></div>\n  <div class=\"dtp-sec\">\n    <button class=\"dtp-sh\" aria-expanded=\"true\"><span>Properties</span><svg class=\"i xs\"><use href=\"#v2i-chev-r\"/></svg></button>\n    <div class=\"fold dtp-f1\"><div><div class=\"dtp-rows\">\n      <div class=\"dtp-r\"><span class=\"k\">Status</span><button class=\"dtp-v dtp-stat\" data-pop=\".dtp-pst\"><span class=\"dot\" style=\"color:var(--accent-mark,var(--accent))\"></span><span>In review</span></button>\n        <div class=\"pop dtp-pst\" role=\"menu\"><button class=\"mi\" role=\"menuitem\" data-close data-s=\"In progress\" data-col=\"var(--py)\"><span class=\"dot\" style=\"color:var(--py)\"></span><span>In progress</span></button><button class=\"mi\" role=\"menuitem\" data-close data-s=\"In review\" data-col=\"var(--accent-mark,var(--accent))\"><span class=\"dot\" style=\"color:var(--accent-mark,var(--accent))\"></span><span>In review</span></button><button class=\"mi\" role=\"menuitem\" data-close data-s=\"Shipped\" data-col=\"var(--ok-mark)\"><span class=\"dot\" style=\"color:var(--ok-mark)\"></span><span>Shipped</span></button></div></div>\n      <div class=\"dtp-r\"><span class=\"k\">Owner</span><button class=\"dtp-v dtp-own\" data-pop=\".dtp-pow\"><span class=\"av\" style=\"background:var(--av-l);color:var(--av-l-ink)\">MK</span><span>Maya Kim</span></button>\n        <div class=\"pop dtp-pow\" role=\"menu\"><button class=\"mi\" role=\"menuitem\" data-close data-o=\"Maya Kim\" data-i=\"MK\" data-col=\"var(--av-l)\"><span class=\"av\" style=\"background:var(--av-l);color:var(--av-l-ink)\">MK</span><span>Maya Kim</span></button><button class=\"mi\" role=\"menuitem\" data-close data-o=\"Jon Ortiz\" data-i=\"JO\" data-col=\"var(--av-m)\"><span class=\"av\" style=\"background:var(--av-m);color:var(--av-m-ink)\">JO</span><span>Jon Ortiz</span></button><button class=\"mi\" role=\"menuitem\" data-close data-o=\"Design agent\" data-i=\"DA\" data-col=\"var(--av-b)\"><span class=\"av\" style=\"background:var(--av-b);color:var(--av-b-ink)\">DA</span><span>Design agent</span></button></div></div>\n      <div class=\"dtp-r\"><span class=\"k\">Model</span><button class=\"dtp-v\" data-pop=\".dtp-pmo\"><span class=\"dtp-mo\">Opus</span><svg class=\"i xs\"><use href=\"#v2i-chev-d\"/></svg></button>\n        <div class=\"pop dtp-pmo\" role=\"menu\"><button class=\"mi\" role=\"menuitem\" data-close data-m=\"Opus\"><span>Opus<span class=\"d\">Best for design</span></span></button><button class=\"mi\" role=\"menuitem\" data-close data-m=\"Sonnet\"><span>Sonnet<span class=\"d\">Faster, cheaper</span></span></button><button class=\"mi\" role=\"menuitem\" data-close data-m=\"Haiku\"><span>Haiku<span class=\"d\">Quick edits</span></span></button></div></div>\n      <div class=\"dtp-r\"><span class=\"k\">Due</span><span class=\"dtp-v num\">Oct 24</span></div>\n      <div class=\"dtp-r\"><span class=\"k\">Labels</span><span class=\"dtp-tags\"><span class=\"tag b\">Pricing</span><span class=\"tag p\">Web</span><button class=\"dtp-add\" aria-label=\"Add label\" data-tip=\"Add label\">{plus}</button></span></div>\n    </div></div></div>\n  </div>\n  <div class=\"dtp-sec\">\n    <button class=\"dtp-sh\" aria-expanded=\"true\"><span>Usage</span><svg class=\"i xs\"><use href=\"#v2i-chev-r\"/></svg></button>\n    <div class=\"fold dtp-f2\"><div><div class=\"dtp-rows\">\n      <div class=\"dtp-r\"><span class=\"k\">Tokens</span><span class=\"dtp-v num dtp-tok\">0</span></div>\n      <div class=\"dtp-r\"><span class=\"k\">Cost</span><span class=\"dtp-v num dtp-cost\">$0.00</span></div>\n      <div class=\"dtp-r\"><span class=\"k\">Run time</span><span class=\"dtp-v num\">4m 12s</span></div>\n    </div></div></div>\n  </div>\n</div>";
 TPLS["metric-insight"] = "<div class=\"mix panel\">\n  <div class=\"mix-h\"><span class=\"muted\">Trial to paid</span><div class=\"seg2 mix-rg\" role=\"group\" aria-label=\"Range\"><button aria-pressed=\"false\" data-v=\"7\">7d</button><button aria-pressed=\"true\" data-v=\"30\">30d</button><button aria-pressed=\"false\" data-v=\"90\">90d</button></div></div>\n  <div class=\"mix-v\"><b class=\"num mix-n\">0%</b><span class=\"tag ok mix-d num\">+0.0 pts</span></div>\n  <div class=\"mix-ch\"><svg class=\"mix-svg\" viewBox=\"0 0 300 90\" preserveAspectRatio=\"none\"><defs><linearGradient id=\"mixg\" x1=\"0\" x2=\"0\" y1=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"var(--accent-mark,var(--accent))\" stop-opacity=\".18\"/><stop offset=\"1\" stop-color=\"var(--accent-mark,var(--accent))\" stop-opacity=\"0\"/></linearGradient></defs><path class=\"mix-a\" fill=\"url(#mixg)\"/><path class=\"mix-l\" fill=\"none\" stroke=\"var(--accent-mark,var(--accent))\" stroke-width=\"2\" vector-effect=\"non-scaling-stroke\" stroke-linejoin=\"round\"/><line class=\"mix-x\" y1=\"0\" y2=\"90\" stroke=\"var(--faint)\" stroke-dasharray=\"2 3\" vector-effect=\"non-scaling-stroke\"/></svg><span class=\"mix-dot\"></span><span class=\"mix-mk\" style=\"left:58%\"><b>{spark}Sep 18</b></span></div>\n  <div class=\"mix-ins\"><span class=\"mix-ic\">{spark}</span><span class=\"mix-t\">Jumped after the pricing page update on Sep 18.</span></div>\n  <button class=\"pill soft sm mix-why\">Why did it move?</button>\n  <div class=\"fold shut mix-box\"><div><div class=\"mix-rs\"></div></div></div>\n</div>";
 TPLS["source-stack"] = "<div class=\"ssx\">\n  <p class=\"msg\">Annual plans convert about 18% better when the monthly price is shown crossed out next to them.</p>\n  <button class=\"ssx-pill\" aria-expanded=\"false\"><span class=\"ssx-ics\"></span><span class=\"ssx-l\">8 sources</span>{chev}</button>\n  <div class=\"fold shut ssx-box\"><div><div class=\"ssx-in\">\n    <div class=\"ssx-fl\"><button class=\"chip sm on\" data-f=\"all\">All</button><button class=\"chip sm\" data-f=\"web\">Web</button><button class=\"chip sm\" data-f=\"file\">Files</button><button class=\"chip sm\" data-f=\"figma\">Figma</button></div>\n    <div class=\"ssx-list\"></div>\n  </div></div></div>\n</div>";
 TPLS["citation-hover"] = "<div class=\"chx\">\n  <p class=\"msg chx-p\">Teams that show the annual price first see higher paid conversion<button class=\"chx-c\" data-i=\"0\">1</button>, and the effect is stronger when the monthly price stays visible beside it<button class=\"chx-c\" data-i=\"1\">2</button>. Your own data shows the same pattern since the September update<button class=\"chx-c\" data-i=\"2\">3</button>.</p>\n  <div class=\"chx-card panel keep\" role=\"dialog\" aria-label=\"Source\"><div class=\"chx-in\"></div></div>\n</div>";
@@ -9,20 +9,22 @@ TPLS["terminal-stream"] = "<div class=\"tmx panel\" data-reveal=\"flat\">\n  <di
 DM.def('source-stack', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{chev}', I('chev-d','xs'));
   const S = [
-    ['web','Baymard: pricing page UX','baymard.com',.92,'B','var(--pb)'],
-    ['web','Annual vs monthly anchoring study','cxl.com',.88,'C','var(--pp)'],
-    ['file','Q3 conversion export.csv','Drive',.84,'CSV','var(--pm)'],
-    ['figma','Pricing v4, frame 2','Figma',.8,'F','var(--pl)'],
-    ['web','Stripe billing docs','stripe.com',.66,'S','var(--pl)'],
-    ['file','Pricing research notes','Notion',.61,'N','var(--fg2)'],
-    ['figma','Checkout flow','Figma',.52,'F','var(--pl)'],
-    ['web','NN/g on price framing','nngroup.com',.48,'N','var(--fg2)']
+    ['web','Baymard: pricing page UX','baymard.com',.92,'B','var(--av-b)'],
+    ['web','Annual vs monthly anchoring study','cxl.com',.88,'C','var(--av-r)'],
+    ['file','Q3 conversion export.csv','Drive',.84,'CSV','var(--av-m)'],
+    ['figma','Pricing v4, frame 2','Figma',.8,'F','var(--av-l)'],
+    ['web','Stripe billing docs','stripe.com',.66,'S','var(--av-k)'],
+    ['file','Pricing research notes','Notion',.61,'N','var(--av-t)'],
+    ['figma','Checkout flow','Figma',.52,'F','var(--av-l)'],
+    ['web','NN/g on price framing','nngroup.com',.48,'N','var(--av-y)']
   ];
+  // each source's mark on its own vivid fill, with that fill's ink: white, or a dark ink of its hue where white would fail
+  const ink = col => col.replace(')', '-ink)');
   const pill = $('.ssx-pill', r), box = $('.ssx-box', r), list = $('.ssx-list', r);
-  $('.ssx-ics', r).innerHTML = S.slice(0, 4).map(s => `<span style="background:${s[5]}">${s[4][0]}</span>`).join('');
+  $('.ssx-ics', r).innerHTML = S.slice(0, 4).map(s => `<span style="background:${s[5]};color:${ink(s[5])}">${s[4][0]}</span>`).join('');
   function paint(f){
     const items = S.filter(s => f === 'all' || s[0] === f);
-    list.innerHTML = items.map(s => `<div class="ssx-s"><span class="fv" style="background:color-mix(in srgb,${s[5]} 14%,transparent);color:${s[5]}">${s[4]}</span><span class="t">${s[1]}<span class="h"> · ${s[2]}</span></span><span class="rel" data-tip="Relevance ${Math.round(s[3] * 100)}%"><i style="width:${s[3] * 100}%"></i></span><button class="ib" aria-label="Open source" data-tip="Open">${I('ext','xs')}</button></div>`).join('');
+    list.innerHTML = items.map(s => `<div class="ssx-s"><span class="fv" style="background:${s[5]};color:${ink(s[5])}">${s[4]}</span><span class="t"><span>${s[1]}</span><span class="h"> · ${s[2]}</span></span><span class="rel" data-tip="Relevance ${Math.round(s[3] * 100)}%"><i style="width:${s[3] * 100}%"></i></span><button class="ib" aria-label="Open source" data-tip="Open">${I('ext','xs')}</button></div>`).join('');
     stagger($$('.ssx-s', list), 40);
   }
   pill.onclick = () => { const open = box.classList.toggle('shut') === false; pill.setAttribute('aria-expanded', open); if (open) paint($('.ssx-fl .on', r).dataset.f); };
@@ -63,18 +65,23 @@ DM.def('metric-insight', (r, c) => {
   seg($('.mix-rg', r), v => { cur = +v; draw(cur); });
   $('b', mk).dataset.tip = 'Pricing page update shipped';
   const why = $('.mix-why', r), box = $('.mix-box', r), rs = $('.mix-rs', r);
+  // the button is as wide as its words: a new label comes in and its width eases to fit (no room kept for a longer one)
+  const label = h => { const w0 = why.getBoundingClientRect().width; why.innerHTML = h; const w1 = why.getBoundingClientRect().width;
+    if (!REDUCE && w0 && Math.abs(w1 - w0) > .5){ const cs = getComputedStyle(r), t = cs.getPropertyValue('--t').trim(); why.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:(t.endsWith('ms') ? parseFloat(t) : parseFloat(t) * 1000) || 340, easing:cs.getPropertyValue('--ease').trim() || 'ease' }); } };
   why.onclick = () => c.run(async () => {
-    if (!box.classList.contains('shut')){ box.classList.add('shut'); why.setAttribute('aria-expanded', 'false'); swap(why, 'Why did it move?'); return; }
-    why.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span>Looking into it'; await c.wait(900);
-    const R = [['Annual plan shown first', 54, 'var(--accent-mark,var(--accent))'], ['One CTA per card', 27, 'var(--pl)'], ['Seasonal traffic', 12, 'var(--pt)'], ['Unexplained', 7, 'var(--faint)']];
-    rs.innerHTML = R.map(q => `<div class="mix-r"><span class="dot" style="color:${q[2]}"></span><span class="t">${q[0]}</span><span class="bar"><i style="width:${q[1]}%;background:${q[2]}"></i></span><span class="v num">${q[1]}%</span></div>`).join('');
-    box.classList.remove('shut'); why.setAttribute('aria-expanded', 'true'); stagger($$('.mix-r', rs), 60); swap(why, 'Hide the breakdown');
+    if (!box.classList.contains('shut')){ box.classList.add('shut'); why.setAttribute('aria-expanded', 'false'); label('Why did it move?'); return; }
+    // the words shimmer while the agent looks into it
+    label('<span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Looking into it</span>'); await c.wait(900);
+    // the drivers, each a bar in the accent on a neutral track; what it could not explain is a grey that keeps 3:1 on the track
+    const R = [['Annual plan shown first', 54], ['One CTA per card', 27], ['Seasonal traffic', 12], ['Unexplained', 7, 'var(--muted)']];
+    rs.innerHTML = R.map(q => `<div class="mix-r"><span class="t">${q[0]}</span><span class="bar"><i style="width:${q[1]}%${q[2] ? ';--k:' + q[2] : ''}"></i></span><span class="v num">${q[1]}%</span></div>`).join('');
+    box.classList.remove('shut'); why.setAttribute('aria-expanded', 'true'); stagger($$('.mix-r', rs), 60); label('Hide the breakdown');
   });
   c.later(400, () => draw(30));
 });
 /* ---------- Task table ---------- */
 DM.def('task-table', (r, c) => {
-  r.innerHTML = r.innerHTML.replace('{pause}', I('pause','xs')).replace('{refresh}', I('refresh','xs')).replace('{x}', I('x','xs'));
+  r.innerHTML = r.innerHTML.replace('{list}', I('list')).replace('{pause}', I('pause','xs')).replace('{refresh}', I('refresh','xs')).replace('{x}', I('x','xs'));
   const ST = { run:['Running','<span class="spin"></span>'], done:['Done', I('ok','xs')], fail:['Failed', I('alert','xs')], wait:['Queued','<span class="dot"></span>'], pause:['Paused', I('pause','xs')] };
   const SEED = [
     ['Audit pricing contrast','run','Design','DS','var(--av-b)',0.42,2],
@@ -98,7 +105,7 @@ DM.def('task-table', (r, c) => {
   // each row is made once and then kept: picking, sorting and actions change it in place, so it can ease between states
   const rows = new Map();
   function make(t){
-    const tr = html(`<tr data-id="${t.id}"><td class="ck"><button class="ttx-cb" role="checkbox" aria-checked="false" aria-label="Select ${t.n}">${tick}</button></td><td class="nm">${t.n}</td><td><span class="ttx-st" data-s="${t.s}">${pill(t.s)}</span></td><td><span class="ag">${AV(t.ai, t.ac)}${t.a}</span></td><td class="r num">$${t.cost.toFixed(2)}</td><td class="r num up"><span>${ago(t.up)}</span></td></tr>`);
+    const tr = html(`<tr data-id="${t.id}"><td class="ck"><button class="ttx-cb" role="checkbox" aria-checked="false" aria-label="Select ${t.n}">${tick}</button></td><td class="nm">${t.n}</td><td><span class="ttx-st" data-s="${t.s}">${pill(t.s)}</span></td><td><span class="ag">${AV(t.ai, t.ac)}<span>${t.a}</span></span></td><td class="r num">$${t.cost.toFixed(2)}</td><td class="r num up"><span>${ago(t.up)}</span></td></tr>`);
     tr.onclick = () => { t.sel = !t.sel; sync(); };
     rows.set(t.id, tr); return tr;
   }
@@ -117,27 +124,28 @@ DM.def('task-table', (r, c) => {
     T.forEach(t => { const tr = rows.get(t.id); tr.classList.toggle('sel', t.sel); $('.ttx-cb', tr).setAttribute('aria-checked', t.sel); });
     all.setAttribute('aria-checked', n === 0 ? 'false' : n === T.length ? 'true' : 'mixed');
     box.classList.toggle('selecting', n > 0); sb.inert = n === 0; if (n) cnt.textContent = n + ' selected';
-    const run = T.filter(t => t.s === 'run').length, line = T.length ? `${T.length} task${T.length === 1 ? '' : 's'}, ${run} running` : 'No tasks';
+    // with no tasks the empty state says so, so the head says nothing more and the column headings go (owner, 18 Nov: no
+    // text that repeats what the card already says)
+    const run = T.filter(t => t.s === 'run').length, line = T.length ? `${T.length} task${T.length === 1 ? '' : 's'}, ${run} running` : '';
+    box.classList.toggle('none', !T.length);
     if (line !== said){ said ? swap(sum, line) : sum.textContent = line; said = line; }
   }
   const status = (t, s) => { t.s = s; const el = $('.ttx-st', rows.get(t.id)); el.dataset.s = s; el.innerHTML = `<span class="sv ttx-sin">${face(s)}</span>`; };
   // cancelled rows slide away and the rest close up; when nothing is left the table says so
   function leave(ids){
     const out = T.filter(t => ids.includes(t.id)); T = T.filter(t => !ids.includes(t.id));
-    // the table's height as it was, for the empty state that takes the last rows' place
-    const had = T.length ? 0 : box.getBoundingClientRect().height;
     const go = () => { glideRows(() => out.forEach(t => { rows.get(t.id).remove(); rows.delete(t.id); }));
-      if (!T.length) empty(had); sync(); };
+      if (!T.length) empty(); sync(); };
     if (REDUCE) return go();
     out.forEach(t => rows.get(t.id).classList.add('ttx-out'));
     c.later(250, go);
   }
-  // the empty state keeps the height the table had, centred in it, so the card doesn't shrink to the top of its stage
-  function empty(had){
-    const tr = html(`<tr class="ttx-empty"><td colspan="6"><div class="ttx-em"><span class="ic">${I('check')}</span><b>No agent tasks</b><span>Everything has finished or been cancelled.</span><button class="pill ghost sm">${I('refresh','xs')}Bring them back</button></div></td></tr>`);
+  // the empty state takes the rows' place: a sketch of the table's rows on a small card (Soft and Clean; Blueprint keeps its
+  // mark), what happened, and a way to bring them back. The card grows or shrinks to it (grow()), keeping no room
+  const ART = '<span class="ttx-em-art" aria-hidden="true">' + '<span class="r"><i class="t"></i><i class="l"></i></span>'.repeat(3) + '</span>';
+  function empty(){
+    const tr = html(`<tr class="ttx-empty"><td colspan="6"><div class="ttx-em"><span class="ic">${I('check')}</span>${ART}<b>No agent tasks</b><span>Everything has finished or been cancelled.</span><button class="pill ghost sm">${I('refresh','xs')}Bring them back</button></div></td></tr>`);
     tb.appendChild(tr); enter(tr);
-    const d = had - box.getBoundingClientRect().height, td = tr.firstElementChild;
-    if (d > 1){ const cs = getComputedStyle(td); td.style.paddingTop = parseFloat(cs.paddingTop) + d / 2 + 'px'; td.style.paddingBottom = parseFloat(cs.paddingBottom) + d / 2 + 'px'; }
     $('.pill', tr).onclick = e => { e.stopPropagation(); tr.remove(); T = seed(); T.forEach(make); order(false); sync(); stagger([...tb.children], 30); };
   }
   $$('.ttx-s', r).forEach(b => b.onclick = () => { const k = +b.dataset.k; if (k === key) desc = !desc; else { key = k; desc = false; } order(true); });
@@ -153,6 +161,11 @@ DM.def('task-table', (r, c) => {
     sync(); if (key === 1 || key === 4) c.later(320, () => order(true));
   });
   T.forEach(make); order(false); sync(); stagger([...tb.children], 30);
+  // the columns resize and move as in a spreadsheet (owner, 21 Nov); Task stays first with its checkbox, and on a narrow card,
+  // where each task is a small card, every row keeps its own order
+  c.offs.push(cols($('.ttx-t', r), { lock:[0], move:[2, 3, 4, 5], min:{ 1:140, 2:104, 3:96, 4:72, 5:88 }, wide:() => box.clientWidth - 32 > 528 }));
+  // no room is kept for rows to come or for the empty state (owner, 18 Nov): the card follows its rows' height, eased
+  c.offs.push(grow(box));
   // the preview picks two tasks and retries them, unless you start clicking first
   c.auto(1600, () => { if (T.some(t => t.sel)) return; T.forEach(t => t.sel = t.id === 2 || t.id === 5); sync();
     c.auto(1900, () => { if (T.filter(t => t.sel).length === 2) $('.ttx-sb [data-a="retry"]', r).click(); }); });
@@ -162,6 +175,9 @@ DM.def('terminal-stream', (r, c) => {
   const IC = { term:I('term'), stop:I('stop','xs'), copy:I('copy') };
   r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) => IC[k] || m);
   const root = $('.tmx', r), body = $('.tmx-body', r), st = $('.tmx-st', r), sv = $('.tmx-sv', r), stop = $('.tmx-stop', r), cp = $('.tmx-cp', r), ff = $('.tmx-ff', r), foot = $('.tmx-f', r);
+  // no room is kept for output still to come (owner, 17 Nov): the terminal grows as lines arrive, up to its 420px, once its
+  // entrance has played; then the output scrolls. Installed inside something else, it sizes to its content as it is
+  if (r === c.st) Promise.resolve().then(() => Promise.all(root.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && root.isConnected) c.offs.push(grow(root)); });
   // what the agent does: each command with the lines it prints and how long it takes, then the one line where it says what
   // went wrong and the edit that fixes it. [text, tone] marks a line ok (green), bad (red) or mu (grey)
   const F = (n, kb) => 'dist/' + n.padEnd(22) + kb.padStart(6) + ' kB';
@@ -190,29 +206,30 @@ DM.def('terminal-stream', (r, c) => {
     for (let t = 0; t < ms;){ if (halt) return false; const d = Math.min(250, ms - t); await c.wait(d); t += d; vt += d; if (!over) sv.textContent = 'Running · ' + clock(vt); each && each(t); }
     return !halt;
   };
-  // a command or an edit: what it is on the left, a spinner and its time on the right
+  // a command or an edit: its $ (or the edit's pencil) in the marks' column, what it is, and a spinner and its time on the right
   function row(mark, text){
-    const el = html(`<div class="tmx-blk" data-s="run"><div class="tmx-cmd"><span class="tmx-p">${mark}</span><span class="tmx-c"></span><span class="tmx-m"><span class="g"><span class="spin"></span></span><span class="t num"></span></span></div></div>`);
+    const el = html(`<div class="tmx-blk" data-s="run"><div class="tmx-cmd">${mark === '$' ? '<code class="tmx-p">$</code>' : `<span class="tmx-p">${mark}</span>`}<code class="tmx-c"></code><span class="tmx-m"><span class="g"><span class="spin"></span></span><span class="t num"></span></span></div></div>`);
     $('.tmx-c', el).textContent = text; body.appendChild(el); enter(el); return el;
   }
   function lines(el){
-    const more = html(`<button class="tmx-more" aria-expanded="false" hidden>${I('chev-d','xs')}<span></span></button>`), hid = html('<div class="fold shut"><div class="tmx-o"></div></div>'), tail = html('<div class="tmx-o"></div>');
+    const more = html(`<button class="tmx-more" aria-expanded="false" hidden>${I('chev-d','xs')}<span></span><i class="sp"></i></button>`), hid = html('<div class="fold shut"><code class="tmx-o"></code></div>'), tail = html('<code class="tmx-o"></code>');
     const inner = hid.firstElementChild; hid.inert = true; el.append(more, hid, tail);
     const label = () => { const n = inner.children.length, open = !hid.classList.contains('shut'); $('span', more).textContent = open ? 'Show fewer lines' : `Show ${n} more line${n > 1 ? 's' : ''}`; more.setAttribute('aria-expanded', open); };
     more.onclick = () => { hid.inert = hid.classList.toggle('shut'); label(); };
     return ([text, tone]) => {
-      const l = document.createElement('div'); l.className = 'tmx-l' + (tone ? ' ' + tone : ''); l.textContent = text; tail.appendChild(l);
+      const l = document.createElement('span'); l.className = 'tmx-l' + (tone ? ' ' + tone : ''); l.textContent = text; tail.appendChild(l);
       if (inner.children.length + tail.children.length > TAIL + 1) while (tail.children.length > TAIL) inner.appendChild(tail.firstElementChild);
       if (inner.children.length){ more.hidden = false; label(); }
     };
   }
   const halted = el => { $('.tmx-m .g', el).innerHTML = '<span class="tag">Stopped</span>'; el.dataset.s = 'stop'; };
   function finish(how){
-    over = true; stop.hidden = true; root.classList.remove('live');
+    over = true; stop.hidden = true; root.classList.remove('live'); sv.classList.remove('shim');
     st.classList.toggle('ok', how === 'passed'); st.classList.toggle('bad', how === 'failed'); $('.g', st).innerHTML = I(how === 'passed' ? 'check' : 'stop', 'xs'); sv.textContent = how === 'passed' ? 'Passed' : how === 'failed' ? 'Failed' : 'Stopped';
-    // each command counts once, however many times it ran
+    // each command counts once, however many times it ran; how it went is the header's tag, so the summary doesn't say it
+    // again, and a finished line has no clock (owner, 18 Nov)
     const n = new Set(ran).size;
-    $('.tmx-fs', foot).textContent = `${n} command${n === 1 ? '' : 's'} · ${clock(vt)} · ${how}`;
+    $('.tmx-fs', foot).textContent = `Ran ${n} command${n === 1 ? '' : 's'}`;
     foot.className = 'tmx-f' + (how === 'stopped' ? ' stop' : how === 'failed' ? ' bad' : ''); $('.g', foot).innerHTML = I(how === 'passed' ? 'ok' : how === 'failed' ? 'alert' : 'stop');
     ff.classList.remove('shut');
   }
@@ -224,7 +241,7 @@ DM.def('terminal-stream', (r, c) => {
   const ro = new ResizeObserver(stick); ro.observe(body); c.offs.push(() => ro.disconnect());
   stop.onclick = () => { halt = true; };
   cp.onclick = () => copied(cp, log.join('\n'));
-  root.classList.add('live');
+  root.classList.add('live'); sv.classList.add('shim');
   c.run(async () => {
     let last = 0;
     for (const k of S){
@@ -239,8 +256,8 @@ DM.def('terminal-stream', (r, c) => {
         const el = row(I('edit','xs'), 'Edit ' + k.edit); el.dataset.s = 'edit';
         if (!await pass(k.ms)){ halted(el); return finish('stopped'); }
         $('.tmx-m', el).innerHTML = `<span class="add">+${k.add}</span><span class="del">−${k.del}</span>`; log.push(`# Edited ${k.edit} (+${k.add} −${k.del})`);
-        const df = document.createElement('div'); df.className = 'tmx-df';
-        k.diff.forEach((d, i) => { const l = document.createElement('div'); l.className = d[0] === '+' ? 'a' : d[0] === '-' ? 'd' : ''; l.textContent = d; df.appendChild(l); enter(l, i * 90); });
+        const df = document.createElement('code'); df.className = 'tmx-df';
+        k.diff.forEach((d, i) => { const l = document.createElement('span'); l.className = d[0] === '+' ? 'a' : d[0] === '-' ? 'd' : ''; l.textContent = d; df.appendChild(l); enter(l, i * 90); });
         el.appendChild(df); log.push(...k.diff);
         continue;
       }
@@ -285,9 +302,9 @@ DM.def('details-panel', (r, c) => {
 /* ---------- Citation hover card ---------- */
 DM.def('citation-hover', (r, c) => {
   const S = [
-    ['B','#4a5a8a','baymard.com','Pricing page UX benchmark','Of 64 SaaS sites tested, those leading with the annual plan saw <mark>a 12 to 20% higher trial to paid rate</mark> than monthly first layouts.','Read 4 days ago'],
-    ['C','#d9480f','cxl.com','Price anchoring in plan selection','When the monthly price stayed visible with a strike through, <mark>annual selection rose by a further 9 points</mark> in the anchored group.','Read 4 days ago'],
-    ['CSV','var(--pm)','Drive','Q3 conversion export.csv','Rows 412 to 480: <mark>trial to paid moves from 18.6% to 26.3%</mark> between Sep 18 and Oct 17.','Your file']
+    ['B','var(--av-b)','baymard.com','Pricing page UX benchmark','Of 64 SaaS sites tested, those leading with the annual plan saw <mark>a 12 to 20% higher trial to paid rate</mark> than monthly first layouts.','Read 4 days ago'],
+    ['C','var(--av-r)','cxl.com','Price anchoring in plan selection','When the monthly price stayed visible with a strike through, <mark>annual selection rose by a further 9 points</mark> in the anchored group.','Read 4 days ago'],
+    ['CSV','var(--av-l)','Drive','Q3 conversion export.csv','Rows 412 to 480: <mark>trial to paid moves from 18.6% to 26.3%</mark> between Sep 18 and Oct 17.','Your file']
   ];
   const card = $('.chx-card', r), inn = $('.chx-in', r), box = $('.chx', r), cites = $$('.chx-c', r);
   let cur = null, hideT, showT, back = false;
@@ -296,12 +313,13 @@ DM.def('citation-hover', (r, c) => {
     clearTimeout(hideT); if (cur === b) return;
     const s = S[+b.dataset.i]; cur = b;
     cites.forEach(x => x.classList.toggle('on', x === b));
-    inn.innerHTML = `<div class="chx-sh"><span class="fv" style="background:${s[1]}">${s[0][0]}</span><span>${s[2]}</span></div><div class="chx-t">${s[3]}</div><div class="chx-q">${s[4]}</div><div class="chx-f"><span>${s[5]}</span><a href="#" onclick="return false">Open source ${I('ext','xs')}</a></div>`;
-    /* restart the entry each time, so it always rises from below in place and never slides sideways */
+    inn.innerHTML = `<div class="chx-sh"><span class="fv" style="background:${s[1]};color:${s[1].replace(')', '-ink)')}">${s[0][0]}</span><span>${s[2]}</span></div><div class="chx-t">${s[3]}</div><div class="chx-q">${s[4]}</div><div class="chx-f"><span>${s[5]}</span><a href="#" onclick="return false">Open source ${I('ext','xs')}</a></div>`;
+    /* restart the entry each time, so it always grows in place and never slides sideways. It opens below its citation when
+       it fits there and above it when it doesn't (placePop), so the stage or the page never cuts it off, and it stays inside
+       the answer's column */
     card.classList.remove('show'); void card.offsetWidth;
-    const br = box.getBoundingClientRect(), cr = b.getBoundingClientRect();
-    const x = Math.max(0, Math.min(cr.left - br.left - 24, br.width - card.offsetWidth));
-    card.style.left = x + 'px'; card.style.top = (cr.bottom - br.top + 8) + 'px';
+    placePop(b, card);
+    card.style.left = Math.max(0, Math.min(parseFloat(card.style.left) || 0, box.clientWidth - card.offsetWidth)) + 'px';
     card.classList.add('show');
   }
   function hide(now){

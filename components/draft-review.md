@@ -36,10 +36,10 @@ Draft review lays out an email the agent wrote the way the email will go: who it
 
 - `to` shows each recipient as a chip with an avatar. `subject` sits in a plain input, and `body` stays editable; read edits from `onBodyChange`.
 - `attachments` show as file chips, with a spinner in place of the size while one is `loading`.
-- `warning` folds open above the buttons with its own actions, like Send anyway and Attach the summary.
+- `warning` folds open above the buttons as a warning notice: a faint warning tint, the filled warning sign and its words, with its own actions, like Send anyway and Attach the summary. The action marked `primary` is the one that settles it, in the warning tint; the others are white.
 - The dropdown beside Send picks when it goes. `sendOptions` replace the defaults (now, tomorrow at 09:00, Monday at 09:00), and any pick but `now` turns the button into Schedule.
-- `phase` moves from `draft` to `sending`, then `undo`, `sent`, `scheduled` or `discarded`. The tag in the header follows it, and the fields dim while it is out of your hands.
-- In the `undo` phase a green row counts down `undoLeft` with an Undo button. A scheduled message can be cancelled and a discarded draft brought back, all through `onUndo`.
+- `phase` moves from `draft` to `sending`, then `undo`, `sent`, `scheduled` or `discarded`. The header's Not sent tag steps aside once the result shows in the buttons' place, and the fields dim while it is out of your hands.
+- In the `undo` phase a neutral row with the green tick counts down `undoLeft` with an Undo button, in the buttons' place. A scheduled message can be cancelled and a discarded draft brought back, all through `onUndo`. In Clean the buttons and this row sit in the off-white strip at the foot.
 
 ### Accessibility
 
@@ -47,6 +47,7 @@ Draft review lays out an email the agent wrote the way the email will go: who it
 - The dropdown button is labelled "When to send" and says whether its menu is open. Each time is a menu item that marks the picked one with `aria-checked`, and Escape closes the menu.
 - From the keyboard, Enter, Space or the down arrow opens a menu with the focus on its picked item, or its first (the up arrow, on its last); the arrow keys move through it and wrap, Home and End jump to the ends, Tab closes it and moves on, and closing it gives the focus back to its button.
 - Once it is sent, scheduled or discarded, the fields are inert, so they can't be edited or reached with Tab until it is undone.
+- The warning is announced as an alert when it opens.
 
 ## Usage in React
 
@@ -134,7 +135,7 @@ export default function DraftReviewDemo() {
 | `body` | `string` | The message as the agent wrote it. Paragraphs are split by blank lines. It stays editable; read edits from onBodyChange |
 | `onBodyChange` (optional) | `(body: string) => void` |  |
 | `attachments` (optional) | `DraftAttachment[]` |  |
-| `warning` (optional) | `{ text: ReactNode; actions: { label: string; onClick: () => void; primary?: boolean }[] }` | A problem to settle before it sends, like an attachment the message mentions but nothing attached |
+| `warning` (optional) | `{ text: ReactNode; actions: { label: string; onClick: () => void; primary?: boolean }[] }` | A problem to settle before it sends, like an attachment the message mentions but nothing attached. It shows as a warning notice; the action marked `primary` is the one that settles it, in the warning tint, and the others are white |
 | `phase` (optional) | `DraftPhase` |  |
 | `sendOptions` (optional) | `SendOption[]` | When to send, picked from the menu beside the button |
 | `sendOption` (optional) | `string` |  |
@@ -180,11 +181,13 @@ Yes. Change the `title` and `labels`, and pass the recipients and send options y
 'use client';
 import { useRef, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
-import { useControllable } from '../lib/hooks';
+import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { Avatar, Fold, Spin, Swap } from '../lib/motion';
+import { Avatar, Fold, Spin, Swap, useGrow } from '../lib/motion';
 import { usePopover } from '../lib/popover';
 import '../designme.css';
+// its menus' rows glide in Clean
+import '../lib/glide';
 import './draft-review.css';
 
 export interface DraftRecipient {
@@ -225,7 +228,8 @@ export interface DraftReviewProps {
   body: string;
   onBodyChange?: (body: string) => void;
   attachments?: DraftAttachment[];
-  /** A problem to settle before it sends, like an attachment the message mentions but nothing attached */
+  /** A problem to settle before it sends, like an attachment the message mentions but nothing attached. It shows as a warning
+      notice; the action marked `primary` is the one that settles it, in the warning tint, and the others are white */
   warning?: { text: ReactNode; actions: { label: string; onClick: () => void; primary?: boolean }[] };
   phase?: DraftPhase;
   /** When to send, picked from the menu beside the button */
@@ -241,6 +245,17 @@ export interface DraftReviewProps {
   undoLeft?: number;
   labels?: { send?: string; schedule?: string; sending?: string; scheduling?: string; discard?: string; notSent?: string; sent?: string; scheduled?: string; delivered?: string; discarded?: string; nothingSent?: string; undo?: string; cancel?: string };
   className?: string;
+}
+
+/** A button whose words change (Send, Schedule, Sending) is as wide as its words and eases to its new width */
+function useEaseWidth(key: unknown) {
+  const ref = useRef<HTMLButtonElement>(null), w = useRef(0), was = useRef<HTMLElement | null>(null), reduce = useReducedMotion();
+  useIsoLayoutEffect(() => {
+    const b = ref.current; if (!b) return;
+    const w1 = b.getBoundingClientRect().width, w0 = was.current === b ? w.current : 0, cs = getComputedStyle(b); w.current = w1; was.current = b;
+    if (w0 && !reduce && Math.abs(w1 - w0) > .5) b.animate([{ width: w0 + 'px' }, { width: w1 + 'px' }], { duration: (parseFloat(cs.getPropertyValue('--dm-t')) || .34) * 1000, easing: cs.getPropertyValue('--dm-ease').trim() || 'ease' });
+  }, [key]);
+  return ref;
 }
 
 const WHEN: SendOption[] = [
@@ -264,6 +279,10 @@ export function DraftReview({
   // the body is written once and left to the browser while it is edited, so the caret stays where it is
   const first = useRef(body);
   const busy = phase === 'sending', done = phase !== 'draft' && phase !== 'sending';
+  // no room is kept for what comes later: the card eases to its new height as the attachment, the warning or the result
+  // arrives (as grow() on the site)
+  const [root, inner] = useGrow();
+  const goBtn = useEaseWidth(`${busy}:${later}`);
   const tag = phase === 'sent' ? ['dm-ok', L.sent] : phase === 'scheduled' ? ['dm-b', L.scheduled] : ['', L.notSent];
   const row = phase === 'undo' ? { icon: 'ok' as const, cls: '', t: `${L.sent} to ${names}`, sub: `You can undo for ${undoLeft}s`, btn: L.undo }
     : phase === 'sent' ? { icon: 'ok' as const, cls: '', t: `${L.sent} to ${names}`, sub: L.delivered }
@@ -272,7 +291,8 @@ export function DraftReview({
 
   return (
     <div data-dm="" className={className} style={{ width: '100%' }}>
-      <div className={cx('dm-drf dm-panel', done && 'dm-sent')}>
+      <div ref={root} className={cx('dm-drf dm-panel dm-growing', done && 'dm-sent')}>
+        <div ref={inner} className="dm-grow">
         <div className="dm-drf-h">
           <span className="dm-drf-ag"><Icon name="spark" /></span>
           <div className="dm-drf-ht"><b>{title}</b>{subtitle && <span className="dm-muted">{subtitle}</span>}</div>
@@ -293,16 +313,17 @@ export function DraftReview({
           ))}
         </div>
         <Fold open={!!warning && phase === 'draft'} className="dm-drf-wf">
-          <div className="dm-drf-w">
-            <p><Icon name="alert" size="xs" /><span>{warning?.text}</span></p>
+          <div className="dm-drf-w" role="alert">
+            <svg className="dm-drf-wi" viewBox="0 0 24 24" aria-hidden="true"><path className="dm-a" d="M12 3.6 2.6 19.9h18.8z" /><path className="dm-b" d="M12 9.6v4.4M12 17v.01" /></svg>
+            <p>{warning?.text}</p>
             <div className="dm-drf-wa">
-              {warning?.actions.map(a => <button key={a.label} type="button" className={cx('dm-pill dm-sm', a.primary ? 'dm-primary' : 'dm-ghost')} onClick={a.onClick}>{a.label}</button>)}
+              {warning?.actions.map(a => <button key={a.label} type="button" className={cx('dm-pill dm-sm', a.primary ? 'dm-warn' : 'dm-ghost')} onClick={a.onClick}>{a.label}</button>)}
             </div>
           </div>
         </Fold>
         {row ? (
           <div className={cx('dm-drf-done dm-enter', row.cls)}>
-            <Icon name={row.icon} size={row.icon === 'trash' ? 'xs' : undefined} />
+            <span className="dm-g"><Icon name={row.icon} /></span>
             <span className="dm-t">{row.t}<span className="dm-muted dm-drf-sub">{row.sub}</span></span>
             {row.btn && <button type="button" className="dm-pill dm-sm" onClick={onUndo}>{row.btn}</button>}
           </div>
@@ -312,7 +333,7 @@ export function DraftReview({
             <span className="dm-sp" />
             <Swap className="dm-muted dm-drf-when">{later ? chosen.label : ''}</Swap>
             <div className="dm-drf-mg">
-              <button type="button" className="dm-pill dm-primary dm-sm dm-drf-go" disabled={busy} onClick={() => onSend?.(chosen)}>
+              <button ref={goBtn} type="button" className="dm-pill dm-primary dm-sm dm-drf-go" disabled={busy} onClick={() => onSend?.(chosen)}>
                 {busy ? <><Spin />{later ? L.scheduling : L.sending}</> : <><Icon name={later ? 'clock' : 'send'} size="xs" />{later ? L.schedule : L.send}</>}
               </button>
               <button type="button" className="dm-pill dm-primary dm-sm dm-drf-dd" aria-label="When to send" disabled={busy} {...menu.trigger}><Icon name="chev-d" size="xs" /></button>
@@ -326,6 +347,7 @@ export function DraftReview({
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

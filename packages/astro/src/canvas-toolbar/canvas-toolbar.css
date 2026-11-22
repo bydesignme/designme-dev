@@ -28,10 +28,10 @@
 .ctb-w{position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible;pointer-events:none}
 .ctb-w path{fill:none;stroke:var(--dm-ctb-wire);stroke-width:1.5;transition:stroke .5s var(--dm-ease)}
 .ctb-w path.lit{stroke:var(--dm-accent-mark)}
-.ctb-n{position:absolute;width:160px;display:flex;align-items:center;gap:var(--dm-s-2);padding:var(--dm-s-2) var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-surface);box-shadow:var(--dm-shadow);font-size:12.5px;line-height:1.35;transition:box-shadow .3s var(--dm-ease)}
+.ctb-n{position:absolute;width:160px;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;column-gap:var(--dm-s-2);padding:var(--dm-s-2) var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-surface);box-shadow:var(--dm-shadow);font-size:12.5px;line-height:1.35;transition:box-shadow .3s var(--dm-ease)}
 .ctb-n.in{animation:ctbin .56s var(--dm-ease) backwards}
 @keyframes ctbin{from{opacity:0;filter:blur(4px)}}
-.ctb-n .ic{width:28px;height:28px;border-radius:var(--dm-r-sm);display:grid;place-items:center;flex:none}
+.ctb-n .ic{width:28px;height:28px;border-radius:var(--dm-r-sm);display:grid;place-items:center;flex:none;color:var(--dm-kf,var(--dm-k));background:color-mix(in srgb,var(--dm-k) 14%,transparent)}
 .ctb-n .t{display:flex;flex-direction:column;min-width:0}
 .ctb-n .t b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ctb-n .t span{font-size:11.5px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -72,7 +72,11 @@
 @media (hover:hover) and (pointer:fine){.ctb-b[aria-disabled="true"]:hover{color:var(--dm-dis);background:none;cursor:not-allowed}}
 .ctb-sep{width:1px;height:16px;margin:0 var(--dm-s-1);flex:none;background:var(--dm-line)}
 .ctb-tools{display:flex}
+/* in its canvas the toolbar sits 16px above the foot, as the canvas's other overlays sit from its edges */
+.ctb .ctb-bar{bottom:var(--dm-s-4)}
 .ctb-run{min-width:76px;padding:0 var(--dm-s-4) 0 var(--dm-s-3);transition:opacity var(--dm-t-fast),transform .15s}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink Run alone presses */
+.ctb :is(.pill,.ib):active{transform:none}
 .ctb-run.stop{background:var(--dm-ctb-stop);color:var(--dm-ctb-on-stop)}
 @media (hover:hover) and (pointer:fine){.ctb-run.stop:hover{background:var(--dm-ctb-stop-2)}}
 .ctb-z{min-width:48px;height:32px;padding:0 var(--dm-s-1);flex:none;border-radius:var(--dm-r-pill);font-size:12.5px;color:var(--dm-fg2);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
@@ -89,5 +93,29 @@
 .ctb-live,.ctb-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ctb{--dm-ctb-stop:#c43535;--dm-ctb-stop-2:#d34646}}
 :root[data-theme="dark"] .ctb{--dm-ctb-stop:#c43535;--dm-ctb-stop-2:#d34646}
-:root:not([data-style="soft"],[data-style="clean"]) .ctb-n.run:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:0 0 0 1px var(--dm-accent-mark),0 0 0 4px color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 22%,transparent)}
+/* the running step has a thin line in the accent's mark, with no halo round it (owner, 30 Oct: no coloured glows) */
+:root:not([data-style="soft"],[data-style="clean"]) .ctb-n.run:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:0 0 0 1px var(--dm-accent-mark)}
 :root:not([data-style="soft"],[data-style="clean"]) .ctb-n.sel:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-pick-on) 50%,transparent)}
+/* Clean (owner, 17 and 18 Nov): the chrome is monochrome, so the tool in use and a pressed Comment sit on a neutral fill with
+   their glyph in the text colour (a switcher, not data); a step's tile is one neutral grey, whatever its kind (no hue per
+   step), with a hairline like Clean's other tiles; ticks are the vivid green; hovers take Clean's calm 220ms. Run is the ink
+   primary, and so is Stop while a run goes */
+/* (owner, 21 Nov: "there is no difference between this and soft and clean"): the bar is a pill drawn by a half-strength
+   hairline with only a 1px contact shadow under it, no lifted shadow; its dividers are half-strength hairlines and every glyph
+   is in the text greys. The pointer tools are Clean's segmented switcher: a sunk grey track with the tool in use on the white
+   knob. Comment, pressed, takes the one selected fill. Hovers are pills under one gliding highlight, the bar's own and the
+   tools' own (hoverGlide); Run is the ink primary, and so is Stop while a run goes. (The workflow editor's own bar, built on
+   these classes, keeps its look) */
+:root[data-style="clean"] .ctb .ctb-bar,:root [data-style="clean"] .ctb .ctb-bar,:root [data-style="clean"].ctb .ctb-bar{box-shadow:0 0 0 1px var(--dm-hair),0 1px 2px rgba(0,0,0,.06)}
+:root[data-style="clean"] .ctb .ctb-sep,:root [data-style="clean"] .ctb .ctb-sep,:root [data-style="clean"].ctb .ctb-sep{background:color-mix(in srgb,var(--dm-line) 50%,transparent)}
+:root[data-style="clean"] .ctb .ctb-tools,:root [data-style="clean"] .ctb .ctb-tools,:root [data-style="clean"].ctb .ctb-tools{padding:2px;margin:0 2px;border-radius:var(--dm-r-pill);background:var(--dm-soft);box-shadow:var(--dm-track-ring)}
+:root[data-style="clean"] .ctb .ctb-tools .ctb-b,:root [data-style="clean"] .ctb .ctb-tools .ctb-b,:root [data-style="clean"].ctb .ctb-tools .ctb-b{width:30px;height:28px}
+@media (prefers-color-scheme:dark){:root[data-style="clean"]:not([data-theme="light"]) .ctb .ctb-tools,:root:not([data-theme="light"]) [data-style="clean"] .ctb .ctb-tools,:root:not([data-theme="light"]) [data-style="clean"].ctb .ctb-tools{background:rgba(0,0,0,.32)}}
+:root[data-style="clean"][data-theme="dark"] .ctb .ctb-tools,:root[data-theme="dark"] [data-style="clean"] .ctb .ctb-tools,:root[data-theme="dark"] [data-style="clean"].ctb .ctb-tools{background:rgba(0,0,0,.32)}
+:root[data-style="clean"] .ctb .ctb-tools .ctb-b[aria-checked="true"],:root [data-style="clean"] .ctb .ctb-tools .ctb-b[aria-checked="true"],:root [data-style="clean"].ctb .ctb-tools .ctb-b[aria-checked="true"]{background:var(--dm-knob);box-shadow:var(--dm-knob-shadow);color:var(--dm-fg)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .ctb .ctb-tools .ctb-b[aria-checked="true"]:hover,:root [data-style="clean"] .ctb .ctb-tools .ctb-b[aria-checked="true"]:hover,:root [data-style="clean"].ctb .ctb-tools .ctb-b[aria-checked="true"]:hover{background:var(--dm-knob);box-shadow:var(--dm-knob-shadow);color:var(--dm-fg)}}
+:root[data-style="clean"] .ctb .ctb-b[aria-pressed="true"],:root [data-style="clean"] .ctb .ctb-b[aria-pressed="true"],:root [data-style="clean"].ctb .ctb-b[aria-pressed="true"]{background:var(--dm-row-on);color:var(--dm-fg)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .ctb .ctb-b[aria-pressed="true"]:hover,:root [data-style="clean"] .ctb .ctb-b[aria-pressed="true"]:hover,:root [data-style="clean"].ctb .ctb-b[aria-pressed="true"]:hover{background:var(--dm-row-on);color:var(--dm-fg)}}
+:root[data-style="clean"] .ctb-n .ic,:root [data-style="clean"] .ctb-n .ic,:root [data-style="clean"].ctb-n .ic{color:var(--dm-fg2);background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .ctb-n .s .i,:root [data-style="clean"] .ctb-n .s .i,:root [data-style="clean"].ctb-n .s .i{color:var(--dm-ok-mark)}
+:root[data-style="clean"] .ctb :is(.ctb-b,.ctb-z),:root [data-style="clean"] .ctb :is(.ctb-b,.ctb-z),:root [data-style="clean"].ctb :is(.ctb-b,.ctb-z){transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}

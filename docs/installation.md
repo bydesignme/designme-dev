@@ -101,6 +101,7 @@ src/components/designme/
     hooks.ts
     icons.tsx
     motion.tsx
+    glide.ts
     popover.tsx
   status-pill/
     StatusPill.tsx

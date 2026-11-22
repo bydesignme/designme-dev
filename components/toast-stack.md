@@ -35,9 +35,9 @@ Toast stack collects the notifications an agent sends while it works and piles t
 ### What it does
 
 - Pass `toasts` oldest first. The last item sits at the front and older ones step back, shrink and fade.
-- Hovering the stack fans it into a list that grows to fit the four front toasts. Set `expanded` to fan it yourself.
+- Hovering the stack fans it into a list that grows to fit the four front toasts. Set `expanded` to fan it yourself. Stacked, the deck is as tall as the toasts in it, growing as they arrive, and the toasts behind the front one show only their edges.
 - Each toast has an icon badge, a bold `title`, an optional `detail` line and an optional `time` like "now" or "2m".
-- `tone` colours the badge, with status tones (ok, warn, bad, merge) and colour names like blue, purple and teal.
+- `tone` colours the badge, with status tones (ok, warn, bad, merge) and colour names like blue, purple and teal. In Clean only the status tones `ok`, `warn` and `bad` take colour, on the icon alone; the rest are grey.
 - The close button calls `onDismiss` with the toast id. Remove it from `toasts` and it slides off to the right as it fades.
 - `max` caps how many toasts stay mounted (6 by default). Older ones drop off the back, and new ones rise in from below.
 
@@ -161,7 +161,7 @@ export interface StackToast {
   id: string | number;
   /** The icon in the round badge */
   icon: IconName;
-  /** Colours the badge. Defaults to neutral */
+  /** Colours the badge. Defaults to neutral. In Clean only the status tones (ok, warn, bad) take colour, on the icon alone */
   tone?: ToastStackTone;
   title: ReactNode;
   /** The quiet line under the title */
@@ -226,12 +226,17 @@ export function ToastStack({ toasts, onDismiss, expanded, max = 6, className }: 
     return () => ro.disconnect();
   }, [ids]);
 
+  // the toasts a new one covers lose their words as it starts to rise (Clean shows them through no blur), until the stack fans out
+  const [under, setUnder] = useState<Set<StackToast['id']>>(() => new Set());
+  if (fan && under.size) setUnder(new Set());
   // new toasts wait two frames in their arriving pose, so the move to their place animates
   const [placed, setPlaced] = useState<Set<StackToast['id']>>(() => new Set());
   useEffect(() => {
     const fresh = live.filter(t => !placed.has(t.id)).map(t => t.id);
     if (!fresh.length) return;
-    let raf = requestAnimationFrame(() => { raf = requestAnimationFrame(() => setPlaced(p => new Set([...p, ...fresh]))); });
+    // as they start to rise into place, the toasts they cover lose their words at once (Clean shows them through no blur)
+    const behind = live.filter(t => !fresh.includes(t.id)).map(t => t.id);
+    let raf = requestAnimationFrame(() => { raf = requestAnimationFrame(() => { setPlaced(p => new Set([...p, ...fresh])); if (!fan) setUnder(new Set(behind)); }); });
     return () => cancelAnimationFrame(raf);
   }, [ids]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -259,12 +264,14 @@ export function ToastStack({ toasts, onDismiss, expanded, max = 6, className }: 
 
   // the stack grows to fit the four front toasts when it fans out
   const fanh = live.length ? hs.slice(0, 4).reduce((a, b) => a + b + 8, 0) - 8 || 96 : undefined;
+  // the deck's own height: the front toast and the two that peek out above it (Clean sizes the stack to it)
+  const deckh = Math.ceil(hs.slice(0, 3).reduce((m, h, k) => Math.max(m, h * (1 - k * .05) + k * 10), 0));
 
   const card = (t: StackToast, style: CSSProperties, gone = false) => {
     const [fg, bg] = TONE[t.tone ?? 'neutral'];
     return (
-      <div key={t.id} className="dm-tsk-c" style={style} inert={gone || (fan ? front.indexOf(t) > 3 : front.indexOf(t) > 0)} ref={el => { if (gone) return; if (el) els.current.set(t.id, el); else els.current.delete(t.id); }}>
-        <span className="dm-g" style={{ color: `var(${fg})`, background: `var(${bg})` }}><Icon name={t.icon} /></span>
+      <div key={t.id} className={cx('dm-tsk-c', !gone && under.has(t.id) && front.indexOf(t) > 0 && 'dm-tsk-under')} style={style} inert={gone || (fan ? front.indexOf(t) > 3 : front.indexOf(t) > 0)} ref={el => { if (gone) return; if (el) els.current.set(t.id, el); else els.current.delete(t.id); }}>
+        <span className="dm-g" data-tone={t.tone ?? 'neutral'} style={{ color: `var(${fg})`, background: `var(${bg})` }}><Icon name={t.icon} /></span>
         <div className="dm-tx"><b>{t.title}</b>{t.detail && <span>{t.detail}</span>}</div>
         {t.time && <span className="dm-t">{t.time}</span>}
         <Tip label="Dismiss"><button type="button" className="dm-ib" aria-label="Dismiss" onClick={() => onDismiss?.(t.id)}><Icon name="x" /></button></Tip>
@@ -274,7 +281,7 @@ export function ToastStack({ toasts, onDismiss, expanded, max = 6, className }: 
 
   return (
     <div data-dm="" className={cx('dm-tsk-stack', fan && 'dm-fan', className)} aria-live="polite"
-      style={fanh !== undefined ? { '--dm-fanh': fanh + 'px' } as CSSProperties : undefined}
+      style={{ ...(fanh !== undefined && { '--dm-fanh': fanh + 'px' }), '--dm-deckh': deckh + 'px' } as CSSProperties}
       onPointerEnter={() => setHover(true)} onPointerLeave={() => setHover(false)}
       onFocus={() => setFocused(true)} onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setFocused(false); }}>
       {leaving.slice().sort((a, b) => a.at - b.at).reduce((all, l) => { all.splice(Math.min(l.at, all.length), 0, card(l.toast, l.style, true)); return all; },

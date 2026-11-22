@@ -1,7 +1,7 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, AV, DM, I, REDUCE, enter, html, reflow, stagger, swap } from '../core/core.js';
+import { $, $$, AV, DM, I, REDUCE, cols, enter, grow, html, reflow, stagger, swap } from '../core/core.js';
 DM.def('task-table', (r, c) => {
-  r.innerHTML = r.innerHTML.replace('{pause}', I('pause','xs')).replace('{refresh}', I('refresh','xs')).replace('{x}', I('x','xs'));
+  r.innerHTML = r.innerHTML.replace('{list}', I('list')).replace('{pause}', I('pause','xs')).replace('{refresh}', I('refresh','xs')).replace('{x}', I('x','xs'));
   const ST = { run:['Running','<span class="spin"></span>'], done:['Done', I('ok','xs')], fail:['Failed', I('alert','xs')], wait:['Queued','<span class="dot"></span>'], pause:['Paused', I('pause','xs')] };
   const SEED = [
     ['Audit pricing contrast','run','Design','DS','var(--dm-av-b)',0.42,2],
@@ -25,7 +25,7 @@ DM.def('task-table', (r, c) => {
   // each row is made once and then kept: picking, sorting and actions change it in place, so it can ease between states
   const rows = new Map();
   function make(t){
-    const tr = html(`<tr data-id="${t.id}"><td class="ck"><button class="ttx-cb" role="checkbox" aria-checked="false" aria-label="Select ${t.n}">${tick}</button></td><td class="nm">${t.n}</td><td><span class="ttx-st" data-s="${t.s}">${pill(t.s)}</span></td><td><span class="ag">${AV(t.ai, t.ac)}${t.a}</span></td><td class="r num">$${t.cost.toFixed(2)}</td><td class="r num up"><span>${ago(t.up)}</span></td></tr>`);
+    const tr = html(`<tr data-id="${t.id}"><td class="ck"><button class="ttx-cb" role="checkbox" aria-checked="false" aria-label="Select ${t.n}">${tick}</button></td><td class="nm">${t.n}</td><td><span class="ttx-st" data-s="${t.s}">${pill(t.s)}</span></td><td><span class="ag">${AV(t.ai, t.ac)}<span>${t.a}</span></span></td><td class="r num">$${t.cost.toFixed(2)}</td><td class="r num up"><span>${ago(t.up)}</span></td></tr>`);
     tr.onclick = () => { t.sel = !t.sel; sync(); };
     rows.set(t.id, tr); return tr;
   }
@@ -44,27 +44,28 @@ DM.def('task-table', (r, c) => {
     T.forEach(t => { const tr = rows.get(t.id); tr.classList.toggle('sel', t.sel); $('.ttx-cb', tr).setAttribute('aria-checked', t.sel); });
     all.setAttribute('aria-checked', n === 0 ? 'false' : n === T.length ? 'true' : 'mixed');
     box.classList.toggle('selecting', n > 0); sb.inert = n === 0; if (n) cnt.textContent = n + ' selected';
-    const run = T.filter(t => t.s === 'run').length, line = T.length ? `${T.length} task${T.length === 1 ? '' : 's'}, ${run} running` : 'No tasks';
+    // with no tasks the empty state says so, so the head says nothing more and the column headings go (owner, 18 Nov: no
+    // text that repeats what the card already says)
+    const run = T.filter(t => t.s === 'run').length, line = T.length ? `${T.length} task${T.length === 1 ? '' : 's'}, ${run} running` : '';
+    box.classList.toggle('none', !T.length);
     if (line !== said){ said ? swap(sum, line) : sum.textContent = line; said = line; }
   }
   const status = (t, s) => { t.s = s; const el = $('.ttx-st', rows.get(t.id)); el.dataset.s = s; el.innerHTML = `<span class="sv ttx-sin">${face(s)}</span>`; };
   // cancelled rows slide away and the rest close up; when nothing is left the table says so
   function leave(ids){
     const out = T.filter(t => ids.includes(t.id)); T = T.filter(t => !ids.includes(t.id));
-    // the table's height as it was, for the empty state that takes the last rows' place
-    const had = T.length ? 0 : box.getBoundingClientRect().height;
     const go = () => { glideRows(() => out.forEach(t => { rows.get(t.id).remove(); rows.delete(t.id); }));
-      if (!T.length) empty(had); sync(); };
+      if (!T.length) empty(); sync(); };
     if (REDUCE) return go();
     out.forEach(t => rows.get(t.id).classList.add('ttx-out'));
     c.later(250, go);
   }
-  // the empty state keeps the height the table had, centred in it, so the card doesn't shrink to the top of its stage
-  function empty(had){
-    const tr = html(`<tr class="ttx-empty"><td colspan="6"><div class="ttx-em"><span class="ic">${I('check')}</span><b>No agent tasks</b><span>Everything has finished or been cancelled.</span><button class="pill ghost sm">${I('refresh','xs')}Bring them back</button></div></td></tr>`);
+  // the empty state takes the rows' place: a sketch of the table's rows on a small card (Soft and Clean; Blueprint keeps its
+  // mark), what happened, and a way to bring them back. The card grows or shrinks to it (grow()), keeping no room
+  const ART = '<span class="ttx-em-art" aria-hidden="true">' + '<span class="r"><i class="t"></i><i class="l"></i></span>'.repeat(3) + '</span>';
+  function empty(){
+    const tr = html(`<tr class="ttx-empty"><td colspan="6"><div class="ttx-em"><span class="ic">${I('check')}</span>${ART}<b>No agent tasks</b><span>Everything has finished or been cancelled.</span><button class="pill ghost sm">${I('refresh','xs')}Bring them back</button></div></td></tr>`);
     tb.appendChild(tr); enter(tr);
-    const d = had - box.getBoundingClientRect().height, td = tr.firstElementChild;
-    if (d > 1){ const cs = getComputedStyle(td); td.style.paddingTop = parseFloat(cs.paddingTop) + d / 2 + 'px'; td.style.paddingBottom = parseFloat(cs.paddingBottom) + d / 2 + 'px'; }
     $('.pill', tr).onclick = e => { e.stopPropagation(); tr.remove(); T = seed(); T.forEach(make); order(false); sync(); stagger([...tb.children], 30); };
   }
   $$('.ttx-s', r).forEach(b => b.onclick = () => { const k = +b.dataset.k; if (k === key) desc = !desc; else { key = k; desc = false; } order(true); });
@@ -80,6 +81,11 @@ DM.def('task-table', (r, c) => {
     sync(); if (key === 1 || key === 4) c.later(320, () => order(true));
   });
   T.forEach(make); order(false); sync(); stagger([...tb.children], 30);
+  // the columns resize and move as in a spreadsheet (owner, 21 Nov); Task stays first with its checkbox, and on a narrow card,
+  // where each task is a small card, every row keeps its own order
+  c.offs.push(cols($('.ttx-t', r), { lock:[0], move:[2, 3, 4, 5], min:{ 1:140, 2:104, 3:96, 4:72, 5:88 }, wide:() => box.clientWidth - 32 > 528 }));
+  // no room is kept for rows to come or for the empty state (owner, 18 Nov): the card follows its rows' height, eased
+  c.offs.push(grow(box));
   // the preview picks two tasks and retries them, unless you start clicking first
   c.auto(1600, () => { if (T.some(t => t.sel)) return; T.forEach(t => t.sel = t.id === 2 || t.id === 5); sync();
     c.auto(1900, () => { if (T.filter(t => t.sel).length === 2) $('.ttx-sb [data-a="retry"]', r).click(); }); });

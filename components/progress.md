@@ -33,8 +33,8 @@ One run shown three ways, plus a meter. A ring gives the whole run as a percenta
 
 ### What it does
 
-- Five states: indeterminate (the ring turns a short arc and the bar sweeps), running (the accent), paused (grey), error (red, with the error over the bar and a Retry button) and complete (green, with a check in the ring).
-- A line under the title in plain words, such as "Step 3 of 5, indexing files" or "Paused at step 3 of 5"; pass `valueText` for your own.
+- Five states: indeterminate (the ring turns a short arc and the bar sweeps), running (the accent, white in Clean's dark mode), paused (grey), error (the danger colour, with the error over the bar and a Retry button) and complete (green, with a check in the ring). The ring, segments and bars use the mark colours, which keep 3:1.
+- A line under the title in plain words, such as "Step 3 of 5, indexing files" or "Paused at step 3 of 5"; pass `valueText` for your own. While the run starts or runs, it shimmers as loader text does.
 - A status tag (Starting, Running, Paused, Failed, Done) and one button beside it: Pause while running, Resume while paused, Run again once complete when `onRestart` is set.
 - The step's count over its bar, like "1,240 of 2,000", from each step's `unit` and `total`.
 - An optional `meter` with two thresholds, drawn as notches through the bar: from `warnAt` (75%) its bar turns orange and a Running low tag appears, from `dangerAt` (90%) it turns red and says `dangerLabel`.
@@ -255,7 +255,7 @@ export function Progress({ title, state, steps, step, stepProgress, valueText, e
           <svg viewBox="0 0 36 36" aria-hidden="true"><circle className="dm-tr" cx="18" cy="18" r="15" /><circle className="dm-fl" cx="18" cy="18" r="15" pathLength={100} style={ind ? undefined : { strokeDasharray: `${all * 100} 100` }} /></svg>
           <span className="dm-prg-pc dm-num">{done ? <Icon name="check" size="xs" className="dm-enter" /> : ind ? '' : pct + '%'}</span>
         </span>
-        <div className="dm-prg-t"><b>{title}</b><span className="dm-muted dm-prg-vt">{words}</span></div>
+        <div className="dm-prg-t"><b>{title}</b><span className={cx('dm-muted dm-prg-vt', (ind || state === 'running') && 'dm-shim')}>{words}</span></div>
         <span className={cx('dm-tag dm-prg-st', TAG[state][1])}><Swap>{TAG[state][0]}</Swap></span>
         {btn.on && <Tip label={btn.label}><button type="button" className="dm-ib dm-prg-btn" aria-label={btn.label} onClick={btn.on} disabled={state === 'error' || ind} style={state === 'error' ? { visibility: 'hidden' } : undefined}><Icon name={btn.icon} /></button></Tip>}
       </div>
