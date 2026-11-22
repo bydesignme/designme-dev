@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { useCarousel } from '../../lib/carousel';
-import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
+import { useControllable, useReducedMotion } from '../../lib/hooks';
 import { pixelField, type PixelField } from '../../lib/pixels';
 import { Icon } from '../../lib/icons';
 import { Spin, Swap, Tip } from '../../lib/motion';
@@ -106,8 +106,8 @@ const size = (v: number | string | undefined) => typeof v === 'number' ? `${v}px
 const bg = (src?: string, placeholder?: string) => [src && `url("${src}")`, placeholder].filter(Boolean).join(', ') || undefined;
 
 /** One carousel, two types, on the same native scroll-snap track: a swipe, a trackpad, a mouse drag, the arrows, the dots and
-    the keys all move it, and each slide is a framed picture with its caption, the next one peeking in, in its full colours.
-    `type="variants"` shows the drafts an agent made,
+    the keys all move it, and each slide is a framed picture with its caption, the next one peeking in. A picture comes into
+    focus as it slides into view (Blueprint wipes a veil off it instead). `type="variants"` shows the drafts an agent made,
     each queued, generating, ready or failed, to keep one; `type="images"` is a gallery. */
 export function Carousel(props: CarouselProps) {
   return props.type === 'images' ? <Images {...props} /> : <Variants {...props} />;
@@ -180,7 +180,7 @@ function Variants(p: CarouselVariantsProps) {
   return (
     <div data-dm="" className={cx('dm-crs-c dm-panel', keep && 'dm-kept', className)} data-type="variants" data-align={align === 'center' ? 'center' : undefined} style={vars(p)} role="region" aria-roledescription="carousel" aria-label={title}>
       <div className="dm-crs-h">
-        <div className="dm-crs-t"><b>{title}</b><Swap className={cx('dm-muted dm-crs-sub', subtitle == null && !keep && busy && 'dm-shim')}>{line}</Swap></div>
+        <div className="dm-crs-t"><b>{title}</b><Swap className="dm-muted dm-crs-sub">{line}</Swap></div>
         {arrows && <Nav k={k} noun="variant" />}
       </div>
       <div ref={tr} className={cx('dm-crs-tr', k.dragging && 'dm-drag')} role="group" tabIndex={0} aria-label="Variants. Enter keeps the one in view" {...k.trackProps}>
@@ -202,17 +202,6 @@ function Variants(p: CarouselVariantsProps) {
     picture's colours until it lands */
 function VariantFigure({ v, kept, onKeep, onRetry }: { v: Variant; kept: boolean; onKeep: () => void; onRetry?: (key: string) => void }) {
   const reduce = useReducedMotion();
-  // Keep and Kept are each as wide as their words: the button eases to its new width, with no room kept for the longer one
-  const keepBtn = useRef<HTMLButtonElement>(null), keepW = useRef(0);
-  useIsoLayoutEffect(() => {
-    const b = keepBtn.current; if (!b) { keepW.current = 0; return; }
-    const w1 = b.offsetWidth, w0 = keepW.current; keepW.current = w1;
-    if (!w0 || reduce || Math.abs(w1 - w0) < .5) return;
-    const cs = getComputedStyle(b);
-    b.style.overflow = 'hidden';
-    b.animate([{ width: w0 + 'px' }, { width: w1 + 'px' }], { duration: (parseFloat(cs.getPropertyValue('--dm-t')) || .34) * 1000, easing: cs.getPropertyValue('--dm-ease').trim() || 'ease' })
-      .finished.then(() => { b.style.overflow = ''; }, () => {});
-  }, [kept, v.status]);
   const cv = useRef<HTMLCanvasElement>(null), meta = useRef<HTMLSpanElement>(null), field = useRef<PixelField | null>(null);
   // what the frame is doing as the status moves on: landing (the picture focusing in over the pixels) or glitching out
   const [prev, setPrev] = useState(v.status), [after, setAfter] = useState<'none' | 'land' | 'glitch'>('none');
@@ -257,9 +246,9 @@ function VariantFigure({ v, kept, onKeep, onRetry }: { v: Variant; kept: boolean
               : <div className="dm-enter" style={{ display: 'contents' }}>{v.content}</div>)}
           </div>}
       <figcaption className="dm-crs-f">
-        <div><b>{v.label}</b>{v.status === 'generating' ? <span key="gen" ref={meta} className="dm-muted dm-shim" /> : <span className="dm-muted">{v.status === 'queued' ? 'Waiting' : v.meta}</span>}</div>
+        <div><b>{v.label}</b>{v.status === 'generating' ? <span key="gen" ref={meta} className="dm-muted" /> : <span className="dm-muted">{v.status === 'queued' ? 'Waiting' : v.meta}</span>}</div>
         {v.status === 'ready'
-          ? <button ref={keepBtn} type="button" className="dm-pill dm-line dm-sm dm-crs-keep" aria-pressed={kept} onClick={onKeep}>{kept ? <><Icon name="check" size="xs" />Kept</> : 'Keep'}</button>
+          ? <button type="button" className="dm-pill dm-line dm-sm dm-crs-keep" aria-pressed={kept} onClick={onKeep}>{kept ? <><Icon name="check" size="xs" />Kept</> : 'Keep'}</button>
           : v.status === 'failed' ? <span className="dm-tag dm-bad">Failed</span> : v.status === 'generating' ? <span className="dm-tag"><Spin />Making</span> : <span className="dm-tag">Queued</span>}
       </figcaption>
     </figure>

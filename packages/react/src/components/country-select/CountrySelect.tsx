@@ -1,11 +1,10 @@
 'use client';
-import { useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect } from '../../lib/hooks';
 import { Flag, type FlagCode } from '../../lib/flags';
 import { Icon } from '../../lib/icons';
 import { Swap } from '../../lib/motion';
-import { useHoverGlide } from '../../lib/glide';
 import '../../designme.css';
 import './country-select.css';
 
@@ -70,11 +69,9 @@ export function CountrySelect({ countries = COUNTRIES, value, defaultValue, onVa
   const v = q.trim().toLowerCase();
   const shown = countries.filter(c => !v || c.name.toLowerCase().includes(v) || c.code.toLowerCase() === v);
 
-  const root = useRef<HTMLDivElement>(null), field = useRef<HTMLButtonElement>(null), search = useRef<HTMLInputElement>(null), pop = useRef<HTMLDivElement>(null);
+  const root = useRef<HTMLDivElement>(null), field = useRef<HTMLButtonElement>(null), search = useRef<HTMLInputElement>(null);
   const list = useRef<HTMLDivElement>(null), opts = useRef<(HTMLButtonElement | null)[]>([]);
   const id = useId();
-  // Clean's one hover: a highlight that glides to the row under the pointer or the arrows
-  useHoverGlide(list, '.dm-csx-o');
   // the highlight starts on the chosen country, and again whenever the list changes or opens
   const [opens, setOpens] = useState(0), [wasOpen, setWasOpen] = useState(isOpen);
   if (wasOpen !== isOpen) { setWasOpen(isOpen); if (isOpen) setOpens(opens + 1); }
@@ -88,16 +85,6 @@ export function CountrySelect({ countries = COUNTRIES, value, defaultValue, onVa
     const lr = l.getBoundingClientRect(), r = o.getBoundingClientRect();
     if (r.top < lr.top) l.scrollTop -= lr.top - r.top; else if (r.bottom > lr.bottom) l.scrollTop += r.bottom - lr.bottom;
   }, [at, isOpen, paint]);
-
-  // the list hangs 6px under the field, or stands 6px over it when the room under it in the window is too short; its height
-  // at its tallest decides, so typing a filter never moves it to the other side
-  const [place, setPlace] = useState<CSSProperties>({});
-  useIsoLayoutEffect(() => {
-    const r = root.current, f = field.current, p = pop.current, l = list.current; if (!isOpen || !r || !f || !p || !l) return;
-    const b = f.getBoundingClientRect(), tall = p.offsetHeight - l.offsetHeight + (parseFloat(getComputedStyle(l).maxHeight) || l.offsetHeight);
-    const up = b.bottom + tall + 12 > innerHeight && b.top - tall - 12 > innerHeight - b.bottom;
-    setPlace(up ? { top: 'auto', bottom: r.offsetHeight - f.offsetTop + 6, ['--dm-origin' as string]: 'bottom left' } : { top: f.offsetTop + f.offsetHeight + 6, bottom: 'auto', ['--dm-origin' as string]: 'top left' });
-  }, [isOpen]);
 
   // a click outside closes it
   useEffect(() => {
@@ -127,14 +114,10 @@ export function CountrySelect({ countries = COUNTRIES, value, defaultValue, onVa
         onClick={() => (isOpen ? close() : openList())} onKeyDown={e => { if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return; e.preventDefault(); if (isOpen) search.current?.focus({ preventScroll: true }); else openList(); }}>
         {flagOf(chosen)}<Swap className="dm-csx-v">{chosen?.name ?? ''}</Swap><Icon name="chev-d" size="xs" />
       </button>
-      {/* its search is its first row, the glass on the flags' column and the words on the names' */}
-      <div ref={pop} className={cx('dm-pop dm-csx-pop', isOpen && 'dm-open')} inert={!isOpen} style={place}>
-        <div className="dm-csx-s">
-          <Icon name="search" size="xs" />
-          <input ref={search} className="dm-csx-q" placeholder={placeholder} aria-label={placeholder} spellCheck={false} value={q} role="combobox"
-            aria-expanded={isOpen} aria-controls={`${id}-list`} aria-autocomplete="list" aria-activedescendant={shown[at] ? `${id}-${shown[at].code}` : undefined}
-            onChange={e => setQ(e.target.value)} onKeyDown={key} />
-        </div>
+      <div className={cx('dm-csx-pop', isOpen && 'dm-open')} inert={!isOpen}>
+        <input ref={search} className="dm-csx-q" placeholder={placeholder} aria-label={placeholder} spellCheck={false} value={q} role="combobox"
+          aria-expanded={isOpen} aria-controls={`${id}-list`} aria-autocomplete="list" aria-activedescendant={shown[at] ? `${id}-${shown[at].code}` : undefined}
+          onChange={e => setQ(e.target.value)} onKeyDown={key} />
         <div ref={list} className="dm-csx-list" role="listbox" id={`${id}-list`} aria-label={label}>
           {!v && <div className="dm-csx-g">{suggestedLabel}</div>}
           {shown.map((c, i) => (
