@@ -26,7 +26,10 @@ export function hoverGlide(el: HTMLElement | null, rows = '.dm-mi', o: HoverGlid
   const free = (p: string) => { const v = getComputedStyle(list, p).content; return !v || v === 'none' || v === 'normal'; };
   const side = free('::before') ? 'b' : free('::after') ? 'a' : ''; if (!side) return () => {};
   const hl = o.hl || '.dm-hl', keep = o.keep || KEEP;
-  list.dataset.hg = side; list.classList.add('dm-hg'); if (getComputedStyle(list).position === 'static') list.classList.add('dm-hg-pos');
+  list.dataset.hg = side; list.classList.add('dm-hg'); const pos = getComputedStyle(list).position === 'static'; if (pos) list.classList.add('dm-hg-pos');
+  // React writes the list's whole className again whenever its own classes change, which drops these: they go back on
+  const own = new MutationObserver(() => { if (!list.classList.contains('dm-hg')) list.classList.add('dm-hg'); if (pos && !list.classList.contains('dm-hg-pos')) list.classList.add('dm-hg-pos'); });
+  own.observe(list, { attributes: true, attributeFilter: ['class'] });
   const all = () => [...list.querySelectorAll<HTMLElement>(rows)].filter(r => !r.hasAttribute('data-ghost'));
   const ok = (r: HTMLElement | null): r is HTMLElement => !!r && r.isConnected && list.contains(r) && !(r as HTMLButtonElement).disabled && r.getAttribute('aria-disabled') !== 'true' && r.getClientRects().length > 0;
   // the rows' own fills give way to the glide, all but a picked one
@@ -80,7 +83,7 @@ export function hoverGlide(el: HTMLElement | null, rows = '.dm-mi', o: HoverGlid
   mark(); show(rest());
   list._hgAt = (r, mouse) => { if (mouse) over = true; show(r); };
   return list._hg = () => {
-    mo.disconnect(); po?.disconnect(); ro?.disconnect();
+    own.disconnect(); mo.disconnect(); po?.disconnect(); ro?.disconnect();
     list.removeEventListener('pointerover', onOver); list.removeEventListener('pointerout', onLeave); list.removeEventListener('focusin', onIn); list.removeEventListener('focusout', onOut);
     list.classList.remove('dm-hg', 'dm-hg-pos', 'dm-hg-jump'); delete list.dataset.hg; ['x', 'y', 'w', 'h', 'r', 'o'].forEach(k => list.style.removeProperty('--dm-hg-' + k));
     all().forEach(r => delete r.dataset.hgr); list._hg = null; list._hgAt = null;

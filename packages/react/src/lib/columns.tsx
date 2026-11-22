@@ -36,7 +36,10 @@ export function useColumns<K extends string>(keys: K[], { lead = 0, move = [], m
   const last = shown[shown.length - 1];
   const sized = !!W && wide;
   const th = (k: K) => table.current?.querySelector<HTMLElement>(`thead th[data-col="${k}"]`) || null;
-  const measure = () => { if (W) return W; const w: Partial<Record<K, number>> = {}; keys.forEach(k => { w[k] = th(k)?.getBoundingClientRect().width || least(k); }); return w; };
+  // the lead columns (a checkbox) keep the width they have, so a sized table still counts them
+  const leadW = useRef<number[]>([]);
+  const measure = () => { if (W) return W; const w: Partial<Record<K, number>> = {}; keys.forEach(k => { w[k] = th(k)?.getBoundingClientRect().width || least(k); });
+    const row = table.current?.tHead?.rows[0]; leadW.current = Array.from({ length: lead }, (_, i) => row?.cells[i]?.getBoundingClientRect().width || 0); return w; };
   const size = (k: K, w: number, from = W || measure()) => setW({ ...from, [k]: Math.max(least(k), w) });
   const moveTo = (k: K, at: number) => setOrder(() => { const s = [...shown], from = s.indexOf(k); s.splice(from, 1); s.splice(at > from ? at - 1 : at, 0, k); return s; });
 
@@ -73,7 +76,7 @@ export function useColumns<K extends string>(keys: K[], { lead = 0, move = [], m
     return () => { removeEventListener('pointermove', mv); removeEventListener('pointerup', up); removeEventListener('pointercancel', up); };
   });
 
-  const total = sized ? shown.slice(0, -1).reduce((a, k) => a + (W![k] ?? least(k)), 0) + least(last) : 0;
+  const total = sized ? leadW.current.reduce((a, x) => a + x, 0) + shown.slice(0, -1).reduce((a, k) => a + (W![k] ?? least(k)), 0) + least(last) : 0;
   const tableStyle: CSSProperties | undefined = sized ? { width: `max(100%, ${Math.round(total)}px)` } : undefined;
 
   return {
@@ -86,7 +89,7 @@ export function useColumns<K extends string>(keys: K[], { lead = 0, move = [], m
     /** The table's colgroup: the lead columns, then one per key in the order shown */
     colgroup: (
       <colgroup>
-        {Array.from({ length: lead }, (_, i) => <col key={'lead' + i} />)}
+        {Array.from({ length: lead }, (_, i) => <col key={'lead' + i} style={sized && leadW.current[i] ? { width: Math.round(leadW.current[i]) } : undefined} />)}
         {shown.map(k => <col key={k} style={sized && k !== last ? { width: Math.round(W![k] ?? least(k)) } : undefined} />)}
       </colgroup>
     ),
