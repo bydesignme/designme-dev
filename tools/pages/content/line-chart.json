@@ -1,38 +1,46 @@
 {
-  "summary": "A line chart that compares a main series with one or more reference series over time, such as this year against last year. A big number above it counts up to the latest value, and a readout follows the pointer to show the value at each point. In an agent product it suits a usage or growth metric on a dashboard.",
+  "summary": "A line chart that shows one metric over a period against the period before, such as active editors today against yesterday. The main series is a solid line in the accent with a fill that fades to nothing at the bottom, up to the latest point, where an open ring sits with \"Now\" under it; from there a projection carries it to the period's end as a dotted line in the same colour over a fainter fill, so the chart always runs full width. The comparison runs across the whole period as a dotted line in the chart palette's second colour. A legend under the plot turns each line on and off, and a readout card follows the pointer or the arrow keys. In an agent product it suits a usage or growth metric on a dashboard.",
   "use": [
-    "When you want to show a metric's trend over time next to the same period before.",
-    "When the latest value matters most and should be the headline.",
-    "When people need to read exact values by hovering, without a full analytics tool."
+    "When you want to show how a period is going so far, and where it is heading, against the same period before.",
+    "When people switch between a few ranges, like a day, a week and a month, or between a few projects or teams.",
+    "When people need exact values at each point without a full analytics tool."
   ],
   "features": [
-    "The first entry in `series` draws as a solid line with a soft fill; the others draw dashed for comparison, in the chart palette's next colours (violet, then green and so on) unless a series has its own `color`.",
-    "The lines draw in from the left while the headline number counts up to the last value.",
-    "Moving the pointer shows a guide line, dots on each series and, beside the guide line on the side with room, a readout with the value, the point's name from `points`, and, with `compareLabel`, the percent change between the first two series.",
-    "Legend buttons toggle each series on and off; one series always stays on.",
-    "`range` fixes the bottom and top values, `axis` sets the labels along the bottom (each sits under the point it names in `points`), and `format` and `unit` control how values read."
+    "Straight segments with sharp corners, drawn in pixels so the line, its dots and the dashed gridlines stay crisp at any width.",
+    "The values sit on the left, from zero to a round top a little over the highest value, with dashed vertical gridlines and no horizontal ones.",
+    "After `now` the main series is projected to the last point: pass `projected` with your own values, or leave it out and the value at `now` is carried forward along the comparison's shape (held level when there is none). `false` draws no projection.",
+    "Pointing at the plot, tapping it or using the arrow keys on it shows a dashed guide, a ring on each line, and a card beside the guide (on the side with room) with the point's name and each line's swatch, label and value; past now the main row reads as the projection. The point's short name becomes a grey chip on the axis.",
+    "The legend under the plot names the main line, the projection and the comparison, and turns each on and off (one always stays on); `visible` and `onVisibleChange` let you control it.",
+    "`sources` adds a picker beside the title (a mark and a name, opening a menu), and `ranges` adds a Day, Week and Month style switch; `data` can be a function of the picked source and range.",
+    "The lines draw in from the left when the chart appears and again after each pick. `grid`, `format`, `formatAxis` and `projectedLabel` control the gridlines, how values read and what the projection is called.",
+    "In Clean the title, picker and switch sit on an off-white head strip and the legend's toggles on a foot strip, as flat pills (a stronger fill while a line is shown); the readout is Clean's popover. In Clean dark the accent is white, so the main line, its projection and \"Now\" are white."
   ],
   "a11y": [
-    "Each legend button uses aria-pressed to show whether its series is visible.",
-    "The SVG drawing is aria-hidden, so the headline number and legend are what a screen reader gets.",
-    "The count-up of the headline number finishes at once when the user prefers reduced motion."
+    "The plot is one focusable group with a label; the arrow keys, Home and End move through the points, Escape hides the readout, and each move is announced in a polite live region, naming the projection past now.",
+    "A visually hidden table lists every point with the main series, the projection and the comparison, so a screen reader can read all the values.",
+    "The picker is a menu button with radio items, the range switch and the legend are pressed buttons, and the drawing itself is aria-hidden.",
+    "With reduced motion the lines appear without drawing in."
   ],
   "faq": [
     {
-      "q": "How do I show \"+69% vs last year\" in the readout?",
-      "a": "Pass `compareLabel`, like \"vs last year\". The readout then adds the percent change of the first series against the second at the hovered point, as long as both are visible."
+      "q": "How do I switch the data when someone picks a range or a source?",
+      "a": "Pass `data` as a function: it gets `{ source, range }` and returns the view to draw (`points`, `main`, `compare` and so on). Or control `source` and `range` yourself and pass the matching view."
     },
     {
-      "q": "Can I plot more than two series?",
-      "a": "Yes. `series` takes any number; the first is the solid main line and the rest are dashed. The percent comparison only uses the first two."
+      "q": "Where does the projection come from?",
+      "a": "From `projected` when you pass it: one value per point from `now` to the last. Otherwise the chart takes the value at `now` and follows the comparison's shape from there, so if yesterday fell by a third after 2pm, so does the projection. Pass `projected: false` to stop the line at now."
     },
     {
-      "q": "How do I keep the y-axis from starting near the lowest value?",
-      "a": "Pass `range` as [bottom, top]. Without it, the chart uses the data's range with a little room above and below."
+      "q": "Can I leave out the comparison?",
+      "a": "Yes. Without `compare` the chart draws the main line and its projection (held at the latest value unless you pass `projected`), and the readout has one row."
     },
     {
-      "q": "Can I control which series are visible?",
-      "a": "Yes. Pass `visible` with the keys to show and handle `onVisibleChange`, or use `defaultVisible` and let the legend manage it."
+      "q": "What if the period is over?",
+      "a": "Leave out `now`, or set it to the last point. The line runs to the right edge with no projection, its ring sits on the last point and the axis ends with \"Now\" (or your `nowLabel`, like \"Today\")."
+    },
+    {
+      "q": "Can I hide the picker or the range switch?",
+      "a": "Leave out `sources` for no picker and `ranges` for no switch; the title stays."
     }
   ]
 }

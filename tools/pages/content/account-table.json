@@ -6,21 +6,24 @@
     "When each account's agent finding should lead to one action, like drafting a check-in email."
   ],
   "features": [
-    "Columns for account (with a coloured letter logo), plan tag, seats, health and MRR.",
+    "Columns for account (with a coloured letter logo), plan tag, seats, health and MRR. Seats and MRR are right-aligned with their heads, and every other column's content starts where its head's words start.",
+    "It reads as a table of columns: a hairline runs between every two columns, in every style, and the note under an open row spans them all. Drag a header's right edge to resize its column (double-click the edge for every column's natural width back); a column never goes under its minimum, and the table scrolls sideways once the columns outgrow it. Drag a header sideways to move its column (Account stays first). The order and widths last as long as the table is on screen.",
     "Health is a bar coloured green from 80, amber from 60 and red below.",
     "Give a logo one of the avatar colours, like `var(--dm-av-b)`, and its letter takes that colour's own ink, white or dark, so it keeps its contrast.",
     "A search box matches account names, and plan chips filter by plan; the chips default to the plans found in `accounts`.",
-    "Clicking a row opens or closes the agent's `note` under it; one row is open at a time.",
-    "An optional `action` button in the open note; if its `onClick` returns a promise the button spins, then shows `doneLabel`.",
-    "Plan tags are coloured through `planTones`, and `emptyLabel` shows when nothing matches."
+    "Clicking a row opens or closes the agent's `note` under it, as a detail row: it spans every column (the column lines stop at it and start again under it), in an inset panel of the style's quiet fill (in Clean its off-white with 10px corners), with its spark under the logos and its words on the names' column. It opens and shuts by its height, the open account keeps a quiet fill, and one row is open at a time. In Clean the search and the plan filters sit in the card's off-white head strip.",
+    "An optional `action` button at the open note's right edge; if its `onClick` returns a promise the button shows a spinner and `busyLabel` in the loader's sweep, then the green tick and `doneLabel`, easing to each new width.",
+    "Plan tags are coloured through `planTones`. When nothing matches, an empty state shows a small sketch of a table, `emptyLabel`, `emptyHint` and a `clearLabel` button that clears the search and the plan filter.",
+    "A row's hover fill reaches a little past its words on both sides, with rounded corners, and the hairlines round it give way while it shows."
   ],
   "a11y": [
-    "Each account row is focusable with tabIndex 0, exposes aria-expanded, and opens or closes with Enter or Space.",
+    "Each account row is focusable with tabIndex 0 (in the HTML version too), exposes aria-expanded, and opens or closes with Enter or Space.",
     "The plan filter is a role=\"group\" labelled \"Plan\", and each chip uses aria-pressed.",
-    "The search input is labelled with its placeholder text, \"Search accounts\" by default."
+    "The search input is labelled with its placeholder text, \"Search accounts\" by default.",
+    "Every header but Account takes the focus, and Alt with the left or right arrow moves its column one place. Each resize handle is a focusable `separator` labelled like \"Resize Plan\": the left and right arrows narrow or widen its column by 16px."
   ],
   "faq": [
-    {"q": "How do I add a \"Draft email\" button to the agent's note?", "a": "Pass `action` with a `label`, an optional `doneLabel` and an `onClick` that receives the account. Return a promise and the button spins until it resolves, then shows the done label. If it rejects, the button goes back to its label."},
+    {"q": "How do I add a \"Draft email\" button to the agent's note?", "a": "Pass `action` with a `label`, an optional `busyLabel` and `doneLabel`, and an `onClick` that receives the account. Return a promise and the button says `busyLabel` with a spinner until it resolves, then shows the done label with a green tick. If it rejects, the button goes back to its label."},
     {"q": "Can the agent open a row by itself?", "a": "Yes. Control `open` with the account's name and update it from your own state, for example when the agent flags an account. Set it to null to close all rows."},
     {"q": "Does the table sort or format MRR for me?", "a": "No. Rows appear in the order of `accounts`, and `mrr` is shown as the string you pass, so format it first, like \"$14,400\"."},
     {"q": "Can I put links or formatting in the note?", "a": "Yes. `note` takes any React node, so it can hold links, bold text or other elements."}

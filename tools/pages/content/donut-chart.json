@@ -1,24 +1,29 @@
 {
-  "summary": "A ring chart that splits one total into parts, such as the hours an agent spent on each kind of task. The total sits in the middle, and a legend beside the ring lists each part with its value and share. Hovering a slice or its legend row highlights both and puts that part's value in the middle.",
+  "summary": "A gauge that splits a total into parts against what it is out of, such as the hours an agent spent on each kind of task out of its weekly budget. The parts sweep in as a half ring in the chart palette's colours, what is left is a light grey track, the total sits in the middle, and a legend under the gauge lists each part with its value. Hovering a part or focusing its legend row highlights both and puts that part in the middle; clicking one selects it, so it stays there until it is clicked again.",
   "use": [
-    "When you want to show where an agent's time, cost or effort went.",
-    "When a total breaks into a handful of categories and their shares matter.",
+    "When you want to show where an agent's time, cost or effort went, and how much of a budget it used.",
+    "When a total breaks into a handful of categories and their sizes matter.",
     "When a small dashboard card needs both the total and the breakdown."
   ],
   "features": [
-    "Draws one arc per entry in `segments`, sized by its share of the total, sweeping in one after another.",
-    "The middle shows the total, counting up, with `label` under it; while a part is highlighted it shows that part's value and label instead.",
-    "Each legend row shows the value with `unit` and its rounded percent of the total.",
-    "Hovering a slice or a row highlights both; `active` and `onActiveChange` let you drive the highlight from outside.",
-    "Colours come from the chart palette in order, or from each segment's `color`, and `format` sets how values read (one decimal by default)."
+    "Draws one part per entry in `segments`, sized by its share of `max`, sweeping in one after another, with small gaps between them and slightly rounded corners (square in Blueprint).",
+    "What the parts leave of `max` shows as a light grey track; without `max` the parts fill the half ring.",
+    "The middle shows the total, counting up, with `label` under it; while a part is highlighted or selected it shows that part's value and name instead.",
+    "Each legend row shows a bar in the part's colour, its name, and its value with `unit`.",
+    "Hovering a part or a row, or focusing a row, highlights both; `active` and `onActiveChange` let you drive the highlight from outside.",
+    "Clicking a part or a row (or Enter or Space on a row) selects it: its row keeps a stronger fill and the middle keeps showing it while you point at others. Clicking it again or Escape clears it; `selected` and `onSelectedChange` let you drive the selection from outside.",
+    "Colours come from the chart palette in order, or from each segment's `color`, and `format` sets how values read (one decimal by default).",
+    "In Clean the title sits on an off-white head strip, the ring is slimmer with a little rounder corners, the track is recessed with an inner shadow, and the legend's hover is one fill that glides from row to row. In Clean dark a gauge with its title draws its first part, in the accent, white."
   ],
   "a11y": [
-    "The ring's SVG is aria-hidden, so the values are read from the legend rows as text.",
-    "The count-up of the total finishes at once when the user prefers reduced motion."
+    "The gauge's SVG is aria-hidden, so the total, what it is out of and each part's value are read from the text in the middle and the legend.",
+    "Each legend row is a button that can take the keyboard's focus, which highlights its part; Enter or Space selects it, and it says whether it is selected (aria-pressed). Escape clears the selection.",
+    "The sweep and the count-up finish at once, and Clean's hover only fades rather than gliding, when the user prefers reduced motion."
   ],
   "faq": [
-    {"q": "How do I grey out an \"Other\" slice?", "a": "Give that segment its own `color`, like 'var(--dm-line-strong)', a mid grey that still stands out from the card. Segments without a color take the next palette colour."},
-    {"q": "Can I highlight a slice from somewhere else on the page?", "a": "Yes. Pass `active` with the segment's index (or null for none) and update it from your own state; `onActiveChange` tells you when hovering changes it."},
+    {"q": "How do I show a budget or a target?", "a": "Pass `max`, like 40 for a 40-hour week, and say it in `label`, like \"of 40h this week\". The parts fill their share of it and the rest is the grey track."},
+    {"q": "Can I highlight a part from somewhere else on the page?", "a": "Yes. Pass `active` with the segment's index (or null for none) and update it from your own state; `onActiveChange` tells you when hovering or focus changes it."},
+    {"q": "What is the difference between highlighted and selected?", "a": "A highlight follows the pointer and the keyboard's focus, and goes when they leave. A selection is made with a click (or Enter or Space on a row) and stays until it is clicked again or cleared with Escape. The middle shows the highlighted part if there is one, otherwise the selected one."},
     {"q": "How do I show money or percentages instead of hours?", "a": "Pass `format` to write each value and `unit` for the text after it. Both apply to the middle and to every legend row."}
   ]
 }
