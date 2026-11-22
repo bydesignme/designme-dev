@@ -1344,6 +1344,21 @@ th:last-child>.col-rz{display:none}
 .tst-t .acts .pill.done{color:var(--ok-mark);pointer-events:none}
 .tst-t .acts .pill.done .i{width:16px;height:16px;stroke-width:2}
 .tst-t .life{display:none}
+/* the action sits on the toast's own row, just before Close (the message, the action as a ghost button, Close at the far end:
+   the usual snackbar). When the toast is narrow (a phone) or its words run past two lines (.wrap, set as it shows), the action
+   moves to a row of its own under the message, its words ending on the content's right edge, and Close stays at the top end
+   (owner, 22 Nov) */
+.tst-slot{container:tst/inline-size}
+.tst-t.wrap{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:start;row-gap:var(--s-1)}
+.tst-t.wrap .acts{display:contents}
+.tst-t.wrap .ib{grid-area:1/3;margin:calc(8.775px - 14px) -6px 0 0}
+.tst-t.wrap .acts .pill{grid-area:2/2/3/4;justify-self:end;margin:0 -11px -6px 0}
+@container tst (max-width:340px){
+  .tst-t{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:start;row-gap:var(--s-1)}
+  .tst-t .acts{display:contents}
+  .tst-t .ib{grid-area:1/3;margin:calc(8.775px - 14px) -6px 0 0}
+  .tst-t .acts .pill{grid-area:2/2/3/4;justify-self:end;margin:0 -11px -6px 0}
+}
 .tst-in{animation:tstin .6s var(--ease) both}
 @keyframes tstin{from{opacity:0;transform:translateY(14px) scale(.97);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}
 .tst-out{animation:tstout .35s var(--ease) both}
@@ -14090,7 +14105,7 @@ DM.def('toast', (r, c) => {
   // each state's icon, colours and words; its tone (data-tone) is what Clean colours: success green, error red, the rest grey
   const V = {
     ok:{ g:'ok', tone:'success', col:'var(--ok)', bg:'var(--ok-bg)', b:'Changes applied', s:'4 files updated in PricingCard', act:'<button class="pill ghost sm tst-undo">Undo</button>' },
-    err:{ g:'alert', tone:'error', col:'var(--bad)', bg:'var(--bad-bg)', b:'Could not push to main', s:'The branch is protected', act:'<button class="pill primary sm tst-retry">Retry</button>' },
+    err:{ g:'alert', tone:'error', col:'var(--bad)', bg:'var(--bad-bg)', b:'Could not push to main', s:'The branch is protected', act:'<button class="pill ghost sm tst-retry">Retry</button>' },
     info:{ g:'info', tone:'info', col:'var(--pb)', bg:'var(--pb-bg)', b:'Preview is ready', s:'pricing-spacing.preview.app', act:'<button class="pill ghost sm">Open</button>' },
     load:{ g:'load', tone:'loading', col:'var(--fg)', bg:'var(--chip)', b:'Deploying preview', s:'Building 3 pages', act:'' }
   };
@@ -14104,6 +14119,10 @@ DM.def('toast', (r, c) => {
     const t = html(`<div class="tst-t tst-in" role="status"><span class="g" data-tone="${v.tone}" style="color:${v.col};background:${v.bg}">${k === 'load' ? '<span class="spin"></span>' : I(v.g)}</span><div class="tx"><b${k === 'load' ? ' class="shim"' : ''}>${v.b}</b><span>${v.s}</span></div><div class="acts">${v.act}<button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div><span class="life"></span></div>`);
     if (cur){ const old = cur; old.classList.add('tst-out'); setTimeout(() => old.remove(), 300); }
     slot.appendChild(t); cur = t;
+    // words that run past two lines beside the action give it a row of its own under them
+    const lines = new Set(), tw = document.createTreeWalker($('.tx', t), NodeFilter.SHOW_TEXT);
+    for (let n; (n = tw.nextNode());){ const g = document.createRange(); g.selectNodeContents(n); [...g.getClientRects()].forEach(b => b.width > 1 && lines.add(Math.round(b.top / 4))); }
+    if (v.act && lines.size > 2) t.classList.add('wrap');
     $('.ib', t).onclick = () => { t.classList.add('tst-out'); setTimeout(() => t.remove(), 300); cur = null; };
     const u = $('.tst-undo', t); if (u) u.onclick = () => { $('.tx b', t).textContent = 'Changes undone'; swap($('.tx span', t), 'PricingCard is back as it was');
       relabel(u, I('check')); u.classList.add('done'); u.setAttribute('aria-label', 'Undone'); u.setAttribute('aria-disabled', 'true'); u.onclick = null; };
@@ -14113,8 +14132,8 @@ DM.def('toast', (r, c) => {
     if (k === 'load') agent.later(2600, () => { if (cur === t) show('info'); });
     if (k === 'ok' || k === 'info'){
       // it times out like a real toast: hovering holds it, and when it runs out it leaves and the same one comes back (until
-      // you take over: then it stays gone until you pick one)
-      const life = $('.life', t).animate([{ transform:'scaleX(1)' }, { transform:'scaleX(0)' }], { duration:5200, fill:'forwards' });
+      // you take over: then it stays gone until you pick one). A toast with an action stays 10 seconds, long enough to reach it
+      const life = $('.life', t).animate([{ transform:'scaleX(1)' }, { transform:'scaleX(0)' }], { duration:10000, fill:'forwards' });
       t.addEventListener('pointerenter', () => life.pause()); t.addEventListener('pointerleave', () => life.play());
       life.finished.then(() => { if (cur !== t || c.dead) return; t.classList.add('tst-out'); cur = null; setTimeout(() => t.remove(), 300); c.auto(1100, () => { if (!cur) show(k); }); }).catch(() => {});
     }
