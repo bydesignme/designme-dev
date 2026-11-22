@@ -2232,7 +2232,7 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .cpx-bar>.cpx-add{margin-left:-7px}
 :root[data-style="clean"] .cpx-bar>.ib{width:28px;height:28px}
 :root[data-style="clean"] .cpx-bar .chip{height:28px;padding:0 8px;transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
-:root[data-style="clean"] .cpx-add[aria-expanded="true"]{background:var(--hover)}
+:root[data-style="clean"] :is(.cpx-add,.cpx-bar .chip)[aria-expanded="true"]{background:var(--row-on)}
 /* Send is the field's own Send (see the Clean section), 16px from the box's right and bottom edges, its corners the box's
    less those 16px */
 :root[data-style="clean"] .cpx-send{width:28px;height:28px;border-radius:calc(var(--r-card) - 16px)}
@@ -2343,13 +2343,14 @@ th:last-child>.col-rz{display:none}
    toward the text. Their controls are 28px circles and pills 8px from the card's edges, as round as its 22px corner less 8,
    so every one in a row is as tall as the next and shares its centre line; the words in the foot (the word count, the
    status) start where the text does, 16px in. The chrome is
-   monochrome and flat: a format the selection has is white with a grey ring, Ask AI is a secondary button (a hairline and a
+   monochrome and flat: the formats take Clean's one hover, and a format the selection has its stronger fill (owner, 21 Nov:
+   never a ring), Ask AI is a secondary button (a hairline and a
    light fill), the status is ink, and Accept is the ink button with its key on it. The suggestion keeps the accent: the new
    words in its tint, the old ones struck through. Words arrive with a fade, no blur */
 :root[data-style="clean"] .rte-tb{gap:4px;padding:8px 16px;background:var(--strip);border-bottom:1px solid var(--line);border-radius:var(--r-card) var(--r-card) 0 0;box-shadow:none}
 :root[data-style="clean"] .rte-b{width:28px;height:28px;border-radius:50%;color:var(--fg2);transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
-:root[data-style="clean"] .rte-b:hover{background:var(--hover);color:var(--fg)}
-:root[data-style="clean"] .rte-b:is([aria-pressed="true"],.on){background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line-strong) 50%,transparent)}
+:root[data-style="clean"] .rte-b:hover{background:var(--row);color:var(--fg)}
+:root[data-style="clean"] .rte-b:is([aria-pressed="true"],.on){background:var(--row-on);color:var(--fg)}
 :root[data-style="clean"] .rte-b:disabled{background:none;box-shadow:none;color:var(--dis)}
 :root[data-style="clean"] .rte-sep{margin:0 4px}
 :root[data-style="clean"] .rte-ai{height:28px;padding:0 12px 0 10px;font-weight:500;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
@@ -3011,8 +3012,9 @@ th:last-child>.col-rz{display:none}
 .rvx-pg{display:flex;align-items:center;gap:0}
 .rvx-pg .ib{width:26px;height:26px}
 .rvx-pg .ib[disabled]{opacity:1;cursor:not-allowed;background:none;color:var(--dis)}
-/* the bar sits on the stage, where --row is the stage's own colour: its hover is a quiet 5% of the text colour */
-.rvx-bar .ib:not([disabled]):hover{background:color-mix(in srgb,var(--fg) 5%,transparent)}
+/* the bar sits on the stage, where --row is the stage's own colour: it sets --row to a quiet 5% of the text colour, as the
+   other cards on the stage do, so its buttons keep the one shared hover */
+.rvx-bar{--row:color-mix(in srgb,var(--fg) 5%,transparent)}
 .rvx-n{font-size:12px;color:var(--muted);min-width:34px;text-align:center}
 .rvx-re svg{transition:transform .7s var(--ease)}
 .rvx-re.go svg{transform:rotate(360deg)}
@@ -3042,8 +3044,9 @@ th:last-child>.col-rz{display:none}
 .fbx-bar .ib.on svg{transform:rotate(-8deg)}
 /* nothing in the row shrinks or swells on a click (owner, 18 Nov): a rated thumb only tilts */
 .fbx-bar .ib:active,.fbx-f .pill.ghost:active{transform:none}
-/* the thumbs sit on the stage, where --row is the stage's own colour: their hover is a quiet 5% of the text colour */
-.fbx-bar .ib:hover{background:color-mix(in srgb,var(--fg) 5%,transparent)}
+/* the thumbs sit on the stage, where --row is the stage's own colour: the bar sets --row to a quiet 5% of the text colour, as
+   the other cards on the stage do, so the thumbs keep the one shared hover */
+.fbx-bar{--row:color-mix(in srgb,var(--fg) 5%,transparent)}
 :root[data-style="clean"] .fbx-bar .ib:active{transform:none}
 .fbx-dn.on{background:var(--bad-bg);color:var(--bad)}
 .fbx-st{font-size:12.5px;margin-left:6px}
@@ -3074,6 +3077,7 @@ th:last-child>.col-rz{display:none}
    thumb fills in ink (no red fill, no tilt) and a picked reason is an ink chip like a toggle that is on */
 :root[data-style="clean"] .fbx-bar .ib.on svg{transform:none}
 :root[data-style="clean"] .fbx-bar .ib.on{background:none;color:var(--fg)}
+:root[data-style="clean"] .fbx-bar .ib.on:hover{background:var(--row)}
 :root[data-style="clean"] .fbx-bar .ib.on svg{fill:currentColor}
 :root[data-style="clean"] .fbx-in.panel{gap:12px;margin:4px 0 0;padding:16px 16px 0;overflow:clip}
 :root[data-style="clean"] .fbx-q{font-size:14px;line-height:20px}
@@ -3298,7 +3302,7 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .aab-bar .ib[aria-pressed="true"]{background:none;color:var(--fg)}
 :root[data-style="clean"] .aab-bar .ib[aria-pressed="true"]:hover{background:var(--row)}
 :root[data-style="clean"] .aab-bar .ib[aria-pressed="true"] svg{fill:currentColor}
-:root[data-style="clean"] .aab-rd[aria-pressed="true"]{background:var(--chip);color:var(--fg)}
+:root[data-style="clean"] .aab-rd[aria-pressed="true"]{background:var(--row-on);color:var(--fg)}
 :root[data-style="clean"] .aab-rd:hover{background:var(--row)}
 :root[data-style="clean"] .aab-ch .chip.on{background:var(--btn-2);color:var(--on-btn);box-shadow:inset 0 0 0 1px var(--btn-2)}
 :root[data-style="clean"] .aab-st.ok svg{color:var(--ok-mark)}
@@ -3575,7 +3579,7 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .pgx.panel .pgx-f{margin:0 -16px;padding:8px 16px;gap:4px;border-top:1px solid var(--line);background:var(--strip);border-radius:0 0 var(--r-card) var(--r-card)}
 :root[data-style="clean"] .pgx-f .pgx-db{padding:0 8px;margin:0;color:var(--fg2);transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .pgx-f :is(.pgx-db:hover,.pill.ghost:hover){background:var(--row);color:var(--fg)}
-:root[data-style="clean"] .pgx-f .pgx-db[aria-expanded="true"]{background:var(--hover);color:var(--fg)}
+:root[data-style="clean"] .pgx-f .pgx-db[aria-expanded="true"]{background:var(--row-on);color:var(--fg)}
 /* on a narrow stage the buttons wrap under the select: the strip's 4px gaps put them 8px under it */
 @container (max-width:340px){:root[data-style="clean"] .pgx-no{margin:0 0 0 auto}:root[data-style="clean"] .pgx-ok{margin-top:0}}
 /* Allow's count rolls: up as a box is ticked, down as one is cleared. No window clips it: each number moves a few pixels
@@ -5518,7 +5522,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 :root[data-style="clean"] .rdr .rdr-r.run{--rdr-kc:var(--accent-mark)}
 :root[data-style="clean"] :is(.rdr-r,.rdr-l,.rdr-ds button,.rdr-ask){border-radius:calc(var(--r-card) - 8px)}
 :root[data-style="clean"] :is(.rdr-r,.rdr-ds button,.rdr-tg,.rdr-nd){transition:background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
-:root[data-style="clean"] :is(.rdr-r[aria-pressed="true"],.rdr-ds button[aria-pressed="true"]){background:var(--chip)}
+:root[data-style="clean"] :is(.rdr-r[aria-pressed="true"],.rdr-ds button[aria-pressed="true"],.rdr-follow[aria-pressed="true"]){background:var(--row-on)}
 :root[data-style="clean"] .rdr-tg{border-radius:var(--r-pill)}
 :root[data-style="clean"] .rdr-nd{border-radius:var(--r-in)}
 :root[data-style="clean"] .rdr-ask .pill.line{color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth)}
@@ -6207,7 +6211,8 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
    its own keeps its layout */
 :root[data-style="clean"] .lnx>.lnx-h:has(>.lnx-tl){margin:calc(-1 * var(--s-4)) calc(-1 * var(--s-4)) 0;padding:8px var(--s-4);background:var(--strip);border-bottom:1px solid var(--line);border-radius:var(--r-card) var(--r-card) 0 0}
 :root[data-style="clean"] .lnx-pk{border-radius:var(--r-pill)}
-:root[data-style="clean"] :is(.lnx-pk:hover,.lnx-pk[aria-expanded="true"]){background:var(--hover)}
+:root[data-style="clean"] .lnx-pk:hover{background:var(--row)}
+:root[data-style="clean"] .lnx-pk[aria-expanded="true"]{background:var(--row-on)}
 :root[data-style="clean"] .lnx:has(>.lnx-h>.lnx-tl)>.lnx-lg{margin:0 calc(-1 * var(--s-4)) calc(-1 * var(--s-4));padding:8px var(--s-4);gap:6px;background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
 :root[data-style="clean"] .lnx:has(>.lnx-h>.lnx-tl)>.lnx-lg .lnx-k{height:28px;padding:0 10px}
 /* (on a phone its two columns share the width, the second ending on the content's right edge like the switch above) */
@@ -7218,6 +7223,7 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 :root[data-style="clean"] .mtx-fade{animation:clfade var(--t-fast) var(--ease) both}
 :root[data-style="clean"] .mtx-roll i.in{animation:clroll .3s var(--ease) both}
 :root[data-style="clean"] .mtx-cp{width:28px;height:28px;border-radius:999px}
+:root[data-style="clean"] .mtx-cp:hover{background:var(--row)}
 :root[data-style="clean"] .mtx .ib:active{transform:none}
 /* (a step of --ok in the vivid green keeps the copied tick at 3:1 on the off-white strip) */
 :root[data-style="clean"] .mtx-cp.copied{color:color-mix(in srgb,var(--ok-mark) 80%,var(--ok))!important}
@@ -8402,7 +8408,8 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 :root[data-style="clean"][data-theme="dark"] .csw-bar{box-shadow:0 0 0 1px rgba(255,255,255,.05),0 1px 1px rgba(0,0,0,.5),0 2px 10px -4px rgba(0,0,0,.6)}
 @media (prefers-color-scheme:dark){:root[data-style="clean"]:not([data-theme="light"]) .csw-bar{box-shadow:0 0 0 1px rgba(255,255,255,.05),0 1px 1px rgba(0,0,0,.5),0 2px 10px -4px rgba(0,0,0,.6)}}
 :root[data-style="clean"] :is(.csw-tr,.csw-more){border-radius:var(--r-pill);transition:background-color var(--t-fast) var(--ease)}
-:root[data-style="clean"] :is(.csw-tr,.csw-more):is(:hover,[aria-expanded="true"]){background:var(--row)}
+:root[data-style="clean"] :is(.csw-tr,.csw-more):hover{background:var(--row)}
+:root[data-style="clean"] :is(.csw-tr,.csw-more)[aria-expanded="true"]{background:var(--row-on)}
 :root[data-style="clean"] .csw-o{border-radius:10px;transition:background-color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .csw-pop .csw-o:is(:hover,.hl),:root[data-style="clean"] .csw-mpop .mi:is(:hover,.hl){background:var(--row)}
 :root[data-style="clean"] .csw-pop .csw-o[aria-selected="true"]{background:var(--row-on)}
@@ -8425,10 +8432,10 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .flm-ch.seen{animation:none}
 .flm-ch .k{color:var(--fg2)}
 .flm-ch .op{height:22px;padding:0 5px;margin:0 1px;border-radius:calc(6px * var(--rk-s,var(--rk)));color:var(--muted);transition:background var(--t-fast),color var(--t-fast)}
-.flm-ch .op:hover{background:var(--hover);color:var(--fg)}
+.flm-ch .op:hover{background:var(--row);color:var(--fg)}
 .flm-ch .v{font-weight:500;overflow:hidden;text-overflow:ellipsis}
-.flm-ch .x{width:26px;height:28px;display:grid;place-items:center;flex:none;color:var(--muted);transition:color var(--t-fast)}
-.flm-ch .x:hover{color:var(--fg)}
+.flm-ch .x{width:26px;height:28px;display:grid;place-items:center;flex:none;color:var(--muted);transition:background var(--t-fast),color var(--t-fast)}
+.flm-ch .x:hover{background:var(--row);color:var(--fg)}
 .flm-ch.gone{animation:leave .3s var(--ease) both}
 .flm-pop{width:232px}
 .flm-lv[hidden]{display:none}
@@ -10087,8 +10094,11 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 :root[data-style="clean"] :is(.pill.line,.pill.soft):not([disabled]){color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth)}
 :root[data-style="clean"] :is(.pill.line,.pill.soft):not([disabled]):hover{background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-hover)}
 :root[data-style="clean"] :is(.pill.line,.pill.soft):not([disabled]):active{box-shadow:var(--btn2-press)}
-/* text buttons: no fill until hovered, then the faintest grey */
-:root[data-style="clean"] .pill.ghost:hover{background:var(--row)}
+/* ghost and icon buttons: no fill until hovered, then the one hover (--row) in the button's own shape, easing in and out over
+   220ms; a button that is on, pressed or holding its menu open has the same shape with the stronger fill (--row-on), never a
+   ring or a hue (owner, 21 and 22 Nov). Components that sit on the stage set --row for their bar, and Clean hands it back */
+:root[data-style="clean"] :is(.pill.ghost,.ib:not(.fill)):not([disabled]):hover{background-color:var(--row);color:var(--fg)}
+:root[data-style="clean"] .ib.on{background:var(--row-on);color:var(--fg)}
 /* the controls in a head or foot strip sit on the content's 16px column at the sides, as the rows do, and 8px from the
    strip's own top and bottom (owner, 21 Nov: "ok do it, apply everywhere", replacing 8px from the card's edges) */
 :root[data-style="clean"] :is(.atx-ft,.atx-ctx-ft){padding-right:16px}
@@ -10097,7 +10107,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
    the grey is a step under the strip, so it shows as it does on the card. (A remove × inside a filled chip, a tinted banner
    or the ink save bar takes a little of its own colour instead, color-mix(currentColor 12%), as no grey shows on a fill) */
 /* the cards that set a stronger grey of their own for the stage take Clean's, so every hover in Clean is the same fill */
-:root[data-style="clean"] :is(.tst-t,.tsk-c,.lva,.plx,.ssx,.ahx,.lnx,.dnx,.cmx,.ntx.panel,.ivx,.rxx,.rgx,.wsx){--row:inherit}
+:root[data-style="clean"] :is(.tst-t,.tsk-c,.lva,.plx,.ssx,.ahx,.lnx,.dnx,.cmx,.ntx.panel,.ivx,.rxx,.rgx,.wsx,.rvx-bar,.fbx-bar){--row:inherit}
 /* menus: rows with 10px corners, the hover and the picked row's fill easing in and out over 220ms */
 :root[data-style="clean"] .mi{border-radius:10px;transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .pop :is(.mi[aria-checked="true"],.mi[aria-selected="true"],[role="option"][aria-selected="true"]){background:var(--row-on)}
@@ -10129,7 +10139,9 @@ button.pvb-row:focus-visible{outline-offset:-2px}
    switches and Segmented control's alike) */
 :root[data-style="clean"] :is(.seg2,.sgc-seg){box-shadow:var(--track-ring)}
 :root[data-style="clean"] :is(.seg2 .knob,.sgc-seg .sgc-k){background:var(--knob);box-shadow:var(--knob-shadow);transition:left var(--t) var(--ease),width var(--t) var(--ease)}
-:root[data-style="clean"] :is(.seg2,.sgc-seg) button{color:var(--muted);font-weight:500;transition:color var(--t-fast) var(--ease)}
+:root[data-style="clean"] :is(.seg2,.sgc-seg) button{color:var(--muted);font-weight:500;transition:color var(--t-fast) var(--ease),background-color var(--t-fast) var(--ease)}
+/* a segment that is not picked takes the one hover under the pointer, a pill in its own shape (owner, 21 Nov) */
+:root[data-style="clean"] :is(.seg2,.sgc-seg) button:not([aria-pressed="true"],[aria-selected="true"],[aria-checked="true"],[disabled]):hover{background:var(--row);color:var(--fg)}
 :root[data-style="clean"] :is(.seg2 button[aria-pressed="true"],.sgc-seg button:is(:hover,[aria-selected="true"],[aria-checked="true"])){color:var(--fg)}
 /* toggles: ink when on (a switcher is chrome), a knob with a hairline, and a soft inner shadow in the track */
 :root[data-style="clean"] .toggle[aria-checked="true"]{background:var(--btn-2);box-shadow:inset 0 0 0 1px var(--btn-2),inset 0 2px 4px -1px rgba(0,0,0,.3)}
