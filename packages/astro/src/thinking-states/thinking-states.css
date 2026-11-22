@@ -1,16 +1,18 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Thinking states ---------- */
-/* six ways to show that the agent is thinking, to pick from: each is a small mark on a tile beside one status line that
+/* six ways to show that the agent is thinking, to pick from: each is a small mark (on a tile in Blueprint only) beside one status line that
    steps through what the agent is doing, and a screen reader hears each step once (the polite status), never each frame.
    Orbit, Morph, Scan and Stream are dot grids like Matrix, each at its own density (owner, 5 Nov). Orbit: a light round the edge.
    Morph: a rectangle, a circle, a triangle. Scan: a column sweeping lines of dots. Stream: three lines of dots
    filling one by one, then fading, the line typed out behind a caret. Matrix: a grid
    of dots lighting up at random. Stack: pages shuffling to the front. In every state the line has the loader's highlight
-   sweep (.shim, owner, 19 Nov). Marks are the accent and everything else is grey;
+   sweep (.shim, owner, 19 Nov). Marks are the accent (ink in Clean) and everything else is grey;
    with reduced motion every mark holds still in a legible pose and only the line changes */
 .ths{width:100%;max-width:264px;margin-inline:auto;min-height:84px;display:flex;flex-direction:column;justify-content:center;gap:var(--dm-s-3);position:relative}
 .ths-row{display:flex;align-items:center;gap:10px;min-width:0}
-.ths-mk{position:relative;width:28px;height:28px;flex:none;display:grid;place-items:center;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-chip);color:var(--dm-accent-mark,var(--dm-accent))}
+/* the animated mark has no tile or fill behind it in Soft and Clean (owner, 22 Nov: "remove the background container"): it sits
+   in a 20px box on the line's centre line, the words 10px after it. Blueprint keeps its hairline tile */
+.ths-mk{position:relative;width:20px;height:20px;flex:none;display:grid;place-items:center;color:var(--dm-accent-mark,var(--dm-accent))}
 .ths-l{flex:0 1 auto;min-width:0;font-size:14px;line-height:20px;color:var(--dm-fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ths-car{display:inline-block;width:2px;height:15px;margin-left:2px;vertical-align:-3px;border-radius:1px;background:var(--dm-accent-mark,var(--dm-accent));animation:thsblink 1s steps(1,end) infinite}
 @keyframes thsblink{50%{opacity:0}}
@@ -85,14 +87,17 @@
    words, a lit diamond, a stack), the caret stays lit and the sweep goes */
 @media (prefers-reduced-motion:reduce){.ths-mk *,.ths-car{animation:none!important}.ths-dg .p{opacity:1}.ths-mtx i:is(:nth-child(2),:nth-child(5),:nth-child(7),:nth-child(10),:nth-child(12),:nth-child(15)){opacity:1}}
 /* Blueprint: a square tile with a hairline, square dots, marks that tick in steps and a block caret */
-:root:not([data-style="soft"],[data-style="clean"]) .ths-mk:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent)}
+:root:not([data-style="soft"],[data-style="clean"]) .ths-mk:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){width:28px;height:28px;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent)}
 :root:not([data-style="soft"],[data-style="clean"]) .ths-dg i:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){border-radius:0}
 :root:not([data-style="soft"],[data-style="clean"]) .ths-car:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){width:7px;vertical-align:-3px}
 :root:not([data-style="soft"],[data-style="clean"]) .ths-mtx i:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation-timing-function:steps(1,end)}
 :root:not([data-style="soft"],[data-style="clean"]) .ths-stk i:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation-timing-function:steps(3)}
 /* Clean (lead, 18 Nov; owner, 21 Nov): it stays bare, the line it is in a chat. The animated mark has no tile, fill or padding
    behind it ("I don't think we need bg padding behind the animated dots"): it sits in a 20px box on the line's centre line,
-   with the words 10px after it. The mark is the accent, which is white in Clean's dark mode, the one
-   thing that moves; the seconds count in even figures */
-:root[data-style="clean"] .ths-mk,:root [data-style="clean"] .ths-mk,:root [data-style="clean"].ths-mk{width:20px;height:20px;border-radius:0;background:none;box-shadow:none}
+   with the words 10px after it. Clean is monochrome here (owner, 22 Nov): the mark, the caret and the front page of the stack
+   are ink, not the accent (ink is white in dark mode, as the accent is there), the one thing that moves; the seconds count in
+   even figures */
+:root[data-style="clean"] .ths-mk,:root [data-style="clean"] .ths-mk,:root [data-style="clean"].ths-mk{color:var(--dm-fg)}
+:root[data-style="clean"] .ths-car,:root [data-style="clean"] .ths-car,:root [data-style="clean"].ths-car{background:var(--dm-fg)}
+:root[data-style="clean"] .ths-stk,:root [data-style="clean"] .ths-stk,:root [data-style="clean"].ths-stk{--dm-accent-mark:var(--dm-fg)}
 :root[data-style="clean"] .ths-t,:root [data-style="clean"] .ths-t,:root [data-style="clean"].ths-t{font-variant-numeric:tabular-nums}

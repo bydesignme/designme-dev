@@ -37,7 +37,7 @@ Toast shows one notification at a time and lets it change as the agent's work mo
 - Four tones: `success`, `error`, `info` and `loading`. Each picks its own icon and colour, and loading shows a spinner, with a highlight sweeping across its title. In Clean the colour is on the icon alone, with no disc behind it, and only `success` (green) and `error` (red) take one; `info` and `loading` stay grey.
 - Give the toast a new `id` and the new one rises in while the old one slips away. Keep the `id` to update the text in place.
 - The `description` line crossfades when it changes, so progress text can update without a jump.
-- An optional `action` adds a button before the close button, in a `ghost` or `primary` style (`primary` sits on the accent).
+- One optional `action` adds a button on the toast's row, just before the close button: the message, then the action, then close at the far end. It is a `ghost` button by default (the demo's Undo, Retry and Open all are), or `primary` on the accent. On a narrow toast (340px or less, as on a phone), or when the words run past two lines beside it, the action moves to a row of its own under the message, its words ending under the close button's glyph, and close stays at the top end.
 - Set `action.busy` and the button label turns into a spinner. Clicks are ignored while it is busy.
 - Set `action.done` and the button label turns into the green tick, as Undo does once it has undone. The button stays in place but is turned off. Whichever it turns into, the button eases to its new width.
 - The close button hides the toast straight away and calls `onDismiss`, even if your state has not cleared it yet.
@@ -80,7 +80,7 @@ export default function ToastDemo() {
   useEffect(() => () => { timers.current.forEach(clearTimeout); if (life.current) clearTimeout(life.current.t); }, []);
 
   const update = (id: number, patch: Partial<ToastData>) => setToast(t => (t && t.id === id ? { ...t, ...patch } : t));
-  // success and info time out like real toasts: hovering holds the timer, and when it runs out the toast leaves and comes
+  // success and info time out like real toasts, after 10 seconds as they carry an action: hovering holds the timer, and when it runs out the toast leaves and comes
   // back (until you take over: then it stays gone until you pick one)
   const life = useRef<{ t?: ReturnType<typeof setTimeout>; id: number; k: Kind; left: number; at: number } | null>(null);
   const arm = (id: number, k: Kind, ms: number) => {
@@ -101,12 +101,12 @@ export default function ToastDemo() {
     if (k === 'ok') setToast({ id, tone: 'success', title: 'Changes applied', description: '4 files updated in PricingCard',
       action: { label: 'Undo', onClick: () => update(id, { title: 'Changes undone', description: 'PricingCard is back as it was', action: { label: 'Undo', doneLabel: 'Undone', done: true, onClick: () => {} } }) } });
     if (k === 'err') setToast({ id, tone: 'error', title: 'Could not push to main', description: 'The branch is protected',
-      action: { label: 'Retry', variant: 'primary', onClick: () => {
+      action: { label: 'Retry', onClick: () => {
         setToast(t => (t && t.id === id && t.action ? { ...t, action: { ...t.action, busy: true } } : t));
         later(1200, () => { if (current.current === id) show('ok'); });
       } } });
     if (k === 'info') setToast({ id, tone: 'info', title: 'Preview is ready', description: 'pricing-spacing.preview.app', action: { label: 'Open', onClick: () => {} } });
-    if (k === 'ok' || k === 'info') arm(id, k, 5200); else if (life.current) { clearTimeout(life.current.t); life.current = null; }
+    if (k === 'ok' || k === 'info') arm(id, k, 10000); else if (life.current) { clearTimeout(life.current.t); life.current = null; }
     if (k === 'load') {
       setToast({ id, tone: 'loading', title: 'Deploying preview', description: 'Building 3 pages' });
       later(2600, () => { if (current.current === id) show('info'); });
@@ -147,7 +147,7 @@ It plays its demo; change `toast.js` to show your own data. `data-style="soft"` 
 
 **Does the toast close itself after a few seconds?**
 
-No, the component has no timer. Set `toast` to null from your own timeout when you want it gone. The demo does this for success and info, and pauses the timer on hover.
+No, the component has no timer. Set `toast` to null from your own timeout when you want it gone. The demo does this for success and info after 10 seconds, since they carry an action (Undo, Open) that needs time to reach, and pauses the timer on hover. Keep a toast with an action up for at least 10 seconds, or until it is dismissed.
 
 **How do I turn a loading toast into a success toast?**
 
@@ -185,7 +185,9 @@ export interface ToastData {
   title: string;
   /** The quieter line under the title. Crossfades when it changes */
   description?: string;
-  /** A button before the close button, like Undo or Retry: ghost, or primary on the accent (ink, the old name, still works).
+  /** The one action, a button on the toast's row just before the close button, like Undo or Retry: ghost (the usual), or
+      primary on the accent (ink, the old name, still works). On a narrow toast, or when the words run past two lines, it
+      moves to a row of its own under them, at the end. A toast with an action should stay at least 10 seconds.
       busy swaps its label for a spinner; done swaps it for the green tick and turns the button off (Undo once it has undone).
       Either way the button eases to its new width */
   action?: { label: string; onClick: () => void; variant?: 'ghost' | 'primary' | 'ink'; busy?: boolean; done?: boolean; doneLabel?: string };
@@ -212,7 +214,16 @@ function Card({ toast, leaving, onDismiss }: { toast: ToastData; leaving: boolea
   const tone = TONES[toast.tone ?? 'success'], a = toast.action;
   // a pressed action never goes blank and keeps no room for what it turns into: it shows its new content and eases from its
   // old width to its new one
-  const reduce = useReducedMotion(), btn = useRef<HTMLButtonElement>(null), w = useRef(0);
+  const reduce = useReducedMotion(), btn = useRef<HTMLButtonElement>(null), w = useRef(0), tx = useRef<HTMLDivElement>(null);
+  // the action sits on the toast's row, before the close button; when the words run past two lines beside it, it moves to a
+  // row of its own under them (on a narrow toast, a phone, the stylesheet does that whatever the words)
+  const [wrap, setWrap] = useState(false);
+  useIsoLayoutEffect(() => {
+    const el = tx.current; if (!el || !a) { setWrap(false); return; }
+    const lines = new Set<number>(), tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    for (let n = tw.nextNode(); n; n = tw.nextNode()) { const g = document.createRange(); g.selectNodeContents(n); Array.from(g.getClientRects()).forEach(b => { if (b.width > 1) lines.add(Math.round(b.top / 4)); }); }
+    if (lines.size > 2) setWrap(true);
+  }, [toast.id, !!a]);
   const look = a ? (a.done ? 'done' : a.busy ? 'busy' : a.label) : '';
   useIsoLayoutEffect(() => {
     const b = btn.current; if (!b) { w.current = 0; return; }
@@ -220,9 +231,9 @@ function Card({ toast, leaving, onDismiss }: { toast: ToastData; leaving: boolea
     if (w0 && !reduce && Math.abs(w1 - w0) > .5) b.animate([{ width: w0 + 'px' }, { width: w1 + 'px' }], { duration: cssMs(b, '--dm-t'), easing: getComputedStyle(b).getPropertyValue('--dm-ease').trim() || 'ease' });
   }, [look]);
   return (
-    <div className={cx('dm-tst-t', leaving ? 'dm-tst-out' : 'dm-tst-in')} role="status" inert={leaving}>
+    <div className={cx('dm-tst-t', leaving ? 'dm-tst-out' : 'dm-tst-in', wrap && 'dm-wrap')} role="status" inert={leaving}>
       <span className="dm-g" data-tone={toast.tone ?? 'success'} style={{ color: tone.color, background: tone.bg }}>{tone.icon ? <Icon name={tone.icon} /> : <Spin />}</span>
-      <div className="dm-tx"><b className={toast.tone === 'loading' ? 'dm-shim' : undefined}>{toast.title}</b>{toast.description !== undefined && <Swap>{toast.description}</Swap>}</div>
+      <div className="dm-tx" ref={tx}><b className={toast.tone === 'loading' ? 'dm-shim' : undefined}>{toast.title}</b>{toast.description !== undefined && <Swap>{toast.description}</Swap>}</div>
       <div className="dm-acts">
         {a && <button type="button" ref={btn} className={cx('dm-pill dm-sm', a.variant === 'primary' || a.variant === 'ink' ? 'dm-primary' : 'dm-ghost', a.done && 'dm-done')} aria-busy={a.busy || undefined}
           aria-disabled={a.done || undefined} aria-label={a.done ? a.doneLabel ?? 'Done' : undefined} onClick={() => { if (!a.busy && !a.done) a.onClick(); }}>{a.done ? <Icon name="check" /> : a.busy ? <Spin /> : a.label}</button>}

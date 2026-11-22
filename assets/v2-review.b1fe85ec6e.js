@@ -466,7 +466,7 @@ DM.def('eval-results', (r, c) => {
   const EVR_HTML = {
     runs:`<div class="evr-vs panel">
     <div class="evr-vs-h"><div class="evr-vs-ht"><b>Pricing copy evals</b><span class="evr-vs-st">Copy agent · last run 2h ago</span></div><button class="pill primary sm evr-vs-run" type="button">${I('play','xs')}Run evals</button></div>
-    <div class="evr-vs-score"><span class="evr-vs-big num">7/8</span><span class="evr-vs-dl tag">Same as last run</span></div>
+    <div class="evr-vs-score"><span class="evr-vs-big num">7/8</span><span class="evr-vs-dl quiet">Same score as last run</span></div>
     <div class="evr-vs-f" role="toolbar" aria-label="Show"></div>
     <div class="evr-vs-th" aria-hidden="true"><span>Case</span><span>Last</span><span></span><span>Now</span></div>
     <div class="evr-vs-list" role="list" aria-label="Cases"></div>
@@ -515,17 +515,19 @@ DM.def('eval-results', (r, c) => {
       const n = { all:K.length, reg:K.filter(k => ch(k) === 'reg').length, fix:K.filter(k => ch(k) === 'fix').length, fail:K.filter(k => k.s === 'fail').length };
       chips.forEach(b => { $('.n', b).textContent = n[b.dataset.f]; });
       const p = K.filter(k => k.s === 'pass').length, lp = K.filter(k => k.last === 'pass').length, fin = k => k.s === 'pass' || k.s === 'fail', doneAll = K.every(fin);
-      big.textContent = `${doneAll ? p : K.filter(fin).length}/8`;
-      const d = !doneAll ? 'Running' : p > lp ? `+${p - lp} on the last run` : p < lp ? `${p - lp} on the last run` : 'Same score as last run';
-      // while the cases run, the tag's word shimmers as every loader's does
-      if (dl.textContent !== d){ if (doneAll) dl.textContent = d; else dl.innerHTML = '<span class="shim">' + d + '</span>'; dl.className = 'evr-vs-dl tag' + (!doneAll ? '' : p > lp ? ' ok' : p < lp ? ' bad' : ''); }
+      // while the cases run, the score row keeps the last finished run's score, and the count of cases done is in the Run
+      // button's words (owner, 22 Nov: no second count by the score)
+      const cnt = $('.cnt', run); if (cnt) cnt.textContent = `${K.filter(fin).length}/8`;
+      if (doneAll) big.textContent = `${p}/8`;
+      const d = !doneAll ? 'Last run' : p > lp ? `+${p - lp} on the last run` : p < lp ? `${p - lp} on the last run` : 'Same score as last run';
+      if (dl.textContent !== d){ dl.textContent = d; dl.className = 'evr-vs-dl ' + (!doneAll || p === lp ? 'quiet' : p > lp ? 'tag ok' : 'tag bad'); }
       show();
     }
     function show(){ K.forEach(k => { const d = ch(k), on = filter === 'all' || (filter === 'fail' ? k.s === 'fail' : d === filter) || k.again; k.w.classList.toggle('shut', !on); k.w.inert = !on; }); none.hidden = K.some(k => !k.w.classList.contains('shut'));
       if (!none.hidden && NONE[filter]){ $('b', none).textContent = NONE[filter][0]; $('span:not(.evr-em-art)', none).textContent = NONE[filter][1]; } }
     K.forEach(k => paint(k)); counts();
     run.onclick = () => c.run(async () => {
-      if (busy) return; busy = true; run.disabled = true; relabel(run, '<span class="spin"></span>Running');
+      if (busy) return; busy = true; run.disabled = true; relabel(run, '<span class="spin"></span>Running <span class="cnt">0/8</span>');
       K.forEach(k => { k.s = 'idle'; k.open = false; paint(k); }); counts();
       await evrRun(c, K, (k, f) => { paint(k, f); counts(); });
       busy = false; run.disabled = false; relabel(run, I('play','xs') + 'Run again'); swap(st, 'Copy agent · run just now');

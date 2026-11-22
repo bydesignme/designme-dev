@@ -14,6 +14,17 @@ DM.def('harness', (r, c) => {
   { const spT = tplOf('status-pill'), sp = spT && $('.spl-pill', spT.content); if (sp) $('.ahx-spl .spl-pill', r).replaceWith(sp.cloneNode(true)); }
   const pill = $('.ahx-spl .spl-pill', r), pin = $('.spl-in', pill);
   const BOXED = ['artifact-card'];
+  // Phase II: inside the harness, Source stack keeps its staging marks (white initials on each source's colour in the pill; a
+  // 14% tint of it with the initials in that colour in the list), whatever the reviewed component now draws. Inline and
+  // important, so they hold over Clean's grey marks; a list drawn again is caught as it lands
+  const stagingSources = host => {
+    const bgOf = e => e.style.getPropertyValue('background') || e.style.getPropertyValue('background-color');
+    const fix = () => {
+      $$('.ssx-ics span', host).forEach(e => { const bg = bgOf(e); if (!bg || e.dataset.st) return; e.dataset.st = '1'; e.style.setProperty('background', bg, 'important'); e.style.setProperty('color', ''); });
+      $$('.ssx-s .fv', host).forEach(e => { const bg = bgOf(e); if (!bg || e.dataset.st) return; e.dataset.st = '1'; e.style.setProperty('background', `color-mix(in srgb,${bg} 14%,transparent)`, 'important'); e.style.setProperty('color', bg, 'important'); });
+    };
+    fix(); const mo = new MutationObserver(fix); mo.observe(host, { childList:true, subtree:true }); c.offs.push(() => mo.disconnect());
+  };
   const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
   /* a clock of its own: a past chat replays at speed out of sight, so opening it shows its end at once.
      The tiny waits of a replay go through a message, which the browser runs at once, where a timer would be held back */
@@ -232,6 +243,7 @@ DM.def('harness', (r, c) => {
         if (tp) host.append(tp.content.cloneNode(true));
         into.appendChild(host);
         if (tp && DM.defs[name]) try { DM.defs[name](host, paced(k, f), host); } catch(e){ console.error(name, e); }
+        if (name === 'source-stack') stagingSources(host);
         if (!ff) reveal(host);
         return host;
       },

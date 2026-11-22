@@ -34,9 +34,9 @@ The agent's web searches, shown as it makes them: each query with how many resul
 ### What it does
 
 - A header that says what is happening (Searching the web, Reading the pages; the queries and pages are in the rows under it) and, once done, sums it up; it opens and folds the trail. While something runs, its words have a highlight sweeping across them: the header, a query and its Searching, and a page's Reading.
-- Query rows with the query, the result count (No results in the warning colour) and the time; each opens to its pages. A search that found nothing has no chevron, and its count and time end where the other rows' chevrons end.
+- Query rows with the query, the result count (No results in the warning colour) and the time; each opens to its pages. A search that found nothing has no chevron and keeps no room for one: its count and time end on the content's right edge, where the chevrons' column ends.
 - A query asked again in other words is marked "Asked again in other words" under it, right after the one that found nothing.
-- Page rows with the site's initial, the title, the site and date, and a tag: Reading (with a spinner), Read, Skimmed, or Skipped with the reason as a warning tag.
+- Page rows with the site's initial, the title, the site and date, and a tag on the content's right edge: Reading (with a spinner), Read, Skimmed, or Skipped with the reason as a warning tag. On a hovered or lit row the grey tag lifts to white (a step lighter in dark mode), so it stands out on the row's fill.
 - Up to four site initials in the header, side by side, with the rest counted (+3). In Clean a narrow card (400px or less, as on a phone) leaves them out, so the header line fits.
 - Citations in the answer ([1], [2]) are buttons: pointing at one or tabbing to it lights the page it came from (or its search, when that is folded) and its site's initial, and its tooltip names the page.
 - Page titles cut short with an ellipsis show in full in a tooltip on hover and on keyboard focus.

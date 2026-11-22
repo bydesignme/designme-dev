@@ -22,6 +22,21 @@
 .tst-t .acts .pill.done{color:var(--dm-ok-mark);pointer-events:none}
 .tst-t .acts .pill.done .i{width:16px;height:16px;stroke-width:2}
 .tst-t .life{display:none}
+/* the action sits on the toast's own row, just before Close (the message, the action as a ghost button, Close at the far end:
+   the usual snackbar). When the toast is narrow (a phone) or its words run past two lines (.wrap, set as it shows), the action
+   moves to a row of its own under the message, its words ending under Close's glyph, and Close stays at the top end
+   (owner, 22 Nov) */
+.tst-slot{container:tst/inline-size}
+.tst-t.wrap{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:start;row-gap:var(--dm-s-1)}
+.tst-t.wrap .acts{display:contents}
+.tst-t.wrap .ib{grid-area:1/3;margin:calc(8.775px - 14px) -6px 0 0}
+.tst-t.wrap .acts .pill{grid-area:2/2/3/4;justify-self:end;margin:0 -10px -6px 0}
+@container tst (max-width:340px){
+  .tst-t{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:start;row-gap:var(--dm-s-1)}
+  .tst-t .acts{display:contents}
+  .tst-t .ib{grid-area:1/3;margin:calc(8.775px - 14px) -6px 0 0}
+  .tst-t .acts .pill{grid-area:2/2/3/4;justify-self:end;margin:0 -10px -6px 0}
+}
 .tst-in{animation:tstin .6s var(--dm-ease) both}
 @keyframes tstin{from{opacity:0;transform:translateY(14px) scale(.97);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}
 .tst-out{animation:tstout .35s var(--dm-ease) both}
