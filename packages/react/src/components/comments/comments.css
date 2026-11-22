@@ -1,30 +1,38 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Comments ---------- */
 /* a thread on one spot of a design: the first comment, then its replies indented on a thin line. Each comment is an avatar,
-   a name, a time and the text; its Agree button shows on hover or keyboard focus (always, on a touch screen) */
-.dm-cmx{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-4);min-height:340px}
-/* on a card the thread keeps the room its last reply takes, so it stays centred while replies arrive */
-.dm-stage-in>.dm-cmx{min-height:inherit}
-.dm-cmx-h{display:flex;align-items:center;gap:var(--dm-s-2);font-size:13.5px;margin:calc(-1 * var(--dm-s-1)) calc(-1 * var(--dm-s-1)) 0 0}
+   a name, a time and the text; its Agree button shows on hover or keyboard focus (always, on a touch screen). The card's
+   content is 16px from every edge in every style, and it keeps no room for replies still to come: it grows as they arrive
+   (grow()) and stays centred in its stage (owner, 17 and 18 Nov). Hovers are a quiet fill that shows in light mode too */
+.dm-cmx{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-4);--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
+/* the head sits on the comments' columns: the pin centred in the avatars' 24px column, the title where their words start,
+   and Resolve's glyph on the right edge the Send button ends on, its hover box reaching out round it */
+.dm-cmx-h{display:flex;align-items:center;gap:var(--dm-s-3);min-height:20px;padding-bottom:var(--dm-s-4);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13.5px;line-height:20px}
 .dm-cmx-h b{font-weight:500}
-.dm-cmx-st{flex:1;font-size:12px;color:var(--dm-muted)}
-.dm-cmx-pin{width:20px;height:20px;border-radius:50% 50% 50% var(--dm-r-xs);background:var(--dm-accent);color:var(--dm-on-accent);display:grid;place-items:center;font-size:11px;font-weight:500;flex:none;transition:background var(--dm-t)}
+.dm-cmx-st{flex:1;min-width:0;display:flex}
+.dm-cmx-pin{width:20px;height:20px;margin:0 2px;border-radius:50% 50% 50% var(--dm-r-xs);background:var(--dm-accent);color:var(--dm-on-accent);display:grid;place-items:center;font-size:11px;font-weight:500;flex:none;transition:background var(--dm-t)}
 .dm-cmx.dm-done .dm-cmx-pin{background:var(--dm-ok);color:var(--dm-surface)}
-.dm-cmx-res{width:28px;height:28px;color:var(--dm-muted)}
+.dm-cmx-res{width:28px;height:28px;margin:-4px -3px -4px 0;color:var(--dm-muted)}
 .dm-cmx-th{--dm-cmx-ln:color-mix(in srgb,var(--dm-rail) 50%,var(--dm-surface));display:flex;flex-direction:column;gap:var(--dm-s-4);flex:1}
 /* dark: the rail is close to the surface already, so the line keeps more of it to stay visible */
 :root[data-theme="dark"] .dm-cmx-th{--dm-cmx-ln:color-mix(in srgb,var(--dm-rail) 80%,var(--dm-surface))}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dm-cmx-th{--dm-cmx-ln:color-mix(in srgb,var(--dm-rail) 80%,var(--dm-surface))}}
-.dm-cmx-rp{--dm-cmx-x:calc(-1 * (var(--dm-s-5) + 1px) - .75px);display:flex;flex-direction:column;gap:var(--dm-s-4);margin-left:var(--dm-s-3);padding-left:calc(var(--dm-s-5) + 1px);position:relative}
-/* the line starts just below the first comment's avatar, centred under it, and runs down to the last reply's turn */
-.dm-cmx-th>.dm-cmx-c:first-child{position:relative}
-.dm-cmx-th>.dm-cmx-c:first-child:has(+ .dm-cmx-rp)::before{content:'';position:absolute;width:1.5px;background:var(--dm-cmx-ln);pointer-events:none;left:calc(var(--dm-s-3) - .75px);top:calc(24px + var(--dm-s-1));bottom:calc(-1 * var(--dm-s-4))}
-/* each reply: the line comes down from above and turns into its avatar; under every reply but the last it carries on down */
+/* a reply's avatar starts where the words of the comment it answers start (12px + 24px in), so the thread keeps one column */
+.dm-cmx-rp{--dm-cmx-x:calc(-1 * var(--dm-s-6) - .75px);display:flex;flex-direction:column;gap:var(--dm-s-4);margin-left:var(--dm-s-3);padding-left:var(--dm-s-6);position:relative}
+/* one unbroken line (owner, 21 Nov: "these lines are not connected"): it starts just below the first comment's avatar,
+   centred under it, and runs straight down to the last reply's branch, where it ends. Every piece of it is drawn the same
+   way, a 1.5px left border at the same x, and each piece overlaps the next, so they meet with no seam */
+:is(.dm-cmx-th,.dm-cmx-th>.dm-grow)>.dm-cmx-c:first-child{position:relative}
+:is(.dm-cmx-th,.dm-cmx-th>.dm-grow)>.dm-cmx-c:first-child:has(+ .dm-cmx-rp)::before{content:'';position:absolute;width:0;border-left:1.5px solid var(--dm-cmx-ln);pointer-events:none;left:calc(var(--dm-s-3) - .75px);top:calc(24px + var(--dm-s-1));bottom:calc(-1 * var(--dm-s-4))}
+/* each reply: a branch leaves the line and turns into its avatar's centre (rounded in Soft and Clean, square in Blueprint);
+   under every reply but the last the line carries straight on past the branch, and as a reply arrives the line draws itself
+   down to it */
 .dm-cmx-rp>.dm-cmx-c{position:relative}
 .dm-cmx-rp>.dm-cmx-c .dm-av{position:relative;z-index:1}
-.dm-cmx-rp>.dm-cmx-c::before{content:'';position:absolute;left:var(--dm-cmx-x);top:calc(-1 * var(--dm-s-4));width:calc(var(--dm-s-5) + 2.75px);height:calc(var(--dm-s-4) + 12.75px);box-sizing:border-box;border-left:1.5px solid var(--dm-cmx-ln);border-bottom:1.5px solid var(--dm-cmx-ln);border-bottom-left-radius:10px;corner-shape:round;pointer-events:none}
-.dm-cmx-rp>.dm-cmx-c:not(:last-child)::after{content:'';position:absolute;left:var(--dm-cmx-x);top:12px;bottom:calc(-1 * var(--dm-s-4));width:1.5px;background:var(--dm-cmx-ln);pointer-events:none}
-:root:not([data-style="soft"],[data-style="clean"]) .dm-cmx-rp>.dm-cmx-c:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *))::before{border:0;border-radius:0;background:var(--dm-cmx-ln);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22.75 28.75' preserveAspectRatio='none'%3E%3Cpath d='M.75 0V20L8.75 28H22.75' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E") 0 0/100% 100% no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22.75 28.75' preserveAspectRatio='none'%3E%3Cpath d='M.75 0V20L8.75 28H22.75' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E") 0 0/100% 100% no-repeat}
+.dm-cmx-rp>.dm-cmx-c::before{content:'';position:absolute;left:var(--dm-cmx-x);top:calc(-1 * var(--dm-s-4));width:calc(var(--dm-s-6) + 1.75px);height:calc(var(--dm-s-4) + 12.75px);box-sizing:border-box;border-left:1.5px solid var(--dm-cmx-ln);border-bottom:1.5px solid var(--dm-cmx-ln);border-bottom-left-radius:10px;corner-shape:round;pointer-events:none}
+.dm-cmx-rp>.dm-cmx-c:not(:last-child)::after{content:'';position:absolute;left:var(--dm-cmx-x);top:0;bottom:calc(-1 * var(--dm-s-4));width:0;border-left:1.5px solid var(--dm-cmx-ln);pointer-events:none;transform-origin:top;animation:dm-cmxrl var(--dm-t) var(--dm-ease) both}
+@keyframes dm-cmxrl{from{transform:scaleY(0)}}
+:root:not([data-style="soft"],[data-style="clean"]) .dm-cmx-rp>.dm-cmx-c:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *))::before{border-bottom-left-radius:0}
 .dm-cmx-c{display:flex;gap:var(--dm-s-3);min-width:0}
 .dm-cmx-c .dm-av{width:24px;height:24px;font-size:10px}
 .dm-cmx-c .dm-b{flex:1;display:flex;flex-direction:column;min-width:0}
@@ -32,25 +40,31 @@
 .dm-cmx-c .dm-n b{font-weight:500;white-space:nowrap}
 .dm-cmx-c .dm-n .dm-t{font-size:12px;color:var(--dm-muted)}
 .dm-cmx-c .dm-tx{font-size:13.5px;line-height:1.5;color:var(--dm-fg);overflow-wrap:anywhere}
-.dm-cmx-c .dm-m{color:var(--dm-accent-fg,var(--dm-accent));background:var(--dm-sel);border-radius:var(--dm-r-xs);padding:0 2px}
+/* an @mention: the accent's text on its tint, the tint reaching out round the word so the word stays on the text's column */
+.dm-cmx-c .dm-m{color:var(--dm-accent-fg);background:var(--dm-sel);border-radius:var(--dm-r-xs);padding:0 2px;margin:0 -2px}
 .dm-cmx-c.dm-ag .dm-tx .dm-w{animation:dm-cmw .4s var(--dm-ease) both}
 @keyframes dm-cmw{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
-.dm-cmx-c .dm-act{display:flex;flex-wrap:wrap;gap:var(--dm-s-2);margin-top:var(--dm-s-2)}
-/* the quiet Agree button beside the time */
-.dm-cmx-tools{margin-left:auto;display:flex;gap:var(--dm-s-1);transition:opacity var(--dm-t-fast)}
+/* the agent's buttons wrap before they reach the column's right edge, so on a phone they never end a few pixels short of the
+   edge Send and Resolve end on */
+.dm-cmx-c .dm-act{display:flex;flex-wrap:wrap;gap:var(--dm-s-2);margin-top:var(--dm-s-2);max-width:calc(100% - var(--dm-s-6))}
+/* the quiet Agree button beside the time, its glyph on the same right edge as Resolve's */
+.dm-cmx-tools{margin-left:auto;margin-right:-2px;display:flex;gap:var(--dm-s-1);transition:opacity var(--dm-t-fast)}
 .dm-cmx-tools .dm-ib{width:26px;height:26px;color:var(--dm-muted)}
-.dm-cmx-tools .dm-ib[aria-pressed="true"]{color:var(--dm-fg)}
+.dm-cmx-tools .dm-ib[aria-pressed="true"]{color:var(--dm-accent-fg)}
 @media (hover:hover) and (pointer:fine){.dm-cmx-tools{opacity:0}}
 .dm-cmx-c .dm-n:focus-within .dm-cmx-tools{opacity:1}
 @media (hover:hover) and (pointer:fine){.dm-cmx-c:hover .dm-cmx-tools{opacity:1}}
-/* how many agreed: a small chip under the text, a step stronger once you have */
+/* how many agreed: a small chip under the text. Hovered it takes a quiet fill; once you have agreed it takes the accent's
+   tint with the accent's text, as a reaction of yours does (owner, 20 Nov: hover and selected are a quiet, deeper fill) */
 .dm-cmx-rs{display:flex;margin-top:var(--dm-s-2)}
 .dm-cmx-rs:has(.dm-cmx-rc[hidden]){display:none}
-.dm-cmx-rc{display:inline-flex;align-items:center;gap:var(--dm-s-1);height:22px;padding:0 var(--dm-s-2);border-radius:var(--dm-r-pill);font-size:12px;color:var(--dm-fg2);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);transition:box-shadow var(--dm-t-fast),color var(--dm-t-fast)}
-@media (hover:hover) and (pointer:fine){.dm-cmx-rc:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent)}}
-.dm-cmx-rc[aria-pressed="true"]{color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-faint) 50%,transparent)}
-/* the reply field: a dimmed edge at rest, one step stronger while it has the focus, and no ring */
-.dm-cmx-in{position:relative}
+.dm-cmx-rc{display:inline-flex;align-items:center;gap:var(--dm-s-1);height:22px;padding:0 var(--dm-s-2);border-radius:var(--dm-r-pill);font-size:12px;color:var(--dm-fg2);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);transition:background-color var(--dm-t-fast),box-shadow var(--dm-t-fast),color var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.dm-cmx-rc:hover{background:color-mix(in srgb,var(--dm-fg) 5%,var(--dm-surface))}}
+.dm-cmx-rc[aria-pressed="true"]{color:var(--dm-accent-fg);background:var(--dm-accent-bg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-accent-mark) 25%,transparent)}
+@media (hover:hover) and (pointer:fine){.dm-cmx-rc[aria-pressed="true"]:hover{background:linear-gradient(color-mix(in srgb,var(--dm-fg) 4%,transparent),color-mix(in srgb,var(--dm-fg) 4%,transparent)),var(--dm-accent-bg)}}
+/* the reply field: a dimmed edge at rest, one step stronger while it has the focus, and no ring. A half-strength hairline
+   sets it off from the thread, as one sets the head off (owner, 21 Nov) */
+.dm-cmx-in{position:relative;display:grid;grid-template-rows:minmax(0,1fr);padding-top:var(--dm-s-4);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);transition:grid-template-rows var(--dm-t) var(--dm-ease),margin var(--dm-t) var(--dm-ease),padding var(--dm-t) var(--dm-ease),border-width var(--dm-t) var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease),visibility 0s}
 .dm-cmx-box{display:flex;align-items:center;gap:6px;height:var(--dm-field-h);padding:0 5px 0 var(--dm-s-3);border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);transition:box-shadow var(--dm-t-fast)}
 @supports (corner-shape:squircle){.dm-cmx-box{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
 .dm-cmx-box:has(input:focus){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
@@ -58,12 +72,29 @@
 .dm-cmx-box input::placeholder{color:var(--dm-muted)}
 .dm-cmx-go{width:30px;height:30px;border-radius:50%;background:var(--dm-accent);color:var(--dm-on-accent);display:grid;place-items:center;flex:none;transition:background var(--dm-t-fast),transform .15s}
 @media (hover:hover) and (pointer:fine){.dm-cmx-go:hover{background:var(--dm-accent-2)}}
-.dm-cmx-go:active{transform:scale(.94)}
 .dm-cmx-go[disabled]{opacity:1;cursor:not-allowed;background:var(--dm-dis-hatch),var(--dm-dis-fill);color:var(--dm-dis);box-shadow:var(--dm-soft-ring);transform:none}
 @media (hover:hover) and (pointer:fine){.dm-cmx-go[disabled]:hover{opacity:1;cursor:not-allowed;background:var(--dm-dis-hatch),var(--dm-dis-fill);color:var(--dm-dis);box-shadow:var(--dm-soft-ring);transform:none}}
-.dm-cmx-men{bottom:46px;left:0;min-width:210px}
-.dm-cmx.dm-done .dm-cmx-th,.dm-cmx.dm-done .dm-cmx-in{opacity:.45;pointer-events:none;transition:opacity .4s}
-.dm-cmx-rv{font-size:12.5px;color:var(--dm-ok);display:flex;align-items:center;gap:6px}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink Send alone presses */
+.dm-cmx :is(.dm-ib,.dm-pill,.dm-cmx-go,.dm-cmx-rc):active,:root[data-style="clean"] .dm-cmx .dm-ib:active,:root [data-style="clean"] .dm-cmx .dm-ib:active,:root [data-style="clean"].dm-cmx .dm-ib:active{transform:none}
+/* the mention list opens upward from the field, over the thread */
+.dm-cmx-men{bottom:46px;left:0;min-width:210px;--dm-origin:bottom left}
+/* resolved: the thread stays as it is, in full colour (owner, 20 Nov: nothing fades to say it is past), the pin turns green,
+   a green Resolved chip says so, and the reply field folds away while the card eases to its new height; Reopen brings it back */
+.dm-cmx.dm-done .dm-cmx-in{grid-template-rows:minmax(0,0fr);margin-top:calc(-1 * var(--dm-s-4));padding-top:0;border-top-width:0;opacity:0;overflow:hidden;visibility:hidden;transition:grid-template-rows var(--dm-t) var(--dm-ease),margin var(--dm-t) var(--dm-ease),padding var(--dm-t) var(--dm-ease),border-width var(--dm-t) var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease),visibility 0s var(--dm-t)}
+@media (prefers-reduced-motion:reduce){.dm-cmx-in{transition:none!important}.dm-cmx-rp>.dm-cmx-c::after{animation:none}}
+.dm-cmx-st .dm-tag{margin-left:calc(-1 * var(--dm-s-1))}
+/* the agent's change applied: a neutral line with the green tick (owner, 18 Nov: a finished state has no green words or fill) */
+.dm-cmx-rv{font-size:12.5px;line-height:28px;color:var(--dm-fg2);display:flex;align-items:center;gap:6px}
+.dm-cmx-rv svg{color:var(--dm-ok-mark)}
 :root:not([data-style="soft"],[data-style="clean"]) .dm-cmx-c .dm-m:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:inset 0 -1px 0 var(--dm-accent-mark)}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .dm-cmx.dm-panel,:root [data-style="clean"] .dm-cmx.dm-panel,:root [data-style="clean"].dm-cmx.dm-panel{padding:24px 24px 15px 20px}
+/* Clean: the head is a strip, its controls on the content's 16px column, and the reply field sits in a foot strip that folds
+   away with it once the thread is resolved (owner, 21 Nov). Send is the field's own Send (see the Clean section): 5px from
+   the field's edges, its corners the field's less those 5px. The agent's words fade in without a blur */
+:root[data-style="clean"] .dm-cmx-h,:root [data-style="clean"] .dm-cmx-h,:root [data-style="clean"].dm-cmx-h{margin:calc(-1 * var(--dm-s-4)) calc(-1 * var(--dm-s-4)) 0;padding:var(--dm-s-2) var(--dm-s-4);background:var(--dm-strip);border-bottom:1px solid var(--dm-line);border-radius:var(--dm-r-card) var(--dm-r-card) 0 0}
+:root[data-style="clean"] .dm-cmx-res,:root [data-style="clean"] .dm-cmx-res,:root [data-style="clean"].dm-cmx-res{margin:0}
+:root[data-style="clean"] .dm-cmx-in,:root [data-style="clean"] .dm-cmx-in,:root [data-style="clean"].dm-cmx-in{margin:0 calc(-1 * var(--dm-s-4)) calc(-1 * var(--dm-s-4));padding:var(--dm-s-2) var(--dm-s-4);background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+:root[data-style="clean"] .dm-cmx.dm-done .dm-cmx-in,:root [data-style="clean"] .dm-cmx.dm-done .dm-cmx-in,:root [data-style="clean"].dm-cmx.dm-done .dm-cmx-in{margin:calc(-1 * var(--dm-s-4)) calc(-1 * var(--dm-s-4)) 0;padding-block:0;border-top-width:0}
+:root[data-style="clean"] .dm-cmx-men,:root [data-style="clean"] .dm-cmx-men,:root [data-style="clean"].dm-cmx-men{bottom:54px;left:var(--dm-s-4)}
+:root[data-style="clean"] .dm-cmx-go,:root [data-style="clean"] .dm-cmx-go,:root [data-style="clean"].dm-cmx-go{border-radius:calc(var(--dm-r-field) - 5px)}
+:root[data-style="clean"] .dm-cmx-c.dm-ag .dm-tx .dm-w,:root [data-style="clean"] .dm-cmx-c.dm-ag .dm-tx .dm-w,:root [data-style="clean"].dm-cmx-c.dm-ag .dm-tx .dm-w{animation:dm-cmwc var(--dm-t-slow) var(--dm-ease) both}
+@keyframes dm-cmwc{from{opacity:0}to{opacity:1}}

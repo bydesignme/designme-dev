@@ -1,12 +1,14 @@
 'use client';
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from 'react';
 import { Brand } from '../../lib/brands';
 import { cx } from '../../lib/cx';
-import { useCopied } from '../../lib/hooks';
+import { useCopied, useReducedMotion } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
 import { usePopover } from '../../lib/popover';
 import { avatarInk, Swap, Tip } from '../../lib/motion';
 import '../../designme.css';
+// its menus' rows glide in Clean
+import '../../lib/glide';
 import './meeting-card.css';
 
 export interface MeetingCardAction {
@@ -77,6 +79,27 @@ export interface MeetingCardProps {
   className?: string;
 }
 
+
+/** A button as wide as its words: when they change it eases to its new width, keeping no room for a longer word */
+function useEaseWidth(ref: RefObject<HTMLElement | null>) {
+  const reduce = useReducedMotion();
+  useEffect(() => {
+    const el = ref.current; if (!el || reduce || typeof ResizeObserver === 'undefined') return;
+    let w = 0, busy: Animation | null = null;
+    const ro = new ResizeObserver(() => {
+      if (busy) return;
+      const w1 = el.getBoundingClientRect().width;
+      if (w && Math.abs(w1 - w) > .5) {
+        busy = el.animate([{ width: w + 'px' }, { width: w1 + 'px' }], { duration: 340, easing: 'cubic-bezier(.23,1,.32,1)' });
+        busy.finished.catch(() => {}).then(() => { busy = null; w = el.getBoundingClientRect().width; });
+      }
+      w = w1;
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref, reduce]);
+}
+
 const mins = (t: string) => { const [h, m] = t.split(':').map(Number); return h * 60 + (m || 0); };
 const clock = (m: number) => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
 
@@ -99,6 +122,8 @@ export function MeetingCard({ title, subtitle, start, end, now, from, to, people
   const chip = status ?? null;
   // Join presses with a small settle and says it is opening for a moment
   const [label, setLabel] = useState(joinLabel), [pressed, setPressed] = useState(false);
+  const joinRef = useRef<HTMLButtonElement>(null);
+  useEaseWidth(joinRef);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
   useEffect(() => setLabel(joinLabel), [joinLabel]);
@@ -115,7 +140,7 @@ export function MeetingCard({ title, subtitle, start, end, now, from, to, people
     onAction?.(a.key); menu.closeSoon();
     timers.current.push(setTimeout(() => setDid(a.done ?? a.label), 140), setTimeout(() => setDid(null), 1640));
   };
-  const shown = people.slice(0, max), rest = people.slice(max);
+  const shown = people.slice(0, max), rest = people.slice(max), narrowRest = people.slice(Math.min(2, shown.length));
   const live = phase === 'start' || phase === 'live';
   const past = { ['--dm-p' as string]: pc(t) + '%' } as CSSProperties;
 
@@ -140,14 +165,20 @@ export function MeetingCard({ title, subtitle, start, end, now, from, to, people
       </div>
       <div className="dm-mtx-f">
         <div className="dm-mtx-who">
-          {shown.map(p => (
+          {shown.map((p, i) => (
             <Tip key={p.name} label={p.name}>
-              <span className="dm-av" role="img" aria-label={p.name} style={{ background: p.color, color: avatarInk(p.color) }}>{p.initials}</span>
+              <span className={cx('dm-av', i >= 2 && 'dm-mtx-wide')} role="img" aria-label={p.name} style={{ background: p.color, color: avatarInk(p.color) }}>{p.initials}</span>
             </Tip>
           ))}
           {rest.length > 0 && (
             <Tip label={rest.map(p => p.name).join(', ')}>
-              <span className="dm-av dm-mtx-more" role="img" aria-label={rest.map(p => p.name).join(', ')}>+{rest.length}</span>
+              <span className={cx('dm-av dm-mtx-more', narrowRest.length > rest.length && 'dm-mtx-wide')} role="img" aria-label={rest.map(p => p.name).join(', ')}>+{rest.length}</span>
+            </Tip>
+          )}
+          {/* a narrow card (a phone) shows the first two people and counts the rest */}
+          {narrowRest.length > rest.length && (
+            <Tip label={narrowRest.map(p => p.name).join(', ')}>
+              <span className="dm-av dm-mtx-more dm-mtx-narrow" role="img" aria-label={narrowRest.map(p => p.name).join(', ')}>+{narrowRest.length}</span>
             </Tip>
           )}
         </div>
@@ -158,7 +189,7 @@ export function MeetingCard({ title, subtitle, start, end, now, from, to, people
           </button>
         </Tip>
         <div className="dm-mtx-jg">
-          <button type="button" className={cx('dm-pill dm-primary dm-mtx-join', pressed && 'dm-prs')} disabled={phase === 'done'} onClick={join}>
+          <button ref={joinRef} type="button" className={cx('dm-pill dm-primary dm-mtx-join', pressed && 'dm-prs')} disabled={phase === 'done'} onClick={join}>
             <span className="dm-mk">{mark ?? <Brand name="meet" />}</span><Swap className="dm-lb">{label}</Swap>
           </button>
           {actions.length > 0 && <>

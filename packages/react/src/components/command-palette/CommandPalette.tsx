@@ -3,6 +3,8 @@ import { Fragment, useEffect, useId, useRef, useState, type CSSProperties, type 
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
+import { useGrow } from '../../lib/motion';
+import { useHoverGlide } from '../../lib/glide';
 import '../../designme.css';
 import './command-palette.css';
 
@@ -78,6 +80,8 @@ export function CommandPalette({ items, query, defaultQuery = '', onQueryChange,
   useEffect(() => { setReady(true); }, []);
 
   const list = useRef<HTMLDivElement>(null);
+  // Clean's one hover: a highlight that glides from row to row (Clean hides the palette's own)
+  useHoverGlide(list, '.dm-cpl-i');
   const btns = useRef<(HTMLButtonElement | null)[]>([]);
   const id = useId(), reduce = useReducedMotion();
   const [top, setTop] = useState<{ for: string; px: number }>();
@@ -94,13 +98,13 @@ export function CommandPalette({ items, query, defaultQuery = '', onQueryChange,
 
   const move = (d: number) => { if (rows.length) setHi({ at: (at + d + rows.length) % rows.length, for: v }); };
   const run = (i: number) => {
-    const row = rows[i], b = btns.current[i];
+    const row = rows[i];
     if (row === undefined) return;
     if (row) onRun?.(row); else onAsk?.(v);
     const said = row ? 'Ran: ' + row.label : 'Sent to the agent', k = row ? row.group + row.label : '\u0000ask';
     setBusy(k); clearTimeout(timer.current);
+    // (nothing in it scales when pressed, owner 18 Nov)
     timer.current = setTimeout(() => { setBusy(b => b === k ? undefined : b); setRan(said); }, reduce ? 0 : 650);
-    b?.animate?.([{ transform: 'scale(1)' }, { transform: 'scale(.98)' }, { transform: 'scale(1)' }], { duration: 260, easing: 'ease-out' });
   };
   const key = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'ArrowDown') { move(1); e.preventDefault(); }
@@ -109,9 +113,13 @@ export function CommandPalette({ items, query, defaultQuery = '', onQueryChange,
     else if (e.key === 'Escape') { if (q) setQ(''); else onClose?.(); }
   };
 
+  // no room is kept for a longer list (owner, 18 Nov): the box is as tall as what it shows and eases to its new height as a
+  // search narrows or widens it (as grow() on the site)
+  const [box, inner] = useGrow();
   let group = '';
   return (
-    <div data-dm="" className={cx('dm-cpl dm-panel', className)}>
+    <div data-dm="" ref={box} className={cx('dm-cpl dm-panel dm-growing', className)}>
+      <div ref={inner} className="dm-grow">
       <div className="dm-cpl-in">
         <Icon name="search" />
         {/* the box keeps the focus and points at the highlighted row, so the rows are not tab stops */}
@@ -145,10 +153,12 @@ export function CommandPalette({ items, query, defaultQuery = '', onQueryChange,
           );
         })}
       </div>
+      {/* what ran last on the left, the keys on the right */}
       <div className="dm-cpl-f dm-muted">
+        <span className="dm-cpl-st">{(status ?? ran) && <span key={status ?? ran} className="dm-enter"><span className="dm-dot" aria-hidden="true" />{status ?? ran}</span>}</span>
         <span><span className="dm-kbd">↑</span><span className="dm-kbd">↓</span> move</span>
         <span><span className="dm-kbd">↵</span> run</span>
-        <span className="dm-cpl-st">{(status ?? ran) && <span key={status ?? ran} className="dm-enter"><span className="dm-dot" aria-hidden="true" />{status ?? ran}</span>}</span>
+      </div>
       </div>
     </div>
   );

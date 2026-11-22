@@ -4,8 +4,10 @@
    morning from 10:00 to 12:30 with the meeting on it in the accent tint, its start and end on the block itself. Time that
    has gone is hatched out in neutral grey (the hatch and the tint meet at the now line), and the status chip at the top right
    rolls its minutes. Join stays open while the meeting runs, since people join late, and breathes gently while it is live.
-   Every state is the same height */
-.dm-mtx{width:100%;max-width:400px;margin:0 auto;padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-4)}
+   Every state is the same height. Its content sits 16px in from every edge, and nothing in it grows or shrinks when it is
+   pressed (owner, 18 Nov) */
+.dm-mtx{width:100%;max-width:400px;margin:0 auto;padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-4);container:mtx/inline-size}
+.dm-mtx :is(.dm-pill,.dm-ib):active,.dm-mtx .dm-mtx-join.dm-prs{transform:none}
 /* the title and the chip share the first line; the time runs under both, so a longer chip never wraps it and every state
    is the same height */
 .dm-mtx-h{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:var(--dm-s-3);row-gap:2px}
@@ -26,32 +28,37 @@
 .dm-mtx-track{position:relative;height:40px;border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-row);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);overflow:hidden}
 /* Blueprint's row is the surface itself: its green now line keeps 3:1 on white, not on the row grey */
 :root:not([data-style="soft"],[data-style="clean"]) .dm-mtx-track:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){background:var(--dm-surface)}
-.dm-mtx-blk{position:absolute;top:5px;bottom:5px;left:20%;width:60%;display:flex;align-items:center;justify-content:space-between;padding:0 6px;border-radius:calc(5px * var(--dm-rk-s,var(--dm-rk)));background:var(--dm-accent-bg);overflow:hidden;font-size:11.5px;font-weight:500;color:var(--dm-fg2);z-index:1}
-/* the start and end sit on the block in small surface chips, so they read on the tint and on the hatch alike; the block's
-   edge is a faint accent line (owner, 17 Nov: no grey outline) */
+.dm-mtx-blk{position:absolute;top:5px;bottom:5px;left:20%;width:60%;display:flex;align-items:center;justify-content:space-between;padding:0 6px;border-radius:calc(5px * var(--dm-rk-s,var(--dm-rk)));background:var(--dm-accent-bg);overflow:hidden;font-size:11.5px;font-weight:500;color:var(--dm-fg2)}
+/* the start and end sit on the block in small opaque chips of the surface, so they read on the tint and on the hatch alike
+   and nothing crosses them: the now line passes under them (owner, 18 Nov). The block's edge is a faint accent line (owner,
+   17 Nov: no grey outline) */
 .dm-mtx-blk{outline:1px solid color-mix(in srgb,var(--dm-accent-mark) 35%,transparent);outline-offset:-1px}
-.dm-mtx-blk>.dm-num{position:relative;padding:0 6px;line-height:18px;border-radius:calc(4px * var(--dm-rk-s,var(--dm-rk)));background:color-mix(in srgb,var(--dm-surface) 88%,transparent);color:var(--dm-fg2)}
-/* dark: raised means lighter, so the chip is the tint lifted a step, opaque enough to clear the hatch (owner, 17 Nov) */
-:root[data-theme="dark"] .dm-mtx-blk>.dm-num{background:color-mix(in srgb,var(--dm-fg) 12%,var(--dm-accent-bg));color:var(--dm-fg)}
+.dm-mtx-blk>.dm-num{position:relative;z-index:3;padding:0 6px;line-height:18px;border-radius:calc(4px * var(--dm-rk-s,var(--dm-rk)));background:var(--dm-surface);color:var(--dm-fg2)}
+:root[data-theme="dark"] .dm-mtx-blk>.dm-num{color:var(--dm-fg)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dm-mtx-blk>.dm-num{color:var(--dm-fg)}}
 /* gone: fine 45deg accent lines over the tint, inside the meeting block only, across the part that has run (owner, 17 Nov) */
 .dm-mtx-bp{position:absolute;top:0;bottom:0;left:0;background:repeating-linear-gradient(45deg,color-mix(in srgb,var(--dm-accent-mark) 60%,transparent) 0 1px,transparent 1px 6px);transition:width .45s cubic-bezier(.22,1,.36,1)}
 .dm-mtx-bp{width:var(--dm-cut,0%)}
 .dm-mtx-now{position:absolute;top:0;bottom:0;left:var(--dm-p,0%);width:2px;margin-left:-1px;background:var(--dm-accent-mark);transition:left .45s cubic-bezier(.22,1,.36,1);z-index:2}
 .dm-mtx-now i{position:absolute;top:3px;left:50%;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:var(--dm-accent-mark)}
 .dm-mtx.dm-done .dm-mtx-now{opacity:0;transition:opacity .4s,left .45s cubic-bezier(.22,1,.36,1)}
-/* the footer: who is coming, the link, and Join */
-.dm-mtx-f{display:flex;align-items:center;gap:var(--dm-s-2)}
-.dm-mtx-who{display:flex;align-items:center;padding:2px 0}
-.dm-mtx-who .dm-av{width:26px;height:26px;font-size:10px;margin-left:-4px;box-shadow:0 0 0 2px var(--dm-surface);transition:margin .25s cubic-bezier(.22,1,.36,1)}
-.dm-mtx-who .dm-av:first-child{margin-left:0}
-/* small phones: the people overlap a little more so the split Join keeps the card's padding */
-@media (max-width:400px){.dm-mtx-who .dm-av:not(:first-child){margin-left:-9px}}
-@media (hover:hover) and (pointer:fine){.dm-mtx-who:is(:hover,.dm-hv) .dm-av:not(:first-child){margin-left:2px}}
+/* the footer: who is coming, the link, and Join. The people sit side by side, a little apart, never over each other
+   (owner, 18 Nov) */
+/* the foot sits under a hairline in Soft and Blueprint (owner, 21 Nov), 16px from it on each side as the card's other gaps;
+   Clean's is a foot strip */
+.dm-mtx-f{display:flex;align-items:center;gap:var(--dm-s-2);padding-top:var(--dm-s-4);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.dm-mtx-who{display:flex;align-items:center;gap:4px;padding:2px 0}
+.dm-mtx-who .dm-av{width:26px;height:26px;font-size:10px}
 .dm-mtx-who .dm-mtx-more{background:var(--dm-chip);color:var(--dm-fg2)}
-/* art/art.js writes the face inline over the avatar's inline colour, so these have to win over the inline style */
-.dm-mtx-who .dm-av[data-pic-on]{background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;color:transparent!important}
-/* the copy button's hover a step darker than the row grey, so it reads in light (owner, 17 Nov) */
+/* a narrow card (a phone) shows the first two people and counts the rest, so the people, the link and Join keep one row
+   inside the card */
+.dm-mtx-who .dm-mtx-narrow{display:none}
+@container mtx (max-width:340px){.dm-mtx-who .dm-mtx-wide{display:none}.dm-mtx-who .dm-mtx-narrow{display:inline-grid}}
+/* the copy button's hover a step darker than the row grey, so it reads in light (owner, 17 Nov); once it has copied, the
+   link's icon is the green tick for a moment, at the same size */
 @media (hover:hover) and (pointer:fine){.dm-mtx-cp:hover{background:color-mix(in srgb,var(--dm-fg) 9%,transparent);color:var(--dm-fg)}}
+.dm-mtx-cp.dm-copied{color:var(--dm-ok-mark)!important}
+@media (hover:hover) and (pointer:fine){.dm-mtx-cp.dm-copied:hover{color:var(--dm-ok-mark)!important}}
 /* Join and its menu as one split button: a very light divider, a chevron that opens the meeting's actions */
 .dm-mtx-jg{position:relative;display:flex;flex:none}
 .dm-mtx-jg .dm-mtx-join{border-top-right-radius:0;border-bottom-right-radius:0;padding-right:var(--dm-s-3)}
@@ -60,44 +67,56 @@
 .dm-mtx-jm.dm-done{color:var(--dm-on-accent)}
 .dm-mtx-pop{min-width:190px}
 .dm-mtx-cp{width:34px;height:34px}
-.dm-mtx-join{height:34px;padding:0 var(--dm-s-4) 0 6px;gap:var(--dm-s-2);transition:background var(--dm-t-fast),opacity var(--dm-t-fast),transform .32s cubic-bezier(.34,1.56,.64,1)}
-.dm-mtx-join:active,.dm-mtx-join.dm-prs{transform:scale(.95);transition-duration:.08s}
+.dm-mtx-join{height:34px;padding:0 var(--dm-s-4) 0 6px;gap:var(--dm-s-2);overflow:hidden;justify-content:flex-start;transition:background var(--dm-t-fast),opacity var(--dm-t-fast)}
 .dm-mtx-join .dm-mk{width:22px;height:22px;display:grid;place-items:center;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));background:#fff;flex:none}
 .dm-mtx-join .dm-mk .dm-brand{width:15px;height:12.5px}
 /* live: Join breathes a step darker and back, slowly; a darker fill keeps its label's contrast where fading it would not */
 .dm-mtx.dm-live :is(.dm-mtx-join,.dm-mtx-jm):not(:hover){animation:dm-mtxpulse 2.4s ease-in-out infinite}
 @keyframes dm-mtxpulse{50%{background:color-mix(in srgb,var(--dm-accent) 86%,#000)}}
 .dm-mtx-join[disabled] .dm-mk{opacity:.5}
-@media (prefers-reduced-motion:reduce){.dm-mtx.dm-live :is(.dm-mtx-join,.dm-mtx-jm){animation:none}.dm-mtx-bp,.dm-mtx-now,.dm-mtx-who .dm-av{transition:none}.dm-mtx-roll i.dm-in,.dm-mtx-fade{animation:none}}
-/* Clean (owner, 17 Nov): the meeting and its track on white, the people and actions on an off-white foot strip under a
-   hairline. The track, the block and its time chips are pills; the block, its lines, the now line, the status chip and the
-   faces keep their colours. Join is the ink button, split, with a very light divider and no breathing; its menu scales and
-   fades from the chevron */
+@media (prefers-reduced-motion:reduce){.dm-mtx.dm-live :is(.dm-mtx-join,.dm-mtx-jm){animation:none}.dm-mtx-bp,.dm-mtx-now{transition:none}.dm-mtx-roll i.dm-in,.dm-mtx-fade{animation:none}}
+/* Clean (owner, 17 and 18 Nov): the meeting and its track on white, the people and actions on an off-white foot strip under a
+   hairline. Its content sits 16px in from every edge: the people on the content's edge, and the copy button and Join, split,
+   28px pills 8px from the strip's edges, concentric with the card's corner. The track and its block have ordinary round
+   corners (they are not controls); the time chips are pills. The block, its lines, the now line, the status chip and the
+   people keep their colours. Join is the ink button with a very light divider and no breathing; its menu scales and fades
+   from the chevron, and a done action is the green tick */
 @keyframes dm-clfade{from{opacity:0}}
 @keyframes dm-clroll{from{transform:translateY(60%);opacity:0}}
 :root[data-style="clean"] .dm-mtx,:root [data-style="clean"] .dm-mtx,:root [data-style="clean"].dm-mtx{padding:0;gap:0}
-:root[data-style="clean"] .dm-mtx-h,:root [data-style="clean"] .dm-mtx-h,:root [data-style="clean"].dm-mtx-h{padding:18px 20px 0}
+:root[data-style="clean"] .dm-mtx-h,:root [data-style="clean"] .dm-mtx-h,:root [data-style="clean"].dm-mtx-h{padding:16px 16px 0}
 :root[data-style="clean"] .dm-mtx-t,:root [data-style="clean"] .dm-mtx-t,:root [data-style="clean"].dm-mtx-t{font-size:14px;font-weight:500;letter-spacing:-.01em}
-:root[data-style="clean"] .dm-mtx-track,:root [data-style="clean"] .dm-mtx-track,:root [data-style="clean"].dm-mtx-track{margin:16px 20px;height:40px;background:var(--dm-surface);border-radius:999px;box-shadow:inset 0 0 0 1px var(--dm-line)}
-:root[data-style="clean"] .dm-mtx-f,:root [data-style="clean"] .dm-mtx-f,:root [data-style="clean"].dm-mtx-f{position:relative;z-index:3;padding:20px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-bottom-left-radius:inherit;border-bottom-right-radius:inherit}
-:root[data-style="clean"] .dm-mtx-blk,:root [data-style="clean"] .dm-mtx-blk,:root [data-style="clean"].dm-mtx-blk,:root[data-style="clean"] .dm-mtx-blk>.dm-num,:root [data-style="clean"] .dm-mtx-blk>.dm-num,:root [data-style="clean"].dm-mtx-blk>.dm-num{border-radius:999px}
-:root[data-style="clean"] .dm-mtx-blk>.dm-num,:root [data-style="clean"] .dm-mtx-blk>.dm-num,:root [data-style="clean"].dm-mtx-blk>.dm-num{box-shadow:0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .dm-mtx-track,:root [data-style="clean"] .dm-mtx-track,:root [data-style="clean"].dm-mtx-track{margin:16px;height:40px;background:var(--dm-surface);border-radius:var(--dm-r-in);box-shadow:inset 0 0 0 1px var(--dm-line)}
+:root[data-style="clean"] .dm-mtx-f,:root [data-style="clean"] .dm-mtx-f,:root [data-style="clean"].dm-mtx-f{position:relative;z-index:3;padding:8px 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-bottom-left-radius:inherit;border-bottom-right-radius:inherit}
+:root[data-style="clean"] .dm-mtx-blk,:root [data-style="clean"] .dm-mtx-blk,:root [data-style="clean"].dm-mtx-blk{border-radius:calc(var(--dm-r-in) - 5px)}
+:root[data-style="clean"] .dm-mtx-blk>.dm-num,:root [data-style="clean"] .dm-mtx-blk>.dm-num,:root [data-style="clean"].dm-mtx-blk>.dm-num{border-radius:999px;box-shadow:0 0 0 1px var(--dm-hair)}
 :root[data-style="clean"] .dm-mtx-bp,:root [data-style="clean"] .dm-mtx-bp,:root [data-style="clean"].dm-mtx-bp{transition:width .45s var(--dm-ease)}
 :root[data-style="clean"] .dm-mtx-now,:root [data-style="clean"] .dm-mtx-now,:root [data-style="clean"].dm-mtx-now{transition:left .45s var(--dm-ease),opacity .3s var(--dm-ease)}
-:root[data-style="clean"] .dm-mtx-fade,:root [data-style="clean"] .dm-mtx-fade,:root [data-style="clean"].dm-mtx-fade{animation:dm-clfade .24s var(--dm-ease) both}
+:root[data-style="clean"] .dm-mtx-fade,:root [data-style="clean"] .dm-mtx-fade,:root [data-style="clean"].dm-mtx-fade{animation:dm-clfade var(--dm-t-fast) var(--dm-ease) both}
 :root[data-style="clean"] .dm-mtx-roll i.dm-in,:root [data-style="clean"] .dm-mtx-roll i.dm-in,:root [data-style="clean"].dm-mtx-roll i.dm-in{animation:dm-clroll .3s var(--dm-ease) both}
-:root[data-style="clean"] .dm-mtx-who .dm-av,:root [data-style="clean"] .dm-mtx-who .dm-av,:root [data-style="clean"].dm-mtx-who .dm-av{position:relative;box-shadow:0 0 0 2px var(--dm-strip);transition:margin .24s var(--dm-ease)}
-
-:root[data-style="clean"] .dm-mtx-cp,:root [data-style="clean"] .dm-mtx-cp,:root [data-style="clean"].dm-mtx-cp{width:32px;height:32px;border-radius:999px}
+:root[data-style="clean"] .dm-mtx-cp,:root [data-style="clean"] .dm-mtx-cp,:root [data-style="clean"].dm-mtx-cp{width:28px;height:28px;border-radius:999px}
+:root[data-style="clean"] .dm-mtx .dm-ib:active,:root [data-style="clean"] .dm-mtx .dm-ib:active,:root [data-style="clean"].dm-mtx .dm-ib:active{transform:none}
+/* (a step of --dm-ok in the vivid green keeps the copied tick at 3:1 on the off-white strip) */
+:root[data-style="clean"] .dm-mtx-cp.dm-copied,:root [data-style="clean"] .dm-mtx-cp.dm-copied,:root [data-style="clean"].dm-mtx-cp.dm-copied{color:color-mix(in srgb,var(--dm-ok-mark) 80%,var(--dm-ok))!important}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-mtx-cp.dm-copied:hover,:root [data-style="clean"] .dm-mtx-cp.dm-copied:hover,:root [data-style="clean"].dm-mtx-cp.dm-copied:hover{color:color-mix(in srgb,var(--dm-ok-mark) 80%,var(--dm-ok))!important}}
 :root[data-style="clean"] .dm-mtx-jg,:root [data-style="clean"] .dm-mtx-jg,:root [data-style="clean"].dm-mtx-jg{z-index:3}
-:root[data-style="clean"] .dm-mtx-jg :is(.dm-mtx-join,.dm-mtx-jm),:root [data-style="clean"] .dm-mtx-jg :is(.dm-mtx-join,.dm-mtx-jm),:root [data-style="clean"].dm-mtx-jg :is(.dm-mtx-join,.dm-mtx-jm){height:32px}
-:root[data-style="clean"] .dm-mtx-jg .dm-mtx-join,:root [data-style="clean"] .dm-mtx-jg .dm-mtx-join,:root [data-style="clean"].dm-mtx-jg .dm-mtx-join{border-radius:999px 0 0 999px;padding:0 12px 0 6px;gap:8px}
+:root[data-style="clean"] .dm-mtx-jg :is(.dm-mtx-join,.dm-mtx-jm),:root [data-style="clean"] .dm-mtx-jg :is(.dm-mtx-join,.dm-mtx-jm),:root [data-style="clean"].dm-mtx-jg :is(.dm-mtx-join,.dm-mtx-jm){height:28px}
+:root[data-style="clean"] .dm-mtx-jg .dm-mtx-join,:root [data-style="clean"] .dm-mtx-jg .dm-mtx-join,:root [data-style="clean"].dm-mtx-jg .dm-mtx-join{border-radius:999px 0 0 999px;padding:0 12px 0 11px;gap:6px}
 :root[data-style="clean"] .dm-mtx-jg .dm-mtx-jm,:root [data-style="clean"] .dm-mtx-jg .dm-mtx-jm,:root [data-style="clean"].dm-mtx-jg .dm-mtx-jm{border-radius:0 999px 999px 0;width:28px}
-:root[data-style="clean"] .dm-mtx-jm::before,:root [data-style="clean"] .dm-mtx-jm::before,:root [data-style="clean"].dm-mtx-jm::before{top:9px;bottom:9px;background:color-mix(in srgb,var(--dm-on-btn) 26%,transparent)}
-:root[data-style="clean"] .dm-mtx-join .dm-mk,:root [data-style="clean"] .dm-mtx-join .dm-mk,:root [data-style="clean"].dm-mtx-join .dm-mk{width:20px;height:20px;border-radius:var(--dm-r-tiny,5px)}
-:root[data-style="clean"] .dm-mtx-join .dm-mk .dm-brand,:root [data-style="clean"] .dm-mtx-join .dm-mk .dm-brand,:root [data-style="clean"].dm-mtx-join .dm-mk .dm-brand{width:13px;height:11px}
+:root[data-style="clean"] .dm-mtx-jm::before,:root [data-style="clean"] .dm-mtx-jm::before,:root [data-style="clean"].dm-mtx-jm::before{top:8px;bottom:8px;background:color-mix(in srgb,var(--dm-on-btn) 26%,transparent)}
+:root[data-style="clean"] .dm-mtx-jm.dm-done,:root [data-style="clean"] .dm-mtx-jm.dm-done,:root [data-style="clean"].dm-mtx-jm.dm-done{color:var(--dm-ok-mark)}
+/* Join's menu is Clean's popover: 22px corners, its rows 6px in with Clean's 10px rows and the one gliding hover (hoverGlide) */
+:root[data-style="clean"] .dm-mtx-pop,:root [data-style="clean"] .dm-mtx-pop,:root [data-style="clean"].dm-mtx-pop{padding:6px;border-radius:var(--dm-r-card)}
+/* on the white ink of dark mode the green tick is a deeper step, so it keeps 3:1 */
+:root[data-style="clean"][data-theme="dark"] .dm-mtx-jm.dm-done,:root[data-theme="dark"] [data-style="clean"] .dm-mtx-jm.dm-done,:root[data-theme="dark"] [data-style="clean"].dm-mtx-jm.dm-done{color:color-mix(in srgb,var(--dm-ok-mark) 60%,#000)}
+@media (prefers-color-scheme:dark){:root[data-style="clean"]:not([data-theme="light"]) .dm-mtx-jm.dm-done,:root:not([data-theme="light"]) [data-style="clean"] .dm-mtx-jm.dm-done,:root:not([data-theme="light"]) [data-style="clean"].dm-mtx-jm.dm-done{color:color-mix(in srgb,var(--dm-ok-mark) 60%,#000)}}
+/* the call's logo stands on its own beside Join, the size of the word, with no white tile behind it (owner, 21 Nov: "use
+   icon without white bg on clean style") */
+:root[data-style="clean"] .dm-mtx-join .dm-mk,:root [data-style="clean"] .dm-mtx-join .dm-mk,:root [data-style="clean"].dm-mtx-join .dm-mk{width:14px;height:14px;border-radius:0;background:none}
+:root[data-style="clean"] .dm-mtx-join .dm-mk .dm-brand,:root [data-style="clean"] .dm-mtx-join .dm-mk .dm-brand,:root [data-style="clean"].dm-mtx-join .dm-mk .dm-brand{width:14px;height:11.7px}
 :root[data-style="clean"] .dm-mtx.dm-live :is(.dm-mtx-join,.dm-mtx-jm),:root [data-style="clean"] .dm-mtx.dm-live :is(.dm-mtx-join,.dm-mtx-jm),:root [data-style="clean"].dm-mtx.dm-live :is(.dm-mtx-join,.dm-mtx-jm){animation:none}
-:root[data-style="clean"] .dm-mtx-join:active,:root [data-style="clean"] .dm-mtx-join:active,:root [data-style="clean"].dm-mtx-join:active{transform:scale(.97);transition:transform var(--dm-t-fast) var(--dm-ease)}
+/* Join and its chevron are one split button: a press sinks its fill (the ink's pressed shade) and never scales one half */
+:root[data-style="clean"] .dm-mtx .dm-mtx-jg .dm-pill:is(.dm-mtx-join,.dm-mtx-jm):active,:root [data-style="clean"] .dm-mtx .dm-mtx-jg .dm-pill:is(.dm-mtx-join,.dm-mtx-jm):active,:root [data-style="clean"].dm-mtx .dm-mtx-jg .dm-pill:is(.dm-mtx-join,.dm-mtx-jm):active{transform:none}
 /* a phone: the foot strip's pieces close up a little, so Join keeps its room beside the people as its words change */
-@media (max-width:400px){:root[data-style="clean"] .dm-mtx-h,:root [data-style="clean"] .dm-mtx-h,:root [data-style="clean"].dm-mtx-h{padding:16px 16px 0}:root[data-style="clean"] .dm-mtx-track,:root [data-style="clean"] .dm-mtx-track,:root [data-style="clean"].dm-mtx-track{margin:16px}:root[data-style="clean"] .dm-mtx-f,:root [data-style="clean"] .dm-mtx-f,:root [data-style="clean"].dm-mtx-f{padding:16px;gap:6px}:root[data-style="clean"] .dm-mtx-jg .dm-mtx-join,:root [data-style="clean"] .dm-mtx-jg .dm-mtx-join,:root [data-style="clean"].dm-mtx-jg .dm-mtx-join{padding:0 10px 0 5px;gap:6px}:root[data-style="clean"] .dm-mtx-cp,:root [data-style="clean"] .dm-mtx-cp,:root [data-style="clean"].dm-mtx-cp{width:30px;height:30px}}
-@media (prefers-reduced-motion:reduce){:root[data-style="clean"] :is(.dm-mtx-bp,.dm-mtx-now,.dm-mtx-who .dm-av),:root [data-style="clean"] :is(.dm-mtx-bp,.dm-mtx-now,.dm-mtx-who .dm-av),:root [data-style="clean"]:is(.dm-mtx-bp,.dm-mtx-now,.dm-mtx-who .dm-av){transition:none}:root[data-style="clean"] :is(.dm-mtx-fade,.dm-mtx-roll i.dm-in),:root [data-style="clean"] :is(.dm-mtx-fade,.dm-mtx-roll i.dm-in),:root [data-style="clean"]:is(.dm-mtx-fade,.dm-mtx-roll i.dm-in){animation:none}}
+@media (max-width:400px){.dm-mtx-who{gap:3px}.dm-mtx-who .dm-av{width:24px;height:24px}:root[data-style="clean"] .dm-mtx-f,:root [data-style="clean"] .dm-mtx-f,:root [data-style="clean"].dm-mtx-f{gap:6px}:root[data-style="clean"] .dm-mtx-jg .dm-mtx-join,:root [data-style="clean"] .dm-mtx-jg .dm-mtx-join,:root [data-style="clean"].dm-mtx-jg .dm-mtx-join{padding:0 10px 0 9px;gap:6px}}
+@media (prefers-reduced-motion:reduce){:root[data-style="clean"] :is(.dm-mtx-bp,.dm-mtx-now),:root [data-style="clean"] :is(.dm-mtx-bp,.dm-mtx-now),:root [data-style="clean"]:is(.dm-mtx-bp,.dm-mtx-now){transition:none}:root[data-style="clean"] :is(.dm-mtx-fade,.dm-mtx-roll i.dm-in),:root [data-style="clean"] :is(.dm-mtx-fade,.dm-mtx-roll i.dm-in),:root [data-style="clean"]:is(.dm-mtx-fade,.dm-mtx-roll i.dm-in){animation:none}}

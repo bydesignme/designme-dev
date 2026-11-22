@@ -1,24 +1,38 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Tooltip ---------- */
-.dm-ttp{display:flex;flex-direction:column;align-items:center;gap:var(--dm-s-4);position:relative;min-height:200px;justify-content:center}
+/* a toolbar of icon buttons whose labels (the core tooltip, data-tip) wait a moment, then follow the pointer from button to
+   button, and the people at its end, each opening a card about them on hover or keyboard focus. The component is the toolbar:
+   the card opens over the stage, so it keeps no room for it */
+.dm-ttp{position:relative;display:flex;flex-direction:column;align-items:center}
 .dm-ttp-bar{display:flex;align-items:center;gap:2px;padding:5px;border-radius:var(--dm-r-pill)}
 .dm-ttp-sep{width:1px;height:18px;background:var(--dm-line);margin:0 var(--dm-s-1)}
-.dm-ttp-avs{display:flex;padding-right:3px}
-.dm-ttp-av{border-radius:50%;margin-left:-4px;transition:transform .3s var(--dm-ease)}
-.dm-ttp-av:first-child{margin-left:0}
-@media (hover:hover) and (pointer:fine){.dm-ttp-av:hover{transform:translateY(-2px)}}
-.dm-ttp-av .dm-av{width:28px;height:28px;font-size:11px;box-shadow:0 0 0 2px var(--dm-surface)}
+/* the people side by side, never stacked over each other (owner, 18 Nov) */
+.dm-ttp-avs{display:flex;gap:2px}
+/* a person under the pointer stays where they are (owner, 21 Nov: "you hover it up but show tooltip down"): the one quiet hover
+   fill, a ring in their round shape, easing in and out */
+.dm-ttp-av{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;transition:background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){.dm-ttp-av:hover{background:var(--dm-row);box-shadow:0 0 0 2px var(--dm-row)}}
+.dm-ttp-av .dm-av{width:28px;height:28px;font-size:11px}
+/* the card about a person: centred on their avatar (right-aligned to it at the stage's edge), under it when there is room and
+   over it when there isn't, and it goes where the avatar goes while it shows (placed by the script) */
 .dm-ttp-card{position:absolute;top:0;left:0;width:230px;padding:var(--dm-s-3);box-shadow:var(--dm-shadow-pop);opacity:0;transform:translateY(6px) scale(.97);filter:blur(4px);pointer-events:none;transition:opacity .25s var(--dm-ease),transform .35s var(--dm-ease),filter .25s;z-index:5}
+/* the card opens from the avatar toward where it shows: down from it when it opens under it, up from it when it opens over it */
+.dm-ttp-card:not(.dm-up){transform:translateY(-6px) scale(.97);transform-origin:50% 0}
+.dm-ttp-card.dm-up{transform:translateY(6px) scale(.97);transform-origin:50% 100%}
 .dm-ttp-card.dm-show{opacity:1;transform:none;filter:none}
 .dm-ttp-ch{display:flex;align-items:center;gap:10px}
 .dm-ttp-ch .dm-av{width:34px;height:34px;font-size:12px}
-.dm-ttp-ch div{display:flex;flex-direction:column;font-size:13px}
+.dm-ttp-ch div{display:flex;flex-direction:column;min-width:0;font-size:13px}
 .dm-ttp-ch b{font-weight:500}
 .dm-ttp-ch div span{font-size:12px;color:var(--dm-muted)}
 .dm-ttp-cs{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:12px;color:var(--dm-fg2)}
-.dm-ttp-cs .dm-dot{color:var(--dm-ok)}
-.dm-ttp-n{font-size:12.5px;text-align:center}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .dm-ttp-bar.dm-panel,:root [data-style="clean"] .dm-ttp-bar.dm-panel,:root [data-style="clean"].dm-ttp-bar.dm-panel{padding:20px 17px 20px 20px}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .dm-ttp-card.dm-panel,:root [data-style="clean"] .dm-ttp-card.dm-panel,:root [data-style="clean"].dm-ttp-card.dm-panel{padding:19px 0px 18px 20px}
+.dm-ttp-cs .dm-dot{color:var(--dm-ok-mark)}
+/* Clean: the card's content 16px in from every edge (owner, 18 Nov); it scales and fades in, never blurs */
+:root[data-style="clean"] .dm-ttp-card.dm-panel,:root [data-style="clean"] .dm-ttp-card.dm-panel,:root [data-style="clean"].dm-ttp-card.dm-panel{width:246px;padding:16px;filter:none;transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease)}
+/* Clean (owner, 21 Nov): the bar, as Canvas toolbar's, is a pill drawn by a half-strength hairline with only a contact shadow,
+   its dividers half-strength hairlines, and its hovers pills (a circle round a person, with its ring) under one gliding highlight
+   (hoverGlide). The card about a person is Clean's popover, 22px corners and its shadow, with what they are doing now in an
+   off-white foot strip under a hairline, edge to edge, its words 16px in */
+:root[data-style="clean"] .dm-ttp-bar.dm-panel,:root [data-style="clean"] .dm-ttp-bar.dm-panel,:root [data-style="clean"].dm-ttp-bar.dm-panel{box-shadow:0 0 0 1px var(--dm-hair),0 1px 2px rgba(0,0,0,.06)}
+:root[data-style="clean"] .dm-ttp-sep,:root [data-style="clean"] .dm-ttp-sep,:root [data-style="clean"].dm-ttp-sep{background:color-mix(in srgb,var(--dm-line) 50%,transparent)}
+:root[data-style="clean"] .dm-ttp-cs,:root [data-style="clean"] .dm-ttp-cs,:root [data-style="clean"].dm-ttp-cs{margin:16px -16px -16px;padding:12px 16px;line-height:16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}

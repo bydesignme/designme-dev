@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useTween } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
@@ -10,7 +10,8 @@ import './stat-cards.css';
 export interface StatCardsValue {
   /** The number in large type, which rolls to it */
   value: number;
-  /** Change against the period before, in percent. Green from 0, red below */
+  /** Change against the period before, in percent. Its chip is green when the change is good news and red when it isn't
+      (see `lowerIsBetter`) */
   change: number;
   /** The sparkline, oldest first */
   points: number[];
@@ -30,12 +31,15 @@ export interface StatCardsStat {
   suffix?: string;
   /** The sparkline's colour, any CSS colour. Defaults to the chart palette: the accent for the first card, then violet, green and orange */
   color?: string;
+  /** For a number that is better when it falls, like spend: its chip turns green as it falls and red as it rises */
+  lowerIsBetter?: boolean;
 }
 
 export interface StatCardsPeriod {
   /** The switch label, like "30 days" */
   label: string;
-  /** Shown when you hover a card, like "vs previous 30 days" */
+  /** What the change is measured against, like "vs previous 30 days": shown when you point at the change chip, and read
+      after the number by screen readers */
   compare?: string;
 }
 
@@ -61,25 +65,36 @@ function Card({ stat, index, period, compare, drawn, range }: { stat: StatCardsS
   const d = v.points.map((y, k) => `${k === 0 ? 'M' : 'L'}${(k / Math.max(1, v.points.length - 1) * 100).toFixed(1)} ${(29 - (y - lo) / (hi - lo || 1) * 28).toFixed(1)}`).join(' ');
   const { className: entering, style } = enter(index * 70);
   // the sparkline draws in from the left as its card arrives
-  const spark = useRef<SVGSVGElement>(null);
+  const spark = useRef<SVGSVGElement>(null), gid = 'dm-scx-' + useId().replace(/:/g, '');
   useEffect(() => {
     const el = spark.current; if (!el || !el.animate || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const a = el.animate([{ clipPath: 'inset(-4px 100% -4px 0)' }, { clipPath: 'inset(-4px 0% -4px 0)' }], { duration: 1000, delay: 300 + index * 70, easing: 'cubic-bezier(.45,0,.2,1)', fill: 'backwards' });
     return () => a.cancel();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  const card = (
+  // the chip: green when the change is good news, red when it isn't, with a true minus sign; pointing at it says what it is
+  // measured against. The card isn't a button, so pointing at the card itself changes nothing
+  const good = stat.lowerIsBetter ? v.change <= 0 : v.change >= 0;
+  const text = (v.change > 0 ? '+' : v.change < 0 ? '\u2212' : '') + Math.abs(v.change) + '%';
+  return (
     <div className={cx('dm-scx-c dm-panel', entering)} style={style}>
       <span className="dm-scx-k"><span className="dm-ic"><Icon name={stat.icon} size="xs" /></span>{stat.label}</span>
       <div className="dm-scx-v">
         <b className="dm-num">{(stat.prefix ?? '') + Math.round(shown).toLocaleString('en-US') + (stat.suffix ?? '')}</b>
-        <Swap className={cx('dm-scx-d dm-num', drawn && (v.change >= 0 ? 'dm-tag dm-ok dm-up' : 'dm-tag dm-bad dm-dn'))}>{drawn ? (v.change >= 0 ? '+' : '') + v.change + '%' : ''}</Swap>
+        <Tip label={compare ?? ''} off={!compare || !drawn}>
+          <Swap className={cx('dm-scx-d dm-num', drawn && cx('dm-tag', good ? 'dm-ok' : 'dm-bad', v.change >= 0 ? 'dm-up' : 'dm-dn'))}>{drawn ? text : ''}</Swap>
+        </Tip>
+        {compare && <span className="dm-scx-sr">{compare}</span>}
       </div>
       <div className="dm-scx-sp">
-        <svg ref={spark} viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><path stroke={stat.color ?? `var(--dm-c${index % 6 + 1})`} d={drawn ? d : FLAT} /></svg>
+        {/* the line and, under it, the area down to the axis, which Clean fills with the line's colour fading to nothing */}
+        <svg ref={spark} viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true" style={{ color: stat.color ?? `var(--dm-c${index % 6 + 1})` }}>
+          <defs><linearGradient id={gid} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="currentColor" stopOpacity=".22" /><stop offset="1" stopColor="currentColor" stopOpacity="0" /></linearGradient></defs>
+          <path className="dm-ar" style={{ fill: `url(#${gid})` }} d={(drawn ? d : FLAT) + ' L100 30 L0 30 Z'} />
+          <path className="dm-ln" stroke={stat.color ?? `var(--dm-c${index % 6 + 1})`} d={drawn ? d : FLAT} />
+        </svg>
       </div>
     </div>
   );
-  return <Tip label={compare ?? ''} off={!compare}>{card}</Tip>;
 }
 
 /** A row of numbers with their change and a sparkline. Switch the period and they roll to the new values. */

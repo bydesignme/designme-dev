@@ -21,17 +21,32 @@
 .dm-pyx-br{font-size:10px;font-weight:500;letter-spacing:.04em;padding:3px 6px;border-radius:var(--dm-r-xs);opacity:0;transform:scale(.8);transition:opacity .3s,transform .35s var(--dm-ease)}
 .dm-pyx-br.dm-on{opacity:1;transform:none}
 .dm-pyx-2{display:grid;grid-template-columns:1fr 1fr;gap:var(--dm-s-3)}
-/* the details: plain rows after a line, no panel */
-.dm-pyx-sum{display:flex;flex-direction:column;gap:6px;margin-top:var(--dm-s-1);padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12.5px;color:var(--dm-fg2)}
-.dm-pyx-sum>div{display:flex;justify-content:space-between}
-.dm-pyx-dc{color:var(--dm-ok);transition:opacity .3s}
-.dm-pyx-dc.dm-off{opacity:.3;text-decoration:line-through}
-.dm-pyx-t{padding-top:6px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);color:var(--dm-fg);font-size:13.5px}
+/* the details: plain rows after a line, no panel, the first 16px under it. The discount shows only while it applies: on
+   monthly billing its row folds away (nothing fades), and the card eases to its new height */
+.dm-pyx-sum{display:flex;flex-direction:column;margin-top:var(--dm-s-1);padding-top:var(--dm-s-4);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12.5px;line-height:18px;color:var(--dm-fg2)}
+.dm-pyx-sum>div:not(.dm-fold),.dm-pyx-dc{display:flex;justify-content:space-between}
+.dm-pyx-dc{padding-top:6px;color:var(--dm-ok)}
+/* the foot: Due today, Pay and the note. Due today sits under a hairline with the same room above and below it, 12px, in
+   step with the card's other gaps (owner, 21 Nov: "add a bit more spacing there"). In Clean the foot is the card's off-white
+   foot strip, whose top edge takes the hairline's place and whose own 12px padding is that room (owner, 21 Nov: "due today +
+   cta should be a container with grey bg"); the line items stay in the body, 16px above it */
+.dm-pyx-ft{display:flex;flex-direction:column;gap:var(--dm-s-3)}
+.dm-pyx-t{display:flex;justify-content:space-between;padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);color:var(--dm-fg);font-size:13.5px;line-height:20px}
+:root[data-style="clean"] .dm-pyx-ft,:root [data-style="clean"] .dm-pyx-ft,:root [data-style="clean"].dm-pyx-ft{margin:var(--dm-s-1) calc(-1 * var(--dm-s-4)) calc(-1 * var(--dm-s-4));padding:var(--dm-s-3) var(--dm-s-4);background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+:root[data-style="clean"] .dm-pyx-t,:root [data-style="clean"] .dm-pyx-t,:root [data-style="clean"].dm-pyx-t{padding-top:0;border-top:0}
 .dm-pyx-t b{font-weight:500}
 .dm-pyx-go{height:var(--dm-field-h);width:100%}
-.dm-pyx-go.dm-ok{background:var(--dm-ok)}
-.dm-pyx-n{font-size:11.5px;text-align:center}
-/* on the site the form stands alone, with the demo line under it, outside the form */
-.dm-pyx-wrap{display:flex;flex-direction:column;align-items:center;gap:var(--dm-s-3);width:100%;max-width:360px;margin:0 auto}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .dm-pyx.dm-panel,:root [data-style="clean"] .dm-pyx.dm-panel,:root [data-style="clean"].dm-pyx.dm-panel{padding:18px 20px 20px 20px}
+/* nothing in it grows or shrinks when pressed but Clean's ink primary */
+.dm-pyx :is(.dm-pill,.dm-seg2 button):active{transform:none}
+.dm-pyx-go .dm-spin{width:11px;height:11px}
+/* the words on a filled button sweep in its own text colour */
+.dm-pyx-go .dm-shim{background-image:linear-gradient(90deg,var(--dm-on-accent) 0%,var(--dm-on-accent) 38%,color-mix(in srgb,var(--dm-on-accent) 45%,transparent) 50%,var(--dm-on-accent) 62%,var(--dm-on-accent) 100%);font-size:inherit}
+:root[data-style="clean"] .dm-pyx-go .dm-shim,:root [data-style="clean"] .dm-pyx-go .dm-shim,:root [data-style="clean"].dm-pyx-go .dm-shim{background-image:linear-gradient(90deg,var(--dm-on-btn) 0%,var(--dm-on-btn) 38%,color-mix(in srgb,var(--dm-on-btn) 45%,transparent) 50%,var(--dm-on-btn) 62%,var(--dm-on-btn) 100%)}
+/* paid: a neutral button with the vivid green tick in place of the lock, no green fill (owner, 18 Nov) */
+.dm-pill.dm-pyx-go.dm-ok{background:var(--dm-surface);color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);cursor:default}
+@media (hover:hover) and (pointer:fine){.dm-pill.dm-pyx-go.dm-ok:hover{background:var(--dm-surface);color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);cursor:default}}
+.dm-pyx-go.dm-ok .dm-i{color:var(--dm-ok-mark)}
+:root[data-style="clean"] .dm-pill.dm-accent.dm-pyx-go.dm-ok:not([disabled]),:root [data-style="clean"] .dm-pill.dm-accent.dm-pyx-go.dm-ok:not([disabled]),:root [data-style="clean"].dm-pill.dm-accent.dm-pyx-go.dm-ok:not([disabled]){background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));color:var(--dm-fg);box-shadow:var(--dm-btn2-depth);transform:none}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-pill.dm-accent.dm-pyx-go.dm-ok:not([disabled]):is(:hover,:active),:root [data-style="clean"] .dm-pill.dm-accent.dm-pyx-go.dm-ok:not([disabled]):is(:hover,:active),:root [data-style="clean"].dm-pill.dm-accent.dm-pyx-go.dm-ok:not([disabled]):is(:hover,:active){background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));color:var(--dm-fg);box-shadow:var(--dm-btn2-depth);transform:none}}
+/* a quiet line under the button, inside the card */
+.dm-pyx-n{margin:0;font-size:11.5px;line-height:16px;text-align:center}

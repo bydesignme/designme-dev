@@ -49,7 +49,7 @@ export default function EvalResultsDemo() {
 
   return (
     <div ref={ref} style={{ width: '100%' }}>
-      <EvalResults title="Pricing copy evals" subtitle={`Copy agent · 8 cases · run ${ran && !running ? 'just now' : '2h ago'}`}
+      <EvalResults title="Pricing copy evals" subtitle={`Copy agent · run ${ran && !running ? 'just now' : '2h ago'}`}
         cases={cases.map(k => k.id === 'price' && k.status === 'fail' ? { ...k, fix: { label: 'Use $24 and rerun', onClick: () => void fix() } } : k)}
         onRun={() => void runAll()} running={running} runLabel={ran ? 'Run again' : 'Run evals'} previousPassed={ran ? 8 : undefined} />
     </div>

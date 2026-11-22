@@ -1,6 +1,7 @@
 'use client';
+import { useEffect, useRef, type RefObject } from 'react';
 import { cx } from '../../lib/cx';
-import { useControllable } from '../../lib/hooks';
+import { useControllable, useReducedMotion } from '../../lib/hooks';
 import { Swap, Tip } from '../../lib/motion';
 import '../../designme.css';
 import './run-cost.css';
@@ -40,6 +41,27 @@ export interface RunCostProps {
   className?: string;
 }
 
+
+/** A button as wide as its words: when they change it eases to its new width, keeping no room for a longer word */
+function useEaseWidth(ref: RefObject<HTMLElement | null>) {
+  const reduce = useReducedMotion();
+  useEffect(() => {
+    const el = ref.current; if (!el || reduce || typeof ResizeObserver === 'undefined') return;
+    let w = 0, busy: Animation | null = null;
+    const ro = new ResizeObserver(() => {
+      if (busy) return;
+      const w1 = el.getBoundingClientRect().width;
+      if (w && Math.abs(w1 - w) > .5) {
+        busy = el.animate([{ width: w + 'px' }, { width: w1 + 'px' }], { duration: 340, easing: 'cubic-bezier(.23,1,.32,1)' });
+        busy.finished.catch(() => {}).then(() => { busy = null; w = el.getBoundingClientRect().width; });
+      }
+      w = w1;
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref, reduce]);
+}
+
 const fmt = (n: number) => Math.round(n).toLocaleString('en-US');
 const TONE: Partial<Record<RunCostStatus, string>> = { running: 'dm-b', paused: 'dm-warn', spent: 'dm-bad' };
 const ACTION: Record<RunCostStatus, string> = { idle: 'Start run', running: 'Stop', stopped: 'Resume', paused: 'Raise cap', spent: 'Start over' };
@@ -47,6 +69,8 @@ const ACTION: Record<RunCostStatus, string> = { idle: 'Start run', running: 'Sto
 /** Credits a run has used against its budget, with a cap the agent pauses at and the tokens behind the number. */
 export function RunCost({ used, budget, capAt = 90, capOn, defaultCapOn = true, onCapChange, status = 'idle', statusLabel, rows, actionLabel, onAction, title = 'Credits used', bare = false, className }: RunCostProps) {
   const [cap, setCap] = useControllable(capOn, defaultCapOn, onCapChange);
+  const go = useRef<HTMLButtonElement>(null);
+  useEaseWidth(go);
   const label = statusLabel ?? { idle: 'Idle', running: 'Running', stopped: 'Stopped', paused: `Paused at ${capAt}%`, spent: 'Budget used' }[status];
   return (
     <div data-dm="" className={cx('dm-rc', !bare && 'dm-panel', className)} style={bare ? { paddingInline: 0 } : undefined}>
@@ -69,7 +93,7 @@ export function RunCost({ used, budget, capAt = 90, capOn, defaultCapOn = true, 
           <button type="button" className="dm-toggle" role="switch" aria-checked={cap} aria-label={`Pause at ${capAt} percent`} />
           <span>Pause at {capAt}%</span>
         </label>
-        <button type="button" className={cx('dm-pill dm-sm dm-rc-go', status === 'running' || status === 'stopped' ? 'dm-soft' : 'dm-primary')} onClick={onAction}>
+        <button ref={go} type="button" className={cx('dm-pill dm-sm dm-rc-go', status === 'running' || status === 'stopped' ? 'dm-soft' : 'dm-primary')} onClick={onAction}>
           <Swap>{actionLabel ?? ACTION[status]}</Swap>
         </button>
       </div>

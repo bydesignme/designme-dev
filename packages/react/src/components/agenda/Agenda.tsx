@@ -1,9 +1,10 @@
 'use client';
-import type { ReactNode } from 'react';
+import { useRef, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { Avatar, enter } from '../../lib/motion';
+import { Avatar, enter, useGrow } from '../../lib/motion';
+import { useHoverGlide } from '../../lib/glide';
 import '../../designme.css';
 import './agenda.css';
 
@@ -38,7 +39,7 @@ export interface AgendaProps {
   title?: string;
   /** Under the title, like "Monday, Oct 19" */
   subtitle?: string;
-  /** The tag in the corner. Defaults to "4 events" */
+  /** A grey chip in the head's corner, like "3 left". Leave it out for none (the list already shows how many there are) */
   count?: string;
   /** The time on the now line, like "10:42". Leave it out for no line */
   now?: string;
@@ -54,6 +55,11 @@ const keyOf = (item: AgendaItem) => item.key ?? item.title;
 /** Today's events in order, with a line for now. Open one to see what the agent prepared for it. */
 export function Agenda({ items, title = 'Today', subtitle, count, now, open, defaultOpen = null, onOpenChange, className }: AgendaProps) {
   const [opened, setOpened] = useControllable(open, defaultOpen, onOpenChange);
+  // the card eases to its new height as an item's notes open or fold away
+  const [root, inner] = useGrow();
+  // Clean's one hover: a highlight that glides from event to event; the open one keeps its own
+  const list = useRef<HTMLDivElement>(null);
+  useHoverGlide(list, '.dm-agx-e', { keep: '.dm-open' });
   // the now line goes after the last item that is over
   const lastPast = items.reduce((at, item, i) => item.past ? i : at, -1);
   // rows and the now line stagger in together, in the order they sit
@@ -83,17 +89,19 @@ export function Agenda({ items, title = 'Today', subtitle, count, now, open, def
   };
 
   return (
-    <div data-dm="" className={cx('dm-agx dm-panel', className)}>
-      <div className="dm-agx-h">
-        <div><b>{title}</b>{subtitle && <span className="dm-muted">{subtitle}</span>}</div>
-        <span className="dm-tag dm-b">{count ?? `${items.length} ${items.length === 1 ? 'event' : 'events'}`}</span>
-      </div>
-      <div className="dm-agx-list">
-        {items.flatMap((item, i) => {
-          const out = [row(item)];
-          if (now && i === lastPast) out.push(<div key="now" className="dm-agx-now dm-enter" style={enter(n++ * 60).style}><i />{now}</div>);
-          return out;
-        })}
+    <div data-dm="" ref={root} className={cx('dm-agx dm-panel dm-growing', className)}>
+      <div ref={inner} className="dm-grow">
+        <div className="dm-agx-h">
+          <div><b>{title}</b>{subtitle && <span className="dm-muted">{subtitle}</span>}</div>
+          {count && <span className="dm-tag">{count}</span>}
+        </div>
+        <div ref={list} className="dm-agx-list">
+          {items.flatMap((item, i) => {
+            const out = [row(item)];
+            if (now && i === lastPast) out.push(<div key="now" className="dm-agx-now dm-enter" style={enter(n++ * 60).style} role="separator" aria-label={`Now, ${now}`}><span className="dm-tag dm-num">{now}</span><i /></div>);
+            return out;
+          })}
+        </div>
       </div>
     </div>
   );

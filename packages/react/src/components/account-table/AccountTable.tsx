@@ -1,9 +1,15 @@
 'use client';
-import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
+import { Fragment, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useReducedMotion } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
 import { avatarInk, enter, Fold, Spin, useMounted, useReflow } from '../../lib/motion';
+import { useColumns } from '../../lib/columns';
+
+type AccountCol = 'account' | 'plan' | 'seats' | 'health' | 'mrr';
+const COLS: { key: AccountCol; label: string; right?: boolean }[] = [
+  { key: 'account', label: 'Account' }, { key: 'plan', label: 'Plan' }, { key: 'seats', label: 'Seats', right: true }, { key: 'health', label: 'Health' }, { key: 'mrr', label: 'MRR', right: true }
+];
 import '../../designme.css';
 import './account-table.css';
 
@@ -43,11 +49,16 @@ export interface AccountTableProps {
   open?: string | null;
   defaultOpen?: string | null;
   onOpenChange?: (name: string | null) => void;
-  /** A button in the open row's note, like Draft email. Return a promise and it spins until it settles, then shows `doneLabel` */
-  action?: { label: string; doneLabel?: string; onClick: (account: AccountTableAccount) => void | Promise<unknown> };
+  /** A button in the open row's note, like Draft email. Return a promise and it says `busyLabel` with a spinner until it
+      settles, then `doneLabel` with a green tick. The button is as wide as its words and eases to each new width */
+  action?: { label: string; busyLabel?: string; doneLabel?: string; onClick: (account: AccountTableAccount) => void | Promise<unknown> };
   placeholder?: string;
-  /** Shown when nothing matches the search and filter */
+  /** The title of the empty state, when nothing matches the search and filter */
   emptyLabel?: string;
+  /** The muted line under it */
+  emptyHint?: string;
+  /** Its button, which clears the search and the plan filter */
+  clearLabel?: string;
   className?: string;
 }
 
@@ -58,7 +69,8 @@ const healthColor = (h: number) => h >= 80 ? 'var(--dm-atb-ok)' : h >= 60 ? 'var
 /** Accounts you can search and filter by plan; a row opens to show what the agent noticed. */
 export function AccountTable({
   accounts, plans, planTones = TONES, plan, defaultPlan = '', onPlanChange, query, defaultQuery = '', onQueryChange,
-  open, defaultOpen = null, onOpenChange, action, placeholder = 'Search accounts', emptyLabel = 'No accounts match', className
+  open, defaultOpen = null, onOpenChange, action, placeholder = 'Search accounts', emptyLabel = 'No accounts match',
+  emptyHint = 'Try another name, or show every plan.', clearLabel = 'Show all accounts', className
 }: AccountTableProps) {
   const [filter, setFilter] = useControllable(plan, defaultPlan, onPlanChange);
   const [text, setText] = useControllable(query, defaultQuery, onQueryChange);
@@ -95,6 +107,20 @@ export function AccountTable({
 
   const toggle = (name: string) => setOpened(opened === name ? null : name);
 
+  // the columns resize and move as in a spreadsheet; Account stays first, and every other header takes the keyboard's focus,
+  // so Alt and an arrow move it
+  const cols = useColumns<AccountCol>(COLS.map(c => c.key), { move: ['plan', 'seats', 'health', 'mrr'], min: { account: 150, plan: 96, seats: 72, health: 112, mrr: 88 }, name: k => COLS.find(c => c.key === k)!.label });
+  const cell = (a: AccountTableAccount, k: AccountCol): ReactNode => {
+    const tone = planTones[a.plan];
+    switch (k) {
+      case 'account': return <td key={k} data-col={k}><span className="dm-nm"><span className="dm-lg" style={{ background: a.color, color: avatarInk(a.color) }}>{a.name[0]}</span>{a.name}</span></td>;
+      case 'plan': return <td key={k} data-col={k}><span className={cx('dm-tag', tone && TONE[tone])}>{a.plan}</span></td>;
+      case 'seats': return <td key={k} data-col={k} className="dm-r dm-num">{a.seats}</td>;
+      case 'health': return <td key={k} data-col={k}><span className="dm-hb"><i><b style={{ width: a.health + '%', background: healthColor(a.health) }} /></i><span className="dm-num">{a.health}</span></span></td>;
+      default: return <td key={k} data-col={k} className="dm-r dm-num">{a.mrr}</td>;
+    }
+  };
+
   return (
     <div data-dm="" ref={box} className={cx('dm-atb dm-panel', className)}>
       <div className="dm-atb-h">
@@ -106,41 +132,58 @@ export function AccountTable({
         </div>
       </div>
       <div className="dm-atb-sc">
-        <table>
-          <thead><tr><th>Account</th><th>Plan</th><th>Seats</th><th>Health</th><th className="dm-r">MRR</th></tr></thead>
+        <table {...cols.table} className={cx(cols.sized && 'dm-cols-rz')}>
+          {cols.colgroup}
+          <thead><tr>{cols.order.map(k => { const c = COLS.find(x => x.key === k)!; return <th key={k} {...cols.head(k)} className={c.right ? 'dm-r' : undefined} tabIndex={k === 'account' ? undefined : 0}>{c.label}{cols.handle(k)}</th>; })}</tr></thead>
           <tbody>
             {rows.length ? rows.map((a, i) => {
-              const isOpen = opened === a.name, tone = planTones[a.plan], e = mounted ? undefined : enter(i * 35);
+              const isOpen = opened === a.name, e = mounted ? undefined : enter(i * 35);
               return (
                 <Fragment key={a.name}>
                   <tr data-key={a.name} className={cx('dm-row', isOpen && 'dm-open', e?.className)} style={e?.style} tabIndex={0} aria-expanded={isOpen}
                     onClick={() => toggle(a.name)} onKeyDown={e => { if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) { e.preventDefault(); toggle(a.name); } }}>
-                    <td><span className="dm-nm"><span className="dm-lg" style={{ background: a.color, color: avatarInk(a.color) }}>{a.name[0]}</span>{a.name}</span></td>
-                    <td><span className={cx('dm-tag', tone && TONE[tone])}>{a.plan}</span></td>
-                    <td className="dm-num">{a.seats}</td>
-                    <td><span className="dm-hb"><i><b style={{ width: a.health + '%', background: healthColor(a.health) }} /></i><span className="dm-num">{a.health}</span></span></td>
-                    <td className="dm-r dm-num">{a.mrr}</td>
+                    {cols.order.map(k => cell(a, k))}
                   </tr>
                   {(isOpen || shut === a.name) && (
                     <Note name={a.name} open={isOpen} onGone={() => setShut(x => x === a.name ? null : x)}>
                           <div className="dm-atb-note dm-enter">
                             <Icon name="spark" size="xs" />
                             <span>{a.note}</span>
-                            {action && (
-                              <button type="button" className="dm-pill dm-soft dm-sm" onClick={e => { e.stopPropagation(); run(a); }}>
-                                {draft === 'busy' ? <Spin /> : draft === 'done' ? <><Icon name="check" size="xs" />{action.doneLabel ?? 'Done'}</> : action.label}
-                              </button>
-                            )}
+                            {action && <ActionButton state={draft} action={action} onClick={() => run(a)} />}
                           </div>
                     </Note>
                   )}
                 </Fragment>
               );
-            }) : <tr className="dm-atb-empty" data-key=" none"><td colSpan={5}>{emptyLabel}</td></tr>}
+            }) : <tr className="dm-atb-empty" data-key=" none"><td colSpan={5}><div className="dm-atb-em">
+              <span className="dm-atb-em-art" aria-hidden="true" /><b>{emptyLabel}</b>{emptyHint && <span>{emptyHint}</span>}
+              <button type="button" className="dm-pill dm-soft dm-sm" onClick={() => { setText(''); setFilter(''); }}>{clearLabel}</button>
+            </div></td></tr>}
           </tbody>
         </table>
       </div>
     </div>
+  );
+}
+
+/** The note's button: its words, then a spinner with the busy words in the loader's sweep, then the green tick with the done
+    words. It is always as wide as its words and eases to each new width, so it never jumps or goes blank */
+function ActionButton({ state, action, onClick }: { state: 'idle' | 'busy' | 'done'; action: NonNullable<AccountTableProps['action']>; onClick: () => void }) {
+  const ref = useRef<HTMLButtonElement>(null), was = useRef<number | null>(null);
+  const reduce = useReducedMotion();
+  // the width it had before this state's words went in, read before the browser paints them
+  const w0 = was.current;
+  useLayoutEffect(() => {
+    const b = ref.current; if (!b) return; const w1 = b.getBoundingClientRect().width; was.current = w1;
+    if (reduce || w0 === null || Math.abs(w1 - w0) < .5 || !b.animate) return;
+    const cs = getComputedStyle(b);
+    b.animate([{ width: w0 + 'px' }, { width: w1 + 'px' }], { duration: (parseFloat(cs.getPropertyValue('--dm-t')) || .45) * 1000, easing: cs.getPropertyValue('--dm-ease').trim() || 'ease' });
+  }, [state]); // eslint-disable-line react-hooks/exhaustive-deps
+  return (
+    <button ref={ref} type="button" className="dm-pill dm-soft dm-sm" aria-busy={state === 'busy'} onClick={e => { e.stopPropagation(); onClick(); }}>
+      {state === 'busy' ? <><Spin /><span className="dm-shim">{action.busyLabel ?? 'Working'}</span></>
+        : state === 'done' ? <><span className="dm-atb-done"><Icon name="check" size="xs" /></span>{action.doneLabel ?? 'Done'}</> : action.label}
+    </button>
   );
 }
 

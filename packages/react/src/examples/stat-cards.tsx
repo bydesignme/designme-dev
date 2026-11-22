@@ -17,7 +17,7 @@ const STATS: StatCardsStat[] = [
   stat('spark', 'Agent runs', [[412, 12], [1730, 18], [4980, 22]], [3, 4, 4, 5, 6, 5, 7, 8]),
   stat('users', 'Active editors', [[318, 4], [1130, 9], [1620, 31]], [5, 5, 6, 6, 6, 7, 7, 8]),
   stat('clock', 'Hours saved', [[96, 15], [402, 21], [1180, 26]], [2, 3, 3, 4, 5, 6, 6, 8], { suffix: 'h' }),
-  stat('coins', 'Agent spend', [[84, -6], [341, -3], [960, 8]], [6, 5, 6, 5, 4, 4, 4, 3], { prefix: '$' })
+  stat('coins', 'Agent spend', [[84, -6], [341, -3], [960, 8]], [6, 5, 6, 5, 4, 4, 4, 3], { prefix: '$', lowerIsBetter: true })
 ];
 
 export default function StatCardsDemo() {

@@ -6,6 +6,8 @@ import { Icon, type IconName } from '../../lib/icons';
 import { Spin, Swap, Tip, useGrow } from '../../lib/motion';
 import { focusMenu, menuStep } from '../../lib/popover';
 import '../../designme.css';
+// its menus' rows glide in Clean
+import '../../lib/glide';
 import './composer.css';
 
 export interface ComposerAttachment {

@@ -38,13 +38,14 @@ export default function AnswerActionBarDemo() {
     setTone(undefined); setStatus(label); setStreaming(true);
     if (note && !failed.current) {
       failed.current = true; await wait(1200);
-      for (let k = 2; k > 0; k--) { setTone('warn'); setStatus(`Couldn't reach Sonnet 5.5. Retrying in ${k}s`); await wait(1000); }
+      for (let k = 2; k > 0; k--) { setTone('warn'); setStatus(`Couldn't reach the model. Retrying in ${k}s`); await wait(1000); }
       setTone(undefined); setStatus(label);
     }
     const i = versions.length, v = POOL[Math.min(i, POOL.length - 1)];
     setVersions(vs => [...vs, { ...v, text: '' }]); setVersion(i);
     await stream(i, v);
-    setTone('ok'); setStatus(i === 1 ? 'Version 2 fixes the saving: 21%, not 15%' : `Version ${i + 1} of ${i + 1}`);
+    // what the new version fixed, when it answers a reason; the pager already counts the versions
+    if (note) { setTone('ok'); setStatus('Fixes the saving: 21%, not 15%'); } else { setTone(undefined); setStatus(''); }
   };
 
   // the preview's story: listen until the wrong number, pause, rate it down, pick why, then copy the fix
@@ -61,7 +62,7 @@ export default function AnswerActionBarDemo() {
       <AnswerActionBar question="How much do people save on the yearly Pro plan?" versions={versions} version={version} onVersionChange={setVersion}
         streaming={streaming} status={status} statusTone={tone} onRegenerate={() => void regenerate()}
         onReason={(_, reason) => { setTimeout(() => void regenerate(reason), 400); }}
-        onCopy={() => { setTone('ok'); setStatus('Copied without the highlights'); }} />
+ />
     </div>
   );
 }

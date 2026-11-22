@@ -87,7 +87,7 @@ export function Progress({ title, state, steps, step, stepProgress, valueText, e
           <svg viewBox="0 0 36 36" aria-hidden="true"><circle className="dm-tr" cx="18" cy="18" r="15" /><circle className="dm-fl" cx="18" cy="18" r="15" pathLength={100} style={ind ? undefined : { strokeDasharray: `${all * 100} 100` }} /></svg>
           <span className="dm-prg-pc dm-num">{done ? <Icon name="check" size="xs" className="dm-enter" /> : ind ? '' : pct + '%'}</span>
         </span>
-        <div className="dm-prg-t"><b>{title}</b><span className="dm-muted dm-prg-vt">{words}</span></div>
+        <div className="dm-prg-t"><b>{title}</b><span className={cx('dm-muted dm-prg-vt', (ind || state === 'running') && 'dm-shim')}>{words}</span></div>
         <span className={cx('dm-tag dm-prg-st', TAG[state][1])}><Swap>{TAG[state][0]}</Swap></span>
         {btn.on && <Tip label={btn.label}><button type="button" className="dm-ib dm-prg-btn" aria-label={btn.label} onClick={btn.on} disabled={state === 'error' || ind} style={state === 'error' ? { visibility: 'hidden' } : undefined}><Icon name={btn.icon} /></button></Tip>}
       </div>

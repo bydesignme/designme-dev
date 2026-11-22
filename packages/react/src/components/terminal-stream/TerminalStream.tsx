@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { cx } from '../../lib/cx';
 import { useCopied } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { enter, Fold, Spin, Tip } from '../../lib/motion';
+import { enter, Fold, Spin, Tip, useGrow } from '../../lib/motion';
 import '../../designme.css';
 import './terminal-stream.css';
 
@@ -54,10 +54,10 @@ export interface TerminalStreamProps {
   entries: TerminalEntry[];
   /** The run as a whole. Left out, it is running while any entry runs, then failed if the last command failed, else passed */
   status?: TerminalStatus;
-  /** How long the run has taken, like "0:18". Shown beside Running in the header and in the summary */
+  /** How long the run has taken, like "0:18". Shown beside Running in the header while it runs */
   elapsed?: string;
-  /** The line at the foot once the run is over. Defaults to "3 commands · 0:18 · passed", counting each command once
-      however many times it ran; false hides it */
+  /** The line at the foot once the run is over. Defaults to "Ran 3 commands", counting each command once however many times
+      it ran (how it went is the header's tag, and a finished line has no clock); false hides it */
   summary?: string | false;
   /** How many lines a folded output keeps showing */
   tail?: number;
@@ -75,13 +75,14 @@ const isNote = (e: TerminalEntry): e is TerminalNote => e.kind === 'note';
 const isEdit = (e: TerminalEntry): e is TerminalEdit => e.kind === 'edit';
 
 function Lines({ lines }: { lines: TerminalLine[] }) {
-  return <div className="dm-tmx-o">{lines.map((l, i) => { const { text, tone } = lineOf(l); return <div key={i} className={cx('dm-tmx-l', tone && TONE[tone])}>{text}</div>; })}</div>;
+  return <code className="dm-tmx-o">{lines.map((l, i) => { const { text, tone } = lineOf(l); return <span key={i} className={cx('dm-tmx-l', tone && TONE[tone])}>{text}</span>; })}</code>;
 }
 
 /** The shell commands an agent runs, as a compact terminal: the working directory and how the run is going in the header,
     each command with its output streaming in under it and an exit code or a check with how long it took, and a summary
-    at the foot once it is over. Long output folds to its last lines. The terminal keeps one height (420px; set `height`
-    on it to change that) and its output scrolls, staying on the newest line unless the reader has scrolled up. */
+    at the foot once it is over. Long output folds to its last lines. The terminal grows with its output, eased, up to 420px
+    (set `max-height` on it and on its `.dm-grow` to change that); then its output scrolls, staying on the newest line unless
+    the reader has scrolled up. The output is code, in mono; everything around it is in the interface's type. */
 export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 4, onStop, onCopy, labels = {}, className }: TerminalStreamProps) {
   const L = { running: 'Running', passed: 'Passed', failed: 'Failed', stopped: 'Stopped', stop: 'Stop', copy: 'Copy', copied: 'Copied to clipboard',
     more: (n: number) => `Show ${n} more line${n === 1 ? '' : 's'}`, fewer: 'Show fewer lines', edit: 'Edit', ...labels };
@@ -93,7 +94,10 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
   const state: TerminalStatus = status ?? (busy ? 'running' : last?.status === 'failed' ? 'failed' : last?.status === 'stopped' ? 'stopped' : 'passed');
   const running = state === 'running';
   const n = new Set(cmds.map(c => c.command)).size;
-  const foot = summary !== undefined ? summary : [`${n} command${n === 1 ? '' : 's'}`, elapsed, state].filter(Boolean).join(' · ');
+  // how it went is the header's tag, so the summary doesn't say it again
+  const foot = summary !== undefined ? summary : `Ran ${n} command${n === 1 ? '' : 's'}`;
+  // no room is kept for output still to come (owner, 17 Nov): it grows as lines arrive (as grow() on the site)
+  const [root, inner] = useGrow();
   const toggle = (i: number) => setOpen(s => { const t = new Set(s); if (t.has(i)) t.delete(i); else t.add(i); return t; });
   // new output keeps the log on its newest line, unless the reader has scrolled up; then it stays where they are
   const log = useRef<HTMLDivElement>(null), pinned = useRef(true);
@@ -112,13 +116,14 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
   const copyAll = () => { const t = text(); copy(t); onCopy?.(t); };
 
   return (
-    <div data-dm="" className={cx('dm-tmx dm-panel', running && 'dm-live', className)} style={{ containerType: 'inline-size' }}>
+    <div data-dm="" ref={root} className={cx('dm-tmx dm-panel dm-growing', running && 'dm-live', className)} style={{ containerType: 'inline-size' }}>
+      <div ref={inner} className="dm-grow">
       <div className="dm-tmx-h">
         <span className="dm-tmx-ic"><Icon name="term" /></span>
         <span className="dm-tmx-cwd">{cwd}</span>
         <span className={cx('dm-tmx-st', state === 'passed' && 'dm-ok', state === 'failed' && 'dm-bad')}>
           <span className="dm-g">{running ? <Spin /> : <Icon name={state === 'passed' ? 'check' : 'stop'} size="xs" />}</span>
-          <span className="dm-tmx-sv dm-num">{running ? (elapsed ? `${L.running} · ${elapsed}` : L.running) : L[state]}</span>
+          <span className={cx('dm-tmx-sv dm-num', running && 'dm-shim')}>{running ? (elapsed ? `${L.running} · ${elapsed}` : L.running) : L[state]}</span>
         </span>
         <span className="dm-sp" />
         {running && onStop && <button type="button" className="dm-pill dm-ghost dm-sm dm-tmx-stop" aria-label="Stop the running command" onClick={onStop}><Icon name="stop" size="xs" />{L.stop}</button>}
@@ -134,13 +139,13 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
           if (isNote(e)) return <div key={i} className={cx('dm-tmx-note', e0.className)} style={e0.style}><Icon name="spark" size="xs" /><span className={cx(running && i === entries.length - 1 && 'dm-shim')}>{e.text}</span></div>;
           if (isEdit(e)) return (
             <div key={i} className={cx('dm-tmx-blk', e0.className)} style={e0.style} data-s={e.status === 'stopped' ? 'stop' : 'edit'}>
-              <div className="dm-tmx-cmd"><span className="dm-tmx-p"><Icon name="edit" size="xs" /></span><span className="dm-tmx-c">{L.edit} {e.file}</span>
+              <div className="dm-tmx-cmd"><span className="dm-tmx-p"><Icon name="edit" size="xs" /></span><code className="dm-tmx-c">{L.edit} {e.file}</code>
                 <span className="dm-tmx-m">{e.status === 'running' ? <span className="dm-g"><Spin /></span>
                   : e.status === 'stopped' ? <span className="dm-g"><span className="dm-tag">{L.stopped}</span></span>
                   : <>{e.added !== undefined && <span className="dm-add">+{e.added}</span>}{e.removed !== undefined && <span className="dm-del">−{e.removed}</span>}</>}</span>
               </div>
               {e.status !== 'running' && e.status !== 'stopped' && e.diff && e.diff.length > 0 && (
-                <div className="dm-tmx-df">{e.diff.map((d, j) => { const x = enter(j * 90); return <div key={j} className={cx(d[0] === '+' && 'dm-a', d[0] === '-' && 'dm-d', x.className)} style={x.style}>{d}</div>; })}</div>
+                <code className="dm-tmx-df">{e.diff.map((d, j) => { const x = enter(j * 90); return <span key={j} className={cx(d[0] === '+' && 'dm-a', d[0] === '-' && 'dm-d', x.className)} style={x.style}>{d}</span>; })}</code>
               )}
             </div>
           );
@@ -148,14 +153,14 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
           return (
             <div key={i} className={cx('dm-tmx-blk', e0.className)} style={e0.style} data-s={e.status === 'running' ? 'run' : e.status === 'ok' ? 'ok' : e.status === 'failed' ? 'bad' : 'stop'}>
               <div className="dm-tmx-cmd">
-                <span className="dm-tmx-p">$</span><span className="dm-tmx-c">{e.command}</span>
+                <code className="dm-tmx-p">$</code><code className="dm-tmx-c">{e.command}</code>
                 <span className="dm-tmx-m">
                   <span className="dm-g">{e.status === 'running' ? <Spin /> : e.status === 'ok' ? <span className="dm-ok"><Icon name="check" size="xs" /></span>
                     : e.status === 'failed' ? <span className="dm-tag dm-bad">Exit {e.exitCode ?? 1}</span> : <span className="dm-tag">{L.stopped}</span>}</span>
                   {e.duration && <span className="dm-t dm-num">{e.duration}</span>}
                 </span>
               </div>
-              {fold && <button type="button" className="dm-tmx-more" aria-expanded={isOpen} onClick={() => toggle(i)}><Icon name="chev-d" size="xs" /><span>{isOpen ? L.fewer : L.more(hidden.length)}</span></button>}
+              {fold && <button type="button" className="dm-tmx-more" aria-expanded={isOpen} onClick={() => toggle(i)}><Icon name="chev-d" size="xs" /><span>{isOpen ? L.fewer : L.more(hidden.length)}</span><i className="dm-sp" /></button>}
               {fold && <Fold open={isOpen}><Lines lines={hidden} /></Fold>}
               {shown.length > 0 && <Lines lines={shown} />}
             </div>
@@ -168,6 +173,7 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
           <span className="dm-tmx-fs dm-num">{foot || ''}</span>
         </div>
       </Fold>
+      </div>
     </div>
   );
 }

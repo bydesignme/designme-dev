@@ -1,5 +1,6 @@
 'use client';
-// The preview from designme.dev, rebuilt from the React component: the calendar opens and someone types "next friday".
+// The preview from designme.dev, rebuilt from the React component: the calendar opens, someone types "next friday", and it
+// closes on the day it found.
 import { useRef, useState } from 'react';
 import { DatePicker } from '../components/date-picker/DatePicker';
 import { useStory } from './useScript';
@@ -19,6 +20,7 @@ export default function DatePickerDemo() {
     taken(() => { if (typing) setQuery(''); });
     for (let k = 1; k <= s.length; k++) { setQuery(s.slice(0, k)); await wait(70); }
     typing = false;
+    await wait(2400); setOpen(false);
   });
   return (
     <div ref={ref} style={{ width: '100%' }}>

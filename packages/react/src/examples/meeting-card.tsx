@@ -5,9 +5,9 @@ import { MeetingCard, type MeetingCardPerson } from '../components/meeting-card/
 import { useStory } from './useScript';
 
 const PEOPLE: MeetingCardPerson[] = [
-  { initials: 'MK', color: 'var(--dm-av-l)', name: 'Maya Kim' }, { initials: 'JO', color: 'var(--dm-av-m)', name: 'Jon Ortiz' },
-  { initials: 'AR', color: 'var(--dm-av-p)', name: 'Ari Reyes' }, { initials: 'SL', color: 'var(--dm-av-t)', name: 'Sam Lee' },
-  { initials: 'DK', color: 'var(--dm-av-b)', name: 'Dev Kapoor' }, { initials: 'LN', color: 'var(--dm-av-y)', name: 'Lena Novak' }
+  { initials: 'MK', color: 'var(--dm-av-l)', name: 'Maya Kim' }, { initials: 'JO', color: 'var(--dm-av-b)', name: 'Jon Ortiz' },
+  { initials: 'AR', color: 'var(--dm-av-k)', name: 'Ari Reyes' }, { initials: 'SL', color: 'var(--dm-av-r)', name: 'Sam Lee' },
+  { initials: 'DK', color: 'var(--dm-av-b)', name: 'Dev Kapoor' }, { initials: 'LN', color: 'var(--dm-av-l)', name: 'Lena Novak' }
 ];
 const clock = (m: number) => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
 

@@ -4,7 +4,7 @@ import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
 import { Brand, type BrandName } from '../../lib/brands';
-import { Seg, Swap, Tip } from '../../lib/motion';
+import { Seg, Swap, Tip, useGrow } from '../../lib/motion';
 import '../../designme.css';
 import './memory-panel.css';
 
@@ -30,7 +30,7 @@ export interface MemoryItem {
   brand?: BrandName;
   /** An icon for where it came from when that isn't an app, like 'comment' for something said in chat. Used without a `brand` */
   icon?: IconName;
-  /** Highlights it as just learned, on the accent's tint with a New tag */
+  /** Marks it as just learned, with a New tag */
   isNew?: boolean;
   /** Still being learned: the text shimmers, a spinner stands in for its source, and it can't be edited yet */
   learning?: boolean;
@@ -63,10 +63,6 @@ export interface MemoryPanelProps {
   onFilterChange?: (filter: string) => void;
   /** The first tab */
   allLabel?: string;
-  /** The count under the title, like "7 memories" */
-  countLabel?: (count: number) => string;
-  /** Shows the marks of the apps the memories came from beside the count. On by default */
-  showSources?: boolean;
   /** The line at the foot, like what the agent is answering with its memory now */
   activity?: MemoryActivity;
   /** The source an edited memory gets */
@@ -90,14 +86,14 @@ export interface MemoryPanelProps {
 
 interface Gone { m: MemoryItem; at: number; leaving: boolean }
 
-const plural = (n: number) => `${n} ${n === 1 ? 'memory' : 'memories'}`;
 const Mark = ({ brand, icon }: { brand?: BrandName; icon?: IconName }) => brand ? <Brand name={brand} /> : icon ? <Icon name={icon} size="xs" /> : null;
 
 /** What the agent remembers about the team, filtered by kind, each memory with the app or place it came from, editable in
-    place or forgotten with an undo. New memories arrive highlighted, and the ones an answer uses pulse. */
+    place or forgotten with an undo. New memories arrive with a New tag, and the ones an answer uses pulse. The panel grows and
+    shrinks with its list, eased. */
 export function MemoryPanel({
   title = 'Team memory', icon = 'book', kinds, memories, defaultMemories = [], onMemoriesChange, filter, defaultFilter = 'all', onFilterChange,
-  allLabel = 'All', countLabel = plural, showSources = true, activity, editedSource = 'Edited by you, just now', newLabel = 'New', usedLabel = 'Used',
+  allLabel = 'All', activity, editedSource = 'Edited by you, just now', newLabel = 'New', usedLabel = 'Used',
   onEdit, onForget, onRestore, undoFor = 4000, bare = false, className
 }: MemoryPanelProps) {
   const [list, setList] = useControllable(memories, defaultMemories, onMemoriesChange);
@@ -162,26 +158,25 @@ export function MemoryPanel({
   const delay = (id: MemoryItem['id']) => (order.current.get(id) ?? 0) * 40 + 'ms';
   // a memory the agent learns while the panel is open opens its own height, so the panel grows instead of jumping
   const reduce = useReducedMotion(), grown = useRef(new WeakSet<HTMLElement>());
-  const grow = (el: HTMLDivElement | null) => {
+  const growRow = (el: HTMLDivElement | null) => {
     if (!el || grown.current.has(el)) return; grown.current.add(el);
     if (reduce || !el.animate) return;
-    const cs = getComputedStyle(el), ease = cs.getPropertyValue('--dm-ease').trim() || 'ease';
-    el.animate([{ height: '0px', paddingTop: '0px', paddingBottom: '0px', opacity: 0, filter: 'blur(4px)', overflow: 'hidden' },
+    // (Clean fades without a blur)
+    const cs = getComputedStyle(el), ease = cs.getPropertyValue('--dm-ease').trim() || 'ease', blur = cs.getPropertyValue('--dm-motion').trim() === 'clean' ? 0 : 4;
+    el.animate([{ height: '0px', paddingTop: '0px', paddingBottom: '0px', opacity: 0, filter: `blur(${blur}px)`, overflow: 'hidden' },
       { height: cs.height, paddingTop: cs.paddingTop, paddingBottom: cs.paddingBottom, opacity: 1, filter: 'blur(0px)', overflow: 'hidden' }], { duration: 560, easing: ease });
   };
-  const apps = [...new Set(list.map(m => m.brand).filter((b): b is BrandName => !!b))];
+  // no room is kept for a memory still to come (owner, 17 Nov): the panel grows and shrinks with its list, eased (as grow() on
+  // the site)
+  const [box, inner] = useGrow();
 
   return (
-    <div data-dm="" className={cx('dm-mmx', !bare && 'dm-panel', className)} style={bare ? { paddingInline: 0 } : undefined}>
+    <div data-dm="" ref={box} className={cx('dm-mmx dm-growing', !bare && 'dm-panel', className)} style={bare ? { paddingInline: 0 } : undefined}>
+      <div ref={inner} className="dm-grow">
+      {/* the head names the panel; a count and a row of the sources' marks would repeat what the list shows */}
       <div className="dm-mmx-h">
         <span className="dm-mmx-ic"><Icon name={icon} /></span>
-        <div className="dm-mmx-ht">
-          <b>{title}</b>
-          <span className="dm-mmx-sub">
-            <Swap className="dm-muted dm-mmx-st">{countLabel(list.length)}</Swap>
-            {showSources && apps.length > 0 && <span className="dm-mmx-srcs" aria-hidden="true">{apps.map(b => <span key={b}><Brand name={b} /></span>)}</span>}
-          </span>
-        </div>
+        <b className="dm-mmx-ht">{title}</b>
         <div className="dm-mmx-tab" style={{ display: 'flex' }}>
           <Seg label="Filter" value={f} onChange={setF} options={[{ value: 'all', label: allLabel }, ...kinds.map(k => ({ value: k.value, label: k.label }))]} />
         </div>
@@ -201,8 +196,8 @@ export function MemoryPanel({
           const fresh = learnt.current.has(m.id) && !m.learning;
           return (
             // a memory that turns `used` pulses once, as the class arrives
-            <div key={`${paint}-${m.id}`} ref={arriving ? grow : undefined}
-              className={cx('dm-mmx-m', !arriving && 'dm-enter', m.isNew && 'dm-new', m.learning && 'dm-learn', m.used && 'dm-use')}
+            <div key={`${paint}-${m.id}`} ref={arriving ? growRow : undefined}
+              className={cx('dm-mmx-m', !arriving && 'dm-enter', m.learning && 'dm-learn', m.used && 'dm-use')}
               style={{ '--dm-k': k?.color ?? 'var(--dm-muted)', ...(arriving ? null : { animationDelay: delay(m.id) }) } as CSSProperties}>
               <span key={m.learning ? 'learn' : 'from'} className={cx('dm-mmx-src', fresh && 'dm-enter')} aria-hidden="true">
                 {m.learning ? <span className="dm-spin" /> : <Mark brand={m.brand} icon={m.icon} />}
@@ -235,6 +230,7 @@ export function MemoryPanel({
           <Swap className={cx('dm-mmx-ft', activity.live && 'dm-shim')}>{activity.text}</Swap>
         </div>
       )}
+      </div>
     </div>
   );
 }

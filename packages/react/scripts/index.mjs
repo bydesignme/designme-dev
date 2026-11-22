@@ -19,6 +19,8 @@ export { Brand, type BrandName } from './lib/brands';
 export { Flag, type FlagCode } from './lib/flags';
 export { Think, Spin, Radar, Pulse, Bars, Dot, Swap, Fold, Seg, Tip, Avatar, SourceChip, enter, type Source, type SourceKind } from './lib/motion';
 export { usePopover, type PopoverOptions } from './lib/popover';
+export { useHoverGlide, hoverGlide, type HoverGlideOptions } from './lib/glide';
+export { useColumns, type ColumnsOptions } from './lib/columns';
 export { useControllable, useCopied, useTween, useSeconds, useReducedMotion } from './lib/hooks';
 `);
 console.log(`index.ts exports ${files.length} components`);

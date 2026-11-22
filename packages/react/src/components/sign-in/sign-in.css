@@ -1,9 +1,15 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Sign in ---------- */
-.dm-sgx{padding:var(--dm-s-5);max-width:320px;margin:0 auto;width:100%;overflow:hidden}
+/* its content 16px in from every edge (owner, 18 Nov). The card grows and shrinks with each step, so it keeps no room for a
+   later one: the code arriving, a message under the field, the shorter confirmation. The steps (.sgx-body) and the foot each
+   ease their own height (grow()), and the card is always the two together: the foot stays at the card's bottom edge with its
+   corners at every frame, and only the steps are clipped while they ease, top to bottom (owner, 21 Nov). The title block, the
+   boxes and the line under them are 12px apart */
+.dm-sgx{padding:var(--dm-s-4);max-width:320px;margin:0 auto;width:100%}
+.dm-sgx-body.dm-growing{overflow-x:visible}
 .dm-sgx-st{display:flex;flex-direction:column;gap:6px}
 .dm-sgx-st>b{font-weight:500;font-size:14px}
-.dm-sgx-st>.dm-muted{font-size:12.5px;margin-bottom:var(--dm-s-2)}
+.dm-sgx-st>.dm-muted{font-size:12.5px;margin-bottom:6px}
 .dm-sgx-st.dm-in{animation:dm-sgin .5s var(--dm-ease) both}
 @keyframes dm-sgin{from{opacity:0;transform:translateX(20px);filter:blur(4px)}}
 .dm-sgx-f{display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500}
@@ -11,44 +17,74 @@
 @supports (corner-shape:squircle){.dm-sgx-f input{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
 .dm-sgx-f input::placeholder{color:var(--dm-muted)}
 .dm-sgx-f input:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
-/* a field marked wrong keeps its red edge, focused or not, until it is fixed; the message says what is wrong */
+/* a field marked wrong keeps its red edge, focused or not, until it is fixed; the line under it says what is wrong in red
+   words after the alert mark, with no red fill, and opens and closes rather than keeping room for itself */
 .dm-sgx-f.dm-bad input{box-shadow:inset 0 0 0 1px var(--dm-bad);animation:dm-sgsh .4s}
 @keyframes dm-sgsh{20%,60%{transform:translateX(-4px)}40%,80%{transform:translateX(4px)}}
-.dm-sgx-err{font-size:12px;color:var(--dm-bad);min-height:16px}
-.dm-sgx-go{height:40px;width:100%}
-.dm-sgx-bk{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--dm-muted);align-self:flex-start;margin-bottom:6px}
+/* (a shut line adds nothing under the field: the fold takes back the step's 6px gap, and the open line brings its own) */
+.dm-sgx-ef{margin-top:-6px}
+.dm-sgx-err{display:flex;align-items:center;gap:6px;padding-top:6px;font-size:12px;color:var(--dm-bad)}
+.dm-sgx-err>svg{flex:none;color:var(--dm-bad-mark,var(--dm-bad))}
+/* nothing in it grows or shrinks when pressed but Clean's ink primary */
+.dm-sgx .dm-pill:active{transform:none}
+/* the foot: the step's action or the line that says how it is going (Send code, then the resend line, Verifying code, a
+   wrong code or Code confirmed, then the workspace opening). It is one foot for every step, so it keeps its place as the
+   steps change: 12px under the step in Soft and Blueprint, and Clean's foot strip (below). Send code is as wide as the field */
+.dm-sgx-ft{margin-top:var(--dm-s-3)}
+.dm-sgx-go{height:var(--dm-field-h);width:100%}
+/* the back link's chevron sits on the content's edge, as the words under it do */
+.dm-sgx-bk{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--dm-muted);align-self:flex-start;margin:0 0 6px -4px}
 @media (hover:hover) and (pointer:fine){.dm-sgx-bk:hover{color:var(--dm-fg)}}
 .dm-sgx-code{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
-.dm-sgx-code input{width:100%;height:var(--dm-field-h);border:0;outline:0;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);text-align:center;font:inherit;font-size:14px;font-variant-numeric:tabular-nums;color:var(--dm-fg);transition:box-shadow var(--dm-t-fast),background .25s,transform .3s var(--dm-ease)}
+/* the boxes: every box, filled or not, has the one fill and the one dimmed edge; the focused box, or with none focused the
+   next one to fill, has the field's focus edge. While the code is checked all six dim a little, together, and the line under
+   them says so (owner, 21 Nov: no wave across them) */
+.dm-sgx-code input{width:100%;height:var(--dm-field-h);border:0;outline:0;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);text-align:center;font:inherit;font-size:14px;font-variant-numeric:tabular-nums;color:var(--dm-fg);transition:box-shadow var(--dm-t-fast),opacity var(--dm-t-fast),transform .3s var(--dm-ease)}
 @supports (corner-shape:squircle){.dm-sgx-code input{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
-.dm-sgx-code input:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+.dm-sgx-code input:focus,.dm-sgx-code:not(:focus-within) input.dm-nx{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
 .dm-sgx-code input.dm-f{transform:scale(1.04)}
-/* the email with the code, the way a phone shows it as it arrives */
-.dm-sgx-nt{display:flex;align-items:center;gap:10px;padding:10px 10px 10px var(--dm-s-3);margin-bottom:10px;border-radius:calc(14px * var(--dm-rk-l,var(--dm-rk)));background:var(--dm-raised);box-shadow:var(--dm-shadow-pop);font-size:12.5px;line-height:1.4}
-.dm-sgx-ni{width:30px;height:30px;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-accent);color:var(--dm-on-accent);display:grid;place-items:center;flex:none}
-.dm-sgx-nt .dm-t{flex:1;min-width:0;display:flex;flex-direction:column}
-.dm-sgx-nt .dm-t b{font-weight:500;font-size:12.5px}
-.dm-sgx-nt .dm-t b .dm-muted{font-weight:400;font-size:12px;margin-left:var(--dm-s-1)}
-.dm-sgx-nt .dm-t .dm-num{color:var(--dm-fg);font-weight:500}
-.dm-sgx-cp{flex:none}
+/* the code as it arrives (owner, 21 Nov: no card in the card): a quiet chip under the boxes, the way a phone offers a
+   one-time code, "From Mail 482 157". Pressed, it fills every box and goes. It folds open when the email arrives, so the card
+   grows smoothly for it and keeps no room before */
+.dm-sgx-af{margin-top:-6px}
+.dm-sgx-sug{display:flex;width:fit-content;margin-top:var(--dm-s-3)}
+.dm-sgx-sug .dm-num{color:var(--dm-fg);font-weight:500}
 .dm-sgx-code input{caret-color:var(--dm-accent-fg,var(--dm-accent))}
-.dm-sgx-code.dm-vf input{animation:dm-sgvf 1s var(--dm-ease-io) infinite;animation-delay:calc(var(--dm-i) * 90ms)}
-@keyframes dm-sgvf{50%{background:var(--dm-hover);transform:translateY(-2px)}}
-.dm-sgx-code.dm-ok input{background:var(--dm-ok-bg);color:var(--dm-ok);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-ok) 30%,transparent);animation:dm-sgok .5s var(--dm-ease) both;animation-delay:calc(var(--dm-i) * 70ms)}
-@keyframes dm-sgok{0%{background:var(--dm-surface);color:var(--dm-fg)}45%{transform:scale(1.1)}100%{transform:none}}
+.dm-sgx-code.dm-vf input{opacity:.7}
+/* a wrong code: the boxes clear with a red edge and shake (not with reduced motion) until typing starts over */
+.dm-sgx-code.dm-bad input{box-shadow:inset 0 0 0 1px var(--dm-bad)}
+.dm-sgx-code.dm-bad{animation:dm-sgsh .4s}
+@media (prefers-reduced-motion:reduce){.dm-sgx-code.dm-bad,.dm-sgx-f.dm-bad input{animation:none}}
+/* the line under the boxes: what runs is said with the highlight sweep; a confirmed code is the green tick and plain words */
 .dm-sgx-v{display:inline-flex;align-items:center;gap:7px;color:var(--dm-fg2)}
+.dm-sgx-rs>.dm-sgx-v{display:flex;min-height:inherit}
 .dm-sgx-v .dm-spin{width:11px;height:11px}
-.dm-sgx-v.dm-ok{color:var(--dm-ok)}
+.dm-sgx-v .dm-shim{font-size:inherit}
+.dm-sgx-v.dm-ok .dm-i{color:var(--dm-ok-mark)}
+.dm-sgx-v.dm-bad{color:var(--dm-bad)}
+.dm-sgx-v.dm-bad .dm-i{color:var(--dm-bad-mark,var(--dm-bad))}
 .dm-sgx-hint{color:var(--dm-fg2)}
+.dm-sgx-re{color:var(--dm-accent-fg,var(--dm-accent));font-weight:500;font-size:inherit;border-radius:var(--dm-r-tiny,4px)}
+@media (hover:hover) and (pointer:fine){.dm-sgx-re:hover{text-decoration:underline;text-underline-offset:2px}}
 .dm-sgx-ck{width:52px;height:52px;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
-.dm-sgx-ck circle{stroke:var(--dm-accent-mark,var(--dm-accent));stroke-dasharray:151;stroke-dashoffset:151;animation:dm-sgdraw .7s var(--dm-ease) forwards}
-.dm-sgx-ck path{stroke:var(--dm-accent-mark,var(--dm-accent));stroke-dasharray:30;stroke-dashoffset:30;animation:dm-sgdraw .4s var(--dm-ease) .55s forwards}
+.dm-sgx-ck circle{stroke:var(--dm-ok-mark);stroke-dasharray:151;stroke-dashoffset:151;animation:dm-sgdraw .7s var(--dm-ease) forwards}
+.dm-sgx-ck path{stroke:var(--dm-ok-mark);stroke-dasharray:30;stroke-dashoffset:30;animation:dm-sgdraw .4s var(--dm-ease) .55s forwards}
 @keyframes dm-sgdraw{to{stroke-dashoffset:0}}
 .dm-sgx-bar{width:120px;height:3px;border-radius:var(--dm-r-tiny,2px);background:var(--dm-line);overflow:hidden;margin-top:var(--dm-s-1)}
 .dm-sgx-bar i{display:block;height:100%;width:0;background:var(--dm-accent-mark,var(--dm-accent));animation:dm-sgbar 1.8s var(--dm-ease) .6s forwards}
 @keyframes dm-sgbar{to{width:100%}}
-.dm-sgx-rs{font-size:12px;margin-top:6px}
-.dm-sgx-done{display:flex;flex-direction:column;align-items:center;gap:var(--dm-s-2);padding:var(--dm-s-5) 0;font-size:13px;text-align:center}
+.dm-sgx-rs{display:block;min-height:20px;font-size:12px;line-height:20px}
+.dm-sgx-ft :is(.dm-sgx-go,.dm-sgx-rs)[hidden]{display:none}
+/* done: the green check and the welcome, and in the foot the workspace opening */
+.dm-sgx-done{display:flex;flex-direction:column;align-items:center;gap:var(--dm-s-2);padding:var(--dm-s-4) 0 0;font-size:13px;text-align:center}
 .dm-sgx-done>b{font-weight:500;font-size:14px}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .dm-sgx.dm-panel,:root [data-style="clean"] .dm-sgx.dm-panel,:root [data-style="clean"].dm-sgx.dm-panel{padding:18px 20px 20px 20px}
+.dm-sgx-open{display:flex;flex-direction:column;align-items:center;gap:var(--dm-s-2);padding-bottom:var(--dm-s-4);font-size:13px}
+.dm-sgx-open .dm-shim{font-size:inherit}
+/* Clean: the steps rise into place without a blur. The foot is the card's off-white foot strip in every step (owner, 21 Nov:
+   "this has no clean style separation"): a top hairline, the card's bottom corners, its contents on the 16px column, 8px from
+   its top and bottom. The fields stay in the body, 16px above it */
+:root[data-style="clean"] .dm-sgx-st.dm-in,:root [data-style="clean"] .dm-sgx-st.dm-in,:root [data-style="clean"].dm-sgx-st.dm-in{animation:dm-clpiece var(--dm-t-slow) var(--dm-ease) both}
+:root[data-style="clean"] .dm-sgx-ft,:root [data-style="clean"] .dm-sgx-ft,:root [data-style="clean"].dm-sgx-ft{margin:var(--dm-s-4) calc(-1 * var(--dm-s-4)) calc(-1 * var(--dm-s-4));padding:var(--dm-s-2) var(--dm-s-4);background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+:root[data-style="clean"] .dm-sgx-rs,:root [data-style="clean"] .dm-sgx-rs,:root [data-style="clean"].dm-sgx-rs{min-height:28px;line-height:28px}
+:root[data-style="clean"] .dm-sgx-done,:root [data-style="clean"] .dm-sgx-done,:root [data-style="clean"].dm-sgx-done{padding-top:0}
+:root[data-style="clean"] .dm-sgx-open,:root [data-style="clean"] .dm-sgx-open,:root [data-style="clean"].dm-sgx-open{padding-bottom:0}

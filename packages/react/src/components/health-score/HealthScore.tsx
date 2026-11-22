@@ -3,7 +3,8 @@ import { Fragment, useEffect, useId, useRef, useState } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useTween } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
-import { Fold, Spin, Swap } from '../../lib/motion';
+import { Fold, Spin, Swap, useGrow } from '../../lib/motion';
+import { useHoverGlide } from '../../lib/glide';
 import '../../designme.css';
 import './health-score.css';
 
@@ -86,8 +87,9 @@ const RING = 2 * Math.PI * 18;
 const WORD: Record<HealthStatus, string> = { ok: 'On track', warn: 'Watch', bad: 'At risk' };
 
 /** An account's health: the score in a small ring with its verdict and change, a row per factor under a hairline with its
-    status dot and figure (open one for its detail, right under it), and the agent's next move with its button. Colour only
-    marks state: the dots and the ring. Fits a 440px details sheet; under 360px of room the button goes under the agent's line. */
+    status dot and figure (open one for its detail, right under it), and the agent's next move with its button. The rows share
+    the head's columns: each dot under the ring, each name where the verdict starts. Colour only marks state: the dots and the
+    ring. Fits a 440px details sheet; under 360px of room the button goes under the agent's line. */
 export function HealthScore({ account, label = 'Account health', period = '30 days', bands = [70, 50], verdicts, open, defaultOpen = null, onOpenChange, onAction, className }: HealthScoreProps) {
   const [opened, setOpened] = useControllable<string | null>(open, defaultOpen, onOpenChange);
   const { factors, suggestion: sug } = account;
@@ -108,6 +110,9 @@ export function HealthScore({ account, label = 'Account health', period = '30 da
   const who = account.name ?? '';
   const [busy, setBusy] = useState<string | null>(null);
   const btn = useRef<HTMLButtonElement>(null), chip = useRef<HTMLSpanElement>(null), had = useRef(false);
+  // Clean's one hover: a highlight that glides from factor to factor
+  const factorsRef = useRef<HTMLDivElement>(null);
+  useHoverGlide(factorsRef, '.dm-hsc-t');
   const [width, setWidth] = useState<number | undefined>();
   const act = async () => {
     if (busy !== null || !onAction || sug?.done) return;
@@ -126,6 +131,8 @@ export function HealthScore({ account, label = 'Account health', period = '30 da
   }, [done, who, sug]);
 
   const ids = 'dm-hsc' + useId();
+  // the agent's line eases to a new line count when it changes, so the block grows and shrinks smoothly
+  const [sayBox, sayIn] = useGrow<HTMLSpanElement>();
 
   return (
     <div data-dm="" className={cx('dm-hsc dm-panel', className)} data-v={band} role="group" aria-label={label}>
@@ -141,7 +148,7 @@ export function HealthScore({ account, label = 'Account health', period = '30 da
         <div className="dm-hsc-ht"><Swap className="dm-hsc-vd">{verdict}</Swap><Swap className="dm-hsc-sub">{line}</Swap></div>
         {change !== null && <Swap className="dm-hsc-dl dm-num">{`${change >= 0 ? '+' : '−'}${Math.abs(change)} in ${period}`}</Swap>}
       </div>
-      <div className="dm-hsc-l">
+      <div ref={factorsRef} className="dm-hsc-l">
         {factors.map((f, j) => (
           <Fragment key={f.key}>
             <button type="button" className="dm-hsc-t" data-s={f.status} data-weak={f === weak ? '' : undefined} aria-expanded={f.key === opened} aria-controls={`${ids}-${j}`}
@@ -165,8 +172,10 @@ export function HealthScore({ account, label = 'Account health', period = '30 da
       </div>
       {sug && (
         <div className="dm-hsc-s">
-          <Icon name="spark" />
-          <Swap className="dm-hsc-st">{done ? sug.doneText ?? sug.text : sug.text}</Swap>
+          <span ref={sayBox} className="dm-hsc-say dm-growing"><span ref={sayIn} className="dm-grow">
+            <Icon name="spark" size="s" />
+            <Swap className="dm-hsc-st">{done ? sug.doneText ?? sug.text : sug.text}</Swap>
+          </span></span>
           {done
             ? <span key={who + ':done'} ref={chip} className="dm-tag dm-ok dm-hsc-done dm-enter" tabIndex={-1}><Icon name="check" size="xs" />{sug.doneLabel ?? 'Done'}</span>
             : onAction && <button key={who} ref={btn} type="button" className="dm-pill dm-primary dm-sm dm-hsc-go dm-enter" onClick={act} disabled={busy === who} aria-busy={busy === who || undefined}

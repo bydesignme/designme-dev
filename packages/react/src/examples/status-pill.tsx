@@ -22,7 +22,7 @@ export default function StatusPillDemo() {
       // waits for Review, and carries on by itself after a while so the loop never stalls; once you have taken over, it waits for you
       await new Promise<void>(res => { setP({ state: 'waiting', label: 'Waiting for your approval', action: { label: 'Review', onClick: res }, progress: 72 }); wait(8000).then(() => { if (!mine()) res(); }); });
       setP({ state: 'working', label: 'Applying 4 changes', progress: 88 }); await wait(1600);
-      setP({ state: 'done', label: 'Done', meta: '4 files changed · 18s', progress: 100 }); await wait(3200);
+      setP({ state: 'done', label: 'Done', meta: '4 files changed', progress: 100 }); await wait(3200);
       setP({ state: 'idle', label: 'Ready for a task', progress: 0 });
     }
   });

@@ -15,13 +15,11 @@ export default function PaymentFormDemo() {
     taken(() => { if (typing) setCard(c => ({ ...c, number: '' })); });
     for (const ch of '4242424242424242') { setCard(c => ({ ...c, number: c.number + ch })); await wait(45); }
     typing = false;
-    typing = false;
   });
   return (
-    <div ref={ref} className="dm-pyx-wrap">
-      <PaymentForm card={card} onCardChange={setCard}
+    <div ref={ref} style={{ width: '100%' }}>
+      <PaymentForm card={card} onCardChange={setCard} note="Demo only. Nothing is charged."
         onPay={() => new Promise<void>(res => setTimeout(res, 1200))} />
-      <span className="dm-muted dm-pyx-n">Demo only. Nothing is charged.</span>
     </div>
   );
 }

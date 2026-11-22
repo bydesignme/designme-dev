@@ -3,7 +3,7 @@ import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { Swap, Tip } from '../../lib/motion';
+import { Swap, Tip, useGrow } from '../../lib/motion';
 import '../../designme.css';
 import './slider.css';
 
@@ -14,24 +14,24 @@ interface TrackProps {
 }
 const fix = (x: number) => +x.toFixed(4);
 
-/* one track: knobs you drag or move with the keys, the value over the knob while it moves, the covered part in the accent */
+/* one track: knobs you drag or move with the keys (the value reads in the header beside the label), the covered part in the
+   accent's mark colour */
 function Track({ min, max, step, big, values, onChange, format, valueText, labels, labelledBy, recommended, snap, gliding, setGliding }: TrackProps) {
   const ref = useRef<HTMLDivElement>(null);
   const knobs = useRef<(HTMLSpanElement | null)[]>([]);
   const [drag, setDrag] = useState(false);
   const [active, setActive] = useState(0);
-  const [say, setSay] = useState(false);
   // a press never shows the focus ring; the keys bring it back
   const [ptr, setPtr] = useState(false);
   // the knob leans into the way it moves and rights itself once the pointer rests (not with reduced motion)
   const last = useRef({ x: 0, t: 0 });
   const rest = useRef<ReturnType<typeof setTimeout>>(undefined);
   const body = (i: number) => knobs.current[i]?.querySelector<HTMLElement>('.dm-sdx-kb') ?? null;
-  const still = () => typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // reduced motion, or Clean's calm motion (owner, 18 Nov): the knob glides and lifts, without the hop, the lean and the bounce
+  const still = () => (typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches)
+    || (!!ref.current && getComputedStyle(ref.current).getPropertyValue('--dm-motion').trim() === 'clean');
   const lean = (i: number, deg: number) => body(i)?.style.setProperty('--dm-tilt', deg.toFixed(1) + 'deg');
   useEffect(() => () => clearTimeout(rest.current), []);
-  const sayT = useRef<ReturnType<typeof setTimeout>>(undefined);
-  useEffect(() => () => clearTimeout(sayT.current), []);
   const pct = (x: number) => (x - min) / (max - min) * 100;
   const two = values.length > 1;
   const clamp = (i: number, x: number) => { let lo = min, hi = max; if (two) { if (i === 0) hi = values[1] - step; else lo = values[0] + step; } return Math.max(lo, Math.min(hi, x)); };
@@ -43,7 +43,7 @@ function Track({ min, max, step, big, values, onChange, format, valueText, label
     // a little hop when it snaps onto the agent's mark
     if (hit && drag && !still()) body(i)?.animate([{ transform: 'scale(1.2)' }, { transform: 'scale(1.38)', offset: .35 }, { transform: 'scale(1.2)' }], { duration: 320, easing: 'cubic-bezier(.34,1.56,.64,1)' });
   };
-  const flash = (i: number) => { setActive(i); setSay(true); clearTimeout(sayT.current); sayT.current = setTimeout(() => setSay(false), 1200); };
+  const flash = (i: number) => { setActive(i); };
   const at = (clientX: number) => { const b = ref.current!.getBoundingClientRect(); return min + (max - min) * Math.max(0, Math.min(1, (clientX - b.left) / b.width)); };
   const down = (e: React.PointerEvent<HTMLDivElement>) => {
     if ((e.target as Element).closest('.dm-sdx-rec') || e.button) return;
@@ -85,11 +85,10 @@ function Track({ min, max, step, big, values, onChange, format, valueText, label
           onClick={() => { setGliding(true); set(0, recommended.value); flash(0); }}><Icon name="spark" size="xs" /></button>
       </Tip>}
       {values.map((v, i) => (
-        <span key={i} ref={el => { knobs.current[i] = el; }} className={cx('dm-sdx-k', i === active && 'dm-on', i === active && say && 'dm-say', ptr && 'dm-ptr')} role="slider" tabIndex={0}
+        <span key={i} ref={el => { knobs.current[i] = el; }} className={cx('dm-sdx-k', i === active && 'dm-on', ptr && 'dm-ptr')} role="slider" tabIndex={0}
           aria-label={labelledBy ? undefined : labels[i]} aria-labelledby={labelledBy} aria-valuemin={two && i ? fix(values[0] + step) : min} aria-valuemax={two && !i ? fix(values[1] - step) : max}
           aria-valuenow={fix(v)} aria-valuetext={valueText(v, i)} style={{ left: pct(v) + '%' }} onKeyDown={key(i)}>
           <i className="dm-sdx-kb" />
-          <span className="dm-sdx-tt dm-num">{format(v, i)}</span>
         </span>
       ))}
     </div>
@@ -116,7 +115,7 @@ export interface SliderProps {
   value?: number;
   defaultValue?: number;
   onValueChange?: (value: number) => void;
-  /** How the value reads over the knob and in the header, like "0.40" or "30 calls" */
+  /** How the value reads in the header and is spoken, like "0.40" or "30 calls" */
   format?: (value: number) => string;
   /** Names for ranges of the value, like Precise to Creative: the nearest one shows beside the value and is spoken with it */
   names?: string[];
@@ -185,7 +184,9 @@ export function RangeSlider({ label, min = 0, max = 100, step = 1, bigStep = 10,
   );
 }
 
-/** The panel the sliders sit in on designme.dev, with a hairline between them */
+/** The panel the sliders sit in on designme.dev, with a hairline between them. It grows and shrinks with what it holds (a
+ *  description that changes length), staying centred, rather than keeping room for its longest */
 export function SliderGroup({ children, className }: { children: ReactNode; className?: string }) {
-  return <div data-dm="" className={cx('dm-sdx dm-panel', className)}>{children}</div>;
+  const [root, inner] = useGrow();
+  return <div data-dm="" ref={root} className={cx('dm-sdx dm-panel dm-growing', className)}><div ref={inner} className="dm-grow">{children}</div></div>;
 }

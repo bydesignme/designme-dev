@@ -55,8 +55,11 @@ export interface AgentRunTimelineProps {
   span?: number;
   /** Labels on the axis, in seconds. Defaults to quarters of the span */
   ticks?: number[];
-  /** The line under the title. Defaults to the steps running now, then "Finished in 11.4s" */
+  /** The line under the title. Defaults to the steps running now and, once the run is done, the last ones that ran. Say
+      what the run did here when it ends; the totals under the chart already give its time and retries */
   status?: string;
+  /** The neutral mark in the head's tile, in the steps' icon column. Defaults to a bolt */
+  icon?: IconName;
   /** The figures in the footer once the run is done. Defaults to the total time, cost, steps and retries, which count up while it plays */
   stats?: TimelineStat[];
   /** The names of the kinds in the key. Defaults to Model, Tools and Apps */
@@ -103,7 +106,7 @@ const secs = (n: number) => String(+n.toFixed(1));
 type State = 'wait' | 'run' | 'done' | 'fail';
 
 /** A run drawn as a Gantt chart: every step as a bar in its kind's colour on a shared time axis, with a playhead while it runs. */
-export function AgentRunTimeline({ title, steps, time, span, ticks, status, stats, kindLabels, bare = false, className }: AgentRunTimelineProps) {
+export function AgentRunTimeline({ title, steps, time, span, ticks, status, stats, kindLabels, icon = 'bolt', bare = false, className }: AgentRunTimelineProps) {
   const end = Math.max(0, ...steps.map(s => s.start + s.duration));
   const T = span ?? Math.max(4, Math.ceil(end / 4) * 4);
   const done = time === undefined || time >= T;
@@ -118,7 +121,7 @@ export function AgentRunTimeline({ title, steps, time, span, ticks, status, stat
   const last = useRef('');
   if (now) last.current = now;
   const retries = steps.filter(s => s.failed && t >= s.start + s.duration).length;
-  const line = status ?? (done ? `Finished in ${end.toFixed(1)}s${steps.some(s => s.failed) ? `, ${retries} ${retries === 1 ? 'retry' : 'retries'}` : ''}` : now || last.current || 'Starting');
+  const line = status ?? (done ? last.current || steps.filter(s => s.start + s.duration >= end).map(s => s.label).join(', ') : now || last.current || 'Starting');
   // the footer counts up with the playhead, so it is there from the start and never pops in at the end
   const started = steps.filter(s => t >= s.start), hasRetries = steps.some(s => s.failed), n = started.length;
   const ran = (s: TimelineStep) => Math.max(0, Math.min(s.duration, t - s.start));
@@ -147,6 +150,7 @@ export function AgentRunTimeline({ title, steps, time, span, ticks, status, stat
   return (
     <div data-dm="" className={cx('dm-art', !bare && 'dm-panel', done ? 'dm-fin' : 'dm-live', className)} style={bare ? { paddingInline: 0 } : undefined}>
       <div className="dm-art-h">
+        <span className="dm-art-hi" aria-hidden="true"><Icon name={icon} size="xs" /></span>
         <div className="dm-art-hd">
           <div className="dm-art-t">{title}</div>
           <Status className={cx('dm-art-s dm-num', done ? 'dm-muted' : 'dm-shim')} text={line} instant={!done} />

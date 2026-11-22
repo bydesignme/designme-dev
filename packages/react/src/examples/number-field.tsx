@@ -18,8 +18,7 @@ export default function NumberFieldDemo() {
   });
   return (
     <div ref={ref} style={{ width: '100%' }}>
-      <NumberFieldGroup title="Run limits" description="For each run of the release agent"
-        summary={`A run stops at ${steps} steps, $${budget.toFixed(2)} or ${time} min, whichever comes first.`}>
+      <NumberFieldGroup title="Run limits" description="A run stops at whichever comes first">
         <NumberField label="Max steps" min={5} max={100} step={5} value={steps} onValueChange={setSteps} unit="steps" buttonLabels={['Fewer steps', 'More steps']} />
         <NumberField label="Budget per run" min={0.25} max={20} step={0.25} decimals={2} prefix="$" value={budget} onValueChange={setBudget}
           valueText={v => `$${v.toFixed(2)}`} buttonLabels={['Lower budget', 'Higher budget']} />

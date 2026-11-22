@@ -60,7 +60,8 @@ export interface EventCalendarProps {
   onSelectedChange?: (id: string | null) => void;
   /** What an event added by clicking free time starts with. Defaults to a pink, one hour event */
   newEvent?: { tone?: EventCalendarTone; people?: EventCalendarPerson[]; hours?: number };
-  /** Adds Prep notes to the details card. Return the notes, or a promise of them; "Writing" shows until it settles */
+  /** Adds Prep notes to the details card. Return the notes, or a promise of them; "Writing" shimmers until it settles, then the
+      notes show above the buttons and Prep notes keeps its place with a green tick */
   onPrepNotes?: (event: EventCalendarEvent) => ReactNode | Promise<ReactNode>;
   /** Adds Join to the details card */
   onJoin?: (event: EventCalendarEvent) => void;
@@ -142,7 +143,9 @@ function Details({ event, onClose, onSave, onDiscard, onPrepNotes, onJoin }: {
         </div>
       ) : (onPrepNotes || onJoin) && (
         <div className="dm-ecx-pa">
-          {onPrepNotes && prep !== 'done' && <button type="button" className="dm-pill dm-soft dm-sm" onClick={write}>{prep === 'writing' ? <><Think />Writing</> : <><Icon name="spark" size="xs" />Prep notes</>}</button>}
+          {onPrepNotes && <button type="button" className={cx('dm-pill dm-soft dm-sm dm-ecx-prep', prep === 'done' && 'dm-done')} aria-disabled={prep === 'done' || undefined} onClick={write}>
+            {prep === 'writing' ? <><Think /><span className="dm-shim">Writing</span></> : <><Icon name={prep === 'done' ? 'check' : 'spark'} size="xs" />Prep notes</>}
+          </button>}
           {onJoin && <button type="button" className="dm-pill dm-primary dm-sm" onClick={() => onJoin(event)}>Join</button>}
         </div>
       )}
@@ -205,7 +208,8 @@ export function EventCalendar({
     const pr = panel.getBoundingClientRect(), er = el.getBoundingClientRect(), w = 248;
     let x = er.right - pr.left + 8; if (x + w > pr.width - 8) x = er.left - pr.left - w - 8; x = Math.max(8, x);
     const y = Math.max(8, Math.min(er.top - pr.top, pr.height - p.offsetHeight - 8));
-    setPlace({ left: x, top: y });
+    // (it scales and fades from the event's side, where Clean's popovers start)
+    setPlace({ left: x, top: y, ['--dm-origin' as string]: (x > er.left - pr.left ? 'left' : 'right') + ' top' });
   }, [open?.id, runs]);
   useEffect(() => {
     if (!open) return;
@@ -292,7 +296,7 @@ export function EventCalendar({
       <div className="dm-ecx-h">
         <b>{heading}</b><span className="dm-ecx-sp" />
         <Swap className="dm-ecx-msg dm-muted">{status ?? msg}</Swap>
-        {onAsk && <button type="button" className="dm-pill dm-soft dm-sm dm-ecx-ask" onClick={onAsk}>{finding ? <Think /> : <Icon name="spark" size="xs" />}<Swap key={finding ? 'f' : 'i'}>{askLabel}</Swap></button>}
+        {onAsk && <button type="button" className="dm-pill dm-soft dm-sm dm-ecx-ask" onClick={onAsk}>{finding ? <Think /> : <Icon name="spark" size="xs" />}<Swap key={finding ? 'f' : 'i'} className={finding ? 'dm-shim' : undefined}>{askLabel}</Swap></button>}
       </div>
       <div ref={daysRow} className="dm-ecx-days" role="group" aria-label="Day">
         {Array.from({ length: days }, (_, d) => {
@@ -323,7 +327,7 @@ export function EventCalendar({
                     return (
                       <Tip key={`${e.id}:${moves[e.id] ?? 0}`} label={`${named(e)}, ${tm(at_)}`} off={!!dragging || openId === e.id}>
                         <button type="button" ref={el => { if (el) blocks.current.set(e.id, el); else blocks.current.delete(e.id); }}
-                          className={cx('dm-ecx-e dm-enter', live && 'dm-drag')}
+                          className={cx('dm-ecx-e dm-enter', live && 'dm-drag', openId === e.id && 'dm-on')}
                           style={{ ...tint(e.tone), top: top(at_), [len < 1 ? 'minHeight' : 'height']: ph(len, -3), transform: live ? `translateX(${live.dx}px)` : undefined, animationDelay: (delays.current!.get(e.id) ?? 0) + 'ms' }}
                           onPointerDown={p => down(p, e)} onPointerMove={p => move(p, e)} onPointerUp={() => up(e)} onPointerCancel={() => up(e)}
                           onClick={c => { if (c.detail !== 0) return; keyOpen.current = openId !== e.id; select(openId === e.id ? null : e.id); }}>
@@ -339,7 +343,7 @@ export function EventCalendar({
                         <b>{s.title}</b><span>{tm(h)} – {tm(h + len)}</span>
                         {i === 0 && (onBook || onSkip) && (
                           <div className="dm-ecx-sg">
-                            {onBook && <button type="button" onClick={() => onBook(s)}>Book</button>}
+                            {onBook && <button type="button" className="dm-y" onClick={() => onBook(s)}>Book</button>}
                             {onSkip && suggestions.length > 1 && <button type="button" className="dm-n" onClick={() => onSkip(s)}>Other</button>}
                           </div>
                         )}

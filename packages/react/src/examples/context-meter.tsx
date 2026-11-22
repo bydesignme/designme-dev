@@ -44,7 +44,7 @@ export default function ContextMeterDemo() {
   return (
     <div ref={ref} style={{ width: '100%' }}>
       <ContextMeter parts={parts} limit={LIMIT} message={message?.text} messageTone={message?.tone} onCompact={compact} compacted={!!before} onUndo={undo}
-        hint={before ? 'Older turns are now a summary' : undefined} open={open} onOpenChange={setOpen} />
+        hint={before ? 'Older turns are now a summary' : undefined} busyHint="Summarising 48 turns" open={open} onOpenChange={setOpen} />
     </div>
   );
 }

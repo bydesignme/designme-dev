@@ -4,6 +4,8 @@ import { cx } from '../../lib/cx';
 import { useIsoLayoutEffect } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
 import '../../designme.css';
+// its menus' rows glide in Clean
+import '../../lib/glide';
 import './context-menu.css';
 
 export interface ContextMenuItem {
@@ -41,6 +43,16 @@ export interface ContextMenuProps {
 
 type At = { x: number; y: number; keyed: boolean };
 
+/** The room a menu may open into: the window, cut by any box round the target that clips what spills out of it */
+function roomOf(el: HTMLElement) {
+  let top = 0, bottom = innerHeight;
+  for (let a = el.parentElement; a && a !== document.documentElement; a = a.parentElement) {
+    if (getComputedStyle(a).overflowY === 'visible') continue;
+    const r = a.getBoundingClientRect(); top = Math.max(top, r.top); bottom = Math.min(bottom, r.bottom);
+  }
+  return { top, bottom };
+}
+
 /** A menu that opens where you right-click, long-press, or press Shift+F10 or the Menu key, with a submenu, a checkable item and a delete that asks again. */
 export function ContextMenu({ items, onSelect, label = 'Actions', targetLabel = 'Press Shift+F10 for actions', targetClassName = 'dm-cxm-msg dm-panel', children, className }: ContextMenuProps) {
   const root = useRef<HTMLDivElement>(null), target = useRef<HTMLDivElement>(null), menu = useRef<HTMLDivElement>(null), subMenu = useRef<HTMLDivElement>(null);
@@ -57,8 +69,11 @@ export function ContextMenu({ items, onSelect, label = 'Actions', targetLabel = 
     const rb = root.current!.getBoundingClientRect(), { lo, hi } = bounds(), w = m.offsetWidth, h = m.offsetHeight;
     if (rb.left + x + w > hi) x -= w;
     x = Math.max(lo - rb.left, Math.min(x, hi - rb.left - w));
-    // near the foot of the screen it opens upward, but only where it fits over the target, so it never covers what is above
-    const up = rb.top + y + h > innerHeight - 8 && y - h >= 0 && rb.top + y - h > 8; if (up) y -= h;
+    // short of room below (the screen's foot, or a box round it that would cut it off), it opens upward from the point; where
+    // neither way fits, it moves up just enough to end inside the room, so it is never cut off
+    const room = roomOf(root.current!), top = room.top + 8 - rb.top, bottom = room.bottom - 8 - rb.top;
+    let up = false;
+    if (y + h > bottom) { if (y - h >= top) { y -= h; up = true; } else y = Math.max(top, bottom - h); }
     m.style.left = x + 'px'; m.style.top = y + 'px'; m.style.setProperty('--dm-origin', (up ? 'bottom ' : 'top ') + 'left');
   };
   useIsoLayoutEffect(() => { if (at && menu.current) { fit(menu.current, at.x, at.y); if (at.keyed) itemsOf(menu.current)[0]?.focus({ preventScroll: true }); } }, [at]);

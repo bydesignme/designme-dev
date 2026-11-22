@@ -22,7 +22,7 @@ export default function AccountTableDemo() {
   return (
     <div ref={ref} style={{ width: '100%' }}>
       <AccountTable accounts={ACCOUNTS} plans={['Team', 'Pro', 'Enterprise']} open={open} onOpenChange={setOpen}
-        action={{ label: 'Draft email', doneLabel: 'Draft ready', onClick: () => new Promise(r => setTimeout(r, 800)) }} />
+        action={{ label: 'Draft email', busyLabel: 'Drafting', doneLabel: 'Draft ready', onClick: () => new Promise(r => setTimeout(r, 800)) }} />
     </div>
   );
 }

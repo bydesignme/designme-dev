@@ -1,7 +1,7 @@
 'use client';
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type RefObject } from 'react';
 import { cx } from '../../lib/cx';
-import { useControllable, useTween } from '../../lib/hooks';
+import { useControllable, useReducedMotion, useTween } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
 import { Spin, Swap, Tip } from '../../lib/motion';
 import '../../designme.css';
@@ -14,7 +14,7 @@ export interface ContextPart {
   label: string;
   /** How many tokens it takes */
   tokens: number;
-  /** Its colour in the bar and the legend. Defaults to blue, teal, violet and grey, in order */
+  /** Its colour in the bar and the legend. Defaults to the accent, violet, teal and a neutral grey, in order */
   color?: string;
   /** What is in it, shown when you hover its row, like "PricingCard.tsx 18.2k, tokens.css 6.1k" */
   items?: string;
@@ -28,15 +28,18 @@ export interface ContextMeterProps {
   warnAt?: number;
   /** A line under the legend, like "Freed 41.2k tokens. 9 decisions kept". Crossfades when it changes */
   message?: string;
-  /** warn shows the message in orange with a warning sign, ok in green with a check */
+  /** warn shows the message as a warning notice (a faint warning tint, the filled warning sign, the words in the text colour)
+      and puts Compact in the warning tint, as the action that resolves it; ok shows it as a plain line with the green tick */
   messageTone?: 'warn' | 'ok';
-  /** Called by Compact. Return a promise and the button spins until it settles */
+  /** Called by Compact. Return a promise and, until it settles, the button gives way to a "Compacting…" status line with a spinner */
   onCompact?: () => void | Promise<void>;
   /** Set once the context is compacted: the button turns into Undo, which calls onUndo */
   compacted?: boolean;
   onUndo?: () => void;
   /** The quiet line beside the button. Defaults to what Compact does */
   hint?: string;
+  /** The line beside the button while Compact runs, with a moving highlight. Defaults to "Summarising older turns" */
+  busyHint?: string;
   /** Whether the panel is open. Leave it out to let the pill toggle it */
   open?: boolean;
   defaultOpen?: boolean;
@@ -44,7 +47,28 @@ export interface ContextMeterProps {
   className?: string;
 }
 
-const PALETTE = ['var(--dm-pb)', 'var(--dm-pt)', 'var(--dm-pl)', 'var(--dm-faint)'];
+
+/** A button as wide as its words: when they change it eases to its new width, keeping no room for a longer word */
+function useEaseWidth(ref: RefObject<HTMLElement | null>) {
+  const reduce = useReducedMotion();
+  useEffect(() => {
+    const el = ref.current; if (!el || reduce || typeof ResizeObserver === 'undefined') return;
+    let w = 0, busy: Animation | null = null;
+    const ro = new ResizeObserver(() => {
+      if (busy) return;
+      const w1 = el.getBoundingClientRect().width;
+      if (w && Math.abs(w1 - w) > .5) {
+        busy = el.animate([{ width: w + 'px' }, { width: w1 + 'px' }], { duration: 340, easing: 'cubic-bezier(.23,1,.32,1)' });
+        busy.finished.catch(() => {}).then(() => { busy = null; w = el.getBoundingClientRect().width; });
+      }
+      w = w1;
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref, reduce]);
+}
+
+const PALETTE = ['var(--dm-c1)', 'var(--dm-c2)', 'var(--dm-c6)', 'var(--dm-muted)'];
 const k = (n: number) => (n / 1000).toFixed(1) + 'k';
 
 /** A number that counts to its new value (it starts on its first value) */
@@ -55,14 +79,15 @@ function Count({ value, ms = 900, format }: { value: number; ms?: number; format
 /** How full the context is and what fills it: a pill with a ring that opens one bar split by kind, a legend whose rows list
  *  what is in them, and Compact. Escape closes it. */
 export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone = 'ok', onCompact, compacted = false, onUndo,
-  hint = 'Summarises older turns', open, defaultOpen = true, onOpenChange, className }: ContextMeterProps) {
+  hint = 'Summarises older turns', busyHint = 'Summarising older turns', open, defaultOpen = true, onOpenChange, className }: ContextMeterProps) {
   const [isOpen, setOpen] = useControllable(open, defaultOpen, onOpenChange);
   const [busy, setBusy] = useState(false);
   const [lit, setLit] = useState<string | null>(null);
   // it opens on its real numbers; they only count when something changes
   const ready = true;
   const total = parts.reduce((t, p) => t + p.tokens, 0), share = ready ? total / limit : 0, pct = Math.round(share * 100);
-  const root = useRef<HTMLDivElement>(null), tg = useRef<HTMLButtonElement>(null);
+  const root = useRef<HTMLDivElement>(null), tg = useRef<HTMLButtonElement>(null), go = useRef<HTMLButtonElement>(null);
+  useEaseWidth(go);
   // Escape shuts the panel while the pointer or the focus is on the meter
   useEffect(() => {
     if (!isOpen) return;
@@ -107,12 +132,18 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
           })}
         </div>
         <div className={cx('dm-ctm-msg', message && 'dm-on', message && 'dm-' + messageTone)} aria-live="polite">
-          <span>{message && <><Icon name={messageTone === 'warn' ? 'warn' : 'ok'} size="xs" /><Swap>{message}</Swap></>}</span>
+          <span>{message && <>{messageTone === 'warn'
+            ? <svg className="dm-ctm-wi" viewBox="0 0 24 24" aria-hidden="true"><path className="dm-a" d="M12 3.6 2.6 19.9h18.8z" /><path className="dm-b" d="M12 9.6v4.4M12 17v.01" /></svg>
+            : <Icon name="ok" size="xs" />}<Swap>{message}</Swap></>}</span>
         </div>
         {(onCompact || onUndo) && (
           <div className="dm-ctm-f">
-            <Swap className="dm-ctm-hint">{hint}</Swap>
-            <button type="button" className="dm-pill dm-ghost dm-sm dm-ctm-go" onClick={compact}>{busy ? <><Spin />Compacting</> : compacted ? 'Undo' : 'Compact'}</button>
+            {busy ? <span className="dm-ctm-hint"><span className="dm-shim">{busyHint}</span></span> : <Swap className="dm-ctm-hint">{hint}</Swap>}
+            {/* while it compacts nothing can be pressed, so it says so where the button was, in the loader's sweep, and the button
+                comes back as Undo once it is done */}
+            {busy
+              ? <span className="dm-ctm-run" role="status"><Spin /><span className="dm-shim">Compacting…</span></span>
+              : <button ref={go} type="button" className={cx('dm-pill dm-sm dm-ctm-go', message && messageTone === 'warn' ? 'dm-warn' : 'dm-soft')} onClick={compact}>{compacted ? 'Undo' : 'Compact'}</button>}
           </div>
         )}
       </div>

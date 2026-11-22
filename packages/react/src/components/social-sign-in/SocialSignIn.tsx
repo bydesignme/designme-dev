@@ -4,7 +4,7 @@ import { Brand, type BrandName } from '../../lib/brands';
 import { cx } from '../../lib/cx';
 import { useControllable } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
-import { Avatar, enter, Spin } from '../../lib/motion';
+import { Avatar, enter, Spin, useGrow } from '../../lib/motion';
 import '../../designme.css';
 import './social-sign-in.css';
 
@@ -72,27 +72,27 @@ export function SocialSignIn({ providers = PROVIDERS, lastUsed, defaultLastUsed 
   const [last, setLast] = useControllable(lastUsed, defaultLastUsed, onLastUsedChange);
   const [session, setSession] = useControllable(signedIn, defaultSignedIn, onSignedInChange);
   const [busy, setBusy] = useState<string | null>(null);
-  // signing in swaps the providers for a shorter welcome: it keeps the height it had and centres the welcome in it
-  const [held, setHeld] = useState<number>();
-  const root = useRef<HTMLDivElement>(null);
+  // the card fits what it shows at every moment: signing in, it eases to the welcome's height, and back on Sign out
+  const [root, inner] = useGrow();
   const alive = useRef(true);
   useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
 
   const signIn = (p: SocialSignInProvider) => {
     if (busy) return;
-    const done = (ok: unknown) => { if (!alive.current) return; setBusy(null); if (ok === false) return; setHeld(root.current?.offsetHeight); setLast(p.key); setSession(p.key); };
+    const done = (ok: unknown) => { if (!alive.current) return; setBusy(null); if (ok === false) return; setLast(p.key); setSession(p.key); };
     const out = onSignIn?.(p);
     if (out && typeof (out as Promise<unknown>).then === 'function') {
       setBusy(p.key);
       (out as Promise<unknown>).then(done, () => { if (alive.current) setBusy(null); });
     } else done(out);
   };
-  const signOut = () => { setHeld(undefined); setSession(null); onSignOut?.(); };
+  const signOut = () => { setSession(null); onSignOut?.(); };
   const who = providers.find(p => p.key === session);
   const step = (i: number) => (user ? i : i - 1) * 60;
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-ssi dm-panel', session && held && 'dm-held', className)} style={session && held ? { minHeight: held } : undefined}>
+    <div data-dm="" ref={root} className={cx('dm-ssi dm-panel dm-growing', className)}>
+      <div ref={inner} className="dm-grow">
       {session ? (
         <div className="dm-ssi-ok">
           {/* the welcome comes in a line at a time */}
@@ -108,10 +108,11 @@ export function SocialSignIn({ providers = PROVIDERS, lastUsed, defaultLastUsed 
             const e = enter(i * 50);
             return (
               <button key={p.key} type="button" className={cx('dm-ssi-b', p.key === last && 'dm-last-used', busy === p.key && 'dm-busy', e.className)} style={e.style}
-                aria-busy={busy === p.key || undefined} onClick={() => signIn(p)}>
+                aria-label={`Continue with ${p.label}`} aria-busy={busy === p.key || undefined} onClick={() => signIn(p)}>
                 <span className="dm-mk">{busy === p.key ? <Spin /> : <Mark p={p} />}</span>
-                <span>Continue with {p.label}</span>
-                {p.key === last && <span className="dm-last">Last used</span>}
+                {/* on a narrow phone it says only the provider's name, so the one used last keeps its whole name beside its tag */}
+                <span className="dm-lb"><span className="dm-pre">Continue with </span>{p.label}</span>
+                {p.key === last && <span className="dm-tag dm-last">Last used</span>}
               </button>
             );
           })}
@@ -119,6 +120,7 @@ export function SocialSignIn({ providers = PROVIDERS, lastUsed, defaultLastUsed 
         <div className="dm-ssi-or">or</div>
         <button type="button" className="dm-ssi-mail" onClick={onEmail}>{emailLabel}</button>
       </>}
+      </div>
     </div>
   );
 }

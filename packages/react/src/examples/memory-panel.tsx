@@ -43,7 +43,8 @@ export default function MemoryPanelDemo() {
     await wait(1100);
     for (const id of [100, 1, 6]) { set(id, { used: true }); await wait(700); }
     setActivity({ text: 'Used 3 memories in the launch email draft', brand: 'gmail' });
-  });
+    // an agent at work, so it carries on under the pointer
+  }, { hold: false });
   return (
     <div ref={ref} style={{ width: '100%' }}>
       <MemoryPanel kinds={KINDS} memories={list} onMemoriesChange={setList} activity={activity} />

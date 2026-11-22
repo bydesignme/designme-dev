@@ -18,8 +18,8 @@ export const giveBack = (b: HTMLElement) => {
 };
 
 export interface PopoverOptions {
-  /** Line the popover up with the trigger's start edge (the default) or its end edge */
-  align?: 'start' | 'end';
+  /** Line the popover up with the trigger's start edge (the default), its end edge, or centre it under the trigger */
+  align?: 'start' | 'end' | 'center';
   /** Open above or below the trigger. Left out, it opens below unless there is no room */
   side?: 'up' | 'down';
   /** Whether it is open. Leave it out to let the trigger toggle it */
@@ -58,9 +58,9 @@ export function usePopover({ align = 'start', side, open, defaultOpen = false, o
     const host = (p.offsetParent || p.parentElement) as HTMLElement;
     const hr = host.getBoundingClientRect(), br = b.getBoundingClientRect();
     const up = side === 'up' || (side !== 'down' && br.bottom + p.offsetHeight + 12 > innerHeight && br.top - p.offsetHeight > 12);
-    let x = align === 'end' ? br.right - hr.left - p.offsetWidth : br.left - hr.left;
+    let x = align === 'end' ? br.right - hr.left - p.offsetWidth : align === 'center' ? br.left - hr.left + (br.width - p.offsetWidth) / 2 : br.left - hr.left;
     x = Math.max(-hr.left + 8, Math.min(x, innerWidth - hr.left - p.offsetWidth - 8));
-    setPlace({ left: x, top: up ? br.top - hr.top - p.offsetHeight - 6 : br.bottom - hr.top + 6, ['--dm-origin' as string]: `${up ? 'bottom' : 'top'} ${align === 'end' ? 'right' : 'left'}` });
+    setPlace({ left: x, top: up ? br.top - hr.top - p.offsetHeight - 6 : br.bottom - hr.top + 6, ['--dm-origin' as string]: `${up ? 'bottom' : 'top'} ${align === 'end' ? 'right' : align === 'center' ? 'center' : 'left'}` });
   }, [isOpen, align, side]);
 
   // opened from the keyboard, a menu takes the focus; closed with the focus inside, the trigger gets it back

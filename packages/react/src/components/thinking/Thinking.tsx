@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion, useSeconds } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
@@ -12,7 +12,7 @@ export interface ThinkingStep {
   label: string;
   /** running spins and shimmers, retry waits out a problem in amber, done turns into a check */
   state: 'running' | 'retry' | 'done';
-  /** What the step found, or what it waits on, under it: "3 cards are off the 8px grid". Opens and crossfades when it changes */
+  /** What the step found, or what it waits on, under it: "Off the 8px grid". Opens and crossfades when it changes */
   result?: string;
   /** More detail shown when you hover the result, like the measured values */
   resultTip?: string;
@@ -63,6 +63,21 @@ function Words({ text }: { text: string }) {
   return <>{w.map((x, i) => <span key={i} className="dm-w" style={{ animationDelay: `${i * 45}ms` }}>{x}{i < w.length - 1 ? ' ' : ''}</span>)}</>;
 }
 
+/** A step's result line while it runs, in amber while the step waits out a problem. The colour changes with the words
+    (Swap writes them 170ms on), so the words fading out keep theirs */
+function Result({ text, warn }: { text: string; warn: boolean }) {
+  const reduce = useReducedMotion();
+  const [tone, setTone] = useState(warn);
+  const said = useRef(text);
+  useEffect(() => {
+    const was = said.current; said.current = text;
+    if (reduce || !was.trim() || was === text) { setTone(warn); return; }
+    const t = setTimeout(() => setTone(warn), 170);
+    return () => clearTimeout(t);
+  }, [text, warn, reduce]);
+  return <Swap className={tone ? 'dm-warn' : undefined}>{text}</Swap>;
+}
+
 function Mark({ state }: { state: ThinkingStep['state'] }) {
   if (state === 'running') return <Spin />;
   // keyed so each new mark plays its entrance once
@@ -72,6 +87,24 @@ function Mark({ state }: { state: ThinkingStep['state'] }) {
 /** The live trace: each step the agent takes on a line that turns green as they finish, and what each found, then a header
     that says what the work came to, folded away. */
 export function Thinking({ steps, running, seconds, title = 'Working on it', summary, collapseWhenDone = true, open, defaultOpen = true, onOpenChange, className }: ThinkingProps) {
+  // the trace grows with its steps, eased (grow() on the site), in every style (owner, 18 Nov). In Clean the finished header's
+  // mark is a green disc with a tick
+  const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
+  const [clean, setClean] = useState(false);
+  useIsoLayoutEffect(() => { setClean(root.current?.closest('[data-style]')?.getAttribute('data-style') === 'clean'); }, []);
+  useIsoLayoutEffect(() => {
+    const el = root.current, w = inner.current;
+    if (!el || !w || typeof ResizeObserver === 'undefined') return;
+    let first = true;
+    const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
+    const fit = () => {
+      const h = Math.ceil(w.offsetHeight + box());
+      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
+      else el.style.height = h + 'px';
+    };
+    const ro = new ResizeObserver(fit); ro.observe(w); fit();
+    return () => { ro.disconnect(); el.style.height = ''; };
+  }, []);
   const counted = useSeconds(running && seconds === undefined);
   const secs = seconds ?? counted;
   const [isOpen, setOpen] = useControllable(open, defaultOpen, onOpenChange);
@@ -84,9 +117,10 @@ export function Thinking({ steps, running, seconds, title = 'Working on it', sum
   const done = !running && steps.length > 0;
 
   return (
-    <div data-dm="" className={cx('dm-tk', className)} data-open={isOpen ? '1' : '0'}>
+    <div data-dm="" ref={root} className={cx('dm-tk', 'dm-growing', className)} data-open={isOpen ? '1' : '0'}>
+      <div ref={inner} className="dm-grow">
       <button type="button" className={cx('dm-tk-h', done && 'dm-tk-fin')} aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
-        <span className="dm-tk-mark">{done ? <span key="ok" {...enter()} style={{ display: 'grid' }}><Icon name="ok" /></span> : <Think on={running} />}</span>
+        <span className="dm-tk-mark">{done ? <span key="ok" {...enter()} style={{ display: 'grid' }}><Icon name={clean ? 'check' : 'ok'} size={clean ? 'xs' : 's'} /></span> : <Think on={running} />}</span>
         <Settle className="dm-tk-title" shimmer={running}>{done ? summary ?? `${steps.length} ${steps.length === 1 ? 'step' : 'steps'}` : title}</Settle>
         <span className="dm-tk-time dm-num">{secs + 's'}</span>
         <Icon name="chev-d" size="xs" className="dm-tk-chev" />
@@ -104,13 +138,14 @@ export function Thinking({ steps, running, seconds, title = 'Working on it', sum
                 <span className={cx('dm-res', s.result && 'dm-on')}>
                   {s.state === 'done' && s.result
                     ? <span key={'w' + s.result}>{s.resultTip ? <Tip label={s.resultTip}><span tabIndex={0} data-tip=""><Words text={s.result} /></span></Tip> : <Words text={s.result} />}</span>
-                    : <Swap>{s.result ?? ''}</Swap>}
+                    : <Result text={s.result ?? ''} warn={s.state === 'retry'} />}
                 </span>
               </div>
             </li>
           ))}
         </ol>
       </Fold>
+      </div>
     </div>
   );
 }

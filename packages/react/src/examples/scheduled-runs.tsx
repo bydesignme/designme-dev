@@ -6,9 +6,9 @@ import { ScheduledRuns, type ScheduledRun } from '../components/scheduled-runs/S
 
 /* ---------- Scheduled runs: run the design QA now, reconnect Figma so the token sync passes, pause the price check ---------- */
 const RUNS: ScheduledRun[] = [
-  { key: 'qa', name: 'Weekly design QA', schedule: 'Mondays at 9:00', next: 'Next in 2 days', result: 'passed', ago: '5 days ago', icon: 'palette', color: 'var(--dm-pl)' },
+  { key: 'qa', name: 'Weekly design QA', schedule: 'Mondays at 9:00', next: 'Next in 2 days', result: 'passed', ago: '5 days ago', icon: 'palette', color: 'var(--dm-av-l)' },
   { key: 'tokens', name: 'Sync tokens from Figma', schedule: 'Every day at 8:00', next: 'Next in 17h', result: 'failed', error: 'Figma token expired', fix: 'Reconnect Figma', brand: 'figma' },
-  { key: 'price', name: 'Competitor price check', schedule: 'Fridays at 17:00', next: 'Next in 6 days', result: 'passed', ago: 'yesterday', icon: 'chart', color: 'var(--dm-pt)' }
+  { key: 'price', name: 'Competitor price check', schedule: 'Fridays at 17:00', next: 'Next in 6 days', result: 'passed', ago: 'yesterday', icon: 'chart', color: 'var(--dm-av-t)' }
 ];
 
 export default function ScheduledRunsDemo() {
@@ -21,12 +21,13 @@ export default function ScheduledRunsDemo() {
   // reconnecting takes a moment, then the run goes again straight away
   const fix = async (key: string) => { patch(key, { fixing: true }); await wait(900); patch(key, { fixing: false }); runNow(key); };
 
-  // the preview's story: run the design QA and watch it pass, reconnect Figma so the token sync passes, then pause the price check
+  // the preview's story: run the design QA and watch it pass, reconnect Figma so the token sync passes, then pause the price
+  // check. A run at work keeps going under the pointer, as designme.dev's does
   useStory(ref, async ({ wait, press }) => {
     await wait(2000); press('.dm-shx-r:nth-child(1) .dm-shx-run');
     await wait(4000); press('.dm-shx-r:nth-child(2) .dm-shx-fx .dm-pill');
     await wait(5000); press('.dm-shx-r:nth-child(3) .dm-toggle');
-  });
+  }, { hold: false });
 
   return (
     <div ref={ref} style={{ width: '100%' }}>

@@ -35,7 +35,8 @@ export default function KnowledgeSourcesDemo() {
     return () => clearInterval(id);
   }, []);
 
-  // the preview's story: add the docs site, which waits its turn, then read the scanned PDF again with OCR
+  // the preview's story: add the docs site, which waits its turn, then read the scanned PDF again with OCR. Indexing at work
+  // keeps going under the pointer, as designme.dev's does
   useStory(ref, async ({ wait, press, taken }) => {
     await wait(1500); press('.dm-ksx-add');
     await wait(1000); press('.dm-ksx-pop .dm-mi:nth-child(2)');
@@ -50,7 +51,7 @@ export default function KnowledgeSourcesDemo() {
     const failed = () => ref.current?.querySelector('.dm-ksx-s[data-st="failed"]');
     for (let k = 0; k < 150 && !failed(); k++) await wait(100);
     await wait(1000); press('.dm-ksx-s[data-st="failed"] .dm-ksx-fx .dm-accent');
-  });
+  }, { hold: false });
 
   return (
     <div ref={ref} style={{ width: '100%' }}>

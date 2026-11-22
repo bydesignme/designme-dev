@@ -198,12 +198,14 @@ export function RunDrawer({ runId, label = 'Test run', state, time, tokens, cost
                   <span className="dm-rdr-ms dm-num">{st === 'wait' ? 'Waiting' : st === 'bad' ? 'Failed' : st === 'stop' ? 'Stopped' : secs(e - s.start)}</span>
                 </button>,
                 waiting && state === 'waiting' && waiting.step === s.step && !s.level && (
+                  // a warning notice (owner, 18 Nov): the filled warning sign, the words in the text colour, Reject white and
+                  // Approve, which resolves it, in the warning tint
                   <div key={s.id + 'ask'} className={cx('dm-rdr-ask', !reduce && 'dm-in')} role="group" aria-label={`${waiting.title} waits for you`}>
-                    <Tile kind="approval" icon="user" />
+                    <svg className="dm-rdr-sgi" viewBox="0 0 24 24" aria-hidden="true"><path className="dm-a" d="M12 3.6 2.6 19.9h18.8z" /><path className="dm-b" d="M12 9.6v4.4M12 17v.01" /></svg>
                     <span className="dm-tx"><b>{waiting.title}</b>{waiting.detail && <span>{waiting.detail}</span>}</span>
                     <span className="dm-acts">
-                      {onApprove && <button type="button" className="dm-pill dm-primary dm-sm" data-a="yes" onClick={onApprove}><Icon name="check" size="xs" />Approve</button>}
                       {onReject && <button type="button" className="dm-pill dm-line dm-sm" data-a="no" onClick={onReject}>Reject</button>}
+                      {onApprove && <button type="button" className="dm-pill dm-warn dm-sm" data-a="yes" onClick={onApprove}><Icon name="check" size="xs" />Approve</button>}
                     </span>
                   </div>
                 )

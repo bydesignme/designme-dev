@@ -1,7 +1,7 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { cx } from '../../lib/cx';
-import { useReducedMotion } from '../../lib/hooks';
+import { useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
 import { Spin, Swap, Tip } from '../../lib/motion';
 import '../../designme.css';
@@ -12,13 +12,15 @@ export type ToastTone = 'success' | 'error' | 'info' | 'loading';
 export interface ToastData {
   /** A new id slides a new toast in and the old one away. Keep the id to change the text in place */
   id: string | number;
-  /** Picks the icon and its colour. loading spins */
+  /** Picks the icon and its colour (in Clean only success and error take colour). loading spins */
   tone?: ToastTone;
   title: string;
   /** The quieter line under the title. Crossfades when it changes */
   description?: string;
-  /** A button before the close button, like Undo or Retry: ghost, or primary on the accent (ink, the old name, still works). busy swaps its label for a spinner */
-  action?: { label: string; onClick: () => void; variant?: 'ghost' | 'primary' | 'ink'; busy?: boolean };
+  /** A button before the close button, like Undo or Retry: ghost, or primary on the accent (ink, the old name, still works).
+      busy swaps its label for a spinner; done swaps it for the green tick and turns the button off (Undo once it has undone).
+      Either way the button eases to its new width */
+  action?: { label: string; onClick: () => void; variant?: 'ghost' | 'primary' | 'ink'; busy?: boolean; done?: boolean; doneLabel?: string };
 }
 
 export interface ToastProps {
@@ -36,14 +38,26 @@ const TONES: Record<ToastTone, { icon: 'ok' | 'alert' | 'info' | null; color: st
   loading: { icon: null, color: 'var(--dm-fg)', bg: 'var(--dm-chip)' }
 };
 
+const cssMs = (el: Element, v: string) => { const s = getComputedStyle(el).getPropertyValue(v).trim(); return (s.endsWith('ms') ? parseFloat(s) : parseFloat(s) * 1000) || 340; };
+
 function Card({ toast, leaving, onDismiss }: { toast: ToastData; leaving: boolean; onDismiss: () => void }) {
   const tone = TONES[toast.tone ?? 'success'], a = toast.action;
+  // a pressed action never goes blank and keeps no room for what it turns into: it shows its new content and eases from its
+  // old width to its new one
+  const reduce = useReducedMotion(), btn = useRef<HTMLButtonElement>(null), w = useRef(0);
+  const look = a ? (a.done ? 'done' : a.busy ? 'busy' : a.label) : '';
+  useIsoLayoutEffect(() => {
+    const b = btn.current; if (!b) { w.current = 0; return; }
+    const w1 = b.getBoundingClientRect().width, w0 = w.current; w.current = w1;
+    if (w0 && !reduce && Math.abs(w1 - w0) > .5) b.animate([{ width: w0 + 'px' }, { width: w1 + 'px' }], { duration: cssMs(b, '--dm-t'), easing: getComputedStyle(b).getPropertyValue('--dm-ease').trim() || 'ease' });
+  }, [look]);
   return (
     <div className={cx('dm-tst-t', leaving ? 'dm-tst-out' : 'dm-tst-in')} role="status" inert={leaving}>
-      <span className="dm-g" style={{ color: tone.color, background: tone.bg }}>{tone.icon ? <Icon name={tone.icon} /> : <Spin />}</span>
-      <div className="dm-tx"><b>{toast.title}</b>{toast.description !== undefined && <Swap>{toast.description}</Swap>}</div>
+      <span className="dm-g" data-tone={toast.tone ?? 'success'} style={{ color: tone.color, background: tone.bg }}>{tone.icon ? <Icon name={tone.icon} /> : <Spin />}</span>
+      <div className="dm-tx"><b className={toast.tone === 'loading' ? 'dm-shim' : undefined}>{toast.title}</b>{toast.description !== undefined && <Swap>{toast.description}</Swap>}</div>
       <div className="dm-acts">
-        {a && <button type="button" className={cx('dm-pill dm-sm', a.variant === 'primary' || a.variant === 'ink' ? 'dm-primary' : 'dm-ghost')} aria-busy={a.busy || undefined} onClick={() => { if (!a.busy) a.onClick(); }}>{a.busy ? <Spin /> : a.label}</button>}
+        {a && <button type="button" ref={btn} className={cx('dm-pill dm-sm', a.variant === 'primary' || a.variant === 'ink' ? 'dm-primary' : 'dm-ghost', a.done && 'dm-done')} aria-busy={a.busy || undefined}
+          aria-disabled={a.done || undefined} aria-label={a.done ? a.doneLabel ?? 'Done' : undefined} onClick={() => { if (!a.busy && !a.done) a.onClick(); }}>{a.done ? <Icon name="check" /> : a.busy ? <Spin /> : a.label}</button>}
         <Tip label="Dismiss"><button type="button" className="dm-ib" aria-label="Dismiss" onClick={onDismiss}><Icon name="x" /></button></Tip>
       </div>
     </div>

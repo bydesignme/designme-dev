@@ -3,7 +3,7 @@ import { useState, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { enter, Fold, Tip } from '../../lib/motion';
+import { avatarInk, enter, Fold, Tip } from '../../lib/motion';
 import '../../designme.css';
 import './source-stack.css';
 
@@ -17,7 +17,8 @@ export interface StackSource {
   relevance: number;
   /** One to three letters in the favicon square, like "B" or "CSV" */
   mark: string;
-  /** The favicon colour, any CSS colour, like '#635bff' or 'var(--dm-pl)' */
+  /** The favicon's fill: a colour dark enough for white letters, like '#635bff', or an avatar colour like 'var(--dm-av-l)',
+      which brings its own ink. Clean draws every mark in its neutral grey */
   color: string;
   /** Adds an open button that shows on hover */
   onOpen?: () => void;
@@ -62,7 +63,7 @@ export function SourceStack({ children, sources, filters = FILTERS, filter, defa
     <div data-dm="" className={cx('dm-ssx', className)}>
       {children !== undefined && <p className="dm-msg">{children}</p>}
       <button type="button" className="dm-ssx-pill" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
-        <span className="dm-ssx-ics">{sources.slice(0, 4).map((s, i) => <span key={i} style={{ background: s.color }}>{s.mark[0]}</span>)}</span>
+        <span className="dm-ssx-ics">{sources.slice(0, 4).map((s, i) => <span key={i} style={{ background: s.color, color: avatarInk(s.color) }}>{s.mark[0]}</span>)}</span>
         <span className="dm-ssx-l">{sources.length} {sources.length === 1 ? 'source' : 'sources'}</span>
         <Icon name="chev-d" size="xs" />
       </button>
@@ -76,8 +77,8 @@ export function SourceStack({ children, sources, filters = FILTERS, filter, defa
               const e = enter(i * 40), pct = Math.round(Math.max(0, Math.min(1, s.relevance)) * 100);
               return (
                 <div key={s.title + i} className={cx('dm-ssx-s', e.className)} style={e.style}>
-                  <span className="dm-fv" style={{ background: `color-mix(in srgb,${s.color} 14%,transparent)`, color: s.color }}>{s.mark}</span>
-                  <span className="dm-t">{s.title}<span className="dm-h"> · {s.host}</span></span>
+                  <span className="dm-fv" style={{ background: s.color, color: avatarInk(s.color) }}>{s.mark}</span>
+                  <span className="dm-t"><span>{s.title}</span><span className="dm-h"> · {s.host}</span></span>
                   <Tip label={`Relevance ${pct}%`}><span className="dm-rel" role="meter" aria-label="Relevance" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct}><i style={{ width: pct + '%' }} /></span></Tip>
                   {s.onOpen && <Tip label="Open"><button type="button" className="dm-ib" aria-label="Open source" onClick={s.onOpen}><Icon name="ext" size="xs" /></button></Tip>}
                 </div>

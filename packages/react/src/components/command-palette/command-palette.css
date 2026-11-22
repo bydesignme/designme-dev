@@ -1,13 +1,16 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Command palette ---------- */
 /* one quiet box: each command has a tile in its group's hue and a muted hint after its name; a grey highlight glides to the
-   row the arrows are on, and a command that runs turns its tile into a spinner for a beat */
-.dm-cpl{overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--dm-shadow-pop)}
-.dm-cpl-in{display:flex;align-items:center;gap:10px;padding:var(--dm-s-3) 14px;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);color:var(--dm-muted)}
+   row the arrows are on, and a command that runs turns its tile into a spinner for a beat. Its content sits 16px in from every
+   edge (owner, 18 Nov): the glass, the group names, the tiles and the footer's words on the left, esc, the shortcuts and the
+   footer's keys on the right; the rows' highlight reaches 8px out round them. The list is as tall as what it shows, up to six
+   rows or so, and the box eases to its new height as a search narrows it (grow(), centred in its stage): no room is kept */
+.dm-cpl{display:flex;flex-direction:column;box-shadow:var(--dm-shadow-pop)}
+.dm-cpl-in{display:flex;align-items:center;gap:10px;padding:var(--dm-s-3) var(--dm-s-4);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);color:var(--dm-muted)}
 .dm-cpl-q{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:14px;color:var(--dm-fg);caret-color:var(--dm-accent-fg,var(--dm-fg))}
 .dm-cpl-q::placeholder{color:var(--dm-muted)}
 /* the line under the search box steps up while it has the focus; a row that takes the focus rings on its own */
-.dm-cpl-list{padding:6px;height:236px;overflow-y:auto;position:relative}
+.dm-cpl-list{padding:var(--dm-s-2);max-height:236px;overflow-y:auto;position:relative}
 /* while there is more list below, its last row fades out at the edge instead of being cut off by the footer */
 .dm-cpl-list.dm-more{-webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 32px),transparent);mask-image:linear-gradient(to bottom,#000 calc(100% - 32px),transparent)}
 .dm-cpl-g{font-size:11.5px;color:var(--dm-muted);padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-1)}
@@ -30,14 +33,33 @@
 .dm-cpl-i.dm-ask .dm-q{color:var(--dm-fg2)}
 .dm-cpl-i .dm-ent{margin-left:auto;opacity:0;transition:opacity .2s}
 .dm-cpl-i.dm-hl .dm-ent{opacity:1}
-.dm-cpl-hl{position:absolute;left:6px;right:6px;height:36px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-row);transition:top .25s var(--dm-ease);z-index:0}
-.dm-cpl-f{display:flex;gap:14px;align-items:center;padding:var(--dm-s-2) 14px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:11.5px}
+.dm-cpl-hl{position:absolute;left:var(--dm-s-2);right:var(--dm-s-2);height:36px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-row);transition:top .25s var(--dm-ease);z-index:0}
+/* the footer: what ran last on the left, the keys on the right (they keep their room; the words give way first) */
+.dm-cpl-f{display:flex;gap:14px;align-items:center;padding:var(--dm-s-2) var(--dm-s-4);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:11.5px}
 .dm-cpl-f>span{flex:none;white-space:nowrap}
 .dm-cpl-f .dm-kbd{margin-right:3px}
-.dm-cpl-f>.dm-cpl-st{flex:0 1 auto;min-width:0;margin-left:auto;color:var(--dm-fg2);overflow:hidden;text-overflow:ellipsis}
-.dm-cpl-st .dm-dot{color:var(--dm-ok);margin-right:6px;vertical-align:1px}
+.dm-cpl-f>.dm-cpl-st{flex:1 1 auto;min-width:0;color:var(--dm-fg2);overflow:hidden;text-overflow:ellipsis}
+/* (a footer that lists the keys first keeps what ran at its right end) */
+.dm-cpl-f>.dm-cpl-st:last-child{flex:0 1 auto;margin-left:auto}
+.dm-cpl-st .dm-dot{color:var(--dm-ok-mark);margin-right:6px;vertical-align:1px}
 .dm-cpl-empty{padding:30px 10px;text-align:center;font-size:13px;color:var(--dm-muted)}
 :root:not([data-style="soft"],[data-style="clean"]) .dm-cpl-i.dm-hl .dm-ic:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){transform:none}
 :root:not([data-style="soft"],[data-style="clean"]) .dm-cpl-i.dm-in:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation:dm-bpin .3s var(--dm-ease) backwards}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .dm-cpl.dm-panel,:root [data-style="clean"] .dm-cpl.dm-panel,:root [data-style="clean"].dm-cpl.dm-panel{padding:8px 14px 10px 14px}
+/* Clean (owner, 18 Nov): the tiles are one neutral grey with a hairline (the groups' hues carry no meaning here), and the row that
+   hands the text to the agent has the ink tile of Clean's primary; the letters a search matches read in the text colour, a step
+   heavier. The rows' highlight is concentric with the card (14px, 8px in), nothing grows under the pointer, and the footer is an
+   off-white foot strip, edge to edge, its words and keys 16px in */
+:root[data-style="clean"] .dm-cpl-i .dm-ic,:root [data-style="clean"] .dm-cpl-i .dm-ic,:root [data-style="clean"].dm-cpl-i .dm-ic{color:var(--dm-fg2);background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .dm-cpl-i.dm-ask .dm-ic,:root [data-style="clean"] .dm-cpl-i.dm-ask .dm-ic,:root [data-style="clean"].dm-cpl-i.dm-ask .dm-ic{color:var(--dm-on-btn);background:linear-gradient(180deg,var(--dm-btn-1),var(--dm-btn-2));box-shadow:none}
+:root[data-style="clean"] .dm-cpl-i.dm-hl .dm-ic,:root [data-style="clean"] .dm-cpl-i.dm-hl .dm-ic,:root [data-style="clean"].dm-cpl-i.dm-hl .dm-ic{transform:none}
+:root[data-style="clean"] .dm-cpl-i.dm-hl:not(.dm-ask) .dm-ic,:root [data-style="clean"] .dm-cpl-i.dm-hl:not(.dm-ask) .dm-ic,:root [data-style="clean"].dm-cpl-i.dm-hl:not(.dm-ask) .dm-ic{background:var(--dm-surface)}
+:root[data-style="clean"] .dm-cpl-i mark,:root [data-style="clean"] .dm-cpl-i mark,:root [data-style="clean"].dm-cpl-i mark{color:var(--dm-fg)}
+:root[data-style="clean"] :is(.dm-cpl-i,.dm-cpl-hl),:root [data-style="clean"] :is(.dm-cpl-i,.dm-cpl-hl),:root [data-style="clean"]:is(.dm-cpl-i,.dm-cpl-hl){border-radius:calc(var(--dm-r-card) - 8px)}
+:root[data-style="clean"] .dm-cpl-hl,:root [data-style="clean"] .dm-cpl-hl,:root [data-style="clean"].dm-cpl-hl{transition:top var(--dm-t) var(--dm-ease)}
+:root[data-style="clean"] .dm-cpl-list.dm-hg .dm-cpl-hl,:root [data-style="clean"] .dm-cpl-list.dm-hg .dm-cpl-hl,:root [data-style="clean"].dm-cpl-list.dm-hg .dm-cpl-hl{display:none}
+:root[data-style="clean"] .dm-cpl-i.dm-in,:root [data-style="clean"] .dm-cpl-i.dm-in,:root [data-style="clean"].dm-cpl-i.dm-in{animation:dm-clpiece var(--dm-t) var(--dm-ease) backwards}
+/* the foot strip is as tall as a strip with a control (44px), so its words sit as far from the card's foot as its sides (16px);
+   the list gives up those 10px, so Clean's palette is no taller than Soft's */
+:root[data-style="clean"] .dm-cpl-f,:root [data-style="clean"] .dm-cpl-f,:root [data-style="clean"].dm-cpl-f{min-height:44px;background:var(--dm-strip);border-top-color:var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+:root[data-style="clean"] .dm-cpl-list,:root [data-style="clean"] .dm-cpl-list,:root [data-style="clean"].dm-cpl-list{max-height:226px}
+:root[data-style="clean"] .dm-cpl-f .dm-kbd,:root [data-style="clean"] .dm-cpl-f .dm-kbd,:root [data-style="clean"].dm-cpl-f .dm-kbd{background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-hair)}

@@ -3,7 +3,8 @@ import { useState, type KeyboardEvent } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { enter, Think } from '../../lib/motion';
+import { enter, Think, useGrow } from '../../lib/motion';
+import { giveBack } from '../../lib/popover';
 import '../../designme.css';
 import './decision-prompt.css';
 
@@ -29,9 +30,9 @@ export interface DecisionPromptProps {
   onComplete?: (answers: (number | null)[]) => void;
   /** What the summary says for a skipped question */
   skippedLabel?: string;
-  /** The line under the summary while the agent gets going */
+  /** The line that takes the buttons' place, under the summary, while the agent gets going */
   startLabel?: string;
-  /** The agent has got going: the line under the summary settles with a check */
+  /** The agent has got going: that line settles with a green check */
   started?: boolean;
   /** What that line says once started. Defaults to startLabel */
   startedLabel?: string;
@@ -49,11 +50,17 @@ export function DecisionPrompt({
   const [sel, setSel] = useState(0);
   const n = questions.length, at = answers.length, done = at >= n, q = questions[Math.min(at, n - 1)];
 
+  // no room is kept for the next question or the summary: the card grows and shrinks with them
+  const [root, inner] = useGrow();
   const next = (skipped = false) => {
     if (done) return;
     const all = [...answers, skipped ? null : sel];
     setAnswers(all); setSel(0);
-    if (all.length >= n) onComplete?.(all);
+    if (all.length >= n) {
+      // the buttons give way to the line saying the agent has started: a focus that was on them comes back to the card
+      if (root.current?.querySelector('.dm-dpx-f')?.contains(document.activeElement)) giveBack(root.current);
+      onComplete?.(all);
+    }
   };
   const key = (e: KeyboardEvent) => {
     if (done) return;
@@ -64,10 +71,12 @@ export function DecisionPrompt({
   };
 
   return (
-    <div data-dm="" className={cx('dm-dpx', !bare && 'dm-panel', className)} tabIndex={0} onKeyDown={key}>
+    <div data-dm="" ref={root} className={cx('dm-dpx', !bare && 'dm-panel', 'dm-growing', className)} tabIndex={0} onKeyDown={key}>
+      <div ref={inner} className="dm-grow">
       <div className="dm-dpx-h">
         <span className="dm-dpx-k dm-muted dm-num">{done ? 'All set' : `Question ${at + 1} of ${n}`}</span>
-        <div className="dm-dpx-dots" aria-hidden="true">{questions.map((_, i) => <i key={i} className={cx(!done && i === at && 'dm-on', (done || i < at) && 'dm-done')} />)}</div>
+        {/* once every question is answered the steps are over: the dots fade away where they are, keeping their room */}
+        <div className={cx('dm-dpx-dots', done && 'dm-gone')} aria-hidden="true">{questions.map((_, i) => <i key={i} className={cx(!done && i === at && 'dm-on', (done || i < at) && 'dm-done')} />)}</div>
       </div>
       {/* keyed by question, so each one plays its entrance */}
       <div className="dm-dpx-body" key={done ? 'sum' : at} aria-live="polite">
@@ -78,16 +87,15 @@ export function DecisionPrompt({
                 <span>{x.label}</span>{answers[i] === null ? skippedLabel : x.options[answers[i]!]?.label}
               </div>
             ))}
-            <div className={cx('dm-dpx-run', enter().className)} style={enter(n * 70).style}>{started
-              ? <><span style={{ color: 'var(--dm-ok)' }}><Icon name="check" size="xs" /></span><span>{startedLabel ?? startLabel}</span></>
-              : <><Think /><span className="dm-shim">{startLabel}</span></>}</div>
           </div>
         ) : (
           <>
-            <div className="dm-dpx-q dm-enter">{q.question}</div>
-            <div role="radiogroup" aria-label={q.question}>
+            {/* the next question plays its entrance; the first is drawn from the start, so a frame that doesn't animate yet (a
+                small live preview off screen) still shows it */}
+            <div className={cx('dm-dpx-q', at > 0 && 'dm-enter')}>{q.question}</div>
+            <div className="dm-dpx-opts" role="radiogroup" aria-label={q.question}>
               {q.options.map((o, i) => (
-                <button key={i} type="button" role="radio" aria-checked={i === sel} className={cx('dm-dpx-o', i === sel && 'dm-on', enter().className)} style={enter(60 + i * 50).style}
+                <button key={i} type="button" role="radio" aria-checked={i === sel} className={cx('dm-dpx-o', i === sel && 'dm-on', at > 0 && enter().className)} style={at > 0 ? enter(60 + i * 50).style : undefined}
                   onClick={() => setSel(i)} onDoubleClick={() => next()}>
                   <span className="dm-kbd">{i + 1}</span>{o.label}{o.detail && <span className="dm-d">{o.detail}</span>}
                 </button>
@@ -96,9 +104,19 @@ export function DecisionPrompt({
           </>
         )}
       </div>
-      <div className={cx('dm-dpx-f', done && 'dm-leave')} inert={done}>
-        <button type="button" className="dm-pill dm-ghost dm-sm dm-dpx-skip" onClick={() => next(true)}>Skip</button>
-        <button type="button" className="dm-pill dm-primary dm-sm dm-dpx-go" onClick={() => next()}>Continue <span className="dm-kbd">↵</span></button>
+      {/* once every question is answered, the line saying the agent has started takes the buttons' place */}
+      <div className={cx('dm-dpx-f', done && 'dm-run')}>
+        {done ? (
+          <div className={cx('dm-dpx-run', enter().className)} style={enter(n * 70).style} aria-live="polite">{started
+            ? <><span className="dm-dpx-ok"><Icon name="check" size="xs" /></span><span>{startedLabel ?? startLabel}</span></>
+            : <><Think /><span className="dm-shim">{startLabel}</span></>}</div>
+        ) : (
+          <>
+            <button type="button" className="dm-pill dm-ghost dm-sm dm-dpx-skip" onClick={() => next(true)}>Skip</button>
+            <button type="button" className="dm-pill dm-primary dm-sm dm-dpx-go" onClick={() => next()}>Continue <span className="dm-kbd">↵</span></button>
+          </>
+        )}
+      </div>
       </div>
     </div>
   );

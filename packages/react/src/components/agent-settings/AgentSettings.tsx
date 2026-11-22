@@ -88,7 +88,7 @@ export function AgentSettings({
     setPhase('saving');
     try { await onSave?.(v); } catch { setPhase('idle'); return; }
     setSaved(v); setPhase('saved');
-    timer.current = setTimeout(() => setPhase('idle'), 700);
+    timer.current = setTimeout(() => setPhase('idle'), 900);
   };
   const reset = () => { setV(saved); onReset?.(); };
 
@@ -121,10 +121,11 @@ export function AgentSettings({
         <textarea className="dm-asx-ta" rows={2} spellCheck={false} aria-label="Instructions" value={v.instructions} onChange={e => set({ instructions: e.target.value })} />
       </div>
       <div ref={bar} className="dm-asx-bar" inert={!dirty} aria-hidden={!dirty}>
-        <span>Unsaved changes</span>
+        <span>{phase === 'saved' ? <><Icon name="check" size="xs" className="dm-asx-ok" /><span>Saved</span></> : 'Unsaved changes'}</span>
         <button type="button" className="dm-pill dm-ghost dm-sm dm-asx-rs" onClick={reset}>Reset</button>
-        <button type="button" className="dm-pill dm-accent dm-sm dm-asx-sv" onClick={save}>
-          {phase === 'saving' ? <Spin /> : phase === 'saved' ? <><Icon name="check" size="xs" />Saved</> : 'Save'}
+        {/* at work, Save keeps its width with a spinner in the middle of it; saved, the bar's words say so */}
+        <button type="button" className={cx('dm-pill dm-accent dm-sm dm-asx-sv', phase === 'saving' && 'dm-busy')} aria-busy={phase === 'saving' || undefined} onClick={save}>
+          Save{phase === 'saving' && <Spin />}
         </button>
       </div>
     </div>

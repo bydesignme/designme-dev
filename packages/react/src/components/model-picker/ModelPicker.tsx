@@ -6,6 +6,8 @@ import { Icon } from '../../lib/icons';
 import { enter, Fold, Spin, Swap, Tip } from '../../lib/motion';
 import { usePopover } from '../../lib/popover';
 import '../../designme.css';
+// its menus' rows glide in Clean
+import '../../lib/glide';
 import './model-picker.css';
 
 /** One model in the list */

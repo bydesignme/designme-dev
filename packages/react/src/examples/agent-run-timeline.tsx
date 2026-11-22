@@ -37,7 +37,7 @@ export default function AgentRunTimelineDemo() {
   }, { hold: false });
   return (
     <div ref={ref} style={{ width: '100%' }}>
-      <AgentRunTimeline title="Run 4821, update the pricing page" steps={STEPS} span={SPAN} time={time} status={started ? undefined : 'Starting'} />
+      <AgentRunTimeline title="Run 4821, update the pricing page" steps={STEPS} span={SPAN} time={time} status={!started ? 'Starting' : time === undefined ? 'Opened a PR and posted to Slack' : undefined} />
     </div>
   );
 }

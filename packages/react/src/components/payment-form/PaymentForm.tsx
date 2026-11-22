@@ -3,7 +3,7 @@ import { useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useTween } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { Seg } from '../../lib/motion';
+import { Fold, Seg } from '../../lib/motion';
 import '../../designme.css';
 import './payment-form.css';
 
@@ -46,7 +46,7 @@ export interface PaymentFormProps {
   paidLabel?: string;
   discountLabel?: string;
   dueLabel?: string;
-  /** A quiet line under the button, like "Nothing is charged until your trial ends" */
+  /** A quiet line under the button, inside the card, like "Nothing is charged until your trial ends" */
   note?: ReactNode;
   /** Shown when onPay rejects without a message of its own */
   errorLabel?: string;
@@ -63,7 +63,8 @@ const BRANDS: { test: RegExp; name: string; color: string }[] = [
   { test: /^4/, name: 'VISA', color: '#1a1f71' }, { test: /^5[1-5]/, name: 'MC', color: '#eb001b' }, { test: /^3[47]/, name: 'AMEX', color: '#2e77bb' }
 ];
 
-/** A plan checkout: monthly or yearly, a card that formats itself as you type, and a total that rolls to the new price. */
+/** A plan checkout: monthly or yearly, a card that formats itself as you type, and a total that rolls to the new price. The
+    discount row folds away on monthly billing, and a paid button turns neutral with a green tick. */
 export function PaymentForm({
   plan = 'Pro plan', description = 'For growing design teams', seats = 3, seatLabel = 'editors', price = 24, currency = '$', yearlyDiscount = 0.2,
   period, defaultPeriod = 'yearly', onPeriodChange, card, defaultCard = EMPTY, onCardChange, onPay, payLabel = 'Pay', processingLabel = 'Processing',
@@ -85,6 +86,10 @@ export function PaymentForm({
   const yearly = per === 'yearly', month = price * seats;
   const subtotal = yearly ? month * 12 : month, discount = yearly ? month * 12 * yearlyDiscount : 0, total = subtotal - discount;
   const shown = useTween(total, 600);
+  // the discount row keeps its last amount while it folds away
+  const lastDiscount = useRef(discount);
+  if (yearly) lastDiscount.current = discount;
+  const shownDiscount = yearly ? discount : lastDiscount.current;
   const money = (n: number) => `${currency}${n.toFixed(2)}`;
 
   const edit = (key: CardField, value: string) => {
@@ -135,15 +140,18 @@ export function PaymentForm({
       </div>
       <div className="dm-pyx-sum">
         <div><span>{seats} {seatLabel} × <span className="dm-num dm-pyx-u">{currency}{price}{yearly && ' × 12'}</span></span><span className="dm-num dm-pyx-s">{money(subtotal)}</span></div>
-        <div className={cx('dm-pyx-dc', !yearly && 'dm-off')}><span>{discountLabel}</span><span className="dm-num dm-pyx-d">−{money(discount)}</span></div>
-        <div className="dm-pyx-t"><b>{dueLabel}</b><b className="dm-num dm-pyx-tot">{money(shown)}</b></div>
+        <Fold open={yearly} className="dm-pyx-dcf"><div className="dm-pyx-dc"><span>{discountLabel}</span><span className="dm-num dm-pyx-d">−{money(shownDiscount)}</span></div></Fold>
       </div>
+      {/* the foot: Due today, Pay and the note (Clean's foot strip) */}
+      <div className="dm-pyx-ft">
+      <div className="dm-pyx-t"><b>{dueLabel}</b><b className="dm-num dm-pyx-tot">{money(shown)}</b></div>
       <button type="submit" className={cx('dm-pill dm-accent dm-pyx-go', state === 'paid' && 'dm-ok')} aria-live="polite">
-        {state === 'processing' ? <><span className="dm-spin" style={{ borderColor: 'rgba(255,255,255,.3)', borderTopColor: '#fff' }} aria-hidden="true" />{processingLabel}</>
+        {state === 'processing' ? <><span className="dm-spin" aria-hidden="true" /><span className="dm-shim">{processingLabel}</span></>
           : state === 'paid' ? <><Icon name="check" size="xs" className="dm-enter" />{paidLabel}</>
           : <><Icon name="lock" size="xs" />{payLabel} <span className="dm-num dm-pyx-gt">{money(shown)}</span></>}
       </button>
-      {error ? <span className="dm-muted dm-pyx-n" role="alert" style={{ color: 'var(--dm-bad)' }}>{error}</span> : note && <span className="dm-muted dm-pyx-n">{note}</span>}
+      {error ? <p className="dm-muted dm-pyx-n" role="alert" style={{ color: 'var(--dm-bad)' }}>{error}</p> : note && <p className="dm-muted dm-pyx-n">{note}</p>}
+      </div>
     </form>
   );
 }
