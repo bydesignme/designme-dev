@@ -178,7 +178,9 @@ every session and every agent.
   Pricing cards, Stepper, Scatter chart, Funnel chart, Top pages, Eval radar, Agent harness, Bar chart and Radial goals.
   Until then they stay as they are on staging. Line chart and Donut chart take the new charts from the charts preview.
   Canvas toolbar, Automation canvas and Data picker join Phase II too (owner, 22 Nov); Data picker's Clean and Soft designs
-  are still updated now. Health score stays in Phase I. The owner is confirming the rest batch by batch; the Roadmap and the
+  are still updated now. Health score stays in Phase I. To launch with fewer components (owner, 22 Nov), Currency converter,
+  Payment form, OTP field, Number field, Slider, Country select, Social sign-in, Carousel, Date range picker and Invite to
+  collaborate join Phase II as well; Reactions and Context menu stay in Phase I. The owner is confirming the rest batch by batch; the Roadmap and the
   Changelog follow once the Phase I list is final.
 - Soft keeps its look; the "Soft refreshed" lab is dropped. Six components have their Clean touches (Agent tree,
   Agent run timeline, Status pill, Context meter, Run cost, Meeting card); the others render with Clean's tokens and get
