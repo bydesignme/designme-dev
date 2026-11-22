@@ -20,10 +20,10 @@ export default function CanvasToolbarDemo() {
   const [states, setStates] = useState<Record<string, CanvasToolbarNode['state']>>({});
   const [lit, setLit] = useState<CanvasToolbarEdge[]>([]);
 
-  // Run lights each step in turn along its wire, then stops by itself and the wires go back to grey; Stop ends it early
+  // Run lights each step in turn along its wire, then stops by itself; Stop ends it early
   useScript(async ({ wait }) => {
-    // stopped: the step that was running goes back to waiting, the ones done keep their tick, and the wires go back to grey
-    if (run < 0) { setStates(s => Object.fromEntries(Object.entries(s).filter(([, v]) => v === 'done'))); setLit([]); return; }
+    // stopped: the step that was running goes back to waiting, the ones done keep their tick
+    if (run < 0) { setStates(s => Object.fromEntries(Object.entries(s).filter(([, v]) => v === 'done'))); return; }
     if (!run) return;
     setStates({}); setLit([]);
     for (let i = 0; i < NODES.length; i++) {
@@ -31,7 +31,7 @@ export default function CanvasToolbarDemo() {
       setStates(s => ({ ...s, [id]: 'run' })); await wait(i ? 700 : 450); setStates(s => ({ ...s, [id]: 'done' }));
       if (i < EDGES.length) { setLit(l => [...l, EDGES[i]]); await wait(250); }
     }
-    await wait(500); setRun(0); setLit([]);
+    await wait(500); setRun(0);
   }, [run]);
 
   // the preview's story. Your first click or key stops it, and the canvas is yours from wherever it got to

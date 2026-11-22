@@ -7,7 +7,7 @@ import { useStory, useWait } from './useScript';
 const NODES: AutomationNode[] = [
   { id: 't', icon: 'clock', color: 'var(--dm-py)', title: 'Schedule', detail: 'Mondays 9:00', x: .14, y: .4, narrow: { x: .5, y: .07 }, field: { label: 'When', options: ['Mondays 9:00', 'Every weekday', 'On new Figma version'] } },
   { id: 'a', icon: 'figma', color: 'var(--dm-pl)', title: 'Read frames', detail: 'Pricing, Checkout', x: .4, y: .22, narrow: { x: .25, y: .33 }, field: { label: 'Frames', options: ['Pricing, Checkout', 'All frames', 'Changed this week'] } },
-  { id: 'b', icon: 'spark', color: 'var(--dm-accent-mark)', ink: 'var(--dm-accent-fg)', title: 'Agent: audit', detail: 'Contrast, tokens', x: .4, y: .58, narrow: { x: .75, y: .33 }, field: { label: 'Checks', options: ['Contrast, tokens', 'Everything', 'Accessibility only'] }, connectors: ['model', 'tools'] },
+  { id: 'b', icon: 'spark', color: 'var(--dm-accent)', title: 'Agent: audit', detail: 'Contrast, tokens', x: .4, y: .58, narrow: { x: .75, y: .33 }, field: { label: 'Checks', options: ['Contrast, tokens', 'Everything', 'Accessibility only'] }, connectors: ['model', 'tools'] },
   { id: 'c', icon: 'send', color: 'var(--dm-pm)', title: 'Post summary', detail: '#design in Slack', x: .78, y: .4, narrow: { x: .5, y: .66 }, field: { label: 'Channel', options: ['#design in Slack', 'Email the team', 'Linear ticket'] } }
 ];
 const EDGES: AutomationEdge[] = [['t', 'a'], ['t', 'b'], ['a', 'c'], ['b', 'c']];
@@ -47,22 +47,20 @@ export default function AutomationCanvasDemo() {
   const [states, setStates] = useState<Record<string, AutomationNode['state']>>({});
   const [flowing, setFlowing] = useState<AutomationEdge[]>([]);
   const [status, setStatus] = useState('Every Monday, 9:00');
-  const [running, setRunning] = useState(false);
   // picking a new schedule rewrites the line in the corner
   const [trigger, setTrigger] = useState('Mondays 9:00');
   const seq = useRef(0), runId = useRef(0), now = useRef({ nodes, edges });
   now.current = { nodes, edges };
   const wait = useWait();
 
-  // Test run lights each step in turn; a soft light passes along each wire the run reaches, and the wire stays lit until the
-  // run has passed, when the wires go back to grey. The agent's model and tools light with it, and the steps added after the
-  // last one run in turn. The status line shimmers while it runs
+  // Test run lights each step in turn; a soft light passes along each wire the run reaches, and the wire stays lit. The
+  // agent's model and tools light with it, and the steps added after the last one run in turn
   const run = async () => {
     const id = ++runId.current, w = async (ms: number) => { await wait(ms); if (id !== runId.current) throw 'stop'; };
     const mark = (k: string, s: AutomationNode['state']) => setStates(x => ({ ...x, [k]: s }));
     const { edges: E } = now.current, subs = E.filter(e => e[0] === 'b' && e[2]);
     try {
-      setStates({}); setFlowing([]); setStatus('Running test'); setRunning(true);
+      setStates({}); setFlowing([]); setStatus('Running test');
       await w(220); mark('t', 'run'); await w(600); mark('t', 'done');
       setFlowing([['t', 'a'], ['t', 'b']]); await w(620);
       mark('a', 'run'); mark('b', 'run'); subs.forEach(e => mark(e[1], 'run')); setFlowing(f => [...f, ...subs]); await w(1100);
@@ -71,7 +69,7 @@ export default function AutomationCanvasDemo() {
       mark('c', 'run'); await w(700); mark('c', 'done');
       let at = 'c', s = 3.4, nx: AutomationEdge | undefined;
       while ((nx = E.find(e => e[0] === at && !e[2]))) { const e = nx; setFlowing(f => [...f, e]); await w(620); mark(e[1], 'run'); await w(700); mark(e[1], 'done'); at = e[1]; s += 1.3; }
-      setStatus(`Test passed in ${s.toFixed(1)}s`); setRunning(false); setFlowing([]);
+      setStatus(`Test passed in ${s.toFixed(1)}s`);
     } catch (e) { if (e !== 'stop') throw e; }
   };
 
@@ -88,7 +86,7 @@ export default function AutomationCanvasDemo() {
 
   return (
     <div ref={ref} style={{ width: '100%' }}>
-      <AutomationCanvas name="Weekly design QA" tag="On" status={status} running={running}
+      <AutomationCanvas name="Weekly design QA" tag="On" status={status}
         nodes={nodes.map(n => ({ ...n, state: states[n.id] }))} edges={edges} flowing={flowing} catalog={CATALOG}
         onAddNode={(type, from, via, group) => {
           const id = 'n' + ++seq.current;

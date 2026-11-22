@@ -1,13 +1,11 @@
 'use client';
-import { useEffect, useId, useImperativeHandle, useRef, useState, type CSSProperties, type FocusEvent as ReactFocusEvent, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent, type ReactNode, type Ref } from 'react';
+import { useEffect, useId, useImperativeHandle, useRef, useState, type FocusEvent as ReactFocusEvent, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent, type ReactNode, type Ref } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
 import { Tip } from '../../lib/motion';
 import { usePopover } from '../../lib/popover';
 import '../../designme.css';
-// its menus' rows glide in Clean, and so do the bar's hovers
-import { useHoverGlide } from '../../lib/glide';
 import './canvas-toolbar.css';
 
 /** The pointer tool: Select picks and moves steps or draws a box round them, Hand pans, Lasso draws a shape round what it picks */
@@ -31,7 +29,7 @@ export interface CanvasPoint {
 export interface CanvasToolbarNode {
   id: string;
   icon: IconName;
-  /** The icon's colour, like 'var(--dm-pb)'. Its tile is a light tint of it (in Clean every tile is one neutral grey) */
+  /** The icon's colour, like 'var(--dm-pb)'. Its tile is a light tint of it */
   color: string;
   /** The icon's own colour when it differs from its tile's, like 'var(--dm-accent-fg)' for an accent tile */
   iconColor?: string;
@@ -66,7 +64,7 @@ export interface CanvasToolbarHandle {
 export interface CanvasToolbarProps {
   nodes: CanvasToolbarNode[];
   edges?: CanvasToolbarEdge[];
-  /** The wires a run has reached; they light up in the accent. Clear it once the run is over, so they go back to grey */
+  /** The wires a run has reached; they light up in the accent */
   lit?: CanvasToolbarEdge[];
   /** Whether a run is going: Run turns into Stop, on a red fill */
   running?: boolean;
@@ -144,10 +142,6 @@ export function CanvasToolbar({
   const uid = useId();
 
   const root = useRef<HTMLDivElement>(null), cv = useRef<HTMLDivElement>(null), bar = useRef<HTMLDivElement>(null);
-  // Clean's one hover: a highlight that glides from button to button, the bar's own and the tools' own
-  const tools = useRef<HTMLDivElement>(null);
-  useHoverGlide(bar, '.dm-ctb-b:not(.dm-ctb-tools .dm-ctb-b),.dm-ctb-z');
-  useHoverGlide(tools, '.dm-ctb-b');
   const els = useRef<Record<string, HTMLDivElement | null>>({});
   const [size, setSize] = useState({ w: 0, h: 0, bar: 40 });
   const [dims, setDims] = useState<Record<string, { w: number; h: number }>>({});
@@ -177,7 +171,7 @@ export function CanvasToolbar({
   const MIN = zoomSteps[0], MAX = zoomSteps[zoomSteps.length - 1];
   const lim = (v: number) => Math.max(MIN, Math.min(MAX, v));
   // the room the workflow has: the canvas above the toolbar
-  const roomH = size.h - size.bar - 24;
+  const roomH = size.h - size.bar - 20;
   const fitView = (cap: number): CanvasView => {
     if (!nodes.length || !size.w) return { panX: 0, panY: 0, zoom: 1 };
     const P = 24, bs = nodes.map(boxOf);
@@ -340,7 +334,7 @@ export function CanvasToolbar({
               return (
                 <div key={n.id} ref={el => { els.current[n.id] = el; }} data-id={n.id} className={cx('dm-ctb-n dm-in', sel.includes(n.id) && 'dm-sel', n.state === 'run' && 'dm-run')}
                   style={{ left: p.x, top: p.y, animationDelay: i * 90 + 'ms' }}>
-                  <span className="dm-ic" style={{ '--dm-k': n.color, ...(n.iconColor ? { '--dm-kf': n.iconColor } : {}) } as CSSProperties}><Icon name={n.icon} size="xs" /></span>
+                  <span className="dm-ic" style={{ color: n.iconColor ?? n.color, background: `color-mix(in srgb,${n.color} 14%,transparent)` }}><Icon name={n.icon} size="xs" /></span>
                   <span className="dm-t"><b>{n.title}</b>{n.detail && <span>{n.detail}</span>}</span>
                   {n.state && <span className="dm-s" aria-hidden="true">{n.state === 'run' ? <span className="dm-spin" /> : <Icon name="check" size="xs" />}</span>}
                 </div>
@@ -358,7 +352,7 @@ export function CanvasToolbar({
           <Icon name={running ? 'stop' : 'play'} size="xs" /><span>{running ? stopLabel : runLabel}</span>
         </button>
         <span className="dm-ctb-sep" />
-        <div ref={tools} className="dm-ctb-tools" role="radiogroup" aria-label="Tool" onKeyDown={toolKeys}>
+        <div className="dm-ctb-tools" role="radiogroup" aria-label="Tool" onKeyDown={toolKeys}>
           {TOOLS.map(x => (
             <Tip key={x.t} label={x.tip} kbd={x.key}>
               <button type="button" className="dm-ctb-b" role="radio" aria-checked={tool === x.t} tabIndex={tool === x.t ? 0 : -1} data-t={x.t} aria-label={NAMES[x.t]} onClick={() => setTool(x.t)}><Icon name={x.icon} /></button>
