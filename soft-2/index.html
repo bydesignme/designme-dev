@@ -1178,15 +1178,17 @@ th:last-child>.col-rz{display:none}
    and latency. The run itself is the head: its mark, its name, how it is going, and its total tokens and time. The card
    sits on two columns (owner, 18 Nov): the head's mark in a 32px column with the title's words 12px after it; each span's
    mark is centred in that column (nested ones step in 16px a level) and the top spans' names start where the title's
-   words do, as do the key and the Span heading. A row's hover and selection fill is a quiet grey that spans the content box,
-   no wider; the times and tokens sit 8px inside it, with the run's totals over them. Each kind has its colour (the chart
+   words do, as do the key and the Span heading. Everything sits on the card's 16px column on both sides (owner, 22 Nov: "all padding inside the card"): the
+   run's totals, the times and tokens and an open span's details end 16px from the right edge, as the mark starts 16px from
+   the left. A row's hover and selection fill is a quiet grey that reaches 8px out round the row on each side, as a select's
+   box reaches out round its words. Each kind has its colour (the chart
    palette's identity slots): its bar and its count in the key, drawn at full strength so the key matches them. While the
    run streams, a playhead marks now and the running bars grow with a bright leading edge. A span over its time budget
    turns amber and hatched, and any span opens to show where it sat in the run, its input and its output, on the same
    columns. The card keeps no room for spans still to come: it grows as each one starts (grow()) and stays centred */
 .trv{width:100%;max-width:720px;margin:0 auto;padding:15px 16px 0;container-type:inline-size;--cols:minmax(0,11fr) minmax(0,8fr) 40px 44px}
 .trv.growing{overflow-clip-margin:0px}
-.trv-h{display:flex;align-items:center;gap:12px;padding:0 8px 0 0}
+.trv-h{display:flex;align-items:center;gap:12px}
 .trv-hi{width:32px;height:32px;display:grid;place-items:center;flex:none;border-radius:calc(9px * var(--rk-m,var(--rk)));color:var(--fg2);background:var(--chip)}
 .trv-ht{flex:1;display:flex;flex-direction:column;min-width:0}
 .trv-ht b{font-weight:500;font-size:14px;line-height:20px}
@@ -1200,15 +1202,15 @@ th:last-child>.col-rz{display:none}
 .trv-lg i{width:8px;height:8px;border-radius:var(--r-tiny,2px);background:var(--k);flex:none}
 .trv-lg b{font-weight:500;color:var(--fg2)}
 .trv-lg span.z{color:var(--dis)}.trv-lg span.z b{color:inherit}.trv-lg span.z i{opacity:.45}
-.trv-ax,.trv-r{display:grid;grid-template-columns:var(--cols);align-items:center;gap:var(--s-2);padding:0 8px 0 0}
+.trv-ax,.trv-r{display:grid;grid-template-columns:var(--cols);align-items:center;gap:var(--s-2)}
 .trv-ax{height:30px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12px;color:var(--muted)}
 .trv-ax>span:first-child{padding-left:44px}
 .trv-tk,.trv-ms{text-align:right;white-space:nowrap}
 .trv-sc{position:relative;height:18px}
 .trv-sc span{position:absolute;top:0;transform:translateX(-50%);font-size:12px}
 .trv-sc span:first-child{transform:none}
-.trv-rows{display:flex;flex-direction:column;padding-bottom:9px}
-.trv-r{width:100%;min-height:32px;border-radius:calc(10px * var(--rk-m,var(--rk)));font-size:13px;text-align:left;transition:background .16s}
+.trv-rows{display:flex;flex-direction:column;padding-bottom:8px}
+.trv-r{width:calc(100% + 16px);margin:0 -8px;padding:0 8px;min-height:32px;border-radius:calc(10px * var(--rk-m,var(--rk)));font-size:13px;text-align:left;transition:background .16s}
 .trv-r:hover,.trv-r[aria-expanded="true"]{background:var(--row)}
 .trv-r[aria-expanded="true"] .trv-tk{color:var(--fg2)}
 .trv-r:focus-visible{outline:0;box-shadow:inset 0 0 0 2px var(--focus)}
@@ -1247,11 +1249,11 @@ th:last-child>.col-rz{display:none}
 /* an open span's details, at the card's foot on the same columns: its mark under the head's, its words on the names'
    column, its close button's glyph on the Time column */
 .trv-dt{margin:0 -16px}
-.trv-dc{display:flex;flex-direction:column;gap:12px;padding:10px 24px 16px 60px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.trv-dc{display:flex;flex-direction:column;gap:12px;padding:10px 16px 16px 60px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .trv-dh{position:relative;display:flex;align-items:center;gap:var(--s-2);min-width:0;min-height:28px;font-size:13px}
 .trv-dh>.trv-k{position:absolute;left:-37px;top:5px}
 .trv-dh b{min-width:0;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.trv-dh .ib{width:28px;height:28px;margin:0 -7px 0 auto}
+.trv-dh .ib{width:28px;height:28px;margin:0 0 0 auto}
 /* nothing in it grows or shrinks when it is pressed (owner, 18 Nov) */
 .trv :is(.ib,.pill):active,:root[data-style="clean"] .trv .ib:active{transform:none}
 /* where the open span sat in the run */
@@ -1277,12 +1279,12 @@ th:last-child>.col-rz{display:none}
   .trv-dc{padding-left:48px}.trv-dh>.trv-k{left:-29px}
 }
 /* Clean (owner, 18 Nov): the marks beside the names are one neutral grey, as file types are, and the head's has a hairline
-   like them; running bars are flat, with no bright edge; an open span's details are an off-white foot strip, edge to edge */
+   like them; running bars are flat, with no bright edge; an open span's details are an off-white foot strip, edge to edge, its close button 8px from the strip's top and on the 16px column */
 :root[data-style="clean"] .trv-hi{box-shadow:inset 0 0 0 1px var(--hair)}
 :root[data-style="clean"] .trv-r{transition:background-color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .trv-k{color:var(--fg2);background:var(--chip);box-shadow:inset 0 0 0 1px var(--hair)}
 :root[data-style="clean"] .trv-r.run:not([data-k="agent"]) .trv-b i::after{display:none}
-:root[data-style="clean"] .trv-dc{background:var(--strip);border-top-color:var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
+:root[data-style="clean"] .trv-dc{padding-top:8px;background:var(--strip);border-top-color:var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
 :root[data-style="clean"] .trv-io code{background:var(--surface);box-shadow:inset 0 0 0 1px var(--hair)}
 /* ---------- Run cost ---------- */
 /* the card's content sits 16px in from every edge (owner, 18 Nov); nothing in it grows or shrinks when it is pressed */
@@ -1685,7 +1687,7 @@ th:last-child>.col-rz{display:none}
 /* the line saying what just happened, and once the run is done, how it went: Clean's foot strip shows it */
 .aln-say{display:none}
 /* Clean (owner, 18 Nov): a card with a foot strip. The head and the lanes sit 16px in from the card's edges; Pause all moves
-   down into the off-white foot strip, 8px from its edges (a 28px pill in the 22px corner), beside the line saying what just
+   down into the off-white foot strip, 8px from its top and bottom and on the content's 16px column (owner, 21 and 22 Nov), beside the line saying what just
    happened, and when the run is done the strip closes the card with a summary. The parts are placed on one grid, so the
    markup stays Soft's. The relay line joins the badges as one unbroken line (it meets each badge) and stops at the last one */
 :root[data-style="clean"] .aln.panel{display:grid;grid-template-columns:auto auto auto minmax(0,1fr) auto;grid-template-rows:auto auto 44px;padding:0;background:linear-gradient(var(--line),var(--line)) 0 calc(100% - 44px)/100% 1px no-repeat,linear-gradient(var(--strip),var(--strip)) 0 100%/100% 43px no-repeat,var(--surface)}
@@ -1695,12 +1697,12 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .aln.panel .aln-t{grid-column:2;margin-right:10px}
 :root[data-style="clean"] .aln.panel .aln-m{grid-column:3;margin-right:6px}
 :root[data-style="clean"] .aln.panel .aln-ct{grid-column:4;margin-right:16px}
-:root[data-style="clean"] .aln.panel .aln-pause{position:absolute;right:8px;bottom:8px;margin:0}
+:root[data-style="clean"] .aln.panel .aln-pause{position:absolute;right:16px;bottom:8px;margin:0}
 :root[data-style="clean"] .aln.panel .aln-rows{grid-row:2;grid-column:1 / -1;margin:4px 8px 8px}
 :root[data-style="clean"] .aln.panel .aln-say{display:block;grid-row:3;grid-column:1 / -1;align-self:center;min-width:0;margin:0 16px;font-size:12.5px;line-height:20px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* Pause all is pinned in the strip's corner rather than placed on the grid, so its width never squeezes the head on a phone;
-   the line beside it keeps clear of it (the button and a 12px gap) until the run is done and the button goes */
-:root[data-style="clean"] .aln.panel:has(.aln-pause) .aln-say{margin-right:116px}
+   the line beside it keeps clear of it (the button, its 16px and a 12px gap) until the run is done and the button goes */
+:root[data-style="clean"] .aln.panel:has(.aln-pause) .aln-say{margin-right:124px}
 /* the summary's words start where the title's do (its 12px tick and 12px gap match the head's 14px icon and 10px gap) */
 :root[data-style="clean"] .aln-say .i{color:color-mix(in srgb,var(--ok-mark) 85%,var(--ok));vertical-align:-2px;margin-right:12px}
 :root[data-style="clean"] .aln.fin .aln-ic{color:color-mix(in srgb,var(--ok-mark) 85%,var(--ok))}
@@ -1836,7 +1838,7 @@ th:last-child>.col-rz{display:none}
 :root[data-style="bp"] .aln-sw-ho{left:calc(var(--lab) + var(--x0) * (100% - var(--lab)));width:calc((var(--x1) - var(--x0)) * (100% - var(--lab)))}
 :root[data-style="bp"] .aln-sw-tg{left:calc(var(--lab) + var(--x0) * (100% - var(--lab)))}
 /* Clean (owner, 18 Nov): the head and the lanes 16px in from the card's edges, and an off-white foot strip with the line saying
-   what happened; Pause and Back to now sit in it, 8px from its edges, as round as the card's corner less 8px. The parts are
+   what happened; Pause and Back to now sit in it, 8px from its top and bottom and on the content's 16px column (owner, 22 Nov), as round as the card's corner less 8px. The parts are
    placed on one grid, so the markup stays Soft's. Each lane's steps sit inside its track with even room all round: the track
    is a 44px pill and a step a 24px one, 10px in at the start and the end as above and below (22 = 12 + 10), so the clock runs
    from 10px inside the track's start to 10px inside its end (the last step keeps its 2px gap, so 8px of border on the right).
@@ -1848,7 +1850,7 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .aln-sw-grid{grid-row:2;grid-column:1 / -1;margin:12px 16px 16px}
 :root[data-style="clean"] .aln-sw-say{grid-row:3;grid-column:1;align-self:center;margin:0 12px 0 16px;line-height:20px}
 :root[data-style="clean"] .aln-sw-live{grid-row:3;grid-column:2;align-self:end;margin:8px 8px 8px 0}
-:root[data-style="clean"] .aln-sw-pause{grid-row:3;grid-column:3;align-self:end;margin:8px 8px 8px 0}
+:root[data-style="clean"] .aln-sw-pause{grid-row:3;grid-column:3;align-self:end;margin:8px 16px 8px 0}
 /* the lanes and what is still to come are neutral: a grey track with the clock's lines, steps not yet started as a grey dashed
    outline and a wait as grey hatching. An agent's colour shows only on a step it is running or has done */
 :root[data-style="clean"] .aln-sw-lane{background:linear-gradient(90deg,transparent 1px,color-mix(in srgb,var(--line) 80%,transparent) 1px 2px,transparent 2px) -1px 0/25% 100%,color-mix(in srgb,var(--fg) 4%,var(--surface))}
@@ -1930,7 +1932,7 @@ th:last-child>.col-rz{display:none}
 :root[data-style="bp"] .aln-cw-note{animation:bpin .3s var(--ease)}
 :root[data-style="bp"] .aln-cw-ho.on .tag{animation:none}
 /* Clean (owner, 18 Nov): each agent's card has its name, what it is doing and its status 16px in from the edges, and an
-   off-white foot strip with its progress, its counts and its pause and steer buttons, 8px from the strip's edges. The parts are
+   off-white foot strip with its progress, its counts and its pause and steer buttons, 8px from the strip's top and bottom and on the content's 16px column (owner, 22 Nov). The parts are
    placed on one grid, so the markup stays Soft's. The signature: the agent at work is the one card with presence (it lifts a
    little, its hairline steps up and its progress line runs a soft sheen), its step dots fill in from the rim as they finish,
    and a hand-off travels: the line from the sender draws, the chip slides along it and ticks, then the line on to the receiver
@@ -1956,8 +1958,8 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .aln-cw-nts:not(:empty){margin:-6px 16px 16px}
 /* the counts end where the two buttons begin (8px + 2 x 28px + 4px + an 8px gap from the edge), so they line up card to card */
 :root[data-style="clean"] .aln-cw-tr{grid-row:4;grid-column:1 / 3;align-self:center;margin:0 0 0 16px}
-:root[data-style="clean"] .aln-cw-num{grid-row:4;grid-column:3 / 5;justify-self:end;align-self:center;margin:0 76px 0 12px}
-:root[data-style="clean"] .aln-cw-acts{grid-row:4;grid-column:4;justify-self:end;align-self:end;margin:8px 8px 8px 0}
+:root[data-style="clean"] .aln-cw-num{grid-row:4;grid-column:3 / 5;justify-self:end;align-self:center;margin:0 84px 0 12px}
+:root[data-style="clean"] .aln-cw-acts{grid-row:4;grid-column:4;justify-self:end;align-self:end;margin:8px 16px 8px 0}
 /* the progress line: a 4px track with a soft inner shadow; the part done fills in the card's colour, with a sheen running
    along it while the agent works */
 :root[data-style="clean"] .aln-cw-ln{top:4px;height:4px;border-radius:999px;background:var(--rail);box-shadow:var(--track-ring)}
@@ -2230,7 +2232,7 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .cpx-bar>.cpx-add{margin-left:-7px}
 :root[data-style="clean"] .cpx-bar>.ib{width:28px;height:28px}
 :root[data-style="clean"] .cpx-bar .chip{height:28px;padding:0 8px;transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
-:root[data-style="clean"] .cpx-add[aria-expanded="true"]{background:var(--hover)}
+:root[data-style="clean"] :is(.cpx-add,.cpx-bar .chip)[aria-expanded="true"]{background:var(--row-on)}
 /* Send is the field's own Send (see the Clean section), 16px from the box's right and bottom edges, its corners the box's
    less those 16px */
 :root[data-style="clean"] .cpx-send{width:28px;height:28px;border-radius:calc(var(--r-card) - 16px)}
@@ -2341,13 +2343,14 @@ th:last-child>.col-rz{display:none}
    toward the text. Their controls are 28px circles and pills 8px from the card's edges, as round as its 22px corner less 8,
    so every one in a row is as tall as the next and shares its centre line; the words in the foot (the word count, the
    status) start where the text does, 16px in. The chrome is
-   monochrome and flat: a format the selection has is white with a grey ring, Ask AI is a secondary button (a hairline and a
+   monochrome and flat: the formats take Clean's one hover, and a format the selection has its stronger fill (owner, 21 Nov:
+   never a ring), Ask AI is a secondary button (a hairline and a
    light fill), the status is ink, and Accept is the ink button with its key on it. The suggestion keeps the accent: the new
    words in its tint, the old ones struck through. Words arrive with a fade, no blur */
 :root[data-style="clean"] .rte-tb{gap:4px;padding:8px 16px;background:var(--strip);border-bottom:1px solid var(--line);border-radius:var(--r-card) var(--r-card) 0 0;box-shadow:none}
 :root[data-style="clean"] .rte-b{width:28px;height:28px;border-radius:50%;color:var(--fg2);transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
-:root[data-style="clean"] .rte-b:hover{background:var(--hover);color:var(--fg)}
-:root[data-style="clean"] .rte-b:is([aria-pressed="true"],.on){background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line-strong) 50%,transparent)}
+:root[data-style="clean"] .rte-b:hover{background:var(--row);color:var(--fg)}
+:root[data-style="clean"] .rte-b:is([aria-pressed="true"],.on){background:var(--row-on);color:var(--fg)}
 :root[data-style="clean"] .rte-b:disabled{background:none;box-shadow:none;color:var(--dis)}
 :root[data-style="clean"] .rte-sep{margin:0 4px}
 :root[data-style="clean"] .rte-ai{height:28px;padding:0 12px 0 10px;font-weight:500;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
@@ -3009,18 +3012,29 @@ th:last-child>.col-rz{display:none}
 .rvx-pg{display:flex;align-items:center;gap:0}
 .rvx-pg .ib{width:26px;height:26px}
 .rvx-pg .ib[disabled]{opacity:1;cursor:not-allowed;background:none;color:var(--dis)}
-/* the bar sits on the stage, where --row is the stage's own colour: its hover is a quiet 5% of the text colour */
-.rvx-bar .ib:not([disabled]):hover{background:color-mix(in srgb,var(--fg) 5%,transparent)}
+/* the bar sits on the stage, where --row is the stage's own colour: it sets --row to a quiet 5% of the text colour, as the
+   other cards on the stage do, so its buttons keep the one shared hover */
+.rvx-bar{--row:color-mix(in srgb,var(--fg) 5%,transparent)}
 .rvx-n{font-size:12px;color:var(--muted);min-width:34px;text-align:center}
 .rvx-re svg{transition:transform .7s var(--ease)}
 .rvx-re.go svg{transform:rotate(360deg)}
 .rvx-st{font-size:12px;margin-left:6px}
-/* Clean (owner, 18 Nov): the answer, the bar's first icon and the bubble share the column's edges; words fade in and out
-   without a blur */
+/* Clean (owner, 18 Nov): words fade in and out without a blur */
 @keyframes rvwc{from{opacity:0}to{opacity:1}}
 @keyframes rvoc{to{opacity:0;transform:translateY(-2px)}}
 :root[data-style="clean"] .rvx-t .w{animation-name:rvwc;animation-duration:var(--t-slow)}
 :root[data-style="clean"] .rvx-t.out{animation-name:rvoc;animation-duration:var(--t)}
+/* Clean (owner, 22 Nov: "differentiate Clean from Soft"): the answer is a version card. Its off-white head strip carries the
+   versions: the arrows and the count on the content's 16px column, what is happening beside them, and Regenerate and Copy at
+   the strip's other end, each 8px from the strip's top and bottom; a hairline parts the strip from the answer, which sits 16px
+   in from the card's edges. Soft and Blueprint keep the answer flat in the thread with its bar under it. The markup is the
+   same in every style: the strip is the bar, drawn first */
+:root[data-style="clean"] .rvx-a{flex-direction:column-reverse;gap:0;background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow);overflow:hidden}
+:root[data-style="clean"] .rvx-bar{margin:0;padding:8px 16px;background:var(--strip);box-shadow:inset 0 -1px 0 var(--line)}
+:root[data-style="clean"] .rvx-t{padding:16px}
+:root[data-style="clean"] .rvx-st{order:1;margin-left:var(--s-2);min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root[data-style="clean"] .rvx-re{order:2;margin-left:auto}
+:root[data-style="clean"] .rvx-cp{order:3}
 .rvx-cp.copied,.aab-cp.copied{color:var(--ok-mark)!important}
 /* ---------- Feedback sheet ---------- */
 .fbx{display:flex;flex-direction:column;gap:var(--s-2)}
@@ -3030,8 +3044,9 @@ th:last-child>.col-rz{display:none}
 .fbx-bar .ib.on svg{transform:rotate(-8deg)}
 /* nothing in the row shrinks or swells on a click (owner, 18 Nov): a rated thumb only tilts */
 .fbx-bar .ib:active,.fbx-f .pill.ghost:active{transform:none}
-/* the thumbs sit on the stage, where --row is the stage's own colour: their hover is a quiet 5% of the text colour */
-.fbx-bar .ib:hover{background:color-mix(in srgb,var(--fg) 5%,transparent)}
+/* the thumbs sit on the stage, where --row is the stage's own colour: the bar sets --row to a quiet 5% of the text colour, as
+   the other cards on the stage do, so the thumbs keep the one shared hover */
+.fbx-bar{--row:color-mix(in srgb,var(--fg) 5%,transparent)}
 :root[data-style="clean"] .fbx-bar .ib:active{transform:none}
 .fbx-dn.on{background:var(--bad-bg);color:var(--bad)}
 .fbx-st{font-size:12.5px;margin-left:6px}
@@ -3062,6 +3077,7 @@ th:last-child>.col-rz{display:none}
    thumb fills in ink (no red fill, no tilt) and a picked reason is an ink chip like a toggle that is on */
 :root[data-style="clean"] .fbx-bar .ib.on svg{transform:none}
 :root[data-style="clean"] .fbx-bar .ib.on{background:none;color:var(--fg)}
+:root[data-style="clean"] .fbx-bar .ib.on:hover{background:var(--row)}
 :root[data-style="clean"] .fbx-bar .ib.on svg{fill:currentColor}
 :root[data-style="clean"] .fbx-in.panel{gap:12px;margin:4px 0 0;padding:16px 16px 0;overflow:clip}
 :root[data-style="clean"] .fbx-q{font-size:14px;line-height:20px}
@@ -3286,7 +3302,7 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .aab-bar .ib[aria-pressed="true"]{background:none;color:var(--fg)}
 :root[data-style="clean"] .aab-bar .ib[aria-pressed="true"]:hover{background:var(--row)}
 :root[data-style="clean"] .aab-bar .ib[aria-pressed="true"] svg{fill:currentColor}
-:root[data-style="clean"] .aab-rd[aria-pressed="true"]{background:var(--chip);color:var(--fg)}
+:root[data-style="clean"] .aab-rd[aria-pressed="true"]{background:var(--row-on);color:var(--fg)}
 :root[data-style="clean"] .aab-rd:hover{background:var(--row)}
 :root[data-style="clean"] .aab-ch .chip.on{background:var(--btn-2);color:var(--on-btn);box-shadow:inset 0 0 0 1px var(--btn-2)}
 :root[data-style="clean"] .aab-st.ok svg{color:var(--ok-mark)}
@@ -3563,7 +3579,7 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .pgx.panel .pgx-f{margin:0 -16px;padding:8px 16px;gap:4px;border-top:1px solid var(--line);background:var(--strip);border-radius:0 0 var(--r-card) var(--r-card)}
 :root[data-style="clean"] .pgx-f .pgx-db{padding:0 8px;margin:0;color:var(--fg2);transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .pgx-f :is(.pgx-db:hover,.pill.ghost:hover){background:var(--row);color:var(--fg)}
-:root[data-style="clean"] .pgx-f .pgx-db[aria-expanded="true"]{background:var(--hover);color:var(--fg)}
+:root[data-style="clean"] .pgx-f .pgx-db[aria-expanded="true"]{background:var(--row-on);color:var(--fg)}
 /* on a narrow stage the buttons wrap under the select: the strip's 4px gaps put them 8px under it */
 @container (max-width:340px){:root[data-style="clean"] .pgx-no{margin:0 0 0 auto}:root[data-style="clean"] .pgx-ok{margin-top:0}}
 /* Allow's count rolls: up as a box is ticked, down as one is cleared. No window clips it: each number moves a few pixels
@@ -5506,7 +5522,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 :root[data-style="clean"] .rdr .rdr-r.run{--rdr-kc:var(--accent-mark)}
 :root[data-style="clean"] :is(.rdr-r,.rdr-l,.rdr-ds button,.rdr-ask){border-radius:calc(var(--r-card) - 8px)}
 :root[data-style="clean"] :is(.rdr-r,.rdr-ds button,.rdr-tg,.rdr-nd){transition:background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
-:root[data-style="clean"] :is(.rdr-r[aria-pressed="true"],.rdr-ds button[aria-pressed="true"]){background:var(--chip)}
+:root[data-style="clean"] :is(.rdr-r[aria-pressed="true"],.rdr-ds button[aria-pressed="true"],.rdr-follow[aria-pressed="true"]){background:var(--row-on)}
 :root[data-style="clean"] .rdr-tg{border-radius:var(--r-pill)}
 :root[data-style="clean"] .rdr-nd{border-radius:var(--r-in)}
 :root[data-style="clean"] .rdr-ask .pill.line{color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth)}
@@ -6195,7 +6211,8 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
    its own keeps its layout */
 :root[data-style="clean"] .lnx>.lnx-h:has(>.lnx-tl){margin:calc(-1 * var(--s-4)) calc(-1 * var(--s-4)) 0;padding:8px var(--s-4);background:var(--strip);border-bottom:1px solid var(--line);border-radius:var(--r-card) var(--r-card) 0 0}
 :root[data-style="clean"] .lnx-pk{border-radius:var(--r-pill)}
-:root[data-style="clean"] :is(.lnx-pk:hover,.lnx-pk[aria-expanded="true"]){background:var(--hover)}
+:root[data-style="clean"] .lnx-pk:hover{background:var(--row)}
+:root[data-style="clean"] .lnx-pk[aria-expanded="true"]{background:var(--row-on)}
 :root[data-style="clean"] .lnx:has(>.lnx-h>.lnx-tl)>.lnx-lg{margin:0 calc(-1 * var(--s-4)) calc(-1 * var(--s-4));padding:8px var(--s-4);gap:6px;background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
 :root[data-style="clean"] .lnx:has(>.lnx-h>.lnx-tl)>.lnx-lg .lnx-k{height:28px;padding:0 10px}
 /* (on a phone its two columns share the width, the second ending on the content's right edge like the switch above) */
@@ -7206,6 +7223,7 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 :root[data-style="clean"] .mtx-fade{animation:clfade var(--t-fast) var(--ease) both}
 :root[data-style="clean"] .mtx-roll i.in{animation:clroll .3s var(--ease) both}
 :root[data-style="clean"] .mtx-cp{width:28px;height:28px;border-radius:999px}
+:root[data-style="clean"] .mtx-cp:hover{background:var(--row)}
 :root[data-style="clean"] .mtx .ib:active{transform:none}
 /* (a step of --ok in the vivid green keeps the copied tick at 3:1 on the off-white strip) */
 :root[data-style="clean"] .mtx-cp.copied{color:color-mix(in srgb,var(--ok-mark) 80%,var(--ok))!important}
@@ -8390,7 +8408,8 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 :root[data-style="clean"][data-theme="dark"] .csw-bar{box-shadow:0 0 0 1px rgba(255,255,255,.05),0 1px 1px rgba(0,0,0,.5),0 2px 10px -4px rgba(0,0,0,.6)}
 @media (prefers-color-scheme:dark){:root[data-style="clean"]:not([data-theme="light"]) .csw-bar{box-shadow:0 0 0 1px rgba(255,255,255,.05),0 1px 1px rgba(0,0,0,.5),0 2px 10px -4px rgba(0,0,0,.6)}}
 :root[data-style="clean"] :is(.csw-tr,.csw-more){border-radius:var(--r-pill);transition:background-color var(--t-fast) var(--ease)}
-:root[data-style="clean"] :is(.csw-tr,.csw-more):is(:hover,[aria-expanded="true"]){background:var(--row)}
+:root[data-style="clean"] :is(.csw-tr,.csw-more):hover{background:var(--row)}
+:root[data-style="clean"] :is(.csw-tr,.csw-more)[aria-expanded="true"]{background:var(--row-on)}
 :root[data-style="clean"] .csw-o{border-radius:10px;transition:background-color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .csw-pop .csw-o:is(:hover,.hl),:root[data-style="clean"] .csw-mpop .mi:is(:hover,.hl){background:var(--row)}
 :root[data-style="clean"] .csw-pop .csw-o[aria-selected="true"]{background:var(--row-on)}
@@ -8413,10 +8432,10 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .flm-ch.seen{animation:none}
 .flm-ch .k{color:var(--fg2)}
 .flm-ch .op{height:22px;padding:0 5px;margin:0 1px;border-radius:calc(6px * var(--rk-s,var(--rk)));color:var(--muted);transition:background var(--t-fast),color var(--t-fast)}
-.flm-ch .op:hover{background:var(--hover);color:var(--fg)}
+.flm-ch .op:hover{background:var(--row);color:var(--fg)}
 .flm-ch .v{font-weight:500;overflow:hidden;text-overflow:ellipsis}
-.flm-ch .x{width:26px;height:28px;display:grid;place-items:center;flex:none;color:var(--muted);transition:color var(--t-fast)}
-.flm-ch .x:hover{color:var(--fg)}
+.flm-ch .x{width:26px;height:28px;display:grid;place-items:center;flex:none;color:var(--muted);transition:background var(--t-fast),color var(--t-fast)}
+.flm-ch .x:hover{background:var(--row);color:var(--fg)}
 .flm-ch.gone{animation:leave .3s var(--ease) both}
 .flm-pop{width:232px}
 .flm-lv[hidden]{display:none}
@@ -10075,8 +10094,11 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 :root[data-style="clean"] :is(.pill.line,.pill.soft):not([disabled]){color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth)}
 :root[data-style="clean"] :is(.pill.line,.pill.soft):not([disabled]):hover{background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-hover)}
 :root[data-style="clean"] :is(.pill.line,.pill.soft):not([disabled]):active{box-shadow:var(--btn2-press)}
-/* text buttons: no fill until hovered, then the faintest grey */
-:root[data-style="clean"] .pill.ghost:hover{background:var(--row)}
+/* ghost and icon buttons: no fill until hovered, then the one hover (--row) in the button's own shape, easing in and out over
+   220ms; a button that is on, pressed or holding its menu open has the same shape with the stronger fill (--row-on), never a
+   ring or a hue (owner, 21 and 22 Nov). Components that sit on the stage set --row for their bar, and Clean hands it back */
+:root[data-style="clean"] :is(.pill.ghost,.ib:not(.fill)):not([disabled],[aria-pressed="true"],[aria-expanded="true"],.on):hover{background-color:var(--row);color:var(--fg)}
+:root[data-style="clean"] .ib.on{background:var(--row-on);color:var(--fg)}
 /* the controls in a head or foot strip sit on the content's 16px column at the sides, as the rows do, and 8px from the
    strip's own top and bottom (owner, 21 Nov: "ok do it, apply everywhere", replacing 8px from the card's edges) */
 :root[data-style="clean"] :is(.atx-ft,.atx-ctx-ft){padding-right:16px}
@@ -10085,7 +10107,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
    the grey is a step under the strip, so it shows as it does on the card. (A remove × inside a filled chip, a tinted banner
    or the ink save bar takes a little of its own colour instead, color-mix(currentColor 12%), as no grey shows on a fill) */
 /* the cards that set a stronger grey of their own for the stage take Clean's, so every hover in Clean is the same fill */
-:root[data-style="clean"] :is(.tst-t,.tsk-c,.lva,.plx,.ssx,.ahx,.lnx,.dnx,.cmx,.ntx.panel,.ivx,.rxx,.rgx,.wsx){--row:inherit}
+:root[data-style="clean"] :is(.tst-t,.tsk-c,.lva,.plx,.ssx,.ahx,.lnx,.dnx,.cmx,.ntx.panel,.ivx,.rxx,.rgx,.wsx,.rvx-bar,.fbx-bar){--row:inherit}
 /* menus: rows with 10px corners, the hover and the picked row's fill easing in and out over 220ms */
 :root[data-style="clean"] .mi{border-radius:10px;transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .pop :is(.mi[aria-checked="true"],.mi[aria-selected="true"],[role="option"][aria-selected="true"]){background:var(--row-on)}
@@ -10117,7 +10139,9 @@ button.pvb-row:focus-visible{outline-offset:-2px}
    switches and Segmented control's alike) */
 :root[data-style="clean"] :is(.seg2,.sgc-seg){box-shadow:var(--track-ring)}
 :root[data-style="clean"] :is(.seg2 .knob,.sgc-seg .sgc-k){background:var(--knob);box-shadow:var(--knob-shadow);transition:left var(--t) var(--ease),width var(--t) var(--ease)}
-:root[data-style="clean"] :is(.seg2,.sgc-seg) button{color:var(--muted);font-weight:500;transition:color var(--t-fast) var(--ease)}
+:root[data-style="clean"] :is(.seg2,.sgc-seg) button{color:var(--muted);font-weight:500;transition:color var(--t-fast) var(--ease),background-color var(--t-fast) var(--ease)}
+/* a segment that is not picked takes the one hover under the pointer, a pill in its own shape (owner, 21 Nov) */
+:root[data-style="clean"] :is(.seg2,.sgc-seg) button:not([aria-pressed="true"],[aria-selected="true"],[aria-checked="true"],[disabled]):hover{background:var(--row);color:var(--fg)}
 :root[data-style="clean"] :is(.seg2 button[aria-pressed="true"],.sgc-seg button:is(:hover,[aria-selected="true"],[aria-checked="true"])){color:var(--fg)}
 /* toggles: ink when on (a switcher is chrome), a knob with a hairline, and a soft inner shadow in the track */
 :root[data-style="clean"] .toggle[aria-checked="true"]{background:var(--btn-2);box-shadow:inset 0 0 0 1px var(--btn-2),inset 0 2px 4px -1px rgba(0,0,0,.3)}
@@ -14003,7 +14027,7 @@ DM.def('trace-view', (r, c) => {
     const [kind, icon, col] = K[x.k];
     dc.innerHTML = `<div class="trv-dh"><span class="trv-k" style="--k:${col}">${I(icon,'xs')}</span><b>${x.n}</b>${x.slow ? '<span class="tag warn">slow</span>' : ''}<button class="ib trv-x" aria-label="Close details" data-tip="Close">${I('x')}</button></div>
       <div class="trv-pos" aria-hidden="true" style="--k:${col}"><i style="left:${x.s / SPAN * 100}%"></i></div>
-      <div class="trv-kv"><div><span>Kind</span><b>${kind}</b></div><div><span>Starts at</span><b class="num">${sec(x.s)}</b></div><div><span>Latency</span><b class="num lt"></b></div><div><span>Tokens</span><b class="num tk"></b></div></div>
+      <div class="trv-kv"><div><span>Kind</span><b>${kind}</b></div><div><span>Starts at</span><b class="num">${sec(x.s)}</b></div><div><span>Latency</span><b class="num trv-lt"></b></div><div><span>Tokens</span><b class="num trv-tn"></b></div></div>
       <div class="trv-io"><span>Input</span><code>${x.in}</code><span>Output</span><code class="out"></code></div>`;
     // closing hands focus back to the span, if it was inside the details
     $('.trv-x', dc).onclick = () => { const el = sel.el, back = dc.contains(document.activeElement); open(null); if (back) el.focus({ preventScroll:true }); };
@@ -14011,7 +14035,7 @@ DM.def('trace-view', (r, c) => {
   }
   function fill(){
     const x = sel, done = T >= x.s + x.d;
-    $('.lt', dc).textContent = sec(took(x)); $('.tk', dc).textContent = Math.round(used(x)).toLocaleString('en-US'); $('.trv-pos i', dc).style.width = (took(x) / SPAN * 100) + '%';
+    $('.trv-lt', dc).textContent = sec(took(x)); $('.trv-tn', dc).textContent = Math.round(used(x)).toLocaleString('en-US'); $('.trv-pos i', dc).style.width = (took(x) / SPAN * 100) + '%';
     const o = $('.out', dc), t = done ? x.out : 'Running…'; if (o.textContent !== t) o.textContent = t;
   }
   // the arrow keys move between spans, and Escape shuts the details

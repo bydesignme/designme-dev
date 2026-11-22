@@ -23,7 +23,7 @@ npx shadcn@latest add https://designme.dev/r/shadcn/astro/response-versions.json
 
 ## About
 
-Response versions shows an agent's answer with a small bar under it to page through earlier versions, regenerate it and copy it. Each regenerated answer is kept as a new version, so the person can compare it with the ones before and keep the one they like.
+Response versions shows an agent's answer with a small bar to page through earlier versions, regenerate it and copy it. Each regenerated answer is kept as a new version, so the person can compare it with the ones before and keep the one they like.
 
 ### When to use it
 
@@ -39,6 +39,7 @@ Response versions shows an agent's answer with a small bar under it to page thro
 - `onRegenerate` adds a Regenerate button that spins when pressed. You add the new version and show it.
 - Copy puts the shown version on the clipboard, confirms with a check and calls `onCopy` with the text.
 - `status` shows quiet text beside the buttons, like "Writing a new version", and shimmers while streaming. `prompt` adds the person's message as a bubble above, and `bare={false}` gives the answer its own card.
+- In Soft and Blueprint the answer sits flat in the thread with the bar under it. In Clean it is a card of its own: an off-white head strip holds the arrows and the count, the status, and Regenerate and Copy, over a hairline, with the answer 16px in below it.
 
 ### Accessibility
 
