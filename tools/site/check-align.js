@@ -136,10 +136,12 @@ function sample(id){
     const fl = e => { const d = e.closest('[role="dialog"]'); return !!d && d !== card && card.contains(d); };
     const clear = s => /rgba\([^)]*,\s*0\)|transparent/.test(s), shade = cs => cs.boxShadow !== 'none' && cs.boxShadow.split(/,(?![^(]*\))/).some(s => !clear(s));
     const blockRight = e => { for (let a = e; a && a !== card; a = a.parentElement){ const cs = getComputedStyle(a); if (!/inline/.test(cs.display)){ const q = a.getBoundingClientRect(); return q.right - parseFloat(cs.paddingRight) - parseFloat(cs.borderRightWidth); } } return C.right; };
-    const drawn = a => { if (a.k === 'ctl') return !bare(a.e) ? a.box || a.b : a.e.textContent.trim() ? a.b : Object.assign({}, rect(a.box), { alt:rect(a.b) }); if (a.k !== 'text') return a.b;
+    const drawn = a => { if (a.k === 'ctl') return !bare(a.e) ? a.box || a.b : a.e.textContent.trim() ? meet(a.b, a.box) : Object.assign({}, rect(a.box), { alt:rect(a.b) }); if (a.k !== 'text') return a.b;
       const lh = parseFloat(getComputedStyle(a.e).lineHeight), hl = lh > a.b.height ? (lh - a.b.height) / 2 : 0;
       return { left:a.b.left, right:a.set === 'left' && a.wraps ? blockRight(a.e) : a.b.right, top:a.b.top - hl, bottom:a.b.bottom + hl, noRight:a.set === 'left' && !a.wraps }; };
     const rect = b => ({ left:b.left, right:b.right, top:b.top, bottom:b.bottom });
+    // (a bare control's words within its own box: words it keeps for screen readers, clipped away, are not drawn)
+    const meet = (w, x) => ({ left:Math.max(w.left, x.left), right:Math.min(w.right, x.right), top:Math.max(w.top, x.top), bottom:Math.min(w.bottom, x.bottom) });
     const boxes = A.filter(a => !inStrip(a.e) && !fl(a.e)).map(a => { const d = drawn(a); return Object.assign(clip(a.e, d), { noRight:d.noRight, alt:d.alt && clip(a.e, d.alt) }); });
     const fill = (cs, cbgOk) => !((cs.backgroundColor === 'rgba(0, 0, 0, 0)' || (!cbgOk && cs.backgroundColor === cbg)) && !(parseFloat(cs.borderTopWidth) > 0 || parseFloat(cs.borderLeftWidth) > 0) && !shade(cs));
     card.querySelectorAll('*').forEach(e => { if (!vis(e) || inStrip(e) || fl(e) || e.closest('.pop,.hand,.tip')) return; const cs = getComputedStyle(e);
