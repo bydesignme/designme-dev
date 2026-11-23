@@ -158,7 +158,9 @@ export function PermissionGate({
   };
   const decline = () => { setState('declined'); onDecline?.(); };
   const undo = () => { setState('asking'); setBack(b => b + 1); onUndo?.(); };
-  const again = (i: number) => (back ? { className: 'dm-enter', style: enter(i * 50).style, key: back } : { className: undefined, style: undefined, key: 0 });
+  const again = (i: number, ms = i * 50) => (back ? { className: 'dm-enter', style: enter(ms).style, key: back } : { className: undefined, style: undefined, key: 0 });
+  // (in Clean the foot strip fades in once the card has grown to hold it, so no button shows cut off by the card's edge)
+  const foot = again(1, clean ? 400 : 50);
 
   const allowLabel = n ? `Allow ${n} ${word(n)}` : 'Pick a scope';
 
@@ -185,7 +187,7 @@ export function PermissionGate({
                   </label>;
             })}
           </div>
-          <div key={'f' + again(1).key} className={cx('dm-pgx-f', again(1).className)} style={again(1).style}>
+          <div key={'f' + foot.key} className={cx('dm-pgx-f', foot.className)} style={foot.style}>
             <button {...durMenu.trigger} type="button" className="dm-pgx-db" aria-label="How long"><Swap className="dm-pgx-dv">{durLabel(dur)}</Swap><Icon name="chev-d" size="xs" /></button>
             <span className="dm-sp" />
             <button type="button" className="dm-pill dm-ghost dm-sm dm-pgx-no" onClick={decline}>{declineLabel}</button>

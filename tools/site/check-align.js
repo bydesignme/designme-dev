@@ -7,6 +7,7 @@
 //   menus    a menu or popover cut off by the stage or page around the component when its button opens it
 //   ring     a focus ring drawn after a mouse click followed by a modifier key (a screenshot shortcut)
 //   centring the component off centre in its stage by more than 3px at a settled moment
+//   strips   in Clean, a head or foot strip's controls more than 1px off 16px from the strip's top and bottom
 //   insets   the card's content more than 2.5px further from one edge than another, in every style (head and foot strips
 //            and edges they cover are left out)
 // usage (from the repo root, after a build, with a server on PORT, default 8790):
@@ -65,6 +66,21 @@ function sample(id){
   const cbg = getComputedStyle(card).backgroundColor;
   const strips = [...card.querySelectorAll('*')].filter(e => { const b = e.getBoundingClientRect(), cs = getComputedStyle(e); return vis(e) && b.width > C.width - 4 && b.height > 20 && cs.backgroundColor !== 'rgba(0, 0, 0, 0)' && cs.backgroundColor !== cbg && (Math.abs(Math.min(b.bottom, C.bottom) - C.bottom) < 3 || Math.abs(b.top - C.top) < 3); });
   const band = () => -1;
+  // strip controls (owner, 23 Nov, replacing the 8px of 18 Nov): in Clean, a head or foot strip's controls sit 16px from the
+  // strip's outer edge (the card's) and 16px from its hairline, as they sit 16px from the card's sides; measured by each control's
+  // box (a select's hover box too: it lines up by its words only at the sides). Strips holding words alone aren't measured here
+  if (document.documentElement.dataset.style === 'clean') strips.filter(s => !strips.some(t => t !== s && s.contains(t))).forEach(s => {
+    const sb = s.getBoundingClientRect(), cs = getComputedStyle(s), top = sb.top + parseFloat(cs.borderTopWidth), bot = Math.min(sb.bottom, C.bottom) - parseFloat(cs.borderBottomWidth);
+    // (a control inside a drawn track or field, like a segment of a switch or a field's Send, is measured by that track or field)
+    const drawnIn = e => { for (let q = e.parentElement; q && q !== s; q = q.parentElement){ const cs = getComputedStyle(q); if ((cs.backgroundColor !== 'rgba(0, 0, 0, 0)' && cs.backgroundColor !== getComputedStyle(s).backgroundColor) || parseFloat(cs.borderTopWidth) > 0 || /inset/.test(cs.boxShadow)) return q.getBoundingClientRect(); } return null; };
+    const ctl = [...s.querySelectorAll('button,.pill,.ib,[role="switch"],select,input:not([type="checkbox"]):not([type="radio"]):not([type="file"])')].filter(e => vis(e) && !e.matches('.tag') && !e.closest('.pop') && e.getBoundingClientRect().height > 8).map(e => drawnIn(e) || e.getBoundingClientRect()); if (!ctl.length) return;
+    // (a strip one row tall has both measured; a taller one, with words above its buttons, the edge its controls sit by; a band
+    // taller than 120px with a fill of its own, like a canvas, is a panel, not a strip)
+    // (words in the strip count too, by their line box: two lines of words beside a select sit 16px from the edges, the select
+    // on their centre line)
+    const words = A.filter(a => a.k === 'text' && s.contains(a.e)).map(a => { const lh = parseFloat(getComputedStyle(a.e).lineHeight), hl = lh > a.b.height ? (lh - a.b.height) / 2 : 0; return { top:a.b.top - hl, bottom:a.b.bottom + hl }; });
+    const all = ctl.concat(words), t = Math.min(...all.map(r => r.top)) - top, b = bot - Math.max(...all.map(r => r.bottom)); if (bot - top > 120) return;
+    if (bot - top <= 64 ? Math.abs(t - 16) > 1 || Math.abs(b - 16) > 1 : Math.abs(Math.min(t, b) - 16) > 1) out.push(`strips: ${name(s)} has its controls and words ${Math.round(t)}px from its top and ${Math.round(b)}px from its bottom (16 expected)`); });
   // a right edge counts for controls, and for words set against the right (a number, a time, a status), not for ragged text
   // (a tag at the end of a row with a hover fill sits inside the fill's padding, so it is not held to a button's edge)
   const rightSet = a => a && ((a.k === 'ctl' && !a.e.matches('.tag')) || (a.k === 'text' && a.set === 'right' && !a.wraps));
@@ -102,15 +118,40 @@ function sample(id){
   if (card !== sin && C.height >= 60){
     const clip = (e, b) => { let r = { left:b.left, right:b.right, top:b.top, bottom:b.bottom }; for (let a = e.parentElement; a && a !== card; a = a.parentElement){ const cs = getComputedStyle(a); if (cs.overflowX === 'visible' && cs.overflowY === 'visible') continue; const q = a.getBoundingClientRect(); r = { left:Math.max(r.left, q.left), right:Math.min(r.right, q.right), top:Math.max(r.top, q.top), bottom:Math.min(r.bottom, q.bottom) }; } return r; };
     const inStrip = e => strips.some(s => s.contains(e));
-    const boxes = A.filter(a => !inStrip(a.e)).map(a => clip(a.e, a.box || a.b));
-    card.querySelectorAll('*').forEach(e => { if (!vis(e) || inStrip(e) || e.closest('.pop,.hand,.tip')) return; const cs = getComputedStyle(e); if ((cs.backgroundColor === 'rgba(0, 0, 0, 0)' || cs.backgroundColor === cbg) && !(parseFloat(cs.borderTopWidth) > 0 || parseFloat(cs.borderLeftWidth) > 0) && cs.boxShadow === 'none') return; const b = e.getBoundingClientRect(); if (b.height <= 2 || b.width <= 2 || b.width > C.width - 4) return; boxes.push(clip(e, b)); });
-    const live = boxes.filter(r => r.right - r.left > 1 && r.bottom - r.top > 1);
-    if (live.length){
+    // What is measured is what is drawn (alignment pass, 23 Nov):
+    //  - a bare control with words (a ghost button, a disclosure, no fill at rest) by its words, as the columns check measures
+    //    it: its hover box reaches out round them by design (Stop's word on the content's edge)
+    //  - a bare icon button, and a hover ring kept ready at rest (a transparent shadow), by its hover box or by its glyph,
+    //    whichever sits on the content's edge: the library has both (Clean's icon buttons with their box on the edge, a
+    //    corner Close with its glyph on it), so the card is held to the closer reading
+    //  - words by their line box (their line height, as CSS padding sets them), not the font's own box
+    //  - left-set words that wrap by the column they are set in (their block's content edge); left-set words that don't wrap
+    //    are not measured on the right, since a line's ragged end is not an edge
+    //  - a fill a ::before or ::after draws (a header's tile under its mark) by that fill
+    //  - a dialog placed over the words (an edit's bar) floats over the card's edge as a menu does, so it is left out
+    const fl = e => { const d = e.closest('[role="dialog"]'); return !!d && d !== card && card.contains(d); };
+    const clear = s => /rgba\([^)]*,\s*0\)|transparent/.test(s), shade = cs => cs.boxShadow !== 'none' && cs.boxShadow.split(/,(?![^(]*\))/).some(s => !clear(s));
+    const blockRight = e => { for (let a = e; a && a !== card; a = a.parentElement){ const cs = getComputedStyle(a); if (!/inline/.test(cs.display)){ const q = a.getBoundingClientRect(); return q.right - parseFloat(cs.paddingRight) - parseFloat(cs.borderRightWidth); } } return C.right; };
+    const drawn = a => { if (a.k === 'ctl') return !bare(a.e) ? a.box || a.b : a.e.textContent.trim() ? a.b : Object.assign({}, rect(a.box), { alt:rect(a.b) }); if (a.k !== 'text') return a.b;
+      const lh = parseFloat(getComputedStyle(a.e).lineHeight), hl = lh > a.b.height ? (lh - a.b.height) / 2 : 0;
+      return { left:a.b.left, right:a.set === 'left' && a.wraps ? blockRight(a.e) : a.b.right, top:a.b.top - hl, bottom:a.b.bottom + hl, noRight:a.set === 'left' && !a.wraps }; };
+    const rect = b => ({ left:b.left, right:b.right, top:b.top, bottom:b.bottom });
+    const boxes = A.filter(a => !inStrip(a.e) && !fl(a.e)).map(a => { const d = drawn(a); return Object.assign(clip(a.e, d), { noRight:d.noRight, alt:d.alt && clip(a.e, d.alt) }); });
+    const fill = (cs, cbgOk) => !((cs.backgroundColor === 'rgba(0, 0, 0, 0)' || (!cbgOk && cs.backgroundColor === cbg)) && !(parseFloat(cs.borderTopWidth) > 0 || parseFloat(cs.borderLeftWidth) > 0) && !shade(cs));
+    card.querySelectorAll('*').forEach(e => { if (!vis(e) || inStrip(e) || fl(e) || e.closest('.pop,.hand,.tip')) return; const cs = getComputedStyle(e);
+      if (cs.position !== 'static') for (const ps of ['::before', '::after']){ const q = getComputedStyle(e, ps); if (q.content === 'none' || q.display === 'none' || q.position !== 'absolute' || +q.opacity < .1 || !fill(q, true)) continue;
+        const eb = e.getBoundingClientRect(), w = parseFloat(q.width), h = parseFloat(q.height), l = eb.left + parseFloat(cs.borderLeftWidth) + parseFloat(q.left) + parseFloat(q.marginLeft), t = eb.top + parseFloat(cs.borderTopWidth) + parseFloat(q.top) + parseFloat(q.marginTop);
+        if (w > 2 && h > 2 && w < C.width - 4 && [l, t].every(Number.isFinite)) boxes.push(clip(e, { left:l, right:l + w, top:t, bottom:t + h })); }
+      const b = e.getBoundingClientRect(); if (b.height <= 2 || b.width <= 2 || b.width > C.width - 4) return;
+      if (!fill(cs)){ const g = ring(e); if (g && !A.some(x => x.e === e)) boxes.push(Object.assign(clip(e, { left:b.left - g, right:b.right + g, top:b.top - g, bottom:b.bottom + g }), { alt:clip(e, b) })); return; }
+      boxes.push(clip(e, b)); });
+    const measure = alt => { const live = boxes.map(r => alt && r.alt ? Object.assign({}, r.alt, { noRight:r.noRight }) : r).filter(r => r.right - r.left > 1 && r.bottom - r.top > 1); if (!live.length) return null;
+      const rl = live.filter(r => !r.noRight), rmax = rl.length ? Math.max(...rl.map(r => r.right)) : -Infinity;
       const sT = strips.some(s => Math.abs(s.getBoundingClientRect().top - C.top) < 3), sB = strips.some(s => Math.abs(Math.min(s.getBoundingClientRect().bottom, C.bottom) - C.bottom) < 3);
-      const ins = { left:Math.min(...live.map(r => r.left)) - C.left, right:Math.max(...live.map(r => r.right)) < C.left + C.width * .66 ? null : C.right - Math.max(...live.map(r => r.right)), top:sT ? null : Math.min(...live.map(r => r.top)) - C.top, bottom:sB ? null : C.bottom - Math.max(...live.map(r => r.bottom)) };
-      const vals = Object.values(ins).filter(v => v !== null);
-      if (Math.max(...vals) - Math.min(...vals) > 2.5) out.push(`insets: ${Object.entries(ins).map(([k, v]) => `${k} ${v === null ? (k === 'right' ? 'ragged' : 'strip') : Math.round(v)}`).join(', ')}`);
-    }
+      const ins = { left:Math.min(...live.map(r => r.left)) - C.left, right:rmax < C.left + C.width * .66 ? null : C.right - rmax, top:sT ? null : Math.min(...live.map(r => r.top)) - C.top, bottom:sB ? null : C.bottom - Math.max(...live.map(r => r.bottom)) };
+      const vals = Object.values(ins).filter(v => v !== null); return { ins, spread:Math.max(...vals) - Math.min(...vals) }; };
+    const m = [measure(false), measure(true)].filter(Boolean).sort((x, y) => x.spread - y.spread)[0];
+    if (m && m.spread > 2.5) out.push(`insets: ${Object.entries(m.ins).map(([k, v]) => `${k} ${v === null ? (k === 'right' ? 'ragged' : 'strip') : Math.round(v)}`).join(', ')}`);
   }
   return { out };
 }
