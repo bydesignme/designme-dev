@@ -36,9 +36,11 @@
 // A change may not add a distinct value either: compare the "Distinct values" table with the last run.
 //
 // spec.json: { "All": { "<category>": { "<kind> · <what>": [allowed values] } }, "Soft": {...}, "Blueprint": {...},
-// "Clean": {...} }. Categories and "<kind> · <what>" are as report.md names them (buttons, insets, heads, rows, gaps, radii,
-// hover, type, lines); a kind of "*" matches every kind. A style's own list replaces All's for the same key. Values are
-// compared as written in the report; numbers also match within 0.5px.
+// "Clean": {...}, "Soft light": {...}, ... }. Categories and "<kind> · <what>" are as report.md names them (buttons, insets,
+// heads, rows, gaps, radii, hover, type, lines); a kind of "*" matches every kind. The most particular list wins: a style and
+// theme's, then a style's, then All's. Values are compared as written in the report; numbers also match within 0.5px; a
+// value written "/.../" is a pattern (for colours with a shape after them); a list that is just "→ <what to use>" allows
+// nothing (a kind that shouldn't be there at all) and says what to use instead.
 //
 // usage (from the repo root, after a build, with the built site served on PORT):
 //   PORT=8890 IDS=all node tools/site/audit-system.js
@@ -115,7 +117,8 @@ function install(){
     const cs = getComputedStyle(e), r = e.getBoundingClientRect(), w = A.words(e), bg = A.col(cs.backgroundColor);
     // (what a person sees decides, so a .pill.ghost drawn with an edge counts as an outlined secondary; the classes only
     // decide where the look can't: primary, warning, chip, segment, link)
-    if (e.matches('[role="switch"],input[type="checkbox"],input[type="radio"]')) return 'toggle';
+    // (a checkbox drawn as a small square button is a toggle too)
+    if (e.matches('[role="switch"],[role="checkbox"],input[type="checkbox"],input[type="radio"]') || (r.width <= 20 && r.height <= 20 && !w)) return 'toggle';
     if (e.matches('.mi,[role="option"],[role^="menuitem"],[role="treeitem"],[role="row"]')) return 'row';
     if (r.width > rootW * .5 && r.height >= 28) return 'row';
     // a day in a calendar or a cell in a table; and a clickable tile taller than any button (an event, a card in a picker)
@@ -489,9 +492,10 @@ function offSpec(R){
   for (const [sth, S] of Object.entries(R.main || {})){ const style = sth.split(' ')[0]; out[sth] = [];
     for (const [cat, C] of Object.entries(S)) for (const [kp, vals] of Object.entries(C)){
       const [kind, prop] = kp.split(' · '), pick = o => o && o[cat] && (o[cat][kp] || o[cat]['* · ' + prop]);
-      const allowed = pick(SPEC[style]) || pick(SPEC.All); if (!allowed) continue;
-      for (const v of vals){ const n = num(v.value); if (allowed.some(a => String(a) === v.value || (n !== null && num(a) !== null && Math.abs(num(a) - n) <= .5))) continue;
-        const nums = allowed.map(num).filter(x => x !== null), becomes = n !== null && nums.length ? String(nums.reduce((a, b) => Math.abs(b - n) < Math.abs(a - n) ? b : a)) : allowed.length === 1 ? String(allowed[0]) : 'one of ' + allowed.join(', ');
+      const allowed = pick(SPEC[sth]) || pick(SPEC[style]) || pick(SPEC.All); if (!allowed) continue;
+      const ok = (a, v, n) => { a = String(a); if (a.startsWith('→')) return false; if (/^\/.*\/$/.test(a)) return new RegExp(a.slice(1, -1)).test(v); return a === v || (n !== null && num(a) !== null && Math.abs(num(a) - n) <= .5); };
+      for (const v of vals){ const n = num(v.value); if (allowed.some(a => ok(a, v.value, n))) continue;
+        const nums = allowed.map(num).filter(x => x !== null), becomes = n !== null && nums.length ? String(nums.reduce((a, b) => Math.abs(b - n) < Math.abs(a - n) ? b : a)) : allowed.length === 1 ? String(allowed[0]).replace(/^→\s*/, '').replace(/^\/\^?|\$?\/$/g, '').replace(/\\(.)/g, '$1') : 'one of ' + allowed.join(', ');
         out[sth].push({ cat, what:kp, now:v.value, becomes, count:v.count, where:v.where }); } } }
   return out;
 }
