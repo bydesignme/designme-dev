@@ -9,7 +9,10 @@
   --dm-rte-q:var(--dm-muted);--dm-rte-q2:var(--dm-fg2)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dm-rte{--dm-rte-q:color-mix(in srgb,var(--dm-fg) 74%,var(--dm-surface));--dm-rte-q2:color-mix(in srgb,var(--dm-fg) 80%,var(--dm-surface))}}
 :root[data-theme="dark"] .dm-rte{--dm-rte-q:color-mix(in srgb,var(--dm-fg) 74%,var(--dm-surface));--dm-rte-q2:color-mix(in srgb,var(--dm-fg) 80%,var(--dm-surface))}
-.dm-rte-tb{display:flex;align-items:center;gap:2px;min-width:0;padding:7px 5px 7px 9px;box-shadow:inset 0 -1px 0 color-mix(in srgb,var(--dm-line) 50%,transparent)}
+/* the toolbar's buttons are 16px from the card's top, left and right edges and from the hairline under them, measured by
+   their boxes (owner, 23 Nov: "this is too close to the side"): the first format's box starts where the text does, 16px in,
+   and Ask AI's box ends 16px from the right edge, at every width */
+.dm-rte-tb{display:flex;align-items:center;gap:2px;min-width:0;padding:var(--dm-s-4);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .dm-rte-b{width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:var(--dm-r-sm);color:var(--dm-fg2);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.dm-rte-b:hover{background:var(--dm-row);color:var(--dm-fg)}}
 /* a format the selection has: the accent's tint, with the icon in the accent's text colour */
@@ -49,12 +52,12 @@
 @keyframes dm-rtew{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
 /* the text a menu or the link field is for stays marked while the focus is in them */
 ::highlight(rte-pick){background-color:color-mix(in srgb,var(--dm-accent-mark) 24%,transparent)}
-.dm-rte-ft{display:grid;align-items:center;min-height:46px;padding:6px 9px 6px 16px;box-shadow:inset 0 1px 0 color-mix(in srgb,var(--dm-line) 50%,transparent)}
+/* the foot's buttons (Undo and Redo, Discard and Accept) are 16px from the hairline over them, the card's bottom edge and
+   its right edge, measured by their boxes, and its words start where the text does, 16px in (owner, 23 Nov) */
+.dm-rte-ft{display:grid;align-items:center;min-height:calc(28px + 2 * var(--dm-s-4) + 1px);padding:var(--dm-s-4);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .dm-rte-idle,.dm-rte-rev{grid-area:1/1;display:flex;align-items:center;gap:var(--dm-s-2);min-width:0;transition:opacity .25s var(--dm-ease),transform .35s var(--dm-ease),visibility 0s}
 .dm-rte-rev,.dm-rte[data-st="review"] .dm-rte-idle{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s var(--dm-ease),transform .35s var(--dm-ease),visibility 0s .35s}
 .dm-rte-rev{transform:translateY(4px)}
-/* Accept's edge ends on the text's right edge, where Redo's icon ends */
-.dm-rte-rev{margin-right:7px}
 .dm-rte[data-st="review"] .dm-rte-idle{transform:translateY(-4px)}
 .dm-rte[data-st="review"] .dm-rte-rev{opacity:1;visibility:visible;pointer-events:auto;transform:none;transition-delay:0s}
 .dm-rte-wc,.dm-rte-hint{font-size:12px;color:var(--dm-rte-q);white-space:nowrap}
@@ -92,12 +95,12 @@
 .dm-rte-ask.dm-show{opacity:1;visibility:visible;transform:none;transition-delay:0s}
 .dm-rte-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 @container rte (max-width:520px){.dm-rte-hint{display:none}}
-/* the toolbar's first icon, the text and the foot's words share one left edge 16px in, and Ask AI's words (its icon when
-   narrow), Redo's icon and Accept end 16px from the right edge, at every width (owner, 18 and 19 Nov) */
-/* in a narrow editor Ask AI is its icon alone, in a 32px-wide box: the icon ends 16px from the edge and its hover box reaches
-   9px round it (owner, 19 Nov: the glyph on the content edge, the hover box reaching outward round it) */
-@container rte (max-width:400px){.dm-rte-ai{width:32px;padding:0;justify-content:center}.dm-rte-ai span{display:none}.dm-rte-sep{margin:0 2px}.dm-rte-tb{padding-left:9px;padding-right:7px}.dm-rte-ft{padding-left:16px;padding-right:9px}.dm-rte-rev .dm-kbd{display:none}}
-@container rte (max-width:330px){.dm-rte-tb{gap:0;padding:7px 7px 7px 10px}.dm-rte-b{width:28px}}
+/* in a narrow editor Ask AI is its icon alone, in a 32px-wide box that ends 16px from the edge like the wide one */
+@container rte (max-width:400px){.dm-rte-ai{width:32px;padding:0;justify-content:center}.dm-rte-ai span{display:none}.dm-rte-sep{margin:0 2px}.dm-rte-rev .dm-kbd{display:none}}
+@container rte (max-width:330px){.dm-rte-tb{gap:0}.dm-rte-b{width:28px}}
+/* on a phone of 360 the formats narrow a little more, so the toolbar keeps its 16px sides */
+@container rte (max-width:300px){.dm-rte-b{width:26px}.dm-rte-sep{margin:0 1px}}
+@container rte (max-width:280px){.dm-rte-b{width:24px}}
 :root:not([data-style="soft"],[data-style="clean"]) .dm-rte-b:is([aria-pressed="true"],.dm-on):not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-accent-mark) 50%,transparent)}
 /* Blueprint's lime tint is faint on white, so the suggestion also gets a hairline of the accent's mark under it */
 :root:not([data-style="soft"],[data-style="clean"]) .dm-rte-new:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){background:var(--dm-accent-bg);box-shadow:inset 0 -1px 0 var(--dm-accent-mark)}
