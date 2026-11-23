@@ -48,7 +48,7 @@ DM.def('score-breakdown', (r, c) => {
     a.onfinish = a.oncancel = () => { if (d._mo !== a) return; d._mo = null; d.style.overflow = ''; }; };
   function detail(i){ const f = F[i], d = $('.sbx-d', R[i]); if (d.dataset.st === 'busy' || d.dataset.st === 'prop') return;
     const lost = f.w - f.e;
-    morph(d, () => d.innerHTML = `<span>${f.done ? f.done + ' ' : ''}${lost ? `Loses ${lost} of its ${f.w} points` : 'Full marks'}${i === weakest() && lost ? ', the most of any factor for its weight.' : '.'}</span>${f.fix ? `<span class="acts"><button class="pill soft sm sbx-imp">${I('wand','xs')}Improve</button></span>` : ''}`);
+    morph(d, () => d.innerHTML = `<span>${f.done ? f.done + ' ' : ''}${lost ? `Loses ${lost} of its ${f.w} points` : 'Full marks'}${i === weakest() && lost ? ', the most of any factor for its weight.' : '.'}</span>${f.fix ? `<span class="acts"><button class="pill line sm sbx-imp">${I('wand','xs')}Improve</button></span>` : ''}`);
     const b = $('.sbx-imp', d); if (b) b.onclick = () => improve(i); }
   const improve = i => c.run(async () => { const f = F[i], d = $('.sbx-d', R[i]); d.dataset.st = 'busy';
     morph(d, () => d.innerHTML = `<div class="sbx-pr"><span class="k">${I('spark','xs')}<span class="shim">Looking at 120 slow replies</span></span></div>`); enter(d.firstElementChild);

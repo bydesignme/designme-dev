@@ -1933,7 +1933,7 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 <div class="card wide" data-c="agent-lanes">
   <div class="stage-in">
     <div class="aln panel">
-      <div class="aln-h"><span class="aln-ic"><svg class="i s"><use href="#i-users"/></svg></span><span class="aln-t">3 agents working</span><span class="aln-m muted num">0:00</span><span class="aln-ct num">0 of 9 steps</span><button class="pill soft sm aln-pause"><svg class="i xs"><use href="#i-pause"/></svg>Pause all</button></div>
+      <div class="aln-h"><span class="aln-ic"><svg class="i s"><use href="#i-users"/></svg></span><span class="aln-t">3 agents working</span><span class="aln-m muted num">0:00</span><span class="aln-ct num">0 of 9 steps</span><button class="pill line sm aln-pause"><svg class="i xs"><use href="#i-pause"/></svg>Pause all</button></div>
       <div class="aln-rows"></div>
       <div class="aln-say" aria-live="polite">3 agents queued</div>
     </div>
@@ -1949,7 +1949,7 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
         <div class="ctm-bar" aria-hidden="true"></div>
         <div class="ctm-leg"></div>
         <div class="ctm-msg" aria-live="polite"><span></span></div>
-        <div class="ctm-f"><span class="ctm-hint">Summarises older turns</span><button class="pill soft sm ctm-go">Compact</button></div>
+        <div class="ctm-f"><span class="ctm-hint">Summarises older turns</span><button class="pill line sm ctm-go">Compact</button></div>
       </div>
     </div>
   </div>
@@ -5807,6 +5807,8 @@ const fitHits = window.dmFitHits || (() => {
     const w = L.find(l => l.running);
     swap(say, w ? (w.did ? `${w.n}: ${lc(w.did)}` : `${w.n} started: ${lc(w.acts[0])}`) : steps ? `${steps} of ${STEPS} steps` : `${L.length} agents queued`); };
   const pb = $('.aln-pause', r);
+  // Pause all is the white outlined secondary (owner, 23 Nov); inside Agent harness (Phase II) it keeps its grey one for now
+  if (r.closest('.ahx')) pb.classList.replace('line', 'soft');
   pb.onclick = () => { paused = !paused; pb.innerHTML = I(paused ? 'play' : 'pause','xs') + (paused ? 'Resume' : 'Pause all'); swap($('.aln-t', r), paused ? 'All agents paused' : '3 agents working');
     L.forEach(l => { if (l.running){ state(l, paused ? 'paused' : 'working'); $('.aln-a', l.el).classList.toggle('shim', !paused); } }); tell(); };
   c.every(1000, () => { if (!paused && !finished){ secs++; $('.aln-m', r).textContent = clk(); } });
@@ -5881,8 +5883,8 @@ const fitHits = window.dmFitHits || (() => {
   }
   // a warning is a warning notice with the filled sign, and Compact, the action that resolves it, takes the warning tint
   const WARN = '<svg class="ctm-wi" viewBox="0 0 24 24" aria-hidden="true"><path class="a" d="M12 3.6 2.6 19.9h18.8z"/><path class="b" d="M12 9.6v4.4M12 17v.01"/></svg>';
-  const say = (text, tone) => { msg.className = 'ctm-msg on ' + tone; swap(msg.firstElementChild, `${tone === 'warn' ? WARN : I('ok','xs')}<span>${text}</span>`, true); go.classList.toggle('warn', tone === 'warn'); go.classList.toggle('soft', tone !== 'warn'); };
-  const hush = () => { msg.className = 'ctm-msg'; go.classList.remove('warn'); go.classList.add('soft'); };
+  const say = (text, tone) => { msg.className = 'ctm-msg on ' + tone; swap(msg.firstElementChild, `${tone === 'warn' ? WARN : I('ok','xs')}<span>${text}</span>`, true); go.classList.toggle('warn', tone === 'warn'); go.classList.toggle('line', tone !== 'warn'); };
+  const hush = () => { msg.className = 'ctm-msg'; go.classList.remove('warn'); go.classList.add('line'); };
   // hovering a part lights its share of the bar
   c.on(leg, 'pointerover', e => { const l = e.target.closest('.ctm-l'); if (!l) return; bar.classList.add('hl'); $$('i', bar).forEach(i => i.classList.toggle('on', i.dataset.k === l.dataset.k)); });
   c.on(leg, 'pointerout', e => { if (!leg.contains(e.relatedTarget)) bar.classList.remove('hl'); });
@@ -6036,8 +6038,9 @@ const fitHits = window.dmFitHits || (() => {
     $('.plx-mk', r).classList.remove('on');
     $$('.plx-s.run', list).forEach(s => { s.classList.remove('run', 'retry'); txt(s).classList.remove('shim'); $('.d>span', s).classList.remove('shim'); n(s).textContent = '–'; note(s, 'Not started'); });
     // a finished plan has no elapsed clock (owner, 18 Nov): the status line says how long it took
+    // See changes is the white outlined secondary (owner, 23 Nov); inside Agent harness (Phase II) it keeps its grey one for now
     tm.textContent = ''; st.classList.remove('shim');
-    swap(st, stop ? 'Stopped, progress kept' : 'Done in ' + clock(performance.now() - t0) + '. 4 frames updated'); f.innerHTML = `<span class="muted plx-n"></span><button class="pill soft sm">${I('eye','xs')}See changes</button>`; enter(f.lastElementChild);
+    swap(st, stop ? 'Stopped, progress kept' : 'Done in ' + clock(performance.now() - t0) + '. 4 frames updated'); f.innerHTML = `<span class="muted plx-n"></span><button class="pill ${r.closest('.ahx') ? 'soft' : 'line'} sm">${I('eye','xs')}See changes</button>`; enter(f.lastElementChild);
   });
   // the preview's story: rewrite a step, approve, and watch the agent work through a rate limit to the end
   c.story(async s => {
@@ -6049,7 +6052,7 @@ const fitHits = window.dmFitHits || (() => {
     for (const ch of ', annual price first'){ t.textContent += ch; await s.beat(.09); }
     await s.beat(1); t.onblur(); await s.beat(2);
     await s.tap(go); s.away();
-    await s.until(() => $('.plx-f .pill.soft', r));
+    await s.until(() => $('.plx-f .pill:is(.line,.soft)', r));
   });
 });
 </script><script>DM.def('permission-gate', (r, c) => {

@@ -195,8 +195,9 @@ DM.def('plan-review', (r, c) => {
     $('.plx-mk', r).classList.remove('on');
     $$('.plx-s.run', list).forEach(s => { s.classList.remove('run', 'retry'); txt(s).classList.remove('shim'); $('.d>span', s).classList.remove('shim'); n(s).textContent = '–'; note(s, 'Not started'); });
     // a finished plan has no elapsed clock (owner, 18 Nov): the status line says how long it took
+    // See changes is the white outlined secondary (owner, 23 Nov); inside Agent harness (Phase II) it keeps its grey one for now
     tm.textContent = ''; st.classList.remove('shim');
-    swap(st, stop ? 'Stopped, progress kept' : 'Done in ' + clock(performance.now() - t0) + '. 4 frames updated'); f.innerHTML = `<span class="muted plx-n"></span><button class="pill soft sm">${I('eye','xs')}See changes</button>`; enter(f.lastElementChild);
+    swap(st, stop ? 'Stopped, progress kept' : 'Done in ' + clock(performance.now() - t0) + '. 4 frames updated'); f.innerHTML = `<span class="muted plx-n"></span><button class="pill ${r.closest('.ahx') ? 'soft' : 'line'} sm">${I('eye','xs')}See changes</button>`; enter(f.lastElementChild);
   });
   // the preview's story: rewrite a step, approve, and watch the agent work through a rate limit to the end
   c.story(async s => {
@@ -208,7 +209,7 @@ DM.def('plan-review', (r, c) => {
     for (const ch of ', annual price first'){ t.textContent += ch; await s.beat(.09); }
     await s.beat(1); t.onblur(); await s.beat(2);
     await s.tap(go); s.away();
-    await s.until(() => $('.plx-f .pill.soft', r));
+    await s.until(() => $('.plx-f .pill:is(.line,.soft)', r));
   });
 });
 /* ---------- Inline text diff ---------- */

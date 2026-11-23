@@ -188,6 +188,15 @@
 .v2 .pill.soft{background:var(--soft);color:var(--fg);box-shadow:var(--soft-ring)}
 @media (hover:hover) and (pointer:fine){.v2 .pill.soft:hover{background:var(--soft-h)}}
 .v2 .pill.line{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent);color:var(--fg)}
+/* a secondary action on a white card is this white outlined button, never the grey .pill.soft, which reads as pressed or
+   disabled on white (owner, 23 Nov). Its hover in Soft and Blueprint is the quiet --row fill, with no change to its edge, and
+   Metric insight's Why holds it while its breakdown is open.
+   Clean keeps its own flat secondary (its rules come later and win) */
+.v2 .pill.line.mix-why[aria-expanded="true"]{background:var(--row)}
+@media (hover:hover) and (pointer:fine){.v2 :is(.aln-pause,.aln-sw-pause,.aln-sw-live,.ctm-go,.rc-go,.mix-why,.fmx-ai,.ecx-prep,.sbx-imp,.atb-em .pill,.atb-note .pill,.plx-f .pill).pill.line:hover{background:var(--row)}}
+@media (hover:hover) and (pointer:fine){:root:not([data-style="soft"],[data-style="clean"]) .v2 :is(.aln-pause,.aln-sw-pause,.aln-sw-live,.ctm-go,.rc-go,.mix-why,.fmx-ai,.ecx-prep,.sbx-imp,.atb-em .pill,.atb-note .pill,.plx-f .pill).pill.line:hover{background:var(--row);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}}
+@media (hover:hover) and (pointer:fine){:root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .v2 :is(.aln-pause,.aln-sw-pause,.aln-sw-live,.ctm-go,.rc-go,.mix-why,.fmx-ai,.ecx-prep,.sbx-imp,.atb-em .pill,.atb-note .pill,.plx-f .pill).pill.line:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--fg) 22%,var(--surface))}}
+@media (prefers-color-scheme:dark){@media (hover:hover) and (pointer:fine){:root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .v2 :is(.aln-pause,.aln-sw-pause,.aln-sw-live,.ctm-go,.rc-go,.mix-why,.fmx-ai,.ecx-prep,.sbx-imp,.atb-em .pill,.atb-note .pill,.plx-f .pill).pill.line:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--fg) 22%,var(--surface))}}}
 .v2 .pill.ghost{color:var(--fg2)}@media (hover:hover) and (pointer:fine){.v2 .pill.ghost:hover{background:var(--row);color:var(--fg)}}
 /* the action on a warning notice (owner, 18 Nov): the warning tint with the warning text, as the warning chip (.tag.warn),
    deepening a little under the pointer */
@@ -4225,10 +4234,6 @@
 .v2 .mix-ic{color:var(--accent-fg,var(--accent));display:grid;margin-top:2px}
 .v2 .mix-why{align-self:flex-start;overflow:hidden}
 .v2 .mix-why .shim{font-size:inherit}
-/* a lighter button than the soft pill, like the other quiet asks */
-.v2 .pill.soft.mix-why{background:var(--chip);box-shadow:none}
-.v2 .pill.soft.mix-why[aria-expanded="true"]{background:var(--hover)}
-@media (hover:hover) and (pointer:fine){.v2 .pill.soft.mix-why:hover{background:var(--hover)}}
 /* nothing in it grows or shrinks when it is pressed (owner, 18 Nov) */
 .v2 .mix :is(.pill,.ib):active{transform:none}
 /* the reasons fold open under Why did it move?; shut, the fold takes back the card's 10px gap, so the card's content ends 16px
@@ -7055,6 +7060,10 @@
 .v2 .atb-note span{flex:1}
 /* Draft email is as wide as its words, and eases to the new width as it says Drafting, then Draft ready with the green tick */
 .v2 .atb-note .pill{flex:none;overflow:hidden}
+/* a white button on a tinted row takes the tint hairline (CLAUDE.md); Blueprint keeps its outlined edge */
+.v2 .atb-note .pill.line{box-shadow:var(--on-tint-btn)}
+@media (hover:hover) and (pointer:fine){.v2 .atb-note .pill.line:hover{box-shadow:var(--on-tint-btn-h)}}
+:root:not([data-style="soft"],[data-style="clean"]) .v2 .atb-note .pill.line{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent)}
 .v2 .atb-note .pill .spin{width:12px;height:12px}
 .v2 .atb-note .pill .atb-done{display:grid;color:var(--ok-mark)}
 /* nothing matches: the empty state of the lab's Clean (lab/clean), in every style. A small sketch of a table on a white card,
