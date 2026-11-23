@@ -71,7 +71,7 @@ export function DecisionPrompt({
   };
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-dpx', !bare && 'dm-panel', 'dm-growing', className)} tabIndex={0} onKeyDown={key}>
+    <div data-dm="" ref={root} className={cx('dm-dpx', !bare && 'dm-panel', 'dm-growing', done && 'dm-done', className)} tabIndex={0} onKeyDown={key}>
       <div ref={inner} className="dm-grow">
       <div className="dm-dpx-h">
         <span className="dm-dpx-k dm-muted dm-num">{done ? 'All set' : `Question ${at + 1} of ${n}`}</span>
@@ -118,6 +118,8 @@ export function DecisionPrompt({
         )}
       </div>
       </div>
+      {/* the head goes once every question is answered, so this line tells screen readers */}
+      <p className="dm-dpx-live" aria-live="polite">{done ? 'All questions answered' : ''}</p>
     </div>
   );
 }

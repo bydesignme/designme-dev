@@ -3359,6 +3359,11 @@ th:last-child>.col-rz{display:none}
 .dpx.panel{padding:var(--s-4);border-radius:var(--r-card)}
 .dpx:focus-visible{outline:2px solid var(--focus);outline-offset:6px}
 .dpx-h{display:flex;align-items:center;justify-content:space-between}
+/* once every question is answered the head goes, label and dots (owner, 23 Nov: "All set" said what the card already shows):
+   the card eases to its new height with its usual grow(), its first summary row 16px from the top, and a hidden line tells
+   screen readers that every question is answered. (Agent harness keeps staging's head under its own rules) */
+.dpx.done .dpx-h{display:none}
+.dpx-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .dpx-k{font-size:12px;line-height:16px}
 .dpx-dots{display:flex;gap:var(--s-1);transition:opacity var(--t-fast) var(--ease),transform var(--t) var(--ease),visibility 0s}
 /* the steps are done once every question is answered (owner, 21 Nov): the dots fade and shrink a little where they are, at
@@ -10989,6 +10994,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <div class="dpx-h"><span class="dpx-k muted num">Question 1 of 3</span><div class="dpx-dots"><i class="on"></i><i></i><i></i></div></div>
   <div class="dpx-body"></div>
   <div class="dpx-f"><button class="pill ghost sm dpx-skip">Skip</button><button class="pill primary sm dpx-go">Continue <span class="kbd">↵</span></button></div>
+  <p class="dpx-live" aria-live="polite"></p>
 </div></template>
   <div class="card-f"><span>Pick with 1, 2, 3 or click</span><span class="sp"></span><button class="replay" aria-label="Replay Decision prompt"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
@@ -16866,7 +16872,7 @@ DM.def('decision-prompt', (r, c) => {
     if (done) return; ans.push(skipped === true ? 'Agent decides' : Q[qi][2][sel][0]); qi++; sel = 0;
     if (qi < Q.length) return paint();
     // the steps are over: the dots fade away where they are (owner, 21 Nov), and the head keeps its place
-    done = true; dots.forEach(d => { d.classList.remove('on'); d.classList.add('done'); }); $('.dpx-dots', r).classList.add('gone'); k.textContent = 'All set';
+    done = true; dots.forEach(d => { d.classList.remove('on'); d.classList.add('done'); }); $('.dpx-dots', r).classList.add('gone'); k.textContent = 'All set'; card.classList.add('done'); $('.dpx-live', r).textContent = 'All questions answered';
     // the buttons give way to the line saying the agent has started (its words shimmer while it gets going); a focus that
     // was on them comes back to the card
     const had = foot.contains(document.activeElement);
