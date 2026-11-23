@@ -48,13 +48,15 @@
 //   STYLES   clean,soft,blueprint (default all three)      THEMES  light,dark (default both)
 //   WIDTHS   1440,390 (default both)                       SAMPLES seconds into each design's demo to sample (default 1.5,5,10)
 //   HOVER    0 to skip the hover pass (default on, at the widest width only)
-//   CONC     pages run side by side (default 6)            OUT     folder for report.json and report.md (default .)
+//   CONC     pages run side by side (default 4)            OUT     folder for report.json and report.md (default .)
+//   RESUME   1 to take each card's records from OUT/raw when an earlier run measured it (each card's records are cached
+//            there as it finishes; a card that failed isn't, so a rerun with RESUME=1 measures only what is missing)
 //   SPEC     the agreed spec (spec.json, see above): adds the "Off spec" lists
 //   FROM     earlier report.json files, comma separated: measure nothing, merge them (each later one replaces the cards it
 //            measured, so a rerun of the changed cards updates a full run), check against SPEC and write the reports into OUT
 //   PW       where Playwright is, if it isn't found on its own
 // Exit code: 0. This is a measuring tool; the gate is reading its counts and its off-spec lists.
-const fs = require('fs'), path = require('path');
+const fs = require('fs'), path = require('path'), zlib = require('zlib');
 const { chromium } = (() => { for (const m of [process.env.PW, 'playwright', '/opt/node-tools/node_modules/playwright'].filter(Boolean)) { try { return require(m); } catch (e) {} } throw new Error('Playwright not found: set PW=<path to playwright>'); })();
 
 // Phase I cards (CLAUDE.md, "Clean": what is left once Phase II has taken its list)
@@ -70,7 +72,7 @@ const port = process.env.PORT || 8790, OUT = process.env.OUT || '.';
 const ids = (!process.env.IDS || process.env.IDS === 'all' ? PHASE1 : process.env.IDS).split(',').map(s => s.trim()).filter(Boolean);
 const styles = (process.env.STYLES || 'soft,blueprint,clean').split(','), themes = (process.env.THEMES || 'light,dark').split(',');
 const widths = (process.env.WIDTHS || '1440,390').split(',').map(Number), SAMPLES = (process.env.SAMPLES || '1.5,5,10').split(',').map(Number);
-const HOVER = process.env.HOVER !== '0', CONC = +(process.env.CONC || 6);
+const HOVER = process.env.HOVER !== '0', CONC = +(process.env.CONC || 4);
 const STYLE_KEY = { soft:'soft', clean:'clean', blueprint:'bp', bp:'bp' }, STYLE_NAME = { soft:'Soft', clean:'Clean', blueprint:'Blueprint', bp:'Blueprint' };
 
 /* ------------------------------------------------------------------------------------------------------------------ */
@@ -168,8 +170,9 @@ function install(){
 /* ------------------------------------------------------------------------------------------------------------------ */
 function sample(){
   const A = window.__A, sin = A.root(); if (!sin) return { recs:[] };
-  // a moment counts as settled when no one-off animation is running in the component
-  if (sin.getAnimations({ subtree:true }).some(a => a.playState === 'running' && a.effect && a.effect.getComputedTiming().iterations !== Infinity)) return { busy:true };
+  // a moment counts as settled when no entrance or move is running in the component (a one-off animation of 1.2s or less;
+  // a longer one is a timer or a progress bar, like a toast's life line, and runs while the component is at rest)
+  if (sin.getAnimations({ subtree:true }).some(a => { if (a.playState !== 'running' || !a.effect) return false; const t = a.effect.getComputedTiming(); return t.iterations !== Infinity && t.activeDuration <= 1200; })) return { busy:true };
   const R = [], rec = (cat, kind, prop, value, e, extra) => R.push([cat, kind, prop, value, e ? A.sel(e) : '', e ? A.path(e) : '', e ? A.txt(e) : '', extra || null]);
   const cards = A.cards(), roots = cards.length ? cards : [sin.firstElementChild || sin];
   const rootW = Math.max(...roots.map(r => r.getBoundingClientRect().width));
@@ -394,39 +397,36 @@ async function menus(p, base, add){
   } catch (e) {} }
 }
 
-async function runCombo(b, st, th, W, add, log){
-  const ctx = await b.newContext({ viewport:{ width:W, height:W > 800 ? 1000 : 844 }, deviceScaleFactor:1 });
-  const p = await ctx.newPage();
-  await p.addInitScript(([s, t]) => { try { localStorage.setItem('dmui-style', s); localStorage.setItem('dmui-theme', t); } catch(e){} }, [STYLE_KEY[st], th]);
-  await p.route(/plausible|api\.github\.com|supabase|fonts\.g/, r => r.abort());
-  for (const id of ids){
-    const url = `http://127.0.0.1:${port}/components/${PAGE[id] || id}.html`;
-    try {
-      await p.goto(url, { waitUntil:'load' }); await p.evaluate(() => document.fonts.ready);
-      const designs = await p.locator('.cp-demo [aria-label$=" design"] button').allTextContents();
-      for (let d = 0; d < Math.max(1, designs.length); d++) for (let tries = 0; tries < 2; tries++) try {
-        if (d || tries) { await p.goto(url, { waitUntil:'load' }); await p.evaluate(() => document.fonts.ready); }
-        await p.evaluate(install);
-        await p.evaluate(() => document.querySelector('.cp-demo').scrollIntoView({ block:'start' }));
-        if (designs.length){ const bt = p.locator('.cp-demo [aria-label$=" design"] button').nth(d); await bt.click(); }
-        await p.mouse.move(2, 2);
-        const design = designs.length ? designs[d].trim() : '';
-        const base = { st, th, W, id, design, show:SHOWCASE.has(id) };
-        const t0 = Date.now();
-        for (const s of SAMPLES){
-          const wait = s * 1000 - (Date.now() - t0); if (wait > 0) await p.waitForTimeout(wait);
-          let r; for (let k = 0; k < 6; k++){ r = await p.evaluate(sample); if (!r.busy) break; await p.waitForTimeout(250); }
-          if (!r || r.busy) continue;
-          for (const x of r.recs) add({ ...base, t:s, cat:x[0], kind:x[1], prop:x[2], value:x[3], sel:x[4], path:x[5], txt:x[6], extra:x[7] });
-        }
-        if (HOVER && W === Math.max(...widths)){ await stopDemo(p); await p.waitForTimeout(300); await p.evaluate(() => document.querySelector('.cp-demo .stage-in').setAttribute('data-audit-root', ''));
-          await hoverPass(p, '[data-audit-root]', { ...base, t:'end', menu:'' }, add); await menus(p, { ...base, t:'end' }, add); }
-        break;
-      } catch (e) { log(`${st} ${th} ${W} ${id} design ${d}${tries ? '' : ', trying again'}: ${e.message.split('\n')[0]}`); }
-      log(`${st} ${th} ${W} ${id} ${designs.length ? designs.length + ' designs' : ''}`);
-    } catch (e) { log(`${st} ${th} ${W} ${id}: ${e.message.split('\n')[0]}`); }
-  }
-  await ctx.close();
+// one card at one style, theme and width: every record it gave, each element's value once (raw/<style>-<theme>-<width>/<id>.json.gz)
+const rawFile = (st, th, W, id) => path.join(OUT, 'raw', `${st}-${th}-${W}`, `${id}.json.gz`);
+async function runCard(ctx, st, th, W, id, log){
+  const url = `http://127.0.0.1:${port}/components/${PAGE[id] || id}.html`, recs = new Map();
+  const keep = r => { const k = [r.design, r.menu || '', r.path, r.cat, r.kind, r.prop, r.value].join('|'); if (!recs.has(k)) recs.set(k, r); };
+  // (a fresh page for every design, and three tries: a busy machine can take a while to load a page)
+  const open = async () => { for (let k = 0; ; k++){ const p = await ctx.newPage(); try { await p.route(/plausible|api\.github\.com|supabase|fonts\.g|\/thumbs\//, r => r.abort()); await p.goto(url, { waitUntil:'load', timeout:120000 }); await p.waitForSelector('.cp-demo .stage-in', { timeout:60000 }); await p.evaluate(() => document.fonts.ready); return p; } catch (e) { await p.close().catch(() => {}); if (k >= 2) throw e; } } };
+  let p = await open(); const designs = await p.locator('.cp-demo [aria-label$=" design"] button').allTextContents(); await p.close();
+  let failed = 0;
+  for (let d = 0; d < Math.max(1, designs.length); d++) for (let tries = 0; tries < 3; tries++){ p = null; try {
+    p = await open(); await p.evaluate(install);
+    await p.evaluate(() => document.querySelector('.cp-demo').scrollIntoView({ block:'start' }));
+    if (designs.length) await p.locator('.cp-demo [aria-label$=" design"] button').nth(d).click({ timeout:60000 });
+    await p.mouse.move(2, 2);
+    const design = designs.length ? designs[d].trim() : '', base = { st, th, W, id, design, show:SHOWCASE.has(id) }, got = [], t0 = Date.now();
+    for (const s of SAMPLES){
+      const wait = s * 1000 - (Date.now() - t0); if (wait > 0) await p.waitForTimeout(wait);
+      let r; for (let k = 0; k < 8; k++){ r = await p.evaluate(sample); if (!r.busy) break; await p.waitForTimeout(250); }
+      if (!r || r.busy) continue;
+      for (const x of r.recs) got.push({ ...base, t:s, cat:x[0], kind:x[1], prop:x[2], value:x[3], sel:x[4], path:x[5], txt:x[6], extra:x[7] });
+    }
+    if (HOVER && W === Math.max(...widths)){ await stopDemo(p); await p.waitForTimeout(300); await p.evaluate(() => document.querySelector('.cp-demo .stage-in').setAttribute('data-audit-root', ''));
+      const h = r => got.push(r); await hoverPass(p, '[data-audit-root]', { ...base, t:'end', menu:'' }, h); await menus(p, { ...base, t:'end' }, h); }
+    got.forEach(keep); await p.close(); break;
+  } catch (e) { if (p) await p.close().catch(() => {}); log(`${st} ${th} ${W} ${id} design ${d}: ${e.message.split('\n')[0]}${tries < 2 ? ', trying again' : ', gave up'}`); if (tries === 2) failed++; } }
+  const f = rawFile(st, th, W, id); fs.mkdirSync(path.dirname(f), { recursive:true });
+  // (a card that failed in any design isn't cached, so a rerun with RESUME=1 measures it again)
+  if (!failed) fs.writeFileSync(f, zlib.gzipSync(JSON.stringify([...recs.values()])));
+  log(`${st} ${th} ${W} ${id}${designs.length ? ' · ' + designs.length + ' designs' : ''}${failed ? ' · FAILED ' + failed : ''}`);
+  return [...recs.values()];
 }
 
 /* ------------------------------------------------------------------------------------------------------------------ */
@@ -522,9 +522,14 @@ function markdown(R){
   if (process.env.FROM){ const R = merge(process.env.FROM.split(',').map(f => JSON.parse(fs.readFileSync(f, 'utf8')))); R.offspec = offSpec(R); fs.mkdirSync(OUT, { recursive:true });
     fs.writeFileSync(path.join(OUT, 'report.json'), JSON.stringify(R)); fs.writeFileSync(path.join(OUT, 'report.md'), markdown(R)); console.log(`checked ${process.env.FROM} against ${process.env.SPEC || 'no spec'}`); return; }
   const b = await chromium.launch();
-  const combos = []; for (const st of styles) for (const th of themes) for (const W of widths) combos.push([st, th, W]);
   const log = m => process.stdout.write(m + '\n');
-  let i = 0; await Promise.all(Array.from({ length:Math.min(CONC, combos.length) }, async () => { while (i < combos.length){ const c = combos[i++]; await runCombo(b, ...c, add, log); } }));
+  // every card at every style, theme and width is one job; RESUME=1 takes a job's records from the cache when it has them
+  const jobs = []; for (const st of styles) for (const th of themes) for (const W of widths) for (const id of ids) jobs.push([st, th, W, id]);
+  const ctxs = new Map(), ctxFor = async (st, th, W) => { const k = `${st}|${th}|${W}`; if (!ctxs.has(k)) ctxs.set(k, (async () => { const c = await b.newContext({ viewport:{ width:W, height:W > 800 ? 1000 : 844 }, deviceScaleFactor:1 });
+    await c.addInitScript(([s, t]) => { try { localStorage.setItem('dmui-style', s); localStorage.setItem('dmui-theme', t); } catch(e){} }, [STYLE_KEY[st], th]); return c; })()); return ctxs.get(k); };
+  let i = 0; await Promise.all(Array.from({ length:Math.min(CONC, jobs.length) }, async () => { while (i < jobs.length){ const [st, th, W, id] = jobs[i++]; const f = rawFile(st, th, W, id);
+    const recs = process.env.RESUME === '1' && fs.existsSync(f) ? JSON.parse(zlib.gunzipSync(fs.readFileSync(f))) : await runCard(await ctxFor(st, th, W), st, th, W, id, log).catch(e => (log(`${st} ${th} ${W} ${id}: ${e.message.split('\n')[0]}`), []));
+    recs.forEach(add); } }));
   await b.close();
   const R = { meta:{ port, ids, styles, themes, widths, samples:SAMPLES, hover:HOVER, date:new Date().toISOString() }, ...tables() }; R.offspec = offSpec(R); fs.mkdirSync(OUT, { recursive:true });
   fs.writeFileSync(path.join(OUT, 'report.json'), JSON.stringify(R));
