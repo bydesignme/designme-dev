@@ -24,9 +24,13 @@ if (!ids.length) { console.error('IDS=<card ids> required'); process.exit(2); }
 function sample(id){
   const comp = document.querySelector(`.comp[data-v2="${id}"]`), sin = comp.querySelector('.v2.stage-in');
   const out = [];
-  // (while something in the card moves, only the baselines are checked, and only in the parts that are still: a card whose demo
-  // never settles, like Agent lanes' tracks, still has its head checked)
-  const moving = sin.getAnimations({ subtree:true }).filter(a => a.playState === 'running' && a.effect && a.effect.getComputedTiming().iterations !== Infinity).map(a => a.effect.target).filter(Boolean);
+  // (while something in the card plays, only the baselines are checked, so a card whose demo never settles, like Agent lanes'
+  // tracks, still has its head checked; two words are compared unless something between them and the row they share is
+  // moving: an animation of position or size on one of them and not the other. A fade, a colour, a pseudo-element's
+  // highlight gliding behind a list, or a move of the whole row does not shift one word against the other)
+  const running = sin.getAnimations({ subtree:true }).filter(a => a.playState === 'running' && a.effect && a.effect.getComputedTiming().iterations !== Infinity);
+  const shifts = a => { if (a.effect.pseudoElement) return false; const props = a.transitionProperty ? [a.transitionProperty] : a.effect.getKeyframes().flatMap(k => Object.keys(k)); return props.some(q => /^(transform|translate|scale|rotate|top|left|right|bottom|inset|margin|padding|width|height|min|max|grid|flex|gap|line-height|font-size|letter-spacing|all)/i.test(q.replace(/[A-Z]/g, c => '-' + c.toLowerCase()))); };
+  const moving = running.filter(shifts).map(a => a.effect.target).filter(Boolean);
   // (text kept for screen readers only, clipped to nothing with clip-path: inset(50%), is not on screen either)
   const vis = e => { for (let a = e; a && a !== sin; a = a.parentElement){ const cs = getComputedStyle(a); if (cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity < .1 || a.hidden || a.matches('.hand,.tip') || cs.clipPath === 'inset(50%)') return false; } return true; };
   const name = e => (typeof e.className === 'string' && e.className.trim() ? '.' + e.className.trim().split(/\s+/).slice(0, 2).join('.') : e.tagName.toLowerCase()) + (e.textContent && e.textContent.trim() ? ` "${e.textContent.trim().slice(0, 18)}"` : '');
@@ -72,15 +76,20 @@ function sample(id){
   function baselines(){
     const shadeOn = cs => cs.boxShadow !== 'none' && cs.boxShadow.split(/,(?![^(]*\))/).some(s => !/rgba\([^)]*,\s*0\)|transparent/.test(s));
     // (and words drawn over a graphic, like a score inside its ring, are the graphic's label, not words on a line)
-    const over = (e, b) => [...e.children].some(k => k.tagName.toLowerCase() === 'svg' && (q => q.left <= b.left && q.right >= b.right && q.top <= b.top && q.bottom >= b.bottom)(k.getBoundingClientRect()));
+    // (a small graphic, up to 96px: a tree's or a chart's drawing laid over a whole list is not a mark)
+    const over = (e, b) => [...e.children].some(k => k.tagName.toLowerCase() === 'svg' && (q => q.width <= 96 && q.height <= 96 && q.left <= b.left && q.right >= b.right && q.top <= b.top && q.bottom >= b.bottom)(k.getBoundingClientRect()));
     const chip = (e, b) => { for (let a = e; a && a !== card; a = a.parentElement){ if (a.matches('button,.pill,.tag,.chip,.fchip,[role="button"],[role="tab"],[role="option"],[role="switch"],kbd,code,sup,sub') || over(a, b)) return true;
-      const cs = getComputedStyle(a), q = a.getBoundingClientRect(); if (q.height <= 30 && q.width <= 160 && (cs.backgroundColor !== 'rgba(0, 0, 0, 0)' || cs.backgroundImage !== 'none' || parseFloat(cs.borderTopWidth) > 0 || parseFloat(cs.borderLeftWidth) > 0 || shadeOn(cs))) return true; } return false; };
+      // (a fill clipped to the words, like the loader's highlight sweep, is the words' colour, not a chip's fill)
+      const cs = getComputedStyle(a), q = a.getBoundingClientRect(), txt = /text/.test(cs.backgroundClip + cs.webkitBackgroundClip);
+      if (q.height <= 30 && q.width <= 160 && (((cs.backgroundColor !== 'rgba(0, 0, 0, 0)' || cs.backgroundImage !== 'none') && !txt) || parseFloat(cs.borderTopWidth) > 0 || parseFloat(cs.borderLeftWidth) > 0 || shadeOn(cs))) return true; } return false; };
     const runs = [], w2 = document.createTreeWalker(card, NodeFilter.SHOW_TEXT); let t2;
-    // (words that are moving are not measured, but still count when deciding whether a part of a row is one line)
-    while ((t2 = w2.nextNode())){ const e = t2.parentElement; if (!t2.textContent.trim() || !vis(e) || e.closest('svg,.pop,.hand,.tip') || placed(e)) continue;
+    // (words faded out for the moment, like a status line crossfading, still hold their line: they are not measured, but they
+    // count when deciding whether a part of a row is one line)
+    const laid = e => { for (let a = e; a && a !== sin; a = a.parentElement){ const cs = getComputedStyle(a); if (cs.display === 'none' || cs.visibility === 'hidden' || a.hidden || cs.clipPath === 'inset(50%)') return false; } return true; };
+    while ((t2 = w2.nextNode())){ const e = t2.parentElement; if (!t2.textContent.trim() || !laid(e) || e.closest('svg,.pop,.hand,.tip') || placed(e)) continue;
       const r = document.createRange(); r.selectNodeContents(t2); const ls = [...r.getClientRects()].filter(b => b.width > 2 && b.height > 2); if (!ls.length) continue;
       const tops = new Set(ls.map(b => Math.round(b.top))), b = r.getBoundingClientRect();
-      runs.push({ n:t2, e, b, wraps:tops.size > 1, skip:tops.size > 1 || chip(e, b) || moving.some(m => m.contains(e)) }); }
+      runs.push({ n:t2, e, b, wraps:tops.size > 1, skip:tops.size > 1 || !vis(e) || chip(e, b) }); }
     const ov = (x, y) => Math.min(x.bottom, y.bottom) - Math.max(x.top, y.top);
     const cand = runs.filter(r => !r.skip);
     if (cand.length > 1){
@@ -98,7 +107,7 @@ function sample(id){
       const block = item => item.nodeType !== 3 && item.getBoundingClientRect().height <= 48 && runs.every(q => !item.contains(q.n) || !q.wraps);
       const said = (r) => `"${r.n.textContent.trim().slice(0, 24)}"`;
       for (let i = 0; i < cand.length; i++) for (let j = i + 1; j < cand.length; j++){
-        const a = cand[i], b = cand[j], o = ov(a.b, b.b) / Math.min(a.b.height, b.b.height); if (o < 1 / 3) continue;
+        const a = cand[i], b = cand[j], o = ov(a.b, b.b) / Math.min(a.b.height, b.b.height); if (o < 1 / 3 || moving.some(m => m.contains(a.e) !== m.contains(b.e))) continue;
         const d = Math.abs(a.base - b.base); if (d <= .5) continue;
         let top = a.e; while (top && !top.contains(b.n)) top = top.parentElement; if (!top || !card.contains(top)) continue;
         const ia = under(top, a.n), ib = under(top, b.n), la = oneLine(ia, a), lb = oneLine(ib, b);
@@ -107,7 +116,7 @@ function sample(id){
         out.push(`baseline: ${said(l)} vs ${said(r)} off by ${d.toFixed(1)}px`); }
     }
   }
-  if (moving.length){ baselines(); return { out }; }
+  if (running.length){ baselines(); return { out }; }
   sin.querySelectorAll('button,.pill,.ib,.tag,[role="switch"]').forEach(e => { if (!card.contains(e) || !vis(e) || e.closest('.pop') || placed(e) || (e.parentElement && e.parentElement.closest('button,.pill,.tag'))) return; const b = e.getBoundingClientRect(); if (b.width < 8 || b.height < 8 || b.width > C.width * .6) return; A.push({ k:'ctl', e, b:bare(e) || listRow(e) ? inner(e) : b, box:b }); });
   const tw = document.createTreeWalker(card, NodeFilter.SHOW_TEXT); let n;
   const sets = e => { const cs = getComputedStyle(e), pe = e.parentElement, ps = pe && getComputedStyle(pe);
