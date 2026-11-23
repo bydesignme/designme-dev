@@ -10,6 +10,8 @@
 //   strips   in Clean, a head or foot strip's controls more than 1px off 16px from the strip's top and bottom
 //   insets   the card's content more than 2.5px further from one edge than another, in every style (head and foot strips
 //            and edges they cover are left out)
+//   baseline words side by side on one line (a title and its muted time or count, a label and its value, a name and its role)
+//            whose baselines differ by more than 0.5px, whatever their sizes
 // usage (from the repo root, after a build, with a server on PORT, default 8790):
 //   IDS=permission-gate,model-picker node tools/site/check-align.js     STYLES=clean,soft,blueprint THEMES=light,dark W=1440 SECS=16
 // Nothing reaches the owner until it reports no issues for every style and theme.
@@ -22,7 +24,13 @@ if (!ids.length) { console.error('IDS=<card ids> required'); process.exit(2); }
 function sample(id){
   const comp = document.querySelector(`.comp[data-v2="${id}"]`), sin = comp.querySelector('.v2.stage-in');
   const out = [];
-  if (sin.getAnimations({ subtree:true }).some(a => a.playState === 'running' && a.effect && a.effect.getComputedTiming().iterations !== Infinity)) return { skip:true };
+  // (while something in the card plays, only the baselines are checked, so a card whose demo never settles, like Agent lanes'
+  // tracks, still has its head checked; two words are compared unless something between them and the row they share is
+  // moving: an animation of position or size on one of them and not the other. A fade, a colour, a pseudo-element's
+  // highlight gliding behind a list, or a move of the whole row does not shift one word against the other)
+  const running = sin.getAnimations({ subtree:true }).filter(a => a.playState === 'running' && a.effect && a.effect.getComputedTiming().iterations !== Infinity);
+  const shifts = a => { if (a.effect.pseudoElement) return false; const props = a.transitionProperty ? [a.transitionProperty] : a.effect.getKeyframes().flatMap(k => Object.keys(k)); return props.some(q => /^(transform|translate|scale|rotate|top|left|right|bottom|inset|margin|padding|width|height|min|max|grid|flex|gap|line-height|font-size|letter-spacing|all)/i.test(q.replace(/[A-Z]/g, c => '-' + c.toLowerCase()))); };
+  const moving = running.filter(shifts).map(a => a.effect.target).filter(Boolean);
   // (text kept for screen readers only, clipped to nothing with clip-path: inset(50%), is not on screen either)
   const vis = e => { for (let a = e; a && a !== sin; a = a.parentElement){ const cs = getComputedStyle(a); if (cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity < .1 || a.hidden || a.matches('.hand,.tip') || cs.clipPath === 'inset(50%)') return false; } return true; };
   const name = e => (typeof e.className === 'string' && e.className.trim() ? '.' + e.className.trim().split(/\s+/).slice(0, 2).join('.') : e.tagName.toLowerCase()) + (e.textContent && e.textContent.trim() ? ` "${e.textContent.trim().slice(0, 18)}"` : '');
@@ -48,6 +56,74 @@ function sample(id){
   // words and controls a script places by coordinates (a chart's axis labels round a radar, a point's label) sit where the chart's
   // geometry puts them, not on the card's columns, so they are left out of the column checks
   const placed = e => { for (let a = e; a && a !== card; a = a.parentElement) if (/(^|;)\s*(left|--x0)\s*:/.test(a.getAttribute('style') || '')) return true; return false; };
+  // baselines (owner, 23 Nov: Agent lanes' "0:05" sat 2px above "3 agents working"): words that sit side by side on one line
+  // share one baseline, whatever their sizes. A row with align-items:center centres each box, so a 12.5px time beside a 14px
+  // title ends up with its baseline higher; the centres check above can't see that, since the centres do match.
+  //  - each run of words (a text node on one line) is measured by its baseline: a zero-size probe placed in the text's
+  //    parent right before the words lands on the words' baseline. The probe is an empty inline with a font size of 0, so its
+  //    box is a point on the baseline; an inline-block would be measured the same way but adds a place where the line may
+  //    break, which can push it onto a line of its own (". Every plan" after "team" in a diff; words wider than their column).
+  //    When the parent is a flex or grid box, or has display:contents, its loose words are an anonymous item of their own, so
+  //    they are wrapped for the moment, with the probe, in an element with every property unset (an anonymous item's look).
+  //    Every probe is put in first and read after, in one layout, then everything is put back as it was
+  //  - two runs are on one line when their boxes overlap vertically by at least a third of the smaller, and each sits in a
+  //    one-line part of the row: the child of their nearest common ancestor holding each run has no words on another line
+  //    (a title over a subtitle, centred against a time beside them, is not one line). A time set squarely beside the title
+  //    of such a two-line part (two thirds of its height on the title's line) is on the title's line
+  //  - words inside buttons, chips and tags are left out (they are centred in their own box: a button, a pill, a tag, or any
+  //    element with its own fill, edge or ring up to 30px tall and 160px wide), and so are runs that wrap (a paragraph),
+  //    raised or lowered on purpose (sup, sub), drawn in an SVG or over one (a score inside its ring), or placed by a chart's
+  //    coordinates
+  function baselines(){
+    const shadeOn = cs => cs.boxShadow !== 'none' && cs.boxShadow.split(/,(?![^(]*\))/).some(s => !/rgba\([^)]*,\s*0\)|transparent/.test(s));
+    // (and words drawn over a graphic, like a score inside its ring, are the graphic's label, not words on a line)
+    // (a small graphic, up to 96px: a tree's or a chart's drawing laid over a whole list is not a mark)
+    const over = (e, b) => [...e.children].some(k => k.tagName.toLowerCase() === 'svg' && (q => q.width <= 96 && q.height <= 96 && q.left <= b.left && q.right >= b.right && q.top <= b.top && q.bottom >= b.bottom)(k.getBoundingClientRect()));
+    const chip = (e, b) => { for (let a = e; a && a !== card; a = a.parentElement){ if (a.matches('button,.pill,.tag,.chip,.fchip,[role="button"],[role="tab"],[role="option"],[role="switch"],kbd,code,sup,sub') || over(a, b)) return true;
+      // (a fill clipped to the words, like the loader's highlight sweep, is the words' colour, not a chip's fill)
+      const cs = getComputedStyle(a), q = a.getBoundingClientRect(), txt = /text/.test(cs.backgroundClip + cs.webkitBackgroundClip);
+      if (q.height <= 30 && q.width <= 160 && (((cs.backgroundColor !== 'rgba(0, 0, 0, 0)' || cs.backgroundImage !== 'none') && !txt) || parseFloat(cs.borderTopWidth) > 0 || parseFloat(cs.borderLeftWidth) > 0 || shadeOn(cs))) return true; } return false; };
+    const runs = [], w2 = document.createTreeWalker(card, NodeFilter.SHOW_TEXT); let t2;
+    // (words faded out for the moment, like a status line crossfading, still hold their line: they are not measured, but they
+    // count when deciding whether a part of a row is one line)
+    const laid = e => { for (let a = e; a && a !== sin; a = a.parentElement){ const cs = getComputedStyle(a); if (cs.display === 'none' || cs.visibility === 'hidden' || a.hidden || cs.clipPath === 'inset(50%)') return false; } return true; };
+    while ((t2 = w2.nextNode())){ const e = t2.parentElement; if (!t2.textContent.trim() || !laid(e) || e.closest('svg,.pop,.hand,.tip') || placed(e)) continue;
+      const r = document.createRange(); r.selectNodeContents(t2); const ls = [...r.getClientRects()].filter(b => b.width > 2 && b.height > 2); if (!ls.length) continue;
+      const tops = new Set(ls.map(b => Math.round(b.top))), b = r.getBoundingClientRect();
+      runs.push({ n:t2, e, b, wraps:tops.size > 1, skip:tops.size > 1 || !vis(e) || chip(e, b) }); }
+    const ov = (x, y) => Math.min(x.bottom, y.bottom) - Math.max(x.top, y.top);
+    const cand = runs.filter(r => !r.skip);
+    if (cand.length > 1){
+      const unset = 'all:unset!important;', made = [];
+      cand.forEach(r => { const p = document.createElement('dm-baseline-probe'); p.style.cssText = unset + 'display:inline!important;font-size:0!important;line-height:0!important;vertical-align:baseline!important';
+        let lay = r.e; while (lay.parentElement && getComputedStyle(lay).display === 'contents') lay = lay.parentElement;
+        if (lay !== r.e || /flex|grid|box/.test(getComputedStyle(r.e).display)){ const w = document.createElement('dm-baseline-wrap'); w.style.cssText = unset; r.n.before(w); w.append(p, r.n); made.push(() => { w.before(r.n); w.remove(); }); }
+        else { r.n.before(p); made.push(() => p.remove()); }
+        r.p = p; });
+      cand.forEach(r => { r.base = r.p.getBoundingClientRect().top; });
+      made.reverse().forEach(f => f());
+      // the child of `top` that holds node x (x itself when it sits right in `top`)
+      const under = (top, x) => { let a = x; while (a && a.parentNode !== top) a = a.parentNode; return a; };
+      const oneLine = (item, r) => item.nodeType === 3 || runs.every(q => !item.contains(q.n) || (!q.wraps && ov(q.b, r.b) > 0));
+      // (a part of two or three lines, up to 48px, like a title over its subtitle: words beside it that sit squarely on one of
+      // its lines, two thirds of their height on it, share that line's baseline; words centred between its lines do not)
+      const block = item => item.nodeType !== 3 && item.getBoundingClientRect().height <= 48 && runs.every(q => !item.contains(q.n) || !q.wraps);
+      const said = (r) => `"${r.n.textContent.trim().slice(0, 24)}"`;
+      for (let i = 0; i < cand.length; i++) for (let j = i + 1; j < cand.length; j++){
+        const a = cand[i], b = cand[j], o = ov(a.b, b.b) / Math.min(a.b.height, b.b.height); if (o < 1 / 3 || moving.some(m => m.contains(a.e) !== m.contains(b.e))) continue;
+        const d = Math.abs(a.base - b.base); if (d <= .5) continue;
+        let top = a.e; while (top && !top.contains(b.n)) top = top.parentElement; if (!top || !card.contains(top)) continue;
+        const ia = under(top, a.n), ib = under(top, b.n), la = oneLine(ia, a), lb = oneLine(ib, b);
+        // (words that straddle two lines of the row, centred against a name over its detail laid out as separate parts, are on
+        // neither line unless two thirds of them sit on one)
+        const straddle = (x, y) => runs.some(q => q !== x && q !== y && top.contains(q.n) && ov(q.b, x.b) <= 0 && ov(q.b, y.b) > 0);
+        if (o < 2 / 3 && (straddle(a, b) || straddle(b, a))) continue;
+        if (!(la && lb) && !(o >= 2 / 3 && (la || block(ia)) && (lb || block(ib)))) continue;
+        const [l, r] = a.b.left <= b.b.left ? [a, b] : [b, a];
+        out.push(`baseline: ${said(l)} vs ${said(r)} off by ${d.toFixed(1)}px`); }
+    }
+  }
+  if (running.length){ baselines(); return { out }; }
   sin.querySelectorAll('button,.pill,.ib,.tag,[role="switch"]').forEach(e => { if (!card.contains(e) || !vis(e) || e.closest('.pop') || placed(e) || (e.parentElement && e.parentElement.closest('button,.pill,.tag'))) return; const b = e.getBoundingClientRect(); if (b.width < 8 || b.height < 8 || b.width > C.width * .6) return; A.push({ k:'ctl', e, b:bare(e) || listRow(e) ? inner(e) : b, box:b }); });
   const tw = document.createTreeWalker(card, NodeFilter.SHOW_TEXT); let n;
   const sets = e => { const cs = getComputedStyle(e), pe = e.parentElement, ps = pe && getComputedStyle(pe);
@@ -159,6 +235,7 @@ function sample(id){
     const m = [measure(false), measure(true)].filter(Boolean).sort((x, y) => x.spread - y.spread)[0];
     if (m && m.spread > 2.5) out.push(`insets: ${Object.entries(m.ins).map(([k, v]) => `${k} ${v === null ? (k === 'right' ? 'ragged' : 'strip') : Math.round(v)}`).join(', ')}`);
   }
+  baselines();
   return { out };
 }
 
@@ -167,7 +244,8 @@ function sample(id){
   const LIB = await fetch(`http://127.0.0.1:${port}/library.html`, { method:'HEAD' }).then(r => r.ok ? '/library.html' : '/', () => '/');
   const b = await chromium.launch(); const report = []; let issues = 0;
   for (const st of styles) for (const th of themes){
-    const p = await b.newPage({ viewport:{ width:W, height:1000 } });
+    // (generous waits: on a busy machine a tab can take more than the default 30s to settle before it can be clicked)
+    const p = await b.newPage({ viewport:{ width:W, height:1000 } }); p.setDefaultTimeout(120000);
     await p.addInitScript(([s, t]) => { try { localStorage.setItem('dmui-style', s); localStorage.setItem('dmui-theme', t); } catch(e){} }, [st, th]);
     await p.route(/plausible|api\.github\.com|supabase|fonts\.g/, r => r.abort());
     // (both groups of the library on show, so an App basics card is checked as it plays, not hidden behind the group switch)
@@ -178,7 +256,10 @@ function sample(id){
       for (let d = 0; d < Math.max(1, nt); d++){
         if (nt) await tabs.nth(d).click(); await p.mouse.move(0, 0);
         const seen = new Map();
-        for (let t = 0; t < SECS * 2; t++){ await p.waitForTimeout(500); const r = await p.evaluate(sample, id); if (r.skip) continue; r.out.forEach(x => seen.set(x, (seen.get(x) || 0) + 1)); }
+        // (a baseline issue is counted once however its words change while the demo plays: a clock ticking beside a title is one
+        // issue, not one per second; it is reported with the words it first had)
+        const add = x => { const k = /^baseline:/.test(x) ? x.replace(/\d/g, '#') : x, v = seen.get(k); v ? v[1]++ : seen.set(k, [x, 1]); };
+        for (let t = 0; t < SECS * 2; t++){ await p.waitForTimeout(500); const r = await p.evaluate(sample, id); if (r.skip) continue; r.out.forEach(add); }
         // menus: each popover button, clicked with the mouse, then a modifier key pressed (the ring check)
         const pops = card.locator('.v2.stage-in [data-pop]');
         for (let k = 0; k < await pops.count(); k++){
@@ -190,10 +271,10 @@ function sample(id){
             if (pop){ const pr = pop.getBoundingClientRect(); let top = 0, bottom = innerHeight; for (let a = btn.closest('.stage-in').parentElement; a && a !== document.documentElement; a = a.parentElement){ if (getComputedStyle(a).overflowY === 'visible') continue; const r = a.getBoundingClientRect(); top = Math.max(top, r.top); bottom = Math.min(bottom, r.bottom); }
               if (pr.top < top - 1 || pr.bottom > bottom + 1) res.push(`menus: ${pop.className.split(' ').slice(0, 2).join('.')} is cut off by ${Math.round(Math.max(top - pr.top, pr.bottom - bottom))}px`); }
             return res; });
-          r.forEach(x => seen.set(x, (seen.get(x) || 0) + 1)); await p.keyboard.press('Escape'); await p.waitForTimeout(300);
+          r.forEach(add); await p.keyboard.press('Escape'); await p.waitForTimeout(300);
         }
         issues += seen.size;
-        report.push(`${id}${nt ? ' design ' + d : ''} ${st} ${th}: ${seen.size ? seen.size + ' issue(s)' : 'ok'}` + [...seen].map(([k, v]) => `\n    ${k}${v > 1 ? '  (' + v + ' samples)' : ''}`).join(''));
+        report.push(`${id}${nt ? ' design ' + d : ''} ${st} ${th}: ${seen.size ? seen.size + ' issue(s)' : 'ok'}` + [...seen.values()].map(([k, v]) => `\n    ${k}${v > 1 ? '  (' + v + ' samples)' : ''}`).join(''));
         if (nt && d < nt - 1) await p.evaluate(id => window.V2 && window.V2.replay && window.V2.replay(document.querySelector(`.comp[data-v2="${id}"]`)), id).catch(() => {});
       }
     }

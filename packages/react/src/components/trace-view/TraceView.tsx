@@ -127,8 +127,10 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
         {/* the head has the run's mark in a tile, the column every span's mark is centred in, and its total tokens beside its time */}
         <span className="dm-trv-hi" aria-hidden="true"><Icon name="cpu" /></span>
         <div className="dm-trv-ht"><b>{title}</b><span className="dm-muted dm-trv-st" aria-live="polite"><Swap>{line}</Swap></span></div>
-        <span className="dm-trv-tt dm-muted dm-num">{short(total)} tokens</span>
-        <span className="dm-trv-tot dm-num">{sec(Math.min(end, now))}</span>
+        <span className="dm-trv-nums">
+          <span className="dm-trv-tt dm-muted dm-num">{short(total)} tokens</span>
+          <span className="dm-trv-tot dm-num">{sec(Math.min(end, now))}</span>
+        </span>
       </div>
       <div className="dm-trv-lg" role="list" aria-label="Spans by kind">
         {KEYS.map(k => { const n = shown.filter(({ s }) => s.kind === k).length;
