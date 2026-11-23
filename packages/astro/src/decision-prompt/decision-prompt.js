@@ -26,7 +26,7 @@ DM.def('decision-prompt', (r, c) => {
     if (done) return; ans.push(skipped === true ? 'Agent decides' : Q[qi][2][sel][0]); qi++; sel = 0;
     if (qi < Q.length) return paint();
     // the steps are over: the dots fade away where they are (owner, 21 Nov), and the head keeps its place
-    done = true; dots.forEach(d => { d.classList.remove('on'); d.classList.add('done'); }); $('.dpx-dots', r).classList.add('gone'); k.textContent = 'All set';
+    done = true; dots.forEach(d => { d.classList.remove('on'); d.classList.add('done'); }); $('.dpx-dots', r).classList.add('gone'); k.textContent = 'All set'; card.classList.add('done'); $('.dpx-live', r).textContent = 'All questions answered';
     // the buttons give way to the line saying the agent has started (its words shimmer while it gets going); a focus that
     // was on them comes back to the card
     const had = foot.contains(document.activeElement);

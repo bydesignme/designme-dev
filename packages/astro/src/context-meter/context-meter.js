@@ -27,8 +27,8 @@ DM.def('context-meter', (r, c) => {
   }
   // a warning is a warning notice with the filled sign, and Compact, the action that resolves it, takes the warning tint
   const WARN = '<svg class="ctm-wi" viewBox="0 0 24 24" aria-hidden="true"><path class="a" d="M12 3.6 2.6 19.9h18.8z"/><path class="b" d="M12 9.6v4.4M12 17v.01"/></svg>';
-  const say = (text, tone) => { msg.className = 'ctm-msg on ' + tone; swap(msg.firstElementChild, `${tone === 'warn' ? WARN : I('ok','xs')}<span>${text}</span>`, true); go.classList.toggle('warn', tone === 'warn'); go.classList.toggle('soft', tone !== 'warn'); };
-  const hush = () => { msg.className = 'ctm-msg'; go.classList.remove('warn'); go.classList.add('soft'); };
+  const say = (text, tone) => { msg.className = 'ctm-msg on ' + tone; swap(msg.firstElementChild, `${tone === 'warn' ? WARN : I('ok','xs')}<span>${text}</span>`, true); go.classList.toggle('warn', tone === 'warn'); go.classList.toggle('line', tone !== 'warn'); };
+  const hush = () => { msg.className = 'ctm-msg'; go.classList.remove('warn'); go.classList.add('line'); };
   // hovering a part lights its share of the bar
   c.on(leg, 'pointerover', e => { const l = e.target.closest('.ctm-l'); if (!l) return; bar.classList.add('hl'); $$('i', bar).forEach(i => i.classList.toggle('on', i.dataset.k === l.dataset.k)); });
   c.on(leg, 'pointerout', e => { if (!leg.contains(e.relatedTarget)) bar.classList.remove('hl'); });

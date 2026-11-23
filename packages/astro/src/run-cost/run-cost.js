@@ -19,7 +19,7 @@ DM.def('run-cost', (r, c) => {
   go.onclick = () => {
     if (running){ stop('Stopped'); swap(gl(), 'Resume'); return; }
     if (used >= 2000){ used = inT = outT = tools = 0; paint(); }
-    running = true; status('Running', 'b'); swap(gl(), 'Stop'); go.className = 'pill soft sm rc-go'; fill.style.background = 'var(--dm-accent-mark,var(--dm-accent))';
+    running = true; status('Running', 'b'); swap(gl(), 'Stop'); go.className = 'pill line sm rc-go'; fill.style.background = 'var(--dm-accent-mark,var(--dm-accent))';
     loop = c.every(90, () => {
       used = Math.min(2000, used + 8 + Math.random() * 18); inT += 120 + Math.random() * 220; outT += 30 + Math.random() * 70; if (Math.random() < .12) tools++;
       paint();

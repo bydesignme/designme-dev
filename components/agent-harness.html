@@ -826,7 +826,7 @@
 .ctm-wi .b{fill:none;stroke:var(--dm-surface);stroke-width:2.2;stroke-linecap:round}
 .ctm-msg.ok>span>svg{color:var(--dm-ok-mark)}
 @media (prefers-reduced-motion:reduce){.ctm-msg{transition:none}}
-.ctm-f{display:flex;align-items:center;gap:10px;padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.ctm-f{display:flex;align-items:center;gap:10px;padding-top:var(--dm-s-4);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .ctm-go{overflow:hidden;white-space:nowrap;justify-content:flex-start}
 /* while it compacts nothing can be pressed, so it says so where the button was (owner, 21 Nov: "should this be gray button?
    especially the loading animation?"): the spinner in the accent and the words in the loader's sweep, as plain words, the row
@@ -1040,10 +1040,10 @@
 .pgx-o.one>.oi{width:32px;height:32px;display:grid;place-items:center;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-chip);color:var(--dm-fg2)}
 :root[data-style="clean"] .pgx-o.one>.oi,:root [data-style="clean"] .pgx-o.one>.oi,:root [data-style="clean"].pgx-o.one>.oi{box-shadow:inset 0 0 0 1px var(--dm-hair)}
 .pgx-o .d{display:block;font-size:12px;color:var(--dm-muted)}
-.pgx-f{display:flex;align-items:center;gap:6px;padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.pgx-f{display:flex;align-items:center;gap:6px;padding-top:var(--dm-s-4);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .pgx-f .sp{flex:1}
 /* on a narrow stage the duration gets its own row, and the two buttons stay together under it on the right */
-@container (max-width:340px){.pgx-f{flex-wrap:wrap}.pgx-f .sp{flex-basis:100%}.pgx-no{margin:var(--dm-s-2) 0 0 auto}.pgx-ok{margin-top:var(--dm-s-2)}}
+@container (max-width:340px){.pgx-f{flex-wrap:wrap;padding-top:var(--dm-s-3)}.pgx-f .sp{flex-basis:100%}.pgx-no{margin:var(--dm-s-2) 0 0 auto}.pgx-ok{margin-top:var(--dm-s-2)}}
 /* how long: a small dropdown, the way a menu of choices usually looks */
 .pgx-db{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--dm-s-2) 0 10px;margin-left:0;border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);white-space:nowrap;transition:background .16s,color .16s}
 .pgx-db[aria-expanded="true"]{background:var(--dm-row);color:var(--dm-fg)}
@@ -1157,6 +1157,11 @@
 .dpx.panel{padding:var(--dm-s-4);border-radius:var(--dm-r-card)}
 .dpx:focus-visible{outline:2px solid var(--dm-focus);outline-offset:6px}
 .dpx-h{display:flex;align-items:center;justify-content:space-between}
+/* once every question is answered the head goes, label and dots (owner, 23 Nov: "All set" said what the card already shows):
+   the card eases to its new height with its usual grow(), its first summary row 16px from the top, and a hidden line tells
+   screen readers that every question is answered. (Agent harness keeps staging's head under its own rules) */
+.dpx.done .dpx-h{display:none}
+.dpx-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .dpx-k{font-size:12px;line-height:16px}
 .dpx-dots{display:flex;gap:var(--dm-s-1);transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease),visibility 0s}
 /* the steps are done once every question is answered (owner, 21 Nov): the dots fade and shrink a little where they are, at
@@ -1928,7 +1933,7 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 <div class="card wide" data-c="agent-lanes">
   <div class="stage-in">
     <div class="aln panel">
-      <div class="aln-h"><span class="aln-ic"><svg class="i s"><use href="#i-users"/></svg></span><span class="aln-t">3 agents working</span><span class="aln-m muted num">0:00</span><span class="aln-ct num">0 of 9 steps</span><button class="pill soft sm aln-pause"><svg class="i xs"><use href="#i-pause"/></svg>Pause all</button></div>
+      <div class="aln-h"><span class="aln-ic"><svg class="i s"><use href="#i-users"/></svg></span><span class="aln-t">3 agents working</span><span class="aln-m muted num">0:00</span><span class="aln-ct num">0 of 9 steps</span><button class="pill line sm aln-pause"><svg class="i xs"><use href="#i-pause"/></svg>Pause all</button></div>
       <div class="aln-rows"></div>
       <div class="aln-say" aria-live="polite">3 agents queued</div>
     </div>
@@ -1944,7 +1949,7 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
         <div class="ctm-bar" aria-hidden="true"></div>
         <div class="ctm-leg"></div>
         <div class="ctm-msg" aria-live="polite"><span></span></div>
-        <div class="ctm-f"><span class="ctm-hint">Summarises older turns</span><button class="pill soft sm ctm-go">Compact</button></div>
+        <div class="ctm-f"><span class="ctm-hint">Summarises older turns</span><button class="pill line sm ctm-go">Compact</button></div>
       </div>
     </div>
   </div>
@@ -1997,6 +2002,7 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
       <div class="dpx-h"><span class="dpx-k muted num">Question 1 of 3</span><div class="dpx-dots"><i class="on"></i><i></i><i></i></div></div>
       <div class="dpx-body"></div>
       <div class="dpx-f"><button class="pill ghost sm dpx-skip">Skip</button><button class="pill primary sm dpx-go">Continue <span class="kbd">↵</span></button></div>
+      <p class="dpx-live" aria-live="polite"></p>
     </div>
   </div>
 </div>
@@ -5801,6 +5807,8 @@ const fitHits = window.dmFitHits || (() => {
     const w = L.find(l => l.running);
     swap(say, w ? (w.did ? `${w.n}: ${lc(w.did)}` : `${w.n} started: ${lc(w.acts[0])}`) : steps ? `${steps} of ${STEPS} steps` : `${L.length} agents queued`); };
   const pb = $('.aln-pause', r);
+  // Pause all is the white outlined secondary (owner, 23 Nov); inside Agent harness (Phase II) it keeps its grey one for now
+  if (r.closest('.ahx')) pb.classList.replace('line', 'soft');
   pb.onclick = () => { paused = !paused; pb.innerHTML = I(paused ? 'play' : 'pause','xs') + (paused ? 'Resume' : 'Pause all'); swap($('.aln-t', r), paused ? 'All agents paused' : '3 agents working');
     L.forEach(l => { if (l.running){ state(l, paused ? 'paused' : 'working'); $('.aln-a', l.el).classList.toggle('shim', !paused); } }); tell(); };
   c.every(1000, () => { if (!paused && !finished){ secs++; $('.aln-m', r).textContent = clk(); } });
@@ -5875,8 +5883,8 @@ const fitHits = window.dmFitHits || (() => {
   }
   // a warning is a warning notice with the filled sign, and Compact, the action that resolves it, takes the warning tint
   const WARN = '<svg class="ctm-wi" viewBox="0 0 24 24" aria-hidden="true"><path class="a" d="M12 3.6 2.6 19.9h18.8z"/><path class="b" d="M12 9.6v4.4M12 17v.01"/></svg>';
-  const say = (text, tone) => { msg.className = 'ctm-msg on ' + tone; swap(msg.firstElementChild, `${tone === 'warn' ? WARN : I('ok','xs')}<span>${text}</span>`, true); go.classList.toggle('warn', tone === 'warn'); go.classList.toggle('soft', tone !== 'warn'); };
-  const hush = () => { msg.className = 'ctm-msg'; go.classList.remove('warn'); go.classList.add('soft'); };
+  const say = (text, tone) => { msg.className = 'ctm-msg on ' + tone; swap(msg.firstElementChild, `${tone === 'warn' ? WARN : I('ok','xs')}<span>${text}</span>`, true); go.classList.toggle('warn', tone === 'warn'); go.classList.toggle('line', tone !== 'warn'); };
+  const hush = () => { msg.className = 'ctm-msg'; go.classList.remove('warn'); go.classList.add('line'); };
   // hovering a part lights its share of the bar
   c.on(leg, 'pointerover', e => { const l = e.target.closest('.ctm-l'); if (!l) return; bar.classList.add('hl'); $$('i', bar).forEach(i => i.classList.toggle('on', i.dataset.k === l.dataset.k)); });
   c.on(leg, 'pointerout', e => { if (!leg.contains(e.relatedTarget)) bar.classList.remove('hl'); });
@@ -6030,8 +6038,9 @@ const fitHits = window.dmFitHits || (() => {
     $('.plx-mk', r).classList.remove('on');
     $$('.plx-s.run', list).forEach(s => { s.classList.remove('run', 'retry'); txt(s).classList.remove('shim'); $('.d>span', s).classList.remove('shim'); n(s).textContent = '–'; note(s, 'Not started'); });
     // a finished plan has no elapsed clock (owner, 18 Nov): the status line says how long it took
+    // See changes is the white outlined secondary (owner, 23 Nov); inside Agent harness (Phase II) it keeps its grey one for now
     tm.textContent = ''; st.classList.remove('shim');
-    swap(st, stop ? 'Stopped, progress kept' : 'Done in ' + clock(performance.now() - t0) + '. 4 frames updated'); f.innerHTML = `<span class="muted plx-n"></span><button class="pill soft sm">${I('eye','xs')}See changes</button>`; enter(f.lastElementChild);
+    swap(st, stop ? 'Stopped, progress kept' : 'Done in ' + clock(performance.now() - t0) + '. 4 frames updated'); f.innerHTML = `<span class="muted plx-n"></span><button class="pill ${r.closest('.ahx') ? 'soft' : 'line'} sm">${I('eye','xs')}See changes</button>`; enter(f.lastElementChild);
   });
   // the preview's story: rewrite a step, approve, and watch the agent work through a rate limit to the end
   c.story(async s => {
@@ -6043,7 +6052,7 @@ const fitHits = window.dmFitHits || (() => {
     for (const ch of ', annual price first'){ t.textContent += ch; await s.beat(.09); }
     await s.beat(1); t.onblur(); await s.beat(2);
     await s.tap(go); s.away();
-    await s.until(() => $('.plx-f .pill.soft', r));
+    await s.until(() => $('.plx-f .pill:is(.line,.soft)', r));
   });
 });
 </script><script>DM.def('permission-gate', (r, c) => {
@@ -6196,7 +6205,7 @@ const fitHits = window.dmFitHits || (() => {
     if (done) return; ans.push(skipped === true ? 'Agent decides' : Q[qi][2][sel][0]); qi++; sel = 0;
     if (qi < Q.length) return paint();
     // the steps are over: the dots fade away where they are (owner, 21 Nov), and the head keeps its place
-    done = true; dots.forEach(d => { d.classList.remove('on'); d.classList.add('done'); }); $('.dpx-dots', r).classList.add('gone'); k.textContent = 'All set';
+    done = true; dots.forEach(d => { d.classList.remove('on'); d.classList.add('done'); }); $('.dpx-dots', r).classList.add('gone'); k.textContent = 'All set'; card.classList.add('done'); $('.dpx-live', r).textContent = 'All questions answered';
     // the buttons give way to the line saying the agent has started (its words shimmer while it gets going); a focus that
     // was on them comes back to the card
     const had = foot.contains(document.activeElement);

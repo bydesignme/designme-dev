@@ -269,7 +269,7 @@ export function ScoreBreakdown({ factors, title = 'Quality score', previous, sin
                         <span className="dm-gain">{pr.gain ? pr.gain + ': ' : ''}{f.label} <b className="dm-num">{f.earned} → {pr.to}</b></span>
                         <span className="dm-acts"><button type="button" className="dm-pill dm-primary dm-sm" onClick={() => { drop(f.key); onApply?.(f, pr); }}>Apply</button><button type="button" className="dm-pill dm-ghost dm-sm" onClick={() => drop(f.key)}>Not now</button></span></div>
                     : <><span>{f.detail ? f.detail + ' ' : ''}{lost ? `Loses ${lost} of its ${f.weight} points` : 'Full marks'}{i === weakest && lost ? ', the most of any factor for its weight.' : '.'}</span>
-                        {f.improvable && onImprove && <span className="dm-acts"><button type="button" className="dm-pill dm-soft dm-sm" onClick={() => improve(f)}><Icon name="wand" size="xs" />Improve</button></span>}</>}
+                        {f.improvable && onImprove && <span className="dm-acts"><button type="button" className="dm-pill dm-line dm-sm dm-sbx-imp" onClick={() => improve(f)}><Icon name="wand" size="xs" />Improve</button></span>}</>}
                 </Detail>
               </Fold>
             </div>

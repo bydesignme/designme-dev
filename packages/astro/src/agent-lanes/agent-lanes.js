@@ -29,6 +29,8 @@ DM.def('agent-lanes', (r, c) => {
     const w = L.find(l => l.running);
     swap(say, w ? (w.did ? `${w.n}: ${lc(w.did)}` : `${w.n} started: ${lc(w.acts[0])}`) : steps ? `${steps} of ${STEPS} steps` : `${L.length} agents queued`); };
   const pb = $('.aln-pause', r);
+  // Pause all is the white outlined secondary (owner, 23 Nov); inside Agent harness (Phase II) it keeps its grey one for now
+  if (r.closest('.ahx')) pb.classList.replace('line', 'soft');
   pb.onclick = () => { paused = !paused; pb.innerHTML = I(paused ? 'play' : 'pause','xs') + (paused ? 'Resume' : 'Pause all'); swap($('.aln-t', r), paused ? 'All agents paused' : '3 agents working');
     L.forEach(l => { if (l.running){ state(l, paused ? 'paused' : 'working'); $('.aln-a', l.el).classList.toggle('shim', !paused); } }); tell(); };
   c.every(1000, () => { if (!paused && !finished){ secs++; $('.aln-m', r).textContent = clk(); } });

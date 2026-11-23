@@ -236,6 +236,10 @@
 .atb-note span{flex:1}
 /* Draft email is as wide as its words, and eases to the new width as it says Drafting, then Draft ready with the green tick */
 .atb-note .pill{flex:none;overflow:hidden}
+/* a white button on a tinted row takes the tint hairline (CLAUDE.md); Blueprint keeps its outlined edge */
+.atb-note .pill.line{box-shadow:var(--dm-on-tint-btn)}
+@media (hover:hover) and (pointer:fine){.atb-note .pill.line:hover{box-shadow:var(--dm-on-tint-btn-h)}}
+:root:not([data-style="soft"],[data-style="clean"]) .atb-note .pill.line:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .atb-note .pill .spin{width:12px;height:12px}
 .atb-note .pill .atb-done{display:grid;color:var(--dm-ok-mark)}
 /* nothing matches: the empty state of the lab's Clean (lab/clean), in every style. A small sketch of a table on a white card,
@@ -517,7 +521,7 @@ export function AccountTable({
               );
             }) : &lt;tr className=&quot;dm-atb-empty&quot; data-key=&quot; none&quot;&gt;&lt;td colSpan={5}&gt;&lt;div className=&quot;dm-atb-em&quot;&gt;
               &lt;span className=&quot;dm-atb-em-art&quot; aria-hidden=&quot;true&quot; /&gt;&lt;b&gt;{emptyLabel}&lt;/b&gt;{emptyHint &amp;&amp; &lt;span&gt;{emptyHint}&lt;/span&gt;}
-              &lt;button type=&quot;button&quot; className=&quot;dm-pill dm-soft dm-sm&quot; onClick={() =&gt; { setText(&#39;&#39;); setFilter(&#39;&#39;); }}&gt;{clearLabel}&lt;/button&gt;
+              &lt;button type=&quot;button&quot; className=&quot;dm-pill dm-line dm-sm&quot; onClick={() =&gt; { setText(&#39;&#39;); setFilter(&#39;&#39;); }}&gt;{clearLabel}&lt;/button&gt;
             &lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;}
           &lt;/tbody&gt;
         &lt;/table&gt;
@@ -540,7 +544,7 @@ function ActionButton({ state, action, onClick }: { state: &#39;idle&#39; | &#39
     b.animate([{ width: w0 + &#39;px&#39; }, { width: w1 + &#39;px&#39; }], { duration: (parseFloat(cs.getPropertyValue(&#39;--dm-t&#39;)) || .45) * 1000, easing: cs.getPropertyValue(&#39;--dm-ease&#39;).trim() || &#39;ease&#39; });
   }, [state]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
-    &lt;button ref={ref} type=&quot;button&quot; className=&quot;dm-pill dm-soft dm-sm&quot; aria-busy={state === &#39;busy&#39;} onClick={e =&gt; { e.stopPropagation(); onClick(); }}&gt;
+    &lt;button ref={ref} type=&quot;button&quot; className=&quot;dm-pill dm-line dm-sm&quot; aria-busy={state === &#39;busy&#39;} onClick={e =&gt; { e.stopPropagation(); onClick(); }}&gt;
       {state === &#39;busy&#39; ? &lt;&gt;&lt;Spin /&gt;&lt;span className=&quot;dm-shim&quot;&gt;{action.busyLabel ?? &#39;Working&#39;}&lt;/span&gt;&lt;/&gt;
         : state === &#39;done&#39; ? &lt;&gt;&lt;span className=&quot;dm-atb-done&quot;&gt;&lt;Icon name=&quot;check&quot; size=&quot;xs&quot; /&gt;&lt;/span&gt;{action.doneLabel ?? &#39;Done&#39;}&lt;/&gt; : action.label}
     &lt;/button&gt;
@@ -564,7 +568,7 @@ function Note({ name, open, onGone, children }: { name: string; open: boolean; o
     &lt;/tr&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>account-table.css<span class="l">React · 101 lines</span></summary><pre class="cp-pre" data-name="account-table.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>account-table.css<span class="l">React · 105 lines</span></summary><pre class="cp-pre" data-name="account-table.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Account table ---------- */
 /* the account table&#39;s colours run brighter than the shared tones: its plan tags take a stronger tint with saturated text
    (4.5:1 and APCA Lc 60 on the tint, in every style and theme) and the health bars vivid marks (3:1) */
@@ -639,6 +643,10 @@ function Note({ name, open, onGone, children }: { name: string; open: boolean; o
 .dm-atb-note span{flex:1}
 /* Draft email is as wide as its words, and eases to the new width as it says Drafting, then Draft ready with the green tick */
 .dm-atb-note .dm-pill{flex:none;overflow:hidden}
+/* a white button on a tinted row takes the tint hairline (CLAUDE.md); Blueprint keeps its outlined edge */
+.dm-atb-note .dm-pill.dm-line{box-shadow:var(--dm-on-tint-btn)}
+@media (hover:hover) and (pointer:fine){.dm-atb-note .dm-pill.dm-line:hover{box-shadow:var(--dm-on-tint-btn-h)}}
+:root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .dm-atb-note .dm-pill.dm-line:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .dm-atb-note .dm-pill .dm-spin{width:12px;height:12px}
 .dm-atb-note .dm-pill .dm-atb-done{display:grid;color:var(--dm-ok-mark)}
 /* nothing matches: the empty state of the lab&#39;s Clean (lab/clean), in every style. A small sketch of a table on a white card,
@@ -698,7 +706,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>account-table.css<span class="l">HTML · 100 lines</span></summary><pre class="cp-pre" data-name="account-table.css"><code>/* ---------- Account table ---------- */
+</code></pre></details><details class="cp-file"><summary>account-table.css<span class="l">HTML · 104 lines</span></summary><pre class="cp-pre" data-name="account-table.css"><code>/* ---------- Account table ---------- */
 /* the account table&#39;s colours run brighter than the shared tones: its plan tags take a stronger tint with saturated text
    (4.5:1 and APCA Lc 60 on the tint, in every style and theme) and the health bars vivid marks (3:1) */
 .atb{--dm-atb-ok:#1daa51;--dm-atb-warn:#cd7a00;--dm-atb-bad:#f04438;
@@ -772,6 +780,10 @@ const { class: className, ...rest } = Astro.props;
 .atb-note span{flex:1}
 /* Draft email is as wide as its words, and eases to the new width as it says Drafting, then Draft ready with the green tick */
 .atb-note .pill{flex:none;overflow:hidden}
+/* a white button on a tinted row takes the tint hairline (CLAUDE.md); Blueprint keeps its outlined edge */
+.atb-note .pill.line{box-shadow:var(--dm-on-tint-btn)}
+@media (hover:hover) and (pointer:fine){.atb-note .pill.line:hover{box-shadow:var(--dm-on-tint-btn-h)}}
+:root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .atb-note .pill.line:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .atb-note .pill .spin{width:12px;height:12px}
 .atb-note .pill .atb-done{display:grid;color:var(--dm-ok-mark)}
 /* nothing matches: the empty state of the lab&#39;s Clean (lab/clean), in every style. A small sketch of a table on a white card,
@@ -812,11 +824,11 @@ const { class: className, ...rest } = Astro.props;
   // each row is made once and kept, so a search or a plan filter can ease it between places; the note under an open row
   // is its own row, keyed after it
   const rows = new Map(A.map(a =&gt; [a[0], html(`&lt;tr class=&quot;row&quot; data-n=&quot;${a[0]}&quot; tabindex=&quot;0&quot; aria-expanded=&quot;false&quot;&gt;&lt;td&gt;&lt;span class=&quot;nm&quot;&gt;&lt;span class=&quot;lg&quot; style=&quot;background:var(--dm-av-${a[1]});color:var(--dm-av-${a[1]}-ink)&quot;&gt;${a[0][0]}&lt;/span&gt;${a[0]}&lt;/span&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;tag ${a[2] === &#39;Enterprise&#39; ? &#39;l&#39; : a[2] === &#39;Pro&#39; ? &#39;b&#39; : &#39;t&#39;}&quot;&gt;${a[2]}&lt;/span&gt;&lt;/td&gt;&lt;td class=&quot;r num&quot;&gt;${a[3]}&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;hb&quot;&gt;&lt;i&gt;&lt;b style=&quot;width:${a[4]}%;background:${hc(a[4])}&quot;&gt;&lt;/b&gt;&lt;/i&gt;&lt;span class=&quot;num&quot;&gt;${a[4]}&lt;/span&gt;&lt;/span&gt;&lt;/td&gt;&lt;td class=&quot;r num&quot;&gt;${a[5]}&lt;/td&gt;&lt;/tr&gt;`)]));
-  const none = html(&#39;&lt;tr class=&quot;atb-empty&quot; data-n=&quot; none&quot;&gt;&lt;td colspan=&quot;5&quot;&gt;&lt;div class=&quot;atb-em&quot;&gt;&lt;span class=&quot;atb-em-art&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;b&gt;No accounts match&lt;/b&gt;&lt;span&gt;Try another name, or show every plan.&lt;/span&gt;&lt;button class=&quot;pill soft sm&quot;&gt;Show all accounts&lt;/button&gt;&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;&#39;);
+  const none = html(&#39;&lt;tr class=&quot;atb-empty&quot; data-n=&quot; none&quot;&gt;&lt;td colspan=&quot;5&quot;&gt;&lt;div class=&quot;atb-em&quot;&gt;&lt;span class=&quot;atb-em-art&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;b&gt;No accounts match&lt;/b&gt;&lt;span&gt;Try another name, or show every plan.&lt;/span&gt;&lt;button class=&quot;pill line sm&quot;&gt;Show all accounts&lt;/button&gt;&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;&#39;);
   $(&#39;.pill&#39;, none).onclick = () =&gt; { q.value = &#39;&#39;; plan = &#39;&#39;; pick($(&#39;.atb-fl .chip[data-p=&quot;&quot;]&#39;, r)); paint(true); };
   let det = null;
   function note(a){
-    const d = html(`&lt;tr class=&quot;det&quot; data-n=&quot;${a[0]} note&quot;&gt;&lt;td colspan=&quot;5&quot;&gt;&lt;div class=&quot;fold&quot;&gt;&lt;div&gt;&lt;div class=&quot;atb-note&quot;&gt;${I(&#39;spark&#39;,&#39;xs&#39;)}&lt;span&gt;${a[6]}&lt;/span&gt;&lt;button class=&quot;pill soft sm&quot;&gt;Draft email&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;`);
+    const d = html(`&lt;tr class=&quot;det&quot; data-n=&quot;${a[0]} note&quot;&gt;&lt;td colspan=&quot;5&quot;&gt;&lt;div class=&quot;fold&quot;&gt;&lt;div&gt;&lt;div class=&quot;atb-note&quot;&gt;${I(&#39;spark&#39;,&#39;xs&#39;)}&lt;span&gt;${a[6]}&lt;/span&gt;&lt;button class=&quot;pill line sm&quot;&gt;Draft email&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;`);
     // pressed, it says Drafting with the loader&#39;s sweep, then Draft ready with the green tick; it is always as wide as its
     // words, easing to each new width, and never goes blank
     const dr = $(&#39;.pill&#39;, d);
@@ -1209,11 +1221,11 @@ const fitHits = window.dmFitHits || (() => {
   // each row is made once and kept, so a search or a plan filter can ease it between places; the note under an open row
   // is its own row, keyed after it
   const rows = new Map(A.map(a => [a[0], html(`<tr class="row" data-n="${a[0]}" tabindex="0" aria-expanded="false"><td><span class="nm"><span class="lg" style="background:var(--dm-av-${a[1]});color:var(--dm-av-${a[1]}-ink)">${a[0][0]}</span>${a[0]}</span></td><td><span class="tag ${a[2] === 'Enterprise' ? 'l' : a[2] === 'Pro' ? 'b' : 't'}">${a[2]}</span></td><td class="r num">${a[3]}</td><td><span class="hb"><i><b style="width:${a[4]}%;background:${hc(a[4])}"></b></i><span class="num">${a[4]}</span></span></td><td class="r num">${a[5]}</td></tr>`)]));
-  const none = html('<tr class="atb-empty" data-n=" none"><td colspan="5"><div class="atb-em"><span class="atb-em-art" aria-hidden="true"></span><b>No accounts match</b><span>Try another name, or show every plan.</span><button class="pill soft sm">Show all accounts</button></div></td></tr>');
+  const none = html('<tr class="atb-empty" data-n=" none"><td colspan="5"><div class="atb-em"><span class="atb-em-art" aria-hidden="true"></span><b>No accounts match</b><span>Try another name, or show every plan.</span><button class="pill line sm">Show all accounts</button></div></td></tr>');
   $('.pill', none).onclick = () => { q.value = ''; plan = ''; pick($('.atb-fl .chip[data-p=""]', r)); paint(true); };
   let det = null;
   function note(a){
-    const d = html(`<tr class="det" data-n="${a[0]} note"><td colspan="5"><div class="fold"><div><div class="atb-note">${I('spark','xs')}<span>${a[6]}</span><button class="pill soft sm">Draft email</button></div></div></div></td></tr>`);
+    const d = html(`<tr class="det" data-n="${a[0]} note"><td colspan="5"><div class="fold"><div><div class="atb-note">${I('spark','xs')}<span>${a[6]}</span><button class="pill line sm">Draft email</button></div></div></div></td></tr>`);
     // pressed, it says Drafting with the loader's sweep, then Draft ready with the green tick; it is always as wide as its
     // words, easing to each new width, and never goes blank
     const dr = $('.pill', d);

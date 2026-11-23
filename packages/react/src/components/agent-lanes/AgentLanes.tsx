@@ -214,7 +214,7 @@ export function AgentLanes({ lanes, title, seconds, paused, defaultPaused = fals
         <span className="dm-aln-m dm-muted dm-num">{time}</span>
         <Swap className="dm-aln-ct dm-num">{`${stepsDone} of ${total} steps`}</Swap>
         {onPausedChange && !finished && (
-          <button type="button" className="dm-pill dm-soft dm-sm dm-aln-pause" onClick={() => setPaused(!isPaused)}>
+          <button type="button" className="dm-pill dm-line dm-sm dm-aln-pause" onClick={() => setPaused(!isPaused)}>
             <Icon name={isPaused ? 'play' : 'pause'} size="xs" />{isPaused ? 'Resume' : 'Pause all'}
           </button>
         )}

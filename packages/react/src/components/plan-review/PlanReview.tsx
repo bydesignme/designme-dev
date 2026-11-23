@@ -129,7 +129,7 @@ export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, pha
           <button type="button" className="dm-pill dm-primary dm-sm dm-plx-go" onClick={onApprove}>Approve plan</button>
         </>}
         {phase === 'running' && <button type="button" className="dm-pill dm-ghost dm-sm dm-plx-stop dm-enter" style={{ animationDelay: '50ms' }} onClick={onStop}><Icon name="stop" size="xs" />Stop</button>}
-        {phase === 'done' && <button type="button" className="dm-pill dm-soft dm-sm dm-enter" onClick={onSeeChanges}><Icon name="eye" size="xs" />See changes</button>}
+        {phase === 'done' && <button type="button" className="dm-pill dm-line dm-sm dm-enter" onClick={onSeeChanges}><Icon name="eye" size="xs" />See changes</button>}
       </div>
       </div>
     </div>

@@ -276,7 +276,7 @@ export function MetricInsight({ label, ranges, range, defaultRange, onRangeChang
       </div>
       <div className="dm-mix-ins"><span className="dm-mix-ic"><Icon name="spark" size="xs" /></span><Swap className="dm-mix-t">{r?.insight ?? ''}</Swap></div>
       {drivers && (
-        <button ref={why} type="button" className="dm-pill dm-soft dm-sm dm-mix-why" aria-expanded={shown} onClick={() => { if (!explaining) setOpen(!isOpen); }}>
+        <button ref={why} type="button" className="dm-pill dm-line dm-sm dm-mix-why" aria-expanded={shown} onClick={() => { if (!explaining) setOpen(!isOpen); }}>
           {/* while the agent looks into it, its words shimmer */}
           {explaining && <Think />}
           <span className={explaining ? 'dm-shim' : undefined}>{words}</span>

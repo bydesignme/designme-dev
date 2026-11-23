@@ -182,6 +182,15 @@
 .pill.soft{background:var(--dm-soft);color:var(--dm-fg);box-shadow:var(--dm-soft-ring)}
 @media (hover:hover) and (pointer:fine){.pill.soft:hover{background:var(--dm-soft-h)}}
 .pill.line{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);color:var(--dm-fg)}
+/* a secondary action on a white card is this white outlined button, never the grey .pill.soft, which reads as pressed or
+   disabled on white (owner, 23 Nov). Its hover in Soft and Blueprint is the quiet --dm-row fill, with no change to its edge, and
+   Metric insight's Why holds it while its breakdown is open.
+   Clean keeps its own flat secondary (its rules come later and win) */
+:root .pill.line.mix-why[aria-expanded="true"]{background:var(--dm-row)}
+@media (hover:hover) and (pointer:fine){:root :is(.aln-pause,.aln-sw-pause,.aln-sw-live,.ctm-go,.rc-go,.mix-why,.fmx-ai,.ecx-prep,.sbx-imp,.atb-em .pill,.atb-note .pill,.plx-f .pill).pill.line:hover{background:var(--dm-row)}}
+@media (hover:hover) and (pointer:fine){:root:not([data-style="soft"],[data-style="clean"]) :is(.aln-pause,.aln-sw-pause,.aln-sw-live,.ctm-go,.rc-go,.mix-why,.fmx-ai,.ecx-prep,.sbx-imp,.atb-em .pill,.atb-note .pill,.plx-f .pill).pill.line:hover:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){background:var(--dm-row);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent)}}
+@media (hover:hover) and (pointer:fine){:root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] :is(.aln-pause,.aln-sw-pause,.aln-sw-live,.ctm-go,.rc-go,.mix-why,.fmx-ai,.ecx-prep,.sbx-imp,.atb-em .pill,.atb-note .pill,.plx-f .pill).pill.line:hover:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-fg) 22%,var(--dm-surface))}}
+@media (prefers-color-scheme:dark){@media (hover:hover) and (pointer:fine){:root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) :is(.aln-pause,.aln-sw-pause,.aln-sw-live,.ctm-go,.rc-go,.mix-why,.fmx-ai,.ecx-prep,.sbx-imp,.atb-em .pill,.atb-note .pill,.plx-f .pill).pill.line:hover:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-fg) 22%,var(--dm-surface))}}}
 .pill.ghost{color:var(--dm-fg2)}@media (hover:hover) and (pointer:fine){.pill.ghost:hover{background:var(--dm-row);color:var(--dm-fg)}}
 /* the action on a warning notice (owner, 18 Nov): the warning tint with the warning text, as the warning chip (.tag.warn),
    deepening a little under the pointer */
@@ -195,7 +204,6 @@
 :where([data-c]) button:disabled{cursor:not-allowed}
 .pill:is(.accent,.primary,.soft,.line)[disabled]{background:var(--dm-dis-hatch),var(--dm-dis-fill);color:var(--dm-dis);box-shadow:var(--dm-soft-ring)}
 @media (hover:hover) and (pointer:fine){.pill:is(.accent,.primary,.soft,.line)[disabled]:hover{background:var(--dm-dis-hatch),var(--dm-dis-fill);color:var(--dm-dis);box-shadow:var(--dm-soft-ring)}}
-.pill[disabled] .kbd{background:var(--dm-chip);color:inherit}
 .pill.sm{height:28px;padding:0 11px;font-size:12.5px}
 .tag{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 7px;border-radius:var(--dm-r-tag);font-size:11.5px;font-weight:500;white-space:nowrap;background:var(--dm-chip);color:var(--dm-fg2)}
 .tag.b{background:var(--dm-pb-bg);color:var(--dm-pb)}.tag.l{background:var(--dm-pl-bg);color:var(--dm-pl)}.tag.m{background:var(--dm-pm-bg);color:var(--dm-pm)}.tag.p{background:var(--dm-pp-bg);color:var(--dm-pp)}
@@ -215,6 +223,9 @@
 .pill .kbd{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 var(--dm-s-1);margin-right:-6px}
 /* a key hint on a filled button sits on a slightly darker well of the fill, so white text keeps its contrast */
 .pill.primary .kbd,.pill.accent .kbd{background:color-mix(in srgb,var(--dm-accent) 80%,#000);color:inherit}
+/* a disabled button's key chip is disabled with it, in every style (owner, 23 Nov: Accept's Tab kept its accent well): no
+   fill of its own colour, only a faint tint of the button's disabled text, which it takes as its words */
+.pill[disabled] .kbd,.pill:is(.primary,.accent)[disabled] .kbd{background:color-mix(in srgb,currentColor 14%,transparent);color:inherit}
 code.c{font-family:var(--dm-mono);font-size:12.5px;background:var(--dm-chip);padding:1px 5px;border-radius:var(--dm-r-tiny,5px)}
 .av{width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;font-size:10px;font-weight:500;color:#fff;flex:none}
 .hr{height:1px;background:var(--dm-line);border:0;margin:0}

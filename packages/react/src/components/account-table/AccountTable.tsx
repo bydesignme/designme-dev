@@ -157,7 +157,7 @@ export function AccountTable({
               );
             }) : <tr className="dm-atb-empty" data-key=" none"><td colSpan={5}><div className="dm-atb-em">
               <span className="dm-atb-em-art" aria-hidden="true" /><b>{emptyLabel}</b>{emptyHint && <span>{emptyHint}</span>}
-              <button type="button" className="dm-pill dm-soft dm-sm" onClick={() => { setText(''); setFilter(''); }}>{clearLabel}</button>
+              <button type="button" className="dm-pill dm-line dm-sm" onClick={() => { setText(''); setFilter(''); }}>{clearLabel}</button>
             </div></td></tr>}
           </tbody>
         </table>
@@ -180,7 +180,7 @@ function ActionButton({ state, action, onClick }: { state: 'idle' | 'busy' | 'do
     b.animate([{ width: w0 + 'px' }, { width: w1 + 'px' }], { duration: (parseFloat(cs.getPropertyValue('--dm-t')) || .45) * 1000, easing: cs.getPropertyValue('--dm-ease').trim() || 'ease' });
   }, [state]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
-    <button ref={ref} type="button" className="dm-pill dm-soft dm-sm" aria-busy={state === 'busy'} onClick={e => { e.stopPropagation(); onClick(); }}>
+    <button ref={ref} type="button" className="dm-pill dm-line dm-sm" aria-busy={state === 'busy'} onClick={e => { e.stopPropagation(); onClick(); }}>
       {state === 'busy' ? <><Spin /><span className="dm-shim">{action.busyLabel ?? 'Working'}</span></>
         : state === 'done' ? <><span className="dm-atb-done"><Icon name="check" size="xs" /></span>{action.doneLabel ?? 'Done'}</> : action.label}
     </button>

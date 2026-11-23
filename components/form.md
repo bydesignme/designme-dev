@@ -308,7 +308,7 @@ export function Form({
           <div className="dm-fmx-h">
             <b>{title}</b>
             {onDraft && (
-              <button ref={ai_} type="button" className={cx('dm-pill dm-soft dm-sm dm-fmx-ai', draft === 'drafted' && 'dm-done')} onClick={runDraft}>
+              <button ref={ai_} type="button" className={cx('dm-pill dm-line dm-sm dm-fmx-ai', draft === 'drafted' && 'dm-done')} onClick={runDraft}>
                 {draft === 'drafting' ? <><Think /><span className="dm-shim">{draftingLabel}</span></> : draft === 'drafted' ? <><Icon name="check" size="xs" />{draftedLabel}</> : <><Icon name="spark" size="xs" />{draftLabel}</>}
               </button>
             )}

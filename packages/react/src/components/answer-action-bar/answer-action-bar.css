@@ -50,14 +50,18 @@
 .dm-aab-wy{display:flex;flex-direction:column;gap:var(--dm-s-2);padding:2px 0 var(--dm-s-1)}
 .dm-aab-wq{font-size:13px;font-weight:500}
 .dm-aab-ch{display:flex;flex-wrap:wrap;gap:6px}
-.dm-aab-ch .dm-chip.dm-on{background:var(--dm-sel);color:var(--dm-accent-fg,var(--dm-accent));box-shadow:none}
+/* the reasons sit on the stage: unpicked, a step above the chip's own grey and a step more under the pointer, as Feedback
+   sheet's are (owner, 23 Nov: "could these be a bit darker?"); a picked one is the accent tint. Clean keeps its own (below) */
+.dm-aab-ch .dm-chip{background:var(--dm-hover)}
+@media (hover:hover) and (pointer:fine){.dm-aab-ch .dm-chip:hover{background:var(--dm-press)}}
+.dm-aab-ch .dm-chip.dm-on{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent));box-shadow:none}
 .dm-aab-st{margin:0;max-height:20px;font-size:12.5px;display:flex;align-items:center;gap:6px;transition:max-height var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease)}
 .dm-aab-st:is(:empty,.dm-off){max-height:0;margin-top:calc(-1 * var(--dm-s-3))}
 .dm-aab-st.dm-warn{color:var(--dm-warn)}
 .dm-aab-st.dm-ok svg{color:var(--dm-ok);flex:none}
 .dm-aab-rd.dm-on .dm-aab-pr{width:40px}
 @media (max-width:480px){.dm-aab-rd.dm-on .dm-aab-tm{display:none}.dm-aab-row{flex-direction:column;align-items:flex-start}.dm-aab-meta{max-width:100%}}
-/* Clean (owner, 18 Nov): the chrome is monochrome: a rated thumb fills in ink (no green or red fill, no tilt), read aloud plays in ink on a grey track and lights the word
+/* Clean (owner, 18 Nov): the chrome is monochrome: a rated thumb fills in ink on the selected fill in its round shape (owner, 23 Nov), with no green or red and no tilt, read aloud plays in ink on a grey track and lights the word
    it reads in grey, and a picked reason is an ink chip like a toggle that is on. What a new version changed stays green, and
    so does the status's tick; a problem stays amber. Words fade in and out without a blur */
 @keyframes dm-aabwc{from{opacity:0}to{opacity:1}}
@@ -67,13 +71,13 @@
 :root[data-style="clean"] .dm-aab-t.dm-out,:root [data-style="clean"] .dm-aab-t.dm-out,:root [data-style="clean"].dm-aab-t.dm-out{animation-name:dm-aaboc;animation-duration:var(--dm-t)}
 :root[data-style="clean"] .dm-aab-bar .dm-ib[aria-pressed="true"] svg,:root [data-style="clean"] .dm-aab-bar .dm-ib[aria-pressed="true"] svg,:root [data-style="clean"].dm-aab-bar .dm-ib[aria-pressed="true"] svg{transform:none}
 :root[data-style="clean"] .dm-aab-t .dm-w.dm-rd,:root [data-style="clean"] .dm-aab-t .dm-w.dm-rd,:root [data-style="clean"].dm-aab-t .dm-w.dm-rd{background:var(--dm-hover);color:var(--dm-fg)}
-:root[data-style="clean"] .dm-aab-bar .dm-ib[aria-pressed="true"],:root [data-style="clean"] .dm-aab-bar .dm-ib[aria-pressed="true"],:root [data-style="clean"].dm-aab-bar .dm-ib[aria-pressed="true"]{background:none;color:var(--dm-fg)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-aab-bar .dm-ib[aria-pressed="true"]:hover,:root [data-style="clean"] .dm-aab-bar .dm-ib[aria-pressed="true"]:hover,:root [data-style="clean"].dm-aab-bar .dm-ib[aria-pressed="true"]:hover{background:var(--dm-row)}}
+:root[data-style="clean"] .dm-aab-bar .dm-ib[aria-pressed="true"],:root [data-style="clean"] .dm-aab-bar .dm-ib[aria-pressed="true"],:root [data-style="clean"].dm-aab-bar .dm-ib[aria-pressed="true"]{background:var(--dm-row-on);color:var(--dm-fg)}
 :root[data-style="clean"] .dm-aab-bar .dm-ib[aria-pressed="true"] svg,:root [data-style="clean"] .dm-aab-bar .dm-ib[aria-pressed="true"] svg,:root [data-style="clean"].dm-aab-bar .dm-ib[aria-pressed="true"] svg{fill:currentColor}
 :root[data-style="clean"] .dm-aab-rd[aria-pressed="true"],:root [data-style="clean"] .dm-aab-rd[aria-pressed="true"],:root [data-style="clean"].dm-aab-rd[aria-pressed="true"]{background:var(--dm-row-on);color:var(--dm-fg)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-aab-rd:hover,:root [data-style="clean"] .dm-aab-rd:hover,:root [data-style="clean"].dm-aab-rd:hover{background:var(--dm-row)}}
 :root[data-style="clean"] .dm-aab-ch .dm-chip.dm-on,:root [data-style="clean"] .dm-aab-ch .dm-chip.dm-on,:root [data-style="clean"].dm-aab-ch .dm-chip.dm-on{background:var(--dm-btn-2);color:var(--dm-on-btn);box-shadow:inset 0 0 0 1px var(--dm-btn-2)}
 /* a reason not picked takes the one hover over its fill, easing over 220ms (owner, 21 Nov) */
+:root[data-style="clean"] .dm-aab-ch .dm-chip:not(.dm-on),:root [data-style="clean"] .dm-aab-ch .dm-chip:not(.dm-on),:root [data-style="clean"].dm-aab-ch .dm-chip:not(.dm-on){background:var(--dm-chip)}
 :root[data-style="clean"] .dm-aab-ch .dm-chip,:root [data-style="clean"] .dm-aab-ch .dm-chip,:root [data-style="clean"].dm-aab-ch .dm-chip{transition:background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-aab-ch .dm-chip:not(.dm-on):hover,:root [data-style="clean"] .dm-aab-ch .dm-chip:not(.dm-on):hover,:root [data-style="clean"].dm-aab-ch .dm-chip:not(.dm-on):hover{background:var(--dm-chip);box-shadow:inset 0 0 0 99px var(--dm-row)}}
 :root[data-style="clean"] .dm-aab-st.dm-ok svg,:root [data-style="clean"] .dm-aab-st.dm-ok svg,:root [data-style="clean"].dm-aab-st.dm-ok svg{color:var(--dm-ok-mark)}

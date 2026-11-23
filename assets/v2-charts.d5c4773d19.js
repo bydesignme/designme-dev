@@ -561,11 +561,11 @@ DM.def('account-table', (r, c) => {
   // each row is made once and kept, so a search or a plan filter can ease it between places; the note under an open row
   // is its own row, keyed after it
   const rows = new Map(A.map(a => [a[0], html(`<tr class="row" data-n="${a[0]}" tabindex="0" aria-expanded="false"><td><span class="nm"><span class="lg" style="background:var(--av-${a[1]});color:var(--av-${a[1]}-ink)">${a[0][0]}</span>${a[0]}</span></td><td><span class="tag ${a[2] === 'Enterprise' ? 'l' : a[2] === 'Pro' ? 'b' : 't'}">${a[2]}</span></td><td class="r num">${a[3]}</td><td><span class="hb"><i><b style="width:${a[4]}%;background:${hc(a[4])}"></b></i><span class="num">${a[4]}</span></span></td><td class="r num">${a[5]}</td></tr>`)]));
-  const none = html('<tr class="atb-empty" data-n=" none"><td colspan="5"><div class="atb-em"><span class="atb-em-art" aria-hidden="true"></span><b>No accounts match</b><span>Try another name, or show every plan.</span><button class="pill soft sm">Show all accounts</button></div></td></tr>');
+  const none = html('<tr class="atb-empty" data-n=" none"><td colspan="5"><div class="atb-em"><span class="atb-em-art" aria-hidden="true"></span><b>No accounts match</b><span>Try another name, or show every plan.</span><button class="pill line sm">Show all accounts</button></div></td></tr>');
   $('.pill', none).onclick = () => { q.value = ''; plan = ''; pick($('.atb-fl .chip[data-p=""]', r)); paint(true); };
   let det = null;
   function note(a){
-    const d = html(`<tr class="det" data-n="${a[0]} note"><td colspan="5"><div class="fold"><div><div class="atb-note">${I('spark','xs')}<span>${a[6]}</span><button class="pill soft sm">Draft email</button></div></div></div></td></tr>`);
+    const d = html(`<tr class="det" data-n="${a[0]} note"><td colspan="5"><div class="fold"><div><div class="atb-note">${I('spark','xs')}<span>${a[6]}</span><button class="pill line sm">Draft email</button></div></div></div></td></tr>`);
     // pressed, it says Drafting with the loader's sweep, then Draft ready with the green tick; it is always as wide as its
     // words, easing to each new width, and never goes blank
     const dr = $('.pill', d);
@@ -886,7 +886,7 @@ DM.def('score-breakdown', (r, c) => {
     a.onfinish = a.oncancel = () => { if (d._mo !== a) return; d._mo = null; d.style.overflow = ''; }; };
   function detail(i){ const f = F[i], d = $('.sbx-d', R[i]); if (d.dataset.st === 'busy' || d.dataset.st === 'prop') return;
     const lost = f.w - f.e;
-    morph(d, () => d.innerHTML = `<span>${f.done ? f.done + ' ' : ''}${lost ? `Loses ${lost} of its ${f.w} points` : 'Full marks'}${i === weakest() && lost ? ', the most of any factor for its weight.' : '.'}</span>${f.fix ? `<span class="acts"><button class="pill soft sm sbx-imp">${I('wand','xs')}Improve</button></span>` : ''}`);
+    morph(d, () => d.innerHTML = `<span>${f.done ? f.done + ' ' : ''}${lost ? `Loses ${lost} of its ${f.w} points` : 'Full marks'}${i === weakest() && lost ? ', the most of any factor for its weight.' : '.'}</span>${f.fix ? `<span class="acts"><button class="pill line sm sbx-imp">${I('wand','xs')}Improve</button></span>` : ''}`);
     const b = $('.sbx-imp', d); if (b) b.onclick = () => improve(i); }
   const improve = i => c.run(async () => { const f = F[i], d = $('.sbx-d', R[i]); d.dataset.st = 'busy';
     morph(d, () => d.innerHTML = `<div class="sbx-pr"><span class="k">${I('spark','xs')}<span class="shim">Looking at 120 slow replies</span></span></div>`); enter(d.firstElementChild);

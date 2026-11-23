@@ -237,6 +237,14 @@ b,strong{font-weight:500}
 .pill.soft{background:var(--soft);color:var(--fg);box-shadow:var(--soft-ring)}
 .pill.soft:hover{background:var(--soft-h)}
 .pill.line{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent);color:var(--fg)}
+/* a secondary action on a white card is this white outlined button, never the grey .pill.soft, which reads as pressed or
+   disabled on white (owner, 23 Nov). Its hover in Soft and Blueprint is the quiet --row fill, with no change to its edge, and
+   Metric insight's Why holds it while its breakdown is open.
+   Clean keeps its own flat secondary (its rules come later and win) */
+:root :is(.aln-pause,.aln-sw-pause,.aln-sw-live,.ctm-go,.rc-go,.mix-why,.fmx-ai,.ecx-prep,.sbx-imp,.atb-em .pill,.atb-note .pill,.plx-f .pill).pill.line:hover,:root .pill.line.mix-why[aria-expanded="true"]{background:var(--row)}
+:root[data-style="bp"] :is(.aln-pause,.aln-sw-pause,.aln-sw-live,.ctm-go,.rc-go,.mix-why,.fmx-ai,.ecx-prep,.sbx-imp,.atb-em .pill,.atb-note .pill,.plx-f .pill).pill.line:hover{background:var(--row);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}
+:root[data-style="bp"][data-theme="dark"] :is(.aln-pause,.aln-sw-pause,.aln-sw-live,.ctm-go,.rc-go,.mix-why,.fmx-ai,.ecx-prep,.sbx-imp,.atb-em .pill,.atb-note .pill,.plx-f .pill).pill.line:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--fg) 22%,var(--surface))}
+@media (prefers-color-scheme:dark){:root[data-style="bp"]:not([data-theme="light"]) :is(.aln-pause,.aln-sw-pause,.aln-sw-live,.ctm-go,.rc-go,.mix-why,.fmx-ai,.ecx-prep,.sbx-imp,.atb-em .pill,.atb-note .pill,.plx-f .pill).pill.line:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--fg) 22%,var(--surface))}}
 .pill.ghost{color:var(--fg2)}.pill.ghost:hover{background:var(--row);color:var(--fg)}
 /* the action on a warning notice (owner, 18 Nov): the warning tint with the warning text, as the warning chip (.tag.warn),
    deepening a little under the pointer */
@@ -248,7 +256,6 @@ b,strong{font-weight:500}
 .pill[disabled],.pill[disabled]:hover{opacity:1;color:var(--dis);background:none;cursor:not-allowed;transform:none}
 button:disabled{cursor:not-allowed}
 .pill:is(.accent,.primary,.soft,.line)[disabled],.pill:is(.accent,.primary,.soft,.line)[disabled]:hover{background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring)}
-.pill[disabled] .kbd{background:var(--chip);color:inherit}
 .pill.sm{height:28px;padding:0 11px;font-size:12.5px}
 .tag{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 7px;border-radius:var(--r-tag);font-size:11.5px;font-weight:500;white-space:nowrap;background:var(--chip);color:var(--fg2)}
 .tag.b{background:var(--pb-bg);color:var(--pb)}.tag.l{background:var(--pl-bg);color:var(--pl)}.tag.m{background:var(--pm-bg);color:var(--pm)}.tag.p{background:var(--pp-bg);color:var(--pp)}
@@ -268,6 +275,9 @@ button:disabled{cursor:not-allowed}
 .pill .kbd{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 var(--s-1);margin-right:-6px}
 /* a key hint on a filled button sits on a slightly darker well of the fill, so white text keeps its contrast */
 .pill.primary .kbd,.pill.accent .kbd{background:color-mix(in srgb,var(--accent) 80%,#000);color:inherit}
+/* a disabled button's key chip is disabled with it, in every style (owner, 23 Nov: Accept's Tab kept its accent well): no
+   fill of its own colour, only a faint tint of the button's disabled text, which it takes as its words */
+.pill[disabled] .kbd,.pill:is(.primary,.accent)[disabled] .kbd{background:color-mix(in srgb,currentColor 14%,transparent);color:inherit}
 code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1px 5px;border-radius:var(--r-tiny,5px)}
 .av{width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;font-size:10px;font-weight:500;color:#fff;flex:none}
 .hr{height:1px;background:var(--line);border:0;margin:0}
@@ -843,7 +853,7 @@ th:last-child>.col-rz{display:none}
 .ctm-wi .b{fill:none;stroke:var(--surface);stroke-width:2.2;stroke-linecap:round}
 .ctm-msg.ok>span>svg{color:var(--ok-mark)}
 @media (prefers-reduced-motion:reduce){.ctm-msg{transition:none}}
-.ctm-f{display:flex;align-items:center;gap:10px;padding-top:var(--s-3);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.ctm-f{display:flex;align-items:center;gap:10px;padding-top:var(--s-4);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .ctm-go{overflow:hidden;white-space:nowrap;justify-content:flex-start}
 /* while it compacts nothing can be pressed, so it says so where the button was (owner, 21 Nov: "should this be gray button?
    especially the loading animation?"): the spinner in the accent and the words in the loader's sweep, as plain words, the row
@@ -1017,7 +1027,7 @@ th:last-child>.col-rz{display:none}
   :root:not([data-theme="light"]) .atr-ln stop.l2{stop-opacity:.45}
 }
 /* under the tree, the selected row's cost split (the whole run's until a row is picked) */
-.atr-f{margin:var(--s-1) 0 0;padding:var(--s-2) var(--s-2) 11px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.atr-f{margin:var(--s-1) 0 0;padding:var(--s-4) var(--s-2) var(--s-3);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .atr-f b{font-weight:500;color:var(--fg2)}
 .atr-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 /* narrow: the line of work goes first, then the time, so names keep their room */
@@ -1390,7 +1400,7 @@ th:last-child>.col-rz{display:none}
 .rc-rows{display:flex;flex-direction:column;gap:2px}
 .rc-rows div{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;line-height:18px;color:var(--fg2)}
 .rc-rows .num{color:var(--fg)}
-.rc-f{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:var(--s-3);padding-top:var(--s-3);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.rc-f{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:var(--s-3);padding-top:var(--s-4);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .rc-cap-t{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--fg2);cursor:pointer}
 .rc-go{overflow:hidden;justify-content:flex-start}
 /* Clean (owner, 17 and 18 Nov): a round card with its hairline, its content 16px in from every edge; the status chip in its
@@ -1907,7 +1917,7 @@ th:last-child>.col-rz{display:none}
 .aln-sw-ph:focus-visible .aln-sw-now{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--focus)}
 .aln-sw.fin .aln-sw-now{background:var(--ok-bg);color:var(--ok);box-shadow:none}
 .aln-sw.fin .aln-sw-ph i{background:var(--ok)}
-.aln-sw-f{display:flex;align-items:center;gap:var(--s-2);min-height:28px;padding-top:var(--s-2);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12.5px;color:var(--fg2)}
+.aln-sw-f{display:flex;align-items:center;gap:var(--s-2);padding:var(--s-4) 0 var(--s-1);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12.5px;color:var(--fg2)}
 .aln-sw-say{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @container (max-width:600px){.aln-sw-key{display:none}}
 @container (max-width:460px){.aln-sw{--lab:40px;padding:var(--s-3)}.aln-sw-wt,.aln-sw-tg{display:none}}
@@ -2151,7 +2161,7 @@ th:last-child>.col-rz{display:none}
 .art-now .i{width:10px;height:10px}
 .art.fin .art-head i{background:var(--ok-mark)}
 .art.fin .art-now{background:var(--ok-bg);color:var(--ok)}
-.art-f{display:flex;flex-wrap:wrap;gap:var(--s-2) var(--s-5);margin-top:var(--s-3);padding-top:var(--s-3);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12.5px;line-height:16px}
+.art-f{display:flex;flex-wrap:wrap;gap:var(--s-2) var(--s-5);margin-top:var(--s-3);padding-top:var(--s-4);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12.5px;line-height:16px}
 /* each figure's icon is centred in the steps' icon column (22px) and its words start on their names' column */
 .art-f>span{display:inline-flex;align-items:center;gap:var(--s-2);white-space:nowrap}
 .art-f>span>svg{box-sizing:content-box;padding:0 5px}
@@ -2341,7 +2351,10 @@ th:last-child>.col-rz{display:none}
   --rte-q:var(--muted);--rte-q2:var(--fg2)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .rte{--rte-q:color-mix(in srgb,var(--fg) 74%,var(--surface));--rte-q2:color-mix(in srgb,var(--fg) 80%,var(--surface))}}
 :root[data-theme="dark"] .rte{--rte-q:color-mix(in srgb,var(--fg) 74%,var(--surface));--rte-q2:color-mix(in srgb,var(--fg) 80%,var(--surface))}
-.rte-tb{display:flex;align-items:center;gap:2px;min-width:0;padding:7px 5px 7px 9px;box-shadow:inset 0 -1px 0 color-mix(in srgb,var(--line) 50%,transparent)}
+/* the toolbar's buttons are 16px from the card's top, left and right edges and from the hairline under them, measured by
+   their boxes (owner, 23 Nov: "this is too close to the side"): the first format's box starts where the text does, 16px in,
+   and Ask AI's box ends 16px from the right edge, at every width */
+.rte-tb{display:flex;align-items:center;gap:2px;min-width:0;padding:var(--s-4);border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .rte-b{width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:var(--r-sm);color:var(--fg2);transition:background var(--t-fast),color var(--t-fast)}
 .rte-b:hover{background:var(--row);color:var(--fg)}
 /* a format the selection has: the accent's tint, with the icon in the accent's text colour */
@@ -2380,12 +2393,12 @@ th:last-child>.col-rz{display:none}
 @keyframes rtew{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
 /* the text a menu or the link field is for stays marked while the focus is in them */
 ::highlight(rte-pick){background-color:color-mix(in srgb,var(--accent-mark) 24%,transparent)}
-.rte-ft{display:grid;align-items:center;min-height:46px;padding:6px 9px 6px 16px;box-shadow:inset 0 1px 0 color-mix(in srgb,var(--line) 50%,transparent)}
+/* the foot's buttons (Undo and Redo, Discard and Accept) are 16px from the hairline over them, the card's bottom edge and
+   its right edge, measured by their boxes, and its words start where the text does, 16px in (owner, 23 Nov) */
+.rte-ft{display:grid;align-items:center;min-height:calc(28px + 2 * var(--s-4) + 1px);padding:var(--s-4);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .rte-idle,.rte-rev{grid-area:1/1;display:flex;align-items:center;gap:var(--s-2);min-width:0;transition:opacity .25s var(--ease),transform .35s var(--ease),visibility 0s}
 .rte-rev,.rte[data-st="review"] .rte-idle{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s var(--ease),transform .35s var(--ease),visibility 0s .35s}
 .rte-rev{transform:translateY(4px)}
-/* Accept's edge ends on the text's right edge, where Redo's icon ends */
-.rte-rev{margin-right:7px}
 .rte[data-st="review"] .rte-idle{transform:translateY(-4px)}
 .rte[data-st="review"] .rte-rev{opacity:1;visibility:visible;pointer-events:auto;transform:none;transition-delay:0s}
 .rte-wc,.rte-hint{font-size:12px;color:var(--rte-q);white-space:nowrap}
@@ -2423,12 +2436,12 @@ th:last-child>.col-rz{display:none}
 .rte-ask.show{opacity:1;visibility:visible;transform:none;transition-delay:0s}
 .rte-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 @container rte (max-width:520px){.rte-hint{display:none}}
-/* the toolbar's first icon, the text and the foot's words share one left edge 16px in, and Ask AI's words (its icon when
-   narrow), Redo's icon and Accept end 16px from the right edge, at every width (owner, 18 and 19 Nov) */
-/* in a narrow editor Ask AI is its icon alone, in a 32px-wide box: the icon ends 16px from the edge and its hover box reaches
-   9px round it (owner, 19 Nov: the glyph on the content edge, the hover box reaching outward round it) */
-@container rte (max-width:400px){.rte-ai{width:32px;padding:0;justify-content:center}.rte-ai span{display:none}.rte-sep{margin:0 2px}.rte-tb{padding-left:9px;padding-right:7px}.rte-ft{padding-left:16px;padding-right:9px}.rte-rev .kbd{display:none}}
-@container rte (max-width:330px){.rte-tb{gap:0;padding:7px 7px 7px 10px}.rte-b{width:28px}}
+/* in a narrow editor Ask AI is its icon alone, in a 32px-wide box that ends 16px from the edge like the wide one */
+@container rte (max-width:400px){.rte-ai{width:32px;padding:0;justify-content:center}.rte-ai span{display:none}.rte-sep{margin:0 2px}.rte-rev .kbd{display:none}}
+@container rte (max-width:330px){.rte-tb{gap:0}.rte-b{width:28px}}
+/* on a phone of 360 the formats narrow a little more, so the toolbar keeps its 16px sides */
+@container rte (max-width:300px){.rte-b{width:26px}.rte-sep{margin:0 1px}}
+@container rte (max-width:280px){.rte-b{width:24px}}
 :root[data-style="bp"] .rte-b:is([aria-pressed="true"],.on){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent-mark) 50%,transparent)}
 /* Blueprint's lime tint is faint on white, so the suggestion also gets a hairline of the accent's mark under it */
 :root[data-style="bp"] .rte-new{background:var(--accent-bg);box-shadow:inset 0 -1px 0 var(--accent-mark)}
@@ -2465,7 +2478,10 @@ th:last-child>.col-rz{display:none}
 @keyframes rtewc{from{opacity:0}to{opacity:1}}
 :root[data-style="clean"] .rte-new .w{animation:rtewc var(--t-slow) var(--ease) both}
 @container rte (max-width:400px){:root[data-style="clean"] .rte-ai{width:28px;padding:0}:root[data-style="clean"] .rte-ft{padding-left:16px}}
-@container rte (max-width:330px){:root[data-style="clean"] .rte-tb{gap:0;padding:var(--strip-y) 8px}:root[data-style="clean"] .rte-b{width:28px}}
+/* on phones the toolbar keeps its 16px sides (owner, 23 Nov): the format buttons narrow instead */
+@container rte (max-width:330px){:root[data-style="clean"] .rte-tb{gap:0}:root[data-style="clean"] .rte-sep{margin:0 2px}}
+@container rte (max-width:300px){:root[data-style="clean"] .rte-b{width:26px}:root[data-style="clean"] .rte-ai{width:26px}:root[data-style="clean"] .rte-sep{margin:0 1px}}
+@container rte (max-width:280px){:root[data-style="clean"] .rte-b,:root[data-style="clean"] .rte-ai{width:24px}}
 /* ---------- Tool call ---------- */
 .tcx{display:flex;flex-direction:column;gap:var(--s-3)}
 .tcx-calls{display:flex;flex-direction:column;gap:var(--s-2)}
@@ -3321,13 +3337,14 @@ th:last-child>.col-rz{display:none}
 @keyframes rvoc{to{opacity:0;transform:translateY(-2px)}}
 :root[data-style="clean"] .rvx-t .w{animation-name:rvwc;animation-duration:var(--t-slow)}
 :root[data-style="clean"] .rvx-t.out{animation-name:rvoc;animation-duration:var(--t)}
-/* Clean (owner, 22 Nov: "differentiate Clean from Soft"): the answer is a version card. Its off-white head strip carries the
-   versions: the arrows and the count on the content's 16px column, what is happening beside them, and Regenerate and Copy at
-   the strip's other end, each 16px from the strip's top and bottom (owner, 23 Nov); a hairline parts the strip from the answer, which sits 16px
-   in from the card's edges. Soft and Blueprint keep the answer flat in the thread with its bar under it. The markup is the
-   same in every style: the strip is the bar, drawn first */
-:root[data-style="clean"] .rvx-a{flex-direction:column-reverse;gap:0;background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow);overflow:hidden}
-:root[data-style="clean"] .rvx-bar{margin:0;padding:var(--strip-y) 16px;background:var(--strip);box-shadow:inset 0 -1px 0 var(--line)}
+/* Clean (owner, 22 Nov: "differentiate Clean from Soft"): the answer is a version card. The answer comes first, 16px in
+   from the card's edges; under it a hairline, and under that the bar as a plain row with no strip (owner, 23 Nov: "just add
+   a divider line"): the arrows and the count on the left with what is happening beside them, Regenerate and Copy at the
+   right. Its buttons are 28px, 16px from the hairline, the card's bottom edge and its sides. Soft and Blueprint keep the
+   answer flat in the thread with its bar under it, in the same order */
+:root[data-style="clean"] .rvx-a{gap:0;background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow);overflow:hidden}
+:root[data-style="clean"] .rvx-bar{margin:0;padding:16px;border-top:1px solid var(--line)}
+:root[data-style="clean"] .rvx-bar .ib{width:28px;height:28px}
 :root[data-style="clean"] .rvx-t{padding:16px}
 :root[data-style="clean"] .rvx-st{order:1;margin-left:var(--s-2);min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root[data-style="clean"] .rvx-re{order:2;margin-left:auto}
@@ -3356,13 +3373,18 @@ th:last-child>.col-rz{display:none}
 .fbx-box.shut{margin-top:calc(-1 * var(--s-2));transition:grid-template-rows var(--t) var(--ease),opacity var(--t) var(--ease),margin-top var(--t) var(--ease),visibility 0s var(--t)}
 .fbx-q{font-size:13.5px;font-weight:500}
 .fbx-ch{display:flex;flex-wrap:wrap;gap:6px}
-.fbx-ch .chip.on{background:var(--sel);color:var(--accent);box-shadow:none}
+/* the reasons sit on the sheet: unpicked, they take the grey a step above the chip's own, so they read against what is
+   behind them (owner, 23 Nov: "could these be a bit darker?"), and a step more under the pointer; a picked one is the accent
+   tint with the accent's text colour. Answer action bar's reasons do the same; Clean keeps its own (below) */
+.fbx-ch .chip{background:var(--hover)}
+.fbx-ch .chip:hover{background:var(--press)}
+.fbx-ch .chip.on{background:var(--accent-bg);color:var(--accent-fg,var(--accent));box-shadow:none}
 .fbx-ta{display:block;width:100%;resize:none;border:0;outline:0;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);padding:10px var(--s-3);font:inherit;font-size:13.5px;line-height:1.5;color:var(--fg);transition:box-shadow var(--t-fast)}
 @supports (corner-shape:squircle){.fbx-ta{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .fbx-ta:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
 .fbx-ta::placeholder{color:var(--muted)}
 /* the footer sits under a hairline in Soft and Blueprint (owner, 21 Nov), 12px from it on each side; Clean's is a foot strip */
-.fbx-f{display:flex;align-items:center;gap:6px;margin-top:var(--s-1);padding-top:var(--s-3);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.fbx-f{display:flex;align-items:center;gap:6px;margin-top:var(--s-1);padding-top:var(--s-4);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .fbx-n{font-size:12px;flex:1;min-width:0}
 /* sent: a neutral line with the green tick, no green fill (owner, 18 Nov: a finished state) */
 .fbx-thx{display:flex;align-items:center;gap:var(--s-2);font-size:13px;line-height:20px;color:var(--fg2)}
@@ -3371,15 +3393,15 @@ th:last-child>.col-rz{display:none}
 /* Clean (owner, 18 Nov): the sheet's content sits 16px in from its edges, and its foot is an off-white strip: the note
    starts where the question does, and Cancel and Send are 28px pills 16px from the card's edges and the strip's hairline (owner, 23 Nov).
    The first thumb's icon starts where the answer and the sheet do. The chrome is monochrome: a rated
-   thumb fills in ink (no red fill, no tilt) and a picked reason is an ink chip like a toggle that is on */
+   thumb fills in ink on the selected fill in its round shape (owner, 23 Nov), with no red and no tilt and a picked reason is an ink chip like a toggle that is on */
 :root[data-style="clean"] .fbx-bar .ib.on svg{transform:none}
-:root[data-style="clean"] .fbx-bar .ib.on{background:none;color:var(--fg)}
-:root[data-style="clean"] .fbx-bar .ib.on:hover{background:var(--row)}
+:root[data-style="clean"] .fbx-bar .ib.on{background:var(--row-on);color:var(--fg)}
 :root[data-style="clean"] .fbx-bar .ib.on svg{fill:currentColor}
 :root[data-style="clean"] .fbx-in.panel{gap:12px;margin:4px 0 0;padding:16px 16px 0;overflow:clip}
 :root[data-style="clean"] .fbx-q{font-size:14px;line-height:20px}
 :root[data-style="clean"] .fbx-ch .chip.on{background:var(--btn-2);color:var(--on-btn);box-shadow:inset 0 0 0 1px var(--btn-2)}
 /* a reason not picked takes the one hover over its fill, easing over 220ms (owner, 21 Nov) */
+:root[data-style="clean"] .fbx-ch .chip:not(.on){background:var(--chip)}
 :root[data-style="clean"] .fbx-ch .chip{transition:background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .fbx-ch .chip:not(.on):hover{background:var(--chip);box-shadow:inset 0 0 0 99px var(--row)}
 :root[data-style="clean"] .fbx-f{gap:8px;margin:4px -16px 0;padding:var(--strip-y) 16px;background:var(--strip);border-top:1px solid var(--line)}
@@ -3438,7 +3460,7 @@ th:last-child>.col-rz{display:none}
 /* on the tinted notice the secondary button is white, not grey */
 .mpk-sg .pill.ghost{background:var(--surface);color:var(--fg);box-shadow:var(--on-tint-btn)}
 .mpk-sg .pill.ghost:hover{box-shadow:var(--on-tint-btn-h)}
-.mpk-th{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--s-2) var(--s-3);padding:var(--s-3) 10px 6px;margin:6px 0 0;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.mpk-th{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--s-2) var(--s-3);padding:var(--s-4) 10px 10px;margin:6px 0 0;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 /* Thinking sits on the rows' columns: its icon centred in the tiles' column, its words on the names' column */
 .mpk-thh{display:grid;grid-template-columns:20px minmax(0,1fr);align-items:center;column-gap:10px;min-width:0;font-size:13px}
 .mpk-thh b{font-weight:500;display:contents}
@@ -3583,14 +3605,18 @@ th:last-child>.col-rz{display:none}
 .aab-wy{display:flex;flex-direction:column;gap:var(--s-2);padding:2px 0 var(--s-1)}
 .aab-wq{font-size:13px;font-weight:500}
 .aab-ch{display:flex;flex-wrap:wrap;gap:6px}
-.aab-ch .chip.on{background:var(--sel);color:var(--accent-fg,var(--accent));box-shadow:none}
+/* the reasons sit on the stage: unpicked, a step above the chip's own grey and a step more under the pointer, as Feedback
+   sheet's are (owner, 23 Nov: "could these be a bit darker?"); a picked one is the accent tint. Clean keeps its own (below) */
+.aab-ch .chip{background:var(--hover)}
+.aab-ch .chip:hover{background:var(--press)}
+.aab-ch .chip.on{background:var(--accent-bg);color:var(--accent-fg,var(--accent));box-shadow:none}
 .aab-st{margin:0;max-height:20px;font-size:12.5px;display:flex;align-items:center;gap:6px;transition:max-height var(--t) var(--ease),margin-top var(--t) var(--ease)}
 .aab-st:is(:empty,.off){max-height:0;margin-top:calc(-1 * var(--s-3))}
 .aab-st.warn{color:var(--warn)}
 .aab-st.ok svg{color:var(--ok);flex:none}
 .aab-rd.on .aab-pr{width:40px}
 @media (max-width:480px){.aab-rd.on .aab-tm{display:none}.aab-row{flex-direction:column;align-items:flex-start}.aab-meta{max-width:100%}}
-/* Clean (owner, 18 Nov): the chrome is monochrome: a rated thumb fills in ink (no green or red fill, no tilt), read aloud plays in ink on a grey track and lights the word
+/* Clean (owner, 18 Nov): the chrome is monochrome: a rated thumb fills in ink on the selected fill in its round shape (owner, 23 Nov), with no green or red and no tilt, read aloud plays in ink on a grey track and lights the word
    it reads in grey, and a picked reason is an ink chip like a toggle that is on. What a new version changed stays green, and
    so does the status's tick; a problem stays amber. Words fade in and out without a blur */
 @keyframes aabwc{from{opacity:0}to{opacity:1}}
@@ -3600,13 +3626,13 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .aab-t.out{animation-name:aaboc;animation-duration:var(--t)}
 :root[data-style="clean"] .aab-bar .ib[aria-pressed="true"] svg{transform:none}
 :root[data-style="clean"] .aab-t .w.rd{background:var(--hover);color:var(--fg)}
-:root[data-style="clean"] .aab-bar .ib[aria-pressed="true"]{background:none;color:var(--fg)}
-:root[data-style="clean"] .aab-bar .ib[aria-pressed="true"]:hover{background:var(--row)}
+:root[data-style="clean"] .aab-bar .ib[aria-pressed="true"]{background:var(--row-on);color:var(--fg)}
 :root[data-style="clean"] .aab-bar .ib[aria-pressed="true"] svg{fill:currentColor}
 :root[data-style="clean"] .aab-rd[aria-pressed="true"]{background:var(--row-on);color:var(--fg)}
 :root[data-style="clean"] .aab-rd:hover{background:var(--row)}
 :root[data-style="clean"] .aab-ch .chip.on{background:var(--btn-2);color:var(--on-btn);box-shadow:inset 0 0 0 1px var(--btn-2)}
 /* a reason not picked takes the one hover over its fill, easing over 220ms (owner, 21 Nov) */
+:root[data-style="clean"] .aab-ch .chip:not(.on){background:var(--chip)}
 :root[data-style="clean"] .aab-ch .chip{transition:background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .aab-ch .chip:not(.on):hover{background:var(--chip);box-shadow:inset 0 0 0 99px var(--row)}
 :root[data-style="clean"] .aab-st.ok svg{color:var(--ok-mark)}
@@ -3619,6 +3645,11 @@ th:last-child>.col-rz{display:none}
 .dpx.panel{padding:var(--s-4);border-radius:var(--r-card)}
 .dpx:focus-visible{outline:2px solid var(--focus);outline-offset:6px}
 .dpx-h{display:flex;align-items:center;justify-content:space-between}
+/* once every question is answered the head goes, label and dots (owner, 23 Nov: "All set" said what the card already shows):
+   the card eases to its new height with its usual grow(), its first summary row 16px from the top, and a hidden line tells
+   screen readers that every question is answered. (Agent harness keeps staging's head under its own rules) */
+.dpx.done .dpx-h{display:none}
+.dpx-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .dpx-k{font-size:12px;line-height:16px}
 .dpx-dots{display:flex;gap:var(--s-1);transition:opacity var(--t-fast) var(--ease),transform var(--t) var(--ease),visibility 0s}
 /* the steps are done once every question is answered (owner, 21 Nov): the dots fade and shrink a little where they are, at
@@ -3851,10 +3882,10 @@ th:last-child>.col-rz{display:none}
 .pgx-o.one>.oi{width:32px;height:32px;display:grid;place-items:center;border-radius:calc(9px * var(--rk-m,var(--rk)));background:var(--chip);color:var(--fg2)}
 :root[data-style="clean"] .pgx-o.one>.oi{box-shadow:inset 0 0 0 1px var(--hair)}
 .pgx-o .d{display:block;font-size:12px;color:var(--muted)}
-.pgx-f{display:flex;align-items:center;gap:6px;padding-top:var(--s-3);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.pgx-f{display:flex;align-items:center;gap:6px;padding-top:var(--s-4);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .pgx-f .sp{flex:1}
 /* on a narrow stage the duration gets its own row, and the two buttons stay together under it on the right */
-@container (max-width:340px){.pgx-f{flex-wrap:wrap}.pgx-f .sp{flex-basis:100%}.pgx-no{margin:var(--s-2) 0 0 auto}.pgx-ok{margin-top:var(--s-2)}}
+@container (max-width:340px){.pgx-f{flex-wrap:wrap;padding-top:var(--s-3)}.pgx-f .sp{flex-basis:100%}.pgx-no{margin:var(--s-2) 0 0 auto}.pgx-ok{margin-top:var(--s-2)}}
 /* how long: a small dropdown, the way a menu of choices usually looks */
 .pgx-db{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--s-2) 0 10px;margin-left:0;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);white-space:nowrap;transition:background .16s,color .16s}
 .pgx-db:hover,.pgx-db[aria-expanded="true"]{background:var(--row);color:var(--fg)}
@@ -4167,7 +4198,7 @@ th:last-child>.col-rz{display:none}
 .itd-bar.unsure .itd-acc:hover{background:var(--surface);box-shadow:var(--on-tint-btn-h)}
 /* the end: a neutral line with the green tick (owner, 18 Nov), only once every edit is decided */
 /* the line saying how the review went sits under a hairline in Soft and Blueprint (owner, 21 Nov), 12px from it on each side */
-.itd-f{margin:0;display:flex;align-items:center;gap:6px;padding-top:var(--s-3);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:13px;line-height:20px;color:var(--fg)}
+.itd-f{margin:0;display:flex;align-items:center;gap:6px;padding-top:var(--s-4);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:13px;line-height:20px;color:var(--fg)}
 .itd-f:empty{display:none}
 /* Clean: the line saying how the review went is the card's off-white foot strip (owner, 21 Nov), its words 16px in */
 :root[data-style="clean"] .itd-f{padding-top:0;border-top:0}
@@ -4241,7 +4272,8 @@ th:last-child>.col-rz{display:none}
    the result arrives (grow()); its menu opens out of it, and nothing changes height while the menu is open */
 .drf.growing:has(.drf-pop.open){overflow:visible}
 /* a hairline sets the buttons apart from the message, as in a mail composer */
-.drf-f{display:flex;align-items:center;gap:var(--s-2);padding-top:var(--s-3);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.drf-f{display:flex;align-items:center;gap:var(--s-2);padding-top:var(--s-5);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+:root[data-style="bp"] .drf-f{padding-top:var(--s-4)}
 .drf-f .sp{flex:1}
 .drf-when{font-size:13px}
 .drf-mg{display:flex;gap:1px;flex:none}
@@ -4576,7 +4608,8 @@ button.evr-vs-r:focus-visible{outline-offset:-2px;border-radius:calc(10px * var(
 .evr-jg-cats .b i{display:block;height:100%;border-radius:inherit;background:var(--accent-mark);transform-origin:left;transform:scaleX(var(--p,0));transition:transform 1s var(--ease)}
 /* the judge's call is a plain section under a hairline, not a box in the card, so its words and its actions keep the card's
    own 16px from the edge (owner, 21 Nov: one inset for the whole card) */
-.evr-jg-j{display:flex;flex-direction:column;gap:var(--s-2);padding-top:var(--s-3);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12.5px}
+.evr-jg-j{display:flex;flex-direction:column;gap:var(--s-2);padding-top:var(--s-4);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12.5px}
+:root[data-style="clean"] .evr-jg-j{padding-top:var(--s-3)}
 .evr-jg-j.go{animation:evrjgin .45s var(--ease)}
 @keyframes evrjgin{from{opacity:0;transform:translateY(8px)}}
 .evr-jg-jh{display:flex;align-items:center;gap:var(--s-2);font-size:13px}
@@ -4587,7 +4620,7 @@ button.evr-vs-r:focus-visible{outline-offset:-2px;border-radius:calc(10px * var(
 .evr-jg-jr .who{color:var(--muted);margin-right:var(--s-1)}
 /* your call on the judge sits under a hairline in every style (owner, 21 Nov: "multiple text layers and no segmentation"), as
    far under the reasoning as the box's own edge is round it */
-.evr-jg-ja{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:var(--s-1);padding-top:var(--s-3);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.evr-jg-ja{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:var(--s-1);padding-top:var(--s-4);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .evr-jg-ja .sp{flex:1}
 /* Clean: the actions are the card's off-white foot strip, 16px from its top and bottom (owner, 23 Nov) and on the 16px column */
 :root[data-style="clean"] .evr-jg-ja{margin:var(--s-1) calc(-1 * var(--s-4)) calc(-1 * var(--s-4));padding:var(--strip-y) var(--s-4);background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
@@ -4703,10 +4736,6 @@ button.evr-vs-r:focus-visible{outline-offset:-2px;border-radius:calc(10px * var(
 .mix-ic{color:var(--accent-fg,var(--accent));display:grid;margin-top:2px}
 .mix-why{align-self:flex-start;overflow:hidden}
 .mix-why .shim{font-size:inherit}
-/* a lighter button than the soft pill, like the other quiet asks */
-.pill.soft.mix-why{background:var(--chip);box-shadow:none}
-.pill.soft.mix-why[aria-expanded="true"]{background:var(--hover)}
-.pill.soft.mix-why:hover{background:var(--hover)}
 /* nothing in it grows or shrinks when it is pressed (owner, 18 Nov) */
 .mix :is(.pill,.ib):active{transform:none}
 /* the reasons fold open under Why did it move?; shut, the fold takes back the card's 10px gap, so the card's content ends 16px
@@ -5023,7 +5052,7 @@ code.tmx-p{font-weight:500;color:var(--accent-fg,var(--fg))}
 .tmx-note .shim{font-size:inherit}
 /* once the run is over, the line at the foot: its mark in the marks' column and how many commands ran (a finished line has
    no clock, owner, 18 Nov) */
-.tmx-f{display:flex;align-items:center;gap:var(--s-2);padding:10px var(--s-4);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:13px}
+.tmx-f{display:flex;align-items:center;gap:var(--s-2);padding:var(--s-4);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:13px}
 .tmx-f .g{width:16px;display:grid;place-items:center;flex:none;color:var(--ok-mark)}
 .tmx-f.stop .g{color:var(--muted)}.tmx-f.bad .g{color:var(--bad-mark)}
 /* the run's state in the header: a neutral tag while it runs, its words shimmering as every loader's do (owner, 19 Nov), then
@@ -5149,7 +5178,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .chx-q{font-size:12.5px;line-height:1.55;color:var(--fg2);padding-left:10px;box-shadow:inset 2px 0 0 var(--faint)}
 .chx-q mark{background:var(--sel);color:var(--accent-fg,var(--accent));border-radius:var(--r-tiny,3px);padding:0 2px}
 /* the source's foot sits under a hairline in Soft and Blueprint (owner, 21 Nov), 12px from it on each side */
-.chx-f{display:flex;align-items:center;justify-content:space-between;margin-top:var(--s-3);padding-top:var(--s-3);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12px;color:var(--muted)}
+.chx-f{display:flex;align-items:center;justify-content:space-between;margin-top:var(--s-3);padding-top:var(--s-4);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12px;color:var(--muted)}
 /* Clean: the source's foot is the card's off-white foot strip (owner, 21 Nov), its words 16px in */
 :root[data-style="clean"] .chx-f{margin:var(--s-3) -16px -16px;padding:calc(var(--strip-y) + 5px) 16px;background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card);line-height:18px}
 .chx-f a{color:var(--accent-fg,var(--accent));display:inline-flex;align-items:center;gap:var(--s-1);text-decoration:none}
@@ -5254,7 +5283,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .cpl-i.hl .ent{opacity:1}
 .cpl-hl{position:absolute;left:var(--s-2);right:var(--s-2);height:36px;border-radius:calc(10px * var(--rk-m,var(--rk)));background:var(--row);transition:top .25s var(--ease);z-index:0}
 /* the footer: what ran last on the left, the keys on the right (they keep their room; the words give way first) */
-.cpl-f{display:flex;gap:14px;align-items:center;padding:var(--s-2) var(--s-4);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:11.5px}
+.cpl-f{display:flex;gap:14px;align-items:center;padding:var(--s-4);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:11.5px}
 .cpl-f>span{flex:none;white-space:nowrap}
 .cpl-f .kbd{margin-right:3px}
 .cpl-f>.cpl-st{flex:1 1 auto;min-width:0;color:var(--fg2);overflow:hidden;text-overflow:ellipsis}
@@ -5279,7 +5308,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 :root[data-style="clean"] .cpl-i.in{animation:clpiece var(--t) var(--ease) backwards}
 /* the foot strip is as tall as a strip with a control (44px), so its words sit as far from the card's foot as its sides (16px);
    the list gives up those 10px, so Clean's palette is no taller than Soft's */
-:root[data-style="clean"] .cpl-f{min-height:calc(28px + 2 * var(--strip-y) + 1px);background:var(--strip);border-top-color:var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
+:root[data-style="clean"] .cpl-f{min-height:calc(28px + 2 * var(--strip-y) + 1px);padding:var(--s-2) var(--s-4);background:var(--strip);border-top-color:var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
 :root[data-style="clean"] .cpl-list{max-height:226px}
 :root[data-style="clean"] .cpl-f .kbd{background:var(--surface);box-shadow:inset 0 0 0 1px var(--hair)}
 /* ---------- Agent settings ---------- */
@@ -5396,7 +5425,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .asx-lp-bar{display:flex;align-items:center;gap:6px;height:0;margin:-14px calc(-1 * var(--s-4)) 0;padding:0 var(--s-4);overflow:hidden;border-radius:0 0 var(--r-card) var(--r-card);background:var(--surface);box-shadow:inset 0 1px 0 color-mix(in srgb,var(--line) 50%,transparent);font-size:12.5px;transform:translateY(16px);opacity:0;pointer-events:none;transition:transform .5s var(--ease),opacity .3s,height .45s var(--ease),margin .45s var(--ease),padding .45s var(--ease)}
 .asx-lp-bar>span{flex:1;min-width:0;display:flex;align-items:center;gap:6px;white-space:nowrap}
 /* Soft and Blueprint: the foot under its hairline keeps 12px over its buttons and the card's 16px under them */
-.asx-lp.dirty .asx-lp-bar{height:56px;margin:0 calc(-1 * var(--s-4)) calc(-1 * var(--s-4));padding-block:var(--s-3) var(--s-4);transform:none;opacity:1;pointer-events:auto}
+.asx-lp.dirty .asx-lp-bar{height:calc(28px + 2 * var(--s-4) + 1px);margin:0 calc(-1 * var(--s-4)) calc(-1 * var(--s-4));padding-block:calc(var(--s-4) + 1px) var(--s-4);transform:none;opacity:1;pointer-events:auto}
 :root[data-style="bp"] .asx-lp-fill,:root[data-style="bp"] .asx-lp-th{transition:transform .3s steps(3,end)}
 :root[data-style="bp"] .asx-lp-th i{width:10px;height:10px}
 :root[data-style="bp"] .asx-lp-bar{transition:transform .3s steps(3,end),opacity .2s,height .3s steps(3,end),margin .3s steps(3,end),padding .3s steps(3,end)}
@@ -5458,7 +5487,9 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .asx-tb.growing:has(.pop.open){overflow:visible}
 /* the save bar: quiet until something changes, then the list of changes over it, each with its undo */
 .asx-tb-ft{margin:var(--s-1) 0 0;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
-.asx-tb-cl{list-style:none;margin:0 calc(-1 * var(--s-2));padding:6px 0 0;display:flex;flex-direction:column;gap:2px;max-height:150px;overflow-y:auto;scrollbar-width:thin}
+/* (open, the list's first words sit 16px under the foot's hairline, as the bar's buttons do when it is shut) */
+.asx-tb-cl{list-style:none;margin:0 calc(-1 * var(--s-2));padding:10px 0 0;display:flex;flex-direction:column;gap:2px;max-height:150px;overflow-y:auto;scrollbar-width:thin}
+:root[data-style="clean"] .asx-tb-cl{padding-top:6px}
 .asx-tb-c{display:flex;align-items:center;gap:var(--s-2);min-height:32px;padding:0 var(--s-2);border-radius:var(--r-sm);font-size:12.5px;animation:asxtbc .35s var(--ease) backwards}
 /* a change fades in where it lands (a rise would push the list past its height for a moment and flash its scrollbar) */
 @keyframes asxtbc{from{opacity:0}}
@@ -5471,12 +5502,11 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 /* undo's glyph ends on the content's edge, under the switches; its hover circle reaches out round it */
 .asx-tb-c .ib{flex:none;width:26px;height:26px;margin-right:-7px}
 .asx-tb-c .ib:hover{background:var(--asx-lift)}
-.asx-tb-bar{display:flex;align-items:center;gap:6px;padding:12px 0 0}
+.asx-tb-bar{display:flex;align-items:center;gap:6px;padding:var(--s-4) 0 0}
 .asx-tb-st{flex:1;min-width:0;display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
 .asx-tb.dirty .asx-tb-st{color:var(--fg)}
 .asx-tb-st .i{color:var(--ok-mark)}
-/* with nothing to save, Save's shortcut goes quiet with it */
-.asx-tb-sv[disabled] .kbd{background:none;color:inherit}
+/* with nothing to save, Save's shortcut goes quiet with it, as every disabled button's key chip does (in the shared rules) */
 /* on a phone the shortcut has no keyboard to go with, so Save drops its hint and the bar keeps to one line */
 @container (max-width:400px){.asx-tb-sv .kbd{display:none}}
 :root[data-style="bp"] .asx-tb-tabs{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent)}
@@ -5499,8 +5529,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 :root[data-style="clean"] .asx-tb-cf{padding:0 var(--s-4)}
 :root[data-style="clean"] .asx-tb-cl{padding-bottom:8px}
 :root[data-style="clean"] .asx-tb-bar{padding:var(--strip-y) var(--s-4);background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
-:root[data-style="clean"] .asx-tb-sv .kbd{background:color-mix(in srgb,var(--on-btn) 18%,transparent);color:inherit}
-:root[data-style="clean"] .asx-tb-sv[disabled] .kbd{background:none}
+:root[data-style="clean"] .asx-tb-sv:not([disabled]) .kbd{background:color-mix(in srgb,var(--on-btn) 18%,transparent);color:inherit}
 /* Presets: Careful, Balanced and Bold, each with its colour on its tile (teal, the accent and violet, so the grid's green and
    amber keep meaning allow and ask) and a meter in the accent, then a grid of allow, ask and block for each tool */
 .asx-ps{padding:var(--s-4);display:flex;flex-direction:column;gap:var(--s-3)}
@@ -5550,7 +5579,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .asx-ps-key .al i{background:var(--asx-al-bg);color:var(--asx-al)}
 .asx-ps-key .as i{background:var(--asx-as-bg);color:var(--asx-as)}
 /* (as Autopilot's foot: 12px over its buttons under the hairline, the card's 16px under them) */
-.asx-ps-bar{display:flex;align-items:center;gap:6px;margin:0 calc(-1 * var(--s-4)) calc(-1 * var(--s-4));padding:var(--s-3) var(--s-4) var(--s-4);border-radius:0 0 var(--r-card) var(--r-card);background:var(--surface);box-shadow:inset 0 1px 0 color-mix(in srgb,var(--line) 50%,transparent);font-size:12.5px;color:var(--fg2);transition:box-shadow .3s}
+.asx-ps-bar{display:flex;align-items:center;gap:6px;margin:0 calc(-1 * var(--s-4)) calc(-1 * var(--s-4));padding:calc(var(--s-4) + 1px) var(--s-4) var(--s-4);border-radius:0 0 var(--r-card) var(--r-card);background:var(--surface);box-shadow:inset 0 1px 0 color-mix(in srgb,var(--line) 50%,transparent);font-size:12.5px;color:var(--fg2);transition:box-shadow .3s}
 /* on a narrow card the words end in an ellipsis rather than taking a second line in the bar */
 .asx-ps-bt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .asx-ps-bt .i{color:var(--ok-mark);margin-right:6px}
@@ -5611,7 +5640,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .fxp-k{display:grid;grid-template-rows:1fr;transition:grid-template-rows var(--t) var(--ease)}
 .fxp-k.shut{grid-template-rows:0fr}
 .fxp-k>div{overflow:hidden;min-height:0}
-.fxp-f{padding-top:var(--s-2);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12px;line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fxp-f{padding-top:var(--s-4);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12px;line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fxp-st{display:block;overflow:hidden;text-overflow:ellipsis}
 /* no file matches the filter: the empty state (the lab's, lab/clean): a small sketch of a file list on a white card, a
    title, one muted line and Clear filter as an outline button */
@@ -6190,7 +6219,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .mmx-gone button{flex:none;color:var(--accent-fg,var(--accent));font-weight:500;font-size:12.5px}
 /* the line at the foot: how often the memory is used, or the answer it is helping with now; its mark centred in the head's
    mark column, its words on the memories' column */
-.mmx-f{display:flex;align-items:center;gap:12px;margin-top:var(--s-1);padding:12px 0 0;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12px;line-height:18px;color:var(--muted)}
+.mmx-f{display:flex;align-items:center;gap:12px;margin-top:var(--s-1);padding:var(--s-4) 0 0;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12px;line-height:18px;color:var(--muted)}
 .mmx-fi{display:grid;place-items:center;flex:none;width:28px;color:var(--fg2)}
 .mmx-fi .brand{width:14px;height:14px}
 .mmx-ft{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -6228,8 +6257,10 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .hnx-h b{font-weight:500;font-size:14px;line-height:20px}
 /* a test's progress and result sit in the foot, beside Connect a tool, its words ending on the content's right edge */
 /* the foot sits under a hairline in Soft and Blueprint (owner, 21 Nov: "blueprint should have divider lines at the bottom"),
-   8px under the last tool and 8px over its button, as the rows are spaced; Clean's is a foot strip (below) */
-.hnx-ft{display:flex;align-items:center;gap:var(--s-3);margin-top:0;padding-top:var(--s-2);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+   its button's words 16px from the hairline and 16px from the card's bottom edge (owner, 23 Nov): the ghost button's 32px box
+   reaches 6px round its words, so the foot has 10px above it and reaches 6px into the card's bottom padding. Clean's is a foot
+   strip (below) */
+.hnx-ft{display:flex;align-items:center;gap:var(--s-3);margin-top:0;margin-bottom:-6px;padding-top:10px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .hnx-st{display:flex;align-items:center;gap:5px;min-width:0;margin-left:auto;height:18px;font-size:12px;line-height:18px;white-space:nowrap}
 .hnx-st>span{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .hnx-st .i{flex:none;color:var(--ok-mark)}
@@ -6298,7 +6329,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 :root[data-style="clean"] .hnx-pm .kn{background:var(--knob);box-shadow:var(--knob-shadow);transition:left var(--t) var(--ease),width var(--t) var(--ease)}
 :root[data-style="clean"] .hnx-pm button{color:var(--muted);font-weight:500;transition:color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .hnx-pm button[aria-pressed="true"]{color:var(--fg)}
-:root[data-style="clean"] .hnx-ft{margin-top:0;padding:var(--strip-y) var(--s-4);background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
+:root[data-style="clean"] .hnx-ft{margin-top:0;margin-bottom:0;padding:var(--strip-y) var(--s-4);background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
 :root[data-style="clean"] .hnx-add{gap:6px;height:28px;margin:0;padding:0 12px 0 10px;border-radius:var(--r-pill);font-weight:500;color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth);transition:box-shadow var(--t-fast) var(--ease)}
 :root[data-style="clean"] .hnx-add>.i{width:12px;padding:0}
 :root[data-style="clean"] :is(.hnx-add:hover,.hnx-add[aria-expanded="true"]){background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-hover)}
@@ -6371,11 +6402,12 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .ksx-em-art::before{content:"";position:absolute;left:14px;top:13px;width:12px;height:12px;border-radius:4px;background:var(--ghost,var(--chip));box-shadow:0 16px 0 var(--ghost,var(--chip)),0 32px 0 var(--ghost-2,var(--wash))}
 .ksx-em-art::after{content:"";position:absolute;left:34px;top:16px;width:58px;height:6px;border-radius:3px;background:var(--ghost,var(--chip));box-shadow:0 16px 0 var(--ghost,var(--chip)),0 32px 0 var(--ghost-2,var(--wash))}
 .ksx-list:not(:empty)~.ksx-em,.ksx-list:empty~.ksx-ft{display:none}
-/* the foot sits under a hairline in Soft and Blueprint (owner, 21 Nov), 8px from it on each side, as the rows are spaced;
-   Clean's is a foot strip */
-.ksx-ft{padding-top:var(--s-2);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+/* the foot sits under a hairline in Soft and Blueprint (owner, 21 Nov), its button's words 16px from the hairline and 16px from
+   the card's bottom edge (owner, 23 Nov): the ghost button's 32px box reaches 6px round its words, so the foot has 10px above it
+   and reaches 6px into the card's bottom padding. Clean's is a foot strip */
+.ksx-ft{margin-bottom:-6px;padding-top:10px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .ksx-ft .ksx-add{margin-top:0}
-.shx-ft{padding-top:var(--s-2);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.shx-ft{margin-bottom:-6px;padding-top:10px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .shx-ft .shx-add{margin-top:0}
 :root[data-style="bp"] .ksx-em-art{box-shadow:0 0 0 1px color-mix(in srgb,var(--rail) 60%,transparent)}
 :root[data-style="bp"] :is(.ksx-em-art::before,.ksx-em-art::after){border-radius:0}
@@ -6392,7 +6424,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 :root[data-style="clean"] .ksx-list:empty{padding:0}
 :root[data-style="clean"] .ksx-s .ic{background:var(--surface)!important;color:var(--fg2)!important;box-shadow:inset 0 0 0 1px var(--hair);border-radius:10px}
 :root[data-style="clean"] .ksx-s[data-st="ready"] .d>.i{color:color-mix(in srgb,var(--ok-mark) 80%,var(--ok))}
-:root[data-style="clean"] .ksx-ft{padding:var(--strip-y) var(--s-4);background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
+:root[data-style="clean"] .ksx-ft{margin-bottom:0;padding:var(--strip-y) var(--s-4);background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
 :root[data-style="clean"] .ksx-add{gap:6px;height:28px;margin:0;padding:0 12px 0 10px;border-radius:var(--r-pill);font-weight:500;color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth);transition:box-shadow var(--t-fast) var(--ease)}
 :root[data-style="clean"] .ksx-add>.i{width:12px;padding:0}
 :root[data-style="clean"] :is(.ksx-add:hover,.ksx-add[aria-expanded="true"]){background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-hover)}
@@ -6487,7 +6519,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 :root[data-style="clean"] .shx-r[data-st="bad"] .res .i{color:var(--bad-mark)}
 :root[data-style="clean"] .shx-r.off .res .i{color:var(--muted)}
 :root[data-style="clean"] .shx-run{transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
-:root[data-style="clean"] .shx-ft{padding:var(--strip-y) var(--s-4);background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
+:root[data-style="clean"] .shx-ft{margin-bottom:0;padding:var(--strip-y) var(--s-4);background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
 :root[data-style="clean"] .shx-add{gap:6px;height:28px;margin:0;padding:0 12px 0 10px;border-radius:var(--r-pill);font-weight:500;color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth);transition:box-shadow var(--t-fast) var(--ease)}
 :root[data-style="clean"] .shx-add>.i{width:12px;padding:0}
 :root[data-style="clean"] :is(.shx-add:hover,.shx-add[aria-expanded="true"]){background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-hover)}
@@ -7341,7 +7373,7 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .hsc-pt i{width:4px;height:4px;border-radius:50%;background:var(--faint)}
 /* the agent's next move: a plain row under a hairline, the spark centred in the ring's column on the first line of its words,
    the words on the verdict's column, and its button on the content's right edge, centred on the words */
-.hsc-s{display:flex;align-items:center;gap:var(--s-3);min-height:44px;padding-top:var(--s-3);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12.5px;line-height:1.45;color:var(--fg2)}
+.hsc-s{display:flex;align-items:center;gap:var(--s-3);min-height:44px;padding-top:var(--s-4);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12.5px;line-height:1.45;color:var(--fg2)}
 .hsc-say{flex:1;min-width:0;display:flex;align-items:flex-start}
 .hsc-say .i{flex:none;margin:2px 27px 0 15px;color:var(--accent-mark,var(--accent))}
 /* its words ease to a new line count rather than jump (grow()), the spark and words staying side by side */
@@ -7552,6 +7584,10 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .atb-note span{flex:1}
 /* Draft email is as wide as its words, and eases to the new width as it says Drafting, then Draft ready with the green tick */
 .atb-note .pill{flex:none;overflow:hidden}
+/* a white button on a tinted row takes the tint hairline (CLAUDE.md); Blueprint keeps its outlined edge */
+.atb-note .pill.line{box-shadow:var(--on-tint-btn)}
+.atb-note .pill.line:hover{box-shadow:var(--on-tint-btn-h)}
+:root[data-style="bp"] .atb-note .pill.line{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent)}
 .atb-note .pill .spin{width:12px;height:12px}
 .atb-note .pill .atb-done{display:grid;color:var(--ok-mark)}
 /* nothing matches: the empty state of the lab's Clean (lab/clean), in every style. A small sketch of a table on a white card,
@@ -8594,7 +8630,7 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .fmx-ty .chip:hover{background:color-mix(in srgb,var(--fg) 4%,var(--surface))}
 .fmx-ty .chip.on{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pick-on) 50%,transparent)}
 /* the footer sits under a hairline in Soft and Blueprint (owner, 21 Nov), 16px under the fields and 12px over its button */
-.fmx-ft{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2);margin-top:var(--s-1);padding-top:var(--s-3);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.fmx-ft{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2);margin-top:var(--s-1);padding-top:var(--s-4);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 /* Clean: the footer is the card's off-white foot strip (owner, 21 Nov: "clean doesnt follow its style with buttons being
    separated by a divider line and on a gray bg"): its words and Create brief 16px in, 16px from the strip's top and bottom (owner, 23 Nov) */
 :root[data-style="clean"] .fmx-ft{padding-top:0;border-top:0}
@@ -8748,6 +8784,8 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 :root[data-style="clean"] .cmx-res{margin:0}
 :root[data-style="clean"] .cmx-in{margin:0 calc(-1 * var(--s-4)) calc(-1 * var(--s-4));padding:var(--strip-y) var(--s-4);background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
 :root[data-style="clean"] .cmx.done .cmx-in{margin:calc(-1 * var(--s-4)) calc(-1 * var(--s-4)) 0;padding-block:0;border-top-width:0}
+/* Agree, once agreed, sits on Clean's selected fill in its round shape, as a rated thumb does (owner, 23 Nov) */
+:root[data-style="clean"] .cmx-tools .ib[aria-pressed="true"]{background:var(--row-on)}
 :root[data-style="clean"] .cmx-men{bottom:54px;left:var(--s-4)}
 :root[data-style="clean"] .cmx-go{border-radius:calc(var(--r-field) - 5px)}
 :root[data-style="clean"] .cmx-c.ag .tx .w{animation:cmwc var(--t-slow) var(--ease) both}
@@ -9231,7 +9269,10 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .flm-bk{color:var(--fg2)}
 /* the count and Clear all: the count on the content's left edge, Clear all's words ending on its right edge with its hover box
    reaching out round them */
-.flm-sum{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2);min-height:28px;margin:0 calc(-1 * var(--s-4));padding:var(--s-3) var(--s-4) 0;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:13px;color:var(--fg2)}
+/* the count and Clear all's words sit 16px from the hairline and from the card's bottom edge: the row keeps Clear all's 28px
+   height whether it shows or not, its words 4px inside it, so the row reaches 4px into the card's bottom padding (Clean: as was) */
+.flm-sum{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2);min-height:calc(28px + var(--s-3) + 1px);margin:0 calc(-1 * var(--s-4)) calc(-1 * var(--s-1));padding:var(--s-3) var(--s-4) 0;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:13px;color:var(--fg2)}
+:root[data-style="clean"] .flm-sum{min-height:28px;margin-bottom:0}
 .flm-clr{margin-right:-11px}
 /* text buttons here (Clear all, and Ticket list's Edit and Context menu's Undo) hover with a quiet fill that shows on a white card */
 :is(.flm,.tkx,.cxm) .pill.ghost:hover{background:var(--row)}
@@ -9790,7 +9831,8 @@ button.kbx-pv:hover,button.kbx-pv[aria-expanded="true"]{background:var(--row)}
 .pva-cr .wd{position:absolute;top:4px;left:19px;width:6px;height:6px;border-radius:50%;corner-shape:round;background:var(--warn-mark);box-shadow:0 0 0 1.5px var(--surface)}
 .pva-sep{height:1px;margin-top:var(--s-3);background:color-mix(in srgb,var(--line) 50%,transparent)}
 /* Steps: the toggle that opens the step list */
-.pva-tog{display:flex;align-items:center;gap:var(--s-2);width:calc(100% + var(--s-4));height:36px;margin:var(--s-1) calc(var(--s-2) * -1) 0;padding:0 var(--s-2);border-radius:var(--r-sm);font-size:13px;text-align:left;transition:background var(--t-fast)}
+.pva-tog{display:flex;align-items:center;gap:var(--s-2);width:calc(100% + var(--s-4));height:36px;margin:var(--s-2) calc(var(--s-2) * -1) 0;padding:0 var(--s-2);border-radius:var(--r-sm);font-size:13px;text-align:left;transition:background var(--t-fast)}
+:root[data-style="clean"] .pva-tog{margin-top:var(--s-1)}
 .pva-tog:hover{background:var(--row)}
 .pva-tog .cv{color:var(--fg2);transition:transform var(--t) var(--ease)}
 .pva-tog[aria-expanded="true"] .cv{transform:rotate(180deg)}
@@ -9962,7 +10004,8 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 .pvb-ls li{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* the footer: credits as one line that opens into the month's meter */
-.pvb-f{padding:var(--s-1) var(--s-2) var(--s-2);border-top:1px solid var(--hl)}
+.pvb-f{padding:var(--s-2);border-top:1px solid var(--hl)}
+:root[data-style="clean"] .pvb-f{padding:var(--s-1) var(--s-2) var(--s-2)}
 .pvb-cr{width:100%;display:flex;align-items:center;gap:var(--s-2);min-height:36px;padding:0 var(--s-2);border-radius:var(--r-sm);font-size:12.5px;color:var(--muted);text-align:left;transition:background var(--t-fast)}
 .pvb-cr:hover{background:var(--row)}
 .pvb-cr:focus-visible{outline-offset:-2px}
@@ -10073,7 +10116,8 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 .pvc-kv dt{font-size:12px;color:var(--muted)}
 .pvc-kv dd{margin:0;font-size:13px;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* the month: used before this run, this run so far, what it should still take, and where it starts to warn */
-.pvc-m{margin-top:var(--s-3);padding-top:var(--s-3);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.pvc-m{margin-top:var(--s-3);padding-top:var(--s-4);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+:root[data-style="clean"] .pvc-m{padding-top:var(--s-3)}
 .pvc-mh{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--s-1) var(--s-2);min-height:20px;font-size:13px}
 .pvc-mh .pvc-k{white-space:nowrap}
 .pvc-mh .l{display:flex;align-items:center;gap:var(--s-2);min-width:0}
@@ -11390,7 +11434,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
     <div class="ctm-bar" aria-hidden="true"></div>
     <div class="ctm-leg"></div>
     <div class="ctm-msg" aria-live="polite"><span></span></div>
-    <div class="ctm-f"><span class="ctm-hint">Summarises older turns</span><button class="pill soft sm ctm-go">Compact</button></div>
+    <div class="ctm-f"><span class="ctm-hint">Summarises older turns</span><button class="pill line sm ctm-go">Compact</button></div>
   </div>
 </div></template>
   <div class="card-f"><span>Hover a part, then compact</span><span class="sp"></span><button class="replay" aria-label="Replay Context meter"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
@@ -11493,7 +11537,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <div class="card-h"><div><h3>Agent lanes</h3><p>Several agents working in parallel, each with its own lane and hand-offs.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="dm aln-dm" data-designs="card"><div class="dm-main"><div class="aln panel">
-  <div class="aln-h"><span class="aln-ic">{users}</span><span class="aln-t">3 agents working</span><span class="aln-m muted num">0:00</span><span class="aln-ct num">0 of 9 steps</span><button class="pill soft sm aln-pause">{pause}Pause all</button></div>
+  <div class="aln-h"><span class="aln-ic">{users}</span><span class="aln-t">3 agents working</span><span class="aln-m muted num">0:00</span><span class="aln-ct num">0 of 9 steps</span><button class="pill line sm aln-pause">{pause}Pause all</button></div>
   <div class="aln-rows"></div>
   <div class="aln-say" aria-live="polite">3 agents queued</div>
 </div></div>
@@ -11832,6 +11876,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <div class="dpx-h"><span class="dpx-k muted num">Question 1 of 3</span><div class="dpx-dots"><i class="on"></i><i></i><i></i></div></div>
   <div class="dpx-body"></div>
   <div class="dpx-f"><button class="pill ghost sm dpx-skip">Skip</button><button class="pill primary sm dpx-go">Continue <span class="kbd">↵</span></button></div>
+  <p class="dpx-live" aria-live="polite"></p>
 </div></template>
   <div class="card-f"><span>Pick with 1, 2, 3 or click</span><span class="sp"></span><button class="replay" aria-label="Replay Decision prompt"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
@@ -12030,7 +12075,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <div class="mix-v"><b class="num mix-n">0%</b><span class="tag ok mix-d num">+0.0 pts</span></div>
   <div class="mix-ch"><svg class="mix-svg" viewBox="0 0 300 90" preserveAspectRatio="none"><defs><linearGradient id="mixg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--accent-mark,var(--accent))" stop-opacity=".18"/><stop offset="1" stop-color="var(--accent-mark,var(--accent))" stop-opacity="0"/></linearGradient></defs><path class="mix-a" fill="url(#mixg)"/><path class="mix-l" fill="none" stroke="var(--accent-mark,var(--accent))" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/><line class="mix-x" y1="0" y2="90" stroke="var(--faint)" stroke-dasharray="2 3" vector-effect="non-scaling-stroke"/></svg><span class="mix-dot"></span><span class="mix-mk" style="left:58%"><b>{spark}Sep 18</b></span></div>
   <div class="mix-ins"><span class="mix-ic">{spark}</span><span class="mix-t">Jumped after the pricing page update on Sep 18.</span></div>
-  <button class="pill soft sm mix-why">Why did it move?</button>
+  <button class="pill line sm mix-why">Why did it move?</button>
   <div class="fold shut mix-box"><div><div class="mix-rs"></div></div></div>
 </div></template>
   <div class="card-f"><span>Hover the chart, ask why it moved</span><span class="sp"></span><button class="replay" aria-label="Replay Metric insight"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
@@ -12755,7 +12800,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <div class="card-h"><div><h3>Form</h3><p>A project brief with inline checks and an agent that drafts the rest.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><form class="fmx panel" novalidate>
-  <div class="fmx-h"><b>New project brief</b><button type="button" class="pill soft sm fmx-ai">{spark}Draft with agent</button></div>
+  <div class="fmx-h"><b>New project brief</b><button type="button" class="pill line sm fmx-ai">{spark}Draft with agent</button></div>
   <label class="fmx-f"><span>Project name<i class="fmx-dr" aria-hidden="true">{spark}Drafted</i></span><input name="n" placeholder="Pricing refresh" maxlength="40"><em class="fmx-c num">0/40</em></label>
   <label class="fmx-f"><span>Goal<i class="fmx-dr" aria-hidden="true">{spark}Drafted</i></span><textarea name="g" rows="2" placeholder="What should change, and why?"></textarea></label>
   <div class="fmx-f"><span>Type</span><div class="fmx-ty"><button type="button" class="chip sm" data-v="web">Website</button><button type="button" class="chip sm" data-v="app">App</button><button type="button" class="chip sm" data-v="brand">Brand</button></div></div>
@@ -14352,8 +14397,8 @@ DM.def('context-meter', (r, c) => {
   }
   // a warning is a warning notice with the filled sign, and Compact, the action that resolves it, takes the warning tint
   const WARN = '<svg class="ctm-wi" viewBox="0 0 24 24" aria-hidden="true"><path class="a" d="M12 3.6 2.6 19.9h18.8z"/><path class="b" d="M12 9.6v4.4M12 17v.01"/></svg>';
-  const say = (text, tone) => { msg.className = 'ctm-msg on ' + tone; swap(msg.firstElementChild, `${tone === 'warn' ? WARN : I('ok','xs')}<span>${text}</span>`, true); go.classList.toggle('warn', tone === 'warn'); go.classList.toggle('soft', tone !== 'warn'); };
-  const hush = () => { msg.className = 'ctm-msg'; go.classList.remove('warn'); go.classList.add('soft'); };
+  const say = (text, tone) => { msg.className = 'ctm-msg on ' + tone; swap(msg.firstElementChild, `${tone === 'warn' ? WARN : I('ok','xs')}<span>${text}</span>`, true); go.classList.toggle('warn', tone === 'warn'); go.classList.toggle('line', tone !== 'warn'); };
+  const hush = () => { msg.className = 'ctm-msg'; go.classList.remove('warn'); go.classList.add('line'); };
   // hovering a part lights its share of the bar
   c.on(leg, 'pointerover', e => { const l = e.target.closest('.ctm-l'); if (!l) return; bar.classList.add('hl'); $$('i', bar).forEach(i => i.classList.toggle('on', i.dataset.k === l.dataset.k)); });
   c.on(leg, 'pointerout', e => { if (!leg.contains(e.relatedTarget)) bar.classList.remove('hl'); });
@@ -15382,7 +15427,7 @@ DM.def('run-cost', (r, c) => {
   go.onclick = () => {
     if (running){ stop('Stopped'); swap(gl(), 'Resume'); return; }
     if (used >= 2000){ used = inT = outT = tools = 0; paint(); }
-    running = true; status('Running', 'b'); swap(gl(), 'Stop'); go.className = 'pill soft sm rc-go'; fill.style.background = 'var(--accent-mark,var(--accent))';
+    running = true; status('Running', 'b'); swap(gl(), 'Stop'); go.className = 'pill line sm rc-go'; fill.style.background = 'var(--accent-mark,var(--accent))';
     loop = c.every(90, () => {
       used = Math.min(2000, used + 8 + Math.random() * 18); inT += 120 + Math.random() * 220; outT += 30 + Math.random() * 70; if (Math.random() < .12) tools++;
       paint();
@@ -15692,6 +15737,8 @@ DM.def('agent-lanes', (r, c) => {
     const w = L.find(l => l.running);
     swap(say, w ? (w.did ? `${w.n}: ${lc(w.did)}` : `${w.n} started: ${lc(w.acts[0])}`) : steps ? `${steps} of ${STEPS} steps` : `${L.length} agents queued`); };
   const pb = $('.aln-pause', r);
+  // Pause all is the white outlined secondary (owner, 23 Nov); inside Agent harness (Phase II) it keeps its grey one for now
+  if (r.closest('.ahx')) pb.classList.replace('line', 'soft');
   pb.onclick = () => { paused = !paused; pb.innerHTML = I(paused ? 'play' : 'pause','xs') + (paused ? 'Resume' : 'Pause all'); swap($('.aln-t', r), paused ? 'All agents paused' : '3 agents working');
     L.forEach(l => { if (l.running){ state(l, paused ? 'paused' : 'working'); $('.aln-a', l.el).classList.toggle('shim', !paused); } }); tell(); };
   c.every(1000, () => { if (!paused && !finished){ secs++; $('.aln-m', r).textContent = clk(); } });
@@ -15773,13 +15820,13 @@ DM.def('agent-lanes', (r, c) => {
   }
 
   const alnSwTpl = () => `<div class="aln-sw panel keep">
-    <div class="aln-sw-h"><div class="aln-sw-ht"><b class="aln-sw-tt">3 agents working</b><span class="aln-sw-st num">0:00 of 0:12</span></div><span class="aln-sw-key" aria-hidden="true"><span><i class="next"></i>Next</span><span><i class="run"></i>Working</span><span><i class="done"></i>Done</span><span><i class="wait"></i>Waiting</span></span><button class="pill soft sm aln-sw-pause" type="button">${I('pause','xs')}Pause</button></div>
+    <div class="aln-sw-h"><div class="aln-sw-ht"><b class="aln-sw-tt">3 agents working</b><span class="aln-sw-st num">0:00 of 0:12</span></div><span class="aln-sw-key" aria-hidden="true"><span><i class="next"></i>Next</span><span><i class="run"></i>Working</span><span><i class="done"></i>Done</span><span><i class="wait"></i>Waiting</span></span><button class="pill line sm aln-sw-pause" type="button">${I('pause','xs')}Pause</button></div>
     <div class="aln-sw-grid">
       <div class="aln-sw-ax num" aria-hidden="true"><span class="aln-sw-ticks"></span></div>
       <div class="aln-sw-rows"></div>
       <div class="aln-sw-ph" role="slider" tabindex="0" aria-label="Time in the run" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0" aria-valuetext="0 seconds"><i></i><span class="aln-sw-now num">0:00</span></div>
     </div>
-    <div class="aln-sw-f"><span class="aln-sw-say" aria-live="polite">Researcher starts on the pricing pages</span><button class="pill soft sm aln-sw-live" type="button" hidden>Back to now</button></div>
+    <div class="aln-sw-f"><span class="aln-sw-say" aria-live="polite">Researcher starts on the pricing pages</span><button class="pill line sm aln-sw-live" type="button" hidden>Back to now</button></div>
   </div>`;
   // Swimlanes: the clock ticks ten times a second while the demo plays and nobody has paused it. Bars reveal with a clip and
   // the playhead moves with a transform; text changes only when it says something new
@@ -18163,7 +18210,7 @@ DM.def('decision-prompt', (r, c) => {
     if (done) return; ans.push(skipped === true ? 'Agent decides' : Q[qi][2][sel][0]); qi++; sel = 0;
     if (qi < Q.length) return paint();
     // the steps are over: the dots fade away where they are (owner, 21 Nov), and the head keeps its place
-    done = true; dots.forEach(d => { d.classList.remove('on'); d.classList.add('done'); }); $('.dpx-dots', r).classList.add('gone'); k.textContent = 'All set';
+    done = true; dots.forEach(d => { d.classList.remove('on'); d.classList.add('done'); }); $('.dpx-dots', r).classList.add('gone'); k.textContent = 'All set'; card.classList.add('done'); $('.dpx-live', r).textContent = 'All questions answered';
     // the buttons give way to the line saying the agent has started (its words shimmer while it gets going); a focus that
     // was on them comes back to the card
     const had = foot.contains(document.activeElement);
@@ -18555,8 +18602,9 @@ DM.def('plan-review', (r, c) => {
     $('.plx-mk', r).classList.remove('on');
     $$('.plx-s.run', list).forEach(s => { s.classList.remove('run', 'retry'); txt(s).classList.remove('shim'); $('.d>span', s).classList.remove('shim'); n(s).textContent = '–'; note(s, 'Not started'); });
     // a finished plan has no elapsed clock (owner, 18 Nov): the status line says how long it took
+    // See changes is the white outlined secondary (owner, 23 Nov); inside Agent harness (Phase II) it keeps its grey one for now
     tm.textContent = ''; st.classList.remove('shim');
-    swap(st, stop ? 'Stopped, progress kept' : 'Done in ' + clock(performance.now() - t0) + '. 4 frames updated'); f.innerHTML = `<span class="muted plx-n"></span><button class="pill soft sm">${I('eye','xs')}See changes</button>`; enter(f.lastElementChild);
+    swap(st, stop ? 'Stopped, progress kept' : 'Done in ' + clock(performance.now() - t0) + '. 4 frames updated'); f.innerHTML = `<span class="muted plx-n"></span><button class="pill ${r.closest('.ahx') ? 'soft' : 'line'} sm">${I('eye','xs')}See changes</button>`; enter(f.lastElementChild);
   });
   // the preview's story: rewrite a step, approve, and watch the agent work through a rate limit to the end
   c.story(async s => {
@@ -18568,7 +18616,7 @@ DM.def('plan-review', (r, c) => {
     for (const ch of ', annual price first'){ t.textContent += ch; await s.beat(.09); }
     await s.beat(1); t.onblur(); await s.beat(2);
     await s.tap(go); s.away();
-    await s.until(() => $('.plx-f .pill.soft', r));
+    await s.until(() => $('.plx-f .pill:is(.line,.soft)', r));
   });
 });
 /* ---------- Inline text diff ---------- */
@@ -22690,11 +22738,11 @@ DM.def('account-table', (r, c) => {
   // each row is made once and kept, so a search or a plan filter can ease it between places; the note under an open row
   // is its own row, keyed after it
   const rows = new Map(A.map(a => [a[0], html(`<tr class="row" data-n="${a[0]}" tabindex="0" aria-expanded="false"><td><span class="nm"><span class="lg" style="background:var(--av-${a[1]});color:var(--av-${a[1]}-ink)">${a[0][0]}</span>${a[0]}</span></td><td><span class="tag ${a[2] === 'Enterprise' ? 'l' : a[2] === 'Pro' ? 'b' : 't'}">${a[2]}</span></td><td class="r num">${a[3]}</td><td><span class="hb"><i><b style="width:${a[4]}%;background:${hc(a[4])}"></b></i><span class="num">${a[4]}</span></span></td><td class="r num">${a[5]}</td></tr>`)]));
-  const none = html('<tr class="atb-empty" data-n=" none"><td colspan="5"><div class="atb-em"><span class="atb-em-art" aria-hidden="true"></span><b>No accounts match</b><span>Try another name, or show every plan.</span><button class="pill soft sm">Show all accounts</button></div></td></tr>');
+  const none = html('<tr class="atb-empty" data-n=" none"><td colspan="5"><div class="atb-em"><span class="atb-em-art" aria-hidden="true"></span><b>No accounts match</b><span>Try another name, or show every plan.</span><button class="pill line sm">Show all accounts</button></div></td></tr>');
   $('.pill', none).onclick = () => { q.value = ''; plan = ''; pick($('.atb-fl .chip[data-p=""]', r)); paint(true); };
   let det = null;
   function note(a){
-    const d = html(`<tr class="det" data-n="${a[0]} note"><td colspan="5"><div class="fold"><div><div class="atb-note">${I('spark','xs')}<span>${a[6]}</span><button class="pill soft sm">Draft email</button></div></div></div></td></tr>`);
+    const d = html(`<tr class="det" data-n="${a[0]} note"><td colspan="5"><div class="fold"><div><div class="atb-note">${I('spark','xs')}<span>${a[6]}</span><button class="pill line sm">Draft email</button></div></div></div></td></tr>`);
     // pressed, it says Drafting with the loader's sweep, then Draft ready with the green tick; it is always as wide as its
     // words, easing to each new width, and never goes blank
     const dr = $('.pill', d);
@@ -23004,7 +23052,7 @@ DM.def('event-calendar', (r, c) => {
   /* the details card opens beside the event and stays inside the calendar */
   function openPop(el){
     const e = el._e; if (openFor === el){ closePop(); return; } if (openFor) openFor.classList.remove('on'); openFor = el; el.classList.add('on'); const n = 2 + e[3].length % 3, fresh = e[3] === 'New event';
-    pop.innerHTML = `<div class="ecx-ph"><i style="background:var(--p${e[4]})"></i>${fresh ? '<input class="ecx-ti" placeholder="Add a title" aria-label="Event title">' : `<b>${e[3]}</b>`}<button class="ib ecx-px" aria-label="Close" data-tip="Close">${I('x','xs')}</button></div><div class="ecx-pt">${DAYN[e[0]]} ${DAYS[e[0]].split(' ')[1]} Oct · ${tm(e[1])} – ${tm(e[1] + e[2])}</div><div class="ecx-pw">${WHO.slice(0, n).map(w => AV(w[0], w[1])).join('')}<span class="muted">${n} people</span></div><div class="ecx-pa">${fresh ? '<button class="pill line sm ecx-del">Discard</button><button class="pill primary sm ecx-save">Save</button>' : `<button class="pill soft sm ecx-prep">${I('spark','xs')}Prep notes</button><button class="pill primary sm">Join</button>`}</div>`;
+    pop.innerHTML = `<div class="ecx-ph"><i style="background:var(--p${e[4]})"></i>${fresh ? '<input class="ecx-ti" placeholder="Add a title" aria-label="Event title">' : `<b>${e[3]}</b>`}<button class="ib ecx-px" aria-label="Close" data-tip="Close">${I('x','xs')}</button></div><div class="ecx-pt">${DAYN[e[0]]} ${DAYS[e[0]].split(' ')[1]} Oct · ${tm(e[1])} – ${tm(e[1] + e[2])}</div><div class="ecx-pw">${WHO.slice(0, n).map(w => AV(w[0], w[1])).join('')}<span class="muted">${n} people</span></div><div class="ecx-pa">${fresh ? '<button class="pill line sm ecx-del">Discard</button><button class="pill primary sm ecx-save">Save</button>' : `<button class="pill line sm ecx-prep">${I('spark','xs')}Prep notes</button><button class="pill primary sm">Join</button>`}</div>`;
     const pr = panel.getBoundingClientRect(), er = el.getBoundingClientRect(), w = 248;
     let x = er.right - pr.left + 8; if (x + w > pr.width - 16) x = er.left - pr.left - w - 8; x = Math.max(16, x);
     let y = er.top - pr.top; y = Math.max(16, Math.min(y, pr.height - pop.offsetHeight - 24));
@@ -26296,7 +26344,7 @@ DM.def('score-breakdown', (r, c) => {
     a.onfinish = a.oncancel = () => { if (d._mo !== a) return; d._mo = null; d.style.overflow = ''; }; };
   function detail(i){ const f = F[i], d = $('.sbx-d', R[i]); if (d.dataset.st === 'busy' || d.dataset.st === 'prop') return;
     const lost = f.w - f.e;
-    morph(d, () => d.innerHTML = `<span>${f.done ? f.done + ' ' : ''}${lost ? `Loses ${lost} of its ${f.w} points` : 'Full marks'}${i === weakest() && lost ? ', the most of any factor for its weight.' : '.'}</span>${f.fix ? `<span class="acts"><button class="pill soft sm sbx-imp">${I('wand','xs')}Improve</button></span>` : ''}`);
+    morph(d, () => d.innerHTML = `<span>${f.done ? f.done + ' ' : ''}${lost ? `Loses ${lost} of its ${f.w} points` : 'Full marks'}${i === weakest() && lost ? ', the most of any factor for its weight.' : '.'}</span>${f.fix ? `<span class="acts"><button class="pill line sm sbx-imp">${I('wand','xs')}Improve</button></span>` : ''}`);
     const b = $('.sbx-imp', d); if (b) b.onclick = () => improve(i); }
   const improve = i => c.run(async () => { const f = F[i], d = $('.sbx-d', R[i]); d.dataset.st = 'busy';
     morph(d, () => d.innerHTML = `<div class="sbx-pr"><span class="k">${I('spark','xs')}<span class="shim">Looking at 120 slow replies</span></span></div>`); enter(d.firstElementChild);
