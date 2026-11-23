@@ -34,7 +34,7 @@ Decision prompt lets an agent ask a few multiple-choice questions before it star
 
 ### What it does
 
-- Shows one question at a time with a "Question 2 of 3" counter and progress dots. Once every question is answered the dots fade away where they are, with a small shrink (at once with reduced motion), and the rest of the head stays put.
+- Shows one question at a time with a "Question 2 of 3" counter and progress dots. Once every question is answered the head goes, counter and dots, and the card eases to the summary of answers; screen readers hear "All questions answered".
 - Each option is a row you can pick, with a number badge, its `label` and an optional `detail` such as "Recommended". The picked row's edge steps up and its number fills in.
 - Continue, with the Enter key's ↵ beside its word, saves the picked option and moves on. Skip records `null`, which the summary shows as `skippedLabel` ("Agent decides" by default).
 - Double-clicking an option picks it and continues in one go.
@@ -198,7 +198,7 @@ export function DecisionPrompt({
   };
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-dpx', !bare && 'dm-panel', 'dm-growing', className)} tabIndex={0} onKeyDown={key}>
+    <div data-dm="" ref={root} className={cx('dm-dpx', !bare && 'dm-panel', 'dm-growing', done && 'dm-done', className)} tabIndex={0} onKeyDown={key}>
       <div ref={inner} className="dm-grow">
       <div className="dm-dpx-h">
         <span className="dm-dpx-k dm-muted dm-num">{done ? 'All set' : `Question ${at + 1} of ${n}`}</span>
@@ -245,6 +245,8 @@ export function DecisionPrompt({
         )}
       </div>
       </div>
+      {/* the head goes once every question is answered, so this line tells screen readers */}
+      <p className="dm-dpx-live" aria-live="polite">{done ? 'All questions answered' : ''}</p>
     </div>
   );
 }

@@ -39,7 +39,7 @@ Response versions shows an agent's answer with a small bar to page through earli
 - `onRegenerate` adds a Regenerate button that spins when pressed. You add the new version and show it.
 - Copy puts the shown version on the clipboard, confirms with a check and calls `onCopy` with the text.
 - `status` shows quiet text beside the buttons, like "Writing a new version", and shimmers while streaming. `prompt` adds the person's message as a bubble above, and `bare={false}` gives the answer its own card.
-- In Soft and Blueprint the answer sits flat in the thread with the bar under it. In Clean it is a card of its own: an off-white head strip holds the arrows and the count, the status, and Regenerate and Copy, over a hairline, with the answer 16px in below it.
+- In Soft and Blueprint the answer sits flat in the thread with the bar under it. In Clean it is a card of its own: the answer comes first, 16px in, then a hairline, then the bar with the arrows and the count, the status, and Regenerate and Copy.
 
 ### Accessibility
 

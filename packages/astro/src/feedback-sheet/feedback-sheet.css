@@ -22,7 +22,12 @@
 .fbx-box.shut{margin-top:calc(-1 * var(--dm-s-2));transition:grid-template-rows var(--dm-t) var(--dm-ease),opacity var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease),visibility 0s var(--dm-t)}
 .fbx-q{font-size:13.5px;font-weight:500}
 .fbx-ch{display:flex;flex-wrap:wrap;gap:6px}
-.fbx-ch .chip.on{background:var(--dm-sel);color:var(--dm-accent-fg,var(--dm-accent));box-shadow:none}
+/* the reasons sit on the sheet: unpicked, they take the grey a step above the chip's own, so they read against what is
+   behind them (owner, 23 Nov: "could these be a bit darker?"), and a step more under the pointer; a picked one is the accent
+   tint with the accent's text colour. Answer action bar's reasons do the same; Clean keeps its own (below) */
+.fbx-ch .chip{background:var(--dm-hover)}
+@media (hover:hover) and (pointer:fine){.fbx-ch .chip:hover{background:var(--dm-press)}}
+.fbx-ch .chip.on{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent));box-shadow:none}
 .fbx-ta{display:block;width:100%;resize:none;border:0;outline:0;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);padding:10px var(--dm-s-3);font:inherit;font-size:13.5px;line-height:1.5;color:var(--dm-fg);transition:box-shadow var(--dm-t-fast)}
 @supports (corner-shape:squircle){.fbx-ta{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
 .fbx-ta:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
@@ -37,15 +42,15 @@
 /* Clean (owner, 18 Nov): the sheet's content sits 16px in from its edges, and its foot is an off-white strip: the note
    starts where the question does, and Cancel and Send are 28px pills 16px from the card's edges and the strip's hairline (owner, 23 Nov).
    The first thumb's icon starts where the answer and the sheet do. The chrome is monochrome: a rated
-   thumb fills in ink (no red fill, no tilt) and a picked reason is an ink chip like a toggle that is on */
+   thumb fills in ink on the selected fill in its round shape (owner, 23 Nov), with no red and no tilt and a picked reason is an ink chip like a toggle that is on */
 :root[data-style="clean"] .fbx-bar .ib.on svg,:root [data-style="clean"] .fbx-bar .ib.on svg,:root [data-style="clean"].fbx-bar .ib.on svg{transform:none}
-:root[data-style="clean"] .fbx-bar .ib.on,:root [data-style="clean"] .fbx-bar .ib.on,:root [data-style="clean"].fbx-bar .ib.on{background:none;color:var(--dm-fg)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .fbx-bar .ib.on:hover,:root [data-style="clean"] .fbx-bar .ib.on:hover,:root [data-style="clean"].fbx-bar .ib.on:hover{background:var(--dm-row)}}
+:root[data-style="clean"] .fbx-bar .ib.on,:root [data-style="clean"] .fbx-bar .ib.on,:root [data-style="clean"].fbx-bar .ib.on{background:var(--dm-row-on);color:var(--dm-fg)}
 :root[data-style="clean"] .fbx-bar .ib.on svg,:root [data-style="clean"] .fbx-bar .ib.on svg,:root [data-style="clean"].fbx-bar .ib.on svg{fill:currentColor}
 :root[data-style="clean"] .fbx-in.panel,:root [data-style="clean"] .fbx-in.panel,:root [data-style="clean"].fbx-in.panel{gap:12px;margin:4px 0 0;padding:16px 16px 0;overflow:clip}
 :root[data-style="clean"] .fbx-q,:root [data-style="clean"] .fbx-q,:root [data-style="clean"].fbx-q{font-size:14px;line-height:20px}
 :root[data-style="clean"] .fbx-ch .chip.on,:root [data-style="clean"] .fbx-ch .chip.on,:root [data-style="clean"].fbx-ch .chip.on{background:var(--dm-btn-2);color:var(--dm-on-btn);box-shadow:inset 0 0 0 1px var(--dm-btn-2)}
 /* a reason not picked takes the one hover over its fill, easing over 220ms (owner, 21 Nov) */
+:root[data-style="clean"] .fbx-ch .chip:not(.on),:root [data-style="clean"] .fbx-ch .chip:not(.on),:root [data-style="clean"].fbx-ch .chip:not(.on){background:var(--dm-chip)}
 :root[data-style="clean"] .fbx-ch .chip,:root [data-style="clean"] .fbx-ch .chip,:root [data-style="clean"].fbx-ch .chip{transition:background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .fbx-ch .chip:not(.on):hover,:root [data-style="clean"] .fbx-ch .chip:not(.on):hover,:root [data-style="clean"].fbx-ch .chip:not(.on):hover{background:var(--dm-chip);box-shadow:inset 0 0 0 99px var(--dm-row)}}
 :root[data-style="clean"] .fbx-f,:root [data-style="clean"] .fbx-f,:root [data-style="clean"].fbx-f{gap:8px;margin:4px -16px 0;padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line)}

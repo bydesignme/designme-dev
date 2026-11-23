@@ -201,7 +201,6 @@
 .v2 button:disabled{cursor:not-allowed}
 .v2 .pill:is(.accent,.primary,.soft,.line)[disabled]{background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring)}
 @media (hover:hover) and (pointer:fine){.v2 .pill:is(.accent,.primary,.soft,.line)[disabled]:hover{background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring)}}
-.v2 .pill[disabled] .kbd{background:var(--chip);color:inherit}
 .v2 .pill.sm{height:28px;padding:0 11px;font-size:12.5px}
 .v2 .tag{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 7px;border-radius:var(--r-tag);font-size:11.5px;font-weight:500;white-space:nowrap;background:var(--chip);color:var(--fg2)}
 .v2 .tag.b{background:var(--pb-bg);color:var(--pb)}.v2 .tag.l{background:var(--pl-bg);color:var(--pl)}.v2 .tag.m{background:var(--pm-bg);color:var(--pm)}.v2 .tag.p{background:var(--pp-bg);color:var(--pp)}
@@ -221,6 +220,9 @@
 .v2 .pill .kbd{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 var(--s-1);margin-right:-6px}
 /* a key hint on a filled button sits on a slightly darker well of the fill, so white text keeps its contrast */
 .v2 .pill.primary .kbd,.v2 .pill.accent .kbd{background:color-mix(in srgb,var(--accent) 80%,#000);color:inherit}
+/* a disabled button's key chip is disabled with it, in every style (owner, 23 Nov: Accept's Tab kept its accent well): no
+   fill of its own colour, only a faint tint of the button's disabled text, which it takes as its words */
+.v2 .pill[disabled] .kbd,.v2 .pill:is(.primary,.accent)[disabled] .kbd{background:color-mix(in srgb,currentColor 14%,transparent);color:inherit}
 .v2 code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1px 5px;border-radius:var(--r-tiny,5px)}
 .v2 .av{width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;font-size:10px;font-weight:500;color:#fff;flex:none}
 .v2 .hr{height:1px;background:var(--line);border:0;margin:0}
@@ -2235,7 +2237,10 @@
   --rte-q:var(--muted);--rte-q2:var(--fg2)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .v2 .rte{--rte-q:color-mix(in srgb,var(--fg) 74%,var(--surface));--rte-q2:color-mix(in srgb,var(--fg) 80%,var(--surface))}}
 :root[data-theme="dark"] .v2 .rte{--rte-q:color-mix(in srgb,var(--fg) 74%,var(--surface));--rte-q2:color-mix(in srgb,var(--fg) 80%,var(--surface))}
-.v2 .rte-tb{display:flex;align-items:center;gap:2px;min-width:0;padding:7px 5px 7px 9px;box-shadow:inset 0 -1px 0 color-mix(in srgb,var(--line) 50%,transparent)}
+/* the toolbar's buttons are 16px from the card's top, left and right edges and from the hairline under them, measured by
+   their boxes (owner, 23 Nov: "this is too close to the side"): the first format's box starts where the text does, 16px in,
+   and Ask AI's box ends 16px from the right edge, at every width */
+.v2 .rte-tb{display:flex;align-items:center;gap:2px;min-width:0;padding:var(--s-4);border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .v2 .rte-b{width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:var(--r-sm);color:var(--fg2);transition:background var(--t-fast),color var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.v2 .rte-b:hover{background:var(--row);color:var(--fg)}}
 /* a format the selection has: the accent's tint, with the icon in the accent's text colour */
@@ -2275,12 +2280,12 @@
 @keyframes v2-rtew{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
 /* the text a menu or the link field is for stays marked while the focus is in them */
 .v2 ::highlight(rte-pick){background-color:color-mix(in srgb,var(--accent-mark) 24%,transparent)}
-.v2 .rte-ft{display:grid;align-items:center;min-height:46px;padding:6px 9px 6px 16px;box-shadow:inset 0 1px 0 color-mix(in srgb,var(--line) 50%,transparent)}
+/* the foot's buttons (Undo and Redo, Discard and Accept) are 16px from the hairline over them, the card's bottom edge and
+   its right edge, measured by their boxes, and its words start where the text does, 16px in (owner, 23 Nov) */
+.v2 .rte-ft{display:grid;align-items:center;min-height:calc(28px + 2 * var(--s-4) + 1px);padding:var(--s-4);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .v2 .rte-idle,.v2 .rte-rev{grid-area:1/1;display:flex;align-items:center;gap:var(--s-2);min-width:0;transition:opacity .25s var(--ease),transform .35s var(--ease),visibility 0s}
 .v2 .rte-rev,.v2 .rte[data-st="review"] .rte-idle{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s var(--ease),transform .35s var(--ease),visibility 0s .35s}
 .v2 .rte-rev{transform:translateY(4px)}
-/* Accept's edge ends on the text's right edge, where Redo's icon ends */
-.v2 .rte-rev{margin-right:7px}
 .v2 .rte[data-st="review"] .rte-idle{transform:translateY(-4px)}
 .v2 .rte[data-st="review"] .rte-rev{opacity:1;visibility:visible;pointer-events:auto;transform:none;transition-delay:0s}
 .v2 .rte-wc,.v2 .rte-hint{font-size:12px;color:var(--rte-q);white-space:nowrap}
@@ -2318,12 +2323,12 @@
 .v2 .rte-ask.show{opacity:1;visibility:visible;transform:none;transition-delay:0s}
 .v2 .rte-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 @container rte (max-width:520px){.v2 .rte-hint{display:none}}
-/* the toolbar's first icon, the text and the foot's words share one left edge 16px in, and Ask AI's words (its icon when
-   narrow), Redo's icon and Accept end 16px from the right edge, at every width (owner, 18 and 19 Nov) */
-/* in a narrow editor Ask AI is its icon alone, in a 32px-wide box: the icon ends 16px from the edge and its hover box reaches
-   9px round it (owner, 19 Nov: the glyph on the content edge, the hover box reaching outward round it) */
-@container rte (max-width:400px){.v2 .rte-ai{width:32px;padding:0;justify-content:center}.v2 .rte-ai span{display:none}.v2 .rte-sep{margin:0 2px}.v2 .rte-tb{padding-left:9px;padding-right:7px}.v2 .rte-ft{padding-left:16px;padding-right:9px}.v2 .rte-rev .kbd{display:none}}
-@container rte (max-width:330px){.v2 .rte-tb{gap:0;padding:7px 7px 7px 10px}.v2 .rte-b{width:28px}}
+/* in a narrow editor Ask AI is its icon alone, in a 32px-wide box that ends 16px from the edge like the wide one */
+@container rte (max-width:400px){.v2 .rte-ai{width:32px;padding:0;justify-content:center}.v2 .rte-ai span{display:none}.v2 .rte-sep{margin:0 2px}.v2 .rte-rev .kbd{display:none}}
+@container rte (max-width:330px){.v2 .rte-tb{gap:0}.v2 .rte-b{width:28px}}
+/* on a phone of 360 the formats narrow a little more, so the toolbar keeps its 16px sides */
+@container rte (max-width:300px){.v2 .rte-b{width:26px}.v2 .rte-sep{margin:0 1px}}
+@container rte (max-width:280px){.v2 .rte-b{width:24px}}
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .rte-b:is([aria-pressed="true"],.on){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent-mark) 50%,transparent)}
 /* Blueprint's lime tint is faint on white, so the suggestion also gets a hairline of the accent's mark under it */
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .rte-new{background:var(--accent-bg);box-shadow:inset 0 -1px 0 var(--accent-mark)}
@@ -2360,7 +2365,10 @@
 @keyframes v2-rtewc{from{opacity:0}to{opacity:1}}
 :root[data-style="clean"] .v2 .rte-new .w{animation:v2-rtewc var(--t-slow) var(--ease) both}
 @container rte (max-width:400px){:root[data-style="clean"] .v2 .rte-ai{width:28px;padding:0}:root[data-style="clean"] .v2 .rte-ft{padding-left:16px}}
-@container rte (max-width:330px){:root[data-style="clean"] .v2 .rte-tb{gap:0;padding:var(--strip-y) 8px}:root[data-style="clean"] .v2 .rte-b{width:28px}}
+/* on phones the toolbar keeps its 16px sides (owner, 23 Nov): the format buttons narrow instead */
+@container rte (max-width:330px){:root[data-style="clean"] .v2 .rte-tb{gap:0}:root[data-style="clean"] .v2 .rte-sep{margin:0 2px}}
+@container rte (max-width:300px){:root[data-style="clean"] .v2 .rte-b{width:26px}:root[data-style="clean"] .v2 .rte-ai{width:26px}:root[data-style="clean"] .v2 .rte-sep{margin:0 1px}}
+@container rte (max-width:280px){:root[data-style="clean"] .v2 .rte-b,:root[data-style="clean"] .v2 .rte-ai{width:24px}}
 /* ---------- Artifact card ---------- */
 /* a file the agent made, shown four ways: a compact row, a card with its first page, a chip inside the message, and a stack
    of its versions. Each plays its writing state, then opens, copies, downloads and switches versions the same way */
@@ -3021,13 +3029,14 @@
 @keyframes v2-rvoc{to{opacity:0;transform:translateY(-2px)}}
 :root[data-style="clean"] .v2 .rvx-t .w{animation-name:v2-rvwc;animation-duration:var(--t-slow)}
 :root[data-style="clean"] .v2 .rvx-t.out{animation-name:v2-rvoc;animation-duration:var(--t)}
-/* Clean (owner, 22 Nov: "differentiate Clean from Soft"): the answer is a version card. Its off-white head strip carries the
-   versions: the arrows and the count on the content's 16px column, what is happening beside them, and Regenerate and Copy at
-   the strip's other end, each 16px from the strip's top and bottom (owner, 23 Nov); a hairline parts the strip from the answer, which sits 16px
-   in from the card's edges. Soft and Blueprint keep the answer flat in the thread with its bar under it. The markup is the
-   same in every style: the strip is the bar, drawn first */
-:root[data-style="clean"] .v2 .rvx-a{flex-direction:column-reverse;gap:0;background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow);overflow:hidden}
-:root[data-style="clean"] .v2 .rvx-bar{margin:0;padding:var(--strip-y) 16px;background:var(--strip);box-shadow:inset 0 -1px 0 var(--line)}
+/* Clean (owner, 22 Nov: "differentiate Clean from Soft"): the answer is a version card. The answer comes first, 16px in
+   from the card's edges; under it a hairline, and under that the bar as a plain row with no strip (owner, 23 Nov: "just add
+   a divider line"): the arrows and the count on the left with what is happening beside them, Regenerate and Copy at the
+   right. Its buttons are 28px, 16px from the hairline, the card's bottom edge and its sides. Soft and Blueprint keep the
+   answer flat in the thread with its bar under it, in the same order */
+:root[data-style="clean"] .v2 .rvx-a{gap:0;background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow);overflow:hidden}
+:root[data-style="clean"] .v2 .rvx-bar{margin:0;padding:16px;border-top:1px solid var(--line)}
+:root[data-style="clean"] .v2 .rvx-bar .ib{width:28px;height:28px}
 :root[data-style="clean"] .v2 .rvx-t{padding:16px}
 :root[data-style="clean"] .v2 .rvx-st{order:1;margin-left:var(--s-2);min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root[data-style="clean"] .v2 .rvx-re{order:2;margin-left:auto}
@@ -3056,7 +3065,12 @@
 .v2 .fbx-box.shut{margin-top:calc(-1 * var(--s-2));transition:grid-template-rows var(--t) var(--ease),opacity var(--t) var(--ease),margin-top var(--t) var(--ease),visibility 0s var(--t)}
 .v2 .fbx-q{font-size:13.5px;font-weight:500}
 .v2 .fbx-ch{display:flex;flex-wrap:wrap;gap:6px}
-.v2 .fbx-ch .chip.on{background:var(--sel);color:var(--accent-fg,var(--accent));box-shadow:none}
+/* the reasons sit on the sheet: unpicked, they take the grey a step above the chip's own, so they read against what is
+   behind them (owner, 23 Nov: "could these be a bit darker?"), and a step more under the pointer; a picked one is the accent
+   tint with the accent's text colour. Answer action bar's reasons do the same; Clean keeps its own (below) */
+.v2 .fbx-ch .chip{background:var(--hover)}
+@media (hover:hover) and (pointer:fine){.v2 .fbx-ch .chip:hover{background:var(--press)}}
+.v2 .fbx-ch .chip.on{background:var(--accent-bg);color:var(--accent-fg,var(--accent));box-shadow:none}
 .v2 .fbx-ta{display:block;width:100%;resize:none;border:0;outline:0;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);padding:10px var(--s-3);font:inherit;font-size:13.5px;line-height:1.5;color:var(--fg);transition:box-shadow var(--t-fast)}
 @supports (corner-shape:squircle){.v2 .fbx-ta{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .v2 .fbx-ta:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
@@ -3071,15 +3085,15 @@
 /* Clean (owner, 18 Nov): the sheet's content sits 16px in from its edges, and its foot is an off-white strip: the note
    starts where the question does, and Cancel and Send are 28px pills 16px from the card's edges and the strip's hairline (owner, 23 Nov).
    The first thumb's icon starts where the answer and the sheet do. The chrome is monochrome: a rated
-   thumb fills in ink (no red fill, no tilt) and a picked reason is an ink chip like a toggle that is on */
+   thumb fills in ink on the selected fill in its round shape (owner, 23 Nov), with no red and no tilt and a picked reason is an ink chip like a toggle that is on */
 :root[data-style="clean"] .v2 .fbx-bar .ib.on svg{transform:none}
-:root[data-style="clean"] .v2 .fbx-bar .ib.on{background:none;color:var(--fg)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .fbx-bar .ib.on:hover{background:var(--row)}}
+:root[data-style="clean"] .v2 .fbx-bar .ib.on{background:var(--row-on);color:var(--fg)}
 :root[data-style="clean"] .v2 .fbx-bar .ib.on svg{fill:currentColor}
 :root[data-style="clean"] .v2 .fbx-in.panel{gap:12px;margin:4px 0 0;padding:16px 16px 0;overflow:clip}
 :root[data-style="clean"] .v2 .fbx-q{font-size:14px;line-height:20px}
 :root[data-style="clean"] .v2 .fbx-ch .chip.on{background:var(--btn-2);color:var(--on-btn);box-shadow:inset 0 0 0 1px var(--btn-2)}
 /* a reason not picked takes the one hover over its fill, easing over 220ms (owner, 21 Nov) */
+:root[data-style="clean"] .v2 .fbx-ch .chip:not(.on){background:var(--chip)}
 :root[data-style="clean"] .v2 .fbx-ch .chip{transition:background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .fbx-ch .chip:not(.on):hover{background:var(--chip);box-shadow:inset 0 0 0 99px var(--row)}}
 :root[data-style="clean"] .v2 .fbx-f{gap:8px;margin:4px -16px 0;padding:var(--strip-y) 16px;background:var(--strip);border-top:1px solid var(--line)}
@@ -3285,14 +3299,18 @@
 .v2 .aab-wy{display:flex;flex-direction:column;gap:var(--s-2);padding:2px 0 var(--s-1)}
 .v2 .aab-wq{font-size:13px;font-weight:500}
 .v2 .aab-ch{display:flex;flex-wrap:wrap;gap:6px}
-.v2 .aab-ch .chip.on{background:var(--sel);color:var(--accent-fg,var(--accent));box-shadow:none}
+/* the reasons sit on the stage: unpicked, a step above the chip's own grey and a step more under the pointer, as Feedback
+   sheet's are (owner, 23 Nov: "could these be a bit darker?"); a picked one is the accent tint. Clean keeps its own (below) */
+.v2 .aab-ch .chip{background:var(--hover)}
+@media (hover:hover) and (pointer:fine){.v2 .aab-ch .chip:hover{background:var(--press)}}
+.v2 .aab-ch .chip.on{background:var(--accent-bg);color:var(--accent-fg,var(--accent));box-shadow:none}
 .v2 .aab-st{margin:0;max-height:20px;font-size:12.5px;display:flex;align-items:center;gap:6px;transition:max-height var(--t) var(--ease),margin-top var(--t) var(--ease)}
 .v2 .aab-st:is(:empty,.off){max-height:0;margin-top:calc(-1 * var(--s-3))}
 .v2 .aab-st.warn{color:var(--warn)}
 .v2 .aab-st.ok svg{color:var(--ok);flex:none}
 .v2 .aab-rd.on .aab-pr{width:40px}
 @media (max-width:480px){.v2 .aab-rd.on .aab-tm{display:none}.v2 .aab-row{flex-direction:column;align-items:flex-start}.v2 .aab-meta{max-width:100%}}
-/* Clean (owner, 18 Nov): the chrome is monochrome: a rated thumb fills in ink (no green or red fill, no tilt), read aloud plays in ink on a grey track and lights the word
+/* Clean (owner, 18 Nov): the chrome is monochrome: a rated thumb fills in ink on the selected fill in its round shape (owner, 23 Nov), with no green or red and no tilt, read aloud plays in ink on a grey track and lights the word
    it reads in grey, and a picked reason is an ink chip like a toggle that is on. What a new version changed stays green, and
    so does the status's tick; a problem stays amber. Words fade in and out without a blur */
 @keyframes v2-aabwc{from{opacity:0}to{opacity:1}}
@@ -3302,13 +3320,13 @@
 :root[data-style="clean"] .v2 .aab-t.out{animation-name:v2-aaboc;animation-duration:var(--t)}
 :root[data-style="clean"] .v2 .aab-bar .ib[aria-pressed="true"] svg{transform:none}
 :root[data-style="clean"] .v2 .aab-t .w.rd{background:var(--hover);color:var(--fg)}
-:root[data-style="clean"] .v2 .aab-bar .ib[aria-pressed="true"]{background:none;color:var(--fg)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .aab-bar .ib[aria-pressed="true"]:hover{background:var(--row)}}
+:root[data-style="clean"] .v2 .aab-bar .ib[aria-pressed="true"]{background:var(--row-on);color:var(--fg)}
 :root[data-style="clean"] .v2 .aab-bar .ib[aria-pressed="true"] svg{fill:currentColor}
 :root[data-style="clean"] .v2 .aab-rd[aria-pressed="true"]{background:var(--row-on);color:var(--fg)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .aab-rd:hover{background:var(--row)}}
 :root[data-style="clean"] .v2 .aab-ch .chip.on{background:var(--btn-2);color:var(--on-btn);box-shadow:inset 0 0 0 1px var(--btn-2)}
 /* a reason not picked takes the one hover over its fill, easing over 220ms (owner, 21 Nov) */
+:root[data-style="clean"] .v2 .aab-ch .chip:not(.on){background:var(--chip)}
 :root[data-style="clean"] .v2 .aab-ch .chip{transition:background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .aab-ch .chip:not(.on):hover{background:var(--chip);box-shadow:inset 0 0 0 99px var(--row)}}
 :root[data-style="clean"] .v2 .aab-st.ok svg{color:var(--ok-mark)}
@@ -3321,6 +3339,11 @@
 .v2 .dpx.panel{padding:var(--s-4);border-radius:var(--r-card)}
 .v2 .dpx:focus-visible{outline:2px solid var(--focus);outline-offset:6px}
 .v2 .dpx-h{display:flex;align-items:center;justify-content:space-between}
+/* once every question is answered the head goes, label and dots (owner, 23 Nov: "All set" said what the card already shows):
+   the card eases to its new height with its usual grow(), its first summary row 16px from the top, and a hidden line tells
+   screen readers that every question is answered. (Agent harness keeps staging's head under its own rules) */
+.v2 .dpx.done .dpx-h{display:none}
+.v2 .dpx-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .v2 .dpx-k{font-size:12px;line-height:16px}
 .v2 .dpx-dots{display:flex;gap:var(--s-1);transition:opacity var(--t-fast) var(--ease),transform var(--t) var(--ease),visibility 0s}
 /* the steps are done once every question is answered (owner, 21 Nov): the dots fade and shrink a little where they are, at
@@ -4945,8 +4968,7 @@
 .v2 .asx-tb-st{flex:1;min-width:0;display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
 .v2 .asx-tb.dirty .asx-tb-st{color:var(--fg)}
 .v2 .asx-tb-st .i{color:var(--ok-mark)}
-/* with nothing to save, Save's shortcut goes quiet with it */
-.v2 .asx-tb-sv[disabled] .kbd{background:none;color:inherit}
+/* with nothing to save, Save's shortcut goes quiet with it, as every disabled button's key chip does (in the shared rules) */
 /* on a phone the shortcut has no keyboard to go with, so Save drops its hint and the bar keeps to one line */
 @container (max-width:400px){.v2 .asx-tb-sv .kbd{display:none}}
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .asx-tb-tabs{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent)}
@@ -4969,8 +4991,7 @@
 :root[data-style="clean"] .v2 .asx-tb-cf{padding:0 var(--s-4)}
 :root[data-style="clean"] .v2 .asx-tb-cl{padding-bottom:8px}
 :root[data-style="clean"] .v2 .asx-tb-bar{padding:var(--strip-y) var(--s-4);background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
-:root[data-style="clean"] .v2 .asx-tb-sv .kbd{background:color-mix(in srgb,var(--on-btn) 18%,transparent);color:inherit}
-:root[data-style="clean"] .v2 .asx-tb-sv[disabled] .kbd{background:none}
+:root[data-style="clean"] .v2 .asx-tb-sv:not([disabled]) .kbd{background:color-mix(in srgb,var(--on-btn) 18%,transparent);color:inherit}
 /* Presets: Careful, Balanced and Bold, each with its colour on its tile (teal, the accent and violet, so the grid's green and
    amber keep meaning allow and ask) and a meter in the accent, then a grid of allow, ask and block for each tool */
 .v2 .asx-ps{padding:var(--s-4);display:flex;flex-direction:column;gap:var(--s-3)}
@@ -8232,6 +8253,8 @@
 :root[data-style="clean"] .v2 .cmx-res{margin:0}
 :root[data-style="clean"] .v2 .cmx-in{margin:0 calc(-1 * var(--s-4)) calc(-1 * var(--s-4));padding:var(--strip-y) var(--s-4);background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
 :root[data-style="clean"] .v2 .cmx.done .cmx-in{margin:calc(-1 * var(--s-4)) calc(-1 * var(--s-4)) 0;padding-block:0;border-top-width:0}
+/* Agree, once agreed, sits on Clean's selected fill in its round shape, as a rated thumb does (owner, 23 Nov) */
+:root[data-style="clean"] .v2 .cmx-tools .ib[aria-pressed="true"]{background:var(--row-on)}
 :root[data-style="clean"] .v2 .cmx-men{bottom:54px;left:var(--s-4)}
 :root[data-style="clean"] .v2 .cmx-go{border-radius:calc(var(--r-field) - 5px)}
 :root[data-style="clean"] .v2 .cmx-c.ag .tx .w{animation:v2-cmwc var(--t-slow) var(--ease) both}
