@@ -10767,6 +10767,9 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 /* the larger view: over the whole component, the picture as large as it fits, with every action */
 .igx-lb{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;border-radius:var(--r-card);background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
 .igx-lb[hidden]{display:none}
+/* while the larger view is open, what it covers is hidden too, once it has faded in (and shows again at once when it closes),
+   so nothing under the dialog can be reached or read */
+.igx-in:has(>.igx-lb:not([hidden]))>:is(.igx-main,.igx-side){visibility:hidden;transition:visibility 0s .6s}
 .igx-lb.open{animation:igxlb .42s var(--ease) both}
 @keyframes igxlb{from{opacity:0}to{opacity:1}}
 .igx-lb.open .igx-lbs>.igx-t{animation:igxlbp .6s var(--ease) both}
@@ -10774,7 +10777,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 :root[data-style="bp"] .igx-lb.open{animation:igxwipe var(--t-slow) var(--ease) both}
 :root[data-style="bp"] .igx-lb.open .igx-lbs>.igx-t{animation:none}
 /* (Close is a bare icon button in the corner: its glyph ends on the 16px column, where Next ends below it) */
-.igx-lbh{flex:none;display:flex;align-items:center;gap:var(--s-2);padding:var(--s-4) 9px var(--s-4) var(--s-4);border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.igx-lbh{flex:none;display:flex;align-items:center;gap:var(--s-2);padding:var(--s-4) var(--s-2) var(--s-4) var(--s-4);border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .igx-lbt{flex:1;min-width:0;display:flex;flex-direction:column;font-size:13px;line-height:1.35}
 .igx-lbt b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .igx-lbt .muted{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -10808,7 +10811,8 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 }
 @container igx (max-width:440px){
   .igx-in{height:640px}
-  .igx-ask{display:block;white-space:nowrap;text-overflow:ellipsis}
+  /* the prompt as sent takes the feed's width, one line cut short, its words on the composer's column */
+  .igx-ask{display:block;max-width:100%;padding-inline:var(--s-3);white-space:nowrap;text-overflow:ellipsis}
   .igx-sty{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:var(--s-1)}
   .igx-sty::-webkit-scrollbar{display:none}
   .igx-sc{flex:none;padding:0 var(--s-2)}
