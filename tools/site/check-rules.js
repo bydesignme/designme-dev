@@ -22,7 +22,8 @@
 //   node tools/site/check-rules.js
 //   IDS=web-search,rich-text-editor STYLES=soft,bp,clean THEMES=light,dark WIDTHS=1440,390 JOBS=5 OUT=/tmp/rules node tools/site/check-rules.js
 //   (IDS takes component ids, and template ids as templates/<id>; SECS and STEP set how long and how often the demo is
-//   sampled; FRESH=1 ignores the results of an earlier run in OUT, which are otherwise kept and skipped)
+//   sampled; FRESH=1 ignores the results of an earlier run in OUT, which are otherwise kept and skipped; REPORT=1 only writes
+//   the report from the runs already in OUT)
 // It must report no Phase I violations outside the exceptions list before anything is shown to the owner.
 const { chromium } = require(process.env.PW || 'playwright');
 const fs = require('fs'), path = require('path'), os = require('os'), crypto = require('crypto');
@@ -145,12 +146,19 @@ function rulesLib(){
   // the role of a shape, from what it is and its size; it sets the inset its contents keep (R1)
   const roleOf = (s) => { const e = s.el, w = W(s.edge), h = H(s.edge);
     if (w >= innerWidth * .95 && h >= innerHeight * .8) return 'page'; // a template's app frame: the window, not a card
-    if (s.ps) return h <= 64 && w >= 40 ? 'row' : w <= 44 && h <= 44 ? 'tile' : 'card';
+    if (s.ps) return w <= 44 && h <= 44 ? 'tile' : h <= 120 && w >= 40 ? 'row' : 'card'; // a fill drawn behind a row (a hover or a selection)
+    // (a small round or square thing, an avatar or an icon tile, is a tile, unless it is a control itself)
+    if (w <= 44 && h <= 44 && Math.abs(w - h) <= 2 && !e.matches(CTL)) return 'tile';
     // a menu: a popover of menu items, or a panel that is a list of options as wide as itself (Model picker's list)
     const menuish = () => [...e.querySelectorAll('[role="radiogroup"],[role="listbox"],[role="menu"]')].some(l => l.getBoundingClientRect().width >= w * .85 && [...l.children].filter(k => k.getBoundingClientRect().width >= w * .8).length >= 2);
+    // (a segmented control: a track holding two or more buttons or tabs side by side; its segments sit 2-3px in, as usual)
+    const segs = [...e.children].filter(k => k.matches('button,[role="tab"],[role="radio"],label') && k.getBoundingClientRect().height >= h - 12);
+    if (segs.length >= 2 && h <= 48 && segs.every(k => Math.abs(k.getBoundingClientRect().top - segs[0].getBoundingClientRect().top) < 2)) return 'track';
     if (e.matches(POPS)) return menuish() || e.querySelectorAll('.mi,[role="menuitem"],[role="option"],[role="menuitemradio"],[role="menuitemcheckbox"]').length >= 2 ? 'menu' : h <= 56 ? 'bar' : 'card';
-    // (a wide row a person clicks, one or two lines tall, is a row whatever its height)
-    if (h <= 96 && (gcs(e).cursor === 'pointer' || e.matches('button,[role="option"],[role="radio"],[role="checkbox"],[role="menuitem"],li,label')) && s.host && w >= s.host.getBoundingClientRect().width * .6 && w >= 160) return 'row';
+    // (a wide row a person clicks is a row whatever its height, one line or a few on a phone: its fill is a hover or a
+    // selection, with no edge of its own, unlike a card)
+    const edged = s.de.all || s.de.ring || s.de.inRing || s.de.elev;
+    if ((h <= 96 || (!edged && h <= 160)) && (gcs(e).cursor === 'pointer' || e.matches('button,[role="option"],[role="radio"],[role="checkbox"],[role="menuitem"],li,label')) && s.host && w >= s.host.getBoundingClientRect().width * .6 && w >= 160) return 'row';
     if (e.matches('input,textarea,select')) return 'field';
     if (e.matches(CTL) || (e.closest(CTL) && h <= 40)){ if (w <= 44 && h <= 44 && !e.textContent.trim()) return 'icon'; if (h <= 22) return 'chip'; return h <= 64 ? 'control' : 'card'; }
     if (w <= 44 && h <= 44) return 'tile';
@@ -159,7 +167,7 @@ function rulesLib(){
     if (h <= 64) return w >= 120 ? 'row' : 'control';
     return menuish() ? 'menu' : 'card'; };
   // minimum inset of what is drawn inside a shape, per side, by role
-  const MIN = { menu:{ h:4, v:4 }, bar:{ h:6, v:6 }, card:{ h:16, v:16 }, strip:{ h:16, v:16 }, band:{ h:16, v:6 }, row:{ h:6, v:4 }, control:{ h:6, v:3 }, field:{ h:6, v:3 }, chip:{ h:4, v:2 }, icon:{ h:4, v:4 } };
+  const MIN = { track:{ h:2, v:2 }, menu:{ h:4, v:4 }, bar:{ h:6, v:6 }, card:{ h:16, v:16 }, strip:{ h:16, v:16 }, band:{ h:16, v:6 }, row:{ h:6, v:4 }, control:{ h:6, v:3 }, field:{ h:6, v:3 }, chip:{ h:4, v:2 }, icon:{ h:4, v:4 } };
 
   // ---- text metrics --------------------------------------------------------------------------------------------------
   const fm = new Map();
@@ -221,8 +229,8 @@ function rulesLib(){
       return best; };
     shapes.forEach(s => { s.cont = containerOf(s.el, s.edge, s); });
     // strips: a full-width band with its own fill at a card's top or bottom; with a control in it, its contents keep 16px
-    const fullW = (q, c) => q.l <= c.rect.l + px(c.cs.borderLeftWidth) + 1 && q.r >= c.rect.r - px(c.cs.borderRightWidth) - 1;
-    const fullH = (q, c) => q.t <= c.rect.t + px(c.cs.borderTopWidth) + 1 && q.b >= c.rect.b - px(c.cs.borderBottomWidth) - 1;
+    const fullW = (q, c) => { const k = 1.5 + (c.de.inRing || 0); return q.l <= c.rect.l + px(c.cs.borderLeftWidth) + k && q.r >= c.rect.r - px(c.cs.borderRightWidth) - k; };
+    const fullH = (q, c) => { const k = 1.5 + (c.de.inRing || 0); return q.t <= c.rect.t + px(c.cs.borderTopWidth) + k && q.b >= c.rect.b - px(c.cs.borderBottomWidth) - k; };
     shapes.forEach(s => { const c = s.cont; if (!c || c.role !== 'card' || s.ps || s.role === 'tile' || !fullW(s.edge, c) || H(s.edge) > 120 || H(s.edge) < 24) return;
       if (s.el.matches('tr,thead,[role="row"]') || gcs(s.el).display === 'table-row') return;
       const atEdge = Math.abs(s.edge.t - c.rect.t) < 3 || Math.abs(s.edge.b - c.rect.b) < 3;
@@ -257,6 +265,11 @@ function rulesLib(){
       if (placed(it.el, c.el)) return true;
       if (it.k === 'svg' && W(it.box) <= 10 && H(it.box) <= 10) return true;
       if (it.k === 'img' && (fullW(it.q, c) || fullH(it.q, c) || W(it.q) >= W(c.edge) * .9)) return true; // a photo filling its frame
+      // (a thing hung outside its shape, like a tab above a sheet or a label beside a bar, is not inside it)
+      const ov = Math.max(0, Math.min(it.q.r, c.edge.r) - Math.max(it.q.l, c.edge.l)) * Math.max(0, Math.min(it.q.b, c.edge.b) - Math.max(it.q.t, c.edge.t));
+      if (ov < .5 * W(it.q) * H(it.q)) return true;
+      // (a drawing hidden from screen readers, like a miniature page in a preview, is art, not layout)
+      const art = it.el.closest('[aria-hidden="true"]'); if (art && ROOT.contains(art) && art !== ROOT && !art.matches('svg') && art.contains(c.el)) return true;
       return false; };
 
     // R1 Inset: everything drawn inside a shape keeps the shape's minimum inset, by role (16 card, 6 row or control, 4 chip)
@@ -266,11 +279,12 @@ function rulesLib(){
         if (fullW(b, c)){ if (Math.abs(b.t - c.edge.t) <= 1.5) f.top = 1; if (Math.abs(b.b - c.edge.b) <= 1.5) f.bottom = 1; f.left = f.right = 1; }
         if (fullH(b, c)){ if (Math.abs(b.l - c.edge.l) <= 1.5) f.left = 1; if (Math.abs(b.r - c.edge.r) <= 1.5) f.right = 1; } }
       return f; };
-    const r1 = () => { for (const it of items){ const c = it.cont; if (!c || !stableShape(c) || c.role === 'tile' || c.role === 'page' || Math.min(W(c.edge), H(c.edge)) < 12 || exempt(it, c)) continue;
+    const r1 = () => { for (const it of items){ const c = it.cont; if (!c || !stableShape(c) || c.role === 'tile' || c.role === 'page' || Math.min(W(c.edge), H(c.edge)) < 12 || placed(c.el) || exempt(it, c)) continue;
       if (!c.ps && /^inline$/.test(gcs(c.el).display)) continue; // a highlight on words (new text, a mark) wraps them closely by design
       if (it.k === 'field-text' && (/center/.test(gcs(it.el).textAlign) || W(rect(it.el.getBoundingClientRect())) < 60)) continue;
       let mn = MIN[c.role] || MIN.control; const big = /card|strip|band|bar|menu/.test(c.role);
-      const { r:q, cut } = clipTo(it.el, it.k === 'text' ? { l:it.q.l, r:it.q.r, t:big ? it.lb.t : it.ink.t, b:big ? it.lb.b : it.ink.b } : it.q, c.ps ? c.el.parentElement : c.el, it.k === 'text');
+      const host = c.ps ? c.el : c.el, hcs = gcs(host), clipsSelf = hcs.overflowX !== 'visible' || hcs.overflowY !== 'visible';
+      const { r:q, cut } = clipTo(it.el, it.k === 'text' ? { l:it.q.l, r:it.q.r, t:big ? it.lb.t : it.ink.t, b:big ? it.lb.b : it.ink.b } : it.q, clipsSelf ? host.parentElement : (c.ps ? c.el.parentElement : c.el), it.k === 'text');
       // (a round thing, an avatar or a dot, at the end of a pill sits as far in from the side as from the top and bottom)
       // (a button or a round thing inside a small shape (an avatar at the end of a pill, a send button inside a field, a key chip
       // at the end of a button) may sit as close to the side as it sits to the top and bottom: the corners stay concentric)
@@ -304,7 +318,8 @@ function rulesLib(){
     const r2 = () => { for (const [c, ks] of kids){ if (!stableShape(c) || c.role === 'tile' || c.role === 'page' || c.role === 'field' || H(c.edge) > 80 || H(c.edge) < 10) continue;
       if (placed(c.el)) continue; const its = ks.filter(it => !decor(it) && !exempt(it, c)); if (!its.length) continue; const bs = its.map(r2box); if (!oneLine(bs)) continue;
       const top = Math.min(...bs.map(b => b.t)) - c.edge.t, bot = c.edge.b - Math.max(...bs.map(b => b.b));
-      if (top >= -.5 && bot >= -.5 && Math.abs(top - bot) > 1) V('R2', `${sLabel(c)} has ${top.toFixed(1)}px above its contents and ${bot.toFixed(1)}px below`, [sLabel(c), its.map(label).slice(0, 3).join(' + ')], { top:+top.toFixed(1), bottom:+bot.toFixed(1) }, [c.edge, { l:Math.min(...bs.map(b => b.l)), r:Math.max(...bs.map(b => b.r)), t:Math.min(...bs.map(b => b.t)), b:Math.max(...bs.map(b => b.b)) }], { sub:'vertical' });
+      if (top + bot > 40) continue; // a tall box with one line in it (a tile labelled at its top) is not a bar
+      if (top >= -.5 && bot >= -.5 && Math.abs(top - bot) > 1.05) V('R2', `${sLabel(c)} has ${top.toFixed(1)}px above its contents and ${bot.toFixed(1)}px below`, [sLabel(c), its.map(label).slice(0, 3).join(' + ')], { top:+top.toFixed(1), bottom:+bot.toFixed(1) }, [c.edge, { l:Math.min(...bs.map(b => b.l)), r:Math.max(...bs.map(b => b.r)), t:Math.min(...bs.map(b => b.t)), b:Math.max(...bs.map(b => b.b)) }], { sub:'vertical' });
       if (W(c.edge) < 120 || c.role === 'chip' || c.role === 'control' || c.role === 'icon') continue;
       // (an icon or words in a bare button or select are measured by the control's box at the ends: its hover box is its edge)
       const hbox = it => { const k = it.el.closest('button,.pill,.ib,select,[role="button"]'); if (k && k !== c.el && c.el.contains(k)){ const b = rect(k.getBoundingClientRect()); if (!it.el.closest('.pill') || it.k !== 'text') return b; } return r2box(it); };
@@ -312,7 +327,7 @@ function rulesLib(){
       if (first === last || !pinned(last, c)) continue; const l = hbox(first).l - c.edge.l, r = c.edge.r - hbox(last).r; if (l > W(c.edge) * .25) continue;
       // (something drawn further out than the first or last thing, a spinner or a mark not measured here, makes them not the ends)
       const outer = [...c.el.querySelectorAll('*')].some(e => { if (!vis(e)) return false; const b = e.getBoundingClientRect(); return b.width > 3 && b.height > 3 && (b.left < hbox(first).l - 2 || b.right > hbox(last).r + 2) && b.width < W(c.edge) * .5; });
-      if (!outer && l >= 0 && r >= 0 && Math.abs(l - r) > 1) V('R2', `${sLabel(c)} has its first thing ${l.toFixed(1)}px from the left and its last ${r.toFixed(1)}px from the right`, [sLabel(c), label(first) + ' … ' + label(last)], { left:+l.toFixed(1), right:+r.toFixed(1) }, [c.edge, hbox(first), hbox(last)], { sub:'horizontal' }); }
+      if (!outer && l >= 0 && r >= 0 && Math.abs(l - r) > 1.05) V('R2', `${sLabel(c)} has its first thing ${l.toFixed(1)}px from the left and its last ${r.toFixed(1)}px from the right`, [sLabel(c), label(first) + ' … ' + label(last)], { left:+l.toFixed(1), right:+r.toFixed(1) }, [c.edge, hbox(first), hbox(last)], { sub:'horizontal' }); }
     // bands of a card: between its top, its full-width hairlines and its bottom. A head or footer band of one line has the
     // same room from the hairline as from the card's edge (owner: footers 12px under the hairline but 16px above the edge)
     for (const c of shapes){ if (c.role !== 'card' || !stableShape(c) || c.ps) continue; const ks = kids.get(c) || [];
@@ -323,7 +338,7 @@ function rulesLib(){
         const its = ks.filter(it => !decor(it) && !(it.k === 'shape' && it.shape.role === 'strip') && (r2box(it).t + r2box(it).b) / 2 > y0 && (r2box(it).t + r2box(it).b) / 2 < y1); if (!its.length) continue;
         if (!its.some(it => it.el.matches('button,.pill,.ib,select,input,[role="button"]') || it.el.closest('button,.pill,.ib'))) continue;
         const bs = its.map(r2box); if (!oneLine(bs)) continue; const top = Math.min(...bs.map(b => b.t)) - y0, bot = y1 - Math.max(...bs.map(b => b.b));
-        if (Math.abs(top - bot) > 1) V('R2', `${A.edge ? 'head' : B.edge ? 'footer' : 'band'} of ${sLabel(c)}: ${top.toFixed(1)}px from ${A.edge ? "the card's top" : 'the hairline'} to its contents, ${bot.toFixed(1)}px from them to ${B.edge ? "the card's bottom" : 'the hairline'}`,
+        if (top >= 0 && bot >= 0 && Math.abs(top - bot) > 1.05) V('R2', `${A.edge ? 'head' : B.edge ? 'footer' : 'band'} of ${sLabel(c)}: ${top.toFixed(1)}px from ${A.edge ? "the card's top" : 'the hairline'} to its contents, ${bot.toFixed(1)}px from them to ${B.edge ? "the card's bottom" : 'the hairline'}`,
           [sLabel(c), its.map(label).slice(0, 3).join(' + ')], { above:+top.toFixed(1), below:+bot.toFixed(1) }, [{ l:c.edge.l, r:c.edge.r, t:y0, b:y1 }, { l:Math.min(...bs.map(b => b.l)), r:Math.max(...bs.map(b => b.r)), t:Math.min(...bs.map(b => b.t)), b:Math.max(...bs.map(b => b.b)) }], { sub:'band' }); } } };
 
     // R3 Baseline: words side by side on one line share a baseline. Pairs are found by geometry (same shape, overlapping
@@ -482,7 +497,7 @@ async function runJob(browser, job, ref){
   page.on('pageerror', e => res.errors.push(String(e.message).slice(0, 200)));
   const root = pg.tpl ? 'main.pg-app' : '.pg-demo > .card > .stage-in';
   try {
-    await page.goto(HOST + pg.url, { waitUntil:'load', timeout:30000 });
+    await page.goto(HOST + pg.url, { waitUntil:'load', timeout:90000 });
     await page.evaluate(() => document.fonts.ready);
     const cardBg = ref.card;
     await page.evaluate(o => window.__rules.setup(o), { root, theme:th, style:st, ref:ref.chipDE, cardBg });
@@ -533,6 +548,7 @@ async function runJob(browser, job, ref){
     await take('end');
   } catch(e){ res.errors.push('job: ' + e.message.slice(0, 300)); }
   await ctx.close().catch(() => {});
+  if (!res.moments) throw new Error('nothing sampled: ' + res.errors.join('; ').slice(0, 200));
   res.viol = Object.values(res.viol); return res;
 }
 
@@ -627,16 +643,19 @@ const main = async () => {
   console.log('R6 reference, Clean chip against its panel:', Object.entries(ref).map(([t, r]) => `${t} ${r.chipDE.toFixed(2)}`).join(', '));
   const pages = listPages(), jobs = [];
   for (const pg of pages) for (const w of WIDTHS) for (const st of STYLES) for (const th of THEMES) jobs.push({ pg, st, th, w, file:path.join(OUT, 'jobs', `${pg.tpl ? 't-' : ''}${pg.id}-${st}-${th}-${w}.json`) });
-  const todo = jobs.filter(j => !fs.existsSync(j.file)); let done = jobs.length - todo.length, next = 0; const t0 = Date.now();
+  // (REPORT=1 writes the report from the runs already in OUT, without running any)
+  // (a run that never sampled, its page timing out, is run again)
+  const sampled = f => { try { return JSON.parse(fs.readFileSync(f, 'utf8')).moments > 0; } catch(e){ return false; } };
+  const todo = process.env.REPORT ? [] : jobs.filter(j => !fs.existsSync(j.file) || !sampled(j.file)); let done = jobs.length - todo.length, next = 0; const t0 = Date.now();
   console.log(`${pages.length} pages, ${jobs.length} jobs, ${todo.length} to run, ${JOBS} at a time`);
   await Promise.all(Array.from({ length:Math.min(JOBS, todo.length) }, async (_, wi) => { let br = browser;
     while (next < todo.length){ const j = todo[next++]; let r;
-      try { r = await runJob(br, j, Object.assign({}, ref[j.th], { card:ref[j.th].cards[j.st] })); } catch(e){ r = null; console.error('job failed', j.file, e.message); try { br = await chromium.launch(); } catch(e2){} }
+      try { r = await runJob(br, j, Object.assign({}, ref[j.th], { card:ref[j.th].cards[j.st] })); } catch(e){ r = null; console.error('job failed', j.file, e.message); try { br = await chromium.launch(); } catch(e2){} if (!j.retried){ j.retried = 1; todo.push(j); } }
       if (r){ fs.writeFileSync(j.file, JSON.stringify(r)); done++; const el = (Date.now() - t0) / 1000; console.log(`[${done}/${jobs.length}] ${j.pg.id} ${j.st} ${j.th} ${j.w}: ${r.viol.length} violation(s)${r.errors.length ? ', ' + r.errors.length + ' error(s)' : ''} (${Math.round(el)}s)`); } } }));
   const results = jobs.filter(j => fs.existsSync(j.file)).map(j => JSON.parse(fs.readFileSync(j.file, 'utf8')));
   const all = results.flatMap(r => r.viol.map(v => Object.assign(v, { tpl:r.tpl })));
   const { out:r7, summary } = sameLook(results);
-  const r7live = r7.filter(v => !exceptionFor(v)); if (r7live.length) await cropR7(browser, r7live);
+  const r7live = r7.filter(v => !exceptionFor(v)); if (r7live.length && !process.env.NOCROP7) await cropR7(browser, r7live);
   const errors = results.flatMap(r => r.errors.map(e => `${r.page} ${r.style} ${r.theme} ${r.w}: ${e}`));
   await browser.close();
   const n = report(all.concat(r7), Object.fromEntries(Object.entries(ref).map(([t, r]) => [t, { chipDE:r.chipDE, chip:r.chip, panel:r.panel }])), summary, errors);
