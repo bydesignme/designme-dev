@@ -142,7 +142,7 @@ export function TicketList({ tickets, defaultTickets = [], onTicketsChange, filt
   // the card eases to its new height as tickets open, close, leave or change with the filter, and keeps no room for one to open
   const [box, boxIn] = useGrow();
   // Clean's one hover: a highlight that glides from ticket to ticket; the open one keeps its own fill
-  useHoverGlide(box, '.dm-tkx-r', { keep: '.dm-open,[aria-expanded="true"]' });
+  useHoverGlide(box, '.dm-tkx-r', { keep: ':not(*)' });
 
   return (
     <div data-dm="" ref={box} className={cx('dm-tkx dm-panel dm-growing', className)}><div ref={boxIn} className="dm-grow">

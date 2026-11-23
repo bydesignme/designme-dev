@@ -4,6 +4,7 @@ import { cx } from '../../lib/cx';
 import { useControllable } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
 import { enter, Fold, Spin, Swap, Tip } from '../../lib/motion';
+import { useHoverGlide } from '../../lib/glide';
 import { usePopover } from '../../lib/popover';
 import '../../designme.css';
 // its menus' rows glide in Clean
@@ -81,6 +82,9 @@ export function ModelPicker({
   models, value, defaultValue, onValueChange, efforts = EFFORTS, effort, defaultEffort, onEffortChange, suggestion, note,
   label = 'Model for this chat', open, defaultOpen = true, onOpenChange, className
 }: ModelPickerProps) {
+  // Clean's one hover glides from model to model; the picked one keeps its stronger fill
+  const listRef = useRef<HTMLDivElement>(null);
+  useHoverGlide(listRef, '.dm-mpk-o');
   const [cur, setCur] = useControllable(value, defaultValue ?? models[0]?.id ?? '', onValueChange);
   const [eff, setEff] = useControllable(effort, defaultEffort ?? efforts[Math.min(2, efforts.length - 1)]?.label ?? '', onEffortChange);
   // thinking effort is a small dropdown under the list
@@ -124,7 +128,7 @@ export function ModelPicker({
       <Fold open={isOpen} className="dm-mpk-fold">
         <div className="dm-mpk-p dm-panel">
           <div className="dm-mpk-hd" aria-hidden="true"><span /><span /><span>Speed</span><span>Quality</span><span>Cost</span></div>
-          <div className="dm-mpk-list" role="radiogroup" aria-label="Model" onKeyDown={move}>
+          <div ref={listRef} className="dm-mpk-list" role="radiogroup" aria-label="Model" onKeyDown={move}>
             {models.map((m, i) => (
               <button key={m.id} ref={el => { rows.current[i] = el; }} type="button" role="radio" aria-checked={m.id === picked?.id} tabIndex={m.id === picked?.id ? 0 : -1}
                 className={cx('dm-mpk-o', m.status === 'busy' && 'dm-busy')} onClick={() => setCur(m.id)}>
