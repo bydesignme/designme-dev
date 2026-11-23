@@ -124,8 +124,10 @@ export function ToastStack({ toasts, onDismiss, expanded, max = 6, className }: 
     return (
       <div key={t.id} className={cx('dm-tsk-c', !gone && under.has(t.id) && front.indexOf(t) > 0 && 'dm-tsk-under')} style={style} inert={gone || (fan ? front.indexOf(t) > 3 : front.indexOf(t) > 0)} ref={el => { if (gone) return; if (el) els.current.set(t.id, el); else els.current.delete(t.id); }}>
         <span className="dm-g" data-tone={t.tone ?? 'neutral'} style={{ color: `var(${fg})`, background: `var(${bg})` }}><Icon name={t.icon} /></span>
-        <div className="dm-tx"><b>{t.title}</b>{t.detail && <span>{t.detail}</span>}</div>
-        {t.time && <span className="dm-t">{t.time}</span>}
+        <div className="dm-tsk-w">
+          <div className="dm-tx"><b>{t.title}</b>{t.detail && <span>{t.detail}</span>}</div>
+          {t.time && <span className="dm-t">{t.time}</span>}
+        </div>
         <Tip label="Dismiss"><button type="button" className="dm-ib" aria-label="Dismiss" onClick={() => onDismiss?.(t.id)}><Icon name="x" /></button></Tip>
       </div>
     );

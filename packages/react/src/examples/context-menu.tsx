@@ -70,7 +70,7 @@ export default function ContextMenuDemo() {
       {deleted
         ? <div className="dm-cxm" data-dm=""><div className="dm-cxm-gone dm-enter">Reply deleted<button type="button" className="dm-pill dm-ghost dm-sm" onClick={() => { setDeleted(false); setNote('Reply restored'); }}>Undo</button></div></div>
         : <ContextMenu items={items} onSelect={select} label="Reply actions" targetLabel="Agent reply. Press Shift+F10 for actions">
-            <div className="dm-cxm-hd"><span className="dm-cxm-av"><Icon name="spark" /></span><b>Agent</b><span className="dm-muted dm-num">2:14 pm</span>{ok && <span className={ok.out ? 'dm-cxm-ok dm-out' : 'dm-cxm-ok'}><Icon name="check" size="xs" /><span>{ok.text}</span></span>}{pinned && <span className="dm-cxm-pin"><Icon name="pin" />Pinned</span>}</div>
+            <div className="dm-cxm-hd"><span className="dm-cxm-av"><Icon name="spark" /></span><span className="dm-cxm-ht"><b>Agent</b><span className="dm-muted dm-num">2:14 pm</span></span>{ok && <span className={ok.out ? 'dm-cxm-ok dm-out' : 'dm-cxm-ok'}><Icon name="check" size="xs" /><span>{ok.text}</span></span>}{pinned && <span className="dm-cxm-pin"><Icon name="pin" />Pinned</span>}</div>
             <p className="dm-cxm-tx">{TEXT}</p>
             <div className="dm-cxm-out" aria-live="polite">{out && <div className="dm-cxm-res dm-enter"><span className="dm-k"><Icon name={ASK[out.k][1]} size="xs" /><span className={out.busy ? 'dm-shim' : undefined}>{out.busy ? `Writing a ${ASK[out.k][0].toLowerCase()}` : ASK[out.k][0]}</span></span><span>{out.text}</span></div>}</div>
           </ContextMenu>}

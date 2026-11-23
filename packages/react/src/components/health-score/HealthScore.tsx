@@ -145,8 +145,10 @@ export function HealthScore({ account, label = 'Account health', period = '30 da
           </svg>
           <b className="dm-num" aria-hidden="true">{Math.round(shown)}</b>
         </div>
-        <div className="dm-hsc-ht"><Swap className="dm-hsc-vd">{verdict}</Swap><Swap className="dm-hsc-sub">{line}</Swap></div>
-        {change !== null && <Swap className="dm-hsc-dl dm-num">{`${change >= 0 ? '+' : '−'}${Math.abs(change)} in ${period}`}</Swap>}
+        <div className="dm-hsc-ht">
+          <Swap className="dm-hsc-vd">{verdict}</Swap><Swap className="dm-hsc-sub">{line}</Swap>
+          {change !== null && <Swap className="dm-hsc-dl dm-num">{`${change >= 0 ? '+' : '−'}${Math.abs(change)} in ${period}`}</Swap>}
+        </div>
       </div>
       <div ref={factorsRef} className="dm-hsc-l">
         {factors.map((f, j) => (
