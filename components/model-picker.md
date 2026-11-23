@@ -331,7 +331,7 @@ export function ModelPicker({
             </div>
           </Fold>
           <div className="dm-mpk-th">
-            <div className="dm-mpk-thh"><b><Icon name="brain" size="xs" />Thinking</b><Swap className="dm-muted dm-mpk-thd">{efforts.find(e => e.label === eff)?.detail ?? ''}</Swap></div>
+            <div className="dm-mpk-thh"><Icon name="brain" size="xs" /><span className="dm-mpk-tw"><b>Thinking</b><Swap className="dm-muted dm-mpk-thd">{efforts.find(e => e.label === eff)?.detail ?? ''}</Swap></span></div>
             <button {...effMenu.trigger} type="button" className="dm-mpk-eb" aria-label="Thinking effort"><Swap className="dm-mpk-ev">{eff}</Swap><Icon name="chev-d" size="xs" /></button>
           </div>
           {/* in Clean the confirmation is the card's last strip, under Thinking */}

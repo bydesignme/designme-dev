@@ -381,9 +381,11 @@ export function AgentLanes({ lanes, title, seconds, paused, defaultPaused = fals
     <div data-dm="" className={cx('dm-aln', !bare && 'dm-panel', finished && 'dm-fin', className)} style={bare ? { paddingInline: 0 } : undefined}>
       <div className="dm-aln-h">
         <span className="dm-aln-ic">{finished ? <span key="ok" {...enter()} style={{ display: 'grid' }}><Icon name="ok" /></span> : <Icon name="users" />}</span>
-        <Swap className="dm-aln-t">{head}</Swap>
-        <span className="dm-aln-m dm-muted dm-num">{time}</span>
-        <Swap className="dm-aln-ct dm-num">{`${stepsDone} of ${total} steps`}</Swap>
+        <span className="dm-aln-tx">
+          <Swap className="dm-aln-t">{head}</Swap>
+          <span className="dm-aln-m dm-muted dm-num">{time}</span>
+          <Swap className="dm-aln-ct dm-num">{`${stepsDone} of ${total} steps`}</Swap>
+        </span>
         {onPausedChange && !finished && (
           <button type="button" className="dm-pill dm-line dm-sm dm-aln-pause" onClick={() => setPaused(!isPaused)}>
             <Icon name={isPaused ? 'play' : 'pause'} size="xs" />{isPaused ? 'Resume' : 'Pause all'}

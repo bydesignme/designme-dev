@@ -917,7 +917,7 @@ PRG_D.compact = [PRG_HTML.compact, (r, c) => {
     const s = S[j], st = stat[j];
     const ic = st === 'done' ? Ih('check', 'xs') : st === 'err' ? Ih('alert', 'xs') : st === 'live' ? (state === 'paused' ? Ih('pause', 'xs') : '<span class="spin" aria-hidden="true"></span>') : '<span class="pva-o" aria-hidden="true"></span>';
     const word = { done:', done', err:', failed', live:state === 'paused' ? ', paused' : ', running', up:', not started' }[st];
-    return `<span class="pva-si">${ic}</span><span class="pva-sn">${s.name}<span class="sr">${word}</span></span><span class="pva-sc num"></span><span class="pva-sd num"></span><span class="pva-sv">${st === 'done' ? Ih('chev-d', 'xs') : ''}</span>`;
+    return `<span class="pva-si">${ic}</span><span class="pva-sw"><span class="pva-sn">${s.name}<span class="sr">${word}</span></span><span class="pva-sc num"></span><span class="pva-sd num"></span></span><span class="pva-sv">${st === 'done' ? Ih('chev-d', 'xs') : ''}</span>`;
   }
   function detail(j){
     const st = stat[j];
@@ -1093,7 +1093,7 @@ PRG_D.steps = [PRG_HTML.steps, (r, c) => {
 
   // the rows, built once; a step's line becomes a button (it opens) once the step is done
   ol.innerHTML = S.map((s, i) => `<li class="pvb-st" data-k="next">
-    <div class="pvb-row"><span class="pvb-nd" aria-hidden="true"></span><span class="pvb-nm"><span class="pvb-vh"></span>${s.name}</span><span class="pvb-mt num"></span></div>
+    <div class="pvb-row"><span class="pvb-nd" aria-hidden="true"></span><span class="pvb-tx"><span class="pvb-nm"><span class="pvb-vh"></span>${s.name}</span><span class="pvb-mt num"></span></span></div>
     <div class="pvb-fold pvb-dt" id="${id}-d${i}"><div><div class="pvb-in">
       <p class="pvb-dp"></p><p class="pvb-dm num"></p>
       <span class="pvb-k">First 3 of ${fmt(s.total)}</span>
@@ -1107,7 +1107,7 @@ PRG_D.steps = [PRG_HTML.steps, (r, c) => {
         <div class="pvb-fold pvb-log" id="${id}-log"><div><div><ol></ol></div></div></div></div>` : ''}
     </div></div></div>
   </li>`).join('') + `<li class="pvb-st pvb-fin" data-k="next">
-    <div class="pvb-row"><span class="pvb-nd" aria-hidden="true">${I('flag', 'xs')}</span><span class="pvb-nm"><span class="pvb-vh"></span>Index ready</span><span class="pvb-mt num"></span></div>
+    <div class="pvb-row"><span class="pvb-nd" aria-hidden="true">${I('flag', 'xs')}</span><span class="pvb-tx"><span class="pvb-nm"><span class="pvb-vh"></span>Index ready</span><span class="pvb-mt num"></span></span></div>
     <div class="pvb-fold pvb-lv"><div><div class="pvb-in"><p class="pvb-dp">2,000 files and 6,400 chunks are searchable now.</p><p class="pvb-dm num"></p></div></div></div>
   </li>`;
   const rows = $$('.pvb-st', ol).map((li, i) => ({ li, i, k:'', nd:'', s:S[i],

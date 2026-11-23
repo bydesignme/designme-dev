@@ -310,8 +310,10 @@ export function DetailsPanel({ title, kind, copyValue, copyLabel = 'Copy run ID'
   return (
     <div data-dm="" ref={setHost} className={cx('dm-dtp dm-panel', className)}>
       <div className="dm-dtp-h">
-        {kind && <span className="dm-ft">{kind}</span>}
-        <b>{title}</b>
+        <span className="dm-dtp-ht">
+          {kind && <span className="dm-ft">{kind}</span>}
+          <b>{title}</b>
+        </span>
         {copyValue !== undefined && (
           <Tip label={copied ? 'Copied to clipboard' : copyLabel} open={copied || undefined}>
             <button type="button" className={cx('dm-ib dm-dtp-cp', copied && 'dm-copied')} aria-label={copyLabel} onClick={() => copy(copyValue)}>

@@ -264,7 +264,7 @@ export function AccountTable({
       case 'account': return <td key={k} data-col={k}><span className="dm-nm"><span className="dm-lg" style={{ background: a.color, color: avatarInk(a.color) }}>{a.name[0]}</span>{a.name}</span></td>;
       case 'plan': return <td key={k} data-col={k}><span className={cx('dm-tag', tone && TONE[tone])}>{a.plan}</span></td>;
       case 'seats': return <td key={k} data-col={k} className="dm-r dm-num">{a.seats}</td>;
-      case 'health': return <td key={k} data-col={k}><span className="dm-hb"><i><b style={{ width: a.health + '%', background: healthColor(a.health) }} /></i><span className="dm-num">{a.health}</span></span></td>;
+      case 'health': return <td key={k} data-col={k}><span className="dm-hb"><i><b style={{ width: a.health + '%', background: healthColor(a.health) }} /></i><span className="dm-hv"><span className="dm-num">{a.health}</span></span></span></td>;
       default: return <td key={k} data-col={k} className="dm-r dm-num">{a.mrr}</td>;
     }
   };

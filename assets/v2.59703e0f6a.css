@@ -486,6 +486,8 @@
 /* the animated mark has no tile or fill behind it in Soft and Clean (owner, 22 Nov: "remove the background container"): it sits
    in a 20px box on the line's centre line, the words 10px after it. Blueprint keeps its hairline tile */
 .v2 .ths-mk{position:relative;width:20px;height:20px;flex:none;display:grid;place-items:center;color:var(--accent-mark,var(--accent))}
+/* (the words and their seconds share one baseline; the mark stays centred on their line) */
+.v2 .ths-w{flex:0 1 auto;min-width:0;display:flex;align-items:baseline;gap:10px}
 .v2 .ths-l{flex:0 1 auto;min-width:0;font-size:14px;line-height:20px;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .v2 .ths-car{display:inline-block;width:2px;height:15px;margin-left:2px;vertical-align:-3px;border-radius:1px;background:var(--accent-mark,var(--accent));animation:v2-thsblink 1s steps(1,end) infinite}
 @keyframes v2-thsblink{50%{opacity:0}}
@@ -737,8 +739,9 @@
    each step; the card is no taller than Soft's trace, so its stage keeps its height in every style */
 :root[data-style="clean"] .v2 .tk-list{padding:10px 16px;border-top:1px solid var(--line)}
 :root[data-style="clean"] .v2 .tk-st{padding:5px 0}
-/* a step's time sits on its first line's centre line, and ends where the chevron does */
-:root[data-style="clean"] .v2 .tk-st .tk-ln{align-items:flex-start}
+/* a step's time sits on its first line's baseline (owner, 23 Nov: words side by side share one baseline), and ends where the
+   chevron does */
+:root[data-style="clean"] .v2 .tk-st .tk-ln{align-items:baseline}
 :root[data-style="clean"] .v2 .tk-st .lab,:root[data-style="clean"] .v2 .tk-st .tk-dur{line-height:19px}
 :root[data-style="clean"] .v2 .tk-st .res{line-height:17px}
 :root[data-style="clean"] .v2 .tk-st .tk-dur{font-variant-numeric:tabular-nums}
@@ -918,6 +921,8 @@
 .v2 .atr-av.app{background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}
 .v2 .atr-av .brand{width:13px;height:13px}
 /* the name, a chevron that folds a branch, and what it is on now in muted text after it (it shimmers while it runs) */
+/* the words and the cost share one baseline; the mark and the avatar stay centred on the row */
+.v2 .atr-w{flex:1;min-width:0;display:flex;align-items:baseline;gap:var(--s-2)}
 .v2 .atr-tx{flex:1;min-width:0;display:flex;align-items:baseline;gap:var(--s-2);white-space:nowrap}
 .v2 .atr-nm{flex:0 0 auto;max-width:100%;overflow:hidden;text-overflow:ellipsis;font-weight:500}
 .v2 .atr-tg{align-self:center;width:16px;height:16px;margin-left:-6px;flex:none;display:grid;place-items:center;border-radius:calc(4px * var(--rk-s,var(--rk)));color:var(--muted);cursor:pointer;transition:background var(--t-fast),color var(--t-fast)}
@@ -951,7 +956,7 @@
 /* a new row: its space opens, its line draws to it (it stays hidden until then), and it rises in */
 .v2 .atr-n:is([data-ph="open"],[data-ph="wait"])>.atr-b{visibility:hidden}
 .v2 .atr-n[data-ph="open"]{overflow:hidden}
-.v2 .atr-n[data-ph="in"]>.atr-b>.atr-r>:is(.atr-av,.atr-tx,.atr-q),.v2 .atr-n[data-ph="in"]>.atr-b>.atr-ask{animation:v2-atrin .56s var(--atr-ez) backwards}
+.v2 .atr-n[data-ph="in"]>.atr-b>.atr-r>:is(.atr-av,.atr-w),.v2 .atr-n[data-ph="in"]>.atr-b>.atr-ask{animation:v2-atrin .56s var(--atr-ez) backwards}
 @keyframes v2-atrin{from{opacity:0;transform:translateY(8px);filter:blur(3px)}}
 /* a line of text that changes rises into place; a running step's line is loader text, with the highlight sweep every loader
    has (.shim, owner, 19 Nov) */
@@ -1101,6 +1106,8 @@
 .v2 .atr-cm-key{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
 /* its marks sit in the column of the legend's marks and the title's edge, and its last column ends on the head total's edge */
 .v2 .atr-cm-key li{display:flex;align-items:center;gap:var(--s-2);min-height:36px;padding:0;font-size:13px}
+/* (an agent's name, its share and its cost share one baseline; its mark and avatar stay centred on the row) */
+.v2 .atr-cm-kw{flex:1;min-width:0;display:flex;align-items:baseline;gap:var(--s-2)}
 .v2 .atr-cm-key .t{flex:1;min-width:0;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .v2 .atr-cm-key .p{width:38px;text-align:right;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
 .v2 .atr-cm-key .c{width:44px;text-align:right;font-size:12px;color:var(--fg2);font-variant-numeric:tabular-nums}
@@ -1178,6 +1185,8 @@
 /* the run's totals: its tokens, quiet, then its time over the Time column */
 .v2 .trv-tt{flex:none;margin-right:-4px;font-size:12.5px;white-space:nowrap}
 .v2 .trv-tot{font-size:14px;font-weight:500;flex:none}
+/* (the tokens and the time share one baseline; the row round them stays centred on the tile) */
+.v2 .trv-nums{flex:none;display:flex;align-items:baseline;gap:12px}
 /* the key: each kind with its colour and how many of its spans have started */
 .v2 .trv-lg{display:flex;flex-wrap:wrap;gap:2px var(--s-3);padding:8px 0 12px 44px;font-size:12px;color:var(--muted)}
 .v2 .trv-lg span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;transition:color .3s}
@@ -1256,7 +1265,7 @@
    is a 24px tile with the words 8px after it, the same columns run down the card, and the time axis is a little shorter */
 @container (max-width:330px){
   .v2 .trv-ax,.v2 .trv-r{grid-template-columns:minmax(0,1fr) 60px 44px}.v2 .trv-tk,.v2 .trv-n .tag{display:none}.v2 .trv-g{display:none}.v2 .trv-kv{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .v2 .trv-h{gap:8px}.v2 .trv-hi{width:24px;height:24px;border-radius:var(--r-sm)}.v2 .trv-tt{margin-right:0}
+  .v2 .trv-h,.v2 .trv-nums{gap:8px}.v2 .trv-hi{width:24px;height:24px;border-radius:var(--r-sm)}.v2 .trv-tt{margin-right:0}
   .v2 .trv-lg,.v2 .trv-ax>span:first-child{padding-left:32px}
   .v2 .trv-n{gap:11px;padding-left:calc(3px + var(--lv,0) * 10px)}
   .v2 .trv-dc{padding-left:48px}.v2 .trv-dh>.trv-k{left:-29px}
@@ -1384,6 +1393,8 @@
    place on it, its glyph on the content's right edge; hover fills are a quiet 5% so they show on the white toast */
 .v2 .tsk-c{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:flex-start;gap:var(--s-3);padding:var(--s-4);--row:color-mix(in srgb,var(--fg) 5%,transparent);background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow-toast);transition:transform .55s var(--ease),opacity .45s var(--ease),filter .45s;transform-origin:bottom center}
 .v2 .tsk-c .g{width:28px;height:28px;margin-top:calc(8.775px - 14px);border-radius:50%;display:grid;place-items:center;flex:none}
+/* (the title and its time share one baseline; the icon keeps its place on the title's line) */
+.v2 .tsk-w{flex:1;min-width:0;display:flex;align-items:baseline;gap:var(--s-3)}
 .v2 .tsk-c .tx{flex:1;min-width:0;font-size:13px;line-height:1.35}
 .v2 .tsk-c .tx b{font-weight:500;display:block}
 .v2 .tsk-c .tx span{font-size:12px;color:var(--muted)}
@@ -1600,6 +1611,9 @@
 .v2 .aln-m{font-size:12.5px}
 .v2 .aln-ct{font-size:12.5px;color:var(--muted);margin-right:auto;white-space:nowrap}
 .v2 .aln-ct::before{content:"·";margin-right:6px}
+/* the head's words (the title, its time and its step count) share one baseline, whatever their sizes; the row round them stays
+   centred, so the icon and Pause all sit on the title's line (owner, 23 Nov: the 12.5px time sat 2px above the 14px title) */
+.v2 .aln-tx{display:flex;align-items:baseline;gap:10px;margin-right:auto}
 .v2 .aln-rows{position:relative}
 .v2 .aln-rows>*{position:relative}
 .v2 .aln-lane{border-radius:calc(14px * var(--rk-l,var(--rk)));transition:background .3s}
@@ -1690,6 +1704,10 @@
 :root[data-style="clean"] .v2 .aln.panel .aln-t{grid-column:2;margin-right:10px}
 :root[data-style="clean"] .v2 .aln.panel .aln-m{grid-column:3;margin-right:6px}
 :root[data-style="clean"] .v2 .aln.panel .aln-ct{grid-column:4;margin-right:16px}
+:root[data-style="clean"] .v2 .aln.panel .aln-tx{grid-column:2 / -1;gap:0;min-width:0}
+/* (Agent harness, Phase II, keeps staging's head: its words are the row's own parts again, centred as before) */
+.v2 .ahx .aln-tx{display:contents}
+:root[data-style="clean"] .v2 .ahx .aln.panel .aln-tx>*{grid-row:1;align-self:center;margin-top:16px;margin-bottom:4px}
 :root[data-style="clean"] .v2 .aln.panel .aln-pause{position:absolute;right:16px;bottom:var(--strip-y);margin:0}
 :root[data-style="clean"] .v2 .aln.panel .aln-rows{grid-row:2;grid-column:1 / -1;margin:4px 8px 8px}
 :root[data-style="clean"] .v2 .aln.panel .aln-say{display:block;grid-row:3;grid-column:1 / -1;align-self:center;min-width:0;margin:0 16px;font-size:12.5px;line-height:20px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1865,6 +1883,8 @@
 .v2 .aln-cw-ic .i{color:inherit}
 .v2 .aln-cw-tt{flex:1;font-weight:500}
 .v2 .aln-cw-tot{font-size:13px;color:var(--fg2)}
+/* the title and the run's cost share one baseline; the row round them stays centred on the icon (Clean lays them out on its grid) */
+.v2 .aln-cw-hx{flex:1;display:flex;align-items:baseline;gap:var(--s-2)}
 /* the run so far, and once it is done how it went: Clean shows it under the title */
 .v2 .aln-cw-sum{display:none}
 .v2 .aln-cw-list{display:flex;flex-direction:column;gap:var(--s-3)}
@@ -1935,6 +1955,7 @@
 :root[data-style="clean"] .v2 .aln-cw-tt{grid-row:1;grid-column:2}
 :root[data-style="clean"] .v2 .aln-cw-sum{display:block;grid-row:2;grid-column:2;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root[data-style="clean"] .v2 .aln-cw-tot{grid-row:1;grid-column:3}
+:root[data-style="clean"] .v2 .aln-cw-hx{display:contents}
 /* the agent at work has its presence from its card, so its badge holds still */
 :root[data-style="clean"] .v2 .aln-cw-c[data-s="work"] .aln-cw-av{animation:none}
 :root[data-style="clean"] .v2 .aln-cw-ic:has([href$="i-ok"]){color:color-mix(in srgb,var(--ok-mark) 85%,var(--ok))}
@@ -3164,8 +3185,10 @@
 .v2 .mpk-th{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--s-2) var(--s-3);padding:var(--s-4) 10px 10px;margin:6px 0 0;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 /* Thinking sits on the rows' columns: its icon centred in the tiles' column, its words on the names' column */
 .v2 .mpk-thh{display:grid;grid-template-columns:20px minmax(0,1fr);align-items:center;column-gap:10px;min-width:0;font-size:13px}
-.v2 .mpk-thh b{font-weight:500;display:contents}
-.v2 .mpk-thh b svg{justify-self:center;color:var(--muted)}
+.v2 .mpk-thh b{font-weight:500}
+.v2 .mpk-thh>svg{justify-self:center;color:var(--muted)}
+/* (the label and its detail: one under the other here; side by side on one baseline in Clean) */
+.v2 .mpk-tw{display:contents}
 .v2 .mpk-thd{grid-column:2;font-size:12px}
 .v2 .mpk-eb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--s-2) 0 10px;border-radius:var(--r-pill);background:var(--chip);font-size:13px;transition:background .16s}
 .v2 .mpk-eb[aria-expanded="true"]{background:var(--hover)}
@@ -3231,8 +3254,10 @@
 /* the foot strip: thinking on one line, 16px in, and its select a secondary pill 16px from the strip's sides, top and bottom
    (owner, 23 Nov: 8px above and below looked jammed into the corner) */
 :root[data-style="clean"] .v2 .mpk-th{flex-wrap:nowrap;gap:12px;margin:0;padding:var(--strip-y) 16px;background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
-:root[data-style="clean"] .v2 .mpk-thh{display:flex;flex-direction:row;align-items:center;gap:8px;min-width:0;white-space:nowrap;line-height:20px}
-:root[data-style="clean"] .v2 .mpk-thh b{display:flex;align-items:center;gap:6px;flex:none}
+/* the brain mark sits centred on the line; "Thinking" and what it may spend share one baseline (owner, 23 Nov) */
+:root[data-style="clean"] .v2 .mpk-thh{display:flex;flex-direction:row;align-items:center;gap:6px;min-width:0;white-space:nowrap;line-height:20px}
+:root[data-style="clean"] .v2 .mpk-tw{display:flex;align-items:baseline;gap:8px;min-width:0}
+:root[data-style="clean"] .v2 .mpk-thh b{flex:none}
 :root[data-style="clean"] .v2 .mpk-thd{grid-column:auto}
 :root[data-style="clean"] .v2 .mpk-thd{min-width:0;overflow:hidden;text-overflow:ellipsis}
 :root[data-style="clean"] .v2 .mpk-eb{flex:none;gap:6px;height:28px;padding:0 10px 0 12px;font-weight:500;color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth);transition:box-shadow var(--t-fast) var(--ease),transform var(--t-fast) var(--ease)}
@@ -3253,7 +3278,7 @@
 /* phones: the thinking line goes under its label rather than being cut, and the select turns into a text control aligned by
    its text, its chevron 16px from the edge like the meters above it */
 @media (max-width:480px){:root[data-style="clean"] .v2 :is(.mpk-hd,.mpk-o){grid-template-columns:20px minmax(0,1fr) repeat(3,36px);gap:8px}:root[data-style="clean"] .v2 .mpk-sg{column-gap:8px}:root[data-style="clean"] .v2 .mpk-hd{padding-inline:16px}:root[data-style="clean"] .v2 .mpk-o{padding-inline:8px}
-  :root[data-style="clean"] .v2 .mpk-th{padding:var(--strip-y) 16px}:root[data-style="clean"] .v2 .mpk-thh{flex-direction:column;align-items:flex-start;gap:0;white-space:normal}:root[data-style="clean"] .v2 .mpk-thh b{align-self:auto}
+  :root[data-style="clean"] .v2 .mpk-th{padding:var(--strip-y) 16px}:root[data-style="clean"] .v2 .mpk-thh{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:0 6px;white-space:normal}:root[data-style="clean"] .v2 .mpk-tw{display:contents}:root[data-style="clean"] .v2 .mpk-thd{grid-column:1 / -1}
   :root[data-style="clean"] .v2 .mpk-eb{margin-right:-10px;background:none;box-shadow:none}
   @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 :is(.mpk-eb:hover,.mpk-eb[aria-expanded="true"]){margin-right:-10px;background:none;box-shadow:none}}@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .mpk-eb:hover{background:var(--row)}}:root[data-style="clean"] .v2 .mpk-eb[aria-expanded="true"]{background:var(--row-on)}}
 @media (prefers-reduced-motion:reduce){:root[data-style="clean"] .v2 .mpk-m i.on{animation:none!important}:root[data-style="clean"] .v2 :is(.mpk-p,.mpk-o .ck svg,.mpk-note,.mpk-m i){transition:none!important}}
@@ -3473,7 +3498,8 @@
    written in after the old one, struck, a word at a time, to accept or undo. No room is kept for the words to come (owner,
    18 Nov): the text grows as they arrive (grow()), the card with it, and the toolbar glides along under the last line */
 .v2 .rwx{padding:var(--s-4);position:relative}
-.v2 .rwx-h{display:flex;align-items:center;gap:var(--s-2);font-size:13px;font-weight:500;margin-bottom:10px}
+/* (the kind, the title and the status are all words, so the row lines them up by their baseline) */
+.v2 .rwx-h{display:flex;align-items:baseline;gap:var(--s-2);font-size:13px;font-weight:500;margin-bottom:10px}
 .v2 .rwx-st{margin-left:auto;font-weight:400;font-size:12px}
 .v2 .rwx-doc{font-size:14px;line-height:24px;color:var(--fg2)}
 /* grow() wraps the text: it stays one flowing paragraph */
@@ -4030,7 +4056,10 @@
 .v2 .evr-vs-run .spin{width:10px;height:10px}
 /* while the cases run, the count of those done is in the button's words (Running 3/8), not a second count by the score */
 .v2 .evr-vs-run .cnt{font-variant-numeric:tabular-nums}
-.v2 .evr-vs-score{display:flex;align-items:center;gap:var(--s-2);padding:var(--s-1) 10px var(--s-3)}
+/* the score and the words beside it share one baseline; once the words become a tag, the row centres them instead, as it
+   does every chip */
+.v2 .evr-vs-score{display:flex;align-items:baseline;gap:var(--s-2);padding:var(--s-1) 10px var(--s-3)}
+.v2 .evr-vs-score:has(>.evr-vs-dl.tag){align-items:center}
 .v2 .evr-vs-big{font-size:14px;font-weight:500}
 /* no change on the last run is said quietly in muted words beside the score, not in a chip (owner, 22 Nov: "move 'same score
    as last run'"); a change keeps its green or red tag */
@@ -4262,7 +4291,8 @@
 .v2 .ttx-hi{width:28px;height:28px;display:grid;place-items:center;flex:none;border-radius:var(--r-sm);color:var(--fg2);background:var(--chip)}
 .v2 .ttx-hx{position:relative;flex:1;min-width:0;height:28px}
 .v2 .ttx-ti,.v2 .ttx-sb{position:absolute;inset:0;display:flex;align-items:center;transition:opacity .28s var(--ease),transform .45s var(--ease),filter .28s var(--ease)}
-.v2 .ttx-ti{gap:8px;white-space:nowrap}
+/* the title and its count share one baseline; the title's 20px line sits centred in the 28px head (4px above it) */
+.v2 .ttx-ti{gap:8px;white-space:nowrap;align-items:baseline;padding-top:4px}
 .v2 .ttx-ti b{flex:none;font-size:14px;font-weight:500;line-height:20px}
 .v2 .ttx-sum{min-width:0;font-size:12.5px;line-height:18px;overflow:hidden;text-overflow:ellipsis}
 .v2 .ttx-sb{gap:2px;opacity:0;transform:translateY(10px);filter:blur(3px);pointer-events:none}
@@ -4392,6 +4422,9 @@
   .v2 .ttx-t :is(th,td):nth-child(4){grid-area:2/2;min-width:0}
   .v2 .ttx-t :is(th,td):nth-child(6){grid-area:2/3}
   .v2 .ttx-t td:is(:nth-child(5),.up),.v2 .ttx-t .ag{font-size:12px}
+  /* (a task's name and its cost, the first line's words, share one baseline; the second line's status, agent and time stay
+     centred on theirs) */
+  .v2 .ttx-t tbody td:is(.nm,:nth-child(5)){align-self:baseline}
   .v2 .ttx-s:not(.on) .ar{display:none}
   .v2 .ttx-t tbody tr[data-id]>td:is(:first-child,:last-child){border-radius:0}
   .v2 .ttx-t tbody tr.sel>td{background:none}
@@ -4578,6 +4611,8 @@
 .v2 .dtp-h{display:flex;align-items:center;gap:8px;min-height:28px;font-size:13.5px}
 /* the kind is metadata, so it is muted, never coloured */
 .v2 .dtp-h .ft{flex:none;color:var(--muted)}
+/* (the kind and the title share one baseline; the copy button stays centred on their line) */
+.v2 .dtp-ht{flex:1;min-width:0;display:flex;align-items:baseline;gap:8px}
 .v2 .dtp-h b{flex:1;min-width:0;font-weight:500;line-height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* the copy button's glyph ends on the content's edge, its hover circle reaching out round it; done, the glyph is the vivid
    green tick, in place */
@@ -6815,10 +6850,11 @@
 .v2 .hsc-ring .tr{stroke:var(--line)}
 .v2 .hsc-ring .fl{stroke:var(--vm);stroke-linecap:round;transition:stroke-dashoffset .9s var(--ease),stroke var(--t) var(--ease)}
 .v2 .hsc-ring b{position:relative;font-size:14px;font-weight:500;letter-spacing:-.01em;line-height:1}
-.v2 .hsc-ht{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;line-height:1.4}
-.v2 .hsc-vd{font-size:14px;font-weight:500;color:var(--vf);transition:color var(--t) var(--ease)}
-.v2 .hsc-sub{font-size:12.5px;color:var(--muted);text-wrap:pretty}
-.v2 .hsc-dl{flex:none;align-self:flex-start;margin-top:4px;font-size:12.5px;color:var(--muted)}
+/* the verdict over its line, and the change at the end of the verdict's line, on the verdict's baseline (owner, 23 Nov) */
+.v2 .hsc-ht{flex:1;min-width:0;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;justify-items:start;line-height:1.4}
+.v2 .hsc-vd{grid-row:1;grid-column:1;font-size:14px;font-weight:500;color:var(--vf);transition:color var(--t) var(--ease)}
+.v2 .hsc-sub{grid-row:2;grid-column:1;font-size:12.5px;color:var(--muted);text-wrap:pretty}
+.v2 .hsc-dl{grid-row:1;grid-column:2;margin-left:var(--s-3);font-size:12.5px;color:var(--muted)}
 /* the factors: a row each, a hairline above every row. A row is its status dot and name (and Weakest), its figure and unit,
    and a chevron; its detail opens right under it */
 .v2 .hsc-l{display:flex;flex-direction:column}
@@ -7055,7 +7091,9 @@
 .v2 .atb .hb{display:flex;align-items:center;gap:var(--s-2)}
 .v2 .atb .hb i{width:54px;height:5px;border-radius:var(--r-tiny,3px);background:var(--line);overflow:hidden;display:block}
 .v2 .atb .hb i b{display:block;height:100%;border-radius:var(--r-tiny,3px)}
-.v2 .atb .hb span{font-size:12px;color:var(--fg2)}
+/* the 12px score sits in a box with the row's own 13px line, so it shares the other cells' baseline (the bar stays centred);
+   its own line is no taller than that box's, so the box keeps the row's 20px */
+.v2 .atb .hb .num{font-size:12px;line-height:1;color:var(--fg2)}
 /* the agent's note opens under its row, with no hairline between them: the spark centred under the logos, the words on the
    names' column, and its button ending where MRR ends, centred on the words */
 .v2 .atb tr.det td{padding:0;border-top:0}
@@ -9165,6 +9203,8 @@
 .v2 .cxm-hd{display:flex;align-items:center;gap:var(--s-2);min-height:22px;font-size:13px}
 .v2 .cxm-hd b{font-weight:500}
 .v2 .cxm-hd .muted{font-size:12px}
+/* (the name and its time share one baseline; the mark stays centred on their line) */
+.v2 .cxm-ht{display:flex;align-items:baseline;gap:var(--s-2)}
 .v2 .cxm-av{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--accent-bg);color:var(--accent-fg,var(--accent))}
 .v2 .cxm-pin,.v2 .cxm-ok{display:inline-flex;align-items:center;gap:4px;margin-left:auto;font-size:12px;color:var(--muted);white-space:nowrap}
 .v2 .cxm-ok+.cxm-pin{margin-left:var(--s-2)}
@@ -9339,6 +9379,8 @@
 .v2 .pva-si{display:grid;place-items:center;width:16px;height:16px;color:var(--fg2)}
 .v2 .pva-si .spin{width:11px;height:11px;color:var(--accent-mark)}
 .v2 .pva-o{width:9px;height:9px;border-radius:50%;corner-shape:round;box-shadow:inset 0 0 0 1.5px var(--line-strong)}
+/* (a step's name, count and time share one baseline on the row's own columns; its mark and chevron stay centred) */
+.v2 .pva-sw{grid-column:2 / -2;display:grid;grid-template-columns:subgrid;align-items:baseline}
 .v2 .pva-sn{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .v2 .pva-sc,.v2 .pva-sd{font-size:12.5px;color:var(--muted);white-space:nowrap}
 .v2 .pva-sd{text-align:right}
@@ -9442,6 +9484,8 @@
 @media (hover:hover) and (pointer:fine){.v2 button.pvb-row:hover{background:color-mix(in srgb,var(--fg) 3%,transparent)}}
 .v2 button.pvb-row:focus-visible{outline-offset:-2px}
 .v2 .pvb-nd{position:relative;z-index:3;flex:none;width:18px;height:18px;display:grid;place-items:center;border-radius:50%;corner-shape:round;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--rail);color:var(--muted)}
+/* (a step's name and its count share one baseline; its node and chevron stay centred on the row) */
+.v2 .pvb-tx{flex:1;min-width:0;display:flex;align-items:baseline;gap:var(--s-3)}
 .v2 .pvb-nm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .v2 .pvb-mt{flex:none;font-size:12.5px;color:var(--muted)}
 .v2 .pvb-cv{flex:none;color:var(--muted);margin-left:calc(var(--s-1) * -1);transition:transform var(--t) var(--ease)}

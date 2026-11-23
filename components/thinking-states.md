@@ -220,11 +220,13 @@ export function ThinkingStates({ variant = 'orbit', steps = ['Thinking'], curren
     <div data-dm="" data-v={variant} className={cx('dm-ths', className)}>
       <div className="dm-ths-row">
         <span className="dm-ths-mk" aria-hidden="true"><Mark variant={variant} /></span>
-        <span className="dm-ths-l" aria-hidden="true">
-          {stream ? <span className="dm-ths-tx dm-shim">{text.slice(0, typed)}</span> : <Swap className="dm-ths-tx dm-shim">{text}</Swap>}
-          {stream && <span className="dm-ths-car" />}
+        <span className="dm-ths-w">
+          <span className="dm-ths-l" aria-hidden="true">
+            {stream ? <span className="dm-ths-tx dm-shim">{text.slice(0, typed)}</span> : <Swap className="dm-ths-tx dm-shim">{text}</Swap>}
+            {stream && <span className="dm-ths-car" />}
+          </span>
+          {secs !== null && <span className="dm-ths-t dm-num" aria-hidden="true">{secs}s</span>}
         </span>
-        {secs !== null && <span className="dm-ths-t dm-num" aria-hidden="true">{secs}s</span>}
       </div>
       {/* a screen reader hears each new line once, never the letters as they type */}
       <span className="dm-ths-sr" role="status" aria-live="polite">{text}</span>

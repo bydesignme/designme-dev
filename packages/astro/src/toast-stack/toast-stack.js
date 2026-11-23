@@ -30,7 +30,7 @@ DM.def('toast-stack', (r, c) => {
   }
   function add(){
     const p = pool[n++ % pool.length];
-    const el = html(`<div class="tsk-c"><span class="g" data-tone="${p[5]}" style="color:${p[1]};background:${p[2]}">${I(p[0])}</span><div class="tx"><b>${p[3]}</b><span>${p[4]}</span></div><span class="t">now</span><button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div>`);
+    const el = html(`<div class="tsk-c"><span class="g" data-tone="${p[5]}" style="color:${p[1]};background:${p[2]}">${I(p[0])}</span><div class="tsk-w"><div class="tx"><b>${p[3]}</b><span>${p[4]}</span></div><span class="t">now</span></div><button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div>`);
     el.style.transform = 'translateY(24px) scale(.96)'; el.style.opacity = 0; el.style.filter = 'blur(6px)';
     el._new = true;
     stack.appendChild(el); items.push(el);
