@@ -222,6 +222,8 @@
 .atr-av.app{background:var(--dm-surface);color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent)}
 .atr-av .brand{width:13px;height:13px}
 /* the name, a chevron that folds a branch, and what it is on now in muted text after it (it shimmers while it runs) */
+/* the words and the cost share one baseline; the mark and the avatar stay centred on the row */
+.atr-w{flex:1;min-width:0;display:flex;align-items:baseline;gap:var(--dm-s-2)}
 .atr-tx{flex:1;min-width:0;display:flex;align-items:baseline;gap:var(--dm-s-2);white-space:nowrap}
 .atr-nm{flex:0 0 auto;max-width:100%;overflow:hidden;text-overflow:ellipsis;font-weight:500}
 .atr-tg{align-self:center;width:16px;height:16px;margin-left:-6px;flex:none;display:grid;place-items:center;border-radius:calc(4px * var(--dm-rk-s,var(--dm-rk)));color:var(--dm-muted);cursor:pointer;transition:background var(--dm-t-fast),color var(--dm-t-fast)}
@@ -255,7 +257,7 @@
 /* a new row: its space opens, its line draws to it (it stays hidden until then), and it rises in */
 .atr-n:is([data-ph="open"],[data-ph="wait"])>.atr-b{visibility:hidden}
 .atr-n[data-ph="open"]{overflow:hidden}
-.atr-n[data-ph="in"]>.atr-b>.atr-r>:is(.atr-av,.atr-tx,.atr-q),.atr-n[data-ph="in"]>.atr-b>.atr-ask{animation:atrin .56s var(--dm-atr-ez) backwards}
+.atr-n[data-ph="in"]>.atr-b>.atr-r>:is(.atr-av,.atr-w),.atr-n[data-ph="in"]>.atr-b>.atr-ask{animation:atrin .56s var(--dm-atr-ez) backwards}
 @keyframes atrin{from{opacity:0;transform:translateY(8px);filter:blur(3px)}}
 /* a line of text that changes rises into place; a running step's line is loader text, with the highlight sweep every loader
    has (.shim, owner, 19 Nov) */
@@ -404,6 +406,8 @@
 .atr-cm-key{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
 /* its marks sit in the column of the legend's marks and the title's edge, and its last column ends on the head total's edge */
 .atr-cm-key li{display:flex;align-items:center;gap:var(--dm-s-2);min-height:36px;padding:0;font-size:13px}
+/* (an agent's name, its share and its cost share one baseline; its mark and avatar stay centred on the row) */
+.atr-cm-kw{flex:1;min-width:0;display:flex;align-items:baseline;gap:var(--dm-s-2)}
 .atr-cm-key .t{flex:1;min-width:0;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .atr-cm-key .p{width:38px;text-align:right;font-size:12px;color:var(--dm-muted);font-variant-numeric:tabular-nums}
 .atr-cm-key .c{width:44px;text-align:right;font-size:12px;color:var(--dm-fg2);font-variant-numeric:tabular-nums}
@@ -572,7 +576,7 @@ export default function AgentTreeDemo() {
 import AgentTree from &#39;../components/designme/agent-tree/AgentTree.astro&#39;;
 ---
 &lt;AgentTree /&gt;
-&lt;AgentTree data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything AgentTree takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>root</code><span class="opt">required</span></td><td><code>AgentNode</code></td><td>The orchestrator, with its agents and their steps as children. A node added later draws its line in, then rises in</td></tr><tr><td><code>title</code><span class="opt">required</span></td><td><code>string</code></td><td>The run&#39;s goal, like &quot;Redesign the pricing page&quot;</td></tr><tr><td><code>status</code></td><td><code>string</code></td><td>The status in the header. Defaults to &quot;3 running&quot;, &quot;Needs you&quot;, &quot;1 failed&quot;, &quot;Wrapping up&quot; or &quot;Done&quot;</td></tr><tr><td><code>seconds</code></td><td><code>number</code></td><td>The run&#39;s time, shown as m:ss. Leave it out and it counts until the root is done</td></tr><tr><td><code>collapsed</code></td><td><code>string[]</code></td><td>Ids of the folded branches. Leave it out to let each branch fold from its chevron</td></tr><tr><td><code>defaultCollapsed</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onCollapsedChange</code></td><td><code>(ids: string[]) =&gt; void</code></td><td></td></tr><tr><td><code>selected</code></td><td><code>string | null</code></td><td>The picked node, whose cost split shows under the tree (the whole run&#39;s while it is null)</td></tr><tr><td><code>defaultSelected</code></td><td><code>string | null</code></td><td></td></tr><tr><td><code>onSelectedChange</code></td><td><code>(id: string) =&gt; void</code></td><td></td></tr><tr><td><code>formatCost</code></td><td><code>(dollars: number) =&gt; string</code></td><td>Writes a cost. Defaults to dollars and cents, like &quot;$0.12&quot;</td></tr><tr><td><code>variant</code></td><td><code>&#39;panel&#39; | &#39;bare&#39;</code></td><td>panel draws the surface; bare leaves it off, for a tree inside a chat or a side panel</td></tr><tr><td><code>slim</code></td><td><code>boolean</code></td><td>Hides the header, for a tree under a header that already names the run</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr><tr><td><code>style</code></td><td><code>CSSProperties</code></td><td>On the root element</td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>AgentTree.tsx<span class="l">React · 377 lines</span></summary><pre class="cp-pre" data-name="AgentTree.tsx"><code>&#39;use client&#39;;
+&lt;AgentTree data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything AgentTree takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>root</code><span class="opt">required</span></td><td><code>AgentNode</code></td><td>The orchestrator, with its agents and their steps as children. A node added later draws its line in, then rises in</td></tr><tr><td><code>title</code><span class="opt">required</span></td><td><code>string</code></td><td>The run&#39;s goal, like &quot;Redesign the pricing page&quot;</td></tr><tr><td><code>status</code></td><td><code>string</code></td><td>The status in the header. Defaults to &quot;3 running&quot;, &quot;Needs you&quot;, &quot;1 failed&quot;, &quot;Wrapping up&quot; or &quot;Done&quot;</td></tr><tr><td><code>seconds</code></td><td><code>number</code></td><td>The run&#39;s time, shown as m:ss. Leave it out and it counts until the root is done</td></tr><tr><td><code>collapsed</code></td><td><code>string[]</code></td><td>Ids of the folded branches. Leave it out to let each branch fold from its chevron</td></tr><tr><td><code>defaultCollapsed</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onCollapsedChange</code></td><td><code>(ids: string[]) =&gt; void</code></td><td></td></tr><tr><td><code>selected</code></td><td><code>string | null</code></td><td>The picked node, whose cost split shows under the tree (the whole run&#39;s while it is null)</td></tr><tr><td><code>defaultSelected</code></td><td><code>string | null</code></td><td></td></tr><tr><td><code>onSelectedChange</code></td><td><code>(id: string) =&gt; void</code></td><td></td></tr><tr><td><code>formatCost</code></td><td><code>(dollars: number) =&gt; string</code></td><td>Writes a cost. Defaults to dollars and cents, like &quot;$0.12&quot;</td></tr><tr><td><code>variant</code></td><td><code>&#39;panel&#39; | &#39;bare&#39;</code></td><td>panel draws the surface; bare leaves it off, for a tree inside a chat or a side panel</td></tr><tr><td><code>slim</code></td><td><code>boolean</code></td><td>Hides the header, for a tree under a header that already names the run</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr><tr><td><code>style</code></td><td><code>CSSProperties</code></td><td>On the root element</td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>AgentTree.tsx<span class="l">React · 379 lines</span></summary><pre class="cp-pre" data-name="AgentTree.tsx"><code>&#39;use client&#39;;
 import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent, type ReactNode } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable, useIsoLayoutEffect, useReducedMotion, useSeconds } from &#39;../lib/hooks&#39;;
@@ -914,10 +918,12 @@ export function AgentTree({ root, title, status, seconds, collapsed, defaultColl
           &lt;div className=&quot;dm-atr-r&quot;&gt;
             &lt;Mark key={m} m={m} /&gt;
             {who}
-            &lt;span className=&quot;dm-atr-tx&quot;&gt;&lt;span className=&quot;dm-atr-nm&quot;&gt;{n.name}&lt;/span&gt;{k &gt; 0 &amp;&amp; &lt;span className=&quot;dm-atr-tg&quot; aria-hidden=&quot;true&quot;&gt;&lt;Icon name=&quot;chev-d&quot; size=&quot;xs&quot; /&gt;&lt;/span&gt;}&lt;span className=&quot;dm-atr-sub&quot;&gt;{n.task}&lt;/span&gt;&lt;/span&gt;
-            &lt;span className=&quot;dm-atr-q dm-num&quot;&gt;
-              {t &gt;= 1 &amp;&amp; &lt;span className=&quot;dm-atr-sec&quot;&gt;&lt;span&gt;{Math.floor(t)}s&lt;/span&gt;&lt;span aria-hidden=&quot;true&quot;&gt; ·&lt;/span&gt;&lt;/span&gt;}
-              {k ? &lt;Tip label={`Its own ${money(n.cost ?? 0)}, ${kinds(k, lv)} ${money(v - (n.cost ?? 0))}`}&gt;{cost}&lt;/Tip&gt; : cost}
+            &lt;span className=&quot;dm-atr-w&quot;&gt;
+              &lt;span className=&quot;dm-atr-tx&quot;&gt;&lt;span className=&quot;dm-atr-nm&quot;&gt;{n.name}&lt;/span&gt;{k &gt; 0 &amp;&amp; &lt;span className=&quot;dm-atr-tg&quot; aria-hidden=&quot;true&quot;&gt;&lt;Icon name=&quot;chev-d&quot; size=&quot;xs&quot; /&gt;&lt;/span&gt;}&lt;span className=&quot;dm-atr-sub&quot;&gt;{n.task}&lt;/span&gt;&lt;/span&gt;
+              &lt;span className=&quot;dm-atr-q dm-num&quot;&gt;
+                {t &gt;= 1 &amp;&amp; &lt;span className=&quot;dm-atr-sec&quot;&gt;&lt;span&gt;{Math.floor(t)}s&lt;/span&gt;&lt;span aria-hidden=&quot;true&quot;&gt; ·&lt;/span&gt;&lt;/span&gt;}
+                {k ? &lt;Tip label={`Its own ${money(n.cost ?? 0)}, ${kinds(k, lv)} ${money(v - (n.cost ?? 0))}`}&gt;{cost}&lt;/Tip&gt; : cost}
+              &lt;/span&gt;
             &lt;/span&gt;
           &lt;/div&gt;
           {ask}
@@ -948,7 +954,7 @@ export function AgentTree({ root, title, status, seconds, collapsed, defaultColl
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>agent-tree.css<span class="l">React · 159 lines</span></summary><pre class="cp-pre" data-name="agent-tree.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>agent-tree.css<span class="l">React · 161 lines</span></summary><pre class="cp-pre" data-name="agent-tree.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Agent tree ---------- */
 /* an orchestrator and the agents it hands work to, as a tree that grows while the run plays: a header with the run&#39;s title,
    its status, the time and the total cost, then the tree. A parent&#39;s line runs down from its mark and each child branches
@@ -1009,6 +1015,8 @@ export function AgentTree({ root, title, status, seconds, collapsed, defaultColl
 .dm-atr-av.dm-app{background:var(--dm-surface);color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent)}
 .dm-atr-av .dm-brand{width:13px;height:13px}
 /* the name, a chevron that folds a branch, and what it is on now in muted text after it (it shimmers while it runs) */
+/* the words and the cost share one baseline; the mark and the avatar stay centred on the row */
+.dm-atr-w{flex:1;min-width:0;display:flex;align-items:baseline;gap:var(--dm-s-2)}
 .dm-atr-tx{flex:1;min-width:0;display:flex;align-items:baseline;gap:var(--dm-s-2);white-space:nowrap}
 .dm-atr-nm{flex:0 0 auto;max-width:100%;overflow:hidden;text-overflow:ellipsis;font-weight:500}
 .dm-atr-tg{align-self:center;width:16px;height:16px;margin-left:-6px;flex:none;display:grid;place-items:center;border-radius:calc(4px * var(--dm-rk-s,var(--dm-rk)));color:var(--dm-muted);cursor:pointer;transition:background var(--dm-t-fast),color var(--dm-t-fast)}
@@ -1042,7 +1050,7 @@ export function AgentTree({ root, title, status, seconds, collapsed, defaultColl
 /* a new row: its space opens, its line draws to it (it stays hidden until then), and it rises in */
 .dm-atr-n:is([data-ph=&quot;open&quot;],[data-ph=&quot;wait&quot;])&gt;.dm-atr-b{visibility:hidden}
 .dm-atr-n[data-ph=&quot;open&quot;]{overflow:hidden}
-.dm-atr-n[data-ph=&quot;in&quot;]&gt;.dm-atr-b&gt;.dm-atr-r&gt;:is(.dm-atr-av,.dm-atr-tx,.dm-atr-q),.dm-atr-n[data-ph=&quot;in&quot;]&gt;.dm-atr-b&gt;.dm-atr-ask{animation:dm-atrin .56s var(--dm-atr-ez) backwards}
+.dm-atr-n[data-ph=&quot;in&quot;]&gt;.dm-atr-b&gt;.dm-atr-r&gt;:is(.dm-atr-av,.dm-atr-w),.dm-atr-n[data-ph=&quot;in&quot;]&gt;.dm-atr-b&gt;.dm-atr-ask{animation:dm-atrin .56s var(--dm-atr-ez) backwards}
 @keyframes dm-atrin{from{opacity:0;transform:translateY(8px);filter:blur(3px)}}
 /* a line of text that changes rises into place; a running step&#39;s line is loader text, with the highlight sweep every loader
    has (.shim, owner, 19 Nov) */
@@ -1144,7 +1152,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>agent-tree.css<span class="l">HTML · 158 lines</span></summary><pre class="cp-pre" data-name="agent-tree.css"><code>/* ---------- Agent tree ---------- */
+</code></pre></details><details class="cp-file"><summary>agent-tree.css<span class="l">HTML · 160 lines</span></summary><pre class="cp-pre" data-name="agent-tree.css"><code>/* ---------- Agent tree ---------- */
 /* an orchestrator and the agents it hands work to, as a tree that grows while the run plays: a header with the run&#39;s title,
    its status, the time and the total cost, then the tree. A parent&#39;s line runs down from its mark and each child branches
    off it; Soft turns each corner with a curve, Blueprint cuts it at 45 degrees. A line is one tint (the accent mixed into
@@ -1204,6 +1212,8 @@ const { class: className, ...rest } = Astro.props;
 .atr-av.app{background:var(--dm-surface);color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent)}
 .atr-av .brand{width:13px;height:13px}
 /* the name, a chevron that folds a branch, and what it is on now in muted text after it (it shimmers while it runs) */
+/* the words and the cost share one baseline; the mark and the avatar stay centred on the row */
+.atr-w{flex:1;min-width:0;display:flex;align-items:baseline;gap:var(--dm-s-2)}
 .atr-tx{flex:1;min-width:0;display:flex;align-items:baseline;gap:var(--dm-s-2);white-space:nowrap}
 .atr-nm{flex:0 0 auto;max-width:100%;overflow:hidden;text-overflow:ellipsis;font-weight:500}
 .atr-tg{align-self:center;width:16px;height:16px;margin-left:-6px;flex:none;display:grid;place-items:center;border-radius:calc(4px * var(--dm-rk-s,var(--dm-rk)));color:var(--dm-muted);cursor:pointer;transition:background var(--dm-t-fast),color var(--dm-t-fast)}
@@ -1237,7 +1247,7 @@ const { class: className, ...rest } = Astro.props;
 /* a new row: its space opens, its line draws to it (it stays hidden until then), and it rises in */
 .atr-n:is([data-ph=&quot;open&quot;],[data-ph=&quot;wait&quot;])&gt;.atr-b{visibility:hidden}
 .atr-n[data-ph=&quot;open&quot;]{overflow:hidden}
-.atr-n[data-ph=&quot;in&quot;]&gt;.atr-b&gt;.atr-r&gt;:is(.atr-av,.atr-tx,.atr-q),.atr-n[data-ph=&quot;in&quot;]&gt;.atr-b&gt;.atr-ask{animation:atrin .56s var(--dm-atr-ez) backwards}
+.atr-n[data-ph=&quot;in&quot;]&gt;.atr-b&gt;.atr-r&gt;:is(.atr-av,.atr-w),.atr-n[data-ph=&quot;in&quot;]&gt;.atr-b&gt;.atr-ask{animation:atrin .56s var(--dm-atr-ez) backwards}
 @keyframes atrin{from{opacity:0;transform:translateY(8px);filter:blur(3px)}}
 /* a line of text that changes rises into place; a running step&#39;s line is loader text, with the highlight sweep every loader
    has (.shim, owner, 19 Nov) */
@@ -1494,7 +1504,7 @@ DM.def(&#39;agent-tree&#39;, (r, c) =&gt; {
   const build = n =&gt; {
     const who = n.app ? `&lt;span class=&quot;atr-av app&quot; aria-hidden=&quot;true&quot;&gt;${BRAND[n.app]}&lt;/span&gt;` : `&lt;span class=&quot;atr-av${n.av || !n.lv ? &#39;&#39; : &#39; app&#39;}&quot; aria-hidden=&quot;true&quot;${n.av ? ` style=&quot;--dm-a:var(--dm-av-${n.av});--dm-ai:var(--dm-av-${n.av}-ink)&quot;` : &#39;&#39;}&gt;${I(n.ic, &#39;xs&#39;)}&lt;/span&gt;`;
     const m = n.lv ? n.s : &#39;src&#39;;
-    n.el = html(`&lt;div class=&quot;atr-n&quot; role=&quot;treeitem&quot; aria-level=&quot;${n.lv + 1}&quot; aria-selected=&quot;false&quot; tabindex=&quot;${n.lv ? -1 : 0}&quot; data-id=&quot;${n.id}&quot; data-s=&quot;${n.s}&quot; style=&quot;--dm-lv:${n.lv}&quot;&gt;&lt;div class=&quot;atr-b&quot;&gt;&lt;div class=&quot;atr-r&quot;&gt;&lt;span class=&quot;atr-g&quot; data-m=&quot;${m}&quot; aria-hidden=&quot;true&quot;&gt;${atrMark(m)}&lt;/span&gt;${who}&lt;span class=&quot;atr-tx&quot;&gt;&lt;span class=&quot;atr-nm&quot;&gt;&lt;/span&gt;${n.kids.length ? `&lt;span class=&quot;atr-tg&quot; aria-hidden=&quot;true&quot;&gt;${I(&#39;chev-d&#39;, &#39;xs&#39;)}&lt;/span&gt;` : &#39;&#39;}&lt;span class=&quot;atr-sub&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;atr-q num&quot;&gt;&lt;span class=&quot;atr-c&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;`);
+    n.el = html(`&lt;div class=&quot;atr-n&quot; role=&quot;treeitem&quot; aria-level=&quot;${n.lv + 1}&quot; aria-selected=&quot;false&quot; tabindex=&quot;${n.lv ? -1 : 0}&quot; data-id=&quot;${n.id}&quot; data-s=&quot;${n.s}&quot; style=&quot;--dm-lv:${n.lv}&quot;&gt;&lt;div class=&quot;atr-b&quot;&gt;&lt;div class=&quot;atr-r&quot;&gt;&lt;span class=&quot;atr-g&quot; data-m=&quot;${m}&quot; aria-hidden=&quot;true&quot;&gt;${atrMark(m)}&lt;/span&gt;${who}&lt;span class=&quot;atr-w&quot;&gt;&lt;span class=&quot;atr-tx&quot;&gt;&lt;span class=&quot;atr-nm&quot;&gt;&lt;/span&gt;${n.kids.length ? `&lt;span class=&quot;atr-tg&quot; aria-hidden=&quot;true&quot;&gt;${I(&#39;chev-d&#39;, &#39;xs&#39;)}&lt;/span&gt;` : &#39;&#39;}&lt;span class=&quot;atr-sub&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;atr-q num&quot;&gt;&lt;span class=&quot;atr-c&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;`);
     $(&#39;.atr-nm&#39;, n.el).textContent = n.n; $(&#39;.atr-sub&#39;, n.el).textContent = n.t;
     n.tg = $(&#39;.atr-tg&#39;, n.el); if (n.tg) n.tg.hidden = true;
     if (n.kids.length){ n.fold = html(&#39;&lt;div class=&quot;fold atr-kids&quot;&gt;&lt;div role=&quot;group&quot;&gt;&lt;/div&gt;&lt;/div&gt;&#39;); n.kids.forEach(k =&gt; n.fold.firstElementChild.appendChild(build(k))); n.el.appendChild(n.fold); }
@@ -2179,7 +2189,7 @@ DM.def('agent-tree', (r, c) => {
   const build = n => {
     const who = n.app ? `<span class="atr-av app" aria-hidden="true">${BRAND[n.app]}</span>` : `<span class="atr-av${n.av || !n.lv ? '' : ' app'}" aria-hidden="true"${n.av ? ` style="--dm-a:var(--dm-av-${n.av});--dm-ai:var(--dm-av-${n.av}-ink)"` : ''}>${I(n.ic, 'xs')}</span>`;
     const m = n.lv ? n.s : 'src';
-    n.el = html(`<div class="atr-n" role="treeitem" aria-level="${n.lv + 1}" aria-selected="false" tabindex="${n.lv ? -1 : 0}" data-id="${n.id}" data-s="${n.s}" style="--dm-lv:${n.lv}"><div class="atr-b"><div class="atr-r"><span class="atr-g" data-m="${m}" aria-hidden="true">${atrMark(m)}</span>${who}<span class="atr-tx"><span class="atr-nm"></span>${n.kids.length ? `<span class="atr-tg" aria-hidden="true">${I('chev-d', 'xs')}</span>` : ''}<span class="atr-sub"></span></span><span class="atr-q num"><span class="atr-c"></span></span></div></div></div>`);
+    n.el = html(`<div class="atr-n" role="treeitem" aria-level="${n.lv + 1}" aria-selected="false" tabindex="${n.lv ? -1 : 0}" data-id="${n.id}" data-s="${n.s}" style="--dm-lv:${n.lv}"><div class="atr-b"><div class="atr-r"><span class="atr-g" data-m="${m}" aria-hidden="true">${atrMark(m)}</span>${who}<span class="atr-w"><span class="atr-tx"><span class="atr-nm"></span>${n.kids.length ? `<span class="atr-tg" aria-hidden="true">${I('chev-d', 'xs')}</span>` : ''}<span class="atr-sub"></span></span><span class="atr-q num"><span class="atr-c"></span></span></span></div></div></div>`);
     $('.atr-nm', n.el).textContent = n.n; $('.atr-sub', n.el).textContent = n.t;
     n.tg = $('.atr-tg', n.el); if (n.tg) n.tg.hidden = true;
     if (n.kids.length){ n.fold = html('<div class="fold atr-kids"><div role="group"></div></div>'); n.kids.forEach(k => n.fold.firstElementChild.appendChild(build(k))); n.el.appendChild(n.fold); }
@@ -2426,7 +2436,7 @@ DM.def('agent-tree', (r, c) => {
     let M, L, head;
     const here = n => !n.late, under = n => n.kids.filter(here);
     function build(n){
-      n.el = html(`<div class="atr-n" role="treeitem" aria-level="${n.lv + 1}" aria-selected="false" tabindex="${n.lv ? -1 : 0}" data-id="${n.id}" data-s="${n.s}" style="--dm-lv:${n.lv};--dm-k:var(--dm-k${n.k})"><div class="atr-b"><div class="atr-r">${atrG(atrM(n))}${atrWho(n)}<span class="atr-tx"><span class="atr-nm"></span>${n.kids.length ? `<span class="atr-tg" aria-hidden="true">${I('chev-d', 'xs')}</span>` : ''}<span class="atr-sub"></span></span><span class="atr-q num"><span class="atr-c"></span><i class="atr-ct-bar" aria-hidden="true"><span></span></i></span></div></div></div>`);
+      n.el = html(`<div class="atr-n" role="treeitem" aria-level="${n.lv + 1}" aria-selected="false" tabindex="${n.lv ? -1 : 0}" data-id="${n.id}" data-s="${n.s}" style="--dm-lv:${n.lv};--dm-k:var(--dm-k${n.k})"><div class="atr-b"><div class="atr-r">${atrG(atrM(n))}${atrWho(n)}<span class="atr-w"><span class="atr-tx"><span class="atr-nm"></span>${n.kids.length ? `<span class="atr-tg" aria-hidden="true">${I('chev-d', 'xs')}</span>` : ''}<span class="atr-sub"></span></span><span class="atr-q num"><span class="atr-c"></span><i class="atr-ct-bar" aria-hidden="true"><span></span></i></span></span></div></div></div>`);
       $('.atr-nm', n.el).textContent = n.n; $('.atr-sub', n.el).textContent = n.t;
       if (n.kids.length){ n.el.setAttribute('aria-expanded', 'true'); n.fold = html('<div class="fold atr-kids"><div role="group"></div></div>'); n.kids.forEach(k => n.fold.firstElementChild.appendChild(build(k))); n.el.appendChild(n.fold); }
       if (n.late) n.el.hidden = true;
@@ -2567,7 +2577,7 @@ DM.def('agent-tree', (r, c) => {
     c.on(map, 'keydown', e => { if (e.key === 'Escape' && top.parent){ e.preventDefault(); go(top.parent); } });
     // the agents under the map: each one's mark and avatar, as in the tree, its share and its cost
     function legend(){
-      key.innerHTML = M.T.kids.map(k => `<li>${atrG(k.s)}${atrWho(k)}<span class="t">${k.n}</span><span class="p num"></span><span class="c num"></span></li>`).join('');
+      key.innerHTML = M.T.kids.map(k => `<li>${atrG(k.s)}${atrWho(k)}<span class="atr-cm-kw"><span class="t">${k.n}</span><span class="p num"></span><span class="c num"></span></span></li>`).join('');
       M.T.kids.forEach((k, i) => { k.li = key.children[i]; });
     }
     let k10 = 0;
@@ -2581,7 +2591,7 @@ DM.def('agent-tree', (r, c) => {
     }
     const mark = (g, m) => { if (g.dataset.m !== m){ g.dataset.m = m; g.innerHTML = atrMark(m); if (!REDUCE && (m === 'done' || m === 'fail')){ g.removeAttribute('data-drw'); void g.offsetWidth; g.setAttribute('data-drw', ''); } } };
     // the way on for an agent, in its row: Fix for its failed step, Approve for the post
-    function way(k, label, tip, run){ const b = html(`<button class="pill sm primary atr-x-fix" type="button">${label}</button>`); b.dataset.tip = tip; $('.c', k.li).after(b); b.onclick = () => { b.remove(); run(); }; }
+    function way(k, label, tip, run){ const b = html(`<button class="pill sm primary atr-x-fix" type="button">${label}</button>`); b.dataset.tip = tip; $('.atr-cm-kw', k.li).after(b); b.onclick = () => { b.remove(); run(); }; }
     M = atrModel(c, (ev, n, k) => {
       if (ev === 'state' || ev === 'join'){ n.b.dataset.s = n.s; mark($('.atr-g', n.b), atrM(n)); if (n.lv === 1) mark($('.atr-g', n.li), n.s); }
       if (ev === 'ask' && k === 'fix'){ way(n.parent, 'Fix', 'Use accent.500', () => M.fix && M.fix()); shown = `<b>${n.n}</b> failed: accent.600 is not in the library`; tell(null); }

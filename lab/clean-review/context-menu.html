@@ -177,6 +177,8 @@
 .cxm-hd{display:flex;align-items:center;gap:var(--dm-s-2);min-height:22px;font-size:13px}
 .cxm-hd b{font-weight:500}
 .cxm-hd .muted{font-size:12px}
+/* (the name and its time share one baseline; the mark stays centred on their line) */
+.cxm-ht{display:flex;align-items:baseline;gap:var(--dm-s-2)}
 .cxm-av{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}
 .cxm-pin,.cxm-ok{display:inline-flex;align-items:center;gap:4px;margin-left:auto;font-size:12px;color:var(--dm-muted);white-space:nowrap}
 .cxm-ok+.cxm-pin{margin-left:var(--dm-s-2)}
@@ -226,7 +228,7 @@
   <div class="stage-in">
     <div class="cxm">
       <div class="cxm-msg panel" tabindex="0" aria-haspopup="menu" aria-label="Agent reply. Press Shift+F10 for actions">
-        <div class="cxm-hd"><span class="cxm-av"><svg class="i s"><use href="#i-spark"/></svg></span><b>Agent</b><span class="muted num">2:14 pm</span><span class="cxm-ok" hidden></span><span class="cxm-pin" hidden><svg class="i s"><use href="#i-pin"/></svg>Pinned</span></div>
+        <div class="cxm-hd"><span class="cxm-av"><svg class="i s"><use href="#i-spark"/></svg></span><span class="cxm-ht"><b>Agent</b><span class="muted num">2:14 pm</span></span><span class="cxm-ok" hidden></span><span class="cxm-pin" hidden><svg class="i s"><use href="#i-pin"/></svg>Pinned</span></div>
         <p class="cxm-tx">Most of the checkout drop-off is on mobile. 61% of the people who leave do it at the address step, where the keyboard covers the Continue button. Moving Continue above the keyboard should win back about 300 orders a week.</p>
         <div class="cxm-out" aria-live="polite"></div>
       </div>
@@ -363,7 +365,7 @@ export default function ContextMenuDemo() {
       {deleted
         ? &lt;div className=&quot;dm-cxm&quot; data-dm=&quot;&quot;&gt;&lt;div className=&quot;dm-cxm-gone dm-enter&quot;&gt;Reply deleted&lt;button type=&quot;button&quot; className=&quot;dm-pill dm-ghost dm-sm&quot; onClick={() =&gt; { setDeleted(false); setNote(&#39;Reply restored&#39;); }}&gt;Undo&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
         : &lt;ContextMenu items={items} onSelect={select} label=&quot;Reply actions&quot; targetLabel=&quot;Agent reply. Press Shift+F10 for actions&quot;&gt;
-            &lt;div className=&quot;dm-cxm-hd&quot;&gt;&lt;span className=&quot;dm-cxm-av&quot;&gt;&lt;Icon name=&quot;spark&quot; /&gt;&lt;/span&gt;&lt;b&gt;Agent&lt;/b&gt;&lt;span className=&quot;dm-muted dm-num&quot;&gt;2:14 pm&lt;/span&gt;{ok &amp;&amp; &lt;span className={ok.out ? &#39;dm-cxm-ok dm-out&#39; : &#39;dm-cxm-ok&#39;}&gt;&lt;Icon name=&quot;check&quot; size=&quot;xs&quot; /&gt;&lt;span&gt;{ok.text}&lt;/span&gt;&lt;/span&gt;}{pinned &amp;&amp; &lt;span className=&quot;dm-cxm-pin&quot;&gt;&lt;Icon name=&quot;pin&quot; /&gt;Pinned&lt;/span&gt;}&lt;/div&gt;
+            &lt;div className=&quot;dm-cxm-hd&quot;&gt;&lt;span className=&quot;dm-cxm-av&quot;&gt;&lt;Icon name=&quot;spark&quot; /&gt;&lt;/span&gt;&lt;span className=&quot;dm-cxm-ht&quot;&gt;&lt;b&gt;Agent&lt;/b&gt;&lt;span className=&quot;dm-muted dm-num&quot;&gt;2:14 pm&lt;/span&gt;&lt;/span&gt;{ok &amp;&amp; &lt;span className={ok.out ? &#39;dm-cxm-ok dm-out&#39; : &#39;dm-cxm-ok&#39;}&gt;&lt;Icon name=&quot;check&quot; size=&quot;xs&quot; /&gt;&lt;span&gt;{ok.text}&lt;/span&gt;&lt;/span&gt;}{pinned &amp;&amp; &lt;span className=&quot;dm-cxm-pin&quot;&gt;&lt;Icon name=&quot;pin&quot; /&gt;Pinned&lt;/span&gt;}&lt;/div&gt;
             &lt;p className=&quot;dm-cxm-tx&quot;&gt;{TEXT}&lt;/p&gt;
             &lt;div className=&quot;dm-cxm-out&quot; aria-live=&quot;polite&quot;&gt;{out &amp;&amp; &lt;div className=&quot;dm-cxm-res dm-enter&quot;&gt;&lt;span className=&quot;dm-k&quot;&gt;&lt;Icon name={ASK[out.k][1]} size=&quot;xs&quot; /&gt;&lt;span className={out.busy ? &#39;dm-shim&#39; : undefined}&gt;{out.busy ? `Writing a ${ASK[out.k][0].toLowerCase()}` : ASK[out.k][0]}&lt;/span&gt;&lt;/span&gt;&lt;span&gt;{out.text}&lt;/span&gt;&lt;/div&gt;}&lt;/div&gt;
           &lt;/ContextMenu&gt;}
@@ -527,7 +529,7 @@ export function ContextMenu({ items, onSelect, label = &#39;Actions&#39;, target
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>context-menu.css<span class="l">React · 47 lines</span></summary><pre class="cp-pre" data-name="context-menu.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>context-menu.css<span class="l">React · 49 lines</span></summary><pre class="cp-pre" data-name="context-menu.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Context menu ---------- */
 /* an agent reply with a menu of its own: right-click, long-press, Shift+F10 or the Menu key opens it where you are, over the
    reply, and the reply never moves. The reply&#39;s content sits 16px in from every edge in every style. While its menu is open
@@ -543,6 +545,8 @@ export function ContextMenu({ items, onSelect, label = &#39;Actions&#39;, target
 .dm-cxm-hd{display:flex;align-items:center;gap:var(--dm-s-2);min-height:22px;font-size:13px}
 .dm-cxm-hd b{font-weight:500}
 .dm-cxm-hd .dm-muted{font-size:12px}
+/* (the name and its time share one baseline; the mark stays centred on their line) */
+.dm-cxm-ht{display:flex;align-items:baseline;gap:var(--dm-s-2)}
 .dm-cxm-av{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}
 .dm-cxm-pin,.dm-cxm-ok{display:inline-flex;align-items:center;gap:4px;margin-left:auto;font-size:12px;color:var(--dm-muted);white-space:nowrap}
 .dm-cxm-ok+.dm-cxm-pin{margin-left:var(--dm-s-2)}
@@ -592,7 +596,7 @@ const { class: className, ...rest } = Astro.props;
   &lt;div class=&quot;stage-in&quot;&gt;&lt;Fragment is:raw&gt;
 &lt;div class=&quot;cxm&quot;&gt;
   &lt;div class=&quot;cxm-msg panel&quot; tabindex=&quot;0&quot; aria-haspopup=&quot;menu&quot; aria-label=&quot;Agent reply. Press Shift+F10 for actions&quot;&gt;
-    &lt;div class=&quot;cxm-hd&quot;&gt;&lt;span class=&quot;cxm-av&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-spark&quot;/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;b&gt;Agent&lt;/b&gt;&lt;span class=&quot;muted num&quot;&gt;2:14 pm&lt;/span&gt;&lt;span class=&quot;cxm-ok&quot; hidden&gt;&lt;/span&gt;&lt;span class=&quot;cxm-pin&quot; hidden&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-pin&quot;/&gt;&lt;/svg&gt;Pinned&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;cxm-hd&quot;&gt;&lt;span class=&quot;cxm-av&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-spark&quot;/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;span class=&quot;cxm-ht&quot;&gt;&lt;b&gt;Agent&lt;/b&gt;&lt;span class=&quot;muted num&quot;&gt;2:14 pm&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;cxm-ok&quot; hidden&gt;&lt;/span&gt;&lt;span class=&quot;cxm-pin&quot; hidden&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-pin&quot;/&gt;&lt;/svg&gt;Pinned&lt;/span&gt;&lt;/div&gt;
     &lt;p class=&quot;cxm-tx&quot;&gt;Most of the checkout drop-off is on mobile. 61% of the people who leave do it at the address step, where the keyboard covers the Continue button. Moving Continue above the keyboard should win back about 300 orders a week.&lt;/p&gt;
     &lt;div class=&quot;cxm-out&quot; aria-live=&quot;polite&quot;&gt;&lt;/div&gt;
   &lt;/div&gt;
@@ -622,7 +626,7 @@ const { class: className, ...rest } = Astro.props;
   &lt;div class=&quot;stage-in&quot;&gt;
     &lt;div class=&quot;cxm&quot;&gt;
       &lt;div class=&quot;cxm-msg panel&quot; tabindex=&quot;0&quot; aria-haspopup=&quot;menu&quot; aria-label=&quot;Agent reply. Press Shift+F10 for actions&quot;&gt;
-        &lt;div class=&quot;cxm-hd&quot;&gt;&lt;span class=&quot;cxm-av&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-spark&quot;/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;b&gt;Agent&lt;/b&gt;&lt;span class=&quot;muted num&quot;&gt;2:14 pm&lt;/span&gt;&lt;span class=&quot;cxm-ok&quot; hidden&gt;&lt;/span&gt;&lt;span class=&quot;cxm-pin&quot; hidden&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-pin&quot;/&gt;&lt;/svg&gt;Pinned&lt;/span&gt;&lt;/div&gt;
+        &lt;div class=&quot;cxm-hd&quot;&gt;&lt;span class=&quot;cxm-av&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-spark&quot;/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;span class=&quot;cxm-ht&quot;&gt;&lt;b&gt;Agent&lt;/b&gt;&lt;span class=&quot;muted num&quot;&gt;2:14 pm&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;cxm-ok&quot; hidden&gt;&lt;/span&gt;&lt;span class=&quot;cxm-pin&quot; hidden&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-pin&quot;/&gt;&lt;/svg&gt;Pinned&lt;/span&gt;&lt;/div&gt;
         &lt;p class=&quot;cxm-tx&quot;&gt;Most of the checkout drop-off is on mobile. 61% of the people who leave do it at the address step, where the keyboard covers the Continue button. Moving Continue above the keyboard should win back about 300 orders a week.&lt;/p&gt;
         &lt;div class=&quot;cxm-out&quot; aria-live=&quot;polite&quot;&gt;&lt;/div&gt;
       &lt;/div&gt;
@@ -645,7 +649,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>context-menu.css<span class="l">HTML · 46 lines</span></summary><pre class="cp-pre" data-name="context-menu.css"><code>/* ---------- Context menu ---------- */
+</code></pre></details><details class="cp-file"><summary>context-menu.css<span class="l">HTML · 48 lines</span></summary><pre class="cp-pre" data-name="context-menu.css"><code>/* ---------- Context menu ---------- */
 /* an agent reply with a menu of its own: right-click, long-press, Shift+F10 or the Menu key opens it where you are, over the
    reply, and the reply never moves. The reply&#39;s content sits 16px in from every edge in every style. While its menu is open
    the reply takes a quiet, deeper fill (no ring or shadow round it). What the agent writes when asked (a summary, an
@@ -660,6 +664,8 @@ const { class: className, ...rest } = Astro.props;
 .cxm-hd{display:flex;align-items:center;gap:var(--dm-s-2);min-height:22px;font-size:13px}
 .cxm-hd b{font-weight:500}
 .cxm-hd .muted{font-size:12px}
+/* (the name and its time share one baseline; the mark stays centred on their line) */
+.cxm-ht{display:flex;align-items:baseline;gap:var(--dm-s-2)}
 .cxm-av{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}
 .cxm-pin,.cxm-ok{display:inline-flex;align-items:center;gap:4px;margin-left:auto;font-size:12px;color:var(--dm-muted);white-space:nowrap}
 .cxm-ok+.cxm-pin{margin-left:var(--dm-s-2)}

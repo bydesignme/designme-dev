@@ -183,10 +183,11 @@
 .hsc-ring .tr{stroke:var(--dm-line)}
 .hsc-ring .fl{stroke:var(--dm-vm);stroke-linecap:round;transition:stroke-dashoffset .9s var(--dm-ease),stroke var(--dm-t) var(--dm-ease)}
 .hsc-ring b{position:relative;font-size:14px;font-weight:500;letter-spacing:-.01em;line-height:1}
-.hsc-ht{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;line-height:1.4}
-.hsc-vd{font-size:14px;font-weight:500;color:var(--dm-vf);transition:color var(--dm-t) var(--dm-ease)}
-.hsc-sub{font-size:12.5px;color:var(--dm-muted);text-wrap:pretty}
-.hsc-dl{flex:none;align-self:flex-start;margin-top:4px;font-size:12.5px;color:var(--dm-muted)}
+/* the verdict over its line, and the change at the end of the verdict's line, on the verdict's baseline (owner, 23 Nov) */
+.hsc-ht{flex:1;min-width:0;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;justify-items:start;line-height:1.4}
+.hsc-vd{grid-row:1;grid-column:1;font-size:14px;font-weight:500;color:var(--dm-vf);transition:color var(--dm-t) var(--dm-ease)}
+.hsc-sub{grid-row:2;grid-column:1;font-size:12.5px;color:var(--dm-muted);text-wrap:pretty}
+.hsc-dl{grid-row:1;grid-column:2;margin-left:var(--dm-s-3);font-size:12.5px;color:var(--dm-muted)}
 /* the factors: a row each, a hairline above every row. A row is its status dot and name (and Weakest), its figure and unit,
    and a chevron; its detail opens right under it */
 .hsc-l{display:flex;flex-direction:column}
@@ -290,8 +291,7 @@
         <div class="hsc-ac"><b></b><span></span></div>
         <div class="hsc-h">
           <div class="hsc-ring" role="img" aria-label="Health score"><svg viewBox="0 0 44 44" aria-hidden="true"><circle class="tr" cx="22" cy="22" r="18"/><circle class="fl" cx="22" cy="22" r="18" stroke-dasharray="113.1" stroke-dashoffset="113.1"/></svg><b class="num" aria-hidden="true">0</b></div>
-          <div class="hsc-ht"><b class="hsc-vd"></b><span class="hsc-sub"></span></div>
-          <span class="hsc-dl num"></span>
+          <div class="hsc-ht"><b class="hsc-vd"></b><span class="hsc-sub"></span><span class="hsc-dl num"></span></div>
         </div>
         <div class="hsc-l"></div>
         <div class="hsc-s"><span class="hsc-say"><svg class="i s"><use href="#i-spark"/></svg><span class="hsc-st"></span></span><button type="button" class="pill primary sm hsc-go"></button></div>
@@ -432,7 +432,7 @@ export default function HealthScoreDemo() {
 import HealthScore from &#39;../components/designme/health-score/HealthScore.astro&#39;;
 ---
 &lt;HealthScore /&gt;
-&lt;HealthScore data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything HealthScore takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>account</code><span class="opt">required</span></td><td><code>HealthAccount</code></td><td>The account the block shows. Pass another one (or the same one, changed) and the ring sweeps, the score counts and what changed crossfades</td></tr><tr><td><code>label</code></td><td><code>string</code></td><td>Starts the line under the verdict, like &quot;Account health, 2 of 4 on track&quot;</td></tr><tr><td><code>period</code></td><td><code>string</code></td><td>The change&#39;s period, like &quot;30 days&quot;</td></tr><tr><td><code>bands</code></td><td><code>[number, number]</code></td><td>The verdict&#39;s lower bounds: [Healthy from, Watch from]. Below the second it is At risk</td></tr><tr><td><code>verdicts</code></td><td><code>Partial&lt;Record&lt;HealthStatus, string&gt;&gt;</code></td><td>The verdict words, by status</td></tr><tr><td><code>open</code></td><td><code>string | null</code></td><td>The open factor, by key, or null for none. Leave it out to let the rows toggle themselves</td></tr><tr><td><code>defaultOpen</code></td><td><code>string | null</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(key: string | null) =&gt; void</code></td><td></td></tr><tr><td><code>onAction</code></td><td><code>(account: HealthAccount) =&gt; void | Promise&lt;unknown&gt;</code></td><td>Called by the suggestion&#39;s button. Return a promise and the button spins until it settles; then pass the account back with `suggestion.done` set and the factors it changed</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>HealthScore.tsx<span class="l">React · 191 lines</span></summary><pre class="cp-pre" data-name="HealthScore.tsx"><code>&#39;use client&#39;;
+&lt;HealthScore data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything HealthScore takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>account</code><span class="opt">required</span></td><td><code>HealthAccount</code></td><td>The account the block shows. Pass another one (or the same one, changed) and the ring sweeps, the score counts and what changed crossfades</td></tr><tr><td><code>label</code></td><td><code>string</code></td><td>Starts the line under the verdict, like &quot;Account health, 2 of 4 on track&quot;</td></tr><tr><td><code>period</code></td><td><code>string</code></td><td>The change&#39;s period, like &quot;30 days&quot;</td></tr><tr><td><code>bands</code></td><td><code>[number, number]</code></td><td>The verdict&#39;s lower bounds: [Healthy from, Watch from]. Below the second it is At risk</td></tr><tr><td><code>verdicts</code></td><td><code>Partial&lt;Record&lt;HealthStatus, string&gt;&gt;</code></td><td>The verdict words, by status</td></tr><tr><td><code>open</code></td><td><code>string | null</code></td><td>The open factor, by key, or null for none. Leave it out to let the rows toggle themselves</td></tr><tr><td><code>defaultOpen</code></td><td><code>string | null</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(key: string | null) =&gt; void</code></td><td></td></tr><tr><td><code>onAction</code></td><td><code>(account: HealthAccount) =&gt; void | Promise&lt;unknown&gt;</code></td><td>Called by the suggestion&#39;s button. Return a promise and the button spins until it settles; then pass the account back with `suggestion.done` set and the factors it changed</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>HealthScore.tsx<span class="l">React · 193 lines</span></summary><pre class="cp-pre" data-name="HealthScore.tsx"><code>&#39;use client&#39;;
 import { Fragment, useEffect, useId, useRef, useState } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable, useTween } from &#39;../lib/hooks&#39;;
@@ -579,8 +579,10 @@ export function HealthScore({ account, label = &#39;Account health&#39;, period 
           &lt;/svg&gt;
           &lt;b className=&quot;dm-num&quot; aria-hidden=&quot;true&quot;&gt;{Math.round(shown)}&lt;/b&gt;
         &lt;/div&gt;
-        &lt;div className=&quot;dm-hsc-ht&quot;&gt;&lt;Swap className=&quot;dm-hsc-vd&quot;&gt;{verdict}&lt;/Swap&gt;&lt;Swap className=&quot;dm-hsc-sub&quot;&gt;{line}&lt;/Swap&gt;&lt;/div&gt;
-        {change !== null &amp;&amp; &lt;Swap className=&quot;dm-hsc-dl dm-num&quot;&gt;{`${change &gt;= 0 ? &#39;+&#39; : &#39;−&#39;}${Math.abs(change)} in ${period}`}&lt;/Swap&gt;}
+        &lt;div className=&quot;dm-hsc-ht&quot;&gt;
+          &lt;Swap className=&quot;dm-hsc-vd&quot;&gt;{verdict}&lt;/Swap&gt;&lt;Swap className=&quot;dm-hsc-sub&quot;&gt;{line}&lt;/Swap&gt;
+          {change !== null &amp;&amp; &lt;Swap className=&quot;dm-hsc-dl dm-num&quot;&gt;{`${change &gt;= 0 ? &#39;+&#39; : &#39;−&#39;}${Math.abs(change)} in ${period}`}&lt;/Swap&gt;}
+        &lt;/div&gt;
       &lt;/div&gt;
       &lt;div ref={factorsRef} className=&quot;dm-hsc-l&quot;&gt;
         {factors.map((f, j) =&gt; (
@@ -622,7 +624,7 @@ export function HealthScore({ account, label = &#39;Account health&#39;, period 
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>health-score.css<span class="l">React · 108 lines</span></summary><pre class="cp-pre" data-name="health-score.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>health-score.css<span class="l">React · 109 lines</span></summary><pre class="cp-pre" data-name="health-score.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Health score ---------- */
 /* an account&#39;s health: the score in a small ring with its verdict, the four factors as rows under one another (each with its
    status dot and its figure, opening its detail right under it) and the agent&#39;s next move with its button. The rows are split
@@ -644,10 +646,11 @@ export function HealthScore({ account, label = &#39;Account health&#39;, period 
 .dm-hsc-ring .dm-tr{stroke:var(--dm-line)}
 .dm-hsc-ring .dm-fl{stroke:var(--dm-vm);stroke-linecap:round;transition:stroke-dashoffset .9s var(--dm-ease),stroke var(--dm-t) var(--dm-ease)}
 .dm-hsc-ring b{position:relative;font-size:14px;font-weight:500;letter-spacing:-.01em;line-height:1}
-.dm-hsc-ht{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;line-height:1.4}
-.dm-hsc-vd{font-size:14px;font-weight:500;color:var(--dm-vf);transition:color var(--dm-t) var(--dm-ease)}
-.dm-hsc-sub{font-size:12.5px;color:var(--dm-muted);text-wrap:pretty}
-.dm-hsc-dl{flex:none;align-self:flex-start;margin-top:4px;font-size:12.5px;color:var(--dm-muted)}
+/* the verdict over its line, and the change at the end of the verdict&#39;s line, on the verdict&#39;s baseline (owner, 23 Nov) */
+.dm-hsc-ht{flex:1;min-width:0;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;justify-items:start;line-height:1.4}
+.dm-hsc-vd{grid-row:1;grid-column:1;font-size:14px;font-weight:500;color:var(--dm-vf);transition:color var(--dm-t) var(--dm-ease)}
+.dm-hsc-sub{grid-row:2;grid-column:1;font-size:12.5px;color:var(--dm-muted);text-wrap:pretty}
+.dm-hsc-dl{grid-row:1;grid-column:2;margin-left:var(--dm-s-3);font-size:12.5px;color:var(--dm-muted)}
 /* the factors: a row each, a hairline above every row. A row is its status dot and name (and Weakest), its figure and unit,
    and a chevron; its detail opens right under it */
 .dm-hsc-l{display:flex;flex-direction:column}
@@ -729,7 +732,7 @@ export function HealthScore({ account, label = &#39;Account health&#39;, period 
   .dm-hsc-say{flex:1 1 100%}
   .dm-hsc-s :is(.dm-pill,.dm-hsc-done){margin-left:56px}
 }
-</code></pre></details><details class="cp-file"><summary>HealthScore.astro<span class="l">Astro · 38 lines</span></summary><pre class="cp-pre" data-name="HealthScore.astro"><code>---
+</code></pre></details><details class="cp-file"><summary>HealthScore.astro<span class="l">Astro · 37 lines</span></summary><pre class="cp-pre" data-name="HealthScore.astro"><code>---
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
 // Health score: An account&#39;s health: a score ring, four factors that open, and the agent&#39;s next move.
 // The markup, CSS and script are designme.dev&#39;s own, run by the shared core in ../core, which mounts the component when it scrolls
@@ -751,8 +754,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;div class=&quot;hsc-ac&quot;&gt;&lt;b&gt;&lt;/b&gt;&lt;span&gt;&lt;/span&gt;&lt;/div&gt;
     &lt;div class=&quot;hsc-h&quot;&gt;
       &lt;div class=&quot;hsc-ring&quot; role=&quot;img&quot; aria-label=&quot;Health score&quot;&gt;&lt;svg viewBox=&quot;0 0 44 44&quot; aria-hidden=&quot;true&quot;&gt;&lt;circle class=&quot;tr&quot; cx=&quot;22&quot; cy=&quot;22&quot; r=&quot;18&quot;/&gt;&lt;circle class=&quot;fl&quot; cx=&quot;22&quot; cy=&quot;22&quot; r=&quot;18&quot; stroke-dasharray=&quot;113.1&quot; stroke-dashoffset=&quot;113.1&quot;/&gt;&lt;/svg&gt;&lt;b class=&quot;num&quot; aria-hidden=&quot;true&quot;&gt;0&lt;/b&gt;&lt;/div&gt;
-      &lt;div class=&quot;hsc-ht&quot;&gt;&lt;b class=&quot;hsc-vd&quot;&gt;&lt;/b&gt;&lt;span class=&quot;hsc-sub&quot;&gt;&lt;/span&gt;&lt;/div&gt;
-      &lt;span class=&quot;hsc-dl num&quot;&gt;&lt;/span&gt;
+      &lt;div class=&quot;hsc-ht&quot;&gt;&lt;b class=&quot;hsc-vd&quot;&gt;&lt;/b&gt;&lt;span class=&quot;hsc-sub&quot;&gt;&lt;/span&gt;&lt;span class=&quot;hsc-dl num&quot;&gt;&lt;/span&gt;&lt;/div&gt;
     &lt;/div&gt;
     &lt;div class=&quot;hsc-l&quot;&gt;&lt;/div&gt;
     &lt;div class=&quot;hsc-s&quot;&gt;&lt;span class=&quot;hsc-say&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-spark&quot;/&gt;&lt;/svg&gt;&lt;span class=&quot;hsc-st&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;button type=&quot;button&quot; class=&quot;pill primary sm hsc-go&quot;&gt;&lt;/button&gt;&lt;/div&gt;
@@ -766,15 +768,14 @@ const { class: className, ...rest } = Astro.props;
 &lt;script&gt;
   import &#39;./health-score.js&#39;;
 &lt;/script&gt;
-</code></pre></details><details class="cp-file"><summary>health-score.html<span class="l">HTML · 20 lines</span></summary><pre class="cp-pre" data-name="health-score.html"><code>&lt;div class=&quot;card&quot; data-c=&quot;health-score&quot;&gt;
+</code></pre></details><details class="cp-file"><summary>health-score.html<span class="l">HTML · 19 lines</span></summary><pre class="cp-pre" data-name="health-score.html"><code>&lt;div class=&quot;card&quot; data-c=&quot;health-score&quot;&gt;
   &lt;div class=&quot;stage-in&quot;&gt;
     &lt;div class=&quot;hsc-dm dm&quot;&gt;&lt;div class=&quot;dm-main&quot;&gt;
       &lt;div class=&quot;hsc panel&quot; role=&quot;group&quot; aria-label=&quot;Account health&quot;&gt;
         &lt;div class=&quot;hsc-ac&quot;&gt;&lt;b&gt;&lt;/b&gt;&lt;span&gt;&lt;/span&gt;&lt;/div&gt;
         &lt;div class=&quot;hsc-h&quot;&gt;
           &lt;div class=&quot;hsc-ring&quot; role=&quot;img&quot; aria-label=&quot;Health score&quot;&gt;&lt;svg viewBox=&quot;0 0 44 44&quot; aria-hidden=&quot;true&quot;&gt;&lt;circle class=&quot;tr&quot; cx=&quot;22&quot; cy=&quot;22&quot; r=&quot;18&quot;/&gt;&lt;circle class=&quot;fl&quot; cx=&quot;22&quot; cy=&quot;22&quot; r=&quot;18&quot; stroke-dasharray=&quot;113.1&quot; stroke-dashoffset=&quot;113.1&quot;/&gt;&lt;/svg&gt;&lt;b class=&quot;num&quot; aria-hidden=&quot;true&quot;&gt;0&lt;/b&gt;&lt;/div&gt;
-          &lt;div class=&quot;hsc-ht&quot;&gt;&lt;b class=&quot;hsc-vd&quot;&gt;&lt;/b&gt;&lt;span class=&quot;hsc-sub&quot;&gt;&lt;/span&gt;&lt;/div&gt;
-          &lt;span class=&quot;hsc-dl num&quot;&gt;&lt;/span&gt;
+          &lt;div class=&quot;hsc-ht&quot;&gt;&lt;b class=&quot;hsc-vd&quot;&gt;&lt;/b&gt;&lt;span class=&quot;hsc-sub&quot;&gt;&lt;/span&gt;&lt;span class=&quot;hsc-dl num&quot;&gt;&lt;/span&gt;&lt;/div&gt;
         &lt;/div&gt;
         &lt;div class=&quot;hsc-l&quot;&gt;&lt;/div&gt;
         &lt;div class=&quot;hsc-s&quot;&gt;&lt;span class=&quot;hsc-say&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-spark&quot;/&gt;&lt;/svg&gt;&lt;span class=&quot;hsc-st&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;button type=&quot;button&quot; class=&quot;pill primary sm hsc-go&quot;&gt;&lt;/button&gt;&lt;/div&gt;
@@ -785,7 +786,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>health-score.css<span class="l">HTML · 107 lines</span></summary><pre class="cp-pre" data-name="health-score.css"><code>/* ---------- Health score ---------- */
+</code></pre></details><details class="cp-file"><summary>health-score.css<span class="l">HTML · 108 lines</span></summary><pre class="cp-pre" data-name="health-score.css"><code>/* ---------- Health score ---------- */
 /* an account&#39;s health: the score in a small ring with its verdict, the four factors as rows under one another (each with its
    status dot and its figure, opening its detail right under it) and the agent&#39;s next move with its button. The rows are split
    by hairlines, with no fill, shadow or card of their own (owner, 9 Nov). The state shows only in the status dots and the
@@ -806,10 +807,11 @@ const { class: className, ...rest } = Astro.props;
 .hsc-ring .tr{stroke:var(--dm-line)}
 .hsc-ring .fl{stroke:var(--dm-vm);stroke-linecap:round;transition:stroke-dashoffset .9s var(--dm-ease),stroke var(--dm-t) var(--dm-ease)}
 .hsc-ring b{position:relative;font-size:14px;font-weight:500;letter-spacing:-.01em;line-height:1}
-.hsc-ht{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;line-height:1.4}
-.hsc-vd{font-size:14px;font-weight:500;color:var(--dm-vf);transition:color var(--dm-t) var(--dm-ease)}
-.hsc-sub{font-size:12.5px;color:var(--dm-muted);text-wrap:pretty}
-.hsc-dl{flex:none;align-self:flex-start;margin-top:4px;font-size:12.5px;color:var(--dm-muted)}
+/* the verdict over its line, and the change at the end of the verdict&#39;s line, on the verdict&#39;s baseline (owner, 23 Nov) */
+.hsc-ht{flex:1;min-width:0;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;justify-items:start;line-height:1.4}
+.hsc-vd{grid-row:1;grid-column:1;font-size:14px;font-weight:500;color:var(--dm-vf);transition:color var(--dm-t) var(--dm-ease)}
+.hsc-sub{grid-row:2;grid-column:1;font-size:12.5px;color:var(--dm-muted);text-wrap:pretty}
+.hsc-dl{grid-row:1;grid-column:2;margin-left:var(--dm-s-3);font-size:12.5px;color:var(--dm-muted)}
 /* the factors: a row each, a hairline above every row. A row is its status dot and name (and Weakest), its figure and unit,
    and a chevron; its detail opens right under it */
 .hsc-l{display:flex;flex-direction:column}

@@ -176,6 +176,8 @@
 /* the animated mark has no tile or fill behind it in Soft and Clean (owner, 22 Nov: "remove the background container"): it sits
    in a 20px box on the line's centre line, the words 10px after it. Blueprint keeps its hairline tile */
 .ths-mk{position:relative;width:20px;height:20px;flex:none;display:grid;place-items:center;color:var(--dm-accent-mark,var(--dm-accent))}
+/* (the words and their seconds share one baseline; the mark stays centred on their line) */
+.ths-w{flex:0 1 auto;min-width:0;display:flex;align-items:baseline;gap:10px}
 .ths-l{flex:0 1 auto;min-width:0;font-size:14px;line-height:20px;color:var(--dm-fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ths-car{display:inline-block;width:2px;height:15px;margin-left:2px;vertical-align:-3px;border-radius:1px;background:var(--dm-accent-mark,var(--dm-accent));animation:thsblink 1s steps(1,end) infinite}
 @keyframes thsblink{50%{opacity:0}}
@@ -285,8 +287,8 @@
       <div class="ths" data-v="orbit">
         <div class="ths-row">
           <span class="ths-mk" aria-hidden="true"></span>
-          <span class="ths-l" aria-hidden="true"><span class="ths-tx shim">Thinking</span><span class="ths-car" hidden></span></span>
-          <span class="ths-t num" aria-hidden="true">0s</span>
+          <span class="ths-w"><span class="ths-l" aria-hidden="true"><span class="ths-tx shim">Thinking</span><span class="ths-car" hidden></span></span>
+          <span class="ths-t num" aria-hidden="true">0s</span></span>
         </div>
         <span class="ths-sr" role="status" aria-live="polite">Thinking</span>
       </div>
@@ -367,7 +369,7 @@ export default function ThinkingStatesDemo() {
 import ThinkingStates from &#39;../components/designme/thinking-states/ThinkingStates.astro&#39;;
 ---
 &lt;ThinkingStates /&gt;
-&lt;ThinkingStates data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything ThinkingStates takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>variant</code></td><td><code>ThinkingVariant</code></td><td>Which indicator: dots circling a core, a shape that morphs, a line scanning skeleton text, tokens with a typed line, a twinkling dot grid or shuffling pages</td></tr><tr><td><code>steps</code></td><td><code>string[]</code></td><td>The status lines, like &quot;Reading 3 files&quot;. With more than one, they take turns every `interval` unless `current` is set</td></tr><tr><td><code>current</code></td><td><code>number</code></td><td>Index of the line to show. Leave it out to let the lines take turns by themselves</td></tr><tr><td><code>interval</code></td><td><code>number</code></td><td>Milliseconds each line shows for when they take turns by themselves</td></tr><tr><td><code>seconds</code></td><td><code>number | false</code></td><td>Seconds shown at the end of the line. Counts by itself when left out; false hides it</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>ThinkingStates.tsx<span class="l">React · 107 lines</span></summary><pre class="cp-pre" data-name="ThinkingStates.tsx"><code>&#39;use client&#39;;
+&lt;ThinkingStates data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything ThinkingStates takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>variant</code></td><td><code>ThinkingVariant</code></td><td>Which indicator: dots circling a core, a shape that morphs, a line scanning skeleton text, tokens with a typed line, a twinkling dot grid or shuffling pages</td></tr><tr><td><code>steps</code></td><td><code>string[]</code></td><td>The status lines, like &quot;Reading 3 files&quot;. With more than one, they take turns every `interval` unless `current` is set</td></tr><tr><td><code>current</code></td><td><code>number</code></td><td>Index of the line to show. Leave it out to let the lines take turns by themselves</td></tr><tr><td><code>interval</code></td><td><code>number</code></td><td>Milliseconds each line shows for when they take turns by themselves</td></tr><tr><td><code>seconds</code></td><td><code>number | false</code></td><td>Seconds shown at the end of the line. Counts by itself when left out; false hides it</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>ThinkingStates.tsx<span class="l">React · 109 lines</span></summary><pre class="cp-pre" data-name="ThinkingStates.tsx"><code>&#39;use client&#39;;
 import { useEffect, useRef, useState } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useReducedMotion, useSeconds } from &#39;../lib/hooks&#39;;
@@ -462,18 +464,20 @@ export function ThinkingStates({ variant = &#39;orbit&#39;, steps = [&#39;Thinki
     &lt;div data-dm=&quot;&quot; data-v={variant} className={cx(&#39;dm-ths&#39;, className)}&gt;
       &lt;div className=&quot;dm-ths-row&quot;&gt;
         &lt;span className=&quot;dm-ths-mk&quot; aria-hidden=&quot;true&quot;&gt;&lt;Mark variant={variant} /&gt;&lt;/span&gt;
-        &lt;span className=&quot;dm-ths-l&quot; aria-hidden=&quot;true&quot;&gt;
-          {stream ? &lt;span className=&quot;dm-ths-tx dm-shim&quot;&gt;{text.slice(0, typed)}&lt;/span&gt; : &lt;Swap className=&quot;dm-ths-tx dm-shim&quot;&gt;{text}&lt;/Swap&gt;}
-          {stream &amp;&amp; &lt;span className=&quot;dm-ths-car&quot; /&gt;}
+        &lt;span className=&quot;dm-ths-w&quot;&gt;
+          &lt;span className=&quot;dm-ths-l&quot; aria-hidden=&quot;true&quot;&gt;
+            {stream ? &lt;span className=&quot;dm-ths-tx dm-shim&quot;&gt;{text.slice(0, typed)}&lt;/span&gt; : &lt;Swap className=&quot;dm-ths-tx dm-shim&quot;&gt;{text}&lt;/Swap&gt;}
+            {stream &amp;&amp; &lt;span className=&quot;dm-ths-car&quot; /&gt;}
+          &lt;/span&gt;
+          {secs !== null &amp;&amp; &lt;span className=&quot;dm-ths-t dm-num&quot; aria-hidden=&quot;true&quot;&gt;{secs}s&lt;/span&gt;}
         &lt;/span&gt;
-        {secs !== null &amp;&amp; &lt;span className=&quot;dm-ths-t dm-num&quot; aria-hidden=&quot;true&quot;&gt;{secs}s&lt;/span&gt;}
       &lt;/div&gt;
       {/* a screen reader hears each new line once, never the letters as they type */}
       &lt;span className=&quot;dm-ths-sr&quot; role=&quot;status&quot; aria-live=&quot;polite&quot;&gt;{text}&lt;/span&gt;
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>thinking-states.css<span class="l">React · 104 lines</span></summary><pre class="cp-pre" data-name="thinking-states.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>thinking-states.css<span class="l">React · 106 lines</span></summary><pre class="cp-pre" data-name="thinking-states.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Thinking states ---------- */
 /* six ways to show that the agent is thinking, to pick from: each is a small mark (on a tile in Blueprint only) beside one status line that
    steps through what the agent is doing, and a screen reader hears each step once (the polite status), never each frame.
@@ -488,6 +492,8 @@ export function ThinkingStates({ variant = &#39;orbit&#39;, steps = [&#39;Thinki
 /* the animated mark has no tile or fill behind it in Soft and Clean (owner, 22 Nov: &quot;remove the background container&quot;): it sits
    in a 20px box on the line&#39;s centre line, the words 10px after it. Blueprint keeps its hairline tile */
 .dm-ths-mk{position:relative;width:20px;height:20px;flex:none;display:grid;place-items:center;color:var(--dm-accent-mark,var(--dm-accent))}
+/* (the words and their seconds share one baseline; the mark stays centred on their line) */
+.dm-ths-w{flex:0 1 auto;min-width:0;display:flex;align-items:baseline;gap:10px}
 .dm-ths-l{flex:0 1 auto;min-width:0;font-size:14px;line-height:20px;color:var(--dm-fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dm-ths-car{display:inline-block;width:2px;height:15px;margin-left:2px;vertical-align:-3px;border-radius:1px;background:var(--dm-accent-mark,var(--dm-accent));animation:dm-thsblink 1s steps(1,end) infinite}
 @keyframes dm-thsblink{50%{opacity:0}}
@@ -597,8 +603,8 @@ const { class: className, ...rest } = Astro.props;
   &lt;div class=&quot;ths&quot; data-v=&quot;orbit&quot;&gt;
     &lt;div class=&quot;ths-row&quot;&gt;
       &lt;span class=&quot;ths-mk&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;
-      &lt;span class=&quot;ths-l&quot; aria-hidden=&quot;true&quot;&gt;&lt;span class=&quot;ths-tx shim&quot;&gt;Thinking&lt;/span&gt;&lt;span class=&quot;ths-car&quot; hidden&gt;&lt;/span&gt;&lt;/span&gt;
-      &lt;span class=&quot;ths-t num&quot; aria-hidden=&quot;true&quot;&gt;0s&lt;/span&gt;
+      &lt;span class=&quot;ths-w&quot;&gt;&lt;span class=&quot;ths-l&quot; aria-hidden=&quot;true&quot;&gt;&lt;span class=&quot;ths-tx shim&quot;&gt;Thinking&lt;/span&gt;&lt;span class=&quot;ths-car&quot; hidden&gt;&lt;/span&gt;&lt;/span&gt;
+      &lt;span class=&quot;ths-t num&quot; aria-hidden=&quot;true&quot;&gt;0s&lt;/span&gt;&lt;/span&gt;
     &lt;/div&gt;
     &lt;span class=&quot;ths-sr&quot; role=&quot;status&quot; aria-live=&quot;polite&quot;&gt;Thinking&lt;/span&gt;
   &lt;/div&gt;
@@ -616,8 +622,8 @@ const { class: className, ...rest } = Astro.props;
       &lt;div class=&quot;ths&quot; data-v=&quot;orbit&quot;&gt;
         &lt;div class=&quot;ths-row&quot;&gt;
           &lt;span class=&quot;ths-mk&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;
-          &lt;span class=&quot;ths-l&quot; aria-hidden=&quot;true&quot;&gt;&lt;span class=&quot;ths-tx shim&quot;&gt;Thinking&lt;/span&gt;&lt;span class=&quot;ths-car&quot; hidden&gt;&lt;/span&gt;&lt;/span&gt;
-          &lt;span class=&quot;ths-t num&quot; aria-hidden=&quot;true&quot;&gt;0s&lt;/span&gt;
+          &lt;span class=&quot;ths-w&quot;&gt;&lt;span class=&quot;ths-l&quot; aria-hidden=&quot;true&quot;&gt;&lt;span class=&quot;ths-tx shim&quot;&gt;Thinking&lt;/span&gt;&lt;span class=&quot;ths-car&quot; hidden&gt;&lt;/span&gt;&lt;/span&gt;
+          &lt;span class=&quot;ths-t num&quot; aria-hidden=&quot;true&quot;&gt;0s&lt;/span&gt;&lt;/span&gt;
         &lt;/div&gt;
         &lt;span class=&quot;ths-sr&quot; role=&quot;status&quot; aria-live=&quot;polite&quot;&gt;Thinking&lt;/span&gt;
       &lt;/div&gt;
@@ -626,7 +632,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>thinking-states.css<span class="l">HTML · 103 lines</span></summary><pre class="cp-pre" data-name="thinking-states.css"><code>/* ---------- Thinking states ---------- */
+</code></pre></details><details class="cp-file"><summary>thinking-states.css<span class="l">HTML · 105 lines</span></summary><pre class="cp-pre" data-name="thinking-states.css"><code>/* ---------- Thinking states ---------- */
 /* six ways to show that the agent is thinking, to pick from: each is a small mark (on a tile in Blueprint only) beside one status line that
    steps through what the agent is doing, and a screen reader hears each step once (the polite status), never each frame.
    Orbit, Morph, Scan and Stream are dot grids like Matrix, each at its own density (owner, 5 Nov). Orbit: a light round the edge.
@@ -640,6 +646,8 @@ const { class: className, ...rest } = Astro.props;
 /* the animated mark has no tile or fill behind it in Soft and Clean (owner, 22 Nov: &quot;remove the background container&quot;): it sits
    in a 20px box on the line&#39;s centre line, the words 10px after it. Blueprint keeps its hairline tile */
 .ths-mk{position:relative;width:20px;height:20px;flex:none;display:grid;place-items:center;color:var(--dm-accent-mark,var(--dm-accent))}
+/* (the words and their seconds share one baseline; the mark stays centred on their line) */
+.ths-w{flex:0 1 auto;min-width:0;display:flex;align-items:baseline;gap:10px}
 .ths-l{flex:0 1 auto;min-width:0;font-size:14px;line-height:20px;color:var(--dm-fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ths-car{display:inline-block;width:2px;height:15px;margin-left:2px;vertical-align:-3px;border-radius:1px;background:var(--dm-accent-mark,var(--dm-accent));animation:thsblink 1s steps(1,end) infinite}
 @keyframes thsblink{50%{opacity:0}}
