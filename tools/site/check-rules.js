@@ -136,7 +136,8 @@ function rulesLib(){
       else if (!s.inset && s.blur > 0 && s.col[3] > .03) elev = true; }
     return { fc, fill, fillDE, grad, sides, all:sides.every(Boolean), some:sides.some(Boolean), ring, inRing, ringDE, elev,
       borderDE:sides.some(Boolean) ? Math.max(...['Top', 'Right', 'Bottom', 'Left'].map(s => dE(over(rgba(cs[`border${s}Color`]), bh), bh))) : 0 }; };
-  const radiusOf = (cs, w, h) => { const v = cs.borderTopLeftRadius.split(' ')[0]; const r = /%/.test(v) ? px(v) / 100 * Math.min(w, h) : px(v); return Math.min(r, Math.min(w, h) / 2); };
+  const radiusOf = (cs, w, h, all) => { const one = k => { const v = cs[k].split(' ')[0]; const r = /%/.test(v) ? px(v) / 100 * Math.min(w, h) : px(v); return Math.min(r, Math.min(w, h) / 2); };
+    return all ? Math.min(...['borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomRightRadius', 'borderBottomLeftRadius'].map(one)) : one('borderTopLeftRadius'); };
 
   // things a script places by coordinates (a chart's bars and labels, a timeline's marks) sit where the data puts them
   const placed = (e, stop) => { for (let a = e; a && a !== stop && a !== ROOT; a = a.parentElement){ const st = a.getAttribute && a.getAttribute('style') || ''; if (/(^|;)\s*(left|width|clip-path|--x0?|--w|--l|--lv)\s*:/.test(st)) return true; } return false; };
@@ -345,7 +346,9 @@ function rulesLib(){
     for (const c of shapes){ if (c.role !== 'card' || !stableShape(c) || c.ps) continue; const ks = kids.get(c) || [];
       const lines = ks.filter(it => it.k === 'hair' && it.hair.horiz && W(it.q) >= W(c.edge) * .85).map(it => it.q);
       if (!lines.length) continue; lines.sort((a, b) => a.t - b.t);
-      const cuts = [{ y:c.edge.t, edge:true }].concat(lines.map(q => ({ t:q.t, b:q.b }))).concat([{ y:c.edge.b, edge:true }]);
+      // (the card's own edge is measured from its inner side, as the hairline is from its far side: line to line)
+      const inT = c.rect.t + px(c.cs.borderTopWidth) + (c.de.inRing || 0), inB = c.rect.b - px(c.cs.borderBottomWidth) - (c.de.inRing || 0);
+      const cuts = [{ y:inT, edge:true }].concat(lines.map(q => ({ t:q.t, b:q.b }))).concat([{ y:inB, edge:true }]);
       for (let i = 0; i < cuts.length - 1; i++){ const A = cuts[i], B = cuts[i + 1]; if (A.edge && B.edge) continue; const y0 = A.edge ? A.y : A.b, y1 = B.edge ? B.y : B.t; if (y1 - y0 < 16 || y1 - y0 > 120) continue;
         const its = ks.filter(it => !decor(it) && !(it.k === 'shape' && it.shape.role === 'strip') && (r2box(it).t + r2box(it).b) / 2 > y0 && (r2box(it).t + r2box(it).b) / 2 < y1); if (!its.length) continue;
         if (!its.some(it => it.el.matches('button,.pill,.ib,select,input,[role="button"]') || it.el.closest('button,.pill,.ib'))) continue;
@@ -380,7 +383,8 @@ function rulesLib(){
     const r4 = () => { for (const s of shapes){ if (!stableShape(s) || isMoving(s.el) || placed(s.el)) continue; const w = W(s.rect), h = H(s.rect); if (Math.min(w, h) < 10) continue;
       // (a squircle corner, as Soft draws them, reads as a rounded square until it is nearly half the side)
       const sq = /squircle/.test(s.cs.getPropertyValue('corner-shape') + s.cs.getPropertyValue('corner-top-left-shape'));
-      if (s.radius < (sq ? .48 : .4) * Math.min(w, h)) continue; const d = Math.abs(w - h); if (d <= .5 || d >= 6) continue;
+      // (every corner counts: half of a split button, square where it joins its other half, is not a near circle)
+      const rad = s.ps ? s.radius : radiusOf(s.cs, w, h, true); if (rad < (sq ? .48 : .4) * Math.min(w, h)) continue; const d = Math.abs(w - h); if (d <= .5 || d >= 6) continue;
       V('R4', `${sLabel(s)} is ${w.toFixed(1)}×${h.toFixed(1)} with a ${s.radius.toFixed(1)}px radius: neither a circle nor a pill`, [sLabel(s)], { w:+w.toFixed(1), h:+h.toFixed(1), radius:+s.radius.toFixed(1) }, [s.rect]); } };
 
     const r5 = () => disabledCheck(V);
@@ -428,6 +432,8 @@ function rulesLib(){
     const r8 = () => { for (const [c, ks] of kids){ const cs = ks.filter(it => it.k === 'shape' && !it.shape.backdrop && !it.shape.ps && it.el.matches('button,.pill,.ib,.tag,.chip,.kbd,.bdg,[role="button"],[class*="chip"]') && !it.el.matches('.mi,[role="menuitem"],[role="option"],[role="menuitemradio"],[role="tab"],li') && W(it.q) > 10 && H(it.q) > 10 && W(it.q) < W(c.edge) * .5 && !isMoving(it.el) && !placed(it.el, c.el));
       for (let i = 0; i < cs.length; i++) for (let j = i + 1; j < cs.length; j++){ const a = cs[i], b = cs[j]; if (a.el.contains(b.el) || b.el.contains(a.el)) continue;
         const up2 = e => [e.parentElement, e.parentElement && e.parentElement.parentElement]; if (!up2(a.el).some(p => p && up2(b.el).includes(p))) continue;
+        // (cells of a grid, like a calendar's days, sit side by side by design)
+        const cell = e => { const p = e.parentElement; return !!p && /grid/.test(gcs(p).display) && p.children.length >= 7; }; if (cell(a.el) && cell(b.el)) continue;
         const qa = clipTo(a.el, a.q, c.el).r, qb = clipTo(b.el, b.q, c.el).r; if (W(qa) <= 2 || H(qa) <= 2 || W(qb) <= 2 || H(qb) <= 2) continue;
         const vo = Math.min(qa.b, qb.b) - Math.max(qa.t, qb.t), ho = Math.min(qa.r, qb.r) - Math.max(qa.l, qb.l); let gap = null;
         if (vo > 0 && ho > 0) gap = -Math.min(vo, ho); else if (vo > 0) gap = -ho; else if (ho > 0) gap = -vo; if (gap === null || gap >= 4) continue;
