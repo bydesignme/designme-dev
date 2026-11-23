@@ -21,6 +21,7 @@ DM.def('source-stack', (r, c) => {
   // each source's mark on its own vivid fill, with that fill's ink: white, or a dark ink of its hue where white would fail
   const ink = col => col.replace(')', '-ink)');
   const pill = $('.ssx-pill', r), box = $('.ssx-box', r), list = $('.ssx-list', r);
+  if (!r.closest('.ahx')) c.offs.push(hoverGlide(list, '.ssx-s'));
   $('.ssx-ics', r).innerHTML = S.slice(0, 4).map(s => `<span style="background:${s[5]};color:${ink(s[5])}">${s[4][0]}</span>`).join('');
   function paint(f){
     const items = S.filter(s => f === 'all' || s[0] === f);

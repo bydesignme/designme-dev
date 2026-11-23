@@ -168,6 +168,7 @@ import { cx } from '../lib/cx';
 import { useControllable } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
 import { enter, Fold, Swap, Tip, useGrow } from '../lib/motion';
+import { useHoverGlide } from '../lib/glide';
 import '../designme.css';
 import './trace-view.css';
 
@@ -229,6 +230,8 @@ type Row = { s: TraceSpan; lv: number; up?: Row };
 export function TraceView({ title, spans, time, axis, slowAfter = 2, status, selected, defaultSelected = null, onSelectedChange, className }: TraceViewProps) {
   const [open, setOpen] = useControllable(selected, defaultSelected, onSelectedChange);
   const rows = useRef<HTMLDivElement>(null);
+  // Clean's one hover glides from span to span; an open span keeps its stronger fill
+  useHoverGlide(rows, '.dm-trv-r', { keep: '[aria-expanded="true"]' });
   // the card keeps no room for spans still to come (owner, 18 Nov): it grows and shrinks with what it holds, eased, as each
   // span starts and the details open and shut (as grow() on the site)
   const [root, inner] = useGrow();

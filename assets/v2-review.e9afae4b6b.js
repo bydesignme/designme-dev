@@ -145,6 +145,7 @@ DM.def('plan-review', (r, c) => {
     ['Write a summary of every change', 'Summary added to Pricing v4']
   ];
   const list = $('.plx-list', r), st = $('.plx-st', r), tm = $('.plx-tm', r), go = $('.plx-go', r), f = $('.plx-f', r);
+  if (!r.closest('.ahx')) c.offs.push(hoverGlide(list, '.plx-s'));
   const row = (t, i) => `<li class="plx-s"><span class="n">${i + 1}</span><span class="b"><span class="t" contenteditable="true" spellcheck="false" role="textbox" aria-label="Step ${i + 1}">${t[0]}</span><span class="d"><span></span></span></span><button class="ib plx-x" aria-label="Skip step" data-tip="Skip step">${I('x','xs')}</button></li>`;
   list.innerHTML = S.map(row).join(''); stagger($$('.plx-s', list), 60, 100);
   const count = () => { const on = $$('.plx-s:not(.off)', list); on.forEach((s, i) => $('.n', s).textContent = i + 1); $$('.plx-s.off .n', list).forEach(n => n.textContent = '–'); swap(st, 'About ' + Math.max(1, Math.round(on.length * .8)) + ' min'); };

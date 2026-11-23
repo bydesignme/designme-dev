@@ -163,7 +163,7 @@ export default function SegmentedControlDemo() {
   // the panel is as tall as the view on show and eases to the next one's height
   const [panel, panelIn] = useGrow();
   // Clean's one hover: a highlight that glides from event to event and day to day
-  useHoverGlide(panel, '.dm-sgc-ev,.dm-sgc-wr,.dm-sgc-mo .dm-d', { keep: '.dm-on,.dm-now' });
+  useHoverGlide(panel, '.dm-sgc-ev,.dm-sgc-wr,.dm-sgc-mo .dm-d', { keep: '.dm-on,.dm-d.dm-now' });
 
   // the preview's story: the week, then Tuesday opened from it, a step on to Wednesday, the month, and back to the week
   useStory(ref, async ({ wait, press }) => {

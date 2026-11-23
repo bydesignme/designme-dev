@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, DM, I, enter, grow, html, swap } from '../core/core.js';
+import { $, DM, I, enter, grow, hoverGlide, html, swap } from '../core/core.js';
 DM.def('trace-view', (r, c) => {
   // the kinds of span, each with its mark and colour: the identity slots of the chart palette, and grey for the agents
   // that hold the other spans. The name is always on the mark, in a tooltip, and in the span's label
@@ -19,6 +19,8 @@ DM.def('trace-view', (r, c) => {
   // an agent span counts the tokens of every span under it
   S.forEach((x, i) => { x.kids = []; for (let j = i + 1; j < S.length && S[j].lv > x.lv; j++) x.kids.push(S[j]); });
   const root = $('.trv', r), rows = $('.trv-rows', r), stEl = $('.trv-st', r), tot = $('.trv-tot', r), dt = $('.trv-dt', r), dc = $('.trv-dc', r), lg = $('.trv-lg', r);
+  // Clean's one hover glides from span to span; an open span keeps its stronger fill
+  if (!r.closest('.ahx')) c.offs.push(hoverGlide(rows, '.trv-r', { keep:'[aria-expanded="true"]' }));
   // the head has the run's mark in a tile, the column every span's mark is centred in, and its total tokens beside its time
   const head = $('.trv-h', r);
   head.prepend(html(`<span class="trv-hi" aria-hidden="true">${I('cpu')}</span>`));

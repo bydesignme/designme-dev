@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, BRAND, DM, I, REDUCE, enter, grow, html, seg, stagger, swap } from '../core/core.js';
+import { $, BRAND, DM, I, REDUCE, enter, grow, hoverGlide, html, seg, stagger, swap } from '../core/core.js';
 DM.def('memory-panel', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{book}', I('book')).replace('{spark}', I('spark','xs'));
   // where a memory came from: an app's own mark, or an icon for something said in chat or an edit
@@ -16,6 +16,7 @@ DM.def('memory-panel', (r, c) => {
     ['brand','No em dashes in product copy','drive','Voice and tone guide in Drive, Oct 2']
   ].map((m, i) => ({ id:i, k:m[0], t:m[1], from:m[2], s:m[3] }));
   const list = $('.mmx-list', r), fi = $('.mmx-fi', r), ft = $('.mmx-ft', r);
+  if (!r.closest('.ahx')) c.offs.push(hoverGlide(list, '.mmx-m'));
   let f = 'all', nid = 100;
   // the head names the panel only: a count of the memories and a row of their sources' marks repeated what the list shows
   const count = () => {};

@@ -866,7 +866,7 @@
 :root[data-style="clean"] .ctm-bar.hl i:not(.on),:root [data-style="clean"] .ctm-bar.hl i:not(.on),:root [data-style="clean"].ctm-bar.hl i:not(.on){opacity:.28}
 :root[data-style="clean"] .ctm-leg,:root [data-style="clean"] .ctm-leg,:root [data-style="clean"].ctm-leg{margin:8px 8px 0}
 :root[data-style="clean"] .ctm-l,:root [data-style="clean"] .ctm-l,:root [data-style="clean"].ctm-l{padding:5px 8px;border-radius:calc(var(--dm-r-card) - 8px);transition:background-color var(--dm-t-fast) var(--dm-ease)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .ctm-l:hover,:root [data-style="clean"] .ctm-l:hover,:root [data-style="clean"].ctm-l:hover{background:color-mix(in srgb,var(--dm-fg) 5%,transparent)}}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .ctm-l:hover,:root [data-style="clean"] .ctm-l:hover,:root [data-style="clean"].ctm-l:hover{background:var(--dm-row)}}
 :root[data-style="clean"] .ctm-msg,:root [data-style="clean"] .ctm-msg,:root [data-style="clean"].ctm-msg{margin:0 16px}
 :root[data-style="clean"] .ctm-msg.on,:root [data-style="clean"] .ctm-msg.on,:root [data-style="clean"].ctm-msg.on{margin:8px 16px 5px}
 :root[data-style="clean"] .ctm-msg.warn>span,:root [data-style="clean"] .ctm-msg.warn>span,:root [data-style="clean"].ctm-msg.warn>span{margin:0 -8px;padding:8px;border-radius:calc(var(--dm-r-card) - 8px)}
@@ -1248,7 +1248,16 @@
 /* Clean (owner, 18 Nov): the sources' marks are one neutral grey with a hairline, not a colour each */
 :root[data-style="clean"] :is(.ssx-ics span,.ssx-s .fv),:root [data-style="clean"] :is(.ssx-ics span,.ssx-s .fv),:root [data-style="clean"]:is(.ssx-ics span,.ssx-s .fv){background:var(--dm-chip)!important;color:var(--dm-fg2)!important;box-shadow:inset 0 0 0 1px var(--dm-hair)}
 :root[data-style="clean"] .ssx-s,:root [data-style="clean"] .ssx-s,:root [data-style="clean"].ssx-s{border-radius:var(--dm-r-in)}
-:root[data-style="clean"] :is(.ssx-pill,.ssx-s,.ssx-s .ib),:root [data-style="clean"] :is(.ssx-pill,.ssx-s,.ssx-s .ib),:root [data-style="clean"]:is(.ssx-pill,.ssx-s,.ssx-s .ib){transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease)}
+/* the filter chips keep their quiet edge: the one hover fills them, and the picked one has the stronger fill (owner, 21 Nov:
+   never a stronger edge); the sources pill deepens by the same fill, and holds the stronger one while its list is open
+   (Agent harness keeps its own) */
+:root[data-style="clean"] .ssx-fl .chip,:root [data-style="clean"] .ssx-fl .chip,:root [data-style="clean"].ssx-fl .chip{transition:background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .ssx-fl .chip:not(.on):hover,:root [data-style="clean"] .ssx-fl .chip:not(.on):hover,:root [data-style="clean"].ssx-fl .chip:not(.on):hover{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-line) 50%,transparent),inset 0 0 0 99px var(--dm-row)}}
+:root[data-style="clean"] .ssx-fl .chip.on,:root [data-style="clean"] .ssx-fl .chip.on,:root [data-style="clean"].ssx-fl .chip.on{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-line) 50%,transparent),inset 0 0 0 99px var(--dm-row-on)}
+:root[data-style="clean"] .ssx-pill:not(.ahx *),:root [data-style="clean"] .ssx-pill:not(.ahx *),:root [data-style="clean"].ssx-pill:not(.ahx *){box-shadow:inset 0 0 0 99px transparent}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .ssx-pill:not(.ahx *):hover,:root [data-style="clean"] .ssx-pill:not(.ahx *):hover,:root [data-style="clean"].ssx-pill:not(.ahx *):hover{background:var(--dm-chip);box-shadow:inset 0 0 0 99px var(--dm-row)}}
+:root[data-style="clean"] .ssx-pill:not(.ahx *)[aria-expanded="true"],:root [data-style="clean"] .ssx-pill:not(.ahx *)[aria-expanded="true"],:root [data-style="clean"].ssx-pill:not(.ahx *)[aria-expanded="true"]{box-shadow:inset 0 0 0 99px var(--dm-row-on)}
+:root[data-style="clean"] :is(.ssx-pill,.ssx-s,.ssx-s .ib),:root [data-style="clean"] :is(.ssx-pill,.ssx-s,.ssx-s .ib),:root [data-style="clean"]:is(.ssx-pill,.ssx-s,.ssx-s .ib){transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
 </style><style>/* ---------- Agent harness ---------- */
 /* a whole agent app in one card: chats down the side, tabs across the top, a New chat home with suggestions, and the
    conversations themselves, told with the components above */
@@ -5971,6 +5980,7 @@ const fitHits = window.dmFitHits || (() => {
     ['Write a summary of every change', 'Summary added to Pricing v4']
   ];
   const list = $('.plx-list', r), st = $('.plx-st', r), tm = $('.plx-tm', r), go = $('.plx-go', r), f = $('.plx-f', r);
+  if (!r.closest('.ahx')) c.offs.push(hoverGlide(list, '.plx-s'));
   const row = (t, i) => `<li class="plx-s"><span class="n">${i + 1}</span><span class="b"><span class="t" contenteditable="true" spellcheck="false" role="textbox" aria-label="Step ${i + 1}">${t[0]}</span><span class="d"><span></span></span></span><button class="ib plx-x" aria-label="Skip step" data-tip="Skip step">${I('x','xs')}</button></li>`;
   list.innerHTML = S.map(row).join(''); stagger($$('.plx-s', list), 60, 100);
   const count = () => { const on = $$('.plx-s:not(.off)', list); on.forEach((s, i) => $('.n', s).textContent = i + 1); $$('.plx-s.off .n', list).forEach(n => n.textContent = '–'); swap(st, 'About ' + Math.max(1, Math.round(on.length * .8)) + ' min'); };
@@ -6214,6 +6224,7 @@ const fitHits = window.dmFitHits || (() => {
   // each source's mark on its own vivid fill, with that fill's ink: white, or a dark ink of its hue where white would fail
   const ink = col => col.replace(')', '-ink)');
   const pill = $('.ssx-pill', r), box = $('.ssx-box', r), list = $('.ssx-list', r);
+  if (!r.closest('.ahx')) c.offs.push(hoverGlide(list, '.ssx-s'));
   $('.ssx-ics', r).innerHTML = S.slice(0, 4).map(s => `<span style="background:${s[5]};color:${ink(s[5])}">${s[4][0]}</span>`).join('');
   function paint(f){
     const items = S.filter(s => f === 'all' || s[0] === f);

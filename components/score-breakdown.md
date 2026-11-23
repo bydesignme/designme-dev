@@ -227,7 +227,7 @@ export function ScoreBreakdown({ factors, title = 'Quality score', previous, sin
   useEffect(() => { if (gauge.current) setCap((parseFloat(getComputedStyle(gauge.current).getPropertyValue('--dm-sbx-cap')) || 0) / RAD); }, []);
   // Clean's one hover: a highlight that glides from factor to factor; the lit and the open one keep their own
   const listRef = useRef<HTMLDivElement>(null);
-  useHoverGlide(listRef, '.dm-sbx-r', { keep: '.dm-on,.dm-open' });
+  useHoverGlide(listRef, '.dm-sbx-r', { hl: '.dm-on', keep: '.dm-open' });
   let a = Math.PI;
   const seg = factors.map(f => { const span = f.weight / 100 * Math.PI, s = [a + GAP / 2 + cap, a + span - GAP / 2 - cap]; a += span; return s; });
   const d = previous === undefined ? null : total - previous;

@@ -568,6 +568,8 @@ DM.def('filter-menu', (r, c) => {
     date:{ l:'Updated', ic:'cal', ops:['within', 'older than'], o:[{ v:1, l:'Past day', c:'1 day' }, { v:7, l:'Past 7 days', c:'7 days' }, { v:30, l:'Past 30 days', c:'30 days' }], test:(t, v) => t.a < v }
   };
   const tr = $('.flm-tr', r), pop = $('.flm-pop', r), l1 = $('.flm-l1', r), l2 = $('.flm-l2', r), chips = $('.flm-chips', r), ct = $('.flm-ct', r), clr = $('.flm-clr', r), shell = $('.flm-list', r);
+  // Clean's one hover glides from row to row
+  c.offs.push(hoverGlide(shell, '.flm-r'));
   // the list grows and shrinks with what matches, eased (grow()), and keeps no room for rows to come; its rows go in grow()'s
   // wrapper
   c.offs.push(grow(shell)); const list = $('.dm-grow', shell);
@@ -765,7 +767,8 @@ DM.def('number-field', (r, c) => {
 /* ---------- Ticket list ---------- */
 DM.def('ticket-list', (r, c) => {
   // Clean's one hover: a highlight that glides from row to row (hoverGlide)
-  c.offs.push(hoverGlide($('.tkx', r), '.tkx-r', { keep:'.open,[aria-expanded="true"]' }));
+  // (an open ticket's row has no fill of its own, so every row takes the glide alone)
+  c.offs.push(hoverGlide($('.tkx', r), '.tkx-r', { keep:':not(*)' }));
   const T = [
     { p:'urgent', pn:'Urgent', t:'Agent stopped mid export', f:'Northwind', a:['MK','var(--av-l)'], w:'4m', q:'The token export stopped at 60% and nothing has happened for 20 minutes.', s:'Sorry about that. The run paused at your $5 spend cap. I have raised it for this run and it finished just now. Your tokens are in the Exports tab.', st:'open' },
     { p:'high', pn:'High', t:'Figma frames not syncing', f:'Lumen Labs', a:['JO','var(--av-m)'], w:'22m', q:'New frames from this morning are not showing up in DesignMe.', s:'The Figma token for your workspace expired yesterday. Reconnect it from Settings, then the frames will sync within a minute.', st:'open' },

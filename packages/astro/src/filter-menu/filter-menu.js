@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, REDUCE, enter, grow, hideTip, html, placePop, reflow, stagger, swap } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, enter, grow, hideTip, hoverGlide, html, placePop, reflow, stagger, swap } from '../core/core.js';
 DM.def('filter-menu', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{filter}', I('filter'));
   const OWN = { MK:'Maya Kim', LP:'Leo Park', AR:'Ana Ruiz', SC:'Sam Cole' };
@@ -22,6 +22,8 @@ DM.def('filter-menu', (r, c) => {
     date:{ l:'Updated', ic:'cal', ops:['within', 'older than'], o:[{ v:1, l:'Past day', c:'1 day' }, { v:7, l:'Past 7 days', c:'7 days' }, { v:30, l:'Past 30 days', c:'30 days' }], test:(t, v) => t.a < v }
   };
   const tr = $('.flm-tr', r), pop = $('.flm-pop', r), l1 = $('.flm-l1', r), l2 = $('.flm-l2', r), chips = $('.flm-chips', r), ct = $('.flm-ct', r), clr = $('.flm-clr', r), shell = $('.flm-list', r);
+  // Clean's one hover glides from row to row
+  c.offs.push(hoverGlide(shell, '.flm-r'));
   // the list grows and shrinks with what matches, eased (grow()), and keeps no room for rows to come; its rows go in grow()'s
   // wrapper
   c.offs.push(grow(shell)); const list = $('.dm-grow', shell);

@@ -157,6 +157,7 @@ import { useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEv
 import { cx } from '../lib/cx';
 import { useControllable, useIsoLayoutEffect } from '../lib/hooks';
 import { Icon } from '../lib/icons';
+import { useHoverGlide } from '../lib/glide';
 import '../designme.css';
 import './multi-select.css';
 
@@ -207,6 +208,7 @@ export function MultiSelect({ label, options, value, defaultValue = [], onValueC
   const [seenQ, setSeenQ] = useState(q);
   if (seenQ !== q) { setSeenQ(q); if (q) setHi(0); }
   const field = useRef<HTMLDivElement>(null), input = useRef<HTMLInputElement>(null), list = useRef<HTMLDivElement>(null), root = useRef<HTMLDivElement>(null);
+  useHoverGlide(list, '.dm-msc-o');
   const [place, setPlace] = useState<CSSProperties>({}), pop = useRef<HTMLDivElement>(null);
   const name = (v: string) => options.find(o => o.value === v)?.label ?? v;
   const shown = options.filter(o => !q.trim() || (o.label ?? o.value).toLowerCase().includes(q.trim().toLowerCase()));

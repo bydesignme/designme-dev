@@ -2,7 +2,8 @@
 import { $, $$, AV, DM, I, REDUCE, grow, hoverGlide, html, seg, stagger } from '../core/core.js';
 DM.def('ticket-list', (r, c) => {
   // Clean's one hover: a highlight that glides from row to row (hoverGlide)
-  c.offs.push(hoverGlide($('.tkx', r), '.tkx-r', { keep:'.open,[aria-expanded="true"]' }));
+  // (an open ticket's row has no fill of its own, so every row takes the glide alone)
+  c.offs.push(hoverGlide($('.tkx', r), '.tkx-r', { keep:':not(*)' }));
   const T = [
     { p:'urgent', pn:'Urgent', t:'Agent stopped mid export', f:'Northwind', a:['MK','var(--dm-av-l)'], w:'4m', q:'The token export stopped at 60% and nothing has happened for 20 minutes.', s:'Sorry about that. The run paused at your $5 spend cap. I have raised it for this run and it finished just now. Your tokens are in the Exports tab.', st:'open' },
     { p:'high', pn:'High', t:'Figma frames not syncing', f:'Lumen Labs', a:['JO','var(--dm-av-m)'], w:'22m', q:'New frames from this morning are not showing up in DesignMe.', s:'The Figma token for your workspace expired yesterday. Reconnect it from Settings, then the frames will sync within a minute.', st:'open' },

@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, centre, enter, swap, tip } from '../core/core.js';
+import { $, $$, DM, I, centre, enter, hoverGlide, swap, tip } from '../core/core.js';
 DM.def('model-picker', (r, c) => {
   r.innerHTML = r.innerHTML.replace(/\{chev\}/g, I('chev-d','xs')).replace('{brain}', I('brain','xs')).replace(/\{chk\}/g, I('check','xs'));
   // speed, quality and cost out of five, and the numbers behind them: tokens a second, and a typical reply's seconds and
@@ -17,6 +17,8 @@ DM.def('model-picker', (r, c) => {
   const meter = (v, tip, i) => `<span class="mpk-m" data-tip="${tip}"${clean && !i ? ' data-tip-at="below"' : ''}>${[1, 2, 3, 4, 5].map(k => `<i${k <= v ? ' class="on"' : ''}></i>`).join('')}</span>`;
   list.innerHTML = M.map((x, i) => `<button class="mpk-o" role="radio" aria-checked="false" tabindex="-1" data-i="${i}"><span class="mpk-mk" style="--dm-mc:${x.c};--dm-mt:${x.t}">${x.m}</span><span class="t"><b>${x.n}<span class="ck">${I('check','xs')}</span></b><span class="d">${x.d}</span></span>${meter(x.s, x.tps + ' tokens a second', i)}${meter(x.q, 'Quality ' + x.q + ' of 5', i)}${meter(x.p, '$' + x.cost.toFixed(3) + ' a reply', i)}</button>`).join('');
   const rows = $$('.mpk-o', list);
+  // Clean's one hover glides from model to model; the picked one keeps its stronger fill
+  if (!r.closest('.ahx')) c.offs.push(hoverGlide(list, '.mpk-o'));
   // Opus is at capacity when the demo starts (busy is its wait in seconds), and free again once you've waited it out
   let cur = 1, eff = 2, busy = 20, waiting = false;
   function paint(){

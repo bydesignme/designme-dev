@@ -190,6 +190,7 @@ import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../lib/ho
 import { Icon, type IconName } from '../lib/icons';
 import { Brand, type BrandName } from '../lib/brands';
 import { Seg, Swap, Tip, useGrow } from '../lib/motion';
+import { useHoverGlide } from '../lib/glide';
 import '../designme.css';
 import './memory-panel.css';
 
@@ -281,6 +282,9 @@ export function MemoryPanel({
   allLabel = 'All', activity, editedSource = 'Edited by you, just now', newLabel = 'New', usedLabel = 'Used',
   onEdit, onForget, onRestore, undoFor = 4000, bare = false, className
 }: MemoryPanelProps) {
+  // Clean's one hover glides from memory to memory
+  const listRef = useRef<HTMLDivElement>(null);
+  useHoverGlide(listRef, '.dm-mmx-m');
   const [list, setList] = useControllable(memories, defaultMemories, onMemoriesChange);
   const [f, setF] = useControllable(filter, defaultFilter, onFilterChange);
   const [gone, setGone] = useState<Gone[]>([]);
@@ -366,7 +370,7 @@ export function MemoryPanel({
           <Seg label="Filter" value={f} onChange={setF} options={[{ value: 'all', label: allLabel }, ...kinds.map(k => ({ value: k.value, label: k.label }))]} />
         </div>
       </div>
-      <div className="dm-mmx-list">
+      <div ref={listRef} className="dm-mmx-list">
         {shown.map(r => {
           if (r.g) {
             const { m, leaving } = r.g;

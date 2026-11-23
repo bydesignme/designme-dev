@@ -1,9 +1,11 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, REDUCE, centre, closePops } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, centre, closePops, hoverGlide } from '../core/core.js';
 DM.def('data-picker', (r, c) => {
   r.innerHTML = r.innerHTML.replace(/\{([\w-]+)(?:\.(xs))?\}/g, (m, k, z) => I(k, z || 's'));
   const uid = 'fpk' + Math.random().toString(36).slice(2, 7);
   const box = $('.fpk', r), pop = $('.fpk-pop', r), q = $('.fpk-q input', r), ls = $('.fpk-ls', r), live = $('.fpk-live', r);
+  // the row the pointer or the arrows are on (.on) has Clean's one hover, gliding from row to row
+  c.offs.push(hoverGlide(ls, '.fpk-o', { hl:'.on', keep:':not(*)' }));
   // each data type has its colour: text blue, numbers green, lists orange, objects pink, yes or no yellow, dates teal
   const TY = { text:'b', number:'m', list:'p', object:'k', bool:'y', date:'t' };
   // the steps before Send the reply, in their order, and what each hands on: [field, type, sample]

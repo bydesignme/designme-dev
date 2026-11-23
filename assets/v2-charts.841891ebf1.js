@@ -849,7 +849,8 @@ DM.def('score-breakdown', (r, c) => {
   const LAST = 77;
   const g = $('.sbx-g', r), svg = $('svg', g), vb = $('.sbx-v b', r), bw = $('.sbx-bw', r), ch = $('.sbx-ch', r), list = $('.sbx-list', r);
   // Clean's one hover: a highlight that glides from factor to factor (hoverGlide); the lit and the open one keep their own
-  c.offs.push(hoverGlide(list, '.sbx-r', { keep:'.on,.open' }));
+  // (a row lit from the gauge (.on) takes the glide; an open row keeps its stronger fill)
+  c.offs.push(hoverGlide(list, '.sbx-r', { hl:'.on', keep:'.open' }));
   const total = () => F.reduce((t, f) => t + f.e, 0), band = s => s >= 90 ? 'Excellent' : s >= 75 ? 'Good' : s >= 60 ? 'Fair' : 'Needs work';
   const weakest = () => F.reduce((m, f, i) => f.e / f.w < F[m].e / F[m].w ? i : m, 0);
   // the gauge: a half circle split by weight, with a small gap between the segments

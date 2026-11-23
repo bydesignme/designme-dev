@@ -331,6 +331,7 @@ DM.def('multi-select', (r, c) => {
   // tags for the pricing page, and how many files carry each
   const T = [['Accessibility', 14], ['Billing', 9], ['Copy', 22], ['Design system', 31], ['Launch', 12], ['Mobile', 18], ['Onboarding', 7], ['Pricing', 16], ['Research', 11], ['Tokens', 25], ['Tooltips', 6]];
   const f = $('.msc-f', r), q = $('.msc-q', r), pop = $('.msc-pop', r), list = $('.msc-list', r), key = $('.msc-key', r), label = $('.msc-l', r);
+  c.offs.push(hoverGlide(list, '.msc-o'));
   q.id = 'msc-q-' + uid; label.htmlFor = q.id; list.id = 'msc-l-' + uid; q.setAttribute('aria-controls', list.id);
   let picked = ['Launch'], hi = 0, opts = [];
   const clr = $('.msc-clr', r);

@@ -83,7 +83,8 @@ DM.def('segmented-control', (r, c) => {
   const uid = Math.random().toString(36).slice(2, 7);
   const seg = $('.sgc-seg', r), knob = $('.sgc-k', r), tabs = $$('[role="tab"]', seg), panel = $('.sgc-p', r), range = $('.sgc-r', r);
   // Clean's one hover: a highlight that glides from event to event and day to day (hoverGlide)
-  c.offs.push(hoverGlide(panel, '.sgc-ev,.sgc-wr,.sgc-mo .d', { keep:'.on,.now' }));
+  // (today's day in the month keeps its accent; today's row in the week has no fill of its own)
+  c.offs.push(hoverGlide(panel, '.sgc-ev,.sgc-wr,.sgc-mo .d', { keep:'.on,.d.now' }));
   let inner = $('.sgc-in', r);
   tabs.forEach(t => { t.id = `sgc-${t.dataset.v}-${uid}`; t.setAttribute('aria-controls', 'sgc-p-' + uid); });
   panel.id = 'sgc-p-' + uid;

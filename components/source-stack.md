@@ -136,11 +136,12 @@ A number from 0 to 1. It is clamped to that range and shown as a bar and a perce
 
 ```tsx
 'use client';
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable } from '../lib/hooks';
 import { Icon } from '../lib/icons';
 import { avatarInk, enter, Fold, Tip } from '../lib/motion';
+import { hoverGlide } from '../lib/glide';
 import '../designme.css';
 import './source-stack.css';
 
@@ -195,6 +196,9 @@ export function SourceStack({ children, sources, filters = FILTERS, filter, defa
   const [wasOpen, setWasOpen] = useState(isOpen);
   if (isOpen !== wasOpen) { setWasOpen(isOpen); if (isOpen) setOpened(n => n + 1); }
   const items = sources.filter(s => f === 'all' || s.kind === f);
+  // Clean's one hover glides from source to source (the list is drawn afresh as it opens or its filter changes)
+  const listRef = useRef<HTMLDivElement>(null);
+  useEffect(() => hoverGlide(listRef.current, '.dm-ssx-s'), [f, opened]);
 
   return (
     <div data-dm="" className={cx('dm-ssx', className)}>
@@ -209,7 +213,7 @@ export function SourceStack({ children, sources, filters = FILTERS, filter, defa
           <div className="dm-ssx-fl">
             {filters.map(x => <button key={x.value} type="button" className={cx('dm-chip dm-sm', x.value === f && 'dm-on')} aria-pressed={x.value === f} onClick={() => setF(x.value)}>{x.label}</button>)}
           </div>
-          <div className="dm-ssx-list" key={f + ':' + opened}>
+          <div ref={listRef} className="dm-ssx-list" key={f + ':' + opened}>
             {items.map((s, i) => {
               const e = enter(i * 40), pct = Math.round(Math.max(0, Math.min(1, s.relevance)) * 100);
               return (

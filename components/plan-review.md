@@ -191,6 +191,7 @@ import { cx } from '../lib/cx';
 import { useControllable } from '../lib/hooks';
 import { Icon } from '../lib/icons';
 import { Spin, Swap, Think, Tip, useGrow } from '../lib/motion';
+import { useHoverGlide } from '../lib/glide';
 import '../designme.css';
 import './plan-review.css';
 
@@ -239,6 +240,9 @@ let added = 0;
 
 /** A plan the agent proposes before it starts: edit a step, skip it, add one, then approve. */
 export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, phase = 'review', status, note, meta, onApprove, onRequestChanges, onStop, onSeeChanges, bare = false, className }: PlanReviewProps) {
+  // Clean's one hover glides from step to step
+  const listRef = useRef<HTMLOListElement>(null);
+  useHoverGlide(listRef, '.dm-plx-s');
   const [list, setList] = useControllable(steps, defaultSteps, onStepsChange);
   const live = useRef(list);
   useEffect(() => { live.current = list; });
@@ -271,7 +275,7 @@ export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, pha
         <div className="dm-plx-ht"><b>{title}</b><Swap className={cx('dm-muted dm-plx-st', phase === 'running' && 'dm-shim')}>{status ?? `About ${Math.max(1, Math.round(included.length * .8))} min`}</Swap></div>
         {meta !== undefined && <span className="dm-plx-tm dm-num">{meta}</span>}
       </div>
-      <ol className="dm-plx-list">
+      <ol ref={listRef} className="dm-plx-list">
         {list.map((s, i) => {
           const num = s.skipped ? '–' : String(++n);
           const entering = !entered.has(s.id);

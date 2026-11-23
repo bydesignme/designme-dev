@@ -1289,6 +1289,8 @@ DM.def('data-picker', (r, c) => {
   r.innerHTML = r.innerHTML.replace(/\{([\w-]+)(?:\.(xs))?\}/g, (m, k, z) => I(k, z || 's'));
   const uid = 'fpk' + Math.random().toString(36).slice(2, 7);
   const box = $('.fpk', r), pop = $('.fpk-pop', r), q = $('.fpk-q input', r), ls = $('.fpk-ls', r), live = $('.fpk-live', r);
+  // the row the pointer or the arrows are on (.on) has Clean's one hover, gliding from row to row
+  c.offs.push(hoverGlide(ls, '.fpk-o', { hl:'.on', keep:':not(*)' }));
   // each data type has its colour: text blue, numbers green, lists orange, objects pink, yes or no yellow, dates teal
   const TY = { text:'b', number:'m', list:'p', object:'k', bool:'y', date:'t' };
   // the steps before Send the reply, in their order, and what each hands on: [field, type, sample]
@@ -1557,6 +1559,7 @@ DM.def('memory-panel', (r, c) => {
     ['brand','No em dashes in product copy','drive','Voice and tone guide in Drive, Oct 2']
   ].map((m, i) => ({ id:i, k:m[0], t:m[1], from:m[2], s:m[3] }));
   const list = $('.mmx-list', r), fi = $('.mmx-fi', r), ft = $('.mmx-ft', r);
+  if (!r.closest('.ahx')) c.offs.push(hoverGlide(list, '.mmx-m'));
   let f = 'all', nid = 100;
   // the head names the panel only: a count of the memories and a row of their sources' marks repeated what the list shows
   const count = () => {};
