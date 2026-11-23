@@ -138,7 +138,9 @@ function install(){
     if (A.accent.includes(bg)) return 'primary';
     const edge = (parseFloat(cs.borderTopWidth) > 0 && A.col(cs.borderTopColor) !== 'none') || A.ring(cs);
     if (r.height <= 24 && r.width < 160 && !e.matches('.pill')) return 'chip';
-    if (edge && (bg === 'none' || bg === A.col(getComputedStyle(e.parentElement).backgroundColor) || /^rgb\(25[0-5],25[0-5],25[0-5]\)$/.test(bg))) return 'secondary (outlined)';
+    // (outlined: an edge, and a fill that is clear, white, or the surface it sits on, as a dark theme's outlined button is)
+    let under = 'none'; for (let a = e.parentElement; a; a = a.parentElement){ const c = A.col(getComputedStyle(a).backgroundColor); if (c !== 'none' && !/^rgba/.test(c)){ under = c; break; } }
+    if (edge && (bg === 'none' || bg === under || /^rgb\(25[0-5],25[0-5],25[0-5]\)$/.test(bg))) return 'secondary (outlined)';
     return 'secondary (filled)';
   };
   // the cards in the component: the outermost boxes with an edge (a border all round, a ring or a shadow) at least 160 by 48
