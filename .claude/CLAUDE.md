@@ -182,6 +182,15 @@ every session and every agent.
   Payment form, OTP field, Number field, Slider, Country select, Social sign-in, Carousel, Date range picker and Invite to
   collaborate join Phase II as well; Reactions and Context menu stay in Phase I. The owner is confirming the rest batch by batch; the Roadmap and the
   Changelog follow once the Phase I list is final.
+- Launch list (owner, 23 Nov): the site launches with these 35 components, and the rest follow one by one as "New component
+  live on DesignMe Dev" posts. Agent tree, Trace view, Agent lanes, Agent inbox, Thinking, Composer, Context meter, Web
+  search, Decision prompt, Attachment tray, Agent run timeline, Run cost, Scheduled runs, Reasoning trail, Model picker,
+  Permission gate, Plan review, Event calendar, File explorer, Command palette, Memory panel, Inline text diff, Terminal
+  stream, Live answer, Step loader, Thinking states, Source stack, Citation hover card, Answer action bar, Response
+  versions, Feedback sheet, Tools and connections, Knowledge sources, Run drawer, Status pill. Eight components taken out
+  in the 16 Nov library trim come back with Clean designs for the posts that follow: Hand-off to a person, Steering,
+  Browser session, Voice orb, Image generation, Tool call, Code viewer, Design tuner (their code is in the commit before
+  f0e4fbfd).
 - Soft keeps its look; the "Soft refreshed" lab is dropped. Six components have their Clean touches (Agent tree,
   Agent run timeline, Status pill, Context meter, Run cost, Meeting card); the others render with Clean's tokens and get
   theirs later.
