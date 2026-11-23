@@ -143,7 +143,7 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
                 comes back as Undo once it is done */}
             {busy
               ? <span className="dm-ctm-run" role="status"><Spin /><span className="dm-shim">Compacting…</span></span>
-              : <button ref={go} type="button" className={cx('dm-pill dm-sm dm-ctm-go', message && messageTone === 'warn' ? 'dm-warn' : 'dm-soft')} onClick={compact}>{compacted ? 'Undo' : 'Compact'}</button>}
+              : <button ref={go} type="button" className={cx('dm-pill dm-sm dm-ctm-go', message && messageTone === 'warn' ? 'dm-warn' : 'dm-line')} onClick={compact}>{compacted ? 'Undo' : 'Compact'}</button>}
           </div>
         )}
       </div>

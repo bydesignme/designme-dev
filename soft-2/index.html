@@ -237,6 +237,14 @@ b,strong{font-weight:500}
 .pill.soft{background:var(--soft);color:var(--fg);box-shadow:var(--soft-ring)}
 .pill.soft:hover{background:var(--soft-h)}
 .pill.line{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent);color:var(--fg)}
+/* a secondary action on a white card is this white outlined button, never the grey .pill.soft, which reads as pressed or
+   disabled on white (owner, 23 Nov). Its hover in Soft and Blueprint is the quiet --row fill, with no change to its edge, and
+   Metric insight's Why holds it while its breakdown is open.
+   Clean keeps its own flat secondary (its rules come later and win) */
+:root :is(.aln-pause,.aln-sw-pause,.aln-sw-live,.ctm-go,.rc-go,.mix-why,.fmx-ai,.ecx-prep,.sbx-imp,.atb-em .pill,.atb-note .pill,.plx-f .pill).pill.line:hover,:root .pill.line.mix-why[aria-expanded="true"]{background:var(--row)}
+:root[data-style="bp"] :is(.aln-pause,.aln-sw-pause,.aln-sw-live,.ctm-go,.rc-go,.mix-why,.fmx-ai,.ecx-prep,.sbx-imp,.atb-em .pill,.atb-note .pill,.plx-f .pill).pill.line:hover{background:var(--row);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}
+:root[data-style="bp"][data-theme="dark"] :is(.aln-pause,.aln-sw-pause,.aln-sw-live,.ctm-go,.rc-go,.mix-why,.fmx-ai,.ecx-prep,.sbx-imp,.atb-em .pill,.atb-note .pill,.plx-f .pill).pill.line:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--fg) 22%,var(--surface))}
+@media (prefers-color-scheme:dark){:root[data-style="bp"]:not([data-theme="light"]) :is(.aln-pause,.aln-sw-pause,.aln-sw-live,.ctm-go,.rc-go,.mix-why,.fmx-ai,.ecx-prep,.sbx-imp,.atb-em .pill,.atb-note .pill,.plx-f .pill).pill.line:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--fg) 22%,var(--surface))}}
 .pill.ghost{color:var(--fg2)}.pill.ghost:hover{background:var(--row);color:var(--fg)}
 /* the action on a warning notice (owner, 18 Nov): the warning tint with the warning text, as the warning chip (.tag.warn),
    deepening a little under the pointer */
@@ -4248,10 +4256,6 @@ button.evr-vs-r:focus-visible{outline-offset:-2px;border-radius:calc(10px * var(
 .mix-ic{color:var(--accent-fg,var(--accent));display:grid;margin-top:2px}
 .mix-why{align-self:flex-start;overflow:hidden}
 .mix-why .shim{font-size:inherit}
-/* a lighter button than the soft pill, like the other quiet asks */
-.pill.soft.mix-why{background:var(--chip);box-shadow:none}
-.pill.soft.mix-why[aria-expanded="true"]{background:var(--hover)}
-.pill.soft.mix-why:hover{background:var(--hover)}
 /* nothing in it grows or shrinks when it is pressed (owner, 18 Nov) */
 .mix :is(.pill,.ib):active{transform:none}
 /* the reasons fold open under Why did it move?; shut, the fold takes back the card's 10px gap, so the card's content ends 16px
@@ -10670,7 +10674,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
     <div class="ctm-bar" aria-hidden="true"></div>
     <div class="ctm-leg"></div>
     <div class="ctm-msg" aria-live="polite"><span></span></div>
-    <div class="ctm-f"><span class="ctm-hint">Summarises older turns</span><button class="pill soft sm ctm-go">Compact</button></div>
+    <div class="ctm-f"><span class="ctm-hint">Summarises older turns</span><button class="pill line sm ctm-go">Compact</button></div>
   </div>
 </div></template>
   <div class="card-f"><span>Hover a part, then compact</span><span class="sp"></span><button class="replay" aria-label="Replay Context meter"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
@@ -10763,7 +10767,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <div class="card-h"><div><h3>Agent lanes</h3><p>Several agents working in parallel, each with its own lane and hand-offs.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="dm aln-dm" data-designs="card"><div class="dm-main"><div class="aln panel">
-  <div class="aln-h"><span class="aln-ic">{users}</span><span class="aln-t">3 agents working</span><span class="aln-m muted num">0:00</span><span class="aln-ct num">0 of 9 steps</span><button class="pill soft sm aln-pause">{pause}Pause all</button></div>
+  <div class="aln-h"><span class="aln-ic">{users}</span><span class="aln-t">3 agents working</span><span class="aln-m muted num">0:00</span><span class="aln-ct num">0 of 9 steps</span><button class="pill line sm aln-pause">{pause}Pause all</button></div>
   <div class="aln-rows"></div>
   <div class="aln-say" aria-live="polite">3 agents queued</div>
 </div></div>
@@ -11140,7 +11144,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <div class="mix-v"><b class="num mix-n">0%</b><span class="tag ok mix-d num">+0.0 pts</span></div>
   <div class="mix-ch"><svg class="mix-svg" viewBox="0 0 300 90" preserveAspectRatio="none"><defs><linearGradient id="mixg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--accent-mark,var(--accent))" stop-opacity=".18"/><stop offset="1" stop-color="var(--accent-mark,var(--accent))" stop-opacity="0"/></linearGradient></defs><path class="mix-a" fill="url(#mixg)"/><path class="mix-l" fill="none" stroke="var(--accent-mark,var(--accent))" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/><line class="mix-x" y1="0" y2="90" stroke="var(--faint)" stroke-dasharray="2 3" vector-effect="non-scaling-stroke"/></svg><span class="mix-dot"></span><span class="mix-mk" style="left:58%"><b>{spark}Sep 18</b></span></div>
   <div class="mix-ins"><span class="mix-ic">{spark}</span><span class="mix-t">Jumped after the pricing page update on Sep 18.</span></div>
-  <button class="pill soft sm mix-why">Why did it move?</button>
+  <button class="pill line sm mix-why">Why did it move?</button>
   <div class="fold shut mix-box"><div><div class="mix-rs"></div></div></div>
 </div></template>
   <div class="card-f"><span>Hover the chart, ask why it moved</span><span class="sp"></span><button class="replay" aria-label="Replay Metric insight"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
@@ -11856,7 +11860,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <div class="card-h"><div><h3>Form</h3><p>A project brief with inline checks and an agent that drafts the rest.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><form class="fmx panel" novalidate>
-  <div class="fmx-h"><b>New project brief</b><button type="button" class="pill soft sm fmx-ai">{spark}Draft with agent</button></div>
+  <div class="fmx-h"><b>New project brief</b><button type="button" class="pill line sm fmx-ai">{spark}Draft with agent</button></div>
   <label class="fmx-f"><span>Project name<i class="fmx-dr" aria-hidden="true">{spark}Drafted</i></span><input name="n" placeholder="Pricing refresh" maxlength="40"><em class="fmx-c num">0/40</em></label>
   <label class="fmx-f"><span>Goal<i class="fmx-dr" aria-hidden="true">{spark}Drafted</i></span><textarea name="g" rows="2" placeholder="What should change, and why?"></textarea></label>
   <div class="fmx-f"><span>Type</span><div class="fmx-ty"><button type="button" class="chip sm" data-v="web">Website</button><button type="button" class="chip sm" data-v="app">App</button><button type="button" class="chip sm" data-v="brand">Brand</button></div></div>
@@ -13453,8 +13457,8 @@ DM.def('context-meter', (r, c) => {
   }
   // a warning is a warning notice with the filled sign, and Compact, the action that resolves it, takes the warning tint
   const WARN = '<svg class="ctm-wi" viewBox="0 0 24 24" aria-hidden="true"><path class="a" d="M12 3.6 2.6 19.9h18.8z"/><path class="b" d="M12 9.6v4.4M12 17v.01"/></svg>';
-  const say = (text, tone) => { msg.className = 'ctm-msg on ' + tone; swap(msg.firstElementChild, `${tone === 'warn' ? WARN : I('ok','xs')}<span>${text}</span>`, true); go.classList.toggle('warn', tone === 'warn'); go.classList.toggle('soft', tone !== 'warn'); };
-  const hush = () => { msg.className = 'ctm-msg'; go.classList.remove('warn'); go.classList.add('soft'); };
+  const say = (text, tone) => { msg.className = 'ctm-msg on ' + tone; swap(msg.firstElementChild, `${tone === 'warn' ? WARN : I('ok','xs')}<span>${text}</span>`, true); go.classList.toggle('warn', tone === 'warn'); go.classList.toggle('line', tone !== 'warn'); };
+  const hush = () => { msg.className = 'ctm-msg'; go.classList.remove('warn'); go.classList.add('line'); };
   // hovering a part lights its share of the bar
   c.on(leg, 'pointerover', e => { const l = e.target.closest('.ctm-l'); if (!l) return; bar.classList.add('hl'); $$('i', bar).forEach(i => i.classList.toggle('on', i.dataset.k === l.dataset.k)); });
   c.on(leg, 'pointerout', e => { if (!leg.contains(e.relatedTarget)) bar.classList.remove('hl'); });
@@ -14380,7 +14384,7 @@ DM.def('run-cost', (r, c) => {
   go.onclick = () => {
     if (running){ stop('Stopped'); swap(gl(), 'Resume'); return; }
     if (used >= 2000){ used = inT = outT = tools = 0; paint(); }
-    running = true; status('Running', 'b'); swap(gl(), 'Stop'); go.className = 'pill soft sm rc-go'; fill.style.background = 'var(--accent-mark,var(--accent))';
+    running = true; status('Running', 'b'); swap(gl(), 'Stop'); go.className = 'pill line sm rc-go'; fill.style.background = 'var(--accent-mark,var(--accent))';
     loop = c.every(90, () => {
       used = Math.min(2000, used + 8 + Math.random() * 18); inT += 120 + Math.random() * 220; outT += 30 + Math.random() * 70; if (Math.random() < .12) tools++;
       paint();
@@ -14690,6 +14694,8 @@ DM.def('agent-lanes', (r, c) => {
     const w = L.find(l => l.running);
     swap(say, w ? (w.did ? `${w.n}: ${lc(w.did)}` : `${w.n} started: ${lc(w.acts[0])}`) : steps ? `${steps} of ${STEPS} steps` : `${L.length} agents queued`); };
   const pb = $('.aln-pause', r);
+  // Pause all is the white outlined secondary (owner, 23 Nov); inside Agent harness (Phase II) it keeps its grey one for now
+  if (r.closest('.ahx')) pb.classList.replace('line', 'soft');
   pb.onclick = () => { paused = !paused; pb.innerHTML = I(paused ? 'play' : 'pause','xs') + (paused ? 'Resume' : 'Pause all'); swap($('.aln-t', r), paused ? 'All agents paused' : '3 agents working');
     L.forEach(l => { if (l.running){ state(l, paused ? 'paused' : 'working'); $('.aln-a', l.el).classList.toggle('shim', !paused); } }); tell(); };
   c.every(1000, () => { if (!paused && !finished){ secs++; $('.aln-m', r).textContent = clk(); } });
@@ -14771,13 +14777,13 @@ DM.def('agent-lanes', (r, c) => {
   }
 
   const alnSwTpl = () => `<div class="aln-sw panel keep">
-    <div class="aln-sw-h"><div class="aln-sw-ht"><b class="aln-sw-tt">3 agents working</b><span class="aln-sw-st num">0:00 of 0:12</span></div><span class="aln-sw-key" aria-hidden="true"><span><i class="next"></i>Next</span><span><i class="run"></i>Working</span><span><i class="done"></i>Done</span><span><i class="wait"></i>Waiting</span></span><button class="pill soft sm aln-sw-pause" type="button">${I('pause','xs')}Pause</button></div>
+    <div class="aln-sw-h"><div class="aln-sw-ht"><b class="aln-sw-tt">3 agents working</b><span class="aln-sw-st num">0:00 of 0:12</span></div><span class="aln-sw-key" aria-hidden="true"><span><i class="next"></i>Next</span><span><i class="run"></i>Working</span><span><i class="done"></i>Done</span><span><i class="wait"></i>Waiting</span></span><button class="pill line sm aln-sw-pause" type="button">${I('pause','xs')}Pause</button></div>
     <div class="aln-sw-grid">
       <div class="aln-sw-ax num" aria-hidden="true"><span class="aln-sw-ticks"></span></div>
       <div class="aln-sw-rows"></div>
       <div class="aln-sw-ph" role="slider" tabindex="0" aria-label="Time in the run" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0" aria-valuetext="0 seconds"><i></i><span class="aln-sw-now num">0:00</span></div>
     </div>
-    <div class="aln-sw-f"><span class="aln-sw-say" aria-live="polite">Researcher starts on the pricing pages</span><button class="pill soft sm aln-sw-live" type="button" hidden>Back to now</button></div>
+    <div class="aln-sw-f"><span class="aln-sw-say" aria-live="polite">Researcher starts on the pricing pages</span><button class="pill line sm aln-sw-live" type="button" hidden>Back to now</button></div>
   </div>`;
   // Swimlanes: the clock ticks ten times a second while the demo plays and nobody has paused it. Bars reveal with a clip and
   // the playhead moves with a transform; text changes only when it says something new
@@ -17168,8 +17174,9 @@ DM.def('plan-review', (r, c) => {
     $('.plx-mk', r).classList.remove('on');
     $$('.plx-s.run', list).forEach(s => { s.classList.remove('run', 'retry'); txt(s).classList.remove('shim'); $('.d>span', s).classList.remove('shim'); n(s).textContent = '–'; note(s, 'Not started'); });
     // a finished plan has no elapsed clock (owner, 18 Nov): the status line says how long it took
+    // See changes is the white outlined secondary (owner, 23 Nov); inside Agent harness (Phase II) it keeps its grey one for now
     tm.textContent = ''; st.classList.remove('shim');
-    swap(st, stop ? 'Stopped, progress kept' : 'Done in ' + clock(performance.now() - t0) + '. 4 frames updated'); f.innerHTML = `<span class="muted plx-n"></span><button class="pill soft sm">${I('eye','xs')}See changes</button>`; enter(f.lastElementChild);
+    swap(st, stop ? 'Stopped, progress kept' : 'Done in ' + clock(performance.now() - t0) + '. 4 frames updated'); f.innerHTML = `<span class="muted plx-n"></span><button class="pill ${r.closest('.ahx') ? 'soft' : 'line'} sm">${I('eye','xs')}See changes</button>`; enter(f.lastElementChild);
   });
   // the preview's story: rewrite a step, approve, and watch the agent work through a rate limit to the end
   c.story(async s => {
@@ -17181,7 +17188,7 @@ DM.def('plan-review', (r, c) => {
     for (const ch of ', annual price first'){ t.textContent += ch; await s.beat(.09); }
     await s.beat(1); t.onblur(); await s.beat(2);
     await s.tap(go); s.away();
-    await s.until(() => $('.plx-f .pill.soft', r));
+    await s.until(() => $('.plx-f .pill:is(.line,.soft)', r));
   });
 });
 /* ---------- Inline text diff ---------- */
@@ -20925,11 +20932,11 @@ DM.def('account-table', (r, c) => {
   // each row is made once and kept, so a search or a plan filter can ease it between places; the note under an open row
   // is its own row, keyed after it
   const rows = new Map(A.map(a => [a[0], html(`<tr class="row" data-n="${a[0]}" tabindex="0" aria-expanded="false"><td><span class="nm"><span class="lg" style="background:var(--av-${a[1]});color:var(--av-${a[1]}-ink)">${a[0][0]}</span>${a[0]}</span></td><td><span class="tag ${a[2] === 'Enterprise' ? 'l' : a[2] === 'Pro' ? 'b' : 't'}">${a[2]}</span></td><td class="r num">${a[3]}</td><td><span class="hb"><i><b style="width:${a[4]}%;background:${hc(a[4])}"></b></i><span class="num">${a[4]}</span></span></td><td class="r num">${a[5]}</td></tr>`)]));
-  const none = html('<tr class="atb-empty" data-n=" none"><td colspan="5"><div class="atb-em"><span class="atb-em-art" aria-hidden="true"></span><b>No accounts match</b><span>Try another name, or show every plan.</span><button class="pill soft sm">Show all accounts</button></div></td></tr>');
+  const none = html('<tr class="atb-empty" data-n=" none"><td colspan="5"><div class="atb-em"><span class="atb-em-art" aria-hidden="true"></span><b>No accounts match</b><span>Try another name, or show every plan.</span><button class="pill line sm">Show all accounts</button></div></td></tr>');
   $('.pill', none).onclick = () => { q.value = ''; plan = ''; pick($('.atb-fl .chip[data-p=""]', r)); paint(true); };
   let det = null;
   function note(a){
-    const d = html(`<tr class="det" data-n="${a[0]} note"><td colspan="5"><div class="fold"><div><div class="atb-note">${I('spark','xs')}<span>${a[6]}</span><button class="pill soft sm">Draft email</button></div></div></div></td></tr>`);
+    const d = html(`<tr class="det" data-n="${a[0]} note"><td colspan="5"><div class="fold"><div><div class="atb-note">${I('spark','xs')}<span>${a[6]}</span><button class="pill line sm">Draft email</button></div></div></div></td></tr>`);
     // pressed, it says Drafting with the loader's sweep, then Draft ready with the green tick; it is always as wide as its
     // words, easing to each new width, and never goes blank
     const dr = $('.pill', d);
@@ -21239,7 +21246,7 @@ DM.def('event-calendar', (r, c) => {
   /* the details card opens beside the event and stays inside the calendar */
   function openPop(el){
     const e = el._e; if (openFor === el){ closePop(); return; } if (openFor) openFor.classList.remove('on'); openFor = el; el.classList.add('on'); const n = 2 + e[3].length % 3, fresh = e[3] === 'New event';
-    pop.innerHTML = `<div class="ecx-ph"><i style="background:var(--p${e[4]})"></i>${fresh ? '<input class="ecx-ti" placeholder="Add a title" aria-label="Event title">' : `<b>${e[3]}</b>`}<button class="ib ecx-px" aria-label="Close" data-tip="Close">${I('x','xs')}</button></div><div class="ecx-pt">${DAYN[e[0]]} ${DAYS[e[0]].split(' ')[1]} Oct · ${tm(e[1])} – ${tm(e[1] + e[2])}</div><div class="ecx-pw">${WHO.slice(0, n).map(w => AV(w[0], w[1])).join('')}<span class="muted">${n} people</span></div><div class="ecx-pa">${fresh ? '<button class="pill line sm ecx-del">Discard</button><button class="pill primary sm ecx-save">Save</button>' : `<button class="pill soft sm ecx-prep">${I('spark','xs')}Prep notes</button><button class="pill primary sm">Join</button>`}</div>`;
+    pop.innerHTML = `<div class="ecx-ph"><i style="background:var(--p${e[4]})"></i>${fresh ? '<input class="ecx-ti" placeholder="Add a title" aria-label="Event title">' : `<b>${e[3]}</b>`}<button class="ib ecx-px" aria-label="Close" data-tip="Close">${I('x','xs')}</button></div><div class="ecx-pt">${DAYN[e[0]]} ${DAYS[e[0]].split(' ')[1]} Oct · ${tm(e[1])} – ${tm(e[1] + e[2])}</div><div class="ecx-pw">${WHO.slice(0, n).map(w => AV(w[0], w[1])).join('')}<span class="muted">${n} people</span></div><div class="ecx-pa">${fresh ? '<button class="pill line sm ecx-del">Discard</button><button class="pill primary sm ecx-save">Save</button>' : `<button class="pill line sm ecx-prep">${I('spark','xs')}Prep notes</button><button class="pill primary sm">Join</button>`}</div>`;
     const pr = panel.getBoundingClientRect(), er = el.getBoundingClientRect(), w = 248;
     let x = er.right - pr.left + 8; if (x + w > pr.width - 16) x = er.left - pr.left - w - 8; x = Math.max(16, x);
     let y = er.top - pr.top; y = Math.max(16, Math.min(y, pr.height - pop.offsetHeight - 24));
@@ -24531,7 +24538,7 @@ DM.def('score-breakdown', (r, c) => {
     a.onfinish = a.oncancel = () => { if (d._mo !== a) return; d._mo = null; d.style.overflow = ''; }; };
   function detail(i){ const f = F[i], d = $('.sbx-d', R[i]); if (d.dataset.st === 'busy' || d.dataset.st === 'prop') return;
     const lost = f.w - f.e;
-    morph(d, () => d.innerHTML = `<span>${f.done ? f.done + ' ' : ''}${lost ? `Loses ${lost} of its ${f.w} points` : 'Full marks'}${i === weakest() && lost ? ', the most of any factor for its weight.' : '.'}</span>${f.fix ? `<span class="acts"><button class="pill soft sm sbx-imp">${I('wand','xs')}Improve</button></span>` : ''}`);
+    morph(d, () => d.innerHTML = `<span>${f.done ? f.done + ' ' : ''}${lost ? `Loses ${lost} of its ${f.w} points` : 'Full marks'}${i === weakest() && lost ? ', the most of any factor for its weight.' : '.'}</span>${f.fix ? `<span class="acts"><button class="pill line sm sbx-imp">${I('wand','xs')}Improve</button></span>` : ''}`);
     const b = $('.sbx-imp', d); if (b) b.onclick = () => improve(i); }
   const improve = i => c.run(async () => { const f = F[i], d = $('.sbx-d', R[i]); d.dataset.st = 'busy';
     morph(d, () => d.innerHTML = `<div class="sbx-pr"><span class="k">${I('spark','xs')}<span class="shim">Looking at 120 slow replies</span></span></div>`); enter(d.firstElementChild);

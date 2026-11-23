@@ -143,7 +143,7 @@ function Details({ event, onClose, onSave, onDiscard, onPrepNotes, onJoin }: {
         </div>
       ) : (onPrepNotes || onJoin) && (
         <div className="dm-ecx-pa">
-          {onPrepNotes && <button type="button" className={cx('dm-pill dm-soft dm-sm dm-ecx-prep', prep === 'done' && 'dm-done')} aria-disabled={prep === 'done' || undefined} onClick={write}>
+          {onPrepNotes && <button type="button" className={cx('dm-pill dm-line dm-sm dm-ecx-prep', prep === 'done' && 'dm-done')} aria-disabled={prep === 'done' || undefined} onClick={write}>
             {prep === 'writing' ? <><Think /><span className="dm-shim">Writing</span></> : <><Icon name={prep === 'done' ? 'check' : 'spark'} size="xs" />Prep notes</>}
           </button>}
           {onJoin && <button type="button" className="dm-pill dm-primary dm-sm" onClick={() => onJoin(event)}>Join</button>}
