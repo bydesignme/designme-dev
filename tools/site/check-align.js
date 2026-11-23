@@ -59,12 +59,13 @@ function sample(id){
   // baselines (owner, 23 Nov: Agent lanes' "0:05" sat 2px above "3 agents working"): words that sit side by side on one line
   // share one baseline, whatever their sizes. A row with align-items:center centres each box, so a 12.5px time beside a 14px
   // title ends up with its baseline higher; the centres check above can't see that, since the centres do match.
-  //  - each run of words (a text node on one line) is measured by its baseline: a zero-size inline-block probe (overflow
-  //    hidden, so its baseline is its bottom edge) placed in the text's parent right before the words lands on the words'
-  //    baseline. The probe and the words are wrapped for the moment in an element with every property unset and no wrapping,
-  //    so the probe can't be pushed onto a line of its own (words wider than their box would push it), and loose words in a
-  //    flex or grid box stay one anonymous-looking item. Every probe is put in first and read after, in one layout, then
-  //    everything is put back as it was
+  //  - each run of words (a text node on one line) is measured by its baseline: a zero-size probe placed in the text's
+  //    parent right before the words lands on the words' baseline. The probe is an empty inline with a font size of 0, so its
+  //    box is a point on the baseline; an inline-block would be measured the same way but adds a place where the line may
+  //    break, which can push it onto a line of its own (". Every plan" after "team" in a diff; words wider than their column).
+  //    When the parent is a flex or grid box, or has display:contents, its loose words are an anonymous item of their own, so
+  //    they are wrapped for the moment, with the probe, in an element with every property unset (an anonymous item's look).
+  //    Every probe is put in first and read after, in one layout, then everything is put back as it was
   //  - two runs are on one line when their boxes overlap vertically by at least a third of the smaller, and each sits in a
   //    one-line part of the row: the child of their nearest common ancestor holding each run has no words on another line
   //    (a title over a subtitle, centred against a time beside them, is not one line). A time set squarely beside the title
@@ -94,8 +95,10 @@ function sample(id){
     const cand = runs.filter(r => !r.skip);
     if (cand.length > 1){
       const unset = 'all:unset!important;', made = [];
-      cand.forEach(r => { const p = document.createElement('dm-baseline-probe'); p.style.cssText = unset + 'display:inline-block!important;width:0!important;height:0!important;overflow:hidden!important;vertical-align:baseline!important';
-        const w = document.createElement('dm-baseline-wrap'); w.style.cssText = unset + 'white-space:nowrap!important'; r.n.before(w); w.append(p, r.n); made.push(() => { w.before(r.n); w.remove(); });
+      cand.forEach(r => { const p = document.createElement('dm-baseline-probe'); p.style.cssText = unset + 'display:inline!important;font-size:0!important;line-height:0!important;vertical-align:baseline!important';
+        let lay = r.e; while (lay.parentElement && getComputedStyle(lay).display === 'contents') lay = lay.parentElement;
+        if (lay !== r.e || /flex|grid|box/.test(getComputedStyle(r.e).display)){ const w = document.createElement('dm-baseline-wrap'); w.style.cssText = unset; r.n.before(w); w.append(p, r.n); made.push(() => { w.before(r.n); w.remove(); }); }
+        else { r.n.before(p); made.push(() => p.remove()); }
         r.p = p; });
       cand.forEach(r => { r.base = r.p.getBoundingClientRect().top; });
       made.reverse().forEach(f => f());
