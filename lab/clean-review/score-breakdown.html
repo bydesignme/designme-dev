@@ -474,7 +474,7 @@ export function ScoreBreakdown({ factors, title = &#39;Quality score&#39;, previ
                         &lt;span className=&quot;dm-gain&quot;&gt;{pr.gain ? pr.gain + &#39;: &#39; : &#39;&#39;}{f.label} &lt;b className=&quot;dm-num&quot;&gt;{f.earned} → {pr.to}&lt;/b&gt;&lt;/span&gt;
                         &lt;span className=&quot;dm-acts&quot;&gt;&lt;button type=&quot;button&quot; className=&quot;dm-pill dm-primary dm-sm&quot; onClick={() =&gt; { drop(f.key); onApply?.(f, pr); }}&gt;Apply&lt;/button&gt;&lt;button type=&quot;button&quot; className=&quot;dm-pill dm-ghost dm-sm&quot; onClick={() =&gt; drop(f.key)}&gt;Not now&lt;/button&gt;&lt;/span&gt;&lt;/div&gt;
                     : &lt;&gt;&lt;span&gt;{f.detail ? f.detail + &#39; &#39; : &#39;&#39;}{lost ? `Loses ${lost} of its ${f.weight} points` : &#39;Full marks&#39;}{i === weakest &amp;&amp; lost ? &#39;, the most of any factor for its weight.&#39; : &#39;.&#39;}&lt;/span&gt;
-                        {f.improvable &amp;&amp; onImprove &amp;&amp; &lt;span className=&quot;dm-acts&quot;&gt;&lt;button type=&quot;button&quot; className=&quot;dm-pill dm-soft dm-sm&quot; onClick={() =&gt; improve(f)}&gt;&lt;Icon name=&quot;wand&quot; size=&quot;xs&quot; /&gt;Improve&lt;/button&gt;&lt;/span&gt;}&lt;/&gt;}
+                        {f.improvable &amp;&amp; onImprove &amp;&amp; &lt;span className=&quot;dm-acts&quot;&gt;&lt;button type=&quot;button&quot; className=&quot;dm-pill dm-line dm-sm dm-sbx-imp&quot; onClick={() =&gt; improve(f)}&gt;&lt;Icon name=&quot;wand&quot; size=&quot;xs&quot; /&gt;Improve&lt;/button&gt;&lt;/span&gt;}&lt;/&gt;}
                 &lt;/Detail&gt;
               &lt;/Fold&gt;
             &lt;/div&gt;
@@ -723,7 +723,7 @@ const { class: className, ...rest } = Astro.props;
     a.onfinish = a.oncancel = () =&gt; { if (d._mo !== a) return; d._mo = null; d.style.overflow = &#39;&#39;; }; };
   function detail(i){ const f = F[i], d = $(&#39;.sbx-d&#39;, R[i]); if (d.dataset.st === &#39;busy&#39; || d.dataset.st === &#39;prop&#39;) return;
     const lost = f.w - f.e;
-    morph(d, () =&gt; d.innerHTML = `&lt;span&gt;${f.done ? f.done + &#39; &#39; : &#39;&#39;}${lost ? `Loses ${lost} of its ${f.w} points` : &#39;Full marks&#39;}${i === weakest() &amp;&amp; lost ? &#39;, the most of any factor for its weight.&#39; : &#39;.&#39;}&lt;/span&gt;${f.fix ? `&lt;span class=&quot;acts&quot;&gt;&lt;button class=&quot;pill soft sm sbx-imp&quot;&gt;${I(&#39;wand&#39;,&#39;xs&#39;)}Improve&lt;/button&gt;&lt;/span&gt;` : &#39;&#39;}`);
+    morph(d, () =&gt; d.innerHTML = `&lt;span&gt;${f.done ? f.done + &#39; &#39; : &#39;&#39;}${lost ? `Loses ${lost} of its ${f.w} points` : &#39;Full marks&#39;}${i === weakest() &amp;&amp; lost ? &#39;, the most of any factor for its weight.&#39; : &#39;.&#39;}&lt;/span&gt;${f.fix ? `&lt;span class=&quot;acts&quot;&gt;&lt;button class=&quot;pill line sm sbx-imp&quot;&gt;${I(&#39;wand&#39;,&#39;xs&#39;)}Improve&lt;/button&gt;&lt;/span&gt;` : &#39;&#39;}`);
     const b = $(&#39;.sbx-imp&#39;, d); if (b) b.onclick = () =&gt; improve(i); }
   const improve = i =&gt; c.run(async () =&gt; { const f = F[i], d = $(&#39;.sbx-d&#39;, R[i]); d.dataset.st = &#39;busy&#39;;
     morph(d, () =&gt; d.innerHTML = `&lt;div class=&quot;sbx-pr&quot;&gt;&lt;span class=&quot;k&quot;&gt;${I(&#39;spark&#39;,&#39;xs&#39;)}&lt;span class=&quot;shim&quot;&gt;Looking at 120 slow replies&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;`); enter(d.firstElementChild);
@@ -1135,7 +1135,7 @@ const fitHits = window.dmFitHits || (() => {
     a.onfinish = a.oncancel = () => { if (d._mo !== a) return; d._mo = null; d.style.overflow = ''; }; };
   function detail(i){ const f = F[i], d = $('.sbx-d', R[i]); if (d.dataset.st === 'busy' || d.dataset.st === 'prop') return;
     const lost = f.w - f.e;
-    morph(d, () => d.innerHTML = `<span>${f.done ? f.done + ' ' : ''}${lost ? `Loses ${lost} of its ${f.w} points` : 'Full marks'}${i === weakest() && lost ? ', the most of any factor for its weight.' : '.'}</span>${f.fix ? `<span class="acts"><button class="pill soft sm sbx-imp">${I('wand','xs')}Improve</button></span>` : ''}`);
+    morph(d, () => d.innerHTML = `<span>${f.done ? f.done + ' ' : ''}${lost ? `Loses ${lost} of its ${f.w} points` : 'Full marks'}${i === weakest() && lost ? ', the most of any factor for its weight.' : '.'}</span>${f.fix ? `<span class="acts"><button class="pill line sm sbx-imp">${I('wand','xs')}Improve</button></span>` : ''}`);
     const b = $('.sbx-imp', d); if (b) b.onclick = () => improve(i); }
   const improve = i => c.run(async () => { const f = F[i], d = $('.sbx-d', R[i]); d.dataset.st = 'busy';
     morph(d, () => d.innerHTML = `<div class="sbx-pr"><span class="k">${I('spark','xs')}<span class="shim">Looking at 120 slow replies</span></span></div>`); enter(d.firstElementChild);
