@@ -181,6 +181,13 @@
 .tmx-st .g{display:grid;place-items:center;flex:none}
 .tmx-st .spin{width:10px;height:10px}
 .tmx-h .sp{flex:1}
+/* a narrow card (a phone) keeps every part of the head whole, so the state never runs into Stop (fix, 23 Nov): the state, Stop
+   and Copy never shrink; under 300px Stop shows its icon only (its label stays for screen readers), and under 250px the
+   directory, which by then would show only an ellipsis, gives way */
+.tmx-h{container:tmxh/inline-size}
+.tmx-st,.tmx-h :is(.pill,.ib){flex:none}
+@container tmxh (max-width:300px){.tmx .tmx-h .pill.tmx-stop{width:28px;padding:0;gap:0;justify-content:center;font-size:0}}
+@container tmxh (max-width:250px){.tmx-cwd{display:none}}
 /* nothing in it grows or shrinks when it is pressed (owner, 18 Nov) */
 .tmx :is(.ib,.pill):active,:root[data-style="clean"] .tmx .ib:active,:root [data-style="clean"] .tmx .ib:active,:root [data-style="clean"].tmx .ib:active{transform:none}
 /* Copy's tick is the vivid mark green, in place of its icon and at its size (owner, 18 Nov) */
@@ -254,16 +261,16 @@ code.tmx-p{font-weight:500;color:var(--dm-accent-fg,var(--dm-fg))}
 @keyframes tmxmarch{to{background-position:12px 0}}
 :root:not([data-style="soft"],[data-style="clean"]) .tmx-blk:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *))::before{width:1px}
 :root:not([data-style="soft"],[data-style="clean"]) .tmx-blk[data-s="run"]:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *))::before{animation:bpblink 1.1s steps(1,end) infinite}
-/* Clean (owner, 18 Nov): an off-white head strip with the directory and the run's state, Stop and Copy 8px from the card's
-   edges as 28px pills; the output on white, 16px in, with no coloured lines (the mark at each command's end says how it went)
+/* Clean (owner, 18 Nov): an off-white head strip with the directory and the run's state, Stop and Copy 16px from the card's
+   edges and the strip's hairline as 28px pills (owner, 23 Nov); the output on white, 16px in, with no coloured lines (the mark at each command's end says how it went)
    and the $ in grey; and once the run is over, the summary as the off-white foot strip */
-:root[data-style="clean"] .tmx-h,:root [data-style="clean"] .tmx-h,:root [data-style="clean"].tmx-h{height:45px;padding:0 16px;background:var(--dm-strip);border-bottom-color:var(--dm-line);border-radius:var(--dm-r-card) var(--dm-r-card) 0 0}
+:root[data-style="clean"] .tmx-h,:root [data-style="clean"] .tmx-h,:root [data-style="clean"].tmx-h{height:calc(28px + 2 * var(--dm-strip-y) + 1px);padding:0 16px;background:var(--dm-strip);border-bottom-color:var(--dm-line);border-radius:var(--dm-r-card) var(--dm-r-card) 0 0}
 :root[data-style="clean"] .tmx-h::after,:root [data-style="clean"] .tmx-h::after,:root [data-style="clean"].tmx-h::after,:root[data-style="clean"] .tmx-blk::before,:root [data-style="clean"] .tmx-blk::before,:root [data-style="clean"].tmx-blk::before{display:none}
 :root[data-style="clean"] .tmx .ib,:root [data-style="clean"] .tmx .ib,:root [data-style="clean"].tmx .ib{width:28px;height:28px}
 :root[data-style="clean"] .tmx-body,:root [data-style="clean"] .tmx-body,:root [data-style="clean"].tmx-body{padding:12px 0}
 :root[data-style="clean"] :where([data-c],.tip,.kbx-k.ghost) code.tmx-p,:root [data-style="clean"] :where([data-c],.tip,.kbx-k.ghost) code.tmx-p,:root [data-style="clean"]:where([data-c],.tip,.kbx-k.ghost) code.tmx-p{color:var(--dm-muted)}
 :root[data-style="clean"] .tmx-note>svg,:root [data-style="clean"] .tmx-note>svg,:root [data-style="clean"].tmx-note>svg{color:var(--dm-fg2)}
-:root[data-style="clean"] .tmx-f,:root [data-style="clean"] .tmx-f,:root [data-style="clean"].tmx-f{padding:8px 16px;line-height:28px;font-size:12.5px;background:var(--dm-strip);border-top-color:var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+:root[data-style="clean"] .tmx-f,:root [data-style="clean"] .tmx-f,:root [data-style="clean"].tmx-f{padding:var(--dm-strip-y) 16px;line-height:28px;font-size:12.5px;background:var(--dm-strip);border-top-color:var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
 :root[data-style="clean"] .tmx-f:not(.stop,.bad) .g,:root [data-style="clean"] .tmx-f:not(.stop,.bad) .g,:root [data-style="clean"].tmx-f:not(.stop,.bad) .g{color:color-mix(in srgb,var(--dm-ok-mark) 80%,var(--dm-ok))}
 :root[data-style="clean"] .tmx-st,:root [data-style="clean"] .tmx-st,:root [data-style="clean"].tmx-st{transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px + var(--sw,0px))}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px + var(--sw,0px))}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px + var(--sw,0px))}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px + var(--sw,0px))}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -592,7 +599,7 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>terminal-stream.css<span class="l">React · 106 lines</span></summary><pre class="cp-pre" data-name="terminal-stream.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>terminal-stream.css<span class="l">React · 113 lines</span></summary><pre class="cp-pre" data-name="terminal-stream.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Terminal stream ---------- */
 /* the shell commands the agent runs, as a compact terminal: where it runs and how it is going in the header, then each
    command with its output streaming in under it, and an exit code or a check with how long it took. Output longer than
@@ -612,6 +619,13 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
 .dm-tmx-st .dm-g{display:grid;place-items:center;flex:none}
 .dm-tmx-st .dm-spin{width:10px;height:10px}
 .dm-tmx-h .dm-sp{flex:1}
+/* a narrow card (a phone) keeps every part of the head whole, so the state never runs into Stop (fix, 23 Nov): the state, Stop
+   and Copy never shrink; under 300px Stop shows its icon only (its label stays for screen readers), and under 250px the
+   directory, which by then would show only an ellipsis, gives way */
+.dm-tmx-h{container:tmxh/inline-size}
+.dm-tmx-st,.dm-tmx-h :is(.dm-pill,.dm-ib){flex:none}
+@container tmxh (max-width:300px){.dm-tmx .dm-tmx-h .dm-pill.dm-tmx-stop{width:28px;padding:0;gap:0;justify-content:center;font-size:0}}
+@container tmxh (max-width:250px){.dm-tmx-cwd{display:none}}
 /* nothing in it grows or shrinks when it is pressed (owner, 18 Nov) */
 .dm-tmx :is(.dm-ib,.dm-pill):active,:root[data-style=&quot;clean&quot;] .dm-tmx .dm-ib:active,:root [data-style=&quot;clean&quot;] .dm-tmx .dm-ib:active,:root [data-style=&quot;clean&quot;].dm-tmx .dm-ib:active{transform:none}
 /* Copy&#39;s tick is the vivid mark green, in place of its icon and at its size (owner, 18 Nov) */
@@ -685,16 +699,16 @@ code.dm-tmx-p{font-weight:500;color:var(--dm-accent-fg,var(--dm-fg))}
 @keyframes dm-tmxmarch{to{background-position:12px 0}}
 :root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .dm-tmx-blk:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *))::before{width:1px}
 :root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .dm-tmx-blk[data-s=&quot;run&quot;]:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *))::before{animation:dm-bpblink 1.1s steps(1,end) infinite}
-/* Clean (owner, 18 Nov): an off-white head strip with the directory and the run&#39;s state, Stop and Copy 8px from the card&#39;s
-   edges as 28px pills; the output on white, 16px in, with no coloured lines (the mark at each command&#39;s end says how it went)
+/* Clean (owner, 18 Nov): an off-white head strip with the directory and the run&#39;s state, Stop and Copy 16px from the card&#39;s
+   edges and the strip&#39;s hairline as 28px pills (owner, 23 Nov); the output on white, 16px in, with no coloured lines (the mark at each command&#39;s end says how it went)
    and the $ in grey; and once the run is over, the summary as the off-white foot strip */
-:root[data-style=&quot;clean&quot;] .dm-tmx-h,:root [data-style=&quot;clean&quot;] .dm-tmx-h,:root [data-style=&quot;clean&quot;].dm-tmx-h{height:45px;padding:0 16px;background:var(--dm-strip);border-bottom-color:var(--dm-line);border-radius:var(--dm-r-card) var(--dm-r-card) 0 0}
+:root[data-style=&quot;clean&quot;] .dm-tmx-h,:root [data-style=&quot;clean&quot;] .dm-tmx-h,:root [data-style=&quot;clean&quot;].dm-tmx-h{height:calc(28px + 2 * var(--dm-strip-y) + 1px);padding:0 16px;background:var(--dm-strip);border-bottom-color:var(--dm-line);border-radius:var(--dm-r-card) var(--dm-r-card) 0 0}
 :root[data-style=&quot;clean&quot;] .dm-tmx-h::after,:root [data-style=&quot;clean&quot;] .dm-tmx-h::after,:root [data-style=&quot;clean&quot;].dm-tmx-h::after,:root[data-style=&quot;clean&quot;] .dm-tmx-blk::before,:root [data-style=&quot;clean&quot;] .dm-tmx-blk::before,:root [data-style=&quot;clean&quot;].dm-tmx-blk::before{display:none}
 :root[data-style=&quot;clean&quot;] .dm-tmx .dm-ib,:root [data-style=&quot;clean&quot;] .dm-tmx .dm-ib,:root [data-style=&quot;clean&quot;].dm-tmx .dm-ib{width:28px;height:28px}
 :root[data-style=&quot;clean&quot;] .dm-tmx-body,:root [data-style=&quot;clean&quot;] .dm-tmx-body,:root [data-style=&quot;clean&quot;].dm-tmx-body{padding:12px 0}
 :root[data-style=&quot;clean&quot;] :where([data-dm],.dm-tip,.dm-kbx-k.dm-ghost) code.dm-tmx-p,:root [data-style=&quot;clean&quot;] :where([data-dm],.dm-tip,.dm-kbx-k.dm-ghost) code.dm-tmx-p,:root [data-style=&quot;clean&quot;]:where([data-dm],.dm-tip,.dm-kbx-k.dm-ghost) code.dm-tmx-p{color:var(--dm-muted)}
 :root[data-style=&quot;clean&quot;] .dm-tmx-note&gt;svg,:root [data-style=&quot;clean&quot;] .dm-tmx-note&gt;svg,:root [data-style=&quot;clean&quot;].dm-tmx-note&gt;svg{color:var(--dm-fg2)}
-:root[data-style=&quot;clean&quot;] .dm-tmx-f,:root [data-style=&quot;clean&quot;] .dm-tmx-f,:root [data-style=&quot;clean&quot;].dm-tmx-f{padding:8px 16px;line-height:28px;font-size:12.5px;background:var(--dm-strip);border-top-color:var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+:root[data-style=&quot;clean&quot;] .dm-tmx-f,:root [data-style=&quot;clean&quot;] .dm-tmx-f,:root [data-style=&quot;clean&quot;].dm-tmx-f{padding:var(--dm-strip-y) 16px;line-height:28px;font-size:12.5px;background:var(--dm-strip);border-top-color:var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
 :root[data-style=&quot;clean&quot;] .dm-tmx-f:not(.dm-stop,.dm-bad) .dm-g,:root [data-style=&quot;clean&quot;] .dm-tmx-f:not(.dm-stop,.dm-bad) .dm-g,:root [data-style=&quot;clean&quot;].dm-tmx-f:not(.dm-stop,.dm-bad) .dm-g{color:color-mix(in srgb,var(--dm-ok-mark) 80%,var(--dm-ok))}
 :root[data-style=&quot;clean&quot;] .dm-tmx-st,:root [data-style=&quot;clean&quot;] .dm-tmx-st,:root [data-style=&quot;clean&quot;].dm-tmx-st{transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
 </code></pre></details><details class="cp-file"><summary>TerminalStream.astro<span class="l">Astro · 28 lines</span></summary><pre class="cp-pre" data-name="TerminalStream.astro"><code>---
@@ -733,7 +747,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>terminal-stream.css<span class="l">HTML · 105 lines</span></summary><pre class="cp-pre" data-name="terminal-stream.css"><code>/* ---------- Terminal stream ---------- */
+</code></pre></details><details class="cp-file"><summary>terminal-stream.css<span class="l">HTML · 112 lines</span></summary><pre class="cp-pre" data-name="terminal-stream.css"><code>/* ---------- Terminal stream ---------- */
 /* the shell commands the agent runs, as a compact terminal: where it runs and how it is going in the header, then each
    command with its output streaming in under it, and an exit code or a check with how long it took. Output longer than
    five lines folds to its last four. The output is code (12px mono on a 1.8 line height); everything around it, the header,
@@ -752,6 +766,13 @@ const { class: className, ...rest } = Astro.props;
 .tmx-st .g{display:grid;place-items:center;flex:none}
 .tmx-st .spin{width:10px;height:10px}
 .tmx-h .sp{flex:1}
+/* a narrow card (a phone) keeps every part of the head whole, so the state never runs into Stop (fix, 23 Nov): the state, Stop
+   and Copy never shrink; under 300px Stop shows its icon only (its label stays for screen readers), and under 250px the
+   directory, which by then would show only an ellipsis, gives way */
+.tmx-h{container:tmxh/inline-size}
+.tmx-st,.tmx-h :is(.pill,.ib){flex:none}
+@container tmxh (max-width:300px){.tmx .tmx-h .pill.tmx-stop{width:28px;padding:0;gap:0;justify-content:center;font-size:0}}
+@container tmxh (max-width:250px){.tmx-cwd{display:none}}
 /* nothing in it grows or shrinks when it is pressed (owner, 18 Nov) */
 .tmx :is(.ib,.pill):active,:root[data-style=&quot;clean&quot;] .tmx .ib:active,:root [data-style=&quot;clean&quot;] .tmx .ib:active,:root [data-style=&quot;clean&quot;].tmx .ib:active{transform:none}
 /* Copy&#39;s tick is the vivid mark green, in place of its icon and at its size (owner, 18 Nov) */
@@ -825,16 +846,16 @@ code.tmx-p{font-weight:500;color:var(--dm-accent-fg,var(--dm-fg))}
 @keyframes tmxmarch{to{background-position:12px 0}}
 :root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .tmx-blk:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *))::before{width:1px}
 :root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .tmx-blk[data-s=&quot;run&quot;]:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *))::before{animation:bpblink 1.1s steps(1,end) infinite}
-/* Clean (owner, 18 Nov): an off-white head strip with the directory and the run&#39;s state, Stop and Copy 8px from the card&#39;s
-   edges as 28px pills; the output on white, 16px in, with no coloured lines (the mark at each command&#39;s end says how it went)
+/* Clean (owner, 18 Nov): an off-white head strip with the directory and the run&#39;s state, Stop and Copy 16px from the card&#39;s
+   edges and the strip&#39;s hairline as 28px pills (owner, 23 Nov); the output on white, 16px in, with no coloured lines (the mark at each command&#39;s end says how it went)
    and the $ in grey; and once the run is over, the summary as the off-white foot strip */
-:root[data-style=&quot;clean&quot;] .tmx-h,:root [data-style=&quot;clean&quot;] .tmx-h,:root [data-style=&quot;clean&quot;].tmx-h{height:45px;padding:0 16px;background:var(--dm-strip);border-bottom-color:var(--dm-line);border-radius:var(--dm-r-card) var(--dm-r-card) 0 0}
+:root[data-style=&quot;clean&quot;] .tmx-h,:root [data-style=&quot;clean&quot;] .tmx-h,:root [data-style=&quot;clean&quot;].tmx-h{height:calc(28px + 2 * var(--dm-strip-y) + 1px);padding:0 16px;background:var(--dm-strip);border-bottom-color:var(--dm-line);border-radius:var(--dm-r-card) var(--dm-r-card) 0 0}
 :root[data-style=&quot;clean&quot;] .tmx-h::after,:root [data-style=&quot;clean&quot;] .tmx-h::after,:root [data-style=&quot;clean&quot;].tmx-h::after,:root[data-style=&quot;clean&quot;] .tmx-blk::before,:root [data-style=&quot;clean&quot;] .tmx-blk::before,:root [data-style=&quot;clean&quot;].tmx-blk::before{display:none}
 :root[data-style=&quot;clean&quot;] .tmx .ib,:root [data-style=&quot;clean&quot;] .tmx .ib,:root [data-style=&quot;clean&quot;].tmx .ib{width:28px;height:28px}
 :root[data-style=&quot;clean&quot;] .tmx-body,:root [data-style=&quot;clean&quot;] .tmx-body,:root [data-style=&quot;clean&quot;].tmx-body{padding:12px 0}
 :root[data-style=&quot;clean&quot;] :where([data-c],.tip,.kbx-k.ghost) code.tmx-p,:root [data-style=&quot;clean&quot;] :where([data-c],.tip,.kbx-k.ghost) code.tmx-p,:root [data-style=&quot;clean&quot;]:where([data-c],.tip,.kbx-k.ghost) code.tmx-p{color:var(--dm-muted)}
 :root[data-style=&quot;clean&quot;] .tmx-note&gt;svg,:root [data-style=&quot;clean&quot;] .tmx-note&gt;svg,:root [data-style=&quot;clean&quot;].tmx-note&gt;svg{color:var(--dm-fg2)}
-:root[data-style=&quot;clean&quot;] .tmx-f,:root [data-style=&quot;clean&quot;] .tmx-f,:root [data-style=&quot;clean&quot;].tmx-f{padding:8px 16px;line-height:28px;font-size:12.5px;background:var(--dm-strip);border-top-color:var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+:root[data-style=&quot;clean&quot;] .tmx-f,:root [data-style=&quot;clean&quot;] .tmx-f,:root [data-style=&quot;clean&quot;].tmx-f{padding:var(--dm-strip-y) 16px;line-height:28px;font-size:12.5px;background:var(--dm-strip);border-top-color:var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
 :root[data-style=&quot;clean&quot;] .tmx-f:not(.stop,.bad) .g,:root [data-style=&quot;clean&quot;] .tmx-f:not(.stop,.bad) .g,:root [data-style=&quot;clean&quot;].tmx-f:not(.stop,.bad) .g{color:color-mix(in srgb,var(--dm-ok-mark) 80%,var(--dm-ok))}
 :root[data-style=&quot;clean&quot;] .tmx-st,:root [data-style=&quot;clean&quot;] .tmx-st,:root [data-style=&quot;clean&quot;].tmx-st{transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
 </code></pre></details><details class="cp-file"><summary>terminal-stream.js<span class="l">HTML · 111 lines</span></summary><pre class="cp-pre" data-name="terminal-stream.js"><code>DM.def(&#39;terminal-stream&#39;, (r, c) =&gt; {

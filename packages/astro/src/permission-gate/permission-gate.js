@@ -36,7 +36,8 @@ DM.def('permission-gate', (r, c) => {
   $$('.pgx-pop .mi', r).forEach(m => m.addEventListener('click', () => { dur = m.dataset.v; $$('.pgx-pop .mi', r).forEach(x => x.setAttribute('aria-checked', x === m)); swap($('.pgx-dv', r), dur === 'Always' ? 'Always' : 'For ' + dur.toLowerCase()); }));
   const body = [sc, $('.pgx-f', r)];
   // the scopes give way to a shorter result row, and the card eases to its height (grow())
-  const show = on => { body.forEach(e => e.hidden = !on); if (on) stagger(body, 50); };
+  // (in Clean the foot strip fades in once the card has grown to hold it, so no button shows cut off by the card's edge as it grows)
+  const show = on => { body.forEach(e => e.hidden = !on); if (on){ if (clean){ enter(body[0]); enter(body[1], 400); } else stagger(body, 50); } };
   // Clean's summary line in the foot strip: the scopes you allowed, by name, or how many on a narrow stage
   let names = [];
   const sum = (el, text, short = text) => { if (!clean) return; const s = el.appendChild(html(`<span class="pgx-sum"><span class="l"></span><span class="s"></span></span>`)); s.firstChild.textContent = text; s.lastChild.textContent = short; };

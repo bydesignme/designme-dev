@@ -517,6 +517,11 @@ th:last-child>.col-rz{display:none}
   /* calmer than it was (owner, 18 Nov: "it should be smoother"): hovers and fades 220ms, moves 340ms, entrances 560ms */
   --dm-t-fast:.22s; --dm-t:.34s; --dm-t-slow:.56s;
   --dm-on-tint-btn:var(--dm-btn2-depth); --dm-on-tint-btn-h:var(--dm-btn2-hover);
+  /* a head or foot strip's room above and below its 28px row (owner, 23 Nov, replacing 8px): its controls sit 16px from the
+     card's edge and from the strip's hairline, as they sit 16px from the card's sides, so a strip is 60px plus its hairline.
+     Every strip's row is 28px, whether it holds a control or only words, so a strip never changes height as its controls
+     come and go */
+  --dm-strip-y:16px;
 }
 @media (prefers-color-scheme:dark){:root[data-style="clean"]:not([data-theme="light"]),:root:not([data-theme="light"]) [data-style="clean"]{
   --dm-page:#0a0a0a; --dm-stage:#0a0a0a; --dm-surface:#141414; --dm-raised:#1c1c1c; --dm-strip:#181818;
@@ -606,9 +611,8 @@ th:last-child>.col-rz{display:none}
    ring or a hue (owner, 21 and 22 Nov). Components that sit on the stage set --dm-row for their bar, and Clean hands it back */
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] :is(.pill.ghost,.ib:not(.fill)):not([disabled],[aria-pressed="true"],[aria-expanded="true"],.on):hover,:root [data-style="clean"] :is(.pill.ghost,.ib:not(.fill)):not([disabled],[aria-pressed="true"],[aria-expanded="true"],.on):hover,:root [data-style="clean"]:is(.pill.ghost,.ib:not(.fill)):not([disabled],[aria-pressed="true"],[aria-expanded="true"],.on):hover{background-color:var(--dm-row);color:var(--dm-fg)}}
 :root[data-style="clean"] .ib.on,:root [data-style="clean"] .ib.on,:root [data-style="clean"].ib.on{background:var(--dm-row-on);color:var(--dm-fg)}
-/* the controls in a head or foot strip sit on the content's 16px column at the sides, as the rows do, and 8px from the
-   strip's own top and bottom (owner, 21 Nov: "ok do it, apply everywhere", replacing 8px from the card's edges) */
-:root[data-style="clean"] :is(.atx-ft,.atx-ctx-ft),:root [data-style="clean"] :is(.atx-ft,.atx-ctx-ft),:root [data-style="clean"]:is(.atx-ft,.atx-ctx-ft){padding-right:16px}
+/* the controls in a head or foot strip sit on the content's 16px column at the sides, as the rows do (owner, 21 Nov), and
+   --dm-strip-y (16px) from the strip's top and bottom (owner, 23 Nov, replacing 8px): each strip sets its own padding with it */
 /* one hover for every ghost and icon button (owner, 21 Nov: "you use like 10 different hover styles"): the quiet grey of what
    it sits on (--dm-row) in the button's own shape, with no edge, shadow or change of size, in every style. On an off-white strip
    the grey is a step under the strip, so it shows as it does on the card. (A remove × inside a filled chip, a tinted banner
