@@ -338,7 +338,8 @@ function hoverCollect(sel){
 }
 function hoverLook(i){
   const A = window.__A, it = window.__c[i]; if (!it || !it.e.isConnected) return null; const e = it.e;
-  const g = s => ({ bg:A.col(s.backgroundColor), bi:s.backgroundImage === 'none' ? '' : 'image', sh:A.shade(s) ? s.boxShadow : '', bd:parseFloat(s.borderTopWidth) ? `${A.px(s.borderTopWidth)}px ${A.col(s.borderTopColor)}` : '', tf:s.transform === 'none' ? '' : s.transform, rad:s.borderTopLeftRadius, op:s.opacity, col:A.col(s.color), w:s.width, h:s.height, trn:s.transition });
+  // (a fill is read with its gradient, so Clean's buttons, whose fills are gradients, show their hover)
+  const g = s => ({ bg:A.fill(s), bi:'', sh:A.shade(s) ? s.boxShadow : '', bd:parseFloat(s.borderTopWidth) ? `${A.px(s.borderTopWidth)}px ${A.col(s.borderTopColor)}` : '', tf:s.transform === 'none' ? '' : s.transform, rad:s.borderTopLeftRadius, op:s.opacity, col:A.col(s.color), w:s.width, h:s.height, trn:s.transition });
   const cs = getComputedStyle(e), r = e.getBoundingClientRect();
   const ps = k => { const s = getComputedStyle(e, k); return s.content !== 'none' && s.content !== 'normal' ? g(s) : null; };
   let glide = null; const L = e.closest('.hg[data-hg]'); if (L){ const s = getComputedStyle(L, L.dataset.hg === 'b' ? '::before' : '::after'); glide = { bg:A.col(s.backgroundColor), op:s.opacity, rad:s.borderTopLeftRadius, h:s.height, trn:s.transition }; }
