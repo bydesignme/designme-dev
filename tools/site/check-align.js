@@ -83,7 +83,8 @@ function sample(id){
     if (bot - top <= 64 ? Math.abs(t - 16) > 1 || Math.abs(b - 16) > 1 : Math.abs(Math.min(t, b) - 16) > 1) out.push(`strips: ${name(s)} has its controls and words ${Math.round(t)}px from its top and ${Math.round(b)}px from its bottom (16 expected)`); });
   // a right edge counts for controls, and for words set against the right (a number, a time, a status), not for ragged text
   // (a tag at the end of a row with a hover fill sits inside the fill's padding, so it is not held to a button's edge)
-  const rightSet = a => a && ((a.k === 'ctl' && !a.e.matches('.tag')) || (a.k === 'text' && a.set === 'right' && !a.wraps));
+  // (a button that is a whole row of a list is measured by its words, and their end is ragged, so it has no right edge)
+  const rightSet = a => a && ((a.k === 'ctl' && !a.e.matches('.tag') && !(a.b !== a.box && listRow(a.e))) || (a.k === 'text' && a.set === 'right' && !a.wraps));
   // columns: the first mark, first words and last control of each row, against every other row's
   const lead = rows.map(r => ({ mark:r.items.find(a => a.k === 'mark'), text:r.items.find(a => a.k === 'text' && a.set === 'left'), last:[...r.items].reverse().find(a => a.k === 'ctl' || a.k === 'text'), first:r.items.find(a => a.k === 'mark' || (a.k === 'ctl' && !a.e.matches('.tag') && a.b === a.box)) }));
   lead.forEach((l, i) => { l.band = band(rows[i].items[0], rows[i]); });
@@ -98,7 +99,10 @@ function sample(id){
   }
   // centres: single-line rows of a flex container
   sin.querySelectorAll('*').forEach(e => { if (!card.contains(e) || !vis(e)) return; const cs = getComputedStyle(e); if (!/flex/.test(cs.display) || cs.flexDirection !== 'row' || !/center|baseline/.test(cs.alignItems)) return;
-    const kids = [...e.children].filter(k => vis(k) && k.getBoundingClientRect().height > 4); if (kids.length < 2) return;
+    let kids = [...e.children].filter(k => vis(k) && k.getBoundingClientRect().height > 4); if (kids.length < 2) return;
+    // (a row that wraps, like a foot whose buttons go under its select on a phone, is held to one centre line per line it makes:
+    // the parts on the first line)
+    if (cs.flexWrap !== 'nowrap'){ const t0 = Math.min(...kids.map(k => k.getBoundingClientRect().top)), b0 = Math.min(...kids.map(k => k.getBoundingClientRect().bottom)); kids = kids.filter(k => k.getBoundingClientRect().top < b0 && k.getBoundingClientRect().bottom > t0); if (kids.length < 2) return; }
     const cy = kids.map(k => { const b = k.getBoundingClientRect(); if (b.height > 34) return null; if (!k.children.length && k.textContent.trim()){ const r = document.createRange(); r.selectNodeContents(k); const t = r.getBoundingClientRect(); return (t.top + t.bottom) / 2; } return (b.top + b.bottom) / 2; }).filter(v => v !== null);
     if (cy.length >= 2 && Math.max(...cy) - Math.min(...cy) > 2) out.push(`centres: ${name(e)} parts differ by ${(Math.max(...cy) - Math.min(...cy)).toFixed(1)}px`); });
   // buttons: drawn height of buttons side by side
