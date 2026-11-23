@@ -58,7 +58,7 @@ function rulesLib(){
   if (window.__rules) return;
   const R = window.__rules = {};
   const px = v => parseFloat(v) || 0;
-  const EXCL = '.hand,.dm>.demo,.seg2,.cp-anim,.pg-live,script,style,template,noscript';
+  const EXCL = '.hand,.dm>.demo,.cp-anim,.pg-live,script,style,template,noscript';
   let ROOT = null, OPT = {}, gcsC, visC, behC;
   const gcs = e => { let c = gcsC.get(e); if (!c){ c = getComputedStyle(e); gcsC.set(e, c); } return c; };
 
@@ -540,10 +540,10 @@ async function runJob(browser, job, ref){
         v.count = 1; v.key = k; v.id = hash(k); res.viol[k] = v;
         const f = path.join(OUT, 'crops', `${v.rule}-${pg.id}-${st}-${th}-${w}-${v.id}.png`);
         v.crop = await crop(page, v.rects, f, v.focus).then(x => x && path.relative(OUT, x)).catch(() => null); delete v.focus; } };
-    const designs = pg.tpl ? 0 : await page.locator('.cp-demo .seg2 button').count();
+    const designs = pg.tpl ? 0 : await page.locator('.cp-demo .dm > .demo .seg2 button').count();
     for (let d = 0; d < Math.max(1, designs); d++){
       let dn = '';
-      if (designs){ const b = page.locator('.cp-demo .seg2 button').nth(d); dn = 'design ' + (await b.textContent()).trim() + ', '; if (d) { await b.click(); await page.mouse.move(1, 1); } }
+      if (designs){ const b = page.locator('.cp-demo .dm > .demo .seg2 button').nth(d); dn = 'design ' + (await b.textContent()).trim() + ', '; if (d) { await b.click(); await page.mouse.move(1, 1); } }
       // the demo plays; whenever what it shows has changed (its classes, words or visible parts) and a second and a half has
       // passed since the last sample, it is left SETTLE ms to settle and sampled. Then whatever rows or controls are on screen
       // and not hovered yet, a few of them, are hovered so their fills show (the demo holds while the pointer rests on it)
