@@ -149,8 +149,9 @@ every session and every agent.
 - Padding is measured, not eyeballed (owner, 17 Nov; 16px since 18 Nov): every Clean card has its content 16px in from each
   edge, and so do the controls in its head and foot strips (owner, 21 Nov, replacing the 18 Nov 8px for strip controls: a
   strip's "Connect a tool" and "Test all" sat 8px off the rows' tiles and buttons). A strip control sits on the content's
-  16px column at the sides and 8px from the strip's own top and bottom; a select in a strip lines up by its words, not its
-  hover box. Check with a script that measures
+  16px column at the sides and 16px from the strip's own top and bottom, so a foot strip's controls are 16px from the
+  card's bottom edge as well as its side (owner, 23 Nov, replacing 8px top and bottom, which jammed them into the corner);
+  a select in a strip lines up by its words, not its hover box. Check with a script that measures
   each card's insets at 1440 and fix every mismatch above 1px. Measure through the whole demo (sampled while it plays, to its
   end state) and in every design a card can switch to, not one settled frame (owner, 18 Nov).
 - Clean has an outer glow only in dark mode, and only around buttons (owner, 18 Nov): a faint neutral glow around the white
