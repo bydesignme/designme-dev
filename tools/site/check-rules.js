@@ -139,7 +139,7 @@ function rulesLib(){
   const radiusOf = (cs, w, h) => { const v = cs.borderTopLeftRadius.split(' ')[0]; const r = /%/.test(v) ? px(v) / 100 * Math.min(w, h) : px(v); return Math.min(r, Math.min(w, h) / 2); };
 
   // things a script places by coordinates (a chart's bars and labels, a timeline's marks) sit where the data puts them
-  const placed = (e, stop) => { for (let a = e; a && a !== stop && a !== ROOT; a = a.parentElement){ const st = a.getAttribute && a.getAttribute('style') || ''; if (/(^|;)\s*(left|width|--x0?|--w|--l)\s*:/.test(st)) return true; } return false; };
+  const placed = (e, stop) => { for (let a = e; a && a !== stop && a !== ROOT; a = a.parentElement){ const st = a.getAttribute && a.getAttribute('style') || ''; if (/(^|;)\s*(left|width|clip-path|--x0?|--w|--l|--lv)\s*:/.test(st)) return true; } return false; };
   const CTL = 'button,a[href],input,select,textarea,summary,[role="button"],[role="option"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"],[role="tab"],[role="switch"],[role="checkbox"],[role="radio"],.pill,.ib,.tag,.chip,.kbd,.bdg';
   const CHIP = '.tag,.chip,.kbd,.bdg,[class*="chip"],[class*="-tag"]';
   const POPS = '.pop,.tip,[role="menu"],[role="listbox"],[role="dialog"],[role="tooltip"]';
@@ -149,6 +149,10 @@ function rulesLib(){
     if (s.ps) return w <= 44 && h <= 44 ? 'tile' : h <= 120 && w >= 40 ? 'row' : 'card'; // a fill drawn behind a row (a hover or a selection)
     // (a small round or square thing, an avatar or an icon tile, is a tile, unless it is a control itself)
     if (w <= 44 && h <= 44 && Math.abs(w - h) <= 2 && !e.matches(CTL)) return 'tile';
+    // (a file's thumbnail, a square up to 96px, carries its badges in its corners, as thumbnails do)
+    if (w <= 96 && h <= 96 && Math.abs(w - h) <= 8 && !e.matches(CTL + ',' + POPS)) return 'thumb';
+    // (a meter: a slim bar with no words, whose segments sit 2px in)
+    if (h <= 24 && w >= 60 && !e.textContent.trim() && e.children.length) return 'track';
     // a menu: a popover of menu items, or a panel that is a list of options as wide as itself (Model picker's list)
     const menuish = () => [...e.querySelectorAll('[role="radiogroup"],[role="listbox"],[role="menu"]')].some(l => l.getBoundingClientRect().width >= w * .85 && [...l.children].filter(k => k.getBoundingClientRect().width >= w * .8).length >= 2);
     // (a segmented control: a track holding two or more buttons or tabs side by side; its segments sit 2-3px in, as usual)
@@ -167,7 +171,7 @@ function rulesLib(){
     if (h <= 64) return w >= 120 ? 'row' : 'control';
     return menuish() ? 'menu' : 'card'; };
   // minimum inset of what is drawn inside a shape, per side, by role
-  const MIN = { track:{ h:2, v:2 }, menu:{ h:4, v:4 }, bar:{ h:6, v:6 }, card:{ h:16, v:16 }, strip:{ h:16, v:16 }, band:{ h:16, v:6 }, row:{ h:6, v:4 }, control:{ h:6, v:3 }, field:{ h:6, v:3 }, chip:{ h:4, v:2 }, icon:{ h:4, v:4 } };
+  const MIN = { thumb:{ h:4, v:4 }, track:{ h:2, v:2 }, menu:{ h:4, v:4 }, bar:{ h:6, v:6 }, card:{ h:16, v:16 }, strip:{ h:16, v:16 }, band:{ h:16, v:6 }, row:{ h:6, v:4 }, control:{ h:6, v:3 }, field:{ h:6, v:3 }, chip:{ h:4, v:2 }, icon:{ h:4, v:4 } };
 
   // ---- text metrics --------------------------------------------------------------------------------------------------
   const fm = new Map();
@@ -264,6 +268,9 @@ function rulesLib(){
         if (s.el.matches(POPS) || /absolute|fixed/.test(s.cs.position) && s.role === 'card' && (s.edge.l < c.edge.l || s.edge.r > c.edge.r || s.edge.t < c.edge.t || s.edge.b > c.edge.b)) return true; }
       if (placed(it.el, c.el)) return true;
       if (it.k === 'svg' && W(it.box) <= 10 && H(it.box) <= 10) return true;
+      // (an svg drawing a frame round its shape, a dashed drop zone's edge, is the shape's edge; a large svg hidden from screen
+      // readers is an illustration, not layout)
+      if (it.k === 'svg' && (W(it.box) >= W(c.edge) * .9 && H(it.box) >= H(c.edge) * .9 || W(it.box) >= 64 && H(it.box) >= 64 && it.el.getAttribute('aria-hidden') === 'true')) return true;
       if (it.k === 'img' && (fullW(it.q, c) || fullH(it.q, c) || W(it.q) >= W(c.edge) * .9)) return true; // a photo filling its frame
       // (a thing hung outside its shape, like a tab above a sheet or a label beside a bar, is not inside it)
       const ov = Math.max(0, Math.min(it.q.r, c.edge.r) - Math.max(it.q.l, c.edge.l)) * Math.max(0, Math.min(it.q.b, c.edge.b) - Math.max(it.q.t, c.edge.t));
@@ -316,9 +323,13 @@ function rulesLib(){
       return false; };
     // R2 Even: a single line of things in a bar, strip, head, footer, row, chip or button has equal room above and below;
     // things at both ends of a row have the same inset at both ends
-    const r2 = () => { for (const [c, ks] of kids){ if (!stableShape(c) || c.role === 'tile' || c.role === 'page' || c.role === 'field' || H(c.edge) > 80 || H(c.edge) < 10) continue;
+    // (a shape with anything in it still moving or fading is not judged: its contents have not settled)
+    const settling = c => [...c.el.querySelectorAll('*')].some(e => unstable.has(e) || moving.has(e));
+    const r2 = () => { for (const [c, ks] of kids){ if (!stableShape(c) || c.role === 'tile' || c.role === 'page' || c.role === 'field' || H(c.edge) > 80 || H(c.edge) < 10 || settling(c)) continue;
       if (placed(c.el)) continue; const its = ks.filter(it => !decor(it) && !exempt(it, c)); if (!its.length) continue; const bs = its.map(r2box); if (!oneLine(bs)) continue;
-      const top = Math.min(...bs.map(b => b.t)) - c.edge.t, bot = c.edge.b - Math.max(...bs.map(b => b.b));
+      // (a full-width line or strip flush with the top or bottom, like a progress line along a card's foot, is that edge)
+      let et = c.edge.t, eb = c.edge.b; for (const it of ks){ if (!(it.k === 'hair' || it.k === 'shape') || !fullW(it.q, c)) continue; if (Math.abs(it.q.b - c.edge.b) <= 1.5 && H(it.q) <= 6) eb = Math.min(eb, it.q.t); if (Math.abs(it.q.t - c.edge.t) <= 1.5 && H(it.q) <= 6) et = Math.max(et, it.q.b); }
+      const top = Math.min(...bs.map(b => b.t)) - et, bot = eb - Math.max(...bs.map(b => b.b));
       if (top + bot > 40) continue; // a tall box with one line in it (a tile labelled at its top) is not a bar
       if (top >= -.5 && bot >= -.5 && Math.abs(top - bot) > 1.05) V('R2', `${sLabel(c)} has ${top.toFixed(1)}px above its contents and ${bot.toFixed(1)}px below`, [sLabel(c), its.map(label).slice(0, 3).join(' + ')], { top:+top.toFixed(1), bottom:+bot.toFixed(1) }, [c.edge, { l:Math.min(...bs.map(b => b.l)), r:Math.max(...bs.map(b => b.r)), t:Math.min(...bs.map(b => b.t)), b:Math.max(...bs.map(b => b.b)) }], { sub:'vertical' });
       if (W(c.edge) < 120 || c.role === 'chip' || c.role === 'control' || c.role === 'icon') continue;
