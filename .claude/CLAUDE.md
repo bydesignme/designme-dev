@@ -265,6 +265,8 @@ every session and every agent.
   before anything is shown to the owner, and every frame is looked at as well: the script does not replace looking.
 
 ## QA before every push
+- Follow the `ui-qa-gate` skill (`.claude/skills/ui-qa-gate/SKILL.md`) before any UI change is committed as done, published
+  or shown to the owner, and paste its rules into every agent's brief.
 - All three styles (Soft, Blueprint and Clean), light and dark, at 1440, 768, 390 and 360.
 - No console errors and no sideways scroll.
 - The type rules above.
