@@ -39,7 +39,27 @@ The mistakes that got through were all within a box that looked right:
 - **Footers.** The space from the hairline to the buttons must equal the space from the buttons to the card's bottom edge.
   Measure both; don't trust the padding value.
 - **Corners.** A pill button near a rounded corner shows its side gap and bottom gap next to each other, so they must match.
-- **Ghost buttons and selects** are measured by their words; filled and outlined buttons by their box; icons by their glyph.
+- **Boxes that fill.** A control whose box fills on hover (toolbar buttons, Ask AI) is measured by its box against the
+  card's edges: 16px from every edge, never 5–9px, even if its words sit on the 16px column.
+- **Ghost buttons and selects** at rest are measured by their words; filled and outlined buttons by their box; icons by their
+  glyph.
+
+## 2b. Judge it as a designer, not only as a ruler
+
+These also got through, and no script would have caught them:
+
+- **Order that makes no sense.** For example, a chat answer's toolbar placed above the answer. Compare every layout with how
+  well-made products order that component; the answer comes first, with its actions under a divider.
+- **States that look broken.** A disabled button whose key chip stays in the accent fill looks half on. Every part of a
+  disabled control goes quiet together.
+- **Selected states you can't see.** A rated thumb that is only a filled icon. In Clean, selected means `--row-on` behind it
+  in the control's own shape.
+- **Fills too faint to see.** Chips on the stage whose grey barely differs from it. Compare the fill-to-background
+  difference across styles.
+- **Siblings that differ.** The same job (a secondary button, a chip, a footer, a key chip) must look the same in every
+  component. Put them side by side.
+
+Check every state: the start, each change, hover, open, selected, disabled and the end.
 
 ## 3. Run the scripts
 
