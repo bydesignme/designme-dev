@@ -87,6 +87,16 @@ export function CodeViewer({ files, file, defaultFile, onFileChange, line, defau
   const key = (e: KeyboardEvent, k: number) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ask(k); } };
   const copyFile = () => { const t = cur.lines.map(l => text(l.code)).join('\n'); copy(t); onCopy?.(t); };
 
+  // the card eases to the new file's height rather than keeping room for the longer one
+  const reduce = useReducedMotion();
+  const body = useRef<HTMLDivElement>(null), was = useRef(0);
+  useIsoLayoutEffect(() => {
+    const b = body.current; if (!b) return;
+    const now = b.offsetHeight, from = was.current; was.current = now;
+    if (from && from !== now && !reduce && b.animate) b.animate([{ height: from + 'px', overflow: 'hidden' }, { height: now + 'px', overflow: 'hidden' }], { duration: 420, easing: getComputedStyle(b).getPropertyValue('--dm-ease').trim() || 'ease' });
+  }, [cur?.name]);
+  useEffect(() => { const b = body.current; if (!b || typeof ResizeObserver === 'undefined') return; const ro = new ResizeObserver(() => { was.current = b.offsetHeight; }); ro.observe(b); return () => ro.disconnect(); }, []);
+
   return (
     <div data-dm="" className={cx('dm-cvx dm-panel', className)}>
       <div className="dm-cvx-h">
@@ -98,7 +108,7 @@ export function CodeViewer({ files, file, defaultFile, onFileChange, line, defau
           <button type="button" className={cx('dm-ib', copied && 'dm-copied')} aria-label="Copy file" onClick={copyFile}><Icon name={copied ? 'check' : 'copy'} /></button>
         </Tip>
       </div>
-      <div className="dm-cvx-body">
+      <div ref={body} className="dm-cvx-body">
         <pre className="dm-cvx-code">
           {cur?.lines.map((l, k) => {
             const e = enter(k * 18), on = open === k;

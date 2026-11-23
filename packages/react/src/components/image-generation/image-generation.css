@@ -30,6 +30,8 @@
 .dm-igx-rt>span{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .dm-igx-rt .dm-i{color:var(--dm-fg2)}
 .dm-igx-rt .dm-spin{width:11px;height:11px;color:var(--dm-fg2)}
+/* "Generating 4 pictures" shimmers while they are made, as every loader's words do (owner, 19 Nov) */
+.dm-igx-rt .dm-shim{font-size:inherit}
 /* the three stages and how far the run has come: the stage in hand is ink, the ones done are ticked */
 .dm-igx-steps{flex:none;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--dm-muted);white-space:nowrap}
 .dm-igx-steps span{display:inline-flex;align-items:center;gap:5px;transition:color var(--dm-t-fast)}
@@ -75,9 +77,10 @@
 @keyframes dm-igxrv{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0)}}
 @keyframes dm-igxsc{from{opacity:1;transform:translateY(0)}88%{opacity:1}to{opacity:0;transform:translateY(100%)}}
 /* how far a picture has come, until it is done */
-.dm-igx-tp{position:absolute;left:var(--dm-s-2);bottom:var(--dm-s-2);height:20px;padding:0 7px;display:inline-flex;align-items:center;border-radius:var(--dm-r-tag);background:color-mix(in srgb,var(--dm-surface) 90%,transparent);color:var(--dm-fg);font-size:11.5px;font-weight:500;opacity:0;transition:opacity .3s;pointer-events:none}
+/* (a chip over a picture is opaque and neutral, so nothing shows through it) */
+.dm-igx-tp{position:absolute;left:var(--dm-s-2);bottom:var(--dm-s-2);height:20px;padding:0 7px;display:inline-flex;align-items:center;border-radius:var(--dm-r-tag);background:var(--dm-surface);color:var(--dm-fg);font-size:11.5px;font-weight:500;opacity:0;transition:opacity .3s;pointer-events:none}
 .dm-igx-t:is([data-st="wait"],[data-st="gen"]) .dm-igx-tp{opacity:1}
-.dm-igx-tg{position:absolute;left:6px;top:6px;background:color-mix(in srgb,var(--dm-surface) 90%,transparent);color:var(--dm-fg);pointer-events:none}
+.dm-igx-tg{position:absolute;left:6px;top:6px;background:var(--dm-surface);color:var(--dm-fg);pointer-events:none}
 .dm-igx-tg:empty{display:none}
 /* a picture that failed: what happened and Retry, over its faded colours */
 .dm-igx-f{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:var(--dm-s-1);padding:var(--dm-s-2);text-align:center;background:color-mix(in srgb,var(--dm-surface) 84%,transparent);font-size:12px;line-height:1.35;color:var(--dm-fg2)}
@@ -102,7 +105,7 @@
 .dm-igx-ef span{width:40px;aspect-ratio:3/4;display:grid;place-items:center;border-radius:var(--dm-r-sm);background:var(--dm-row);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);color:var(--dm-faint)}
 .dm-igx-ef span:nth-child(2){transform:translateY(-6px)}
 /* the composer: references, the prompt, its styles, and the settings for the run */
-.dm-igx-cmp{flex:none;margin:0 var(--dm-s-3) var(--dm-s-3);display:flex;flex-direction:column;border-radius:var(--dm-r-box);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);transition:box-shadow var(--dm-t-fast)}
+.dm-igx-cmp{flex:none;margin:0 var(--dm-s-4) var(--dm-s-4);display:flex;flex-direction:column;border-radius:var(--dm-r-box);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);transition:box-shadow var(--dm-t-fast)}
 .dm-igx-cmp:focus-within{box-shadow:inset 0 0 0 1px var(--dm-field-line-strong)}
 .dm-igx-refs{display:flex;flex-wrap:wrap;gap:6px;padding:10px var(--dm-s-3) 0}
 .dm-igx-refs:empty{display:none}
@@ -119,7 +122,9 @@
 .dm-igx-sc[aria-pressed="true"]{gap:5px;color:var(--dm-fg);box-shadow:inset 0 0 0 1px var(--dm-faint)}
 .dm-igx-sc[aria-pressed="true"] .dm-i{width:12px;opacity:1}
 .dm-igx-sc.dm-hl{background:var(--dm-row)}
-.dm-igx-bar{display:flex;align-items:center;gap:var(--dm-s-1);padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-2) 6px}
+/* the settings' icons start on the prompt's column (their hover reaching out round them); Generate sits 8px in from the
+   composer's corner */
+.dm-igx-bar{display:flex;align-items:center;gap:var(--dm-s-1);padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-2) 2px}
 .dm-igx-bar .dm-chip{height:32px;padding:0 10px;gap:6px;background:none;min-width:0;font-size:13px;color:var(--dm-fg2)}
 .dm-igx-bar .dm-chip[aria-expanded="true"]{background:var(--dm-row);color:var(--dm-fg)}
 @media (hover:hover) and (pointer:fine){.dm-igx-bar .dm-chip:hover{background:var(--dm-row);color:var(--dm-fg)}}
@@ -133,10 +138,10 @@
 .dm-igx-pp-set .dm-seg2{display:flex;margin-bottom:var(--dm-s-1)}
 .dm-igx-pp-set .dm-seg2 button{flex:1}
 /* the side: earlier pictures and style presets */
-.dm-igx-sh{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:44px;padding:0 var(--dm-s-2);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.dm-igx-sh{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:44px;padding:0 var(--dm-s-4);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .dm-igx-sh .dm-sp{flex:1}
-.dm-igx-sh .dm-muted{font-size:12px;padding-right:6px}
-.dm-igx-pane{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:var(--dm-s-2)}
+.dm-igx-sh .dm-muted{font-size:12px}
+.dm-igx-pane{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:var(--dm-s-4)}
 .dm-igx-pane[hidden]{display:none}
 .dm-igx-pane:focus-visible{outline-offset:-2px}
 /* the gallery: two columns, each picture in its own shape, the newest first */
@@ -168,16 +173,16 @@
 @keyframes dm-igxlbp{from{opacity:0;transform:scale(.94);filter:blur(10px)}to{opacity:1;transform:none;filter:none}}
 :root:not([data-style="soft"],[data-style="clean"]) .dm-igx-lb.dm-open:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation:dm-igxwipe var(--dm-t-slow) var(--dm-ease) both}
 :root:not([data-style="soft"],[data-style="clean"]) .dm-igx-lb.dm-open .dm-igx-lbs>.dm-igx-t:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation:none}
-.dm-igx-lbh{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);min-height:48px;padding:6px var(--dm-s-2) 6px var(--dm-s-4);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.dm-igx-lbh{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);padding:var(--dm-s-4);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .dm-igx-lbt{flex:1;min-width:0;display:flex;flex-direction:column;font-size:13px;line-height:1.35}
 .dm-igx-lbt b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dm-igx-lbt .dm-muted{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dm-igx-lbb{flex:1;min-height:0;display:flex;align-items:center;gap:var(--dm-s-2);padding:var(--dm-s-3) var(--dm-s-2)}
+.dm-igx-lbb{flex:1;min-height:0;display:flex;align-items:center;gap:var(--dm-s-2);padding:var(--dm-s-4)}
 .dm-igx-lbs{flex:1;min-width:0;height:100%;display:flex;align-items:center;justify-content:center;container-type:size}
 .dm-igx-lbs>.dm-igx-t{width:min(100cqw,100cqh * var(--dm-ar,1));cursor:default}
 .dm-igx-lbn{flex:none;width:32px;padding:0}
 @media (hover:hover) and (pointer:fine){.dm-igx-lbn:not(:disabled):hover{background:var(--dm-row)}}
-.dm-igx-lbf{flex:none;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:var(--dm-s-1);padding:var(--dm-s-2) var(--dm-s-3) var(--dm-s-3)}
+.dm-igx-lbf{flex:none;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:var(--dm-s-1);padding:var(--dm-s-4);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .dm-igx-lbf .dm-igx-sep{margin:0 var(--dm-s-1)}
 .dm-igx-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 /* a narrower feed keeps only the stage in hand beside the title */
@@ -192,11 +197,11 @@
   .dm-igx-sh{display:none}
   .dm-igx-vw{display:inline-flex}
   .dm-igx-cr{display:none}
-  .dm-igx-h{justify-content:space-between;padding-left:var(--dm-s-2)}
+  .dm-igx-h{justify-content:space-between}
   .dm-igx-in:is([data-view="gallery"],[data-view="styles"]) .dm-igx-side{visibility:visible;z-index:2}
   .dm-igx-in:is([data-view="gallery"],[data-view="styles"]) :is(.dm-igx-feed,.dm-igx-cmp){visibility:hidden}
   .dm-igx-steps span:not(.dm-on){display:none}
-  .dm-igx-pane{padding:var(--dm-s-3)}
+  .dm-igx-pane{padding:var(--dm-s-4)}
   .dm-igx-gal{gap:var(--dm-s-2)}.dm-igx-col{gap:var(--dm-s-2)}
   .dm-igx-prs{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
@@ -221,6 +226,29 @@
   .dm-igx-bar .dm-chip>.dm-i:first-child{display:none}
   .dm-igx-bar .dm-chip{padding:0 var(--dm-s-2)}
 }
+/* Clean: both panels' heads (and the larger view's) are off-white strips, their controls 16px from the card's edges and the
+   strip's hairline, and the larger view's actions sit in an off-white foot strip. The style chips, the settings, the presets and
+   the rating take Clean's one hover (--dm-row) and, picked, its stronger fill (--dm-row-on) in their own shape, never a stronger edge.
+   New pictures and the larger view fade in without a blur */
+:root[data-style="clean"] :is(.dm-igx-h,.dm-igx-sh),:root [data-style="clean"] :is(.dm-igx-h,.dm-igx-sh),:root [data-style="clean"]:is(.dm-igx-h,.dm-igx-sh){height:calc(28px + 2 * var(--dm-strip-y) + 1px);padding:0 16px;background:var(--dm-strip);border-bottom-color:var(--dm-line)}
+:root[data-style="clean"] .dm-igx-lbh,:root [data-style="clean"] .dm-igx-lbh,:root [data-style="clean"].dm-igx-lbh{min-height:calc(28px + 2 * var(--dm-strip-y) + 1px);padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-bottom-color:var(--dm-line)}
+/* (a strip's row is 28px: the prompt and what made it share one line there, each cut short if it must) */
+:root[data-style="clean"] .dm-igx-lbt,:root [data-style="clean"] .dm-igx-lbt,:root [data-style="clean"].dm-igx-lbt{flex-direction:row;align-items:baseline;gap:8px;line-height:28px}
+:root[data-style="clean"] .dm-igx-lbt>*,:root [data-style="clean"] .dm-igx-lbt>*,:root [data-style="clean"].dm-igx-lbt>*{min-width:0}
+:root[data-style="clean"] .dm-igx-lbt .dm-muted,:root [data-style="clean"] .dm-igx-lbt .dm-muted,:root [data-style="clean"].dm-igx-lbt .dm-muted{flex:0 1 auto}
+:root[data-style="clean"] .dm-igx-lbh .dm-ib,:root [data-style="clean"] .dm-igx-lbh .dm-ib,:root [data-style="clean"].dm-igx-lbh .dm-ib{width:28px;height:28px}
+:root[data-style="clean"] .dm-igx-lbf,:root [data-style="clean"] .dm-igx-lbf,:root [data-style="clean"].dm-igx-lbf{padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-top-color:var(--dm-line)}
+:root[data-style="clean"] .dm-igx-sc,:root [data-style="clean"] .dm-igx-sc,:root [data-style="clean"].dm-igx-sc{box-shadow:var(--dm-btn2-depth);transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease),gap var(--dm-t) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-igx-sc:hover,:root [data-style="clean"] .dm-igx-sc:hover,:root [data-style="clean"].dm-igx-sc:hover{background:var(--dm-surface);box-shadow:var(--dm-btn2-depth),inset 0 0 0 99px var(--dm-row)}}
+:root[data-style="clean"] .dm-igx-sc[aria-pressed="true"],:root [data-style="clean"] .dm-igx-sc[aria-pressed="true"],:root [data-style="clean"].dm-igx-sc[aria-pressed="true"]{box-shadow:var(--dm-btn2-depth),inset 0 0 0 99px var(--dm-row-on)}
+:root[data-style="clean"] .dm-igx-sc.dm-hl,:root [data-style="clean"] .dm-igx-sc.dm-hl,:root [data-style="clean"].dm-igx-sc.dm-hl{box-shadow:var(--dm-btn2-depth),inset 0 0 0 99px var(--dm-row-on)}
+:root[data-style="clean"] .dm-igx-bar .dm-chip,:root [data-style="clean"] .dm-igx-bar .dm-chip,:root [data-style="clean"].dm-igx-bar .dm-chip{transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .dm-igx-bar .dm-chip[aria-expanded="true"],:root [data-style="clean"] .dm-igx-bar .dm-chip[aria-expanded="true"],:root [data-style="clean"].dm-igx-bar .dm-chip[aria-expanded="true"]{background:var(--dm-row-on)}
+:root[data-style="clean"] :is(.dm-igx-acts,.dm-igx-lbf) .dm-ib[aria-pressed="true"],:root [data-style="clean"] :is(.dm-igx-acts,.dm-igx-lbf) .dm-ib[aria-pressed="true"],:root [data-style="clean"]:is(.dm-igx-acts,.dm-igx-lbf) .dm-ib[aria-pressed="true"]{background:var(--dm-row-on);color:var(--dm-fg)}
+:root[data-style="clean"] .dm-igx-pr,:root [data-style="clean"] .dm-igx-pr,:root [data-style="clean"].dm-igx-pr{box-shadow:inset 0 0 0 1px var(--dm-hair);transition:background-color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .dm-igx-pr[aria-pressed="true"],:root [data-style="clean"] .dm-igx-pr[aria-pressed="true"],:root [data-style="clean"].dm-igx-pr[aria-pressed="true"]{background:var(--dm-row-on);box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .dm-igx-g.dm-new,:root [data-style="clean"] .dm-igx-g.dm-new,:root [data-style="clean"].dm-igx-g.dm-new{animation:dm-clpiece var(--dm-t-slow) var(--dm-ease) both}
+:root[data-style="clean"] .dm-igx-lb.dm-open .dm-igx-lbs>.dm-igx-t,:root [data-style="clean"] .dm-igx-lb.dm-open .dm-igx-lbs>.dm-igx-t,:root [data-style="clean"].dm-igx-lb.dm-open .dm-igx-lbs>.dm-igx-t{animation:dm-clcard var(--dm-t-slow) var(--dm-ease) both}
 /* Blueprint: square dots of the picture itself at half strength, a hard scan line in the accent's mark */
 :root:not([data-style="soft"],[data-style="clean"]) .dm-igx-t[data-st="gen"] .dm-igx-b:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){opacity:.55;-webkit-mask:linear-gradient(90deg,#000 var(--dm-sq,2px),transparent 0) 0 0/var(--dm-cell,12px) var(--dm-cell,12px),linear-gradient(#000 var(--dm-sq,2px),transparent 0) 0 0/var(--dm-cell,12px) var(--dm-cell,12px);-webkit-mask-composite:source-in;mask:linear-gradient(90deg,#000 var(--dm-sq,2px),transparent 0) 0 0/var(--dm-cell,12px) var(--dm-cell,12px),linear-gradient(#000 var(--dm-sq,2px),transparent 0) 0 0/var(--dm-cell,12px) var(--dm-cell,12px);mask-composite:intersect}
 :root:not([data-style="soft"],[data-style="clean"]) .dm-igx-t.dm-up .dm-igx-b:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){opacity:.45}

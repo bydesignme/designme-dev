@@ -3,7 +3,7 @@ import { useRef, useState, type CSSProperties, type KeyboardEvent, type PointerE
 import { cx } from '../../lib/cx';
 import { useControllable } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { enter, Swap, Think } from '../../lib/motion';
+import { Fold, Swap, Think } from '../../lib/motion';
 import '../../designme.css';
 import './design-tuner.css';
 
@@ -31,13 +31,13 @@ export interface DesignTunerProps {
   onValuesChange?: (values: Record<string, number>) => void;
   /** What is being tuned, like "Pricing card" */
   title?: string;
-  /** Quiet line beside the title, like "Edited by you" or "Agent is tuning" */
+  /** Quiet line beside the title, like "Edited by you" or "Agent is tuning". It shimmers while `tuning` */
   status?: string;
   /** Key of the slider the agent is moving now; its value turns the accent colour */
   active?: string;
   /** The agent is tuning: the button thinks and stops taking clicks */
   tuning?: boolean;
-  /** What the agent changed and why, shown above the button */
+  /** What the agent changed and why, a plain line with a spark above the footer */
   note?: ReactNode;
   /** The button's label, like "Tune with agent" or "Tune again" */
   actionLabel?: string;
@@ -107,14 +107,18 @@ export function DesignTuner({ params = PARAMS, values, defaultValues, onValuesCh
       <div className="dm-dtx">
         <div className="dm-dtx-prev">{preview ? preview(Object.fromEntries(params.map(p => [p.key, valueOf(p)])), vars) : <SampleCard vars={vars} />}</div>
         <div className="dm-dtx-insp dm-panel">
-          <div className="dm-dtx-ih"><b>{title}</b><Swap className="dm-muted dm-dtx-st">{status}</Swap></div>
+          {/* while the agent tunes, the status shimmers as every loader's words do */}
+          <div className="dm-dtx-ih"><b>{title}</b><Swap className={cx('dm-muted dm-dtx-st', tuning && 'dm-shim')}>{status}</Swap></div>
           <div className="dm-dtx-rows">
             {params.map(p => <Slider key={p.key} param={p} value={valueOf(p)} hot={active === p.key} onChange={v => setVals({ ...vals, [p.key]: v })} />)}
           </div>
-          {note && <div className="dm-dtx-note dm-enter" style={enter().style}>{note}</div>}
-          <button type="button" className={cx('dm-pill dm-primary dm-sm dm-dtx-go', tuning && 'dm-busy')} aria-busy={tuning} onClick={() => { if (!tuning) onTune?.(); }}>
-            {tuning ? <><Think />Tuning</> : <><Icon name="wand" size="xs" />{actionLabel}</>}
-          </button>
+          {/* it folds open, so the inspector and the preview beside it ease to their new height */}
+          <Fold open={!!note} className="dm-dtx-nf"><div className="dm-dtx-note"><Icon name="spark" size="xs" /><span>{note}</span></div></Fold>
+          <div className="dm-dtx-f">
+            <button type="button" className={cx('dm-pill dm-primary dm-sm dm-dtx-go', tuning && 'dm-busy')} aria-busy={tuning} onClick={() => { if (!tuning) onTune?.(); }}>
+              {tuning ? <><Think />Tuning</> : <><Icon name="wand" size="xs" />{actionLabel}</>}
+            </button>
+          </div>
         </div>
       </div>
     </div>
