@@ -611,7 +611,10 @@ async function cropR7(browser, list){
       if (tpl !== '1') await page.evaluate(() => { const d = document.querySelector('.cp-demo'); if (d) window.scrollTo(0, Math.max(0, d.getBoundingClientRect().top + scrollY - 70)); });
       await page.mouse.move(1, 1);
       for (const v of vs){ const sel = '.' + v.cls.trim().split(/\s+/).map(c => CSS_ESC(c)).join('.'), want = (v.sels[0].match(/"(.*)"$/) || [, ''])[1].replace(/…$/, '');
-        let q = null; for (let t = 0; t < 24 && !q; t++){ q = await page.evaluate(([s, wt, root]) => { const R = document.querySelector(root) || document.body; const e = [...R.querySelectorAll(s)].find(x => { const b = x.getBoundingClientRect(); return b.width > 4 && (!wt || x.textContent.replace(/\s+/g, ' ').trim().startsWith(wt)); }); if (!e) return null; const b = e.getBoundingClientRect(); return { l:b.left, t:b.top, r:b.right, b:b.bottom }; }, [sel, want, tpl === '1' ? 'main.pg-app' : '.pg-demo > .card > .stage-in']).catch(() => null); if (!q) await page.waitForTimeout(500); }
+        let q = null; for (let t = 0; t < 24 && !q; t++){ q = await page.evaluate(([s, wt, root]) => { const R = document.querySelector(root) || document.body; // (the button must be the thing on top at its centre once in view: not hidden under a layer, closed or faded)
+          const e = [...R.querySelectorAll(s)].find(x => { const b = x.getBoundingClientRect(); if (b.width <= 4 || (wt && !x.textContent.replace(/\s+/g, ' ').trim().startsWith(wt))) return false;
+            if (b.top < 0 || b.bottom > innerHeight) x.scrollIntoView({ block:'center' }); const c = x.getBoundingClientRect(), at = document.elementFromPoint((c.left + c.right) / 2, (c.top + c.bottom) / 2); return !!at && (x === at || x.contains(at)); });
+          if (!e) return null; const b = e.getBoundingClientRect(); return { l:b.left, t:b.top, r:b.right, b:b.bottom }; }, [sel, want, tpl === '1' ? 'main.pg-app' : '.pg-demo > .card > .stage-in']).catch(() => null); if (!q) await page.waitForTimeout(500); }
         if (q){ v.rects = [q]; v.crop = await crop(page, [q], path.join(OUT, 'crops', `R7-${pg}-${st}-${th}-${w}-${v.id}.png`)).then(x => x && path.relative(OUT, x)).catch(() => null); } } } catch(e){}
     await ctx.close().catch(() => {}); } }));
 }
