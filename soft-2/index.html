@@ -1228,8 +1228,8 @@ th:last-child>.col-rz{display:none}
 .bws-vp{position:relative;height:156px;overflow:hidden;background:var(--surface)}
 /* the page itself, drawn small: real words where they matter, grey lines for the rest */
 /* (17px on the left, off the 4px scale, so the page's table and button words line up with the steps' words under the frame:
-   1px of frame edge, 17px, then their own 10px; 14px on the right keeps the page's right edge clear of the head's buttons) */
-.bws-pg{position:absolute;left:0;right:0;top:0;padding:var(--s-3) 14px var(--s-3) 17px;display:flex;flex-direction:column;gap:10px;font-size:12px;color:var(--fg2);transition:transform .8s var(--ease)}
+   1px of frame edge, 17px, then their own 10px) */
+.bws-pg{position:absolute;left:0;right:0;top:0;padding:var(--s-3) var(--s-4) var(--s-3) 17px;display:flex;flex-direction:column;gap:10px;font-size:12px;color:var(--fg2);transition:transform .8s var(--ease)}
 .bws-ln{display:block;height:6px;border-radius:3px;background:var(--chip)}
 .bws-nav{display:flex;align-items:center;gap:var(--s-3);font-size:11.5px;color:var(--muted);white-space:nowrap}
 .bws-nav b{display:flex;align-items:center;gap:var(--s-2);margin-right:auto;font-weight:500;color:var(--fg)}
@@ -1275,8 +1275,8 @@ th:last-child>.col-rz{display:none}
 .bws-t>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bws-t .d{font-size:12px;line-height:18px;color:var(--muted)}
 /* the step that waits for you is a warning notice (owner, 18 Nov; Model picker's busy notice is the reference): a faint warning
-   tint as wide as the content with 12px inside it, the filled warning sign, the words in the text colours, "Allow closing it"
-   (the action that settles it) as .pill.warn and Take over white beside it */
+   tint as wide as the content with 12px inside it, the filled warning sign, the words in the text colours, Take over white and
+   then "Allow closing it" (the action that settles it, last, as in Draft review's notice) as .pill.warn */
 .bws-s.wait{margin:var(--s-1) 0;padding:var(--s-3);border-radius:var(--r-in);background:color-mix(in srgb,var(--warn-bg) 45%,transparent)}
 .bws-wi{width:16px;height:16px;overflow:visible}
 .bws-wi .a{fill:var(--warn-mark);stroke:var(--warn-mark);stroke-width:2;stroke-linejoin:round}
@@ -15375,7 +15375,8 @@ DM.def('browser-session', (r, c) => {
     if (blocked) step(3, 'wait', you ? 'Close the banner, then hand back' : 'A cookie banner covers the table');
   }
   function showAsk(){
-    const ask = html('<div class="bws-ask"><button class="pill warn sm bws-allow">Allow closing it</button><button class="pill line sm bws-you">Take over</button></div>');
+    // Take over, then the action that settles it, last, as in Draft review's notice
+    const ask = html('<div class="bws-ask"><button class="pill line sm bws-you">Take over</button><button class="pill warn sm bws-allow">Allow closing it</button></div>');
     $('.bws-t', S[3].el).appendChild(ask); enter(ask);
     $('.bws-allow', ask).onclick = () => c.run(async () => {
       // the agent closes it the privacy-friendly way, with Reject all
