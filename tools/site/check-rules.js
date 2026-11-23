@@ -297,7 +297,8 @@ function rulesLib(){
       const bad = Object.entries(ins).filter(([k, v]) => v < ((k === 'left' || k === 'right') ? mn.h : mn.v) - .5);
       if (!bad.length) continue;
       V('R1', `${label(it)} sits ${bad.map(([k, v]) => `${v.toFixed(1)}px from the ${k}`).join(', ')} of ${c.role} ${sLabel(c)} (${mn.h === mn.v ? mn.h + 'px' : mn.h + 'px across, ' + mn.v + 'px up and down'} expected)`,
-        [sLabel(c), label(it)], Object.assign({ role:c.role, min:mn }, Object.fromEntries(bad.map(([k, v]) => [k, +v.toFixed(1)]))), [c.edge, q]); } };
+        [sLabel(c), label(it)], Object.assign({ role:c.role, min:mn }, Object.fromEntries(bad.map(([k, v]) => [k, +v.toFixed(1)]))), [c.edge, q],
+        { focus:[q, { l:bad.some(b => b[0] === 'left') ? c.edge.l : q.l, r:bad.some(b => b[0] === 'right') ? c.edge.r : q.r, t:bad.some(b => b[0] === 'top') ? c.edge.t : q.t, b:bad.some(b => b[0] === 'bottom') ? c.edge.b : q.b }] }); } };
 
     // the boxes R2 measures: words by their line box, filled controls by their box, icons by their box
     const r2box = it => it.k === 'text' ? { l:it.q.l, r:it.q.r, t:it.lb.t, b:it.lb.b } : it.k === 'svg' || it.k === 'img' ? it.box : it.q;
@@ -480,14 +481,20 @@ async function newPage(browser, st, th, w, tpl){
 }
 
 // a 2x crop of the spot, with the offending edges outlined: red for the first rect (the shape), blue for the others
-async function crop(page, rects, file){
-  const vw = page.viewportSize(); const u = rects.reduce((a, q) => ({ l:Math.min(a.l, q.l), t:Math.min(a.t, q.t), r:Math.max(a.r, q.r), b:Math.max(a.b, q.b) }), { l:1e9, t:1e9, r:-1e9, b:-1e9 });
-  const pad = 24, x = Math.max(0, Math.floor(u.l - pad)), y = Math.max(0, Math.floor(u.t - pad)), x2 = Math.min(vw.width, Math.ceil(u.r + pad)), y2 = Math.min(vw.height, Math.ceil(u.b + pad));
-  if (x2 - x < 4 || y2 - y < 4) return null;
+// a 2x crop of the spot, with the offending edges outlined: red for the first rect (the shape), blue for the others. The crop
+// frames `focus` (the thing and the edges it is measured to) when given, else every rect; a spot outside the window is
+// scrolled into it first (the page's clock is held, so nothing moves meanwhile)
+async function crop(page, rects, file, focus){
+  const vw = page.viewportSize(), U = qs => qs.reduce((a, q) => ({ l:Math.min(a.l, q.l), t:Math.min(a.t, q.t), r:Math.max(a.r, q.r), b:Math.max(a.b, q.b) }), { l:1e9, t:1e9, r:-1e9, b:-1e9 });
+  let u = U(focus && focus.length ? focus : rects); const pad = 24; let dy = 0;
+  if (u.t - pad < 0 || u.b + pad > vw.height){ dy = Math.round((u.t + u.b) / 2 - vw.height / 2); dy = await page.evaluate(d => { const y0 = scrollY; window.scrollTo(0, y0 + d); return scrollY - y0; }, dy); }
+  const sh = q => ({ l:q.l, r:q.r, t:q.t - dy, b:q.b - dy }); rects = rects.map(sh); u = sh(u);
+  const x = Math.max(0, Math.floor(u.l - pad)), y = Math.max(0, Math.floor(u.t - pad)), x2 = Math.min(vw.width, Math.ceil(u.r + pad)), y2 = Math.min(vw.height, Math.ceil(u.b + pad));
+  if (x2 - x < 4 || y2 - y < 4){ if (dy) await page.evaluate(d => window.scrollBy(0, -d), dy); return null; }
   await page.evaluate(rs => { const o = document.createElement('div'); o.id = '__rules_ov'; o.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:2147483647';
     rs.forEach((q, i) => { const d = document.createElement('div'); d.style.cssText = `position:fixed;left:${q.l}px;top:${q.t}px;width:${Math.max(.5, q.r - q.l)}px;height:${Math.max(.5, q.b - q.t)}px;outline:1px solid ${i ? '#0a6cff' : '#ff1f3d'};outline-offset:0`; o.appendChild(d); }); document.body.appendChild(o); }, rects);
   try { await page.screenshot({ path:file, clip:{ x, y, width:x2 - x, height:y2 - y }, animations:'allow', timeout:8000 }); } catch(e){ file = null; }
-  await page.evaluate(() => { const o = document.getElementById('__rules_ov'); if (o) o.remove(); });
+  await page.evaluate(d => { const o = document.getElementById('__rules_ov'); if (o) o.remove(); if (d) window.scrollBy(0, -d); }, dy);
   return file;
 }
 
@@ -521,7 +528,7 @@ async function runJob(browser, job, ref){
         if (res.viol[k]){ res.viol[k].count++; continue; }
         v.count = 1; v.key = k; v.id = hash(k); res.viol[k] = v;
         const f = path.join(OUT, 'crops', `${v.rule}-${pg.id}-${st}-${th}-${w}-${v.id}.png`);
-        v.crop = await crop(page, v.rects, f).then(x => x && path.relative(OUT, x)).catch(() => null); } };
+        v.crop = await crop(page, v.rects, f, v.focus).then(x => x && path.relative(OUT, x)).catch(() => null); delete v.focus; } };
     const designs = pg.tpl ? 0 : await page.locator('.cp-demo .seg2 button').count();
     for (let d = 0; d < Math.max(1, designs); d++){
       let dn = '';
