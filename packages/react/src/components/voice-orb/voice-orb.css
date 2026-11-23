@@ -1,0 +1,60 @@
+/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Voice orb ---------- */
+/* a hands-free voice chat: an orb that swells with whoever is talking, the accent colour for you and violet for the agent, what
+   was said under it, and mute and end below. Talking while muted says so, the way calls do */
+.dm-vor{position:relative;width:100%;max-width:380px;margin:0 auto;padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-3);--dm-oc:var(--dm-faint);--dm-oc2:var(--dm-accent)}
+/* --dm-oc is whoever is talking, --dm-oc2 the second colour that flows through the orb with it. Before the chat starts the dot is
+   grey and the orb is a quiet glass with a little of the accent inside it */
+/* the colours are mixed in oklch, so the step between them stays bright (lime to violet passes through teal, not grey) */
+.dm-vor[data-m="listening"]{--dm-oc:var(--dm-accent);--dm-oc2:color-mix(in oklch,var(--dm-pl) 45%,var(--dm-accent))}
+.dm-vor[data-m="speaking"]{--dm-oc:var(--dm-pl);--dm-oc2:color-mix(in oklch,var(--dm-accent) 45%,var(--dm-pl))}
+.dm-vor[data-m="thinking"]{--dm-oc:color-mix(in oklch,var(--dm-accent) 50%,var(--dm-pl));--dm-oc2:var(--dm-accent)}
+.dm-vor[data-m="muted"]{--dm-oc:color-mix(in srgb,var(--dm-muted) 55%,var(--dm-faint));--dm-oc2:var(--dm-faint)}
+.dm-vor-top{display:flex;align-items:center;gap:var(--dm-s-2);font-size:13px}
+.dm-vor-dot{width:8px;height:8px;border-radius:50%;background:var(--dm-oc);transition:background .4s}
+.dm-vor[data-m="listening"] .dm-vor-dot,.dm-vor[data-m="speaking"] .dm-vor-dot{animation:dm-vor-pulse 1.4s var(--dm-ease-io) infinite}
+@keyframes dm-vor-pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--dm-oc) 35%,transparent)}50%{box-shadow:0 0 0 5px transparent}}
+.dm-vor-t{margin-left:auto;font-size:12.5px}
+.dm-vor-orb{position:relative;width:112px;height:112px;margin:var(--dm-s-2) auto;--dm-lv:0}
+.dm-vor-orb i{position:absolute;inset:0;border-radius:50%}
+/* round in Blueprint too, where every other corner is square: like the turning loaders, its shape is what it says */
+.dm-vor .dm-vor-orb i{border-radius:50%!important}
+/* the sphere: nothing reaches past its edge, no glow or ring, so it never needs room around it. It swells with the level up to
+   its box and no further, so a pulse is never cut off. Before the canvas draws (or where it can't) it is a plain gradient
+   circle, lit from the top left and deeper at the foot */
+.dm-vor-core{overflow:hidden;background-color:color-mix(in srgb,var(--dm-oc) 80%,var(--dm-surface));background-image:radial-gradient(circle at 34% 28%,rgba(255,255,255,.4),rgba(255,255,255,0) 60%);box-shadow:inset 0 -10px 20px color-mix(in srgb,var(--dm-oc) 55%,#000 10%);transform:scale(calc(.9 + var(--dm-lv) * .1));transition:background-color .4s}
+/* the lit glass sphere, drawn on a canvas the size of the orb. Its edge breathes a little inside the box, so the plain
+   circle behind it goes once it draws */
+.dm-vor-gl{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;opacity:0;transition:opacity .4s}
+.dm-vor-gl.dm-on{opacity:1}
+.dm-vor-core:has(>.dm-vor-gl.dm-on){background:none;box-shadow:none}
+/* reads the second colour as it eases from one speaker to the next */
+.dm-vor-pc{visibility:hidden;background:var(--dm-oc2);transition:background .4s}
+.dm-vor-cap,.dm-vor-mf,.dm-vor-f{position:relative}
+.dm-vor[data-m="thinking"] .dm-vor-core{animation:dm-vor-br 1.6s var(--dm-ease-io) infinite alternate}
+@keyframes dm-vor-br{from{transform:scale(.9)}to{transform:scale(.96)}}
+.dm-vor-cap{min-height:88px;display:flex;flex-direction:column;gap:2px;text-align:center}
+.dm-vor-who{font-size:12px;min-height:18px}
+.dm-vor-tx{margin:0;font-size:14px;line-height:1.6;color:var(--dm-fg)}
+.dm-vor-tx.dm-hint{color:var(--dm-muted);font-size:13px}
+.dm-vor-tx .dm-w{animation:dm-vor-w .45s var(--dm-ease) both}
+@keyframes dm-vor-w{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
+.dm-vor-mw{display:flex;align-items:center;gap:10px;padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-2) var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-warn-bg)}
+.dm-vor-mw p{margin:0;flex:1;display:flex;gap:var(--dm-s-2);font-size:13px;line-height:1.45;color:var(--dm-fg)}
+.dm-vor-mw p svg{color:var(--dm-warn);flex:none;margin-top:3px}
+.dm-vor-mw .dm-pill,.dm-vor-done .dm-pill{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-shadow)}
+.dm-vor-f{display:flex;align-items:center;gap:var(--dm-s-2);min-height:32px}
+.dm-vor-f .dm-sp{flex:1}
+.dm-vor:not(.dm-on) .dm-vor-f{justify-content:center}
+.dm-vor:not(.dm-on) .dm-vor-mute,.dm-vor:not(.dm-on) .dm-vor-end,.dm-vor:not(.dm-on) .dm-vor-f .dm-sp,.dm-vor.dm-on .dm-vor-go{display:none}
+.dm-vor-mute{position:relative}
+.dm-vor-mute[aria-pressed="true"]{background:var(--dm-bad-bg);color:var(--dm-bad);box-shadow:none}
+/* the slash across the microphone once it is muted */
+.dm-vor-mute::after{content:"";position:absolute;left:50%;top:50%;width:1.5px;height:18px;margin:-9px 0 0 -.75px;border-radius:2px;background:currentColor;transform:rotate(-45deg) scaleY(0);transition:transform .25s var(--dm-ease)}
+.dm-vor-mute[aria-pressed="true"]::after{transform:rotate(-45deg) scaleY(1)}
+.dm-vor-end{background:var(--dm-bad);color:var(--dm-on-ink)}
+@media (hover:hover) and (pointer:fine){.dm-vor-end:hover{background:color-mix(in srgb,var(--dm-bad) 86%,#000)}}
+.dm-vor-done{display:flex;align-items:center;gap:var(--dm-s-3);padding:10px 10px 10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-chip);font-size:13.5px}
+.dm-vor-done>svg{color:var(--dm-fg2);flex:none}
+.dm-vor-done .dm-t{flex:1;min-width:0;display:flex;flex-direction:column}
+.dm-vor-done .dm-t span{font-size:13px}
