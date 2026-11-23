@@ -47,8 +47,8 @@ export default function HumanHandoffDemo() {
 
   // the preview's story, on the same beats as the site's
   useStory(ref, async ({ wait, press }) => {
-    await wait(5600); press('.dm-hox-rb');
-    await wait(2500); press('.dm-hox-pop .dm-mi:nth-of-type(1)');
+    await wait(5600); press('.dm-hox-go');
+    await wait(2500); press('.dm-hox-pop.dm-open .dm-mi:nth-of-type(1)');
   });
 
   return (

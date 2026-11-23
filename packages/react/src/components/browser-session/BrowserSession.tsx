@@ -3,7 +3,7 @@ import { useState, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useSeconds } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { enter, Spin, Swap, Tip } from '../../lib/motion';
+import { enter, Spin, Swap, Tip, useGrow } from '../../lib/motion';
 import '../../designme.css';
 import './browser-session.css';
 
@@ -13,7 +13,7 @@ export interface BrowserStep {
   /** What the agent does, like 'Click "Pricing"' */
   label: string;
   state: BrowserStepState;
-  /** A quiet line under the step, like "2 of 3 prices". On a waiting step it says what is in the way, in amber */
+  /** A quiet line under the step, like "2 of 3 prices". On a waiting step it says what is in the way */
   detail?: string;
 }
 
@@ -51,13 +51,18 @@ export interface BrowserSessionProps {
 const CLS: Record<BrowserStepState, string> = { queued: 'dm-queued', running: 'dm-run', waiting: 'dm-wait', done: 'dm-done' };
 const clock = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 
+/** The filled warning sign of a warning notice */
+const WarnSign = () => (
+  <svg className="dm-bws-wi" viewBox="0 0 24 24" aria-hidden="true"><path className="dm-a" d="M12 3.6 2.6 19.9h18.8z" /><path className="dm-b" d="M12 9.6v4.4M12 17v.01" /></svg>
+);
+
 function Glyph({ state }: { state: BrowserStepState }) {
   // a glyph plays its entrance when its step changes state, not when it first renders
   const [first] = useState(state);
   const e = state !== first ? enter() : undefined;
   return (
     <span key={state} className={cx('dm-g', e?.className)} style={e?.style} aria-hidden="true">
-      {state === 'running' ? <Spin /> : state === 'done' ? <Icon name="ok" size="xs" /> : state === 'waiting' ? <Icon name="alert" size="xs" /> : <span className="dm-dot" />}
+      {state === 'running' ? <Spin /> : state === 'done' ? <Icon name="ok" size="xs" /> : state === 'waiting' ? <WarnSign /> : <span className="dm-dot" />}
     </span>
   );
 }
@@ -75,11 +80,14 @@ export function BrowserSession({ title, url, search, children, cursor, steps, as
   const line = status ?? (done ? 'Done' : mine ? 'You have control' : isPaused ? 'Paused' : waiting ? 'Needs you' : 'Browsing');
   const take = () => { setMine(!mine); if (!mine && isPaused) setPaused(false); };
   const sum = done && summary ? enter() : undefined;
+  // the card grows and shrinks with what it holds (the notice's buttons, the line once it is done)
+  const [root, inner] = useGrow();
 
   return (
-    <div data-dm="" className={cx('dm-bws dm-panel', mine && 'dm-you', isPaused && !mine && 'dm-paused', className)}>
+    <div data-dm="" ref={root} className={cx('dm-bws dm-panel dm-growing', mine && 'dm-you', isPaused && !mine && 'dm-paused', className)}>
+      <div ref={inner} className="dm-grow">
       <div className="dm-bws-h">
-        <div className="dm-bws-ht"><b>{title}</b><span className="dm-muted dm-bws-st"><span aria-live="polite"><Swap>{line}</Swap></span> · <span className="dm-num">{clock(secs)}</span></span></div>
+        <div className="dm-bws-ht"><b>{title}</b><span className="dm-muted dm-bws-st"><span aria-live="polite"><Swap className={line === 'Browsing' ? 'dm-shim' : undefined}>{line}</Swap></span> · <span className="dm-num">{clock(secs)}</span></span></div>
         <div className="dm-bws-ctl">
           <Tip label={isPaused ? 'Resume' : 'Pause'}>
             <button type="button" className="dm-ib dm-bws-pause" aria-label={isPaused ? 'Resume' : 'Pause'} disabled={mine || done} onClick={() => setPaused(!isPaused)}>
@@ -109,12 +117,12 @@ export function BrowserSession({ title, url, search, children, cursor, steps, as
             <li key={i} className={cx('dm-bws-s', CLS[s.state])} aria-current={s.state === 'running' || s.state === 'waiting' ? 'step' : undefined}>
               <Glyph state={s.state} />
               <span className="dm-bws-t">
-                <span>{s.label}</span>
+                <span className={s.state === 'running' ? 'dm-shim' : undefined}>{s.label}</span>
                 {s.detail && <Swap className="dm-d">{s.detail}</Swap>}
                 {asking && (
                   <div className={cx('dm-bws-ask', enter().className)}>
-                    <button type="button" className="dm-pill dm-primary dm-sm" onClick={ask.onAllow}>{ask.label}</button>
-                    <button type="button" className="dm-pill dm-soft dm-sm" onClick={take}>Take over</button>
+                    <button type="button" className="dm-pill dm-warn dm-sm" onClick={ask.onAllow}>{ask.label}</button>
+                    <button type="button" className="dm-pill dm-line dm-sm" onClick={take}>Take over</button>
                   </div>
                 )}
               </span>
@@ -123,6 +131,7 @@ export function BrowserSession({ title, url, search, children, cursor, steps, as
         })}
       </ol>
       {sum && <div className={cx('dm-bws-sum', sum.className)} style={sum.style}><Icon name="ok" size="xs" /><span>{summary}</span></div>}
+      </div>
     </div>
   );
 }

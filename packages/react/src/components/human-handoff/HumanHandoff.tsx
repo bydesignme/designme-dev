@@ -2,7 +2,7 @@
 import { useRef, useState } from 'react';
 import { cx } from '../../lib/cx';
 import { Icon } from '../../lib/icons';
-import { Avatar, Spin, Swap, Tip } from '../../lib/motion';
+import { Avatar, enter, Spin, Swap, Tip, useGrow } from '../../lib/motion';
 import { usePopover } from '../../lib/popover';
 import '../../designme.css';
 import './human-handoff.css';
@@ -27,7 +27,8 @@ export interface HandoffFact {
 }
 
 export interface HandoffStatus {
-  /** wait is neutral with a spinner, warn orange with an alert, ok green */
+  /** wait is neutral with a spinner and the loader's sweep on its title; warn is a warning notice (a faint amber tint, the
+      filled warning sign, and Reassign when there are `people`); ok is neutral with the person's avatar or a green tick */
   tone?: 'wait' | 'warn' | 'ok';
   title: string;
   detail?: string;
@@ -70,6 +71,11 @@ export interface HumanHandoffProps {
   className?: string;
 }
 
+/** The filled warning sign of a warning notice */
+const WarnSign = () => (
+  <svg className="dm-hox-wi" viewBox="0 0 24 24" aria-hidden="true"><path className="dm-a" d="M12 3.6 2.6 19.9h18.8z" /><path className="dm-b" d="M12 9.6v4.4M12 17v.01" /></svg>
+);
+
 const initialsOf = (p: HandoffPerson) => p.initials ?? p.name.split(' ').map(w => w[0]).join('').slice(0, 2);
 const due = (s: number) => { const m = Math.floor(s / 60); return s <= 0 ? 'Reply overdue' : m < 1 ? 'Reply due in under a minute' : `Reply due in ${m} min`; };
 
@@ -82,6 +88,9 @@ export function HumanHandoff({
   const L = { assignedTo: 'Assigned to', context: 'Context passed along', reassign: 'Reassign', reassignTo: 'Reassign to', target: `${Math.round(targetSeconds / 60)} min target`,
     edit: 'Edit', save: 'Save', cancel: 'Cancel', edited: 'edited', ...labels };
   const menu = usePopover({ align: 'end', side: 'down' });
+  // the warning notice's own Reassign opens the same list, from the foot (upwards when there is no room below)
+  const footMenu = usePopover({ align: 'end' });
+  const [root, inner] = useGrow();
   const [editing, setEditing] = useState(false);
   // the message box is drawn afresh after each edit, so what React renders and what was typed never disagree
   const [rev, setRev] = useState(0);
@@ -102,7 +111,8 @@ export function HumanHandoff({
 
   return (
     <div data-dm="" className={className} style={{ width: '100%', containerType: 'inline-size' }}>
-      <div className="dm-hox dm-panel">
+      <div ref={root} className="dm-hox dm-panel dm-growing">
+      <div ref={inner} className="dm-grow">
         <div className="dm-hox-h">
           <span className="dm-hox-ic"><Icon name="user" /></span>
           <div className="dm-hox-ht"><b>{title}</b><span className="dm-muted">{reason}</span></div>
@@ -125,7 +135,7 @@ export function HumanHandoff({
               )}
             </div>
             <div className={cx('dm-hox-sla', tone)}>
-              <div className="dm-hox-sl"><Icon name="clock" /><span className="dm-hox-due dm-num">{due(secondsLeft)}</span><span className="dm-muted">{L.target}</span></div>
+              <div className="dm-hox-sl"><Icon name="clock" /><span className="dm-hox-sw"><span className="dm-hox-due dm-num">{due(secondsLeft)}</span><span className="dm-muted">{L.target}</span></span></div>
               <div className="dm-hox-bar" role="progressbar" aria-label="Time left to reply" aria-valuemin={0} aria-valuemax={targetSeconds} aria-valuenow={left}>
                 <i style={{ width: `${Math.min(100, (left / targetSeconds) * 100)}%` }} />
               </div>
@@ -154,22 +164,29 @@ export function HumanHandoff({
           </div>
         </div>
         <div className={cx('dm-hox-st', st !== 'wait' && 'dm-' + st)} aria-live="polite">
-          <span className="dm-g">{status.person ? <Avatar initials={initialsOf(status.person)} color={status.person.color ?? 'var(--dm-av-l)'} /> : st === 'wait' ? <Spin /> : <Icon name={st === 'warn' ? 'alert' : 'ok'} />}</span>
-          <span className="dm-t"><b><Swap>{status.title}</Swap></b>{status.detail && <span><Swap>{status.detail}</Swap></span>}</span>
+          <div className="dm-hox-sr">
+            <span className="dm-g">{status.person ? <Avatar initials={initialsOf(status.person)} color={status.person.color ?? 'var(--dm-av-l)'} />
+              : st === 'wait' ? <Spin /> : st === 'warn' ? <WarnSign /> : <Icon name="ok" size="xs" />}</span>
+            <span className="dm-t"><b><Swap className={st === 'wait' ? 'dm-shim' : undefined}>{status.title}</Swap></b>{status.detail && <span><Swap>{status.detail}</Swap></span>}</span>
+            {st === 'warn' && people && assignee && (
+              <button type="button" className={cx('dm-pill dm-warn dm-sm dm-hox-go', enter().className)} {...footMenu.trigger}>{L.reassign}</button>
+            )}
+          </div>
         </div>
-        {people && (
-          <div {...menu.pop} className={cx(menu.pop.className, 'dm-hox-pop')} role="menu" aria-label={L.reassignTo}>
+        {people && [menu, footMenu].map((m, k) => (
+          <div key={k} {...m.pop} className={cx(m.pop.className, 'dm-hox-pop')} role="menu" aria-label={L.reassignTo}>
             <div className="dm-ph">{L.reassignTo}</div>
             {people.map(p => (
               <button type="button" key={p.name} className="dm-mi" role="menuitemradio" aria-checked={p.name === assignee?.name}
-                onClick={() => { if (p.name !== assignee?.name) onReassign?.(p); menu.closeSoon(); }}>
+                onClick={() => { if (p.name !== assignee?.name) onReassign?.(p); m.closeSoon(); }}>
                 <Avatar initials={initialsOf(p)} color={p.color ?? 'var(--dm-av-l)'} />
                 <span>{p.name}<span className="dm-d">{[p.team, p.presence].filter(Boolean).join(' · ')}</span></span>
                 <span className="dm-ck"><Icon name="check" size="xs" /></span>
               </button>
             ))}
           </div>
-        )}
+        ))}
+      </div>
       </div>
     </div>
   );

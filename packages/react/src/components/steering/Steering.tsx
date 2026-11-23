@@ -3,7 +3,7 @@ import { useState, type FormEvent } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useSeconds } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { enter, Spin, Swap } from '../../lib/motion';
+import { enter, Spin, Swap, useGrow } from '../../lib/motion';
 import '../../designme.css';
 import './steering.css';
 
@@ -89,9 +89,12 @@ export function Steering({ title, steps, messages = [], onSend, value, defaultVa
   const done = summary === undefined ? `Done in ${clock(secs)}${mine ? ` · ${mine} change${mine > 1 ? 's' : ''} from you` : ''}` : summary;
   const send = (e: FormEvent) => { e.preventDefault(); const t = draft.trim(); if (!t || finished) return; onSend?.(t); setDraft(''); };
   const sum = finished && done !== false ? enter() : undefined;
+  // the card grows and shrinks with its log, staying centred wherever it is centred
+  const [root, inner] = useGrow();
 
   return (
-    <div data-dm="" className={cx('dm-ste dm-panel', className)}>
+    <div data-dm="" ref={root} className={cx('dm-ste dm-panel dm-growing', className)}>
+      <div ref={inner} className="dm-grow">
       <div className="dm-ste-h"><b>{title}</b><span className="dm-muted dm-ste-st"><span aria-live="polite"><Swap>{line}</Swap></span> · <span className="dm-num">{clock(secs)}</span></span></div>
       <ol className="dm-ste-steps" aria-label="Steps">
         {steps.map(s => {
@@ -99,7 +102,7 @@ export function Steering({ title, steps, messages = [], onSend, value, defaultVa
           return (
             <li key={s.id} className={cx('dm-ste-s', `dm-${s.status === 'running' ? 'run' : s.status}`, e?.className)} style={e?.style}>
               <Glyph status={s.status} />
-              <span className="dm-ste-t"><b>{s.title}</b>{s.detail && <Swap>{s.detail}</Swap>}</span>
+              <span className="dm-ste-t"><b>{s.title}</b>{s.detail && <Swap className={s.status === 'running' ? 'dm-shim' : undefined}>{s.detail}</Swap>}</span>
               {s.fromYou && <span className="dm-tag dm-b">From you</span>}
             </li>
           );
@@ -124,7 +127,7 @@ export function Steering({ title, steps, messages = [], onSend, value, defaultVa
                 <p>{m.text}</p>
                 {m.answer ? <span className="dm-muted">{m.answer}</span> : m.actions?.length ? (
                   <div className="dm-ste-acts">
-                    {m.actions.map((a, i) => <button key={a.label} type="button" className={cx('dm-pill dm-sm', i === m.actions!.length - 1 ? 'dm-primary' : 'dm-ghost')} onClick={a.onClick}>{a.label}</button>)}
+                    {m.actions.map((a, i) => <button key={a.label} type="button" className={cx('dm-pill dm-sm', i === m.actions!.length - 1 ? 'dm-primary' : 'dm-line')} onClick={a.onClick}>{a.label}</button>)}
                   </div>
                 ) : null}
               </div>
@@ -137,6 +140,7 @@ export function Steering({ title, steps, messages = [], onSend, value, defaultVa
         <input value={draft} onChange={e => setDraft(e.target.value)} disabled={finished} placeholder={placeholder ?? (finished ? 'The run has finished' : 'Steer the agent while it works')} aria-label="Message the agent" spellCheck={false} autoComplete="off" />
         <button type="submit" className="dm-ste-go" aria-label="Send" disabled={finished || !draft.trim()}><Icon name="up" size="xs" /></button>
       </form>
+      </div>
     </div>
   );
 }
