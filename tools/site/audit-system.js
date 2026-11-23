@@ -118,6 +118,12 @@ function install(){
     if (e.matches('[role="switch"],input[type="checkbox"],input[type="radio"]')) return 'toggle';
     if (e.matches('.mi,[role="option"],[role^="menuitem"],[role="treeitem"],[role="row"]')) return 'row';
     if (r.width > rootW * .5 && r.height >= 28) return 'row';
+    // a day in a calendar or a cell in a table; and a clickable tile taller than any button (an event, a card in a picker)
+    // (a cell: one of seven or more alike buttons laid out by a grid, like a month's days)
+    const pg = e.parentElement, ps = pg && getComputedStyle(pg);
+    if (e.matches('[role="gridcell"],td,th') || e.closest('[role="grid"],table') || (ps && /grid/.test(ps.display) && pg.children.length >= 7)) return 'cell';
+    if (r.height > 36) return 'tile';
+    if (e.disabled || e.getAttribute('aria-disabled') === 'true') return 'disabled';
     if (e.closest('.seg2,.seg,[role="tablist"],[role="radiogroup"]') || e.matches('[role="tab"],[role="radio"]')) return 'segment';
     if (e.matches('.pill.warn')) return 'warning action';
     if (e.matches('.pill.primary,.pill.accent')) return 'primary';
@@ -182,7 +188,7 @@ function sample(){
   const ctls = [...sin.querySelectorAll(A.CTL)].filter(e => !A.skip(e) && A.vis(e) && !(e.parentElement && e.parentElement.closest(A.CTL) && !e.parentElement.closest(A.CTL).matches('.seg2,.seg,[role="tablist"],[role="radiogroup"]')) && e.getBoundingClientRect().width >= 8 && e.getBoundingClientRect().height >= 8 && !e.closest('.pop:not(.open)'));
   const kinds = new Map();
   ctls.forEach(e => {
-    const k = A.kind(e, rootW); kinds.set(e, k); if (k === 'row' || k === 'toggle' || k === 'field') return;
+    const k = A.kind(e, rootW); kinds.set(e, k); if (['row', 'toggle', 'field', 'cell', 'tile', 'disabled'].includes(k)) return;
     const cs = getComputedStyle(e), b = e.getBoundingClientRect(), ring = A.ring(cs), w = A.words(e);
     const bw = parseFloat(cs.borderTopWidth), edge = bw > 0 && A.col(cs.borderTopColor) !== 'none' ? `${A.px(bw)}px ${A.col(cs.borderTopColor)}` : ring ? `ring ${A.px(ring.w)}px ${ring.c}` : 'none';
     const pl = A.px(cs.paddingLeft), pr = A.px(cs.paddingRight), rad = cs.borderTopLeftRadius, rr = parseFloat(rad) >= b.height / 2 - .5 ? 'pill' : `${A.px(rad)}px`;
@@ -198,7 +204,7 @@ function sample(){
     rec('buttons', k, 'look', `${vals.height} tall · pad ${vals['padding x']} · ${shape} · fill ${vals.fill} · edge ${edge} · text ${vals.text} · ${font}`, e);
   });
   // buttons side by side: neighbours in one parent, on one line
-  const parents = new Map(); ctls.forEach(e => { const k = kinds.get(e); if (['row', 'toggle', 'segment', 'field'].includes(k)) return; const p = e.parentElement; if (!parents.has(p)) parents.set(p, []); parents.get(p).push(e); });
+  const parents = new Map(); ctls.forEach(e => { const k = kinds.get(e); if (['row', 'toggle', 'segment', 'field', 'cell', 'tile', 'disabled'].includes(k)) return; const p = e.parentElement; if (!parents.has(p)) parents.set(p, []); parents.get(p).push(e); });
   // (more than 32px apart is two ends of a row, not a group of buttons)
   parents.forEach(list => { if (list.length < 2) return; list.sort((a, b) => a.getBoundingClientRect().left - b.getBoundingClientRect().left);
     for (let i = 1; i < list.length; i++){ const a = list[i - 1].getBoundingClientRect(), b = list[i].getBoundingClientRect(); if (Math.abs((a.top + a.bottom) / 2 - (b.top + b.bottom) / 2) > 3 || b.left < a.right - 1 || b.left - a.right > 32) continue; rec('buttons', 'side by side', 'side by side', fmt(b.left - a.right), list[i], `${kinds.get(list[i - 1])} + ${kinds.get(list[i])}`); } });
@@ -230,11 +236,11 @@ function sample(){
     if (!regions.some(r => r.where === 'foot')){ const f = lines.filter(l => l.y > I.top + I.height * .4 && I.bottom - l.y <= 120 && I.bottom - l.y > 12 && D.some(d => d.top >= l.y - .5)).sort((a, b) => b.y - a.y)[0]; if (f) regions.push({ where:'foot', how:'hairline', top:f.y, bottom:I.bottom, e:f.e }); }
     if (!regions.some(r => r.where === 'head')){ const h = lines.filter(l => l.y < I.top + I.height * .6 && l.y - I.top <= 100 && l.y - I.top > 12 && D.some(d => d.bottom <= l.y + .5)).sort((a, b) => a.y - b.y)[0]; if (h) regions.push({ where:'head', how:'hairline', top:I.top, bottom:h.y - (h.under ? parseFloat(getComputedStyle(h.e).borderBottomWidth) : 0), e:h.e }); }
     regions.forEach(g => { const inR = D.filter(d => (d.top + d.bottom) / 2 > g.top && (d.top + d.bottom) / 2 < g.bottom && !(d.k === 'box' && d.right - d.left >= I.width - 8)); if (!inR.length) return;
-      const above = Math.min(...inR.map(d => d.top)) - g.top, below = g.bottom - Math.max(...inR.map(d => d.bottom)), l = Math.min(...inR.map(d => d.left)) - I.left;
+      const above = Math.min(...inR.map(d => d.top)) - g.top, below = g.bottom - Math.max(...inR.map(d => d.bottom)), l0 = Math.min(...inR.map(d => d.left)) - I.left, l = l0 < I.width / 3 ? l0 : null;
       const rr = inR.filter(d => !d.ragged), r0 = rr.length ? I.right - Math.max(...rr.map(d => d.right)) : null, r = r0 !== null && r0 < I.width / 3 ? r0 : null, hasCtl = inR.some(d => d.k === 'ctl' || (d.e.closest && d.e.closest(A.CTL)));
       const kind = `${g.where} (${g.how})`;
-      rec('heads', kind, 'above', fmt(above), g.e); rec('heads', kind, 'below', fmt(below), g.e); rec('heads', kind, 'height', fmt(g.bottom - g.top), g.e); rec('heads', kind, 'left', fmt(l), g.e); if (r !== null) rec('heads', kind, 'right', fmt(r), g.e);
-      rec('heads', kind, 'look', `${A.r(g.bottom - g.top)} tall · ${fmt(above)} above · ${fmt(below)} below · ${fmt(l)} left · ${r === null ? 'ragged' : fmt(r)} right${hasCtl ? '' : ' · words only'}`, g.e, { card:A.path(card), top:g.top, bottom:g.bottom }); });
+      rec('heads', kind, 'above', fmt(above), g.e); rec('heads', kind, 'below', fmt(below), g.e); rec('heads', kind, 'height', fmt(g.bottom - g.top), g.e); if (l !== null) rec('heads', kind, 'left', fmt(l), g.e); if (r !== null) rec('heads', kind, 'right', fmt(r), g.e);
+      rec('heads', kind, 'look', `${A.r(g.bottom - g.top)} tall · ${fmt(above)} above · ${fmt(below)} below · ${l === null ? 'all at the right' : fmt(l) + ' left'} · ${r === null ? 'ragged' : fmt(r)} right${hasCtl ? '' : ' · words only'}`, g.e, { card:A.path(card), top:g.top, bottom:g.bottom }); });
   });
 
   /* rows ------------------------------------------------------------------------------------------------------------ */
