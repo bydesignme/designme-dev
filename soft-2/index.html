@@ -248,7 +248,6 @@ b,strong{font-weight:500}
 .pill[disabled],.pill[disabled]:hover{opacity:1;color:var(--dis);background:none;cursor:not-allowed;transform:none}
 button:disabled{cursor:not-allowed}
 .pill:is(.accent,.primary,.soft,.line)[disabled],.pill:is(.accent,.primary,.soft,.line)[disabled]:hover{background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring)}
-.pill[disabled] .kbd{background:var(--chip);color:inherit}
 .pill.sm{height:28px;padding:0 11px;font-size:12.5px}
 .tag{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 7px;border-radius:var(--r-tag);font-size:11.5px;font-weight:500;white-space:nowrap;background:var(--chip);color:var(--fg2)}
 .tag.b{background:var(--pb-bg);color:var(--pb)}.tag.l{background:var(--pl-bg);color:var(--pl)}.tag.m{background:var(--pm-bg);color:var(--pm)}.tag.p{background:var(--pp-bg);color:var(--pp)}
@@ -268,6 +267,9 @@ button:disabled{cursor:not-allowed}
 .pill .kbd{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 var(--s-1);margin-right:-6px}
 /* a key hint on a filled button sits on a slightly darker well of the fill, so white text keeps its contrast */
 .pill.primary .kbd,.pill.accent .kbd{background:color-mix(in srgb,var(--accent) 80%,#000);color:inherit}
+/* a disabled button's key chip is disabled with it, in every style (owner, 23 Nov: Accept's Tab kept its accent well): no
+   fill of its own colour, only a faint tint of the button's disabled text, which it takes as its words */
+.pill[disabled] .kbd,.pill:is(.primary,.accent)[disabled] .kbd{background:color-mix(in srgb,currentColor 14%,transparent);color:inherit}
 code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1px 5px;border-radius:var(--r-tiny,5px)}
 .av{width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;font-size:10px;font-weight:500;color:#fff;flex:none}
 .hr{height:1px;background:var(--line);border:0;margin:0}
@@ -4966,8 +4968,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .asx-tb-st{flex:1;min-width:0;display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
 .asx-tb.dirty .asx-tb-st{color:var(--fg)}
 .asx-tb-st .i{color:var(--ok-mark)}
-/* with nothing to save, Save's shortcut goes quiet with it */
-.asx-tb-sv[disabled] .kbd{background:none;color:inherit}
+/* with nothing to save, Save's shortcut goes quiet with it, as every disabled button's key chip does (in the shared rules) */
 /* on a phone the shortcut has no keyboard to go with, so Save drops its hint and the bar keeps to one line */
 @container (max-width:400px){.asx-tb-sv .kbd{display:none}}
 :root[data-style="bp"] .asx-tb-tabs{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent)}
@@ -4990,8 +4991,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 :root[data-style="clean"] .asx-tb-cf{padding:0 var(--s-4)}
 :root[data-style="clean"] .asx-tb-cl{padding-bottom:8px}
 :root[data-style="clean"] .asx-tb-bar{padding:var(--strip-y) var(--s-4);background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
-:root[data-style="clean"] .asx-tb-sv .kbd{background:color-mix(in srgb,var(--on-btn) 18%,transparent);color:inherit}
-:root[data-style="clean"] .asx-tb-sv[disabled] .kbd{background:none}
+:root[data-style="clean"] .asx-tb-sv:not([disabled]) .kbd{background:color-mix(in srgb,var(--on-btn) 18%,transparent);color:inherit}
 /* Presets: Careful, Balanced and Bold, each with its colour on its tile (teal, the accent and violet, so the grid's green and
    amber keep meaning allow and ask) and a meter in the accent, then a grid of allow, ask and block for each tool */
 .asx-ps{padding:var(--s-4);display:flex;flex-direction:column;gap:var(--s-3)}
