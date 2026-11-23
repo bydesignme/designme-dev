@@ -174,6 +174,8 @@
    place on it, its glyph on the content's right edge; hover fills are a quiet 5% so they show on the white toast */
 .tsk-c{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:flex-start;gap:var(--dm-s-3);padding:var(--dm-s-4);--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent);background:var(--dm-surface);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow-toast);transition:transform .55s var(--dm-ease),opacity .45s var(--dm-ease),filter .45s;transform-origin:bottom center}
 .tsk-c .g{width:28px;height:28px;margin-top:calc(8.775px - 14px);border-radius:50%;display:grid;place-items:center;flex:none}
+/* (the title and its time share one baseline; the icon keeps its place on the title's line) */
+.tsk-w{flex:1;min-width:0;display:flex;align-items:baseline;gap:var(--dm-s-3)}
 .tsk-c .tx{flex:1;min-width:0;font-size:13px;line-height:1.35}
 .tsk-c .tx b{font-weight:500;display:block}
 .tsk-c .tx span{font-size:12px;color:var(--dm-muted)}
@@ -314,7 +316,7 @@ export default function ToastStackDemo() {
 import ToastStack from &#39;../components/designme/toast-stack/ToastStack.astro&#39;;
 ---
 &lt;ToastStack /&gt;
-&lt;ToastStack data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything ToastStack takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>toasts</code><span class="opt">required</span></td><td><code>StackToast[]</code></td><td>Oldest first. The last one sits in front</td></tr><tr><td><code>onDismiss</code></td><td><code>(id: StackToast[&#39;id&#39;]) =&gt; void</code></td><td>Called when a toast&#39;s close button is pressed. Remove it from `toasts` and it slides away</td></tr><tr><td><code>expanded</code></td><td><code>boolean</code></td><td>Fans the stack out. Leave it out to fan it while the pointer is over it</td></tr><tr><td><code>max</code></td><td><code>number</code></td><td>How many toasts stay mounted. Older ones drop off the back</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>ToastStack.tsx<span class="l">React · 144 lines</span></summary><pre class="cp-pre" data-name="ToastStack.tsx"><code>&#39;use client&#39;;
+&lt;ToastStack data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything ToastStack takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>toasts</code><span class="opt">required</span></td><td><code>StackToast[]</code></td><td>Oldest first. The last one sits in front</td></tr><tr><td><code>onDismiss</code></td><td><code>(id: StackToast[&#39;id&#39;]) =&gt; void</code></td><td>Called when a toast&#39;s close button is pressed. Remove it from `toasts` and it slides away</td></tr><tr><td><code>expanded</code></td><td><code>boolean</code></td><td>Fans the stack out. Leave it out to fan it while the pointer is over it</td></tr><tr><td><code>max</code></td><td><code>number</code></td><td>How many toasts stay mounted. Older ones drop off the back</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>ToastStack.tsx<span class="l">React · 146 lines</span></summary><pre class="cp-pre" data-name="ToastStack.tsx"><code>&#39;use client&#39;;
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useIsoLayoutEffect } from &#39;../lib/hooks&#39;;
@@ -440,8 +442,10 @@ export function ToastStack({ toasts, onDismiss, expanded, max = 6, className }: 
     return (
       &lt;div key={t.id} className={cx(&#39;dm-tsk-c&#39;, !gone &amp;&amp; under.has(t.id) &amp;&amp; front.indexOf(t) &gt; 0 &amp;&amp; &#39;dm-tsk-under&#39;)} style={style} inert={gone || (fan ? front.indexOf(t) &gt; 3 : front.indexOf(t) &gt; 0)} ref={el =&gt; { if (gone) return; if (el) els.current.set(t.id, el); else els.current.delete(t.id); }}&gt;
         &lt;span className=&quot;dm-g&quot; data-tone={t.tone ?? &#39;neutral&#39;} style={{ color: `var(${fg})`, background: `var(${bg})` }}&gt;&lt;Icon name={t.icon} /&gt;&lt;/span&gt;
-        &lt;div className=&quot;dm-tx&quot;&gt;&lt;b&gt;{t.title}&lt;/b&gt;{t.detail &amp;&amp; &lt;span&gt;{t.detail}&lt;/span&gt;}&lt;/div&gt;
-        {t.time &amp;&amp; &lt;span className=&quot;dm-t&quot;&gt;{t.time}&lt;/span&gt;}
+        &lt;div className=&quot;dm-tsk-w&quot;&gt;
+          &lt;div className=&quot;dm-tx&quot;&gt;&lt;b&gt;{t.title}&lt;/b&gt;{t.detail &amp;&amp; &lt;span&gt;{t.detail}&lt;/span&gt;}&lt;/div&gt;
+          {t.time &amp;&amp; &lt;span className=&quot;dm-t&quot;&gt;{t.time}&lt;/span&gt;}
+        &lt;/div&gt;
         &lt;Tip label=&quot;Dismiss&quot;&gt;&lt;button type=&quot;button&quot; className=&quot;dm-ib&quot; aria-label=&quot;Dismiss&quot; onClick={() =&gt; onDismiss?.(t.id)}&gt;&lt;Icon name=&quot;x&quot; /&gt;&lt;/button&gt;&lt;/Tip&gt;
       &lt;/div&gt;
     );
@@ -457,7 +461,7 @@ export function ToastStack({ toasts, onDismiss, expanded, max = 6, className }: 
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>toast-stack.css<span class="l">React · 43 lines</span></summary><pre class="cp-pre" data-name="toast-stack.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>toast-stack.css<span class="l">React · 45 lines</span></summary><pre class="cp-pre" data-name="toast-stack.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Toast stack ---------- */
 /* each toast is the same size as the one in Toast: width, padding, type and icons */
 /* the deck is as tall as the toasts in it (--dm-deckh, set as they arrive), growing with them, never keeping room for three
@@ -470,6 +474,8 @@ export function ToastStack({ toasts, onDismiss, expanded, max = 6, className }: 
    place on it, its glyph on the content&#39;s right edge; hover fills are a quiet 5% so they show on the white toast */
 .dm-tsk-c{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:flex-start;gap:var(--dm-s-3);padding:var(--dm-s-4);--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent);background:var(--dm-surface);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow-toast);transition:transform .55s var(--dm-ease),opacity .45s var(--dm-ease),filter .45s;transform-origin:bottom center}
 .dm-tsk-c .dm-g{width:28px;height:28px;margin-top:calc(8.775px - 14px);border-radius:50%;display:grid;place-items:center;flex:none}
+/* (the title and its time share one baseline; the icon keeps its place on the title&#39;s line) */
+.dm-tsk-w{flex:1;min-width:0;display:flex;align-items:baseline;gap:var(--dm-s-3)}
 .dm-tsk-c .dm-tx{flex:1;min-width:0;font-size:13px;line-height:1.35}
 .dm-tsk-c .dm-tx b{font-weight:500;display:block}
 .dm-tsk-c .dm-tx span{font-size:12px;color:var(--dm-muted)}
@@ -533,7 +539,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>toast-stack.css<span class="l">HTML · 42 lines</span></summary><pre class="cp-pre" data-name="toast-stack.css"><code>/* ---------- Toast stack ---------- */
+</code></pre></details><details class="cp-file"><summary>toast-stack.css<span class="l">HTML · 44 lines</span></summary><pre class="cp-pre" data-name="toast-stack.css"><code>/* ---------- Toast stack ---------- */
 /* each toast is the same size as the one in Toast: width, padding, type and icons */
 /* the deck is as tall as the toasts in it (--dm-deckh, set as they arrive), growing with them, never keeping room for three
    (owner, 18 Nov: containers grow with their content in every style) */
@@ -545,6 +551,8 @@ const { class: className, ...rest } = Astro.props;
    place on it, its glyph on the content&#39;s right edge; hover fills are a quiet 5% so they show on the white toast */
 .tsk-c{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:flex-start;gap:var(--dm-s-3);padding:var(--dm-s-4);--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent);background:var(--dm-surface);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow-toast);transition:transform .55s var(--dm-ease),opacity .45s var(--dm-ease),filter .45s;transform-origin:bottom center}
 .tsk-c .g{width:28px;height:28px;margin-top:calc(8.775px - 14px);border-radius:50%;display:grid;place-items:center;flex:none}
+/* (the title and its time share one baseline; the icon keeps its place on the title&#39;s line) */
+.tsk-w{flex:1;min-width:0;display:flex;align-items:baseline;gap:var(--dm-s-3)}
 .tsk-c .tx{flex:1;min-width:0;font-size:13px;line-height:1.35}
 .tsk-c .tx b{font-weight:500;display:block}
 .tsk-c .tx span{font-size:12px;color:var(--dm-muted)}
@@ -604,7 +612,7 @@ const { class: className, ...rest } = Astro.props;
   }
   function add(){
     const p = pool[n++ % pool.length];
-    const el = html(`&lt;div class=&quot;tsk-c&quot;&gt;&lt;span class=&quot;g&quot; data-tone=&quot;${p[5]}&quot; style=&quot;color:${p[1]};background:${p[2]}&quot;&gt;${I(p[0])}&lt;/span&gt;&lt;div class=&quot;tx&quot;&gt;&lt;b&gt;${p[3]}&lt;/b&gt;&lt;span&gt;${p[4]}&lt;/span&gt;&lt;/div&gt;&lt;span class=&quot;t&quot;&gt;now&lt;/span&gt;&lt;button class=&quot;ib&quot; aria-label=&quot;Dismiss&quot; data-tip=&quot;Dismiss&quot;&gt;${I(&#39;x&#39;)}&lt;/button&gt;&lt;/div&gt;`);
+    const el = html(`&lt;div class=&quot;tsk-c&quot;&gt;&lt;span class=&quot;g&quot; data-tone=&quot;${p[5]}&quot; style=&quot;color:${p[1]};background:${p[2]}&quot;&gt;${I(p[0])}&lt;/span&gt;&lt;div class=&quot;tsk-w&quot;&gt;&lt;div class=&quot;tx&quot;&gt;&lt;b&gt;${p[3]}&lt;/b&gt;&lt;span&gt;${p[4]}&lt;/span&gt;&lt;/div&gt;&lt;span class=&quot;t&quot;&gt;now&lt;/span&gt;&lt;/div&gt;&lt;button class=&quot;ib&quot; aria-label=&quot;Dismiss&quot; data-tip=&quot;Dismiss&quot;&gt;${I(&#39;x&#39;)}&lt;/button&gt;&lt;/div&gt;`);
     el.style.transform = &#39;translateY(24px) scale(.96)&#39;; el.style.opacity = 0; el.style.filter = &#39;blur(6px)&#39;;
     el._new = true;
     stack.appendChild(el); items.push(el);
@@ -990,7 +998,7 @@ const fitHits = window.dmFitHits || (() => {
   }
   function add(){
     const p = pool[n++ % pool.length];
-    const el = html(`<div class="tsk-c"><span class="g" data-tone="${p[5]}" style="color:${p[1]};background:${p[2]}">${I(p[0])}</span><div class="tx"><b>${p[3]}</b><span>${p[4]}</span></div><span class="t">now</span><button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div>`);
+    const el = html(`<div class="tsk-c"><span class="g" data-tone="${p[5]}" style="color:${p[1]};background:${p[2]}">${I(p[0])}</span><div class="tsk-w"><div class="tx"><b>${p[3]}</b><span>${p[4]}</span></div><span class="t">now</span></div><button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div>`);
     el.style.transform = 'translateY(24px) scale(.96)'; el.style.opacity = 0; el.style.filter = 'blur(6px)';
     el._new = true;
     stack.appendChild(el); items.push(el);

@@ -224,7 +224,9 @@
 .atb .hb{display:flex;align-items:center;gap:var(--dm-s-2)}
 .atb .hb i{width:54px;height:5px;border-radius:var(--dm-r-tiny,3px);background:var(--dm-line);overflow:hidden;display:block}
 .atb .hb i b{display:block;height:100%;border-radius:var(--dm-r-tiny,3px)}
-.atb .hb span{font-size:12px;color:var(--dm-fg2)}
+/* the 12px score sits in a box with the row's own 13px line, so it shares the other cells' baseline (the bar stays centred);
+   its own line is no taller than that box's, so the box keeps the row's 20px */
+.atb .hb .num{font-size:12px;line-height:1;color:var(--dm-fg2)}
 /* the agent's note opens under its row, with no hairline between them: the spark centred under the logos, the words on the
    names' column, and its button ending where MRR ends, centred on the words */
 .atb tr.det td{padding:0;border-top:0}
@@ -480,7 +482,7 @@ export function AccountTable({
       case &#39;account&#39;: return &lt;td key={k} data-col={k}&gt;&lt;span className=&quot;dm-nm&quot;&gt;&lt;span className=&quot;dm-lg&quot; style={{ background: a.color, color: avatarInk(a.color) }}&gt;{a.name[0]}&lt;/span&gt;{a.name}&lt;/span&gt;&lt;/td&gt;;
       case &#39;plan&#39;: return &lt;td key={k} data-col={k}&gt;&lt;span className={cx(&#39;dm-tag&#39;, tone &amp;&amp; TONE[tone])}&gt;{a.plan}&lt;/span&gt;&lt;/td&gt;;
       case &#39;seats&#39;: return &lt;td key={k} data-col={k} className=&quot;dm-r dm-num&quot;&gt;{a.seats}&lt;/td&gt;;
-      case &#39;health&#39;: return &lt;td key={k} data-col={k}&gt;&lt;span className=&quot;dm-hb&quot;&gt;&lt;i&gt;&lt;b style={{ width: a.health + &#39;%&#39;, background: healthColor(a.health) }} /&gt;&lt;/i&gt;&lt;span className=&quot;dm-num&quot;&gt;{a.health}&lt;/span&gt;&lt;/span&gt;&lt;/td&gt;;
+      case &#39;health&#39;: return &lt;td key={k} data-col={k}&gt;&lt;span className=&quot;dm-hb&quot;&gt;&lt;i&gt;&lt;b style={{ width: a.health + &#39;%&#39;, background: healthColor(a.health) }} /&gt;&lt;/i&gt;&lt;span className=&quot;dm-hv&quot;&gt;&lt;span className=&quot;dm-num&quot;&gt;{a.health}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/td&gt;;
       default: return &lt;td key={k} data-col={k} className=&quot;dm-r dm-num&quot;&gt;{a.mrr}&lt;/td&gt;;
     }
   };
@@ -568,7 +570,7 @@ function Note({ name, open, onGone, children }: { name: string; open: boolean; o
     &lt;/tr&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>account-table.css<span class="l">React · 105 lines</span></summary><pre class="cp-pre" data-name="account-table.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>account-table.css<span class="l">React · 107 lines</span></summary><pre class="cp-pre" data-name="account-table.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Account table ---------- */
 /* the account table&#39;s colours run brighter than the shared tones: its plan tags take a stronger tint with saturated text
    (4.5:1 and APCA Lc 60 on the tint, in every style and theme) and the health bars vivid marks (3:1) */
@@ -631,7 +633,9 @@ function Note({ name, open, onGone, children }: { name: string; open: boolean; o
 .dm-atb .dm-hb{display:flex;align-items:center;gap:var(--dm-s-2)}
 .dm-atb .dm-hb i{width:54px;height:5px;border-radius:var(--dm-r-tiny,3px);background:var(--dm-line);overflow:hidden;display:block}
 .dm-atb .dm-hb i b{display:block;height:100%;border-radius:var(--dm-r-tiny,3px)}
-.dm-atb .dm-hb span{font-size:12px;color:var(--dm-fg2)}
+/* the 12px score sits in a box with the row&#39;s own 13px line, so it shares the other cells&#39; baseline (the bar stays centred);
+   its own line is no taller than that box&#39;s, so the box keeps the row&#39;s 20px */
+.dm-atb .dm-hb .dm-num{font-size:12px;line-height:1;color:var(--dm-fg2)}
 /* the agent&#39;s note opens under its row, with no hairline between them: the spark centred under the logos, the words on the
    names&#39; column, and its button ending where MRR ends, centred on the words */
 .dm-atb tr.dm-det td{padding:0;border-top:0}
@@ -706,7 +710,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>account-table.css<span class="l">HTML · 104 lines</span></summary><pre class="cp-pre" data-name="account-table.css"><code>/* ---------- Account table ---------- */
+</code></pre></details><details class="cp-file"><summary>account-table.css<span class="l">HTML · 106 lines</span></summary><pre class="cp-pre" data-name="account-table.css"><code>/* ---------- Account table ---------- */
 /* the account table&#39;s colours run brighter than the shared tones: its plan tags take a stronger tint with saturated text
    (4.5:1 and APCA Lc 60 on the tint, in every style and theme) and the health bars vivid marks (3:1) */
 .atb{--dm-atb-ok:#1daa51;--dm-atb-warn:#cd7a00;--dm-atb-bad:#f04438;
@@ -768,7 +772,9 @@ const { class: className, ...rest } = Astro.props;
 .atb .hb{display:flex;align-items:center;gap:var(--dm-s-2)}
 .atb .hb i{width:54px;height:5px;border-radius:var(--dm-r-tiny,3px);background:var(--dm-line);overflow:hidden;display:block}
 .atb .hb i b{display:block;height:100%;border-radius:var(--dm-r-tiny,3px)}
-.atb .hb span{font-size:12px;color:var(--dm-fg2)}
+/* the 12px score sits in a box with the row&#39;s own 13px line, so it shares the other cells&#39; baseline (the bar stays centred);
+   its own line is no taller than that box&#39;s, so the box keeps the row&#39;s 20px */
+.atb .hb .num{font-size:12px;line-height:1;color:var(--dm-fg2)}
 /* the agent&#39;s note opens under its row, with no hairline between them: the spark centred under the logos, the words on the
    names&#39; column, and its button ending where MRR ends, centred on the words */
 .atb tr.det td{padding:0;border-top:0}
@@ -823,7 +829,7 @@ const { class: className, ...rest } = Astro.props;
   const hc = h =&gt; h &gt;= 80 ? &#39;var(--dm-atb-ok)&#39; : h &gt;= 60 ? &#39;var(--dm-atb-warn)&#39; : &#39;var(--dm-atb-bad)&#39;;
   // each row is made once and kept, so a search or a plan filter can ease it between places; the note under an open row
   // is its own row, keyed after it
-  const rows = new Map(A.map(a =&gt; [a[0], html(`&lt;tr class=&quot;row&quot; data-n=&quot;${a[0]}&quot; tabindex=&quot;0&quot; aria-expanded=&quot;false&quot;&gt;&lt;td&gt;&lt;span class=&quot;nm&quot;&gt;&lt;span class=&quot;lg&quot; style=&quot;background:var(--dm-av-${a[1]});color:var(--dm-av-${a[1]}-ink)&quot;&gt;${a[0][0]}&lt;/span&gt;${a[0]}&lt;/span&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;tag ${a[2] === &#39;Enterprise&#39; ? &#39;l&#39; : a[2] === &#39;Pro&#39; ? &#39;b&#39; : &#39;t&#39;}&quot;&gt;${a[2]}&lt;/span&gt;&lt;/td&gt;&lt;td class=&quot;r num&quot;&gt;${a[3]}&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;hb&quot;&gt;&lt;i&gt;&lt;b style=&quot;width:${a[4]}%;background:${hc(a[4])}&quot;&gt;&lt;/b&gt;&lt;/i&gt;&lt;span class=&quot;num&quot;&gt;${a[4]}&lt;/span&gt;&lt;/span&gt;&lt;/td&gt;&lt;td class=&quot;r num&quot;&gt;${a[5]}&lt;/td&gt;&lt;/tr&gt;`)]));
+  const rows = new Map(A.map(a =&gt; [a[0], html(`&lt;tr class=&quot;row&quot; data-n=&quot;${a[0]}&quot; tabindex=&quot;0&quot; aria-expanded=&quot;false&quot;&gt;&lt;td&gt;&lt;span class=&quot;nm&quot;&gt;&lt;span class=&quot;lg&quot; style=&quot;background:var(--dm-av-${a[1]});color:var(--dm-av-${a[1]}-ink)&quot;&gt;${a[0][0]}&lt;/span&gt;${a[0]}&lt;/span&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;tag ${a[2] === &#39;Enterprise&#39; ? &#39;l&#39; : a[2] === &#39;Pro&#39; ? &#39;b&#39; : &#39;t&#39;}&quot;&gt;${a[2]}&lt;/span&gt;&lt;/td&gt;&lt;td class=&quot;r num&quot;&gt;${a[3]}&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;hb&quot;&gt;&lt;i&gt;&lt;b style=&quot;width:${a[4]}%;background:${hc(a[4])}&quot;&gt;&lt;/b&gt;&lt;/i&gt;&lt;span class=&quot;hv&quot;&gt;&lt;span class=&quot;num&quot;&gt;${a[4]}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/td&gt;&lt;td class=&quot;r num&quot;&gt;${a[5]}&lt;/td&gt;&lt;/tr&gt;`)]));
   const none = html(&#39;&lt;tr class=&quot;atb-empty&quot; data-n=&quot; none&quot;&gt;&lt;td colspan=&quot;5&quot;&gt;&lt;div class=&quot;atb-em&quot;&gt;&lt;span class=&quot;atb-em-art&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;b&gt;No accounts match&lt;/b&gt;&lt;span&gt;Try another name, or show every plan.&lt;/span&gt;&lt;button class=&quot;pill line sm&quot;&gt;Show all accounts&lt;/button&gt;&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;&#39;);
   $(&#39;.pill&#39;, none).onclick = () =&gt; { q.value = &#39;&#39;; plan = &#39;&#39;; pick($(&#39;.atb-fl .chip[data-p=&quot;&quot;]&#39;, r)); paint(true); };
   let det = null;
@@ -1220,7 +1226,7 @@ const fitHits = window.dmFitHits || (() => {
   const hc = h => h >= 80 ? 'var(--dm-atb-ok)' : h >= 60 ? 'var(--dm-atb-warn)' : 'var(--dm-atb-bad)';
   // each row is made once and kept, so a search or a plan filter can ease it between places; the note under an open row
   // is its own row, keyed after it
-  const rows = new Map(A.map(a => [a[0], html(`<tr class="row" data-n="${a[0]}" tabindex="0" aria-expanded="false"><td><span class="nm"><span class="lg" style="background:var(--dm-av-${a[1]});color:var(--dm-av-${a[1]}-ink)">${a[0][0]}</span>${a[0]}</span></td><td><span class="tag ${a[2] === 'Enterprise' ? 'l' : a[2] === 'Pro' ? 'b' : 't'}">${a[2]}</span></td><td class="r num">${a[3]}</td><td><span class="hb"><i><b style="width:${a[4]}%;background:${hc(a[4])}"></b></i><span class="num">${a[4]}</span></span></td><td class="r num">${a[5]}</td></tr>`)]));
+  const rows = new Map(A.map(a => [a[0], html(`<tr class="row" data-n="${a[0]}" tabindex="0" aria-expanded="false"><td><span class="nm"><span class="lg" style="background:var(--dm-av-${a[1]});color:var(--dm-av-${a[1]}-ink)">${a[0][0]}</span>${a[0]}</span></td><td><span class="tag ${a[2] === 'Enterprise' ? 'l' : a[2] === 'Pro' ? 'b' : 't'}">${a[2]}</span></td><td class="r num">${a[3]}</td><td><span class="hb"><i><b style="width:${a[4]}%;background:${hc(a[4])}"></b></i><span class="hv"><span class="num">${a[4]}</span></span></span></td><td class="r num">${a[5]}</td></tr>`)]));
   const none = html('<tr class="atb-empty" data-n=" none"><td colspan="5"><div class="atb-em"><span class="atb-em-art" aria-hidden="true"></span><b>No accounts match</b><span>Try another name, or show every plan.</span><button class="pill line sm">Show all accounts</button></div></td></tr>');
   $('.pill', none).onclick = () => { q.value = ''; plan = ''; pick($('.atb-fl .chip[data-p=""]', r)); paint(true); };
   let det = null;
