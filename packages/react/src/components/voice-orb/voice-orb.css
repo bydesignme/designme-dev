@@ -41,7 +41,7 @@
 .dm-vor-who{font-size:12px;line-height:18px}
 .dm-vor-who:empty{display:none}
 .dm-vor-tx{margin:0;font-size:14px;line-height:1.6;color:var(--dm-fg)}
-.dm-vor-tx.dm-hint{color:var(--dm-muted);font-size:13px}
+.dm-vor-tx.dm-hint{color:var(--dm-muted);font-size:13px;line-height:20px}
 .dm-vor-tx .dm-w{animation:dm-vor-w .45s var(--dm-ease) both}
 @keyframes dm-vor-w{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
 /* talking while muted: a warning notice (owner, 18 Nov; Model picker's busy notice is the reference): a faint warning tint
@@ -63,14 +63,12 @@
 .dm-vor:not(.dm-on) .dm-vor-f{justify-content:center}
 .dm-vor:not(.dm-on) .dm-vor-mute,.dm-vor:not(.dm-on) .dm-vor-end,.dm-vor:not(.dm-on) .dm-vor-f .dm-sp,.dm-vor.dm-on .dm-vor-go{display:none}
 .dm-vor-f[hidden]{display:none}
-@media (hover:hover) and (pointer:fine){.dm-vor :is(.dm-vor-end,.dm-vor-done .dm-pill).dm-pill.dm-line:hover{background:var(--dm-row)}}
-/* Mute: a round button as tall as End, white with the secondary's dimmed edge; muted, it holds the quiet pressed fill and a
-   slash crosses the microphone */
-.dm-vor-mute{position:relative;width:28px;height:28px;background:var(--dm-surface);color:var(--dm-fg2);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
-@media (hover:hover) and (pointer:fine){.dm-vor-mute:hover{background:var(--dm-row)}}
-.dm-vor-mute[aria-pressed="true"]{background:var(--dm-chip);color:var(--dm-fg)}
-.dm-vor-mute::after{content:"";position:absolute;left:50%;top:50%;width:1.5px;height:18px;margin:-9px 0 0 -.75px;border-radius:2px;background:currentColor;transform:rotate(-45deg) scaleY(0);transition:transform .25s var(--dm-ease)}
-.dm-vor-mute[aria-pressed="true"]::after{transform:rotate(-45deg) scaleY(1)}
+@media (hover:hover) and (pointer:fine){.dm-vor :is(.dm-vor-mute,.dm-vor-end,.dm-vor-done .dm-pill).dm-pill.dm-line:hover{background:var(--dm-row)}}
+/* Mute: the same white outlined secondary as End, its words saying what it does (Mute, then Unmute, as calls say it); muted,
+   a slash crosses its microphone */
+.dm-vor-mi{position:relative;display:grid;place-items:center}
+.dm-vor-mi::after{content:"";position:absolute;left:50%;top:50%;width:1.5px;height:15px;margin:-7.5px 0 0 -.75px;border-radius:2px;background:currentColor;transform:rotate(-45deg) scaleY(0);transition:transform .25s var(--dm-ease)}
+.dm-vor-mute[data-muted]>.dm-vor-mi::after{transform:rotate(-45deg) scaleY(1)}
 /* ended: the footer says so, a neutral row with the green tick (owner, 18 Nov: a finished state has no fill), how long it took
    and that the transcript was saved, and Start again on the right */
 .dm-vor-done{display:flex;align-items:center;gap:var(--dm-s-3);padding-top:var(--dm-s-4);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13px;line-height:20px}
@@ -79,17 +77,16 @@
 .dm-vor-done .dm-t span{font-size:12px;line-height:18px}
 /* Clean: an off-white head strip with who is talking and the time, the orb and the words on white, and the footer as an
    off-white foot strip, its controls 16px from the card's edges and the strip's hairline. Mute and End are Clean's flat
-   secondary; Start talking is the ink button. Words fade in without a blur */
+   secondary (they are .pill.line); Start talking is the ink button. Words fade in without a blur */
 :root[data-style="clean"] .dm-vor.dm-panel,:root [data-style="clean"] .dm-vor.dm-panel,:root [data-style="clean"].dm-vor.dm-panel{padding:0 16px;overflow:clip;--dm-vg:16px}
+/* the strips meet the card's round corners exactly: nothing of them shows past its edge as it grows */
+:root[data-style="clean"] .dm-vor.dm-growing,:root [data-style="clean"] .dm-vor.dm-growing,:root [data-style="clean"].dm-vor.dm-growing{overflow-clip-margin:0px}
 :root[data-style="clean"] .dm-vor-orb,:root [data-style="clean"] .dm-vor-orb,:root [data-style="clean"].dm-vor-orb{margin:4px auto}
 /* a strip's row is 28px (owner, 23 Nov), so the ended line is one line there: what ended, then how long and the transcript */
 :root[data-style="clean"] .dm-vor-done .dm-t,:root [data-style="clean"] .dm-vor-done .dm-t,:root [data-style="clean"].dm-vor-done .dm-t{flex-direction:row;align-items:baseline;gap:8px;white-space:nowrap}
 :root[data-style="clean"] .dm-vor-done .dm-t span,:root [data-style="clean"] .dm-vor-done .dm-t span,:root [data-style="clean"].dm-vor-done .dm-t span{min-width:0;overflow:hidden;text-overflow:ellipsis}
-:root[data-style="clean"] .dm-vor-top,:root [data-style="clean"] .dm-vor-top,:root [data-style="clean"].dm-vor-top{height:calc(28px + 2 * var(--dm-strip-y) + 1px);margin:0 -16px;padding:0 16px;background:var(--dm-strip);border-bottom:1px solid var(--dm-line)}
-:root[data-style="clean"] :is(.dm-vor-f,.dm-vor-done),:root [data-style="clean"] :is(.dm-vor-f,.dm-vor-done),:root [data-style="clean"]:is(.dm-vor-f,.dm-vor-done){margin:0 -16px;padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line)}
-:root[data-style="clean"] .dm-vor-mute,:root [data-style="clean"] .dm-vor-mute,:root [data-style="clean"].dm-vor-mute{color:var(--dm-fg2);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth);transition:box-shadow var(--dm-t-fast) var(--dm-ease),background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-vor-mute:not([aria-pressed="true"]):hover,:root [data-style="clean"] .dm-vor-mute:not([aria-pressed="true"]):hover,:root [data-style="clean"].dm-vor-mute:not([aria-pressed="true"]):hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover);color:var(--dm-fg)}}
-:root[data-style="clean"] .dm-vor-mute[aria-pressed="true"],:root [data-style="clean"] .dm-vor-mute[aria-pressed="true"],:root [data-style="clean"].dm-vor-mute[aria-pressed="true"]{color:var(--dm-fg);box-shadow:var(--dm-btn2-depth),inset 0 0 0 99px var(--dm-row-on)}
+:root[data-style="clean"] .dm-vor-top,:root [data-style="clean"] .dm-vor-top,:root [data-style="clean"].dm-vor-top{height:calc(28px + 2 * var(--dm-strip-y) + 1px);margin:0 -16px;padding:0 16px;background:var(--dm-strip);border-bottom:1px solid var(--dm-line);border-radius:var(--dm-r-card) var(--dm-r-card) 0 0}
+:root[data-style="clean"] :is(.dm-vor-f,.dm-vor-done),:root [data-style="clean"] :is(.dm-vor-f,.dm-vor-done),:root [data-style="clean"]:is(.dm-vor-f,.dm-vor-done){margin:0 -16px;padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
 :root[data-style="clean"] .dm-vor-mw,:root [data-style="clean"] .dm-vor-mw,:root [data-style="clean"].dm-vor-mw{border-radius:10px}
 :root[data-style="clean"] .dm-vor-tx .dm-w,:root [data-style="clean"] .dm-vor-tx .dm-w,:root [data-style="clean"].dm-vor-tx .dm-w{animation-name:dm-vor-wc}
 @keyframes dm-vor-wc{from{opacity:0}}

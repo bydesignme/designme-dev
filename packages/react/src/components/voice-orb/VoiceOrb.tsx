@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { cx } from '../../lib/cx';
 import { Icon } from '../../lib/icons';
 import { useReducedMotion } from '../../lib/hooks';
-import { Fold, Swap, Tip, useGrow } from '../../lib/motion';
+import { Fold, Swap, useGrow } from '../../lib/motion';
 import '../../designme.css';
 import './voice-orb.css';
 
@@ -14,7 +14,7 @@ export interface VoiceOrbProps {
   state: VoiceState;
   /** How loud whoever is talking is, 0 to 1. The orb swells with it. Feed it from your audio, or from a made-up curve */
   level?: number;
-  /** Your microphone is off. Listening shows as Muted, and the mute button is pressed */
+  /** Your microphone is off. Listening shows as Muted, and the mute button says Unmute, a slash across its microphone */
   muted?: boolean;
   onMutedChange?: (muted: boolean) => void;
   /** Shows "You're muted" with an Unmute button, for when someone talks while muted */
@@ -74,7 +74,7 @@ export function VoiceOrb({
         ) : (
           <div className="dm-vor-f">
             <button type="button" className="dm-pill dm-primary dm-sm dm-vor-go" onClick={onStart}><Icon name="mic" size="xs" />{L.start}</button>
-            <Tip label={muted ? L.unmute : L.mute}><button type="button" className="dm-ib dm-vor-mute" aria-label={L.mute} aria-pressed={muted} onClick={() => onMutedChange?.(!muted)}><Icon name="mic" /></button></Tip>
+            <button type="button" className="dm-pill dm-line dm-sm dm-vor-mute" data-muted={muted ? '' : undefined} onClick={() => onMutedChange?.(!muted)}><span className="dm-vor-mi"><Icon name="mic" size="xs" /></span>{muted ? L.unmute : L.mute}</button>
             <span className="dm-sp" />
             <button type="button" className="dm-pill dm-line dm-sm dm-vor-end" onClick={onEnd}>{L.end}</button>
           </div>

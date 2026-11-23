@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useCopied, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { enter, Tip } from '../../lib/motion';
+import { enter, Seg, Tip } from '../../lib/motion';
 import '../../designme.css';
 import './code-viewer.css';
 
@@ -100,9 +100,8 @@ export function CodeViewer({ files, file, defaultFile, onFileChange, line, defau
   return (
     <div data-dm="" className={cx('dm-cvx dm-panel', className)}>
       <div className="dm-cvx-h">
-        <div className="dm-cvx-tabs" role="tablist">
-          {files.map(f => <button key={f.name} type="button" role="tab" aria-selected={f === cur} className={cx('dm-cvx-tab', f === cur && 'dm-on')} onClick={() => pick(f.name)}>{f.name}</button>)}
-        </div>
+        {/* the files: the library's segmented switch */}
+        <Seg options={files.map(f => ({ value: f.name, label: f.name }))} value={cur?.name ?? ''} onChange={pick} label="Files" className="dm-cvx-tabs" />
         <span className="dm-cvx-meta dm-num"><b>+{changed}</b> changed</span>
         <Tip label={copied ? 'Copied to clipboard' : 'Copy'} open={copied}>
           <button type="button" className={cx('dm-ib', copied && 'dm-copied')} aria-label="Copy file" onClick={copyFile}><Icon name={copied ? 'check' : 'copy'} /></button>
