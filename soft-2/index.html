@@ -1225,10 +1225,12 @@ th:last-child>.col-rz{display:none}
 .bws-url span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bws-vp{position:relative;height:156px;overflow:hidden;background:var(--surface)}
 /* the page itself, drawn small: real words where they matter, grey lines for the rest */
-.bws-pg{position:absolute;left:0;right:0;top:0;padding:var(--s-3) 14px;display:flex;flex-direction:column;gap:10px;font-size:12px;color:var(--fg2);transition:transform .8s var(--ease)}
+/* (17px on the left, off the 4px scale, so the page's table and button words line up with the steps' words under the frame:
+   1px of frame edge, 17px, then their own 10px; 14px on the right keeps the page's right edge clear of the head's buttons) */
+.bws-pg{position:absolute;left:0;right:0;top:0;padding:var(--s-3) 14px var(--s-3) 17px;display:flex;flex-direction:column;gap:10px;font-size:12px;color:var(--fg2);transition:transform .8s var(--ease)}
 .bws-ln{display:block;height:6px;border-radius:3px;background:var(--chip)}
 .bws-nav{display:flex;align-items:center;gap:var(--s-3);font-size:11.5px;color:var(--muted);white-space:nowrap}
-.bws-nav b{display:flex;align-items:center;gap:6px;margin-right:auto;font-weight:500;color:var(--fg)}
+.bws-nav b{display:flex;align-items:center;gap:var(--s-2);margin-right:auto;font-weight:500;color:var(--fg)}
 .bws-nav b::before{content:"";width:12px;height:12px;border-radius:var(--r-xs);background:var(--fg)}
 .bws-nav .on{color:var(--fg)}
 .bws-hd{font-size:13px;font-weight:500;color:var(--fg)}
@@ -1271,13 +1273,14 @@ th:last-child>.col-rz{display:none}
 .bws-t>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bws-t .d{font-size:12px;line-height:18px;color:var(--muted)}
 /* the step that waits for you is a warning notice (owner, 18 Nov; Model picker's busy notice is the reference): a faint warning
-   tint reaching 8px out round the row, the filled warning sign in --warn-mark on the steps' mark column, the words in the text
-   colours, "Allow closing it" (the action that settles it) as .pill.warn and Take over white beside it */
-.bws-s.wait{margin:-2px calc(-1 * var(--s-2));padding:var(--s-2);border-radius:calc(var(--r-card) - 8px);background:color-mix(in srgb,var(--warn-bg) 45%,transparent)}
+   tint as wide as the content with 12px inside it, the filled warning sign, the words in the text colours, "Allow closing it"
+   (the action that settles it) as .pill.warn and Take over white beside it */
+.bws-s.wait{margin:var(--s-1) 0;padding:var(--s-3);border-radius:var(--r-in);background:color-mix(in srgb,var(--warn-bg) 45%,transparent)}
 .bws-wi{width:16px;height:16px;overflow:visible}
 .bws-wi .a{fill:var(--warn-mark);stroke:var(--warn-mark);stroke-width:2;stroke-linejoin:round}
 .bws-wi .b{fill:none;stroke:var(--surface);stroke-width:2.2;stroke-linecap:round}
 .bws-s.wait .d{color:var(--fg2)}
+/* the notice's buttons sit under its words, starting where they start */
 .bws-ask{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-2);margin-top:var(--s-2)}
 .bws-ask .pill.line{background:var(--surface);color:var(--fg);box-shadow:var(--on-tint-btn)}
 .bws-ask .pill.line:hover{box-shadow:var(--on-tint-btn-h)}
@@ -2553,7 +2556,7 @@ th:last-child>.col-rz{display:none}
 .tcx[data-d] .tcx-tile{position:relative;width:26px;height:26px;border-radius:var(--r-sm);display:grid;place-items:center;flex:none;background:var(--chip);color:var(--fg2);transition:background .25s}
 .tcx[data-d] .tcx-tile.app{background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}
 .tcx[data-d] .tcx-tile .brand{width:14px;height:14px}
-.tcx[data-d] .tcx-json{margin:0;padding:9px 11px;border-radius:calc(10px * var(--rk));background:var(--chip);font-family:var(--mono);font-size:11.5px;font-weight:500;line-height:1.7;white-space:pre-wrap;word-break:break-word;color:var(--fg2)}
+.tcx[data-d] .tcx-json{margin:0;padding:var(--s-3);border-radius:calc(10px * var(--rk));background:var(--chip);font-family:var(--mono);font-size:11.5px;font-weight:500;line-height:1.7;white-space:break-spaces;word-break:break-word;color:var(--fg2)}
 .tcx[data-d] .tcx-json .k{color:var(--muted)}.tcx[data-d] .tcx-json :is(.s,.n,.b){color:var(--fg)}
 .tcx[data-d] .tcx-json .cur{display:inline-block;width:6px;height:12px;vertical-align:-2px;background:var(--fg2);animation:bpblink 1s steps(1,end) infinite}
 :root[data-style="bp"] .tcx[data-d] .tcx-tile{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent)}
@@ -2613,7 +2616,7 @@ th:last-child>.col-rz{display:none}
 /* Inline: the calls as chips inside the agent's sentence. Pointing at one previews it, pressing it opens the call under
    the sentence */
 .tcx[data-d="inline"]{position:relative}
-.tcx[data-d="inline"] .tcb-who{display:flex;align-items:center;gap:var(--s-2);font-size:12.5px;color:var(--muted)}
+.tcx[data-d="inline"] .tcb-who{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
 .tcx[data-d="inline"] .tcb-av{width:22px;height:22px;border-radius:calc(7px * var(--rk));display:grid;place-items:center;background:var(--accent-bg);color:var(--accent-fg,var(--accent))}
 .tcx[data-d="inline"] .tcb-av .i{width:12px;height:12px}
 .tcx[data-d="inline"] .tcb-ws{display:inline-flex;align-items:center;gap:5px}
@@ -2623,7 +2626,7 @@ th:last-child>.col-rz{display:none}
 @keyframes tcbw{from{opacity:0}}
 /* a call inside the sentence: the site's file chip with its tool's icon and name, a spinner while it runs, then how long
    it took. The open one keeps the chip's hover look */
-.tcx[data-d="inline"] .tcb-k{margin:0 1px;line-height:1;vertical-align:middle;gap:5px;animation:tcbk .45s var(--ease) backwards}
+.tcx[data-d="inline"] .tcb-k{margin:0 2px 0 0;line-height:1;vertical-align:middle;gap:5px;animation:tcbk .45s var(--ease) backwards}
 @keyframes tcbk{from{opacity:0;transform:scale(.85)}}
 .tcx[data-d="inline"] .tcb-k[aria-expanded="true"]{background:var(--row);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}
 .tcx[data-d="inline"] .tcb-k .t{width:16px;height:16px;border-radius:4px;display:grid;place-items:center;flex:none;color:var(--fg2)}
@@ -2635,7 +2638,7 @@ th:last-child>.col-rz{display:none}
 .tcx[data-d="inline"] .tcb-k[data-s="run"] .t .spin{color:var(--accent-mark)}
 .tcx[data-d="inline"] .tcb-k:focus-visible{outline-offset:1px;border-radius:var(--r-pill)}
 /* the open call: what went in, the tool, what came back */
-.tcx[data-d="inline"] .tcb-dr{display:flex;flex-direction:column;gap:10px;padding:12px;border-radius:var(--r-card);background:var(--surface);box-shadow:var(--shadow)}
+.tcx[data-d="inline"] .tcb-dr{display:flex;flex-direction:column;gap:10px;padding:var(--s-4);border-radius:var(--r-card);background:var(--surface);box-shadow:var(--shadow)}
 .tcx[data-d="inline"] .tcb-dh{display:flex;align-items:center;gap:var(--s-2);min-width:0}
 .tcx[data-d="inline"] .tcb-dh code{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tcx[data-d="inline"] .tcb-dh code span{color:var(--muted)}
@@ -2694,10 +2697,12 @@ th:last-child>.col-rz{display:none}
 .tcx[data-d="inspector"] .tcc-s[data-s="deny"] .tcc-dt{display:inline-block;color:var(--bad)}
 .tcx[data-d="inspector"] .tcc-pr{position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--accent-mark);transform-origin:left;transform:scaleX(var(--p,0));opacity:0;transition:transform .1s linear,opacity .3s}
 .tcx[data-d="inspector"] .tcc-s[data-s="run"] .tcc-pr{opacity:1}
-@container (max-width:340px){.tcx[data-d="inspector"] .tcc-s .n{display:none}.tcx[data-d="inspector"] .tcc-s{justify-content:center;min-width:40px}.tcx[data-d="inspector"] .tcc-dt{position:absolute;top:6px;right:6px}}
+/* narrow, each part shows its mark alone, with its dot beside it on the same centre line */
+@container (max-width:340px){.tcx[data-d="inspector"] .tcc-s .n{display:none}.tcx[data-d="inspector"] .tcc-s{justify-content:center;min-width:40px}.tcx[data-d="inspector"] .tcc-dt{margin-left:0}}
 /* the call you picked, under a hairline: its name and state, then what went in and what came back as plain lists */
-.tcx[data-d="inspector"] .tcc-view{position:relative;height:262px;overflow:hidden;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
-.tcx[data-d="inspector"] .tcc-in{position:absolute;inset:0;display:flex;flex-direction:column;gap:var(--s-3);padding:var(--s-3) 0 0;overflow-y:auto;scrollbar-width:none}
+/* (it keeps no room for a taller call: the card grows and shrinks to the call you pick, eased (grow()), centred in its stage) */
+.tcx[data-d="inspector"] .tcc-view{position:relative;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.tcx[data-d="inspector"] .tcc-in{display:flex;flex-direction:column;gap:var(--s-3);padding:var(--s-3) 0 0}
 .tcx[data-d="inspector"] .tcc-in::-webkit-scrollbar{display:none}
 .tcx[data-d="inspector"] .tcc-in.go{animation:tccin .4s var(--ease)}
 @keyframes tccin{from{opacity:0;transform:translateY(6px)}}
@@ -2710,7 +2715,8 @@ th:last-child>.col-rz{display:none}
 .tcx[data-d="inspector"] .tcc-dh .num{font-size:12px;color:var(--muted)}
 .tcx[data-d="inspector"] .tcc-sec{display:flex;flex-direction:column;gap:6px}
 .tcx[data-d="inspector"] .tcc-sec .l{display:flex;align-items:center;gap:6px;min-height:22px;font-size:11.5px;color:var(--muted)}
-.tcx[data-d="inspector"] .tcc-sec .l .ib{width:22px;height:22px;margin-left:auto}
+/* the copy button is the row's last control: its glyph ends on the content's right edge, its hover box reaching out round it */
+.tcx[data-d="inspector"] .tcc-sec .l .ib{width:22px;height:22px;margin:0 -5px 0 auto}
 .tcx[data-d="inspector"] .tcc-kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 16px;font-size:12.5px;line-height:1.5}
 .tcx[data-d="inspector"] .tcc-kv>span:nth-child(odd){color:var(--muted)}
 .tcx[data-d="inspector"] .tcc-kv>span:nth-child(even){color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
@@ -2745,7 +2751,7 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .tcx[data-d="stack"] .tca-r .ok{color:var(--ok-mark)}
 :root[data-style="clean"] .tcx[data-d="stack"] .tca-cv{transition:transform var(--t) var(--ease)}
 :root[data-style="clean"] .tcx[data-d="stack"] .tca-c.open :is(.tcx-json,.tca-bar .seg2){box-shadow:inset 0 0 0 1px var(--hair)}
-:root[data-style="clean"] .tcx[data-d="inline"] .tcb-dr{padding:16px;border-radius:var(--r-card)}
+:root[data-style="clean"] .tcx[data-d="inline"] .tcb-dr{border-radius:var(--r-card)}
 :root[data-style="clean"] .tcx[data-d="inline"] .tcb-hc{padding:12px;border-radius:calc(14px * var(--rk-l,var(--rk)))}
 :root[data-style="clean"] .tcx[data-d="inline"] .tcb-k{transition:background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
 :root[data-style="clean"] .tcx[data-d="inline"] .tcb-k[aria-expanded="true"]{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent),inset 0 0 0 99px var(--row-on)}
@@ -4503,15 +4509,16 @@ th:last-child>.col-rz{display:none}
 .ste-q .spin{width:9px;height:9px}
 .ste-q svg{color:var(--ok)}
 /* what the agent said back; a heads-up is a light accent tint (the accent's own tint, taken a little further toward the
-   surface), with its icon in the accent, until you answer it. Its answers are white buttons with a hairline edge on the tint
-   (no shadow: buttons cast none), and the one that acts is the primary */
-.ste-ag{display:flex;gap:var(--s-3);margin:0 calc(-1 * var(--s-2));padding:var(--s-3) var(--s-2);border-radius:calc(var(--r-card) - 8px);background:var(--row);font-size:13px;line-height:1.45}
-/* its mark sits on the steps' 16px mark column and its words start where theirs do: the bubble reaches 8px out round them */
+   surface), with its icon in the accent, until you answer it. Its answers sit under its words, starting where they start, as
+   a chat's replies do: white buttons with a hairline edge on the tint (no shadow: buttons cast none), and the one that acts
+   is the primary */
+.ste-ag{display:flex;gap:var(--s-3);padding:var(--s-3);border-radius:var(--r-in);background:var(--row);font-size:13px;line-height:1.45}
+/* its mark in a 16px column, as the steps' marks are */
 .ste-ag>svg{flex:none;box-sizing:content-box;margin-top:3px;padding:0 2px;color:var(--accent-fg,var(--accent))}
 .ste-ag.warn{background:color-mix(in srgb,var(--accent-bg) 70%,var(--surface))}
 .ste-ag .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--s-2)}
 .ste-ag p{margin:0}
-.ste-acts{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:var(--s-2)}
+.ste-acts{display:flex;flex-wrap:wrap;gap:6px}
 .ste-ag .pill.line{background:var(--surface);color:var(--fg);box-shadow:var(--on-tint-btn)}
 .ste-ag .pill.line:hover{box-shadow:var(--on-tint-btn-h)}
 .ste-ag .muted{font-size:12px}
@@ -17221,6 +17228,7 @@ DM.def('tool-call', (r, c) => {
 </div>`;
   function inspector(r, c){
     const K = TCC(), strip = $('.tcc-strip', r), view = $('.tcc-view', r), st = $('.tcc-st', r);
+    c.offs.push(grow($('.tcc', r)));
     let sel = 0, mode = 'table', spent = 0, stopped = false, follow = true;
     K.forEach((k, i) => {
       k.s = 'wait';
