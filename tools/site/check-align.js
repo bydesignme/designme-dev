@@ -114,6 +114,10 @@ function sample(id){
         const d = Math.abs(a.base - b.base); if (d <= .5) continue;
         let top = a.e; while (top && !top.contains(b.n)) top = top.parentElement; if (!top || !card.contains(top)) continue;
         const ia = under(top, a.n), ib = under(top, b.n), la = oneLine(ia, a), lb = oneLine(ib, b);
+        // (words that straddle two lines of the row, centred against a name over its detail laid out as separate parts, are on
+        // neither line unless two thirds of them sit on one)
+        const straddle = (x, y) => runs.some(q => q !== x && q !== y && top.contains(q.n) && ov(q.b, x.b) <= 0 && ov(q.b, y.b) > 0);
+        if (o < 2 / 3 && (straddle(a, b) || straddle(b, a))) continue;
         if (!(la && lb) && !(o >= 2 / 3 && (la || block(ia)) && (lb || block(ib)))) continue;
         const [l, r] = a.b.left <= b.b.left ? [a, b] : [b, a];
         out.push(`baseline: ${said(l)} vs ${said(r)} off by ${d.toFixed(1)}px`); }
