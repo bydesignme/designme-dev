@@ -4,6 +4,7 @@ import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
 import { Tip } from '../../lib/motion';
+import { useHoverGlide } from '../../lib/glide';
 import '../../designme.css';
 import './data-picker.css';
 
@@ -71,6 +72,8 @@ export function DataPicker({ sources, fields, defaultFields = [], onFieldsChange
   const [first] = useState(() => new Set((fields ?? defaultFields).flatMap(f => f.refs.map(r => f.key + '|' + r))));
   const uid = useId().replace(/:/g, '');
   const root = useRef<HTMLDivElement>(null), pop = useRef<HTMLDivElement>(null), input = useRef<HTMLInputElement>(null), lsRef = useRef<HTMLDivElement>(null);
+  // the row the pointer or the arrows are on has Clean's one hover, gliding from row to row
+  useHoverGlide(lsRef, '.dm-fpk-o', { hl: '.dm-on', keep: ':not(*)' });
   const [place, setPlace] = useState<{ top: number; left: number } | null>(null);
   const of = (ref: string) => { const [s, f] = ref.split('.'); return { src: sources.find(x => x.id === s), f }; };
 

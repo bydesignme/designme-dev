@@ -5,6 +5,7 @@ import { useControllable, useIsoLayoutEffect, useReducedMotion, useSeconds } fro
 import { Icon, type IconName } from '../../lib/icons';
 import { Brand, type BrandName } from '../../lib/brands';
 import { avatarInk, Tip, useGrow } from '../../lib/motion';
+import { useHoverGlide } from '../../lib/glide';
 import '../../designme.css';
 import './agent-tree.css';
 
@@ -230,6 +231,8 @@ export function AgentTree({ root, title, status, seconds, collapsed, defaultColl
   const [sel, setSel] = useControllable<string | null>(selected, defaultSelected, v => { if (v) onSelectedChange?.(v); });
   const [focus, setFocus] = useState(root.id);
   const treeRef = useRef<HTMLDivElement>(null);
+  // Clean's one hover glides from row to row, and the picked agent keeps its stronger fill
+  useHoverGlide(treeRef, '.dm-atr-b', { keep: '[aria-selected="true"]>.dm-atr-b' });
   // the panel grows with its rows and shrinks as a branch folds, staying centred where it is centred (owner, 17 Nov: no room
   // kept for a later state)
   const [growRef, growIn] = useGrow();

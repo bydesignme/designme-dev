@@ -500,6 +500,9 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .stl-track i{background:var(--rail)}
 :root[data-style="clean"] .stl-list{margin:8px 0 16px;padding:8px;border-radius:var(--r-card)}
 :root[data-style="clean"] .stl-list li{gap:8px;padding:8px;line-height:20px}
+/* the row's hover is Clean's one hover laid over its fill (owner, 21 Nov), easing in and out over 220ms */
+:root[data-style="clean"] .stl-row{transition:box-shadow var(--t-fast) var(--ease)}
+:root[data-style="clean"] .stl-row:hover{background:var(--surface);box-shadow:var(--shadow),inset 0 0 0 99px var(--row)}
 .bars3{display:inline-flex;gap:2px;align-items:center;height:12px}
 .bars3 i{width:2.5px;height:100%;border-radius:var(--r-tiny,2px);background:currentColor;animation:b3 .9s var(--ease-io) infinite}
 .bars3 i:nth-child(2){animation-delay:.15s}.bars3 i:nth-child(3){animation-delay:.3s}
@@ -880,7 +883,7 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .ctm-bar.hl i:not(.on){opacity:.28}
 :root[data-style="clean"] .ctm-leg{margin:8px 8px 0}
 :root[data-style="clean"] .ctm-l{padding:5px 8px;border-radius:calc(var(--r-card) - 8px);transition:background-color var(--t-fast) var(--ease)}
-:root[data-style="clean"] .ctm-l:hover{background:color-mix(in srgb,var(--fg) 5%,transparent)}
+:root[data-style="clean"] .ctm-l:hover{background:var(--row)}
 :root[data-style="clean"] .ctm-msg{margin:0 16px}
 :root[data-style="clean"] .ctm-msg.on{margin:8px 16px 5px}
 :root[data-style="clean"] .ctm-msg.warn>span{margin:0 -8px;padding:8px;border-radius:calc(var(--r-card) - 8px)}
@@ -1032,6 +1035,12 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .atr:not(.bare){padding:8px 8px 0}
 :root[data-style="clean"] .atr:not(.bare) .atr-h{padding:8px 8px 12px}
 :root[data-style="clean"] .atr:not(.bare) .atr-b{border-radius:calc(var(--r-card) - 8px)}
+/* the rows take Clean's one hover, gliding from row to row, and the picked agent its stronger fill with no edge (owner, 21 Nov) */
+:root[data-style="clean"] .atr-b{transition:background-color var(--t-fast) var(--ease)}
+:root[data-style="clean"] :is(.atr-b,.atr-tg,.atr-cm-crumb button):hover{background:var(--row)}
+:root[data-style="clean"] .atr-cm-b:not(.own):hover .bg{background-image:linear-gradient(var(--row),var(--row))}
+:root[data-style="clean"] .atr-n[aria-selected="true"]>.atr-b{background:var(--row-on)}
+:root[data-style="clean"] .atr-n[aria-selected="true"]:not(:focus-visible)>.atr-b{box-shadow:none}
 :root[data-style="clean"] .atr:not(.bare) .atr-ask{padding-bottom:5px}
 :root[data-style="clean"] .atr-ln .r{stroke:var(--line)}
 :root[data-style="clean"] .atr-ln .bad{stroke:color-mix(in srgb,var(--bad-mark) 55%,var(--surface))}
@@ -1290,6 +1299,7 @@ th:last-child>.col-rz{display:none}
    the 16px column */
 :root[data-style="clean"] .trv-hi{box-shadow:inset 0 0 0 1px var(--hair)}
 :root[data-style="clean"] .trv-r{transition:background-color var(--t-fast) var(--ease)}
+:root[data-style="clean"] .trv-r[aria-expanded="true"]{background:var(--row-on)}
 :root[data-style="clean"] .trv-k{color:var(--fg2);background:var(--chip);box-shadow:inset 0 0 0 1px var(--hair)}
 :root[data-style="clean"] .trv-r.run:not([data-k="agent"]) .trv-b i::after{display:none}
 :root[data-style="clean"] .trv-dc{padding-top:var(--strip-y);background:var(--strip);border-top-color:var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
@@ -1328,7 +1338,7 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .rc-cap{background:var(--fg)}
 :root[data-style="clean"] .rc-f{margin:11px -16px 0;padding:var(--strip-y) 16px;border-top:1px solid var(--line);background:var(--strip);border-radius:0 0 var(--r-card) var(--r-card)}
 :root[data-style="clean"] .rc-cap-t{height:28px;padding:0 10px 0 8px;border-radius:var(--r-pill);gap:8px;transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
-:root[data-style="clean"] .rc-cap-t:hover{background:var(--hover);color:var(--fg)}
+:root[data-style="clean"] .rc-cap-t:hover{background:var(--row);color:var(--fg)}
 /* (owner, 22 Nov: "foot buttons aligned") the switch itself sits on the content's 16px column, where Credits used starts, its
    hover pill reaching 8px out round it */
 :root[data-style="clean"] .rc-cap-t{margin-left:-8px}
@@ -2368,11 +2378,11 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .rte-b:is([aria-pressed="true"],.on){background:var(--row-on);color:var(--fg)}
 :root[data-style="clean"] .rte-b:disabled{background:none;box-shadow:none;color:var(--dis)}
 :root[data-style="clean"] .rte-sep{margin:0 4px}
-:root[data-style="clean"] .rte-ai{height:28px;padding:0 12px 0 10px;font-weight:500;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
+:root[data-style="clean"] .rte-ai{height:28px;padding:0 12px 0 10px;font-weight:500;background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth);transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
 :root[data-style="clean"] .rte-ai .i,:root[data-style="clean"] .rte-ask .i,:root[data-style="clean"] .rte-st .i{color:var(--fg)}
-:root[data-style="clean"] .rte-ai:is(:hover,[aria-expanded="true"]){background:var(--row);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line-strong) 50%,transparent)}
-:root[data-style="clean"] .rte-ai:active{background:var(--hover)}
-:root[data-style="clean"] .rte-ai:disabled{background:var(--surface);color:var(--dis)}
+:root[data-style="clean"] .rte-ai:is(:hover,[aria-expanded="true"]){box-shadow:var(--btn2-hover)}
+:root[data-style="clean"] .rte-ai:active{box-shadow:var(--btn2-press)}
+:root[data-style="clean"] .rte-ai:disabled{color:var(--dis)}
 :root[data-style="clean"] .rte-ai:disabled .i{color:inherit}
 :root[data-style="clean"] .rte-body{caret-color:var(--fg)}
 :root[data-style="clean"] .rte-ft{min-height:calc(28px + 2 * var(--strip-y) + 1px);padding:var(--strip-y) 16px;background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card);box-shadow:none}
@@ -3097,6 +3107,9 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .fbx-in.panel{gap:12px;margin:4px 0 0;padding:16px 16px 0;overflow:clip}
 :root[data-style="clean"] .fbx-q{font-size:14px;line-height:20px}
 :root[data-style="clean"] .fbx-ch .chip.on{background:var(--btn-2);color:var(--on-btn);box-shadow:inset 0 0 0 1px var(--btn-2)}
+/* a reason not picked takes the one hover over its fill, easing over 220ms (owner, 21 Nov) */
+:root[data-style="clean"] .fbx-ch .chip{transition:background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
+:root[data-style="clean"] .fbx-ch .chip:not(.on):hover{background:var(--chip);box-shadow:inset 0 0 0 99px var(--row)}
 :root[data-style="clean"] .fbx-f{gap:8px;margin:4px -16px 0;padding:var(--strip-y) 16px;background:var(--strip);border-top:1px solid var(--line)}
 :root[data-style="clean"] .fbx-f .pill.ghost:hover{background:var(--row)}
 /* the note keeps to one line, so the strip stays one control tall */
@@ -3187,7 +3200,7 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .mpk-hd{padding:16px 16px 0;line-height:13px}
 :root[data-style="clean"] .mpk-list{padding:0 8px 8px}
 :root[data-style="clean"] .mpk-o{padding:8px;border-radius:calc(var(--r-card) - 8px);transition:background-color var(--t-fast) var(--ease)}
-:root[data-style="clean"] .mpk-o[aria-checked="true"]{background:var(--chip)}
+:root[data-style="clean"] .mpk-o[aria-checked="true"]{background:var(--row-on)}
 :root[data-style="clean"] .mpk-o[aria-checked="true"] .t b{color:var(--fg)}
 :root[data-style="clean"] .mpk-mk{border-radius:50%}
 /* the check is ink and draws itself in when its row is picked */
@@ -3245,7 +3258,7 @@ th:last-child>.col-rz{display:none}
    its text, its chevron 16px from the edge like the meters above it */
 @media (max-width:480px){:root[data-style="clean"] :is(.mpk-hd,.mpk-o){grid-template-columns:20px minmax(0,1fr) repeat(3,36px);gap:8px}:root[data-style="clean"] .mpk-sg{column-gap:8px}:root[data-style="clean"] .mpk-hd{padding-inline:16px}:root[data-style="clean"] .mpk-o{padding-inline:8px}
   :root[data-style="clean"] .mpk-th{padding:var(--strip-y) 16px}:root[data-style="clean"] .mpk-thh{flex-direction:column;align-items:flex-start;gap:0;white-space:normal}:root[data-style="clean"] .mpk-thh b{align-self:auto}
-  :root[data-style="clean"] .mpk-eb,:root[data-style="clean"] :is(.mpk-eb:hover,.mpk-eb[aria-expanded="true"]){margin-right:-10px;background:none;box-shadow:none}:root[data-style="clean"] :is(.mpk-eb:hover,.mpk-eb[aria-expanded="true"]){background:var(--hover)}}
+  :root[data-style="clean"] .mpk-eb,:root[data-style="clean"] :is(.mpk-eb:hover,.mpk-eb[aria-expanded="true"]){margin-right:-10px;background:none;box-shadow:none}:root[data-style="clean"] .mpk-eb:hover{background:var(--row)}:root[data-style="clean"] .mpk-eb[aria-expanded="true"]{background:var(--row-on)}}
 @media (prefers-reduced-motion:reduce){:root[data-style="clean"] .mpk-m i.on{animation:none!important}:root[data-style="clean"] :is(.mpk-p,.mpk-o .ck svg,.mpk-note,.mpk-m i){transition:none!important}}
 /* ---------- Answer action bar ---------- */
 /* every action on an answer in one raised rail under it: copy, regenerate with its versions, thumbs, and read aloud, which
@@ -3321,6 +3334,9 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .aab-rd[aria-pressed="true"]{background:var(--row-on);color:var(--fg)}
 :root[data-style="clean"] .aab-rd:hover{background:var(--row)}
 :root[data-style="clean"] .aab-ch .chip.on{background:var(--btn-2);color:var(--on-btn);box-shadow:inset 0 0 0 1px var(--btn-2)}
+/* a reason not picked takes the one hover over its fill, easing over 220ms (owner, 21 Nov) */
+:root[data-style="clean"] .aab-ch .chip{transition:background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
+:root[data-style="clean"] .aab-ch .chip:not(.on):hover{background:var(--chip);box-shadow:inset 0 0 0 99px var(--row)}
 :root[data-style="clean"] .aab-st.ok svg{color:var(--ok-mark)}
 /* ---------- Decision prompt ---------- */
 /* the agent asks in the chat: no container; with .panel it becomes a card. Each answer is a tile to pick (a click, its
@@ -4122,6 +4138,13 @@ button.evr-vs-r:focus-visible{outline-offset:-2px;border-radius:calc(10px * var(
 :root[data-style="clean"] .evr-vs-d .pill{color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth)}
 :root[data-style="clean"] .evr-vs-d .pill:hover{box-shadow:var(--btn2-hover)}
 :root[data-style="clean"] .evr-vs-d .pill:active{box-shadow:var(--btn2-press)}
+:root[data-style="clean"] :is(.evr-i,.evr-vs-i){transition:background-color var(--t-fast) var(--ease)}
+/* the run-vs-run filter chips take the one hover as a fill over their own tint, and the picked one the stronger fill inside a
+   quiet edge (owner, 21 Nov: never a stronger edge) */
+:root[data-style="clean"] .evr-vs-chip{transition:background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
+:root[data-style="clean"] .evr-vs-chip:not(.on):hover{box-shadow:inset 0 0 0 99px var(--row)}
+:root[data-style="clean"] .evr-vs-chip[data-f="all"]:not(.on):hover{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pick-line) 50%,transparent),inset 0 0 0 99px var(--row)}
+:root[data-style="clean"] .evr-vs-chip.on{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pick-line) 50%,transparent),inset 0 0 0 99px var(--row-on)}
 :root[data-style="bp"] .evr-jg-arc .tr,:root[data-style="bp"] .evr-jg-arc i{border-radius:50%!important}
 :root[data-style="bp"] .evr-jg-arc i{transition:transform .8s steps(8,end),border-color .3s}
 :root[data-style="bp"] .evr-jg-cats .b i{transition:transform .6s steps(6,end)}
@@ -4162,7 +4185,16 @@ button.evr-vs-r:focus-visible{outline-offset:-2px;border-radius:calc(10px * var(
 /* Clean (owner, 18 Nov): the sources' marks are one neutral grey with a hairline, not a colour each */
 :root[data-style="clean"] :is(.ssx-ics span,.ssx-s .fv){background:var(--chip)!important;color:var(--fg2)!important;box-shadow:inset 0 0 0 1px var(--hair)}
 :root[data-style="clean"] .ssx-s{border-radius:var(--r-in)}
-:root[data-style="clean"] :is(.ssx-pill,.ssx-s,.ssx-s .ib){transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease),opacity var(--t-fast) var(--ease)}
+/* the filter chips keep their quiet edge: the one hover fills them, and the picked one has the stronger fill (owner, 21 Nov:
+   never a stronger edge); the sources pill deepens by the same fill, and holds the stronger one while its list is open
+   (Agent harness keeps its own) */
+:root[data-style="clean"] .ssx-fl .chip{transition:background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
+:root[data-style="clean"] .ssx-fl .chip:not(.on):hover{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pick-line) 50%,transparent),inset 0 0 0 99px var(--row)}
+:root[data-style="clean"] .ssx-fl .chip.on{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pick-line) 50%,transparent),inset 0 0 0 99px var(--row-on)}
+:root[data-style="clean"] .ssx-pill:not(.ahx *){box-shadow:inset 0 0 0 99px transparent}
+:root[data-style="clean"] .ssx-pill:not(.ahx *):hover{background:var(--chip);box-shadow:inset 0 0 0 99px var(--row)}
+:root[data-style="clean"] .ssx-pill:not(.ahx *)[aria-expanded="true"]{box-shadow:inset 0 0 0 99px var(--row-on)}
+:root[data-style="clean"] :is(.ssx-pill,.ssx-s,.ssx-s .ib){transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease),opacity var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
 /* ---------- Metric insight ---------- */
 /* one number, its trend over the range, and the agent's read on why it moved. Its content sits 16px from every edge (owner,
    18 Nov), the range switch ending on the content's right edge. The chart follows the accent: its line in the accent's mark
@@ -4527,6 +4559,7 @@ code.tmx-p{font-weight:500;color:var(--accent-fg,var(--fg))}
 :root[data-style="clean"] .tmx-f{padding:var(--strip-y) 16px;line-height:28px;font-size:12.5px;background:var(--strip);border-top-color:var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
 :root[data-style="clean"] .tmx-f:not(.stop,.bad) .g{color:color-mix(in srgb,var(--ok-mark) 80%,var(--ok))}
 :root[data-style="clean"] .tmx-st{transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
+:root[data-style="clean"] .tmx-more{transition:color var(--t-fast) var(--ease),background-color var(--t-fast) var(--ease)}
 
 /* ---------- Details panel ---------- */
 /* a run's properties in sections that fold, each value changed in place from a small menu. Its content sits 16px from every
@@ -4576,6 +4609,8 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
    calm 220ms */
 :root[data-style="clean"] .dtp-add{border-radius:50%;box-shadow:inset 0 0 0 1px var(--hair)}
 :root[data-style="clean"] :is(.dtp-sh,.dtp-v,.dtp-add){transition:color var(--t-fast) var(--ease),background-color var(--t-fast) var(--ease)}
+/* its ghost controls, a section's toggle and a value's menu button, are pills, as every Clean control is (owner, 18 Nov) */
+:root[data-style="clean"] :is(.dtp-sh,.dtp-v){border-radius:var(--r-pill)}
 /* Clean is ruled (owner, 22 Nov: "a divider under the heading, more dividers"): the head is Clean's off-white strip over a
    hairline, as Task table's is, and a hairline runs edge to edge between the sections, each section's label sitting 12px under its line as the first one sits under the head's */
 :root[data-style="clean"] .dtp{padding-top:0}
@@ -4671,7 +4706,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 :root[data-style="clean"] .wrx-lb{filter:none}
 :root[data-style="clean"] .wrx-ind{background:var(--knob);box-shadow:var(--knob-shadow);border-radius:calc(var(--r-card) - 8px);transition:top var(--t) var(--ease)}
 :root[data-style="clean"] :is(.wrx-i,.wrx-run){border-radius:calc(var(--r-card) - 8px)}
-:root[data-style="clean"] :is(.wrx-i:not(.on):hover,.wrx-run:hover){background:var(--chip)}
+:root[data-style="clean"] :is(.wrx-i:not(.on):hover,.wrx-run:hover){background:var(--row)}
 :root[data-style="clean"] .wrx-sk i{background:var(--ghost)}
 :root[data-style="clean"] .wrx-sk i.b{border-radius:calc(var(--r-card) - 6px)}
 /* ---------- Command palette ---------- */
@@ -5088,9 +5123,10 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 :root[data-style="clean"] .fxp.panel{padding:var(--s-4) var(--s-4) 0}
 :root[data-style="clean"] .fxp-h{padding-bottom:0;border-bottom:0}
 :root[data-style="clean"] .fxp-n{border-radius:10px}
+:root[data-style="clean"] .fxp-n.sel{background:var(--row-on)}
 :root[data-style="clean"] .fxp-f{margin:var(--s-2) calc(-1 * var(--s-4)) 0;padding:calc(var(--strip-y) + 5px) var(--s-4);background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
 :root[data-style="clean"] .fxp-ch{transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
-:root[data-style="clean"] .fxp-ch[aria-pressed="true"]{background:var(--chip);color:var(--fg);box-shadow:inset 0 0 0 1px var(--hair)}
+:root[data-style="clean"] .fxp-ch[aria-pressed="true"]{background:var(--row-on);color:var(--fg);box-shadow:none}
 /* ---------- Automation canvas ---------- */
 /* the canvas is the whole component, edge to edge, in the stage's colour: the automation's name sits over its top left,
    Test run and what the run shows over its bottom left, and the zoom in its bottom right. It fills the height it is given,
@@ -5579,6 +5615,14 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 :root[data-style="clean"] :is(.rdr-r[aria-pressed="true"],.rdr-ds button[aria-pressed="true"],.rdr-follow[aria-pressed="true"]){background:var(--row-on)}
 :root[data-style="clean"] .rdr-tg{border-radius:var(--r-pill)}
 :root[data-style="clean"] .rdr-nd{border-radius:var(--r-in)}
+/* a step's node keeps its edge (its status colour while it runs, fails or waits) and takes the one hover as a fill inside
+   it, the picked step the stronger fill (owner, 21 Nov: never a stronger edge) */
+:root[data-style="clean"] .rdr-nd{--rdr-ring:color-mix(in srgb,var(--line) 80%,transparent);--rdr-rw:1px;--rdr-fill:transparent;box-shadow:inset 0 0 0 var(--rdr-rw) var(--rdr-ring),inset 0 0 0 99px var(--rdr-fill)}
+:root[data-style="clean"] .rdr-nd[data-st="run"]{--rdr-ring:var(--accent-mark,var(--accent));--rdr-rw:1.5px}
+:root[data-style="clean"] .rdr-nd[data-st="bad"]{--rdr-ring:var(--bad-mark);--rdr-rw:1.5px}
+:root[data-style="clean"] .rdr-nd:is([data-st="retry"],[data-st="wait"]){--rdr-ring:var(--warn-mark);--rdr-rw:1.5px}
+:root[data-style="clean"] .rdr-nd:hover{--rdr-fill:var(--row)}
+:root[data-style="clean"] .rdr-nd[aria-pressed="true"]{--rdr-fill:var(--row-on)}
 :root[data-style="clean"] .rdr-ask .pill.line{color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth)}
 :root[data-style="clean"] .rdr-ask .pill.line:hover{color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth)}
 :root[data-style="clean"] .rdr-ask .pill.line:hover{box-shadow:var(--btn2-hover)}
@@ -6579,8 +6623,8 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 :root[data-style="clean"] .lnx:has(>.lnx-h>.lnx-tl)>.lnx-lg .lnx-k{height:28px;padding:0 10px}
 /* (on a phone its two columns share the width, the second ending on the content's right edge like the switch above) */
 @container lnx (max-width:300px){:root[data-style="clean"] .lnx:has(>.lnx-h>.lnx-tl)>.lnx-lg{grid-template-columns:1fr 1fr}}
-:root[data-style="clean"] .lnx:has(>.lnx-h>.lnx-tl)>.lnx-lg .lnx-k[aria-pressed="true"]{background:color-mix(in srgb,var(--fg) 11%,var(--surface))}
-:root[data-style="clean"] .lnx:has(>.lnx-h>.lnx-tl)>.lnx-lg .lnx-k[aria-pressed="false"]:hover{background:var(--hover)}
+:root[data-style="clean"] .lnx:has(>.lnx-h>.lnx-tl)>.lnx-lg .lnx-k[aria-pressed="true"]{background:var(--row-on)}
+:root[data-style="clean"] .lnx:has(>.lnx-h>.lnx-tl)>.lnx-lg .lnx-k[aria-pressed="false"]:hover{background:var(--row)}
 :root[data-style="clean"] .lnx-tt{padding:6px;border-radius:calc(14px * var(--rk-l,var(--rk)));transform:scale(.96);transition:opacity var(--t-fast) var(--ease),transform var(--t-fast) var(--ease)}
 :root[data-style="clean"] .lnx.on .lnx-tt{transform:none}
 :root[data-style="clean"] .lnx-tt-h{padding:2px 8px 4px;border-bottom:0}
@@ -6673,8 +6717,8 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 :root[data-style="clean"] .dnx-c span{color:var(--muted);letter-spacing:0}
 :root[data-style="clean"] .dnx-r{border-radius:var(--r-in)}
 :root[data-style="clean"] .dnx-lg.gl .dnx-r:is(:hover,.hl){background:transparent}
-:root[data-style="clean"] .dnx-r.sel,:root[data-style="clean"] .dnx-lg.gl .dnx-r.sel{background:color-mix(in srgb,var(--fg) 11%,var(--surface))}
-:root[data-style="clean"] .dnx-hv{display:block;position:absolute;left:0;right:0;top:0;height:32px;border-radius:var(--r-in);background:var(--hover);opacity:0;pointer-events:none;transition:opacity var(--t-fast) var(--ease),transform var(--t-fast) var(--ease),height var(--t-fast) var(--ease)}
+:root[data-style="clean"] .dnx-r.sel,:root[data-style="clean"] .dnx-lg.gl .dnx-r.sel{background:var(--row-on)}
+:root[data-style="clean"] .dnx-hv{display:block;position:absolute;left:0;right:0;top:0;height:32px;border-radius:var(--r-in);background:var(--row);opacity:0;pointer-events:none;transition:opacity var(--t-fast) var(--ease),transform var(--t-fast) var(--ease),height var(--t-fast) var(--ease)}
 :root[data-style="clean"][data-theme="dark"] .dnx-svg .dnx-in-s{flood-color:rgba(0,0,0,.5)}
 :root[data-style="clean"][data-theme="dark"] .dnx-svg .dnx-in-r{flood-color:rgba(255,255,255,.05)}
 @media (prefers-color-scheme:dark){
@@ -7020,6 +7064,10 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 /* Clean: the search and the plan filters sit in the card's off-white head strip, with a hairline under it (owner, 21 Nov: "add
    a gray background behind the search accounts"), 16px in at the sides and 16px from its top and bottom (owner, 23 Nov) */
 :root[data-style="clean"] .atb-h{padding:var(--strip-y) 16px;background:var(--strip);border-bottom:1px solid var(--line);border-radius:var(--r-card) var(--r-card) 0 0}
+/* the filter chips keep their quiet edge: the one hover fills them, and the picked one has the stronger fill (owner, 21 Nov) */
+:root[data-style="clean"] .atb-fl .chip{transition:background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
+:root[data-style="clean"] .atb-fl .chip:not(.on):hover{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pick-line) 50%,transparent),inset 0 0 0 99px var(--row)}
+:root[data-style="clean"] .atb-fl .chip.on{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pick-line) 50%,transparent),inset 0 0 0 99px var(--row-on)}
 /* ---------- Date picker ---------- */
 /* one field, as wide as the other single fields; its script keeps it centred in its stage and glides it up as the calendar opens */
 .dpk{position:relative;width:100%;max-width:var(--field-w);margin:0 auto}
@@ -7863,6 +7911,8 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 :root[data-style="clean"] .msc-c{border-radius:var(--r-sm)}
 :root[data-style="clean"] .msc-pop{border-radius:var(--r-card)}
 :root[data-style="clean"] .msc-o{border-radius:calc(var(--r-card) - 6px)}
+:root[data-style="clean"] .msc-clr{border-radius:var(--r-pill)}
+:root[data-style="clean"] .msc-c button{transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .msc-o .bx{border-radius:calc(3px * var(--rk-s,var(--rk)));background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--fg2),var(--track-ring)}
 :root[data-style="clean"] .msc-o[aria-selected="true"] .bx{background:linear-gradient(180deg,var(--btn-1),var(--btn-2));box-shadow:inset 0 0 0 1px var(--btn-2),inset 0 2px 3px -1px rgba(255,255,255,.28);color:var(--on-btn)}
 /* ---------- Social sign-in ---------- */
@@ -7980,6 +8030,8 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 :root[data-style="clean"] .sgx-rs{min-height:28px;line-height:28px}
 :root[data-style="clean"] .sgx-done{padding-top:0}
 :root[data-style="clean"] .sgx-open{padding-bottom:0}
+:root[data-style="clean"] .sgx-sug{transition:background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
+:root[data-style="clean"] .sgx-sug:hover{background:var(--chip);box-shadow:inset 0 0 0 99px var(--row)}
 /* ---------- OTP field ---------- */
 /* a one-time code, one box per digit: typing moves along, Backspace moves back, and a paste fills every box. A wrong
    code shakes and turns red; typing again starts it over */
@@ -8048,6 +8100,10 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 /* the words on a filled button sweep in its own text colour */
 .fmx-go .shim{background-image:linear-gradient(90deg,var(--on-accent) 0%,var(--on-accent) 38%,color-mix(in srgb,var(--on-accent) 45%,transparent) 50%,var(--on-accent) 62%,var(--on-accent) 100%);font-size:inherit}
 :root[data-style="clean"] .fmx-go .shim{background-image:linear-gradient(90deg,var(--on-btn) 0%,var(--on-btn) 38%,color-mix(in srgb,var(--on-btn) 45%,transparent) 50%,var(--on-btn) 62%,var(--on-btn) 100%)}
+/* the type chips keep their quiet edge: the one hover fills them, and a picked one has the stronger fill (owner, 21 Nov) */
+:root[data-style="clean"] .fmx-ty .chip{transition:background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
+:root[data-style="clean"] .fmx-ty .chip:not(.on):hover{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pick-line) 50%,transparent),inset 0 0 0 99px var(--row)}
+:root[data-style="clean"] .fmx-ty .chip.on{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pick-line) 50%,transparent),inset 0 0 0 99px var(--row-on)}
 /* done: the card eases to the confirmation's height (grow()), with the vivid green tick */
 .fmx-done{display:flex;flex-direction:column;align-items:center;gap:6px;padding:var(--s-6) 0;text-align:center;font-size:13px}
 .fmx-done>svg.i{width:28px;height:28px;color:var(--ok-mark)}
@@ -8186,6 +8242,9 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 :root[data-style="clean"] .cmx-men{bottom:54px;left:var(--s-4)}
 :root[data-style="clean"] .cmx-go{border-radius:calc(var(--r-field) - 5px)}
 :root[data-style="clean"] .cmx-c.ag .tx .w{animation:cmwc var(--t-slow) var(--ease) both}
+/* the reaction chip keeps its quiet edge and takes the one hover as a fill (owner, 21 Nov) */
+:root[data-style="clean"] .cmx-rc{transition:background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
+:root[data-style="clean"] .cmx-rc:not([aria-pressed="true"]):hover{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent),inset 0 0 0 99px var(--row)}
 @keyframes cmwc{from{opacity:0}to{opacity:1}}
 /* ---------- Notifications ---------- */
 /* an inbox: a head with its name, the unread count and Mark all read, a filter, then the items, newest first. The rules
@@ -8252,6 +8311,9 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 :root[data-style="bp"] .ntx-em-art{box-shadow:inset 0 0 0 1px var(--line)}
 /* Clean: the head's mark has a hairline like the other tiles, and a new item rises in without a blur */
 :root[data-style="clean"] .ntx-hi{box-shadow:inset 0 0 0 1px var(--hair)}
+/* the head (the inbox, its count and Mark all read) is an off-white head strip, as every Clean card with a head has; its
+   controls sit 8px from the strip's top and bottom and on the content's 16px column */
+:root[data-style="clean"] .ntx.panel .ntx-h{margin:calc(-1 * var(--s-4)) calc(-1 * var(--s-4)) var(--s-2);padding:var(--s-2) var(--s-4);background:var(--strip);border-bottom:1px solid var(--line);border-radius:var(--r-card) var(--r-card) 0 0}
 :root[data-style="clean"] .ntx.panel .ntx-n.new{animation:clpiece var(--t-slow) var(--ease) both}
 /* ---------- Banner ---------- */
 /* an announcement on a tint of its tone: an eyebrow, a title, a line of text and its actions on the left, and one of four line
@@ -8458,6 +8520,12 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 @keyframes rxpc{0%{transform:scale(1)}40%{transform:scale(1.2)}100%{transform:scale(1)}}
 :root[data-style="clean"] .rxx-r.bump .e{animation:rxpc var(--t-slow) var(--ease)}
 :root[data-style="clean"] .rxx-r.new{animation:clpiece var(--t-slow) var(--ease) backwards}
+/* a reaction keeps its quiet edge and takes the one hover as a fill; the add button and the picker's emoji take it too, all
+   easing over 220ms (owner, 21 Nov) */
+:root[data-style="clean"] .rxx-r{transition:background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),transform var(--t) var(--ease),opacity var(--t) var(--ease)}
+:root[data-style="clean"] .rxx-r:not(.me):hover{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent),inset 0 0 0 99px var(--row)}
+:root[data-style="clean"] :is(.rxx-add,.rxx-grid button){transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
+:root[data-style="clean"] .rxx-grid button:hover{background:var(--row)}
 /* ---------- Profile menu ---------- */
 /* an app's top bar with the account behind the avatar. The menu opens under it, lined up with its right edge, over the room
    the component keeps for it under the bar, so the bar never moves as the menu opens and shuts (owner, 20 Nov: menus open over
@@ -8689,6 +8757,10 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 :root[data-style="clean"] .flm-ch .x{width:28px;border-radius:var(--r-pill)}
 :root[data-style="clean"] .flm-pop{padding:6px;border-radius:var(--r-card)}
 :root[data-style="clean"] .flm-pop .mi{border-radius:calc(var(--r-card) - 6px)}
+:root[data-style="clean"] .flm-r:hover{background:var(--row)}
+/* the theme switch in the account menu is a row with a switch: its switch says it is on, so the row itself keeps no fill and
+   takes the one hover like the rows round it */
+:root[data-style="clean"] .pfm-pop.pop .pfm-th[aria-checked="true"]{background:transparent}
 /* ---------- Number field ---------- */
 /* a number you can type or step: minus and plus at the ends of the field, a unit beside the value, and a hint under it that
    gives the range, or says what changed when a typed value was rounded to the step or kept inside the range */
@@ -10299,6 +10371,19 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 :root[data-style="clean"] .mi{border-radius:10px;transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .pop :is(.mi[aria-checked="true"],.mi[aria-selected="true"],[role="option"][aria-selected="true"]){background:var(--row-on)}
 :root[data-style="clean"] .ib{transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease),transform var(--t-fast) var(--ease)}
+/* small ghost controls that kept a timing of their own ease over the same 220ms */
+:root[data-style="clean"] :is(.aab-rd,.msc-clr,.pva-cr,.pva-tog,.pvb-cr,.aln-lane,.pfm-tr,.atr-tg){transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
+/* progress's credits button is a pill and the rows that open a layer have Clean's 10px row corners; the emoji in the
+   reactions picker are 10px cells */
+:root[data-style="clean"] .pva-cr{border-radius:var(--r-pill)}
+:root[data-style="clean"] :is(.pva-tog,.pvb-cr,.rxx-grid button){border-radius:10px}
+:root[data-style="clean"] .atx-ctx-it{transition:background-color var(--t-fast) var(--ease),opacity .3s}
+/* a file chip keeps its quiet edge and takes the one hover as a fill inside it (owner, 21 Nov: never a stronger edge) */
+:root[data-style="clean"] .fchip.lnk{transition:background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
+:root[data-style="clean"] .fchip.lnk:hover{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent),inset 0 0 0 99px var(--row)}
+/* the account menu's button: the one hover, and the stronger fill while its menu is open */
+:root[data-style="clean"] .pfm-tr:hover{background:var(--row)}
+:root[data-style="clean"] .pfm-tr[aria-expanded="true"]{background:var(--row-on)}
 /* a field's own Send (Comments, Composer, Attachment tray's composer, Agent lanes' note; owner, 21 Nov): it sits in the field's
    corner with the same room above, below and beside it, and its corners are the field's less that room (each component sets
    the radius). Empty, it is a quiet glyph with no fill; once there is something to send, the ink button fades in under it.
@@ -10328,7 +10413,9 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 :root[data-style="clean"] :is(.seg2 .knob,.sgc-seg .sgc-k){background:var(--knob);box-shadow:var(--knob-shadow);transition:left var(--t) var(--ease),width var(--t) var(--ease)}
 :root[data-style="clean"] :is(.seg2,.sgc-seg) button{color:var(--muted);font-weight:500;transition:color var(--t-fast) var(--ease),background-color var(--t-fast) var(--ease)}
 /* a segment that is not picked takes the one hover under the pointer, a pill in its own shape (owner, 21 Nov) */
-:root[data-style="clean"] :is(.seg2,.sgc-seg) button:not([aria-pressed="true"],[aria-selected="true"],[aria-checked="true"],[disabled]):hover{background:var(--row);color:var(--fg)}
+:root[data-style="clean"] :is(.seg2,.sgc-seg,.asx-steps,.asx-tb-tabs) :is(button,.asx-tb-t):not([aria-pressed="true"],[aria-selected="true"],[aria-checked="true"],[disabled]):hover{background:var(--row);color:var(--fg)}
+:root[data-style="clean"] .asx-steps button{border-radius:var(--r-pill)}
+:root[data-style="clean"] :is(.asx-steps button,.asx-tb-t){transition:color var(--t-fast) var(--ease),background-color var(--t-fast) var(--ease)}
 :root[data-style="clean"] :is(.seg2 button[aria-pressed="true"],.sgc-seg button:is(:hover,[aria-selected="true"],[aria-checked="true"])){color:var(--fg)}
 /* toggles: ink when on (a switcher is chrome), a knob with a hairline, and a soft inner shadow in the track */
 :root[data-style="clean"] .toggle[aria-checked="true"]{background:var(--btn-2);box-shadow:inset 0 0 0 1px var(--btn-2),inset 0 2px 4px -1px rgba(0,0,0,.3)}
@@ -13563,6 +13650,8 @@ DM.def('agent-tree', (r, c) => {
     { id:'cop1', p:'cop', n:'Post to Slack', t:'Needs your OK', app:'slack', cost:.006, tok:140 }
   ];
   const root = $('.atr', r), tree = $('.atr-tree', r), meta = $('.atr-m', r), time = $('.atr-time', r), tot = $('.atr-tot', r), foot = $('.atr-f', r), sr = $('.atr-sr', r);
+  // Clean's one hover glides from row to row, and the picked agent keeps its stronger fill (Agent harness keeps its own)
+  if (!r.closest('.ahx')) c.offs.push(hoverGlide(tree, '.atr-b', { keep:'[aria-selected="true"]>.atr-b' }));
   const N = RUN.map(x => ({ cost:0, tok:0, ...x, s:x.s || 'queued', kids:[], secs:0, t0:0 })), by = id => N.find(n => n.id === id);
   N.forEach(n => { n.parent = n.p ? by(n.p) : null; n.lv = n.parent ? n.parent.lv + 1 : 0; if (n.parent) n.parent.kids.push(n); });
   const money = v => '$' + v.toFixed(2), clock = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
@@ -13821,6 +13910,7 @@ DM.def('agent-tree', (r, c) => {
   </div>`;
   function atrCost(r, c){
     const tree = $('.atr-tree', r), mix = $('.atr-ct-mix', r), box = $('.atr', r), sr = $('.atr-sr', r);
+    c.offs.push(hoverGlide(tree, '.atr-b', { keep:'[aria-selected="true"]>.atr-b' }));
     let M, L, head;
     const here = n => !n.late, under = n => n.kids.filter(here);
     function build(n){
@@ -14131,6 +14221,8 @@ DM.def('trace-view', (r, c) => {
   // an agent span counts the tokens of every span under it
   S.forEach((x, i) => { x.kids = []; for (let j = i + 1; j < S.length && S[j].lv > x.lv; j++) x.kids.push(S[j]); });
   const root = $('.trv', r), rows = $('.trv-rows', r), stEl = $('.trv-st', r), tot = $('.trv-tot', r), dt = $('.trv-dt', r), dc = $('.trv-dc', r), lg = $('.trv-lg', r);
+  // Clean's one hover glides from span to span; an open span keeps its stronger fill
+  if (!r.closest('.ahx')) c.offs.push(hoverGlide(rows, '.trv-r', { keep:'[aria-expanded="true"]' }));
   // the head has the run's mark in a tile, the column every span's mark is centred in, and its total tokens beside its time
   const head = $('.trv-h', r);
   head.prepend(html(`<span class="trv-hi" aria-hidden="true">${I('cpu')}</span>`));
@@ -16560,6 +16652,8 @@ DM.def('model-picker', (r, c) => {
   const meter = (v, tip, i) => `<span class="mpk-m" data-tip="${tip}"${clean && !i ? ' data-tip-at="below"' : ''}>${[1, 2, 3, 4, 5].map(k => `<i${k <= v ? ' class="on"' : ''}></i>`).join('')}</span>`;
   list.innerHTML = M.map((x, i) => `<button class="mpk-o" role="radio" aria-checked="false" tabindex="-1" data-i="${i}"><span class="mpk-mk" style="--mc:${x.c};--mt:${x.t}">${x.m}</span><span class="t"><b>${x.n}<span class="ck">${I('check','xs')}</span></b><span class="d">${x.d}</span></span>${meter(x.s, x.tps + ' tokens a second', i)}${meter(x.q, 'Quality ' + x.q + ' of 5', i)}${meter(x.p, '$' + x.cost.toFixed(3) + ' a reply', i)}</button>`).join('');
   const rows = $$('.mpk-o', list);
+  // Clean's one hover glides from model to model; the picked one keeps its stronger fill
+  if (!r.closest('.ahx')) c.offs.push(hoverGlide(list, '.mpk-o'));
   // Opus is at capacity when the demo starts (busy is its wait in seconds), and free again once you've waited it out
   let cur = 1, eff = 2, busy = 20, waiting = false;
   function paint(){
@@ -16997,6 +17091,7 @@ DM.def('plan-review', (r, c) => {
     ['Write a summary of every change', 'Summary added to Pricing v4']
   ];
   const list = $('.plx-list', r), st = $('.plx-st', r), tm = $('.plx-tm', r), go = $('.plx-go', r), f = $('.plx-f', r);
+  if (!r.closest('.ahx')) c.offs.push(hoverGlide(list, '.plx-s'));
   const row = (t, i) => `<li class="plx-s"><span class="n">${i + 1}</span><span class="b"><span class="t" contenteditable="true" spellcheck="false" role="textbox" aria-label="Step ${i + 1}">${t[0]}</span><span class="d"><span></span></span></span><button class="ib plx-x" aria-label="Skip step" data-tip="Skip step">${I('x','xs')}</button></li>`;
   list.innerHTML = S.map(row).join(''); stagger($$('.plx-s', list), 60, 100);
   const count = () => { const on = $$('.plx-s:not(.off)', list); on.forEach((s, i) => $('.n', s).textContent = i + 1); $$('.plx-s.off .n', list).forEach(n => n.textContent = '–'); swap(st, 'About ' + Math.max(1, Math.round(on.length * .8)) + ' min'); };
@@ -17493,6 +17588,7 @@ DM.def('source-stack', (r, c) => {
   // each source's mark on its own vivid fill, with that fill's ink: white, or a dark ink of its hue where white would fail
   const ink = col => col.replace(')', '-ink)');
   const pill = $('.ssx-pill', r), box = $('.ssx-box', r), list = $('.ssx-list', r);
+  if (!r.closest('.ahx')) c.offs.push(hoverGlide(list, '.ssx-s'));
   $('.ssx-ics', r).innerHTML = S.slice(0, 4).map(s => `<span style="background:${s[5]};color:${ink(s[5])}">${s[4][0]}</span>`).join('');
   function paint(f){
     const items = S.filter(s => f === 'all' || s[0] === f);
@@ -19100,6 +19196,8 @@ DM.def('data-picker', (r, c) => {
   r.innerHTML = r.innerHTML.replace(/\{([\w-]+)(?:\.(xs))?\}/g, (m, k, z) => I(k, z || 's'));
   const uid = 'fpk' + Math.random().toString(36).slice(2, 7);
   const box = $('.fpk', r), pop = $('.fpk-pop', r), q = $('.fpk-q input', r), ls = $('.fpk-ls', r), live = $('.fpk-live', r);
+  // the row the pointer or the arrows are on (.on) has Clean's one hover, gliding from row to row
+  c.offs.push(hoverGlide(ls, '.fpk-o', { hl:'.on', keep:':not(*)' }));
   // each data type has its colour: text blue, numbers green, lists orange, objects pink, yes or no yellow, dates teal
   const TY = { text:'b', number:'m', list:'p', object:'k', bool:'y', date:'t' };
   // the steps before Send the reply, in their order, and what each hands on: [field, type, sample]
@@ -19368,6 +19466,7 @@ DM.def('memory-panel', (r, c) => {
     ['brand','No em dashes in product copy','drive','Voice and tone guide in Drive, Oct 2']
   ].map((m, i) => ({ id:i, k:m[0], t:m[1], from:m[2], s:m[3] }));
   const list = $('.mmx-list', r), fi = $('.mmx-fi', r), ft = $('.mmx-ft', r);
+  if (!r.closest('.ahx')) c.offs.push(hoverGlide(list, '.mmx-m'));
   let f = 'all', nid = 100;
   // the head names the panel only: a count of the memories and a row of their sources' marks repeated what the list shows
   const count = () => {};
@@ -20923,7 +21022,8 @@ DM.def('segmented-control', (r, c) => {
   const uid = Math.random().toString(36).slice(2, 7);
   const seg = $('.sgc-seg', r), knob = $('.sgc-k', r), tabs = $$('[role="tab"]', seg), panel = $('.sgc-p', r), range = $('.sgc-r', r);
   // Clean's one hover: a highlight that glides from event to event and day to day (hoverGlide)
-  c.offs.push(hoverGlide(panel, '.sgc-ev,.sgc-wr,.sgc-mo .d', { keep:'.on,.now' }));
+  // (today's day in the month keeps its accent; today's row in the week has no fill of its own)
+  c.offs.push(hoverGlide(panel, '.sgc-ev,.sgc-wr,.sgc-mo .d', { keep:'.on,.d.now' }));
   let inner = $('.sgc-in', r);
   tabs.forEach(t => { t.id = `sgc-${t.dataset.v}-${uid}`; t.setAttribute('aria-controls', 'sgc-p-' + uid); });
   panel.id = 'sgc-p-' + uid;
@@ -21582,6 +21682,7 @@ DM.def('multi-select', (r, c) => {
   // tags for the pricing page, and how many files carry each
   const T = [['Accessibility', 14], ['Billing', 9], ['Copy', 22], ['Design system', 31], ['Launch', 12], ['Mobile', 18], ['Onboarding', 7], ['Pricing', 16], ['Research', 11], ['Tokens', 25], ['Tooltips', 6]];
   const f = $('.msc-f', r), q = $('.msc-q', r), pop = $('.msc-pop', r), list = $('.msc-list', r), key = $('.msc-key', r), label = $('.msc-l', r);
+  c.offs.push(hoverGlide(list, '.msc-o'));
   q.id = 'msc-q-' + uid; label.htmlFor = q.id; list.id = 'msc-l-' + uid; q.setAttribute('aria-controls', list.id);
   let picked = ['Launch'], hi = 0, opts = [];
   const clr = $('.msc-clr', r);
@@ -22451,6 +22552,8 @@ DM.def('filter-menu', (r, c) => {
     date:{ l:'Updated', ic:'cal', ops:['within', 'older than'], o:[{ v:1, l:'Past day', c:'1 day' }, { v:7, l:'Past 7 days', c:'7 days' }, { v:30, l:'Past 30 days', c:'30 days' }], test:(t, v) => t.a < v }
   };
   const tr = $('.flm-tr', r), pop = $('.flm-pop', r), l1 = $('.flm-l1', r), l2 = $('.flm-l2', r), chips = $('.flm-chips', r), ct = $('.flm-ct', r), clr = $('.flm-clr', r), shell = $('.flm-list', r);
+  // Clean's one hover glides from row to row
+  c.offs.push(hoverGlide(shell, '.flm-r'));
   // the list grows and shrinks with what matches, eased (grow()), and keeps no room for rows to come; its rows go in grow()'s
   // wrapper
   c.offs.push(grow(shell)); const list = $('.dm-grow', shell);
@@ -22648,7 +22751,8 @@ DM.def('number-field', (r, c) => {
 /* ---------- Ticket list ---------- */
 DM.def('ticket-list', (r, c) => {
   // Clean's one hover: a highlight that glides from row to row (hoverGlide)
-  c.offs.push(hoverGlide($('.tkx', r), '.tkx-r', { keep:'.open,[aria-expanded="true"]' }));
+  // (an open ticket's row has no fill of its own, so every row takes the glide alone)
+  c.offs.push(hoverGlide($('.tkx', r), '.tkx-r', { keep:':not(*)' }));
   const T = [
     { p:'urgent', pn:'Urgent', t:'Agent stopped mid export', f:'Northwind', a:['MK','var(--av-l)'], w:'4m', q:'The token export stopped at 60% and nothing has happened for 20 minutes.', s:'Sorry about that. The run paused at your $5 spend cap. I have raised it for this run and it finished just now. Your tokens are in the Exports tab.', st:'open' },
     { p:'high', pn:'High', t:'Figma frames not syncing', f:'Lumen Labs', a:['JO','var(--av-m)'], w:'22m', q:'New frames from this morning are not showing up in DesignMe.', s:'The Figma token for your workspace expired yesterday. Reconnect it from Settings, then the frames will sync within a minute.', st:'open' },
@@ -24363,7 +24467,8 @@ DM.def('score-breakdown', (r, c) => {
   const LAST = 77;
   const g = $('.sbx-g', r), svg = $('svg', g), vb = $('.sbx-v b', r), bw = $('.sbx-bw', r), ch = $('.sbx-ch', r), list = $('.sbx-list', r);
   // Clean's one hover: a highlight that glides from factor to factor (hoverGlide); the lit and the open one keep their own
-  c.offs.push(hoverGlide(list, '.sbx-r', { keep:'.on,.open' }));
+  // (a row lit from the gauge (.on) takes the glide; an open row keeps its stronger fill)
+  c.offs.push(hoverGlide(list, '.sbx-r', { hl:'.on', keep:'.open' }));
   const total = () => F.reduce((t, f) => t + f.e, 0), band = s => s >= 90 ? 'Excellent' : s >= 75 ? 'Good' : s >= 60 ? 'Fair' : 'Needs work';
   const weakest = () => F.reduce((m, f, i) => f.e / f.w < F[m].e / F[m].w ? i : m, 0);
   // the gauge: a half circle split by weight, with a small gap between the segments
