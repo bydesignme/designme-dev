@@ -38,7 +38,7 @@
 // spec.json: { "All": { "<category>": { "<kind> · <what>": [allowed values] } }, "Soft": {...}, "Blueprint": {...},
 // "Clean": {...}, "Soft light": {...}, ... }. Categories and "<kind> · <what>" are as report.md names them (buttons, insets,
 // heads, rows, gaps, radii, hover, type, lines); a kind of "*" matches every kind. The most particular list wins: a style and
-// theme's, then a style's, then All's. Values are compared as written in the report; numbers also match within 0.5px; a
+// theme's, then a style's, then All's. Values are compared as written in the report; numbers also match within 0.5px (an off one becomes the nearest allowed, the larger on a tie); a
 // value written "/.../" is a pattern (for colours with a shape after them); a list that is just "→ <what to use>" allows
 // nothing (a kind that shouldn't be there at all) and says what to use instead.
 //
@@ -498,7 +498,7 @@ function offSpec(R){
       const allowed = pick(SPEC[sth]) || pick(SPEC[style]) || pick(SPEC.All); if (!allowed) continue;
       const ok = (a, v, n) => { a = String(a); if (a.startsWith('→')) return false; if (/^\/.*\/$/.test(a)) return new RegExp(a.slice(1, -1)).test(v); return a === v || (n !== null && num(a) !== null && Math.abs(num(a) - n) <= .5); };
       for (const v of vals){ const n = num(v.value); if (allowed.some(a => ok(a, v.value, n))) continue;
-        const nums = allowed.map(num).filter(x => x !== null), becomes = n !== null && nums.length ? String(nums.reduce((a, b) => Math.abs(b - n) < Math.abs(a - n) ? b : a)) : allowed.length === 1 ? String(allowed[0]).replace(/^→\s*/, '').replace(/^\/\^?|\$?\/$/g, '').replace(/\\(.)/g, '$1') : 'one of ' + allowed.join(', ');
+        const nums = allowed.map(num).filter(x => x !== null), becomes = n !== null && nums.length ? String(nums.reduce((a, b) => Math.abs(b - n) < Math.abs(a - n) || (Math.abs(b - n) === Math.abs(a - n) && b > a) ? b : a)) : allowed.length === 1 ? String(allowed[0]).replace(/^→\s*/, '').replace(/^\/\^?|\$?\/$/g, '').replace(/\\(.)/g, '$1') : 'one of ' + allowed.join(', ');
         out[sth].push({ cat, what:kp, now:v.value, becomes, count:v.count, where:v.where }); } } }
   return out;
 }
