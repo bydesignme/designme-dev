@@ -1639,6 +1639,9 @@ th:last-child>.col-rz{display:none}
 /* the lane at work carries a wash of its hue from the left */
 /* the agent at work gets no tinted band behind its row: its pulsing badge and the Working spinner say it is active (owner,
    18 Nov) */
+/* the head's words (the title, its time and its step count) share one baseline, whatever their sizes; the row round them stays
+   centred, so the icon and Pause all sit on the title's line (owner, 23 Nov: the 12.5px time sat 2px above the 14px title) */
+.aln-tx{display:flex;align-items:baseline;gap:10px;margin-right:auto}
 /* the relay line runs from badge to badge, through the lanes and the hand-offs between them, and stops short of each badge */
 .aln-rows>*::before{content:"";position:absolute;left:26px;width:2px;top:0;bottom:0;background:var(--line);pointer-events:none}
 .aln-lane::before{top:48px}
@@ -1729,6 +1732,10 @@ th:last-child>.col-rz{display:none}
    the line beside it keeps clear of it (the button, its 16px and a 12px gap) until the run is done and the button goes */
 :root[data-style="clean"] .aln.panel:has(.aln-pause) .aln-say{margin-right:124px}
 /* the summary's words start where the title's do (its 12px tick and 12px gap match the head's 14px icon and 10px gap) */
+:root[data-style="clean"] .aln.panel .aln-tx{grid-column:2 / -1;gap:0;min-width:0}
+/* (Agent harness, Phase II, keeps staging's head: its words are the row's own parts again, centred as before) */
+.ahx .aln-tx{display:contents}
+:root[data-style="clean"] .ahx .aln.panel .aln-tx>*{grid-row:1;align-self:center;margin-top:16px;margin-bottom:4px}
 :root[data-style="clean"] .aln-say .i{color:color-mix(in srgb,var(--ok-mark) 85%,var(--ok));vertical-align:-2px;margin-right:12px}
 :root[data-style="clean"] .aln.fin .aln-ic{color:color-mix(in srgb,var(--ok-mark) 85%,var(--ok))}
 /* the lanes: their fills 8px in from the card, so a lane's corner is the card's less 8px; their content 16px in */
@@ -1904,6 +1911,8 @@ th:last-child>.col-rz{display:none}
 .aln-cw-c[data-s="hold"]{opacity:.8}
 .aln-cw-top{display:flex;align-items:center;gap:var(--s-3)}
 .aln-cw-av{width:28px;height:28px;border-radius:var(--r-sm);display:grid;place-items:center;flex:none;background:var(--a);color:var(--ai)}
+/* the title and the run's cost share one baseline; the row round them stays centred on the icon (Clean lays them out on its grid) */
+.aln-cw-hx{flex:1;display:flex;align-items:baseline;gap:var(--s-2)}
 .aln-cw-av .i{width:14px;height:14px;stroke-width:1.9;color:inherit}
 .aln-cw-c[data-s="work"] .aln-cw-av{animation:alnswbreathe 2s var(--ease-io) infinite}
 .aln-cw-tx{flex:1;min-width:0;display:flex;flex-direction:column}
@@ -1974,6 +1983,7 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .aln-cw-c[data-s="work"]{box-shadow:0 0 0 1px color-mix(in srgb,var(--fg) 16%,transparent),var(--shadow-pop);transform:translateY(-2px)}
 :root[data-style="clean"] :is(.aln-cw-top,.aln-cw-meter){display:contents}
 :root[data-style="clean"] .aln-cw-av{grid-row:1;grid-column:1;align-self:center;margin:16px 12px 16px 16px}
+:root[data-style="clean"] .aln-cw-hx{display:contents}
 :root[data-style="clean"] .aln-cw-tx{grid-row:1;grid-column:2 / 4;align-self:center;margin:16px 0}
 :root[data-style="clean"] .aln-cw-tag{grid-row:1;grid-column:4;justify-self:end;align-self:center;margin:0 16px 0 12px}
 :root[data-style="clean"] .aln-cw-c>.fold{grid-row:2;grid-column:1 / -1;margin:0 16px}
@@ -10737,7 +10747,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <div class="card-h"><div><h3>Agent lanes</h3><p>Several agents working in parallel, each with its own lane and hand-offs.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="dm aln-dm" data-designs="card"><div class="dm-main"><div class="aln panel">
-  <div class="aln-h"><span class="aln-ic">{users}</span><span class="aln-t">3 agents working</span><span class="aln-m muted num">0:00</span><span class="aln-ct num">0 of 9 steps</span><button class="pill soft sm aln-pause">{pause}Pause all</button></div>
+  <div class="aln-h"><span class="aln-ic">{users}</span><span class="aln-tx"><span class="aln-t">3 agents working</span><span class="aln-m muted num">0:00</span><span class="aln-ct num">0 of 9 steps</span></span><button class="pill soft sm aln-pause">{pause}Pause all</button></div>
   <div class="aln-rows"></div>
   <div class="aln-say" aria-live="polite">3 agents queued</div>
 </div></div>
@@ -14832,7 +14842,7 @@ DM.def('agent-lanes', (r, c) => {
     });
   }
 
-  const alnCrewTpl = () => `<div class="aln-cw"><div class="aln-cw-h"><span class="aln-cw-ic">${I('users')}</span><b class="aln-cw-tt">3 agents working</b><span class="aln-cw-sum num">0:00 · 0 of 11 steps</span><span class="aln-cw-tot num">$0.00</span></div><div class="aln-cw-list"></div></div>`;
+  const alnCrewTpl = () => `<div class="aln-cw"><div class="aln-cw-h"><span class="aln-cw-ic">${I('users')}</span><span class="aln-cw-hx"><b class="aln-cw-tt">3 agents working</b><span class="aln-cw-sum num">0:00 · 0 of 11 steps</span><span class="aln-cw-tot num">$0.00</span></span></div><div class="aln-cw-list"></div></div>`;
   // Crew: each agent keeps its own clock, which stops while you pause it, and a hand-off waits for the agent before it
   function alnCrew(r, c){
     const A = ALN_RUN(), H = ALN_HAND.map(h => ({ ...h })), list = $('.aln-cw-list', r), tot = $('.aln-cw-tot', r), tt = $('.aln-cw-tt', r);
