@@ -50,7 +50,8 @@
 //   HOVER    0 to skip the hover pass (default on, at the widest width only)
 //   CONC     pages run side by side (default 6)            OUT     folder for report.json and report.md (default .)
 //   SPEC     the agreed spec (spec.json, see above): adds the "Off spec" lists
-//   FROM     an earlier report.json: measure nothing, only check it against SPEC and write the reports again into OUT
+//   FROM     earlier report.json files, comma separated: measure nothing, merge them (each later one replaces the cards it
+//            measured, so a rerun of the changed cards updates a full run), check against SPEC and write the reports into OUT
 //   PW       where Playwright is, if it isn't found on its own
 // Exit code: 0. This is a measuring tool; the gate is reading its counts and its off-spec lists.
 const fs = require('fs'), path = require('path');
@@ -380,7 +381,7 @@ async function hoverPass(p, sel, base, add){
 }
 
 async function menus(p, base, add){
-  const trig = await p.evaluate(() => { const r = document.querySelector('.cp-demo .stage-in'); window.__t = [...r.querySelectorAll('[data-pop],[aria-haspopup]:not([aria-haspopup="false"])')].filter(b => b.getClientRects().length && !window.__A.skip(b)); return window.__t.length; });
+  const trig = await p.evaluate(() => { const r = document.querySelector('.cp-demo .stage-in'); window.__t = [...r.querySelectorAll('[data-pop],[aria-haspopup]:not([aria-haspopup="false"])')].filter(b => b.getClientRects().length && !window.__A.skip(b) && !b.matches('a[href]')); return window.__t.length; });
   for (let k = 0; k < trig; k++){ try {
     const pos = await p.evaluate(k => { const e = window.__t[k]; if (!e.isConnected) return null; e.scrollIntoView({ block:'center' }); const r = e.getBoundingClientRect(); return { x:r.left + r.width / 2, y:r.top + r.height / 2, name:window.__A.txt(e) }; }, k); if (!pos) continue;
     await p.mouse.click(pos.x, pos.y); await p.waitForTimeout(450);
@@ -403,8 +404,8 @@ async function runCombo(b, st, th, W, add, log){
     try {
       await p.goto(url, { waitUntil:'load' }); await p.evaluate(() => document.fonts.ready);
       const designs = await p.locator('.cp-demo [aria-label$=" design"] button').allTextContents();
-      for (let d = 0; d < Math.max(1, designs.length); d++){
-        if (d) { await p.goto(url, { waitUntil:'load' }); await p.evaluate(() => document.fonts.ready); }
+      for (let d = 0; d < Math.max(1, designs.length); d++) for (let tries = 0; tries < 2; tries++) try {
+        if (d || tries) { await p.goto(url, { waitUntil:'load' }); await p.evaluate(() => document.fonts.ready); }
         await p.evaluate(install);
         await p.evaluate(() => document.querySelector('.cp-demo').scrollIntoView({ block:'start' }));
         if (designs.length){ const bt = p.locator('.cp-demo [aria-label$=" design"] button').nth(d); await bt.click(); }
@@ -420,7 +421,8 @@ async function runCombo(b, st, th, W, add, log){
         }
         if (HOVER && W === Math.max(...widths)){ await stopDemo(p); await p.waitForTimeout(300); await p.evaluate(() => document.querySelector('.cp-demo .stage-in').setAttribute('data-audit-root', ''));
           await hoverPass(p, '[data-audit-root]', { ...base, t:'end', menu:'' }, add); await menus(p, { ...base, t:'end' }, add); }
-      }
+        break;
+      } catch (e) { log(`${st} ${th} ${W} ${id} design ${d}${tries ? '' : ', trying again'}: ${e.message.split('\n')[0]}`); }
       log(`${st} ${th} ${W} ${id} ${designs.length ? designs.length + ' designs' : ''}`);
     } catch (e) { log(`${st} ${th} ${W} ${id}: ${e.message.split('\n')[0]}`); }
   }
@@ -445,12 +447,33 @@ const onScale = v => { const m = String(v).match(/-?[\d.]+/g); return !m || m.ev
 function tables(){
   const out = {};
   for (const [bucket, B] of Object.entries(T)) for (const [sth, S] of Object.entries(B)) for (const [cat, C] of Object.entries(S)) for (const [kind, K] of Object.entries(C)) for (const [prop, P] of Object.entries(K)){
-    const vals = Object.entries(P).map(([value, v]) => ({ value, count:v.n.size, components:[...v.comps.keys()].sort(), where:Object.fromEntries([...v.comps].map(([c, m]) => [c, [...m.keys()]])), example:v.ex })).sort((a, b) => b.count - a.count || b.components.length - a.components.length);
-    const comps = new Set(vals.flatMap(v => v.components.map(c => c.replace(/ \(.*\)$/, ''))));
-    vals.forEach(v => { const cs = new Set(v.components.map(c => c.replace(/ \(.*\)$/, ''))); v.flags = []; if (cs.size <= 2 && vals.length > 1 && comps.size > 2) v.flags.push('one-off'); if (SPACING.has(prop) && !onScale(v.value)) v.flags.push('off 4px scale'); });
-    (((out[bucket] = out[bucket] || {})[sth] = out[bucket][sth] || {})[cat] = out[bucket][sth][cat] || {})[`${kind} · ${prop}`] = vals;
+    const vals = Object.entries(P).map(([value, v]) => { const counts = {}; v.n.forEach(k => { const [id, design] = k.split('|'), c = design ? `${id} (${design})` : id; counts[c] = (counts[c] || 0) + 1; });
+      return { value, count:v.n.size, counts, components:[...v.comps.keys()].sort(), where:Object.fromEntries([...v.comps].map(([c, m]) => [c, [...m.keys()]])), example:v.ex }; });
+    (((out[bucket] = out[bucket] || {})[sth] = out[bucket][sth] || {})[cat] = out[bucket][sth][cat] || {})[`${kind} · ${prop}`] = flag(prop, vals);
   }
   return out;
+}
+// most used first, and the flags: a one-off (one or two components, where more use the same thing) and spacing off the 4px scale
+function flag(prop, vals){
+  vals.sort((a, b) => b.count - a.count || b.components.length - a.components.length);
+  const comps = new Set(vals.flatMap(v => v.components.map(c => c.replace(/ \(.*\)$/, ''))));
+  vals.forEach(v => { const cs = new Set(v.components.map(c => c.replace(/ \(.*\)$/, ''))); v.flags = []; if (cs.size <= 2 && vals.length > 1 && comps.size > 2) v.flags.push('one-off'); if (SPACING.has(prop) && !onScale(v.value)) v.flags.push('off 4px scale'); });
+  return vals;
+}
+// reports merged: each later report replaces the cards it measured (so a rerun of the changed cards updates a full run)
+function merge(list){
+  const R = JSON.parse(JSON.stringify(list[0]));
+  for (const r of list.slice(1)){ const cover = new Set(r.meta.ids), mine = c => cover.has(c.replace(/ \(.*\)$/, ''));
+    for (const bucket of ['main', 'showcase']){ const B = R[bucket] = R[bucket] || {};
+      for (const S of Object.values(B)) for (const C of Object.values(S)) for (const [kp, vals] of Object.entries(C)){
+        C[kp] = vals.map(v => { for (const c of v.components.filter(mine)){ v.count -= (v.counts || {})[c] || 0; delete v.where[c]; if (v.counts) delete v.counts[c]; } v.components = v.components.filter(c => !mine(c)); if (v.example && cover.has(v.example.id)) v.example = null; return v; }).filter(v => v.components.length); }
+      for (const [sth, S] of Object.entries(r[bucket] || {})) for (const [cat, C] of Object.entries(S)) for (const [kp, vals] of Object.entries(C)){
+        const into = ((B[sth] = B[sth] || {})[cat] = B[sth][cat] || {})[kp] = (B[sth][cat] || {})[kp] || [];
+        for (const v of vals){ const o = into.find(x => x.value === v.value); if (!o){ into.push(JSON.parse(JSON.stringify(v))); continue; }
+          o.count += v.count; o.counts = Object.assign(o.counts || {}, v.counts); Object.assign(o.where, v.where); o.components = [...new Set(o.components.concat(v.components))].sort(); o.example = o.example || v.example; } } }
+    R.meta.ids = [...new Set(R.meta.ids.concat(r.meta.ids))]; }
+  for (const bucket of ['main', 'showcase']) for (const S of Object.values(R[bucket] || {})) for (const C of Object.values(S)) for (const [kp, vals] of Object.entries(C)){ const prop = kp.split(' · ').pop(); C[kp] = flag(prop, vals); if (!C[kp].length) delete C[kp]; }
+  return R;
 }
 // the spec, and every value off it, with what it would become
 const SPEC = process.env.SPEC ? JSON.parse(fs.readFileSync(process.env.SPEC, 'utf8')) : null;
@@ -496,7 +519,7 @@ function markdown(R){
 }
 
 (async () => {
-  if (process.env.FROM){ const R = JSON.parse(fs.readFileSync(process.env.FROM, 'utf8')); R.offspec = offSpec(R); fs.mkdirSync(OUT, { recursive:true });
+  if (process.env.FROM){ const R = merge(process.env.FROM.split(',').map(f => JSON.parse(fs.readFileSync(f, 'utf8')))); R.offspec = offSpec(R); fs.mkdirSync(OUT, { recursive:true });
     fs.writeFileSync(path.join(OUT, 'report.json'), JSON.stringify(R)); fs.writeFileSync(path.join(OUT, 'report.md'), markdown(R)); console.log(`checked ${process.env.FROM} against ${process.env.SPEC || 'no spec'}`); return; }
   const b = await chromium.launch();
   const combos = []; for (const st of styles) for (const th of themes) for (const W of widths) combos.push([st, th, W]);
