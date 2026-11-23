@@ -58,6 +58,9 @@ every session and every agent.
 - Greys: one neutral scale for the site chrome and Soft (no blue-tinted greys anywhere). Blueprint keeps its warm greys
   as their own named set.
 - Primary buttons are `.pill.primary` (on the accent). There are no ink buttons for now.
+- A secondary action on a white card is the white outlined button (`.pill.line`: white with a half-strength grey edge) in Soft
+  and Blueprint, never the grey filled `.pill.soft`, which reads as pressed or disabled on white (owner, 23 Nov). Clean keeps
+  its own flat secondary. The Buttons demo still shows `.pill.soft` as one of the styles.
 - Accents have roles: `--accent` fills, `--accent-fg` text (4.5:1), `--accent-mark` lines, rings and chart marks (3:1),
   `--accent-bg` / `--sel` tints. Charts follow the accent.
 - Every colour pairing must pass a contrast check before it ships: text 4.5:1 (WCAG 2) and APCA Lc 60 or more for
