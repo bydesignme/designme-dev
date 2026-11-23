@@ -8727,6 +8727,10 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 :root[data-style="clean"] .flm-ch .x{width:28px;border-radius:var(--r-pill)}
 :root[data-style="clean"] .flm-pop{padding:6px;border-radius:var(--r-card)}
 :root[data-style="clean"] .flm-pop .mi{border-radius:calc(var(--r-card) - 6px)}
+:root[data-style="clean"] .flm-r:hover{background:var(--row)}
+/* the theme switch in the account menu is a row with a switch: its switch says it is on, so the row itself keeps no fill and
+   takes the one hover like the rows round it */
+:root[data-style="clean"] .pfm-pop.pop .pfm-th[aria-checked="true"]{background:transparent}
 /* ---------- Number field ---------- */
 /* a number you can type or step: minus and plus at the ends of the field, a unit beside the value, and a hint under it that
    gives the range, or says what changed when a typed value was rounded to the step or kept inside the range */
@@ -10375,7 +10379,9 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 :root[data-style="clean"] :is(.seg2 .knob,.sgc-seg .sgc-k){background:var(--knob);box-shadow:var(--knob-shadow);transition:left var(--t) var(--ease),width var(--t) var(--ease)}
 :root[data-style="clean"] :is(.seg2,.sgc-seg) button{color:var(--muted);font-weight:500;transition:color var(--t-fast) var(--ease),background-color var(--t-fast) var(--ease)}
 /* a segment that is not picked takes the one hover under the pointer, a pill in its own shape (owner, 21 Nov) */
-:root[data-style="clean"] :is(.seg2,.sgc-seg) button:not([aria-pressed="true"],[aria-selected="true"],[aria-checked="true"],[disabled]):hover{background:var(--row);color:var(--fg)}
+:root[data-style="clean"] :is(.seg2,.sgc-seg,.asx-steps,.asx-tb-tabs) :is(button,.asx-tb-t):not([aria-pressed="true"],[aria-selected="true"],[aria-checked="true"],[disabled]):hover{background:var(--row);color:var(--fg)}
+:root[data-style="clean"] .asx-steps button{border-radius:var(--r-pill)}
+:root[data-style="clean"] :is(.asx-steps button,.asx-tb-t){transition:color var(--t-fast) var(--ease),background-color var(--t-fast) var(--ease)}
 :root[data-style="clean"] :is(.seg2 button[aria-pressed="true"],.sgc-seg button:is(:hover,[aria-selected="true"],[aria-checked="true"])){color:var(--fg)}
 /* toggles: ink when on (a switcher is chrome), a knob with a hairline, and a soft inner shadow in the track */
 :root[data-style="clean"] .toggle[aria-checked="true"]{background:var(--btn-2);box-shadow:inset 0 0 0 1px var(--btn-2),inset 0 2px 4px -1px rgba(0,0,0,.3)}
@@ -22511,6 +22517,8 @@ DM.def('filter-menu', (r, c) => {
     date:{ l:'Updated', ic:'cal', ops:['within', 'older than'], o:[{ v:1, l:'Past day', c:'1 day' }, { v:7, l:'Past 7 days', c:'7 days' }, { v:30, l:'Past 30 days', c:'30 days' }], test:(t, v) => t.a < v }
   };
   const tr = $('.flm-tr', r), pop = $('.flm-pop', r), l1 = $('.flm-l1', r), l2 = $('.flm-l2', r), chips = $('.flm-chips', r), ct = $('.flm-ct', r), clr = $('.flm-clr', r), shell = $('.flm-list', r);
+  // Clean's one hover glides from row to row
+  c.offs.push(hoverGlide(shell, '.flm-r'));
   // the list grows and shrinks with what matches, eased (grow()), and keeps no room for rows to come; its rows go in grow()'s
   // wrapper
   c.offs.push(grow(shell)); const list = $('.dm-grow', shell);

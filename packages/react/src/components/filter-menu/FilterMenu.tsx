@@ -7,7 +7,7 @@ import { avatarInk, freshText, reflowPace, Swap, Tip, useGrow, useMounted, useRe
 import { usePopover } from '../../lib/popover';
 import '../../designme.css';
 // its menus' rows glide in Clean
-import '../../lib/glide';
+import { useHoverGlide } from '../../lib/glide';
 import './filter-menu.css';
 
 /** One value a field can be filtered by */
@@ -102,6 +102,8 @@ export function FilterMenu({
   useReflow(root, '.dm-flm-list .dm-grow > [data-key]');
   // the list grows and shrinks with what matches, eased, and keeps no room for rows to come
   const [listBox, listIn] = useGrow();
+  // Clean's one hover glides from row to row
+  useHoverGlide(listBox, '.dm-flm-r');
   const mounted = useMounted();
 
   const fieldOf = (k: string) => fields.find(f => f.key === k);
