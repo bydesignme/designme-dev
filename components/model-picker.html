@@ -185,7 +185,8 @@
 .mpk-hd span{text-align:center}
 .mpk-o{width:100%;padding:var(--dm-s-2) 10px;border-radius:var(--dm-r-in);text-align:left;font-size:13px;transition:background .16s}
 @media (hover:hover) and (pointer:fine){.mpk-o:hover{background:var(--dm-row)}}
-.mpk-o[aria-checked="true"]{background:var(--dm-sel)}
+/* (the picked model: the accent's tint, a step stronger than the selection wash so it shows on the card) */
+.mpk-o[aria-checked="true"]{background:var(--dm-accent-bg)}
 .mpk-o[aria-checked="true"] .d{color:var(--dm-fg2)}
 .mpk-o:focus-visible{outline:2px solid var(--dm-focus);outline-offset:-2px}
 .mpk-o .t{display:flex;flex-direction:column;min-width:0}
@@ -210,8 +211,11 @@
 .mpk-sgt{grid-area:1/2;margin:0;font-size:12.5px;line-height:18px;color:var(--dm-fg)}
 .mpk-sga{grid-area:2/1/3/3;display:flex;justify-content:flex-end;flex-wrap:wrap;gap:6px}
 /* on the tinted notice the secondary button is white, not grey */
-.mpk-sg .pill.ghost{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-on-tint-btn)}
-@media (hover:hover) and (pointer:fine){.mpk-sg .pill.ghost:hover{box-shadow:var(--dm-on-tint-btn-h)}}
+.mpk-sg .pill.line{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-on-tint-btn)}
+@media (hover:hover) and (pointer:fine){.mpk-sg .pill.line:hover{box-shadow:var(--dm-on-tint-btn-h)}}
+/* (Blueprint draws the white button's hairline inside it, so it is as tall as the warning button beside it) */
+:root:not([data-style="soft"],[data-style="clean"]) .mpk-sg .pill.line:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
+@media (hover:hover) and (pointer:fine){:root:not([data-style="soft"],[data-style="clean"]) .mpk-sg .pill.line:hover:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:inset 0 0 0 1px var(--dm-line)}}
 .mpk-th{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--dm-s-2) var(--dm-s-3);padding:var(--dm-s-4) 10px 10px;margin:6px 0 0;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 /* Thinking sits on the rows' columns: its icon centred in the tiles' column, its words on the names' column */
 .mpk-thh{display:grid;grid-template-columns:20px minmax(0,1fr);align-items:center;column-gap:10px;min-width:0;font-size:13px}
@@ -220,9 +224,9 @@
 /* (the label and its detail: one under the other here; side by side on one baseline in Clean) */
 .mpk-tw{display:contents}
 .mpk-thd{grid-column:2;font-size:12px}
-.mpk-eb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--dm-s-2) 0 10px;border-radius:var(--dm-r-pill);background:var(--dm-chip);font-size:13px;transition:background .16s}
-.mpk-eb[aria-expanded="true"]{background:var(--dm-hover)}
-@media (hover:hover) and (pointer:fine){.mpk-eb:hover{background:var(--dm-hover)}}
+.mpk-eb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--dm-s-2) 0 10px;border-radius:var(--dm-r-pill);background:var(--dm-chip-fill);font-size:13px;transition:background .16s}
+.mpk-eb[aria-expanded="true"]{background:var(--dm-chip-fill-h)}
+@media (hover:hover) and (pointer:fine){.mpk-eb:hover{background:var(--dm-chip-fill-h)}}
 .mpk-eb>svg{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
 .mpk-eb[aria-expanded="true"]>svg{transform:rotate(180deg)}
 .mpk-pop{min-width:220px}
@@ -278,9 +282,9 @@
    in their tile column, its words on the names' column and its buttons ending where the meters end */
 :root[data-style="clean"] .mpk-sg,:root [data-style="clean"] .mpk-sg,:root [data-style="clean"].mpk-sg{margin:4px 8px 8px;padding:12px 8px;border-radius:calc(var(--dm-r-card) - 8px);gap:12px 10px}
 :root[data-style="clean"] .mpk-sga,:root [data-style="clean"] .mpk-sga,:root [data-style="clean"].mpk-sga{gap:8px}
-:root[data-style="clean"] .mpk-sg .pill.ghost,:root [data-style="clean"] .mpk-sg .pill.ghost,:root [data-style="clean"].mpk-sg .pill.ghost{color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .mpk-sg .pill.ghost:hover,:root [data-style="clean"] .mpk-sg .pill.ghost:hover,:root [data-style="clean"].mpk-sg .pill.ghost:hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
-:root[data-style="clean"] .mpk-sg .pill.ghost:active,:root [data-style="clean"] .mpk-sg .pill.ghost:active,:root [data-style="clean"].mpk-sg .pill.ghost:active{box-shadow:var(--dm-btn2-press)}
+:root[data-style="clean"] .mpk-sg .pill.line,:root [data-style="clean"] .mpk-sg .pill.line,:root [data-style="clean"].mpk-sg .pill.line{color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .mpk-sg .pill.line:hover,:root [data-style="clean"] .mpk-sg .pill.line:hover,:root [data-style="clean"].mpk-sg .pill.line:hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
+:root[data-style="clean"] .mpk-sg .pill.line:active,:root [data-style="clean"] .mpk-sg .pill.line:active,:root [data-style="clean"].mpk-sg .pill.line:active{box-shadow:var(--dm-btn2-press)}
 /* the foot strip: thinking on one line, 16px in, and its select a secondary pill 16px from the strip's sides, top and bottom
    (owner, 23 Nov: 8px above and below looked jammed into the corner) */
 :root[data-style="clean"] .mpk-th,:root [data-style="clean"] .mpk-th,:root [data-style="clean"].mpk-th{flex-wrap:nowrap;gap:12px;margin:0;padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
@@ -334,7 +338,7 @@
       <div class="fold mpk-fold"><div><div class="mpk-p panel">
         <div class="mpk-hd" aria-hidden="true"><span></span><span></span><span>Speed</span><span>Quality</span><span>Cost</span></div>
         <div class="mpk-list" role="radiogroup" aria-label="Model"></div>
-        <div class="fold shut mpk-sgf"><div><div class="mpk-sg" aria-live="polite"><svg class="mpk-sgi" viewBox="0 0 24 24" aria-hidden="true"><path class="a" d="M12 3.6 2.6 19.9h18.8z"/><path class="b" d="M12 9.6v4.4M12 17v.01"/></svg><p class="mpk-sgt"></p><div class="mpk-sga"><button class="pill ghost sm mpk-wait">Wait for Opus</button><button class="pill warn sm mpk-use">Use Sonnet on high</button></div></div></div></div>
+        <div class="fold shut mpk-sgf"><div><div class="mpk-sg" aria-live="polite"><svg class="mpk-sgi" viewBox="0 0 24 24" aria-hidden="true"><path class="a" d="M12 3.6 2.6 19.9h18.8z"/><path class="b" d="M12 9.6v4.4M12 17v.01"/></svg><p class="mpk-sgt"></p><div class="mpk-sga"><button class="pill line sm mpk-wait">Wait for Opus</button><button class="pill warn sm mpk-use">Use Sonnet on high</button></div></div></div></div>
         <div class="mpk-th">
           <div class="mpk-thh"><svg class="i xs"><use href="#i-brain"/></svg><span class="mpk-tw"><b>Thinking</b><span class="muted mpk-thd"></span></span></div>
           <button class="mpk-eb" aria-haspopup="menu" aria-expanded="false" aria-label="Thinking effort" data-pop=".mpk-pop" data-pop-align="end"><span class="mpk-ev">Medium</span><svg class="i xs"><use href="#i-chev-d"/></svg></button>
@@ -608,7 +612,7 @@ export function ModelPicker({
               &lt;svg className=&quot;dm-mpk-sgi&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path className=&quot;dm-a&quot; d=&quot;M12 3.6 2.6 19.9h18.8z&quot; /&gt;&lt;path className=&quot;dm-b&quot; d=&quot;M12 9.6v4.4M12 17v.01&quot; /&gt;&lt;/svg&gt;
               &lt;p className=&quot;dm-mpk-sgt&quot;&gt;{suggestion?.text}&lt;/p&gt;
               &lt;div className=&quot;dm-mpk-sga&quot;&gt;
-                {suggestion?.actions.map((a, i, all) =&gt; &lt;button key={a.label} type=&quot;button&quot; className={cx(&#39;dm-pill dm-sm&#39;, i === all.length - 1 ? &#39;dm-warn&#39; : &#39;dm-ghost&#39;)} onClick={a.onClick}&gt;{a.label}&lt;/button&gt;)}
+                {suggestion?.actions.map((a, i, all) =&gt; &lt;button key={a.label} type=&quot;button&quot; className={cx(&#39;dm-pill dm-sm&#39;, i === all.length - 1 ? &#39;dm-warn&#39; : &#39;dm-line&#39;)} onClick={a.onClick}&gt;{a.label}&lt;/button&gt;)}
               &lt;/div&gt;
             &lt;/div&gt;
           &lt;/Fold&gt;
@@ -631,7 +635,7 @@ export function ModelPicker({
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>model-picker.css<span class="l">React · 152 lines</span></summary><pre class="cp-pre" data-name="model-picker.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>model-picker.css<span class="l">React · 156 lines</span></summary><pre class="cp-pre" data-name="model-picker.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Model picker ---------- */
 /* a trigger that names the model and how hard it thinks, over the open list: speed, quality and cost as five-step meters
    with the real numbers on hover, and the thinking effort under them as a small dropdown */
@@ -655,7 +659,8 @@ export function ModelPicker({
 .dm-mpk-hd span{text-align:center}
 .dm-mpk-o{width:100%;padding:var(--dm-s-2) 10px;border-radius:var(--dm-r-in);text-align:left;font-size:13px;transition:background .16s}
 @media (hover:hover) and (pointer:fine){.dm-mpk-o:hover{background:var(--dm-row)}}
-.dm-mpk-o[aria-checked=&quot;true&quot;]{background:var(--dm-sel)}
+/* (the picked model: the accent&#39;s tint, a step stronger than the selection wash so it shows on the card) */
+.dm-mpk-o[aria-checked=&quot;true&quot;]{background:var(--dm-accent-bg)}
 .dm-mpk-o[aria-checked=&quot;true&quot;] .dm-d{color:var(--dm-fg2)}
 .dm-mpk-o:focus-visible{outline:2px solid var(--dm-focus);outline-offset:-2px}
 .dm-mpk-o .dm-t{display:flex;flex-direction:column;min-width:0}
@@ -680,8 +685,11 @@ export function ModelPicker({
 .dm-mpk-sgt{grid-area:1/2;margin:0;font-size:12.5px;line-height:18px;color:var(--dm-fg)}
 .dm-mpk-sga{grid-area:2/1/3/3;display:flex;justify-content:flex-end;flex-wrap:wrap;gap:6px}
 /* on the tinted notice the secondary button is white, not grey */
-.dm-mpk-sg .dm-pill.dm-ghost{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-on-tint-btn)}
-@media (hover:hover) and (pointer:fine){.dm-mpk-sg .dm-pill.dm-ghost:hover{box-shadow:var(--dm-on-tint-btn-h)}}
+.dm-mpk-sg .dm-pill.dm-line{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-on-tint-btn)}
+@media (hover:hover) and (pointer:fine){.dm-mpk-sg .dm-pill.dm-line:hover{box-shadow:var(--dm-on-tint-btn-h)}}
+/* (Blueprint draws the white button&#39;s hairline inside it, so it is as tall as the warning button beside it) */
+:root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .dm-mpk-sg .dm-pill.dm-line:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
+@media (hover:hover) and (pointer:fine){:root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .dm-mpk-sg .dm-pill.dm-line:hover:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *)){box-shadow:inset 0 0 0 1px var(--dm-line)}}
 .dm-mpk-th{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--dm-s-2) var(--dm-s-3);padding:var(--dm-s-4) 10px 10px;margin:6px 0 0;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 /* Thinking sits on the rows&#39; columns: its icon centred in the tiles&#39; column, its words on the names&#39; column */
 .dm-mpk-thh{display:grid;grid-template-columns:20px minmax(0,1fr);align-items:center;column-gap:10px;min-width:0;font-size:13px}
@@ -690,9 +698,9 @@ export function ModelPicker({
 /* (the label and its detail: one under the other here; side by side on one baseline in Clean) */
 .dm-mpk-tw{display:contents}
 .dm-mpk-thd{grid-column:2;font-size:12px}
-.dm-mpk-eb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--dm-s-2) 0 10px;border-radius:var(--dm-r-pill);background:var(--dm-chip);font-size:13px;transition:background .16s}
-.dm-mpk-eb[aria-expanded=&quot;true&quot;]{background:var(--dm-hover)}
-@media (hover:hover) and (pointer:fine){.dm-mpk-eb:hover{background:var(--dm-hover)}}
+.dm-mpk-eb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--dm-s-2) 0 10px;border-radius:var(--dm-r-pill);background:var(--dm-chip-fill);font-size:13px;transition:background .16s}
+.dm-mpk-eb[aria-expanded=&quot;true&quot;]{background:var(--dm-chip-fill-h)}
+@media (hover:hover) and (pointer:fine){.dm-mpk-eb:hover{background:var(--dm-chip-fill-h)}}
 .dm-mpk-eb&gt;svg{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
 .dm-mpk-eb[aria-expanded=&quot;true&quot;]&gt;svg{transform:rotate(180deg)}
 .dm-mpk-pop{min-width:220px}
@@ -748,9 +756,9 @@ export function ModelPicker({
    in their tile column, its words on the names&#39; column and its buttons ending where the meters end */
 :root[data-style=&quot;clean&quot;] .dm-mpk-sg,:root [data-style=&quot;clean&quot;] .dm-mpk-sg,:root [data-style=&quot;clean&quot;].dm-mpk-sg{margin:4px 8px 8px;padding:12px 8px;border-radius:calc(var(--dm-r-card) - 8px);gap:12px 10px}
 :root[data-style=&quot;clean&quot;] .dm-mpk-sga,:root [data-style=&quot;clean&quot;] .dm-mpk-sga,:root [data-style=&quot;clean&quot;].dm-mpk-sga{gap:8px}
-:root[data-style=&quot;clean&quot;] .dm-mpk-sg .dm-pill.dm-ghost,:root [data-style=&quot;clean&quot;] .dm-mpk-sg .dm-pill.dm-ghost,:root [data-style=&quot;clean&quot;].dm-mpk-sg .dm-pill.dm-ghost{color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
-@media (hover:hover) and (pointer:fine){:root[data-style=&quot;clean&quot;] .dm-mpk-sg .dm-pill.dm-ghost:hover,:root [data-style=&quot;clean&quot;] .dm-mpk-sg .dm-pill.dm-ghost:hover,:root [data-style=&quot;clean&quot;].dm-mpk-sg .dm-pill.dm-ghost:hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
-:root[data-style=&quot;clean&quot;] .dm-mpk-sg .dm-pill.dm-ghost:active,:root [data-style=&quot;clean&quot;] .dm-mpk-sg .dm-pill.dm-ghost:active,:root [data-style=&quot;clean&quot;].dm-mpk-sg .dm-pill.dm-ghost:active{box-shadow:var(--dm-btn2-press)}
+:root[data-style=&quot;clean&quot;] .dm-mpk-sg .dm-pill.dm-line,:root [data-style=&quot;clean&quot;] .dm-mpk-sg .dm-pill.dm-line,:root [data-style=&quot;clean&quot;].dm-mpk-sg .dm-pill.dm-line{color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
+@media (hover:hover) and (pointer:fine){:root[data-style=&quot;clean&quot;] .dm-mpk-sg .dm-pill.dm-line:hover,:root [data-style=&quot;clean&quot;] .dm-mpk-sg .dm-pill.dm-line:hover,:root [data-style=&quot;clean&quot;].dm-mpk-sg .dm-pill.dm-line:hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
+:root[data-style=&quot;clean&quot;] .dm-mpk-sg .dm-pill.dm-line:active,:root [data-style=&quot;clean&quot;] .dm-mpk-sg .dm-pill.dm-line:active,:root [data-style=&quot;clean&quot;].dm-mpk-sg .dm-pill.dm-line:active{box-shadow:var(--dm-btn2-press)}
 /* the foot strip: thinking on one line, 16px in, and its select a secondary pill 16px from the strip&#39;s sides, top and bottom
    (owner, 23 Nov: 8px above and below looked jammed into the corner) */
 :root[data-style=&quot;clean&quot;] .dm-mpk-th,:root [data-style=&quot;clean&quot;] .dm-mpk-th,:root [data-style=&quot;clean&quot;].dm-mpk-th{flex-wrap:nowrap;gap:12px;margin:0;padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
@@ -804,7 +812,7 @@ const { class: className, ...rest } = Astro.props;
   &lt;div class=&quot;fold mpk-fold&quot;&gt;&lt;div&gt;&lt;div class=&quot;mpk-p panel&quot;&gt;
     &lt;div class=&quot;mpk-hd&quot; aria-hidden=&quot;true&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;span&gt;&lt;/span&gt;&lt;span&gt;Speed&lt;/span&gt;&lt;span&gt;Quality&lt;/span&gt;&lt;span&gt;Cost&lt;/span&gt;&lt;/div&gt;
     &lt;div class=&quot;mpk-list&quot; role=&quot;radiogroup&quot; aria-label=&quot;Model&quot;&gt;&lt;/div&gt;
-    &lt;div class=&quot;fold shut mpk-sgf&quot;&gt;&lt;div&gt;&lt;div class=&quot;mpk-sg&quot; aria-live=&quot;polite&quot;&gt;&lt;svg class=&quot;mpk-sgi&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path class=&quot;a&quot; d=&quot;M12 3.6 2.6 19.9h18.8z&quot;/&gt;&lt;path class=&quot;b&quot; d=&quot;M12 9.6v4.4M12 17v.01&quot;/&gt;&lt;/svg&gt;&lt;p class=&quot;mpk-sgt&quot;&gt;&lt;/p&gt;&lt;div class=&quot;mpk-sga&quot;&gt;&lt;button class=&quot;pill ghost sm mpk-wait&quot;&gt;Wait for Opus&lt;/button&gt;&lt;button class=&quot;pill warn sm mpk-use&quot;&gt;Use Sonnet on high&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
+    &lt;div class=&quot;fold shut mpk-sgf&quot;&gt;&lt;div&gt;&lt;div class=&quot;mpk-sg&quot; aria-live=&quot;polite&quot;&gt;&lt;svg class=&quot;mpk-sgi&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path class=&quot;a&quot; d=&quot;M12 3.6 2.6 19.9h18.8z&quot;/&gt;&lt;path class=&quot;b&quot; d=&quot;M12 9.6v4.4M12 17v.01&quot;/&gt;&lt;/svg&gt;&lt;p class=&quot;mpk-sgt&quot;&gt;&lt;/p&gt;&lt;div class=&quot;mpk-sga&quot;&gt;&lt;button class=&quot;pill line sm mpk-wait&quot;&gt;Wait for Opus&lt;/button&gt;&lt;button class=&quot;pill warn sm mpk-use&quot;&gt;Use Sonnet on high&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
     &lt;div class=&quot;mpk-th&quot;&gt;
       &lt;div class=&quot;mpk-thh&quot;&gt;&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-brain&quot;/&gt;&lt;/svg&gt;&lt;span class=&quot;mpk-tw&quot;&gt;&lt;b&gt;Thinking&lt;/b&gt;&lt;span class=&quot;muted mpk-thd&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;
       &lt;button class=&quot;mpk-eb&quot; aria-haspopup=&quot;menu&quot; aria-expanded=&quot;false&quot; aria-label=&quot;Thinking effort&quot; data-pop=&quot;.mpk-pop&quot; data-pop-align=&quot;end&quot;&gt;&lt;span class=&quot;mpk-ev&quot;&gt;Medium&lt;/span&gt;&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-chev-d&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;
@@ -830,7 +838,7 @@ const { class: className, ...rest } = Astro.props;
       &lt;div class=&quot;fold mpk-fold&quot;&gt;&lt;div&gt;&lt;div class=&quot;mpk-p panel&quot;&gt;
         &lt;div class=&quot;mpk-hd&quot; aria-hidden=&quot;true&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;span&gt;&lt;/span&gt;&lt;span&gt;Speed&lt;/span&gt;&lt;span&gt;Quality&lt;/span&gt;&lt;span&gt;Cost&lt;/span&gt;&lt;/div&gt;
         &lt;div class=&quot;mpk-list&quot; role=&quot;radiogroup&quot; aria-label=&quot;Model&quot;&gt;&lt;/div&gt;
-        &lt;div class=&quot;fold shut mpk-sgf&quot;&gt;&lt;div&gt;&lt;div class=&quot;mpk-sg&quot; aria-live=&quot;polite&quot;&gt;&lt;svg class=&quot;mpk-sgi&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path class=&quot;a&quot; d=&quot;M12 3.6 2.6 19.9h18.8z&quot;/&gt;&lt;path class=&quot;b&quot; d=&quot;M12 9.6v4.4M12 17v.01&quot;/&gt;&lt;/svg&gt;&lt;p class=&quot;mpk-sgt&quot;&gt;&lt;/p&gt;&lt;div class=&quot;mpk-sga&quot;&gt;&lt;button class=&quot;pill ghost sm mpk-wait&quot;&gt;Wait for Opus&lt;/button&gt;&lt;button class=&quot;pill warn sm mpk-use&quot;&gt;Use Sonnet on high&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
+        &lt;div class=&quot;fold shut mpk-sgf&quot;&gt;&lt;div&gt;&lt;div class=&quot;mpk-sg&quot; aria-live=&quot;polite&quot;&gt;&lt;svg class=&quot;mpk-sgi&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path class=&quot;a&quot; d=&quot;M12 3.6 2.6 19.9h18.8z&quot;/&gt;&lt;path class=&quot;b&quot; d=&quot;M12 9.6v4.4M12 17v.01&quot;/&gt;&lt;/svg&gt;&lt;p class=&quot;mpk-sgt&quot;&gt;&lt;/p&gt;&lt;div class=&quot;mpk-sga&quot;&gt;&lt;button class=&quot;pill line sm mpk-wait&quot;&gt;Wait for Opus&lt;/button&gt;&lt;button class=&quot;pill warn sm mpk-use&quot;&gt;Use Sonnet on high&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
         &lt;div class=&quot;mpk-th&quot;&gt;
           &lt;div class=&quot;mpk-thh&quot;&gt;&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-brain&quot;/&gt;&lt;/svg&gt;&lt;span class=&quot;mpk-tw&quot;&gt;&lt;b&gt;Thinking&lt;/b&gt;&lt;span class=&quot;muted mpk-thd&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;
           &lt;button class=&quot;mpk-eb&quot; aria-haspopup=&quot;menu&quot; aria-expanded=&quot;false&quot; aria-label=&quot;Thinking effort&quot; data-pop=&quot;.mpk-pop&quot; data-pop-align=&quot;end&quot;&gt;&lt;span class=&quot;mpk-ev&quot;&gt;Medium&lt;/span&gt;&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-chev-d&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;
@@ -846,7 +854,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>model-picker.css<span class="l">HTML · 151 lines</span></summary><pre class="cp-pre" data-name="model-picker.css"><code>/* ---------- Model picker ---------- */
+</code></pre></details><details class="cp-file"><summary>model-picker.css<span class="l">HTML · 155 lines</span></summary><pre class="cp-pre" data-name="model-picker.css"><code>/* ---------- Model picker ---------- */
 /* a trigger that names the model and how hard it thinks, over the open list: speed, quality and cost as five-step meters
    with the real numbers on hover, and the thinking effort under them as a small dropdown */
 .mpk{position:relative;display:flex;flex-direction:column;gap:var(--dm-s-2);width:100%;max-width:420px;margin:0 auto}
@@ -869,7 +877,8 @@ const { class: className, ...rest } = Astro.props;
 .mpk-hd span{text-align:center}
 .mpk-o{width:100%;padding:var(--dm-s-2) 10px;border-radius:var(--dm-r-in);text-align:left;font-size:13px;transition:background .16s}
 @media (hover:hover) and (pointer:fine){.mpk-o:hover{background:var(--dm-row)}}
-.mpk-o[aria-checked=&quot;true&quot;]{background:var(--dm-sel)}
+/* (the picked model: the accent&#39;s tint, a step stronger than the selection wash so it shows on the card) */
+.mpk-o[aria-checked=&quot;true&quot;]{background:var(--dm-accent-bg)}
 .mpk-o[aria-checked=&quot;true&quot;] .d{color:var(--dm-fg2)}
 .mpk-o:focus-visible{outline:2px solid var(--dm-focus);outline-offset:-2px}
 .mpk-o .t{display:flex;flex-direction:column;min-width:0}
@@ -894,8 +903,11 @@ const { class: className, ...rest } = Astro.props;
 .mpk-sgt{grid-area:1/2;margin:0;font-size:12.5px;line-height:18px;color:var(--dm-fg)}
 .mpk-sga{grid-area:2/1/3/3;display:flex;justify-content:flex-end;flex-wrap:wrap;gap:6px}
 /* on the tinted notice the secondary button is white, not grey */
-.mpk-sg .pill.ghost{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-on-tint-btn)}
-@media (hover:hover) and (pointer:fine){.mpk-sg .pill.ghost:hover{box-shadow:var(--dm-on-tint-btn-h)}}
+.mpk-sg .pill.line{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-on-tint-btn)}
+@media (hover:hover) and (pointer:fine){.mpk-sg .pill.line:hover{box-shadow:var(--dm-on-tint-btn-h)}}
+/* (Blueprint draws the white button&#39;s hairline inside it, so it is as tall as the warning button beside it) */
+:root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .mpk-sg .pill.line:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
+@media (hover:hover) and (pointer:fine){:root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .mpk-sg .pill.line:hover:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *)){box-shadow:inset 0 0 0 1px var(--dm-line)}}
 .mpk-th{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--dm-s-2) var(--dm-s-3);padding:var(--dm-s-4) 10px 10px;margin:6px 0 0;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 /* Thinking sits on the rows&#39; columns: its icon centred in the tiles&#39; column, its words on the names&#39; column */
 .mpk-thh{display:grid;grid-template-columns:20px minmax(0,1fr);align-items:center;column-gap:10px;min-width:0;font-size:13px}
@@ -904,9 +916,9 @@ const { class: className, ...rest } = Astro.props;
 /* (the label and its detail: one under the other here; side by side on one baseline in Clean) */
 .mpk-tw{display:contents}
 .mpk-thd{grid-column:2;font-size:12px}
-.mpk-eb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--dm-s-2) 0 10px;border-radius:var(--dm-r-pill);background:var(--dm-chip);font-size:13px;transition:background .16s}
-.mpk-eb[aria-expanded=&quot;true&quot;]{background:var(--dm-hover)}
-@media (hover:hover) and (pointer:fine){.mpk-eb:hover{background:var(--dm-hover)}}
+.mpk-eb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--dm-s-2) 0 10px;border-radius:var(--dm-r-pill);background:var(--dm-chip-fill);font-size:13px;transition:background .16s}
+.mpk-eb[aria-expanded=&quot;true&quot;]{background:var(--dm-chip-fill-h)}
+@media (hover:hover) and (pointer:fine){.mpk-eb:hover{background:var(--dm-chip-fill-h)}}
 .mpk-eb&gt;svg{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
 .mpk-eb[aria-expanded=&quot;true&quot;]&gt;svg{transform:rotate(180deg)}
 .mpk-pop{min-width:220px}
@@ -962,9 +974,9 @@ const { class: className, ...rest } = Astro.props;
    in their tile column, its words on the names&#39; column and its buttons ending where the meters end */
 :root[data-style=&quot;clean&quot;] .mpk-sg,:root [data-style=&quot;clean&quot;] .mpk-sg,:root [data-style=&quot;clean&quot;].mpk-sg{margin:4px 8px 8px;padding:12px 8px;border-radius:calc(var(--dm-r-card) - 8px);gap:12px 10px}
 :root[data-style=&quot;clean&quot;] .mpk-sga,:root [data-style=&quot;clean&quot;] .mpk-sga,:root [data-style=&quot;clean&quot;].mpk-sga{gap:8px}
-:root[data-style=&quot;clean&quot;] .mpk-sg .pill.ghost,:root [data-style=&quot;clean&quot;] .mpk-sg .pill.ghost,:root [data-style=&quot;clean&quot;].mpk-sg .pill.ghost{color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
-@media (hover:hover) and (pointer:fine){:root[data-style=&quot;clean&quot;] .mpk-sg .pill.ghost:hover,:root [data-style=&quot;clean&quot;] .mpk-sg .pill.ghost:hover,:root [data-style=&quot;clean&quot;].mpk-sg .pill.ghost:hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
-:root[data-style=&quot;clean&quot;] .mpk-sg .pill.ghost:active,:root [data-style=&quot;clean&quot;] .mpk-sg .pill.ghost:active,:root [data-style=&quot;clean&quot;].mpk-sg .pill.ghost:active{box-shadow:var(--dm-btn2-press)}
+:root[data-style=&quot;clean&quot;] .mpk-sg .pill.line,:root [data-style=&quot;clean&quot;] .mpk-sg .pill.line,:root [data-style=&quot;clean&quot;].mpk-sg .pill.line{color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
+@media (hover:hover) and (pointer:fine){:root[data-style=&quot;clean&quot;] .mpk-sg .pill.line:hover,:root [data-style=&quot;clean&quot;] .mpk-sg .pill.line:hover,:root [data-style=&quot;clean&quot;].mpk-sg .pill.line:hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
+:root[data-style=&quot;clean&quot;] .mpk-sg .pill.line:active,:root [data-style=&quot;clean&quot;] .mpk-sg .pill.line:active,:root [data-style=&quot;clean&quot;].mpk-sg .pill.line:active{box-shadow:var(--dm-btn2-press)}
 /* the foot strip: thinking on one line, 16px in, and its select a secondary pill 16px from the strip&#39;s sides, top and bottom
    (owner, 23 Nov: 8px above and below looked jammed into the corner) */
 :root[data-style=&quot;clean&quot;] .mpk-th,:root [data-style=&quot;clean&quot;] .mpk-th,:root [data-style=&quot;clean&quot;].mpk-th{flex-wrap:nowrap;gap:12px;margin:0;padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}

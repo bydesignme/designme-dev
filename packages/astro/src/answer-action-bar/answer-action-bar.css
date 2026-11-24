@@ -13,7 +13,8 @@
 /* nothing in the bar shrinks or swells on a click (owner, 18 Nov): a rated thumb only tilts */
 .aab-bar .ib:active{transform:none}
 :root[data-style="clean"] .aab-bar .ib:active,:root [data-style="clean"] .aab-bar .ib:active,:root [data-style="clean"].aab-bar .ib:active{transform:none}
-.aab-t .w{transition:background .16s,color .16s;border-radius:var(--dm-r-xs)}
+/* (the word being read is lit with small corners, so a short word's highlight stays a rounded box, not a near-circle) */
+.aab-t .w{transition:background .16s,color .16s;border-radius:calc(3px * var(--dm-rk))}
 .aab-t .w.in{animation:aabw .42s var(--dm-ease) both}
 @keyframes aabw{from{opacity:0;filter:blur(4px)}to{opacity:1;filter:none}}
 .aab-t.out{animation:aabo .32s var(--dm-ease) both}
@@ -34,13 +35,14 @@
 /* the version pager only takes room once there is a second version */
 .aab-pg{display:inline-flex;align-items:center;max-width:0;overflow:hidden;opacity:0;transition:max-width .42s var(--dm-ease),opacity .32s}
 .aab-pg.on{max-width:96px;opacity:1}
-.aab-pg .ib{width:24px;height:24px}
+/* (the versions' arrows are the bar's own 28px icon buttons) */
+.aab-pg .ib{width:28px;height:28px}
 .aab-n{font-size:12px;color:var(--dm-muted);min-width:32px;text-align:center}
 .aab-rd{display:inline-flex;align-items:center;height:28px;padding:0 7px;border-radius:var(--dm-r-pill);color:var(--dm-fg2);transition:background .16s,color .16s}
 @media (hover:hover) and (pointer:fine){.aab-rd:hover{background:var(--dm-row)}}
 .aab-rd .ic{display:grid;place-items:center;width:14px}
 .aab-rd[aria-pressed="true"]{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}
-.aab-rd.paused{background:var(--dm-chip);color:var(--dm-fg2)}
+.aab-rd.paused{background:var(--dm-chip-fill);color:var(--dm-fg2)}
 .aab-pr{width:0;height:3px;border-radius:var(--dm-r-tiny,2px);background:color-mix(in srgb,currentColor 22%,transparent);overflow:hidden;margin-left:0;transition:width .42s var(--dm-ease),margin .42s var(--dm-ease)}
 .aab-pr i{display:block;height:100%;width:0;background:currentColor;border-radius:inherit}
 .aab-tm{font-size:11.5px;max-width:0;overflow:hidden;white-space:nowrap;transition:max-width .42s var(--dm-ease),margin .42s var(--dm-ease)}
@@ -70,14 +72,16 @@
 :root[data-style="clean"] .aab-t .w.in,:root [data-style="clean"] .aab-t .w.in,:root [data-style="clean"].aab-t .w.in{animation-name:aabwc;animation-duration:var(--dm-t-slow)}
 :root[data-style="clean"] .aab-t.out,:root [data-style="clean"] .aab-t.out,:root [data-style="clean"].aab-t.out{animation-name:aaboc;animation-duration:var(--dm-t)}
 :root[data-style="clean"] .aab-bar .ib[aria-pressed="true"] svg,:root [data-style="clean"] .aab-bar .ib[aria-pressed="true"] svg,:root [data-style="clean"].aab-bar .ib[aria-pressed="true"] svg{transform:none}
-:root[data-style="clean"] .aab-t .w.rd,:root [data-style="clean"] .aab-t .w.rd,:root [data-style="clean"].aab-t .w.rd{background:var(--dm-hover);color:var(--dm-fg)}
+/* (the word being read is lit a step darker than the chip's next grey, so it shows on the stage) */
+:root[data-style="clean"] .aab-t .w.rd,:root [data-style="clean"] .aab-t .w.rd,:root [data-style="clean"].aab-t .w.rd{background:var(--dm-press);color:var(--dm-fg)}
 :root[data-style="clean"] .aab-bar .ib[aria-pressed="true"],:root [data-style="clean"] .aab-bar .ib[aria-pressed="true"],:root [data-style="clean"].aab-bar .ib[aria-pressed="true"]{background:var(--dm-row-on);color:var(--dm-fg)}
 :root[data-style="clean"] .aab-bar .ib[aria-pressed="true"] svg,:root [data-style="clean"] .aab-bar .ib[aria-pressed="true"] svg,:root [data-style="clean"].aab-bar .ib[aria-pressed="true"] svg{fill:currentColor}
 :root[data-style="clean"] .aab-rd[aria-pressed="true"],:root [data-style="clean"] .aab-rd[aria-pressed="true"],:root [data-style="clean"].aab-rd[aria-pressed="true"]{background:var(--dm-row-on);color:var(--dm-fg)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .aab-rd:hover,:root [data-style="clean"] .aab-rd:hover,:root [data-style="clean"].aab-rd:hover{background:var(--dm-row)}}
 :root[data-style="clean"] .aab-ch .chip.on,:root [data-style="clean"] .aab-ch .chip.on,:root [data-style="clean"].aab-ch .chip.on{background:var(--dm-btn-2);color:var(--dm-on-btn);box-shadow:inset 0 0 0 1px var(--dm-btn-2)}
-/* a reason not picked takes the one hover over its fill, easing over 220ms (owner, 21 Nov) */
-:root[data-style="clean"] .aab-ch .chip:not(.on),:root [data-style="clean"] .aab-ch .chip:not(.on),:root [data-style="clean"].aab-ch .chip:not(.on){background:var(--dm-chip)}
+/* a reason not picked takes the one hover over its fill, easing over 220ms (owner, 21 Nov); on the stage its grey is two steps
+   above the chip's own, so it shows there as a chip does on a card */
+:root[data-style="clean"] .aab-ch .chip:not(.on),:root [data-style="clean"] .aab-ch .chip:not(.on),:root [data-style="clean"].aab-ch .chip:not(.on){background:var(--dm-press)}
 :root[data-style="clean"] .aab-ch .chip,:root [data-style="clean"] .aab-ch .chip,:root [data-style="clean"].aab-ch .chip{transition:background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .aab-ch .chip:not(.on):hover,:root [data-style="clean"] .aab-ch .chip:not(.on):hover,:root [data-style="clean"].aab-ch .chip:not(.on):hover{background:var(--dm-chip);box-shadow:inset 0 0 0 99px var(--dm-row)}}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .aab-ch .chip:not(.on):hover,:root [data-style="clean"] .aab-ch .chip:not(.on):hover,:root [data-style="clean"].aab-ch .chip:not(.on):hover{background:var(--dm-press);box-shadow:inset 0 0 0 99px var(--dm-row)}}
 :root[data-style="clean"] .aab-st.ok svg,:root [data-style="clean"] .aab-st.ok svg,:root [data-style="clean"].aab-st.ok svg{color:var(--dm-ok-mark)}

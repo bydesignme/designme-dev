@@ -15,13 +15,17 @@
 .mmx-tab button{font-size:12px;height:26px;padding:0 9px}
 /* a narrow panel puts the filter on its own line under the title, from the content's left edge */
 @container mmx (max-width:330px){.mmx-h{display:grid;grid-template-columns:28px minmax(0,1fr)}.mmx-tab{grid-column:1/-1;justify-self:start}}
-.mmx-list{display:flex;flex-direction:column;margin:0 calc(-1 * var(--dm-s-2))}
+/* a memory's hover fill is as wide as the content (the head), no wider; its mark and words sit 8px inside it. Clean keeps its
+   rows 8px out, concentric with the card (below) */
+.mmx-list{display:flex;flex-direction:column;margin:0}
 .mmx-m{display:flex;align-items:flex-start;gap:12px;padding:var(--dm-s-2);border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;line-height:1.5;transition:background .3s}
 @media (hover:hover) and (pointer:fine){.mmx-m:hover{background:var(--dm-row)}}
 .mmx-src{width:28px;height:28px;margin-top:1px;border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));display:grid;place-items:center;flex:none;background:var(--dm-surface);color:var(--dm-fg2);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent)}
 .mmx-src .brand{width:15px;height:15px;color:var(--dm-fg)}
 .mmx-src .spin{width:12px;height:12px}
 .mmx-b{flex:1;min-width:0;display:flex;flex-direction:column}
+/* a memory that wraps never leaves one word alone on its last line (owner, 24 Nov) */
+.mmx-b .t{text-wrap:pretty}
 .mmx-m .t{outline:0;border-radius:var(--dm-r-tiny,5px);padding:0 3px;margin:0 -3px}
 .mmx-m .t[contenteditable="true"]{background:var(--dm-surface);box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent)}
 .mmx-m .t[contenteditable="true"]:focus{box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
@@ -30,27 +34,28 @@
 .mmx-meta>*{flex:none}
 .mmx-meta .k{color:var(--dm-k);font-weight:500}
 .mmx-meta .s{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
-.mmx-meta .tag{height:17px;padding:0 5px;font-size:11px}
 .mmx-meta .tag.nw{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-fg))}
 .mmx-m .acts{display:flex;opacity:0;transition:opacity .2s}
 .mmx-m:focus-within .acts{opacity:1}
 @media (hover:hover) and (pointer:fine){.mmx-m:hover .acts{opacity:1}}
-/* Forget's glyph ends on the content's edge, under the filter; the hover circles reach out round the glyphs */
+/* Edit's and Forget's hover circles sit 8px inside the row's fill, as its mark does (in Clean, Forget's glyph ends on the
+   content's edge, under the filter, its circle reaching out round it) */
 .mmx-m .ib{width:24px;height:24px}
-.mmx-m .acts{margin-right:-6px}
+:root[data-style="clean"] .mmx-m .acts,:root [data-style="clean"] .mmx-m .acts,:root [data-style="clean"].mmx-m .acts{margin-right:-6px}
 .mmx-m.learn .acts{visibility:hidden}
 /* a memory an answer uses pulses once with a quiet grey fill, and its source lifts */
 .mmx-m.use{animation:mmxuse 1.4s var(--dm-ease)}
 .mmx-m.use .mmx-src{animation:mmxlift .6s var(--dm-ease)}
 @keyframes mmxuse{0%{background:var(--dm-hover)}100%{background:transparent}}
 @keyframes mmxlift{40%{transform:translateY(-2px) scale(1.08)}}
-/* a forgotten memory leaves a line with its Undo in its place: the words on the content's left edge, Undo ending on its right */
+/* a forgotten memory leaves a line with its Undo in its place: the words on the memories' mark column, Undo ending where their
+   actions end */
 .mmx-gone{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-2);min-height:32px;padding:4px var(--dm-s-2);border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));font-size:12.5px;color:var(--dm-muted);background:var(--dm-chip)}
 .mmx-gone span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mmx-gone button{flex:none;color:var(--dm-accent-fg,var(--dm-accent));font-weight:500;font-size:12.5px}
-/* the line at the foot: how often the memory is used, or the answer it is helping with now; its mark centred in the head's
-   mark column, its words on the memories' column */
-.mmx-f{display:flex;align-items:center;gap:12px;margin-top:var(--dm-s-1);padding:var(--dm-s-4) 0 0;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12px;line-height:18px;color:var(--dm-muted)}
+/* the line at the foot: how often the memory is used, or the answer it is helping with now; its mark centred in the memories'
+   mark column and its words on their words column (8px in, as the rows' contents are) */
+.mmx-f{display:flex;align-items:center;gap:12px;margin-top:var(--dm-s-1);padding:var(--dm-s-4) var(--dm-s-2) 0;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12px;line-height:18px;color:var(--dm-muted)}
 .mmx-fi{display:grid;place-items:center;flex:none;width:28px;color:var(--dm-fg2)}
 .mmx-fi .brand{width:14px;height:14px}
 .mmx-ft{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -66,6 +71,7 @@
    strip, edge to edge, its mark and words on the card's columns */
 :root[data-style="clean"] .mmx-ic,:root [data-style="clean"] .mmx-ic,:root [data-style="clean"].mmx-ic{color:var(--dm-fg2);background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-hair)}
 :root[data-style="clean"] .mmx-src,:root [data-style="clean"] .mmx-src,:root [data-style="clean"].mmx-src{box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .mmx-list,:root [data-style="clean"] .mmx-list,:root [data-style="clean"].mmx-list{margin:0 calc(-1 * var(--dm-s-2))}
 :root[data-style="clean"] :is(.mmx-m,.mmx-gone),:root [data-style="clean"] :is(.mmx-m,.mmx-gone),:root [data-style="clean"]:is(.mmx-m,.mmx-gone){border-radius:calc(var(--dm-r-card) - 8px);transition:background-color var(--dm-t-fast) var(--dm-ease)}
 :root[data-style="clean"] .mmx-m .t[contenteditable="true"],:root [data-style="clean"] .mmx-m .t[contenteditable="true"],:root [data-style="clean"].mmx-m .t[contenteditable="true"]{padding:1px 6px;margin:-1px -6px;border-radius:var(--dm-r-field)}
 :root[data-style="clean"] .mmx-m .acts,:root [data-style="clean"] .mmx-m .acts,:root [data-style="clean"].mmx-m .acts{transition:opacity var(--dm-t-fast) var(--dm-ease)}

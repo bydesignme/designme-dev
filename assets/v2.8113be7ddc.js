@@ -1873,10 +1873,10 @@ DM.def('agent-lanes', (r, c) => {
       const tg = html(`<span class="tag aln-sw-tg" style="--c:var(--${a.t});--to:${h.to};--x0:${h.at / ALN_END}" aria-hidden="true">${I('file-text','xs')}${h.what}</span>`);
       rows.append(el, tg); return { ...h, el, tg }; });
     // the lane's width is read when it changes size, never while the clock runs
-    let W = 0, CW = 0, T = 0, V = null, paused = false, fin = false, said = '', TX = [];
+    let W = 0, CW = 0, RB = 0, T = 0, V = null, paused = false, fin = false, said = '', TX = [];
     // the axis labels' spans, read with the lane: the one the playhead's time passes over steps aside (Clean)
     const ax = $('.aln-sw-ax', r), tks = $$('.aln-sw-ticks span', r);
-    const lay = () => { W = $('.aln-sw-lane', A[0].el).clientWidth; CW = now.offsetWidth; const a = ax.getBoundingClientRect().left; TX = tks.map(el => { const b = el.getBoundingClientRect(); return [b.left - a, b.right - a]; }); paint(); };
+    const lay = () => { const ln = $('.aln-sw-lane', A[0].el); W = ln.clientWidth; RB = parseFloat(getComputedStyle(ln).borderRightWidth) || 0; CW = now.offsetWidth; const a = ax.getBoundingClientRect().left; TX = tks.map(el => { const b = el.getBoundingClientRect(); return [b.left - a, b.right - a]; }); paint(); };
     const ro = new ResizeObserver(lay); ro.observe(rows); c.offs.push(() => ro.disconnect());
     // the run as it stands: bars fill up to now (T); the playhead sits at now, or where you took it (V)
     function paint(){
@@ -1891,7 +1891,7 @@ DM.def('agent-lanes', (r, c) => {
         const at = alnAt(a, v); if (a.s !== at.s){ a.s = at.s; a.el.dataset.s = at.s; } if (a.say !== at.t){ a.say = at.t; $('.aln-sw-wt span', a.el).textContent = at.t; }
       });
       hos.forEach(h => { const on = T >= h.at && v >= h.at; if (h.on !== on){ h.on = on; h.el.classList.toggle('on', on); h.tg.classList.toggle('on', on); if (A[h.to].w) A[h.to].w.classList.toggle('got', on); } });
-      const x = v / ALN_END * W, nx = Math.max(-6, Math.min(W - CW + 6, x - CW / 2)); line.style.transform = `translateX(${x.toFixed(1)}px)`;
+      const x = v / ALN_END * W, nx = Math.max(-6, Math.min(W - CW + Math.min(6, RB), x - CW / 2)); line.style.transform = `translateX(${x.toFixed(1)}px)`;
       now.style.transform = `translateX(${nx.toFixed(1)}px)`;
       tks.forEach((el, k) => { const t = TX[k], hid = !!t && t[1] > nx - 4 && t[0] < nx + CW + 4; if (el.dmHid !== hid){ el.dmHid = hid; el.classList.toggle('hid', hid); } });
     }
@@ -3412,13 +3412,13 @@ DM.def('attachment-tray', (r, c) => {
     const box = $('.atx-cmp-box', r), tray = $('.atx-cmp-list', r), empty = $('.atx-cmp-empty', r), st = $('.atx-cmp-st', r), ta = $('.atx-cmp-ta', r), send = $('.atx-cmp-send', r);
     const files = [];
     // Clean: the empty tray is Clean's empty state, as Classic's (a sketch of a file list, the title, one line and Add sample
-    // files) in place of the drawing, and the box grows with what it holds (grow())
+    // files) in place of the drawing. In every style the box grows with what it holds (grow())
     const clean = (r.closest('[data-style]') || document.documentElement).dataset.style === 'clean';
     if (clean){
       empty.classList.add('atx-em');
       empty.innerHTML = `<span class="atx-em-art" aria-hidden="true"></span><b>Drop files for the agent</b><span>or press + to add them</span><button type="button" class="pill line sm atx-smp">${I('plus','xs')}Add sample files</button>`;
-      c.offs.push(grow(box));
     }
+    c.offs.push(grow(box));
     const status = () => { const up = files.filter(f => f.done).length, all = files.length; st.textContent = !all ? '' : up < all ? `${up} of ${all} ready` : `${all} ${all === 1 ? 'file' : 'files'} ready to send`; send.disabled = !all || up < all; };
     // the empty tray steps aside as the first files land, and comes back once the last one has gone
     let gone = 0;
