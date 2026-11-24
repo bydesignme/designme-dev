@@ -172,14 +172,14 @@
 .fxp{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-2)}
 /* the filter sits over a hairline and the path under one, in Soft and Blueprint (owner, 21 Nov: "soft and blueprint need
    divider lines"), each 8px from it, as the rows are spaced; Clean sets the path on its foot strip */
-.fxp-h{display:flex;gap:var(--dm-s-1);align-items:center;padding-bottom:var(--dm-s-2);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.fxp-h{display:flex;gap:var(--dm-s-1);align-items:center;padding-bottom:var(--dm-s-4);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .fxp-s{flex:1;min-width:0;display:flex;align-items:center;gap:var(--dm-s-2);height:32px;padding:0 10px;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);color:var(--dm-muted);transition:box-shadow var(--dm-t-fast)}
 @supports (corner-shape:squircle){.fxp-s{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
 .fxp-s input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--dm-fg)}
 .fxp-s:has(input:focus){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
 .fxp-s input::placeholder{color:var(--dm-muted)}
 /* Only changed: its box ends on the content's right edge, which puts its glyph over the letters' column */
-.fxp-ch{flex:none}
+.fxp-ch{flex:none;width:28px;height:28px}
 .fxp-ch[aria-pressed="true"]{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}
 .fxp .fxp-tree{max-height:330px;overflow:auto;overscroll-behavior:contain}
 .fxp-tree.more{-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent)}
@@ -193,7 +193,9 @@
 @media (hover:hover) and (pointer:fine){.fxp-n:hover{background:var(--dm-row);color:var(--dm-fg)}}
 /* rows fill the scrolling tree, which would cut an outside ring: theirs is drawn inside */
 .fxp-n:focus-visible{outline-offset:-2px}
-.fxp-n.sel{background:var(--dm-sel);color:var(--dm-fg)}
+/* the open file: the accent tint (Blueprint's lime takes its darker mark so the tint shows on white) */
+.fxp-n.sel{background:var(--dm-accent-bg);color:var(--dm-fg)}
+:root:not([data-style="soft"],[data-style="clean"]) .fxp-n.sel:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){background:color-mix(in srgb,var(--dm-accent-mark) 12%,transparent)}
 .fxp-n .cv{width:14px;flex:none;display:grid;place-items:center;color:var(--dm-muted);transition:transform var(--dm-t) var(--dm-ease)}
 .fxp-n.open .cv{transform:rotate(90deg)}
 .fxp-n .ic{color:var(--dm-muted);display:grid;flex:none}
@@ -465,7 +467,7 @@ export function FileExplorer({
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>file-explorer.css<span class="l">React · 74 lines</span></summary><pre class="cp-pre" data-name="file-explorer.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>file-explorer.css<span class="l">React · 76 lines</span></summary><pre class="cp-pre" data-name="file-explorer.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- File explorer ---------- */
 /* the project&#39;s files as a tree, with the ones the agent changed lettered M, A or D in their status colour and a dot on
    every folder that holds one. Its content is 16px from every edge, on shared columns (owner, 18 Nov): the top level&#39;s
@@ -476,14 +478,14 @@ export function FileExplorer({
 .dm-fxp{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-2)}
 /* the filter sits over a hairline and the path under one, in Soft and Blueprint (owner, 21 Nov: &quot;soft and blueprint need
    divider lines&quot;), each 8px from it, as the rows are spaced; Clean sets the path on its foot strip */
-.dm-fxp-h{display:flex;gap:var(--dm-s-1);align-items:center;padding-bottom:var(--dm-s-2);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.dm-fxp-h{display:flex;gap:var(--dm-s-1);align-items:center;padding-bottom:var(--dm-s-4);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .dm-fxp-s{flex:1;min-width:0;display:flex;align-items:center;gap:var(--dm-s-2);height:32px;padding:0 10px;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);color:var(--dm-muted);transition:box-shadow var(--dm-t-fast)}
 @supports (corner-shape:squircle){.dm-fxp-s{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
 .dm-fxp-s input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--dm-fg)}
 .dm-fxp-s:has(input:focus){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
 .dm-fxp-s input::placeholder{color:var(--dm-muted)}
 /* Only changed: its box ends on the content&#39;s right edge, which puts its glyph over the letters&#39; column */
-.dm-fxp-ch{flex:none}
+.dm-fxp-ch{flex:none;width:28px;height:28px}
 .dm-fxp-ch[aria-pressed=&quot;true&quot;]{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}
 .dm-fxp .dm-fxp-tree{max-height:330px;overflow:auto;overscroll-behavior:contain}
 .dm-fxp-tree.dm-more{-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent)}
@@ -497,7 +499,9 @@ export function FileExplorer({
 @media (hover:hover) and (pointer:fine){.dm-fxp-n:hover{background:var(--dm-row);color:var(--dm-fg)}}
 /* rows fill the scrolling tree, which would cut an outside ring: theirs is drawn inside */
 .dm-fxp-n:focus-visible{outline-offset:-2px}
-.dm-fxp-n.dm-sel{background:var(--dm-sel);color:var(--dm-fg)}
+/* the open file: the accent tint (Blueprint&#39;s lime takes its darker mark so the tint shows on white) */
+.dm-fxp-n.dm-sel{background:var(--dm-accent-bg);color:var(--dm-fg)}
+:root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .dm-fxp-n.dm-sel:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *)){background:color-mix(in srgb,var(--dm-accent-mark) 12%,transparent)}
 .dm-fxp-n .dm-cv{width:14px;flex:none;display:grid;place-items:center;color:var(--dm-muted);transition:transform var(--dm-t) var(--dm-ease)}
 .dm-fxp-n.dm-open .dm-cv{transform:rotate(90deg)}
 .dm-fxp-n .dm-ic{color:var(--dm-muted);display:grid;flex:none}
@@ -576,7 +580,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>file-explorer.css<span class="l">HTML · 73 lines</span></summary><pre class="cp-pre" data-name="file-explorer.css"><code>/* ---------- File explorer ---------- */
+</code></pre></details><details class="cp-file"><summary>file-explorer.css<span class="l">HTML · 75 lines</span></summary><pre class="cp-pre" data-name="file-explorer.css"><code>/* ---------- File explorer ---------- */
 /* the project&#39;s files as a tree, with the ones the agent changed lettered M, A or D in their status colour and a dot on
    every folder that holds one. Its content is 16px from every edge, on shared columns (owner, 18 Nov): the top level&#39;s
    chevrons sit centred under the filter&#39;s search glyph, each level steps in 14px, and the Only changed button&#39;s glyph is
@@ -586,14 +590,14 @@ const { class: className, ...rest } = Astro.props;
 .fxp{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-2)}
 /* the filter sits over a hairline and the path under one, in Soft and Blueprint (owner, 21 Nov: &quot;soft and blueprint need
    divider lines&quot;), each 8px from it, as the rows are spaced; Clean sets the path on its foot strip */
-.fxp-h{display:flex;gap:var(--dm-s-1);align-items:center;padding-bottom:var(--dm-s-2);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.fxp-h{display:flex;gap:var(--dm-s-1);align-items:center;padding-bottom:var(--dm-s-4);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .fxp-s{flex:1;min-width:0;display:flex;align-items:center;gap:var(--dm-s-2);height:32px;padding:0 10px;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);color:var(--dm-muted);transition:box-shadow var(--dm-t-fast)}
 @supports (corner-shape:squircle){.fxp-s{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
 .fxp-s input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--dm-fg)}
 .fxp-s:has(input:focus){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
 .fxp-s input::placeholder{color:var(--dm-muted)}
 /* Only changed: its box ends on the content&#39;s right edge, which puts its glyph over the letters&#39; column */
-.fxp-ch{flex:none}
+.fxp-ch{flex:none;width:28px;height:28px}
 .fxp-ch[aria-pressed=&quot;true&quot;]{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}
 .fxp .fxp-tree{max-height:330px;overflow:auto;overscroll-behavior:contain}
 .fxp-tree.more{-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent)}
@@ -607,7 +611,9 @@ const { class: className, ...rest } = Astro.props;
 @media (hover:hover) and (pointer:fine){.fxp-n:hover{background:var(--dm-row);color:var(--dm-fg)}}
 /* rows fill the scrolling tree, which would cut an outside ring: theirs is drawn inside */
 .fxp-n:focus-visible{outline-offset:-2px}
-.fxp-n.sel{background:var(--dm-sel);color:var(--dm-fg)}
+/* the open file: the accent tint (Blueprint&#39;s lime takes its darker mark so the tint shows on white) */
+.fxp-n.sel{background:var(--dm-accent-bg);color:var(--dm-fg)}
+:root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .fxp-n.sel:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *)){background:color-mix(in srgb,var(--dm-accent-mark) 12%,transparent)}
 .fxp-n .cv{width:14px;flex:none;display:grid;place-items:center;color:var(--dm-muted);transition:transform var(--dm-t) var(--dm-ease)}
 .fxp-n.open .cv{transform:rotate(90deg)}
 .fxp-n .ic{color:var(--dm-muted);display:grid;flex:none}

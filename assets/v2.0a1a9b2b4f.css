@@ -795,7 +795,8 @@
 .v2 .ctm-bar i{height:100%;width:0;flex:none;background:var(--c);transition:width .42s var(--ease),opacity .16s}
 .v2 .ctm-bar.hl i:not(.on){opacity:.25}
 /* the legend's rows answer the pointer: the swatch sits on the content's edge and the hover reaches out round it */
-.v2 .ctm-leg{display:flex;flex-direction:column;margin:0 -6px}
+/* (the legend's rows and their hover fills are as wide as the content, their words 6px inside) */
+.v2 .ctm-leg{display:flex;flex-direction:column;margin:0}
 .v2 .ctm-l{display:flex;align-items:center;gap:var(--s-2);padding:5px 6px;border-radius:var(--r-sm);font-size:13px;line-height:18px;color:var(--fg2);cursor:default;transition:background var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.v2 .ctm-l:hover{background:color-mix(in srgb,var(--fg) 5%,transparent)}}
 /* the swatch is centred in a 16px column, the column of the message's sign and tick below, so their words line up */
@@ -811,7 +812,10 @@
 .v2 .ctm-msg>span>svg,.v2 .ctm-msg>span>svg.i{flex:none;width:16px;height:16px;margin-top:1px}
 /* the notice reaches out as far as the legend's hover, with the legend's padding, so its sign sits in the swatches' column
    and its words on the legend's words */
-.v2 .ctm-msg.warn>span{margin:0 -6px;padding:8px 6px;border-radius:var(--r-sm);background:color-mix(in srgb,var(--warn-bg) 45%,transparent)}
+/* (a message's mark sits on the legend's swatch column and its words on the legend's words; the warning's tint is as wide
+   as the content, its words 6px inside it) */
+.v2 .ctm-msg:not(.warn)>span{padding-inline:6px}
+.v2 .ctm-msg.warn>span{margin:0;padding:8px 6px;border-radius:var(--r-sm);background:color-mix(in srgb,var(--warn-bg) 45%,transparent)}
 .v2 .ctm-wi{overflow:visible}
 .v2 .ctm-wi .a{fill:var(--warn-mark);stroke:var(--warn-mark);stroke-width:2;stroke-linejoin:round}
 .v2 .ctm-wi .b{fill:none;stroke:var(--surface);stroke-width:2.2;stroke-linecap:round}
@@ -822,7 +826,7 @@
 /* while it compacts nothing can be pressed, so it says so where the button was (owner, 21 Nov: "should this be gray button?
    especially the loading animation?"): the spinner in the accent and the words in the loader's sweep, as plain words, the row
    keeping its height and its right edge; Undo comes in once it is done */
-.v2 .ctm-run{display:inline-flex;align-items:center;gap:6px;height:28px;flex:none;font-size:12.5px;color:var(--fg);white-space:nowrap}
+.v2 .ctm-run{display:inline-flex;align-items:center;gap:6px;height:28px;flex:none;font-size:13px;color:var(--fg);white-space:nowrap}
 .v2 .ctm-run[hidden]{display:none}
 .v2 .ctm-run .spin{width:12px;height:12px;color:var(--accent-mark,var(--accent))}
 .v2 .ctm-f .ctm-hint{flex:1;min-width:0;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -855,12 +859,13 @@
 :root[data-style="clean"] .v2 .ctm-bar i{transition:width .42s var(--ease),opacity .15s var(--ease)}
 :root[data-style="clean"] .v2 .ctm-bar i:first-child{border-radius:3px 0 0 3px}
 :root[data-style="clean"] .v2 .ctm-bar.hl i:not(.on){opacity:.28}
-:root[data-style="clean"] .v2 .ctm-leg{margin:8px 8px 0}
+:root[data-style="clean"] .v2 .ctm-leg{margin:8px 16px 0}
 :root[data-style="clean"] .v2 .ctm-l{padding:5px 8px;border-radius:calc(var(--r-card) - 8px);transition:background-color var(--t-fast) var(--ease)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .ctm-l:hover{background:var(--row)}}
 :root[data-style="clean"] .v2 .ctm-msg{margin:0 16px}
 :root[data-style="clean"] .v2 .ctm-msg.on{margin:8px 16px 5px}
-:root[data-style="clean"] .v2 .ctm-msg.warn>span{margin:0 -8px;padding:8px;border-radius:calc(var(--r-card) - 8px)}
+:root[data-style="clean"] .v2 .ctm-msg:not(.warn)>span{padding-inline:8px}
+:root[data-style="clean"] .v2 .ctm-msg.warn>span{margin:0;padding:8px;border-radius:calc(var(--r-card) - 8px)}
 :root[data-style="clean"] .v2 .ctm-f{margin-top:11px;padding:var(--strip-y) 16px;background:var(--strip);border-top:1px solid var(--line);border-radius:0 0 var(--r-card) var(--r-card)}
 :root[data-style="clean"] .v2 .ctm-go{height:28px;padding:0 12px;border-radius:var(--r-pill)}
 :root[data-style="clean"] .v2 .ctm-go:not(.warn){color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth)}
@@ -1141,7 +1146,7 @@
    content's left edge, over the marks, so it never reads as another run's words. A run's row is not a button, so it has no
    hover fill, and one that failed keeps its red words and Retry with no red band behind them; a run that moves glides
    without lifting */
-.v2 .aib{width:100%;max-width:440px;margin:0 auto;padding:16px 16px 6px}
+.v2 .aib{width:100%;max-width:440px;margin:0 auto;padding:16px 16px var(--s-2)}
 .v2 .aib-h{display:flex;align-items:center;gap:12px;padding:0 0 4px}
 .v2 .aib-hi{width:28px;height:28px;display:grid;place-items:center;flex:none;border-radius:var(--r-sm);color:var(--fg2);background:var(--chip)}
 .v2 .aib-h b{flex:1;min-width:0;font-weight:500;font-size:14px;line-height:20px}
@@ -1179,10 +1184,9 @@
    and latency. The run itself is the head: its mark, its name, how it is going, and its total tokens and time. The card
    sits on two columns (owner, 18 Nov): the head's mark in a 32px column with the title's words 12px after it; each span's
    mark is centred in that column (nested ones step in 16px a level) and the top spans' names start where the title's
-   words do, as do the key and the Span heading. Everything sits on the card's 16px column on both sides (owner, 22 Nov: "all padding inside the card"): the
-   run's totals, the times and tokens and an open span's details end 16px from the right edge, as the mark starts 16px from
-   the left. A row's hover and selection fill is a quiet grey that reaches 8px out round the row on each side, as a select's
-   box reaches out round its words. Each kind has its colour (the chart
+   words do, as do the key and the Span heading. Everything sits on the card's 16px column on both sides (owner, 22 Nov: "all padding inside the card"). A row's hover and
+   selection fill is a quiet grey as wide as the content, 16px from each edge, with the span's mark 7px inside it and the
+   times and tokens 8px inside its right end; the run's totals and the axis end on those columns too. Each kind has its colour (the chart
    palette's identity slots): its bar and its count in the key, drawn at full strength so the key matches them. While the
    run streams, a playhead marks now and the running bars grow with a bright leading edge. A span over its time budget
    turns amber and hatched, and any span opens to show where it sat in the run, its input and its output, on the same
@@ -1198,7 +1202,7 @@
 .v2 .trv-tt{flex:none;margin-right:-4px;font-size:12.5px;white-space:nowrap}
 .v2 .trv-tot{font-size:14px;font-weight:500;flex:none}
 /* (the tokens and the time share one baseline; the row round them stays centred on the tile) */
-.v2 .trv-nums{flex:none;display:flex;align-items:baseline;gap:12px}
+.v2 .trv-nums{flex:none;display:flex;align-items:baseline;gap:12px;padding-right:var(--s-2)}
 /* the key: each kind with its colour and how many of its spans have started */
 .v2 .trv-lg{display:flex;flex-wrap:wrap;gap:2px var(--s-3);padding:8px 0 12px 44px;font-size:12px;color:var(--muted)}
 .v2 .trv-lg span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;transition:color .3s}
@@ -1206,14 +1210,14 @@
 .v2 .trv-lg b{font-weight:500;color:var(--fg2)}
 .v2 .trv-lg span.z{color:var(--dis)}.v2 .trv-lg span.z b{color:inherit}.v2 .trv-lg span.z i{opacity:.45}
 .v2 .trv-ax,.v2 .trv-r{display:grid;grid-template-columns:var(--cols);align-items:center;gap:var(--s-2)}
-.v2 .trv-ax{height:30px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12px;color:var(--muted)}
+.v2 .trv-ax{height:30px;padding-right:var(--s-2);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12px;color:var(--muted)}
 .v2 .trv-ax>span:first-child{padding-left:44px}
 .v2 .trv-tk,.v2 .trv-ms{text-align:right;white-space:nowrap}
 .v2 .trv-sc{position:relative;height:18px}
 .v2 .trv-sc span{position:absolute;top:0;transform:translateX(-50%);font-size:12px}
 .v2 .trv-sc span:first-child{transform:none}
-.v2 .trv-rows{display:flex;flex-direction:column;padding-bottom:8px}
-.v2 .trv-r{width:calc(100% + 16px);margin:0 -8px;padding:0 8px;min-height:32px;border-radius:calc(10px * var(--rk-m,var(--rk)));font-size:13px;text-align:left;transition:background .16s}
+.v2 .trv-rows{display:flex;flex-direction:column;padding-bottom:var(--s-4)}
+.v2 .trv-r{width:100%;padding:0 var(--s-2) 0 0;min-height:32px;border-radius:calc(10px * var(--rk-m,var(--rk)));font-size:13px;text-align:left;transition:background .16s}
 .v2 .trv-r[aria-expanded="true"]{background:var(--row)}
 @media (hover:hover) and (pointer:fine){.v2 .trv-r:hover{background:var(--row)}}
 .v2 .trv-r[aria-expanded="true"] .trv-tk{color:var(--fg2)}
@@ -1268,19 +1272,20 @@
 .v2 .trv-kv span{font-size:12px;color:var(--muted)}
 .v2 .trv-kv b{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .v2 .trv-io{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:6px 10px;font-size:12px;color:var(--muted)}
-.v2 .trv-io code{font-family:var(--mono);font-size:12px;color:var(--fg2);background:var(--chip);padding:5px var(--s-2);border-radius:var(--r-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .trv-io code{font-family:var(--mono);font-size:12px;color:var(--fg2);background:var(--chip-fill);padding:5px var(--s-3);border-radius:var(--r-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .trv-r.run:not(.slow):not([data-k="agent"]) .trv-b i{background:repeating-linear-gradient(90deg,var(--k) 0 4px,color-mix(in srgb,var(--k) 55%,var(--surface)) 4px 6px);animation:none}
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .trv-r.run:not([data-k="agent"]) .trv-b i::after{filter:none;background:linear-gradient(to left,var(--e) 0 1px,transparent 1px);transform:translateX(calc(var(--f,1) * 100% - 100%))}
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .trv-g i,:root:not([data-style="soft"],[data-style="clean"]) .v2 .trv-g i.el::after{background:var(--faint)}
 /* narrow: the names keep their room. Tokens move into each span's details, the slow tag leaves the amber bar and time to
    say it (the time keeps its tooltip), the tree draws closer, and the details give the start its own line. The head's mark
-   is a 24px tile with the words 8px after it, the same columns run down the card, and the time axis is a little shorter */
+   keeps its 32px tile, so each span's mark stays 7px inside its row's fill, with the words 8px after it; the same columns
+   run down the card, and the time axis is a little shorter */
 @container (max-width:330px){
   .v2 .trv-ax,.v2 .trv-r{grid-template-columns:minmax(0,1fr) 60px 44px}.v2 .trv-tk,.v2 .trv-n .tag{display:none}.v2 .trv-g{display:none}.v2 .trv-kv{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .v2 .trv-h,.v2 .trv-nums{gap:8px}.v2 .trv-hi{width:24px;height:24px;border-radius:var(--r-sm)}.v2 .trv-tt{margin-right:0}
-  .v2 .trv-lg,.v2 .trv-ax>span:first-child{padding-left:32px}
-  .v2 .trv-n{gap:11px;padding-left:calc(3px + var(--lv,0) * 10px)}
-  .v2 .trv-dc{padding-left:48px}.v2 .trv-dh>.trv-k{left:-29px}
+  .v2 .trv-h,.v2 .trv-nums{gap:8px}.v2 .trv-tt{margin-right:0}
+  .v2 .trv-lg,.v2 .trv-ax>span:first-child{padding-left:40px}
+  .v2 .trv-n{gap:15px;padding-left:calc(7px + var(--lv,0) * 10px)}
+  .v2 .trv-dc{padding-left:56px}.v2 .trv-dh>.trv-k{left:-33px}
 }
 /* Clean (owner, 18 Nov): the marks beside the names are one neutral grey, as file types are, and the head's has a hairline
    like them; running bars are flat, with no bright edge; an open span's details are an off-white foot strip, edge to edge, its close button 16px from the strip's top (owner, 23 Nov) and on
@@ -2070,6 +2075,7 @@
 .v2 .art-tag{flex:none;transition:background .3s,color .3s}
 .v2 .art-tag .spin{width:9px;height:9px}
 .v2 .art.live .art-tag{background:var(--accent-bg);color:var(--accent-fg,var(--fg))}
+:root:not([data-style="soft"],[data-style="clean"]) .v2 .art.live .art-tag{background:color-mix(in srgb,var(--accent-mark) 20%,transparent)}
 /* the key: how long each kind has run so far */
 .v2 .art-key{display:flex;flex-wrap:wrap;gap:2px var(--s-4);margin-top:10px;padding-left:30px;font-size:12px;color:var(--muted)}
 .v2 .art-key span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
@@ -2097,7 +2103,8 @@
 .v2 .art-row[data-s="wait"] .art-ic{opacity:.45}
 .v2 .art-row[data-s="run"] .art-lab{color:var(--fg)}
 .v2 .art-row[data-s="run"] .art-ic{animation:v2-artbreathe 1.8s var(--ease-io) infinite}
-@keyframes v2-artbreathe{0%,100%{box-shadow:var(--ring),0 0 0 0 color-mix(in srgb,var(--fg) 0%,transparent)}50%{box-shadow:var(--ring),0 0 0 3px color-mix(in srgb,var(--fg) 10%,transparent)}}
+/* (the running step's icon breathes with its opacity: a ring spreading out of it would reach past the card's 16px column) */
+@keyframes v2-artbreathe{50%{opacity:.55}}
 .v2 .art-row.bump .art-ic{animation:v2-artpop .45s var(--ease)}
 @keyframes v2-artpop{40%{transform:scale(1.14)}}
 /* the lanes: quarter lines at half strength, a bar for each step */
@@ -2201,9 +2208,12 @@
 .v2 .cite{display:inline-grid;place-items:center;min-width:17px;height:17px;padding:0 var(--s-1);margin:0 2px;border-radius:var(--r-tiny,5px);background:var(--hover);font-size:10.5px;font-weight:500;color:var(--fg2);vertical-align:2px;cursor:default;transition:background .2s,color .2s}
 .v2 .cite.on{background:var(--accent-bg);color:var(--accent-fg,var(--accent))}
 @media (hover:hover) and (pointer:fine){.v2 .cite:hover{background:var(--accent-bg);color:var(--accent-fg,var(--accent))}}
+/* (Blueprint's lime takes its darker mark, so the picked citation's tint shows on white; the harness keeps its own) */
+@media (hover:hover) and (pointer:fine){:root:not([data-style="soft"],[data-style="clean"]) .v2 .lva .cite:is(:hover,.on){background:color-mix(in srgb,var(--accent-mark) 12%,transparent)}}
+@media (hover:hover) and (pointer:fine){:root:not([data-style="soft"],[data-style="clean"]) .v2 .ahx .lva .cite:is(:hover,.on){background:var(--accent-bg)}}
 .v2 .lva-p .cite{animation:v2-lvw .5s var(--ease) both}
 .v2 .lva-src{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
-.v2 .lva-sb{display:inline-flex;align-items:center;gap:var(--s-2);height:28px;padding:0 9px 0 5px;border-radius:var(--r-pill);color:var(--fg2);transition:background .2s,color .2s}
+.v2 .lva-sb{display:inline-flex;align-items:center;gap:var(--s-2);height:28px;padding:0 9px 0 6px;border-radius:var(--r-pill);color:var(--fg2);transition:background .2s,color .2s}
 .v2 .lva-sb[aria-expanded="true"]{background:var(--row);color:var(--fg)}
 @media (hover:hover) and (pointer:fine){.v2 .lva-sb:hover{background:var(--row);color:var(--fg)}}
 .v2 .lva-sb>.i{color:var(--muted);transition:transform .35s var(--ease)}
@@ -2248,6 +2258,8 @@
 .v2 .cpx.growing{overflow:visible}
 .v2 .cpx-thread{display:flex;flex-direction:column;gap:var(--s-3)}
 .v2 .cpx-thread:empty{display:none}
+/* a message is a small card: its files and words 16px from its edges */
+.v2 .cpx-thread .bub{padding:var(--s-4)}
 /* a message that is only attachments (owner, 19 Nov): the files sit on their own at the thread's right edge, as a chat app shows
    them, never in an empty bubble; with words they stay in the bubble, above the words */
 .v2 .cpx-files{align-self:flex-end;max-width:85%;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px}
@@ -2278,7 +2290,6 @@
 .v2 .cpx-box[data-mode="voice"] .cpx-bar{opacity:0;transform:translateY(-6px);pointer-events:none}
 .v2 .cpx-box[data-mode="voice"] .cpx-voice{opacity:1;transform:none;pointer-events:auto;visibility:visible;transition-delay:0s}
 .v2 .cpx-bar>.ib{width:32px;height:32px;flex:none}
-.v2 .cpx-bar>.cpx-add{margin-left:-9px}
 .v2 .cpx-add[aria-expanded="true"]{background:var(--chip);color:var(--fg)}
 .v2 .cpx-bar .chip{height:32px;padding:0 10px;gap:6px;background:none;min-width:0;font-size:13px;color:var(--fg2)}
 .v2 .cpx-bar .chip[aria-expanded="true"]{background:var(--row);color:var(--fg)}
@@ -2286,7 +2297,8 @@
 .v2 .cpx-bar .chip>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .v2 .cpx-bar .chip>svg:last-child{color:var(--muted)}
 /* a narrow box: the context and mode chips keep only their icon (the name stays for screen readers, and in the tooltip) */
-@container (max-width:400px){.v2 .cpx-bar .chip{padding:0 8px}.v2 .cpx-bar .chip>span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.v2 .cpx-bar .chip>svg:last-child{display:none}}
+/* (narrow, a chip shows only its icon and is a circle) */
+@container (max-width:400px){.v2 .cpx-bar .chip{width:32px;padding:0;justify-content:center}.v2 .cpx-bar .chip>span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.v2 .cpx-bar .chip>svg:last-child{display:none}}
 .v2 .cpx-send{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent,#fff);flex:none;transition:opacity .32s,transform .16s,background .16s}
 @media (hover:hover) and (pointer:fine){.v2 .cpx-send:hover{background:var(--accent-2)}}
 .v2 .cpx-send[disabled]{opacity:1;cursor:not-allowed;background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring)}
@@ -2305,9 +2317,9 @@
    button. A file that failed keeps the chip's white with its words and mark in red, no red fill */
 :root[data-style="clean"] .v2 .cpx-box{border-radius:var(--r-card)}
 :root[data-style="clean"] .v2 .cpx-att{gap:4px}
-:root[data-style="clean"] .v2 .cpx-bar>.cpx-add{margin-left:-7px}
 :root[data-style="clean"] .v2 .cpx-bar>.ib{width:28px;height:28px}
 :root[data-style="clean"] .v2 .cpx-bar .chip{height:28px;padding:0 8px;transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
+@container (max-width:400px){:root[data-style="clean"] .v2 .cpx-bar .chip{width:28px;padding:0}}
 :root[data-style="clean"] .v2 :is(.cpx-add,.cpx-bar .chip)[aria-expanded="true"]{background:var(--row-on)}
 /* Send is the field's own Send (see the Clean section), 16px from the box's right and bottom edges, its corners the box's
    less those 16px */
@@ -3109,8 +3121,9 @@
 .v2 .rvx-t.out{animation:v2-rvo .3s var(--ease) both}
 @keyframes v2-rvo{to{opacity:0;filter:blur(4px);transform:translateY(-2px)}}
 .v2 .rvx-bar{display:flex;align-items:center;gap:2px;margin-left:-6px}
+/* its icon buttons, the pager's included, are the library's 28px icon buttons */
+.v2 .rvx-bar .ib{width:28px;height:28px}
 .v2 .rvx-pg{display:flex;align-items:center;gap:0}
-.v2 .rvx-pg .ib{width:26px;height:26px}
 .v2 .rvx-pg .ib[disabled]{opacity:1;cursor:not-allowed;background:none;color:var(--dis)}
 /* the bar sits on the stage, where --row is the stage's own colour: it sets --row to a quiet 5% of the text colour, as the
    other cards on the stage do, so its buttons keep the one shared hover */
@@ -3131,7 +3144,6 @@
    answer flat in the thread with its bar under it, in the same order */
 :root[data-style="clean"] .v2 .rvx-a{gap:0;background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow);overflow:hidden}
 :root[data-style="clean"] .v2 .rvx-bar{margin:0;padding:16px;border-top:1px solid var(--line)}
-:root[data-style="clean"] .v2 .rvx-bar .ib{width:28px;height:28px}
 :root[data-style="clean"] .v2 .rvx-t{padding:16px}
 :root[data-style="clean"] .v2 .rvx-st{order:1;margin-left:var(--s-2);min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root[data-style="clean"] .v2 .rvx-re{order:2;margin-left:auto}
@@ -3672,6 +3684,9 @@
 .v2 .pgx-done{display:flex;align-items:center;gap:var(--s-3);padding:10px 7px 10px 0;border-radius:var(--r-in);background:var(--chip);font-size:13.5px}
 /* its mark sits centred in the scopes' 32px column, under the head's tile, and its words start on the title's column */
 .v2 .pgx-done>svg{margin-inline:8px}
+/* on a phone the answered row wraps to a small card: its words and its button 16px from its top, bottom and right; its mark
+   stays centred under the head's tile */
+@container (max-width:340px){.v2 .pgx-done{padding:var(--s-4) var(--s-4) var(--s-4) 0}}
 /* its button is a white pill on the grey row */
 .v2 .pgx-done .pill{background:var(--surface);color:var(--fg);box-shadow:var(--on-tint-btn)}
 @media (hover:hover) and (pointer:fine){.v2 .pgx-done .pill:hover{background:var(--surface);box-shadow:var(--on-tint-btn-h)}}
@@ -3778,12 +3793,13 @@
 /* every part on shared columns, in every style (owner, 18 Nov): the header's mark and each step's number are centred in one
    32px column, so the steps' words start where the title's do; a step's hover fill spans the content and no wider */
 .v2 .plx-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;counter-reset:s}
-.v2 .plx-s{display:flex;align-items:flex-start;gap:10px;padding:7px 4px 7px 0;border-radius:calc(10px * var(--rk-m,var(--rk)));font-size:13px;transition:background .25s,opacity .35s;position:relative}
+.v2 .plx-s{display:flex;align-items:flex-start;gap:10px;padding:7px 6px 7px 0;border-radius:calc(10px * var(--rk-m,var(--rk)));font-size:13px;transition:background .25s,opacity .35s;position:relative}
 @media (hover:hover) and (pointer:fine){.v2 .plx-s:hover{background:var(--row)}}
-.v2 .plx-s .n{width:20px;height:20px;margin-inline:6px;border-radius:50%;background:var(--chip);display:grid;place-items:center;font-size:11px;font-variant-numeric:tabular-nums;color:var(--muted);flex:none;transition:background .35s,color .35s}
+.v2 .plx-s .n{width:20px;height:20px;margin:1px 6px 0;border-radius:50%;background:var(--chip);display:grid;place-items:center;font-size:11px;font-variant-numeric:tabular-nums;color:var(--muted);flex:none;transition:background .35s,color .35s}
 @media (hover:hover) and (pointer:fine){.v2 .plx-s:hover .n{background:var(--surface)}}
 .v2 .plx-s .b{flex:1;min-width:0;display:flex;flex-direction:column}
-.v2 .plx-s .t{min-width:0;outline:0;border-radius:var(--r-tiny,5px);padding:1px 3px;margin:0 -3px;line-height:1.5}
+/* (a 20px line, with the number on it: the number and the words share one centre, with even room above and below) */
+.v2 .plx-s .t{min-width:0;outline:0;border-radius:var(--r-tiny,5px);padding:1px 3px;margin:0 -3px;line-height:20px}
 /* the line a step reports: it opens under the step, in the step's colour while it waits on something */
 .v2 .plx-s .d{font-size:12px;color:var(--muted);display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s var(--ease)}
 .v2 .plx-s .d.on{grid-template-rows:1fr}
@@ -3795,7 +3811,8 @@
 .v2 .plx-tm:empty{display:none}
 .v2 .plx-s .n .spin{width:10px;height:10px}
 .v2 .plx-s .t:focus{background:var(--surface);box-shadow:0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
-.v2 .plx-s .ib{width:24px;height:24px;opacity:0;transition:opacity .2s}
+/* (the skip button takes no more height than a step's line, so a step has the same room above and below its words) */
+.v2 .plx-s .ib{width:24px;height:24px;margin-block:-1.25px;opacity:0;transition:opacity .2s}
 .v2 .plx-s .ib:focus-visible{opacity:1}
 @media (hover:hover) and (pointer:fine){.v2 .plx-s:hover .ib{opacity:1}}
 .v2 .plx-s.off{opacity:.45}
@@ -3813,8 +3830,6 @@
 /* the footer sits under a hairline in Soft and Blueprint, in every state (owner, 21 Nov: "shouldn't there be a divider line
    there?"), 16px under the last step and 16px over its buttons, as the card's own edges are; Clean's is a foot strip (below) */
 .v2 .plx-f{margin-top:6px;padding-top:var(--s-4);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
-/* Stop, the footer's last control, has its word on the content's right edge and its hover box reaching out round it */
-.v2 .plx-f .plx-stop:last-child{margin-right:-11px}
 .v2 .plx-n{flex:1;font-size:12px;min-width:0}
 @media (max-width:480px){.v2 .plx-n{display:none}}
 /* Clean (lead and owner, 18 Nov): a card with the plan and an off-white foot strip, everything on shared columns. Its
@@ -3836,8 +3851,8 @@
 :root[data-style="clean"] .v2 .plx-st{line-height:18px}
 :root[data-style="clean"] .v2 .plx-tm{font-variant-numeric:tabular-nums}
 :root[data-style="clean"] .v2 .plx-list{margin:0}
-:root[data-style="clean"] .v2 .plx-s{gap:12px;padding:7px 4px 7px 0;border-radius:calc(7px * var(--rk-m,var(--rk)));transition:background-color var(--t-fast) var(--ease),opacity var(--t-fast) var(--ease)}
-:root[data-style="clean"] .v2 .plx-s .n{margin-inline:6px;background:none;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line-strong) 50%,transparent);transition:background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
+:root[data-style="clean"] .v2 .plx-s{gap:12px;padding:7px 6px 7px 0;border-radius:calc(7px * var(--rk-m,var(--rk)));transition:background-color var(--t-fast) var(--ease),opacity var(--t-fast) var(--ease)}
+:root[data-style="clean"] .v2 .plx-s .n{margin:1px 6px 0;background:none;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line-strong) 50%,transparent);transition:background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .plx-s:hover .n{background:var(--surface)}}
 :root[data-style="clean"] .v2 .plx-s.run .n{box-shadow:none;color:var(--fg)}
 :root[data-style="clean"] .v2 .plx-s.run .n .spin{width:20px;height:20px;border:1.5px solid var(--line);border-top-color:var(--accent-mark);animation-duration:.9s}
@@ -3867,7 +3882,8 @@
 /* an edit's words start where the line starts (the text's own column), so their tints reach out round them with a shadow
    rather than pushing them in with padding */
 .v2 .itd-c{padding:2px 0;border-radius:var(--r-tiny,5px);cursor:pointer;outline:0;transition:background .16s;-webkit-box-decoration-break:clone;box-decoration-break:clone}
-.v2 .itd-c.on{background:var(--row)}
+/* the edit whose toolbar is open: a fill a step stronger than the hover, so it reads as picked */
+.v2 .itd-c.on{background:var(--hover)}
 @media (hover:hover) and (pointer:fine){.v2 .itd-c:hover{background:var(--row)}}
 .v2 .itd-c:focus-visible{box-shadow:0 0 0 2px var(--focus)}
 /* removed words in the red text colour on its tint, struck with the bright red mark; added words in the green text colour on
@@ -3920,6 +3936,7 @@
 :root[data-style="clean"] .v2 .itd-ht b{line-height:20px}
 :root[data-style="clean"] .v2 .itd-st{line-height:18px}
 :root[data-style="clean"] .v2 .itd-c{transition:background-color var(--t-fast) var(--ease)}
+:root[data-style="clean"] .v2 .itd-c.on{background:var(--row-on)}
 :root[data-style="clean"] .v2 .itd-bar{border-radius:var(--r-card);transform:translateY(-4px) scale(.96);transform-origin:top left;transition:opacity var(--t-fast) var(--ease),transform var(--t) var(--ease),visibility 0s var(--t)}
 :root[data-style="clean"] .v2 .itd-bar.up{transform:translateY(4px) scale(.96);transform-origin:bottom left}
 :root[data-style="clean"] .v2 .itd-bar.open{transform:none;transition-delay:0s}
@@ -4750,6 +4767,7 @@
    are the tint, never a solid accent fill) */
 .v2 .chx-c{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;margin:0 1px 0 3px;border-radius:calc(6px * var(--rk-s,var(--rk)));background:var(--hover);color:var(--fg2);font-size:11px;font-variant-numeric:tabular-nums;vertical-align:2px;transition:background .2s,color .2s}
 .v2 .chx-c.on{background:var(--accent-bg);color:var(--accent-fg,var(--accent))}
+:root:not([data-style="soft"],[data-style="clean"]) .v2 .chx-c.on{background:color-mix(in srgb,var(--accent-mark) 12%,transparent)}
 @media (hover:hover) and (pointer:fine){.v2 .chx-c:hover{background:var(--accent-bg);color:var(--accent-fg,var(--accent))}}
 /* hidden as well as clear when put away, so Tab never lands on its link; it grows out of its citation's side */
 .v2 .chx-card{position:absolute;left:0;top:0;width:min(290px,calc(100% - 8px));padding:var(--s-4);opacity:0;visibility:hidden;pointer-events:none;z-index:4;box-shadow:var(--shadow-pop);transform-origin:var(--origin,top left);transition:opacity .16s ease-out,visibility 0s .16s}
@@ -5192,14 +5210,14 @@
 .v2 .fxp{padding:var(--s-4);display:flex;flex-direction:column;gap:var(--s-2)}
 /* the filter sits over a hairline and the path under one, in Soft and Blueprint (owner, 21 Nov: "soft and blueprint need
    divider lines"), each 8px from it, as the rows are spaced; Clean sets the path on its foot strip */
-.v2 .fxp-h{display:flex;gap:var(--s-1);align-items:center;padding-bottom:var(--s-2);border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.v2 .fxp-h{display:flex;gap:var(--s-1);align-items:center;padding-bottom:var(--s-4);border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .v2 .fxp-s{flex:1;min-width:0;display:flex;align-items:center;gap:var(--s-2);height:32px;padding:0 10px;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);color:var(--muted);transition:box-shadow var(--t-fast)}
 @supports (corner-shape:squircle){.v2 .fxp-s{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .v2 .fxp-s input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
 .v2 .fxp-s:has(input:focus){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
 .v2 .fxp-s input::placeholder{color:var(--muted)}
 /* Only changed: its box ends on the content's right edge, which puts its glyph over the letters' column */
-.v2 .fxp-ch{flex:none}
+.v2 .fxp-ch{flex:none;width:28px;height:28px}
 .v2 .fxp-ch[aria-pressed="true"]{background:var(--accent-bg);color:var(--accent-fg,var(--accent))}
 .v2 .fxp .fxp-tree{max-height:330px;overflow:auto;overscroll-behavior:contain}
 .v2 .fxp-tree.more{-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent)}
@@ -5213,7 +5231,9 @@
 @media (hover:hover) and (pointer:fine){.v2 .fxp-n:hover{background:var(--row);color:var(--fg)}}
 /* rows fill the scrolling tree, which would cut an outside ring: theirs is drawn inside */
 .v2 .fxp-n:focus-visible{outline-offset:-2px}
-.v2 .fxp-n.sel{background:var(--sel);color:var(--fg)}
+/* the open file: the accent tint (Blueprint's lime takes its darker mark so the tint shows on white) */
+.v2 .fxp-n.sel{background:var(--accent-bg);color:var(--fg)}
+:root:not([data-style="soft"],[data-style="clean"]) .v2 .fxp-n.sel{background:color-mix(in srgb,var(--accent-mark) 12%,transparent)}
 .v2 .fxp-n .cv{width:14px;flex:none;display:grid;place-items:center;color:var(--muted);transition:transform var(--t) var(--ease)}
 .v2 .fxp-n.open .cv{transform:rotate(90deg)}
 .v2 .fxp-n .ic{color:var(--muted);display:grid;flex:none}
@@ -5577,12 +5597,12 @@
    under it, each bar in its kind's colour, a failed try red and the wait before a retry hatched amber. Log is the run's lines
    with their levels in colour, filtered by level. Data is what each step took in and handed on, as JSON */
 .v2 .rdr{position:relative;width:100%;height:472px;container:rdrf/inline-size;display:flex;flex-direction:column;overflow:hidden;border-radius:var(--r-card);background:var(--surface);box-shadow:var(--shadow);text-align:left}
-.v2 .rdr-cv{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:var(--s-4) var(--s-3);background:var(--stage);background-image:radial-gradient(circle at center,color-mix(in srgb,var(--fg) 9%,transparent) 1px,transparent 1.5px);background-size:16px 16px;overflow:hidden}
+.v2 .rdr-cv{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:var(--s-4);background:var(--stage);background-image:radial-gradient(circle at center,color-mix(in srgb,var(--fg) 9%,transparent) 1px,transparent 1.5px);background-size:16px 16px;overflow:hidden}
 .v2 .rdr-flow{position:relative;display:flex;align-items:center;max-width:100%;overflow-x:auto;scrollbar-width:none;padding:6px}
 .v2 .rdr-flow::-webkit-scrollbar{display:none}
 .v2 .rdr-wire{flex:none;width:14px;height:1.5px;background:var(--faint);transition:background .4s var(--ease)}
 .v2 .rdr-wire.done{background:color-mix(in srgb,var(--fg) 40%,var(--faint))}
-.v2 .rdr-nd{position:relative;flex:none;display:flex;align-items:center;gap:6px;height:34px;padding:0 7px;border-radius:calc(10px * var(--rk-m,var(--rk)));background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 80%,transparent);font-size:12px;white-space:nowrap;transition:box-shadow .3s,opacity .3s}
+.v2 .rdr-nd{position:relative;flex:none;display:flex;align-items:center;gap:6px;height:34px;padding:0 7px;border-radius:calc(7px * var(--rk-m,var(--rk)));background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 80%,transparent);font-size:12px;white-space:nowrap;transition:box-shadow .3s,opacity .3s}
 @media (hover:hover) and (pointer:fine){.v2 .rdr-nd:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line-strong) 50%,transparent)}}
 .v2 .rdr-nd .t{max-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;opacity:0;transition:max-width var(--t) var(--ease),opacity var(--t) var(--ease)}
 .v2 .rdr-nd:is([data-st="run"],[data-st="retry"],[data-st="wait"],[data-st="bad"],[aria-pressed="true"]) .t{max-width:132px;opacity:1}
@@ -5618,27 +5638,31 @@
 @media (hover:hover) and (pointer:fine){.v2 .rdr-grip:hover i{opacity:1}}
 .v2 .rdr-grip:focus-visible i{opacity:1;background:var(--line-strong)}
 .v2 .rdr-dw.drag{user-select:none}
-/* the drawer's content sits 16px in from its edges, in every style (owner, 18 Nov): the toggle's chevron and the first column
-   on the left, and Follow, the times and the log's count on the right; rows' fills and hover boxes reach 8px out round it */
-.v2 .rdr-h{flex:none;display:flex;align-items:center;gap:var(--s-2);height:44px;padding:0 var(--s-4) 0 var(--s-2)}
+/* the drawer's content sits 16px in from its edges, in every style: the toggle's box, the rows' fills and hover boxes, the
+   notice and the data blocks start on that edge, and Follow, Stop and the rows end on it; the words sit 8px inside them */
+.v2 .rdr-h{flex:none;display:flex;align-items:center;gap:var(--s-2);height:44px;padding:0 var(--s-4)}
 .v2 .rdr-tg{flex:none;display:inline-flex;align-items:center;gap:var(--s-2);min-width:0;height:30px;padding:0 var(--s-2);border-radius:var(--r-sm);font-size:13px;font-weight:500;white-space:nowrap;transition:background var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.v2 .rdr-tg:hover{background:var(--row)}}
 .v2 .rdr-tg>.i{color:var(--muted);transform:rotate(180deg);transition:transform var(--t) var(--ease)}
 .v2 .rdr-dw.shut .rdr-tg>.i{transform:none}
 .v2 .rdr-st.tag .spin{width:9px;height:9px;border-width:1.5px}
 .v2 .rdr-st.run{background:var(--accent-bg);color:var(--accent-fg,var(--accent))}
+/* (Blueprint: its lime's darker mark at a strength that reads as a coloured status tag on white) */
+:root:not([data-style="soft"],[data-style="clean"]) .v2 .rdr-st.run{background:color-mix(in srgb,var(--accent-mark) 20%,transparent)}
 .v2 .rdr-meta{min-width:0;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .v2 .rdr-sp{flex:1}
 .v2 .rdr-tabs{flex:none}
 .v2 .rdr-tabs button{padding:0 10px}
 .v2 .rdr-stop,.v2 .rdr-again{flex:none}
 .v2 .rdr-follow{width:28px;height:28px;flex:none;color:var(--muted)}
-.v2 .rdr-follow[aria-pressed="true"]{background:var(--row);color:var(--fg)}
+/* on, Follow takes a fill a step stronger than the hover, so it reads as on */
+.v2 .rdr-follow[aria-pressed="true"]{background:var(--hover);color:var(--fg)}
 /* Clean: on, Follow takes Clean's one selected fill, a step stronger than the shared hover, so it never reads as a hover that
    stuck (owner, 22 Nov); its hover and Stop's are the shared ones */
 :root[data-style="clean"] .v2 .rdr-follow[aria-pressed="true"]{background:var(--row-on)}
 .v2 .rdr-dw.shut :is(.rdr-tabs,.rdr-follow){display:none}
-.v2 .rdr-b{position:relative;flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--rail) transparent;padding:0 var(--s-2) var(--s-2)}
+.v2 .rdr-b{position:relative;flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--rail) transparent;padding:0 var(--s-4);margin-bottom:var(--s-4)}
+/* (the room under the rows is outside the scroll box, so nothing scrolls into the card's bottom 16px) */
 .v2 .rdr-dw.shut .rdr-b{display:none}
 .v2 .rdr-v[hidden]{display:none}
 /* Steps: the timeline */
@@ -5651,7 +5675,9 @@
 .v2 .rdr-rows{display:flex;flex-direction:column;padding-top:var(--s-1)}
 .v2 .rdr-r{width:100%;min-height:30px;border-radius:calc(8px * var(--rk-m,var(--rk)));font-size:12.5px;text-align:left;transition:background .16s}
 @media (hover:hover) and (pointer:fine){.v2 .rdr-r:hover{background:var(--row)}}
-.v2 .rdr-r[aria-pressed="true"]{background:var(--sel)}
+/* a picked step: the accent tint (Blueprint's lime takes its darker mark so the tint shows on white) */
+.v2 .rdr-r[aria-pressed="true"]{background:var(--accent-bg)}
+:root:not([data-style="soft"],[data-style="clean"]) .v2 :is(.rdr-r,.rdr-ds button)[aria-pressed="true"]{background:color-mix(in srgb,var(--accent-mark) 12%,transparent)}
 .v2 .rdr-r.in{animation:v2-enter var(--t) var(--ease) backwards}
 .v2 .rdr-n{display:flex;align-items:center;gap:6px;min-width:0;padding-left:calc(var(--lv,0) * 18px)}
 .v2 .rdr-nm{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -5688,8 +5714,8 @@
 .v2 .rdr-l{display:grid;grid-template-columns:62px 56px minmax(0,1fr);align-items:baseline;gap:var(--s-2);padding:5px var(--s-2);border-radius:calc(8px * var(--rk-m,var(--rk)));font-size:12.5px;line-height:1.45}
 .v2 .rdr-l.in{animation:v2-enter var(--t) var(--ease) backwards}
 .v2 .rdr-l .t{font-size:12px;color:var(--muted)}
-.v2 .rdr-l .lv{justify-self:start;height:18px;padding:0 6px;font-size:11px}
-.v2 .rdr-l .lv[data-l="debug"]{background:var(--chip);color:var(--fg2)}
+.v2 .rdr-l .lv{justify-self:start}
+.v2 .rdr-l .lv[data-l="debug"]{background:var(--chip-fill);color:var(--fg2)}
 .v2 .rdr-l .lv[data-l="info"]{background:var(--pb-bg);color:var(--pb)}
 .v2 .rdr-l .lv[data-l="warn"]{background:var(--warn-bg);color:var(--warn)}
 .v2 .rdr-l .lv[data-l="error"]{background:var(--bad-bg);color:var(--bad)}
@@ -5700,14 +5726,14 @@
 .v2 .rdr-le{margin:0;padding:var(--s-4) var(--s-2);font-size:12.5px;color:var(--muted)}
 /* Data: each step's input and output */
 .v2 .rdr-data{display:grid;grid-template-columns:176px minmax(0,1fr);gap:var(--s-3);padding-top:var(--s-2)}
-.v2 .rdr-ds{display:flex;flex-direction:column;gap:2px;min-width:0}
+.v2 .rdr-ds{display:flex;flex-direction:column;gap:var(--s-1);min-width:0}
 .v2 .rdr-ds button{display:flex;align-items:center;gap:var(--s-2);width:100%;min-width:0;height:30px;padding:0 var(--s-2);border-radius:var(--r-sm);font-size:12.5px;text-align:left;transition:background var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.v2 .rdr-ds button:hover{background:var(--row)}}
-.v2 .rdr-ds button[aria-pressed="true"]{background:var(--sel);font-weight:500}
+.v2 .rdr-ds button[aria-pressed="true"]{background:var(--accent-bg);font-weight:500}
 .v2 .rdr-ds button span:last-child{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .v2 .rdr-io{display:flex;flex-direction:column;gap:var(--s-2);min-width:0;padding-right:var(--s-2)}
 .v2 .rdr-io h4{margin:0;font-size:12px;font-weight:500;color:var(--muted)}
-.v2 .rdr-json{margin:0;padding:var(--s-2) 10px;border-radius:var(--r-in);background:var(--wash);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent);font-family:var(--mono);font-size:12px;line-height:1.6;color:var(--fg);white-space:pre;overflow-x:auto;scrollbar-width:thin}
+.v2 .rdr-json{margin:0;padding:var(--s-4);border-radius:var(--r-in);background:var(--wash);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent);font-family:var(--mono);font-size:12px;line-height:1.6;color:var(--fg);white-space:pre;overflow-x:auto;scrollbar-width:thin}
 .v2 .rdr-json .k{color:var(--pb)}
 .v2 .rdr-json .s{color:var(--pm)}
 .v2 .rdr-json .n{color:var(--pl)}
@@ -5719,7 +5745,8 @@
   .v2 .rdr-stop span,.v2 .rdr-again span{display:none}
   .v2 .rdr-stop,.v2 .rdr-again{width:28px;padding:0}
   .v2 .rdr-ax,.v2 .rdr-r{grid-template-columns:minmax(0,1fr) 30% 48px}
-  .v2 .rdr-ask{grid-template-columns:18px minmax(0,1fr)}.v2 .rdr-ask .acts{grid-area:2/1/3/3;justify-content:flex-end}
+  /* the notice on two lines is a small card: its content 16px from its edges */
+  .v2 .rdr-ask{grid-template-columns:18px minmax(0,1fr);padding:var(--s-4)}.v2 .rdr-ask .acts{grid-area:2/1/3/3;justify-content:flex-end}
   .v2 .rdr-data{grid-template-columns:minmax(0,1fr)}
   .v2 .rdr-ds{flex-direction:row;overflow-x:auto;scrollbar-width:none}
   .v2 .rdr-ds button{flex:none;width:auto}
@@ -5727,9 +5754,8 @@
   .v2 .rdr-l .t{grid-column:1}
   .v2 .rdr-l .m{grid-column:1/-1}
 }
-@container rdr (max-width:440px){.v2 .rdr-tabs button{padding:0 8px}.v2 .rdr-follow,.v2 .rdr-tg>span:not(.rdr-st){display:none}.v2 .rdr-h{gap:6px}
-  /* Stop (or Run again) is the head's last control here: its glyph on the content's edge, its hover box reaching out round it */
-  .v2 .rdr-stop,.v2 .rdr-again{margin-right:-8px}}
+@container rdr (max-width:440px){.v2 .rdr-tabs button{padding:0 6px}.v2 .rdr-follow,.v2 .rdr-tg>span:not(.rdr-st){display:none}.v2 .rdr-h{gap:var(--s-1)}}
+
 @container rdrf (max-width:400px){.v2 .rdr-nd:not([aria-pressed="true"]) .t{max-width:0;opacity:0}}
 @media (prefers-reduced-motion:reduce){.v2 .rdr-r.in,.v2 .rdr-l.in,.v2 .rdr-ask.in,.v2 .rdr-r.run .rdr-bt i{animation:none!important}.v2 .rdr-dw.anim,.v2 .rdr-nd .t{transition:none}}
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .rdr-ti{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rdr-kf,var(--rail)) 30%,transparent)}
@@ -6246,6 +6272,8 @@
 /* the sources button of an answer in the chat keeps its words on the column's edge when it reaches it (on a phone), its hover
    box reaching out round them; on a phone it ends the row, under the tab strip's last glyph (16px in, as the panel's close is) */
 .v2 .ahx-col .lva-sb{margin-right:-9px}
+/* (the harness keeps its sources button as it was: favicons 5px in) */
+.v2 .ahx .lva-sb{padding-left:5px}
 /* a component in the chat lines up with the messages on the left, instead of centring itself as it does on its own */
 .v2 .ahx-col .ahx-msg>*{margin-left:0;margin-right:auto}
 /* chat components sit on the chat itself, the way a bare card shows them; an artifact and a diff keep their card */
@@ -6269,6 +6297,10 @@
 .v2 .ahx-bot::before{content:"";position:absolute;left:0;right:10px;bottom:100%;height:28px;background:linear-gradient(transparent,var(--surface));pointer-events:none}
 .v2 .ahx-bot .cpx{max-width:632px;margin:0 auto}
 .v2 .ahx .cpx-thread{display:none}
+/* (the harness's composer keeps its earlier toolbar: the attach button reaching out round its glyph, chips padded on a phone) */
+.v2 .ahx .cpx-bar>.cpx-add{margin-left:-9px}
+:root[data-style="clean"] .v2 .ahx .cpx-bar>.cpx-add{margin-left:-7px}
+@container (max-width:400px){.v2 .ahx .cpx-bar .chip{width:auto;padding:0 8px;justify-content:normal}:root[data-style="clean"] .v2 .ahx .cpx-bar .chip{width:auto;padding:0 8px}}
 .v2 .ahx .ctm-ft{gap:2px;margin-right:1px;font-size:12.5px}
 .v2 .ahx .ctm-ft>span{color:var(--muted);margin-right:2px}
 /* while the agent works in the chat on screen, a new message waits */
@@ -6575,6 +6607,9 @@
 @media (hover:hover) and (pointer:fine){.v2 .ahx.ahx.ahx.ahx .plx-s:hover{background:var(--row)}}
 .v2 .ahx.ahx.ahx.ahx .plx-s .n{width:20px;height:20px;border-radius:50%;background:var(--chip);display:grid;place-items:center;font-size:11px;font-variant-numeric:tabular-nums;color:var(--muted);flex:none;transition:background .35s,color .35s}
 @media (hover:hover) and (pointer:fine){.v2 .ahx.ahx.ahx.ahx .plx-s:hover .n{background:var(--surface)}}
+/* (the harness keeps its own skip button and number) */
+.v2 .ahx.ahx.ahx.ahx .plx-s .ib{margin-block:0}
+.v2 .ahx.ahx.ahx.ahx .plx-s .n{margin-top:0}
 .v2 .ahx.ahx.ahx.ahx .plx-s .b{flex:1;min-width:0;display:flex;flex-direction:column}
 .v2 .ahx.ahx.ahx.ahx .plx-s .t{min-width:0;outline:0;border-radius:var(--r-tiny,5px);padding:1px 3px;margin:0 -3px;line-height:1.5}
 .v2 .ahx.ahx.ahx.ahx .plx-s .d{font-size:12px;color:var(--muted);display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s var(--ease)}
@@ -7432,6 +7467,10 @@
 .v2 .ecx-h{display:flex;align-items:center;gap:var(--s-2);padding:10px var(--s-3);border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:13.5px;flex-wrap:wrap}
 .v2 .ecx-h b{font-weight:500}
 .v2 .ecx-sp{flex:1}
+/* the library's calendar (the Sales CRM's keeps its own layout): the head and the days sit 16px in from the card's sides, and
+   the head's week and agent's button 16px from its top and from its hairline, in every style */
+.v2 .ecx.panel:not(.crm-ecx){padding:0 var(--s-4)}
+.v2 .ecx.panel:not(.crm-ecx)>.ecx-h{margin:0 calc(-1 * var(--s-4));padding:var(--s-4)}
 .v2 .ecx-sc{overflow-x:auto}
 /* --ph is the height of an hour: every event, the grid lines and the time column are laid out in hours of it */
 .v2 .ecx-grid{display:grid;grid-template-columns:44px repeat(var(--days,5),minmax(76px,1fr));min-width:424px;position:relative;--ph:44px}
@@ -7532,6 +7571,7 @@
   .v2 .ecx-scan{top:8px}
   .v2 .ecx-scan.go{animation-name:v2-ecscn}
   .v2 .ecx-pop{max-width:calc(100% - 16px)}
+  .v2 .ecx:not(.crm-ecx) .ecx-days{padding:var(--s-2) 0}
 }
 /* a calendar too narrow for the week and the agent's button side by side stacks its head: the week on its line, the button under
    it on the same left edge */
@@ -7555,7 +7595,6 @@
 :root[data-style="clean"] .v2 .ecx:not(.crm-ecx) .ecx-sg button.n{color:var(--fg)}
 :root[data-style="clean"] .v2 .ecx-pop:not(.crm-cpop){border-radius:var(--r-card)}
 :root[data-style="clean"] .v2 .ecx-pop:not(.crm-cpop) .ecx-note .i{color:var(--fg2)}
-@container ecx (max-width:519px){:root[data-style="clean"] .v2 .ecx:not(.crm-ecx) .ecx-days{padding:8px 0}}
 /* Clean (owner, 21 Nov: "same with calendar components especially the popup"). The events keep their saturated colours (owner,
    20 Nov: no washed-out calendars) with Clean's touches: 10px corners, a 3px rail down their left in their own colour over
    their tint, a hover that deepens their fill, eased, and an open event ringed in a neutral grey. The now line is a crisp 1px
@@ -10259,10 +10298,10 @@
 /* the first row's words sit 16px under the divider, its hover box reaching out 6px round them (owner, 19 Nov: a body's
    first row sits 16px under a divider, no more), and the list ends as far under its last row */
 :root[data-style="clean"] .v2 .wsx-list{gap:0;padding:10px 16px;border-top:1px solid var(--line)}
-:root[data-style="clean"] .v2 .wsx-qh{grid-template-columns:28px minmax(0,1fr) auto auto 28px;column-gap:12px;width:calc(100% + 16px);margin-inline:-8px;padding:6px 8px;border-radius:calc(7px * var(--rk-m,var(--rk)));transition:background-color var(--t-fast) var(--ease)}
+:root[data-style="clean"] .v2 .wsx-qh{grid-template-columns:28px minmax(0,1fr) auto auto 28px;column-gap:12px;width:100%;margin-inline:0;padding:6px 0;border-radius:calc(7px * var(--rk-m,var(--rk)));transition:background-color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .v2 .wsx-qh>.i{justify-self:center}
 :root[data-style="clean"] .v2 .wsx-qh .n{margin-right:-4px}
-:root[data-style="clean"] .v2 .wsx-qh.empty{grid-template-columns:28px minmax(0,1fr) auto auto}
+:root[data-style="clean"] .v2 .wsx-qh.empty{grid-template-columns:28px minmax(0,1fr) auto auto;padding-right:6px}
 :root[data-style="clean"] .v2 .wsx-qh .n,:root[data-style="clean"] .v2 .wsx-qh .tm{font-variant-numeric:tabular-nums}
 :root[data-style="clean"] .v2 .wsx-rw{margin-top:0;padding:0;gap:12px}
 :root[data-style="clean"] .v2 .wsx-rw .i{margin-inline:8px}

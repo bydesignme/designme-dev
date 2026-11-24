@@ -186,9 +186,12 @@
 .cite{display:inline-grid;place-items:center;min-width:17px;height:17px;padding:0 var(--dm-s-1);margin:0 2px;border-radius:var(--dm-r-tiny,5px);background:var(--dm-hover);font-size:10.5px;font-weight:500;color:var(--dm-fg2);vertical-align:2px;cursor:default;transition:background .2s,color .2s}
 .cite.on{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}
 @media (hover:hover) and (pointer:fine){.cite:hover{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}}
+/* (Blueprint's lime takes its darker mark, so the picked citation's tint shows on white; the harness keeps its own) */
+@media (hover:hover) and (pointer:fine){:root:not([data-style="soft"],[data-style="clean"]) .lva .cite:is(:hover,.on):not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){background:color-mix(in srgb,var(--dm-accent-mark) 12%,transparent)}}
+@media (hover:hover) and (pointer:fine){:root:not([data-style="soft"],[data-style="clean"]) .ahx .lva .cite:is(:hover,.on):not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){background:var(--dm-accent-bg)}}
 .lva-p .cite{animation:lvw .5s var(--dm-ease) both}
 .lva-src{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--dm-muted)}
-.lva-sb{display:inline-flex;align-items:center;gap:var(--dm-s-2);height:28px;padding:0 9px 0 5px;border-radius:var(--dm-r-pill);color:var(--dm-fg2);transition:background .2s,color .2s}
+.lva-sb{display:inline-flex;align-items:center;gap:var(--dm-s-2);height:28px;padding:0 9px 0 6px;border-radius:var(--dm-r-pill);color:var(--dm-fg2);transition:background .2s,color .2s}
 .lva-sb[aria-expanded="true"]{background:var(--dm-row);color:var(--dm-fg)}
 @media (hover:hover) and (pointer:fine){.lva-sb:hover{background:var(--dm-row);color:var(--dm-fg)}}
 .lva-sb>.i{color:var(--dm-muted);transition:transform .35s var(--dm-ease)}
@@ -233,6 +236,8 @@
 .cpx.growing{overflow:visible}
 .cpx-thread{display:flex;flex-direction:column;gap:var(--dm-s-3)}
 .cpx-thread:empty{display:none}
+/* a message is a small card: its files and words 16px from its edges */
+.cpx-thread .bub{padding:var(--dm-s-4)}
 /* a message that is only attachments (owner, 19 Nov): the files sit on their own at the thread's right edge, as a chat app shows
    them, never in an empty bubble; with words they stay in the bubble, above the words */
 .cpx-files{align-self:flex-end;max-width:85%;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px}
@@ -263,7 +268,6 @@
 .cpx-box[data-mode="voice"] .cpx-bar{opacity:0;transform:translateY(-6px);pointer-events:none}
 .cpx-box[data-mode="voice"] .cpx-voice{opacity:1;transform:none;pointer-events:auto;visibility:visible;transition-delay:0s}
 .cpx-bar>.ib{width:32px;height:32px;flex:none}
-.cpx-bar>.cpx-add{margin-left:-9px}
 .cpx-add[aria-expanded="true"]{background:var(--dm-chip);color:var(--dm-fg)}
 .cpx-bar .chip{height:32px;padding:0 10px;gap:6px;background:none;min-width:0;font-size:13px;color:var(--dm-fg2)}
 .cpx-bar .chip[aria-expanded="true"]{background:var(--dm-row);color:var(--dm-fg)}
@@ -271,7 +275,8 @@
 .cpx-bar .chip>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cpx-bar .chip>svg:last-child{color:var(--dm-muted)}
 /* a narrow box: the context and mode chips keep only their icon (the name stays for screen readers, and in the tooltip) */
-@container (max-width:400px){.cpx-bar .chip{padding:0 8px}.cpx-bar .chip>span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.cpx-bar .chip>svg:last-child{display:none}}
+/* (narrow, a chip shows only its icon and is a circle) */
+@container (max-width:400px){.cpx-bar .chip{width:32px;padding:0;justify-content:center}.cpx-bar .chip>span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.cpx-bar .chip>svg:last-child{display:none}}
 .cpx-send{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--dm-accent);color:var(--dm-on-accent);flex:none;transition:opacity .32s,transform .16s,background .16s}
 @media (hover:hover) and (pointer:fine){.cpx-send:hover{background:var(--dm-accent-2)}}
 .cpx-send[disabled]{opacity:1;cursor:not-allowed;background:var(--dm-dis-hatch),var(--dm-dis-fill);color:var(--dm-dis);box-shadow:var(--dm-soft-ring)}
@@ -290,9 +295,9 @@
    button. A file that failed keeps the chip's white with its words and mark in red, no red fill */
 :root[data-style="clean"] .cpx-box,:root [data-style="clean"] .cpx-box,:root [data-style="clean"].cpx-box{border-radius:var(--dm-r-card)}
 :root[data-style="clean"] .cpx-att,:root [data-style="clean"] .cpx-att,:root [data-style="clean"].cpx-att{gap:4px}
-:root[data-style="clean"] .cpx-bar>.cpx-add,:root [data-style="clean"] .cpx-bar>.cpx-add,:root [data-style="clean"].cpx-bar>.cpx-add{margin-left:-7px}
 :root[data-style="clean"] .cpx-bar>.ib,:root [data-style="clean"] .cpx-bar>.ib,:root [data-style="clean"].cpx-bar>.ib{width:28px;height:28px}
 :root[data-style="clean"] .cpx-bar .chip,:root [data-style="clean"] .cpx-bar .chip,:root [data-style="clean"].cpx-bar .chip{height:28px;padding:0 8px;transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+@container (max-width:400px){:root[data-style="clean"] .cpx-bar .chip,:root [data-style="clean"] .cpx-bar .chip,:root [data-style="clean"].cpx-bar .chip{width:28px;padding:0}}
 :root[data-style="clean"] :is(.cpx-add,.cpx-bar .chip)[aria-expanded="true"],:root [data-style="clean"] :is(.cpx-add,.cpx-bar .chip)[aria-expanded="true"],:root [data-style="clean"]:is(.cpx-add,.cpx-bar .chip)[aria-expanded="true"]{background:var(--dm-row-on)}
 /* Send is the field's own Send (see the Clean section), 16px from the box's right and bottom edges, its corners the box's
    less those 16px */
@@ -848,7 +853,8 @@
 .ctm-bar i{height:100%;width:0;flex:none;background:var(--dm-c);transition:width .42s var(--dm-ease),opacity .16s}
 .ctm-bar.hl i:not(.on){opacity:.25}
 /* the legend's rows answer the pointer: the swatch sits on the content's edge and the hover reaches out round it */
-.ctm-leg{display:flex;flex-direction:column;margin:0 -6px}
+/* (the legend's rows and their hover fills are as wide as the content, their words 6px inside) */
+.ctm-leg{display:flex;flex-direction:column;margin:0}
 .ctm-l{display:flex;align-items:center;gap:var(--dm-s-2);padding:5px 6px;border-radius:var(--dm-r-sm);font-size:13px;line-height:18px;color:var(--dm-fg2);cursor:default;transition:background var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.ctm-l:hover{background:color-mix(in srgb,var(--dm-fg) 5%,transparent)}}
 /* the swatch is centred in a 16px column, the column of the message's sign and tick below, so their words line up */
@@ -864,7 +870,10 @@
 .ctm-msg>span>svg,.ctm-msg>span>svg.i{flex:none;width:16px;height:16px;margin-top:1px}
 /* the notice reaches out as far as the legend's hover, with the legend's padding, so its sign sits in the swatches' column
    and its words on the legend's words */
-.ctm-msg.warn>span{margin:0 -6px;padding:8px 6px;border-radius:var(--dm-r-sm);background:color-mix(in srgb,var(--dm-warn-bg) 45%,transparent)}
+/* (a message's mark sits on the legend's swatch column and its words on the legend's words; the warning's tint is as wide
+   as the content, its words 6px inside it) */
+.ctm-msg:not(.warn)>span{padding-inline:6px}
+.ctm-msg.warn>span{margin:0;padding:8px 6px;border-radius:var(--dm-r-sm);background:color-mix(in srgb,var(--dm-warn-bg) 45%,transparent)}
 .ctm-wi{overflow:visible}
 .ctm-wi .a{fill:var(--dm-warn-mark);stroke:var(--dm-warn-mark);stroke-width:2;stroke-linejoin:round}
 .ctm-wi .b{fill:none;stroke:var(--dm-surface);stroke-width:2.2;stroke-linecap:round}
@@ -875,7 +884,7 @@
 /* while it compacts nothing can be pressed, so it says so where the button was (owner, 21 Nov: "should this be gray button?
    especially the loading animation?"): the spinner in the accent and the words in the loader's sweep, as plain words, the row
    keeping its height and its right edge; Undo comes in once it is done */
-.ctm-run{display:inline-flex;align-items:center;gap:6px;height:28px;flex:none;font-size:12.5px;color:var(--dm-fg);white-space:nowrap}
+.ctm-run{display:inline-flex;align-items:center;gap:6px;height:28px;flex:none;font-size:13px;color:var(--dm-fg);white-space:nowrap}
 .ctm-run[hidden]{display:none}
 .ctm-run .spin{width:12px;height:12px;color:var(--dm-accent-mark,var(--dm-accent))}
 .ctm-f .ctm-hint{flex:1;min-width:0;font-size:13px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -908,12 +917,13 @@
 :root[data-style="clean"] .ctm-bar i,:root [data-style="clean"] .ctm-bar i,:root [data-style="clean"].ctm-bar i{transition:width .42s var(--dm-ease),opacity .15s var(--dm-ease)}
 :root[data-style="clean"] .ctm-bar i:first-child,:root [data-style="clean"] .ctm-bar i:first-child,:root [data-style="clean"].ctm-bar i:first-child{border-radius:3px 0 0 3px}
 :root[data-style="clean"] .ctm-bar.hl i:not(.on),:root [data-style="clean"] .ctm-bar.hl i:not(.on),:root [data-style="clean"].ctm-bar.hl i:not(.on){opacity:.28}
-:root[data-style="clean"] .ctm-leg,:root [data-style="clean"] .ctm-leg,:root [data-style="clean"].ctm-leg{margin:8px 8px 0}
+:root[data-style="clean"] .ctm-leg,:root [data-style="clean"] .ctm-leg,:root [data-style="clean"].ctm-leg{margin:8px 16px 0}
 :root[data-style="clean"] .ctm-l,:root [data-style="clean"] .ctm-l,:root [data-style="clean"].ctm-l{padding:5px 8px;border-radius:calc(var(--dm-r-card) - 8px);transition:background-color var(--dm-t-fast) var(--dm-ease)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .ctm-l:hover,:root [data-style="clean"] .ctm-l:hover,:root [data-style="clean"].ctm-l:hover{background:var(--dm-row)}}
 :root[data-style="clean"] .ctm-msg,:root [data-style="clean"] .ctm-msg,:root [data-style="clean"].ctm-msg{margin:0 16px}
 :root[data-style="clean"] .ctm-msg.on,:root [data-style="clean"] .ctm-msg.on,:root [data-style="clean"].ctm-msg.on{margin:8px 16px 5px}
-:root[data-style="clean"] .ctm-msg.warn>span,:root [data-style="clean"] .ctm-msg.warn>span,:root [data-style="clean"].ctm-msg.warn>span{margin:0 -8px;padding:8px;border-radius:calc(var(--dm-r-card) - 8px)}
+:root[data-style="clean"] .ctm-msg:not(.warn)>span,:root [data-style="clean"] .ctm-msg:not(.warn)>span,:root [data-style="clean"].ctm-msg:not(.warn)>span{padding-inline:8px}
+:root[data-style="clean"] .ctm-msg.warn>span,:root [data-style="clean"] .ctm-msg.warn>span,:root [data-style="clean"].ctm-msg.warn>span{margin:0;padding:8px;border-radius:calc(var(--dm-r-card) - 8px)}
 :root[data-style="clean"] .ctm-f,:root [data-style="clean"] .ctm-f,:root [data-style="clean"].ctm-f{margin-top:11px;padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
 :root[data-style="clean"] .ctm-go,:root [data-style="clean"] .ctm-go,:root [data-style="clean"].ctm-go{height:28px;padding:0 12px;border-radius:var(--dm-r-pill)}
 :root[data-style="clean"] .ctm-go:not(.warn),:root [data-style="clean"] .ctm-go:not(.warn),:root [data-style="clean"].ctm-go:not(.warn){color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
@@ -982,12 +992,13 @@
 /* every part on shared columns, in every style (owner, 18 Nov): the header's mark and each step's number are centred in one
    32px column, so the steps' words start where the title's do; a step's hover fill spans the content and no wider */
 .plx-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;counter-reset:s}
-.plx-s{display:flex;align-items:flex-start;gap:10px;padding:7px 4px 7px 0;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;transition:background .25s,opacity .35s;position:relative}
+.plx-s{display:flex;align-items:flex-start;gap:10px;padding:7px 6px 7px 0;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;transition:background .25s,opacity .35s;position:relative}
 @media (hover:hover) and (pointer:fine){.plx-s:hover{background:var(--dm-row)}}
-.plx-s .n{width:20px;height:20px;margin-inline:6px;border-radius:50%;background:var(--dm-chip);display:grid;place-items:center;font-size:11px;font-variant-numeric:tabular-nums;color:var(--dm-muted);flex:none;transition:background .35s,color .35s}
+.plx-s .n{width:20px;height:20px;margin:1px 6px 0;border-radius:50%;background:var(--dm-chip);display:grid;place-items:center;font-size:11px;font-variant-numeric:tabular-nums;color:var(--dm-muted);flex:none;transition:background .35s,color .35s}
 @media (hover:hover) and (pointer:fine){.plx-s:hover .n{background:var(--dm-surface)}}
 .plx-s .b{flex:1;min-width:0;display:flex;flex-direction:column}
-.plx-s .t{min-width:0;outline:0;border-radius:var(--dm-r-tiny,5px);padding:1px 3px;margin:0 -3px;line-height:1.5}
+/* (a 20px line, with the number on it: the number and the words share one centre, with even room above and below) */
+.plx-s .t{min-width:0;outline:0;border-radius:var(--dm-r-tiny,5px);padding:1px 3px;margin:0 -3px;line-height:20px}
 /* the line a step reports: it opens under the step, in the step's colour while it waits on something */
 .plx-s .d{font-size:12px;color:var(--dm-muted);display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s var(--dm-ease)}
 .plx-s .d.on{grid-template-rows:1fr}
@@ -999,7 +1010,8 @@
 .plx-tm:empty{display:none}
 .plx-s .n .spin{width:10px;height:10px}
 .plx-s .t:focus{background:var(--dm-surface);box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
-.plx-s .ib{width:24px;height:24px;opacity:0;transition:opacity .2s}
+/* (the skip button takes no more height than a step's line, so a step has the same room above and below its words) */
+.plx-s .ib{width:24px;height:24px;margin-block:-1.25px;opacity:0;transition:opacity .2s}
 .plx-s .ib:focus-visible{opacity:1}
 @media (hover:hover) and (pointer:fine){.plx-s:hover .ib{opacity:1}}
 .plx-s.off{opacity:.45}
@@ -1017,8 +1029,6 @@
 /* the footer sits under a hairline in Soft and Blueprint, in every state (owner, 21 Nov: "shouldn't there be a divider line
    there?"), 16px under the last step and 16px over its buttons, as the card's own edges are; Clean's is a foot strip (below) */
 .plx-f{margin-top:6px;padding-top:var(--dm-s-4);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
-/* Stop, the footer's last control, has its word on the content's right edge and its hover box reaching out round it */
-.plx-f .plx-stop:last-child{margin-right:-11px}
 .plx-n{flex:1;font-size:12px;min-width:0}
 @media (max-width:480px){.plx-n{display:none}}
 /* Clean (lead and owner, 18 Nov): a card with the plan and an off-white foot strip, everything on shared columns. Its
@@ -1040,8 +1050,8 @@
 :root[data-style="clean"] .plx-st,:root [data-style="clean"] .plx-st,:root [data-style="clean"].plx-st{line-height:18px}
 :root[data-style="clean"] .plx-tm,:root [data-style="clean"] .plx-tm,:root [data-style="clean"].plx-tm{font-variant-numeric:tabular-nums}
 :root[data-style="clean"] .plx-list,:root [data-style="clean"] .plx-list,:root [data-style="clean"].plx-list{margin:0}
-:root[data-style="clean"] .plx-s,:root [data-style="clean"] .plx-s,:root [data-style="clean"].plx-s{gap:12px;padding:7px 4px 7px 0;border-radius:calc(7px * var(--dm-rk-m,var(--dm-rk)));transition:background-color var(--dm-t-fast) var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease)}
-:root[data-style="clean"] .plx-s .n,:root [data-style="clean"] .plx-s .n,:root [data-style="clean"].plx-s .n{margin-inline:6px;background:none;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 50%,transparent);transition:background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .plx-s,:root [data-style="clean"] .plx-s,:root [data-style="clean"].plx-s{gap:12px;padding:7px 6px 7px 0;border-radius:calc(7px * var(--dm-rk-m,var(--dm-rk)));transition:background-color var(--dm-t-fast) var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .plx-s .n,:root [data-style="clean"] .plx-s .n,:root [data-style="clean"].plx-s .n{margin:1px 6px 0;background:none;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 50%,transparent);transition:background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .plx-s:hover .n,:root [data-style="clean"] .plx-s:hover .n,:root [data-style="clean"].plx-s:hover .n{background:var(--dm-surface)}}
 :root[data-style="clean"] .plx-s.run .n,:root [data-style="clean"] .plx-s.run .n,:root [data-style="clean"].plx-s.run .n{box-shadow:none;color:var(--dm-fg)}
 :root[data-style="clean"] .plx-s.run .n .spin,:root [data-style="clean"] .plx-s.run .n .spin,:root [data-style="clean"].plx-s.run .n .spin{width:20px;height:20px;border:1.5px solid var(--dm-line);border-top-color:var(--dm-accent-mark);animation-duration:.9s}
@@ -1100,6 +1110,9 @@
 .pgx-done{display:flex;align-items:center;gap:var(--dm-s-3);padding:10px 7px 10px 0;border-radius:var(--dm-r-in);background:var(--dm-chip);font-size:13.5px}
 /* its mark sits centred in the scopes' 32px column, under the head's tile, and its words start on the title's column */
 .pgx-done>svg{margin-inline:8px}
+/* on a phone the answered row wraps to a small card: its words and its button 16px from its top, bottom and right; its mark
+   stays centred under the head's tile */
+@container (max-width:340px){.pgx-done{padding:var(--dm-s-4) var(--dm-s-4) var(--dm-s-4) 0}}
 /* its button is a white pill on the grey row */
 .pgx-done .pill{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-on-tint-btn)}
 @media (hover:hover) and (pointer:fine){.pgx-done .pill:hover{background:var(--dm-surface);box-shadow:var(--dm-on-tint-btn-h)}}
@@ -1431,6 +1444,8 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 /* the sources button of an answer in the chat keeps its words on the column's edge when it reaches it (on a phone), its hover
    box reaching out round them; on a phone it ends the row, under the tab strip's last glyph (16px in, as the panel's close is) */
 .ahx-col .lva-sb{margin-right:-9px}
+/* (the harness keeps its sources button as it was: favicons 5px in) */
+.ahx .lva-sb{padding-left:5px}
 /* a component in the chat lines up with the messages on the left, instead of centring itself as it does on its own */
 .ahx-col .ahx-msg>*{margin-left:0;margin-right:auto}
 /* chat components sit on the chat itself, the way a bare card shows them; an artifact and a diff keep their card */
@@ -1454,6 +1469,10 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .ahx-bot::before{content:"";position:absolute;left:0;right:10px;bottom:100%;height:28px;background:linear-gradient(transparent,var(--dm-surface));pointer-events:none}
 .ahx-bot .cpx{max-width:632px;margin:0 auto}
 .ahx .cpx-thread{display:none}
+/* (the harness's composer keeps its earlier toolbar: the attach button reaching out round its glyph, chips padded on a phone) */
+.ahx .cpx-bar>.cpx-add{margin-left:-9px}
+:root[data-style="clean"] .ahx .cpx-bar>.cpx-add,:root [data-style="clean"] .ahx .cpx-bar>.cpx-add,:root [data-style="clean"].ahx .cpx-bar>.cpx-add{margin-left:-7px}
+@container (max-width:400px){.ahx .cpx-bar .chip{width:auto;padding:0 8px;justify-content:normal}:root[data-style="clean"] .ahx .cpx-bar .chip,:root [data-style="clean"] .ahx .cpx-bar .chip,:root [data-style="clean"].ahx .cpx-bar .chip{width:auto;padding:0 8px}}
 .ahx .ctm-ft{gap:2px;margin-right:1px;font-size:12.5px}
 .ahx .ctm-ft>span{color:var(--dm-muted);margin-right:2px}
 /* while the agent works in the chat on screen, a new message waits */
@@ -1760,6 +1779,9 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 @media (hover:hover) and (pointer:fine){.ahx.ahx.ahx.ahx .plx-s:hover{background:var(--dm-row)}}
 .ahx.ahx.ahx.ahx .plx-s .n{width:20px;height:20px;border-radius:50%;background:var(--dm-chip);display:grid;place-items:center;font-size:11px;font-variant-numeric:tabular-nums;color:var(--dm-muted);flex:none;transition:background .35s,color .35s}
 @media (hover:hover) and (pointer:fine){.ahx.ahx.ahx.ahx .plx-s:hover .n{background:var(--dm-surface)}}
+/* (the harness keeps its own skip button and number) */
+.ahx.ahx.ahx.ahx .plx-s .ib{margin-block:0}
+.ahx.ahx.ahx.ahx .plx-s .n{margin-top:0}
 .ahx.ahx.ahx.ahx .plx-s .b{flex:1;min-width:0;display:flex;flex-direction:column}
 .ahx.ahx.ahx.ahx .plx-s .t{min-width:0;outline:0;border-radius:var(--dm-r-tiny,5px);padding:1px 3px;margin:0 -3px;line-height:1.5}
 .ahx.ahx.ahx.ahx .plx-s .d{font-size:12px;color:var(--dm-muted);display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s var(--dm-ease)}
@@ -3120,7 +3142,7 @@ export function AgentHarness({
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>agent-harness.css<span class="l">React · 537 lines</span></summary><pre class="cp-pre" data-name="agent-harness.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>agent-harness.css<span class="l">React · 546 lines</span></summary><pre class="cp-pre" data-name="agent-harness.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Agent harness ---------- */
 /* a whole agent app in one card: chats down the side, tabs across the top, a New chat home with suggestions, and the
    conversations themselves, told with the components above */
@@ -3241,6 +3263,8 @@ svg.dm-i:has(&gt;use[href$=&quot;i-unfold&quot;]){transition:transform .2s cubic
 /* the sources button of an answer in the chat keeps its words on the column&#39;s edge when it reaches it (on a phone), its hover
    box reaching out round them; on a phone it ends the row, under the tab strip&#39;s last glyph (16px in, as the panel&#39;s close is) */
 .dm-ahx-col .dm-lva-sb{margin-right:-9px}
+/* (the harness keeps its sources button as it was: favicons 5px in) */
+.dm-ahx .dm-lva-sb{padding-left:5px}
 /* a component in the chat lines up with the messages on the left, instead of centring itself as it does on its own */
 .dm-ahx-col .dm-ahx-msg&gt;*{margin-left:0;margin-right:auto}
 /* chat components sit on the chat itself, the way a bare card shows them; an artifact and a diff keep their card */
@@ -3264,6 +3288,10 @@ svg.dm-i:has(&gt;use[href$=&quot;i-unfold&quot;]){transition:transform .2s cubic
 .dm-ahx-bot::before{content:&quot;&quot;;position:absolute;left:0;right:10px;bottom:100%;height:28px;background:linear-gradient(transparent,var(--dm-surface));pointer-events:none}
 .dm-ahx-bot .dm-cpx{max-width:632px;margin:0 auto}
 .dm-ahx .dm-cpx-thread{display:none}
+/* (the harness&#39;s composer keeps its earlier toolbar: the attach button reaching out round its glyph, chips padded on a phone) */
+.dm-ahx .dm-cpx-bar&gt;.dm-cpx-add{margin-left:-9px}
+:root[data-style=&quot;clean&quot;] .dm-ahx .dm-cpx-bar&gt;.dm-cpx-add,:root [data-style=&quot;clean&quot;] .dm-ahx .dm-cpx-bar&gt;.dm-cpx-add,:root [data-style=&quot;clean&quot;].dm-ahx .dm-cpx-bar&gt;.dm-cpx-add{margin-left:-7px}
+@container (max-width:400px){.dm-ahx .dm-cpx-bar .dm-chip{width:auto;padding:0 8px;justify-content:normal}:root[data-style=&quot;clean&quot;] .dm-ahx .dm-cpx-bar .dm-chip,:root [data-style=&quot;clean&quot;] .dm-ahx .dm-cpx-bar .dm-chip,:root [data-style=&quot;clean&quot;].dm-ahx .dm-cpx-bar .dm-chip{width:auto;padding:0 8px}}
 .dm-ahx .dm-ctm-ft{gap:2px;margin-right:1px;font-size:12.5px}
 .dm-ahx .dm-ctm-ft&gt;span{color:var(--dm-muted);margin-right:2px}
 /* while the agent works in the chat on screen, a new message waits */
@@ -3570,6 +3598,9 @@ svg.dm-i:has(&gt;use[href$=&quot;i-unfold&quot;]){transition:transform .2s cubic
 @media (hover:hover) and (pointer:fine){.dm-ahx.dm-ahx.dm-ahx.dm-ahx .dm-plx-s:hover{background:var(--dm-row)}}
 .dm-ahx.dm-ahx.dm-ahx.dm-ahx .dm-plx-s .dm-n{width:20px;height:20px;border-radius:50%;background:var(--dm-chip);display:grid;place-items:center;font-size:11px;font-variant-numeric:tabular-nums;color:var(--dm-muted);flex:none;transition:background .35s,color .35s}
 @media (hover:hover) and (pointer:fine){.dm-ahx.dm-ahx.dm-ahx.dm-ahx .dm-plx-s:hover .dm-n{background:var(--dm-surface)}}
+/* (the harness keeps its own skip button and number) */
+.dm-ahx.dm-ahx.dm-ahx.dm-ahx .dm-plx-s .dm-ib{margin-block:0}
+.dm-ahx.dm-ahx.dm-ahx.dm-ahx .dm-plx-s .dm-n{margin-top:0}
 .dm-ahx.dm-ahx.dm-ahx.dm-ahx .dm-plx-s .dm-b{flex:1;min-width:0;display:flex;flex-direction:column}
 .dm-ahx.dm-ahx.dm-ahx.dm-ahx .dm-plx-s .dm-t{min-width:0;outline:0;border-radius:var(--dm-r-tiny,5px);padding:1px 3px;margin:0 -3px;line-height:1.5}
 .dm-ahx.dm-ahx.dm-ahx.dm-ahx .dm-plx-s .dm-d{font-size:12px;color:var(--dm-muted);display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s var(--dm-ease)}
@@ -3781,7 +3812,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>agent-harness.css<span class="l">HTML · 536 lines</span></summary><pre class="cp-pre" data-name="agent-harness.css"><code>/* ---------- Agent harness ---------- */
+</code></pre></details><details class="cp-file"><summary>agent-harness.css<span class="l">HTML · 545 lines</span></summary><pre class="cp-pre" data-name="agent-harness.css"><code>/* ---------- Agent harness ---------- */
 /* a whole agent app in one card: chats down the side, tabs across the top, a New chat home with suggestions, and the
    conversations themselves, told with the components above */
 .card.wide .stage-in:has(&gt;.ahx){max-width:960px}
@@ -3901,6 +3932,8 @@ svg.i:has(&gt;use[href$=&quot;i-unfold&quot;]){transition:transform .2s cubic-be
 /* the sources button of an answer in the chat keeps its words on the column&#39;s edge when it reaches it (on a phone), its hover
    box reaching out round them; on a phone it ends the row, under the tab strip&#39;s last glyph (16px in, as the panel&#39;s close is) */
 .ahx-col .lva-sb{margin-right:-9px}
+/* (the harness keeps its sources button as it was: favicons 5px in) */
+.ahx .lva-sb{padding-left:5px}
 /* a component in the chat lines up with the messages on the left, instead of centring itself as it does on its own */
 .ahx-col .ahx-msg&gt;*{margin-left:0;margin-right:auto}
 /* chat components sit on the chat itself, the way a bare card shows them; an artifact and a diff keep their card */
@@ -3924,6 +3957,10 @@ svg.i:has(&gt;use[href$=&quot;i-unfold&quot;]){transition:transform .2s cubic-be
 .ahx-bot::before{content:&quot;&quot;;position:absolute;left:0;right:10px;bottom:100%;height:28px;background:linear-gradient(transparent,var(--dm-surface));pointer-events:none}
 .ahx-bot .cpx{max-width:632px;margin:0 auto}
 .ahx .cpx-thread{display:none}
+/* (the harness&#39;s composer keeps its earlier toolbar: the attach button reaching out round its glyph, chips padded on a phone) */
+.ahx .cpx-bar&gt;.cpx-add{margin-left:-9px}
+:root[data-style=&quot;clean&quot;] .ahx .cpx-bar&gt;.cpx-add,:root [data-style=&quot;clean&quot;] .ahx .cpx-bar&gt;.cpx-add,:root [data-style=&quot;clean&quot;].ahx .cpx-bar&gt;.cpx-add{margin-left:-7px}
+@container (max-width:400px){.ahx .cpx-bar .chip{width:auto;padding:0 8px;justify-content:normal}:root[data-style=&quot;clean&quot;] .ahx .cpx-bar .chip,:root [data-style=&quot;clean&quot;] .ahx .cpx-bar .chip,:root [data-style=&quot;clean&quot;].ahx .cpx-bar .chip{width:auto;padding:0 8px}}
 .ahx .ctm-ft{gap:2px;margin-right:1px;font-size:12.5px}
 .ahx .ctm-ft&gt;span{color:var(--dm-muted);margin-right:2px}
 /* while the agent works in the chat on screen, a new message waits */
@@ -4230,6 +4267,9 @@ svg.i:has(&gt;use[href$=&quot;i-unfold&quot;]){transition:transform .2s cubic-be
 @media (hover:hover) and (pointer:fine){.ahx.ahx.ahx.ahx .plx-s:hover{background:var(--dm-row)}}
 .ahx.ahx.ahx.ahx .plx-s .n{width:20px;height:20px;border-radius:50%;background:var(--dm-chip);display:grid;place-items:center;font-size:11px;font-variant-numeric:tabular-nums;color:var(--dm-muted);flex:none;transition:background .35s,color .35s}
 @media (hover:hover) and (pointer:fine){.ahx.ahx.ahx.ahx .plx-s:hover .n{background:var(--dm-surface)}}
+/* (the harness keeps its own skip button and number) */
+.ahx.ahx.ahx.ahx .plx-s .ib{margin-block:0}
+.ahx.ahx.ahx.ahx .plx-s .n{margin-top:0}
 .ahx.ahx.ahx.ahx .plx-s .b{flex:1;min-width:0;display:flex;flex-direction:column}
 .ahx.ahx.ahx.ahx .plx-s .t{min-width:0;outline:0;border-radius:var(--dm-r-tiny,5px);padding:1px 3px;margin:0 -3px;line-height:1.5}
 .ahx.ahx.ahx.ahx .plx-s .d{font-size:12px;color:var(--dm-muted);display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s var(--dm-ease)}
@@ -6148,7 +6188,7 @@ const fitHits = window.dmFitHits || (() => {
   const F = ['Hero', 'Plan cards', 'Compare table', 'FAQ', 'Plan toggle', 'Checkout summary'], LIB = 4;
   let granted = 0, publish = false, skip = false, done = 0, run = 0, panel = null;
   function row(){
-    panel = html(`<div class="pgx-done run"><span class="g"><span class="spin"></span></span><span class="t"><b class="pgx-a"></b><span class="pgx-d"></span></span><button class="pill ghost sm">Revoke</button></div>`);
+    panel = html(`<div class="pgx-done run"><span class="g"><span class="spin"></span></span><span class="t"><b class="pgx-a"></b><span class="pgx-d"></span></span><button class="pill line sm">Revoke</button></div>`);
     sum(panel, names.join(', '), `${names.length} ${word(names.length)} allowed`);
     into().appendChild(panel); enter(panel); $('button', panel).onclick = revoke;
   }
@@ -6202,7 +6242,7 @@ const fitHits = window.dmFitHits || (() => {
   });
   no.onclick = () => {
     if (root.classList.contains('esc')){ skip = true; show(false); root.classList.remove('esc'); swap(title, first.title); swap(sub, first.sub); work(); return; }
-    show(false); const d = html(`<div class="pgx-done" style="background:var(--dm-chip)">${I('info')}<span class="t">The agent will skip the Figma edits<span>It will list the fixes in chat instead</span></span><button class="pill ghost sm">Undo</button></div>`);
+    show(false); const d = html(`<div class="pgx-done" style="background:var(--dm-chip)">${I('info')}<span class="t">The agent will skip the Figma edits<span>It will list the fixes in chat instead</span></span><button class="pill line sm">Undo</button></div>`);
     sum(d, 'Nothing allowed in Figma'); into().appendChild(d); enter(d); $('button', d).onclick = () => { d.remove(); show(true); };
   };
   // the preview's story: hold back the risky scope, allow the rest, then grant it when the agent needs it for one frame

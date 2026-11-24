@@ -241,7 +241,7 @@ DM.def('inline-text-diff', (r, c) => {
     why.hidden = !e.why; $('span', why).textContent = e.why || '';
     // an edit the agent isn't sure of: the toolbar is a warning notice, and Reject, which settles it, is .pill.warn
     bar.classList.toggle('unsure', !!e.why);
-    acc.className = 'pill sm itd-acc ' + (e.why ? 'ghost' : 'primary'); rej.className = 'pill sm itd-rej ' + (e.why ? 'warn' : 'ghost');
+    acc.className = 'pill sm itd-acc ' + (e.why ? 'line' : 'primary'); rej.className = 'pill sm itd-rej ' + (e.why ? 'warn' : 'ghost');
     const rb = root.getBoundingClientRect(), k = rb.width / root.offsetWidth || 1, rs = el.getClientRects(), cr = rs[rs.length - 1] || el.getBoundingClientRect(), c0 = rs[0] || cr;
     const room = popRoom(el), up = cr.bottom + 6 + bar.offsetHeight * k > room.bottom - 8 && c0.top - 6 - bar.offsetHeight * k >= room.top + 8;
     bar.inert = false; bar.classList.toggle('up', up); void bar.offsetWidth; bar.classList.add('open');

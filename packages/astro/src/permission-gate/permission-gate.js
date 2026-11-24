@@ -45,7 +45,7 @@ DM.def('permission-gate', (r, c) => {
   const F = ['Hero', 'Plan cards', 'Compare table', 'FAQ', 'Plan toggle', 'Checkout summary'], LIB = 4;
   let granted = 0, publish = false, skip = false, done = 0, run = 0, panel = null;
   function row(){
-    panel = html(`<div class="pgx-done run"><span class="g"><span class="spin"></span></span><span class="t"><b class="pgx-a"></b><span class="pgx-d"></span></span><button class="pill ghost sm">Revoke</button></div>`);
+    panel = html(`<div class="pgx-done run"><span class="g"><span class="spin"></span></span><span class="t"><b class="pgx-a"></b><span class="pgx-d"></span></span><button class="pill line sm">Revoke</button></div>`);
     sum(panel, names.join(', '), `${names.length} ${word(names.length)} allowed`);
     into().appendChild(panel); enter(panel); $('button', panel).onclick = revoke;
   }
@@ -99,7 +99,7 @@ DM.def('permission-gate', (r, c) => {
   });
   no.onclick = () => {
     if (root.classList.contains('esc')){ skip = true; show(false); root.classList.remove('esc'); swap(title, first.title); swap(sub, first.sub); work(); return; }
-    show(false); const d = html(`<div class="pgx-done" style="background:var(--dm-chip)">${I('info')}<span class="t">The agent will skip the Figma edits<span>It will list the fixes in chat instead</span></span><button class="pill ghost sm">Undo</button></div>`);
+    show(false); const d = html(`<div class="pgx-done" style="background:var(--dm-chip)">${I('info')}<span class="t">The agent will skip the Figma edits<span>It will list the fixes in chat instead</span></span><button class="pill line sm">Undo</button></div>`);
     sum(d, 'Nothing allowed in Figma'); into().appendChild(d); enter(d); $('button', d).onclick = () => { d.remove(); show(true); };
   };
   // the preview's story: hold back the risky scope, allow the rest, then grant it when the agent needs it for one frame

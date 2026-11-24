@@ -167,10 +167,9 @@
    and latency. The run itself is the head: its mark, its name, how it is going, and its total tokens and time. The card
    sits on two columns (owner, 18 Nov): the head's mark in a 32px column with the title's words 12px after it; each span's
    mark is centred in that column (nested ones step in 16px a level) and the top spans' names start where the title's
-   words do, as do the key and the Span heading. Everything sits on the card's 16px column on both sides (owner, 22 Nov: "all padding inside the card"): the
-   run's totals, the times and tokens and an open span's details end 16px from the right edge, as the mark starts 16px from
-   the left. A row's hover and selection fill is a quiet grey that reaches 8px out round the row on each side, as a select's
-   box reaches out round its words. Each kind has its colour (the chart
+   words do, as do the key and the Span heading. Everything sits on the card's 16px column on both sides (owner, 22 Nov: "all padding inside the card"). A row's hover and
+   selection fill is a quiet grey as wide as the content, 16px from each edge, with the span's mark 7px inside it and the
+   times and tokens 8px inside its right end; the run's totals and the axis end on those columns too. Each kind has its colour (the chart
    palette's identity slots): its bar and its count in the key, drawn at full strength so the key matches them. While the
    run streams, a playhead marks now and the running bars grow with a bright leading edge. A span over its time budget
    turns amber and hatched, and any span opens to show where it sat in the run, its input and its output, on the same
@@ -186,7 +185,7 @@
 .trv-tt{flex:none;margin-right:-4px;font-size:12.5px;white-space:nowrap}
 .trv-tot{font-size:14px;font-weight:500;flex:none}
 /* (the tokens and the time share one baseline; the row round them stays centred on the tile) */
-.trv-nums{flex:none;display:flex;align-items:baseline;gap:12px}
+.trv-nums{flex:none;display:flex;align-items:baseline;gap:12px;padding-right:var(--dm-s-2)}
 /* the key: each kind with its colour and how many of its spans have started */
 .trv-lg{display:flex;flex-wrap:wrap;gap:2px var(--dm-s-3);padding:8px 0 12px 44px;font-size:12px;color:var(--dm-muted)}
 .trv-lg span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;transition:color .3s}
@@ -194,14 +193,14 @@
 .trv-lg b{font-weight:500;color:var(--dm-fg2)}
 .trv-lg span.z{color:var(--dm-dis)}.trv-lg span.z b{color:inherit}.trv-lg span.z i{opacity:.45}
 .trv-ax,.trv-r{display:grid;grid-template-columns:var(--dm-cols);align-items:center;gap:var(--dm-s-2)}
-.trv-ax{height:30px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12px;color:var(--dm-muted)}
+.trv-ax{height:30px;padding-right:var(--dm-s-2);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12px;color:var(--dm-muted)}
 .trv-ax>span:first-child{padding-left:44px}
 .trv-tk,.trv-ms{text-align:right;white-space:nowrap}
 .trv-sc{position:relative;height:18px}
 .trv-sc span{position:absolute;top:0;transform:translateX(-50%);font-size:12px}
 .trv-sc span:first-child{transform:none}
-.trv-rows{display:flex;flex-direction:column;padding-bottom:8px}
-.trv-r{width:calc(100% + 16px);margin:0 -8px;padding:0 8px;min-height:32px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;text-align:left;transition:background .16s}
+.trv-rows{display:flex;flex-direction:column;padding-bottom:var(--dm-s-4)}
+.trv-r{width:100%;padding:0 var(--dm-s-2) 0 0;min-height:32px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;text-align:left;transition:background .16s}
 .trv-r[aria-expanded="true"]{background:var(--dm-row)}
 @media (hover:hover) and (pointer:fine){.trv-r:hover{background:var(--dm-row)}}
 .trv-r[aria-expanded="true"] .trv-tk{color:var(--dm-fg2)}
@@ -256,19 +255,20 @@
 .trv-kv span{font-size:12px;color:var(--dm-muted)}
 .trv-kv b{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .trv-io{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:6px 10px;font-size:12px;color:var(--dm-muted)}
-.trv-io code{font-family:var(--dm-mono);font-size:12px;color:var(--dm-fg2);background:var(--dm-chip);padding:5px var(--dm-s-2);border-radius:var(--dm-r-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trv-io code{font-family:var(--dm-mono);font-size:12px;color:var(--dm-fg2);background:var(--dm-chip-fill);padding:5px var(--dm-s-3);border-radius:var(--dm-r-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root:not([data-style="soft"],[data-style="clean"]) .trv-r.run:not(.slow):not([data-k="agent"]) .trv-b i:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){background:repeating-linear-gradient(90deg,var(--dm-k) 0 4px,color-mix(in srgb,var(--dm-k) 55%,var(--dm-surface)) 4px 6px);animation:none}
 :root:not([data-style="soft"],[data-style="clean"]) .trv-r.run:not([data-k="agent"]) .trv-b i:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *))::after{filter:none;background:linear-gradient(to left,var(--dm-e) 0 1px,transparent 1px);transform:translateX(calc(var(--dm-f,1) * 100% - 100%))}
 :root:not([data-style="soft"],[data-style="clean"]) .trv-g i:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)),:root:not([data-style="soft"],[data-style="clean"]) .trv-g i.el:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *))::after{background:var(--dm-faint)}
 /* narrow: the names keep their room. Tokens move into each span's details, the slow tag leaves the amber bar and time to
    say it (the time keeps its tooltip), the tree draws closer, and the details give the start its own line. The head's mark
-   is a 24px tile with the words 8px after it, the same columns run down the card, and the time axis is a little shorter */
+   keeps its 32px tile, so each span's mark stays 7px inside its row's fill, with the words 8px after it; the same columns
+   run down the card, and the time axis is a little shorter */
 @container (max-width:330px){
   .trv-ax,.trv-r{grid-template-columns:minmax(0,1fr) 60px 44px}.trv-tk,.trv-n .tag{display:none}.trv-g{display:none}.trv-kv{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .trv-h,.trv-nums{gap:8px}.trv-hi{width:24px;height:24px;border-radius:var(--dm-r-sm)}.trv-tt{margin-right:0}
-  .trv-lg,.trv-ax>span:first-child{padding-left:32px}
-  .trv-n{gap:11px;padding-left:calc(3px + var(--dm-lv,0) * 10px)}
-  .trv-dc{padding-left:48px}.trv-dh>.trv-k{left:-29px}
+  .trv-h,.trv-nums{gap:8px}.trv-tt{margin-right:0}
+  .trv-lg,.trv-ax>span:first-child{padding-left:40px}
+  .trv-n{gap:15px;padding-left:calc(7px + var(--dm-lv,0) * 10px)}
+  .trv-dc{padding-left:56px}.trv-dh>.trv-k{left:-33px}
 }
 /* Clean (owner, 18 Nov): the marks beside the names are one neutral grey, as file types are, and the head's has a hairline
    like them; running bars are flat, with no bright edge; an open span's details are an off-white foot strip, edge to edge, its close button 16px from the strip's top (owner, 23 Nov) and on
@@ -603,10 +603,9 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
    and latency. The run itself is the head: its mark, its name, how it is going, and its total tokens and time. The card
    sits on two columns (owner, 18 Nov): the head&#39;s mark in a 32px column with the title&#39;s words 12px after it; each span&#39;s
    mark is centred in that column (nested ones step in 16px a level) and the top spans&#39; names start where the title&#39;s
-   words do, as do the key and the Span heading. Everything sits on the card&#39;s 16px column on both sides (owner, 22 Nov: &quot;all padding inside the card&quot;): the
-   run&#39;s totals, the times and tokens and an open span&#39;s details end 16px from the right edge, as the mark starts 16px from
-   the left. A row&#39;s hover and selection fill is a quiet grey that reaches 8px out round the row on each side, as a select&#39;s
-   box reaches out round its words. Each kind has its colour (the chart
+   words do, as do the key and the Span heading. Everything sits on the card&#39;s 16px column on both sides (owner, 22 Nov: &quot;all padding inside the card&quot;). A row&#39;s hover and
+   selection fill is a quiet grey as wide as the content, 16px from each edge, with the span&#39;s mark 7px inside it and the
+   times and tokens 8px inside its right end; the run&#39;s totals and the axis end on those columns too. Each kind has its colour (the chart
    palette&#39;s identity slots): its bar and its count in the key, drawn at full strength so the key matches them. While the
    run streams, a playhead marks now and the running bars grow with a bright leading edge. A span over its time budget
    turns amber and hatched, and any span opens to show where it sat in the run, its input and its output, on the same
@@ -622,7 +621,7 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
 .dm-trv-tt{flex:none;margin-right:-4px;font-size:12.5px;white-space:nowrap}
 .dm-trv-tot{font-size:14px;font-weight:500;flex:none}
 /* (the tokens and the time share one baseline; the row round them stays centred on the tile) */
-.dm-trv-nums{flex:none;display:flex;align-items:baseline;gap:12px}
+.dm-trv-nums{flex:none;display:flex;align-items:baseline;gap:12px;padding-right:var(--dm-s-2)}
 /* the key: each kind with its colour and how many of its spans have started */
 .dm-trv-lg{display:flex;flex-wrap:wrap;gap:2px var(--dm-s-3);padding:8px 0 12px 44px;font-size:12px;color:var(--dm-muted)}
 .dm-trv-lg span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;transition:color .3s}
@@ -630,14 +629,14 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
 .dm-trv-lg b{font-weight:500;color:var(--dm-fg2)}
 .dm-trv-lg span.dm-z{color:var(--dm-dis)}.dm-trv-lg span.dm-z b{color:inherit}.dm-trv-lg span.dm-z i{opacity:.45}
 .dm-trv-ax,.dm-trv-r{display:grid;grid-template-columns:var(--dm-cols);align-items:center;gap:var(--dm-s-2)}
-.dm-trv-ax{height:30px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12px;color:var(--dm-muted)}
+.dm-trv-ax{height:30px;padding-right:var(--dm-s-2);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12px;color:var(--dm-muted)}
 .dm-trv-ax&gt;span:first-child{padding-left:44px}
 .dm-trv-tk,.dm-trv-ms{text-align:right;white-space:nowrap}
 .dm-trv-sc{position:relative;height:18px}
 .dm-trv-sc span{position:absolute;top:0;transform:translateX(-50%);font-size:12px}
 .dm-trv-sc span:first-child{transform:none}
-.dm-trv-rows{display:flex;flex-direction:column;padding-bottom:8px}
-.dm-trv-r{width:calc(100% + 16px);margin:0 -8px;padding:0 8px;min-height:32px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;text-align:left;transition:background .16s}
+.dm-trv-rows{display:flex;flex-direction:column;padding-bottom:var(--dm-s-4)}
+.dm-trv-r{width:100%;padding:0 var(--dm-s-2) 0 0;min-height:32px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;text-align:left;transition:background .16s}
 .dm-trv-r[aria-expanded=&quot;true&quot;]{background:var(--dm-row)}
 @media (hover:hover) and (pointer:fine){.dm-trv-r:hover{background:var(--dm-row)}}
 .dm-trv-r[aria-expanded=&quot;true&quot;] .dm-trv-tk{color:var(--dm-fg2)}
@@ -692,19 +691,20 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
 .dm-trv-kv span{font-size:12px;color:var(--dm-muted)}
 .dm-trv-kv b{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dm-trv-io{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:6px 10px;font-size:12px;color:var(--dm-muted)}
-.dm-trv-io code{font-family:var(--dm-mono);font-size:12px;color:var(--dm-fg2);background:var(--dm-chip);padding:5px var(--dm-s-2);border-radius:var(--dm-r-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dm-trv-io code{font-family:var(--dm-mono);font-size:12px;color:var(--dm-fg2);background:var(--dm-chip-fill);padding:5px var(--dm-s-3);border-radius:var(--dm-r-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .dm-trv-r.dm-run:not(.dm-slow):not([data-k=&quot;agent&quot;]) .dm-trv-b i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *)){background:repeating-linear-gradient(90deg,var(--dm-k) 0 4px,color-mix(in srgb,var(--dm-k) 55%,var(--dm-surface)) 4px 6px);animation:none}
 :root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .dm-trv-r.dm-run:not([data-k=&quot;agent&quot;]) .dm-trv-b i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *))::after{filter:none;background:linear-gradient(to left,var(--dm-e) 0 1px,transparent 1px);transform:translateX(calc(var(--dm-f,1) * 100% - 100%))}
 :root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .dm-trv-g i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *)),:root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .dm-trv-g i.dm-el:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *))::after{background:var(--dm-faint)}
 /* narrow: the names keep their room. Tokens move into each span&#39;s details, the slow tag leaves the amber bar and time to
    say it (the time keeps its tooltip), the tree draws closer, and the details give the start its own line. The head&#39;s mark
-   is a 24px tile with the words 8px after it, the same columns run down the card, and the time axis is a little shorter */
+   keeps its 32px tile, so each span&#39;s mark stays 7px inside its row&#39;s fill, with the words 8px after it; the same columns
+   run down the card, and the time axis is a little shorter */
 @container (max-width:330px){
   .dm-trv-ax,.dm-trv-r{grid-template-columns:minmax(0,1fr) 60px 44px}.dm-trv-tk,.dm-trv-n .dm-tag{display:none}.dm-trv-g{display:none}.dm-trv-kv{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .dm-trv-h,.dm-trv-nums{gap:8px}.dm-trv-hi{width:24px;height:24px;border-radius:var(--dm-r-sm)}.dm-trv-tt{margin-right:0}
-  .dm-trv-lg,.dm-trv-ax&gt;span:first-child{padding-left:32px}
-  .dm-trv-n{gap:11px;padding-left:calc(3px + var(--dm-lv,0) * 10px)}
-  .dm-trv-dc{padding-left:48px}.dm-trv-dh&gt;.dm-trv-k{left:-29px}
+  .dm-trv-h,.dm-trv-nums{gap:8px}.dm-trv-tt{margin-right:0}
+  .dm-trv-lg,.dm-trv-ax&gt;span:first-child{padding-left:40px}
+  .dm-trv-n{gap:15px;padding-left:calc(7px + var(--dm-lv,0) * 10px)}
+  .dm-trv-dc{padding-left:56px}.dm-trv-dh&gt;.dm-trv-k{left:-33px}
 }
 /* Clean (owner, 18 Nov): the marks beside the names are one neutral grey, as file types are, and the head&#39;s has a hairline
    like them; running bars are flat, with no bright edge; an open span&#39;s details are an off-white foot strip, edge to edge, its close button 16px from the strip&#39;s top (owner, 23 Nov) and on
@@ -761,10 +761,9 @@ const { class: className, ...rest } = Astro.props;
    and latency. The run itself is the head: its mark, its name, how it is going, and its total tokens and time. The card
    sits on two columns (owner, 18 Nov): the head&#39;s mark in a 32px column with the title&#39;s words 12px after it; each span&#39;s
    mark is centred in that column (nested ones step in 16px a level) and the top spans&#39; names start where the title&#39;s
-   words do, as do the key and the Span heading. Everything sits on the card&#39;s 16px column on both sides (owner, 22 Nov: &quot;all padding inside the card&quot;): the
-   run&#39;s totals, the times and tokens and an open span&#39;s details end 16px from the right edge, as the mark starts 16px from
-   the left. A row&#39;s hover and selection fill is a quiet grey that reaches 8px out round the row on each side, as a select&#39;s
-   box reaches out round its words. Each kind has its colour (the chart
+   words do, as do the key and the Span heading. Everything sits on the card&#39;s 16px column on both sides (owner, 22 Nov: &quot;all padding inside the card&quot;). A row&#39;s hover and
+   selection fill is a quiet grey as wide as the content, 16px from each edge, with the span&#39;s mark 7px inside it and the
+   times and tokens 8px inside its right end; the run&#39;s totals and the axis end on those columns too. Each kind has its colour (the chart
    palette&#39;s identity slots): its bar and its count in the key, drawn at full strength so the key matches them. While the
    run streams, a playhead marks now and the running bars grow with a bright leading edge. A span over its time budget
    turns amber and hatched, and any span opens to show where it sat in the run, its input and its output, on the same
@@ -780,7 +779,7 @@ const { class: className, ...rest } = Astro.props;
 .trv-tt{flex:none;margin-right:-4px;font-size:12.5px;white-space:nowrap}
 .trv-tot{font-size:14px;font-weight:500;flex:none}
 /* (the tokens and the time share one baseline; the row round them stays centred on the tile) */
-.trv-nums{flex:none;display:flex;align-items:baseline;gap:12px}
+.trv-nums{flex:none;display:flex;align-items:baseline;gap:12px;padding-right:var(--dm-s-2)}
 /* the key: each kind with its colour and how many of its spans have started */
 .trv-lg{display:flex;flex-wrap:wrap;gap:2px var(--dm-s-3);padding:8px 0 12px 44px;font-size:12px;color:var(--dm-muted)}
 .trv-lg span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;transition:color .3s}
@@ -788,14 +787,14 @@ const { class: className, ...rest } = Astro.props;
 .trv-lg b{font-weight:500;color:var(--dm-fg2)}
 .trv-lg span.z{color:var(--dm-dis)}.trv-lg span.z b{color:inherit}.trv-lg span.z i{opacity:.45}
 .trv-ax,.trv-r{display:grid;grid-template-columns:var(--dm-cols);align-items:center;gap:var(--dm-s-2)}
-.trv-ax{height:30px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12px;color:var(--dm-muted)}
+.trv-ax{height:30px;padding-right:var(--dm-s-2);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12px;color:var(--dm-muted)}
 .trv-ax&gt;span:first-child{padding-left:44px}
 .trv-tk,.trv-ms{text-align:right;white-space:nowrap}
 .trv-sc{position:relative;height:18px}
 .trv-sc span{position:absolute;top:0;transform:translateX(-50%);font-size:12px}
 .trv-sc span:first-child{transform:none}
-.trv-rows{display:flex;flex-direction:column;padding-bottom:8px}
-.trv-r{width:calc(100% + 16px);margin:0 -8px;padding:0 8px;min-height:32px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;text-align:left;transition:background .16s}
+.trv-rows{display:flex;flex-direction:column;padding-bottom:var(--dm-s-4)}
+.trv-r{width:100%;padding:0 var(--dm-s-2) 0 0;min-height:32px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;text-align:left;transition:background .16s}
 .trv-r[aria-expanded=&quot;true&quot;]{background:var(--dm-row)}
 @media (hover:hover) and (pointer:fine){.trv-r:hover{background:var(--dm-row)}}
 .trv-r[aria-expanded=&quot;true&quot;] .trv-tk{color:var(--dm-fg2)}
@@ -850,19 +849,20 @@ const { class: className, ...rest } = Astro.props;
 .trv-kv span{font-size:12px;color:var(--dm-muted)}
 .trv-kv b{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .trv-io{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:6px 10px;font-size:12px;color:var(--dm-muted)}
-.trv-io code{font-family:var(--dm-mono);font-size:12px;color:var(--dm-fg2);background:var(--dm-chip);padding:5px var(--dm-s-2);border-radius:var(--dm-r-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trv-io code{font-family:var(--dm-mono);font-size:12px;color:var(--dm-fg2);background:var(--dm-chip-fill);padding:5px var(--dm-s-3);border-radius:var(--dm-r-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .trv-r.run:not(.slow):not([data-k=&quot;agent&quot;]) .trv-b i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *)){background:repeating-linear-gradient(90deg,var(--dm-k) 0 4px,color-mix(in srgb,var(--dm-k) 55%,var(--dm-surface)) 4px 6px);animation:none}
 :root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .trv-r.run:not([data-k=&quot;agent&quot;]) .trv-b i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *))::after{filter:none;background:linear-gradient(to left,var(--dm-e) 0 1px,transparent 1px);transform:translateX(calc(var(--dm-f,1) * 100% - 100%))}
 :root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .trv-g i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *)),:root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .trv-g i.el:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *))::after{background:var(--dm-faint)}
 /* narrow: the names keep their room. Tokens move into each span&#39;s details, the slow tag leaves the amber bar and time to
    say it (the time keeps its tooltip), the tree draws closer, and the details give the start its own line. The head&#39;s mark
-   is a 24px tile with the words 8px after it, the same columns run down the card, and the time axis is a little shorter */
+   keeps its 32px tile, so each span&#39;s mark stays 7px inside its row&#39;s fill, with the words 8px after it; the same columns
+   run down the card, and the time axis is a little shorter */
 @container (max-width:330px){
   .trv-ax,.trv-r{grid-template-columns:minmax(0,1fr) 60px 44px}.trv-tk,.trv-n .tag{display:none}.trv-g{display:none}.trv-kv{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .trv-h,.trv-nums{gap:8px}.trv-hi{width:24px;height:24px;border-radius:var(--dm-r-sm)}.trv-tt{margin-right:0}
-  .trv-lg,.trv-ax&gt;span:first-child{padding-left:32px}
-  .trv-n{gap:11px;padding-left:calc(3px + var(--dm-lv,0) * 10px)}
-  .trv-dc{padding-left:48px}.trv-dh&gt;.trv-k{left:-29px}
+  .trv-h,.trv-nums{gap:8px}.trv-tt{margin-right:0}
+  .trv-lg,.trv-ax&gt;span:first-child{padding-left:40px}
+  .trv-n{gap:15px;padding-left:calc(7px + var(--dm-lv,0) * 10px)}
+  .trv-dc{padding-left:56px}.trv-dh&gt;.trv-k{left:-33px}
 }
 /* Clean (owner, 18 Nov): the marks beside the names are one neutral grey, as file types are, and the head&#39;s has a hairline
    like them; running bars are flat, with no bright edge; an open span&#39;s details are an off-white foot strip, edge to edge, its close button 16px from the strip&#39;s top (owner, 23 Nov) and on

@@ -269,7 +269,7 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
             if (to) { e.preventDefault(); to.focus({ preventScroll: true }); } }}>
           {last.current?.note && <p className="dm-itd-why"><WarnSign /><span>{last.current.note}</span></p>}
           <div className="dm-itd-bb">
-            <button type="button" className={cx('dm-pill dm-sm dm-itd-acc', last.current?.note ? 'dm-ghost' : 'dm-primary')} onClick={() => decide('accepted')}><Icon name="check" size="xs" />{L.accept}</button>
+            <button type="button" className={cx('dm-pill dm-sm dm-itd-acc', last.current?.note ? 'dm-line' : 'dm-primary')} onClick={() => decide('accepted')}><Icon name="check" size="xs" />{L.accept}</button>
             <button type="button" className={cx('dm-pill dm-sm dm-itd-rej', last.current?.note ? 'dm-warn' : 'dm-ghost')} onClick={() => decide('rejected')}><Icon name="x" size="xs" />{L.reject}</button>
           </div>
         </div>

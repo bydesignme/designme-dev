@@ -415,7 +415,7 @@ export function PermissionGate({
             <b className="dm-pgx-a"><Swap>{allowedTitle ?? `Allowed ${granted || n} ${(granted || n) > 1 ? 'scopes' : 'scope'} ${durSpan(dur)}`}</Swap></b>
             {allowedDetail !== undefined && <Swap>{allowedDetail}</Swap>}
           </span>
-          <button type="button" className="dm-pill dm-ghost dm-sm" onClick={() => setLeaving(true)}>Revoke</button>
+          <button type="button" className="dm-pill dm-line dm-sm" onClick={() => setLeaving(true)}>Revoke</button>
           <span className="dm-pgx-sum"><span className="dm-l">{names.join(', ')}</span><span className="dm-s">{`${names.length} ${word(names.length)} allowed`}</span></span>
         </div>
       )}
@@ -423,7 +423,7 @@ export function PermissionGate({
         <div className="dm-pgx-done dm-enter" style={{ background: 'var(--dm-chip)' }}>
           <Icon name="info" />
           <span className="dm-t">{declinedTitle}{declinedDetail && <span>{declinedDetail}</span>}</span>
-          <button type="button" className="dm-pill dm-ghost dm-sm" onClick={undo}>Undo</button>
+          <button type="button" className="dm-pill dm-line dm-sm" onClick={undo}>Undo</button>
           <span className="dm-pgx-sum"><span className="dm-l">{declinedSummary}</span><span className="dm-s">{declinedSummary}</span></span>
         </div>
       )}
