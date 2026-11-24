@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Delegate 1B: the next hour · Designme.dev</title>
+<title>Hand-off 1B: the next hour · Designme.dev</title>
 <script>
 /* style and theme: ?style=bp|soft|clean&theme=light|dark wins and is stored, then what the site stored, then the device:
    light opens in Soft, dark in Blueprint */
@@ -209,7 +209,7 @@ body{font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-web
 <main class="lab">
   <header class="lab-h">
     <div>
-      <h1>Delegate <span>· 1B, the next hour</span></h1>
+      <h1>Hand off to agents <span>· 1B, the next hour</span></h1>
       <p>Every agent's queue on one shared hour, so you see who frees up when. Carry a waiting task onto a lane and it slots in where you point: what follows slides along, and the lane's free time, the spend and the line where everything is done move before you let go.</p>
     </div>
     <div class="lab-ctl">
@@ -225,7 +225,7 @@ body{font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-web
         <div class="dl1b-h">
           <svg class="i" aria-hidden="true"><use href="#i-clock"/></svg>
           <span class="dl1b-tx"><span class="dl1b-tt">Next hour</span><span class="dl1b-now num">Now 14:00</span></span>
-          <button type="button" class="dl1b-auto" role="switch" aria-checked="false">Auto-assign<span class="toggle" aria-hidden="true"></span></button>
+          <button type="button" class="dl1b-auto" role="switch" aria-checked="false">Assign for me<span class="toggle" aria-hidden="true"></span></button>
         </div>
         <div class="dl1b-b">
           <div>
@@ -242,7 +242,7 @@ body{font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-web
       </div>
     </template></div>
   </div>
-  <p class="lab-note">Mouse: carry a chip onto a lane, or a queued block to another place or lane, or back up to Waiting. Keyboard: Tab to a chip or block, Space to lift it, up and down for the lane, left and right for the place, Space to drop, Escape to cancel, Delete to send it back. Even out moves queued work to whoever finishes it first; Auto-assign does the same for each task that waits.</p>
+  <p class="lab-note">Mouse: carry a chip onto a lane, or a queued block to another place or lane, or back up to Waiting. Keyboard: Tab to a chip or block, Space to lift it, up and down for the lane, left and right for the place, Space to drop, Escape to cancel, Delete to send it back. Even out moves queued work to whoever finishes it first; Assign for me does the same for each task that waits.</p>
 </main>
 
 <script src="assets/core.js"></script>
@@ -306,7 +306,7 @@ DM.def('dl1b', (st, c) => {
   const block = id => {
     if (BLK[id]) return BLK[id];
     const el = html(`<div class="dl1b-k" data-key="${id}" role="listitem" tabindex="-1"><span class="ok" aria-hidden="true">${I('check', 'xs')}</span><span class="t">${TK[id].t}</span></div>`);
-    bl.appendChild(el); return BLK[id] = el;
+    return BLK[id] = el;
   };
   let pvAt = null; // where a carried task would land: { k, at, id }
   // every block's place: its lane, start and length in minutes, and its state
@@ -338,8 +338,10 @@ DM.def('dl1b', (st, c) => {
       el.style.setProperty('--c', `var(${a.c})`); el.style.setProperty('--cb', `var(${a.c}-bg)`); el.style.setProperty('--cf', `var(${a.c})`);
       el.style.setProperty('--l', b.l); el.style.setProperty('--s', b.s.toFixed(3)); el.style.setProperty('--d', b.d.toFixed(3));
       if (b.p != null) el.style.setProperty('--p', b.p.toFixed(4));
+      // a new block appears where it belongs, without gliding in from the corner
+      if (!el.isConnected){ el.style.transition = 'none'; bl.appendChild(el); void el.offsetWidth; el.style.transition = ''; }
       if (b.st !== 'pv' && el.dataset.s !== b.st){ el.dataset.s = b.st; el.tabIndex = b.st === 'q' ? 0 : -1; el.setAttribute('aria-roledescription', b.st === 'q' ? 'queued task' : 'task'); }
-      el.classList.toggle('tiny', b.d / 60 * trW < (b.st === 'done' ? 76 : 40));
+      el.classList.toggle('tiny', b.d / 60 * trW < (b.st === 'done' ? 76 : 56));
       if (b.st !== 'pv'){
         const end = b.s + b.d, tip = `${TK[b.id].t} · ${a.n} · ${clock(b.s)}–${clock(end)}` + (b.st === 'done' ? ' · done' : ' · ' + money(cost(b.id, a.k)));
         if (el.dataset.tip !== tip){ el.dataset.tip = tip; el.setAttribute('aria-label', tip); }
@@ -454,7 +456,7 @@ DM.def('dl1b', (st, c) => {
 
   /* auto-assign */
   let autoT = 0;
-  function setAuto(on){ S.auto = on; autoB.setAttribute('aria-checked', on); $('.toggle', autoB).setAttribute('aria-checked', on); announce(on ? 'Auto-assign is on.' : 'Auto-assign is off.'); maybeAuto(); }
+  function setAuto(on){ S.auto = on; autoB.setAttribute('aria-checked', on); $('.toggle', autoB).setAttribute('aria-checked', on); announce(on ? 'Assign for me is on.' : 'Assign for me is off.'); maybeAuto(); }
   function maybeAuto(){
     clearTimeout(autoT);
     if (!S.auto || !S.wait.length || drag){ sayIdle(); return; }
@@ -593,7 +595,7 @@ DM.def('dl1b', (st, c) => {
 
   /* ---------- the demo: the welcome email hovers the Researcher (the done line jumps out) and lands with the Writer;
      dark mode slots in between the Coder's tasks and pushes the next one along; the sign-up fix goes to the slow
-     Designer, then Even out pulls the line back in; Auto-assign books the last one. About 22 seconds ---------- */
+     Designer, then Even out pulls the line back in; Assign for me books the last one. About 22 seconds ---------- */
   const hand = () => $('.hand', st);
   const at = (k, m) => () => { const b = LANE[k].tr.getBoundingClientRect(); return [b.left + b.width * Math.min(m, 58) / 60, b.top + b.height / 2]; };
   async function carry(s, id, path){

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Delegate 1A: hand-off board · Designme.dev</title>
+<title>Hand-off 1A: hand-off board · Designme.dev</title>
 <script>
 /* style and theme: ?style=bp|soft|clean&theme=light|dark wins and is stored, then what the site stored, then the device:
    light opens in Soft, dark in Blueprint */
@@ -88,7 +88,7 @@ body{font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-web
 
 /* the tray: tasks waiting for an agent */
 .dl1a-tl{display:flex;align-items:center;gap:var(--s-2);min-height:20px;font-size:12.5px;color:var(--fg2)}
-.dl1a-tl b{font-weight:500;color:var(--fg)}
+.dl1a-tl b{flex:none;font-weight:500;color:var(--fg);white-space:nowrap}
 .dl1a-tl .say{margin-left:auto;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dl1a-tl .say.shim{font-weight:400}
 .dl1a-tc{position:relative;display:grid;grid-template-columns:repeat(auto-fill,minmax(164px,1fr));gap:var(--s-2);margin-top:var(--s-2);min-height:20px;border-radius:calc(12px * var(--dm-rk-l,var(--rk)));transition:background var(--t-fast)}
@@ -227,8 +227,8 @@ body{font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-web
 <main class="lab">
   <header class="lab-h">
     <div>
-      <h1>Delegate <span>· 1A, hand-off board</span></h1>
-      <p>Tasks wait in a tray; each agent is a column that fills with the hour it has booked. Drag a card onto an agent and, before you let go, see what it would take and cost; on the drop the finish time and the spend tick to their new values.</p>
+      <h1>Hand off to agents <span>· 1A, hand-off board</span></h1>
+      <p>Tasks wait in a tray; each agent is a column that fills with the hour it has booked. Pull a card into a column and, before you let go, see what it would take and cost; on the drop the finish time and the spend tick to their new values.</p>
     </div>
     <div class="lab-ctl">
       <div class="seg2" id="sw-style" role="group" aria-label="Style"><button type="button" data-v="bp" aria-pressed="false">Blueprint</button><button type="button" data-v="soft" aria-pressed="true">Soft</button><button type="button" data-v="clean" aria-pressed="false">Clean</button></div>
@@ -243,11 +243,11 @@ body{font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-web
         <div class="dl1a-h">
           <svg class="i" aria-hidden="true"><use href="#i-layers"/></svg>
           <span class="dl1a-tx"><span class="dl1a-tt">Hand-off board</span><span class="dl1a-now num">Now 14:00</span></span>
-          <button type="button" class="dl1a-auto" role="switch" aria-checked="false">Auto-assign<span class="toggle" aria-hidden="true"></span></button>
+          <button type="button" class="dl1a-auto" role="switch" aria-checked="false">Assign for me<span class="toggle" aria-hidden="true"></span></button>
         </div>
         <div class="dl1a-b">
           <div class="dl1a-tray">
-            <div class="dl1a-tl"><b>To hand off</b><span class="tag num dl1a-n">0</span><span class="say">Drag a card onto an agent</span></div>
+            <div class="dl1a-tl"><b>To hand off</b><span class="tag num dl1a-n">0</span><span class="say">Pull a card into a column</span></div>
             <div class="dl1a-tc" data-z="tray" role="list" aria-label="To hand off"></div>
           </div>
           <div class="dl1a-cols"></div>
@@ -260,7 +260,7 @@ body{font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-web
       </div>
     </template></div>
   </div>
-  <p class="lab-note">Mouse: drag a card into a column, between cards, or back to the tray. Keyboard: Tab to a card, Space to lift it, arrows to choose the agent and the place, Space to drop, Escape to cancel, Delete to send it back. Auto-assign gives each waiting card to whoever would finish it first.</p>
+  <p class="lab-note">Mouse: drag a card into a column, between cards, or back to the tray. Keyboard: Tab to a card, Space to lift it, arrows to choose the agent and the place, Space to drop, Escape to cancel, Delete to send it back. Assign for me gives each waiting card to whoever would finish it first.</p>
 </main>
 
 <script src="assets/core.js"></script>
@@ -446,7 +446,7 @@ DM.def('dl1a', (st, c) => {
   let autoT = 0;
   function setAuto(on){
     S.auto = on; autoB.setAttribute('aria-checked', on); toggle().setAttribute('aria-checked', on);
-    announce(on ? 'Auto-assign is on. Waiting tasks go to whoever finishes them first.' : 'Auto-assign is off.');
+    announce(on ? 'Assign for me is on. Waiting tasks go to whoever finishes them first.' : 'Assign for me is off.');
     maybeAuto();
   }
   function maybeAuto(){
@@ -456,7 +456,7 @@ DM.def('dl1a', (st, c) => {
     autoT = setTimeout(() => { if (c.dead || !S.auto || drag || !S.tray.length) return sayIdle(); const id = S.tray[0], b = best(id); if (!b) return sayIdle(); move(id, b[0], null, 'auto'); maybeAuto(); }, REDUCE ? 60 : 720);
     c.t.push(autoT);
   }
-  function sayIdle(){ say.classList.remove('shim'); say.textContent = S.auto ? 'New tasks are assigned as they arrive' : S.tray.length ? 'Drag a card onto an agent' : ''; }
+  function sayIdle(){ say.classList.remove('shim'); say.textContent = S.auto ? 'New tasks are assigned as they arrive' : S.tray.length ? 'Pull a card into a column' : ''; }
   c.on(autoB, 'click', () => setAuto(!S.auto));
 
   /* ---------- stepping in: pause one agent, or everyone ---------- */
@@ -601,7 +601,7 @@ DM.def('dl1a', (st, c) => {
   place(); sayIdle();
   grow(R);
 
-  /* ---------- the demo: two drags by hand (one hovers the Researcher first), then Auto-assign takes the rest and a new
+  /* ---------- the demo: two drags by hand (one hovers the Researcher first), then Assign for me takes the rest and a new
      task that arrives; the Coder is paused and resumed. About 20 seconds, then it plays again ---------- */
   const hand = () => $('.hand', st);
   async function carry(s, id, path){
