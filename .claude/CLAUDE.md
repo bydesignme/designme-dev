@@ -98,6 +98,9 @@ every session and every agent.
   or Badge's `data-tone`), one colour per label wherever it shows (owner, 8 Nov).
 - Grey borders are at half strength (`color-mix(in srgb,var(--line) 50%,transparent)` and the like), and the hover or
   highlight grey behind a row or ghost control is `--row` (`#fafafa` in Soft light).
+- Grey chips, tags and key caps in Soft and Blueprint are a step darker than `--chip` (the `--chip-fill` token, which is
+  `--hover`), so they read on white and on a hovered row; Clean keeps `--chip`. The row hover stays the quiet `--row`
+  (owner, 24 Nov).
 
 ## Fields, focus and selection (owner's decisions, 29 Oct)
 - No accent-coloured or black focus rings, outlines or glows anywhere. Mouse and touch never show a focus ring.
