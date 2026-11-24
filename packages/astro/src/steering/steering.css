@@ -1,45 +1,70 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Steering ---------- */
 /* a run you can steer while it works: its steps, what you told it and what it said back, and a message box. A message
-   waits for the step in progress, then applies from the next one; when it changes work already done, the agent asks */
-.ste{width:100%;max-width:440px;margin:0 auto;padding:6px;display:flex;flex-direction:column}
-.ste-h{display:flex;flex-direction:column;padding:var(--dm-s-2) 10px 10px;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.ste-h b{font-weight:500;font-size:14px}
-.ste-st{font-size:12.5px}
-.ste-steps{list-style:none;margin:0;padding:var(--dm-s-1) 0}
-.ste-s{display:flex;align-items:center;gap:10px;min-height:44px;padding:5px 10px;border-radius:calc(10px * var(--dm-rk));font-size:13px}
+   waits for the step in progress, then applies from the next one; when it changes work already done, the agent asks.
+   Its content is 16px from every edge, and the card grows and shrinks with its log (grow()), centred in its stage */
+.ste{width:100%;max-width:440px;margin:0 auto;padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-3)}
+.ste-h{display:flex;flex-direction:column;padding-bottom:var(--dm-s-3);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.ste-h b{font-weight:500;font-size:14px;line-height:20px}
+.ste-st{font-size:12.5px;line-height:18px}
+.ste-steps{list-style:none;margin:0;padding:0}
+.ste-s{display:flex;align-items:center;gap:var(--dm-s-3);min-height:44px;padding:var(--dm-s-1) 0;font-size:13px}
 .ste-g{width:16px;height:16px;display:grid;place-items:center;flex:none;color:var(--dm-faint)}
-.ste-g .spin{width:11px;height:11px;color:var(--dm-accent-fg,var(--dm-accent))}
+.ste-g .spin{width:11px;height:11px;color:var(--dm-accent-mark,var(--dm-accent))}
 .ste-s.done .ste-g{color:var(--dm-ok)}
 .ste-t{flex:1;min-width:0;display:flex;flex-direction:column}
-.ste-t b{font-weight:500}
-.ste-t span{font-size:12px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ste-t b{font-weight:500;line-height:20px}
+.ste-t span{font-size:12px;line-height:18px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ste-t span.shim{font-size:12px}
 .ste-s.queued .ste-t b{color:var(--dm-fg2)}
-.ste-log{display:flex;flex-direction:column;gap:var(--dm-s-2);padding:2px var(--dm-s-1) 10px}
+.ste-log{display:flex;flex-direction:column;gap:var(--dm-s-2)}
 .ste-log:empty{display:none}
 /* what you sent, on the right, with whether it is waiting or applied */
 .ste-me{align-self:flex-end;max-width:85%;display:flex;flex-direction:column;align-items:flex-end;gap:var(--dm-s-1)}
-.ste-me p{margin:0;padding:7px var(--dm-s-3);border-radius:calc(14px * var(--dm-rk)) calc(14px * var(--dm-rk)) var(--dm-r-xs) calc(14px * var(--dm-rk));background:var(--dm-chip);font-size:13px;line-height:1.45}
-.ste-q{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--dm-muted)}
+.ste-me p{margin:0;padding:var(--dm-s-2) var(--dm-s-3);border-radius:calc(14px * var(--dm-rk)) calc(14px * var(--dm-rk)) var(--dm-r-xs) calc(14px * var(--dm-rk));background:var(--dm-chip);font-size:13px;line-height:1.45}
+.ste-q{display:inline-flex;align-items:center;gap:var(--dm-s-1);font-size:12px;color:var(--dm-muted)}
 .ste-q .spin{width:9px;height:9px}
 .ste-q svg{color:var(--dm-ok)}
 /* what the agent said back; a heads-up is a light accent tint (the accent's own tint, taken a little further toward the
-   surface), with its icon in the accent and white buttons, until you answer it */
-.ste-ag{display:flex;gap:10px;padding:10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-row);font-size:13px;line-height:1.45}
-.ste-ag>svg{flex:none;margin-top:3px;color:var(--dm-accent-fg,var(--dm-accent))}
+   surface), with its icon in the accent, until you answer it. Its answers sit under its words, starting where they start, as
+   a chat's replies do: white buttons with a hairline edge on the tint (no shadow: buttons cast none), and the one that acts
+   is the primary */
+.ste-ag{display:flex;gap:var(--dm-s-3);padding:var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-row);font-size:13px;line-height:1.45}
+/* its mark in a 16px column, as the steps' marks are */
+.ste-ag>svg{flex:none;box-sizing:content-box;margin-top:3px;padding:0 2px;color:var(--dm-accent-fg,var(--dm-accent))}
 .ste-ag.warn{background:color-mix(in srgb,var(--dm-accent-bg) 70%,var(--dm-surface))}
 .ste-ag .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--dm-s-2)}
 .ste-ag p{margin:0}
-.ste-acts{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:6px}
-.ste-ag .pill.ghost{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-shadow)}
-@media (hover:hover) and (pointer:fine){.ste-ag .pill.ghost:hover{box-shadow:var(--dm-shadow-pop)}}
+.ste-acts{display:flex;flex-wrap:wrap;gap:6px}
+.ste-ag .pill.line{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-on-tint-btn)}
+@media (hover:hover) and (pointer:fine){.ste-ag .pill.line:hover{box-shadow:var(--dm-on-tint-btn-h)}}
 .ste-ag .muted{font-size:12px}
-.ste-sum{display:flex;align-items:center;gap:var(--dm-s-2);padding:10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-ok-bg);font-size:13px}
-.ste-sum svg{color:var(--dm-ok);flex:none}
-.ste-box{display:flex;align-items:center;gap:6px;height:var(--dm-field-h);margin:0 var(--dm-s-1) var(--dm-s-1);padding:0 5px 0 var(--dm-s-3);border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);transition:box-shadow var(--dm-t-fast)}
+/* once every step is done: a neutral line with the green tick, no green fill (owner, 18 Nov) */
+.ste-sum{display:flex;align-items:center;gap:var(--dm-s-3);min-height:20px;font-size:13px;color:var(--dm-fg2)}
+.ste-sum svg{color:var(--dm-ok);flex:none;box-sizing:content-box;padding:0 2px}
+.ste-box{display:flex;align-items:center;gap:6px;height:var(--dm-field-h);padding:0 5px 0 var(--dm-s-3);border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);transition:box-shadow var(--dm-t-fast)}
 @supports (corner-shape:squircle){.ste-box{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
 .ste-box:has(input:focus){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
 .ste-box input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--dm-fg)}
 .ste-box input::placeholder{color:var(--dm-muted)}
+.ste-box input:disabled{cursor:not-allowed}
+.ste-box input:disabled::placeholder{color:var(--dm-dis)}
 .ste-go{width:30px;height:30px;border-radius:50%;background:var(--dm-accent);color:var(--dm-on-accent);display:grid;place-items:center;flex:none;transition:background .2s}
 .ste-go[disabled]{opacity:1;cursor:not-allowed;background:var(--dm-dis-hatch),var(--dm-dis-fill);color:var(--dm-dis);box-shadow:var(--dm-soft-ring)}
+/* Clean (owner, 17 and 18 Nov): the content 16px in from each edge, ticks in the vivid green, the replies' buttons Clean's flat
+   secondary and ink primary, and the field's own Send as Comments' (owner, 21 Nov): in the field's corner with 5px round it
+   and the field's corners less that room; empty, a quiet glyph with no fill, then the ink button fades in under it */
+:root[data-style="clean"] .ste-h b,:root [data-style="clean"] .ste-h b,:root [data-style="clean"].ste-h b{letter-spacing:-.01em}
+:root[data-style="clean"] .ste-s.done .ste-g,:root [data-style="clean"] .ste-s.done .ste-g,:root [data-style="clean"].ste-s.done .ste-g,:root[data-style="clean"] .ste-q svg,:root [data-style="clean"] .ste-q svg,:root [data-style="clean"].ste-q svg,:root[data-style="clean"] .ste-sum svg,:root [data-style="clean"] .ste-sum svg,:root [data-style="clean"].ste-sum svg{color:var(--dm-ok-mark)}
+:root[data-style="clean"] .ste-ag .pill.line,:root [data-style="clean"] .ste-ag .pill.line,:root [data-style="clean"].ste-ag .pill.line{color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .ste-ag .pill.line:hover,:root [data-style="clean"] .ste-ag .pill.line:hover,:root [data-style="clean"].ste-ag .pill.line:hover{box-shadow:var(--dm-btn2-hover)}}
+:root[data-style="clean"] .ste-ag .pill.line:active,:root [data-style="clean"] .ste-ag .pill.line:active,:root [data-style="clean"].ste-ag .pill.line:active{box-shadow:var(--dm-btn2-press)}
+:root[data-style="clean"] .ste-go,:root [data-style="clean"] .ste-go,:root [data-style="clean"].ste-go{position:relative;isolation:isolate;border-radius:calc(var(--dm-r-field) - 5px);background:none;box-shadow:none;transition:transform var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .ste-go::before,:root [data-style="clean"] .ste-go::before,:root [data-style="clean"].ste-go::before{content:'';position:absolute;inset:0;z-index:-1;border-radius:inherit;background:linear-gradient(180deg,var(--dm-btn-1),var(--dm-btn-2));box-shadow:var(--dm-btn-depth);opacity:0;pointer-events:none;transition:opacity var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .ste-go:not([disabled]),:root [data-style="clean"] .ste-go:not([disabled]),:root [data-style="clean"].ste-go:not([disabled]){color:var(--dm-on-btn)}
+:root[data-style="clean"] .ste-go:not([disabled])::before,:root [data-style="clean"] .ste-go:not([disabled])::before,:root [data-style="clean"].ste-go:not([disabled])::before{opacity:1}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .ste-go:not([disabled]):hover::before,:root [data-style="clean"] .ste-go:not([disabled]):hover::before,:root [data-style="clean"].ste-go:not([disabled]):hover::before{background:linear-gradient(180deg,color-mix(in srgb,var(--dm-btn-1) 88%,#808080),var(--dm-btn-2))}}
+:root[data-style="clean"] .ste-go:not([disabled]):active,:root [data-style="clean"] .ste-go:not([disabled]):active,:root [data-style="clean"].ste-go:not([disabled]):active{transform:scale(.97)}
+:root[data-style="clean"] .ste-go:not([disabled]):active::before,:root [data-style="clean"] .ste-go:not([disabled]):active::before,:root [data-style="clean"].ste-go:not([disabled]):active::before{box-shadow:var(--dm-btn-press)}
+:root[data-style="clean"] .ste-go[disabled],:root [data-style="clean"] .ste-go[disabled],:root [data-style="clean"].ste-go[disabled]{color:var(--dm-dis);transform:none}
+@media (prefers-reduced-motion:reduce){:root[data-style="clean"] .ste-go::before,:root [data-style="clean"] .ste-go::before,:root [data-style="clean"].ste-go::before{transition:none}}

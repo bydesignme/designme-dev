@@ -1,11 +1,13 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, AV, DM, I, enter, swap } from '../core/core.js';
+import { $, $$, AV, DM, I, enter, grow, swap } from '../core/core.js';
 DM.def('human-handoff', (r, c) => {
   const IC = { user:I('user'), chev:I('chev-d','xs'), clock:I('clock'), link:I('link','xs'), edit:I('edit','xs') };
   r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) => IC[k] || m);
   const root = $('.hox', r), rb = $('.hox-rb', r), av = $('.hox-av', r), wn = $('.hox-wn', r), wd = $('.hox-wd', r), pop = $('.hox-pop', r);
   const sla = $('.hox-sla', r), due = $('.hox-due', r), bar = $('.hox-bar', r), fill = $('.hox-bar i', r);
   const row = $('.hox-st', r), sa = $('.hox-sa', r), sb = $('.hox-sb', r), mb = $('.hox-mb', r), ed = $('.hox-ed', r), no = $('.hox-no', r), ml = $('.hox-ml', r);
+  // the card grows and shrinks with what it holds (a status that takes another line, the notice's button), centred in its stage
+  c.offs.push(grow(root));
   // the billing team: someone free takes the conversation in a few seconds, someone in a call takes longer, and someone
   // who is out never does
   const P = [
@@ -26,7 +28,13 @@ DM.def('human-handoff', (r, c) => {
   };
   showDue(); c.every(1000, () => { left--; showDue(); });
   // the row at the foot says where it stands
-  const state = (tone, glyph, a, b) => { row.className = 'hox-st' + (tone ? ' ' + tone : ''); $('.g', row).innerHTML = glyph; swap(sa, a); swap(sb, b); };
+  // the footer says where it stands: waiting (a spinner, the words with the loader's sweep), a warning notice with Reassign when
+  // the person can't take it, or the person who has it
+  const go = $('.hox-go', r), WARN = '<svg class="hox-wi" viewBox="0 0 24 24" aria-hidden="true"><path class="a" d="M12 3.6 2.6 19.9h18.8z"/><path class="b" d="M12 9.6v4.4M12 17v.01"/></svg>';
+  const state = (tone, glyph, a, b) => {
+    row.className = 'hox-st' + (tone ? ' ' + tone : ''); $('.g', row).innerHTML = glyph; sa.classList.toggle('shim', !tone); swap(sa, a); swap(sb, b);
+    const ask = tone === 'warn'; if (go.hidden === ask){ go.hidden = !ask; if (ask) enter(go); }
+  };
   let who = null, run = 0, phase = 'finding';
   function assign(p){
     const id = ++run; who = p; phase = 'waiting';
@@ -38,7 +46,7 @@ DM.def('human-handoff', (r, c) => {
     c.later(1600, () => {
       if (id !== run) return;
       wd.className = 'hox-wd' + (p.tone ? ' ' + p.tone : ''); wd.innerHTML = `<span class="dot"></span><span>Billing · ${p.on}</span>`; enter(wd);
-      if (!p.wait){ phase = 'away'; state('warn', I('alert'), `${first(p)} is out until 2pm`, 'The reply is due before then. Reassign it to someone who is free.'); return; }
+      if (!p.wait){ phase = 'away'; state('warn', WARN, `${first(p)} is out until 2pm`, 'The reply is due before then. Reassign it to someone who is free.'); return; }
       c.later(p.wait, () => {
         if (id !== run) return;
         phase = 'joined'; state('ok', AV(p.i, p.bg), `${first(p)} joined`, 'Reading the conversation');
@@ -66,7 +74,7 @@ DM.def('human-handoff', (r, c) => {
   // the preview's story: Maya is assigned but is out, so the person reassigns it to Alex, who takes it
   c.story(async s => {
     await s.until(() => phase === 'away'); await s.beat(4);
-    await s.tap(rb); await s.beat(2);
+    await s.tap(go); await s.beat(2);
     await s.point($('.mi[data-k="sam"]', pop), false); await s.beat(1);
     await s.tap($('.mi[data-k="alex"]', pop)); s.away();
     await s.until(() => phase === 'with'); await s.beat(6);

@@ -164,77 +164,112 @@
 })();
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Hand-off to a person","description":"Hand-off to a person shows an agent passing a conversation to a human. It says why, like \"Refund over $500 needs a person\", who it is assigned to with their team and whether they are free, and when the reply is due, counting down. Beside that is the context they need to pick it up: a short summary, a few key facts and a link to the whole conversation. Under the assignee is what the customer was told, with Edit, and a row at the foot says where it stands. If the person can't take it, Reassign opens a small menu of who else can.","url":"https://designme.dev/components/human-handoff","image":"https://designme.dev/components/og/human-handoff.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Hand-off to a person, Review and approve, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/library"},{"@type":"ListItem","position":2,"name":"Review and approve","item":"https://designme.dev/library#s-review"},{"@type":"ListItem","position":3,"name":"Hand-off to a person","item":"https://designme.dev/components/human-handoff"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does it assign the conversation or notify anyone?","acceptedAnswer":{"@type":"Answer","text":"No. It shows the assignee and status you pass. Your code routes the conversation, checks who is free, and calls back when they accept; onReassign tells you who was picked."}},{"@type":"Question","name":"Does the timer count down by itself?","acceptedAnswer":{"@type":"Answer","text":"No. Pass secondsLeft and update it, for example once a second, from the time the reply is due. The line and the bar follow it."}},{"@type":"Question","name":"Does editing the message send the change to the customer?","acceptedAnswer":{"@type":"Answer","text":"No. Save calls onMessageChange with the new text. Update the message where the customer sees it, then pass it back with edited."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Hand-off to a person ---------- */
 /* the agent passes a conversation to a person: why, who has it (with Reassign), when the reply is due, what they need to
-   pick it up, and what the customer was told. The type and spacing are Draft review's; the two columns stack when narrow */
+   pick it up, and what the customer was told, with a status line at the foot. The type and spacing are Draft review's; the
+   two columns stack when narrow. Its content is 16px from every edge */
 .hox{position:relative;width:100%;margin:0 auto;padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-3)}
 .hox-h{display:flex;align-items:center;gap:var(--dm-s-3)}
-.hox-ic{width:32px;height:32px;border-radius:calc(9px * var(--dm-rk));background:var(--dm-chip);color:var(--dm-fg2);display:grid;place-items:center;flex:none}
+.hox-ic{width:32px;height:32px;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-chip);color:var(--dm-fg2);display:grid;place-items:center;flex:none}
 .hox-ht{flex:1;min-width:0;display:flex;flex-direction:column}
-.hox-ht b{font-weight:500;font-size:14px}
-.hox-ht span{font-size:13px}
+.hox-ht b{font-weight:500;font-size:14px;line-height:20px}
+.hox-ht span{font-size:13px;line-height:18px}
 .hox-b{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--dm-s-4) var(--dm-s-6);align-items:start;padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 @container (max-width:600px){.hox-b{grid-template-columns:minmax(0,1fr)}.hox-col+.hox-col{padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}}
 .hox-col{display:flex;flex-direction:column;gap:var(--dm-s-2);min-width:0}
 .hox-lb{font-size:12px;color:var(--dm-muted)}
-.hox-who{display:flex;align-items:center;gap:10px;min-height:40px}
-.hox-av{width:28px;height:28px;display:grid;place-items:center;flex:none;border-radius:50%;background:var(--dm-chip);color:var(--dm-fg2)}
-.hox-av .av{width:28px;height:28px;font-size:11px}
+.hox-who{display:flex;align-items:center;gap:var(--dm-s-3);min-height:40px}
+.hox-av{width:32px;height:32px;display:grid;place-items:center;flex:none;border-radius:50%;background:var(--dm-chip);color:var(--dm-fg2)}
+/* the person's avatar is as big as the head's tile, so its words start where the title's do */
+.hox-av .av{width:32px;height:32px;font-size:12px}
 .hox-wt{flex:1;min-width:0;display:flex;flex-direction:column}
-.hox-wt b{font-weight:500;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hox-wd{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hox-wt b{font-weight:500;font-size:13.5px;line-height:20px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hox-wd{display:flex;align-items:center;gap:6px;font-size:12px;line-height:18px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hox-wd .dot{color:var(--dm-faint)}
 /* the person's status: the dot is a mark (--dm-ok-mark, --dm-warn-mark) and the words keep the text colours */
 .hox-wd.ok .dot{color:var(--dm-ok-mark)}
 .hox-wd.warn{color:var(--dm-warn)}
 .hox-wd.warn .dot{color:var(--dm-warn-mark)}
-/* Reassign: a small dropdown, like the one for how long in Permission gate */
-.hox-rb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--dm-s-2) 0 10px;border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);flex:none;transition:background .16s,color .16s}
+/* Reassign: a small dropdown, like the one for how long in Permission gate. It is the row's last control, so its words end on
+   the content's right edge (where the target time under it ends) and its hover box reaches 8px out round them */
+.hox-rb{display:inline-flex;align-items:center;gap:6px;height:28px;margin-right:calc(-1 * var(--dm-s-2));padding:0 var(--dm-s-2);border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);flex:none;transition:background .16s,color .16s}
 .hox-rb[aria-expanded="true"]{background:var(--dm-row);color:var(--dm-fg)}
 @media (hover:hover) and (pointer:fine){.hox-rb:hover{background:var(--dm-row);color:var(--dm-fg)}}
 .hox-rb>svg{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
 .hox-rb[aria-expanded="true"]>svg{transform:rotate(180deg)}
 .hox-rb[disabled]{opacity:1;cursor:not-allowed;background:none;color:var(--dm-dis)}
+.hox-rb[disabled]>svg{color:var(--dm-dis)}
 .hox-pop{min-width:240px}
+/* its menu opens out of the card, which keeps its height while the menu is open */
+.hox.growing:has(.hox-pop.open){overflow:visible}
 .hox-pop .mi .av{width:20px;height:20px;font-size:9px}
 .hox-pop .mi>span:not(.ck):not(.av){flex:1;min-width:0}
-/* when the reply is due: the line counts down and the bar empties, amber in the last five minutes */
+/* when the reply is due: the line counts down and the bar empties, amber in the last five minutes. The due time and the target
+   are two sizes on one line, so they share a baseline in their own wrapper; the clock sits on the line's centre */
 .hox-sla{display:flex;flex-direction:column;gap:var(--dm-s-2);padding-top:var(--dm-s-2)}
 .hox-sl{display:flex;align-items:center;gap:var(--dm-s-2);font-size:13px}
 .hox-sl>svg{color:var(--dm-fg2);flex:none}
-.hox-sl .muted{margin-left:auto;font-size:12px;white-space:nowrap}
+.hox-sw{flex:1;min-width:0;display:flex;align-items:baseline;gap:var(--dm-s-2)}
+.hox-sw .muted{margin-left:auto;font-size:12px;white-space:nowrap}
 .hox-due{min-width:0}
 .hox-bar{height:4px;border-radius:2px;background:var(--dm-chip);overflow:hidden}
 .hox-bar i{display:block;height:100%;width:100%;border-radius:inherit;background:var(--dm-fg2);transition:width 1s linear,background .3s}
 .hox-sla.warn .hox-sl>svg,.hox-sla.warn .hox-due{color:var(--dm-warn)}
 .hox-sla.warn .hox-bar i{background:var(--dm-warn-mark)}
 .hox-sla.bad .hox-sl>svg,.hox-sla.bad .hox-due{color:var(--dm-bad)}
+.hox-sla.bad .hox-bar i{background:var(--dm-bad-mark)}
 .hox-sum{margin:0;font-size:13px;line-height:1.5;color:var(--dm-fg2)}
 .hox-facts{display:flex;flex-direction:column;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.hox-f{display:flex;align-items:center;gap:10px;min-height:32px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13px}
+.hox-f{display:flex;align-items:center;gap:var(--dm-s-3);min-height:32px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13px}
 .hox-f .k{width:72px;flex:none;color:var(--dm-muted)}
 .hox-f .v{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hox-lnk{align-self:flex-start;max-width:100%}
 .hox-lnk>span{overflow:hidden;text-overflow:ellipsis}
-/* what the customer was told, editable in place */
+/* what the customer was told, editable in place. Edit is a ghost button, the row's last control, so its words end on the
+   content's right edge (where the message box ends) */
 .hox-ms{display:flex;flex-direction:column;gap:var(--dm-s-2);margin-top:var(--dm-s-1);padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .hox-mh{display:flex;align-items:center;gap:var(--dm-s-2);min-height:28px}
 .hox-mh .sp{flex:1}
+.hox-mh .pill.ghost:last-child{margin-right:-11px}
 .hox-mb{padding:10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13.5px;line-height:1.5;outline:0;transition:box-shadow var(--dm-t-fast),background var(--dm-t-fast)}
 .hox-mb[contenteditable="true"]{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent)}
 @supports (corner-shape:squircle){.hox-mb[contenteditable="true"]{corner-shape:squircle;border-radius:var(--dm-r-box-sq)}}
 .hox-mb[contenteditable="true"]:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
-/* where it stands, in one row at the foot: neutral while it waits, amber when the person can't take it, green once they have */
-.hox-st{display:flex;align-items:center;gap:var(--dm-s-3);padding:10px 10px 10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-chip);font-size:13.5px;transition:background .32s}
-.hox-st.warn{background:var(--dm-warn-bg)}
-.hox-st.ok{background:var(--dm-ok-bg)}
-.hox-st .g{width:18px;height:18px;display:grid;place-items:center;flex:none;color:var(--dm-fg2)}
-.hox-st.warn .g{color:var(--dm-warn)}
+/* where it stands: the card's footer, under a hairline, 16px from it and from the card's bottom edge. Its mark sits centred in
+   the head's 32px tile column and its words start where the title's do. It is neutral while it waits (a spinner, the words
+   with the loader's sweep), a warning notice when the person can't take it (owner, 18 Nov: a faint warning tint reaching 8px
+   out round the row, the filled warning sign in --dm-warn-mark, the words in the text colours and Reassign, the action that
+   settles it, as .pill.warn), and a neutral row with the person's avatar once they have it: no green fill (owner, 18 Nov) */
+.hox-st{margin-top:var(--dm-s-1);padding-top:var(--dm-s-4);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.hox-sr{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;column-gap:var(--dm-s-3);min-height:28px;margin:calc(-1 * var(--dm-s-2));padding:var(--dm-s-2);border-radius:calc(var(--dm-r-card) - 8px);transition:background-color .32s var(--dm-ease)}
+.hox-st.warn .hox-sr{background:color-mix(in srgb,var(--dm-warn-bg) 45%,transparent)}
+.hox-sr .g{width:32px;height:20px;display:grid;place-items:center;color:var(--dm-fg2)}
+.hox-sr .g .av{width:20px;height:20px;font-size:8.5px}
 .hox-st.ok .g{color:var(--dm-ok)}
-.hox-st .g .av{width:18px;height:18px;font-size:8.5px}
-.hox-st .t{flex:1;min-width:0;display:flex;flex-direction:column}
-.hox-st .t b{font-weight:400}
-/* the second line sits on the row's tint, so it is fg2 rather than muted */
-.hox-st .t>span{font-size:13px;color:var(--dm-fg2)}
-.hox-st .t,.hox-sum,.hox-mb,.tmx-note>span{text-wrap:pretty}
+:root[data-style="clean"] .hox-st.ok .g,:root [data-style="clean"] .hox-st.ok .g,:root [data-style="clean"].hox-st.ok .g{color:var(--dm-ok-mark)}
+.hox-wi{width:16px;height:16px;overflow:visible}
+.hox-wi .a{fill:var(--dm-warn-mark);stroke:var(--dm-warn-mark);stroke-width:2;stroke-linejoin:round}
+.hox-wi .b{fill:none;stroke:var(--dm-surface);stroke-width:2.2;stroke-linecap:round}
+.hox-sr .t{min-width:0;display:flex;flex-direction:column;font-size:13px;line-height:20px;color:var(--dm-fg)}
+.hox-sr .t b{font-weight:500}
+.hox-sr .t>span{font-size:12.5px;line-height:18px;color:var(--dm-muted)}
+.hox-st.warn .hox-sr .t>span{color:var(--dm-fg2)}
+.hox-sr .t,.hox-sum,.hox-mb,.tmx-note>span{text-wrap:pretty}
+/* on a phone the notice's Reassign goes under its words, starting where they start, so the words keep the row's width; the
+   mark stays on the title's line */
+@container (max-width:480px){.hox-sr{grid-template-columns:32px minmax(0,1fr);align-items:start}.hox-sr .pill{grid-column:2;justify-self:start;margin-top:var(--dm-s-2)}}
+/* Clean (owner, 17 and 18 Nov): the head's tile with a hairline, the footer an off-white foot strip whose words and Reassign
+   sit 16px from its hairline and the card's bottom edge (--dm-strip-y) and 16px in from the sides; when the person can't take it
+   the strip itself takes the faint warning tint. Reassign at the top is Clean's quiet select: the one hover, and the stronger
+   fill while its menu is open */
+:root[data-style="clean"] .hox.panel,:root [data-style="clean"] .hox.panel,:root [data-style="clean"].hox.panel{padding:16px 16px 0}
+:root[data-style="clean"] .hox-ic,:root [data-style="clean"] .hox-ic,:root [data-style="clean"].hox-ic{box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .hox-ht b,:root [data-style="clean"] .hox-ht b,:root [data-style="clean"].hox-ht b{letter-spacing:-.01em}
+:root[data-style="clean"] .hox-rb,:root [data-style="clean"] .hox-rb,:root [data-style="clean"].hox-rb{color:var(--dm-fg2);transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .hox-rb:not([disabled]):hover,:root [data-style="clean"] .hox-rb:not([disabled]):hover,:root [data-style="clean"].hox-rb:not([disabled]):hover{background:var(--dm-row);color:var(--dm-fg)}}
+:root[data-style="clean"] .hox-rb[aria-expanded="true"],:root [data-style="clean"] .hox-rb[aria-expanded="true"],:root [data-style="clean"].hox-rb[aria-expanded="true"]{background:var(--dm-row-on);color:var(--dm-fg)}
+:root[data-style="clean"] .hox-bar,:root [data-style="clean"] .hox-bar,:root [data-style="clean"].hox-bar{box-shadow:var(--dm-track-ring)}
+:root[data-style="clean"] .hox-st,:root [data-style="clean"] .hox-st,:root [data-style="clean"].hox-st{margin:var(--dm-s-1) -16px 0;padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card);transition:background-color .32s var(--dm-ease)}
+:root[data-style="clean"] .hox-st.warn,:root [data-style="clean"] .hox-st.warn,:root [data-style="clean"].hox-st.warn{background:color-mix(in srgb,var(--dm-warn-bg) 45%,var(--dm-surface))}
+:root[data-style="clean"] .hox-st .hox-sr,:root [data-style="clean"] .hox-st .hox-sr,:root [data-style="clean"].hox-st .hox-sr{margin:0;padding:0;background:none}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px + var(--sw,0px))}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px + var(--sw,0px))}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px + var(--sw,0px))}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px + var(--sw,0px))}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -258,7 +293,7 @@
         <div class="hox-col">
           <span class="hox-lb">Assigned to</span>
           <div class="hox-who"><span class="hox-av"><span class="spin"></span></span><span class="hox-wt"><b class="hox-wn">Finding someone</b><span class="hox-wd"><span class="hox-wv">Billing team</span></span></span><button class="hox-rb" aria-haspopup="menu" aria-expanded="false" data-pop=".hox-pop" data-pop-align="end" data-pop-pos="down" disabled>Reassign<svg class="i xs"><use href="#i-chev-d"/></svg></button></div>
-          <div class="hox-sla"><div class="hox-sl"><svg class="i s"><use href="#i-clock"/></svg><span class="hox-due num">Reply due in 14 min</span><span class="muted">15 min target</span></div><div class="hox-bar" role="progressbar" aria-label="Time left to reply" aria-valuemin="0" aria-valuemax="900"><i></i></div></div>
+          <div class="hox-sla"><div class="hox-sl"><svg class="i s"><use href="#i-clock"/></svg><span class="hox-sw"><span class="hox-due num">Reply due in 14 min</span><span class="muted">15 min target</span></span></div><div class="hox-bar" role="progressbar" aria-label="Time left to reply" aria-valuemin="0" aria-valuemax="900"><i></i></div></div>
           <div class="hox-ms">
             <div class="hox-mh"><span class="hox-lb hox-ml">Sent to Dana</span><span class="sp"></span><button class="pill ghost sm hox-no" hidden>Cancel</button><button class="pill ghost sm hox-ed"><svg class="i xs"><use href="#i-edit"/></svg>Edit</button></div>
             <div class="hox-mb" role="textbox" aria-multiline="true" aria-readonly="true" aria-label="Message sent to Dana" spellcheck="false">Thanks, Dana. A refund this size needs someone on our billing team, so I've passed your conversation to them. They'll reply here within 15 minutes.</div>
@@ -275,7 +310,7 @@
           <button class="fchip lnk hox-lnk" data-tip="Opens the whole conversation"><svg class="i xs"><use href="#i-link"/></svg><span>View conversation · 12 messages</span></button>
         </div>
       </div>
-      <div class="hox-st" aria-live="polite"><span class="g"><span class="spin"></span></span><span class="t"><b class="hox-sa">Handing off to Billing</b><span class="hox-sb">The agent has stopped replying to Dana</span></span></div>
+      <div class="hox-st" aria-live="polite"><div class="hox-sr"><span class="g"><span class="spin"></span></span><span class="t"><b class="hox-sa shim">Handing off to Billing</b><span class="hox-sb">The agent has stopped replying to Dana</span></span><button class="pill warn sm hox-go" aria-haspopup="menu" aria-expanded="false" data-pop=".hox-pop" data-pop-align="end" data-pop-pos="up" hidden>Reassign</button></div></div>
       <div class="pop hox-pop" role="menu" aria-label="Reassign to">
         <div class="ph">Reassign to</div>
       </div>
@@ -324,7 +359,7 @@
   addEventListener('resize', function(){ cur = -2; mark(); });
   mark();
 })();
-</script><div class="dc-bar"><nav aria-label="On this page"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-ins"><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#e34f26" d="M1.5 0h21l-1.91 21.563L11.977 24l-8.564-2.438L1.5 0z"/><path fill="#fff" d="M8.531 9.75l-.232-2.718 10.059.003.23-2.622L5.412 4.41l.698 8.01h9.126l-.326 3.426-2.91.804-2.955-.81-.188-2.11H6.248l.33 4.171L12 19.351l5.379-1.443.744-8.157H8.531z"/></svg>HTML, CSS and JS</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">human-handoff</span></code><button class="cp-copy" type="button" data-copy="npx designme add human-handoff" data-label="Copy" aria-label="Copy the HTML install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">human-handoff</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add human-handoff --react" data-label="Copy" aria-label="Copy the React install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#bc52ee" d="M8.358 20.162c-1.186-1.07-1.532-3.316-1.038-4.944.856 1.026 2.043 1.352 3.272 1.535 1.897.283 3.76.177 5.522-.678.202-.098.388-.229.608-.36.166.473.209.95.151 1.437-.14 1.185-.738 2.1-1.688 2.794-.38.277-.782.525-1.175.787-1.205.804-1.531 1.747-1.078 3.119l.044.148a3.158 3.158 0 0 1-1.407-1.188 3.31 3.31 0 0 1-.544-1.815c-.004-.32-.004-.642-.048-.958-.106-.769-.472-1.113-1.161-1.133-.707-.02-1.267.411-1.415 1.09-.012.053-.028.104-.045.165h.002zm-5.961-4.445s3.24-1.575 6.49-1.575l2.451-7.565c.092-.366.36-.614.662-.614.302 0 .57.248.662.614l2.45 7.565c3.85 0 6.491 1.575 6.491 1.575L16.088.727C15.93.285 15.663 0 15.303 0H8.697c-.36 0-.615.285-.784.727l-5.516 14.99z"/></svg>Astro</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">human-handoff</span> <span class="cp-w">--astro</span></code><button class="cp-copy" type="button" data-copy="npx designme add human-handoff --astro" data-label="Copy" aria-label="Copy the Astro install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>shadcn, React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>human-handoff.json</code><button class="cp-copy" type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/human-handoff.json" data-label="Copy" aria-label="Copy the shadcn command for React">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#bc52ee" d="M8.358 20.162c-1.186-1.07-1.532-3.316-1.038-4.944.856 1.026 2.043 1.352 3.272 1.535 1.897.283 3.76.177 5.522-.678.202-.098.388-.229.608-.36.166.473.209.95.151 1.437-.14 1.185-.738 2.1-1.688 2.794-.38.277-.782.525-1.175.787-1.205.804-1.531 1.747-1.078 3.119l.044.148a3.158 3.158 0 0 1-1.407-1.188 3.31 3.31 0 0 1-.544-1.815c-.004-.32-.004-.642-.048-.958-.106-.769-.472-1.113-1.161-1.133-.707-.02-1.267.411-1.415 1.09-.012.053-.028.104-.045.165h.002zm-5.961-4.445s3.24-1.575 6.49-1.575l2.451-7.565c.092-.366.36-.614.662-.614.302 0 .57.248.662.614l2.45 7.565c3.85 0 6.491 1.575 6.491 1.575L16.088.727C15.93.285 15.663 0 15.303 0H8.697c-.36 0-.615.285-.784.727l-5.516 14.99z"/></svg>shadcn, Astro</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>astro/<wbr>human-handoff.json</code><button class="cp-copy" type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/astro/human-handoff.json" data-label="Copy" aria-label="Copy the shadcn command for Astro">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. Where each version lands, what it needs and the shadcn theme bridge: <a href="/docs/installation">Installation</a>.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Hand-off to a person shows an agent passing a conversation to a human. It says why, like "Refund over $500 needs a person", who it is assigned to with their team and whether they are free, and when the reply is due, counting down. Beside that is the context they need to pick it up: a short summary, a few key facts and a link to the whole conversation. Under the assignee is what the customer was told, with Edit, and a row at the foot says where it stands. If the person can't take it, Reassign opens a small menu of who else can.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When an agent reaches something it isn't allowed to do, like a large refund, and a person has to take over.</li><li>When the person picking it up should not have to read the whole conversation to know what is going on.</li><li>When there is a target time to reply and people need to see how much of it is left.</li><li>When whoever was assigned is away or busy, and someone needs to pass it on quickly.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li><code>reason</code> sits under the title. <code>assignee</code> shows an avatar, name, <code>team</code> and <code>presence</code>, with a green dot for <code>tone: 'ok'</code> or orange for <code>'warn'</code>. While <code>assignee</code> is null a spinner and <code>finding</code> fill the row.</li><li><code>people</code> adds Reassign, a small menu of who else can take it with their team and presence. Picking someone calls <code>onReassign</code>.</li><li><code>secondsLeft</code> reads "Reply due in 14 min" and empties a bar over <code>targetSeconds</code> (15 minutes by default). Under five minutes it turns orange, and at zero it reads overdue.</li><li><code>summary</code>, <code>facts</code> (label and value rows) and <code>link</code> are the context passed along.</li><li><code>message</code> is what the customer was told. <code>onMessageChange</code> adds Edit: the message turns editable, then Save or Cancel, and <code>edited</code> adds "· edited" to its label.</li><li><code>status</code> is the row at the foot: neutral with a spinner while it waits, orange with an alert when the person can't take it, and green with the person's avatar once they have, like "With Alex · agent paused".</li><li>On wide screens the assignment and the context sit side by side; below 600px they stack.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>Reassign says whether its menu is open. Each person is a menu item that marks the current one with <code>aria-checked</code>, and Escape closes the menu.</li><li>From the keyboard, Enter, Space or the down arrow opens a menu with the focus on its picked item, or its first (the up arrow, on its last); the arrow keys move through it and wrap, Home and End jump to the ends, Tab closes it and moves on, and closing it gives the focus back to its button.</li><li>The time left is a progress bar labelled "Time left to reply", with the seconds left as its value.</li><li>The message is a textbox that is read-only until Edit is pressed, and the status row is a polite live region, so changes like "Alex joined" are announced.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it in React and drive it from your own state, or place it in an Astro page.</p></div><div class="cp-box"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>React</h3><pre class="cp-pre" data-name="React import"><code>import { HumanHandoff } from &#39;@/components/designme/human-handoff/HumanHandoff&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">React example</h3><p class="pg-d">The demo above as a React component, 65 lines you can copy.</p><pre class="cp-pre" data-name="React example"><code>&#39;use client&#39;;
+</script><div class="dc-bar"><nav aria-label="On this page"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-ins"><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#e34f26" d="M1.5 0h21l-1.91 21.563L11.977 24l-8.564-2.438L1.5 0z"/><path fill="#fff" d="M8.531 9.75l-.232-2.718 10.059.003.23-2.622L5.412 4.41l.698 8.01h9.126l-.326 3.426-2.91.804-2.955-.81-.188-2.11H6.248l.33 4.171L12 19.351l5.379-1.443.744-8.157H8.531z"/></svg>HTML, CSS and JS</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">human-handoff</span></code><button class="cp-copy" type="button" data-copy="npx designme add human-handoff" data-label="Copy" aria-label="Copy the HTML install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">human-handoff</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add human-handoff --react" data-label="Copy" aria-label="Copy the React install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#bc52ee" d="M8.358 20.162c-1.186-1.07-1.532-3.316-1.038-4.944.856 1.026 2.043 1.352 3.272 1.535 1.897.283 3.76.177 5.522-.678.202-.098.388-.229.608-.36.166.473.209.95.151 1.437-.14 1.185-.738 2.1-1.688 2.794-.38.277-.782.525-1.175.787-1.205.804-1.531 1.747-1.078 3.119l.044.148a3.158 3.158 0 0 1-1.407-1.188 3.31 3.31 0 0 1-.544-1.815c-.004-.32-.004-.642-.048-.958-.106-.769-.472-1.113-1.161-1.133-.707-.02-1.267.411-1.415 1.09-.012.053-.028.104-.045.165h.002zm-5.961-4.445s3.24-1.575 6.49-1.575l2.451-7.565c.092-.366.36-.614.662-.614.302 0 .57.248.662.614l2.45 7.565c3.85 0 6.491 1.575 6.491 1.575L16.088.727C15.93.285 15.663 0 15.303 0H8.697c-.36 0-.615.285-.784.727l-5.516 14.99z"/></svg>Astro</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">human-handoff</span> <span class="cp-w">--astro</span></code><button class="cp-copy" type="button" data-copy="npx designme add human-handoff --astro" data-label="Copy" aria-label="Copy the Astro install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>shadcn, React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>human-handoff.json</code><button class="cp-copy" type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/human-handoff.json" data-label="Copy" aria-label="Copy the shadcn command for React">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#bc52ee" d="M8.358 20.162c-1.186-1.07-1.532-3.316-1.038-4.944.856 1.026 2.043 1.352 3.272 1.535 1.897.283 3.76.177 5.522-.678.202-.098.388-.229.608-.36.166.473.209.95.151 1.437-.14 1.185-.738 2.1-1.688 2.794-.38.277-.782.525-1.175.787-1.205.804-1.531 1.747-1.078 3.119l.044.148a3.158 3.158 0 0 1-1.407-1.188 3.31 3.31 0 0 1-.544-1.815c-.004-.32-.004-.642-.048-.958-.106-.769-.472-1.113-1.161-1.133-.707-.02-1.267.411-1.415 1.09-.012.053-.028.104-.045.165h.002zm-5.961-4.445s3.24-1.575 6.49-1.575l2.451-7.565c.092-.366.36-.614.662-.614.302 0 .57.248.662.614l2.45 7.565c3.85 0 6.491 1.575 6.491 1.575L16.088.727C15.93.285 15.663 0 15.303 0H8.697c-.36 0-.615.285-.784.727l-5.516 14.99z"/></svg>shadcn, Astro</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>astro/<wbr>human-handoff.json</code><button class="cp-copy" type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/astro/human-handoff.json" data-label="Copy" aria-label="Copy the shadcn command for Astro">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. Where each version lands, what it needs and the shadcn theme bridge: <a href="/docs/installation">Installation</a>.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Hand-off to a person shows an agent passing a conversation to a human. It says why, like "Refund over $500 needs a person", who it is assigned to with their team and whether they are free, and when the reply is due, counting down. Beside that is the context they need to pick it up: a short summary, a few key facts and a link to the whole conversation. Under the assignee is what the customer was told, with Edit, and a row at the foot says where it stands. If the person can't take it, Reassign opens a small menu of who else can.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When an agent reaches something it isn't allowed to do, like a large refund, and a person has to take over.</li><li>When the person picking it up should not have to read the whole conversation to know what is going on.</li><li>When there is a target time to reply and people need to see how much of it is left.</li><li>When whoever was assigned is away or busy, and someone needs to pass it on quickly.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li><code>reason</code> sits under the title. <code>assignee</code> shows an avatar, name, <code>team</code> and <code>presence</code>, with a green dot for <code>tone: 'ok'</code> or orange for <code>'warn'</code>. While <code>assignee</code> is null a spinner and <code>finding</code> fill the row.</li><li><code>people</code> adds Reassign, a small menu of who else can take it with their team and presence. Picking someone calls <code>onReassign</code>.</li><li><code>secondsLeft</code> reads "Reply due in 14 min" and empties a bar over <code>targetSeconds</code> (15 minutes by default). Under five minutes it turns orange, and at zero it reads overdue.</li><li><code>summary</code>, <code>facts</code> (label and value rows) and <code>link</code> are the context passed along.</li><li><code>message</code> is what the customer was told. <code>onMessageChange</code> adds Edit: the message turns editable, then Save or Cancel, and <code>edited</code> adds "· edited" to its label.</li><li><code>status</code> is the card's footer, under a hairline: neutral with a spinner while it waits, its title with the loader's sweep; a warning notice when the person can't take it (a faint amber tint, the filled warning sign and, with <code>people</code>, a Reassign button that opens the same menu); and neutral with the person's avatar once they have it, like "With Alex · agent paused", with no green fill.</li><li>On wide screens the assignment and the context sit side by side; below 600px they stack.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>Reassign says whether its menu is open. Each person is a menu item that marks the current one with <code>aria-checked</code>, and Escape closes the menu.</li><li>From the keyboard, Enter, Space or the down arrow opens a menu with the focus on its picked item, or its first (the up arrow, on its last); the arrow keys move through it and wrap, Home and End jump to the ends, Tab closes it and moves on, and closing it gives the focus back to its button.</li><li>The time left is a progress bar labelled "Time left to reply", with the seconds left as its value.</li><li>The message is a textbox that is read-only until Edit is pressed, and the status row is a polite live region, so changes like "Alex joined" are announced.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it in React and drive it from your own state, or place it in an Astro page.</p></div><div class="cp-box"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>React</h3><pre class="cp-pre" data-name="React import"><code>import { HumanHandoff } from &#39;@/components/designme/human-handoff/HumanHandoff&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">React example</h3><p class="pg-d">The demo above as a React component, 65 lines you can copy.</p><pre class="cp-pre" data-name="React example"><code>&#39;use client&#39;;
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useEffect, useRef, useState } from &#39;react&#39;;
 import { HumanHandoff, type HandoffPerson, type HandoffStatus } from &#39;./HumanHandoff&#39;;
@@ -373,8 +408,8 @@ export default function HumanHandoffDemo() {
 
   // the preview&#39;s story, on the same beats as the site&#39;s
   useStory(ref, async ({ wait, press }) =&gt; {
-    await wait(5600); press(&#39;.dm-hox-rb&#39;);
-    await wait(2500); press(&#39;.dm-hox-pop .dm-mi:nth-of-type(1)&#39;);
+    await wait(5600); press(&#39;.dm-hox-go&#39;);
+    await wait(2500); press(&#39;.dm-hox-pop.dm-open .dm-mi:nth-of-type(1)&#39;);
   });
 
   return (
@@ -392,11 +427,11 @@ export default function HumanHandoffDemo() {
 import HumanHandoff from &#39;../components/designme/human-handoff/HumanHandoff.astro&#39;;
 ---
 &lt;HumanHandoff /&gt;
-&lt;HumanHandoff data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything HumanHandoff takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>title</code></td><td><code>string</code></td><td></td></tr><tr><td><code>reason</code><span class="opt">required</span></td><td><code>string</code></td><td>Why the agent handed off, like &quot;Refund over $500 needs a person&quot;</td></tr><tr><td><code>assignee</code><span class="opt">required</span></td><td><code>HandoffPerson | null</code></td><td>Who has it, or null while the agent is still finding someone</td></tr><tr><td><code>finding</code></td><td><code>{ title: string; detail?: string }</code></td><td>The two lines shown while assignee is null</td></tr><tr><td><code>people</code></td><td><code>HandoffPerson[]</code></td><td>The people it can go to instead. Leave it out to hide Reassign</td></tr><tr><td><code>onReassign</code></td><td><code>(person: HandoffPerson) =&gt; void</code></td><td></td></tr><tr><td><code>secondsLeft</code><span class="opt">required</span></td><td><code>number</code></td><td>Seconds left until the reply is due. It shows whole minutes and turns orange under five; at 0 or less it reads overdue</td></tr><tr><td><code>targetSeconds</code></td><td><code>number</code></td><td>The whole window, for the bar and the line beside it (&quot;15 min target&quot;)</td></tr><tr><td><code>summary</code><span class="opt">required</span></td><td><code>string</code></td><td>What the person needs to pick it up</td></tr><tr><td><code>facts</code></td><td><code>HandoffFact[]</code></td><td>A few key facts, as label and value rows</td></tr><tr><td><code>link</code></td><td><code>{ label: string; href?: string; onClick?: () =&gt; void; tip?: string }</code></td><td>A link to the whole conversation</td></tr><tr><td><code>message</code><span class="opt">required</span></td><td><code>string</code></td><td>What the agent told the customer</td></tr><tr><td><code>messageLabel</code></td><td><code>string</code></td><td>The label over the message, like &quot;Sent to Dana&quot;</td></tr><tr><td><code>onMessageChange</code></td><td><code>(text: string) =&gt; void</code></td><td>Adds Edit: the message turns editable, and Save calls this with the new text</td></tr><tr><td><code>edited</code></td><td><code>boolean</code></td><td>Adds &quot;· edited&quot; to the label</td></tr><tr><td><code>status</code><span class="opt">required</span></td><td><code>HandoffStatus</code></td><td>The row at the foot that says where it stands</td></tr><tr><td><code>labels</code></td><td><code>{ assignedTo?: string; context?: string; reassign?: string; reassignTo?: string; target?: string; edit?: string; save?: string; cancel?: string; edited?: string }</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>HumanHandoff.tsx<span class="l">React · 177 lines</span></summary><pre class="cp-pre" data-name="HumanHandoff.tsx"><code>&#39;use client&#39;;
+&lt;HumanHandoff data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything HumanHandoff takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>title</code></td><td><code>string</code></td><td></td></tr><tr><td><code>reason</code><span class="opt">required</span></td><td><code>string</code></td><td>Why the agent handed off, like &quot;Refund over $500 needs a person&quot;</td></tr><tr><td><code>assignee</code><span class="opt">required</span></td><td><code>HandoffPerson | null</code></td><td>Who has it, or null while the agent is still finding someone</td></tr><tr><td><code>finding</code></td><td><code>{ title: string; detail?: string }</code></td><td>The two lines shown while assignee is null</td></tr><tr><td><code>people</code></td><td><code>HandoffPerson[]</code></td><td>The people it can go to instead. Leave it out to hide Reassign</td></tr><tr><td><code>onReassign</code></td><td><code>(person: HandoffPerson) =&gt; void</code></td><td></td></tr><tr><td><code>secondsLeft</code><span class="opt">required</span></td><td><code>number</code></td><td>Seconds left until the reply is due. It shows whole minutes and turns orange under five; at 0 or less it reads overdue</td></tr><tr><td><code>targetSeconds</code></td><td><code>number</code></td><td>The whole window, for the bar and the line beside it (&quot;15 min target&quot;)</td></tr><tr><td><code>summary</code><span class="opt">required</span></td><td><code>string</code></td><td>What the person needs to pick it up</td></tr><tr><td><code>facts</code></td><td><code>HandoffFact[]</code></td><td>A few key facts, as label and value rows</td></tr><tr><td><code>link</code></td><td><code>{ label: string; href?: string; onClick?: () =&gt; void; tip?: string }</code></td><td>A link to the whole conversation</td></tr><tr><td><code>message</code><span class="opt">required</span></td><td><code>string</code></td><td>What the agent told the customer</td></tr><tr><td><code>messageLabel</code></td><td><code>string</code></td><td>The label over the message, like &quot;Sent to Dana&quot;</td></tr><tr><td><code>onMessageChange</code></td><td><code>(text: string) =&gt; void</code></td><td>Adds Edit: the message turns editable, and Save calls this with the new text</td></tr><tr><td><code>edited</code></td><td><code>boolean</code></td><td>Adds &quot;· edited&quot; to the label</td></tr><tr><td><code>status</code><span class="opt">required</span></td><td><code>HandoffStatus</code></td><td>The row at the foot that says where it stands</td></tr><tr><td><code>labels</code></td><td><code>{ assignedTo?: string; context?: string; reassign?: string; reassignTo?: string; target?: string; edit?: string; save?: string; cancel?: string; edited?: string }</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>HumanHandoff.tsx<span class="l">React · 194 lines</span></summary><pre class="cp-pre" data-name="HumanHandoff.tsx"><code>&#39;use client&#39;;
 import { useRef, useState } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { Icon } from &#39;../lib/icons&#39;;
-import { Avatar, Spin, Swap, Tip } from &#39;../lib/motion&#39;;
+import { Avatar, enter, Spin, Swap, Tip, useGrow } from &#39;../lib/motion&#39;;
 import { usePopover } from &#39;../lib/popover&#39;;
 import &#39;../designme.css&#39;;
 import &#39;./human-handoff.css&#39;;
@@ -421,7 +456,8 @@ export interface HandoffFact {
 }
 
 export interface HandoffStatus {
-  /** wait is neutral with a spinner, warn orange with an alert, ok green */
+  /** wait is neutral with a spinner and the loader&#39;s sweep on its title; warn is a warning notice (a faint amber tint, the
+      filled warning sign, and Reassign when there are `people`); ok is neutral with the person&#39;s avatar or a green tick */
   tone?: &#39;wait&#39; | &#39;warn&#39; | &#39;ok&#39;;
   title: string;
   detail?: string;
@@ -464,6 +500,11 @@ export interface HumanHandoffProps {
   className?: string;
 }
 
+/** The filled warning sign of a warning notice */
+const WarnSign = () =&gt; (
+  &lt;svg className=&quot;dm-hox-wi&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path className=&quot;dm-a&quot; d=&quot;M12 3.6 2.6 19.9h18.8z&quot; /&gt;&lt;path className=&quot;dm-b&quot; d=&quot;M12 9.6v4.4M12 17v.01&quot; /&gt;&lt;/svg&gt;
+);
+
 const initialsOf = (p: HandoffPerson) =&gt; p.initials ?? p.name.split(&#39; &#39;).map(w =&gt; w[0]).join(&#39;&#39;).slice(0, 2);
 const due = (s: number) =&gt; { const m = Math.floor(s / 60); return s &lt;= 0 ? &#39;Reply overdue&#39; : m &lt; 1 ? &#39;Reply due in under a minute&#39; : `Reply due in ${m} min`; };
 
@@ -476,6 +517,9 @@ export function HumanHandoff({
   const L = { assignedTo: &#39;Assigned to&#39;, context: &#39;Context passed along&#39;, reassign: &#39;Reassign&#39;, reassignTo: &#39;Reassign to&#39;, target: `${Math.round(targetSeconds / 60)} min target`,
     edit: &#39;Edit&#39;, save: &#39;Save&#39;, cancel: &#39;Cancel&#39;, edited: &#39;edited&#39;, ...labels };
   const menu = usePopover({ align: &#39;end&#39;, side: &#39;down&#39; });
+  // the warning notice&#39;s own Reassign opens the same list, upwards from the card&#39;s foot, over the card rather than below it
+  const footMenu = usePopover({ align: &#39;end&#39;, side: &#39;up&#39; });
+  const [root, inner] = useGrow();
   const [editing, setEditing] = useState(false);
   // the message box is drawn afresh after each edit, so what React renders and what was typed never disagree
   const [rev, setRev] = useState(0);
@@ -496,7 +540,8 @@ export function HumanHandoff({
 
   return (
     &lt;div data-dm=&quot;&quot; className={className} style={{ width: &#39;100%&#39;, containerType: &#39;inline-size&#39; }}&gt;
-      &lt;div className=&quot;dm-hox dm-panel&quot;&gt;
+      &lt;div ref={root} className=&quot;dm-hox dm-panel dm-growing&quot;&gt;
+      &lt;div ref={inner} className=&quot;dm-grow&quot;&gt;
         &lt;div className=&quot;dm-hox-h&quot;&gt;
           &lt;span className=&quot;dm-hox-ic&quot;&gt;&lt;Icon name=&quot;user&quot; /&gt;&lt;/span&gt;
           &lt;div className=&quot;dm-hox-ht&quot;&gt;&lt;b&gt;{title}&lt;/b&gt;&lt;span className=&quot;dm-muted&quot;&gt;{reason}&lt;/span&gt;&lt;/div&gt;
@@ -519,7 +564,7 @@ export function HumanHandoff({
               )}
             &lt;/div&gt;
             &lt;div className={cx(&#39;dm-hox-sla&#39;, tone)}&gt;
-              &lt;div className=&quot;dm-hox-sl&quot;&gt;&lt;Icon name=&quot;clock&quot; /&gt;&lt;span className=&quot;dm-hox-due dm-num&quot;&gt;{due(secondsLeft)}&lt;/span&gt;&lt;span className=&quot;dm-muted&quot;&gt;{L.target}&lt;/span&gt;&lt;/div&gt;
+              &lt;div className=&quot;dm-hox-sl&quot;&gt;&lt;Icon name=&quot;clock&quot; /&gt;&lt;span className=&quot;dm-hox-sw&quot;&gt;&lt;span className=&quot;dm-hox-due dm-num&quot;&gt;{due(secondsLeft)}&lt;/span&gt;&lt;span className=&quot;dm-muted&quot;&gt;{L.target}&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;
               &lt;div className=&quot;dm-hox-bar&quot; role=&quot;progressbar&quot; aria-label=&quot;Time left to reply&quot; aria-valuemin={0} aria-valuemax={targetSeconds} aria-valuenow={left}&gt;
                 &lt;i style={{ width: `${Math.min(100, (left / targetSeconds) * 100)}%` }} /&gt;
               &lt;/div&gt;
@@ -548,100 +593,142 @@ export function HumanHandoff({
           &lt;/div&gt;
         &lt;/div&gt;
         &lt;div className={cx(&#39;dm-hox-st&#39;, st !== &#39;wait&#39; &amp;&amp; &#39;dm-&#39; + st)} aria-live=&quot;polite&quot;&gt;
-          &lt;span className=&quot;dm-g&quot;&gt;{status.person ? &lt;Avatar initials={initialsOf(status.person)} color={status.person.color ?? &#39;var(--dm-av-l)&#39;} /&gt; : st === &#39;wait&#39; ? &lt;Spin /&gt; : &lt;Icon name={st === &#39;warn&#39; ? &#39;alert&#39; : &#39;ok&#39;} /&gt;}&lt;/span&gt;
-          &lt;span className=&quot;dm-t&quot;&gt;&lt;b&gt;&lt;Swap&gt;{status.title}&lt;/Swap&gt;&lt;/b&gt;{status.detail &amp;&amp; &lt;span&gt;&lt;Swap&gt;{status.detail}&lt;/Swap&gt;&lt;/span&gt;}&lt;/span&gt;
+          &lt;div className=&quot;dm-hox-sr&quot;&gt;
+            &lt;span className=&quot;dm-g&quot;&gt;{status.person ? &lt;Avatar initials={initialsOf(status.person)} color={status.person.color ?? &#39;var(--dm-av-l)&#39;} /&gt;
+              : st === &#39;wait&#39; ? &lt;Spin /&gt; : st === &#39;warn&#39; ? &lt;WarnSign /&gt; : &lt;Icon name=&quot;ok&quot; size=&quot;xs&quot; /&gt;}&lt;/span&gt;
+            &lt;span className=&quot;dm-t&quot;&gt;&lt;b&gt;&lt;Swap className={st === &#39;wait&#39; ? &#39;dm-shim&#39; : undefined}&gt;{status.title}&lt;/Swap&gt;&lt;/b&gt;{status.detail &amp;&amp; &lt;span&gt;&lt;Swap&gt;{status.detail}&lt;/Swap&gt;&lt;/span&gt;}&lt;/span&gt;
+            {st === &#39;warn&#39; &amp;&amp; people &amp;&amp; assignee &amp;&amp; (
+              &lt;button type=&quot;button&quot; className={cx(&#39;dm-pill dm-warn dm-sm dm-hox-go&#39;, enter().className)} {...footMenu.trigger}&gt;{L.reassign}&lt;/button&gt;
+            )}
+          &lt;/div&gt;
         &lt;/div&gt;
-        {people &amp;&amp; (
-          &lt;div {...menu.pop} className={cx(menu.pop.className, &#39;dm-hox-pop&#39;)} role=&quot;menu&quot; aria-label={L.reassignTo}&gt;
+        {people &amp;&amp; [menu, footMenu].map((m, k) =&gt; (
+          &lt;div key={k} {...m.pop} className={cx(m.pop.className, &#39;dm-hox-pop&#39;)} role=&quot;menu&quot; aria-label={L.reassignTo}&gt;
             &lt;div className=&quot;dm-ph&quot;&gt;{L.reassignTo}&lt;/div&gt;
             {people.map(p =&gt; (
               &lt;button type=&quot;button&quot; key={p.name} className=&quot;dm-mi&quot; role=&quot;menuitemradio&quot; aria-checked={p.name === assignee?.name}
-                onClick={() =&gt; { if (p.name !== assignee?.name) onReassign?.(p); menu.closeSoon(); }}&gt;
+                onClick={() =&gt; { if (p.name !== assignee?.name) onReassign?.(p); m.closeSoon(); }}&gt;
                 &lt;Avatar initials={initialsOf(p)} color={p.color ?? &#39;var(--dm-av-l)&#39;} /&gt;
                 &lt;span&gt;{p.name}&lt;span className=&quot;dm-d&quot;&gt;{[p.team, p.presence].filter(Boolean).join(&#39; · &#39;)}&lt;/span&gt;&lt;/span&gt;
                 &lt;span className=&quot;dm-ck&quot;&gt;&lt;Icon name=&quot;check&quot; size=&quot;xs&quot; /&gt;&lt;/span&gt;
               &lt;/button&gt;
             ))}
           &lt;/div&gt;
-        )}
+        ))}
+      &lt;/div&gt;
       &lt;/div&gt;
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>human-handoff.css<span class="l">React · 75 lines</span></summary><pre class="cp-pre" data-name="human-handoff.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>human-handoff.css<span class="l">React · 110 lines</span></summary><pre class="cp-pre" data-name="human-handoff.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Hand-off to a person ---------- */
 /* the agent passes a conversation to a person: why, who has it (with Reassign), when the reply is due, what they need to
-   pick it up, and what the customer was told. The type and spacing are Draft review&#39;s; the two columns stack when narrow */
+   pick it up, and what the customer was told, with a status line at the foot. The type and spacing are Draft review&#39;s; the
+   two columns stack when narrow. Its content is 16px from every edge */
 .dm-hox{position:relative;width:100%;margin:0 auto;padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-3)}
 .dm-hox-h{display:flex;align-items:center;gap:var(--dm-s-3)}
-.dm-hox-ic{width:32px;height:32px;border-radius:calc(9px * var(--dm-rk));background:var(--dm-chip);color:var(--dm-fg2);display:grid;place-items:center;flex:none}
+.dm-hox-ic{width:32px;height:32px;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-chip);color:var(--dm-fg2);display:grid;place-items:center;flex:none}
 .dm-hox-ht{flex:1;min-width:0;display:flex;flex-direction:column}
-.dm-hox-ht b{font-weight:500;font-size:14px}
-.dm-hox-ht span{font-size:13px}
+.dm-hox-ht b{font-weight:500;font-size:14px;line-height:20px}
+.dm-hox-ht span{font-size:13px;line-height:18px}
 .dm-hox-b{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--dm-s-4) var(--dm-s-6);align-items:start;padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 @container (max-width:600px){.dm-hox-b{grid-template-columns:minmax(0,1fr)}.dm-hox-col+.dm-hox-col{padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}}
 .dm-hox-col{display:flex;flex-direction:column;gap:var(--dm-s-2);min-width:0}
 .dm-hox-lb{font-size:12px;color:var(--dm-muted)}
-.dm-hox-who{display:flex;align-items:center;gap:10px;min-height:40px}
-.dm-hox-av{width:28px;height:28px;display:grid;place-items:center;flex:none;border-radius:50%;background:var(--dm-chip);color:var(--dm-fg2)}
-.dm-hox-av .dm-av{width:28px;height:28px;font-size:11px}
+.dm-hox-who{display:flex;align-items:center;gap:var(--dm-s-3);min-height:40px}
+.dm-hox-av{width:32px;height:32px;display:grid;place-items:center;flex:none;border-radius:50%;background:var(--dm-chip);color:var(--dm-fg2)}
+/* the person&#39;s avatar is as big as the head&#39;s tile, so its words start where the title&#39;s do */
+.dm-hox-av .dm-av{width:32px;height:32px;font-size:12px}
 .dm-hox-wt{flex:1;min-width:0;display:flex;flex-direction:column}
-.dm-hox-wt b{font-weight:500;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.dm-hox-wd{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dm-hox-wt b{font-weight:500;font-size:13.5px;line-height:20px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dm-hox-wd{display:flex;align-items:center;gap:6px;font-size:12px;line-height:18px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dm-hox-wd .dm-dot{color:var(--dm-faint)}
 /* the person&#39;s status: the dot is a mark (--dm-ok-mark, --dm-warn-mark) and the words keep the text colours */
 .dm-hox-wd.dm-ok .dm-dot{color:var(--dm-ok-mark)}
 .dm-hox-wd.dm-warn{color:var(--dm-warn)}
 .dm-hox-wd.dm-warn .dm-dot{color:var(--dm-warn-mark)}
-/* Reassign: a small dropdown, like the one for how long in Permission gate */
-.dm-hox-rb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--dm-s-2) 0 10px;border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);flex:none;transition:background .16s,color .16s}
+/* Reassign: a small dropdown, like the one for how long in Permission gate. It is the row&#39;s last control, so its words end on
+   the content&#39;s right edge (where the target time under it ends) and its hover box reaches 8px out round them */
+.dm-hox-rb{display:inline-flex;align-items:center;gap:6px;height:28px;margin-right:calc(-1 * var(--dm-s-2));padding:0 var(--dm-s-2);border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);flex:none;transition:background .16s,color .16s}
 .dm-hox-rb[aria-expanded=&quot;true&quot;]{background:var(--dm-row);color:var(--dm-fg)}
 @media (hover:hover) and (pointer:fine){.dm-hox-rb:hover{background:var(--dm-row);color:var(--dm-fg)}}
 .dm-hox-rb&gt;svg{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
 .dm-hox-rb[aria-expanded=&quot;true&quot;]&gt;svg{transform:rotate(180deg)}
 .dm-hox-rb[disabled]{opacity:1;cursor:not-allowed;background:none;color:var(--dm-dis)}
+.dm-hox-rb[disabled]&gt;svg{color:var(--dm-dis)}
 .dm-hox-pop{min-width:240px}
+/* its menu opens out of the card, which keeps its height while the menu is open */
+.dm-hox.dm-growing:has(.dm-hox-pop.dm-open){overflow:visible}
 .dm-hox-pop .dm-mi .dm-av{width:20px;height:20px;font-size:9px}
 .dm-hox-pop .dm-mi&gt;span:not(.dm-ck):not(.dm-av){flex:1;min-width:0}
-/* when the reply is due: the line counts down and the bar empties, amber in the last five minutes */
+/* when the reply is due: the line counts down and the bar empties, amber in the last five minutes. The due time and the target
+   are two sizes on one line, so they share a baseline in their own wrapper; the clock sits on the line&#39;s centre */
 .dm-hox-sla{display:flex;flex-direction:column;gap:var(--dm-s-2);padding-top:var(--dm-s-2)}
 .dm-hox-sl{display:flex;align-items:center;gap:var(--dm-s-2);font-size:13px}
 .dm-hox-sl&gt;svg{color:var(--dm-fg2);flex:none}
-.dm-hox-sl .dm-muted{margin-left:auto;font-size:12px;white-space:nowrap}
+.dm-hox-sw{flex:1;min-width:0;display:flex;align-items:baseline;gap:var(--dm-s-2)}
+.dm-hox-sw .dm-muted{margin-left:auto;font-size:12px;white-space:nowrap}
 .dm-hox-due{min-width:0}
 .dm-hox-bar{height:4px;border-radius:2px;background:var(--dm-chip);overflow:hidden}
 .dm-hox-bar i{display:block;height:100%;width:100%;border-radius:inherit;background:var(--dm-fg2);transition:width 1s linear,background .3s}
 .dm-hox-sla.dm-warn .dm-hox-sl&gt;svg,.dm-hox-sla.dm-warn .dm-hox-due{color:var(--dm-warn)}
 .dm-hox-sla.dm-warn .dm-hox-bar i{background:var(--dm-warn-mark)}
 .dm-hox-sla.dm-bad .dm-hox-sl&gt;svg,.dm-hox-sla.dm-bad .dm-hox-due{color:var(--dm-bad)}
+.dm-hox-sla.dm-bad .dm-hox-bar i{background:var(--dm-bad-mark)}
 .dm-hox-sum{margin:0;font-size:13px;line-height:1.5;color:var(--dm-fg2)}
 .dm-hox-facts{display:flex;flex-direction:column;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.dm-hox-f{display:flex;align-items:center;gap:10px;min-height:32px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13px}
+.dm-hox-f{display:flex;align-items:center;gap:var(--dm-s-3);min-height:32px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13px}
 .dm-hox-f .dm-k{width:72px;flex:none;color:var(--dm-muted)}
 .dm-hox-f .dm-v{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dm-hox-lnk{align-self:flex-start;max-width:100%}
 .dm-hox-lnk&gt;span{overflow:hidden;text-overflow:ellipsis}
-/* what the customer was told, editable in place */
+/* what the customer was told, editable in place. Edit is a ghost button, the row&#39;s last control, so its words end on the
+   content&#39;s right edge (where the message box ends) */
 .dm-hox-ms{display:flex;flex-direction:column;gap:var(--dm-s-2);margin-top:var(--dm-s-1);padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .dm-hox-mh{display:flex;align-items:center;gap:var(--dm-s-2);min-height:28px}
 .dm-hox-mh .dm-sp{flex:1}
+.dm-hox-mh .dm-pill.dm-ghost:last-child{margin-right:-11px}
 .dm-hox-mb{padding:10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13.5px;line-height:1.5;outline:0;transition:box-shadow var(--dm-t-fast),background var(--dm-t-fast)}
 .dm-hox-mb[contenteditable=&quot;true&quot;]{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent)}
 @supports (corner-shape:squircle){.dm-hox-mb[contenteditable=&quot;true&quot;]{corner-shape:squircle;border-radius:var(--dm-r-box-sq)}}
 .dm-hox-mb[contenteditable=&quot;true&quot;]:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
-/* where it stands, in one row at the foot: neutral while it waits, amber when the person can&#39;t take it, green once they have */
-.dm-hox-st{display:flex;align-items:center;gap:var(--dm-s-3);padding:10px 10px 10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-chip);font-size:13.5px;transition:background .32s}
-.dm-hox-st.dm-warn{background:var(--dm-warn-bg)}
-.dm-hox-st.dm-ok{background:var(--dm-ok-bg)}
-.dm-hox-st .dm-g{width:18px;height:18px;display:grid;place-items:center;flex:none;color:var(--dm-fg2)}
-.dm-hox-st.dm-warn .dm-g{color:var(--dm-warn)}
+/* where it stands: the card&#39;s footer, under a hairline, 16px from it and from the card&#39;s bottom edge. Its mark sits centred in
+   the head&#39;s 32px tile column and its words start where the title&#39;s do. It is neutral while it waits (a spinner, the words
+   with the loader&#39;s sweep), a warning notice when the person can&#39;t take it (owner, 18 Nov: a faint warning tint reaching 8px
+   out round the row, the filled warning sign in --dm-warn-mark, the words in the text colours and Reassign, the action that
+   settles it, as .pill.warn), and a neutral row with the person&#39;s avatar once they have it: no green fill (owner, 18 Nov) */
+.dm-hox-st{margin-top:var(--dm-s-1);padding-top:var(--dm-s-4);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.dm-hox-sr{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;column-gap:var(--dm-s-3);min-height:28px;margin:calc(-1 * var(--dm-s-2));padding:var(--dm-s-2);border-radius:calc(var(--dm-r-card) - 8px);transition:background-color .32s var(--dm-ease)}
+.dm-hox-st.dm-warn .dm-hox-sr{background:color-mix(in srgb,var(--dm-warn-bg) 45%,transparent)}
+.dm-hox-sr .dm-g{width:32px;height:20px;display:grid;place-items:center;color:var(--dm-fg2)}
+.dm-hox-sr .dm-g .dm-av{width:20px;height:20px;font-size:8.5px}
 .dm-hox-st.dm-ok .dm-g{color:var(--dm-ok)}
-.dm-hox-st .dm-g .dm-av{width:18px;height:18px;font-size:8.5px}
-.dm-hox-st .dm-t{flex:1;min-width:0;display:flex;flex-direction:column}
-.dm-hox-st .dm-t b{font-weight:400}
-/* the second line sits on the row&#39;s tint, so it is fg2 rather than muted */
-.dm-hox-st .dm-t&gt;span{font-size:13px;color:var(--dm-fg2)}
-.dm-hox-st .dm-t,.dm-hox-sum,.dm-hox-mb,.dm-tmx-note&gt;span{text-wrap:pretty}
+:root[data-style=&quot;clean&quot;] .dm-hox-st.dm-ok .dm-g,:root [data-style=&quot;clean&quot;] .dm-hox-st.dm-ok .dm-g,:root [data-style=&quot;clean&quot;].dm-hox-st.dm-ok .dm-g{color:var(--dm-ok-mark)}
+.dm-hox-wi{width:16px;height:16px;overflow:visible}
+.dm-hox-wi .dm-a{fill:var(--dm-warn-mark);stroke:var(--dm-warn-mark);stroke-width:2;stroke-linejoin:round}
+.dm-hox-wi .dm-b{fill:none;stroke:var(--dm-surface);stroke-width:2.2;stroke-linecap:round}
+.dm-hox-sr .dm-t{min-width:0;display:flex;flex-direction:column;font-size:13px;line-height:20px;color:var(--dm-fg)}
+.dm-hox-sr .dm-t b{font-weight:500}
+.dm-hox-sr .dm-t&gt;span{font-size:12.5px;line-height:18px;color:var(--dm-muted)}
+.dm-hox-st.dm-warn .dm-hox-sr .dm-t&gt;span{color:var(--dm-fg2)}
+.dm-hox-sr .dm-t,.dm-hox-sum,.dm-hox-mb,.dm-tmx-note&gt;span{text-wrap:pretty}
+/* on a phone the notice&#39;s Reassign goes under its words, starting where they start, so the words keep the row&#39;s width; the
+   mark stays on the title&#39;s line */
+@container (max-width:480px){.dm-hox-sr{grid-template-columns:32px minmax(0,1fr);align-items:start}.dm-hox-sr .dm-pill{grid-column:2;justify-self:start;margin-top:var(--dm-s-2)}}
+/* Clean (owner, 17 and 18 Nov): the head&#39;s tile with a hairline, the footer an off-white foot strip whose words and Reassign
+   sit 16px from its hairline and the card&#39;s bottom edge (--dm-strip-y) and 16px in from the sides; when the person can&#39;t take it
+   the strip itself takes the faint warning tint. Reassign at the top is Clean&#39;s quiet select: the one hover, and the stronger
+   fill while its menu is open */
+:root[data-style=&quot;clean&quot;] .dm-hox.dm-panel,:root [data-style=&quot;clean&quot;] .dm-hox.dm-panel,:root [data-style=&quot;clean&quot;].dm-hox.dm-panel{padding:16px 16px 0}
+:root[data-style=&quot;clean&quot;] .dm-hox-ic,:root [data-style=&quot;clean&quot;] .dm-hox-ic,:root [data-style=&quot;clean&quot;].dm-hox-ic{box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style=&quot;clean&quot;] .dm-hox-ht b,:root [data-style=&quot;clean&quot;] .dm-hox-ht b,:root [data-style=&quot;clean&quot;].dm-hox-ht b{letter-spacing:-.01em}
+:root[data-style=&quot;clean&quot;] .dm-hox-rb,:root [data-style=&quot;clean&quot;] .dm-hox-rb,:root [data-style=&quot;clean&quot;].dm-hox-rb{color:var(--dm-fg2);transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style=&quot;clean&quot;] .dm-hox-rb:not([disabled]):hover,:root [data-style=&quot;clean&quot;] .dm-hox-rb:not([disabled]):hover,:root [data-style=&quot;clean&quot;].dm-hox-rb:not([disabled]):hover{background:var(--dm-row);color:var(--dm-fg)}}
+:root[data-style=&quot;clean&quot;] .dm-hox-rb[aria-expanded=&quot;true&quot;],:root [data-style=&quot;clean&quot;] .dm-hox-rb[aria-expanded=&quot;true&quot;],:root [data-style=&quot;clean&quot;].dm-hox-rb[aria-expanded=&quot;true&quot;]{background:var(--dm-row-on);color:var(--dm-fg)}
+:root[data-style=&quot;clean&quot;] .dm-hox-bar,:root [data-style=&quot;clean&quot;] .dm-hox-bar,:root [data-style=&quot;clean&quot;].dm-hox-bar{box-shadow:var(--dm-track-ring)}
+:root[data-style=&quot;clean&quot;] .dm-hox-st,:root [data-style=&quot;clean&quot;] .dm-hox-st,:root [data-style=&quot;clean&quot;].dm-hox-st{margin:var(--dm-s-1) -16px 0;padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card);transition:background-color .32s var(--dm-ease)}
+:root[data-style=&quot;clean&quot;] .dm-hox-st.dm-warn,:root [data-style=&quot;clean&quot;] .dm-hox-st.dm-warn,:root [data-style=&quot;clean&quot;].dm-hox-st.dm-warn{background:color-mix(in srgb,var(--dm-warn-bg) 45%,var(--dm-surface))}
+:root[data-style=&quot;clean&quot;] .dm-hox-st .dm-hox-sr,:root [data-style=&quot;clean&quot;] .dm-hox-st .dm-hox-sr,:root [data-style=&quot;clean&quot;].dm-hox-st .dm-hox-sr{margin:0;padding:0;background:none}
 </code></pre></details><details class="cp-file"><summary>HumanHandoff.astro<span class="l">Astro · 51 lines</span></summary><pre class="cp-pre" data-name="HumanHandoff.astro"><code>---
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
 // Hand-off to a person: The agent hands a conversation to a person, with what they need to pick it up.
@@ -665,7 +752,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;div class=&quot;hox-col&quot;&gt;
       &lt;span class=&quot;hox-lb&quot;&gt;Assigned to&lt;/span&gt;
       &lt;div class=&quot;hox-who&quot;&gt;&lt;span class=&quot;hox-av&quot;&gt;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;hox-wt&quot;&gt;&lt;b class=&quot;hox-wn&quot;&gt;Finding someone&lt;/b&gt;&lt;span class=&quot;hox-wd&quot;&gt;&lt;span class=&quot;hox-wv&quot;&gt;Billing team&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;button class=&quot;hox-rb&quot; aria-haspopup=&quot;menu&quot; aria-expanded=&quot;false&quot; data-pop=&quot;.hox-pop&quot; data-pop-align=&quot;end&quot; data-pop-pos=&quot;down&quot; disabled&gt;Reassign&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-chev-d&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/div&gt;
-      &lt;div class=&quot;hox-sla&quot;&gt;&lt;div class=&quot;hox-sl&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-clock&quot;/&gt;&lt;/svg&gt;&lt;span class=&quot;hox-due num&quot;&gt;Reply due in 14 min&lt;/span&gt;&lt;span class=&quot;muted&quot;&gt;15 min target&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;hox-bar&quot; role=&quot;progressbar&quot; aria-label=&quot;Time left to reply&quot; aria-valuemin=&quot;0&quot; aria-valuemax=&quot;900&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;/div&gt;&lt;/div&gt;
+      &lt;div class=&quot;hox-sla&quot;&gt;&lt;div class=&quot;hox-sl&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-clock&quot;/&gt;&lt;/svg&gt;&lt;span class=&quot;hox-sw&quot;&gt;&lt;span class=&quot;hox-due num&quot;&gt;Reply due in 14 min&lt;/span&gt;&lt;span class=&quot;muted&quot;&gt;15 min target&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;hox-bar&quot; role=&quot;progressbar&quot; aria-label=&quot;Time left to reply&quot; aria-valuemin=&quot;0&quot; aria-valuemax=&quot;900&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;/div&gt;&lt;/div&gt;
       &lt;div class=&quot;hox-ms&quot;&gt;
         &lt;div class=&quot;hox-mh&quot;&gt;&lt;span class=&quot;hox-lb hox-ml&quot;&gt;Sent to Dana&lt;/span&gt;&lt;span class=&quot;sp&quot;&gt;&lt;/span&gt;&lt;button class=&quot;pill ghost sm hox-no&quot; hidden&gt;Cancel&lt;/button&gt;&lt;button class=&quot;pill ghost sm hox-ed&quot;&gt;&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-edit&quot;/&gt;&lt;/svg&gt;Edit&lt;/button&gt;&lt;/div&gt;
         &lt;div class=&quot;hox-mb&quot; role=&quot;textbox&quot; aria-multiline=&quot;true&quot; aria-readonly=&quot;true&quot; aria-label=&quot;Message sent to Dana&quot; spellcheck=&quot;false&quot;&gt;Thanks, Dana. A refund this size needs someone on our billing team, so I&#39;ve passed your conversation to them. They&#39;ll reply here within 15 minutes.&lt;/div&gt;
@@ -682,7 +769,7 @@ const { class: className, ...rest } = Astro.props;
       &lt;button class=&quot;fchip lnk hox-lnk&quot; data-tip=&quot;Opens the whole conversation&quot;&gt;&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-link&quot;/&gt;&lt;/svg&gt;&lt;span&gt;View conversation · 12 messages&lt;/span&gt;&lt;/button&gt;
     &lt;/div&gt;
   &lt;/div&gt;
-  &lt;div class=&quot;hox-st&quot; aria-live=&quot;polite&quot;&gt;&lt;span class=&quot;g&quot;&gt;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;t&quot;&gt;&lt;b class=&quot;hox-sa&quot;&gt;Handing off to Billing&lt;/b&gt;&lt;span class=&quot;hox-sb&quot;&gt;The agent has stopped replying to Dana&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;
+  &lt;div class=&quot;hox-st&quot; aria-live=&quot;polite&quot;&gt;&lt;div class=&quot;hox-sr&quot;&gt;&lt;span class=&quot;g&quot;&gt;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;t&quot;&gt;&lt;b class=&quot;hox-sa shim&quot;&gt;Handing off to Billing&lt;/b&gt;&lt;span class=&quot;hox-sb&quot;&gt;The agent has stopped replying to Dana&lt;/span&gt;&lt;/span&gt;&lt;button class=&quot;pill warn sm hox-go&quot; aria-haspopup=&quot;menu&quot; aria-expanded=&quot;false&quot; data-pop=&quot;.hox-pop&quot; data-pop-align=&quot;end&quot; data-pop-pos=&quot;up&quot; hidden&gt;Reassign&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;pop hox-pop&quot; role=&quot;menu&quot; aria-label=&quot;Reassign to&quot;&gt;
     &lt;div class=&quot;ph&quot;&gt;Reassign to&lt;/div&gt;
   &lt;/div&gt;
@@ -700,7 +787,7 @@ const { class: className, ...rest } = Astro.props;
         &lt;div class=&quot;hox-col&quot;&gt;
           &lt;span class=&quot;hox-lb&quot;&gt;Assigned to&lt;/span&gt;
           &lt;div class=&quot;hox-who&quot;&gt;&lt;span class=&quot;hox-av&quot;&gt;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;hox-wt&quot;&gt;&lt;b class=&quot;hox-wn&quot;&gt;Finding someone&lt;/b&gt;&lt;span class=&quot;hox-wd&quot;&gt;&lt;span class=&quot;hox-wv&quot;&gt;Billing team&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;button class=&quot;hox-rb&quot; aria-haspopup=&quot;menu&quot; aria-expanded=&quot;false&quot; data-pop=&quot;.hox-pop&quot; data-pop-align=&quot;end&quot; data-pop-pos=&quot;down&quot; disabled&gt;Reassign&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-chev-d&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/div&gt;
-          &lt;div class=&quot;hox-sla&quot;&gt;&lt;div class=&quot;hox-sl&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-clock&quot;/&gt;&lt;/svg&gt;&lt;span class=&quot;hox-due num&quot;&gt;Reply due in 14 min&lt;/span&gt;&lt;span class=&quot;muted&quot;&gt;15 min target&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;hox-bar&quot; role=&quot;progressbar&quot; aria-label=&quot;Time left to reply&quot; aria-valuemin=&quot;0&quot; aria-valuemax=&quot;900&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;/div&gt;&lt;/div&gt;
+          &lt;div class=&quot;hox-sla&quot;&gt;&lt;div class=&quot;hox-sl&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-clock&quot;/&gt;&lt;/svg&gt;&lt;span class=&quot;hox-sw&quot;&gt;&lt;span class=&quot;hox-due num&quot;&gt;Reply due in 14 min&lt;/span&gt;&lt;span class=&quot;muted&quot;&gt;15 min target&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;hox-bar&quot; role=&quot;progressbar&quot; aria-label=&quot;Time left to reply&quot; aria-valuemin=&quot;0&quot; aria-valuemax=&quot;900&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;/div&gt;&lt;/div&gt;
           &lt;div class=&quot;hox-ms&quot;&gt;
             &lt;div class=&quot;hox-mh&quot;&gt;&lt;span class=&quot;hox-lb hox-ml&quot;&gt;Sent to Dana&lt;/span&gt;&lt;span class=&quot;sp&quot;&gt;&lt;/span&gt;&lt;button class=&quot;pill ghost sm hox-no&quot; hidden&gt;Cancel&lt;/button&gt;&lt;button class=&quot;pill ghost sm hox-ed&quot;&gt;&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-edit&quot;/&gt;&lt;/svg&gt;Edit&lt;/button&gt;&lt;/div&gt;
             &lt;div class=&quot;hox-mb&quot; role=&quot;textbox&quot; aria-multiline=&quot;true&quot; aria-readonly=&quot;true&quot; aria-label=&quot;Message sent to Dana&quot; spellcheck=&quot;false&quot;&gt;Thanks, Dana. A refund this size needs someone on our billing team, so I&#39;ve passed your conversation to them. They&#39;ll reply here within 15 minutes.&lt;/div&gt;
@@ -717,92 +804,129 @@ const { class: className, ...rest } = Astro.props;
           &lt;button class=&quot;fchip lnk hox-lnk&quot; data-tip=&quot;Opens the whole conversation&quot;&gt;&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-link&quot;/&gt;&lt;/svg&gt;&lt;span&gt;View conversation · 12 messages&lt;/span&gt;&lt;/button&gt;
         &lt;/div&gt;
       &lt;/div&gt;
-      &lt;div class=&quot;hox-st&quot; aria-live=&quot;polite&quot;&gt;&lt;span class=&quot;g&quot;&gt;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;t&quot;&gt;&lt;b class=&quot;hox-sa&quot;&gt;Handing off to Billing&lt;/b&gt;&lt;span class=&quot;hox-sb&quot;&gt;The agent has stopped replying to Dana&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;hox-st&quot; aria-live=&quot;polite&quot;&gt;&lt;div class=&quot;hox-sr&quot;&gt;&lt;span class=&quot;g&quot;&gt;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;t&quot;&gt;&lt;b class=&quot;hox-sa shim&quot;&gt;Handing off to Billing&lt;/b&gt;&lt;span class=&quot;hox-sb&quot;&gt;The agent has stopped replying to Dana&lt;/span&gt;&lt;/span&gt;&lt;button class=&quot;pill warn sm hox-go&quot; aria-haspopup=&quot;menu&quot; aria-expanded=&quot;false&quot; data-pop=&quot;.hox-pop&quot; data-pop-align=&quot;end&quot; data-pop-pos=&quot;up&quot; hidden&gt;Reassign&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
       &lt;div class=&quot;pop hox-pop&quot; role=&quot;menu&quot; aria-label=&quot;Reassign to&quot;&gt;
         &lt;div class=&quot;ph&quot;&gt;Reassign to&lt;/div&gt;
       &lt;/div&gt;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>human-handoff.css<span class="l">HTML · 74 lines</span></summary><pre class="cp-pre" data-name="human-handoff.css"><code>/* ---------- Hand-off to a person ---------- */
+</code></pre></details><details class="cp-file"><summary>human-handoff.css<span class="l">HTML · 109 lines</span></summary><pre class="cp-pre" data-name="human-handoff.css"><code>/* ---------- Hand-off to a person ---------- */
 /* the agent passes a conversation to a person: why, who has it (with Reassign), when the reply is due, what they need to
-   pick it up, and what the customer was told. The type and spacing are Draft review&#39;s; the two columns stack when narrow */
+   pick it up, and what the customer was told, with a status line at the foot. The type and spacing are Draft review&#39;s; the
+   two columns stack when narrow. Its content is 16px from every edge */
 .hox{position:relative;width:100%;margin:0 auto;padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-3)}
 .hox-h{display:flex;align-items:center;gap:var(--dm-s-3)}
-.hox-ic{width:32px;height:32px;border-radius:calc(9px * var(--dm-rk));background:var(--dm-chip);color:var(--dm-fg2);display:grid;place-items:center;flex:none}
+.hox-ic{width:32px;height:32px;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-chip);color:var(--dm-fg2);display:grid;place-items:center;flex:none}
 .hox-ht{flex:1;min-width:0;display:flex;flex-direction:column}
-.hox-ht b{font-weight:500;font-size:14px}
-.hox-ht span{font-size:13px}
+.hox-ht b{font-weight:500;font-size:14px;line-height:20px}
+.hox-ht span{font-size:13px;line-height:18px}
 .hox-b{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--dm-s-4) var(--dm-s-6);align-items:start;padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 @container (max-width:600px){.hox-b{grid-template-columns:minmax(0,1fr)}.hox-col+.hox-col{padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}}
 .hox-col{display:flex;flex-direction:column;gap:var(--dm-s-2);min-width:0}
 .hox-lb{font-size:12px;color:var(--dm-muted)}
-.hox-who{display:flex;align-items:center;gap:10px;min-height:40px}
-.hox-av{width:28px;height:28px;display:grid;place-items:center;flex:none;border-radius:50%;background:var(--dm-chip);color:var(--dm-fg2)}
-.hox-av .av{width:28px;height:28px;font-size:11px}
+.hox-who{display:flex;align-items:center;gap:var(--dm-s-3);min-height:40px}
+.hox-av{width:32px;height:32px;display:grid;place-items:center;flex:none;border-radius:50%;background:var(--dm-chip);color:var(--dm-fg2)}
+/* the person&#39;s avatar is as big as the head&#39;s tile, so its words start where the title&#39;s do */
+.hox-av .av{width:32px;height:32px;font-size:12px}
 .hox-wt{flex:1;min-width:0;display:flex;flex-direction:column}
-.hox-wt b{font-weight:500;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hox-wd{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hox-wt b{font-weight:500;font-size:13.5px;line-height:20px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hox-wd{display:flex;align-items:center;gap:6px;font-size:12px;line-height:18px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hox-wd .dot{color:var(--dm-faint)}
 /* the person&#39;s status: the dot is a mark (--dm-ok-mark, --dm-warn-mark) and the words keep the text colours */
 .hox-wd.ok .dot{color:var(--dm-ok-mark)}
 .hox-wd.warn{color:var(--dm-warn)}
 .hox-wd.warn .dot{color:var(--dm-warn-mark)}
-/* Reassign: a small dropdown, like the one for how long in Permission gate */
-.hox-rb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--dm-s-2) 0 10px;border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);flex:none;transition:background .16s,color .16s}
+/* Reassign: a small dropdown, like the one for how long in Permission gate. It is the row&#39;s last control, so its words end on
+   the content&#39;s right edge (where the target time under it ends) and its hover box reaches 8px out round them */
+.hox-rb{display:inline-flex;align-items:center;gap:6px;height:28px;margin-right:calc(-1 * var(--dm-s-2));padding:0 var(--dm-s-2);border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);flex:none;transition:background .16s,color .16s}
 .hox-rb[aria-expanded=&quot;true&quot;]{background:var(--dm-row);color:var(--dm-fg)}
 @media (hover:hover) and (pointer:fine){.hox-rb:hover{background:var(--dm-row);color:var(--dm-fg)}}
 .hox-rb&gt;svg{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
 .hox-rb[aria-expanded=&quot;true&quot;]&gt;svg{transform:rotate(180deg)}
 .hox-rb[disabled]{opacity:1;cursor:not-allowed;background:none;color:var(--dm-dis)}
+.hox-rb[disabled]&gt;svg{color:var(--dm-dis)}
 .hox-pop{min-width:240px}
+/* its menu opens out of the card, which keeps its height while the menu is open */
+.hox.growing:has(.hox-pop.open){overflow:visible}
 .hox-pop .mi .av{width:20px;height:20px;font-size:9px}
 .hox-pop .mi&gt;span:not(.ck):not(.av){flex:1;min-width:0}
-/* when the reply is due: the line counts down and the bar empties, amber in the last five minutes */
+/* when the reply is due: the line counts down and the bar empties, amber in the last five minutes. The due time and the target
+   are two sizes on one line, so they share a baseline in their own wrapper; the clock sits on the line&#39;s centre */
 .hox-sla{display:flex;flex-direction:column;gap:var(--dm-s-2);padding-top:var(--dm-s-2)}
 .hox-sl{display:flex;align-items:center;gap:var(--dm-s-2);font-size:13px}
 .hox-sl&gt;svg{color:var(--dm-fg2);flex:none}
-.hox-sl .muted{margin-left:auto;font-size:12px;white-space:nowrap}
+.hox-sw{flex:1;min-width:0;display:flex;align-items:baseline;gap:var(--dm-s-2)}
+.hox-sw .muted{margin-left:auto;font-size:12px;white-space:nowrap}
 .hox-due{min-width:0}
 .hox-bar{height:4px;border-radius:2px;background:var(--dm-chip);overflow:hidden}
 .hox-bar i{display:block;height:100%;width:100%;border-radius:inherit;background:var(--dm-fg2);transition:width 1s linear,background .3s}
 .hox-sla.warn .hox-sl&gt;svg,.hox-sla.warn .hox-due{color:var(--dm-warn)}
 .hox-sla.warn .hox-bar i{background:var(--dm-warn-mark)}
 .hox-sla.bad .hox-sl&gt;svg,.hox-sla.bad .hox-due{color:var(--dm-bad)}
+.hox-sla.bad .hox-bar i{background:var(--dm-bad-mark)}
 .hox-sum{margin:0;font-size:13px;line-height:1.5;color:var(--dm-fg2)}
 .hox-facts{display:flex;flex-direction:column;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.hox-f{display:flex;align-items:center;gap:10px;min-height:32px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13px}
+.hox-f{display:flex;align-items:center;gap:var(--dm-s-3);min-height:32px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13px}
 .hox-f .k{width:72px;flex:none;color:var(--dm-muted)}
 .hox-f .v{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hox-lnk{align-self:flex-start;max-width:100%}
 .hox-lnk&gt;span{overflow:hidden;text-overflow:ellipsis}
-/* what the customer was told, editable in place */
+/* what the customer was told, editable in place. Edit is a ghost button, the row&#39;s last control, so its words end on the
+   content&#39;s right edge (where the message box ends) */
 .hox-ms{display:flex;flex-direction:column;gap:var(--dm-s-2);margin-top:var(--dm-s-1);padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .hox-mh{display:flex;align-items:center;gap:var(--dm-s-2);min-height:28px}
 .hox-mh .sp{flex:1}
+.hox-mh .pill.ghost:last-child{margin-right:-11px}
 .hox-mb{padding:10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13.5px;line-height:1.5;outline:0;transition:box-shadow var(--dm-t-fast),background var(--dm-t-fast)}
 .hox-mb[contenteditable=&quot;true&quot;]{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent)}
 @supports (corner-shape:squircle){.hox-mb[contenteditable=&quot;true&quot;]{corner-shape:squircle;border-radius:var(--dm-r-box-sq)}}
 .hox-mb[contenteditable=&quot;true&quot;]:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
-/* where it stands, in one row at the foot: neutral while it waits, amber when the person can&#39;t take it, green once they have */
-.hox-st{display:flex;align-items:center;gap:var(--dm-s-3);padding:10px 10px 10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-chip);font-size:13.5px;transition:background .32s}
-.hox-st.warn{background:var(--dm-warn-bg)}
-.hox-st.ok{background:var(--dm-ok-bg)}
-.hox-st .g{width:18px;height:18px;display:grid;place-items:center;flex:none;color:var(--dm-fg2)}
-.hox-st.warn .g{color:var(--dm-warn)}
+/* where it stands: the card&#39;s footer, under a hairline, 16px from it and from the card&#39;s bottom edge. Its mark sits centred in
+   the head&#39;s 32px tile column and its words start where the title&#39;s do. It is neutral while it waits (a spinner, the words
+   with the loader&#39;s sweep), a warning notice when the person can&#39;t take it (owner, 18 Nov: a faint warning tint reaching 8px
+   out round the row, the filled warning sign in --dm-warn-mark, the words in the text colours and Reassign, the action that
+   settles it, as .pill.warn), and a neutral row with the person&#39;s avatar once they have it: no green fill (owner, 18 Nov) */
+.hox-st{margin-top:var(--dm-s-1);padding-top:var(--dm-s-4);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.hox-sr{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;column-gap:var(--dm-s-3);min-height:28px;margin:calc(-1 * var(--dm-s-2));padding:var(--dm-s-2);border-radius:calc(var(--dm-r-card) - 8px);transition:background-color .32s var(--dm-ease)}
+.hox-st.warn .hox-sr{background:color-mix(in srgb,var(--dm-warn-bg) 45%,transparent)}
+.hox-sr .g{width:32px;height:20px;display:grid;place-items:center;color:var(--dm-fg2)}
+.hox-sr .g .av{width:20px;height:20px;font-size:8.5px}
 .hox-st.ok .g{color:var(--dm-ok)}
-.hox-st .g .av{width:18px;height:18px;font-size:8.5px}
-.hox-st .t{flex:1;min-width:0;display:flex;flex-direction:column}
-.hox-st .t b{font-weight:400}
-/* the second line sits on the row&#39;s tint, so it is fg2 rather than muted */
-.hox-st .t&gt;span{font-size:13px;color:var(--dm-fg2)}
-.hox-st .t,.hox-sum,.hox-mb,.tmx-note&gt;span{text-wrap:pretty}
-</code></pre></details><details class="cp-file"><summary>human-handoff.js<span class="l">HTML · 73 lines</span></summary><pre class="cp-pre" data-name="human-handoff.js"><code>DM.def(&#39;human-handoff&#39;, (r, c) =&gt; {
+:root[data-style=&quot;clean&quot;] .hox-st.ok .g,:root [data-style=&quot;clean&quot;] .hox-st.ok .g,:root [data-style=&quot;clean&quot;].hox-st.ok .g{color:var(--dm-ok-mark)}
+.hox-wi{width:16px;height:16px;overflow:visible}
+.hox-wi .a{fill:var(--dm-warn-mark);stroke:var(--dm-warn-mark);stroke-width:2;stroke-linejoin:round}
+.hox-wi .b{fill:none;stroke:var(--dm-surface);stroke-width:2.2;stroke-linecap:round}
+.hox-sr .t{min-width:0;display:flex;flex-direction:column;font-size:13px;line-height:20px;color:var(--dm-fg)}
+.hox-sr .t b{font-weight:500}
+.hox-sr .t&gt;span{font-size:12.5px;line-height:18px;color:var(--dm-muted)}
+.hox-st.warn .hox-sr .t&gt;span{color:var(--dm-fg2)}
+.hox-sr .t,.hox-sum,.hox-mb,.tmx-note&gt;span{text-wrap:pretty}
+/* on a phone the notice&#39;s Reassign goes under its words, starting where they start, so the words keep the row&#39;s width; the
+   mark stays on the title&#39;s line */
+@container (max-width:480px){.hox-sr{grid-template-columns:32px minmax(0,1fr);align-items:start}.hox-sr .pill{grid-column:2;justify-self:start;margin-top:var(--dm-s-2)}}
+/* Clean (owner, 17 and 18 Nov): the head&#39;s tile with a hairline, the footer an off-white foot strip whose words and Reassign
+   sit 16px from its hairline and the card&#39;s bottom edge (--dm-strip-y) and 16px in from the sides; when the person can&#39;t take it
+   the strip itself takes the faint warning tint. Reassign at the top is Clean&#39;s quiet select: the one hover, and the stronger
+   fill while its menu is open */
+:root[data-style=&quot;clean&quot;] .hox.panel,:root [data-style=&quot;clean&quot;] .hox.panel,:root [data-style=&quot;clean&quot;].hox.panel{padding:16px 16px 0}
+:root[data-style=&quot;clean&quot;] .hox-ic,:root [data-style=&quot;clean&quot;] .hox-ic,:root [data-style=&quot;clean&quot;].hox-ic{box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style=&quot;clean&quot;] .hox-ht b,:root [data-style=&quot;clean&quot;] .hox-ht b,:root [data-style=&quot;clean&quot;].hox-ht b{letter-spacing:-.01em}
+:root[data-style=&quot;clean&quot;] .hox-rb,:root [data-style=&quot;clean&quot;] .hox-rb,:root [data-style=&quot;clean&quot;].hox-rb{color:var(--dm-fg2);transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style=&quot;clean&quot;] .hox-rb:not([disabled]):hover,:root [data-style=&quot;clean&quot;] .hox-rb:not([disabled]):hover,:root [data-style=&quot;clean&quot;].hox-rb:not([disabled]):hover{background:var(--dm-row);color:var(--dm-fg)}}
+:root[data-style=&quot;clean&quot;] .hox-rb[aria-expanded=&quot;true&quot;],:root [data-style=&quot;clean&quot;] .hox-rb[aria-expanded=&quot;true&quot;],:root [data-style=&quot;clean&quot;].hox-rb[aria-expanded=&quot;true&quot;]{background:var(--dm-row-on);color:var(--dm-fg)}
+:root[data-style=&quot;clean&quot;] .hox-bar,:root [data-style=&quot;clean&quot;] .hox-bar,:root [data-style=&quot;clean&quot;].hox-bar{box-shadow:var(--dm-track-ring)}
+:root[data-style=&quot;clean&quot;] .hox-st,:root [data-style=&quot;clean&quot;] .hox-st,:root [data-style=&quot;clean&quot;].hox-st{margin:var(--dm-s-1) -16px 0;padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card);transition:background-color .32s var(--dm-ease)}
+:root[data-style=&quot;clean&quot;] .hox-st.warn,:root [data-style=&quot;clean&quot;] .hox-st.warn,:root [data-style=&quot;clean&quot;].hox-st.warn{background:color-mix(in srgb,var(--dm-warn-bg) 45%,var(--dm-surface))}
+:root[data-style=&quot;clean&quot;] .hox-st .hox-sr,:root [data-style=&quot;clean&quot;] .hox-st .hox-sr,:root [data-style=&quot;clean&quot;].hox-st .hox-sr{margin:0;padding:0;background:none}
+</code></pre></details><details class="cp-file"><summary>human-handoff.js<span class="l">HTML · 81 lines</span></summary><pre class="cp-pre" data-name="human-handoff.js"><code>DM.def(&#39;human-handoff&#39;, (r, c) =&gt; {
   const IC = { user:I(&#39;user&#39;), chev:I(&#39;chev-d&#39;,&#39;xs&#39;), clock:I(&#39;clock&#39;), link:I(&#39;link&#39;,&#39;xs&#39;), edit:I(&#39;edit&#39;,&#39;xs&#39;) };
   r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) =&gt; IC[k] || m);
   const root = $(&#39;.hox&#39;, r), rb = $(&#39;.hox-rb&#39;, r), av = $(&#39;.hox-av&#39;, r), wn = $(&#39;.hox-wn&#39;, r), wd = $(&#39;.hox-wd&#39;, r), pop = $(&#39;.hox-pop&#39;, r);
   const sla = $(&#39;.hox-sla&#39;, r), due = $(&#39;.hox-due&#39;, r), bar = $(&#39;.hox-bar&#39;, r), fill = $(&#39;.hox-bar i&#39;, r);
   const row = $(&#39;.hox-st&#39;, r), sa = $(&#39;.hox-sa&#39;, r), sb = $(&#39;.hox-sb&#39;, r), mb = $(&#39;.hox-mb&#39;, r), ed = $(&#39;.hox-ed&#39;, r), no = $(&#39;.hox-no&#39;, r), ml = $(&#39;.hox-ml&#39;, r);
+  // the card grows and shrinks with what it holds (a status that takes another line, the notice&#39;s button), centred in its stage
+  c.offs.push(grow(root));
   // the billing team: someone free takes the conversation in a few seconds, someone in a call takes longer, and someone
   // who is out never does
   const P = [
@@ -823,7 +947,13 @@ const { class: className, ...rest } = Astro.props;
   };
   showDue(); c.every(1000, () =&gt; { left--; showDue(); });
   // the row at the foot says where it stands
-  const state = (tone, glyph, a, b) =&gt; { row.className = &#39;hox-st&#39; + (tone ? &#39; &#39; + tone : &#39;&#39;); $(&#39;.g&#39;, row).innerHTML = glyph; swap(sa, a); swap(sb, b); };
+  // the footer says where it stands: waiting (a spinner, the words with the loader&#39;s sweep), a warning notice with Reassign when
+  // the person can&#39;t take it, or the person who has it
+  const go = $(&#39;.hox-go&#39;, r), WARN = &#39;&lt;svg class=&quot;hox-wi&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path class=&quot;a&quot; d=&quot;M12 3.6 2.6 19.9h18.8z&quot;/&gt;&lt;path class=&quot;b&quot; d=&quot;M12 9.6v4.4M12 17v.01&quot;/&gt;&lt;/svg&gt;&#39;;
+  const state = (tone, glyph, a, b) =&gt; {
+    row.className = &#39;hox-st&#39; + (tone ? &#39; &#39; + tone : &#39;&#39;); $(&#39;.g&#39;, row).innerHTML = glyph; sa.classList.toggle(&#39;shim&#39;, !tone); swap(sa, a); swap(sb, b);
+    const ask = tone === &#39;warn&#39;; if (go.hidden === ask){ go.hidden = !ask; if (ask) enter(go); }
+  };
   let who = null, run = 0, phase = &#39;finding&#39;;
   function assign(p){
     const id = ++run; who = p; phase = &#39;waiting&#39;;
@@ -835,7 +965,7 @@ const { class: className, ...rest } = Astro.props;
     c.later(1600, () =&gt; {
       if (id !== run) return;
       wd.className = &#39;hox-wd&#39; + (p.tone ? &#39; &#39; + p.tone : &#39;&#39;); wd.innerHTML = `&lt;span class=&quot;dot&quot;&gt;&lt;/span&gt;&lt;span&gt;Billing · ${p.on}&lt;/span&gt;`; enter(wd);
-      if (!p.wait){ phase = &#39;away&#39;; state(&#39;warn&#39;, I(&#39;alert&#39;), `${first(p)} is out until 2pm`, &#39;The reply is due before then. Reassign it to someone who is free.&#39;); return; }
+      if (!p.wait){ phase = &#39;away&#39;; state(&#39;warn&#39;, WARN, `${first(p)} is out until 2pm`, &#39;The reply is due before then. Reassign it to someone who is free.&#39;); return; }
       c.later(p.wait, () =&gt; {
         if (id !== run) return;
         phase = &#39;joined&#39;; state(&#39;ok&#39;, AV(p.i, p.bg), `${first(p)} joined`, &#39;Reading the conversation&#39;);
@@ -863,7 +993,7 @@ const { class: className, ...rest } = Astro.props;
   // the preview&#39;s story: Maya is assigned but is out, so the person reassigns it to Alex, who takes it
   c.story(async s =&gt; {
     await s.until(() =&gt; phase === &#39;away&#39;); await s.beat(4);
-    await s.tap(rb); await s.beat(2);
+    await s.tap(go); await s.beat(2);
     await s.point($(&#39;.mi[data-k=&quot;sam&quot;]&#39;, pop), false); await s.beat(1);
     await s.tap($(&#39;.mi[data-k=&quot;alex&quot;]&#39;, pop)); s.away();
     await s.until(() =&gt; phase === &#39;with&#39;); await s.beat(6);
@@ -1211,6 +1341,8 @@ const fitHits = window.dmFitHits || (() => {
   const root = $('.hox', r), rb = $('.hox-rb', r), av = $('.hox-av', r), wn = $('.hox-wn', r), wd = $('.hox-wd', r), pop = $('.hox-pop', r);
   const sla = $('.hox-sla', r), due = $('.hox-due', r), bar = $('.hox-bar', r), fill = $('.hox-bar i', r);
   const row = $('.hox-st', r), sa = $('.hox-sa', r), sb = $('.hox-sb', r), mb = $('.hox-mb', r), ed = $('.hox-ed', r), no = $('.hox-no', r), ml = $('.hox-ml', r);
+  // the card grows and shrinks with what it holds (a status that takes another line, the notice's button), centred in its stage
+  c.offs.push(grow(root));
   // the billing team: someone free takes the conversation in a few seconds, someone in a call takes longer, and someone
   // who is out never does
   const P = [
@@ -1231,7 +1363,13 @@ const fitHits = window.dmFitHits || (() => {
   };
   showDue(); c.every(1000, () => { left--; showDue(); });
   // the row at the foot says where it stands
-  const state = (tone, glyph, a, b) => { row.className = 'hox-st' + (tone ? ' ' + tone : ''); $('.g', row).innerHTML = glyph; swap(sa, a); swap(sb, b); };
+  // the footer says where it stands: waiting (a spinner, the words with the loader's sweep), a warning notice with Reassign when
+  // the person can't take it, or the person who has it
+  const go = $('.hox-go', r), WARN = '<svg class="hox-wi" viewBox="0 0 24 24" aria-hidden="true"><path class="a" d="M12 3.6 2.6 19.9h18.8z"/><path class="b" d="M12 9.6v4.4M12 17v.01"/></svg>';
+  const state = (tone, glyph, a, b) => {
+    row.className = 'hox-st' + (tone ? ' ' + tone : ''); $('.g', row).innerHTML = glyph; sa.classList.toggle('shim', !tone); swap(sa, a); swap(sb, b);
+    const ask = tone === 'warn'; if (go.hidden === ask){ go.hidden = !ask; if (ask) enter(go); }
+  };
   let who = null, run = 0, phase = 'finding';
   function assign(p){
     const id = ++run; who = p; phase = 'waiting';
@@ -1243,7 +1381,7 @@ const fitHits = window.dmFitHits || (() => {
     c.later(1600, () => {
       if (id !== run) return;
       wd.className = 'hox-wd' + (p.tone ? ' ' + p.tone : ''); wd.innerHTML = `<span class="dot"></span><span>Billing · ${p.on}</span>`; enter(wd);
-      if (!p.wait){ phase = 'away'; state('warn', I('alert'), `${first(p)} is out until 2pm`, 'The reply is due before then. Reassign it to someone who is free.'); return; }
+      if (!p.wait){ phase = 'away'; state('warn', WARN, `${first(p)} is out until 2pm`, 'The reply is due before then. Reassign it to someone who is free.'); return; }
       c.later(p.wait, () => {
         if (id !== run) return;
         phase = 'joined'; state('ok', AV(p.i, p.bg), `${first(p)} joined`, 'Reading the conversation');
@@ -1271,7 +1409,7 @@ const fitHits = window.dmFitHits || (() => {
   // the preview's story: Maya is assigned but is out, so the person reassigns it to Alex, who takes it
   c.story(async s => {
     await s.until(() => phase === 'away'); await s.beat(4);
-    await s.tap(rb); await s.beat(2);
+    await s.tap(go); await s.beat(2);
     await s.point($('.mi[data-k="sam"]', pop), false); await s.beat(1);
     await s.tap($('.mi[data-k="alex"]', pop)); s.away();
     await s.until(() => phase === 'with'); await s.beat(6);

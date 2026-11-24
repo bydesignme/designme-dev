@@ -6,7 +6,7 @@ TPLS["rewrite-toolbar"] = "<div class=\"rwx panel\">\n  <div class=\"rwx-h\"><sp
 TPLS["design-tuner"] = "<div class=\"dtx\">\n  <div class=\"dtx-prev\"><div class=\"dtx-card\">\n    <span class=\"tag b dtx-tg\">Pro</span>\n    <div class=\"dtx-pr\"><b class=\"num\">$24</b><span class=\"muted\">per editor, monthly</span></div>\n    <div class=\"dtx-li\"><span>{c}Unlimited frames</span><span>{c}Agent reviews</span><span>{c}Shared tokens</span></div>\n    <button class=\"pill accent dtx-cta\">Start free trial</button>\n  </div></div>\n  <div class=\"dtx-insp panel\">\n    <div class=\"dtx-ih\"><b>Pricing card</b><span class=\"muted dtx-st\">Edited by you</span></div>\n    <div class=\"dtx-rows\"></div>\n    <div class=\"dtx-f\"><button class=\"pill primary sm dtx-go\">{wand}Tune with agent</button></div>\n  </div>\n</div>";
 TPLS["proposal-card"] = "<div class=\"prx panel\">\n  <div class=\"prx-h\"><span class=\"prx-ic\">{wand}</span><div class=\"prx-ht\"><b>Raise contrast on the secondary button</b><span class=\"muted\">Pricing, frame 2 of 3</span></div></div>\n  <div class=\"prx-diff\"><div class=\"prx-sw\"><span class=\"prx-c\" style=\"background:#c9cfd8\"></span><span class=\"num\">#C9CFD8</span><span class=\"tag bad\">2.1 : 1</span></div><span class=\"prx-ar\">{right}</span><div class=\"prx-sw prx-new\"><span class=\"prx-c\" style=\"background:#5b6472\"></span><span class=\"num\">#5B6472</span><span class=\"tag ok\"><span class=\"prx-rt\">5.9 : 1</span></span></div></div>\n  <div class=\"prx-cf\"><span class=\"muted\">Confidence</span><div class=\"prx-seg\"><i></i><i></i><i></i><i></i><i></i></div><span class=\"num prx-pc\">0%</span></div>\n  <button class=\"prx-alt-t\">{chev}<span>2 other options</span></button>\n  <div class=\"fold shut prx-alt\"><div><div class=\"prx-alts\"></div></div></div>\n  <div class=\"prx-f\"><button class=\"pill ghost sm prx-no\">Not now</button><button class=\"pill primary sm prx-ok\">Accept</button></div>\n</div>";
 TPLS["decision-prompt"] = "<div class=\"dpx panel\" tabindex=\"0\">\n  <div class=\"dpx-h\"><span class=\"dpx-k muted num\">Question 1 of 3</span><div class=\"dpx-dots\"><i class=\"on\"></i><i></i><i></i></div></div>\n  <div class=\"dpx-body\"></div>\n  <div class=\"dpx-f\"><button class=\"pill ghost sm dpx-skip\">Skip</button><button class=\"pill primary sm dpx-go\">Continue <span class=\"kbd\">↵</span></button></div>\n  <p class=\"dpx-live\" aria-live=\"polite\"></p>\n</div>";
-TPLS["human-handoff"] = "<div class=\"hox panel\">\n  <div class=\"hox-h\"><span class=\"hox-ic\">{user}</span><div class=\"hox-ht\"><b>Handed off to a person</b><span class=\"muted\">Refund over $500 needs a person</span></div></div>\n  <div class=\"hox-b\">\n    <div class=\"hox-col\">\n      <span class=\"hox-lb\">Assigned to</span>\n      <div class=\"hox-who\"><span class=\"hox-av\"><span class=\"spin\"></span></span><span class=\"hox-wt\"><b class=\"hox-wn\">Finding someone</b><span class=\"hox-wd\"><span class=\"hox-wv\">Billing team</span></span></span><button class=\"hox-rb\" aria-haspopup=\"menu\" aria-expanded=\"false\" data-pop=\".hox-pop\" data-pop-align=\"end\" data-pop-pos=\"down\" disabled>Reassign{chev}</button></div>\n      <div class=\"hox-sla\"><div class=\"hox-sl\">{clock}<span class=\"hox-due num\">Reply due in 14 min</span><span class=\"muted\">15 min target</span></div><div class=\"hox-bar\" role=\"progressbar\" aria-label=\"Time left to reply\" aria-valuemin=\"0\" aria-valuemax=\"900\"><i></i></div></div>\n      <div class=\"hox-ms\">\n        <div class=\"hox-mh\"><span class=\"hox-lb hox-ml\">Sent to Dana</span><span class=\"sp\"></span><button class=\"pill ghost sm hox-no\" hidden>Cancel</button><button class=\"pill ghost sm hox-ed\">{edit}Edit</button></div>\n        <div class=\"hox-mb\" role=\"textbox\" aria-multiline=\"true\" aria-readonly=\"true\" aria-label=\"Message sent to Dana\" spellcheck=\"false\">Thanks, Dana. A refund this size needs someone on our billing team, so I've passed your conversation to them. They'll reply here within 15 minutes.</div>\n      </div>\n    </div>\n    <div class=\"hox-col\">\n      <span class=\"hox-lb\">Context passed along</span>\n      <p class=\"hox-sum\">Dana was charged twice for her annual plan on Oct 21 and wants one charge back. The agent confirmed the duplicate, but can't refund more than $500.</p>\n      <div class=\"hox-facts\">\n        <div class=\"hox-f\"><span class=\"k\">Amount</span><span class=\"v num\">$588.00</span></div>\n        <div class=\"hox-f\"><span class=\"k\">Customer</span><span class=\"v\">Dana Lee · Pro since 2023</span></div>\n        <div class=\"hox-f\"><span class=\"k\">Order</span><span class=\"v num\">#48213 · charged twice</span></div>\n      </div>\n      <button class=\"fchip lnk hox-lnk\" data-tip=\"Opens the whole conversation\">{link}<span>View conversation · 12 messages</span></button>\n    </div>\n  </div>\n  <div class=\"hox-st\" aria-live=\"polite\"><span class=\"g\"><span class=\"spin\"></span></span><span class=\"t\"><b class=\"hox-sa\">Handing off to Billing</b><span class=\"hox-sb\">The agent has stopped replying to Dana</span></span></div>\n  <div class=\"pop hox-pop\" role=\"menu\" aria-label=\"Reassign to\">\n    <div class=\"ph\">Reassign to</div>\n  </div>\n</div>";
+TPLS["human-handoff"] = "<div class=\"hox panel\">\n  <div class=\"hox-h\"><span class=\"hox-ic\">{user}</span><div class=\"hox-ht\"><b>Handed off to a person</b><span class=\"muted\">Refund over $500 needs a person</span></div></div>\n  <div class=\"hox-b\">\n    <div class=\"hox-col\">\n      <span class=\"hox-lb\">Assigned to</span>\n      <div class=\"hox-who\"><span class=\"hox-av\"><span class=\"spin\"></span></span><span class=\"hox-wt\"><b class=\"hox-wn\">Finding someone</b><span class=\"hox-wd\"><span class=\"hox-wv\">Billing team</span></span></span><button class=\"hox-rb\" aria-haspopup=\"menu\" aria-expanded=\"false\" data-pop=\".hox-pop\" data-pop-align=\"end\" data-pop-pos=\"down\" disabled>Reassign{chev}</button></div>\n      <div class=\"hox-sla\"><div class=\"hox-sl\">{clock}<span class=\"hox-sw\"><span class=\"hox-due num\">Reply due in 14 min</span><span class=\"muted\">15 min target</span></span></div><div class=\"hox-bar\" role=\"progressbar\" aria-label=\"Time left to reply\" aria-valuemin=\"0\" aria-valuemax=\"900\"><i></i></div></div>\n      <div class=\"hox-ms\">\n        <div class=\"hox-mh\"><span class=\"hox-lb hox-ml\">Sent to Dana</span><span class=\"sp\"></span><button class=\"pill ghost sm hox-no\" hidden>Cancel</button><button class=\"pill ghost sm hox-ed\">{edit}Edit</button></div>\n        <div class=\"hox-mb\" role=\"textbox\" aria-multiline=\"true\" aria-readonly=\"true\" aria-label=\"Message sent to Dana\" spellcheck=\"false\">Thanks, Dana. A refund this size needs someone on our billing team, so I've passed your conversation to them. They'll reply here within 15 minutes.</div>\n      </div>\n    </div>\n    <div class=\"hox-col\">\n      <span class=\"hox-lb\">Context passed along</span>\n      <p class=\"hox-sum\">Dana was charged twice for her annual plan on Oct 21 and wants one charge back. The agent confirmed the duplicate, but can't refund more than $500.</p>\n      <div class=\"hox-facts\">\n        <div class=\"hox-f\"><span class=\"k\">Amount</span><span class=\"v num\">$588.00</span></div>\n        <div class=\"hox-f\"><span class=\"k\">Customer</span><span class=\"v\">Dana Lee · Pro since 2023</span></div>\n        <div class=\"hox-f\"><span class=\"k\">Order</span><span class=\"v num\">#48213 · charged twice</span></div>\n      </div>\n      <button class=\"fchip lnk hox-lnk\" data-tip=\"Opens the whole conversation\">{link}<span>View conversation · 12 messages</span></button>\n    </div>\n  </div>\n  <div class=\"hox-st\" aria-live=\"polite\"><div class=\"hox-sr\"><span class=\"g\"><span class=\"spin\"></span></span><span class=\"t\"><b class=\"hox-sa shim\">Handing off to Billing</b><span class=\"hox-sb\">The agent has stopped replying to Dana</span></span><button class=\"pill warn sm hox-go\" aria-haspopup=\"menu\" aria-expanded=\"false\" data-pop=\".hox-pop\" data-pop-align=\"end\" data-pop-pos=\"up\" hidden>Reassign</button></div></div>\n  <div class=\"pop hox-pop\" role=\"menu\" aria-label=\"Reassign to\">\n    <div class=\"ph\">Reassign to</div>\n  </div>\n</div>";
 TPLS["plan-review"] = "<div class=\"plx panel\">\n  <div class=\"plx-h\"><span class=\"think plx-mk\"><i></i><i></i><i></i><i></i></span><div class=\"plx-ht\"><b>Plan: redesign the pricing page</b><span class=\"muted plx-st\">About 4 min</span></div><span class=\"plx-tm num\" aria-label=\"Elapsed\"></span></div>\n  <ol class=\"plx-list\"></ol>\n  <button class=\"plx-add\">{plus}Add a step</button>\n  <div class=\"plx-f\"><span class=\"muted plx-n\">Click a step to edit it</span><button class=\"pill ghost sm plx-chg\">Ask for changes</button><button class=\"pill primary sm plx-go\">Approve plan</button></div>\n</div>";
 
 /* ---------- Decision prompt ---------- */
@@ -176,6 +176,8 @@ DM.def('human-handoff', (r, c) => {
   const root = $('.hox', r), rb = $('.hox-rb', r), av = $('.hox-av', r), wn = $('.hox-wn', r), wd = $('.hox-wd', r), pop = $('.hox-pop', r);
   const sla = $('.hox-sla', r), due = $('.hox-due', r), bar = $('.hox-bar', r), fill = $('.hox-bar i', r);
   const row = $('.hox-st', r), sa = $('.hox-sa', r), sb = $('.hox-sb', r), mb = $('.hox-mb', r), ed = $('.hox-ed', r), no = $('.hox-no', r), ml = $('.hox-ml', r);
+  // the card grows and shrinks with what it holds (a status that takes another line, the notice's button), centred in its stage
+  c.offs.push(grow(root));
   // the billing team: someone free takes the conversation in a few seconds, someone in a call takes longer, and someone
   // who is out never does
   const P = [
@@ -196,7 +198,13 @@ DM.def('human-handoff', (r, c) => {
   };
   showDue(); c.every(1000, () => { left--; showDue(); });
   // the row at the foot says where it stands
-  const state = (tone, glyph, a, b) => { row.className = 'hox-st' + (tone ? ' ' + tone : ''); $('.g', row).innerHTML = glyph; swap(sa, a); swap(sb, b); };
+  // the footer says where it stands: waiting (a spinner, the words with the loader's sweep), a warning notice with Reassign when
+  // the person can't take it, or the person who has it
+  const go = $('.hox-go', r), WARN = '<svg class="hox-wi" viewBox="0 0 24 24" aria-hidden="true"><path class="a" d="M12 3.6 2.6 19.9h18.8z"/><path class="b" d="M12 9.6v4.4M12 17v.01"/></svg>';
+  const state = (tone, glyph, a, b) => {
+    row.className = 'hox-st' + (tone ? ' ' + tone : ''); $('.g', row).innerHTML = glyph; sa.classList.toggle('shim', !tone); swap(sa, a); swap(sb, b);
+    const ask = tone === 'warn'; if (go.hidden === ask){ go.hidden = !ask; if (ask) enter(go); }
+  };
   let who = null, run = 0, phase = 'finding';
   function assign(p){
     const id = ++run; who = p; phase = 'waiting';
@@ -208,7 +216,7 @@ DM.def('human-handoff', (r, c) => {
     c.later(1600, () => {
       if (id !== run) return;
       wd.className = 'hox-wd' + (p.tone ? ' ' + p.tone : ''); wd.innerHTML = `<span class="dot"></span><span>Billing · ${p.on}</span>`; enter(wd);
-      if (!p.wait){ phase = 'away'; state('warn', I('alert'), `${first(p)} is out until 2pm`, 'The reply is due before then. Reassign it to someone who is free.'); return; }
+      if (!p.wait){ phase = 'away'; state('warn', WARN, `${first(p)} is out until 2pm`, 'The reply is due before then. Reassign it to someone who is free.'); return; }
       c.later(p.wait, () => {
         if (id !== run) return;
         phase = 'joined'; state('ok', AV(p.i, p.bg), `${first(p)} joined`, 'Reading the conversation');
@@ -236,7 +244,7 @@ DM.def('human-handoff', (r, c) => {
   // the preview's story: Maya is assigned but is out, so the person reassigns it to Alex, who takes it
   c.story(async s => {
     await s.until(() => phase === 'away'); await s.beat(4);
-    await s.tap(rb); await s.beat(2);
+    await s.tap(go); await s.beat(2);
     await s.point($('.mi[data-k="sam"]', pop), false); await s.beat(1);
     await s.tap($('.mi[data-k="alex"]', pop)); s.away();
     await s.until(() => phase === 'with'); await s.beat(6);
@@ -465,15 +473,18 @@ DM.def('steering', (r, c) => {
   ];
   const steps = $('.ste-steps', r), log = $('.ste-log', r), box = $('.ste-box', r), inp = $('input', box), go = $('.ste-go', r), st = $('.ste-st', r), mode = $('.m', st), ck = $('.ck', st);
   let hue = 'violet', ended = false, running = false;
+  // the card grows and shrinks with its log, staying centred in its stage
+  c.offs.push(grow($('.ste', r)));
   const queue = [];
   const G = { run:'<span class="spin"></span>', done:I('ok','xs'), queued:'<span class="dot"></span>' };
   const doing = x => x.card ? `Setting the accent to ${hue}` : x.d;
   function row(x){
-    x.el = html(`<li class="ste-s ${x.s}"><span class="ste-g">${G[x.s]}</span><span class="ste-t"><b>${x.t}</b><span>${x.s === 'run' ? doing(x) : x.d || 'Pricing v4, frame 2'}</span></span>${x.mine ? '<span class="tag b">From you</span>' : ''}</li>`);
+    // (the running step's line is loader text, with the sweep)
+    x.el = html(`<li class="ste-s ${x.s}"><span class="ste-g">${G[x.s]}</span><span class="ste-t"><b>${x.t}</b><span${x.s === 'run' ? ' class="shim"' : ''}>${x.s === 'run' ? doing(x) : x.d || 'Pricing v4, frame 2'}</span></span>${x.mine ? '<span class="tag b">From you</span>' : ''}</li>`);
     return x.el;
   }
   S.forEach(x => steps.appendChild(row(x)));
-  function set(x, s, d){ x.s = s; x.el.className = 'ste-s ' + s; const g = $('.ste-g', x.el); g.innerHTML = G[s]; enter(g); if (d) swap($('.ste-t span', x.el), d); }
+  function set(x, s, d){ x.s = s; x.el.className = 'ste-s ' + s; const g = $('.ste-g', x.el); g.innerHTML = G[s]; enter(g); $('.ste-t span', x.el).classList.toggle('shim', s === 'run'); if (d) swap($('.ste-t span', x.el), d); }
   const where = () => { const i = S.findIndex(x => x.s === 'run'); swap(mode, ended ? 'Done' : `Step ${i + 1} of ${S.length}`); };
   // the clock runs until the last step is done
   const t0 = performance.now(); let tEnd = 0;
@@ -494,7 +505,7 @@ DM.def('steering', (r, c) => {
   function say(text, warn, acts){
     const a = html(`<div class="ste-ag${warn ? ' warn' : ''}">${warn ? I('alert','xs') : I('spark','xs')}<div class="t"><p></p>${acts ? '<div class="ste-acts"></div>' : ''}</div></div>`);
     $('p', a).textContent = text; log.appendChild(a); enter(a);
-    if (acts) acts.forEach(([label, ink, fn]) => { const b = html(`<button class="pill sm ${ink ? 'primary' : 'ghost'}">${label}</button>`); b.onclick = () => { $('.ste-acts', a).replaceWith(html(`<span class="muted">${fn()}</span>`)); a.classList.remove('warn'); a.firstElementChild.outerHTML = I('spark','xs'); }; $('.ste-acts', a).appendChild(b); });
+    if (acts) acts.forEach(([label, ink, fn]) => { const b = html(`<button class="pill sm ${ink ? 'primary' : 'line'}">${label}</button>`); b.onclick = () => { $('.ste-acts', a).replaceWith(html(`<span class="muted">${fn()}</span>`)); a.classList.remove('warn'); a.firstElementChild.outerHTML = I('spark','xs'); }; $('.ste-acts', a).appendChild(b); });
   }
   function apply(){
     while (queue.length){

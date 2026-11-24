@@ -165,39 +165,52 @@
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Tool call","description":"Tool call lists the tools an agent calls while it works, placed between its opening message and its answer. Each call shows its name and status, and opens to show the JSON the agent sent and the JSON that came back.","url":"https://designme.dev/components/tool-call","image":"https://designme.dev/components/og/tool-call.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Tool call, Conversation, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/library"},{"@type":"ListItem","position":2,"name":"Conversation","item":"https://designme.dev/library#s-conversation"},{"@type":"ListItem","position":3,"name":"Tool call","item":"https://designme.dev/components/tool-call"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I update a call while it runs?","acceptedAnswer":{"@type":"Answer","text":"Keep calls in your state and change each call's state from 'queued' to 'running' to 'done' as your agent reports progress. Add output and duration when it finishes."}},{"@type":"Question","name":"What can I pass as input and output?","acceptedAnswer":{"@type":"Answer","text":"Any JSON value: strings, numbers, booleans, null, arrays and objects. Objects print on one line and each array item gets its own line."}},{"@type":"Question","name":"Can I open a call automatically when it finishes?","acceptedAnswer":{"@type":"Answer","text":"Yes. Control open from your own state and add the call's key when you mark it done, as the example does with the first call."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Tool call ---------- */
 .tcx{display:flex;flex-direction:column;gap:var(--dm-s-3)}
 .tcx-calls{display:flex;flex-direction:column;gap:var(--dm-s-2)}
-.tcx-end{opacity:0;transition:opacity .6s var(--dm-ease),filter .6s,transform .6s var(--dm-ease);filter:blur(3px);transform:translateY(4px)}
-.tcx-end.in{opacity:1;filter:none;transform:none}
+/* the answer appears only once every call is back (no room is kept for it): the list grows to take it (grow()) and it fades
+   in, so nothing jumps */
+.tcx-end:not(.in){display:none}
 .tcx-calls{margin-inline:-8px}
 .tcx-h{display:flex;align-items:center;gap:10px;width:100%;padding:6px var(--dm-s-2);border-radius:calc(10px * var(--dm-rk));text-align:left;font-size:13px;transition:background .2s}
 @media (hover:hover) and (pointer:fine){.tcx-h:hover{background:var(--dm-row)}}
 .tcx-ic{width:24px;height:24px;border-radius:var(--dm-r-sm);background:var(--dm-chip);display:grid;place-items:center;color:var(--dm-fg2);flex:none}
-.tcx-n{flex:1;min-width:0;font-family:var(--dm-mono);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* a call's name is an interface label, in the interface font (no monospace outside code): the tool's server muted, then the
+   tool. Only the JSON that went in and came back is code */
+.tcx-n{flex:1;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tcx-n b{font-weight:500;color:var(--dm-fg)}
 .tcx-n span{color:var(--dm-muted)}
 .tcx-ms{font-size:12px;color:var(--dm-muted);display:flex;align-items:center;gap:6px}
+.tcx-ms .shim{font-size:inherit}
+.tcx-ms .ok{display:grid;color:var(--dm-ok)}
 .tcx-chev{color:var(--dm-muted);transition:transform .45s var(--dm-ease)}
 .tcx-c.open .tcx-chev{transform:rotate(180deg)}
 .tcx-io{padding:2px var(--dm-s-2) var(--dm-s-2) 42px;display:grid;gap:var(--dm-s-2)}
 .tcx-l{font-size:11.5px;color:var(--dm-muted);margin-bottom:var(--dm-s-1)}
 .tcx-io pre{margin:0;padding:9px 11px;border-radius:calc(10px * var(--dm-rk));background:var(--dm-chip);font-family:var(--dm-mono);font-size:11.5px;line-height:1.65;white-space:pre-wrap;word-break:break-word}
 .tcx-io .k{color:var(--dm-pb)}.tcx-io .s{color:var(--dm-pm)}.tcx-io .n{color:var(--dm-pp)}
+/* Clean (owner, 17 and 18 Nov): each call is a row with Clean's 10px corners and the one hover, its tool on a white tile with a
+   hairline, the JSON in 10px boxes and the tick in the vivid green */
+:root[data-style="clean"] .tcx-h,:root [data-style="clean"] .tcx-h,:root [data-style="clean"].tcx-h{border-radius:10px;transition:background-color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .tcx-ic,:root [data-style="clean"] .tcx-ic,:root [data-style="clean"].tcx-ic{background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .tcx-io pre,:root [data-style="clean"] .tcx-io pre,:root [data-style="clean"].tcx-io pre{border-radius:10px}
+:root[data-style="clean"] .tcx-ms .ok,:root [data-style="clean"] .tcx-ms .ok,:root [data-style="clean"].tcx-ms .ok{color:var(--dm-ok-mark)}
+:root[data-style="clean"] .tcx-chev,:root [data-style="clean"] .tcx-chev,:root [data-style="clean"].tcx-chev{transition:transform var(--dm-t) var(--dm-ease)}
 </style><style>/* the homepage card's design switch: Classic is the component above, and Call stack, Inline and Inspector are the directions
    under review, each under .tcx[data-d]. A tool shows as its icon, an app as its own mark. Colour is kept for meaning: the
    green tick of a call that returned, the accent on the one that is running, and amber for the edit that waits for you */
 .dm.tcx-dm>.dm-main{align-items:stretch}
-.tcx[data-d] code{font-family:var(--dm-mono);font-size:12px;font-weight:500;letter-spacing:-.01em}
+/* a call's name is an interface label in the interface font (no monospace outside code): its server muted, then the tool */
+.tcx[data-d] code{font-family:inherit;font-size:13px;font-weight:500}
 .tcx[data-d] .tcx-tile{position:relative;width:26px;height:26px;border-radius:var(--dm-r-sm);display:grid;place-items:center;flex:none;background:var(--dm-chip);color:var(--dm-fg2);transition:background .25s}
 .tcx[data-d] .tcx-tile.app{background:var(--dm-surface);color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent)}
 .tcx[data-d] .tcx-tile .brand{width:14px;height:14px}
-.tcx[data-d] .tcx-json{margin:0;padding:9px 11px;border-radius:calc(10px * var(--dm-rk));background:var(--dm-chip);font-family:var(--dm-mono);font-size:11.5px;font-weight:500;line-height:1.7;white-space:pre-wrap;word-break:break-word;color:var(--dm-fg2)}
+.tcx[data-d] .tcx-json{margin:0;padding:var(--dm-s-3);border-radius:calc(10px * var(--dm-rk));background:var(--dm-chip);font-family:var(--dm-mono);font-size:11.5px;font-weight:500;line-height:1.7;white-space:break-spaces;word-break:break-word;color:var(--dm-fg2)}
 .tcx[data-d] .tcx-json .k{color:var(--dm-muted)}.tcx[data-d] .tcx-json :is(.s,.n,.b){color:var(--dm-fg)}
 .tcx[data-d] .tcx-json .cur{display:inline-block;width:6px;height:12px;vertical-align:-2px;background:var(--dm-fg2);animation:bpblink 1s steps(1,end) infinite}
 :root:not([data-style="soft"],[data-style="clean"]) .tcx[data-d] .tcx-tile:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
 :root:not([data-style="soft"],[data-style="clean"]) .tcx[data-d] .tcx-tile.app:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 60%,transparent)}
 
 /* Call stack: the calls on a rail that fills as each returns; open one to stream its output, copy it or run it again */
-.tcx[data-d="stack"] .tca-end{opacity:0;transform:translateY(4px);transition:opacity .6s var(--dm-ease),transform .6s var(--dm-ease)}
-.tcx[data-d="stack"] .tca-end.in{opacity:1;transform:none}
+/* the answer appears only once every call is back, and the list grows to take it (grow()) */
+.tcx[data-d="stack"] .tca-end:not(.in){display:none}
 .tcx[data-d="stack"] .tca-list{list-style:none;margin:0 -8px;padding:0;display:flex;flex-direction:column;gap:2px}
 .tcx[data-d="stack"] .tca-c{position:relative;border-radius:var(--dm-r-in);transition:background .25s}
 .tcx[data-d="stack"] .tca-c.open{background:var(--dm-row)}
@@ -225,6 +238,7 @@
 .tcx[data-d="stack"] .tca-r .g{width:14px;height:14px;display:grid;place-items:center}
 .tcx[data-d="stack"] .tca-r .g .spin{width:11px;height:11px;color:var(--dm-accent-mark)}
 .tcx[data-d="stack"] .tca-r .ok{color:var(--dm-ok);display:grid}
+.tcx[data-d="stack"] .tca-r .shim{font-size:inherit}
 .tcx[data-d="stack"] .tca-r .ok svg{animation:tcapop .4s var(--dm-ease)}
 @keyframes tcapop{from{transform:scale(.3);opacity:0}60%{transform:scale(1.2)}}
 .tcx[data-d="stack"] .tca-cv{color:var(--dm-muted);display:grid;transition:transform .4s var(--dm-ease)}
@@ -249,17 +263,17 @@
 /* Inline: the calls as chips inside the agent's sentence. Pointing at one previews it, pressing it opens the call under
    the sentence */
 .tcx[data-d="inline"]{position:relative}
-.tcx[data-d="inline"] .tcb-who{display:flex;align-items:center;gap:var(--dm-s-2);font-size:12.5px;color:var(--dm-muted)}
+.tcx[data-d="inline"] .tcb-who{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--dm-muted)}
 .tcx[data-d="inline"] .tcb-av{width:22px;height:22px;border-radius:calc(7px * var(--dm-rk));display:grid;place-items:center;background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}
 .tcx[data-d="inline"] .tcb-av .i{width:12px;height:12px}
 .tcx[data-d="inline"] .tcb-ws{display:inline-flex;align-items:center;gap:5px}
 .tcx[data-d="inline"] .tcb-ws .shim{font-size:inherit}
-.tcx[data-d="inline"] .tcb-p{margin:0;min-height:120px;font-size:14px;line-height:30px;color:var(--dm-fg);text-wrap:pretty}
+.tcx[data-d="inline"] .tcb-p{margin:0;font-size:14px;line-height:30px;color:var(--dm-fg);text-wrap:pretty}
 .tcx[data-d="inline"] .tcb-p .w{animation:tcbw .4s var(--dm-ease) backwards}
 @keyframes tcbw{from{opacity:0}}
 /* a call inside the sentence: the site's file chip with its tool's icon and name, a spinner while it runs, then how long
    it took. The open one keeps the chip's hover look */
-.tcx[data-d="inline"] .tcb-k{margin:0 1px;line-height:1;vertical-align:middle;gap:5px;animation:tcbk .45s var(--dm-ease) backwards}
+.tcx[data-d="inline"] .tcb-k{margin:0 2px 0 0;line-height:1;vertical-align:middle;gap:5px;animation:tcbk .45s var(--dm-ease) backwards}
 @keyframes tcbk{from{opacity:0;transform:scale(.85)}}
 .tcx[data-d="inline"] .tcb-k[aria-expanded="true"]{background:var(--dm-row);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent)}
 .tcx[data-d="inline"] .tcb-k .t{width:16px;height:16px;border-radius:4px;display:grid;place-items:center;flex:none;color:var(--dm-fg2)}
@@ -271,7 +285,7 @@
 .tcx[data-d="inline"] .tcb-k[data-s="run"] .t .spin{color:var(--dm-accent-mark)}
 .tcx[data-d="inline"] .tcb-k:focus-visible{outline-offset:1px;border-radius:var(--dm-r-pill)}
 /* the open call: what went in, the tool, what came back */
-.tcx[data-d="inline"] .tcb-dr{display:flex;flex-direction:column;gap:10px;padding:12px;border-radius:var(--dm-r-card);background:var(--dm-surface);box-shadow:var(--dm-shadow)}
+.tcx[data-d="inline"] .tcb-dr{display:flex;flex-direction:column;gap:10px;padding:var(--dm-s-4);border-radius:var(--dm-r-card);background:var(--dm-surface);box-shadow:var(--dm-shadow)}
 .tcx[data-d="inline"] .tcb-dh{display:flex;align-items:center;gap:var(--dm-s-2);min-width:0}
 .tcx[data-d="inline"] .tcb-dh code{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tcx[data-d="inline"] .tcb-dh code span{color:var(--dm-muted)}
@@ -288,7 +302,8 @@
 .tcx[data-d="inline"] .tcb-sum{display:flex;align-items:center;gap:var(--dm-s-2);font-size:12.5px;color:var(--dm-muted);min-height:20px}
 .tcx[data-d="inline"] .tcb-hc{position:absolute;z-index:20;width:236px;max-width:calc(100% - 8px);padding:10px;border-radius:var(--dm-r-in);background:var(--dm-raised);box-shadow:var(--dm-shadow-pop);font-size:12px;pointer-events:none;animation:popin .3s var(--dm-ease)}
 .tcx[data-d="inline"] .tcb-hc[hidden]{display:none}
-.tcx[data-d="inline"] .tcb-hc code{display:block;margin-bottom:6px;font-size:11.5px}
+.tcx[data-d="inline"].growing:has(.tcb-hc:not([hidden])){overflow:visible}
+.tcx[data-d="inline"] .tcb-hc code{display:block;margin-bottom:6px;font-size:12.5px}
 .tcx[data-d="inline"] .tcb-hc code span{color:var(--dm-muted)}
 .tcx[data-d="inline"] .tcb-hc .row{display:grid;grid-template-columns:30px minmax(0,1fr);gap:4px 8px;line-height:1.5}
 .tcx[data-d="inline"] .tcb-hc .row span:nth-child(odd){color:var(--dm-muted)}
@@ -304,17 +319,18 @@
 /* Inspector: a strip of calls, each as wide as it took, over the call you pick, read as tables or JSON. The strip's parts
    are white like the site's file chips, with the tool's own icon; the one running fills a line in the accent, and the edit
    that waits for you carries an amber dot and the site's amber tag, on white, never a tinted fill */
-.tcx[data-d="inspector"]{padding:var(--dm-s-3)}
-.tcx[data-d="inspector"] .tcc-h{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-3);padding:2px 2px 0}
+.tcx[data-d="inspector"]{padding:var(--dm-s-4)}
+.tcx[data-d="inspector"] .tcc-h{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-3)}
 .tcx[data-d="inspector"] .tcc-ht{display:flex;flex-direction:column;min-width:0}
-.tcx[data-d="inspector"] .tcc-ht b{font-weight:500}
-.tcx[data-d="inspector"] .tcc-st{font-size:12.5px;color:var(--dm-muted);white-space:nowrap}
+.tcx[data-d="inspector"] .tcc-ht b{font-weight:500;font-size:14px;line-height:20px}
+.tcx[data-d="inspector"] .tcc-st{font-size:12.5px;line-height:18px;color:var(--dm-muted);white-space:nowrap}
 .tcx[data-d="inspector"] .tcc-mode button{height:24px;font-size:12px;padding:0 10px}
 .tcx[data-d="inspector"] .tcc-strip{display:flex;gap:var(--dm-s-1)}
 .tcx[data-d="inspector"] .tcc-s{position:relative;flex:1 1 0;min-width:max-content;display:flex;align-items:center;gap:6px;height:36px;padding:0 10px;border-radius:var(--dm-r-sm);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);text-align:left;font-size:12.5px;color:var(--dm-fg);overflow:hidden;transition:background .25s,box-shadow .25s,color .25s}
 @supports (corner-shape:squircle){.tcx[data-d="inspector"] .tcc-s{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
 @media (hover:hover) and (pointer:fine){.tcx[data-d="inspector"] .tcc-s:hover{background:var(--dm-row);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent)}}
-.tcx[data-d="inspector"] .tcc-s[aria-selected="true"]{background:var(--dm-row);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-on) 50%,transparent)}
+/* the call you picked: white with a grey edge a step stronger, never a grey fill (owner, 29 Oct) */
+.tcx[data-d="inspector"] .tcc-s[aria-selected="true"]{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-on) 50%,transparent)}
 .tcx[data-d="inspector"] .tcc-s:focus-visible{outline-offset:-2px}
 .tcx[data-d="inspector"] .tcc-ic{display:grid;place-items:center;width:14px;height:14px;flex:none;color:var(--dm-fg2)}
 .tcx[data-d="inspector"] .tcc-ic .brand{width:13px;height:13px}
@@ -328,10 +344,12 @@
 .tcx[data-d="inspector"] .tcc-s[data-s="deny"] .tcc-dt{display:inline-block;color:var(--dm-bad)}
 .tcx[data-d="inspector"] .tcc-pr{position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--dm-accent-mark);transform-origin:left;transform:scaleX(var(--dm-p,0));opacity:0;transition:transform .1s linear,opacity .3s}
 .tcx[data-d="inspector"] .tcc-s[data-s="run"] .tcc-pr{opacity:1}
-@container (max-width:340px){.tcx[data-d="inspector"] .tcc-s .n{display:none}.tcx[data-d="inspector"] .tcc-s{justify-content:center;min-width:40px}.tcx[data-d="inspector"] .tcc-dt{position:absolute;top:6px;right:6px}}
+/* narrow, each part shows its mark alone, with its dot beside it on the same centre line */
+@container (max-width:340px){.tcx[data-d="inspector"] .tcc-s .n{display:none}.tcx[data-d="inspector"] .tcc-s{justify-content:center;min-width:40px}.tcx[data-d="inspector"] .tcc-dt{margin-left:0}}
 /* the call you picked, under a hairline: its name and state, then what went in and what came back as plain lists */
-.tcx[data-d="inspector"] .tcc-view{position:relative;height:262px;overflow:hidden;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.tcx[data-d="inspector"] .tcc-in{position:absolute;inset:0;display:flex;flex-direction:column;gap:var(--dm-s-3);padding:var(--dm-s-3) 2px 2px;overflow-y:auto;scrollbar-width:none}
+/* (it keeps no room for a taller call: the card grows and shrinks to the call you pick, eased (grow()), centred in its stage) */
+.tcx[data-d="inspector"] .tcc-view{position:relative;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.tcx[data-d="inspector"] .tcc-in{display:flex;flex-direction:column;gap:var(--dm-s-3);padding:var(--dm-s-3) 0 0}
 .tcx[data-d="inspector"] .tcc-in::-webkit-scrollbar{display:none}
 .tcx[data-d="inspector"] .tcc-in.go{animation:tccin .4s var(--dm-ease)}
 @keyframes tccin{from{opacity:0;transform:translateY(6px)}}
@@ -343,8 +361,9 @@
 .tcx[data-d="inspector"] .tcc-dh .tag .spin{width:9px;height:9px}
 .tcx[data-d="inspector"] .tcc-dh .num{font-size:12px;color:var(--dm-muted)}
 .tcx[data-d="inspector"] .tcc-sec{display:flex;flex-direction:column;gap:6px}
-.tcx[data-d="inspector"] .tcc-sec .l{display:flex;align-items:center;gap:6px;min-height:22px;font-size:11.5px;color:var(--dm-muted)}
-.tcx[data-d="inspector"] .tcc-sec .l .ib{width:22px;height:22px;margin-left:auto}
+.tcx[data-d="inspector"] .tcc-sec .l{display:flex;align-items:center;gap:6px;min-height:24px;font-size:11.5px;color:var(--dm-muted)}
+/* the copy button is the row's last control: its glyph ends on the content's right edge, its hover box reaching out round it */
+.tcx[data-d="inspector"] .tcc-sec .l .ib{width:24px;height:24px;margin:0 -6px 0 auto}
 .tcx[data-d="inspector"] .tcc-kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 16px;font-size:12.5px;line-height:1.5}
 .tcx[data-d="inspector"] .tcc-kv>span:nth-child(odd){color:var(--dm-muted)}
 .tcx[data-d="inspector"] .tcc-kv>span:nth-child(even){color:var(--dm-fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
@@ -366,6 +385,29 @@
 :root:not([data-style="soft"],[data-style="clean"]) .tcx[data-d="inspector"] .tcc-s[data-s="ask"] .tcc-dt:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation:bpblink 1.1s steps(1,end) infinite}
 :root:not([data-style="soft"],[data-style="clean"]) .tcx[data-d="inspector"] .tcc-in.go:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation:bpin .3s var(--dm-ease)}
 :root:not([data-style="soft"],[data-style="clean"]) .tcx[data-d="inspector"] .tcc-wait i:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation:none;background:repeating-linear-gradient(90deg,var(--dm-chip) 0 4px,transparent 4px 6px)}
+/* Clean (owner, 17 and 18 Nov), the three directions alike: tools on white tiles with a hairline (an app's mark keeps its own
+   colours), rows and boxes with Clean's 10px corners, the one hover and, for the call you picked, the one stronger fill in its
+   own shape (never an edge or a hue), the JSON in 10px boxes, ticks in the vivid green, and the open call and the preview with
+   their content 16px from their edges */
+:root[data-style="clean"] .tcx[data-d] .tcx-tile:not(.app),:root [data-style="clean"] .tcx[data-d] .tcx-tile:not(.app),:root [data-style="clean"].tcx[data-d] .tcx-tile:not(.app){background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .tcx[data-d] .tcx-tile.app,:root [data-style="clean"] .tcx[data-d] .tcx-tile.app,:root [data-style="clean"].tcx[data-d] .tcx-tile.app{box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .tcx[data-d] .tcx-json,:root [data-style="clean"] .tcx[data-d] .tcx-json,:root [data-style="clean"].tcx[data-d] .tcx-json{border-radius:10px}
+:root[data-style="clean"] .tcx[data-d="stack"] :is(.tca-c,.tca-h),:root [data-style="clean"] .tcx[data-d="stack"] :is(.tca-c,.tca-h),:root [data-style="clean"].tcx[data-d="stack"] :is(.tca-c,.tca-h){border-radius:10px}
+:root[data-style="clean"] .tcx[data-d="stack"] .tca-c,:root [data-style="clean"] .tcx[data-d="stack"] .tca-c,:root [data-style="clean"].tcx[data-d="stack"] .tca-c{transition:background-color var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .tcx[data-d="stack"] .tca-c:is(:hover,.open) .tcx-tile:not(.app),:root [data-style="clean"] .tcx[data-d="stack"] .tca-c:is(:hover,.open) .tcx-tile:not(.app),:root [data-style="clean"].tcx[data-d="stack"] .tca-c:is(:hover,.open) .tcx-tile:not(.app){box-shadow:inset 0 0 0 1px var(--dm-hair)}}
+:root[data-style="clean"] .tcx[data-d="stack"] .tca-r .ok,:root [data-style="clean"] .tcx[data-d="stack"] .tca-r .ok,:root [data-style="clean"].tcx[data-d="stack"] .tca-r .ok{color:var(--dm-ok-mark)}
+:root[data-style="clean"] .tcx[data-d="stack"] .tca-cv,:root [data-style="clean"] .tcx[data-d="stack"] .tca-cv,:root [data-style="clean"].tcx[data-d="stack"] .tca-cv{transition:transform var(--dm-t) var(--dm-ease)}
+:root[data-style="clean"] .tcx[data-d="stack"] .tca-c.open :is(.tcx-json,.tca-bar .seg2),:root [data-style="clean"] .tcx[data-d="stack"] .tca-c.open :is(.tcx-json,.tca-bar .seg2),:root [data-style="clean"].tcx[data-d="stack"] .tca-c.open :is(.tcx-json,.tca-bar .seg2){box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .tcx[data-d="inline"] .tcb-dr,:root [data-style="clean"] .tcx[data-d="inline"] .tcb-dr,:root [data-style="clean"].tcx[data-d="inline"] .tcb-dr{border-radius:var(--dm-r-card)}
+:root[data-style="clean"] .tcx[data-d="inline"] .tcb-hc,:root [data-style="clean"] .tcx[data-d="inline"] .tcb-hc,:root [data-style="clean"].tcx[data-d="inline"] .tcb-hc{padding:12px;border-radius:calc(14px * var(--dm-rk-l,var(--dm-rk)))}
+:root[data-style="clean"] .tcx[data-d="inline"] .tcb-k,:root [data-style="clean"] .tcx[data-d="inline"] .tcb-k,:root [data-style="clean"].tcx[data-d="inline"] .tcb-k{transition:background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .tcx[data-d="inline"] .tcb-k[aria-expanded="true"],:root [data-style="clean"] .tcx[data-d="inline"] .tcb-k[aria-expanded="true"],:root [data-style="clean"].tcx[data-d="inline"] .tcb-k[aria-expanded="true"]{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent),inset 0 0 0 99px var(--dm-row-on)}
+:root[data-style="clean"] .tcx[data-d="inspector"] .tcc-s,:root [data-style="clean"] .tcx[data-d="inspector"] .tcc-s,:root [data-style="clean"].tcx[data-d="inspector"] .tcc-s{border-radius:10px;transition:background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .tcx[data-d="inspector"] .tcc-s:hover,:root [data-style="clean"] .tcx[data-d="inspector"] .tcc-s:hover,:root [data-style="clean"].tcx[data-d="inspector"] .tcc-s:hover{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent),inset 0 0 0 99px var(--dm-row)}}
+:root[data-style="clean"] .tcx[data-d="inspector"] .tcc-s[aria-selected="true"],:root [data-style="clean"] .tcx[data-d="inspector"] .tcc-s[aria-selected="true"],:root [data-style="clean"].tcx[data-d="inspector"] .tcc-s[aria-selected="true"]{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent),inset 0 0 0 99px var(--dm-row-on)}
+:root[data-style="clean"] .tcx[data-d="inspector"] .tcc-view,:root [data-style="clean"] .tcx[data-d="inspector"] .tcc-view,:root [data-style="clean"].tcx[data-d="inspector"] .tcc-view{border-top-color:var(--dm-hair)}
+:root[data-style="clean"] .tcx[data-d="inspector"] .tcc-dh .tcx-tile,:root [data-style="clean"] .tcx[data-d="inspector"] .tcc-dh .tcx-tile,:root [data-style="clean"].tcx[data-d="inspector"] .tcc-dh .tcx-tile{box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .tcx[data-d="inspector"] .tcc-ask .pill.line,:root [data-style="clean"] .tcx[data-d="inspector"] .tcc-ask .pill.line,:root [data-style="clean"].tcx[data-d="inspector"] .tcc-ask .pill.line{color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px + var(--sw,0px))}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px + var(--sw,0px))}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px + var(--sw,0px))}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px + var(--sw,0px))}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -436,7 +478,7 @@
   addEventListener('resize', function(){ cur = -2; mark(); });
   mark();
 })();
-</script><div class="dc-bar"><nav aria-label="On this page"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-ins"><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#e34f26" d="M1.5 0h21l-1.91 21.563L11.977 24l-8.564-2.438L1.5 0z"/><path fill="#fff" d="M8.531 9.75l-.232-2.718 10.059.003.23-2.622L5.412 4.41l.698 8.01h9.126l-.326 3.426-2.91.804-2.955-.81-.188-2.11H6.248l.33 4.171L12 19.351l5.379-1.443.744-8.157H8.531z"/></svg>HTML, CSS and JS</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">tool-call</span></code><button class="cp-copy" type="button" data-copy="npx designme add tool-call" data-label="Copy" aria-label="Copy the HTML install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">tool-call</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add tool-call --react" data-label="Copy" aria-label="Copy the React install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#bc52ee" d="M8.358 20.162c-1.186-1.07-1.532-3.316-1.038-4.944.856 1.026 2.043 1.352 3.272 1.535 1.897.283 3.76.177 5.522-.678.202-.098.388-.229.608-.36.166.473.209.95.151 1.437-.14 1.185-.738 2.1-1.688 2.794-.38.277-.782.525-1.175.787-1.205.804-1.531 1.747-1.078 3.119l.044.148a3.158 3.158 0 0 1-1.407-1.188 3.31 3.31 0 0 1-.544-1.815c-.004-.32-.004-.642-.048-.958-.106-.769-.472-1.113-1.161-1.133-.707-.02-1.267.411-1.415 1.09-.012.053-.028.104-.045.165h.002zm-5.961-4.445s3.24-1.575 6.49-1.575l2.451-7.565c.092-.366.36-.614.662-.614.302 0 .57.248.662.614l2.45 7.565c3.85 0 6.491 1.575 6.491 1.575L16.088.727C15.93.285 15.663 0 15.303 0H8.697c-.36 0-.615.285-.784.727l-5.516 14.99z"/></svg>Astro</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">tool-call</span> <span class="cp-w">--astro</span></code><button class="cp-copy" type="button" data-copy="npx designme add tool-call --astro" data-label="Copy" aria-label="Copy the Astro install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>shadcn, React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>tool-call.json</code><button class="cp-copy" type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/tool-call.json" data-label="Copy" aria-label="Copy the shadcn command for React">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#bc52ee" d="M8.358 20.162c-1.186-1.07-1.532-3.316-1.038-4.944.856 1.026 2.043 1.352 3.272 1.535 1.897.283 3.76.177 5.522-.678.202-.098.388-.229.608-.36.166.473.209.95.151 1.437-.14 1.185-.738 2.1-1.688 2.794-.38.277-.782.525-1.175.787-1.205.804-1.531 1.747-1.078 3.119l.044.148a3.158 3.158 0 0 1-1.407-1.188 3.31 3.31 0 0 1-.544-1.815c-.004-.32-.004-.642-.048-.958-.106-.769-.472-1.113-1.161-1.133-.707-.02-1.267.411-1.415 1.09-.012.053-.028.104-.045.165h.002zm-5.961-4.445s3.24-1.575 6.49-1.575l2.451-7.565c.092-.366.36-.614.662-.614.302 0 .57.248.662.614l2.45 7.565c3.85 0 6.491 1.575 6.491 1.575L16.088.727C15.93.285 15.663 0 15.303 0H8.697c-.36 0-.615.285-.784.727l-5.516 14.99z"/></svg>shadcn, Astro</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>astro/<wbr>tool-call.json</code><button class="cp-copy" type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/astro/tool-call.json" data-label="Copy" aria-label="Copy the shadcn command for Astro">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. Where each version lands, what it needs and the shadcn theme bridge: <a href="/docs/installation">Installation</a>.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Tool call lists the tools an agent calls while it works, placed between its opening message and its answer. Each call shows its name and status, and opens to show the JSON the agent sent and the JSON that came back.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When your agent uses tools or MCP servers and people want to see what it actually ran.</li><li>When you need to debug a wrong answer by checking the input and output of each call.</li><li>When several calls run one after another and the answer should only appear once they have all finished.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li>Each call has a <code>state</code>: queued waits, running shows a spinner and "Running", and done shows a check with the <code>duration</code>.</li><li>The call's name is shown with its <code>server</code> or namespace in front, like billing.list_plan_changes, plus an optional <code>icon</code>.</li><li>Clicking a call folds open its Input and Output, printed as JSON with keys, strings and numbers in their own colours. Output reads "Waiting…" until the call is done.</li><li>Which calls are open can be left to the calls themselves or controlled with <code>open</code>, <code>defaultOpen</code> and <code>onOpenChange</code>.</li><li><code>reply</code> is laid out from the start and fades in a frame after every call is done, so nothing below it jumps.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>Each call's header is a button with <code>aria-expanded</code> showing whether its input and output are open.</li><li>Closed input and output panels are <code>inert</code> and <code>aria-hidden</code>, and the reply stays <code>aria-hidden</code> until every call is done.</li><li>The spinner and status icons are decorative and hidden from screen readers.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it in React and drive it from your own state, or place it in an Astro page.</p></div><div class="cp-box"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>React</h3><pre class="cp-pre" data-name="React import"><code>import { ToolCall } from &#39;@/components/designme/tool-call/ToolCall&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">React example</h3><p class="pg-d">The demo above as a React component, 35 lines you can copy.</p><pre class="cp-pre" data-name="React example"><code>&#39;use client&#39;;
+</script><div class="dc-bar"><nav aria-label="On this page"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-ins"><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#e34f26" d="M1.5 0h21l-1.91 21.563L11.977 24l-8.564-2.438L1.5 0z"/><path fill="#fff" d="M8.531 9.75l-.232-2.718 10.059.003.23-2.622L5.412 4.41l.698 8.01h9.126l-.326 3.426-2.91.804-2.955-.81-.188-2.11H6.248l.33 4.171L12 19.351l5.379-1.443.744-8.157H8.531z"/></svg>HTML, CSS and JS</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">tool-call</span></code><button class="cp-copy" type="button" data-copy="npx designme add tool-call" data-label="Copy" aria-label="Copy the HTML install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">tool-call</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add tool-call --react" data-label="Copy" aria-label="Copy the React install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#bc52ee" d="M8.358 20.162c-1.186-1.07-1.532-3.316-1.038-4.944.856 1.026 2.043 1.352 3.272 1.535 1.897.283 3.76.177 5.522-.678.202-.098.388-.229.608-.36.166.473.209.95.151 1.437-.14 1.185-.738 2.1-1.688 2.794-.38.277-.782.525-1.175.787-1.205.804-1.531 1.747-1.078 3.119l.044.148a3.158 3.158 0 0 1-1.407-1.188 3.31 3.31 0 0 1-.544-1.815c-.004-.32-.004-.642-.048-.958-.106-.769-.472-1.113-1.161-1.133-.707-.02-1.267.411-1.415 1.09-.012.053-.028.104-.045.165h.002zm-5.961-4.445s3.24-1.575 6.49-1.575l2.451-7.565c.092-.366.36-.614.662-.614.302 0 .57.248.662.614l2.45 7.565c3.85 0 6.491 1.575 6.491 1.575L16.088.727C15.93.285 15.663 0 15.303 0H8.697c-.36 0-.615.285-.784.727l-5.516 14.99z"/></svg>Astro</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">tool-call</span> <span class="cp-w">--astro</span></code><button class="cp-copy" type="button" data-copy="npx designme add tool-call --astro" data-label="Copy" aria-label="Copy the Astro install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>shadcn, React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>tool-call.json</code><button class="cp-copy" type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/tool-call.json" data-label="Copy" aria-label="Copy the shadcn command for React">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#bc52ee" d="M8.358 20.162c-1.186-1.07-1.532-3.316-1.038-4.944.856 1.026 2.043 1.352 3.272 1.535 1.897.283 3.76.177 5.522-.678.202-.098.388-.229.608-.36.166.473.209.95.151 1.437-.14 1.185-.738 2.1-1.688 2.794-.38.277-.782.525-1.175.787-1.205.804-1.531 1.747-1.078 3.119l.044.148a3.158 3.158 0 0 1-1.407-1.188 3.31 3.31 0 0 1-.544-1.815c-.004-.32-.004-.642-.048-.958-.106-.769-.472-1.113-1.161-1.133-.707-.02-1.267.411-1.415 1.09-.012.053-.028.104-.045.165h.002zm-5.961-4.445s3.24-1.575 6.49-1.575l2.451-7.565c.092-.366.36-.614.662-.614.302 0 .57.248.662.614l2.45 7.565c3.85 0 6.491 1.575 6.491 1.575L16.088.727C15.93.285 15.663 0 15.303 0H8.697c-.36 0-.615.285-.784.727l-5.516 14.99z"/></svg>shadcn, Astro</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>astro/<wbr>tool-call.json</code><button class="cp-copy" type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/astro/tool-call.json" data-label="Copy" aria-label="Copy the shadcn command for Astro">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. Where each version lands, what it needs and the shadcn theme bridge: <a href="/docs/installation">Installation</a>.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Tool call lists the tools an agent calls while it works, placed between its opening message and its answer. Each call shows its name and status, and opens to show the JSON the agent sent and the JSON that came back.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When your agent uses tools or MCP servers and people want to see what it actually ran.</li><li>When you need to debug a wrong answer by checking the input and output of each call.</li><li>When several calls run one after another and the answer should only appear once they have all finished.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li>Each call has a <code>state</code>: queued waits, running shows a spinner and "Running" with the loader's sweep, and done shows a check with the <code>duration</code>.</li><li>The call's name is shown with its <code>server</code> or namespace in front, like billing.list_plan_changes, plus an optional <code>icon</code>.</li><li>Clicking a call folds open its Input and Output, printed as JSON with keys, strings and numbers in their own colours. Output reads "Waiting…" until the call is done.</li><li>Which calls are open can be left to the calls themselves or controlled with <code>open</code>, <code>defaultOpen</code> and <code>onOpenChange</code>.</li><li><code>reply</code> appears once every call is done, and the list grows smoothly to take it, so nothing jumps and no room is kept for it before then.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>Each call's header is a button with <code>aria-expanded</code> showing whether its input and output are open.</li><li>Closed input and output panels are <code>inert</code> and <code>aria-hidden</code>, and the reply is only rendered once every call is done.</li><li>The spinner and status icons are decorative and hidden from screen readers.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it in React and drive it from your own state, or place it in an Astro page.</p></div><div class="cp-box"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>React</h3><pre class="cp-pre" data-name="React import"><code>import { ToolCall } from &#39;@/components/designme/tool-call/ToolCall&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">React example</h3><p class="pg-d">The demo above as a React component, 35 lines you can copy.</p><pre class="cp-pre" data-name="React example"><code>&#39;use client&#39;;
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useRef, useState } from &#39;react&#39;;
 import { ToolCall, type ToolCallItem } from &#39;./ToolCall&#39;;
@@ -474,12 +516,12 @@ export default function ToolCallDemo() {
 import ToolCall from &#39;../components/designme/tool-call/ToolCall.astro&#39;;
 ---
 &lt;ToolCall /&gt;
-&lt;ToolCall data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything ToolCall takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>message</code></td><td><code>ReactNode</code></td><td>The agent&#39;s message before the calls</td></tr><tr><td><code>calls</code><span class="opt">required</span></td><td><code>ToolCallItem[]</code></td><td></td></tr><tr><td><code>reply</code></td><td><code>ReactNode</code></td><td>The agent&#39;s answer after the calls. It fades in once every call is done</td></tr><tr><td><code>open</code></td><td><code>string[]</code></td><td>Keys of the calls that are open. Leave it out to let each call toggle itself</td></tr><tr><td><code>defaultOpen</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(open: string[]) =&gt; void</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>ToolCall.tsx<span class="l">React · 107 lines</span></summary><pre class="cp-pre" data-name="ToolCall.tsx"><code>&#39;use client&#39;;
-import { useEffect, useState, type ReactNode } from &#39;react&#39;;
+&lt;ToolCall data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything ToolCall takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>message</code></td><td><code>ReactNode</code></td><td>The agent&#39;s message before the calls</td></tr><tr><td><code>calls</code><span class="opt">required</span></td><td><code>ToolCallItem[]</code></td><td></td></tr><tr><td><code>reply</code></td><td><code>ReactNode</code></td><td>The agent&#39;s answer after the calls. It appears once every call is done, as the list grows to take it</td></tr><tr><td><code>open</code></td><td><code>string[]</code></td><td>Keys of the calls that are open. Leave it out to let each call toggle itself</td></tr><tr><td><code>defaultOpen</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(open: string[]) =&gt; void</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>ToolCall.tsx<span class="l">React · 104 lines</span></summary><pre class="cp-pre" data-name="ToolCall.tsx"><code>&#39;use client&#39;;
+import { type ReactNode } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable } from &#39;../lib/hooks&#39;;
 import { Icon, type IconName } from &#39;../lib/icons&#39;;
-import { enter, Fold, Swap } from &#39;../lib/motion&#39;;
+import { enter, Fold, Swap, useGrow } from &#39;../lib/motion&#39;;
 import &#39;../designme.css&#39;;
 import &#39;./tool-call.css&#39;;
 
@@ -508,7 +550,7 @@ export interface ToolCallProps {
   /** The agent&#39;s message before the calls */
   message?: ReactNode;
   calls: ToolCallItem[];
-  /** The agent&#39;s answer after the calls. It fades in once every call is done */
+  /** The agent&#39;s answer after the calls. It appears once every call is done, as the list grows to take it */
   reply?: ReactNode;
   /** Keys of the calls that are open. Leave it out to let each call toggle itself */
   open?: string[];
@@ -540,10 +582,10 @@ function Call({ call, open, onToggle, index }: { call: ToolCallItem; open: boole
         &lt;span className=&quot;dm-tcx-ic&quot;&gt;{state === &#39;running&#39; ? &lt;span className=&quot;dm-radar&quot; style={{ color: &#39;var(--dm-fg)&#39; }} /&gt; : &lt;Icon name={call.icon ?? &#39;code&#39;} size=&quot;xs&quot; /&gt;}&lt;/span&gt;
         &lt;span className=&quot;dm-tcx-n&quot;&gt;{call.server &amp;&amp; &lt;span&gt;{call.server}.&lt;/span&gt;}&lt;b&gt;{call.name}&lt;/b&gt;&lt;/span&gt;
         &lt;span className=&quot;dm-tcx-ms&quot;&gt;
-          &lt;Swap&gt;{state === &#39;done&#39; ? call.duration ?? &#39;Done&#39; : state === &#39;running&#39; ? &#39;Running&#39; : &#39;Queued&#39;}&lt;/Swap&gt;
+          &lt;Swap className={state === &#39;running&#39; ? &#39;dm-shim&#39; : undefined}&gt;{state === &#39;done&#39; ? call.duration ?? &#39;Done&#39; : state === &#39;running&#39; ? &#39;Running&#39; : &#39;Queued&#39;}&lt;/Swap&gt;
           &lt;span&gt;{state === &#39;running&#39;
             ? &lt;span className=&quot;dm-spin&quot; style={{ width: 10, height: 10 }} /&gt;
-            : state === &#39;done&#39; ? &lt;span style={{ color: &#39;var(--dm-ok)&#39; }}&gt;&lt;Icon name=&quot;check&quot; size=&quot;xs&quot; /&gt;&lt;/span&gt; : null}&lt;/span&gt;
+            : state === &#39;done&#39; ? &lt;span className=&quot;dm-ok&quot;&gt;&lt;Icon name=&quot;check&quot; size=&quot;xs&quot; /&gt;&lt;/span&gt; : null}&lt;/span&gt;
         &lt;/span&gt;
         &lt;Icon name=&quot;chev-d&quot; size=&quot;xs&quot; className=&quot;dm-tcx-chev&quot; /&gt;
       &lt;/button&gt;
@@ -561,45 +603,54 @@ function Call({ call, open, onToggle, index }: { call: ToolCallItem; open: boole
 export function ToolCall({ message, calls, reply, open, defaultOpen = [], onOpenChange, className }: ToolCallProps) {
   const [openKeys, setOpen] = useControllable(open, defaultOpen, onOpenChange);
   const done = calls.length &gt; 0 &amp;&amp; calls.every(c =&gt; c.state === &#39;done&#39;);
-  // the answer is laid out from the start and fades in a frame after the last call finishes
-  const [shown, setShown] = useState(false);
-  useEffect(() =&gt; {
-    if (!done) { setShown(false); return; }
-    const raf = requestAnimationFrame(() =&gt; setShown(true));
-    return () =&gt; cancelAnimationFrame(raf);
-  }, [done]);
+  // no room is kept for the answer: it appears once every call is back, and the list grows to take it, staying centred
+  const [root, inner] = useGrow();
   const toggle = (key: string) =&gt; setOpen(openKeys.includes(key) ? openKeys.filter(k =&gt; k !== key) : [...openKeys, key]);
 
   return (
-    &lt;div data-dm=&quot;&quot; className={cx(&#39;dm-tcx&#39;, className)}&gt;
+    &lt;div data-dm=&quot;&quot; ref={root} className={cx(&#39;dm-tcx dm-growing&#39;, className)}&gt;
+      &lt;div ref={inner} className=&quot;dm-grow&quot;&gt;
       {message &amp;&amp; &lt;p className=&quot;dm-msg&quot;&gt;{message}&lt;/p&gt;}
       &lt;div className=&quot;dm-tcx-calls&quot;&gt;
         {calls.map((c, i) =&gt; &lt;Call key={c.key} call={c} index={i} open={openKeys.includes(c.key)} onToggle={() =&gt; toggle(c.key)} /&gt;)}
       &lt;/div&gt;
-      {reply &amp;&amp; &lt;p className={cx(&#39;dm-msg dm-tcx-end&#39;, shown &amp;&amp; &#39;dm-in&#39;)} aria-hidden={!shown}&gt;{reply}&lt;/p&gt;}
+      {reply &amp;&amp; done &amp;&amp; &lt;p className={cx(&#39;dm-msg dm-tcx-end dm-in&#39;, enter().className)}&gt;{reply}&lt;/p&gt;}
+      &lt;/div&gt;
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>tool-call.css<span class="l">React · 21 lines</span></summary><pre class="cp-pre" data-name="tool-call.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>tool-call.css<span class="l">React · 33 lines</span></summary><pre class="cp-pre" data-name="tool-call.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Tool call ---------- */
 .dm-tcx{display:flex;flex-direction:column;gap:var(--dm-s-3)}
 .dm-tcx-calls{display:flex;flex-direction:column;gap:var(--dm-s-2)}
-.dm-tcx-end{opacity:0;transition:opacity .6s var(--dm-ease),filter .6s,transform .6s var(--dm-ease);filter:blur(3px);transform:translateY(4px)}
-.dm-tcx-end.dm-in{opacity:1;filter:none;transform:none}
+/* the answer appears only once every call is back (no room is kept for it): the list grows to take it (grow()) and it fades
+   in, so nothing jumps */
+.dm-tcx-end:not(.dm-in){display:none}
 .dm-tcx-calls{margin-inline:-8px}
 .dm-tcx-h{display:flex;align-items:center;gap:10px;width:100%;padding:6px var(--dm-s-2);border-radius:calc(10px * var(--dm-rk));text-align:left;font-size:13px;transition:background .2s}
 @media (hover:hover) and (pointer:fine){.dm-tcx-h:hover{background:var(--dm-row)}}
 .dm-tcx-ic{width:24px;height:24px;border-radius:var(--dm-r-sm);background:var(--dm-chip);display:grid;place-items:center;color:var(--dm-fg2);flex:none}
-.dm-tcx-n{flex:1;min-width:0;font-family:var(--dm-mono);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* a call&#39;s name is an interface label, in the interface font (no monospace outside code): the tool&#39;s server muted, then the
+   tool. Only the JSON that went in and came back is code */
+.dm-tcx-n{flex:1;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dm-tcx-n b{font-weight:500;color:var(--dm-fg)}
 .dm-tcx-n span{color:var(--dm-muted)}
 .dm-tcx-ms{font-size:12px;color:var(--dm-muted);display:flex;align-items:center;gap:6px}
+.dm-tcx-ms .dm-shim{font-size:inherit}
+.dm-tcx-ms .dm-ok{display:grid;color:var(--dm-ok)}
 .dm-tcx-chev{color:var(--dm-muted);transition:transform .45s var(--dm-ease)}
 .dm-tcx-c.dm-open .dm-tcx-chev{transform:rotate(180deg)}
 .dm-tcx-io{padding:2px var(--dm-s-2) var(--dm-s-2) 42px;display:grid;gap:var(--dm-s-2)}
 .dm-tcx-l{font-size:11.5px;color:var(--dm-muted);margin-bottom:var(--dm-s-1)}
 .dm-tcx-io pre{margin:0;padding:9px 11px;border-radius:calc(10px * var(--dm-rk));background:var(--dm-chip);font-family:var(--dm-mono);font-size:11.5px;line-height:1.65;white-space:pre-wrap;word-break:break-word}
 .dm-tcx-io .dm-k{color:var(--dm-pb)}.dm-tcx-io .dm-s{color:var(--dm-pm)}.dm-tcx-io .dm-n{color:var(--dm-pp)}
+/* Clean (owner, 17 and 18 Nov): each call is a row with Clean&#39;s 10px corners and the one hover, its tool on a white tile with a
+   hairline, the JSON in 10px boxes and the tick in the vivid green */
+:root[data-style=&quot;clean&quot;] .dm-tcx-h,:root [data-style=&quot;clean&quot;] .dm-tcx-h,:root [data-style=&quot;clean&quot;].dm-tcx-h{border-radius:10px;transition:background-color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style=&quot;clean&quot;] .dm-tcx-ic,:root [data-style=&quot;clean&quot;] .dm-tcx-ic,:root [data-style=&quot;clean&quot;].dm-tcx-ic{background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style=&quot;clean&quot;] .dm-tcx-io pre,:root [data-style=&quot;clean&quot;] .dm-tcx-io pre,:root [data-style=&quot;clean&quot;].dm-tcx-io pre{border-radius:10px}
+:root[data-style=&quot;clean&quot;] .dm-tcx-ms .dm-ok,:root [data-style=&quot;clean&quot;] .dm-tcx-ms .dm-ok,:root [data-style=&quot;clean&quot;].dm-tcx-ms .dm-ok{color:var(--dm-ok-mark)}
+:root[data-style=&quot;clean&quot;] .dm-tcx-chev,:root [data-style=&quot;clean&quot;] .dm-tcx-chev,:root [data-style=&quot;clean&quot;].dm-tcx-chev{transition:transform var(--dm-t) var(--dm-ease)}
 </code></pre></details><details class="cp-file"><summary>ToolCall.astro<span class="l">Astro · 28 lines</span></summary><pre class="cp-pre" data-name="ToolCall.astro"><code>---
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
 // Tool call: Each tool the agent calls, with its input and output.
@@ -636,31 +687,45 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>tool-call.css<span class="l">HTML · 20 lines</span></summary><pre class="cp-pre" data-name="tool-call.css"><code>/* ---------- Tool call ---------- */
+</code></pre></details><details class="cp-file"><summary>tool-call.css<span class="l">HTML · 32 lines</span></summary><pre class="cp-pre" data-name="tool-call.css"><code>/* ---------- Tool call ---------- */
 .tcx{display:flex;flex-direction:column;gap:var(--dm-s-3)}
 .tcx-calls{display:flex;flex-direction:column;gap:var(--dm-s-2)}
-.tcx-end{opacity:0;transition:opacity .6s var(--dm-ease),filter .6s,transform .6s var(--dm-ease);filter:blur(3px);transform:translateY(4px)}
-.tcx-end.in{opacity:1;filter:none;transform:none}
+/* the answer appears only once every call is back (no room is kept for it): the list grows to take it (grow()) and it fades
+   in, so nothing jumps */
+.tcx-end:not(.in){display:none}
 .tcx-calls{margin-inline:-8px}
 .tcx-h{display:flex;align-items:center;gap:10px;width:100%;padding:6px var(--dm-s-2);border-radius:calc(10px * var(--dm-rk));text-align:left;font-size:13px;transition:background .2s}
 @media (hover:hover) and (pointer:fine){.tcx-h:hover{background:var(--dm-row)}}
 .tcx-ic{width:24px;height:24px;border-radius:var(--dm-r-sm);background:var(--dm-chip);display:grid;place-items:center;color:var(--dm-fg2);flex:none}
-.tcx-n{flex:1;min-width:0;font-family:var(--dm-mono);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* a call&#39;s name is an interface label, in the interface font (no monospace outside code): the tool&#39;s server muted, then the
+   tool. Only the JSON that went in and came back is code */
+.tcx-n{flex:1;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tcx-n b{font-weight:500;color:var(--dm-fg)}
 .tcx-n span{color:var(--dm-muted)}
 .tcx-ms{font-size:12px;color:var(--dm-muted);display:flex;align-items:center;gap:6px}
+.tcx-ms .shim{font-size:inherit}
+.tcx-ms .ok{display:grid;color:var(--dm-ok)}
 .tcx-chev{color:var(--dm-muted);transition:transform .45s var(--dm-ease)}
 .tcx-c.open .tcx-chev{transform:rotate(180deg)}
 .tcx-io{padding:2px var(--dm-s-2) var(--dm-s-2) 42px;display:grid;gap:var(--dm-s-2)}
 .tcx-l{font-size:11.5px;color:var(--dm-muted);margin-bottom:var(--dm-s-1)}
 .tcx-io pre{margin:0;padding:9px 11px;border-radius:calc(10px * var(--dm-rk));background:var(--dm-chip);font-family:var(--dm-mono);font-size:11.5px;line-height:1.65;white-space:pre-wrap;word-break:break-word}
 .tcx-io .k{color:var(--dm-pb)}.tcx-io .s{color:var(--dm-pm)}.tcx-io .n{color:var(--dm-pp)}
-</code></pre></details><details class="cp-file"><summary>tool-call.js<span class="l">HTML · 28 lines</span></summary><pre class="cp-pre" data-name="tool-call.js"><code>DM.def(&#39;tool-call&#39;, (r, c) =&gt; {
+/* Clean (owner, 17 and 18 Nov): each call is a row with Clean&#39;s 10px corners and the one hover, its tool on a white tile with a
+   hairline, the JSON in 10px boxes and the tick in the vivid green */
+:root[data-style=&quot;clean&quot;] .tcx-h,:root [data-style=&quot;clean&quot;] .tcx-h,:root [data-style=&quot;clean&quot;].tcx-h{border-radius:10px;transition:background-color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style=&quot;clean&quot;] .tcx-ic,:root [data-style=&quot;clean&quot;] .tcx-ic,:root [data-style=&quot;clean&quot;].tcx-ic{background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style=&quot;clean&quot;] .tcx-io pre,:root [data-style=&quot;clean&quot;] .tcx-io pre,:root [data-style=&quot;clean&quot;].tcx-io pre{border-radius:10px}
+:root[data-style=&quot;clean&quot;] .tcx-ms .ok,:root [data-style=&quot;clean&quot;] .tcx-ms .ok,:root [data-style=&quot;clean&quot;].tcx-ms .ok{color:var(--dm-ok-mark)}
+:root[data-style=&quot;clean&quot;] .tcx-chev,:root [data-style=&quot;clean&quot;] .tcx-chev,:root [data-style=&quot;clean&quot;].tcx-chev{transition:transform var(--dm-t) var(--dm-ease)}
+</code></pre></details><details class="cp-file"><summary>tool-call.js<span class="l">HTML · 30 lines</span></summary><pre class="cp-pre" data-name="tool-call.js"><code>DM.def(&#39;tool-call&#39;, (r, c) =&gt; {
   const calls = [
     { ic:&#39;db&#39;, n:&#39;billing&#39;, f:&#39;list_plan_changes&#39;, ms:&#39;412 ms&#39;, inp:&#39;{ &lt;span class=&quot;k&quot;&gt;&quot;since&quot;&lt;/span&gt;: &lt;span class=&quot;s&quot;&gt;&quot;2026-10-01&quot;&lt;/span&gt; }&#39;, out:&#39;[ { &lt;span class=&quot;k&quot;&gt;&quot;plan&quot;&lt;/span&gt;: &lt;span class=&quot;s&quot;&gt;&quot;Pro&quot;&lt;/span&gt;, &lt;span class=&quot;k&quot;&gt;&quot;price&quot;&lt;/span&gt;: &lt;span class=&quot;n&quot;&gt;24&lt;/span&gt; },\n  { &lt;span class=&quot;k&quot;&gt;&quot;plan&quot;&lt;/span&gt;: &lt;span class=&quot;s&quot;&gt;&quot;Team&quot;&lt;/span&gt;, &lt;span class=&quot;k&quot;&gt;&quot;price&quot;&lt;/span&gt;: &lt;span class=&quot;n&quot;&gt;48&lt;/span&gt; } ]&#39; },
     { ic:&#39;edit&#39;, n:&#39;files&#39;, f:&#39;edit&#39;, ms:&#39;1.2 s&#39;, inp:&#39;{ &lt;span class=&quot;k&quot;&gt;&quot;path&quot;&lt;/span&gt;: &lt;span class=&quot;s&quot;&gt;&quot;Pricing.tsx&quot;&lt;/span&gt;, &lt;span class=&quot;k&quot;&gt;&quot;lines&quot;&lt;/span&gt;: &lt;span class=&quot;n&quot;&gt;6&lt;/span&gt; }&#39;, out:&#39;{ &lt;span class=&quot;k&quot;&gt;&quot;changed&quot;&lt;/span&gt;: &lt;span class=&quot;n&quot;&gt;6&lt;/span&gt;, &lt;span class=&quot;k&quot;&gt;&quot;saved&quot;&lt;/span&gt;: &lt;span class=&quot;k&quot;&gt;true&lt;/span&gt; }&#39; }
   ];
   const host = $(&#39;.tcx-calls&#39;, r);
+  // the list grows and shrinks with what it holds (a call opening, the answer once every call is back), centred in its stage
+  c.offs.push(grow($(&#39;.tcx&#39;, r)));
   calls.forEach(k =&gt; {
     k.el = html(`&lt;div class=&quot;tcx-c&quot;&gt;&lt;button class=&quot;tcx-h&quot; aria-expanded=&quot;false&quot;&gt;&lt;span class=&quot;tcx-ic&quot;&gt;${I(k.ic,&#39;xs&#39;)}&lt;/span&gt;&lt;span class=&quot;tcx-n&quot;&gt;&lt;span&gt;${k.n}.&lt;/span&gt;&lt;b&gt;${k.f}&lt;/b&gt;&lt;/span&gt;&lt;span class=&quot;tcx-ms&quot;&gt;&lt;span class=&quot;tt&quot;&gt;Queued&lt;/span&gt;&lt;span class=&quot;g&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;svg class=&quot;i xs tcx-chev&quot;&gt;&lt;use href=&quot;#i-chev-d&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;&lt;div class=&quot;fold shut&quot;&gt;&lt;div&gt;&lt;div class=&quot;tcx-io&quot;&gt;&lt;div&gt;&lt;div class=&quot;tcx-l&quot;&gt;Input&lt;/div&gt;&lt;pre&gt;${k.inp}&lt;/pre&gt;&lt;/div&gt;&lt;div&gt;&lt;div class=&quot;tcx-l&quot;&gt;Output&lt;/div&gt;&lt;pre class=&quot;out&quot;&gt;Waiting…&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;`);
     host.appendChild(k.el);
@@ -671,13 +736,13 @@ const { class: className, ...rest } = Astro.props;
   c.run(async () =&gt; {
     await c.wait(600);
     for (const k of calls){
-      $(&#39;.g&#39;, k.el).innerHTML = &#39;&lt;span class=&quot;spin&quot; style=&quot;width:10px;height:10px&quot;&gt;&lt;/span&gt;&#39;; swap($(&#39;.tt&#39;, k.el), &#39;Running&#39;);
+      $(&#39;.g&#39;, k.el).innerHTML = &#39;&lt;span class=&quot;spin&quot; style=&quot;width:10px;height:10px&quot;&gt;&lt;/span&gt;&#39;; $(&#39;.tt&#39;, k.el).classList.add(&#39;shim&#39;); swap($(&#39;.tt&#39;, k.el), &#39;Running&#39;);
       $(&#39;.tcx-ic&#39;, k.el).innerHTML = &#39;&lt;span class=&quot;radar&quot; style=&quot;color:var(--dm-fg)&quot;&gt;&lt;/span&gt;&#39;;
       await c.wait(1300);
       $(&#39;.tcx-ic&#39;, k.el).innerHTML = I(k.ic,&#39;xs&#39;); $(&#39;pre.out&#39;, k.el).innerHTML = k.out;
-      $(&#39;.g&#39;, k.el).innerHTML = `&lt;span style=&quot;color:var(--dm-ok)&quot;&gt;${I(&#39;check&#39;,&#39;xs&#39;)}&lt;/span&gt;`; swap($(&#39;.tt&#39;, k.el), k.ms);
+      $(&#39;.g&#39;, k.el).innerHTML = `&lt;span class=&quot;ok&quot;&gt;${I(&#39;check&#39;,&#39;xs&#39;)}&lt;/span&gt;`; $(&#39;.tt&#39;, k.el).classList.remove(&#39;shim&#39;); swap($(&#39;.tt&#39;, k.el), k.ms);
     }
-    $(&#39;.tcx-end&#39;, r).classList.add(&#39;in&#39;);
+    enter($(&#39;.tcx-end&#39;, r)).classList.add(&#39;in&#39;);
     // the preview opens the first call to show what came back, unless you have taken over
     if (!c.mine) $(&#39;.tcx-h&#39;, calls[0].el).click();
   });
@@ -1024,6 +1089,8 @@ const fitHits = window.dmFitHits || (() => {
     { ic:'edit', n:'files', f:'edit', ms:'1.2 s', inp:'{ <span class="k">"path"</span>: <span class="s">"Pricing.tsx"</span>, <span class="k">"lines"</span>: <span class="n">6</span> }', out:'{ <span class="k">"changed"</span>: <span class="n">6</span>, <span class="k">"saved"</span>: <span class="k">true</span> }' }
   ];
   const host = $('.tcx-calls', r);
+  // the list grows and shrinks with what it holds (a call opening, the answer once every call is back), centred in its stage
+  c.offs.push(grow($('.tcx', r)));
   calls.forEach(k => {
     k.el = html(`<div class="tcx-c"><button class="tcx-h" aria-expanded="false"><span class="tcx-ic">${I(k.ic,'xs')}</span><span class="tcx-n"><span>${k.n}.</span><b>${k.f}</b></span><span class="tcx-ms"><span class="tt">Queued</span><span class="g"></span></span><svg class="i xs tcx-chev"><use href="#i-chev-d"/></svg></button><div class="fold shut"><div><div class="tcx-io"><div><div class="tcx-l">Input</div><pre>${k.inp}</pre></div><div><div class="tcx-l">Output</div><pre class="out">Waiting…</pre></div></div></div></div></div>`);
     host.appendChild(k.el);
@@ -1034,13 +1101,13 @@ const fitHits = window.dmFitHits || (() => {
   c.run(async () => {
     await c.wait(600);
     for (const k of calls){
-      $('.g', k.el).innerHTML = '<span class="spin" style="width:10px;height:10px"></span>'; swap($('.tt', k.el), 'Running');
+      $('.g', k.el).innerHTML = '<span class="spin" style="width:10px;height:10px"></span>'; $('.tt', k.el).classList.add('shim'); swap($('.tt', k.el), 'Running');
       $('.tcx-ic', k.el).innerHTML = '<span class="radar" style="color:var(--dm-fg)"></span>';
       await c.wait(1300);
       $('.tcx-ic', k.el).innerHTML = I(k.ic,'xs'); $('pre.out', k.el).innerHTML = k.out;
-      $('.g', k.el).innerHTML = `<span style="color:var(--dm-ok)">${I('check','xs')}</span>`; swap($('.tt', k.el), k.ms);
+      $('.g', k.el).innerHTML = `<span class="ok">${I('check','xs')}</span>`; $('.tt', k.el).classList.remove('shim'); swap($('.tt', k.el), k.ms);
     }
-    $('.tcx-end', r).classList.add('in');
+    enter($('.tcx-end', r)).classList.add('in');
     // the preview opens the first call to show what came back, unless you have taken over
     if (!c.mine) $('.tcx-h', calls[0].el).click();
   });
@@ -1087,6 +1154,7 @@ const fitHits = window.dmFitHits || (() => {
 </div>`;
   function stack(r, c){
     const K = TCC(), list = $('.tca-list', r);
+    c.offs.push(grow($('.tca', r)));
     K.forEach(k => {
       k.el = html(`<li class="tca-c" data-s="wait"><i class="tca-rl" aria-hidden="true"><i></i></i><button class="tca-h" type="button" aria-expanded="false">${tile(k)}<span class="tca-n">${name(k)}<span class="a">${k.arg}</span></span><span class="tca-r"><span class="num ms">Queued</span><span class="g"></span></span><span class="tca-cv">${I('chev-d','xs')}</span></button><div class="fold shut"><div><div class="tca-io"><div class="tca-bar"><div class="seg2" role="group" aria-label="Show"><button type="button" aria-pressed="false" data-v="in">Input</button><button type="button" aria-pressed="true" data-v="out">Output</button></div><span class="sp"></span><span class="tca-note"></span><button class="ib tca-cp" type="button" aria-label="Copy" data-tip="Copy">${I('copy','xs')}</button><button class="ib tca-re" type="button" aria-label="Run again" data-tip="Run again" disabled>${I('refresh','xs')}</button></div><pre class="tcx-json"></pre></div></div></div></li>`);
       list.appendChild(k.el);
@@ -1108,11 +1176,11 @@ const fitHits = window.dmFitHits || (() => {
     // a call runs: its tile breathes, its time counts up, then what came back streams in a line at a time
     async function call(k, again){
       const el = k.el, ms = $('.ms', el), g = $('.g', el), re = $('.tca-re', el); re.disabled = true;
-      el.dataset.s = 'run'; k.lines = null; g.innerHTML = '<span class="spin"></span>'; k.paint();
+      el.dataset.s = 'run'; k.lines = null; g.innerHTML = '<span class="spin"></span>'; ms.classList.add('shim'); k.paint();
       let t = 0; const iv = c.every(100, () => { t += 100 * (k.ms / 1300); ms.textContent = took(Math.min(t, k.ms)); });
       await c.wait(1300); clearInterval(iv);
       const ln = json(k.out); k.lines = [];
-      el.dataset.s = 'done'; ms.textContent = took(again ? k.ms * (.8 + Math.random() * .3) : k.ms); g.innerHTML = `<span class="ok">${I('check','xs')}</span>`;
+      el.dataset.s = 'done'; ms.classList.remove('shim'); ms.textContent = took(again ? k.ms * (.8 + Math.random() * .3) : k.ms); g.innerHTML = `<span class="ok">${I('check','xs')}</span>`;
       if (again){ el.classList.remove('again'); void el.offsetWidth; el.classList.add('again'); k.runs = (k.runs || 1) + 1; $('.tca-note', el).textContent = `Ran ${k.runs} times`; }
       for (const l of ln){ k.lines.push(l); if (k.view === 'out') k.paint(); await c.wait(100); }
       re.disabled = false;
@@ -1120,7 +1188,7 @@ const fitHits = window.dmFitHits || (() => {
     c.run(async () => {
       await c.wait(700);
       for (const k of K) await call(k);
-      $('.tca-end', r).classList.add('in');
+      enter($('.tca-end', r)).classList.add('in');
     });
     // the person in the demo opens the first call once it is back, reads its input and folds it, then runs the last again
     c.story(async s => {
@@ -1149,6 +1217,8 @@ const fitHits = window.dmFitHits || (() => {
     // the sentence the agent writes, with a call where each chip goes
     const S = ['Checking', 0, 'for this month\'s plan changes, then the plan cards in', 1, '. I changed', 2, 'with the new prices and opened', 3, 'for review.'];
     dw.inert = true; let open = null, done = 0, total = 0;
+    // the sentence keeps no room for words still to come: it grows as they arrive (grow()), centred in its stage
+    c.offs.push(grow(root));
     function chip(k){
       k.el = html(`<button class="fchip lnk tcb-k" type="button" data-s="run" aria-expanded="false" aria-label="${k.ns}.${k.fn}"><span class="t"><span class="spin"></span></span>${k.lab}<span class="m"></span></button>`);
       k.el.onclick = () => show(open === k ? null : k);
@@ -1218,6 +1288,7 @@ const fitHits = window.dmFitHits || (() => {
 </div>`;
   function inspector(r, c){
     const K = TCC(), strip = $('.tcc-strip', r), view = $('.tcc-view', r), st = $('.tcc-st', r);
+    c.offs.push(grow($('.tcc', r)));
     let sel = 0, mode = 'table', spent = 0, stopped = false, follow = true;
     K.forEach((k, i) => {
       k.s = 'wait';

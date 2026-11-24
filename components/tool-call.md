@@ -33,16 +33,16 @@ Tool call lists the tools an agent calls while it works, placed between its open
 
 ### What it does
 
-- Each call has a `state`: queued waits, running shows a spinner and "Running", and done shows a check with the `duration`.
+- Each call has a `state`: queued waits, running shows a spinner and "Running" with the loader's sweep, and done shows a check with the `duration`.
 - The call's name is shown with its `server` or namespace in front, like billing.list_plan_changes, plus an optional `icon`.
 - Clicking a call folds open its Input and Output, printed as JSON with keys, strings and numbers in their own colours. Output reads "Waiting…" until the call is done.
 - Which calls are open can be left to the calls themselves or controlled with `open`, `defaultOpen` and `onOpenChange`.
-- `reply` is laid out from the start and fades in a frame after every call is done, so nothing below it jumps.
+- `reply` appears once every call is done, and the list grows smoothly to take it, so nothing jumps and no room is kept for it before then.
 
 ### Accessibility
 
 - Each call's header is a button with `aria-expanded` showing whether its input and output are open.
-- Closed input and output panels are `inert` and `aria-hidden`, and the reply stays `aria-hidden` until every call is done.
+- Closed input and output panels are `inert` and `aria-hidden`, and the reply is only rendered once every call is done.
 - The spinner and status icons are decorative and hidden from screen readers.
 
 ## Usage in React
@@ -96,7 +96,7 @@ export default function ToolCallDemo() {
 | --- | --- | --- |
 | `message` (optional) | `ReactNode` | The agent's message before the calls |
 | `calls` | `ToolCallItem[]` |  |
-| `reply` (optional) | `ReactNode` | The agent's answer after the calls. It fades in once every call is done |
+| `reply` (optional) | `ReactNode` | The agent's answer after the calls. It appears once every call is done, as the list grows to take it |
 | `open` (optional) | `string[]` | Keys of the calls that are open. Leave it out to let each call toggle itself |
 | `defaultOpen` (optional) | `string[]` |  |
 | `onOpenChange` (optional) | `(open: string[]) => void` |  |
@@ -133,11 +133,11 @@ Yes. Control `open` from your own state and add the call's `key` when you mark i
 
 ```tsx
 'use client';
-import { useEffect, useState, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
-import { enter, Fold, Swap } from '../lib/motion';
+import { enter, Fold, Swap, useGrow } from '../lib/motion';
 import '../designme.css';
 import './tool-call.css';
 
@@ -166,7 +166,7 @@ export interface ToolCallProps {
   /** The agent's message before the calls */
   message?: ReactNode;
   calls: ToolCallItem[];
-  /** The agent's answer after the calls. It fades in once every call is done */
+  /** The agent's answer after the calls. It appears once every call is done, as the list grows to take it */
   reply?: ReactNode;
   /** Keys of the calls that are open. Leave it out to let each call toggle itself */
   open?: string[];
@@ -198,10 +198,10 @@ function Call({ call, open, onToggle, index }: { call: ToolCallItem; open: boole
         <span className="dm-tcx-ic">{state === 'running' ? <span className="dm-radar" style={{ color: 'var(--dm-fg)' }} /> : <Icon name={call.icon ?? 'code'} size="xs" />}</span>
         <span className="dm-tcx-n">{call.server && <span>{call.server}.</span>}<b>{call.name}</b></span>
         <span className="dm-tcx-ms">
-          <Swap>{state === 'done' ? call.duration ?? 'Done' : state === 'running' ? 'Running' : 'Queued'}</Swap>
+          <Swap className={state === 'running' ? 'dm-shim' : undefined}>{state === 'done' ? call.duration ?? 'Done' : state === 'running' ? 'Running' : 'Queued'}</Swap>
           <span>{state === 'running'
             ? <span className="dm-spin" style={{ width: 10, height: 10 }} />
-            : state === 'done' ? <span style={{ color: 'var(--dm-ok)' }}><Icon name="check" size="xs" /></span> : null}</span>
+            : state === 'done' ? <span className="dm-ok"><Icon name="check" size="xs" /></span> : null}</span>
         </span>
         <Icon name="chev-d" size="xs" className="dm-tcx-chev" />
       </button>
@@ -219,22 +219,19 @@ function Call({ call, open, onToggle, index }: { call: ToolCallItem; open: boole
 export function ToolCall({ message, calls, reply, open, defaultOpen = [], onOpenChange, className }: ToolCallProps) {
   const [openKeys, setOpen] = useControllable(open, defaultOpen, onOpenChange);
   const done = calls.length > 0 && calls.every(c => c.state === 'done');
-  // the answer is laid out from the start and fades in a frame after the last call finishes
-  const [shown, setShown] = useState(false);
-  useEffect(() => {
-    if (!done) { setShown(false); return; }
-    const raf = requestAnimationFrame(() => setShown(true));
-    return () => cancelAnimationFrame(raf);
-  }, [done]);
+  // no room is kept for the answer: it appears once every call is back, and the list grows to take it, staying centred
+  const [root, inner] = useGrow();
   const toggle = (key: string) => setOpen(openKeys.includes(key) ? openKeys.filter(k => k !== key) : [...openKeys, key]);
 
   return (
-    <div data-dm="" className={cx('dm-tcx', className)}>
+    <div data-dm="" ref={root} className={cx('dm-tcx dm-growing', className)}>
+      <div ref={inner} className="dm-grow">
       {message && <p className="dm-msg">{message}</p>}
       <div className="dm-tcx-calls">
         {calls.map((c, i) => <Call key={c.key} call={c} index={i} open={openKeys.includes(c.key)} onToggle={() => toggle(c.key)} />)}
       </div>
-      {reply && <p className={cx('dm-msg dm-tcx-end', shown && 'dm-in')} aria-hidden={!shown}>{reply}</p>}
+      {reply && done && <p className={cx('dm-msg dm-tcx-end dm-in', enter().className)}>{reply}</p>}
+      </div>
     </div>
   );
 }

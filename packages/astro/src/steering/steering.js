@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, enter, html, swap } from '../core/core.js';
+import { $, $$, DM, I, enter, grow, html, swap } from '../core/core.js';
 DM.def('steering', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{up}', I('up','xs'));
   // the run: four steps on the pricing page. A card step paints its card in the current accent, and remembers which,
@@ -12,15 +12,18 @@ DM.def('steering', (r, c) => {
   ];
   const steps = $('.ste-steps', r), log = $('.ste-log', r), box = $('.ste-box', r), inp = $('input', box), go = $('.ste-go', r), st = $('.ste-st', r), mode = $('.m', st), ck = $('.ck', st);
   let hue = 'violet', ended = false, running = false;
+  // the card grows and shrinks with its log, staying centred in its stage
+  c.offs.push(grow($('.ste', r)));
   const queue = [];
   const G = { run:'<span class="spin"></span>', done:I('ok','xs'), queued:'<span class="dot"></span>' };
   const doing = x => x.card ? `Setting the accent to ${hue}` : x.d;
   function row(x){
-    x.el = html(`<li class="ste-s ${x.s}"><span class="ste-g">${G[x.s]}</span><span class="ste-t"><b>${x.t}</b><span>${x.s === 'run' ? doing(x) : x.d || 'Pricing v4, frame 2'}</span></span>${x.mine ? '<span class="tag b">From you</span>' : ''}</li>`);
+    // (the running step's line is loader text, with the sweep)
+    x.el = html(`<li class="ste-s ${x.s}"><span class="ste-g">${G[x.s]}</span><span class="ste-t"><b>${x.t}</b><span${x.s === 'run' ? ' class="shim"' : ''}>${x.s === 'run' ? doing(x) : x.d || 'Pricing v4, frame 2'}</span></span>${x.mine ? '<span class="tag b">From you</span>' : ''}</li>`);
     return x.el;
   }
   S.forEach(x => steps.appendChild(row(x)));
-  function set(x, s, d){ x.s = s; x.el.className = 'ste-s ' + s; const g = $('.ste-g', x.el); g.innerHTML = G[s]; enter(g); if (d) swap($('.ste-t span', x.el), d); }
+  function set(x, s, d){ x.s = s; x.el.className = 'ste-s ' + s; const g = $('.ste-g', x.el); g.innerHTML = G[s]; enter(g); $('.ste-t span', x.el).classList.toggle('shim', s === 'run'); if (d) swap($('.ste-t span', x.el), d); }
   const where = () => { const i = S.findIndex(x => x.s === 'run'); swap(mode, ended ? 'Done' : `Step ${i + 1} of ${S.length}`); };
   // the clock runs until the last step is done
   const t0 = performance.now(); let tEnd = 0;
@@ -41,7 +44,7 @@ DM.def('steering', (r, c) => {
   function say(text, warn, acts){
     const a = html(`<div class="ste-ag${warn ? ' warn' : ''}">${warn ? I('alert','xs') : I('spark','xs')}<div class="t"><p></p>${acts ? '<div class="ste-acts"></div>' : ''}</div></div>`);
     $('p', a).textContent = text; log.appendChild(a); enter(a);
-    if (acts) acts.forEach(([label, ink, fn]) => { const b = html(`<button class="pill sm ${ink ? 'primary' : 'ghost'}">${label}</button>`); b.onclick = () => { $('.ste-acts', a).replaceWith(html(`<span class="muted">${fn()}</span>`)); a.classList.remove('warn'); a.firstElementChild.outerHTML = I('spark','xs'); }; $('.ste-acts', a).appendChild(b); });
+    if (acts) acts.forEach(([label, ink, fn]) => { const b = html(`<button class="pill sm ${ink ? 'primary' : 'line'}">${label}</button>`); b.onclick = () => { $('.ste-acts', a).replaceWith(html(`<span class="muted">${fn()}</span>`)); a.classList.remove('warn'); a.firstElementChild.outerHTML = I('spark','xs'); }; $('.ste-acts', a).appendChild(b); });
   }
   function apply(){
     while (queue.length){

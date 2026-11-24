@@ -2,19 +2,31 @@
 /* ---------- Tool call ---------- */
 .tcx{display:flex;flex-direction:column;gap:var(--dm-s-3)}
 .tcx-calls{display:flex;flex-direction:column;gap:var(--dm-s-2)}
-.tcx-end{opacity:0;transition:opacity .6s var(--dm-ease),filter .6s,transform .6s var(--dm-ease);filter:blur(3px);transform:translateY(4px)}
-.tcx-end.in{opacity:1;filter:none;transform:none}
+/* the answer appears only once every call is back (no room is kept for it): the list grows to take it (grow()) and it fades
+   in, so nothing jumps */
+.tcx-end:not(.in){display:none}
 .tcx-calls{margin-inline:-8px}
 .tcx-h{display:flex;align-items:center;gap:10px;width:100%;padding:6px var(--dm-s-2);border-radius:calc(10px * var(--dm-rk));text-align:left;font-size:13px;transition:background .2s}
 @media (hover:hover) and (pointer:fine){.tcx-h:hover{background:var(--dm-row)}}
 .tcx-ic{width:24px;height:24px;border-radius:var(--dm-r-sm);background:var(--dm-chip);display:grid;place-items:center;color:var(--dm-fg2);flex:none}
-.tcx-n{flex:1;min-width:0;font-family:var(--dm-mono);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* a call's name is an interface label, in the interface font (no monospace outside code): the tool's server muted, then the
+   tool. Only the JSON that went in and came back is code */
+.tcx-n{flex:1;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tcx-n b{font-weight:500;color:var(--dm-fg)}
 .tcx-n span{color:var(--dm-muted)}
 .tcx-ms{font-size:12px;color:var(--dm-muted);display:flex;align-items:center;gap:6px}
+.tcx-ms .shim{font-size:inherit}
+.tcx-ms .ok{display:grid;color:var(--dm-ok)}
 .tcx-chev{color:var(--dm-muted);transition:transform .45s var(--dm-ease)}
 .tcx-c.open .tcx-chev{transform:rotate(180deg)}
 .tcx-io{padding:2px var(--dm-s-2) var(--dm-s-2) 42px;display:grid;gap:var(--dm-s-2)}
 .tcx-l{font-size:11.5px;color:var(--dm-muted);margin-bottom:var(--dm-s-1)}
 .tcx-io pre{margin:0;padding:9px 11px;border-radius:calc(10px * var(--dm-rk));background:var(--dm-chip);font-family:var(--dm-mono);font-size:11.5px;line-height:1.65;white-space:pre-wrap;word-break:break-word}
 .tcx-io .k{color:var(--dm-pb)}.tcx-io .s{color:var(--dm-pm)}.tcx-io .n{color:var(--dm-pp)}
+/* Clean (owner, 17 and 18 Nov): each call is a row with Clean's 10px corners and the one hover, its tool on a white tile with a
+   hairline, the JSON in 10px boxes and the tick in the vivid green */
+:root[data-style="clean"] .tcx-h,:root [data-style="clean"] .tcx-h,:root [data-style="clean"].tcx-h{border-radius:10px;transition:background-color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .tcx-ic,:root [data-style="clean"] .tcx-ic,:root [data-style="clean"].tcx-ic{background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .tcx-io pre,:root [data-style="clean"] .tcx-io pre,:root [data-style="clean"].tcx-io pre{border-radius:10px}
+:root[data-style="clean"] .tcx-ms .ok,:root [data-style="clean"] .tcx-ms .ok,:root [data-style="clean"].tcx-ms .ok{color:var(--dm-ok-mark)}
+:root[data-style="clean"] .tcx-chev,:root [data-style="clean"] .tcx-chev,:root [data-style="clean"].tcx-chev{transition:transform var(--dm-t) var(--dm-ease)}

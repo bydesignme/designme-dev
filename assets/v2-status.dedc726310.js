@@ -427,6 +427,8 @@ DM.def('browser-session', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{pause}', I('pause')).replace('{search}', I('search','xs'));
   const root = $('.bws', r), stEl = $('.bws-st', r), vp = $('.bws-vp', r), url = $('.bws-url', r), list = $('.bws-steps', r);
   const pauseB = $('.bws-pause', r), takeB = $('.bws-take', r);
+  // the card grows and shrinks with what it holds (the notice's buttons, the line once it is done), centred in its stage
+  c.offs.push(grow(root));
   // the steps the agent planned, and the pages it passes through, drawn small: a search, the site, its pricing page
   const S = [{ t:'Search "northwind pricing"' }, { t:'Open northwind.app' }, { t:'Click "Pricing"' }, { t:'Read the plans table' }, { t:'Extract prices' }];
   const NAV = on => `<div class="bws-nav"><b>Northwind</b><span>Product</span><span data-k="pricing"${on ? ' class="on"' : ''}>Pricing</span><span>Docs</span></div>`;
@@ -439,11 +441,14 @@ DM.def('browser-session', (r, c) => {
     pricing:`<div class="bws-pg">${NAV(true)}<div class="bws-hd">Plans and pricing</div><span class="bws-ln" style="width:78%"></span>
       <div class="bws-tb"><div><span>Plan</span><span>Per seat, monthly</span></div><div><span>Starter</span><span class="num">$8</span></div><div><span>Team</span><span class="num">$16</span></div><div><span>Business</span><span class="num">$32</span></div></div><span class="bws-ln" style="width:64%"></span><span class="bws-ln" style="width:40%"></span></div>`
   };
-  const G = { queued:'<span class="dot"></span>', run:'<span class="spin"></span>', wait:I('alert','xs'), done:I('ok','xs') };
+  // a step's mark: a dot while queued, a spinner while it runs, the filled warning sign while it waits for you, a tick once done
+  const G = { queued:'<span class="dot"></span>', run:'<span class="spin"></span>', wait:'<svg class="bws-wi" viewBox="0 0 24 24" aria-hidden="true"><path class="a" d="M12 3.6 2.6 19.9h18.8z"/><path class="b" d="M12 9.6v4.4M12 17v.01"/></svg>', done:I('ok','xs') };
   S.forEach(x => { x.el = html(`<li class="bws-s queued"><span class="g">${G.queued}</span><span class="bws-t"><span>${x.t}</span><span class="d" hidden></span></span></li>`); list.appendChild(x.el); });
   function step(i, s, d){
     const x = S[i], de = $('.d', x.el); if (x.s === s && de.textContent === (d || '')) return;
     x.s = s; x.el.className = 'bws-s ' + s; const g = $('.g', x.el); g.innerHTML = G[s]; enter(g);
+    // the running step's words are loader text, with the sweep
+    $('.bws-t>span', x.el).classList.toggle('shim', s === 'run');
     if (s === 'run' || s === 'wait') x.el.setAttribute('aria-current', 'step'); else x.el.removeAttribute('aria-current');
     if (!d){ de.hidden = true; de.textContent = ''; } else if (de.hidden){ de.textContent = d; de.hidden = false; enter(de); } else swap(de, d);
   }
@@ -471,7 +476,8 @@ DM.def('browser-session', (r, c) => {
   c.every(1000, () => { if (!held() && !blocked && !finished){ secs++; $('.ck', stEl).textContent = clock(); } });
   function update(){
     root.classList.toggle('you', you); root.classList.toggle('paused', paused && !you);
-    swap($('.m', stEl), finished ? 'Done' : you ? 'You have control' : paused ? 'Paused' : blocked ? 'Needs you' : 'Browsing');
+    const m = $('.m', stEl), going = !finished && !you && !paused && !blocked; m.classList.toggle('shim', going);
+    swap(m, finished ? 'Done' : you ? 'You have control' : paused ? 'Paused' : blocked ? 'Needs you' : 'Browsing');
     const pl = paused ? 'Resume' : 'Pause'; pauseB.innerHTML = I(paused ? 'play' : 'pause'); pauseB.setAttribute('aria-label', pl); pauseB.dataset.tip = pl;
     pauseB.disabled = you || finished; takeB.disabled = finished;
     takeB.setAttribute('aria-pressed', you); takeB.textContent = you ? 'Hand back' : 'Take over';
@@ -482,7 +488,8 @@ DM.def('browser-session', (r, c) => {
     if (blocked) step(3, 'wait', you ? 'Close the banner, then hand back' : 'A cookie banner covers the table');
   }
   function showAsk(){
-    const ask = html('<div class="bws-ask"><button class="pill primary sm bws-allow">Allow closing it</button><button class="pill soft sm bws-you">Take over</button></div>');
+    // Take over, then the action that settles it, last, as in Draft review's notice
+    const ask = html('<div class="bws-ask"><button class="pill line sm bws-you">Take over</button><button class="pill warn sm bws-allow">Allow closing it</button></div>');
     $('.bws-t', S[3].el).appendChild(ask); enter(ask);
     $('.bws-allow', ask).onclick = () => c.run(async () => {
       // the agent closes it the privacy-friendly way, with Reject all
@@ -515,7 +522,7 @@ DM.def('browser-session', (r, c) => {
     for (let i = 0; i < cells.length; i++){ await aim(cells[i]); cells[i].classList.add('hit'); step(4, 'run', `${i + 1} of 3 prices`); }
     await act(500); cur.classList.remove('on');
     finished = true; step(4, 'done', '$8, $16 and $32 per seat'); update();
-    const sm = html(`<div class="bws-sum">${I('ok','xs')}<span>Done · 3 prices saved to Pricing research</span></div>`); root.appendChild(sm); enter(sm);
+    const sm = html(`<div class="bws-sum">${I('ok','xs')}<span>Done · 3 prices saved to Pricing research</span></div>`); list.after(sm); enter(sm);
   });
   update();
   // the preview's story: the agent stops at the cookie banner, the person allows it to close it, and it finishes

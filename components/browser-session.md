@@ -23,7 +23,7 @@ npx shadcn@latest add https://designme.dev/r/shadcn/astro/browser-session.json  
 
 ## About
 
-Browser session shows an agent browsing the web for a person: a small browser frame with the address bar and the page it is on, the steps it takes under it, and Pause and Take over. When the page gets in its way, like a cookie banner over the table it came to read, the step turns amber, says why, and waits for the person to let it go on or take over.
+Browser session shows an agent browsing the web for a person: a small browser frame with the address bar and the page it is on, the steps it takes under it, and Pause and Take over. When the page gets in its way, like a cookie banner over the table it came to read, the step becomes a warning notice that says why, and waits for the person to let it go on or take over.
 
 ### When to use it
 
@@ -36,10 +36,10 @@ Browser session shows an agent browsing the web for a person: a small browser fr
 
 - `url` fills the address bar, with a padlock, or a magnifier when `search` marks it as a search. `children` is the page itself, 156px tall: a screenshot or live view of the agent's browser, or a wireframe drawn with the `dm-bws-pg` classes, as in the demo.
 - `cursor` draws the agent's own pointer over the page, in the accent colour, and `down` presses it.
-- `steps` lists what the agent does. A queued step shows a dot, the running one spins, a finished one gets a green check, and a waiting one an amber mark. Each can carry a `detail` line, like "2 of 3 prices".
+- `steps` lists what the agent does. A queued step shows a dot, the running one spins, a finished one gets a green check, and a waiting one the filled warning sign on a faint amber tint. The running step's words carry the loader's sweep. Each can carry a `detail` line, like "2 of 3 prices".
 - `ask` adds a button under the waiting step, like "Allow closing it", with Take over beside it.
 - Pause holds the agent and turns into Resume. Take over hands the page to the person: the frame turns the accent colour, the page's own controls become usable, and the button reads Hand back.
-- The line under the title reads Browsing, Paused, Needs you, You have control or Done, with a clock that counts while the agent browses. `summary` shows under the steps once every step is done.
+- The line under the title reads Browsing, Paused, Needs you, You have control or Done, with a clock that counts while the agent browses. Browsing carries the loader's sweep. `summary` shows once every step is done, as the card's footer with a green tick, and the card grows to take it.
 
 ### Accessibility
 
@@ -177,7 +177,7 @@ export default function BrowserSessionDemo() {
   const closeBanner = () => { if (!mine || !blocked) return; setBanner(false); setBlocked(false); unblock.current?.(); };
 
   // the preview's story: the agent stops at the cookie banner, and the person lets it close it
-  useStory(ref, async ({ wait, press }) => { await wait(10000); press('.dm-bws-ask .dm-primary'); }, { hold: false });
+  useStory(ref, async ({ wait, press }) => { await wait(10000); press('.dm-bws-ask .dm-warn'); }, { hold: false });
 
   const shown = steps.map((s, i) => i === 3 && blocked ? { ...s, detail: mine ? 'Close the banner, then hand back' : 'A cookie banner covers the table' } : s);
   return (
@@ -253,7 +253,7 @@ import { useState, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable, useSeconds } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { enter, Spin, Swap, Tip } from '../lib/motion';
+import { enter, Spin, Swap, Tip, useGrow } from '../lib/motion';
 import '../designme.css';
 import './browser-session.css';
 
@@ -263,7 +263,7 @@ export interface BrowserStep {
   /** What the agent does, like 'Click "Pricing"' */
   label: string;
   state: BrowserStepState;
-  /** A quiet line under the step, like "2 of 3 prices". On a waiting step it says what is in the way, in amber */
+  /** A quiet line under the step, like "2 of 3 prices". On a waiting step it says what is in the way */
   detail?: string;
 }
 
@@ -301,13 +301,18 @@ export interface BrowserSessionProps {
 const CLS: Record<BrowserStepState, string> = { queued: 'dm-queued', running: 'dm-run', waiting: 'dm-wait', done: 'dm-done' };
 const clock = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 
+/** The filled warning sign of a warning notice */
+const WarnSign = () => (
+  <svg className="dm-bws-wi" viewBox="0 0 24 24" aria-hidden="true"><path className="dm-a" d="M12 3.6 2.6 19.9h18.8z" /><path className="dm-b" d="M12 9.6v4.4M12 17v.01" /></svg>
+);
+
 function Glyph({ state }: { state: BrowserStepState }) {
   // a glyph plays its entrance when its step changes state, not when it first renders
   const [first] = useState(state);
   const e = state !== first ? enter() : undefined;
   return (
     <span key={state} className={cx('dm-g', e?.className)} style={e?.style} aria-hidden="true">
-      {state === 'running' ? <Spin /> : state === 'done' ? <Icon name="ok" size="xs" /> : state === 'waiting' ? <Icon name="alert" size="xs" /> : <span className="dm-dot" />}
+      {state === 'running' ? <Spin /> : state === 'done' ? <Icon name="ok" size="xs" /> : state === 'waiting' ? <WarnSign /> : <span className="dm-dot" />}
     </span>
   );
 }
@@ -325,11 +330,14 @@ export function BrowserSession({ title, url, search, children, cursor, steps, as
   const line = status ?? (done ? 'Done' : mine ? 'You have control' : isPaused ? 'Paused' : waiting ? 'Needs you' : 'Browsing');
   const take = () => { setMine(!mine); if (!mine && isPaused) setPaused(false); };
   const sum = done && summary ? enter() : undefined;
+  // the card grows and shrinks with what it holds (the notice's buttons, the line once it is done)
+  const [root, inner] = useGrow();
 
   return (
-    <div data-dm="" className={cx('dm-bws dm-panel', mine && 'dm-you', isPaused && !mine && 'dm-paused', className)}>
+    <div data-dm="" ref={root} className={cx('dm-bws dm-panel dm-growing', mine && 'dm-you', isPaused && !mine && 'dm-paused', className)}>
+      <div ref={inner} className="dm-grow">
       <div className="dm-bws-h">
-        <div className="dm-bws-ht"><b>{title}</b><span className="dm-muted dm-bws-st"><span aria-live="polite"><Swap>{line}</Swap></span> · <span className="dm-num">{clock(secs)}</span></span></div>
+        <div className="dm-bws-ht"><b>{title}</b><span className="dm-muted dm-bws-st"><span aria-live="polite"><Swap className={line === 'Browsing' ? 'dm-shim' : undefined}>{line}</Swap></span> · <span className="dm-num">{clock(secs)}</span></span></div>
         <div className="dm-bws-ctl">
           <Tip label={isPaused ? 'Resume' : 'Pause'}>
             <button type="button" className="dm-ib dm-bws-pause" aria-label={isPaused ? 'Resume' : 'Pause'} disabled={mine || done} onClick={() => setPaused(!isPaused)}>
@@ -359,12 +367,12 @@ export function BrowserSession({ title, url, search, children, cursor, steps, as
             <li key={i} className={cx('dm-bws-s', CLS[s.state])} aria-current={s.state === 'running' || s.state === 'waiting' ? 'step' : undefined}>
               <Glyph state={s.state} />
               <span className="dm-bws-t">
-                <span>{s.label}</span>
+                <span className={s.state === 'running' ? 'dm-shim' : undefined}>{s.label}</span>
                 {s.detail && <Swap className="dm-d">{s.detail}</Swap>}
                 {asking && (
                   <div className={cx('dm-bws-ask', enter().className)}>
-                    <button type="button" className="dm-pill dm-primary dm-sm" onClick={ask.onAllow}>{ask.label}</button>
-                    <button type="button" className="dm-pill dm-soft dm-sm" onClick={take}>Take over</button>
+                    <button type="button" className="dm-pill dm-line dm-sm" onClick={take}>Take over</button>
+                    <button type="button" className="dm-pill dm-warn dm-sm" onClick={ask.onAllow}>{ask.label}</button>
                   </div>
                 )}
               </span>
@@ -373,6 +381,7 @@ export function BrowserSession({ title, url, search, children, cursor, steps, as
         })}
       </ol>
       {sum && <div className={cx('dm-bws-sum', sum.className)} style={sum.style}><Icon name="ok" size="xs" /><span>{summary}</span></div>}
+      </div>
     </div>
   );
 }

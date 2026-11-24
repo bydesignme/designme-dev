@@ -2834,6 +2834,8 @@ DM.def('tool-call', (r, c) => {
     { ic:'edit', n:'files', f:'edit', ms:'1.2 s', inp:'{ <span class="k">"path"</span>: <span class="s">"Pricing.tsx"</span>, <span class="k">"lines"</span>: <span class="n">6</span> }', out:'{ <span class="k">"changed"</span>: <span class="n">6</span>, <span class="k">"saved"</span>: <span class="k">true</span> }' }
   ];
   const host = $('.tcx-calls', r);
+  // the list grows and shrinks with what it holds (a call opening, the answer once every call is back), centred in its stage
+  c.offs.push(grow($('.tcx', r)));
   calls.forEach(k => {
     k.el = html(`<div class="tcx-c"><button class="tcx-h" aria-expanded="false"><span class="tcx-ic">${I(k.ic,'xs')}</span><span class="tcx-n"><span>${k.n}.</span><b>${k.f}</b></span><span class="tcx-ms"><span class="tt">Queued</span><span class="g"></span></span><svg class="i xs tcx-chev"><use href="#v2i-chev-d"/></svg></button><div class="fold shut"><div><div class="tcx-io"><div><div class="tcx-l">Input</div><pre>${k.inp}</pre></div><div><div class="tcx-l">Output</div><pre class="out">Waiting…</pre></div></div></div></div></div>`);
     host.appendChild(k.el);
@@ -2844,13 +2846,13 @@ DM.def('tool-call', (r, c) => {
   c.run(async () => {
     await c.wait(600);
     for (const k of calls){
-      $('.g', k.el).innerHTML = '<span class="spin" style="width:10px;height:10px"></span>'; swap($('.tt', k.el), 'Running');
+      $('.g', k.el).innerHTML = '<span class="spin" style="width:10px;height:10px"></span>'; $('.tt', k.el).classList.add('shim'); swap($('.tt', k.el), 'Running');
       $('.tcx-ic', k.el).innerHTML = '<span class="radar" style="color:var(--fg)"></span>';
       await c.wait(1300);
       $('.tcx-ic', k.el).innerHTML = I(k.ic,'xs'); $('pre.out', k.el).innerHTML = k.out;
-      $('.g', k.el).innerHTML = `<span style="color:var(--ok)">${I('check','xs')}</span>`; swap($('.tt', k.el), k.ms);
+      $('.g', k.el).innerHTML = `<span class="ok">${I('check','xs')}</span>`; $('.tt', k.el).classList.remove('shim'); swap($('.tt', k.el), k.ms);
     }
-    $('.tcx-end', r).classList.add('in');
+    enter($('.tcx-end', r)).classList.add('in');
     // the preview opens the first call to show what came back, unless you have taken over
     if (!c.mine) $('.tcx-h', calls[0].el).click();
   });
@@ -2901,6 +2903,7 @@ DM.def('tool-call', (r, c) => {
 </div>`;
   function stack(r, c){
     const K = TCC(), list = $('.tca-list', r);
+    c.offs.push(grow($('.tca', r)));
     K.forEach(k => {
       k.el = html(`<li class="tca-c" data-s="wait"><i class="tca-rl" aria-hidden="true"><i></i></i><button class="tca-h" type="button" aria-expanded="false">${tile(k)}<span class="tca-n">${name(k)}<span class="a">${k.arg}</span></span><span class="tca-r"><span class="num ms">Queued</span><span class="g"></span></span><span class="tca-cv">${I('chev-d','xs')}</span></button><div class="fold shut"><div><div class="tca-io"><div class="tca-bar"><div class="seg2" role="group" aria-label="Show"><button type="button" aria-pressed="false" data-v="in">Input</button><button type="button" aria-pressed="true" data-v="out">Output</button></div><span class="sp"></span><span class="tca-note"></span><button class="ib tca-cp" type="button" aria-label="Copy" data-tip="Copy">${I('copy','xs')}</button><button class="ib tca-re" type="button" aria-label="Run again" data-tip="Run again" disabled>${I('refresh','xs')}</button></div><pre class="tcx-json"></pre></div></div></div></li>`);
       list.appendChild(k.el);
@@ -2922,11 +2925,11 @@ DM.def('tool-call', (r, c) => {
     // a call runs: its tile breathes, its time counts up, then what came back streams in a line at a time
     async function call(k, again){
       const el = k.el, ms = $('.ms', el), g = $('.g', el), re = $('.tca-re', el); re.disabled = true;
-      el.dataset.s = 'run'; k.lines = null; g.innerHTML = '<span class="spin"></span>'; k.paint();
+      el.dataset.s = 'run'; k.lines = null; g.innerHTML = '<span class="spin"></span>'; ms.classList.add('shim'); k.paint();
       let t = 0; const iv = c.every(100, () => { t += 100 * (k.ms / 1300); ms.textContent = took(Math.min(t, k.ms)); });
       await c.wait(1300); clearInterval(iv);
       const ln = json(k.out); k.lines = [];
-      el.dataset.s = 'done'; ms.textContent = took(again ? k.ms * (.8 + Math.random() * .3) : k.ms); g.innerHTML = `<span class="ok">${I('check','xs')}</span>`;
+      el.dataset.s = 'done'; ms.classList.remove('shim'); ms.textContent = took(again ? k.ms * (.8 + Math.random() * .3) : k.ms); g.innerHTML = `<span class="ok">${I('check','xs')}</span>`;
       if (again){ el.classList.remove('again'); void el.offsetWidth; el.classList.add('again'); k.runs = (k.runs || 1) + 1; $('.tca-note', el).textContent = `Ran ${k.runs} times`; }
       for (const l of ln){ k.lines.push(l); if (k.view === 'out') k.paint(); await c.wait(100); }
       re.disabled = false;
@@ -2934,7 +2937,7 @@ DM.def('tool-call', (r, c) => {
     c.run(async () => {
       await c.wait(700);
       for (const k of K) await call(k);
-      $('.tca-end', r).classList.add('in');
+      enter($('.tca-end', r)).classList.add('in');
     });
     // the person in the demo opens the first call once it is back, reads its input and folds it, then runs the last again
     c.story(async s => {
@@ -2963,6 +2966,8 @@ DM.def('tool-call', (r, c) => {
     // the sentence the agent writes, with a call where each chip goes
     const S = ['Checking', 0, 'for this month\'s plan changes, then the plan cards in', 1, '. I changed', 2, 'with the new prices and opened', 3, 'for review.'];
     dw.inert = true; let open = null, done = 0, total = 0;
+    // the sentence keeps no room for words still to come: it grows as they arrive (grow()), centred in its stage
+    c.offs.push(grow(root));
     function chip(k){
       k.el = html(`<button class="fchip lnk tcb-k" type="button" data-s="run" aria-expanded="false" aria-label="${k.ns}.${k.fn}"><span class="t"><span class="spin"></span></span>${k.lab}<span class="m"></span></button>`);
       k.el.onclick = () => show(open === k ? null : k);
@@ -3032,6 +3037,7 @@ DM.def('tool-call', (r, c) => {
 </div>`;
   function inspector(r, c){
     const K = TCC(), strip = $('.tcc-strip', r), view = $('.tcc-view', r), st = $('.tcc-st', r);
+    c.offs.push(grow($('.tcc', r)));
     let sel = 0, mode = 'table', spent = 0, stopped = false, follow = true;
     K.forEach((k, i) => {
       k.s = 'wait';
@@ -4821,7 +4827,7 @@ DM.def('image-generation', (r, c, card) => {
   });
 });
 /* ---------- the sections' components, loaded the first time a section comes near (DEF_PARTS in build.js) ---------- */
-const PARTS = {"files":{"s-status":"/assets/v2-status.77fdf81d43.js","s-product":"/assets/v2-product.4d8fc9c4db.js","s-review":"/assets/v2-review.363fbf3c5a.js","s-data":"/assets/v2-data.8753afd244.js","s-workspace":"/assets/v2-workspace.c1a953ef81.js","s-harness":"/assets/v2-harness.1dfa03ac26.js","s-charts":"/assets/v2-charts.d5c4773d19.js","s-dates":"/assets/v2-dates.c8ca99210a.js","s-forms":"/assets/v2-forms.5ecc1d9e86.js","s-collab":"/assets/v2-collab.d1d0908d69.js"},"of":{"status-pill":"s-status","step-loader":"s-status","thinking-states":"s-status","reasoning-trail":"s-status","thinking":"s-status","context-meter":"s-status","browser-session":"s-status","toast":"s-status","toast-stack":"s-status","pricing-cards":"s-product","stepper":"s-product","set-limit":"s-product","currency-converter":"s-product","agent-run-timeline":"s-status","decision-prompt":"s-review","proposal-card":"s-review","rewrite-toolbar":"s-review","design-tuner":"s-review","human-handoff":"s-review","plan-review":"s-review","inline-text-diff":"s-review","draft-review":"s-review","steering":"s-review","eval-results":"s-review","source-stack":"s-data","metric-insight":"s-data","task-table":"s-data","code-viewer":"s-data","terminal-stream":"s-data","details-panel":"s-data","citation-hover":"s-data","workspace-rail":"s-workspace","command-palette":"s-workspace","agent-settings":"s-workspace","file-explorer":"s-workspace","automation-canvas":"s-workspace","canvas-toolbar":"s-workspace","data-picker":"s-workspace","run-drawer":"s-workspace","memory-panel":"s-workspace","tool-connections":"s-workspace","knowledge-sources":"s-workspace","scheduled-runs":"s-workspace","harness":"s-harness","line-chart":"s-charts","bar-chart":"s-charts","donut-chart":"s-charts","funnel":"s-charts","top-pages":"s-charts","health-score":"s-charts","activity-heatmap":"s-charts","stat-cards":"s-charts","account-table":"s-charts","date-picker":"s-dates","segmented-control":"s-dates","date-range-picker":"s-dates","event-calendar":"s-dates","agenda":"s-dates","meeting-card":"s-dates","buttons":"s-forms","badge":"s-forms","tooltip":"s-forms","search-input":"s-forms","country-select":"s-forms","multi-select":"s-forms","social-signin":"s-forms","sign-in":"s-forms","otp-field":"s-forms","form":"s-forms","payment-form":"s-forms","comments":"s-collab","notifications":"s-collab","banner":"s-collab","invite":"s-collab","reactions":"s-collab","profile-menu":"s-collab","context-switcher":"s-collab","filter-menu":"s-collab","number-field":"s-collab","ticket-list":"s-collab","kanban":"s-collab","context-menu":"s-collab","progress":"s-forms","radar-chart":"s-charts","radial-goals":"s-charts","scatter-chart":"s-charts","score-breakdown":"s-charts","slider":"s-forms","carousel":"s-forms","web-search":"s-status"},"all":["harness"]};
+const PARTS = {"files":{"s-status":"/assets/v2-status.dedc726310.js","s-product":"/assets/v2-product.4d8fc9c4db.js","s-review":"/assets/v2-review.a3d990a5ce.js","s-data":"/assets/v2-data.8753afd244.js","s-workspace":"/assets/v2-workspace.c1a953ef81.js","s-harness":"/assets/v2-harness.1dfa03ac26.js","s-charts":"/assets/v2-charts.d5c4773d19.js","s-dates":"/assets/v2-dates.c8ca99210a.js","s-forms":"/assets/v2-forms.5ecc1d9e86.js","s-collab":"/assets/v2-collab.d1d0908d69.js"},"of":{"status-pill":"s-status","step-loader":"s-status","thinking-states":"s-status","reasoning-trail":"s-status","thinking":"s-status","context-meter":"s-status","browser-session":"s-status","toast":"s-status","toast-stack":"s-status","pricing-cards":"s-product","stepper":"s-product","set-limit":"s-product","currency-converter":"s-product","agent-run-timeline":"s-status","decision-prompt":"s-review","proposal-card":"s-review","rewrite-toolbar":"s-review","design-tuner":"s-review","human-handoff":"s-review","plan-review":"s-review","inline-text-diff":"s-review","draft-review":"s-review","steering":"s-review","eval-results":"s-review","source-stack":"s-data","metric-insight":"s-data","task-table":"s-data","code-viewer":"s-data","terminal-stream":"s-data","details-panel":"s-data","citation-hover":"s-data","workspace-rail":"s-workspace","command-palette":"s-workspace","agent-settings":"s-workspace","file-explorer":"s-workspace","automation-canvas":"s-workspace","canvas-toolbar":"s-workspace","data-picker":"s-workspace","run-drawer":"s-workspace","memory-panel":"s-workspace","tool-connections":"s-workspace","knowledge-sources":"s-workspace","scheduled-runs":"s-workspace","harness":"s-harness","line-chart":"s-charts","bar-chart":"s-charts","donut-chart":"s-charts","funnel":"s-charts","top-pages":"s-charts","health-score":"s-charts","activity-heatmap":"s-charts","stat-cards":"s-charts","account-table":"s-charts","date-picker":"s-dates","segmented-control":"s-dates","date-range-picker":"s-dates","event-calendar":"s-dates","agenda":"s-dates","meeting-card":"s-dates","buttons":"s-forms","badge":"s-forms","tooltip":"s-forms","search-input":"s-forms","country-select":"s-forms","multi-select":"s-forms","social-signin":"s-forms","sign-in":"s-forms","otp-field":"s-forms","form":"s-forms","payment-form":"s-forms","comments":"s-collab","notifications":"s-collab","banner":"s-collab","invite":"s-collab","reactions":"s-collab","profile-menu":"s-collab","context-switcher":"s-collab","filter-menu":"s-collab","number-field":"s-collab","ticket-list":"s-collab","kanban":"s-collab","context-menu":"s-collab","progress":"s-forms","radar-chart":"s-charts","radial-goals":"s-charts","scatter-chart":"s-charts","score-breakdown":"s-charts","slider":"s-forms","carousel":"s-forms","web-search":"s-status"},"all":["harness"]};
 const partRun = src => eval(src);
 // the markup of the cards whose section has a file of its own comes with that file
 const TPLS = {};

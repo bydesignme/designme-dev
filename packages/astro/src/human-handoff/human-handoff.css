@@ -1,74 +1,109 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Hand-off to a person ---------- */
 /* the agent passes a conversation to a person: why, who has it (with Reassign), when the reply is due, what they need to
-   pick it up, and what the customer was told. The type and spacing are Draft review's; the two columns stack when narrow */
+   pick it up, and what the customer was told, with a status line at the foot. The type and spacing are Draft review's; the
+   two columns stack when narrow. Its content is 16px from every edge */
 .hox{position:relative;width:100%;margin:0 auto;padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-3)}
 .hox-h{display:flex;align-items:center;gap:var(--dm-s-3)}
-.hox-ic{width:32px;height:32px;border-radius:calc(9px * var(--dm-rk));background:var(--dm-chip);color:var(--dm-fg2);display:grid;place-items:center;flex:none}
+.hox-ic{width:32px;height:32px;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-chip);color:var(--dm-fg2);display:grid;place-items:center;flex:none}
 .hox-ht{flex:1;min-width:0;display:flex;flex-direction:column}
-.hox-ht b{font-weight:500;font-size:14px}
-.hox-ht span{font-size:13px}
+.hox-ht b{font-weight:500;font-size:14px;line-height:20px}
+.hox-ht span{font-size:13px;line-height:18px}
 .hox-b{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--dm-s-4) var(--dm-s-6);align-items:start;padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 @container (max-width:600px){.hox-b{grid-template-columns:minmax(0,1fr)}.hox-col+.hox-col{padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}}
 .hox-col{display:flex;flex-direction:column;gap:var(--dm-s-2);min-width:0}
 .hox-lb{font-size:12px;color:var(--dm-muted)}
-.hox-who{display:flex;align-items:center;gap:10px;min-height:40px}
-.hox-av{width:28px;height:28px;display:grid;place-items:center;flex:none;border-radius:50%;background:var(--dm-chip);color:var(--dm-fg2)}
-.hox-av .av{width:28px;height:28px;font-size:11px}
+.hox-who{display:flex;align-items:center;gap:var(--dm-s-3);min-height:40px}
+.hox-av{width:32px;height:32px;display:grid;place-items:center;flex:none;border-radius:50%;background:var(--dm-chip);color:var(--dm-fg2)}
+/* the person's avatar is as big as the head's tile, so its words start where the title's do */
+.hox-av .av{width:32px;height:32px;font-size:12px}
 .hox-wt{flex:1;min-width:0;display:flex;flex-direction:column}
-.hox-wt b{font-weight:500;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hox-wd{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hox-wt b{font-weight:500;font-size:13.5px;line-height:20px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hox-wd{display:flex;align-items:center;gap:6px;font-size:12px;line-height:18px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hox-wd .dot{color:var(--dm-faint)}
 /* the person's status: the dot is a mark (--dm-ok-mark, --dm-warn-mark) and the words keep the text colours */
 .hox-wd.ok .dot{color:var(--dm-ok-mark)}
 .hox-wd.warn{color:var(--dm-warn)}
 .hox-wd.warn .dot{color:var(--dm-warn-mark)}
-/* Reassign: a small dropdown, like the one for how long in Permission gate */
-.hox-rb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--dm-s-2) 0 10px;border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);flex:none;transition:background .16s,color .16s}
+/* Reassign: a small dropdown, like the one for how long in Permission gate. It is the row's last control, so its words end on
+   the content's right edge (where the target time under it ends) and its hover box reaches 8px out round them */
+.hox-rb{display:inline-flex;align-items:center;gap:6px;height:28px;margin-right:calc(-1 * var(--dm-s-2));padding:0 var(--dm-s-2);border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);flex:none;transition:background .16s,color .16s}
 .hox-rb[aria-expanded="true"]{background:var(--dm-row);color:var(--dm-fg)}
 @media (hover:hover) and (pointer:fine){.hox-rb:hover{background:var(--dm-row);color:var(--dm-fg)}}
 .hox-rb>svg{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
 .hox-rb[aria-expanded="true"]>svg{transform:rotate(180deg)}
 .hox-rb[disabled]{opacity:1;cursor:not-allowed;background:none;color:var(--dm-dis)}
+.hox-rb[disabled]>svg{color:var(--dm-dis)}
 .hox-pop{min-width:240px}
+/* its menu opens out of the card, which keeps its height while the menu is open */
+.hox.growing:has(.hox-pop.open){overflow:visible}
 .hox-pop .mi .av{width:20px;height:20px;font-size:9px}
 .hox-pop .mi>span:not(.ck):not(.av){flex:1;min-width:0}
-/* when the reply is due: the line counts down and the bar empties, amber in the last five minutes */
+/* when the reply is due: the line counts down and the bar empties, amber in the last five minutes. The due time and the target
+   are two sizes on one line, so they share a baseline in their own wrapper; the clock sits on the line's centre */
 .hox-sla{display:flex;flex-direction:column;gap:var(--dm-s-2);padding-top:var(--dm-s-2)}
 .hox-sl{display:flex;align-items:center;gap:var(--dm-s-2);font-size:13px}
 .hox-sl>svg{color:var(--dm-fg2);flex:none}
-.hox-sl .muted{margin-left:auto;font-size:12px;white-space:nowrap}
+.hox-sw{flex:1;min-width:0;display:flex;align-items:baseline;gap:var(--dm-s-2)}
+.hox-sw .muted{margin-left:auto;font-size:12px;white-space:nowrap}
 .hox-due{min-width:0}
 .hox-bar{height:4px;border-radius:2px;background:var(--dm-chip);overflow:hidden}
 .hox-bar i{display:block;height:100%;width:100%;border-radius:inherit;background:var(--dm-fg2);transition:width 1s linear,background .3s}
 .hox-sla.warn .hox-sl>svg,.hox-sla.warn .hox-due{color:var(--dm-warn)}
 .hox-sla.warn .hox-bar i{background:var(--dm-warn-mark)}
 .hox-sla.bad .hox-sl>svg,.hox-sla.bad .hox-due{color:var(--dm-bad)}
+.hox-sla.bad .hox-bar i{background:var(--dm-bad-mark)}
 .hox-sum{margin:0;font-size:13px;line-height:1.5;color:var(--dm-fg2)}
 .hox-facts{display:flex;flex-direction:column;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.hox-f{display:flex;align-items:center;gap:10px;min-height:32px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13px}
+.hox-f{display:flex;align-items:center;gap:var(--dm-s-3);min-height:32px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13px}
 .hox-f .k{width:72px;flex:none;color:var(--dm-muted)}
 .hox-f .v{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hox-lnk{align-self:flex-start;max-width:100%}
 .hox-lnk>span{overflow:hidden;text-overflow:ellipsis}
-/* what the customer was told, editable in place */
+/* what the customer was told, editable in place. Edit is a ghost button, the row's last control, so its words end on the
+   content's right edge (where the message box ends) */
 .hox-ms{display:flex;flex-direction:column;gap:var(--dm-s-2);margin-top:var(--dm-s-1);padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .hox-mh{display:flex;align-items:center;gap:var(--dm-s-2);min-height:28px}
 .hox-mh .sp{flex:1}
+.hox-mh .pill.ghost:last-child{margin-right:-11px}
 .hox-mb{padding:10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13.5px;line-height:1.5;outline:0;transition:box-shadow var(--dm-t-fast),background var(--dm-t-fast)}
 .hox-mb[contenteditable="true"]{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent)}
 @supports (corner-shape:squircle){.hox-mb[contenteditable="true"]{corner-shape:squircle;border-radius:var(--dm-r-box-sq)}}
 .hox-mb[contenteditable="true"]:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
-/* where it stands, in one row at the foot: neutral while it waits, amber when the person can't take it, green once they have */
-.hox-st{display:flex;align-items:center;gap:var(--dm-s-3);padding:10px 10px 10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-chip);font-size:13.5px;transition:background .32s}
-.hox-st.warn{background:var(--dm-warn-bg)}
-.hox-st.ok{background:var(--dm-ok-bg)}
-.hox-st .g{width:18px;height:18px;display:grid;place-items:center;flex:none;color:var(--dm-fg2)}
-.hox-st.warn .g{color:var(--dm-warn)}
+/* where it stands: the card's footer, under a hairline, 16px from it and from the card's bottom edge. Its mark sits centred in
+   the head's 32px tile column and its words start where the title's do. It is neutral while it waits (a spinner, the words
+   with the loader's sweep), a warning notice when the person can't take it (owner, 18 Nov: a faint warning tint reaching 8px
+   out round the row, the filled warning sign in --dm-warn-mark, the words in the text colours and Reassign, the action that
+   settles it, as .pill.warn), and a neutral row with the person's avatar once they have it: no green fill (owner, 18 Nov) */
+.hox-st{margin-top:var(--dm-s-1);padding-top:var(--dm-s-4);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.hox-sr{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;column-gap:var(--dm-s-3);min-height:28px;margin:calc(-1 * var(--dm-s-2));padding:var(--dm-s-2);border-radius:calc(var(--dm-r-card) - 8px);transition:background-color .32s var(--dm-ease)}
+.hox-st.warn .hox-sr{background:color-mix(in srgb,var(--dm-warn-bg) 45%,transparent)}
+.hox-sr .g{width:32px;height:20px;display:grid;place-items:center;color:var(--dm-fg2)}
+.hox-sr .g .av{width:20px;height:20px;font-size:8.5px}
 .hox-st.ok .g{color:var(--dm-ok)}
-.hox-st .g .av{width:18px;height:18px;font-size:8.5px}
-.hox-st .t{flex:1;min-width:0;display:flex;flex-direction:column}
-.hox-st .t b{font-weight:400}
-/* the second line sits on the row's tint, so it is fg2 rather than muted */
-.hox-st .t>span{font-size:13px;color:var(--dm-fg2)}
-.hox-st .t,.hox-sum,.hox-mb,.tmx-note>span{text-wrap:pretty}
+:root[data-style="clean"] .hox-st.ok .g,:root [data-style="clean"] .hox-st.ok .g,:root [data-style="clean"].hox-st.ok .g{color:var(--dm-ok-mark)}
+.hox-wi{width:16px;height:16px;overflow:visible}
+.hox-wi .a{fill:var(--dm-warn-mark);stroke:var(--dm-warn-mark);stroke-width:2;stroke-linejoin:round}
+.hox-wi .b{fill:none;stroke:var(--dm-surface);stroke-width:2.2;stroke-linecap:round}
+.hox-sr .t{min-width:0;display:flex;flex-direction:column;font-size:13px;line-height:20px;color:var(--dm-fg)}
+.hox-sr .t b{font-weight:500}
+.hox-sr .t>span{font-size:12.5px;line-height:18px;color:var(--dm-muted)}
+.hox-st.warn .hox-sr .t>span{color:var(--dm-fg2)}
+.hox-sr .t,.hox-sum,.hox-mb,.tmx-note>span{text-wrap:pretty}
+/* on a phone the notice's Reassign goes under its words, starting where they start, so the words keep the row's width; the
+   mark stays on the title's line */
+@container (max-width:480px){.hox-sr{grid-template-columns:32px minmax(0,1fr);align-items:start}.hox-sr .pill{grid-column:2;justify-self:start;margin-top:var(--dm-s-2)}}
+/* Clean (owner, 17 and 18 Nov): the head's tile with a hairline, the footer an off-white foot strip whose words and Reassign
+   sit 16px from its hairline and the card's bottom edge (--dm-strip-y) and 16px in from the sides; when the person can't take it
+   the strip itself takes the faint warning tint. Reassign at the top is Clean's quiet select: the one hover, and the stronger
+   fill while its menu is open */
+:root[data-style="clean"] .hox.panel,:root [data-style="clean"] .hox.panel,:root [data-style="clean"].hox.panel{padding:16px 16px 0}
+:root[data-style="clean"] .hox-ic,:root [data-style="clean"] .hox-ic,:root [data-style="clean"].hox-ic{box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .hox-ht b,:root [data-style="clean"] .hox-ht b,:root [data-style="clean"].hox-ht b{letter-spacing:-.01em}
+:root[data-style="clean"] .hox-rb,:root [data-style="clean"] .hox-rb,:root [data-style="clean"].hox-rb{color:var(--dm-fg2);transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .hox-rb:not([disabled]):hover,:root [data-style="clean"] .hox-rb:not([disabled]):hover,:root [data-style="clean"].hox-rb:not([disabled]):hover{background:var(--dm-row);color:var(--dm-fg)}}
+:root[data-style="clean"] .hox-rb[aria-expanded="true"],:root [data-style="clean"] .hox-rb[aria-expanded="true"],:root [data-style="clean"].hox-rb[aria-expanded="true"]{background:var(--dm-row-on);color:var(--dm-fg)}
+:root[data-style="clean"] .hox-bar,:root [data-style="clean"] .hox-bar,:root [data-style="clean"].hox-bar{box-shadow:var(--dm-track-ring)}
+:root[data-style="clean"] .hox-st,:root [data-style="clean"] .hox-st,:root [data-style="clean"].hox-st{margin:var(--dm-s-1) -16px 0;padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card);transition:background-color .32s var(--dm-ease)}
+:root[data-style="clean"] .hox-st.warn,:root [data-style="clean"] .hox-st.warn,:root [data-style="clean"].hox-st.warn{background:color-mix(in srgb,var(--dm-warn-bg) 45%,var(--dm-surface))}
+:root[data-style="clean"] .hox-st .hox-sr,:root [data-style="clean"] .hox-st .hox-sr,:root [data-style="clean"].hox-st .hox-sr{margin:0;padding:0;background:none}
