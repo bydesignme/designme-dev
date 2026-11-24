@@ -198,6 +198,10 @@ every session and every agent.
   in the 16 Nov library trim come back with Clean designs for the posts that follow: Hand-off to a person, Steering,
   Browser session, Voice orb, Image generation, Tool call, Code viewer, Design tuner (their code is in the commit before
   f0e4fbfd).
+- What is live (owner, 24 Nov): each component has a live flag in the build. Only live components are in the library, the
+  sidebar, search, the registry index, the installs and the sitemap; the others stay in the code, unlisted and unpublished
+  (their pages send visitors on to `/library`), until their post goes out. At launch the 35 above are live. Making one live
+  is a one-line change, and every count and link in copy follows the live list.
 - Soft keeps its look; the "Soft refreshed" lab is dropped. Six components have their Clean touches (Agent tree,
   Agent run timeline, Status pill, Context meter, Run cost, Meeting card); the others render with Clean's tokens and get
   theirs later.
