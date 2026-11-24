@@ -1,32 +1,44 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Code viewer ---------- */
+/* a file the agent changed: the file tabs, how many lines changed and Copy in the head; the code under it, each changed line
+   marked, and a line's note under it once you click it. Only the code is monospace (no mono in the interface): the files'
+   switch, the count and the notes are in the interface's own type. The card is as tall as the file it shows, never
+   kept at the longer file's height: switching files eases it to its new height */
 .dm-cvx{overflow:hidden;display:flex;flex-direction:column}
-.dm-cvx-h{display:flex;align-items:center;gap:2px;height:44px;padding:0 var(--dm-s-2);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.dm-cvx-tabs{display:flex;gap:2px;flex:1;min-width:0;overflow-x:auto}
-.dm-cvx-tab{display:flex;align-items:center;height:28px;padding:0 10px;border-radius:var(--dm-r-sm);font-size:12px;font-family:var(--dm-mono);color:var(--dm-muted);transition:color .2s,background .2s;white-space:nowrap}
-@media (hover:hover) and (pointer:fine){.dm-cvx-tab:hover{color:var(--dm-fg)}}
-/* the tabs scroll sideways, which would cut an outside ring: theirs is drawn inside */
-.dm-cvx-tab:focus-visible{outline-offset:-2px}
-.dm-cvx-tab.dm-on{background:var(--dm-surface);color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-on) 50%,transparent)}
-.dm-cvx-meta{margin-left:auto;padding-right:2px;font-size:12px;color:var(--dm-muted);white-space:nowrap}
+/* the head: its controls 16px from the card's sides and top and from the hairline under them */
+.dm-cvx-h{display:flex;align-items:center;gap:var(--dm-s-1);padding:var(--dm-s-4);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+/* the files: the library's segmented switch (as Image generation's Gallery and Styles), scrolling sideways if there are many */
+.dm-cvx-tabs{flex:0 1 auto;min-width:0;max-width:100%;overflow-x:auto;scrollbar-width:none}
+.dm-cvx-tabs::-webkit-scrollbar{display:none}
+.dm-cvx-tabs button{flex:none;white-space:nowrap}
+.dm-cvx-meta{margin-left:auto;padding-right:var(--dm-s-1);font-size:12px;color:var(--dm-muted);white-space:nowrap}
 .dm-cvx-meta b{font-weight:500;color:var(--dm-ok)}
-.dm-cvx-body{overflow-x:auto;min-height:232px}
-.dm-cvx-code{margin:0;padding:var(--dm-s-2) 0;font-family:var(--dm-mono);font-size:12px;line-height:1.8}
-.dm-cvx-l{display:flex;padding-right:var(--dm-s-4);cursor:pointer;transition:background .2s}
+.dm-cvx .dm-ib{width:28px;height:28px;flex:none}
+.dm-cvx .dm-ib.dm-copied{color:var(--dm-ok-mark)!important}
+@media (hover:hover) and (pointer:fine){.dm-cvx .dm-ib.dm-copied:hover{color:var(--dm-ok-mark)!important}}
+.dm-cvx-body{overflow-x:auto}
+.dm-cvx-code{margin:0;padding:var(--dm-s-4) 0;font-family:var(--dm-mono);font-size:12px;line-height:1.8}
+.dm-cvx-l{display:flex;padding-right:var(--dm-s-4);cursor:pointer;transition:background var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.dm-cvx-l:hover{background:var(--dm-row)}}
 /* a line that takes the focus fills the scrolling code, which would cut an outside ring: its ring is drawn inside */
 .dm-cvx-l:focus-visible{outline-offset:-2px}
 .dm-cvx-l.dm-new{background:color-mix(in srgb,var(--dm-ok) 6%,transparent)}
 .dm-cvx-l.dm-on{background:var(--dm-sel)}
 @media (hover:hover) and (pointer:fine){.dm-cvx-l.dm-on:hover{background:var(--dm-sel)}}
-.dm-cvx-l .dm-n{width:42px;text-align:right;padding-right:var(--dm-s-4);color:var(--dm-muted);user-select:none;flex:none;transition:color .2s}
+.dm-cvx-l .dm-n{width:46px;text-align:right;padding-right:var(--dm-s-4);color:var(--dm-muted);user-select:none;flex:none;transition:color var(--dm-t-fast)}
 .dm-cvx-l.dm-new .dm-n{color:var(--dm-ok)}
 .dm-cvx-l.dm-on .dm-n{color:var(--dm-accent-fg,var(--dm-accent))}
 .dm-cvx-l .dm-c{white-space:pre}
 /* one cool family for the syntax (owner, 4 Nov: the warm and cool mix clashed): violet keywords, blue functions, teal
    components, green strings; attributes and the rest stay in the text greys */
 .dm-cvx-code .dm-k{color:var(--dm-pl)}.dm-cvx-code .dm-s{color:var(--dm-pm)}.dm-cvx-code .dm-f{color:var(--dm-pb)}.dm-cvx-code .dm-cm{color:var(--dm-muted);font-style:italic}.dm-cvx-code .dm-tg{color:var(--dm-pt)}.dm-cvx-code .dm-at{color:var(--dm-fg2)}
-/* the agent's note belongs to the line it explains (owner, 4 Nov: no grey box): it carries on in that line's tint, aligned
-   with the code, like an inline review comment */
-.dm-cvx-note{margin:0;padding:var(--dm-s-1) var(--dm-s-4) var(--dm-s-2) 42px;background:var(--dm-sel);font-family:var(--dm-sans);font-size:12.5px;line-height:1.5;white-space:normal;color:var(--dm-fg2);display:flex;gap:var(--dm-s-2)}
-.dm-cvx-note>svg{color:var(--dm-accent-fg,var(--dm-accent));flex:none;margin-top:3px}
+/* the agent's note belongs to the line it explains (owner, 4 Nov: no grey box): it carries on in that line's tint, like an
+   inline review comment. Its spark sits in the line numbers' column, 16px in like the head's first tab, and its words start
+   where the code does (the numbers' column is 46px, so a two-digit number starts 16px in too) */
+.dm-cvx-note{margin:0;padding:var(--dm-s-1) var(--dm-s-4) var(--dm-s-2) 0;background:var(--dm-sel);font-family:var(--dm-sans);font-size:12.5px;line-height:1.5;white-space:normal;color:var(--dm-fg2);display:grid;grid-template-columns:46px minmax(0,1fr)}
+.dm-cvx-note>svg{justify-self:start;margin:3px 0 0 var(--dm-s-4);color:var(--dm-accent-fg,var(--dm-accent))}
+.dm-cvx-note .dm-shim{font-size:inherit}
+/* Clean: the head is an off-white strip, the files' switch and Copy 16px from the card's edges and the strip's hairline (the
+   switch is the library's 30px one, so the strip is 2px taller than a 28px row's, as Line chart's is) */
+:root[data-style="clean"] .dm-cvx-h,:root [data-style="clean"] .dm-cvx-h,:root [data-style="clean"].dm-cvx-h{height:calc(30px + 2 * var(--dm-strip-y) + 1px);padding:0 16px;background:var(--dm-strip);border-bottom-color:var(--dm-line);border-radius:var(--dm-r-card) var(--dm-r-card) 0 0}
+:root[data-style="clean"] .dm-cvx-l,:root [data-style="clean"] .dm-cvx-l,:root [data-style="clean"].dm-cvx-l{transition:background-color var(--dm-t-fast) var(--dm-ease)}

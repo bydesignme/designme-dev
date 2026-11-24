@@ -8,10 +8,10 @@ import { useStory, useWait } from './useScript';
 /* ---------- Voice orb: start, mute while the agent answers, talk while muted, unmute and go on, then end ---------- */
 // what is said, turn by turn. The demo plays it as a script: it never uses the microphone or makes a sound
 const TURNS: [speaker: string, line: string][] = [
-  ['You', 'Make the yearly price the default on the pricing page.'],
-  ['Agent', 'Done. Yearly is now the default on all three plans in Pricing v4.'],
-  ['You', 'Show the yearly saving in green too.'],
-  ['Agent', 'Added. The saving shows in green under each yearly price.']
+  ['You', 'Make the yearly price the default on the pricing page, and keep monthly one click away.'],
+  ['Agent', 'Done. Yearly is now the default on all three plans in Pricing v4, and monthly is one click away.'],
+  ['You', 'Nice. Show how much the yearly price saves too, in green under each plan.'],
+  ['Agent', 'Added. The saving now shows in green under each yearly price, on all three plans.']
 ];
 
 export default function VoiceOrbDemo() {

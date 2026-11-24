@@ -351,7 +351,7 @@ export function ImageGeneration(props: ImageGenerationProps) {
               <div className="dm-igx-run">
                 <div className="dm-igx-rh">
                   <span className="dm-igx-rt">
-                    {busy ? <><span className="dm-spin" aria-hidden="true" /><span>Generating {pics}</span></>
+                    {busy ? <><span className="dm-spin" aria-hidden="true" /><span className="dm-shim">Generating {pics}</span></>
                       : nBad ? <><Icon name="alert" /><span>{nDone} of {n} ready, {nBad} failed</span></>
                       : <><Icon name="image" /><span>{n === 1 ? 'Picture' : pics[0].toUpperCase() + pics.slice(1)} ready in {secs}s</span></>}
                   </span>

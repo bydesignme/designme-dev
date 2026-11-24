@@ -6,7 +6,7 @@ Designme.dev docs. The same page with navigation: https://designme.dev/docs/intr
 
 ## What it is
 
-100 free components: 51 for the agent itself, like status pills, reasoning trails, agent trees, permission gates, plan reviews and run costs, and 49 app basics around it.
+108 free components: 59 for the agent itself, like status pills, reasoning trails, agent trees, permission gates, plan reviews and run costs, and 49 app basics around it.
 
 Every component plays as a demo in the [library](https://designme.dev/library), and has a page of its own with its install command, React props, code and questions.
 
@@ -33,7 +33,10 @@ Each style has a light and a dark theme. Switch them in the header of any page h
 - [Live answer](https://designme.dev/components/live-answer.md)
 - [Composer](https://designme.dev/components/composer.md)
 - [Artifact card](https://designme.dev/components/artifact-card.md)
+- [Image generation](https://designme.dev/components/image-generation.md)
 - [Rich text editor](https://designme.dev/components/rich-text-editor.md)
+- [Tool call](https://designme.dev/components/tool-call.md)
+- [Voice orb](https://designme.dev/components/voice-orb.md)
 - [Answer action bar](https://designme.dev/components/answer-action-bar.md)
 - [Response versions](https://designme.dev/components/response-versions.md)
 - [Model picker](https://designme.dev/components/model-picker.md)
@@ -49,6 +52,7 @@ Each style has a light and a dark theme. Switch them in the header of any page h
 - [Agent inbox](https://designme.dev/components/agent-inbox.md)
 - [Trace view](https://designme.dev/components/trace-view.md)
 - [Web search](https://designme.dev/components/web-search.md)
+- [Browser session](https://designme.dev/components/browser-session.md)
 - [Agent run timeline](https://designme.dev/components/agent-run-timeline.md)
 - [Context meter](https://designme.dev/components/context-meter.md)
 - [Run cost](https://designme.dev/components/run-cost.md)
@@ -62,15 +66,19 @@ Each style has a light and a dark theme. Switch them in the header of any page h
 
 - [Plan review](https://designme.dev/components/plan-review.md)
 - [Permission gate](https://designme.dev/components/permission-gate.md)
+- [Hand-off to a person](https://designme.dev/components/human-handoff.md)
 - [Decision prompt](https://designme.dev/components/decision-prompt.md)
 - [Proposal card](https://designme.dev/components/proposal-card.md)
+- [Design tuner](https://designme.dev/components/design-tuner.md)
 - [Rewrite toolbar](https://designme.dev/components/rewrite-toolbar.md)
 - [Inline text diff](https://designme.dev/components/inline-text-diff.md)
 - [Draft review](https://designme.dev/components/draft-review.md)
+- [Steering](https://designme.dev/components/steering.md)
 - [Eval results](https://designme.dev/components/eval-results.md)
 
 ### Sources and output
 
+- [Code viewer](https://designme.dev/components/code-viewer.md)
 - [Terminal stream](https://designme.dev/components/terminal-stream.md)
 - [Citation hover card](https://designme.dev/components/citation-hover-card.md)
 - [Source stack](https://designme.dev/components/source-stack.md)

@@ -543,7 +543,7 @@ document.addEventListener('click', e => { const b = e.target.closest && e.target
 const DM = {
   defs:{},
   // agents at work: their demos keep playing while a mouse rests on them, instead of holding (see mount)
-  PLAYS:new Set(['status-pill','step-loader','thinking','reasoning-trail','agent-lanes','agent-run-timeline','trace-view','agent-tree','terminal-stream','attachment-tray','progress','web-search','thinking-states','run-drawer','live-answer','harness','response-versions','memory-panel','tool-connections','knowledge-sources','scheduled-runs','event-calendar','form','comments']),
+  PLAYS:new Set(['status-pill','step-loader','thinking','reasoning-trail','agent-lanes','agent-run-timeline','trace-view','agent-tree','terminal-stream','browser-session','attachment-tray','progress','web-search','thinking-states','run-drawer','live-answer','harness','response-versions','memory-panel','tool-connections','knowledge-sources','scheduled-runs','event-calendar','form','comments']),
   def(id, fn){ this.defs[id] = fn; },
   /* the markup a card starts from: its <template>, or, when the markup is written out in its stage, what the stage holds
      before it first mounts, kept as a template so Replay starts from it again */
@@ -2827,6 +2827,286 @@ DM.def('rich-text-editor', (r, c) => {
     await s.tap(okB); s.away(); await s.beat(3);
   });
 });
+/* ---------- Tool call ---------- */
+DM.def('tool-call', (r, c) => {
+  const calls = [
+    { ic:'db', n:'billing', f:'list_plan_changes', ms:'412 ms', inp:'{ <span class="k">"since"</span>: <span class="s">"2026-10-01"</span> }', out:'[ { <span class="k">"plan"</span>: <span class="s">"Pro"</span>, <span class="k">"price"</span>: <span class="n">24</span> },\n  { <span class="k">"plan"</span>: <span class="s">"Team"</span>, <span class="k">"price"</span>: <span class="n">48</span> } ]' },
+    { ic:'edit', n:'files', f:'edit', ms:'1.2 s', inp:'{ <span class="k">"path"</span>: <span class="s">"Pricing.tsx"</span>, <span class="k">"lines"</span>: <span class="n">6</span> }', out:'{ <span class="k">"changed"</span>: <span class="n">6</span>, <span class="k">"saved"</span>: <span class="k">true</span> }' }
+  ];
+  const host = $('.tcx-calls', r);
+  calls.forEach(k => {
+    k.el = html(`<div class="tcx-c"><button class="tcx-h" aria-expanded="false"><span class="tcx-ic">${I(k.ic,'xs')}</span><span class="tcx-n"><span>${k.n}.</span><b>${k.f}</b></span><span class="tcx-ms"><span class="tt">Queued</span><span class="g"></span></span><svg class="i xs tcx-chev"><use href="#v2i-chev-d"/></svg></button><div class="fold shut"><div><div class="tcx-io"><div><div class="tcx-l">Input</div><pre>${k.inp}</pre></div><div><div class="tcx-l">Output</div><pre class="out">Waiting…</pre></div></div></div></div></div>`);
+    host.appendChild(k.el);
+    const b = $('.tcx-h', k.el), f = $('.fold', k.el);
+    b.onclick = () => { const s = f.classList.toggle('shut'); k.el.classList.toggle('open', !s); b.setAttribute('aria-expanded', !s); };
+  });
+  stagger($$('.tcx-c', r), 90, 200);
+  c.run(async () => {
+    await c.wait(600);
+    for (const k of calls){
+      $('.g', k.el).innerHTML = '<span class="spin" style="width:10px;height:10px"></span>'; swap($('.tt', k.el), 'Running');
+      $('.tcx-ic', k.el).innerHTML = '<span class="radar" style="color:var(--fg)"></span>';
+      await c.wait(1300);
+      $('.tcx-ic', k.el).innerHTML = I(k.ic,'xs'); $('pre.out', k.el).innerHTML = k.out;
+      $('.g', k.el).innerHTML = `<span style="color:var(--ok)">${I('check','xs')}</span>`; swap($('.tt', k.el), k.ms);
+    }
+    $('.tcx-end', r).classList.add('in');
+    // the preview opens the first call to show what came back, unless you have taken over
+    if (!c.mine) $('.tcx-h', calls[0].el).click();
+  });
+});
+/* ---------- Tool call designs ---------- */
+/* the homepage card's design switch, shown as its footer tabs: Classic is the component above, and Call stack, Inline and
+   Inspector are three directions under review. Picking one draws it where the component sits and plays its demo from the
+   start, as Animate does. The switch is the card's alone: inside another component (Agent harness's chat) the tool call is
+   Classic, and the registry, the code view and the component page install Classic (build.js leaves the switch out of them) */
+{
+  const classic = DM.defs['tool-call'];
+  // one task, four calls: a data tool, Figma, a file edit and GitHub. ms is how long each takes to come back
+  const TCC = () => [
+    { ns:'billing', fn:'list_plan_changes', ic:'db', lab:'billing', arg:'since 2026-10-01', ms:412,
+      in:{ since:'2026-10-01' }, out:{ changed:[{ plan:'Pro', was:19, now:24 }, { plan:'Team', was:44, now:48 }] }, sum:'2 plans changed' },
+    { ns:'figma', fn:'get_frame', app:'figma', lab:'Pricing v4', arg:'Pricing v4, Plan cards', ms:860,
+      in:{ file:'Pricing v4', frame:'Plan cards' }, out:{ frames:3, updated:'Oct 28' }, sum:'3 frames' },
+    { ns:'files', fn:'edit', ic:'edit', lab:'Pricing.tsx', arg:'src/Pricing.tsx, 6 lines', ms:1200, ask:true,
+      in:{ path:'src/Pricing.tsx', lines:6 }, out:{ changed:6, saved:true }, sum:'6 lines changed' },
+    { ns:'github', fn:'create_pull_request', app:'github', lab:'#412', arg:'Update plan prices', ms:640,
+      in:{ title:'Update plan prices', base:'main' }, out:{ number:412, state:'open' }, sum:'#412 opened' }
+  ];
+  const mark = k => k.app ? BRAND[k.app] : I(k.ic, 'xs');
+  const tile = k => `<span class="tcx-tile${k.app ? ' app' : ''}" aria-hidden="true">${mark(k)}</span>`;
+  const name = k => `<code><span>${k.ns}.</span>${k.fn}</code>`;
+  const took = ms => ms >= 1000 ? (ms / 1000).toFixed(1) + ' s' : Math.round(ms) + ' ms';
+  // JSON with its keys, strings, numbers and booleans marked, as lines
+  function json(v){
+    const e = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+    const val = x => typeof x === 'string' ? `<span class="s">"${e(x)}"</span>` : typeof x === 'number' ? `<span class="n">${x}</span>` : typeof x === 'boolean' ? `<span class="b">${x}</span>` : '';
+    const obj = o => '{ ' + Object.entries(o).map(([k, x]) => `<span class="k">"${k}"</span>: ${val(x)}`).join(', ') + ' }';
+    const lines = ['{'];
+    Object.entries(v).forEach(([k, x], i, a) => {
+      const end = i < a.length - 1 ? ',' : '';
+      if (Array.isArray(x)){ lines.push(`  <span class="k">"${k}"</span>: [`); x.forEach((y, j) => lines.push(`    ${obj(y)}${j < x.length - 1 ? ',' : ''}`)); lines.push(`  ]${end}`); }
+      else lines.push(`  <span class="k">"${k}"</span>: ${val(x)}${end}`);
+    });
+    lines.push('}');
+    return lines;
+  }
+
+  /* Call stack: the calls on a rail that fills as each returns. Open one to read its input and output, copy it or run it
+     again */
+  const STACK = () => `<div class="tcx tca" data-d="stack">
+  <p class="msg">Updating the pricing page with this month's plan changes.</p>
+  <ol class="tca-list" aria-label="Tool calls"></ol>
+  <p class="msg tca-end">Two plans changed. The page has the new prices, and the pull request is open.</p>
+</div>`;
+  function stack(r, c){
+    const K = TCC(), list = $('.tca-list', r);
+    K.forEach(k => {
+      k.el = html(`<li class="tca-c" data-s="wait"><i class="tca-rl" aria-hidden="true"><i></i></i><button class="tca-h" type="button" aria-expanded="false">${tile(k)}<span class="tca-n">${name(k)}<span class="a">${k.arg}</span></span><span class="tca-r"><span class="num ms">Queued</span><span class="g"></span></span><span class="tca-cv">${I('chev-d','xs')}</span></button><div class="fold shut"><div><div class="tca-io"><div class="tca-bar"><div class="seg2" role="group" aria-label="Show"><button type="button" aria-pressed="false" data-v="in">Input</button><button type="button" aria-pressed="true" data-v="out">Output</button></div><span class="sp"></span><span class="tca-note"></span><button class="ib tca-cp" type="button" aria-label="Copy" data-tip="Copy">${I('copy','xs')}</button><button class="ib tca-re" type="button" aria-label="Run again" data-tip="Run again" disabled>${I('refresh','xs')}</button></div><pre class="tcx-json"></pre></div></div></div></li>`);
+      list.appendChild(k.el);
+      const b = $('.tca-h', k.el), f = $('.fold', k.el), pre = $('pre', k.el);
+      f.inert = true; k.view = 'out'; k.lines = null;
+      k.toggle = on => { on = on ?? b.getAttribute('aria-expanded') !== 'true'; f.classList.toggle('shut', !on); f.inert = !on; b.setAttribute('aria-expanded', String(on)); k.el.classList.toggle('open', on); };
+      b.onclick = () => k.toggle();
+      k.paint = () => { pre.innerHTML = k.view === 'in' ? json(k.in).join('\n') : k.lines ? k.lines.join('\n') : k.el.dataset.s === 'run' ? '<span class="cur"></span>' : '<span class="k">Waiting to run</span>'; };
+      seg($('.seg2', k.el), v => { k.view = v; k.paint(); });
+      $('.tca-cp', k.el).onclick = e => copied(e.currentTarget, JSON.stringify(k.view === 'in' ? k.in : k.out, null, 2));
+      $('.tca-re', k.el).onclick = () => { if (k.el.dataset.s === 'done') c.run(() => call(k, true)); };
+      k.paint();
+    });
+    stagger($$('.tca-c', r), 70, 160);
+    // up and down move between the calls, Escape folds the open one
+    c.on(list, 'keydown', e => { const bs = $$('.tca-h', list), i = bs.indexOf(document.activeElement); if (i < 0) return;
+      if (e.key === 'Escape' && bs[i].getAttribute('aria-expanded') === 'true'){ K[i].toggle(false); return; }
+      const j = e.key === 'ArrowDown' ? i + 1 : e.key === 'ArrowUp' ? i - 1 : null; if (j === null || !bs[j]) return; e.preventDefault(); bs[j].focus(); });
+    // a call runs: its tile breathes, its time counts up, then what came back streams in a line at a time
+    async function call(k, again){
+      const el = k.el, ms = $('.ms', el), g = $('.g', el), re = $('.tca-re', el); re.disabled = true;
+      el.dataset.s = 'run'; k.lines = null; g.innerHTML = '<span class="spin"></span>'; k.paint();
+      let t = 0; const iv = c.every(100, () => { t += 100 * (k.ms / 1300); ms.textContent = took(Math.min(t, k.ms)); });
+      await c.wait(1300); clearInterval(iv);
+      const ln = json(k.out); k.lines = [];
+      el.dataset.s = 'done'; ms.textContent = took(again ? k.ms * (.8 + Math.random() * .3) : k.ms); g.innerHTML = `<span class="ok">${I('check','xs')}</span>`;
+      if (again){ el.classList.remove('again'); void el.offsetWidth; el.classList.add('again'); k.runs = (k.runs || 1) + 1; $('.tca-note', el).textContent = `Ran ${k.runs} times`; }
+      for (const l of ln){ k.lines.push(l); if (k.view === 'out') k.paint(); await c.wait(100); }
+      re.disabled = false;
+    }
+    c.run(async () => {
+      await c.wait(700);
+      for (const k of K) await call(k);
+      $('.tca-end', r).classList.add('in');
+    });
+    // the person in the demo opens the first call once it is back, reads its input and folds it, then runs the last again
+    c.story(async s => {
+      await s.until(() => K[0].el.dataset.s === 'done'); await s.beat(1);
+      await s.tap($('.tca-h', K[0].el)); s.away(); await s.beat(4);
+      await s.tap($('[data-v="in"]', K[0].el)); s.away(); await s.beat(3);
+      await s.tap($('.tca-h', K[0].el)); s.away();
+      await s.until(() => $('.tca-end', r).classList.contains('in')); await s.beat(2);
+      await s.tap($('.tca-h', K[3].el)); s.away(); await s.beat(3);
+      await s.tap($('.tca-re', K[3].el)); s.away();
+      await s.beat(5);
+    });
+  }
+
+  /* Inline: the calls as chips inside the agent's sentence. Pointing at one previews it; pressing it opens the call under
+     the sentence */
+  const INLINE = () => `<div class="tcx tcb" data-d="inline">
+  <div class="tcb-who"><span class="tcb-av">${I('spark')}</span>Pricing agent<span class="tcb-ws"></span></div>
+  <p class="tcb-p" aria-live="polite"></p>
+  <div class="fold shut tcb-dw"><div><div class="tcb-dr"></div></div></div>
+  <div class="tcb-sum"><span class="tcb-sn num"></span></div>
+  <div class="tcb-hc" role="tooltip" hidden></div>
+</div>`;
+  function inline(r, c){
+    const K = TCC(), root = $('.tcb', r), p = $('.tcb-p', r), dw = $('.tcb-dw', r), dr = $('.tcb-dr', r), sn = $('.tcb-sn', r), hc = $('.tcb-hc', r), ws = $('.tcb-ws', r);
+    // the sentence the agent writes, with a call where each chip goes
+    const S = ['Checking', 0, 'for this month\'s plan changes, then the plan cards in', 1, '. I changed', 2, 'with the new prices and opened', 3, 'for review.'];
+    dw.inert = true; let open = null, done = 0, total = 0;
+    function chip(k){
+      k.el = html(`<button class="fchip lnk tcb-k" type="button" data-s="run" aria-expanded="false" aria-label="${k.ns}.${k.fn}"><span class="t"><span class="spin"></span></span>${k.lab}<span class="m"></span></button>`);
+      k.el.onclick = () => show(open === k ? null : k);
+      // pointing at a call, or reaching it with the keyboard, previews it
+      k.el.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') peek(k); });
+      k.el.addEventListener('pointerleave', () => peek(null));
+      k.el.addEventListener('focus', () => { if (k.el.matches(':focus-visible')) peek(k); });
+      k.el.addEventListener('blur', () => peek(null));
+      return k.el;
+    }
+    let peekT = 0;
+    function peek(k){
+      clearTimeout(peekT); if (!k || open === k){ hc.hidden = true; return; }
+      peekT = setTimeout(() => {
+        if (!k.el.isConnected) return;
+        hc.innerHTML = `${name(k)}<div class="row"><span>In</span><span>${Object.values(k.in).join(', ')}</span>${k.res ? `<span>Out</span><span>${k.sum}</span>` : '<span>Out</span><span>Running…</span>'}</div><div class="f">${k.res ? took(k.ms) + ' · press to open' : 'Still running'}</div>`;
+        const rb = root.getBoundingClientRect(), b = k.el.getBoundingClientRect();
+        hc.hidden = false; const w = hc.offsetWidth;
+        hc.style.left = Math.max(0, Math.min(rb.width - w, b.left - rb.left + b.width / 2 - w / 2)) + 'px';
+        hc.style.top = (b.bottom - rb.top + 6) + 'px';
+      }, 200);
+    }
+    const flat = o => json(o).slice(1, -1).map(l => l.trim()).join('\n');
+    function show(k){
+      peek(null);
+      if (open) open.el.setAttribute('aria-expanded', 'false');
+      open = k; dw.classList.toggle('shut', !k); dw.inert = !k;
+      if (!k) return;
+      k.el.setAttribute('aria-expanded', 'true');
+      dr.innerHTML = `<div class="tcb-dh">${tile(k)}${name(k)}<span class="num">${k.res ? took(k.ms) : 'Running'}</span><button class="ib tcb-cp" type="button" aria-label="Copy the call" data-tip="Copy">${I('copy','xs')}</button><button class="ib tcb-x" type="button" aria-label="Close" data-tip="Close">${I('x','xs')}</button></div><div class="tcb-flow"><div><span class="l">Input</span><pre class="tcx-json">${flat(k.in)}</pre></div><span class="tcb-wire" aria-hidden="true"><i></i><b></b></span><div><span class="l">Output</span><pre class="tcx-json">${k.res ? flat(k.out) : '<span class="cur"></span>'}</pre></div></div>`;
+      $('.tcb-x', dr).onclick = () => { const el = k.el; show(null); el.focus({ preventScroll:true }); };
+      $('.tcb-cp', dr).onclick = e => copied(e.currentTarget, JSON.stringify({ tool:`${k.ns}.${k.fn}`, input:k.in, output:k.out }, null, 2));
+      dw.classList.remove('go'); void dw.offsetWidth; dw.classList.add('go');
+    }
+    c.on(r, 'keydown', e => { if (e.key === 'Escape' && open){ const el = open.el; show(null); el.focus({ preventScroll:true }); } });
+    // the words come in two at a time
+    const words = async t => { const w = t.split(' ').filter(Boolean); for (let i = 0; i < w.length; i += 2){ p.appendChild(html(`<span class="w">${(i ? ' ' : '') + w.slice(i, i + 2).join(' ')}</span>`)); await c.wait(140); } };
+    ws.innerHTML = '· <span class="shim">Working</span>';
+    c.run(async () => {
+      await c.wait(600);
+      for (const part of S){
+        if (typeof part === 'string'){ if (p.lastChild && p.lastChild.nodeType === 1 && p.lastChild.matches('.tcb-k') && !/^[.,]/.test(part)) p.appendChild(document.createTextNode(' ')); await words(part); continue; }
+        const k = K[part]; p.appendChild(document.createTextNode(' ')); p.appendChild(chip(k));
+        await c.wait(1100 + k.ms * .4);
+        k.res = true; k.el.dataset.s = 'done'; $('.t', k.el).innerHTML = mark(k); $('.m', k.el).textContent = took(k.ms);
+        done++; total += k.ms; sn.textContent = `${done} ${done === 1 ? 'tool call' : 'tool calls'} · ${took(total)}`;
+        if (open === k) show(k);
+      }
+      swap(ws, '· Done', false);
+    });
+    // the person in the demo points at the first call, then opens the edit once every call is back, and closes it
+    c.story(async s => {
+      await s.until(() => K[0].res); await s.beat(1);
+      await s.point(K[0].el); peek(K[0]); await s.beat(4); peek(null);
+      await s.until(() => K[3].res); await s.beat(2);
+      await s.tap(K[2].el); s.away(); await s.beat(6);
+      await s.tap($('.tcb-x', dr)); s.away(); await s.beat(2);
+    });
+  }
+
+  /* Inspector: a strip of calls, all the same width (owner, 4 Nov), over the call you pick, read as tables or as JSON. The
+     edit waits for your OK */
+  const INSPECTOR = () => `<div class="tcx tcc panel keep" data-d="inspector">
+  <div class="tcc-h"><div class="tcc-ht"><b>Tool calls</b><span class="tcc-st num">Starting</span></div><div class="seg2 tcc-mode" role="group" aria-label="Show as"><button type="button" aria-pressed="true" data-v="table">Table</button><button type="button" aria-pressed="false" data-v="json">JSON</button></div></div>
+  <div class="tcc-strip" role="tablist" aria-label="Calls"></div>
+  <div class="tcc-view" role="tabpanel"></div>
+</div>`;
+  function inspector(r, c){
+    const K = TCC(), strip = $('.tcc-strip', r), view = $('.tcc-view', r), st = $('.tcc-st', r);
+    let sel = 0, mode = 'table', spent = 0, stopped = false, follow = true;
+    K.forEach((k, i) => {
+      k.s = 'wait';
+      k.el = html(`<button class="tcc-s" type="button" role="tab" aria-selected="${i === 0}" tabindex="${i === 0 ? 0 : -1}" data-s="wait" aria-label="${k.ns}.${k.fn}"><span class="tcc-ic" aria-hidden="true">${mark(k)}</span><span class="n">${k.ns}</span><span class="dot tcc-dt" aria-hidden="true"></span><i class="tcc-pr" aria-hidden="true"></i></button>`);
+      // the inspector follows the call at work until you pick one yourself
+      strip.appendChild(k.el); k.el.onclick = () => { if (c.mine) follow = false; pick(i, true); };
+    });
+    seg($('.tcc-mode', r), v => { mode = v; paint(); });
+    c.on(strip, 'keydown', e => { const to = e.key === 'ArrowRight' ? sel + 1 : e.key === 'ArrowLeft' ? sel - 1 : e.key === 'Home' ? 0 : e.key === 'End' ? K.length - 1 : null; if (to === null) return; e.preventDefault(); const j = (to + K.length) % K.length; pick(j, true); K[j].el.focus(); });
+    // a value as a table: each key beside its value, and a list of plans as rows
+    function table(o){
+      const arr = Object.values(o).find(Array.isArray);
+      if (arr) return `<table class="tcc-tb"><thead><tr><th scope="col">Plan</th><th scope="col">Was</th><th scope="col">Now</th></tr></thead><tbody>${arr.map(x => `<tr><td>${x.plan}</td><td>$${x.was}</td><td>$${x.now}</td></tr>`).join('')}</tbody></table>`;
+      return `<div class="tcc-kv">${Object.entries(o).map(([k, v]) => `<span>${k}</span><span>${v}</span>`).join('')}</div>`;
+    }
+    const as = o => mode === 'json' ? `<pre class="tcx-json">${json(o).join('\n')}</pre>` : table(o);
+    const TAG = { wait:'<span class="tag">Queued</span>', run:'<span class="tag"><span class="spin"></span>Running</span>', ask:'<span class="tag warn">Needs you</span>', done:`<span class="tag ok">${I('check','xs')}Done</span>`, deny:'<span class="tag bad">Denied</span>', skip:'<span class="tag">Skipped</span>' };
+    function paint(fresh){
+      const k = K[sel], wait = '<div class="tcc-wait" aria-label="Waiting for the result"><i style="width:68%"></i><i style="width:46%"></i></div>';
+      const out = k.s === 'done' ? as(k.out) : k.s === 'deny' ? '<div class="tcc-kv"><span>result</span><span>Not run, you said no</span></div>' : k.s === 'skip' ? '<div class="tcc-kv"><span>result</span><span>Not run</span></div>' : wait;
+      const ask = k.s === 'ask' ? `<div class="tcc-ask" role="group" aria-label="Approve the edit"><p>Wants to change 6 lines in <span class="fchip"><span class="ft re">TSX</span>Pricing.tsx</span></p><pre class="tcx-json"><span class="x">− price: 19,</span>\n<span class="a">+ price: 24,</span></pre><div class="tcc-acts"><button class="pill primary sm tcc-ok" type="button">Allow once</button><button class="pill line sm tcc-al" type="button">Always allow</button><button class="pill ghost sm tcc-no" type="button">Deny</button></div></div>` : '';
+      view.innerHTML = `<div class="tcc-in${fresh ? ' go' : ''}"><div class="tcc-dh">${tile(k)}${name(k)}<span class="num">${k.s === 'done' ? took(k.ms) : ''}</span>${TAG[k.s]}</div>${ask}<div class="tcc-sec"><span class="l">Input<button class="ib tcc-cp" type="button" aria-label="Copy the input" data-tip="Copy">${I('copy','xs')}</button></span>${as(k.in)}</div>${ask ? '' : `<div class="tcc-sec"><span class="l">Output</span>${out}</div>`}</div>`;
+      $('.tcc-cp', view).onclick = e => copied(e.currentTarget, JSON.stringify(k.in, null, 2));
+      if (ask){ $('.tcc-ok', view).onclick = () => decide('ok'); $('.tcc-al', view).onclick = () => decide('ok'); $('.tcc-no', view).onclick = () => decide('no'); }
+    }
+    let decide = () => {};
+    function pick(i, user){ const ch = i !== sel; sel = i; K.forEach((k, j) => { k.el.setAttribute('aria-selected', String(j === i)); k.el.tabIndex = j === i ? 0 : -1; }); paint(ch || !user); }
+    const set = (k, s) => { k.s = s; k.el.dataset.s = s; if (K[sel] === k) paint(); };
+    const line = () => { const n = K.filter(k => k.s === 'done').length; st.textContent = `${n} of ${K.length} done · ${took(spent)}`; };
+    pick(0);
+    c.run(async () => {
+      await c.wait(700);
+      for (const k of K){
+        if (stopped){ set(k, 'skip'); continue; }
+        if (follow && sel !== K.indexOf(k)) pick(K.indexOf(k));
+        if (k.ask){
+          set(k, 'ask'); st.textContent = 'Waiting for you';
+          const ok = await new Promise(res => { decide = v => { decide = () => {}; res(v === 'ok'); }; c.auto(5200, () => decide('ok')); });
+          if (!ok){ set(k, 'deny'); stopped = true; line(); continue; }
+        }
+        set(k, 'run'); let t = 0;
+        const iv = c.every(50, () => { t = Math.min(1, t + 50 / 1300); k.el.style.setProperty('--p', t.toFixed(3)); });
+        await c.wait(1300); clearInterval(iv); k.el.style.setProperty('--p', 1);
+        spent += k.ms; set(k, 'done'); line();
+      }
+      st.textContent = stopped ? 'Stopped before the edit' : `All ${K.length} done · ${took(spent)}`;
+    });
+    // the person in the demo allows the edit, then reads the first call back, as JSON and as a table
+    c.story(async s => {
+      await s.until(() => K[2].s === 'ask'); await s.beat(3);
+      await s.tap($('.tcc-ok', view)); s.away();
+      await s.until(() => K[3].s === 'done'); await s.beat(2);
+      await s.tap(K[0].el); s.away(); await s.beat(3);
+      await s.tap($('[data-v="json"]', r)); s.away(); await s.beat(4);
+      await s.tap($('[data-v="table"]', r)); s.away(); await s.beat(2);
+    });
+  }
+
+  /* the switch: the design the card last showed (Classic to begin with) is drawn, and picking another starts the card again
+     with it, as Animate does. A key that picked it leaves the focus on the switch */
+  const D = { stack:[STACK, stack], inline:[INLINE, inline], inspector:[INSPECTOR, inspector] };
+  const again = card => window.V2 && card.dataset.v2 ? window.V2.replay(card) : DM.mount(card);
+  DM.def('tool-call', (r, c, card) => {
+    const dm = $(':scope>.tcx-dm', r);
+    if (!dm) return classic(r, c, card);
+    if (r !== c.st || !card){ dm.replaceWith(...$(':scope>.dm-main', dm).childNodes); return classic(r, c, card); }
+    const v = D[card._design] ? card._design : 'classic';
+    if (v === 'classic') classic(r, c, card);
+    else { const main = $(':scope>.dm-main', dm); main.innerHTML = D[v][0](); D[v][1](main, c); }
+    const sg = $(':scope>.tcx-dm>.demo .seg2', r);
+    $$('button', sg).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+    seg(sg, d => { if (d === v) return; card._design = d; card._designKey = sg.contains(document.activeElement) && document.activeElement.matches(':focus-visible'); again(card); });
+    if (card._designKey){ card._designKey = false; setTimeout(() => { const b = !c.dead && $('[aria-pressed="true"]', sg); if (b) b.focus({ preventScroll:true }); }, 120); }
+  });
+}
 /* ---------- Artifact card ---------- */
 DM.def('artifact-card', (r, c) => {
   /* the file: one report in three versions, and the table it cites. A component that shows the card in its own chat can
@@ -3975,8 +4255,573 @@ DM.def('permission-gate', (r, c) => {
     await s.until(() => panel && panel.classList.contains('ok'));
   });
 });
+/* ---------- Voice orb ---------- */
+// the glass sphere of Voice orb, as a fragment shader. It is lit as a ball: normals from the sphere, a soft key light from the
+// top left with a deeper, shifted hue past the terminator toward the bottom right, light gathered through the glass on the
+// far side, a fresnel edge that reflects a soft room, a broad sheen and a small sharp highlight. Inside, the view bends as
+// it enters the glass and the light is read at three depths along it, so the layers shift against each other like things
+// in a volume: deep pools of the two colours and a third hue swirl slowly, liquid light (noise bent by noise) flows through
+// the middle, and two thin ribbons turn the other way near the surface. The level (L) speeds the flow up, bends the liquid
+// further, brightens the heart, makes the rim wobble a little and the highlight shimmer. At its widest the sphere still sits
+// inside the canvas, and nothing is drawn outside it. The React component reads this same source
+const ORB_FRAG = `#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+uniform vec2 R;uniform float T,L;uniform vec3 A0,B0;
+float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+1.),f.x),f.y);}
+float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*n(p);p=mat2(1.6,1.2,-1.2,1.6)*p+vec2(1.7,9.2);a*=.5;}return v;}
+mat2 rot(float a){float c=cos(a),s=sin(a);return mat2(c,s,-s,c);}
+vec3 tn(vec3 c){float mx=max(c.r,max(c.g,c.b)),d=mx-min(c.r,min(c.g,c.b));c*=max(1.,.5/max(mx,.01));mx=max(mx,.5);d=mx-min(c.r,min(c.g,c.b));return max(mx-(mx-c)*mix(1.,clamp(.55*mx/max(d,.001),1.,3.),smoothstep(.03,.12,d)),0.);}
+vec3 hue(vec3 c,float a){vec3 k=vec3(.57735);float co=cos(a);return c*co+cross(k,c)*sin(a)+k*dot(k,c)*(1.-co);}
+void main(){
+  vec3 A=tn(A0),B=tn(B0),C=hue(A,mix(-.9,1.4,smoothstep(-.1,.1,A.b-A.g)));
+  vec2 u=(gl_FragCoord.xy*2.-R)/R.y;
+  float t=T*.001,an=atan(u.y,u.x);
+  float w=(.002+.008*L)*(sin(3.*an+t*1.9)+.6*sin(5.*an-t*2.7)+.4*sin(2.*an-t*1.1));
+  float rad=.955*(1.+.008*sin(t*.9)+w);
+  vec2 q=u/rad;float r=length(q),e=3./(R.y*rad);
+  float a=1.-smoothstep(1.-e,1.,r);
+  if(a<=0.){gl_FragColor=vec4(0.);return;}
+  float z=sqrt(max(1.-r*r,0.));
+  vec3 N=vec3(q,z);
+  N.xy+=(vec2(n(q*5.+t*1.6),n(q*5.-t*1.3+7.))-.5)*(.03+.12*L);N=normalize(N);
+  vec3 S=vec3(q,z),D=refract(vec3(0,0,-1),N,.72),P1=S+D*z*.35,P2=S+D*z*.9,P3=S+D*z*1.5;
+  float s=t*.22;
+  vec3 d1=P3-vec3(.55*sin(s*1.3),.5*cos(s*1.1),.3*sin(s*.7)),d2=P3-vec3(.55*cos(s*.9+2.),.5*sin(s*1.2+1.),.3*cos(s*.8+3.)),d3=P3-vec3(.5*sin(s*1.6+4.),.5*cos(s*1.4+5.),.3*sin(s+1.));
+  float g1=exp(-dot(d1,d1)*2.6),g2=exp(-dot(d2,d2)*2.6),g3=exp(-dot(d3,d3)*3.2);
+  vec3 col=mix(mix(mix(mix(A,B,.4)*.55,B,g2*.8),C,g3*.7),A,g1*.95);
+  vec2 m=rot(t*.09)*P2.xy*1.5,o=vec2(fbm(m+vec2(0.,t*.3)),fbm(m+vec2(5.2,1.3)-t*.25));
+  float f=fbm(m+(o-.5)*(2.5+2.*L)+vec2(t*.12,-t*.08));
+  col=mix(col,mix(mix(A,B,.5),vec3(1.),.15),smoothstep(.45,.8,f)*.5)*(.8+.35*smoothstep(.2,.6,f));
+  vec2 k=rot(-t*.33)*P1.xy;
+  float b1=k.y+.32*sin(k.x*2.4+t*1.4)+.12*sin(k.x*5.3-t*2.2)+(o.x-.5)*.5,b2=k.x-.3*sin(k.y*2.1-t*1.1)+.4;
+  col+=mix(mix(A,C,.35),vec3(1.),.35)*(exp(-b1*b1*40.)+.6*exp(-b2*b2*55.))*(.25+.35*L)*z;
+  col+=mix(A,vec3(1.),.4)*exp(-dot(P2.xy,P2.xy)*3.)*(.08+.3*L);
+  vec3 lk=normalize(vec3(-.5,.62,.6)),dk=hue(col,.35);
+  col=mix(dk*dk*.6,col*1.06,smoothstep(-.55,.75,dot(N,lk)));
+  col+=mix(B,vec3(1.),.5)*pow(1.-z,1.6)*smoothstep(.1,.95,dot(q/max(r,1e-3),-normalize(lk.xy)))*.55;
+  col=mix(col,mix(vec3(.06),vec3(1.),smoothstep(-.3,.9,N.y*.7-N.x*.4)),pow(1.-N.z,3.)*.5);
+  float nh=max(dot(N,normalize(lk+vec3(0,0,1))),0.);
+  col+=pow(nh,700.)*(1.2+.8*L*sin(t*9.+q.x*8.))+pow(nh,60.)*.25+pow(nh,8.)*.1;
+  gl_FragColor=vec4(clamp(col,0.,1.)*a,a);
+}`;
+// draws the sphere on Voice orb's canvas: one draw a frame, at most 2 device pixels a CSS pixel, and nothing made anew each
+// frame. Where WebGL is missing it is drawn in a few gradients on a 2D canvas instead: the same pools of colour drifting under
+// the same light, terminator, edge and highlight. Returns paint(ms of flow, level 0 to 1, colour, second colour), or null
+// when neither canvas can draw. The context is let go when the component stops
+function orbShader(cv, c){
+  // a computed colour to 0 to 1 channels. Mid-transition it can come as oklab() or color(), so a 1px canvas reads it. Only a
+  // colour that changed is read, a few times a second at most
+  const px = document.createElement('canvas').getContext('2d', { willReadFrequently:true }); px.canvas.width = px.canvas.height = 1;
+  const rgb = (s, o) => { px.clearRect(0, 0, 1, 1); px.fillStyle = '#000'; px.fillStyle = s; px.fillRect(0, 0, 1, 1); const d = px.getImageData(0, 0, 1, 1).data; o[0] = d[0] / 255; o[1] = d[1] / 255; o[2] = d[2] / 255; };
+  const ta = new Float32Array(3), tb = new Float32Array(3), ca = new Float32Array(3), cb = new Float32Array(3);
+  let sa = '', sb = '', w = 0, at = -1e9, prev = -1e9;
+  // the canvas's size in device pixels, checked a few times a second
+  const fit = now => { if (w && now - at < 300) return false; at = now; const n = Math.round(cv.clientWidth * Math.min(2, devicePixelRatio || 1)) || 1; if (n === w) return false; w = cv.width = cv.height = n; return true; };
+  // a new colour is glided to over a few frames; after a pause (a still frame, or back on screen) it is taken at once
+  const tint = (a, b, now, snap) => {
+    if (a !== sa){ sa = a; rgb(a, ta); } if (b !== sb){ sb = b; rgb(b, tb); }
+    const k = snap || now - prev > 200 ? 1 : Math.min(1, (now - prev) / 110); prev = now;
+    for (let i = 0; i < 3; i++){ ca[i] += (ta[i] - ca[i]) * k; cb[i] += (tb[i] - cb[i]) * k; }
+  };
+  const gl = cv.getContext('webgl', { premultipliedAlpha:true, antialias:false, powerPreference:'low-power' });
+  if (gl){
+    const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; };
+    const pr = gl.createProgram();
+    gl.attachShader(pr, sh(gl.VERTEX_SHADER, 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}'));
+    gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, ORB_FRAG));
+    gl.linkProgram(pr);
+    const lose = () => { const x = gl.getExtension('WEBGL_lose_context'); if (x) x.loseContext(); };
+    if (!gl.getProgramParameter(pr, gl.LINK_STATUS)){ lose(); return null; }
+    gl.useProgram(pr);
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+    const p = gl.getAttribLocation(pr, 'p'); gl.enableVertexAttribArray(p); gl.vertexAttribPointer(p, 2, gl.FLOAT, false, 0, 0);
+    const U = k => gl.getUniformLocation(pr, k), uR = U('R'), uT = U('T'), uL = U('L'), uA = U('A0'), uB = U('B0');
+    c.offs.push(lose);
+    cv.classList.add('on');
+    return (ms, lv, a, b) => {
+      const now = performance.now(); if (fit(now)) gl.viewport(0, 0, w, w);
+      tint(a, b, now, false);
+      gl.uniform2f(uR, w, w); gl.uniform1f(uT, ms); gl.uniform1f(uL, lv); gl.uniform3fv(uA, ca); gl.uniform3fv(uB, cb);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    };
+  }
+  const x = cv.getContext('2d'); if (!x) return null;
+  // the shader's colours: dark ones lifted, pale ones given more chroma, and a third hue turned round the grey axis toward
+  // the warm side (blue and violet toward magenta, lime toward amber)
+  const tn = (o, d) => { const lift = Math.max(1, .5 / Math.max(.01, o[0], o[1], o[2])), mx = Math.max(o[0], o[1], o[2]) * lift, dd = mx - Math.min(o[0], o[1], o[2]) * lift, s = Math.min(1, Math.max(0, (dd - .03) / .09)), k = 1 + (Math.min(3, Math.max(1, .55 * mx / Math.max(dd, .001))) - 1) * s * s * (3 - 2 * s); for (let i = 0; i < 3; i++) d[i] = Math.max(0, mx - (mx - o[i] * lift) * k); };
+  const hue = (o, d, ang) => { const co = Math.cos(ang), si = Math.sin(ang) * .57735, m = (o[0] + o[1] + o[2]) / 3 * (1 - co); d[0] = o[0] * co + (o[2] - o[1]) * si + m; d[1] = o[1] * co + (o[0] - o[2]) * si + m; d[2] = o[2] * co + (o[1] - o[0]) * si + m; };
+  const A = new Float32Array(3), B = new Float32Array(3), C = new Float32Array(3), M = new Float32Array(3);
+  const css = (o, al, f = 1) => `rgba(${[0, 1, 2].map(i => Math.round(Math.min(1, Math.max(0, o[i] * f)) * 255)).join(',')},${al})`;
+  // every gradient is made for a sphere of radius 1 at the origin, and placed by the transform as it is drawn
+  const grad = (cx, cy, r, stops) => { const g = x.createRadialGradient(cx, cy, 0, cx, cy, r); for (let i = 0; i < stops.length; i += 2) g.addColorStop(stops[i], stops[i + 1]); return g; };
+  const shade = grad(-.35, -.4, 1.6, [0, 'rgba(255,255,255,.16)', .45, 'rgba(0,0,0,0)', 1, 'rgba(0,0,0,.5)']),
+    rim = grad(0, 0, 1, [.78, 'rgba(255,255,255,0)', 1, 'rgba(255,255,255,.28)']),
+    sheen = grad(-.32, -.38, .6, [0, 'rgba(255,255,255,.22)', 1, 'rgba(255,255,255,0)']),
+    spec = grad(-.4, -.46, .14, [0, 'rgba(255,255,255,.95)', 1, 'rgba(255,255,255,0)']);
+  let g = null, mid = 0, rad = 0;
+  const put = (fill, dx, dy, sz) => { x.setTransform(rad * sz, 0, 0, rad * sz, mid + rad * dx, mid + rad * dy); x.fillStyle = fill; x.fillRect(-1, -1, 2, 2); };
+  cv.classList.add('on');
+  return (ms, lv, a, b) => {
+    const now = performance.now(); fit(now);
+    // the colour gradients are made again only when a colour changes
+    if (!g || a !== sa || b !== sb){
+      tint(a, b, now, true); tn(ca, A); tn(cb, B); hue(A, C, A[2] > A[1] ? 1.4 : -.9);
+      for (let i = 0; i < 3; i++) M[i] = (A[i] + B[i]) / 2;
+      g = { base:css(M, 1, .7), a:grad(0, 0, 1, [0, css(A, .95), 1, css(A, 0)]), b:grad(0, 0, 1, [0, css(B, .95), 1, css(B, 0)]), c:grad(0, 0, 1, [0, css(C, .55), 1, css(C, 0)]), core:grad(0, 0, 1, [0, css(A, 1, 1.4), 1, css(A, 0)]) };
+    }
+    const t = ms * .001, s = t * .22; mid = w / 2; rad = mid * .955 * (1 + .008 * Math.sin(t * .9));
+    x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, w, w);
+    x.save(); x.beginPath(); x.arc(mid, mid, rad, 0, Math.PI * 2); x.clip();
+    x.fillStyle = g.base; x.fillRect(0, 0, w, w);
+    put(g.a, .55 * Math.sin(s * 1.3), -.5 * Math.cos(s * 1.1), 1.1);
+    put(g.b, .55 * Math.cos(s * .9 + 2), -.5 * Math.sin(s * 1.2 + 1), 1.1);
+    put(g.c, .5 * Math.sin(s * 1.6 + 4), -.5 * Math.cos(s * 1.4 + 5), .9);
+    x.globalAlpha = .15 + .45 * lv; put(g.core, 0, 0, .7);
+    x.globalAlpha = 1; put(shade, 0, 0, 1); put(rim, 0, 0, 1); put(sheen, 0, 0, 1);
+    x.globalAlpha = .85 + .15 * lv * Math.sin(t * 9); put(spec, 0, 0, 1);
+    x.restore();
+  };
+}
+DM.def('voice-orb', (r, c) => {
+  const IC = { mic:I('mic','xs') };
+  r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) => IC[k] || m);
+  const root = $('.vor', r), orb = $('.vor-orb', r), st = $('.vor-st', r), tm = $('.vor-t', r), who = $('.vor-who', r), tx = $('.vor-tx', r), mf = $('.vor-mf', r), f = $('.vor-f', r), mute = $('.vor-mute', r);
+  // what is said, turn by turn. The demo plays it as a script: it never uses the microphone or makes a sound
+  const TURNS = [['You', 'Make the yearly price the default on the pricing page, and keep monthly one click away.'], ['Agent', 'Done. Yearly is now the default on all three plans in Pricing v4, and monthly is one click away.'], ['You', 'Nice. Show how much the yearly price saves too, in green under each plan.'], ['Agent', 'Added. The saving now shows in green under each yearly price, on all three plans.']];
+  const HINT = 'Talk to the agent about Pricing v4', LABEL = { idle:'Ready', listening:'Listening', thinking:'Thinking', speaking:'Speaking', muted:'Muted', ended:'Ended' };
+  let mode = 'idle', muted = false, talking = false, said = 0, secs = 0, run = 0, done = null, lv = 0;
+  const fmt = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+  // muted only changes how listening looks: the agent can still think and speak
+  const show = () => { const m = muted && mode === 'listening' ? 'muted' : mode; if (root.dataset.m !== m){ root.dataset.m = m; swap(st, LABEL[m]); } };
+  const set = m => { mode = m; show(); };
+  const notice = on => { mf.classList.toggle('shut', !on); mf.inert = !on; };
+  notice(false);
+  // centred in its stage at every moment: it glides up as the muted notice or the ended row opens, so it never sits high
+  // it grows and shrinks with what it shows (grow()): the words as they arrive, the notice, the ended line. No room is kept
+  centre(c, root, () => root.offsetHeight);
+  c.offs.push(grow(root));
+  // the orb is a lit glass sphere with light flowing inside it in the colours of whoever is talking, faster and brighter as
+  // they get louder (orbShader, above). Where no canvas can draw, the core keeps its plain gradient
+  const paint = orbShader($('.vor-gl', orb), c), dot = $('.vor-dot', r), pc = $('.vor-pc', orb);
+  let seen = true, flow = 0, last = 0;
+  if (paint && 'IntersectionObserver' in window){ const io = new IntersectionObserver(e => { seen = e[0].isIntersecting; }); io.observe(orb); c.offs.push(() => io.disconnect()); }
+  // the two colours are read a few times a second, not every frame: reading them makes the browser recheck the page's styles
+  let cols = null, colsAt = -1e9;
+  const draw = t => { if (!paint) return; const now = performance.now(); if (!cols || now - colsAt > 250){ cols = [getComputedStyle(dot).backgroundColor, getComputedStyle(pc).backgroundColor]; colsAt = now; } paint(t, lv, cols[0], cols[1]); };
+  // a first frame straight away, so the sphere is there even while a pointer rests on the card and the loop holds
+  draw(0);
+  // the orb follows a level: a made-up voice while someone talks, a faint idle while it listens. With reduced motion it is
+  // still: one frame, drawn again when the colours change. The setting is read every frame, so it can change mid-visit
+  let still = false;
+  c.loop(t => {
+    if (REDUCE){ if (!still){ still = true; lv = 0; orb.style.setProperty('--lv', '0'); draw(0); } last = 0; return; }
+    still = false;
+    const to = talking ? .5 + .28 * Math.sin(t / 90) * Math.sin(t / 233) + .16 * Math.sin(t / 57) : mode === 'listening' && !muted ? .05 + .03 * Math.sin(t / 420) : 0;
+    lv += (Math.max(0, to) - lv) * .18; orb.style.setProperty('--lv', lv.toFixed(3));
+    flow += Math.min(50, t - (last || t)) * (1 + lv * 2.5); last = t;
+    if (seen) draw(flow);
+  });
+  if (paint){ const mo = new MutationObserver(() => c.later(450, () => { cols = null; if (REDUCE) draw(0); })); mo.observe(root, { attributes:true, attributeFilter:['data-m'] }); c.offs.push(() => mo.disconnect()); }
+  c.every(1000, () => { if (mode !== 'idle' && mode !== 'ended'){ secs++; tm.textContent = fmt(secs); } });
+  async function say(name, line, ms, id){
+    swap(who, name); tx.classList.remove('hint'); tx.innerHTML = ''; talking = true;
+    for (const w of line.split(' ')){ if (id !== run) return; tx.insertAdjacentHTML('beforeend', `<span class="w">${w} </span>`); await c.wait(ms); }
+    talking = false;
+  }
+  async function talk(id){
+    for (const [name, line] of TURNS){
+      if (name === 'You'){
+        set('listening'); await c.wait(1200); if (id !== run) return;
+        // they start talking while muted: say so, and wait for them to unmute
+        if (muted){ notice(true); while (muted){ await c.wait(100); if (id !== run) return; } await c.wait(400); if (id !== run) return; }
+        await say(name, line, 230, id); if (id !== run) return;
+        set('thinking'); await c.wait(1300);
+      } else { set('speaking'); await say(name, line, 190, id); if (id !== run) return; set('listening'); }
+      said++;
+    }
+  }
+  function start(){
+    const id = ++run; said = 0; secs = 0; tm.textContent = fmt(0);
+    if (done){ done.remove(); done = null; } f.hidden = false; root.classList.add('on');
+    c.run(() => talk(id));
+  }
+  function setMuted(on){
+    muted = on; mute.toggleAttribute('data-muted', on); $('.vor-ml', mute).textContent = on ? 'Unmute' : 'Mute';
+    if (!on) notice(false); show();
+  }
+  $('.vor-go', r).onclick = start;
+  mute.onclick = () => setMuted(!muted);
+  $('.vor-un', r).onclick = () => setMuted(false);
+  $('.vor-end', r).onclick = () => {
+    run++; talking = false; notice(false); set('ended'); root.classList.remove('on'); f.hidden = true;
+    done = html(`<div class="vor-done">${I('check')}<span class="t">Voice chat ended<span class="muted">Transcript saved</span></span><button class="pill line sm">Start again</button></div>`);
+    ($(':scope>.dm-grow', root) || root).appendChild(done); enter(done);
+    $('button', done).onclick = () => { setMuted(false); swap(who, ''); tx.classList.add('hint'); tx.textContent = HINT; start(); };
+  };
+  // the preview's story: start, mute while the agent answers, talk while muted, unmute and go on, then end
+  c.story(async s => {
+    await s.beat(3); await s.tap($('.vor-go', r)); s.away();
+    await s.until(() => mode === 'speaking'); await s.beat(3); await s.tap(mute); s.away();
+    await s.until(() => !mf.classList.contains('shut')); await s.beat(4);
+    await s.tap($('.vor-un', r)); s.away();
+    await s.until(() => said === TURNS.length); await s.beat(3);
+    await s.tap($('.vor-end', r)); s.away(); await s.beat(1);
+  });
+});
+/* ---------- Image generation ---------- */
+/* the grain over a picture being made: grey specks of mixed strength on a clear square, drawn once and tiled */
+let igxNoise = '';
+function igxGrain(){
+  if (igxNoise) return igxNoise;
+  try {
+    const n = 96, cv = document.createElement('canvas'); cv.width = cv.height = n;
+    const x = cv.getContext('2d'), d = x.createImageData(n, n);
+    for (let i = 0; i < d.data.length; i += 4){ const v = Math.random() < .5 ? 20 : 245; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 40 + Math.random() * 150; }
+    x.putImageData(d, 0, 0); igxNoise = `url("${cv.toDataURL()}")`;
+  } catch(e){ igxNoise = 'none'; }
+  return igxNoise;
+}
+DM.def('image-generation', (r, c, card) => {
+  r.innerHTML = r.innerHTML.replace(/\{i-([a-z-]+)\}/g, (m, n) => I(n));
+  const box = $('.igx-in', r), feed = $('.igx-feed', r), ask = $('.igx-ask', r), empty = $('.igx-empty', r), runEl = $('.igx-run', r);
+  const rt = $('.igx-rt', r), stepEls = $$('.igx-steps>span', r), pc = $('.igx-pc', r), tilesEl = $('.igx-tiles', r), meta = $('.igx-meta', r), sr = $('.igx-sr', r);
+  const form = $('.igx-cmp', r), ta = $('.igx-ta', r), refsEl = $('.igx-refs', r), go = $('.igx-go', r), setBtn = $('.igx-set', r), mdlBtn = $('.igx-mdl', r);
+  const galEl = $('.igx-gal', r), prsEl = $('.igx-prs', r), cn = $('.igx-cn', r), lbEl = $('.igx-lb', r);
+  const panes = { gallery:$('.igx-gp', r), styles:$('.igx-sp', r) };
+  if (!REDUCE) $('.igx', r).style.setProperty('--noise', igxGrain());
+  const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const say = t => { sr.textContent = t; };
+
+  /* the pictures: words for a screen reader, a gradient of their colours (g) that stands in for each, and their shape (ar,
+     width over height). On designme.dev, art/art.js lays the photo of the same name over the gradient: photos from Pexels,
+     free under the Pexels License (https://www.pexels.com/license/), credited in art/README.md and never part of an install */
+  const PIC = {
+    'yellow-wall':{ ar:3/4, g:'linear-gradient(165deg,#ffec2e 0 55%,#f2c94a 70%,#5b80bd)', alt:'A laughing woman in a denim jacket and yellow sunglasses against a bright yellow wall' },
+    'green-reach':{ ar:3/4, g:'radial-gradient(circle at 62% 40%,#e2cf3a 0 9%,transparent 17%),linear-gradient(#5aa34c,#3f9b50)', alt:'A man in a green T-shirt and yellow bucket hat reaching towards the camera in front of a green backdrop' },
+    'magenta-pose':{ ar:3/4, g:'linear-gradient(140deg,#c534a8,#8a2399 50%,#2b102c)', alt:'A woman in a black strapless dress posing under pink light against a violet backdrop' },
+    'white-blazer':{ ar:3/4, g:'radial-gradient(ellipse at 50% 72%,#f3efe8 0 20%,transparent 38%),linear-gradient(#ea6a38,#c9532f)', alt:'A man in a white blazer with black lapels standing against a rust orange wall' },
+    'pink-dream':{ ar:4/5, g:'linear-gradient(#cdbbe8,#e6a9cb 55%,#b981c4)', alt:'A dreamlike digital landscape: a pink cloud floating over a lavender field beside a still pink lake' },
+    'pink-tower':{ ar:2/3, g:'linear-gradient(90deg,#f6cdb7 0 34%,#3f95c9 34%)', alt:'The corner of a peach building with small windows against a clear blue sky' },
+    'pink-window':{ ar:1, g:'radial-gradient(circle at 50% 56%,#5f7d4f 0 7%,transparent 8%),linear-gradient(#eba3ae,#df97a2)', alt:'A single small window with a green frame in a wide pink wall' },
+    'clay-loops':{ ar:4/3, g:'radial-gradient(circle at 52% 50%,#e9bb5e 0 11%,transparent 21%),linear-gradient(135deg,#b56fd8,#e28bd2 50%,#7f93a4)', alt:'A 3D render of looping pink clay shapes around a yellow lump on a violet background' },
+    'pastel-shapes':{ ar:4/3, g:'radial-gradient(circle at 62% 42%,#ff7f9d 0 11%,transparent 19%),linear-gradient(#e7e4e8,#d7d2de)', alt:'Pastel shapes stacked on light grey: a pink cylinder, a white cube, a lilac sphere and a violet cone' },
+    'petal-face':{ ar:3/4, g:'radial-gradient(ellipse at 50% 50%,#e6b59c 0 24%,transparent 44%),linear-gradient(#2f6e6c,#1d4a4a)', alt:'A woman with her eyes closed, rose petals over one eye and green leaves over her mouth, against teal' },
+    'retro-room':{ ar:2/3, g:'linear-gradient(#f68fc6,#4fb3f1 42%,#f6a43c 60%,#1b1b1b 82%)', alt:'A man in a sequinned jacket in a clear bubble chair, in a room painted with bright drips above a black and white checkerboard floor' },
+    'ribbon-look':{ ar:3/4, g:'linear-gradient(135deg,#ececea,#9dbbdb 45%,#f4c431 68%,#ededeb)', alt:'A woman in pale denim sitting on a white block, wrapped in folded yellow, red and blue paper ribbons' },
+    'light-leak':{ ar:4/3, g:'linear-gradient(120deg,#1f160a,#bd722c 45%,#ecc66b 60%,#3b2b17)', alt:'A close-up of a face in shadow with a rainbow of light falling across one eye' },
+    'fruit-bowl':{ ar:1, g:'radial-gradient(circle at 50% 74%,#2aa8e2 0 17%,transparent 28%),radial-gradient(circle at 52% 46%,#a02e40 0 21%,transparent 38%),linear-gradient(#0d0d0d,#151515)', alt:'Red apples with green and red grapes in a bright blue bowl against black' },
+    'framing-hands':{ ar:3/2, g:'linear-gradient(90deg,#2152c5,#ff6b4e 50%,#c9a8e8)', alt:'A woman in a coral suit framing the camera with her fingers, cobalt curtains and a lilac wall behind her' },
+    'yellow-shapes':{ ar:3/2, g:'radial-gradient(ellipse at 50% 72%,#e2c34d 0 17%,transparent 33%),linear-gradient(#2c312e,#1f2321)', alt:'Mustard yellow cubes, cones and cylinders on the floor of a dark green-grey room' }
+  };
+  const SHAPE = { '1:1':1, '3:4':3 / 4, '16:9':16 / 9 };
+  const shapeOf = ar => ({ 1:'1:1', .75:'3:4', .8:'4:5', .667:'2:3', 1.333:'4:3', 1.5:'3:2', 1.778:'16:9' })[Math.round(ar * 1000) / 1000] || '';
+  // what each style draws from in this demo (a real model makes new pictures; these are the photos that suit the style)
+  const SETS = { Editorial:['yellow-wall', 'green-reach', 'magenta-pose', 'white-blazer'], Poster:['pink-tower', 'pink-window', 'yellow-shapes', 'pastel-shapes'],
+    Surreal:['pink-dream', 'petal-face', 'clay-loops', 'light-leak'], '35mm':['light-leak', 'framing-hands', 'fruit-bowl', 'ribbon-look'] };
+  // a model's step, in ms: 30 steps make a picture, each picture at its own pace
+  const MODELS = [{ n:'Studio 2', ms:200 }, { n:'Studio 2 Fast', ms:95 }, { n:'Studio 2 HD', ms:290 }];
+  const PACE = [1, .8, 1.12, .9], STEPS = 30;
+  // the style presets, each a picture and the styles it picks
+  const PRESETS = [
+    { n:'Studio editorial', d:'Bold backdrop, studio light', s:['Editorial'], pic:'framing-hands' },
+    { n:'Colour block', d:'Flat colour, strong shapes', s:['Poster'], pic:'pink-tower' },
+    { n:'Dreamscape', d:'Soft pastel, impossible places', s:['Surreal'], pic:'pink-dream' },
+    { n:'Film portrait', d:'Grain and light leaks', s:['35mm', 'Editorial'], pic:'light-leak' },
+    { n:'Soft 3D', d:'Clay forms in pastel light', s:['Surreal', 'Poster'], pic:'clay-loops' },
+    { n:'Still life', d:'Objects on black, hard light', s:['35mm'], pic:'fruit-bowl' }
+  ];
+  let ids = 0;
+  const made = (pic, prompt, styles, ar, o = {}) => ({ id:++ids, pic, prompt, styles, ar, vz:1, vo:'50% 50%', up:false, rate:0, ...o });
+  // earlier pictures, newest first
+  const gallery = [
+    made('pink-dream', 'A pink cloud over a lavender field and a still lake', ['Surreal'], 4 / 5),
+    made('framing-hands', 'Woman framing the camera with her hands, coral suit, cobalt curtains', ['Editorial'], 3 / 2),
+    made('pink-tower', 'Peach building corner against a clear blue sky', ['Poster'], 2 / 3),
+    made('petal-face', 'Portrait with rose petals and leaves on the face', ['Surreal'], 3 / 4),
+    made('clay-loops', 'Soft clay loops in pink and lilac, 3D', ['Surreal', 'Poster'], 4 / 3),
+    made('retro-room', 'A bubble chair in a candy-coloured room, checkerboard floor', ['Poster'], 2 / 3),
+    made('pink-window', 'One small window in a pink wall, minimal', ['Poster'], 1),
+    made('light-leak', 'Close-up with a rainbow light leak across the eye', ['35mm'], 4 / 3),
+    made('ribbon-look', 'Denim look with paper ribbon sculptures, studio', ['Editorial'], 3 / 4),
+    made('fruit-bowl', 'Apples and grapes in a blue bowl on black', ['35mm'], 1),
+    made('pastel-shapes', 'Pastel geometric shapes stacked on grey', ['Poster'], 4 / 3),
+    made('yellow-shapes', 'Yellow geometric solids in a dark room', ['Poster'], 3 / 2)
+  ];
+  const styles = new Set(['Editorial']), refs = [], used = {};
+  let shape = '3:4', count = 4, model = 0, run = null, runs = 0, lb = null;
+  // a picture's work goes on under the pointer, as an agent's does: these waits are never held
+  const tick = ms => new Promise((res, rej) => { c.t.push(setTimeout(() => c.dead ? rej('stop') : res(), REDUCE ? Math.min(ms, 30) : ms)); });
+  const metaOf = img => [shapeOf(img.ar), img.styles.join(', ') || 'No style', img.up ? 'Upscaled 2×' : ''].filter(Boolean).join(' · ');
+  const layers = (img, size) => `<span class="igx-ly igx-b" data-pic="${img.pic}"${size}></span><span class="igx-ly igx-s" data-pic="${img.pic}"${size}></span>`;
+  const look = img => `--art:${PIC[img.pic].g};--vz:${img.vz};--vo:${img.vo}`;
+
+  /* ---------- the run: the prompt as sent, its pictures, and how far they have come ---------- */
+  const busy = () => !!run && run.items.some(t => t.st === 'wait' || t.st === 'gen');
+  function paint(t){
+    const s = t.el.style, p = t.k / STEPS;
+    t.el.dataset.st = t.st;
+    if (t.st === 'wait'){ s.setProperty('--sc', 0); s.setProperty('--gr', .5); $('.igx-tp', t.el).textContent = '0%'; }
+    if (t.st === 'gen'){
+      // Composing: dots of the picture's colours grow out of the grain, a step at a time
+      const a = Math.min(1, p / .3), cell = 12;
+      s.setProperty('--cell', cell + 'px'); s.setProperty('--dot', (a >= 1 ? cell : 1 + a * 7.5).toFixed(1) + 'px'); s.setProperty('--sq', (a >= 1 ? cell : 2 + a * 9).toFixed(1) + 'px');
+      // Adding detail: the blur lifts while the scan line comes down, leaving the detail behind it
+      const b = Math.max(0, Math.min(1, (p - .3) / .52)), sc = Math.max(0, Math.min(1, (p - .34) / .46));
+      s.setProperty('--bl', (18 - b * 14).toFixed(1) + 'px'); s.setProperty('--sc', sc.toFixed(3)); s.setProperty('--lo', sc > 0 && sc < 1 ? 1 : 0);
+      // Upscaling: the last softness and grain go
+      const u = Math.max(0, Math.min(1, (p - .8) / .2));
+      s.setProperty('--sb', (3 * (1 - u)).toFixed(2) + 'px'); s.setProperty('--gr', (.5 * (1 - p)).toFixed(3));
+      $('.igx-tp', t.el).textContent = Math.round(p * 100) + '%';
+    }
+    if (t.st === 'done'){ s.setProperty('--sc', 1); s.setProperty('--sb', '0px'); s.setProperty('--gr', 0); s.setProperty('--lo', 0); }
+    const o = $('.igx-o', t.el), n = run.items.indexOf(t) + 1;
+    o.disabled = t.st !== 'done';
+    o.setAttribute('aria-label', t.st === 'done' ? `Open picture ${n}: ${PIC[t.img.pic].alt}` : `Picture ${n}, ${t.st === 'fail' ? 'failed' : 'being made'}`);
+  }
+  let said = -1, headKey = '';
+  function head(){
+    const its = run.items, n = its.length, done = its.filter(t => t.st === 'done').length, bad = its.filter(t => t.st === 'fail').length, going = busy();
+    const live = its.filter(t => t.st !== 'fail'), p = live.length ? live.reduce((a, t) => a + (t.st === 'done' ? 1 : t.k / STEPS), 0) / live.length : 0;
+    const ph = !going ? 3 : p < .3 ? 0 : p < .8 ? 1 : 2;
+    stepEls.forEach((el, k) => { el.className = k < ph ? 'done' : k === ph ? 'on' : ''; });
+    pc.textContent = going ? Math.round(p * 100) + '%' : '';
+    const pics = n === 1 ? 'picture' : `${n} pictures`;
+    const key = going ? `g${n}` : bad ? `b${done}/${bad}` : `d${n}`;
+    if (key !== headKey){
+      headKey = key;
+      rt.innerHTML = going ? `<span class="spin" aria-hidden="true"></span><span class="shim">Generating ${pics}</span>`
+        : bad ? `${I('alert')}<span>${done} of ${n} ready, ${bad} failed</span>`
+        : `${I('image')}<span>${n === 1 ? 'Picture' : pics[0].toUpperCase() + pics.slice(1)} ready in ${Math.max(1, Math.round((performance.now() - run.t0) / 1000))}s</span>`;
+    }
+    // said politely as each stage starts and once the run is through, never every step
+    if (ph !== said){ said = ph; say(ph < 3 ? `${['Composing', 'Adding detail', 'Upscaling'][ph]}, ${pics}` : bad ? `${done} of ${n} ready, ${bad} failed. Retry is on the failed one` : `${n === 1 ? 'Picture' : pics} ready`); }
+    go.dataset.tip = going ? 'Generating' : 'Generate'; canGo();
+  }
+  function fit(){
+    if (!run) return;
+    const W = tilesEl.clientWidth, H = tilesEl.clientHeight, n = run.items.length, g = 8; let best = [1, 1, -1, n];
+    // the largest pictures win; between layouts that give the same size, the one with no gap in its last row, then the wider
+    for (let cols = 1; cols <= n; cols++){
+      const rows = Math.ceil(n / cols), w = Math.min((W - (cols - 1) * g) / cols, (H - (rows - 1) * g) / rows * run.ar), gap = cols * rows - n;
+      if (w > best[2] + .5 || (w > best[2] - .5 && gap <= best[3])) best = [cols, rows, w, gap];
+    }
+    tilesEl.style.setProperty('--cols', best[0]); tilesEl.style.setProperty('--rows', best[1]);
+  }
+  const ro = new ResizeObserver(fit); ro.observe(tilesEl); c.offs.push(() => ro.disconnect());
+  function draw(){
+    ask.textContent = run.prompt; empty.hidden = true; runEl.hidden = false;
+    meta.textContent = `${MODELS[run.model].n} · ${shapeOf(run.ar)} · ${run.styles.join(', ') || 'No style'}`;
+    $$('.igx-acts [aria-pressed]', r).forEach(b => b.setAttribute('aria-pressed', 'false'));
+    tilesEl.innerHTML = run.items.map((t, i) => `<figure class="igx-t" data-st="wait" style="--ar:${run.ar};${look(t.img)}">
+      <button type="button" class="igx-o" aria-haspopup="dialog" disabled>${layers(t.img, '')}<span class="igx-n"></span><span class="igx-l"><span></span><span></span></span></button>
+      <span class="tag igx-tg"></span><span class="igx-tp num" aria-hidden="true">0%</span>
+      <div class="igx-f">${I('alert')}<b>Couldn't finish</b><span>The model timed out</span><button type="button" class="pill line sm" data-a="retry" aria-label="Retry picture ${i + 1}">${I('refresh', 'xs')}Retry</button></div>
+      <div class="igx-q"><button type="button" class="ib" data-a="vary" aria-label="Vary picture ${i + 1}" data-tip="Vary">${I('layers')}</button><button type="button" class="ib" data-a="upscale" aria-label="Upscale picture ${i + 1}" data-tip="Upscale">${I('max')}</button><button type="button" class="ib" data-a="download" aria-label="Download picture ${i + 1}" data-tip="Download">${I('down')}</button></div>
+    </figure>`).join('');
+    $$('.igx-t', tilesEl).forEach((el, i) => { run.items[i].el = el; paint(run.items[i]); });
+    headKey = ''; said = -1; fit(); head();
+  }
+  async function make(t, rn){
+    t.st = 'gen'; t.el.style.setProperty('--stp', t.ms + 'ms'); paint(t); head();
+    while (t.k < STEPS){
+      await tick(t.ms); if (rn !== run) return;
+      t.k++;
+      if (t.failAt && t.k === t.failAt){ t.failAt = 0; t.st = 'fail'; paint(t); head(); return; }
+      paint(t); head();
+    }
+    t.st = 'done'; t.el.style.setProperty('--stp', '450ms'); paint(t); head();
+    // a finished picture joins the gallery, at the top
+    t.img.fresh = true; gallery.unshift(t.img); drawGallery();
+  }
+  function start(o){
+    closePops(); closeLB(false);
+    const st = o.styles, first = st[0] || 'Editorial', set = SETS[first];
+    const off = used[first] || 0; if (!o.pics) used[first] = off + o.count;
+    run = { id:++runs, prompt:o.prompt, styles:st, ar:o.ar, model, t0:performance.now(), items:[] };
+    for (let i = 0; i < o.count; i++){
+      const pic = o.pics ? o.pics[i] : set[(off + i) % set.length];
+      // the demo's first run loses its third picture partway, to show Retry
+      run.items.push({ img:made(pic, o.prompt, st, o.ar, o.look), st:'wait', k:0, ms:MODELS[model].ms * PACE[i % 4], failAt:run.id === 1 && i === 2 ? 17 : 0 });
+    }
+    draw();
+    const rn = run;
+    rn.items.forEach((t, i) => c.run(async () => { await tick(260 + i * 180); if (rn === run) await make(t, rn); }));
+  }
+  function generate(){
+    const prompt = ta.value.trim(); if (!prompt || busy()) return;
+    start({ prompt, styles:[...styles], ar:SHAPE[shape], count });
+  }
+  function retry(t){ t.k = 0; t.st = 'wait'; paint(t); head(); say(`Making picture ${run.items.indexOf(t) + 1} again`); const rn = run; c.run(async () => { await tick(200); if (rn === run) await make(t, rn); }); }
+  // a variation keeps the picture and moves in on another part of it
+  const CROPS = ['30% 35%', '70% 40%', '45% 70%', '60% 25%'];
+  function vary(img){
+    say('Making a variation');
+    start({ prompt:img.prompt, styles:img.styles, ar:img.ar, count:1, pics:[img.pic], look:{ vz:1.22, vo:CROPS[(img.id + runs) % CROPS.length] } });
+  }
+  /* Upscale: wherever the picture shows (its tile, the larger view) the line sweeps down once and leaves it sharp */
+  function upscale(img){
+    const els = [...(run ? run.items.filter(t => t.img === img).map(t => t.el) : []), ...(lb && lb.img === img ? [$('.igx-lbs>.igx-t', lbEl)] : [])].filter(Boolean);
+    els.forEach(el => { el.classList.remove('up'); void el.offsetWidth; el.classList.add('up'); });
+    say('Upscaling');
+    c.run(async () => {
+      await tick(1700); img.up = true; els.forEach(el => { el.classList.remove('up'); const tg = $('.igx-tg', el); if (tg) tg.textContent = '2×'; });
+      if (lb && lb.img === img) $('.igx-lbt .muted', lbEl).textContent = metaOf(img);
+      say('Upscaled to twice the size');
+    });
+  }
+  // on designme.dev a picture has a file to save (the photo art.js laid over it); an installed demo only has its gradient
+  function download(img, btn, from){
+    const lay = from && $('.igx-s', from), url = lay && (getComputedStyle(lay).backgroundImage.match(/url\("?([^")]+)"?\)/) || [])[1];
+    if (url){ const a = document.createElement('a'); a.href = url; a.download = img.pic + '.webp'; document.body.appendChild(a); a.click(); a.remove(); }
+    flash(btn, url ? 'Downloading' : 'No file in this demo');
+  }
+  function flash(btn, label){
+    const use = $('use', btn), was = btn._fl || (btn._fl = { tip:btn.dataset.tip, href:use && use.getAttribute('href') });
+    clearTimeout(was.t); if (use) use.setAttribute('href', was.href.replace(/-[a-z-]+$/, '-check')); btn.dataset.tip = label; showTip(btn); say(label);
+    was.t = setTimeout(() => { if (use) use.setAttribute('href', was.href); if (was.tip === undefined) delete btn.dataset.tip; else btn.dataset.tip = was.tip; if (tipFor === btn) hideTip(true); }, 1600);
+  }
+  function reference(img, mine){
+    if (!refs.includes(img)){ if (refs.length >= 3) refs.shift(); refs.push(img); }
+    drawRefs(); say('Added as a reference'); if (mine) ta.focus({ preventScroll:true });
+  }
+  function drawRefs(){
+    refsEl.innerHTML = refs.map((img, i) => `<span class="igx-ref" style="${look(img)}"><span class="igx-rp"><span class="igx-ly" data-pic="${img.pic}" data-pic-size="s"></span></span>Reference ${i + 1}<button type="button" class="ib" data-i="${i}" aria-label="Remove reference ${i + 1}" data-tip="Remove">${I('x', 'xs')}</button></span>`).join('');
+  }
+  c.on(refsEl, 'click', e => { const b = e.target.closest('[data-i]'); if (!b) return; refs.splice(+b.dataset.i, 1); drawRefs(); say('Reference removed'); if (e.isTrusted) ta.focus({ preventScroll:true }); });
+  c.on(tilesEl, 'click', e => {
+    const fig = e.target.closest('.igx-t'), t = run && run.items.find(x => x.el === fig); if (!t) return;
+    const a = e.target.closest('[data-a]');
+    if (!a){ if (e.target.closest('.igx-o') && t.st === 'done') openLB(run.items.filter(x => x.st === 'done').map(x => x.img), t.img, e.target.closest('.igx-o'), e.isTrusted); return; }
+    ({ retry:() => retry(t), vary:() => vary(t.img), upscale:() => upscale(t.img), download:() => download(t.img, a, fig) })[a.dataset.a]();
+  });
+  const rateBtns = { up:$('.igx-acts .igx-up', r), dn:$('.igx-acts .igx-dn', r) };
+  const rate = (k, btns, set) => { const on = btns[k].getAttribute('aria-pressed') !== 'true'; Object.entries(btns).forEach(([j, b]) => b.setAttribute('aria-pressed', j === k && on)); set(on ? (k === 'up' ? 1 : -1) : 0); say(on ? (k === 'up' ? 'Marked as good' : 'Marked as bad') : 'Rating removed'); };
+  rateBtns.up.onclick = () => rate('up', rateBtns, v => { if (run) run.rate = v; });
+  rateBtns.dn.onclick = () => rate('dn', rateBtns, v => { if (run) run.rate = v; });
+  $('.igx-acts .igx-cp', r).onclick = e => run && copied(e.currentTarget, run.prompt, 'Prompt copied');
+
+  /* ---------- the composer ---------- */
+  const chips = $$('.igx-sc', r);
+  function drawStyles(changed){
+    chips.forEach(b => { const on = styles.has(b.dataset.s); b.setAttribute('aria-pressed', on); if (changed && changed.includes(b.dataset.s)){ b.classList.remove('hl'); void b.offsetWidth; b.classList.add('hl'); c.later(700, () => b.classList.remove('hl')); } });
+    const same = p => p.s.length === styles.size && p.s.every(x => styles.has(x));
+    $$('.igx-pr', prsEl).forEach((b, i) => b.setAttribute('aria-pressed', same(PRESETS[i])));
+  }
+  chips.forEach(b => b.onclick = () => { const s = b.dataset.s; styles.has(s) ? styles.delete(s) : styles.add(s); drawStyles(); });
+  const setN = $('.igx-set-n', r), mdlN = $('.igx-mdl-n', r);
+  const label = () => { setN.textContent = `${shape} · ${count}`; setBtn.setAttribute('aria-label', `Shape ${shape}, ${count === 1 ? '1 picture' : count + ' pictures'}`); };
+  seg($('.igx-ars', r), v => { shape = v; label(); });
+  seg($('.igx-cts', r), v => { count = +v; label(); });
+  label();
+  $$('.igx-pp-m .mi', r).forEach(b => b.addEventListener('click', () => { model = +b.dataset.m; $$('.igx-pp-m .mi', r).forEach(x => x.setAttribute('aria-checked', x === b)); mdlN.textContent = MODELS[model].n; }));
+  const canGo = () => { go.disabled = !ta.value.trim() || busy(); };
+  c.on(ta, 'input', canGo);
+  c.on(ta, 'keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing){ e.preventDefault(); generate(); } });
+  c.on(form, 'submit', e => { e.preventDefault(); generate(); });
+
+  /* ---------- the side: the gallery, newest first, and the style presets ---------- */
+  function drawGallery(){
+    const was = document.activeElement && galEl.contains(document.activeElement) ? document.activeElement.dataset.id : null;
+    // two columns: each picture goes under the shorter one, so the columns end close together
+    const cols = [[], []], h = [0, 0];
+    gallery.forEach(img => { const k = h[0] <= h[1] ? 0 : 1; cols[k].push(img); h[k] += 1 / img.ar + .06; });
+    galEl.innerHTML = cols.map(col => `<div class="igx-col">${col.map(img => `<button type="button" class="igx-g${img.fresh ? ' new' : ''}" data-id="${img.id}" aria-haspopup="dialog" aria-label="${esc(PIC[img.pic].alt)}" style="--ar:${img.ar};${look(img)}"><span class="igx-ly" data-pic="${img.pic}" data-pic-size="s"></span></button>`).join('')}</div>`).join('');
+    gallery.forEach(img => { img.fresh = false; });
+    cn.textContent = gallery.length;
+    if (was){ const b = $(`[data-id="${was}"]`, galEl); if (b) b.focus({ preventScroll:true }); }
+  }
+  c.on(galEl, 'click', e => { const b = e.target.closest('.igx-g'); if (!b) return; const img = gallery.find(x => x.id === +b.dataset.id); if (img) openLB([...gallery], img, b, e.isTrusted); });
+  prsEl.innerHTML = PRESETS.map(p => `<button type="button" class="igx-pr" aria-pressed="false" style="--art:${PIC[p.pic].g}"><span class="igx-prp"><span class="igx-ly" data-pic="${p.pic}" data-pic-size="s"></span></span><span class="igx-prt"><b>${p.n}</b><span class="muted">${p.d}</span></span></button>`).join('');
+  $$('.igx-pr', prsEl).forEach((b, i) => b.onclick = () => {
+    const p = PRESETS[i], before = new Set(styles);
+    styles.clear(); p.s.forEach(x => styles.add(x));
+    drawStyles(['Editorial', 'Poster', 'Surreal', '35mm'].filter(x => before.has(x) !== styles.has(x)));
+    say(`${p.n}: ${p.s.join(' and ')}`);
+    // where the side takes the feed's place, picking a preset goes back to the prompt it changed
+    if (getComputedStyle(vw).display !== 'none') view('create');
+  });
+  const tb = $('.igx-tb', r), vw = $('.igx-vw', r);
+  const tbSeg = seg(tb, v => tab(v)), vwSeg = seg(vw, v => view(v));
+  function tab(v){ Object.entries(panes).forEach(([k, el]) => { el.hidden = k !== v; }); $$('button', tb).forEach(b => b.setAttribute('aria-pressed', b.dataset.v === v)); tbSeg.place(); }
+  function view(v){ box.dataset.view = v; if (v !== 'create') tab(v); $$('button', vw).forEach(b => b.setAttribute('aria-pressed', b.dataset.v === v)); vwSeg.place(); }
+
+  /* ---------- the larger view: the picture as large as it fits, every action, Left and Right for the others ---------- */
+  function openLB(list, img, from, mine){
+    closePops(); hideTip(true);
+    lb = { list, img, from }; drawLB();
+    lbEl.hidden = false; lbEl.classList.remove('open'); void lbEl.offsetWidth; lbEl.classList.add('open');
+    // the focus moves in only when a person opened it, so the demo never takes it from the page
+    if (mine) $('.igx-lbx', lbEl).focus({ preventScroll:true });
+  }
+  function drawLB(){
+    const { list, img } = lb, i = list.indexOf(img), P = PIC[img.pic];
+    lbEl.setAttribute('aria-label', `Picture ${i + 1} of ${list.length}`);
+    lbEl.innerHTML = `<div class="igx-lbh"><div class="igx-lbt"><b>${esc(img.prompt)}</b><span class="muted">${metaOf(img)}</span></div><span class="muted num">${i + 1} of ${list.length}</span><button type="button" class="ib igx-lbx" aria-label="Close" data-tip="Close" data-tip-k="Esc">${I('x')}</button></div>
+      <div class="igx-lbb"><button type="button" class="pill line igx-lbn" data-a="prev" aria-label="Previous picture" data-tip="Previous"${i > 0 ? '' : ' disabled'}>${I('chev-l')}</button>
+      <div class="igx-lbs"><figure class="igx-t" data-st="done" style="--ar:${img.ar};${look(img)}">${layers(img, '')}<span class="igx-l" aria-hidden="true"><span></span><span></span></span><span class="tag igx-tg">${img.up ? '2×' : ''}</span></figure></div>
+      <button type="button" class="pill line igx-lbn" data-a="next" aria-label="Next picture" data-tip="Next"${i < list.length - 1 ? '' : ' disabled'}>${I('chev-r')}</button></div>
+      <div class="igx-lbf" role="toolbar" aria-label="Picture actions">
+        <button type="button" class="pill line sm" data-a="upscale" aria-label="Upscale" data-tip="Upscale to twice the size">${I('max', 'xs')}<span class="igx-lbl">Upscale</span></button>
+        <button type="button" class="pill line sm" data-a="vary" aria-label="Vary" data-tip="Make a variation">${I('layers', 'xs')}<span class="igx-lbl">Vary</span></button>
+        <button type="button" class="pill line sm" data-a="ref" aria-label="Use as reference" data-tip="Use as reference">${I('clip', 'xs')}<span class="igx-lbl">Use as reference</span></button>
+        <button type="button" class="pill line sm" data-a="download" aria-label="Download" data-tip="Download">${I('down', 'xs')}<span class="igx-lbl">Download</span></button>
+        <span class="igx-sep" aria-hidden="true"></span>
+        <button type="button" class="ib" data-a="like" aria-label="Good picture" aria-pressed="${img.rate === 1}" data-tip="Good picture">${I('up-thumb')}</button>
+        <button type="button" class="ib" data-a="dislike" aria-label="Bad picture" aria-pressed="${img.rate === -1}" data-tip="Bad picture">${I('down-thumb')}</button>
+      </div>`;
+    const ss = $('.igx-lbs>.igx-t .igx-s', lbEl); ss.setAttribute('role', 'img'); ss.setAttribute('aria-label', P.alt);
+    $('.igx-lbs>.igx-t .igx-b', lbEl).setAttribute('aria-hidden', 'true');
+  }
+  function step(d){ const i = lb.list.indexOf(lb.img) + d; if (i < 0 || i >= lb.list.length) return; lb.img = lb.list[i]; const f = document.activeElement && document.activeElement.dataset.a; drawLB(); const b = f && $(`[data-a="${f}"]`, lbEl); if (b && !b.disabled) b.focus({ preventScroll:true }); else if (f) $('.igx-lbx', lbEl).focus({ preventScroll:true }); }
+  function closeLB(back){
+    if (!lb) return; const from = lb.from; lb = null; lbEl.hidden = true; lbEl.classList.remove('open'); lbEl.innerHTML = ''; hideTip(true);
+    if (back && from && from.isConnected) from.focus({ preventScroll:true });
+  }
+  c.on(lbEl, 'click', e => {
+    if (!lb) return;
+    if (e.target.closest('.igx-lbx')) return closeLB(e.isTrusted);
+    const a = e.target.closest('[data-a]'); if (!a) return;
+    const img = lb.img, k = a.dataset.a;
+    if (k === 'prev') step(-1); else if (k === 'next') step(1);
+    else if (k === 'upscale') upscale(img);
+    else if (k === 'vary') vary(img);
+    else if (k === 'ref'){ closeLB(false); reference(img, e.isTrusted); }
+    else if (k === 'download') download(img, a, $('.igx-lbs>.igx-t', lbEl));
+    else { const up = k === 'like', on = img.rate !== (up ? 1 : -1); img.rate = on ? (up ? 1 : -1) : 0; $$('[data-a="like"],[data-a="dislike"]', lbEl).forEach(b => b.setAttribute('aria-pressed', b.dataset.a === k && on)); say(on ? (up ? 'Marked as good' : 'Marked as bad') : 'Rating removed'); }
+  });
+  c.on(lbEl, 'keydown', e => {
+    if (!lb) return;
+    if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); closeLB(true); return; }
+    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && !e.target.closest('.igx-lbf')){ e.preventDefault(); step(e.key === 'ArrowLeft' ? -1 : 1); return; }
+    // the focus stays inside while it is open
+    if (e.key === 'Tab'){ const f = $$('button:not(:disabled)', lbEl); const a = f[0], z = f[f.length - 1]; if (e.shiftKey && document.activeElement === a){ e.preventDefault(); z.focus(); } else if (!e.shiftKey && document.activeElement === z){ e.preventDefault(); a.focus(); } }
+  });
+
+  drawGallery(); drawStyles(); canGo();
+
+  /* the preview's story: generate four portraits (one fails and is retried), upscale one, open another and use it as a
+     reference, then pick a style preset */
+  const shown = el => el && el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden';
+  c.story(async s => {
+    await s.beat(2);
+    await s.tap(go);
+    await s.until(() => run && !busy()); await s.beat(1.5);
+    const bad = run.items.find(t => t.st === 'fail');
+    if (bad){ await s.tap($('[data-a="retry"]', bad.el)); await s.until(() => !busy()); await s.beat(1.5); }
+    const t2 = run.items[1];
+    if (t2){ t2.el.classList.add('hov'); c.taken(() => t2.el.classList.remove('hov')); await s.point($('[data-a="upscale"]', t2.el)); await s.beat(1); await s.tap($('[data-a="upscale"]', t2.el)); await s.beat(4); t2.el.classList.remove('hov'); }
+    await s.tap($('.igx-o', run.items[0].el)); await s.beat(3);
+    await s.tap($('[data-a="ref"]', lbEl)); await s.beat(2.5);
+    const sb = [$('.igx-tb [data-v="styles"]', r), $('.igx-vw [data-v="styles"]', r)].find(shown);
+    if (sb){ await s.tap(sb); await s.beat(2); await s.tap($$('.igx-pr', prsEl)[2]); await s.beat(3); }
+  });
+});
 /* ---------- the sections' components, loaded the first time a section comes near (DEF_PARTS in build.js) ---------- */
-const PARTS = {"files":{"s-status":"/assets/v2-status.e815d895ac.js","s-product":"/assets/v2-product.4d8fc9c4db.js","s-review":"/assets/v2-review.4662a0621c.js","s-data":"/assets/v2-data.92d17ea3c1.js","s-workspace":"/assets/v2-workspace.c1a953ef81.js","s-harness":"/assets/v2-harness.1dfa03ac26.js","s-charts":"/assets/v2-charts.d5c4773d19.js","s-dates":"/assets/v2-dates.c8ca99210a.js","s-forms":"/assets/v2-forms.5ecc1d9e86.js","s-collab":"/assets/v2-collab.d1d0908d69.js"},"of":{"status-pill":"s-status","step-loader":"s-status","thinking-states":"s-status","reasoning-trail":"s-status","thinking":"s-status","context-meter":"s-status","toast":"s-status","toast-stack":"s-status","pricing-cards":"s-product","stepper":"s-product","set-limit":"s-product","currency-converter":"s-product","agent-run-timeline":"s-status","decision-prompt":"s-review","proposal-card":"s-review","rewrite-toolbar":"s-review","plan-review":"s-review","inline-text-diff":"s-review","draft-review":"s-review","eval-results":"s-review","source-stack":"s-data","metric-insight":"s-data","task-table":"s-data","terminal-stream":"s-data","details-panel":"s-data","citation-hover":"s-data","workspace-rail":"s-workspace","command-palette":"s-workspace","agent-settings":"s-workspace","file-explorer":"s-workspace","automation-canvas":"s-workspace","canvas-toolbar":"s-workspace","data-picker":"s-workspace","run-drawer":"s-workspace","memory-panel":"s-workspace","tool-connections":"s-workspace","knowledge-sources":"s-workspace","scheduled-runs":"s-workspace","harness":"s-harness","line-chart":"s-charts","bar-chart":"s-charts","donut-chart":"s-charts","funnel":"s-charts","top-pages":"s-charts","health-score":"s-charts","activity-heatmap":"s-charts","stat-cards":"s-charts","account-table":"s-charts","date-picker":"s-dates","segmented-control":"s-dates","date-range-picker":"s-dates","event-calendar":"s-dates","agenda":"s-dates","meeting-card":"s-dates","buttons":"s-forms","badge":"s-forms","tooltip":"s-forms","search-input":"s-forms","country-select":"s-forms","multi-select":"s-forms","social-signin":"s-forms","sign-in":"s-forms","otp-field":"s-forms","form":"s-forms","payment-form":"s-forms","comments":"s-collab","notifications":"s-collab","banner":"s-collab","invite":"s-collab","reactions":"s-collab","profile-menu":"s-collab","context-switcher":"s-collab","filter-menu":"s-collab","number-field":"s-collab","ticket-list":"s-collab","kanban":"s-collab","context-menu":"s-collab","progress":"s-forms","radar-chart":"s-charts","radial-goals":"s-charts","scatter-chart":"s-charts","score-breakdown":"s-charts","slider":"s-forms","carousel":"s-forms","web-search":"s-status"},"all":["harness"]};
+const PARTS = {"files":{"s-status":"/assets/v2-status.77fdf81d43.js","s-product":"/assets/v2-product.4d8fc9c4db.js","s-review":"/assets/v2-review.363fbf3c5a.js","s-data":"/assets/v2-data.8753afd244.js","s-workspace":"/assets/v2-workspace.c1a953ef81.js","s-harness":"/assets/v2-harness.1dfa03ac26.js","s-charts":"/assets/v2-charts.d5c4773d19.js","s-dates":"/assets/v2-dates.c8ca99210a.js","s-forms":"/assets/v2-forms.5ecc1d9e86.js","s-collab":"/assets/v2-collab.d1d0908d69.js"},"of":{"status-pill":"s-status","step-loader":"s-status","thinking-states":"s-status","reasoning-trail":"s-status","thinking":"s-status","context-meter":"s-status","browser-session":"s-status","toast":"s-status","toast-stack":"s-status","pricing-cards":"s-product","stepper":"s-product","set-limit":"s-product","currency-converter":"s-product","agent-run-timeline":"s-status","decision-prompt":"s-review","proposal-card":"s-review","rewrite-toolbar":"s-review","design-tuner":"s-review","human-handoff":"s-review","plan-review":"s-review","inline-text-diff":"s-review","draft-review":"s-review","steering":"s-review","eval-results":"s-review","source-stack":"s-data","metric-insight":"s-data","task-table":"s-data","code-viewer":"s-data","terminal-stream":"s-data","details-panel":"s-data","citation-hover":"s-data","workspace-rail":"s-workspace","command-palette":"s-workspace","agent-settings":"s-workspace","file-explorer":"s-workspace","automation-canvas":"s-workspace","canvas-toolbar":"s-workspace","data-picker":"s-workspace","run-drawer":"s-workspace","memory-panel":"s-workspace","tool-connections":"s-workspace","knowledge-sources":"s-workspace","scheduled-runs":"s-workspace","harness":"s-harness","line-chart":"s-charts","bar-chart":"s-charts","donut-chart":"s-charts","funnel":"s-charts","top-pages":"s-charts","health-score":"s-charts","activity-heatmap":"s-charts","stat-cards":"s-charts","account-table":"s-charts","date-picker":"s-dates","segmented-control":"s-dates","date-range-picker":"s-dates","event-calendar":"s-dates","agenda":"s-dates","meeting-card":"s-dates","buttons":"s-forms","badge":"s-forms","tooltip":"s-forms","search-input":"s-forms","country-select":"s-forms","multi-select":"s-forms","social-signin":"s-forms","sign-in":"s-forms","otp-field":"s-forms","form":"s-forms","payment-form":"s-forms","comments":"s-collab","notifications":"s-collab","banner":"s-collab","invite":"s-collab","reactions":"s-collab","profile-menu":"s-collab","context-switcher":"s-collab","filter-menu":"s-collab","number-field":"s-collab","ticket-list":"s-collab","kanban":"s-collab","context-menu":"s-collab","progress":"s-forms","radar-chart":"s-charts","radial-goals":"s-charts","scatter-chart":"s-charts","score-breakdown":"s-charts","slider":"s-forms","carousel":"s-forms","web-search":"s-status"},"all":["harness"]};
 const partRun = src => eval(src);
 // the markup of the cards whose section has a file of its own comes with that file
 const TPLS = {};
