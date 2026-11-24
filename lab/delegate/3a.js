@@ -372,10 +372,9 @@ DM.def('dl3a', (st, c, card) => {
     out.finished.then(() => { if (card._c === c && !c.dead && !c.mine){ DM.mount(card, true); st.animate([{ opacity:0 }, { opacity:1 }], { duration:320, easing:'ease-out' }); } out.cancel(); }).catch(() => {});
   };
   c.story(async s => {
-    await s.beat(2);
+    await s.beat(.6);
     await s.point(input, false);
-    await s.type(input, 'Draft the launch email for Friday', { n:.06 });
-    await s.beat(1);
+    await s.type(input, 'Draft the launch email for Friday', { n:.04 });
     await s.tap($('.dl3a-go', root));
     await s.beat(4);
     await s.tap($('.dl3a-opt[data-i="1"]', prop));

@@ -291,7 +291,7 @@ DM.def('dl3b', (st, c, card) => {
     out.finished.then(() => { if (card._c === c && !c.dead && !c.mine){ DM.mount(card, true); st.animate([{ opacity:0 }, { opacity:1 }], { duration:320, easing:'ease-out' }); } out.cancel(); }).catch(() => {});
   };
   c.story(async s => {
-    await s.beat(2);
+    await s.beat(1);
     await handDrag(s, T1, 'res');
     await s.beat(2);
     await handDrag(s, T2, 'ana');

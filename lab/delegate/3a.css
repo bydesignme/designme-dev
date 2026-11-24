@@ -77,7 +77,7 @@
 .dl3a-axt .now{z-index:2;height:20px;line-height:20px;padding:0 7px;border-radius:var(--dm-r-tag);background:var(--dm-accent);color:var(--dm-on-accent);font-weight:500}
 @supports (corner-shape:squircle){.dl3a-axt .now{border-radius:var(--dm-r-tag-sq)}}
 .dl3a-axr{grid-column:3 / span 2;text-align:right;font-size:12px;color:var(--dm-muted)}
-.dl3a-ln{height:52px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);transition:background-color var(--dm-t-fast) var(--dm-ease)}
+.dl3a-ln{height:56px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);transition:background-color var(--dm-t-fast) var(--dm-ease)}
 .dl3a-ln.over{background:var(--dm-row)}
 .dl3a-who{display:flex;align-items:center;gap:10px;min-width:0}
 .dl3a-wt{display:flex;flex-direction:column;min-width:0}
@@ -96,22 +96,26 @@
 
 /* blocks: queued work in the agent's tint, the running one with its progress as a line under it, finished work neutral
    with the green tick */
-.dl3a-b{position:absolute;top:50%;height:30px;margin-top:-15px;display:flex;align-items:center;gap:6px;padding:0 8px;border-radius:var(--dm-r-sm);background:var(--a-bg);color:var(--a);font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-align:left;z-index:1;transition:opacity var(--dm-t-fast) var(--dm-ease),background-color var(--dm-t) var(--dm-ease),color var(--dm-t) var(--dm-ease);touch-action:none}
+.dl3a-b{position:absolute;top:50%;height:32px;margin-top:-16px;display:flex;align-items:center;gap:6px;padding:0 8px;border-radius:var(--dm-r-sm);background:var(--a-bg);color:var(--a);font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-align:left;z-index:1;transition:opacity var(--dm-t-fast) var(--dm-ease),background-color var(--dm-t) var(--dm-ease),color var(--dm-t) var(--dm-ease);touch-action:none}
 .dl3a-b>span{overflow:hidden;text-overflow:ellipsis;min-width:0}
 .dl3a-b .i{width:13px;height:13px;flex:none}
 .dl3a-b.q{cursor:grab}
-.dl3a-b.run::after{content:"";position:absolute;left:0;bottom:0;height:2px;width:calc(var(--p,0) * 100%);background:var(--a)}
+/* the running block is the agent's own colour at full strength, with its ink on it; what is done of it is a line along its foot */
+.dl3a-b.run{background:var(--a-fill);color:var(--a-ink)}
+.dl3a-b.run::after{content:"";position:absolute;left:0;bottom:0;height:3px;width:calc(var(--p,0) * 100%);background:color-mix(in srgb,var(--a-ink) 55%,transparent)}
 .dl3a-b.done{background:var(--dm-chip);color:var(--dm-muted)}
 .dl3a-b.done .i{color:var(--dm-ok-mark);stroke-width:2.2}
-.dl3a-b.ghost{background:color-mix(in srgb,var(--a-bg) 55%,transparent);box-shadow:inset 0 0 0 1.5px var(--a);color:var(--a);opacity:1;pointer-events:none}
-.dl3a-b.ghost::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(135deg,transparent 0 4px,color-mix(in srgb,var(--a) 12%,transparent) 4px 5px)}
+/* the proposed slot: the agent's full colour, hatched, breathing until you decide */
+.dl3a-b.ghost{background:var(--a-fill);color:var(--a-ink);pointer-events:none;animation:dl3a-breathe 1.6s ease-in-out infinite}
+.dl3a-b.ghost::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--a-ink) 16%,transparent) 5px 7px)}
+@keyframes dl3a-breathe{50%{opacity:.72}}
 .dl3a-b.ghost>*{position:relative}
 .dl3a-b.lift{z-index:4;box-shadow:var(--dm-shadow-pop)}
 .dl3a-b.dragging{opacity:.35}
 .dl3a-b.in{animation:dl3a-in var(--dm-t-slow) var(--dm-ease) both}
 @keyframes dl3a-in{from{opacity:0;transform:scale(.9)}}
 /* the block in a drag, under the pointer */
-.dl3a-fly{position:absolute;z-index:40;height:30px;display:flex;align-items:center;gap:6px;padding:0 8px;border-radius:var(--dm-r-sm);background:var(--a-bg);color:var(--a);font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;pointer-events:none;box-shadow:var(--dm-shadow-pop)}
+.dl3a-fly{position:absolute;z-index:40;height:30px;display:flex;align-items:center;gap:6px;padding:0 8px;border-radius:var(--dm-r-sm);background:var(--a-fill);color:var(--a-ink);font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;pointer-events:none;box-shadow:var(--dm-shadow-pop)}
 .dl3a-fly>span{overflow:hidden;text-overflow:ellipsis}
 
 /* foot: what has been spent and what is booked, and the one control that stops everyone */
