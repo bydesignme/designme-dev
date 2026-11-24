@@ -5,18 +5,17 @@
 // The list and its copy: templates-list.json (tools/site/build.js reads it too, for the homepage's showcase and llms.txt).
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT, COMPONENTS } from './data.mjs';
+import { ROOT, componentOf } from './data.mjs';
 import { avatar, facepile, role } from './people.mjs';
 const LIST = JSON.parse(fs.readFileSync(path.join(ROOT, 'tools/pages/src/lib/templates-list.json'), 'utf8'));
 
 const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
-const byReg = Object.fromEntries(COMPONENTS.map(c => [c.reg, c]));
 
 /* ---- a component in a cell of the page's grid ----
    span: how many of the 12 columns it takes on a wide screen. box: a heading over it, for a component with no panel of its
    own. A component whose card is "bare" (drawn without its panel on the homepage) gets its panel back here */
 function comp(reg, { span = 12, box = null, cls = '', keepBare = false } = {}){
-  const c = byReg[reg];
+  const c = componentOf(reg);
   if (!c) throw new Error('templates: no component called ' + reg);
   let html = c.html.html.trim();
   if (!keepBare) html = html.replace(/^<div class="card((?: wide)?) bare"/, '<div class="card$1"');
@@ -147,7 +146,7 @@ const usesOf = body => [...new Set([...body.matchAll(/data-reg="([\w-]+)"/g)].ma
 
 export const TEMPLATES = LIST.map(t => {
   const body = BODIES[t.slug]();
-  return { ...t, url:`/templates/${t.slug}`, icon:ICONS[t.slug], layout:LAYOUT[t.slug], body, uses:usesOf(body).map(r => byReg[r]),
+  return { ...t, url:`/templates/${t.slug}`, icon:ICONS[t.slug], layout:LAYOUT[t.slug], body, uses:usesOf(body).map(componentOf),
     seoTitle:SEO[t.slug][0], seoDesc:SEO[t.slug][1] };
 });
 

@@ -7,17 +7,17 @@ core. Nothing here is written by hand: change a component in `soft-2/index.html`
 ## Add them to a project
 
 ```sh
-npx designme add tool-call buttons --astro
+npx designme add status-pill composer --astro
 ```
 
 They land in `src/components/designme` (or `components/designme` when there is no `src`), with the shared core in `core/`:
 
 ```astro
 ---
-import ToolCall from '../components/designme/tool-call/ToolCall.astro';
+import StatusPill from '../components/designme/status-pill/StatusPill.astro';
 ---
-<ToolCall />
-<ToolCall data-style="soft" class="my-call" />
+<StatusPill />
+<StatusPill data-style="soft" class="my-pill" />
 ```
 
 Each component imports `core/designme.css` and its own `.css`, and its `<script>` imports its `.js`, which imports the helpers it

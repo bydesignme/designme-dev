@@ -5,6 +5,8 @@ The pages beside the library, built with Astro: the landing page at `/` (`src/pa
 and its `.md`), the sitemap and `_redirects`. The library (`/library`) lists every component, so there is no separate list:
 `/components` redirects to it, and each old section page (`/components/status`) to its section there (`/library#s-status`).
 The library used to be the home page: the landing page sends its old addresses (`/#/changelog`, `/#s-status`) on to it.
+Only the live components (`tools/site/live.js`) get a page; the others redirect to `/library` (302) until they go live, and
+their thumbnails, share images and wall pictures stay out of the published `components/` folder (`publish.mjs`).
 
 The library itself is still built by `tools/site`, as `library.html`. These pages read what that build writes, so build it
 first:

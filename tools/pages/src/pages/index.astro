@@ -71,15 +71,19 @@ const bandCss = [pick(''), ...PHONE.map((x, k) => `@media (max-width:${(k ? PHON
 // seconds), Eval results and Agent inbox (each empties for a moment as it starts again) are left out, and so is Top pages
 // (its ranks are set in monospace). Three stacks from
 // 1440px (the first wider, for Activity heatmap), two from 1100px (placed by the script under the bento), one below, in the
-// three stacks' order. When a card here changes its height, sample them again and choose again
+// three stacks' order. When a card here changes its height, sample them again and choose again.
+// At launch only the live components are on the site (tools/site/live.js; owner, 24 Nov), so the six that aren't live yet
+// (Activity heatmap, Funnel chart, Donut chart, Eval radar, Radial goals, Line chart) gave their places to live ones, chosen
+// so each stack's tallest heights (tools/site/card-heights.json, Soft at 1440) add up within 10px of the others: these
+// twelve have not yet been sampled live as the ones before them were
 const BENTO3 = [
-  ['activity-heatmap', 'knowledge-sources', 'scheduled-runs', 'funnel-chart'],
-  ['donut-chart', 'plan-review', 'radar-chart', 'agent-lanes'],
-  ['agent-run-timeline', 'radial-goals', 'run-cost', 'line-chart'],
+  ['tool-connections', 'knowledge-sources', 'scheduled-runs', 'live-answer'],
+  ['reasoning-trail', 'plan-review', 'command-palette', 'agent-lanes'],
+  ['agent-run-timeline', 'context-meter', 'run-cost', 'file-explorer'],
 ];
 const BENTO2 = [
-  ['activity-heatmap', 'agent-run-timeline', 'radial-goals', 'run-cost', 'line-chart', 'scheduled-runs'],
-  ['donut-chart', 'plan-review', 'radar-chart', 'knowledge-sources', 'funnel-chart', 'agent-lanes'],
+  ['tool-connections', 'agent-run-timeline', 'live-answer', 'run-cost', 'file-explorer', 'reasoning-trail'],
+  ['knowledge-sources', 'plan-review', 'context-meter', 'command-palette', 'scheduled-runs', 'agent-lanes'],
 ];
 if ([...BENTO3.flat()].sort().join() !== [...BENTO2.flat()].sort().join()) throw new Error('landing: the bento\'s two layouts hold different cards');
 const BENTO = BENTO3.map(stack => stack.map(comp));
@@ -579,7 +583,7 @@ const jsonld = [
     <section class="lp-sec lp-wall" id="all" aria-labelledby="all-h">
       <div class="lp-in"><div class="lp-sh">
         <h2 id="all-h">All {total} components</h2>
-        <p>{nAgent} for the agent and {nBasics} app basics around it, each with its own page, demo and code.</p>
+        <p>{nAgent} for the agent and {nBasics} app {nBasics === 1 ? 'basic' : 'basics'} around it, each with its own page, demo and code.</p>
         <div class="lp-cta">
           <a class="pill primary lp-btn" href="/library">Browse the library<Fragment set:html={arrow} /></a>
           <a class="pill line lp-btn lp-gh" href={GITHUB}><Fragment set:html={GH_MARK} />Star on GitHub</a>

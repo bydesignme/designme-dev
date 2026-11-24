@@ -21,7 +21,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
-import { ROOT, SITE, SECTIONS, SETS, COMPONENTS } from './data.mjs';
+import { ROOT, SITE, SECTIONS, SETS, COMPONENTS, UNLISTED, borrows } from './data.mjs';
 // the theme bridge's table (tools/site/theme-bridge.js), so the docs list what the file sets
 const { MAP:BRIDGE, NAMES:BRIDGE_NAMES } = createRequire(import.meta.url)(path.join(ROOT, 'tools/site/theme-bridge.js'));
 
@@ -33,7 +33,21 @@ export const comp = reg => {
   if (!c) throw new Error(`docs: no component called ${reg}`);
   return c;
 };
-const C = reg => { const c = comp(reg); return `[${c.title}](/components/${reg})`; };
+// a component that isn't live yet (tools/site/live.js) has no page: its name stays as plain text, with no link
+const isLive = reg => COMPONENTS.some(x => x.reg === reg);
+const C = reg => {
+  if (isLive(reg)) return `[${comp(reg).title}](/components/${reg})`;
+  const u = UNLISTED.find(x => x.reg === reg); if (!u) throw new Error(`docs: no component called ${reg}`);
+  return u.title;
+};
+// the live ones of a list of examples, as links ('' when none is live, and the row or sentence that lists them leaves it out)
+const Cs = (...regs) => { regs.forEach(r => isLive(r) || C(r)); return regs.filter(isLive).map(C).join(', '); };
+// a keys table's rows, each with the live components it names; a row with none leaves the table
+const liveKeys = rows => rows.map(([k, what, where]) => { where.forEach(r => isLive(r) || C(r)); return [k, what, where.filter(isLive)]; }).filter(r => r[2].length);
+// the charts that follow the accent, and a component made of others, while one is live
+const CHARTS = ['line-chart', 'bar-chart', 'donut-chart'].filter(isLive);
+const MADE_OF = COMPONENTS.find(c => borrows(c).length);
+const andList = a => a.length > 1 ? a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1] : a.join('');
 const D = slug => {
   const d = LIST.find(x => x.slug === slug);
   if (!d) throw new Error(`docs: no page called ${slug}`);
@@ -42,6 +56,9 @@ const D = slug => {
 const count = COMPONENTS.length;
 const inSet = g => SECTIONS.filter(s => s.grp === g);
 const nOf = g => inSet(g).reduce((n, s) => n + s.cards.length, 0);
+const basicsN = () => `${nOf('basics')} app ${nOf('basics') === 1 ? 'basic' : 'basics'}`;
+// the app basics by name while there are few, by their sections' names once there are more
+const basicsAre = () => nOf('basics') > 6 ? andList(inSet('basics').map(s => s.title.toLowerCase())) : andList(inSet('basics').flatMap(s => s.cards.map(c => C(c.reg))));
 
 // where `npx designme add status-pill thinking composer` puts its files, from the registry the CLI reads
 const EXAMPLE = ['status-pill', 'thinking', 'composer'];
@@ -72,7 +89,7 @@ const BODY = {
     lead: 'Designme.dev is a free library of UI components for products built around AI agents.',
     sections: [
       ['What it is', [
-        ['p', `${count} free components: ${nOf('agent')} for the agent itself, like status pills, reasoning trails, agent trees, permission gates, plan reviews and run costs, and ${nOf('basics')} app basics around it.`],
+        ['p', `${count} free components: ${nOf('agent')} for the agent itself, like status pills, reasoning trails, agent trees, permission gates, plan reviews and run costs, and ${basicsN()} around it.`],
         ['p', 'Every component plays as a demo in the [library](/library), and has a page of its own with its install command, React props, code and questions.'],
       ]],
       ['Three styles, light and dark', [
@@ -85,7 +102,7 @@ const BODY = {
         ['p', `Each style has a light and a dark theme. Switch them in the header of any page here. In your own project, two attributes on \`<html>\` pick them. See ${D('theming')}.`],
       ]],
       ['What is in it', [
-        ['agents', `There are also ${nOf('basics')} app basics, like charts, date pickers and forms, for the product around the agent. They are all in the [library](/library#${inSet('basics')[0].id}).`],
+        ['agents', `There ${nOf('basics') === 1 ? 'is' : 'are'} also ${basicsN()} for the product around the agent: ${basicsAre()}. ${nOf('basics') === 1 ? 'It is' : 'They are all'} in the [library](/library#${inSet('basics')[0].id}).`],
       ]],
       ['HTML, React or Astro', [
         ['p', 'Every component comes in three versions. One is HTML, CSS and JavaScript on a small shared core that holds the tokens, icons and helpers. Another is a typed React component for React 19, with no dependencies beyond React, that works in Next.js, Vite and Astro islands. The third is an Astro component with the same markup, CSS and script as the HTML version.'],
@@ -176,7 +193,7 @@ const BODY = {
         ['p', 'Every component is also a shadcn registry item, in its React and Astro versions, so the shadcn CLI can add it to a project set up for shadcn/ui (one with a `components.json`):'],
         ['code', 'sh', `npx shadcn@latest add ${SITE}/r/shadcn/status-pill.json`, 'React'],
         ['code', 'sh', `npx shadcn@latest add ${SITE}/r/shadcn/astro/status-pill.json`, 'Astro'],
-        ['p', 'The files land in a `designme` folder in your components folder (the `components` alias in `components.json`), laid out as the designme CLI lays them out. The shared core comes along as a registry dependency, and a component made of others, like the Agent harness, brings them too. The files are copied as they are.'],
+        ['p', `The files land in a \`designme\` folder in your components folder (the \`components\` alias in \`components.json\`), laid out as the designme CLI lays them out. The shared core comes along as a registry dependency${MADE_OF ? `, and a component made of others, like the ${C(MADE_OF.reg)}, brings them too` : ''}. The files are copied as they are.`],
       ]],
       ['Theme bridge', [
         ['p', 'The theme bridge is a small CSS file that gives the components the colours and corners of a shadcn/ui or Tailwind v4 theme. It is opt-in: without it, the components keep their own look.'],
@@ -221,12 +238,12 @@ const BODY = {
       ['Add components', [
         ['steps', [
           ['Add them with the CLI', [
-            ['code', 'sh', 'npx designme add live-answer buttons --astro'],
+            ['code', 'sh', 'npx designme add live-answer status-pill --astro'],
             ['p', 'They land in `src/components/designme`, or `components/designme` when there is no `src` folder. The shared core, `core/designme.css` and `core/core.js`, is added once. Without `--astro`, the CLI says so when it finds an `astro.config` file in the folder you run it from.'],
-            ['tree', 'Your project', [astroTreeOf(['live-answer', 'buttons'])]],
+            ['tree', 'Your project', [astroTreeOf(['live-answer', 'status-pill'])]],
           ]],
           ['Use them in a page', [
-            ['code', 'astro', `---\nimport ${astroOf('live-answer')} from '../components/designme/live-answer/${astroOf('live-answer')}.astro';\nimport ${astroOf('buttons')} from '../components/designme/buttons/${astroOf('buttons')}.astro';\n---\n<${astroOf('live-answer')} />\n<${astroOf('buttons')} data-style="soft" class="my-buttons" />`],
+            ['code', 'astro', `---\nimport ${astroOf('live-answer')} from '../components/designme/live-answer/${astroOf('live-answer')}.astro';\nimport ${astroOf('status-pill')} from '../components/designme/status-pill/${astroOf('status-pill')}.astro';\n---\n<${astroOf('live-answer')} />\n<${astroOf('status-pill')} data-style="soft" class="my-pill" />`],
             ['p', 'The CLI prints the import line for each component. It uses your `@/` alias when your `tsconfig.json` has one, and a path from `src/pages` when it doesn\'t.'],
           ]],
         ]],
@@ -239,7 +256,7 @@ const BODY = {
           ['Script', [['p', 'Its `<script>` imports its `.js`, which is the HTML version\'s script with one line added: it imports the helpers it uses from `core/core.js`, the shared core as an ES module. Astro bundles each script once per page, however many times the component appears.']]],
           ['Mounting', [['p', 'The core starts each component when it scrolls into view and plays its demo, as on designme.dev. A click, a key or typing inside it stops the demo for good. With Astro\'s client router (`<ClientRouter />`), the core also starts the components on each page it brings in, and stops the ones it takes away.']]],
         ]],
-        ['p', `A component made of others, like the ${C('agent-harness')}, imports them and places them hidden on the page, where its script finds their markup. The CLI adds them with it.`],
+        ...(MADE_OF ? [['p', `A component made of others, like the ${C(MADE_OF.reg)}, imports them and places them hidden on the page, where its script finds their markup. The CLI adds them with it.`]] : []),
       ]],
       ['Props', [
         ['p', 'Each component has a typed `Props` interface: every attribute of a `<div>` (Astro\'s `HTMLAttributes<\'div\'>`), plus `data-style`. They all go on the component\'s root element.'],
@@ -319,7 +336,7 @@ const BODY = {
         ['p', 'This runs on the site only. In your project, set the roles yourself as shown above.'],
       ]],
       ['Charts follow the accent', [
-        ['p', `A chart's first colour is the accent's mark: \`--dm-c1\` is \`--dm-accent-mark\`. \`--dm-a2\` to \`--dm-a4\` mix it toward the surface for lighter steps. So ${C('line-chart')}, ${C('bar-chart')} and ${C('donut-chart')} change with the accent. Other series use fixed colours, \`--dm-c2\` to \`--dm-c6\`.`],
+        ['p', `A chart's first colour is the accent's mark: \`--dm-c1\` is \`--dm-accent-mark\`. \`--dm-a2\` to \`--dm-a4\` mix it toward the surface for lighter steps. ${CHARTS.length ? `So ${andList(CHARTS.map(C))} ${CHARTS.length === 1 ? 'changes' : 'change'} with the accent. ` : ''}Other series use fixed colours, \`--dm-c2\` to \`--dm-c6\`.`],
       ]],
       ['Fonts', [
         ['p', 'The components use Inter and JetBrains Mono, and fall back to the system font. Override `--dm-sans` and `--dm-mono` to use others, for example the families `next/font` gives you.'],
@@ -333,34 +350,34 @@ const BODY = {
       ['Roles and labels', [
         ['p', 'Components use the ARIA pattern that fits what they do. For example:'],
         ['table', ['Pattern', 'Roles and states', 'For example'], [
-          ['Menus', 'A `menu` of `menuitem` rows. The button that opens one reports `aria-expanded`', C('buttons')],
-          ['Lists you pick from', 'A `listbox` of `option` rows. The search box that drives one is a `combobox`', `${C('command-palette')}, ${C('country-select')}`],
-          ['A single choice', 'A `radiogroup`', C('decision-prompt')],
-          ['On or off settings', 'A `switch` with `aria-checked`', C('agent-settings')],
-          ['Tabs', '`tablist`, `tab` and `aria-selected`', `${C('terminal-stream')}, ${C('segmented-control')}`],
-          ['Sliders', '`aria-valuenow` and `aria-valuetext`', C('slider')],
-          ['File trees', 'A `tree` of `treeitem` rows', C('file-explorer')],
-          ['Popovers', 'A labelled `dialog`, like the calendar', `${C('date-picker')}, ${C('citation-hover-card')}`],
-          ['Toggle and icon buttons', 'Toggles report their state with `aria-pressed`. Icon-only buttons have a label', `${C('buttons')}, ${C('line-chart')}`],
-        ]],
+          ['Menus', 'A `menu` of `menuitem` rows. The button that opens one reports `aria-expanded`', Cs('buttons', 'model-picker')],
+          ['Lists you pick from', 'A `listbox` of `option` rows. The search box that drives one is a `combobox`', Cs('command-palette', 'country-select')],
+          ['A single choice', 'A `radiogroup`', Cs('decision-prompt')],
+          ['On or off settings', 'A `switch` with `aria-checked`', Cs('agent-settings')],
+          ['Tabs', '`tablist`, `tab` and `aria-selected`', Cs('terminal-stream', 'segmented-control')],
+          ['Sliders', '`aria-valuenow` and `aria-valuetext`', Cs('slider')],
+          ['File trees', 'A `tree` of `treeitem` rows', Cs('file-explorer')],
+          ['Popovers', `A labelled \`dialog\`${isLive('date-picker') ? ', like the calendar' : ''}`, Cs('date-picker', 'citation-hover-card')],
+          ['Toggle and icon buttons', 'Toggles report their state with `aria-pressed`. Icon-only buttons have a label', Cs('buttons', 'line-chart', 'answer-action-bar')],
+        ].filter(row => row[2])],
       ]],
       ['Live updates', [
-        ['p', `Agent work changes while you watch. The parts that change are \`aria-live="polite"\` regions, so the change is read out: ${C('status-pill')}, the thread above ${C('composer')}, the message line of ${C('context-meter')}, the thread in ${C('comments')} and the month in ${C('date-picker')}.`],
+        ['p', `Agent work changes while you watch. The parts that change are \`aria-live="polite"\` regions, so the change is read out: ${andList([['status-pill', c => c], ['composer', c => `the thread above ${c}`], ['context-meter', c => `the message line of ${c}`], ['comments', c => `the thread in ${c}`], ['date-picker', c => `the month in ${c}`]].filter(([r]) => isLive(r)).map(([r, f]) => f(C(r))))}.`],
         ['p', 'Decorative motion, like status glyphs and the wires of a canvas, is `aria-hidden`, so screen readers hear the words, not the animation.'],
       ]],
       ['Keyboard', [
-        ['keys', [
+        ['keys', liveKeys([
           [['Esc'], 'Closes menus and popovers', ['composer', 'date-picker']],
-          [['Esc'], 'Also returns focus to the button or field that opened them', ['buttons', 'country-select', 'date-picker']],
-          [['Enter', 'Space', '↓'], 'Open a menu with the focus on its picked or first item; ↑ opens it on its last', ['buttons', 'profile-menu']],
-          [['Tab'], 'Closes a menu and moves on', ['buttons', 'profile-menu']],
+          [['Esc'], 'Also returns focus to the button or field that opened them', ['buttons', 'country-select', 'date-picker', 'model-picker']],
+          [['Enter', 'Space', '↓'], 'Open a menu with the focus on its picked or first item; ↑ opens it on its last', ['buttons', 'profile-menu', 'model-picker']],
+          [['Tab'], 'Closes a menu and moves on', ['buttons', 'profile-menu', 'model-picker']],
           [['↑', '↓', '←', '→'], 'Move through lists, menus and toolbars, wrapping at the ends', ['command-palette', 'country-select', 'answer-action-bar']],
-          [['Home', 'End'], 'Go to the first and last item of a menu', ['buttons', 'profile-menu']],
+          [['Home', 'End'], 'Go to the first and last item of a menu', ['buttons', 'profile-menu', 'model-picker']],
           [['←', '→', '↑', '↓'], 'In the date pickers, move a day or a week', ['date-picker', 'date-range-picker']],
           [['Home', 'End'], 'Go to the start and end of the week', ['date-picker', 'date-range-picker']],
           [['Page Up', 'Page Down'], 'Move a month, or a year with Shift', ['date-picker', 'date-range-picker']],
           [['1', '…', '9'], 'Pick an option', ['decision-prompt']],
-        ]],
+        ])],
         ['p', 'Focus from the keyboard shows as one 2px ring in `--dm-focus`, a grey that reaches 3:1 on the page: an outline 2px outside the control, or a 2px ring drawn with `box-shadow` where an outline would be cut off. It uses `:focus-visible`, so a click or a tap on a button doesn\'t show it. Fields take no ring: their dimmed grey edge steps up to that same grey while they have the focus, and goes back once you leave them.'],
         ['note', `Most components work fully with a keyboard. A few, like ${C('file-explorer')}, are still getting their keyboard support.`],
       ]],

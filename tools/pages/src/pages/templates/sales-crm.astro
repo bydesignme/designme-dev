@@ -11,7 +11,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import Page from '../../layouts/Page.astro';
-import { ROOT, COMPONENTS } from '../../lib/data.mjs';
+import { ROOT, componentOf } from '../../lib/data.mjs';
 
 // the components the screen is made of, by their registry name: each one's installed CSS is on the page. The accounts table and
 // the account panel started from Task table and Details panel, but carry their own markup, so they have their own copy of
@@ -27,7 +27,7 @@ const USES = ['agent-harness', 'progress', 'kanban-board', 'filter-menu', 'searc
 const SCALE = v => v >= 15 ? v : v >= 13.75 ? 14 : v >= 12.75 ? 13 : v >= 11.75 ? 12 : 11;
 const snap = t => t.replace(/font-size:\s*([\d.]+)px/g, (m, v) => 'font-size:' + SCALE(+v) + 'px');
 const css = snap(USES.map(reg => {
-  const c = COMPONENTS.find(x => x.reg === reg);
+  const c = componentOf(reg);
   if (!c) throw new Error('sales-crm: no component called ' + reg);
   return `/* ${c.title} */\n` + c.html.css;
 }).join('\n'));

@@ -15,12 +15,16 @@ import { createRequire } from 'node:module';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const pkg = path.resolve(here, '..');
 const reg = path.resolve(pkg, '../../r');
-const read = name => JSON.parse(fs.readFileSync(path.join(reg, name + '.json'), 'utf8'));
+// the components that aren't live yet (tools/site/live.js) are out of r/, but their styles keep in step all the same: the site
+// build writes their entries to tools/pages/data/unlisted, which nothing serves
+const unlistedDir = path.resolve(pkg, '../../tools/pages/data/unlisted');
+const UNLISTED = fs.existsSync(unlistedDir) ? fs.readdirSync(unlistedDir).filter(f => f.endsWith('.json')).map(f => f.slice(0, -5)) : [];
+const read = name => JSON.parse(fs.readFileSync(path.join(UNLISTED.includes(name) ? unlistedDir : reg, name + '.json'), 'utf8'));
 const file = (item, ext) => item.files.find(f => f.path.endsWith('.' + ext)).content;
 const write = (rel, text) => { const p = path.join(pkg, rel); fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, text); };
 
-// every component in the registry, in the site's order
-const COMPONENTS = read('index').items.map(i => i.name);
+// every component in the registry, in the site's order, then the ones not live yet that have a React version
+const COMPONENTS = [...read('index').items.map(i => i.name), ...UNLISTED.filter(n => fs.existsSync(path.join(pkg, 'src/components', n)))];
 const HEAD = '/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */\n';
 
 /* ---------- the dm- prefix ---------- */

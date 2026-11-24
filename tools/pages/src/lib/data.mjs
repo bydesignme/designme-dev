@@ -88,6 +88,19 @@ export const COMPONENTS = SECTIONS.flatMap(sec => sec.cards.map(card => {
 }));
 COMPONENTS.forEach((c, i) => { c.prev = COMPONENTS[(i - 1 + COMPONENTS.length) % COMPONENTS.length]; c.next = COMPONENTS[(i + 1) % COMPONENTS.length]; });
 
+// the components that aren't live (tools/site/live.js): no page, no link, not in the sitemap. Only the templates use them, for
+// their HTML, CSS and JS, which the site build writes to data/unlisted (never served)
+export const UNLISTED = (site.unlisted || []).map(x => ({ ...x, slug:x.reg }));
+// any component a template is made of, live or not: its title and the code npx designme add would install
+export function componentOf(reg){
+  const c = COMPONENTS.find(x => x.reg === reg); if (c) return c;
+  const u = UNLISTED.find(x => x.reg === reg); if (!u) return null;
+  const html = maybe('tools/pages/data/unlisted', reg + '.json');
+  if (!html) throw new Error(`no registry entry for ${reg} in tools/pages/data/unlisted: build tools/site first`);
+  const f = ext => (html.files.find(x => x.path.endsWith(ext)) || {}).content || '';
+  return { ...u, html:{ html:f('.html'), css:f('.css'), js:f('.js'), needs:html.dependencies || [] } };
+}
+
 // components whose demo borrows other components' templates and scripts (the Agent harness tells its stories with them)
 export function borrows(c){
   const names = new Set([...c.html.js.matchAll(/tplOf\('([\w-]+)'\)|DM\.defs\.([\w$]+)|\bcomp\('([\w-]+)'/g)].map(m => m[1] || m[2] || m[3]));
