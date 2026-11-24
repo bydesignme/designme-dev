@@ -88,8 +88,8 @@ export function HumanHandoff({
   const L = { assignedTo: 'Assigned to', context: 'Context passed along', reassign: 'Reassign', reassignTo: 'Reassign to', target: `${Math.round(targetSeconds / 60)} min target`,
     edit: 'Edit', save: 'Save', cancel: 'Cancel', edited: 'edited', ...labels };
   const menu = usePopover({ align: 'end', side: 'down' });
-  // the warning notice's own Reassign opens the same list, from the foot (upwards when there is no room below)
-  const footMenu = usePopover({ align: 'end' });
+  // the warning notice's own Reassign opens the same list, upwards from the card's foot, over the card rather than below it
+  const footMenu = usePopover({ align: 'end', side: 'up' });
   const [root, inner] = useGrow();
   const [editing, setEditing] = useState(false);
   // the message box is drawn afresh after each edit, so what React renders and what was typed never disagree
