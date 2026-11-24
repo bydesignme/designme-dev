@@ -54,7 +54,9 @@ body{background:var(--dm-page);color:var(--dm-fg);font-family:var(--dm-sans);fon
 .dl2b .num{font-variant-numeric:tabular-nums}
 .dl2b-h,.dl2b-f{display:flex;align-items:center;gap:8px;min-height:28px}
 .dl2b-hi{width:28px;height:28px;border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));display:grid;place-items:center;background:var(--dm-chip);color:var(--dm-fg2);flex:none}
-.dl2b-hw{display:flex;align-items:baseline;gap:8px;min-width:0}
+.dl2b-hw{display:flex;align-items:baseline;gap:8px;min-width:0;overflow:hidden}
+.dl2b-sh{display:none}
+@container (max-width:420px){.dl2b-lg{display:none}.dl2b-sh{display:inline}.dl2b-h>.dl2b-meta{display:none}}
 .dl2b-ttl{font-size:14px;font-weight:500;white-space:nowrap}
 .dl2b-meta{font-size:12.5px;color:var(--dm-muted);white-space:nowrap}
 .dl2b-meta b{font-weight:500;color:var(--dm-fg)}
@@ -116,6 +118,7 @@ body{background:var(--dm-page);color:var(--dm-fg);font-family:var(--dm-sans);fon
 .dl2b-nm{display:flex;flex-direction:column;min-width:0;flex:1}
 .dl2b-nm b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dl2b-nm span{font-size:12px;line-height:16px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dl2b-qo{color:var(--dm-warn)}
 .dl2b-bud{display:flex;flex-direction:column;gap:6px}
 .dl2b-bl{display:flex;align-items:baseline;justify-content:space-between;gap:6px;font-size:12px;line-height:16px;color:var(--dm-muted);white-space:nowrap}
 .dl2b-bl b{font-weight:500;color:var(--dm-fg)}
@@ -143,9 +146,9 @@ body{background:var(--dm-page);color:var(--dm-fg);font-family:var(--dm-sans);fon
   .dl2b-b.run .m::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;margin:0 4px 1px 0;animation:dl2b-pulse 1.4s ease-in-out infinite}
   .dl2b-b.narrow>*{visibility:hidden}
   .dl2b-hr{top:-4px;bottom:-4px!important;left:auto;width:0;height:auto;border-top:0;border-left:1.5px dashed var(--dm-line-strong)}
-  .dl2b-hr span{right:auto;left:-1px;bottom:auto;top:-24px;transform:translateX(-50%)}
+  .dl2b-hr span{display:none}
   .dl2b-ov{top:-4px;bottom:-4px!important;height:auto!important;border-bottom:1.5px dashed var(--dm-warn-mark);border-left:0}
-  .dl2b-oc{left:auto!important;top:-2px!important;right:0;transform:translateY(-100%);margin:0}
+  .dl2b-oc{display:none}
   .dl2b-sum .dl2b-long{display:none}
 }
 
@@ -201,7 +204,7 @@ body{background:var(--dm-page);color:var(--dm-fg);font-family:var(--dm-sans);fon
     <template><div class="dl2b panel" role="region" aria-label="Team load">
       <div class="dl2b-h">
         <span class="dl2b-hi" aria-hidden="true"><svg class="i s"><use href="#i-bars"/></svg></span>
-        <span class="dl2b-hw"><span class="dl2b-ttl">Team load</span><span class="dl2b-meta">All done by <b class="num dl2b-by">3:00 pm</b></span></span>
+        <span class="dl2b-hw"><span class="dl2b-ttl">Team load</span><span class="dl2b-meta"><span class="dl2b-lg">All done by </span><span class="dl2b-sh">Done </span><b class="num dl2b-by">3:00 pm</b></span></span>
         <span class="dl2b-sp"></span>
         <span class="dl2b-meta"><b class="num dl2b-usd">$0.00</b> planned</span>
       </div>
@@ -297,7 +300,7 @@ DM.def('dl2b', (st, c, card) => {
     else b.setAttribute('aria-label', `${t.t}, running, ${Math.ceil(t.left)} min left`);
     b.dataset.tip = `${t.t} · ${t.min} min`; return b; };
   let sc = 80;
-  function scale(){ const m = Math.max(...AG.map(a => tot(a.id))); const want = Math.max(80, Math.ceil((m + 10) / 10) * 10); if (want !== sc){ sc = want; board.style.setProperty('--sc', sc); } }
+  function scale(){ const m = Math.max(...AG.map(a => tot(a.id))); const want = Math.max(80, Math.ceil((m + 14) / 10) * 10); if (want !== sc){ sc = want; board.style.setProperty('--sc', sc); } }
   function drawCol(id){
     const tr = track(id), list = Q[id], have = new Map($$('.dl2b-b', tr).map(e => [e.dataset.id, e])), nar = narrow(), w = tr.getBoundingClientRect().width;
     have.forEach((e, k) => { if (!list.some(t => t.id === k)) e.remove(); });
@@ -305,7 +308,7 @@ DM.def('dl2b', (st, c, card) => {
       if (!e || e.classList.contains('run') !== run){ const n = blockEl(t, run); if (e) e.replaceWith(n); e = n; }
       const bs = $$('.dl2b-b', tr); if (bs[i] !== e) tr.insertBefore(e, bs[i] || null);
       e.style.setProperty('--m', t.left.toFixed(2)); const m = $('.m', e), v = Math.ceil(t.left) + 'm'; if (m.textContent !== v) m.textContent = v;
-      e.classList.toggle('tiny', !nar && t.left / sc * H < 20); e.classList.toggle('narrow', nar && t.left / sc * w < 30); });
+      e.classList.toggle('tiny', !nar && t.left / sc * H < 20); e.classList.toggle('narrow', nar && t.left / sc * w < 40); });
     const T0 = tot(id), over = T0 - HOUR, ov = $('.dl2b-ov', tr), oc = $('.dl2b-oc', tr);
     tr.style.setProperty('--tot', T0.toFixed(2));
     ov.classList.toggle('on', over > .5); oc.classList.toggle('on', over > .5);
@@ -317,7 +320,7 @@ DM.def('dl2b', (st, c, card) => {
     const cs = cost(id), bl = $('.dl2b-bl', col(id)), mt = $('.dl2b-mt', col(id));
     $('.dl2b-c', col(id)).textContent = money(cs); bl.classList.toggle('warn', cs > BUDGET); mt.classList.toggle('warn', cs > BUDGET);
     mt.style.setProperty('--v', Math.min(1, cs / METER).toFixed(3));
-    $('.dl2b-q', col(id)).textContent = list.length ? `${Math.ceil(T0)} min queued` : 'Free now';
+    $('.dl2b-q', col(id)).innerHTML = list.length ? `${Math.ceil(T0)} min queued${nar && over > .5 ? `<span class="dl2b-qo">, ${Math.ceil(over)} over the hour</span>` : ''}` : 'Free now';
   }
   function drawHead(){
     const m = Math.max(...AG.map(a => tot(a.id))); byEl.textContent = hhmm(clock + m);
