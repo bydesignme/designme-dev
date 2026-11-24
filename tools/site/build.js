@@ -917,8 +917,10 @@ for (const [a, b] of SITE_PATCHES.patches){
   site = site.replace(a, () => b);
 }
 // one list (SPLIT, above): no switch between the sets, no App basics heading where Agent components end, no set labels in the
-// sidebar
-if (!SPLIT) site = site.replace('</head>', '<style id="one-list">.grp-sw,.grp-next,.side-lbl{display:none!important}</style>\n</head>');
+// sidebar. What follows the switch (the launch row, or the first section when Recent or a search empties the row) takes its
+// place under the intro's line
+if (!SPLIT) site = site.replace('</head>', '<style id="one-list">.grp-sw,.grp-next,.side-lbl{display:none!important}'
+  + 'body.ui .grp-sw+.launch,body.ui .grp-sw+.launch:is(.filtered-out,:not(:has(.comp)))+.lib-sec{margin-top:calc(var(--ig) * 2 + 1px)}</style>\n</head>');
 // the number of components on the page (live.js), where the copy states it (make-patches.py writes it as @@COUNT@@)
 if (site.split('@@COUNT@@').length !== 2) throw new Error('the intro\'s component count (@@COUNT@@) is not on the page once');
 site = site.replace('@@COUNT@@', String(done.length));
