@@ -79,11 +79,11 @@ body{background:var(--dm-page);color:var(--dm-fg);font-family:var(--dm-sans);fon
    the line across is the hour, and work above it won't be done within the hour */
 .dl2b-board{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
 .dl2b-col{display:flex;flex-direction:column;gap:12px;min-width:0}
-.dl2b-tr{position:relative;height:248px;display:flex;flex-direction:column-reverse;gap:4px;padding:0;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));transition:background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
+.dl2b-tr{position:relative;height:288px;display:flex;flex-direction:column-reverse;gap:4px;padding:0;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));transition:background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
 .dl2b-tr::before{content:"";position:absolute;left:0;right:0;bottom:-6px;height:1px;background:var(--dm-rail)}
 .dl2b-tr.over-d{background:var(--dm-chip);box-shadow:0 0 0 6px var(--dm-chip)}
 /* a block: a task, as tall as its minutes of work left, in its agent's colour */
-.dl2b-b{position:relative;flex:none;height:calc(var(--m) / var(--sc) * 248px - 4px);min-height:2px;display:flex;align-items:flex-start;gap:6px;padding:4px 8px;overflow:hidden;border-radius:calc(7px * var(--dm-rk-s,var(--dm-rk)));background:var(--bb);color:var(--bf);font-size:12px;line-height:16px;text-align:left;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;transition:height .3s linear,background-color var(--dm-t) var(--dm-ease),color var(--dm-t) var(--dm-ease),opacity var(--dm-t-fast)}
+.dl2b-b{position:relative;z-index:1;flex:none;font-weight:500;height:calc(var(--m) / var(--sc) * 288px - 4px);min-height:2px;display:flex;align-items:flex-start;gap:6px;padding:4px 8px;overflow:hidden;border-radius:calc(7px * var(--dm-rk-s,var(--dm-rk)));background:var(--bb);color:var(--bf);font-size:12px;line-height:16px;text-align:left;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;transition:height .3s linear,background-color var(--dm-t) var(--dm-ease),color var(--dm-t) var(--dm-ease),opacity var(--dm-t-fast)}
 .dl2b-b .tx{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
 .dl2b-b .m{flex:none;opacity:.9}
 .dl2b-b.run{cursor:default}
@@ -95,12 +95,13 @@ body{background:var(--dm-page);color:var(--dm-fg);font-family:var(--dm-sans);fon
 .dl2b-b.lift,.dl2b-t.lift{opacity:.35}
 .dl2b-ghost{position:fixed;left:0;top:0;z-index:60;pointer-events:none;margin:0;box-shadow:var(--dm-shadow-pop);cursor:grabbing}
 .dl2b-ghost.abs{position:absolute}
-.dl2b-col[data-a="res"]{--bb:var(--dm-pl-bg);--bf:var(--dm-pl)}
-.dl2b-col[data-a="wri"]{--bb:var(--dm-pb-bg);--bf:var(--dm-pb)}
-.dl2b-col[data-a="des"]{--bb:var(--dm-pk-bg);--bf:var(--dm-pk)}
-.dl2b-col[data-a="cod"]{--bb:var(--dm-pm-bg);--bf:var(--dm-pm)}
+.dl2b-col[data-a="res"]{--bb:var(--dm-av-l);--bf:var(--dm-av-l-ink)}
+.dl2b-col[data-a="wri"]{--bb:var(--dm-av-b);--bf:var(--dm-av-b-ink)}
+.dl2b-col[data-a="des"]{--bb:var(--dm-av-k);--bf:var(--dm-av-k-ink)}
+.dl2b-col[data-a="cod"]{--bb:var(--dm-av-m);--bf:var(--dm-av-m-ink)}
 /* the hour: a neutral dashed line across the board, and the work above it hatched in the warning colour */
-.dl2b-hr{position:absolute;left:-8px;right:-8px;height:0;border-top:1.5px dashed var(--dm-line-strong);pointer-events:none;z-index:3;transition:bottom .5s var(--dm-ease)}
+.dl2b-hr{position:absolute;left:-8px;right:-8px;height:0;border-top:1.5px dashed var(--dm-line-strong);pointer-events:none;z-index:0;transition:bottom .5s var(--dm-ease)}
+.dl2b-hr span{z-index:4}
 .dl2b-col:first-child .dl2b-hr{left:0}
 .dl2b-col:last-child .dl2b-hr{right:0}
 .dl2b-hr span{position:absolute;right:4px;bottom:4px;height:20px;padding:0 7px;display:inline-flex;align-items:center;border-radius:var(--dm-r-tag);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 35%,transparent);font-size:11.5px;font-weight:500;color:var(--dm-fg2);white-space:nowrap}
@@ -244,7 +245,7 @@ DM.PLAYS.add('dl2b');
 DM.def('dl2b', (st, c, card) => {
   const root = $('.dl2b', st), board = $('.dl2b-board', root), inEl = $('.dl2b-in', root), byEl = $('.dl2b-by', root), usdEl = $('.dl2b-usd', root);
   const auto = $('.toggle', root), evenB = $('.dl2b-even', root), sum = $('.dl2b-sum', root), sr = $('.dl2b-sr', root), menu = $('.dl2b-menu', st);
-  const R = REDUCE, H = 248, HOUR = 60, BUDGET = 2.5, METER = 4;
+  const R = REDUCE, H = 288, HOUR = 60, BUDGET = 2.5, METER = 4;
   const style = () => getComputedStyle(root).getPropertyValue('--dm-motion').trim() || 'soft';
   const EASE = () => getComputedStyle(root).getPropertyValue('--dm-ease').trim() || 'cubic-bezier(.22,1,.36,1)';
   const MS = k => ({ bp:{ move:320, fall:460 }, clean:{ move:340, fall:620 }, soft:{ move:460, fall:700 } }[style()] || { move:400, fall:600 })[k];
@@ -377,7 +378,7 @@ DM.def('dl2b', (st, c, card) => {
   }
   function add(t){ waiting.push(t); drawIn(); const e = $(`.dl2b-t[data-id="${t.id}"]`, inEl);
     if (e && !R) anim(e, [{ opacity:0, transform:'translateX(24px)' }, { opacity:1, transform:'none' }], { duration:MS('fall') * .8 });
-    if (auto.getAttribute('aria-checked') === 'true') c.later(R ? 0 : 900, () => { if (waiting.includes(t)) place(t.id, t.can[0], 'auto'); }); }
+    if (auto.getAttribute('aria-checked') === 'true') c.later(R ? 0 : 650, () => { if (waiting.includes(t)) place(t.id, t.can[0], 'auto'); }); }
 
   /* ---- the agents at work: the running block drains as its work is done, and the stack drops ---- */
   const MIN = 2000;
@@ -457,8 +458,8 @@ DM.def('dl2b', (st, c, card) => {
     place(id, to, 'drop');
   }
   c.run(async () => {
-    await c.step(900);
-    for (const t of INCOMING.slice(0, 4)){ add(t); await c.step(R ? 0 : 1100); }
+    await c.step(300);
+    for (const t of INCOMING.slice(0, 4)){ add(t); await c.step(R ? 0 : 950); }
     await c.step(1600);
     // the release notes can be written by the Writer, who has room
     await demoDrag(INCOMING[1].id, 'wri'); away(); await c.step(1400);

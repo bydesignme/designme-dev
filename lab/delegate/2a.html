@@ -88,6 +88,9 @@ body{background:var(--dm-page);color:var(--dm-fg);font-family:var(--dm-sans);fon
 .dl2a-cur .src .i{width:16px;height:16px}
 .dl2a-cur .w{display:flex;flex-direction:column;min-width:0}
 .dl2a-cur .w .tx{font-weight:500}
+.dl2a-cur.pk{background:var(--ag);color:var(--ag-ink);box-shadow:none;transition:background-color var(--dm-t) var(--dm-ease),color var(--dm-t) var(--dm-ease)}
+.dl2a-cur.pk .src{background:color-mix(in srgb,var(--ag-ink) 16%,transparent);color:inherit}
+.dl2a-cur.pk .w small{color:inherit}
 .dl2a-cur .w small{font-size:12px;line-height:16px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dl2a-idle{height:48px;display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--dm-muted)}
 .dl2a-idle .i{color:var(--dm-ok-mark)}
@@ -97,6 +100,8 @@ body{background:var(--dm-page);color:var(--dm-fg);font-family:var(--dm-sans);fon
 .dl2a-why .tag .i{width:12px;height:12px}
 .dl2a-why .tag .i.okk{color:var(--dm-ok-mark)}
 .dl2a-why .tag.you{background:var(--dm-accent-bg);color:var(--dm-accent-fg)}
+.dl2a-why .dl2a-mk.sm{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)))}
+.dl2a-why .dl2a-mk.sm .i{width:12px;height:12px}
 .dl2a-why .av{width:16px;height:16px;font-size:8px}
 
 /* the routes: a neutral line from the switchboard to every agent, drawn on the body; in Blueprint they turn square corners */
@@ -104,7 +109,7 @@ body{background:var(--dm-page);color:var(--dm-fg);font-family:var(--dm-sans);fon
 .dl2a-lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:0}
 .dl2a-lines path{fill:none;stroke:var(--dm-rail);stroke-width:1.5;stroke-linecap:round;transition:stroke var(--dm-t-fast) var(--dm-ease),opacity var(--dm-t) var(--dm-ease),stroke-width var(--dm-t-fast)}
 .dl2a.scan .dl2a-lines path{stroke-dasharray:3 5;animation:dl2a-flow .5s linear infinite}
-.dl2a-lines path.on{stroke:var(--dm-accent-mark);stroke-width:2;stroke-dasharray:none;animation:none}
+.dl2a-lines path.on{stroke:var(--win,var(--dm-accent-mark));stroke-width:3;stroke-dasharray:none;animation:none}
 .dl2a-lines path.off{opacity:.4;stroke-dasharray:none;animation:none}
 @keyframes dl2a-flow{to{stroke-dashoffset:-8}}
 
@@ -122,14 +127,16 @@ body{background:var(--dm-page);color:var(--dm-fg);font-family:var(--dm-sans);fon
 /* an agent's fit for the task being routed: an opaque neutral chip on its route, just above the agent */
 .dl2a-sc{position:absolute;left:14px;top:-28px;transform:translateX(-50%) scale(.9);height:20px;padding:0 7px;display:inline-flex;align-items:center;border-radius:var(--dm-r-tag);font-size:11.5px;font-weight:500;color:var(--dm-muted);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 35%,transparent);white-space:nowrap;opacity:0;transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease),color var(--dm-t-fast),background var(--dm-t-fast);z-index:2}
 .dl2a-sc.show{opacity:1;transform:translateX(-50%)}
-.dl2a-sc.win{color:var(--dm-accent-fg);background:linear-gradient(var(--dm-accent-bg),var(--dm-accent-bg)),var(--dm-surface);box-shadow:none}
-.dl2a-q{display:flex;flex-direction:column;gap:6px;min-width:0}
-.dl2a-qi{width:100%;max-width:none;height:32px;padding:0 10px;position:relative;overflow:hidden}
+.dl2a-sc.win{color:var(--ag-ink);background:var(--ag);box-shadow:none}
+.dl2a-q{display:flex;flex-direction:column;gap:8px;min-width:0}
+.dl2a-qi{width:100%;max-width:none;height:36px;padding:0 10px 0 8px;position:relative;overflow:hidden;background:var(--ag);color:var(--ag-ink);box-shadow:none}
+.dl2a-qi .src{background:color-mix(in srgb,var(--ag-ink) 16%,transparent);color:inherit}
+@media (hover:hover) and (pointer:fine){.dl2a-qi:not(.run,.done):hover{background:color-mix(in srgb,var(--ag) 86%,var(--ag-ink))}}
 .dl2a-qi.run{cursor:default;padding-bottom:2px}
-.dl2a-qi.run::after{content:"";position:absolute;left:0;bottom:0;height:2px;width:calc(var(--p,0) * 100%);background:var(--dm-accent-mark);transition:width .25s linear}
+.dl2a-qi.run::after{content:"";position:absolute;left:0;bottom:0;height:3px;width:calc(var(--p,0) * 100%);background:var(--ag-ink);transition:width .25s linear}
 .dl2a-qi.done{cursor:default}
 .dl2a-qi.done::after{display:none}
-.dl2a-qi .ok{color:var(--dm-ok-mark);margin-left:auto;flex:none}
+.dl2a-qi .ok{color:inherit;margin-left:auto;flex:none}
 .dl2a-qi .you{width:16px;height:16px;font-size:8px;margin-left:auto}
 .dl2a-more{font-size:12px;line-height:16px;color:var(--dm-muted);padding-left:10px}
 .dl2a-more:empty{display:none}
@@ -163,11 +170,9 @@ body{background:var(--dm-page);color:var(--dm-fg);font-family:var(--dm-sans);fon
 :root:not([data-style]) .dl2a-t{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 60%,transparent)}
 :root:not([data-style]) .dl2a-ghost{box-shadow:inset 0 0 0 1px var(--dm-line-strong),0 12px 28px -14px rgba(20,20,12,.3)}
 :root:not([data-style]) .dl2a-lines path{stroke-linecap:square;stroke-width:1}
-:root:not([data-style]) .dl2a-lines path.on{stroke-width:1.5;stroke:var(--dm-fg)}
+:root:not([data-style]) .dl2a-lines path.on{stroke-width:2.5}
 :root:not([data-style]) .dl2a-sc{box-shadow:inset 0 0 0 1px var(--dm-rail);font-size:10.5px;letter-spacing:.03em}
-:root:not([data-style]) .dl2a-sc.win{background:var(--dm-accent);color:var(--dm-on-accent)}
 :root:not([data-style]) .dl2a-why .tag.you{background:var(--dm-accent);color:var(--dm-on-accent)}
-:root:not([data-style]) .dl2a-qi.run::after{background:var(--dm-fg)}
 :root:not([data-style]) .dl2a-dk.over{background:var(--dm-wash);box-shadow:0 0 0 8px var(--dm-wash),0 0 0 9px var(--dm-rail)}
 :root:not([data-style]) .dl2a-hi{background:none;box-shadow:inset 0 0 0 1px var(--dm-rail)}
 
@@ -179,7 +184,8 @@ body{background:var(--dm-page);color:var(--dm-fg);font-family:var(--dm-sans);fon
 :root[data-style="clean"] .dl2a-f{padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
 :root[data-style="clean"] .dl2a-hi{background:var(--dm-surface);box-shadow:var(--dm-btn2-depth);border-radius:10px}
 :root[data-style="clean"] .dl2a-t{border-radius:10px;box-shadow:inset 0 0 0 1px var(--dm-hair),0 1px 2px rgba(0,0,0,.04)}
-:root[data-style="clean"][data-theme="dark"] .dl2a-t{background:var(--dm-raised)}
+:root[data-style="clean"][data-theme="dark"] .dl2a-t:not(.dl2a-qi,.pk){background:var(--dm-raised)}
+:root[data-style="clean"] .dl2a-qi{box-shadow:none}
 :root[data-style="clean"] .dl2a-t .src{border-radius:6px}
 :root[data-style="clean"] .dl2a-cur .src{border-radius:8px}
 :root[data-style="clean"] .dl2a-mk{border-radius:8px}
@@ -188,7 +194,6 @@ body{background:var(--dm-page);color:var(--dm-fg);font-family:var(--dm-sans);fon
 :root[data-style="clean"] .dl2a-dk.win{background:var(--dm-row-on)}
 :root[data-style="clean"] .dl2a-auto{height:28px;padding:0 10px 0 8px;margin-left:-8px;border-radius:999px;transition:background-color var(--dm-t-fast) var(--dm-ease)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dl2a-auto:hover{background:var(--dm-row);color:var(--dm-fg)}}
-:root[data-style="clean"] .dl2a-lines path.on{stroke:var(--dm-accent-mark)}
 @container (max-width:560px){:root[data-style="clean"] .dl2a-dk{margin:0 -8px}}
 
 @media (prefers-reduced-motion:reduce){.dl2a.scan .dl2a-lines path{animation:none}.dl2a-qi.run::after{transition:none}}
@@ -297,7 +302,7 @@ DM.def('dl2a', (st, c, card) => {
   /* ---- drawing ---- */
   const srcIc = ic => `<span class="src" aria-hidden="true"><svg class="i"><use href="#i-${ic}"/></svg></span>`;
   const mkHTML = a => `<span class="dl2a-mk" style="--ag:var(--dm-av-${a.av});--ag-ink:var(--dm-av-${a.av}-ink)" aria-hidden="true"><svg class="i"><use href="#i-${a.ic}"/></svg></span>`;
-  docksEl.innerHTML = AG.map(a => `<div class="dl2a-dk" data-a="${a.id}" role="group" aria-label="${a.name}">
+  docksEl.innerHTML = AG.map(a => `<div class="dl2a-dk" style="--ag:var(--dm-av-${a.av});--ag-ink:var(--dm-av-${a.av}-ink)" data-a="${a.id}" role="group" aria-label="${a.name}">
       <div class="dl2a-dh">${mkHTML(a)}<span class="dl2a-nm"><b>${a.name}</b><span class="dl2a-st"></span></span><span class="dl2a-sc num" aria-hidden="true"></span></div>
       <div class="dl2a-q" role="list"></div><div class="dl2a-more"></div></div>`).join('');
   const dock = id => $(`.dl2a-dk[data-a="${id}"]`, docksEl);
@@ -346,7 +351,7 @@ DM.def('dl2a', (st, c, card) => {
     if (cur && cur.win && (phase === 'pick' || phase === 'wait')) mark(cur.win);
   }
   const path = id => $(`path[data-a="${id}"]`, svg);
-  function mark(win){ $$('path', svg).forEach(p => { p.classList.toggle('on', p.dataset.a === win); p.classList.toggle('off', p.dataset.a !== win); });
+  function mark(win){ svg.style.setProperty('--win', `var(--dm-av-${A[win].av})`); $$('path', svg).forEach(p => { p.classList.toggle('on', p.dataset.a === win); p.classList.toggle('off', p.dataset.a !== win); });
     $$('.dl2a-dk', docksEl).forEach(d => d.classList.toggle('win', d.dataset.a === win));
     $$('.dl2a-sc', docksEl).forEach(s => s.classList.toggle('win', s.closest('.dl2a-dk').dataset.a === win)); }
   function unmark(){ root.classList.remove('scan'); $$('path', svg).forEach(p => p.classList.remove('on', 'off')); $$('.dl2a-dk', docksEl).forEach(d => d.classList.remove('win', 'over'));
@@ -360,7 +365,7 @@ DM.def('dl2a', (st, c, card) => {
     const tag = (ic, s) => `<span class="tag"><svg class="i${ic === 'check' ? ' okk' : ''}" aria-hidden="true"><use href="#i-${ic}"/></svg>${s}</span>`;
     if (you) return `<span class="tag you">Moved by you</span><b>${a.name}</b>${tag('clock', fr[0].toUpperCase() + fr.slice(1))}${tag('coins', cost)}`;
     const sk = t.why[id] || 'Best fit';
-    return `<b>${a.name}</b>${tag('check', sk)}${tag('clock', fr[0].toUpperCase() + fr.slice(1))}${tag('coins', cost)}`;
+    return `${mkHTML(a).replace('dl2a-mk', 'dl2a-mk sm')}<b>${a.name}</b>${tag('check', sk)}${tag('clock', fr[0].toUpperCase() + fr.slice(1))}${tag('coins', cost)}`;
   }
 
   /* ---- motion helpers ---- */
@@ -372,24 +377,25 @@ DM.def('dl2a', (st, c, card) => {
     if (R) return; els().forEach(e => { const a = was.get(e); if (!a) return; const b = e.getBoundingClientRect(), dx = a.left - b.left, dy = a.top - b.top;
       if (Math.abs(dx) + Math.abs(dy) > .5) anim(e, [{ transform:`translate(${dx}px,${dy}px)` }, { transform:'none' }], { duration:MS('move') }); }); }
   // a copy of a task that travels over the component, from a box to a box, along a route when it has one
-  function flight(from, toRect, el, p){
+  function flight(from, toRect, el, p, land){
     const ghost = el.cloneNode(true); ghost.className = el.className + ' dl2a-ghost abs'; ghost.removeAttribute('data-pop'); ghost.removeAttribute('data-id'); ghost.setAttribute('aria-hidden', 'true');
     el.style.visibility = 'hidden';
     const s0 = st.getBoundingClientRect(), f = from, fx = f.left + f.width / 2, fy = f.top + f.height / 2;
     Object.assign(ghost.style, { left:(f.left - s0.left) + 'px', top:(f.top - s0.top) + 'px', width:f.width + 'px', height:f.height + 'px', transformOrigin:'50% 50%', visibility:'' });
     st.appendChild(ghost);
     const sx = toRect.width / f.width, sy = toRect.height / f.height, ex = toRect.left + toRect.width / 2 - fx, ey = toRect.top + toRect.height / 2 - fy;
-    const end = `translate(${ex}px,${ey}px) scale(${sx.toFixed(3)},${sy.toFixed(3)})`;
+    const su = Math.min(1, sy), end = `translate(${ex}px,${ey}px) scale(${su.toFixed(3)})`;
     let kf;
     if (p && !narrow()){
       // along the route to the agent's mark, shrinking to the agent's width on the way, then into its place in the queue
-      const L = p.getTotalLength(), b = body.getBoundingClientRect(), n = 16, k1 = Math.min(1, sx);
+      const L = p.getTotalLength(), b = body.getBoundingClientRect(), n = 16, k1 = Math.max(su, Math.min(1, sx));
       kf = Array.from({ length:n + 1 }, (_, i) => { const k = i / n, q = p.getPointAtLength(L * k), sc = 1 + (k1 - 1) * Math.min(1, k * 1.4);
         return { offset:+(k * .8).toFixed(3), transform:`translate(${b.left + q.x - fx}px,${b.top + q.y - fy}px) scale(${sc.toFixed(3)})` }; });
-      kf.push({ offset:1, transform:end });
-    } else kf = [{ transform:'none' }, { transform:end }];
-    if (R){ ghost.remove(); return Promise.resolve(); }
-    const a = ghost.animate(kf, { duration:MS('fly') * (p ? 1.25 : .8), easing:p ? 'cubic-bezier(.4,0,.2,1)' : EASE(), fill:'forwards' });
+      kf.push({ offset:1, transform:end, opacity:0 }); kf[kf.length - 2].opacity = 1;
+    } else kf = [{ transform:'none', opacity:1 }, { transform:end, opacity:1, offset:.85 }, { transform:end, opacity:0 }];
+    if (R){ ghost.remove(); if (land) land(); return Promise.resolve(); }
+    const dur = MS('fly') * (p ? 1.25 : .8); if (land) setTimeout(land, dur * .84);
+    const a = ghost.animate(kf, { duration:dur, easing:p ? 'cubic-bezier(.4,0,.2,1)' : EASE(), fill:'forwards' });
     return a.finished.then(() => ghost.remove(), () => ghost.remove());
   }
   const wait = ms => c.wait(ms);
@@ -410,10 +416,11 @@ DM.def('dl2a', (st, c, card) => {
     const sc = AG.map(a => ({ id:a.id, v:fit(t, a.id) }));
     for (const [i, s] of sc.entries()){ const el = $('.dl2a-sc', dock(s.id)); el.textContent = s.v + '% fit';
       c.later(R ? 0 : 140 + i * 90, () => { if (cur === t) el.classList.add('show'); }); }
-    await wait(1100);
+    await wait(780);
   }
   function pickShow(t, win){
     t.win = win; root.classList.remove('scan'); mark(win);
+    const cc = $('.dl2a-cur', slot); if (cc){ cc.style.setProperty('--ag', `var(--dm-av-${A[win].av})`); cc.style.setProperty('--ag-ink', `var(--dm-av-${A[win].av}-ink)`); cc.classList.add('pk'); }
     const small = $('.dl2a-cur small', slot); if (small) small.innerHTML = `Best fit: ${A[win].name} · ${t.min} min of work`;
     why.innerHTML = reason(t, win); if (!R) $$('*', why).filter(e => e.parentElement === why).forEach((e, i) => anim(e, [{ opacity:0, transform:'translateY(4px)' }, { opacity:1, transform:'none' }], { duration:320, delay:i * 50, fill:'backwards' }));
   }
@@ -422,7 +429,7 @@ DM.def('dl2a', (st, c, card) => {
     if (cur !== t) return;
     phase = 'fly'; sendB.hidden = true;
     const card = $('.dl2a-cur', slot), from = card ? card.getBoundingClientRect() : null;
-    if (you){ t.you = true; byYou++; why.innerHTML = reason(t, id, true); mark(id); }
+    if (you){ t.you = true; byYou++; why.innerHTML = reason(t, id, true); mark(id); if (card){ card.style.setProperty('--ag', `var(--dm-av-${A[id].av})`); card.style.setProperty('--ag-ink', `var(--dm-av-${A[id].av}-ink)`); card.classList.add('pk'); } }
     Q[id].push(t); routed++; drawSum();
     const visible = Q[id].indexOf(t) < MAXQ();
     drawDock(id);
@@ -430,8 +437,9 @@ DM.def('dl2a', (st, c, card) => {
     if (it) it.style.visibility = 'hidden';
     const to = (it || $('.dl2a-mk', dock(id))).getBoundingClientRect();
     say(`${t.t} sent to ${A[id].name}${you ? ', moved by you' : ''}`);
-    if (from && card && !dropped) await flight(from, visible && it ? to : $('.dl2a-mk', dock(id)).getBoundingClientRect(), card, you ? null : path(id));
-    if (it){ it.style.visibility = ''; anim(it, dropped ? [{ opacity:0, transform:'translateY(-4px)' }, { opacity:1, transform:'none' }] : [{ opacity:.6 }, { opacity:1 }], { duration:dropped ? 260 : 200 }); }
+    const show = () => { if (it && it.style.visibility){ it.style.visibility = ''; anim(it, dropped ? [{ opacity:0, transform:'translateY(-4px)' }, { opacity:1, transform:'none' }] : [{ opacity:0 }, { opacity:1 }], { duration:dropped ? 260 : 140 }); } };
+    if (from && card && !dropped) await flight(from, visible && it ? to : $('.dl2a-mk', dock(id)).getBoundingClientRect(), card, you ? null : path(id), show);
+    show();
     cur = null; phase = 'idle'; unmark(); slot.innerHTML = ''; why.innerHTML = ''; drawIn();
     if (!waiting.length) idle();
     await wait(R ? 0 : 260);
@@ -443,7 +451,7 @@ DM.def('dl2a', (st, c, card) => {
     await lift(); await scan(t);
     if (cur !== t) return;
     const win = best(t); pickShow(t, win);
-    if (auto.getAttribute('aria-checked') === 'true'){ phase = 'pick'; await wait(1000); if (cur !== t) return;
+    if (auto.getAttribute('aria-checked') === 'true'){ phase = 'pick'; await wait(860); if (cur !== t) return;
       if (auto.getAttribute('aria-checked') === 'true') return send(t, win);
     }
     // Route for me is off: the pick waits for you
@@ -555,8 +563,8 @@ DM.def('dl2a', (st, c, card) => {
   }
   const until = async f => { while (!f()) await c.step(100); };
   c.run(async () => {
-    await c.step(700);
-    for (const [i, t] of INCOMING.entries()){ add(t); await c.step(R ? 0 : 260); }
+    await c.step(240);
+    for (const [i, t] of INCOMING.entries()){ add(t); await c.step(R ? 0 : 220); }
     // two routed on their own
     await until(() => routed >= 2);
     // you turn Route for me off, so the next pick waits for you
