@@ -173,7 +173,7 @@ DM.def('dl3b', (st, c, card) => {
   function setHint(){
     const any = $('.dl3b-tok:not(.out)', toks);
     hint.classList.toggle('shim', auto && !!any);
-    setT(hint, !any ? '' : auto ? 'Handing out…' : K ? 'Now press the agent who should take it' : 'Drop work on whoever should take it');
+    setT(hint, !any ? '' : auto ? 'Handing out…' : K ? 'Now press the agent who should take it' : 'Drop one on an agent');
   }
 
   /* the pointer: drag a token onto a node; a press without a drag picks it up instead (see carry) */
@@ -298,12 +298,12 @@ DM.def('dl3b', (st, c, card) => {
     await s.beat(2);
     await s.tap(sw);
     s.away();
-    await s.beat(5);
+    await s.beat(2);
     addTok(task('Pricing page FAQ', 'hash', ['wri', 'des', 'rev']), true);
     say('A new task came in: Pricing page FAQ.');
     const t0 = performance.now();
-    await s.until(() => idle() || performance.now() - t0 > 16000);
-    await s.beat(3);
+    await s.until(() => idle() || performance.now() - t0 > 14000);
+    await s.beat(2);
     if (REDUCE) return;
     again();
   });

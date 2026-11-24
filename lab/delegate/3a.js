@@ -38,7 +38,7 @@ DM.def('dl3a', (st, c, card) => {
     res:[ it('Churn interviews', 18, 'done', 0, 18, 18), it('Competitor pricing', 20, 'run', 18, 6), it('Market sizing', 24, 'q') ],
     wri:[ it('Release notes', 16, 'run', 12, 12), it('Help article', 22, 'q') ],
     des:[ it('Pricing page hero', 34, 'run', 14, 10) ],
-    cod:[ it('Flaky test', 14, 'done', 2, 14, 16), it('Webhook retries', 26, 'run', 16, 8), it('Export to CSV', 30, 'q') ]
+    cod:[ it('Flaky test', 14, 'done', 2, 14, 16), it('Webhook retries', 34, 'run', 16, 6), it('Export to CSV', 30, 'q') ]
   };
   let now = 24, w0 = 0, span = 120, ppm = 4, gridKey = '';
   const paused = {};
@@ -232,9 +232,10 @@ DM.def('dl3a', (st, c, card) => {
     if (P.from) P.from.classList.add('gone');
     const text = P.text, a = o.a;
     if (!REDUCE && from && g){
-      const S = st.getBoundingClientRect(), f = from.getBoundingClientRect(), t = g.getBoundingClientRect();
+      // the fly rides in the schedule, so it lands where the slot is even as the proposal above folds away
+      const host = $('.dl3a-tl', root), S = host.getBoundingClientRect(), f = from.getBoundingClientRect(), t = g.getBoundingClientRect();
       const fly = html(`<span class="dl3a-fly" style="${vars(a)}">${I('plus', 's')}<span>${esc(text)}</span></span>`);
-      st.appendChild(fly); x.hide = true;
+      host.appendChild(fly); x.hide = true;
       const an = fly.animate([
         { left:(f.left - S.left) + 'px', top:(f.top - S.top) + 'px', width:f.width + 'px', height:f.height + 'px', opacity:.0 },
         { opacity:1, offset:.15 },
@@ -372,9 +373,9 @@ DM.def('dl3a', (st, c, card) => {
     out.finished.then(() => { if (card._c === c && !c.dead && !c.mine){ DM.mount(card, true); st.animate([{ opacity:0 }, { opacity:1 }], { duration:320, easing:'ease-out' }); } out.cancel(); }).catch(() => {});
   };
   c.story(async s => {
-    await s.beat(.6);
+    await s.beat(.3);
     await s.point(input, false);
-    await s.type(input, 'Draft the launch email for Friday', { n:.04 });
+    await s.type(input, 'Draft the launch email for Friday', { n:.03 });
     await s.tap($('.dl3a-go', root));
     await s.beat(4);
     await s.tap($('.dl3a-opt[data-i="1"]', prop));
