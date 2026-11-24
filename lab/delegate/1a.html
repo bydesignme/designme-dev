@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="en" data-style="soft">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Delegate 1A: hand-off board · Designme.dev</title>
+<script>
+/* style and theme: ?style=bp|soft|clean&theme=light|dark wins and is stored, then what the site stored, then the device:
+   light opens in Soft, dark in Blueprint */
+(function(){ var d = document.documentElement, q = new URLSearchParams(location.search), s = q.get('style'), t = q.get('theme');
+  try { if (s) localStorage.setItem('dmui-style', s); if (t) localStorage.setItem('dmui-theme', t); } catch(e){}
+  try { s = s || localStorage.getItem('dmui-style'); t = t || localStorage.getItem('dmui-theme'); } catch(e){}
+  if (t !== 'dark' && t !== 'light') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  if (s === 'mine') s = 'soft';
+  if (s !== 'soft' && s !== 'clean' && s !== 'bp') s = t === 'dark' ? 'bp' : 'soft';
+  d.setAttribute('data-style', s); d.setAttribute('data-theme', t); })();
+</script>
+<style>
+@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(../../fonts/inter-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(../../fonts/inter-latin-500-normal.woff2) format('woff2')}
+</style>
+<link rel="stylesheet" href="assets/core.css">
+<style>
+/* ---------- tokens: the short names the site's source uses, pointed at the core's --dm-* ---------- */
+:root{
+  --page:var(--dm-page); --stage:var(--dm-stage); --surface:var(--dm-surface); --raised:var(--dm-raised); --strip:var(--dm-strip,var(--dm-wash));
+  --fg:var(--dm-fg); --fg2:var(--dm-fg2); --muted:var(--dm-muted); --faint:var(--dm-faint); --rail:var(--dm-rail); --line:var(--dm-line); --line-strong:var(--dm-line-strong);
+  --chip:var(--dm-chip); --hover:var(--dm-hover); --row:var(--dm-row); --row-on:var(--dm-row-on,var(--dm-hover)); --grid:var(--dm-grid);
+  --accent:var(--dm-accent); --accent-fg:var(--dm-accent-fg); --accent-mark:var(--dm-accent-mark);
+  --ok:var(--dm-ok); --ok-mark:var(--dm-ok-mark); --warn:var(--dm-warn); --warn-bg:var(--dm-warn-bg); --warn-mark:var(--dm-warn-mark);
+  --rk:var(--dm-rk); --r-card:var(--dm-r-card); --r-pill:var(--dm-r-pill);
+  --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:20px; --s-6:24px; --s-8:32px;
+  --sans:var(--dm-sans); --ease:var(--dm-ease); --t-fast:var(--dm-t-fast); --t:var(--dm-t); --t-slow:var(--dm-t-slow);
+  --shadow:var(--dm-shadow); --shadow-pop:var(--dm-shadow-pop);
+  --hair:color-mix(in srgb,var(--dm-line) 50%,transparent);
+}
+:root[data-style="clean"]{--hair:var(--dm-hair)}
+
+/* ---------- the page ---------- */
+html,body{margin:0;background:var(--page)}
+body{font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-webkit-font-smoothing:antialiased}
+:where(.lab) button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+:where(.lab) :focus-visible{outline:2px solid var(--line-strong);outline-offset:2px}
+.sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.lab{max-width:1040px;margin:0 auto;padding:var(--s-8) var(--s-6) 72px}
+.lab-h{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:var(--s-4) var(--s-6);padding-bottom:var(--s-5)}
+.lab-h h1{margin:0;font-size:14px;font-weight:500;line-height:1.4}
+.lab-h h1 span{color:var(--muted);font-weight:400}
+.lab-h p{margin:var(--s-1) 0 0;max-width:560px;font-size:13px;line-height:1.55;color:var(--muted);text-wrap:pretty}
+.lab-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-2)}
+.lab-ctl .seg2 button{color:var(--muted)}
+.lab-ctl .seg2 button[aria-pressed="true"]{color:var(--fg)}
+.lab-rp{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:var(--r-pill);background:var(--chip);font-size:12.5px;color:var(--fg);transition:background var(--t-fast)}
+.lab-rp:hover{background:var(--hover)}
+.lab-rp .i{color:var(--fg2)}
+/* the stage: the component sits centred in it at every height */
+.lab-st{display:flex;align-items:center;justify-content:center;min-height:720px;padding:var(--s-8) var(--s-6);border-radius:var(--r-card);background:var(--stage);box-shadow:inset 0 0 0 1px var(--hair)}
+.lab-st>.card{width:100%;display:flex;justify-content:center}
+.lab-st .stage-in{max-width:760px}
+:root[data-style="bp"] .lab-st{border-radius:0;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px;background-position:-1px -1px}
+:root[data-style="bp"] :is(.lab-rp,.lab-ctl .seg2,.lab-ctl .seg2 *){border-radius:0}
+.lab-note{margin:var(--s-3) 0 0;font-size:12.5px;color:var(--muted)}
+@media (max-width:640px){.lab{padding:var(--s-6) var(--s-3) 56px}.lab-st{padding:var(--s-4) var(--s-2);min-height:640px}}
+@media (prefers-reduced-motion:reduce){.lab *,.lab *::before,.lab *::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
+
+/* ======================================================================================================================
+   1A · Hand-off board
+   Tasks wait in a tray across the top; under it each agent is a column that fills like a glass: its tint rises with the
+   minutes booked in the next hour. Dropping a card shows, before you let go, what the agent would take, how long and what
+   it costs; on the drop the card flies in and the column's finish time and spend tick to their new values.
+   ====================================================================================================================== */
+.dl1a{width:100%;display:flex;flex-direction:column;padding:var(--s-4);font-size:13px;line-height:1.45;color:var(--fg);transition:height var(--t-slow) var(--ease)}
+.dl1a>.dm-grow{display:flex;flex-direction:column}
+.dl1a .num{font-variant-numeric:tabular-nums}
+
+/* head: what this is, the time now, and the switch that hands everything off by itself */
+.dl1a-h{display:flex;align-items:center;gap:var(--s-2);min-height:28px;padding-bottom:var(--s-4);border-bottom:1px solid var(--hair)}
+.dl1a-h>.i{color:var(--fg2)}
+.dl1a-tx{display:flex;align-items:baseline;gap:var(--s-2);min-width:0;margin-right:auto}
+.dl1a-tt{font-size:14px;font-weight:500;white-space:nowrap}
+.dl1a-now{font-size:12.5px;color:var(--muted);white-space:nowrap}
+.dl1a-auto{display:inline-flex;align-items:center;gap:var(--s-2);height:28px;font-size:13px;color:var(--fg2);white-space:nowrap}
+.dl1a-auto[aria-checked="true"]{color:var(--fg)}
+.dl1a-auto:focus-visible{border-radius:calc(8px * var(--dm-rk-s,var(--rk)))}
+
+.dl1a-b{display:flex;flex-direction:column;gap:var(--s-4);padding-top:var(--s-4)}
+
+/* the tray: tasks waiting for an agent */
+.dl1a-tl{display:flex;align-items:center;gap:var(--s-2);min-height:20px;font-size:12.5px;color:var(--fg2)}
+.dl1a-tl b{font-weight:500;color:var(--fg)}
+.dl1a-tl .say{margin-left:auto;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dl1a-tl .say.shim{font-weight:400}
+.dl1a-tc{position:relative;display:grid;grid-template-columns:repeat(auto-fill,minmax(164px,1fr));gap:var(--s-2);margin-top:var(--s-2);min-height:20px;border-radius:calc(12px * var(--dm-rk-l,var(--rk)));transition:background var(--t-fast)}
+.dl1a-none{grid-column:1/-1;display:flex;align-items:center;gap:var(--s-2);min-height:20px;font-size:12.5px;color:var(--muted)}
+.dl1a-none .i{color:var(--ok-mark)}
+.dl1a-tc.over{background:var(--row)}
+
+/* the board: one column per agent */
+.dl1a-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-2)}
+.dl1a-col{position:relative;display:flex;flex-direction:column;min-width:0;padding:var(--s-2);border-radius:calc(14px * var(--dm-rk-l,var(--rk)));background:color-mix(in srgb,var(--fg) 3.5%,transparent);overflow:hidden;isolation:isolate;transition:background var(--t-fast)}
+.dl1a-col.over{background:color-mix(in srgb,var(--fg) 6%,transparent)}
+/* the level: the agent's colour rises with the minutes booked in the next hour, and a lighter band shows what a drop adds */
+.dl1a-col{--fh:36px}
+/* the level starts at the top of the foot, so its line never runs through the foot's words */
+.dl1a-lv,.dl1a-lv2{position:absolute;left:0;right:0;bottom:0;z-index:-1;height:calc(var(--on,0) * var(--fh) + var(--lv,0) * (100% - var(--fh)));pointer-events:none;transition:height .9s cubic-bezier(.34,1.32,.5,1),width .9s cubic-bezier(.34,1.32,.5,1),opacity var(--t-fast)}
+.dl1a-lv{background:linear-gradient(color-mix(in srgb,var(--c) 18%,transparent),color-mix(in srgb,var(--c) 10%,transparent));box-shadow:inset 0 2px 0 var(--c)}
+:root[data-theme="dark"] .dl1a-lv{background:linear-gradient(color-mix(in srgb,var(--c) 24%,transparent),color-mix(in srgb,var(--c) 12%,transparent))}
+/* the hour's quarters, as short ticks on the column's right edge, so the level reads as a gauge */
+/* (no ticks) */.dl1a-col::before{display:none;content:"";position:absolute;right:0;top:0;bottom:0;width:6px;z-index:-1;pointer-events:none;background:linear-gradient(var(--hair),var(--hair)) 0 25%/6px 1px no-repeat,linear-gradient(var(--hair),var(--hair)) 0 50%/6px 1px no-repeat,linear-gradient(var(--hair),var(--hair)) 0 75%/6px 1px no-repeat}
+.dl1a-lv2{height:calc(var(--fh) + var(--lv2,0) * (100% - var(--fh)));background:color-mix(in srgb,var(--c) 6%,transparent);box-shadow:inset 0 1.5px 0 color-mix(in srgb,var(--c) 35%,transparent);opacity:0}
+.dl1a-col.over .dl1a-lv2{opacity:1}
+.dl1a-col.full .dl1a-lv{box-shadow:inset 0 2px 0 var(--warn-mark)}
+
+.dl1a-ch{display:flex;align-items:center;gap:var(--s-2);min-height:28px;padding:0 0 var(--s-2)}
+.dl1a-mk{position:relative;flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:calc(9px * var(--dm-rk-m,var(--rk)));background:var(--cb);color:var(--cf)}
+.dl1a-mk::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 0 1.5px var(--c);opacity:0;pointer-events:none}
+.dl1a-col[data-s="work"] .dl1a-mk::after{animation:dl1abreath 2.4s var(--ease) infinite}
+@keyframes dl1abreath{0%{opacity:.55;transform:scale(1)}70%,100%{opacity:0;transform:scale(1.35)}}
+.dl1a-cn{display:flex;flex-direction:column;min-width:0;margin-right:auto;line-height:1.3}
+.dl1a-cn b{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dl1a-cn .st{font-size:12px;color:var(--muted);white-space:nowrap}
+.dl1a-col[data-s="paused"] .dl1a-cn .st{color:var(--warn)}
+.dl1a-ch .ib{width:28px;height:28px;color:var(--muted)}
+@media (hover:hover) and (pointer:fine){.dl1a-ch .ib:hover{color:var(--fg)}}
+
+.dl1a-q{display:flex;flex-direction:column;gap:6px;flex:1;min-height:56px}
+.dl1a-free{display:grid;place-items:center;flex:1;min-height:56px;padding:var(--s-2);font-size:12.5px;color:var(--muted);text-align:center}
+.dl1a-cf{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s-2);min-height:20px;padding-top:var(--s-2);font-size:12px;color:var(--fg2)}
+.dl1a-cf b{font-weight:500;color:var(--fg)}
+.dl1a-cf .co{color:var(--fg)}
+.dl1a-cf .up{color:var(--muted)}
+
+/* a task card: draggable in the tray and in a queue; the running one shows its progress; a finished one is a plain row */
+.dl1a-k{position:relative;display:flex;flex-direction:column;gap:6px;padding:var(--s-3);border-radius:calc(12px * var(--dm-rk-l,var(--rk)));background:var(--raised);box-shadow:var(--shadow);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;transition:box-shadow var(--t-fast),opacity var(--t-fast),background var(--t-fast)}
+@media (hover:hover) and (pointer:fine){.dl1a-k:not([data-s="run"],[data-s="done"]):hover{box-shadow:var(--shadow-pop)}}
+.dl1a-k:focus-visible{outline-offset:1px;border-radius:calc(12px * var(--dm-rk-l,var(--rk)))}
+.dl1a-k.drag{opacity:.35}
+.dl1a-k.lift{box-shadow:var(--shadow-pop),0 0 0 2px var(--line-strong)}
+.dl1a-k[data-s="run"],.dl1a-k[data-s="done"]{cursor:default}
+.dl1a-k .t{font-size:13px;line-height:1.4;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.dl1a-k:not([data-s="tray"]) .t{display:block;white-space:nowrap;text-overflow:ellipsis}
+.dl1a-k .m{display:flex;align-items:center;gap:6px;min-height:20px;font-size:12px;color:var(--muted);white-space:nowrap}
+.dl1a-k .m .i{color:var(--fg2)}
+.dl1a-k .m .w{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.dl1a-k .m .r{margin-left:auto;flex:none}
+.dl1a-k .m .co{color:var(--fg2)}
+.dl1a-k .m .shim{font-size:12px}
+/* its progress, in the agent's colour */
+.dl1a-bar{position:relative;height:4px;border-radius:2px;background:var(--chip);overflow:hidden}
+.dl1a-bar i{position:absolute;left:0;top:0;bottom:0;width:calc(var(--p,0) * 100%);border-radius:inherit;background:var(--c)}
+.dl1a-col[data-s="paused"] .dl1a-bar i{background:var(--line-strong)}
+/* back to the tray, on a queued card's corner while it is pointed at or has the focus */
+.dl1a-k .x{position:absolute;top:6px;right:6px;width:24px;height:24px;opacity:0;transition:opacity var(--t-fast),background var(--t-fast);color:var(--muted)}
+.dl1a-k[data-s="q"]:is(:hover,:focus-within) .x{opacity:1}
+.dl1a-k[data-s="q"]:is(:hover,:focus-within) .t{padding-right:24px}
+.dl1a-k:not([data-s="q"]) .x{display:none}
+/* finished: a neutral row with the green tick, then it folds away */
+.dl1a-k[data-s="done"]{background:transparent;box-shadow:none;flex-direction:row;align-items:center;gap:var(--s-2);padding:6px var(--s-1)}
+.dl1a-k[data-s="done"] .t{color:var(--fg2);flex:1;min-width:0}
+.dl1a-k[data-s="done"] :is(.m,.dl1a-bar){display:none}
+.dl1a-k .ok{display:none;color:var(--ok-mark)}
+.dl1a-k[data-s="done"] .ok{display:block}
+.dl1a-k.gone{animation:dl1agone .42s var(--ease) forwards}
+@keyframes dl1agone{to{opacity:0;margin-bottom:-36px}}
+/* the drop's place, the size of what would land there */
+.dl1a-ph{flex:none;border-radius:calc(12px * var(--dm-rk-l,var(--rk)));background:color-mix(in srgb,var(--fg) 5%,transparent);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--line-strong) 45%,transparent)}
+/* the card in your hand, and the one the demo carries */
+.dl1a-gh{position:absolute;left:0;top:0;z-index:40;pointer-events:none;margin:0;transform-origin:30% 30%;box-shadow:var(--shadow-pop)}
+.dl1a-gh .pv{display:flex;align-items:center;gap:6px;min-width:0;font-size:12px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dl1a-gh .pv .dot{flex:none}
+.dl1a-gh .pv .dot{background:var(--c,var(--muted))}
+
+/* the foot: when everything handed off is done, what it comes to, and stepping in for everyone */
+.dl1a-f{display:flex;align-items:center;gap:var(--s-3);min-height:28px;margin-top:var(--s-4);padding-top:var(--s-4);border-top:1px solid var(--hair);font-size:12.5px;color:var(--fg2)}
+.dl1a-f .sum{display:flex;align-items:baseline;gap:var(--s-2);min-width:0;margin-right:auto;white-space:nowrap;overflow:hidden}
+.dl1a-f b{font-weight:500;color:var(--fg)}
+.dl1a-f .pill{flex:none}
+
+/* ---------- Blueprint: square, hairlines, hatched levels, lime only where the core puts it ---------- */
+:root[data-style="bp"] .dl1a-col{background:transparent;box-shadow:inset 0 0 0 1px var(--hair)}
+:root[data-style="bp"] .dl1a-col.over{background:var(--row)}
+:root[data-style="bp"] .dl1a-lv{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--c) 22%,transparent) 0 1px,transparent 1px 6px);box-shadow:inset 0 1px 0 var(--c)}
+:root[data-style="bp"] .dl1a-lv2{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--c) 12%,transparent) 0 1px,transparent 1px 6px);box-shadow:inset 0 1px 0 color-mix(in srgb,var(--c) 50%,transparent)}
+:root[data-style="bp"] .dl1a-mk{background:transparent;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 50%,transparent)}
+:root[data-style="bp"] .dl1a-col[data-s="work"] .dl1a-mk::after{animation:dl1abp 1.1s steps(1,end) infinite;transform:none}
+@keyframes dl1abp{0%,55%{opacity:.9}56%,100%{opacity:0}}
+:root[data-style="bp"] .dl1a-bar i{background:repeating-linear-gradient(135deg,var(--c) 0 3px,color-mix(in srgb,var(--c) 55%,var(--surface)) 3px 6px)}
+:root[data-style="bp"] .dl1a-ph{background:transparent;box-shadow:none;outline:1px dashed var(--line-strong);outline-offset:-1px}
+:root[data-style="bp"] .dl1a-k.lift{box-shadow:var(--shadow-pop);outline:1px dashed var(--line-strong)}
+:root[data-style="bp"] .dl1a-tt{font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+
+/* ---------- Clean: off-white head and foot strips, the board on the white between them ---------- */
+:root[data-style="clean"] .dl1a{padding:0}
+:root[data-style="clean"] .dl1a-h{padding:var(--dm-strip-y) var(--s-4);background:var(--strip);border-bottom:1px solid var(--hair);border-radius:var(--r-card) var(--r-card) 0 0}
+:root[data-style="clean"] .dl1a-b{padding:var(--s-4)}
+:root[data-style="clean"] .dl1a-f{margin-top:0;padding:var(--dm-strip-y) var(--s-4);background:var(--strip);border-top:1px solid var(--hair);border-radius:0 0 var(--r-card) var(--r-card)}
+:root[data-style="clean"] .dl1a-col{background:color-mix(in srgb,var(--fg) 3%,transparent)}
+:root[data-style="clean"] .dl1a-col.over{background:var(--row)}
+:root[data-style="clean"] .dl1a-k{box-shadow:0 0 0 1px var(--hair),0 1px 2px rgba(0,0,0,.04)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dl1a-k:not([data-s="run"],[data-s="done"]):hover{box-shadow:0 0 0 1px var(--hair),0 4px 12px -6px rgba(0,0,0,.16)}}
+:root[data-style="clean"] .dl1a-k[data-s="done"]{box-shadow:none}
+:root[data-style="clean"] .dl1a-gh{box-shadow:var(--shadow-pop)}
+:root[data-style="clean"][data-theme="dark"] .dl1a-k{box-shadow:0 0 0 1px var(--hair)}
+
+/* ---------- narrow: the columns stack, and each level fills from the left ---------- */
+@container (max-width:600px){
+  .dl1a-cols{grid-template-columns:minmax(0,1fr)}
+  .dl1a-tc{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .dl1a-lv,.dl1a-lv2{top:auto;right:auto;height:var(--fh);width:calc(var(--lv,0) * 100%)}
+  .dl1a-lv2{height:var(--fh);width:calc(var(--lv2,0) * 100%)}
+  .dl1a-lv{box-shadow:inset -1.5px 0 0 color-mix(in srgb,var(--c) 60%,transparent)}
+  .dl1a-lv2{box-shadow:inset -1.5px 0 0 color-mix(in srgb,var(--c) 35%,transparent)}
+  :root[data-style="bp"] .dl1a-lv{box-shadow:inset -1px 0 0 var(--c)}
+  .dl1a-col.full .dl1a-lv{box-shadow:inset -1.5px 0 0 var(--warn-mark)}
+  .dl1a-q,.dl1a-free{min-height:0}
+  .dl1a-free{place-items:center start;padding:0 0 var(--s-1)}
+}
+@container (max-width:380px){
+  .dl1a-now{display:none}
+  .dl1a-f .sum .ex{display:none}
+}
+@media (prefers-reduced-motion:reduce){.dl1a-mk::after{animation:none!important}.dl1a-lv,.dl1a-lv2{transition:opacity var(--t-fast)}}
+</style>
+</head>
+<body>
+<main class="lab">
+  <header class="lab-h">
+    <div>
+      <h1>Delegate <span>· 1A, hand-off board</span></h1>
+      <p>Tasks wait in a tray; each agent is a column that fills with the hour it has booked. Drag a card onto an agent and, before you let go, see what it would take and cost; on the drop the finish time and the spend tick to their new values.</p>
+    </div>
+    <div class="lab-ctl">
+      <div class="seg2" id="sw-style" role="group" aria-label="Style"><button type="button" data-v="bp" aria-pressed="false">Blueprint</button><button type="button" data-v="soft" aria-pressed="true">Soft</button><button type="button" data-v="clean" aria-pressed="false">Clean</button></div>
+      <div class="seg2" id="sw-theme" role="group" aria-label="Theme"><button type="button" data-v="light" aria-pressed="true">Light</button><button type="button" data-v="dark" aria-pressed="false">Dark</button></div>
+      <button type="button" class="lab-rp" id="replay"><svg class="i s" aria-hidden="true"><use href="#i-refresh"/></svg>Replay</button>
+    </div>
+  </header>
+
+  <div class="lab-st">
+    <div class="card" data-c="dl1a"><div class="stage-in"></div><template>
+      <div class="dl1a panel" role="region" aria-label="Hand-off board">
+        <div class="dl1a-h">
+          <svg class="i" aria-hidden="true"><use href="#i-layers"/></svg>
+          <span class="dl1a-tx"><span class="dl1a-tt">Hand-off board</span><span class="dl1a-now num">Now 14:00</span></span>
+          <button type="button" class="dl1a-auto" role="switch" aria-checked="false">Auto-assign<span class="toggle" aria-hidden="true"></span></button>
+        </div>
+        <div class="dl1a-b">
+          <div class="dl1a-tray">
+            <div class="dl1a-tl"><b>To hand off</b><span class="tag num dl1a-n">0</span><span class="say">Drag a card onto an agent</span></div>
+            <div class="dl1a-tc" data-z="tray" role="list" aria-label="To hand off"></div>
+          </div>
+          <div class="dl1a-cols"></div>
+        </div>
+        <div class="dl1a-f">
+          <span class="sum"><span>All done by <b class="num dl1a-end">14:00</b></span><span class="ex">·</span><span class="ex"><b class="num dl1a-cost">$0.00</b> projected</span></span>
+          <button type="button" class="pill line sm dl1a-pa">Pause all</button>
+        </div>
+        <div class="sr" aria-live="polite"></div>
+      </div>
+    </template></div>
+  </div>
+  <p class="lab-note">Mouse: drag a card into a column, between cards, or back to the tray. Keyboard: Tab to a card, Space to lift it, arrows to choose the agent and the place, Space to drop, Escape to cancel, Delete to send it back. Auto-assign gives each waiting card to whoever would finish it first.</p>
+</main>
+
+<script src="assets/core.js"></script>
+<script>
+DM.PLAYS.add('dl1a');
+DM.def('dl1a', (st, c) => {
+  const R = $('.dl1a', st), tray = $('.dl1a-tc', R), colsEl = $('.dl1a-cols', R), live = $('.sr', R), autoB = $('.dl1a-auto', R), pa = $('.dl1a-pa', R);
+  const say = $('.dl1a-tl .say', R), cnt = $('.dl1a-n', R);
+  const toggle = () => $('.toggle', autoB);
+
+  /* the agents: a role, its mark and colour, and what a minute of its work costs */
+  const AG = [
+    { k:'r', n:'Researcher', ic:'search', c:'--dm-pb', rate:.05 },
+    { k:'w', n:'Writer',     ic:'edit',   c:'--dm-pl', rate:.04 },
+    { k:'d', n:'Coder',      ic:'code',   c:'--dm-pm', rate:.07 }
+  ];
+  const SRC = { mail:['mail','Inbox'], tk:['flag','Ticket'], doc:['file-text','Doc'], chat:['comment','Chat'] };
+  /* tasks: minutes each agent would take */
+  const TK = {
+    a:{ t:'Compare five onboarding flows', s:'doc',  l:['b','Research'], m:{ r:16, w:24, d:30 } },
+    b:{ t:'Find the top churn reasons',    s:'chat', l:['b','Research'], m:{ r:14, w:20, d:26 } },
+    e:{ t:'Draft the release notes',       s:'doc',  l:['y','Launch'],   m:{ r:22, w:20, d:28 } },
+    f:{ t:'Fix the broken sign-up link',   s:'tk',   l:['r','Bug'],      m:{ r:18, w:22, d:6 } },
+    g:{ t:'Write the welcome email',       s:'mail', l:['y','Launch'],   m:{ r:16, w:10, d:20 } },
+    h:{ t:'Summarise 14 support tickets',  s:'tk',   l:['t','Support'],  m:{ r:9,  w:12, d:16 } },
+    i:{ t:'Add dark mode to Settings',     s:'chat', l:['y','Launch'],   m:{ r:34, w:34, d:18 } },
+    j:{ t:'Check the pricing page copy',   s:'doc',  l:['k','Website'],  m:{ r:10, w:7,  d:14 } }
+  };
+  const ag = k => AG.find(a => a.k === k);
+  const cost = (id, k) => TK[id].m[k] * ag(k).rate;
+  const money = v => '$' + v.toFixed(2);
+  const clock = m => { const t = Math.round(14 * 60 + m); return String(Math.floor(t / 60) % 24).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'); };
+  const range = id => { const v = Object.values(TK[id].m), lo = Math.min(...v), hi = Math.max(...v); return lo === hi ? lo + ' min' : lo + '–' + hi + ' min'; };
+
+  /* the state: the minutes since 14:00, the tray, and each agent's running task and queue */
+  const S = { now:0, tray:['f', 'g', 'h', 'i'], auto:false, spent:0,
+    A:{ r:{ run:{ id:'a', left:8 }, q:['b'], paused:false }, w:{ run:{ id:'e', left:15 }, q:[], paused:false }, d:{ run:null, q:[], paused:false } } };
+  const booked = k => { const a = S.A[k]; return (a.run ? a.run.left : 0) + a.q.reduce((s, id) => s + TK[id].m[k], 0); };
+  const spend = k => { const a = S.A[k]; return (a.run ? cost(a.run.id, k) : 0) + a.q.reduce((s, id) => s + cost(id, k), 0); };
+  const finish = (k, add = 0) => S.now + booked(k) + add;
+
+  /* ---------- the columns ---------- */
+  const COL = {};
+  colsEl.innerHTML = AG.map(a => `<section class="dl1a-col" data-ag="${a.k}" data-s="free" style="--c:var(${a.c});--cb:var(${a.c}-bg);--cf:var(${a.c})" aria-label="${a.n}">
+      <i class="dl1a-lv" aria-hidden="true"></i><i class="dl1a-lv2" aria-hidden="true"></i>
+      <div class="dl1a-ch"><span class="dl1a-mk" aria-hidden="true">${I(a.ic)}</span><span class="dl1a-cn"><b>${a.n}</b><span class="st">Free</span></span>
+        <button type="button" class="ib dl1a-pz" aria-label="Pause ${a.n}" data-tip="Pause ${a.n}">${I('pause')}</button></div>
+      <div class="dl1a-q" data-z="${a.k}" role="list" aria-label="${a.n}'s queue"></div>
+      <div class="dl1a-cf"><span class="fr">Free now</span><span class="co num">$0.00</span></div>
+    </section>`).join('');
+  AG.forEach(a => { const el = $(`[data-ag="${a.k}"]`, colsEl); COL[a.k] = { el, q:$('.dl1a-q', el), st:$('.st', el), fr:$('.fr', el), co:$('.co', el), pz:$('.dl1a-pz', el), shown:{ fin:null, cost:null } }; });
+
+  /* ---------- the cards, one element per task, moved between places so they can fly ---------- */
+  const CARD = {};
+  const card = id => {
+    if (CARD[id]) return CARD[id];
+    const T = TK[id], el = html(`<div class="dl1a-k" data-key="${id}" role="listitem" tabindex="0" aria-roledescription="task">
+      <span class="ok" aria-hidden="true">${I('check', 's')}</span><span class="t">${T.t}</span><div class="m"></div><div class="dl1a-bar" hidden><i></i></div>
+      <button type="button" class="ib x" tabindex="-1" aria-label="Back to the tray" data-tip="Back to the tray">${I('x', 's')}</button></div>`);
+    CARD[id] = el; return el;
+  };
+  const meta = (id, where) => {
+    const T = TK[id];
+    if (where === 'tray') return `<span data-tip="From ${SRC[T.s][1].toLowerCase()}" aria-label="From ${SRC[T.s][1].toLowerCase()}">${I(SRC[T.s][0], 'xs')}</span><span class="w num">${range(id)}</span><span class="r tag ${T.l[0]}">${T.l[1]}</span>`;
+    const a = S.A[where];
+    if (a.run && a.run.id === id) return a.paused ? `<span class="w">Paused · ${Math.ceil(a.run.left)} min left</span><span class="r co num">${money(cost(id, where))}</span>`
+      : `<span class="shim">Running</span><span class="w">· ${Math.ceil(a.run.left)} min left</span><span class="r co num">${money(cost(id, where))}</span>`;
+    let t = S.now + (a.run ? a.run.left : 0);
+    for (const q of a.q){ if (q === id) break; t += TK[q].m[where]; }
+    return `<span class="w num">${clock(t)} → ${clock(t + TK[id].m[where])}</span><span class="r co num">${money(cost(id, where))}</span>`;
+  };
+  const setMeta = (el, h) => { const m = $('.m', el); if (m._h !== h){ m._h = h; m.innerHTML = h; } };
+
+  /* ---------- painting: where every card sits, and the numbers ---------- */
+  let tw = {};
+  const tick = (k, key, to, fmt, el) => {
+    const s = COL[k].shown; if (s[key] === null || REDUCE){ s[key] = to; el.textContent = fmt(to); return; }
+    if (Math.abs(s[key] - to) < .001) return;
+    const from = s[key]; s[key] = to; const id = (tw[k + key] = (tw[k + key] || 0) + 1);
+    tween(from, to, 620, v => { if (tw[k + key] === id && !c.dead) el.textContent = fmt(v); });
+  };
+  function place(){
+    // the tray
+    const want = S.tray.map(card);
+    want.forEach(el => { el.dataset.s = 'tray'; $('.dl1a-bar', el).hidden = true; });
+    syncList(tray, want);
+    if (!S.tray.length && !$('.dl1a-none', tray)) tray.appendChild(html(`<div class="dl1a-none">${I('check', 's')}Everything is handed off</div>`));
+    if (S.tray.length) $$('.dl1a-none', tray).forEach(n => n.remove());
+    // the queues
+    AG.forEach(a => {
+      const A = S.A[a.k], C = COL[a.k];
+      const ids = (A.run ? [A.run.id] : []).concat(A.q);
+      const els = ids.map(card);
+      els.forEach((el, i) => { el.dataset.s = i === 0 && A.run ? 'run' : 'q'; $('.dl1a-bar', el).hidden = el.dataset.s !== 'run'; });
+      const keep = $$('.dl1a-k[data-s="done"]', C.q);
+      syncList(C.q, keep.concat(els));
+      if (!ids.length && !keep.length && !$('.dl1a-free', C.q)) C.q.appendChild(html(`<div class="dl1a-free">Free. Drop a task here</div>`));
+      if (ids.length || keep.length) $$('.dl1a-free', C.q).forEach(n => n.remove());
+    });
+    paint();
+  }
+  // puts a list's children in order, moving rather than re-creating them, and leaves a drop's placeholder where it is
+  function syncList(list, els){
+    els.forEach((el, i) => { const at = [...list.children].filter(x => !x.matches('.dl1a-ph,.dl1a-none,.dl1a-free'))[i]; if (at !== el) list.insertBefore(el, at || null); });
+    [...list.children].forEach(x => { if (x.matches('.dl1a-k') && !els.includes(x)) x.remove(); });
+  }
+  function paint(){
+    cnt.textContent = S.tray.length;
+    $('.dl1a-now', R).textContent = 'Now ' + clock(S.now);
+    S.tray.forEach(id => setMeta(card(id), meta(id, 'tray')));
+    let end = S.now, total = S.spent;
+    AG.forEach(a => {
+      const A = S.A[a.k], C = COL[a.k], b = booked(a.k);
+      if (A.run) setMeta(card(A.run.id), meta(A.run.id, a.k));
+      A.q.forEach(id => setMeta(card(id), meta(id, a.k)));
+      if (A.run){ const p = 1 - A.run.left / TK[A.run.id].m[a.k]; $('.dl1a-bar i', card(A.run.id)).style.setProperty('--p', p.toFixed(4)); }
+      const s = A.paused ? 'paused' : A.run ? 'work' : 'free';
+      if (C.el.dataset.s !== s){ C.el.dataset.s = s; C.st.textContent = s === 'paused' ? 'Paused' : s === 'work' ? (A.q.length ? `Working · ${A.q.length} queued` : 'Working') : 'Free'; }
+      else if (s === 'work'){ const w = A.q.length ? `Working · ${A.q.length} queued` : 'Working'; if (C.st.textContent !== w) C.st.textContent = w; }
+      C.pz.innerHTML = I(A.paused ? 'play' : 'pause'); C.pz.setAttribute('aria-label', (A.paused ? 'Resume ' : 'Pause ') + a.n); C.pz.dataset.tip = (A.paused ? 'Resume ' : 'Pause ') + a.n;
+      C.el.style.setProperty('--lv', Math.min(1, b / 60).toFixed(4)); C.el.style.setProperty('--on', b > 0 ? 1 : 0);
+      C.fr.parentElement.dataset.tip = b > 0 ? `Booked for the next ${Math.ceil(b)} min · its queue costs ${money(spend(a.k))}` : 'Nothing booked';
+      C.el.classList.toggle('full', b > 60);
+      if (b <= 0){ if (C.fr.textContent !== 'Free now'){ C.fr.textContent = 'Free now'; C.shown.fin = null; } }
+      else { if (!$('b', C.fr)){ C.fr.innerHTML = 'Free at <b class="num"></b>'; C.shown.fin = null; } tick(a.k, 'fin', finish(a.k), clock, $('b', C.fr)); }
+      tick(a.k, 'cost', spend(a.k), money, C.co);
+      end = Math.max(end, finish(a.k)); total += spend(a.k);
+    });
+    tickFoot(end, total);
+    const anyRun = AG.some(a => S.A[a.k].run || S.A[a.k].q.length), all = AG.every(a => S.A[a.k].paused);
+    pa.textContent = all ? 'Resume all' : 'Pause all'; pa.disabled = !anyRun && !all;
+  }
+  const foot = { end:null, cost:null };
+  function tickFoot(end, total){
+    const E = $('.dl1a-end', R), K = $('.dl1a-cost', R);
+    [['end', end, clock, E], ['cost', total, money, K]].forEach(([k, v, f, el]) => {
+      if (foot[k] === null || REDUCE){ foot[k] = v; el.textContent = f(v); return; }
+      if (Math.abs(foot[k] - v) < .001) return; const from = foot[k]; foot[k] = v; const id = (tw['f' + k] = (tw['f' + k] || 0) + 1);
+      tween(from, v, 620, x => { if (tw['f' + k] === id && !c.dead) el.textContent = f(x); });
+    });
+  }
+
+  /* ---------- moving cards: they fly from where they were to where they land ---------- */
+  function fly(change, o = {}){
+    const els = $$('.dl1a-k', R), was = new Map(els.map(e => [e, e.getBoundingClientRect()]));
+    change();
+    if (REDUCE){ if (o.fresh) o.fresh.animate([{ opacity:0 }, { opacity:1 }], { duration:200 }); return; }
+    const E = getComputedStyle(R).getPropertyValue('--dm-ease').trim() || 'ease';
+    els.forEach(e => {
+      if (!e.isConnected) return; const a = was.get(e), b = e.getBoundingClientRect(), dx = a.left - b.left, dy = a.top - b.top;
+      if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+      const far = Math.hypot(dx, dy) > 60, lift = far ? 'translate(' + dx * .5 + 'px,' + (dy * .5 - 18) + 'px) scale(1.04) rotate(' + (dx > 0 ? -2 : 2) + 'deg)' : null;
+      e.style.zIndex = far ? 5 : '';
+      const kf = far ? [{ transform:`translate(${dx}px,${dy}px)` }, { transform:lift, offset:.5 }, { transform:'none' }] : [{ transform:`translate(${dx}px,${dy}px)` }, { transform:'none' }];
+      const an = e.animate(kf, { duration:far ? 640 : 320, easing:far ? 'cubic-bezier(.3,.7,.2,1)' : E });
+      an.onfinish = an.oncancel = () => { e.style.zIndex = ''; };
+    });
+  }
+  const announce = t => { live.textContent = ''; setTimeout(() => { live.textContent = t; }, 30); };
+
+  /* assigning: out of wherever the task was, into an agent's queue at a place (or the tray); a free agent starts at once */
+  function take(id){
+    let i = S.tray.indexOf(id); if (i >= 0){ S.tray.splice(i, 1); return 'tray'; }
+    for (const a of AG){ const A = S.A[a.k]; i = A.q.indexOf(id); if (i >= 0){ A.q.splice(i, 1); return a.k; } }
+    return null;
+  }
+  function put(id, z, at){
+    if (z === 'tray'){ S.tray.splice(at == null ? S.tray.length : at, 0, id); return; }
+    const A = S.A[z]; if (!A.run){ A.run = { id, left:TK[id].m[z] }; return; }
+    A.q.splice(at == null ? A.q.length : Math.min(at, A.q.length), 0, id);
+  }
+  function move(id, z, at, how){
+    fly(() => { take(id); put(id, z, at); place(); });
+    if (z === 'tray') announce(`${TK[id].t} is back in the tray.`);
+    else announce(`${TK[id].t} goes to the ${ag(z).n}, done at ${clock(finishOf(id, z))}, ${money(cost(id, z))}.`);
+    if (how !== 'auto') maybeAuto();
+  }
+  const finishOf = (id, z) => { const A = S.A[z]; if (A.run && A.run.id === id) return S.now + A.run.left; let t = S.now + (A.run ? A.run.left : 0); for (const q of A.q){ t += TK[q].m[z]; if (q === id) return t; } return t; };
+  // who would finish a task first: the agent whose queue ends soonest, counting how long this agent takes for it
+  const best = id => AG.filter(a => !S.A[a.k].paused).map(a => [a.k, finish(a.k, TK[id].m[a.k])]).sort((x, y) => x[1] - y[1])[0];
+
+  /* ---------- auto-assign: one card at a time, each to whoever would finish it first ---------- */
+  let autoT = 0;
+  function setAuto(on){
+    S.auto = on; autoB.setAttribute('aria-checked', on); toggle().setAttribute('aria-checked', on);
+    announce(on ? 'Auto-assign is on. Waiting tasks go to whoever finishes them first.' : 'Auto-assign is off.');
+    maybeAuto();
+  }
+  function maybeAuto(){
+    clearTimeout(autoT);
+    if (!S.auto || !S.tray.length || drag){ sayIdle(); return; }
+    say.textContent = 'Assigning…'; say.classList.add('shim');
+    autoT = setTimeout(() => { if (c.dead || !S.auto || drag || !S.tray.length) return sayIdle(); const id = S.tray[0], b = best(id); if (!b) return sayIdle(); move(id, b[0], null, 'auto'); maybeAuto(); }, REDUCE ? 60 : 720);
+    c.t.push(autoT);
+  }
+  function sayIdle(){ say.classList.remove('shim'); say.textContent = S.auto ? 'New tasks are assigned as they arrive' : S.tray.length ? 'Drag a card onto an agent' : ''; }
+  c.on(autoB, 'click', () => setAuto(!S.auto));
+
+  /* ---------- stepping in: pause one agent, or everyone ---------- */
+  c.on(colsEl, 'click', e => { const b = e.target.closest('.dl1a-pz'); if (!b) return; const k = b.closest('.dl1a-col').dataset.ag; S.A[k].paused = !S.A[k].paused; paint(); announce(`${ag(k).n} ${S.A[k].paused ? 'paused' : 'resumed'}.`); });
+  c.on(pa, 'click', () => { const all = AG.every(a => S.A[a.k].paused); AG.forEach(a => S.A[a.k].paused = !all); paint(); announce(all ? 'Everyone resumed.' : 'Everyone paused.'); });
+  c.on(R, 'click', e => { const x = e.target.closest('.dl1a-k .x'); if (!x) return; e.stopPropagation(); move(x.closest('.dl1a-k').dataset.key, 'tray'); });
+
+  /* ---------- the clock: a minute of the agents' work passes every second ---------- */
+  c.every(100, () => {
+    S.now += .1; let changed = false;
+    AG.forEach(a => {
+      const A = S.A[a.k]; if (!A.run || A.paused) return;
+      A.run.left -= .1;
+      if (A.run.left <= 0){
+        const id = A.run.id, el = card(id); S.spent += cost(id, a.k);
+        el.dataset.s = 'done'; $('.dl1a-bar', el).hidden = true; el.setAttribute('aria-label', TK[id].t + ', done');
+        A.run = null; const nx = A.q.shift(); if (nx) A.run = { id:nx, left:TK[nx].m[a.k] };
+        delete CARD[id]; changed = true; announce(`${ag(a.k).n} finished ${TK[id].t}.`);
+        c.later(1500, () => { el.classList.add('gone'); c.later(440, () => fly(() => el.remove())); });
+      }
+    });
+    if (changed) place(); else paint();
+  });
+
+  /* ---------- dragging, with the mouse, by touch, or carried by the demo ---------- */
+  let drag = null;
+  const zones = () => [{ z:'tray', el:tray }].concat(AG.map(a => ({ z:a.k, el:COL[a.k].q, col:COL[a.k].el })));
+  const zoneAt = (x, y) => { for (const Z of zones()){ const b = (Z.col || Z.el.parentElement).getBoundingClientRect(); if (x >= b.left && x <= b.right && y >= b.top && y <= b.bottom) return Z; } return null; };
+  function lift(el, x, y){
+    const id = el.dataset.key, b = el.getBoundingClientRect(), sb = st.getBoundingClientRect();
+    const gh = el.cloneNode(true); gh.classList.add('dl1a-gh'); gh.removeAttribute('tabindex'); gh.removeAttribute('data-key'); gh.setAttribute('aria-hidden', 'true');
+    gh.style.width = b.width + 'px'; gh.style.background = 'var(--raised)'; gh.dataset.s = el.dataset.s === 'tray' ? 'tray' : 'q';
+    $$('.x,.dl1a-bar', gh).forEach(n => n.remove());
+    st.appendChild(gh);
+    const ph = html('<div class="dl1a-ph" aria-hidden="true"></div>'); ph.style.height = b.height + 'px';
+    drag = { id, el, gh, ph, dx:x - b.left, dy:y - b.top, z:null, at:null };
+    el.classList.add('drag'); clearTimeout(autoT);
+    moveTo(x, y);
+  }
+  function moveTo(x, y){
+    const d = drag; if (!d) return; const sb = st.getBoundingClientRect();
+    d.gh.style.transform = `translate(${x - d.dx - sb.left}px,${y - d.dy - sb.top}px) rotate(${REDUCE ? 0 : 1.5}deg)`;
+    const Z = zoneAt(x, y); over(Z, Z ? indexAt(Z, y, x) : null);
+  }
+  function indexAt(Z, y, x){
+    const ks = [...Z.el.children].filter(n => n.matches('.dl1a-k') && n !== drag.el && n.dataset.s !== 'run' && n.dataset.s !== 'done');
+    if (Z.z === 'tray'){ let i = 0; for (const k of ks){ const b = k.getBoundingClientRect(); if (y > b.bottom || (y >= b.top && x > b.left + b.width / 2)) i++; } return i; }
+    let i = 0; for (const k of ks){ const b = k.getBoundingClientRect(); if (y > b.top + b.height / 2) i++; } return i;
+  }
+  // shows where the card would land: its place in the list, the lighter level, and the new finish and spend on the ghost
+  function over(Z, at){
+    const d = drag; const z = Z ? Z.z : null;
+    if (z === d.z && at === d.at) return;
+    $$('.dl1a-col.over,.dl1a-tc.over', R).forEach(n => n.classList.remove('over'));
+    d.z = z; d.at = at;
+    if (!Z){ d.ph.remove(); pv(null); return; }
+    (Z.col || Z.el).classList.add('over');
+    const ks = [...Z.el.children].filter(n => n.matches('.dl1a-k') && n !== d.el && n.dataset.s !== 'run' && n.dataset.s !== 'done');
+    const ref = ks[at] || null;
+    if (Z.z === 'tray') d.ph.style.height = d.el.getBoundingClientRect().height + 'px'; else d.ph.style.height = '56px';
+    Z.el.insertBefore(d.ph, ref);
+    $$('.dl1a-free', R).forEach(f => { f.style.display = f.parentElement === Z.el ? 'none' : ''; });
+    pv(Z.z === 'tray' ? null : Z.z);
+  }
+  function pv(k){
+    const d = drag, m = $('.m', d.gh);
+    AG.forEach(a => COL[a.k].el.style.setProperty('--lv2', 0));
+    if (!k){ m.innerHTML = meta(d.id, 'tray'); d.gh.style.removeProperty('--c'); return; }
+    const mins = TK[d.id].m[k], already = S.A[k].q.includes(d.id), b = booked(k) - (already ? mins : 0) + mins;
+    COL[k].el.style.setProperty('--lv2', Math.min(1, b / 60).toFixed(4));
+    d.gh.style.setProperty('--c', `var(${ag(k).c})`);
+    m.innerHTML = `<span class="pv w num"><span class="dot"></span>${mins} min · done ${clock(S.now + b)}</span><span class="r co num">${money(cost(d.id, k))}</span>`;
+  }
+  function drop(){
+    const d = drag; if (!d) return; drag = null;
+    const z = d.z, at = d.at, sb = st.getBoundingClientRect();
+    $$('.dl1a-col.over,.dl1a-tc.over', R).forEach(n => n.classList.remove('over'));
+    AG.forEach(a => COL[a.k].el.style.setProperty('--lv2', 0));
+    $$('.dl1a-free', R).forEach(f => f.style.display = '');
+    const g0 = d.gh.getBoundingClientRect();
+    d.ph.remove();
+    if (z){ take(d.id); put(d.id, z, at); }
+    place();
+    d.el.classList.remove('drag');
+    const b = d.el.getBoundingClientRect();
+    if (REDUCE || !b.width){ d.gh.remove(); }
+    else {
+      d.el.style.opacity = '0';
+      const an = d.gh.animate([{ transform:d.gh.style.transform }, { transform:`translate(${b.left - sb.left}px,${b.top - sb.top}px)`, width:b.width + 'px' }], { duration:300, easing:'cubic-bezier(.2,.8,.2,1)', fill:'forwards' });
+      an.onfinish = () => { d.el.style.opacity = ''; d.gh.remove(); };
+    }
+    if (z && z !== 'tray') announce(`${TK[d.id].t} goes to the ${ag(z).n}, done at ${clock(finishOf(d.id, z))}, ${money(cost(d.id, z))}.`);
+    else if (z === 'tray') announce(`${TK[d.id].t} is back in the tray.`);
+    maybeAuto();
+  }
+  function cancel(){ const d = drag; if (!d) return; d.z = null; drop(); }
+
+  // the pointer: a press that moves 4px picks the card up
+  c.on(R, 'pointerdown', e => {
+    const el = e.target.closest('.dl1a-k'); if (!el || e.button !== 0 || e.target.closest('.x') || el.dataset.s === 'run' || el.dataset.s === 'done' || drag) return;
+    const x0 = e.clientX, y0 = e.clientY; let on = false;
+    const mv = ev => { if (!on && Math.hypot(ev.clientX - x0, ev.clientY - y0) > 4){ on = true; lift(el, x0, y0); } if (on){ ev.preventDefault(); moveTo(ev.clientX, ev.clientY); } };
+    const up = () => { removeEventListener('pointermove', mv); removeEventListener('pointerup', up); removeEventListener('pointercancel', up); if (on) drop(); };
+    addEventListener('pointermove', mv, { passive:false }); addEventListener('pointerup', up); addEventListener('pointercancel', up);
+  });
+  c.offs.push(() => { if (drag){ drag.gh.remove(); drag.ph.remove(); drag = null; } });
+
+  // the keyboard: Space lifts, arrows choose the agent and the place, Space or Enter drops, Escape puts it back
+  let kb = null;
+  const zk = ['tray'].concat(AG.map(a => a.k));
+  c.on(R, 'keydown', e => {
+    const el = e.target.closest && e.target.closest('.dl1a-k'); if (!el || el.dataset.s === 'run' || el.dataset.s === 'done') return;
+    const id = el.dataset.key;
+    if (!kb){
+      if (e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); kb = { id, el }; el.classList.add('lift');
+        const b = el.getBoundingClientRect(); lift(el, b.left + 12, b.top + 12); const z0 = S.tray.includes(id) ? 'tray' : AG.find(a => S.A[a.k].q.includes(id)).k;
+        const Z = zones().find(q => q.z === z0); over(Z, z0 === 'tray' ? S.tray.indexOf(id) : S.A[z0].q.indexOf(id)); kbGhost();
+        announce(`Lifted ${TK[id].t}. Left and right choose the agent, up and down the place, Space drops, Escape cancels.`); }
+      else if ((e.key === 'Delete' || e.key === 'Backspace') && el.dataset.s === 'q'){ e.preventDefault(); move(id, 'tray'); el.focus(); }
+      return;
+    }
+    const d = drag; if (!d){ kb = null; return; }
+    if (e.key === 'Tab') return;
+    e.preventDefault();
+    if (e.key === 'Escape'){ el.classList.remove('lift'); kb = null; cancel(); el.focus(); announce('Cancelled.'); return; }
+    if (e.key === ' ' || e.key === 'Enter'){ el.classList.remove('lift'); kb = null; drop(); el.focus(); return; }
+    let zi = zk.indexOf(d.z || 'tray'), at = d.at || 0;
+    const len = z => z === 'tray' ? S.tray.filter(x => x !== id).length : S.A[z].q.filter(x => x !== id).length;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft'){ zi = (zi + (e.key === 'ArrowRight' ? 1 : -1) + zk.length) % zk.length; at = len(zk[zi]); }
+    else if (e.key === 'ArrowDown') at = Math.min(len(zk[zi]), at + 1);
+    else if (e.key === 'ArrowUp') at = Math.max(0, at - 1);
+    else return;
+    over(zones()[zi], at); kbGhost();
+    announce(zk[zi] === 'tray' ? `Tray, place ${at + 1}.` : `${ag(zk[zi]).n}, place ${at + 1 + (S.A[zk[zi]].run ? 1 : 0)}: ${$('.m', d.gh).textContent}`);
+  });
+  // with the keyboard the ghost sits over the placeholder, so you see what you carry where it would land
+  function kbGhost(){ const d = drag; if (!d) return; const sb = st.getBoundingClientRect(), p = d.ph.isConnected ? d.ph.getBoundingClientRect() : d.el.getBoundingClientRect();
+    d.gh.style.transition = REDUCE ? '' : 'transform .26s var(--dm-ease)'; d.gh.style.transform = `translate(${p.left - sb.left + 6}px,${p.top - sb.top - 6}px) rotate(${REDUCE ? 0 : 1.5}deg)`; }
+  c.on(R, 'focusout', e => { if (kb && !R.contains(e.relatedTarget)){ kb.el.classList.remove('lift'); kb = null; cancel(); } });
+
+  /* ---------- start ---------- */
+  place(); sayIdle();
+  grow(R);
+
+  /* ---------- the demo: two drags by hand (one hovers the Researcher first), then Auto-assign takes the rest and a new
+     task that arrives; the Coder is paused and resumed. About 20 seconds, then it plays again ---------- */
+  const hand = () => $('.hand', st);
+  async function carry(s, id, path){
+    const el = card(id); await s.point(el, false);
+    const h = hand(); h.classList.add('down');
+    const b = el.getBoundingClientRect(); let x = b.left + b.width * .62, y = b.top + b.height * .58;
+    lift(el, x, y);
+    c.taken(() => { if (drag && drag.id === id) cancel(); });
+    h.style.transition = 'none';
+    for (const [tgt, ms, pause] of path){
+      const to = tgt(); const x0 = x, y0 = y;
+      await tween(0, 1, REDUCE ? 1 : ms, (v) => { if (c.mine || c.dead) return; x = x0 + (to[0] - x0) * v; y = y0 + (to[1] - y0) * v; const sb = st.getBoundingClientRect(); h.style.transform = `translate(${x - sb.left}px,${y - sb.top}px)`; if (drag) moveTo(x, y); }, t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+      if (c.mine || c.dead) throw 'stop';
+      if (pause) await s.beat(pause);
+    }
+    drop(); h.style.transition = ''; h.classList.remove('down');
+  }
+  const into = (k, f = .5) => () => { const b = COL[k].q.getBoundingClientRect(); return [b.left + b.width * .5, b.top + Math.min(b.height * f, 120)]; };
+  c.story(async s => {
+    await s.beat(3);
+    await carry(s, 'f', [[into('d', .3), 900, 1.4]]);
+    s.away(); await s.beat(2);
+    await carry(s, 'g', [[into('r', .8), 800, 1.6], [into('w', .7), 700, 1.2]]);
+    s.away(); await s.beat(2);
+    await s.tap(autoB); s.away();
+    await s.until(() => !S.tray.length); await s.beat(3);
+    fly(() => { S.tray.push('j'); place(); }, { fresh:card('j') }); if (!REDUCE) card('j').animate([{ opacity:0, transform:'translateY(-8px) scale(.97)' }, { opacity:1, transform:'none' }], { duration:460, easing:'cubic-bezier(.2,.8,.2,1)' });
+    announce('A new task arrived: ' + TK.j.t + '.'); maybeAuto();
+    await s.until(() => !S.tray.length); await s.beat(2);
+    await s.tap(COL.d.pz); await s.beat(3);
+    await s.tap(COL.d.pz); s.away(); await s.beat(4);
+  });
+});
+
+/* ---------- the page: style, theme and replay ---------- */
+{
+  const d = document.documentElement;
+  const mark = (sel, v) => $$(sel + ' button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+  mark('#sw-style', d.dataset.style); mark('#sw-theme', d.dataset.theme);
+  seg($('#sw-style'), v => { d.dataset.style = v; try { localStorage.setItem('dmui-style', v); } catch(e){} });
+  seg($('#sw-theme'), v => { d.dataset.theme = v; try { localStorage.setItem('dmui-theme', v); } catch(e){} });
+  $('#replay').addEventListener('click', () => { const card = $('[data-c="dl1a"]'); DM.mount(card, !!card._c); });
+}
+</script>
+</body>
+</html>
