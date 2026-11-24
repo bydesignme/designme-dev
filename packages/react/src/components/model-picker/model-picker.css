@@ -22,7 +22,8 @@
 .dm-mpk-hd span{text-align:center}
 .dm-mpk-o{width:100%;padding:var(--dm-s-2) 10px;border-radius:var(--dm-r-in);text-align:left;font-size:13px;transition:background .16s}
 @media (hover:hover) and (pointer:fine){.dm-mpk-o:hover{background:var(--dm-row)}}
-.dm-mpk-o[aria-checked="true"]{background:var(--dm-sel)}
+/* (the picked model: the accent's tint, a step stronger than the selection wash so it shows on the card) */
+.dm-mpk-o[aria-checked="true"]{background:var(--dm-accent-bg)}
 .dm-mpk-o[aria-checked="true"] .dm-d{color:var(--dm-fg2)}
 .dm-mpk-o:focus-visible{outline:2px solid var(--dm-focus);outline-offset:-2px}
 .dm-mpk-o .dm-t{display:flex;flex-direction:column;min-width:0}
@@ -47,8 +48,11 @@
 .dm-mpk-sgt{grid-area:1/2;margin:0;font-size:12.5px;line-height:18px;color:var(--dm-fg)}
 .dm-mpk-sga{grid-area:2/1/3/3;display:flex;justify-content:flex-end;flex-wrap:wrap;gap:6px}
 /* on the tinted notice the secondary button is white, not grey */
-.dm-mpk-sg .dm-pill.dm-ghost{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-on-tint-btn)}
-@media (hover:hover) and (pointer:fine){.dm-mpk-sg .dm-pill.dm-ghost:hover{box-shadow:var(--dm-on-tint-btn-h)}}
+.dm-mpk-sg .dm-pill.dm-line{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-on-tint-btn)}
+@media (hover:hover) and (pointer:fine){.dm-mpk-sg .dm-pill.dm-line:hover{box-shadow:var(--dm-on-tint-btn-h)}}
+/* (Blueprint draws the white button's hairline inside it, so it is as tall as the warning button beside it) */
+:root:not([data-style="soft"],[data-style="clean"]) .dm-mpk-sg .dm-pill.dm-line:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
+@media (hover:hover) and (pointer:fine){:root:not([data-style="soft"],[data-style="clean"]) .dm-mpk-sg .dm-pill.dm-line:hover:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:inset 0 0 0 1px var(--dm-line)}}
 .dm-mpk-th{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--dm-s-2) var(--dm-s-3);padding:var(--dm-s-4) 10px 10px;margin:6px 0 0;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 /* Thinking sits on the rows' columns: its icon centred in the tiles' column, its words on the names' column */
 .dm-mpk-thh{display:grid;grid-template-columns:20px minmax(0,1fr);align-items:center;column-gap:10px;min-width:0;font-size:13px}
@@ -57,9 +61,9 @@
 /* (the label and its detail: one under the other here; side by side on one baseline in Clean) */
 .dm-mpk-tw{display:contents}
 .dm-mpk-thd{grid-column:2;font-size:12px}
-.dm-mpk-eb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--dm-s-2) 0 10px;border-radius:var(--dm-r-pill);background:var(--dm-chip);font-size:13px;transition:background .16s}
-.dm-mpk-eb[aria-expanded="true"]{background:var(--dm-hover)}
-@media (hover:hover) and (pointer:fine){.dm-mpk-eb:hover{background:var(--dm-hover)}}
+.dm-mpk-eb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--dm-s-2) 0 10px;border-radius:var(--dm-r-pill);background:var(--dm-chip-fill);font-size:13px;transition:background .16s}
+.dm-mpk-eb[aria-expanded="true"]{background:var(--dm-chip-fill-h)}
+@media (hover:hover) and (pointer:fine){.dm-mpk-eb:hover{background:var(--dm-chip-fill-h)}}
 .dm-mpk-eb>svg{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
 .dm-mpk-eb[aria-expanded="true"]>svg{transform:rotate(180deg)}
 .dm-mpk-pop{min-width:220px}
@@ -115,9 +119,9 @@
    in their tile column, its words on the names' column and its buttons ending where the meters end */
 :root[data-style="clean"] .dm-mpk-sg,:root [data-style="clean"] .dm-mpk-sg,:root [data-style="clean"].dm-mpk-sg{margin:4px 8px 8px;padding:12px 8px;border-radius:calc(var(--dm-r-card) - 8px);gap:12px 10px}
 :root[data-style="clean"] .dm-mpk-sga,:root [data-style="clean"] .dm-mpk-sga,:root [data-style="clean"].dm-mpk-sga{gap:8px}
-:root[data-style="clean"] .dm-mpk-sg .dm-pill.dm-ghost,:root [data-style="clean"] .dm-mpk-sg .dm-pill.dm-ghost,:root [data-style="clean"].dm-mpk-sg .dm-pill.dm-ghost{color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-mpk-sg .dm-pill.dm-ghost:hover,:root [data-style="clean"] .dm-mpk-sg .dm-pill.dm-ghost:hover,:root [data-style="clean"].dm-mpk-sg .dm-pill.dm-ghost:hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
-:root[data-style="clean"] .dm-mpk-sg .dm-pill.dm-ghost:active,:root [data-style="clean"] .dm-mpk-sg .dm-pill.dm-ghost:active,:root [data-style="clean"].dm-mpk-sg .dm-pill.dm-ghost:active{box-shadow:var(--dm-btn2-press)}
+:root[data-style="clean"] .dm-mpk-sg .dm-pill.dm-line,:root [data-style="clean"] .dm-mpk-sg .dm-pill.dm-line,:root [data-style="clean"].dm-mpk-sg .dm-pill.dm-line{color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-mpk-sg .dm-pill.dm-line:hover,:root [data-style="clean"] .dm-mpk-sg .dm-pill.dm-line:hover,:root [data-style="clean"].dm-mpk-sg .dm-pill.dm-line:hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
+:root[data-style="clean"] .dm-mpk-sg .dm-pill.dm-line:active,:root [data-style="clean"] .dm-mpk-sg .dm-pill.dm-line:active,:root [data-style="clean"].dm-mpk-sg .dm-pill.dm-line:active{box-shadow:var(--dm-btn2-press)}
 /* the foot strip: thinking on one line, 16px in, and its select a secondary pill 16px from the strip's sides, top and bottom
    (owner, 23 Nov: 8px above and below looked jammed into the corner) */
 :root[data-style="clean"] .dm-mpk-th,:root [data-style="clean"] .dm-mpk-th,:root [data-style="clean"].dm-mpk-th{flex-wrap:nowrap;gap:12px;margin:0;padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}

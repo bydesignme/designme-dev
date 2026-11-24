@@ -10,7 +10,8 @@
    under the header and keeps to its newest line */
 .dm-tmx{display:flex;flex-direction:column;max-height:420px;overflow:hidden}
 .dm-tmx>.dm-grow{max-height:420px;min-height:0}
-.dm-tmx-h{display:flex;align-items:center;gap:var(--dm-s-2);height:44px;flex:none;padding:0 var(--dm-s-4);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+/* the head's controls (Copy, the tallest, at 30px) have 16px above them and 16px down to the hairline, as a footer's do */
+.dm-tmx-h{display:flex;align-items:center;gap:var(--dm-s-2);height:calc(30px + 2 * var(--dm-s-4) + 1px);flex:none;padding:0 var(--dm-s-4);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .dm-tmx-ic{width:16px;display:grid;place-items:center;color:var(--dm-fg2);flex:none}
 /* (the directory and the state take a line as tall as their letters, so their words sit on the header's centre line) */
 .dm-tmx-cwd{min-width:0;flex:0 1 auto;font-size:12.5px;line-height:15px;color:var(--dm-fg2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -38,7 +39,8 @@
 /* the commands, their output and an edit's lines are code: mono, the only place it is used */
 .dm-tmx-body code{font:inherit;font-family:var(--dm-mono);font-size:12px}
 .dm-tmx-blk+.dm-tmx-blk{margin-top:var(--dm-s-1)}
-.dm-tmx-cmd{display:flex;align-items:center;gap:var(--dm-s-2);padding:0 var(--dm-s-4)}
+/* (a whole-pixel line, so the command's code and its time, in their two fonts, land on one baseline) */
+.dm-tmx-cmd{display:flex;align-items:center;gap:var(--dm-s-2);padding:0 var(--dm-s-4);line-height:22px}
 .dm-tmx-p{width:16px;flex:none;display:grid;place-items:center;color:var(--dm-fg2)}
 code.dm-tmx-p{font-weight:500;color:var(--dm-accent-fg,var(--dm-fg))}
 .dm-tmx-c{flex:1;min-width:0;font-weight:500;color:var(--dm-fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -51,7 +53,8 @@ code.dm-tmx-p{font-weight:500;color:var(--dm-accent-fg,var(--dm-fg))}
 .dm-tmx-o{display:block;padding:0 var(--dm-s-4) 0 40px;color:var(--dm-fg2);white-space:pre-wrap;overflow-wrap:anywhere}
 .dm-tmx-l{display:block}
 .dm-tmx-l.dm-ok{color:var(--dm-ok)}.dm-tmx-l.dm-bad{color:var(--dm-bad)}.dm-tmx-l.dm-mu{color:var(--dm-muted)}
-.dm-tmx-more{display:flex;align-items:center;gap:6px;width:calc(100% - 40px);margin:0 8px 0 32px;padding:0 8px;border-radius:var(--dm-r-sm);font-size:12px;line-height:inherit;text-align:left;color:var(--dm-muted);transition:color var(--dm-t-fast),background-color var(--dm-t-fast)}
+/* (its hover fill ends on the content's 16px edge, as the output above it does) */
+.dm-tmx-more{display:flex;align-items:center;gap:6px;width:calc(100% - 48px);margin:0 var(--dm-s-4) 0 32px;padding:0 8px;border-radius:var(--dm-r-sm);font-size:12px;line-height:inherit;text-align:left;color:var(--dm-muted);transition:color var(--dm-t-fast),background-color var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.dm-tmx-more:hover{color:var(--dm-fg);background:var(--dm-row)}}
 .dm-tmx-more .dm-sp{flex:1}
 .dm-tmx-more svg{transition:transform var(--dm-t) var(--dm-ease)}
@@ -70,7 +73,7 @@ code.dm-tmx-p{font-weight:500;color:var(--dm-accent-fg,var(--dm-fg))}
 .dm-tmx-f.dm-stop .dm-g{color:var(--dm-muted)}.dm-tmx-f.dm-bad .dm-g{color:var(--dm-bad-mark)}
 /* the run's state in the header: a neutral tag while it runs, its words shimmering as every loader's do (owner, 19 Nov), then
    the green tint once it passes or the red one if it failed */
-.dm-tmx-st{height:22px;padding:0 var(--dm-s-2);border-radius:var(--dm-r-tag);background:var(--dm-chip);color:var(--dm-fg2);transition:background .3s,color .3s}
+.dm-tmx-st{height:22px;padding:0 var(--dm-s-2);border-radius:var(--dm-r-tag);background:var(--dm-chip-fill);color:var(--dm-fg2);transition:background .3s,color .3s}
 .dm-tmx-sv.dm-shim{font-size:inherit}
 .dm-tmx-st.dm-ok,.dm-tmx-st.dm-ok .dm-g{background:var(--dm-ok-bg);color:var(--dm-ok)}
 .dm-tmx-st.dm-bad,.dm-tmx-st.dm-bad .dm-g{background:var(--dm-bad-bg);color:var(--dm-bad)}
@@ -89,7 +92,7 @@ code.dm-tmx-p{font-weight:500;color:var(--dm-accent-fg,var(--dm-fg))}
 /* an edit shows the lines it changed, removed in red and added in green, each on its own tint; the words start on the
    output's column, their tint reaching 8px out round them */
 .dm-tmx-df{display:block;margin:2px var(--dm-s-4) var(--dm-s-1) 32px;border-radius:var(--dm-r-sm);overflow:hidden}
-.dm-tmx-df span{display:block;padding:0 var(--dm-s-2);white-space:pre-wrap;overflow-wrap:anywhere;color:var(--dm-fg2)}
+.dm-tmx-df span{display:block;padding:1px var(--dm-s-2);white-space:pre-wrap;overflow-wrap:anywhere;color:var(--dm-fg2)}
 .dm-tmx-df .dm-a{background:color-mix(in srgb,var(--dm-add) 10%,transparent)}.dm-tmx-df .dm-a::first-letter{color:var(--dm-add)}
 .dm-tmx-df .dm-d{background:color-mix(in srgb,var(--dm-del) 10%,transparent)}.dm-tmx-df .dm-d::first-letter{color:var(--dm-del)}
 /* a block cursor blinks after the newest line while the run goes on */
@@ -110,4 +113,6 @@ code.dm-tmx-p{font-weight:500;color:var(--dm-accent-fg,var(--dm-fg))}
 :root[data-style="clean"] .dm-tmx-f,:root [data-style="clean"] .dm-tmx-f,:root [data-style="clean"].dm-tmx-f{padding:var(--dm-strip-y) 16px;line-height:28px;font-size:12.5px;background:var(--dm-strip);border-top-color:var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
 :root[data-style="clean"] .dm-tmx-f:not(.dm-stop,.dm-bad) .dm-g,:root [data-style="clean"] .dm-tmx-f:not(.dm-stop,.dm-bad) .dm-g,:root [data-style="clean"].dm-tmx-f:not(.dm-stop,.dm-bad) .dm-g{color:color-mix(in srgb,var(--dm-ok-mark) 80%,var(--dm-ok))}
 :root[data-style="clean"] .dm-tmx-st,:root [data-style="clean"] .dm-tmx-st,:root [data-style="clean"].dm-tmx-st{transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+/* (on the off-white strip the state's grey chip is a step darker, so it shows as a chip does on white) */
+:root[data-style="clean"] .dm-tmx-st:not(.dm-ok,.dm-bad),:root [data-style="clean"] .dm-tmx-st:not(.dm-ok,.dm-bad),:root [data-style="clean"].dm-tmx-st:not(.dm-ok,.dm-bad){background:var(--dm-chip-fill-h)}
 :root[data-style="clean"] .dm-tmx-more,:root [data-style="clean"] .dm-tmx-more,:root [data-style="clean"].dm-tmx-more{transition:color var(--dm-t-fast) var(--dm-ease),background-color var(--dm-t-fast) var(--dm-ease)}
