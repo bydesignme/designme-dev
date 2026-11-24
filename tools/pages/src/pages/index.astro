@@ -72,18 +72,22 @@ const bandCss = [pick(''), ...PHONE.map((x, k) => `@media (max-width:${(k ? PHON
 // (its ranks are set in monospace). Three stacks from
 // 1440px (the first wider, for Activity heatmap), two from 1100px (placed by the script under the bento), one below, in the
 // three stacks' order. When a card here changes its height, sample them again and choose again.
-// At launch only the live components are on the site (tools/site/live.js; owner, 24 Nov), so the six that aren't live yet
-// (Activity heatmap, Funnel chart, Donut chart, Eval radar, Radial goals, Line chart) gave their places to live ones with a
-// card of their own, chosen so each stack's tallest heights (tools/site/card-heights.json, Soft at 1440) add up within about
-// 10px of the others: these twelve have not yet been sampled live as the ones before them were
+// At launch only the live components are on the site (tools/site/live.js; owner, 24 Nov), so the bento is twelve live ones
+// with a card of their own, and of those the steadiest: Context meter (it folds to a pill), Command palette, Composer, Model
+// picker and Terminal stream change height by 110 to 340px as they play and are left out. Run cost sits in the first, wider
+// stack, where its Raise cap button has room. Sampled for 60 seconds at 1440 with every card in view, the three stacks' feet
+// were within about 45px of each other half of the time and 80px nine times in ten in Soft and Blueprint (their average
+// bottoms within 25px), and about 70px and 113px in Clean, whose taller Knowledge sources and Scheduled runs lift the third stack.
+// Knowledge sources, Plan review, Inline text diff, Agent lanes and Scheduled runs each still move by 35 to 90px as they play,
+// so no choice of these twelve keeps the feet within 24px all the time
 const BENTO3 = [
-  ['tool-connections', 'file-explorer', 'agent-lanes', 'run-cost'],
-  ['knowledge-sources', 'plan-review', 'composer', 'agent-run-timeline'],
-  ['model-picker', 'scheduled-runs', 'context-meter', 'command-palette'],
+  ['event-calendar', 'run-cost', 'run-drawer', 'agent-lanes'],
+  ['tool-connections', 'memory-panel', 'plan-review', 'inline-text-diff'],
+  ['agent-run-timeline', 'scheduled-runs', 'file-explorer', 'knowledge-sources'],
 ];
 const BENTO2 = [
-  ['tool-connections', 'knowledge-sources', 'plan-review', 'scheduled-runs', 'composer', 'agent-run-timeline'],
-  ['model-picker', 'file-explorer', 'context-meter', 'agent-lanes', 'command-palette', 'run-cost'],
+  ['event-calendar', 'knowledge-sources', 'run-drawer', 'tool-connections', 'run-cost', 'scheduled-runs'],
+  ['memory-panel', 'agent-run-timeline', 'plan-review', 'file-explorer', 'agent-lanes', 'inline-text-diff'],
 ];
 if ([...BENTO3.flat()].sort().join() !== [...BENTO2.flat()].sort().join()) throw new Error('landing: the bento\'s two layouts hold different cards');
 const BENTO = BENTO3.map(stack => stack.map(comp));
