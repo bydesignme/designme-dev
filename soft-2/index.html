@@ -2233,6 +2233,8 @@ th:last-child>.col-rz{display:none}
 .cpx.growing{overflow:visible}
 .cpx-thread{display:flex;flex-direction:column;gap:var(--s-3)}
 .cpx-thread:empty{display:none}
+/* a message is a small card: its files and words 16px from its edges */
+.cpx-thread .bub{padding:var(--s-4)}
 /* a message that is only attachments (owner, 19 Nov): the files sit on their own at the thread's right edge, as a chat app shows
    them, never in an empty bubble; with words they stay in the bubble, above the words */
 .cpx-files{align-self:flex-end;max-width:85%;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px}
@@ -2263,14 +2265,14 @@ th:last-child>.col-rz{display:none}
 .cpx-box[data-mode="voice"] .cpx-bar{opacity:0;transform:translateY(-6px);pointer-events:none}
 .cpx-box[data-mode="voice"] .cpx-voice{opacity:1;transform:none;pointer-events:auto;visibility:visible;transition-delay:0s}
 .cpx-bar>.ib{width:32px;height:32px;flex:none}
-.cpx-bar>.cpx-add{margin-left:-9px}
 .cpx-add[aria-expanded="true"]{background:var(--chip);color:var(--fg)}
 .cpx-bar .chip{height:32px;padding:0 10px;gap:6px;background:none;min-width:0;font-size:13px;color:var(--fg2)}
 .cpx-bar .chip:hover,.cpx-bar .chip[aria-expanded="true"]{background:var(--row);color:var(--fg)}
 .cpx-bar .chip>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cpx-bar .chip>svg:last-child{color:var(--muted)}
 /* a narrow box: the context and mode chips keep only their icon (the name stays for screen readers, and in the tooltip) */
-@container (max-width:400px){.cpx-bar .chip{padding:0 8px}.cpx-bar .chip>span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.cpx-bar .chip>svg:last-child{display:none}}
+/* (narrow, a chip shows only its icon and is a circle) */
+@container (max-width:400px){.cpx-bar .chip{width:32px;padding:0;justify-content:center}.cpx-bar .chip>span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.cpx-bar .chip>svg:last-child{display:none}}
 .cpx-send{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent);flex:none;transition:opacity .32s,transform .16s,background .16s}
 .cpx-send:hover{background:var(--accent-2)}
 .cpx-send[disabled]{opacity:1;cursor:not-allowed;background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring)}
@@ -2289,9 +2291,9 @@ th:last-child>.col-rz{display:none}
    button. A file that failed keeps the chip's white with its words and mark in red, no red fill */
 :root[data-style="clean"] .cpx-box{border-radius:var(--r-card)}
 :root[data-style="clean"] .cpx-att{gap:4px}
-:root[data-style="clean"] .cpx-bar>.cpx-add{margin-left:-7px}
 :root[data-style="clean"] .cpx-bar>.ib{width:28px;height:28px}
 :root[data-style="clean"] .cpx-bar .chip{height:28px;padding:0 8px;transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
+@container (max-width:400px){:root[data-style="clean"] .cpx-bar .chip{width:28px;padding:0}}
 :root[data-style="clean"] :is(.cpx-add,.cpx-bar .chip)[aria-expanded="true"]{background:var(--row-on)}
 /* Send is the field's own Send (see the Clean section), 16px from the box's right and bottom edges, its corners the box's
    less those 16px */
@@ -6201,6 +6203,10 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .ahx-bot::before{content:"";position:absolute;left:0;right:10px;bottom:100%;height:28px;background:linear-gradient(transparent,var(--surface));pointer-events:none}
 .ahx-bot .cpx{max-width:632px;margin:0 auto}
 .ahx .cpx-thread{display:none}
+/* (the harness's composer keeps its earlier toolbar: the attach button reaching out round its glyph, chips padded on a phone) */
+.ahx .cpx-bar>.cpx-add{margin-left:-9px}
+:root[data-style="clean"] .ahx .cpx-bar>.cpx-add{margin-left:-7px}
+@container (max-width:400px){.ahx .cpx-bar .chip{width:auto;padding:0 8px;justify-content:normal}:root[data-style="clean"] .ahx .cpx-bar .chip{width:auto;padding:0 8px}}
 .ahx .ctm-ft{gap:2px;margin-right:1px;font-size:12.5px}
 .ahx .ctm-ft>span{color:var(--muted);margin-right:2px}
 /* while the agent works in the chat on screen, a new message waits */
