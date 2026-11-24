@@ -44,6 +44,7 @@ DM.def('dl3a', (st, c, card) => {
   const paused = {};
   let auto = false, P = null, ghost = null, countdown = null;
   const els = new Map();
+  let moving = false;   // a focused block is being moved to another lane: its blur is not the person leaving it
   const lanesEl = $('.dl3a-lanes', root), live = $('.dl3a-live', root);
   const input = $('.dl3a-in', root), form = $('.dl3a-cmd', root), pw = $('.dl3a-pw', root), prop = $('.dl3a-prop', root);
   const sw = $('.dl3a-auto .toggle', root), pauseAll = $('.dl3a-pa', root);
@@ -123,7 +124,7 @@ DM.def('dl3a', (st, c, card) => {
       els.set(x.id, el);
     }
     const tr = track(a.id);
-    if (el.parentElement !== tr){ const f = el === document.activeElement; tr.insertBefore(el, $('.dl3a-now', tr)); if (f) el.focus({ preventScroll:true }); }
+    if (el.parentElement !== tr){ const f = el === document.activeElement; moving = true; try { tr.insertBefore(el, $('.dl3a-now', tr)); } finally { moving = false; } if (f) el.focus({ preventScroll:true }); }
     return el;
   }
   function paint(){
@@ -313,7 +314,7 @@ DM.def('dl3a', (st, c, card) => {
     if (k === 'ArrowLeft' || k === 'ArrowRight'){ e.preventDefault(); const qi = qIndex(x) + (k === 'ArrowLeft' ? -1 : 1); const n = L[cur].filter(y => y.st === 'q').length; if (qi < 0 || qi >= n) return; flip(() => moveItem(x, cur, qi)); say(`Position ${qi + 1}.`); }
     const nel = els.get(x.id); if (nel && document.activeElement !== nel) nel.focus({ preventScroll:true });
   });
-  c.on(lanesEl, 'focusout', e => { if (K && e.target.dataset && e.target.dataset.id === K.x.id && !lanesEl.contains(e.relatedTarget)){ K.x.lift = false; K = null; e.target.setAttribute('aria-pressed', 'false'); paint(); } });
+  c.on(lanesEl, 'focusout', e => { if (K && !moving && e.target.dataset && e.target.dataset.id === K.x.id && !lanesEl.contains(e.relatedTarget)){ K.x.lift = false; K = null; e.target.setAttribute('aria-pressed', 'false'); paint(); } });
 
   /* commands */
   c.on(form, 'submit', e => { e.preventDefault(); if (P && input.value.trim() === P.text) assign(); else propose(input.value); });
