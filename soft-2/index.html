@@ -3341,7 +3341,8 @@ th:last-child>.col-rz{display:none}
 /* nothing in the bar shrinks or swells on a click (owner, 18 Nov): a rated thumb only tilts */
 .aab-bar .ib:active{transform:none}
 :root[data-style="clean"] .aab-bar .ib:active{transform:none}
-.aab-t .w{transition:background .16s,color .16s;border-radius:var(--r-xs)}
+/* (the word being read is lit with small corners, so a short word's highlight stays a rounded box, not a near-circle) */
+.aab-t .w{transition:background .16s,color .16s;border-radius:calc(3px * var(--rk))}
 .aab-t .w.in{animation:aabw .42s var(--ease) both}
 @keyframes aabw{from{opacity:0;filter:blur(4px)}to{opacity:1;filter:none}}
 .aab-t.out{animation:aabo .32s var(--ease) both}
@@ -3362,13 +3363,14 @@ th:last-child>.col-rz{display:none}
 /* the version pager only takes room once there is a second version */
 .aab-pg{display:inline-flex;align-items:center;max-width:0;overflow:hidden;opacity:0;transition:max-width .42s var(--ease),opacity .32s}
 .aab-pg.on{max-width:96px;opacity:1}
-.aab-pg .ib{width:24px;height:24px}
+/* (the versions' arrows are the bar's own 28px icon buttons) */
+.aab-pg .ib{width:28px;height:28px}
 .aab-n{font-size:12px;color:var(--muted);min-width:32px;text-align:center}
 .aab-rd{display:inline-flex;align-items:center;height:28px;padding:0 7px;border-radius:var(--r-pill);color:var(--fg2);transition:background .16s,color .16s}
 .aab-rd:hover{background:var(--row)}
 .aab-rd .ic{display:grid;place-items:center;width:14px}
 .aab-rd[aria-pressed="true"]{background:var(--accent-bg);color:var(--accent)}
-.aab-rd.paused{background:var(--chip);color:var(--fg2)}
+.aab-rd.paused{background:var(--chip-fill);color:var(--fg2)}
 .aab-pr{width:0;height:3px;border-radius:var(--r-tiny,2px);background:color-mix(in srgb,currentColor 22%,transparent);overflow:hidden;margin-left:0;transition:width .42s var(--ease),margin .42s var(--ease)}
 .aab-pr i{display:block;height:100%;width:0;background:currentColor;border-radius:inherit}
 .aab-tm{font-size:11.5px;max-width:0;overflow:hidden;white-space:nowrap;transition:max-width .42s var(--ease),margin .42s var(--ease)}
@@ -3398,16 +3400,18 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .aab-t .w.in{animation-name:aabwc;animation-duration:var(--t-slow)}
 :root[data-style="clean"] .aab-t.out{animation-name:aaboc;animation-duration:var(--t)}
 :root[data-style="clean"] .aab-bar .ib[aria-pressed="true"] svg{transform:none}
-:root[data-style="clean"] .aab-t .w.rd{background:var(--hover);color:var(--fg)}
+/* (the word being read is lit a step darker than the chip's next grey, so it shows on the stage) */
+:root[data-style="clean"] .aab-t .w.rd{background:var(--press);color:var(--fg)}
 :root[data-style="clean"] .aab-bar .ib[aria-pressed="true"]{background:var(--row-on);color:var(--fg)}
 :root[data-style="clean"] .aab-bar .ib[aria-pressed="true"] svg{fill:currentColor}
 :root[data-style="clean"] .aab-rd[aria-pressed="true"]{background:var(--row-on);color:var(--fg)}
 :root[data-style="clean"] .aab-rd:hover{background:var(--row)}
 :root[data-style="clean"] .aab-ch .chip.on{background:var(--btn-2);color:var(--on-btn);box-shadow:inset 0 0 0 1px var(--btn-2)}
-/* a reason not picked takes the one hover over its fill, easing over 220ms (owner, 21 Nov) */
-:root[data-style="clean"] .aab-ch .chip:not(.on){background:var(--chip)}
+/* a reason not picked takes the one hover over its fill, easing over 220ms (owner, 21 Nov); on the stage its grey is two steps
+   above the chip's own, so it shows there as a chip does on a card */
+:root[data-style="clean"] .aab-ch .chip:not(.on){background:var(--press)}
 :root[data-style="clean"] .aab-ch .chip{transition:background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
-:root[data-style="clean"] .aab-ch .chip:not(.on):hover{background:var(--chip);box-shadow:inset 0 0 0 99px var(--row)}
+:root[data-style="clean"] .aab-ch .chip:not(.on):hover{background:var(--press);box-shadow:inset 0 0 0 99px var(--row)}
 :root[data-style="clean"] .aab-st.ok svg{color:var(--ok-mark)}
 /* ---------- Decision prompt ---------- */
 /* the agent asks in the chat: no container; with .panel it becomes a card. Each answer is a tile to pick (a click, its
