@@ -17,6 +17,9 @@ React package and `tools/pages/content`; their registry entries go to `tools/pag
 served), which the templates and the React package's styles read, and their pages redirect to `/library`. A section with
 no live component leaves the library and the sidebar. To make a component live, add its name to `live.js` and run the whole
 build (`build`, `react`, `astro`, `pages`); the build warns if a section is left with an odd number of half-width cards.
+The library splits into its two sets, Agent components and App basics (the switch, the sidebar labels, and the two counts
+in the copy), only once two or more app basics are live (`SPLIT_AT` in `build.js`); below that it is one list with one count,
+and `site.json` says `split: false` for the pages.
 
 ## Where to change things
 
