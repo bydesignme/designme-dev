@@ -142,6 +142,11 @@ for (const x of EXTRA){ let a = EXTRA.find(y => y.cid === x.after); while (a && 
 EXTRA.splice(0, EXTRA.length, ...EXTRA.filter(x => !OFF.has(x.id)));
 DROP.forEach(cid => delete MAP[cid]);
 const ON = new Set(Object.values(MAP));
+/* the library's two sets, Agent components and App basics, each with its own tab, sidebar label and counts in the copy, only
+   once two or more app basics are live (owner, 24 Nov: at launch, with one, it is one list). Below that, the app basics sit
+   in the one list after the agent components, numbered on from them, and the copy gives one count */
+const SPLIT_AT = 2;
+let SPLIT = true;
 
 /* ---------- read the Soft 2 page ---------- */
 const cssA = soft.indexOf('<style>\n[hidden]') + '<style>'.length;
@@ -663,9 +668,12 @@ main = main.replace(/<section class="lib-sec" id="([\w-]+)">[\s\S]*?<\/section>\
   // two sets on the page, Agent components and App basics, shown one at a time: each section knows its set, and each set
   // numbers its sections from 01
   const cut = main.indexOf('<h2>App basics</h2>'); if (cut < 0) throw new Error('App basics heading not found');
-  const mark = part => { let no = 0; return part.replace(/<section class="lib-sec" id="([\w-]+)">/g, (m, id) => (GRP[id] = GRP.cur, m.replace('>', ` data-grp="${GRP.cur}">`)))
-    .replace(/<span class="sec-no">\d+<\/span>/g, () => `<span class="sec-no">${String(++no).padStart(2, '0')}</span>`); };
-  GRP.cur = 'agent'; const head = mark(main.slice(0, cut)); GRP.cur = 'basics'; main = head + mark(main.slice(cut));
+  SPLIT = (main.slice(cut).match(/<article\b/g) || []).length >= SPLIT_AT;
+  // each section keeps its set (GRP, for the docs and llms.txt); on the page, one list is all one set
+  const mark = (part, no = 0) => part.replace(/<section class="lib-sec" id="([\w-]+)">/g, (m, id) => (GRP[id] = GRP.cur, m.replace('>', ` data-grp="${SPLIT ? GRP.cur : 'agent'}">`)))
+    .replace(/<span class="sec-no">\d+<\/span>/g, () => `<span class="sec-no">${String(++no).padStart(2, '0')}</span>`);
+  GRP.cur = 'agent'; const head = mark(main.slice(0, cut)); GRP.cur = 'basics';
+  main = head + mark(main.slice(cut), SPLIT ? 0 : (head.match(/<section class="lib-sec"/g) || []).length);
 }
 site = site.slice(0, mainA) + main + site.slice(mainB);
 // the sidebar's component groups are written from the main list, the same one the component pages' sidebar reads (through
@@ -678,7 +686,7 @@ site = site.slice(0, mainA) + main + site.slice(mainB);
   const [ga, gb] = SECTIONS_FIRST.map(grp), next = i => site.indexOf('<div class="side-grp" data-s="', i + 10), gEnd = next(ga);
   if (next(gb) !== ga) throw new Error('side groups not next to each other');
   site = site.slice(0, gb) + site.slice(ga, gEnd) + site.slice(gb, ga) + site.slice(gEnd);
-  site = site.replace(/<div class="side-grp" data-s="([\w-]+)">/g, (m, id) => { if (!GRP[id]) throw new Error('no set for ' + id); return `<div class="side-grp" data-s="${id}" data-grp="${GRP[id]}">`; });
+  site = site.replace(/<div class="side-grp" data-s="([\w-]+)">/g, (m, id) => { if (!GRP[id]) throw new Error('no set for ' + id); return `<div class="side-grp" data-s="${id}" data-grp="${SPLIT ? GRP[id] : 'agent'}">`; });
   const secs = [...main.matchAll(/<section class="lib-sec" id="([\w-]+)"[^>]*>([\s\S]*?)<\/section>/g)];
   const groups = (site.match(/<div class="side-grp" data-s="s-/g) || []).length;
   if (secs.length !== groups) throw new Error(`${secs.length} sections on the page but ${groups} groups in the sidebar`);
@@ -908,6 +916,9 @@ for (const [a, b] of SITE_PATCHES.patches){
   if (count !== 1) throw new Error(`site patch matched ${count} times: ${a.slice(0, 70)}`);
   site = site.replace(a, () => b);
 }
+// one list (SPLIT, above): no switch between the sets, no App basics heading where Agent components end, no set labels in the
+// sidebar
+if (!SPLIT) site = site.replace('</head>', '<style id="one-list">.grp-sw,.grp-next,.side-lbl{display:none!important}</style>\n</head>');
 // the number of components on the page (live.js), where the copy states it (make-patches.py writes it as @@COUNT@@)
 if (site.split('@@COUNT@@').length !== 2) throw new Error('the intro\'s component count (@@COUNT@@) is not on the page once');
 site = site.replace('@@COUNT@@', String(done.length));
@@ -1025,7 +1036,7 @@ console.log('swapped', done.length, 'cards; size', site.length);
   const text = h => h.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;|&rsquo;/g, "'").replace(/\s+/g, ' ').trim();
   const SETS = { agent:'Agent components', basics:'App basics' };
   const secs = [...site.matchAll(/<section class="lib-sec" id="([\w-]+)" data-grp="(\w+)">([\s\S]*?)<\/section>/g)].map(([, id, grp, body]) => ({
-    id, grp, title:text(body.match(/<h2>([\s\S]*?)<\/h2>/)[1]), about:text((body.match(/<div class="sec-head">[\s\S]*?<p>([\s\S]*?)<\/p>/) || [, ''])[1]),
+    id, grp:GRP[id] || grp, title:text(body.match(/<h2>([\s\S]*?)<\/h2>/)[1]), about:text((body.match(/<div class="sec-head">[\s\S]*?<p>([\s\S]*?)<\/p>/) || [, ''])[1]),
     cards:[...body.matchAll(/<article\b[^>]*\bdata-reg="([\w-]+)"[^>]*>[\s\S]*?class="comp-title">([\s\S]*?)<\/h2>[\s\S]*?class="comp-desc">([\s\S]*?)<\/p>/g)].map(([, reg, t, d]) => ({ reg, t:text(t), d:text(d) })) }));
   // the lead grid holds this week's cards on the homepage; the docs still list them in the section they were in
   if (SECTION_ORDER){
@@ -1043,7 +1054,7 @@ console.log('swapped', done.length, 'cards; size', site.length);
   const list = a => a.length > 1 ? a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1] : a.join('');
   let md = `# Designme.dev
 
-> ${count} free, MIT-licensed UI components for products built around AI agents: status pills, reasoning trails, agent trees, permission gates, plan reviews, run costs and more${nBasics ? `, plus the app ${nBasics === 1 ? 'basic' : 'basics'} around them (${list(basicsAre)})` : ''}. Each one comes as plain HTML, CSS and JS, as a typed React component with no dependencies beyond React, or as an Astro component, in three styles (Soft, Blueprint and Clean) with light and dark mode.
+> ${count} free, MIT-licensed UI components for products built around AI agents: status pills, reasoning trails, agent trees, permission gates, plan reviews, run costs and more${SPLIT && nBasics ? `, plus the app ${nBasics === 1 ? 'basic' : 'basics'} around them (${list(basicsAre)})` : ''}. Each one comes as plain HTML, CSS and JS, as a typed React component with no dependencies beyond React, or as an Astro component, in three styles (Soft, Blueprint and Clean) with light and dark mode.
 
 Install with the CLI, which copies each component's source into your project so you own it:
 
@@ -1057,9 +1068,10 @@ Every CSS variable starts with \`--dm-\` in every version, and in the React vers
   // the docs pages that tools/pages builds, each as Markdown too
   const DOCS = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../pages/src/lib/docs-list.json'), 'utf8'));
   md += `\n## Docs\n\n` + DOCS.map(d => `- [${d.title}](https://designme.dev/docs/${d.slug}.md): ${d.desc}`).join('\n') + '\n';
-  for (const g of Object.keys(SETS)){
-    md += `\n## ${SETS[g]}\n`;
-    for (const sec of secs.filter(x => x.grp === g && x.cards.length)){
+  // one list (SPLIT): every section under one heading
+  for (const g of SPLIT ? Object.keys(SETS) : ['all']){
+    md += `\n## ${SPLIT ? SETS[g] : 'Components'}\n`;
+    for (const sec of secs.filter(x => (g === 'all' || x.grp === g) && x.cards.length)){
       md += `\n### ${sec.title}\n\n${sec.about ? sec.about + '\n\n' : ''}`;
       md += sec.cards.map(c => `- [${c.t}](https://designme.dev/components/${c.reg}.md): ${c.d} Install: \`npx designme add ${c.reg}\``).join('\n') + '\n';
     }
@@ -1081,7 +1093,7 @@ Every CSS variable starts with \`--dm-\` in every version, and in the React vers
   // to the bottom of its sidebar
   const sideFoot = (site.match(/<div class="side-foot">([\s\S]*?)<\/div>\s*<\/aside>/) || [])[1];
   if (!sideFoot || !sideFoot.includes('hire-btn')) throw new Error("the homepage's sidebar has no foot with Book a call");
-  fs.writeFileSync(PAGES_DATA, JSON.stringify({ sets:SETS, logo:site.match(/<a[^>]*class="brand[^"]*"[\s\S]*?(<svg[\s\S]*?<\/svg>)<\/a>/)[1], icons, sideFoot:sideFoot.trim(), emptySections:EMPTY.map(sid => sid.replace(/^s-/, '')), unlisted:UNLISTED.map(cid => ({ reg:ALL[cid].reg, title:ALL[cid].title, v2:ALL[cid].id, section:ALL[cid].section })), sections:secs.filter(x => x.cards.length).map(x => ({
+  fs.writeFileSync(PAGES_DATA, JSON.stringify({ sets:SETS, split:SPLIT, logo:site.match(/<a[^>]*class="brand[^"]*"[\s\S]*?(<svg[\s\S]*?<\/svg>)<\/a>/)[1], icons, sideFoot:sideFoot.trim(), emptySections:EMPTY.map(sid => sid.replace(/^s-/, '')), unlisted:UNLISTED.map(cid => ({ reg:ALL[cid].reg, title:ALL[cid].title, v2:ALL[cid].id, section:ALL[cid].section })), sections:secs.filter(x => x.cards.length).map(x => ({
     slug:x.id.replace(/^s-/, ''), ...x,
     cards:x.cards.map(c => ({ reg:c.reg, title:c.t, desc:c.d, ...meta[c.reg] })) })) }, null, 1));
   // the designs each card with a design switch shows on its component page, by component (designsOf, above)
@@ -1093,8 +1105,10 @@ Every CSS variable starts with \`--dm-\` in every version, and in the React vers
   // its own scripts/index.mjs)
   const nAgent = secs.filter(x => x.grp === 'agent').reduce((n, x) => n + x.cards.length, 0), basicsN = `${nBasics} app ${nBasics === 1 ? 'basic' : 'basics'}`;
   for (const [file, re, to] of [
-    ['README.md', /\d+ of them: \d+ agent components \(([^)]*)\) and \d+ app basics? around them\s*\([^)]*\)/, (m, eg) => `${count} of them: ${nAgent} agent components (${eg}) and ${basicsN} around them (${list(basicsAre)})`],
-    ['packages/designme/README.md', /\d+ of them \(\d+ agent components plus \d+ app basics?\)/, () => `${count} of them (${nAgent} agent components plus ${basicsN})`],
+    // two forms: with the two sets' counts (SPLIT), or one count with the agent examples
+    ['README.md', /\d+ of them: (?:\d+ agent components \(([^)]*)\) and \d+ app basics? around them\s*\([^)]*\)|([^.]*? and more))/,
+      (m, a, b) => SPLIT ? `${count} of them: ${nAgent} agent components (${a || b}) and ${basicsN} around them (${list(basicsAre)})` : `${count} of them: ${a || b}`],
+    ['packages/designme/README.md', /\d+ of them(?: \(\d+ agent components plus \d+ app basics?\))?, from/, () => SPLIT ? `${count} of them (${nAgent} agent components plus ${basicsN}), from` : `${count} of them, from`],
   ]){
     const f = path.resolve(__dirname, '../..', file), text = fs.readFileSync(f, 'utf8');
     if ((text.match(new RegExp(re.source, 'g')) || []).length !== 1) throw new Error(`${file}: the sentence with the component count is not there once (${re.source})`);

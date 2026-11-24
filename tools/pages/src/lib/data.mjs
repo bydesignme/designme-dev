@@ -16,12 +16,15 @@ const read = (...p) => JSON.parse(fs.readFileSync(path.join(ROOT, ...p), 'utf8')
 const maybe = (...p) => { const f = path.join(ROOT, ...p); return fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : null; };
 
 const site = read('tools/pages/data/site.json');
-export const SETS = site.sets;
+// the two sets, Agent components and App basics, once two or more app basics are live (site.split, from tools/site/build.js);
+// until then one list, one set: every section is in it, and each keeps what it is as `kind`
+export const SPLIT = site.split !== false;
+export const SETS = SPLIT ? site.sets : { agent:'Components' };
 export const LOGO = site.logo;
 // the foot of the homepage's sidebar: the DesignMe sticker and credit line, and Book a call (tools/site/build.js copies it)
 export const SIDE_FOOT = site.sideFoot || '';
 // a section lives in the library (/library), which lists every component; /components/<section> redirects there (see publish.mjs)
-export const SECTIONS = site.sections.map(s => ({ ...s, set:SETS[s.grp], url:`/library#${s.id}` }));
+export const SECTIONS = site.sections.map(s => ({ ...s, kind:s.grp, grp:SPLIT ? s.grp : 'agent', set:SETS[SPLIT ? s.grp : 'agent'], url:`/library#${s.id}` }));
 
 /* ---- the props of a React component, from its TypeScript interfaces and their doc comments ---- */
 function propsOf(src){

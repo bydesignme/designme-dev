@@ -21,7 +21,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
-import { ROOT, SITE, SECTIONS, SETS, COMPONENTS, UNLISTED, borrows } from './data.mjs';
+import { ROOT, SITE, SECTIONS, SETS, SPLIT, COMPONENTS, UNLISTED, borrows } from './data.mjs';
 // the theme bridge's table (tools/site/theme-bridge.js), so the docs list what the file sets
 const { MAP:BRIDGE, NAMES:BRIDGE_NAMES } = createRequire(import.meta.url)(path.join(ROOT, 'tools/site/theme-bridge.js'));
 
@@ -89,7 +89,8 @@ const BODY = {
     lead: 'Designme.dev is a free library of UI components for products built around AI agents.',
     sections: [
       ['What it is', [
-        ['p', `${count} free components: ${nOf('agent')} for the agent itself, like status pills, reasoning trails, agent trees, permission gates, plan reviews and run costs, and ${basicsN()} around it.`],
+        // one count while the library is one list (SPLIT, tools/site/build.js), the two sets' counts once it is two
+        ['p', SPLIT ? `${count} free components: ${nOf('agent')} for the agent itself, like status pills, reasoning trails, agent trees, permission gates, plan reviews and run costs, and ${basicsN()} around it.` : `${count} free components for the AI agents in your product, like status pills, reasoning trails, agent trees, permission gates, plan reviews and run costs.`],
         ['p', 'Every component plays as a demo in the [library](/library), and has a page of its own with its install command, React props, code and questions.'],
       ]],
       ['Three styles, light and dark', [
@@ -102,7 +103,7 @@ const BODY = {
         ['p', `Each style has a light and a dark theme. Switch them in the header of any page here. In your own project, two attributes on \`<html>\` pick them. See ${D('theming')}.`],
       ]],
       ['What is in it', [
-        ['agents', `There ${nOf('basics') === 1 ? 'is' : 'are'} also ${basicsN()} for the product around the agent: ${basicsAre()}. ${nOf('basics') === 1 ? 'It is' : 'They are all'} in the [library](/library#${inSet('basics')[0].id}).`],
+        ['agents', !SPLIT ? `They are all in the [library](/library).` : `There ${nOf('basics') === 1 ? 'is' : 'are'} also ${basicsN()} for the product around the agent: ${basicsAre()}. ${nOf('basics') === 1 ? 'It is' : 'They are all'} in the [library](/library#${inSet('basics')[0].id}).`],
       ]],
       ['HTML, React or Astro', [
         ['p', 'Every component comes in three versions. One is HTML, CSS and JavaScript on a small shared core that holds the tokens, icons and helpers. Another is a typed React component for React 19, with no dependencies beyond React, that works in Next.js, Vite and Astro islands. The third is an Astro component with the same markup, CSS and script as the HTML version.'],
