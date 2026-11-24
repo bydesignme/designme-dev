@@ -274,7 +274,10 @@ export function ResponseVersions({ prompt, versions, version, defaultVersion = 0
 - [Live answer](https://designme.dev/components/live-answer.md): Answers that stream in with numbered sources and next steps.
 - [Composer](https://designme.dev/components/composer.md): Message input with attachments, what to work on, a mode and dictation.
 - [Artifact card](https://designme.dev/components/artifact-card.md): A file the agent made, with its versions, Open, Copy and Download.
+- [Image generation](https://designme.dev/components/image-generation.md): A prompt with styles, shape and count, pictures that resolve out of grain, and a gallery of earlier ones.
 - [Rich text editor](https://designme.dev/components/rich-text-editor.md): A minimal editor with an inline AI menu that streams a suggestion to accept or discard.
+- [Tool call](https://designme.dev/components/tool-call.md): Each tool the agent calls, with its input and output.
+- [Voice orb](https://designme.dev/components/voice-orb.md): A hands-free voice chat, with an orb that shows who is talking.
 - [Answer action bar](https://designme.dev/components/answer-action-bar.md): Copy, regenerate, rate and listen to an answer from one row under it.
 - [Model picker](https://designme.dev/components/model-picker.md): Pick a model by speed, quality and cost, and how hard it thinks.
 - [Attachment tray](https://designme.dev/components/attachment-tray.md): Drop files for the agent and watch each one upload.

@@ -5,6 +5,7 @@ TPLS["toast"] = "<div class=\"tst dm\">\n  <div class=\"dm-main\"><div class=\"t
 TPLS["toast-stack"] = "<div class=\"tsk dm\">\n  <div class=\"dm-main\"><div class=\"tsk-stack\" aria-live=\"polite\"></div></div>\n  <div class=\"demo\"><button class=\"pill soft sm tsk-add\"><svg class=\"i s\"><use href=\"#v2i-bell\"/></svg>Send notification</button></div>\n</div>";
 TPLS["context-meter"] = "<div class=\"ctm\" data-open=\"1\">\n  <button class=\"ctm-tg\" aria-expanded=\"true\" aria-label=\"Context\"><span class=\"ctm-ring\" aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\"><circle class=\"tr\" cx=\"10\" cy=\"10\" r=\"7.5\"/><circle class=\"fl\" cx=\"10\" cy=\"10\" r=\"7.5\" pathLength=\"100\"/></svg></span><span><span class=\"ctm-pc num\">0%</span> of context used</span>{chev}</button>\n  <div class=\"ctm-pop panel\" role=\"region\" aria-label=\"What fills the context\">\n    <div class=\"ctm-ph\"><span>In context</span><span class=\"num\"><b class=\"ctm-tot\">0k</b> of 200k tokens</span></div>\n    <div class=\"ctm-bar\" aria-hidden=\"true\"></div>\n    <div class=\"ctm-leg\"></div>\n    <div class=\"ctm-msg\" aria-live=\"polite\"><span></span></div>\n    <div class=\"ctm-f\"><span class=\"ctm-hint\">Summarises older turns</span><button class=\"pill line sm ctm-go\">Compact</button></div>\n  </div>\n</div>";
 TPLS["agent-run-timeline"] = "<div class=\"art panel\">\n  <div class=\"art-h\"><span class=\"art-hi\" aria-hidden=\"true\"></span><div class=\"art-hd\"><div class=\"art-t\">Run 4821, update the pricing page</div><div class=\"art-s muted num\">Starting</div></div><span class=\"art-tag tag\"><span class=\"spin\" aria-hidden=\"true\"></span>Running</span></div>\n  <div class=\"art-key num\" role=\"list\" aria-label=\"Time by kind of step\"></div>\n  <div class=\"art-grid\">\n    <div class=\"art-axis\" aria-hidden=\"true\"><span></span><div class=\"art-ticks\"></div><span></span></div>\n    <div class=\"art-past\" aria-hidden=\"true\"></div>\n    <div class=\"art-rows\"></div>\n    <div class=\"art-head\" aria-hidden=\"true\"><i></i><span class=\"art-now num\">0.0s</span></div>\n  </div>\n  <div class=\"art-f muted num\"></div>\n</div>";
+TPLS["browser-session"] = "<div class=\"bws panel\">\n  <div class=\"bws-h\"><div class=\"bws-ht\"><b>Pricing research</b><span class=\"muted bws-st\" aria-live=\"polite\"></span></div><div class=\"bws-ctl\"><button class=\"ib bws-pause\" aria-label=\"Pause\" data-tip=\"Pause\">{pause}</button><button class=\"pill line sm bws-take\" aria-pressed=\"false\">Take over</button></div></div>\n  <div class=\"bws-win\"><div class=\"bws-bar\"><span class=\"bws-dots\" aria-hidden=\"true\"><i></i><i></i><i></i></span><div class=\"bws-url\">{search}<span></span></div></div><div class=\"bws-vp\"></div></div>\n  <ol class=\"bws-steps\" aria-label=\"Steps\"></ol>\n</div>";
 TPLS["web-search"] = "<div class=\"wsx panel\">\n  <button class=\"wsx-h\" aria-expanded=\"true\"><span class=\"wsx-ic\"><span class=\"spin\"></span></span><span class=\"wsx-st shim\">Searching the web</span><span class=\"wsx-marks\" aria-hidden=\"true\"></span>{chev}</button>\n  <div class=\"fold wsx-fold\"><div><div class=\"wsx-list\"></div></div></div>\n  <div class=\"wsx-ans\"></div>\n  <p class=\"wsx-sr\" role=\"status\"></p>\n</div>";
 TPLS["reasoning-trail"] = "<div class=\"rtr-dm dm\"><div class=\"dm-main\"><div class=\"rtr panel\">\n  <button class=\"rtr-h\" aria-expanded=\"true\">\n    <span class=\"think on rtr-mark\"><i></i><i></i><i></i><i></i></span>\n    <span class=\"rtr-title shim\">Reasoning</span><span class=\"rtr-time num muted\">0s</span>\n    <svg class=\"i xs rtr-chev\"><use href=\"#v2i-chev-d\"/></svg>\n  </button>\n  <div class=\"fold rtr-fold\"><div>\n    <div class=\"rtr-body\"></div>\n    <div class=\"fold rtr-ff shut\"><div><p class=\"rtr-f\"><span class=\"rtr-fk\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\"><path d=\"m5 12.5 4.5 4.5L19 7.5\"/></svg></span><span class=\"rtr-fd\"></span><span class=\"rtr-fs\"></span></p></div></div>\n  </div></div>\n</div></div>\n  <div class=\"demo\"><div class=\"seg2\" role=\"group\" aria-label=\"View\"><button aria-pressed=\"true\" data-v=\"plan\">Plan</button><button aria-pressed=\"false\" data-v=\"notes\">Notes</button><button aria-pressed=\"false\" data-v=\"sources\">Sources</button><button aria-pressed=\"false\" data-v=\"edits\">Edits</button></div></div>\n</div>";
 TPLS["thinking"] = "<div class=\"tk\" data-open=\"1\">\n  <button class=\"tk-h\" aria-expanded=\"true\">\n    <span class=\"tk-mark\"><span class=\"think on\"><i></i><i></i><i></i><i></i></span></span>\n    <span class=\"tk-title shim\">Checking the pricing page</span><span class=\"tk-time num\">0s</span>\n    <svg class=\"i xs tk-chev\"><use href=\"#v2i-chev-d\"/></svg>\n  </button>\n  <div class=\"fold tk-fold\"><div><ol class=\"tk-list\" aria-live=\"polite\"></ol></div></div>\n</div>";
@@ -419,6 +420,109 @@ DM.def('context-meter', (r, c) => {
     arrive(); await s.beat(4);
     await s.tap(go); s.away(); await s.until(() => state === 'compact'); await s.beat(4);
     await s.tap(tg); s.away(); await s.beat(2);
+  });
+});
+/* ---------- Browser session ---------- */
+DM.def('browser-session', (r, c) => {
+  r.innerHTML = r.innerHTML.replace('{pause}', I('pause')).replace('{search}', I('search','xs'));
+  const root = $('.bws', r), stEl = $('.bws-st', r), vp = $('.bws-vp', r), url = $('.bws-url', r), list = $('.bws-steps', r);
+  const pauseB = $('.bws-pause', r), takeB = $('.bws-take', r);
+  // the steps the agent planned, and the pages it passes through, drawn small: a search, the site, its pricing page
+  const S = [{ t:'Search "northwind pricing"' }, { t:'Open northwind.app' }, { t:'Click "Pricing"' }, { t:'Read the plans table' }, { t:'Extract prices' }];
+  const NAV = on => `<div class="bws-nav"><b>Northwind</b><span>Product</span><span data-k="pricing"${on ? ' class="on"' : ''}>Pricing</span><span>Docs</span></div>`;
+  const PAGES = {
+    search:`<div class="bws-pg"><div class="bws-q">${I('search','xs')}<span>northwind pricing</span></div>
+      <div class="bws-res"><b data-k="site">Northwind · Docs your team reads</b><span>northwind.app</span></div>
+      <div class="bws-res"><b>Northwind review: is it worth it?</b><span>softwarenotes.io</span></div>
+      <div class="bws-res"><b>Northwind alternatives</b><span>stackcompare.com</span></div></div>`,
+    home:`<div class="bws-pg">${NAV(false)}<div class="bws-hd">Docs your team actually reads</div><span class="bws-ln" style="width:92%"></span><span class="bws-ln" style="width:68%"></span><span class="bws-cta">Start free</span></div>`,
+    pricing:`<div class="bws-pg">${NAV(true)}<div class="bws-hd">Plans and pricing</div><span class="bws-ln" style="width:78%"></span>
+      <div class="bws-tb"><div><span>Plan</span><span>Per seat, monthly</span></div><div><span>Starter</span><span class="num">$8</span></div><div><span>Team</span><span class="num">$16</span></div><div><span>Business</span><span class="num">$32</span></div></div><span class="bws-ln" style="width:64%"></span><span class="bws-ln" style="width:40%"></span></div>`
+  };
+  const G = { queued:'<span class="dot"></span>', run:'<span class="spin"></span>', wait:I('alert','xs'), done:I('ok','xs') };
+  S.forEach(x => { x.el = html(`<li class="bws-s queued"><span class="g">${G.queued}</span><span class="bws-t"><span>${x.t}</span><span class="d" hidden></span></span></li>`); list.appendChild(x.el); });
+  function step(i, s, d){
+    const x = S[i], de = $('.d', x.el); if (x.s === s && de.textContent === (d || '')) return;
+    x.s = s; x.el.className = 'bws-s ' + s; const g = $('.g', x.el); g.innerHTML = G[s]; enter(g);
+    if (s === 'run' || s === 'wait') x.el.setAttribute('aria-current', 'step'); else x.el.removeAttribute('aria-current');
+    if (!d){ de.hidden = true; de.textContent = ''; } else if (de.hidden){ de.textContent = d; de.hidden = false; enter(de); } else swap(de, d);
+  }
+  // the page's cookie banner waits below the fold of the viewport, and the agent's own pointer above it
+  const ck = html('<div class="bws-ck"><span>This site uses cookies</span><button type="button">Reject all</button><button type="button">Accept all</button></div>');
+  const cur = html('<span class="bws-cur" aria-hidden="true"><svg viewBox="0 0 14 14"><path d="M2 1.5l9.5 5-4.2 1.2-2 4.3z"/></svg></span>');
+  vp.append(ck, cur);
+  function page(k, u){
+    const old = $('.bws-pg', vp), pg = html(PAGES[k]); vp.insertBefore(pg, ck); if (old) old.remove(); enter(pg);
+    $('svg', url).outerHTML = I(k === 'search' ? 'search' : 'lock', 'xs'); swap($('span', url), u);
+  }
+  // the person can pause the agent or take the page over; either holds it wherever it is, and it waits for them when
+  // the page blocks it
+  let paused = false, you = false, blocked = false, finished = false, secs = 0, unblock = null;
+  const held = () => paused || you;
+  async function act(ms){ for (let left = ms; left > 0;){ await c.wait(100); if (!held()) left -= 100; } }
+  async function aim(el){
+    const v = vp.getBoundingClientRect(), b = el.getBoundingClientRect(), x = b.left - v.left + Math.min(b.width * .5, 36), y = b.top - v.top + b.height * .6;
+    if (!cur.classList.contains('on')){ cur.style.transition = 'none'; cur.style.transform = `translate(${x + 30}px,${y + 40}px)`; void cur.offsetWidth; cur.style.transition = ''; cur.classList.add('on'); }
+    cur.style.transform = `translate(${x}px,${y}px)`; el.classList.add('aim');
+    await act(800); cur.classList.add('down'); await act(200); cur.classList.remove('down'); el.classList.remove('aim');
+  }
+  const clock = () => Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0');
+  stEl.innerHTML = '<span class="m">Browsing</span> · <span class="num ck">0:00</span>';
+  c.every(1000, () => { if (!held() && !blocked && !finished){ secs++; $('.ck', stEl).textContent = clock(); } });
+  function update(){
+    root.classList.toggle('you', you); root.classList.toggle('paused', paused && !you);
+    swap($('.m', stEl), finished ? 'Done' : you ? 'You have control' : paused ? 'Paused' : blocked ? 'Needs you' : 'Browsing');
+    const pl = paused ? 'Resume' : 'Pause'; pauseB.innerHTML = I(paused ? 'play' : 'pause'); pauseB.setAttribute('aria-label', pl); pauseB.dataset.tip = pl;
+    pauseB.disabled = you || finished; takeB.disabled = finished;
+    takeB.setAttribute('aria-pressed', you); takeB.textContent = you ? 'Hand back' : 'Take over';
+    // while the person has the page, its buttons are theirs and the agent's pointer steps aside
+    vp.inert = !you; cur.style.visibility = you ? 'hidden' : '';
+    const ask = $('.bws-ask', r);
+    if (blocked && !you && !ask) showAsk(); else if ((!blocked || you) && ask) ask.remove();
+    if (blocked) step(3, 'wait', you ? 'Close the banner, then hand back' : 'A cookie banner covers the table');
+  }
+  function showAsk(){
+    const ask = html('<div class="bws-ask"><button class="pill primary sm bws-allow">Allow closing it</button><button class="pill soft sm bws-you">Take over</button></div>');
+    $('.bws-t', S[3].el).appendChild(ask); enter(ask);
+    $('.bws-allow', ask).onclick = () => c.run(async () => {
+      // the agent closes it the privacy-friendly way, with Reject all
+      blocked = false; update(); step(3, 'run', 'Closing the banner');
+      await aim($('button', ck)); ck.classList.remove('on'); unblock();
+    });
+    $('.bws-you', ask).onclick = () => takeB.click();
+  }
+  pauseB.onclick = () => { paused = !paused; update(); };
+  takeB.onclick = () => { you = !you; if (you) paused = false; update(); };
+  // with the page in hand, either banner button closes it
+  $$('button', ck).forEach(b => b.onclick = () => { if (!you || !blocked) return; ck.classList.remove('on'); blocked = false; update(); unblock(); });
+  // the run: search, open the site, go to pricing and scroll to the table, where a cookie banner covers it and the agent
+  // asks before touching it. Once it is gone, it reads the table and takes the three prices
+  c.run(async () => {
+    page('search', 'northwind pricing'); step(0, 'run');
+    await act(1800); step(0, 'done'); step(1, 'run');
+    await aim($('[data-k="site"]', vp)); page('home', 'northwind.app');
+    await act(1200); step(1, 'done'); step(2, 'run');
+    await aim($('[data-k="pricing"]', vp)); page('pricing', 'northwind.app/pricing');
+    await act(1000); step(2, 'done'); step(3, 'run');
+    await act(600);
+    const pg = $('.bws-pg', vp); pg.style.transform = `translateY(${-Math.max(0, Math.min(pg.offsetHeight - vp.clientHeight, $('.bws-tb', pg).offsetTop - 8))}px)`;
+    await act(1200); ck.classList.add('on'); await act(500);
+    blocked = true; update();
+    await new Promise(res => { unblock = res; });
+    step(3, 'run');
+    await act(1400); step(3, 'done', '3 plans, priced per seat'); step(4, 'run', '0 of 3 prices');
+    const cells = $$('.bws-tb .num', vp);
+    for (let i = 0; i < cells.length; i++){ await aim(cells[i]); cells[i].classList.add('hit'); step(4, 'run', `${i + 1} of 3 prices`); }
+    await act(500); cur.classList.remove('on');
+    finished = true; step(4, 'done', '$8, $16 and $32 per seat'); update();
+    const sm = html(`<div class="bws-sum">${I('ok','xs')}<span>Done · 3 prices saved to Pricing research</span></div>`); root.appendChild(sm); enter(sm);
+  });
+  update();
+  // the preview's story: the agent stops at the cookie banner, the person allows it to close it, and it finishes
+  c.story(async s => {
+    await s.until(() => $('.bws-allow', r)); await s.beat(3);
+    await s.tap($('.bws-allow', r)); s.away();
+    await s.until(() => finished); await s.beat(3);
   });
 });
 /* ---------- Toast ---------- */
