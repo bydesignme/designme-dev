@@ -135,7 +135,7 @@ DM.def('voice-orb', (r, c) => {
   r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) => IC[k] || m);
   const root = $('.vor', r), orb = $('.vor-orb', r), st = $('.vor-st', r), tm = $('.vor-t', r), who = $('.vor-who', r), tx = $('.vor-tx', r), mf = $('.vor-mf', r), f = $('.vor-f', r), mute = $('.vor-mute', r);
   // what is said, turn by turn. The demo plays it as a script: it never uses the microphone or makes a sound
-  const TURNS = [['You', 'Make the yearly price the default on the pricing page.'], ['Agent', 'Done. Yearly is now the default on all three plans in Pricing v4.'], ['You', 'Show the yearly saving in green too.'], ['Agent', 'Added. The saving shows in green under each yearly price.']];
+  const TURNS = [['You', 'Make the yearly price the default on the pricing page, and keep monthly one click away.'], ['Agent', 'Done. Yearly is now the default on all three plans in Pricing v4, and monthly is one click away.'], ['You', 'Nice. Show how much the yearly price saves too, in green under each plan.'], ['Agent', 'Added. The saving now shows in green under each yearly price, on all three plans.']];
   const HINT = 'Talk to the agent about Pricing v4', LABEL = { idle:'Ready', listening:'Listening', thinking:'Thinking', speaking:'Speaking', muted:'Muted', ended:'Ended' };
   let mode = 'idle', muted = false, talking = false, said = 0, secs = 0, run = 0, done = null, lv = 0;
   const fmt = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
