@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Load board · Delegate 2b · Designme.dev lab</title>
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<script>
+/* style and theme: ?style=bp|soft|clean&theme=light|dark, else what the site stored, else the site's default (light opens in
+   Soft, dark in Blueprint). Blueprint is no data-style attribute, as core.css expects */
+(function(){
+  var q = new URLSearchParams(location.search), d = document.documentElement, s, t;
+  try { s = q.get('style') || localStorage.getItem('dmui-style'); t = q.get('theme') || localStorage.getItem('dmui-theme'); } catch(e){}
+  if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  if (s === 'blueprint') s = 'bp';
+  if (s !== 'bp' && s !== 'soft' && s !== 'clean') s = t === 'dark' ? 'bp' : 'soft';
+  d.setAttribute('data-theme', t); if (s === 'bp') d.removeAttribute('data-style'); else d.setAttribute('data-style', s);
+  try { if (q.get('style')) localStorage.setItem('dmui-style', s); if (q.get('theme')) localStorage.setItem('dmui-theme', t); } catch(e){}
+})();
+</script>
+<link rel="stylesheet" href="assets/core.css">
+<style>
+@font-face{font-family:"Inter";font-style:normal;font-weight:400;font-display:swap;src:url(../../fonts/inter-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-style:normal;font-weight:500;font-display:swap;src:url(../../fonts/inter-latin-500-normal.woff2) format("woff2")}
+html,body{margin:0}
+body{background:var(--dm-page);color:var(--dm-fg);font-family:var(--dm-sans);font-size:14px;line-height:20px;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+*{box-sizing:border-box}
+
+/* ---------- the lab page around the component ---------- */
+.dl2b-top{max-width:1040px;margin:0 auto;padding:24px 16px 16px;display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 24px}
+.dl2b-intro{flex:1 1 360px;min-width:0}
+.dl2b-intro h1{margin:0;font-size:14px;font-weight:500;line-height:20px}
+.dl2b-intro h1 span{color:var(--dm-muted);font-weight:400}
+.dl2b-intro p{margin:4px 0 0;font-size:13px;line-height:20px;color:var(--dm-muted);max-width:620px}
+.dl2b-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.dl2b-seg{display:inline-flex;padding:2px;border-radius:999px;background:var(--dm-chip)}
+.dl2b-seg button,.dl2b-rp{font:inherit;font-size:12.5px;font-weight:500;height:28px;padding:0 12px;border:0;border-radius:999px;background:none;color:var(--dm-fg2);cursor:pointer;transition:background-color .2s,color .2s}
+.dl2b-seg button:hover{color:var(--dm-fg)}
+.dl2b-seg button[aria-pressed="true"]{background:var(--dm-surface);color:var(--dm-fg);box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent),0 1px 2px rgba(0,0,0,.06)}
+.dl2b-rp{display:inline-flex;align-items:center;gap:6px;background:var(--dm-surface);color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);height:32px}
+.dl2b-rp:hover{background:var(--dm-row)}
+:is(.dl2b-seg button,.dl2b-rp):focus-visible{outline:2px solid var(--dm-focus);outline-offset:2px}
+:root:not([data-style]) :is(.dl2b-seg,.dl2b-seg button,.dl2b-rp){border-radius:0}
+.dl2b-stage{max-width:1040px;margin:0 auto 48px;padding:56px 16px;min-height:680px;display:flex;align-items:center;justify-content:center;background:var(--dm-stage);border-radius:24px;box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
+:root:not([data-style]) .dl2b-stage{border-radius:0;background-image:linear-gradient(var(--dm-grid) 1px,transparent 1px),linear-gradient(90deg,var(--dm-grid) 1px,transparent 1px);background-size:24px 24px;background-position:-1px -1px}
+@media (max-width:720px){.dl2b-stage{border-radius:0;box-shadow:none;padding:32px 16px;min-height:0}}
+.dl2b-card{width:100%;display:flex;justify-content:center}
+.dl2b-card>.stage-in{max-width:760px}
+
+/* ---------- Load board ---------- */
+.dl2b{width:100%;padding:16px;display:flex;flex-direction:column;gap:16px;font-size:13px;line-height:18px;color:var(--dm-fg);container-type:inline-size;touch-action:pan-y}
+.dl2b.growing>.dm-grow{gap:16px}
+.dl2b .num{font-variant-numeric:tabular-nums}
+.dl2b-h,.dl2b-f{display:flex;align-items:center;gap:8px;min-height:28px}
+.dl2b-hi{width:28px;height:28px;border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));display:grid;place-items:center;background:var(--dm-chip);color:var(--dm-fg2);flex:none}
+.dl2b-hw{display:flex;align-items:baseline;gap:8px;min-width:0}
+.dl2b-ttl{font-size:14px;font-weight:500;white-space:nowrap}
+.dl2b-meta{font-size:12.5px;color:var(--dm-muted);white-space:nowrap}
+.dl2b-meta b{font-weight:500;color:var(--dm-fg)}
+.dl2b-sp{flex:1}
+.dl2b-f{padding-top:16px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.dl2b-auto{display:inline-flex;align-items:center;gap:8px;height:28px;font-size:13px;color:var(--dm-fg2);cursor:pointer;white-space:nowrap}
+.dl2b-sum{font-size:12.5px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.dl2b-even .i{margin-left:-2px}
+
+/* what has come in and is waiting for a place */
+.dl2b-in{display:flex;align-items:center;gap:8px;height:40px;padding:4px 2px;margin:-4px -2px -4px;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,#000 85%,transparent);mask-image:linear-gradient(90deg,#000 85%,transparent)}
+.dl2b-inl{font-size:12.5px;color:var(--dm-muted);flex:none;margin-right:4px}
+.dl2b-empty{font-size:12.5px;color:var(--dm-muted)}
+.dl2b-t{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 12px 0 8px;max-width:220px;flex:none;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-surface);box-shadow:var(--dm-shadow);font-size:12.5px;color:var(--dm-fg);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;transition:background-color var(--dm-t-fast) var(--dm-ease)}
+.dl2b-t .tx{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.dl2b-t .m{color:var(--dm-muted);flex:none}
+.dl2b-t .src{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));display:grid;place-items:center;background:var(--dm-chip);color:var(--dm-fg2);flex:none}
+.dl2b-t .src .i{width:12px;height:12px}
+@media (hover:hover) and (pointer:fine){.dl2b-t:hover{background:var(--dm-row)}}
+
+/* the board: one column per agent, its queued work stacked from the bottom, one minute of work to a fixed height;
+   the line across is the hour, and work above it won't be done within the hour */
+.dl2b-board{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.dl2b-col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.dl2b-tr{position:relative;height:248px;display:flex;flex-direction:column-reverse;gap:4px;padding:0;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));transition:background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
+.dl2b-tr::before{content:"";position:absolute;left:0;right:0;bottom:-6px;height:1px;background:var(--dm-rail)}
+.dl2b-tr.over-d{background:var(--dm-chip);box-shadow:0 0 0 6px var(--dm-chip)}
+/* a block: a task, as tall as its minutes of work left, in its agent's colour */
+.dl2b-b{position:relative;flex:none;height:calc(var(--m) / var(--sc) * 248px - 4px);min-height:2px;display:flex;align-items:flex-start;gap:6px;padding:4px 8px;overflow:hidden;border-radius:calc(7px * var(--dm-rk-s,var(--dm-rk)));background:var(--bb);color:var(--bf);font-size:12px;line-height:16px;text-align:left;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;transition:height .3s linear,background-color var(--dm-t) var(--dm-ease),color var(--dm-t) var(--dm-ease),opacity var(--dm-t-fast)}
+.dl2b-b .tx{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+.dl2b-b .m{flex:none;opacity:.9}
+.dl2b-b.run{cursor:default}
+.dl2b-b.run .tx::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;margin:0 6px 1px 0;animation:dl2b-pulse 1.4s ease-in-out infinite}
+@keyframes dl2b-pulse{50%{opacity:.35}}
+.dl2b-b.tiny{padding-block:0}
+.dl2b-b.tiny>*{visibility:hidden}
+@media (hover:hover) and (pointer:fine){.dl2b-b:not(.run):hover{background:color-mix(in srgb,var(--bf) 10%,var(--bb))}}
+.dl2b-b.lift,.dl2b-t.lift{opacity:.35}
+.dl2b-ghost{position:fixed;left:0;top:0;z-index:60;pointer-events:none;margin:0;box-shadow:var(--dm-shadow-pop);cursor:grabbing}
+.dl2b-ghost.abs{position:absolute}
+.dl2b-col[data-a="res"]{--bb:var(--dm-pl-bg);--bf:var(--dm-pl)}
+.dl2b-col[data-a="wri"]{--bb:var(--dm-pb-bg);--bf:var(--dm-pb)}
+.dl2b-col[data-a="des"]{--bb:var(--dm-pk-bg);--bf:var(--dm-pk)}
+.dl2b-col[data-a="cod"]{--bb:var(--dm-pm-bg);--bf:var(--dm-pm)}
+/* the hour: a neutral dashed line across the board, and the work above it hatched in the warning colour */
+.dl2b-hr{position:absolute;left:-8px;right:-8px;height:0;border-top:1.5px dashed var(--dm-line-strong);pointer-events:none;z-index:3;transition:bottom .5s var(--dm-ease)}
+.dl2b-col:first-child .dl2b-hr{left:0}
+.dl2b-col:last-child .dl2b-hr{right:0}
+.dl2b-hr span{position:absolute;right:4px;bottom:4px;height:20px;padding:0 7px;display:inline-flex;align-items:center;border-radius:var(--dm-r-tag);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 35%,transparent);font-size:11.5px;font-weight:500;color:var(--dm-fg2);white-space:nowrap}
+.dl2b-ov{position:absolute;left:-4px;right:-4px;z-index:2;pointer-events:none;border-radius:calc(9px * var(--dm-rk-s,var(--dm-rk)));border:1.5px dashed var(--dm-warn-mark);border-bottom:0;margin-bottom:0;opacity:0;transition:opacity var(--dm-t) var(--dm-ease),height .3s linear,bottom .5s var(--dm-ease)}
+.dl2b-ov.on{opacity:1}
+.dl2b-oc{position:absolute;left:50%;transform:translate(-50%,-100%);margin-top:-6px;z-index:4;opacity:0;transition:opacity var(--dm-t) var(--dm-ease),top .3s linear}
+.dl2b-oc.on{opacity:1}
+/* an agent: its mark and role, and what its queue will cost against its budget */
+.dl2b-ah{display:flex;align-items:center;gap:8px;min-width:0}
+.dl2b-mk{width:28px;height:28px;border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));display:grid;place-items:center;background:var(--ag);color:var(--ag-ink);flex:none}
+.dl2b-mk .i{width:14px;height:14px}
+.dl2b-nm{display:flex;flex-direction:column;min-width:0;flex:1}
+.dl2b-nm b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dl2b-nm span{font-size:12px;line-height:16px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dl2b-bud{display:flex;flex-direction:column;gap:6px}
+.dl2b-bl{display:flex;align-items:baseline;justify-content:space-between;gap:6px;font-size:12px;line-height:16px;color:var(--dm-muted);white-space:nowrap}
+.dl2b-bl b{font-weight:500;color:var(--dm-fg)}
+.dl2b-bl.warn b{color:var(--dm-warn)}
+.dl2b-mt{position:relative;height:4px;border-radius:2px;background:var(--dm-rail)}
+.dl2b-mt i{position:absolute;left:0;top:0;bottom:0;width:calc(var(--v,0) * 100%);border-radius:2px;background:var(--dm-accent-mark);transition:width .3s linear,background-color var(--dm-t) var(--dm-ease)}
+.dl2b-mt.warn i{background:var(--dm-warn-mark)}
+.dl2b-mt b{position:absolute;left:62.5%;top:-3px;bottom:-3px;width:2px;border-radius:1px;background:var(--dm-fg2)}
+.dl2b-menu{min-width:240px}
+.dl2b-menu .dl2b-mk{width:24px;height:24px}
+.dl2b-menu .dl2b-mk .i{width:12px;height:12px}
+.dl2b-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* phones: each agent is a row and its work runs left to right; the hour is a line down the rows */
+@container (max-width:560px){
+  .dl2b-board{grid-template-columns:minmax(0,1fr);gap:16px}
+  .dl2b-col{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;align-items:center}
+  .dl2b-ah{grid-row:1;grid-column:1}
+  .dl2b-bud{grid-row:1;grid-column:2;width:96px}
+  .dl2b-tr{grid-row:2;grid-column:1 / -1;height:32px;flex-direction:row;gap:3px}
+  .dl2b-tr::before{left:-6px;right:auto;top:0;bottom:0;width:1px;height:auto}
+  .dl2b-tr.over-d{box-shadow:0 0 0 4px var(--dm-chip)}
+  .dl2b-b{height:auto;width:calc(var(--m) / var(--sc) * 100% - 3px);padding:0 6px;align-items:center}
+  .dl2b-b .tx{display:none}
+  .dl2b-b.run .m::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;margin:0 4px 1px 0;animation:dl2b-pulse 1.4s ease-in-out infinite}
+  .dl2b-b.narrow>*{visibility:hidden}
+  .dl2b-hr{top:-4px;bottom:-4px!important;left:auto;width:0;height:auto;border-top:0;border-left:1.5px dashed var(--dm-line-strong)}
+  .dl2b-hr span{right:auto;left:-1px;bottom:auto;top:-24px;transform:translateX(-50%)}
+  .dl2b-ov{top:-4px;bottom:-4px!important;height:auto!important;border-bottom:1.5px dashed var(--dm-warn-mark);border-left:0}
+  .dl2b-oc{left:auto!important;top:-2px!important;right:0;transform:translateY(-100%);margin:0}
+  .dl2b-sum .dl2b-long{display:none}
+}
+
+/* Blueprint: square, hairline blocks, the sheet's grid behind the board */
+:root:not([data-style]) .dl2b-t{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 60%,transparent)}
+:root:not([data-style]) .dl2b-b{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--bf) 35%,transparent)}
+:root:not([data-style]) .dl2b-hi{background:none;box-shadow:inset 0 0 0 1px var(--dm-rail)}
+:root:not([data-style]) .dl2b-board{background-image:linear-gradient(var(--dm-grid) 1px,transparent 1px);background-size:100% 31px;background-position:0 -1px}
+:root:not([data-style]) .dl2b-hr{border-top-style:solid;border-top-width:1px;border-color:var(--dm-fg)}
+:root:not([data-style]) .dl2b-hr span{box-shadow:inset 0 0 0 1px var(--dm-fg);font-size:10.5px;letter-spacing:.03em;text-transform:uppercase}
+:root:not([data-style]) .dl2b-mt i{background:var(--dm-fg)}
+:root:not([data-style]) .dl2b-mt.warn i{background:var(--dm-warn-mark)}
+:root:not([data-style]) .dl2b-tr.over-d{background:var(--dm-wash);box-shadow:0 0 0 6px var(--dm-wash),0 0 0 7px var(--dm-rail)}
+:root:not([data-style]) .dl2b-ghost{box-shadow:inset 0 0 0 1px var(--dm-line-strong),0 12px 28px -14px rgba(20,20,12,.3)}
+@container (max-width:560px){:root:not([data-style]) .dl2b-board{background-image:none}:root:not([data-style]) .dl2b-hr{border-top:0;border-left:1px solid var(--dm-fg)}}
+
+/* Clean: head and foot strips, monochrome chrome and switch; the agents keep their colours */
+:root[data-style="clean"] .dl2b{padding:0;gap:0;border-radius:var(--dm-r-card);overflow:clip}
+:root[data-style="clean"] .dl2b.growing>.dm-grow{gap:0}
+:root[data-style="clean"] .dl2b-h{padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-bottom:1px solid var(--dm-line)}
+:root[data-style="clean"] .dl2b-body{padding:16px;display:flex;flex-direction:column;gap:16px}
+:root[data-style="clean"] .dl2b-f{padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line)}
+:root[data-style="clean"] .dl2b-hi{background:var(--dm-surface);box-shadow:var(--dm-btn2-depth);border-radius:10px}
+:root[data-style="clean"] .dl2b-t{border-radius:10px;box-shadow:inset 0 0 0 1px var(--dm-hair),0 1px 2px rgba(0,0,0,.04)}
+:root[data-style="clean"][data-theme="dark"] .dl2b-t{background:var(--dm-raised)}
+:root[data-style="clean"] .dl2b-b{border-radius:8px}
+:root[data-style="clean"] .dl2b-mk{border-radius:8px}
+:root[data-style="clean"] .dl2b-tr{border-radius:12px}
+:root[data-style="clean"] .dl2b-tr.over-d{background:var(--dm-row-on);box-shadow:0 0 0 6px var(--dm-row-on)}
+:root[data-style="clean"] .dl2b-auto{padding:0 10px 0 8px;margin-left:-8px;border-radius:999px;transition:background-color var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dl2b-auto:hover{background:var(--dm-row);color:var(--dm-fg)}}
+:root[data-style="clean"] .dl2b-mt{box-shadow:var(--dm-track-ring)}
+.dl2b-body{display:flex;flex-direction:column;gap:16px}
+
+@media (prefers-reduced-motion:reduce){.dl2b-b,.dl2b-ov,.dl2b-mt i{transition:none}.dl2b-b.run .tx::before{animation:none}}
+</style>
+</head>
+<body>
+<header class="dl2b-top">
+  <div class="dl2b-intro">
+    <h1>Load board <span>· Delegate, variation 2b</span></h1>
+    <p>Each agent's queue is a stack of its work, a minute to a fixed height, against the hour and its budget; new work lands on the best-skilled agent, and you drag it across, or press Even out, until the stacks level.</p>
+  </div>
+  <div class="dl2b-ctl">
+    <div class="dl2b-seg" role="group" aria-label="Style" id="dl2b-style"><button type="button" data-v="bp">Blueprint</button><button type="button" data-v="soft">Soft</button><button type="button" data-v="clean">Clean</button></div>
+    <div class="dl2b-seg" role="group" aria-label="Theme" id="dl2b-theme"><button type="button" data-v="light">Light</button><button type="button" data-v="dark">Dark</button></div>
+    <button class="dl2b-rp" type="button" id="dl2b-replay"><svg class="i s" aria-hidden="true"><use href="#i-refresh"/></svg>Replay</button>
+  </div>
+</header>
+<main class="dl2b-stage">
+  <div class="card dl2b-card" data-c="dl2b">
+    <div class="stage-in"></div>
+    <template><div class="dl2b panel" role="region" aria-label="Team load">
+      <div class="dl2b-h">
+        <span class="dl2b-hi" aria-hidden="true"><svg class="i s"><use href="#i-bars"/></svg></span>
+        <span class="dl2b-hw"><span class="dl2b-ttl">Team load</span><span class="dl2b-meta">All done by <b class="num dl2b-by">3:00 pm</b></span></span>
+        <span class="dl2b-sp"></span>
+        <span class="dl2b-meta"><b class="num dl2b-usd">$0.00</b> planned</span>
+      </div>
+      <div class="dl2b-body">
+        <div class="dl2b-in" role="list" aria-label="Incoming"><span class="dl2b-inl">Incoming</span></div>
+        <div class="dl2b-board"></div>
+      </div>
+      <div class="dl2b-f">
+        <label class="dl2b-auto"><button class="toggle" type="button" role="switch" aria-checked="true"></button><span>Place by skill</span></label>
+        <span class="dl2b-sp"></span>
+        <span class="dl2b-sum"></span>
+        <button class="pill line sm dl2b-even" type="button"><svg class="i s" aria-hidden="true"><use href="#i-sliders"/></svg>Even out</button>
+      </div>
+      <p class="dl2b-sr" aria-live="polite"></p>
+    </div>
+    <div class="pop dl2b-menu" role="menu" aria-label="Move to"></div></template>
+  </div>
+</main>
+<script src="assets/core.js"></script>
+<script>
+/* ---------- the lab page: style, theme and replay ---------- */
+(() => {
+  const d = document.documentElement;
+  const mark = () => {
+    const s = d.getAttribute('data-style') || 'bp', t = d.getAttribute('data-theme');
+    document.querySelectorAll('#dl2b-style button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === s));
+    document.querySelectorAll('#dl2b-theme button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === t));
+  };
+  document.getElementById('dl2b-style').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.v === 'bp') d.removeAttribute('data-style'); else d.setAttribute('data-style', b.dataset.v);
+    try { localStorage.setItem('dmui-style', b.dataset.v); } catch(x){} mark(); window.dispatchEvent(new Event('dl2b-restyle')); });
+  document.getElementById('dl2b-theme').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
+    d.setAttribute('data-theme', b.dataset.v); try { localStorage.setItem('dmui-theme', b.dataset.v); } catch(x){} mark(); });
+  document.getElementById('dl2b-replay').addEventListener('click', () => DM.mount(document.querySelector('[data-c="dl2b"]')));
+  mark();
+})();
+
+
+/* ---------- Load board ---------- */
+DM.PLAYS.add('dl2b');
+DM.def('dl2b', (st, c, card) => {
+  const root = $('.dl2b', st), board = $('.dl2b-board', root), inEl = $('.dl2b-in', root), byEl = $('.dl2b-by', root), usdEl = $('.dl2b-usd', root);
+  const auto = $('.toggle', root), evenB = $('.dl2b-even', root), sum = $('.dl2b-sum', root), sr = $('.dl2b-sr', root), menu = $('.dl2b-menu', st);
+  const R = REDUCE, H = 248, HOUR = 60, BUDGET = 2.5, METER = 4;
+  const style = () => getComputedStyle(root).getPropertyValue('--dm-motion').trim() || 'soft';
+  const EASE = () => getComputedStyle(root).getPropertyValue('--dm-ease').trim() || 'cubic-bezier(.22,1,.36,1)';
+  const MS = k => ({ bp:{ move:320, fall:460 }, clean:{ move:340, fall:620 }, soft:{ move:460, fall:700 } }[style()] || { move:400, fall:600 })[k];
+  const narrow = () => root.getBoundingClientRect().width <= 560;
+  const say = t => { sr.textContent = ''; c.later(30, () => { sr.textContent = t; }); };
+  const money = v => '$' + v.toFixed(2);
+  const anim = (el, kf, o) => R ? null : el.animate(kf, Object.assign({ easing:EASE() }, o));
+
+  const AG = [
+    { id:'res', name:'Researcher', ic:'search', av:'l', rate:.028 },
+    { id:'wri', name:'Writer', ic:'edit', av:'b', rate:.018 },
+    { id:'des', name:'Designer', ic:'palette', av:'k', rate:.034 },
+    { id:'cod', name:'Coder', ic:'code', av:'m', rate:.046 }
+  ];
+  const A = Object.fromEntries(AG.map(a => [a.id, a]));
+  let seq = 0;
+  const T = (t, ic, min, can, left) => ({ id:'b' + (++seq), t, ic, min, left:left ?? min, can });
+  const Q = {
+    res:[T('Scan competitor sites', 'globe', 12, ['res'], 9), T('Summarise support tickets', 'comment', 10, ['res', 'wri']), T('Draft interview questions', 'file-text', 8, ['res', 'wri'])],
+    wri:[T('Draft the launch email', 'mail', 14, ['wri'], 11), T('Edit the help centre FAQ', 'book', 10, ['wri'])],
+    des:[T('Mock up the pricing hero', 'image', 16, ['des'], 12), T('Export the social cards', 'image', 10, ['des'])],
+    cod:[T('Upgrade the date library', 'code', 18, ['cod'], 15), T('Fix the flaky login test', 'code', 12, ['cod']), T('Add a CSV export', 'table', 12, ['cod', 'res'])]
+  };
+  // what comes in: the agents who can do it, the best-skilled first
+  const INCOMING = [
+    T('Patch the payment webhook', 'code', 14, ['cod']),
+    T('Write the release notes', 'file-text', 12, ['cod', 'wri']),
+    T('Add dark mode tokens', 'palette', 12, ['cod', 'des']),
+    T('Check the API docs', 'book', 10, ['cod', 'res']),
+    T('Summarise sales calls', 'comment', 10, ['res', 'wri']),
+    T('Draw the onboarding icons', 'image', 12, ['des', 'cod'])
+  ];
+  const waiting = [];
+  let clock = 14 * 60 + 10, moved = 0;
+  const tot = id => Q[id].reduce((s, t) => s + t.left, 0);
+  const cost = id => Q[id].reduce((s, t) => s + t.left * A[id].rate, 0);
+  const hhmm = m => { m = Math.round(m); const h = Math.floor(m / 60) % 24, mm = m % 60; return `${(h + 11) % 12 + 1}:${String(mm).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`; };
+
+  /* ---- drawing ---- */
+  const mkHTML = a => `<span class="dl2b-mk" style="--ag:var(--dm-av-${a.av});--ag-ink:var(--dm-av-${a.av}-ink)" aria-hidden="true"><svg class="i"><use href="#i-${a.ic}"/></svg></span>`;
+  board.innerHTML = AG.map((a, i) => `<div class="dl2b-col" data-a="${a.id}" role="group" aria-label="${a.name}">
+      <div class="dl2b-tr" role="list">${i === 0 ? '<span class="dl2b-hr" aria-hidden="true"><span>1 hour</span></span>' : '<span class="dl2b-hr" aria-hidden="true"></span>'}<span class="dl2b-ov" aria-hidden="true"></span><span class="tag warn dl2b-oc num"></span></div>
+      <div class="dl2b-ah">${mkHTML(a)}<span class="dl2b-nm"><b>${a.name}</b><span class="num dl2b-q"></span></span></div>
+      <div class="dl2b-bud"><div class="dl2b-bl"><span><b class="num dl2b-c">$0.00</b> of ${money(BUDGET)}</span></div><div class="dl2b-mt" aria-hidden="true"><i></i><b></b></div></div></div>`).join('');
+  const col = id => $(`.dl2b-col[data-a="${id}"]`, board), track = id => $('.dl2b-tr', col(id));
+  const blockEl = (t, run) => { const b = document.createElement(run ? 'div' : 'button'); b.className = 'dl2b-b' + (run ? ' run' : ''); b.dataset.id = t.id; b.setAttribute('role', 'listitem');
+    b.innerHTML = `<span class="tx">${t.t}</span><span class="m num">${Math.ceil(t.left)}m</span>`;
+    if (!run){ b.type = 'button'; b.dataset.pop = '.dl2b-menu'; b.setAttribute('aria-haspopup', 'menu'); b.setAttribute('aria-expanded', 'false'); b.setAttribute('aria-label', `${t.t}, ${t.min} min. Move to another agent`); }
+    else b.setAttribute('aria-label', `${t.t}, running, ${Math.ceil(t.left)} min left`);
+    b.dataset.tip = `${t.t} · ${t.min} min`; return b; };
+  let sc = 80;
+  function scale(){ const m = Math.max(...AG.map(a => tot(a.id))); const want = Math.max(80, Math.ceil((m + 10) / 10) * 10); if (want !== sc){ sc = want; board.style.setProperty('--sc', sc); } }
+  function drawCol(id){
+    const tr = track(id), list = Q[id], have = new Map($$('.dl2b-b', tr).map(e => [e.dataset.id, e])), nar = narrow(), w = tr.getBoundingClientRect().width;
+    have.forEach((e, k) => { if (!list.some(t => t.id === k)) e.remove(); });
+    list.forEach((t, i) => { let e = have.get(t.id); const run = i === 0;
+      if (!e || e.classList.contains('run') !== run){ const n = blockEl(t, run); if (e) e.replaceWith(n); e = n; }
+      const bs = $$('.dl2b-b', tr); if (bs[i] !== e) tr.insertBefore(e, bs[i] || null);
+      e.style.setProperty('--m', t.left.toFixed(2)); const m = $('.m', e), v = Math.ceil(t.left) + 'm'; if (m.textContent !== v) m.textContent = v;
+      e.classList.toggle('tiny', !nar && t.left / sc * H < 20); e.classList.toggle('narrow', nar && t.left / sc * w < 30); });
+    const T0 = tot(id), over = T0 - HOUR, ov = $('.dl2b-ov', tr), oc = $('.dl2b-oc', tr);
+    tr.style.setProperty('--tot', T0.toFixed(2));
+    ov.classList.toggle('on', over > .5); oc.classList.toggle('on', over > .5);
+    if (over > .5) oc.textContent = `+${Math.ceil(over)} min over`;
+    if (nar){ ov.style.left = (HOUR / sc * 100) + '%'; ov.style.width = (over / sc * 100) + '%'; ov.style.bottom = ''; ov.style.height = ''; }
+    else { ov.style.bottom = (HOUR / sc * H) + 'px'; ov.style.height = Math.max(0, over / sc * H) + 'px'; ov.style.left = ''; ov.style.width = ''; oc.style.top = (H - T0 / sc * H) + 'px'; }
+    $('.dl2b-hr', tr).style[nar ? 'left' : 'bottom'] = nar ? (HOUR / sc * 100) + '%' : (HOUR / sc * H) + 'px';
+    $('.dl2b-hr', tr).style[nar ? 'bottom' : 'left'] = '';
+    const cs = cost(id), bl = $('.dl2b-bl', col(id)), mt = $('.dl2b-mt', col(id));
+    $('.dl2b-c', col(id)).textContent = money(cs); bl.classList.toggle('warn', cs > BUDGET); mt.classList.toggle('warn', cs > BUDGET);
+    mt.style.setProperty('--v', Math.min(1, cs / METER).toFixed(3));
+    $('.dl2b-q', col(id)).textContent = list.length ? `${Math.ceil(T0)} min queued` : 'Free now';
+  }
+  function drawHead(){
+    const m = Math.max(...AG.map(a => tot(a.id))); byEl.textContent = hhmm(clock + m);
+    usdEl.textContent = money(AG.reduce((s, a) => s + cost(a.id), 0));
+  }
+  function drawAll(){ scale(); AG.forEach(a => drawCol(a.id)); drawHead(); }
+  function drawIn(){
+    $$('.dl2b-t', inEl).forEach(e => { if (!waiting.some(t => t.id === e.dataset.id)) e.remove(); });
+    waiting.forEach(t => { if (!$(`.dl2b-t[data-id="${t.id}"]`, inEl)){ const b = document.createElement('button'); b.type = 'button'; b.className = 'dl2b-t'; b.dataset.id = t.id; b.setAttribute('role', 'listitem');
+      b.dataset.pop = '.dl2b-menu'; b.setAttribute('aria-haspopup', 'menu'); b.setAttribute('aria-expanded', 'false'); b.setAttribute('aria-label', `${t.t}, ${t.min} min. Place with an agent`);
+      b.innerHTML = `<span class="src" aria-hidden="true"><svg class="i"><use href="#i-${t.ic}"/></svg></span><span class="tx">${t.t}</span><span class="m num">${t.min}m</span>`; inEl.appendChild(b); } });
+    const em = $('.dl2b-empty', inEl); if (!waiting.length && !em) inEl.insertAdjacentHTML('beforeend', '<span class="dl2b-empty">Nothing waiting</span>'); else if (waiting.length && em) em.remove();
+  }
+  function drawSum(){ sum.innerHTML = moved ? `<span class="num">${moved}</span> moved<span class="dl2b-long"> to even the load</span>` : ''; }
+
+  /* ---- moving work ---- */
+  const blocks = () => [...$$('.dl2b-b', board), ...$$('.dl2b-t', inEl)];
+  function flip(change){ const was = new Map(blocks().map(e => [e.dataset.id, e.getBoundingClientRect()])); change();
+    if (R) return; blocks().forEach(e => { const a = was.get(e.dataset.id); if (!a) return; const b = e.getBoundingClientRect(), dx = a.left - b.left, dy = a.top - b.top;
+      if (Math.abs(dx) + Math.abs(dy) > .5) anim(e, [{ transform:`translate(${dx}px,${dy}px)` }, { transform:'none' }], { duration:MS('move') }); }); }
+  const find = id => { for (const a of AG){ const i = Q[a.id].findIndex(t => t.id === id); if (i >= 0) return { a:a.id, i }; } return null; };
+  // a task goes to the top of an agent's stack: from what came in, or from another agent (not the one it is running on)
+  function place(id, to, how){
+    const wi = waiting.findIndex(t => t.id === id);
+    if (wi >= 0){ const chip = $(`.dl2b-t[data-id="${id}"]`, inEl), from = chip && chip.getBoundingClientRect(); const [t] = waiting.splice(wi, 1);
+      flip(() => { Q[to].push(t); drawIn(); drawAll(); });
+      const e = $(`.dl2b-b[data-id="${id}"]`, board);
+      if (from && e && !R && how !== 'drop'){ const r = e.getBoundingClientRect();
+        // it falls into place: from where it waited to the top of the stack, settling as it lands
+        anim(e, [{ transform:`translate(${from.left - r.left}px,${from.top - r.top}px)`, opacity:.4 }, { transform:'translate(0,-4px)', opacity:1, offset:.82 }, { transform:'none', opacity:1 }], { duration:MS('fall'), easing:'cubic-bezier(.5,0,.3,1)' }); }
+      else if (e && !R) anim(e, [{ opacity:0 }, { opacity:1 }], { duration:240 });
+      if (how !== 'auto'){ moved += 0; say(`${t.t} placed with ${A[to].name}`); } else say(`${t.t} went to ${A[to].name}, the best skilled`);
+      return; }
+    const f = find(id); if (!f || f.i === 0 || f.a === to) return;
+    const [t] = Q[f.a].splice(f.i, 1);
+    flip(() => { Q[to].push(t); drawAll(); }); moved++; drawSum();
+    if (how === 'drop'){ const e = $(`.dl2b-b[data-id="${id}"]`, board); if (e) anim(e, [{ opacity:0 }, { opacity:1 }], { duration:240 }); }
+    say(`${t.t} moved from ${A[f.a].name} to ${A[to].name}. All done by ${byEl.textContent}`);
+  }
+  // Even out: moves queued work from the longest stack to an agent who can do it, while that shortens the longest
+  function evenOut(){
+    const moves = [];
+    for (let n = 0; n < 8; n++){
+      const by = AG.map(a => a.id).sort((x, y) => tot(y) - tot(x)), src = by[0], top = tot(src); let bestM = null;
+      Q[src].forEach((t, i) => { if (!i) return; t.can.filter(x => x !== src).forEach(to => { const after = Math.max(top - t.left, tot(to) + t.left, ...by.filter(x => x !== src && x !== to).map(tot));
+        if (after < top - .5 && (!bestM || after < bestM.after)) bestM = { t, to, after }; }); });
+      if (!bestM) break;
+      Q[src].splice(Q[src].indexOf(bestM.t), 1); Q[bestM.to].push(bestM.t); moves.push(bestM);
+    }
+    return moves;
+  }
+  function doEven(){
+    let moves;
+    flip(() => { moves = evenOut(); drawAll(); });
+    moved += moves.length; drawSum();
+    say(moves.length ? `Moved ${moves.length} task${moves.length > 1 ? 's' : ''}. All done by ${byEl.textContent}` : 'The load is already even');
+    if (!moves.length && !R) anim(evenB, [{ transform:'translateX(0)' }, { transform:'translateX(-3px)' }, { transform:'translateX(3px)' }, { transform:'none' }], { duration:260 });
+  }
+  function add(t){ waiting.push(t); drawIn(); const e = $(`.dl2b-t[data-id="${t.id}"]`, inEl);
+    if (e && !R) anim(e, [{ opacity:0, transform:'translateX(24px)' }, { opacity:1, transform:'none' }], { duration:MS('fall') * .8 });
+    if (auto.getAttribute('aria-checked') === 'true') c.later(R ? 0 : 900, () => { if (waiting.includes(t)) place(t.id, t.can[0], 'auto'); }); }
+
+  /* ---- the agents at work: the running block drains as its work is done, and the stack drops ---- */
+  const MIN = 2000;
+  c.every(150, () => {
+    clock += 150 / MIN; let gone = false;
+    AG.forEach(a => { const q = Q[a.id]; if (!q.length) return; const t = q[0]; t.left = Math.max(0, t.left - 150 / MIN); if (t.left <= 0){ gone = true; } });
+    if (gone) flip(() => { AG.forEach(a => { if (Q[a.id].length && Q[a.id][0].left <= 0){ const t = Q[a.id].shift(); say(`${A[a.id].name} finished ${t.t}`); } }); drawAll(); });
+    else drawAll();
+  });
+
+  /* ---- the visitor: drag a block to another agent, or press it for a menu ---- */
+  let drag = null, eatClick = false;
+  const colAt = (x, y) => $$('.dl2b-col', board).find(d => { const r = $('.dl2b-tr', d).getBoundingClientRect(); return x >= r.left - 8 && x <= r.right + 8 && y >= r.top - 8 && y <= r.bottom + 8; });
+  c.on(root, 'pointerdown', e => { const el = e.target.closest('.dl2b-b:not(.run),.dl2b-t'); if (!el || e.button) return; drag = { el, id:el.dataset.id, x:e.clientX, y:e.clientY, on:false, pid:e.pointerId }; });
+  c.on(window, 'pointermove', e => {
+    if (!drag || e.pointerId !== drag.pid) return;
+    if (!drag.on){ if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 5) return;
+      drag.on = true; const r = drag.el.getBoundingClientRect(); drag.dx = drag.x - r.left; drag.dy = drag.y - r.top;
+      const g = drag.el.cloneNode(true); g.className = drag.el.className + ' dl2b-ghost'; g.style.width = r.width + 'px'; g.style.height = r.height + 'px'; g.setAttribute('aria-hidden', 'true');
+      const cl = drag.el.closest('.dl2b-col'); if (cl){ const cs = getComputedStyle(cl); g.style.setProperty('--bb', cs.getPropertyValue('--bb')); g.style.setProperty('--bf', cs.getPropertyValue('--bf')); }
+      document.body.appendChild(g); drag.g = g; drag.el.classList.add('lift'); hideTip(true); try { drag.el.setPointerCapture(drag.pid); } catch(x){} }
+    drag.g.style.transform = `translate(${e.clientX - drag.dx}px,${e.clientY - drag.dy}px) rotate(-1.5deg)`;
+    const d = colAt(e.clientX, e.clientY); $$('.dl2b-tr', board).forEach(x => x.classList.toggle('over-d', !!d && x.parentElement === d));
+  });
+  const endDrag = e => {
+    if (!drag || (e && e.pointerId !== drag.pid)) return; const dr = drag; drag = null; if (!dr.on) return;
+    eatClick = true; setTimeout(() => { eatClick = false; }, 0);
+    const d = e && colAt(e.clientX, e.clientY); $$('.dl2b-tr', board).forEach(x => x.classList.remove('over-d'));
+    dr.el.classList.remove('lift'); dr.g.remove(); if (d) place(dr.id, d.dataset.a, 'drop');
+  };
+  c.on(window, 'pointerup', endDrag); c.on(window, 'pointercancel', endDrag);
+  c.on(root, 'click', e => { if (eatClick){ e.stopPropagation(); e.preventDefault(); } }, true);
+  c.offs.push(() => { if (drag && drag.g) drag.g.remove(); });
+  let menuFor = null;
+  c.on(root, 'click', e => { const el = e.target.closest('[data-pop]'); if (!el) return; menuFor = el.dataset.id;
+    const t = waiting.find(x => x.id === menuFor) || AG.flatMap(a => Q[a.id]).find(x => x.id === menuFor); const f = find(menuFor);
+    menu.innerHTML = `<div class="ph">${f ? 'Move to' : 'Place with'}</div>` + AG.map(a => { const here = f && f.a === a.id, can = t.can.includes(a.id), q = here ? tot(a.id) : tot(a.id) + t.left;
+      return `<button class="mi" role="menuitem" type="button" data-close data-a="${a.id}"${here ? ' aria-disabled="true"' : ''}>${mkHTML(a)}<span>${a.name}<span class="d">${here ? 'Here now' : `${Math.ceil(q)} min queued${can ? '' : ' · not its skill'}`}</span></span><span class="r num">${here ? '' : '+' + money(t.left * a.rate)}</span></button>`; }).join(''); });
+  c.on(menu, 'click', e => { const mi = e.target.closest('.mi'); if (!mi || mi.getAttribute('aria-disabled') === 'true' || !menuFor) return; const id = menuFor; menuFor = null; place(id, mi.dataset.a, 'menu'); });
+  const setAuto = on => { auto.setAttribute('aria-checked', on); if (on) waiting.slice().forEach((t, i) => c.later(R ? 0 : i * 300, () => { if (waiting.includes(t)) place(t.id, t.can[0], 'auto'); })); };
+  c.on(auto, 'click', () => setAuto(auto.getAttribute('aria-checked') !== 'true'));
+  c.on(evenB, 'click', doEven);
+  const ro = new ResizeObserver(() => drawAll()); ro.observe(board); c.offs.push(() => ro.disconnect());
+
+  board.style.setProperty('--sc', sc); drawAll(); drawIn(); drawSum();
+
+  /* ---- the demo: work pours in and lands on the best-skilled agent; the Coder's stack climbs over the hour; you drag the
+     release notes to the Writer, press Even out, and the stacks level. It loops; a click, drag or key stops it, until Replay ---- */
+  const stage = c.st; let hand = null;
+  const handTo = async (el, ms = 520, dx = .55, dy = .6) => {
+    if (!hand){ hand = html('<span class="hand" aria-hidden="true"><svg viewBox="0 0 18 18"><path d="M3 2l11.5 6.1-5 1.5-2.4 5z"/></svg></span>'); stage.appendChild(hand); }
+    const s = stage.getBoundingClientRect(), b = el.getBoundingClientRect(), x = b.left - s.left + b.width * dx, y = b.top - s.top + b.height * dy;
+    if (!hand.classList.contains('on')){ hand.style.transition = 'none'; hand.style.transform = `translate(${x + 30}px,${y + 36}px)`; void hand.offsetWidth; hand.classList.add('on'); }
+    hand.style.transition = R ? 'none' : `transform ${ms}ms ${EASE()},opacity .16s`; hand.style.transform = `translate(${x}px,${y}px)`;
+    await c.step(R ? 0 : ms);
+  };
+  const press = async () => { hand.classList.remove('down'); void hand.offsetWidth; hand.classList.add('down'); await c.step(180); c.later(300, () => hand && hand.classList.remove('down')); };
+  const away = () => { if (hand) hand.classList.remove('on', 'down'); };
+  c.taken(away);
+  async function demoDrag(id, to){
+    const el = $(`.dl2b-b[data-id="${id}"]`, board); if (!el) return;
+    await handTo(el, 600, .4, .5); hand.classList.add('down'); await c.step(220);
+    const r = el.getBoundingClientRect(), tr = track(to), tb = tr.getBoundingClientRect(), s = stage.getBoundingClientRect();
+    const tx = tb.left - r.left, ty = narrow() ? (tb.top - r.top) : (tb.bottom - (tot(to) / sc * H) - r.height - 4 - r.top);
+    const dx2 = narrow() ? (tb.left + tot(to) / sc * tb.width) - r.left : tx;
+    const g = el.cloneNode(true); g.className = el.className + ' dl2b-ghost abs'; g.removeAttribute('data-id'); g.setAttribute('aria-hidden', 'true');
+    const cs = getComputedStyle(el.closest('.dl2b-col')); g.style.setProperty('--bb', cs.getPropertyValue('--bb')); g.style.setProperty('--bf', cs.getPropertyValue('--bf'));
+    Object.assign(g.style, { left:(r.left - s.left) + 'px', top:(r.top - s.top) + 'px', width:r.width + 'px', height:r.height + 'px' });
+    stage.appendChild(g); el.classList.add('lift'); c.taken(() => { g.remove(); el.classList.remove('lift'); tr.classList.remove('over-d'); });
+    const ms = R ? 0 : 1000, X = narrow() ? dx2 : tx;
+    if (!R) g.animate([{ transform:'none' }, { transform:'translate(0,-6px) rotate(-1.5deg)', offset:.15 }, { transform:`translate(${X}px,${ty}px) rotate(-1.5deg)` }], { duration:ms, easing:'cubic-bezier(.45,.05,.3,1)', fill:'forwards' });
+    hand.style.transition = `transform ${ms}ms cubic-bezier(.45,.05,.3,1)`; const hb = hand.style.transform.match(/-?[\d.]+/g).map(Number);
+    hand.style.transform = `translate(${hb[0] + X}px,${hb[1] + ty}px)`;
+    c.later(ms * .55, () => tr.classList.add('over-d'));
+    await c.step(ms + 120);
+    tr.classList.remove('over-d'); g.remove(); el.classList.remove('lift'); hand.classList.remove('down');
+    place(id, to, 'drop');
+  }
+  c.run(async () => {
+    await c.step(900);
+    for (const t of INCOMING.slice(0, 4)){ add(t); await c.step(R ? 0 : 1100); }
+    await c.step(1600);
+    // the release notes can be written by the Writer, who has room
+    await demoDrag(INCOMING[1].id, 'wri'); away(); await c.step(1400);
+    await handTo(evenB, 700); await press(); doEven(); await c.step(700); away();
+    await c.step(1800);
+    for (const t of INCOMING.slice(4)){ add(t); await c.step(R ? 0 : 1100); }
+    await c.step(1200);
+    await handTo(evenB, 700); await press(); doEven(); await c.step(600); away();
+    await c.step(3000);
+    if (R) return;
+    const out = st.animate([{ opacity:1 }, { opacity:0 }], { duration:320, easing:'ease-out', fill:'forwards' });
+    await out.finished; if (c.mine || c.dead){ out.cancel(); return; }
+    DM.mount(card, true); st.animate([{ opacity:0 }, { opacity:1 }], { duration:320, easing:'ease-out' }); out.cancel();
+  });
+});
+</script>
+</body>
+</html>
