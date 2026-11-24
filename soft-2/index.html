@@ -4532,7 +4532,8 @@ button.evr-vs-r:focus-visible{outline-offset:-2px;border-radius:calc(10px * var(
    under the header and keeps to its newest line */
 .tmx{display:flex;flex-direction:column;max-height:420px;overflow:hidden}
 .tmx>.dm-grow{max-height:420px;min-height:0}
-.tmx-h{display:flex;align-items:center;gap:var(--s-2);height:44px;flex:none;padding:0 var(--s-4);border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+/* the head's controls (Copy, the tallest, at 30px) have 16px above them and 16px down to the hairline, as a footer's do */
+.tmx-h{display:flex;align-items:center;gap:var(--s-2);height:calc(30px + 2 * var(--s-4) + 1px);flex:none;padding:0 var(--s-4);border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .tmx-ic{width:16px;display:grid;place-items:center;color:var(--fg2);flex:none}
 /* (the directory and the state take a line as tall as their letters, so their words sit on the header's centre line) */
 .tmx-cwd{min-width:0;flex:0 1 auto;font-size:12.5px;line-height:15px;color:var(--fg2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -4560,7 +4561,8 @@ button.evr-vs-r:focus-visible{outline-offset:-2px;border-radius:calc(10px * var(
 /* the commands, their output and an edit's lines are code: mono, the only place it is used */
 .tmx-body code{font:inherit;font-family:var(--mono);font-size:12px}
 .tmx-blk+.tmx-blk{margin-top:var(--s-1)}
-.tmx-cmd{display:flex;align-items:center;gap:var(--s-2);padding:0 var(--s-4)}
+/* (a whole-pixel line, so the command's code and its time, in their two fonts, land on one baseline) */
+.tmx-cmd{display:flex;align-items:center;gap:var(--s-2);padding:0 var(--s-4);line-height:22px}
 .tmx-p{width:16px;flex:none;display:grid;place-items:center;color:var(--fg2)}
 code.tmx-p{font-weight:500;color:var(--accent-fg,var(--fg))}
 .tmx-c{flex:1;min-width:0;font-weight:500;color:var(--fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -4573,7 +4575,8 @@ code.tmx-p{font-weight:500;color:var(--accent-fg,var(--fg))}
 .tmx-o{display:block;padding:0 var(--s-4) 0 40px;color:var(--fg2);white-space:pre-wrap;overflow-wrap:anywhere}
 .tmx-l{display:block}
 .tmx-l.ok{color:var(--ok)}.tmx-l.bad{color:var(--bad)}.tmx-l.mu{color:var(--muted)}
-.tmx-more{display:flex;align-items:center;gap:6px;width:calc(100% - 40px);margin:0 8px 0 32px;padding:0 8px;border-radius:var(--r-sm);font-size:12px;line-height:inherit;text-align:left;color:var(--muted);transition:color var(--t-fast),background-color var(--t-fast)}
+/* (its hover fill ends on the content's 16px edge, as the output above it does) */
+.tmx-more{display:flex;align-items:center;gap:6px;width:calc(100% - 48px);margin:0 var(--s-4) 0 32px;padding:0 8px;border-radius:var(--r-sm);font-size:12px;line-height:inherit;text-align:left;color:var(--muted);transition:color var(--t-fast),background-color var(--t-fast)}
 .tmx-more:hover{color:var(--fg);background:var(--row)}
 .tmx-more .sp{flex:1}
 .tmx-more svg{transition:transform var(--t) var(--ease)}
@@ -4592,7 +4595,7 @@ code.tmx-p{font-weight:500;color:var(--accent-fg,var(--fg))}
 .tmx-f.stop .g{color:var(--muted)}.tmx-f.bad .g{color:var(--bad-mark)}
 /* the run's state in the header: a neutral tag while it runs, its words shimmering as every loader's do (owner, 19 Nov), then
    the green tint once it passes or the red one if it failed */
-.tmx-st{height:22px;padding:0 var(--s-2);border-radius:var(--r-tag);background:var(--chip);color:var(--fg2);transition:background .3s,color .3s}
+.tmx-st{height:22px;padding:0 var(--s-2);border-radius:var(--r-tag);background:var(--chip-fill);color:var(--fg2);transition:background .3s,color .3s}
 .tmx-sv.shim{font-size:inherit}
 .tmx-st.ok,.tmx-st.ok .g{background:var(--ok-bg);color:var(--ok)}
 .tmx-st.bad,.tmx-st.bad .g{background:var(--bad-bg);color:var(--bad)}
@@ -4611,7 +4614,7 @@ code.tmx-p{font-weight:500;color:var(--accent-fg,var(--fg))}
 /* an edit shows the lines it changed, removed in red and added in green, each on its own tint; the words start on the
    output's column, their tint reaching 8px out round them */
 .tmx-df{display:block;margin:2px var(--s-4) var(--s-1) 32px;border-radius:var(--r-sm);overflow:hidden}
-.tmx-df span{display:block;padding:0 var(--s-2);white-space:pre-wrap;overflow-wrap:anywhere;color:var(--fg2)}
+.tmx-df span{display:block;padding:1px var(--s-2);white-space:pre-wrap;overflow-wrap:anywhere;color:var(--fg2)}
 .tmx-df .a{background:color-mix(in srgb,var(--add) 10%,transparent)}.tmx-df .a::first-letter{color:var(--add)}
 .tmx-df .d{background:color-mix(in srgb,var(--del) 10%,transparent)}.tmx-df .d::first-letter{color:var(--del)}
 /* a block cursor blinks after the newest line while the run goes on */
@@ -4638,6 +4641,8 @@ code.tmx-p{font-weight:500;color:var(--accent-fg,var(--fg))}
 /* a run's properties in sections that fold, each value changed in place from a small menu. Its content sits 16px from every
    edge (owner, 18 Nov): the run's kind, its name and the copy button's glyph on the head's line; each section's name is a
    label on the content's left edge, in the small muted label type with room above it and its chevron after the words; the
+/* (on the off-white strip the state's grey chip is a step darker, so it shows as a chip does on white) */
+:root[data-style="clean"] .tmx-st:not(.ok,.bad){background:var(--chip-fill-h)}
    keys start on that edge too, and the values share one column, a value you can change lining up by its words, its hover
    box reaching out round them. The card follows its sections as they fold, so it keeps no room for a shut one */
 .dtp{padding:16px 16px 8px;display:flex;flex-direction:column}
