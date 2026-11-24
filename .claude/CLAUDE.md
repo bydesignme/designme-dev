@@ -202,6 +202,9 @@ every session and every agent.
   sidebar, search, the registry index, the installs and the sitemap; the others stay in the code, unlisted and unpublished
   (their pages send visitors on to `/library`), until their post goes out. At launch the 35 above are live. Making one live
   is a one-line change, and every count and link in copy follows the live list.
+  At launch the library is one list with no "Agent components / App basics" split, and copy says "35 components" without
+  the agent / app-basic breakdown, because only one app basic (Event calendar) is live; the split comes back when more are
+  (owner, 24 Nov).
 - Soft keeps its look; the "Soft refreshed" lab is dropped. Six components have their Clean touches (Agent tree,
   Agent run timeline, Status pill, Context meter, Run cost, Meeting card); the others render with Clean's tokens and get
   theirs later.
