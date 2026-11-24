@@ -921,13 +921,14 @@ th:last-child>.col-rz{display:none}
    route to the step that agent is on. Marks are small (14px): a ring while queued, a spinner while running, a filled disc
    with a tick or a cross once done or failed (cut out of the line by a border in the surface colour), the accent disc
    where the run starts, and an accent ring with a dot while a step waits for a person */
-.atr{--atr-ind:22px;--atr-r:8;--atr-cut:0;--atr-run:var(--accent-mark,var(--accent));--atr-flow:color-mix(in srgb,var(--atr-run) 30%,var(--surface));--atr-ez:cubic-bezier(.22,1,.36,1);container:atr/inline-size;box-sizing:border-box;width:100%;max-width:480px;margin:0 auto;padding:11px var(--s-2) var(--s-1);font-size:13px;line-height:1.4;color:var(--fg)}
-/* its content sits 16px in from every edge (owner, 18 Nov): the head's words and each row's mark on the 16px edge, a row's
-   hover reaching 8px out round it; nothing in it grows or shrinks when it is pressed */
+.atr{--atr-ind:22px;--atr-r:8;--atr-cut:0;--atr-run:var(--accent-mark,var(--accent));--atr-flow:color-mix(in srgb,var(--atr-run) 30%,var(--surface));--atr-ez:cubic-bezier(.22,1,.36,1);container:atr/inline-size;box-sizing:border-box;width:100%;max-width:480px;margin:0 auto;padding:11px var(--s-4) var(--s-1);font-size:13px;line-height:1.4;color:var(--fg)}
+/* its content sits 16px in from every edge (owner, 18 Nov): the head's words, the foot's hairline and words, and each row's
+   hover fill on the 16px edge (a row's fill is as wide as the content, no wider), with the row's mark 8px inside its fill;
+   nothing in it grows or shrinks when it is pressed */
 .atr :is(.pill,.ib):active{transform:none}
 :root[data-style="bp"] .atr{--atr-r:10;--atr-cut:1}
 .atr.bare{max-width:none;padding:0}
-.atr-h{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s-3);padding:var(--s-1) var(--s-2) var(--s-3)}
+.atr-h{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s-3);padding:var(--s-1) 0 var(--s-3)}
 .atr.slim .atr-h{display:none}
 .atr-hd{display:flex;flex-direction:column;gap:2px;min-width:0}
 .atr-t{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -940,7 +941,8 @@ th:last-child>.col-rz{display:none}
    mark, an avatar or an app, the name and what it is on now, and its time and cost (a branch adds up everything under it) */
 .atr-tree{position:relative;padding:var(--s-1) 0}
 .atr-n{position:relative;outline:0}
-.atr-b{border-radius:calc(8px * var(--rk-m,var(--rk)));transition:background var(--t-fast)}
+/* (a row is clicked to pick its agent, so it takes the pointer) */
+.atr-b{border-radius:calc(8px * var(--rk-m,var(--rk)));cursor:pointer;transition:background var(--t-fast)}
 /* a row's hover and its selection show on the card's white in light mode too: a quiet 5% of the text colour (owner, 18 Nov) */
 .atr-b:hover{background:color-mix(in srgb,var(--fg) 5%,transparent)}
 .atr-n[aria-selected="true"]>.atr-b{background:color-mix(in srgb,var(--fg) 5%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent)}
@@ -1036,9 +1038,9 @@ th:last-child>.col-rz{display:none}
   :root:not([data-theme="light"]) .atr-ln stop.l2{stop-opacity:.45}
 }
 /* under the tree, the selected row's cost split (the whole run's until a row is picked) */
-.atr-f{margin:var(--s-1) 0 0;padding:var(--s-4) var(--s-2) var(--s-3);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.atr-f{margin:var(--s-1) 0 0;padding:var(--s-4) 0 var(--s-3);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .atr-f b{font-weight:500;color:var(--fg2)}
-.atr-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.atr-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
 /* narrow: the line of work goes first, then the time, so names keep their room */
 @container atr (max-width:360px){.atr-sub{display:none}}
 @container atr (max-width:300px){.atr-sec{display:none}}
@@ -1053,6 +1055,7 @@ th:last-child>.col-rz{display:none}
    edge: the rows sit 8px in with 8px of their own, their hover concentric with the card's corners (22px = 14px + 8px) */
 :root[data-style="clean"] .atr:not(.bare){padding:8px 8px 0}
 :root[data-style="clean"] .atr:not(.bare) .atr-h{padding:8px 8px 12px}
+:root[data-style="clean"] .atr:not(.bare) .atr-ct-mix{margin-inline:8px}
 :root[data-style="clean"] .atr:not(.bare) .atr-b{border-radius:calc(var(--r-card) - 8px)}
 /* the rows take Clean's one hover, gliding from row to row, and the picked agent its stronger fill with no edge (owner, 21 Nov) */
 :root[data-style="clean"] .atr-b{transition:background-color var(--t-fast) var(--ease)}
@@ -1088,12 +1091,13 @@ th:last-child>.col-rz{display:none}
 .atr-x-fix{flex:none}
 /* Cost tree: the Classic tree with each row's share of the whole run as a bar after its cost, and the run's cost by agent
    as one bar under the header. A row's bar and its agent's part of the run's bar are the same step of the accent */
-.atr-ct{padding-bottom:7px}
+/* (no foot under Cost tree's rows: its last row's hover fill keeps 16px to the card's bottom edge, with the tree's own 4px) */
+.atr-ct{padding-bottom:var(--s-3)}
 .atr-ct .atr-h{padding-bottom:var(--s-2)}
 /* the whole run's cost, one bar: each agent's part in its step of the accent, clipped to its stretch (--x0 to --x1, in
    percent) so it grows without a layout, with a 2px gap of the surface between parts; what is left at the end is the
    orchestrator's own, on the grey track */
-.atr-ct-mix{position:relative;height:6px;margin:0 var(--s-2) var(--s-3);border-radius:calc(3px * var(--rk-s,var(--rk)));overflow:hidden;background:color-mix(in srgb,var(--line) 50%,transparent)}
+.atr-ct-mix{position:relative;height:6px;margin:0 0 var(--s-3);border-radius:calc(3px * var(--rk-s,var(--rk)));overflow:hidden;background:color-mix(in srgb,var(--line) 50%,transparent)}
 .atr-ct-mix i{position:absolute;inset:0;background:var(--k);clip-path:inset(0 calc(100% - var(--x1,0) * 1% + 1px) 0 calc(var(--x0,0) * 1% + 1px) round calc(3px * var(--rk-s,var(--rk))));transition:clip-path .8s var(--ease)}
 /* each row's cost, then its branch's share of the whole as a short bar in its agent's step of the accent */
 .atr-ct .atr-q{align-items:center;gap:var(--s-2)}
@@ -1132,7 +1136,7 @@ th:last-child>.col-rz{display:none}
 .atr-cm-b:not(.own):focus-visible:not([data-nofv]) .bg{background-image:linear-gradient(color-mix(in srgb,var(--fg) 5%,transparent),color-mix(in srgb,var(--fg) 5%,transparent))}
 .atr-cm-b:not(.own):hover .bg{background-image:linear-gradient(color-mix(in srgb,var(--fg) 5%,transparent),color-mix(in srgb,var(--fg) 5%,transparent))}
 .atr-cm-b:focus-visible:not([data-nofv]) .atr-cm-l b{text-decoration:underline;text-decoration-color:var(--focus);text-underline-offset:3px;text-decoration-thickness:2px}
-.atr-cm-l{position:absolute;left:8px;top:8px;width:calc(var(--w,0px) - 16px);display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:6px;align-items:center;font-size:12.5px;line-height:1.35;white-space:nowrap;pointer-events:none;color:var(--fg);transition:opacity .3s}
+.atr-cm-l{position:absolute;left:8px;top:8px;width:calc(var(--w,0px) - 16px);display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:6px;align-items:center;font-size:12.5px;line-height:1.35;white-space:nowrap;pointer-events:none;color:var(--fg);transition:opacity .3s,top .3s var(--ease)}
 .atr-cm-l .atr-g{grid-row:1}
 .atr-cm-l b{font-weight:500;overflow:hidden;text-overflow:ellipsis}
 .atr-cm-l .v{grid-column:2;font-size:12px;color:var(--fg2);font-variant-numeric:tabular-nums}
@@ -1140,6 +1144,8 @@ th:last-child>.col-rz{display:none}
 /* a block too narrow for its words keeps its mark; one too narrow for that keeps only its tint (its tooltip says the rest) */
 .atr-cm-l[data-fit="mark"]>:not(.atr-g){opacity:0}
 .atr-cm-l[data-fit="none"]{opacity:0}
+/* (a block showing only its mark has it centred top to bottom, as much room above it as below) */
+.atr-cm-l[data-fit="mark"]{top:17px}
 /* the key to the blocks, under the map: the marks, and the hatch for an agent's own work */
 .atr-cm-lg{list-style:none;margin:-2px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--muted)}
 .atr-cm-lg li{display:inline-flex;align-items:center;gap:6px}
