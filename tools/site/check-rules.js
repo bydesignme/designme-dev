@@ -13,6 +13,7 @@
 //   R4 Shape        a shape rounded to 40% or more of its shorter side is a true circle or a clear pill
 //   R5 Disabled     nothing inside a disabled control keeps an accent, status or strong fill or colour
 //   R6 Visible fill a chip, selected or hover fill differs from what is behind it by at least as much as Clean's own chip
+//                   (hover fills are judged in Clean only: Soft and Blueprint keep the quiet --row hover, owner, 24 Nov)
 //   R7 Same look    buttons with one job (primary, secondary, ghost, icon, chip, key chip) have one look per style and theme
 //   R8 Collisions   two sibling chips, buttons or tags are at least 4px apart and never overlap
 // Each violation has the rule, the page, style, theme, width and moment, the selectors, the numbers and a 2x crop with the
@@ -403,7 +404,8 @@ function rulesLib(){
         if (e.matches(SEL) && !e.matches(EXCL)) test(s, 'selected'); }
       if (hover){ const at = document.elementFromPoint(hover.x, hover.y); const cands = shapes.filter(s => hover.x > s.edge.l && hover.x < s.edge.r && hover.y > s.edge.t && hover.y < s.edge.b && (s.ps ? s.el.contains(at) || (at && at.contains(s.el)) : s.el.contains(at) || s.el === at || (s.backdrop && s.host && s.host.contains(at))));
         // (only a fill the hover brought: one the element did not have before the pointer came, as R.restAt noted)
-        const hc = cands.filter(s => (s.backdrop || /row|control|chip|icon|field/.test(s.role)) && (s.ps ? (s.el.__restPs || {})[s.ps] : s.el.__restBg) !== (s.ps ? s.cs.backgroundColor + s.cs.opacity : s.cs.backgroundColor)).sort((a, b) => area(a.edge) - area(b.edge)); if (hc[0]) test(hc[0], 'hover'); } };
+        const hc = cands.filter(s => (s.backdrop || /row|control|chip|icon|field/.test(s.role)) && (s.ps ? (s.el.__restPs || {})[s.ps] : s.el.__restBg) !== (s.ps ? s.cs.backgroundColor + s.cs.opacity : s.cs.backgroundColor)).sort((a, b) => area(a.edge) - area(b.edge)); // (Soft and Blueprint keep their quiet --row hover, #fafafa on white: owner, 24 Nov. Only Clean's hover is judged)
+        if (hc[0] && document.documentElement.dataset.style === 'clean') test(hc[0], 'hover'); } };
     const de0 = s => s.de.all || s.de.ring || s.de.inRing; // a chip-sized shape drawn by its edge is not a fill
 
     // R7 Same job, same look: the looks of buttons, chips and key chips, collected here and compared across components

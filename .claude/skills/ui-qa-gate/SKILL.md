@@ -90,7 +90,7 @@ Serve the build first. The scripts take `PORT`.
    simple rules: R1 inset (16px in a card, panel, popover or strip with controls; 6px in a row fill, field or button; 4px in
    a small chip or icon button; never 0–3px), R2 even room above and below and at both ends (±1px, footers measured from
    the hairline), R3 one baseline for words side by side (±0.5px), R4 a circle or a clear pill, never in between, R5 nothing
-   coloured inside a disabled control, R6 chip, selected and hover fills at least as visible as Clean's chip, R7 one look per
+   coloured inside a disabled control, R6 chip and selected fills (and Clean's hover) at least as visible as Clean's chip, R7 one look per
    button job, R8 chips and buttons at least 4px apart. Serve the build, then from the repo root:
 
    ```
