@@ -1,6 +1,6 @@
 /* 3a Dispatch: command first. Type or pick a task; it proposes who should take it, when it would be done and what it
    would cost, with two alternatives, and shows the pick on the schedule as a dashed block before you approve. Assign (or
-   let Auto-approve do it) and the task lands in that agent's lane, which runs against a moving "now". Queued blocks can be
+   let it approve for you) and the task lands in that agent's lane, which runs against a moving "now". Queued blocks can be
    dragged to another lane or reordered, with the mouse or the keyboard (Enter picks up, arrows move, Enter drops, Escape
    puts it back). Each lane can be paused, or everyone at once. */
 (function(){
@@ -347,7 +347,7 @@ DM.def('dl3a', (st, c, card) => {
   c.on(window, 'resize', () => { gridKey = ''; paint(); });
   paint();
 
-  /* the demo: someone briefs the team, compares the alternatives on the schedule, assigns, turns on Auto-approve, picks a
+  /* the demo: someone briefs the team, compares the alternatives on the schedule, assigns, turns on Approve for me, picks a
      bug from the inbox and drags it ahead of the export */
   const handDrag = async (s, el, tx, ty) => {
     await s.point(el, false);
