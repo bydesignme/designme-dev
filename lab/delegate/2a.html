@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Switchboard · Delegate 2a · Designme.dev lab</title>
+<title>Switchboard · Hand-off lab 2a · Designme.dev lab</title>
 <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
 <script>
 /* style and theme: ?style=bp|soft|clean&theme=light|dark, else what the site stored, else the site's default (light opens in
@@ -197,7 +197,7 @@ body{background:var(--dm-page);color:var(--dm-fg);font-family:var(--dm-sans);fon
 <body>
 <header class="dl2a-top">
   <div class="dl2a-intro">
-    <h1>Switchboard <span>· Delegate, variation 2a</span></h1>
+    <h1>Switchboard <span>· Hand-off lab, variation 2a</span></h1>
     <p>Every task that comes in is weighed against each agent's skill, wait and cost, and travels down the route of the best fit with its reason; drag it to another agent to overrule the pick.</p>
   </div>
   <div class="dl2a-ctl">
@@ -224,7 +224,7 @@ body{background:var(--dm-page);color:var(--dm-fg);font-family:var(--dm-sans);fon
         <div class="dl2a-docks"></div>
       </div>
       <div class="dl2a-f">
-        <label class="dl2a-auto"><button class="toggle" type="button" role="switch" aria-checked="true"></button><span>Auto-route</span></label>
+        <label class="dl2a-auto"><button class="toggle" type="button" role="switch" aria-checked="true"></button><span>Route for me</span></label>
         <span class="dl2a-sp"></span>
         <span class="dl2a-sum"></span>
         <button class="pill primary sm dl2a-send" type="button" hidden>Send</button>
@@ -446,7 +446,7 @@ DM.def('dl2a', (st, c, card) => {
     if (auto.getAttribute('aria-checked') === 'true'){ phase = 'pick'; await wait(1000); if (cur !== t) return;
       if (auto.getAttribute('aria-checked') === 'true') return send(t, win);
     }
-    // Auto-route is off: the pick waits for you
+    // Route for me is off: the pick waits for you
     phase = 'wait'; sendB.textContent = `Send to ${A[win].name}`; sendB.hidden = false; if (!R) fade(sendB);
     busy = false;
   }
@@ -511,7 +511,7 @@ DM.def('dl2a', (st, c, card) => {
     menu.innerHTML = '<div class="ph">Send to</div>' + AG.map(a => `<button class="mi" role="menuitem" type="button" data-close data-a="${a.id}"${home && home.id === a.id ? ' aria-disabled="true"' : ''}>${mkHTML(a)}<span>${a.name}<span class="d">${t && t.sk && t.sk[a.id] != null ? fit(t, a.id) + '% fit · ' : ''}${freeTxt(a.id)[0].toUpperCase() + freeTxt(a.id).slice(1)}</span></span><span class="r">${t ? money(t.min * a.rate) : ''}</span></button>`).join('');
   });
   c.on(menu, 'click', e => { const mi = e.target.closest('.mi'); if (!mi || mi.getAttribute('aria-disabled') === 'true' || !menuFor) return; const id = menuFor; menuFor = null; assign(id, mi.dataset.a); });
-  // Auto-route on and off; with it off, the pick waits for Send
+  // Route for me on and off; with it off, the pick waits for Send
   const setAuto = on => { auto.setAttribute('aria-checked', on); if (on && cur && phase === 'wait'){ busy = true; send(cur, cur.win); } else if (on) pump(); };
   c.on(auto, 'click', () => setAuto(auto.getAttribute('aria-checked') !== 'true'));
   c.on(sendB, 'click', () => { if (cur && phase === 'wait'){ busy = true; send(cur, cur.win); } });
@@ -523,7 +523,7 @@ DM.def('dl2a', (st, c, card) => {
   drawAll(); drawIn(); drawSum(); idle(); usdEl.textContent = money(spent);
   requestAnimationFrame(() => requestAnimationFrame(lines));
 
-  /* ---- the demo: work arrives; Auto-route sends the first two; you turn it off, overrule a pick by dragging, approve one,
+  /* ---- the demo: work arrives; Route for me sends the first two; you turn it off, overrule a pick by dragging, approve one,
      and turn it back on. It loops; a click, drag or key inside stops it for good, until Replay ---- */
   const stage = c.st; let hand = null;
   const handTo = async (el, ms = 520, dx = .55, dy = .6) => {
@@ -559,7 +559,7 @@ DM.def('dl2a', (st, c, card) => {
     for (const [i, t] of INCOMING.entries()){ add(t); await c.step(R ? 0 : 260); }
     // two routed on their own
     await until(() => routed >= 2);
-    // you turn Auto-route off, so the next pick waits for you
+    // you turn Route for me off, so the next pick waits for you
     await handTo($('.dl2a-auto', root), 700, .2, .5); await press(); setAuto(false); await c.step(500); away();
     await until(() => phase === 'wait');
     await c.step(1400);
@@ -568,7 +568,7 @@ DM.def('dl2a', (st, c, card) => {
     await until(() => phase === 'wait'); await c.step(1300);
     // the next pick is right: Send
     await handTo(sendB, 600); await press(); sendB.click(); await c.step(400);
-    // and Auto-route back on for the rest
+    // and Route for me back on for the rest
     await handTo($('.dl2a-auto', root), 700, .2, .5); await press(); setAuto(true); await c.step(400); away();
     await until(() => !cur && !waiting.length); await c.step(3200);
     if (R) return;
