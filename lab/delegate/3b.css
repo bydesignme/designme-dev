@@ -1,0 +1,133 @@
+/* 3b Team canvas: the agents as a live map. Each agent is a node: its mark with its progress as a ring round it, what it
+   is doing, and what it has spent. Tasks wait as tokens in the tray under the map; drag one onto an agent (or press it,
+   then press the agent). Finished steps travel along the hand-off lines to the next agent. Every class is dl3b-. */
+.dl3b{--pad:16px;width:100%;display:flex;flex-direction:column;overflow:clip;color:var(--dm-fg)}
+.dl3b .i{width:16px;height:16px}
+.dl3b .i.s{width:14px;height:14px}
+.dl3b .num{font-variant-numeric:tabular-nums}
+
+/* head */
+.dl3b-h{display:flex;align-items:center;gap:12px;min-height:60px;padding:16px var(--pad);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.dl3b-hic{width:28px;height:28px;flex:none;display:grid;place-items:center;border-radius:var(--dm-r-sm);background:var(--dm-chip);color:var(--dm-fg2)}
+.dl3b-ht{flex:1;min-width:0;display:flex;align-items:baseline;gap:8px;white-space:nowrap;overflow:hidden}
+.dl3b-t{font-size:14px;font-weight:500}
+.dl3b-hm{font-size:12.5px;color:var(--dm-muted);overflow:hidden;text-overflow:ellipsis}
+.dl3b-sp{font-size:13px;color:var(--dm-muted);white-space:nowrap}
+.dl3b-sp b{font-weight:500;color:var(--dm-fg)}
+.dl3b-auto{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--dm-fg2);cursor:pointer;white-space:nowrap}
+.dl3b-auto .toggle{cursor:pointer}
+.dl3b-hsep{width:1px;height:16px;background:var(--dm-line)}
+
+/* the map: a quiet dot grid; the nodes sit at set points on it and the lines are drawn between them */
+.dl3b-cv{position:relative;padding:16px var(--pad);background-image:radial-gradient(circle at 1px 1px,color-mix(in srgb,var(--dm-fg) 16%,transparent) 1px,transparent 1.5px);background-size:16px 16px;background-position:8px 8px}
+.dl3b-map{position:relative;height:340px}
+.dl3b-grid{position:absolute;inset:0;z-index:2}
+.dl3b-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.dl3b-e{fill:none;stroke:var(--dm-rail);stroke-width:1.5}
+.dl3b-lit{fill:none;stroke:var(--a);stroke-width:2.5;stroke-linecap:round}
+.dl3b-port{fill:var(--dm-surface);stroke:var(--dm-rail);stroke-width:1.5}
+/* work on its way: a chip in the sender's own colour, riding the line it lights */
+.dl3b-pkt{position:absolute;left:0;top:0;z-index:3;display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 8px 0 6px;border-radius:var(--dm-r-pill);background:var(--a-fill);box-shadow:var(--dm-shadow-pop);font-size:11.5px;font-weight:500;color:var(--a-ink);white-space:nowrap;pointer-events:none;will-change:transform}
+.dl3b-pkt i{width:6px;height:6px;border-radius:50%;background:var(--a-ink);flex:none}
+
+/* nodes: the mark in a ring that fills as the agent works, then its name, what it is doing and what it has spent */
+.dl3b-n{position:absolute;z-index:2;width:136px;margin-left:-68px;margin-top:-34px;display:flex;flex-direction:column;align-items:center;text-align:center;outline:0;--x:50%;--y:50%;left:var(--x);top:var(--y)}
+.dl3b-n[data-a="res"]{--x:9.5%;--y:40%}
+.dl3b-n[data-a="wri"]{--x:36.5%;--y:12.9%}
+.dl3b-n[data-a="ana"]{--x:36.5%;--y:67.1%}
+.dl3b-n[data-a="des"]{--x:63.5%;--y:40%}
+.dl3b-n[data-a="rev"]{--x:90.5%;--y:40%}
+.dl3b-mk{position:relative;width:68px;height:68px;flex:none;display:grid;place-items:center;border-radius:50%}
+.dl3b-mk::before{content:"";position:absolute;inset:-6px;border-radius:50%;background:transparent;transition:background-color var(--dm-t-fast) var(--dm-ease)}
+.dl3b.carrying .dl3b-n{cursor:pointer}
+@media (hover:hover) and (pointer:fine){.dl3b.carrying .dl3b-n:hover .dl3b-mk::before{background:var(--dm-row)}}
+.dl3b-n:is(.over,.carry-on) .dl3b-mk::before{background:var(--dm-hover)}
+.dl3b-n:focus-visible .dl3b-mk::before{box-shadow:0 0 0 2px var(--dm-focus)}
+.dl3b-ring{position:absolute;inset:0;width:100%;height:100%}
+.dl3b-ring rect{fill:none;stroke-width:3}
+.dl3b-ring .tk{stroke:var(--dm-rail)}
+.dl3b-ring .pg{stroke:var(--a);stroke-dasharray:100;stroke-dashoffset:100;stroke-linecap:round;transition:stroke .3s}
+.dl3b-ring .pg.ok{stroke:var(--dm-ok-mark)}
+.dl3b-tile{position:relative;width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--a-fill);color:var(--a-ink)}
+.dl3b-tile .i,.dl3b-tile .i.s{width:20px;height:20px;stroke-width:1.8}
+.dl3b-badge{position:absolute;right:-2px;top:-2px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;display:grid;place-items:center;background:var(--dm-surface);color:var(--dm-fg);font-size:11px;font-weight:500;box-shadow:inset 0 0 0 1px var(--dm-rail);transition:transform var(--dm-t) var(--dm-ease),opacity var(--dm-t-fast)}
+.dl3b-badge:empty{opacity:0;transform:scale(.6)}
+.dl3b-mk,.dl3b-mk::before,.dl3b-tile,.dl3b-ring,.dl3b-pkt i,.dl3b-badge{corner-shape:round}
+.dl3b-nx{display:flex;flex-direction:column;align-items:center;min-width:0;max-width:100%}
+.dl3b-nn{margin-top:8px;font-size:13px;font-weight:500;line-height:18px;white-space:nowrap}
+.dl3b-ns{max-width:100%;display:flex;align-items:center;justify-content:center;gap:4px;font-size:12px;line-height:18px;color:var(--dm-muted);white-space:nowrap;min-width:0}
+.dl3b-ns>span{overflow:hidden;text-overflow:ellipsis}
+.dl3b-ns .i{width:12px;height:12px;flex:none;color:var(--dm-ok-mark);stroke-width:2.4}
+.dl3b-ns.paused{color:var(--dm-warn)}
+.dl3b-nf{display:flex;align-items:center;justify-content:center;gap:2px;height:24px;margin-top:2px}
+.dl3b-cost{font-size:12px;color:var(--dm-fg2);padding-left:4px}
+.dl3b-n .ib{width:24px;height:24px}
+.dl3b-n .ib .i{width:12px;height:12px}
+.dl3b-n.in .dl3b-tile{animation:dl3b-pop .5s var(--dm-ease)}
+@keyframes dl3b-pop{40%{transform:scale(1.08)}}
+
+/* the tray: work waiting to be handed out */
+.dl3b-dock{display:flex;align-items:center;flex-wrap:wrap;gap:8px;min-height:61px;padding:16px var(--pad);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.dl3b-dl{font-size:13px;color:var(--dm-muted);margin-right:4px;white-space:nowrap}
+.dl3b-dl b{font-weight:500;color:var(--dm-fg)}
+.dl3b-toks{display:contents}
+.dl3b-tok{max-width:100%;cursor:grab;touch-action:none;gap:6px;padding:0 12px 0 8px}
+.dl3b-tok>span{overflow:hidden;text-overflow:ellipsis}
+.dl3b-tok .g{color:var(--dm-faint);margin-right:-2px}
+.dl3b-tok .src{color:var(--dm-muted)}
+.dl3b-tok[aria-pressed="true"]{box-shadow:inset 0 0 0 1px var(--dm-line-strong);background:var(--dm-row)}
+.dl3b-tok.dragging{opacity:.35}
+.dl3b-tok.in{animation:dl3b-tin var(--dm-t-slow) var(--dm-ease) both}
+@keyframes dl3b-tin{from{opacity:0;transform:translateY(6px)}}
+.dl3b-tok.out{transition:opacity .2s var(--dm-ease),transform .2s var(--dm-ease);opacity:0;transform:scale(.92)}
+.dl3b-hint{margin-left:auto;font-size:12.5px;color:var(--dm-muted);white-space:nowrap}
+.dl3b-fly{position:absolute;z-index:40;pointer-events:none;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px 0 8px;border-radius:var(--dm-r-pill);background:var(--dm-surface);color:var(--dm-fg);font-size:12.5px;font-weight:500;white-space:nowrap;box-shadow:var(--dm-shadow-pop)}
+.dl3b-fly .i{width:14px;height:14px;color:var(--dm-muted)}
+.dl3b-live{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+/* Clean: strips for the head and the tray, a fainter grid, the picked node a stronger neutral fill */
+:root[data-style="clean"] .dl3b-h{background:var(--dm-strip);border-bottom-color:var(--dm-hair);padding:var(--dm-strip-y) var(--pad);min-height:0}
+:root[data-style="clean"] .dl3b-dock{background:var(--dm-strip);border-top-color:var(--dm-hair);padding:var(--dm-strip-y) var(--pad);min-height:0}
+:root[data-style="clean"] .dl3b-h>*{min-height:28px}
+:root[data-style="clean"] .dl3b-ht{align-items:center}
+:root[data-style="clean"] .dl3b-hic{background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .dl3b-n:is(.over,.carry-on) .dl3b-mk::before{background:var(--dm-row-on)}
+:root[data-style="clean"] .dl3b-cv{background-image:radial-gradient(circle at 1px 1px,color-mix(in srgb,var(--dm-fg) 12%,transparent) 1px,transparent 1.5px)}
+:root[data-style="clean"] .dl3b-tok[aria-pressed="true"]{box-shadow:var(--dm-btn2-press)}
+:root[data-style="clean"] .dl3b-badge{box-shadow:inset 0 0 0 1px var(--dm-hair),0 1px 2px rgba(0,0,0,.06)}
+/* Blueprint: the map is drafting paper; marks stay round as the only circles, like its loaders */
+:root:not([data-style="soft"],[data-style="clean"]) .dl3b-cv{background-image:linear-gradient(var(--dm-grid) 1px,transparent 1px),linear-gradient(90deg,var(--dm-grid) 1px,transparent 1px);background-size:16px 16px;background-position:-1px -1px}
+
+/* narrow: the map runs top to bottom */
+@container (max-width:600px){
+  /* each node lays its words beside a smaller ring, so the lines can run from ring to ring down the map */
+  .dl3b-map{height:452px}
+  .dl3b-n{flex-direction:row;align-items:center;gap:10px;width:144px;margin-left:-26px;margin-top:-30px;text-align:left}
+  .dl3b-mk{width:52px;height:52px}
+  .dl3b-tile{width:36px;height:36px}
+  .dl3b-tile .i,.dl3b-tile .i.s{width:16px;height:16px}
+  .dl3b-mk::before{inset:-5px}
+  .dl3b-badge{right:-5px;top:-5px}
+  .dl3b-nx{align-items:flex-start;flex:1}
+  .dl3b-nn{margin-top:0}
+  .dl3b-ns,.dl3b-nf{justify-content:flex-start}
+  .dl3b-cost{padding-left:0}
+  .dl3b-n[data-a="res"]{--x:calc(50% - 46px);--y:40px}
+  .dl3b-n[data-a="wri"]{--x:26px;--y:154px}
+  .dl3b-n[data-a="ana"]{--x:calc(50% + 32px);--y:154px}
+  .dl3b-n[data-a="des"]{--x:calc(50% - 46px);--y:290px}
+  .dl3b-n[data-a="rev"]{--x:calc(50% - 46px);--y:412px}
+  .dl3b-n[data-a]{width:200px}
+  .dl3b-n:is([data-a="wri"],[data-a="ana"]){width:calc(50% - 8px)}
+  .dl3b-hm,.dl3b-hsep,.dl3b-hint{display:none}
+}
+@container (max-width:400px){
+  .dl3b-sp span{display:none}
+}
+@container (max-width:330px){
+  .dl3b-auto>span{display:none}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .dl3b *,.dl3b-fly{transition-property:opacity,background-color,color,box-shadow!important;animation:none!important}
+}

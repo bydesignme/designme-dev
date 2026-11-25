@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Switchboard · Hand-off lab 2a · Designme.dev lab</title>
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<script>
+/* style and theme: ?style=bp|soft|clean&theme=light|dark, else what the site stored, else the site's default (light opens in
+   Soft, dark in Blueprint). Blueprint is no data-style attribute, as core.css expects */
+(function(){
+  var q = new URLSearchParams(location.search), d = document.documentElement, s, t;
+  try { s = q.get('style') || localStorage.getItem('dmui-style'); t = q.get('theme') || localStorage.getItem('dmui-theme'); } catch(e){}
+  if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  if (s === 'blueprint') s = 'bp';
+  if (s !== 'bp' && s !== 'soft' && s !== 'clean') s = t === 'dark' ? 'bp' : 'soft';
+  d.setAttribute('data-theme', t); if (s === 'bp') d.removeAttribute('data-style'); else d.setAttribute('data-style', s);
+  try { if (q.get('style')) localStorage.setItem('dmui-style', s); if (q.get('theme')) localStorage.setItem('dmui-theme', t); } catch(e){}
+})();
+</script>
+<link rel="stylesheet" href="assets/core.css">
+<style>
+@font-face{font-family:"Inter";font-style:normal;font-weight:400;font-display:swap;src:url(../../fonts/inter-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-style:normal;font-weight:500;font-display:swap;src:url(../../fonts/inter-latin-500-normal.woff2) format("woff2")}
+html,body{margin:0}
+body{background:var(--dm-page);color:var(--dm-fg);font-family:var(--dm-sans);font-size:14px;line-height:20px;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+*{box-sizing:border-box}
+
+/* ---------- the lab page around the component ---------- */
+.dl2a-top{max-width:1040px;margin:0 auto;padding:24px 16px 16px;display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 24px}
+.dl2a-intro{flex:1 1 360px;min-width:0}
+.dl2a-intro h1{margin:0;font-size:14px;font-weight:500;line-height:20px}
+.dl2a-intro h1 span{color:var(--dm-muted);font-weight:400}
+.dl2a-intro p{margin:4px 0 0;font-size:13px;line-height:20px;color:var(--dm-muted);max-width:620px}
+.dl2a-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.dl2a-seg{display:inline-flex;padding:2px;border-radius:999px;background:var(--dm-chip)}
+.dl2a-seg button,.dl2a-rp{font:inherit;font-size:12.5px;font-weight:500;height:28px;padding:0 12px;border:0;border-radius:999px;background:none;color:var(--dm-fg2);cursor:pointer;transition:background-color .2s,color .2s}
+.dl2a-seg button:hover{color:var(--dm-fg)}
+.dl2a-seg button[aria-pressed="true"]{background:var(--dm-surface);color:var(--dm-fg);box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent),0 1px 2px rgba(0,0,0,.06)}
+.dl2a-rp{display:inline-flex;align-items:center;gap:6px;background:var(--dm-surface);color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);height:32px}
+.dl2a-rp:hover{background:var(--dm-row)}
+:is(.dl2a-seg button,.dl2a-rp):focus-visible{outline:2px solid var(--dm-focus);outline-offset:2px}
+:root:not([data-style]) :is(.dl2a-seg,.dl2a-seg button,.dl2a-rp){border-radius:0}
+.dl2a-stage{max-width:1040px;margin:0 auto 48px;padding:56px 16px;min-height:680px;display:flex;align-items:center;justify-content:center;background:var(--dm-stage);border-radius:24px;box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
+:root:not([data-style]) .dl2a-stage{border-radius:0;background-image:linear-gradient(var(--dm-grid) 1px,transparent 1px),linear-gradient(90deg,var(--dm-grid) 1px,transparent 1px);background-size:24px 24px;background-position:-1px -1px}
+@media (max-width:720px){.dl2a-stage{border-radius:0;box-shadow:none;padding:32px 16px;min-height:0}}
+.dl2a-card{width:100%;display:flex;justify-content:center}
+.dl2a-card>.stage-in{max-width:760px}
+
+/* ---------- Switchboard ---------- */
+.dl2a{--ag:var(--dm-av-b);--ag-ink:var(--dm-av-b-ink);width:100%;padding:16px;display:flex;flex-direction:column;gap:16px;font-size:13px;line-height:18px;color:var(--dm-fg);container-type:inline-size;touch-action:pan-y}
+.dl2a.growing>.dm-grow{gap:16px}
+.dl2a .num{font-variant-numeric:tabular-nums}
+.dl2a-h,.dl2a-f{display:flex;align-items:center;gap:8px;min-height:28px}
+.dl2a-hi{width:28px;height:28px;border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));display:grid;place-items:center;background:var(--dm-chip);color:var(--dm-fg2);flex:none}
+.dl2a-hw{display:flex;align-items:baseline;gap:8px;min-width:0;overflow:hidden}
+.dl2a-ttl{font-size:14px;font-weight:500;white-space:nowrap}
+.dl2a-meta{font-size:12.5px;color:var(--dm-muted);white-space:nowrap}
+.dl2a-sp{flex:1}
+.dl2a-f{padding-top:16px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.dl2a-auto{display:inline-flex;align-items:center;gap:8px;height:28px;font-size:13px;color:var(--dm-fg2);cursor:pointer;white-space:nowrap}
+.dl2a-sum{font-size:12.5px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.dl2a-send{flex:none}
+@container (max-width:420px){.dl2a-f:has(.dl2a-send:not([hidden])) .dl2a-sum{display:none}}
+.dl2a-send[hidden]{display:none}
+
+/* the body: what is waiting, the switchboard (the task being routed and its routes) and the agents */
+.dl2a-body{position:relative;display:flex;flex-direction:column}
+.dl2a-in{display:flex;align-items:center;gap:8px;height:40px;padding:4px 2px;margin:-4px -2px 12px;position:relative;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,#000 85%,transparent);mask-image:linear-gradient(90deg,#000 85%,transparent)}
+.dl2a-inl{font-size:12.5px;color:var(--dm-muted);flex:none;margin-right:4px}
+.dl2a-in .dl2a-empty{font-size:12.5px;color:var(--dm-muted)}
+
+/* a task: a card you can drag or press (a menu sends it to an agent) */
+.dl2a-t{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 12px 0 8px;max-width:220px;flex:none;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-surface);box-shadow:var(--dm-shadow);font-size:12.5px;color:var(--dm-fg);text-align:left;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;transition:background-color var(--dm-t-fast) var(--dm-ease),opacity var(--dm-t-fast)}
+.dl2a-t .tx{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.dl2a-t .src{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));display:grid;place-items:center;background:var(--dm-chip);color:var(--dm-fg2);flex:none}
+.dl2a-t .src .i{width:12px;height:12px}
+@media (hover:hover) and (pointer:fine){.dl2a-t:hover{background:var(--dm-row)}}
+.dl2a-t.lift{opacity:.35}
+.dl2a-ghost{position:fixed;left:0;top:0;z-index:60;pointer-events:none;margin:0;box-shadow:var(--dm-shadow-pop);cursor:grabbing}
+.dl2a-ghost.abs{position:absolute}
+
+/* the switchboard: the task being routed, centred, with its reason under it */
+.dl2a-rt{display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;z-index:2}
+.dl2a-slot{display:flex;justify-content:center;width:100%;min-height:48px;align-items:center}
+.dl2a-cur{height:48px;max-width:min(100%,360px);padding:0 16px 0 8px;gap:12px;font-size:13px}
+.dl2a-cur .src{width:32px;height:32px;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)))}
+.dl2a-cur .src .i{width:16px;height:16px}
+.dl2a-cur .w{display:flex;flex-direction:column;min-width:0}
+.dl2a-cur .w .tx{font-weight:500}
+.dl2a-cur.pk{background:var(--ag);color:var(--ag-ink);box-shadow:none;transition:background-color var(--dm-t) var(--dm-ease),color var(--dm-t) var(--dm-ease)}
+.dl2a-cur.pk .src{background:color-mix(in srgb,var(--ag-ink) 16%,transparent);color:inherit}
+.dl2a-cur.pk .w small{color:inherit}
+.dl2a-cur .w small{font-size:12px;line-height:16px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dl2a-idle{height:48px;display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--dm-muted)}
+.dl2a-idle .i{color:var(--dm-ok-mark)}
+.dl2a-why{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px;min-height:20px;font-size:12.5px;color:var(--dm-fg2);text-align:center}
+.dl2a-why:empty{display:none}
+.dl2a-why b{font-weight:500;color:var(--dm-fg)}
+.dl2a-why .tag .i{width:12px;height:12px}
+.dl2a-why .tag .i.okk{color:var(--dm-ok-mark)}
+.dl2a-why .tag.you{background:var(--dm-accent-bg);color:var(--dm-accent-fg)}
+.dl2a-why .dl2a-mk.sm{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)))}
+.dl2a-why .dl2a-mk.sm .i{width:12px;height:12px}
+.dl2a-why .av{width:16px;height:16px;font-size:8px}
+
+/* the routes: a neutral line from the switchboard to every agent, drawn on the body; in Blueprint they turn square corners */
+.dl2a-fan{height:96px;flex:none}
+.dl2a-lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:0}
+.dl2a-lines path{fill:none;stroke:var(--dm-rail);stroke-width:1.5;stroke-linecap:round;transition:stroke var(--dm-t-fast) var(--dm-ease),opacity var(--dm-t) var(--dm-ease),stroke-width var(--dm-t-fast)}
+.dl2a.scan .dl2a-lines path{stroke-dasharray:3 5;animation:dl2a-flow .5s linear infinite}
+.dl2a-lines path.on{stroke:var(--win,var(--dm-accent-mark));stroke-width:3;stroke-dasharray:none;animation:none}
+.dl2a-lines path.off{opacity:.4;stroke-dasharray:none;animation:none}
+@keyframes dl2a-flow{to{stroke-dashoffset:-8}}
+
+/* the agents */
+.dl2a-docks{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;position:relative;z-index:1}
+.dl2a-dk{position:relative;display:flex;flex-direction:column;gap:8px;min-width:0;border-radius:calc(12px * var(--dm-rk-m,var(--dm-rk)));transition:background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
+.dl2a-dk.over{background:var(--dm-chip);box-shadow:0 0 0 8px var(--dm-chip)}
+.dl2a-dh{display:flex;align-items:center;gap:8px;min-width:0;position:relative}
+.dl2a-mk{width:28px;height:28px;border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));display:grid;place-items:center;background:var(--ag);color:var(--ag-ink);flex:none;position:relative;z-index:1}
+.dl2a-mk .i{width:14px;height:14px}
+.dl2a-nm{display:flex;flex-direction:column;min-width:0}
+.dl2a-nm b{font-weight:500;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dl2a-st{font-size:12px;line-height:16px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px}
+.dl2a-st .dot{color:var(--dm-ok-mark)}
+/* an agent's fit for the task being routed: an opaque neutral chip on its route, just above the agent */
+.dl2a-sc{position:absolute;left:14px;top:-28px;transform:translateX(-50%) scale(.9);height:20px;padding:0 7px;display:inline-flex;align-items:center;border-radius:var(--dm-r-tag);font-size:11.5px;font-weight:500;color:var(--dm-muted);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 35%,transparent);white-space:nowrap;opacity:0;transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease),color var(--dm-t-fast),background var(--dm-t-fast);z-index:2}
+.dl2a-sc.show{opacity:1;transform:translateX(-50%)}
+.dl2a-sc.win{color:var(--ag-ink);background:var(--ag);box-shadow:none}
+.dl2a-q{display:flex;flex-direction:column;gap:8px;min-width:0}
+.dl2a-qi{width:100%;max-width:none;height:36px;padding:0 10px 0 8px;position:relative;overflow:hidden;background:var(--ag);color:var(--ag-ink);box-shadow:none}
+.dl2a-qi .src{background:color-mix(in srgb,var(--ag-ink) 16%,transparent);color:inherit}
+@media (hover:hover) and (pointer:fine){.dl2a-qi:not(.run,.done):hover{background:color-mix(in srgb,var(--ag) 86%,var(--ag-ink))}}
+.dl2a-qi.run{cursor:default;padding-bottom:2px}
+.dl2a-qi.run::after{content:"";position:absolute;left:0;bottom:0;height:3px;width:calc(var(--p,0) * 100%);background:var(--ag-ink);transition:width .25s linear}
+.dl2a-qi.done{cursor:default}
+.dl2a-qi.done::after{display:none}
+.dl2a-qi .ok{color:inherit;margin-left:auto;flex:none}
+.dl2a-qi .you{width:16px;height:16px;font-size:8px;margin-left:auto}
+.dl2a-more{font-size:12px;line-height:16px;color:var(--dm-muted);padding-left:10px}
+.dl2a-more:empty{display:none}
+.dl2a-cost{font-size:12px;line-height:16px;color:var(--dm-muted)}
+
+.dl2a-menu{min-width:240px}
+.dl2a-menu .dl2a-mk{width:24px;height:24px}
+.dl2a-menu .dl2a-mk .i{width:12px;height:12px}
+.dl2a-menu .mi .d{font-size:12px}
+.dl2a-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* phones: the agents become rows, each with its fit at its right; the routes are left out (the rows say the same) */
+@container (max-width:560px){
+  .dl2a-fan{height:16px}
+  .dl2a-lines{display:none}
+  .dl2a-docks{grid-template-columns:minmax(0,1fr);gap:4px}
+  .dl2a-dk{display:grid;grid-template-columns:minmax(0,1fr);padding:8px;margin:0 -8px;gap:8px}
+  .dl2a-dk.over{box-shadow:none}
+  .dl2a-dk.win{background:var(--dm-chip)}
+  .dl2a-sc{position:static;transform:none;margin-left:auto;flex:none}
+  .dl2a-sc.show{transform:none}
+  .dl2a-q{padding-left:36px}
+  .dl2a-q:empty{display:none}
+  .dl2a-more{padding-left:46px}
+  .dl2a-cur{max-width:100%}
+  .dl2a-sum .dl2a-long{display:none}
+}
+
+/* Soft: plush corners come from --dm-rk; the cards' soft shadows from --dm-shadow */
+/* Blueprint: square, hairlines, the technical sheet's grid behind the switchboard */
+:root:not([data-style]) .dl2a-t{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 60%,transparent)}
+:root:not([data-style]) .dl2a-ghost{box-shadow:inset 0 0 0 1px var(--dm-line-strong),0 12px 28px -14px rgba(20,20,12,.3)}
+:root:not([data-style]) .dl2a-lines path{stroke-linecap:square;stroke-width:1}
+:root:not([data-style]) .dl2a-lines path.on{stroke-width:2.5}
+:root:not([data-style]) .dl2a-sc{box-shadow:inset 0 0 0 1px var(--dm-rail);font-size:10.5px;letter-spacing:.03em}
+:root:not([data-style]) .dl2a-why .tag.you{background:var(--dm-accent);color:var(--dm-on-accent)}
+:root:not([data-style]) .dl2a-dk.over{background:var(--dm-wash);box-shadow:0 0 0 8px var(--dm-wash),0 0 0 9px var(--dm-rail)}
+:root:not([data-style]) .dl2a-hi{background:none;box-shadow:inset 0 0 0 1px var(--dm-rail)}
+
+/* Clean: a head strip and a foot strip, monochrome chrome, ink switch; agents keep their colours */
+:root[data-style="clean"] .dl2a{padding:0;gap:0;border-radius:var(--dm-r-card);overflow:clip}
+:root[data-style="clean"] .dl2a.growing>.dm-grow{gap:0}
+:root[data-style="clean"] .dl2a-h{padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-bottom:1px solid var(--dm-line);border-radius:var(--dm-r-card) var(--dm-r-card) 0 0}
+:root[data-style="clean"] .dl2a-body{padding:16px}
+:root[data-style="clean"] .dl2a-f{padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+:root[data-style="clean"] .dl2a-hi{background:var(--dm-surface);box-shadow:var(--dm-btn2-depth);border-radius:10px}
+:root[data-style="clean"] .dl2a-t{border-radius:10px;box-shadow:inset 0 0 0 1px var(--dm-hair),0 1px 2px rgba(0,0,0,.04)}
+:root[data-style="clean"][data-theme="dark"] .dl2a-t:not(.dl2a-qi,.pk){background:var(--dm-raised)}
+:root[data-style="clean"] .dl2a-qi{box-shadow:none}
+:root[data-style="clean"] .dl2a-t .src{border-radius:6px}
+:root[data-style="clean"] .dl2a-cur .src{border-radius:8px}
+:root[data-style="clean"] .dl2a-mk{border-radius:8px}
+:root[data-style="clean"] .dl2a-dk{border-radius:12px}
+:root[data-style="clean"] .dl2a-dk.over{background:var(--dm-row-on);box-shadow:0 0 0 8px var(--dm-row-on)}
+:root[data-style="clean"] .dl2a-dk.win{background:var(--dm-row-on)}
+:root[data-style="clean"] .dl2a-auto{height:28px;padding:0 10px 0 8px;margin-left:-8px;border-radius:999px;transition:background-color var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dl2a-auto:hover{background:var(--dm-row);color:var(--dm-fg)}}
+@container (max-width:560px){:root[data-style="clean"] .dl2a-dk{margin:0 -8px}}
+
+@media (prefers-reduced-motion:reduce){.dl2a.scan .dl2a-lines path{animation:none}.dl2a-qi.run::after{transition:none}}
+</style>
+</head>
+<body>
+<header class="dl2a-top">
+  <div class="dl2a-intro">
+    <h1>Switchboard <span>· Hand-off lab, variation 2a</span></h1>
+    <p>Every task that comes in is weighed against each agent's skill, wait and cost, and travels down the route of the best fit with its reason; drag it to another agent to overrule the pick.</p>
+  </div>
+  <div class="dl2a-ctl">
+    <div class="dl2a-seg" role="group" aria-label="Style" id="dl2a-style"><button type="button" data-v="bp">Blueprint</button><button type="button" data-v="soft">Soft</button><button type="button" data-v="clean">Clean</button></div>
+    <div class="dl2a-seg" role="group" aria-label="Theme" id="dl2a-theme"><button type="button" data-v="light">Light</button><button type="button" data-v="dark">Dark</button></div>
+    <button class="dl2a-rp" type="button" id="dl2a-replay"><svg class="i s" aria-hidden="true"><use href="#i-refresh"/></svg>Replay</button>
+  </div>
+</header>
+<main class="dl2a-stage">
+  <div class="card dl2a-card" data-c="dl2a">
+    <div class="stage-in"></div>
+    <template><div class="dl2a panel" role="region" aria-label="Task routing">
+      <div class="dl2a-h">
+        <span class="dl2a-hi" aria-hidden="true"><svg class="i s"><use href="#i-branch"/></svg></span>
+        <span class="dl2a-hw"><span class="dl2a-ttl">Routing</span><span class="dl2a-meta"><span class="num dl2a-nw">0</span> waiting</span></span>
+        <span class="dl2a-sp"></span>
+        <span class="dl2a-meta"><span class="num dl2a-usd">$0.00</span> spent today</span>
+      </div>
+      <div class="dl2a-body">
+        <div class="dl2a-in" role="list" aria-label="Waiting"><span class="dl2a-inl">Next</span></div>
+        <div class="dl2a-rt"><div class="dl2a-slot"></div><div class="dl2a-why"></div></div>
+        <div class="dl2a-fan" aria-hidden="true"></div>
+        <svg class="dl2a-lines" aria-hidden="true"></svg>
+        <div class="dl2a-docks"></div>
+      </div>
+      <div class="dl2a-f">
+        <label class="dl2a-auto"><button class="toggle" type="button" role="switch" aria-checked="true"></button><span>Route for me</span></label>
+        <span class="dl2a-sp"></span>
+        <span class="dl2a-sum"></span>
+        <button class="pill primary sm dl2a-send" type="button" hidden>Send</button>
+      </div>
+      <p class="dl2a-sr" aria-live="polite"></p>
+    </div>
+    <div class="pop dl2a-menu" role="menu" aria-label="Send to"></div></template>
+  </div>
+</main>
+<script src="assets/core.js"></script>
+<script>
+/* ---------- the lab page: style, theme and replay ---------- */
+(() => {
+  const d = document.documentElement;
+  const mark = () => {
+    const s = d.getAttribute('data-style') || 'bp', t = d.getAttribute('data-theme');
+    document.querySelectorAll('#dl2a-style button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === s));
+    document.querySelectorAll('#dl2a-theme button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === t));
+  };
+  document.getElementById('dl2a-style').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.v === 'bp') d.removeAttribute('data-style'); else d.setAttribute('data-style', b.dataset.v);
+    try { localStorage.setItem('dmui-style', b.dataset.v); } catch(x){} mark(); window.dispatchEvent(new Event('dl2a-restyle')); });
+  document.getElementById('dl2a-theme').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
+    d.setAttribute('data-theme', b.dataset.v); try { localStorage.setItem('dmui-theme', b.dataset.v); } catch(x){} mark(); });
+  document.getElementById('dl2a-replay').addEventListener('click', () => DM.mount(document.querySelector('[data-c="dl2a"]')));
+  mark();
+})();
+
+/* ---------- Switchboard ---------- */
+DM.PLAYS.add('dl2a');
+DM.def('dl2a', (st, c, card) => {
+  const root = $('.dl2a', st), body = $('.dl2a-body', root), inEl = $('.dl2a-in', root), slot = $('.dl2a-slot', root), why = $('.dl2a-why', root);
+  const svg = $('.dl2a-lines', root), docksEl = $('.dl2a-docks', root), nw = $('.dl2a-nw', root), usdEl = $('.dl2a-usd', root);
+  const auto = $('.toggle', root), sendB = $('.dl2a-send', root), sum = $('.dl2a-sum', root), sr = $('.dl2a-sr', root), menu = $('.dl2a-menu', st);
+  const style = () => getComputedStyle(root).getPropertyValue('--dm-motion').trim() || 'soft';
+  const EASE = () => getComputedStyle(root).getPropertyValue('--dm-ease').trim() || 'cubic-bezier(.22,1,.36,1)';
+  const MS = k => ({ bp:{ fly:460, move:300, lift:300 }, clean:{ fly:680, move:340, lift:560 }, soft:{ fly:760, move:420, lift:520 } }[style()] || { fly:700, move:400, lift:500 })[k];
+  const narrow = () => root.getBoundingClientRect().width <= 560;
+  const say = t => { sr.textContent = ''; c.later(30, () => { sr.textContent = t; }); };
+  const money = v => '$' + v.toFixed(2);
+
+  // the agents: a role, a mark, a colour of their own and a price per minute of work
+  const AG = [
+    { id:'res', name:'Researcher', ic:'search', av:'l', rate:.028 },
+    { id:'wri', name:'Writer', ic:'edit', av:'b', rate:.018 },
+    { id:'des', name:'Designer', ic:'palette', av:'k', rate:.034 },
+    { id:'cod', name:'Coder', ic:'code', av:'m', rate:.046 }
+  ];
+  const A = Object.fromEntries(AG.map(a => [a.id, a]));
+  let seq = 0;
+  const T = (t, ic, min, sk, why) => ({ id:'t' + (++seq), t, ic, min, sk, why, p:0 });
+  // the work each agent has at the start: the first is running
+  const Q = {
+    res:[Object.assign(T('Scan competitor sites', 'globe', 9, {}, {}), { p:.5 })],
+    wri:[],
+    des:[Object.assign(T('Mock up the pricing hero', 'image', 8, {}, {}), { p:.62 })],
+    cod:[Object.assign(T('Upgrade the date library', 'code', 10, {}, {}), { p:.25 }), T('Fix the flaky login test', 'code', 7, {}, {})]
+  };
+  // what arrives during the demo: each agent's skill for it, and why it suits the best of them
+  const INCOMING = [
+    T('Summarise the week’s support tickets', 'comment', 8, { res:93, wri:74, des:18, cod:36 }, { res:'Reads tickets fastest', wri:'Writes clear summaries' }),
+    T('Draft the launch email', 'mail', 9, { res:41, wri:97, des:38, cod:12 }, { wri:'Knows the brand voice', res:'Has the launch notes' }),
+    T('Export pricing as a CSV', 'table', 6, { res:79, wri:28, des:14, cod:96 }, { cod:'Has database access', res:'Can read the pricing sheet' }),
+    T('Resize the hero images', 'image', 6, { res:8, wri:10, des:96, cod:47 }, { des:'Has the brand kit', cod:'Can script the export' }),
+    T('Compare three vendors’ prices', 'chart', 10, { res:95, wri:52, des:12, cod:30 }, { res:'Good at side-by-side reviews', wri:'Writes clear summaries' })
+  ];
+  const waiting = [];
+  let spent = 3.18, routed = 0, byYou = 0, cur = null, phase = 'idle', busy = false;
+
+  /* ---- drawing ---- */
+  const srcIc = ic => `<span class="src" aria-hidden="true"><svg class="i"><use href="#i-${ic}"/></svg></span>`;
+  const mkHTML = a => `<span class="dl2a-mk" style="--ag:var(--dm-av-${a.av});--ag-ink:var(--dm-av-${a.av}-ink)" aria-hidden="true"><svg class="i"><use href="#i-${a.ic}"/></svg></span>`;
+  docksEl.innerHTML = AG.map(a => `<div class="dl2a-dk" style="--ag:var(--dm-av-${a.av});--ag-ink:var(--dm-av-${a.av}-ink)" data-a="${a.id}" role="group" aria-label="${a.name}">
+      <div class="dl2a-dh">${mkHTML(a)}<span class="dl2a-nm"><b>${a.name}</b><span class="dl2a-st"></span></span><span class="dl2a-sc num" aria-hidden="true"></span></div>
+      <div class="dl2a-q" role="list"></div><div class="dl2a-more"></div></div>`).join('');
+  const dock = id => $(`.dl2a-dk[data-a="${id}"]`, docksEl);
+  const left = id => Q[id].reduce((s, t, i) => s + t.min * (1 - (i === 0 ? t.p : 0)), 0);
+  const freeTxt = id => { const m = Math.ceil(left(id)); return Q[id].length && m > 0 ? `free in ${m} min` : 'free now'; };
+  const taskEl = (t, cls = '') => { const b = document.createElement('button'); b.type = 'button'; b.className = 'dl2a-t ' + cls; b.dataset.id = t.id;
+    b.innerHTML = `${srcIc(t.ic)}<span class="tx">${t.t}</span>`; b.setAttribute('aria-haspopup', 'menu'); b.setAttribute('aria-expanded', 'false'); b.dataset.pop = '.dl2a-menu';
+    b.setAttribute('aria-label', `${t.t}, ${t.min} min. Send to an agent`); return b; };
+  const qiEl = (t, run) => { const b = taskEl(t, 'dl2a-qi'); b.setAttribute('role', 'listitem');
+    if (t.you) b.insertAdjacentHTML('beforeend', AV('MK', 'var(--dm-av-y)').replace('class="av"', 'class="av you" aria-hidden="true" title="Moved by you"'));
+    if (run){ b.classList.add('run'); b.removeAttribute('data-pop'); b.removeAttribute('aria-haspopup'); b.removeAttribute('aria-expanded'); b.setAttribute('aria-label', `${t.t}, running`); b.disabled = false; }
+    return b; };
+  const MAXQ = () => narrow() ? 2 : 3;
+  function drawDock(id){
+    const d = dock(id), q = $('.dl2a-q', d), list = Q[id], max = MAXQ();
+    const want = list.slice(0, max).map(t => t.id), have = new Map($$('.dl2a-qi', q).map(e => [e.dataset.id, e]));
+    have.forEach((e, k) => { if (!want.includes(k) && !e.classList.contains('done')) e.remove(); });
+    list.slice(0, max).forEach((t, i) => { let e = have.get(t.id); const run = i === 0 && !t.doneAt;
+      if (!e || (!t.doneAt && e.classList.contains('run') !== run)){ const n = qiEl(t, run); if (e) e.replaceWith(n); e = n; }
+      if (q.children[i] !== e) q.insertBefore(e, q.children[i] || null);
+      if (run) e.style.setProperty('--p', t.p.toFixed(3)); });
+    $('.dl2a-more', d).textContent = list.length > max ? `+${list.length - max} more` : '';
+    const s = $('.dl2a-st', d), busyNow = list.length > 0;
+    s.innerHTML = busyNow ? `<span class="shim">Working</span><span>· ${freeTxt(id)}</span>` : `<span class="dot" aria-hidden="true"></span><span>Free now</span>`;
+  }
+  const drawAll = () => AG.forEach(a => drawDock(a.id));
+  function drawIn(){
+    $$('.dl2a-t', inEl).forEach(e => { if (!waiting.some(t => t.id === e.dataset.id)) e.remove(); });
+    waiting.forEach(t => { if (!$(`.dl2a-t[data-id="${t.id}"]`, inEl)){ const e = taskEl(t); e.setAttribute('role', 'listitem'); inEl.appendChild(e); } });
+    let em = $('.dl2a-empty', inEl); if (!waiting.length && !em) inEl.insertAdjacentHTML('beforeend', '<span class="dl2a-empty">Nothing waiting</span>'); else if (waiting.length && em) em.remove();
+    nw.textContent = waiting.length + (cur ? 1 : 0);
+  }
+  function drawSum(){ sum.innerHTML = `<span class="num">${routed}</span> routed<span class="dl2a-long">${byYou ? `, <span class="num">${byYou}</span> by you` : ''}</span>`; }
+  function idle(){ slot.innerHTML = `<span class="dl2a-idle"><svg class="i s" aria-hidden="true"><use href="#i-check"/></svg>Everything is routed</span>`; why.innerHTML = ''; }
+
+  /* the routes: from under the switchboard to the top of each agent's mark */
+  function lines(){
+    if (narrow()){ svg.innerHTML = ''; return; }
+    const b = body.getBoundingClientRect(), rt = $('.dl2a-rt', root).getBoundingClientRect(), bp = style() === 'bp';
+    svg.setAttribute('viewBox', `0 0 ${b.width} ${b.height}`);
+    const x0 = rt.left + rt.width / 2 - b.left, y0 = rt.bottom - b.top + 6;
+    svg.innerHTML = AG.map(a => { const m = $('.dl2a-mk', dock(a.id)).getBoundingClientRect(), x1 = m.left + m.width / 2 - b.left, y1 = m.top - b.top - 2, my = y0 + (y1 - y0) * .5;
+      const d = bp ? `M${x0} ${y0}V${my}H${x1}V${y1}` : `M${x0} ${y0}C${x0} ${my + 8},${x1} ${my - 8},${x1} ${y1}`;
+      return `<path data-a="${a.id}" d="${d}"/>`; }).join('');
+    if (phase === 'scan') root.classList.add('scan');
+    if (cur && cur.win && (phase === 'pick' || phase === 'wait')) mark(cur.win);
+  }
+  const path = id => $(`path[data-a="${id}"]`, svg);
+  function mark(win){ svg.style.setProperty('--win', `var(--dm-av-${A[win].av})`); $$('path', svg).forEach(p => { p.classList.toggle('on', p.dataset.a === win); p.classList.toggle('off', p.dataset.a !== win); });
+    $$('.dl2a-dk', docksEl).forEach(d => d.classList.toggle('win', d.dataset.a === win));
+    $$('.dl2a-sc', docksEl).forEach(s => s.classList.toggle('win', s.closest('.dl2a-dk').dataset.a === win)); }
+  function unmark(){ root.classList.remove('scan'); $$('path', svg).forEach(p => p.classList.remove('on', 'off')); $$('.dl2a-dk', docksEl).forEach(d => d.classList.remove('win', 'over'));
+    $$('.dl2a-sc', docksEl).forEach(s => s.classList.remove('show', 'win')); }
+
+  // an agent's fit for a task: its skill, less a little for every minute it is busy
+  const fit = (t, id) => Math.max(4, Math.min(99, Math.round((t.sk[id] ?? 20) - Math.min(left(id), 40) * .9)));
+  const best = t => AG.map(a => a.id).sort((x, y) => fit(t, y) - fit(t, x))[0];
+  function reason(t, id, you){
+    const a = A[id], cost = money(t.min * a.rate), fr = freeTxt(id);
+    const tag = (ic, s) => `<span class="tag"><svg class="i${ic === 'check' ? ' okk' : ''}" aria-hidden="true"><use href="#i-${ic}"/></svg>${s}</span>`;
+    if (you) return `<span class="tag you">Moved by you</span><b>${a.name}</b>${tag('clock', fr[0].toUpperCase() + fr.slice(1))}${tag('coins', cost)}`;
+    const sk = t.why[id] || 'Best fit';
+    return `${mkHTML(a).replace('dl2a-mk', 'dl2a-mk sm')}<b>${a.name}</b>${tag('check', sk)}${tag('clock', fr[0].toUpperCase() + fr.slice(1))}${tag('coins', cost)}`;
+  }
+
+  /* ---- motion helpers ---- */
+  const R = REDUCE;
+  const anim = (el, kf, o) => R ? null : el.animate(kf, Object.assign({ easing:EASE(), fill:'none' }, o));
+  const fade = (el, on = true) => anim(el, [{ opacity:on ? 0 : 1 }, { opacity:on ? 1 : 0 }], { duration:R ? 0 : 220 });
+  // moves the elements of a list to their new places smoothly (FLIP)
+  function flip(els, change){ const was = new Map(els().map(e => [e, e.getBoundingClientRect()])); change();
+    if (R) return; els().forEach(e => { const a = was.get(e); if (!a) return; const b = e.getBoundingClientRect(), dx = a.left - b.left, dy = a.top - b.top;
+      if (Math.abs(dx) + Math.abs(dy) > .5) anim(e, [{ transform:`translate(${dx}px,${dy}px)` }, { transform:'none' }], { duration:MS('move') }); }); }
+  // a copy of a task that travels over the component, from a box to a box, along a route when it has one
+  function flight(from, toRect, el, p, land){
+    const ghost = el.cloneNode(true); ghost.className = el.className + ' dl2a-ghost abs'; ghost.removeAttribute('data-pop'); ghost.removeAttribute('data-id'); ghost.setAttribute('aria-hidden', 'true');
+    el.style.visibility = 'hidden';
+    const s0 = st.getBoundingClientRect(), f = from, fx = f.left + f.width / 2, fy = f.top + f.height / 2;
+    Object.assign(ghost.style, { left:(f.left - s0.left) + 'px', top:(f.top - s0.top) + 'px', width:f.width + 'px', height:f.height + 'px', transformOrigin:'50% 50%', visibility:'' });
+    st.appendChild(ghost);
+    const sx = toRect.width / f.width, sy = toRect.height / f.height, ex = toRect.left + toRect.width / 2 - fx, ey = toRect.top + toRect.height / 2 - fy;
+    const su = Math.min(1, sy), end = `translate(${ex}px,${ey}px) scale(${su.toFixed(3)})`;
+    let kf;
+    if (p && !narrow()){
+      // along the route to the agent's mark, shrinking to the agent's width on the way, then into its place in the queue
+      const L = p.getTotalLength(), b = body.getBoundingClientRect(), n = 16, k1 = Math.max(su, Math.min(1, sx));
+      kf = Array.from({ length:n + 1 }, (_, i) => { const k = i / n, q = p.getPointAtLength(L * k), sc = 1 + (k1 - 1) * Math.min(1, k * 1.4);
+        return { offset:+(k * .8).toFixed(3), transform:`translate(${b.left + q.x - fx}px,${b.top + q.y - fy}px) scale(${sc.toFixed(3)})` }; });
+      kf.push({ offset:1, transform:end, opacity:0 }); kf[kf.length - 2].opacity = 1;
+    } else kf = [{ transform:'none', opacity:1 }, { transform:end, opacity:1, offset:.85 }, { transform:end, opacity:0 }];
+    if (R){ ghost.remove(); if (land) land(); return Promise.resolve(); }
+    const dur = MS('fly') * (p ? 1.25 : .8); if (land) setTimeout(land, dur * .84);
+    const a = ghost.animate(kf, { duration:dur, easing:p ? 'cubic-bezier(.4,0,.2,1)' : EASE(), fill:'forwards' });
+    return a.finished.then(() => ghost.remove(), () => ghost.remove());
+  }
+  const wait = ms => c.wait(ms);
+
+  /* ---- the engine: the component's own routing, which carries on after the visitor takes over ---- */
+  async function lift(){
+    const t = waiting[0], chip = $(`.dl2a-t[data-id="${t.id}"]`, inEl), from = chip ? chip.getBoundingClientRect() : null;
+    cur = t; t.win = null;
+    flip(() => $$('.dl2a-t', inEl), () => { waiting.shift(); drawIn(); });
+    const card = taskEl(t, 'dl2a-cur'); card.querySelector('.tx').outerHTML = `<span class="w"><span class="tx">${t.t}</span><small><span class="shim">Matching</span> · ${t.min} min of work</small></span>`;
+    slot.innerHTML = ''; slot.appendChild(card); why.innerHTML = '';
+    if (from && !R){ const to = card.getBoundingClientRect();
+      anim(card, [{ transform:`translate(${from.left - to.left}px,${from.top - to.top}px) scale(${from.width / to.width},${from.height / to.height})`, transformOrigin:'0 0' }, { transform:'none', transformOrigin:'0 0' }], { duration:MS('lift') }); }
+    lines();
+  }
+  async function scan(t){
+    phase = 'scan'; root.classList.add('scan');
+    const sc = AG.map(a => ({ id:a.id, v:fit(t, a.id) }));
+    for (const [i, s] of sc.entries()){ const el = $('.dl2a-sc', dock(s.id)); el.textContent = s.v + '% fit';
+      c.later(R ? 0 : 140 + i * 90, () => { if (cur === t) el.classList.add('show'); }); }
+    await wait(780);
+  }
+  function pickShow(t, win){
+    t.win = win; root.classList.remove('scan'); mark(win);
+    const cc = $('.dl2a-cur', slot); if (cc){ cc.style.setProperty('--ag', `var(--dm-av-${A[win].av})`); cc.style.setProperty('--ag-ink', `var(--dm-av-${A[win].av}-ink)`); cc.classList.add('pk'); }
+    const small = $('.dl2a-cur small', slot); if (small) small.innerHTML = `Best fit: ${A[win].name} · ${t.min} min of work`;
+    why.innerHTML = reason(t, win); if (!R) $$('*', why).filter(e => e.parentElement === why).forEach((e, i) => anim(e, [{ opacity:0, transform:'translateY(4px)' }, { opacity:1, transform:'none' }], { duration:320, delay:i * 50, fill:'backwards' }));
+  }
+  // the task goes to an agent's queue: it travels there, and the switchboard takes the next
+  async function send(t, id, you, dropped){
+    if (cur !== t) return;
+    phase = 'fly'; sendB.hidden = true;
+    const card = $('.dl2a-cur', slot), from = card ? card.getBoundingClientRect() : null;
+    if (you){ t.you = true; byYou++; why.innerHTML = reason(t, id, true); mark(id); if (card){ card.style.setProperty('--ag', `var(--dm-av-${A[id].av})`); card.style.setProperty('--ag-ink', `var(--dm-av-${A[id].av}-ink)`); card.classList.add('pk'); } }
+    Q[id].push(t); routed++; drawSum();
+    const visible = Q[id].indexOf(t) < MAXQ();
+    drawDock(id);
+    const it = $(`.dl2a-qi[data-id="${t.id}"]`, dock(id));
+    if (it) it.style.visibility = 'hidden';
+    const to = (it || $('.dl2a-mk', dock(id))).getBoundingClientRect();
+    say(`${t.t} sent to ${A[id].name}${you ? ', moved by you' : ''}`);
+    const show = () => { if (it && it.style.visibility){ it.style.visibility = ''; anim(it, dropped ? [{ opacity:0, transform:'translateY(-4px)' }, { opacity:1, transform:'none' }] : [{ opacity:0 }, { opacity:1 }], { duration:dropped ? 260 : 140 }); } };
+    if (from && card && !dropped) await flight(from, visible && it ? to : $('.dl2a-mk', dock(id)).getBoundingClientRect(), card, you ? null : path(id), show);
+    show();
+    cur = null; phase = 'idle'; unmark(); slot.innerHTML = ''; why.innerHTML = ''; drawIn();
+    if (!waiting.length) idle();
+    await wait(R ? 0 : 260);
+    busy = false; pump();
+  }
+  async function pump(){
+    if (busy || cur || !waiting.length) { if (!cur && !waiting.length && !busy) idle(); return; }
+    busy = true; const t = waiting[0];
+    await lift(); await scan(t);
+    if (cur !== t) return;
+    const win = best(t); pickShow(t, win);
+    if (auto.getAttribute('aria-checked') === 'true'){ phase = 'pick'; await wait(860); if (cur !== t) return;
+      if (auto.getAttribute('aria-checked') === 'true') return send(t, win);
+    }
+    // Route for me is off: the pick waits for you
+    phase = 'wait'; sendB.textContent = `Send to ${A[win].name}`; sendB.hidden = false; if (!R) fade(sendB);
+    busy = false;
+  }
+  function add(t){ waiting.push(t); drawIn(); const e = $(`.dl2a-t[data-id="${t.id}"]`, inEl);
+    if (e && !R) anim(e, [{ opacity:0, transform:'translateX(24px)' }, { opacity:1, transform:'none' }], { duration:MS('lift') });
+    if (!cur) pump(); }
+  // move a task to an agent, from the switchboard, from what is waiting, or from another agent's queue
+  function assign(id, to, you = true, dropped = false){
+    if (cur && cur.id === id){ busy = true; return send(cur, to, you, dropped); }
+    const wi = waiting.findIndex(t => t.id === id);
+    if (wi >= 0){ const [t] = waiting.splice(wi, 1); t.you = you; if (you) byYou++; routed++; Q[to].push(t); drawIn(); drawDock(to); drawSum(); say(`${t.t} sent to ${A[to].name}`); return; }
+    for (const a of AG){ const i = Q[a.id].findIndex(t => t.id === id); if (i > 0){ if (a.id === to) return; const [t] = Q[a.id].splice(i, 1); t.you = true; Q[to].push(t);
+      flip(() => $$('.dl2a-qi', docksEl), () => { drawDock(a.id); drawDock(to); }); say(`${t.t} moved to ${A[to].name}`); return; } }
+  }
+
+  /* ---- the agents at work: the running task fills, finishes with a tick, and the next one starts ---- */
+  const MIN = 900; // one minute of work passes in 0.9s here
+  c.every(150, () => {
+    AG.forEach(a => { const q = Q[a.id]; if (!q.length) return; const t = q[0]; if (t.doneAt) return;
+      t.p = Math.min(1, t.p + 150 / (t.min * MIN)); spent += a.rate * 150 / MIN * 1;
+      const e = $(`.dl2a-qi[data-id="${t.id}"]`, dock(a.id)); if (e) e.style.setProperty('--p', t.p.toFixed(3));
+      if (t.p >= 1){ t.doneAt = 1;
+        if (e){ e.classList.remove('run'); e.classList.add('done'); e.insertAdjacentHTML('beforeend', '<svg class="i s ok" aria-hidden="true"><use href="#i-check"/></svg>'); }
+        c.later(R ? 0 : 700, () => { flip(() => $$('.dl2a-qi', docksEl), () => { const k = q.indexOf(t); if (k >= 0) q.splice(k, 1); const x = $(`.dl2a-qi[data-id="${t.id}"]`, dock(a.id)); if (x) x.remove(); drawDock(a.id); }); });
+      } });
+    usdEl.textContent = money(spent);
+    AG.forEach(a => { const s = $('.dl2a-st', dock(a.id)); const span = s && s.lastElementChild; if (span && Q[a.id].length) span.textContent = '· ' + freeTxt(a.id); });
+  });
+
+  /* ---- the visitor: drag a task onto an agent, or press it for a menu ---- */
+  let drag = null, eatClick = false;
+  const dockAt = (x, y) => $$('.dl2a-dk', docksEl).find(d => { const r = d.getBoundingClientRect(); return x >= r.left - 8 && x <= r.right + 8 && y >= r.top - 8 && y <= r.bottom + 8; });
+  c.on(root, 'pointerdown', e => {
+    const el = e.target.closest('.dl2a-t'); if (!el || el.classList.contains('run') || el.classList.contains('done') || e.button) return;
+    drag = { el, id:el.dataset.id, x:e.clientX, y:e.clientY, on:false, pid:e.pointerId };
+  });
+  c.on(window, 'pointermove', e => {
+    if (!drag || e.pointerId !== drag.pid) return;
+    if (!drag.on){ if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 5) return;
+      drag.on = true; const r = drag.el.getBoundingClientRect(); drag.dx = drag.x - r.left; drag.dy = drag.y - r.top;
+      const g = drag.el.cloneNode(true); g.className = drag.el.className + ' dl2a-ghost'; g.style.width = r.width + 'px'; g.style.height = r.height + 'px'; g.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(g); drag.g = g; drag.el.classList.add('lift'); try { drag.el.setPointerCapture(drag.pid); } catch(x){} }
+    drag.g.style.transform = `translate(${e.clientX - drag.dx}px,${e.clientY - drag.dy}px) rotate(-1.5deg)`;
+    const d = dockAt(e.clientX, e.clientY); $$('.dl2a-dk', docksEl).forEach(x => x.classList.toggle('over', x === d));
+  });
+  const endDrag = e => {
+    if (!drag || (e && e.pointerId !== drag.pid)) return; const dr = drag; drag = null;
+    if (!dr.on) return;
+    eatClick = true; setTimeout(() => { eatClick = false; }, 0);
+    const d = e && dockAt(e.clientX, e.clientY); $$('.dl2a-dk', docksEl).forEach(x => x.classList.remove('over'));
+    dr.el.classList.remove('lift'); dr.g.remove();
+    if (d) assign(dr.id, d.dataset.a, true, true);
+  };
+  c.on(window, 'pointerup', endDrag); c.on(window, 'pointercancel', endDrag);
+  c.on(root, 'click', e => { if (eatClick){ e.stopPropagation(); e.preventDefault(); } }, true);
+  c.offs.push(() => { if (drag && drag.g) drag.g.remove(); });
+  // the menu: every agent, with its fit, wait and cost for this task
+  let menuFor = null;
+  c.on(root, 'click', e => { const el = e.target.closest('.dl2a-t[data-pop]'); if (!el) return; menuFor = el.dataset.id;
+    const t = cur && cur.id === menuFor ? cur : waiting.find(x => x.id === menuFor) || AG.flatMap(a => Q[a.id]).find(x => x.id === menuFor);
+    const home = AG.find(a => Q[a.id].some(x => x.id === menuFor));
+    menu.innerHTML = '<div class="ph">Send to</div>' + AG.map(a => `<button class="mi" role="menuitem" type="button" data-close data-a="${a.id}"${home && home.id === a.id ? ' aria-disabled="true"' : ''}>${mkHTML(a)}<span>${a.name}<span class="d">${t && t.sk && t.sk[a.id] != null ? fit(t, a.id) + '% fit · ' : ''}${freeTxt(a.id)[0].toUpperCase() + freeTxt(a.id).slice(1)}</span></span><span class="r">${t ? money(t.min * a.rate) : ''}</span></button>`).join('');
+  });
+  c.on(menu, 'click', e => { const mi = e.target.closest('.mi'); if (!mi || mi.getAttribute('aria-disabled') === 'true' || !menuFor) return; const id = menuFor; menuFor = null; assign(id, mi.dataset.a); });
+  // Route for me on and off; with it off, the pick waits for Send
+  const setAuto = on => { auto.setAttribute('aria-checked', on); if (on && cur && phase === 'wait'){ busy = true; send(cur, cur.win); } else if (on) pump(); };
+  c.on(auto, 'click', () => setAuto(auto.getAttribute('aria-checked') !== 'true'));
+  c.on(sendB, 'click', () => { if (cur && phase === 'wait'){ busy = true; send(cur, cur.win); } });
+  const ro = new ResizeObserver(() => { lines(); }); ro.observe(body); c.offs.push(() => ro.disconnect());
+  c.on(window, 'dl2a-restyle', () => requestAnimationFrame(lines));
+  // a running item can't be dragged or sent on; it says so instead of doing nothing
+  c.on(root, 'click', e => { const el = e.target.closest('.dl2a-qi.run'); if (el) say(`${el.textContent.trim()} is running`); });
+
+  drawAll(); drawIn(); drawSum(); idle(); usdEl.textContent = money(spent);
+  requestAnimationFrame(() => requestAnimationFrame(lines));
+
+  /* ---- the demo: work arrives; Route for me sends the first two; you turn it off, overrule a pick by dragging, approve one,
+     and turn it back on. It loops; a click, drag or key inside stops it for good, until Replay ---- */
+  const stage = c.st; let hand = null;
+  const handTo = async (el, ms = 520, dx = .55, dy = .6) => {
+    if (!hand){ hand = html('<span class="hand" aria-hidden="true"><svg viewBox="0 0 18 18"><path d="M3 2l11.5 6.1-5 1.5-2.4 5z"/></svg></span>'); stage.appendChild(hand); }
+    const s = stage.getBoundingClientRect(), b = el.getBoundingClientRect(), x = b.left - s.left + b.width * dx, y = b.top - s.top + b.height * dy;
+    if (!hand.classList.contains('on')){ hand.style.transition = 'none'; hand.style.transform = `translate(${x + 30}px,${y + 36}px)`; void hand.offsetWidth; hand.classList.add('on'); }
+    hand.style.transition = R ? 'none' : `transform ${ms}ms ${EASE()},opacity .16s`; hand.style.transform = `translate(${x}px,${y}px)`;
+    await c.step(R ? 0 : ms);
+  };
+  const press = async () => { hand.classList.remove('down'); void hand.offsetWidth; hand.classList.add('down'); await c.step(180); c.later(300, () => hand && hand.classList.remove('down')); };
+  const away = () => { if (hand) hand.classList.remove('on', 'down'); };
+  c.taken(() => { away(); });
+  // the demo's drag: the hand takes the card and carries it to an agent
+  async function demoDrag(el, toDock){
+    await handTo(el, 560, .5, .55); hand.classList.add('down'); await c.step(220);
+    const r = el.getBoundingClientRect(), d = $('.dl2a-q', toDock).getBoundingClientRect(), mk = $('.dl2a-mk', toDock).getBoundingClientRect();
+    const tx = (narrow() ? mk.left + 40 : d.left) - r.left, ty = (narrow() ? mk.top : d.top + d.height) - r.top;
+    const s = stage.getBoundingClientRect(), g = el.cloneNode(true); g.className = el.className + ' dl2a-ghost abs'; g.removeAttribute('data-id'); g.setAttribute('aria-hidden', 'true');
+    Object.assign(g.style, { left:(r.left - s.left) + 'px', top:(r.top - s.top) + 'px', width:r.width + 'px', height:r.height + 'px' });
+    stage.appendChild(g); el.classList.add('lift'); c.taken(() => { g.remove(); el.classList.remove('lift'); toDock.classList.remove('over'); });
+    const ms = R ? 0 : 900;
+    if (!R) g.animate([{ transform:'none' }, { transform:'translate(0,-6px) rotate(-1.5deg)', offset:.15 }, { transform:`translate(${tx}px,${ty}px) rotate(-1.5deg)` }], { duration:ms, easing:'cubic-bezier(.45,.05,.3,1)', fill:'forwards' });
+    hand.style.transition = `transform ${ms}ms cubic-bezier(.45,.05,.3,1)`; const hb = hand.style.transform.match(/-?[\d.]+/g).map(Number);
+    hand.style.transform = `translate(${hb[0] + tx}px,${hb[1] + ty}px)`;
+    c.later(ms * .6, () => toDock.classList.add('over'));
+    await c.step(ms + 120);
+    toDock.classList.remove('over'); g.remove(); el.classList.remove('lift'); hand.classList.remove('down');
+    assign(el.dataset.id, toDock.dataset.a, true, true);
+  }
+  const until = async f => { while (!f()) await c.step(100); };
+  c.run(async () => {
+    await c.step(240);
+    for (const [i, t] of INCOMING.entries()){ add(t); await c.step(R ? 0 : 220); }
+    // two routed on their own
+    await until(() => routed >= 2);
+    // you turn Route for me off, so the next pick waits for you
+    await handTo($('.dl2a-auto', root), 700, .2, .5); await press(); setAuto(false); await c.step(500); away();
+    await until(() => phase === 'wait');
+    await c.step(1400);
+    // the pick is Coder, who is busy for a while: you send it to Researcher instead
+    await demoDrag($('.dl2a-cur', slot), dock('res')); away();
+    await until(() => phase === 'wait'); await c.step(1300);
+    // the next pick is right: Send
+    await handTo(sendB, 600); await press(); sendB.click(); await c.step(400);
+    // and Route for me back on for the rest
+    await handTo($('.dl2a-auto', root), 700, .2, .5); await press(); setAuto(true); await c.step(400); away();
+    await until(() => !cur && !waiting.length); await c.step(3200);
+    if (R) return;
+    const out = st.animate([{ opacity:1 }, { opacity:0 }], { duration:320, easing:'ease-out', fill:'forwards' });
+    await out.finished; if (c.mine || c.dead) { out.cancel(); return; }
+    DM.mount(card, true); st.animate([{ opacity:0 }, { opacity:1 }], { duration:320, easing:'ease-out' }); out.cancel();
+  });
+});
+</script>
+</body>
+</html>

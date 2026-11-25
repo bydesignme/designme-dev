@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="en" data-style="soft">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Hand-off 1B: the next hour · Designme.dev</title>
+<script>
+/* style and theme: ?style=bp|soft|clean&theme=light|dark wins and is stored, then what the site stored, then the device:
+   light opens in Soft, dark in Blueprint */
+(function(){ var d = document.documentElement, q = new URLSearchParams(location.search), s = q.get('style'), t = q.get('theme');
+  try { if (s) localStorage.setItem('dmui-style', s); if (t) localStorage.setItem('dmui-theme', t); } catch(e){}
+  try { s = s || localStorage.getItem('dmui-style'); t = t || localStorage.getItem('dmui-theme'); } catch(e){}
+  if (t !== 'dark' && t !== 'light') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  if (s === 'mine') s = 'soft';
+  if (s !== 'soft' && s !== 'clean' && s !== 'bp') s = t === 'dark' ? 'bp' : 'soft';
+  d.setAttribute('data-style', s); d.setAttribute('data-theme', t); })();
+</script>
+<style>
+@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(../../fonts/inter-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(../../fonts/inter-latin-500-normal.woff2) format('woff2')}
+</style>
+<link rel="stylesheet" href="assets/core.css">
+<style>
+/* ---------- tokens: the short names the site's source uses, pointed at the core's --dm-* ---------- */
+:root{
+  --page:var(--dm-page); --stage:var(--dm-stage); --surface:var(--dm-surface); --raised:var(--dm-raised); --strip:var(--dm-strip,var(--dm-wash));
+  --fg:var(--dm-fg); --fg2:var(--dm-fg2); --muted:var(--dm-muted); --faint:var(--dm-faint); --rail:var(--dm-rail); --line:var(--dm-line); --line-strong:var(--dm-line-strong);
+  --chip:var(--dm-chip); --hover:var(--dm-hover); --row:var(--dm-row); --row-on:var(--dm-row-on,var(--dm-hover)); --grid:var(--dm-grid);
+  --accent:var(--dm-accent); --accent-fg:var(--dm-accent-fg); --accent-mark:var(--dm-accent-mark);
+  --ok:var(--dm-ok); --ok-mark:var(--dm-ok-mark); --warn:var(--dm-warn); --warn-bg:var(--dm-warn-bg); --warn-mark:var(--dm-warn-mark);
+  --rk:var(--dm-rk); --r-card:var(--dm-r-card); --r-pill:var(--dm-r-pill);
+  --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:20px; --s-6:24px; --s-8:32px;
+  --sans:var(--dm-sans); --ease:var(--dm-ease); --t-fast:var(--dm-t-fast); --t:var(--dm-t); --t-slow:var(--dm-t-slow);
+  --shadow:var(--dm-shadow); --shadow-pop:var(--dm-shadow-pop);
+  --hair:color-mix(in srgb,var(--dm-line) 50%,transparent);
+}
+:root[data-style="clean"]{--hair:var(--dm-hair)}
+
+/* ---------- the page ---------- */
+html,body{margin:0;background:var(--page)}
+body{font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-webkit-font-smoothing:antialiased}
+:where(.lab) button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+:where(.lab) :focus-visible{outline:2px solid var(--line-strong);outline-offset:2px}
+.sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.lab{max-width:1040px;margin:0 auto;padding:var(--s-8) var(--s-6) 72px}
+.lab-h{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:var(--s-4) var(--s-6);padding-bottom:var(--s-5)}
+.lab-h h1{margin:0;font-size:14px;font-weight:500;line-height:1.4}
+.lab-h h1 span{color:var(--muted);font-weight:400}
+.lab-h p{margin:var(--s-1) 0 0;max-width:560px;font-size:13px;line-height:1.55;color:var(--muted);text-wrap:pretty}
+.lab-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-2)}
+.lab-ctl .seg2 button{color:var(--muted)}
+.lab-ctl .seg2 button[aria-pressed="true"]{color:var(--fg)}
+.lab-rp{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:var(--r-pill);background:var(--chip);font-size:12.5px;color:var(--fg);transition:background var(--t-fast)}
+.lab-rp:hover{background:var(--hover)}
+.lab-rp .i{color:var(--fg2)}
+/* the stage: the component sits centred in it at every height */
+.lab-st{display:flex;align-items:center;justify-content:center;min-height:720px;padding:var(--s-8) var(--s-6);border-radius:var(--r-card);background:var(--stage);box-shadow:inset 0 0 0 1px var(--hair)}
+.lab-st>.card{width:100%;display:flex;justify-content:center}
+.lab-st .stage-in{max-width:760px}
+:root[data-style="bp"] .lab-st{border-radius:0;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px;background-position:-1px -1px}
+:root[data-style="bp"] :is(.lab-rp,.lab-ctl .seg2,.lab-ctl .seg2 *){border-radius:0}
+.lab-note{margin:var(--s-3) 0 0;font-size:12.5px;color:var(--muted)}
+@media (max-width:640px){.lab{padding:var(--s-6) var(--s-3) 56px}.lab-st{padding:var(--s-4) var(--s-2);min-height:640px}}
+@media (prefers-reduced-motion:reduce){.lab *,.lab *::before,.lab *::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
+
+/* ======================================================================================================================
+   1B · The next hour
+   Every agent's queue laid along one shared hour. Waiting tasks sit above it; carry one onto a lane and, before you let go,
+   it slots in where you point, what follows slides along, and the lane's free time, the spend and the dashed line where
+   everything is done move with it. Even out moves queued work between lanes to pull that line in.
+   ====================================================================================================================== */
+.dl1b{--lh:52px;--lg:6px;--wa:164px;--we:64px;--gx:12px;width:100%;display:flex;flex-direction:column;padding:var(--s-4);font-size:13px;line-height:1.45;color:var(--fg)}
+.dl1b>.dm-grow{display:flex;flex-direction:column}
+.dl1b .num{font-variant-numeric:tabular-nums}
+
+.dl1b-h{display:flex;align-items:center;gap:var(--s-2);min-height:28px;padding-bottom:var(--s-4);border-bottom:1px solid var(--hair)}
+.dl1b-h>.i{color:var(--fg2)}
+.dl1b-tx{display:flex;align-items:baseline;gap:var(--s-2);min-width:0;margin-right:auto}
+.dl1b-tt{font-size:14px;font-weight:500;white-space:nowrap}
+.dl1b-now{font-size:12.5px;color:var(--muted);white-space:nowrap}
+.dl1b-auto{display:inline-flex;align-items:center;gap:var(--s-2);height:28px;font-size:13px;color:var(--fg2);white-space:nowrap}
+.dl1b-auto[aria-checked="true"]{color:var(--fg)}
+.dl1b-auto:focus-visible{border-radius:calc(8px * var(--dm-rk-s,var(--rk)))}
+.dl1b-b{display:flex;flex-direction:column;gap:var(--s-4);padding-top:var(--s-4)}
+
+/* waiting: the tasks nobody has yet, as chips you carry onto a lane */
+.dl1b-wl{display:flex;align-items:center;gap:var(--s-2);min-height:20px;font-size:12.5px;color:var(--fg2)}
+.dl1b-wl b{font-weight:500;color:var(--fg)}
+.dl1b-wl .say{margin-left:auto;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dl1b-w{display:flex;flex-wrap:wrap;gap:var(--s-2);margin-top:var(--s-2);min-height:20px;border-radius:calc(10px * var(--dm-rk-m,var(--rk)));transition:background var(--t-fast)}
+.dl1b-w.over{background:var(--row)}
+.dl1b-none{display:flex;align-items:center;gap:var(--s-2);min-height:20px;font-size:12.5px;color:var(--muted)}
+.dl1b-none .i{color:var(--ok-mark)}
+.dl1b-c{display:inline-flex;align-items:center;gap:var(--s-2);height:32px;max-width:100%;padding:0 var(--s-3) 0 10px;border-radius:calc(10px * var(--dm-rk-m,var(--rk)));background:var(--raised);box-shadow:var(--shadow);font-size:13px;color:var(--fg);white-space:nowrap;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;transition:box-shadow var(--t-fast),opacity var(--t-fast)}
+@media (hover:hover) and (pointer:fine){.dl1b-c:hover{box-shadow:var(--shadow-pop)}}
+.dl1b-c .i{color:var(--fg2)}
+.dl1b-c .t{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.dl1b-c .e{color:var(--muted);font-size:12px}
+.dl1b-c.drag{opacity:.35}
+.dl1b-c.lift{box-shadow:var(--shadow-pop),0 0 0 2px var(--line-strong)}
+.dl1b-gh{position:absolute;left:0;top:0;z-index:40;pointer-events:none;margin:0;box-shadow:var(--shadow-pop);transition:opacity var(--t-fast)}
+.dl1b-gh.on{opacity:0}
+
+/* the hour: an axis, one lane per agent, and the blocks laid over the lanes */
+.dl1b-tl{position:relative;display:grid;grid-template-columns:var(--wa) minmax(0,1fr) var(--we);column-gap:var(--gx);row-gap:var(--lg)}
+.dl1b-ax{grid-column:2;position:relative;height:24px;font-size:11.5px;color:var(--muted)}
+.dl1b-ax span{position:absolute;top:0;line-height:16px;transform:translateX(-50%);white-space:nowrap}
+.dl1b-ax span:first-child{transform:none}.dl1b-ax span:last-child{transform:translateX(-100%)}
+.dl1b-axe{grid-column:3;height:24px;font-size:11.5px;line-height:16px;color:var(--muted);text-align:right}
+.dl1b-ag{grid-column:1;display:flex;align-items:center;gap:var(--s-2);min-width:0;height:var(--lh)}
+.dl1b-mk{position:relative;flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:calc(10px * var(--dm-rk-m,var(--rk)));background:var(--c);color:var(--onc)}
+.dl1b-mk::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 0 1.5px var(--c);opacity:0;pointer-events:none}
+.dl1b-ag[data-s="work"] .dl1b-mk::after{animation:dl1bbreath 2.4s var(--ease) infinite}
+@keyframes dl1bbreath{0%{opacity:.55;transform:scale(1)}70%,100%{opacity:0;transform:scale(1.35)}}
+.dl1b-an{display:flex;flex-direction:column;min-width:0;margin-right:auto;line-height:1.3}
+.dl1b-an b{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dl1b-an span{font-size:12px;color:var(--muted);white-space:nowrap}
+.dl1b-ag[data-s="paused"] .dl1b-an span{color:var(--warn)}
+.dl1b-ag .ib{width:24px;height:24px;color:var(--muted)}
+@media (hover:hover) and (pointer:fine){.dl1b-ag .ib:hover{color:var(--fg)}}
+.dl1b-tr{grid-column:2;height:var(--lh);border-radius:calc(10px * var(--dm-rk-m,var(--rk)));background:color-mix(in srgb,var(--fg) 3%,transparent);transition:background var(--t-fast)}
+.dl1b-tr.over{background:color-mix(in srgb,var(--fg) 6%,transparent)}
+.dl1b-en{grid-column:3;display:flex;flex-direction:column;justify-content:center;align-items:flex-end;height:var(--lh);line-height:1.3;white-space:nowrap}
+.dl1b-en b{font-size:12.5px;font-weight:500}
+.dl1b-en span{font-size:12px;color:var(--muted)}
+
+/* the overlay over the lanes: the quarter lines, the past, the blocks, now, and the line where everything is done */
+.dl1b-ov{position:absolute;top:calc(24px + var(--lg));bottom:0;left:calc(var(--wa) + var(--gx));right:calc(var(--we) + var(--gx));pointer-events:none}
+.dl1b-q4{position:absolute;inset:0;background:linear-gradient(90deg,var(--hair) 1px,transparent 1px) 25% 0/25% 100% repeat-x}
+.dl1b-past{position:absolute;left:0;top:0;bottom:0;width:calc(var(--now) / 60 * 100%);border-radius:calc(10px * var(--dm-rk-m,var(--rk))) 0 0 calc(10px * var(--dm-rk-m,var(--rk)));background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--fg) 4%,transparent) 0 1px,transparent 1px 7px);transition:width .1s linear}
+.dl1b-nowl{position:absolute;top:-28px;bottom:0;left:calc(var(--now) / 60 * 100%);width:0;z-index:0;transition:left .1s linear}
+.dl1b-nowl::before{content:"";position:absolute;top:22px;bottom:0;left:-.75px;width:1.5px;background:var(--fg)}
+.dl1b-nowl span{z-index:3;position:absolute;top:0;left:0;transform:translateX(-50%);height:18px;padding:0 6px;border-radius:var(--r-pill);background:var(--fg);color:var(--surface);font-size:11px;font-weight:500;line-height:18px;white-space:nowrap}
+.dl1b-fin{position:absolute;top:-30px;bottom:-6px;left:calc(min(var(--end), 60) / 60 * 100%);width:0;z-index:2;transition:left .7s cubic-bezier(.34,1.25,.5,1),opacity var(--t-fast)}
+.dl1b-fin::before{content:"";position:absolute;top:24px;bottom:0;left:-1px;width:0;border-left:2px dashed var(--fg)}
+.dl1b-fl{position:absolute;top:0;right:-1px;display:flex;align-items:center;gap:var(--s-1);white-space:nowrap}
+.dl1b-fin .lb{display:inline-flex;align-items:center;height:22px;padding:0 var(--s-2);border-radius:var(--r-pill);background:var(--fg);color:var(--surface);font-size:12px;font-weight:500;white-space:nowrap}
+.dl1b-fin .dt{height:22px;padding:0 var(--s-2);font-size:12px;opacity:0;transform:translateX(6px);transition:opacity var(--t-fast),transform var(--t) var(--ease)}
+.dl1b-fin .dt.on{opacity:1;transform:none}
+.dl1b-nowl span{background:var(--surface)!important;color:var(--fg)!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line-strong) 50%,transparent)}
+.dl1b-fin.left .dl1b-fl{right:auto;left:1px}
+.dl1b-fin[hidden]{display:block!important;opacity:0}
+
+/* a block: a task on a lane, as long as it takes this agent, in the agent's colour */
+.dl1b-bl{position:absolute;inset:0;z-index:1}
+.dl1b-k{position:absolute;top:calc(var(--l) * (var(--lh) + var(--lg)) + 6px);left:calc(var(--s) / 60 * 100% + 1px);width:max(6px,calc(var(--d) / 60 * 100% - 2px));height:calc(var(--lh) - 12px);display:flex;align-items:center;gap:6px;padding:0 var(--s-2);border-radius:calc(9px * var(--dm-rk-m,var(--rk)));background:var(--c);color:var(--onc);font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;pointer-events:auto;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;
+  transition:left .6s var(--ease),top .6s cubic-bezier(.3,.7,.2,1),width .6s var(--ease),opacity var(--t-fast),background var(--t-fast),color var(--t-fast)}
+.dl1b-k .t{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.dl1b-k.tiny{padding:0;justify-content:center}.dl1b-k.tiny .t{display:none}
+.dl1b-k:focus-visible{outline-offset:1px}
+.dl1b-k[data-s="run"]{cursor:default;transition:left .1s linear,top .6s cubic-bezier(.3,.7,.2,1),width .1s linear,background var(--t-fast)}
+.dl1b-k[data-s="run"]::after{content:"";position:absolute;left:0;bottom:0;height:4px;width:calc(var(--p,0) * 100%);background:color-mix(in srgb,var(--onc) 55%,var(--c));transition:width .1s linear}
+.dl1b-k[data-s="done"]{cursor:default;background:var(--chip);color:var(--muted);font-weight:400}
+.dl1b-k .ok{display:none;flex:none;color:var(--ok-mark)}
+.dl1b-k[data-s="done"] .ok{display:block}
+.dl1b-k.drag{opacity:0}
+.dl1b-k.lift{outline:2px solid var(--line-strong);outline-offset:1px}
+.dl1b-k.fly{z-index:4;transition-duration:.75s,.75s,.75s,.2s,.2s,.2s}
+/* where a carried task would land: dashed, in the colour of the lane it is over */
+.dl1b-k.pv{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--c) 30%,var(--surface)) 0 2px,color-mix(in srgb,var(--c) 14%,var(--surface)) 2px 7px);box-shadow:inset 0 0 0 2px var(--c);color:var(--fg);cursor:default;pointer-events:none}
+.dl1b-k.pv.new{transition:opacity var(--t-fast)}
+
+.dl1b-f{display:flex;align-items:center;gap:var(--s-3);min-height:28px;margin-top:var(--s-4);padding-top:var(--s-4);border-top:1px solid var(--hair);font-size:12.5px;color:var(--fg2)}
+.dl1b-f .sum{display:flex;align-items:baseline;gap:var(--s-2);min-width:0;margin-right:auto;white-space:nowrap;overflow:hidden}
+.dl1b-f b{font-weight:500;color:var(--fg)}
+.dl1b-f .pill{flex:none}
+
+/* ---------- Blueprint ---------- */
+:root[data-style="bp"] .dl1b-tr{background:transparent;box-shadow:inset 0 0 0 1px var(--hair)}
+:root[data-style="bp"] .dl1b-tr.over{background:var(--row)}
+:root[data-style="bp"] .dl1b-q4{background:repeating-linear-gradient(var(--hair) 0 3px,transparent 3px 6px) 25% 0/1px 100% no-repeat,repeating-linear-gradient(var(--hair) 0 3px,transparent 3px 6px) 50% 0/1px 100% no-repeat,repeating-linear-gradient(var(--hair) 0 3px,transparent 3px 6px) 75% 0/1px 100% no-repeat}
+:root[data-style="bp"] .dl1b-mk{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 60%,#000)}
+:root[data-style="bp"] .dl1b-ag[data-s="work"] .dl1b-mk::after{animation:dl1bbp 1.1s steps(1,end) infinite;transform:none}
+@keyframes dl1bbp{0%,55%{opacity:.9}56%,100%{opacity:0}}
+:root[data-style="bp"] .dl1b-k{box-shadow:inset 3px 0 0 color-mix(in srgb,var(--c) 60%,#000)}
+:root[data-style="bp"] .dl1b-k[data-s="run"]::after{background:repeating-linear-gradient(135deg,var(--onc) 0 2px,transparent 2px 5px)}
+:root[data-style="bp"] .dl1b-k[data-s="done"]{box-shadow:inset 2px 0 0 var(--line-strong)}
+:root[data-style="bp"] .dl1b-k.pv{box-shadow:none;outline:1px dashed var(--c);outline-offset:-1px}
+:root[data-style="bp"] .dl1b-nowl span{box-shadow:inset 0 0 0 1px var(--accent-mark)}
+:root[data-style="bp"] .dl1b-nowl::before{background:var(--accent-mark)}
+:root[data-style="bp"] .dl1b-tt{font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+
+/* ---------- Clean ---------- */
+:root[data-style="clean"] .dl1b{padding:0}
+:root[data-style="clean"] .dl1b-h{padding:var(--dm-strip-y) var(--s-4);background:var(--strip);border-bottom:1px solid var(--hair);border-radius:var(--r-card) var(--r-card) 0 0}
+:root[data-style="clean"] .dl1b-b{padding:var(--s-4)}
+:root[data-style="clean"] .dl1b-f{margin-top:0;padding:var(--dm-strip-y) var(--s-4);background:var(--strip);border-top:1px solid var(--hair);border-radius:0 0 var(--r-card) var(--r-card)}
+:root[data-style="clean"] .dl1b-c{border-radius:var(--r-pill);box-shadow:0 0 0 1px var(--hair),0 1px 2px rgba(0,0,0,.04)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dl1b-c:hover{box-shadow:0 0 0 1px var(--hair),0 4px 12px -6px rgba(0,0,0,.16)}}
+:root[data-style="clean"] .dl1b-gh{box-shadow:var(--shadow-pop)}
+:root[data-style="clean"] .dl1b-k{transition-timing-function:cubic-bezier(.23,1,.32,1)}
+
+/* ---------- narrow: the lane's mark alone, the free time alone ---------- */
+@container (max-width:600px){
+  .dl1b{--wa:56px;--we:40px;--gx:8px;--lh:40px}
+  .dl1b-an{display:none}
+  .dl1b-ag{gap:4px}
+  .dl1b-en span{display:none}
+  .dl1b-ax span:nth-child(2n){display:none}
+  .dl1b-axe{visibility:hidden}
+  .dl1b-c{max-width:calc(50% - 4px)}
+  .dl1b-c .e{display:none}
+}
+@container (max-width:380px){
+  .dl1b-now{display:none}
+  .dl1b-f .sum .ex{display:none}
+}
+@media (prefers-reduced-motion:reduce){.dl1b-mk::after{animation:none!important}.dl1b-k,.dl1b-fin{transition:opacity var(--t-fast)!important}}
+</style>
+</head>
+<body>
+<main class="lab">
+  <header class="lab-h">
+    <div>
+      <h1>Hand off to agents <span>· 1B, the next hour</span></h1>
+      <p>Every agent's queue on one shared hour, so you see who frees up when. Carry a waiting task onto a lane and it slots in where you point: what follows slides along, and the lane's free time, the spend and the line where everything is done move before you let go.</p>
+    </div>
+    <div class="lab-ctl">
+      <div class="seg2" id="sw-style" role="group" aria-label="Style"><button type="button" data-v="bp" aria-pressed="false">Blueprint</button><button type="button" data-v="soft" aria-pressed="true">Soft</button><button type="button" data-v="clean" aria-pressed="false">Clean</button></div>
+      <div class="seg2" id="sw-theme" role="group" aria-label="Theme"><button type="button" data-v="light" aria-pressed="true">Light</button><button type="button" data-v="dark" aria-pressed="false">Dark</button></div>
+      <button type="button" class="lab-rp" id="replay"><svg class="i s" aria-hidden="true"><use href="#i-refresh"/></svg>Replay</button>
+    </div>
+  </header>
+
+  <div class="lab-st">
+    <div class="card" data-c="dl1b"><div class="stage-in"></div><template>
+      <div class="dl1b panel" role="region" aria-label="The next hour">
+        <div class="dl1b-h">
+          <svg class="i" aria-hidden="true"><use href="#i-clock"/></svg>
+          <span class="dl1b-tx"><span class="dl1b-tt">Next hour</span><span class="dl1b-now num">Now 14:00</span></span>
+          <button type="button" class="dl1b-auto" role="switch" aria-checked="false">Assign for me<span class="toggle" aria-hidden="true"></span></button>
+        </div>
+        <div class="dl1b-b">
+          <div>
+            <div class="dl1b-wl"><b>Waiting</b><span class="tag num dl1b-n">0</span><span class="say">Carry a task onto a lane</span></div>
+            <div class="dl1b-w" role="list" aria-label="Waiting"></div>
+          </div>
+          <div class="dl1b-tl"></div>
+        </div>
+        <div class="dl1b-f">
+          <span class="sum"><span><b class="num dl1b-cost">$0.00</b> projected</span><span class="ex">·</span><span class="ex"><b class="num dl1b-cnt">0</b> tasks booked</span></span>
+          <button type="button" class="pill line sm dl1b-ev">Even out</button>
+        </div>
+        <div class="sr" aria-live="polite"></div>
+      </div>
+    </template></div>
+  </div>
+  <p class="lab-note">Mouse: carry a chip onto a lane, or a queued block to another place or lane, or back up to Waiting. Keyboard: Tab to a chip or block, Space to lift it, up and down for the lane, left and right for the place, Space to drop, Escape to cancel, Delete to send it back. Even out moves queued work to whoever finishes it first; Assign for me does the same for each task that waits.</p>
+</main>
+
+<script src="assets/core.js"></script>
+<script>
+DM.PLAYS.add('dl1b');
+DM.def('dl1b', (st, c) => {
+  const R = $('.dl1b', st), wait = $('.dl1b-w', R), tl = $('.dl1b-tl', R), live = $('.sr', R), autoB = $('.dl1b-auto', R), ev = $('.dl1b-ev', R);
+  const say = $('.dl1b-wl .say', R), cnt = $('.dl1b-n', R);
+
+  const AG = [
+    { k:'r', n:'Researcher', ic:'search',  c:'--dm-av-b', rate:.05 },
+    { k:'w', n:'Writer',     ic:'edit',    c:'--dm-av-l', rate:.04 },
+    { k:'g', n:'Designer',   ic:'palette', c:'--dm-av-k', rate:.06 },
+    { k:'d', n:'Coder',      ic:'code',    c:'--dm-av-m', rate:.07 }
+  ];
+  const SRC = { mail:['mail','Inbox'], tk:['flag','Ticket'], doc:['file-text','Doc'], chat:['comment','Chat'] };
+  const TK = {
+    x:{ t:'Scan competitor pricing',      s:'doc',  m:{ r:6 } },
+    y:{ t:'Tidy the changelog',           s:'doc',  m:{ w:6 } },
+    a:{ t:'Compare five onboarding flows',s:'doc',  m:{ r:12, w:20, g:20, d:26 } },
+    b:{ t:'Find the top churn reasons',   s:'chat', m:{ r:14, w:20, g:24, d:26 } },
+    e:{ t:'Draft the release notes',      s:'doc',  m:{ r:22, w:16, g:24, d:28 } },
+    k:{ t:'Mock up the empty states',     s:'chat', m:{ r:30, w:30, g:18, d:26 } },
+    l:{ t:'Resize the social banners',    s:'mail', m:{ r:22, w:20, g:8,  d:16 } },
+    m:{ t:'Update the API examples',      s:'tk',   m:{ r:18, w:14, g:20, d:6 } },
+    n:{ t:'Bump the build tools',         s:'tk',   m:{ r:24, w:24, g:24, d:10 } },
+    o:{ t:'Add tests for checkout',       s:'tk',   m:{ r:26, w:26, g:28, d:12 } },
+    f:{ t:'Fix the broken sign-up link',  s:'tk',   m:{ r:18, w:22, g:22, d:6 } },
+    q:{ t:'Write the welcome email',      s:'mail', m:{ r:16, w:10, g:18, d:20 } },
+    h:{ t:'Summarise 14 support tickets', s:'tk',   m:{ r:9,  w:12, g:16, d:16 } },
+    i:{ t:'Add dark mode to Settings',    s:'chat', m:{ r:34, w:34, g:20, d:18 } }
+  };
+  const ag = k => AG.find(a => a.k === k), li = k => AG.findIndex(a => a.k === k);
+  const cost = (id, k) => TK[id].m[k] * ag(k).rate;
+  const money = v => '$' + v.toFixed(2);
+  const clock = m => { const t = Math.round(14 * 60 + m); return String(Math.floor(t / 60) % 24).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'); };
+  const range = id => { const v = Object.values(TK[id].m), lo = Math.min(...v), hi = Math.max(...v); return lo === hi ? lo + 'm' : lo + '–' + hi + 'm'; };
+
+  /* the state: minutes since 14:00, what waits, and each lane's finished blocks, running task and queue */
+  const S = { now:4, wait:['q', 'i', 'f', 'h'], auto:false, spent:0,
+    A:{ r:{ done:[], run:{ id:'a', el:3, left:9 },  q:['b'], paused:false },
+        w:{ done:[], run:{ id:'e', el:2, left:14 }, q:[], paused:false },
+        g:{ done:[], run:{ id:'k', el:4, left:14 }, q:['l'], paused:false },
+        d:{ done:[], run:{ id:'m', el:1, left:5 },  q:['n', 'o'], paused:false } } };
+  const booked = k => { const a = S.A[k]; return (a.run ? a.run.left : 0) + a.q.reduce((s, id) => s + TK[id].m[k], 0); };
+  const spend = k => { const a = S.A[k]; return (a.run ? cost(a.run.id, k) : 0) + a.q.reduce((s, id) => s + cost(id, k), 0); };
+  const finish = (k, add = 0) => S.now + booked(k) + add;
+
+  /* ---------- the grid: the axis, a row per agent, and the overlay ---------- */
+  tl.innerHTML = `<span></span><div class="dl1b-ax num" aria-hidden="true">${[0, 15, 30, 45, 60].map(m => `<span style="left:${m / 60 * 100}%">${clock(m)}</span>`).join('')}</div><span class="dl1b-axe">Free at</span>`
+    + AG.map((a, i) => `<div class="dl1b-ag" data-ag="${a.k}" style="--c:var(${a.c});--onc:var(${a.c}-ink)"><span class="dl1b-mk" aria-hidden="true">${I(a.ic, 's')}</span><span class="dl1b-an"><b>${a.n}</b><span>Working</span></span><button type="button" class="ib dl1b-pz" aria-label="Pause ${a.n}" data-tip="Pause ${a.n}">${I('pause', 's')}</button></div>
+      <div class="dl1b-tr" data-z="${a.k}" aria-hidden="true"></div>
+      <div class="dl1b-en" data-ag="${a.k}"><b class="num">14:00</b><span class="num">$0.00</span></div>`).join('')
+    + `<div class="dl1b-ov"><i class="dl1b-q4"></i><i class="dl1b-past"></i><div class="dl1b-bl" role="list" aria-label="Booked work"></div><span class="dl1b-fin" aria-hidden="true"><span class="dl1b-fl"><span class="tag dt num"></span><span class="lb num">All done 14:00</span></span></span><span class="dl1b-nowl" aria-hidden="true"><span>Now</span></span></div>`;
+  const ov = $('.dl1b-ov', tl), bl = $('.dl1b-bl', ov), fin = $('.dl1b-fin', ov);
+  const LANE = {}; AG.forEach(a => LANE[a.k] = { ag:$(`.dl1b-ag[data-ag="${a.k}"]`, tl), tr:$(`.dl1b-tr[data-z="${a.k}"]`, tl), en:$(`.dl1b-en[data-ag="${a.k}"]`, tl), shown:{} });
+
+  /* ---------- chips and blocks, one element each, kept as they move ---------- */
+  const CHIP = {}, BLK = {};
+  const chip = id => CHIP[id] || (CHIP[id] = html(`<div class="dl1b-c" data-key="${id}" role="listitem" tabindex="0" aria-roledescription="task" aria-label="${TK[id].t}, ${range(id).replace('m', ' minutes')}">${I(SRC[TK[id].s][0], 's')}<span class="t">${TK[id].t}</span><span class="e num">${range(id)}</span></div>`));
+  const block = id => {
+    if (BLK[id]) return BLK[id];
+    const el = html(`<div class="dl1b-k" data-key="${id}" role="listitem" tabindex="-1"><span class="ok" aria-hidden="true">${I('check', 'xs')}</span><span class="t">${TK[id].t}</span></div>`);
+    return BLK[id] = el;
+  };
+  let pvAt = null; // where a carried task would land: { k, at, id }
+  // every block's place: its lane, start and length in minutes, and its state
+  function layout(){
+    const out = [];
+    AG.forEach((a, i) => {
+      const A = S.A[a.k];
+      A.done.forEach(d => out.push({ id:d.id, k:a.k, l:i, s:Math.max(0, d.s), d:d.e - Math.max(0, d.s), st:'done' }));
+      let t = S.now;
+      if (A.run){ out.push({ id:A.run.id, k:a.k, l:i, s:S.now - A.run.el, d:A.run.el + A.run.left, st:'run', p:A.run.el / (A.run.el + A.run.left) }); t = S.now + A.run.left; }
+      const q = A.q.slice(); if (pvAt && pvAt.k === a.k) q.splice(Math.min(pvAt.at, q.length), 0, '__pv');
+      if (!A.run && q.length && q[0] === '__pv'){ /* a free lane: the carried task would start now */ }
+      q.forEach(id => { const tid = id === '__pv' ? pvAt.id : id; out.push({ id, tid, k:a.k, l:i, s:t, d:TK[tid].m[a.k], st:id === '__pv' ? 'pv' : 'q' }); t += TK[tid].m[a.k]; });
+    });
+    return out;
+  }
+  let trW = 400;
+  new ResizeObserver(() => { trW = ov.getBoundingClientRect().width || trW; paint(); }).observe(ov);
+  let pvEl = null;
+  function paint(){
+    if (!pvAt) endWas = endNow();
+    R.style.setProperty('--now', S.now.toFixed(3));
+    $('.dl1b-now', R).textContent = 'Now ' + clock(S.now);
+    const L = layout(), seen = new Set();
+    L.forEach(b => {
+      let el;
+      if (b.st === 'pv'){ if (!pvEl){ pvEl = html(`<div class="dl1b-k pv new" aria-hidden="true"><span class="t"></span></div>`); bl.appendChild(pvEl); } el = pvEl; $('.t', el).textContent = TK[b.tid].t; }
+      else { el = block(b.id); seen.add(b.id); }
+      const a = AG[b.l];
+      el.style.setProperty('--c', `var(${a.c})`); el.style.setProperty('--onc', `var(${a.c}-ink)`);
+      el.style.setProperty('--l', b.l); el.style.setProperty('--s', b.s.toFixed(3)); el.style.setProperty('--d', b.d.toFixed(3));
+      if (b.p != null) el.style.setProperty('--p', b.p.toFixed(4));
+      // a new block appears where it belongs, without gliding in from the corner
+      if (!el.isConnected){ el.style.transition = 'none'; bl.appendChild(el); void el.offsetWidth; el.style.transition = ''; }
+      if (b.st !== 'pv' && el.dataset.s !== b.st){ el.dataset.s = b.st; el.tabIndex = b.st === 'q' ? 0 : -1; el.setAttribute('aria-roledescription', b.st === 'q' ? 'queued task' : 'task'); }
+      el.classList.toggle('tiny', b.d / 60 * trW < (b.st === 'done' ? 76 : 56));
+      if (b.st !== 'pv'){
+        const end = b.s + b.d, tip = `${TK[b.id].t} · ${a.n} · ${clock(b.s)}–${clock(end)}` + (b.st === 'done' ? ' · done' : ' · ' + money(cost(b.id, a.k)));
+        if (el.dataset.tip !== tip){ el.dataset.tip = tip; el.setAttribute('aria-label', tip); }
+      }
+    });
+    if (pvEl && !(pvAt)){ pvEl.remove(); pvEl = null; }
+    Object.keys(BLK).forEach(id => { if (!seen.has(id) && !(drag && drag.id === id)){ BLK[id].remove(); delete BLK[id]; } });
+    // the lanes' free times and spend, the line where all is done, and the foot
+    let end = S.now, total = S.spent, n = 0;
+    AG.forEach(a => {
+      const A = S.A[a.k], E = LANE[a.k], add = pvAt && pvAt.k === a.k ? TK[pvAt.id].m[a.k] : 0;
+      const f = finish(a.k, add), sp = spend(a.k) + (add ? cost(pvAt.id, a.k) : 0);
+      tick(E.shown, 'f', f, v => booked(a.k) + add > 0 ? clock(v) : 'Now', $('b', E.en));
+      tick(E.shown, 'c', sp, money, $('span', E.en));
+      const s = A.paused ? 'paused' : A.run ? 'work' : 'free';
+      if (E.ag.dataset.s !== s){ E.ag.dataset.s = s; $('.dl1b-an span', E.ag).textContent = s === 'paused' ? 'Paused' : s === 'work' ? 'Working' : 'Free'; }
+      const pz = $('.dl1b-pz', E.ag), lbl = (A.paused ? 'Resume ' : 'Pause ') + a.n;
+      if (pz.getAttribute('aria-label') !== lbl){ pz.innerHTML = I(A.paused ? 'play' : 'pause', 's'); pz.setAttribute('aria-label', lbl); pz.dataset.tip = lbl; }
+      end = Math.max(end, f); total += sp; n += (A.run ? 1 : 0) + A.q.length + (add ? 1 : 0);
+    });
+    R.style.setProperty('--end', end.toFixed(3));
+    fin.hidden = end <= S.now + .05; fin.classList.toggle('left', end < 14);
+    tick(foot, 'e', end, v => 'All done ' + clock(v), $('.lb', fin));
+    if (pvAt) delta(end - endWas, true); else if (dShown === 'pv') delta(0);
+    tick(foot, 'c', total, money, $('.dl1b-cost', R));
+    $('.dl1b-cnt', R).textContent = n;
+    const chips = $$('.dl1b-nowl span,.dl1b-fin:not([hidden]) .lb,.dl1b-fin:not([hidden]) .dt.on', ov).map(x => x.getBoundingClientRect());
+    $$('.dl1b-ax span', tl).forEach(x => { const b = x.getBoundingClientRect(); x.style.visibility = chips.some(q => b.right > q.left - 4 && b.left < q.right + 4) ? 'hidden' : ''; });
+    cnt.textContent = S.wait.length;
+    ev.disabled = !gain();
+  }
+  const foot = {}; let tw = 0, endWas = 0, dShown = '', dT = 0;
+  const endNow = () => Math.max(S.now, ...AG.map(a => finish(a.k)));
+  // what a change did to the time everything is done: later in the warning tint, sooner in green, gone after a moment
+  function delta(d, live){
+    const el = $('.dt', fin); clearTimeout(dT);
+    if (Math.abs(d) < .5){ el.classList.remove('on'); dShown = ''; return; }
+    const m = Math.round(Math.abs(d)), txt = d > 0 ? `+${m} min` : `${m} min sooner`, cl = 'tag dt num on ' + (d > 0 ? 'warn' : 'ok');
+    if (el.textContent !== txt) el.textContent = txt; if (el.className !== cl) el.className = cl;
+    dShown = live ? 'pv' : 'set';
+    if (!live) dT = setTimeout(() => { if (!c.dead && dShown === 'set'){ el.classList.remove('on'); dShown = ''; } }, 2600);
+  }
+  function tick(o, key, to, fmt, el){
+    if (o[key] == null || REDUCE){ o[key] = to; el.textContent = fmt(to); return; }
+    if (Math.abs(o[key] - to) < .001) return;
+    const from = o[key]; o[key] = to; const id = o['_' + key] = ++tw;
+    if (Math.abs(to - from) < .2){ el.textContent = fmt(to); return; }
+    tween(from, to, 620, v => { if (o['_' + key] === id && !c.dead) el.textContent = fmt(v); });
+  }
+  function placeWait(){
+    S.wait.forEach(id => { const el = chip(id); if (el.parentElement !== wait || [...wait.children].indexOf(el) !== S.wait.indexOf(id)) wait.insertBefore(el, wait.children[S.wait.indexOf(id)] || null); });
+    [...wait.children].forEach(x => { if (x.matches('.dl1b-c') && !S.wait.includes(x.dataset.key)) x.remove(); });
+    const none = $('.dl1b-none', wait);
+    if (!S.wait.length && !none) wait.appendChild(html(`<div class="dl1b-none">${I('check', 's')}Nothing waiting</div>`));
+    if (S.wait.length && none) none.remove();
+  }
+  const announce = t => { live.textContent = ''; setTimeout(() => { live.textContent = t; }, 30); };
+
+  /* ---------- moving work ---------- */
+  function take(id){
+    let i = S.wait.indexOf(id); if (i >= 0){ S.wait.splice(i, 1); return { k:'wait', at:i }; }
+    for (const a of AG){ const A = S.A[a.k]; i = A.q.indexOf(id); if (i >= 0){ A.q.splice(i, 1); return { k:a.k, at:i }; } }
+    return null;
+  }
+  function put(id, k, at){
+    if (k === 'wait'){ S.wait.splice(at == null ? S.wait.length : at, 0, id); return; }
+    const A = S.A[k]; if (!A.run){ A.run = { id, el:0, left:TK[id].m[k] }; return; }
+    A.q.splice(at == null ? A.q.length : Math.min(at, A.q.length), 0, id);
+  }
+  // a chip that becomes a block flies from where the chip was to where the block lands
+  function landFrom(id, from){
+    const el = BLK[id]; if (!el || !from || REDUCE) return;
+    const b = el.getBoundingClientRect(); if (!b.width) return;
+    el.animate([{ transform:`translate(${from.left - b.left}px,${from.top - b.top}px)`, width:from.width + 'px', opacity:.9 }, { transform:'none', width:b.width + 'px', opacity:1 }], { duration:560, easing:'cubic-bezier(.2,.8,.2,1)' });
+  }
+  function assign(id, k, at, how){
+    const ch = CHIP[id], from = ch && ch.isConnected ? ch.getBoundingClientRect() : null, e0 = endNow();
+    take(id); put(id, k, at); placeWait(); paint();
+    if (from && k !== 'wait'){ const el = BLK[id]; if (el){ el.style.transition = 'none'; void el.offsetWidth; el.style.transition = ''; } landFrom(id, from); }
+    if (k === 'wait') announce(`${TK[id].t} is waiting again.`);
+    else announce(`${TK[id].t} goes to the ${ag(k).n}, ${clock(endOf(id, k) - TK[id].m[k])} to ${clock(endOf(id, k))}, ${money(cost(id, k))}.`);
+    if (how === 'auto') delta(endNow() - e0);
+    if (how !== 'auto') maybeAuto();
+  }
+  const endOf = (id, k) => { const A = S.A[k]; if (A.run && A.run.id === id) return S.now + A.run.left; let t = S.now + (A.run ? A.run.left : 0); for (const q of A.q){ t += TK[q].m[k]; if (q === id) return t; } return t; };
+  const best = id => AG.filter(a => !S.A[a.k].paused).map(a => [a.k, finish(a.k, TK[id].m[a.k])]).sort((x, y) => x[1] - y[1])[0];
+
+  /* even out: every queued task (not the running ones) goes, longest first, to whoever would finish it first */
+  // every way of sharing the queued tasks between the lanes that aren't paused is tried (there are few), and the one that
+  // finishes everything soonest wins; then the cheapest, then the one that moves fewest. Each task keeps its order in time
+  function plan(){
+    const free = AG.filter(a => !S.A[a.k].paused).map(a => a.k), pool = [], base = {};
+    AG.forEach(a => { const A = S.A[a.k]; base[a.k] = S.now + (A.run ? A.run.left : 0); if (!A.paused){ let t = base[a.k]; A.q.forEach(id => { pool.push({ id, was:a.k, t }); t += TK[id].m[a.k]; }); } });
+    pool.sort((x, y) => x.t - y.t);
+    const fixed = Math.max(S.now, ...AG.filter(a => S.A[a.k].paused).map(a => finish(a.k)));
+    let bestP = null, bestV = null; const n = pool.length, L = free.length;
+    if (!n || !L || Math.pow(L, n) > 70000) return { Q:Object.fromEntries(AG.map(a => [a.k, S.A[a.k].q.slice()])), end:Math.max(...AG.map(a => finish(a.k))) };
+    const pick = new Array(n).fill(0);
+    for (let c0 = 0; c0 < Math.pow(L, n); c0++){
+      let v = c0; for (let i = 0; i < n; i++){ pick[i] = v % L; v = Math.floor(v / L); }
+      const end = {}; free.forEach(k => end[k] = base[k]); let cs = 0, mv = 0;
+      for (let i = 0; i < n; i++){ const k = free[pick[i]], id = pool[i].id; end[k] += TK[id].m[k]; cs += cost(id, k); if (k !== pool[i].was) mv++; }
+      const score = [Math.max(fixed, ...Object.values(end)), cs, mv];
+      if (!bestV || score[0] < bestV[0] - .01 || (Math.abs(score[0] - bestV[0]) < .01 && (score[1] < bestV[1] - .001 || (Math.abs(score[1] - bestV[1]) < .001 && score[2] < bestV[2])))){ bestV = score; bestP = pick.slice(); }
+    }
+    const Q = {}; AG.forEach(a => Q[a.k] = S.A[a.k].paused ? S.A[a.k].q.slice() : []);
+    pool.forEach((p, i) => Q[free[bestP[i]]].push(p.id));
+    return { Q, end:bestV[0] };
+  }
+  let gainC = { key:'', v:0 };
+  const gain = () => {
+    const key = AG.map(a => a.k + (S.A[a.k].paused ? 'p' : '') + (S.A[a.k].run ? S.A[a.k].run.id : '') + S.A[a.k].q.join('')).join('|');
+    if (gainC.key !== key){ const now = Math.max(...AG.map(a => finish(a.k))); gainC = { key, v:Math.max(0, now - plan().end) }; }
+    return gainC.v > .5 ? gainC.v : 0;
+  };
+  c.on(ev, 'click', () => {
+    const was = Math.max(...AG.map(a => finish(a.k))), p = plan();
+    const els = $$('.dl1b-k[data-s="q"]', bl), b0 = new Map(els.map(e => [e, e.getBoundingClientRect()]));
+    els.forEach(e => e.style.transition = 'none');
+    AG.forEach(a => S.A[a.k].q = p.Q[a.k]);
+    paint();
+    let n = 0;
+    els.forEach(e => { void e.offsetWidth; e.style.transition = ''; if (!e.isConnected || REDUCE) return; const a = b0.get(e), b = e.getBoundingClientRect(), dx = a.left - b.left, dy = a.top - b.top;
+      if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+      e.style.zIndex = 5; const an = e.animate([{ transform:`translate(${dx}px,${dy}px)`, width:a.width + 'px' }, { transform:`translate(${dx * .5}px,${dy * .5 - 16}px) scale(1.06)`, offset:.45 }, { transform:'none', width:b.width + 'px' }], { duration:820, delay:n++ * 90, easing:'cubic-bezier(.3,.7,.2,1)', fill:'backwards' });
+      an.onfinish = an.oncancel = () => { e.style.zIndex = ''; }; });
+    delta(p.end - was);
+    announce(`Evened out: everything done at ${clock(p.end)}, ${Math.round(was - p.end)} minutes sooner.`);
+  });
+
+  /* auto-assign */
+  let autoT = 0;
+  function setAuto(on){ S.auto = on; autoB.setAttribute('aria-checked', on); $('.toggle', autoB).setAttribute('aria-checked', on); announce(on ? 'Assign for me is on.' : 'Assign for me is off.'); maybeAuto(); }
+  function maybeAuto(){
+    clearTimeout(autoT);
+    if (!S.auto || !S.wait.length || drag){ sayIdle(); return; }
+    say.textContent = 'Assigning…'; say.classList.add('shim');
+    autoT = setTimeout(() => { if (c.dead || !S.auto || drag || !S.wait.length) return sayIdle(); const id = S.wait[0], b = best(id); if (!b) return sayIdle(); assign(id, b[0], null, 'auto'); maybeAuto(); }, REDUCE ? 60 : 760);
+    c.t.push(autoT);
+  }
+  function sayIdle(){ say.classList.remove('shim'); say.textContent = S.auto ? 'New tasks are booked as they arrive' : S.wait.length ? 'Carry a task onto a lane' : ''; }
+  c.on(autoB, 'click', () => setAuto(!S.auto));
+  c.on(tl, 'click', e => { const b = e.target.closest('.dl1b-pz'); if (!b) return; const k = b.closest('.dl1b-ag').dataset.ag; S.A[k].paused = !S.A[k].paused; paint(); announce(`${ag(k).n} ${S.A[k].paused ? 'paused: its work slides later while it waits' : 'resumed'}.`); });
+
+  /* the clock: a minute of work every second */
+  c.every(100, () => {
+    S.now += .1;
+    AG.forEach(a => {
+      const A = S.A[a.k]; if (!A.run || A.paused) return;
+      A.run.el += .1; A.run.left -= .1;
+      if (A.run.left <= 0){
+        const id = A.run.id; S.spent += cost(id, a.k); A.done.push({ id, s:S.now - A.run.el, e:S.now }); A.run = null;
+        const nx = A.q.shift(); if (nx) A.run = { id:nx, el:0, left:TK[nx].m[a.k] };
+        announce(`${a.n} finished ${TK[id].t}.`);
+      }
+    });
+    paint();
+  });
+
+  /* ---------- carrying a task: the mouse, touch, the keyboard, or the demo ---------- */
+  let drag = null;
+  const laneAt = (x, y) => {
+    const wb = wait.parentElement.getBoundingClientRect(); if (y >= wb.top && y <= wb.bottom + 4 && x >= wb.left && x <= wb.right) return 'wait';
+    for (const a of AG){ const b = LANE[a.k].tr.getBoundingClientRect(); if (y >= b.top - 2 && y <= b.bottom + 2 && x >= b.left - 24 && x <= b.right + 24) return a.k; }
+    return null;
+  };
+  // the place in a lane's queue nearest the pointer: before the first queued block whose middle is right of it
+  const slotAt = (k, x) => {
+    const A = S.A[k], b = LANE[k].tr.getBoundingClientRect(), m = (x - b.left) / b.width * 60;
+    let t = S.now + (A.run ? A.run.left : 0), i = 0;
+    for (const id of A.q){ const d = TK[id].m[k]; if (m < t + d / 2) return i; t += d; i++; }
+    return i;
+  };
+  function lift(id, x, y, kind){
+    const src = kind === 'chip' ? chip(id) : BLK[id], b = src.getBoundingClientRect(), sb = st.getBoundingClientRect();
+    const gh = chip(id).cloneNode(true); gh.classList.add('dl1b-gh'); gh.removeAttribute('tabindex'); gh.removeAttribute('data-key'); gh.setAttribute('aria-hidden', 'true'); gh.classList.remove('drag', 'lift');
+    st.appendChild(gh);
+    const gb = gh.getBoundingClientRect();
+    const from = take(id);
+    drag = { id, gh, kind, from, dx:kind === 'chip' ? x - b.left : gb.width * .3, dy:kind === 'chip' ? y - b.top : gb.height / 2, k:undefined, at:null };
+    if (kind === 'chip'){ src.classList.add('drag'); S.wait.splice(from.at, 0, id); } else src.classList.add('drag');
+    clearTimeout(autoT); moveTo(x, y);
+  }
+  function moveTo(x, y){
+    const d = drag; if (!d) return; const sb = st.getBoundingClientRect();
+    d.gh.style.transform = `translate(${x - d.dx - sb.left}px,${y - d.dy - sb.top}px)`;
+    const k = laneAt(x, y); over(k, k && k !== 'wait' ? slotAt(k, x) : null);
+  }
+  function over(k, at){
+    const d = drag; if (k === d.k && at === d.at) return;
+    d.k = k; d.at = at;
+    $$('.dl1b-tr.over,.dl1b-w.over', R).forEach(n => n.classList.remove('over'));
+    d.gh.classList.toggle('on', !!k && k !== 'wait');
+    if (k === 'wait') wait.classList.add('over');
+    else if (k) LANE[k].tr.classList.add('over');
+    pvAt = k && k !== 'wait' ? { k, at, id:d.id } : null;
+    if (pvEl && !pvAt){ pvEl.remove(); pvEl = null; }
+    paint();
+    if (pvEl && pvEl.classList.contains('new')){ pvEl.style.transition = 'none'; void pvEl.offsetWidth; pvEl.style.transition = ''; pvEl.classList.remove('new'); }
+  }
+  function drop(cancel){
+    const d = drag; if (!d) return;
+    const k = cancel ? null : d.k, at = d.at, e0 = endWas;
+    $$('.dl1b-tr.over,.dl1b-w.over', R).forEach(n => n.classList.remove('over'));
+    const g = d.gh.getBoundingClientRect(), pv = pvEl && pvEl.getBoundingClientRect();
+    pvAt = null; if (pvEl){ pvEl.remove(); pvEl = null; }
+    drag = null;
+    if (d.kind === 'chip'){ const i = S.wait.indexOf(d.id); if (i >= 0) S.wait.splice(i, 1); }
+    const to = k || d.from.k, toAt = k ? (k === 'wait' ? null : at) : d.from.at;
+    put(d.id, to, toAt);
+    if (CHIP[d.id]) CHIP[d.id].classList.remove('drag');
+    if (BLK[d.id]) BLK[d.id].classList.remove('drag');
+    placeWait(); paint();
+    const el = to === 'wait' ? chip(d.id) : BLK[d.id];
+    if (el && to !== 'wait'){ el.style.transition = 'none'; void el.offsetWidth; el.style.transition = ''; }
+    if (el && !REDUCE){ const b = el.getBoundingClientRect(), f = to !== 'wait' && pv ? pv : g;
+      el.animate([{ transform:`translate(${f.left - b.left}px,${f.top - b.top}px)`, opacity:.85 }, { transform:'none', opacity:1 }], { duration:to !== 'wait' && pv ? 240 : 360, easing:'cubic-bezier(.2,.8,.2,1)' }); }
+    d.gh.remove();
+    if (k && k !== 'wait' && !cancel) delta(endNow() - e0); else delta(0);
+    if (!cancel && k){ if (k === 'wait') announce(`${TK[d.id].t} is waiting again.`); else announce(`${TK[d.id].t} goes to the ${ag(k).n}, ${clock(endOf(d.id, k) - TK[d.id].m[k])} to ${clock(endOf(d.id, k))}, ${money(cost(d.id, k))}. Everything done at ${clock(Math.max(...AG.map(a => finish(a.k))))}.`); }
+    maybeAuto();
+  }
+  c.on(R, 'pointerdown', e => {
+    const el = e.target.closest('.dl1b-c,.dl1b-k[data-s="q"]'); if (!el || e.button !== 0 || drag || el.classList.contains('dl1b-gh')) return;
+    const x0 = e.clientX, y0 = e.clientY; let on = false;
+    const mv = ev => { if (!on && Math.hypot(ev.clientX - x0, ev.clientY - y0) > 4){ on = true; lift(el.dataset.key, x0, y0, el.matches('.dl1b-c') ? 'chip' : 'block'); } if (on){ ev.preventDefault(); moveTo(ev.clientX, ev.clientY); } };
+    const up = () => { removeEventListener('pointermove', mv); removeEventListener('pointerup', up); removeEventListener('pointercancel', up); if (on) drop(); };
+    addEventListener('pointermove', mv, { passive:false }); addEventListener('pointerup', up); addEventListener('pointercancel', up);
+  });
+  c.offs.push(() => { if (drag){ drag.gh.remove(); drag = null; } pvAt = null; });
+
+  // the keyboard: Space lifts; up and down choose the lane (Waiting is the top one), left and right the place
+  let kb = null; const zk = ['wait'].concat(AG.map(a => a.k));
+  c.on(R, 'keydown', e => {
+    const el = e.target.closest && e.target.closest('.dl1b-c,.dl1b-k[data-s="q"]'); if (!el) return;
+    const id = el.dataset.key;
+    if (!kb){
+      if (e.key === ' ' || e.key === 'Enter'){
+        e.preventDefault(); kb = { id, el }; el.classList.add('lift');
+        const b = el.getBoundingClientRect(); lift(id, b.left + 10, b.top + b.height / 2, el.matches('.dl1b-c') ? 'chip' : 'block');
+        const f = drag.from; over(f.k === 'wait' ? 'wait' : f.k, f.k === 'wait' ? null : f.at); kbGhost();
+        announce(`Lifted ${TK[id].t}. Up and down choose the lane, left and right the place, Space drops, Escape cancels.`);
+      } else if ((e.key === 'Delete' || e.key === 'Backspace') && el.matches('.dl1b-k')){ e.preventDefault(); assign(id, 'wait'); const ch = CHIP[id]; if (ch) ch.focus(); }
+      return;
+    }
+    const d = drag; if (!d){ kb = null; return; }
+    if (e.key === 'Tab') return;
+    e.preventDefault();
+    const end = (fn) => { kb.el.classList.remove('lift'); const was = kb; kb = null; fn(); const f = d.k === 'wait' || (!d.k && d.from.k === 'wait') ? CHIP[id] : BLK[id]; (f || was.el).focus(); };
+    if (e.key === 'Escape'){ end(() => drop(true)); announce('Cancelled.'); return; }
+    if (e.key === ' ' || e.key === 'Enter'){ end(() => drop()); return; }
+    let zi = zk.indexOf(d.k || 'wait'), at = d.at || 0;
+    const len = k => k === 'wait' ? 0 : S.A[k].q.length;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ zi = (zi + (e.key === 'ArrowDown' ? 1 : -1) + zk.length) % zk.length; at = len(zk[zi]); }
+    else if (e.key === 'ArrowRight') at = Math.min(len(zk[zi]), at + 1);
+    else if (e.key === 'ArrowLeft') at = Math.max(0, at - 1);
+    else return;
+    over(zk[zi], zk[zi] === 'wait' ? null : at); kbGhost();
+    if (zk[zi] === 'wait') announce('Waiting.');
+    else { const k = zk[zi]; announce(`${ag(k).n}, place ${at + 1}: ${TK[id].m[k]} minutes, ${money(cost(id, k))}, the lane is free at ${clock(finish(k, TK[id].m[k]))}.`); }
+  });
+  function kbGhost(){ const d = drag; if (!d) return; const sb = st.getBoundingClientRect(); let p;
+    if (pvEl) p = pvEl.getBoundingClientRect(); else { const w = wait.getBoundingClientRect(); p = { left:w.left, top:w.top - 6 }; }
+    d.gh.style.transition = REDUCE ? '' : 'transform .26s var(--dm-ease),opacity var(--dm-t-fast)'; d.gh.style.transform = `translate(${p.left - sb.left + 4}px,${p.top - sb.top - 22}px)`; }
+  c.on(R, 'focusout', e => { if (kb && !R.contains(e.relatedTarget)){ kb.el.classList.remove('lift'); kb = null; drop(true); } });
+
+  /* ---------- start ---------- */
+  placeWait(); paint(); sayIdle();
+  grow(R);
+
+  /* ---------- the demo: the welcome email hovers the Researcher (the done line jumps out) and lands with the Writer;
+     dark mode slots in between the Coder's tasks and pushes the next one along; the sign-up fix goes to the slow
+     Designer, then Even out pulls the line back in; Assign for me books the last one. About 22 seconds ---------- */
+  const hand = () => $('.hand', st);
+  const at = (k, m) => () => { const b = LANE[k].tr.getBoundingClientRect(); return [b.left + b.width * Math.min(m, 58) / 60, b.top + b.height / 2]; };
+  async function carry(s, id, path){
+    const el = chip(id); await s.point(el, false);
+    const h = hand(); h.classList.add('down');
+    const b = el.getBoundingClientRect(); let x = b.left + Math.min(b.width * .62, b.width - 10), y = b.top + b.height * .58;
+    lift(id, x, y, 'chip');
+    c.taken(() => { if (drag && drag.id === id && !kb) drop(true); });
+    h.style.transition = 'none';
+    for (const [tgt, ms, pause] of path){
+      const to = tgt(), x0 = x, y0 = y;
+      await tween(0, 1, REDUCE ? 1 : ms, v => { if (c.mine || c.dead) return; x = x0 + (to[0] - x0) * v; y = y0 + (to[1] - y0) * v; const sb = st.getBoundingClientRect(); h.style.transform = `translate(${x - sb.left}px,${y - sb.top}px)`; if (drag) moveTo(x, y); }, t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+      if (c.mine || c.dead) throw 'stop';
+      if (pause) await s.beat(pause);
+    }
+    drop(); h.style.transition = ''; h.classList.remove('down');
+  }
+  c.story(async s => {
+    await s.beat(1);
+    await carry(s, 'q', [[at('r', 14), 700, 1.8], [at('w', 30), 600, .8]]);
+    s.away(); await s.beat(1.5);
+    await carry(s, 'i', [[at('d', 21), 1000, 1.4]]);
+    s.away(); await s.beat(2.5);
+    await s.tap(ev); s.away(); await s.beat(3);
+    await s.tap(autoB); s.away();
+    await s.until(() => !S.wait.length); await s.beat(5);
+  });
+});
+
+/* ---------- the page: style, theme and replay ---------- */
+{
+  const d = document.documentElement;
+  const mark = (sel, v) => $$(sel + ' button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+  mark('#sw-style', d.dataset.style); mark('#sw-theme', d.dataset.theme);
+  seg($('#sw-style'), v => { d.dataset.style = v; try { localStorage.setItem('dmui-style', v); } catch(e){} });
+  seg($('#sw-theme'), v => { d.dataset.theme = v; try { localStorage.setItem('dmui-theme', v); } catch(e){} });
+  $('#replay').addEventListener('click', () => { const card = $('[data-c="dl1b"]'); DM.mount(card, !!card._c); });
+}
+</script>
+</body>
+</html>
