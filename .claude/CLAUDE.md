@@ -260,6 +260,9 @@ every session and every agent.
 - Photos are only from Pexels (owner, 5 Nov), under the Pexels License, listed with their Pexels ids in `art/README.md` and
   credited in `NOTICE.md`. They are on the site only (laid over a gradient by `art/art.js`), never in installs. The Carousel demo
   uses them, with and without people.
+- On the site, the people in the component demos show photos (owner, 25 Nov): ten AI-generated headshots the owner owns and
+  cleared for reuse, in `art/people/`, laid over the initials avatar by `art/art.js`. Installs keep the initials avatar and never
+  point at these files. They are listed in `art/README.md` and `NOTICE.md` as the owner's own AI-generated images, not Pexels.
 
 ## Alignment and fit (owner, 18 Nov: "how many times do I have to flag these spacing issues")
 - Every part sits on a shared column. A row's leading mark (icon, tile, checkbox, avatar) sits centred in the same column as
