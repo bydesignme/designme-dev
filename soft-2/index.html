@@ -380,9 +380,12 @@ th:last-child>.col-rz{display:none}
 .fold.shut{grid-template-rows:0fr;opacity:0;visibility:hidden;transition:grid-template-rows var(--t) var(--ease),opacity var(--t) var(--ease),visibility 0s var(--t)}
 
 /* grow(): a container that grows with its content, eased (any component; Plan review and Agent tree use it) */
-.growing{overflow:clip;overflow-clip-margin:6px;transition:height .55s cubic-bezier(.22,1,.36,1)}
+.growing{overflow:clip;overflow-clip-margin:6px;--grow-t:.55s}
 .growing>.dm-grow{display:flex;flex-direction:column;gap:inherit;flex:none}
-@media (prefers-reduced-motion:reduce){.growing{transition:none}}
+/* a foot marked .mx-foot (a footer strip at the card's bottom) rides the card's bottom edge while the card springs to a change
+   made at once (growFit()'s --grow-d), so it never drops out of sight or jumps up and leaves a gap; it covers what slides
+   under it with the card's own surface */
+.growing .mx-foot{translate:0 var(--grow-d,0px);position:relative;z-index:1;background-color:var(--surface)}
 /* ---------- tooltip and popover ---------- */
 .tip{position:fixed;z-index:1000;pointer-events:none;background:var(--tip-bg,var(--ink));color:var(--tip-fg,var(--on-ink));box-shadow:var(--tip-ring,none);font-size:12px;line-height:1.35;padding:6px 9px;border-radius:var(--r-sm);max-width:240px;opacity:0;transform:translateY(4px);filter:blur(2px);transition:opacity .18s var(--ease),transform .25s var(--ease),filter .18s}
 .tip.show{opacity:1;transform:none;filter:none}
@@ -437,9 +440,8 @@ th:last-child>.col-rz{display:none}
 .mx-w{white-space:nowrap}
 /* (the React components' SwapIcon wraps the icon it swaps in a span of this class) */
 .mx-icon{display:inline-grid;place-items:center}
-/* .mx-grow: a component that grows with what it holds (grow()) eases to its new height on the spring (Agent harness, which places
-   some of them in its chat, keeps the plain ease) */
-.mx-grow.growing:not(.ahx *){transition:height calc(var(--t-in) * 1.4) var(--ease-spring)}
+/* .mx-grow: a component that grows with what it holds (grow()) takes the motion pieces' time for a change made at once (--t-in ×
+   1.4, set in growFit()); Agent harness, which places some of them in its chat, keeps grow()'s own --grow-t */
 .mx-glide.hg{isolation:isolate}
 .mx-glide.hg.hg-pos{position:relative}
 .mx-glide.hg[data-hg="b"]::before,.mx-glide.hg[data-hg="a"]::after{content:"";position:absolute;left:0;top:0;z-index:-1;pointer-events:none;width:var(--hg-w,0px);height:var(--hg-h,0px);transform:translate(var(--hg-x,0px),var(--hg-y,0px));border-radius:var(--hg-r,10px);background:var(--hg-bg,var(--row));opacity:var(--hg-o,0);transition:opacity var(--t-fast) var(--ease),transform var(--t-glide) var(--ease-spring),width var(--t-glide) var(--ease-spring),height var(--t-glide) var(--ease-spring),background-color var(--t-fast) var(--ease)}
@@ -448,7 +450,7 @@ th:last-child>.col-rz{display:none}
 /* a pressed row deepens the glide under it, at once, and lets it ease back */
 .mx-glide.hg:has([data-hgr]:active){--hg-bg:var(--row-press)}
 .mx-glide.hg:has([data-hgr]:active)::before{transition-duration:var(--t-fast),var(--t-glide),var(--t-glide),var(--t-glide),var(--t-press)}
-@media (prefers-reduced-motion:reduce){.mx-glide.hg[data-hg="b"]::before,.mx-glide.hg[data-hg="a"]::after{transition-property:opacity!important;transition-duration:var(--t-fast)!important}.mx-pop{filter:none!important}.mx-grow.growing:not(.ahx *){transition:none}}
+@media (prefers-reduced-motion:reduce){.mx-glide.hg[data-hg="b"]::before,.mx-glide.hg[data-hg="a"]::after{transition-property:opacity!important;transition-duration:var(--t-fast)!important}.mx-pop{filter:none!important}}
 
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.shim{color:var(--fg);background:none}}
 
@@ -1040,6 +1042,10 @@ th:last-child>.col-rz{display:none}
 .atr-nm{flex:0 0 auto;max-width:100%;overflow:hidden;text-overflow:ellipsis;font-weight:500}
 .atr-tg{align-self:center;width:16px;height:16px;margin-left:-6px;flex:none;display:grid;place-items:center;border-radius:calc(4px * var(--rk-s,var(--rk)));color:var(--muted);cursor:pointer;transition:background var(--t-fast),color var(--t-fast)}
 .atr-tg:hover{background:color-mix(in srgb,var(--fg) 9%,transparent);color:var(--fg)}
+/* its motion pieces (core's "motion pieces", 26 Nov): one highlight glides from row to row in Soft and Blueprint too (.mx-glide),
+   in the rows' own hover fill; a press on a branch's chevron shows at once (.mx-press) */
+.atr-tree.mx-glide{--hg-bg:color-mix(in srgb,var(--fg) 5%,transparent)}
+:root[data-style="clean"] .atr-tree.mx-glide{--hg-bg:var(--row)}
 .atr-tg svg{width:12px;height:12px;transition:transform .32s var(--ease)}
 .atr-n[aria-expanded="false"]>.atr-b .atr-tg svg{transform:rotate(-90deg)}
 .atr-sub{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:12px;color:var(--muted)}
@@ -1057,7 +1063,7 @@ th:last-child>.col-rz{display:none}
 /* the tree grows with its rows (grow(), owner 17 Nov): each new row already opens its own height smoothly, so the panel
    follows its content frame by frame, with nothing cut off and no room left over; the way on under a row (a fix, Approve and
    Hold) opens its height the same way. Where a browser can't ease a height to auto, it appears at once */
-.atr.growing{transition:none;interpolate-size:allow-keywords}
+.atr.growing{--grow-t:0s;interpolate-size:allow-keywords}
 .atr-ask{overflow:clip;overflow-clip-margin:4px;animation:atrask .42s var(--atr-ez) backwards}
 @keyframes atrask{from{height:0;padding-bottom:0;opacity:0}}
 .atr .atr-n[data-ph="in"]>.atr-b>.atr-ask{animation:atrask .42s var(--atr-ez) backwards,atrin .56s var(--atr-ez) backwards}
@@ -1257,6 +1263,7 @@ th:last-child>.col-rz{display:none}
 .aib-gl{display:flex;flex-direction:column}
 .aib-i{display:flex;align-items:center;gap:12px;padding:8px 0;border-radius:calc(10px * var(--rk-m,var(--rk)));font-size:13px;transition:background .16s}
 .aib-i.mv{position:relative;z-index:1;background:var(--surface)}
+/* (as a group goes or comes back the panel springs to its new height at the motion pieces' pace, .mx-grow) */
 /* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink primary alone presses */
 .aib :is(.ib,.pill):active,:root[data-style="clean"] .aib .ib:active{transform:none}
 .aib-av{width:28px;height:28px;border-radius:var(--r-sm);display:grid;place-items:center;flex:none;font-size:11px;font-weight:500}
@@ -1424,6 +1431,8 @@ th:last-child>.col-rz{display:none}
 .trv-r{width:calc(100% + 16px);margin:0 -8px;padding:0 8px;min-height:32px;border-radius:calc(10px * var(--rk-m,var(--rk)));font-size:13px;text-align:left;transition:background .16s}
 .trv-r:hover,.trv-r[aria-expanded="true"]{background:var(--row)}
 .trv-r[aria-expanded="true"] .trv-tk{color:var(--fg2)}
+/* its motion pieces (core's "motion pieces", 26 Nov): one highlight glides from span to span in every style (.mx-glide), the
+   picked span keeps its own fill; the details' parts settle one after another as they open (.mx-rows); Close presses at once */
 .trv-r:focus-visible{outline:0;box-shadow:inset 0 0 0 2px var(--focus)}
 .trv-n{position:relative;display:flex;align-items:center;gap:19px;min-width:0;align-self:stretch;padding-left:calc(7px + var(--lv,0) * 16px)}
 .trv-k{position:relative;z-index:1;width:18px;height:18px;display:grid;place-items:center;flex:none;border-radius:var(--r-tiny,5px);color:color-mix(in srgb,var(--k) 70%,var(--fg));background:color-mix(in srgb,var(--k) 13%,var(--surface))}
@@ -3957,8 +3966,11 @@ th:last-child>.col-rz{display:none}
 .aab-ch .chip{background:var(--hover)}
 .aab-ch .chip:hover{background:var(--press)}
 .aab-ch .chip.on{background:var(--accent-bg);color:var(--accent-fg,var(--accent));box-shadow:none}
-.aab-st{margin:0;max-height:20px;font-size:12.5px;display:flex;align-items:center;gap:6px;transition:max-height var(--t) var(--ease),margin-top var(--t) var(--ease)}
+/* (the status line opens and closes on its own height at the moment the reasons fold does, so the card moves once, in one
+   direction: owner, 26 Nov. A line about to empty eases shut and fades with its words still in it; .off) */
+.aab-st{margin:0;max-height:20px;font-size:12.5px;display:flex;align-items:center;gap:6px;overflow:clip;overflow-clip-margin:2px;transition:max-height var(--t) var(--ease),margin-top var(--t) var(--ease),opacity var(--t-fast) var(--ease)}
 .aab-st:is(:empty,.off){max-height:0;margin-top:calc(-1 * var(--s-3))}
+.aab-st.off{opacity:0}
 .aab-st.warn{color:var(--warn)}
 .aab-st.ok svg{color:var(--ok);flex:none}
 .aab-rd.on .aab-pr{width:40px}
@@ -12040,7 +12052,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <template><div class="dm atr-dm" data-designs="card"><div class="dm-main">
 <div class="atr panel" data-s="run">
   <div class="atr-h"><div class="atr-hd"><b class="atr-t">Redesign the pricing page</b><span class="atr-s"><span class="atr-dot" aria-hidden="true"></span><span class="atr-m">Starting</span><span aria-hidden="true">·</span><span class="atr-time num">0:00</span></span></div><span class="atr-tot num">$0.00</span></div>
-  <div class="atr-tree" role="tree" aria-label="Agents"><svg class="atr-ln" aria-hidden="true"></svg></div>
+  <div class="atr-tree mx-glide" role="tree" aria-label="Agents"><svg class="atr-ln" aria-hidden="true"></svg></div>
   <p class="atr-f"></p>
   <p class="atr-sr" role="status"></p>
 </div>
@@ -12052,7 +12064,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 <article class="card" data-c="agent-inbox" id="c-agent-inbox">
   <div class="card-h"><div><h3>Agent inbox</h3><p>Every run that needs you, is running or is done, in one list.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="aib panel">
+  <template><div class="aib panel mx-grow">
   <div class="aib-h"><b>Inbox</b></div>
   <div class="aib-gs"></div>
 </div></template>
@@ -12086,8 +12098,8 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <div class="trv-h"><div class="trv-ht"><b>Pricing research</b><span class="muted trv-st" aria-live="polite"></span></div><span class="trv-nums"><span class="trv-tot num">0.00s</span></span></div>
   <div class="trv-lg" role="list" aria-label="Spans by kind"></div>
   <div class="trv-ax" aria-hidden="true"><span>Span</span><span class="trv-sc"></span><span class="trv-tk">Tokens</span><span class="trv-ms">Time</span></div>
-  <div class="trv-rows" role="group" aria-label="Spans"></div>
-  <div class="fold shut trv-dt" inert><div><div class="trv-dc" role="region" aria-label="Span details"></div></div></div>
+  <div class="trv-rows mx-glide" role="group" aria-label="Spans"></div>
+  <div class="fold shut trv-dt" inert><div><div class="trv-dc mx-rows mx-play" role="region" aria-label="Span details"></div></div></div>
 </div></template>
   <div class="card-f"><span>Open a span to see its input and output</span><span class="sp"></span><button class="replay" aria-label="Replay Trace view"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
@@ -12095,7 +12107,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <div class="card-h"><div><h3>Run cost</h3><p>Live credit and token spend, with a cap that pauses the run.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="rc panel">
-  <div class="rc-h"><span class="muted">Credits used</span><span class="rc-st tag"><span class="dot"></span><span class="rc-stt">Idle</span></span></div>
+  <div class="rc-h"><span class="muted">Credits used</span><span class="rc-st tag"><span class="dot"></span><span class="rc-stt mx-w">Idle</span></span></div>
   <div class="rc-big"><span class="rc-n num">0</span><span class="muted"> / 2,000</span></div>
   <div class="rc-track"><div class="rc-fill"></div><div class="rc-cap" data-tip="The agent pauses here"></div></div>
   <div class="rc-rows">
@@ -12148,7 +12160,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <div class="card-h"><div><h3>Agent lanes</h3><p>Several agents working in parallel, each with its own lane and hand-offs.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="dm aln-dm" data-designs="card"><div class="dm-main"><div class="aln panel">
-  <div class="aln-h"><span class="aln-ic">{users}</span><span class="aln-tx"><span class="aln-t">3 agents working</span><span class="aln-m muted num">0:00</span><span class="aln-ct num">0 of 9 steps</span></span><button class="pill line sm aln-pause">{pause}Pause all</button></div>
+  <div class="aln-h"><span class="aln-ic">{users}</span><span class="aln-tx"><span class="aln-t">3 agents working</span><span class="aln-m muted num">0:00</span><span class="aln-ct num">0 of 9 steps</span></span><button class="pill line sm aln-pause mx-ic"><span class="mx-icon">{pause}</span><span class="aln-pl mx-w">Pause all</span></button></div>
   <div class="aln-rows"></div>
   <div class="aln-say" aria-live="polite">3 agents queued</div>
 </div></div>
@@ -12787,10 +12799,10 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 <article class="card" data-c="command-palette" id="c-command-palette">
   <div class="card-h"><div><h3>Command palette</h3><p>Jump anywhere or hand a task to the agent from one box.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="cpl panel mx-ic" data-reveal="pop">
+  <template><div class="cpl panel mx-ic mx-grow" data-reveal="pop">
   <div class="cpl-in">{search}<input class="cpl-q" placeholder="Search or ask the agent" aria-label="Command" spellcheck="false"><span class="kbd" data-k="Escape">esc</span></div>
   <div class="cpl-list" role="listbox"></div>
-  <div class="cpl-f muted"><span class="cpl-st"></span><span><span class="kbd" data-k="ArrowUp">↑</span><span class="kbd" data-k="ArrowDown">↓</span> move</span><span><span class="kbd" data-k="Enter">↵</span> run</span></div>
+  <div class="cpl-f muted mx-foot"><span class="cpl-st"></span><span><span class="kbd" data-k="ArrowUp">↑</span><span class="kbd" data-k="ArrowDown">↓</span> move</span><span><span class="kbd" data-k="Enter">↵</span> run</span></div>
 </div></template>
   <div class="card-f"><span>Type to filter, arrows and Enter to run</span><span class="sp"></span><button class="replay" aria-label="Replay Command palette"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
@@ -12914,18 +12926,18 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <div class="rdr-dw" role="region" aria-label="Run">
     <div class="rdr-grip" role="separator" aria-orientation="horizontal" aria-label="Resize the run drawer" tabindex="0" aria-valuemin="120" aria-valuemax="408" aria-valuenow="312"><i></i></div>
     <div class="rdr-h">
-      <button class="rdr-tg" aria-expanded="true">{chev-u.xs}<span><span class="w">Test run </span><span class="rdr-id num">#2088</span></span><span class="rdr-st tag run"><span class="spin"></span>Running</span></button>
+      <button class="rdr-tg mx-press" aria-expanded="true">{chev-u.xs}<span><span class="w">Test run </span><span class="rdr-id num">#2088</span></span><span class="rdr-st tag run"><span class="spin"></span>Running</span></button>
       <span class="rdr-meta num"></span>
       <span class="rdr-sp"></span>
       <div class="seg2 rdr-tabs" role="group" aria-label="Show"><button aria-pressed="true" data-v="steps">Steps</button><button aria-pressed="false" data-v="log">Log</button><button aria-pressed="false" data-v="data">Data</button></div>
-      <button class="pill ghost sm rdr-stop" aria-label="Stop the run" data-tip="Stop the run">{stop.xs}<span>Stop</span></button>
-      <button class="pill ghost sm rdr-again" aria-label="Run again" data-tip="Run again" hidden>{refresh.xs}<span>Run again</span></button>
-      <button class="ib rdr-follow" aria-pressed="true" aria-label="Follow the run" data-tip="Follow the run">{target}</button>
+      <button class="pill ghost sm rdr-stop mx-press" aria-label="Stop the run" data-tip="Stop the run">{stop.xs}<span>Stop</span></button>
+      <button class="pill ghost sm rdr-again mx-press" aria-label="Run again" data-tip="Run again" hidden>{refresh.xs}<span>Run again</span></button>
+      <button class="ib rdr-follow mx-press" aria-pressed="true" aria-label="Follow the run" data-tip="Follow the run">{target}</button>
     </div>
     <div class="rdr-b">
-      <div class="rdr-v" data-v="steps"><div class="rdr-ax" aria-hidden="true"><span>Step</span><span class="rdr-sc"></span><span class="ms">Time</span></div><div class="rdr-rows" role="group" aria-label="Steps of the run"></div></div>
+      <div class="rdr-v" data-v="steps"><div class="rdr-ax" aria-hidden="true"><span>Step</span><span class="rdr-sc"></span><span class="ms">Time</span></div><div class="rdr-rows mx-glide" role="group" aria-label="Steps of the run"></div></div>
       <div class="rdr-v" data-v="log" hidden><div class="rdr-lf"><div class="seg2 rdr-lvs" role="group" aria-label="Level"><button aria-pressed="true" data-v="all">All</button><button aria-pressed="false" data-v="warn">Warnings</button><button aria-pressed="false" data-v="error">Errors</button></div><span class="n num"></span></div><ol class="rdr-log" aria-label="Run log"></ol></div>
-      <div class="rdr-v" data-v="data" hidden><div class="rdr-data"><div class="rdr-ds" role="group" aria-label="Steps"></div><div class="rdr-io"></div></div></div>
+      <div class="rdr-v" data-v="data" hidden><div class="rdr-data"><div class="rdr-ds mx-glide" role="group" aria-label="Steps"></div><div class="rdr-io"></div></div></div>
     </div>
     <p class="rdr-live" aria-live="polite"></p>
   </div>
@@ -14012,14 +14024,63 @@ function grow(el){
   const w = document.createElement('div'); w.className = 'dm-grow';
   while (el.firstChild) w.appendChild(el.firstChild);
   el.appendChild(w); el.classList.add('growing');
+  const stop = growFit(el, w);
+  return el._grow = () => { stop(); el._grow = null; el.classList.remove('growing'); };
+}
+/* growFit(): how a grow() box keeps its height, in one smooth motion (owner, 26 Nov: "no jittering and jagged motion when the
+   components jump up and down"). The box is always as tall as its content (the wrapper w) plus an offset that springs to
+   nothing, set in the same frame the content changes, so the box's edges, the content and its place in the stage (which
+   centres it) move together:
+   - content that eases its own height (a fold opening, a row opening its height, a status line's max-height: a running
+     transition or animation of a size inside it) is followed frame by frame, on the content's own curve. A box that eased
+     after it instead lagged behind and restarted its ease every frame, so the rows under a fold went down and then back up as
+     the stage re-centred the card, and spilled past its edge
+   - content that changes at once (rows drawn, a question swapped) keeps the height on screen and springs to the new one: a
+     critically damped spring, which never overshoots and carries its speed into a change that lands mid-way, so quick
+     changes never stutter or start over
+   Heights are the wrapper's layout box (the ResizeObserver's border box), unrounded and untouched by an entrance's scale.
+   Timing: --grow-t (.55s; an .mx-grow box takes the motion pieces' --t-in × 1.4); 0s only follows, as reduced motion does.
+   The offset is --grow-d on the box, which a foot marked .mx-foot rides, so it stays on the box's bottom edge */
+const GROW_SIZING = /^(all|height|min-height|max-height|block-size|min-block-size|max-block-size|grid-template-rows|grid-auto-rows|margin|margin-top|margin-bottom|margin-block(-start|-end)?|padding|padding-top|padding-bottom|padding-block(-start|-end)?|gap|row-gap|line-height|font-size|flex|flex-basis|flex-grow|border-width|border-top-width|border-bottom-width)$/;
+function sizingIn(w){
+  for (const a of w.getAnimations({ subtree:true })){
+    if (a.playState === 'finished' || a.playState === 'idle' || !a.effect || a.effect.pseudoElement) continue;
+    const ps = typeof a.transitionProperty === 'string' ? [a.transitionProperty] : a.effect.getKeyframes ? a.effect.getKeyframes().flatMap(k => Object.keys(k)) : [];
+    if (ps.some(p => GROW_SIZING.test(p.replace(/[A-Z]/g, ch => '-' + ch.toLowerCase())))) return true;
+  }
+  return false;
+}
+function growFit(el, w){
+  let H = null, d = 0, v = 0, raf = 0, last = 0;
   const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
-  let first = true;
-  // the wrapper's layout height (offsetHeight), not its box on screen, so an entrance that scales the card (.98 in Clean)
-  // never leaves it short
-  const fit = () => { const h = Math.ceil(w.offsetHeight + box());
-    if (first){ el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; } else el.style.height = h + 'px'; };
-  const ro = new ResizeObserver(fit); ro.observe(w); fit();
-  return el._grow = () => { ro.disconnect(); el._grow = null; el.style.height = ''; el.classList.remove('growing'); };
+  const dur = () => REDUCE ? 0 : el.classList.contains('mx-grow') && !el.closest('.ahx') ? mxT(el, '--t-in', 360) * 1.4 : mxT(el, '--grow-t', 550);
+  const put = () => { el.style.height = Math.max(0, H + box() + d) + 'px'; el.style.setProperty('--grow-d', d.toFixed(2) + 'px'); };
+  // the spring, solved exactly for each frame's step (stiffness from the duration: settled within it, 92% there halfway)
+  const step = now => {
+    raf = 0; const T = dur() / 1000, dt = Math.min(.064, Math.max(0, (now - last) / 1000)); last = now;
+    if (!T || !el.isConnected){ d = v = 0; put(); return; }
+    const k = 8.4 / T, e = Math.exp(-k * dt), c = v + k * d;
+    d = (d + c * dt) * e; v = (v - k * c * dt) * e;
+    if (Math.abs(d) < .05 && Math.abs(v) < 2){ d = v = 0; put(); return; }
+    put(); raf = requestAnimationFrame(step);
+  };
+  // (vc: the content's own speed while it eases, in px a ms, and tc when it was last measured; a pause of more than three
+  // frames starts a new easing)
+  let vc = null, tc = 0;
+  const ro = new ResizeObserver(es => {
+    const b = es[es.length - 1].borderBoxSize, h = b && b[0] ? b[0].blockSize : w.offsetHeight, t = performance.now();
+    if (H === null || !dur()){ H = h; d = v = 0; vc = null; put(); return; }
+    const dh = h - H, dt = Math.max(1, t - tc); if (Math.abs(dh) < .01) return; H = h; tc = t;
+    // a change made at once keeps the height on screen and springs from it; a content's own easing is followed as it goes.
+    // While it eases, a step far from its speed (a line emptied at once as a fold opens) is a change made at once on top of it
+    let jump = dh; if (dt > 50) vc = null;
+    if (sizingIn(w)){ const e = vc === null ? 0 : dh - vc * dt; jump = Math.abs(e) > Math.max(4, Math.abs(vc * dt)) ? e : 0; vc = (dh - jump) / (vc === null ? 1000 / 60 : dt); }
+    else vc = null;
+    if (jump){ d -= jump; if (!raf){ last = t; raf = requestAnimationFrame(step); } }
+    put();
+  });
+  ro.observe(w);
+  return () => { ro.disconnect(); cancelAnimationFrame(raf); el.style.height = ''; el.style.removeProperty('--grow-d'); };
 }
 /* hoverGlide(): Clean's one hover in a menu or a list (owner, 21 Nov): a single highlight that glides from row to row as the
    pointer moves, and fades in as the pointer enters the list and out as it leaves. It follows the keyboard too: the row with
@@ -15309,7 +15370,7 @@ DM.def('agent-tree', (r, c) => {
   const build = n => {
     const who = n.app ? `<span class="atr-av app" aria-hidden="true">${BRAND[n.app]}</span>` : `<span class="atr-av${n.av || !n.lv ? '' : ' app'}" aria-hidden="true"${n.av ? ` style="--a:var(--av-${n.av});--ai:var(--av-${n.av}-ink)"` : ''}>${I(n.ic, 'xs')}</span>`;
     const m = n.lv ? n.s : 'src';
-    n.el = html(`<div class="atr-n" role="treeitem" aria-level="${n.lv + 1}" aria-selected="false" tabindex="${n.lv ? -1 : 0}" data-id="${n.id}" data-s="${n.s}" style="--lv:${n.lv}"><div class="atr-b"><div class="atr-r"><span class="atr-g" data-m="${m}" aria-hidden="true">${atrMark(m)}</span>${who}<span class="atr-w"><span class="atr-tx"><span class="atr-nm"></span>${n.kids.length ? `<span class="atr-tg" aria-hidden="true">${I('chev-d', 'xs')}</span>` : ''}<span class="atr-sub"></span></span><span class="atr-q num"><span class="atr-c"></span></span></span></div></div></div>`);
+    n.el = html(`<div class="atr-n" role="treeitem" aria-level="${n.lv + 1}" aria-selected="false" tabindex="${n.lv ? -1 : 0}" data-id="${n.id}" data-s="${n.s}" style="--lv:${n.lv}"><div class="atr-b"><div class="atr-r"><span class="atr-g" data-m="${m}" aria-hidden="true">${atrMark(m)}</span>${who}<span class="atr-w"><span class="atr-tx"><span class="atr-nm"></span>${n.kids.length ? `<span class="atr-tg mx-press" aria-hidden="true">${I('chev-d', 'xs')}</span>` : ''}<span class="atr-sub"></span></span><span class="atr-q num"><span class="atr-c"></span></span></span></div></div></div>`);
     $('.atr-nm', n.el).textContent = n.n; $('.atr-sub', n.el).textContent = n.t;
     n.tg = $('.atr-tg', n.el); if (n.tg) n.tg.hidden = true;
     if (n.kids.length){ n.fold = html('<div class="fold atr-kids"><div role="group"></div></div>'); n.kids.forEach(k => n.fold.firstElementChild.appendChild(build(k))); n.el.appendChild(n.fold); }
@@ -15550,7 +15611,7 @@ DM.def('agent-tree', (r, c) => {
   const ATR_COST = `<div class="atr atr-ct panel" data-s="run">
     ${ATR_HEAD('<b class="atr-t">Redesign the pricing page</b>')}
     <div class="atr-ct-mix" aria-hidden="true"></div>
-    <div class="atr-tree" role="tree" aria-label="Agents"><svg class="atr-ln" aria-hidden="true"></svg></div>
+    <div class="atr-tree mx-glide" role="tree" aria-label="Agents"><svg class="atr-ln" aria-hidden="true"></svg></div>
     <p class="atr-sr" role="status"></p>
   </div>`;
   function atrCost(r, c){
@@ -15559,7 +15620,7 @@ DM.def('agent-tree', (r, c) => {
     let M, L, head;
     const here = n => !n.late, under = n => n.kids.filter(here);
     function build(n){
-      n.el = html(`<div class="atr-n" role="treeitem" aria-level="${n.lv + 1}" aria-selected="false" tabindex="${n.lv ? -1 : 0}" data-id="${n.id}" data-s="${n.s}" style="--lv:${n.lv};--k:var(--k${n.k})"><div class="atr-b"><div class="atr-r">${atrG(atrM(n))}${atrWho(n)}<span class="atr-w"><span class="atr-tx"><span class="atr-nm"></span>${n.kids.length ? `<span class="atr-tg" aria-hidden="true">${I('chev-d', 'xs')}</span>` : ''}<span class="atr-sub"></span></span><span class="atr-q num"><span class="atr-c"></span><i class="atr-ct-bar" aria-hidden="true"><span></span></i></span></span></div></div></div>`);
+      n.el = html(`<div class="atr-n" role="treeitem" aria-level="${n.lv + 1}" aria-selected="false" tabindex="${n.lv ? -1 : 0}" data-id="${n.id}" data-s="${n.s}" style="--lv:${n.lv};--k:var(--k${n.k})"><div class="atr-b"><div class="atr-r">${atrG(atrM(n))}${atrWho(n)}<span class="atr-w"><span class="atr-tx"><span class="atr-nm"></span>${n.kids.length ? `<span class="atr-tg mx-press" aria-hidden="true">${I('chev-d', 'xs')}</span>` : ''}<span class="atr-sub"></span></span><span class="atr-q num"><span class="atr-c"></span><i class="atr-ct-bar" aria-hidden="true"><span></span></i></span></span></div></div></div>`);
       $('.atr-nm', n.el).textContent = n.n; $('.atr-sub', n.el).textContent = n.t;
       if (n.kids.length){ n.el.setAttribute('aria-expanded', 'true'); n.fold = html('<div class="fold atr-kids"><div role="group"></div></div>'); n.kids.forEach(k => n.fold.firstElementChild.appendChild(build(k))); n.el.appendChild(n.fold); }
       if (n.late) n.el.hidden = true;
@@ -16053,13 +16114,14 @@ DM.def('trace-view', (r, c) => {
     if (!x) return;
     x.el.setAttribute('aria-expanded', 'true');
     const [kind, icon, col] = K[x.k];
-    dc.innerHTML = `<div class="trv-dh"><span class="trv-k" style="--k:${col}">${I(icon,'xs')}</span><b>${x.n}</b>${x.slow ? '<span class="tag warn">slow</span>' : ''}<button class="ib trv-x" aria-label="Close details" data-tip="Close">${I('x')}</button></div>
+    dc.innerHTML = `<div class="trv-dh"><span class="trv-k" style="--k:${col}">${I(icon,'xs')}</span><b>${x.n}</b>${x.slow ? '<span class="tag warn">slow</span>' : ''}<button class="ib trv-x mx-press" aria-label="Close details" data-tip="Close">${I('x')}</button></div>
       <div class="trv-pos" aria-hidden="true" style="--k:${col}"><i style="left:${x.s / SPAN * 100}%"></i></div>
       <div class="trv-kv"><div><span>Kind</span><b>${kind}</b></div><div><span>Starts at</span><b class="num">${sec(x.s)}</b></div><div><span>Latency</span><b class="num trv-lt"></b></div><div><span>Tokens</span><b class="num trv-tn"></b></div></div>
       <div class="trv-io"><span>Input</span><code>${x.in}</code><span>Output</span><code class="out"></code></div>`;
     // closing hands focus back to the span, if it was inside the details
     $('.trv-x', dc).onclick = () => { const el = sel.el, back = dc.contains(document.activeElement); open(null); if (back) el.focus({ preventScroll:true }); };
-    fill(); enter(dc);
+    // (its parts settle one after another as it opens: .mx-rows on the card, motion pieces)
+    fill();
   }
   function fill(){
     const x = sel, done = T >= x.s + x.d;
@@ -16579,6 +16641,12 @@ DM.def('currency-converter', (r, c) => {
   });
 });
 /* ---------- Agent lanes ---------- */
+// Pause and Resume: the icon crossfades and the words ease the pill to their width (motion pieces, 26 Nov)
+function alnPause(b, on, word){
+  const ic = $('.mx-icon', b), w = $('.aln-pl', b);
+  if (!ic || !w){ b.innerHTML = I(on ? 'play' : 'pause','xs') + (on ? 'Resume' : word); return; }
+  iconSwap(ic, () => { ic.innerHTML = I(on ? 'play' : 'pause','xs'); }, { inner:true }); swap(w, on ? 'Resume' : word);
+}
 DM.def('agent-lanes', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{users}', I('users')).replace('{pause}', I('pause','xs'));
   // each agent has a hue of its own (t names the palette slot): its badge, its track, its tag and its stretch of the relay line
@@ -16589,7 +16657,7 @@ DM.def('agent-lanes', (r, c) => {
   ];
   const root = $('.aln', r), rows = $('.aln-rows', r), ct = $('.aln-ct', r), say = $('.aln-say', r), STEPS = L.length * 3;
   L.forEach(l => {
-    l.el = html(`<div class="aln-lane" data-s="queued" style="--c:var(--${l.t});--cb:var(--${l.t}-bg);--cm:var(--aln-${l.t},var(--${l.t}))"><button class="aln-row" aria-expanded="false"><span class="aln-av">${I(l.ic)}</span><span class="aln-who"><span class="aln-n">${l.n}</span><span class="aln-a">${l.wait || 'Queued'}</span></span><span class="aln-tr" aria-hidden="true"><i></i><i></i><i></i></span><span class="aln-st"><span class="tag">Queued</span></span></button><div class="fold shut"><div><div class="aln-det"></div></div></div></div>`);
+    l.el = html(`<div class="aln-lane" data-s="queued" style="--c:var(--${l.t});--cb:var(--${l.t}-bg);--cm:var(--aln-${l.t},var(--${l.t}))"><button class="aln-row mx-press" aria-expanded="false"><span class="aln-av">${I(l.ic)}</span><span class="aln-who"><span class="aln-n">${l.n}</span><span class="aln-a">${l.wait || 'Queued'}</span></span><span class="aln-tr" aria-hidden="true"><i></i><i></i><i></i></span><span class="aln-st"><span class="tag">Queued</span></span></button><div class="fold shut"><div><div class="aln-det"></div></div></div></div>`);
     rows.appendChild(l.el); const b = $('.aln-row', l.el), f = $('.fold', l.el);
     b.onclick = () => { const s = f.classList.toggle('shut'); b.setAttribute('aria-expanded', !s); };
   });
@@ -16610,7 +16678,7 @@ DM.def('agent-lanes', (r, c) => {
   const pb = $('.aln-pause', r);
   // Pause all is the white outlined secondary (owner, 23 Nov); inside Agent harness (Phase II) it keeps its grey one for now
   if (r.closest('.ahx')) pb.classList.replace('line', 'soft');
-  pb.onclick = () => { paused = !paused; pb.innerHTML = I(paused ? 'play' : 'pause','xs') + (paused ? 'Resume' : 'Pause all'); swap($('.aln-t', r), paused ? 'All agents paused' : '3 agents working');
+  pb.onclick = () => { paused = !paused; alnPause(pb, paused, 'Pause all'); swap($('.aln-t', r), paused ? 'All agents paused' : '3 agents working');
     L.forEach(l => { if (l.running){ state(l, paused ? 'paused' : 'working'); $('.aln-a', l.el).classList.toggle('shim', !paused); } }); tell(); };
   c.every(1000, () => { if (!paused && !finished){ secs++; $('.aln-m', r).textContent = clk(); } });
   // time only passes for the agents while they aren't paused; each() hears how far through the wait they are
@@ -16691,7 +16759,7 @@ DM.def('agent-lanes', (r, c) => {
   }
 
   const alnSwTpl = () => `<div class="aln-sw panel keep">
-    <div class="aln-sw-h"><div class="aln-sw-ht"><b class="aln-sw-tt">3 agents working</b><span class="aln-sw-st num">0:00 of 0:12</span></div><span class="aln-sw-key" aria-hidden="true"><span><i class="next"></i>Next</span><span><i class="run"></i>Working</span><span><i class="done"></i>Done</span><span><i class="wait"></i>Waiting</span></span><button class="pill line sm aln-sw-pause" type="button">${I('pause','xs')}Pause</button></div>
+    <div class="aln-sw-h"><div class="aln-sw-ht"><b class="aln-sw-tt">3 agents working</b><span class="aln-sw-st num">0:00 of 0:12</span></div><span class="aln-sw-key" aria-hidden="true"><span><i class="next"></i>Next</span><span><i class="run"></i>Working</span><span><i class="done"></i>Done</span><span><i class="wait"></i>Waiting</span></span><button class="pill line sm aln-sw-pause mx-ic" type="button"><span class="mx-icon">${I('pause','xs')}</span><span class="aln-pl mx-w">Pause</span></button></div>
     <div class="aln-sw-grid">
       <div class="aln-sw-ax num" aria-hidden="true"><span class="aln-sw-ticks"></span></div>
       <div class="aln-sw-rows"></div>
@@ -16756,7 +16824,7 @@ DM.def('agent-lanes', (r, c) => {
       T = Math.min(ALN_END, Math.round(T * 10 + 1) / 10); paint(); text(); fire();
       if (T >= ALN_END){ fin = true; clearInterval(iv); root.classList.add('fin'); swap(tt, 'All 3 agents finished'); pb.hidden = true; text(); }
     });
-    pb.onclick = () => { paused = !paused; root.classList.toggle('paused', paused); pb.innerHTML = I(paused ? 'play' : 'pause','xs') + (paused ? 'Resume' : 'Pause'); swap(tt, paused ? 'All agents paused' : '3 agents working'); text(); };
+    pb.onclick = () => { paused = !paused; root.classList.toggle('paused', paused); alnPause(pb, paused, 'Pause'); swap(tt, paused ? 'All agents paused' : '3 agents working'); text(); };
     // dragging the playhead's time, clicking a lane, or the arrow keys on the playhead look back through the run; Back to
     // now follows the run again
     const seek = v => { v = Math.max(0, Math.min(T, v)); V = v >= T - .05 ? null : v; live.hidden = V === null; paint(); text(); };
@@ -16788,14 +16856,14 @@ DM.def('agent-lanes', (r, c) => {
     let fin = false, ticks = 0;
     A.forEach((a, i) => {
       a.held = false; a.tk = 0; a.spent = 0; a.t = 0; const N = a.steps.length;
-      a.el = html(`<div class="aln-cw-c" data-s="idle" style="--a:var(--av-${a.av});--ai:var(--av-${a.av}-ink)"><div class="aln-cw-top"><span class="aln-cw-av" aria-hidden="true">${I(a.ic)}</span><span class="aln-cw-tx"><b>${a.n}</b><span>Starts soon</span></span><span class="tag aln-cw-tag">Up next</span><span class="aln-cw-acts"><button class="ib aln-cw-hold" type="button" aria-pressed="false" aria-label="Pause ${a.n}" data-tip="Pause this agent">${I('pause','xs')}</button><button class="ib aln-cw-sb" type="button" aria-expanded="false" aria-label="Steer ${a.n}" data-tip="Steer">${I('wand','xs')}</button></span></div><div class="aln-cw-meter"><span class="aln-cw-tr" role="progressbar" aria-label="${a.n}’s steps" aria-valuemin="0" aria-valuemax="${N}" aria-valuenow="0" style="--n:${N}"><span class="aln-cw-ln"><i></i></span>${'<b></b>'.repeat(N)}</span><span class="aln-cw-num"><span><b class="aln-cw-sn">0</b> of ${N} steps</span><span class="aln-cw-tkn"><b class="aln-cw-tk">0</b> tokens</span><b class="aln-cw-cs">$0.00</b></span></div><div class="fold shut"><div><form class="aln-cw-steer"><input aria-label="A note for the ${a.n.toLowerCase()}" placeholder="Tell the ${a.n.toLowerCase()} what to change"><button class="ib aln-cw-go" type="submit" aria-label="Send" data-tip="Send" disabled>${I('send','xs')}</button></form></div></div><div class="aln-cw-nts"></div></div>`);
+      a.el = html(`<div class="aln-cw-c" data-s="idle" style="--a:var(--av-${a.av});--ai:var(--av-${a.av}-ink)"><div class="aln-cw-top"><span class="aln-cw-av" aria-hidden="true">${I(a.ic)}</span><span class="aln-cw-tx"><b>${a.n}</b><span>Starts soon</span></span><span class="tag aln-cw-tag">Up next</span><span class="aln-cw-acts"><button class="ib aln-cw-hold mx-ic mx-press" type="button" aria-pressed="false" aria-label="Pause ${a.n}" data-tip="Pause this agent">${I('pause','xs')}</button><button class="ib aln-cw-sb mx-press" type="button" aria-expanded="false" aria-label="Steer ${a.n}" data-tip="Steer">${I('wand','xs')}</button></span></div><div class="aln-cw-meter"><span class="aln-cw-tr" role="progressbar" aria-label="${a.n}’s steps" aria-valuemin="0" aria-valuemax="${N}" aria-valuenow="0" style="--n:${N}"><span class="aln-cw-ln"><i></i></span>${'<b></b>'.repeat(N)}</span><span class="aln-cw-num"><span><b class="aln-cw-sn">0</b> of ${N} steps</span><span class="aln-cw-tkn"><b class="aln-cw-tk">0</b> tokens</span><b class="aln-cw-cs">$0.00</b></span></div><div class="fold shut"><div><form class="aln-cw-steer"><input aria-label="A note for the ${a.n.toLowerCase()}" placeholder="Tell the ${a.n.toLowerCase()} what to change"><button class="ib aln-cw-go" type="submit" aria-label="Send" data-tip="Send" disabled>${I('send','xs')}</button></form></div></div><div class="aln-cw-nts"></div></div>`);
       list.appendChild(a.el);
       a.tr = $('.aln-cw-tr', a.el); a.ln = $('.aln-cw-ln i', a.el); a.dots = $$('.aln-cw-tr b', a.el); a.sn = $('.aln-cw-sn', a.el); a.tkEl = $('.aln-cw-tk', a.el); a.csEl = $('.aln-cw-cs', a.el);
       // no hand-off row between the cards (owner, 18 Nov): each waiting card already says what it waits for
       const hold = $('.aln-cw-hold', a.el), sb = $('.aln-cw-sb', a.el), fold = $('.fold', a.el), form = $('.aln-cw-steer', a.el), inp = $('input', form), go = $('.aln-cw-go', form);
       inp.oninput = () => { go.disabled = !inp.value.trim(); };
       fold.inert = true;
-      hold.onclick = () => { a.held = !a.held; hold.setAttribute('aria-pressed', String(a.held)); hold.innerHTML = I(a.held ? 'play' : 'pause','xs'); hold.dataset.tip = a.held ? 'Resume this agent' : 'Pause this agent'; hold.setAttribute('aria-label', (a.held ? 'Resume ' : 'Pause ') + a.n); paint(a); };
+      hold.onclick = () => { a.held = !a.held; hold.setAttribute('aria-pressed', String(a.held)); iconSwap(hold, () => { hold.innerHTML = I(a.held ? 'play' : 'pause','xs'); }, { inner:true }); hold.dataset.tip = a.held ? 'Resume this agent' : 'Pause this agent'; hold.setAttribute('aria-label', (a.held ? 'Resume ' : 'Pause ') + a.n); paint(a); };
       // the note's field takes the focus only when you open it yourself; the demo never moves your focus
       sb.onclick = e => { const on = sb.getAttribute('aria-expanded') !== 'true'; sb.setAttribute('aria-expanded', String(on)); fold.classList.toggle('shut', !on); fold.inert = !on; if (on && e.isTrusted) requestAnimationFrame(() => inp.focus({ preventScroll:true })); };
       // the note shows once its field has shut, so the card never holds both at once
@@ -18974,9 +19042,17 @@ DM.def('answer-action-bar', (r, c) => {
     const s = (i ? `<span${inner ? ' class="nw"' : ''}> </span>` : '') + `<span class="w${on ? ' nw' : ''}">${w.replace(/\[\[|\]\]/g, '')}</span>`; if (b) on = false; return s; }); };
   // the tone changes with the words: the words fading out keep their colour, and the new ones arrive in theirs (swap()
   // writes them 170ms on)
-  const status = (text, tone) => { clearTimeout(st._tone); const set = () => { st.classList.toggle('warn', tone === 'warn'); st.classList.toggle('ok', tone === 'ok'); };
+  // The line opens and closes on its own height at the same moment as the reasons (owner, 26 Nov: no jumping up and down): an
+  // empty line takes its words at once rather than after swap()'s fade, and a line that empties eases shut with its words still
+  // in it, then lets them go
+  const status = (text, tone) => { clearTimeout(st._tone); clearTimeout(st._off); const set = () => { st.classList.toggle('warn', tone === 'warn'); st.classList.toggle('ok', tone === 'ok'); };
+    const had = !!st.textContent.trim() && !st.classList.contains('off');
+    if (st._sw && (!text || !had)){ clearTimeout(st._sw.t); st._sw = null; st.classList.remove('out'); }
+    if (!text){ if (!st.textContent.trim()){ st.classList.remove('off'); return; } st.classList.add('off'); st._off = setTimeout(() => { st.textContent = ''; st.classList.remove('off', 'warn', 'ok'); }, REDUCE ? 0 : mxT(st, '--t', 450)); return; }
+    st.classList.remove('off');
     if (tone === 'ok') { set(); st.innerHTML = `${I('ok','xs')}<span>${text}</span>`; enter(st); return; }
-    const lag = !REDUCE && !!st.textContent.trim() && st.textContent !== text; swap(st, text); if (lag) st._tone = setTimeout(set, 170); else set(); };
+    if (!had){ set(); st.textContent = text; mxIn(st); return; }
+    const lag = !REDUCE && st.textContent !== text; swap(st, text); if (lag) st._tone = setTimeout(set, 170); else set(); };
   function nav(){
     n.textContent = (cur + 1) + ' / ' + vers.length; pg.classList.toggle('on', vers.length > 1); pg.inert = vers.length < 2;
     pv.disabled = cur === 0 || busy; nx.disabled = cur === vers.length - 1 || busy; re.disabled = busy;
@@ -22061,6 +22137,9 @@ DM.def('run-drawer', (r, c) => {
   const uid = 'rdr' + Math.random().toString(36).slice(2, 7);
   const frame = $('.rdr', r), dw = $('.rdr-dw', r), flow = $('.rdr-flow', r), tg = $('.rdr-tg', r), stT = $('.rdr-st', r), idT = $('.rdr-id', r), meta = $('.rdr-meta', r);
   const bd = $('.rdr-b', r), rowsEl = $('.rdr-rows', r), sc = $('.rdr-sc', r), logEl = $('.rdr-log', r), cnt = $('.rdr-lf .n', r), ds = $('.rdr-ds', r), io = $('.rdr-io', r);
+  // its motion pieces (26 Nov): one highlight glides from step to step in both lists, in every style; the picked step keeps its
+  // own fill
+  if (!r.closest('.ahx')) ['.rdr-rows', '.rdr-ds'].forEach(s => c.offs.push(hoverGlide($(s, r), s === '.rdr-rows' ? '.rdr-r' : 'button', { keep:'[aria-pressed="true"]' })));
   const stopB = $('.rdr-stop', r), againB = $('.rdr-again', r), followB = $('.rdr-follow', r), grip = $('.rdr-grip', r), live = $('.rdr-live', r);
   bd.id = uid + '-b'; tg.setAttribute('aria-controls', bd.id);
   // the workflow: each step with what it took in and handed on; an AI step's model and tool calls are its kids, as

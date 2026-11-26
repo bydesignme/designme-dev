@@ -341,7 +341,7 @@ export function AgentTree({ root, title, status, seconds, collapsed, defaultColl
             <Mark key={m} m={m} />
             {who}
             <span className="dm-atr-w">
-              <span className="dm-atr-tx"><span className="dm-atr-nm">{n.name}</span>{k > 0 && <span className="dm-atr-tg" aria-hidden="true"><Icon name="chev-d" size="xs" /></span>}<span className="dm-atr-sub">{n.task}</span></span>
+              <span className="dm-atr-tx"><span className="dm-atr-nm">{n.name}</span>{k > 0 && <span className="dm-atr-tg dm-mx-press" aria-hidden="true"><Icon name="chev-d" size="xs" /></span>}<span className="dm-atr-sub">{n.task}</span></span>
               <span className="dm-atr-q dm-num">
                 {t >= 1 && <span className="dm-atr-sec"><span>{Math.floor(t)}s</span><span aria-hidden="true"> ·</span></span>}
                 {k ? <Tip label={`Its own ${money(n.cost ?? 0)}, ${kinds(k, lv)} ${money(v - (n.cost ?? 0))}`}>{cost}</Tip> : cost}
@@ -366,7 +366,7 @@ export function AgentTree({ root, title, status, seconds, collapsed, defaultColl
         <div className="dm-atr-hd"><b className="dm-atr-t">{title}</b><span className="dm-atr-s"><span className="dm-atr-dot" aria-hidden="true" /><span className="dm-atr-m">{line}</span><span aria-hidden="true">·</span><span className="dm-atr-time dm-num">{clock(secs)}</span></span></div>
         <span className="dm-atr-tot dm-num">{money(sum(root))}</span>
       </div>
-      <div ref={treeRef} className="dm-atr-tree" role="tree" aria-label="Agents" onKeyDown={onKey} onClick={onClick}>
+      <div ref={treeRef} className="dm-atr-tree dm-mx-glide" role="tree" aria-label="Agents" onKeyDown={onKey} onClick={onClick}>
         <svg className="dm-atr-ln" aria-hidden="true" />
         {node(root, 0)}
       </div>
