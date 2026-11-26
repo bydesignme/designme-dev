@@ -1509,7 +1509,7 @@ th:last-child>.col-rz{display:none}
 .tst{position:relative}
 /* the toast on its way out and the one coming in share one cell, so each keeps its full width while they cross; the cell is
    as tall as its toast and keeps no room when there is none */
-.tst-slot{position:relative;width:100%;display:grid;justify-items:center;align-items:center}
+.tst-slot{position:relative;width:100%;display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;align-items:center}
 .tst-slot>:is(.tst-t,.tst-make){grid-area:1/1}
 /* the button that starts the job sits where its toast will: the toast grows out of it and, once closed, goes back into it */
 .tst-make.under{visibility:hidden}
@@ -1518,12 +1518,18 @@ th:last-child>.col-rz{display:none}
    show on Blueprint's dark raised grey */
 .tst-t{width:100%;max-width:380px;box-sizing:border-box;background:var(--raised);border-radius:var(--r-card);box-shadow:var(--shadow-pop);--row:color-mix(in srgb,var(--fg) 5%,transparent);--tst-div:color-mix(in srgb,var(--fg) 10%,transparent);overflow:clip;position:relative;touch-action:pan-y;user-select:none;-webkit-user-select:none}
 .tst-t[hidden]{display:none}
+/* (it grows with what it holds, grow(); its corners clip what is inside them exactly). The card's own height carries the motion,
+   so its steps and its footer open and shut at once and only fade: two eased heights on top of each other would leave the
+   card's edge trailing behind them */
+.tst-t.growing{overflow-clip-margin:0px}
+.tst-t .fold{transition:opacity var(--t-fast) var(--ease)}
+.tst-t .fold.shut{transition:opacity var(--t-fast) var(--ease),visibility 0s var(--t-fast)}
 /* the head: the glyph, the words, then the toast's own buttons, all on one centre line, 16px in from every edge */
 .tst-hd{display:flex;align-items:center;gap:var(--s-3);padding:var(--s-4)}
 .tst-tx{flex:1;min-width:0}
 .tst-ti{display:block;width:fit-content;max-width:100%;font-size:13px;font-weight:500;line-height:18px}
-/* the line under the title stays on one line, so the toast keeps its height as a counter in it ticks over */
-.tst-de{display:block;font-size:12px;line-height:18px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* the line under the title wraps on a narrow toast rather than cutting off its news ("The sheet says 41k, not 14k") */
+.tst-de{display:block;font-size:12px;line-height:18px;color:var(--muted);font-variant-numeric:tabular-nums}
 /* its icon buttons fill on hover, so they are measured by their box (ui-qa-gate, "boxes that fill"): Close's box, and the
    countdown ring drawn on it, end on the content's right edge, 16px in, where the footer's buttons end */
 .tst-hb{display:flex;align-items:center;gap:var(--s-1);flex:none}
@@ -16012,6 +16018,9 @@ DM.def('toast', (r, c) => {
     + '<g>' + Array.from({ length:N }, (_, i) => card(i, ' tst-gh')).join('') + '</g><g class="tst-fan">' + Array.from({ length:N }, (_, i) => card(i, '')).join('') + '</g>'
     + '<g class="tst-ok"><circle cx="41" cy="27" r="6.5"/><path d="M38.3 27.1l1.9 1.9 3.5-3.6"/></g>';
   const fan = $('.tst-fan', svg), cards = $$('.tst-fan .tst-cd', svg);
+  // the card eases to its new height as its words wrap or its steps and footer come and go (grow(), centred in the stage)
+  c.offs.push(grow(T));
+  const fitNow = () => { T.style.transition = 'none'; T.style.height = T.firstElementChild.offsetHeight + 'px'; void T.offsetHeight; T.style.transition = ''; };
   // the card being drafted, or the one the check stopped on, comes to the front of the hand; the hand goes back in order after
   const order = () => cards.forEach(e => fan.appendChild(e));
   const glyph = k => { G.classList.remove('idle', 'read', 'plan', 'done', 'gone'); k.split(' ').filter(Boolean).forEach(x => G.classList.add(x)); };
@@ -16087,7 +16096,7 @@ DM.def('toast', (r, c) => {
   const show = () => {
     T.getAnimations().forEach(a => a.cancel()); T.classList.remove('tst-out');
     const M = motion(), from = box(make);
-    T.hidden = false; T.style.opacity = ''; make.classList.add('under');
+    T.hidden = false; T.style.opacity = ''; make.classList.add('under'); fitNow();
     if (REDUCE){ T.animate([{ opacity:0 }, { opacity:1 }], { duration:M.fast }); return; }
     const to = box(T), fly = flyer(from); T.style.opacity = '0';
     const a = fly.animate([from, to], { duration:M.slow, easing:M.ease, fill:'forwards' });

@@ -84,7 +84,7 @@ export default function ToastDemo() {
   const toast: ToastData | null = shown && phase !== 'idle' ? {
     id: 'job' + job.run, status: working ? 'working' : phase === 'error' ? 'error' : phase === 'stopped' ? 'stopped' : 'success',
     title: words[phase][0], description: words[phase][1], steps: phase === 'removed' ? undefined : steps, actions: acts[phase],
-    glyph: <DeckGlyph phase={look} made={phase === 'draft' || phase === 'stopped' ? n : N} active={active} flagged={flagged} />,
+    glyph: <DeckGlyph phase={look} made={phase === 'read' || phase === 'outline' ? 0 : phase === 'draft' || phase === 'stopped' ? n : N} active={active} flagged={flagged} />,
     onStop: stop, duration: phase === 'done' ? 10000 : phase === 'removed' ? 6000 : undefined,
     // milestones, not every slide: the start, a problem (at once), the end
     announce: { read: 'Making slides from your notes', outline: 'Making slides from your notes', draft: 'Making slides from your notes', check: 'Checking the numbers', error: 'Slide 7 doesn’t match the sheet. Fix slide 7 or skip it.', fix: 'Fixing slide 7', done: '12 slides ready. Open the deck or undo it.', stopped: `Stopped. ${n} of 12 drafted. Resume or discard.`, removed: 'Deck removed. Your notes are unchanged.', idle: '' }[phase]
