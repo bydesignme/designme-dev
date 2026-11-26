@@ -9,11 +9,12 @@
                                            to fit a narrower box (the landing page's templates); otherwise it stays
                                            1280px, centred
                                            passWheel: true (the landing page) never lets the app trap the reader's
-                                           scrolling: a mouse wheel over the frame scrolls the page until the reader
-                                           clicks inside, and then the app has it until the pointer leaves the frame;
-                                           a small scroll box under the pointer (a log, a list) scrolls first, to its
-                                           end, as on any page; a swipe up or down always scrolls the page, and a tap
-                                           still reaches the app.
+                                           scrolling: while the frame is passing through the window, a mouse wheel or a
+                                           swipe up or down over it scrolls the page, and only a small scroll box under
+                                           the pointer (a log, a list) scrolls first, to its end; once the frame is in
+                                           front of the reader (as much of it on screen as fits), the app's panes scroll
+                                           too, to their end, and then the page. A click inside hands the app the wheel
+                                           until the pointer leaves the frame; a tap still reaches the app.
                                            Hover and the app's own demos are untouched
      v.show(src, device)                   'desktop' | 'tablet' | 'mobile'; a page already loaded is shown again, not reloaded
      v.device(device)                      changes the width of the page on show
@@ -99,15 +100,21 @@
         requestAnimationFrame(go);
       });
     }
-    // a scroll box, smaller than 60% of the framed page's height, between the target and the page that can still scroll by dy
-    function inner(w, t, dy){
+    // a scroll box between the target and the page that can still scroll by dy: a small one (under 60% of the framed page's
+    // height) always, and the app's big panes too (big) once the frame is in front of the reader
+    function inner(w, t, dy, big){
       for (var a = t && t.nodeType === 1 ? t : t && t.parentElement; a && a !== w.document.body && a !== w.document.documentElement; a = a.parentElement){
         var cs = w.getComputedStyle(a);
-        if (!/auto|scroll/.test(cs.overflowY) || a.scrollHeight <= a.clientHeight + 1 || a.clientHeight >= w.innerHeight * .6) continue;
+        if (!/auto|scroll/.test(cs.overflowY) || a.scrollHeight <= a.clientHeight + 1 || (!big && a.clientHeight >= w.innerHeight * .6)) continue;
         if (dy > 0 ? a.scrollTop + a.clientHeight < a.scrollHeight - 1 : dy < 0 && a.scrollTop > 0) return true;
       }
       return false;
     }
+    // the frame is in front of the reader, as much of it on screen as the window can show (owner, 26 Nov: "I can't scroll inside
+    // the templates"): the app's own panes (the accounts table, a view, a list) then take the wheel or the swipe, to their end,
+    // as nested scroll boxes do on any page, and the page carries on after. While the frame is only passing through the window,
+    // the page keeps the scroll, so it never gets stuck behind a whole app on the way down
+    function present(el){ var r = el.getBoundingClientRect(), vis = Math.min(r.bottom, innerHeight) - Math.max(r.top, 0); return r.height > 0 && vis >= Math.min(r.height, innerHeight) * .9 - 1; }
     function pass(w, el){
       w.addEventListener('wheel', function(e){
         if (engaged || e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
@@ -116,7 +123,7 @@
         // a small scroll box under the pointer (a run log, a list, a menu) that can still scroll that way takes the wheel, as it
         // would on any page, until it reaches its end (owner, 21 Nov: "I can't scroll in this window"); the app's big panes don't,
         // so the page never gets stuck behind a whole app
-        if (inner(w, e.target, e.deltaY)) return;
+        if (inner(w, e.target, e.deltaY, present(el))) return;
         // a wheel that can't be held back is part of a scroll the browser started on the page before the frame came under
         // the pointer: the browser scrolls the page with it already
         if (!e.cancelable) return;
@@ -150,6 +157,8 @@
           var dx = f.x - t0.x, dy = f.y - t0.y;
           if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
           t0.page = Math.abs(dy) >= Math.abs(dx);
+          // a swipe over an app pane that can still scroll that way, with the frame in front of the reader, is the app's
+          if (t0.page && present(el) && inner(w, e.target, -dy, true)){ t0 = null; touching = false; use(); return; }
           if (t0.page) scrolling();
         }
         if (!t0.page) return;
