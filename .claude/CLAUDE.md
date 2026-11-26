@@ -219,6 +219,9 @@ every session and every agent.
   in installs and never changes the component's design.
 - A showcase still uses the component's real design, the type and colour-contrast rules, the no-coloured-glow rule and the
   no-copying rule. Only components the owner names get one (first: Knowledge sources).
+- Each showcase ends on its own finishing moment that grows out of what the component does (a bar flexing, a pulse running
+  back down a tree, ink settling): no shared sparkle burst repeated across showcases (owner, 26 Nov: "you're using this effect
+  a bit too much"). Where sparkles are used at all, they are few, fine and varied in size, never the same chunky star burst.
 
 ## Spacing and radius
 - Soft is plush (owner, 3 Nov): every corner radius in a component is scaled by `--rk` (1.25, and 1.7 where the browser
