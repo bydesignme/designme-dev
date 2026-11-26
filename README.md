@@ -50,7 +50,7 @@ import { StatusPill } from '@/components/designme/status-pill/StatusPill';
 ### Astro
 
 ```sh
-npx designme add tool-call --astro
+npx designme add live-answer --astro
 ```
 
 `.astro` components with the same markup, CSS and script as the HTML version. They land in `src/components/designme`

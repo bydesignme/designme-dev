@@ -290,7 +290,7 @@ const BODY = {
         ['items', [
           ['Blueprint', [['p', 'What the components draw by default.'], ['code', 'html', '<html>']]],
           ['Soft', [['p', 'Add `data-style="soft"` to `<html>`, or to any element around the components to make just those Soft. Tooltips sit on the page, so they keep the page\'s style.'], ['code', 'html', '<html data-style="soft">']]],
-          ['Clean', [['p', 'Black, white and grey with an ink accent, hairline outlines and fully round controls. Add `data-style="clean"` to `<html>`, or to any element around the components to make just those Clean.'], ['code', 'html', '<html data-style="clean">']]],
+          ['Clean', [['p', 'Black, white and grey with an ink primary button, hairline outlines and fully round controls. In light mode the accent stays blue for data, selection and links; in dark mode it turns white. Add `data-style="clean"` to `<html>`, or to any element around the components to make just those Clean.'], ['code', 'html', '<html data-style="clean">']]],
         ]],
         ['p', 'Until you pick a style in the header, designme.dev follows your theme: light opens in Soft and dark in Blueprint. It remembers the style you pick.'],
       ]],
@@ -320,7 +320,7 @@ const BODY = {
         ['swatches'],
         ['ul', [
           'Soft is blue, `#116ff8`, with white text on it, in light and dark mode. Accent text is `#0f5fd5` in light mode and `#9dc4ff` in dark mode.',
-          'Blueprint is lime, `#d4f84a`, with dark text and icons on it. In dark mode, text and marks are lime too. In light mode, lime is too light to read on white, so accent text uses the ink colour and marks use green, `#1daa51`.',
+          'Blueprint is lime, `#d4f84a`, with dark text and icons on it. In dark mode, text and marks are lime too. In light mode, lime is too light to read on white, so accent text uses the ink colour and marks use green, `#00a23d`.',
         ]],
       ]],
       ['Your own accent', [

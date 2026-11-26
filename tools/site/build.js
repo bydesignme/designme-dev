@@ -121,9 +121,9 @@ const REMOVED = new Set(['thread-panel', 'voice-capture', 'prompt-starters', 'pr
 const LIVE = new Set(require('./live.js'));
 const slugOf = n => n.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 // each card of the original page: its title and the name of its section
-const SITE_TITLE = {}, SITE_SECTION = {};
+const SITE_TITLE = {}, SITE_SECTION = {}, SITE_SECTIONS = [];
 for (const [, body] of site.matchAll(/<section class="lib-sec" id="[\w-]+">([\s\S]*?)<\/section>/g)){
-  const sec = (body.match(/<h2>([^<]*)<\/h2>/) || [])[1];
+  const sec = (body.match(/<h2>([^<]*)<\/h2>/) || [])[1]; SITE_SECTIONS.push(sec);
   for (const m of body.matchAll(/<article[^>]*\bid="(c\d+)"[^>]*>[\s\S]*?class="comp-title">([^<]*)</g)){ SITE_TITLE[m[1]] = m[2]; SITE_SECTION[m[1]] = sec; }
 }
 // every component with a card, by its card id: its registry name (what /components/<name> and npx designme add use), title and
@@ -542,8 +542,10 @@ const heightsOf = id => !HEIGHTS || !HEIGHTS.heights[id] ? '' : ` style="${HEIGH
 for (const [a, b, n] of [
   ["React and Tailwind versions are in progress, and you can follow them on the <a href=\"#/roadmap\">roadmap</a>. Sign up and you will get them as soon as they land.",
    "Yes. Every component comes in HTML, React and Astro: run npx designme add with the component name and <span class=\"nowrap\">--react</span> or <span class=\"nowrap\">--astro</span>, and the component lands in your project with its styles. The React version works in Next.js and React apps, and the shadcn CLI can add either one. To give them your shadcn/ui or Tailwind v4 theme, add the theme bridge with <span class=\"nowrap\">--theme-bridge</span>. A version styled with Tailwind classes is in progress on the <a href=\"#/roadmap\">roadmap</a>.", null],
+  // the live roadmap's 'react' idea (React and Tailwind versions) is the Tailwind part now: the roadmap's own list renames it,
+  // and the live list takes its words from here (make-patches.py)
   ["['react','React and Tailwind versions','Every component as a typed React component styled with Tailwind.','progress','Code'],",
-   "['react','React components','Every component as a typed React component for Next.js, React and Astro, with npx designme add <name> --react.','shipped','Code'],\n      ['astro','Astro components','Every component as an Astro component, with npx designme add <name> --astro.','shipped','Code'],\n      ['tailwind','Tailwind versions','Every component styled with Tailwind classes instead of its own CSS.','progress','Code'],", 1]
+   "['react','Tailwind versions','Every component styled with Tailwind classes instead of its own CSS.','progress','Code'],\n      ['reactc','React components','Every component as a typed React component for Next.js, React and Astro, with npx designme add <name> --react.','shipped','Code'],\n      ['astro','Astro components','Every component as an Astro component, with npx designme add <name> --astro.','shipped','Code'],", 1]
 ]) {
   const count = site.split(a).length - 1;
   if (!count || (n && count !== n)) throw new Error('React copy not found: ' + a.slice(0, 50));
@@ -927,6 +929,23 @@ if (!SPLIT) site = site.replace('</head>', '<style id="one-list">.grp-sw,.grp-ne
 // the number of components on the page (live.js), where the copy states it (make-patches.py writes it as @@COUNT@@)
 if (site.split('@@COUNT@@').length !== 2) throw new Error('the intro\'s component count (@@COUNT@@) is not on the page once');
 site = site.replace('@@COUNT@@', String(done.length));
+/* the roadmap's Coming next (make-patches.py writes it as @@NEXT@@): the components that aren't live yet (live.js), which go
+   live one by one after launch. The eight that came back on 23 Nov for their Clean designs come first, then the rest by their
+   library section, Conversation and Agent status first as on the page. Each group is [label, [titles]] */
+{
+  const FIRST = ['human-handoff', 'steering', 'browser-session', 'voice-orb', 'image-generation', 'tool-call', 'code-viewer', 'design-tuner'];
+  const off = UNLISTED.map(cid => ALL[cid]), first = FIRST.map(id => off.find(x => x.id === id)).filter(Boolean);
+  if (first.length !== FIRST.length) warn.push('Coming next: ' + FIRST.filter(id => !off.some(x => x.id === id)).join(', ') + ' are live or gone');
+  const order = ['Conversation', 'Agent status', ...SITE_SECTIONS.filter(x => x !== 'Conversation' && x !== 'Agent status' && x !== 'App basics')];
+  const rest = off.filter(x => !first.includes(x)), groups = [];
+  for (const sec of [...order, ...new Set(rest.map(x => x.section))]) if (!groups.some(g => g[0] === sec)){
+    const t = rest.filter(x => x.section === sec).map(x => x.title); if (t.length) groups.push([sec, t]);
+  }
+  if (groups.reduce((n, g) => n + g[1].length, first.length) !== off.length) throw new Error('Coming next lost a component');
+  const next = (first.length ? [['First up', first.map(x => x.title)]] : []).concat(groups);
+  if (site.split('@@NEXT@@').length !== 2) throw new Error("the roadmap's Coming next (@@NEXT@@) is not on the page once");
+  site = site.replace('@@NEXT@@', () => JSON.stringify(next).replace(/</g, '\\u003c'));
+}
 /* ---------- Your theme: the script that puts a visitor's pasted shadcn/Tailwind v4 theme over the demos (theme-bridge.js),
    right after the head's script that picks the style, so a saved theme is on before the page paints ---------- */
 {
