@@ -25,7 +25,7 @@ export function mount(stage, svgText, opts){
   const camera = new THREE.PerspectiveCamera(26, 1, 1, 5000);
 
   // the mark, from its own paths: shapes (with their holes) extruded deep and bevelled, centred on its middle
-  const data = new SVGLoader().parse(svgText.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" '));
+  const data = new SVGLoader().parse(svgText.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ').replace(/currentColor/g, '#000'));
   const shapes = data.paths.flatMap(p => SVGLoader.createShapes(p));
   const geo = new THREE.ExtrudeGeometry(shapes, { depth:150, bevelEnabled:true, bevelThickness:22, bevelSize:14, bevelOffset:-4, bevelSegments:6, curveSegments:48 });
   geo.computeBoundingBox();
