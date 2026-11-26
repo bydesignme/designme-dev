@@ -7,6 +7,20 @@ The same build writes the HTML registry in `r/` that `npx designme add` download
 
 Don't edit `library.html` or `r/*.json` by hand: the next build overwrites them.
 
+## What is live
+
+`live.js` lists the components that are live on the site (owner, 24 Nov), by registry name. Only those get a card in the
+library, a sidebar link and a search hit, a registry entry in `r/` (and so `r/react`, `r/astro`, `r/shadcn` and the React
+package's `src/index.ts` and README), a page, a place in the sitemap and `llms.txt`, and a place in every count the copy
+gives (the library's intro, the READMEs, the docs, the landing page). The others keep their code in `soft-2/index.html`, the
+React package and `tools/pages/content`; their registry entries go to `tools/pages/data/unlisted/` (git-ignored, never
+served), which the templates and the React package's styles read, and their pages redirect to `/library`. A section with
+no live component leaves the library and the sidebar. To make a component live, add its name to `live.js` and run the whole
+build (`build`, `react`, `astro`, `pages`); the build warns if a section is left with an odd number of half-width cards.
+The library splits into its two sets, Agent components and App basics (the switch, the sidebar labels, and the two counts
+in the copy), only once two or more app basics are live (`SPLIT_AT` in `build.js`); below that it is one list with one count,
+and `site.json` says `split: false` for the pages.
+
 ## Where to change things
 
 | To change | Edit |

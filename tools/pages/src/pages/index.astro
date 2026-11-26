@@ -28,7 +28,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import Page from '../layouts/Page.astro';
-import { ROOT, SITE, COMPONENTS, SECTIONS, BANDS, icon, MARKS, shadcnUrl } from '../lib/data.mjs';
+import { ROOT, SITE, COMPONENTS, SECTIONS, SPLIT, BANDS, icon, MARKS, shadcnUrl } from '../lib/data.mjs';
 import { FRAME_CSS, FRAME_JS } from '../lib/templates.mjs';
 
 const comp = reg => { const c = COMPONENTS.find(x => x.reg === reg); if (!c) throw new Error('landing: no component called ' + reg); return c; };
@@ -71,15 +71,23 @@ const bandCss = [pick(''), ...PHONE.map((x, k) => `@media (max-width:${(k ? PHON
 // seconds), Eval results and Agent inbox (each empties for a moment as it starts again) are left out, and so is Top pages
 // (its ranks are set in monospace). Three stacks from
 // 1440px (the first wider, for Activity heatmap), two from 1100px (placed by the script under the bento), one below, in the
-// three stacks' order. When a card here changes its height, sample them again and choose again
+// three stacks' order. When a card here changes its height, sample them again and choose again.
+// At launch only the live components are on the site (tools/site/live.js; owner, 24 Nov), so the bento is twelve live ones
+// with a card of their own, and of those the steadiest: Context meter (it folds to a pill), Command palette, Composer, Model
+// picker and Terminal stream change height by 110 to 340px as they play and are left out. Run cost sits in the first, wider
+// stack, where its Raise cap button has room. Sampled for 60 seconds at 1440 with every card in view, the three stacks' feet
+// were within about 45px of each other half of the time and 80px nine times in ten in Soft and Blueprint (their average
+// bottoms within 25px), and about 70px and 113px in Clean, whose taller Knowledge sources and Scheduled runs lift the third stack.
+// Knowledge sources, Plan review, Inline text diff, Agent lanes and Scheduled runs each still move by 35 to 90px as they play,
+// so no choice of these twelve keeps the feet within 24px all the time
 const BENTO3 = [
-  ['activity-heatmap', 'knowledge-sources', 'scheduled-runs', 'funnel-chart'],
-  ['donut-chart', 'plan-review', 'radar-chart', 'agent-lanes'],
-  ['agent-run-timeline', 'radial-goals', 'run-cost', 'line-chart'],
+  ['event-calendar', 'run-cost', 'run-drawer', 'agent-lanes'],
+  ['tool-connections', 'memory-panel', 'plan-review', 'inline-text-diff'],
+  ['agent-run-timeline', 'scheduled-runs', 'file-explorer', 'knowledge-sources'],
 ];
 const BENTO2 = [
-  ['activity-heatmap', 'agent-run-timeline', 'radial-goals', 'run-cost', 'line-chart', 'scheduled-runs'],
-  ['donut-chart', 'plan-review', 'radar-chart', 'knowledge-sources', 'funnel-chart', 'agent-lanes'],
+  ['event-calendar', 'knowledge-sources', 'run-drawer', 'tool-connections', 'run-cost', 'scheduled-runs'],
+  ['memory-panel', 'agent-run-timeline', 'plan-review', 'file-explorer', 'agent-lanes', 'inline-text-diff'],
 ];
 if ([...BENTO3.flat()].sort().join() !== [...BENTO2.flat()].sort().join()) throw new Error('landing: the bento\'s two layouts hold different cards');
 const BENTO = BENTO3.map(stack => stack.map(comp));
@@ -579,7 +587,7 @@ const jsonld = [
     <section class="lp-sec lp-wall" id="all" aria-labelledby="all-h">
       <div class="lp-in"><div class="lp-sh">
         <h2 id="all-h">All {total} components</h2>
-        <p>{nAgent} for the agent and {nBasics} app basics around it, each with its own page, demo and code.</p>
+        <p>{SPLIT ? `${nAgent} for the agent and ${nBasics} app ${nBasics === 1 ? 'basic' : 'basics'} around it, each` : 'Each'} with its own page, demo and code.</p>
         <div class="lp-cta">
           <a class="pill primary lp-btn" href="/library">Browse the library<Fragment set:html={arrow} /></a>
           <a class="pill line lp-btn lp-gh" href={GITHUB}><Fragment set:html={GH_MARK} />Star on GitHub</a>

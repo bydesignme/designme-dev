@@ -10,13 +10,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import Page from '../../layouts/Page.astro';
-import { ROOT, COMPONENTS } from '../../lib/data.mjs';
+import { ROOT, componentOf } from '../../lib/data.mjs';
 
 // the components the screen is made of, by their registry name: each one's installed CSS is on the page
 const USES = ['agent-harness', 'automation-canvas', 'canvas-toolbar', 'data-picker', 'run-drawer', 'segmented-control', 'form',
   'command-palette', 'toast', 'progress', 'profile-menu', 'set-limit'];
 const css = USES.map(reg => {
-  const c = COMPONENTS.find(x => x.reg === reg);
+  const c = componentOf(reg);
   if (!c) throw new Error('workflow-editor: no component called ' + reg);
   return `/* ${c.title} */\n` + c.html.css;
 }).join('\n');

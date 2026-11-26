@@ -10,12 +10,12 @@ import http from 'node:http';
 import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
-import { COMPONENTS, SECTIONS, FONT_CSS, LOGO } from './src/lib/data.mjs';
+import { COMPONENTS, SECTIONS, SPLIT, FONT_CSS, LOGO } from './src/lib/data.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url)), ROOT = path.resolve(HERE, '../..');
 const { chromium } = createRequire(import.meta.url)(process.env.PW || 'playwright');
 const W = 1200, H = 630, SCALE = .72;
-const total = COMPONENTS.length, agents = SECTIONS.filter(s => s.grp === 'agent').reduce((n, s) => n + s.cards.length, 0);
+const total = COMPONENTS.length, agents = SECTIONS.filter(s => s.kind === 'agent').reduce((n, s) => n + s.cards.length, 0);
 
 // the wall: columns of components, each column at its own x and starting height (page pixels before the wall is scaled),
 // and each component stopped at a moment that shows it whole (ms after it starts; shots.mjs picks the same moments)
@@ -54,7 +54,7 @@ h1{margin:22px 0 0;font-size:54px;line-height:1.06;font-weight:500;letter-spacin
 <div class="hd">${LOGO}
   <div class="kick">Free<i></i>MIT<i></i>${total} components</div>
   <h1>UI components for the AI agents in your product</h1>
-  <p class="sub">${agents} for the agent itself, in HTML, React or Astro.</p>
+  <p class="sub">${SPLIT ? `${agents} for the agent itself, in` : 'In'} HTML, React or Astro.</p>
 </div>
 <script src="/components/assets/core.js"></script>
 ${items.map(x => `<script>${x.js}</script>`).join('\n')}

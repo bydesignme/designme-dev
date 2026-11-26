@@ -137,9 +137,10 @@ patch("""  $$('[data-copy]').forEach(btn => btn.addEventListener('click', async 
     const ok = await copyLater(() => bundle(btn.closest('.comp').id));""")
 
 # ---------- the intro: one short line, the React install command, then a switch between the two sets ----------
+# (@@COUNT@@ is the number of components on the page, which build.js writes in: tools/site/live.js decides it)
 RX_CMD = 'npx designme add live-answer --react'
 patch("""<p>46 components for showing an agent's work, from status and conversation to review, sources and workspace, plus 32 app basics for the dashboard around it, designed and built by the <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a> team.</p>""",
-      """<p>100 free components in HTML, React or Astro, designed and built by <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a>.</p>
+      """<p>@@COUNT@@ free components in HTML, React or Astro, designed and built by <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a>.</p>
   <div class="intro-get"><button class="cdm-cmd intro-cmd" data-cmd=\"""" + RX_CMD + """\" title="Copy install command"><span class="d">$</span><span class="c">""" + RX_CMD + """</span><span class="ms sm">content_copy</span></button></div>""")
 # the two group introductions become one switch: Agent components or App basics
 patch("""<div class="grp-intro"><span class="k">46 components</span><h2>Agent components</h2><p>Everything for showing an agent's work, from the first plan to the final summary.</p></div>""",
@@ -460,7 +461,7 @@ patch("""      <div class="m-links mi-in"><a href="#/changelog">Changelog</a><a 
 # answers that have to be true of the code
 patch("""It needs the shared core once, which holds the tokens, icons, sound and small helpers,""", """It needs the shared core once, which holds the tokens, icons and small helpers,""")
 patch("""They work with a keyboard, use proper roles and labels, and respect reduced motion.""",
-      """They use proper roles and labels and respect reduced motion, and most work fully with a keyboard. A few, like Kanban and File explorer, are still getting their keyboard support.""")
+      """They use proper roles and labels and respect reduced motion, and most work fully with a keyboard. A few, like File explorer, are still getting their keyboard support.""")  # Kanban is not live yet (tools/site/live.js)
 patch("""Every week. Each release is listed in the """, """Often. Each release is listed in the """)
 patch("""Webflow and Framer exports are coming soon. Until then""",
       """Webflow and Framer exports are planned, and you can follow them on the <a href="#/roadmap">roadmap</a>. Until then""")
@@ -1085,6 +1086,9 @@ patch("""    const LOG = [
         ['fixed','Twenty-one small bugs in the components, from tooltips to Automation canvas'],
         ['fixed','The CLI says which component is missing instead of failing'] ] },
 """)
+# a release's component buttons open the component's page, so only the components on the page (tools/site/live.js) get one
+patch("""${it[2] ? `<span class="chg-links">${it[2].map(n => `<button class="chg-link" data-n="${n}">${n}</button>`).join('')}</span>` : ''}""",
+      """${(it[2] || []).some(find) ? `<span class="chg-links">${it[2].filter(find).map(n => `<button class="chg-link" data-n="${n}">${n}</button>`).join('')}</span>` : ''}""")
 # the rich text editor shipped, so the roadmap's own list (used when the live one can't load) says so
 patch("""['editor','Rich text editor','A minimal editor with an inline AI menu.','planned','Conversation'],""", """['editor','Rich text editor','A minimal editor with an inline AI menu.','shipped','Conversation'],""")
 # grey text in dark mode reaches APCA Lc 60 or more: secondary text about Lc 70, quieter text about Lc 60

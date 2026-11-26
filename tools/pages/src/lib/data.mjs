@@ -16,12 +16,15 @@ const read = (...p) => JSON.parse(fs.readFileSync(path.join(ROOT, ...p), 'utf8')
 const maybe = (...p) => { const f = path.join(ROOT, ...p); return fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : null; };
 
 const site = read('tools/pages/data/site.json');
-export const SETS = site.sets;
+// the two sets, Agent components and App basics, once two or more app basics are live (site.split, from tools/site/build.js);
+// until then one list, one set: every section is in it, and each keeps what it is as `kind`
+export const SPLIT = site.split !== false;
+export const SETS = SPLIT ? site.sets : { agent:'Components' };
 export const LOGO = site.logo;
 // the foot of the homepage's sidebar: the DesignMe sticker and credit line, and Book a call (tools/site/build.js copies it)
 export const SIDE_FOOT = site.sideFoot || '';
 // a section lives in the library (/library), which lists every component; /components/<section> redirects there (see publish.mjs)
-export const SECTIONS = site.sections.map(s => ({ ...s, set:SETS[s.grp], url:`/library#${s.id}` }));
+export const SECTIONS = site.sections.map(s => ({ ...s, kind:s.grp, grp:SPLIT ? s.grp : 'agent', set:SETS[SPLIT ? s.grp : 'agent'], url:`/library#${s.id}` }));
 
 /* ---- the props of a React component, from its TypeScript interfaces and their doc comments ---- */
 function propsOf(src){
@@ -87,6 +90,19 @@ export const COMPONENTS = SECTIONS.flatMap(sec => sec.cards.map(card => {
   };
 }));
 COMPONENTS.forEach((c, i) => { c.prev = COMPONENTS[(i - 1 + COMPONENTS.length) % COMPONENTS.length]; c.next = COMPONENTS[(i + 1) % COMPONENTS.length]; });
+
+// the components that aren't live (tools/site/live.js): no page, no link, not in the sitemap. Only the templates use them, for
+// their HTML, CSS and JS, which the site build writes to data/unlisted (never served)
+export const UNLISTED = (site.unlisted || []).map(x => ({ ...x, slug:x.reg }));
+// any component a template is made of, live or not: its title and the code npx designme add would install
+export function componentOf(reg){
+  const c = COMPONENTS.find(x => x.reg === reg); if (c) return c;
+  const u = UNLISTED.find(x => x.reg === reg); if (!u) return null;
+  const html = maybe('tools/pages/data/unlisted', reg + '.json');
+  if (!html) throw new Error(`no registry entry for ${reg} in tools/pages/data/unlisted: build tools/site first`);
+  const f = ext => (html.files.find(x => x.path.endsWith(ext)) || {}).content || '';
+  return { ...u, html:{ html:f('.html'), css:f('.css'), js:f('.js'), needs:html.dependencies || [] } };
+}
 
 // components whose demo borrows other components' templates and scripts (the Agent harness tells its stories with them)
 export function borrows(c){
