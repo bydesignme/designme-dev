@@ -910,6 +910,8 @@ th:last-child>.col-rz{display:none}
 .ctm-msg{display:grid;grid-template-rows:0fr;margin-top:calc(-1 * var(--s-3));font-size:13px;line-height:18px;color:var(--fg);opacity:0;transition:grid-template-rows .32s var(--ease),margin .32s var(--ease),opacity .24s var(--ease)}
 .ctm-msg.on{grid-template-rows:1fr;margin-top:0;opacity:1}
 .ctm-msg>span{display:flex;align-items:flex-start;gap:var(--s-2);min-height:0;overflow:hidden}
+/* (the warning's tint and padding ease away as it turns into the result, so the panel eases to its new height in one motion) */
+.ctm-msg>span{transition:padding .32s var(--ease),background-color .32s var(--ease)}
 .ctm-msg>span>svg,.ctm-msg>span>svg.i{flex:none;width:16px;height:16px;margin-top:1px}
 /* the notice reaches out as far as the legend's hover, with the legend's padding, so its sign sits in the swatches' column
    and its words on the legend's words */
@@ -15151,7 +15153,8 @@ DM.def('context-meter', (r, c) => {
   const WARN = '<svg class="ctm-wi" viewBox="0 0 24 24" aria-hidden="true"><path class="a" d="M12 3.6 2.6 19.9h18.8z"/><path class="b" d="M12 9.6v4.4M12 17v.01"/></svg>';
   // (a warning already showing keeps its notice and only its words change)
   const say = (text, tone) => { const same = msg.classList.contains('on') && msg.classList.contains(tone) && $('span>span', msg);
-    msg.className = 'ctm-msg on ' + tone; if (same) swap(same, text); else swap(msg.firstElementChild, `${tone === 'warn' ? WARN : I('ok','xs')}<span>${text}</span>`, true); go.classList.toggle('warn', tone === 'warn'); go.classList.toggle('line', tone !== 'warn'); };
+    const h = `${tone === 'warn' ? WARN : I('ok','xs')}<span>${text}</span>`, shut = !msg.classList.contains('on');
+    msg.className = 'ctm-msg on ' + tone; if (same) swap(same, text); else if (shut) msg.firstElementChild.innerHTML = h; else swap(msg.firstElementChild, h, true); go.classList.toggle('warn', tone === 'warn'); go.classList.toggle('line', tone !== 'warn'); };
   const hush = () => { msg.className = 'ctm-msg'; go.classList.remove('warn'); go.classList.add('line'); };
   // hovering a part lights its share of the bar, and one highlight glides from part to part (hoverGlide(), .mx-glide)
   c.offs.push(hoverGlide(leg, '.ctm-l'));
