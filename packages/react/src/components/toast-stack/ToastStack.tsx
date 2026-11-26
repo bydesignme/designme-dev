@@ -1,100 +1,73 @@
 'use client';
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { cx } from '../../lib/cx';
 import { useIsoLayoutEffect } from '../../lib/hooks';
-import { Icon, type IconName } from '../../lib/icons';
-import { Tip } from '../../lib/motion';
+import { ToastCard, type ToastData, type ToastDismissReason } from '../toast/Toast';
 import '../../designme.css';
 import './toast-stack.css';
 
-export type ToastStackTone = 'neutral' | 'ok' | 'warn' | 'bad' | 'merge' | 'blue' | 'purple' | 'green' | 'orange' | 'red' | 'yellow' | 'pink' | 'teal';
-
-export interface StackToast {
-  id: string | number;
-  /** The icon in the round badge */
-  icon: IconName;
-  /** Colours the badge. Defaults to neutral. In Clean only the status tones (ok, warn, bad) take colour, on the icon alone */
-  tone?: ToastStackTone;
-  title: ReactNode;
-  /** The quiet line under the title */
-  detail?: ReactNode;
-  /** Like "now" or "2m" */
-  time?: string;
-}
-
 export interface ToastStackProps {
-  /** Oldest first. The last one sits in front */
-  toasts: StackToast[];
-  /** Called when a toast's close button is pressed. Remove it from `toasts` and it slides away */
-  onDismiss?: (id: StackToast['id']) => void;
-  /** Fans the stack out. Leave it out to fan it while the pointer is over it */
+  /** The toasts, oldest first: the last one sits in front. Each is a Toast (`ToastData`): keep its `id` and change it, and its
+      card changes in place (a job's progress, a problem becoming its fix); a new `id` comes in at the front */
+  toasts: ToastData[];
+  /** Called when a toast is closed: by Close, its countdown, a swipe or Escape. It leaves the stack either way; drop it from
+      `toasts` too */
+  onDismiss?: (id: ToastData['id'], reason: ToastDismissReason) => void;
+  /** Fans the stack out (true) or keeps it a deck (false). Leave it out and it fans out under the pointer, while the keyboard's
+      focus is in it, and on a tap */
   expanded?: boolean;
-  /** How many toasts stay mounted. Older ones drop off the back */
+  /** How many toasts stay mounted. Older ones drop off the back. Default 6 */
   max?: number;
   className?: string;
 }
 
-const TONE: Record<ToastStackTone, [string, string]> = {
-  neutral: ['--dm-fg2', '--dm-chip'], ok: ['--dm-ok', '--dm-ok-bg'], warn: ['--dm-warn', '--dm-warn-bg'], bad: ['--dm-bad', '--dm-bad-bg'],
-  merge: ['--dm-merge', '--dm-merge-bg'], blue: ['--dm-pb', '--dm-pb-bg'], purple: ['--dm-pl', '--dm-pl-bg'], green: ['--dm-pm', '--dm-pm-bg'],
-  orange: ['--dm-pp', '--dm-pp-bg'], red: ['--dm-pr', '--dm-pr-bg'], yellow: ['--dm-py', '--dm-py-bg'], pink: ['--dm-pk', '--dm-pk-bg'], teal: ['--dm-pt', '--dm-pt-bg']
-};
-// a new toast rises in from below, blurred, before it takes its place
-const ARRIVING: CSSProperties = { transform: 'translateY(24px) scale(.96)', opacity: 0, filter: 'blur(6px)' };
+// collapsed, the two cards behind the front one peek out 8px each; fanned out, the four in front show, 8px apart
+const PEEK = 8, GAP = 8, FAN = 4;
 
-/** Where each toast sits: stacked into a deck, or fanned out into a list. `i` counts from the front */
-function place(i: number, fan: boolean, heights: number[]): CSSProperties {
+/** Where each card sits, counting from the front: collapsed into a deck (the cards behind take the front one's height and
+    peek out above it, a step narrower each), or fanned out into a list, each at its own height */
+function place(i: number, fan: boolean, hs: number[]): { style: CSSProperties; height?: number; back: boolean; hidden: boolean } {
   if (fan) {
     let y = 0;
-    for (let k = 0; k < Math.min(i, 3); k++) y += heights[k] + 8;
-    return { transform: `translateY(${-y}px)`, opacity: i > 3 ? 0 : 1, filter: 'none', zIndex: 100 - i };
+    for (let k = 0; k < i; k++) y += hs[k] + GAP;
+    return { style: { transform: `translateY(${-y}px)`, opacity: i < FAN ? 1 : 0, zIndex: 100 - i }, back: false, hidden: i >= FAN };
   }
-  const k = Math.min(i, 3);
-  return { transform: `translateY(${-k * 10}px) scale(${1 - k * .05})`, opacity: i > 2 ? 0 : 1 - k * .15, filter: i ? 'blur(.3px)' : 'none', zIndex: 100 - i };
+  const j = Math.min(i, 2);
+  return { style: { transform: j ? `translateY(${-j * PEEK}px) scale(${1 - j * .05})` : 'translateY(0px)', opacity: i > 2 ? 0 : 1, zIndex: 100 - i }, height: i ? hs[0] : undefined, back: i > 0, hidden: i > 0 };
 }
 
-/** Notifications that stack into a deck and fan out when you hover them. */
+/** Toasts that stack into a deck and fan out under the pointer or the focus. Each one is a Toast card, with its steps, its
+    footer, Close with its countdown, swipe and Escape; the stack reads each card's own height and moves them together */
 export function ToastStack({ toasts, onDismiss, expanded, max = 6, className }: ToastStackProps) {
-  const live = toasts.slice(-max);
-  // it fans out under the pointer, or while the focus is in it; a toast that can't be seen can't take the focus
-  const [hover, setHover] = useState(false), [focused, setFocused] = useState(false);
-  const fan = expanded ?? (hover || focused);
-
-  // heights of the toasts, front first, so the fanned list leaves the right gaps
-  const els = useRef(new Map<StackToast['id'], HTMLDivElement>());
-  const [heights, setHeights] = useState<Record<string, number>>({});
-  const front = live.slice().reverse();
-  const hs = front.map(t => heights[t.id] ?? 0);
+  // a closed toast goes at once, whether or not the parent drops it
+  const [closed, setClosed] = useState<Set<ToastData['id']>>(() => new Set());
+  const live = toasts.filter(t => !closed.has(t.id)).slice(-max), front = live.slice().reverse();
   const ids = live.map(t => t.id).join('\u0000');
-  useIsoLayoutEffect(() => {
-    const measure = () => setHeights(prev => {
-      const next: Record<string, number> = {};
-      els.current.forEach((el, id) => { next[id] = el.offsetHeight; });
-      return Object.keys(next).length === Object.keys(prev).length && Object.keys(next).every(k => prev[k] === next[k]) ? prev : next;
-    });
-    measure();
-    const ro = new ResizeObserver(measure);
-    els.current.forEach(el => ro.observe(el));
-    return () => ro.disconnect();
-  }, [ids]);
 
-  // the toasts a new one covers lose their words as it starts to rise (Clean shows them through no blur), until the stack fans out
-  const [under, setUnder] = useState<Set<StackToast['id']>>(() => new Set());
-  if (fan && under.size) setUnder(new Set());
-  // new toasts wait two frames in their arriving pose, so the move to their place animates
-  const [placed, setPlaced] = useState<Set<StackToast['id']>>(() => new Set());
+  // it fans out under a mouse, while the keyboard's focus is in it, and on a tap (touch has no hover)
+  const [hover, setHover] = useState(false), [focused, setFocused] = useState(false), [tapped, setTapped] = useState(false);
+  const fan = expanded ?? (hover || focused || tapped);
+  const root = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const fresh = live.filter(t => !placed.has(t.id)).map(t => t.id);
-    if (!fresh.length) return;
-    // as they start to rise into place, the toasts they cover lose their words at once (Clean shows them through no blur)
-    const behind = live.filter(t => !fresh.includes(t.id)).map(t => t.id);
-    let raf = requestAnimationFrame(() => { raf = requestAnimationFrame(() => { setPlaced(p => new Set([...p, ...fresh])); if (!fan) setUnder(new Set(behind)); }); });
+    const out = (e: PointerEvent) => { if (e.pointerType !== 'mouse' && !root.current?.contains(e.target as Node)) setTapped(false); };
+    document.addEventListener('pointerdown', out); return () => document.removeEventListener('pointerdown', out);
+  }, []);
+
+  // each card's own height, as it reports it
+  const [heights, setHeights] = useState<Record<string, number>>({});
+  const hs = front.map(t => heights[t.id] ?? 0);
+
+  // a new card waits two frames below its place, so its rise to it eases; the cards it covers step back as it comes
+  const [placed, setPlaced] = useState<Set<ToastData['id']>>(() => new Set());
+  useEffect(() => {
+    const fresh = live.filter(t => !placed.has(t.id)).map(t => t.id); if (!fresh.length) return;
+    let raf = requestAnimationFrame(() => { raf = requestAnimationFrame(() => setPlaced(p => new Set([...p, ...fresh]))); });
     return () => cancelAnimationFrame(raf);
   }, [ids]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // a toast that leaves keeps its place for a moment and slides off to the right as it fades.
-  // It stays at the same spot in the DOM, so its transition is not cut short by a move
-  type Leaving = { toast: StackToast; style: CSSProperties; at: number };
+  // a card that goes keeps its place in the DOM for a moment, fading 8px down as the others close the gap (a swiped one has
+  // already gone on sideways)
+  type Leaving = { toast: ToastData; at: number; style: CSSProperties; height?: number };
   const [prev, setPrev] = useState({ ids, live, fan, hs });
   const [leaving, setLeaving] = useState<Leaving[]>([]);
   if (prev.ids !== ids) {
@@ -102,7 +75,7 @@ export function ToastStack({ toasts, onDismiss, expanded, max = 6, className }: 
     const gone = prev.live.flatMap((t, at): Leaving[] => {
       if (now.has(t.id) || leaving.some(l => l.toast.id === t.id)) return [];
       const was = place(n - 1 - at, prev.fan, prev.hs);
-      return [{ toast: t, at, style: { ...was, transform: was.transform + ' translateX(30px)', opacity: 0 } }];
+      return [{ toast: t, at, height: was.height, style: { ...was.style, transform: `${was.style.transform} translateY(8px) scale(.98)`, opacity: 0 } }];
     });
     setPrev({ ids, live, fan, hs });
     if (gone.length) setLeaving(l => [...l, ...gone]);
@@ -110,36 +83,56 @@ export function ToastStack({ toasts, onDismiss, expanded, max = 6, className }: 
   const leavingIds = leaving.map(l => l.toast.id).join('\u0000');
   useEffect(() => {
     if (!leaving.length) return;
-    const t = setTimeout(() => setLeaving(l => l.filter(x => !leaving.includes(x))), 400);
+    const t = setTimeout(() => setLeaving(l => l.filter(x => !leaving.includes(x))), 520);
     return () => clearTimeout(t);
   }, [leavingIds]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // the stack grows to fit the four front toasts when it fans out
-  const fanh = live.length ? hs.slice(0, 4).reduce((a, b) => a + b + 8, 0) - 8 || 96 : undefined;
-  // the deck's own height: the front toast and the two that peek out above it (Clean sizes the stack to it)
-  const deckh = Math.ceil(hs.slice(0, 3).reduce((m, h, k) => Math.max(m, h * (1 - k * .05) + k * 10), 0));
+  /* what screen readers hear, through the stack's two live regions: a card's `announce` (or its title) each time it changes;
+     an error at once, the rest politely */
+  const said = useRef(new Map<ToastData['id'], string>());
+  const [say, setSay] = useState<{ text: string; loud: boolean }>({ text: '', loud: false });
+  const news = live.map(t => [t.id, t.announce ?? t.title, t.status === 'error'] as const).filter(([id, text]) => said.current.get(id) !== text);
+  const newsKey = news.map(([id, text]) => id + ':' + text).join('\u0000');
+  useEffect(() => {
+    if (!news.length) return;
+    news.forEach(([id, text]) => said.current.set(id, text));
+    const [, text, loud] = news[news.length - 1];
+    setSay({ text: '', loud: false });
+    const t = setTimeout(() => setSay({ text, loud }), 60);
+    return () => clearTimeout(t);
+  }, [newsKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const card = (t: StackToast, style: CSSProperties, gone = false) => {
-    const [fg, bg] = TONE[t.tone ?? 'neutral'];
-    return (
-      <div key={t.id} className={cx('dm-tsk-c', !gone && under.has(t.id) && front.indexOf(t) > 0 && 'dm-tsk-under')} style={style} inert={gone || (fan ? front.indexOf(t) > 3 : front.indexOf(t) > 0)} ref={el => { if (gone) return; if (el) els.current.set(t.id, el); else els.current.delete(t.id); }}>
-        <span className="dm-g" data-tone={t.tone ?? 'neutral'} style={{ color: `var(${fg})`, background: `var(${bg})` }}><Icon name={t.icon} /></span>
-        <div className="dm-tsk-w">
-          <div className="dm-tx"><b>{t.title}</b>{t.detail && <span>{t.detail}</span>}</div>
-          {t.time && <span className="dm-t">{t.time}</span>}
-        </div>
-        <Tip label="Dismiss"><button type="button" className="dm-ib" aria-label="Dismiss" onClick={() => onDismiss?.(t.id)}><Icon name="x" /></button></Tip>
-      </div>
-    );
+  const close = (id: ToastData['id'], r: ToastDismissReason) => {
+    const had = !!root.current?.contains(document.activeElement);
+    setClosed(c => new Set(c).add(id)); onDismiss?.(id, r);
+    // the focus goes on to the next card's Close (or Stop)
+    if (had) setTimeout(() => { const b = root.current?.querySelectorAll<HTMLElement>('.dm-tst-t:not([inert]) :is(.dm-tst-x,.dm-tst-stop)'); b?.[b.length - 1]?.focus({ preventScroll: true }); }, 0);
   };
+  // closed ids the parent has since dropped are forgotten
+  useEffect(() => { setClosed(c => { const has = new Set(toasts.map(t => t.id)); const next = new Set([...c].filter(id => has.has(id))); return next.size === c.size ? c : next; }); }, [toasts]);
+
+  // the stack is as tall as what it shows, so it stays centred where it is placed as it grows and shrinks
+  const fanh = hs.slice(0, FAN).reduce((a, h) => a + h + GAP, 0) - (live.length ? GAP : 0);
+  const deckh = live.length ? hs[0] + Math.min(live.length - 1, 2) * PEEK : 0;
+  useIsoLayoutEffect(() => { root.current?.style.setProperty('--dm-tsk-h', (fan ? fanh : deckh) + 'px'); });
+
+  const card = (t: ToastData, i: number) => {
+    const p = place(i, fan, hs), fresh = !placed.has(t.id);
+    return <ToastCard key={t.id} toast={t} motion="host" paused={fan} onClose={r => close(t.id, r)} inert={p.hidden}
+      className={cx(fresh && 'dm-tsk-new', p.back && 'dm-tsk-back')} style={fresh ? { zIndex: p.style.zIndex } : p.style} height={p.height}
+      onHeight={h => setHeights(x => x[t.id] === h ? x : { ...x, [t.id]: h })} />;
+  };
+  const gone = (l: Leaving) => <ToastCard key={l.toast.id} toast={l.toast} motion="host" leaving onClose={() => {}} className="dm-tsk-out" style={l.style} height={l.height} />;
 
   return (
-    <div data-dm="" className={cx('dm-tsk-stack', fan && 'dm-fan', className)} aria-live="polite"
-      style={{ ...(fanh !== undefined && { '--dm-fanh': fanh + 'px' }), '--dm-deckh': deckh + 'px' } as CSSProperties}
-      onPointerEnter={() => setHover(true)} onPointerLeave={() => setHover(false)}
-      onFocus={() => setFocused(true)} onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setFocused(false); }}>
-      {leaving.slice().sort((a, b) => a.at - b.at).reduce((all, l) => { all.splice(Math.min(l.at, all.length), 0, card(l.toast, l.style, true)); return all; },
-        live.map(t => card(t, placed.has(t.id) ? place(front.indexOf(t), fan, hs) : ARRIVING)))}
+    <div data-dm="" ref={root} className={cx('dm-tsk-stack', className)} role="region" aria-label="Notifications"
+      onPointerEnter={e => { if (e.pointerType === 'mouse') setHover(true); }} onPointerLeave={e => { if (e.pointerType === 'mouse') setHover(false); }}
+      onPointerDown={e => { if (e.pointerType !== 'mouse' && !(e.target as Element).closest('button')) setTapped(true); }}
+      onFocus={e => { if (e.target.matches(':focus-visible')) setFocused(true); }} onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setFocused(false); }}>
+      {leaving.slice().sort((a, b) => a.at - b.at).reduce((all, l) => { all.splice(Math.min(l.at, all.length), 0, gone(l)); return all; },
+        live.map(t => card(t, front.indexOf(t))))}
+      <div className="dm-tst-sr" role="status" aria-live="polite">{say.loud ? '' : say.text}</div>
+      <div className="dm-tst-sr" role="alert" aria-live="assertive">{say.loud ? say.text : ''}</div>
     </div>
   );
 }

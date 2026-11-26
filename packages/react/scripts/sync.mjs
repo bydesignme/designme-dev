@@ -79,7 +79,10 @@ css += '\n/* every component root carries data-dm, so it starts from the same ty
   + ':where([data-dm]){font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-webkit-font-smoothing:antialiased;text-align:left}\n';
 if (/\[data-c\]/.test(css)) throw new Error('card selector left in core css');
 // the registry's element resets are written for its [data-c] cards; a React component's root is marked data-dm instead
-const own = Object.fromEntries(COMPONENTS.map(name => [name, file(read(name), 'css').replace(/\[data-c\]/g, '[data-dm]')]));
+// (a component made of another's parts, like Toast stack of Toast cards, has that one's CSS ahead of its own in the registry;
+// its React version imports the other component, so only its own section, from its heading on, is kept)
+const ownPart = item => { const css = file(item, 'css'), at = css.indexOf(`/* ---------- ${item.title} ---------- */`); return at > 0 ? css.slice(at) : css; };
+const own = Object.fromEntries(COMPONENTS.map(name => [name, ownPart(read(name)).replace(/\[data-c\]/g, '[data-dm]')]));
 for (const [name, text] of Object.entries(own)) if (/\[data-c\]/.test(text)) throw new Error(`${name}: card selector left in its css`);
 const frames = new Set([css, ...Object.values(own)].flatMap(frameNames));
 const core = scope(css, frames, true);

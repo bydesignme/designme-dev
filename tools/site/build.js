@@ -824,8 +824,13 @@ const PRE = require('./token-prefix.js');
 const TOKENS = PRE.tokens({ css:[REG_CORE_CSS_SITE, ...Object.values(SECTIONS)], all:[CORE_JS, DEFS_JS, ...Object.values(CARDS).map(C => C.tpl)] });
 const dmCode = x => ({ ...x, html:PRE.html(x.html, TOKENS), css:PRE.css(x.css), js:PRE.js(x.js, TOKENS) });
 const REG_CORE_CSS = PRE.css(REG_CORE_CSS_SITE), REG_CORE_JS = PRE.js(REG_CORE_JS_SITE, TOKENS);
+/* a component whose parts are another component's (each toast in Toast stack is a Toast card) brings that one's CSS along, ahead
+   of its own, so its HTML and Astro installs need nothing else. The React package imports the other component instead and
+   keeps only the component's own section (scripts/sync.mjs cuts at its heading) */
+const MADE_OF = { 'toast-stack':['Toast'] };
 const regOne = id => { const C = CARDS[id], sec = SECTIONS[C.title] || ''; if (!sec) warn.push('no CSS section for ' + C.title);
-  return dmCode({ html:regHtml(id), css:`/* ---------- ${C.title} ---------- */\n` + regCss(sec), js:defOf(id) + '\n' }); };
+  const parts = (MADE_OF[id] || []).map(t => { if (!SECTIONS[t]) warn.push(`no CSS section for ${t} (part of ${C.title})`); return `/* ---------- ${t} ---------- */\n` + regCss(SECTIONS[t] || ''); }).join('\n');
+  return dmCode({ html:regHtml(id), css:parts + `/* ---------- ${C.title} ---------- */\n` + regCss(sec), js:defOf(id) + '\n' }); };
 
 /* ---------- code viewer and copy: the new code, in code-data.json next to the page, which fetches it when it needs it ---------- */
 {
