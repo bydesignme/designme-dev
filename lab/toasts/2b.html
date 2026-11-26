@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Preview toasts · Toast lab 2b</title>
+<script>
+/* the style and theme: ?style=bp|soft|clean&theme=light|dark first, then what the visitor picked before (dmui-style,
+   dmui-theme), then the device: light opens in Soft, dark in Blueprint, as on the site */
+(function(){
+  var q = new URLSearchParams(location.search), d = document.documentElement, s, t;
+  try { s = q.get('style'); if (s === 'bp' || s === 'soft' || s === 'clean') localStorage.setItem('dmui-style', s);
+        t = q.get('theme'); if (t === 'light' || t === 'dark') localStorage.setItem('dmui-theme', t);
+        t = localStorage.getItem('dmui-theme'); s = localStorage.getItem('dmui-style'); } catch(e){ s = q.get('style'); t = q.get('theme'); }
+  if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  if (s !== 'bp' && s !== 'soft' && s !== 'clean') s = t === 'dark' ? 'bp' : 'soft';
+  d.setAttribute('data-theme', t);
+  if (s === 'bp') d.removeAttribute('data-style'); else d.setAttribute('data-style', s);
+})();
+</script>
+<link rel="stylesheet" href="assets/core.css">
+<style>
+@font-face{font-family:"Inter";src:url(../../fonts/inter-latin-400-normal.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Inter";src:url(../../fonts/inter-latin-500-normal.woff2) format("woff2");font-weight:500;font-display:swap}
+html,body{margin:0}
+body{background:var(--dm-page);color:var(--dm-fg);font-family:var(--dm-sans);font-size:13px;line-height:1.45;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+/* ---------- the lab page around the stage ---------- */
+.ts2b-page{max-width:760px;margin:0 auto;padding:40px 24px 64px;box-sizing:border-box}
+.ts2b-top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 24px;margin-bottom:20px}
+.ts2b-intro{min-width:0;flex:1 1 360px}
+.ts2b-eb{font-size:12px;color:var(--dm-muted);margin:0 0 4px}
+.ts2b-h1{font-size:14px;font-weight:500;margin:0 0 4px}
+.ts2b-lead{font-size:13px;color:var(--dm-fg2);margin:0;max-width:540px}
+.ts2b-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.ts2b-ctl .pill .i{width:14px;height:14px}
+
+/* ---------- the stage: a small editor window, the toasts stacking at its bottom-right corner ---------- */
+[data-c].ts2b-card{width:100%;max-width:none;font-size:13px}
+.ts2b-card .stage-in{max-width:none}
+.ts2b-win{position:relative;height:540px;background:var(--dm-surface);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow);overflow:hidden;display:flex;flex-direction:column;isolation:isolate}
+:root[data-style="clean"] .ts2b-win{border-radius:22px}
+.ts2b-bar{display:flex;align-items:center;gap:var(--dm-s-2);padding:var(--dm-s-2) var(--dm-s-4);border-bottom:1px solid var(--dm-line);background:var(--dm-wash);min-height:48px;box-sizing:border-box}
+:root[data-style="clean"] .ts2b-bar{background:var(--dm-strip);border-bottom-color:var(--dm-hair)}
+.ts2b-file{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--dm-fg);min-width:0;flex:1}
+.ts2b-file .i{color:var(--dm-fg2)}
+.ts2b-file span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ts2b-file em{font-style:normal;color:var(--dm-muted);font-size:12px;white-space:nowrap}
+.ts2b-go .i{width:14px;height:14px}
+.ts2b-busy{display:inline-flex;align-items:center;gap:var(--dm-s-2);height:28px;font-size:12.5px;color:var(--dm-fg2);white-space:nowrap}
+.ts2b-busy[hidden],.ts2b-go[hidden]{display:none}
+.ts2b-busy .think{color:var(--dm-accent-mark)}
+
+.ts2b-doc{flex:1;min-height:0;padding:var(--dm-s-6);overflow:hidden}
+.ts2b-col{max-width:290px}
+.ts2b-doc h2{font-size:14px;font-weight:500;margin:0 0 6px}
+.ts2b-by{display:flex;align-items:center;gap:var(--dm-s-2);font-size:12px;color:var(--dm-muted);margin-bottom:var(--dm-s-5)}
+.ts2b-avs{display:flex}
+.ts2b-avs .av{box-shadow:0 0 0 2px var(--dm-surface)}
+.ts2b-avs .av+.av{margin-left:-4px}
+.ts2b-doc p{font-size:13px;color:var(--dm-fg2);margin:0 0 var(--dm-s-4)}
+.ts2b-doc p.lead{color:var(--dm-fg)}
+/* what the agent just changed glows for a moment in the highlight tint, then settles */
+.ts2b-hl{border-radius:3px;animation:ts2b-hl 2.4s var(--dm-ease) both}
+@keyframes ts2b-hl{0%,35%{background:var(--dm-hl)}100%{background:transparent}}
+/* the inserted picture opens its own room as it lands, never kept empty before */
+.ts2b-fig{display:grid;grid-template-rows:0fr;transition:grid-template-rows var(--dm-t) var(--dm-ease),margin var(--dm-t) var(--dm-ease);margin:0}
+.ts2b-fig.open{grid-template-rows:1fr;margin:0 0 var(--dm-s-4)}
+.ts2b-fig>div{min-height:0;overflow:hidden}
+.ts2b-fig .pic{display:block;width:100%;aspect-ratio:16/9;border-radius:var(--dm-r-sm);overflow:hidden;opacity:0;transition:opacity .2s}
+.ts2b-fig .pic svg{display:block;width:100%;height:100%}
+.ts2b-fig .pic.in{opacity:1}
+.ts2b-cite{display:inline-grid;place-items:center;min-width:16px;height:16px;padding:0 4px;margin-left:2px;border-radius:var(--dm-r-pill);background:var(--dm-accent-bg);color:var(--dm-accent-fg);font-size:10.5px;font-weight:500;line-height:1;vertical-align:2px;box-sizing:border-box}
+.ts2b-cite.ts2b-popin{animation:ts2b-pop .5s cubic-bezier(.34,1.42,.5,1) backwards}
+@keyframes ts2b-pop{from{transform:scale(.3);opacity:0}to{transform:none;opacity:1}}
+
+/* ---------- the toasts: a deck at the corner that opens into a list under the pointer or the focus ---------- */
+.ts2b-st{position:absolute;right:var(--dm-s-4);bottom:var(--dm-s-4);width:360px;max-width:calc(100% - 32px);height:0;z-index:5;transition:height var(--dm-t) var(--dm-ease)}
+.ts2b-t{position:absolute;left:0;right:0;bottom:0;--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent);background:var(--dm-raised);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow-pop);overflow:hidden;transform-origin:50% 0;touch-action:pan-y;user-select:none;-webkit-user-select:none;
+  transition:transform .5s var(--dm-ease),height .42s var(--dm-ease),opacity .3s var(--dm-ease)}
+:root[data-style="clean"] .ts2b-t{border-radius:calc(12px * var(--dm-rk-l,var(--dm-rk)));--dm-row:rgba(0,0,0,.05);transition:transform var(--dm-t) var(--dm-ease),height var(--dm-t) var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"][data-theme="dark"] .ts2b-t{--dm-row:rgba(255,255,255,.07)}
+/* a toast behind the front one shows only its edge; its words come back as the deck opens */
+.ts2b-t>.ts2b-in{transition:opacity .25s var(--dm-ease)}
+.ts2b-t.back>.ts2b-in{opacity:0}
+.ts2b-in{padding:var(--dm-s-4)}
+.ts2b-hd{display:flex;align-items:center;gap:var(--dm-s-3)}
+.ts2b-tx{flex:1;min-width:0}
+.ts2b-ti{display:block;font-size:13px;font-weight:500;line-height:18px}
+.ts2b-de{display:block;font-size:12px;line-height:17px;color:var(--dm-muted);font-variant-numeric:tabular-nums}
+.ts2b-hb{display:flex;align-items:center;gap:var(--dm-s-1);margin-right:-2px}
+.ts2b-hb .pill{flex:none}
+.ts2b-hb .ib{width:28px;height:28px;position:relative}
+/* the preview of the words it changed, under the title's column */
+.ts2b-pv{margin:var(--dm-s-3) 0 0 76px;font-size:12px;line-height:17px}
+.ts2b-pv del,.ts2b-pv ins{display:block;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ts2b-pv del{color:var(--dm-del)}
+.ts2b-pv del span{text-decoration:line-through;text-decoration-thickness:1px}
+.ts2b-pv ins{color:var(--dm-add)}
+.ts2b-pv[hidden]{display:none}
+/* the countdown you can see: a ring round Close that drains, held while the deck is open */
+.ts2b-ring{position:absolute;inset:0;width:28px;height:28px;pointer-events:none;fill:none}
+.ts2b-ring rect{rx:13.25px;ry:13.25px;stroke-width:1.5}
+:root:not([data-style="soft"],[data-style="clean"]) .ts2b-ring rect{rx:0;ry:0}
+.ts2b-ring .tk{stroke:color-mix(in srgb,var(--dm-line) 70%,transparent)}
+.ts2b-ring .rn{stroke:var(--dm-muted);stroke-dasharray:100 100;stroke-linecap:round}
+.ts2b-fly{position:absolute;z-index:8;pointer-events:none;overflow:hidden}
+.ts2b-fly svg{display:block;width:100%;height:100%}
+
+/* ---------- the glyphs: each one is a small live preview of what was made or changed ---------- */
+.ts2b-g{width:64px;height:40px;flex:none;display:block;position:relative;--ts2b-spring:cubic-bezier(.34,1.42,.5,1)}
+.ts2b-g>svg{width:64px;height:40px;display:block;overflow:visible}
+.ts2b-g .ln{stroke:color-mix(in srgb,var(--dm-muted) 42%,var(--dm-raised));stroke-width:3.5;stroke-linecap:round}
+:root:not([data-style="soft"],[data-style="clean"]) .ts2b-g .ln,:root:not([data-style="soft"],[data-style="clean"]) .ts2b-g .dl,:root:not([data-style="soft"],[data-style="clean"]) .ts2b-g .ad{stroke-linecap:butt}
+/* the edit: the end of the middle line turns red and wipes away, and a shorter green run is written in its place */
+.ts2b-g .dl{stroke:var(--dm-bad-mark);stroke-width:3.5;stroke-linecap:round;opacity:0;transform-box:fill-box;transform-origin:0 50%;transition:opacity .2s,transform .4s var(--dm-ease)}
+.ts2b-g .ad{stroke:var(--dm-ok-mark);stroke-width:3.5;stroke-linecap:round;stroke-dasharray:20 20;stroke-dashoffset:20;transition:stroke-dashoffset .45s var(--dm-ease)}
+.ts2b-g .cr{stroke:var(--dm-accent-mark);stroke-width:1.5;opacity:0;transition:transform .45s var(--dm-ease)}
+.ts2b-g.s1 .dl{opacity:1}
+.ts2b-g.s2 .dl{opacity:1;transform:scaleX(0)}
+.ts2b-g.s2 .cr{opacity:1;animation:ts2b-blink 1s steps(1) 3}
+.ts2b-g.s3 .ad{stroke-dashoffset:0}
+.ts2b-g.s3 .cr{transform:translateX(16px)}
+.ts2b-g.s4 .cr{opacity:0;animation:none}
+@keyframes ts2b-blink{50%{opacity:0}}
+/* undone: the green run goes and the line comes back to its old length */
+.ts2b-g.back .ad{stroke-dashoffset:20}
+.ts2b-g.back .dl{opacity:0;transform:none}
+.ts2b-g .rest{stroke-dasharray:40 40;stroke-dashoffset:40;transition:stroke-dashoffset .5s var(--dm-ease)}
+.ts2b-g.back .rest{stroke-dashoffset:0}
+/* the picture: it develops from a blur as a line passes down it */
+.ts2b-g .pic{clip-path:inset(0 0 100% 0);transition:clip-path 1.3s cubic-bezier(.45,0,.2,1)}
+.ts2b-g .scan{stroke:var(--dm-raised);stroke-width:1;opacity:0;transition:transform 1.3s cubic-bezier(.45,0,.2,1),opacity .2s}
+.ts2b-g.s1 .pic{clip-path:inset(0 0 0 0)}
+.ts2b-g.s1 .scan{opacity:.85;transform:translateY(40px)}
+.ts2b-g.s2 .scan{opacity:0;transform:translateY(40px)}
+.ts2b-g .frame{fill:none;stroke:color-mix(in srgb,var(--dm-fg) 10%,transparent)}
+:root:not([data-style="soft"],[data-style="clean"]) .ts2b-g rect.clipr{rx:0}
+/* the source: three results are read, two fall away, the one that holds the number is kept and numbered */
+.ts2b-g .tl{fill:color-mix(in srgb,var(--dm-muted) 42%,var(--dm-raised));transition:fill .3s,opacity .3s}
+.ts2b-g .rb{stroke:color-mix(in srgb,var(--dm-muted) 42%,var(--dm-raised));stroke-width:3.5;stroke-linecap:round;stroke-dasharray:30 30;stroke-dashoffset:30;transition:stroke-dashoffset .4s var(--dm-ease),stroke .3s,opacity .3s}
+.ts2b-g.s1 .r1 .rb{stroke-dashoffset:0}
+.ts2b-g.s1 .r2 .rb{stroke-dashoffset:0;transition-delay:.15s}
+.ts2b-g.s1 .r3 .rb{stroke-dashoffset:0;transition-delay:.3s}
+.ts2b-g .r{transition:opacity .3s,transform .45s var(--dm-ease)}
+.ts2b-g.s2 .r1,.ts2b-g.s2 .r3{opacity:.35}
+.ts2b-g.s2 .r2{transform:translateX(3px)}
+.ts2b-g.s2 .r2 .tl{fill:var(--dm-c6)}
+.ts2b-g.s2 .r2 .rb{stroke:var(--dm-accent-mark)}
+.ts2b-g .bd{transform-box:fill-box;transform-origin:center;transform:scale(0);transition:transform .5s var(--ts2b-spring)}
+.ts2b-g .bd circle{fill:var(--dm-accent)}
+.ts2b-g .bd text{fill:var(--dm-on-accent);font:500 9px var(--dm-sans);text-anchor:middle}
+.ts2b-g.s3 .bd{transform:scale(1)}
+.ts2b-g.used .bd{transform:scale(0)}
+
+.ts2b-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+
+@media (max-width:560px){
+  .ts2b-page{padding:24px 16px 48px}
+  .ts2b-card{margin:0 -16px}
+  .ts2b-win,:root[data-style="clean"] .ts2b-win{border-radius:0;height:600px}
+  .ts2b-st{left:var(--dm-s-4);right:var(--dm-s-4);width:auto;max-width:none}
+  .ts2b-doc{padding:var(--dm-s-5) var(--dm-s-4)}
+  .ts2b-col{max-width:none}
+  .ts2b-file em{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .ts2b-g *,.ts2b-t,.ts2b-st{transition-duration:.01ms!important;animation:none!important}
+  .ts2b-t{transition:opacity .2s!important}
+}
+</style>
+</head>
+<body>
+<main class="ts2b-page">
+  <header class="ts2b-top">
+    <div class="ts2b-intro">
+      <p class="ts2b-eb">Toast lab · 2b · Agent work in a toast</p>
+      <h1 class="ts2b-h1">Preview toasts</h1>
+      <p class="ts2b-lead">Each result comes with a small live preview of what the agent made or changed, and you act on it in the toast: the picture flies into the post, the source becomes a citation, the edit undoes.</p>
+    </div>
+    <div class="ts2b-ctl">
+      <div class="seg2" id="ts2b-style" role="group" aria-label="Style"><button type="button" data-v="bp" aria-pressed="false">Blueprint</button><button type="button" data-v="soft" aria-pressed="false">Soft</button><button type="button" data-v="clean" aria-pressed="false">Clean</button></div>
+      <div class="seg2" id="ts2b-theme" role="group" aria-label="Theme"><button type="button" data-v="light" aria-pressed="false">Light</button><button type="button" data-v="dark" aria-pressed="false">Dark</button></div>
+      <button type="button" class="pill line sm" id="ts2b-replay"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button>
+    </div>
+  </header>
+
+  <div class="card ts2b-card" data-c="ts2b">
+    <div class="stage-in">
+      <div class="ts2b-win">
+        <div class="ts2b-bar">
+          <div class="ts2b-file"><svg class="i s"><use href="#i-file-text"/></svg><span>Launch post</span><em>Draft</em></div>
+          <span class="ts2b-busy" hidden><span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Polishing…</span></span>
+          <button type="button" class="pill line sm ts2b-go"><svg class="i s"><use href="#i-spark"/></svg>Polish draft</button>
+        </div>
+        <div class="ts2b-doc">
+          <div class="ts2b-col">
+            <h2>Launch post</h2>
+            <div class="ts2b-by"><span class="ts2b-avs"><span class="av" style="background:var(--dm-av-b)">MO</span><span class="av" style="background:var(--dm-av-y);color:var(--dm-av-y-ink)">LP</span></span>Mia and Leo are editing</div>
+            <p class="lead"><span class="ts2b-l1">We will try to ship the beta sometime in May, if everything goes well.</span></p>
+            <div class="ts2b-fig"><div><span class="pic"></span></div></div>
+            <p><span class="ts2b-l2">Teams in the pilot cut review time by 38%</span><span class="ts2b-cw"></span> in their first month.</p>
+            <p>Sign up for early access today.</p>
+          </div>
+        </div>
+        <section class="ts2b-st" aria-label="Notifications"></section>
+      </div>
+      <div class="ts2b-sr" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+</main>
+<script src="assets/core.js"></script>
+<script>
+/* ---------- the style and theme switch ---------- */
+(function(){
+  const d = document.documentElement;
+  const cur = () => ({ s:d.getAttribute('data-style') || 'bp', t:d.getAttribute('data-theme') || 'light' });
+  const mark = () => { const v = cur();
+    document.querySelectorAll('#ts2b-style button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === v.s));
+    document.querySelectorAll('#ts2b-theme button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === v.t)); };
+  mark();
+  addEventListener('DOMContentLoaded', () => {
+    seg(document.getElementById('ts2b-style'), v => { if (v === 'bp') d.removeAttribute('data-style'); else d.setAttribute('data-style', v); try { localStorage.setItem('dmui-style', v); } catch(e){} });
+    seg(document.getElementById('ts2b-theme'), v => { d.setAttribute('data-theme', v); try { localStorage.setItem('dmui-theme', v); } catch(e){} });
+    document.getElementById('ts2b-replay').addEventListener('click', () => DM.mount(document.querySelector('[data-c="ts2b"]')));
+  });
+})();
+
+/* ---------- Preview toasts ---------- */
+DM.PLAYS.add('ts2b');
+let ts2bUid = 0;
+DM.def('ts2b', (st, c, card) => {
+  const q = s => st.querySelector(s);
+  const win = q('.ts2b-win'), go = q('.ts2b-go'), busy = q('.ts2b-busy'), stack = q('.ts2b-st'), sr = q('.ts2b-sr');
+  const l1 = q('.ts2b-l1'), fig = q('.ts2b-fig'), figPic = q('.ts2b-fig .pic'), cw = q('.ts2b-cw');
+  const later = ms => new Promise(res => c.later(REDUCE ? Math.min(ms, 300) : ms, res));
+  const EASE = 'cubic-bezier(.23,1,.32,1)';
+  const OLD = 'We will try to ship the beta sometime in May, if everything goes well.', NEW = 'We ship the beta on 12 May.';
+  const tell = t => { sr.textContent = ''; setTimeout(() => { sr.textContent = t; }, 60); };
+
+  /* the picture the agent makes: a cover drawn in the chart palette */
+  const picture = (id, blur) => `${blur ? `<defs><filter id="${id}b" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="3.2"/></filter></defs>` : ''}
+    <g${blur ? ` filter="url(#${id}b)"` : ''}><rect width="64" height="40" fill="var(--dm-pb-bg)"/><circle cx="46" cy="13" r="6.5" fill="var(--dm-c4)"/>
+    <path d="M0 30 C12 20 22 21 32 27 S52 22 64 18 V40 H0z" fill="var(--dm-c2)"/><path d="M0 34 C14 28 26 31 38 35 S56 31 64 30 V40 H0z" fill="var(--dm-c3)"/>
+    <path d="M30 40 C33 36 36 34 42 32.5" stroke="var(--dm-raised)" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".8"/></g>`;
+
+  /* the three results, each with its glyph, words, preview and action */
+  const KINDS = {
+    edit:{ glyph:() => `<svg viewBox="0 0 64 40"><path class="ln" d="M5 9.5h50"/><path class="ln" d="M5 20h17"/><path class="ln rest" d="M38 20h20" /><path class="dl" d="M24 20h34"/><path class="ad" d="M24 20h14" pathLength="20"/><path class="cr" d="M24 15v10"/><path class="ln" d="M5 30.5h38"/></svg>`,
+      steps:[[300, 's1'], [700, 's2'], [500, 's3'], [900, 's4']],
+      ti:'Opening line tightened', de:'9 words shorter', pv:true, act:['line', 'Undo', t => undoEdit(t)] },
+    image:{ glyph:id => `<svg viewBox="0 0 64 40"><defs><clipPath id="${id}c"><rect class="clipr" width="64" height="40" rx="6"/></clipPath></defs><g clip-path="url(#${id}c)">${picture(id, true)}<g class="pic">${picture(id)}</g><path class="scan" d="M0 0h64"/></g><rect class="frame clipr" x=".5" y=".5" width="63" height="39" rx="5.5"/></svg>`,
+      steps:[[250, 's1'], [1400, 's2']],
+      ti:'Cover image ready', de:'16:9 · from your outline', act:['primary', 'Insert', t => insert(t)] },
+    source:{ glyph:() => `<svg viewBox="0 0 64 40"><g class="r r1"><rect class="tl" x="5" y="5" width="9" height="9" rx="2.5"/><path class="rb" d="M19 9.5h24" pathLength="30"/></g><g class="r r2"><rect class="tl" x="5" y="15.5" width="9" height="9" rx="2.5"/><path class="rb" d="M19 20h30" pathLength="30"/></g><g class="r r3"><rect class="tl" x="5" y="26" width="9" height="9" rx="2.5"/><path class="rb" d="M19 30.5h20" pathLength="30"/></g><g class="bd"><circle cx="56.5" cy="20" r="6.5"/><text x="56.5" y="23.2">1</text></g></svg>`,
+      steps:[[250, 's1'], [900, 's2'], [450, 's3']],
+      ti:'Source found for 38%', de:'research.example.org', act:['primary', 'Cite', t => cite(t)] }
+  };
+  const all = [];   // newest first
+  let fan = false, hovered = false, storyFan = false;
+
+  const ring = '<svg class="ts2b-ring" viewBox="0 0 28 28" aria-hidden="true"><rect class="tk" x=".75" y=".75" width="26.5" height="26.5"/><rect class="rn" x=".75" y=".75" width="26.5" height="26.5" pathLength="100"/></svg>';
+  const build = kind => {
+    const k = KINDS[kind], id = 'ts2b' + (++ts2bUid), el = document.createElement('div');
+    el.className = 'ts2b-t'; el.setAttribute('role', 'group'); el.setAttribute('aria-label', k.ti);
+    el.innerHTML = `<div class="ts2b-in"><div class="ts2b-hd"><span class="ts2b-g" aria-hidden="true">${k.glyph(id)}</span>
+      <div class="ts2b-tx"><span class="ts2b-ti">${k.ti}</span><span class="ts2b-de">${k.de}</span></div>
+      <div class="ts2b-hb"><button type="button" class="pill sm ${k.act[0]} ts2b-a">${k.act[1]}</button><button type="button" class="ib ts2b-x" aria-label="Close" data-tip="Close">${ring}<svg class="i s"><use href="#i-x"/></svg></button></div></div>
+      ${k.pv ? `<div class="ts2b-pv"><del><span>${OLD}</span></del><ins>${NEW}</ins></div>` : ''}</div>`;
+    const t = { el, kind, k, id, g:el.querySelector('.ts2b-g'), a:el.querySelector('.ts2b-a'), cd:null, ms:0 };
+    t.a.addEventListener('click', () => t.act(t)); t.act = k.act[2];
+    el.querySelector('.ts2b-x').addEventListener('click', () => dismiss(t));
+    swipe(t);
+    new ResizeObserver(() => layout()).observe(el.firstElementChild);
+    return t;
+  };
+  const playGlyph = async (t, steps) => { for (const [ms, cls] of steps){ await later(ms); if (!t.el.isConnected) return; t.g.classList.add(cls); } };
+
+  /* where each toast sits: folded, a deck with the newest in front and two edges behind it; open, a list, newest at the bottom */
+  const nat = t => t.el.firstElementChild.offsetHeight;
+  const layout = () => {
+    const open = fan || hovered || storyFan, live = all.filter(t => !t.gone);
+    let y = 0; const fh = live[0] ? nat(live[0]) : 0;
+    live.forEach((t, i) => {
+      const h = nat(t);
+      if (open){ t.el.style.height = h + 'px'; t.el.style.transform = `translateY(${-y}px)`; y += h + 8; t.el.style.opacity = '1'; }
+      else { t.el.style.height = (i ? fh : h) + 'px'; t.el.style.transform = `translateY(${-10 * Math.min(i, 2)}px) scale(${1 - .05 * Math.min(i, 2)})`; t.el.style.opacity = i > 2 ? '0' : '1'; }
+      t.el.classList.toggle('back', !open && i > 0); t.el.inert = !open && i > 0; t.el.style.zIndex = String(50 - i);
+    });
+    stack.style.height = (open ? Math.max(0, y - 8) : fh + 10 * Math.min(live.length - 1, 2)) + 'px';
+    // the countdowns hold while the deck is open
+    live.forEach(t => { if (t.cd){ if (open && t.cd.playState === 'running') t.cd.pause(); else if (!open && t.cd.playState === 'paused') t.cd.play(); } });
+  };
+  const countdown = (t, ms) => {
+    if (t.cd){ t.cd.cancel(); t.cd = null; }
+    const rn = t.el.querySelector('.ts2b-ring .rn');
+    t.cd = rn.animate([{ strokeDashoffset:0 }, { strokeDashoffset:100 }], { duration:ms, fill:'forwards', easing:'linear' });
+    if (fan || hovered || storyFan) t.cd.pause();
+    t.cd.onfinish = () => dismiss(t);
+  };
+  c.on(stack, 'pointerenter', e => { if (e.pointerType === 'mouse'){ hovered = true; layout(); } });
+  c.on(stack, 'pointerleave', e => { if (e.pointerType === 'mouse'){ hovered = false; setTimeout(layout, 0); } });
+  c.on(stack, 'focusin', () => { fan = true; layout(); });
+  c.on(stack, 'focusout', () => setTimeout(() => { if (!stack.contains(document.activeElement)){ fan = false; layout(); } }, 0));
+  // a tap on a folded deck opens it on a touch screen
+  c.on(stack, 'click', e => { if (!hovered && !fan && !e.target.closest('button')){ fan = true; layout(); } });
+
+  const add = kind => {
+    const t = build(kind); all.unshift(t); stack.appendChild(t.el);
+    t.el.style.transition = 'none'; t.el.style.height = nat(t) + 'px'; t.el.style.opacity = '0'; t.el.style.transform = 'translateY(28px) scale(.96)'; void t.el.offsetWidth; t.el.style.transition = '';
+    layout(); playGlyph(t, t.k.steps); countdown(t, 9000);
+    tell(`${t.k.ti}. ${t.k.de}. ${t.k.act[1]} is available.`);
+    return t;
+  };
+  const dismiss = (t, how) => {
+    if (t.gone) return; t.gone = true; if (t.cd){ t.cd.cancel(); t.cd = null; }
+    if (t.el.contains(document.activeElement)) (all.find(x => !x.gone && x !== t) || { a:go }).a.focus({ preventScroll:true });
+    const from = t.el.style.transform || 'none';
+    const a = how ? null : t.el.animate([{ opacity:1, transform:from }, { opacity:0, transform:from + ' translateY(10px) scale(.97)' }], { duration:REDUCE ? 160 : 300, easing:EASE, fill:'forwards' });
+    const done = () => { t.el.remove(); all.splice(all.indexOf(t), 1); };
+    if (a) a.finished.then(done); else done();
+    layout();
+  };
+  /* swipe a toast away sideways */
+  const swipe = t => {
+    let s = null; const el = t.el;
+    el.addEventListener('pointerdown', e => { if (e.button || e.target.closest('button') || el.classList.contains('back')) return; s = { x:e.clientX, y:e.clientY, t0:performance.now(), dx:0, id:e.pointerId, on:false, base:el.style.transform }; });
+    el.addEventListener('pointermove', e => { if (!s || e.pointerId !== s.id) return; const dx = e.clientX - s.x, dy = e.clientY - s.y;
+      if (!s.on){ if (Math.abs(dx) < 6 || Math.abs(dy) > Math.abs(dx)) return; s.on = true; el.setPointerCapture(e.pointerId); el.style.transition = 'none'; }
+      s.dx = dx; el.style.transform = `${s.base} translateX(${dx}px)`; el.style.opacity = String(Math.max(.2, 1 - Math.abs(dx) / 260)); });
+    const end = e => { if (!s || e.pointerId !== s.id) return; const k = s; s = null; if (!k.on) return; el.style.transition = '';
+      const v = Math.abs(k.dx) / Math.max(1, performance.now() - k.t0);
+      if (Math.abs(k.dx) > 90 || v > .6){ const dir = Math.sign(k.dx) || 1;
+        el.animate([{ transform:`${k.base} translateX(${k.dx}px)`, opacity:el.style.opacity }, { transform:`${k.base} translateX(${dir * 420}px)`, opacity:0 }], { duration:260, easing:EASE, fill:'forwards' }).finished.then(() => dismiss(t, 'swiped'));
+      } else { el.style.transform = k.base; el.style.opacity = '1'; } };
+    el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+  };
+  /* a toast turns into its next state in place: new words, a new action, the glyph moving with it */
+  const morph = (t, ti, de, act, ms = 6000) => {
+    const tx = t.el.querySelector('.ts2b-tx'), hb = t.el.querySelector('.ts2b-hb');
+    const fade = (el, fn) => { if (REDUCE){ fn(); return; } el.animate([{ opacity:1 }, { opacity:0 }], { duration:120, fill:'forwards' }).finished.then(a => { fn(); el.getAnimations().forEach(x => x.cancel()); el.animate([{ opacity:0, transform:'translateY(3px)' }, { opacity:1, transform:'none' }], { duration:260, easing:EASE }); }); };
+    fade(tx, () => { tx.querySelector('.ts2b-ti').textContent = ti; tx.querySelector('.ts2b-de').textContent = de; });
+    const keep = t.el.contains(document.activeElement) && document.activeElement === t.a;
+    fade(t.a, () => { t.a.className = `pill sm ${act[0]} ts2b-a`; t.a.textContent = act[1]; t.act = act[2]; if (keep) t.a.focus({ preventScroll:true }); });
+    t.el.setAttribute('aria-label', ti); tell(`${ti}. ${de}.`); countdown(t, ms);
+  };
+  const flash = el => { el.classList.remove('ts2b-hl'); void el.offsetWidth; el.classList.add('ts2b-hl'); };
+  const fly = (from, to, html, r0, r1, ms = 640) => new Promise(res => {
+    const wb = win.getBoundingClientRect(), a = from.getBoundingClientRect();
+    const f = document.createElement('div'); f.className = 'ts2b-fly'; f.innerHTML = html; win.appendChild(f);
+    const box = (b, r) => ({ left:b.left - wb.left + 'px', top:b.top - wb.top + 'px', width:b.width + 'px', height:b.height + 'px', borderRadius:r });
+    Object.assign(f.style, box(a, r0));
+    if (REDUCE){ f.remove(); res(); return; }
+    const anim = f.animate([box(a, r0), box(to, r1)], { duration:ms, easing:'cubic-bezier(.5,0,.15,1)', fill:'forwards' });
+    anim.finished.then(() => { res(); f.animate([{ opacity:1 }, { opacity:0 }], { duration:160, fill:'forwards' }).finished.then(() => f.remove()); });
+  });
+
+  /* ---------- what the actions do on the page ---------- */
+  const setLead = (txt) => { l1.textContent = txt; flash(l1); };
+  const undoEdit = t => { setLead(OLD); t.g.classList.add('back'); morph(t, 'Opening line restored', 'Back to your words', ['line', 'Redo', redoEdit]); };
+  const redoEdit = t => { setLead(NEW); t.g.classList.remove('back'); morph(t, 'Opening line tightened', '9 words shorter', ['line', 'Undo', undoEdit]); };
+  const insert = async t => {
+    t.a.disabled = true;
+    figPic.innerHTML = `<svg viewBox="0 0 64 40" preserveAspectRatio="xMidYMid slice">${picture('fig' + t.id)}</svg>`; figPic.classList.remove('in');
+    fig.classList.add('open');
+    const fb = fig.getBoundingClientRect(), w = fig.offsetWidth;
+    const target = { left:fb.left, top:fb.top, width:w, height:w * 9 / 16 };
+    const rr = getComputedStyle(figPic).borderTopLeftRadius;
+    await fly(t.g, target, `<svg viewBox="0 0 64 40" preserveAspectRatio="xMidYMid slice">${picture('fly' + t.id)}</svg>`, getComputedStyle(st.querySelector('.ts2b-t')).borderTopLeftRadius === '0px' ? '0px' : '6px', rr);
+    figPic.classList.add('in'); t.a.disabled = false;
+    morph(t, 'Cover image inserted', 'Under the opening line', ['line', 'Undo', t2 => removeImage(t2)]);
+  };
+  const removeImage = t => { figPic.classList.remove('in'); fig.classList.remove('open'); morph(t, 'Cover image removed', 'It stays in your files', ['primary', 'Insert', insert]); };
+  const cite = async t => {
+    t.a.disabled = true; cw.innerHTML = '<span class="ts2b-cite" aria-label="Source 1">1</span>'; const sup = cw.firstChild; sup.style.opacity = '0';
+    const bd = t.g.querySelector('.bd circle'), sb = sup.getBoundingClientRect();
+    await fly(bd, sb, '<span style="display:block;width:100%;height:100%;border-radius:999px;background:var(--dm-accent)"></span>', '999px', '999px', 560);
+    t.g.classList.add('used'); sup.style.opacity = ''; if (!REDUCE) sup.classList.add("ts2b-popin"); t.a.disabled = false;
+    morph(t, 'Cited as source 1', 'Review time study, 2026', ['line', 'Undo', t2 => uncite(t2)]);
+  };
+  const uncite = t => { cw.innerHTML = ''; t.g.classList.remove('used'); morph(t, 'Citation removed', 'The source is still saved', ['primary', 'Cite', cite]); };
+
+  /* ---------- the run: Polish draft sets the agent off, and its results arrive one by one ---------- */
+  let tok = 0;
+  const reset = () => { all.splice(0).forEach(t => t.el.remove()); l1.textContent = OLD; fig.classList.remove('open'); figPic.classList.remove('in'); cw.innerHTML = ''; layout(); };
+  const run = async () => {
+    const my = ++tok; reset(); go.hidden = true; busy.hidden = false; tell('Polishing the draft');
+    await later(900); if (my !== tok) return;
+    setLead(NEW); add('edit');
+    await later(2700); if (my !== tok) return;
+    add('image');
+    await later(2800); if (my !== tok) return;
+    add('source');
+    await later(600); if (my !== tok) return;
+    busy.hidden = true; go.hidden = false;
+  };
+  c.on(go, 'click', run);
+  /* Escape dismisses the toast in front */
+  c.on(document, 'keydown', e => { if (e.key !== 'Escape' || !e.isTrusted) return; const t = all.find(x => !x.gone); if (!t) return; c.mine = true; dismiss(t); });
+
+  /* ---------- the demo: about 22 seconds, then again ---------- */
+  const again = () => { if (c.mine || c.dead || card._c !== c) return;
+    const a = st.animate([{ opacity:1 }, { opacity:0 }], { duration:360, easing:'ease-out', fill:'forwards' });
+    a.finished.then(() => { if (card._c === c && !c.dead && !c.mine){ DM.mount(card, true); card._c.st.animate([{ opacity:0 }, { opacity:1 }], { duration:360, easing:'ease-out' }); } a.cancel(); }); };
+  c.taken(() => { if (storyFan){ storyFan = false; layout(); } });
+  c.story(async s => {
+    await s.beat(2);
+    await s.tap(go);
+    await s.until(() => all.length === 3);
+    await s.beat(3);
+    // the pointer comes to rest on the deck, which opens into a list
+    const img = all.find(t => t.kind === 'image'), src = all.find(t => t.kind === 'source');
+    await s.point(src.el.querySelector('.ts2b-tx'), false); storyFan = true; layout();
+    await s.beat(2);
+    await s.tap(img.a);
+    await s.beat(3);
+    await s.tap(src.a);
+    await s.beat(3);
+    s.away(); storyFan = false; layout();
+    await s.until(() => !all.some(t => !t.gone));
+    await s.beat(3);
+    again(); throw 'stop';
+  });
+});
+</script>
+</body>
+</html>
