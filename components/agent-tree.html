@@ -175,8 +175,8 @@
    where the run starts, and an accent ring with a dot while a step waits for a person */
 .atr{--dm-atr-ind:22px;--dm-atr-r:8;--dm-atr-cut:0;--dm-atr-run:var(--dm-accent-mark,var(--dm-accent));--dm-atr-flow:color-mix(in srgb,var(--dm-atr-run) 30%,var(--dm-surface));--dm-atr-ez:cubic-bezier(.22,1,.36,1);container:atr/inline-size;box-sizing:border-box;width:100%;max-width:480px;margin:0 auto;padding:11px var(--dm-s-4) var(--dm-s-1);font-size:13px;line-height:1.4;color:var(--dm-fg)}
 /* its content sits 16px in from every edge (owner, 18 Nov): the head's words, the foot's hairline and words, and each row's
-   hover fill on the 16px edge (a row's fill is as wide as the content, no wider), with the row's mark 8px inside its fill;
-   nothing in it grows or shrinks when it is pressed */
+   mark and trailing cost on the 16px column, with the row's hover fill reaching 8px out round it into the padding (owner,
+   26 Nov: rows keep the head's and foot's columns); nothing in it grows or shrinks when it is pressed */
 .atr :is(.pill,.ib):active{transform:none}
 :root:not([data-style="soft"],[data-style="clean"]) .atr:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){--dm-atr-r:10;--dm-atr-cut:1}
 .atr.bare{max-width:none;padding:0}
@@ -192,6 +192,7 @@
 /* the tree: one treeitem per agent or step (.atr-n), its row (.atr-b) and the group of its children under it. A row holds a
    mark, an avatar or an app, the name and what it is on now, and its time and cost (a branch adds up everything under it) */
 .atr-tree{position:relative;padding:var(--dm-s-1) 0}
+.atr:not(.bare) .atr-tree{margin-inline:calc(-1 * var(--dm-s-2))}
 .atr-n{position:relative;outline:0}
 /* (a row is clicked to pick its agent, so it takes the pointer) */
 .atr-b{border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));cursor:pointer;transition:background var(--dm-t-fast)}
@@ -200,7 +201,9 @@
 .atr-n[aria-selected="true"]>.atr-b{background:color-mix(in srgb,var(--dm-fg) 5%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
 /* the keyboard's ring only: a row picked with the mouse or a finger shows none, even when a modifier key follows (data-nofv) */
 .atr-n:focus-visible:not([data-nofv])>.atr-b{box-shadow:inset 0 0 0 2px var(--dm-focus)}
-.atr-r{display:flex;align-items:center;gap:var(--dm-s-2);min-height:32px;padding:0 var(--dm-s-2) 0 calc(var(--dm-s-2) + var(--dm-lv,0) * var(--dm-atr-ind))}
+/* (a status mark is drawn 14px in its 18px box, which holds the waiting ring's halo, so the box starts 2px early and the mark
+   itself sits on the content's 16px column) */
+.atr-r{display:flex;align-items:center;gap:var(--dm-s-2);min-height:32px;padding:0 var(--dm-s-2) 0 calc(var(--dm-s-2) - 2px + var(--dm-lv,0) * var(--dm-atr-ind))}
 /* the mark sits over the lines; the parts beside it rise in, so the mark never moves off the end of its line */
 .atr-g{position:relative;z-index:2;width:18px;height:18px;flex:none;display:grid;place-items:center;border-radius:50%;color:var(--dm-line-strong)}
 .atr-ring{width:14px;height:14px;box-sizing:border-box;border-radius:50%;background:var(--dm-surface);box-shadow:inset 0 0 0 1.75px currentColor}
@@ -243,7 +246,7 @@
 /* a step that waits for a person: no band behind it (owner, 18 Nov); its mark, a calm line in the accent and Approve in place
    say it */
 .atr-n[data-s="wait"]>.atr-b .atr-sub{color:var(--dm-accent-fg,var(--dm-accent))}
-.atr-ask{display:flex;flex-wrap:wrap;gap:var(--dm-s-2);padding:0 var(--dm-s-2) var(--dm-s-2) calc(var(--dm-s-2) + var(--dm-lv,0) * var(--dm-atr-ind) + 56px)}
+.atr-ask{display:flex;flex-wrap:wrap;gap:var(--dm-s-2);padding:0 var(--dm-s-2) var(--dm-s-2) calc(var(--dm-s-2) - 2px + var(--dm-lv,0) * var(--dm-atr-ind) + 56px)}
 /* the tree grows with its rows (grow(), owner 17 Nov): each new row already opens its own height smoothly, so the panel
    follows its content frame by frame, with nothing cut off and no room left over; the way on under a row (a fix, Approve and
    Hold) opens its height the same way. Where a browser can't ease a height to auto, it appears at once */
@@ -307,6 +310,7 @@
    edge: the rows sit 8px in with 8px of their own, their hover concentric with the card's corners (22px = 14px + 8px) */
 :root[data-style="clean"] .atr:not(.bare),:root [data-style="clean"] .atr:not(.bare),:root [data-style="clean"].atr:not(.bare){padding:8px 8px 0}
 :root[data-style="clean"] .atr:not(.bare) .atr-ct-mix,:root [data-style="clean"] .atr:not(.bare) .atr-ct-mix,:root [data-style="clean"].atr:not(.bare) .atr-ct-mix{margin-inline:8px}
+:root[data-style="clean"] .atr:not(.bare) .atr-tree,:root [data-style="clean"] .atr:not(.bare) .atr-tree,:root [data-style="clean"].atr:not(.bare) .atr-tree{margin-inline:0}
 :root[data-style="clean"] .atr:not(.bare) .atr-h,:root [data-style="clean"] .atr:not(.bare) .atr-h,:root [data-style="clean"].atr:not(.bare) .atr-h{padding:8px 8px 12px}
 :root[data-style="clean"] .atr:not(.bare) .atr-b,:root [data-style="clean"] .atr:not(.bare) .atr-b,:root [data-style="clean"].atr:not(.bare) .atr-b{border-radius:calc(var(--dm-r-card) - 8px)}
 /* the rows take Clean's one hover, gliding from row to row, and the picked agent its stronger fill with no edge (owner, 21 Nov) */
@@ -960,7 +964,7 @@ export function AgentTree({ root, title, status, seconds, collapsed, defaultColl
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>agent-tree.css<span class="l">React · 164 lines</span></summary><pre class="cp-pre" data-name="agent-tree.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>agent-tree.css<span class="l">React · 168 lines</span></summary><pre class="cp-pre" data-name="agent-tree.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Agent tree ---------- */
 /* an orchestrator and the agents it hands work to, as a tree that grows while the run plays: a header with the run&#39;s title,
    its status, the time and the total cost, then the tree. A parent&#39;s line runs down from its mark and each child branches
@@ -974,8 +978,8 @@ export function AgentTree({ root, title, status, seconds, collapsed, defaultColl
    where the run starts, and an accent ring with a dot while a step waits for a person */
 .dm-atr{--dm-atr-ind:22px;--dm-atr-r:8;--dm-atr-cut:0;--dm-atr-run:var(--dm-accent-mark,var(--dm-accent));--dm-atr-flow:color-mix(in srgb,var(--dm-atr-run) 30%,var(--dm-surface));--dm-atr-ez:cubic-bezier(.22,1,.36,1);container:atr/inline-size;box-sizing:border-box;width:100%;max-width:480px;margin:0 auto;padding:11px var(--dm-s-4) var(--dm-s-1);font-size:13px;line-height:1.4;color:var(--dm-fg)}
 /* its content sits 16px in from every edge (owner, 18 Nov): the head&#39;s words, the foot&#39;s hairline and words, and each row&#39;s
-   hover fill on the 16px edge (a row&#39;s fill is as wide as the content, no wider), with the row&#39;s mark 8px inside its fill;
-   nothing in it grows or shrinks when it is pressed */
+   mark and trailing cost on the 16px column, with the row&#39;s hover fill reaching 8px out round it into the padding (owner,
+   26 Nov: rows keep the head&#39;s and foot&#39;s columns); nothing in it grows or shrinks when it is pressed */
 .dm-atr :is(.dm-pill,.dm-ib):active{transform:none}
 :root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .dm-atr:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *)){--dm-atr-r:10;--dm-atr-cut:1}
 .dm-atr.dm-bare{max-width:none;padding:0}
@@ -991,6 +995,7 @@ export function AgentTree({ root, title, status, seconds, collapsed, defaultColl
 /* the tree: one treeitem per agent or step (.atr-n), its row (.atr-b) and the group of its children under it. A row holds a
    mark, an avatar or an app, the name and what it is on now, and its time and cost (a branch adds up everything under it) */
 .dm-atr-tree{position:relative;padding:var(--dm-s-1) 0}
+.dm-atr:not(.dm-bare) .dm-atr-tree{margin-inline:calc(-1 * var(--dm-s-2))}
 .dm-atr-n{position:relative;outline:0}
 /* (a row is clicked to pick its agent, so it takes the pointer) */
 .dm-atr-b{border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));cursor:pointer;transition:background var(--dm-t-fast)}
@@ -999,7 +1004,9 @@ export function AgentTree({ root, title, status, seconds, collapsed, defaultColl
 .dm-atr-n[aria-selected=&quot;true&quot;]&gt;.dm-atr-b{background:color-mix(in srgb,var(--dm-fg) 5%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
 /* the keyboard&#39;s ring only: a row picked with the mouse or a finger shows none, even when a modifier key follows (data-nofv) */
 .dm-atr-n:focus-visible:not([data-nofv])&gt;.dm-atr-b{box-shadow:inset 0 0 0 2px var(--dm-focus)}
-.dm-atr-r{display:flex;align-items:center;gap:var(--dm-s-2);min-height:32px;padding:0 var(--dm-s-2) 0 calc(var(--dm-s-2) + var(--dm-lv,0) * var(--dm-atr-ind))}
+/* (a status mark is drawn 14px in its 18px box, which holds the waiting ring&#39;s halo, so the box starts 2px early and the mark
+   itself sits on the content&#39;s 16px column) */
+.dm-atr-r{display:flex;align-items:center;gap:var(--dm-s-2);min-height:32px;padding:0 var(--dm-s-2) 0 calc(var(--dm-s-2) - 2px + var(--dm-lv,0) * var(--dm-atr-ind))}
 /* the mark sits over the lines; the parts beside it rise in, so the mark never moves off the end of its line */
 .dm-atr-g{position:relative;z-index:2;width:18px;height:18px;flex:none;display:grid;place-items:center;border-radius:50%;color:var(--dm-line-strong)}
 .dm-atr-ring{width:14px;height:14px;box-sizing:border-box;border-radius:50%;background:var(--dm-surface);box-shadow:inset 0 0 0 1.75px currentColor}
@@ -1042,7 +1049,7 @@ export function AgentTree({ root, title, status, seconds, collapsed, defaultColl
 /* a step that waits for a person: no band behind it (owner, 18 Nov); its mark, a calm line in the accent and Approve in place
    say it */
 .dm-atr-n[data-s=&quot;wait&quot;]&gt;.dm-atr-b .dm-atr-sub{color:var(--dm-accent-fg,var(--dm-accent))}
-.dm-atr-ask{display:flex;flex-wrap:wrap;gap:var(--dm-s-2);padding:0 var(--dm-s-2) var(--dm-s-2) calc(var(--dm-s-2) + var(--dm-lv,0) * var(--dm-atr-ind) + 56px)}
+.dm-atr-ask{display:flex;flex-wrap:wrap;gap:var(--dm-s-2);padding:0 var(--dm-s-2) var(--dm-s-2) calc(var(--dm-s-2) - 2px + var(--dm-lv,0) * var(--dm-atr-ind) + 56px)}
 /* the tree grows with its rows (grow(), owner 17 Nov): each new row already opens its own height smoothly, so the panel
    follows its content frame by frame, with nothing cut off and no room left over; the way on under a row (a fix, Approve and
    Hold) opens its height the same way. Where a browser can&#39;t ease a height to auto, it appears at once */
@@ -1106,6 +1113,7 @@ export function AgentTree({ root, title, status, seconds, collapsed, defaultColl
    edge: the rows sit 8px in with 8px of their own, their hover concentric with the card&#39;s corners (22px = 14px + 8px) */
 :root[data-style=&quot;clean&quot;] .dm-atr:not(.dm-bare),:root [data-style=&quot;clean&quot;] .dm-atr:not(.dm-bare),:root [data-style=&quot;clean&quot;].dm-atr:not(.dm-bare){padding:8px 8px 0}
 :root[data-style=&quot;clean&quot;] .dm-atr:not(.dm-bare) .dm-atr-ct-mix,:root [data-style=&quot;clean&quot;] .dm-atr:not(.dm-bare) .dm-atr-ct-mix,:root [data-style=&quot;clean&quot;].dm-atr:not(.dm-bare) .dm-atr-ct-mix{margin-inline:8px}
+:root[data-style=&quot;clean&quot;] .dm-atr:not(.dm-bare) .dm-atr-tree,:root [data-style=&quot;clean&quot;] .dm-atr:not(.dm-bare) .dm-atr-tree,:root [data-style=&quot;clean&quot;].dm-atr:not(.dm-bare) .dm-atr-tree{margin-inline:0}
 :root[data-style=&quot;clean&quot;] .dm-atr:not(.dm-bare) .dm-atr-h,:root [data-style=&quot;clean&quot;] .dm-atr:not(.dm-bare) .dm-atr-h,:root [data-style=&quot;clean&quot;].dm-atr:not(.dm-bare) .dm-atr-h{padding:8px 8px 12px}
 :root[data-style=&quot;clean&quot;] .dm-atr:not(.dm-bare) .dm-atr-b,:root [data-style=&quot;clean&quot;] .dm-atr:not(.dm-bare) .dm-atr-b,:root [data-style=&quot;clean&quot;].dm-atr:not(.dm-bare) .dm-atr-b{border-radius:calc(var(--dm-r-card) - 8px)}
 /* the rows take Clean&#39;s one hover, gliding from row to row, and the picked agent its stronger fill with no edge (owner, 21 Nov) */
@@ -1161,7 +1169,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>agent-tree.css<span class="l">HTML · 163 lines</span></summary><pre class="cp-pre" data-name="agent-tree.css"><code>/* ---------- Agent tree ---------- */
+</code></pre></details><details class="cp-file"><summary>agent-tree.css<span class="l">HTML · 167 lines</span></summary><pre class="cp-pre" data-name="agent-tree.css"><code>/* ---------- Agent tree ---------- */
 /* an orchestrator and the agents it hands work to, as a tree that grows while the run plays: a header with the run&#39;s title,
    its status, the time and the total cost, then the tree. A parent&#39;s line runs down from its mark and each child branches
    off it; Soft turns each corner with a curve, Blueprint cuts it at 45 degrees. A line is one tint (the accent mixed into
@@ -1174,8 +1182,8 @@ const { class: className, ...rest } = Astro.props;
    where the run starts, and an accent ring with a dot while a step waits for a person */
 .atr{--dm-atr-ind:22px;--dm-atr-r:8;--dm-atr-cut:0;--dm-atr-run:var(--dm-accent-mark,var(--dm-accent));--dm-atr-flow:color-mix(in srgb,var(--dm-atr-run) 30%,var(--dm-surface));--dm-atr-ez:cubic-bezier(.22,1,.36,1);container:atr/inline-size;box-sizing:border-box;width:100%;max-width:480px;margin:0 auto;padding:11px var(--dm-s-4) var(--dm-s-1);font-size:13px;line-height:1.4;color:var(--dm-fg)}
 /* its content sits 16px in from every edge (owner, 18 Nov): the head&#39;s words, the foot&#39;s hairline and words, and each row&#39;s
-   hover fill on the 16px edge (a row&#39;s fill is as wide as the content, no wider), with the row&#39;s mark 8px inside its fill;
-   nothing in it grows or shrinks when it is pressed */
+   mark and trailing cost on the 16px column, with the row&#39;s hover fill reaching 8px out round it into the padding (owner,
+   26 Nov: rows keep the head&#39;s and foot&#39;s columns); nothing in it grows or shrinks when it is pressed */
 .atr :is(.pill,.ib):active{transform:none}
 :root:not([data-style=&quot;soft&quot;],[data-style=&quot;clean&quot;]) .atr:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *,[data-style=&quot;clean&quot;],[data-style=&quot;clean&quot;] *)){--dm-atr-r:10;--dm-atr-cut:1}
 .atr.bare{max-width:none;padding:0}
@@ -1191,6 +1199,7 @@ const { class: className, ...rest } = Astro.props;
 /* the tree: one treeitem per agent or step (.atr-n), its row (.atr-b) and the group of its children under it. A row holds a
    mark, an avatar or an app, the name and what it is on now, and its time and cost (a branch adds up everything under it) */
 .atr-tree{position:relative;padding:var(--dm-s-1) 0}
+.atr:not(.bare) .atr-tree{margin-inline:calc(-1 * var(--dm-s-2))}
 .atr-n{position:relative;outline:0}
 /* (a row is clicked to pick its agent, so it takes the pointer) */
 .atr-b{border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));cursor:pointer;transition:background var(--dm-t-fast)}
@@ -1199,7 +1208,9 @@ const { class: className, ...rest } = Astro.props;
 .atr-n[aria-selected=&quot;true&quot;]&gt;.atr-b{background:color-mix(in srgb,var(--dm-fg) 5%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
 /* the keyboard&#39;s ring only: a row picked with the mouse or a finger shows none, even when a modifier key follows (data-nofv) */
 .atr-n:focus-visible:not([data-nofv])&gt;.atr-b{box-shadow:inset 0 0 0 2px var(--dm-focus)}
-.atr-r{display:flex;align-items:center;gap:var(--dm-s-2);min-height:32px;padding:0 var(--dm-s-2) 0 calc(var(--dm-s-2) + var(--dm-lv,0) * var(--dm-atr-ind))}
+/* (a status mark is drawn 14px in its 18px box, which holds the waiting ring&#39;s halo, so the box starts 2px early and the mark
+   itself sits on the content&#39;s 16px column) */
+.atr-r{display:flex;align-items:center;gap:var(--dm-s-2);min-height:32px;padding:0 var(--dm-s-2) 0 calc(var(--dm-s-2) - 2px + var(--dm-lv,0) * var(--dm-atr-ind))}
 /* the mark sits over the lines; the parts beside it rise in, so the mark never moves off the end of its line */
 .atr-g{position:relative;z-index:2;width:18px;height:18px;flex:none;display:grid;place-items:center;border-radius:50%;color:var(--dm-line-strong)}
 .atr-ring{width:14px;height:14px;box-sizing:border-box;border-radius:50%;background:var(--dm-surface);box-shadow:inset 0 0 0 1.75px currentColor}
@@ -1242,7 +1253,7 @@ const { class: className, ...rest } = Astro.props;
 /* a step that waits for a person: no band behind it (owner, 18 Nov); its mark, a calm line in the accent and Approve in place
    say it */
 .atr-n[data-s=&quot;wait&quot;]&gt;.atr-b .atr-sub{color:var(--dm-accent-fg,var(--dm-accent))}
-.atr-ask{display:flex;flex-wrap:wrap;gap:var(--dm-s-2);padding:0 var(--dm-s-2) var(--dm-s-2) calc(var(--dm-s-2) + var(--dm-lv,0) * var(--dm-atr-ind) + 56px)}
+.atr-ask{display:flex;flex-wrap:wrap;gap:var(--dm-s-2);padding:0 var(--dm-s-2) var(--dm-s-2) calc(var(--dm-s-2) - 2px + var(--dm-lv,0) * var(--dm-atr-ind) + 56px)}
 /* the tree grows with its rows (grow(), owner 17 Nov): each new row already opens its own height smoothly, so the panel
    follows its content frame by frame, with nothing cut off and no room left over; the way on under a row (a fix, Approve and
    Hold) opens its height the same way. Where a browser can&#39;t ease a height to auto, it appears at once */
@@ -1306,6 +1317,7 @@ const { class: className, ...rest } = Astro.props;
    edge: the rows sit 8px in with 8px of their own, their hover concentric with the card&#39;s corners (22px = 14px + 8px) */
 :root[data-style=&quot;clean&quot;] .atr:not(.bare),:root [data-style=&quot;clean&quot;] .atr:not(.bare),:root [data-style=&quot;clean&quot;].atr:not(.bare){padding:8px 8px 0}
 :root[data-style=&quot;clean&quot;] .atr:not(.bare) .atr-ct-mix,:root [data-style=&quot;clean&quot;] .atr:not(.bare) .atr-ct-mix,:root [data-style=&quot;clean&quot;].atr:not(.bare) .atr-ct-mix{margin-inline:8px}
+:root[data-style=&quot;clean&quot;] .atr:not(.bare) .atr-tree,:root [data-style=&quot;clean&quot;] .atr:not(.bare) .atr-tree,:root [data-style=&quot;clean&quot;].atr:not(.bare) .atr-tree{margin-inline:0}
 :root[data-style=&quot;clean&quot;] .atr:not(.bare) .atr-h,:root [data-style=&quot;clean&quot;] .atr:not(.bare) .atr-h,:root [data-style=&quot;clean&quot;].atr:not(.bare) .atr-h{padding:8px 8px 12px}
 :root[data-style=&quot;clean&quot;] .atr:not(.bare) .atr-b,:root [data-style=&quot;clean&quot;] .atr:not(.bare) .atr-b,:root [data-style=&quot;clean&quot;].atr:not(.bare) .atr-b{border-radius:calc(var(--dm-r-card) - 8px)}
 /* the rows take Clean&#39;s one hover, gliding from row to row, and the picked agent its stronger fill with no edge (owner, 21 Nov) */

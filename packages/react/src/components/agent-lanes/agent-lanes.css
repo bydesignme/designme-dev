@@ -2,8 +2,8 @@
 /* ---------- Agent lanes ---------- */
 /* each agent has its own hue (--dm-c, with its tint --dm-cb): its badge, its track, its tag and its stretch of the relay line that
    joins the badges. A hand-off sends a light down that line from one agent to the next, and the stretch it crossed stays lit */
-/* the card's content, the head and the lanes, sits 16px in from every edge; a lane's hover fill spans that content width
-   and its own content sits 12px inside the fill (the working badge's breathing ring, 5px, keeps clear of the fill's edge) */
+/* the card's content, the head and the lanes, sits 16px in from every edge: each lane's badge starts and its tag ends on the
+   head's 16px column, and a lane's hover fill reaches 8px out round it, into the padding (owner, 26 Nov) */
 .dm-aln{padding:var(--dm-s-4)}
 /* the lanes' marks (tracks, lines, a finished badge) in livelier versions of the agents' hues, each 3:1 on the surface; their
    text keeps the agent's text colour. Dark mode's agent colours are light already, so they are used as they are */
@@ -22,7 +22,7 @@
 /* the head's words (the title, its time and its step count) share one baseline, whatever their sizes; the row round them stays
    centred, so the icon and Pause all sit on the title's line (owner, 23 Nov: the 12.5px time sat 2px above the 14px title) */
 .dm-aln-tx{display:flex;align-items:baseline;gap:10px;margin-right:auto}
-.dm-aln-rows{position:relative}
+.dm-aln-rows{position:relative;margin-inline:calc(-1 * var(--dm-s-2))}
 .dm-aln-rows>*{position:relative}
 .dm-aln-lane{border-radius:calc(14px * var(--dm-rk-l,var(--dm-rk)));transition:background .3s}
 /* the hover fills the lane's row, the button a person clicks; an open log below it stays clear */
@@ -32,15 +32,15 @@
 /* the agent at work gets no tinted band behind its row: its pulsing badge and the Working spinner say it is active (owner,
    18 Nov) */
 /* the relay line runs from badge to badge, through the lanes and the hand-offs between them, and stops short of each badge */
-.dm-aln-rows>*::before{content:"";position:absolute;left:28px;width:2px;top:0;bottom:0;background:var(--dm-line);pointer-events:none}
+.dm-aln-rows>*::before{content:"";position:absolute;left:24px;width:2px;top:0;bottom:0;background:var(--dm-line);pointer-events:none}
 .dm-aln-lane::before{top:50px}
 .dm-aln-lane:last-child::before{display:none}
-.dm-aln-lane::after{content:"";position:absolute;left:28px;width:2px;top:0;height:8px;background:var(--dm-line);pointer-events:none}
+.dm-aln-lane::after{content:"";position:absolute;left:24px;width:2px;top:0;height:8px;background:var(--dm-line);pointer-events:none}
 .dm-aln-lane:first-child::after{display:none}
 /* a stretch that has carried a hand-off is drawn by its one lit stroke (.aln-pk, below), so the grey under it steps aside
    and the line from badge to badge stays a single clean line */
 .dm-aln-rows>.dm-aln-lane.dm-sent::before,.dm-aln-rows>.dm-aln-lane.dm-got::after,.dm-aln-rows>.dm-aln-hf.dm-lit::before{background:transparent}
-.dm-aln-row{display:grid;grid-template-columns:34px minmax(0,1.2fr) minmax(0,1fr) auto;align-items:center;gap:var(--dm-s-3);width:100%;padding:var(--dm-s-3);text-align:left}
+.dm-aln-row{display:grid;grid-template-columns:34px minmax(0,1.2fr) minmax(0,1fr) auto;align-items:center;gap:var(--dm-s-3);width:100%;padding:var(--dm-s-3) var(--dm-s-2);text-align:left}
 .dm-aln-av{position:relative;width:34px;height:34px;border-radius:calc(11px * var(--dm-rk-l,var(--dm-rk)));display:grid;place-items:center;color:var(--dm-c);background:var(--dm-cb);transition:color .4s,background .4s}
 .dm-aln-av::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none}
 .dm-aln-lane[data-s="working"] .dm-aln-av{animation:dm-alnbreathe 2.4s var(--dm-ease-io) infinite}
@@ -70,20 +70,20 @@
 .dm-aln-tg{background:var(--dm-cb);color:var(--dm-c)}
 .dm-aln-tg .dm-spin{width:9px;height:9px}
 /* (58px: the row's 12px, the 34px badge and the 12px gap, so the log starts under the agent's name) */
-.dm-aln-det{padding:0 var(--dm-s-3) var(--dm-s-3) 58px;font-size:12.5px;color:var(--dm-fg2)}
+.dm-aln-det{padding:0 var(--dm-s-2) var(--dm-s-3) 54px;font-size:12.5px;color:var(--dm-fg2)}
 .dm-aln-det div{display:flex;align-items:center;gap:var(--dm-s-2);padding:3px 0}
 .dm-aln-det div::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--dm-c);flex:none}
 .dm-aln-det .dm-muted{margin-left:auto}
 /* a hand-off opens a line between the lanes, glides the lanes below down and closes again */
 .dm-aln-hf{transition-duration:var(--dm-t-slow)}
-.dm-aln-hand{padding:6px var(--dm-s-3) 6px 58px;font-size:12.5px;line-height:18px;color:var(--dm-fg2)}
+.dm-aln-hand{padding:6px var(--dm-s-2) 6px 54px;font-size:12.5px;line-height:18px;color:var(--dm-fg2)}
 .dm-aln-hand b{font-weight:500}
 .dm-aln-hand .dm-f{color:var(--dm-from)}.dm-aln-hand .dm-t{color:var(--dm-to)}
 /* the hand-off draws the relay line from the sender's badge down to the taker's, in the gap between them (it never passes
    over a badge): a stroke that fills from the sender's hue into the taker's, then stays as the lit stretch (owner, 4 Nov).
    It is one element from badge to badge that follows them as the lanes move, so there is never a second line under it */
 .dm-aln-rows>.dm-aln-pk::before{display:none}
-.dm-aln-pk{position:absolute;left:28px;top:0;width:2px;background:linear-gradient(var(--dm-from),var(--dm-to));transform-origin:50% 0;pointer-events:none;z-index:2}
+.dm-aln-pk{position:absolute;left:24px;top:0;width:2px;background:linear-gradient(var(--dm-from),var(--dm-to));transform-origin:50% 0;pointer-events:none;z-index:2}
 @media (max-width:600px){
   .dm-aln-row{grid-template-columns:34px minmax(0,1fr) auto;row-gap:var(--dm-s-2)}
   .dm-aln-tr{grid-column:2 / -1;grid-row:2}
@@ -92,7 +92,7 @@
   .dm-aln-m{margin-right:auto}
 }
 @media (max-width:400px){.dm-aln-ic{display:none}}
-:root:not([data-style="soft"],[data-style="clean"]) .dm-aln-rows>*:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *))::before,:root:not([data-style="soft"],[data-style="clean"]) .dm-aln-lane:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *))::after{width:1px;left:28.5px;background:repeating-linear-gradient(var(--dm-rail) 0 3px,transparent 3px 6px)}
+:root:not([data-style="soft"],[data-style="clean"]) .dm-aln-rows>*:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *))::before,:root:not([data-style="soft"],[data-style="clean"]) .dm-aln-lane:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *))::after{width:1px;left:24.5px;background:repeating-linear-gradient(var(--dm-rail) 0 3px,transparent 3px 6px)}
 :root:not([data-style="soft"],[data-style="clean"]) .dm-aln-rows>.dm-aln-lane.dm-sent:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *))::before,:root:not([data-style="soft"],[data-style="clean"]) .dm-aln-rows>.dm-aln-lane.dm-got:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *))::after,:root:not([data-style="soft"],[data-style="clean"]) .dm-aln-rows>.dm-aln-hf.dm-lit:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *))::before{background:transparent}
 :root:not([data-style="soft"],[data-style="clean"]) .dm-aln-lane[data-s="working"] .dm-aln-av:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-c) 45%,transparent)}
 :root:not([data-style="soft"],[data-style="clean"]) .dm-aln-av:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-c) 35%,transparent)}
@@ -100,7 +100,7 @@
 @keyframes dm-alnbp{0%,55%{box-shadow:inset 0 0 0 1px var(--dm-c)}56%,100%{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-c) 35%,transparent)}}
 :root:not([data-style="soft"],[data-style="clean"]) .dm-aln-tr i:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){height:8px}
 :root:not([data-style="soft"],[data-style="clean"]) .dm-aln-tr i.dm-run:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *))::after{background:repeating-linear-gradient(135deg,var(--dm-cm) 0 4px,color-mix(in srgb,var(--dm-cm) 55%,var(--dm-surface)) 4px 7px);animation:none}
-:root:not([data-style="soft"],[data-style="clean"]) .dm-aln-pk:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){width:1px;left:28.5px;border-radius:0;background:var(--dm-to)}
+:root:not([data-style="soft"],[data-style="clean"]) .dm-aln-pk:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){width:1px;left:24.5px;border-radius:0;background:var(--dm-to)}
 :root:not([data-style="soft"],[data-style="clean"]) .dm-aln-av.dm-ping:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *))::before{animation:dm-alnpingbp .6s steps(3,end)}
 @keyframes dm-alnpingbp{from{box-shadow:0 0 0 1px var(--dm-c)}to{box-shadow:0 0 0 7px transparent}}
 /* the line saying what just happened, and once the run is done, how it went: Clean's foot strip shows it */
@@ -123,6 +123,7 @@
 /* (Agent harness, Phase II, keeps staging's lanes as they were: the card 8px in, the lanes' fills to its padding with their
    content 10px inside (8px in Clean), the hover on the whole lane and the Working tag lifted onto the surface) */
 .dm-ahx .dm-aln{padding:var(--dm-s-2)}
+.dm-ahx .dm-aln-rows{margin-inline:0}
 .dm-ahx .dm-aln-h{padding:var(--dm-s-2) 10px 10px}
 .dm-ahx .dm-aln-row{padding:10px;border-radius:0}
 @media (hover:hover) and (pointer:fine){.dm-ahx .dm-aln-row:hover{background:none}}
@@ -146,7 +147,7 @@
 :root[data-style="clean"] .dm-ahx .dm-aln-tr i.dm-on,:root [data-style="clean"] .dm-ahx .dm-aln-tr i.dm-on,:root [data-style="clean"].dm-ahx .dm-aln-tr i.dm-on{background:var(--dm-rail)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-ahx .dm-aln-row:hover .dm-aln-tr i:not(.dm-on),:root [data-style="clean"] .dm-ahx .dm-aln-row:hover .dm-aln-tr i:not(.dm-on),:root [data-style="clean"].dm-ahx .dm-aln-row:hover .dm-aln-tr i:not(.dm-on){background:var(--dm-rail)}}
 :root[data-style="clean"] .dm-aln.dm-panel .dm-aln-pause,:root [data-style="clean"] .dm-aln.dm-panel .dm-aln-pause,:root [data-style="clean"].dm-aln.dm-panel .dm-aln-pause{position:absolute;right:16px;bottom:var(--dm-strip-y);margin:0}
-:root[data-style="clean"] .dm-aln.dm-panel .dm-aln-rows,:root [data-style="clean"] .dm-aln.dm-panel .dm-aln-rows,:root [data-style="clean"].dm-aln.dm-panel .dm-aln-rows{grid-row:2;grid-column:1 / -1;margin:4px 16px 8px}
+:root[data-style="clean"] .dm-aln.dm-panel .dm-aln-rows,:root [data-style="clean"] .dm-aln.dm-panel .dm-aln-rows,:root [data-style="clean"].dm-aln.dm-panel .dm-aln-rows{grid-row:2;grid-column:1 / -1;margin:4px 8px 8px}
 :root[data-style="clean"] .dm-aln.dm-panel .dm-aln-say,:root [data-style="clean"] .dm-aln.dm-panel .dm-aln-say,:root [data-style="clean"].dm-aln.dm-panel .dm-aln-say{display:block;grid-row:3;grid-column:1 / -1;align-self:center;min-width:0;margin:0 16px;font-size:12.5px;line-height:20px;color:var(--dm-fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* Pause all is pinned in the strip's corner rather than placed on the grid, so its width never squeezes the head on a phone;
    the line beside it keeps clear of it (the button, its 16px and a 12px gap) until the run is done and the button goes */
@@ -161,12 +162,12 @@
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-aln-row:hover .dm-aln-st .dm-tag:not(.dm-ok,.dm-warn,.dm-aln-tg),:root [data-style="clean"] .dm-aln-row:hover .dm-aln-st .dm-tag:not(.dm-ok,.dm-warn,.dm-aln-tg),:root [data-style="clean"].dm-aln-row:hover .dm-aln-st .dm-tag:not(.dm-ok,.dm-warn,.dm-aln-tg){background:var(--dm-surface)}}
 /* a finished step is drawn by its fill, so the step under it takes the same colour */
 :root[data-style="clean"] .dm-aln-tr i.dm-on,:root [data-style="clean"] .dm-aln-tr i.dm-on,:root [data-style="clean"].dm-aln-tr i.dm-on{background:var(--dm-cm)}
-:root[data-style="clean"] .dm-aln-rows>*::before,:root [data-style="clean"] .dm-aln-rows>*::before,:root [data-style="clean"].dm-aln-rows>*::before,:root[data-style="clean"] .dm-aln-lane::after,:root [data-style="clean"] .dm-aln-lane::after,:root [data-style="clean"].dm-aln-lane::after{left:28.25px;width:1.5px;border-radius:1px;background:var(--dm-faint)}
+:root[data-style="clean"] .dm-aln-rows>*::before,:root [data-style="clean"] .dm-aln-rows>*::before,:root [data-style="clean"].dm-aln-rows>*::before,:root[data-style="clean"] .dm-aln-lane::after,:root [data-style="clean"] .dm-aln-lane::after,:root [data-style="clean"].dm-aln-lane::after{left:24.25px;width:1.5px;border-radius:1px;background:var(--dm-faint)}
 :root[data-style="clean"] .dm-aln-lane::before,:root [data-style="clean"] .dm-aln-lane::before,:root [data-style="clean"].dm-aln-lane::before{top:46px}
 :root[data-style="clean"] .dm-aln-lane::after,:root [data-style="clean"] .dm-aln-lane::after,:root [data-style="clean"].dm-aln-lane::after{height:12px}
 :root[data-style="clean"] .dm-aln-lane:not(:has(~.dm-aln-lane))::before,:root [data-style="clean"] .dm-aln-lane:not(:has(~.dm-aln-lane))::before,:root [data-style="clean"].dm-aln-lane:not(:has(~.dm-aln-lane))::before{display:none}
 :root[data-style="clean"] .dm-aln-rows>.dm-aln-lane.dm-sent::before,:root [data-style="clean"] .dm-aln-rows>.dm-aln-lane.dm-sent::before,:root [data-style="clean"].dm-aln-rows>.dm-aln-lane.dm-sent::before,:root[data-style="clean"] .dm-aln-rows>.dm-aln-lane.dm-got::after,:root [data-style="clean"] .dm-aln-rows>.dm-aln-lane.dm-got::after,:root [data-style="clean"].dm-aln-rows>.dm-aln-lane.dm-got::after,:root[data-style="clean"] .dm-aln-rows>.dm-aln-hf.dm-lit::before,:root [data-style="clean"] .dm-aln-rows>.dm-aln-hf.dm-lit::before,:root [data-style="clean"].dm-aln-rows>.dm-aln-hf.dm-lit::before{background:transparent}
-:root[data-style="clean"] .dm-aln-pk,:root [data-style="clean"] .dm-aln-pk,:root [data-style="clean"].dm-aln-pk{left:28.25px;width:1.5px;border-radius:1px;box-sizing:content-box;padding:4px 0;margin-top:-4px}
+:root[data-style="clean"] .dm-aln-pk,:root [data-style="clean"] .dm-aln-pk,:root [data-style="clean"].dm-aln-pk{left:24.25px;width:1.5px;border-radius:1px;box-sizing:content-box;padding:4px 0;margin-top:-4px}
 /* a track and the steps still to come are neutral; an agent's colour shows only on the steps it is running or has done */
 :root[data-style="clean"] .dm-aln-tr i,:root [data-style="clean"] .dm-aln-tr i,:root [data-style="clean"].dm-aln-tr i{background:var(--dm-rail)}
 /* on the hovered row the steps still to come turn a translucent grey, so the track still reads on the row's grey */
