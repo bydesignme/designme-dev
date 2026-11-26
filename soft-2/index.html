@@ -528,6 +528,9 @@ th:last-child>.col-rz{display:none}
 .stl .dm-main{gap:10px}
 .stl-row{display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:var(--r-pill);box-shadow:var(--shadow);height:40px;padding:0 14px 0 13px;font-size:13.5px;min-width:250px;transition:background-color var(--t-fast) var(--ease)}
 .stl-row:hover{background:color-mix(in srgb,var(--fg) 4%,var(--surface))}
+/* its motion (the core's motion pieces, owner, 26 Nov): a press on the pill shows at once (.mx-press); a mark that changes, the
+   loader, the tick or a row's dot, crossfades in place (.mx-ic, iconSwap()); the list's rows settle one after another as it
+   opens (.mx-rows) */
 .stl-g{width:16px;display:grid;place-items:center;color:var(--fg)}
 /* a finished step's tick is the vivid mark green */
 .stl-ok{display:grid;color:var(--ok-mark)}
@@ -563,6 +566,8 @@ th:last-child>.col-rz{display:none}
 /* the row's hover is Clean's one hover laid over its fill (owner, 21 Nov), easing in and out over 220ms */
 :root[data-style="clean"] .stl-row{transition:box-shadow var(--t-fast) var(--ease)}
 :root[data-style="clean"] .stl-row:hover{background:var(--surface);box-shadow:var(--shadow),inset 0 0 0 99px var(--row)}
+/* (its press, the motion pieces' .mx-press: a step deeper than the hover, at once, in the hover's own layer) */
+:root[data-style="clean"] .stl-row.mx-press:active{box-shadow:var(--shadow),inset 0 0 0 99px var(--row-press);transition-duration:var(--t-press)}
 .bars3{display:inline-flex;gap:2px;align-items:center;height:12px}
 .bars3 i{width:2.5px;height:100%;border-radius:var(--r-tiny,2px);background:currentColor;animation:b3 .9s var(--ease-io) infinite}
 .bars3 i:nth-child(2){animation-delay:.15s}.bars3 i:nth-child(3){animation-delay:.3s}
@@ -11968,15 +11973,15 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 <article class="card wide bare" data-c="step-loader" id="c-step-loader">
   <div class="card-h"><div><h3>Step loader</h3><p>Named steps with a progress track and four loaders.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="stl dm"><div class="dm-main">
-  <button class="stl-row" aria-expanded="false">
+  <template><div class="stl dm mx-ic"><div class="dm-main">
+  <button class="stl-row mx-press" aria-expanded="false">
     <span class="stl-g"></span>
     <span class="stl-t"><span class="stl-lab shim">Reading Figma frames</span></span>
     <span class="stl-n num">1/4</span>
     <svg class="i xs stl-chev"><use href="#i-chev-d"/></svg>
   </button>
   <div class="stl-track"><i></i><i></i><i></i><i></i></div>
-  <div class="fold shut stl-fold"><div><ol class="stl-list"></ol></div></div>
+  <div class="fold shut stl-fold"><div><ol class="stl-list mx-rows"></ol></div></div>
   </div>
   <div class="demo"><div class="seg2" role="group" aria-label="Loader"><button aria-pressed="true" data-v="radar">Radar</button><button aria-pressed="false" data-v="think">Dots</button><button aria-pressed="false" data-v="spin">Ring</button><button aria-pressed="false" data-v="bars">Bars</button></div></div>
 </div></template>
@@ -14812,12 +14817,19 @@ DM.def('step-loader', (r, c) => {
   const row = $('.stl-row', r), lab = $('.stl-lab', r), n = $('.stl-n', r), g = $('.stl-g', r), bars = $$('.stl-track i', r), list = $('.stl-list', r), fold = $('.stl-fold', r);
   let kind = 'radar', cur = 0, done = false;
   const glyph = () => kind === 'radar' ? '<span class="radar"></span>' : kind === 'think' ? '<span class="think on"><i></i><i></i><i></i><i></i></span>' : kind === 'spin' ? '<span class="spin"></span>' : '<span class="bars3"><i></i><i></i><i></i></span>';
+  // the rows stay and change in place: a mark that changes (the loader, the tick, the dot) crossfades (iconSwap()), and one
+  // that stays keeps playing where it is
+  const MARK = { ok:() => `<span class="stl-ok">${I('ok')}</span>`, check:() => `<span class="stl-ok">${I('check','xs')}</span>`, dot:() => '<span class="dot" style="color:var(--faint)"></span>' };
+  const mark = (el, k) => { if (el.dataset.k === k) return; const first = !el.dataset.k; el.dataset.k = k; const put = () => { el.innerHTML = (MARK[k] || glyph)(); }; first ? put() : iconSwap(el, put); };
+  list.innerHTML = steps.map(() => '<li><span class="g"></span> </li>').join('');
   const paint = () => {
-    g.innerHTML = done ? `<span class="stl-ok">${I('ok')}</span>` : glyph();
-    list.innerHTML = steps.map((s, i) => `<li class="${i < cur || done ? 'done' : i === cur ? 'run' : ''}"><span class="g">${i < cur || done ? `<span class="stl-ok">${I('check','xs')}</span>` : i === cur ? glyph() : '<span class="dot" style="color:var(--faint)"></span>'}</span>${i < cur || done ? s[1] : s[0]}</li>`).join('');
+    mark(g, done ? 'ok' : kind);
+    [...list.children].forEach((li, i) => { const fin = i < cur || done;
+      li.className = fin ? 'done' : i === cur ? 'run' : ''; mark(li.firstElementChild, fin ? 'check' : i === cur ? kind : 'dot'); li.lastChild.nodeValue = fin ? steps[i][1] : steps[i][0]; });
   };
   seg($('.seg2', r), v => { kind = v; paint(); });
-  row.onclick = () => { const o = fold.classList.toggle('shut'); row.setAttribute('aria-expanded', !o); };
+  // the list's rows settle one after another as it opens (.mx-rows)
+  row.onclick = () => { const o = fold.classList.toggle('shut'); row.setAttribute('aria-expanded', !o); list.classList.toggle('mx-play', !o); };
   paint();
   c.run(async () => {
     for (;;){

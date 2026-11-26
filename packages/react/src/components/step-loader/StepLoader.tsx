@@ -2,7 +2,7 @@
 import { cx } from '../../lib/cx';
 import { useControllable } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { Bars, Dot, Fold, Radar, Spin, Swap, Think } from '../../lib/motion';
+import { Bars, Dot, Fold, Radar, Spin, Swap, SwapIcon, Think } from '../../lib/motion';
 import '../../designme.css';
 import './step-loader.css';
 
@@ -38,9 +38,9 @@ export function StepLoader({ steps, current, loader = 'radar', doneLabel = 'Read
   const [isOpen, setOpen] = useControllable(open, defaultOpen, onOpenChange);
   const n = steps.length, done = current >= n, at = Math.min(current, n - 1);
   return (
-    <div data-dm="" className={cx('dm-stl', className)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-      <button type="button" className="dm-stl-row" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
-        <span className="dm-stl-g">{done ? <span className="dm-stl-ok"><Icon name="ok" /></span> : <Loader kind={loader} />}</span>
+    <div data-dm="" className={cx('dm-stl dm-mx-ic', className)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+      <button type="button" className="dm-stl-row dm-mx-press" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
+        <span className="dm-stl-g"><SwapIcon id={done ? 'ok' : loader}>{done ? <span className="dm-stl-ok"><Icon name="ok" /></span> : <Loader kind={loader} />}</SwapIcon></span>
         <span className="dm-stl-t"><Swap className={cx('dm-stl-lab', !done && 'dm-shim')}>{done ? doneLabel : steps[at].label}</Swap></span>
         <Swap className="dm-stl-n dm-num">{`${done ? n : at + 1}/${n}`}</Swap>
         <Icon name="chev-d" size="xs" className="dm-stl-chev" />
@@ -49,12 +49,12 @@ export function StepLoader({ steps, current, loader = 'radar', doneLabel = 'Read
         {steps.map((_, i) => <i key={i} className={cx((done || i < current) && 'dm-on', !done && i === current && 'dm-run')} />)}
       </div>
       <Fold open={isOpen} className="dm-stl-fold">
-        <ol className="dm-stl-list">
+        <ol className={cx('dm-stl-list dm-mx-rows', isOpen && 'dm-mx-play')}>
           {steps.map((s, i) => {
             const finished = done || i < current, running = !done && i === current;
             return (
               <li key={i} className={cx(finished && 'dm-done', running && 'dm-run')}>
-                <span className="dm-g">{finished ? <span className="dm-stl-ok"><Icon name="check" size="xs" /></span> : running ? <Loader kind={loader} /> : <Dot color="var(--dm-faint)" />}</span>
+                <span className="dm-g"><SwapIcon id={finished ? 'check' : running ? loader : 'dot'}>{finished ? <span className="dm-stl-ok"><Icon name="check" size="xs" /></span> : running ? <Loader kind={loader} /> : <Dot color="var(--dm-faint)" />}</SwapIcon></span>
                 {finished ? s.done ?? s.label : s.label}
               </li>
             );
