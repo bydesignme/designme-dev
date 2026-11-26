@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Style miniature</title>
+<script>
+// one component in one style, for the style cards on the landing page's lab variations (lab/landing-styles/3a.html, 3b.html).
+// ?s=bp|soft|clean picks the style; the theme follows the page around it (its <html data-theme>), or ?t= on its own.
+// ?c= is the component (its registry name), ?w= and ?h= the size it is laid out at; it is scaled down to fit the frame
+(function(){
+  var q = new URLSearchParams(location.search), root = document.documentElement, s = q.get('s');
+  if (s === 'soft' || s === 'clean') root.setAttribute('data-style', s);
+  var sync = function(){
+    var t = null;
+    try { t = parent !== window ? parent.document.documentElement.getAttribute('data-theme') : q.get('t'); } catch(e){ t = q.get('t'); }
+    if (t === 'light' || t === 'dark') root.setAttribute('data-theme', t); else root.removeAttribute('data-theme');
+  };
+  sync();
+  try { if (parent !== window) new parent.MutationObserver(sync).observe(parent.document.documentElement, { attributes:true, attributeFilter:['data-theme'] }); } catch(e){}
+})();
+</script>
+<link rel="stylesheet" href="/components/assets/core.css">
+<style>
+@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2')}
+/* the same stage as the landing page's demo panels: a quiet grey in Blueprint and Soft, Clean's own stage in Clean */
+:root{--mini-bg:#fafafa;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--mini-bg:#1c1c1c;color-scheme:dark}}
+:root[data-theme="dark"]{--mini-bg:#1c1c1c;color-scheme:dark}
+:root[data-style="clean"]{--mini-bg:var(--dm-stage)}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--mini-bg)}
+body{font:14px/1.6 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;letter-spacing:-.006em;-webkit-font-smoothing:antialiased;color:var(--dm-fg)}
+/* laid out at its own width and scaled to the frame, always centred, so it grows and shrinks about its middle */
+.z{position:absolute;top:50%;left:50%;transform-origin:50% 50%;display:grid;grid-template-columns:minmax(0,1fr)}
+.z>.card{display:grid;place-items:center;min-width:0}
+</style>
+</head>
+<body>
+<div class="z" aria-hidden="true"></div>
+<script src="/components/assets/core.js"></script>
+<script>
+(function(){
+  var q = new URLSearchParams(location.search), reg = q.get('c') || 'decision-prompt', W = +(q.get('w') || 520), H = +(q.get('h') || 400);
+  var z = document.querySelector('.z'), card = null, wanted = false;
+  z.style.width = W + 'px';
+  var fit = function(){ var k = Math.min(innerWidth / W, innerHeight / H); z.style.transform = 'translate(-50%,-50%) scale(' + k + ')'; };
+  fit(); addEventListener('resize', fit);
+  // play (and play again): the page calls it for its cards together, so the three miniatures move in step
+  window.miniPlay = function(){ wanted = true; if (card && window.DM && DM.defs[card.dataset.c]) DM.mount(card); };
+  fetch('/r/' + reg + '.json').then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); }).then(function(d){
+    var f = function(ext){ var x = d.files.filter(function(x){ return x.path.slice(-ext.length) === ext; })[0]; return x ? x.content : ''; };
+    var st = document.createElement('style'); st.textContent = f('.css'); document.head.appendChild(st);
+    var sc = document.createElement('script'); sc.textContent = f('.js'); document.body.appendChild(sc);
+    z.innerHTML = f('.html'); card = z.firstElementChild;
+    // nothing in a miniature takes the focus: the card around it is the control
+    z.querySelectorAll('a,button,input,textarea,select,[tabindex]').forEach(function(e){ e.setAttribute('tabindex', '-1'); });
+    window.miniReady = true;
+    if (wanted) window.miniPlay();
+    try { parent.dispatchEvent(new CustomEvent('mini-ready')); } catch(e){}
+  }).catch(function(){ z.textContent = ''; });
+})();
+</script>
+</body>
+</html>
