@@ -854,15 +854,13 @@ body.render #stage{left:0;top:0;transform:none!important}
 :root{--pg:#fff;--pg-ink:color-mix(in srgb,var(--dm-fg) 70%,#fff);--pg-line:color-mix(in srgb,var(--dm-fg) 13%,#fff);--pg-fold:color-mix(in srgb,var(--dm-fg) 8%,#fff)}
 :root[data-theme="dark"]{--pg:color-mix(in srgb,var(--dm-fg) 11%,var(--dm-surface));--pg-ink:color-mix(in srgb,var(--dm-fg) 62%,var(--pg));--pg-line:color-mix(in srgb,var(--dm-fg) 20%,var(--pg));--pg-fold:color-mix(in srgb,var(--dm-fg) 22%,var(--pg))}
 /* the WebGL layers: particles behind the card's plane (under the card) and in front of it (over the card) */
-:root{--chunk:var(--dm-av-p)}
-:root[data-style="clean"]{--chunk:var(--dm-fg2)}
+:root{--chunk:var(--dm-av-p);--chunk-ink:var(--dm-av-p-ink)}
+:root[data-style="clean"]{--chunk:var(--dm-fg2);--chunk-ink:var(--dm-fg)}
 .gl{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;display:block}
-/* completion marks: four-point sparks and a ring, in the accent's mark colour and neutral grey; strokes and fills, no glow */
+/* the finish: one thin neutral ring round the tile (no glow) */
 #fx{position:absolute;left:0;top:0;overflow:visible}
 #fx svg{position:absolute;left:0;top:0;overflow:visible}
-.spk{fill:var(--dm-accent-mark,var(--dm-accent))}
-.spk.n{fill:var(--dm-line-strong)}
-.ring{fill:none;stroke:var(--dm-accent-mark,var(--dm-accent));stroke-width:1.5}
+.ring{fill:none;stroke:color-mix(in srgb,var(--dm-fg) 38%,transparent);stroke-width:1}
 #cur{position:absolute;left:0;top:0;width:22px;height:26px;transform-origin:2px 2px;pointer-events:none}
 #rip{position:absolute;left:-14px;top:-14px;width:28px;height:28px;border-radius:50%;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-fg) 45%,transparent)}
 /* the window's caption (not in renders) */
@@ -896,8 +894,8 @@ body.render .cap{display:none}
 <i id="cv"></i>
 <script type="module">
 // Knowledge sources showcase, 3D variation A: the dropped page dissolves into particles sampled from its own pixels, which
-// lift off in layers, swirl round the card's edge in a vortex (passing behind the card and in front of it), and pour into
-// the new row's tile. The card is the install's own DOM; three.js draws the particles on two layers, one under the card
+// lift off in layers and fall into one tightening spiral whose mouth is the new row's tile, like water into a drain
+// (the spiral's back half passes behind the card's plane). The card is the install's own DOM; three.js draws the particles on two layers, one under the card
 // (everything behind the card's plane) and one over it, through the same perspective matrix as the card's CSS transform.
 // Every frame is a pure function of t: renderAt(t) sets the DOM and renders both layers synchronously.
 import * as THREE from './vendor/three.module.min.js';
@@ -916,7 +914,10 @@ let seed = 7; const rnd = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let x
 
 // ---------- the frame ----------
 const Q_ = new URLSearchParams(location.search);
-const FMT = Q_.get('f') === '4x5' ? { W:600, H:750, out:[1080, 1350], zoom:1.05, Rt:40 } : { W:680, H:510, out:[1600, 1200], zoom:1.05, Rt:52 };
+// dropIn: the page's centre, left of the card's edge; mouth: the spiral's wide end, left of the edge; rm: its radius;
+// shift: how far the camera's push-in looks left, toward the spiral
+const FMT = Q_.get('f') === '4x5' ? { W:600, H:750, out:[1080, 1350], zoom:1.04, dropIn:12, mouth:40, rm:58, mz:40, shift:34 }
+  : { W:680, H:510, out:[1600, 1200], zoom:1.05, dropIn:20, mouth:56, rm:74, mz:48, shift:30 };
 const W = FMT.W, H = FMT.H, CL = (W - 440) / 2, CR = CL + 440;
 const T = 10, D = 1100;   // loop length (s); the camera's distance from the card (px), for both the CSS and the WebGL
 const stage = $('#stage'), world = $('#world'), cw = $('#cw'), card = $('#card'), slot = $('#slot'), r3 = $('#r3'), tile = $('#tile');
@@ -930,8 +931,9 @@ const B = {
   slot:2.7, slotD:.5,
   drop:3.1,
   row:3.24,
-  dis:3.42, disD:.62,         // the page dissolves, its right edge first, a layer per kind of mark
-  pour0:4.05, pour1:5.3,       // the vortex drains, slowly and then faster, into the row's tile
+  dis:3.42, disD:.62,         // the page dissolves, its outer edge first, a layer per kind of mark
+  pour0:3.95, pour1:5.2,      // the spiral drains into the tile, slowly and then faster
+  iris:5.3, irisD:.5,         // the last of it closes into the tile like an iris
   camIn:2.9, camInD:.7, camOut:6.4, camOutD:.9,
   tiltIn:3.15, tiltInD:1.2, tiltOut:5.75, tiltOutD:1.25,
   out:8.7,
@@ -964,17 +966,10 @@ function setOdo(o, v){
 const totO = odo($('#tot'), 4, { after:' chunks indexed' });
 const numO = odo($('#num'), 2, { after:' of 48 pages' });
 
-// ---------- completion marks ----------
+// ---------- the finish: one thin neutral ring round the tile, fading out ----------
 const fx = $('#fx'), NS = 'http://www.w3.org/2000/svg';
-const sparkPath = 'M0-7C.5-2.2 2.2-.5 7 0 2.2.5.5 2.2 0 7-.5 2.2-2.2.5-7 0-2.2-.5-.5-2.2 0-7z';
 const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('width', 1); svg.setAttribute('height', 1); fx.appendChild(svg);
 const ring = document.createElementNS(NS, 'circle'); ring.setAttribute('class', 'ring'); svg.appendChild(ring);
-const sparks = [];
-for (let i = 0; i < 10; i++){
-  const p = document.createElementNS(NS, 'path'); p.setAttribute('d', sparkPath); p.setAttribute('class', 'spk' + (i % 3 === 2 ? ' n' : ''));
-  svg.appendChild(p);
-  sparks.push({ p, a: Math.PI * .42 + i * (Math.PI * 1.16 / 9) + (rnd() - .5) * .16, d0: 18, d1: 32 + rnd() * 16, s: .85 + rnd() * .5, delay: rnd() * .1, rot: (rnd() - .5) * 140 });
-}
 
 // ---------- layout ----------
 function offsetIn(el){ let x = 0, y = 0; for (let e = el; e && e !== world; e = e.offsetParent){ x += e.offsetLeft; y += e.offsetTop; } return { x, y }; }
@@ -988,53 +983,21 @@ function measureLayout(){
   const cr = card.getBoundingClientRect(), k = cr.width / card.offsetWidth;
   wordsRight = Math.max(...[...document.querySelectorAll('#r1 .dm-d>span, #r2 .dm-d>span, #r1 .dm-nm, #r2 .dm-nm, #hd b, #tot')].map(e => { const rg = document.createRange(); rg.selectNodeContents(e); return (rg.getBoundingClientRect().right - cr.left) / k; }));
   const listTop = offsetIn(r1).y, listBot = offsetIn(r2).y + r2.offsetHeight + slotOpenH;
-  DROP = { x: CL + Math.max(322, wordsRight + PW / 2 + 30), y: (listTop + listBot) / 2 - 4 };   // (offsetIn already counts the card's top)
-  // the vortex: its axis on the card's right edge, from just above the page down to below the card's foot
-  const cBot = topFull + chFull;
-  VX = { ax: CR - 2, yt: topFull + 14, yb: cBot + 12, rt: FMT.Rt, rb: 2.5, cBot };
-  // the stream's lane: out of the vortex's tip, along under the card, up its left side and into the tile
-  const yl = cBot + 24;
-  buildLane([
-    { x: VX.ax, y: VX.yb }, { x: VX.ax - 22, y: yl }, { x: CR - 110, y: yl + 3 }, { x: CL + 110, y: yl + 3 },
-    { x: CL - 6, y: yl - 4 }, { x: CL - 26, y: (yl + TILE.y) / 2 }, { x: CL - 22, y: TILE.y + 16 }, { x: CL - 2, y: TILE.y + 1 }, { x: TILE.x, y: TILE.y },
-  ]);
-  window.LAYOUT = { wordsRight, chFull, slotOpenH, DROP, TILE, VX: { ...VX }, lane: LANE.len };
+  // the page is let go beside the new row, half off the card's left edge (over the tile column, clear of every word), and
+  // the spiral lies on its side there: wide in the margin, toward the viewer, narrowing into the tile
+  DROP = { x: CL - FMT.dropIn, y: TILE.y };
+  VX = { mx: CL - FMT.mouth, my: TILE.y - 4, mz: FMT.mz, tx: TILE.x, ty: TILE.y, rm: FMT.rm };
+  window.LAYOUT = { wordsRight, chFull, slotOpenH, DROP, TILE, VX: { ...VX } };
 }
 const GRAB = { x:6, y:16 };
 
 function cursorAt(t){
-  const a = { x: -70, y: DROP.y + 70 + GRAB.y }, c = { x: DROP.x + GRAB.x, y: DROP.y + GRAB.y }, d = { x: W - 40, y: H + 30 };
+  const a = { x: -70, y: Math.min(H - 20, DROP.y + 150) }, c = { x: DROP.x + GRAB.x, y: DROP.y + GRAB.y }, d = { x: -50, y: H + 30 };
   const mv = (p, q, k, arc) => { const e = eInOutCubic(k); return { x: lerp(p.x, q.x, e), y: lerp(p.y, q.y, e) - Math.sin(Math.PI * e) * arc }; };
   if (t < B.carry) return a;
-  if (t < B.carry + B.carryD) return mv(a, c, seg(t, B.carry, B.carryD), 46);
+  if (t < B.carry + B.carryD) return mv(a, c, seg(t, B.carry, B.carryD), 30);
   if (t < B.drop + .3) return c;
   return mv(c, d, seg(t, B.drop + .3, .9), 10);
-}
-
-function catmull(pts, u){
-  const n = pts.length - 1, f = Math.min(n - 1e-9, u * n), i = Math.floor(f), k = f - i;
-  const p0 = pts[Math.max(0, i - 1)], p1 = pts[i], p2 = pts[i + 1], p3 = pts[Math.min(n, i + 2)];
-  const k2 = k * k, k3 = k2 * k;
-  const c = (a, b, cc, d) => .5 * (2 * b + (-a + cc) * k + (2 * a - 5 * b + 4 * cc - d) * k2 + (-a + 3 * b - 3 * cc + d) * k3);
-  return { x: c(p0.x, p1.x, p2.x, p3.x), y: c(p0.y, p1.y, p2.y, p3.y) };
-}
-// the lane, resampled by arc length into a table (position and in-plane normal)
-const LN = 240, LANE = { x: new Float32Array(LN), y: new Float32Array(LN), nx: new Float32Array(LN), ny: new Float32Array(LN), len: 0 };
-function buildLane(pts){
-  const S = 1200, P = [catmull(pts, 0)], L = [0];
-  for (let i = 1; i <= S; i++){ const q = catmull(pts, i / S); L.push(L[i - 1] + Math.hypot(q.x - P[i - 1].x, q.y - P[i - 1].y)); P.push(q); }
-  LANE.len = L[S];
-  let j = 1;
-  for (let i = 0; i < LN; i++){
-    const target = i / (LN - 1) * L[S];
-    while (j < S && L[j] < target) j++;
-    const k = (target - L[j - 1]) / ((L[j] - L[j - 1]) || 1);
-    LANE.x[i] = lerp(P[j - 1].x, P[j].x, k); LANE.y[i] = lerp(P[j - 1].y, P[j].y, k);
-  }
-  for (let i = 0; i < LN; i++){
-    const a = Math.max(0, i - 1), b = Math.min(LN - 1, i + 1), dx = LANE.x[b] - LANE.x[a], dy = LANE.y[b] - LANE.y[a], l = Math.hypot(dx, dy) || 1;
-    LANE.nx[i] = -dy / l; LANE.ny[i] = dx / l;
-  }
 }
 
 // ---------- the particles: one per sample of the page's own pixels ----------
@@ -1062,13 +1025,13 @@ function drawPage(Q){
   return { g, Q, paper: rgbOf(cs.backgroundColor) };
 }
 let N = 0, P = null;
-// the wipe: the right edge (next to the vortex) goes first, sweeping left and a little down
-const wipeOf = (px, py) => .74 * (1 - px / 88) + .26 * (py / 114);
+// the wipe: the outer (left) edge goes first, sweeping right toward the tile
+const wipeOf = (px, py) => .74 * (px / 88) + .26 * (py / 114);
 const MASK = (() => {
-  const gx = -.74 / 88, gy = .26 / 114, th = Math.atan2(gx, -gy), L = Math.abs(88 * Math.sin(th)) + Math.abs(114 * Math.cos(th)), gl = Math.hypot(gx, gy);
+  const gx = .74 / 88, gy = .26 / 114, th = Math.atan2(gx, -gy), L = Math.abs(88 * Math.sin(th)) + Math.abs(114 * Math.cos(th)), gl = Math.hypot(gx, gy);
   return { deg: th * 180 / Math.PI, pct: w => 50 + 100 * (w - wipeOf(44, 57)) / (gl * L) };
 })();
-const V0 = .45, ACC = 6, ACCL = 3000, ARMS = 5;   // the drain: its pull down the vortex (heights per s, per s²), then along the lane (px/s²); the vortex's arms
+const V0 = .5, ACC = 4.2, ARMS = 5;   // the drain: its pull along the spiral (lengths per s, per s²); the spiral's arms
 function buildParticles(){
   const { g, Q, paper } = drawPage(4);
   const img = g.getImageData(0, 0, 88 * Q, 114 * Q).data;
@@ -1083,33 +1046,37 @@ function buildParticles(){
   }
   N = list.length;
   const f32 = () => new Float32Array(N);
-  P = { q1: f32(), v1: f32(), hx: f32(), hy: f32(), r: f32(), g: f32(), b: f32(), w: f32(), lift: f32(), tv: f32(), tp: f32(), s0: f32(), sTp: f32(), land: f32(),
+  P = { iris: new Uint8Array(N), hx: f32(), hy: f32(), r: f32(), g: f32(), b: f32(), w: f32(), lift: f32(), tv: f32(), tp: f32(), s0: f32(), sTp: f32(), land: f32(),
     dx: f32(), dy: f32(), dz: f32(), ph1: f32(), ph2: f32(), th0: f32(), rf: f32(), yj: f32(), size: f32(), spin: f32(), rot0: f32(), hph: f32(), hr: f32(), wob: f32() };
-  const LAYER = [34, 66, 98, 132];       // each kind of mark lifts to its own depth: paper, lines, ink, colour
+  const LAYER = [24, 46, 68, 92];       // each kind of mark lifts to its own depth: paper, lines, ink, colour
   const SIZE = [[1.5, 1.1], [1.3, .8], [1.35, .8], [1.6, 1.0]];
   list.forEach((p, i) => {
     P.hx[i] = p.px - 44; P.hy[i] = p.py - 57; P.r[i] = p.r; P.g[i] = p.g; P.b[i] = p.b;
     P.w[i] = wipeOf(p.px, p.py);
     P.lift[i] = B.dis + B.disD * (P.w[i] + .08 * rnd());
     P.tv[i] = P.lift[i] + .2 + .08 * rnd();
-    P.dx[i] = 10 + 26 * rnd(); P.dy[i] = -(20 + 50 * rnd()); P.dz[i] = LAYER[p.cls] + (rnd() - .5) * 14;
+    P.dx[i] = -(6 + 18 * rnd()); P.dy[i] = Math.sign(p.py - 57 || 1) * (8 + 22 * rnd()) - 6; P.dz[i] = LAYER[p.cls] + (rnd() - .5) * 14;
     P.ph1[i] = rnd() * 6.283; P.ph2[i] = rnd() * 6.283;
     P.th0[i] = Math.floor(rnd() * ARMS) * 6.2832 / ARMS + (rnd() - .5) * .34; P.rf[i] = .84 + .3 * rnd(); P.yj[i] = (rnd() - .5) * 8;
     P.size[i] = SIZE[p.cls][0] + SIZE[p.cls][1] * rnd(); P.spin[i] = (rnd() - .5) * 16; P.rot0[i] = rnd() * 6.283;
     P.hph[i] = rnd() * 6.283; P.hr[i] = 1 + 2.8 * Math.sqrt(rnd()); P.wob[i] = rnd() * 6.283;
-    P.s0[i] = clamp(.5 * (DROP.y + P.hy[i] * F - VX.yt) / (VX.yb - VX.yt) + (rnd() - .5) * .36, .02, .6);
+    P.s0[i] = clamp(.6 * (DROP.x + P.hx[i] * F - VX.mx) / (VX.tx - VX.mx) + (rnd() - .5) * .2, .02, .55);
   });
   // the drain order follows the lift order, loosely; the pull quickens (more particles leave per second as it goes)
   const order = [...Array(N).keys()].sort((a, b) => (P.lift[a] + .3 * P.ph1[a] / 6.283) - (P.lift[b] + .3 * P.ph1[b] / 6.283));
-  const HV = VX.yb - VX.yt, LL = LANE.len;
+  // the last 1/24 is held back and closes in together at the end: an even ring, tightening to a point in the tile
+  const NI = Math.floor(N / TICKS) - 8, NN = N - NI;
   order.forEach((i, rank) => {
-    const q = rank / (N - 1);
-    P.tp[i] = Math.max(B.pour0 + (B.pour1 - B.pour0) * Math.pow(q, .78), P.tv[i] + .45);
+    if (rank >= NN){
+      P.iris[i] = 1; P.tp[i] = B.iris; P.land[i] = B.iris + B.irisD;
+      P.th0[i] = (rank - NN) / NI * 6.2832; P.rf[i] = 1; P.yj[i] = 0;
+      P.sTp[i] = P.s0[i] + .05 * (B.iris - P.tv[i]);
+      return;
+    }
+    const q = rank / (NN - 1);
+    P.tp[i] = Math.max(B.pour0 + (B.pour1 - B.pour0) * Math.pow(q, .78), P.tv[i] + .4);
     P.sTp[i] = P.s0[i] + .05 * (P.tp[i] - P.tv[i]);
-    // down the vortex to its tip (closed form), then along the lane, still quickening
-    P.q1[i] = (-V0 + Math.sqrt(V0 * V0 + 2 * ACC * (1 - P.sTp[i]))) / ACC;
-    P.v1[i] = (V0 + ACC * P.q1[i]) * HV;
-    P.land[i] = P.tp[i] + P.q1[i] + (-P.v1[i] + Math.sqrt(P.v1[i] * P.v1[i] + 2 * ACCL * LL)) / ACCL;
+    P.land[i] = P.tp[i] + (-V0 + Math.sqrt(V0 * V0 + 2 * ACC * (1 - P.sTp[i]))) / ACC;
   });
   const lands = [...P.land].sort((a, b) => a - b);
   TICK = []; for (let j = 1; j <= TICKS; j++) TICK.push(lands[Math.ceil(j * N / TICKS) - 1]);
@@ -1265,16 +1232,11 @@ function renderAt(t){
   // ---------- completion marks round the tile ----------
   const ty0 = yCard + thud, tx = TILE.x, ty = TILE.y + ty0;
   const mq = t - DONE;
-  if (mq > 0 && mq < 1.05){
+  if (mq > 0 && mq < .7){
     fx.style.display = '';
-    const rr = eOutCubic(clamp(mq / .55));
-    ring.setAttribute('cx', tx); ring.setAttribute('cy', ty); ring.setAttribute('r', (18 + rr * 22).toFixed(2));
-    ring.style.opacity = (1 - rr) * .9;
-    for (const s of sparks){
-      const u = clamp((mq - s.delay) / .85), e = eOutCubic(u), d = lerp(s.d0, s.d1, e);
-      const sz = s.s * Math.sin(Math.PI * Math.min(1, u * 1.05));
-      s.p.setAttribute('transform', `translate(${(tx + Math.cos(s.a) * d).toFixed(2)} ${(ty + Math.sin(s.a) * d).toFixed(2)}) rotate(${(s.rot * e).toFixed(1)}) scale(${Math.max(0, sz).toFixed(3)})`);
-    }
+    const rr = eOutCubic(clamp(mq / .6));
+    ring.setAttribute('cx', tx); ring.setAttribute('cy', ty); ring.setAttribute('r', (17 + rr * 15).toFixed(2));
+    ring.style.opacity = ((1 - rr) * .8).toFixed(3);
   } else fx.style.display = 'none';
 
   // ---------- the pointer ----------
@@ -1287,14 +1249,14 @@ function renderAt(t){
   rip.style.opacity = (ru > 0 && ru < 1 ? (1 - ru) * .9 : 0).toFixed(3);
   rip.style.transform = `translate(${DROP.x + GRAB.x}px,${DROP.y + GRAB.y}px) scale(${(.4 + 1.2 * eOutCubic(ru)).toFixed(3)})`;
 
-  // ---------- the camera: in on the drop, a slow tilt into 3D round the vortex, back out flat for the done state ----------
+  // ---------- the camera: in on the drop, a slow tilt into 3D round the spiral, back out flat for the done state ----------
   const zi = eInOutCubic(seg(t, B.camIn, B.camInD)), zo = eInOutCubic(seg(t, B.camOut, B.camOutD));
   const z = zi * (1 - zo);
   const S = 1 + (FMT.zoom - 1) * z + .022 * hit(t - B.dis, .08) * (1 - zo);
   const shake = 2.4 * hit(t - (B.drop + .12), .05);
-  const fxp = W / 2, fyp = lerp(H / 2, topFull + chFull / 2 + 8, z);
+  const fxp = W / 2 - FMT.shift * z, fyp = lerp(H / 2, topFull + chFull / 2 + 8, z);
   const tk = eInOutCubic(seg(t, B.tiltIn, B.tiltInD)) * (1 - eInOutCubic(seg(t, B.tiltOut, B.tiltOutD)));
-  const ax = 7 * tk, ay = -9 * tk;
+  const ax = 6 * tk, ay = 9 * tk;
   const cam2d = `translate(${(W / 2 - fxp * S).toFixed(3)}px,${(H / 2 - fyp * S + shake).toFixed(3)}px) scale(${S.toFixed(5)})`;
   const camStr = tk > 1e-4 ? `translate(${W / 2}px,${H / 2}px) perspective(${D}px) rotateX(${ax.toFixed(4)}deg) rotateY(${ay.toFixed(4)}deg) translate(${-W / 2}px,${-H / 2}px) ${cam2d}` : cam2d;
   world.style.transform = camStr;
@@ -1305,7 +1267,7 @@ function renderAt(t){
 // ---------- the particles at time t ----------
 function drawParticles(t, camStr, S, psx, psy, we, ty0){
   const { pos, col, aux, key } = GL;
-  const chunk = CHUNK, ax = VX.ax, yt = VX.yt, yb = VX.yb, tilt = .42, ct = Math.cos(tilt), st = Math.sin(tilt);
+  const chunk = CHUNK;
   let live = 0;
   for (let i = 0; i < N; i++){
     let a = 0, x = 0, y = 0, zz = 0, sz = 1.12, rot = 0, r = P.r[i], g = P.g[i], b = P.b[i];
@@ -1321,46 +1283,34 @@ function drawParticles(t, camStr, S, psx, psy, we, ty0){
         const bz = P.dz[i] * eL;
         x = bx; y = by; zz = bz;
         const wv = smoother(seg(t, P.tv[i], .7));
-        let s = 0, sU = -1;
+        let s = 0;
         if (wv > 0){
           const tv = P.tv[i];
-          let u = -1;
           if (t < P.tp[i]) s = P.s0[i] + .05 * (t - tv);
-          else {
-            const q = t - P.tp[i];
-            if (q < P.q1[i]) s = P.sTp[i] + V0 * q + .5 * ACC * q * q;
-            else { const qq = q - P.q1[i]; s = 1; u = Math.min(1, (P.v1[i] * qq + .5 * ACCL * qq * qq) / LANE.len); }
-          }
-          sU = u;
-          let vx, vy, vz;
-          if (u < 0){
-            // the vortex: rings tipped toward the viewer, narrowing to a tip under the card's corner, spinning faster as it drains
-            // (the spin is shared, so each arm stays a clean helix as it turns)
-            const dt = t - B.dis, th = P.th0[i] + 3.6 * dt + .55 * dt * dt + 5.5 * s;
-            const rad = (VX.rb + (VX.rt - VX.rb) * Math.pow(1 - s, .5)) * P.rf[i];
-            const cx = rad * Math.cos(th), cz = rad * Math.sin(th) * 1.35;
-            vx = ax + cx; vy = lerp(yt, yb, s) + P.yj[i] * (1 - s) + cz * st; vz = cz * ct;
-          } else {
-            // the stream: a tight twist round the lane, closing as it reaches the tile
-            const f = u * (LN - 1), j = Math.min(LN - 2, Math.floor(f)), kq = f - j;
-            const lx = lerp(LANE.x[j], LANE.x[j + 1], kq), ly = lerp(LANE.y[j], LANE.y[j + 1], kq) + ty0 * smooth(.6, 1, u);
-            const nx = LANE.nx[j], ny = LANE.ny[j];
-            const hr = P.hr[i] * (1 - smooth(.8, .93, u)), hp = P.hph[i] + 26 * u;
-            const zp = 22 * smooth(.72, .86, u) * (1 - smooth(.93, 1, u));
-            vx = lx + nx * hr * Math.cos(hp); vy = ly + ny * hr * Math.cos(hp); vz = zp + hr * Math.sin(hp);
-            sz *= 1;
-            if (u > .86){ const e = (u - .86) / .14; a = -e; }   // shrink into the tile
-          }
+          else if (P.iris[i]) s = P.sTp[i] + (1 - P.sTp[i]) * Math.pow(seg(t, P.tp[i], B.irisD), 2.2);
+          else { const q = t - P.tp[i]; s = Math.min(1, P.sTp[i] + V0 * q + .5 * ACC * q * q); }
+          // the spiral: its axis runs from the wide mouth (in the margin, toward the viewer) into the tile; the rings stand
+          // across it and turn face-on as they close round the tile. The spin is shared, so the arms stay clean as they turn
+          const dt = t - B.dis, th = P.th0[i] + 3.4 * dt + .5 * dt * dt + 7 * s;
+          const cx = lerp(VX.mx, VX.tx, s), cy = lerp(VX.my, VX.ty + ty0, s), cz = VX.mz * (1 - s);
+          const rad = VX.rm * Math.pow(1 - s, .78) * P.rf[i] + P.yj[i] * (1 - s) * .5;
+          const kf = smooth(.62, .94, s), ex = kf, ez = (1 - kf) * 1.2;
+          let vx = cx + rad * Math.sin(th) * ex, vy = cy + rad * Math.cos(th), vz = cz + rad * Math.sin(th) * ez;
+          vz = lerp(vz, Math.abs(vz), smooth(.8, .92, s));   // the last turns stay in front of the card, so they land on the tile
+          if (s > .9) a = -((s - .9) / .1);                  // and shrink into it
           x = lerp(bx, vx, wv); y = lerp(by, vy, wv); zz = lerp(bz, vz, wv);
         }
         // colour: the page's own, then the source's colour as it drains; a neutral light on each turning flake
-        const kc = smooth(.25, 1, s) * wv;
+        const kc = smooth(.3, 1, s) * wv;
         r = lerp(r, chunk[0], kc); g = lerp(g, chunk[1], kc); b = lerp(b, chunk[2], kc);
+        // over the tile itself they take its ink, so the last turns read as a dark swirl closing into the tile's centre
+        const ki = .78 * smooth(.78, .92, s) * wv;
+        r = lerp(r, INK[0], ki); g = lerp(g, INK[1], ki); b = lerp(b, INK[2], ki);
         const ang = P.rot0[i] + P.spin[i] * tau, sh = 1 - .2 * eL * (.5 - .5 * Math.cos(ang)), gl = .12 * eL * Math.pow(Math.max(0, Math.sin(ang * .5 + P.wob[i])), 14);
         r = Math.min(1, r * sh + gl); g = Math.min(1, g * sh + gl); b = Math.min(1, b * sh + gl);
         rot = ang * eL;
         const shrink = a < 0 ? 1 + a : 1;
-        sz = lerp(1.12, P.size[i], eL) * (sU > 0 ? lerp(1, .7, sU) : 1) * shrink;
+        sz = lerp(1.12, P.size[i], eL) * lerp(1, .75, smooth(.6, 1, s)) * shrink;
         a = (a < 0 ? .3 + .7 * shrink : 1) * lerp(1, .96, eL);
       }
     }
@@ -1381,7 +1331,7 @@ function drawParticles(t, camStr, S, psx, psy, we, ty0){
   }
   GL.live = live;
 }
-let CHUNK = [1, .6, .3];
+let CHUNK = [1, .6, .3], INK = [.2, .1, 0];
 
 window.renderAt = renderAt;
 window.TIMING = { T, FPS:60 };
@@ -1394,7 +1344,7 @@ const here = '?v=' + window.CUT + (FMT.W === 600 ? '&f=4x5' : '');
 document.querySelectorAll('.cap a').forEach(a => { if (a.getAttribute('href') === here) a.setAttribute('aria-current', 'page'); });
 window.assetsReady = Promise.all([document.fonts.ready, ...[...document.fonts].map(f => f.load().catch(() => {}))]).then(() => {
   measureLayout();
-  CHUNK = rgbOf(colourOf('var(--chunk)'));
+  CHUNK = rgbOf(colourOf('var(--chunk)')); INK = rgbOf(colourOf('var(--chunk-ink)'));
   buildParticles();
   sizeGL();
   renderAt(0); return true;
