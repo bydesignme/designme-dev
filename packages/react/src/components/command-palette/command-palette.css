@@ -15,9 +15,6 @@
 .dm-cpl-list.dm-more{-webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 32px),transparent);mask-image:linear-gradient(to bottom,#000 calc(100% - 32px),transparent)}
 .dm-cpl-g{font-size:11.5px;color:var(--dm-muted);padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-1)}
 .dm-cpl-i{display:flex;align-items:center;gap:10px;width:100%;height:36px;padding:0 var(--dm-s-2);border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));font-size:13.5px;text-align:left;color:var(--dm-fg);position:relative;z-index:1}
-/* rows arrive in a short cascade when the list narrows */
-.dm-cpl-i.dm-in{animation:dm-cplin .32s var(--dm-ease) backwards}
-@keyframes dm-cplin{from{opacity:0;transform:translateY(4px)}}
 .dm-cpl-i .dm-ic{width:24px;height:24px;border-radius:calc(7px * var(--dm-rk-m,var(--dm-rk)));display:grid;place-items:center;flex:none;color:var(--dm-tc,var(--dm-fg2));background:var(--dm-tb,var(--dm-chip));transition:background .2s,color .2s,transform .2s var(--dm-ease)}
 .dm-cpl-i.dm-hl .dm-ic{transform:scale(1.06)}
 .dm-cpl-i .dm-ic .dm-spin{width:11px;height:11px}
@@ -34,6 +31,13 @@
 .dm-cpl-i .dm-ent{margin-left:auto;opacity:0;transition:opacity .2s}
 .dm-cpl-i.dm-hl .dm-ent{opacity:1}
 .dm-cpl-hl{position:absolute;left:var(--dm-s-2);right:var(--dm-s-2);height:36px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-row);transition:top .25s var(--dm-ease);z-index:0}
+/* its motion (owner's trial, 26 Nov; the core's motion pieces): the highlight glides from row to row on a spring and deepens at
+   once under a press; a search moves the rows (reflow()); the key hints dip as their keys are pressed */
+.dm-cpl-hl{transition:top var(--dm-t-glide) var(--dm-ease-spring),background-color var(--dm-t-fast) var(--dm-ease)}
+.dm-cpl-list:has(.dm-cpl-i:active) .dm-cpl-hl{background:var(--dm-row-press);transition-duration:var(--dm-t-glide),var(--dm-t-press)}
+.dm-cpl .dm-kbd{transition:background-color var(--dm-t-fast) var(--dm-ease),translate var(--dm-t-fast) var(--dm-ease)}
+.dm-cpl .dm-kbd.dm-kp{background:var(--dm-press);translate:0 1px;transition-duration:var(--dm-t-press)}
+@media (prefers-reduced-motion:reduce){.dm-cpl .dm-kbd.dm-kp{translate:none}}
 /* the footer: what ran last on the left, the keys on the right (they keep their room; the words give way first) */
 .dm-cpl-f{display:flex;gap:14px;align-items:center;padding:var(--dm-s-4);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:11.5px}
 .dm-cpl-f>span{flex:none;white-space:nowrap}
@@ -45,7 +49,6 @@
 .dm-cpl-st .dm-dot{color:var(--dm-ok-mark);margin-right:6px;vertical-align:1px}
 .dm-cpl-empty{padding:30px 10px;text-align:center;font-size:13px;color:var(--dm-muted)}
 :root:not([data-style="soft"],[data-style="clean"]) .dm-cpl-i.dm-hl .dm-ic:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){transform:none}
-:root:not([data-style="soft"],[data-style="clean"]) .dm-cpl-i.dm-in:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation:dm-bpin .3s var(--dm-ease) backwards}
 /* Clean (owner, 18 Nov): the tiles are one neutral grey with a hairline (the groups' hues carry no meaning here), and the row that
    hands the text to the agent has the ink tile of Clean's primary; the letters a search matches read in the text colour, a step
    heavier. The rows' highlight is concentric with the card (14px, 8px in), nothing grows under the pointer, and the footer is an
@@ -58,9 +61,10 @@
 :root[data-style="clean"] :is(.dm-cpl-i,.dm-cpl-hl),:root [data-style="clean"] :is(.dm-cpl-i,.dm-cpl-hl),:root [data-style="clean"]:is(.dm-cpl-i,.dm-cpl-hl){border-radius:calc(var(--dm-r-card) - 8px)}
 :root[data-style="clean"] .dm-cpl-hl,:root [data-style="clean"] .dm-cpl-hl,:root [data-style="clean"].dm-cpl-hl{transition:top var(--dm-t) var(--dm-ease)}
 :root[data-style="clean"] .dm-cpl-list.dm-hg .dm-cpl-hl,:root [data-style="clean"] .dm-cpl-list.dm-hg .dm-cpl-hl,:root [data-style="clean"].dm-cpl-list.dm-hg .dm-cpl-hl{display:none}
-:root[data-style="clean"] .dm-cpl-i.dm-in,:root [data-style="clean"] .dm-cpl-i.dm-in,:root [data-style="clean"].dm-cpl-i.dm-in{animation:dm-clpiece var(--dm-t) var(--dm-ease) backwards}
 /* the foot strip is as tall as a strip with a control (44px), so its words sit as far from the card's foot as its sides (16px);
    the list gives up those 10px, so Clean's palette is no taller than Soft's */
 :root[data-style="clean"] .dm-cpl-f,:root [data-style="clean"] .dm-cpl-f,:root [data-style="clean"].dm-cpl-f{min-height:calc(28px + 2 * var(--dm-strip-y) + 1px);padding:var(--dm-s-2) var(--dm-s-4);background:var(--dm-strip);border-top-color:var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
 :root[data-style="clean"] .dm-cpl-list,:root [data-style="clean"] .dm-cpl-list,:root [data-style="clean"].dm-cpl-list{max-height:226px}
 :root[data-style="clean"] .dm-cpl-f .dm-kbd,:root [data-style="clean"] .dm-cpl-f .dm-kbd,:root [data-style="clean"].dm-cpl-f .dm-kbd{background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .dm-cpl .dm-kbd.dm-kp,:root [data-style="clean"] .dm-cpl .dm-kbd.dm-kp,:root [data-style="clean"].dm-cpl .dm-kbd.dm-kp{background:var(--dm-row-on)}
+:root[data-style="clean"] .dm-cpl-list.dm-hg:has(.dm-cpl-i:active),:root [data-style="clean"] .dm-cpl-list.dm-hg:has(.dm-cpl-i:active),:root [data-style="clean"].dm-cpl-list.dm-hg:has(.dm-cpl-i:active){--dm-hg-bg:var(--dm-row-press)}

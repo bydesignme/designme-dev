@@ -69,6 +69,15 @@
 .dm-mpk-pop{min-width:220px}
 .dm-mpk-note{margin:0;padding:0 2px;font-size:12.5px;min-height:20px;display:flex;align-items:center;gap:6px}
 .dm-mpk-note svg{color:var(--dm-ok);flex:none}
+/* its motion (owner's trial, 26 Nov; the core's motion pieces): the list grows out of the trigger's corner from a short blur as
+   the fold opens, its rows settling one after another, and folds back into it quicker than it came. A picked model's tick
+   springs in out of a blur; the trigger's mark and words crossfade and its box eases to the new words' width; the effort menu
+   grows from its button, and one highlight glides from row to row in every style. A press shows at once */
+.dm-mpk-p{transform-origin:top right;transition:opacity var(--dm-t-out) var(--dm-ease-io),transform var(--dm-t-out) var(--dm-ease-io),filter var(--dm-t-out) var(--dm-ease-io)}
+.dm-mpk-fold:not(.dm-shut) .dm-mpk-p{transition:opacity calc(var(--dm-t-in) * .6) var(--dm-ease),transform var(--dm-t-in) var(--dm-ease-pop),filter calc(var(--dm-t-in) * .7) var(--dm-ease)}
+.dm-mpk-fold.dm-shut .dm-mpk-p{opacity:0;transform:scale(.96);filter:blur(var(--dm-blur-in))}
+.dm-mpk-o .dm-ck{filter:blur(var(--dm-blur-ic));transition:opacity .16s,transform var(--dm-t-in) var(--dm-ease-pop),filter var(--dm-t-fast)}
+.dm-mpk-o:is([aria-checked="true"],:has(.dm-spin)) .dm-ck{filter:none}
 /* phones: the line under each name wraps, and the meters keep room for their labels */
 /* on a phone the meters close up so a model's line keeps two or three words to a row */
 @media (max-width:480px){.dm-mpk-hd,.dm-mpk-o{grid-template-columns:20px minmax(0,1fr) repeat(3,34px);gap:6px}.dm-mpk-hd{font-size:10.5px;padding-inline:6px}.dm-mpk-o,.dm-mpk-th,.dm-mpk-sg{padding-inline:6px}:is(.dm-mpk-sg,.dm-mpk-thh){column-gap:6px}.dm-mpk-o .dm-d{white-space:normal}}
@@ -83,7 +92,7 @@
 :root[data-style="clean"] .dm-mpk-tr:active,:root [data-style="clean"] .dm-mpk-tr:active,:root [data-style="clean"].dm-mpk-tr:active{box-shadow:var(--dm-btn2-press)}
 :root[data-style="clean"] .dm-mpk-tr>svg,:root [data-style="clean"] .dm-mpk-tr>svg,:root [data-style="clean"].dm-mpk-tr>svg{transition:transform var(--dm-t) var(--dm-ease)}
 :root[data-style="clean"] .dm-mpk-p.dm-panel,:root [data-style="clean"] .dm-mpk-p.dm-panel,:root [data-style="clean"].dm-mpk-p.dm-panel{padding:0;transform-origin:top right;transition:opacity var(--dm-t) var(--dm-ease),transform .32s var(--dm-ease)}
-:root[data-style="clean"] .dm-mpk-fold.dm-shut .dm-mpk-p,:root [data-style="clean"] .dm-mpk-fold.dm-shut .dm-mpk-p,:root [data-style="clean"].dm-mpk-fold.dm-shut .dm-mpk-p{opacity:0;transform:translateY(-4px) scale(.96)}
+:root[data-style="clean"] .dm-mpk-fold.dm-shut .dm-mpk-p,:root [data-style="clean"] .dm-mpk-fold.dm-shut .dm-mpk-p,:root [data-style="clean"].dm-mpk-fold.dm-shut .dm-mpk-p{opacity:0;transform:translateY(-4px) scale(.96);transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t-fast) var(--dm-ease)}
 :root[data-style="clean"] :is(.dm-mpk-hd,.dm-mpk-o),:root [data-style="clean"] :is(.dm-mpk-hd,.dm-mpk-o),:root [data-style="clean"]:is(.dm-mpk-hd,.dm-mpk-o){grid-template-columns:20px minmax(0,1fr) repeat(3,40px);gap:10px}
 /* the column heads take only their own line: 16px from the top edge, the first row straight under them (no band above or
    below them) */

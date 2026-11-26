@@ -1,9 +1,9 @@
 'use client';
-import { useState, type KeyboardEvent } from 'react';
+import { useRef, useState, type KeyboardEvent } from 'react';
 import { cx } from '../../lib/cx';
-import { useControllable } from '../../lib/hooks';
+import { useControllable, useIsoLayoutEffect } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { enter, Think, useGrow } from '../../lib/motion';
+import { mxIn, mxOut, Think, useGrow } from '../../lib/motion';
 import { giveBack } from '../../lib/popover';
 import '../../designme.css';
 import './decision-prompt.css';
@@ -52,18 +52,39 @@ export function DecisionPrompt({
 
   // no room is kept for the next question or the summary: the card grows and shrinks with them
   const [root, inner] = useGrow();
+  // the question answered leaves to the side first, quickly, and the next one comes in from the other, piece by piece, as the
+  // card eases to its height (motion pieces); after the last, the head, the question and the buttons leave before the summary
+  // rises in. A key pressed while it turns waits for it
+  const turning = useRef(false);
   const next = (skipped = false) => {
-    if (done) return;
-    const all = [...answers, skipped ? null : sel];
-    setAnswers(all); setSel(0);
-    if (all.length >= n) {
-      // the buttons give way to the line saying the agent has started: a focus that was on them comes back to the card
-      if (root.current?.querySelector('.dm-dpx-f')?.contains(document.activeElement)) giveBack(root.current);
-      onComplete?.(all);
-    }
+    if (done || turning.current) return;
+    const all = [...answers, skipped ? null : sel], el = root.current, last = all.length >= n;
+    const commit = () => {
+      setAnswers(all); setSel(0);
+      if (last) {
+        // the buttons give way to the line saying the agent has started: a focus that was on them comes back to the card
+        if (root.current?.querySelector('.dm-dpx-f')?.contains(document.activeElement)) giveBack(root.current);
+        onComplete?.(all);
+      }
+    };
+    const going = el ? [...(el.querySelector('.dm-dpx-body')?.children ?? []), ...(last ? [el.querySelector('.dm-dpx-k'), ...(el.querySelector('.dm-dpx-f')?.children ?? [])] : [])] : [];
+    if (!going.length) return commit();
+    turning.current = true;
+    mxOut(going, { x: -12 }).then(() => {
+      turning.current = false; commit();
+      // (anything a held answer leaves in place comes back)
+      requestAnimationFrame(() => going.forEach(g => { const m = g as HTMLElement & { _mx?: Animation[] }; if (g?.isConnected && m._mx?.[0]?.playState === 'finished') m._mx.forEach(a => a.cancel()); }));
+    });
   };
+  const body = useRef<HTMLDivElement>(null), foot = useRef<HTMLDivElement>(null), seen = useRef(at);
+  useIsoLayoutEffect(() => {
+    if (seen.current === at) return; seen.current = at;
+    const b = body.current; if (!b) return;
+    if (done) mxIn([...b.querySelectorAll('.dm-dpx-sr'), foot.current?.querySelector('.dm-dpx-run')], { step: 50 });
+    else mxIn([b.querySelector('.dm-dpx-q'), ...b.querySelectorAll('.dm-dpx-o')], { x: 12, base: 20 });
+  }, [at, done]);
   const key = (e: KeyboardEvent) => {
-    if (done) return;
+    if (done || turning.current) return;
     const count = q.options.length;
     if (/^[1-9]$/.test(e.key) && +e.key <= count) { setSel(+e.key - 1); e.preventDefault(); }
     else if (e.key === 'Enter') { next(); e.preventDefault(); }
@@ -71,31 +92,31 @@ export function DecisionPrompt({
   };
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-dpx', !bare && 'dm-panel', 'dm-growing', done && 'dm-done', className)} tabIndex={0} onKeyDown={key}>
+    <div data-dm="" ref={root} className={cx('dm-dpx', !bare && 'dm-panel', 'dm-growing dm-mx-grow', done && 'dm-done', className)} tabIndex={0} onKeyDown={key}>
       <div ref={inner} className="dm-grow">
       <div className="dm-dpx-h">
         <span className="dm-dpx-k dm-muted dm-num">{done ? 'All set' : `Question ${at + 1} of ${n}`}</span>
         {/* once every question is answered the steps are over: the dots fade away where they are, keeping their room */}
         <div className={cx('dm-dpx-dots', done && 'dm-gone')} aria-hidden="true">{questions.map((_, i) => <i key={i} className={cx(!done && i === at && 'dm-on', (done || i < at) && 'dm-done')} />)}</div>
       </div>
-      {/* keyed by question, so each one plays its entrance */}
-      <div className="dm-dpx-body" key={done ? 'sum' : at} aria-live="polite">
+      {/* keyed by question, so each one is drawn afresh and plays its entrance */}
+      <div ref={body} className="dm-dpx-body" key={done ? 'sum' : at} aria-live="polite">
         {done ? (
           <div className="dm-dpx-sum">
             {questions.map((x, i) => (
-              <div key={i} className={cx('dm-dpx-sr', enter().className)} style={enter(i * 70).style}>
+              <div key={i} className="dm-dpx-sr">
                 <span>{x.label}</span>{answers[i] === null ? skippedLabel : x.options[answers[i]!]?.label}
               </div>
             ))}
           </div>
         ) : (
           <>
-            {/* the next question plays its entrance; the first is drawn from the start, so a frame that doesn't animate yet (a
-                small live preview off screen) still shows it */}
-            <div className={cx('dm-dpx-q', at > 0 && 'dm-enter')}>{q.question}</div>
+            {/* the next question plays its entrance (above); the first is drawn from the start, so a frame that doesn't animate yet
+                (a small live preview off screen) still shows it */}
+            <div className="dm-dpx-q">{q.question}</div>
             <div className="dm-dpx-opts" role="radiogroup" aria-label={q.question}>
               {q.options.map((o, i) => (
-                <button key={i} type="button" role="radio" aria-checked={i === sel} className={cx('dm-dpx-o', i === sel && 'dm-on', at > 0 && enter().className)} style={at > 0 ? enter(60 + i * 50).style : undefined}
+                <button key={i} type="button" role="radio" aria-checked={i === sel} className={cx('dm-dpx-o dm-mx-press', i === sel && 'dm-on')}
                   onClick={() => setSel(i)} onDoubleClick={() => next()}>
                   <span className="dm-kbd">{i + 1}</span>{o.label}{o.detail && <span className="dm-d">{o.detail}</span>}
                 </button>
@@ -105,9 +126,9 @@ export function DecisionPrompt({
         )}
       </div>
       {/* once every question is answered, the line saying the agent has started takes the buttons' place */}
-      <div className={cx('dm-dpx-f', done && 'dm-run')}>
+      <div ref={foot} className={cx('dm-dpx-f', done && 'dm-run')}>
         {done ? (
-          <div className={cx('dm-dpx-run', enter().className)} style={enter(n * 70).style} aria-live="polite">{started
+          <div className="dm-dpx-run" aria-live="polite">{started
             ? <><span className="dm-dpx-ok"><Icon name="check" size="xs" /></span><span>{startedLabel ?? startLabel}</span></>
             : <><Think /><span className="dm-shim">{startLabel}</span></>}</div>
         ) : (
