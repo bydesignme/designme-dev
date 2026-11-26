@@ -287,6 +287,10 @@ every session and every agent.
   (the content's width, no wider). A select's words line up with the content's left edge, its hover box reaching out round
   them. The last control in a row (a select, a button), in Clean's strips too, ends on the content's right edge, where the
   meters and tags above end. A label or trigger outside a card lines up with the card's edge.
+- A list of hover rows inside a card keeps its content on the card's 16px column: the rows' marks, words and trailing values line
+  up with the head's title, icon and total and with the foot, and the row's hover fill reaches 8px outward round the row
+  (into the padding), never pushing the row's content inward (owner, 26 Nov: "none of the padding makes sense again", on Agent
+  tree's rows sitting 8px inside its head).
 - The parts of one row (icon, word, detail, button) share one centre line: never mix `align-items:baseline` with an
   `align-self:center` child. Buttons side by side are the same drawn height.
 - Ghost buttons and icon buttons (Stop, Copy, a head's chevron, a row's Read) share one hover in each style: the same quiet
