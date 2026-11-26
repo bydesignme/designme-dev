@@ -261,7 +261,7 @@ const jsonld = [
       :root[data-style="clean"] .lp{--lp-r1:var(--dm-r-in);--lp-r2:var(--dm-r-card)}
       @supports (corner-shape:squircle){
         :root[data-style="soft"] .lp{--lp-r1:16px;--lp-r2:var(--dm-r-card)}
-        :root[data-style="soft"] :is(.lp-bg,.lp-win,.lp-show,.lp-show .dvf-dev:not(.mobile),.lp-wt,.lp-wt img,.lp-line,.lp-prompt pre){corner-shape:squircle}
+        :root[data-style="soft"] :is(.lp-bg,.lp-win,.lp-show,.lp-show .dvf-dev:not(.mobile),.lp-wt,.lp-wt img,.lp-line){corner-shape:squircle}
       }
       .lp-in{max-width:1464px;margin:0 auto;padding-inline:32px}
       .lp code{font:500 12.5px/1.4 var(--pg-mono);font-variant-ligatures:none;background:var(--pg-chip);padding:1px 5px;border-radius:5px;color:var(--pg-fg)}
@@ -477,13 +477,87 @@ const jsonld = [
       :root[data-style="clean"] .lp-pv{background:var(--dm-stage)}
       .lp-pvh{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px;padding:8px 8px 8px 16px;box-shadow:inset 0 -1px 0 var(--lp-hair);font-size:12px;line-height:20px;color:var(--pg-muted)}
       @media (max-width:640px){.lp-ed-b{grid-template-columns:minmax(0,1fr);grid-template-areas:"tree" "code" "pv"}.lp-tree{box-shadow:inset 0 -1px 0 var(--lp-hair)}.lp-code{height:400px}}
-      .lp-prompt{position:relative}
-      .lp-prompt pre{margin:0;padding:16px 88px 16px 16px;border-radius:var(--lp-r1);background:var(--pg-soft);box-shadow:inset 0 0 0 1px var(--pg-line);font:500 12.5px/1.65 var(--pg-mono);font-variant-ligatures:none;color:var(--pg-fg);white-space:pre-wrap;overflow-wrap:anywhere}
-      .lp .lp-prompt pre code{background:none;padding:0;border-radius:0;font:inherit;color:inherit}
-      .lp-prompt .lp-copy{position:absolute;top:10px;right:10px}
       .lp-agent{margin-top:96px}
+      /* ---- or hand it to your coding agent: the hand-off as three steps on one backdrop: the prompt you give, what the agent reads (llms.txt, then the
+         component's Markdown page) and what it installs. They come in once, in order, when the block scrolls into view ---- */
+      .lp-ag-top{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:8px 48px;padding-top:24px;border-top:1px solid var(--pg-line)}
+      .lp-ag .lp-h p{margin:0}
+      .lp-ag-top-r{display:flex;flex-direction:column;align-items:flex-start}
+      .lp-ag-flow{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin:32px 0 0;padding:40px;border-radius:var(--lp-r3);background:var(--pg-soft)}
+      :root[data-style="clean"] .lp-ag-flow{background:var(--dm-stage)}
+      .lp-ag-step{display:flex;flex-direction:column;gap:16px;min-width:0}
+      /* each step's number and name, joined to the next by a quiet line */
+      .lp-ag-sh{display:flex;align-items:center;gap:8px;margin:0;font-size:14px;line-height:24px;font-weight:500;color:var(--pg-fg)}
+      .lp-ag-step:not(:last-child) .lp-ag-sh::after{content:"";flex:1;height:1px;margin:0 -16px 0 8px;background:var(--pg-line2);transform-origin:left}
+      /* the step numbers: black on white in every style and theme, with a hairline where the backdrop is light */
+      .lp-ag-num{display:inline-grid;place-items:center;flex:none;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1px var(--pg-line2);color:#0b0b0b;font:500 12px/1 var(--pg-sans);font-variant-numeric:tabular-nums}
+      :root[data-theme="dark"] .lp-ag-num{box-shadow:none}
+      @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .lp-ag-num{box-shadow:none}}
+      .lp-ag-win{flex:1;display:flex;flex-direction:column;min-height:332px;border-radius:var(--lp-r2);background:var(--pg-bg);box-shadow:var(--dm-shadow);overflow:hidden}
+      .lp-ag-wb{display:flex;align-items:center;justify-content:space-between;gap:12px;flex:none;min-height:44px;padding:8px 8px 8px 16px;box-shadow:inset 0 -1px 0 var(--lp-hair);font-size:13px;line-height:20px;color:var(--pg-muted)}
+      :root[data-style="clean"] :is(.lp-ag-wb,.lp-ag-fh){background:var(--dm-strip)}
+      .lp-ag-wbody{flex:1;display:flex;flex-direction:column;padding:16px;min-width:0}
+      /* 1: the prompt as the visitor's message, on the right as in any chat */
+      .lp-ag-chat{justify-content:flex-start;align-items:flex-end}
+      .lp-ag-bub{margin:0;max-width:100%;padding:12px 16px;border-radius:var(--lp-r2) var(--lp-r2) 6px var(--lp-r2);background:var(--pg-soft);box-shadow:inset 0 0 0 1px var(--lp-hair);font-size:14px;line-height:22px;color:var(--pg-fg)}
+      :root[data-style="clean"] .lp-ag-bub{background:var(--dm-stage)}
+      .lp .lp-ag-bub code{font-size:12.5px;background:var(--pg-bg);box-shadow:inset 0 0 0 1px var(--lp-hair);overflow-wrap:anywhere}
+      .lp-ag-cmd{display:block;margin:4px 0}
+      /* 2: two files, each under its own head, which opens it */
+      .lp-ag-fh{display:flex;align-items:center;gap:8px;flex:none;min-height:44px;padding:0 16px;box-shadow:inset 0 -1px 0 var(--lp-hair);font-size:13px;line-height:20px;color:var(--pg-fg);text-decoration:none;transition:background-color 220ms var(--lp-ease)}
+      .lp-ag-fh:hover{background:var(--pg-soft)}
+      .lp-ag-fh:focus-visible{outline:2px solid var(--pg-focus);outline-offset:-2px}
+      .lp-ag-fh2{box-shadow:inset 0 1px 0 var(--lp-hair),inset 0 -1px 0 var(--lp-hair)}
+      .lp-ag-fh .lp-fi{width:16px;height:16px;flex:none;color:var(--pg-muted)}
+      .lp-ag-fn{min-width:0;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .lp-ag-dm{margin-left:auto;flex:none;font-size:12px;color:var(--pg-muted)}
+      .lp-ag-pre{display:block;padding:12px 16px;overflow:hidden;font:500 12px/20px var(--pg-mono);font-variant-ligatures:none;color:var(--pg-fg)}
+      .lp-ag-pre .l{display:block;white-space:pre;overflow:hidden;text-overflow:ellipsis}
+      .lp-ag-pre .cm,.lp-ag-pre .lp-ag-c{color:var(--pg-muted)}
+      .lp-ag-pre .lp-ag-t{color:var(--pg-dim)}
+      .lp-ag-pre .st{color:var(--dm-accent-fg,var(--pg-fg))}
+      /* the line it picks: a mark in the accent down its side, never a band behind it */
+      .lp-ag-pre .lp-ag-pick{position:relative;overflow:visible}
+      .lp-ag-pre .lp-ag-pick::before{content:"";position:absolute;left:-16px;top:0;bottom:0;width:2px;background:var(--dm-accent-mark,var(--pg-fg));transform-origin:top}
+      .lp-ag-pre .lp-ag-pick + .lp-ag-pick::before{top:0}
+      .lp-ag-props{flex:1}
+      /* 3: the command, the files it writes, each with the green tick, and the one line that uses it */
+      .lp-ag-run{margin:0}
+      .lp .lp-ag-run code{display:block;padding:0;background:none;font-size:12px;line-height:20px;overflow-wrap:anywhere}
+      .lp-ag-run .lp-ag-c{color:var(--pg-muted)}
+      .lp-ag-files{list-style:none;margin:12px 0 0;padding:12px 0 0;display:flex;flex-direction:column;gap:4px;box-shadow:inset 0 1px 0 var(--lp-hair)}
+      .lp-ag-files li{display:flex;align-items:center;gap:8px;min-height:28px;font-size:13px;line-height:20px;color:var(--pg-fg);min-width:0}
+      .lp-ag-files li > span:first-of-type{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .lp-ag-tk{width:16px;height:16px;flex:none;color:var(--dm-ok-mark,#00a23d)}
+      .lp-ag-use{display:flex;flex-direction:column;gap:4px;margin:auto 0 0;padding-top:12px;box-shadow:inset 0 1px 0 var(--lp-hair);font-size:12px;line-height:20px;color:var(--pg-muted)}
+      .lp .lp-ag-use code{align-self:flex-start;font-size:12px;line-height:20px;overflow-wrap:anywhere}
+
+      /* the steps come in once, in order, when the block is in view (the page's script arms them; without it, or with reduced
+         motion, everything is there from the start) */
+      .lp-ag.arm .lp-ag-step{opacity:0;transform:translateY(8px)}
+      .lp-ag.arm .lp-ag-step:not(:last-child) .lp-ag-sh::after{transform:scaleX(0)}
+      .lp-ag.arm .lp-ag-pick::before{transform:scaleY(0)}
+      .lp-ag.arm .lp-ag-files li{opacity:0}
+      .lp-ag.go .lp-ag-step{opacity:1;transform:none;transition:opacity 560ms var(--lp-ease),transform 560ms var(--lp-ease);transition-delay:calc(var(--k) * 600ms)}
+      .lp-ag.go .lp-ag-step:not(:last-child) .lp-ag-sh::after{transform:none;transition:transform 680ms var(--lp-ease);transition-delay:calc(var(--k) * 600ms + 280ms)}
+      .lp-ag.go .lp-ag-pick::before{transform:none;transition:transform 340ms var(--lp-ease);transition-delay:1300ms}
+      .lp-ag.go .lp-ag-files li{opacity:1;transition:opacity 340ms var(--lp-ease);transition-delay:calc(1700ms + var(--j) * 180ms)}
+
+      @media (max-width:1199px){.lp-ag-flow{padding:32px}}
+      @media (max-width:1099px){
+        .lp-ag-flow{grid-template-columns:minmax(0,1fr);gap:32px}
+        .lp-ag-step:not(:last-child) .lp-ag-sh::after{content:none}
+        .lp-ag-win{min-height:0}
+        .lp-ag-use{margin-top:16px}
+      }
+      @media (max-width:860px){.lp-ag-top{grid-template-columns:minmax(0,1fr)}}
+      @media (max-width:640px){
+        .lp-ag-flow{margin:24px -16px 0;padding:24px 16px;border-radius:0}
+      }
+      @media (prefers-reduced-motion:reduce){.lp-ag .lp-ag-step,.lp-ag .lp-ag-files li,.lp-ag .lp-ag-sh::after,.lp-ag .lp-ag-pick::before,.lp-ag-fh{transition:none!important}}
+      @supports (corner-shape:squircle){:root[data-style="soft"] :is(.lp-ag-flow,.lp-ag-win,.lp-ag-bub){corner-shape:squircle}}
       /* on a phone the tabs lose their marks so all four fit, and the prompt starts under its Copy button */
-      @media (max-width:640px){.lp-tl .cp-mk{display:none}.lp-tl button{padding:0 8px}.lp-tl button::after{left:8px;right:8px}.lp-prompt pre{padding:52px 16px 16px}}
+      @media (max-width:640px){.lp-tl .cp-mk{display:none}.lp-tl button{padding:0 8px}.lp-tl button::after{left:8px;right:8px}}
 
       /* ---- the wall's buttons ---- */
       .lp-sh .lp-cta{justify-content:center;margin-top:8px}
@@ -709,14 +783,7 @@ const jsonld = [
           </div>
         </div>
       </div>
-      <div class="lp-two lp-agent">
-        <div class="lp-h">
-          <h3>Or hand it to your coding agent</h3>
-          <p>Every page has a Markdown copy, and <a href="/llms.txt">llms.txt</a> lists every component with its install command.</p>
-          <a class="lp-more" href="/docs/using-with-ai">Using with AI<Fragment set:html={arrow} /></a>
-        </div>
-        <div class="lp-add lp-prompt"><pre data-name="Prompt for a coding agent"><code>{PROMPT}</code></pre><button class="lp-copy" type="button" data-copy={PROMPT} data-label="Copy" aria-label="Copy the prompt">Copy</button></div>
-      </div>
+      <div class="lp-agent lp-ag"><div class="lp-ag-top"><div class="lp-h"><h3>Or hand it to your coding agent</h3></div><div class="lp-h lp-ag-top-r"><p>Every page has a Markdown copy, and <a href="/llms.txt">llms.txt</a> lists every component with its install command. Give your agent this prompt, and it finds, reads and installs what your screen needs.</p><a class="lp-more" href="/docs/using-with-ai">Using with AI<Fragment set:html={arrow} /></a></div></div><ol class="lp-ag-flow" aria-label="From a prompt to an installed component"><li class="lp-ag-step" style="--k:0"><p class="lp-ag-sh"><span class="lp-ag-num" aria-hidden="true">1</span>You ask</p><div class="lp-ag-win" role="group" aria-label="The prompt"><div class="lp-ag-wb"><span>Your coding agent</span><button class="lp-copy" type="button" data-copy={PROMPT} data-label="Copy" aria-label="Copy the prompt">Copy</button></div><div class="lp-ag-wbody lp-ag-chat"><p class="lp-ag-bub">Read <code>{SITE}/llms.txt</code> and pick the components for our screen. For each one, read its .md page, then install it with:<span class="lp-ag-cmd"><code>npx designme add &lt;name&gt; --react</code></span>Keep the installed files as they are and drive the components through their props from our state.</p></div></div></li><li class="lp-ag-step" style="--k:1"><p class="lp-ag-sh"><span class="lp-ag-num" aria-hidden="true">2</span>It reads</p><div class="lp-ag-win" role="group" aria-label="What the agent reads"><a class="lp-ag-fh" href="/llms.txt"><Fragment set:html={fileIcon} /><span class="lp-ag-fn">llms.txt</span><span class="lp-ag-dm">{total} components</span></a><span class="lp-ag-pre" aria-hidden="true"><span class="l">### Agent status</span><span class="l cm">- [Thinking](…/thinking.md)</span><span class="l cm">- [Reasoning trail](…/reasoning-trail.md)</span><span class="l cm">  …</span><span class="l lp-ag-pick">- [Status pill](…/status-pill.md)</span><span class="l lp-ag-pick st">  npx designme add status-pill</span></span><a class="lp-ag-fh lp-ag-fh2" href="/components/status-pill.md"><Fragment set:html={fileIcon} /><span class="lp-ag-fn">status-pill.md</span><span class="lp-ag-dm">Props</span></a><span class="lp-ag-pre lp-ag-props" aria-hidden="true"><span class="l"><span class="lp-ag-c">| </span>state<span class="lp-ag-c">    | </span><span class="lp-ag-t">StatusPillState</span></span><span class="l"><span class="lp-ag-c">| </span>label<span class="lp-ag-c">    | </span><span class="lp-ag-t">string</span></span><span class="l"><span class="lp-ag-c">| </span>action<span class="lp-ag-c">   | </span><span class="lp-ag-t">{'{ label, onClick }'}</span></span><span class="l"><span class="lp-ag-c">| </span>progress<span class="lp-ag-c"> | </span><span class="lp-ag-t">number</span></span></span></div></li><li class="lp-ag-step" style="--k:2"><p class="lp-ag-sh"><span class="lp-ag-num" aria-hidden="true">3</span>It installs</p><div class="lp-ag-win" role="group" aria-label="What it installs"><div class="lp-ag-wb"><span>Terminal</span></div><div class="lp-ag-wbody"><p class="lp-ag-run"><code><span class="lp-ag-c">$ </span>npx designme add status-pill --react</code></p><ul class="lp-ag-files"><li style="--j:0"><svg class="lp-ag-tk" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>status-pill/StatusPill.tsx</span></li><li style="--j:1"><svg class="lp-ag-tk" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>status-pill/status-pill.css</span></li><li style="--j:2"><svg class="lp-ag-tk" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>designme.css</span><span class="lp-ag-dm">added once</span></li><li style="--j:3"><svg class="lp-ag-tk" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>lib/</span><span class="lp-ag-dm">added once</span></li></ul><p class="lp-ag-use"><span>Then, from your state</span><code>&lt;StatusPill state="working" label="Editing" /&gt;</code></p></div></div></li></ol></div>
     </section>
 
     <section class="lp-in lp-sec" id="faq" aria-labelledby="faq-h">
@@ -912,6 +979,18 @@ const jsonld = [
           b.addEventListener('keydown', function(e){ var d = e.key === 'ArrowDown' ? 1 : e.key === 'ArrowUp' ? -1 : 0; if (e.key === 'Home') d = -i; if (e.key === 'End') d = fs.length - 1 - i; if (!d) return; e.preventDefault(); sel(fs[(i + d + fs.length) % fs.length], true); });
         });
       });
+    })();
+    </script>
+    <script is:inline>
+    (function(){
+      // the three steps come in once, in order, the first time a third of the block is on screen; with reduced motion (or
+      // without this script) they are simply there
+      var el = document.querySelector('.lp-ag'); if (!el || !window.IntersectionObserver) return;
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      el.classList.add('arm');
+      var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (!e.isIntersecting) return; io.disconnect();
+        requestAnimationFrame(function(){ el.classList.add('go'); }); }); }, { threshold:.3 });
+      io.observe(el.querySelector('.lp-ag-flow'));
     })();
     </script>
   </Fragment>
