@@ -808,6 +808,8 @@ function popRoom(btn){
     if (getComputedStyle(a).overflowY === 'visible') continue;
     const r = a.getBoundingClientRect(); top = Math.max(top, r.top); bottom = Math.min(bottom, r.bottom);
   }
+  // a homepage bento card (.lp-bc) is a fixed-height tile that doesn't clip: a pop stays inside it as it would in a stage
+  const bc = btn.closest('.lp-bc'); if (bc){ const r = bc.getBoundingClientRect(); top = Math.max(top, r.top); bottom = Math.min(bottom, r.bottom); }
   return { top, bottom };
 }
 function placePop(btn, pop){
@@ -3002,7 +3004,7 @@ DM.def('permission-gate', (r, c) => {
   });
 });
 /* ---------- the sections' components, loaded the first time a section comes near (DEF_PARTS in build.js) ---------- */
-const PARTS = {"files":{"s-status":"/assets/v2-status.fd9efe7c91.js","s-review":"/assets/v2-review.bc0956cfd6.js","s-data":"/assets/v2-data.dfd10576d6.js","s-workspace":"/assets/v2-workspace.bfe41fa668.js","s-dates":"/assets/v2-dates.ca471b0cff.js"},"of":{"status-pill":"s-status","step-loader":"s-status","thinking-states":"s-status","reasoning-trail":"s-status","thinking":"s-status","context-meter":"s-status","toast":"s-status","toast-stack":"s-status","agent-run-timeline":"s-status","decision-prompt":"s-review","plan-review":"s-review","inline-text-diff":"s-review","source-stack":"s-data","terminal-stream":"s-data","citation-hover":"s-data","command-palette":"s-workspace","file-explorer":"s-workspace","run-drawer":"s-workspace","memory-panel":"s-workspace","tool-connections":"s-workspace","knowledge-sources":"s-workspace","scheduled-runs":"s-workspace","event-calendar":"s-dates","web-search":"s-status"},"all":[]};
+const PARTS = {"files":{"s-status":"/assets/v2-status.c2336118e5.js","s-review":"/assets/v2-review.7b21ccf7c5.js","s-data":"/assets/v2-data.dfd10576d6.js","s-workspace":"/assets/v2-workspace.c065b8851e.js","s-dates":"/assets/v2-dates.ca471b0cff.js"},"of":{"status-pill":"s-status","step-loader":"s-status","thinking-states":"s-status","reasoning-trail":"s-status","thinking":"s-status","context-meter":"s-status","toast":"s-status","toast-stack":"s-status","agent-run-timeline":"s-status","decision-prompt":"s-review","plan-review":"s-review","inline-text-diff":"s-review","source-stack":"s-data","terminal-stream":"s-data","citation-hover":"s-data","command-palette":"s-workspace","file-explorer":"s-workspace","run-drawer":"s-workspace","memory-panel":"s-workspace","tool-connections":"s-workspace","knowledge-sources":"s-workspace","scheduled-runs":"s-workspace","event-calendar":"s-dates","web-search":"s-status"},"all":[]};
 const partRun = src => eval(src);
 // the markup of the cards whose section has a file of its own comes with that file
 const TPLS = {};

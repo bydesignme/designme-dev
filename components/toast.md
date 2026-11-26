@@ -533,7 +533,7 @@ export function ToastCard({ toast: t, onClose: close, leaving = false, from, ste
     const s = sw.current, card = el.current; if (!s || !card || e.pointerId !== s.id) return; sw.current = null; if (!s.on) return;
     const v = Math.abs(s.dx) / Math.max(1, performance.now() - s.t), m = motionOf(card), dir = Math.sign(s.dx) || 1;
     card.style.transition = '';
-    if (Math.abs(s.dx) > 90 || v > .6) { card.animate([{ transform: `${base}translateX(${s.dx}px)`, opacity: card.style.opacity }, { transform: `${base}translateX(${own ? dir * 420 : s.dx + dir * 140}px)`, opacity: 0 }], { duration: m.t, easing: m.ease, fill: 'forwards' }); close('swipe'); }
+    if (Math.abs(s.dx) > 90 || v > .6) { card.animate([{ transform: `${base}translateX(${s.dx}px)`, opacity: card.style.opacity }, { transform: `${base}translateX(${reduce ? s.dx : own ? dir * 420 : s.dx + dir * 140}px)`, opacity: 0 }], { duration: reduce ? m.fast : m.t, easing: m.ease, fill: 'forwards' }); close('swipe'); }
     else { if (own) card.animate([{ transform: `translateX(${s.dx}px)`, opacity: card.style.opacity }, { transform: 'none', opacity: 1 }], { duration: m.t, easing: m.ease }); card.style.transform = String(style?.transform ?? ''); card.style.opacity = style?.opacity !== undefined ? String(style.opacity) : ''; }
   };
 

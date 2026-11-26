@@ -50,7 +50,7 @@ Toast stack collects the news an agent sends while it works and piles it into a 
 - Cards that can't be seen (behind the front one in the deck, or past the fourth when fanned out) and a card on its way out are `inert`, so Tab only reaches cards on show.
 - Escape closes the card the focus is in and moves the focus to the next card's Close.
 - The countdowns pause while the stack is open for reading, so there is time to reach a card's buttons.
-- With reduced motion turned on, cards change place at once and only fade.
+- With reduced motion turned on, cards change place and size at once, with no rise, blur or swipe-off glide.
 
 ## Usage in React
 
