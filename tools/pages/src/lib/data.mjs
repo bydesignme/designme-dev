@@ -172,3 +172,6 @@ export const shadcnUrl = (reg, astro = false) => `${SITE}/r/shadcn/${astro ? 'as
 // the header's "Your theme" option: the script that puts a pasted shadcn/Tailwind v4 theme over the demos through the theme bridge
 // (tools/site/theme-bridge.js), inlined in every page's head so a saved theme is on before the page paints
 export const THEME_JS = createRequire(import.meta.url)(path.join(ROOT, 'tools/site/theme-bridge.js')).previewScript({ out:'dm-' });
+// ?style= and ?theme= in the address (tools/site/url-style.js): a link opens in that style and theme, and the address
+// follows the header switch, so copying it shares what the visitor sees
+export const URL_JS = createRequire(import.meta.url)(path.join(ROOT, 'tools/site/url-style.js')).JS;
