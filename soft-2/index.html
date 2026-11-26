@@ -895,6 +895,10 @@ th:last-child>.col-rz{display:none}
 .ctm-leg{display:flex;flex-direction:column;margin:0}
 .ctm-l{display:flex;align-items:center;gap:var(--s-2);padding:5px 6px;border-radius:var(--r-sm);font-size:13px;line-height:18px;color:var(--fg2);cursor:default;transition:background var(--t-fast)}
 .ctm-l:hover{background:color-mix(in srgb,var(--fg) 5%,transparent)}
+/* its motion (the core's motion pieces, owner, 26 Nov): one highlight glides from part to part in the legend, in the hover's
+   own grey (.mx-glide); a press on Compact shows at once; its box eases to its new words' width on the spring (mxWidth()) */
+.ctm-leg{--hg-bg:color-mix(in srgb,var(--fg) 5%,transparent)}
+:root[data-style="clean"] .ctm-leg{--hg-bg:var(--row)}
 /* the swatch is centred in a 16px column, the column of the message's sign and tick below, so their words line up */
 .ctm-l .sw{width:8px;height:8px;margin:0 4px;border-radius:var(--r-tiny,2px);flex:none;background:var(--c)}
 .ctm-l .v{margin-left:auto;color:var(--fg)}
@@ -2543,6 +2547,10 @@ th:last-child>.col-rz{display:none}
    stage. Its menus open over it from their buttons, down when there is room and up when there isn't, and the composer never
    moves for them (the visitor's clicks never move it). grow() must not clip the menus */
 .cpx.growing{overflow:visible}
+/* its motion (the core's motion pieces, owner, 26 Nov): its menus grow out of their buttons and go back quicker, their rows
+   settle one after another and one highlight glides between them; a press shows at once (.mx-press, no scale); a chip's icon
+   crossfades to the new pick and its box eases to the new words' width (.mx-w), as a file's name does when it can't be opened;
+   a file's spinner crossfades to its icon; and the thread and the box grow on the spring (.mx-grow) */
 .cpx-thread{display:flex;flex-direction:column;gap:var(--s-3)}
 .cpx-thread:empty{display:none}
 /* a message is a small card: its files and words 16px from its edges */
@@ -3237,6 +3245,8 @@ th:last-child>.col-rz{display:none}
 /* a drop zone, then the files as plain rows. Each file wears its type's hue: its badge, its ring and the wash that fills its
    row from the left as it uploads. Once it is up the agent reads it (the line shimmers) and says what it found, like 12 pages */
 .atx{display:flex;flex-direction:column;gap:10px}
+/* its motion (the core's motion pieces, owner, 26 Nov): a press on a file's remove button shows at once (.mx-press), and in
+   Clean the card grows with its files on the spring (.mx-grow) */
 .atx-drop{display:flex;flex-direction:column;align-items:center;gap:6px;padding:26px var(--s-4);border-radius:var(--r-card);background:none;cursor:pointer;position:relative;font-size:13.5px;transition:background .35s,box-shadow .35s,transform .45s var(--ease)}
 /* the dashed edge is drawn in SVG so its dashes can march around the corners: drifting slowly at rest, taking the accent
    under the pointer, and marching faster while a file is dragged over */
@@ -4235,6 +4245,10 @@ th:last-child>.col-rz{display:none}
    answers. Without .panel it sits flat in the thread */
 .pgx{position:relative;width:100%;max-width:400px;margin:0 auto;padding:var(--s-1) 0;display:flex;flex-direction:column;gap:var(--s-3)}
 .pgx.panel{padding:var(--s-4)}
+/* its motion (the core's motion pieces, owner, 26 Nov): How long's menu grows out of its button and goes back quicker, its
+   rows settle one after another and one highlight glides between them; a press shows at once (.mx-press, no scale); How
+   long's words and Allow ease their box to the new width (.mx-w); the spinner crossfades to the done mark (.mx-ic); and the
+   card eases to each new height on the spring (.mx-grow) */
 .pgx-h{display:flex;gap:var(--s-3);align-items:center}
 .pgx-ic{width:32px;height:32px;border-radius:calc(9px * var(--rk-m,var(--rk)));background:var(--chip);display:grid;place-items:center;flex:none}
 .pgx-ht{display:flex;flex-direction:column;min-width:0}
@@ -11350,6 +11364,9 @@ button.pvb-row:focus-visible{outline-offset:-2px}
    why; once done it folds to one line, and the answer under it points back at its pages */
 /* hover fills are a quiet 5%, so they show wherever the trail sits (on the stage, --row is the stage's own colour) */
 .wsx{padding:6px;display:flex;flex-direction:column;font-size:13px;--row:color-mix(in srgb,var(--fg) 5%,transparent)}
+/* its motion (the core's motion pieces, owner, 26 Nov): a press on the head or a search shows at once, a step deeper than its
+   hover (.mx-press); the spinner crossfades to the globe when it is done (.mx-ic); the card grows on the spring (.mx-grow) */
+.wsx{--row-press:color-mix(in srgb,var(--fg) 9%,transparent)}
 /* the head's mark sits as far from the top as from the side: 16px in from the panel's edges (owner, 21 Nov: "more padding at
    the top of the card?") */
 .wsx-h{display:flex;align-items:center;gap:10px;width:100%;padding:10px;border-radius:var(--r-in);text-align:left;font-size:13.5px;transition:background var(--t-fast)}
@@ -12020,9 +12037,9 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <div class="ctm-pop panel" role="region" aria-label="What fills the context">
     <div class="ctm-ph"><span>In context</span><span class="num"><b class="ctm-tot">0k</b> of 200k tokens</span></div>
     <div class="ctm-bar" aria-hidden="true"></div>
-    <div class="ctm-leg"></div>
+    <div class="ctm-leg mx-glide"></div>
     <div class="ctm-msg" aria-live="polite"><span></span></div>
-    <div class="ctm-f"><span class="ctm-hint">Summarises older turns</span><button class="pill line sm ctm-go">Compact</button></div>
+    <div class="ctm-f"><span class="ctm-hint">Summarises older turns</span><button class="pill line sm ctm-go mx-press">Compact</button></div>
   </div>
 </div></template>
   <div class="card-f"><span>Hover a part, then compact</span><span class="sp"></span><button class="replay" aria-label="Replay Context meter"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
@@ -12064,8 +12081,8 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 <article class="card bare" data-c="web-search" id="c-web-search">
   <div class="card-h"><div><h3>Web search</h3><p>The agent's searches as a trail: what it asked, what came back, what it read or skipped, and the answer with its sources.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="wsx panel">
-  <button class="wsx-h" aria-expanded="true"><span class="wsx-ic"><span class="spin"></span></span><span class="wsx-st shim">Searching the web</span><span class="wsx-marks" aria-hidden="true"></span>{chev}</button>
+  <template><div class="wsx panel mx-grow mx-ic">
+  <button class="wsx-h mx-press" aria-expanded="true"><span class="wsx-ic"><span class="spin"></span></span><span class="wsx-st shim">Searching the web</span><span class="wsx-marks" aria-hidden="true"></span>{chev}</button>
   <div class="fold wsx-fold"><div><div class="wsx-list"></div></div></div>
   <div class="wsx-ans"></div>
   <p class="wsx-sr" role="status"></p>
@@ -12180,43 +12197,43 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 <article class="card" data-c="composer" id="c-composer">
   <div class="card-h"><div><h3>Composer</h3><p>Message input with attachments, what to work on, a mode and dictation.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="cpx">
+  <template><div class="cpx mx-grow">
   <div class="cpx-thread" aria-live="polite"></div>
   <div class="cpx-box" data-mode="idle">
-    <div class="cpx-att"></div>
+    <div class="cpx-att mx-ic"></div>
     <textarea class="cpx-ta" rows="1" aria-label="Message" placeholder="Ask the design agent, or attach a frame"></textarea>
     <div class="cpx-rows">
       <div class="cpx-bar">
-        <button class="ib cpx-add" aria-label="Attach" data-tip="Attach a file or a frame" data-pop=".pp-plus">{clip}</button>
-        <button class="chip cpx-ctx" data-pop=".pp-ctx" data-tip="What the agent works on">{figma}<span class="cpx-ctx-n">Pricing v4</span>{chev}</button>
+        <button class="ib cpx-add mx-press" aria-label="Attach" data-tip="Attach a file or a frame" data-pop=".pp-plus">{clip}</button>
+        <button class="chip cpx-ctx mx-ic" data-pop=".pp-ctx" data-tip="What the agent works on">{figma}<span class="cpx-ctx-n mx-w">Pricing v4</span>{chev}</button>
         <span class="sp"></span>
-        <button class="chip cpx-mode" data-pop=".pp-mode" data-pop-align="end" data-tip="What the agent may do">{eye}<span class="cpx-mode-n">Ask</span>{chev}</button>
-        <button class="ib cpx-mic" aria-label="Dictate" data-tip="Dictate">{mic}</button>
+        <button class="chip cpx-mode mx-ic" data-pop=".pp-mode" data-pop-align="end" data-tip="What the agent may do">{eye}<span class="cpx-mode-n mx-w">Ask</span>{chev}</button>
+        <button class="ib cpx-mic mx-press" aria-label="Dictate" data-tip="Dictate">{mic}</button>
         <button class="cpx-send" aria-label="Send" data-tip="Send" data-tip-k="↵" disabled>{up}</button>
       </div>
       <div class="cpx-voice">
         <span class="cpx-rec"><span class="cpx-dot"></span>Listening</span><span class="cpx-tm num muted">0:00</span>
         <span class="sp"></span>
-        <button class="pill ghost sm cpx-cancel">Cancel</button>
+        <button class="pill ghost sm cpx-cancel mx-press">Cancel</button>
         <button class="pill primary sm cpx-ok">Done</button>
       </div>
     </div>
-    <div class="pop pp-plus" role="menu" aria-label="Attach">
-      <button class="mi" role="menuitem" data-close data-add="file">{file}<span>Upload a file<span class="d">Images, PDFs or code</span></span></button>
-      <button class="mi" role="menuitem" data-close data-add="figma">{figma}<span>Link a Figma frame<span class="d">From any file you can open</span></span></button>
-      <button class="mi" role="menuitem" data-close data-add="shot">{image}<span>Add a screenshot<span class="d">Of the window you're in</span></span></button>
+    <div class="pop pp-plus mx-pop mx-rows mx-glide" role="menu" aria-label="Attach">
+      <button class="mi mx-press" role="menuitem" data-close data-add="file">{file}<span>Upload a file<span class="d">Images, PDFs or code</span></span></button>
+      <button class="mi mx-press" role="menuitem" data-close data-add="figma">{figma}<span>Link a Figma frame<span class="d">From any file you can open</span></span></button>
+      <button class="mi mx-press" role="menuitem" data-close data-add="shot">{image}<span>Add a screenshot<span class="d">Of the window you're in</span></span></button>
     </div>
-    <div class="pop pp-ctx" role="menu">
+    <div class="pop pp-ctx mx-pop mx-rows mx-glide" role="menu">
       <div class="ph">Working on</div>
-      <button class="mi" role="menuitemradio" aria-checked="true" data-close data-ctx="Pricing v4" data-ic="figma">{figma}<span>Pricing v4<span class="d">Figma, 6 frames</span></span><span class="ck">{check}</span></button>
-      <button class="mi" role="menuitemradio" aria-checked="false" data-close data-ctx="Checkout flow" data-ic="figma">{figma}<span>Checkout flow<span class="d">Figma, 4 frames</span></span><span class="ck">{check}</span></button>
-      <button class="mi" role="menuitemradio" aria-checked="false" data-close data-ctx="Marketing site" data-ic="code">{code}<span>Marketing site<span class="d">Code, main branch</span></span><span class="ck">{check}</span></button>
+      <button class="mi mx-press" role="menuitemradio" aria-checked="true" data-close data-ctx="Pricing v4" data-ic="figma">{figma}<span>Pricing v4<span class="d">Figma, 6 frames</span></span><span class="ck">{check}</span></button>
+      <button class="mi mx-press" role="menuitemradio" aria-checked="false" data-close data-ctx="Checkout flow" data-ic="figma">{figma}<span>Checkout flow<span class="d">Figma, 4 frames</span></span><span class="ck">{check}</span></button>
+      <button class="mi mx-press" role="menuitemradio" aria-checked="false" data-close data-ctx="Marketing site" data-ic="code">{code}<span>Marketing site<span class="d">Code, main branch</span></span><span class="ck">{check}</span></button>
     </div>
-    <div class="pop pp-mode" role="menu">
+    <div class="pop pp-mode mx-pop mx-rows mx-glide" role="menu">
       <div class="ph">The agent may</div>
-      <button class="mi" role="menuitemradio" aria-checked="true" data-close data-mode="Ask" data-ic="eye">{eye}<span>Ask<span class="d">Answer only, change nothing</span></span><span class="ck">{check}</span></button>
-      <button class="mi" role="menuitemradio" aria-checked="false" data-close data-mode="Edit" data-ic="edit">{edit}<span>Edit<span class="d">Change frames on a new page</span></span><span class="ck">{check}</span></button>
-      <button class="mi" role="menuitemradio" aria-checked="false" data-close data-mode="Plan" data-ic="list">{list}<span>Plan<span class="d">Propose steps before it starts</span></span><span class="ck">{check}</span></button>
+      <button class="mi mx-press" role="menuitemradio" aria-checked="true" data-close data-mode="Ask" data-ic="eye">{eye}<span>Ask<span class="d">Answer only, change nothing</span></span><span class="ck">{check}</span></button>
+      <button class="mi mx-press" role="menuitemradio" aria-checked="false" data-close data-mode="Edit" data-ic="edit">{edit}<span>Edit<span class="d">Change frames on a new page</span></span><span class="ck">{check}</span></button>
+      <button class="mi mx-press" role="menuitemradio" aria-checked="false" data-close data-mode="Plan" data-ic="list">{list}<span>Plan<span class="d">Propose steps before it starts</span></span><span class="ck">{check}</span></button>
     </div>
   </div>
 </div></template>
@@ -12372,7 +12389,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 <article class="card" data-c="attachment-tray" id="c-attachment-tray">
   <div class="card-h"><div><h3>Attachment tray</h3><p>Drop files for the agent and watch each one upload.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="dm atx-dm" data-designs="card"><div class="dm-main"><div class="atx">
+  <template><div class="dm atx-dm" data-designs="card"><div class="dm-main"><div class="atx mx-grow">
   <label class="atx-drop"><input type="file" multiple class="atx-file" aria-label="Choose files" title=""><svg class="atx-ants" aria-hidden="true"><rect/></svg>
     <span class="atx-ic">{upload}</span><b>Drop files here</b><span class="muted">or <span class="atx-sample">add sample files</span></span>
   </label>
@@ -12512,18 +12529,18 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 <article class="card" data-c="permission-gate" id="c-permission-gate">
   <div class="card-h"><div><h3>Permission gate</h3><p>The agent asks before it touches something new.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="pgx panel">
+  <template><div class="pgx panel mx-grow mx-ic">
   <div class="pgx-h"><span class="pgx-ic">{figma}</span><div class="pgx-ht"><b>Allow the agent to edit Figma?</b><span class="muted">It needs this to apply the pricing fixes</span></div></div>
   <div class="pgx-sc">
     <label class="pgx-o" data-k="read"><input type="checkbox" checked><span class="bx">{chk}</span><span class="t">Read frames<span class="d">Pricing, Checkout</span></span></label>
     <label class="pgx-o" data-k="edit"><input type="checkbox" checked><span class="bx">{chk}</span><span class="t">Edit frames<span class="d">Only on a new page</span></span></label>
     <label class="pgx-o" data-k="publish"><input type="checkbox"><span class="bx">{chk}</span><span class="t">Publish library<span class="d">Affects 4 other files</span></span><span class="tag warn" data-tip="Checkout, Marketing site, Email kit and Docs use this library">Risky</span></label>
   </div>
-  <div class="pgx-f"><button class="pgx-db" aria-haspopup="menu" aria-expanded="false" aria-label="How long" data-pop=".pgx-pop"><span class="pgx-dv">For this task</span>{chev}</button><span class="sp"></span><button class="pill ghost sm pgx-no">Not now</button><button class="pill primary sm pgx-ok">Allow 2 scopes</button></div>
-  <div class="pop pgx-pop" role="menu" aria-label="How long">
-    <button class="mi" role="menuitemradio" aria-checked="true" data-close data-v="This task"><span>For this task<span class="d">Until the pricing fixes are done</span></span><span class="ck">{chk}</span></button>
-    <button class="mi" role="menuitemradio" aria-checked="false" data-close data-v="Today"><span>For today<span class="d">Until midnight</span></span><span class="ck">{chk}</span></button>
-    <button class="mi" role="menuitemradio" aria-checked="false" data-close data-v="Always"><span>Always<span class="d">Until you revoke it</span></span><span class="ck">{chk}</span></button>
+  <div class="pgx-f"><button class="pgx-db mx-press" aria-haspopup="menu" aria-expanded="false" aria-label="How long" data-pop=".pgx-pop"><span class="pgx-dv mx-w">For this task</span>{chev}</button><span class="sp"></span><button class="pill ghost sm pgx-no mx-press">Not now</button><button class="pill primary sm pgx-ok mx-w">Allow 2 scopes</button></div>
+  <div class="pop pgx-pop mx-pop mx-rows mx-glide" role="menu" aria-label="How long">
+    <button class="mi mx-press" role="menuitemradio" aria-checked="true" data-close data-v="This task"><span>For this task<span class="d">Until the pricing fixes are done</span></span><span class="ck">{chk}</span></button>
+    <button class="mi mx-press" role="menuitemradio" aria-checked="false" data-close data-v="Today"><span>For today<span class="d">Until midnight</span></span><span class="ck">{chk}</span></button>
+    <button class="mi mx-press" role="menuitemradio" aria-checked="false" data-close data-v="Always"><span>Always<span class="d">Until you revoke it</span></span><span class="ck">{chk}</span></button>
   </div>
 </div></template>
   <div class="card-f"><span>Choose scopes and how long, then allow</span><span class="sp"></span><button class="replay" aria-label="Replay Permission gate"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
@@ -15057,7 +15074,8 @@ DM.def('context-meter', (r, c) => {
   const WARN = '<svg class="ctm-wi" viewBox="0 0 24 24" aria-hidden="true"><path class="a" d="M12 3.6 2.6 19.9h18.8z"/><path class="b" d="M12 9.6v4.4M12 17v.01"/></svg>';
   const say = (text, tone) => { msg.className = 'ctm-msg on ' + tone; swap(msg.firstElementChild, `${tone === 'warn' ? WARN : I('ok','xs')}<span>${text}</span>`, true); go.classList.toggle('warn', tone === 'warn'); go.classList.toggle('line', tone !== 'warn'); };
   const hush = () => { msg.className = 'ctm-msg'; go.classList.remove('warn'); go.classList.add('line'); };
-  // hovering a part lights its share of the bar
+  // hovering a part lights its share of the bar, and one highlight glides from part to part (hoverGlide(), .mx-glide)
+  c.offs.push(hoverGlide(leg, '.ctm-l'));
   c.on(leg, 'pointerover', e => { const l = e.target.closest('.ctm-l'); if (!l) return; bar.classList.add('hl'); $$('i', bar).forEach(i => i.classList.toggle('on', i.dataset.k === l.dataset.k)); });
   c.on(leg, 'pointerout', e => { if (!leg.contains(e.relatedTarget)) bar.classList.remove('hl'); });
   // the pill opens and shuts the panel; Escape shuts it while the pointer or the focus is on the meter
@@ -15078,9 +15096,9 @@ DM.def('context-meter', (r, c) => {
   // Compact turns older turns into a summary and trims old tool output; Undo puts them back
   const before = {}; let state = 'full';
   const run = html('<span class="ctm-run" role="status" hidden><span class="spin"></span><span class="shim">Compacting…</span></span>'); go.after(run);
-  // the button is as wide as its words and eases to its new width when they change (owner, 18 Nov)
-  const label = h => { const w0 = go.getBoundingClientRect().width; go.innerHTML = h; const w1 = go.getBoundingClientRect().width;
-    if (!REDUCE && w0 && Math.abs(w1 - w0) > .5) go.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:340, easing:'cubic-bezier(.23,1,.32,1)' }); };
+  // the button is as wide as its words and eases to its new width when they change (owner, 18 Nov), on the motion pieces'
+  // spring (mxWidth())
+  const label = h => { const w0 = go.offsetWidth; go.innerHTML = h; if (!REDUCE && w0) mxWidth(go, w0); };
   go.onclick = () => c.run(async () => {
     if (go._busy) return; go._busy = true;
     if (state === 'full'){
@@ -17014,16 +17032,18 @@ DM.def('composer', (r, c) => {
   const ATT = { file:['file-text','Spacing notes.pdf'], figma:['figma','Pricing / Desktop'], shot:['image','Screenshot 10.42'] };
   let figmaTries = 0;
   function load(ch, kind){
-    const a = ATT[kind]; ch.className = 'fchip ld'; $('.ic', ch).innerHTML = '<span class="spin"></span>'; swap($('.n', ch), a[1]); const rt = $('.rt', ch); if (rt) rt.remove(); sync();
+    const a = ATT[kind], ic0 = $('.ic', ch), sp = () => { ic0.innerHTML = '<span class="spin"></span>'; }; ch.className = 'fchip ld'; if (ic0.firstElementChild) iconSwap(ic0, sp, { inner:true }); else sp(); swap($('.n', ch), a[1]); const rt = $('.rt', ch); if (rt) rt.remove(); sync();
     const fail = kind === 'figma' && figmaTries++ === 0;
     c.later(1000, () => { if (!ch.isConnected) return;
-      if (fail){ ch.className = 'fchip err'; $('.ic', ch).innerHTML = I('alert','xs'); swap($('.n', ch), a[1] + " can't be opened");
+      // (the spinner and the file's icon, or the alert, crossfade: iconSwap(), motion pieces)
+      const ic = $('.ic', ch);
+      if (fail){ ch.className = 'fchip err'; iconSwap(ic, () => { ic.innerHTML = I('alert','xs'); }, { inner:true }); swap($('.n', ch), a[1] + " can't be opened");
         const b = html(`<button class="rt" aria-label="Try again" data-tip="Try again">${I('refresh','xs')}</button>`); $('.x', ch).before(b); b.onclick = () => load(ch, kind); }
-      else { ch.className = 'fchip'; $('.ic', ch).innerHTML = I(a[0],'xs'); enter($('.ic', ch).firstElementChild); }
+      else { ch.className = 'fchip'; iconSwap(ic, () => { ic.innerHTML = I(a[0],'xs'); }, { inner:true }); }
       sync(); });
   }
   function add(kind){
-    const a = ATT[kind], ch = html(`<span class="fchip"><span class="ic" style="display:grid"></span><span class="n">${a[1]}</span><button class="x" aria-label="Remove ${a[1]}">${I('x','xs')}</button></span>`);
+    const a = ATT[kind], ch = html(`<span class="fchip"><span class="ic" style="display:grid"></span><span class="n mx-w">${a[1]}</span><button class="x" aria-label="Remove ${a[1]}">${I('x','xs')}</button></span>`);
     att.appendChild(ch); enter(ch);
     $('.x', ch).onclick = () => { ch.classList.add('leave'); c.later(300, () => { ch.remove(); sync(); }); };
     load(ch, kind);
@@ -17032,7 +17052,8 @@ DM.def('composer', (r, c) => {
   /* what the agent works on, and what it may do: a menu each, the chip shows the pick */
   const pick = (menu, chip, name, key) => $$(menu + ' .mi', r).forEach(b => b.onclick = () => {
     $$(menu + ' .mi', r).forEach(x => x.setAttribute('aria-checked', x === b));
-    const ch = $(chip, r); ch.firstElementChild.outerHTML = I(b.dataset.ic); swap($(name, ch), b.dataset[key]);
+    // (the chip's icon crossfades to the new one, iconSwap(), and its box eases to the new words' width, .mx-w: motion pieces)
+    const ch = $(chip, r), ic = ch.firstElementChild, u = $('use', ic); if (u) iconSwap(ic, () => u.setAttribute('href', '#i-' + b.dataset.ic)); else ic.outerHTML = I(b.dataset.ic); swap($(name, ch), b.dataset[key]);
   });
   pick('.pp-ctx', '.cpx-ctx', '.cpx-ctx-n', 'ctx');
   pick('.pp-mode', '.cpx-mode', '.cpx-mode-n', 'mode');
@@ -18503,7 +18524,7 @@ DM.def('attachment-tray', (r, c) => {
   // a file uploads (its row fills with its hue and its ring closes), then the agent reads it and says what it found
   function add(name, bytes, i = 0, found){
     const k = kind(name), sz = size(bytes);
-    const it = html(`<div class="atx-it" style="--c:${k[1]};--cb:${k[2]}"><span class="atx-ti">${k[0]}</span><span class="atx-n"><span class="atx-nm">${esc(name)}</span><span class="atx-m"><span>${sz} · <span class="num pc">0%</span></span></span></span><svg class="atx-ring" viewBox="0 0 22 22" role="progressbar" aria-label="Uploading ${esc(name).replace(/"/g, '&quot;')}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><circle cx="11" cy="11" r="8" fill="none" stroke="var(--line)" stroke-width="2"/><circle cx="11" cy="11" r="8" fill="none" stroke="${k[1]}" stroke-width="2" stroke-linecap="round" stroke-dasharray="50.3" stroke-dashoffset="50.3" transform="rotate(-90 11 11)"/></svg><button class="ib" aria-label="Remove ${esc(name).replace(/"/g, '&quot;')}" data-tip="Remove">${I('x','xs')}</button>${clean ? '<span class="atx-ln" aria-hidden="true"><i></i></span>' : ''}</div>`);
+    const it = html(`<div class="atx-it" style="--c:${k[1]};--cb:${k[2]}"><span class="atx-ti">${k[0]}</span><span class="atx-n"><span class="atx-nm">${esc(name)}</span><span class="atx-m"><span>${sz} · <span class="num pc">0%</span></span></span></span><svg class="atx-ring" viewBox="0 0 22 22" role="progressbar" aria-label="Uploading ${esc(name).replace(/"/g, '&quot;')}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><circle cx="11" cy="11" r="8" fill="none" stroke="var(--line)" stroke-width="2"/><circle cx="11" cy="11" r="8" fill="none" stroke="${k[1]}" stroke-width="2" stroke-linecap="round" stroke-dasharray="50.3" stroke-dashoffset="50.3" transform="rotate(-90 11 11)"/></svg><button class="ib mx-press" aria-label="Remove ${esc(name).replace(/"/g, '&quot;')}" data-tip="Remove">${I('x','xs')}</button>${clean ? '<span class="atx-ln" aria-hidden="true"><i></i></span>' : ''}</div>`);
     list.appendChild(it); enter(it, i * 80);
     $('.ib', it).onclick = () => { it.classList.add('leave'); setTimeout(() => it.remove(), 320); };
     const svg = $('.atx-ring', it), ring = $$('circle', it)[1], m = $('.atx-m', it); let p = 0;
@@ -19274,7 +19295,7 @@ DM.def('permission-gate', (r, c) => {
   const F = ['Hero', 'Plan cards', 'Compare table', 'FAQ', 'Plan toggle', 'Checkout summary'], LIB = 4;
   let granted = 0, publish = false, skip = false, done = 0, run = 0, panel = null;
   function row(){
-    panel = html(`<div class="pgx-done run"><span class="g"><span class="spin"></span></span><span class="t"><b class="pgx-a"></b><span class="pgx-d"></span></span><button class="pill line sm">Revoke</button></div>`);
+    panel = html(`<div class="pgx-done run"><span class="g"><span class="spin"></span></span><span class="t"><b class="pgx-a"></b><span class="pgx-d"></span></span><button class="pill line sm mx-press">Revoke</button></div>`);
     sum(panel, names.join(', '), `${names.length} ${word(names.length)} allowed`);
     into().appendChild(panel); enter(panel); $('button', panel).onclick = revoke;
   }
@@ -19290,7 +19311,8 @@ DM.def('permission-gate', (r, c) => {
         await c.wait(900); if (run !== id) return;
         done++;
       }
-      panel.classList.replace('run', 'ok'); const g = $('.g', panel); g.innerHTML = clean ? I('check') : I('ok'); enter(g);
+      // (the spinner crossfades to the done mark: iconSwap(), motion pieces)
+      panel.classList.replace('run', 'ok'); const g = $('.g', panel); iconSwap(g, () => { g.innerHTML = clean ? I('check') : I('ok'); }, { inner:true });
       swap(a, skip ? `Done. ${F.length - 1} frames edited` : `Done. ${F.length} frames edited`);
       swap(d, skip ? 'On a new page. Plan toggle skipped' : 'On a new page. Plan toggle published');
     });
@@ -19316,14 +19338,14 @@ DM.def('permission-gate', (r, c) => {
     const picked = one() ? [one()] : boxes().filter(b => b.checked).map(b => b.closest('.pgx-o')); if (!picked.length) return;
     granted += picked.length; if (picked.some(o => o.dataset.k === 'publish')) publish = true;
     names.push(...picked.map(o => $('.t', o).firstChild.textContent));
-    ok.innerHTML = '<span class="spin"></span>'; await c.wait(500);
+    { const w0 = ok.offsetWidth; ok.innerHTML = '<span class="spin"></span>'; if (!REDUCE) mxWidth(ok, w0); } await c.wait(500);
     // Clean: the scopes fade up and out before the card eases to the result row's height
     if (clean){ sc.classList.add('leave'); await c.wait(180); sc.classList.remove('leave'); }
     show(false);
     if (root.classList.contains('esc')){ root.classList.remove('esc'); swap(title, first.title); swap(sub, first.sub); }
     // placed inside another component (Agent harness), it reports back without the run
     if (!c.card){ row(); swap($('.pgx-a', panel), `Allowed ${granted} ${granted > 1 ? 'scopes' : 'scope'} ${span()}`); swap($('.pgx-d', panel), 'Applying the pricing fixes now');
-      c.later(1400, () => { if (!panel) return; panel.classList.replace('run', 'ok'); $('.g', panel).innerHTML = clean ? I('check') : I('ok'); swap($('.pgx-d', panel), 'Done. 6 frames edited on a new page'); }); return; }
+      c.later(1400, () => { if (!panel) return; panel.classList.replace('run', 'ok'); const g = $('.g', panel); iconSwap(g, () => { g.innerHTML = clean ? I('check') : I('ok'); }, { inner:true }); swap($('.pgx-d', panel), 'Done. 6 frames edited on a new page'); }); return; }
     work();
   });
   no.onclick = () => {
@@ -28074,7 +28096,7 @@ DM.def('web-search', (r, c) => {
   c.run(async () => {
     await c.wait(500);
     for (const [k, q] of Q.entries()){
-      const el = html(`<div class="wsx-q" data-k="${k}"><button class="wsx-qh${q.n ? '' : ' empty'}" aria-expanded="false">${I('search','xs')}<span class="t shim">${q.q}</span><span class="n shim">Searching</span><span class="tm num"></span>${I('chev-r','xs')}</button>${q.from != null ? `<span class="wsx-rw">${I('refresh','xs')}Asked again in other words</span>` : ''}${q.p ? '<div class="fold shut"><div><ul class="wsx-rs"></ul></div></div>' : ''}</div>`);
+      const el = html(`<div class="wsx-q" data-k="${k}"><button class="wsx-qh mx-press${q.n ? '' : ' empty'}" aria-expanded="false">${I('search','xs')}<span class="t shim">${q.q}</span><span class="n shim">Searching</span><span class="tm num"></span>${I('chev-r','xs')}</button>${q.from != null ? `<span class="wsx-rw">${I('refresh','xs')}Asked again in other words</span>` : ''}${q.p ? '<div class="fold shut"><div><ul class="wsx-rs"></ul></div></div>' : ''}</div>`);
       // the head says what is happening; the query and its pages are in the rows under it, so it repeats neither (owner, 18 Nov)
       list.appendChild(el); enter(el); swap(st, 'Searching the web');
       const b = $('.wsx-qh', el); b.onclick = () => { if ($('.fold', el)) qOpen(el, b.getAttribute('aria-expanded') !== 'true'); };
@@ -28096,7 +28118,8 @@ DM.def('web-search', (r, c) => {
       await c.wait(500); qOpen(el, false);
     }
     // done: the trail folds to one line, and the answer streams in under it, citing its pages
-    done = true; ic.innerHTML = I('globe','xs'); st.classList.remove('shim');
+    // (the spinner crossfades to the globe: iconSwap(), motion pieces)
+    done = true; iconSwap(ic, () => { ic.innerHTML = I('globe','xs'); }, { inner:true }); st.classList.remove('shim');
     const read = Q.flatMap(q => q.p || []).filter(p => p[3] === 'read' || p[3] === 'skim').length;
     swap(st, `${Q.length} searches, ${read} pages read`); say(`Done: ${Q.length} searches, ${read} pages read`);
     await c.wait(400); setOpen(false);

@@ -3,7 +3,8 @@ import { useEffect, useRef, useState, type CSSProperties, type RefObject } from 
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion, useTween } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { Spin, Swap, Tip } from '../../lib/motion';
+import { mxT, Spin, Swap, Tip } from '../../lib/motion';
+import { useHoverGlide } from '../../lib/glide';
 import '../../designme.css';
 import './context-meter.css';
 
@@ -61,7 +62,8 @@ function roomOf(el: HTMLElement) {
 }
 
 
-/** A button as wide as its words: when they change it eases to its new width, keeping no room for a longer word */
+/** A button as wide as its words: when they change it eases to its new width on the motion pieces' spring, keeping no room
+    for a longer word */
 function useEaseWidth(ref: RefObject<HTMLElement | null>) {
   const reduce = useReducedMotion();
   useEffect(() => {
@@ -71,7 +73,7 @@ function useEaseWidth(ref: RefObject<HTMLElement | null>) {
       if (busy) return;
       const w1 = el.getBoundingClientRect().width;
       if (w && Math.abs(w1 - w) > .5) {
-        busy = el.animate([{ width: w + 'px' }, { width: w1 + 'px' }], { duration: 340, easing: 'cubic-bezier(.23,1,.32,1)' });
+        busy = el.animate([{ width: w + 'px' }, { width: w1 + 'px' }], { duration: mxT(el, 't-in', 360), easing: mxT(el, 'ease-spring', 'ease') });
         busy.finished.catch(() => {}).then(() => { busy = null; w = el.getBoundingClientRect().width; });
       }
       w = w1;
@@ -100,6 +102,8 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
   const ready = true;
   const total = parts.reduce((t, p) => t + p.tokens, 0), share = ready ? total / limit : 0, pct = Math.round(share * 100);
   const root = useRef<HTMLDivElement>(null), tg = useRef<HTMLButtonElement>(null), go = useRef<HTMLButtonElement>(null), pop = useRef<HTMLDivElement>(null);
+  const leg = useRef<HTMLDivElement>(null);
+  useHoverGlide(leg, '.dm-ctm-l');
   useEaseWidth(go);
   // the side it opens on is chosen as it opens: the placement's side, or the other one when that side has no room for the
   // panel (its height, its padding while it is still easing in, and the gap) and the other has more
@@ -145,7 +149,8 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
         <div className={cx('dm-ctm-bar', lit && 'dm-hl')} aria-hidden="true">
           {parts.map((p, i) => <i key={p.key} className={lit === p.key ? 'dm-on' : undefined} style={{ width: (ready ? p.tokens / limit * 100 : 0) + '%', '--dm-c': p.color ?? PALETTE[i % PALETTE.length] } as CSSProperties} />)}
         </div>
-        <div className="dm-ctm-leg" onPointerLeave={() => setLit(null)}>
+        {/* one highlight glides from part to part (motion pieces) */}
+        <div ref={leg} className="dm-ctm-leg dm-mx-glide" onPointerLeave={() => setLit(null)}>
           {parts.map((p, i) => {
             const row = (
               <div key={p.key} className="dm-ctm-l" style={{ '--dm-c': p.color ?? PALETTE[i % PALETTE.length] } as CSSProperties}
@@ -168,7 +173,7 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
                 comes back as Undo once it is done */}
             {busy
               ? <span className="dm-ctm-run" role="status"><Spin /><span className="dm-shim">Compacting…</span></span>
-              : <button ref={go} type="button" className={cx('dm-pill dm-sm dm-ctm-go', message && messageTone === 'warn' ? 'dm-warn' : 'dm-line')} onClick={compact}>{compacted ? 'Undo' : 'Compact'}</button>}
+              : <button ref={go} type="button" className={cx('dm-pill dm-sm dm-ctm-go dm-mx-press', message && messageTone === 'warn' ? 'dm-warn' : 'dm-line')} onClick={compact}>{compacted ? 'Undo' : 'Compact'}</button>}
           </div>
         )}
       </div>
