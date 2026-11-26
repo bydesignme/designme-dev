@@ -1,59 +1,154 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Toast ---------- */
+/* the Job toast (owner, 26 Nov, from the toast lab's 2a): a job the agent runs in the background lives in one toast from start
+   to finish. Its glyph is the news (a hand of slides, dealt as each one is drafted), its states change in place (working, a
+   problem with its fix, done), its steps open inside it, and Close drains a visible countdown. Plain toasts (a success or an
+   error with one action) are the same card: a status mark where the glyph goes, the words, Close, and the action in the
+   footer. It grows out of the button that started it, sits where its host puts it (centred in the stage here) and moves
+   with the library's own motion */
+.tst{position:relative}
 /* the toast on its way out and the one coming in share one cell, so each keeps its full width while they cross; the cell is
-   as tall as its toast and keeps no room when there is none (owner, 18 and 19 Nov) */
-.tst-slot{width:100%;display:grid;justify-items:center;align-items:center}
-.tst-slot>*{grid-area:1/1}
-/* the same size as a toast in Toast stack: width, padding, type and icons */
-/* 16px in all round (owner, 19 Nov). The icon, the title, the action and Close share the title's line (Close on the title's
-   first line, its glyph on the content's right edge and its hover circle reaching out round it); the second line runs under
-   the title. Hover fills are a quiet 5% so they show on the white toast */
-.tst-t{display:flex;align-items:flex-start;gap:var(--dm-s-3);padding:var(--dm-s-4);--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent);background:var(--dm-raised);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow-toast);max-width:380px;width:100%;position:relative;overflow:hidden}
-.tst-t .g{width:28px;height:28px;margin-top:calc(8.775px - 14px);border-radius:50%;display:grid;place-items:center;flex:none}
-.tst-t .tx{flex:1;min-width:0;font-size:13px;line-height:1.35}
-.tst-t .tx b{font-weight:500;display:block}
-.tst-t .tx span{font-size:12px;color:var(--dm-muted)}
-.tst-t .acts{display:flex;align-items:center;gap:2px;margin:calc(8.775px - 14px) -6px 0 0}
-/* the buttons in its row are one height in every style: the close button is as tall as the 28px pill beside it */
-.tst-t .ib{width:28px;height:28px}
-/* a pressed action never goes blank: Undo turns into the vivid green tick (a done confirmation), Retry into a spinner, each
-   as wide as what it shows, easing to it */
-.tst-t .acts .pill{overflow:hidden}
-.tst-t .acts .pill.done{color:var(--dm-ok-mark);pointer-events:none}
-.tst-t .acts .pill.done .i{width:16px;height:16px;stroke-width:2}
-.tst-t .life{display:none}
-/* the action sits on the toast's own row, just before Close (the message, the action as a ghost button, Close at the far end:
-   the usual snackbar). When the toast is narrow (a phone) or its words run past two lines (.wrap, set as it shows), the action
-   moves to a row of its own under the message, its words ending under Close's glyph, and Close stays at the top end
-   (owner, 22 Nov) */
-.tst-slot{container:tst/inline-size}
-.tst-t.wrap{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:start;row-gap:var(--dm-s-1)}
-.tst-t.wrap .acts{display:contents}
-.tst-t.wrap .ib{grid-area:1/3;margin:calc(8.775px - 14px) -6px 0 0}
-.tst-t.wrap .acts .pill{grid-area:2/2/3/4;justify-self:end;margin:0 -10px -6px 0}
-@container tst (max-width:340px){
-  .tst-t{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:start;row-gap:var(--dm-s-1)}
-  .tst-t .acts{display:contents}
-  .tst-t .ib{grid-area:1/3;margin:calc(8.775px - 14px) -6px 0 0}
-  .tst-t .acts .pill{grid-area:2/2/3/4;justify-self:end;margin:0 -10px -6px 0}
-}
-.tst-in{animation:tstin .6s var(--dm-ease) both}
-@keyframes tstin{from{opacity:0;transform:translateY(14px) scale(.97);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}
-.tst-out{animation:tstout .35s var(--dm-ease) both}
+   as tall as its toast and keeps no room when there is none */
+.tst-slot{position:relative;width:100%;display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;align-items:center}
+.tst-slot>:is(.tst-t,.tst-make){grid-area:1/1}
+/* the button that starts the job sits where its toast will: the toast grows out of it and, once closed, goes back into it */
+.tst-make.under{visibility:hidden}
+/* the card: up to 380px, the full width less its host's 16px gutters on a phone. Hover fills are a quiet 5% of the text
+   colour so they show on the white card. Its hairlines are 10% of the text colour, as the lab set them: half of --dm-line doesn't
+   show on Blueprint's dark raised grey */
+.tst-t{width:100%;max-width:380px;box-sizing:border-box;background:var(--dm-raised);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow-pop);--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent);--dm-tst-div:color-mix(in srgb,var(--dm-fg) 10%,transparent);overflow:clip;position:relative;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.tst-t[hidden]{display:none}
+/* (it grows with what it holds, grow(); its corners clip what is inside them exactly). The card's own height carries the motion,
+   so its steps and its footer open and shut at once and only fade: two eased heights on top of each other would leave the
+   card's edge trailing behind them */
+.tst-t.growing{overflow-clip-margin:0px}
+.tst-t .fold{transition:opacity var(--dm-t-fast) var(--dm-ease)}
+.tst-t .fold.shut{transition:opacity var(--dm-t-fast) var(--dm-ease),visibility 0s var(--dm-t-fast)}
+/* the head: the glyph, the words, then the toast's own buttons, all on one centre line, 16px in from every edge */
+.tst-hd{display:flex;align-items:center;gap:var(--dm-s-3);padding:var(--dm-s-4)}
+.tst-tx{flex:1;min-width:0}
+.tst-ti{display:block;width:fit-content;max-width:100%;font-size:13px;font-weight:500;line-height:18px}
+/* the line under the title wraps on a narrow toast rather than cutting off its news ("The sheet says 41k, not 14k") */
+.tst-de{display:block;font-size:12px;line-height:18px;color:var(--dm-muted);font-variant-numeric:tabular-nums}
+/* its icon buttons fill on hover, so they are measured by their box (ui-qa-gate, "boxes that fill"): Close's box, and the
+   countdown ring drawn on it, end on the content's right edge, 16px in, where the footer's buttons end */
+.tst-hb{display:flex;align-items:center;gap:var(--dm-s-1);flex:none}
+.tst-hb .ib{width:28px;height:28px;position:relative}
+.tst-hb .ib[hidden]{display:none}
+.tst-more .i{transition:transform var(--dm-t) var(--dm-ease)}
+.tst-more[aria-expanded="true"] .i{transform:rotate(180deg)}
+/* a plain toast's status mark sits where the glyph goes: the vivid green tick, the red alert, the warning sign in the bright
+   orange (its words stay in the text colour and its fix is .pill.warn, as the warning notices have them), a grey info mark or a spinner,
+   with no disc behind it, so a toast carries two hues at most */
+.tst-g{flex:none;width:20px;height:20px;display:grid;place-items:center;color:var(--dm-fg2)}
+.tst-g .i{width:20px;height:20px}
+.tst-g .spin{width:14px;height:14px;color:var(--dm-accent-mark)}
+.tst-g[data-s="success"]{color:var(--dm-ok-mark)}
+.tst-g[data-s="error"]{color:var(--dm-bad-mark)}
+.tst-g[data-s="warning"]{color:var(--dm-warn-mark)}
+.tst-g[data-s="stopped"]{color:var(--dm-muted)}
+/* the countdown you can see: a ring round Close that drains; the pointer or the focus on the toast holds it */
+.tst-ring{position:absolute;inset:0;width:28px;height:28px;pointer-events:none;fill:none}
+.tst-ring rect{rx:13.25px;ry:13.25px;stroke-width:1.5}
+:root:not([data-style="soft"],[data-style="clean"]) .tst-ring rect:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){rx:0;ry:0}
+.tst-ring .tst-tk{stroke:color-mix(in srgb,var(--dm-line) 70%,transparent)}
+.tst-ring .tst-rn{stroke:var(--dm-muted);stroke-dasharray:100 100;stroke-linecap:round}
+.tst-ring[hidden]{display:none}
+/* the steps, opened from the chevron, under a hairline: each step's mark sits centred in the glyph's column and its words
+   start where the title's words do; a step's count is the same size as its words, so the two share a baseline */
+/* (12px round the 28px rows puts the first and last step's words 16px and more from the hairline and the card's edge) */
+.tst-st{list-style:none;margin:0;padding:var(--dm-s-3) 0;border-top:1px solid var(--dm-tst-div)}
+.tst-st li{display:grid;grid-template-columns:var(--dm-tst-gw,64px) minmax(0,1fr) auto;column-gap:var(--dm-s-3);align-items:center;height:28px;padding:0 var(--dm-s-4);font-size:12.5px;line-height:18px;color:var(--dm-fg2)}
+.tst-st .tst-lb{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tst-st .tst-mk{justify-self:center;width:16px;height:16px;display:grid;place-items:center}
+.tst-st .tst-mk .i{width:16px;height:16px}
+.tst-st .tst-mk .spin{width:12px;height:12px}
+.tst-st .tst-vl{color:var(--dm-muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tst-st li[data-s="done"] .tst-mk{color:var(--dm-ok-mark)}
+.tst-st li[data-s="done"] .tst-mk .i{stroke-width:2}
+.tst-st li[data-s="now"]{color:var(--dm-fg)}
+.tst-st li[data-s="now"] .tst-mk{color:var(--dm-accent-mark)}
+.tst-st li[data-s="bad"]{color:var(--dm-fg)}
+.tst-st li[data-s="bad"] .tst-mk{color:var(--dm-bad-mark)}
+.tst-st li[data-s="paused"] .tst-mk{color:var(--dm-muted)}
+.tst-st li[data-s="wait"]{color:var(--dm-muted)}
+.tst-st .tst-pend{width:8px;height:8px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--dm-line-strong)}
+/* the footer: the actions under a hairline, on the right, 16px from the hairline, the card's bottom and its side */
+.tst-fi{display:flex;align-items:center;justify-content:flex-end;gap:var(--dm-s-2);padding:var(--dm-s-4);border-top:1px solid var(--dm-tst-div)}
+.tst-fi .pill{min-width:0}
+.tst-fi .pill.in{animation:tstbtn var(--dm-t) var(--dm-ease) backwards}
+@keyframes tstbtn{from{opacity:0;transform:translateY(4px)}}
+/* the box the toast grows out of: the button that started it, easing to where the toast sits and opening into it */
+.tst-fly{position:absolute;z-index:3;background:var(--dm-raised);box-shadow:var(--dm-shadow-pop);pointer-events:none}
+.tst-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+.tst-make .i{width:14px;height:14px}
+/* coming in without a button to grow from, and going: the library's own entrance for each style */
+.tst-in{animation:tstin var(--dm-t-slow) var(--dm-ease) backwards}
+@keyframes tstin{from{opacity:0;transform:translateY(14px) scale(.97);filter:blur(5px)}}
+.tst-out{animation:tstout var(--dm-t) var(--dm-ease) both;pointer-events:none}
 @keyframes tstout{to{opacity:0;transform:translateY(8px) scale(.98);filter:blur(4px)}}
-/* Clean (lead, 18 Nov): a toast is a small card, not a pill: its content 16px in from every edge and ordinary round corners
-   (16px), with the hairline and the raised shadow. The status shows only on its small icon, with no disc behind it: green for
-   success, red for an error; info and loading stay grey, so a toast carries two hues at most. It rises 8px from .98 and
-   leaves with a fade, with no blur */
-:root[data-style="clean"] .tst-t,:root [data-style="clean"] .tst-t,:root [data-style="clean"].tst-t{gap:12px;padding:16px;border-radius:calc(12px * var(--dm-rk-l,var(--dm-rk)))}
-:root[data-style="clean"] .tst-t .g,:root [data-style="clean"] .tst-t .g,:root [data-style="clean"].tst-t .g{width:20px;height:20px;margin-top:calc(8.775px - 10px);background:none!important;color:var(--dm-fg2)!important}
-:root[data-style="clean"] .tst-t .g .i,:root [data-style="clean"] .tst-t .g .i,:root [data-style="clean"].tst-t .g .i{width:20px;height:20px}
-:root[data-style="clean"] .tst-t .g .spin,:root [data-style="clean"] .tst-t .g .spin,:root [data-style="clean"].tst-t .g .spin{width:14px;height:14px}
-:root[data-style="clean"] .tst-t .g[data-tone="success"],:root [data-style="clean"] .tst-t .g[data-tone="success"],:root [data-style="clean"].tst-t .g[data-tone="success"]{color:var(--dm-ok-mark)!important}
-:root[data-style="clean"] .tst-t .g[data-tone="error"],:root [data-style="clean"] .tst-t .g[data-tone="error"],:root [data-style="clean"].tst-t .g[data-tone="error"]{color:var(--dm-bad-mark)!important}
-:root[data-style="clean"] .tst-t .acts,:root [data-style="clean"] .tst-t .acts,:root [data-style="clean"].tst-t .acts{gap:4px}
+
+/* the glyph: a hand of slides, dealt as each one is drafted */
+.tst-dk{flex:none;width:64px;height:40px;display:block}
+.tst-dk svg{width:64px;height:40px;display:block;overflow:visible}
+/* the notes being read: a page with a line sweeping down it */
+.tst-dk .tst-pg{transform-box:view-box;transform-origin:32px 24px;transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease)}
+.tst-dk .tst-pp{fill:var(--dm-raised);stroke:var(--dm-muted);stroke-width:1.2}
+.tst-dk .tst-pl{stroke:var(--dm-faint);stroke-width:1.4;stroke-linecap:round}
+.tst-dk .tst-sc{stroke:var(--dm-accent-mark);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.tst-dk.read .tst-sc{opacity:1;animation:tstscan 1s var(--dm-ease-io) infinite alternate}
+@keyframes tstscan{to{transform:translateY(13px)}}
+.tst-dk:not(.read,.idle,.gone) .tst-pg{opacity:0;transform:scale(.6) translateY(10px)}
+/* the cards: an outline of dashed slots once the deck is planned; each slide dealt into its slot as it is drafted, the one being
+   drafted in the accent and in front; red where the check stopped */
+.tst-dk .tst-cd{transform-box:view-box;transform-origin:32px 56px;transform:scale(.7);opacity:0;transition:transform var(--dm-t) var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease)}
+.tst-dk .tst-cd .tst-b{fill:var(--dm-raised);stroke:var(--dm-faint);stroke-width:1.2;transition:fill var(--dm-t-fast) var(--dm-ease),stroke var(--dm-t-fast) var(--dm-ease)}
+.tst-dk .tst-cd .tst-l{fill:none;stroke:var(--dm-faint);stroke-width:1.3;stroke-linecap:round;stroke-dasharray:8 8;stroke-dashoffset:8;transition:stroke-dashoffset var(--dm-t) var(--dm-ease),stroke var(--dm-t-fast) var(--dm-ease)}
+:root:not([data-style="soft"],[data-style="clean"]) .tst-dk :is(.tst-cd .tst-b,.tst-pp):not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){rx:0}
+.tst-dk .tst-gh .tst-b{stroke:color-mix(in srgb,var(--dm-muted) 38%,var(--dm-raised));stroke-dasharray:2 1.6}
+.tst-dk .tst-gh .tst-l{display:none}
+.tst-dk.plan .tst-gh{opacity:1;transform:rotate(var(--dm-a));transition-delay:calc(var(--dm-i) * 36ms)}
+.tst-dk .tst-cd:is(.made,.now,.chk,.bad){opacity:1;transform:rotate(var(--dm-a))}
+.tst-dk .tst-cd.made .tst-b{stroke:var(--dm-fg2)}
+.tst-dk .tst-cd.made .tst-l{stroke-dashoffset:0;stroke:color-mix(in srgb,var(--dm-muted) 70%,var(--dm-raised))}
+.tst-dk .tst-cd.now{transform:rotate(var(--dm-a)) translateY(-3px)}
+.tst-dk .tst-cd:is(.now,.chk) .tst-b{stroke:var(--dm-accent-mark);fill:color-mix(in srgb,var(--dm-accent-mark) 10%,var(--dm-raised))}
+.tst-dk .tst-cd.now .tst-b{stroke-width:1.5}
+.tst-dk .tst-cd.now .tst-l{stroke:var(--dm-accent-mark);stroke-dashoffset:0}
+.tst-dk .tst-cd.chk{transform:rotate(var(--dm-a)) translateY(-2px)}
+.tst-dk .tst-cd.bad{transform:rotate(var(--dm-a)) translateY(-4px)}
+.tst-dk .tst-cd.bad .tst-b{fill:var(--dm-bad-mark);stroke:var(--dm-bad-mark)}
+.tst-dk .tst-cd.bad .tst-l{stroke:#fff;stroke-dashoffset:0}
+/* done: the hand closes into a neat deck and the green tick lands in front of it */
+.tst-dk.done .tst-gh{opacity:0;transition-delay:0s}
+.tst-dk.done .tst-cd:not(.tst-gh){transform:rotate(calc(var(--dm-a) * .16)) translateY(3px)}
+.tst-dk .tst-ok{transform-box:fill-box;transform-origin:center;transform:scale(0);opacity:0;transition:transform var(--dm-t) var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease)}
+.tst-dk .tst-ok circle{fill:var(--dm-ok-mark);stroke:var(--dm-raised);stroke-width:2}
+.tst-dk .tst-ok path{fill:none;stroke:#fff;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.tst-dk.done .tst-ok{transform:none;opacity:1;transition-delay:.2s}
+/* gone (undone or discarded): the cards fold back to where they came from, and the notes they were made from are back */
+.tst-dk.gone .tst-cd{opacity:0;transform:scale(.6);transition-delay:0s}
+/* reduced motion: things only fade; moves and turns happen at once */
+@media (prefers-reduced-motion:reduce){
+  .tst-dk *,.tst-more .i{transition-property:opacity!important;transition-delay:0s!important}
+  .tst-dk .tst-sc{animation:none}
+}
+@keyframes tstfade{from{opacity:0}}
+@keyframes tstfadeo{to{opacity:0}}
+
+/* Clean: the card's ordinary round corners (16px), the footer an off-white strip with its buttons 16px from its hairline, the
+   card's bottom and its side; the ink primary and the flat secondary are Clean's own. It rises 8px from .98 and leaves with a
+   fade, with no blur */
+:root[data-style="clean"] .tst-t,:root [data-style="clean"] .tst-t,:root [data-style="clean"].tst-t{border-radius:calc(12px * var(--dm-rk-l,var(--dm-rk)))}
+:root[data-style="clean"] .tst-st,:root [data-style="clean"] .tst-st,:root [data-style="clean"].tst-st{border-top-color:var(--dm-line)}
+:root[data-style="clean"] .tst-fi,:root [data-style="clean"] .tst-fi,:root [data-style="clean"].tst-fi{padding:var(--dm-strip-y) var(--dm-s-4);background:var(--dm-strip);border-top-color:var(--dm-line)}
+:root[data-style="clean"] .tst-in,:root [data-style="clean"] .tst-in,:root [data-style="clean"].tst-in{animation-name:clcard}
 @keyframes tstoutc{to{opacity:0;transform:translateY(6px) scale(.98)}}
-:root[data-style="clean"] .tst-in,:root [data-style="clean"] .tst-in,:root [data-style="clean"].tst-in{animation:clcard var(--dm-t-slow) var(--dm-ease) both}
-:root[data-style="clean"] .tst-out,:root [data-style="clean"] .tst-out,:root [data-style="clean"].tst-out{animation:tstoutc var(--dm-t-fast) var(--dm-ease) both}
-/* with no blur to hide them, the two never show through each other: a new toast rises once the old one has faded */
-:root[data-style="clean"] .tst-out~.tst-in,:root [data-style="clean"] .tst-out~.tst-in,:root [data-style="clean"].tst-out~.tst-in{animation-delay:.16s}
+:root[data-style="clean"] .tst-out,:root [data-style="clean"] .tst-out,:root [data-style="clean"].tst-out{animation-name:tstoutc;animation-duration:var(--dm-t-fast)}
+/* Blueprint wipes in and goes in a short hard beat */
+@keyframes tstinb{from{opacity:0;clip-path:inset(0 0 100% 0)}35%{opacity:1}to{clip-path:inset(0 0 0 0)}}
+:root:not([data-style="soft"],[data-style="clean"]) .tst-in:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation-name:tstinb}
+@keyframes tstoutb{to{opacity:0;transform:translateY(4px)}}
+:root:not([data-style="soft"],[data-style="clean"]) .tst-out:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation-name:tstoutb;animation-duration:var(--dm-t-fast)}
+/* reduced motion: it only fades in and out, in every style (after the styles' own, which it outranks or ties) */
+@media (prefers-reduced-motion:reduce){.tst-slot .tst-t.tst-in,.tst-fi .pill.in{animation-name:tstfade}.tst-slot .tst-t.tst-out{animation-name:tstfadeo}}
