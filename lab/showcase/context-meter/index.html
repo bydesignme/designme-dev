@@ -952,7 +952,8 @@ body.render #stage{left:0;top:0;transform:none!important}
 .dm-pill.dm-line.hov{background:var(--dm-row)}
 /* the ring's glow (owner, 26 Nov: an approved exception for this showcase only): a blurred copy of the ring's own stroke behind
    it, in its own colour, at low opacity; it swells with each step and eases back */
-#glow circle{fill:none;stroke-width:5;stroke-linecap:round}
+#glow circle{fill:none;stroke-width:3.2;stroke-linecap:round}
+#cw #hl{fill:none;stroke:#fff;stroke-width:2;stroke-linecap:butt}
 #ga{stroke:var(--dm-accent-mark,var(--dm-accent))}
 #gw{stroke:var(--dm-warn-mark)}
 /* the landing's mark: fine neutral compression lines, strokes only, no glow */
@@ -981,7 +982,7 @@ body.render .cap{display:none}
   </div>
   <div id="cw">
     <div class="dm-ctm" data-dm="" data-open="1" id="ctm">
-      <button type="button" class="dm-ctm-tg" id="tg" aria-expanded="true" aria-label="Context, 0% used"><span class="dm-ctm-ring" aria-hidden="true"><svg viewBox="0 0 20 20"><defs><filter id="cmg" x="-1" y="-1" width="3" height="3"><feGaussianBlur stdDeviation="2"/></filter></defs><g id="glow" filter="url(#cmg)" style="opacity:0"><circle id="ga" cx="10" cy="10" r="7.5" pathLength="100" style="stroke-dasharray:0 100"/><circle id="gw" cx="10" cy="10" r="7.5" pathLength="100" style="stroke-dasharray:0 100"/></g><circle class="dm-tr" cx="10" cy="10" r="7.5"/><circle class="dm-fl" id="arc" cx="10" cy="10" r="7.5" pathLength="100" style="stroke-dasharray:0 100"/><circle class="dm-fl" id="arcw" cx="10" cy="10" r="7.5" pathLength="100" style="stroke-dasharray:0 100;opacity:0"/></svg></span><span><span class="dm-ctm-pc dm-num" id="pc">0%</span> of context used</span><svg class="dm-i dm-xs" id="chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></button>
+      <button type="button" class="dm-ctm-tg" id="tg" aria-expanded="true" aria-label="Context, 0% used"><span class="dm-ctm-ring" aria-hidden="true"><svg viewBox="0 0 20 20"><defs><filter id="cmg" x="-1" y="-1" width="3" height="3"><feGaussianBlur stdDeviation="1.1"/></filter></defs><g id="glow" filter="url(#cmg)" style="opacity:0"><circle id="ga" cx="10" cy="10" r="7.5" pathLength="100" style="stroke-dasharray:0 100"/><circle id="gw" cx="10" cy="10" r="7.5" pathLength="100" style="stroke-dasharray:0 100"/></g><circle class="dm-tr" cx="10" cy="10" r="7.5"/><circle class="dm-fl" id="arc" cx="10" cy="10" r="7.5" pathLength="100" style="stroke-dasharray:0 100"/><circle class="dm-fl" id="arcw" cx="10" cy="10" r="7.5" pathLength="100" style="stroke-dasharray:0 100;opacity:0"/><circle id="hl" cx="10" cy="10" r="7.5" pathLength="100" style="visibility:hidden"/></svg></span><span><span class="dm-ctm-pc dm-num" id="pc">0%</span> of context used</span><svg class="dm-i dm-xs" id="chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></button>
       <div class="dm-ctm-pop dm-panel" id="pop" role="region" aria-label="What fills the context">
         <div class="dm-ctm-ph" id="ph"><span>In context</span><span class="dm-num"><b class="dm-ctm-tot" id="tot">0.0k</b> of 200k tokens</span></div>
         <div class="dm-ctm-bar" id="bar" aria-hidden="true"></div>
@@ -1018,7 +1019,7 @@ const FMT = F45 ? { W:460, H:575, out:[1080, 1350], zoom:1.16, col:380, base:1, 
 const W = FMT.W, H = FMT.H, COL = FMT.col, CX = (W - COL) / 2;
 const T = 16;
 const stage = $('#stage'), world = $('#world'), cw = $('#cw'), ctm = $('#ctm'), tg = $('#tg'), pop = $('#pop'), ph = $('#ph');
-const ga = $('#ga'), gw = $('#gw'), glow = $('#glow'), arcw = $('#arcw'), bar = $('#bar'), leg = $('#leg'), msg = $('#msg'), msgIn = $('#msgIn'), ft = $('#ft'), arc = $('#arc'), pc = $('#pc'), tot = $('#tot');
+const hl = $('#hl'), ga = $('#ga'), gw = $('#gw'), glow = $('#glow'), arcw = $('#arcw'), bar = $('#bar'), leg = $('#leg'), msg = $('#msg'), msgIn = $('#msgIn'), ft = $('#ft'), arc = $('#arc'), pc = $('#pc'), tot = $('#tot');
 const go = $('#go'), run = $('#run'), undo = $('#undo'), rt = $('#rt'), cur = $('#cur'), rip = $('#rip'), spin = $('#spin');
 const chat = $('#chat'), thr = $('#thr'), box = $('#box'), att = $('#att'), fchip = $('#fchip'), fcn = $('#fcn'), fci = $('#fci'), tx = $('#tx'), phd = $('#phd'), send = $('#send');
 stage.style.width = W + 'px'; stage.style.height = H + 'px';
@@ -1222,13 +1223,25 @@ function renderAt(t){
   ga.style.strokeDasharray = Math.max(0, arcLen - ws).toFixed(2) + ' 100'; ga.style.strokeDashoffset = (-ws).toFixed(2);
   gw.style.strokeDasharray = ws.toFixed(2) + ' 100';
   gw.style.visibility = ws > .05 ? 'visible' : 'hidden'; ga.style.visibility = arcLen - ws > .05 ? 'visible' : 'hidden';
-  // each step: the ring swells in its own colour (a soft blurred copy of its stroke behind it) and lifts a touch, then both
-  // ease back over about 0.6s; once more, gently, when the squeeze drops it back
-  const env = q => q <= 0 ? 0 : q < .14 ? eOutCubic(q / .14) : 1 - eInOutCubic(clamp((q - .14) / .6));
-  let gl = 0; for (const a of allArr) gl = Math.max(gl, env(t - a));
-  gl = Math.max(gl, .7 * env(t - B.thud - .05));
-  $('.dm-ctm-ring svg').style.transform = `rotate(-90deg) scale(${(1 + .06 * gl).toFixed(4)})`;
-  glow.style.opacity = (.8 * gl).toFixed(3);
+  // each step (and the 85% switch, and the drop after the squeeze): a thin bright highlight sweeps once along the ring's
+  // filled arc in 0.45s, with only a very faint halo tight to the stroke, and the ring lifts a touch (1.06) and settles in
+  // about 0.35s
+  const beats = [...allArr, HOT, B.thud + .05];
+  let sweep = -1, sq_ = 0, lift = 0, halo = 0;
+  for (const a of beats){
+    const q = t - a;
+    if (q > 0 && q < .45){ sweep = q / .45; sq_ = q; }
+    if (q > 0 && q < .35) lift = Math.max(lift, q < .07 ? eOutCubic(q / .07) : 1 - eOutCubic((q - .07) / .28));
+    if (q > 0 && q < .45) halo = Math.max(halo, Math.sin(Math.PI * q / .45));
+  }
+  $('.dm-ctm-ring svg').style.transform = `rotate(-90deg) scale(${(1 + .06 * lift).toFixed(4)})`;
+  glow.style.opacity = (.2 * halo).toFixed(3);
+  if (sweep >= 0 && arcLen > .5){
+    const segL = Math.min(9, arcLen), pos = eInOutCubic(sweep) * (arcLen - segL);
+    hl.style.visibility = 'visible';
+    hl.style.strokeDasharray = `${segL.toFixed(2)} 200`; hl.style.strokeDashoffset = (-pos).toFixed(2);
+    hl.style.opacity = (.75 * Math.sin(Math.PI * sweep)).toFixed(3);
+  } else hl.style.visibility = 'hidden';
   // the warning's nudge: the pill gives one firm push sideways and settles
   const nudge = 3.2 * hit(t - HOT - .05, .07) - 1.4 * hit(t - HOT - .22, .08);
 
