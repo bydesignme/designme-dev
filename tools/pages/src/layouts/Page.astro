@@ -14,7 +14,9 @@ const ACCENT_SW = [['default', 'Default'], ['#d4f84a', 'Lime'], ['#116ff8', 'Blu
 // the GitHub pill: the repository, and GitHub's mark (Simple Icons, the same mark as the components' Brand)
 const GITHUB = 'https://github.com/bydesignme/designme-dev';
 const GH_MARK = '<path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>';
-const { title, description, path, jsonld = [], image = '/og.png', app = false } = Astro.props;
+// menu: the page has the site's sidebar (docs and component pages); below 960px the header then ends in the library's menu
+// button, which opens the sidebar as a sheet under the header with the style and theme switches in it
+const { title, description, path, jsonld = [], image = '/og.png', app = false, menu = false } = Astro.props;
 // ?embed=1: an app page shown inside another page's frame (the landing page's showcase, src/device/frame.js) is only the app,
 // filling the frame: no header, no skip link, no floating button; the page around the frame sets the style and theme
 const EMBED_CSS = 'html[data-embed]{--pg-head:0px;scrollbar-gutter:auto}html[data-embed] :is(.pg-top,.pg-skip,.dmf){display:none!important}';
@@ -287,6 +289,22 @@ a{color:inherit}
 @media (max-width:960px){:root{--pg-head:61px}.pg-top-in{padding:0 24px}.pg-wrap{padding:0 24px}.pg-top .pg-style{display:none}.pg-gh{height:32px;padding:0 12px 0 10px}}
 @media (max-width:640px){.pg-top-in{padding:0 16px}.pg-wrap{padding:0 16px}.pg-h1{font-size:20px}.pg-main{padding:24px 0 64px}.pg-sh{padding-top:40px;margin-bottom:20px}.pg-foot-in{padding-block:24px 32px}}
 @media (max-width:420px){.pg-top-in{gap:4px}.pg-gh{padding:0 9px 0 8px}}
+/* the menu button of a page with a sidebar (the library's, the same size and in the same place): below 960px it takes the
+   theme switch's place at the header's end, and the style and theme switches are in the menu it opens (SiteShell) */
+.pg-mm{display:none}
+@media (max-width:960px){
+  .pg-top:has(.pg-mm) .pg-seg.icons{display:none}
+  .pg-mm{flex:none;display:grid;place-items:center;width:40px;height:40px;margin-left:2px;padding:0;border:0;border-radius:999px;background:var(--pg-bg);box-shadow:inset 0 0 0 1px var(--pg-line2);color:var(--pg-fg);cursor:pointer;transition:background-color .2s}
+  .pg-mm:active{transform:scale(.95)}
+  .pg-mm .mm-dots{position:relative;display:block;width:14px;height:14px}
+  .pg-mm .mm-dots i{position:absolute;width:4px;height:4px;border-radius:50%;background:currentColor;transition:transform .45s cubic-bezier(.34,1.4,.64,1),width .3s ease,border-radius .3s ease,top .45s cubic-bezier(.34,1.4,.64,1),left .45s cubic-bezier(.34,1.4,.64,1)}
+  .pg-mm .mm-dots i:nth-child(1){top:0;left:0}.pg-mm .mm-dots i:nth-child(2){top:0;left:10px}.pg-mm .mm-dots i:nth-child(3){top:10px;left:0}.pg-mm .mm-dots i:nth-child(4){top:10px;left:10px}
+  .pg-mm[aria-expanded="true"] .mm-dots i{width:14px;height:2px;border-radius:2px;top:6px;left:0}
+  .pg-mm[aria-expanded="true"] .mm-dots i:nth-child(1),.pg-mm[aria-expanded="true"] .mm-dots i:nth-child(4){transform:rotate(45deg)}
+  .pg-mm[aria-expanded="true"] .mm-dots i:nth-child(2),.pg-mm[aria-expanded="true"] .mm-dots i:nth-child(3){transform:rotate(-45deg)}
+  .pg-mm:focus-visible{outline:2px solid var(--pg-focus);outline-offset:2px}
+}
+@media (prefers-reduced-motion:reduce){.pg-mm,.pg-mm .mm-dots i{transition:none}}
 /* tap areas: on a touch screen every control of the page's own (the header, the menu, the sidebar, links and buttons in the
    text) gets a clear area of at least 40px square around it, as the components do (their core's @media (pointer:coarse)),
    without changing how it looks. The tap-area script below shrinks two areas that would overlap, so each tap lands on the
@@ -323,6 +341,7 @@ a{color:inherit}
     <button type="button" role="radio" aria-checked="false" data-theme-set="light" aria-label="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
     <button type="button" role="radio" aria-checked="false" data-theme-set="dark" aria-label="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
   </div>
+  {menu && <button type="button" class="pg-mm" id="pg-mm" aria-label="Open menu" aria-expanded="false" aria-controls="pg-menu"><span class="mm-dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span></button>}
   {app && <div class="pg-acc">
     <button type="button" class="pg-acc-b" aria-haspopup="dialog" aria-expanded="false" aria-label="Accent colour"><i class="pg-acc-dot" aria-hidden="true"></i></button>
     <div class="pg-acc-pop" role="dialog" aria-label="Accent colour"><span class="pg-acc-t" id="pg-acc-t">Accent colour</span>

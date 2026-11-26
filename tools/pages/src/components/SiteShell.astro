@@ -2,14 +2,13 @@
 // The frame of a docs page and a component page, laid out like the homepage: the homepage's own sidebar on the left (search,
 // the site's pages, the component groups and Book a call) and the page beside it, in the library's own column, as wide as the
 // homepage's (owner, 5 Nov). The page's sections are a row of links that sticks under the header (SectionBar). Below 960px the
-// sidebar gives way to a menu above the page, as on the homepage, with the same search, pages and Book a call.
+// sidebar gives way to a menu that the header's menu button opens, as on the library, with the same search, pages and Book a
+// call, and the style and theme switches.
 //   doc   the docs page this is (its slug), or
 //   reg   the component this is
-//   where and title   the menu's label on smaller screens: "Docs / Theming", "Conversation / Composer"
 import SideNav from './SideNav.astro';
 import { icon } from '../lib/data.mjs';
 const { doc = null, reg = null, where, title } = Astro.props;
-const chev = icon('expand_more');
 // the menu's settings, the same as the homepage's: the accent swatches in the homepage picker's order (Default is the style's
 // own accent, lime in Blueprint and blue in Soft, and its twin is left out), and the sound switch's two icons
 const ACCENT_SW = [['default', 'Default'], ['#d4f84a', 'Lime'], ['#116ff8', 'Blue'], ['#7c5cff', 'Violet'], ['#e8366f', 'Rose'], ['#12a150', 'Green'], ['#0ea5a4', 'Teal'], ['#ff850d', 'Orange']];
@@ -165,14 +164,16 @@ const SOUND_IC = '<svg class="on" viewBox="0 0 24 24" fill="none" stroke="curren
   .dc-pn .pg-d svg{width:14px;height:14px}
 
   /* the menu for screens without the sidebar: the same search, pages, component's group and Book a call */
-  .dc-mnav{display:none;margin:0 0 24px;border-radius:12px;box-shadow:inset 0 0 0 1px var(--pg-line2)}
-  .dc-mnav>summary{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;cursor:pointer;list-style:none;font-size:14px;color:var(--pg-dim)}
-  .dc-mnav>summary::-webkit-details-marker{display:none}
-  .dc-mnav>summary b{font-weight:500;color:var(--pg-fg)}
-  .dc-chev{display:grid;place-items:center;width:18px;height:18px;flex:none;margin-left:auto;color:var(--pg-muted);transition:transform .3s cubic-bezier(.16,1,.3,1)}
-  .dc-chev svg{width:14px;height:14px}
-  .dc-mnav[open]>summary .dc-chev{transform:rotate(180deg)}
-  .dc-mnav-in{padding:12px 8px 14px;border-top:1px solid var(--pg-line);font:400 16px/1.5 var(--pg-sans);letter-spacing:-.006em;color:var(--sh-text)}
+  /* it opens from the header's menu button (Page.astro's .pg-mm), as the library's menu does: a sheet that unrolls under the
+     header over a dimmed page, holding the style and theme switches too (owner: the header holds the style switch on every
+     page). Esc, a tap outside it or a link in it shuts it */
+  .dc-mnav{display:none;position:fixed;inset:var(--pg-head) 0 0;z-index:49;background:rgba(10,10,10,0);visibility:hidden;transition:background-color .3s ease,visibility 0s linear .35s}
+  .dc-mnav.open{background:rgba(10,10,10,.32);visibility:visible;transition:background-color .3s ease,visibility 0s}
+  .dc-mnav-in{max-height:calc(100dvh - var(--pg-head));overflow-y:auto;overscroll-behavior:contain;padding:14px 16px 22px;background:var(--pg-bg);border-bottom:1px solid var(--pg-line);border-radius:0 0 calc(16px * var(--rk,1)) calc(16px * var(--rk,1));box-shadow:var(--dm-shadow-pop,0 24px 48px -24px rgba(0,0,0,.35));clip-path:inset(0 0 100% 0);transition:clip-path .45s cubic-bezier(.16,1,.3,1);font:400 16px/1.5 var(--pg-sans);letter-spacing:-.006em;color:var(--sh-text)}
+  .dc-mnav.open .dc-mnav-in{clip-path:inset(0 0 0 0)}
+  html.pg-mlock{overflow:hidden}
+  @media (prefers-reduced-motion:reduce){.dc-mnav,.dc-mnav-in{transition:none!important}}
+  .dc-set .pg-seg.icons button{width:26px;padding:0}
   .dc-mnav-in .side-search{margin:0 0 12px}
   .dc-mnav-in .side-search .kbd{display:none}
   /* in the menu, the groups stay folded away apart from the component's own, until you search */
@@ -180,7 +181,6 @@ const SOUND_IC = '<svg class="on" viewBox="0 0 24 24" fill="none" stroke="curren
   .dc-mnav-in .side-nav:not([data-set="all"]) .side-grp:not(.cur){display:none}
   .dc-mnav-in .side-pages{margin-bottom:12px}
   .dc-mnav-in .side-foot{margin-top:8px;padding:14px 10px 0}
-  @media (prefers-reduced-motion:reduce){.dc-chev{transition:none!important;animation:none!important}}
   /* the menu's settings, as in the homepage's menu: Blueprint or Soft, the accent and sound, each a row with its name on the
      left. The theme stays in the header */
   .dc-set{margin:4px 0 0;border-top:1px solid var(--sh-line)}
@@ -214,9 +214,6 @@ const SOUND_IC = '<svg class="on" viewBox="0 0 24 24" fill="none" stroke="curren
     .side{display:none}
     .dc-main{padding:28px 0 72px}
     .dc-mnav{display:block}
-    /* the menu already says where you are */
-    .dc-body>.pg-crumbs{display:none}
-    .dc-body>.pg-h1{margin-top:0}
   }
   @media (max-width:640px){
     .dc{padding:0 16px}
@@ -229,10 +226,11 @@ const SOUND_IC = '<svg class="on" viewBox="0 0 24 24" fill="none" stroke="curren
   <aside class="side" id="side" aria-label="Site and components"><SideNav doc={doc} reg={reg} /></aside>
   <div class="dc-main">
     <div class="dc-body">
-      <details class="dc-mnav"><summary>{where}<span aria-hidden="true">/</span><b>{title}</b><span class="dc-chev" set:html={chev} /></summary>
+      <div class="dc-mnav" id="pg-menu" role="dialog" aria-label="Menu">
         <div class="dc-mnav-in"><SideNav doc={doc} reg={reg} mode="menu">
           <div class="dc-set">
             <div class="dc-set-r"><span class="dc-set-l" id="dc-style-l">Style</span><div class="pg-seg" role="radiogroup" aria-labelledby="dc-style-l"><button type="button" role="radio" aria-checked="false" data-style-set="bp">Blueprint</button><button type="button" role="radio" aria-checked="false" data-style-set="soft">Soft</button><button type="button" role="radio" aria-checked="false" data-style-set="clean">Clean</button></div></div>
+            <div class="dc-set-r"><span class="dc-set-l" id="dc-theme-l">Theme</span><div class="pg-seg icons" role="radiogroup" aria-labelledby="dc-theme-l"><button type="button" role="radio" aria-checked="false" data-theme-set="light" aria-label="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button><button type="button" role="radio" aria-checked="false" data-theme-set="dark" aria-label="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button></div></div>
             <div class="dc-set-r"><span class="dc-set-l" id="dc-acc-l">Accent</span><div class="dc-acc" role="radiogroup" aria-labelledby="dc-acc-l">
               {ACCENT_SW.map(([v, n]) => <button type="button" class="dc-sw" role="radio" aria-checked="false" data-acc={v} aria-label={n} title={n} style={v === 'default' ? undefined : `--sw:${v}`}></button>)}
               <label class="dc-sw any" title="Pick any colour"><input type="color" value="#ff850d" aria-label="Pick any colour"></label>
@@ -240,7 +238,7 @@ const SOUND_IC = '<svg class="on" viewBox="0 0 24 24" fill="none" stroke="curren
             <div class="dc-set-r"><span class="dc-set-l">Sound</span><button type="button" class="dc-snd" aria-pressed="false" aria-label="Turn sounds on" set:html={SOUND_IC} /></div>
           </div>
         </SideNav></div>
-      </details>
+      </div>
       <slot />
     </div>
   </div>
@@ -296,11 +294,17 @@ const SOUND_IC = '<svg class="on" viewBox="0 0 24 24" fill="none" stroke="curren
       if (k < 0) inp.focus(); else r[k].focus();
     });
   });
-  // the menu above the page on smaller screens: Esc shuts it and gives the focus back to its toggle
-  [].slice.call(document.querySelectorAll('.dc-mnav')).forEach(function(d){
-    var sum = d.querySelector('summary');
-    d.addEventListener('keydown', function(e){ if (e.key !== 'Escape' || !d.open) return; e.preventDefault(); d.open = false; sum.focus(); });
-  });
+  // the menu on smaller screens, from the header's menu button: Esc shuts it and gives the focus back to the button; a tap on
+  // the dimmed page or on a link in it shuts it, and so does the window growing past 960px, where the sidebar is back
+  (function(){
+    var d = document.getElementById('pg-menu'), btn = document.getElementById('pg-mm'); if (!d || !btn) return;
+    var mq = matchMedia('(max-width:960px)'), root = document.documentElement;
+    var set = function(open, back){ d.classList.toggle('open', open); btn.setAttribute('aria-expanded', String(open)); btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu'); root.classList.toggle('pg-mlock', open); if (!open && back) btn.focus(); };
+    btn.addEventListener('click', function(){ set(!d.classList.contains('open')); });
+    d.addEventListener('click', function(e){ if (e.target === d || e.target.closest('a[href]')) set(false); });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && d.classList.contains('open')){ e.preventDefault(); set(false, true); } });
+    mq.addEventListener('change', function(){ if (!mq.matches) set(false); });
+  })();
   document.addEventListener('keydown', function(e){
     if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey || e.target.closest('input,textarea,select,[contenteditable="true"]')) return;
     var i = document.getElementById('side-q'); if (!i || !i.offsetParent) return;
