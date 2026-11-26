@@ -958,6 +958,13 @@ site = site.replace('@@COUNT@@', String(done.length));
   if (end < 0) throw new Error("the head's style script (make-patches.py) no longer knows Your theme");
   site = site.slice(0, end + 9) + '\n<script>' + require('./theme-bridge.js').previewScript() + '</script>' + site.slice(end + 9);
 }
+// a ?style= or ?theme= in the address is kept as the visitor's pick before that script reads it, and the address follows the
+// style and theme switches from then on (url-style.js)
+{
+  const at = site.indexOf('<script>try{var t=localStorage.getItem("dmui-theme")');
+  if (at < 0) throw new Error("the head's style script (make-patches.py) has moved: url-style.js goes right before it");
+  site = site.slice(0, at) + '<script>' + require('./url-style.js').JS + '</script>\n' + site.slice(at);
+}
 // each card's title links to the component's own page (a plain click still opens it in place, see make-patches.py)
 site = site.replace(/(<article\b[^>]*\bdata-reg="([\w-]+)"[^>]*>[\s\S]*?<h2 class="comp-title">)([^<]*)<\/h2>/g, (m, head, reg, t) => `${head}<a href="/components/${reg}">${t}</a></h2>`);
 /* ---------- site: the old site stylesheet ships only the rules the page still uses ----------
@@ -1166,6 +1173,7 @@ Every CSS variable starts with \`--dm-\` in every version, and in the React vers
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Page not found · Designme.dev</title><meta name="robots" content="noindex">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script>${require('./url-style.js').JS}</script>
 <script>try{var t=localStorage.getItem('dmui-theme'),s=localStorage.getItem('dmui-style');if(t)document.documentElement.setAttribute('data-theme',t);if(s==='blueprint')s='bp';if(s==='mine')s='soft';if(s!=='bp'&&s!=='soft'&&s!=='clean')s=(t||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'))==='dark'?'bp':'soft';document.documentElement.setAttribute('data-style',s)}catch(e){}</script>
 <style>
 ${fonts}

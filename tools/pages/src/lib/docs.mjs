@@ -292,6 +292,7 @@ const BODY = {
           ['Clean', [['p', 'Black, white and grey with an ink primary button, hairline outlines and fully round controls. In light mode the accent stays blue for data, selection and links; in dark mode it turns white. Add `data-style="clean"` to `<html>`, or to any element around the components to make just those Clean.'], ['code', 'html', '<html data-style="clean">']]],
         ]],
         ['p', 'Until you pick a style in the header, designme.dev follows your theme: light opens in Soft and dark in Blueprint. It remembers the style you pick.'],
+        ['p', 'To link to a style on designme.dev, add it to the address: `?style=blueprint`, `?style=soft` or `?style=clean`, with `&theme=light` or `&theme=dark` if you like. The address follows the header\'s switches, so copying it shares what you see.'],
       ]],
       ['Light and dark', [
         ['p', 'Without `data-theme`, the components follow the device\'s setting. Set it to fix the theme:'],
