@@ -193,7 +193,7 @@ DM.def('ts1a', (r, c) => {
   c.on(ta, 'keydown', e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)){ e.preventDefault(); send(); } });
 
   /* waits that count only while nothing holds the toast (a mouse on it, the focus in it); stale ones end quietly */
-  const hwait = (ms, my, tick) => new Promise((res, rej) => { let last = null, t = REDUCE ? Math.min(ms, 1200) : ms;
+  const hwait = (ms, my, tick) => new Promise((res, rej) => { let last = null, t = ms;
     c.loop(now => { if (my !== epoch){ rej('stale'); return false; } if (last !== null && !held()) t -= Math.min(100, now - last); last = now;
       tick && tick(Math.max(0, t)); if (t <= 0){ res(); return false; } }); });
   const quiet = p => p.catch(e => { if (e !== 'stale' && e !== 'stop') console.error(e); });
@@ -317,6 +317,8 @@ DM.def('ts1a', (r, c) => {
   }
   async function goHome(my){
     state = 'returning'; const t = toast;
+    // its words fade first, then the empty card flies home
+    if (!REDUCE && t.animate){ await Promise.all([...t.children].map(el => el.animate([{ opacity:1 }, { opacity:0 }], { duration:160, easing:'ease-out', fill:'forwards' }).finished.catch(() => {}))); if (my !== epoch) return; }
     const sh = fly(null, null, false); t.classList.add('ghost');
     const s = await sh; if (my !== epoch){ if (s) s.remove(); return; }
     t.remove(); if (toast === t) toast = null;
