@@ -132,7 +132,7 @@ export function ScheduledRuns({ runs, defaultRuns = [], onRunsChange, onRunNow, 
   };
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-shx dm-panel dm-growing', className)}>
+    <div data-dm="" ref={root} className={cx('dm-shx dm-panel dm-growing dm-mx-grow', className)}>
       <div ref={inner} className="dm-grow">
       <div className="dm-shx-h"><span className="dm-shx-hi" aria-hidden="true"><Icon name="clock" size="xs" /></span><div><b>{title}</b>{status && <Swap className="dm-muted dm-shx-st">{status}</Swap>}</div></div>
       <div className="dm-shx-list" role="list" aria-label="Schedules">
@@ -152,7 +152,7 @@ export function ScheduledRuns({ runs, defaultRuns = [], onRunsChange, onRunNow, 
                 <span className="dm-res">{running ? <Spin /> : (r.result === 'passed' || r.result === 'failed') && <Icon name={r.result === 'passed' ? 'ok' : 'alert'} size="xs" />}<Swap className={running ? 'dm-shim' : undefined}>{res}</Swap></span>
               </span>
               <span className="dm-shx-act">
-                {onRunNow && <Tip label="Run now"><button type="button" className="dm-ib dm-shx-run" aria-label={`Run ${r.name} now`} disabled={running || !on(r)} onClick={() => onRunNow(r.key)}><Icon name="play" /></button></Tip>}
+                {onRunNow && <Tip label="Run now"><button type="button" className="dm-ib dm-shx-run dm-mx-press" aria-label={`Run ${r.name} now`} disabled={running || !on(r)} onClick={() => onRunNow(r.key)}><Icon name="play" /></button></Tip>}
                 <Tip label={on(r) ? 'Pause' : 'Resume'}><button type="button" className="dm-toggle" role="switch" aria-checked={on(r)} aria-label={r.name} onClick={() => toggle(r.key)} /></Tip>
               </span>
               <Fold open={r.result === 'failed' && !!r.fix} className="dm-shx-fx">
@@ -163,8 +163,8 @@ export function ScheduledRuns({ runs, defaultRuns = [], onRunsChange, onRunNow, 
         })}
       </div>
       {onCreate && <>
-        <div className="dm-shx-ft"><button type="button" className="dm-shx-add" {...menu.trigger} aria-haspopup="dialog" onClick={() => { menu.trigger.onClick(); if (!menu.open) requestAnimationFrame(() => field.current?.focus({ preventScroll: true })); }}><Icon name="plus" size="xs" />New schedule</button></div>
-        <div {...menu.pop} style={{ ...menu.pop.style, ...bottom }} className={cx(menu.pop.className, 'dm-shx-pop')} role="dialog" aria-label="New schedule">
+        <div className="dm-shx-ft"><button type="button" className="dm-shx-add dm-mx-press" {...menu.trigger} aria-haspopup="dialog" onClick={() => { menu.trigger.onClick(); if (!menu.open) requestAnimationFrame(() => field.current?.focus({ preventScroll: true })); }}><Icon name="plus" size="xs" />New schedule</button></div>
+        <div {...menu.pop} style={{ ...menu.pop.style, ...bottom }} className={cx(menu.pop.className, 'dm-shx-pop dm-mx-pop')} role="dialog" aria-label="New schedule">
           <form className="dm-shx-f" onSubmit={create}>
             <h4>New schedule</h4>
             <input ref={field} className="dm-shx-in" value={task} onChange={e => setTask(e.target.value)} placeholder="What should the agent do?" aria-label="What should the agent do?" spellCheck={false} autoComplete="off" />

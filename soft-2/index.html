@@ -7038,6 +7038,9 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .shx-add>.i{width:28px;padding:0 8px;box-sizing:border-box}
 .shx-add[aria-expanded="true"]{color:var(--fg);background:var(--row)}
 .shx-add:hover{color:var(--fg);background:var(--row)}
+/* its motion (the core's motion pieces, owner, 26 Nov): New schedule and Run now press at once (.mx-press; Clean keeps its
+   button's own press); the New schedule dialog grows out of its button and goes back into it quicker (.mx-pop); the card grows
+   on the spring (.mx-grow) */
 .shx-pop{width:272px;padding:var(--s-3)}
 .shx-f{display:flex;flex-direction:column;gap:var(--s-2)}
 .shx-f h4{margin:0 0 2px;font-size:13px;font-weight:500}
@@ -12989,11 +12992,11 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 <article class="card" data-c="scheduled-runs" id="c-scheduled-runs">
   <div class="card-h"><div><h3>Scheduled runs</h3><p>Tasks the agent runs on a schedule, with their last result and a switch.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="shx panel" data-reveal="flat">
+  <template><div class="shx panel mx-grow" data-reveal="flat">
   <div class="shx-h"><span class="shx-hi" aria-hidden="true"><svg class="i xs"><use href="#i-clock"/></svg></span><div><b>Scheduled runs</b></div></div>
   <div class="shx-list" role="list" aria-label="Schedules"></div>
-  <div class="shx-ft"><button class="shx-add" data-pop=".shx-pop" aria-haspopup="dialog" aria-expanded="false"><svg class="i xs"><use href="#i-plus"/></svg>New schedule</button></div>
-  <div class="pop shx-pop" role="dialog" aria-label="New schedule"><form class="shx-f">
+  <div class="shx-ft"><button class="shx-add mx-press" data-pop=".shx-pop" aria-haspopup="dialog" aria-expanded="false"><svg class="i xs"><use href="#i-plus"/></svg>New schedule</button></div>
+  <div class="pop shx-pop mx-pop" role="dialog" aria-label="New schedule"><form class="shx-f">
     <h4>New schedule</h4>
     <input class="shx-in" placeholder="What should the agent do?" aria-label="What should the agent do?" spellcheck="false" autocomplete="off">
     <div class="seg2 shx-rep" role="group" aria-label="Repeat"><button type="button" aria-pressed="true" data-v="day">Every day</button><button type="button" aria-pressed="false" data-v="mon">Every Monday</button><button type="button" aria-pressed="false" data-v="custom">Custom</button></div>
@@ -22608,7 +22611,7 @@ DM.def('scheduled-runs', (r, c) => {
   const inp = $('.shx-in', r), days = $('.shx-days', r), sum = $('.shx-sum', r), mk = $('.shx-mk', r);
   function row(x){
     const ic = x.mark[0] === '@' ? `<span class="ic brandic" aria-hidden="true">${BRAND[x.mark.slice(1)]}</span>` : `<span class="ic" style="background:var(--av-${x.col});color:var(--av-${x.col}-ink)" aria-hidden="true">${I(x.mark,'xs')}</span>`;
-    x.el = html(`<div class="shx-r" role="listitem">${ic}<span class="t"><span class="nm"></span><span class="d"></span><span class="res"></span></span><span class="shx-act"><button class="ib shx-run" data-tip="Run now">${I('play')}</button><button class="toggle" role="switch"></button></span><div class="shx-fx fold shut" inert><div><div><button class="pill accent sm shx-fix"></button></div></div></div></div>`);
+    x.el = html(`<div class="shx-r" role="listitem">${ic}<span class="t"><span class="nm"></span><span class="d"></span><span class="res"></span></span><span class="shx-act"><button class="ib shx-run mx-press" data-tip="Run now">${I('play')}</button><button class="toggle" role="switch"></button></span><div class="shx-fx fold shut" inert><div><div><button class="pill accent sm shx-fix"></button></div></div></div></div>`);
     $('.nm', x.el).textContent = x.name; $('.shx-run', x.el).setAttribute('aria-label', 'Run ' + x.name + ' now'); $('.toggle', x.el).setAttribute('aria-label', x.name);
     $('.shx-run', x.el).onclick = () => run(x);
     $('.toggle', x.el).onclick = () => { x.on = !x.on; paint(x); };
