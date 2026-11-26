@@ -233,10 +233,8 @@
 @media (max-width:640px){.ct5a .ct-band{padding:48px 16px 32px}.ct5a .ct-wm{margin-top:48px}.ct5a.arm .ct-wm path{stroke-width:.4}}
 
 /* ---- lab 9: Blueprint keeps its own colours and shapes on the band: its accent (lime by default, or the picked one) on Book
-   a call with --on-accent words, and square corners on the band and every button in it. Soft and Clean keep 5A's white
+   a call with --on-accent words (5A's white-in-light rule is limited to Soft and Clean below), and square corners on the band and every button in it. Soft and Clean keep 5A's white
    Book a call in light mode ---- */
-:root[data-theme="light"]:not([data-style="soft"],[data-style="clean"]) .ct-band{--dm-accent:var(--accent);--dm-accent-2:var(--accent-2,var(--accent));--dm-on-accent:var(--on-accent);--dm-btn-1:var(--accent);--dm-btn-2:var(--accent);--dm-on-btn:var(--on-accent)}
-@media (prefers-color-scheme:light){:root:not([data-theme="dark"]):not([data-style="soft"],[data-style="clean"]) .ct-band{--dm-accent:var(--accent);--dm-accent-2:var(--accent-2,var(--accent));--dm-on-accent:var(--on-accent);--dm-btn-1:var(--accent);--dm-btn-2:var(--accent);--dm-on-btn:var(--on-accent)}}
 :root:not([data-style="soft"],[data-style="clean"]) .ct-band{border-radius:0;corner-shape:round}
 :root:not([data-style="soft"],[data-style="clean"]) .ct-band .lp-book{border-radius:0;corner-shape:round}
 
@@ -251,16 +249,19 @@
 .ct9b .ct-side{margin-top:24px}
 .ct9b .lp-cta{justify-content:flex-start;align-items:center;gap:8px 16px;margin-top:24px}
 .ct9b .cv-stage{position:relative;align-self:stretch;min-height:320px}
-.ct9b .cv-scene{position:absolute;left:0;top:0;width:776px;height:640px;transform-origin:0 0}
+.ct9b .cv-scene{position:absolute;left:0;top:0;width:776px;height:740px;transform-origin:0 0}
 .ct9b .cv-frame{position:absolute;left:0;top:0;width:760px;height:560px;background:var(--pg-bg,var(--bg,#fff));border-radius:calc(16px * var(--rk,1.25));opacity:0;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
 @supports (corner-shape:squircle){:root[data-style="soft"] .ct9b .cv-frame{corner-shape:squircle}}
 :root[data-style="clean"] .ct9b .cv-frame{border-radius:22px}
-.ct9b .cv-pc{position:absolute;left:0;top:0;opacity:0;transform-origin:0 0;border-radius:calc(12px * var(--rk,1.25))}
+.ct9b .cv-pc{position:absolute;left:0;top:0;opacity:0;will-change:transform,opacity;transform-origin:0 0;border-radius:calc(12px * var(--rk,1.25))}
 .ct9b .cv-pc.drag{box-shadow:var(--shadow-pop,0 12px 32px rgba(0,0,0,.18))}
 .ct9b .cv-pc .lp-demo{display:block;padding:0;min-height:0}
-.ct9b .cv-pc .lp-demo>.card{display:block}
-.ct9b .cv-pc .stage-in{margin:0}
+.ct9b .cv-pc .lp-demo>.card{display:block;width:100%;margin:0}
+.ct9b .cv-pc .stage-in{margin:0;max-width:none;width:100%}
+.ct9b .cv-pc .spl-stage{justify-content:flex-start}
 .ct9b .cv-pc .dm>.demo{display:none}
+.ct9b .cv-pc .dm{min-height:0}
+.ct9b .cv-pc .cpx{max-width:none;width:100%}
 .ct9b .cv-pc .lp-miss{display:none}
 .ct9b .cv-fx{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden;border-radius:inherit}
 .ct9b .cv-fx>*{position:absolute;left:0;top:0;will-change:transform}
@@ -318,7 +319,7 @@ For each one, read its .md page, then install it with:
 Keep the installed files as they are and drive the components through their props from our state.</code></pre><button class="lp-copy" type="button" data-copy="Read https://designme.dev/llms.txt and pick the components for our screen.
 For each one, read its .md page, then install it with:
   npx designme add <name> --react
-Keep the installed files as they are and drive the components through their props from our state." data-label="Copy" aria-label="Copy the prompt">Copy</button></div></div></section><section class="lp-in lp-sec" id="faq" aria-labelledby="faq-h"><div class="lp-qa"><div class="lp-sh lp-qh"><h2 id="faq-h">Questions</h2><p>What people ask before they start.</p><a class="lp-more" href="/library#/faq">More in the FAQ<svg class="lp-ar" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></a></div><div class="lp-faq"><details><summary>Is it free?</summary><div class="lp-fa"><p>Yes. Every component is free for personal and commercial work under the MIT licence. Fonts, icons, flags and brand marks from other projects keep their own licences, listed in <code>NOTICE.md</code>.</p></div></details><details><summary>What do I need?</summary><div class="lp-fa"><p>Node 18 or later to run the CLI. The React components need React 19 and work in Next.js, Vite and Astro islands. The HTML version needs only the shared core, which the CLI adds once.</p></div></details><details><summary>Do I need Tailwind or shadcn/ui?</summary><div class="lp-fa"><p>No. The components bring their own CSS. If your project uses shadcn/ui or Tailwind v4, the theme bridge (<code>--theme-bridge</code>) gives them your theme, and the shadcn CLI can add any of them.</p></div></details><details><summary>Will their CSS clash with mine?</summary><div class="lp-fa"><p>No. Every CSS variable starts with <code>--dm-</code>, and in React every class and animation name starts with dm- too, so nothing meets your own names.</p></div></details><details><summary>Are they accessible?</summary><div class="lp-fa"><p>They come with ARIA roles and labels, live regions for what the agent is doing, keyboard support in most components, tap areas on touch screens, and reduced motion.</p></div></details><details><summary>What are Blueprint, Soft and Clean?</summary><div class="lp-fa"><p>Three styles for the same components: Blueprint is technical and square with a lime accent, Soft is rounded with a blue accent, and Clean is black, white and grey with fully round controls. Each has a light and a dark theme. In your project, <code>data-style</code> on <code>&lt;html&gt;</code> picks one.</p></div></details><details><summary>Can AI coding tools use it?</summary><div class="lp-fa"><p>Yes. Every component and docs page has a Markdown copy at its address plus <code>.md</code>, and <code>llms.txt</code> lists every component with its install command. The Using with AI page in the docs has prompts to start from.</p></div></details><details><summary>Is there a Figma file?</summary><div class="lp-fa"><p>It is in progress on the roadmap. Leave your email in the library and you will get it when it lands.</p></div></details><details><summary>Who made it?</summary><div class="lp-fa"><p>DesignMe, a design and development studio working with startups and enterprises. If you want help building your product, book a call.</p></div></details></div></div></section><section class="lp-in lp-sec lp-work ct9b" id="work" aria-labelledby="work-h"><div class="ct-band"><div class="cv-grid" aria-hidden="true"></div><div class="cv-copy"><div class="lp-sh ct-sh"><h2 id="work-h">Want it designed into your product?</h2></div><div class="ct-side"><p>DesignMe made designme.dev. We design and build AI products, React apps and Astro sites.</p><div class="lp-cta"><a class="pill primary lp-btn lp-book" href="https://www.designme.agency/intro?utm_source=designme.dev&amp;utm_medium=referral&amp;utm_campaign=book_a_call" target="_blank" rel="noopener">Book a call<svg class="lp-ar" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></a><span class="lp-mail">or write to<a href="mailto:hello@designme.agency">hello@designme.agency</a></span></div></div></div><div class="cv-stage" aria-hidden="true" inert><div class="cv-scene"><div class="cv-frame"></div><div class="cv-pc" data-k="pill" data-w="220"><div class="lp-demo stage-inner" data-reg="status-pill" data-url="/components/status-pill"></div></div><div class="cv-pc" data-k="run" data-w="440"><div class="lp-demo stage-inner" data-reg="agent-run-timeline" data-url="/components/agent-run-timeline"></div></div><div class="cv-pc" data-k="cost" data-w="256"><div class="lp-demo stage-inner" data-reg="run-cost" data-url="/components/run-cost"></div></div><div class="cv-pc" data-k="steps" data-w="256"><div class="lp-demo stage-inner" data-reg="step-loader" data-url="/components/step-loader"></div></div><div class="cv-pc" data-k="comp" data-w="440"><div class="lp-demo stage-inner" data-reg="composer" data-url="/components/composer"></div></div></div></div><div class="cv-fx" aria-hidden="true"></div></div></section>
+Keep the installed files as they are and drive the components through their props from our state." data-label="Copy" aria-label="Copy the prompt">Copy</button></div></div></section><section class="lp-in lp-sec" id="faq" aria-labelledby="faq-h"><div class="lp-qa"><div class="lp-sh lp-qh"><h2 id="faq-h">Questions</h2><p>What people ask before they start.</p><a class="lp-more" href="/library#/faq">More in the FAQ<svg class="lp-ar" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></a></div><div class="lp-faq"><details><summary>Is it free?</summary><div class="lp-fa"><p>Yes. Every component is free for personal and commercial work under the MIT licence. Fonts, icons, flags and brand marks from other projects keep their own licences, listed in <code>NOTICE.md</code>.</p></div></details><details><summary>What do I need?</summary><div class="lp-fa"><p>Node 18 or later to run the CLI. The React components need React 19 and work in Next.js, Vite and Astro islands. The HTML version needs only the shared core, which the CLI adds once.</p></div></details><details><summary>Do I need Tailwind or shadcn/ui?</summary><div class="lp-fa"><p>No. The components bring their own CSS. If your project uses shadcn/ui or Tailwind v4, the theme bridge (<code>--theme-bridge</code>) gives them your theme, and the shadcn CLI can add any of them.</p></div></details><details><summary>Will their CSS clash with mine?</summary><div class="lp-fa"><p>No. Every CSS variable starts with <code>--dm-</code>, and in React every class and animation name starts with dm- too, so nothing meets your own names.</p></div></details><details><summary>Are they accessible?</summary><div class="lp-fa"><p>They come with ARIA roles and labels, live regions for what the agent is doing, keyboard support in most components, tap areas on touch screens, and reduced motion.</p></div></details><details><summary>What are Blueprint, Soft and Clean?</summary><div class="lp-fa"><p>Three styles for the same components: Blueprint is technical and square with a lime accent, Soft is rounded with a blue accent, and Clean is black, white and grey with fully round controls. Each has a light and a dark theme. In your project, <code>data-style</code> on <code>&lt;html&gt;</code> picks one.</p></div></details><details><summary>Can AI coding tools use it?</summary><div class="lp-fa"><p>Yes. Every component and docs page has a Markdown copy at its address plus <code>.md</code>, and <code>llms.txt</code> lists every component with its install command. The Using with AI page in the docs has prompts to start from.</p></div></details><details><summary>Is there a Figma file?</summary><div class="lp-fa"><p>It is in progress on the roadmap. Leave your email in the library and you will get it when it lands.</p></div></details><details><summary>Who made it?</summary><div class="lp-fa"><p>DesignMe, a design and development studio working with startups and enterprises. If you want help building your product, book a call.</p></div></details></div></div></section><section class="lp-in lp-sec lp-work ct9b" id="work" aria-labelledby="work-h"><div class="ct-band"><div class="cv-grid" aria-hidden="true"></div><div class="cv-copy"><div class="lp-sh ct-sh"><h2 id="work-h">Want it designed into your product?</h2></div><div class="ct-side"><p>DesignMe made designme.dev. We design and build AI products, React apps and Astro sites.</p><div class="lp-cta"><a class="pill primary lp-btn lp-book" href="https://www.designme.agency/intro?utm_source=designme.dev&amp;utm_medium=referral&amp;utm_campaign=book_a_call" target="_blank" rel="noopener">Book a call<svg class="lp-ar" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></a><span class="lp-mail">or write to<a href="mailto:hello@designme.agency">hello@designme.agency</a></span></div></div></div><div class="cv-stage" aria-hidden="true" inert><div class="cv-scene"><div class="cv-frame"></div><div class="cv-pc" data-k="pill" data-w="300"><div class="lp-demo stage-inner" data-reg="status-pill" data-url="/components/status-pill"></div></div><div class="cv-pc" data-k="run" data-w="440"><div class="lp-demo stage-inner" data-reg="agent-run-timeline" data-url="/components/agent-run-timeline"></div></div><div class="cv-pc" data-k="cost" data-w="256"><div class="lp-demo stage-inner" data-reg="run-cost" data-url="/components/run-cost"></div></div><div class="cv-pc" data-k="steps" data-w="256"><div class="lp-demo stage-inner" data-reg="step-loader" data-url="/components/step-loader"></div></div><div class="cv-pc" data-k="comp" data-w="440"><div class="lp-demo stage-inner" data-st="composer" data-url="/components/composer"></div></div></div></div><div class="cv-fx" aria-hidden="true"></div></div></section>
 <div class="lp-end" aria-hidden="true"></div></div></main><footer class="pg-foot"><div class="pg-wrap"><div class="pg-foot-in"><span>Free and MIT licensed. Built by <a href="https://designme.agency">DesignMe</a>.</span><nav aria-label="More"><a href="/library">All components</a><a href="/docs/introduction">Docs</a><a href="/library#/changelog">Changelog</a><a href="/library#/roadmap">Roadmap</a><a href="/llms.txt">llms.txt</a><a href="/">Home</a></nav></div></div></footer><script>
 // Skip to content: the focus moves to the page's heading, which glides (or, with reduced motion, jumps) under the header,
 // without changing the address
@@ -961,7 +962,7 @@ const fitHits = window.dmFitHits || (() => {
   var band = sec.querySelector('.ct-band'), stage = sec.querySelector('.cv-stage'), scene = sec.querySelector('.cv-scene'),
       frameEl = sec.querySelector('.cv-frame'), fx = sec.querySelector('.cv-fx'), copy = sec.querySelector('.cv-copy');
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var SX = -8, SY = -32, SW = 776, SH = 640; // the scene's box in its own units, the frame's name above it included
+  var SX = -8, SY = -32, SW = 776, SH = 740; // the scene's box in its own units, the frame's name above it included
   var FW = 760, PAD = 24, GAP = 16, COLL = 440, COLR = FW - PAD * 2 - GAP - COLL;
   var k = 1, ox = 0, oy = 0;
   var eo = function(t){ return 1 - Math.pow(1 - t, 4); }, eio = function(t){ return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
@@ -978,7 +979,7 @@ const fitHits = window.dmFitHits || (() => {
   var pcs = {};
   [].slice.call(scene.querySelectorAll('.cv-pc')).forEach(function(e){ pcs[e.dataset.k] = { el:e, x:0, y:0, w:+e.dataset.w, s:1, o:0 }; e.style.width = e.dataset.w + 'px'; });
   var H = function(id){ return pcs[id].el.offsetHeight || 80; };
-  var frame = { x:0, y:0, w:FW, h:560, o:0 };
+  var frame = { x:0, y:0, w:FW, h:640, o:0 };
 
   // marks drawn over everything, at screen size: S() turns the scene's units into the band's pixels
   function S(x, y){ return [ox + (x - SX) * k, oy + (y - SY) * k]; }
@@ -998,7 +999,7 @@ const fitHits = window.dmFitHits || (() => {
   var CR = null;
   function copyRect(){ return CR || measureCopy(); }
   function measureCopy(){ // the headline, line and Book a call, in scene units, with room round them
-    var b = band.getBoundingClientRect(), c = copy.getBoundingClientRect(), p = 20;
+    var b = band.getBoundingClientRect(), c = copy.getBoundingClientRect(), p = Math.max(8, Math.min(20, c.left - b.left - 6));
     return CR = { x:(c.left - b.left - p - ox) / k + SX, y:(c.top - b.top - p - oy) / k + SY, w:(c.width + p * 2) / k, h:(c.height + p * 2) / k };
   }
   var cf = null, cfl = null; // the frame round the headline once drawn, kept on it at every width
@@ -1014,9 +1015,9 @@ const fitHits = window.dmFitHits || (() => {
   var flabel = mk('cv-fl'); flabel.textContent = 'Agent run'; flabel.style.opacity = 0;
 
   // the clock: time only moves while the band is on screen and the tab is open
-  var vt = 0, jobs = [], raf = 0, last = 0, seen = false, started = false;
-  function at(ms){ return new Promise(function(res){ jobs.push({ end:vt + ms, done:res }); }); }
-  function tween(ms, fn, ease){ return new Promise(function(res){ jobs.push({ t0:vt, end:vt + ms, fn:fn, ease:ease || eo, done:res }); }); }
+  var SP = .7, vt = 0, jobs = [], raf = 0, last = 0, seen = false, started = false;
+  function at(ms){ ms *= SP; return new Promise(function(res){ jobs.push({ end:vt + ms, done:res }); }); }
+  function tween(ms, fn, ease){ ms *= SP; return new Promise(function(res){ jobs.push({ t0:vt, end:vt + ms, fn:fn, ease:ease || eo, done:res }); }); }
   function tick(now){
     raf = 0; var dt = Math.min(50, now - last); last = now; vt += dt;
     jobs.slice().forEach(function(j){ if (j.fn) j.fn(j.ease(Math.min(1, (vt - j.t0) / (j.end - j.t0)))); if (vt >= j.end){ jobs.splice(jobs.indexOf(j), 1); j.done(); } });
@@ -1072,8 +1073,10 @@ const fitHits = window.dmFitHits || (() => {
     (guides || []).forEach(function(g){ g.length === 5 ? chip(who, g[0], g[1], g[4]) : flash(who, { x:g[0], y:g[1], w:g[2], h:g[3] }); });
     await at(260);
     await press(who, false);
-    await at(380);
-    await fade(s, 'o', 0, 200); drop(s);
+    await at(300);
+    // step off the piece's words, out to the frame's edge
+    fade(s, 'o', 0, 200).then(function(){ drop(s); });
+    await go(who, -18, p.y + 30, 520);
   }
 
   // the finished screen: the status at the top, the run's timeline beside its cost and its steps, the composer across the
@@ -1098,7 +1101,8 @@ const fitHits = window.dmFitHits || (() => {
   function restAt(){ // where each person waits once the screen is done, clear of the headline and the components' words
     var f = final();
     var r = copyRect();
-    return { adrian:[16, f.h + 10], victoria:[r.x + r.w - 24, r.y + r.h - 6], natalia:[FW * .56, f.h + 10], luke:[FW - 90, -16] };
+    if (k < .7) return { adrian:null, victoria:[r.x + 40 / k, r.y + r.h - 6], natalia:null, luke:[FW * .6, -16] };
+    return { adrian:[16, f.h + 10], victoria:[r.x + r.w - Math.max(24, (130 - (band.clientWidth - (ox + (r.x + r.w - SX) * k))) / k), r.y + r.h - 6], natalia:[FW * .56, f.h + 10], luke:[FW * .6, -16] };
   }
 
   async function play(){
@@ -1110,10 +1114,10 @@ const fitHits = window.dmFitHits || (() => {
     await press('adrian', true);
     var mq = mark('cv-mq', 'adrian', { x:0, y:0, w:0, h:0 }); mq.o = 1; mq.grow = 'adrian';
     var sz = mark('cv-chip', 'adrian', { x:0, y:0, w:0, h:0, chip:1 }); sz.o = 1; sz.size = mq;
-    await go('adrian', FW, 560, 980);
+    await go('adrian', FW, 640, 980);
     // the marquee and its size follow the cursor while it moves (see idle), then become the frame
     await press('adrian', false); mq.grow = null;
-    frame.h = 560; fade(frame, 'o', 1, 240);
+    frame.h = 640; fade(frame, 'o', 1, 240);
     await fade(mq, 'o', 0, 200); drop(mq); fade(sz, 'o', 0, 160).then(function(){ drop(sz); });
     // the components arrive, three people at once
     f = final(); y2 = f.run.y;
@@ -1125,8 +1129,8 @@ const fitHits = window.dmFitHits || (() => {
     await Promise.all([a, b, c]);
     // Victoria snaps the timeline onto the frame's edge and the cost's top
     f = final();
-    var nv = nudgeTo('victoria', 'run', PAD, f.run.y, [[PAD, -8, 0, 600], [0, f.run.y, FW, 0], [6, f.run.y + 60, 0, 0, '24']]);
-    var nn = bring('natalia', 'pill', [300, -110], [PAD + 6, PAD + 4], 900).then(function(){ return nudgeTo('natalia', 'pill', PAD, PAD, [[PAD, -8, 0, 600], [0, PAD, FW, 0]]); });
+    var nv = nudgeTo('victoria', 'run', PAD, f.run.y, [[PAD, -8, 0, frame.h + 16], [0, f.run.y, FW, 0], [6, f.run.y + 60, 0, 0, '24']]);
+    var nn = bring('natalia', 'pill', [300, -110], [PAD + 6, PAD + 4], 900).then(function(){ return nudgeTo('natalia', 'pill', PAD, PAD, [[PAD, -8, 0, frame.h + 16], [0, PAD, FW, 0]]); });
     await Promise.all([nv, nn]);
     // Natalia brings the steps in under the cost
     f = final();
@@ -1149,7 +1153,7 @@ const fitHits = window.dmFitHits || (() => {
       await at(200);
     }
     pcs.cost.x = f.cost.x; pcs.steps.x = f.steps.x;
-    flash('adrian', { x:FW - PAD, y:-8, w:0, h:640 }); chip('adrian', FW - PAD + 6, f.cost.y + 40, '24');
+    flash('adrian', { x:FW - PAD, y:-8, w:0, h:frame.h + 16 }); chip('adrian', FW - PAD + 6, f.cost.y + 40, '24');
     await at(520);
     await Promise.all([fade(sa, 'o', 0, 200), fade(sb, 'o', 0, 200)]); drop(sa); drop(sb);
     // Luke stretches the composer to the frame's width
@@ -1160,7 +1164,7 @@ const fitHits = window.dmFitHits || (() => {
     var w0 = p.w, tw = FW - PAD - p.x, wc = mark('cv-chip', 'luke', { x:0, y:0, w:0, h:0, chip:1 }); wc.o = 1; wc.track = 'comp';
     await tween(900, function(t){ p.w = lerp(w0, tw + 4, t); p.el.style.width = p.w + 'px'; cur.luke.x = p.x + p.w; }, eio);
     await tween(110, function(t){ p.w = lerp(tw + 4, tw, t); p.el.style.width = p.w + 'px'; cur.luke.x = p.x + p.w; });
-    flash('luke', { x:FW - PAD, y:-8, w:0, h:640 });
+    flash('luke', { x:FW - PAD, y:-8, w:0, h:frame.h + 16 });
     await press('luke', false);
     await at(480);
     await Promise.all([fade(sl, 'o', 0, 200), fade(wc, 'o', 0, 200)]); drop(sl); drop(wc);
@@ -1181,7 +1185,7 @@ const fitHits = window.dmFitHits || (() => {
     fade(cf, 'o', 1, 320); await fade(m3, 'o', 0, 260); drop(m3);
     // everyone steps back and the canvas stays as it is, still in use
     var R = rest();
-    await Promise.all(Object.keys(R).map(function(id, i){ return at(i * 120).then(function(){ return go(id, R[id][0], R[id][1], 900); }); }));
+    await Promise.all(Object.keys(R).map(function(id, i){ return at(i * 120).then(function(){ return R[id] ? go(id, R[id][0], R[id][1], 900) : fade(cur[id], 'on', 0, 400); }); }));
     done = true; watch();
   }
   // the marquee grows with the cursor that draws it; readouts follow what they measure
@@ -1195,7 +1199,7 @@ const fitHits = window.dmFitHits || (() => {
     });
     follows();
     // once done, the four rest where they are with the slightest drift, as people do when they are reading
-    if (done){ drift += dt / 1000; var R = rest(); Object.keys(R).forEach(function(id, i){ cur[id].x = R[id][0] + Math.sin(drift * .7 + i * 1.7) * 3; cur[id].y = R[id][1] + Math.cos(drift * .55 + i) * 2.5; }); }
+    if (done){ drift += dt / 1000; var R = rest(); Object.keys(R).forEach(function(id, i){ if (!R[id]){ cur[id].on = 0; return; } cur[id].on = 1; cur[id].x = R[id][0] + Math.sin(drift * .7 + i * 1.7) * 3; cur[id].y = R[id][1] + Math.cos(drift * .55 + i) * 2.5; }); }
   }
   // the finished screen keeps itself in order: when a component grows or shrinks as it plays, the others glide to make room
   var busy = false;
@@ -1209,10 +1213,18 @@ const fitHits = window.dmFitHits || (() => {
     Object.keys(pcs).forEach(function(id){ var p = pcs[id]; p.x = f[id].x; p.y = f[id].y; p.o = 1; if (f[id].w){ p.w = f[id].w; p.el.style.width = p.w + 'px'; } });
     frame.h = f.h; frame.o = 1;
     if (!cf){ cf = { e:mk('cv-cf'), o:1 }; cfl = mk('cv-fl'); cfl.textContent = 'Call to action'; }
-    var R = rest(); Object.keys(R).forEach(function(id){ cur[id].x = R[id][0]; cur[id].y = R[id][1]; cur[id].on = 1; });
+    REST = null; var R = rest(); Object.keys(R).forEach(function(id){ if (!R[id]){ cur[id].on = 0; return; } cur[id].x = R[id][0]; cur[id].y = R[id][1]; cur[id].on = 1; });
     render();
   }
 
+  // the composer is shown as it stands before anyone types (its own markup and styles, not its demo), so its height holds
+  [].slice.call(scene.querySelectorAll('[data-st]')).forEach(function(box){
+    fetch('/r/' + box.dataset.st + '.json').then(function(r){ return r.json(); }).then(function(d){
+      var f = function(ext){ var x = d.files.filter(function(x){ return x.path.slice(-ext.length) === ext; })[0]; return x ? x.content : ''; };
+      if (!document.querySelector('style[data-cv="' + box.dataset.st + '"]')){ var st = document.createElement('style'); st.dataset.cv = box.dataset.st; st.textContent = f('.css'); document.head.appendChild(st); }
+      box.innerHTML = f('.html');
+    }).catch(function(){});
+  });
   layout(); render();
   addEventListener('resize', function(){ layout(); if (reduce){ var f = final(); frame.h = f.h; } render(); });
   if (reduce){
