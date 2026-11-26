@@ -939,7 +939,7 @@ const fitHits = window.dmFitHits || (() => {
   var VB = svg.viewBox.baseVal, D = [].map.call(svg.querySelectorAll('path'), function(p){ return p.getAttribute('d'); });
   var near = false, ready = false, dirty = true, live = false, raf = 0, last = 0, still = 0;
   var gl = null, P1, P2, P3, bPos, bAttr, bHome, bDv, bQuad, tL, tD, fbD, DW = 1, DH = 1, ok = true;
-  var N = 0, hx, hy, px, py, vx, vy, ex, cr, ph, dz, pos, dv;
+  var G = 0, back = 0, N = 0, hx, hy, px, py, vx, vy, ex, cr, ph, dz, pos, dv;
   var W = 0, H = 0, dpr = 1, R = 160, step = 2, holeS = 6;
   var P = { x:-1e4, y:-1e4, vx:0, vy:0, inside:false, moved:0, burst:0 };
   var armedAt = Infinity;
@@ -967,8 +967,8 @@ const fitHits = window.dmFitHits || (() => {
         'precision mediump float;varying float o;void main(){float r=length(gl_PointCoord-0.5);float a=o*0.45*(1.0-smoothstep(0.0,0.5,r));gl_FragColor=vec4(a,a,a,a);}');
       // the letters: their true shape, shown where no grain is missing
       P3 = prog('attribute vec2 q;void main(){gl_Position=vec4(q,0.0,1.0);}',
-        'precision mediump float;uniform sampler2D L;uniform sampler2D M;uniform vec2 size;void main(){vec2 u=gl_FragCoord.xy/size;' +
-        'float m=texture2D(M,u).r;float a=texture2D(L,vec2(u.x,1.0-u.y)).a*(1.0-smoothstep(0.12,0.95,m));gl_FragColor=vec4(vec3(0.98)*a,a);}');
+        'precision mediump float;uniform sampler2D L;uniform sampler2D M;uniform vec2 size;uniform float G;void main(){vec2 u=gl_FragCoord.xy/size;' +
+        'float m=texture2D(M,u).r;float a=texture2D(L,vec2(u.x,1.0-u.y)).a*max(1.0-smoothstep(0.12,0.95,m),G);gl_FragColor=vec4(vec3(0.98)*a,a);}');
       bPos = gl.createBuffer(); bAttr = gl.createBuffer(); bHome = gl.createBuffer(); bDv = gl.createBuffer(); bQuad = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, bQuad); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
       var tex = function(){ var t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
@@ -1048,7 +1048,7 @@ const fitHits = window.dmFitHits || (() => {
     gl.useProgram(P3); off(); attr(P3, 'q', bQuad, 2);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tL); gl.uniform1i(gl.getUniformLocation(P3, 'L'), 0);
     gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, tD); gl.uniform1i(gl.getUniformLocation(P3, 'M'), 1);
-    gl.uniform2f(gl.getUniformLocation(P3, 'size'), cv.width, cv.height);
+    gl.uniform2f(gl.getUniformLocation(P3, 'size'), cv.width, cv.height); gl.uniform1f(gl.getUniformLocation(P3, 'G'), G);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     gl.useProgram(P1); off(); attr(P1, 'p', bPos, 2); attr(P1, 'a', bAttr, 2); attr(P1, 'v', bDv, 1);
     gl.uniform2f(gl.getUniformLocation(P1, 'res'), W, H); gl.uniform1f(gl.getUniformLocation(P1, 'dpr'), dpr);
@@ -1063,7 +1063,7 @@ const fitHits = window.dmFitHits || (() => {
     if (dirty && !build()) return;
     sec.classList.remove('arm', 'go');
     live = true; still = 0; last = performance.now();
-    for (var i = 0; i < N; i++) dv[i] = 0;
+    for (var i = 0; i < N; i++) dv[i] = 0; G = 0; back = 0;
     draw(); cv.classList.add('on'); svg.classList.add('dusting');
     raf = requestAnimationFrame(tick);
   }
@@ -1071,7 +1071,7 @@ const fitHits = window.dmFitHits || (() => {
   function settle(){
     for (var i = 0; i < N; i++){ px[i] = hx[i]; py[i] = hy[i]; vx[i] = vy[i] = ex[i] = dv[i] = 0; }
     live = false; cancelAnimationFrame(raf);
-    svg.classList.remove('dusting'); cv.classList.remove('on'); clear();
+    svg.classList.remove('dusting'); cv.classList.remove('on'); clear(); G = 0;
   }
 
   var cost = window.__ct7cost = [];
@@ -1082,7 +1082,7 @@ const fitHits = window.dmFitHits || (() => {
     var spd = Math.sqrt(P.vx * P.vx + P.vy * P.vy), sp = P.inside ? Math.min(1.5, spd / 9) : 0;
     if (P.burst > 0){ sp = Math.max(sp, 1); P.burst -= f; }
     var R2 = R * R, ux = spd > .01 ? P.vx / spd : 0, uy = spd > .01 ? P.vy / spd : 0, t = now * .001;
-    var exd = Math.pow(sp > .05 ? .988 : .95, f), err = 0, vmax = 0, Hb = H;
+    var exd = Math.pow(sp > .05 ? .988 : .95, f), err = 0, err0 = 0, vmax = 0, Hb = H;
     for (var i = 0; i < N; i++){
       var x = px[i], y = py[i], e = ex[i], z = dz[i], ax = 0, ay = 0, k1 = .55 + z * 1.1;
       if (sp > 0){
@@ -1112,8 +1112,12 @@ const fitHits = window.dmFitHits || (() => {
       var dist = Math.abs(nx2 - hx[i]) + Math.abs(ny2 - hy[i]);
       // how far it is from home decides both whether its spot in the letter is filled and whether it shows as a grain
       dv[i] = dist < 1.4 ? 0 : Math.min(1, (dist - 1.4) / 4);
-      if (dist > err) err = dist; var av = Math.abs(nvx) + Math.abs(nvy); if (av > vmax) vmax = av;
+      if (dv[i] > 0) err0++; if (dist > err) err = dist; var av = Math.abs(nvx) + Math.abs(nvy); if (av > vmax) vmax = av;
     }
+    // the return: once the pointer stops stirring, the whole letter fill rises evenly under the gathering dust (eased over
+    // the gather, and never lower than the share of grains already home), so a gap reads as dimmer white, never a hole
+    if (sp < .02){ back += dt; var u = Math.min(1, back / 1100), home = 1 - err0 / N; G = Math.max(G, u * u * (3 - 2 * u), home * home * home); }
+    else { back = 0; G *= Math.pow(.86, f); }
     draw(); if (cost.length < 5000) cost.push(performance.now() - c0);
     if (sp < .02 && err < .6 && vmax < .08){ if ((still += dt) > 90) return settle(); } else still = 0;
     raf = requestAnimationFrame(tick);
