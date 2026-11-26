@@ -11,8 +11,9 @@
 //   screens   the two templates, whole apps made of the components, live in one frame on the site's grey, with a switch
 //   wall      every component, as rows of pictures that drift in turn left and right across the site's grey, fading out at
 //             both sides, each linking to its page, with Browse the library and GitHub
-//   styles    Light or Dark, then Blueprint, Soft and Clean as a switch with the picked one's line and its <html> under it,
-//             beside a demo on the site's grey; a pick restyles the whole page, and the control picked stays where it was
+//   styles    one stage with the same live component in Blueprint, Soft and Clean side by side, cut into slices by two
+//             handles to drag; under it one switch, the styles and the stage's light or dark, and the picked one's line and
+//             its <html>; left alone on screen it shows each style in turn
 //   install   the CLI in HTML, React or Astro and the shadcn CLI, then an editor of what it writes: each file, its first
 //             lines as installed (read from the registry) and the component they make, live; then a prompt for a coding agent
 //   faq       questions, with their answers: the heading on the left, kept in view, and the list on the right
@@ -214,6 +215,15 @@ const GH_MARK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="current
 const replayIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>';
 const folderIcon = '<svg class="lp-fi" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.25 4.75c0-.83.67-1.5 1.5-1.5h2.4c.4 0 .78.16 1.06.44l.85.81h4.19c.83 0 1.5.67 1.5 1.5v5.25c0 .83-.67 1.5-1.5 1.5h-8.5c-.83 0-1.5-.67-1.5-1.5z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>';
 const arrow = icon('arrow_forward', 'lp-ar');
+// the styles section's switch (the theme half's sun and moon) and the handles' grip
+const sunIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></svg>';
+const moonIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
+const gripIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 7l-5 5 5 5M15 7l5 5-5 5"/></svg>';
+// the styles stage keeps the room its component first needs (the first question, in the tallest of the three styles, from
+// card-heights.json, with the stage's 56px above and below) until its three frames have loaded and say how tall they are;
+// after that it grows and shrinks with them
+const CX_PAD = 56, cxH = list => Math.min(...list.map(x => Math.max(...Object.keys(KEYS).map(st => heights(STYLE_DEMO, st)[x.i])))) + 2 * CX_PAD;
+const CX_VARS = `--sh-d:${cxH(ROOMY)}px;--sh-p:${cxH(PHONE)}px`;
 const fileIcon = icon('description', 'lp-fi');
 // a command in words that each stay whole, so on a phone it wraps at a space (an address may also wrap after a slash)
 const words = cmd => cmd.split(' ').map(w => /^https?:/.test(w) ? w.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/\//g, '/<wbr>') : `<span class="lp-w">${w.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</span>`).join(' ');
@@ -391,24 +401,65 @@ const jsonld = [
       @media (max-width:640px){.lp-wt{width:176px}.lp .lp-rows{padding:24px 0;margin:0}}
       @media (prefers-reduced-motion:reduce){.lp-track{animation:none}.lp-set[aria-hidden]{display:none}.lp-row{overflow-x:auto;scrollbar-width:none}.lp-row::-webkit-scrollbar{display:none}}
 
-      /* ---- styles: Light or Dark, then the three styles, each a switch of the site's own (.pg-seg), with the picked style's
-         line and its attribute under them; beside them the demo, alone on the site's grey ---- */
-      .lp-sty{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:32px 48px;align-items:start}
-      .lp-pick{display:flex;flex-direction:column;align-items:flex-start;gap:20px}
-      .lp-pk{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
-      .lp-pkl{font-size:13px;line-height:20px;color:var(--pg-muted)}
-      .lp .lp-seg button{height:32px;padding:0 16px;font-size:14px}
-      /* the three styles' lines share one place, as tall as the longest, so a pick never moves what is under it */
-      .lp-sds{display:grid}
-      .lp-sd{grid-area:1/1;display:flex;flex-direction:column;align-items:flex-start;gap:12px;max-width:44ch}
-      .lp-sd[hidden]{display:flex;visibility:hidden}
-      .lp-sd p{margin:0;font-size:14px;line-height:1.6;color:var(--pg-dim)}
-      .lp-sd code{font-size:12px}
-      .lp-stg{padding:0;overflow:hidden}
-      .lp-stg .lp-rp{position:absolute;top:12px;right:12px;z-index:3;width:28px;padding:0;opacity:0;transition:opacity 220ms var(--lp-ease),color 220ms var(--lp-ease),background-color 220ms var(--lp-ease)}
-      .lp-stg:hover .lp-rp,.lp-stg:focus-within .lp-rp{opacity:1}
-      @media (hover:none){.lp-stg .lp-rp{opacity:1}}
-      @media (max-width:1099px){.lp-sty{grid-template-columns:minmax(0,1fr)}}
+      /* ---- styles (owner, 26 Nov: picked from the lab's 1b, with 2a's switch): one stage with the same live component in
+         Blueprint, Soft and Clean laid over each other, each in a frame of its own (a style is set on <html>), cut by two
+         handles into three slices at --x1 and --x2 from the stage's left edge. The names above follow their slices. Under the
+         stage, one switch: the styles, a hairline, then the stage's theme; a style picked glides the handles so it fills the
+         stage, and picking it again (or a drag) brings back all three. Left alone on screen, it shows each style in turn ---- */
+      @property --x1{syntax:'<length>';inherits:true;initial-value:0px}
+      @property --x2{syntax:'<length>';inherits:true;initial-value:0px}
+      .cx{--cl:0px;--cr:100%;--cx-d:340ms;max-width:960px;margin:0 auto}
+      .cx.glide{transition:--x1 var(--cx-d) var(--lp-ease),--x2 var(--cx-d) var(--lp-ease)}
+      /* the names, each over the middle of what shows of the component in its slice */
+      .cx-l{position:relative;height:20px;margin-bottom:12px}
+      .cx-l span{position:absolute;top:0;font-size:13px;line-height:20px;font-weight:500;color:var(--pg-fg);white-space:nowrap;transform:translateX(-50%);transition:opacity 220ms var(--lp-ease)}
+      .cx-l [data-s="bp"]{left:calc((var(--cl) + min(var(--x1),var(--cr))) / 2)}
+      .cx-l [data-s="soft"]{left:calc((max(var(--x1),var(--cl)) + min(var(--x2),var(--cr))) / 2)}
+      .cx-l [data-s="clean"]{left:calc((max(var(--x2),var(--cl)) + var(--cr)) / 2)}
+      .cx-l span.off{opacity:0}
+      /* the stage: the page's one backdrop corner for a stage of this size (--lp-r2), a hairline round it */
+      .cx-st{position:relative;height:var(--sh,var(--sh-d));border-radius:var(--lp-r2);overflow:hidden;background:var(--pg-soft);transition:height 340ms var(--lp-ease);touch-action:pan-y}
+      :root[data-style="clean"] .cx-st{background:var(--dm-stage)}
+      .cx-st::after{content:"";position:absolute;inset:0;z-index:3;border-radius:inherit;box-shadow:inset 0 0 0 1px var(--lp-hair);pointer-events:none}
+      .cx-st iframe{position:absolute;inset:0;width:100%;height:100%;border:0;color-scheme:normal}
+      .cx-st [data-s="soft"]{clip-path:inset(0 0 0 var(--x1))}
+      .cx-st [data-s="clean"]{clip-path:inset(0 0 0 var(--x2))}
+      /* a handle: a line the stage's height (a mark, 3:1 on the stage) and a round grip at its foot, under the component, in
+         the stage's own theme. A strip wider than the line takes the pointer */
+      .cx{--cx-line:#8c8c8c;--cx-grip:#fff;--cx-gfg:#1a1a1a;--cx-gedge:rgba(0,0,0,.14)}
+      .cx[data-t="dark"]{--cx-line:#737373;--cx-grip:#262626;--cx-gfg:#f2f2f2;--cx-gedge:rgba(255,255,255,.16)}
+      .cx-h{position:absolute;top:0;bottom:0;z-index:2;width:20px;margin-left:-10px;cursor:ew-resize;touch-action:none;outline:0;transition:opacity 220ms var(--lp-ease)}
+      .cx-h[data-h="1"]{left:var(--x1)}
+      .cx-h[data-h="2"]{left:var(--x2)}
+      .cx-h::before{content:"";position:absolute;top:0;bottom:0;left:9.5px;width:1px;background:var(--cx-line)}
+      .cx-g{position:absolute;left:50%;bottom:12px;display:grid;place-items:center;width:32px;height:32px;margin-left:-16px;border-radius:50%;background:var(--cx-grip);box-shadow:inset 0 0 0 1px var(--cx-gedge),var(--dm-shadow);color:var(--cx-gfg);transition:transform 220ms var(--lp-ease)}
+      .cx-g svg{width:16px;height:16px}
+      .cx-h:hover .cx-g,.cx-h.drag .cx-g{transform:scale(1.06)}
+      .cx-h:focus-visible .cx-g{box-shadow:0 0 0 2px var(--pg-focus),var(--dm-shadow)}
+      .cx-h.off{opacity:0;pointer-events:none}
+      .cx.dragging,.cx.dragging *{cursor:ew-resize;user-select:none}
+      .cx.dragging iframe{pointer-events:none}
+      /* the switch, centred under the stage (2a's): one track holding the styles, a hairline and the theme's sun and moon, the
+         pick in each half shown by the same thumb, and nothing picked among the styles while all three show */
+      .cx-ctl{display:flex;flex-direction:column;align-items:center;gap:16px;margin-top:24px;text-align:center}
+      .cx-sw{display:inline-flex;flex-wrap:wrap;justify-content:center;align-items:center;padding:2px;border-radius:999px;background:var(--pg-chip);max-width:100%}
+      :root[data-theme="dark"] .cx-sw{background:#0a0a0a;box-shadow:inset 0 0 0 1px #ffffff1f}
+      @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cx-sw{background:#0a0a0a;box-shadow:inset 0 0 0 1px #ffffff1f}}
+      .lp .cx-sw .cx-seg.pg-seg{background:none;box-shadow:none;padding:0}
+      .lp .cx-sw .cx-seg .pg-k{top:0;bottom:0;transition:transform var(--cx-d) var(--lp-ease),width var(--cx-d) var(--lp-ease),opacity 220ms var(--lp-ease)}
+      .cx-seg:not(:has([aria-checked="true"])) .pg-k{opacity:0}
+      .lp .cx-seg button{height:32px;padding:0 16px;font-size:14px}
+      .lp .cx-seg.icons button{width:36px;padding:0;display:inline-grid;place-items:center}
+      .cx-seg.icons svg{width:16px;height:16px}
+      .cx-div{flex:none;width:1px;height:16px;margin:0 4px;background:var(--lp-hair)}
+      .cx-lines{display:grid;justify-items:center}
+      .cx-line{grid-area:1/1;margin:0;max-width:64ch;font-size:14px;line-height:1.6;color:var(--pg-dim);text-wrap:balance}
+      .cx-line[hidden]{display:block;visibility:hidden}
+      .cx-line code{font-size:12px;white-space:nowrap}
+      @supports (corner-shape:squircle){:root[data-style="soft"] .cx-st{corner-shape:squircle}}
+      @media (prefers-reduced-motion:reduce){.cx.glide,.cx-st,.cx-g,.lp .cx-sw .cx-seg .pg-k{transition:none}.cx-h:hover .cx-g,.cx-h.drag .cx-g{transform:none}}
+      @media (max-width:640px){.cx-st{height:var(--sh,var(--sh-p))}.cx-l{margin-bottom:8px}.lp .cx-seg button{padding:0 12px}}
+      @media (max-width:380px){.lp .cx-seg button{padding:0 10px;font-size:13px}}
 
       /* ---- install: the command for each way to add it, centred, then the editor of what it writes ---- */
       .lp-add{min-width:0}
@@ -643,23 +694,24 @@ const jsonld = [
     <section class="lp-in lp-sec" id="styles" aria-labelledby="styles-h">
       <div class="lp-sh">
         <h2 id="styles-h">Three styles, light and dark</h2>
-        <p>One set of components, drawn three ways. Pick one and this whole page follows, demos and all.</p>
+        <p>One set of components, drawn three ways. Drag the handles to compare the same {STYLE_DEMO.title} in each. It’s live, and all three answer together.</p>
       </div>
-      <div class="lp-sty">
-        <div class="lp-pick">
-          <div class="lp-pk">
-            <span class="lp-pkl" id="lp-theme-l">Theme</span>
-            <div class="pg-seg lp-seg" role="radiogroup" aria-labelledby="lp-theme-l"><button type="button" role="radio" aria-checked="false" data-theme-set="light">Light</button><button type="button" role="radio" aria-checked="false" data-theme-set="dark">Dark</button></div>
-          </div>
-          <div class="lp-pk">
-            <span class="lp-pkl" id="lp-style-l">Style</span>
-            <div class="pg-seg lp-seg" role="radiogroup" aria-labelledby="lp-style-l">{STYLES.map(([v, n]) => <button type="button" role="radio" aria-checked="false" data-style-set={v}>{n}</button>)}</div>
-          </div>
-          <div class="lp-sds">{STYLES.map(([v, , d, code]) => <div class="lp-sd" data-for={v} hidden={v !== 'bp'}><p>{d}</p><code>{code}</code></div>)}</div>
+      <div class="cx" data-t="light" data-reg={STYLE_DEMO.reg} style={CX_VARS}>
+        <div class="cx-l" aria-hidden="true">{STYLES.map(([v, n]) => <span data-s={v}>{n}</span>)}</div>
+        <div class="cx-st" role="group" aria-label={`${STYLE_DEMO.title} in Blueprint, Soft and Clean, live`}>
+          {STYLES.map(([v, n]) => <iframe data-s={v} title={`${STYLE_DEMO.title} in ${n}, live`}></iframe>)}
+          {[['1', 'Blueprint and Soft'], ['2', 'Soft and Clean']].map(([h, between]) => <div class="cx-h" data-h={h} role="slider" tabindex="0" aria-label={`Edge between ${between}`} aria-valuemin="0" aria-valuemax="100" aria-valuenow={h === '1' ? '33' : '67'}><span class="cx-g"><Fragment set:html={gripIcon} /></span></div>)}
         </div>
-        <div class="lp-bg lp-stg" role="group" aria-label={`${STYLE_DEMO.title}, live`}>
-          <button type="button" class="lp-anim lp-rp" data-replay aria-label={`Play ${STYLE_DEMO.title} again`}><Fragment set:html={replayIcon} /></button>
-          <div class="lp-demo stage-inner" data-reg={STYLE_DEMO.reg} data-url={STYLE_DEMO.url} style={stageVars(STYLE_DEMO, PAD, true)}></div>
+        <div class="cx-ctl">
+          <div class="cx-sw" role="group" aria-label="Style and theme of the comparison">
+            <div class="pg-seg cx-seg" role="radiogroup" aria-label="Style">{STYLES.map(([v, n], i) => <button type="button" role="radio" aria-checked="false" tabindex={i ? -1 : 0} data-pick={v}>{n}</button>)}</div>
+            <span class="cx-div" aria-hidden="true"></span>
+            <div class="pg-seg cx-seg icons" role="radiogroup" aria-label="Theme"><button type="button" role="radio" aria-checked="true" data-t="light" aria-label="Light"><Fragment set:html={sunIcon} /></button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-t="dark" aria-label="Dark"><Fragment set:html={moonIcon} /></button></div>
+          </div>
+          <div class="cx-lines">
+            <p class="cx-line" data-for="all">Blueprint needs no attribute. Soft and Clean are <code>data-style</code> on <code>&lt;html&gt;</code>, and dark mode is <code>data-theme="dark"</code>.</p>
+            {STYLES.map(([v, , d, code]) => <p class="cx-line" data-for={v} hidden>{d} <code>{code}</code></p>)}
+          </div>
         </div>
       </div>
     </section>
@@ -774,6 +826,131 @@ const jsonld = [
       document.addEventListener('pg-style', function(){ document.querySelectorAll('.lp-demo > .card[data-c]').forEach(function(card){ if (card._c && !card._c.mine) DM.mount(card); }); });
     })();
     (function(){
+      // three styles, light and dark: the same component in Blueprint, Soft and Clean, each in a frame of its own (a style is
+      // set on <html>), written by this script from the registry's files (/r/<name>.json) on the shared core, as an install
+      // has it. The frames lie over each other on one stage; two handles cut it into three slices (--x1, --x2, in px from the
+      // stage's left edge). A click or key in one frame is played in the other two, so the slices always show one moment
+      var cx = document.querySelector('.cx'); if (!cx) return;
+      var root = document.documentElement, mq = matchMedia('(prefers-color-scheme: dark)'), RM = matchMedia('(prefers-reduced-motion: reduce)');
+      var st = cx.querySelector('.cx-st'), frames = [].slice.call(st.querySelectorAll('iframe')), hs = [].slice.call(cx.querySelectorAll('.cx-h'));
+      var labels = {}; [].forEach.call(cx.querySelectorAll('.cx-l span'), function(s){ labels[s.dataset.s] = s; });
+      var pickB = [].slice.call(cx.querySelectorAll('[data-pick]')), themeB = [].slice.call(cx.querySelectorAll('.cx-seg [data-t]')), lines = [].slice.call(cx.querySelectorAll('.cx-line'));
+      var PAD = 56, FRAME_CSS = 'html,body{margin:0;height:100%;background:var(--dm-stage)}body{display:grid;align-items:center;padding:' + PAD + 'px 24px;box-sizing:border-box;overflow:hidden}main{display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;min-width:0}main>.card{width:100%;display:grid;place-items:center}@media (max-width:400px){body{padding-inline:16px}}';
+      // the style that fills the stage (null: all three), handles a visitor dragged (shares of the stage's width), the
+      // component's box in the Soft frame, and how far the first-look nudge has each handle out
+      var pick = null, f = null, card = null, nx = [0, 0], offT = 0;
+      var W = function(){ return st.clientWidth; };
+      var thirds = function(){ var w = W(), c = card || { x:w * .25, w:w * .5 }; return [(c.x + c.w / 3) / w, (c.x + 2 * c.w / 3) / w]; };
+      var pos = function(){ return f || (pick === 'bp' ? [1, 1] : pick === 'soft' ? [0, 1] : pick === 'clean' ? [0, 0] : thirds()); };
+      var place = function(dur){
+        var w = W(), p = pos(), c = card || { x:w * .25, w:w * .5 }, cl = c.x, cr = c.x + c.w, x1 = p[0] * w + nx[0], x2 = p[1] * w + nx[1];
+        var glide = dur > 0 && !RM.matches; cx.classList.toggle('glide', glide); if (glide) cx.style.setProperty('--cx-d', dur + 'ms');
+        cx.style.setProperty('--x1', x1 + 'px'); cx.style.setProperty('--x2', x2 + 'px'); cx.style.setProperty('--cl', cl + 'px'); cx.style.setProperty('--cr', cr + 'px');
+        // a name shows while its slice of the component is wide enough for it (where the slice will be, as it glides there)
+        var room = { bp:Math.min(x1, cr) - cl, soft:Math.min(x2, cr) - Math.max(x1, cl), clean:cr - Math.max(x2, cl) };
+        Object.keys(labels).forEach(function(k){ labels[k].classList.toggle('off', room[k] < labels[k].offsetWidth + 16); });
+        // with one style filling the stage the handles wait at its edge, out of sight, once they have swept there
+        clearTimeout(offT); var single = !!pick && !f, off = function(){ hs.forEach(function(h){ h.classList.toggle('off', single); h.tabIndex = single ? -1 : 0; }); };
+        if (single && glide) offT = setTimeout(off, dur); else off();
+        hs.forEach(function(h, i){ var v = Math.round(p[i] * 100); h.setAttribute('aria-valuenow', String(v)); h.setAttribute('aria-valuetext', v + '%'); });
+      };
+      // the switch: a style fills the stage, the same style again (or a drag) brings back all three; under it, its line
+      var setPick = function(v, dur){ pick = v; f = null;
+        pickB.forEach(function(b, i){ var on = b.dataset.pick === v; b.setAttribute('aria-checked', String(on)); b.tabIndex = on || (!v && i === 0) ? 0 : -1; });
+        lines.forEach(function(l){ l.hidden = l.dataset.for !== (v || 'all'); }); place(dur); };
+      pickB.forEach(function(b){ b.addEventListener('click', function(){ setPick(pick === b.dataset.pick ? null : b.dataset.pick, 340); }); });
+      // dragging a handle (it never passes the other one), or the arrow keys on it
+      hs.forEach(function(h, i){
+        var move = function(x){ var p = pos().slice(), v = Math.max(0, Math.min(1, x / W()));
+          if (i === 0) p[0] = Math.min(v, p[1]); else p[1] = Math.max(v, p[0]); if (pick) setPick(null, 0); f = p; place(0); };
+        h.addEventListener('pointerdown', function(e){ if (e.button) return; e.preventDefault(); h.setPointerCapture(e.pointerId); h.classList.add('drag'); cx.classList.add('dragging'); move(e.clientX - st.getBoundingClientRect().left); });
+        h.addEventListener('pointermove', function(e){ if (h.hasPointerCapture(e.pointerId)) move(e.clientX - st.getBoundingClientRect().left); });
+        var up = function(){ h.classList.remove('drag'); cx.classList.remove('dragging'); };
+        ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(function(t){ h.addEventListener(t, up); });
+        h.addEventListener('keydown', function(e){
+          var v = pos()[i], step = e.shiftKey ? .1 : .02;
+          if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') v -= step; else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') v += step;
+          else if (e.key === 'Home') v = 0; else if (e.key === 'End') v = 1; else return;
+          e.preventDefault(); move(v * W());
+        });
+      });
+      addEventListener('resize', function(){ place(0); });
+      // the stage's theme: the page's to start with, following the page's until the sun or the moon is picked
+      var own = false, pageTheme = function(){ return root.getAttribute('data-theme') || (mq.matches ? 'dark' : 'light'); };
+      var send = function(fr, m){ try { if (fr.contentWindow && fr.contentWindow.dmCx) fr.contentWindow.dmCx(m); } catch(e){} };
+      var setTheme = function(t){ cx.dataset.t = t; themeB.forEach(function(b){ var on = b.dataset.t === t; b.setAttribute('aria-checked', String(on)); b.tabIndex = on ? 0 : -1; });
+        frames.forEach(function(fr){ send(fr, { k:'theme', t:t }); }); };
+      themeB.forEach(function(b){ b.addEventListener('click', function(){ own = true; setTheme(b.dataset.t); }); });
+      var follow = function(){ if (!own) setTheme(pageTheme()); };
+      new MutationObserver(follow).observe(root, { attributes:true, attributeFilter:['data-theme'] }); if (mq.addEventListener) mq.addEventListener('change', follow);
+      setTheme(pageTheme());
+
+      // left alone on screen for 5s, it shows each style in turn, one every 5s: the next one sweeps across the stage like a
+      // curtain as the switch's thumb glides to it, then all three again. Any pointer, touch or key in the section stops it,
+      // and 5s without one starts it again; off screen it waits. With reduced motion it stays on all three
+      var seen = false, ready = false, nudged = false, timer = 0, ORDER = [null, 'bp', 'soft', 'clean'];
+      var schedule = function(){ clearTimeout(timer); if (!RM.matches && seen && ready) timer = setTimeout(step, 5000); };
+      var step = function(){ if (!seen) return; setPick(ORDER[(ORDER.indexOf(pick) + 1) % ORDER.length], 900); timer = setTimeout(step, 5000); };
+      var touch = function(){ schedule(); };
+      ['pointerdown', 'pointermove', 'keydown', 'wheel', 'touchstart', 'focusin'].forEach(function(t){ cx.addEventListener(t, function(e){ if (e.isTrusted) touch(); }, { passive:true }); });
+      // the first time it comes into view, the handles nudge out and back once, so they read as things to drag
+      var nudge = function(){ if (nudged || RM.matches || !ready || !seen) return; nudged = true;
+        var t0 = performance.now(), D = 1100, LAG = 120, g = function(t){ return t <= 0 || t >= 1 ? 0 : Math.sin(2.2 * Math.PI * t) * Math.exp(-3.5 * t) * (1 - t) / .45; };
+        var frame = function(now){ var t = now - t0; nx = [-40 * g(t / D), 40 * g((t - LAG) / D)]; if (!f && !pick) place(0); if (t < D + LAG) requestAnimationFrame(frame); else { nx = [0, 0]; place(0); } };
+        requestAnimationFrame(frame); };
+      new IntersectionObserver(function(es){ seen = es[es.length - 1].isIntersecting; if (seen){ nudge(); schedule(); } else clearTimeout(timer); }, { threshold:.4 }).observe(st);
+
+      // the frames: written once the stage comes within a screen of the view. Each reports its height (the stage is as tall as
+      // the tallest of the three) and the Soft one where the component sits, so the handles start on its thirds
+      var hgt = {};
+      window.dmCxHost = {
+        size:function(id, h, x, w){ hgt[id] = h; st.style.setProperty('--sh', Math.max.apply(Math, Object.keys(hgt).map(function(k){ return hgt[k]; })) + 'px');
+          if (id === 'soft' && w){ card = { x:x, w:w }; if (!ready){ ready = true; nudge(); schedule(); } place(0); } },
+        relay:function(id, m){ frames.forEach(function(fr){ if (fr.dataset.s !== id) send(fr, m); }); },
+        touch:touch
+      };
+      // inside each frame: the component, mounted once the page has read it (so the core doesn't mount it a second time); what
+      // is clicked or pressed in it goes to the page, as a path of child indexes from <main> (the same markup in every style)
+      var boot = function(id){
+        var P = parent.dmCxHost, main = document.querySelector('main');
+        var pathOf = function(el){ var p = []; while (el && el !== main){ if (!el.parentElement) return null; p.unshift([].indexOf.call(el.parentElement.children, el)); el = el.parentElement; } return el === main ? p : null; };
+        var at = function(p){ var el = main; for (var i = 0; i < p.length && el; i++) el = el.children[p[i]]; return el; };
+        document.addEventListener('DOMContentLoaded', function(){
+          main.innerHTML = document.getElementById('cx-html').textContent; var card = main.firstElementChild;
+          if (card && DM.defs[card.dataset.c]) DM.mount(card);
+          var report = function(){ var box = main.querySelector('.stage-in > *') || main, b = box.getBoundingClientRect(), pad = parseFloat(getComputedStyle(document.body).paddingTop);
+            P.size(id, Math.ceil(main.scrollHeight + 2 * pad), b.left, b.width); };
+          new ResizeObserver(report).observe(main); report(); setTimeout(report, 1000);
+        });
+        document.addEventListener('click', function(e){ if (!e.isTrusted) return; var p = pathOf(e.target.closest('button,a,[role="radio"],[role="option"]') || e.target); if (p) P.relay(id, { k:'click', p:p }); }, true);
+        document.addEventListener('keydown', function(e){ if (!e.isTrusted || !/^(Enter|ArrowUp|ArrowDown|[1-9])$/.test(e.key)) return; var p = pathOf(e.target); if (p) P.relay(id, { k:'key', key:e.key, p:p }); }, true);
+        ['pointerdown', 'pointermove', 'keydown', 'wheel', 'touchstart'].forEach(function(t){ addEventListener(t, function(e){ if (e.isTrusted) P.touch(); }, { capture:true, passive:true }); });
+        window.dmCx = function(m){
+          if (m.k === 'theme') document.documentElement.setAttribute('data-theme', m.t);
+          else if (m.k === 'click'){ var el = at(m.p); if (el) el.click(); }
+          else if (m.k === 'key'){ var k = at(m.p); if (k) k.dispatchEvent(new KeyboardEvent('keydown', { key:m.key, bubbles:true, cancelable:true })); }
+        };
+      };
+      var esc = function(s){ return s.replace(/<\/(script)/gi, '<\\/$1'); };
+      var write = function(d){
+        var file = function(ext){ var x = d.files.filter(function(x){ return x.path.slice(-ext.length) === ext; })[0]; return x ? x.content : ''; };
+        frames.forEach(function(fr){ var s = fr.dataset.s;
+          fr.srcdoc = '<!doctype html><html lang="en"' + (s === 'bp' ? '' : ' data-style="' + s + '"') + ' data-theme="' + cx.dataset.t + '"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
+            + '<link rel="stylesheet" href="/components/assets/core.css"><' + 'style>' + FRAME_CSS + esc(file('.css')) + '</' + 'style></head><body><main class="stage-inner"></main>'
+            + '<script type="text/plain" id="cx-html">' + esc(file('.html')) + '<\/script><script src="/components/assets/core.js"><\/script><script>' + esc(file('.js')) + '<\/script>'
+            + '<script>(' + boot.toString() + ')(' + JSON.stringify(s) + ');<\/script></body></html>';
+          // a frame that loads after a theme pick takes the stage's theme
+          fr.addEventListener('load', function(){ send(fr, { k:'theme', t:cx.dataset.t }); });
+        });
+      };
+      var near = new IntersectionObserver(function(es){ if (!es[es.length - 1].isIntersecting) return; near.disconnect();
+        fetch('/r/' + cx.dataset.reg + '.json').then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); }).then(write).catch(function(){
+          st.insertAdjacentHTML('beforeend', '<p class="lp-miss" style="position:absolute;inset:0;display:grid;place-items:center">This demo didn’t load.</p>'); });
+      }, { rootMargin:'100% 0px' });
+      near.observe(st);
+      setPick(null, 0);
+    })();
+    (function(){
       // the templates' views: the first loads once its frame comes within a screen of the view (so it never holds up the page),
       // and the views take turns every 9 seconds while the frame is on screen. A mouse resting on the frame, or a finger on it,
       // holds the turn; a click, tap or key inside the app, or a pick on the switch, ends the turns for good. With reduced
@@ -844,7 +1021,7 @@ const jsonld = [
       //    scroll, what is in the middle of the view) while the page restyles and its demos start again
       // Blocks in view grow and shrink as they play; only what is above the reader is made up for
       var root = document.documentElement, pin = null, anchor = null, atTop = 0, atY = 0;
-      var blocks = [].slice.call(document.querySelectorAll('.lp-hero, .lp-bento, .lp-show-w, .lp-rows, .lp-sty, .lp-cmd, .lp-ed-art, .lp-agent, .lp-qa, .lp-work, .lp > section > .lp-sh, .lp-wall > .lp-in')).filter(function(e, i, all){ return !all.some(function(o){ return o !== e && o.contains(e); }); });
+      var blocks = [].slice.call(document.querySelectorAll('.lp-hero, .lp-bento, .lp-show-w, .lp-rows, .cx, .lp-cmd, .lp-ed-art, .lp-agent, .lp-qa, .lp-work, .lp > section > .lp-sh, .lp-wall > .lp-in')).filter(function(e, i, all){ return !all.some(function(o){ return o !== e && o.contains(e); }); });
       var head = function(){ return parseFloat(getComputedStyle(root).getPropertyValue('--pg-head')) || 0; };
       var jump = function(d){ var to = Math.round(window.scrollY + d); if (to !== Math.round(window.scrollY)) window.scrollTo({ top:to, behavior:'instant' }); };
       // the anchor: the first block that starts in the view (under the header), or, when one block fills the view, that one.
@@ -880,16 +1057,6 @@ const jsonld = [
       addEventListener('keydown', function(e){ if (/^(PageUp|PageDown|Home|End|ArrowUp|ArrowDown| )$/.test(e.key) && !(e.target.closest && e.target.closest('[role="radiogroup"],[role="tablist"],input,textarea,[contenteditable]'))) pin = null; });
     })();
     (function(){
-      // the theme and the style are each one group of radio buttons: the arrow keys move through them and pick (the header's
-      // script handles every [data-theme-set] and [data-style-set]). Under the styles, the picked one's line and attribute
-      var sd = [].slice.call(document.querySelectorAll('.lp-sd'));
-      var showStyle = function(){ var s = document.documentElement.getAttribute('data-style'); s = s === 'soft' || s === 'clean' ? s : 'bp'; sd.forEach(function(x){ x.hidden = x.dataset.for !== s; }); };
-      showStyle(); new MutationObserver(showStyle).observe(document.documentElement, { attributes:true, attributeFilter:['data-style'] });
-      document.querySelectorAll('.lp-pick [role="radiogroup"]').forEach(function(g){ g.addEventListener('keydown', function(e){
-        var d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
-        var bs = [].slice.call(g.querySelectorAll('[role="radio"]')), i = bs.indexOf(document.activeElement);
-        if (!d || i < 0) return; e.preventDefault(); var n = bs[(i + d + bs.length) % bs.length]; n.click(); n.focus();
-      }); });
       // how to add it: a click or the arrow keys show one way at a time, its command and its files in the editor
       var tabs = [].slice.call(document.querySelectorAll('.lp-tl [role="tab"]'));
       var pick = function(t, focus){ tabs.forEach(function(b){ var on = b === t; b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1;
