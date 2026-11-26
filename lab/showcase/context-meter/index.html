@@ -979,7 +979,7 @@ body.render .cap{display:none}
   </div>
   <div id="cw">
     <div class="dm-ctm" data-dm="" data-open="1" id="ctm">
-      <button type="button" class="dm-ctm-tg" id="tg" aria-expanded="true" aria-label="Context, 0% used"><span class="dm-ctm-ring" aria-hidden="true"><svg viewBox="0 0 20 20"><circle class="dm-tr" cx="10" cy="10" r="7.5"/><circle class="dm-fl" id="arc" cx="10" cy="10" r="7.5" pathLength="100" style="stroke-dasharray:0 100"/></svg></span><span><span class="dm-ctm-pc dm-num" id="pc">0%</span> of context used</span><svg class="dm-i dm-xs" id="chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></button>
+      <button type="button" class="dm-ctm-tg" id="tg" aria-expanded="true" aria-label="Context, 0% used"><span class="dm-ctm-ring" aria-hidden="true"><svg viewBox="0 0 20 20"><circle class="dm-tr" cx="10" cy="10" r="7.5"/><circle class="dm-fl" id="arc" cx="10" cy="10" r="7.5" pathLength="100" style="stroke-dasharray:0 100"/><circle class="dm-fl" id="arcw" cx="10" cy="10" r="7.5" pathLength="100" style="stroke-dasharray:0 100;opacity:0"/></svg></span><span><span class="dm-ctm-pc dm-num" id="pc">0%</span> of context used</span><svg class="dm-i dm-xs" id="chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></button>
       <div class="dm-ctm-pop dm-panel" id="pop" role="region" aria-label="What fills the context">
         <div class="dm-ctm-ph" id="ph"><span>In context</span><span class="dm-num"><b class="dm-ctm-tot" id="tot">0.0k</b> of 200k tokens</span></div>
         <div class="dm-ctm-bar" id="bar" aria-hidden="true"></div>
@@ -1017,7 +1017,7 @@ const FMT = F45 ? { W:460, H:575, out:[1080, 1350], zoom:1.16, col:380, base:1, 
 const W = FMT.W, H = FMT.H, COL = FMT.col, CX = (W - COL) / 2;
 const T = 16;
 const stage = $('#stage'), world = $('#world'), cw = $('#cw'), ctm = $('#ctm'), tg = $('#tg'), pop = $('#pop'), ph = $('#ph');
-const bar = $('#bar'), leg = $('#leg'), msg = $('#msg'), msgIn = $('#msgIn'), ft = $('#ft'), arc = $('#arc'), pc = $('#pc'), tot = $('#tot');
+const arcw = $('#arcw'), bar = $('#bar'), leg = $('#leg'), msg = $('#msg'), msgIn = $('#msgIn'), ft = $('#ft'), arc = $('#arc'), pc = $('#pc'), tot = $('#tot');
 const go = $('#go'), run = $('#run'), undo = $('#undo'), rt = $('#rt'), cur = $('#cur'), rip = $('#rip'), spin = $('#spin');
 const chat = $('#chat'), thr = $('#thr'), box = $('#box'), att = $('#att'), fchip = $('#fchip'), fcn = $('#fcn'), fci = $('#fci'), tx = $('#tx'), phd = $('#phd'), send = $('#send');
 stage.style.width = W + 'px'; stage.style.height = H + 'px';
@@ -1208,7 +1208,14 @@ function renderAt(t){
   const hotIn = eOutCubic(seg(t, HOT, B.hotD)), hotOut = eOutCubic(seg(t, B.squeeze + .1, .1));
   const hk = hotIn * (1 - hotOut);
   ctm.classList.toggle('dm-hot', hk > .5);
-  arc.style.stroke = `color-mix(in srgb,var(--dm-warn-mark) ${(hk * 100).toFixed(1)}%,var(--dm-accent-mark,var(--dm-accent)))`;
+  // the switch to the warning mark is a wipe, never a blend: the warning ring draws along the accent ring from its start over
+  // 200ms, and draws back the same way after the squeeze, so no frame shows a mix of the two colours
+  const rwIn = eInOutCubic(seg(t, HOT, .2)), rwOut = eInOutCubic(seg(t, B.squeeze + .1, .2)), wk = rwIn * (1 - rwOut);
+  const arcLen = totalB / LIMIT * 100;
+  arc.style.stroke = 'var(--dm-accent-mark,var(--dm-accent))';
+  arcw.style.stroke = 'var(--dm-warn-mark)';
+  arcw.style.strokeDasharray = (arcLen * wk).toFixed(2) + ' 100';
+  arcw.style.opacity = wk > .001 ? '1' : '0';
   let rb = 0; for (const a of allArr) rb += .2 * hit(t - a, .06);
   rb = Math.min(rb, .3) + .16 * hit(th - .02, .07);
   $('.dm-ctm-ring svg').style.transform = `rotate(-90deg) scale(${(1 + rb).toFixed(4)})`;
