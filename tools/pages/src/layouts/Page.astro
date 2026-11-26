@@ -8,7 +8,13 @@
 //   .pg-t    a component's name, 14px medium; .pg-d its description, 14px in grey
 // Everything else is 14px too. The header's row is 1400px wide, centred, as on the homepage (SiteShell lays the sidebar and the
 // page out in it); the lines under the header and over the footer run the full width of the window
-import { LOGO, SITE, FONT_CSS, HITS_JS, THEME_JS, URL_JS } from '../lib/data.mjs';
+import { LOGO, SITE, FONT_CSS, HITS_JS, THEME_JS, URL_JS, ROOT } from '../lib/data.mjs';
+import nodeFs from 'node:fs';
+import nodePath from 'node:path';
+import { createHash } from 'node:crypto';
+// fab.js (and the 3D mark it loads, logo3d.js) by a hash of their contents, so a browser never keeps an old copy: the
+// address changes when either does (fab.js passes its own ?v= on to logo3d.js)
+const FAB_V = createHash('sha1').update(['fab/fab.js', 'fab/logo3d.js'].map(f => nodeFs.readFileSync(nodePath.join(ROOT, f), 'utf8')).join('\n')).digest('hex').slice(0, 10);
 // the homepage's accent swatches, for the templates' header picker (owner, 10 Nov: bring the accent switch back to the dashboards)
 const ACCENT_SW = [['default', 'Default'], ['#d4f84a', 'Lime'], ['#116ff8', 'Blue'], ['#7c5cff', 'Violet'], ['#e8366f', 'Rose'], ['#12a150', 'Green'], ['#0ea5a4', 'Teal'], ['#ff850d', 'Orange']];
 // the GitHub pill: the repository, and GitHub's mark (Simple Icons, the same mark as the components' Brand)
@@ -586,6 +592,6 @@ a{color:inherit}
 <script is:inline set:html={HITS_JS} />
 <slot name="end" />
 <script is:inline src="/art/art.js?v=3" defer></script>
-<script is:inline src="/fab/fab.js" defer></script>
+<script is:inline src={`/fab/fab.js?v=${FAB_V}`} defer></script>
 </body>
 </html>
