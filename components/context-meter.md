@@ -23,7 +23,7 @@ npx shadcn@latest add https://designme.dev/r/shadcn/astro/context-meter.json  # 
 
 ## About
 
-Context meter shows how full an agent's context window is and what fills it. A small pill with a ring and a percentage opens a panel with one bar split by kind (files, tool output, chat, instructions), a legend whose rows list what is in them on hover, and a Compact button that frees room and says how much.
+Context meter shows how full an agent's context window is and what fills it. A small pill with a ring and a percentage opens a panel above it with one bar split by kind (files, tool output, chat, instructions), a legend whose rows list what is in them on hover, and a Compact button that frees room and says how much.
 
 ### When to use it
 
@@ -40,8 +40,8 @@ Context meter shows how full an agent's context window is and what fills it. A s
 - Hovering a legend row lights its share of the bar and shows its `items`.
 - `message` adds a line under the legend. With `messageTone: 'warn'` it is a warning notice: a faint warning tint, the filled warning sign and the words in the text colour, and Compact takes the warning tint as the action that resolves it. With `'ok'` it is a plain line with the green tick, like "Freed 41.2k tokens. 9 decisions kept". The line takes no room while empty and opens smoothly when a message comes.
 - Compact calls `onCompact`. Return a promise and, until it settles, the button gives way to a status in its place, a spinner and "Compacting…" with a moving highlight (nothing to press while it runs), while the line beside it says `busyHint` with the same highlight; the row keeps its height. Set `compacted` and the button becomes Undo, which calls `onUndo`.
-- The pill opens and shuts the panel, and `open`, `defaultOpen` and `onOpenChange` let you control it. The panel folds away when shut and opens back smoothly.
-- Ships in Clean too (`data-style="clean"`): the pill is a flat secondary control (a hairline and a light fill), the panel is a round card with off-white head and foot strips and its content 16px in from every edge, the bar and its parts keep their colours on round tracks, Compact is a 28px secondary pill 8px from the foot strip's top and bottom and 16px in from the side, on the content's column, and the panel folds away when shut.
+- The pill opens and shuts the panel, and `open`, `defaultOpen` and `onOpenChange` let you control it. The panel opens above the pill, as it would under a chat composer, and the pill's chevron points up while it is shut. `placement` (`'top'` by default, or `'bottom'`) picks the side; when the window, or a box round the meter that clips it, has no room on that side and more on the other, it opens there instead. The panel grows out of the pill and folds back into it when shut.
+- Ships in Clean too (`data-style="clean"`): the pill is a flat secondary control (a hairline and a light fill), the panel is a round card with off-white head and foot strips and its content 16px in from every edge, the bar and its parts keep their colours on round tracks, Compact is a 28px secondary pill 16px from the foot strip's top and bottom and 16px in from the side, on the content's column, and the panel fades and scales a little from the pill as it opens and shuts.
 
 ### Accessibility
 
@@ -128,6 +128,7 @@ export default function ContextMeterDemo() {
 | `open` (optional) | `boolean` | Whether the panel is open. Leave it out to let the pill toggle it |
 | `defaultOpen` (optional) | `boolean` |  |
 | `onOpenChange` (optional) | `(open: boolean) => void` |  |
+| `placement` (optional) | `'top' \| 'bottom'` | Which side of the pill the panel opens on. Defaults to top, above the pill, as it sits under a chat composer. When the window, or a box round the meter that clips it, has no room on that side and more on the other, it opens there instead |
 | `className` (optional) | `string` |  |
 
 ## Usage in Astro
@@ -163,7 +164,7 @@ When the tokens in `parts` add up to `warnAt` of `limit` or more. `warnAt` is 0.
 'use client';
 import { useEffect, useRef, useState, type CSSProperties, type RefObject } from 'react';
 import { cx } from '../lib/cx';
-import { useControllable, useReducedMotion, useTween } from '../lib/hooks';
+import { useControllable, useIsoLayoutEffect, useReducedMotion, useTween } from '../lib/hooks';
 import { Icon } from '../lib/icons';
 import { Spin, Swap, Tip } from '../lib/motion';
 import '../designme.css';
@@ -206,7 +207,20 @@ export interface ContextMeterProps {
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
+  /** Which side of the pill the panel opens on. Defaults to top, above the pill, as it sits under a chat composer. When the
+      window, or a box round the meter that clips it, has no room on that side and more on the other, it opens there instead */
+  placement?: 'top' | 'bottom';
   className?: string;
+}
+
+/** The room the panel may open into: the window, cut by any box round the meter that clips what spills out of it */
+function roomOf(el: HTMLElement) {
+  let top = 0, bottom = innerHeight;
+  for (let a = el.parentElement; a && a !== document.documentElement; a = a.parentElement) {
+    if (getComputedStyle(a).overflowY === 'visible') continue;
+    const r = a.getBoundingClientRect(); top = Math.max(top, r.top); bottom = Math.min(bottom, r.bottom);
+  }
+  return { top, bottom };
 }
 
 
@@ -239,17 +253,29 @@ function Count({ value, ms = 900, format }: { value: number; ms?: number; format
 }
 
 /** How full the context is and what fills it: a pill with a ring that opens one bar split by kind, a legend whose rows list
- *  what is in them, and Compact. Escape closes it. */
+ *  what is in them, and Compact. The panel opens above the pill (placement), and Escape closes it. */
 export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone = 'ok', onCompact, compacted = false, onUndo,
-  hint = 'Summarises older turns', busyHint = 'Summarising older turns', open, defaultOpen = true, onOpenChange, className }: ContextMeterProps) {
+  hint = 'Summarises older turns', busyHint = 'Summarising older turns', open, defaultOpen = true, onOpenChange, placement = 'top', className }: ContextMeterProps) {
   const [isOpen, setOpen] = useControllable(open, defaultOpen, onOpenChange);
   const [busy, setBusy] = useState(false);
   const [lit, setLit] = useState<string | null>(null);
   // it opens on its real numbers; they only count when something changes
   const ready = true;
   const total = parts.reduce((t, p) => t + p.tokens, 0), share = ready ? total / limit : 0, pct = Math.round(share * 100);
-  const root = useRef<HTMLDivElement>(null), tg = useRef<HTMLButtonElement>(null), go = useRef<HTMLButtonElement>(null);
+  const root = useRef<HTMLDivElement>(null), tg = useRef<HTMLButtonElement>(null), go = useRef<HTMLButtonElement>(null), pop = useRef<HTMLDivElement>(null);
   useEaseWidth(go);
+  // the side it opens on is chosen as it opens: the placement's side, or the other one when that side has no room for the
+  // panel (its height, its padding while it is still easing in, and the gap) and the other has more
+  const [side, setSide] = useState(placement);
+  const full = useRef(0);
+  useIsoLayoutEffect(() => {
+    const el = pop.current, b = tg.current; if (!isOpen || !el || !b) return;
+    full.current = Math.max(full.current, el.scrollHeight);
+    const room = roomOf(b), r = b.getBoundingClientRect(), need = full.current + 44, above = r.top - room.top, below = room.bottom - r.bottom;
+    const [want, other] = placement === 'top' ? [above, below] : [below, above];
+    const up = placement === 'top' ? want >= need || want >= other : !(want >= need || want >= other);
+    setSide(up ? 'top' : 'bottom');
+  }, [isOpen, placement]);
   // Escape shuts the panel while the pointer or the focus is on the meter
   useEffect(() => {
     if (!isOpen) return;
@@ -269,7 +295,7 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
   };
 
   return (
-    <div ref={root} data-dm="" className={cx('dm-ctm', share >= warnAt && 'dm-hot', className)} data-open={isOpen ? '1' : '0'}>
+    <div ref={root} data-dm="" className={cx('dm-ctm', share >= warnAt && 'dm-hot', className)} data-open={isOpen ? '1' : '0'} data-pos={side === 'top' ? 'up' : 'down'}>
       <button ref={tg} type="button" className="dm-ctm-tg" aria-expanded={isOpen} aria-label={`Context, ${pct}% used`} onClick={() => setOpen(!isOpen)}>
         <span className="dm-ctm-ring" aria-hidden="true">
           <svg viewBox="0 0 20 20"><circle className="dm-tr" cx="10" cy="10" r="7.5" /><circle className="dm-fl" cx="10" cy="10" r="7.5" pathLength={100} style={{ strokeDasharray: `${pct} 100` }} /></svg>
@@ -277,7 +303,7 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
         <span><span className="dm-ctm-pc dm-num"><Count value={ready ? total : 0} format={n => Math.round(n / limit * 100) + '%'} /></span> of context used</span>
         <Icon name="chev-d" size="xs" />
       </button>
-      <div className="dm-ctm-pop dm-panel" role="region" aria-label="What fills the context" inert={!isOpen}>
+      <div ref={pop} className="dm-ctm-pop dm-panel" role="region" aria-label="What fills the context" inert={!isOpen}>
         <div className="dm-ctm-ph"><span>In context</span><span className="dm-num"><b className="dm-ctm-tot"><Count value={ready ? total : 0} format={k} /></b> of {Math.round(limit / 1000)}k tokens</span></div>
         <div className={cx('dm-ctm-bar', lit && 'dm-hl')} aria-hidden="true">
           {parts.map((p, i) => <i key={p.key} className={lit === p.key ? 'dm-on' : undefined} style={{ width: (ready ? p.tokens / limit * 100 : 0) + '%', '--dm-c': p.color ?? PALETTE[i % PALETTE.length] } as CSSProperties} />)}

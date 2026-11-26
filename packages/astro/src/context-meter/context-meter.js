@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, REDUCE, enter, html, swap, tip, tween } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, enter, html, popRoom, swap, tip, tween } from '../core/core.js';
 DM.def('context-meter', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{chev}', I('chev-d','xs'));
   const LIMIT = 200;
@@ -33,7 +33,16 @@ DM.def('context-meter', (r, c) => {
   c.on(leg, 'pointerover', e => { const l = e.target.closest('.ctm-l'); if (!l) return; bar.classList.add('hl'); $$('i', bar).forEach(i => i.classList.toggle('on', i.dataset.k === l.dataset.k)); });
   c.on(leg, 'pointerout', e => { if (!leg.contains(e.relatedTarget)) bar.classList.remove('hl'); });
   // the pill opens and shuts the panel; Escape shuts it while the pointer or the focus is on the meter
-  const setOpen = (o, back) => { root.dataset.open = o ? '1' : '0'; tg.setAttribute('aria-expanded', o); pop.inert = !o; if (back) tg.focus({ preventScroll:true }); };
+  // it opens above the pill, as it does under a composer. Away from a demo's stage (which keeps room for it) it opens below
+  // instead when the window, or a box that clips it, has no room above and more below (as placePop does for menus)
+  let full = 0;
+  const side = () => {
+    if (r.closest('.stage-in')) return 'up';
+    full = Math.max(full, root.dataset.open === '1' ? pop.offsetHeight : 0, pop.scrollHeight);
+    const room = popRoom(tg), b = tg.getBoundingClientRect(), need = full + 12, above = b.top - room.top, below = room.bottom - b.bottom;
+    return above >= need || above >= below ? 'up' : 'down';
+  };
+  const setOpen = (o, back) => { if (o) root.dataset.pos = side(); root.dataset.open = o ? '1' : '0'; tg.setAttribute('aria-expanded', o); pop.inert = !o; if (back) tg.focus({ preventScroll:true }); };
   tg.onclick = () => setOpen(root.dataset.open !== '1');
   c.on(document, 'keydown', e => { if (e.key === 'Escape' && root.dataset.open === '1' && (root.contains(document.activeElement) || root.matches(':hover'))) setOpen(false, root.contains(document.activeElement)); });
   // new tool output lands and takes the context close to its limit
@@ -59,7 +68,7 @@ DM.def('context-meter', (r, c) => {
     go._busy = false;
   });
   // it opens on its real numbers; they only count when something changes
-  paint(1);
+  paint(1); root.dataset.pos = side();
   // the preview's story: read what fills it, new tool output pushes it close to the limit, compact, then shut it
   if (r === c.st) c.story(async s => {
     await s.beat(3);
