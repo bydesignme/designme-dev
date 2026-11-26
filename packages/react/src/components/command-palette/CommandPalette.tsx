@@ -158,7 +158,7 @@ export function CommandPalette({ items, query, defaultQuery = '', onQueryChange,
         })}
       </div>
       {/* what ran last on the left, the keys on the right */}
-      <div className="dm-cpl-f dm-muted">
+      <div className="dm-cpl-f dm-muted dm-mx-foot">
         <span className="dm-cpl-st">{(status ?? ran) && <span key={status ?? ran} className="dm-enter"><span className="dm-dot" aria-hidden="true" />{status ?? ran}</span>}</span>
         <span><span className={cx('dm-kbd', kp === 'ArrowUp' && 'dm-kp')}>↑</span><span className={cx('dm-kbd', kp === 'ArrowDown' && 'dm-kp')}>↓</span> move</span>
         <span><span className={cx('dm-kbd', kp === 'Enter' && 'dm-kp')}>↵</span> run</span>

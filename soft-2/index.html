@@ -380,9 +380,12 @@ th:last-child>.col-rz{display:none}
 .fold.shut{grid-template-rows:0fr;opacity:0;visibility:hidden;transition:grid-template-rows var(--t) var(--ease),opacity var(--t) var(--ease),visibility 0s var(--t)}
 
 /* grow(): a container that grows with its content, eased (any component; Plan review and Agent tree use it) */
-.growing{overflow:clip;overflow-clip-margin:6px;transition:height .55s cubic-bezier(.22,1,.36,1)}
+.growing{overflow:clip;overflow-clip-margin:6px;--grow-t:.55s}
 .growing>.dm-grow{display:flex;flex-direction:column;gap:inherit;flex:none}
-@media (prefers-reduced-motion:reduce){.growing{transition:none}}
+/* a foot marked .mx-foot (a footer strip at the card's bottom) rides the card's bottom edge while the card springs to a change
+   made at once (growFit()'s --grow-d), so it never drops out of sight or jumps up and leaves a gap; it covers what slides
+   under it with the card's own surface */
+.growing .mx-foot{translate:0 var(--grow-d,0px);position:relative;z-index:1;background-color:var(--surface)}
 /* ---------- tooltip and popover ---------- */
 .tip{position:fixed;z-index:1000;pointer-events:none;background:var(--tip-bg,var(--ink));color:var(--tip-fg,var(--on-ink));box-shadow:var(--tip-ring,none);font-size:12px;line-height:1.35;padding:6px 9px;border-radius:var(--r-sm);max-width:240px;opacity:0;transform:translateY(4px);filter:blur(2px);transition:opacity .18s var(--ease),transform .25s var(--ease),filter .18s}
 .tip.show{opacity:1;transform:none;filter:none}
@@ -437,9 +440,8 @@ th:last-child>.col-rz{display:none}
 .mx-w{white-space:nowrap}
 /* (the React components' SwapIcon wraps the icon it swaps in a span of this class) */
 .mx-icon{display:inline-grid;place-items:center}
-/* .mx-grow: a component that grows with what it holds (grow()) eases to its new height on the spring (Agent harness, which places
-   some of them in its chat, keeps the plain ease) */
-.mx-grow.growing:not(.ahx *){transition:height calc(var(--t-in) * 1.4) var(--ease-spring)}
+/* .mx-grow: a component that grows with what it holds (grow()) takes the motion pieces' time for a change made at once (--t-in ×
+   1.4, set in growFit()); Agent harness, which places some of them in its chat, keeps grow()'s own --grow-t */
 .mx-glide.hg{isolation:isolate}
 .mx-glide.hg.hg-pos{position:relative}
 .mx-glide.hg[data-hg="b"]::before,.mx-glide.hg[data-hg="a"]::after{content:"";position:absolute;left:0;top:0;z-index:-1;pointer-events:none;width:var(--hg-w,0px);height:var(--hg-h,0px);transform:translate(var(--hg-x,0px),var(--hg-y,0px));border-radius:var(--hg-r,10px);background:var(--hg-bg,var(--row));opacity:var(--hg-o,0);transition:opacity var(--t-fast) var(--ease),transform var(--t-glide) var(--ease-spring),width var(--t-glide) var(--ease-spring),height var(--t-glide) var(--ease-spring),background-color var(--t-fast) var(--ease)}
@@ -448,7 +450,7 @@ th:last-child>.col-rz{display:none}
 /* a pressed row deepens the glide under it, at once, and lets it ease back */
 .mx-glide.hg:has([data-hgr]:active){--hg-bg:var(--row-press)}
 .mx-glide.hg:has([data-hgr]:active)::before{transition-duration:var(--t-fast),var(--t-glide),var(--t-glide),var(--t-glide),var(--t-press)}
-@media (prefers-reduced-motion:reduce){.mx-glide.hg[data-hg="b"]::before,.mx-glide.hg[data-hg="a"]::after{transition-property:opacity!important;transition-duration:var(--t-fast)!important}.mx-pop{filter:none!important}.mx-grow.growing:not(.ahx *){transition:none}}
+@media (prefers-reduced-motion:reduce){.mx-glide.hg[data-hg="b"]::before,.mx-glide.hg[data-hg="a"]::after{transition-property:opacity!important;transition-duration:var(--t-fast)!important}.mx-pop{filter:none!important}}
 
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.shim{color:var(--fg);background:none}}
 
@@ -1057,7 +1059,7 @@ th:last-child>.col-rz{display:none}
 /* the tree grows with its rows (grow(), owner 17 Nov): each new row already opens its own height smoothly, so the panel
    follows its content frame by frame, with nothing cut off and no room left over; the way on under a row (a fix, Approve and
    Hold) opens its height the same way. Where a browser can't ease a height to auto, it appears at once */
-.atr.growing{transition:none;interpolate-size:allow-keywords}
+.atr.growing{--grow-t:0s;interpolate-size:allow-keywords}
 .atr-ask{overflow:clip;overflow-clip-margin:4px;animation:atrask .42s var(--atr-ez) backwards}
 @keyframes atrask{from{height:0;padding-bottom:0;opacity:0}}
 .atr .atr-n[data-ph="in"]>.atr-b>.atr-ask{animation:atrask .42s var(--atr-ez) backwards,atrin .56s var(--atr-ez) backwards}
@@ -3957,8 +3959,11 @@ th:last-child>.col-rz{display:none}
 .aab-ch .chip{background:var(--hover)}
 .aab-ch .chip:hover{background:var(--press)}
 .aab-ch .chip.on{background:var(--accent-bg);color:var(--accent-fg,var(--accent));box-shadow:none}
-.aab-st{margin:0;max-height:20px;font-size:12.5px;display:flex;align-items:center;gap:6px;transition:max-height var(--t) var(--ease),margin-top var(--t) var(--ease)}
+/* (the status line opens and closes on its own height at the moment the reasons fold does, so the card moves once, in one
+   direction: owner, 26 Nov. A line about to empty eases shut and fades with its words still in it; .off) */
+.aab-st{margin:0;max-height:20px;font-size:12.5px;display:flex;align-items:center;gap:6px;overflow:clip;overflow-clip-margin:2px;transition:max-height var(--t) var(--ease),margin-top var(--t) var(--ease),opacity var(--t-fast) var(--ease)}
 .aab-st:is(:empty,.off){max-height:0;margin-top:calc(-1 * var(--s-3))}
+.aab-st.off{opacity:0}
 .aab-st.warn{color:var(--warn)}
 .aab-st.ok svg{color:var(--ok);flex:none}
 .aab-rd.on .aab-pr{width:40px}
@@ -12787,10 +12792,10 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 <article class="card" data-c="command-palette" id="c-command-palette">
   <div class="card-h"><div><h3>Command palette</h3><p>Jump anywhere or hand a task to the agent from one box.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="cpl panel mx-ic" data-reveal="pop">
+  <template><div class="cpl panel mx-ic mx-grow" data-reveal="pop">
   <div class="cpl-in">{search}<input class="cpl-q" placeholder="Search or ask the agent" aria-label="Command" spellcheck="false"><span class="kbd" data-k="Escape">esc</span></div>
   <div class="cpl-list" role="listbox"></div>
-  <div class="cpl-f muted"><span class="cpl-st"></span><span><span class="kbd" data-k="ArrowUp">↑</span><span class="kbd" data-k="ArrowDown">↓</span> move</span><span><span class="kbd" data-k="Enter">↵</span> run</span></div>
+  <div class="cpl-f muted mx-foot"><span class="cpl-st"></span><span><span class="kbd" data-k="ArrowUp">↑</span><span class="kbd" data-k="ArrowDown">↓</span> move</span><span><span class="kbd" data-k="Enter">↵</span> run</span></div>
 </div></template>
   <div class="card-f"><span>Type to filter, arrows and Enter to run</span><span class="sp"></span><button class="replay" aria-label="Replay Command palette"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
@@ -14012,14 +14017,63 @@ function grow(el){
   const w = document.createElement('div'); w.className = 'dm-grow';
   while (el.firstChild) w.appendChild(el.firstChild);
   el.appendChild(w); el.classList.add('growing');
+  const stop = growFit(el, w);
+  return el._grow = () => { stop(); el._grow = null; el.classList.remove('growing'); };
+}
+/* growFit(): how a grow() box keeps its height, in one smooth motion (owner, 26 Nov: "no jittering and jagged motion when the
+   components jump up and down"). The box is always as tall as its content (the wrapper w) plus an offset that springs to
+   nothing, set in the same frame the content changes, so the box's edges, the content and its place in the stage (which
+   centres it) move together:
+   - content that eases its own height (a fold opening, a row opening its height, a status line's max-height: a running
+     transition or animation of a size inside it) is followed frame by frame, on the content's own curve. A box that eased
+     after it instead lagged behind and restarted its ease every frame, so the rows under a fold went down and then back up as
+     the stage re-centred the card, and spilled past its edge
+   - content that changes at once (rows drawn, a question swapped) keeps the height on screen and springs to the new one: a
+     critically damped spring, which never overshoots and carries its speed into a change that lands mid-way, so quick
+     changes never stutter or start over
+   Heights are the wrapper's layout box (the ResizeObserver's border box), unrounded and untouched by an entrance's scale.
+   Timing: --grow-t (.55s; an .mx-grow box takes the motion pieces' --t-in × 1.4); 0s only follows, as reduced motion does.
+   The offset is --grow-d on the box, which a foot marked .mx-foot rides, so it stays on the box's bottom edge */
+const GROW_SIZING = /^(all|height|min-height|max-height|block-size|min-block-size|max-block-size|grid-template-rows|grid-auto-rows|margin|margin-top|margin-bottom|margin-block(-start|-end)?|padding|padding-top|padding-bottom|padding-block(-start|-end)?|gap|row-gap|line-height|font-size|flex|flex-basis|flex-grow|border-width|border-top-width|border-bottom-width)$/;
+function sizingIn(w){
+  for (const a of w.getAnimations({ subtree:true })){
+    if (a.playState === 'finished' || a.playState === 'idle' || !a.effect || a.effect.pseudoElement) continue;
+    const ps = typeof a.transitionProperty === 'string' ? [a.transitionProperty] : a.effect.getKeyframes ? a.effect.getKeyframes().flatMap(k => Object.keys(k)) : [];
+    if (ps.some(p => GROW_SIZING.test(p.replace(/[A-Z]/g, ch => '-' + ch.toLowerCase())))) return true;
+  }
+  return false;
+}
+function growFit(el, w){
+  let H = null, d = 0, v = 0, raf = 0, last = 0;
   const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
-  let first = true;
-  // the wrapper's layout height (offsetHeight), not its box on screen, so an entrance that scales the card (.98 in Clean)
-  // never leaves it short
-  const fit = () => { const h = Math.ceil(w.offsetHeight + box());
-    if (first){ el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; } else el.style.height = h + 'px'; };
-  const ro = new ResizeObserver(fit); ro.observe(w); fit();
-  return el._grow = () => { ro.disconnect(); el._grow = null; el.style.height = ''; el.classList.remove('growing'); };
+  const dur = () => REDUCE ? 0 : el.classList.contains('mx-grow') && !el.closest('.ahx') ? mxT(el, '--t-in', 360) * 1.4 : mxT(el, '--grow-t', 550);
+  const put = () => { el.style.height = Math.max(0, H + box() + d) + 'px'; el.style.setProperty('--grow-d', d.toFixed(2) + 'px'); };
+  // the spring, solved exactly for each frame's step (stiffness from the duration: settled within it, 92% there halfway)
+  const step = now => {
+    raf = 0; const T = dur() / 1000, dt = Math.min(.064, Math.max(0, (now - last) / 1000)); last = now;
+    if (!T || !el.isConnected){ d = v = 0; put(); return; }
+    const k = 8.4 / T, e = Math.exp(-k * dt), c = v + k * d;
+    d = (d + c * dt) * e; v = (v - k * c * dt) * e;
+    if (Math.abs(d) < .05 && Math.abs(v) < 2){ d = v = 0; put(); return; }
+    put(); raf = requestAnimationFrame(step);
+  };
+  // (vc: the content's own speed while it eases, in px a ms, and tc when it was last measured; a pause of more than three
+  // frames starts a new easing)
+  let vc = null, tc = 0;
+  const ro = new ResizeObserver(es => {
+    const b = es[es.length - 1].borderBoxSize, h = b && b[0] ? b[0].blockSize : w.offsetHeight, t = performance.now();
+    if (H === null || !dur()){ H = h; d = v = 0; vc = null; put(); return; }
+    const dh = h - H, dt = Math.max(1, t - tc); if (Math.abs(dh) < .01) return; H = h; tc = t;
+    // a change made at once keeps the height on screen and springs from it; a content's own easing is followed as it goes.
+    // While it eases, a step far from its speed (a line emptied at once as a fold opens) is a change made at once on top of it
+    let jump = dh; if (dt > 50) vc = null;
+    if (sizingIn(w)){ const e = vc === null ? 0 : dh - vc * dt; jump = Math.abs(e) > Math.max(4, Math.abs(vc * dt)) ? e : 0; vc = (dh - jump) / (vc === null ? 1000 / 60 : dt); }
+    else vc = null;
+    if (jump){ d -= jump; if (!raf){ last = t; raf = requestAnimationFrame(step); } }
+    put();
+  });
+  ro.observe(w);
+  return () => { ro.disconnect(); cancelAnimationFrame(raf); el.style.height = ''; el.style.removeProperty('--grow-d'); };
 }
 /* hoverGlide(): Clean's one hover in a menu or a list (owner, 21 Nov): a single highlight that glides from row to row as the
    pointer moves, and fades in as the pointer enters the list and out as it leaves. It follows the keyboard too: the row with
@@ -18974,9 +19028,17 @@ DM.def('answer-action-bar', (r, c) => {
     const s = (i ? `<span${inner ? ' class="nw"' : ''}> </span>` : '') + `<span class="w${on ? ' nw' : ''}">${w.replace(/\[\[|\]\]/g, '')}</span>`; if (b) on = false; return s; }); };
   // the tone changes with the words: the words fading out keep their colour, and the new ones arrive in theirs (swap()
   // writes them 170ms on)
-  const status = (text, tone) => { clearTimeout(st._tone); const set = () => { st.classList.toggle('warn', tone === 'warn'); st.classList.toggle('ok', tone === 'ok'); };
+  // The line opens and closes on its own height at the same moment as the reasons (owner, 26 Nov: no jumping up and down): an
+  // empty line takes its words at once rather than after swap()'s fade, and a line that empties eases shut with its words still
+  // in it, then lets them go
+  const status = (text, tone) => { clearTimeout(st._tone); clearTimeout(st._off); const set = () => { st.classList.toggle('warn', tone === 'warn'); st.classList.toggle('ok', tone === 'ok'); };
+    const had = !!st.textContent.trim() && !st.classList.contains('off');
+    if (st._sw && (!text || !had)){ clearTimeout(st._sw.t); st._sw = null; st.classList.remove('out'); }
+    if (!text){ if (!st.textContent.trim()){ st.classList.remove('off'); return; } st.classList.add('off'); st._off = setTimeout(() => { st.textContent = ''; st.classList.remove('off', 'warn', 'ok'); }, REDUCE ? 0 : mxT(st, '--t', 450)); return; }
+    st.classList.remove('off');
     if (tone === 'ok') { set(); st.innerHTML = `${I('ok','xs')}<span>${text}</span>`; enter(st); return; }
-    const lag = !REDUCE && !!st.textContent.trim() && st.textContent !== text; swap(st, text); if (lag) st._tone = setTimeout(set, 170); else set(); };
+    if (!had){ set(); st.textContent = text; mxIn(st); return; }
+    const lag = !REDUCE && st.textContent !== text; swap(st, text); if (lag) st._tone = setTimeout(set, 170); else set(); };
   function nav(){
     n.textContent = (cur + 1) + ' / ' + vers.length; pg.classList.toggle('on', vers.length > 1); pg.inert = vers.length < 2;
     pv.disabled = cur === 0 || busy; nx.disabled = cur === vers.length - 1 || busy; re.disabled = busy;
