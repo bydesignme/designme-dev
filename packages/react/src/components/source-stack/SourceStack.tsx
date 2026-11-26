@@ -1,9 +1,9 @@
 'use client';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
-import { useControllable } from '../../lib/hooks';
+import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { avatarInk, enter, Fold, Tip } from '../../lib/motion';
+import { avatarInk, enter, Fold, mxT, Tip, useReflow } from '../../lib/motion';
 import { hoverGlide } from '../../lib/glide';
 import '../../designme.css';
 import './source-stack.css';
@@ -61,10 +61,25 @@ export function SourceStack({ children, sources, filters = FILTERS, filter, defa
   const items = sources.filter(s => f === 'all' || s.kind === f);
   // Clean's one hover glides from source to source (the list is drawn afresh as it opens or its filter changes)
   const listRef = useRef<HTMLDivElement>(null);
-  useEffect(() => hoverGlide(listRef.current, '.dm-ssx-s'), [f, opened]);
+  useEffect(() => hoverGlide(listRef.current, '.dm-ssx-s'), [opened]);
+  // a filter moves the rows: the sources that stay glide to their new places, new ones rise in out of a short blur and the
+  // ones that go fade where they were, and the list eases to its new height on the spring (motion pieces)
+  const box = useRef<HTMLDivElement>(null), reduce = useReducedMotion();
+  useReflow(box, '.dm-ssx-s', { blur: true, host: listRef });
+  const lastH = useRef(0), lastF = useRef(f), staggered = useRef(-1);
+  const fresh = staggered.current !== opened;
+  useIsoLayoutEffect(() => {
+    staggered.current = opened;
+    const el = listRef.current; if (!el) return;
+    const h0 = lastH.current, h1 = el.offsetHeight, changed = lastF.current !== f; lastH.current = h1; lastF.current = f;
+    if (!changed || reduce || !h0 || Math.abs(h1 - h0) < 1 || typeof el.animate !== 'function') return;
+    el.style.overflow = 'clip';
+    const a = el.animate([{ height: h0 + 'px' }, { height: h1 + 'px' }], { duration: mxT(el, 't-in', 360) * 1.4, easing: mxT(el, 'ease-spring', 'ease') });
+    a.onfinish = a.oncancel = () => { el.style.overflow = ''; };
+  });
 
   return (
-    <div data-dm="" className={cx('dm-ssx', className)}>
+    <div data-dm="" ref={box} className={cx('dm-ssx', className)}>
       {children !== undefined && <p className="dm-msg">{children}</p>}
       <button type="button" className="dm-ssx-pill" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
         <span className="dm-ssx-ics">{sources.slice(0, 4).map((s, i) => <span key={i} style={{ background: s.color, color: avatarInk(s.color) }}>{s.mark[0]}</span>)}</span>
@@ -76,15 +91,15 @@ export function SourceStack({ children, sources, filters = FILTERS, filter, defa
           <div className="dm-ssx-fl">
             {filters.map(x => <button key={x.value} type="button" className={cx('dm-chip dm-sm', x.value === f && 'dm-on')} aria-pressed={x.value === f} onClick={() => setF(x.value)}>{x.label}</button>)}
           </div>
-          <div ref={listRef} className="dm-ssx-list" key={f + ':' + opened}>
+          <div ref={listRef} className="dm-ssx-list dm-mx-glide" key={opened}>
             {items.map((s, i) => {
-              const e = enter(i * 40), pct = Math.round(Math.max(0, Math.min(1, s.relevance)) * 100);
+              const e = fresh ? enter(i * 40) : { className: undefined, style: undefined }, pct = Math.round(Math.max(0, Math.min(1, s.relevance)) * 100);
               return (
-                <div key={s.title + i} className={cx('dm-ssx-s', e.className)} style={e.style}>
+                <div key={s.title} data-key={s.title} className={cx('dm-ssx-s', e.className)} style={e.style}>
                   <span className="dm-fv" style={{ background: s.color, color: avatarInk(s.color) }}>{s.mark}</span>
                   <span className="dm-t"><span>{s.title}</span><span className="dm-h"> · {s.host}</span></span>
                   <Tip label={`Relevance ${pct}%`}><span className="dm-rel" role="meter" aria-label="Relevance" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct}><i style={{ width: pct + '%' }} /></span></Tip>
-                  {s.onOpen && <Tip label="Open"><button type="button" className="dm-ib" aria-label="Open source" onClick={s.onOpen}><Icon name="ext" size="xs" /></button></Tip>}
+                  {s.onOpen && <Tip label="Open"><button type="button" className="dm-ib dm-mx-press" aria-label="Open source" onClick={s.onOpen}><Icon name="ext" size="xs" /></button></Tip>}
                 </div>
               );
             })}

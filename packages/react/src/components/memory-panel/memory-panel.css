@@ -20,6 +20,9 @@
 .dm-mmx-list{display:flex;flex-direction:column;margin:0 calc(-1 * var(--dm-s-2))}
 .dm-mmx-m{display:flex;align-items:flex-start;gap:12px;padding:var(--dm-s-2);border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;line-height:1.5;transition:background .3s}
 @media (hover:hover) and (pointer:fine){.dm-mmx-m:hover{background:var(--dm-row)}}
+/* its motion (the core's motion pieces, owner, 26 Nov): one highlight glides from memory to memory in every style (.mx-glide);
+   a filter moves the rows (reflow()); a press on Edit or Forget shows at once (.mx-press); a source's spinner and mark, and the
+   footer's mark, crossfade (.mx-ic); the panel grows on the spring (.mx-grow) */
 .dm-mmx-src{width:28px;height:28px;margin-top:1px;border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));display:grid;place-items:center;flex:none;background:var(--dm-surface);color:var(--dm-fg2);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent)}
 .dm-mmx-src .dm-brand{width:15px;height:15px;color:var(--dm-fg)}
 .dm-mmx-src .dm-spin{width:12px;height:12px}
@@ -45,7 +48,8 @@
 /* a memory an answer uses pulses once with a quiet grey fill, and its source lifts */
 .dm-mmx-m.dm-use{animation:dm-mmxuse 1.4s var(--dm-ease)}
 .dm-mmx-m.dm-use .dm-mmx-src{animation:dm-mmxlift .6s var(--dm-ease)}
-@keyframes dm-mmxuse{0%{background:var(--dm-hover)}100%{background:transparent}}
+/* (the pulse is an inset shade, not the row's fill, so the gliding hover, which clears the rows' own fills, never hides it) */
+@keyframes dm-mmxuse{0%{box-shadow:inset 0 0 0 99px var(--dm-hover)}100%{box-shadow:inset 0 0 0 99px transparent}}
 @keyframes dm-mmxlift{40%{transform:translateY(-2px) scale(1.08)}}
 /* a forgotten memory leaves a line with its Undo in its place: the words on the memories' mark column, Undo ending where their
    actions end */
@@ -60,7 +64,7 @@
 .dm-mmx-ft{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dm-mmx-ft.dm-sw{display:block}
 :root:not([data-style="soft"],[data-style="clean"]) .dm-mmx-m.dm-use:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation:dm-mmxusebp .9s steps(3,end)}
-@keyframes dm-mmxusebp{0%{background:var(--dm-hover)}100%{background:transparent}}
+@keyframes dm-mmxusebp{0%{box-shadow:inset 0 0 0 99px var(--dm-hover)}100%{box-shadow:inset 0 0 0 99px transparent}}
 :root:not([data-style="soft"],[data-style="clean"]) .dm-mmx-m.dm-use .dm-mmx-src:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation:dm-mmxbp .9s steps(1,end)}
 @keyframes dm-mmxbp{0%,50%{box-shadow:inset 0 0 0 1px var(--dm-line-strong)}51%,100%{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent)}}
 /* nothing in it grows or shrinks when it is pressed (owner, 18 Nov) */

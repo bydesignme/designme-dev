@@ -3,7 +3,8 @@ import { useEffect, useRef, useState, type CSSProperties, type RefObject } from 
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion, useTween } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { Spin, Swap, Tip } from '../../lib/motion';
+import { mxT, Spin, Swap, Tip } from '../../lib/motion';
+import { useHoverGlide } from '../../lib/glide';
 import '../../designme.css';
 import './context-meter.css';
 
@@ -61,7 +62,8 @@ function roomOf(el: HTMLElement) {
 }
 
 
-/** A button as wide as its words: when they change it eases to its new width, keeping no room for a longer word */
+/** A button as wide as its words: when they change it eases to its new width on the motion pieces' spring, keeping no room
+    for a longer word */
 function useEaseWidth(ref: RefObject<HTMLElement | null>) {
   const reduce = useReducedMotion();
   useEffect(() => {
@@ -71,7 +73,7 @@ function useEaseWidth(ref: RefObject<HTMLElement | null>) {
       if (busy) return;
       const w1 = el.getBoundingClientRect().width;
       if (w && Math.abs(w1 - w) > .5) {
-        busy = el.animate([{ width: w + 'px' }, { width: w1 + 'px' }], { duration: 340, easing: 'cubic-bezier(.23,1,.32,1)' });
+        busy = el.animate([{ width: w + 'px' }, { width: w1 + 'px' }], { duration: mxT(el, 't-in', 360), easing: mxT(el, 'ease-spring', 'ease') });
         busy.finished.catch(() => {}).then(() => { busy = null; w = el.getBoundingClientRect().width; });
       }
       w = w1;
@@ -100,6 +102,41 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
   const ready = true;
   const total = parts.reduce((t, p) => t + p.tokens, 0), share = ready ? total / limit : 0, pct = Math.round(share * 100);
   const root = useRef<HTMLDivElement>(null), tg = useRef<HTMLButtonElement>(null), go = useRef<HTMLButtonElement>(null), pop = useRef<HTMLDivElement>(null);
+  const leg = useRef<HTMLDivElement>(null);
+  useHoverGlide(leg, '.dm-ctm-l');
+  // the ring's moments (designme.dev, 26 Nov): a step up (or the drop after compacting) sends a thin bright highlight once along
+  // the filled arc and lifts the ring a touch; as the count passes warnAt, the warning mark wipes along the arc (and back once
+  // it drops below), never blending the two colours, and the pill nudges once. No halo or glow. Reduced motion: none of it
+  const reduce = useReducedMotion();
+  const ring = useRef<SVGSVGElement>(null), warc = useRef<SVGCircleElement>(null), shine = useRef<SVGCircleElement>(null);
+  const counted = useTween(total, 900), hot = Math.round(counted / limit * 100) >= Math.round(warnAt * 100);
+  const last = useRef(total);
+  useEffect(() => {
+    const was = last.current; last.current = total;
+    const sv = ring.current, sh = shine.current; if (reduce || !sv || !sh || typeof sh.animate !== 'function' || Math.abs(total - was) < 50) return;
+    const seg = Math.min(9, pct); sh.style.strokeDasharray = seg + ' 200';
+    sh.animate([{ strokeDashoffset: 0, opacity: 0 }, { opacity: .9, offset: .5 }, { strokeDashoffset: -(pct - seg), opacity: 0 }], { duration: 450, easing: 'cubic-bezier(.65,0,.35,1)' });
+    sv.animate([{ scale: 1 }, { scale: 1.06, offset: .2 }, { scale: 1 }], { duration: 350, easing: 'cubic-bezier(.23,1,.32,1)' });
+  }, [total]); // eslint-disable-line react-hooks/exhaustive-deps
+  const wasHot = useRef(hot);
+  useIsoLayoutEffect(() => {
+    const w = warc.current, was = wasHot.current; wasHot.current = hot; if (!w) return;
+    if (hot === was) { if (hot) w.style.strokeDasharray = pct + ' 100'; return; }
+    const ease = 'cubic-bezier(.65,0,.35,1)', from = parseFloat(w.style.strokeDasharray) || 0;
+    w.style.transition = 'none';
+    if (hot) {
+      w.style.opacity = '1'; w.style.strokeDasharray = pct + ' 100';
+      if (!reduce && typeof w.animate === 'function') {
+        w.animate([{ strokeDasharray: '0 100' }, { strokeDasharray: pct + ' 100' }], { duration: 200, easing: ease });
+        tg.current?.animate([{ translate: '0 0' }, { translate: '3px 0', offset: .22 }, { translate: '-1.4px 0', offset: .6 }, { translate: '0 0' }], { duration: 380, easing: 'ease-out' });
+      }
+    } else {
+      w.style.strokeDasharray = '0 100';
+      if (reduce || typeof w.animate !== 'function') w.style.opacity = '0';
+      else w.animate([{ strokeDasharray: from + ' 100' }, { strokeDasharray: '0 100' }], { duration: 200, easing: ease }).onfinish = () => { if (!wasHot.current) w.style.opacity = '0'; };
+    }
+    void w.getBoundingClientRect(); w.style.transition = '';
+  }, [hot, pct]);
   useEaseWidth(go);
   // the side it opens on is chosen as it opens: the placement's side, or the other one when that side has no room for the
   // panel (its height, its padding while it is still easing in, and the gap) and the other has more
@@ -132,10 +169,11 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
   };
 
   return (
-    <div ref={root} data-dm="" className={cx('dm-ctm', share >= warnAt && 'dm-hot', className)} data-open={isOpen ? '1' : '0'} data-pos={side === 'top' ? 'up' : 'down'}>
+    <div ref={root} data-dm="" className={cx('dm-ctm', hot && 'dm-hot', className)} data-open={isOpen ? '1' : '0'} data-pos={side === 'top' ? 'up' : 'down'}>
       <button ref={tg} type="button" className="dm-ctm-tg" aria-expanded={isOpen} aria-label={`Context, ${pct}% used`} onClick={() => setOpen(!isOpen)}>
         <span className="dm-ctm-ring" aria-hidden="true">
-          <svg viewBox="0 0 20 20"><circle className="dm-tr" cx="10" cy="10" r="7.5" /><circle className="dm-fl" cx="10" cy="10" r="7.5" pathLength={100} style={{ strokeDasharray: `${pct} 100` }} /></svg>
+          <svg ref={ring} viewBox="0 0 20 20"><circle className="dm-tr" cx="10" cy="10" r="7.5" /><circle className="dm-fl" cx="10" cy="10" r="7.5" pathLength={100} style={{ strokeDasharray: `${pct} 100` }} />
+            <circle ref={warc} className="dm-fw" cx="10" cy="10" r="7.5" pathLength={100} /><circle ref={shine} className="dm-hl" cx="10" cy="10" r="7.5" pathLength={100} /></svg>
         </span>
         <span><span className="dm-ctm-pc dm-num"><Count value={ready ? total : 0} format={n => Math.round(n / limit * 100) + '%'} /></span> of context used</span>
         <Icon name="chev-d" size="xs" />
@@ -145,7 +183,8 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
         <div className={cx('dm-ctm-bar', lit && 'dm-hl')} aria-hidden="true">
           {parts.map((p, i) => <i key={p.key} className={lit === p.key ? 'dm-on' : undefined} style={{ width: (ready ? p.tokens / limit * 100 : 0) + '%', '--dm-c': p.color ?? PALETTE[i % PALETTE.length] } as CSSProperties} />)}
         </div>
-        <div className="dm-ctm-leg" onPointerLeave={() => setLit(null)}>
+        {/* one highlight glides from part to part (motion pieces) */}
+        <div ref={leg} className="dm-ctm-leg dm-mx-glide" onPointerLeave={() => setLit(null)}>
           {parts.map((p, i) => {
             const row = (
               <div key={p.key} className="dm-ctm-l" style={{ '--dm-c': p.color ?? PALETTE[i % PALETTE.length] } as CSSProperties}
@@ -168,7 +207,7 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
                 comes back as Undo once it is done */}
             {busy
               ? <span className="dm-ctm-run" role="status"><Spin /><span className="dm-shim">Compacting…</span></span>
-              : <button ref={go} type="button" className={cx('dm-pill dm-sm dm-ctm-go', message && messageTone === 'warn' ? 'dm-warn' : 'dm-line')} onClick={compact}>{compacted ? 'Undo' : 'Compact'}</button>}
+              : <button ref={go} type="button" className={cx('dm-pill dm-sm dm-ctm-go dm-mx-press', message && messageTone === 'warn' ? 'dm-warn' : 'dm-line')} onClick={compact}>{compacted ? 'Undo' : 'Compact'}</button>}
           </div>
         )}
       </div>

@@ -104,19 +104,19 @@ function Row({ s, delay, onResync, onRemove, onFix }: { s: KnowledgeSource; dela
         </span>
       </span>
       {(onResync || onRemove)
-        ? <Tip label="More" off={menu.open}><button type="button" className="dm-ib dm-ksx-more" aria-label={'Actions for ' + s.name} {...menu.trigger}><Icon name="more" /></button></Tip>
+        ? <Tip label="More" off={menu.open}><button type="button" className="dm-ib dm-ksx-more dm-mx-press" aria-label={'Actions for ' + s.name} {...menu.trigger}><Icon name="more" /></button></Tip>
         : <span />}
       {(onResync || onRemove) && (
-        <div {...menu.pop} className={cx(menu.pop.className, 'dm-ksx-mpop')} role="menu">
-          {onResync && <button type="button" className="dm-mi" role="menuitem" disabled={busy} onClick={() => act(onResync)}><Icon name="refresh" size="xs" />Re-sync</button>}
+        <div {...menu.pop} className={cx(menu.pop.className, 'dm-ksx-mpop dm-mx-pop dm-mx-rows dm-mx-glide')} role="menu">
+          {onResync && <button type="button" className="dm-mi dm-mx-press" role="menuitem" disabled={busy} onClick={() => act(onResync)}><Icon name="refresh" size="xs" />Re-sync</button>}
           {onResync && onRemove && <div className="dm-sep" />}
-          {onRemove && <button type="button" className="dm-mi dm-del" role="menuitem" onClick={() => act(onRemove)}><Icon name="trash" size="xs" />Remove</button>}
+          {onRemove && <button type="button" className="dm-mi dm-del dm-mx-press" role="menuitem" onClick={() => act(onRemove)}><Icon name="trash" size="xs" />Remove</button>}
         </div>
       )}
       <Fold open={s.state === 'failed' && !!(s.fix || onRemove)} className="dm-ksx-fx">
         <div>
           {s.fix && <button type="button" className="dm-pill dm-accent dm-sm" onClick={() => onFix?.(s.key)}>{s.fix}</button>}
-          {onRemove && <button type="button" className="dm-pill dm-ghost dm-sm" onClick={() => onRemove(s.key)}>Remove</button>}
+          {onRemove && <button type="button" className="dm-pill dm-ghost dm-sm dm-mx-press" onClick={() => onRemove(s.key)}>Remove</button>}
         </div>
       </Fold>
     </div>
@@ -156,25 +156,25 @@ export function KnowledgeSources({ sources, onUpload, onAddWebsite, address, def
     menu.close(); setUrl(''); onAddWebsite?.(v);
   };
   return (
-    <div data-dm="" ref={root} className={cx('dm-ksx dm-panel dm-growing', className)}>
+    <div data-dm="" ref={root} className={cx('dm-ksx dm-panel dm-growing dm-mx-grow', className)}>
       <div ref={inner} className="dm-grow">
       <div className="dm-ksx-h"><span className="dm-ksx-hi" aria-hidden="true"><Icon name="book" size="xs" /></span><div><b>{title}</b><Swap className="dm-muted dm-ksx-st">{total}</Swap></div></div>
-      <div ref={listRef} className="dm-ksx-list" role="list" aria-label="Sources">
+      <div ref={listRef} className="dm-ksx-list dm-mx-glide" role="list" aria-label="Sources">
         {sources.map(s => { const at = first.indexOf(s.key); return <Row key={s.key} s={s} delay={at >= 0 ? at * 50 : 0} onResync={onResync} onRemove={onRemove} onFix={onFix} />; })}
       </div>
       {/* nothing left: the empty state, with Add source as an outline button */}
       {!sources.length && (
         <div className="dm-ksx-em"><span className="dm-ksx-em-art" aria-hidden="true" /><b>No sources yet</b><span>Add files, a website or a folder, and the agent reads them.</span>
-          {canAdd && <button type="button" className="dm-pill dm-line dm-sm" {...menu.trigger} onClick={e => { if (!menu.open) setView('main'); menu.trigger.onClick(e); }}><Icon name="plus" size="xs" />Add source</button>}
+          {canAdd && <button type="button" className="dm-pill dm-line dm-sm dm-mx-press" {...menu.trigger} onClick={e => { if (!menu.open) setView('main'); menu.trigger.onClick(e); }}><Icon name="plus" size="xs" />Add source</button>}
         </div>
       )}
       {canAdd && <>
-        {sources.length > 0 && <div className="dm-ksx-ft"><button type="button" className="dm-ksx-add" {...menu.trigger} onClick={e => { if (!menu.open) setView('main'); menu.trigger.onClick(e); }}><Icon name="plus" size="xs" />Add source</button></div>}
-        <div {...menu.pop} style={{ ...menu.pop.style, ...bottom }} className={cx(menu.pop.className, 'dm-ksx-pop')} role="menu" aria-label="Add source">
+        {sources.length > 0 && <div className="dm-ksx-ft"><button type="button" className="dm-ksx-add dm-mx-press" {...menu.trigger} onClick={e => { if (!menu.open) setView('main'); menu.trigger.onClick(e); }}><Icon name="plus" size="xs" />Add source</button></div>}
+        <div {...menu.pop} style={{ ...menu.pop.style, ...bottom }} className={cx(menu.pop.className, 'dm-ksx-pop dm-mx-pop dm-mx-rows dm-mx-glide')} role="menu" aria-label="Add source">
           {view === 'main' && <>
-            {onUpload && <button type="button" className="dm-mi" role="menuitem" onClick={() => { menu.closeSoon(); file.current?.click(); }}><Icon name="upload" size="xs" /><span>Upload files</span></button>}
-            {onAddWebsite && <button type="button" className="dm-mi" role="menuitem" onClick={() => { setView('web'); requestAnimationFrame(() => field.current?.focus({ preventScroll: true })); }}><Icon name="globe" size="xs" /><span>Add a website</span></button>}
-            {onConnectFolder && <button type="button" className="dm-mi" role="menuitem" onClick={() => setView('folder')}><Icon name="folder" size="xs" /><span>Connect a folder</span></button>}
+            {onUpload && <button type="button" className="dm-mi dm-mx-press" role="menuitem" onClick={() => { menu.closeSoon(); file.current?.click(); }}><Icon name="upload" size="xs" /><span>Upload files</span></button>}
+            {onAddWebsite && <button type="button" className="dm-mi dm-mx-press" role="menuitem" onClick={() => { setView('web'); requestAnimationFrame(() => field.current?.focus({ preventScroll: true })); }}><Icon name="globe" size="xs" /><span>Add a website</span></button>}
+            {onConnectFolder && <button type="button" className="dm-mi dm-mx-press" role="menuitem" onClick={() => setView('folder')}><Icon name="folder" size="xs" /><span>Connect a folder</span></button>}
           </>}
           {view === 'web' && (
             <form className="dm-ksx-web" onSubmit={submit}>
@@ -185,7 +185,7 @@ export function KnowledgeSources({ sources, onUpload, onAddWebsite, address, def
           {view === 'folder' && <>
             <div className="dm-ph">Connect a folder</div>
             {folders.length
-              ? folders.map(f => <button type="button" key={f.key} className="dm-mi" role="menuitem" onClick={() => { menu.closeSoon(); onConnectFolder?.(f.key); }}><Icon name="folder" size="xs" /><span>{f.name}{f.detail && <span className="dm-d">{f.detail}</span>}</span></button>)
+              ? folders.map(f => <button type="button" key={f.key} className="dm-mi dm-mx-press" role="menuitem" onClick={() => { menu.closeSoon(); onConnectFolder?.(f.key); }}><Icon name="folder" size="xs" /><span>{f.name}{f.detail && <span className="dm-d">{f.detail}</span>}</span></button>)
               : <div className="dm-ph">All folders connected</div>}
           </>}
         </div>
