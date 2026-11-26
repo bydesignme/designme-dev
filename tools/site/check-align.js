@@ -219,8 +219,9 @@ function sample(id){
     // (a bare control's words within its own box: words it keeps for screen readers, clipped away, are not drawn)
     const meet = (w, x) => ({ left:Math.max(w.left, x.left), right:Math.min(w.right, x.right), top:Math.max(w.top, x.top), bottom:Math.min(w.bottom, x.bottom) });
     // (words cut short by their own element, an ellipsis's overflow:hidden, are drawn only up to that element's edge: the range
-    // that measures them runs on past it, as long as the whole words)
-    const own = (a, d) => { if (a.k !== 'text' || getComputedStyle(a.e).overflowX === 'visible') return d; const q = a.e.getBoundingClientRect(); return Object.assign({}, d, { left:Math.max(d.left, q.left), right:Math.min(d.right, q.right) }); };
+    // that measures them runs on past it, as long as the whole words. Where they are cut is not an edge either, as a ragged
+    // line's end is not: they are not measured on the right)
+    const own = (a, d) => { if (a.k !== 'text' || getComputedStyle(a.e).overflowX === 'visible') return d; const q = a.e.getBoundingClientRect(); const cut = d.right > q.right + .5; return Object.assign({}, d, { left:Math.max(d.left, q.left), right:Math.min(d.right, q.right), noRight:d.noRight || cut }); };
     const boxes = A.filter(a => !inStrip(a.e) && !fl(a.e)).map(a => { const d = own(a, drawn(a)); return Object.assign(clip(a.e, d), { noRight:d.noRight, alt:d.alt && clip(a.e, d.alt) }); });
     const fill = (cs, cbgOk) => !((cs.backgroundColor === 'rgba(0, 0, 0, 0)' || (!cbgOk && cs.backgroundColor === cbg)) && !(parseFloat(cs.borderTopWidth) > 0 || parseFloat(cs.borderLeftWidth) > 0) && !shade(cs));
     // a row's hover or selected fill reaches 8px out round the row, into the padding, while the row's content keeps the card's
