@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, REDUCE, copied, enter, grow, swap } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, copied, enter, grow, iconSwap, mxIn, swap } from '../core/core.js';
 DM.def('answer-action-bar', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{copy}', I('copy')).replace('{re}', I('refresh')).replace('{l}', I('chev-l','xs')).replace('{rr}', I('chev-r','xs'))
     .replace('{up}', I('up-thumb')).replace('{dn}', I('down-thumb')).replace('{vol}', I('vol','xs'));
@@ -67,13 +67,15 @@ DM.def('answer-action-bar', (r, c) => {
   cp.onclick = () => copied(cp, plain(vers[cur]), 'Copied without the highlights');
   // thumbs: up is a quiet thanks; down asks why, and a reason writes a version that answers it
   up.onclick = () => { const v = vers[cur]; v.rate = v.rate === 'up' ? '' : 'up'; why.classList.add('shut'); nav(); status(v.rate ? 'Thanks, noted for this project' : ''); };
-  dn.onclick = () => { const v = vers[cur]; v.rate = v.rate === 'down' ? '' : 'down'; why.classList.toggle('shut', v.rate !== 'down'); why.inert = v.rate !== 'down'; nav(); status(''); chips.forEach(x => x.classList.remove('on')); };
+  // (as the reasons open, the question and its chips rise in one after another, mxIn(): owner's trial, 26 Nov)
+  dn.onclick = () => { const v = vers[cur]; v.rate = v.rate === 'down' ? '' : 'down'; why.classList.toggle('shut', v.rate !== 'down'); why.inert = v.rate !== 'down'; nav(); status(''); chips.forEach(x => x.classList.remove('on')); if (v.rate === 'down') mxIn([$('.aab-wq', r), ...chips], { base:60 }); };
   chips.forEach(ch => ch.onclick = () => { chips.forEach(x => x.classList.toggle('on', x === ch)); c.later(400, () => { why.classList.add('shut'); why.inert = true; failOnce = vers.length === 1; regenerate(ch.textContent); }); });
   why.inert = true;
   // read aloud: about 0.28s a word, each word lit as it's read, with a progress bar and a clock
   let reading = 0, pos = 0;
   const clock = s => Math.floor(s / 60) + ':' + String(Math.floor(s) % 60).padStart(2, '0');
-  const icon = k => { $('.ic', rd).innerHTML = I(k, 'xs'); };
+  // (play, pause and the speaker crossfade: iconSwap())
+  let ico = 'vol'; const icon = k => { if (ico === k) return; ico = k; const ic = $('.ic', rd); iconSwap(ic, () => { ic.innerHTML = I(k, 'xs'); }, { inner:true }); };
   // stop drops the place (a new version, another page); pause keeps it, so the bar, the clock and the lit word stay
   function stop(){ if (reading) clearInterval(reading); reading = 0; pos = 0; rd.classList.remove('on', 'paused'); rd.setAttribute('aria-pressed', 'false'); rd.setAttribute('aria-label', 'Read aloud'); rd.dataset.tip = 'Read aloud'; icon('vol'); bar.style.width = '0%'; $$('.w.rd', t).forEach(w => w.classList.remove('rd')); }
   function pause(){ clearInterval(reading); reading = 0; rd.classList.add('paused'); rd.setAttribute('aria-pressed', 'false'); rd.setAttribute('aria-label', 'Resume reading'); rd.dataset.tip = 'Resume'; icon('play'); }

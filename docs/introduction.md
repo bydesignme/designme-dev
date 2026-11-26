@@ -6,7 +6,7 @@ Designme.dev docs. The same page with navigation: https://designme.dev/docs/intr
 
 ## What it is
 
-35 free components for the AI agents in your product, like status pills, reasoning trails, agent trees, permission gates, plan reviews and run costs.
+37 free components for the AI agents in your product, like status pills, reasoning trails, agent trees, permission gates, plan reviews and run costs.
 
 Every component plays as a demo in the [library](https://designme.dev/library), and has a page of its own with its install command, React props, code and questions.
 
@@ -50,6 +50,8 @@ Each style has a light and a dark theme. Switch them in the header of any page h
 - [Agent run timeline](https://designme.dev/components/agent-run-timeline.md)
 - [Context meter](https://designme.dev/components/context-meter.md)
 - [Run cost](https://designme.dev/components/run-cost.md)
+- [Toast stack](https://designme.dev/components/toast-stack.md)
+- [Toast](https://designme.dev/components/toast.md)
 - [Status pill](https://designme.dev/components/status-pill.md)
 - [Step loader](https://designme.dev/components/step-loader.md)
 - [Thinking states](https://designme.dev/components/thinking-states.md)

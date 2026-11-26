@@ -1,5 +1,5 @@
 TPLS["source-stack"] = "<div class=\"ssx\">\n  <p class=\"msg\">Annual plans convert about 18% better when the monthly price is shown crossed out next to them.</p>\n  <button class=\"ssx-pill\" aria-expanded=\"false\"><span class=\"ssx-ics\"></span><span class=\"ssx-l\">8 sources</span>{chev}</button>\n  <div class=\"fold shut ssx-box\"><div><div class=\"ssx-in\">\n    <div class=\"ssx-fl\"><button class=\"chip sm on\" data-f=\"all\">All</button><button class=\"chip sm\" data-f=\"web\">Web</button><button class=\"chip sm\" data-f=\"file\">Files</button><button class=\"chip sm\" data-f=\"figma\">Figma</button></div>\n    <div class=\"ssx-list\"></div>\n  </div></div></div>\n</div>";
-TPLS["citation-hover"] = "<div class=\"chx\">\n  <p class=\"msg chx-p\">Teams that show the annual price first see higher paid conversion<button class=\"chx-c\" data-i=\"0\">1</button>, and the effect is stronger when the monthly price stays visible beside it<button class=\"chx-c\" data-i=\"1\">2</button>. Your own data shows the same pattern since the September update<button class=\"chx-c\" data-i=\"2\">3</button>.</p>\n  <div class=\"chx-card panel keep\" role=\"dialog\" aria-label=\"Source\"><div class=\"chx-in\"></div></div>\n</div>";
+TPLS["citation-hover"] = "<div class=\"chx\">\n  <p class=\"msg chx-p\">Teams that show the annual price first see higher paid conversion<button class=\"chx-c\" data-i=\"0\">1</button>, and the effect is stronger when the monthly price stays visible beside it<button class=\"chx-c\" data-i=\"1\">2</button>. Your own data shows the same pattern since the September update<button class=\"chx-c\" data-i=\"2\">3</button>.</p>\n  <div class=\"chx-card panel keep mx-pop\" role=\"dialog\" aria-label=\"Source\"><div class=\"chx-in\"></div></div>\n</div>";
 TPLS["terminal-stream"] = "<div class=\"tmx panel\" data-reveal=\"flat\">\n  <div class=\"tmx-h\"><span class=\"tmx-ic\">{term}</span><span class=\"tmx-cwd\">~/acme/web</span><span class=\"tmx-st\"><span class=\"g\"><span class=\"spin\"></span></span><span class=\"tmx-sv num\">Starting</span></span><span class=\"sp\"></span><button class=\"pill ghost sm tmx-stop\" aria-label=\"Stop the running command\">{stop}Stop</button><button class=\"ib tmx-cp\" aria-label=\"Copy the output\" data-tip=\"Copy\">{copy}</button></div>\n  <div class=\"tmx-body\" role=\"log\" aria-label=\"Terminal output\" tabindex=\"0\"></div>\n  <div class=\"fold shut tmx-ff\"><div><div class=\"tmx-f\"><span class=\"g\"></span><span class=\"tmx-fs num\"></span></div></div></div>\n</div>";
 
 /* ---------- Source stack ---------- */
@@ -149,24 +149,41 @@ DM.def('citation-hover', (r, c) => {
     ['CSV','var(--av-l)','Drive','Q3 conversion export.csv','Rows 412 to 480: <mark>trial to paid moves from 18.6% to 26.3%</mark> between Sep 18 and Oct 17.','Your file']
   ];
   const card = $('.chx-card', r), inn = $('.chx-in', r), box = $('.chx', r), cites = $$('.chx-c', r);
-  let cur = null, hideT, showT, back = false;
+  let cur = null, hideT, showT, back = false, glide = null;
+  /* it opens below its citation when it fits there and above it when it doesn't (placePop), so the stage or the page never cuts
+     it off, and it stays inside the answer's column; it grows out of the citation's middle (--origin) */
+  function place(b){
+    placePop(b, card);
+    const x = Math.max(0, Math.min(parseFloat(card.style.left) || 0, box.clientWidth - card.offsetWidth)); card.style.left = x + 'px';
+    const bb = b.getBoundingClientRect(), kb = box.getBoundingClientRect(), k = kb.width / box.offsetWidth || 1;
+    card.style.setProperty('--origin', `${Math.round((bb.left + bb.width / 2 - kb.left) / k - x)}px ${/^bottom/.test(card.style.getPropertyValue('--origin')) ? '100%' : '0'}`);
+  }
   /* the card exists only while a citation (or the card itself) is under the pointer */
   function show(b){
     clearTimeout(hideT); if (cur === b) return;
-    const s = S[+b.dataset.i]; cur = b;
+    const s = S[+b.dataset.i], moving = !!cur && card.classList.contains('show') && !REDUCE; cur = b;
     cites.forEach(x => x.classList.toggle('on', x === b));
-    inn.innerHTML = `<div class="chx-sh"><span class="fv" style="background:${s[1]};color:${s[1].replace(')', '-ink)')}">${s[0][0]}</span><span>${s[2]}</span></div><div class="chx-t">${s[3]}</div><div class="chx-q">${s[4]}</div><div class="chx-f"><span>${s[5]}</span><a href="#" onclick="return false">Open source ${I('ext','xs')}</a></div>`;
-    /* restart the entry each time, so it always grows in place and never slides sideways. It opens below its citation when
-       it fits there and above it when it doesn't (placePop), so the stage or the page never cuts it off, and it stays inside
-       the answer's column */
-    card.classList.remove('show'); void card.offsetWidth;
-    placePop(b, card);
-    card.style.left = Math.max(0, Math.min(parseFloat(card.style.left) || 0, box.clientWidth - card.offsetWidth)) + 'px';
-    card.classList.add('show');
+    const fill = () => { inn.innerHTML = `<div class="chx-sh"><span class="fv" style="background:${s[1]};color:${s[1].replace(')', '-ink)')}">${s[0][0]}</span><span>${s[2]}</span></div><div class="chx-t">${s[3]}</div><div class="chx-q">${s[4]}</div><div class="chx-f"><span>${s[5]}</span><a href="#" onclick="return false">Open source ${I('ext','xs')}</a></div>`; };
+    if (glide){ glide.cancel(); glide = null; }
+    /* showing: it grows out of its citation where it will sit (.mx-pop). Already showing for another citation, it moves on
+       there: the old source fades out, and the card glides to its new place and eases to its new height as the new one fades in
+       (owner's trial, 26 Nov) */
+    if (!moving){ (inn._mx || []).forEach(a => a.cancel()); fill(); place(b); card.classList.add('show'); return; }
+    const was = { left:card.offsetLeft, top:card.offsetTop, height:card.offsetHeight };
+    mxOut(inn, { ms:80, y:0 }).then(() => {
+      if (cur !== b) return;
+      fill(); place(b);
+      const cs = getComputedStyle(card), pad = cs.boxSizing === 'border-box' ? 0 : parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
+      const to = { left:card.offsetLeft, top:card.offsetTop, height:card.offsetHeight }, px = o => ({ left:o.left + 'px', top:o.top + 'px', height:o.height - pad + 'px' });
+      card.style.overflow = 'clip';
+      const a = glide = card.animate([px(was), px(to)], { duration:mxT(card, '--t-in', 360), easing:mxT(card, '--ease-spring', 'ease') });
+      a.onfinish = a.oncancel = () => { if (glide === a) glide = null; if (!glide) card.style.overflow = ''; };
+      mxIn(inn, { y:0, step:0 });
+    });
   }
   function hide(now){
     clearTimeout(hideT); clearTimeout(showT);
-    const go = () => { card.classList.remove('show'); cur = null; cites.forEach(x => x.classList.remove('on')); };
+    const go = () => { if (glide){ glide.cancel(); glide = null; } card.classList.remove('show'); cur = null; cites.forEach(x => x.classList.remove('on')); };
     if (now) go(); else hideT = setTimeout(go, 140);
   }
   /* pointing at a citation shows its card, leaving it (and the card) hides it; focus shows it too, so the keyboard gets the

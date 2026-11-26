@@ -129,7 +129,9 @@ function swap(el, html, isHTML){
   if (p){ if (p.v === html && p.h === !!isHTML) return; clearTimeout(p.t); el._sw = null; }
   const cur = isHTML ? el.innerHTML : el.textContent; if (cur === html){ if (p) el.classList.remove('out'); return; }
   el.classList.add('sw'); el.classList.add('out');
-  const s = el._sw = { v:html, h:!!isHTML, t:setTimeout(() => { if (el._sw !== s) return; el._sw = null; isHTML ? el.innerHTML = html : el.textContent = html; el.classList.remove('out'); }, REDUCE ? 0 : 170) };
+  // (words marked .mx-w ease their box to the new width as they arrive: mxWidth())
+  const s = el._sw = { v:html, h:!!isHTML, t:setTimeout(() => { if (el._sw !== s) return; el._sw = null; const w0 = !REDUCE && el.classList.contains('mx-w') ? el.offsetWidth : 0;
+    isHTML ? el.innerHTML = html : el.textContent = html; el.classList.remove('out'); if (w0) mxWidth(el, w0); }, REDUCE ? 0 : 170) };
 }
 function tween(from, to, ms, step, ease = t => 1 - Math.pow(1 - t, 3)){
   return new Promise(res => { const t0 = performance.now(); const f = t => { const p = Math.max(0, Math.min(1, (t - t0) / (REDUCE ? 1 : ms))); step(from + (to - from) * ease(p), p); p < 1 ? requestAnimationFrame(f) : res(); }; requestAnimationFrame(f); });
@@ -139,6 +141,49 @@ function enter(el, delay = 0){ if (!el) return el; el.classList.remove('enter');
   const end = e => { if (e.target !== el || e.animationName !== 'enter') return; el.classList.remove('enter'); el.removeEventListener('animationend', end); el.removeEventListener('animationcancel', end); };
   el.addEventListener('animationend', end); el.addEventListener('animationcancel', end); return el; }
 function stagger(els, step = 60, base = 0){ els.forEach((e, i) => enter(e, base + i * step)); }
+/* ---------- motion pieces (owner's trial, 26 Nov; the CSS's "motion pieces" says what each is for) ---------- */
+// a motion token on el: a time in ms or a length in px when d is a number, else the value as written
+const mxT = (el, k, d) => { const v = getComputedStyle(el).getPropertyValue(k).trim(); if (!v) return d; return typeof d === 'number' ? parseFloat(v) * (/ms$/.test(v) ? 1 : /s$/.test(v) ? 1000 : 1) : v; };
+/* mxIn(): content just drawn arrives: it fades and rises a few px (o.y) out of a short blur (--blur-in; none in Blueprint and
+   Clean), one piece after another (o.step, the style's --mx-step); o.x brings it in from the side instead (the next question).
+   With reduced motion it only fades. mxOut(): content about to go leaves the same way, quicker (--t-out), upwards or to o.x;
+   it stays gone until it is replaced or brought back with mxIn(). Both return a promise for the end, and either cancels the
+   other on the same element */
+function mxMove(els, o, out){
+  els = [].concat(els).filter(e => e && e.isConnected && e.animate); if (!els.length) return Promise.resolve();
+  const e0 = els[0], b = mxT(e0, '--blur-in', 0) * (o.blur ?? .7), E = out ? 'cubic-bezier(.4,0,1,1)' : mxT(e0, o.spring ? '--ease-spring' : '--ease', 'ease');
+  const ms = o.ms || mxT(e0, out ? '--t-out' : '--t-in', out ? 160 : 360), step = o.step ?? (out ? 0 : mxT(e0, '--mx-step', 24));
+  const away = REDUCE ? { opacity:0 } : { opacity:0, translate:o.x ? `${o.x}px 0` : `0 ${o.y ?? (out ? -4 : 4)}px`, filter:b ? `blur(${b}px)` : 'none' };
+  const here = REDUCE ? { opacity:1 } : { opacity:1, translate:'0 0', filter:b ? 'blur(0px)' : 'none' };
+  return Promise.all(els.map((el, i) => { (el._mx || []).forEach(a => a.cancel());
+    const a = el.animate(out ? [here, away] : [away, here], { duration:REDUCE ? 140 : ms, delay:(o.base || 0) + i * step, easing:REDUCE ? 'linear' : E, fill:out ? 'forwards' : 'backwards' });
+    el._mx = [a]; return a.finished.catch(() => {}); }));
+}
+const mxIn = (els, o = {}) => mxMove(els, o, false), mxOut = (els, o = {}) => mxMove(els, o, true);
+/* iconSwap(): an icon that changes, inside an .mx-ic control, goes out small and soft and the new one comes back with a little
+   spring (--ic-scale, --blur-ic, --ease-pop; with reduced motion only a fade). change() makes the change: a new href, new
+   markup. o.inner animates el's first child rather than el (a tile that keeps its fill while its glyph changes). Elsewhere the
+   change is made at once, as before. A change asked for while one is under way lands first, so the newest always wins */
+function iconSwap(el, change, o = {}){
+  if (!el || !el.animate || !el.closest('.mx-ic') || !el.isConnected){ change(); return; }
+  if (el._icGo) el._icGo();
+  (el._ic || []).forEach(a => a.cancel());
+  const pick = () => (o.inner ? el.firstElementChild : el) || el, k = mxT(el, '--ic-scale', .6), b = mxT(el, '--blur-ic', 0);
+  const off = REDUCE ? { opacity:0 } : { opacity:0, scale:String(k), filter:b ? `blur(${b}px)` : 'none' }, on = REDUCE ? { opacity:1 } : { opacity:1, scale:'1', filter:b ? 'blur(0px)' : 'none' };
+  let done = false; const go = el._icGo = () => { if (done) return; done = true; el._icGo = null; change(); };
+  const t = pick(), a = t.animate([on, off], { duration:REDUCE ? 70 : 90, easing:'cubic-bezier(.4,0,1,1)', fill:'forwards' });
+  el._ic = [a];
+  a.onfinish = () => { go(); const n = pick(); if (!n.isConnected) return; const i = n.animate([off, on], { duration:REDUCE ? 120 : mxT(el, '--t-in', 360) * .8, easing:REDUCE ? 'linear' : mxT(el, '--ease-pop', 'ease') }); a.cancel(); el._ic = [i]; };
+  a.oncancel = go;
+}
+// mxWidth(): an .mx-w element whose words just changed eases from the width it had (w0) to its new one, its spill clipped meanwhile
+function mxWidth(el, w0){
+  if (el._mw) el._mw.cancel();
+  const w1 = el.offsetWidth; if (Math.abs(w1 - w0) < 1 || !el.animate) return;
+  el.style.overflow = 'clip';
+  const a = el._mw = el.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:mxT(el, '--t-in', 360), easing:mxT(el, '--ease-spring', 'ease') });
+  a.onfinish = a.oncancel = () => { if (el._mw === a){ el._mw = null; el.style.overflow = ''; } };
+}
 /* reflow(): a list that changes under a filter, a search or a sort. The change happens at once, in change(); this only
    shows it. items() gives the list's items, each known by its o.by attribute (data-key by default). The items that stay
    glide from where they were to where they are now, new ones fade in from 4px down, and the ones that went fade out where
@@ -148,7 +193,9 @@ function stagger(els, step = 60, base = 0){ els.forEach((e, i) => enter(e, base 
    An item the change hides counts as gone. Only items that don't sit inside one another can be listed (a group and its own
    rows would glide twice).
    o: { by, root (the component, which places are measured against), enter:false (new items come in some other way),
-   leave:false (items that go fade some other way), host (where a copy goes when the change redrew the item's own parent) } */
+   leave:false (items that go fade some other way), host (where a copy goes when the change redrew the item's own parent),
+   blur:true (new items also come out of a short blur, half the style's --blur-in, and items that go fade in half the time:
+   a motion piece, owner's trial of 26 Nov) } */
 function reflow(items, change, o = {}){
   const by = o.by || 'data-key', live = () => items().filter(el => !el.hasAttribute('data-ghost'));
   if (REDUCE || !document.body.animate){ change(); return; }
@@ -167,13 +214,14 @@ function reflow(items, change, o = {}){
   const r1 = box(), sx = r1.left - r0.left, sy = r1.top - r0.top;
   const now = live(), at = now[0] || [...hosts].find(p => p.isConnected) || document.documentElement, cs = getComputedStyle(at);
   const E = cs.getPropertyValue('--ease').trim() || 'ease', T = (parseFloat(cs.getPropertyValue('--t-fast')) || .22) * 1000, seen = new Set();
+  const B = o.blur ? (parseFloat(cs.getPropertyValue('--blur-in')) || 0) / 2 : 0, IN = B ? [{ opacity:0, transform:'translateY(4px)', filter:`blur(${B}px)` }, { opacity:1, transform:'none', filter:'blur(0px)' }] : [{ opacity:0, transform:'translateY(4px)' }, { opacity:1, transform:'none' }];
   let n = 0;
   for (const el of now){
     const k = el.getAttribute(by), a = was.get(k);
     (el._rf || []).forEach(x => x.cancel()); el._rf = [];
     const b = el.getBoundingClientRect(); if (!b.width && !b.height) continue;
     seen.add(k);
-    if (!a){ if (o.enter !== false) el._rf.push(el.animate([{ opacity:0, transform:'translateY(4px)' }, { opacity:1, transform:'none' }], { duration:T, delay:Math.min(n++, 5) * 24, easing:E, fill:'backwards' })); continue; }
+    if (!a){ if (o.enter !== false) el._rf.push(el.animate(IN, { duration:T, delay:Math.min(n++, 5) * 24, easing:E, fill:'backwards' })); continue; }
     const dx = a.b.left + sx - b.left, dy = a.b.top + sy - b.top;
     if (Math.abs(dx) > .5 || Math.abs(dy) > .5) el._rf.push(el.animate([{ transform:`translate(${dx}px,${dy}px)` }, { transform:'none' }], { duration:T + 40, easing:E }));
     if (a.o < .99) el._rf.push(el.animate([{ opacity:a.o }, { opacity:1 }], { duration:T, easing:E }));
@@ -189,7 +237,8 @@ function reflow(items, change, o = {}){
     if (a.w) [...g.cells].forEach((td, i) => { td.style.boxSizing = 'border-box'; td.style.width = a.w[i] + 'px'; });
     p.appendChild(g);
     const gb = g.getBoundingClientRect(); g.style.transform = `translate(${a.b.left + sx - gb.left}px,${a.b.top + sy - gb.top}px)`;
-    const f = g.animate([{ opacity:a.o }, { opacity:0 }], { duration:T * .8, easing:E, fill:'forwards' });
+    // (with o.blur a row that goes leaves quicker and softly, so a row gliding into its place never reads over it)
+    const f = g.animate(B ? [{ opacity:a.o, filter:'blur(0px)' }, { opacity:0, filter:`blur(${B}px)` }] : [{ opacity:a.o }, { opacity:0 }], { duration:T * (o.blur ? .45 : .8), easing:E, fill:'forwards' });
     f.onfinish = f.oncancel = () => g.remove();
   });
 }
@@ -519,7 +568,10 @@ function reveal(st){
       if (transform) el.animate([{ transform }, { transform:'none' }], { duration:ms, delay, easing:M.ease, fill:'backwards', composite:'add' }); };
     // a component can ask for less: data-reveal="flat" moves only its container, "none" skips the entrance
     const how = root.dataset.reveal; if (how === 'none') return;
-    go(root, M.root, M.rootMs, 0);
+    // "pop": a surface that is called up over the stage, like a command palette, drops in a little from above out of a blur as
+    // it scales up (Soft; Blueprint and Clean keep their own entrance: a motion piece, owner's trial of 26 Nov)
+    if (how === 'pop' && M === REVEAL.soft) go(root, [{ opacity:0, filter:`blur(${2 * mxT(root, '--blur-in', 0)}px)`, transform:'translateY(-10px) scale(.94)' }, { opacity:1, filter:'blur(0px)', offset:.6 }, { opacity:1, filter:'blur(0px)' }], 640, 0);
+    else go(root, M.root, M.rootMs, 0);
     if (how !== 'flat') revealParts(root).forEach((p, i) => go(p, M.part, M.partMs, Math.min(M.first + i * M.step, M.max)));
   });
 }
@@ -659,10 +711,11 @@ function copied(btn, text, label = 'Copied to clipboard'){
   const use = btn.querySelector('use');
   const st = btn._cp || (btn._cp = { tip: btn.dataset.tip, href: use && use.getAttribute('href') });
   clearTimeout(st.t);
-  if (use) use.setAttribute('href', '#v2i-check');
+  // (in an .mx-ic control the copy icon and the tick crossfade, iconSwap())
+  if (use) iconSwap(use.parentNode, () => use.setAttribute('href', '#v2i-check'));
   btn.classList.add('copied'); btn.dataset.tip = label; showTip(btn);
   st.t = setTimeout(() => {
-    if (use) use.setAttribute('href', st.href);
+    if (use) iconSwap(use.parentNode, () => use.setAttribute('href', st.href));
     btn.classList.remove('copied');
     if (st.tip === undefined) delete btn.dataset.tip; else btn.dataset.tip = st.tip;
     if (tipFor === btn) hideTip(true);
@@ -2561,7 +2614,7 @@ DM.def('model-picker', (r, c) => {
   // in Clean the first row's numbers show under its meters, so they never sit over the column heads
   const clean = r.closest('[data-style]')?.dataset.style === 'clean';
   const meter = (v, tip, i) => `<span class="mpk-m" data-tip="${tip}"${clean && !i ? ' data-tip-at="below"' : ''}>${[1, 2, 3, 4, 5].map(k => `<i${k <= v ? ' class="on"' : ''}></i>`).join('')}</span>`;
-  list.innerHTML = M.map((x, i) => `<button class="mpk-o" role="radio" aria-checked="false" tabindex="-1" data-i="${i}"><span class="mpk-mk" style="--mc:${x.c};--mt:${x.t}">${x.m}</span><span class="t"><b>${x.n}<span class="ck">${I('check','xs')}</span></b><span class="d">${x.d}</span></span>${meter(x.s, x.tps + ' tokens a second', i)}${meter(x.q, 'Quality ' + x.q + ' of 5', i)}${meter(x.p, '$' + x.cost.toFixed(3) + ' a reply', i)}</button>`).join('');
+  list.innerHTML = M.map((x, i) => `<button class="mpk-o mx-press" role="radio" aria-checked="false" tabindex="-1" data-i="${i}"><span class="mpk-mk" style="--mc:${x.c};--mt:${x.t}">${x.m}</span><span class="t"><b>${x.n}<span class="ck">${I('check','xs')}</span></b><span class="d">${x.d}</span></span>${meter(x.s, x.tps + ' tokens a second', i)}${meter(x.q, 'Quality ' + x.q + ' of 5', i)}${meter(x.p, '$' + x.cost.toFixed(3) + ' a reply', i)}</button>`).join('');
   const rows = $$('.mpk-o', list);
   // Clean's one hover glides from model to model; the picked one keeps its stronger fill
   if (!r.closest('.ahx')) c.offs.push(hoverGlide(list, '.mpk-o'));
@@ -2569,7 +2622,9 @@ DM.def('model-picker', (r, c) => {
   let cur = 1, eff = 2, busy = 20, waiting = false;
   function paint(){
     rows.forEach((b, i) => { b.setAttribute('aria-checked', i === cur); b.tabIndex = i === cur ? 0 : -1; });
-    const mk = $('.mpk-mk', tr); mk.style.setProperty('--mc', M[cur].c); mk.style.setProperty('--mt', M[cur].t); mk.textContent = M[cur].m;
+    // the trigger's mark crossfades to the new model's (iconSwap(); at once as it is first drawn)
+    const mk = $('.mpk-mk', tr), mark = () => { mk.style.setProperty('--mc', M[cur].c); mk.style.setProperty('--mt', M[cur].t); mk.textContent = M[cur].m; };
+    if (mk.textContent && mk.textContent !== M[cur].m) iconSwap(mk, mark); else mark();
     swap($('.mpk-nm', tr), M[cur].n); swap($('.mpk-ef', tr), E[eff][0]); swap(thd, E[eff][1]); swap(ev, E[eff][0]);
     items.forEach((m, i) => m.setAttribute('aria-checked', i === eff));
   }
@@ -2587,7 +2642,7 @@ DM.def('model-picker', (r, c) => {
     ck.innerHTML = '<span class="spin"></span>'; swap(d, 'Checking it can take this chat'); say('');
     c.run(async () => {
       await c.wait(1000);
-      ck.innerHTML = I('check','xs'); row.classList.add('busy'); swap(d, `At capacity, about ${busy}s wait`);
+      iconSwap(ck, () => { ck.innerHTML = I('check','xs'); }); row.classList.add('busy'); swap(d, `At capacity, about ${busy}s wait`);
       sgt.textContent = `Opus 5.5 is at capacity for about ${busy}s. Sonnet 5.5 on high thinking comes close on long reviews and starts now.`; sg(true);
     });
   }
@@ -2614,7 +2669,8 @@ DM.def('model-picker', (r, c) => {
   const centred = clean ? () => {} : centre(c, mpk, () => { const shut = fold.classList.contains('shut'), sgx = sgf.classList.contains('shut') ? 0 : sgf.firstElementChild.scrollHeight;
     let h = mpk.offsetHeight - fold.offsetHeight + (shut ? 0 : fold.firstElementChild.scrollHeight - sgf.offsetHeight + sgx);
     return effp.classList.contains('open') ? Math.max(h, effp.offsetTop + effp.offsetHeight) : h; }, [fold.firstElementChild, effp]);
-  const open = v => { fold.classList.toggle('shut', !v); fold.inert = !v; tr.setAttribute('aria-expanded', v); centred(); };
+  // (its rows settle one after another each time it opens: .mx-play)
+  const open = v => { fold.classList.toggle('shut', !v); fold.inert = !v; tr.setAttribute('aria-expanded', v); list.classList.toggle('mx-play', v); centred(); };
   tr.onclick = () => open(tr.getAttribute('aria-expanded') !== 'true');
   c.on(r, 'keydown', e => { if (e.key === 'Escape' && tr.getAttribute('aria-expanded') === 'true'){ open(false); tr.focus({ preventScroll:true }); } });
   paint();
@@ -2697,13 +2753,15 @@ DM.def('answer-action-bar', (r, c) => {
   cp.onclick = () => copied(cp, plain(vers[cur]), 'Copied without the highlights');
   // thumbs: up is a quiet thanks; down asks why, and a reason writes a version that answers it
   up.onclick = () => { const v = vers[cur]; v.rate = v.rate === 'up' ? '' : 'up'; why.classList.add('shut'); nav(); status(v.rate ? 'Thanks, noted for this project' : ''); };
-  dn.onclick = () => { const v = vers[cur]; v.rate = v.rate === 'down' ? '' : 'down'; why.classList.toggle('shut', v.rate !== 'down'); why.inert = v.rate !== 'down'; nav(); status(''); chips.forEach(x => x.classList.remove('on')); };
+  // (as the reasons open, the question and its chips rise in one after another, mxIn(): owner's trial, 26 Nov)
+  dn.onclick = () => { const v = vers[cur]; v.rate = v.rate === 'down' ? '' : 'down'; why.classList.toggle('shut', v.rate !== 'down'); why.inert = v.rate !== 'down'; nav(); status(''); chips.forEach(x => x.classList.remove('on')); if (v.rate === 'down') mxIn([$('.aab-wq', r), ...chips], { base:60 }); };
   chips.forEach(ch => ch.onclick = () => { chips.forEach(x => x.classList.toggle('on', x === ch)); c.later(400, () => { why.classList.add('shut'); why.inert = true; failOnce = vers.length === 1; regenerate(ch.textContent); }); });
   why.inert = true;
   // read aloud: about 0.28s a word, each word lit as it's read, with a progress bar and a clock
   let reading = 0, pos = 0;
   const clock = s => Math.floor(s / 60) + ':' + String(Math.floor(s) % 60).padStart(2, '0');
-  const icon = k => { $('.ic', rd).innerHTML = I(k, 'xs'); };
+  // (play, pause and the speaker crossfade: iconSwap())
+  let ico = 'vol'; const icon = k => { if (ico === k) return; ico = k; const ic = $('.ic', rd); iconSwap(ic, () => { ic.innerHTML = I(k, 'xs'); }, { inner:true }); };
   // stop drops the place (a new version, another page); pause keeps it, so the bar, the clock and the lit word stay
   function stop(){ if (reading) clearInterval(reading); reading = 0; pos = 0; rd.classList.remove('on', 'paused'); rd.setAttribute('aria-pressed', 'false'); rd.setAttribute('aria-label', 'Read aloud'); rd.dataset.tip = 'Read aloud'; icon('vol'); bar.style.width = '0%'; $$('.w.rd', t).forEach(w => w.classList.remove('rd')); }
   function pause(){ clearInterval(reading); reading = 0; rd.classList.add('paused'); rd.setAttribute('aria-pressed', 'false'); rd.setAttribute('aria-label', 'Resume reading'); rd.dataset.tip = 'Resume'; icon('play'); }
@@ -2864,7 +2922,7 @@ DM.def('permission-gate', (r, c) => {
   });
 });
 /* ---------- the sections' components, loaded the first time a section comes near (DEF_PARTS in build.js) ---------- */
-const PARTS = {"files":{"s-status":"/assets/v2-status.60c293eac4.js","s-review":"/assets/v2-review.daffec0a24.js","s-data":"/assets/v2-data.28a3d660bb.js","s-workspace":"/assets/v2-workspace.185c798233.js","s-dates":"/assets/v2-dates.b832d0e139.js"},"of":{"status-pill":"s-status","step-loader":"s-status","thinking-states":"s-status","reasoning-trail":"s-status","thinking":"s-status","context-meter":"s-status","agent-run-timeline":"s-status","decision-prompt":"s-review","plan-review":"s-review","inline-text-diff":"s-review","source-stack":"s-data","terminal-stream":"s-data","citation-hover":"s-data","command-palette":"s-workspace","file-explorer":"s-workspace","run-drawer":"s-workspace","memory-panel":"s-workspace","tool-connections":"s-workspace","knowledge-sources":"s-workspace","scheduled-runs":"s-workspace","event-calendar":"s-dates","web-search":"s-status"},"all":[]};
+const PARTS = {"files":{"s-status":"/assets/v2-status.137a2bfd94.js","s-review":"/assets/v2-review.b963359538.js","s-data":"/assets/v2-data.ad1e3b1e05.js","s-workspace":"/assets/v2-workspace.8b65a1ba4c.js","s-dates":"/assets/v2-dates.b832d0e139.js"},"of":{"status-pill":"s-status","step-loader":"s-status","thinking-states":"s-status","reasoning-trail":"s-status","thinking":"s-status","context-meter":"s-status","toast":"s-status","toast-stack":"s-status","agent-run-timeline":"s-status","decision-prompt":"s-review","plan-review":"s-review","inline-text-diff":"s-review","source-stack":"s-data","terminal-stream":"s-data","citation-hover":"s-data","command-palette":"s-workspace","file-explorer":"s-workspace","run-drawer":"s-workspace","memory-panel":"s-workspace","tool-connections":"s-workspace","knowledge-sources":"s-workspace","scheduled-runs":"s-workspace","event-calendar":"s-dates","web-search":"s-status"},"all":[]};
 const partRun = src => eval(src);
 // the markup of the cards whose section has a file of its own comes with that file
 const TPLS = {};

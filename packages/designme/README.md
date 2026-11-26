@@ -1,6 +1,6 @@
 # designme
 
-Free UI components for AI agent products, 35 of them, from [designme.dev](https://designme.dev). Each one comes as plain HTML, CSS and JavaScript, as a React component or as an Astro component, in two styles, Blueprint and Soft, with light and dark mode.
+Free UI components for AI agent products, 37 of them, from [designme.dev](https://designme.dev). Each one comes as plain HTML, CSS and JavaScript, as a React component or as an Astro component, in two styles, Blueprint and Soft, with light and dark mode.
 
 ```
 npx designme add status-pill thinking composer

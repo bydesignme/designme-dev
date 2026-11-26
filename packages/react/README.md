@@ -4,7 +4,7 @@ React versions of the [designme.dev](https://designme.dev) components, for Next.
 
 They use the same markup and the same CSS as the site, so they look and move exactly like the previews on designme.dev, in all three styles (Blueprint, Soft and Clean) and in light and dark. The difference is that each one takes props, so you drive it from your own state instead of a scripted demo.
 
-All 35 components are here, from Live answer to Event calendar, each with an example that replays its demo from the site.
+All 37 components are here, from Live answer to Event calendar, each with an example that replays its demo from the site.
 
 Each one has a page on designme.dev with its demo, its React usage, its props and its code, at `https://designme.dev/components/<name>`. To see them all running locally, run `npm run dev` here.
 
@@ -90,6 +90,14 @@ How full the context is and what fills it, with Compact to free room.
 **RunCost** · `run-cost/RunCost.tsx`  
 Live credit and token spend, with a cap that pauses the run.  
 `used`, `budget`, `capAt` (90), `capOn` / `defaultCapOn` / `onCapChange`, `status: 'idle' | 'running' | 'stopped' | 'paused' | 'spent'`, `statusLabel`, `rows: { label, value }[]`, `actionLabel`, `onAction`, `title`, `bare`.
+
+**Toast** · `toast/Toast.tsx`  
+One notification that changes shape with its state.  
+`toast: { id, tone?: 'success' | 'error' | 'info' | 'loading', title, description?, action?: { label, onClick, variant?: 'ghost' | 'primary', busy? } } | null`, `onDismiss(id)`. A new `id` slides the new toast in and the old one out; the same `id` changes the text in place.
+
+**ToastStack** · `toast-stack/ToastStack.tsx`  
+Agent notifications that stack and fan out on hover.  
+`toasts: { id, icon, tone?, title, detail?, time? }[]` (oldest first, the last one in front), `onDismiss(id)` (drop it from `toasts` and it slides away), `expanded` (fans out on hover when left out), `max` (6).
 
 **AgentLanes** · `agent-lanes/AgentLanes.tsx`  
 Several agents working in parallel, each with its own lane and hand-offs.  

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Motion pass · Designme.dev lab</title>
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<!-- owner, 26 Nov: "one more visual pass on the type of interactions and animations ... choose 5 components to try and elevate".
+     The five components with the new motion, each on its own library page (its demo only), in any style and theme. The two
+     switches are ideas that would change a standing rule, so they are off unless the owner turns them on:
+       Press give   buttons, rows and chips give a little under a press (scale .97, a quick dip and a springy release);
+                    owner, 18 Nov: nothing in these components grows or shrinks when pressed, and Clean's secondary buttons
+                    have no press scale
+       Blur in Clean  Clean's popovers, cards and new content come out of a 4px blur and its icons out of 2px, as Soft's do;
+                    Clean's rule: it scales and fades, never blurs
+     The switches only reach the frames on this page (a class and a style added to each frame), so nothing ships from here -->
+<script>
+(function(){ var t; try { t = localStorage.getItem('dmui-theme'); } catch(e){} document.documentElement.dataset.t = t === 'dark' ? 'dark' : 'light'; })();
+</script>
+<style>
+:root{--bg:#f7f7f7;--card:#fff;--fg:#141414;--muted:#6b6b6b;--line:rgba(0,0,0,.08);--on:#ececec;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+html[data-t="dark"]{--bg:#111;--card:#1b1b1b;--fg:#f2f2f2;--muted:#bdbdbd;--line:rgba(255,255,255,.1);--on:#2c2c2c}
+html,body{margin:0;background:var(--bg);color:var(--fg)}
+*{box-sizing:border-box}
+main{max-width:1180px;margin:0 auto;padding:32px 16px 48px}
+h1{font-size:14px;font-weight:500;margin:0 0 4px}
+p{font-size:13px;line-height:1.55;color:var(--muted);margin:0 0 16px;max-width:720px}
+.bar{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin:0 0 20px}
+.grp{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
+.seg{display:inline-flex;padding:2px;border-radius:10px;background:var(--card);box-shadow:0 0 0 1px var(--line)}
+.seg button,.btn{font:inherit;font-size:12.5px;color:var(--fg);background:none;border:0;border-radius:8px;padding:5px 10px;cursor:pointer;transition:background-color .2s cubic-bezier(.23,1,.32,1)}
+.seg button[aria-pressed="true"]{background:var(--on)}
+.btn{background:var(--card);box-shadow:0 0 0 1px var(--line)}
+.sw{display:inline-flex;align-items:center;gap:8px;font:inherit;font-size:12.5px;color:var(--fg);background:var(--card);border:0;border-radius:10px;padding:5px 10px;box-shadow:0 0 0 1px var(--line);cursor:pointer}
+.sw i{width:26px;height:16px;border-radius:8px;background:var(--on);position:relative;transition:background-color .2s}
+.sw i::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .25s cubic-bezier(.23,1,.32,1)}
+.sw[aria-checked="true"] i{background:#116ff8}
+.sw[aria-checked="true"] i::after{transform:translateX(10px)}
+:focus-visible{outline:2px solid #a3a3a3;outline-offset:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,520px),1fr));gap:16px}
+.cell{display:flex;flex-direction:column;gap:8px;min-width:0}
+.lb{display:flex;flex-direction:column;gap:2px}
+.lb b{font-size:13px;font-weight:500}
+.lb span{font-size:12px;color:var(--muted);line-height:1.5}
+iframe{display:block;width:100%;height:var(--h,420px);border:0;border-radius:14px;background:var(--card);box-shadow:0 0 0 1px var(--line);opacity:0;transition:opacity .2s}
+@media (prefers-reduced-motion:reduce){iframe,.seg button,.sw i,.sw i::after{transition:none}}
+</style>
+</head>
+<body>
+<main>
+  <h1>Motion pass: five components</h1>
+  <p>The everyday motion of five components, refined: how popovers open from their trigger and go back into it, how rows,
+    content and icons arrive, how a press and a hover answer, and how sizes change. Each frame is the component's own library
+    page; use it, or press Replay. Every style keeps its character: Soft is plush, Blueprint crisp and quick, Clean calm.
+    The two switches are ideas that would change a rule you set, so they are off until you turn them on.</p>
+  <div class="bar">
+    <div class="grp">Style <div class="seg" id="sty" role="group" aria-label="Style"><button data-v="soft">Soft</button><button data-v="bp">Blueprint</button><button data-v="clean">Clean</button></div></div>
+    <div class="grp">Theme <div class="seg" id="thm" role="group" aria-label="Theme"><button data-v="light">Light</button><button data-v="dark">Dark</button></div></div>
+    <button class="sw" role="switch" aria-checked="false" id="press"><i aria-hidden="true"></i>Press give</button>
+    <button class="sw" role="switch" aria-checked="false" id="blur"><i aria-hidden="true"></i>Blur in Clean</button>
+    <button class="btn" id="replay">Replay all</button>
+  </div>
+  <section class="grid" id="grid"></section>
+</main>
+<script>
+(function(){
+  const C = [
+    ['model-picker', 'Model picker', 'The list grows out of its trigger and folds back into it; rows settle in; one highlight glides between rows; the tick springs in; the trigger’s mark and words crossfade and its width eases. Open the thinking effort menu too.'],
+    ['command-palette', 'Command palette', 'Arrives over the stage from a blur; as you type, rows that stay glide, new ones rise in and gone ones fade; the highlight glides on a spring; ↑ ↓ ↵ esc dip in the footer as you press them; a command’s tile crossfades to a spinner and back.'],
+    ['citation-hover-card', 'Citation hover card', 'Grows out of the citation you point at and shrinks back into it; move to another citation and it glides there, easing to its new height as the source crossfades.'],
+    ['answer-action-bar', 'Answer action bar', 'Presses show at once and ease back; Copy crossfades to the tick and back; a rated thumb tilts on a spring (fills in Clean); the reasons rise in one by one; read aloud’s play and pause crossfade.'],
+    ['decision-prompt', 'Decision prompt', 'Each answer leaves to the side and the next question comes in from the other, piece by piece, as the card eases to its height; after the last, the summary rises in.']
+  ];
+  const grid = document.getElementById('grid');
+  grid.innerHTML = C.map(([id, n, s]) => `<div class="cell"><div class="lb"><b>${n}</b><span>${s}</span></div><iframe data-id="${id}" title="${n}"></iframe></div>`).join('');
+  const frames = [...grid.querySelectorAll('iframe')];
+  let style = 'soft', press = false, blur = false;
+  try { const s = localStorage.getItem('dmui-style'); if (s === 'clean' || s === 'bp' || s === 'soft') style = s; } catch(e){}
+  const dark = () => document.documentElement.dataset.t === 'dark';
+  // the library's page shows only its demo, on its own stage, without its Animate button and the designs switch under it
+  const ONLY = 'html{overflow:hidden!important;scrollbar-gutter:auto!important}body{visibility:hidden!important}'
+    + '.cp-demo{visibility:visible!important;position:fixed!important;inset:0!important;z-index:100;margin:0!important;border-radius:0!important;overflow:hidden;background:var(--dm-stage,var(--stage))!important}'
+    + '.cp-anim{display:none!important}.cp-demo .pg-demo{min-height:100%!important;padding:16px!important}.dm>.demo{display:none!important}body>.tip{visibility:visible!important}'
+    // Blur in Clean: Clean's popovers, cards and content come out of a 4px blur, its icons out of 2px, and its words swap through one
+    + ':root[data-style="clean"][data-mx-blur]{--blur-in:4px;--blur-ic:2px}'
+    + ':root[data-style="clean"][data-mx-blur] .sw{transition:opacity var(--t-fast) var(--ease),transform var(--t) var(--ease),filter var(--t-fast) var(--ease)}'
+    + ':root[data-style="clean"][data-mx-blur] .sw.out{filter:blur(3px)}'
+    + '@media (prefers-reduced-motion:reduce){:root[data-mx-blur]{--blur-in:0px!important;--blur-ic:0px!important}}';
+  // Press give: what you press dips to .97 at once and springs back as you let go (a script in the frame, so it adds to whatever
+  // the component draws and never meets its own transform)
+  const PRESS = 'button,.chip,.pill,.ib,.mi,.cpl-i,.dpx-o,.mpk-o,.chx-c,.aab-rd';
+  function wire(W, d){
+    if (W.__mxPress) return; W.__mxPress = true;
+    const still = () => W.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let on = null;
+    const up = () => { if (!on) return; const el = on; on = null; const e = W.getComputedStyle(el).getPropertyValue('--ease-pop').trim() || 'ease';
+      (el._pg || []).forEach(a => a.cancel()); el._pg = [el.animate([{ scale:'.97' }, { scale:'1' }], { duration:320, easing:e })]; };
+    d.addEventListener('pointerdown', ev => {
+      if (!d.documentElement.hasAttribute('data-mx-press') || still()) return;
+      const el = ev.target.closest && ev.target.closest(PRESS); if (!el || el.disabled || !el.closest('.stage-in')) return;
+      // Clean's ink primary already presses at .97 on its own
+      if (d.documentElement.dataset.style === 'clean' && el.matches('.pill.primary,.pill.accent')) return;
+      on = el; (el._pg || []).forEach(a => a.cancel()); el._pg = [el.animate([{ scale:'1' }, { scale:'.97' }], { duration:70, easing:'cubic-bezier(.2,0,.4,1)', fill:'forwards' })];
+    }, true);
+    ['pointerup', 'pointercancel', 'dragstart'].forEach(t => d.addEventListener(t, up, true));
+  }
+  function dress(f, again){
+    try {
+      const W = f.contentWindow, d = f.contentDocument, r = d.documentElement;
+      if (!d.getElementById('mx-lab')){ const st = d.createElement('style'); st.id = 'mx-lab'; st.textContent = ONLY; (d.body || r).appendChild(st); }
+      if (style === 'bp') r.removeAttribute('data-style'); else r.setAttribute('data-style', style);
+      r.setAttribute('data-theme', dark() ? 'dark' : 'light');
+      r.toggleAttribute('data-mx-press', press); r.toggleAttribute('data-mx-blur', blur);
+      wire(W, d);
+      if (again){ const b = d.getElementById('cp-replay'); if (b) b.click(); }
+    } catch(e){}
+  }
+  // the frames' own pages remember the style and theme you pick here, as the site does
+  const remember = () => { try { localStorage.setItem('dmui-style', style); localStorage.setItem('dmui-theme', dark() ? 'dark' : 'light'); } catch(e){} };
+  frames.forEach(f => { f.onload = () => { dress(f, true); f.style.opacity = 1; }; f.src = `../../components/${f.dataset.id}.html`; });
+  // each frame is as tall as its demo's stage needs
+  setInterval(() => frames.forEach(f => { try { const el = f.contentDocument.querySelector('.pg-demo>.card>.stage-in>:not(template)'); if (!el) return;
+    const h = Math.max(360, Math.ceil(el.getBoundingClientRect().height) + 140); if (Math.abs(parseFloat(f.style.getPropertyValue('--h') || 0) - h) > 24 && h > parseFloat(f.style.getPropertyValue('--h') || 0)) f.style.setProperty('--h', h + 'px'); } catch(e){} }), 400);
+  const paint = () => {
+    document.querySelectorAll('#sty button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === style)));
+    document.querySelectorAll('#thm button').forEach(b => b.setAttribute('aria-pressed', String(dark() === (b.dataset.v === 'dark'))));
+    document.getElementById('press').setAttribute('aria-checked', String(press));
+    document.getElementById('blur').setAttribute('aria-checked', String(blur));
+  };
+  document.querySelectorAll('#sty button').forEach(b => b.onclick = () => { style = b.dataset.v; remember(); paint(); frames.forEach(f => dress(f, true)); });
+  document.querySelectorAll('#thm button').forEach(b => b.onclick = () => { document.documentElement.dataset.t = b.dataset.v; remember(); paint(); frames.forEach(f => dress(f, false)); });
+  document.getElementById('press').onclick = () => { press = !press; paint(); frames.forEach(f => dress(f, false)); };
+  document.getElementById('blur').onclick = () => { blur = !blur; paint(); frames.forEach(f => dress(f, false)); };
+  document.getElementById('replay').onclick = () => frames.forEach(f => dress(f, true));
+  paint();
+})();
+</script>
+</body>
+</html>

@@ -2,7 +2,7 @@
 import { Fragment, useEffect, useLayoutEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { Icon } from '../../lib/icons';
-import { avatarInk } from '../../lib/motion';
+import { avatarInk, mxIn, mxT } from '../../lib/motion';
 import '../../designme.css';
 import './citation-hover-card.css';
 
@@ -38,9 +38,9 @@ export interface CitationHoverCardProps {
   className?: string;
 }
 
-/** the open card: its source, its left edge, the top and bottom of its citation (in the answer's box and on screen), and a key
-    that restarts its entrance */
-interface Shown { i: number; x: number; top: number; bottom: number; vTop: number; vBottom: number; n: number }
+/** the open card: its source, its left edge, the top, bottom and middle of its citation (in the answer's box, and the top and
+    bottom on screen), and a count of the times it was shown */
+interface Shown { i: number; x: number; top: number; bottom: number; mid: number; vTop: number; vBottom: number; n: number }
 
 /** An answer with numbered citations. Hovering, focusing or tapping one shows its source in a small card, under the citation
     when it fits there and above it when it doesn't, so the page never cuts it off. */
@@ -66,8 +66,7 @@ export function CitationHoverCard({ text, sources, openLabel = 'Open source', on
     const br = b.getBoundingClientRect(), cr = el.getBoundingClientRect();
     const x = Math.max(0, Math.min(cr.left - br.left, br.width - c.offsetWidth));
     cur.current = i; curEl.current = el; setLast(i); told.current?.(i);
-    // a new key restarts the entrance, so the card always grows in place instead of sliding across
-    setAt(a => ({ i, x, top: cr.top - br.top, bottom: cr.bottom - br.top, vTop: cr.top, vBottom: cr.bottom, n: (a?.n ?? 0) + 1 }));
+    setAt(a => ({ i, x, top: cr.top - br.top, bottom: cr.bottom - br.top, mid: cr.left - br.left + cr.width / 2, vTop: cr.top, vBottom: cr.bottom, n: (a?.n ?? 0) + 1 }));
   };
   const hide = (now = false) => {
     clearTimeout(hideT.current); clearTimeout(showT.current);
@@ -87,13 +86,24 @@ export function CitationHoverCard({ text, sources, openLabel = 'Open source', on
   }, []);
 
   // once it has its content, it goes below its citation when it fits in the window there, and above it when it doesn't and
-  // fits above (or has more room there)
+  // fits above (or has more room there). It grows out of its citation's middle and shrinks back into it (dm-mx-pop); moving on
+  // to another citation while it shows, it glides there and eases to its new height as the new source fades in (motion pieces)
+  const was = useRef<{ i: number; left: number; top: number; height: number } | null>(null), glide = useRef<Animation | null>(null);
   useLayoutEffect(() => {
-    const c = card.current; if (!c || !at || at.i < 0) return;
+    const c = card.current; if (!c || !at || at.i < 0) { was.current = null; return; }
+    glide.current?.cancel();
     const h = c.offsetHeight, below = innerHeight - at.vBottom, above = at.vTop;
-    const up = below < h + 12 && (above >= h + 12 || above > below);
-    c.style.top = (up ? at.top - h - 6 : at.bottom + 6) + 'px';
-    c.style.setProperty('--origin', up ? 'bottom left' : 'top left');
+    const up = below < h + 12 && (above >= h + 12 || above > below), top = up ? at.top - h - 6 : at.bottom + 6;
+    c.style.top = top + 'px';
+    c.style.setProperty('--dm-origin', `${Math.round(at.mid - at.x)}px ${up ? '100%' : '0'}`);
+    const prev = was.current; was.current = { i: at.i, left: at.x, top, height: h };
+    if (!prev || prev.i === at.i || typeof c.animate !== 'function' || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const cs = getComputedStyle(c), pad = cs.boxSizing === 'border-box' ? 0 : parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
+    c.style.overflow = 'clip';
+    const a = glide.current = c.animate([{ left: prev.left + 'px', top: prev.top + 'px', height: prev.height - pad + 'px' }, { left: at.x + 'px', top: top + 'px', height: h - pad + 'px' }],
+      { duration: mxT(c, 't-in', 360), easing: mxT(c, 'ease-spring', 'ease') });
+    a.onfinish = a.oncancel = () => { if (glide.current === a) { glide.current = null; c.style.overflow = ''; } };
+    mxIn([c.querySelector('.dm-chx-in')], { y: 0, step: 0 });
   }, [at]);
 
   // opened with Enter or Space, the card takes the focus on its link once it shows
@@ -129,7 +139,7 @@ export function CitationHoverCard({ text, sources, openLabel = 'Open source', on
   return (
     <div data-dm="" ref={box} className={cx('dm-chx', className)}>
       {paragraphs}
-      <div key={at?.n ?? 0} ref={card} className={cx('dm-chx-card dm-panel', open && 'dm-show')} role="dialog" aria-label="Source"
+      <div ref={card} className={cx('dm-chx-card dm-panel dm-mx-pop', open && 'dm-show')} role="dialog" aria-label="Source"
         style={at ? { left: at.x } : undefined}
         onPointerEnter={() => clearTimeout(hideT.current)} onPointerLeave={e => { if (e.pointerType !== 'touch') hide(); }}
         onBlur={e => { const t = e.relatedTarget as Node | null; if (cur.current !== null && !card.current?.contains(t) && t !== curEl.current) hide(); }}>

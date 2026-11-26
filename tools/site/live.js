@@ -8,4 +8,6 @@ module.exports = [
   'permission-gate', 'plan-review', 'event-calendar', 'file-explorer', 'command-palette', 'memory-panel', 'inline-text-diff',
   'terminal-stream', 'live-answer', 'step-loader', 'thinking-states', 'source-stack', 'citation-hover-card', 'answer-action-bar',
   'response-versions', 'feedback-sheet', 'tool-connections', 'knowledge-sources', 'run-drawer', 'status-pill',
+  // owner, 26 Nov: Toast (the Job toast) and Toast stack launch too
+  'toast', 'toast-stack',
 ];
