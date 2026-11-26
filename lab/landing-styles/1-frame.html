@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Style frame</title>
+<!-- One component, installed as the CLI installs it (the shared core plus the component's own HTML, CSS and JS from the
+     registry), in one style and theme set on this page's <html>: ?c=<name>&style=bp|soft|clean&theme=light|dark&pad=<px>.
+     The landing's style variations (1a, 1b) show three of these side by side. With &sync=1 it tells the page what is clicked
+     and pressed in it, so the page can play the same into the frames beside it -->
+<script>
+(function(){
+  var q = new URLSearchParams(location.search), r = document.documentElement, s = q.get('style');
+  if (s === 'soft' || s === 'clean') r.setAttribute('data-style', s);
+  r.setAttribute('data-theme', q.get('theme') === 'dark' ? 'dark' : 'light');
+  r.style.setProperty('--fr-pad', (+q.get('pad') || 40) + 'px');
+})();
+</script>
+<link rel="stylesheet" href="/components/assets/core.css">
+<style>
+  html,body{margin:0;height:100%;background:var(--dm-stage)}
+  body{display:grid;align-items:center;padding:var(--fr-pad) 24px;box-sizing:border-box;overflow:hidden}
+  main{display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;min-width:0}
+  main>.card{width:100%;display:grid;place-items:center}
+  @media (max-width:400px){body{padding-inline:16px}}
+</style>
+</head>
+<body>
+<main class="stage-inner"></main>
+<script src="/components/assets/core.js"></script>
+<script>
+(function(){
+  var q = new URLSearchParams(location.search), name = q.get('c') || 'decision-prompt', id = q.get('id') || name, sync = q.get('sync') === '1';
+  var main = document.querySelector('main'), post = function(m){ m.from = id; if (parent !== window) parent.postMessage(m, location.origin); };
+  fetch('/r/' + name + '.json').then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); }).then(function(d){
+    var f = function(ext){ var x = d.files.filter(function(x){ return x.path.slice(-ext.length) === ext; })[0]; return x ? x.content : ''; };
+    var st = document.createElement('style'); st.textContent = f('.css'); document.head.appendChild(st);
+    var sc = document.createElement('script'); sc.textContent = f('.js'); document.body.appendChild(sc);
+    main.innerHTML = f('.html');
+    var card = main.firstElementChild; if (card && typeof DM !== 'undefined' && DM.defs[card.dataset.c]) DM.mount(card);
+    // the page sizes the frame to what the component needs, and lines its handles up with the component's own box
+    var report = function(){ var box = main.querySelector('.stage-in > *') || main, b = box.getBoundingClientRect(), pad = parseFloat(getComputedStyle(document.body).paddingTop);
+      post({ dmx:'size', h:Math.ceil(main.scrollHeight + 2 * pad), x:b.left, w:b.width, vw:innerWidth }); };
+    if (window.ResizeObserver) new ResizeObserver(report).observe(main); report(); setTimeout(report, 1000);
+    addEventListener('resize', report);
+  }).catch(function(){ main.innerHTML = '<p style="font:14px/1.5 system-ui;color:var(--dm-muted)">This demo didn’t load.</p>'; });
+  // the same click or key in the frames beside it (a path of child indexes from <main>, which is the same markup in each style)
+  var pathOf = function(el){ var p = []; while (el && el !== main){ if (!el.parentElement) return null; p.unshift([].indexOf.call(el.parentElement.children, el)); el = el.parentElement; } return el === main ? p : null; };
+  var at = function(p){ var el = main; for (var i = 0; i < p.length && el; i++) el = el.children[p[i]]; return el; };
+  if (sync){
+    document.addEventListener('click', function(e){ if (!e.isTrusted) return; var t = e.target.closest('button,a,[role="radio"],[role="option"]') || e.target, p = pathOf(t); if (p) post({ dmx:'click', p:p }); }, true);
+    document.addEventListener('keydown', function(e){ if (!e.isTrusted || !/^(Enter|ArrowUp|ArrowDown|[1-9])$/.test(e.key)) return; var p = pathOf(e.target); if (p) post({ dmx:'key', key:e.key, p:p }); }, true);
+  }
+  addEventListener('message', function(e){
+    if (e.origin !== location.origin || !e.data || !e.data.dmx) return; var d = e.data;
+    if (d.dmx === 'theme') document.documentElement.setAttribute('data-theme', d.t === 'dark' ? 'dark' : 'light');
+    else if (d.dmx === 'click'){ var el = at(d.p); if (el) el.click(); }
+    else if (d.dmx === 'key'){ var k = at(d.p); if (k) k.dispatchEvent(new KeyboardEvent('keydown', { key:d.key, bubbles:true, cancelable:true })); }
+    else if (d.dmx === 'reset'){ var c = main.firstElementChild; if (c && typeof DM !== 'undefined' && DM.defs[c.dataset.c]) DM.mount(c, true); }
+  });
+})();
+</script>
+</body>
+</html>
