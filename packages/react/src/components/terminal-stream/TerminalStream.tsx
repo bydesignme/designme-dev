@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { cx } from '../../lib/cx';
 import { useCopied } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { enter, Fold, Spin, Tip, useGrow } from '../../lib/motion';
+import { enter, Fold, Spin, SwapIcon, Tip, useGrow } from '../../lib/motion';
 import '../../designme.css';
 import './terminal-stream.css';
 
@@ -116,19 +116,19 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
   const copyAll = () => { const t = text(); copy(t); onCopy?.(t); };
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-tmx dm-panel dm-growing', running && 'dm-live', className)} style={{ containerType: 'inline-size' }}>
+    <div data-dm="" ref={root} className={cx('dm-tmx dm-panel dm-growing dm-mx-grow dm-mx-ic', running && 'dm-live', className)} style={{ containerType: 'inline-size' }}>
       <div ref={inner} className="dm-grow">
       <div className="dm-tmx-h">
         <span className="dm-tmx-ic"><Icon name="term" /></span>
         <span className="dm-tmx-cwd">{cwd}</span>
         <span className={cx('dm-tmx-st', state === 'passed' && 'dm-ok', state === 'failed' && 'dm-bad')}>
-          <span className="dm-g">{running ? <Spin /> : <Icon name={state === 'passed' ? 'check' : 'stop'} size="xs" />}</span>
+          <span className="dm-g"><SwapIcon id={running ? 'run' : state}>{running ? <Spin /> : <Icon name={state === 'passed' ? 'check' : 'stop'} size="xs" />}</SwapIcon></span>
           <span className={cx('dm-tmx-sv dm-num', running && 'dm-shim')}>{running ? (elapsed ? `${L.running} · ${elapsed}` : L.running) : L[state]}</span>
         </span>
         <span className="dm-sp" />
-        {running && onStop && <button type="button" className="dm-pill dm-ghost dm-sm dm-tmx-stop" aria-label="Stop the running command" onClick={onStop}><Icon name="stop" size="xs" />{L.stop}</button>}
+        {running && onStop && <button type="button" className="dm-pill dm-ghost dm-sm dm-tmx-stop dm-mx-press" aria-label="Stop the running command" onClick={onStop}><Icon name="stop" size="xs" />{L.stop}</button>}
         <Tip label={copied ? L.copied : L.copy} open={copied}>
-          <button type="button" className={cx('dm-ib dm-tmx-cp', copied && 'dm-copied')} aria-label="Copy the output" onClick={copyAll}><Icon name={copied ? 'check' : 'copy'} /></button>
+          <button type="button" className={cx('dm-ib dm-tmx-cp dm-mx-press', copied && 'dm-copied')} aria-label="Copy the output" onClick={copyAll}><SwapIcon id={copied ? 'check' : 'copy'}><Icon name={copied ? 'check' : 'copy'} /></SwapIcon></button>
         </Tip>
       </div>
       <div ref={log} className="dm-tmx-body" role="log" aria-label="Terminal output" tabIndex={0}
@@ -140,8 +140,7 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
           if (isEdit(e)) return (
             <div key={i} className={cx('dm-tmx-blk', e0.className)} style={e0.style} data-s={e.status === 'stopped' ? 'stop' : 'edit'}>
               <div className="dm-tmx-cmd"><span className="dm-tmx-p"><Icon name="edit" size="xs" /></span><code className="dm-tmx-c">{L.edit} {e.file}</code>
-                <span className="dm-tmx-m">{e.status === 'running' ? <span className="dm-g"><Spin /></span>
-                  : e.status === 'stopped' ? <span className="dm-g"><span className="dm-tag">{L.stopped}</span></span>
+                <span className="dm-tmx-m">{e.status === 'running' || e.status === 'stopped' ? <span className="dm-g"><SwapIcon id={e.status}>{e.status === 'running' ? <Spin /> : <span className="dm-tag">{L.stopped}</span>}</SwapIcon></span>
                   : <>{e.added !== undefined && <span className="dm-add">+{e.added}</span>}{e.removed !== undefined && <span className="dm-del">−{e.removed}</span>}</>}</span>
               </div>
               {e.status !== 'running' && e.status !== 'stopped' && e.diff && e.diff.length > 0 && (
@@ -155,12 +154,12 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
               <div className="dm-tmx-cmd">
                 <code className="dm-tmx-p">$</code><code className="dm-tmx-c">{e.command}</code>
                 <span className="dm-tmx-m">
-                  <span className="dm-g">{e.status === 'running' ? <Spin /> : e.status === 'ok' ? <span className="dm-ok"><Icon name="check" size="xs" /></span>
-                    : e.status === 'failed' ? <span className="dm-tag dm-bad">Exit {e.exitCode ?? 1}</span> : <span className="dm-tag">{L.stopped}</span>}</span>
+                  <span className="dm-g"><SwapIcon id={e.status}>{e.status === 'running' ? <Spin /> : e.status === 'ok' ? <span className="dm-ok"><Icon name="check" size="xs" /></span>
+                    : e.status === 'failed' ? <span className="dm-tag dm-bad">Exit {e.exitCode ?? 1}</span> : <span className="dm-tag">{L.stopped}</span>}</SwapIcon></span>
                   {e.duration && <span className="dm-t dm-num">{e.duration}</span>}
                 </span>
               </div>
-              {fold && <button type="button" className="dm-tmx-more" aria-expanded={isOpen} onClick={() => toggle(i)}><Icon name="chev-d" size="xs" /><span>{isOpen ? L.fewer : L.more(hidden.length)}</span><i className="dm-sp" /></button>}
+              {fold && <button type="button" className="dm-tmx-more dm-mx-press" aria-expanded={isOpen} onClick={() => toggle(i)}><Icon name="chev-d" size="xs" /><span>{isOpen ? L.fewer : L.more(hidden.length)}</span><i className="dm-sp" /></button>}
               {fold && <Fold open={isOpen}><Lines lines={hidden} /></Fold>}
               {shown.length > 0 && <Lines lines={shown} />}
             </div>

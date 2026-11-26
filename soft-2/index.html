@@ -5563,6 +5563,9 @@ code.tmx-p{font-weight:500;color:var(--accent-fg,var(--fg))}
 /* (its hover fill ends on the content's 16px edge, as the output above it does) */
 .tmx-more{display:flex;align-items:center;gap:6px;width:calc(100% - 48px);margin:0 var(--s-4) 0 32px;padding:0 8px;border-radius:var(--r-sm);font-size:12px;line-height:inherit;text-align:left;color:var(--muted);transition:color var(--t-fast),background-color var(--t-fast)}
 .tmx-more:hover{color:var(--fg);background:var(--row)}
+/* its motion (the core's motion pieces, owner, 26 Nov): Stop, Copy and the folded lines' button press at once (.mx-press); Copy's
+   tick, and a mark that changes (the header's and each command's spinner into its tick, Exit tag or Stopped), crossfade in place
+   (.mx-ic, iconSwap()); the terminal grows on the spring (.mx-grow) */
 .tmx-more .sp{flex:1}
 .tmx-more svg{transition:transform var(--t) var(--ease)}
 .tmx-more[aria-expanded="true"] svg{transform:rotate(180deg)}
@@ -12737,8 +12740,8 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 <article class="card wide" data-c="terminal-stream" id="c-terminal-stream">
   <div class="card-h"><div><h3>Terminal stream</h3><p>Shell commands the agent runs, with their output as it streams in.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="tmx panel" data-reveal="flat">
-  <div class="tmx-h"><span class="tmx-ic">{term}</span><span class="tmx-cwd">~/acme/web</span><span class="tmx-st"><span class="g"><span class="spin"></span></span><span class="tmx-sv num">Starting</span></span><span class="sp"></span><button class="pill ghost sm tmx-stop" aria-label="Stop the running command">{stop}Stop</button><button class="ib tmx-cp" aria-label="Copy the output" data-tip="Copy">{copy}</button></div>
+  <template><div class="tmx panel mx-grow mx-ic" data-reveal="flat">
+  <div class="tmx-h"><span class="tmx-ic">{term}</span><span class="tmx-cwd">~/acme/web</span><span class="tmx-st"><span class="g"><span class="spin"></span></span><span class="tmx-sv num">Starting</span></span><span class="sp"></span><button class="pill ghost sm tmx-stop mx-press" aria-label="Stop the running command">{stop}Stop</button><button class="ib tmx-cp mx-press" aria-label="Copy the output" data-tip="Copy">{copy}</button></div>
   <div class="tmx-body" role="log" aria-label="Terminal output" tabindex="0"></div>
   <div class="fold shut tmx-ff"><div><div class="tmx-f"><span class="g"></span><span class="tmx-fs num"></span></div></div></div>
 </div></template>
@@ -20612,7 +20615,7 @@ DM.def('terminal-stream', (r, c) => {
     $('.tmx-c', el).textContent = text; body.appendChild(el); enter(el); return el;
   }
   function lines(el){
-    const more = html(`<button class="tmx-more" aria-expanded="false" hidden>${I('chev-d','xs')}<span></span><i class="sp"></i></button>`), hid = html('<div class="fold shut"><code class="tmx-o"></code></div>'), tail = html('<code class="tmx-o"></code>');
+    const more = html(`<button class="tmx-more mx-press" aria-expanded="false" hidden>${I('chev-d','xs')}<span></span><i class="sp"></i></button>`), hid = html('<div class="fold shut"><code class="tmx-o"></code></div>'), tail = html('<code class="tmx-o"></code>');
     const inner = hid.firstElementChild; hid.inert = true; el.append(more, hid, tail);
     const label = () => { const n = inner.children.length, open = !hid.classList.contains('shut'); $('span', more).textContent = open ? 'Show fewer lines' : `Show ${n} more line${n > 1 ? 's' : ''}`; more.setAttribute('aria-expanded', open); };
     more.onclick = () => { hid.inert = hid.classList.toggle('shut'); label(); };
@@ -20622,10 +20625,11 @@ DM.def('terminal-stream', (r, c) => {
       if (inner.children.length){ more.hidden = false; label(); }
     };
   }
-  const halted = el => { $('.tmx-m .g', el).innerHTML = '<span class="tag">Stopped</span>'; el.dataset.s = 'stop'; };
+  // (a mark that changes, the spinner into its tick, Exit tag or Stopped, crossfades in place: iconSwap())
+  const halted = el => { const g = $('.tmx-m .g', el); iconSwap(g, () => { g.innerHTML = '<span class="tag">Stopped</span>'; }); el.dataset.s = 'stop'; };
   function finish(how){
     over = true; stop.hidden = true; root.classList.remove('live'); sv.classList.remove('shim');
-    st.classList.toggle('ok', how === 'passed'); st.classList.toggle('bad', how === 'failed'); $('.g', st).innerHTML = I(how === 'passed' ? 'check' : 'stop', 'xs'); sv.textContent = how === 'passed' ? 'Passed' : how === 'failed' ? 'Failed' : 'Stopped';
+    st.classList.toggle('ok', how === 'passed'); st.classList.toggle('bad', how === 'failed'); { const g = $('.g', st); iconSwap(g, () => { g.innerHTML = I(how === 'passed' ? 'check' : 'stop', 'xs'); }); } sv.textContent = how === 'passed' ? 'Passed' : how === 'failed' ? 'Failed' : 'Stopped';
     // each command counts once, however many times it ran; how it went is the header's tag, so the summary doesn't say it
     // again, and a finished line has no clock (owner, 18 Nov)
     const n = new Set(ran).size;
@@ -20670,7 +20674,7 @@ DM.def('terminal-stream', (r, c) => {
         const pair = Array.isArray(ln) ? ln : [ln, '']; add(pair); log.push(pair[0]);
       }
       t.textContent = sec(k.ms); last = k.exit || 0;
-      $('.tmx-m .g', el).innerHTML = k.exit ? `<span class="tag bad">Exit ${k.exit}</span>` : `<span class="ok">${I('check','xs')}</span>`; el.dataset.s = k.exit ? 'bad' : 'ok';
+      { const g = $('.tmx-m .g', el); iconSwap(g, () => { g.innerHTML = k.exit ? `<span class="tag bad">Exit ${k.exit}</span>` : `<span class="ok">${I('check','xs')}</span>`; }); } el.dataset.s = k.exit ? 'bad' : 'ok';
     }
     finish(last ? 'failed' : 'passed');
   });
