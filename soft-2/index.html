@@ -585,6 +585,8 @@ th:last-child>.col-rz{display:none}
 .ths-row{display:flex;align-items:center;gap:10px;min-width:0}
 /* the animated mark has no tile or fill behind it in Soft and Clean (owner, 22 Nov: "remove the background container"): it sits
    in a 20px box on the line's centre line, the words 10px after it. Blueprint keeps its hairline tile */
+/* its motion (the core's motion pieces, owner, 26 Nov): picking another state crossfades its mark in for the last one (.mx-ic,
+   iconSwap()) */
 .ths-mk{position:relative;width:20px;height:20px;flex:none;display:grid;place-items:center;color:var(--accent-mark,var(--accent))}
 /* (the words and their seconds share one baseline; the mark stays centred on their line) */
 .ths-w{flex:0 1 auto;min-width:0;display:flex;align-items:baseline;gap:10px}
@@ -680,6 +682,8 @@ th:last-child>.col-rz{display:none}
 .rtr{width:100%;padding:6px}
 .rtr-h{display:flex;align-items:center;gap:10px;width:100%;padding:10px var(--s-3);border-radius:var(--r-in);font-size:13.5px;transition:background .2s}
 .rtr-h:hover{background:var(--row)}
+/* its motion (the core's motion pieces, owner, 26 Nov): a press on the header shows at once (.mx-press); in Clean the card grows on
+   the spring (.mx-grow) */
 .rtr-mark{color:var(--fg2)}
 .rtr-chev{margin-left:auto;color:var(--muted);transition:transform .4s var(--ease)}
 .rtr-h[aria-expanded="false"] .rtr-chev{transform:rotate(-90deg)}
@@ -713,6 +717,9 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .rtr-time{font-variant-numeric:tabular-nums}
 :root[data-style="clean"] .rtr-chev{width:14px;height:14px;border-radius:50%;box-shadow:0 0 0 7px transparent;transition:transform .4s var(--ease),background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .rtr-h:hover .rtr-chev{background:var(--row);box-shadow:0 0 0 7px var(--row);color:var(--fg)}
+/* (its press, the motion pieces' .mx-press: in Clean, where the header's hover is the chevron's fill, the press deepens that fill) */
+:root[data-style="clean"] .rtr-h.mx-press:active{background:none}
+:root[data-style="clean"] .rtr-h:active .rtr-chev{background:var(--row-press);box-shadow:0 0 0 7px var(--row-press);transition-duration:var(--t-press)}
 :root[data-style="clean"] .rtr-body{padding:10px 16px;border-top:1px solid var(--line)}
 :root[data-style="clean"] .rtr-body[data-v="sources"]{padding:16px}
 :root[data-style="clean"] .rtr-li{padding:6px 0 6px 28px;line-height:20px}
@@ -11997,7 +12004,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <div class="card-h"><div><h3>Thinking states</h3><p>Six thinking indicators to pick from, each with a status line.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="ths-dm dm"><div class="dm-main">
-  <div class="ths" data-v="orbit">
+  <div class="ths mx-ic" data-v="orbit">
     <div class="ths-row">
       <span class="ths-mk" aria-hidden="true"></span>
       <span class="ths-w"><span class="ths-l" aria-hidden="true"><span class="ths-tx shim">Thinking</span><span class="ths-car" hidden></span></span>
@@ -12013,8 +12020,8 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 <article class="card bare" data-c="reasoning-trail" id="c-reasoning-trail">
   <div class="card-h"><div><h3>Reasoning trail</h3><p>The agent's plan, notes, sources and edits, after it thinks.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="rtr-dm dm"><div class="dm-main"><div class="rtr panel">
-  <button class="rtr-h" aria-expanded="true">
+  <template><div class="rtr-dm dm"><div class="dm-main"><div class="rtr panel mx-grow">
+  <button class="rtr-h mx-press" aria-expanded="true">
     <span class="think on rtr-mark"><i></i><i></i><i></i><i></i></span>
     <span class="rtr-title shim">Reasoning</span><span class="rtr-time num muted">0s</span>
     <svg class="i xs rtr-chev"><use href="#i-chev-d"/></svg>
@@ -14909,7 +14916,8 @@ DM.def('thinking-states', (r, c) => {
     // a screen reader hears each new step once, never the letters as they type
     if (fresh) sr.textContent = t;
   };
-  const pick = x => { v = x; box.dataset.v = x; mk.innerHTML = MARKS[x]; show(steps[at], false); };
+  // (a new state's mark crossfades in for the last one, iconSwap())
+  const pick = x => { v = x; box.dataset.v = x; if (mk.firstChild) iconSwap(mk, () => { mk.innerHTML = MARKS[x]; }); else mk.innerHTML = MARKS[x]; show(steps[at], false); };
   seg($('.seg2', r), pick);
   pick(v);
   c.every(1000, () => { secs++; time.textContent = secs + 's'; });

@@ -176,9 +176,9 @@ export function ReasoningTrail({ running = false, seconds, title, plan, notes, s
   };
 
   return (
-    <div data-dm="" ref={rootRef} className={cx('dm-rtr', !bare && 'dm-panel', className)} style={bare ? { paddingInline: 0 } : undefined}>
+    <div data-dm="" ref={rootRef} className={cx('dm-rtr dm-mx-grow', !bare && 'dm-panel', className)} style={bare ? { paddingInline: 0 } : undefined}>
       <div ref={growRef} className="dm-grow">
-      <button type="button" className="dm-rtr-h" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)} onKeyDown={onHeadKey}>
+      <button type="button" className="dm-rtr-h dm-mx-press" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)} onKeyDown={onHeadKey}>
         <Think on={running} className="dm-rtr-mark" />
         <Swap className={cx('dm-rtr-title', running && 'dm-shim')}>{head}</Swap>
         <span className="dm-rtr-time dm-num dm-muted">{running ? secs + 's' : ''}</span>

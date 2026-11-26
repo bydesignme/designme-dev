@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { cx } from '../../lib/cx';
 import { useReducedMotion, useSeconds } from '../../lib/hooks';
-import { Swap } from '../../lib/motion';
+import { Swap, SwapIcon } from '../../lib/motion';
 import '../../designme.css';
 import './thinking-states.css';
 
@@ -90,9 +90,9 @@ export function ThinkingStates({ variant = 'orbit', steps = ['Thinking'], curren
     return () => clearInterval(id);
   }, [text, stream, reduce]);
   return (
-    <div data-dm="" data-v={variant} className={cx('dm-ths', className)}>
+    <div data-dm="" data-v={variant} className={cx('dm-ths dm-mx-ic', className)}>
       <div className="dm-ths-row">
-        <span className="dm-ths-mk" aria-hidden="true"><Mark variant={variant} /></span>
+        <span className="dm-ths-mk" aria-hidden="true"><SwapIcon id={variant}><Mark variant={variant} /></SwapIcon></span>
         <span className="dm-ths-w">
           <span className="dm-ths-l" aria-hidden="true">
             {stream ? <span className="dm-ths-tx dm-shim">{text.slice(0, typed)}</span> : <Swap className="dm-ths-tx dm-shim">{text}</Swap>}
