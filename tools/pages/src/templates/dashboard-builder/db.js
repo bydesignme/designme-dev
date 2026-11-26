@@ -743,13 +743,15 @@
 
   /* ---------- toasts: what was saved or removed, with Undo ---------- */
   const toasts = $('.dbb-toasts', app);
-  const TONE = { ok:['ok', 'var(--dm-ok)', 'var(--dm-ok-bg)'], bad:['trash', 'var(--dm-fg2)', 'var(--dm-chip)'] };
+  // Toast's plain toast: a status mark (the green tick, or a grey bin for what was removed), the words, Dismiss, and the action
+  // in the footer
+  const TONE = { ok:['ok', 'success'], bad:['trash', 'info'] };
   function toast(kind, b, s = '', act = null){
-    const [ic, col, bg] = TONE[kind];
-    const t = html(`<div class="tst-t tst-in" role="status"><span class="g" style="color:${col};background:${bg}">${I(ic)}</span><div class="tx"><b>${esc(b)}</b>${s ? `<span>${esc(s)}</span>` : ''}</div><div class="acts">${act ? `<button class="pill ghost sm">${act.t}</button>` : ''}<button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div></div>`);
+    const [ic, st] = TONE[kind];
+    const t = html(`<div class="tst-t tst-in" role="status"><div class="tst-hd"><span class="tst-g" data-s="${st}" aria-hidden="true">${I(ic)}</span><div class="tst-tx"><span class="tst-ti">${esc(b)}</span>${s ? `<span class="tst-de">${esc(s)}</span>` : ''}</div><div class="tst-hb"><button class="ib tst-x" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div></div>${act ? `<div class="tst-fi"><button class="pill line sm">${act.t}</button></div>` : ''}</div>`);
     const out = () => { if (!t.isConnected || t.classList.contains('tst-out')) return; t.classList.add('tst-out'); setTimeout(() => t.remove(), 320); };
-    $('.ib', t).onclick = out;
-    if (act) $('.pill', t).onclick = () => { act.run(); out(); };
+    $('.tst-x', t).onclick = out;
+    if (act) $('.tst-fi .pill', t).onclick = () => { act.run(); out(); };
     toasts.appendChild(t); while (toasts.children.length > 3) toasts.firstElementChild.remove();
     let left = 6000, t0 = performance.now(), tm = setTimeout(out, left);
     t.addEventListener('pointerenter', () => { clearTimeout(tm); left -= performance.now() - t0; });
