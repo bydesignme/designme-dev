@@ -194,15 +194,16 @@ every session and every agent.
   search, Decision prompt, Attachment tray, Agent run timeline, Run cost, Scheduled runs, Reasoning trail, Model picker,
   Permission gate, Plan review, Event calendar, File explorer, Command palette, Memory panel, Inline text diff, Terminal
   stream, Live answer, Step loader, Thinking states, Source stack, Citation hover card, Answer action bar, Response
-  versions, Feedback sheet, Tools and connections, Knowledge sources, Run drawer, Status pill. Eight components taken out
+  versions, Feedback sheet, Tools and connections, Knowledge sources, Run drawer, Status pill. Toast (the Job toast) and Toast
+  stack launch too (owner, 26 Nov), so 37 are live at launch. Eight components taken out
   in the 16 Nov library trim come back with Clean designs for the posts that follow: Hand-off to a person, Steering,
   Browser session, Voice orb, Image generation, Tool call, Code viewer, Design tuner (their code is in the commit before
   f0e4fbfd).
 - What is live (owner, 24 Nov): each component has a live flag in the build. Only live components are in the library, the
   sidebar, search, the registry index, the installs and the sitemap; the others stay in the code, unlisted and unpublished
-  (their pages send visitors on to `/library`), until their post goes out. At launch the 35 above are live. Making one live
+  (their pages send visitors on to `/library`), until their post goes out. At launch the 37 above are live. Making one live
   is a one-line change, and every count and link in copy follows the live list.
-  At launch the library is one list with no "Agent components / App basics" split, and copy says "35 components" without
+  At launch the library is one list with no "Agent components / App basics" split, and copy says "37 components" without
   the agent / app-basic breakdown, because only one app basic (Event calendar) is live; the split comes back when more are
   (owner, 24 Nov).
 - Soft keeps its look; the "Soft refreshed" lab is dropped. Six components have their Clean touches (Agent tree,
@@ -266,7 +267,13 @@ every session and every agent.
   already are. The site's own source keeps the short names.
 - Each component ships in HTML (`soft-2/index.html`) and React (`packages/react`), with its docs copy in
   `tools/pages/content/<id>.json`. Change all three together.
-- Toast takes the Job toast design from the toast lab (`lab/toasts/2a.html`, owner, 26 Nov): a live glyph that is the news,
+- Motion pieces (owner, 26 Nov: "love the changes, let's do it"): popovers and menus grow out of their trigger and go back
+  into it quicker (`.mx-pop`), rows stagger in on open (`.mx-rows`), presses show at once as a deeper fill with no scale
+  (`.mx-press`), icons crossfade (`.mx-ic`, `iconSwap`), words that change ease the box to its new width (`.mx-w`), one
+  highlight glides between rows (`.mx-glide`), and content that changes height grows on the spring (`.mx-grow`). They roll
+  out to every component. Press give (a .97 dip) and blur in Clean stay off. When a component changes height (a thumb's
+  reasons opening, a card pushed down), it moves smoothly in one motion: no jitter, no stepping, no jump as it re-centres.
+- Toast takes the Job toast design from the toast lab (`lab/toasts/2a.html`, owner, 26 Nov), and Toast stack follows it: a live glyph that is the news,
   states that morph in place (working, a problem with its fix, resolved), steps that open in the toast, and a visible
   countdown on Close. It is the Toast component's preview and style, with the library's regular motion.
 
