@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type CSSProperties, type PointerEvent as R
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { Fold, Spin, Swap, Tip } from '../../lib/motion';
+import { Fold, Spin, Swap, Tip, useGrow } from '../../lib/motion';
 import '../../designme.css';
 import './toast.css';
 
@@ -33,7 +33,7 @@ export interface ToastData {
   /** Picks the status mark when there is no `glyph`, and how it is announced. Default `success` */
   status?: ToastStatus;
   title: string;
-  /** The quieter line under the title, on one line. It crossfades when it changes; a counter ticks over at once (a change that
+  /** The quieter line under the title. It crossfades when it changes; a counter ticks over at once (a change that
       keeps the words before its first number, like "Slide 3 of 12" becoming "Slide 4 of 12") */
   description?: string;
   /** A live drawing in place of the status mark, 64 × 40, like `<DeckGlyph />` */
@@ -156,7 +156,8 @@ function Line({ text }: { text: string }) {
 function Card({ t, leaving, close, open, setOpen, from }: {
   t: ToastData; leaving: boolean; close: (r: ToastDismissReason) => void; open: boolean; setOpen: (o: boolean) => void; from?: RefObject<HTMLElement | null>;
 }) {
-  const el = useRef<HTMLDivElement>(null), ring = useRef<SVGRectElement>(null), reduce = useReducedMotion();
+  // the card eases to its new height as its words wrap or its steps and footer come and go (useGrow)
+  const [el, inner] = useGrow<HTMLDivElement>(), ring = useRef<SVGRectElement>(null), reduce = useReducedMotion();
   const status = t.status ?? 'success', working = status === 'working';
   const stop = working && t.onStop;
   // the footer keeps its last buttons while it folds shut, so they never vanish before it has closed
@@ -174,7 +175,7 @@ function Card({ t, leaving, close, open, setOpen, from }: {
     f.done.then(() => {
       card.style.opacity = '';
       const { transform, ...look } = m.reveal.part;
-      card.querySelectorAll(':scope > .dm-tst-hd > *').forEach((p, i) => {
+      card.querySelectorAll('.dm-tst-hd > *').forEach((p, i) => {
         if (Object.keys(look).length) p.animate([{ offset: 0, ...look }, {}], { duration: m.reveal.ms, delay: i * m.reveal.step, easing: m.reveal.ease, fill: 'backwards' });
         if (transform) p.animate([{ transform }, { transform: 'none' }], { duration: m.reveal.ms, delay: i * m.reveal.step, easing: m.reveal.ease, fill: 'backwards' });
       });
@@ -224,37 +225,39 @@ function Card({ t, leaving, close, open, setOpen, from }: {
   const flyOut = leaving && !reduce && !!from?.current?.getClientRects().length && !el.current?.style.transform;
   const anim = leaving ? (flyOut ? undefined : 'dm-tst-out') : flyIn ? undefined : 'dm-tst-in';
   return (
-    <div ref={el} className={cx('dm-tst-t', anim)} inert={leaving} style={{ '--dm-tst-gw': t.glyph ? '64px' : '20px' } as CSSProperties}
+    <div ref={el} className={cx('dm-tst-t dm-growing', anim)} inert={leaving} style={{ '--dm-tst-gw': t.glyph ? '64px' : '20px' } as CSSProperties}
       onPointerEnter={hold} onPointerLeave={go} onFocus={hold} onBlur={go}
       onKeyDown={e => { if (e.key === 'Escape') { e.stopPropagation(); close('escape'); } }}
       onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}>
-      <div className="dm-tst-hd">
-        {t.glyph ?? <span className="dm-tst-g" data-s={status} aria-hidden="true">{MARK[status]}</span>}
-        <div className="dm-tst-tx">
-          <Swap className={cx('dm-tst-ti', working && 'dm-shim')}>{t.title}</Swap>
-          {t.description !== undefined && <Line text={t.description} />}
+      <div ref={inner} className="dm-grow">
+        <div className="dm-tst-hd">
+          {t.glyph ?? <span className="dm-tst-g" data-s={status} aria-hidden="true">{MARK[status]}</span>}
+          <div className="dm-tst-tx">
+            <Swap className={cx('dm-tst-ti', working && 'dm-shim')}>{t.title}</Swap>
+            {t.description !== undefined && <Line text={t.description} />}
+          </div>
+          <div className="dm-tst-hb">
+            {!!t.steps?.length && <Tip label={open ? 'Hide steps' : 'Steps'}>
+              <button type="button" className="dm-ib dm-tst-more" aria-expanded={open} aria-label={open ? 'Hide the steps' : 'Show the steps'} onClick={() => setOpen(!open)}><Icon name="chev-d" /></button>
+            </Tip>}
+            {stop
+              ? <Tip label="Stop"><button type="button" className="dm-ib dm-tst-stop" aria-label="Stop the job" onClick={t.onStop}><Icon name="stop" /></button></Tip>
+              : <Tip label="Close"><button type="button" className="dm-ib dm-tst-x" aria-label="Close" onClick={() => close('close')}>
+                {timed && <svg className="dm-tst-ring" viewBox="0 0 28 28" aria-hidden="true"><rect className="dm-tst-tk" x=".75" y=".75" width="26.5" height="26.5" /><rect ref={ring} className="dm-tst-rn" x=".75" y=".75" width="26.5" height="26.5" pathLength={100} /></svg>}
+                <Icon name="x" /></button></Tip>}
+          </div>
         </div>
-        <div className="dm-tst-hb">
-          {!!t.steps?.length && <Tip label={open ? 'Hide steps' : 'Steps'}>
-            <button type="button" className="dm-ib dm-tst-more" aria-expanded={open} aria-label={open ? 'Hide the steps' : 'Show the steps'} onClick={() => setOpen(!open)}><Icon name="chev-d" /></button>
-          </Tip>}
-          {stop
-            ? <Tip label="Stop"><button type="button" className="dm-ib dm-tst-stop" aria-label="Stop the job" onClick={t.onStop}><Icon name="stop" /></button></Tip>
-            : <Tip label="Close"><button type="button" className="dm-ib dm-tst-x" aria-label="Close" onClick={() => close('close')}>
-              {timed && <svg className="dm-tst-ring" viewBox="0 0 28 28" aria-hidden="true"><rect className="dm-tst-tk" x=".75" y=".75" width="26.5" height="26.5" /><rect ref={ring} className="dm-tst-rn" x=".75" y=".75" width="26.5" height="26.5" pathLength={100} /></svg>}
-              <Icon name="x" /></button></Tip>}
-        </div>
+        {!!t.steps?.length && <Fold open={open} className="dm-tst-mf">
+          <ol className="dm-tst-st" aria-label="Steps">
+            {t.steps.map((s, i) => <li key={i} data-s={STEP[s.status].s}><span className="dm-tst-mk">{STEP[s.status].mark}</span><span className="dm-tst-lb">{s.label}</span><span className="dm-tst-vl">{s.detail}</span></li>)}
+          </ol>
+        </Fold>}
+        <Fold open={!!t.actions?.length} className="dm-tst-ft">
+          <div className="dm-tst-fi">
+            {acts.map(a => <button key={a.label} type="button" className={cx('dm-pill dm-sm', a.variant === 'primary' ? 'dm-primary' : a.variant === 'warn' ? 'dm-warn' : 'dm-line')} onClick={a.onClick}>{a.label}</button>)}
+          </div>
+        </Fold>
       </div>
-      {!!t.steps?.length && <Fold open={open} className="dm-tst-mf">
-        <ol className="dm-tst-st" aria-label="Steps">
-          {t.steps.map((s, i) => <li key={i} data-s={STEP[s.status].s}><span className="dm-tst-mk">{STEP[s.status].mark}</span><span className="dm-tst-lb">{s.label}</span><span className="dm-tst-vl">{s.detail}</span></li>)}
-        </ol>
-      </Fold>}
-      <Fold open={!!t.actions?.length} className="dm-tst-ft">
-        <div className="dm-tst-fi">
-          {acts.map(a => <button key={a.label} type="button" className={cx('dm-pill dm-sm', a.variant === 'primary' ? 'dm-primary' : a.variant === 'warn' ? 'dm-warn' : 'dm-line')} onClick={a.onClick}>{a.label}</button>)}
-        </div>
-      </Fold>
     </div>
   );
 }

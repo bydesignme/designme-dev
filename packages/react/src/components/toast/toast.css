@@ -9,7 +9,7 @@
 .dm-tst{position:relative}
 /* the toast on its way out and the one coming in share one cell, so each keeps its full width while they cross; the cell is
    as tall as its toast and keeps no room when there is none */
-.dm-tst-slot{position:relative;width:100%;display:grid;justify-items:center;align-items:center}
+.dm-tst-slot{position:relative;width:100%;display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;align-items:center}
 .dm-tst-slot>:is(.dm-tst-t,.dm-tst-make){grid-area:1/1}
 /* the button that starts the job sits where its toast will: the toast grows out of it and, once closed, goes back into it */
 .dm-tst-make.dm-under{visibility:hidden}
@@ -18,12 +18,18 @@
    show on Blueprint's dark raised grey */
 .dm-tst-t{width:100%;max-width:380px;box-sizing:border-box;background:var(--dm-raised);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow-pop);--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent);--dm-tst-div:color-mix(in srgb,var(--dm-fg) 10%,transparent);overflow:clip;position:relative;touch-action:pan-y;user-select:none;-webkit-user-select:none}
 .dm-tst-t[hidden]{display:none}
+/* (it grows with what it holds, grow(); its corners clip what is inside them exactly). The card's own height carries the motion,
+   so its steps and its footer open and shut at once and only fade: two eased heights on top of each other would leave the
+   card's edge trailing behind them */
+.dm-tst-t.dm-growing{overflow-clip-margin:0px}
+.dm-tst-t .dm-fold{transition:opacity var(--dm-t-fast) var(--dm-ease)}
+.dm-tst-t .dm-fold.dm-shut{transition:opacity var(--dm-t-fast) var(--dm-ease),visibility 0s var(--dm-t-fast)}
 /* the head: the glyph, the words, then the toast's own buttons, all on one centre line, 16px in from every edge */
 .dm-tst-hd{display:flex;align-items:center;gap:var(--dm-s-3);padding:var(--dm-s-4)}
 .dm-tst-tx{flex:1;min-width:0}
 .dm-tst-ti{display:block;width:fit-content;max-width:100%;font-size:13px;font-weight:500;line-height:18px}
-/* the line under the title stays on one line, so the toast keeps its height as a counter in it ticks over */
-.dm-tst-de{display:block;font-size:12px;line-height:18px;color:var(--dm-muted);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* the line under the title wraps on a narrow toast rather than cutting off its news ("The sheet says 41k, not 14k") */
+.dm-tst-de{display:block;font-size:12px;line-height:18px;color:var(--dm-muted);font-variant-numeric:tabular-nums}
 /* its icon buttons fill on hover, so they are measured by their box (ui-qa-gate, "boxes that fill"): Close's box, and the
    countdown ring drawn on it, end on the content's right edge, 16px in, where the footer's buttons end */
 .dm-tst-hb{display:flex;align-items:center;gap:var(--dm-s-1);flex:none}
@@ -31,13 +37,15 @@
 .dm-tst-hb .dm-ib[hidden]{display:none}
 .dm-tst-more .dm-i{transition:transform var(--dm-t) var(--dm-ease)}
 .dm-tst-more[aria-expanded="true"] .dm-i{transform:rotate(180deg)}
-/* a plain toast's status mark sits where the glyph goes: the vivid green tick, the red alert, a grey info mark or a spinner,
+/* a plain toast's status mark sits where the glyph goes: the vivid green tick, the red alert, the warning sign in the bright
+   orange (its words stay in the text colour and its fix is .pill.warn, as the warning notices have them), a grey info mark or a spinner,
    with no disc behind it, so a toast carries two hues at most */
 .dm-tst-g{flex:none;width:20px;height:20px;display:grid;place-items:center;color:var(--dm-fg2)}
 .dm-tst-g .dm-i{width:20px;height:20px}
 .dm-tst-g .dm-spin{width:14px;height:14px;color:var(--dm-accent-mark)}
 .dm-tst-g[data-s="success"]{color:var(--dm-ok-mark)}
 .dm-tst-g[data-s="error"]{color:var(--dm-bad-mark)}
+.dm-tst-g[data-s="warning"]{color:var(--dm-warn-mark)}
 .dm-tst-g[data-s="stopped"]{color:var(--dm-muted)}
 /* the countdown you can see: a ring round Close that drains; the pointer or the focus on the toast holds it */
 .dm-tst-ring{position:absolute;inset:0;width:28px;height:28px;pointer-events:none;fill:none}
