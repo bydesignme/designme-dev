@@ -309,6 +309,9 @@ every session and every agent.
   up with the head's title, icon and total and with the foot, and the row's hover fill reaches 8px outward round the row
   (into the padding), never pushing the row's content inward (owner, 26 Nov: "none of the padding makes sense again", on Agent
   tree's rows sitting 8px inside its head).
+- File explorer is the one exception to rows on the 16px column (owner, 26 Nov: "it's ok the way it is now since icons have
+  bounding box around them"): its rows' chevrons sit centred under the search field's magnifier and the M/A/D letters under
+  the filter button's icon, as set up on 18 Nov. Leave them there.
 - The parts of one row (icon, word, detail, button) share one centre line: never mix `align-items:baseline` with an
   `align-self:center` child. Buttons side by side are the same drawn height.
 - Ghost buttons and icon buttons (Stop, Copy, a head's chevron, a row's Read) share one hover in each style: the same quiet
