@@ -30,7 +30,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import Page from '../layouts/Page.astro';
-import { ROOT, SITE, COMPONENTS, SECTIONS, SPLIT, BANDS, icon, MARKS, shadcnUrl, FONT_CSS } from '../lib/data.mjs';
+import { ROOT, SITE, COMPONENTS, SECTIONS, SPLIT, BANDS, icon, MARKS, shadcnUrl, FONT_CSS, LOGO } from '../lib/data.mjs';
 import { FRAME_CSS, FRAME_JS } from '../lib/templates.mjs';
 
 const comp = reg => { const c = COMPONENTS.find(x => x.reg === reg); if (!c) throw new Error('landing: no component called ' + reg); return c; };
@@ -226,6 +226,11 @@ const GH_MARK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="current
 const replayIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>';
 const folderIcon = '<svg class="lp-fi" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.25 4.75c0-.83.67-1.5 1.5-1.5h2.4c.4 0 .78.16 1.06.44l.85.81h4.19c.83 0 1.5.67 1.5 1.5v5.25c0 .83-.67 1.5-1.5 1.5h-8.5c-.83 0-1.5-.67-1.5-1.5z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>';
 const arrow = icon('arrow_forward', 'lp-ar');
+// the closing band's DesignMe wordmark: the header logo's own letter paths (and its registered mark), never redrawn, each
+// given a path length of 1 so its outline can be drawn in
+const WM_PATHS = [...(LOGO.match(/<g class="wm">(.*?)<\/g>/) || [, ''])[1].matchAll(/<path class="(?:ch|r)"(?: style="--i:(\d)")? d="([^"]+)"\/>/g)];
+if (WM_PATHS.length !== 9) throw new Error(`the header wordmark has ${WM_PATHS.length} paths, not 9`);
+const wordmark = WM_PATHS.map(([, i, d]) => `<path style="--i:${i || 8}" pathLength="1" d="${d}"/>`).join('');
 // the styles section's switch (the theme half's sun and moon) and the handles' grip
 const sunIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></svg>';
 const moonIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
@@ -673,7 +678,6 @@ const jsonld = [
       /* ---- the last word: DesignMe's Book a call, the site's own squircle rectangle, on the accent as a primary button,
          and the address beside it ---- */
       .lp-work{padding-bottom:var(--lp-sec)}
-      .lp-work .lp-cta{justify-content:center;align-items:center;gap:8px 16px;margin-top:0}
       .lp .lp-book{border-radius:10px}
       @supports (corner-shape:squircle){.lp .lp-book{corner-shape:squircle;border-radius:16px}}
       /* Clean: buttons are pills, so Book a call is Clean's ink pill like the hero's buttons (owner, 21 Nov: "thats not clean
@@ -683,6 +687,38 @@ const jsonld = [
       :root[data-style="bp"] .lp .lp-btn,:root:not([data-style]) .lp .lp-btn{corner-shape:round;border-radius:0}
       .lp-mail{display:inline-flex;align-items:center;height:40px;font-size:14px;color:var(--pg-dim)}
       .lp-mail a{margin-left:4px;color:var(--pg-fg)}
+
+      /* the last word on one black band, in every style and theme (DesignMe's own colours: white on near-black): the
+         headline and Book a call over the DesignMe wordmark at the band's full width, drawn in outline (the logo's
+         "blueprint") once when it comes into view, then filled; with reduced motion, or without the script, it is simply there */
+      .ct-band{--ct-bg:#0b0b0b;--ct-fg:#fafafa;--ct-dim:#bdbdbd;--ct-line:rgba(255,255,255,.1);position:relative;isolation:isolate;overflow:hidden;padding:64px 64px 56px;border-radius:var(--lp-r3);background:var(--ct-bg);color:var(--ct-fg)}
+      :root[data-theme="dark"] .ct-band{--ct-bg:#000;box-shadow:inset 0 0 0 1px var(--ct-line)}
+      @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ct-band{--ct-bg:#000;box-shadow:inset 0 0 0 1px var(--ct-line)}}
+      @supports (corner-shape:squircle){:root[data-style="soft"] .ct-band{corner-shape:squircle}}
+      .ct-band .lp-sh h2{color:var(--ct-fg)}
+      .ct-band p{color:var(--ct-dim)}
+      :root[data-lp-h="small"] .ct-band .lp-sh{display:flex;padding-top:0;border-top:0}
+      /* Book a call: on the dark band, Soft's and Clean's primary is white in light mode (the accent in dark mode, as anywhere
+         else); Blueprint keeps its lime accent with --on-accent words in both modes, and its sharp corners */
+      :root[data-theme="light"]:is([data-style="soft"],[data-style="clean"]) .ct-band{--dm-accent:#fff;--dm-accent-2:#e5e5e5;--dm-on-accent:#0b0b0b;--dm-btn-1:#fff;--dm-btn-2:#ececec;--dm-on-btn:#0b0b0b;--dm-btn-depth:none}
+      @media (prefers-color-scheme:light){:root:not([data-theme="dark"]):is([data-style="soft"],[data-style="clean"]) .ct-band{--dm-accent:#fff;--dm-accent-2:#e5e5e5;--dm-on-accent:#0b0b0b;--dm-btn-1:#fff;--dm-btn-2:#ececec;--dm-on-btn:#0b0b0b;--dm-btn-depth:none}}
+      .ct-band .lp-mail{color:var(--ct-dim)}
+      .ct-band .lp-mail a{color:var(--ct-fg);text-underline-offset:3px;text-decoration-color:rgba(255,255,255,.4);transition:text-decoration-color 220ms var(--lp-ease)}
+      .ct-band .lp-mail a:hover{text-decoration-color:currentColor}
+      .ct-top{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:24px 48px;align-items:end}
+      .ct-band .ct-sh{align-items:flex-start;max-width:none;margin:0;text-align:left}
+      .ct-band .ct-sh h2{max-width:16ch}
+      .ct-side p{margin:0;max-width:44ch;font-size:14px;line-height:1.6;text-wrap:pretty}
+      .ct-band .lp-cta{justify-content:flex-start;align-items:center;gap:8px 16px;margin-top:24px}
+      .ct-wm{display:block;overflow:visible;width:100%;height:auto;margin-top:72px}
+      .ct-wm path{fill:var(--ct-fg)}
+      /* the drawing: each letter's outline runs round once, the letters a beat apart, and then fills */
+      .ct-band.arm .ct-wm path{fill-opacity:0;stroke:var(--ct-fg);stroke-width:.14;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1}
+      .ct-band.go .ct-wm path{fill-opacity:1;stroke-dashoffset:0;stroke-opacity:0;transition:stroke-dashoffset 1800ms var(--lp-ease) calc(var(--i) * 110ms),fill-opacity 900ms var(--lp-ease) calc(1500ms + var(--i) * 110ms),stroke-opacity 600ms linear calc(2500ms + var(--i) * 110ms)}
+      @media (max-width:1199px){.ct-band{padding:48px 40px 40px}.ct-band.arm .ct-wm path{stroke-width:.2}}
+      @media (max-width:960px){.ct-top{grid-template-columns:minmax(0,1fr)}.ct-wm{margin-top:56px}}
+      @media (max-width:640px){.ct-band{margin:0 -16px;padding:48px 16px 32px;border-radius:0}.ct-wm{margin-top:48px}.ct-band.arm .ct-wm path{stroke-width:.4}}
+      @media (prefers-reduced-motion:reduce){.ct-band .ct-wm path{fill-opacity:1;stroke:none;transition:none}}
 
       /* ---- questions: the heading on the left, kept in view while the list scrolls past, and the list on the right; an
          answer opens smoothly, with Clean's easing (instantly with reduced motion) ---- */
@@ -1040,13 +1076,18 @@ const jsonld = [
     </section>
 
     <section class="lp-in lp-sec lp-work" id="work" aria-labelledby="work-h">
-      <div class="lp-sh">
-        <h2 id="work-h">Want it designed into your product?</h2>
-        <p>DesignMe made designme.dev. We design and build AI products, React apps and Astro sites.</p>
-      </div>
-      <div class="lp-cta">
-        <a class="pill primary lp-btn lp-book" href={BOOK} target="_blank" rel="noopener">Book a call<Fragment set:html={arrow} /></a>
-        <span class="lp-mail">or write to<a href="mailto:hello@designme.agency">hello@designme.agency</a></span>
+      <div class="ct-band">
+        <div class="ct-top">
+          <div class="lp-sh ct-sh"><h2 id="work-h">Want it designed into your product?</h2></div>
+          <div class="ct-side">
+            <p>DesignMe made designme.dev. We design and build AI products, React apps and Astro sites.</p>
+            <div class="lp-cta">
+              <a class="pill primary lp-btn lp-book" href={BOOK} target="_blank" rel="noopener">Book a call<Fragment set:html={arrow} /></a>
+              <span class="lp-mail">or write to<a href="mailto:hello@designme.agency">hello@designme.agency</a></span>
+            </div>
+          </div>
+        </div>
+        <svg class="ct-wm" viewBox="-0.5 18.9 163.3 21.4" role="img" aria-label="DesignMe" set:html={wordmark} />
       </div>
     </section>
     <div class="lp-end" aria-hidden="true"></div>
@@ -1055,6 +1096,18 @@ const jsonld = [
   <Fragment slot="end">
     <script is:inline src="/components/assets/core.js"></script>
     <script is:inline set:html={FRAME_JS} />
+    <script is:inline>
+    (function(){
+      // the closing band's wordmark draws in once, the first time the band is half on screen; with reduced motion (or
+      // without this script) it is simply there, filled
+      var band = document.querySelector('.lp-work .ct-band'); if (!band || !window.IntersectionObserver) return;
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      band.classList.add('arm');
+      var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (!e.isIntersecting) return; io.disconnect();
+        requestAnimationFrame(function(){ requestAnimationFrame(function(){ band.classList.add('go'); }); }); }); }, { threshold:.5 });
+      io.observe(band);
+    })();
+    </script>
     <script is:inline>
     (function(){
       if (typeof DM === 'undefined') return;
