@@ -676,7 +676,6 @@ const jsonld = [
 
       /* ---- the last word: DesignMe's Book a call, the site's own squircle rectangle, on the accent as a primary button,
          and the address beside it ---- */
-      .lp-work{padding-bottom:var(--lp-sec)}
       .lp .lp-book{border-radius:10px}
       @supports (corner-shape:squircle){.lp .lp-book{corner-shape:squircle;border-radius:16px}}
       /* Clean: buttons are pills, so Book a call is Clean's ink pill like the hero's buttons (owner, 21 Nov: "thats not clean
@@ -687,13 +686,24 @@ const jsonld = [
       .lp-mail{display:inline-flex;align-items:center;height:40px;font-size:14px;color:var(--pg-dim)}
       .lp-mail a{margin-left:4px;color:var(--pg-fg)}
 
-      /* the last word on one black band, in every style and theme (DesignMe's own colours: white on near-black): the
-         headline and Book a call over the DesignMe wordmark at the band's full width, drawn in outline (the logo's
-         "blueprint") once when it comes into view, then filled; with reduced motion, or without the script, it is simply there */
-      .ct-band{--ct-bg:#0b0b0b;--ct-fg:#fafafa;--ct-dim:#bdbdbd;--ct-line:rgba(255,255,255,.1);position:relative;isolation:isolate;overflow:hidden;padding:64px 64px 56px;border-radius:var(--lp-r3);background:var(--ct-bg);color:var(--ct-fg)}
-      :root[data-theme="dark"] .ct-band{--ct-bg:#000;box-shadow:inset 0 0 0 1px var(--ct-line)}
-      @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ct-band{--ct-bg:#000;box-shadow:inset 0 0 0 1px var(--ct-line)}}
-      @supports (corner-shape:squircle){:root[data-style="soft"] .ct-band{corner-shape:squircle}}
+      /* the last word, on near-black from edge to edge of the window and on into the footer, which is near-black on the
+         landing page too, in every style and theme (owner, 26 Nov: "Make this whole section full width and all dark ... The
+         footer should be fully dark"). The headline and Book a call sit over the DesignMe wordmark at the content's width;
+         the wordmark draws in outline (the logo's "blueprint") once when it comes into view, then fills, and after that a soft
+         lens under the pointer shows its construction drawing (9C). With reduced motion it is simply there, filled */
+      .ct-band,:root:has(.ct-band) .pg-foot{--ct-bg:#0b0b0b;--ct-fg:#fafafa;--ct-dim:#bdbdbd;--ct-line:rgba(255,255,255,.12)}
+      :root[data-theme="dark"] :is(.ct-band,.pg-foot){--ct-bg:#000}
+      @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(.ct-band,.pg-foot){--ct-bg:#000}}
+      .lp-work{padding-top:var(--lp-sec)}
+      .ct-band{position:relative;isolation:isolate;overflow:hidden;padding:120px 0 80px;background:var(--ct-bg);color:var(--ct-fg)}
+      /* the page under the landing ends on the band: no gap between it and the footer */
+      .pg-main:has(.ct-band){padding-bottom:0}
+      :root:has(.ct-band) .pg-foot{background:var(--ct-bg);color:var(--ct-dim);border-top:1px solid var(--ct-line)}
+      :root:has(.ct-band) .pg-foot a{color:var(--ct-dim)}
+      :root:has(.ct-band) .pg-foot a:hover{color:var(--ct-fg)}
+      :root:has(.ct-band) .pg-foot-in > span a{text-decoration-color:rgba(255,255,255,.4)}
+      :root:has(.ct-band) .pg-foot-in > span a:hover{text-decoration-color:currentColor}
+      :root:has(.ct-band) .pg-foot a:focus-visible{outline:2px solid rgba(255,255,255,.6);outline-offset:2px}
       .ct-band .lp-sh h2{color:var(--ct-fg)}
       .ct-band p{color:var(--ct-dim)}
       :root[data-lp-h="small"] .ct-band .lp-sh{display:flex;padding-top:0;border-top:0}
@@ -709,14 +719,36 @@ const jsonld = [
       .ct-band .ct-sh h2{max-width:16ch}
       .ct-side p{margin:0;max-width:44ch;font-size:14px;line-height:1.6;text-wrap:pretty}
       .ct-band .lp-cta{justify-content:flex-start;align-items:center;gap:8px 16px;margin-top:24px}
-      .ct-wm{display:block;overflow:visible;width:100%;height:auto;margin-top:72px}
+      .ct-wm{display:block;overflow:visible;width:100%;height:auto}
       .ct-wm path{fill:var(--ct-fg)}
-      /* the drawing: each letter's outline runs round once, the letters a beat apart, and then fills */
+      /* the drawing: each letter's outline runs round once, the letters overlapping, and fills as it closes, all within
+         about 1.3s, so the wordmark is ready to explore almost at once (owner, 26 Nov) */
       .ct-band.arm .ct-wm path{fill-opacity:0;stroke:var(--ct-fg);stroke-width:.14;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1}
-      .ct-band.go .ct-wm path{fill-opacity:1;stroke-dashoffset:0;stroke-opacity:0;transition:stroke-dashoffset 1800ms var(--lp-ease) calc(var(--i) * 110ms),fill-opacity 900ms var(--lp-ease) calc(1500ms + var(--i) * 110ms),stroke-opacity 600ms linear calc(2500ms + var(--i) * 110ms)}
-      @media (max-width:1199px){.ct-band{padding:48px 40px 40px}.ct-band.arm .ct-wm path{stroke-width:.2}}
-      @media (max-width:960px){.ct-top{grid-template-columns:minmax(0,1fr)}.ct-wm{margin-top:56px}}
-      @media (max-width:640px){.ct-band{margin:0 -16px;padding:48px 16px 32px;border-radius:0}.ct-wm{margin-top:48px}.ct-band.arm .ct-wm path{stroke-width:.4}}
+      .ct-band.go .ct-wm path{fill-opacity:1;stroke-dashoffset:0;stroke-opacity:0;transition:stroke-dashoffset 700ms var(--lp-ease) calc(var(--i) * 40ms),fill-opacity 500ms var(--lp-ease) calc(480ms + var(--i) * 40ms),stroke-opacity 400ms linear calc(860ms + var(--i) * 40ms)}
+      /* the lens */
+      .ct9a .ct-wmw{position:relative;margin-top:72px;touch-action:pan-y;-webkit-user-select:none;user-select:none}
+      .ct9a .bp-win{position:absolute;left:0;top:0;overflow:visible;pointer-events:none;visibility:hidden;will-change:transform,opacity;transform-origin:0 0}
+      .ct9a .bp-win.on{visibility:visible}
+      .ct9a .ct-bp{position:absolute;left:0;top:0;overflow:visible;transform-origin:0 0;will-change:transform}
+      .ct9a .ct-bp *{vector-effect:non-scaling-stroke}
+      .ct9a .bp-dim{fill:var(--ct-bg);fill-opacity:1}
+      .ct9a .bp-ghost{fill:#fff;fill-opacity:.06}
+      .ct9a .bp-out{fill:none;stroke:#fff;stroke-width:1.25;stroke-linejoin:round}
+      .ct9a .bp-g{fill:none;stroke:#fff;stroke-width:1}
+      .ct9a .bp-g.cap,.ct9a .bp-g.base{stroke-opacity:.42}
+      .ct9a .bp-g.mid{stroke-opacity:.18;stroke-dasharray:2 4}
+      .ct9a .bp-g.over{stroke-opacity:.3;stroke-dasharray:6 4}
+      .ct9a .bp-g.edge{stroke-opacity:.2}
+      .ct9a .bp-g.dim{stroke-opacity:.55}
+      .ct9a .bp-h{fill:none;stroke:#fff;stroke-opacity:.5;stroke-width:1}
+      .ct9a .bp-cp{fill:var(--ct-bg);stroke:#fff;stroke-opacity:.8;stroke-width:1}
+      .ct9a .bp-nd{fill:var(--ct-bg);stroke:#fff;stroke-width:1.25}
+      .ct9a .bp-t{fill:#fff;fill-opacity:.74;font-family:var(--font,Inter,system-ui,sans-serif);font-weight:400;font-variant-numeric:tabular-nums;letter-spacing:0}
+      @media (max-width:960px){.ct9a .ct-wmw{margin-top:56px}}
+      @media (max-width:640px){.ct9a .ct-wmw{margin-top:48px}}
+      @media (max-width:1199px){.ct-band{padding:96px 0 64px}.ct-band.arm .ct-wm path{stroke-width:.2}}
+      @media (max-width:960px){.ct-top{grid-template-columns:minmax(0,1fr)}}
+      @media (max-width:640px){.ct-band{padding:64px 0 48px}.ct-band.arm .ct-wm path{stroke-width:.4}}
       @media (prefers-reduced-motion:reduce){.ct-band .ct-wm path{fill-opacity:1;stroke:none;transition:none}}
 
       /* ---- questions: the heading on the left, kept in view while the list scrolls past, and the list on the right; an
@@ -1173,8 +1205,8 @@ const jsonld = [
       </div>
     </section>
 
-    <section class="lp-in lp-sec lp-work" id="work" aria-labelledby="work-h">
-      <div class="ct-band">
+    <section class="lp-work ct9a" id="work" aria-labelledby="work-h">
+      <div class="ct-band"><div class="lp-in">
         <div class="ct-top">
           <div class="lp-sh ct-sh"><h2 id="work-h">Want it designed into your product?</h2></div>
           <div class="ct-side">
@@ -1185,8 +1217,8 @@ const jsonld = [
             </div>
           </div>
         </div>
-        <svg class="ct-wm" viewBox="-0.5 18.9 163.3 21.4" role="img" aria-label="DesignMe" set:html={wordmark} />
-      </div>
+        <div class="ct-wmw"><svg class="ct-wm" viewBox="-0.5 18.9 163.3 21.4" role="img" aria-label="DesignMe" set:html={wordmark} /></div>
+      </div></div>
     </section>
     <div class="lp-end" aria-hidden="true"></div>
   </div>
@@ -1204,6 +1236,171 @@ const jsonld = [
       var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (!e.isIntersecting) return; io.disconnect();
         requestAnimationFrame(function(){ requestAnimationFrame(function(){ band.classList.add('go'); }); }); }); }, { threshold:.5 });
       io.observe(band);
+    })();
+    (function(){
+      /* the wordmark's construction drawing under the pointer. Nothing is built until the band comes near the view;
+         the frame loop runs only while the lens is open, the band is on screen and the tab is visible, and stops the moment the
+         lens has closed, leaving the plain filled wordmark. With reduced motion the wordmark stays as it is */
+      var sec = document.querySelector('.ct9a'); if (!sec) return;
+      var band = sec.querySelector('.ct-band'), wrap = sec.querySelector('.ct-wmw'), wm = wrap.querySelector('.ct-wm');
+      var rm = matchMedia('(prefers-reduced-motion: reduce)');
+      var NS = 'http://www.w3.org/2000/svg';
+      var vb = wm.viewBox.baseVal, VX = vb.x, VY = vb.y, VW = vb.width, VH = vb.height;
+      var CAP = 20.1034, BASE = 39.1011, OVT = 19.4696, OVB = 39.7338;
+      var built = false, wide, lens, labels = [], nodes = [], cps = [], unit = 1, ready = false, seen = false;
+
+      function el(n, a, p){ var e = document.createElementNS(NS, n); for (var k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; }
+      // the points a path is made of: its anchors, and for each curve its two handles and the anchors they pull from
+      function geo(d){
+        var t = d.match(/[MLHVCZ]|-?\d*\.?\d+(?:e-?\d+)?/gi), i = 0, c = '', x = 0, y = 0, sx = 0, sy = 0, an = [], hs = [];
+        var n = function(){ return parseFloat(t[i++]); };
+        while (i < t.length){
+          if (/[A-Z]/i.test(t[i])) c = t[i++];
+          if (c === 'M'){ x = sx = n(); y = sy = n(); an.push([x, y]); c = 'L'; }
+          else if (c === 'L'){ x = n(); y = n(); an.push([x, y]); }
+          else if (c === 'H'){ x = n(); an.push([x, y]); }
+          else if (c === 'V'){ y = n(); an.push([x, y]); }
+          else if (c === 'C'){ var a = [n(), n()], b = [n(), n()], e = [n(), n()]; hs.push([[x, y], a], [e, b]); x = e[0]; y = e[1]; an.push([x, y]); }
+          else if (c === 'Z' || c === 'z'){ x = sx; y = sy; }
+          else i++;
+        }
+        return { an:an, hs:hs };
+      }
+      function build(){
+        built = true;
+        var ps = [].slice.call(wm.querySelectorAll('path'));
+        var mk = function(cls){ return el('svg', { 'class':'ct-bp ' + cls, viewBox:[VX, VY, VW, VH].join(' '), 'aria-hidden':'true', focusable:'false' }); };
+        wide = mk('bp-wide'); lens = mk('bp-lens');
+        var boxes = ps.map(function(p){ return p.getBBox(); }).sort(function(a, b){ return a.x - b.x; });
+        var L = VX - 40, R = VX + VW + 40;
+        // the wide lens: the guides only, faint, over a larger area so they run out past the letters
+        var gw = el('g', {}, wide);
+        [[CAP, 'cap'], [BASE, 'base'], [(CAP + BASE) / 2, 'mid'], [OVT, 'over'], [OVB, 'over']].forEach(function(g){ el('line', { 'class':'bp-g ' + g[1], x1:L, x2:R, y1:g[0], y2:g[0] }, gw); });
+        boxes.forEach(function(b){ [b.x, b.x + b.width].forEach(function(x){ el('line', { 'class':'bp-g edge', x1:x, x2:x, y1:CAP - 3.2, y2:BASE + 3.2 }, gw); }); });
+        // the lens: the letters themselves, covered so the centre is fully see-through, the same paths as outlines,
+        // the guides a little stronger, each curve's handles and every anchor, and the letters' widths under the base line
+        var dimg = el('g', {}, lens);
+        ps.forEach(function(p){ el('path', { 'class':'bp-dim', d:p.getAttribute('d') }, dimg); });
+        var gl = el('g', {}, lens);
+        [[CAP, 'cap'], [BASE, 'base'], [OVT, 'over'], [OVB, 'over']].forEach(function(g){ el('line', { 'class':'bp-g ' + g[1], x1:L, x2:R, y1:g[0], y2:g[0], 'style':'stroke-opacity:.6' }, gl); });
+        boxes.forEach(function(b){ [b.x, b.x + b.width].forEach(function(x){ el('line', { 'class':'bp-g edge', x1:x, x2:x, y1:CAP - 3.2, y2:BASE + 3.2, style:'stroke-opacity:.34' }, gl); }); });
+        var ink = el('g', {}, lens);
+        ps.forEach(function(p){ el('path', { 'class':'bp-out', d:p.getAttribute('d') }, ink); });
+        var hg = el('g', {}, lens), ng = el('g', {}, lens), tg = el('g', {}, wide);
+        ps.forEach(function(p){
+          var g = geo(p.getAttribute('d'));
+          g.hs.forEach(function(h){ el('line', { 'class':'bp-h', x1:h[0][0], y1:h[0][1], x2:h[1][0], y2:h[1][1] }, hg); cps.push(el('circle', { 'class':'bp-cp', cx:h[1][0], cy:h[1][1], r:.3 }, hg)); });
+          var seenAt = {};
+          g.an.forEach(function(a){ var k = a[0].toFixed(2) + ',' + a[1].toFixed(2); if (seenAt[k]) return; seenAt[k] = 1; nodes.push(el('rect', { 'class':'bp-nd', 'data-x':a[0], 'data-y':a[1] }, ng)); });
+        });
+        // widths under the base line, and the cap height at the left
+        var DY = BASE + 2.2;
+        boxes.forEach(function(b, k){
+          if (b.width < 6) return; // the registered mark is measured by its own ring, not here
+          el('line', { 'class':'bp-g dim', x1:b.x, x2:b.x + b.width, y1:DY, y2:DY }, tg);
+          [b.x, b.x + b.width].forEach(function(x){ el('line', { 'class':'bp-g dim', x1:x, x2:x, y1:DY - .7, y2:DY + .7 }, tg); });
+          var t = el('text', { 'class':'bp-t', x:b.x + b.width / 2, 'text-anchor':'middle', 'data-y':DY }, tg); t.textContent = b.width.toFixed(1); labels.push(t);
+        });
+        var CX = VX - 1.6;
+        el('line', { 'class':'bp-g dim', x1:CX, x2:CX, y1:CAP, y2:BASE }, tg);
+        [CAP, BASE].forEach(function(y){ el('line', { 'class':'bp-g dim', x1:CX - .7, x2:CX + .7, y1:y, y2:y }, tg); });
+        var ch = el('text', { 'class':'bp-t', 'text-anchor':'middle', 'data-rot':'1' }, tg); ch.textContent = (BASE - CAP).toFixed(1); labels.push(ch);
+        // the drawing is shown through round windows that move with the lens. Each window and the drawing inside it only
+        // move (the drawing the opposite way), so following the pointer never repaints anything
+        lens.appendChild(tg.cloneNode(true));
+        // a clear see-through centre, then a long, soft rim (a smootherstep in many steps) with no edge or ring
+        var soft = function(){ var s = [], z = Math.exp(-5); for (var i = 0; i <= 20; i++){ var t = i / 20, u = Math.max(0, (t - .42) / .58), a = 1 - u * u * u * (u * (u * 6 - 15) + 10); s.push('rgba(0,0,0,' + a.toFixed(3) + ') ' + (t * 100).toFixed(0) + '%'); } return 'radial-gradient(closest-side,' + s.join(',') + ')'; }();
+        W = [[wide, 3.4, .85], [lens, 1.9, 1]].map(function(a){
+          var d = document.createElement('div'); d.className = 'bp-win'; d.appendChild(a[0]); wrap.appendChild(d);
+          d.style.webkitMaskImage = d.style.maskImage = soft;
+          return { d:d, sv:a[0], mul:a[1], op:a[2] };
+        });
+        labels = labels.concat([].slice.call(lens.querySelectorAll('.bp-t'))).filter(function(t, i, a){ return a.indexOf(t) === i; });
+        size();
+      }
+      var W = [];
+      // nodes, handles and labels keep their size on screen at every width
+      function size(){
+        if (!built) return;
+        var r = wm.getBoundingClientRect(); unit = r.width / VW || 1;
+        var s = 5 / unit, fs = (unit < 4 ? 10 : 11) / unit;
+        nodes.forEach(function(n){ var x = +n.dataset.x, y = +n.dataset.y; n.setAttribute('x', x - s / 2); n.setAttribute('y', y - s / 2); n.setAttribute('width', s); n.setAttribute('height', s); });
+        cps.forEach(function(c){ c.setAttribute('r', 2.25 / unit); });
+        labels.forEach(function(t){
+          t.setAttribute('font-size', fs);
+          if (t.dataset.rot){ var x = VX - 1.6 - .9 - fs * .3, y = (CAP + BASE) / 2; t.setAttribute('x', x); t.setAttribute('y', y); t.setAttribute('transform', 'rotate(-90 ' + x + ' ' + y + ')'); }
+          else t.setAttribute('y', +t.dataset.y + .9 + fs * .9);
+        });
+        // the lens is about a ninth of the band's width, never smaller than a fingertip's reach on a phone
+        R0 = Math.max(64, Math.min(170, r.width * .11)) / unit;
+        W.forEach(function(w){ var R = R0 * unit * w.mul; w.R = R; w.d.style.width = w.d.style.height = 2 * R + 'px'; w.sv.style.width = r.width + 'px'; w.sv.style.height = r.height + 'px'; });
+      }
+
+      // the lens: a head that follows the pointer on a spring and a short tail of circles that follow the head, so it moves
+      // like ink being wiped away. open (0..1) rises while the pointer moves and falls once it rests or leaves
+      var R0 = 15, N = 4, P = [], tx = 0, ty = 0, vx = 0, vy = 0, hx = 0, hy = 0, open = 0, want = 0, over = false, lastMove = 0, raf = 0, last = 0, speed = 0;
+      for (var k = 0; k < N; k++) P.push([0, 0]);
+      function toUnits(e){ var r = wm.getBoundingClientRect(); return [(e.clientX - r.left) / unit + VX, (e.clientY - r.top) / unit + VY]; }
+      function near(e){ var r = wm.getBoundingClientRect(), m = 48; return e.clientX > r.left - m && e.clientX < r.right + m && e.clientY > r.top - m && e.clientY < r.bottom + m; }
+      function move(e){
+        if (!ready || rm.matches) return;
+        if (!built) build();
+        if (!near(e)){ if (over){ over = false; kick(); } return; }
+        var u = toUnits(e);
+        if (!over && open < .05){ hx = u[0]; hy = u[1]; vx = vy = 0; for (var k = 0; k < N; k++){ P[k][0] = hx; P[k][1] = hy; } }
+        over = true; tx = u[0]; ty = u[1]; lastMove = performance.now(); kick();
+      }
+      function leave(){ over = false; kick(); }
+      function kick(){ if (!raf && seen && !document.hidden){ last = performance.now(); raf = requestAnimationFrame(tick); } }
+      function show(on){ W.forEach(function(w){ w.d.classList.toggle('on', on); }); }
+      // the lens is one soft ellipse between the head and its tail: it stretches along the way the pointer moves and grows a
+      // little with speed, and opens and closes on a smooth ease. Only transforms and opacity change from frame to frame
+      var sp = 0;
+      function draw(){
+        var e = open * open * (3 - 2 * open), h = P[0], t = P[N - 1];
+        var cx = (h[0] * .62 + t[0] * .38 - VX) * unit, cy = (h[1] * .62 + t[1] * .38 - VY) * unit;
+        var dx = (h[0] - t[0]) * unit, dy = (h[1] - t[1]) * unit, d = Math.hypot(dx, dy), ang = d > .5 ? Math.atan2(dy, dx) * 180 / Math.PI : 0;
+        W.forEach(function(w){
+          var R = w.R, s = .35 + .65 * e, st = Math.min(1.4, d / R * 1.6);
+          var M = new DOMMatrix().translate(cx, cy).rotate(ang).scale(s * (1 + st * .45 + sp * .12), s * (1 - st * .1 + sp * .06)).rotate(-ang).translate(-R, -R);
+          w.d.style.transform = M.toString(); w.d.style.opacity = (e * w.op).toFixed(3);
+          // the drawing inside is placed back by the inverse, so it sits exactly on the wordmark
+          w.sv.style.transform = M.inverse().toString();
+        });
+      }
+      function tick(now){
+        raf = 0;
+        var dt = Math.min(.05, (now - last) / 1000) || .016; last = now;
+        // the lens closes after the pointer has rested for a moment, and when it leaves
+        want = over && now - lastMove < 650 ? 1 : 0;
+        open += (want - open) * (1 - Math.exp(-dt / (want > open ? .16 : .42)));
+        // the head: a spring that catches up quickly without overshooting much
+        var k = 220, c = 26;
+        vx += ((tx - hx) * k - vx * c) * dt; vy += ((ty - hy) * k - vy * c) * dt;
+        hx += vx * dt; hy += vy * dt;
+        speed = Math.hypot(vx, vy) * unit / 1600; sp += (Math.min(speed, 1.5) - sp) * (1 - Math.exp(-dt / .18));
+        P[0][0] = hx; P[0][1] = hy;
+        for (var j = 1; j < N; j++){ var f = 1 - Math.exp(-dt / .06); P[j][0] += (P[j - 1][0] - P[j][0]) * f; P[j][1] += (P[j - 1][1] - P[j][1]) * f; }
+        if (open < .004 && !want){
+          open = 0; show(false);
+          return;
+        }
+        show(true); draw();
+        if (seen && !document.hidden) raf = requestAnimationFrame(tick);
+      }
+
+      band.addEventListener('pointermove', move);
+      band.addEventListener('pointerdown', move);
+      band.addEventListener('pointerleave', leave);
+      band.addEventListener('pointerup', function(e){ if (e.pointerType !== 'mouse') leave(); });
+      band.addEventListener('pointercancel', leave);
+      document.addEventListener('visibilitychange', function(){ if (document.hidden && raf){ cancelAnimationFrame(raf); raf = 0; } else kick(); });
+      addEventListener('resize', size);
+      if (window.IntersectionObserver){
+        new IntersectionObserver(function(es){ var e = es[es.length - 1]; seen = e.isIntersecting; if (seen){ if (!built) build(); kick(); } }, { rootMargin:'200px 0px' }).observe(band);
+      } else { seen = true; }
+      // the lens works at once, even while the wordmark is still drawing in (owner, 26 Nov)
+    ready = true;
     })();
     </script>
     <script is:inline>
