@@ -659,10 +659,11 @@ const jsonld = [
       // the card's picture frames the component (the component at its largest in the style on screen, 40px round it, at
       // 16:10) and scaled down to the picture's box, with the component in the middle of it, so it grows and shrinks there
       // without being cut off or moving its card.
-      //  - a card's frame is made when the card first comes on screen (two a frame), and taken down once the card has been
-      //    out of view for 20 seconds; the picture shows until the component has started, and whenever the card is out of view
-      //  - only the cards on screen play: one out of view holds its demo, as a mouse resting on a component holds it, pauses
-      //    its animations and draws nothing (dm-idle, as the library's far-away cards)
+      //  - only the few cards nearest the middle of the screen play (six, three on a phone): every one playing at once (26 at
+      //    1440) dropped the drift to 15 frames a second. The others show their picture. A card's frame is made when it first
+      //    comes to play (two a frame); one that stops holds its demo, as a mouse resting on a component holds it, pauses its
+      //    animations and draws nothing (dm-idle, as the library's far-away cards), so its picture shows, and its frame is
+      //    taken down once it has not played for 20 seconds
       //  - the pointer coming onto a card plays its demo again from the beginning
       //  - the frames follow the page's style and theme, and a new style starts them again, as it does the bento's demos
       //  - with reduced motion there are no frames: the pictures stand still, as the rows do
@@ -716,7 +717,7 @@ const jsonld = [
           f.win = w; f.doc = w.document;
           var st = f.doc.querySelector('.stage-inner'); st.innerHTML = html; f.card = st.firstElementChild;
           if (!f.card || !w.DM.defs[f.card.dataset.c]) return;
-          w.DM.mount(f.card); play(a, !!a._vis);
+          w.DM.mount(f.card); play(a, !!a._on);
           new w.ResizeObserver(function(){ grew(a); }).observe(f.card);
           requestAnimationFrame(function(){ requestAnimationFrame(function(){ if (a._lw === f) f.el.classList.add('on'); }); });
         };
@@ -730,27 +731,39 @@ const jsonld = [
             ifr.srcdoc = page(x); fit(a); el.appendChild(ifr);
           }).catch(function(){});
         };
-        var drop = function(a){ var f = a._lw; if (!f || a._vis) return; if (f.card && f.card._c) f.card._c.stop(); f.el.remove(); a._lw = null; };
+        var drop = function(a){ var f = a._lw; if (!f || a._on) return; if (f.card && f.card._c) f.card._c.stop(); f.el.remove(); a._lw = null; };
         // made two a frame, so a row coming into view never holds up the page
         var q = [], qr = 0;
-        var pump = function(){ qr = 0; for (var n = 0; n < 2 && q.length; n++){ var a = q.shift(); if (a._vis || MEASURE) make(a); } if (q.length) qr = requestAnimationFrame(pump); };
+        var pump = function(){ qr = 0; for (var n = 0; n < 2 && q.length; n++){ var a = q.shift(); if (a._on || MEASURE) make(a); } if (q.length) qr = requestAnimationFrame(pump); };
         var queue = function(a){ if (a._lw || q.indexOf(a) >= 0) return; q.push(a); if (!qr) qr = requestAnimationFrame(pump); };
         if (MEASURE){
           // tools/site/measure-wall.js: the rows stand still, and every component plays at once, at a component page's width
           rows.querySelectorAll('.lp-track').forEach(function(t){ t.style.animation = 'none'; });
-          cards.filter(function(a){ return !a.closest('[aria-hidden]'); }).forEach(function(a){ a._vis = true; queue(a); });
+          cards.filter(function(a){ return !a.closest('[aria-hidden]'); }).forEach(function(a){ a._vis = a._on = true; queue(a); });
           window.dmWallBoxes = function(){ var o = {}; cards.forEach(function(a){ var b = a._lw && boxIn(a._lw); if (b) o[a.dataset.reg] = b; }); return o; };
         } else {
-          var vis = new IntersectionObserver(function(es){ es.forEach(function(en){ var a = en.target; a._vis = en.isIntersecting;
-            if (a._vis){ clearTimeout(a._drop); if (!a._lw) queue(a); } else if (a._lw){ clearTimeout(a._drop); a._drop = setTimeout(function(){ drop(a); }, 20000); }
-            play(a, a._vis); }); });
+          // the cards that play: of those on screen, the ones nearest its middle (a card already playing keeps its place until
+          // another is clearly nearer, so they don't swap back and forth), looked at as the cards drift and the page scrolls
+          var MAX = function(){ return window.DM_WALL_MAX || (innerWidth > 640 ? 6 : 3); };
+          var pick = function(){ var cx = innerWidth / 2, cy = innerHeight / 2;
+            var on = cards.filter(function(a){ return a._vis; }).map(function(a){ var r = a.getBoundingClientRect(), d = a._hov ? -1e9 : Math.hypot(r.left + r.width / 2 - cx, (r.top + r.height / 2 - cy) * 1.5) - (a._on ? 80 : 0); return [d, a]; })
+              .sort(function(x, y){ return x[0] - y[0]; }).slice(0, MAX()).map(function(x){ return x[1]; });
+            cards.forEach(function(a){ var p = on.indexOf(a) >= 0; if (p === !!a._on) return; a._on = p;
+              if (p){ clearTimeout(a._drop); if (!a._lw) queue(a); } else if (a._lw){ clearTimeout(a._drop); a._drop = setTimeout(function(){ if (!a._on) drop(a); }, 20000); }
+              play(a, p); }); };
+          var pk = 0, later = function(){ if (!pk) pk = requestAnimationFrame(function(){ pk = 0; pick(); }); };
+          var vis = new IntersectionObserver(function(es){ es.forEach(function(en){ en.target._vis = en.isIntersecting; }); later(); });
+          setInterval(function(){ if (!document.hidden && cards.some(function(a){ return a._vis; })) pick(); }, 400);
+          addEventListener('scroll', later, { passive:true });
           cards.forEach(function(a){ vis.observe(a);
-            a.addEventListener('mouseenter', function(){ var f = a._lw; if (f && f.card && f.win && f.card._c){ f.win.DM.mount(f.card); play(a, true); } }); });
+            // (the card under the pointer plays, whether or not it was one of them, from the beginning)
+            a.addEventListener('mouseenter', function(){ a._hov = true; pick(); var f = a._lw; if (f && f.card && f.win && f.card._c){ f.win.DM.mount(f.card); play(a, true); } });
+            a.addEventListener('mouseleave', function(){ a._hov = false; later(); }); });
         }
         var restyle = function(){ var s = styleOf(), t = themeOf();
           cards.forEach(function(a){ var f = a._lw; if (!f || !f.doc) return; var h = f.doc.documentElement, was = h.getAttribute('data-style') || 'bp';
             if (s === 'bp') h.removeAttribute('data-style'); else h.setAttribute('data-style', s); h.setAttribute('data-theme', t); fit(a);
-            if (was !== s && f.card && f.card._c){ f.win.DM.mount(f.card, true); play(a, !!a._vis); } }); };
+            if (was !== s && f.card && f.card._c){ f.win.DM.mount(f.card, true); play(a, !!a._on); } }); };
         new MutationObserver(restyle).observe(root, { attributes:true, attributeFilter:['data-style', 'data-theme'] });
         if (mq.addEventListener) mq.addEventListener('change', restyle);
         var rz = 0; addEventListener('resize', function(){ if (!rz) rz = requestAnimationFrame(function(){ rz = 0; cards.forEach(fit); }); });
