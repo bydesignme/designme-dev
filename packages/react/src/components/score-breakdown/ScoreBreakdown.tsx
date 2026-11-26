@@ -1,9 +1,10 @@
 'use client';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useTween } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { Fold, Swap } from '../../lib/motion';
+import { Fold, Swap, useGrow } from '../../lib/motion';
+import { useHoverGlide } from '../../lib/glide';
 import '../../designme.css';
 import './score-breakdown.css';
 
@@ -68,6 +69,12 @@ function Segment({ a0, a1, share, color, on, onPoint }: { a0: number; a1: number
   );
 }
 
+/** An open row's detail: it eases to its new height when what it says changes (the agent looking, its proposal, the result) */
+function Detail({ children }: { children: ReactNode }) {
+  const [box, inner] = useGrow();
+  return <div ref={box} className="dm-sbx-d dm-growing"><div ref={inner} className="dm-grow">{children}</div></div>;
+}
+
 /** A score out of 100 whose gauge is split by what goes into it, each part filled by the points it earned, with the weakest flagged and an agent's fix one click away. */
 export function ScoreBreakdown({ factors, title = 'Quality score', previous, since = 'since last week', open, defaultOpen = [], onOpenChange, onImprove, onApply, improvingLabel = 'Looking into it', className }: ScoreBreakdownProps) {
   const [opened, setOpened] = useControllable(open, defaultOpen, onOpenChange);
@@ -78,8 +85,14 @@ export function ScoreBreakdown({ factors, title = 'Quality score', previous, sin
   const total = factors.reduce((t, f) => t + f.earned, 0);
   const shown = useTween(drawn ? total : 0, 1000, 0);
   const weakest = factors.reduce((m, f, i) => f.earned / f.weight < factors[m].earned / factors[m].weight ? i : m, 0);
+  // a style with round ends (--dm-sbx-cap: Soft's) draws each part that much shorter at both ends, so the caps keep the gaps
+  const gauge = useRef<HTMLDivElement>(null), [cap, setCap] = useState(0);
+  useEffect(() => { if (gauge.current) setCap((parseFloat(getComputedStyle(gauge.current).getPropertyValue('--dm-sbx-cap')) || 0) / RAD); }, []);
+  // Clean's one hover: a highlight that glides from factor to factor; the lit and the open one keep their own
+  const listRef = useRef<HTMLDivElement>(null);
+  useHoverGlide(listRef, '.dm-sbx-r', { hl: '.dm-on', keep: '.dm-open' });
   let a = Math.PI;
-  const seg = factors.map(f => { const span = f.weight / 100 * Math.PI, s = [a + GAP / 2, a + span - GAP / 2]; a += span; return s; });
+  const seg = factors.map(f => { const span = f.weight / 100 * Math.PI, s = [a + GAP / 2 + cap, a + span - GAP / 2 - cap]; a += span; return s; });
   const d = previous === undefined ? null : total - previous;
   const improve = async (f: ScoreFactor) => {
     if (!onImprove) return;
@@ -90,7 +103,7 @@ export function ScoreBreakdown({ factors, title = 'Quality score', previous, sin
   return (
     <div data-dm="" className={cx('dm-sbx dm-panel', className)}>
       <div className="dm-sbx-top">
-        <div className={cx('dm-sbx-g', hot >= 0 && 'dm-hov')} role="meter" aria-label={title} aria-valuemin={0} aria-valuemax={100} aria-valuenow={total}
+        <div ref={gauge} className={cx('dm-sbx-g', hot >= 0 && 'dm-hov')} role="meter" aria-label={title} aria-valuemin={0} aria-valuemax={100} aria-valuenow={total}
           aria-valuetext={`${total} of 100, ${band(total).toLowerCase()}${d === null ? '' : `, ${d >= 0 ? 'up' : 'down'} ${Math.abs(d)} ${since}`}`}>
           <svg viewBox="0 0 200 108" aria-hidden="true">
             {factors.map((f, i) => <Segment key={f.key} a0={seg[i][0]} a1={seg[i][1]} share={drawn ? f.earned / f.weight : 0} color={PAL[i % PAL.length]} on={i === hot} onPoint={o => setHot(o ? i : -1)} />)}
@@ -98,10 +111,10 @@ export function ScoreBreakdown({ factors, title = 'Quality score', previous, sin
           <div className="dm-sbx-v"><b className="dm-num">{Math.round(shown)}</b><span className="dm-muted">of 100</span></div>
         </div>
         <div className="dm-sbx-s"><b>{title}</b>
-          <span className="dm-sbx-band"><Swap className="dm-muted">{drawn ? band(total) : 'Scoring'}</Swap>{d !== null && drawn && <span className={cx('dm-tag dm-num', d >= 0 ? 'dm-ok' : 'dm-bad')}>{d >= 0 ? '+' : '−'}{Math.abs(d)} {since}</span>}</span>
+          <span className="dm-sbx-band"><Swap className={cx('dm-muted', !drawn && 'dm-shim')}>{drawn ? band(total) : 'Scoring'}</Swap>{d !== null && drawn && <span className={cx('dm-tag dm-num', d >= 0 ? 'dm-ok' : 'dm-bad')}>{d >= 0 ? '+' : '−'}{Math.abs(d)} {since}</span>}</span>
         </div>
       </div>
-      <div className="dm-sbx-list" onPointerLeave={e => { if (!e.currentTarget.contains(document.activeElement)) setHot(-1); }} onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setHot(-1); }}>
+      <div ref={listRef} className="dm-sbx-list" onPointerLeave={e => { if (!e.currentTarget.contains(document.activeElement)) setHot(-1); }} onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setHot(-1); }}>
         {factors.map((f, i) => {
           const isOpen = opened.includes(f.key), lost = f.weight - f.earned, pr = props[f.key];
           return (
@@ -109,18 +122,18 @@ export function ScoreBreakdown({ factors, title = 'Quality score', previous, sin
               <button type="button" className="dm-sbx-rh" aria-expanded={isOpen} aria-label={`${f.label}: ${f.earned} of ${f.weight} points${i === weakest ? ', weakest' : ''}. ${f.note}`}
                 onClick={() => setOpened(isOpen ? opened.filter(k => k !== f.key) : [...opened, f.key])}>
                 <i style={{ background: PAL[i % PAL.length] }} /><span className="dm-n"><span>{f.label}</span>{i === weakest && <span className="dm-tag dm-warn">Weakest</span>}</span>
-                <span className="dm-e dm-num">{f.earned}/{f.weight}</span><span className="dm-bar"><i style={{ background: PAL[i % PAL.length], width: drawn ? f.earned / f.weight * 100 + '%' : 0 }} /></span>
+                <span className="dm-e dm-num">{f.earned}/{f.weight}</span><span className="dm-bar"><i style={{ width: drawn ? f.earned / f.weight * 100 + '%' : 0 }} /></span>
                 <Icon name="chev-r" size="xs" /><span className="dm-sbx-nt">{f.note}</span>
               </button>
               <Fold open={isOpen}>
-                <div className="dm-sbx-d">
+                <Detail>
                   {pr === 'busy' ? <div className="dm-sbx-pr dm-enter"><span className="dm-k"><Icon name="spark" size="xs" /><span className="dm-shim">{improvingLabel}</span></span></div>
                     : pr ? <div className="dm-sbx-pr"><span className="dm-k"><Icon name="spark" size="xs" />Proposal</span><span>{pr.text}</span>
                         <span className="dm-gain">{pr.gain ? pr.gain + ': ' : ''}{f.label} <b className="dm-num">{f.earned} → {pr.to}</b></span>
                         <span className="dm-acts"><button type="button" className="dm-pill dm-primary dm-sm" onClick={() => { drop(f.key); onApply?.(f, pr); }}>Apply</button><button type="button" className="dm-pill dm-ghost dm-sm" onClick={() => drop(f.key)}>Not now</button></span></div>
                     : <><span>{f.detail ? f.detail + ' ' : ''}{lost ? `Loses ${lost} of its ${f.weight} points` : 'Full marks'}{i === weakest && lost ? ', the most of any factor for its weight.' : '.'}</span>
-                        {f.improvable && onImprove && <span className="dm-acts"><button type="button" className="dm-pill dm-soft dm-sm" onClick={() => improve(f)}><Icon name="wand" size="xs" />Improve</button></span>}</>}
-                </div>
+                        {f.improvable && onImprove && <span className="dm-acts"><button type="button" className="dm-pill dm-line dm-sm dm-sbx-imp" onClick={() => improve(f)}><Icon name="wand" size="xs" />Improve</button></span>}</>}
+                </Detail>
               </Fold>
             </div>
           );

@@ -1,30 +1,48 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Context menu ---------- */
-/* an agent reply with a menu of its own: right-click, long-press, Shift+F10 or the Menu key opens it where you are */
+/* an agent reply with a menu of its own: right-click, long-press, Shift+F10 or the Menu key opens it where you are, over the
+   reply, and the reply never moves. The reply's content sits 16px in from every edge in every style. While its menu is open
+   the reply takes a quiet, deeper fill (no ring or shadow round it). What the agent writes when asked (a summary, an
+   explanation) appears under the reply as plain text with its label, once it is written; the reply grows to hold it, and
+   shrinks to the Undo row when it is deleted (grow()). A short confirmation (Copied, Quoted) shows for a moment on the
+   reply's head line, never as a line under the card */
 .dm-cxm{position:relative;width:100%;display:flex;flex-direction:column;gap:var(--dm-s-2)}
-.dm-cxm-msg{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-2);font-size:13.5px;line-height:1.55;-webkit-touch-callout:none;transition:box-shadow var(--dm-t-fast)}
+.dm-cxm.dm-growing{overflow:visible}
+.dm-cxm-msg{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-2);font-size:13.5px;line-height:1.55;-webkit-touch-callout:none;transition:background-color var(--dm-t-fast) var(--dm-ease)}
 .dm-cxm-msg:focus-visible{outline-offset:3px;border-radius:var(--dm-r-card)}
-.dm-cxm-msg.dm-on{box-shadow:var(--dm-shadow),0 0 0 2px color-mix(in srgb,var(--dm-line) 70%,transparent)}
-.dm-cxm-hd{display:flex;align-items:center;gap:var(--dm-s-2);font-size:13px}
+.dm-cxm-msg.dm-on{background:color-mix(in srgb,var(--dm-fg) 3%,var(--dm-surface))}
+.dm-cxm-hd{display:flex;align-items:center;gap:var(--dm-s-2);min-height:22px;font-size:13px}
 .dm-cxm-hd b{font-weight:500}
 .dm-cxm-hd .dm-muted{font-size:12px}
+/* (the name and its time share one baseline; the mark stays centred on their line) */
+.dm-cxm-ht{display:flex;align-items:baseline;gap:var(--dm-s-2)}
 .dm-cxm-av{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}
-.dm-cxm-pin{display:inline-flex;align-items:center;gap:4px;margin-left:auto;font-size:12px;color:var(--dm-muted)}
+.dm-cxm-pin,.dm-cxm-ok{display:inline-flex;align-items:center;gap:4px;margin-left:auto;font-size:12px;color:var(--dm-muted);white-space:nowrap}
+.dm-cxm-ok+.dm-cxm-pin{margin-left:var(--dm-s-2)}
+.dm-cxm-ok .dm-i{color:var(--dm-ok-mark)}
+.dm-cxm-ok{transition:opacity var(--dm-t-fast) var(--dm-ease)}
+.dm-cxm-ok.dm-out{opacity:0}
 .dm-cxm-tx{margin:0;color:var(--dm-fg)}
-.dm-cxm-tx.dm-out{opacity:.4}
 .dm-cxm-out:empty{display:none}
-.dm-cxm-res{display:flex;flex-direction:column;gap:var(--dm-s-1);margin-top:var(--dm-s-1);padding:10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-row);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13px;color:var(--dm-fg2)}
+.dm-cxm-res{display:flex;flex-direction:column;gap:var(--dm-s-1);margin-top:var(--dm-s-1);font-size:13px;color:var(--dm-fg2)}
 .dm-cxm-res .dm-k{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dm-muted)}
 .dm-cxm-res .dm-k .dm-i{color:var(--dm-accent-fg,var(--dm-accent))}
 .dm-cxm-res .dm-w{animation:dm-tkword .42s var(--dm-ease) backwards}
-.dm-cxm-note{margin:0;min-height:20px;font-size:12.5px;text-align:center}
+/* what an action did is said to screen readers here; on screen it shows on the reply's head line */
+.dm-cxm-note{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .dm-cxm-gone{display:flex;align-items:center;justify-content:center;gap:var(--dm-s-2);padding:var(--dm-s-3);font-size:13px;color:var(--dm-muted)}
+.dm-cxm :is(.dm-pill,.dm-ib):active{transform:none}
 .dm-cxm-pop,.dm-cxm-pop2{top:0;left:0;min-width:220px}
 .dm-cxm-pop2{min-width:180px}
 .dm-cxm-pop .dm-mi .dm-r .dm-i{color:var(--dm-muted)}
-.dm-cxm-sub[aria-expanded="true"]{background:var(--dm-row)}
+.dm-cxm-sub[aria-expanded="true"]{background:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
 .dm-cxm-del,.dm-cxm-del .dm-i{color:var(--dm-bad)}
+/* asking, its words lean a little toward the text colour so they keep APCA Lc 60 on the red tint in dark mode too */
 .dm-cxm-del.dm-ask{background:var(--dm-bad-bg)}
-:root:not([data-style="soft"],[data-style="clean"]) .dm-cxm-msg.dm-on:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-fg2) 50%,transparent)}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .dm-cxm-msg.dm-panel,:root [data-style="clean"] .dm-cxm-msg.dm-panel,:root [data-style="clean"].dm-cxm-msg.dm-panel{padding:17px 10px 17px 20px}
+.dm-cxm-del.dm-ask,.dm-cxm-del.dm-ask .dm-i{color:color-mix(in srgb,var(--dm-bad) 85%,var(--dm-fg))}
+/* Clean: 22px corners and 16px in; the label of what the agent wrote is grey like the chrome; no red fill behind the delete
+   that asks again, only its red words on the row's grey; the menus take the card's corners with their rows concentric */
+:root[data-style="clean"] .dm-cxm-res .dm-k .dm-i,:root [data-style="clean"] .dm-cxm-res .dm-k .dm-i,:root [data-style="clean"].dm-cxm-res .dm-k .dm-i{color:var(--dm-fg2)}
+:root[data-style="clean"] .dm-cxm-del.dm-ask,:root [data-style="clean"] .dm-cxm-del.dm-ask,:root [data-style="clean"].dm-cxm-del.dm-ask{background:var(--dm-row)}
+:root[data-style="clean"] :is(.dm-cxm-pop,.dm-cxm-pop2),:root [data-style="clean"] :is(.dm-cxm-pop,.dm-cxm-pop2),:root [data-style="clean"]:is(.dm-cxm-pop,.dm-cxm-pop2){padding:6px;border-radius:var(--dm-r-card)}
+:root[data-style="clean"] :is(.dm-cxm-pop,.dm-cxm-pop2) .dm-mi,:root [data-style="clean"] :is(.dm-cxm-pop,.dm-cxm-pop2) .dm-mi,:root [data-style="clean"]:is(.dm-cxm-pop,.dm-cxm-pop2) .dm-mi{border-radius:calc(var(--dm-r-card) - 6px)}

@@ -9,7 +9,10 @@
   --dm-rte-q:var(--dm-muted);--dm-rte-q2:var(--dm-fg2)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dm-rte{--dm-rte-q:color-mix(in srgb,var(--dm-fg) 74%,var(--dm-surface));--dm-rte-q2:color-mix(in srgb,var(--dm-fg) 80%,var(--dm-surface))}}
 :root[data-theme="dark"] .dm-rte{--dm-rte-q:color-mix(in srgb,var(--dm-fg) 74%,var(--dm-surface));--dm-rte-q2:color-mix(in srgb,var(--dm-fg) 80%,var(--dm-surface))}
-.dm-rte-tb{display:flex;align-items:center;gap:2px;min-width:0;padding:7px var(--dm-s-2);box-shadow:inset 0 -1px 0 color-mix(in srgb,var(--dm-line) 50%,transparent)}
+/* the toolbar's buttons are 16px from the card's top, left and right edges and from the hairline under them, measured by
+   their boxes (owner, 23 Nov: "this is too close to the side"): the first format's box starts where the text does, 16px in,
+   and Ask AI's box ends 16px from the right edge, at every width */
+.dm-rte-tb{display:flex;align-items:center;gap:2px;min-width:0;padding:var(--dm-s-4);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .dm-rte-b{width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:var(--dm-r-sm);color:var(--dm-fg2);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.dm-rte-b:hover{background:var(--dm-row);color:var(--dm-fg)}}
 /* a format the selection has: the accent's tint, with the icon in the accent's text colour */
@@ -22,7 +25,7 @@
 @media (hover:hover) and (pointer:fine){.dm-rte-ai:hover{background:var(--dm-row)}}
 .dm-rte-ai:disabled .dm-i{color:inherit}
 /* the text: one quiet size, a heading set apart by weight and room rather than size, and nothing heavier than medium */
-.dm-rte-body{position:relative;height:256px;overflow-y:auto;padding:var(--dm-s-4) 18px;outline:0;font-size:14px;line-height:1.65;color:var(--dm-fg);white-space:pre-wrap;overflow-wrap:break-word;caret-color:var(--dm-accent-fg);cursor:text}
+.dm-rte-body{position:relative;height:256px;overflow-y:auto;padding:14px var(--dm-s-4) var(--dm-s-4);outline:0;font-size:14px;line-height:1.65;color:var(--dm-fg);white-space:pre-wrap;overflow-wrap:break-word;caret-color:var(--dm-accent-fg);cursor:text}
 .dm-rte-body>*{margin:0;padding:0}
 .dm-rte-body>*+*{margin-top:6px}
 .dm-rte-body>*+h2{margin-top:14px}
@@ -40,7 +43,7 @@
 .dm-rte-body blockquote{padding-left:14px;box-shadow:inset 2px 0 0 var(--dm-rte-q);color:var(--dm-rte-q2)}
 /* quote lines one after another read as one quote */
 .dm-rte-body blockquote+blockquote{margin-top:0;padding-top:6px}
-.dm-rte-body.dm-empty::before{content:attr(data-placeholder);position:absolute;left:18px;right:18px;top:16px;color:var(--dm-rte-q);pointer-events:none}
+.dm-rte-body.dm-empty::before{content:attr(data-placeholder);position:absolute;left:16px;right:16px;top:14px;color:var(--dm-rte-q);pointer-events:none}
 /* the suggestion: the words it replaces struck through, the new ones in the accent's tint as they arrive */
 .dm-rte-old{color:var(--dm-rte-q);text-decoration:line-through;text-decoration-color:var(--dm-rte-q)}
 .dm-rte-new{color:var(--dm-accent-fg);background:var(--dm-sel);border-radius:var(--dm-r-tiny,3px)}
@@ -49,7 +52,9 @@
 @keyframes dm-rtew{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
 /* the text a menu or the link field is for stays marked while the focus is in them */
 ::highlight(rte-pick){background-color:color-mix(in srgb,var(--dm-accent-mark) 24%,transparent)}
-.dm-rte-ft{display:grid;align-items:center;min-height:46px;padding:6px var(--dm-s-2) 6px 18px;box-shadow:inset 0 1px 0 color-mix(in srgb,var(--dm-line) 50%,transparent)}
+/* the foot's buttons (Undo and Redo, Discard and Accept) are 16px from the hairline over them, the card's bottom edge and
+   its right edge, measured by their boxes, and its words start where the text does, 16px in (owner, 23 Nov) */
+.dm-rte-ft{display:grid;align-items:center;min-height:calc(28px + 2 * var(--dm-s-4) + 1px);padding:var(--dm-s-4);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .dm-rte-idle,.dm-rte-rev{grid-area:1/1;display:flex;align-items:center;gap:var(--dm-s-2);min-width:0;transition:opacity .25s var(--dm-ease),transform .35s var(--dm-ease),visibility 0s}
 .dm-rte-rev,.dm-rte[data-st="review"] .dm-rte-idle{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s var(--dm-ease),transform .35s var(--dm-ease),visibility 0s .35s}
 .dm-rte-rev{transform:translateY(4px)}
@@ -77,6 +82,12 @@
 .dm-rte-url[aria-invalid="true"]{box-shadow:inset 0 0 0 1px var(--dm-bad)}
 .dm-rte-lnk .dm-pill{flex:none}
 .dm-rte-lnk .dm-ib{width:30px;height:30px;flex:none}
+/* the link field's buttons are as tall as the field, so the row's three parts are one height */
+.dm-rte-lnk .dm-pill{height:32px;padding:0 14px}
+.dm-rte-lnk .dm-ib{width:32px;height:32px}
+/* nothing in the editor's chrome shrinks on a click (owner, 18 Nov) */
+:is(.dm-rte-idle,.dm-rte-lnk) .dm-ib:active,.dm-rte-rev .dm-pill.dm-ghost:active{transform:none}
+:root[data-style="clean"] :is(.dm-rte-idle,.dm-rte-lnk) .dm-ib:active,:root [data-style="clean"] :is(.dm-rte-idle,.dm-rte-lnk) .dm-ib:active,:root [data-style="clean"]:is(.dm-rte-idle,.dm-rte-lnk) .dm-ib:active{transform:none}
 /* the small Ask AI button over a selection, for the mouse; the keyboard has the toolbar's button and its shortcut */
 .dm-rte-ask{position:absolute;left:0;top:0;z-index:6;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px 0 9px;border-radius:var(--dm-r-pill);background:var(--dm-raised);box-shadow:var(--dm-shadow-pop);font-size:12.5px;color:var(--dm-fg);white-space:nowrap;opacity:0;visibility:hidden;transform:translateY(4px);transition:opacity .18s var(--dm-ease),transform .3s var(--dm-ease),visibility 0s .3s}
 .dm-rte-ask .dm-i{color:var(--dm-accent-fg)}
@@ -84,8 +95,49 @@
 .dm-rte-ask.dm-show{opacity:1;visibility:visible;transform:none;transition-delay:0s}
 .dm-rte-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 @container rte (max-width:520px){.dm-rte-hint{display:none}}
-@container rte (max-width:400px){.dm-rte-ai{width:30px;padding:0;justify-content:center}.dm-rte-ai span{display:none}.dm-rte-sep{margin:0 2px}.dm-rte-body{padding:14px}.dm-rte-body.dm-empty::before{left:14px;right:14px;top:14px}.dm-rte-ft{padding-left:14px}.dm-rte-rev .dm-kbd{display:none}}
-@container rte (max-width:330px){.dm-rte-tb{gap:0;padding:7px var(--dm-s-1)}.dm-rte-b{width:28px}}
+/* in a narrow editor Ask AI is its icon alone, in a 32px-wide box that ends 16px from the edge like the wide one */
+@container rte (max-width:400px){.dm-rte-ai{width:32px;padding:0;justify-content:center}.dm-rte-ai span{display:none}.dm-rte-sep{margin:0 2px}.dm-rte-rev .dm-kbd{display:none}}
+@container rte (max-width:330px){.dm-rte-tb{gap:0}.dm-rte-b{width:28px}}
+/* on a phone of 360 the formats narrow a little more, so the toolbar keeps its 16px sides */
+@container rte (max-width:300px){.dm-rte-b{width:26px}.dm-rte-sep{margin:0 1px}}
+@container rte (max-width:280px){.dm-rte-b{width:24px}}
 :root:not([data-style="soft"],[data-style="clean"]) .dm-rte-b:is([aria-pressed="true"],.dm-on):not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-accent-mark) 50%,transparent)}
 /* Blueprint's lime tint is faint on white, so the suggestion also gets a hairline of the accent's mark under it */
 :root:not([data-style="soft"],[data-style="clean"]) .dm-rte-new:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){background:var(--dm-accent-bg);box-shadow:inset 0 -1px 0 var(--dm-accent-mark)}
+/* Clean (owner, 18 Nov): the toolbar is an off-white head strip and the foot an off-white foot strip, each with a hairline
+   toward the text. Their controls are 28px circles and pills 16px from the card's edges and the strip's hairline (owner,
+   23 Nov), so every one in a row is as tall as the next and shares its centre line; the words in the foot (the word count, the
+   status) start where the text does, 16px in. The chrome is
+   monochrome and flat: the formats take Clean's one hover, and a format the selection has its stronger fill (owner, 21 Nov:
+   never a ring), Ask AI is a secondary button (a hairline and a
+   light fill), the status is ink, and Accept is the ink button with its key on it. The suggestion keeps the accent: the new
+   words in its tint, the old ones struck through. Words arrive with a fade, no blur */
+:root[data-style="clean"] .dm-rte-tb,:root [data-style="clean"] .dm-rte-tb,:root [data-style="clean"].dm-rte-tb{gap:4px;padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-bottom:1px solid var(--dm-line);border-radius:var(--dm-r-card) var(--dm-r-card) 0 0;box-shadow:none}
+:root[data-style="clean"] .dm-rte-b,:root [data-style="clean"] .dm-rte-b,:root [data-style="clean"].dm-rte-b{width:28px;height:28px;border-radius:50%;color:var(--dm-fg2);transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-rte-b:hover,:root [data-style="clean"] .dm-rte-b:hover,:root [data-style="clean"].dm-rte-b:hover{background:var(--dm-row);color:var(--dm-fg)}}
+:root[data-style="clean"] .dm-rte-b:is([aria-pressed="true"],.dm-on),:root [data-style="clean"] .dm-rte-b:is([aria-pressed="true"],.dm-on),:root [data-style="clean"].dm-rte-b:is([aria-pressed="true"],.dm-on){background:var(--dm-row-on);color:var(--dm-fg)}
+:root[data-style="clean"] .dm-rte-b:disabled,:root [data-style="clean"] .dm-rte-b:disabled,:root [data-style="clean"].dm-rte-b:disabled{background:none;box-shadow:none;color:var(--dm-dis)}
+:root[data-style="clean"] .dm-rte-sep,:root [data-style="clean"] .dm-rte-sep,:root [data-style="clean"].dm-rte-sep{margin:0 4px}
+:root[data-style="clean"] .dm-rte-ai,:root [data-style="clean"] .dm-rte-ai,:root [data-style="clean"].dm-rte-ai{height:28px;padding:0 12px 0 10px;font-weight:500;background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth);transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .dm-rte-ai .dm-i,:root [data-style="clean"] .dm-rte-ai .dm-i,:root [data-style="clean"].dm-rte-ai .dm-i,:root[data-style="clean"] .dm-rte-ask .dm-i,:root [data-style="clean"] .dm-rte-ask .dm-i,:root [data-style="clean"].dm-rte-ask .dm-i,:root[data-style="clean"] .dm-rte-st .dm-i,:root [data-style="clean"] .dm-rte-st .dm-i,:root [data-style="clean"].dm-rte-st .dm-i{color:var(--dm-fg)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-rte-ai:is(:hover,[aria-expanded="true"]),:root [data-style="clean"] .dm-rte-ai:is(:hover,[aria-expanded="true"]),:root [data-style="clean"].dm-rte-ai:is(:hover,[aria-expanded="true"]){box-shadow:var(--dm-btn2-hover)}}
+:root[data-style="clean"] .dm-rte-ai:active,:root [data-style="clean"] .dm-rte-ai:active,:root [data-style="clean"].dm-rte-ai:active{box-shadow:var(--dm-btn2-press)}
+:root[data-style="clean"] .dm-rte-ai:disabled,:root [data-style="clean"] .dm-rte-ai:disabled,:root [data-style="clean"].dm-rte-ai:disabled{color:var(--dm-dis)}
+:root[data-style="clean"] .dm-rte-ai:disabled .dm-i,:root [data-style="clean"] .dm-rte-ai:disabled .dm-i,:root [data-style="clean"].dm-rte-ai:disabled .dm-i{color:inherit}
+:root[data-style="clean"] .dm-rte-body,:root [data-style="clean"] .dm-rte-body,:root [data-style="clean"].dm-rte-body{caret-color:var(--dm-fg)}
+:root[data-style="clean"] .dm-rte-ft,:root [data-style="clean"] .dm-rte-ft,:root [data-style="clean"].dm-rte-ft{min-height:calc(28px + 2 * var(--dm-strip-y) + 1px);padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card);box-shadow:none}
+:root[data-style="clean"] .dm-rte-idle .dm-ib,:root [data-style="clean"] .dm-rte-idle .dm-ib,:root [data-style="clean"].dm-rte-idle .dm-ib{width:28px;height:28px}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-rte-idle .dm-ib:hover,:root [data-style="clean"] .dm-rte-idle .dm-ib:hover,:root [data-style="clean"].dm-rte-idle .dm-ib:hover{background:var(--dm-row)}}
+:root[data-style="clean"] .dm-rte-st,:root [data-style="clean"] .dm-rte-st,:root [data-style="clean"].dm-rte-st{color:var(--dm-fg2)}
+:root[data-style="clean"] .dm-rte-rev,:root [data-style="clean"] .dm-rte-rev,:root [data-style="clean"].dm-rte-rev{gap:8px;margin-right:0}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-rte-rev .dm-pill.dm-ghost:hover,:root [data-style="clean"] .dm-rte-rev .dm-pill.dm-ghost:hover,:root [data-style="clean"].dm-rte-rev .dm-pill.dm-ghost:hover{background:var(--dm-row)}}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-rte-rev .dm-pill.dm-ghost:hover .dm-kbd,:root [data-style="clean"] .dm-rte-rev .dm-pill.dm-ghost:hover .dm-kbd,:root [data-style="clean"].dm-rte-rev .dm-pill.dm-ghost:hover .dm-kbd{background:var(--dm-surface)}}
+/* the key on the ink button: a faint light chip, in the button's own text colour */
+:root[data-style="clean"] .dm-rte-ok:not([disabled]) .dm-kbd,:root [data-style="clean"] .dm-rte-ok:not([disabled]) .dm-kbd,:root [data-style="clean"].dm-rte-ok:not([disabled]) .dm-kbd{background:color-mix(in srgb,var(--dm-on-btn) 18%,transparent);color:var(--dm-on-btn)}
+@keyframes dm-rtewc{from{opacity:0}to{opacity:1}}
+:root[data-style="clean"] .dm-rte-new .dm-w,:root [data-style="clean"] .dm-rte-new .dm-w,:root [data-style="clean"].dm-rte-new .dm-w{animation:dm-rtewc var(--dm-t-slow) var(--dm-ease) both}
+@container rte (max-width:400px){:root[data-style="clean"] .dm-rte-ai,:root [data-style="clean"] .dm-rte-ai,:root [data-style="clean"].dm-rte-ai{width:28px;padding:0}:root[data-style="clean"] .dm-rte-ft,:root [data-style="clean"] .dm-rte-ft,:root [data-style="clean"].dm-rte-ft{padding-left:16px}}
+/* on phones the toolbar keeps its 16px sides (owner, 23 Nov): the format buttons narrow instead */
+@container rte (max-width:330px){:root[data-style="clean"] .dm-rte-tb,:root [data-style="clean"] .dm-rte-tb,:root [data-style="clean"].dm-rte-tb{gap:0}:root[data-style="clean"] .dm-rte-sep,:root [data-style="clean"] .dm-rte-sep,:root [data-style="clean"].dm-rte-sep{margin:0 2px}}
+@container rte (max-width:300px){:root[data-style="clean"] .dm-rte-b,:root [data-style="clean"] .dm-rte-b,:root [data-style="clean"].dm-rte-b{width:26px}:root[data-style="clean"] .dm-rte-ai,:root [data-style="clean"] .dm-rte-ai,:root [data-style="clean"].dm-rte-ai{width:26px}:root[data-style="clean"] .dm-rte-sep,:root [data-style="clean"] .dm-rte-sep,:root [data-style="clean"].dm-rte-sep{margin:0 1px}}
+@container rte (max-width:280px){:root[data-style="clean"] .dm-rte-b,:root [data-style="clean"] .dm-rte-b,:root [data-style="clean"].dm-rte-b,:root[data-style="clean"] .dm-rte-ai,:root [data-style="clean"] .dm-rte-ai,:root [data-style="clean"].dm-rte-ai{width:24px}}

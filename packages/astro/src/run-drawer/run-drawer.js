@@ -1,10 +1,13 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, REDUCE, html, seg } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, hoverGlide, html, seg } from '../core/core.js';
 DM.def('run-drawer', (r, c) => {
   r.innerHTML = r.innerHTML.replace(/\{([\w-]+)(?:\.(xs))?\}/g, (m, k, z) => I(k, z || 's'));
   const uid = 'rdr' + Math.random().toString(36).slice(2, 7);
   const frame = $('.rdr', r), dw = $('.rdr-dw', r), flow = $('.rdr-flow', r), tg = $('.rdr-tg', r), stT = $('.rdr-st', r), idT = $('.rdr-id', r), meta = $('.rdr-meta', r);
   const bd = $('.rdr-b', r), rowsEl = $('.rdr-rows', r), sc = $('.rdr-sc', r), logEl = $('.rdr-log', r), cnt = $('.rdr-lf .n', r), ds = $('.rdr-ds', r), io = $('.rdr-io', r);
+  // its motion pieces (26 Nov): one highlight glides from step to step in both lists, in every style; the picked step keeps its
+  // own fill
+  if (!r.closest('.ahx')) ['.rdr-rows', '.rdr-ds'].forEach(s => c.offs.push(hoverGlide($(s, r), s === '.rdr-rows' ? '.rdr-r' : 'button', { keep:'[aria-pressed="true"]' })));
   const stopB = $('.rdr-stop', r), againB = $('.rdr-again', r), followB = $('.rdr-follow', r), grip = $('.rdr-grip', r), live = $('.rdr-live', r);
   bd.id = uid + '-b'; tg.setAttribute('aria-controls', bd.id);
   // the workflow: each step with what it took in and handed on; an AI step's model and tool calls are its kids, as
@@ -83,7 +86,7 @@ DM.def('run-drawer', (r, c) => {
     // a person's yes, under the step that waits for it
     const ask = $('.rdr-ask', rowsEl);
     if (R.st === 'wait' && !ask){ const p = R.sp[R.sp.length - 1], x = byId(p.s), el = R.rows.get(p);
-      if (el) el.insertAdjacentHTML('afterend', `<div class="rdr-ask${REDUCE ? '' : ' in'}" role="group" aria-label="${x.t} waits for you"><span class="rdr-ti" data-k="approval" aria-hidden="true">${I('user', 'xs')}</span><span class="tx"><b>${x.t} is waiting for you</b><span>Live runs ask ${x.ask} in Slack. In a test, you decide.</span></span><span class="acts"><button class="pill primary sm" data-a="yes">${I('check', 'xs')}Approve</button><button class="pill line sm" data-a="no">Reject</button></span></div>`); }
+      if (el) el.insertAdjacentHTML('afterend', `<div class="rdr-ask${REDUCE ? '' : ' in'}" role="group" aria-label="${x.t} waits for you"><svg class="rdr-sgi" viewBox="0 0 24 24" aria-hidden="true"><path class="a" d="M12 3.6 2.6 19.9h18.8z"/><path class="b" d="M12 9.6v4.4M12 17v.01"/></svg><span class="tx"><b>${x.t} is waiting for you</b><span>Live runs ask ${x.ask} in Slack. In a test, you decide.</span></span><span class="acts"><button class="pill line sm" data-a="no">Reject</button><button class="pill warn sm" data-a="yes">${I('check', 'xs')}Approve</button></span></div>`); }
     if (R.st !== 'wait' && ask) ask.remove();
     // the log, a line at a time, its levels in colour
     const L = R.log.filter(l => l.at <= t + 1e-6).sort((a, b) => a.at - b.at);

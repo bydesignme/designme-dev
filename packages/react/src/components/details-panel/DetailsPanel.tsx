@@ -7,6 +7,8 @@ import { Icon } from '../../lib/icons';
 import { Avatar, Fold, Swap, Tip } from '../../lib/motion';
 import { usePopover } from '../../lib/popover';
 import '../../designme.css';
+// its menus' rows glide in Clean
+import '../../lib/glide';
 import './details-panel.css';
 
 export interface DetailsPanelOption {
@@ -153,8 +155,10 @@ export function DetailsPanel({ title, kind, copyValue, copyLabel = 'Copy run ID'
   return (
     <div data-dm="" ref={setHost} className={cx('dm-dtp dm-panel', className)}>
       <div className="dm-dtp-h">
-        {kind && <span className="dm-ft">{kind}</span>}
-        <b>{title}</b>
+        <span className="dm-dtp-ht">
+          {kind && <span className="dm-ft">{kind}</span>}
+          <b>{title}</b>
+        </span>
         {copyValue !== undefined && (
           <Tip label={copied ? 'Copied to clipboard' : copyLabel} open={copied || undefined}>
             <button type="button" className={cx('dm-ib dm-dtp-cp', copied && 'dm-copied')} aria-label={copyLabel} onClick={() => copy(copyValue)}>
@@ -167,8 +171,9 @@ export function DetailsPanel({ title, kind, copyValue, copyLabel = 'Copy run ID'
         const isOpen = shown.includes(s.key);
         return (
           <div key={s.key} className="dm-dtp-sec">
+            {/* a section's name is a label on the content's edge, its chevron after the words */}
             <button type="button" className="dm-dtp-sh" aria-expanded={isOpen} onClick={() => toggle(s.key)}>
-              <Icon name="chev-r" size="xs" /><span>{s.title}</span>
+              <span>{s.title}</span><Icon name="chev-r" size="xs" />
             </button>
             <Fold open={isOpen}>
               <div className="dm-dtp-rows">{s.rows.map(r => <Row key={r.key} row={r} host={host} />)}</div>

@@ -11,23 +11,23 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import Page from '../../layouts/Page.astro';
-import { ROOT, COMPONENTS } from '../../lib/data.mjs';
+import { ROOT, componentOf } from '../../lib/data.mjs';
 
 // the components the screen is made of, by their registry name: each one's installed CSS is on the page. The accounts table and
 // the account panel started from Task table and Details panel, but carry their own markup, so they have their own copy of
 // those styles under CRM classes (crmt-* and crmd-*, at the top of crm.css): a new look for either component never reaches
 // the CRM (19 Nov)
 const USES = ['agent-harness', 'progress', 'kanban-board', 'filter-menu', 'search-input', 'form', 'toast',
-  'activity-heatmap', 'notifications', 'profile-menu', 'command-palette', 'stat-cards', 'line-chart', 'radial-goals', 'funnel-chart',
+  'activity-heatmap', 'notifications', 'profile-menu', 'command-palette', 'stat-cards', 'line-chart', 'donut-chart',
   'event-calendar', 'agent-inbox', 'health-score', 'decision-prompt', 'date-picker', 'banner', 'draft-review', 'rewrite-toolbar',
-  'inline-text-diff', 'bar-chart', 'top-pages', 'agenda'];
+  'inline-text-diff', 'bar-chart'];
 // the screen's type scale: five sizes from the library's own (11, 12, 13, 14 and the 16px title), nothing under 11px. Every
 // component's text snaps to the nearest step at or below it; a display number (Health score's score, Stat cards' values) keeps
 // its size
 const SCALE = v => v >= 15 ? v : v >= 13.75 ? 14 : v >= 12.75 ? 13 : v >= 11.75 ? 12 : 11;
 const snap = t => t.replace(/font-size:\s*([\d.]+)px/g, (m, v) => 'font-size:' + SCALE(+v) + 'px');
 const css = snap(USES.map(reg => {
-  const c = COMPONENTS.find(x => x.reg === reg);
+  const c = componentOf(reg);
   if (!c) throw new Error('sales-crm: no component called ' + reg);
   return `/* ${c.title} */\n` + c.html.css;
 }).join('\n'));
@@ -171,21 +171,19 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
         </div>
       </section>
 
-      <!-- Forecast (owner, 16 Nov: a simple results page, closer to Stripe): three action cards for what to do next, the quarter's
-           numbers over a wide closed-won line with the deals closing next beside it, and the forecast by rep. The other charts are
-           in Reports -->
+      <!-- Forecast (owner, 16 Nov: a simple results page, closer to Stripe): three action cards for what to do next, then one card
+           with the quarter's figures over a wide closed-won chart (owner, 21 Nov: the chart is the main thing, no Closing next
+           beside it), and the forecast by rep. The other charts are in Reports -->
       <section class="crm-view crm-fc crm-fo" id="crm-v-forecast" aria-label="Forecast" hidden>
         <!-- next steps: three action cards, each with a small picture of what it opens and one button, first on the page (owner, 16 Nov) -->
         <div class="crm-axs crm-c12" role="group" aria-label="Next steps"></div>
-        <div class="lnx crm-hero crm-c8">
-          <div class="lnx-h crm-hh"><div class="crm-hm4" role="group" aria-label="This quarter against quota"></div><div class="lnx-lg"><button class="lnx-k on" data-s="0" aria-pressed="true"><i style="background:var(--dm-accent-mark,var(--dm-accent))"></i>Q4</button><button class="lnx-k on" data-s="1" aria-pressed="true"><i style="background:var(--dm-c2)"></i>Q3</button></div></div>
-          <div class="lnx-ch"><svg class="lnx-svg" viewBox="0 0 320 140" preserveAspectRatio="none" aria-hidden="true"></svg><div class="lnx-x"></div><div class="lnx-tt"><b class="num"></b><span></span></div></div>
-          <div class="lnx-ax muted num" aria-hidden="true"></div>
-        </div>
-        <!-- Closing next: the open deals by close date, as the library's Agenda rows (owner, 10 Nov: in place of the bar chart) -->
-        <div class="agx panel crm-cn crm-c4">
-          <div class="agx-h"><div class="crm-ht"><b>Closing next</b><span class="muted crm-cns"></span></div><span class="tag crm-cnn num"></span></div>
-          <div class="agx-list crm-cnl" role="list" aria-label="Deals closing next"></div>
+        <!-- the quarter's figures and the library's Line chart in one card: closed won day by day to today, against Q3 at the same
+             point; a hairline under the figures, the values on the left, the legend under the plot -->
+        <div class="lnx panel crm-hero crm-c12">
+          <div class="lnx-h crm-hh"><div class="crm-hm4" role="group" aria-label="This quarter against quota"></div></div>
+          <div class="lnx-pl"><div class="lnx-y num" aria-hidden="true"></div><div class="lnx-ch" tabindex="0" role="group" aria-roledescription="line chart" aria-label="Closed won this quarter, day by day, against Q3 at the same point. The arrow keys read each day"><svg class="lnx-svg" aria-hidden="true"></svg><span class="lnx-x"></span><span class="lnx-pt" style="color:var(--dm-lnx-cmp)"></span><span class="lnx-pt" style="color:var(--dm-lnx-line)"></span><span class="lnx-now"></span><div class="lnx-tt" aria-hidden="true"><div class="lnx-tt-h"></div><div class="lnx-tt-r"><i></i><span>Q4</span><b class="num"></b></div><div class="lnx-tt-r c"><i></i><span>Q3</span><b class="num"></b></div></div></div><div class="lnx-ax num" aria-hidden="true"></div></div>
+          <div class="lnx-lg"><button class="lnx-k" data-s="0" aria-pressed="true"><i></i><span>Q4</span></button><button class="lnx-k c" data-s="1" aria-pressed="true"><i></i><span>Q3 at the same point</span></button></div>
+          <p class="lnx-sr" aria-live="polite"></p><div class="lnx-sr"><table class="crm-fct"></table></div>
         </div>
         <!-- the forecast by rep: quota, closed won with attainment, commit, best case, the gap and whether the rep's commit is in -->
         <div class="panel crm-c12 crm-act crm-reps">
@@ -196,8 +194,8 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
         </div>
       </section>
 
-      <!-- Reports: the library's Stat cards, Activity heatmap, Funnel, Radial goals and Top pages, and the quarter's deal activity,
-           worked out from the same deals -->
+      <!-- Reports: the library's Stat cards, Activity heatmap and Donut chart, and the quarter's deal activity, worked out from the
+           same deals (owner, 21 Nov: Stage conversion and Quota attainment are gone, and Team quotas sits beside Team activity) -->
       <section class="crm-view crm-fc crm-rp" id="crm-v-reports" aria-label="Reports" hidden>
         <div class="scx-grid crm-c12"></div>
         <div class="hmx panel crm-hm crm-c6">
@@ -205,20 +203,11 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
           <div class="hmx-wrap"><div class="hmx-sc"><div class="hmx-days muted"><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span><span>Sun</span></div><div class="hmx-grid"></div>
           <div class="hmx-f muted"><span class="hmx-ax">6am</span><span class="hmx-ax x">8am</span><span class="hmx-ax">10am</span><span class="hmx-ax x">12pm</span><span class="hmx-ax">2pm</span><span class="hmx-ax x">4pm</span><span class="hmx-ax">6pm</span><span class="hmx-ax x">8pm</span></div></div></div>
         </div>
-        <div class="fnx panel crm-c6">
-          <div class="fnx-h"><div class="crm-ht"><b>Stage conversion</b><span class="muted crm-fnn num"></span></div></div>
-          <div class="fnx-rows"></div>
-          <div class="fnx-ins"><span class="fnx-ic"><Fragment set:html={I('spark', 'xs')} /></span><span class="fnx-t"></span></div>
-        </div>
-        <div class="rgx panel crm-c6">
-          <div class="rgx-h"><div class="rgx-t crm-ht"><b>Team quotas</b><span class="muted rgx-sub">Q4, closed won against quota</span></div></div>
-          <div class="rgx-b"><div class="rgx-ring"><svg viewBox="0 0 180 180" aria-hidden="true"></svg><div class="rgx-c"><b class="num">0%</b><span class="muted">of quota</span></div></div><div class="rgx-lg"></div></div>
-          <div class="crm-qsum"></div>
-        </div>
-        <!-- quota attainment, Top pages: a ranked list with a share bar and the change since last week, sorted by won or change -->
-        <div class="tpx panel crm-tp crm-c6">
-          <div class="tpx-h"><div class="crm-ht"><b>Quota attainment</b><span class="muted tpx-sub">Top 5 closers, change on Q3 pace</span></div><div class="seg2 tpx-sg" role="group" aria-label="Sort"><button aria-pressed="true" data-v="v">Won</button><button aria-pressed="false" data-v="c">Change</button></div></div>
-          <div class="tpx-list" role="list"></div>
+        <!-- Team quotas, the library's Donut chart as a gauge: each rep's closed won is a part, what is left of the team's quota the
+             grey track, and the middle the team's closed won against it; the legend names each rep beside the gauge -->
+        <div class="dnx panel crm-qt crm-c6">
+          <div class="crm-qh"><div class="crm-ht"><b>Team quotas</b><span class="muted">Q4, closed won against quota</span></div></div>
+          <div class="crm-qb"><div class="dnx-g"><svg class="dnx-svg" viewBox="0 0 220 110" aria-hidden="true"></svg><div class="dnx-c"><b class="num dnx-v"></b><span class="muted dnx-l"></span></div></div><div class="dnx-lg" role="list" aria-label="Closed won by rep"></div></div>
         </div>
         <!-- deal activity: the quarter's deals, filtered by stage, owner and amount or searched, with stage chips and pages -->
         <div class="panel crm-c12 crm-act">

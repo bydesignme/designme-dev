@@ -1,28 +1,76 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Decision prompt ---------- */
-/* the agent asks in the chat: no container; with .panel it becomes a card */
+/* the agent asks in the chat: no container; with .panel it becomes a card. Each answer is a tile to pick (a click, its
+   number or the arrows): white with a dimmed grey edge, the picked one's edge a step stronger and its number filled. No
+   room is kept for what comes next (owner, 18 Nov): the card grows and shrinks with what it shows (grow()), and once every
+   question is answered the line saying the agent has started takes the buttons' place */
 .dm-dpx{padding:var(--dm-s-4) 0;display:flex;flex-direction:column;gap:var(--dm-s-3);outline:0;border-radius:var(--dm-r-in)}
 .dm-dpx.dm-panel{padding:var(--dm-s-4);border-radius:var(--dm-r-card)}
 .dm-dpx:focus-visible{outline:2px solid var(--dm-focus);outline-offset:6px}
 .dm-dpx-h{display:flex;align-items:center;justify-content:space-between}
-.dm-dpx-k{font-size:12px}
-.dm-dpx-dots{display:flex;gap:var(--dm-s-1)}
+/* once every question is answered the head goes, label and dots (owner, 23 Nov: "All set" said what the card already shows):
+   the card eases to its new height with its usual grow(), its first summary row 16px from the top, and a hidden line tells
+   screen readers that every question is answered. (Agent harness keeps staging's head under its own rules) */
+.dm-dpx.dm-done .dm-dpx-h{display:none}
+.dm-dpx-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.dm-dpx-k{font-size:12px;line-height:16px}
+.dm-dpx-dots{display:flex;gap:var(--dm-s-1);transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease),visibility 0s}
+/* the steps are done once every question is answered (owner, 21 Nov): the dots fade and shrink a little where they are, at
+   the style's own pace, and keep their room, so nothing else in the head moves; with reduced motion they are simply gone */
+.dm-dpx-dots.dm-gone{opacity:0;transform:scale(.8);visibility:hidden;transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease),visibility 0s var(--dm-t)}
+@media (prefers-reduced-motion:reduce){.dm-dpx-dots,.dm-dpx-dots.dm-gone{transition:none}}
 .dm-dpx-dots i{width:6px;height:6px;border-radius:var(--dm-r-tiny,3px);background:var(--dm-line);transition:width .45s var(--dm-ease),background .35s}
 .dm-dpx-dots i.dm-on{width:16px;background:var(--dm-accent-mark,var(--dm-accent))}
 .dm-dpx-dots i.dm-done{background:var(--dm-accent-mark,var(--dm-accent));opacity:.4}
-.dm-dpx-body{min-height:168px}
-.dm-dpx-q{font-size:14px;font-weight:500;margin-bottom:10px;text-wrap:balance}
-.dm-dpx-o{display:flex;align-items:center;gap:10px;width:calc(100% + 20px);margin-inline:-10px;padding:9px 10px;border-radius:var(--dm-r-in);font-size:13.5px;text-align:left;color:var(--dm-fg2);transition:background .25s,color .25s}
+.dm-dpx-q{font-size:14px;font-weight:500;line-height:20px;margin-bottom:var(--dm-s-3);text-wrap:balance}
+.dm-dpx-opts{display:flex;flex-direction:column;gap:6px}
+/* (its key chip and its count sit as far in from its two ends) */
+.dm-dpx-o{display:flex;align-items:center;gap:10px;width:100%;min-height:40px;padding:6px 10px;border-radius:var(--dm-r-in);font-size:13.5px;text-align:left;color:var(--dm-fg2);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-line) 50%,transparent);transition:background-color .25s,color .25s,box-shadow .25s}
 @media (hover:hover) and (pointer:fine){.dm-dpx-o:hover{background:var(--dm-row);color:var(--dm-fg)}}
-.dm-dpx-o.dm-on{background:var(--dm-sel);color:var(--dm-fg)}
-.dm-dpx-o .dm-kbd{width:20px;text-align:center;transition:background .25s,color .25s}
+.dm-dpx-o.dm-on{color:var(--dm-fg);box-shadow:inset 0 0 0 1px var(--dm-pick-on)}
+.dm-dpx-o .dm-kbd{width:20px;flex:none;text-align:center;transition:background .25s,color .25s}
 .dm-dpx-o.dm-on .dm-kbd{background:var(--dm-accent);color:var(--dm-on-accent)}
 .dm-dpx-o .dm-d{margin-left:auto;font-size:12px;color:var(--dm-muted)}
-.dm-dpx-f{display:flex;justify-content:flex-end;gap:6px}
-.dm-dpx-sum{display:flex;flex-direction:column;gap:6px}
-.dm-dpx-sr{display:flex;gap:10px;font-size:13px;padding:7px 0;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.dm-dpx-sr:last-child{border:0}
+.dm-dpx-f{display:flex;align-items:center;justify-content:flex-end;gap:6px;min-height:28px}
+/* the footer, its buttons or the line saying the agent has started, sits under a hairline in Soft and Blueprint (owner, 21 Nov:
+   "add a divider line above the loading text"), 16px under the content and 16px over what it holds, as the card's own edges
+   are; Clean's foot strip has its own (below) */
+.dm-dpx-f{margin-top:var(--dm-s-1);padding-top:var(--dm-s-4);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+/* Continue's Enter key is a glyph beside its word, with no tile of its own (owner, 21 Nov: "not a fan of a squircle button
+   inside a rounded button"): the same gap as an icon's, and the button's padding even at both ends */
+.dm-dpx-f .dm-pill.dm-dpx-go .dm-kbd{min-width:0;height:auto;padding:0;margin:0;border-radius:0;background:none;box-shadow:none;color:inherit;font-size:13px;line-height:1}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink primary alone presses */
+.dm-dpx .dm-pill:active{transform:none}
+.dm-dpx-sum{display:flex;flex-direction:column}
+.dm-dpx-sr{display:flex;gap:10px;font-size:13px;line-height:20px;padding:8px 0;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.dm-dpx-sr:first-child{padding-top:0}
+.dm-dpx-sr:last-child{border:0;padding-bottom:0}
 .dm-dpx-sr span{color:var(--dm-muted);width:92px;flex:none}
-.dm-dpx-run{display:flex;align-items:center;gap:var(--dm-s-2);font-size:13px;margin-top:6px}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .dm-dpx.dm-panel,:root [data-style="clean"] .dm-dpx.dm-panel,:root [data-style="clean"].dm-dpx.dm-panel{padding:19px 30px 20px 30px}
+/* answered: the line saying the agent has started, where the buttons were, its mark on the content's left edge; a tick
+   once it has started is the vivid mark green */
+.dm-dpx-f.dm-run{justify-content:flex-start}
+.dm-dpx-run{display:flex;align-items:center;gap:var(--dm-s-2);min-width:0;font-size:13px;line-height:20px}
+.dm-dpx-ok{display:grid;color:var(--dm-ok-mark)}
+/* its motion (owner's trial, 26 Nov; the core's motion pieces): a press on an answer shows at once (.mx-press, no scale); the
+   question answered leaves to one side and the next comes in from the other, piece by piece, as the card eases to its new
+   height on a spring (.mx-grow); the summary's rows rise in 50ms apart */
+/* Clean (owner, 19 Nov): its content 16px from every edge, and an off-white foot strip whose buttons sit 16px from the card's
+   edges and the strip's hairline (owner, 23 Nov); the strip starts 16px under the answers. The answers are 10px round tiles with a
+   hairline, the picked one's a step stronger and its number in ink, and the progress dots are the accent, white in dark mode, as
+   every Clean loader is. Continue is the ink button, its Enter key in a quiet chip of its own ink. Once answered, the strip holds the
+   line saying the agent has started, its words 16px in */
+:root[data-style="clean"] .dm-dpx.dm-panel,:root [data-style="clean"] .dm-dpx.dm-panel,:root [data-style="clean"].dm-dpx.dm-panel{padding:16px 16px 0}
+:root[data-style="clean"] .dm-dpx-dots i,:root [data-style="clean"] .dm-dpx-dots i,:root [data-style="clean"].dm-dpx-dots i{background:var(--dm-rail);transition:width var(--dm-t) var(--dm-ease),background-color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .dm-dpx-dots i.dm-on,:root [data-style="clean"] .dm-dpx-dots i.dm-on,:root [data-style="clean"].dm-dpx-dots i.dm-on{background:var(--dm-accent-mark)}
+:root[data-style="clean"] .dm-dpx-dots i.dm-done,:root [data-style="clean"] .dm-dpx-dots i.dm-done,:root [data-style="clean"].dm-dpx-dots i.dm-done{background:var(--dm-accent-mark);opacity:.3}
+:root[data-style="clean"] .dm-dpx-run .dm-think,:root [data-style="clean"] .dm-dpx-run .dm-think,:root [data-style="clean"].dm-dpx-run .dm-think{color:var(--dm-accent-mark)}
+/* (an answer's key chip under the pointer takes the card's surface, so it shows on the hover's fill in both themes) */
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-dpx-o:not(.dm-ahx *):hover:not(.dm-on) .dm-kbd,:root [data-style="clean"] .dm-dpx-o:not(.dm-ahx *):hover:not(.dm-on) .dm-kbd,:root [data-style="clean"].dm-dpx-o:not(.dm-ahx *):hover:not(.dm-on) .dm-kbd{background:var(--dm-surface)}}
+:root[data-style="clean"] .dm-dpx-o,:root [data-style="clean"] .dm-dpx-o,:root [data-style="clean"].dm-dpx-o{border-radius:10px;box-shadow:inset 0 0 0 1px var(--dm-hair);transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .dm-dpx-o.dm-on,:root [data-style="clean"] .dm-dpx-o.dm-on,:root [data-style="clean"].dm-dpx-o.dm-on{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-fg) 26%,transparent)}
+:root[data-style="clean"] .dm-dpx-o .dm-kbd,:root [data-style="clean"] .dm-dpx-o .dm-kbd,:root [data-style="clean"].dm-dpx-o .dm-kbd{transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .dm-dpx-o.dm-on .dm-kbd,:root [data-style="clean"] .dm-dpx-o.dm-on .dm-kbd,:root [data-style="clean"].dm-dpx-o.dm-on .dm-kbd{background:var(--dm-fg);color:var(--dm-surface)}
+:root[data-style="clean"] .dm-dpx.dm-panel .dm-dpx-f,:root [data-style="clean"] .dm-dpx.dm-panel .dm-dpx-f,:root [data-style="clean"].dm-dpx.dm-panel .dm-dpx-f{margin:4px -16px 0;padding:var(--dm-strip-y) 16px;gap:4px;min-height:calc(28px + 2 * var(--dm-strip-y) + 1px);border-top:1px solid var(--dm-line);background:var(--dm-strip);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+:root[data-style="clean"] .dm-dpx.dm-panel .dm-dpx-f.dm-run,:root [data-style="clean"] .dm-dpx.dm-panel .dm-dpx-f.dm-run,:root [data-style="clean"].dm-dpx.dm-panel .dm-dpx-f.dm-run{padding-left:16px}
+/* (a step of --dm-ok in the vivid green keeps the tick at 3:1 on the off-white strip, as Attachment tray's does) */
+:root[data-style="clean"] .dm-dpx.dm-panel .dm-dpx-ok,:root [data-style="clean"] .dm-dpx.dm-panel .dm-dpx-ok,:root [data-style="clean"].dm-dpx.dm-panel .dm-dpx-ok{color:color-mix(in srgb,var(--dm-ok-mark) 80%,var(--dm-ok))}

@@ -2,7 +2,7 @@
 
 > Live credit and token spend, with a cap that pauses the run.
 
-Agent components / Agent status. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/run-cost
+Components / Agent status. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/run-cost
 
 ## Install
 
@@ -39,7 +39,7 @@ Run cost shows how many credits an agent run has used against its budget, as a b
 - `status` sets the tag and colour: idle, running (blue), stopped, paused (orange, and the bar and the dot in the tag turn bright orange too) or spent (red). `statusLabel` replaces the tag's words.
 - The main button's label follows the status: Start run, Stop, Resume, Raise cap or Start over. It calls `onAction`, and `actionLabel` replaces the label.
 - `rows` lists the breakdown under the bar, and `title` replaces the "Credits used" heading.
-- Ships in Clean too (`data-style="clean"`): a round card with 20px all round, the status chip in its status colours, the accent fill and an ink budget line on a round grey rail, rows that answer the pointer, and the controls on an off-white foot strip, Stop 20px in from the corner.
+- Ships in Clean too (`data-style="clean"`): a round card with its content 16px in from every edge, the status chip in its status colours (Running in the accent's tint, its words white in dark mode), the accent fill (white in dark mode, as every Clean meter is) and an ink budget line on a round grey rail, plain rows, and the controls on an off-white foot strip, 8px from its top and bottom and 16px in from the sides: the switch with its hover round it and the button a 28px pill.
 
 ### Accessibility
 
@@ -154,8 +154,9 @@ The numbers are shown as whole numbers with thousands separators and no currency
 
 ```tsx
 'use client';
+import { useEffect, useRef, type RefObject } from 'react';
 import { cx } from '../lib/cx';
-import { useControllable } from '../lib/hooks';
+import { useControllable, useReducedMotion } from '../lib/hooks';
 import { Swap, Tip } from '../lib/motion';
 import '../designme.css';
 import './run-cost.css';
@@ -195,6 +196,27 @@ export interface RunCostProps {
   className?: string;
 }
 
+
+/** A button as wide as its words: when they change it eases to its new width, keeping no room for a longer word */
+function useEaseWidth(ref: RefObject<HTMLElement | null>) {
+  const reduce = useReducedMotion();
+  useEffect(() => {
+    const el = ref.current; if (!el || reduce || typeof ResizeObserver === 'undefined') return;
+    let w = 0, busy: Animation | null = null;
+    const ro = new ResizeObserver(() => {
+      if (busy) return;
+      const w1 = el.getBoundingClientRect().width;
+      if (w && Math.abs(w1 - w) > .5) {
+        busy = el.animate([{ width: w + 'px' }, { width: w1 + 'px' }], { duration: 340, easing: 'cubic-bezier(.23,1,.32,1)' });
+        busy.finished.catch(() => {}).then(() => { busy = null; w = el.getBoundingClientRect().width; });
+      }
+      w = w1;
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref, reduce]);
+}
+
 const fmt = (n: number) => Math.round(n).toLocaleString('en-US');
 const TONE: Partial<Record<RunCostStatus, string>> = { running: 'dm-b', paused: 'dm-warn', spent: 'dm-bad' };
 const ACTION: Record<RunCostStatus, string> = { idle: 'Start run', running: 'Stop', stopped: 'Resume', paused: 'Raise cap', spent: 'Start over' };
@@ -202,12 +224,14 @@ const ACTION: Record<RunCostStatus, string> = { idle: 'Start run', running: 'Sto
 /** Credits a run has used against its budget, with a cap the agent pauses at and the tokens behind the number. */
 export function RunCost({ used, budget, capAt = 90, capOn, defaultCapOn = true, onCapChange, status = 'idle', statusLabel, rows, actionLabel, onAction, title = 'Credits used', bare = false, className }: RunCostProps) {
   const [cap, setCap] = useControllable(capOn, defaultCapOn, onCapChange);
+  const go = useRef<HTMLButtonElement>(null);
+  useEaseWidth(go);
   const label = statusLabel ?? { idle: 'Idle', running: 'Running', stopped: 'Stopped', paused: `Paused at ${capAt}%`, spent: 'Budget used' }[status];
   return (
     <div data-dm="" className={cx('dm-rc', !bare && 'dm-panel', className)} style={bare ? { paddingInline: 0 } : undefined}>
       <div className="dm-rc-h">
         <span className="dm-muted">{title}</span>
-        <span className={cx('dm-rc-st dm-tag', TONE[status])}><span className="dm-dot" /><Swap className="dm-rc-stt">{label}</Swap></span>
+        <span className={cx('dm-rc-st dm-tag', TONE[status])}><span className="dm-dot" /><Swap className="dm-rc-stt dm-mx-w">{label}</Swap></span>
       </div>
       <div className="dm-rc-big"><span className="dm-rc-n dm-num">{fmt(used)}</span><span className="dm-muted"> / {fmt(budget)}</span></div>
       <div className="dm-rc-track" role="meter" aria-label={title} aria-valuemin={0} aria-valuemax={budget} aria-valuenow={Math.round(used)}>
@@ -224,7 +248,7 @@ export function RunCost({ used, budget, capAt = 90, capOn, defaultCapOn = true, 
           <button type="button" className="dm-toggle" role="switch" aria-checked={cap} aria-label={`Pause at ${capAt} percent`} />
           <span>Pause at {capAt}%</span>
         </label>
-        <button type="button" className={cx('dm-pill dm-sm dm-rc-go', status === 'running' || status === 'stopped' ? 'dm-soft' : 'dm-primary')} onClick={onAction}>
+        <button ref={go} type="button" className={cx('dm-pill dm-sm dm-rc-go', status === 'running' || status === 'stopped' ? 'dm-line' : 'dm-primary')} onClick={onAction}>
           <Swap>{actionLabel ?? ACTION[status]}</Swap>
         </button>
       </div>
@@ -245,7 +269,7 @@ export function RunCost({ used, budget, capAt = 90, capOn, defaultCapOn = true, 
 - [Agent run timeline](https://designme.dev/components/agent-run-timeline.md): Every model and tool step of a run on one time axis.
 - [Context meter](https://designme.dev/components/context-meter.md): How full the context is and what fills it, with Compact to free room.
 - [Toast stack](https://designme.dev/components/toast-stack.md): Agent notifications that stack and fan out on hover.
-- [Toast](https://designme.dev/components/toast.md): One notification that changes shape with its state.
+- [Toast](https://designme.dev/components/toast.md): A background job in one toast, from start to finish.
 - [Status pill](https://designme.dev/components/status-pill.md): One live line for what the agent is doing right now.
 - [Step loader](https://designme.dev/components/step-loader.md): Named steps with a progress track and four loaders.
 - [Thinking states](https://designme.dev/components/thinking-states.md): Six thinking indicators to pick from, each with a status line.

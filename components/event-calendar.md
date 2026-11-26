@@ -2,7 +2,7 @@
 
 > A week view where the agent finds a free slot for you.
 
-App basics / Dates. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/event-calendar
+Components / Dates. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/event-calendar
 
 ## Install
 
@@ -34,10 +34,11 @@ A work-week calendar where people drag events to a new time or day, click free t
 ### What it does
 
 - Shows `days` columns from `week` (5 by default) and `hours` rows from `startHour` (9am to 5pm by default), with a today mark and a now line when `now` is set.
-- Dragging an event moves it to another time or day in 15-minute steps; a click without moving opens its details card.
+- Dragging an event moves it to another time or day in 15-minute steps; a click without moving opens its details card. The card grows out of the event's side.
+- Every event keeps its colour at full strength. Under the pointer an event deepens in its own colour, and the one whose card is open is a step deeper with a faint ring in its colour (in Clean, a neutral grey ring, and every event has a 3px rail in its colour down its left edge).
 - Hovering free time shows a "+ New event" slot, and clicking it adds an event, from `newEvent`, with a box to name it; Save keeps it and Discard removes it.
-- The details card shows the time and the people invited, plus Prep notes when `onPrepNotes` is set ("Writing" shows until a returned promise settles) and Join when `onJoin` is set.
-- With `onAsk`, the header gets the agent's button; while `finding` is true it shows a thinking mark and a scan line sweeps the week.
+- The details card shows the time and the people invited, plus Prep notes when `onPrepNotes` is set and Join when `onJoin` is set (in Clean, the title in a head strip and the buttons in a foot strip). "Writing" shimmers until a returned promise settles; then the notes show above the buttons and Prep notes keeps its place with a green tick.
+- With `onAsk`, the header gets the agent's button; while `finding` is true it shows a thinking mark, its words shimmer and a scan line sweeps the week.
 - `suggestions` draw as outlined blocks; the first is the pick, with Book (`onBook`) and, while there are more, Other (`onSkip`). The header line reports the last move or addition, or your own `status`.
 - Under 520px wide, on a phone or in a narrow card, it shows one day at a time, picked from a row of days, so every event has room for its whole title and time. There each row is half an hour: an hour is two rows, and the time column reads 9:00, 9:30, 10:00. It opens on today, and on the day of the agent's pick when `suggestions` arrive; control the day with `day` and `onDayChange`.
 
@@ -97,13 +98,14 @@ export default function EventCalendarDemo() {
   }, [wait]);
   // the preview asks the agent for a slot once on its own, unless you take over first
   const ref = useRef<HTMLDivElement>(null);
-  useStory(ref, async s => { await s.wait(1200); await ask(); });
+  // the agent checking calendars keeps working under a resting pointer, as an agent at work does on designme.dev
+  useStory(ref, async s => { await s.wait(1200); await ask(); }, { hold: false });
 
   return (
     <div ref={ref} style={{ width: '100%' }}>
       <EventCalendar week={WEEK} now={new Date(2026, 9, 19, 10, 42)} events={events} onEventsChange={setEvents}
         newEvent={{ tone: 'pink', people: people('New event') }}
-        onPrepNotes={() => wait(1200).then(() => "Notes ready: last week's decisions and 3 open questions.")} onJoin={() => {}}
+        onPrepNotes={() => wait(1200).then(() => "Last week's decisions and 3 open questions.")} onJoin={() => {}}
         askLabel={label} onAsk={ask} finding={finding} suggestions={suggestions}
         onBook={s => {
           setEvents(es => [...es, { id: s.id + '-booked', title: s.title, start: s.start, end: s.end, tone: 'blue', people: people(s.title) }]);
@@ -132,7 +134,7 @@ export default function EventCalendarDemo() {
 | `defaultSelected` (optional) | `string \| null` |  |
 | `onSelectedChange` (optional) | `(id: string \| null) => void` |  |
 | `newEvent` (optional) | `{ tone?: EventCalendarTone; people?: EventCalendarPerson[]; hours?: number }` | What an event added by clicking free time starts with. Defaults to a pink, one hour event |
-| `onPrepNotes` (optional) | `(event: EventCalendarEvent) => ReactNode \| Promise<ReactNode>` | Adds Prep notes to the details card. Return the notes, or a promise of them; "Writing" shows until it settles |
+| `onPrepNotes` (optional) | `(event: EventCalendarEvent) => ReactNode \| Promise<ReactNode>` | Adds Prep notes to the details card. Return the notes, or a promise of them; "Writing" shimmers until it settles, then the notes show above the buttons and Prep notes keeps its place with a green tick |
 | `onJoin` (optional) | `(event: EventCalendarEvent) => void` | Adds Join to the details card |
 | `askLabel` (optional) | `string` | Adds the agent's button to the header, like "Find 45 min for a design review" |
 | `onAsk` (optional) | `() => void` |  |
@@ -185,11 +187,11 @@ Yes. Set `days` to 7 for a full week, and `startHour` and `hours` for the time r
 
 ```tsx
 'use client';
-import { useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode, type RefObject } from 'react';
 import { cx } from '../lib/cx';
-import { useControllable, useIsoLayoutEffect } from '../lib/hooks';
+import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { Avatar, enter, Swap, Think, Tip } from '../lib/motion';
+import { Avatar, enter, mxT, Swap, Think, Tip } from '../lib/motion';
 import '../designme.css';
 import './event-calendar.css';
 
@@ -246,7 +248,8 @@ export interface EventCalendarProps {
   onSelectedChange?: (id: string | null) => void;
   /** What an event added by clicking free time starts with. Defaults to a pink, one hour event */
   newEvent?: { tone?: EventCalendarTone; people?: EventCalendarPerson[]; hours?: number };
-  /** Adds Prep notes to the details card. Return the notes, or a promise of them; "Writing" shows until it settles */
+  /** Adds Prep notes to the details card. Return the notes, or a promise of them; "Writing" shimmers until it settles, then the
+      notes show above the buttons and Prep notes keeps its place with a green tick */
   onPrepNotes?: (event: EventCalendarEvent) => ReactNode | Promise<ReactNode>;
   /** Adds Join to the details card */
   onJoin?: (event: EventCalendarEvent) => void;
@@ -295,6 +298,8 @@ function Details({ event, onClose, onSave, onDiscard, onPrepNotes, onJoin }: {
 }) {
   const fresh = !event.title;
   const input = useRef<HTMLInputElement>(null);
+  const prepBtn = useRef<HTMLButtonElement>(null);
+  useEaseWidth(prepBtn);
   const [prep, setPrep] = useState<'idle' | 'writing' | 'done'>('idle');
   const [note, setNote] = useState<ReactNode>(null);
   useEffect(() => { if (fresh) input.current?.focus({ preventScroll: true }); }, [fresh]);
@@ -311,7 +316,7 @@ function Details({ event, onClose, onSave, onDiscard, onPrepNotes, onJoin }: {
       <div className="dm-ecx-ph">
         <i style={{ background: `var(--dm-${TONE[event.tone ?? 'blue']})` }} />
         {fresh ? <input ref={input} className="dm-ecx-ti" placeholder="Add a title" aria-label="Event title" onKeyDown={key} /> : <b>{event.title}</b>}
-        <Tip label="Close"><button type="button" className="dm-ib" aria-label="Close" onClick={onClose}><Icon name="x" size="xs" /></button></Tip>
+        <Tip label="Close"><button type="button" className="dm-ib dm-mx-press" aria-label="Close" onClick={onClose}><Icon name="x" size="xs" /></button></Tip>
       </div>
       <div className="dm-ecx-pt">{DAYN[event.start.getDay()]} {event.start.getDate()} {MONTHS[event.start.getMonth()]} · {tm(h)} – {tm(end)}</div>
       {people.length > 0 && (
@@ -323,12 +328,14 @@ function Details({ event, onClose, onSave, onDiscard, onPrepNotes, onJoin }: {
       {prep === 'done' && <div className={cx('dm-ecx-note', enter().className)}><Icon name="spark" size="xs" /><span>{note}</span></div>}
       {fresh ? (
         <div className="dm-ecx-pa">
-          <button type="button" className="dm-pill dm-line dm-sm" onClick={onDiscard}>Discard</button>
+          <button type="button" className="dm-pill dm-line dm-sm dm-mx-press" onClick={onDiscard}>Discard</button>
           <button type="button" className="dm-pill dm-primary dm-sm" onClick={() => onSave(input.current?.value ?? '')}>Save</button>
         </div>
       ) : (onPrepNotes || onJoin) && (
         <div className="dm-ecx-pa">
-          {onPrepNotes && prep !== 'done' && <button type="button" className="dm-pill dm-soft dm-sm" onClick={write}>{prep === 'writing' ? <><Think />Writing</> : <><Icon name="spark" size="xs" />Prep notes</>}</button>}
+          {onPrepNotes && <button type="button" ref={prepBtn} className={cx('dm-pill dm-line dm-sm dm-ecx-prep dm-mx-press', prep === 'done' && 'dm-done')} aria-disabled={prep === 'done' || undefined} onClick={write}>
+            {prep === 'writing' ? <><Think /><span className="dm-shim">Writing</span></> : <><Icon name={prep === 'done' ? 'check' : 'spark'} size="xs" />Prep notes</>}
+          </button>}
           {onJoin && <button type="button" className="dm-pill dm-primary dm-sm" onClick={() => onJoin(event)}>Join</button>}
         </div>
       )}
@@ -338,6 +345,27 @@ function Details({ event, onClose, onSave, onDiscard, onPrepNotes, onJoin }: {
 
 /** A work week of events you can drag to another time or day, add to by clicking free time, and open for details.
     The agent can look for a free slot and suggest it. */
+/** A button as wide as its words: when they change it eases to its new width on the motion pieces' spring */
+function useEaseWidth(ref: RefObject<HTMLElement | null>) {
+  const reduce = useReducedMotion();
+  useEffect(() => {
+    const el = ref.current; if (!el || reduce || typeof ResizeObserver === 'undefined') return;
+    let w = 0, busy: Animation | null = null;
+    const ro = new ResizeObserver(() => {
+      if (busy) return;
+      const w1 = el.getBoundingClientRect().width;
+      if (w && Math.abs(w1 - w) > .5) {
+        el.style.overflow = 'clip';
+        busy = el.animate([{ width: w + 'px' }, { width: w1 + 'px' }], { duration: mxT(el, 't-in', 360), easing: mxT(el, 'ease-spring', 'ease') });
+        busy.finished.catch(() => {}).then(() => { busy = null; el.style.overflow = ''; w = el.getBoundingClientRect().width; });
+      }
+      w = w1;
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref, reduce]);
+}
+
 export function EventCalendar({
   events, defaultEvents = [], onEventsChange, week, days = 5, startHour = 9, hours = 8, title, now,
   selected, defaultSelected = null, onSelectedChange, newEvent, onPrepNotes, onJoin,
@@ -391,7 +419,8 @@ export function EventCalendar({
     const pr = panel.getBoundingClientRect(), er = el.getBoundingClientRect(), w = 248;
     let x = er.right - pr.left + 8; if (x + w > pr.width - 8) x = er.left - pr.left - w - 8; x = Math.max(8, x);
     const y = Math.max(8, Math.min(er.top - pr.top, pr.height - p.offsetHeight - 8));
-    setPlace({ left: x, top: y });
+    // (it scales and fades from the event's side, where Clean's popovers start)
+    setPlace({ left: x, top: y, ['--dm-origin' as string]: (x > er.left - pr.left ? 'left' : 'right') + ' top' });
   }, [open?.id, runs]);
   useEffect(() => {
     if (!open) return;
@@ -464,6 +493,8 @@ export function EventCalendar({
   /* ---------- a narrow calendar: one day at a time ---------- */
   const [shownDay, setShownDay] = useControllable(day, defaultDay ?? Math.max(0, today), onDayChange);
   const daysRow = useRef<HTMLDivElement>(null);
+  const askBtn = useRef<HTMLButtonElement>(null);
+  useEaseWidth(askBtn);
   const narrow = () => !!daysRow.current?.getClientRects().length;
   const [turns, setTurns] = useState(0);
   const pickDay = (d: number) => { if (d === shownDay) return; if (narrow()) { close(); setTurns(n => n + 1); } setShownDay(d); };
@@ -478,7 +509,7 @@ export function EventCalendar({
       <div className="dm-ecx-h">
         <b>{heading}</b><span className="dm-ecx-sp" />
         <Swap className="dm-ecx-msg dm-muted">{status ?? msg}</Swap>
-        {onAsk && <button type="button" className="dm-pill dm-soft dm-sm dm-ecx-ask" onClick={onAsk}>{finding ? <Think /> : <Icon name="spark" size="xs" />}<Swap key={finding ? 'f' : 'i'}>{askLabel}</Swap></button>}
+        {onAsk && <button ref={askBtn} type="button" className="dm-pill dm-soft dm-sm dm-ecx-ask" onClick={onAsk}>{finding ? <Think /> : <Icon name="spark" size="xs" />}<Swap key={finding ? 'f' : 'i'} className={finding ? 'dm-shim' : undefined}>{askLabel}</Swap></button>}
       </div>
       <div ref={daysRow} className="dm-ecx-days" role="group" aria-label="Day">
         {Array.from({ length: days }, (_, d) => {
@@ -509,7 +540,7 @@ export function EventCalendar({
                     return (
                       <Tip key={`${e.id}:${moves[e.id] ?? 0}`} label={`${named(e)}, ${tm(at_)}`} off={!!dragging || openId === e.id}>
                         <button type="button" ref={el => { if (el) blocks.current.set(e.id, el); else blocks.current.delete(e.id); }}
-                          className={cx('dm-ecx-e dm-enter', live && 'dm-drag')}
+                          className={cx('dm-ecx-e dm-enter', live && 'dm-drag', openId === e.id && 'dm-on')}
                           style={{ ...tint(e.tone), top: top(at_), [len < 1 ? 'minHeight' : 'height']: ph(len, -3), transform: live ? `translateX(${live.dx}px)` : undefined, animationDelay: (delays.current!.get(e.id) ?? 0) + 'ms' }}
                           onPointerDown={p => down(p, e)} onPointerMove={p => move(p, e)} onPointerUp={() => up(e)} onPointerCancel={() => up(e)}
                           onClick={c => { if (c.detail !== 0) return; keyOpen.current = openId !== e.id; select(openId === e.id ? null : e.id); }}>
@@ -525,7 +556,7 @@ export function EventCalendar({
                         <b>{s.title}</b><span>{tm(h)} – {tm(h + len)}</span>
                         {i === 0 && (onBook || onSkip) && (
                           <div className="dm-ecx-sg">
-                            {onBook && <button type="button" onClick={() => onBook(s)}>Book</button>}
+                            {onBook && <button type="button" className="dm-y" onClick={() => onBook(s)}>Book</button>}
                             {onSkip && suggestions.length > 1 && <button type="button" className="dm-n" onClick={() => onSkip(s)}>Other</button>}
                           </div>
                         )}
@@ -541,7 +572,7 @@ export function EventCalendar({
           <div key={scans} className={cx('dm-ecx-scan', scans > 0 && 'dm-go')} />
         </div>
       </div>
-      <div ref={pop} className={cx('dm-ecx-pop', open && 'dm-open')} role="dialog" aria-label="Event" inert={!open} style={place}
+      <div ref={pop} className={cx('dm-ecx-pop dm-mx-pop', open && 'dm-open')} role="dialog" aria-label="Event" inert={!open} style={place}
         onFocus={() => { inPop.current = true; }} onBlur={f => { if (!pop.current?.contains(f.relatedTarget as Node)) inPop.current = false; }}>
         {card && <Details key={`${card.id}:${runs}`} event={card} onClose={close} onSave={v => save(card, v)} onDiscard={() => remove(card.id)} onPrepNotes={onPrepNotes} onJoin={onJoin} />}
       </div>
@@ -549,13 +580,5 @@ export function EventCalendar({
   );
 }
 ```
-
-## More in Dates
-
-- [Date picker](https://designme.dev/components/date-picker.md): A field that opens a calendar, with quick picks and natural language.
-- [Segmented control](https://designme.dev/components/segmented-control.md): Switch between views of the same thing, with a sliding indicator.
-- [Date range picker](https://designme.dev/components/date-range-picker.md): Pick a start and end across two months, or use a preset.
-- [Agenda](https://designme.dev/components/agenda.md): Today's schedule with a live now line and agent prep notes.
-- [Meeting card](https://designme.dev/components/meeting-card.md): The next meeting from countdown to wrap-up, with the time already gone hatched out and a join that stays open.
 
 All components: https://designme.dev/llms.txt

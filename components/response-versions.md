@@ -2,7 +2,7 @@
 
 > Regenerate an answer and flip between versions.
 
-Agent components / Conversation. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/response-versions
+Components / Conversation. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/response-versions
 
 ## Install
 
@@ -23,7 +23,7 @@ npx shadcn@latest add https://designme.dev/r/shadcn/astro/response-versions.json
 
 ## About
 
-Response versions shows an agent's answer with a small bar under it to page through earlier versions, regenerate it and copy it. Each regenerated answer is kept as a new version, so the person can compare it with the ones before and keep the one they like.
+Response versions shows an agent's answer with a small bar to page through earlier versions, regenerate it and copy it. Each regenerated answer is kept as a new version, so the person can compare it with the ones before and keep the one they like.
 
 ### When to use it
 
@@ -35,10 +35,11 @@ Response versions shows an agent's answer with a small bar under it to page thro
 
 - `versions` holds every version, oldest first. Previous and next arrows page through them with a counter between, and the current one can be controlled with `version` and `onVersionChange`.
 - Switching versions fades the old text out, then the new one comes in word by word.
-- While `streaming` is true, words fade in as they arrive, the arrows are disabled and regenerate does nothing.
+- While `streaming` is true, words fade in as they arrive, the arrows are disabled and regenerate does nothing. A version streaming in keeps the height of the one it replaces until it is written, then the answer eases to its own height; the answer never keeps room for a longer one.
 - `onRegenerate` adds a Regenerate button that spins when pressed. You add the new version and show it.
 - Copy puts the shown version on the clipboard, confirms with a check and calls `onCopy` with the text.
 - `status` shows quiet text beside the buttons, like "Writing a new version", and shimmers while streaming. `prompt` adds the person's message as a bubble above, and `bare={false}` gives the answer its own card.
+- In Soft and Blueprint the answer sits flat in the thread with the bar under it. In Clean it is a card of its own: the answer comes first, 16px in, then a hairline, then the bar with the arrows and the count, the status, and Regenerate and Copy.
 
 ### Accessibility
 
@@ -153,11 +154,11 @@ No. Each version is a plain string, split into words for the fade-in, so markup 
 
 ```tsx
 'use client';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
-import { useControllable, useCopied, useReducedMotion } from '../lib/hooks';
+import { useControllable, useCopied, useIsoLayoutEffect, useReducedMotion } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { Swap, Tip } from '../lib/motion';
+import { Swap, SwapIcon, Tip } from '../lib/motion';
 import '../designme.css';
 import './response-versions.css';
 
@@ -202,6 +203,37 @@ export function ResponseVersions({ prompt, versions, version, defaultVersion = 0
   }, [at, shown, streaming, reduce]);
   const text = versions[shown] ?? '';
   const words = text.split(' ').filter(Boolean);
+  // the container grows with what it holds, eased (grow() on the site), and stays centred wherever it is centred, in every
+  // style (owner, 18 Nov)
+  const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
+  useIsoLayoutEffect(() => {
+    const el = root.current, w = inner.current;
+    if (!el || !w || typeof ResizeObserver === 'undefined') return;
+    let first = true;
+    const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
+    const fit = () => {
+      const h = Math.ceil(w.offsetHeight + box());
+      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
+      else el.style.height = h + 'px';
+    };
+    const ro = new ResizeObserver(fit); ro.observe(w); fit();
+    return () => { ro.disconnect(); el.style.height = ''; };
+  }, []);
+  // while a new version streams in, the answer keeps the height of the one it replaces, then eases to its own
+  const tRef = useRef<HTMLParagraphElement>(null), prevT = useRef({ at: -1, h: 0 });
+  useIsoLayoutEffect(() => {
+    const el = tRef.current; if (!el) return;
+    if (prevT.current.at !== -1 && prevT.current.at !== shown && prevT.current.h && streaming) el.style.minHeight = prevT.current.h + 'px';
+    prevT.current = { at: shown, h: el.style.minHeight ? prevT.current.h : (el.textContent?.trim() ? el.offsetHeight : 0) };
+  });
+  useEffect(() => {
+    const el = tRef.current; if (!el || streaming || !el.style.minHeight) return;
+    const was = el.offsetHeight; el.style.minHeight = ''; const h = el.offsetHeight;
+    if (h >= was || reduce) return;
+    el.style.minHeight = was + 'px'; void el.offsetHeight; el.style.transition = 'min-height var(--dm-t) var(--dm-ease)'; el.style.minHeight = h + 'px';
+    const t = setTimeout(() => { el.style.transition = ''; el.style.minHeight = ''; }, 460);
+    return () => clearTimeout(t);
+  }, [streaming, shown, reduce]);
 
   const [spin, setSpin] = useState(false);
   const regenerate = () => {
@@ -213,22 +245,24 @@ export function ResponseVersions({ prompt, versions, version, defaultVersion = 0
   const copy = () => { const t = versions[at] ?? ''; copyText(t); onCopy?.(t); };
 
   return (
-    <div data-dm="" className={cx('dm-rvx', !bare && 'dm-panel', className)} style={bare ? undefined : { padding: 16 }}>
+    <div data-dm="" ref={root} className={cx('dm-rvx', !bare && 'dm-panel', 'dm-growing dm-mx-grow', className)} style={bare ? undefined : { padding: 16 }}>
+      <div ref={inner} className="dm-grow">
       {prompt && <div className="dm-bub">{prompt}</div>}
       <div className="dm-rvx-a">
-        <p className={cx('dm-msg dm-rvx-t', out && 'dm-out')} aria-live="polite">
+        <p ref={tRef} className={cx('dm-msg dm-rvx-t', out && 'dm-out')} aria-live="polite">
           {words.map((w, k) => <span key={shown + ':' + k} className="dm-w" style={jump ? { animationDelay: k * 12 + 'ms' } : undefined}>{w} </span>)}
         </p>
-        <div className="dm-rvx-bar">
+        <div className="dm-rvx-bar dm-mx-ic">
           <div className="dm-rvx-pg">
-            <Tip label="Previous"><button type="button" className="dm-ib" aria-label="Previous version" disabled={at === 0 || streaming} onClick={() => setCur(at - 1)}><Icon name="chev-l" /></button></Tip>
+            <Tip label="Previous"><button type="button" className="dm-ib dm-mx-press" aria-label="Previous version" disabled={at === 0 || streaming} onClick={() => setCur(at - 1)}><Icon name="chev-l" /></button></Tip>
             <span className="dm-rvx-n dm-num">{at + 1} / {Math.max(versions.length, 1)}</span>
-            <Tip label="Next"><button type="button" className="dm-ib" aria-label="Next version" disabled={at === last || streaming} onClick={() => setCur(at + 1)}><Icon name="chev-r" /></button></Tip>
+            <Tip label="Next"><button type="button" className="dm-ib dm-mx-press" aria-label="Next version" disabled={at === last || streaming} onClick={() => setCur(at + 1)}><Icon name="chev-r" /></button></Tip>
           </div>
-          {onRegenerate && <Tip label="Regenerate" kbd="⌘R"><button type="button" className={cx('dm-ib dm-rvx-re', spin && 'dm-go')} aria-label="Regenerate" onClick={regenerate}><Icon name="refresh" /></button></Tip>}
-          <Tip label={copied ? 'Copied to clipboard' : 'Copy'} open={copied || undefined}><button type="button" className={cx('dm-ib', copied && 'dm-copied')} aria-label="Copy" onClick={copy}><Icon name={copied ? 'check' : 'copy'} /></button></Tip>
+          {onRegenerate && <Tip label="Regenerate" kbd="⌘R"><button type="button" className={cx('dm-ib dm-rvx-re dm-mx-press', spin && 'dm-go')} aria-label="Regenerate" onClick={regenerate}><Icon name="refresh" /></button></Tip>}
+          <Tip label={copied ? 'Copied to clipboard' : 'Copy'} open={copied || undefined}><button type="button" className={cx('dm-ib dm-rvx-cp dm-mx-press', copied && 'dm-copied')} aria-label="Copy" onClick={copy}><SwapIcon id={copied ? 'check' : 'copy'}><Icon name={copied ? 'check' : 'copy'} /></SwapIcon></button></Tip>
           <Swap className={cx('dm-rvx-st dm-muted', streaming && status && 'dm-shim')}>{status}</Swap>
         </div>
+      </div>
       </div>
     </div>
   );
@@ -239,8 +273,6 @@ export function ResponseVersions({ prompt, versions, version, defaultVersion = 0
 
 - [Live answer](https://designme.dev/components/live-answer.md): Answers that stream in with numbered sources and next steps.
 - [Composer](https://designme.dev/components/composer.md): Message input with attachments, what to work on, a mode and dictation.
-- [Artifact card](https://designme.dev/components/artifact-card.md): A file the agent made, with its versions, Open, Copy and Download.
-- [Rich text editor](https://designme.dev/components/rich-text-editor.md): A minimal editor with an inline AI menu that streams a suggestion to accept or discard.
 - [Answer action bar](https://designme.dev/components/answer-action-bar.md): Copy, regenerate, rate and listen to an answer from one row under it.
 - [Model picker](https://designme.dev/components/model-picker.md): Pick a model by speed, quality and cost, and how hard it thinks.
 - [Attachment tray](https://designme.dev/components/attachment-tray.md): Drop files for the agent and watch each one upload.

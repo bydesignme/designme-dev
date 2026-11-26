@@ -4,16 +4,20 @@
    answers. Without .panel it sits flat in the thread */
 .dm-pgx{position:relative;width:100%;max-width:400px;margin:0 auto;padding:var(--dm-s-1) 0;display:flex;flex-direction:column;gap:var(--dm-s-3)}
 .dm-pgx.dm-panel{padding:var(--dm-s-4)}
+/* its motion (the core's motion pieces, owner, 26 Nov): How long's menu grows out of its button and goes back quicker, its
+   rows settle one after another and one highlight glides between them; a press shows at once (.mx-press, no scale); How
+   long's words and Allow ease their box to the new width (.mx-w); the spinner crossfades to the done mark (.mx-ic); and the
+   card eases to each new height on the spring (.mx-grow) */
 .dm-pgx-h{display:flex;gap:var(--dm-s-3);align-items:center}
 .dm-pgx-ic{width:32px;height:32px;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-chip);display:grid;place-items:center;flex:none}
 .dm-pgx-ht{display:flex;flex-direction:column;min-width:0}
 .dm-pgx-ht b{font-weight:500;font-size:14px}
 .dm-pgx-ht span{font-size:13px}
 /* the scopes line up with the head (owner, 18 Nov): each box centred in a 32px column under the icon tile, its words where the
-   question's start, and the row's hover fill exactly the content's width, from the tile's left edge to the right edge the
-   buttons below end on. The box sits 7px inside the fill, and a tag at the row's end sits 7px inside it too */
+   question's start, and a tag at the row's end on the right edge the buttons below end on. The row's hover fill reaches 8px
+   out round it, into the padding (owner, 26 Nov) */
 .dm-pgx-sc{display:flex;flex-direction:column}
-.dm-pgx-o{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;column-gap:var(--dm-s-3);padding:var(--dm-s-2) 7px var(--dm-s-2) 0;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));cursor:pointer;font-size:13.5px;transition:background .25s}
+.dm-pgx-o{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;column-gap:var(--dm-s-3);margin-inline:calc(-1 * var(--dm-s-2));padding:var(--dm-s-2);border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));cursor:pointer;font-size:13.5px;transition:background .25s}
 .dm-pgx-o>.dm-bx{justify-self:center}
 @media (hover:hover) and (pointer:fine){.dm-pgx-o:hover{background:var(--dm-row)}}
 .dm-pgx-o input{position:absolute;opacity:0;pointer-events:none}
@@ -30,10 +34,10 @@
 .dm-pgx-o.dm-one>.dm-oi{width:32px;height:32px;display:grid;place-items:center;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-chip);color:var(--dm-fg2)}
 :root[data-style="clean"] .dm-pgx-o.dm-one>.dm-oi,:root [data-style="clean"] .dm-pgx-o.dm-one>.dm-oi,:root [data-style="clean"].dm-pgx-o.dm-one>.dm-oi{box-shadow:inset 0 0 0 1px var(--dm-hair)}
 .dm-pgx-o .dm-d{display:block;font-size:12px;color:var(--dm-muted)}
-.dm-pgx-f{display:flex;align-items:center;gap:6px;padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.dm-pgx-f{display:flex;align-items:center;gap:6px;padding-top:var(--dm-s-4);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .dm-pgx-f .dm-sp{flex:1}
 /* on a narrow stage the duration gets its own row, and the two buttons stay together under it on the right */
-@container (max-width:340px){.dm-pgx-f{flex-wrap:wrap}.dm-pgx-f .dm-sp{flex-basis:100%}.dm-pgx-no{margin:var(--dm-s-2) 0 0 auto}.dm-pgx-ok{margin-top:var(--dm-s-2)}}
+@container (max-width:340px){.dm-pgx-f{flex-wrap:wrap;padding-top:var(--dm-s-3)}.dm-pgx-f .dm-sp{flex-basis:100%}.dm-pgx-no{margin:var(--dm-s-2) 0 0 auto}.dm-pgx-ok{margin-top:var(--dm-s-2)}}
 /* how long: a small dropdown, the way a menu of choices usually looks */
 .dm-pgx-db{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--dm-s-2) 0 10px;margin-left:0;border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);white-space:nowrap;transition:background .16s,color .16s}
 .dm-pgx-db[aria-expanded="true"]{background:var(--dm-row);color:var(--dm-fg)}
@@ -45,6 +49,9 @@
 .dm-pgx-done{display:flex;align-items:center;gap:var(--dm-s-3);padding:10px 7px 10px 0;border-radius:var(--dm-r-in);background:var(--dm-chip);font-size:13.5px}
 /* its mark sits centred in the scopes' 32px column, under the head's tile, and its words start on the title's column */
 .dm-pgx-done>svg{margin-inline:8px}
+/* on a phone the answered row wraps to a small card: its words and its button 16px from its top, bottom and right; its mark
+   stays centred under the head's tile */
+@container (max-width:340px){.dm-pgx-done{padding:var(--dm-s-4) var(--dm-s-4) var(--dm-s-4) 0}}
 /* its button is a white pill on the grey row */
 .dm-pgx-done .dm-pill{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-on-tint-btn)}
 @media (hover:hover) and (pointer:fine){.dm-pgx-done .dm-pill:hover{background:var(--dm-surface);box-shadow:var(--dm-on-tint-btn-h)}}
@@ -64,8 +71,8 @@
 .dm-pgx-sum{display:none}
 
 /* Clean (owner, 18 Nov): a card with the question, the scopes and an off-white foot strip. Its content sits 16px from
-   every edge; the controls in the strip sit 8px from the card's edges, their round ends following its corners
-   (22 = 14 + 8), and the duration select lines up with the content above by its text, not its hover box. The ticks are
+   every edge; the controls in the strip sit 16px from the card's sides and bottom and from the strip's hairline (owner,
+   23 Nov), and the duration select lines up with the content above by its text, not its hover box. The ticks are
    ink and draw in, the count on Allow rolls as boxes are ticked, and once you answer the scopes fold into one summary line
    in the strip while the card eases to its new height (grow(), centred in its stage). Its height is never kept */
 /* the card clips its strips to its round corners; the duration menu opens out of it (nothing changes height while it is open) */
@@ -80,7 +87,7 @@
    hairlines between rows, which give way to the quiet fill of the row under the pointer */
 :root[data-style="clean"] .dm-pgx-o,:root [data-style="clean"] .dm-pgx-o,:root [data-style="clean"].dm-pgx-o{position:relative;display:grid;grid-template-columns:32px minmax(0,1fr) auto;column-gap:12px;transition:background-color var(--dm-t-fast) var(--dm-ease)}
 :root[data-style="clean"] .dm-pgx-o>.dm-bx,:root [data-style="clean"] .dm-pgx-o>.dm-bx,:root [data-style="clean"].dm-pgx-o>.dm-bx{justify-self:center}
-:root[data-style="clean"] .dm-pgx-o+.dm-pgx-o,:root [data-style="clean"] .dm-pgx-o+.dm-pgx-o,:root [data-style="clean"].dm-pgx-o+.dm-pgx-o{background-image:linear-gradient(var(--dm-hair),var(--dm-hair));background-repeat:no-repeat;background-position:0 0;background-size:100% 1px}
+:root[data-style="clean"] .dm-pgx-o+.dm-pgx-o,:root [data-style="clean"] .dm-pgx-o+.dm-pgx-o,:root [data-style="clean"].dm-pgx-o+.dm-pgx-o{background-image:linear-gradient(var(--dm-hair),var(--dm-hair));background-repeat:no-repeat;background-position:var(--dm-s-2) 0;background-size:calc(100% - 2 * var(--dm-s-2)) 1px}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] :is(.dm-pgx-o:hover,.dm-pgx-o:hover+.dm-pgx-o),:root [data-style="clean"] :is(.dm-pgx-o:hover,.dm-pgx-o:hover+.dm-pgx-o),:root [data-style="clean"]:is(.dm-pgx-o:hover,.dm-pgx-o:hover+.dm-pgx-o){background-image:none}}
 /* asking again for one scope: nothing to tick, so the scope is an info row, its info mark where the box would be */
 
@@ -89,12 +96,18 @@
 :root[data-style="clean"] .dm-pgx-o input:checked+.dm-bx,:root [data-style="clean"] .dm-pgx-o input:checked+.dm-bx,:root [data-style="clean"].dm-pgx-o input:checked+.dm-bx{background:linear-gradient(180deg,var(--dm-btn-1),var(--dm-btn-2));box-shadow:inset 0 0 0 1px var(--dm-btn-2),inset 0 2px 3px -1px rgba(255,255,255,.28);color:var(--dm-on-btn)}
 :root[data-style="clean"] .dm-pgx-o input:checked+.dm-bx svg,:root [data-style="clean"] .dm-pgx-o input:checked+.dm-bx svg,:root [data-style="clean"].dm-pgx-o input:checked+.dm-bx svg{stroke-dashoffset:0;transition-delay:.06s}
 :root[data-style="clean"] .dm-pgx-o:active .dm-bx,:root [data-style="clean"] .dm-pgx-o:active .dm-bx,:root [data-style="clean"].dm-pgx-o:active .dm-bx{transform:scale(.94);transition:transform var(--dm-t-fast) var(--dm-ease)}
-/* the foot strip: 8px round its 28px controls, so it is 45px tall with its hairline; the scopes end 16px above it (their
+/* the foot strip: 16px round its 28px controls (owner, 23 Nov), so it is 61px tall with its hairline; the scopes end 16px above it (their
    rows keep 8px of hover room below the text). Lines are whole pixels, so the card's edge meets the strip's exactly */
 :root[data-style="clean"] .dm-pgx.dm-panel .dm-pgx-sc,:root [data-style="clean"] .dm-pgx.dm-panel .dm-pgx-sc,:root [data-style="clean"].dm-pgx.dm-panel .dm-pgx-sc{margin-bottom:-4px}
-:root[data-style="clean"] .dm-pgx.dm-panel .dm-pgx-f,:root [data-style="clean"] .dm-pgx.dm-panel .dm-pgx-f,:root [data-style="clean"].dm-pgx.dm-panel .dm-pgx-f{margin:0 -16px;padding:8px;gap:4px;border-top:1px solid var(--dm-line);background:var(--dm-strip);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+:root[data-style="clean"] .dm-pgx.dm-panel .dm-pgx-f,:root [data-style="clean"] .dm-pgx.dm-panel .dm-pgx-f,:root [data-style="clean"].dm-pgx.dm-panel .dm-pgx-f{margin:0 -16px;padding:var(--dm-strip-y) 16px;gap:4px;border-top:1px solid var(--dm-line);background:var(--dm-strip);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+/* when you ask again the strip comes back as a fade, after the card has grown to hold it (its script waits): rising from below,
+   it would show its buttons cut off by the card's edge while the card grows */
+:root[data-style="clean"] .dm-pgx.dm-panel .dm-pgx-f.dm-enter,:root [data-style="clean"] .dm-pgx.dm-panel .dm-pgx-f.dm-enter,:root [data-style="clean"].dm-pgx.dm-panel .dm-pgx-f.dm-enter{animation-name:dm-pgxfoot}
+@keyframes dm-pgxfoot{from{opacity:0}}
 :root[data-style="clean"] .dm-pgx-f .dm-pgx-db,:root [data-style="clean"] .dm-pgx-f .dm-pgx-db,:root [data-style="clean"].dm-pgx-f .dm-pgx-db{padding:0 8px;margin:0;color:var(--dm-fg2);transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-pgx-f :is(.dm-pgx-db:hover,.dm-pgx-db[aria-expanded="true"],.dm-pill.dm-ghost:hover),:root [data-style="clean"] .dm-pgx-f :is(.dm-pgx-db:hover,.dm-pgx-db[aria-expanded="true"],.dm-pill.dm-ghost:hover),:root [data-style="clean"].dm-pgx-f :is(.dm-pgx-db:hover,.dm-pgx-db[aria-expanded="true"],.dm-pill.dm-ghost:hover){background:var(--dm-hover);color:var(--dm-fg)}}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-pgx-f :is(.dm-pgx-db:hover,.dm-pill.dm-ghost:hover),:root [data-style="clean"] .dm-pgx-f :is(.dm-pgx-db:hover,.dm-pill.dm-ghost:hover),:root [data-style="clean"].dm-pgx-f :is(.dm-pgx-db:hover,.dm-pill.dm-ghost:hover){background:var(--dm-row);color:var(--dm-fg)}}
+:root[data-style="clean"] .dm-pgx-f :is(.dm-pgx-db,.dm-pill.dm-ghost).dm-mx-press:active,:root [data-style="clean"] .dm-pgx-f :is(.dm-pgx-db,.dm-pill.dm-ghost).dm-mx-press:active,:root [data-style="clean"].dm-pgx-f :is(.dm-pgx-db,.dm-pill.dm-ghost).dm-mx-press:active{background:var(--dm-row-press)}
+:root[data-style="clean"] .dm-pgx-f .dm-pgx-db[aria-expanded="true"],:root [data-style="clean"] .dm-pgx-f .dm-pgx-db[aria-expanded="true"],:root [data-style="clean"].dm-pgx-f .dm-pgx-db[aria-expanded="true"]{background:var(--dm-row-on);color:var(--dm-fg)}
 /* on a narrow stage the buttons wrap under the select: the strip's 4px gaps put them 8px under it */
 @container (max-width:340px){:root[data-style="clean"] .dm-pgx-no,:root [data-style="clean"] .dm-pgx-no,:root [data-style="clean"].dm-pgx-no{margin:0 0 0 auto}:root[data-style="clean"] .dm-pgx-ok,:root [data-style="clean"] .dm-pgx-ok,:root [data-style="clean"].dm-pgx-ok{margin-top:0}}
 /* Allow's count rolls: up as a box is ticked, down as one is cleared. No window clips it: each number moves a few pixels
@@ -112,18 +125,18 @@
 :root[data-style="clean"] .dm-pgx-cnt>.dm-od,:root [data-style="clean"] .dm-pgx-cnt>.dm-od,:root [data-style="clean"].dm-pgx-cnt>.dm-od{animation:dm-pgxod .16s var(--dm-ease) both}
 /* answered: the result line where the scopes were (a 32px mark under the question's tile, the words under the question's
    words, the clock on the right), then the strip with the summary and Revoke or Undo in the corner */
-:root[data-style="clean"] .dm-pgx.dm-panel .dm-pgx-done,:root [data-style="clean"] .dm-pgx.dm-panel .dm-pgx-done,:root [data-style="clean"].dm-pgx.dm-panel .dm-pgx-done{display:grid;grid-template-columns:32px minmax(0,1fr) auto;grid-template-rows:auto 45px;column-gap:12px;row-gap:16px;align-items:center;padding:0;border-radius:0;background:none!important}
+:root[data-style="clean"] .dm-pgx.dm-panel .dm-pgx-done,:root [data-style="clean"] .dm-pgx.dm-panel .dm-pgx-done,:root [data-style="clean"].dm-pgx.dm-panel .dm-pgx-done{display:grid;grid-template-columns:32px minmax(0,1fr) auto;grid-template-rows:auto calc(28px + 2 * var(--dm-strip-y) + 1px);column-gap:12px;row-gap:16px;align-items:center;padding:0;border-radius:0;background:none!important}
 :root[data-style="clean"] .dm-pgx.dm-panel .dm-pgx-done>:is(.dm-g,svg),:root [data-style="clean"] .dm-pgx.dm-panel .dm-pgx-done>:is(.dm-g,svg),:root [data-style="clean"].dm-pgx.dm-panel .dm-pgx-done>:is(.dm-g,svg){grid-area:1/1}
 :root[data-style="clean"] .dm-pgx.dm-panel .dm-pgx-done>.dm-t,:root [data-style="clean"] .dm-pgx.dm-panel .dm-pgx-done>.dm-t,:root [data-style="clean"].dm-pgx.dm-panel .dm-pgx-done>.dm-t{grid-area:1/2}
 :root[data-style="clean"] .dm-pgx.dm-panel .dm-pgx-done .dm-t b,:root [data-style="clean"] .dm-pgx.dm-panel .dm-pgx-done .dm-t b,:root [data-style="clean"].dm-pgx.dm-panel .dm-pgx-done .dm-t b{font-weight:500}
 :root[data-style="clean"] .dm-pgx.dm-panel .dm-pgx-done .dm-t b span,:root [data-style="clean"] .dm-pgx.dm-panel .dm-pgx-done .dm-t b span,:root [data-style="clean"].dm-pgx.dm-panel .dm-pgx-done .dm-t b span{font-size:inherit;line-height:inherit;color:inherit}
 :root[data-style="clean"] .dm-pgx.dm-panel .dm-pgx-done .dm-t span,:root [data-style="clean"] .dm-pgx.dm-panel .dm-pgx-done .dm-t span,:root [data-style="clean"].dm-pgx.dm-panel .dm-pgx-done .dm-t span{color:var(--dm-muted)}
-:root[data-style="clean"] .dm-pgx.dm-panel .dm-pgx-done>.dm-pill,:root [data-style="clean"] .dm-pgx.dm-panel .dm-pgx-done>.dm-pill,:root [data-style="clean"].dm-pgx.dm-panel .dm-pgx-done>.dm-pill{grid-area:2/3;z-index:1;align-self:end;margin:0 -8px 8px 0;color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
+:root[data-style="clean"] .dm-pgx.dm-panel .dm-pgx-done>.dm-pill,:root [data-style="clean"] .dm-pgx.dm-panel .dm-pgx-done>.dm-pill,:root [data-style="clean"].dm-pgx.dm-panel .dm-pgx-done>.dm-pill{grid-area:2/3;z-index:1;align-self:end;margin:0 0 var(--dm-strip-y) 0;color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-pgx.dm-panel .dm-pgx-done>.dm-pill:hover,:root [data-style="clean"] .dm-pgx.dm-panel .dm-pgx-done>.dm-pill:hover,:root [data-style="clean"].dm-pgx.dm-panel .dm-pgx-done>.dm-pill:hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
 :root[data-style="clean"] .dm-pgx.dm-panel .dm-pgx-done>.dm-pill:active,:root [data-style="clean"] .dm-pgx.dm-panel .dm-pgx-done>.dm-pill:active,:root [data-style="clean"].dm-pgx.dm-panel .dm-pgx-done>.dm-pill:active{box-shadow:var(--dm-btn2-press)}
 /* the strip is the summary line itself, edge to edge; Revoke or Undo sits on its right end. Its colour reaches 240px below
    the card's edge (clipped there), so while the card eases shorter no empty band shows under it */
-:root[data-style="clean"] .dm-pgx.dm-panel .dm-pgx-sum,:root [data-style="clean"] .dm-pgx.dm-panel .dm-pgx-sum,:root [data-style="clean"].dm-pgx.dm-panel .dm-pgx-sum{display:block;grid-area:2/1/3/-1;align-self:stretch;margin:0 -16px -240px;padding:8px 88px 248px 16px;border-top:1px solid var(--dm-line);background:var(--dm-strip);line-height:28px;font-size:12.5px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root[data-style="clean"] .dm-pgx.dm-panel .dm-pgx-sum,:root [data-style="clean"] .dm-pgx.dm-panel .dm-pgx-sum,:root [data-style="clean"].dm-pgx.dm-panel .dm-pgx-sum{display:block;grid-area:2/1/3/-1;align-self:stretch;margin:0 -16px -240px;padding:var(--dm-strip-y) 104px calc(240px + var(--dm-strip-y)) 16px;border-top:1px solid var(--dm-line);background:var(--dm-strip);line-height:28px;font-size:12.5px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root[data-style="clean"] .dm-pgx-sum .dm-s,:root [data-style="clean"] .dm-pgx-sum .dm-s,:root [data-style="clean"].dm-pgx-sum .dm-s{display:none}
 @container (max-width:340px){:root[data-style="clean"] .dm-pgx-sum .dm-l,:root [data-style="clean"] .dm-pgx-sum .dm-l,:root [data-style="clean"].dm-pgx-sum .dm-l{display:none}:root[data-style="clean"] .dm-pgx-sum .dm-s,:root [data-style="clean"] .dm-pgx-sum .dm-s,:root [data-style="clean"].dm-pgx-sum .dm-s{display:inline}}
 /* the mark: a neutral circle with the spinner while the agent works; done, its ring turns green and the tick draws in */

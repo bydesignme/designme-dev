@@ -6,21 +6,23 @@
    under it, each bar in its kind's colour, a failed try red and the wait before a retry hatched amber. Log is the run's lines
    with their levels in colour, filtered by level. Data is what each step took in and handed on, as JSON */
 .dm-rdr{position:relative;width:100%;height:472px;container:rdrf/inline-size;display:flex;flex-direction:column;overflow:hidden;border-radius:var(--dm-r-card);background:var(--dm-surface);box-shadow:var(--dm-shadow);text-align:left}
-.dm-rdr-cv{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:var(--dm-s-4) var(--dm-s-3);background:var(--dm-stage);background-image:radial-gradient(circle at center,color-mix(in srgb,var(--dm-fg) 9%,transparent) 1px,transparent 1.5px);background-size:16px 16px;overflow:hidden}
+.dm-rdr-cv{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:var(--dm-s-4);background:var(--dm-stage);background-image:radial-gradient(circle at center,color-mix(in srgb,var(--dm-fg) 9%,transparent) 1px,transparent 1.5px);background-size:16px 16px;overflow:hidden}
 .dm-rdr-flow{position:relative;display:flex;align-items:center;max-width:100%;overflow-x:auto;scrollbar-width:none;padding:6px}
 .dm-rdr-flow::-webkit-scrollbar{display:none}
 .dm-rdr-wire{flex:none;width:14px;height:1.5px;background:var(--dm-faint);transition:background .4s var(--dm-ease)}
 .dm-rdr-wire.dm-done{background:color-mix(in srgb,var(--dm-fg) 40%,var(--dm-faint))}
-.dm-rdr-nd{position:relative;flex:none;display:flex;align-items:center;gap:6px;height:34px;padding:0 7px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 80%,transparent);font-size:12px;white-space:nowrap;transition:box-shadow .3s,opacity .3s}
+.dm-rdr-nd{position:relative;flex:none;display:flex;align-items:center;gap:6px;height:34px;padding:0 7px;border-radius:calc(7px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 80%,transparent);font-size:12px;white-space:nowrap;transition:box-shadow .3s,opacity .3s}
 @media (hover:hover) and (pointer:fine){.dm-rdr-nd:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 50%,transparent)}}
 .dm-rdr-nd .dm-t{max-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;opacity:0;transition:max-width var(--dm-t) var(--dm-ease),opacity var(--dm-t) var(--dm-ease)}
 .dm-rdr-nd:is([data-st="run"],[data-st="retry"],[data-st="wait"],[data-st="bad"],[aria-pressed="true"]) .dm-t{max-width:132px;opacity:1}
-.dm-rdr-nd[aria-pressed="true"]{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-on) 75%,transparent),var(--dm-shadow-pop)}
-.dm-rdr-nd[data-st="run"]{box-shadow:0 0 0 1.5px var(--dm-accent-mark,var(--dm-accent))}
-.dm-rdr-nd[data-st="bad"]{box-shadow:0 0 0 1.5px var(--dm-bad)}
-.dm-rdr-nd:is([data-st="retry"],[data-st="wait"]){box-shadow:0 0 0 1.5px var(--dm-warn-mark)}
+/* every ring is drawn inside the step (owner, 18 Nov: buttons side by side are the same drawn height): a picked step's edge a step
+   stronger, the running one in the accent, a failed one red and a retry or a wait amber */
+.dm-rdr-nd[aria-pressed="true"]{box-shadow:inset 0 0 0 1.5px var(--dm-line-strong)}
+.dm-rdr-nd[data-st="run"]{box-shadow:inset 0 0 0 1.5px var(--dm-accent-mark,var(--dm-accent))}
+.dm-rdr-nd[data-st="bad"]{box-shadow:inset 0 0 0 1.5px var(--dm-bad-mark)}
+.dm-rdr-nd:is([data-st="retry"],[data-st="wait"]){box-shadow:inset 0 0 0 1.5px var(--dm-warn-mark)}
 .dm-rdr-nd[data-st="skip"]{opacity:.5}
-.dm-rdr-ns{display:none;width:14px;height:14px;place-items:center;color:var(--dm-ok)}
+.dm-rdr-ns{display:none;width:14px;height:14px;place-items:center;color:var(--dm-ok-mark)}
 .dm-rdr-nd[data-st="ok"] .dm-rdr-ns{display:grid;margin-left:-2px}
 .dm-rdr-nd[data-st="ok"] .dm-rdr-ns .dm-i{width:12px;height:12px}
 .dm-rdr-ti{width:18px;height:18px;flex:none;display:grid;place-items:center;border-radius:calc(5px * var(--dm-rk-s,var(--dm-rk)));background:var(--dm-rdr-kb,var(--dm-chip));color:var(--dm-rdr-kf,var(--dm-fg2))}
@@ -45,27 +47,37 @@
 @media (hover:hover) and (pointer:fine){.dm-rdr-grip:hover i{opacity:1}}
 .dm-rdr-grip:focus-visible i{opacity:1;background:var(--dm-line-strong)}
 .dm-rdr-dw.dm-drag{user-select:none}
-.dm-rdr-h{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:44px;padding:0 var(--dm-s-2) 0 6px}
-.dm-rdr-tg{flex:none;display:inline-flex;align-items:center;gap:var(--dm-s-2);min-width:0;height:30px;padding:0 var(--dm-s-2);border-radius:var(--dm-r-sm);font-size:13px;font-weight:500;white-space:nowrap;transition:background var(--dm-t-fast)}
+/* the drawer's content sits 16px in from its edges, in every style: the toggle's chevron, the steps' marks, the headings and
+   the log's words start on that edge, with the notice and the data blocks, and Follow, Stop, the times and the data blocks end
+   on it. The toggle's and the rows' hover and picked fills reach 8px out round them, into the padding (owner, 26 Nov) */
+.dm-rdr-h{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:44px;padding:0 var(--dm-s-4)}
+.dm-rdr-tg{flex:none;display:inline-flex;align-items:center;gap:var(--dm-s-2);min-width:0;height:30px;margin-left:calc(-1 * var(--dm-s-2));padding:0 var(--dm-s-2);border-radius:var(--dm-r-sm);font-size:13px;font-weight:500;white-space:nowrap;transition:background var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.dm-rdr-tg:hover{background:var(--dm-row)}}
 .dm-rdr-tg>.dm-i{color:var(--dm-muted);transform:rotate(180deg);transition:transform var(--dm-t) var(--dm-ease)}
 .dm-rdr-dw.dm-shut .dm-rdr-tg>.dm-i{transform:none}
 .dm-rdr-st.dm-tag .dm-spin{width:9px;height:9px;border-width:1.5px}
 .dm-rdr-st.dm-run{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}
+/* (Blueprint: its lime's darker mark at a strength that reads as a coloured status tag on white) */
+:root:not([data-style="soft"],[data-style="clean"]) .dm-rdr-st.dm-run:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){background:color-mix(in srgb,var(--dm-accent-mark) 20%,transparent)}
 .dm-rdr-meta{min-width:0;font-size:12.5px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dm-rdr-sp{flex:1}
 .dm-rdr-tabs{flex:none}
 .dm-rdr-tabs button{padding:0 10px}
 .dm-rdr-stop,.dm-rdr-again{flex:none}
 .dm-rdr-follow{width:28px;height:28px;flex:none;color:var(--dm-muted)}
-.dm-rdr-follow[aria-pressed="true"]{background:var(--dm-row);color:var(--dm-fg)}
+/* on, Follow takes a fill a step stronger than the hover, so it reads as on */
+.dm-rdr-follow[aria-pressed="true"]{background:var(--dm-hover);color:var(--dm-fg)}
+/* Clean: on, Follow takes Clean's one selected fill, a step stronger than the shared hover, so it never reads as a hover that
+   stuck (owner, 22 Nov); its hover and Stop's are the shared ones */
+:root[data-style="clean"] .dm-rdr-follow[aria-pressed="true"],:root [data-style="clean"] .dm-rdr-follow[aria-pressed="true"],:root [data-style="clean"].dm-rdr-follow[aria-pressed="true"]{background:var(--dm-row-on)}
 .dm-rdr-dw.dm-shut :is(.dm-rdr-tabs,.dm-rdr-follow){display:none}
-.dm-rdr-b{position:relative;flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--dm-rail) transparent;padding:0 var(--dm-s-3) var(--dm-s-3)}
+.dm-rdr-b{position:relative;flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--dm-rail) transparent;padding:0 var(--dm-s-2);margin-bottom:var(--dm-s-4)}
+/* (the room under the rows is outside the scroll box, so nothing scrolls into the card's bottom 16px) */
 .dm-rdr-dw.dm-shut .dm-rdr-b{display:none}
 .dm-rdr-v[hidden]{display:none}
 /* Steps: the timeline */
 .dm-rdr-ax,.dm-rdr-r{display:grid;grid-template-columns:minmax(0,15fr) minmax(0,14fr) 56px;align-items:center;gap:var(--dm-s-2);padding:0 var(--dm-s-2)}
-.dm-rdr-ax{position:sticky;top:0;z-index:2;height:28px;background:var(--dm-surface);box-shadow:0 1px 0 color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12px;color:var(--dm-muted)}
+.dm-rdr-ax{position:sticky;top:0;z-index:2;height:29px;padding-bottom:1px;background:linear-gradient(color-mix(in srgb,var(--dm-line) 50%,var(--dm-surface)),color-mix(in srgb,var(--dm-line) 50%,var(--dm-surface))) var(--dm-s-2) 100%/calc(100% - 2 * var(--dm-s-2)) 1px no-repeat,var(--dm-surface);font-size:12px;color:var(--dm-muted)}
 .dm-rdr-ax .dm-ms{text-align:right}
 .dm-rdr-sc{position:relative;height:16px}
 .dm-rdr-sc span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
@@ -73,7 +85,9 @@
 .dm-rdr-rows{display:flex;flex-direction:column;padding-top:var(--dm-s-1)}
 .dm-rdr-r{width:100%;min-height:30px;border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));font-size:12.5px;text-align:left;transition:background .16s}
 @media (hover:hover) and (pointer:fine){.dm-rdr-r:hover{background:var(--dm-row)}}
-.dm-rdr-r[aria-pressed="true"]{background:var(--dm-sel)}
+/* a picked step: the accent tint (Blueprint's lime takes its darker mark so the tint shows on white) */
+.dm-rdr-r[aria-pressed="true"]{background:var(--dm-accent-bg)}
+:root:not([data-style="soft"],[data-style="clean"]) :is(.dm-rdr-r,.dm-rdr-ds button)[aria-pressed="true"]:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){background:var(--dm-bp-pick)}
 .dm-rdr-r.dm-in{animation:dm-enter var(--dm-t) var(--dm-ease) backwards}
 .dm-rdr-n{display:flex;align-items:center;gap:6px;min-width:0;padding-left:calc(var(--dm-lv,0) * 18px)}
 .dm-rdr-nm{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -88,23 +102,30 @@
 .dm-rdr-ms{text-align:right;font-size:12px;color:var(--dm-fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dm-rdr-r[data-st="bad"] .dm-rdr-ms{color:var(--dm-bad)}
 .dm-rdr-r:is([data-k="retry"],[data-st="wait"]) .dm-rdr-ms{color:var(--dm-warn)}
-/* what the run waits for: a person's yes */
-.dm-rdr-ask{display:flex;align-items:center;flex-wrap:wrap;width:100%;box-sizing:border-box;gap:var(--dm-s-2) var(--dm-s-3);margin:6px 0 var(--dm-s-1);padding:10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-warn-bg);font-size:12.5px}
+/* what the run waits for: a person's yes, as a warning notice (owner, 18 Nov; Model picker's busy notice is the reference): a
+   faint warning tint as wide as the rows' fills, the filled warning sign centred in the rows' tile column, the words in the
+   text colour on the names' column, Approve (what resolves it) in the warning tint and Reject white, ending where the times end */
+.dm-rdr-ask{display:grid;grid-template-columns:18px minmax(0,1fr) auto;align-items:center;gap:var(--dm-s-2) 6px;width:auto;box-sizing:border-box;margin:6px var(--dm-s-2) var(--dm-s-1);padding:10px var(--dm-s-2);border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));background:color-mix(in srgb,var(--dm-warn-bg) 45%,transparent);font-size:12.5px}
 .dm-rdr-ask.dm-in{animation:dm-enter var(--dm-t) var(--dm-ease) backwards}
-.dm-rdr-ask .dm-tx{flex:1;min-width:min(200px,100%);display:flex;flex-direction:column;line-height:1.4}
+.dm-rdr-sgi{grid-area:1/1;justify-self:center;align-self:start;width:16px;height:16px;margin-top:1px;overflow:visible}
+.dm-rdr-sgi .dm-a{fill:var(--dm-warn-mark);stroke:var(--dm-warn-mark);stroke-width:2;stroke-linejoin:round}
+.dm-rdr-sgi .dm-b{fill:none;stroke:var(--dm-surface);stroke-width:2.2;stroke-linecap:round}
+.dm-rdr-ask .dm-tx{grid-area:1/2;min-width:0;display:flex;flex-direction:column;line-height:18px}
 .dm-rdr-ask .dm-tx b{font-weight:500;color:var(--dm-fg)}
-.dm-rdr-ask .dm-tx span{color:var(--dm-fg2)}
-.dm-rdr-ask .dm-acts{display:flex;gap:6px}
-.dm-rdr-ask .dm-pill.dm-line{background:var(--dm-surface)}
+.dm-rdr-ask .dm-tx span{color:var(--dm-fg)}
+.dm-rdr-ask .dm-acts{grid-area:1/3;display:flex;gap:6px}
+/* on the tinted notice the secondary button is white, not grey */
+.dm-rdr-ask .dm-pill.dm-line{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-on-tint-btn)}
+@media (hover:hover) and (pointer:fine){.dm-rdr-ask .dm-pill.dm-line:hover{box-shadow:var(--dm-on-tint-btn-h)}}
 /* Log: the lines, their levels in colour */
-.dm-rdr-lf{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:var(--dm-s-2);padding:var(--dm-s-2) 0 6px;background:var(--dm-surface)}
+.dm-rdr-lf{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:var(--dm-s-2);padding:var(--dm-s-2) var(--dm-s-2) 6px;background:var(--dm-surface)}
 .dm-rdr-lf .dm-n{margin-left:auto;font-size:12px;color:var(--dm-muted)}
 .dm-rdr-log{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
 .dm-rdr-l{display:grid;grid-template-columns:62px 56px minmax(0,1fr);align-items:baseline;gap:var(--dm-s-2);padding:5px var(--dm-s-2);border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));font-size:12.5px;line-height:1.45}
 .dm-rdr-l.dm-in{animation:dm-enter var(--dm-t) var(--dm-ease) backwards}
 .dm-rdr-l .dm-t{font-size:12px;color:var(--dm-muted)}
-.dm-rdr-l .dm-lv{justify-self:start;height:18px;padding:0 6px;font-size:11px}
-.dm-rdr-l .dm-lv[data-l="debug"]{background:var(--dm-chip);color:var(--dm-fg2)}
+.dm-rdr-l .dm-lv{justify-self:start}
+.dm-rdr-l .dm-lv[data-l="debug"]{background:var(--dm-chip-fill);color:var(--dm-fg2)}
 .dm-rdr-l .dm-lv[data-l="info"]{background:var(--dm-pb-bg);color:var(--dm-pb)}
 .dm-rdr-l .dm-lv[data-l="warn"]{background:var(--dm-warn-bg);color:var(--dm-warn)}
 .dm-rdr-l .dm-lv[data-l="error"]{background:var(--dm-bad-bg);color:var(--dm-bad)}
@@ -115,14 +136,14 @@
 .dm-rdr-le{margin:0;padding:var(--dm-s-4) var(--dm-s-2);font-size:12.5px;color:var(--dm-muted)}
 /* Data: each step's input and output */
 .dm-rdr-data{display:grid;grid-template-columns:176px minmax(0,1fr);gap:var(--dm-s-3);padding-top:var(--dm-s-2)}
-.dm-rdr-ds{display:flex;flex-direction:column;gap:2px;min-width:0}
+.dm-rdr-ds{display:flex;flex-direction:column;gap:var(--dm-s-1);min-width:0}
 .dm-rdr-ds button{display:flex;align-items:center;gap:var(--dm-s-2);width:100%;min-width:0;height:30px;padding:0 var(--dm-s-2);border-radius:var(--dm-r-sm);font-size:12.5px;text-align:left;transition:background var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.dm-rdr-ds button:hover{background:var(--dm-row)}}
-.dm-rdr-ds button[aria-pressed="true"]{background:var(--dm-sel);font-weight:500}
-.dm-rdr-ds button span:last-child{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dm-rdr-io{display:flex;flex-direction:column;gap:var(--dm-s-2);min-width:0}
+.dm-rdr-ds button[aria-pressed="true"]{background:var(--dm-accent-bg);font-weight:500}
+.dm-rdr-ds button span:last-child{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dm-rdr-io{display:flex;flex-direction:column;gap:var(--dm-s-2);min-width:0;padding-right:var(--dm-s-2)}
 .dm-rdr-io h4{margin:0;font-size:12px;font-weight:500;color:var(--dm-muted)}
-.dm-rdr-json{margin:0;padding:var(--dm-s-2) 10px;border-radius:var(--dm-r-in);background:var(--dm-wash);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);font-family:var(--dm-mono);font-size:12px;line-height:1.6;color:var(--dm-fg);white-space:pre;overflow-x:auto;scrollbar-width:thin}
+.dm-rdr-json{margin:0;padding:var(--dm-s-4);border-radius:var(--dm-r-in);background:var(--dm-wash);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);font-family:var(--dm-mono);font-size:12px;line-height:1.6;color:var(--dm-fg);white-space:pre;overflow-x:auto;scrollbar-width:thin}
 .dm-rdr-json .dm-k{color:var(--dm-pb)}
 .dm-rdr-json .dm-s{color:var(--dm-pm)}
 .dm-rdr-json .dm-n{color:var(--dm-pl)}
@@ -133,7 +154,9 @@
   .dm-rdr-meta,.dm-rdr-tg .dm-w{display:none}
   .dm-rdr-stop span,.dm-rdr-again span{display:none}
   .dm-rdr-stop,.dm-rdr-again{width:28px;padding:0}
-  .dm-rdr-ax,.dm-rdr-r{grid-template-columns:minmax(0,1fr) 30% 48px;padding:0 6px}
+  .dm-rdr-ax,.dm-rdr-r{grid-template-columns:minmax(0,1fr) 30% 48px}
+  /* the notice on two lines is a small card: its content 16px from its edges */
+  .dm-rdr-ask{grid-template-columns:18px minmax(0,1fr);padding:var(--dm-s-4)}.dm-rdr-ask .dm-acts{grid-area:2/1/3/3;justify-content:flex-end}
   .dm-rdr-data{grid-template-columns:minmax(0,1fr)}
   .dm-rdr-ds{flex-direction:row;overflow-x:auto;scrollbar-width:none}
   .dm-rdr-ds button{flex:none;width:auto}
@@ -141,9 +164,37 @@
   .dm-rdr-l .dm-t{grid-column:1}
   .dm-rdr-l .dm-m{grid-column:1/-1}
 }
-@container rdr (max-width:440px){.dm-rdr-tabs button{padding:0 8px}.dm-rdr-follow,.dm-rdr-tg>span:not(.dm-rdr-st){display:none}.dm-rdr-h{gap:6px}}
+@container rdr (max-width:440px){.dm-rdr-tabs button{padding:0 6px}.dm-rdr-follow,.dm-rdr-tg>span:not(.dm-rdr-st){display:none}.dm-rdr-h{gap:var(--dm-s-1)}}
+
 @container rdrf (max-width:400px){.dm-rdr-nd:not([aria-pressed="true"]) .dm-t{max-width:0;opacity:0}}
 @media (prefers-reduced-motion:reduce){.dm-rdr-r.dm-in,.dm-rdr-l.dm-in,.dm-rdr-ask.dm-in,.dm-rdr-r.dm-run .dm-rdr-bt i{animation:none!important}.dm-rdr-dw.dm-anim,.dm-rdr-nd .dm-t{transition:none}}
 :root:not([data-style="soft"],[data-style="clean"]) .dm-rdr-ti:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rdr-kf,var(--dm-rail)) 30%,transparent)}
 :root:not([data-style="soft"],[data-style="clean"]) .dm-rdr-r.dm-run .dm-rdr-bt i:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation:none;background:repeating-linear-gradient(90deg,var(--dm-rdr-kc) 0 4px,color-mix(in srgb,var(--dm-rdr-kc) 50%,var(--dm-surface)) 4px 6px)}
-:root:not([data-style="soft"],[data-style="clean"]) .dm-rdr-ask:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-warn-mark) 45%,transparent)}
+/* Clean (owner, 18 Nov): the steps' tiles are one neutral grey with a hairline, as Trace view's marks are, and so the timeline's
+   bars are one grey too (the top steps darker than the calls under them), keeping colour for what it means: the step that is
+   running in the accent, a failed try red and a retry or a wait hatched amber. The rows' fills are concentric with the card */
+/* (a drawer under a canvas of its own, whose steps keep their colours, keeps its colours to match them) */
+:root[data-style="clean"] .dm-rdr .dm-rdr-ti,:root [data-style="clean"] .dm-rdr .dm-rdr-ti,:root [data-style="clean"].dm-rdr .dm-rdr-ti{color:var(--dm-fg2);background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .dm-rdr [data-k],:root [data-style="clean"] .dm-rdr [data-k],:root [data-style="clean"].dm-rdr [data-k]{--dm-rdr-kc:var(--dm-muted)}
+:root[data-style="clean"] .dm-rdr .dm-rdr-r[data-lv="0"],:root [data-style="clean"] .dm-rdr .dm-rdr-r[data-lv="0"],:root [data-style="clean"].dm-rdr .dm-rdr-r[data-lv="0"]{--dm-rdr-kc:var(--dm-fg2)}
+:root[data-style="clean"] .dm-rdr .dm-rdr-r.dm-run,:root [data-style="clean"] .dm-rdr .dm-rdr-r.dm-run,:root [data-style="clean"].dm-rdr .dm-rdr-r.dm-run{--dm-rdr-kc:var(--dm-accent-mark)}
+:root[data-style="clean"] :is(.dm-rdr-r,.dm-rdr-l,.dm-rdr-ds button,.dm-rdr-ask),:root [data-style="clean"] :is(.dm-rdr-r,.dm-rdr-l,.dm-rdr-ds button,.dm-rdr-ask),:root [data-style="clean"]:is(.dm-rdr-r,.dm-rdr-l,.dm-rdr-ds button,.dm-rdr-ask){border-radius:calc(var(--dm-r-card) - 8px)}
+:root[data-style="clean"] :is(.dm-rdr-r,.dm-rdr-ds button,.dm-rdr-tg,.dm-rdr-nd),:root [data-style="clean"] :is(.dm-rdr-r,.dm-rdr-ds button,.dm-rdr-tg,.dm-rdr-nd),:root [data-style="clean"]:is(.dm-rdr-r,.dm-rdr-ds button,.dm-rdr-tg,.dm-rdr-nd){transition:background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] :is(.dm-rdr-r[aria-pressed="true"],.dm-rdr-ds button[aria-pressed="true"],.dm-rdr-follow[aria-pressed="true"]),:root [data-style="clean"] :is(.dm-rdr-r[aria-pressed="true"],.dm-rdr-ds button[aria-pressed="true"],.dm-rdr-follow[aria-pressed="true"]),:root [data-style="clean"]:is(.dm-rdr-r[aria-pressed="true"],.dm-rdr-ds button[aria-pressed="true"],.dm-rdr-follow[aria-pressed="true"]){background:var(--dm-row-on)}
+:root[data-style="clean"] .dm-rdr-tg,:root [data-style="clean"] .dm-rdr-tg,:root [data-style="clean"].dm-rdr-tg{border-radius:var(--dm-r-pill)}
+:root[data-style="clean"] .dm-rdr-nd,:root [data-style="clean"] .dm-rdr-nd,:root [data-style="clean"].dm-rdr-nd{border-radius:var(--dm-r-in)}
+/* a step's node keeps its edge (its status colour while it runs, fails or waits) and takes the one hover as a fill inside
+   it, the picked step the stronger fill (owner, 21 Nov: never a stronger edge) */
+:root[data-style="clean"] .dm-rdr-nd,:root [data-style="clean"] .dm-rdr-nd,:root [data-style="clean"].dm-rdr-nd{--dm-rdr-ring:color-mix(in srgb,var(--dm-line) 80%,transparent);--dm-rdr-rw:1px;--dm-rdr-fill:transparent;box-shadow:inset 0 0 0 var(--dm-rdr-rw) var(--dm-rdr-ring),inset 0 0 0 99px var(--dm-rdr-fill)}
+:root[data-style="clean"] .dm-rdr-nd[data-st="run"],:root [data-style="clean"] .dm-rdr-nd[data-st="run"],:root [data-style="clean"].dm-rdr-nd[data-st="run"]{--dm-rdr-ring:var(--dm-accent-mark,var(--dm-accent));--dm-rdr-rw:1.5px}
+:root[data-style="clean"] .dm-rdr-nd[data-st="bad"],:root [data-style="clean"] .dm-rdr-nd[data-st="bad"],:root [data-style="clean"].dm-rdr-nd[data-st="bad"]{--dm-rdr-ring:var(--dm-bad-mark);--dm-rdr-rw:1.5px}
+:root[data-style="clean"] .dm-rdr-nd:is([data-st="retry"],[data-st="wait"]),:root [data-style="clean"] .dm-rdr-nd:is([data-st="retry"],[data-st="wait"]),:root [data-style="clean"].dm-rdr-nd:is([data-st="retry"],[data-st="wait"]){--dm-rdr-ring:var(--dm-warn-mark);--dm-rdr-rw:1.5px}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-rdr-nd:hover,:root [data-style="clean"] .dm-rdr-nd:hover,:root [data-style="clean"].dm-rdr-nd:hover{--dm-rdr-fill:var(--dm-row)}}
+:root[data-style="clean"] .dm-rdr-nd[aria-pressed="true"],:root [data-style="clean"] .dm-rdr-nd[aria-pressed="true"],:root [data-style="clean"].dm-rdr-nd[aria-pressed="true"]{--dm-rdr-fill:var(--dm-row-on)}
+:root[data-style="clean"] .dm-rdr-ask .dm-pill.dm-line,:root [data-style="clean"] .dm-rdr-ask .dm-pill.dm-line,:root [data-style="clean"].dm-rdr-ask .dm-pill.dm-line{color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-rdr-ask .dm-pill.dm-line:hover,:root [data-style="clean"] .dm-rdr-ask .dm-pill.dm-line:hover,:root [data-style="clean"].dm-rdr-ask .dm-pill.dm-line:hover{color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-rdr-ask .dm-pill.dm-line:hover,:root [data-style="clean"] .dm-rdr-ask .dm-pill.dm-line:hover,:root [data-style="clean"].dm-rdr-ask .dm-pill.dm-line:hover{box-shadow:var(--dm-btn2-hover)}}
+:root[data-style="clean"] .dm-rdr-ask .dm-pill.dm-line:active,:root [data-style="clean"] .dm-rdr-ask .dm-pill.dm-line:active,:root [data-style="clean"].dm-rdr-ask .dm-pill.dm-line:active{box-shadow:var(--dm-btn2-press)}
+:root[data-style="clean"] .dm-rdr-json,:root [data-style="clean"] .dm-rdr-json,:root [data-style="clean"].dm-rdr-json{background:var(--dm-wash);box-shadow:inset 0 0 0 1px var(--dm-hair)}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov) */
+:is(.dm-rdr,.dm-rdr-dw) :is(.dm-ib,.dm-pill):active,:root[data-style="clean"] :is(.dm-rdr,.dm-rdr-dw) .dm-ib:active,:root [data-style="clean"] :is(.dm-rdr,.dm-rdr-dw) .dm-ib:active,:root [data-style="clean"]:is(.dm-rdr,.dm-rdr-dw) .dm-ib:active{transform:none}

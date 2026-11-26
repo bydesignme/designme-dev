@@ -2,7 +2,7 @@
 
 > Several agents working in parallel, each with its own lane and hand-offs.
 
-Agent components / Agent status. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/agent-lanes
+Components / Agent status. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/agent-lanes
 
 ## Install
 
@@ -35,7 +35,7 @@ Agent lanes shows several agents working on one job, each in its own row and its
 ### What it does
 
 - Each lane has a `tone` (blue, purple, green, orange, red, yellow, pink or teal) that colours its badge, its track, its Working tag and its stretch of the relay line, in light and dark.
-- Each lane has a `status`: queued, waiting, working, paused or done. A working lane breathes a soft ring round its badge, shimmers its activity and carries a wash of its colour; paused holds; done fills the badge with its colour.
+- Each lane has a `status`: queued, waiting, working, paused or done. A working lane breathes a soft ring round its badge and shimmers its activity; paused holds; done fills the badge with its colour.
 - The `activity` line crossfades when it changes. The track is cut into `steps` (3 by default). The step after `done` fills as `progress` goes from 0 to 1, with a light running along it; without `progress` it fills part way.
 - Setting `handoff` to `{ from, to, what }` opens a line above the receiving lane and sends a light down the relay line from the sender's badge to the receiver's, which rings once. Set it back to undefined and the line slides away; the stretch the light crossed stays lit.
 - The header reads "3 agents working", "All agents paused" or "All 3 agents finished" unless you pass `title`, with a m:ss clock that counts while agents work and, wider than a phone, how many steps of all the lanes are done.
@@ -174,7 +174,7 @@ import { Fragment, useEffect, useLayoutEffect, useRef, useState, type CSSPropert
 import { cx } from '../lib/cx';
 import { useControllable, useReducedMotion, useSeconds } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
-import { enter, Fold, Swap } from '../lib/motion';
+import { enter, Fold, Swap, SwapIcon } from '../lib/motion';
 import '../designme.css';
 import './agent-lanes.css';
 
@@ -284,7 +284,7 @@ function Lane({ lane, paused, open, sent, got, ping, onToggle }: { lane: AgentLa
   const live = status === 'working' || status === 'paused';
   return (
     <div className={cx('dm-aln-lane', sent && 'dm-sent', got && 'dm-got')} data-s={status} data-lane={lane.key} style={{ '--dm-c': `var(--dm-${tone})`, '--dm-cb': `var(--dm-${tone}-bg)`, '--dm-cm': `var(--dm-aln-${tone},var(--dm-${tone}))` } as CSSProperties}>
-      <button type="button" className="dm-aln-row" aria-expanded={open} onClick={onToggle}>
+      <button type="button" className="dm-aln-row dm-mx-press" aria-expanded={open} onClick={onToggle}>
         <span className={cx('dm-aln-av', ping && 'dm-ping')}>
           <Icon name={lane.icon} />
         </span>
@@ -381,12 +381,14 @@ export function AgentLanes({ lanes, title, seconds, paused, defaultPaused = fals
     <div data-dm="" className={cx('dm-aln', !bare && 'dm-panel', finished && 'dm-fin', className)} style={bare ? { paddingInline: 0 } : undefined}>
       <div className="dm-aln-h">
         <span className="dm-aln-ic">{finished ? <span key="ok" {...enter()} style={{ display: 'grid' }}><Icon name="ok" /></span> : <Icon name="users" />}</span>
-        <Swap className="dm-aln-t">{head}</Swap>
-        <span className="dm-aln-m dm-muted dm-num">{time}</span>
-        <Swap className="dm-aln-ct dm-num">{`${stepsDone} of ${total} steps`}</Swap>
+        <span className="dm-aln-tx">
+          <Swap className="dm-aln-t">{head}</Swap>
+          <span className="dm-aln-m dm-muted dm-num">{time}</span>
+          <Swap className="dm-aln-ct dm-num">{`${stepsDone} of ${total} steps`}</Swap>
+        </span>
         {onPausedChange && !finished && (
-          <button type="button" className="dm-pill dm-soft dm-sm dm-aln-pause" onClick={() => setPaused(!isPaused)}>
-            <Icon name={isPaused ? 'play' : 'pause'} size="xs" />{isPaused ? 'Resume' : 'Pause all'}
+          <button type="button" className="dm-pill dm-line dm-sm dm-aln-pause dm-mx-ic" onClick={() => setPaused(!isPaused)}>
+            <SwapIcon id={isPaused ? 'play' : 'pause'}><Icon name={isPaused ? 'play' : 'pause'} size="xs" /></SwapIcon><Swap className="dm-mx-w">{isPaused ? 'Resume' : 'Pause all'}</Swap>
           </button>
         )}
       </div>
@@ -426,7 +428,7 @@ export function AgentLanes({ lanes, title, seconds, paused, defaultPaused = fals
 - [Context meter](https://designme.dev/components/context-meter.md): How full the context is and what fills it, with Compact to free room.
 - [Run cost](https://designme.dev/components/run-cost.md): Live credit and token spend, with a cap that pauses the run.
 - [Toast stack](https://designme.dev/components/toast-stack.md): Agent notifications that stack and fan out on hover.
-- [Toast](https://designme.dev/components/toast.md): One notification that changes shape with its state.
+- [Toast](https://designme.dev/components/toast.md): A background job in one toast, from start to finish.
 - [Status pill](https://designme.dev/components/status-pill.md): One live line for what the agent is doing right now.
 - [Step loader](https://designme.dev/components/step-loader.md): Named steps with a progress track and four loaders.
 - [Thinking states](https://designme.dev/components/thinking-states.md): Six thinking indicators to pick from, each with a status line.

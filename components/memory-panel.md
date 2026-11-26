@@ -2,7 +2,7 @@
 
 > What the agent remembers about your team, editable and removable.
 
-Agent components / Workspace. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/memory-panel
+Components / Workspace. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/memory-panel
 
 ## Install
 
@@ -23,7 +23,7 @@ npx shadcn@latest add https://designme.dev/r/shadcn/astro/memory-panel.json  # A
 
 ## About
 
-A list of the things an agent remembers about a team, such as brand rules and working habits. Each memory shows where it came from, with that app's own mark (Slack, Figma, GitHub, Notion, Linear, Drive) or an icon for something said in chat, and what kind of memory it is, in the kind's colour. People can filter memories by kind, fix one in place, or tell the agent to forget it. A memory the agent learns arrives shimmering, then sits highlighted with a New tag, and the memories an answer uses pulse once and keep a Used tag, so the agent's long-term memory is visible, alive and correctable.
+A list of the things an agent remembers about a team, such as brand rules and working habits. Each memory shows where it came from, with that app's own mark (Slack, Figma, GitHub, Notion, Linear, Drive) or an icon for something said in chat, and what kind of memory it is, in the kind's colour. People can filter memories by kind, fix one in place, or tell the agent to forget it. A memory the agent learns arrives shimmering, then gets a New tag, and the memories an answer uses pulse once and keep a Used tag, so the agent's long-term memory is visible, alive and correctable.
 
 ### When to use it
 
@@ -35,16 +35,16 @@ A list of the things an agent remembers about a team, such as brand rules and wo
 
 ### What it does
 
-- Filter tabs for All plus one per entry in `kinds`. Under each memory its kind's `label` is written in the kind's `color`, followed by its `source`, like "A thread in #design-system, Sep 4".
-- Each memory shows where it came from: `brand` for an app's own mark (google, github, figma, slack, notion, linear, gmail or drive), or `icon` for anything else. Wider than a phone, the marks of the apps the memories came from sit beside the count unless `showSources` is false.
+- Filter tabs for All plus one per entry in `kinds`. Under each memory its kind's `label` is written in the kind's `color`, followed by its `source`, like "A thread in #design-system, Sep 4". Switching tabs moves the list: the memories that stay glide to their new places, the ones that go fade where they were and the new ones come in after one another.
+- Each memory shows where it came from: `brand` for an app's own mark (google, github, figma, slack, notion, linear, gmail or drive), or `icon` for anything else.
 - `learning` shimmers a memory's text, shows a spinner where its source goes and hides Edit and Forget. When it is learned, the text crossfades to the rule and the source's mark comes in.
-- A memory marked `isNew` sits on the accent's tint with a New tag (`newLabel`), and grows into the list when it arrives while the panel is open.
-- A memory marked `used` pulses once with the accent's tint as it turns on, its source lifts, and it keeps a Used tag (`usedLabel`).
+- A memory marked `isNew` has a New tag (`newLabel`), and grows into the list when it arrives while the panel is open.
+- A memory marked `used` pulses once with a quiet grey as it turns on, its source lifts, and it keeps a Used tag (`usedLabel`).
 - `activity` sets the line at the foot, like the answer the agent is writing with its memory now: its `text`, an optional `brand` or `icon` (a spark by default), and `live` to shimmer it.
 - Edit turns a memory into editable text; Enter or leaving the field saves it, gives it the `editedSource` line and an edit icon in place of its source, and calls `onEdit`.
 - Forget removes a memory and leaves an Undo in its place for `undoFor` ms (4000 by default), calling `onForget` and, if undone, `onRestore`.
-- The count under the title updates as memories come and go, worded by `countLabel`.
-- In Blueprint the new memory's tint is hatched and the pulse steps in hard beats, with the source's edge blinking in the kind's colour instead of lifting.
+- The panel has no count or row of marks under its title, since the list shows them. It grows and shrinks with its list, eased, so it keeps no room for a memory still to come.
+- In Blueprint the pulse steps in hard beats, with the source's edge blinking instead of lifting.
 - It draws its own container by default; set `bare` to sit it flat in a chat thread.
 
 ### Accessibility
@@ -110,7 +110,8 @@ export default function MemoryPanelDemo() {
     await wait(1100);
     for (const id of [100, 1, 6]) { set(id, { used: true }); await wait(700); }
     setActivity({ text: 'Used 3 memories in the launch email draft', brand: 'gmail' });
-  });
+    // an agent at work, so it carries on under the pointer
+  }, { hold: false });
   return (
     <div ref={ref} style={{ width: '100%' }}>
       <MemoryPanel kinds={KINDS} memories={list} onMemoriesChange={setList} activity={activity} />
@@ -133,8 +134,6 @@ export default function MemoryPanelDemo() {
 | `defaultFilter` (optional) | `string` |  |
 | `onFilterChange` (optional) | `(filter: string) => void` |  |
 | `allLabel` (optional) | `string` | The first tab |
-| `countLabel` (optional) | `(count: number) => string` | The count under the title, like "7 memories" |
-| `showSources` (optional) | `boolean` | Shows the marks of the apps the memories came from beside the count. On by default |
 | `activity` (optional) | `MemoryActivity` | The line at the foot, like what the agent is answering with its memory now |
 | `editedSource` (optional) | `string` | The source an edited memory gets |
 | `newLabel` (optional) | `string` | The tag on a memory marked `isNew` |
@@ -169,7 +168,7 @@ Use `onEdit`. It is called with the updated memory after an edit, with its new t
 
 **How do I show a memory the agent just learned?**
 
-Add it to the front of `memories` with `learning: true` while the agent works it out, then replace its text and set `learning` to false and `isNew` to true. It grows into the list and is highlighted; set `isNew` back to false later to clear the highlight.
+Add it to the front of `memories` with `learning: true` while the agent works it out, then replace its text and set `learning` to false and `isNew` to true. It grows into the list with its New tag; set `isNew` back to false later to clear the tag.
 
 **How do I show which memories an answer used?**
 
@@ -190,7 +189,8 @@ import { cx } from '../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
 import { Brand, type BrandName } from '../lib/brands';
-import { Seg, Swap, Tip } from '../lib/motion';
+import { Seg, Swap, SwapIcon, Tip, useGrow, useReflow } from '../lib/motion';
+import { useHoverGlide } from '../lib/glide';
 import '../designme.css';
 import './memory-panel.css';
 
@@ -216,7 +216,7 @@ export interface MemoryItem {
   brand?: BrandName;
   /** An icon for where it came from when that isn't an app, like 'comment' for something said in chat. Used without a `brand` */
   icon?: IconName;
-  /** Highlights it as just learned, on the accent's tint with a New tag */
+  /** Marks it as just learned, with a New tag */
   isNew?: boolean;
   /** Still being learned: the text shimmers, a spinner stands in for its source, and it can't be edited yet */
   learning?: boolean;
@@ -249,10 +249,6 @@ export interface MemoryPanelProps {
   onFilterChange?: (filter: string) => void;
   /** The first tab */
   allLabel?: string;
-  /** The count under the title, like "7 memories" */
-  countLabel?: (count: number) => string;
-  /** Shows the marks of the apps the memories came from beside the count. On by default */
-  showSources?: boolean;
   /** The line at the foot, like what the agent is answering with its memory now */
   activity?: MemoryActivity;
   /** The source an edited memory gets */
@@ -276,16 +272,19 @@ export interface MemoryPanelProps {
 
 interface Gone { m: MemoryItem; at: number; leaving: boolean }
 
-const plural = (n: number) => `${n} ${n === 1 ? 'memory' : 'memories'}`;
 const Mark = ({ brand, icon }: { brand?: BrandName; icon?: IconName }) => brand ? <Brand name={brand} /> : icon ? <Icon name={icon} size="xs" /> : null;
 
 /** What the agent remembers about the team, filtered by kind, each memory with the app or place it came from, editable in
-    place or forgotten with an undo. New memories arrive highlighted, and the ones an answer uses pulse. */
+    place or forgotten with an undo. New memories arrive with a New tag, and the ones an answer uses pulse. The panel grows and
+    shrinks with its list, eased. */
 export function MemoryPanel({
   title = 'Team memory', icon = 'book', kinds, memories, defaultMemories = [], onMemoriesChange, filter, defaultFilter = 'all', onFilterChange,
-  allLabel = 'All', countLabel = plural, showSources = true, activity, editedSource = 'Edited by you, just now', newLabel = 'New', usedLabel = 'Used',
+  allLabel = 'All', activity, editedSource = 'Edited by you, just now', newLabel = 'New', usedLabel = 'Used',
   onEdit, onForget, onRestore, undoFor = 4000, bare = false, className
 }: MemoryPanelProps) {
+  // Clean's one hover glides from memory to memory
+  const listRef = useRef<HTMLDivElement>(null);
+  useHoverGlide(listRef, '.dm-mmx-m');
   const [list, setList] = useControllable(memories, defaultMemories, onMemoriesChange);
   const [f, setF] = useControllable(filter, defaultFilter, onFilterChange);
   const [gone, setGone] = useState<Gone[]>([]);
@@ -294,8 +293,9 @@ export function MemoryPanel({
   const edit = useRef<HTMLSpanElement>(null);
   const kindOf = (kind: string) => kinds.find(k => k.value === kind);
 
-  // a new tab repaints the list: the rows stagger in again and any Undo goes away
-  const [paint, setPaint] = useState(0);
+  // a new tab changes the list: the rows that stay glide to their new places, the ones that go fade where they were, the new
+  // ones come in after one another (motion pieces), and any Undo goes away
+  const [, setPaint] = useState(0);
   const order = useRef(new Map<MemoryItem['id'], number>());
   const first = useRef(true);
   useIsoLayoutEffect(() => {
@@ -348,36 +348,36 @@ export function MemoryPanel({
   const delay = (id: MemoryItem['id']) => (order.current.get(id) ?? 0) * 40 + 'ms';
   // a memory the agent learns while the panel is open opens its own height, so the panel grows instead of jumping
   const reduce = useReducedMotion(), grown = useRef(new WeakSet<HTMLElement>());
-  const grow = (el: HTMLDivElement | null) => {
+  const growRow = (el: HTMLDivElement | null) => {
     if (!el || grown.current.has(el)) return; grown.current.add(el);
     if (reduce || !el.animate) return;
-    const cs = getComputedStyle(el), ease = cs.getPropertyValue('--dm-ease').trim() || 'ease';
-    el.animate([{ height: '0px', paddingTop: '0px', paddingBottom: '0px', opacity: 0, filter: 'blur(4px)', overflow: 'hidden' },
+    // (Clean fades without a blur)
+    const cs = getComputedStyle(el), ease = cs.getPropertyValue('--dm-ease').trim() || 'ease', blur = cs.getPropertyValue('--dm-motion').trim() === 'clean' ? 0 : 4;
+    el.animate([{ height: '0px', paddingTop: '0px', paddingBottom: '0px', opacity: 0, filter: `blur(${blur}px)`, overflow: 'hidden' },
       { height: cs.height, paddingTop: cs.paddingTop, paddingBottom: cs.paddingBottom, opacity: 1, filter: 'blur(0px)', overflow: 'hidden' }], { duration: 560, easing: ease });
   };
-  const apps = [...new Set(list.map(m => m.brand).filter((b): b is BrandName => !!b))];
+  // no room is kept for a memory still to come (owner, 17 Nov): the panel grows and shrinks with its list, eased (as grow() on
+  // the site)
+  const [box, inner] = useGrow();
+  useReflow(box, '.dm-mmx-m', { blur: true, enter: false, host: listRef });
 
   return (
-    <div data-dm="" className={cx('dm-mmx', !bare && 'dm-panel', className)} style={bare ? { paddingInline: 0 } : undefined}>
+    <div data-dm="" ref={box} className={cx('dm-mmx dm-growing dm-mx-grow dm-mx-ic', !bare && 'dm-panel', className)} style={bare ? { paddingInline: 0 } : undefined}>
+      <div ref={inner} className="dm-grow">
+      {/* the head names the panel; a count and a row of the sources' marks would repeat what the list shows */}
       <div className="dm-mmx-h">
         <span className="dm-mmx-ic"><Icon name={icon} /></span>
-        <div className="dm-mmx-ht">
-          <b>{title}</b>
-          <span className="dm-mmx-sub">
-            <Swap className="dm-muted dm-mmx-st">{countLabel(list.length)}</Swap>
-            {showSources && apps.length > 0 && <span className="dm-mmx-srcs" aria-hidden="true">{apps.map(b => <span key={b}><Brand name={b} /></span>)}</span>}
-          </span>
-        </div>
+        <b className="dm-mmx-ht">{title}</b>
         <div className="dm-mmx-tab" style={{ display: 'flex' }}>
           <Seg label="Filter" value={f} onChange={setF} options={[{ value: 'all', label: allLabel }, ...kinds.map(k => ({ value: k.value, label: k.label }))]} />
         </div>
       </div>
-      <div className="dm-mmx-list">
+      <div ref={listRef} className="dm-mmx-list dm-mx-glide">
         {shown.map(r => {
           if (r.g) {
             const { m, leaving } = r.g;
             return (
-              <div key={`${paint}-gone-${m.id}`} className={cx('dm-mmx-gone', leaving ? 'dm-leave' : 'dm-enter')}>
+              <div key={`gone-${m.id}`} className={cx('dm-mmx-gone', leaving ? 'dm-leave' : 'dm-enter')}>
                 <span>Forgot “{m.text.slice(0, 32)}{m.text.length > 32 ? '…' : ''}”</span>
                 <button type="button" onClick={() => restore(r.g)}>Undo</button>
               </div>
@@ -387,8 +387,8 @@ export function MemoryPanel({
           const fresh = learnt.current.has(m.id) && !m.learning;
           return (
             // a memory that turns `used` pulses once, as the class arrives
-            <div key={`${paint}-${m.id}`} ref={arriving ? grow : undefined}
-              className={cx('dm-mmx-m', !arriving && 'dm-enter', m.isNew && 'dm-new', m.learning && 'dm-learn', m.used && 'dm-use')}
+            <div key={m.id} data-key={String(m.id)} ref={arriving ? growRow : undefined}
+              className={cx('dm-mmx-m', !arriving && 'dm-enter', m.learning && 'dm-learn', m.used && 'dm-use')}
               style={{ '--dm-k': k?.color ?? 'var(--dm-muted)', ...(arriving ? null : { animationDelay: delay(m.id) }) } as CSSProperties}>
               <span key={m.learning ? 'learn' : 'from'} className={cx('dm-mmx-src', fresh && 'dm-enter')} aria-hidden="true">
                 {m.learning ? <span className="dm-spin" /> : <Mark brand={m.brand} icon={m.icon} />}
@@ -408,8 +408,8 @@ export function MemoryPanel({
                 </span>
               </span>
               <span className="dm-acts">
-                <Tip label="Edit"><button type="button" className="dm-ib" aria-label="Edit" disabled={m.learning} onClick={() => setEditing(m.id)}><Icon name="edit" size="xs" /></button></Tip>
-                <Tip label="Forget"><button type="button" className="dm-ib" aria-label="Forget" disabled={m.learning} onClick={() => forget(m)}><Icon name="trash" size="xs" /></button></Tip>
+                <Tip label="Edit"><button type="button" className="dm-ib dm-mx-press" aria-label="Edit" disabled={m.learning} onClick={() => setEditing(m.id)}><Icon name="edit" size="xs" /></button></Tip>
+                <Tip label="Forget"><button type="button" className="dm-ib dm-mx-press" aria-label="Forget" disabled={m.learning} onClick={() => forget(m)}><Icon name="trash" size="xs" /></button></Tip>
               </span>
             </div>
           );
@@ -417,10 +417,11 @@ export function MemoryPanel({
       </div>
       {activity && (
         <div className="dm-mmx-f" aria-live="polite">
-          <span className="dm-mmx-fi" aria-hidden="true"><Mark brand={activity.brand} icon={activity.icon ?? (activity.brand ? undefined : 'spark')} /></span>
+          <span className="dm-mmx-fi" aria-hidden="true"><SwapIcon id={activity.brand ?? activity.icon ?? 'spark'}><Mark brand={activity.brand} icon={activity.icon ?? (activity.brand ? undefined : 'spark')} /></SwapIcon></span>
           <Swap className={cx('dm-mmx-ft', activity.live && 'dm-shim')}>{activity.text}</Swap>
         </div>
       )}
+      </div>
     </div>
   );
 }
@@ -428,16 +429,11 @@ export function MemoryPanel({
 
 ## More in Workspace
 
-- [Automation canvas](https://designme.dev/components/automation-canvas.md): A trigger, a few agent steps, and a run you can watch flow through.
-- [Canvas toolbar](https://designme.dev/components/canvas-toolbar.md): A floating toolbar for a workflow canvas: run, pick a tool, comment, fit and zoom.
-- [Data picker](https://designme.dev/components/data-picker.md): Map a field from earlier steps into a step's input.
 - [Run drawer](https://designme.dev/components/run-drawer.md): A workflow's run under its canvas: the steps, the log and the data.
 - [Command palette](https://designme.dev/components/command-palette.md): Jump anywhere or hand a task to the agent from one box.
-- [Agent settings](https://designme.dev/components/agent-settings.md): How much the agent may do alone, with a save bar for changes.
 - [Tools and connections](https://designme.dev/components/tool-connections.md): The tools the agent can reach, and how much it may do with each.
 - [Knowledge sources](https://designme.dev/components/knowledge-sources.md): The files, sites and folders the agent knows, and how far each is indexed.
 - [Scheduled runs](https://designme.dev/components/scheduled-runs.md): Tasks the agent runs on a schedule, with their last result and a switch.
 - [File explorer](https://designme.dev/components/file-explorer.md): Project files, with the ones the agent touched marked.
-- [Workspace rail](https://designme.dev/components/workspace-rail.md): A slim app rail that opens into a labelled sidebar.
 
 All components: https://designme.dev/llms.txt

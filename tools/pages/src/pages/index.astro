@@ -4,9 +4,10 @@
 // Sections, in order (owner, 19 Nov, after AlignUI, BoardUI and AffectUI: "I told you what to change from the references"):
 //   hero      centred: the title, one short line, Browse the library and Read the docs
 //   bento     right under it, on the page itself: twelve of the most distinctive components playing live, each its own card
-//             in one of three stacks (two from 1100px, one below). A card is as tall as it is right now and grows and shrinks
-//             as it plays, pushing only what is under it in its stack (owner, 20 Nov: "let it live and grow"); the stacks are
-//             chosen so their feet stay close to level
+//             in one of three stacks (two from 1100px, one below). Each card keeps the room its component takes at its tallest
+//             (tools/site/bento-heights.json), and the component grows and shrinks in the middle of it, so no card moves the
+//             cards under it as it plays; the stacks' cards share out what the tallest stack has over theirs, so the stacks end
+//             level
 //   screens   the two templates, whole apps made of the components, live in one frame on the site's grey, with a switch
 //   wall      every component, as rows of pictures that drift in turn left and right across the site's grey, fading out at
 //             both sides, each linking to its page, with Browse the library and GitHub
@@ -28,7 +29,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import Page from '../layouts/Page.astro';
-import { ROOT, SITE, COMPONENTS, SECTIONS, BANDS, icon, MARKS, shadcnUrl } from '../lib/data.mjs';
+import { ROOT, SITE, COMPONENTS, SECTIONS, SPLIT, BANDS, icon, MARKS, shadcnUrl } from '../lib/data.mjs';
 import { FRAME_CSS, FRAME_JS } from '../lib/templates.mjs';
 
 const comp = reg => { const c = COMPONENTS.find(x => x.reg === reg); if (!c) throw new Error('landing: no component called ' + reg); return c; };
@@ -60,6 +61,16 @@ const stageVars = (c, pad = PAD, same = false) => Object.keys(KEYS).flatMap(st =
 // Blueprint draws when <html> has no data-style; each phone band applies from its own width up to the next one's
 const pick = sfx => `.lp-demo{--lh:var(--lh-bp${sfx})}:root[data-style="soft"] .lp-demo{--lh:var(--lh-soft${sfx})}:root[data-style="clean"] .lp-demo{--lh:var(--lh-clean${sfx})}`;
 const bandCss = [pick(''), ...PHONE.map((x, k) => `@media (max-width:${(k ? PHONE[k - 1].w : 641) - 1}px){${pick('-' + x.b)}}`), '.lp-demo{min-height:var(--lh)}'].join('\n');
+// the bento's cards: each keeps the room its component takes at its tallest while it plays, at the card's own width in the
+// style on screen (tools/site/measure-bento.js samples them on this page, each band at its narrowest width), with 4px to
+// spare, and the component sits in the middle of it, so it grows and shrinks there and never moves the cards under it
+// (a card it was pushing down by up to 236px as it played). A band applies from its own width up to the one before it
+const BENTO_H = JSON.parse(fs.readFileSync(path.join(ROOT, 'tools/site/bento-heights.json'), 'utf8'));
+const bentoVars = c => Object.keys(KEYS).flatMap(st => { const r = (BENTO_H[st] || {})[c.reg];
+  if (!r || r.length !== BENTO_H.bands.length) throw new Error(`landing: no bento height for ${c.reg} in ${st}: run tools/site/measure-bento.js`);
+  return BENTO_H.bands.map(([b], i) => `--bh-${st}-${b}:${r[i] + 4}px`); }).join(';');
+const pickB = b => `.lp-bc{--bh:var(--bh-bp-${b})}:root[data-style="soft"] .lp-bc{--bh:var(--bh-soft-${b})}:root[data-style="clean"] .lp-bc{--bh:var(--bh-clean-${b})}`;
+const bentoCss = BENTO_H.bands.map(([b], i) => i ? `@media (max-width:${BENTO_H.bands[i - 1][1] - 1}px){${pickB(b)}}` : pickB(b)).join('\n');
 
 // the bento: the library's most distinctive components, each its own card on the page (owner, 19 Nov: "the component is the
 // tile"). No row of metric cards (owner, 19 Nov: "this is not some dashboard"); only components with a card of their own, so
@@ -71,15 +82,25 @@ const bandCss = [pick(''), ...PHONE.map((x, k) => `@media (max-width:${(k ? PHON
 // seconds), Eval results and Agent inbox (each empties for a moment as it starts again) are left out, and so is Top pages
 // (its ranks are set in monospace). Three stacks from
 // 1440px (the first wider, for Activity heatmap), two from 1100px (placed by the script under the bento), one below, in the
-// three stacks' order. When a card here changes its height, sample them again and choose again
+// three stacks' order. When a card here changes its height, sample them again and choose again.
+// At launch only the live components are on the site (tools/site/live.js; owner, 24 Nov), so the bento is twelve live ones
+// with a card of their own, and of those the steadiest: Context meter (it folds to a pill), Command palette, Composer, Model
+// picker and Terminal stream change height by 110 to 340px as they play and are left out. Run cost sits in the first, wider
+// stack, where its Raise cap button has room. Sampled for 60 seconds at 1440 with every card in view, the three stacks' feet
+// were within about 45px of each other half of the time and 80px nine times in ten in Soft and Blueprint (their average
+// bottoms within 25px), and about 70px and 113px in Clean, whose taller Knowledge sources and Scheduled runs lift the third stack.
+// Knowledge sources, Plan review, Inline text diff, Agent lanes and Scheduled runs each still move by 35 to 90px as they play,
+// so no choice of these twelve keeps the feet within 24px all the time. Since 26 Nov each card keeps the room its component
+// takes at its tallest, with the component centred in it, and the stacks end level, so these moves stay inside their cards
+// (run tools/site/measure-bento.js when a card here changes its height or a card is swapped)
 const BENTO3 = [
-  ['activity-heatmap', 'knowledge-sources', 'scheduled-runs', 'funnel-chart'],
-  ['donut-chart', 'plan-review', 'radar-chart', 'agent-lanes'],
-  ['agent-run-timeline', 'radial-goals', 'run-cost', 'line-chart'],
+  ['event-calendar', 'run-cost', 'run-drawer', 'agent-lanes'],
+  ['tool-connections', 'memory-panel', 'plan-review', 'inline-text-diff'],
+  ['agent-run-timeline', 'scheduled-runs', 'file-explorer', 'knowledge-sources'],
 ];
 const BENTO2 = [
-  ['activity-heatmap', 'agent-run-timeline', 'radial-goals', 'run-cost', 'line-chart', 'scheduled-runs'],
-  ['donut-chart', 'plan-review', 'radar-chart', 'knowledge-sources', 'funnel-chart', 'agent-lanes'],
+  ['event-calendar', 'knowledge-sources', 'run-drawer', 'tool-connections', 'run-cost', 'scheduled-runs'],
+  ['memory-panel', 'agent-run-timeline', 'plan-review', 'file-explorer', 'agent-lanes', 'inline-text-diff'],
 ];
 if ([...BENTO3.flat()].sort().join() !== [...BENTO2.flat()].sort().join()) throw new Error('landing: the bento\'s two layouts hold different cards');
 const BENTO = BENTO3.map(stack => stack.map(comp));
@@ -89,10 +110,10 @@ const BENTO = BENTO3.map(stack => stack.map(comp));
 // already open. Another template's views join the list as they come (the Dashboard builder's will). The Workflow editor opens
 // on its last test run (its own #run= address), so the run drawer under the canvas shows the run's steps and the screen is
 // full, not a short flow on a tall empty canvas
-const APPS = { 'sales-crm':'Sales CRM', 'workflow-editor':'Workflow editor', 'dashboard-builder':'Dashboard builder' };
+const APPS = { 'sales-crm':'Sales CRM', 'workflow-editor':'Workflow editor', 'dashboard-builder':'Dashboard builder', 'whiteboard':'Whiteboard' };
 const VIEWS = [['sales-crm', 'Accounts', 'accounts'], ['sales-crm', 'Pipeline', 'pipeline'], ['sales-crm', 'Calendar', 'calendar'],
   ['sales-crm', 'Forecast', 'forecast'], ['sales-crm', 'Reports', 'reports'], ['workflow-editor', 'Workflow', '', '#run=2087'],
-  ['dashboard-builder', 'Dashboard', '']]
+  ['dashboard-builder', 'Dashboard', ''], ['whiteboard', 'Whiteboard', '']]
   .map(([slug, name, view, at = '']) => ({ slug, app:APPS[slug], name, view, at, url:`/templates/${slug}` }));
 const openOf = v => v.url + (v.view ? `?view=${v.view}` : '');
 // the wall: every component in the library, in its order, as four rows that drift in turn left and right
@@ -220,6 +241,7 @@ const jsonld = [
     <link rel="stylesheet" href="/components/assets/core.css">
     <style is:inline set:html={FRAME_CSS} />
     <style is:inline set:html={bandCss} />
+    <style is:inline set:html={bentoCss} />
     <style is:global>
       .pg-main:has(.lp){padding:0}
       /* the page keeps what the reader sees still by itself (the script at the end), the same in every browser, so the
@@ -285,18 +307,16 @@ const jsonld = [
       .lp-anim:hover{color:var(--pg-fg);background:var(--pg-soft)}
       .lp-anim svg{width:14px;height:14px}
 
-      /* ---- the bento: each component its own card, straight on the page, in stacks. A card is as tall as it is right now:
-         it grows and shrinks as its demo plays and pushes only the cards under it in its own stack, so no card ever has
-         room left empty under it (owner, 20 Nov: "let it live and grow") ---- */
+      /* ---- the bento: each component its own card, straight on the page, in stacks. A card's place keeps the room its
+         component takes at its tallest (--bh, from bento-heights.json, also while it loads), and the component grows and
+         shrinks in the middle of it, so no card moves the cards under it. The stacks are as tall as the tallest, and each
+         stack's cards share out the difference, so the stacks end level ---- */
       .lp .lp-bento-w{margin-top:80px;padding:0 32px}
-      .lp-bento{display:grid;grid-template-columns:minmax(0,1fr);gap:24px;max-width:1376px;margin:0 auto;align-items:start}
+      .lp-bento{display:grid;grid-template-columns:minmax(0,1fr);gap:24px;max-width:1376px;margin:0 auto;align-items:stretch}
       .lp-stack{display:flex;flex-direction:column;gap:24px;min-width:0}
-      .lp-bt{min-width:0}
-      .lp .lp-bt .lp-bc{display:block;min-height:0;padding:0}
-      /* until its component has loaded, a card's place is about as tall as the library measured it, so what is further down
-         the page (the templates, the wall's pictures) isn't brought near the view and loaded with the first screen */
-      .lp .lp-bt .lp-bc:empty{min-height:var(--ph,320px)}
-      .lp .lp-bt .lp-bc>.card{display:block;width:100%;max-width:none}
+      .lp-bt{min-width:0;flex:1 0 auto;display:flex;flex-direction:column}
+      .lp .lp-bt .lp-bc{flex:1 0 auto;display:grid;grid-template-columns:minmax(0,1fr);align-items:center;min-height:var(--bh,320px);padding:0}
+      .lp .lp-bt .lp-bc>.card{display:block;width:100%;max-width:none;align-self:center}
       /* the card fills its stack: its own widest size (a max-width the component keeps for a stage) gives way here */
       .lp-bt .stage-in,.lp-bt .stage-in>*{max-width:none}
       @media (min-width:641px) and (max-width:1099px){.lp-bt{width:100%;max-width:720px;margin-inline:auto}}
@@ -542,7 +562,7 @@ const jsonld = [
     <section class="lp-bento-w" id="live" aria-label="Components, live">
       <div class="lp-bento" data-two={JSON.stringify(BENTO2)}>
         {BENTO.map(stack => <div class="lp-stack">{stack.map(c => <div class="lp-bt" role="group" aria-label={`${c.title}, live`}>
-          <div class="lp-demo lp-bc" data-reg={c.reg} data-url={c.url} style={`--ph:${heights(c, 'soft')[0]}px`}></div>
+          <div class="lp-demo lp-bc" data-reg={c.reg} data-url={c.url} style={bentoVars(c)}></div>
         </div>)}</div>)}
       </div>
       <script is:inline>
@@ -563,7 +583,7 @@ const jsonld = [
     <section class="lp-in lp-sec" id="screens" aria-labelledby="screens-h">
       <div class="lp-sh">
         <h2 id="screens-h">Whole apps, made of the components</h2>
-        <p>Views of three templates, live: a sales CRM's accounts, pipeline, calendar, forecast and reports, an agent workflow editor and a dashboard builder.</p>
+        <p>Views of four templates, live: a sales CRM's accounts, pipeline, calendar, forecast and reports, an agent workflow editor, a dashboard builder and a whiteboard.</p>
       </div>
       <div class="lp-show-w">
         <div class="lp-show-bar">
@@ -579,7 +599,7 @@ const jsonld = [
     <section class="lp-sec lp-wall" id="all" aria-labelledby="all-h">
       <div class="lp-in"><div class="lp-sh">
         <h2 id="all-h">All {total} components</h2>
-        <p>{nAgent} for the agent and {nBasics} app basics around it, each with its own page, demo and code.</p>
+        <p>{SPLIT ? `${nAgent} for the agent and ${nBasics} app ${nBasics === 1 ? 'basic' : 'basics'} around it, each` : 'Each'} with its own page, demo and code.</p>
         <div class="lp-cta">
           <a class="pill primary lp-btn" href="/library">Browse the library<Fragment set:html={arrow} /></a>
           <a class="pill line lp-btn lp-gh" href={GITHUB}><Fragment set:html={GH_MARK} />Star on GitHub</a>

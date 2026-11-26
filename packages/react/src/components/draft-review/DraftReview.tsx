@@ -1,11 +1,13 @@
 'use client';
 import { useRef, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
-import { useControllable } from '../../lib/hooks';
+import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { Avatar, Fold, Spin, Swap } from '../../lib/motion';
+import { Avatar, Fold, Spin, Swap, useGrow } from '../../lib/motion';
 import { usePopover } from '../../lib/popover';
 import '../../designme.css';
+// its menus' rows glide in Clean
+import '../../lib/glide';
 import './draft-review.css';
 
 export interface DraftRecipient {
@@ -46,7 +48,8 @@ export interface DraftReviewProps {
   body: string;
   onBodyChange?: (body: string) => void;
   attachments?: DraftAttachment[];
-  /** A problem to settle before it sends, like an attachment the message mentions but nothing attached */
+  /** A problem to settle before it sends, like an attachment the message mentions but nothing attached. It shows as a warning
+      notice; the action marked `primary` is the one that settles it, in the warning tint, and the others are white */
   warning?: { text: ReactNode; actions: { label: string; onClick: () => void; primary?: boolean }[] };
   phase?: DraftPhase;
   /** When to send, picked from the menu beside the button */
@@ -62,6 +65,17 @@ export interface DraftReviewProps {
   undoLeft?: number;
   labels?: { send?: string; schedule?: string; sending?: string; scheduling?: string; discard?: string; notSent?: string; sent?: string; scheduled?: string; delivered?: string; discarded?: string; nothingSent?: string; undo?: string; cancel?: string };
   className?: string;
+}
+
+/** A button whose words change (Send, Schedule, Sending) is as wide as its words and eases to its new width */
+function useEaseWidth(key: unknown) {
+  const ref = useRef<HTMLButtonElement>(null), w = useRef(0), was = useRef<HTMLElement | null>(null), reduce = useReducedMotion();
+  useIsoLayoutEffect(() => {
+    const b = ref.current; if (!b) return;
+    const w1 = b.getBoundingClientRect().width, w0 = was.current === b ? w.current : 0, cs = getComputedStyle(b); w.current = w1; was.current = b;
+    if (w0 && !reduce && Math.abs(w1 - w0) > .5) b.animate([{ width: w0 + 'px' }, { width: w1 + 'px' }], { duration: (parseFloat(cs.getPropertyValue('--dm-t')) || .34) * 1000, easing: cs.getPropertyValue('--dm-ease').trim() || 'ease' });
+  }, [key]);
+  return ref;
 }
 
 const WHEN: SendOption[] = [
@@ -85,6 +99,10 @@ export function DraftReview({
   // the body is written once and left to the browser while it is edited, so the caret stays where it is
   const first = useRef(body);
   const busy = phase === 'sending', done = phase !== 'draft' && phase !== 'sending';
+  // no room is kept for what comes later: the card eases to its new height as the attachment, the warning or the result
+  // arrives (as grow() on the site)
+  const [root, inner] = useGrow();
+  const goBtn = useEaseWidth(`${busy}:${later}`);
   const tag = phase === 'sent' ? ['dm-ok', L.sent] : phase === 'scheduled' ? ['dm-b', L.scheduled] : ['', L.notSent];
   const row = phase === 'undo' ? { icon: 'ok' as const, cls: '', t: `${L.sent} to ${names}`, sub: `You can undo for ${undoLeft}s`, btn: L.undo }
     : phase === 'sent' ? { icon: 'ok' as const, cls: '', t: `${L.sent} to ${names}`, sub: L.delivered }
@@ -93,7 +111,8 @@ export function DraftReview({
 
   return (
     <div data-dm="" className={className} style={{ width: '100%' }}>
-      <div className={cx('dm-drf dm-panel', done && 'dm-sent')}>
+      <div ref={root} className={cx('dm-drf dm-panel dm-growing', done && 'dm-sent')}>
+        <div ref={inner} className="dm-grow">
         <div className="dm-drf-h">
           <span className="dm-drf-ag"><Icon name="spark" /></span>
           <div className="dm-drf-ht"><b>{title}</b>{subtitle && <span className="dm-muted">{subtitle}</span>}</div>
@@ -114,16 +133,17 @@ export function DraftReview({
           ))}
         </div>
         <Fold open={!!warning && phase === 'draft'} className="dm-drf-wf">
-          <div className="dm-drf-w">
-            <p><Icon name="alert" size="xs" /><span>{warning?.text}</span></p>
+          <div className="dm-drf-w" role="alert">
+            <svg className="dm-drf-wi" viewBox="0 0 24 24" aria-hidden="true"><path className="dm-a" d="M12 3.6 2.6 19.9h18.8z" /><path className="dm-b" d="M12 9.6v4.4M12 17v.01" /></svg>
+            <p>{warning?.text}</p>
             <div className="dm-drf-wa">
-              {warning?.actions.map(a => <button key={a.label} type="button" className={cx('dm-pill dm-sm', a.primary ? 'dm-primary' : 'dm-ghost')} onClick={a.onClick}>{a.label}</button>)}
+              {warning?.actions.map(a => <button key={a.label} type="button" className={cx('dm-pill dm-sm', a.primary ? 'dm-warn' : 'dm-ghost')} onClick={a.onClick}>{a.label}</button>)}
             </div>
           </div>
         </Fold>
         {row ? (
           <div className={cx('dm-drf-done dm-enter', row.cls)}>
-            <Icon name={row.icon} size={row.icon === 'trash' ? 'xs' : undefined} />
+            <span className="dm-g"><Icon name={row.icon} /></span>
             <span className="dm-t">{row.t}<span className="dm-muted dm-drf-sub">{row.sub}</span></span>
             {row.btn && <button type="button" className="dm-pill dm-sm" onClick={onUndo}>{row.btn}</button>}
           </div>
@@ -133,7 +153,7 @@ export function DraftReview({
             <span className="dm-sp" />
             <Swap className="dm-muted dm-drf-when">{later ? chosen.label : ''}</Swap>
             <div className="dm-drf-mg">
-              <button type="button" className="dm-pill dm-primary dm-sm dm-drf-go" disabled={busy} onClick={() => onSend?.(chosen)}>
+              <button ref={goBtn} type="button" className="dm-pill dm-primary dm-sm dm-drf-go" disabled={busy} onClick={() => onSend?.(chosen)}>
                 {busy ? <><Spin />{later ? L.scheduling : L.sending}</> : <><Icon name={later ? 'clock' : 'send'} size="xs" />{later ? L.schedule : L.send}</>}
               </button>
               <button type="button" className="dm-pill dm-primary dm-sm dm-drf-dd" aria-label="When to send" disabled={busy} {...menu.trigger}><Icon name="chev-d" size="xs" /></button>
@@ -147,6 +167,7 @@ export function DraftReview({
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

@@ -49,18 +49,18 @@ export default function ButtonsDemo() {
   return (
     <Buttons rows={[
       { label: 'Styles', children: <>
-        <Button variant="accent" className="dm-btx-trial" busyLabel="Starting" doneLabel="Trial started" onClick={() => wait(1100)}>Start free trial</Button>
-        <ButtonRun state={run} seconds={secs} onRun={() => { setSecs(0); setRun('running'); }} onStop={() => setRun('stopped')} />
+        <Button variant="primary" className="dm-btx-trial" busyLabel="Starting" doneLabel="Trial started" onClick={() => wait(1100)}>Start free trial</Button>
         <Button variant="soft" className="dm-btx-pv" pressed={preview} onClick={() => setPreview(p => !p)}>{preview ? <><span className="dm-btx-live" />Previewing</> : 'Preview'}</Button>
         <ButtonMenu label="Share" className="dm-btx-share" status={share} onSelect={pick} items={[
           { key: 'link', icon: 'link', label: 'Copy link' },
           { key: 'slack', brand: 'slack', label: 'Send to Slack', detail: '#design' },
           { key: 'pdf', icon: 'down', label: 'Export as PDF' }
         ]} />
+        <Button variant="warn" className="dm-btx-warn">Sign in again</Button>
         <Button variant="ghost">Cancel</Button>
       </> },
       { label: 'With icon', children: <>
-        <Button variant="accent" className="dm-btx-ask" icon="spark" busyGlyph="think" busyLabel="Agent is working" doneLabel="Draft ready" fadeBack={false} onClick={() => wait(2200)}>Ask agent</Button>
+        <Button variant="primary" className="dm-btx-ask" icon="spark" busyGlyph="think" busyLabel="Agent is working" doneLabel="Draft ready" fadeBack={false} onClick={() => wait(2200)}>Ask agent</Button>
         <Button variant="soft" icon="figma" className="dm-btx-fig" busyLabel="Opening" doneLabel="Opened in Figma" doneIcon="ext" onClick={() => wait(900)}>Open in Figma</Button>
         <ButtonCopy text={LINK} className="dm-btx-icp" />
         <ButtonIconMenu label="More" status={more} onSelect={did} items={[
@@ -71,15 +71,16 @@ export default function ButtonsDemo() {
         ]} />
       </> },
       { label: 'States', children: <>
-        <Button variant="primary" className="dm-btx-load" success fadeBack={false} busyLabel="Publishing" doneLabel="Published" onClick={() => wait(1300)}>Publish</Button>
+        <Button variant="primary" className="dm-btx-load" fadeBack={false} busyLabel="Publishing" doneLabel="Published" onClick={() => wait(1300)}>Publish</Button>
+        <ButtonRun state={run} seconds={secs} onRun={() => { setSecs(0); setRun('running'); }} onStop={() => setRun('stopped')} />
         <ButtonCopy text={LINK} label="Copy link" />
         <ButtonHold />
-        <Button variant="accent" disabled>Disabled</Button>
+        <Button variant="primary" disabled>Disabled</Button>
       </> },
       { label: 'Sizes', children: <>
-        <Button variant="accent" size="sm">Small</Button>
-        <Button variant="accent">Default</Button>
-        <Button variant="accent" size="lg">Large</Button>
+        <Button variant="primary" size="sm">Small</Button>
+        <Button variant="primary">Default</Button>
+        <Button variant="primary" size="lg">Large</Button>
       </> }
     ]} />
   );

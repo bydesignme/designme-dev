@@ -2,7 +2,7 @@
 
 > Everything the agent read, folded into one quiet pill.
 
-Agent components / Sources and output. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/source-stack
+Components / Sources and output. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/source-stack
 
 ## Install
 
@@ -34,9 +34,9 @@ Source stack sits under an agent's answer and folds every source it read into on
 
 ### What it does
 
-- The pill shows the marks of the first four sources and a count like "8 sources". Clicking it opens and closes the list.
-- Filter chips pick sources by `kind`. The defaults are All, Web, Files and Figma, and `filters` replaces them.
-- Each row shows a coloured favicon `mark`, the `title`, the `host` and a small bar for `relevance` from 0 to 1, with the percentage in a tooltip.
+- The pill shows the marks of the first four sources side by side and a count like "8 sources". Clicking it opens and closes the list.
+- Filter chips pick sources by `kind`. The defaults are All, Web, Files and Figma, and `filters` replaces them. Switching filters moves the list: the sources that stay glide to their new places, the ones that go fade where they were, new ones rise in, and the list eases to its new height.
+- Each row shows the source's `mark` on its own `color` (white letters, or an avatar colour's own ink; Clean draws every mark in its neutral grey), the `title`, the `host` and a small bar for `relevance` from 0 to 1, with the percentage in a tooltip.
 - Sources with `onOpen` get an open button on their row.
 - The answer itself can go in `children`, shown above the pill.
 - Both the open state and the filter can be controlled with `open`, `filter` and their change handlers.
@@ -65,14 +65,14 @@ import { useStory } from '../lib/useScript';
 
 const open = () => {};
 const SOURCES: StackSource[] = [
-  { kind: 'web', title: 'Baymard: pricing page UX', host: 'baymard.com', relevance: .92, mark: 'B', color: 'var(--dm-pb)', onOpen: open },
-  { kind: 'web', title: 'Annual vs monthly anchoring study', host: 'cxl.com', relevance: .88, mark: 'C', color: '#d9480f', onOpen: open },
-  { kind: 'file', title: 'Q3 conversion export.csv', host: 'Drive', relevance: .84, mark: 'CSV', color: 'var(--dm-pm)', onOpen: open },
-  { kind: 'figma', title: 'Pricing v4, frame 2', host: 'Figma', relevance: .8, mark: 'F', color: 'var(--dm-pl)', onOpen: open },
-  { kind: 'web', title: 'Stripe billing docs', host: 'stripe.com', relevance: .66, mark: 'S', color: '#635bff', onOpen: open },
-  { kind: 'file', title: 'Pricing research notes', host: 'Notion', relevance: .61, mark: 'N', color: 'var(--dm-fg2)', onOpen: open },
-  { kind: 'figma', title: 'Checkout flow', host: 'Figma', relevance: .52, mark: 'F', color: 'var(--dm-pl)', onOpen: open },
-  { kind: 'web', title: 'NN/g on price framing', host: 'nngroup.com', relevance: .48, mark: 'N', color: 'var(--dm-fg2)', onOpen: open }
+  { kind: 'web', title: 'Baymard: pricing page UX', host: 'baymard.com', relevance: .92, mark: 'B', color: 'var(--dm-av-b)', onOpen: open },
+  { kind: 'web', title: 'Annual vs monthly anchoring study', host: 'cxl.com', relevance: .88, mark: 'C', color: 'var(--dm-av-r)', onOpen: open },
+  { kind: 'file', title: 'Q3 conversion export.csv', host: 'Drive', relevance: .84, mark: 'CSV', color: 'var(--dm-av-m)', onOpen: open },
+  { kind: 'figma', title: 'Pricing v4, frame 2', host: 'Figma', relevance: .8, mark: 'F', color: 'var(--dm-av-l)', onOpen: open },
+  { kind: 'web', title: 'Stripe billing docs', host: 'stripe.com', relevance: .66, mark: 'S', color: 'var(--dm-av-k)', onOpen: open },
+  { kind: 'file', title: 'Pricing research notes', host: 'Notion', relevance: .61, mark: 'N', color: 'var(--dm-av-t)', onOpen: open },
+  { kind: 'figma', title: 'Checkout flow', host: 'Figma', relevance: .52, mark: 'F', color: 'var(--dm-av-l)', onOpen: open },
+  { kind: 'web', title: 'NN/g on price framing', host: 'nngroup.com', relevance: .48, mark: 'N', color: 'var(--dm-av-y)', onOpen: open }
 ];
 
 export default function SourceStackDemo() {
@@ -136,11 +136,12 @@ A number from 0 to 1. It is clamped to that range and shown as a bar and a perce
 
 ```tsx
 'use client';
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
-import { useControllable } from '../lib/hooks';
+import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { enter, Fold, Tip } from '../lib/motion';
+import { avatarInk, enter, Fold, mxT, Tip, useReflow } from '../lib/motion';
+import { hoverGlide } from '../lib/glide';
 import '../designme.css';
 import './source-stack.css';
 
@@ -154,7 +155,8 @@ export interface StackSource {
   relevance: number;
   /** One to three letters in the favicon square, like "B" or "CSV" */
   mark: string;
-  /** The favicon colour, any CSS colour, like '#635bff' or 'var(--dm-pl)' */
+  /** The favicon's fill: a colour dark enough for white letters, like '#635bff', or an avatar colour like 'var(--dm-av-l)',
+      which brings its own ink. Clean draws every mark in its neutral grey */
   color: string;
   /** Adds an open button that shows on hover */
   onOpen?: () => void;
@@ -194,12 +196,30 @@ export function SourceStack({ children, sources, filters = FILTERS, filter, defa
   const [wasOpen, setWasOpen] = useState(isOpen);
   if (isOpen !== wasOpen) { setWasOpen(isOpen); if (isOpen) setOpened(n => n + 1); }
   const items = sources.filter(s => f === 'all' || s.kind === f);
+  // Clean's one hover glides from source to source (the list is drawn afresh as it opens or its filter changes)
+  const listRef = useRef<HTMLDivElement>(null);
+  useEffect(() => hoverGlide(listRef.current, '.dm-ssx-s'), [opened]);
+  // a filter moves the rows: the sources that stay glide to their new places, new ones rise in out of a short blur and the
+  // ones that go fade where they were, and the list eases to its new height on the spring (motion pieces)
+  const box = useRef<HTMLDivElement>(null), reduce = useReducedMotion();
+  useReflow(box, '.dm-ssx-s', { blur: true, host: listRef });
+  const lastH = useRef(0), lastF = useRef(f), staggered = useRef(-1);
+  const fresh = staggered.current !== opened;
+  useIsoLayoutEffect(() => {
+    staggered.current = opened;
+    const el = listRef.current; if (!el) return;
+    const h0 = lastH.current, h1 = el.offsetHeight, changed = lastF.current !== f; lastH.current = h1; lastF.current = f;
+    if (!changed || reduce || !h0 || Math.abs(h1 - h0) < 1 || typeof el.animate !== 'function') return;
+    el.style.overflow = 'clip';
+    const a = el.animate([{ height: h0 + 'px' }, { height: h1 + 'px' }], { duration: mxT(el, 't-in', 360) * 1.4, easing: mxT(el, 'ease-spring', 'ease') });
+    a.onfinish = a.oncancel = () => { el.style.overflow = ''; };
+  });
 
   return (
-    <div data-dm="" className={cx('dm-ssx', className)}>
+    <div data-dm="" ref={box} className={cx('dm-ssx', className)}>
       {children !== undefined && <p className="dm-msg">{children}</p>}
       <button type="button" className="dm-ssx-pill" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
-        <span className="dm-ssx-ics">{sources.slice(0, 4).map((s, i) => <span key={i} style={{ background: s.color }}>{s.mark[0]}</span>)}</span>
+        <span className="dm-ssx-ics">{sources.slice(0, 4).map((s, i) => <span key={i} style={{ background: s.color, color: avatarInk(s.color) }}>{s.mark[0]}</span>)}</span>
         <span className="dm-ssx-l">{sources.length} {sources.length === 1 ? 'source' : 'sources'}</span>
         <Icon name="chev-d" size="xs" />
       </button>
@@ -208,15 +228,15 @@ export function SourceStack({ children, sources, filters = FILTERS, filter, defa
           <div className="dm-ssx-fl">
             {filters.map(x => <button key={x.value} type="button" className={cx('dm-chip dm-sm', x.value === f && 'dm-on')} aria-pressed={x.value === f} onClick={() => setF(x.value)}>{x.label}</button>)}
           </div>
-          <div className="dm-ssx-list" key={f + ':' + opened}>
+          <div ref={listRef} className="dm-ssx-list dm-mx-glide" key={opened}>
             {items.map((s, i) => {
-              const e = enter(i * 40), pct = Math.round(Math.max(0, Math.min(1, s.relevance)) * 100);
+              const e = fresh ? enter(i * 40) : { className: undefined, style: undefined }, pct = Math.round(Math.max(0, Math.min(1, s.relevance)) * 100);
               return (
-                <div key={s.title + i} className={cx('dm-ssx-s', e.className)} style={e.style}>
-                  <span className="dm-fv" style={{ background: `color-mix(in srgb,${s.color} 14%,transparent)`, color: s.color }}>{s.mark}</span>
-                  <span className="dm-t">{s.title}<span className="dm-h"> · {s.host}</span></span>
+                <div key={s.title} data-key={s.title} className={cx('dm-ssx-s', e.className)} style={e.style}>
+                  <span className="dm-fv" style={{ background: s.color, color: avatarInk(s.color) }}>{s.mark}</span>
+                  <span className="dm-t"><span>{s.title}</span><span className="dm-h"> · {s.host}</span></span>
                   <Tip label={`Relevance ${pct}%`}><span className="dm-rel" role="meter" aria-label="Relevance" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct}><i style={{ width: pct + '%' }} /></span></Tip>
-                  {s.onOpen && <Tip label="Open"><button type="button" className="dm-ib" aria-label="Open source" onClick={s.onOpen}><Icon name="ext" size="xs" /></button></Tip>}
+                  {s.onOpen && <Tip label="Open"><button type="button" className="dm-ib dm-mx-press" aria-label="Open source" onClick={s.onOpen}><Icon name="ext" size="xs" /></button></Tip>}
                 </div>
               );
             })}
@@ -232,8 +252,5 @@ export function SourceStack({ children, sources, filters = FILTERS, filter, defa
 
 - [Terminal stream](https://designme.dev/components/terminal-stream.md): Shell commands the agent runs, with their output as it streams in.
 - [Citation hover card](https://designme.dev/components/citation-hover-card.md): Hover a citation to see the exact passage it came from.
-- [Metric insight](https://designme.dev/components/metric-insight.md): A number, its trend, and the agent's read on why it moved.
-- [Details panel](https://designme.dev/components/details-panel.md): Properties of a run you can change in place.
-- [Task table](https://designme.dev/components/task-table.md): Agent tasks in a sortable table with bulk actions.
 
 All components: https://designme.dev/llms.txt

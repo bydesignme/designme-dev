@@ -2,7 +2,7 @@
 
 > Six thinking indicators to pick from, each with a status line.
 
-Agent components / Agent status. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/thinking-states
+Components / Agent status. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/thinking-states
 
 ## Install
 
@@ -23,7 +23,7 @@ npx shadcn@latest add https://designme.dev/r/shadcn/astro/thinking-states.json  
 
 ## About
 
-Thinking states is a set of six indicators for the moment an agent is thinking, to pick from: Orbit, Morph, Scan, Stream, Matrix and Stack. Each pairs a small animated mark on a tile with one status line, like "Reading 3 files", that steps through what the agent is doing, and a quiet count of the seconds so far.
+Thinking states is a set of six indicators for the moment an agent is thinking, to pick from: Orbit, Morph, Scan, Stream, Matrix and Stack. Each pairs a small animated mark with one status line, like "Reading 3 files", that steps through what the agent is doing, and a quiet count of the seconds so far.
 
 ### When to use it
 
@@ -34,11 +34,11 @@ Thinking states is a set of six indicators for the moment an agent is thinking, 
 
 ### What it does
 
-- `variant` picks the indicator. Five of them are grids of dots, each at its own density: `orbit` (5 by 5, a light running round the edge with a fading tail and a dot breathing in the middle, the line shimmering), `morph` (7 by 7, the dots drawing a rectangle, then a circle, then a triangle), `scan` (6 by 6, a column of light sweeping three lines of text in dots), `stream` (three lines of four dots, the same size as Matrix, that light up one by one, line by line, then fade out together, the line typed out behind a caret), `matrix` (a four by four grid of dots, each lighting up on its own beat) or `stack` (pages shuffling to the front).
+- `variant` picks the indicator. Five of them are grids of dots, each at its own density: `orbit` (5 by 5, a light running round the edge with a fading tail and a dot breathing in the middle), `morph` (7 by 7, the dots drawing a rectangle, then a circle, then a triangle), `scan` (6 by 6, a column of light sweeping three lines of text in dots), `stream` (three lines of four dots, the same size as Matrix, that light up one by one, line by line, then fade out together, the line typed out behind a caret), `matrix` (a four by four grid of dots, each lighting up on its own beat) or `stack` (pages shuffling to the front).
 - Pass `steps`, a list of status lines. Leave `current` out and they take turns every `interval` milliseconds (2600 by default), or set `current` to show the step your agent reports.
-- A new line crossfades in, except in Stream, where it types out a letter at a time.
+- The status line has a highlight sweeping across it while the agent works, in every variant. Switching `variant` crossfades the new mark in for the last one. A new line crossfades in, except in Stream, where it types out a letter at a time.
 - `seconds` shows the time so far at the end of the line. Left out, it counts by itself; `false` hides it.
-- Marks use the accent and everything else stays grey. In Soft the tile and marks are squircles; in Blueprint the tile is square with a hairline edge, marks tick in steps, Stream's caret is a block.
+- Marks use the accent and everything else stays grey. In Soft and Clean the mark has no tile or fill behind it and sits on the line's centre line. In Blueprint it sits on a square tile with a hairline edge, marks tick in steps and Stream's caret is a block. Clean is monochrome: the mark and the caret are ink, black in light mode and white in dark.
 - On designme.dev the switch under the demo picks the variant, and the HTML install ships both the switch and every variant.
 
 ### Accessibility
@@ -129,7 +129,7 @@ Yes. Pass `seconds={false}`. Pass a number to show your own time instead of the 
 import { useEffect, useRef, useState } from 'react';
 import { cx } from '../lib/cx';
 import { useReducedMotion, useSeconds } from '../lib/hooks';
-import { Swap } from '../lib/motion';
+import { Swap, SwapIcon } from '../lib/motion';
 import '../designme.css';
 import './thinking-states.css';
 
@@ -217,14 +217,16 @@ export function ThinkingStates({ variant = 'orbit', steps = ['Thinking'], curren
     return () => clearInterval(id);
   }, [text, stream, reduce]);
   return (
-    <div data-dm="" data-v={variant} className={cx('dm-ths', className)}>
+    <div data-dm="" data-v={variant} className={cx('dm-ths dm-mx-ic', className)}>
       <div className="dm-ths-row">
-        <span className="dm-ths-mk" aria-hidden="true"><Mark variant={variant} /></span>
-        <span className="dm-ths-l" aria-hidden="true">
-          {stream ? <span className="dm-ths-tx">{text.slice(0, typed)}</span> : <Swap className={cx('dm-ths-tx', variant === 'orbit' && 'dm-shim')}>{text}</Swap>}
-          {stream && <span className="dm-ths-car" />}
+        <span className="dm-ths-mk" aria-hidden="true"><SwapIcon id={variant}><Mark variant={variant} /></SwapIcon></span>
+        <span className="dm-ths-w">
+          <span className="dm-ths-l" aria-hidden="true">
+            {stream ? <span className="dm-ths-tx dm-shim">{text.slice(0, typed)}</span> : <Swap className="dm-ths-tx dm-shim">{text}</Swap>}
+            {stream && <span className="dm-ths-car" />}
+          </span>
+          {secs !== null && <span className="dm-ths-t dm-num" aria-hidden="true">{secs}s</span>}
         </span>
-        {secs !== null && <span className="dm-ths-t dm-num" aria-hidden="true">{secs}s</span>}
       </div>
       {/* a screen reader hears each new line once, never the letters as they type */}
       <span className="dm-ths-sr" role="status" aria-live="polite">{text}</span>
@@ -246,7 +248,7 @@ export function ThinkingStates({ variant = 'orbit', steps = ['Thinking'], curren
 - [Context meter](https://designme.dev/components/context-meter.md): How full the context is and what fills it, with Compact to free room.
 - [Run cost](https://designme.dev/components/run-cost.md): Live credit and token spend, with a cap that pauses the run.
 - [Toast stack](https://designme.dev/components/toast-stack.md): Agent notifications that stack and fan out on hover.
-- [Toast](https://designme.dev/components/toast.md): One notification that changes shape with its state.
+- [Toast](https://designme.dev/components/toast.md): A background job in one toast, from start to finish.
 - [Status pill](https://designme.dev/components/status-pill.md): One live line for what the agent is doing right now.
 - [Step loader](https://designme.dev/components/step-loader.md): Named steps with a progress track and four loaders.
 

@@ -1,42 +1,49 @@
 {
-  "summary": "Toast stack collects the notifications an agent sends while it works and piles them into a small deck, newest in front. Hover the deck and it fans out into a list so a person can read each one and close the ones they are done with.",
+  "summary": "Toast stack collects the news an agent sends while it works and piles it into a small deck, newest in front. Each toast in it is a Toast card, so a job keeps its live glyph, its steps and its buttons, and a problem can become its fix in the same card. Hover the deck, or Tab into it, and it fans out into a list so a person can read each card, act on it and close the ones they are done with.",
   "use": [
-    "When an agent finishes several things in a row, like tests passing, a PR opening and frames syncing.",
-    "When notifications should stay on screen until someone reads them, without covering the page.",
-    "When you want a quiet corner of the app that shows the last few events at a glance.",
-    "When each event needs its own icon colour so people can tell good news from warnings."
+    "When an agent sends several things in a row, like a job in progress, tests failing and frames syncing, and each should stay readable.",
+    "When some of that news needs an answer, like a fix to run or a deck to open, without leaving the page.",
+    "When a job runs in the background and its progress should stay in one card while other news arrives in front of it.",
+    "When you want a quiet corner of the app that shows the last few events at a glance and tidies itself up."
   ],
   "features": [
-    "Pass `toasts` oldest first. The last item sits at the front and older ones step back, shrink and fade.",
-    "Hovering the stack fans it into a list that grows to fit the four front toasts. Set `expanded` to fan it yourself.",
-    "Each toast has an icon badge, a bold `title`, an optional `detail` line and an optional `time` like \"now\" or \"2m\".",
-    "`tone` colours the badge, with status tones (ok, warn, bad, merge) and colour names like blue, purple and teal.",
-    "The close button calls `onDismiss` with the toast id. Remove it from `toasts` and it slides off to the right as it fades.",
-    "`max` caps how many toasts stay mounted (6 by default). Older ones drop off the back, and new ones rise in from below."
+    "Pass `toasts` oldest first. Each is Toast's `ToastData`: a `status`, a `title`, a `description`, and optionally a `glyph`, `steps`, one or two `actions`, `onStop` and a `duration`. The last one sits in front.",
+    "Keep a toast's `id` and change it, and its card changes in place: its words crossfade (a counter ticks over at once), its status mark crossfades, its footer opens and closes, and the card eases to its new height. The demo turns \"2 tests failed\" into \"Fixing 2 tests…\" and then \"42 tests passed\" this way.",
+    "Collapsed, the two cards behind the front one take its height and peek out 8px above it, a step narrower each, with their words hidden. Fanned out, the four in front show at their own heights, 8px apart. The stack is as tall as what it shows, and the cards and the stack ease together, so nothing jumps when a card comes, goes or changes height.",
+    "It fans out under a mouse, while the keyboard's focus is in it, and on a tap on touch screens (a tap anywhere else folds it). Set `expanded` to fan it yourself.",
+    "Each card has Close with a countdown ring when it has a `duration`, and Stop in its place while it is `working` with an `onStop`. Every countdown holds while the stack is fanned out, and while the pointer or the focus is on its card.",
+    "Swipe a card sideways to dismiss it, or press Escape while the focus is in it. `onDismiss` tells you how it was closed: `close`, `timeout`, `swipe` or `escape`. A new card rises in at the front, and a closed one fades 8px down as the others close the gap.",
+    "`max` caps how many toasts stay mounted (6 by default). Older ones drop off the back.",
+    "Each card looks as Toast does in each style: square in Blueprint, plush in Soft, and in Clean with its footer on an off-white strip, the ink primary, and the accent white in dark mode."
   ],
   "a11y": [
-    "The stack is an `aria-live=\"polite\"` region, so screen readers announce new toasts.",
-    "Each close button is a real button with `aria-label=\"Dismiss\"` and a Dismiss tooltip.",
-    "A toast that is sliding away is marked `inert`, so it cannot be focused or clicked during its exit.",
-    "The stack fans out while the focus is in it, as it does under the pointer. Toasts that can't be seen (behind the front one in the deck, or past the fourth when fanned out) are `inert`, so Tab only reaches toasts on show.",
-    "Under `prefers-reduced-motion: reduce`, the shared stylesheet cuts animations and transitions to almost nothing."
+    "The stack is a region named \"Notifications\" with two live regions: a card's `announce` (or its title) is read each time it changes, politely, and an `error` is read at once (assertive).",
+    "Close, Stop and the steps' chevron are real buttons with labels (\"Close\", \"Stop the job\", \"Show the steps\" or \"Hide the steps\"), and the chevron sets `aria-expanded`. Glyphs and status marks are hidden from screen readers; the words carry the news.",
+    "Cards that can't be seen (behind the front one in the deck, or past the fourth when fanned out) and a card on its way out are `inert`, so Tab only reaches cards on show.",
+    "Escape closes the card the focus is in and moves the focus to the next card's Close.",
+    "The countdowns pause while the stack is open for reading, so there is time to reach a card's buttons.",
+    "With reduced motion turned on, cards change place at once and only fade."
   ],
   "faq": [
     {
       "q": "How do I add a new notification?",
-      "a": "Append an object with a unique `id`, an `icon` and a `title` to the end of your `toasts` array. It rises in from below and becomes the front card."
+      "a": "Append a toast with a new `id` to the end of `toasts`. It rises in at the front and the others step back."
     },
     {
-      "q": "Does the stack remove a toast when I press its close button?",
-      "a": "No. The button only calls `onDismiss(id)`. Filter that toast out of `toasts` in your state and the component animates it away."
+      "q": "How does a problem become its fix in the same card?",
+      "a": "Keep its `id`. Show the problem with `status: 'error'` and the fix as the primary action; when it is pressed, set `status: 'working'` with a title like \"Fixing 2 tests…\", then `status: 'success'` with the result. The card changes in place wherever it sits in the stack."
+    },
+    {
+      "q": "Do I have to remove a closed toast from my state?",
+      "a": "It leaves the stack as soon as it is closed, by Close, its countdown, a swipe or Escape, and `onDismiss` tells you which. Drop it from `toasts` too, so it doesn't come back if you reuse the list."
     },
     {
       "q": "Can I keep the stack fanned out all the time?",
-      "a": "Yes. Pass `expanded={true}` to keep it open, or `expanded={false}` to keep it stacked. Leave it out and it fans while the pointer is over it."
+      "a": "Yes. Pass `expanded={true}` to keep it open, or `expanded={false}` to keep it collapsed. While it is fanned out, the countdowns hold."
     },
     {
-      "q": "What happens when more toasts arrive than fit?",
-      "a": "Only the newest `max` toasts stay mounted, six by default. In the stacked view only the front three are visible, and the fanned list shows the front four."
+      "q": "Does it need Toast too?",
+      "a": "Yes: every card is Toast's card. `npx designme add toast-stack --react` adds Toast beside it, and the HTML and Astro versions carry Toast's styles in their own CSS."
     }
   ]
 }

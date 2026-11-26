@@ -1,7 +1,9 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Eval results ---------- */
 /* an eval suite's latest run: one bar segment per case, the pass count against the run before, and the cases, all or
-   just the failed ones. A failed case opens to show what was expected and what came back, with a fix that reruns it */
+   just the failed ones. A failed case opens to show what was expected and what came back, with a fix that reruns it.
+   Marks are the vivid status colours (a tick in the mark green, a failed case's sign in the mark red); words keep the text
+   colours. The card keeps no room for what is to come: it grows and shrinks with its list (grow()) */
 .dm-evr{width:100%;max-width:440px;margin:0 auto;padding:6px;display:flex;flex-direction:column}
 .dm-evr-h{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-3);padding:var(--dm-s-2) 10px 10px}
 .dm-evr-ht{display:flex;flex-direction:column;min-width:0}
@@ -9,16 +11,21 @@
 .dm-evr-st{font-size:12.5px}
 .dm-evr-run{flex:none}
 .dm-evr-run .dm-spin{width:10px;height:10px}
-.dm-evr-sum{display:flex;flex-direction:column;gap:var(--dm-s-2);padding:var(--dm-s-3) 10px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink primary alone presses */
+:is(.dm-evr,.dm-evr-vs,.dm-evr-jg) :is(.dm-ib,.dm-pill):active,:root[data-style="clean"] :is(.dm-evr,.dm-evr-vs,.dm-evr-jg) .dm-ib:active,:root [data-style="clean"] :is(.dm-evr,.dm-evr-vs,.dm-evr-jg) .dm-ib:active,:root [data-style="clean"]:is(.dm-evr,.dm-evr-vs,.dm-evr-jg) .dm-ib:active{transform:none}
+/* the line under the bars (Running 3 of 8, then 7 of 8 passed) sits as far under the bars as over the hairline below it
+   (owner, 22 Nov) */
+.dm-evr-sum{display:flex;flex-direction:column;gap:var(--dm-s-3);padding:var(--dm-s-3) 10px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .dm-evr-segs{display:flex;gap:3px}
 .dm-evr-segs i{flex:1;height:6px;border-radius:var(--dm-r-tiny,3px);background:var(--dm-rail);transition:background .3s}
-.dm-evr-segs i.dm-pass{background:var(--dm-ok)}
+.dm-evr-segs i.dm-pass{background:var(--dm-ok-mark)}
 .dm-evr-segs i.dm-fail{background:var(--dm-bad-mark)}
 .dm-evr-segs i.dm-run{background:var(--dm-accent-mark,var(--dm-accent));animation:dm-evrrun 1s ease-in-out infinite}
 @keyframes dm-evrrun{50%{opacity:.4}}
 .dm-evr-nums{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-2);min-height:20px;font-size:13px}
+.dm-evr-pass.dm-shim{font-size:inherit}
 .dm-evr-dl:empty{display:none}
-.dm-evr-tabs{padding:10px var(--dm-s-1) var(--dm-s-1)}
+.dm-evr-tabs{padding:10px 10px var(--dm-s-1)}
 .dm-evr-tabs .dm-n{color:var(--dm-muted);margin-left:2px}
 .dm-evr-tabs .dm-n:empty{display:none}
 .dm-evr-list{display:flex;flex-direction:column}
@@ -28,8 +35,8 @@
 .dm-evr-r{display:flex;align-items:center;gap:10px;width:100%;min-height:38px;padding:6px 10px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;text-align:left;color:var(--dm-fg)}
 .dm-evr-g{width:16px;height:16px;display:grid;place-items:center;flex:none;color:var(--dm-faint)}
 .dm-evr-g .dm-spin{width:11px;height:11px;color:var(--dm-accent-fg,var(--dm-accent))}
-.dm-evr-i.dm-pass .dm-evr-g{color:var(--dm-ok)}
-.dm-evr-i.dm-fail .dm-evr-g{color:var(--dm-bad)}
+.dm-evr-i.dm-pass .dm-evr-g{color:var(--dm-ok-mark)}
+.dm-evr-i.dm-fail .dm-evr-g{color:var(--dm-bad-mark)}
 .dm-evr-n{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dm-evr-i.dm-queued .dm-evr-n{color:var(--dm-fg2)}
 .dm-evr-tm{font-size:12px;color:var(--dm-muted)}
@@ -42,8 +49,30 @@
 .dm-evr-kv{display:flex;gap:var(--dm-s-2)}
 .dm-evr-kv .dm-k{width:58px;flex:none;color:var(--dm-muted)}
 .dm-evr-kv .dm-bad{color:var(--dm-bad)}
-.dm-evr-fix{align-self:flex-start;margin-top:6px;background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-shadow)}
-@media (hover:hover) and (pointer:fine){.dm-evr-fix:hover{background:var(--dm-surface);box-shadow:var(--dm-shadow-pop)}}
-.dm-evr-none{margin:0;padding:10px;font-size:12.5px;color:var(--dm-muted)}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .dm-evr.dm-panel,:root [data-style="clean"] .dm-evr.dm-panel,:root [data-style="clean"].dm-evr.dm-panel{padding:10px 20px 8px 20px}
+/* a white button on the tinted row: a hairline edge and no shadow (owner, 18 Nov: buttons cast none) */
+/* the fix sits under a hairline, apart from the details above it (owner, 22 Nov); the hairline is a step of the words' own
+   colour, so it reads on the row's tint */
+.dm-evr-dd .dm-evr-kv:has(+.dm-evr-fix),.dm-evr-vs-d .dm-evr-vs-kv:has(+.dm-pill){padding-bottom:var(--dm-s-3);border-bottom:1px solid color-mix(in srgb,currentColor 12%,transparent)}
+.dm-evr-fix{align-self:flex-start;margin-top:var(--dm-s-2);background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-on-tint-btn)}
+@media (hover:hover) and (pointer:fine){.dm-evr-fix:hover{background:var(--dm-surface);box-shadow:var(--dm-on-tint-btn-h)}}
+/* nothing to show under a filter: the empty state (the lab's, lab/clean): a small sketch of the list on a white card, the
+   title, one muted line and a button back to every case */
+.dm-evr-em{display:flex;flex-direction:column;align-items:center;gap:4px;padding:16px 16px 12px;text-align:center}
+.dm-evr-em[hidden]{display:none}
+.dm-evr-em b{font-size:13.5px;line-height:18px;font-weight:500;color:var(--dm-fg)}
+.dm-evr-em>span:not(.dm-evr-em-art){max-width:290px;font-size:12.5px;line-height:1.5;color:var(--dm-muted)}
+.dm-evr-em .dm-pill{margin-top:12px}
+.dm-evr-em-art{position:relative;display:block;width:136px;height:70px;margin:0 0 16px;border-radius:calc(10px * var(--dm-rk-l,var(--dm-rk)));background:var(--dm-surface);box-shadow:var(--dm-shadow)}
+.dm-evr-em-art::before{content:"";position:absolute;left:14px;top:14px;width:10px;height:10px;border-radius:50%;background:var(--dm-ghost);box-shadow:0 16px 0 var(--dm-ghost),0 32px 0 var(--dm-ghost-2)}
+.dm-evr-em-art::after{content:"";position:absolute;left:32px;top:16px;width:58px;height:6px;border-radius:3px;background:var(--dm-ghost);box-shadow:0 16px 0 var(--dm-ghost),0 32px 0 var(--dm-ghost-2)}
+:root:not([data-style="soft"],[data-style="clean"]) .dm-evr-em-art:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *))::before{border-radius:0}
+/* Clean (owner, 17 and 18 Nov): its content 16px in from each edge, a failed case's row clear of any red fill (its sign and
+   its Got stay red) and grey under the pointer, its corners following the card's */
+:root[data-style="clean"] .dm-evr-r,:root [data-style="clean"] .dm-evr-r,:root [data-style="clean"].dm-evr-r{border-radius:calc(var(--dm-r-card) - 6px)}
+:root[data-style="clean"] .dm-evr-i.dm-fail,:root [data-style="clean"] .dm-evr-i.dm-fail,:root [data-style="clean"].dm-evr-i.dm-fail{border-radius:calc(var(--dm-r-card) - 6px)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-evr-i.dm-fail:hover,:root [data-style="clean"] .dm-evr-i.dm-fail:hover,:root [data-style="clean"].dm-evr-i.dm-fail:hover{background:var(--dm-row)}}
+:root[data-style="clean"] .dm-evr-fix,:root [data-style="clean"] .dm-evr-fix,:root [data-style="clean"].dm-evr-fix{color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-evr-fix:hover,:root [data-style="clean"] .dm-evr-fix:hover,:root [data-style="clean"].dm-evr-fix:hover{box-shadow:var(--dm-btn2-hover)}}
+:root[data-style="clean"] .dm-evr-fix:active,:root [data-style="clean"] .dm-evr-fix:active,:root [data-style="clean"].dm-evr-fix:active{box-shadow:var(--dm-btn2-press)}
+/* a pressed button never goes blank (owner, 18 Nov): Run turns to its disabled look at once */
+:root[data-style="clean"] :is(.dm-evr-run,.dm-evr-vs-run)[disabled],:root [data-style="clean"] :is(.dm-evr-run,.dm-evr-vs-run)[disabled],:root [data-style="clean"]:is(.dm-evr-run,.dm-evr-vs-run)[disabled]{transition:none}

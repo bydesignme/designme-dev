@@ -107,8 +107,8 @@ Every claim in docs or copy has to be true of the code.
    first, so we can agree on what it does before anyone builds it.
 2. Use standard UX patterns. Don't copy another library's design, layout or copy.
 3. A finished component has its HTML, CSS and demo script in `soft-2/index.html`, a React version in
-   `packages/react` with typed props, and a docs copy in `tools/pages/content/<id>.json`, in both styles, light and
-   dark.
+   `packages/react` with typed props, and a docs copy in `tools/pages/content/<id>.json`, in all three styles (Blueprint, Soft and Clean),
+   light and dark.
 4. Run the whole build, measure its card height, and check it as above.
 
 ## Releases

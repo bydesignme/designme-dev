@@ -2,9 +2,9 @@
 import { useRef, useState, type CSSProperties, type FormEvent } from 'react';
 import { Brand, type BrandName } from '../../lib/brands';
 import { cx } from '../../lib/cx';
-import { useControllable, useIsoLayoutEffect } from '../../lib/hooks';
+import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
-import { enter, Fold, Seg, Spin, Swap, Tip } from '../../lib/motion';
+import { avatarInk, enter, Fold, Seg, Spin, Swap, Tip, useGrow } from '../../lib/motion';
 import { usePopover } from '../../lib/popover';
 import '../../designme.css';
 import './scheduled-runs.css';
@@ -32,11 +32,11 @@ export interface ScheduledRun {
   fix?: string;
   /** The fix is under way: its button spins */
   fixing?: boolean;
-  /** A service's own logo. Wins over `icon` */
+  /** A service's own logo, on a white tile. Wins over `icon` */
   brand?: BrandName;
-  /** An icon on a tinted tile. Defaults to a clock */
+  /** An icon on a vivid tile of `color`. Defaults to a clock */
   icon?: IconName;
-  /** The icon's colour, which also tints its tile, like 'var(--dm-pl)' */
+  /** The tile's colour, like 'var(--dm-av-l)'. The icon on it is white, or the colour's own ink for an avatar colour */
   color?: string;
 }
 
@@ -68,7 +68,8 @@ export interface ScheduledRunsProps {
   hour?: number;
   /** Defaults to "Scheduled runs" */
   title?: string;
-  /** The line under the title. Defaults to "3 active · 1 failed · 1 paused", leaving out what is zero */
+  /** A line under the title, like "Next run in 17h". Left out, the head is the title alone: the rows already say which runs
+      are on, paused or failed */
   status?: string;
   className?: string;
 }
@@ -88,28 +89,41 @@ function firstRun(ds: number[], hour: number) {
   return `First run in ${days} days`;
 }
 
+/** The fix: as wide as its words, easing to "Reconnecting" with its spinner and back */
+function Fix({ label, fixing, onClick }: { label: string; fixing?: boolean; onClick: () => void }) {
+  const ref = useRef<HTMLButtonElement>(null), was = useRef(0), reduce = useReducedMotion();
+  useIsoLayoutEffect(() => {
+    const b = ref.current; if (!b) return;
+    const w1 = b.getBoundingClientRect().width, w0 = was.current; was.current = w1;
+    const cs = getComputedStyle(b), t = cs.getPropertyValue('--dm-t').trim();
+    if (w0 && !reduce && Math.abs(w1 - w0) > .5) b.animate([{ width: w0 + 'px' }, { width: w1 + 'px' }], { duration: (t.endsWith('ms') ? parseFloat(t) : parseFloat(t) * 1000) || 340, easing: cs.getPropertyValue('--dm-ease').trim() || 'ease' });
+  }, [fixing]);
+  return <button ref={ref} type="button" className="dm-pill dm-accent dm-sm" aria-disabled={fixing || undefined} onClick={() => !fixing && onClick()}>{fixing ? <><Spin />Reconnecting</> : label}</button>;
+}
+
 /** Recurring agent tasks: each with its schedule in words, when it runs next, how its last run went, Run now and an
     on/off switch. A paused one dims and says so; a failed one says why and can offer a fix; New schedule makes another. */
 export function ScheduledRuns({ runs, defaultRuns = [], onRunsChange, onRunNow, onFix, onCreate, time = '9:00', hour = 9, title = 'Scheduled runs', status, className }: ScheduledRunsProps) {
   const [list, setList] = useControllable(runs, defaultRuns, onRunsChange);
-  const root = useRef<HTMLDivElement>(null);
+  // the card grows with its rows, and eases as a fix folds open or shut (as grow() on the site)
+  const [root, inner] = useGrow();
   const field = useRef<HTMLInputElement>(null);
-  const menu = usePopover({ side: 'up' });
+  // the form opens under its button, or above it when there is no room
+  const menu = usePopover();
   const [task, setTask] = useState('');
   const [repeat, setRepeat] = useState<ScheduledRunsNew['repeat']>('day');
   const [custom, setCustom] = useState([0, 2, 4]);
   const days = repeat === 'day' ? [0, 1, 2, 3, 4, 5, 6] : repeat === 'monday' ? [0] : custom;
-  // the form grows upwards from New schedule when Custom adds the days, so it is held by its bottom edge
+  // a form that opened above New schedule grows upwards when Custom adds the days, so it is held by its bottom edge
   const [bottom, setBottom] = useState<CSSProperties>({});
+  const up = String((menu.pop.style as Record<string, unknown>)['--dm-origin'] ?? '').startsWith('bottom');
   useIsoLayoutEffect(() => {
-    const b = root.current?.querySelector<HTMLElement>('.dm-shx-add');
-    if (menu.open && b && root.current) setBottom({ top: 'auto', bottom: root.current.clientHeight - b.offsetTop + 6 });
-  }, [menu.open, repeat]);
+    const r = root.current?.querySelector<HTMLElement>('.dm-shx-add')?.getBoundingClientRect(), h = root.current?.getBoundingClientRect();
+    setBottom(menu.open && up && r && h ? { top: 'auto', bottom: h.bottom - r.top + 6 } : {});
+  }, [menu.open, repeat, up]);
   const [first] = useState(() => list.map(r => r.key));
 
   const on = (r: ScheduledRun) => r.enabled !== false;
-  const active = list.filter(on).length, paused = list.length - active, failed = list.filter(r => on(r) && r.result === 'failed').length;
-  const line = status ?? `${active} active` + (failed ? ` · ${failed} failed` : '') + (paused ? ` · ${paused} paused` : '');
   const toggle = (key: string) => setList(list.map(r => r.key === key ? { ...r, enabled: !on(r) } : r));
   const create = (e: FormEvent) => {
     e.preventDefault(); if (!task.trim() || !days.length) return;
@@ -118,38 +132,39 @@ export function ScheduledRuns({ runs, defaultRuns = [], onRunsChange, onRunNow, 
   };
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-shx dm-panel', className)}>
-      <div className="dm-shx-h"><div><b>{title}</b><Swap className="dm-muted dm-shx-st">{line}</Swap></div></div>
+    <div data-dm="" ref={root} className={cx('dm-shx dm-panel dm-growing dm-mx-grow', className)}>
+      <div ref={inner} className="dm-grow">
+      <div className="dm-shx-h"><span className="dm-shx-hi" aria-hidden="true"><Icon name="clock" size="xs" /></span><div><b>{title}</b>{status && <Swap className="dm-muted dm-shx-st">{status}</Swap>}</div></div>
       <div className="dm-shx-list" role="list" aria-label="Schedules">
         {list.map(r => {
           const at = first.indexOf(r.key), motion = enter(at >= 0 ? at * 50 : 0), running = r.result === 'running';
           const res = running ? 'Running now' : r.result === 'passed' ? 'Passed' + (r.ago ? ' ' + r.ago : '') : r.result === 'failed' ? 'Failed' + (r.error ? ': ' + r.error : '') : 'No runs yet';
           const st = running ? 'run' : r.result === 'passed' ? 'ok' : r.result === 'failed' ? 'bad' : 'none';
-          const color = r.color ?? 'var(--dm-pb)';
+          const color = r.color ?? 'var(--dm-av-b)';
           return (
             <div key={r.key} className={cx('dm-shx-r', motion.className, !on(r) && 'dm-off')} style={motion.style} role="listitem" data-st={st}>
               {r.brand
                 ? <span className="dm-ic dm-brandic" aria-hidden="true"><Brand name={r.brand} /></span>
-                : <span className="dm-ic" style={{ color, background: `color-mix(in srgb,${color} 12%,transparent)` }} aria-hidden="true"><Icon name={r.icon ?? 'clock'} size="xs" /></span>}
+                : <span className="dm-ic" style={{ background: color, color: avatarInk(color) ?? '#fff' }} aria-hidden="true"><Icon name={r.icon ?? 'clock'} size="xs" /></span>}
               <span className="dm-t">
                 <span className="dm-nm">{r.name}</span>
                 <Swap className="dm-d">{r.schedule + ' · ' + (on(r) ? r.next ?? '' : 'Paused')}</Swap>
-                <span className="dm-res">{!running && (r.result === 'passed' || r.result === 'failed') && <Icon name={r.result === 'passed' ? 'ok' : 'alert'} size="xs" />}<Swap>{res}</Swap></span>
+                <span className="dm-res">{running ? <Spin /> : (r.result === 'passed' || r.result === 'failed') && <Icon name={r.result === 'passed' ? 'ok' : 'alert'} size="xs" />}<Swap className={running ? 'dm-shim' : undefined}>{res}</Swap></span>
               </span>
               <span className="dm-shx-act">
-                {onRunNow && <Tip label="Run now"><button type="button" className="dm-ib dm-shx-run" aria-label={`Run ${r.name} now`} disabled={running || !on(r)} onClick={() => onRunNow(r.key)}><Icon name="play" /></button></Tip>}
+                {onRunNow && <Tip label="Run now"><button type="button" className="dm-ib dm-shx-run dm-mx-press" aria-label={`Run ${r.name} now`} disabled={running || !on(r)} onClick={() => onRunNow(r.key)}><Icon name="play" /></button></Tip>}
                 <Tip label={on(r) ? 'Pause' : 'Resume'}><button type="button" className="dm-toggle" role="switch" aria-checked={on(r)} aria-label={r.name} onClick={() => toggle(r.key)} /></Tip>
               </span>
               <Fold open={r.result === 'failed' && !!r.fix} className="dm-shx-fx">
-                <div><button type="button" className="dm-pill dm-accent dm-sm" onClick={() => !r.fixing && onFix?.(r.key)}>{r.fixing ? <><Spin />Reconnecting</> : r.fix}</button></div>
+                <div><Fix label={r.fix ?? ''} fixing={r.fixing} onClick={() => onFix?.(r.key)} /></div>
               </Fold>
             </div>
           );
         })}
       </div>
       {onCreate && <>
-        <button type="button" className="dm-shx-add" {...menu.trigger} aria-haspopup="dialog" onClick={() => { menu.trigger.onClick(); if (!menu.open) requestAnimationFrame(() => field.current?.focus({ preventScroll: true })); }}><Icon name="plus" size="xs" />New schedule</button>
-        <div {...menu.pop} style={{ ...menu.pop.style, ...bottom }} className={cx(menu.pop.className, 'dm-shx-pop')} role="dialog" aria-label="New schedule">
+        <div className="dm-shx-ft"><button type="button" className="dm-shx-add dm-mx-press" {...menu.trigger} aria-haspopup="dialog" onClick={() => { menu.trigger.onClick(); if (!menu.open) requestAnimationFrame(() => field.current?.focus({ preventScroll: true })); }}><Icon name="plus" size="xs" />New schedule</button></div>
+        <div {...menu.pop} style={{ ...menu.pop.style, ...bottom }} className={cx(menu.pop.className, 'dm-shx-pop dm-mx-pop')} role="dialog" aria-label="New schedule">
           <form className="dm-shx-f" onSubmit={create}>
             <h4>New schedule</h4>
             <input ref={field} className="dm-shx-in" value={task} onChange={e => setTask(e.target.value)} placeholder="What should the agent do?" aria-label="What should the agent do?" spellCheck={false} autoComplete="off" />
@@ -163,6 +178,7 @@ export function ScheduledRuns({ runs, defaultRuns = [], onRunsChange, onRunNow, 
           </form>
         </div>
       </>}
+      </div>
     </div>
   );
 }

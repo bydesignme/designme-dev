@@ -7,8 +7,10 @@ import { Swap, Tip } from '../../lib/motion';
 import '../../designme.css';
 import './banner.css';
 
-/** The tint the banner sits on. `accent` is the accent's own tint; the others are tints of the tag colours */
-export type BannerTone = 'accent' | 'neutral' | 'blue' | 'violet' | 'green' | 'amber';
+/** The tint the banner sits on. `accent` is the accent's own tint; `warning` is a warning notice (a faint warning tint, the
+    filled warning sign, words in the text colour and the action in the warning's own tint); the others are tints of the tag
+    colours */
+export type BannerTone = 'accent' | 'neutral' | 'blue' | 'violet' | 'green' | 'amber' | 'warning';
 /** The four drawings that come with it */
 export type BannerArtName = 'layers' | 'steps' | 'tools' | 'path';
 
@@ -20,7 +22,7 @@ export interface BannerAction {
 }
 
 export interface BannerProps {
-  /** The tint, and the colour the eyebrow and the drawing take. accent by default */
+  /** The tint, and the colour the eyebrow and the drawing take. accent by default. warning makes it a warning notice */
   tone?: BannerTone;
   /** One of the four drawings, or your own SVG (240 by 160 is the size it is shown at). null for none. layers by default */
   art?: BannerArtName | ReactElement | null;
@@ -29,7 +31,8 @@ export interface BannerProps {
   title: ReactNode;
   /** One line or two under the title */
   description?: ReactNode;
-  /** The primary button, on the accent */
+  /** The primary button: white on a coloured banner in light mode and the accent in dark mode, the accent on a neutral one,
+      and the warning's own tint on a warning */
   action?: BannerAction;
   /** A quieter link beside it */
   secondary?: BannerAction;

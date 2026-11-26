@@ -3,9 +3,11 @@ import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent, type 
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
-import { avatarInk, freshText, reflowPace, Swap, Tip, useMounted, useReflow } from '../../lib/motion';
+import { avatarInk, freshText, reflowPace, Swap, Tip, useGrow, useMounted, useReflow } from '../../lib/motion';
 import { usePopover } from '../../lib/popover';
 import '../../designme.css';
+// its menus' rows glide in Clean
+import { useHoverGlide } from '../../lib/glide';
 import './filter-menu.css';
 
 /** One value a field can be filtered by */
@@ -63,8 +65,10 @@ export interface FilterMenuProps {
   countFor?: (field: string, value: string) => number;
   /** The first few matches, shown under the count */
   results?: FilterMenuResult[];
-  /** Shown when nothing matches. Defaults to "No issues match these filters" with your noun */
+  /** The empty state's title when nothing matches. Defaults to "No issues match" with your noun */
   emptyLabel?: string;
+  /** The empty state's quiet line under it. Defaults to "Try another value, or clear the filters" */
+  emptyHint?: string;
   /** Defaults to "Filter" and "Clear all" */
   label?: string;
   clearLabel?: string;
@@ -78,7 +82,7 @@ export interface FilterMenuProps {
 /** A Filter button that adds filters from a two-step menu (a field, then its value), the filters as removable chips whose
     operator flips with a click, and the number of matches with Clear all. */
 export function FilterMenu({
-  fields, filters, defaultFilters = [], onFiltersChange, total, count, noun = 'issues', countFor, results = [], emptyLabel,
+  fields, filters, defaultFilters = [], onFiltersChange, total, count, noun = 'issues', countFor, results = [], emptyLabel, emptyHint = 'Try another value, or clear the filters',
   label = 'Filter', clearLabel = 'Clear all', open, defaultOpen = false, onOpenChange, className
 }: FilterMenuProps) {
   const [list, setList] = useControllable(filters, defaultFilters, onFiltersChange);
@@ -95,7 +99,11 @@ export function FilterMenu({
   // a chip taken off fades where it was and the rest glide over to close the gap; the results that still match glide to their
   // new places, new ones fade in and the ones filtered out fade where they were. The results play their entrance only once
   useReflow(root, '.dm-flm-ch', { enter: false });
-  useReflow(root, '.dm-flm-list > [data-key]');
+  useReflow(root, '.dm-flm-list .dm-grow > [data-key]');
+  // the list grows and shrinks with what matches, eased, and keeps no room for rows to come
+  const [listBox, listIn] = useGrow();
+  // Clean's one hover glides from row to row
+  useHoverGlide(listBox, '.dm-flm-r');
   const mounted = useMounted();
 
   const fieldOf = (k: string) => fields.find(f => f.key === k);
@@ -211,8 +219,8 @@ export function FilterMenu({
         <span aria-live="polite"><Swap className="dm-flm-ct dm-num">{list.length ? `${count} of ${total} ${noun}` : `${total} ${noun}`}</Swap></span>
         {list.length > 0 && <button type="button" className="dm-pill dm-ghost dm-sm dm-flm-clr" onClick={e => { const had = e.currentTarget === document.activeElement; setList([]); if (had) trigger.current?.focus(); }}>{clearLabel}</button>}
       </div>
-      <div className="dm-flm-list">
-        {count === 0 ? <div className="dm-flm-e" data-key="none">{emptyLabel ?? `No ${noun} match these filters`}</div> : <>
+      <div ref={listBox} className="dm-flm-list dm-growing"><div ref={listIn} className="dm-grow">
+        {count === 0 ? <div className="dm-flm-em" data-key="none"><span className="dm-flm-em-art" aria-hidden="true" /><b>{emptyLabel ?? `No ${noun} match`}</b><span>{emptyHint}</span></div> : <>
           {results.map((t, i) => (
             <div key={t.id} data-key={t.id} className={cx('dm-flm-r', !mounted && 'dm-enter')} style={mounted ? undefined : { animationDelay: i * 50 + 'ms' }}>
               {t.dot ? <span className="dm-dot" style={{ color: t.dot.color }} role="img" aria-label={t.dot.label} /> : <span />}
@@ -223,7 +231,7 @@ export function FilterMenu({
           ))}
           {count > results.length && <div className="dm-flm-more" data-key="more">and {count - results.length} more</div>}
         </>}
-      </div>
+      </div></div>
     </div>
   );
 }

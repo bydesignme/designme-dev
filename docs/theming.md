@@ -24,7 +24,7 @@ Add `data-style="soft"` to `<html>`, or to any element around the components to 
 
 ### Clean
 
-Black, white and grey with an ink accent, hairline outlines and fully round controls. Add `data-style="clean"` to `<html>`, or to any element around the components to make just those Clean.
+Black, white and grey with an ink primary button, hairline outlines and fully round controls. In light mode the accent stays blue for data, selection and links; in dark mode it turns white. Add `data-style="clean"` to `<html>`, or to any element around the components to make just those Clean.
 
 ```html
 <html data-style="clean">
@@ -78,7 +78,7 @@ The contrast targets hold on the surface, and on the grey chips and tinted rows 
 | Tint, `--dm-accent-bg` | `color-mix(in srgb,#116ff8 9%,transparent)` | `color-mix(in srgb,#116ff8 13%,transparent)` | `color-mix(in srgb,#c2f23c 9%,transparent)` | `color-mix(in srgb,#d4f84a 13%,transparent)` |
 
 - Soft is blue, `#116ff8`, with white text on it, in light and dark mode. Accent text is `#0f5fd5` in light mode and `#9dc4ff` in dark mode.
-- Blueprint is lime, `#d4f84a`, with dark text and icons on it. In dark mode, text and marks are lime too. In light mode, lime is too light to read on white, so accent text uses the ink colour and marks use green, `#1daa51`.
+- Blueprint is lime, `#d4f84a`, with dark text and icons on it. In dark mode, text and marks are lime too. In light mode, lime is too light to read on white, so accent text uses the ink colour and marks use green, `#00a23d`.
 
 ## Your own accent
 
@@ -108,7 +108,7 @@ This runs on the site only. In your project, set the roles yourself as shown abo
 
 ## Charts follow the accent
 
-A chart's first colour is the accent's mark: `--dm-c1` is `--dm-accent-mark`. `--dm-a2` to `--dm-a4` mix it toward the surface for lighter steps. So [Line chart](https://designme.dev/components/line-chart.md), [Bar chart](https://designme.dev/components/bar-chart.md) and [Donut chart](https://designme.dev/components/donut-chart.md) change with the accent. Other series use fixed colours, `--dm-c2` to `--dm-c6`.
+A chart's first colour is the accent's mark: `--dm-c1` is `--dm-accent-mark`. `--dm-a2` to `--dm-a4` mix it toward the surface for lighter steps. Other series use fixed colours, `--dm-c2` to `--dm-c6`.
 
 ## Fonts
 

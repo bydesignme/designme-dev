@@ -1,8 +1,13 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, DM, swap } from '../core/core.js';
+import { $, DM, REDUCE, swap } from '../core/core.js';
 DM.def('run-cost', (r, c) => {
   // the label crossfades on its own span, so the button itself never blurs
   const go = $('.rc-go', r); go.innerHTML = '<span class="rc-gl">Start run</span>'; const gl = () => $('.rc-gl', go);
+  // the button is as wide as its words and eases to its new width when they change, keeping no room for a longer one (owner, 18 Nov)
+  const easeW = el => { let w = 0, busy = null; const ro = new ResizeObserver(() => { if (busy) return; const w1 = el.getBoundingClientRect().width;
+    if (!REDUCE && w && Math.abs(w1 - w) > .5){ busy = el.animate([{ width:w + 'px' }, { width:w1 + 'px' }], { duration:340, easing:'cubic-bezier(.23,1,.32,1)' }); busy.finished.catch(() => {}).then(() => { busy = null; w = el.getBoundingClientRect().width; }); } w = w1; });
+    ro.observe(el); c.offs.push(() => ro.disconnect()); };
+  easeW(go);
   const tg = $('.toggle', r), cap = $('.rc-cap', r), fill = $('.rc-fill', r), st = $('.rc-st', r), stt = $('.rc-stt', r);
   let used = 0, inT = 0, outT = 0, tools = 0, running = false, limit = 1800, loop = 0;
   const fmt = n => Math.round(n).toLocaleString('en-US');
@@ -14,7 +19,7 @@ DM.def('run-cost', (r, c) => {
   go.onclick = () => {
     if (running){ stop('Stopped'); swap(gl(), 'Resume'); return; }
     if (used >= 2000){ used = inT = outT = tools = 0; paint(); }
-    running = true; status('Running', 'b'); swap(gl(), 'Stop'); go.className = 'pill soft sm rc-go'; fill.style.background = 'var(--dm-accent-mark,var(--dm-accent))';
+    running = true; status('Running', 'b'); swap(gl(), 'Stop'); go.className = 'pill line sm rc-go'; fill.style.background = 'var(--dm-accent-mark,var(--dm-accent))';
     loop = c.every(90, () => {
       used = Math.min(2000, used + 8 + Math.random() * 18); inT += 120 + Math.random() * 220; outT += 30 + Math.random() * 70; if (Math.random() < .12) tools++;
       paint();

@@ -37,13 +37,14 @@ export default function EventCalendarDemo() {
   }, [wait]);
   // the preview asks the agent for a slot once on its own, unless you take over first
   const ref = useRef<HTMLDivElement>(null);
-  useStory(ref, async s => { await s.wait(1200); await ask(); });
+  // the agent checking calendars keeps working under a resting pointer, as an agent at work does on designme.dev
+  useStory(ref, async s => { await s.wait(1200); await ask(); }, { hold: false });
 
   return (
     <div ref={ref} style={{ width: '100%' }}>
       <EventCalendar week={WEEK} now={new Date(2026, 9, 19, 10, 42)} events={events} onEventsChange={setEvents}
         newEvent={{ tone: 'pink', people: people('New event') }}
-        onPrepNotes={() => wait(1200).then(() => "Notes ready: last week's decisions and 3 open questions.")} onJoin={() => {}}
+        onPrepNotes={() => wait(1200).then(() => "Last week's decisions and 3 open questions.")} onJoin={() => {}}
         askLabel={label} onAsk={ask} finding={finding} suggestions={suggestions}
         onBook={s => {
           setEvents(es => [...es, { id: s.id + '-booked', title: s.title, start: s.start, end: s.end, tone: 'blue', people: people(s.title) }]);

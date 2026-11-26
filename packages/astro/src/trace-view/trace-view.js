@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, DM, I, enter, grow, html, swap } from '../core/core.js';
+import { $, DM, I, enter, grow, hoverGlide, html, swap } from '../core/core.js';
 DM.def('trace-view', (r, c) => {
   // the kinds of span, each with its mark and colour: the identity slots of the chart palette, and grey for the agents
   // that hold the other spans. The name is always on the mark, in a tooltip, and in the span's label
@@ -19,6 +19,8 @@ DM.def('trace-view', (r, c) => {
   // an agent span counts the tokens of every span under it
   S.forEach((x, i) => { x.kids = []; for (let j = i + 1; j < S.length && S[j].lv > x.lv; j++) x.kids.push(S[j]); });
   const root = $('.trv', r), rows = $('.trv-rows', r), stEl = $('.trv-st', r), tot = $('.trv-tot', r), dt = $('.trv-dt', r), dc = $('.trv-dc', r), lg = $('.trv-lg', r);
+  // Clean's one hover glides from span to span; an open span keeps its stronger fill
+  if (!r.closest('.ahx')) c.offs.push(hoverGlide(rows, '.trv-r', { keep:'[aria-expanded="true"]' }));
   // the head has the run's mark in a tile, the column every span's mark is centred in, and its total tokens beside its time
   const head = $('.trv-h', r);
   head.prepend(html(`<span class="trv-hi" aria-hidden="true">${I('cpu')}</span>`));
@@ -94,17 +96,18 @@ DM.def('trace-view', (r, c) => {
     if (!x) return;
     x.el.setAttribute('aria-expanded', 'true');
     const [kind, icon, col] = K[x.k];
-    dc.innerHTML = `<div class="trv-dh"><span class="trv-k" style="--dm-k:${col}">${I(icon,'xs')}</span><b>${x.n}</b>${x.slow ? '<span class="tag warn">slow</span>' : ''}<button class="ib trv-x" aria-label="Close details" data-tip="Close">${I('x')}</button></div>
+    dc.innerHTML = `<div class="trv-dh"><span class="trv-k" style="--dm-k:${col}">${I(icon,'xs')}</span><b>${x.n}</b>${x.slow ? '<span class="tag warn">slow</span>' : ''}<button class="ib trv-x mx-press" aria-label="Close details" data-tip="Close">${I('x')}</button></div>
       <div class="trv-pos" aria-hidden="true" style="--dm-k:${col}"><i style="left:${x.s / SPAN * 100}%"></i></div>
-      <div class="trv-kv"><div><span>Kind</span><b>${kind}</b></div><div><span>Starts at</span><b class="num">${sec(x.s)}</b></div><div><span>Latency</span><b class="num lt"></b></div><div><span>Tokens</span><b class="num tk"></b></div></div>
+      <div class="trv-kv"><div><span>Kind</span><b>${kind}</b></div><div><span>Starts at</span><b class="num">${sec(x.s)}</b></div><div><span>Latency</span><b class="num trv-lt"></b></div><div><span>Tokens</span><b class="num trv-tn"></b></div></div>
       <div class="trv-io"><span>Input</span><code>${x.in}</code><span>Output</span><code class="out"></code></div>`;
     // closing hands focus back to the span, if it was inside the details
     $('.trv-x', dc).onclick = () => { const el = sel.el, back = dc.contains(document.activeElement); open(null); if (back) el.focus({ preventScroll:true }); };
-    fill(); enter(dc);
+    // (its parts settle one after another as it opens: .mx-rows on the card, motion pieces)
+    fill();
   }
   function fill(){
     const x = sel, done = T >= x.s + x.d;
-    $('.lt', dc).textContent = sec(took(x)); $('.tk', dc).textContent = Math.round(used(x)).toLocaleString('en-US'); $('.trv-pos i', dc).style.width = (took(x) / SPAN * 100) + '%';
+    $('.trv-lt', dc).textContent = sec(took(x)); $('.trv-tn', dc).textContent = Math.round(used(x)).toLocaleString('en-US'); $('.trv-pos i', dc).style.width = (took(x) / SPAN * 100) + '%';
     const o = $('.out', dc), t = done ? x.out : 'Running…'; if (o.textContent !== t) o.textContent = t;
   }
   // the arrow keys move between spans, and Escape shuts the details

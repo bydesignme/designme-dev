@@ -6,7 +6,8 @@ import { useStory, useWait } from './useScript';
 
 const CODE = '482157';
 
-/* ---------- Sign in: type an email and send it, the email arrives, copy its code and paste it in ---------- */
+/* ---------- Sign in: type an email and send it; the code arrives and Mail offers it; type it with two digits swapped, see it
+   fail, then take the one Mail offers ---------- */
 export default function SignInDemo() {
   const ref = useRef<HTMLDivElement>(null);
   const [email, setEmail] = useState('');
@@ -14,7 +15,7 @@ export default function SignInDemo() {
   const [code, setCode] = useState('');
   const wait = useWait();
 
-  // the preview's story; anyone can take over and go through it with their own email and any 6 digits
+  // the preview's story; anyone can take over and go through it with their own email, typing 482 157 or pressing the chip
   useStory(ref, async ({ wait, press, taken }) => {
     await wait(1000);
     // taking over while it types takes the letters back
@@ -23,15 +24,17 @@ export default function SignInDemo() {
     for (const ch of 'maya@studio.com') { typed += ch; setEmail(typed); await wait(40); }
     typing = false;
     await wait(500); press('.dm-sgx-go');
-    await wait(2800); press('.dm-sgx-cp');
-    await wait(1000); setCode(CODE);
+    await wait(2400);
+    let wrong = '';
+    for (const d of '482175') { wrong += d; setCode(wrong); await wait(250); }
+    await wait(3200); press('.dm-sgx-sug');
   });
 
   return (
     <div ref={ref} style={{ width: '100%' }}>
       <SignIn email={email} onEmailChange={setEmail} step={step} onStepChange={setStep} code={code} onCodeChange={setCode}
-        onSendCode={() => wait(800)} onVerify={() => wait(1100).then(() => true)}
-        inbox={{ code: CODE, text: <>Your sign-in code is <span className="dm-num">482 157</span></> }} hint="Copy it from the email above" />
+        onSendCode={() => wait(800)} onVerify={c => wait(1100).then(() => c === CODE)}
+        inbox={{ code: '482 157' }} />
     </div>
   );
 }

@@ -19,11 +19,11 @@ const ORGS: Org[] = [
     { id: 'onboard', name: 'Onboarding copilot', badge: 'Paused', envs: envs('sandbox') },
     { id: 'notes', name: 'Release notes writer', envs: envs('live') }
   ] },
-  { id: 'quillwork', name: 'Quillwork', tile: 'orange', badge: 'Free', projects: [
+  { id: 'quillwork', name: 'Quillwork', tile: 'pink', badge: 'Free', projects: [
     { id: 'coach', name: 'Essay coach', envs: envs('live') },
     { id: 'cite', name: 'Citation checker', badge: { label: 'Beta', tone: 'teal' }, envs: envs('staging') }
   ] },
-  { id: 'otterline', name: 'Otterline Health', tile: 'green', badge: { label: 'Enterprise', tone: 'violet' }, projects: [
+  { id: 'otterline', name: 'Otterline Health', tile: 'violet', badge: { label: 'Enterprise', tone: 'violet' }, projects: [
     { id: 'intake', name: 'Intake assistant', envs: envs('live') },
     { id: 'claims', name: 'Claims summariser', envs: envs('live') },
     { id: 'handover', name: 'Shift handover notes', badge: { label: 'Beta', tone: 'teal' }, envs: envs('sandbox') }
@@ -49,7 +49,7 @@ export default function ContextSwitcherDemo() {
     const id = `new-${Date.now()}`;
     const next = orgs.map(o => ({ ...o, projects: o.projects.map(p => ({ ...p, envs: [...p.envs] })) }));
     const o = next.find(x => x.id === value.org) ?? next[0], p = o.projects.find(x => x.id === value.project) ?? o.projects[0];
-    if (key === 'org') next.push({ id, name: name || 'New organisation', tile: 'violet', badge: 'Free', projects: [{ id: id + '-p', name: 'First project', envs: envs('sandbox') }] });
+    if (key === 'org') next.push({ id, name: name || 'New organisation', tile: 'blue', badge: 'Free', projects: [{ id: id + '-p', name: 'First project', envs: envs('sandbox') }] });
     else if (key === 'project') o.projects.push({ id, name: name || 'New project', envs: envs('sandbox') });
     else p.envs.push(env(name || 'new-environment', 'Development'));
     setOrgs(next); setValue({ ...value, [key]: key === 'env' ? name || 'new-environment' : id });

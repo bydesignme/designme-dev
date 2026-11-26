@@ -7,23 +7,26 @@
     "In an agent's settings or onboarding, where new tools get connected."
   ],
   "features": [
-    "Each row shows a service logo (`brand`) or an icon on a tinted tile, a name and a detail line.",
-    "An Off, Ask or Allow switch per tool, defaulting to Ask; a tool set to Off is dimmed and not counted as connected.",
-    "\"Connect a tool\" opens a menu of `available` tools not yet in the list; a picked tool joins with \"Just connected\" and Ask, and `onConnect` is called.",
-    "Passing `onTest` adds a Test all button, and `testing` shows a spinner on it while a test runs. You report each tool's progress through its `status`: 'testing' puts a small spinner on its status dot, without changing its line.",
-    "A tool with `status: 'error'` shows a Reconnect button that calls `onReconnect`, with a spinner while `status` is 'reconnecting'.",
-    "The line under the title counts connected tools, or shows your own `status` text."
+    "Each row shows a service logo (`brand`) on a white tile, or an `icon` on a vivid tile of its `color`, with a name and a detail line. In Clean the tiles are one neutral grey, and logos keep their own colours.",
+    "A tool's state is a small dot after its name: green while it is connected, red once it has failed, and a turning ring while it is tested. A tool set to Off has no dot, and its tile and name dim.",
+    "An Off, Ask or Allow switch per tool, defaulting to Ask; a tool set to Off is not counted as connected.",
+    "\"Connect a tool\" opens a menu of `available` tools not yet in the list; a picked tool joins with \"Just connected\" and Ask, and `onConnect` is called. The menu opens under the button, or above it when there is no room below. It grows out of the button, its rows settling in one after another, and one highlight glides from row to row.",
+    "Passing `onTest` adds a Test all button, and `testing` shows a spinner on it while a test runs; the button is as wide as its words and eases to the new ones. You report each tool's progress through its `status`: 'testing' turns its dot into a small ring, without changing its line.",
+    "A test brings a line to the card's foot, beside Connect a tool: pass it as `status`, like \"Testing 4 connections\" while `testing` is set (it shimmers) and then \"4 of 4 healthy\", with `healthy` to lead it with the green tick. Without `status` there is none, since the rows already say what is connected.",
+    "A tool with `status: 'error'` shows its note in red and a Reconnect button that calls `onReconnect`, with a spinner while `status` is 'reconnecting'.",
+    "The card grows and shrinks with its rows, eased, and keeps no room for a state still to come."
   ],
   "a11y": [
-    "Each permission switch is a role=\"group\" labelled with the tool name plus \"permission\", and its buttons use aria-pressed.",
+    "The tools form a list. Each permission switch is a role=\"group\" labelled with the tool name plus \"permission\", and its buttons use aria-pressed.",
     "Each permission option has a tooltip saying what it means, such as \"Agent asks first\", which also shows on keyboard focus.",
     "The \"Connect a tool\" button exposes aria-expanded and aria-haspopup, and its menu has role=\"menu\"; Escape closes it and returns focus to the button.",
-    "From the keyboard, Enter, Space or the down arrow opens a menu with the focus on its picked item, or its first (the up arrow, on its last); the arrow keys move through it and wrap, Home and End jump to the ends, Tab closes it and moves on, and closing it gives the focus back to its button."
+    "From the keyboard, Enter, Space or the down arrow opens a menu with the focus on its picked item, or its first (the up arrow, on its last); the arrow keys move through it and wrap, Home and End jump to the ends, Tab closes it and moves on, and closing it gives the focus back to its button.",
+    "The test's line in the foot is announced politely when it changes."
   ],
   "faq": [
-    {"q": "How do I show a connection test in progress?", "a": "Handle `onTest` and update `tools`: set `testing`, and each tool's `status` to 'testing' (a small spinner on its dot), then to 'ok' or 'error'. A `note`, like \"Token expired. Reconnect to use it\", replaces the detail line while it is set."},
+    {"q": "How do I show a connection test in progress?", "a": "Handle `onTest` and update `tools`: set `testing`, and each tool's `status` to 'testing' (a small turning ring after its name), then to 'ok' or 'error'. A `note`, like \"Token expired. Reconnect to use it\", replaces the detail line while it is set. Pass the result as `status`, like \"4 of 4 healthy\", with `healthy` when every tool passed."},
     {"q": "What does Reconnect do?", "a": "It calls `onReconnect` with the tool's key. Set that tool's `status` to 'reconnecting' while you refresh the token, then back to 'ok' and the row comes back with its permission switch."},
     {"q": "How do I save permission changes?", "a": "Pass `tools` and `onToolsChange`. Every switch change and newly connected tool comes back as the full updated list."},
-    {"q": "Can I use a tool that has no logo?", "a": "Yes. Leave out `brand` and set `icon` and `color`; the icon sits on a tile tinted with that colour."}
+    {"q": "Can I use a tool that has no logo?", "a": "Yes. Leave out `brand` and set `icon` and `color`; the icon sits on a tile of that colour. One of the avatar colours, like 'var(--dm-av-t)', gives the icon that colour's own ink; any other colour gives it white."}
   ]
 }

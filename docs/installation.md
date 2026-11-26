@@ -101,6 +101,7 @@ src/components/designme/
     hooks.ts
     icons.tsx
     motion.tsx
+    glide.ts
     popover.tsx
   status-pill/
     StatusPill.tsx
@@ -188,7 +189,7 @@ npx shadcn@latest add https://designme.dev/r/shadcn/status-pill.json
 npx shadcn@latest add https://designme.dev/r/shadcn/astro/status-pill.json
 ```
 
-The files land in a `designme` folder in your components folder (the `components` alias in `components.json`), laid out as the designme CLI lays them out. The shared core comes along as a registry dependency, and a component made of others, like the Agent harness, brings them too. The files are copied as they are.
+The files land in a `designme` folder in your components folder (the `components` alias in `components.json`), laid out as the designme CLI lays them out. The shared core comes along as a registry dependency. The files are copied as they are.
 
 ## Theme bridge
 
@@ -239,8 +240,6 @@ It reads these variables from your theme and sets our tokens from them, the same
 - Corners: `--radius` sets Soft's named radii. Blueprint keeps its square corners, and the corners a component works out from `--dm-rk` keep Soft's own scale.
 - Contrast: the accent's text and marks take your `--primary` as it is, so check that it reads on your cards.
 - Your theme's own `--accent`, `--muted` and the rest stay as they are for your page: our tokens all start with `--dm-`.
-
-On designme.dev, pick Your theme in the style switch in the header (or in the menu on a phone) to paste a theme: the demos in the library and on the component pages preview with it through the same bridge. It stays in your browser. While a pasted theme is on, the accent picker is hidden, as it would do nothing; Reset in the panel forgets the theme and brings it back.
 
 ## Frameworks
 

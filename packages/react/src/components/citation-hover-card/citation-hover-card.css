@@ -1,22 +1,36 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Citation hover card ---------- */
-.dm-chx{position:relative;overflow:visible;padding-bottom:150px}
+/* an answer with numbered citations; pointing at one (or focusing or tapping it) shows its source in a card that opens over
+   the stage from the citation, below it when there is room and above it when there isn't (placePop), so it is never cut off.
+   No room is kept for the card under the answer (owner, 17 Nov): the answer sits centred on its own */
+.dm-chx{position:relative;overflow:visible}
 .dm-chx-p{line-height:1.8}
+/* a citation is a small grey number; pointed at or open, it takes the accent tint with the accent's text (owner: highlights
+   are the tint, never a solid accent fill) */
 .dm-chx-c{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;margin:0 1px 0 3px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));background:var(--dm-hover);color:var(--dm-fg2);font-size:11px;font-variant-numeric:tabular-nums;vertical-align:2px;transition:background .2s,color .2s}
-.dm-chx-c.dm-on{background:var(--dm-accent);color:var(--dm-on-accent)}
-@media (hover:hover) and (pointer:fine){.dm-chx-c:hover{background:var(--dm-accent);color:var(--dm-on-accent)}}
-/* hidden as well as clear when put away, so Tab never lands on its link */
-.dm-chx-card{position:absolute;left:0;top:0;width:min(290px,calc(100% - 8px));padding:var(--dm-s-3);opacity:0;visibility:hidden;pointer-events:none;z-index:4;box-shadow:var(--dm-shadow-pop);transform-origin:50% 0;transition:opacity .16s ease-out,visibility 0s .16s}
-.dm-chx-card.dm-show{opacity:1;visibility:visible;pointer-events:auto;animation:dm-chxin .5s var(--dm-ease) both;transition-property:opacity}
-@keyframes dm-chxin{from{opacity:0;transform:translateY(10px) scale(.985);filter:blur(3px)}60%{filter:blur(0)}to{opacity:1;transform:none;filter:none}}
+.dm-chx-c.dm-on{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}
+:root:not([data-style="soft"],[data-style="clean"]) .dm-chx-c.dm-on:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){background:var(--dm-bp-pick)}
+@media (hover:hover) and (pointer:fine){.dm-chx-c:hover{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}}
+/* hidden as well as clear when put away, so Tab never lands on its link; it grows out of its citation's side */
+/* (its motion, owner's trial of 26 Nov, is the core's .mx-pop: it grows out of its citation, the origin set on the citation's
+   middle, from a short blur, and shrinks back into it quicker than it came. Moving on to another citation while it shows, it
+   glides there and eases to its new height as the new source crossfades in) */
+.dm-chx-card{position:absolute;left:0;top:0;width:min(290px,calc(100% - 8px));padding:var(--dm-s-4);pointer-events:none;z-index:4;box-shadow:var(--dm-shadow-pop)}
+.dm-chx-card.dm-show{pointer-events:auto}
 .dm-chx-sh{display:flex;align-items:center;gap:var(--dm-s-2);font-size:12px;color:var(--dm-muted)}
+/* the source's mark is a vivid fill of its own with white letters (owner, 18 Nov), or an avatar colour with its own ink */
 .dm-chx-sh .dm-fv{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));display:grid;place-items:center;font-size:9px;font-weight:500;color:#fff;flex:none}
 .dm-chx-t{font-size:13px;font-weight:500;margin:var(--dm-s-2) 0 6px}
-.dm-chx-q{font-size:12.5px;line-height:1.55;color:var(--dm-fg2);padding-left:10px;box-shadow:inset 2px 0 0 var(--dm-accent-mark,var(--dm-accent))}
-.dm-chx-q mark{background:var(--dm-sel);color:var(--dm-fg);border-radius:var(--dm-r-tiny,3px);padding:0 2px}
-.dm-chx-f{display:flex;align-items:center;justify-content:space-between;margin-top:10px;font-size:12px;color:var(--dm-muted)}
+/* the passage, with a neutral rule down its left (lines are grey unless they mean something) and the part the answer relies
+   on in the accent's tint */
+.dm-chx-q{font-size:12.5px;line-height:1.55;color:var(--dm-fg2);padding-left:10px;box-shadow:inset 2px 0 0 var(--dm-faint)}
+.dm-chx-q mark{background:var(--dm-sel);color:var(--dm-accent-fg,var(--dm-accent));border-radius:var(--dm-r-tiny,3px);padding:0 2px}
+/* the source's foot sits under a hairline in Soft and Blueprint (owner, 21 Nov), 12px from it on each side */
+.dm-chx-f{display:flex;align-items:center;justify-content:space-between;margin-top:var(--dm-s-3);padding-top:var(--dm-s-4);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12px;color:var(--dm-muted)}
+/* Clean: the source's foot is the card's off-white foot strip (owner, 21 Nov), its words 16px in */
+:root[data-style="clean"] .dm-chx-f,:root [data-style="clean"] .dm-chx-f,:root [data-style="clean"].dm-chx-f{margin:var(--dm-s-3) -16px -16px;padding:calc(var(--dm-strip-y) + 5px) 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card);line-height:18px}
 .dm-chx-f a{color:var(--dm-accent-fg,var(--dm-accent));display:inline-flex;align-items:center;gap:var(--dm-s-1);text-decoration:none}
 @media (hover:hover) and (pointer:fine){.dm-chx-f a:hover{text-decoration:underline;text-underline-offset:2px}}
-
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .dm-chx-card.dm-panel,:root [data-style="clean"] .dm-chx-card.dm-panel,:root [data-style="clean"].dm-chx-card.dm-panel{padding:18px 20px 18px 20px}
+/* Clean (owner, 17 and 18 Nov): the card's content 16px from each edge; it scales and fades from its citation like Clean's
+   menus, and the source's mark is Clean's neutral grey */
+:root[data-style="clean"] .dm-chx-sh .dm-fv,:root [data-style="clean"] .dm-chx-sh .dm-fv,:root [data-style="clean"].dm-chx-sh .dm-fv{background:var(--dm-chip)!important;color:var(--dm-fg2)!important;box-shadow:inset 0 0 0 1px var(--dm-hair)}

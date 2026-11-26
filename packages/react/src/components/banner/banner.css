@@ -4,7 +4,8 @@
    drawings on the right, drawn as a hairline with a few construction lines, the way Blueprint draws everything. Each tone
    names three colours: --dm-bnx-m draws the art (3:1 on the fill), --dm-bnx-c writes the eyebrow (4.5:1) and --dm-bnx-f is what
    the fill is a tint of. The fill is solid, so the close button and the art's own faces can wear it too. It has no border:
-   the tint is its edge */
+   the tint is its edge. Its words sit 24px in from the left, and as far from the top and bottom when its text is at its
+   tallest, so the room round them is even (owner, 20 Nov) */
 .dm-bnx-slot{width:100%}
 .dm-bnx{position:relative;width:100%;min-height:176px;display:flex;flex-direction:column;justify-content:center;overflow:hidden;border-radius:var(--dm-r-card);container:bnx/inline-size;isolation:isolate;
   --dm-bnx-m:var(--dm-accent-mark);--dm-bnx-c:var(--dm-accent-fg);--dm-bnx-f:var(--dm-accent);--dm-bnx-k:10%;--dm-bnx-ka:var(--dm-bnx-k);
@@ -17,8 +18,21 @@
 .dm-bnx[data-tone="violet"]{--dm-bnx-m:var(--dm-pl);--dm-bnx-c:var(--dm-pl);--dm-bnx-f:var(--dm-pl);--dm-bnx-ka:var(--dm-bnx-k)}
 .dm-bnx[data-tone="green"]{--dm-bnx-m:var(--dm-pm);--dm-bnx-c:var(--dm-pm);--dm-bnx-f:var(--dm-pm);--dm-bnx-ka:var(--dm-bnx-k)}
 .dm-bnx[data-tone="amber"]{--dm-bnx-m:var(--dm-py);--dm-bnx-c:var(--dm-py);--dm-bnx-f:var(--dm-py);--dm-bnx-ka:var(--dm-bnx-k)}
+/* a warning (owner, 18 Nov, as every warning notice): a faint warning tint (--dm-warn-bg at 45%), the filled warning sign in
+   --dm-warn-mark before the eyebrow, every word in the text colour (not amber), the drawing in the warning's orange, and the
+   action in the warning tint with the warning text (.pill.warn), its hover a step deeper (--dm-tint-h). The drawing's hairlines
+   are --dm-warn-mark taken a fifth of the way to --dm-warn in light mode, so they hold 3:1 on the tint (--dm-warn-mark itself is 2.8:1
+   there). The tint is worked out on the surface so the fill stays solid: in dark mode --dm-warn-bg is rgb(255 184 40) at 20%, so
+   45% of it is that colour at 9% */
+.dm-bnx[data-tone="warning"]{--dm-bnx-m:color-mix(in srgb,var(--dm-warn-mark) 80%,var(--dm-warn));--dm-bnx-c:var(--dm-fg);--dm-bnx-f:var(--dm-warn-mark);--dm-bnx-bg:color-mix(in srgb,var(--dm-warn-bg) 45%,var(--dm-surface))}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dm-bnx[data-tone="warning"]{--dm-bnx-m:var(--dm-warn-mark);--dm-bnx-bg:color-mix(in srgb,rgb(255 184 40) 9%,var(--dm-surface))}}
+:root[data-theme="dark"] .dm-bnx[data-tone="warning"]{--dm-bnx-m:var(--dm-warn-mark);--dm-bnx-bg:color-mix(in srgb,rgb(255 184 40) 9%,var(--dm-surface))}
+.dm-bnx[data-tone="warning"] .dm-bnx-eb{position:relative;display:inline-flex;align-items:center;gap:6px}
+.dm-bnx[data-tone="warning"] .dm-bnx-eb::before,.dm-bnx[data-tone="warning"] .dm-bnx-eb::after{content:"";width:16px;height:16px;flex:none}
+.dm-bnx[data-tone="warning"] .dm-bnx-eb::before{background:var(--dm-warn-mark);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3.6 2.6 19.9h18.8z' fill='%23000' stroke='%23000' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3.6 2.6 19.9h18.8z' fill='%23000' stroke='%23000' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat}
+.dm-bnx[data-tone="warning"] .dm-bnx-eb::after{position:absolute;left:0;top:0;background:var(--dm-surface);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 9.6v4.4M12 17v.01' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 9.6v4.4M12 17v.01' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat}
 /* the text keeps clear of the art: its right padding is the art's width */
-.dm-bnx-tx{position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-start;padding:var(--dm-s-5) calc(min(42%,300px) + var(--dm-s-2)) var(--dm-s-5) var(--dm-s-6)}
+.dm-bnx-tx{position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-start;padding:var(--dm-s-6) calc(min(42%,300px) + var(--dm-s-2)) var(--dm-s-6) var(--dm-s-6)}
 .dm-bnx-eb{font-size:12px;font-weight:500;line-height:16px;color:var(--dm-bnx-c);transition:color var(--dm-t-slow) var(--dm-ease)}
 .dm-bnx-t{margin:var(--dm-s-2) 0 0;font-size:14px;font-weight:500;line-height:20px;color:var(--dm-fg);text-wrap:balance}
 .dm-bnx-d{margin:var(--dm-s-1) 0 0;font-size:13px;line-height:20px;color:var(--dm-fg2);text-wrap:pretty}
@@ -26,16 +40,25 @@
 .dm-bnx-lk{display:inline-flex;align-items:center;height:28px;font-size:13px;color:var(--dm-fg);text-decoration:underline;text-decoration-color:color-mix(in srgb,currentColor 35%,transparent);text-underline-offset:3px;transition:text-decoration-color var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.dm-bnx-lk:hover{text-decoration-color:currentColor}}
 /* on a coloured banner the primary button is white in light mode, with the text colour on it, so it stands out from the tint
-   in every tone; in dark mode, where the tint is deep, it stays the accent. A neutral (grey) banner keeps the accent */
-.dm-bnx:not([data-tone="neutral"]) .dm-bnx-go{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-shadow)}
-@media (hover:hover) and (pointer:fine){.dm-bnx:not([data-tone="neutral"]) .dm-bnx-go:hover{background:var(--dm-surface);box-shadow:var(--dm-shadow-pop)}}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dm-bnx .dm-bnx-go{background:var(--dm-accent);color:var(--dm-on-accent);box-shadow:none}
-  @media (hover:hover) and (pointer:fine){:root:not([data-theme="light"]) .dm-bnx .dm-bnx-go:hover{background:var(--dm-accent-2);box-shadow:none}}}
-:root[data-theme="dark"] .dm-bnx .dm-bnx-go{background:var(--dm-accent);color:var(--dm-on-accent);box-shadow:none}
-@media (hover:hover) and (pointer:fine){:root[data-theme="dark"] .dm-bnx .dm-bnx-go:hover{background:var(--dm-accent-2);box-shadow:none}}
-/* an optional close button in the top right corner (the card here leaves it out) */
-.dm-bnx-x{position:absolute;top:var(--dm-s-2);right:var(--dm-s-2);z-index:2;width:28px;height:28px;background:var(--dm-bnx-bg)}
-@media (hover:hover) and (pointer:fine){.dm-bnx-x:hover{background:color-mix(in srgb,var(--dm-fg) 8%,var(--dm-bnx-bg))}}
+   in every tone; in dark mode, where the tint is deep, it is the accent (owner, 4 Nov). It casts no shadow: the white button
+   on a tint has a hairline edge (--dm-on-tint-btn), and its hover is a quiet, deeper fill with no lift or shadow (owner, 18 and
+   20 Nov). A neutral (grey) banner keeps the accent, and a warning one the warning's own button (above) */
+.dm-bnx{--dm-bnx-go-bg:var(--dm-surface);--dm-bnx-go-fg:var(--dm-fg);--dm-bnx-go-sh:var(--dm-on-tint-btn);--dm-bnx-go-hbg:color-mix(in srgb,var(--dm-fg) 4%,var(--dm-surface));--dm-bnx-go-hsh:var(--dm-on-tint-btn-h);--dm-bnx-go-ash:var(--dm-on-tint-btn-h);--dm-bnx-go-pr:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dm-bnx{--dm-bnx-go-bg:var(--dm-accent);--dm-bnx-go-fg:var(--dm-on-accent);--dm-bnx-go-sh:none;--dm-bnx-go-hbg:var(--dm-accent-2);--dm-bnx-go-hsh:none;--dm-bnx-go-ash:none}}
+:root[data-theme="dark"] .dm-bnx{--dm-bnx-go-bg:var(--dm-accent);--dm-bnx-go-fg:var(--dm-on-accent);--dm-bnx-go-sh:none;--dm-bnx-go-hbg:var(--dm-accent-2);--dm-bnx-go-hsh:none;--dm-bnx-go-ash:none}
+.dm-bnx:not([data-tone="neutral"],[data-tone="warning"]) .dm-pill.dm-bnx-go:not([disabled]){background:var(--dm-bnx-go-bg);color:var(--dm-bnx-go-fg);box-shadow:var(--dm-bnx-go-sh)}
+@media (hover:hover) and (pointer:fine){.dm-bnx:not([data-tone="neutral"],[data-tone="warning"]) .dm-pill.dm-bnx-go:not([disabled]):hover{background:var(--dm-bnx-go-hbg);box-shadow:var(--dm-bnx-go-hsh)}}
+.dm-bnx:not([data-tone="neutral"],[data-tone="warning"]) .dm-pill.dm-bnx-go:not([disabled]):active{box-shadow:var(--dm-bnx-go-ash);transform:var(--dm-bnx-go-pr)}
+.dm-bnx[data-tone="warning"] .dm-pill.dm-bnx-go:not([disabled]){background:var(--dm-warn-bg);color:var(--dm-warn);box-shadow:none;transform:none}
+@media (hover:hover) and (pointer:fine){.dm-bnx[data-tone="warning"] .dm-pill.dm-bnx-go:not([disabled]):hover{background:var(--dm-warn-bg);box-shadow:inset 0 0 0 99px var(--dm-tint-h)}}
+.dm-bnx[data-tone="warning"] .dm-pill.dm-bnx-go:not([disabled]):active{box-shadow:inset 0 0 0 99px var(--dm-tint-h);transform:none}
+/* an optional close button: in Clean at the corner, 8px from the top and right edges; in Soft and Blueprint on the first
+   line of the words (the text then starts at the top), its glyph 16px in (owner, 19 Nov). The card here leaves it out */
+.dm-bnx-x{position:absolute;top:calc(var(--dm-s-6) - 6px);right:var(--dm-s-2);z-index:2;width:28px;height:28px;background:var(--dm-bnx-bg)}
+.dm-bnx:has(>.dm-bnx-x){justify-content:flex-start}
+@media (hover:hover) and (pointer:fine){.dm-bnx-x:hover{background:color-mix(in srgb,currentColor 12%,transparent)}}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink button alone presses */
+.dm-bnx :is(.dm-pill,.dm-ib):active,:root[data-style="clean"] .dm-bnx .dm-ib:active,:root [data-style="clean"] .dm-bnx .dm-ib:active,:root [data-style="clean"].dm-bnx .dm-ib:active{transform:none}
 /* the art: a 240 by 160 drawing at its own size in the middle of the area on the right, cropped by it and faded in from the
    text's side, so a narrower banner shows less of it rather than a smaller one */
 .dm-bnx-art{position:absolute;top:0;right:0;bottom:0;width:min(42%,300px);overflow:hidden;pointer-events:none;-webkit-mask-image:linear-gradient(90deg,transparent,#000 var(--dm-s-8));mask-image:linear-gradient(90deg,transparent,#000 var(--dm-s-8))}
@@ -61,11 +84,11 @@
 @container bnx (max-width:479px){
   /* on a phone the picture takes a taller band of its own over the text, and lines up with the text's left edge (owner, 4 Nov) */
   .dm-bnx-art{left:0;bottom:auto;width:auto;height:128px;-webkit-mask-image:linear-gradient(#000 104px,transparent 128px);mask-image:linear-gradient(#000 104px,transparent 128px)}
-  .dm-bnx-svg{top:68px;left:var(--dm-bnx-al,calc(var(--dm-s-5) - 27px));margin-left:0;transform-origin:0 50%;transform:scale(.72)}
+  .dm-bnx-svg{top:68px;left:var(--dm-bnx-al,calc(var(--dm-s-6) - 27px));margin-left:0;transform-origin:0 50%;transform:scale(.72)}
   .dm-bnx-svg :is(.dm-ln,.dm-gd){stroke-width:1.6}
   .dm-bnx-svg .dm-ac{stroke-width:2.4}
   .dm-bnx-svg .dm-dt{stroke-width:3.2}
-  .dm-bnx-tx{padding:124px var(--dm-s-5) var(--dm-s-6)}
+  .dm-bnx-tx{padding:124px var(--dm-s-6) var(--dm-s-6)}
 }
 @media (prefers-reduced-motion:reduce){.dm-bnx-svg *{animation:none!important}.dm-bnx-svg .dm-z{transform:none!important}}
 /* Blueprint: square, and the eyebrow as a small capital label */
@@ -73,11 +96,27 @@
 /* a Blueprint banner has an edge in its own colour, like the sheet's other boxes (owner, 10 Nov) */
 :root:not([data-style="soft"],[data-style="clean"]) .dm-bnx:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){--dm-bnx-edge:color-mix(in srgb,color-mix(in srgb,var(--dm-bnx-f,var(--dm-bnx-m)) 70%,var(--dm-fg)) 20%,transparent);box-shadow:inset 0 0 0 1px var(--dm-bnx-edge)}
 /* in light mode the agent's tint is a clear lime, not a cream, with an olive edge (owner, 10 Nov) */
-:root:not([data-style="soft"],[data-style="clean"])[data-theme="light"] :is(.dm-pill.dm-soft.dm-ecx-ask,.dm-six-ans):not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){--dm-ask-edge:color-mix(in srgb,color-mix(in srgb,var(--dm-accent) 70%,var(--dm-fg)) 20%,transparent);background:color-mix(in srgb,var(--dm-accent) 24%,var(--dm-surface));box-shadow:inset 0 0 0 1px var(--dm-ask-edge)}
-@media (prefers-color-scheme:light){:root:not([data-style="soft"],[data-style="clean"]):not([data-theme="dark"]) :is(.dm-pill.dm-soft.dm-ecx-ask,.dm-six-ans):not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){--dm-ask-edge:color-mix(in srgb,color-mix(in srgb,var(--dm-accent) 70%,var(--dm-fg)) 20%,transparent);background:color-mix(in srgb,var(--dm-accent) 24%,var(--dm-surface));box-shadow:inset 0 0 0 1px var(--dm-ask-edge)}}
+:root:not([data-style="soft"],[data-style="clean"])[data-theme="light"] .dm-pill.dm-soft.dm-ecx-ask:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){--dm-ask-edge:color-mix(in srgb,color-mix(in srgb,var(--dm-accent) 70%,var(--dm-fg)) 20%,transparent);background:color-mix(in srgb,var(--dm-accent) 24%,var(--dm-surface));box-shadow:inset 0 0 0 1px var(--dm-ask-edge)}
+@media (prefers-color-scheme:light){:root:not([data-style="soft"],[data-style="clean"]):not([data-theme="dark"]) .dm-pill.dm-soft.dm-ecx-ask:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){--dm-ask-edge:color-mix(in srgb,color-mix(in srgb,var(--dm-accent) 70%,var(--dm-fg)) 20%,transparent);background:color-mix(in srgb,var(--dm-accent) 24%,var(--dm-surface));box-shadow:inset 0 0 0 1px var(--dm-ask-edge)}}
 @media (prefers-color-scheme:dark){:root:not([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .dm-bnx:is(:not([data-tone]),[data-tone="accent"]):not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){--dm-bnx-ka:9%}}
 :root:not([data-style="soft"],[data-style="clean"])[data-theme="dark"] .dm-bnx:is(:not([data-tone]),[data-tone="accent"]):not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){--dm-bnx-ka:9%}
 :root:not([data-style="soft"],[data-style="clean"]) .dm-bnx-eb:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){font-size:11px;letter-spacing:.06em;text-transform:uppercase}
 /* Blueprint draws its lines with square ends, so the dotted route is square dots */
 :root:not([data-style="soft"],[data-style="clean"]) .dm-bnx-svg .dm-dt:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){stroke-dasharray:2 3}
 @container bnx (max-width:479px){:root:not([data-style="soft"],[data-style="clean"]) .dm-bnx-svg .dm-dt:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){stroke-dasharray:3.2 4.8}}
+/* Clean (owner, 17 and 18 Nov): the tones keep their colours (a tone is what the banner means), the corners are Clean's 22px,
+   and the primary button on a coloured banner is white in light mode, flat with Clean's hairline edge and no press, and Clean's
+   ink (white in dark mode) where the others take the accent; a neutral banner keeps the ink button */
+:root[data-style="clean"] .dm-bnx,:root [data-style="clean"] .dm-bnx,:root [data-style="clean"].dm-bnx{--dm-bnx-go-sh:var(--dm-btn2-depth);--dm-bnx-go-hbg:var(--dm-surface);--dm-bnx-go-hsh:var(--dm-btn2-hover);--dm-bnx-go-ash:var(--dm-btn2-press)}
+@media (prefers-color-scheme:dark){:root[data-style="clean"]:not([data-theme="light"]) .dm-bnx,:root:not([data-theme="light"]) [data-style="clean"] .dm-bnx,:root:not([data-theme="light"]) [data-style="clean"].dm-bnx{--dm-bnx-go-bg:linear-gradient(180deg,var(--dm-btn-1),var(--dm-btn-2));--dm-bnx-go-fg:var(--dm-on-btn);--dm-bnx-go-sh:var(--dm-btn-depth);--dm-bnx-go-hbg:linear-gradient(180deg,color-mix(in srgb,var(--dm-btn-1) 88%,#808080),var(--dm-btn-2));--dm-bnx-go-hsh:var(--dm-btn-depth);--dm-bnx-go-ash:var(--dm-btn-press);--dm-bnx-go-pr:scale(.97)}}
+:root[data-style="clean"][data-theme="dark"] .dm-bnx,:root[data-theme="dark"] [data-style="clean"] .dm-bnx,:root[data-theme="dark"] [data-style="clean"].dm-bnx{--dm-bnx-go-bg:linear-gradient(180deg,var(--dm-btn-1),var(--dm-btn-2));--dm-bnx-go-fg:var(--dm-on-btn);--dm-bnx-go-sh:var(--dm-btn-depth);--dm-bnx-go-hbg:linear-gradient(180deg,color-mix(in srgb,var(--dm-btn-1) 88%,#808080),var(--dm-btn-2));--dm-bnx-go-hsh:var(--dm-btn-depth);--dm-bnx-go-ash:var(--dm-btn-press);--dm-bnx-go-pr:scale(.97)}
+/* (the same buttons as in Soft, written again for Clean so they stand over Clean's own ink button rules) */
+:root[data-style="clean"] .dm-bnx:not([data-tone="neutral"],[data-tone="warning"]) .dm-pill.dm-bnx-go:not([disabled]),:root [data-style="clean"] .dm-bnx:not([data-tone="neutral"],[data-tone="warning"]) .dm-pill.dm-bnx-go:not([disabled]),:root [data-style="clean"].dm-bnx:not([data-tone="neutral"],[data-tone="warning"]) .dm-pill.dm-bnx-go:not([disabled]){background:var(--dm-bnx-go-bg);color:var(--dm-bnx-go-fg);box-shadow:var(--dm-bnx-go-sh)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-bnx:not([data-tone="neutral"],[data-tone="warning"]) .dm-pill.dm-bnx-go:not([disabled]):hover,:root [data-style="clean"] .dm-bnx:not([data-tone="neutral"],[data-tone="warning"]) .dm-pill.dm-bnx-go:not([disabled]):hover,:root [data-style="clean"].dm-bnx:not([data-tone="neutral"],[data-tone="warning"]) .dm-pill.dm-bnx-go:not([disabled]):hover{background:var(--dm-bnx-go-hbg);box-shadow:var(--dm-bnx-go-hsh)}}
+:root[data-style="clean"] .dm-bnx:not([data-tone="neutral"],[data-tone="warning"]) .dm-pill.dm-bnx-go:not([disabled]):active,:root [data-style="clean"] .dm-bnx:not([data-tone="neutral"],[data-tone="warning"]) .dm-pill.dm-bnx-go:not([disabled]):active,:root [data-style="clean"].dm-bnx:not([data-tone="neutral"],[data-tone="warning"]) .dm-pill.dm-bnx-go:not([disabled]):active{box-shadow:var(--dm-bnx-go-ash);transform:var(--dm-bnx-go-pr)}
+:root[data-style="clean"] .dm-bnx[data-tone="warning"] .dm-pill.dm-bnx-go:not([disabled]),:root [data-style="clean"] .dm-bnx[data-tone="warning"] .dm-pill.dm-bnx-go:not([disabled]),:root [data-style="clean"].dm-bnx[data-tone="warning"] .dm-pill.dm-bnx-go:not([disabled]){color:var(--dm-warn);background:var(--dm-warn-bg);box-shadow:none;transform:none}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-bnx[data-tone="warning"] .dm-pill.dm-bnx-go:not([disabled]):hover,:root [data-style="clean"] .dm-bnx[data-tone="warning"] .dm-pill.dm-bnx-go:not([disabled]):hover,:root [data-style="clean"].dm-bnx[data-tone="warning"] .dm-pill.dm-bnx-go:not([disabled]):hover{background:var(--dm-warn-bg);box-shadow:inset 0 0 0 99px var(--dm-tint-h)}}
+:root[data-style="clean"] .dm-bnx[data-tone="warning"] .dm-pill.dm-bnx-go:not([disabled]):active,:root [data-style="clean"] .dm-bnx[data-tone="warning"] .dm-pill.dm-bnx-go:not([disabled]):active,:root [data-style="clean"].dm-bnx[data-tone="warning"] .dm-pill.dm-bnx-go:not([disabled]):active{box-shadow:inset 0 0 0 99px var(--dm-tint-h);transform:none}
+/* the close button at the corner, 8px from the top and right edges, a 28px circle */
+:root[data-style="clean"] .dm-bnx-x,:root [data-style="clean"] .dm-bnx-x,:root [data-style="clean"].dm-bnx-x{top:var(--dm-s-2)}
+:root[data-style="clean"] .dm-bnx:has(>.dm-bnx-x),:root [data-style="clean"] .dm-bnx:has(>.dm-bnx-x),:root [data-style="clean"].dm-bnx:has(>.dm-bnx-x){justify-content:center}

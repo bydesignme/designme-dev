@@ -4,6 +4,7 @@
 //   src/components/<name>/<name>.css       each component's own styles
 //   src/lib/icons.tsx                      the icon set as React elements
 //   src/lib/brands.tsx, src/lib/flags.tsx  the service logos and country flags some components show
+//   the <orb-frag> part of src/components/voice-orb/VoiceOrb.tsx   Voice orb's shader, the site's own source
 // Every class, custom property and keyframe name gets a dm- prefix on the way, so the components
 // can sit beside any other CSS (Tailwind, shadcn/ui, a site's own .panel or --accent) without either side leaking into the other.
 // usage: node scripts/sync.mjs   (from packages/react)
@@ -15,12 +16,16 @@ import { createRequire } from 'node:module';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const pkg = path.resolve(here, '..');
 const reg = path.resolve(pkg, '../../r');
-const read = name => JSON.parse(fs.readFileSync(path.join(reg, name + '.json'), 'utf8'));
+// the components that aren't live yet (tools/site/live.js) are out of r/, but their styles keep in step all the same: the site
+// build writes their entries to tools/pages/data/unlisted, which nothing serves
+const unlistedDir = path.resolve(pkg, '../../tools/pages/data/unlisted');
+const UNLISTED = fs.existsSync(unlistedDir) ? fs.readdirSync(unlistedDir).filter(f => f.endsWith('.json')).map(f => f.slice(0, -5)) : [];
+const read = name => JSON.parse(fs.readFileSync(path.join(UNLISTED.includes(name) ? unlistedDir : reg, name + '.json'), 'utf8'));
 const file = (item, ext) => item.files.find(f => f.path.endsWith('.' + ext)).content;
 const write = (rel, text) => { const p = path.join(pkg, rel); fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, text); };
 
-// every component in the registry, in the site's order
-const COMPONENTS = read('index').items.map(i => i.name);
+// every component in the registry, in the site's order, then the ones not live yet that have a React version
+const COMPONENTS = [...read('index').items.map(i => i.name), ...UNLISTED.filter(n => fs.existsSync(path.join(pkg, 'src/components', n)))];
 const HEAD = '/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */\n';
 
 /* ---------- the dm- prefix ---------- */
@@ -74,7 +79,10 @@ css += '\n/* every component root carries data-dm, so it starts from the same ty
   + ':where([data-dm]){font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-webkit-font-smoothing:antialiased;text-align:left}\n';
 if (/\[data-c\]/.test(css)) throw new Error('card selector left in core css');
 // the registry's element resets are written for its [data-c] cards; a React component's root is marked data-dm instead
-const own = Object.fromEntries(COMPONENTS.map(name => [name, file(read(name), 'css').replace(/\[data-c\]/g, '[data-dm]')]));
+// (a component made of another's parts, like Toast stack of Toast cards, has that one's CSS ahead of its own in the registry;
+// its React version imports the other component, so only its own section, from its heading on, is kept)
+const ownPart = item => { const css = file(item, 'css'), at = css.indexOf(`/* ---------- ${item.title} ---------- */`); return at > 0 ? css.slice(at) : css; };
+const own = Object.fromEntries(COMPONENTS.map(name => [name, ownPart(read(name)).replace(/\[data-c\]/g, '[data-dm]')]));
 for (const [name, text] of Object.entries(own)) if (/\[data-c\]/.test(text)) throw new Error(`${name}: card selector left in its css`);
 const frames = new Set([css, ...Object.values(own)].flatMap(frameNames));
 const core = scope(css, frames, true);
@@ -95,6 +103,16 @@ for (const [name, text] of [['core', core], ...COMPONENTS.map(n => [n, scope(own
   for (const [name, text] of [['core', core], ...COMPONENTS.map(n => [n, scope(own[n], frames)])]) {
     const left = ungated(text); if (left.length) throw new Error(`${name}: hover styles outside (hover:hover) and (pointer:fine): ${left.slice(0, 3).join(' | ')}`);
   }
+}
+
+/* ---------- Voice orb's shader: the site's own source, so both draw the same sphere ---------- */
+{
+  const src = file(read('voice-orb'), 'js').match(/const ORB_FRAG = `([^`]*)`;/);
+  if (!src) throw new Error("voice-orb.js: the orb's shader (ORB_FRAG) is gone");
+  const at = path.join(pkg, 'src/components/voice-orb/VoiceOrb.tsx'), tsx = fs.readFileSync(at, 'utf8');
+  const re = /(\/\/ <orb-frag>\n)[\s\S]*?(\n\/\/ <\/orb-frag>)/;
+  if (!re.test(tsx)) throw new Error('VoiceOrb.tsx: the <orb-frag> markers are gone');
+  fs.writeFileSync(at, tsx.replace(re, (m, a, b) => `${a}const FRAG = \`${src[1]}\`;${b}`));
 }
 
 /* ---------- icons: the sprite in core.js becomes JSX ---------- */

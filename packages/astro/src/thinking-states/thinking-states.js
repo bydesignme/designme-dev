@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, DM, REDUCE, seg, swap } from '../core/core.js';
+import { $, DM, REDUCE, iconSwap, seg, swap } from '../core/core.js';
 DM.def('thinking-states', (r, c) => {
   const steps = ['Thinking', 'Reading 3 files', 'Searching the docs', 'Comparing 2 options', 'Drafting the answer'];
   const box = $('.ths', r), mk = $('.ths-mk', r), tx = $('.ths-tx', r), car = $('.ths-car', r), time = $('.ths-t', r), sr = $('.ths-sr', r);
@@ -42,19 +42,20 @@ DM.def('thinking-states', (r, c) => {
   let v = box.dataset.v || 'orbit', at = 0, secs = 0, typed = 0;
   // the agent's own pace: these waits are not shortened under reduced motion, so the line still changes every few seconds
   const pause = ms => new Promise(res => c.later(ms, res));
-  // Stream types the line out behind its caret; the others crossfade it (Orbit shimmering). A newer line cancels the typing
+  // Stream types the line out behind its caret; the others crossfade it. Every state's line sweeps (.shim). A newer line cancels the typing
   const type = async t => {
     const k = ++typed; if (tx._sw){ clearTimeout(tx._sw.t); tx._sw = null; } tx.classList.remove('out'); tx.textContent = '';
     for (let i = 1; i <= t.length; i++){ await pause(32); if (k !== typed) return; tx.textContent = t.slice(0, i); }
   };
   const show = (t, fresh) => {
-    tx.classList.toggle('shim', v === 'orbit'); car.hidden = v !== 'stream';
+    car.hidden = v !== 'stream';
     if (v === 'stream' && fresh && !REDUCE) type(t);
     else { typed++; if (fresh) swap(tx, t); else { if (tx._sw){ clearTimeout(tx._sw.t); tx._sw = null; } tx.classList.remove('out'); tx.textContent = t; } }
     // a screen reader hears each new step once, never the letters as they type
     if (fresh) sr.textContent = t;
   };
-  const pick = x => { v = x; box.dataset.v = x; mk.innerHTML = MARKS[x]; show(steps[at], false); };
+  // (a new state's mark crossfades in for the last one, iconSwap())
+  const pick = x => { v = x; box.dataset.v = x; if (mk.firstChild) iconSwap(mk, () => { mk.innerHTML = MARKS[x]; }); else mk.innerHTML = MARKS[x]; show(steps[at], false); };
   seg($('.seg2', r), pick);
   pick(v);
   c.every(1000, () => { secs++; time.textContent = secs + 's'; });

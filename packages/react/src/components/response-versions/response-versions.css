@@ -1,17 +1,46 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Response versions ---------- */
 .dm-rvx{display:flex;flex-direction:column;gap:14px}
-.dm-rvx-a{display:flex;flex-direction:column;gap:var(--dm-s-2);padding:0 2px}
-.dm-rvx-t{min-height:72px}
+/* its motion (the core's motion pieces, owner, 26 Nov): a press on its buttons shows at once (.mx-press); Copy's icon and its
+   tick crossfade (.mx-ic); the answer eases to its new height on the spring (.mx-grow) */
+.dm-rvx-a{display:flex;flex-direction:column;gap:var(--dm-s-2)}
+/* the answer is as tall as its words in every style (owner's notes, 18 Nov): the component grows with them (grow()), and a
+   version streaming in keeps the height of the one it replaces, then eases to its own. The bar's first button reaches 6px
+   past the column, so the growing box lets that much show, focus ring included */
+.dm-rvx.dm-growing{overflow-clip-margin:12px}
+/* nothing in the bar shrinks on a click (owner, 18 Nov) */
+.dm-rvx-bar .dm-ib:active{transform:none}
+:root[data-style="clean"] .dm-rvx-bar .dm-ib:active,:root [data-style="clean"] .dm-rvx-bar .dm-ib:active,:root [data-style="clean"].dm-rvx-bar .dm-ib:active{transform:none}
 .dm-rvx-t .dm-w{animation:dm-rvw .45s var(--dm-ease) both}
 @keyframes dm-rvw{from{opacity:0;filter:blur(4px)}to{opacity:1;filter:none}}
 .dm-rvx-t.dm-out{animation:dm-rvo .3s var(--dm-ease) both}
 @keyframes dm-rvo{to{opacity:0;filter:blur(4px);transform:translateY(-2px)}}
 .dm-rvx-bar{display:flex;align-items:center;gap:2px;margin-left:-6px}
+/* its icon buttons, the pager's included, are the library's 28px icon buttons */
+.dm-rvx-bar .dm-ib{width:28px;height:28px}
 .dm-rvx-pg{display:flex;align-items:center;gap:0}
-.dm-rvx-pg .dm-ib{width:26px;height:26px}
 .dm-rvx-pg .dm-ib[disabled]{opacity:1;cursor:not-allowed;background:none;color:var(--dm-dis)}
+/* the bar sits on the stage, where --dm-row is the stage's own colour: it sets --dm-row to a quiet 5% of the text colour, as the
+   other cards on the stage do, so its buttons keep the one shared hover */
+.dm-rvx-bar{--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
 .dm-rvx-n{font-size:12px;color:var(--dm-muted);min-width:34px;text-align:center}
 .dm-rvx-re svg{transition:transform .7s var(--dm-ease)}
 .dm-rvx-re.dm-go svg{transform:rotate(360deg)}
 .dm-rvx-st{font-size:12px;margin-left:6px}
+/* Clean (owner, 18 Nov): words fade in and out without a blur */
+@keyframes dm-rvwc{from{opacity:0}to{opacity:1}}
+@keyframes dm-rvoc{to{opacity:0;transform:translateY(-2px)}}
+:root[data-style="clean"] .dm-rvx-t .dm-w,:root [data-style="clean"] .dm-rvx-t .dm-w,:root [data-style="clean"].dm-rvx-t .dm-w{animation-name:dm-rvwc;animation-duration:var(--dm-t-slow)}
+:root[data-style="clean"] .dm-rvx-t.dm-out,:root [data-style="clean"] .dm-rvx-t.dm-out,:root [data-style="clean"].dm-rvx-t.dm-out{animation-name:dm-rvoc;animation-duration:var(--dm-t)}
+/* Clean (owner, 22 Nov: "differentiate Clean from Soft"): the answer is a version card. The answer comes first, 16px in
+   from the card's edges; under it a hairline, and under that the bar as a plain row with no strip (owner, 23 Nov: "just add
+   a divider line"): the arrows and the count on the left with what is happening beside them, Regenerate and Copy at the
+   right. Its buttons are 28px, 16px from the hairline, the card's bottom edge and its sides. Soft and Blueprint keep the
+   answer flat in the thread with its bar under it, in the same order */
+:root[data-style="clean"] .dm-rvx-a,:root [data-style="clean"] .dm-rvx-a,:root [data-style="clean"].dm-rvx-a{gap:0;background:var(--dm-surface);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow);overflow:hidden}
+:root[data-style="clean"] .dm-rvx-bar,:root [data-style="clean"] .dm-rvx-bar,:root [data-style="clean"].dm-rvx-bar{margin:0;padding:16px;border-top:1px solid var(--dm-line)}
+:root[data-style="clean"] .dm-rvx-t,:root [data-style="clean"] .dm-rvx-t,:root [data-style="clean"].dm-rvx-t{padding:16px}
+:root[data-style="clean"] .dm-rvx-st,:root [data-style="clean"] .dm-rvx-st,:root [data-style="clean"].dm-rvx-st{order:1;margin-left:var(--dm-s-2);min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root[data-style="clean"] .dm-rvx-re,:root [data-style="clean"] .dm-rvx-re,:root [data-style="clean"].dm-rvx-re{order:2;margin-left:auto}
+:root[data-style="clean"] .dm-rvx-cp,:root [data-style="clean"] .dm-rvx-cp,:root [data-style="clean"].dm-rvx-cp{order:3}
+.dm-rvx-cp.dm-copied,.dm-aab-cp.dm-copied{color:var(--dm-ok-mark)!important}

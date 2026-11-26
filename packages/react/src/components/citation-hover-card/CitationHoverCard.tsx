@@ -1,14 +1,16 @@
 'use client';
-import { Fragment, useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react';
+import { Fragment, useEffect, useLayoutEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { Icon } from '../../lib/icons';
+import { avatarInk, mxIn, mxT } from '../../lib/motion';
 import '../../designme.css';
 import './citation-hover-card.css';
 
 export interface CitationHoverCardSource {
   /** One or two letters on the source's coloured mark, like "B" */
   mark: string;
-  /** The mark's colour, like '#4a5a8a' or 'var(--dm-pm)' */
+  /** The mark's fill: a colour dark enough for white letters, like '#2f4f9f', or an avatar colour like 'var(--dm-av-b)', which
+      brings its own ink */
   color: string;
   /** Where it comes from, like "baymard.com" or "Drive" */
   site: string;
@@ -36,9 +38,12 @@ export interface CitationHoverCardProps {
   className?: string;
 }
 
-interface Shown { i: number; x: number; y: number; n: number }
+/** the open card: its source, its left edge, the top, bottom and middle of its citation (in the answer's box, and the top and
+    bottom on screen), and a count of the times it was shown */
+interface Shown { i: number; x: number; top: number; bottom: number; mid: number; vTop: number; vBottom: number; n: number }
 
-/** An answer with numbered citations. Hovering, focusing or tapping one shows its source in a small card underneath. */
+/** An answer with numbered citations. Hovering, focusing or tapping one shows its source in a small card, under the citation
+    when it fits there and above it when it doesn't, so the page never cuts it off. */
 export function CitationHoverCard({ text, sources, openLabel = 'Open source', onOpenSource, open: openAt, onOpenChange, className }: CitationHoverCardProps) {
   const box = useRef<HTMLDivElement>(null);
   const card = useRef<HTMLDivElement>(null);
@@ -59,10 +64,9 @@ export function CitationHoverCard({ text, sources, openLabel = 'Open source', on
     clearTimeout(hideT.current); if (cur.current === i) return;
     const b = box.current, c = card.current; if (!b || !c) return;
     const br = b.getBoundingClientRect(), cr = el.getBoundingClientRect();
-    const x = Math.max(0, Math.min(cr.left - br.left - 24, br.width - c.offsetWidth));
+    const x = Math.max(0, Math.min(cr.left - br.left, br.width - c.offsetWidth));
     cur.current = i; curEl.current = el; setLast(i); told.current?.(i);
-    // a new key restarts the entrance, so the card always rises in place instead of sliding across
-    setAt(a => ({ i, x, y: cr.bottom - br.top + 8, n: (a?.n ?? 0) + 1 }));
+    setAt(a => ({ i, x, top: cr.top - br.top, bottom: cr.bottom - br.top, mid: cr.left - br.left + cr.width / 2, vTop: cr.top, vBottom: cr.bottom, n: (a?.n ?? 0) + 1 }));
   };
   const hide = (now = false) => {
     clearTimeout(hideT.current); clearTimeout(showT.current);
@@ -80,6 +84,27 @@ export function CitationHoverCard({ text, sources, openLabel = 'Open source', on
     document.addEventListener('pointerdown', down); document.addEventListener('keydown', key); addEventListener('resize', resize);
     return () => { document.removeEventListener('pointerdown', down); document.removeEventListener('keydown', key); removeEventListener('resize', resize); clearTimeout(hideT.current); clearTimeout(showT.current); };
   }, []);
+
+  // once it has its content, it goes below its citation when it fits in the window there, and above it when it doesn't and
+  // fits above (or has more room there). It grows out of its citation's middle and shrinks back into it (dm-mx-pop); moving on
+  // to another citation while it shows, it glides there and eases to its new height as the new source fades in (motion pieces)
+  const was = useRef<{ i: number; left: number; top: number; height: number } | null>(null), glide = useRef<Animation | null>(null);
+  useLayoutEffect(() => {
+    const c = card.current; if (!c || !at || at.i < 0) { was.current = null; return; }
+    glide.current?.cancel();
+    const h = c.offsetHeight, below = innerHeight - at.vBottom, above = at.vTop;
+    const up = below < h + 12 && (above >= h + 12 || above > below), top = up ? at.top - h - 6 : at.bottom + 6;
+    c.style.top = top + 'px';
+    c.style.setProperty('--dm-origin', `${Math.round(at.mid - at.x)}px ${up ? '100%' : '0'}`);
+    const prev = was.current; was.current = { i: at.i, left: at.x, top, height: h };
+    if (!prev || prev.i === at.i || typeof c.animate !== 'function' || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const cs = getComputedStyle(c), pad = cs.boxSizing === 'border-box' ? 0 : parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
+    c.style.overflow = 'clip';
+    const a = glide.current = c.animate([{ left: prev.left + 'px', top: prev.top + 'px', height: prev.height - pad + 'px' }, { left: at.x + 'px', top: top + 'px', height: h - pad + 'px' }],
+      { duration: mxT(c, 't-in', 360), easing: mxT(c, 'ease-spring', 'ease') });
+    a.onfinish = a.oncancel = () => { if (glide.current === a) { glide.current = null; c.style.overflow = ''; } };
+    mxIn([c.querySelector('.dm-chx-in')], { y: 0, step: 0 });
+  }, [at]);
 
   // opened with Enter or Space, the card takes the focus on its link once it shows
   useEffect(() => { if (focusLink.current && at && at.i >= 0) { focusLink.current = false; card.current?.querySelector<HTMLElement>('a')?.focus({ preventScroll: true }); } }, [at]);
@@ -114,13 +139,13 @@ export function CitationHoverCard({ text, sources, openLabel = 'Open source', on
   return (
     <div data-dm="" ref={box} className={cx('dm-chx', className)}>
       {paragraphs}
-      <div key={at?.n ?? 0} ref={card} className={cx('dm-chx-card dm-panel', open && 'dm-show')} role="dialog" aria-label="Source"
-        style={at ? { left: at.x, top: at.y } : undefined}
+      <div ref={card} className={cx('dm-chx-card dm-panel dm-mx-pop', open && 'dm-show')} role="dialog" aria-label="Source"
+        style={at ? { left: at.x } : undefined}
         onPointerEnter={() => clearTimeout(hideT.current)} onPointerLeave={e => { if (e.pointerType !== 'touch') hide(); }}
         onBlur={e => { const t = e.relatedTarget as Node | null; if (cur.current !== null && !card.current?.contains(t) && t !== curEl.current) hide(); }}>
         {s && (
           <div className="dm-chx-in">
-            <div className="dm-chx-sh"><span className="dm-fv" style={{ background: s.color }}>{s.mark}</span><span>{s.site}</span></div>
+            <div className="dm-chx-sh"><span className="dm-fv" style={{ background: s.color, color: avatarInk(s.color) }}>{s.mark}</span><span>{s.site}</span></div>
             <div className="dm-chx-t">{s.title}</div>
             <div className="dm-chx-q">{s.quote}</div>
             <div className="dm-chx-f">

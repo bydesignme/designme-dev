@@ -3,12 +3,18 @@
 .ecx{overflow:hidden;position:relative;container:ecx/inline-size}
 /* the Ask pill crossfades its words but stays a flex row, so the spark keeps its gap */
 .ecx-ask.sw{display:inline-flex}
+/* while the agent checks, its words carry the loaders' highlight sweep in the pill's own colour */
+.ecx-ask .shim{color:inherit;-webkit-text-fill-color:transparent;background-image:linear-gradient(90deg,currentColor 0%,currentColor 38%,var(--dm-faint) 50%,currentColor 62%,currentColor 100%)}
 /* the Ask pill is an accent tint, like a picked preset in Date range picker */
 .pill.soft.ecx-ask{background:var(--dm-sel);color:var(--dm-accent-fg,var(--dm-accent));box-shadow:none}
 @media (hover:hover) and (pointer:fine){.pill.soft.ecx-ask:hover{background:color-mix(in srgb,var(--dm-accent) 14%,transparent)}}
 .ecx-h{display:flex;align-items:center;gap:var(--dm-s-2);padding:10px var(--dm-s-3);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13.5px;flex-wrap:wrap}
 .ecx-h b{font-weight:500}
 .ecx-sp{flex:1}
+/* the library's calendar (the Sales CRM's keeps its own layout): the head and the days sit 16px in from the card's sides, and
+   the head's week and agent's button 16px from its top and from its hairline, in every style */
+.ecx.panel:not(.crm-ecx){padding:0 var(--dm-s-4)}
+.ecx.panel:not(.crm-ecx)>.ecx-h{margin:0 calc(-1 * var(--dm-s-4));padding:var(--dm-s-4)}
 .ecx-sc{overflow-x:auto}
 /* --dm-ph is the height of an hour: every event, the grid lines and the time column are laid out in hours of it */
 .ecx-grid{display:grid;grid-template-columns:44px repeat(var(--dm-days,5),minmax(76px,1fr));min-width:424px;position:relative;--dm-ph:44px}
@@ -24,6 +30,14 @@
 .ecx-col{position:relative;height:calc(var(--dm-ph) * 8);background-image:linear-gradient(color-mix(in srgb,var(--dm-line) 50%,transparent) 1px,transparent 1px);background-size:100% var(--dm-ph)}
 .ecx-e{position:absolute;left:3px;right:3px;border-radius:var(--dm-r-sm);padding:var(--dm-s-1) 7px;font-size:11.5px;line-height:1.3;text-align:left;overflow:hidden;transition:transform .25s var(--dm-ease),box-shadow .25s}
 @media (hover:hover) and (pointer:fine){.ecx-e:hover{transform:translateY(-1px);box-shadow:var(--dm-shadow)}}
+/* every event keeps its pastel pair at full strength, and its hover is a deeper fill in its own colour; an event whose card is
+   open is a step deeper, with a faint ring in its colour. No lift, no drop shadow, no grey ring (owner, 20 Nov: "the selected
+   state hover shadow is so bad"). (The Sales CRM's calendar has its own, the same) */
+.ecx:not(.crm-ecx) .ecx-e{transition:box-shadow var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){.ecx:not(.crm-ecx) .ecx-e:hover{transform:none}}
+@media (hover:hover) and (pointer:fine){.ecx:not(.crm-ecx) .ecx-e:not(.sug,.drag):hover{box-shadow:none}}
+@media (hover:hover) and (pointer:fine){.ecx:not(.crm-ecx) .ecx-e:not(.sug,.drag):hover{box-shadow:inset 0 0 0 100vmax color-mix(in srgb,currentColor 7%,transparent)}}
+.ecx:not(.crm-ecx) .ecx-e.on:not(.sug,.drag){box-shadow:inset 0 0 0 100vmax color-mix(in srgb,currentColor 10%,transparent),inset 0 0 0 1px color-mix(in srgb,currentColor 35%,transparent)}
 /* events sit in the scrolling grid, which would cut an outside ring: theirs is drawn inside */
 .ecx-e:focus-visible{outline-offset:-2px}
 .ecx-e{cursor:grab;touch-action:none}
@@ -35,6 +49,11 @@
 .ecx-msg{font-size:12.5px;margin-right:var(--dm-s-2)}
 .ecx-pop{position:absolute;z-index:20;width:248px;padding:var(--dm-s-3);background:var(--dm-raised);border-radius:calc(14px * var(--dm-rk-l,var(--dm-rk)));box-shadow:var(--dm-shadow-pop);opacity:0;visibility:hidden;transform:translateY(6px);filter:blur(3px);pointer-events:none;transition:opacity .2s var(--dm-ease),transform .35s var(--dm-ease),filter .2s,visibility 0s .2s}
 .ecx-pop.open{opacity:1;visibility:visible;transform:none;filter:none;pointer-events:auto;transition-property:opacity,transform,filter}
+/* its motion (the core's motion pieces, owner, 26 Nov): the event's card grows out of the event's side (.mx-pop) and goes back
+   quicker; a press shows at once (.mx-press); Ask's and Prep notes' boxes ease to the width of their new words (mxWidth()) */
+.ecx-pop.mx-pop{transform:scale(.95);filter:blur(var(--dm-blur-in));transform-origin:var(--dm-origin,top left);transition:opacity var(--dm-t-out) var(--dm-ease-io),transform var(--dm-t-out) var(--dm-ease-io),filter var(--dm-t-out) var(--dm-ease-io),visibility 0s var(--dm-t-out)}
+.ecx-pop.mx-pop.open{transform:none;filter:none;transition:opacity calc(var(--dm-t-in) * .6) var(--dm-ease),transform var(--dm-t-in) var(--dm-ease-pop),filter calc(var(--dm-t-in) * .7) var(--dm-ease),visibility 0s}
+@media (prefers-reduced-motion:reduce){.ecx-pop.mx-pop{filter:none}}
 .ecx-ph{display:flex;align-items:center;gap:var(--dm-s-2);font-size:13.5px}
 .ecx-ph>i{width:10px;height:10px;border-radius:var(--dm-r-tiny,3px);flex:none}
 .ecx-ph b{font-weight:500;flex:1;min-width:0}
@@ -48,11 +67,25 @@
 .ecx-pw{display:flex;align-items:center;margin:10px 0 0 18px}
 .ecx-pw .av{width:22px;height:22px;font-size:9px;margin-right:-4px;box-shadow:0 0 0 2px var(--dm-raised)}
 .ecx-pw .muted{margin-left:10px;font-size:12px}
+/* the library's event card (the Sales CRM's, built on it, keeps its own): 16px in from its edges, the close button's glyph
+   16px in on the title's line, and the people side by side, never stacked over each other. Everything under the title (the
+   time, the people, the notes and the buttons) starts at the card's left content edge, where the colour dot sits, so both
+   sides have the same room (owner, 20 Nov) */
+.ecx-pop:not(.crm-cpop){padding:var(--dm-s-4)}
+.ecx-pop:not(.crm-cpop) :is(.ecx-pt,.ecx-pw,.ecx-note,.ecx-pa){margin-left:0}
+.ecx-pop:not(.crm-cpop) .ecx-ph .ib{margin:-4px -6px -4px auto}
+.ecx-pop:not(.crm-cpop) .ecx-pw{gap:var(--dm-s-1)}
+.ecx-pop:not(.crm-cpop) .ecx-pw .av{margin-right:0;box-shadow:none}
+.ecx-pop:not(.crm-cpop) .ecx-pw .muted{margin-left:6px}
 .ecx-note{display:flex;gap:6px;align-items:flex-start;margin:10px 0 0 18px;font-size:12px;line-height:1.45;color:var(--dm-fg2)}
 .ecx-note .i{color:var(--dm-accent-fg,var(--dm-accent));margin-top:2px}
 .ecx-pa{display:flex;justify-content:flex-end;gap:6px;margin:var(--dm-s-3) 0 0 18px}
-/* the card's buttons share the width of its text column (the 18px indent past the colour dot), the main one last (owner, 10 Nov) */
+/* the card's buttons share the width of its text column, the main one last (owner, 10 Nov) */
 .ecx-pa>.pill{flex:1 1 0;justify-content:center}
+.ecx-prep.done{color:var(--dm-fg2)}
+.ecx-prep.done>.i{color:var(--dm-ok-mark)}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink primary alone presses */
+.ecx:not(.crm-ecx) :is(.ib,.pill,.ecx-days button):active,:root[data-style="clean"] .ecx:not(.crm-ecx) .ib:active,:root [data-style="clean"] .ecx:not(.crm-ecx) .ib:active,:root [data-style="clean"].ecx:not(.crm-ecx) .ib:active{transform:none}
 .ecx-e b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ecx-e span{font-size:10.5px}
 .ecx-e.sug{background:var(--dm-surface)!important;color:var(--dm-accent-fg,var(--dm-accent))!important;box-shadow:inset 0 0 0 1.5px var(--dm-accent-mark,var(--dm-accent));animation:ecs .6s var(--dm-ease) both}
@@ -87,7 +120,50 @@
   .ecx-scan{top:8px}
   .ecx-scan.go{animation-name:ecscn}
   .ecx-pop{max-width:calc(100% - 16px)}
+  .ecx:not(.crm-ecx) .ecx-days{padding:var(--dm-s-2) 0}
+}
+/* a calendar too narrow for the week and the agent's button side by side stacks its head: the week on its line, the button under
+   it on the same left edge */
+@container ecx (max-width:360px){
+  .ecx:not(.crm-ecx)>.ecx-h{flex-direction:column;align-items:flex-start}
+  .ecx:not(.crm-ecx)>.ecx-h>:is(.ecx-sp,.ecx-msg:empty){display:none}
 }
 @keyframes ecscn{0%{opacity:0;top:8px}20%{opacity:1}100%{opacity:0;top:calc(var(--dm-ph) * 8 + 8px)}}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .ecx.panel,:root [data-style="clean"] .ecx.panel,:root [data-style="clean"].ecx.panel{padding:10px 17px 0px 10px}
+/* Clean (owner, 17 and 18 Nov): an off-white head strip with the week and the agent's ask, which sits 16px from the card's edges
+   and the strip's hairline (owner, 23 Nov); the days 16px in from the card's sides, running on to its foot as Soft's do. Events keep their colours and are
+   ordinary rounded rectangles, never pills. The event card takes the card's 22px corners and is 16px in on every side, as in
+   Soft (owner, 20 Nov). Book is the ink button. (The Sales CRM's calendar and event card are built on these classes and keep
+   their own layout) */
+:root[data-style="clean"] .ecx.panel:not(.crm-ecx),:root [data-style="clean"] .ecx.panel:not(.crm-ecx),:root [data-style="clean"].ecx.panel:not(.crm-ecx){padding:0 16px}
+/* (the Sales CRM's calendar keeps the padding this card's earlier Clean rule gave it) */
+:root[data-style="clean"] .ecx.panel.crm-ecx,:root [data-style="clean"] .ecx.panel.crm-ecx,:root [data-style="clean"].ecx.panel.crm-ecx{padding:10px 17px 0 10px}
+:root[data-style="clean"] .ecx:not(.crm-ecx)>.ecx-h,:root [data-style="clean"] .ecx:not(.crm-ecx)>.ecx-h,:root [data-style="clean"].ecx:not(.crm-ecx)>.ecx-h{min-height:calc(28px + 2 * var(--dm-strip-y) + 1px);margin:0 -16px;padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-bottom:1px solid var(--dm-line);border-radius:var(--dm-r-card) var(--dm-r-card) 0 0}
+:root[data-style="clean"] .ecx-e,:root [data-style="clean"] .ecx-e,:root [data-style="clean"].ecx-e,:root[data-style="clean"] .ecx-ghost,:root [data-style="clean"] .ecx-ghost,:root [data-style="clean"].ecx-ghost{border-radius:var(--dm-r-sm)}
+:root[data-style="clean"] .ecx:not(.crm-ecx) .ecx-sg button,:root [data-style="clean"] .ecx:not(.crm-ecx) .ecx-sg button,:root [data-style="clean"].ecx:not(.crm-ecx) .ecx-sg button{border-radius:var(--dm-r-xs)}
+:root[data-style="clean"] .ecx:not(.crm-ecx) .ecx-sg button.y,:root [data-style="clean"] .ecx:not(.crm-ecx) .ecx-sg button.y,:root [data-style="clean"].ecx:not(.crm-ecx) .ecx-sg button.y{background:var(--dm-btn-2);color:var(--dm-on-btn)}
+:root[data-style="clean"] .ecx:not(.crm-ecx) .ecx-sg button.n,:root [data-style="clean"] .ecx:not(.crm-ecx) .ecx-sg button.n,:root [data-style="clean"].ecx:not(.crm-ecx) .ecx-sg button.n{color:var(--dm-fg)}
+:root[data-style="clean"] .ecx-pop:not(.crm-cpop),:root [data-style="clean"] .ecx-pop:not(.crm-cpop),:root [data-style="clean"].ecx-pop:not(.crm-cpop){border-radius:var(--dm-r-card)}
+:root[data-style="clean"] .ecx-pop:not(.crm-cpop) .ecx-note .i,:root [data-style="clean"] .ecx-pop:not(.crm-cpop) .ecx-note .i,:root [data-style="clean"].ecx-pop:not(.crm-cpop) .ecx-note .i{color:var(--dm-fg2)}
+/* Clean (owner, 21 Nov: "same with calendar components especially the popup"). The events keep their saturated colours (owner,
+   20 Nov: no washed-out calendars) with Clean's touches: 10px corners, a 3px rail down their left in their own colour over
+   their tint, a hover that deepens their fill, eased, and an open event ringed in a neutral grey. The now line is a crisp 1px
+   red line. The event card is Clean's popover (22px corners, its shadow, scaling and fading from the event it opens beside):
+   a head strip with the event's colour, its title and a ghost ×; the time and the people (side by side, as in Soft, and how
+   many) in its body; and Prep notes (a flat secondary) and Join (the ink primary), the same height, in its foot strip */
+:root[data-style="clean"] .ecx:not(.crm-ecx) .ecx-e,:root [data-style="clean"] .ecx:not(.crm-ecx) .ecx-e,:root [data-style="clean"].ecx:not(.crm-ecx) .ecx-e{border-radius:10px;padding:4px 7px 4px 10px;transition:box-shadow var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .ecx:not(.crm-ecx) .ecx-e:not(.sug),:root [data-style="clean"] .ecx:not(.crm-ecx) .ecx-e:not(.sug),:root [data-style="clean"].ecx:not(.crm-ecx) .ecx-e:not(.sug){box-shadow:inset 3px 0 0 currentColor}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .ecx:not(.crm-ecx) .ecx-e:not(.sug,.drag):hover,:root [data-style="clean"] .ecx:not(.crm-ecx) .ecx-e:not(.sug,.drag):hover,:root [data-style="clean"].ecx:not(.crm-ecx) .ecx-e:not(.sug,.drag):hover{box-shadow:inset 3px 0 0 currentColor,inset 0 0 0 100vmax color-mix(in srgb,currentColor 9%,transparent)}}
+:root[data-style="clean"] .ecx:not(.crm-ecx) .ecx-e.on:not(.sug,.drag),:root [data-style="clean"] .ecx:not(.crm-ecx) .ecx-e.on:not(.sug,.drag),:root [data-style="clean"].ecx:not(.crm-ecx) .ecx-e.on:not(.sug,.drag){box-shadow:inset 3px 0 0 currentColor,inset 0 0 0 1px color-mix(in srgb,var(--dm-fg) 40%,transparent),inset 0 0 0 100vmax color-mix(in srgb,currentColor 11%,transparent)}
+:root[data-style="clean"] .ecx:not(.crm-ecx) .ecx-e.drag,:root [data-style="clean"] .ecx:not(.crm-ecx) .ecx-e.drag,:root [data-style="clean"].ecx:not(.crm-ecx) .ecx-e.drag{box-shadow:inset 3px 0 0 currentColor,var(--dm-shadow-pop)}
+:root[data-style="clean"] .ecx:not(.crm-ecx) .ecx-now,:root [data-style="clean"] .ecx:not(.crm-ecx) .ecx-now,:root [data-style="clean"].ecx:not(.crm-ecx) .ecx-now{height:1px;margin-top:-.5px}
+:root[data-style="clean"] .ecx:not(.crm-ecx) .ecx-now::before,:root [data-style="clean"] .ecx:not(.crm-ecx) .ecx-now::before,:root [data-style="clean"].ecx:not(.crm-ecx) .ecx-now::before{left:-3px;top:-3px;width:7px;height:7px}
+:root[data-style="clean"] .ecx-pop:not(.crm-cpop),:root [data-style="clean"] .ecx-pop:not(.crm-cpop),:root [data-style="clean"].ecx-pop:not(.crm-cpop){padding:0 16px 16px;filter:none;transform:scale(.96);transform-origin:var(--dm-origin,top left);transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease),visibility 0s var(--dm-t-fast)}
+:root[data-style="clean"] .ecx-pop.open:not(.crm-cpop),:root [data-style="clean"] .ecx-pop.open:not(.crm-cpop),:root [data-style="clean"].ecx-pop.open:not(.crm-cpop){transform:none;transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease)}
+:root[data-style="clean"] .ecx-pop:not(.crm-cpop) .ecx-ph,:root [data-style="clean"] .ecx-pop:not(.crm-cpop) .ecx-ph,:root [data-style="clean"].ecx-pop:not(.crm-cpop) .ecx-ph{min-height:calc(28px + 2 * var(--dm-strip-y) + 1px);margin:0 -16px;padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-bottom:1px solid var(--dm-line);border-radius:var(--dm-r-card) var(--dm-r-card) 0 0}
+:root[data-style="clean"] .ecx-pop:not(.crm-cpop) .ecx-ph>i,:root [data-style="clean"] .ecx-pop:not(.crm-cpop) .ecx-ph>i,:root [data-style="clean"].ecx-pop:not(.crm-cpop) .ecx-ph>i{width:10px;height:10px;border-radius:50%}
+:root[data-style="clean"] .ecx-pop:not(.crm-cpop) .ecx-ph .ib,:root [data-style="clean"] .ecx-pop:not(.crm-cpop) .ecx-ph .ib,:root [data-style="clean"].ecx-pop:not(.crm-cpop) .ecx-ph .ib{width:28px;height:28px;margin:-4px -8px -4px auto;border-radius:50%}
+:root[data-style="clean"] .ecx-pop:not(.crm-cpop) .ecx-pt,:root [data-style="clean"] .ecx-pop:not(.crm-cpop) .ecx-pt,:root [data-style="clean"].ecx-pop:not(.crm-cpop) .ecx-pt{margin-top:16px}
+:root[data-style="clean"] .ecx-pop:not(.crm-cpop) .ecx-pw,:root [data-style="clean"] .ecx-pop:not(.crm-cpop) .ecx-pw,:root [data-style="clean"].ecx-pop:not(.crm-cpop) .ecx-pw{margin-top:12px}
+:root[data-style="clean"] .ecx-pop:not(.crm-cpop) .ecx-pa,:root [data-style="clean"] .ecx-pop:not(.crm-cpop) .ecx-pa,:root [data-style="clean"].ecx-pop:not(.crm-cpop) .ecx-pa{margin:16px -16px -16px;padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+:root[data-style="clean"] .ecx-pop:not(.crm-cpop) .ecx-pa>.pill,:root [data-style="clean"] .ecx-pop:not(.crm-cpop) .ecx-pa>.pill,:root [data-style="clean"].ecx-pop:not(.crm-cpop) .ecx-pa>.pill{height:28px}
+@container ecx (max-width:360px){:root[data-style="clean"] .ecx:not(.crm-ecx)>.ecx-h,:root [data-style="clean"] .ecx:not(.crm-ecx)>.ecx-h,:root [data-style="clean"].ecx:not(.crm-ecx)>.ecx-h{padding-top:var(--dm-strip-y)}}

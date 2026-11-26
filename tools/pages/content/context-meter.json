@@ -1,5 +1,5 @@
 {
-  "summary": "Context meter shows how full an agent's context window is and what fills it. A small pill with a ring and a percentage opens a panel with one bar split by kind (files, tool output, chat, instructions), a legend whose rows list what is in them on hover, and a Compact button that frees room and says how much.",
+  "summary": "Context meter shows how full an agent's context window is and what fills it. A small pill with a ring and a percentage opens a panel above it with one bar split by kind (files, tool output, chat, instructions), a legend whose rows list what is in them on hover, and a Compact button that frees room and says how much.",
   "use": [
     "When long agent sessions run close to the context limit and people should see it coming.",
     "When people want to know why the context is full, not only how full it is.",
@@ -7,20 +7,21 @@
     "When a new tool result can suddenly take a large share and you want to warn about it."
   ],
   "features": [
-    "`parts` are the kinds of thing in the context, each with a `label`, a `tokens` count, an optional `color` and `items`, the list shown on hover. `limit` is the size of the window.",
-    "The pill shows the ring and the share used. From `warnAt` of the limit, 85% by default, the ring turns orange.",
+    "`parts` are the kinds of thing in the context, each with a `label`, a `tokens` count, an optional `color` (by default the accent, violet, teal and a neutral grey, in order) and `items`, the list shown on hover. `limit` is the size of the window.",
+    "The pill shows the ring and the share used. As the share rises, the percentage counts up in place and the ring grows; each step sends a thin bright highlight once along the ring's filled arc and lifts the ring a touch. As the count passes `warnAt` of the limit, 85% by default, the warning orange wipes along the ring from its start (the two colours never blend) and the pill nudges once; when it drops back below, the orange wipes back the same way.",
     "The bar and the numbers count to their new values whenever `parts` change, so a compaction counts down.",
-    "Hovering a legend row lights its share of the bar and shows its `items`.",
-    "`message` adds a line under the legend, in orange with a warning sign for `messageTone: 'warn'` or in green with a check for `'ok'`, like \"Freed 41.2k tokens. 9 decisions kept\". The line keeps its room while empty, so a message fades in without the panel changing height.",
-    "Compact calls `onCompact`. Return a promise and the button spins until it settles. Set `compacted` and the button becomes Undo, which calls `onUndo`.",
-    "The pill opens and shuts the panel, and `open`, `defaultOpen` and `onOpenChange` let you control it. The panel keeps its room while shut, so nothing around it moves.",
-    "Ships in Clean too (`data-style=\"clean\"`): the pill is a white control with its depth inside the fill, the panel is a round card with off-white head and foot strips and 20px all round, the bar and its parts keep their colours on round tracks, and the panel folds away when shut."
+    "Hovering a legend row lights its share of the bar and shows its `items`, and one highlight glides from row to row.",
+    "`message` adds a line under the legend. With `messageTone: 'warn'` it is a warning notice: a faint warning tint, the filled warning sign and the words in the text colour, and Compact takes the warning tint as the action that resolves it. With `'ok'` it is a plain line with the green tick, like \"Freed 120.0k tokens. 9 decisions kept\". The line takes no room while empty and opens smoothly when a message comes.",
+    "Compact calls `onCompact`. Return a promise and, until it settles, the button gives way to a status in its place, a spinner and \"Compacting…\" with a moving highlight (nothing to press while it runs), while the line beside it says `busyHint` with the same highlight; the row keeps its height. Set `compacted` and the button becomes Undo, which calls `onUndo`. The button eases to the width of its new words.",
+    "The pill opens and shuts the panel, and `open`, `defaultOpen` and `onOpenChange` let you control it. The panel opens above the pill, as it would under a chat composer, and the pill's chevron points up while it is shut. `placement` (`'top'` by default, or `'bottom'`) picks the side; when the window, or a box round the meter that clips it, has no room on that side and more on the other, it opens there instead. The panel grows out of the pill and folds back into it when shut.",
+    "Ships in Clean too (`data-style=\"clean\"`): the pill is a flat secondary control (a hairline and a light fill), the panel is a round card with off-white head and foot strips and its content 16px in from every edge, the bar and its parts keep their colours on round tracks, Compact is a 28px secondary pill 16px from the foot strip's top and bottom and 16px in from the side, on the content's column, and the panel fades and scales a little from the pill as it opens and shuts."
   ],
   "a11y": [
     "The pill is a button with `aria-expanded` and a label that includes the share used, like \"Context, 68% used\".",
     "The panel is a region labelled \"What fills the context\", and it is inert while shut so its controls can't be reached.",
     "Escape shuts the panel while the pointer or the focus is on the meter, and moves the focus back to the pill if it was inside.",
-    "The message line is an `aria-live=\"polite\"` region, so a warning or the compaction result is announced."
+    "The message line is an `aria-live=\"polite\"` region, so a warning or the compaction result is announced.",
+    "With reduced motion the ring and its colour change at once, with no highlight, lift, nudge or wipe."
   ],
   "faq": [
     {

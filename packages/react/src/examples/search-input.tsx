@@ -38,7 +38,8 @@ export default function SearchInputDemo() {
     return () => clearInterval(id);
   }, [asking]);
   return (
-    <div ref={ref} style={{ width: '100%' }}>
+    // the list opens over whatever is under the box, so this preview keeps room for it under the box
+    <div ref={ref} style={{ width: '100%', minHeight: 330 }}>
       <SearchInput items={ITEMS} sources={SOURCES} recent={RECENT} value={value} onValueChange={setValue} open={open} onOpenChange={setOpen}
         answer={asking ? answer : undefined} />
     </div>

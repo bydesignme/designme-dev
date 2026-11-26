@@ -1,46 +1,59 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Scheduled runs ---------- */
 /* recurring agent tasks: the schedule in words, when it runs next and how its last run went, with Run now and an on/off
-   switch. A paused one dims and says so; one whose last run failed says why and offers the fix */
-.dm-shx{padding:var(--dm-s-3);display:flex;flex-direction:column;gap:6px}
-.dm-shx-h{display:flex;align-items:center;gap:10px;padding:2px 10px var(--dm-s-2)}
-.dm-shx-h>div{display:flex;flex-direction:column;min-width:0}
-.dm-shx-h b{font-weight:500;font-size:13.5px}
-.dm-shx-st{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+   switch. The card sits on two columns (owner, 18 Nov), its content 16px from every edge: the head's neutral mark in a 28px
+   column with each run's mark under it, and the title and each run's words 12px after it; each run's mark, its three lines
+   and its controls share one centre line, and the switches end on the content's right edge. A row is not a button, so it has
+   no hover fill. The last line is the result, led by its mark (beside it, never over the run's own): a green tick when it
+   passed, a red sign and the reason when it failed, with the fix under it, and a turning ring with words that shimmer while it
+   runs. A paused one dims and says so. A run's mark is its tool's logo on a white tile, or its icon on a vivid tile of its
+   colour (white or the colour's own ink on it). The card grows and shrinks with its rows (grow()) */
+.dm-shx{padding:var(--dm-s-4);display:flex;flex-direction:column}
+.dm-shx.dm-growing:has(.dm-pop.dm-open){overflow:visible}
+.dm-shx-h{display:flex;align-items:center;gap:var(--dm-s-3);padding-bottom:var(--dm-s-2)}
+.dm-shx-hi{width:28px;height:28px;display:grid;place-items:center;flex:none;border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));color:var(--dm-fg2);background:var(--dm-chip)}
+.dm-shx-h>div{flex:1;display:flex;flex-direction:column;min-width:0}
+.dm-shx-h b{font-weight:500;font-size:14px;line-height:20px}
+.dm-shx-st{font-size:12px;line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dm-shx-list{display:flex;flex-direction:column}
-.dm-shx-r{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;column-gap:var(--dm-s-3);padding:var(--dm-s-2) 10px;border-radius:var(--dm-r-in);font-size:13px;transition:background .2s}
-@media (hover:hover) and (pointer:fine){.dm-shx-r:hover{background:var(--dm-row)}}
-.dm-shx-r .dm-ic{width:28px;height:28px;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));display:grid;place-items:center;position:relative;align-self:center;transition:opacity .3s}
+.dm-shx-r{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;column-gap:var(--dm-s-3);padding:var(--dm-s-2) 0;font-size:13px}
+.dm-shx-r .dm-ic{width:28px;height:28px;border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));display:grid;place-items:center;grid-row:1/4;align-self:center;transition:opacity var(--dm-t-fast) var(--dm-ease)}
 .dm-shx-r .dm-ic.dm-brandic{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);color:var(--dm-fg)}
 .dm-shx-r .dm-ic .dm-brand{width:15px;height:15px}
-.dm-shx-r .dm-ic::after{content:"";position:absolute;right:-2px;bottom:-2px;box-sizing:border-box;width:8px;height:8px;border-radius:50%;background:var(--dm-faint);box-shadow:0 0 0 2px var(--dm-surface);transition:background .3s}
-.dm-shx-r[data-st="ok"] .dm-ic::after{background:var(--dm-ok)}
-.dm-shx-r[data-st="bad"] .dm-ic::after{background:var(--dm-bad-mark)}
-.dm-shx-r[data-st="run"] .dm-ic::after{width:10px;height:10px;right:-3px;bottom:-3px;background:var(--dm-surface);border:1.5px solid var(--dm-accent-mark,var(--dm-accent));border-right-color:transparent;animation:dm-rot .8s linear infinite}
-.dm-shx-r.dm-off .dm-ic::after{background:var(--dm-faint)}
-/* the name shares its line with Run now and the switch; the schedule and the result below it take the full width */
-.dm-shx-r .dm-ic{grid-row:1/4}
+/* the name, the schedule and the result take the words' column; Run now and the switch sit beside all three */
 .dm-shx-r .dm-t{display:contents}
-.dm-shx-r :is(.dm-nm,.dm-d,.dm-res){grid-column:2/-1;transition:color .3s}
-.dm-shx-r .dm-nm{grid-column:2}
+.dm-shx-r :is(.dm-nm,.dm-d,.dm-res){grid-column:2;transition:color var(--dm-t-fast) var(--dm-ease)}
+.dm-shx-r .dm-nm{line-height:20px}
 /* a paused one dims: its tile fades, and its name and result step down to muted, so the text stays readable */
 .dm-shx-r.dm-off .dm-ic{opacity:.5}.dm-shx-r.dm-off :is(.dm-nm,.dm-res .dm-i){color:var(--dm-muted)}
 .dm-shx-r .dm-nm,.dm-shx-r .dm-d{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dm-shx-r .dm-d{font-size:12px;color:var(--dm-muted)}
+.dm-shx-r .dm-d{font-size:12px;line-height:18px;color:var(--dm-muted)}
 .dm-shx-r .dm-res{display:flex;align-items:center;gap:5px;min-width:0;height:18px;font-size:12px;color:var(--dm-muted)}
 .dm-shx-r .dm-res>span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dm-shx-r .dm-res .dm-i{color:var(--dm-ok)}
-.dm-shx-r[data-st="bad"] .dm-res,.dm-shx-r[data-st="bad"] .dm-res .dm-i{color:var(--dm-bad)}
-.dm-shx-act{grid-column:3;grid-row:1;display:flex;align-items:center;gap:var(--dm-s-2);margin-block:-5px}
+.dm-shx-r .dm-res .dm-shim{font-size:inherit}
+.dm-shx-r .dm-res .dm-i{flex:none;color:var(--dm-ok-mark)}
+.dm-shx-r .dm-res .dm-spin{width:11px;height:11px;margin:0 .5px;color:var(--dm-accent-mark,var(--dm-accent))}
+.dm-shx-r[data-st="bad"] .dm-res{color:var(--dm-bad)}
+/* why it failed is never cut short: on a narrow card it wraps, its sign on the first line */
+.dm-shx-r[data-st="bad"] .dm-res{height:auto;min-height:18px;align-items:flex-start;line-height:18px}
+.dm-shx-r[data-st="bad"] .dm-res .dm-i{margin-top:3px}
+.dm-shx-r[data-st="bad"] .dm-res>span{white-space:normal;text-wrap:pretty}
+.dm-shx-r[data-st="bad"] .dm-res .dm-i{color:var(--dm-bad-mark)}
+.dm-shx-act{grid-column:3;grid-row:1/4;align-self:center;display:flex;align-items:center;gap:var(--dm-s-2)}
 .dm-shx-run{width:28px;height:28px}
-/* the row turns grey under the pointer too, so Run now lifts to a white button with a shadow instead of a grey that would vanish into the row */
-@media (hover:hover) and (pointer:fine){.dm-shx-run:hover:not(:disabled){background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-shadow)}}
 .dm-shx-run:disabled{opacity:1;cursor:not-allowed;background:none;color:var(--dm-dis);transform:none}
 .dm-shx-r .dm-shx-fx{grid-column:2/-1;grid-row:4}
 .dm-shx-fx>div{overflow-clip-margin:0px}
 .dm-shx-fx>div>div{display:flex;flex-wrap:wrap;gap:6px;padding-top:var(--dm-s-2)}
-.dm-shx-add{display:flex;align-items:center;gap:var(--dm-s-2);height:30px;padding:0 var(--dm-s-3) 0 10px;font-size:12.5px;color:var(--dm-fg2);border-radius:var(--dm-r-pill);align-self:flex-start;transition:background-color .2s,color .2s}
+.dm-shx-fx .dm-pill .dm-spin{width:11px;height:11px}
+/* New schedule: its + centred in the marks' column and its words on the title's; the hover box starts on the content's edge */
+.dm-shx-add{display:flex;align-items:center;gap:var(--dm-s-3);align-self:flex-start;height:32px;margin-top:var(--dm-s-1);padding:0 var(--dm-s-3) 0 0;font-size:13px;color:var(--dm-fg2);border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+.dm-shx-add>.dm-i{width:28px;padding:0 8px;box-sizing:border-box}
+.dm-shx-add[aria-expanded="true"]{color:var(--dm-fg);background:var(--dm-row)}
 @media (hover:hover) and (pointer:fine){.dm-shx-add:hover{color:var(--dm-fg);background:var(--dm-row)}}
+/* its motion (the core's motion pieces, owner, 26 Nov): New schedule and Run now press at once (.mx-press; Clean keeps its
+   button's own press); the New schedule dialog grows out of its button and goes back into it quicker (.mx-pop); the card grows
+   on the spring (.mx-grow) */
 .dm-shx-pop{width:272px;padding:var(--dm-s-3)}
 .dm-shx-f{display:flex;flex-direction:column;gap:var(--dm-s-2)}
 .dm-shx-f h4{margin:0 0 2px;font-size:13px;font-weight:500}
@@ -49,12 +62,32 @@
 .dm-shx-in::placeholder{color:var(--dm-muted)}
 .dm-shx-in:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
 .dm-shx-rep{display:flex}
-.dm-shx-rep button{flex:1 1 auto;padding:0 var(--dm-s-2)}
+.dm-shx-rep button{flex:1 1 auto;padding:0 var(--dm-s-2);white-space:nowrap}
 .dm-shx-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:var(--dm-s-1)}
-.dm-shx-days button{height:28px;border-radius:var(--dm-r-sm);background:var(--dm-chip);font-size:12px;color:var(--dm-fg2);transition:background .2s,color .2s}
+.dm-shx-days button{height:28px;border-radius:var(--dm-r-sm);background:var(--dm-chip);font-size:12px;color:var(--dm-fg2);transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
 @media (hover:hover) and (pointer:fine){.dm-shx-days button:hover{background:var(--dm-hover);color:var(--dm-fg)}}
 .dm-shx-days button[aria-pressed="true"]{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}
 .dm-shx-ff{display:flex;align-items:center;gap:var(--dm-s-2);padding-top:2px}
 .dm-shx-sum{flex:1;min-width:0;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .dm-shx.dm-panel,:root [data-style="clean"] .dm-shx.dm-panel,:root [data-style="clean"].dm-shx.dm-panel{padding:16px 10px 20px 20px}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink primary alone presses */
+.dm-shx :is(.dm-ib,.dm-pill,.dm-shx-days button):active,:root[data-style="clean"] .dm-shx .dm-ib:active,:root [data-style="clean"] .dm-shx .dm-ib:active,:root [data-style="clean"].dm-shx .dm-ib:active{transform:none}
+/* Clean (owner, 17 and 18 Nov): the head an off-white strip with a hairline under it; the runs' marks one neutral grey with
+   a hairline (their logos keep their own colours); New schedule a flat secondary button on an off-white foot strip, 8px from
+   the card's edges; the content 16px in from each edge and 16px from each strip; the form's days are round chips, its fields
+   10px corners, and it scales and fades from its button with the card's corners */
+:root[data-style="clean"] .dm-shx.dm-panel,:root [data-style="clean"] .dm-shx.dm-panel,:root [data-style="clean"].dm-shx.dm-panel{padding:0}
+:root[data-style="clean"] .dm-shx-h,:root [data-style="clean"] .dm-shx-h,:root [data-style="clean"].dm-shx-h{min-height:calc(28px + 2 * var(--dm-strip-y) + 1px);padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-bottom:1px solid var(--dm-line);border-radius:var(--dm-r-card) var(--dm-r-card) 0 0}
+:root[data-style="clean"] .dm-shx-hi,:root [data-style="clean"] .dm-shx-hi,:root [data-style="clean"].dm-shx-hi{background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-hair);border-radius:10px}
+:root[data-style="clean"] .dm-shx-list,:root [data-style="clean"] .dm-shx-list,:root [data-style="clean"].dm-shx-list{padding:var(--dm-s-2) var(--dm-s-4)}
+:root[data-style="clean"] .dm-shx-r .dm-ic,:root [data-style="clean"] .dm-shx-r .dm-ic,:root [data-style="clean"].dm-shx-r .dm-ic,:root[data-style="clean"] .dm-shx-r .dm-ic.dm-brandic,:root [data-style="clean"] .dm-shx-r .dm-ic.dm-brandic,:root [data-style="clean"].dm-shx-r .dm-ic.dm-brandic{background:var(--dm-surface)!important;color:var(--dm-fg2)!important;box-shadow:inset 0 0 0 1px var(--dm-hair);border-radius:10px}
+:root[data-style="clean"] .dm-shx-r .dm-res .dm-i,:root [data-style="clean"] .dm-shx-r .dm-res .dm-i,:root [data-style="clean"].dm-shx-r .dm-res .dm-i{color:color-mix(in srgb,var(--dm-ok-mark) 80%,var(--dm-ok))}
+:root[data-style="clean"] .dm-shx-r[data-st="bad"] .dm-res .dm-i,:root [data-style="clean"] .dm-shx-r[data-st="bad"] .dm-res .dm-i,:root [data-style="clean"].dm-shx-r[data-st="bad"] .dm-res .dm-i{color:var(--dm-bad-mark)}
+:root[data-style="clean"] .dm-shx-r.dm-off .dm-res .dm-i,:root [data-style="clean"] .dm-shx-r.dm-off .dm-res .dm-i,:root [data-style="clean"].dm-shx-r.dm-off .dm-res .dm-i{color:var(--dm-muted)}
+:root[data-style="clean"] .dm-shx-run,:root [data-style="clean"] .dm-shx-run,:root [data-style="clean"].dm-shx-run{transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .dm-shx-ft,:root [data-style="clean"] .dm-shx-ft,:root [data-style="clean"].dm-shx-ft{margin-bottom:0;padding:var(--dm-strip-y) var(--dm-s-4);background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+:root[data-style="clean"] .dm-shx-add,:root [data-style="clean"] .dm-shx-add,:root [data-style="clean"].dm-shx-add{gap:6px;height:28px;margin:0;padding:0 12px 0 10px;border-radius:var(--dm-r-pill);font-weight:500;color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth);transition:box-shadow var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .dm-shx-add>.dm-i,:root [data-style="clean"] .dm-shx-add>.dm-i,:root [data-style="clean"].dm-shx-add>.dm-i{width:12px;padding:0}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] :is(.dm-shx-add:hover,.dm-shx-add[aria-expanded="true"]),:root [data-style="clean"] :is(.dm-shx-add:hover,.dm-shx-add[aria-expanded="true"]),:root [data-style="clean"]:is(.dm-shx-add:hover,.dm-shx-add[aria-expanded="true"]){background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
+:root[data-style="clean"] .dm-shx-add:active,:root [data-style="clean"] .dm-shx-add:active,:root [data-style="clean"].dm-shx-add:active{box-shadow:var(--dm-btn2-press)}
+:root[data-style="clean"] .dm-shx-pop,:root [data-style="clean"] .dm-shx-pop,:root [data-style="clean"].dm-shx-pop{width:288px;padding:var(--dm-s-4);border-radius:var(--dm-r-card)}
+:root[data-style="clean"] .dm-shx-days button,:root [data-style="clean"] .dm-shx-days button,:root [data-style="clean"].dm-shx-days button{border-radius:var(--dm-r-pill);transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}

@@ -1,9 +1,9 @@
 'use client';
-import { useEffect, useImperativeHandle, useRef, useState, type FormEvent, type ReactNode, type Ref } from 'react';
+import { useEffect, useImperativeHandle, useRef, useState, type FormEvent, type ReactNode, type Ref, type RefObject } from 'react';
 import { cx } from '../../lib/cx';
-import { useControllable } from '../../lib/hooks';
+import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { enter, Spin, Swap, Think } from '../../lib/motion';
+import { enter, Spin, Swap, Think, useGrow } from '../../lib/motion';
 import '../../designme.css';
 import './form.css';
 
@@ -48,9 +48,11 @@ export interface FormProps {
   draftedLabel?: string;
   /** Shown beside the submit button after a draft. Defaults to "Review what the agent drafted" */
   draftedMessage?: string;
-  /** Called with the values once every field passes. Return a promise and the button spins until it settles */
+  /** Called with the values once every field passes. Return a promise and the button shows a spinner and submittingLabel until it settles */
   onSubmit?: (values: FormValues) => void | Promise<void>;
   submitLabel?: string;
+  /** On the button while onSubmit's promise runs. Defaults to "Creating" */
+  submittingLabel?: string;
   /** Shown beside the submit button when a field needs a look */
   invalidMessage?: string;
   /** Shown when onSubmit rejects without a message of its own */
@@ -63,10 +65,23 @@ export interface FormProps {
   ref?: Ref<FormHandle>;
 }
 
-/** A short form an agent can draft for you: fields that check themselves on submit, and a confirmation. */
+/** A button whose words change eases to their width, with no room kept for the longer ones */
+function useEaseWidth(ref: RefObject<HTMLElement | null>, key: unknown) {
+  const reduce = useReducedMotion(), w = useRef(0);
+  useIsoLayoutEffect(() => {
+    const el = ref.current; if (!el) return;
+    const w1 = el.offsetWidth, w0 = w.current; w.current = w1;
+    if (!w0 || reduce || Math.abs(w1 - w0) < .5) return;
+    const cs = getComputedStyle(el);
+    el.animate([{ width: w0 + 'px' }, { width: w1 + 'px' }], { duration: (parseFloat(cs.getPropertyValue('--dm-t')) || .34) * 1000, easing: cs.getPropertyValue('--dm-ease').trim() || 'ease' });
+  }, [key]);
+}
+
+/** A short form an agent can draft for you: fields that check themselves on submit, and a confirmation. The card grows with
+    its messages and eases to the confirmation's height, keeping no room for either. */
 export function Form({
   title = 'New project brief', fields, values, defaultValues = {}, onValuesChange, onDraft, draftLabel = 'Draft with agent', draftingLabel = 'Drafting',
-  draftedLabel = 'Drafted', draftedMessage = 'Review what the agent drafted', onSubmit, submitLabel = 'Create brief', invalidMessage = 'A few fields need a look',
+  draftedLabel = 'Drafted', draftedMessage = 'Review what the agent drafted', onSubmit, submitLabel = 'Create brief', submittingLabel = 'Creating', invalidMessage = 'A few fields need a look',
   errorMessage = 'Something went wrong, try again', doneTitle, doneDetail = 'The agent is gathering references now', className, ref
 }: FormProps) {
   const [vals, setVals] = useControllable(values, defaultValues, onValuesChange);
@@ -77,6 +92,9 @@ export function Form({
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
   const own = useRef<string | null>(null);
+  const [outer, inner] = useGrow<HTMLFormElement>();
+  const ai_ = useRef<HTMLButtonElement>(null), go = useRef<HTMLButtonElement>(null);
+  useEaseWidth(ai_, draft); useEaseWidth(go, busy);
 
   // a changed value clears its field's message, whoever changed it; while a draft runs, the text fields it fills are marked Drafted
   // until the person edits them
@@ -118,56 +136,54 @@ export function Form({
     setBusy(false); setDone(true);
   };
 
-  if (done) {
-    const first = fields[0] ? vals[fields[0].key] : '';
-    return (
-      <form data-dm="" className={cx('dm-fmx dm-panel', className)} noValidate onSubmit={e => e.preventDefault()}>
-        <div className="dm-fmx-done" role="status">
-          <Icon name="ok" className="dm-enter" />
-          <b {...enter(70)}>{doneTitle ? doneTitle(vals) : `${first} created`}</b>
-          <span className="dm-muted dm-enter" style={enter(140).style}>{doneDetail}</span>
-        </div>
-      </form>
-    );
-  }
-
+  const first = fields[0] ? vals[fields[0].key] : '';
   return (
-    <form data-dm="" className={cx('dm-fmx dm-panel', className)} noValidate onSubmit={submit}>
-      <div className="dm-fmx-h">
-        <b>{title}</b>
-        {onDraft && (
-          <button type="button" className="dm-pill dm-soft dm-sm dm-fmx-ai" onClick={runDraft}>
-            {draft === 'drafting' ? <><Think />{draftingLabel}</> : draft === 'drafted' ? <><Icon name="check" size="xs" />{draftedLabel}</> : <><Icon name="spark" size="xs" />{draftLabel}</>}
-          </button>
-        )}
-      </div>
-      {fields.map(f => {
-        const value = vals[f.key] ?? '', err = errors[f.key];
-        const state = cx('dm-fmx-f', err && 'dm-bad', ai.includes(f.key) && 'dm-ai');
-        const note = err && <span className="dm-er" role="alert">{err}</span>;
-        if (f.type === 'choice') return (
-          <div key={f.key} className={state}>
-            <span>{f.label}</span>
-            <div className="dm-fmx-ty" role="group" aria-label={f.label}>
-              {f.options?.map(o => <button type="button" key={o.value} className={cx('dm-chip dm-sm', value === o.value && 'dm-on')} aria-pressed={value === o.value} onClick={() => set(f.key, o.value)}>{o.label}</button>)}
-            </div>
-            {note}
+    <form ref={outer} data-dm="" className={cx('dm-fmx dm-panel dm-growing', className)} noValidate onSubmit={done ? e => e.preventDefault() : submit}>
+      <div ref={inner} className="dm-grow">
+        {done ? (
+          <div className="dm-fmx-done" role="status">
+            <Icon name="ok" className="dm-enter" />
+            <b {...enter(70)}>{doneTitle ? doneTitle(vals) : `${first} created`}</b>
+            <span className="dm-muted dm-enter" style={enter(140).style}>{doneDetail}</span>
           </div>
-        );
-        return (
-          <label key={f.key} className={state}>
-            <span>{f.label}<i className="dm-fmx-dr" aria-hidden="true"><Icon name="spark" size="xs" />{draftedLabel}</i></span>
-            {f.type === 'textarea'
-              ? <textarea name={f.key} rows={f.rows ?? 2} placeholder={f.placeholder} maxLength={f.maxLength} autoComplete={f.autoComplete} aria-invalid={!!err || undefined} value={value} onChange={e => set(f.key, e.target.value)} />
-              : <input name={f.key} placeholder={f.placeholder} maxLength={f.maxLength} autoComplete={f.autoComplete} aria-invalid={!!err || undefined} value={value} onChange={e => set(f.key, e.target.value)} />}
-            {f.maxLength && f.type !== 'textarea' && <em className="dm-fmx-c dm-num">{value.length}/{f.maxLength}</em>}
-            {note}
-          </label>
-        );
-      })}
-      <div className="dm-fmx-ft">
-        <Swap className="dm-fmx-ms dm-muted">{message}</Swap>
-        <button type="submit" className="dm-pill dm-primary dm-sm dm-fmx-go">{busy ? <Spin /> : submitLabel}</button>
+        ) : <>
+          <div className="dm-fmx-h">
+            <b>{title}</b>
+            {onDraft && (
+              <button ref={ai_} type="button" className={cx('dm-pill dm-line dm-sm dm-fmx-ai', draft === 'drafted' && 'dm-done')} onClick={runDraft}>
+                {draft === 'drafting' ? <><Think /><span className="dm-shim">{draftingLabel}</span></> : draft === 'drafted' ? <><Icon name="check" size="xs" />{draftedLabel}</> : <><Icon name="spark" size="xs" />{draftLabel}</>}
+              </button>
+            )}
+          </div>
+          {fields.map(f => {
+            const value = vals[f.key] ?? '', err = errors[f.key];
+            const state = cx('dm-fmx-f', err && 'dm-bad', ai.includes(f.key) && 'dm-ai');
+            const note = err && <span className="dm-er" role="alert">{err}</span>;
+            if (f.type === 'choice') return (
+              <div key={f.key} className={state}>
+                <span>{f.label}</span>
+                <div className="dm-fmx-ty" role="group" aria-label={f.label}>
+                  {f.options?.map(o => <button type="button" key={o.value} className={cx('dm-chip dm-sm', value === o.value && 'dm-on')} aria-pressed={value === o.value} onClick={() => set(f.key, o.value)}>{o.label}</button>)}
+                </div>
+                {note}
+              </div>
+            );
+            return (
+              <label key={f.key} className={state}>
+                <span>{f.label}<i className="dm-fmx-dr" aria-hidden="true"><Icon name="spark" size="xs" />{draftedLabel}</i></span>
+                {f.type === 'textarea'
+                  ? <textarea name={f.key} rows={f.rows ?? 2} placeholder={f.placeholder} maxLength={f.maxLength} autoComplete={f.autoComplete} aria-invalid={!!err || undefined} value={value} onChange={e => set(f.key, e.target.value)} />
+                  : <input name={f.key} placeholder={f.placeholder} maxLength={f.maxLength} autoComplete={f.autoComplete} aria-invalid={!!err || undefined} value={value} onChange={e => set(f.key, e.target.value)} />}
+                {f.maxLength && f.type !== 'textarea' && <em className="dm-fmx-c dm-num">{value.length}/{f.maxLength}</em>}
+                {note}
+              </label>
+            );
+          })}
+          <div className="dm-fmx-ft">
+            <Swap className="dm-fmx-ms dm-muted">{message}</Swap>
+            <button ref={go} type="submit" className="dm-pill dm-primary dm-sm dm-fmx-go">{busy ? <><Spin /><span className="dm-shim">{submittingLabel}</span></> : submitLabel}</button>
+          </div>
+        </>}
       </div>
     </form>
   );

@@ -1,4 +1,6 @@
-// Writes src/index.ts: every component, in the site's order, then the shared pieces.
+// Writes src/index.ts: every component, in the site's order, then the shared pieces. Only the live ones (r/index.json, from
+// tools/site/live.js): the others stay in src/components, unexported. It also writes README.md's Components section from
+// scripts/components.md, with the live components only, and the count in its introduction.
 // usage: node scripts/index.mjs   (from packages/react)
 import fs from 'node:fs';
 import path from 'node:path';
@@ -19,6 +21,33 @@ export { Brand, type BrandName } from './lib/brands';
 export { Flag, type FlagCode } from './lib/flags';
 export { Think, Spin, Radar, Pulse, Bars, Dot, Swap, Fold, Seg, Tip, Avatar, SourceChip, enter, type Source, type SourceKind } from './lib/motion';
 export { usePopover, type PopoverOptions } from './lib/popover';
+export { useHoverGlide, hoverGlide, type HoverGlideOptions } from './lib/glide';
+export { useColumns, type ColumnsOptions } from './lib/columns';
 export { useControllable, useCopied, useTween, useSeconds, useReducedMotion } from './lib/hooks';
 `);
 console.log(`index.ts exports ${files.length} components`);
+
+/* ---------- README.md: the live components' entries, and how many there are ---------- */
+{
+  const items = JSON.parse(fs.readFileSync(path.resolve(pkg, '../../r/index.json'), 'utf8')).items, live = new Set(items.map(i => i.name));
+  const src = fs.readFileSync(path.join(pkg, 'scripts/components.md'), 'utf8').replace(/^<!--[\s\S]*?-->\n+/, '');
+  // the section's introduction, then each ### group with its entries; an entry starts with **Name** · `<name>/Name.tsx`
+  const [intro, ...groups] = src.split(/^(?=### )/m);
+  const out = [intro];
+  for (const g of groups){
+    const [head, ...entries] = g.split(/^(?=\*\*\w+\*\* · `)/m);
+    const kept = entries.filter(e => live.has(e.match(/^\*\*\w+\*\* · `([\w-]+)\//)[1]));
+    if (kept.length) out.push(head + kept.map(e => e.replace(/\n*$/, '\n\n')).join(''));
+  }
+  const listed = out.join('').match(/^\*\*\w+\*\* · `([\w-]+)\//gm).length;
+  if (listed !== live.size) throw new Error(`README: scripts/components.md has entries for ${listed} of the ${live.size} live components`);
+  const file = path.join(pkg, 'README.md'), text = fs.readFileSync(file, 'utf8');
+  const a = text.indexOf('## Components\n'), b = text.indexOf('## Examples\n');
+  if (a < 0 || b < a) throw new Error('README: no Components section before Examples');
+  const count = /All \d+ components are here, from [^,]+ to [^,]+, each/;
+  if (!count.test(text)) throw new Error('README: the sentence with the component count is gone');
+  const next = (text.slice(0, a) + out.join('').replace(/\n*$/, '\n\n') + text.slice(b))
+    .replace(count, `All ${items.length} components are here, from ${items[0].title} to ${items[items.length - 1].title}, each`);
+  if (next !== text) fs.writeFileSync(file, next);
+  console.log(`README.md lists ${listed} components`);
+}

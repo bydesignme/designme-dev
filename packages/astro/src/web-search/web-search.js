@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, enter, hold, html, swap } from '../core/core.js';
+import { $, $$, DM, I, enter, grow, html, iconSwap, swap } from '../core/core.js';
 DM.def('web-search', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{chev}', I('chev-d','xs'));
   // the searches: what was asked, how many results, how long it took, and the pages it opened. The first finds nothing and is
@@ -16,6 +16,9 @@ DM.def('web-search', (r, c) => {
   const ST = { read:['Read', ''], skim:['Skimmed', ''], paywall:['Skipped: paywall', 'warn'], blocked:['Skipped: blocked', 'warn'], timeout:['Skipped: timeout', 'warn'] };
   const root = $('.wsx', r), head = $('.wsx-h', r), ic = $('.wsx-ic', r), st = $('.wsx-st', r), marks = $('.wsx-marks', r), fold = $('.wsx-fold', r), list = $('.wsx-list', r), ans = $('.wsx-ans', r), sr = $('.wsx-sr', r);
   const say = t => { sr.textContent = t; };
+  // the card grows and shrinks with what it holds (grow()), eased and centred, in every style (owner, 18 Nov), instead of
+  // keeping the height it had once the trail folds
+  c.offs.push(grow(root));
   const setOpen = o => { head.setAttribute('aria-expanded', o); fold.classList.toggle('shut', !o); };
   head.onclick = () => setOpen(head.getAttribute('aria-expanded') !== 'true');
   const sites = [];
@@ -26,19 +29,20 @@ DM.def('web-search', (r, c) => {
   c.run(async () => {
     await c.wait(500);
     for (const [k, q] of Q.entries()){
-      const el = html(`<div class="wsx-q" data-k="${k}"><button class="wsx-qh${q.n ? '' : ' empty'}" aria-expanded="false">${I('search','xs')}<span class="t shim">${q.q}</span><span class="n">Searching</span><span class="tm num"></span>${I('chev-r','xs')}</button>${q.from != null ? `<span class="wsx-rw">${I('refresh','xs')}Asked again in other words</span>` : ''}${q.p ? '<div class="fold shut"><div><ul class="wsx-rs"></ul></div></div>' : ''}</div>`);
-      list.appendChild(el); enter(el); swap(st, `Searching for “${q.q}”`);
+      const el = html(`<div class="wsx-q" data-k="${k}"><button class="wsx-qh mx-press${q.n ? '' : ' empty'}" aria-expanded="false">${I('search','xs')}<span class="t shim">${q.q}</span><span class="n shim">Searching</span><span class="tm num"></span>${I('chev-r','xs')}</button>${q.from != null ? `<span class="wsx-rw">${I('refresh','xs')}Asked again in other words</span>` : ''}${q.p ? '<div class="fold shut"><div><ul class="wsx-rs"></ul></div></div>' : ''}</div>`);
+      // the head says what is happening; the query and its pages are in the rows under it, so it repeats neither (owner, 18 Nov)
+      list.appendChild(el); enter(el); swap(st, 'Searching the web');
       const b = $('.wsx-qh', el); b.onclick = () => { if ($('.fold', el)) qOpen(el, b.getAttribute('aria-expanded') !== 'true'); };
       await c.wait(1100);
       $('.t', b).classList.remove('shim'); $('.tm', b).textContent = q.ms;
-      const n = $('.n', b); n.textContent = q.n ? `${q.n} results` : 'No results'; n.classList.toggle('none', !q.n);
+      const n = $('.n', b); n.classList.remove('shim'); n.textContent = q.n ? `${q.n} results` : 'No results'; n.classList.toggle('none', !q.n);
       b.setAttribute('aria-label', `${q.q}: ${q.n ? q.n + ' results' : 'no results'}, ${q.ms}`);
       say(q.n ? `${q.n} results for ${q.q}` : `No results for ${q.q}. Asking again in other words`);
       if (!q.p){ await c.wait(500); continue; }
       qOpen(el, true); const ul = $('.wsx-rs', el);
-      swap(st, `Reading ${q.p.length} pages`);
+      swap(st, 'Reading the pages');
       for (const [t, d, when, s, cite] of q.p){
-        const li = html(`<li class="wsx-r" tabindex="0" data-tip="${t} · ${d}"><span class="wsx-fav" aria-hidden="true">${d[0].toUpperCase()}</span><span class="tx"><span class="t">${t}</span><span class="d">${d} · ${when}</span></span><span class="tag"><span class="spin"></span>Reading</span></li>`);
+        const li = html(`<li class="wsx-r" tabindex="0" data-tip="${t} · ${d}"><span class="wsx-fav" aria-hidden="true">${d[0].toUpperCase()}</span><span class="tx"><span class="t">${t}</span><span class="d">${d} · ${when}</span></span><span class="tag"><span class="spin"></span><span class="shim">Reading</span></span></li>`);
         ul.appendChild(li); enter(li); sites.push(d); drawMarks(); if (cite) pages[cite] = { li, q:el, d };
         await c.wait(420);
         const g = $('.tag', li); g.className = 'tag ' + ST[s][1]; g.textContent = ST[s][0]; li.classList.toggle('skip', s !== 'read' && s !== 'skim');
@@ -47,10 +51,11 @@ DM.def('web-search', (r, c) => {
       await c.wait(500); qOpen(el, false);
     }
     // done: the trail folds to one line, and the answer streams in under it, citing its pages
-    done = true; ic.innerHTML = I('globe','xs'); st.classList.remove('shim');
+    // (the spinner crossfades to the globe: iconSwap(), motion pieces)
+    done = true; iconSwap(ic, () => { ic.innerHTML = I('globe','xs'); }, { inner:true }); st.classList.remove('shim');
     const read = Q.flatMap(q => q.p || []).filter(p => p[3] === 'read' || p[3] === 'skim').length;
     swap(st, `${Q.length} searches, ${read} pages read`); say(`Done: ${Q.length} searches, ${read} pages read`);
-    await c.wait(400); hold(root); setOpen(false);
+    await c.wait(400); setOpen(false);
     const A = 'Stripe caps metered usage at 100 million events a month for each meter [1]. Metronome and Orb both take events in bulk with no monthly cap [2]. At your volume Stripe still fits, with room to grow.'.split(' ');
     for (let i = 1; i <= A.length; i++){ ans.innerHTML = A.slice(0, i).join(' ').replace(/\[(\d)\]/g, (m, k) => `<button class="wsx-cite" data-n="${k}" aria-label="Source ${k}: ${$('.t', pages[k].li).textContent}, ${pages[k].d}" data-tip="${$('.t', pages[k].li).textContent} · ${pages[k].d}">${k}</button>`); await c.wait(50); }
 

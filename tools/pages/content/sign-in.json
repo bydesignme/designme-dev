@@ -7,13 +7,14 @@
     "When you want a resend countdown so people don't request codes over and over"
   ],
   "features": [
-    "The email step checks the address shape and shows `emptyEmailLabel` or `badEmailLabel`, with the field shaking on each failed try.",
+    "The email step checks the address shape and shows `emptyEmailLabel` or `badEmailLabel` under the field, in red words after an alert mark with no red fill, and the field shakes on each failed try. The line opens and closes instead of keeping room for itself.",
     "If `onSendCode` returns a promise, the button spins until it settles, and a rejection's message shows under the field.",
-    "The code boxes accept typing, Backspace back to the previous box, and a pasted or autofilled code that spreads across the boxes.",
-    "Pass `inbox` and the email with the code arrives at the top of the code screen, the way a phone shows it, with Copy code. Copy puts the code on the clipboard and calls `onCopyCode`; pasting it into the boxes fills them all.",
-    "Once every box is filled, `onVerify` runs; returning false clears the boxes and shows `wrongCodeLabel`.",
+    "The code boxes accept typing, Backspace back to the previous box, and a pasted or autofilled code that spreads across the boxes. Every box has the same fill and edge; the focused box, or with none focused the next one to fill, has the field's focus edge.",
+    "Pass `inbox` and, a moment after the code screen shows, its code is offered under the boxes the way a phone offers a one-time code: a quiet chip like From Mail 482 157 (`from` names where it came from). Pressing it fills every box and calls `onAutofill`, and the chip folds away; the card grows and shrinks smoothly for it.",
+    "Once every box is filled, `onVerify` runs while the boxes dim a little and the line under them says Verifying code with a moving highlight; returning false clears the boxes, edges them in red with a short shake (none with reduced motion) and shows `wrongCodeLabel` in red after an alert mark, until typing starts over.",
     "A resend countdown runs from `resendIn` seconds, 30 by default, then turns into a Resend code button that calls `onResend`.",
-    "A confirmed code shows a check, then the done screen with `doneTitle`, kept at the height the code screen had, and calls `onSignedIn`."
+    "A confirmed code shows a green tick and Code confirmed, then the done screen with `doneTitle` and a green check, and calls `onSignedIn`. The card eases to the height of each step, so it keeps no room for a later one.",
+    "Send code, the line under the boxes and the done screen's `doneDetail` share one foot, which keeps its place as the steps change; in Clean it is the card's off-white foot strip, with the fields above it in the card's body."
   ],
   "a11y": [
     "Each code box has an `aria-label` like \"Digit 1\" inside a `group` labelled \"Code\", and the first box uses `autocomplete=\"one-time-code\"`.",

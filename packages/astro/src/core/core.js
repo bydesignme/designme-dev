@@ -21,7 +21,9 @@ let REDUCE = false;
   if (mq.addEventListener) mq.addEventListener('change', set); else mq.addListener(set);
 }
 const I = (n, c = 's') => `<svg class="i ${c}"><use href="#i-${n}"/></svg>`;
-const AV = (n, bg) => `<span class="av" style="background:${bg}${/^var\(--dm-av-[a-z]\)$/.test(bg) ? ';color:' + bg.replace(')', '-ink)') : ''}">${n}</span>`;
+// a person's avatar: their initials on their colour. pic names the photo designme.dev's own pages lay over it; an installed
+// component shows the initials
+const AV = (n, bg, pic) => `<span class="av" style="background:${bg}${/^var\(--dm-av-[a-z]\)$/.test(bg) ? ';color:' + bg.replace(')', '-ink)') : ''}"${pic ? ` data-pic="${pic}"` : ''}>${n}</span>`;
 /* official brand marks for the services this page names */
 const BRAND = {"google": "<svg class=\"brand\" aria-hidden=\"true\" viewBox=\"0 0 128 128\"><path fill=\"#e33629\" d=\"M44.59 4.21a64 64 0 0142.61.37 61.22 61.22 0 0120.35 12.62c-2 2.14-4.11 4.14-6.15 6.22Q95.58 29.23 89.77 35a34.28 34.28 0 00-13.64-8 37.17 37.17 0 00-37.46 9.74 39.25 39.25 0 00-9.18 14.91L8.76 35.6A63.53 63.53 0 0144.59 4.21z\"/><path fill=\"#f8bd00\" d=\"M3.26 51.5a62.93 62.93 0 015.5-15.9l20.73 16.09a38.31 38.31 0 000 24.63q-10.36 8-20.73 16.08a63.33 63.33 0 01-5.5-40.9z\"/><path fill=\"#587dbd\" d=\"M65.27 52.15h59.52a74.33 74.33 0 01-1.61 33.58 57.44 57.44 0 01-16 26.26c-6.69-5.22-13.41-10.4-20.1-15.62a29.72 29.72 0 0012.66-19.54H65.27c-.01-8.22 0-16.45 0-24.68z\"/><path fill=\"#319f43\" d=\"M8.75 92.4q10.37-8 20.73-16.08A39.3 39.3 0 0044 95.74a37.16 37.16 0 0014.08 6.08 41.29 41.29 0 0015.1 0 36.16 36.16 0 0013.93-5.5c6.69 5.22 13.41 10.4 20.1 15.62a57.13 57.13 0 01-25.9 13.47 67.6 67.6 0 01-32.36-.35 63 63 0 01-23-11.59A63.73 63.73 0 018.75 92.4z\"/></svg>", "github": "<svg class=\"brand\" aria-hidden=\"true\" viewBox=\"0 0 24 24\"><path fill=\"currentColor\" d=\"M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12\"/></svg>", "figma": "<svg class=\"brand\" aria-hidden=\"true\" viewBox=\"0 0 128 128\"><path fill=\"#0acf83\" d=\"M45.5 129c11.9 0 21.5-9.6 21.5-21.5V86H45.5C33.6 86 24 95.6 24 107.5S33.6 129 45.5 129zm0 0\"/><path fill=\"#a259ff\" d=\"M24 64.5C24 52.6 33.6 43 45.5 43H67v43H45.5C33.6 86 24 76.4 24 64.5zm0 0\"/><path fill=\"#f24e1e\" d=\"M24 21.5C24 9.6 33.6 0 45.5 0H67v43H45.5C33.6 43 24 33.4 24 21.5zm0 0\"/><path fill=\"#ff7262\" d=\"M67 0h21.5C100.4 0 110 9.6 110 21.5S100.4 43 88.5 43H67zm0 0\"/><path fill=\"#1abcfe\" d=\"M110 64.5c0 11.9-9.6 21.5-21.5 21.5S67 76.4 67 64.5 76.6 43 88.5 43 110 52.6 110 64.5zm0 0\"/></svg>", "slack": "<svg class=\"brand\" aria-hidden=\"true\" viewBox=\"0 0 128 128\"><path d=\"M27.255 80.719c0 7.33-5.978 13.317-13.309 13.317C6.616 94.036.63 88.049.63 80.719s5.987-13.317 13.317-13.317h13.309zm6.709 0c0-7.33 5.987-13.317 13.317-13.317s13.317 5.986 13.317 13.317v33.335c0 7.33-5.986 13.317-13.317 13.317-7.33 0-13.317-5.987-13.317-13.317zm0 0\" fill=\"#de1c59\"/><path d=\"M47.281 27.255c-7.33 0-13.317-5.978-13.317-13.309C33.964 6.616 39.951.63 47.281.63s13.317 5.987 13.317 13.317v13.309zm0 6.709c7.33 0 13.317 5.987 13.317 13.317s-5.986 13.317-13.317 13.317H13.946C6.616 60.598.63 54.612.63 47.281c0-7.33 5.987-13.317 13.317-13.317zm0 0\" fill=\"#35c5f0\"/><path d=\"M100.745 47.281c0-7.33 5.978-13.317 13.309-13.317 7.33 0 13.317 5.987 13.317 13.317s-5.987 13.317-13.317 13.317h-13.309zm-6.709 0c0 7.33-5.987 13.317-13.317 13.317s-13.317-5.986-13.317-13.317V13.946C67.402 6.616 73.388.63 80.719.63c7.33 0 13.317 5.987 13.317 13.317zm0 0\" fill=\"#2eb57d\"/><path d=\"M80.719 100.745c7.33 0 13.317 5.978 13.317 13.309 0 7.33-5.987 13.317-13.317 13.317s-13.317-5.987-13.317-13.317v-13.309zm0-6.709c-7.33 0-13.317-5.987-13.317-13.317s5.986-13.317 13.317-13.317h33.335c7.33 0 13.317 5.986 13.317 13.317 0 7.33-5.987 13.317-13.317 13.317zm0 0\" fill=\"#ebb02e\"/></svg>", "notion": "<svg class=\"brand\" aria-hidden=\"true\" viewBox=\"0 0 24 24\"><path fill=\"currentColor\" d=\"M4.459 4.208c.746.606 1.026.56 2.428.466l13.215-.793c.28 0 .047-.28-.046-.326L17.86 1.968c-.42-.326-.981-.7-2.055-.607L3.01 2.295c-.466.046-.56.28-.374.466zm.793 3.08v13.904c0 .747.373 1.027 1.214.98l14.523-.84c.841-.046.935-.56.935-1.167V6.354c0-.606-.233-.933-.748-.887l-15.177.887c-.56.047-.747.327-.747.933zm14.337.745c.093.42 0 .84-.42.888l-.7.14v10.264c-.608.327-1.168.514-1.635.514-.748 0-.935-.234-1.495-.933l-4.577-7.186v6.952L12.21 19s0 .84-1.168.84l-3.222.186c-.093-.186 0-.653.327-.746l.84-.233V9.854L7.822 9.76c-.094-.42.14-1.026.793-1.073l3.456-.233 4.764 7.279v-6.44l-1.215-.139c-.093-.514.28-.887.747-.933zM1.936 1.035l13.31-.98c1.634-.14 2.055-.047 3.082.7l4.249 2.986c.7.513.934.653.934 1.213v16.378c0 1.026-.373 1.634-1.68 1.726l-15.458.934c-.98.047-1.448-.093-1.962-.747l-3.129-4.06c-.56-.747-.793-1.306-.793-1.96V2.667c0-.839.374-1.54 1.447-1.632z\"/></svg>", "linear": "<svg class=\"brand\" aria-hidden=\"true\" viewBox=\"0 0 24 24\"><path fill=\"#5e6ad2\" d=\"M2.886 4.18A11.982 11.982 0 0 1 11.99 0C18.624 0 24 5.376 24 12.009c0 3.64-1.62 6.903-4.18 9.105L2.887 4.18ZM1.817 5.626l16.556 16.556c-.524.33-1.075.62-1.65.866L.951 7.277c.247-.575.537-1.126.866-1.65ZM.322 9.163l14.515 14.515c-.71.172-1.443.282-2.195.322L0 11.358a12 12 0 0 1 .322-2.195Zm-.17 4.862 9.823 9.824a12.02 12.02 0 0 1-9.824-9.824Z\"/></svg>", "gmail": "<svg class=\"brand\" aria-hidden=\"true\" viewBox=\"52 42 88 66\"><path fill=\"#4285f4\" d=\"M58 108h14V74L52 59v43c0 3.32 2.69 6 6 6\"/><path fill=\"#34a853\" d=\"M120 108h14c3.32 0 6-2.69 6-6V59l-20 15\"/><path fill=\"#fbbc04\" d=\"M120 48v26l20-15v-8c0-7.42-8.47-11.65-14.4-7.2\"/><path fill=\"#ea4335\" d=\"M72 74V48l24 18 24-18v26L96 92\"/><path fill=\"#c5221f\" d=\"M52 51v8l20 15V48l-5.6-4.2c-5.94-4.45-14.4-.22-14.4 7.2\"/></svg>", "drive": "<svg class=\"brand\" aria-hidden=\"true\" viewBox=\"0 0 87.3 78\"><path fill=\"#0066da\" d=\"m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z\"/><path fill=\"#00ac47\" d=\"m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0-1.2 4.5h27.5z\"/><path fill=\"#ea4335\" d=\"m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z\"/><path fill=\"#00832d\" d=\"m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z\"/><path fill=\"#2684fc\" d=\"m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z\"/><path fill=\"#ffba00\" d=\"m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z\"/></svg>", "meet": "<svg class=\"brand\" aria-hidden=\"true\" viewBox=\"0 0 87.5 72\"><path fill=\"#00832d\" d=\"M49.5 36l8.53 9.75 11.47 7.33 2-17.02-2-16.64-11.69 6.44z\"/><path fill=\"#0066da\" d=\"M0 51.5V66c0 3.315 2.685 6 6 6h14.5l3-10.96-3-9.54-9.95-3z\"/><path fill=\"#e94235\" d=\"M20.5 0L0 20.5l10.55 3 9.95-3 2.95-9.41z\"/><path fill=\"#2684fc\" d=\"M20.5 20.5H0v31h20.5z\"/><path fill=\"#00ac47\" d=\"M82.6 8.68L69.5 19.42v33.66l13.16 10.79c1.97 1.54 4.85.135 4.85-2.37V11c0-2.535-2.945-3.925-4.91-2.32zM49.5 36v15.5h-29V72h43c3.315 0 6-2.685 6-6V53.08z\"/><path fill=\"#ffba00\" d=\"M63.5 0h-43v20.5h29V36l20-16.57V6c0-3.315-2.685-6-6-6z\"/></svg>"};
 /* country flags, drawn as images so each one keeps its own ids */
@@ -127,7 +129,9 @@ function swap(el, html, isHTML){
   if (p){ if (p.v === html && p.h === !!isHTML) return; clearTimeout(p.t); el._sw = null; }
   const cur = isHTML ? el.innerHTML : el.textContent; if (cur === html){ if (p) el.classList.remove('out'); return; }
   el.classList.add('sw'); el.classList.add('out');
-  const s = el._sw = { v:html, h:!!isHTML, t:setTimeout(() => { if (el._sw !== s) return; el._sw = null; isHTML ? el.innerHTML = html : el.textContent = html; el.classList.remove('out'); }, REDUCE ? 0 : 170) };
+  // (words marked .mx-w ease their box to the new width as they arrive: mxWidth())
+  const s = el._sw = { v:html, h:!!isHTML, t:setTimeout(() => { if (el._sw !== s) return; el._sw = null; const w0 = !REDUCE && el.classList.contains('mx-w') ? el.offsetWidth : 0;
+    isHTML ? el.innerHTML = html : el.textContent = html; el.classList.remove('out'); if (w0) mxWidth(el, w0); }, REDUCE ? 0 : 170) };
 }
 function tween(from, to, ms, step, ease = t => 1 - Math.pow(1 - t, 3)){
   return new Promise(res => { const t0 = performance.now(); const f = t => { const p = Math.max(0, Math.min(1, (t - t0) / (REDUCE ? 1 : ms))); step(from + (to - from) * ease(p), p); p < 1 ? requestAnimationFrame(f) : res(); }; requestAnimationFrame(f); });
@@ -137,6 +141,49 @@ function enter(el, delay = 0){ if (!el) return el; el.classList.remove('enter');
   const end = e => { if (e.target !== el || e.animationName !== 'enter') return; el.classList.remove('enter'); el.removeEventListener('animationend', end); el.removeEventListener('animationcancel', end); };
   el.addEventListener('animationend', end); el.addEventListener('animationcancel', end); return el; }
 function stagger(els, step = 60, base = 0){ els.forEach((e, i) => enter(e, base + i * step)); }
+/* ---------- motion pieces (owner's trial, 26 Nov; the CSS's "motion pieces" says what each is for) ---------- */
+// a motion token on el: a time in ms or a length in px when d is a number, else the value as written
+const mxT = (el, k, d) => { const v = getComputedStyle(el).getPropertyValue(k).trim(); if (!v) return d; return typeof d === 'number' ? parseFloat(v) * (/ms$/.test(v) ? 1 : /s$/.test(v) ? 1000 : 1) : v; };
+/* mxIn(): content just drawn arrives: it fades and rises a few px (o.y) out of a short blur (--blur-in; none in Blueprint and
+   Clean), one piece after another (o.step, the style's --mx-step); o.x brings it in from the side instead (the next question).
+   With reduced motion it only fades. mxOut(): content about to go leaves the same way, quicker (--t-out), upwards or to o.x;
+   it stays gone until it is replaced or brought back with mxIn(). Both return a promise for the end, and either cancels the
+   other on the same element */
+function mxMove(els, o, out){
+  els = [].concat(els).filter(e => e && e.isConnected && e.animate); if (!els.length) return Promise.resolve();
+  const e0 = els[0], b = mxT(e0, '--dm-blur-in', 0) * (o.blur ?? .7), E = out ? 'cubic-bezier(.4,0,1,1)' : mxT(e0, o.spring ? '--dm-ease-spring' : '--dm-ease', 'ease');
+  const ms = o.ms || mxT(e0, out ? '--dm-t-out' : '--dm-t-in', out ? 160 : 360), step = o.step ?? (out ? 0 : mxT(e0, '--dm-mx-step', 24));
+  const away = REDUCE ? { opacity:0 } : { opacity:0, translate:o.x ? `${o.x}px 0` : `0 ${o.y ?? (out ? -4 : 4)}px`, filter:b ? `blur(${b}px)` : 'none' };
+  const here = REDUCE ? { opacity:1 } : { opacity:1, translate:'0 0', filter:b ? 'blur(0px)' : 'none' };
+  return Promise.all(els.map((el, i) => { (el._mx || []).forEach(a => a.cancel());
+    const a = el.animate(out ? [here, away] : [away, here], { duration:REDUCE ? 140 : ms, delay:(o.base || 0) + i * step, easing:REDUCE ? 'linear' : E, fill:out ? 'forwards' : 'backwards' });
+    el._mx = [a]; return a.finished.catch(() => {}); }));
+}
+const mxIn = (els, o = {}) => mxMove(els, o, false), mxOut = (els, o = {}) => mxMove(els, o, true);
+/* iconSwap(): an icon that changes, inside an .mx-ic control, goes out small and soft and the new one comes back with a little
+   spring (--ic-scale, --blur-ic, --ease-pop; with reduced motion only a fade). change() makes the change: a new href, new
+   markup. o.inner animates el's first child rather than el (a tile that keeps its fill while its glyph changes). Elsewhere the
+   change is made at once, as before. A change asked for while one is under way lands first, so the newest always wins */
+function iconSwap(el, change, o = {}){
+  if (!el || !el.animate || !el.closest('.mx-ic') || !el.isConnected){ change(); return; }
+  if (el._icGo) el._icGo();
+  (el._ic || []).forEach(a => a.cancel());
+  const pick = () => (o.inner ? el.firstElementChild : el) || el, k = mxT(el, '--dm-ic-scale', .6), b = mxT(el, '--dm-blur-ic', 0);
+  const off = REDUCE ? { opacity:0 } : { opacity:0, scale:String(k), filter:b ? `blur(${b}px)` : 'none' }, on = REDUCE ? { opacity:1 } : { opacity:1, scale:'1', filter:b ? 'blur(0px)' : 'none' };
+  let done = false; const go = el._icGo = () => { if (done) return; done = true; el._icGo = null; change(); };
+  const t = pick(), a = t.animate([on, off], { duration:REDUCE ? 70 : 90, easing:'cubic-bezier(.4,0,1,1)', fill:'forwards' });
+  el._ic = [a];
+  a.onfinish = () => { go(); const n = pick(); if (!n.isConnected) return; const i = n.animate([off, on], { duration:REDUCE ? 120 : mxT(el, '--dm-t-in', 360) * .8, easing:REDUCE ? 'linear' : mxT(el, '--dm-ease-pop', 'ease') }); a.cancel(); el._ic = [i]; };
+  a.oncancel = go;
+}
+// mxWidth(): an .mx-w element whose words just changed eases from the width it had (w0) to its new one, its spill clipped meanwhile
+function mxWidth(el, w0){
+  if (el._mw) el._mw.cancel();
+  const w1 = el.offsetWidth; if (Math.abs(w1 - w0) < 1 || !el.animate) return;
+  el.style.overflow = 'clip';
+  const a = el._mw = el.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:mxT(el, '--dm-t-in', 360), easing:mxT(el, '--dm-ease-spring', 'ease') });
+  a.onfinish = a.oncancel = () => { if (el._mw === a){ el._mw = null; el.style.overflow = ''; } };
+}
 /* reflow(): a list that changes under a filter, a search or a sort. The change happens at once, in change(); this only
    shows it. items() gives the list's items, each known by its o.by attribute (data-key by default). The items that stay
    glide from where they were to where they are now, new ones fade in from 4px down, and the ones that went fade out where
@@ -146,7 +193,9 @@ function stagger(els, step = 60, base = 0){ els.forEach((e, i) => enter(e, base 
    An item the change hides counts as gone. Only items that don't sit inside one another can be listed (a group and its own
    rows would glide twice).
    o: { by, root (the component, which places are measured against), enter:false (new items come in some other way),
-   leave:false (items that go fade some other way), host (where a copy goes when the change redrew the item's own parent) } */
+   leave:false (items that go fade some other way), host (where a copy goes when the change redrew the item's own parent),
+   blur:true (new items also come out of a short blur, half the style's --blur-in, and items that go fade in half the time:
+   a motion piece, owner's trial of 26 Nov) } */
 function reflow(items, change, o = {}){
   const by = o.by || 'data-key', live = () => items().filter(el => !el.hasAttribute('data-ghost'));
   if (REDUCE || !document.body.animate){ change(); return; }
@@ -165,13 +214,14 @@ function reflow(items, change, o = {}){
   const r1 = box(), sx = r1.left - r0.left, sy = r1.top - r0.top;
   const now = live(), at = now[0] || [...hosts].find(p => p.isConnected) || document.documentElement, cs = getComputedStyle(at);
   const E = cs.getPropertyValue('--dm-ease').trim() || 'ease', T = (parseFloat(cs.getPropertyValue('--dm-t-fast')) || .22) * 1000, seen = new Set();
+  const B = o.blur ? (parseFloat(cs.getPropertyValue('--dm-blur-in')) || 0) / 2 : 0, IN = B ? [{ opacity:0, transform:'translateY(4px)', filter:`blur(${B}px)` }, { opacity:1, transform:'none', filter:'blur(0px)' }] : [{ opacity:0, transform:'translateY(4px)' }, { opacity:1, transform:'none' }];
   let n = 0;
   for (const el of now){
     const k = el.getAttribute(by), a = was.get(k);
     (el._rf || []).forEach(x => x.cancel()); el._rf = [];
     const b = el.getBoundingClientRect(); if (!b.width && !b.height) continue;
     seen.add(k);
-    if (!a){ if (o.enter !== false) el._rf.push(el.animate([{ opacity:0, transform:'translateY(4px)' }, { opacity:1, transform:'none' }], { duration:T, delay:Math.min(n++, 5) * 24, easing:E, fill:'backwards' })); continue; }
+    if (!a){ if (o.enter !== false) el._rf.push(el.animate(IN, { duration:T, delay:Math.min(n++, 5) * 24, easing:E, fill:'backwards' })); continue; }
     const dx = a.b.left + sx - b.left, dy = a.b.top + sy - b.top;
     if (Math.abs(dx) > .5 || Math.abs(dy) > .5) el._rf.push(el.animate([{ transform:`translate(${dx}px,${dy}px)` }, { transform:'none' }], { duration:T + 40, easing:E }));
     if (a.o < .99) el._rf.push(el.animate([{ opacity:a.o }, { opacity:1 }], { duration:T, easing:E }));
@@ -187,7 +237,8 @@ function reflow(items, change, o = {}){
     if (a.w) [...g.cells].forEach((td, i) => { td.style.boxSizing = 'border-box'; td.style.width = a.w[i] + 'px'; });
     p.appendChild(g);
     const gb = g.getBoundingClientRect(); g.style.transform = `translate(${a.b.left + sx - gb.left}px,${a.b.top + sy - gb.top}px)`;
-    const f = g.animate([{ opacity:a.o }, { opacity:0 }], { duration:T * .8, easing:E, fill:'forwards' });
+    // (with o.blur a row that goes leaves quicker and softly, so a row gliding into its place never reads over it)
+    const f = g.animate(B ? [{ opacity:a.o, filter:'blur(0px)' }, { opacity:0, filter:`blur(${B}px)` }] : [{ opacity:a.o }, { opacity:0 }], { duration:T * (o.blur ? .45 : .8), easing:E, fill:'forwards' });
     f.onfinish = f.oncancel = () => g.remove();
   });
 }
@@ -204,14 +255,233 @@ function grow(el){
   const w = document.createElement('div'); w.className = 'dm-grow';
   while (el.firstChild) w.appendChild(el.firstChild);
   el.appendChild(w); el.classList.add('growing');
+  const stop = growFit(el, w);
+  return el._grow = () => { stop(); el._grow = null; el.classList.remove('growing'); };
+}
+/* growFit(): how a grow() box keeps its height, in one smooth motion (owner, 26 Nov: "no jittering and jagged motion when the
+   components jump up and down"). The box is always as tall as its content (the wrapper w) plus an offset that springs to
+   nothing, set in the same frame the content changes, so the box's edges, the content and its place in the stage (which
+   centres it) move together:
+   - content that eases its own height (a fold opening, a row opening its height, a status line's max-height: a running
+     transition or animation of a size inside it) is followed frame by frame, on the content's own curve. A box that eased
+     after it instead lagged behind and restarted its ease every frame, so the rows under a fold went down and then back up as
+     the stage re-centred the card, and spilled past its edge
+   - content that changes at once (rows drawn, a question swapped) keeps the height on screen and springs to the new one: a
+     critically damped spring, which never overshoots and carries its speed into a change that lands mid-way, so quick
+     changes never stutter or start over
+   Heights are the wrapper's layout box (the ResizeObserver's border box), unrounded and untouched by an entrance's scale.
+   Timing: --grow-t (.55s; an .mx-grow box takes the motion pieces' --t-in × 1.4); 0s only follows, as reduced motion does.
+   The offset is --grow-d on the box, which a foot marked .mx-foot rides, so it stays on the box's bottom edge */
+const GROW_SIZING = /^(all|height|min-height|max-height|block-size|min-block-size|max-block-size|grid-template-rows|grid-auto-rows|margin|margin-top|margin-bottom|margin-block(-start|-end)?|padding|padding-top|padding-bottom|padding-block(-start|-end)?|gap|row-gap|line-height|font-size|flex|flex-basis|flex-grow|border-width|border-top-width|border-bottom-width)$/;
+function sizingIn(w){
+  for (const a of w.getAnimations({ subtree:true })){
+    if (a.playState === 'finished' || a.playState === 'idle' || !a.effect || a.effect.pseudoElement) continue;
+    const ps = typeof a.transitionProperty === 'string' ? [a.transitionProperty] : a.effect.getKeyframes ? a.effect.getKeyframes().flatMap(k => Object.keys(k)) : [];
+    if (ps.some(p => GROW_SIZING.test(p.replace(/[A-Z]/g, ch => '-' + ch.toLowerCase())))) return true;
+  }
+  return false;
+}
+function growFit(el, w){
+  let H = null, d = 0, v = 0, raf = 0, last = 0;
   const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
-  let first = true;
-  // the wrapper's layout height (offsetHeight), not its box on screen, so an entrance that scales the card (.98 in Clean)
-  // never leaves it short
-  const fit = () => { const h = Math.ceil(w.offsetHeight + box());
-    if (first){ el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; } else el.style.height = h + 'px'; };
-  const ro = new ResizeObserver(fit); ro.observe(w); fit();
-  return el._grow = () => { ro.disconnect(); el._grow = null; el.style.height = ''; el.classList.remove('growing'); };
+  const dur = () => REDUCE ? 0 : el.classList.contains('mx-grow') && !el.closest('.ahx') ? mxT(el, '--dm-t-in', 360) * 1.4 : mxT(el, '--dm-grow-t', 550);
+  const put = () => { el.style.height = Math.max(0, H + box() + d) + 'px'; el.style.setProperty('--dm-grow-d', d.toFixed(2) + 'px'); };
+  // the spring, solved exactly for each frame's step (stiffness from the duration: settled within it, 92% there halfway)
+  const step = now => {
+    raf = 0; const T = dur() / 1000, dt = Math.min(.064, Math.max(0, (now - last) / 1000)); last = now;
+    if (!T || !el.isConnected){ d = v = 0; put(); return; }
+    const k = 8.4 / T, e = Math.exp(-k * dt), c = v + k * d;
+    d = (d + c * dt) * e; v = (v - k * c * dt) * e;
+    if (Math.abs(d) < .05 && Math.abs(v) < 2){ d = v = 0; put(); return; }
+    put(); raf = requestAnimationFrame(step);
+  };
+  // (vc: the content's own speed while it eases, in px a ms, and tc when it was last measured; a pause of more than three
+  // frames starts a new easing)
+  let vc = null, tc = 0;
+  const ro = new ResizeObserver(es => {
+    const b = es[es.length - 1].borderBoxSize, h = b && b[0] ? b[0].blockSize : w.offsetHeight, t = performance.now();
+    if (H === null || !dur()){ H = h; d = v = 0; vc = null; put(); return; }
+    const dh = h - H, dt = Math.max(1, t - tc); if (Math.abs(dh) < .01) return; H = h; tc = t;
+    // a change made at once keeps the height on screen and springs from it; a content's own easing is followed as it goes.
+    // While it eases, a step far from its speed (a line emptied at once as a fold opens) is a change made at once on top of it
+    let jump = dh; if (dt > 50) vc = null;
+    if (sizingIn(w)){ const e = vc === null ? 0 : dh - vc * dt; jump = Math.abs(e) > Math.max(4, Math.abs(vc * dt)) ? e : 0; vc = (dh - jump) / (vc === null ? 1000 / 60 : dt); }
+    else vc = null;
+    if (jump){ d -= jump; if (!raf){ last = t; raf = requestAnimationFrame(step); } }
+    put();
+  });
+  ro.observe(w);
+  return () => { ro.disconnect(); cancelAnimationFrame(raf); el.style.height = ''; el.style.removeProperty('--dm-grow-d'); };
+}
+/* hoverGlide(): Clean's one hover in a menu or a list (owner, 21 Nov): a single highlight that glides from row to row as the
+   pointer moves, and fades in as the pointer enters the list and out as it leaves. It follows the keyboard too: the row with
+   the focus (:focus-visible) and the row the arrows are on (o.hl, .hl by default). It is the list's own ::before (or its ::after
+   when that one is taken), placed by CSS variables (--hg-x, --hg-y, --hg-w, --hg-h and the row's own corners, --hg-r) and
+   drawn under the rows, so it adds no element and every :first-child and :last-child rule stays as it is. It eases over
+   Clean's 220ms with its ease; with reduced motion it only fades. Only Clean draws it (the CSS); there the rows' own hover
+   fills give way to it, while a picked row (o.keep) keeps its stronger --row-on fill over it. rows is a selector for the list's
+   rows. Returns a function that stops it */
+function hoverGlide(list, rows = '.mi', o = {}){
+  if (!list) return () => {};
+  if (list._hg) return list._hg;
+  const free = p => { const v = getComputedStyle(list, p).content; return !v || v === 'none' || v === 'normal'; };
+  const side = free('::before') ? 'b' : free('::after') ? 'a' : ''; if (!side) return () => {};
+  const hl = o.hl || '.hl', keep = o.keep || '[aria-selected="true"],[aria-checked="true"],[aria-current]:not([aria-current="false"])';
+  list.dataset.hg = side; list.classList.add('hg'); if (getComputedStyle(list).position === 'static') list.classList.add('hg-pos');
+  const all = () => $$(rows, list).filter(r => !r.hasAttribute('data-ghost'));
+  const ok = r => r && r.isConnected && list.contains(r) && !r.disabled && r.getAttribute('aria-disabled') !== 'true' && r.getClientRects().length;
+  // the rows' own fills give way to the glide, all but a picked one
+  const mark = () => all().forEach(r => { const v = r.matches(keep) ? 'k' : ''; if (r.dataset.hgr !== v) r.dataset.hgr = v; });
+  // where a row sits in the list, from the layout (offsetLeft and offsetTop), so a menu still scaling in is measured as it will
+  // be; a list that scrolls carries the highlight with its rows
+  const off = r => { let x = 0, y = 0, e = r;
+    while (e && e !== list){ x += e.offsetLeft; y += e.offsetTop; const p = e.offsetParent; if (!p || !(p === list || list.contains(p))){ const a = r.getBoundingClientRect(), b = list.getBoundingClientRect(); return [a.left - b.left - list.clientLeft + list.scrollLeft, a.top - b.top - list.clientTop + list.scrollTop]; } if (p !== list){ x += p.clientLeft; y += p.clientTop; } e = p; }
+    return [x, y]; };
+  let at = null, on = false, gone = -1e9, over = false;
+  const set = (k, v) => list.style.setProperty('--dm-hg-' + k, v);
+  const show = r => {
+    if (!ok(r)) r = null;
+    if (!r){ if (on){ on = false; gone = performance.now(); set('o', '0'); } at = null; return; }
+    // coming back from hidden it starts where the row is; a quick return while it still fades glides on from where it was
+    const jump = !on && performance.now() - gone > 200, [x, y] = off(r);
+    if (jump) list.classList.add('hg-jump');
+    set('x', x + 'px'); set('y', y + 'px'); set('w', r.offsetWidth + 'px'); set('h', r.offsetHeight + 'px'); set('r', getComputedStyle(r).borderRadius); set('o', '1');
+    if (jump){ void getComputedStyle(list, side === 'b' ? '::before' : '::after').transform; requestAnimationFrame(() => list.classList.remove('hg-jump')); }
+    // (a new row is watched for its size; watching starts with one report, which only places it again)
+    if (ro && r !== at){ ro.disconnect(); ro.observe(list); ro.observe(r); }
+    at = r; on = true;
+  };
+  // what it rests on when nothing new has moved it: the row under a mouse, the keyboard's row, then the arrows' row
+  const rest = () => { const rs = all().filter(ok), f = document.activeElement;
+    return (over && rs.find(r => r.matches(':hover'))) || (f && list.contains(f) && f.matches(':focus-visible') && rs.find(r => r.contains(f))) || rs.find(r => r.matches(hl)) || null; };
+  const row = t => { const r = t && t.closest && t.closest(rows); return r && list.contains(r) ? r : null; };
+  // (a demo's pointer, which has no type, moves it as a mouse does; a list inside this one, like a toolbar's group of tools,
+  // has a glide of its own, so this one fades while the pointer is in it)
+  const onOver = e => { if (e.pointerType && e.pointerType !== 'mouse') return; over = true; const r = row(e.target); if (r) show(r); else if (e.target.closest('.hg') !== list) show(null); };
+  const onLeave = e => { if ((e.pointerType && e.pointerType !== 'mouse') || (e.relatedTarget && list.contains(e.relatedTarget))) return; over = false; show(rest()); };
+  const onIn = e => { const r = row(e.target); if (r && e.target.matches(':focus-visible')) show(r); };
+  const onOut = () => setTimeout(() => { if (list.isConnected && !list.contains(document.activeElement)) show(rest()); });
+  list.addEventListener('pointerover', onOver); list.addEventListener('pointerout', onLeave);
+  list.addEventListener('focusin', onIn); list.addEventListener('focusout', onOut);
+  // rows drawn again (a search narrowing the list), a row the arrows move to, a row picked; and a menu that closes hides it
+  const mo = new MutationObserver(ms => {
+    ms = ms.filter(m => m.target !== list || m.type !== 'attributes'); if (!ms.length) return;
+    mark(); let to;
+    for (const m of ms) if (m.type === 'attributes' && m.attributeName === 'class' && m.target.matches && m.target.matches(rows) && m.target.matches(hl)) to = m.target;
+    if (to) show(to); else if (!at || !ok(at) || !(over || at.matches(hl) || at.contains(document.activeElement))) show(rest()); else show(at);
+  });
+  mo.observe(list, { childList:true, subtree:true, attributes:true, attributeFilter:['class', 'aria-selected', 'aria-checked', 'aria-current', 'aria-disabled', 'disabled', 'hidden'] });
+  const pop = list.closest('.pop'), po = pop && new MutationObserver(() => { if (!pop.classList.contains('open')){ over = false; on = false; gone = -1e9; set('o', '0'); at = null; } });
+  if (po) po.observe(pop, { attributes:true, attributeFilter:['class'] });
+  const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(() => { if (at) show(at); }) : null;
+  if (ro) ro.observe(list);
+  mark(); show(rest());
+  // (the menus' own catch-all below hands it the row a pointer or the keyboard has just reached)
+  list._hgAt = (r, mouse) => { if (mouse) over = true; show(r); };
+  return list._hg = () => { mo.disconnect(); po && po.disconnect(); ro && ro.disconnect();
+    list.removeEventListener('pointerover', onOver); list.removeEventListener('pointerout', onLeave); list.removeEventListener('focusin', onIn); list.removeEventListener('focusout', onOut);
+    list.classList.remove('hg', 'hg-pos', 'hg-jump'); delete list.dataset.hg; ['x', 'y', 'w', 'h', 'r', 'o'].forEach(k => list.style.removeProperty('--dm-hg-' + k)); all().forEach(r => delete r.dataset.hgr); list._hg = null; list._hgAt = null; };
+}
+/* every menu's rows (.mi) glide in Clean: a menu takes its glide the first time a pointer or the keyboard reaches one of its rows
+   (and as its component mounts), in the scrolling list its rows sit in, or the menu itself. Only the components' menus (in a
+   card's stage) take it: the templates' own menus keep theirs. Kanban and Agent harness keep their menus as they are until
+   their own Clean pass (Phase II, owner, 21 Nov) */
+function menuGlide(mi){
+  if (mi.closest('.kbx,.ahx')) return mi.parentElement;
+  const m = mi.closest('.pop,[role="menu"],[role="listbox"]') || mi.parentElement;
+  let box = m; for (let a = mi.parentElement; a && a !== m; a = a.parentElement){ const oy = getComputedStyle(a).overflowY; if (oy === 'auto' || oy === 'scroll'){ box = a; break; } }
+  // (a row that asks again before it acts, like Delete, keeps its own fill)
+  hoverGlide(box, '.mi', { keep:'[aria-selected="true"],[aria-checked="true"],[aria-current]:not([aria-current="false"]),.ask' }); return box;
+}
+['pointerover', 'focusin'].forEach(t => document.addEventListener(t, e => { const mi = e.target && e.target.closest && e.target.closest('.mi'); if (!mi || !mi.closest('.stage-in')) return; const box = menuGlide(mi);
+  if (!box._hgAt) return; if (t === 'focusin'){ if (e.target.matches(':focus-visible')) box._hgAt(mi); } else if (e.pointerType === 'mouse') box._hgAt(mi, true); }, true));
+/* cols(): a data table's columns, as in a spreadsheet (owner, 10 Nov; restated 21 Nov: "if we don't have the vertical lines,
+   we don't even know this is a column"). Each table draws the lines between its columns in its own CSS; this makes the
+   columns work:
+   - resizing: a handle on each header's right edge (.col-rz, a separator), dragged, or ← and → by 16px while it has the
+     focus; a double click gives every column its natural width back. No column goes under its min width; the last one takes
+     what is left, and once the columns outgrow the box the table scrolls sideways in it (the table's own CSS lets its box
+     scroll once it has a sized column, .cols-rz)
+   - moving: drag a header sideways (its column is tinted, a line shows where it will land and its name follows the
+     pointer), or Alt and ← → on a header or the button in it. Only the o.move columns move, among themselves; a drag never
+     sorts, and a touch on a header scrolls the table as it did
+   Rows added later (a sort, a filter, rows brought back) take the same order on their own. While o.wide() is false (a table
+   drawn as a list of cards on a phone), every row keeps its own order and its natural widths.
+   o: { lock:[indexes with no handle, like a checkbox], move:[indexes that move], min:{ index:px } (64 by default),
+   wide:() => boolean, name:th => the column's name }. Returns a function that stops it */
+function cols(table, o = {}){
+  const head = table.tHead.rows[0], N = head.cells.length, lock = new Set(o.lock || []), mov = o.move || [], wide = o.wide || (() => true);
+  const name = o.name || (th => th.textContent.trim()), min = ci => (o.min && o.min[ci]) || 64, ids = [...Array(N).keys()];
+  const cg = document.createElement('colgroup'); cg.innerHTML = '<col>'.repeat(N); [...cg.children].forEach((c, i) => c.dataset.ci = i); table.prepend(cg);
+  // every cell knows its column by data-ci, so a row can be put in any order and back
+  const tag = r => { if (r.cells.length !== N || r.hasAttribute('data-ghost')) return false; [...r.cells].forEach((td, i) => { if (td.dataset.ci == null) td.dataset.ci = i; }); return true; };
+  let order = [...ids], W = null, was = wide();
+  const shown = () => (wide() ? order : ids);
+  // a row already in order is left alone, so a press on a header isn't swallowed by its cell moving under it
+  const place = (r, cells) => { const s = shown(); if (cells.every((c, i) => +c.dataset.ci === s[i])) return; const by = {}; cells.forEach(c => by[c.dataset.ci] = c); s.forEach(i => r.appendChild(by[i])); };
+  const ths = () => [...head.cells], th = ci => head.querySelector(`:scope>[data-ci="${ci}"]`), px = ci => th(ci).getBoundingClientRect().width, last = () => shown()[N - 1];
+  const apply = () => {
+    [...table.rows].filter(tag).forEach(r => place(r, [...r.cells])); place(cg, [...cg.children]);
+    const on = !!W && wide(); table.classList.toggle('cols-rz', on);
+    [...cg.children].forEach(c => { const ci = +c.dataset.ci; c.style.width = on && ci !== last() ? Math.round(W[ci]) + 'px' : ''; });
+    table.style.width = on ? `max(100%, ${Math.round(shown().slice(0, -1).reduce((a, ci) => a + W[ci], 0) + min(last()))}px)` : '';
+    ths().forEach(h => { const g = h.querySelector(':scope>.col-rz'); if (g) g.setAttribute('aria-valuenow', Math.round(h.getBoundingClientRect().width)); });
+  };
+  ths().forEach((h, i) => { h.dataset.ci = i; if (lock.has(i)) return;
+    h.insertAdjacentHTML('beforeend', `<span class="col-rz" role="separator" aria-orientation="vertical" tabindex="0" aria-valuemin="${min(i)}" aria-label="Resize ${name(h)}" data-tip="Drag to resize, double click to reset" data-rz="${i}"></span>`); });
+  ths().forEach((h, i) => { if (mov.includes(i)) h.setAttribute('aria-keyshortcuts', 'Alt+ArrowLeft Alt+ArrowRight'); });
+  // the widths as they are on screen, the first time one changes
+  const measure = () => { if (W) return; W = {}; ids.forEach(ci => W[ci] = px(ci)); };
+  // a column's new width, never under its own min
+  const size = (ci, w) => { W[ci] = Math.max(min(ci), w); apply(); };
+  const moveTo = (ci, at) => { const s = [...order], from = s.indexOf(ci); s.splice(from, 1); s.splice(at > from ? at - 1 : at, 0, ci); order = s; apply(); };
+  let drag = null, dragged = false;
+  const ghost = document.createElement('div'), bar = document.createElement('div'); ghost.className = 'col-ghost'; bar.className = 'col-at';
+  const down = e => {
+    const g = e.target.closest('.col-rz');
+    if (g){ if (e.button || !wide()) return; e.preventDefault(); e.stopPropagation(); measure();
+      const ci = +g.dataset.rz, x0 = e.clientX, w0 = W[ci]; g.setPointerCapture(e.pointerId); g.classList.add('on'); table.classList.add('cols-rzing');
+      const mv = ev => size(ci, w0 + ev.clientX - x0);
+      const up = () => { g.removeEventListener('pointermove', mv); g.removeEventListener('pointerup', up); g.removeEventListener('pointercancel', up); g.classList.remove('on'); table.classList.remove('cols-rzing'); };
+      g.addEventListener('pointermove', mv); g.addEventListener('pointerup', up); g.addEventListener('pointercancel', up); return; }
+    const h = e.target.closest('th'); if (!h || h.parentElement !== head || e.button || e.pointerType === 'touch' || !wide() || !mov.includes(+h.dataset.ci)) return;
+    drag = { h, ci:+h.dataset.ci, x0:e.clientX, on:false };
+  };
+  const move = e => {
+    if (!drag) return;
+    if (!drag.on){ if (Math.abs(e.clientX - drag.x0) < 6) return; drag.on = true; hideTip(true); table.classList.add('cols-drag');
+      [...table.rows].forEach(r => { const c = [...r.cells].find(x => +x.dataset.ci === drag.ci && r.cells.length === N); if (c) c.classList.add('col-mv'); });
+      // they sit where the tooltip does, on the page in the components' style
+      ghost.textContent = name(drag.h); (tip.parentElement || document.body).append(ghost, bar); }
+    ghost.style.transform = `translate(${e.clientX + 12}px,${e.clientY - 14}px)`;
+    // where it lands: the gap between two movable columns nearest the pointer
+    const hs = ths(), m = hs.map((x, i) => ({ x, i })).filter(z => mov.includes(+z.x.dataset.ci)), tb = table.getBoundingClientRect();
+    let at = m[m.length - 1].i + 1; for (const z of m){ const b = z.x.getBoundingClientRect(); if (e.clientX < b.left + b.width / 2){ at = z.i; break; } }
+    drag.at = at; const x = at < N ? hs[at].getBoundingClientRect().left : tb.right;
+    Object.assign(bar.style, { left:Math.round(x - 1) + 'px', top:Math.round(tb.top) + 'px', height:Math.round(tb.height) + 'px' });
+  };
+  const end = () => { if (!drag) return; const d = drag; drag = null; if (!d.on) return;
+    dragged = true; setTimeout(() => dragged = false, 0); ghost.remove(); bar.remove(); table.classList.remove('cols-drag');
+    table.querySelectorAll('.col-mv').forEach(c => c.classList.remove('col-mv')); moveTo(d.ci, d.at); };
+  // the click a drag ends with never sorts, and a press on a handle never reaches the header's button
+  const click = e => { if (e.target.closest('.col-rz') || (dragged && e.target.closest('thead'))){ e.stopPropagation(); e.preventDefault(); dragged = false; } };
+  const dbl = e => { if (!e.target.closest('.col-rz')) return; W = null; apply(); };
+  const key = e => {
+    const g = e.target.closest('.col-rz');
+    if (g && /^Arrow(Left|Right)$/.test(e.key) && !e.altKey){ if (!wide()) return; e.preventDefault(); e.stopPropagation(); measure(); const ci = +g.dataset.rz; size(ci, W[ci] + (e.key === 'ArrowRight' ? 16 : -16)); return; }
+    const h = e.target.closest('th'); if (!h || h.parentElement !== head || !e.altKey || !/^Arrow(Left|Right)$/.test(e.key) || !wide()) return;
+    const ci = +h.dataset.ci; if (!mov.includes(ci)) return; e.preventDefault(); e.stopPropagation();
+    const slots = order.map((c, i) => mov.includes(c) ? i : -1).filter(i => i >= 0), p = slots.indexOf(order.indexOf(ci)) + (e.key === 'ArrowLeft' ? -1 : 1);
+    if (p < 0 || p >= slots.length) return; const t = e.target; moveTo(ci, e.key === 'ArrowLeft' ? slots[p] : slots[p] + 1); t.focus({ preventScroll:true });
+  };
+  table.addEventListener('pointerdown', down); window.addEventListener('pointermove', move); window.addEventListener('pointerup', end); window.addEventListener('pointercancel', end);
+  table.addEventListener('click', click, true); table.addEventListener('dblclick', dbl); table.addEventListener('keydown', key);
+  // rows that arrive later take the order, and a table that turns into cards (or back) takes its own order (or the chosen one)
+  const mo = new MutationObserver(() => apply()); [...table.tBodies].forEach(b => mo.observe(b, { childList:true }));
+  const ro = new ResizeObserver(() => { const w = wide(); if (w !== was){ was = w; apply(); } }); ro.observe(table.parentElement);
+  apply();
+  return () => { mo.disconnect(); ro.disconnect(); ghost.remove(); bar.remove(); table.removeEventListener('pointerdown', down); window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', end); window.removeEventListener('pointercancel', end);
+    table.removeEventListener('click', click, true); table.removeEventListener('dblclick', dbl); table.removeEventListener('keydown', key); };
 }
 /* centre(): keeps a field centred in the room its stage keeps for it, and glides it up as its list opens, so the field
    and the list sit centred together. showing() is the height on show once things settle; the glide runs at the speed
@@ -244,7 +514,7 @@ function centre(c, el, showing, watch = []){
    - the arrows (disabled at the first and last stop), the dots (one per stop, the current one aria-current) and the keys on the
      track: Left and Right go a stop, Home and End to the ends, scrolling smoothly, or jumping with reduced motion
    - a mouse can drag the track like a finger; the click a drag ends with is swallowed
-   - .in on each slide that is at least 70% in view (the CSS brings it into focus), and say(i) once the track settles on the
+   - .in on each slide that is at least 70% in view (for a style that marks it), and say(i) once the track settles on the
      stop that starts with slide i, for a polite live region
    o: { prev, next, dots, dot:i => label, say:i => {}, key:e => {} (other keys on the track) }. Returns { go, at, measure } */
 function carousel(c, tr, o = {}){
@@ -306,7 +576,7 @@ function carousel(c, tr, o = {}){
   };
   c.on(tr, 'pointerup', drop); c.on(tr, 'pointercancel', drop);
   c.on(tr, 'click', e => { if (dragged){ e.preventDefault(); e.stopPropagation(); } }, true);
-  // a slide comes into focus once most of it is in view
+  // .in marks a slide once most of it is in view
   if ('IntersectionObserver' in window){
     const io = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle('in', e.isIntersecting && e.intersectionRatio >= .69)), { root:tr, threshold:[0, .7, 1] });
     S().forEach(s => io.observe(s)); c.offs.push(() => io.disconnect());
@@ -347,7 +617,10 @@ function reveal(st){
       if (transform) el.animate([{ transform }, { transform:'none' }], { duration:ms, delay, easing:M.ease, fill:'backwards', composite:'add' }); };
     // a component can ask for less: data-reveal="flat" moves only its container, "none" skips the entrance
     const how = root.dataset.reveal; if (how === 'none') return;
-    go(root, M.root, M.rootMs, 0);
+    // "pop": a surface that is called up over the stage, like a command palette, drops in a little from above out of a blur as
+    // it scales up (Soft; Blueprint and Clean keep their own entrance: a motion piece, owner's trial of 26 Nov)
+    if (how === 'pop' && M === REVEAL.soft) go(root, [{ opacity:0, filter:`blur(${2 * mxT(root, '--dm-blur-in', 0)}px)`, transform:'translateY(-10px) scale(.94)' }, { opacity:1, filter:'blur(0px)', offset:.6 }, { opacity:1, filter:'blur(0px)' }], 640, 0);
+    else go(root, M.root, M.rootMs, 0);
     if (how !== 'flat') revealParts(root).forEach((p, i) => go(p, M.part, M.partMs, Math.min(M.first + i * M.step, M.max)));
   });
 }
@@ -373,7 +646,7 @@ document.addEventListener('click', e => { const b = e.target.closest && e.target
 const DM = {
   defs:{},
   // agents at work: their demos keep playing while a mouse rests on them, instead of holding (see mount)
-  PLAYS:new Set(['status-pill','step-loader','thinking','reasoning-trail','agent-lanes','agent-run-timeline','trace-view','agent-tree','terminal-stream','attachment-tray','progress','web-search','thinking-states','run-drawer','live-answer','harness']),
+  PLAYS:new Set(['status-pill','toast','toast-stack','step-loader','thinking','reasoning-trail','agent-lanes','agent-run-timeline','trace-view','agent-tree','terminal-stream','browser-session','attachment-tray','progress','web-search','thinking-states','run-drawer','live-answer','harness','response-versions','memory-panel','tool-connections','knowledge-sources','scheduled-runs','event-calendar','form','comments']),
   def(id, fn){ this.defs[id] = fn; },
   /* the markup a card starts from: its <template>, or, when the markup is written out in its stage, what the stage holds
      before it first mounts, kept as a template so Replay starts from it again */
@@ -399,6 +672,8 @@ const DM = {
     ['pointerdown', 'keydown', 'input', 'click'].forEach(t => c.on(st, t, mine, true));
     c.on(st, 'focusin', e => { if (e.isTrusted && e.timeStamp - lastInput < 100) c.mine = true; }, true);
     try { this.defs[id] && this.defs[id](st, c, card); } catch(e){ console.error(id, e); }
+    // its menus' rows glide in Clean (hoverGlide), from the start, so the arrows' row has it before a pointer comes by
+    $$('.mi', st).forEach(mi => { if (!mi.closest('.hg')) menuGlide(mi); });
     // a design picked with the switch under the component swaps in place: the new design fades in where it stands, without
     // the entrance a first visit gets, so picking one never reads as the page reloading (owner, 4 Nov)
     const swapped = card._dmPick && performance.now() - card._dmPick < 600; card._dmPick = 0;
@@ -485,10 +760,11 @@ function copied(btn, text, label = 'Copied to clipboard'){
   const use = btn.querySelector('use');
   const st = btn._cp || (btn._cp = { tip: btn.dataset.tip, href: use && use.getAttribute('href') });
   clearTimeout(st.t);
-  if (use) use.setAttribute('href', '#i-check');
+  // (in an .mx-ic control the copy icon and the tick crossfade, iconSwap())
+  if (use) iconSwap(use.parentNode, () => use.setAttribute('href', '#i-check'));
   btn.classList.add('copied'); btn.dataset.tip = label; showTip(btn);
   st.t = setTimeout(() => {
-    if (use) use.setAttribute('href', st.href);
+    if (use) iconSwap(use.parentNode, () => use.setAttribute('href', st.href));
     btn.classList.remove('copied');
     if (st.tip === undefined) delete btn.dataset.tip; else btn.dataset.tip = st.tip;
     if (tipFor === btn) hideTip(true);
@@ -501,10 +777,11 @@ let openPop = null;
 // it fades out it is inert, and after that hidden (CSS)
 /* how the last thing was done, with a pointer or the keyboard: a control pressed with a mouse or a finger, or focus handed
    back to a popover's button after a click, shows no ring (a mouse or a tap never shows one); a key that moves or acts does.
-   A modifier on its own (Shift, Cmd, Ctrl, Alt: a screenshot shortcut, say) is not one, though the browser counts it */
+   A modifier on its own (Shift, Cmd, Ctrl, Alt: a screenshot shortcut, say) is not one, though the browser counts it, and
+   nor is a key a demo plays (an untrusted event: another card's story pressing keys must not bring back a ring after a click) */
 let byKey = false;
 const MODS = new Set(['Shift', 'Meta', 'Control', 'Alt', 'AltGraph', 'CapsLock', 'Fn', 'OS']);
-addEventListener('keydown', e => { if (e.metaKey || e.ctrlKey || e.altKey || MODS.has(e.key)) return; byKey = true; const a = document.activeElement; if (a && a.dataset && 'nofv' in a.dataset) delete a.dataset.nofv; }, true);
+addEventListener('keydown', e => { if (!e.isTrusted || e.metaKey || e.ctrlKey || e.altKey || MODS.has(e.key)) return; byKey = true; const a = document.activeElement; if (a && a.dataset && 'nofv' in a.dataset) delete a.dataset.nofv; }, true);
 addEventListener('pointerdown', e => { byKey = false;
   const t = e.target && e.target.closest && e.target.closest('button,a[href],summary,[tabindex],[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],label,input,select');
   const f = t && t.tagName === 'LABEL' ? t.control : t;
@@ -527,12 +804,14 @@ function placePop(btn, pop){
   // below when it fits there; above when it doesn't and fits above, or has more room there
   const room = popRoom(btn), need = pop.offsetHeight + 12, below = room.bottom - br.bottom, above = br.top - room.top;
   const up = btn.dataset.popPos === 'up' || (btn.dataset.popPos !== 'down' && below < need && (above >= need || above > below));
-  let x = br.left - hr.left; if (btn.dataset.popAlign === 'end') x = br.right - hr.left - pop.offsetWidth;
+  // lined up with the button's start (the default) or end, or centred under it (a picker wider than its field)
+  const al = btn.dataset.popAlign;
+  let x = br.left - hr.left; if (al === 'end') x = br.right - hr.left - pop.offsetWidth; else if (al === 'center') x = br.left - hr.left + (br.width - pop.offsetWidth) / 2;
   const cb = (btn.closest('.card') || document.body).getBoundingClientRect(), lo = Math.max(0, cb.left) + 8, hi = Math.min(innerWidth, cb.right) - 8;
   x = Math.max(lo - hr.left, Math.min(x, hi - hr.left - pop.offsetWidth));
   pop.style.left = x + 'px';
   pop.style.top = up ? (br.top - hr.top - pop.offsetHeight - 6) + 'px' : (br.bottom - hr.top + 6) + 'px';
-  pop.style.setProperty('--dm-origin', (up ? 'bottom ' : 'top ') + (btn.dataset.popAlign === 'end' ? 'right' : 'left'));
+  pop.style.setProperty('--dm-origin', (up ? 'bottom ' : 'top ') + (al === 'end' ? 'right' : al === 'center' ? 'center' : 'left'));
 }
 document.addEventListener('click', e => {
   const btn = e.target.closest('[data-pop]');
@@ -672,4 +951,4 @@ const mountAll = () => {
 document.addEventListener('DOMContentLoaded', mountAll);
 document.addEventListener('astro:page-load', mountAll);
 
-export { $, $$, AV, BRAND, DM, FLAG, FLAGS, I, MODS, REDUCE, REVEAL, SPRITE, byKey, carousel, centre, closePops, copied, ctl, enter, fitHits, giveBack, grow, hideTip, hold, html, isMenu, lastInput, menuOpen, openPop, placePop, placeTip, popFocus, popItems, popRoom, popStep, reflow, release, reveal, revealParts, seg, showTip, stagger, swap, tip, tipAt, tipFollow, tipFor, tipHid, tipNext, tipRaf, tipT, tipWatch, tween };
+export { $, $$, AV, BRAND, DM, FLAG, FLAGS, GROW_SIZING, I, MODS, REDUCE, REVEAL, SPRITE, byKey, carousel, centre, closePops, cols, copied, ctl, enter, fitHits, giveBack, grow, growFit, hideTip, hold, hoverGlide, html, iconSwap, isMenu, lastInput, menuGlide, menuOpen, mxIn, mxMove, mxOut, mxT, mxWidth, openPop, placePop, placeTip, popFocus, popItems, popRoom, popStep, reflow, release, reveal, revealParts, seg, showTip, sizingIn, stagger, swap, tip, tipAt, tipFollow, tipFor, tipHid, tipNext, tipRaf, tipT, tipWatch, tween };

@@ -3,12 +3,14 @@ import { useEffect, useId, useRef, useState, type KeyboardEvent, type MouseEvent
 import { cx } from '../../lib/cx';
 import { useControllable } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { avatarInk, enter, Fold, Swap, Tip } from '../../lib/motion';
+import { avatarInk, Fold, Swap, Tip } from '../../lib/motion';
 import { usePopover } from '../../lib/popover';
 import '../../designme.css';
+// its menus' rows glide in Clean
+import '../../lib/glide';
 import './profile-menu.css';
 
-/** The tint of a workspace's tile, from the designme palette */
+/** The colour of a workspace's tile: the avatars' fills (white letters on blue, violet, red and pink). Clean draws every tile grey */
 export type ProfileMenuTint = 'pb' | 'pl' | 'pm' | 'pp' | 'pr' | 'py' | 'pk' | 'pt';
 
 /** One workspace the account belongs to */
@@ -56,7 +58,8 @@ export interface ProfileMenuProps {
   signedIn?: boolean;
   defaultSignedIn?: boolean;
   onSignedInChange?: (signedIn: boolean) => void;
-  /** A confirmation under the bar, like "Switched to Acme Labs". Shown with a green check */
+  /** What just changed, like "Switched to Acme Labs", said to screen readers (a polite live region). The bar and the menu
+      already show it, so it is not a line on screen */
   note?: string;
   /** Whether the menu is open. Leave it out to let the avatar, Escape and a click outside open and close it */
   open?: boolean;
@@ -87,9 +90,6 @@ export function ProfileMenu({
   const id = useId();
   const cur = workspaces.find(w => w.id === ws) ?? workspaces[0];
   const initials = user.initials ?? user.name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
-  // the confirmation enters each time it changes
-  const [noteKey, setNoteKey] = useState(0);
-  useEffect(() => { if (note) setNoteKey(k => k + 1); }, [note]);
 
   // where the focus goes once the menu has opened: the first or last item, or nowhere for a scripted click
   const focusTo = useRef<'first' | 'last' | null>(null);
@@ -113,8 +113,8 @@ export function ProfileMenu({
     if (go) { e.preventDefault(); go.focus(); } else if (e.key === 'Tab') setTimeout(() => menu.close());
   };
   const showKeys = (on: boolean) => setKeysOpen(on);
-  // the menu opens over whatever sits under the bar, so the component keeps room for it below the bar: centred in a
-  // stage, the open menu still ends inside it
+  // the menu opens over the component from the avatar and never moves the bar: the component keeps room for it below the bar,
+  // so centred in a stage, the open menu still ends inside it
   const bar = useRef<HTMLDivElement>(null);
   const [room, setRoom] = useState<number>();
   useEffect(() => {
@@ -176,9 +176,7 @@ export function ProfileMenu({
           </dl>
         </div>
       </Fold>
-      <p className="dm-pfm-note dm-muted" aria-live="polite">
-        {note && <><Icon name="ok" size="xs" /><span key={noteKey} {...enter()}>{note}</span></>}
-      </p>
+      <p className="dm-pfm-note" aria-live="polite">{note}</p>
     </div>
   );
 }

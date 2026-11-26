@@ -21,19 +21,94 @@ export const Bars = () => <span className="dm-bars3" aria-hidden="true"><i /><i 
 /** A small round dot, coloured by `color` (or currentColor) */
 export const Dot = ({ color }: { color?: string }) => <span className="dm-dot" style={color ? { color } : undefined} aria-hidden="true" />;
 
+/* ---------- motion pieces (designme.dev's trial of 26 Nov; designme.css's "motion pieces" says what each is for) ---------- */
+const still = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+/** A motion token on `el` (without its --dm- prefix): a time in ms or a length in px when `d` is a number, else as written */
+export function mxT<T extends number | string>(el: Element, k: string, d: T): T {
+  const v = getComputedStyle(el).getPropertyValue('--dm-' + k).trim(); if (!v) return d;
+  return (typeof d === 'number' ? parseFloat(v) * (/ms$/.test(v) ? 1 : /s$/.test(v) ? 1000 : 1) : v) as T;
+}
+type Mx = HTMLElement & { _mx?: Animation[]; _mw?: Animation | null };
+export interface MxOptions {
+  /** Rises (or, going, lifts) this many px; 4 by default */
+  y?: number;
+  /** Comes in from, or goes to, the side instead, this many px */
+  x?: number;
+  /** ms between one piece and the next; the style's --dm-mx-step by default (none for going) */
+  step?: number;
+  /** ms before the first */
+  base?: number;
+  ms?: number;
+}
+function mxMove(list: (Element | null | undefined)[], o: MxOptions, out: boolean) {
+  const els = list.filter((e): e is Mx => !!e && e.isConnected && typeof (e as HTMLElement).animate === 'function');
+  if (!els.length) return Promise.resolve();
+  const e0 = els[0], r = still(), b = mxT(e0, 'blur-in', 0) * .7, E = out ? 'cubic-bezier(.4,0,1,1)' : mxT(e0, 'ease', 'ease');
+  const ms = o.ms ?? mxT(e0, out ? 't-out' : 't-in', out ? 160 : 360), step = o.step ?? (out ? 0 : mxT(e0, 'mx-step', 24));
+  const away: Keyframe = r ? { opacity: 0 } : { opacity: 0, translate: o.x ? `${o.x}px 0` : `0 ${o.y ?? (out ? -4 : 4)}px`, filter: b ? `blur(${b}px)` : 'none' };
+  const here: Keyframe = r ? { opacity: 1 } : { opacity: 1, translate: '0 0', filter: b ? 'blur(0px)' : 'none' };
+  return Promise.all(els.map((el, i) => {
+    el._mx?.forEach(a => a.cancel());
+    const a = el.animate(out ? [here, away] : [away, here], { duration: r ? 140 : ms, delay: (o.base ?? 0) + i * step, easing: r ? 'linear' : E, fill: out ? 'forwards' : 'backwards' });
+    el._mx = [a]; return a.finished.then(() => {}, () => {});
+  }));
+}
+/** Content just drawn arrives: it fades and rises a few px out of a short blur (none in Blueprint and Clean), one piece after
+    another. With reduced motion it only fades */
+export const mxIn = (els: (Element | null | undefined)[], o: MxOptions = {}) => mxMove(els, o, false);
+/** Content about to go leaves the same way, quicker, and stays gone until it is replaced or brought back with mxIn */
+export const mxOut = (els: (Element | null | undefined)[], o: MxOptions = {}) => mxMove(els, o, true);
+
+/** An icon that changes inside a dm-mx-ic control (Copy's tick, play and pause, a spinner) goes out small and soft and the new
+    one comes back with a little spring; anywhere else it changes at once. Give it the icon's name, or anything that names
+    what it shows, as `id`. Its span is the element that moves, so `className` can make it the tile itself */
+export function SwapIcon({ id, children, className, style }: { id: string; children: ReactNode; className?: string; style?: CSSProperties }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const [cur, setCur] = useState(id);
+  const shown = useRef<ReactNode>(children);
+  if (cur === id) shown.current = children;
+  const run = useRef<Animation | null>(null), coming = useRef(false);
+  const frames = (el: Element) => {
+    const k = mxT(el, 'ic-scale', .6), b = mxT(el, 'blur-ic', 0);
+    return still() ? { off: { opacity: 0 }, on: { opacity: 1 } } : { off: { opacity: 0, scale: String(k), filter: b ? `blur(${b}px)` : 'none' }, on: { opacity: 1, scale: '1', filter: b ? 'blur(0px)' : 'none' } };
+  };
+  useIsoLayoutEffect(() => {
+    const el = ref.current; if (cur === id) return;
+    if (!el || typeof el.animate !== 'function' || !el.closest('.dm-mx-ic')) { setCur(id); return; }
+    const { off, on } = frames(el); run.current?.cancel();
+    const a = el.animate([on, off], { duration: still() ? 70 : 90, easing: 'cubic-bezier(.4,0,1,1)', fill: 'forwards' });
+    run.current = a; a.onfinish = () => { coming.current = true; setCur(id); };
+  }, [id, cur]);
+  useIsoLayoutEffect(() => {
+    const el = ref.current; if (!el || !coming.current) return; coming.current = false;
+    const { off, on } = frames(el); run.current?.cancel();
+    run.current = el.animate([off, on], { duration: still() ? 120 : mxT(el, 't-in', 360) * .8, easing: still() ? 'linear' : mxT(el, 'ease-pop', 'ease') });
+  }, [cur]);
+  return <span ref={ref} className={cx('dm-mx-icon', className)} style={style}>{shown.current}</span>;
+}
+
 /* ---------- text that changes ---------- */
-/** Text that blurs out and back in when it changes */
+/** Text that blurs out and back in when it changes. With the dm-mx-w class its box eases to the new words' width as they
+    arrive, so what sits beside it glides instead of jumping */
 export function Swap({ children, className, style }: { children: string; className?: string; style?: CSSProperties }) {
   const [shown, setShown] = useState(children);
   const [out, setOut] = useState(false);
   const reduce = useReducedMotion();
+  const ref = useRef<Mx>(null), w0 = useRef(0);
   useEffect(() => {
     if (children === shown) { setOut(false); return; }
     setOut(true);
-    const t = setTimeout(() => { setShown(children); setOut(false); }, reduce ? 0 : 170);
+    const t = setTimeout(() => { const el = ref.current; w0.current = el && !reduce && el.classList.contains('dm-mx-w') ? el.offsetWidth : 0; setShown(children); setOut(false); }, reduce ? 0 : 170);
     return () => clearTimeout(t);
   }, [children, shown, reduce]);
-  return <span className={cx('dm-sw', out && 'dm-out', className)} style={style}>{shown}</span>;
+  useIsoLayoutEffect(() => {
+    const el = ref.current, was = w0.current; w0.current = 0; if (!el || !was) return;
+    el._mw?.cancel(); const w1 = el.offsetWidth; if (Math.abs(w1 - was) < 1 || typeof el.animate !== 'function') return;
+    el.style.overflow = 'clip';
+    const a = el._mw = el.animate([{ width: was + 'px' }, { width: w1 + 'px' }], { duration: mxT(el, 't-in', 360), easing: mxT(el, 'ease-spring', 'ease') });
+    a.onfinish = a.oncancel = () => { if (el._mw === a) { el._mw = null; el.style.overflow = ''; } };
+  }, [shown]);
+  return <span ref={ref} className={cx('dm-sw', out && 'dm-out', className)} style={style}>{shown}</span>;
 }
 
 /* ---------- layout ---------- */
@@ -189,14 +264,16 @@ export const reflowPace = (el: Element) => {
   const cs = getComputedStyle(el);
   return { ease: cs.getPropertyValue('--dm-ease').trim() || 'ease', ms: (parseFloat(cs.getPropertyValue('--dm-t-fast')) || .22) * 1000 };
 };
-/** A new item fades in from 4px down; the nth new one in a change waits n x 24ms, up to five */
-export function reflowIn(el: Moving, n: number, root: Element) {
-  const { ease, ms } = reflowPace(root);
-  (el._rf ??= []).push(el.animate([{ opacity: 0, transform: 'translateY(4px)' }, { opacity: 1, transform: 'none' }], { duration: ms, delay: Math.min(n, 5) * 24, easing: ease, fill: 'backwards' }));
+/** A new item fades in from 4px down; the nth new one in a change waits n x 24ms, up to five. With `blur` it also comes out of a
+    short blur, half the style's --dm-blur-in (a motion piece) */
+export function reflowIn(el: Moving, n: number, root: Element, blur = false) {
+  const { ease, ms } = reflowPace(root), b = blur ? mxT(root, 'blur-in', 0) / 2 : 0;
+  const k: Keyframe[] = b ? [{ opacity: 0, transform: 'translateY(4px)', filter: `blur(${b}px)` }, { opacity: 1, transform: 'none', filter: 'blur(0px)' }] : [{ opacity: 0, transform: 'translateY(4px)' }, { opacity: 1, transform: 'none' }];
+  (el._rf ??= []).push(el.animate(k, { duration: ms, delay: Math.min(n, 5) * 24, easing: ease, fill: 'backwards' }));
 }
 /** An item that went fades out where it was, as a still copy that takes no room and can't be reached. `host` takes the copy
     when the item's own parent is gone */
-export function reflowGhost(s: ReflowSnap, root: Element, by: string, host?: Element | null) {
+export function reflowGhost(s: ReflowSnap, root: Element, by: string, host?: Element | null, blur = false) {
   const p = s.p?.isConnected ? s.p : host?.isConnected ? host : null; if (!p) return;
   // an item still fading in leaves from as far as it got
   const fin = s.el._rf?.find(a => a.playState === 'running' && String((a.effect as KeyframeEffect | null)?.getKeyframes()[0]?.opacity) === '0');
@@ -209,8 +286,9 @@ export function reflowGhost(s: ReflowSnap, root: Element, by: string, host?: Ele
   p.appendChild(g);
   const rb = root.getBoundingClientRect(), gb = g.getBoundingClientRect();
   g.style.transform = `translate(${rb.left + s.x - gb.left}px,${rb.top + s.y - gb.top}px)`;
-  const { ease, ms } = reflowPace(root);
-  const f = g.animate([{ opacity: from }, { opacity: 0 }], { duration: ms * .8, easing: ease, fill: 'forwards' });
+  // (with blur a row that goes leaves quicker and softly, so a row gliding into its place never reads over it)
+  const { ease, ms } = reflowPace(root), b = blur ? mxT(root, 'blur-in', 0) / 2 : 0;
+  const f = g.animate(b ? [{ opacity: from, filter: 'blur(0px)' }, { opacity: 0, filter: `blur(${b}px)` }] : [{ opacity: from }, { opacity: 0 }], { duration: ms * (blur ? .45 : .8), easing: ease, fill: 'forwards' });
   f.onfinish = f.oncancel = () => g.remove();
 }
 /** Measures `el` against the component, leaving any glide it is in running: b is where it sits (the glide taken out), dx and
@@ -246,9 +324,9 @@ export function reflowGlide(el: Moving, dx: number, dy: number, root: Element, o
  * stack or leave anything halfway. Places are read against `root`, so when the component re-centres in its stage the items
  * move with it. Transform and opacity only, at the style's own pace; nothing with reduced motion, and nothing on the first
  * render. `enter: false` and `leave: false` leave new and gone items to something else; `host` takes the copies of items whose
- * own parent the render replaced. Items can't sit inside one another.
+ * own parent the render replaced; `blur` brings new items out of a short blur too. Items can't sit inside one another.
  */
-export function useReflow(root: RefObject<HTMLElement | null>, selector: string, { by = 'data-key', enter = true, leave = true, host }: { by?: string; enter?: boolean; leave?: boolean; host?: RefObject<HTMLElement | null> } = {}) {
+export function useReflow(root: RefObject<HTMLElement | null>, selector: string, { by = 'data-key', enter = true, leave = true, host, blur = false }: { by?: string; enter?: boolean; leave?: boolean; host?: RefObject<HTMLElement | null>; blur?: boolean } = {}) {
   const reduce = useReducedMotion();
   const last = useRef<Map<string, ReflowSnap> | null>(null);
   useIsoLayoutEffect(() => {
@@ -265,9 +343,9 @@ export function useReflow(root: RefObject<HTMLElement | null>, selector: string,
       // an item that moved glides from where it is on screen (its old place, plus how far along the last glide it was); one
       // that didn't move keeps whatever it is doing, so a render that changes nothing never restarts a glide
       if (a && (Math.abs(a.x - s.x) > .5 || Math.abs(a.y - s.y) > .5)) { reflowStop(el); reflowGlide(el, a.x + dx - s.x, a.y + dy - s.y, box, o); }
-      else if (!a && enter) { reflowStop(el); reflowIn(el, n++, box); }
+      else if (!a && enter) { reflowStop(el); reflowIn(el, n++, box, blur); }
     });
-    if (was && leave) was.forEach((a, k) => { if (!now.has(k)) reflowGhost(a, box, by, host?.current); });
+    if (was && leave) was.forEach((a, k) => { if (!now.has(k)) reflowGhost(a, box, by, host?.current, blur); });
     last.current = now;
   });
   // things that move the items between renders (a fold easing open, the component resizing) update where they are, so the
@@ -285,23 +363,66 @@ export function useReflow(root: RefObject<HTMLElement | null>, selector: string,
   }, [root]);
 }
 
+// the properties whose animation changes a box's height
+const GROW_SIZING = /^(all|height|min-height|max-height|block-size|min-block-size|max-block-size|grid-template-rows|grid-auto-rows|margin|margin-top|margin-bottom|margin-block(-start|-end)?|padding|padding-top|padding-bottom|padding-block(-start|-end)?|gap|row-gap|line-height|font-size|flex|flex-basis|flex-grow|border-width|border-top-width|border-bottom-width)$/;
+function sizingIn(w: Element) {
+  for (const a of w.getAnimations({ subtree: true })) {
+    if (a.playState === 'finished' || a.playState === 'idle' || !a.effect || (a.effect as KeyframeEffect).pseudoElement) continue;
+    const t = (a as CSSTransition).transitionProperty, e = a.effect as KeyframeEffect;
+    const ps = typeof t === 'string' ? [t] : typeof e.getKeyframes === 'function' ? e.getKeyframes().flatMap(k => Object.keys(k)) : [];
+    if (ps.some(p => GROW_SIZING.test(p.replace(/[A-Z]/g, ch => '-' + ch.toLowerCase())))) return true;
+  }
+  return false;
+}
+/**
+ * How a growing container (`el`, dm-growing) keeps the height of what it holds (`w`, its one dm-grow wrapper), in one smooth
+ * motion: it is always as tall as `w` plus an offset that springs to nothing, set in the same frame `w` changes, so its edges,
+ * the content and its place where it is centred move together. Content that eases its own height (a fold, a row opening, a
+ * line's max-height: a running transition or animation of a size inside it) is followed frame by frame on its own curve; a
+ * change made at once keeps the height on screen and springs to the new one (critically damped: no overshoot, and its speed
+ * carries into a change that lands mid-way, so quick changes never stutter or start over). Heights are `w`'s layout box,
+ * unrounded and untouched by an entrance's scale. Timing: --dm-grow-t, or --dm-t-in × 1.4 on a dm-mx-grow container; none
+ * with reduced motion. Returns a function that stops it.
+ */
+export function growFit(el: HTMLElement, w: HTMLElement) {
+  if (typeof ResizeObserver === 'undefined') return () => {};
+  let H: number | null = null, d = 0, v = 0, raf = 0, last = 0, vc: number | null = null, tc = 0;
+  const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
+  const dur = () => still() ? 0 : el.classList.contains('dm-mx-grow') && !el.closest('.dm-ahx') ? mxT(el, 't-in', 360) * 1.4 : mxT(el, 'grow-t', 550);
+  // (--dm-grow-d is the offset, which a foot marked dm-mx-foot rides, so it stays on the container's bottom edge)
+  const put = () => { el.style.height = Math.max(0, (H ?? 0) + box() + d) + 'px'; el.style.setProperty('--dm-grow-d', d.toFixed(2) + 'px'); };
+  // the spring, solved exactly for each frame's step (stiffness from the duration: settled within it, 92% there halfway)
+  const step = (now: number) => {
+    raf = 0; const T = dur() / 1000, dt = Math.min(.064, Math.max(0, (now - last) / 1000)); last = now;
+    if (!T || !el.isConnected) { d = v = 0; put(); return; }
+    const k = 8.4 / T, e = Math.exp(-k * dt), c = v + k * d;
+    d = (d + c * dt) * e; v = (v - k * c * dt) * e;
+    if (Math.abs(d) < .05 && Math.abs(v) < 2) { d = v = 0; put(); return; }
+    put(); raf = requestAnimationFrame(step);
+  };
+  const ro = new ResizeObserver(es => {
+    const b = es[es.length - 1].borderBoxSize, h = b && b[0] ? b[0].blockSize : w.offsetHeight, t = performance.now();
+    if (H === null || !dur()) { H = h; d = v = 0; vc = null; put(); return; }
+    const dh = h - H, dt = Math.max(1, t - tc); if (Math.abs(dh) < .01) return; H = h; tc = t;
+    // while the content eases, a step far from its speed (a line emptied at once as a fold opens) is a change made at once
+    let jump = dh; if (dt > 50) vc = null;
+    if (sizingIn(w)) { const e = vc === null ? 0 : dh - vc * dt; jump = Math.abs(e) > Math.max(4, Math.abs((vc ?? 0) * dt)) ? e : 0; vc = (dh - jump) / (vc === null ? 1000 / 60 : dt); }
+    else vc = null;
+    if (jump) { d -= jump; if (!raf) { last = t; raf = requestAnimationFrame(step); } }
+    put();
+  });
+  ro.observe(w);
+  return () => { ro.disconnect(); cancelAnimationFrame(raf); el.style.height = ''; el.style.removeProperty('--dm-grow-d'); };
+}
 /** A container that grows with what it holds: put `outer` on the container (with the dm-growing class) and `inner` on one
- *  wrapper around its content (dm-grow). The container's height follows the content's, eased, so it opens smoothly as rows
- *  arrive and closes as they go, staying centred wherever it is centred. */
+ *  wrapper around its content (dm-grow). The container's height follows the content's in one smooth motion (growFit), so it
+ *  opens as rows arrive and closes as they go, staying centred wherever it is centred. */
 export function useGrow<T extends HTMLElement = HTMLDivElement>() {
   const outer = useRef<T>(null), inner = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
     const el = outer.current, w = inner.current;
-    if (!el || !w || typeof ResizeObserver === 'undefined') return;
-    let first = true;
-    const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
-    const fit = () => {
-      const h = Math.ceil(w.offsetHeight + box());
-      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
-      else el.style.height = h + 'px';
-    };
-    const ro = new ResizeObserver(fit); ro.observe(w); fit();
-    return () => { ro.disconnect(); el.style.height = ''; };
+    if (!el || !w) return;
+    return growFit(el, w);
   }, []);
   return [outer, inner] as const;
 }

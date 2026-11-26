@@ -1,6 +1,9 @@
 # Pictures for the demos
 
-The pictures in the **Carousel** demo on designme.dev are photos from [Pexels](https://www.pexels.com), free to use
+Two kinds of pictures live here: photos from Pexels (the Carousel demo and the Sales CRM's team), and the owner's own
+AI-generated headshots for the people in the component demos. Neither is part of anything you install.
+
+The pictures in the **Carousel** and **Image generation** demos on designme.dev are photos from [Pexels](https://www.pexels.com), free to use
 under the [Pexels License](https://www.pexels.com/license/) (owner, 5 Nov). They are **not** under this repository's MIT
 licence and are not part of anything you install: the components never point at these files. Each photo's page on
 Pexels names its photographer.
@@ -17,8 +20,26 @@ Pexels names its photographer.
 | `cover-b` | [28917758](https://www.pexels.com/photo/28917758/) | Carousel, Variants |
 | `cover-c` | [38965265](https://www.pexels.com/photo/38965265/) | Carousel, Variants |
 | `cover-d` | [2132095](https://www.pexels.com/photo/2132095/) | Carousel, Variants |
+| `yellow-wall` | [1536619](https://www.pexels.com/photo/1536619/) | Image generation, made |
+| `green-reach` | [9488402](https://www.pexels.com/photo/9488402/) | Image generation, made |
+| `magenta-pose` | [33604177](https://www.pexels.com/photo/33604177/) | Image generation, made |
+| `white-blazer` | [31240694](https://www.pexels.com/photo/31240694/) | Image generation, made |
+| `pink-dream` | [10377281](https://www.pexels.com/photo/10377281/) | Image generation, gallery and styles |
+| `pink-tower` | [38921436](https://www.pexels.com/photo/38921436/) | Image generation, gallery and styles |
+| `pink-window` | [2268728](https://www.pexels.com/photo/2268728/) | Image generation, gallery |
+| `clay-loops` | [28628510](https://www.pexels.com/photo/28628510/) | Image generation, gallery and styles |
+| `pastel-shapes` | [27790842](https://www.pexels.com/photo/27790842/) | Image generation, gallery |
+| `petal-face` | [4850291](https://www.pexels.com/photo/4850291/) | Image generation, gallery |
+| `retro-room` | [7035405](https://www.pexels.com/photo/7035405/) | Image generation, gallery |
+| `ribbon-look` | [15432405](https://www.pexels.com/photo/15432405/) | Image generation, gallery |
+| `light-leak` | [3431494](https://www.pexels.com/photo/3431494/) | Image generation, gallery and styles |
+| `fruit-bowl` | [33729669](https://www.pexels.com/photo/33729669/) | Image generation, gallery and styles |
+| `framing-hands` | [7035194](https://www.pexels.com/photo/7035194/) | Image generation, gallery and styles |
+| `yellow-shapes` | [12198530](https://www.pexels.com/photo/12198530/) | Image generation, gallery |
 
-Each photo is `<name>.webp` (960×640, cropped to 3:2) with a thumbnail `<name>-s.webp` (192×128).
+Each Carousel photo is `<name>.webp` (960×640, cropped to 3:2) with a thumbnail `<name>-s.webp` (192×128). Image
+generation's photos keep crops that suit them, portrait, square or landscape, for its masonry gallery: 600×800 for 3:4, for
+example, with a thumbnail 240px wide, each under 60 KB.
 
 The Pexels License lets anyone use these photos for free, change them, and use them without credit. It doesn't allow
 selling unaltered copies, showing identifiable people in a bad light or as endorsing something, or redistributing the
@@ -39,8 +60,9 @@ gradient once the card it is in comes near the screen. The React components take
 python3 art/get-photos.py      # from the repository root; needs Pillow with WebP
 ```
 
-The photos, their Pexels ids and where each crop is centred are in `PHOTOS` at the top of the script. It writes both sizes and prints a gradient of each photo's colours; name photos after it
-(`python3 art/get-photos.py cover-a`) to fetch only those. The gradients in the components are picked by hand from those colours, a
+The photos, their Pexels ids, where each crop is centred and, for Image generation's, their sizes are in `PHOTOS` at the
+top of the script. It writes both sizes and prints a gradient of each photo's colours; name photos after it
+(`python3 art/get-photos.py pink-dream`) to fetch only those. The gradients in the components are picked by hand from those colours, a
 little brighter, so an installed component still looks colourful without the photos. To add a photo, add it there, run
 the script, and give the component's data the new name and a gradient.
 
@@ -61,3 +83,30 @@ show people without a photo. The template's installable components never point a
 | `people/DK-2379005.jpg` | [2379005](https://www.pexels.com/photo/2379005/) | Dev Kumar |
 | `people/KM-7562313.jpg` | [7562313](https://www.pexels.com/photo/7562313/) | Kofi Mensah |
 | `people/NC-3777943.jpg` | [3777943](https://www.pexels.com/photo/3777943/) | Noah Cole |
+
+## The people in the demos
+
+The people in the component demos on designme.dev (Comments, Notifications, Meeting card, Agenda, Event calendar,
+Kanban, Ticket list, Filter menu, Invite to collaborate, Details panel, Profile menu, Tooltip, Draft review and Social
+sign-in) show faces on the site. They are the owner's own AI-generated headshots, not photos of real people and not from
+Pexels, and are used on designme.dev only (owner, 25 Nov). They are not under this repository's MIT licence. Each is a
+head-and-shoulders crop at 160×160 in `people/`, named with the initials it stands in for and its own id (`g01` to `g10`).
+The names are made up; each name always has the same face.
+
+| File | Shown as | Where |
+| --- | --- | --- |
+| `people/MK-g03.jpg` | Maya Kim | Comments, Notifications, Meeting card, Agenda, Event calendar, Kanban, Ticket list, Filter menu, Invite, Details panel, Profile menu, Tooltip, Draft review, Social sign-in |
+| `people/JO-g01.jpg` | Jon Ortiz | Comments, Notifications, Meeting card, Agenda, Event calendar, Ticket list, Invite, Details panel |
+| `people/AR-g02.jpg` | Ari Reyes | Notifications, Meeting card, Agenda, Event calendar, Invite |
+| `people/SL-g09.jpg` | Sam Lee | Meeting card, Agenda, Invite |
+| `people/DK-g05.jpg` | Dev Kapoor | Agenda |
+| `people/JO-g07.jpg` | Jonas Ortiz | Kanban |
+| `people/LP-g08.jpg` | Lena Park | Kanban |
+| `people/LP-g04.jpg` | Leo Park | Filter menu |
+| `people/AR-g06.jpg` | Ana Ruiz | Filter menu |
+| `people/SC-g10.jpg` | Sam Cole | Filter menu |
+
+The installed components draw each person as their initials on their avatar colour. Each avatar in a demo carries
+`data-pic="<initials>-g<nn>"` (`AV(initials, colour, pic)` in the demos' script); `art.js` lays the face of that name over the
+avatar once its photo has loaded, filling it (`background-size: cover`) and hiding the initials, so the avatar keeps its
+size, shape and ring. Agents keep their own marks, and someone new (an address typed into Invite) keeps their initials.

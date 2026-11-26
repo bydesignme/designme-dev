@@ -4,6 +4,7 @@ import { cx } from '../../lib/cx';
 import { useControllable } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
 import { enter, Fold, Swap, Tip, useGrow } from '../../lib/motion';
+import { useHoverGlide } from '../../lib/glide';
 import '../../designme.css';
 import './trace-view.css';
 
@@ -65,6 +66,8 @@ type Row = { s: TraceSpan; lv: number; up?: Row };
 export function TraceView({ title, spans, time, axis, slowAfter = 2, status, selected, defaultSelected = null, onSelectedChange, className }: TraceViewProps) {
   const [open, setOpen] = useControllable(selected, defaultSelected, onSelectedChange);
   const rows = useRef<HTMLDivElement>(null);
+  // Clean's one hover glides from span to span; an open span keeps its stronger fill
+  useHoverGlide(rows, '.dm-trv-r', { keep: '[aria-expanded="true"]' });
   // the card keeps no room for spans still to come (owner, 18 Nov): it grows and shrinks with what it holds, eased, as each
   // span starts and the details open and shut (as grow() on the site)
   const [root, inner] = useGrow();
@@ -124,8 +127,10 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
         {/* the head has the run's mark in a tile, the column every span's mark is centred in, and its total tokens beside its time */}
         <span className="dm-trv-hi" aria-hidden="true"><Icon name="cpu" /></span>
         <div className="dm-trv-ht"><b>{title}</b><span className="dm-muted dm-trv-st" aria-live="polite"><Swap>{line}</Swap></span></div>
-        <span className="dm-trv-tt dm-muted dm-num">{short(total)} tokens</span>
-        <span className="dm-trv-tot dm-num">{sec(Math.min(end, now))}</span>
+        <span className="dm-trv-nums">
+          <span className="dm-trv-tt dm-muted dm-num">{short(total)} tokens</span>
+          <span className="dm-trv-tot dm-num">{sec(Math.min(end, now))}</span>
+        </span>
       </div>
       <div className="dm-trv-lg" role="list" aria-label="Spans by kind">
         {KEYS.map(k => { const n = shown.filter(({ s }) => s.kind === k).length;
@@ -136,7 +141,7 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
         <span className="dm-trv-sc">{labels.map(v => <span key={v} style={{ left: `${(v / span) * 100}%` }}>{v}s</span>)}</span>
         <span className="dm-trv-tk">Tokens</span><span className="dm-trv-ms">Time</span>
       </div>
-      <div ref={rows} className={cx('dm-trv-rows', sel && 'dm-sel')} role="group" aria-label="Spans" onKeyDown={onKey}>
+      <div ref={rows} className={cx('dm-trv-rows dm-mx-glide', sel && 'dm-sel')} role="group" aria-label="Spans" onKeyDown={onKey}>
         {shown.map(row => {
           const { s, lv } = row;
           const [kind, icon, col] = KIND[s.kind], w = took(s), tk = tokensOf(s), run = running(s), sl = slow(s);
@@ -161,11 +166,11 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
       </div>
       <Fold open={!!sel} className="dm-trv-dt">
         {cur && (
-          <div key={cur.id} className="dm-trv-dc dm-enter" role="region" aria-label="Span details">
+          <div key={cur.id} className="dm-trv-dc dm-mx-rows dm-mx-play" role="region" aria-label="Span details">
             <div className="dm-trv-dh">
               <span className="dm-trv-k" style={{ '--dm-k': KIND[cur.kind][2] } as CSSProperties}><Icon name={KIND[cur.kind][1]} size="xs" /></span>
               <b>{cur.name}</b>{slow(cur) && <span className="dm-tag dm-warn">slow</span>}
-              <Tip label="Close"><button type="button" className="dm-ib dm-trv-x" aria-label="Close details" onClick={e => close(e.currentTarget.contains(document.activeElement))}><Icon name="x" /></button></Tip>
+              <Tip label="Close"><button type="button" className="dm-ib dm-trv-x dm-mx-press" aria-label="Close details" onClick={e => close(e.currentTarget.contains(document.activeElement))}><Icon name="x" /></button></Tip>
             </div>
             <div className="dm-trv-pos" aria-hidden="true" style={{ '--dm-k': KIND[cur.kind][2] } as CSSProperties}>
               <i style={{ left: `${(cur.start / span) * 100}%`, width: `${(took(cur) / span) * 100}%` }} />

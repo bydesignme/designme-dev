@@ -137,9 +137,10 @@ patch("""  $$('[data-copy]').forEach(btn => btn.addEventListener('click', async 
     const ok = await copyLater(() => bundle(btn.closest('.comp').id));""")
 
 # ---------- the intro: one short line, the React install command, then a switch between the two sets ----------
+# (@@COUNT@@ is the number of components on the page, which build.js writes in: tools/site/live.js decides it)
 RX_CMD = 'npx designme add live-answer --react'
 patch("""<p>46 components for showing an agent's work, from status and conversation to review, sources and workspace, plus 32 app basics for the dashboard around it, designed and built by the <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a> team.</p>""",
-      """<p>100 free components in HTML, React or Astro, designed and built by <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a>.</p>
+      """<p>@@COUNT@@ free components in HTML, React or Astro, designed and built by <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a>.</p>
   <div class="intro-get"><button class="cdm-cmd intro-cmd" data-cmd=\"""" + RX_CMD + """\" title="Copy install command"><span class="d">$</span><span class="c">""" + RX_CMD + """</span><span class="ms sm">content_copy</span></button></div>""")
 # the two group introductions become one switch: Agent components or App basics
 patch("""<div class="grp-intro"><span class="k">46 components</span><h2>Agent components</h2><p>Everything for showing an agent's work, from the first plan to the final summary.</p></div>""",
@@ -398,7 +399,7 @@ patch("""<p class="side-cta-d">Expert design and dev support for startups and en
 patch("""  <nav class="top-links" aria-label="Site"><a href="#/changelog">Changelog</a><a href="#/roadmap">Roadmap</a><a href="#faq">FAQ</a></nav>\n""", "")
 patch("""aria-label="Search components"><span class="kbd">/</span></label>""",
       """aria-label="Search components"><span class="kbd">/</span></label>
-  <nav class="side-pages" aria-label="Site"><a class="side-p act" href="#components" aria-current="page"><span class="ms">dashboard</span>Library</a><a class="side-p" href="/docs/introduction"><span class="ms">description</span>Docs</a><button type="button" class="side-p side-tpl" data-p="view_sidebar" aria-expanded="false" aria-controls="side-tpls"><span class="ms">view_sidebar</span>Templates<span class="ms tchev">expand_more</span></button><div class="side-tplw" id="side-tpls"><div class="side-ul side-tpls"><a class="side-a" href="/templates/sales-crm" target="_blank" rel="noopener" aria-label="Sales CRM, opens in a new tab">Sales CRM</a><a class="side-a" href="/templates/workflow-editor" target="_blank" rel="noopener" aria-label="Workflow editor, opens in a new tab">Workflow editor</a><a class="side-a" href="/templates/dashboard-builder" target="_blank" rel="noopener" aria-label="Dashboard builder, opens in a new tab">Dashboard builder</a></div></div><a class="side-p" href="#/changelog"><span class="ms">history</span>Changelog</a><a class="side-p" href="#/roadmap"><span class="ms">trending_up</span>Roadmap</a><a class="side-p" href="#/faq"><span class="ms">help</span>FAQ</a></nav>
+  <nav class="side-pages" aria-label="Site"><a class="side-p act" href="#components" aria-current="page"><span class="ms">dashboard</span>Library</a><a class="side-p" href="/docs/introduction"><span class="ms">description</span>Docs</a><button type="button" class="side-p side-tpl" data-p="view_sidebar" aria-expanded="false" aria-controls="side-tpls"><span class="ms">view_sidebar</span>Templates<span class="ms tchev">expand_more</span></button><div class="side-tplw" id="side-tpls"><div class="side-ul side-tpls"><a class="side-a" href="/templates/sales-crm" target="_blank" rel="noopener" aria-label="Sales CRM, opens in a new tab">Sales CRM</a><a class="side-a" href="/templates/workflow-editor" target="_blank" rel="noopener" aria-label="Workflow editor, opens in a new tab">Workflow editor</a><a class="side-a" href="/templates/dashboard-builder" target="_blank" rel="noopener" aria-label="Dashboard builder, opens in a new tab">Dashboard builder</a><a class="side-a" href="/templates/whiteboard" target="_blank" rel="noopener" aria-label="Whiteboard, opens in a new tab">Whiteboard</a></div></div><a class="side-p" href="#/changelog"><span class="ms">history</span>Changelog</a><a class="side-p" href="#/roadmap"><span class="ms">trending_up</span>Roadmap</a><a class="side-p" href="#/faq"><span class="ms">help</span>FAQ</a></nav>
   <style>.side-pages .side-tpl{width:100%;border:0;background:none;padding:0 10px;font-family:inherit;font-size:14px;font-weight:400;line-height:inherit;cursor:pointer;text-align:left}.side-tpl .tchev{margin-left:auto;transition:transform .3s cubic-bezier(.22,1,.36,1)}.side-tpl[aria-expanded="true"] .tchev{transform:rotate(180deg)}.side-tplw{display:grid;grid-template-rows:0fr;opacity:0;visibility:hidden;transition:grid-template-rows .3s cubic-bezier(.22,1,.36,1),opacity .18s ease,visibility 0s .3s}.side-tpl[aria-expanded="true"]+.side-tplw{grid-template-rows:1fr;opacity:1;visibility:visible;transition:grid-template-rows .3s cubic-bezier(.22,1,.36,1),opacity .25s ease .05s,visibility 0s}.side-tplw>.side-tpls{min-height:0;overflow:hidden;margin:0 0 0 18px;padding-block:0}.side-tpls .side-a{padding-left:7px}.side-tpls .side-a:first-child{margin-top:2px}.side-tpls .side-a:last-child{margin-bottom:6px}.side-tpls .side-a{display:block}@media (prefers-reduced-motion:reduce){.side-tplw,.side-tpl .tchev{transition:none}}</style><script>(function(){var K='dm-side-tpl';function sync(o){document.querySelectorAll('.side-tpl').forEach(function(b){b.setAttribute('aria-expanded',String(o));});}try{if(sessionStorage.getItem(K)==='1')sync(true);}catch(e){}document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('.side-tpl');if(!b)return;var o=b.getAttribute('aria-expanded')!=='true';sync(o);try{sessionStorage.setItem(K,o?'1':'0');}catch(e){}});})();</script>""")
 
 # Changelog and Roadmap keep the sidebar beside them (on wider screens), and the sidebar marks the page that's open
@@ -460,7 +461,7 @@ patch("""      <div class="m-links mi-in"><a href="#/changelog">Changelog</a><a 
 # answers that have to be true of the code
 patch("""It needs the shared core once, which holds the tokens, icons, sound and small helpers,""", """It needs the shared core once, which holds the tokens, icons and small helpers,""")
 patch("""They work with a keyboard, use proper roles and labels, and respect reduced motion.""",
-      """They use proper roles and labels and respect reduced motion, and most work fully with a keyboard. A few, like Kanban and File explorer, are still getting their keyboard support.""")
+      """They use proper roles and labels and respect reduced motion, and most work fully with a keyboard. A few, like File explorer, are still getting their keyboard support.""")  # Kanban is not live yet (tools/site/live.js)
 patch("""Every week. Each release is listed in the """, """Often. Each release is listed in the """)
 patch("""Webflow and Framer exports are coming soon. Until then""",
       """Webflow and Framer exports are planned, and you can follow them on the <a href="#/roadmap">roadmap</a>. Until then""")
@@ -654,7 +655,8 @@ body.ui main .comp-foot .mono-xs{display:none}
 body.ui .save-btn,body.ui .side-saved,body.ui .flt-i[data-v="saved"]{display:none!important}
 /* section names: the same size as a card's name, the line beside them like a card's line */
 body.ui .lib-sec .sec-head{padding:40px 0 14px;margin-bottom:20px}
-body.ui .sec-head .sec-no{font-size:12px}
+/* (the section's number in the interface's sans, with even figures: no monospace outside code, owner) */
+body.ui .sec-head .sec-no{font-size:12px;font-family:inherit;font-variant-numeric:tabular-nums}
 body.ui .sec-head h2{font-size:14px;font-weight:500;letter-spacing:0;line-height:20px}
 body.ui .sec-head p{font-size:14px;line-height:20px;color:var(--sh-dim);opacity:1}
 .grp-next h2{font-size:14px;font-weight:500;letter-spacing:0}
@@ -988,52 +990,47 @@ CSS += """
 # (git log on soft-plush; component names in the third field are card titles, so their buttons open the component)
 patch("""    const LOG = [
 """, """    const LOG = [
+      { v:'v1.2.0', d:'26 November 2026', t:'The launch', items:[
+        ['new','designme.dev launches with 37 components, each in HTML, React and Astro. Add them with npx designme add, or with the shadcn CLI'],
+        ['new','Clean, a third style beside Blueprint and Soft: black, white and grey, with an ink primary button. All three come in light and dark'],
+        ['new','Four templates, whole apps made of the components: Sales CRM, Workflow editor, Dashboard builder and the new Whiteboard, in the sidebar under Templates'],
+        ['improved','Toast holds a background job from start to finish: its glyph shows the work, its words and buttons change in place, its steps open inside it, and Close counts down',['Toast']],
+        ['improved','designme.dev opens on a landing page, and the library moves to designme.dev/library'],
+        ['improved','The library is one list. The other components are built and go live one by one after launch: the <a href="#/roadmap">roadmap</a> lists them'] ] },
       { v:'v1.1.0', d:'16 November 2026', t:'A smaller library', items:[
-        ['improved','25 components left the library so the rest can be polished before launch: Thread panel, Image generation, Tool call, Voice capture, Voice orb, Prompt starters, Prompt library, Browser session, Run summary, Agent phases, Action log, Run queue, Error and recovery, Change review, Hand-off to a person, Design tuner, Launch checklist, Steering, Design review, Code viewer, Field extraction, Step inspector, Model compare, Colour picker and Onboarding checklist. They are gone from the site, the CLI and the docs, which leaves 99 components'] ] },
+        ['improved','25 components left the library so the rest can be polished before launch: Thread panel, Image generation, Tool call, Voice capture, Voice orb, Prompt starters, Prompt library, Browser session, Run summary, Agent phases, Action log, Run queue, Error and recovery, Change review, Hand-off to a person, Design tuner, Launch checklist, Steering, Design review, Code viewer, Field extraction, Step inspector, Model compare, Colour picker and Onboarding checklist. They are gone from the site, the CLI and the docs'] ] },
       { v:'v1.0.1', d:'15 November 2026', t:'Agent builder removed', items:[
-        ['improved','Agent builder is no longer in the library: it is gone from the site, the CLI and the docs, which leaves 124 components'] ] },
+        ['improved','Agent builder is no longer in the library: it is gone from the site, the CLI and the docs'] ] },
       { v:'v1.0.0', d:'9 November 2026', t:'The first public release', items:[
         ['new','designme.dev is public: the code is on GitHub under the MIT licence, and the CLI is 1.0.0 on npm. Add components with npx designme add, as HTML, React or Astro'],
         ['new','Templates: a Sales CRM and a Workflow editor, whole apps built from the components, in the sidebar under Templates'],
-        ['improved','Health score switches between a Healthy, a Watch and an At risk account under its demo',['Health score']],
-        ['improved','Progress and meter has three designs to compare: Compact, Steps and Budget',['Progress and meter']],
         ['improved','In dark mode each surface sits a step lighter than what it is on, so menus, popovers and toasts stand off the page, and tooltips are a raised dark chip'],
-        ['improved','On the slider, the value the agent recommends sits clear above the handle',['Slider']],
         ['improved','Sign-ups, roadmap votes and ideas are limited per visitor to stop flooding, and the privacy notice says how'] ] },
-      { v:'v0.16', d:'4 November 2026', t:'Astro, shadcn and twelve new components', items:[
-        ['new','Three components for workflow editors, from the Workflow editor template: a step inspector that sets up one step and flags data no earlier step gives, a data picker that maps fields from earlier steps, and a run drawer with the steps, the log and the data of a run',['Data picker','Run drawer']],
+      { v:'v0.16', d:'4 November 2026', t:'Astro, shadcn and the theme bridge', items:[
+        ['new','Run drawer, from the Workflow editor template: the steps, the log and the data of a run',['Run drawer']],
         ['new','Thinking states: six thinking indicators to pick from (Orbit, Morph, Scan, Stream, Matrix and Stack), each a small mark with a status line that steps through what the agent is doing',['Thinking states']],
-        ['new','Twelve new components, each in HTML, React and Astro, for 119 in all',['Progress and meter','Slider','Context menu','Carousel','Web search','Radial goals','Eval radar','Cost vs quality','Score breakdown']],
+        ['new','Web search, in HTML, React and Astro',['Web search']],
         ['new','Every component as an Astro component, with the same markup, CSS and script as the HTML version. Add them with npx designme add and the <span class="nowrap">--astro</span> flag'],
         ['new','Every component is also a shadcn registry item, in React and Astro, so the shadcn CLI can add it to a shadcn/ui project'],
         ['new','The theme bridge, an opt-in CSS file that gives the components the colours and corners of your shadcn/ui or Tailwind v4 theme. Add it with the <span class="nowrap">--theme-bridge</span> flag'],
         ['new','An Astro page in the docs, and Installation now covers HTML, React, Astro, the shadcn CLI and the theme bridge'],
-        ['new','Your theme in the style switch: paste a shadcn/ui or Tailwind v4 theme and every demo previews with it. It stays in your browser until you reset it'],
-        ['improved','Component pages show every design the homepage card does, switched under the demo'],
+        ['improved','Component pages show every design the library card does, switched under the demo'],
         ['improved','Until you pick a style, the site follows your theme: light opens in Soft, dark opens in Blueprint'],
         ['improved','On phones and tablets, the DesignMe button in the bottom left holds Book a call and the credit, and Back to top appears once the fifth component has scrolled past'] ] },
-      { v:'v0.15', d:'3 November 2026', t:'Plush Soft and colourful charts', items:[
+      { v:'v0.15', d:'3 November 2026', t:'Plush Soft and saturated colours', items:[
         ['improved','Soft is plush: rounder corners, drawn as squircles where the browser supports them, and softer layered shadows. Blueprint stays square'],
         ['improved','Success, warning and error colours are more saturated in both themes, and warning bars and dots use a brighter orange'],
-        ['improved','Charts with more than one series or part use a chart palette, and Stat cards show their changes as tinted chips',['Donut chart','Line chart','Stat cards','Funnel chart']],
-        ['improved','Bar chart is one accent colour, with its breakdown in the hover readout',['Bar chart']],
-        ['improved','A bolder Health score: a larger gauge, and pointing at a check swings the gauge to its score',['Health score']],
         ['new','Photo avatars for the people in the demos on the site. Installed components keep their initials'],
         ['new','Desktop, Tablet and Mobile previews on the pages of the full-screen components',['Agent harness','Automation canvas','Canvas toolbar','Event calendar','Kanban board','Rich text editor']],
         ['improved','Agents at work keep playing while your mouse rests on them, like Status pill, Thinking and Agent lanes'] ] },
       { v:'v0.14', d:'30 October 2026', t:'Design switches', items:[
         ['new','A design switch on ten cards to try other designs of the same component. Classic stays the default and is what the CLI installs',['Agent tree','Eval results','Agent settings','Attachment tray','Agent lanes']],
         ['improved','No coloured glows: pulsing rings pulse in a neutral grey, and running bars and steps lose their coloured halos'],
-        ['improved','Fields look the same everywhere: white with a quiet grey edge, a step stronger on focus',['Automation canvas','Set limit','Event calendar','Kanban board']],
-        ['fixed','The demo no longer refills a Context switcher you have closed',['Context switcher']] ] },
-      { v:'v0.13', d:'29 October 2026', t:'Four new components and calmer fields', items:[
-        ['new','Four new components',['Canvas toolbar','Badge','Context switcher','Banner']],
+        ['improved','Fields look the same everywhere: white with a quiet grey edge, a step stronger on focus',['Automation canvas','Set limit','Event calendar','Kanban board']] ] },
+      { v:'v0.13', d:'29 October 2026', t:'Calmer fields and livelier demos', items:[
         ['improved','Demos hold still while your mouse rests on a component, so nothing moves under the pointer, and carry on when it leaves'],
         ['improved','Fields have a dimmed grey edge that turns a step stronger on focus, and only the keyboard shows a focus ring, in grey'],
-        ['new','Automation canvas pans, zooms and selects, and adds steps from a searchable picker',['Automation canvas']],
-        ['improved','Voice orb is a lit glass sphere drawn by a shader, and it reacts to the voice level'],
         ['improved','Livelier demos',['Trace view','Agent lanes','Thinking','Command palette','Terminal stream','Attachment tray','Agent run timeline','Memory panel']],
-        ['improved','Currency converter shows a flag before each currency',['Currency converter']],
         ['improved','Grey borders and hairlines are half as strong, with one light grey behind hovered rows'] ] },
       { v:'v0.12', d:'25 to 27 October 2026', t:'Keyboard, phones and a new logo', items:[
         ['improved','Phone layouts',['Event calendar','Kanban board','Task table','Agent harness','Details panel']],
@@ -1042,18 +1039,16 @@ patch("""    const LOG = [
         ['improved','40px tap areas on touch screens, and hover effects only with a mouse'],
         ['improved','Components that draw every frame rest while they are off screen'],
         ['improved','The logo draws its wordmark as a hairline that fills in on hover'] ] },
-      { v:'v0.11', d:'24 October 2026', t:'Docs, Rich text editor and Artifact card', items:[
+      { v:'v0.11', d:'24 October 2026', t:'Docs and the GitHub stars pill', items:[
         ['new','Docs with five pages: Introduction, Installation, Theming, Accessibility and Using with AI, each with a Markdown copy'],
-        ['new','Rich text editor, with formatting, shortcuts, safe paste and an inline AI menu, in HTML and React',['Rich text editor']],
-        ['improved','Artifact card is one card in four variants: Compact, Preview, Inline and Stack',['Artifact card']],
         ['new','A GitHub stars pill in the header'],
-        ['improved','Docs and component pages share the homepage sidebar'],
+        ['improved','Docs and component pages share the library sidebar'],
         ['improved','Demos stop the moment you click, focus or type in a component'],
         ['improved','Dropdowns sit centred when closed and glide up as their lists open',['Country select','Multi-select','Model picker']],
         ['improved','Components keep their height when they end on something shorter, so they stay centred'],
         ['improved','Text on a picked accent colour is chosen for contrast, so violet, rose and green get white text'] ] },
-      { v:'v0.10', d:'23 October 2026', t:'Twenty-one new components and a calmer site', items:[
-        ['new','Twenty-one new components, for 102 in all',['Model picker','Answer action bar','Inline text diff','Draft review','Agent tree','Agent inbox','Eval results','Knowledge sources','Scheduled runs','Segmented control','OTP field','Multi-select','Profile menu','Filter menu','Trace view','Terminal stream']],
+      { v:'v0.10', d:'23 October 2026', t:'New components and a calmer site', items:[
+        ['new','New components',['Model picker','Answer action bar','Inline text diff','Draft review','Agent tree','Agent inbox','Eval results','Knowledge sources','Scheduled runs','Segmented control','OTP field','Multi-select','Profile menu','Filter menu','Trace view','Terminal stream']],
         ['improved','A calmer site: 14px type, one 1400px width, and Changelog, Roadmap and FAQ in the sidebar'],
         ['new','The FAQ is a page of its own'],
         ['improved','Composer, Thinking and Context meter reworked as our own designs',['Composer','Thinking','Context meter']],
@@ -1065,10 +1060,8 @@ patch("""    const LOG = [
         ['new','A page for every component, with a live demo, install commands, what it is for, its props and its source, plus a Markdown copy'],
         ['new','llms.txt, an index of every component for AI tools'],
         ['new','A real 404 page that suggests the component you were looking for'],
-        ['new','Design review: checks, a reviewer asking for a change, the agent making it, and a split button to ship'],
         ['improved','Sound starts muted on every visit'] ] },
-      { v:'v0.8', d:'21 October 2026', t:'The Agent harness', items:[
-        ['new','Agent harness is a real agent chat, built from the other components',['Agent harness']],
+      { v:'v0.8', d:'21 October 2026', t:'Tools and connections, and sounds', items:[
         ['new','Tools and connections, now a component of its own',['Tools and connections']],
         ['new','Sounds on clicks and hovers, off until you turn sound on'],
         ['improved','More components play a short demo on their own once they have entered, and stop when you take over'],
@@ -1081,12 +1074,52 @@ patch("""    const LOG = [
         ['fixed','Toast stack no longer paints over a component page',['Toast stack']] ] },
       { v:'v0.6', d:'19 October 2026', t:'New styles and React', items:[
         ['improved','Every component redrawn in the new Blueprint and Soft styles'],
-        ['new','React versions of all 79 components. Add them with npx designme add and the <span class="nowrap">--react</span> flag'],
+        ['new','React versions of every component. Add them with npx designme add and the <span class="nowrap">--react</span> flag'],
         ['fixed','Twenty-one small bugs in the components, from tooltips to Automation canvas'],
         ['fixed','The CLI says which component is missing instead of failing'] ] },
 """)
-# the rich text editor shipped, so the roadmap's own list (used when the live one can't load) says so
-patch("""['editor','Rich text editor','A minimal editor with an inline AI menu.','planned','Conversation'],""", """['editor','Rich text editor','A minimal editor with an inline AI menu.','shipped','Conversation'],""")
+# the original page's releases (site-main.html, v0.5 to v0.1) lose what names components that aren't live (tools/site/live.js)
+for a, b in [
+    ("{ v:'v0.5', d:'October 2026', t:'Four new components and accent colours', items:[\n        ['new','Four new components',['Kanban board','Funnel chart','Top pages','Ticket list']],\n", "{ v:'v0.5', d:'October 2026', t:'Accent colours', items:[\n"),
+    ("        ['new','Agent harness suggests what to ask next after every answer',['Agent harness']],\n        ['improved','Kanban cards can be renamed with a double-click',['Kanban board']],\n", ""),
+    ("        ['improved','Action log is a simple activity list',['Action log']],\n        ['improved','Voice capture fits in one compact row',['Voice capture']],\n", ""),
+    ("{ v:'v0.3', d:'October 2026', t:'Product and finance components', items:[\n        ['new','Eight new components',['Pricing cards','Model compare','Onboarding checklist','Stepper','Set limit','Currency converter','Payment form','Health score']],\n", "{ v:'v0.3', d:'October 2026', t:'Smoother motion', items:[\n"),
+    ("        ['new','The Harness, a live agent conversation built from the library'],\n", ""),
+]:
+    patch(a, b)
+# a release's component buttons open the component's page, so only the components on the page (tools/site/live.js) get one
+patch("""${it[2] ? `<span class="chg-links">${it[2].map(n => `<button class="chg-link" data-n="${n}">${n}</button>`).join('')}</span>` : ''}""",
+      """${(it[2] || []).some(find) ? `<span class="chg-links">${it[2].filter(find).map(n => `<button class="chg-link" data-n="${n}">${n}</button>`).join('')}</span>` : ''}""")
+# the FAQ's Figma answer names the three styles
+patch("""with every component in Blueprint and Soft, light and dark mode and five accent colours""", """with every component in Blueprint, Soft and Clean, light and dark mode and five accent colours""")
+# ---------- the roadmap at launch (owner, 26 Nov) ----------
+# its own list (used when the live one can't load) says what is true of the code: Kanban board and Rich text editor are built
+# but not live yet (tools/site/live.js), so they are planned, and the Figma library has all three styles
+patch("""['kanban','Kanban board','Drag cards across columns with an agent that updates them.','shipped','Workspace'],""",
+      """['kanban','Kanban board','Drag cards across columns with an agent that updates them.','planned','Workspace'],""")
+patch("""['figma','Figma library','All components with variants, tokens and both styles as variable modes, free for subscribers.','progress','Design'],""",
+      """['figma','Figma library','All components with variants, tokens and all three styles as variable modes, free for subscribers.','progress','Design'],""")
+# the live list (Supabase) keeps its votes and the ideas people suggest, but an idea that is also in the roadmap's own list takes
+# its words and status from there, so the page stays true of the code whatever the database still says (its 'react' idea,
+# React and Tailwind versions, is Tailwind versions now that React has shipped: build.js)
+patch("""        votes = {}; remote = rows.map(r => { if (r.voted) votes[r.id] = true; return { id:r.id, t:r.title, d:r.description, s:r.status, tag:r.tag, base:""",
+      """        votes = {}; remote = rows.map(r => { if (r.voted) votes[r.id] = true; const b = BASE.find(x => x[0] === r.id) || [, r.title, r.description, r.status, r.tag]; return { id:r.id, t:b[1], d:b[2], s:b[3], tag:b[4], base:""")
+# Coming next: the components that are built and go live one by one after launch, under the ideas, as plain text by group.
+# build.js writes the list (@@NEXT@@) from live.js
+patch("""    let sort = 'top', prefill = '';""", """    const NEXT = @@NEXT@@;
+    let sort = 'top', prefill = '';""")
+patch("""        <div class="rm-list" id="rm-list">${sorted().map(card).join('')}</div>`;""",
+      """        <div class="rm-list" id="rm-list">${sorted().map(card).join('')}</div>
+        ${NEXT.length ? `<div class="rm-next"><h2>Coming next</h2><p>These components are built and go live one by one after launch.</p><ul>${NEXT.map(g => `<li><b>${esc(g[0])}</b> ${esc(g[1].join(', '))}</li>`).join('')}</ul></div>` : ''}`;""")
+CSS += """
+/* the roadmap's Coming next: plain text under the ideas, a hairline above it as between the changelog's releases */
+.rm-next{margin-top:40px;padding-top:24px;border-top:1px solid var(--sh-line)}
+.rm-next h2{margin:0;color:var(--sh-text)}
+.rm-next p{margin:4px 0 0;max-width:62ch;font-size:14px;line-height:1.6;color:var(--sh-dim)}
+.rm-next ul{display:flex;flex-direction:column;gap:8px;margin:16px 0 0;padding:0;list-style:none}
+.rm-next li{font-size:14px;line-height:1.6;color:var(--sh-dim)}
+.rm-next li b{margin-right:6px;color:var(--sh-text)}
+"""
 # grey text in dark mode reaches APCA Lc 60 or more: secondary text about Lc 70, quieter text about Lc 60
 CSS += """
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]),:root[data-style="soft"]:not([data-theme="light"]){--sh-dim:#c9c9c9;--sh-muted:#c0c0c0;--text-dim:#c9c9c9;--muted:#c0c0c0}}

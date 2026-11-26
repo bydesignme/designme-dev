@@ -2,7 +2,7 @@
 
 > Every model and tool step of a run on one time axis.
 
-Agent components / Agent status. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/agent-run-timeline
+Components / Agent status. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/agent-run-timeline
 
 ## Install
 
@@ -34,16 +34,16 @@ Agent run timeline draws one agent run as a Gantt chart: every model, tool and a
 
 ### What it does
 
-- Each step is a bar placed by its `start` and `duration` in seconds, with an optional `icon` (or `brand`, an app's own mark like Figma, GitHub or Slack) and `cost`.
+- Each step is a bar placed by its `start` and `duration` in seconds, with an optional `icon` (or `brand`, an app's own mark like Figma, GitHub or Slack) and `cost`. The head has a neutral tile with `icon` (a bolt unless you pass one) in the steps' icon column, so the steps' names start where the title starts.
 - A step's `kind` colours it: `model` in purple, `tool` in teal and `app` in orange, in light and dark. Its bar, its icon's tint and its live time take the colour, and a key under the title adds up how long each kind has run. `color` overrides the bar's colour.
-- Pass `time` while the run is live. Bars grow up to it, a playhead in the accent carries the time on the axis, the lanes it has passed take a faint wash, and the line under the title names the steps at work, shimmering. The step at work has a passing light along its bar, a bright leading edge and a soft ring that breathes round its icon. Steps that haven't started yet are dimmed.
+- Pass `time` while the run is live. Bars grow up to it, a playhead in the accent (white in Clean's dark mode, as every Clean loader is) carries the time on the axis, the lanes it has passed take a faint wash, and the line under the title names the steps at work, shimmering. The step at work has a passing light along its bar, a bright leading edge and a soft ring that breathes round its icon. Steps that haven't started yet are dimmed.
 - The column at the right shows how long each step took, counting up in the step's colour while it runs.
-- Leave `time` out once the run is over. The tag turns from Running to Done, the playhead stops at the end of the last step and turns green with a check, and the status line reads "Finished in Ns" (with the number of retries when a step failed) unless you set `status`.
+- Leave `time` out once the run is over. The tag turns from Running to Done, the playhead stops at the end of the last step and turns green with a check, and the status line keeps the last steps that ran unless you set `status` (the demo says what the run did; the totals under the chart already give its time and retries).
 - `failed` hatches a bar red and puts a red tag after the label, reading `tag` or "Failed". `retry` on the next step draws a dashed amber line from the end of the failed step to it once it starts. `note` is added to the bar's tooltip, which also lists the step's duration and cost.
 - The footer counts up total time, cost, steps and retries as the playhead moves, each with an icon. Pass `stats` to show your own figures once the run is done.
 - The axis covers `span` seconds, defaulting to the end of the last step rounded up to a multiple of 4, with labels at quarters unless you pass `ticks`. An axis label hides while the playhead's time covers it.
 - In Blueprint the bars are flat, the running bar is hatched and steps along, its icon's ring blinks in steps, the lanes behind the playhead are hatched and the lines are hairlines, with no glow.
-- Ships in Clean too (`data-style="clean"`): the kinds of step keep their colours as flat, round bars, the icon tiles are circles, the failed run is a red hatch with no red fill, and the totals sit on an off-white foot strip.
+- Ships in Clean too (`data-style="clean"`): the kinds of step keep their colours as flat, round bars, the icon tiles have round corners, the failed run is a red hatch with no red fill, the content sits 16px in from every edge, and the totals sit on an off-white foot strip.
 
 ### Accessibility
 
@@ -100,7 +100,7 @@ export default function AgentRunTimelineDemo() {
   }, { hold: false });
   return (
     <div ref={ref} style={{ width: '100%' }}>
-      <AgentRunTimeline title="Run 4821, update the pricing page" steps={STEPS} span={SPAN} time={time} status={started ? undefined : 'Starting'} />
+      <AgentRunTimeline title="Run 4821, update the pricing page" steps={STEPS} span={SPAN} time={time} status={!started ? 'Starting' : time === undefined ? 'Opened a PR and posted to Slack' : undefined} />
     </div>
   );
 }
@@ -115,7 +115,8 @@ export default function AgentRunTimelineDemo() {
 | `time` (optional) | `number` | Seconds into the run. Bars grow up to it and the playhead sits on it. Leave it out once the run has finished |
 | `span` (optional) | `number` | Seconds the axis covers. Defaults to the end of the last step, rounded up to a multiple of 4 |
 | `ticks` (optional) | `number[]` | Labels on the axis, in seconds. Defaults to quarters of the span |
-| `status` (optional) | `string` | The line under the title. Defaults to the steps running now, then "Finished in 11.4s" |
+| `status` (optional) | `string` | The line under the title. Defaults to the steps running now and, once the run is done, the last ones that ran. Say what the run did here when it ends; the totals under the chart already give its time and retries |
+| `icon` (optional) | `IconName` | The neutral mark in the head's tile, in the steps' icon column. Defaults to a bolt |
 | `stats` (optional) | `TimelineStat[]` | The figures in the footer once the run is done. Defaults to the total time, cost, steps and retries, which count up while it plays |
 | `kindLabels` (optional) | `Partial<Record<StepKind, string>>` | The names of the kinds in the key. Defaults to Model, Tools and Apps |
 | `bare` (optional) | `boolean` | Draws its own container (the default, as on designme.dev). Set true to sit it flat in a chat thread |
@@ -212,8 +213,11 @@ export interface AgentRunTimelineProps {
   span?: number;
   /** Labels on the axis, in seconds. Defaults to quarters of the span */
   ticks?: number[];
-  /** The line under the title. Defaults to the steps running now, then "Finished in 11.4s" */
+  /** The line under the title. Defaults to the steps running now and, once the run is done, the last ones that ran. Say
+      what the run did here when it ends; the totals under the chart already give its time and retries */
   status?: string;
+  /** The neutral mark in the head's tile, in the steps' icon column. Defaults to a bolt */
+  icon?: IconName;
   /** The figures in the footer once the run is done. Defaults to the total time, cost, steps and retries, which count up while it plays */
   stats?: TimelineStat[];
   /** The names of the kinds in the key. Defaults to Model, Tools and Apps */
@@ -260,7 +264,7 @@ const secs = (n: number) => String(+n.toFixed(1));
 type State = 'wait' | 'run' | 'done' | 'fail';
 
 /** A run drawn as a Gantt chart: every step as a bar in its kind's colour on a shared time axis, with a playhead while it runs. */
-export function AgentRunTimeline({ title, steps, time, span, ticks, status, stats, kindLabels, bare = false, className }: AgentRunTimelineProps) {
+export function AgentRunTimeline({ title, steps, time, span, ticks, status, stats, kindLabels, icon = 'bolt', bare = false, className }: AgentRunTimelineProps) {
   const end = Math.max(0, ...steps.map(s => s.start + s.duration));
   const T = span ?? Math.max(4, Math.ceil(end / 4) * 4);
   const done = time === undefined || time >= T;
@@ -275,7 +279,7 @@ export function AgentRunTimeline({ title, steps, time, span, ticks, status, stat
   const last = useRef('');
   if (now) last.current = now;
   const retries = steps.filter(s => s.failed && t >= s.start + s.duration).length;
-  const line = status ?? (done ? `Finished in ${end.toFixed(1)}s${steps.some(s => s.failed) ? `, ${retries} ${retries === 1 ? 'retry' : 'retries'}` : ''}` : now || last.current || 'Starting');
+  const line = status ?? (done ? last.current || steps.filter(s => s.start + s.duration >= end).map(s => s.label).join(', ') : now || last.current || 'Starting');
   // the footer counts up with the playhead, so it is there from the start and never pops in at the end
   const started = steps.filter(s => t >= s.start), hasRetries = steps.some(s => s.failed), n = started.length;
   const ran = (s: TimelineStep) => Math.max(0, Math.min(s.duration, t - s.start));
@@ -304,6 +308,7 @@ export function AgentRunTimeline({ title, steps, time, span, ticks, status, stat
   return (
     <div data-dm="" className={cx('dm-art', !bare && 'dm-panel', done ? 'dm-fin' : 'dm-live', className)} style={bare ? { paddingInline: 0 } : undefined}>
       <div className="dm-art-h">
+        <span className="dm-art-hi" aria-hidden="true"><Icon name={icon} size="xs" /></span>
         <div className="dm-art-hd">
           <div className="dm-art-t">{title}</div>
           <Status className={cx('dm-art-s dm-num', done ? 'dm-muted' : 'dm-shim')} text={line} instant={!done} />
@@ -371,7 +376,7 @@ export function AgentRunTimeline({ title, steps, time, span, ticks, status, stat
 - [Context meter](https://designme.dev/components/context-meter.md): How full the context is and what fills it, with Compact to free room.
 - [Run cost](https://designme.dev/components/run-cost.md): Live credit and token spend, with a cap that pauses the run.
 - [Toast stack](https://designme.dev/components/toast-stack.md): Agent notifications that stack and fan out on hover.
-- [Toast](https://designme.dev/components/toast.md): One notification that changes shape with its state.
+- [Toast](https://designme.dev/components/toast.md): A background job in one toast, from start to finish.
 - [Status pill](https://designme.dev/components/status-pill.md): One live line for what the agent is doing right now.
 - [Step loader](https://designme.dev/components/step-loader.md): Named steps with a progress track and four loaders.
 - [Thinking states](https://designme.dev/components/thinking-states.md): Six thinking indicators to pick from, each with a status line.

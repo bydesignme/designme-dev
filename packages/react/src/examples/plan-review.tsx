@@ -35,7 +35,7 @@ export default function PlanReviewDemo() {
       for (let i = 0; i < on.length && !stop.current; i++) {
         const s = on[i], plan = DONE.get(s.id);
         let done = !plan ? 'Done' : s.edited ? 'Done as you wrote it' : plan.done;
-        mark(s.id, { state: 'run' }); setStatus(`Step ${i + 1} of ${on.length}`); await wait(900);
+        mark(s.id, { state: 'run' }); setStatus(`About ${Math.max(1, Math.round((on.length - i) * .8))} min left`); await wait(900);
         // the second step hits a rate limit: the agent waits it out, counting down, and tries again
         if (s.id === 's1') {
           for (let k = 3; k > 0 && !stop.current; k--) { mark(s.id, { state: 'retry', detail: `Rate limited by the browser tool. Retrying in ${k}s` }); await wait(1000); }
@@ -60,10 +60,11 @@ export default function PlanReviewDemo() {
     stop.current = false; setNote(undefined); setPhase('running');
   });
 
+  // the header's clock runs while the agent works; a finished plan has none (owner, 18 Nov), its status line says how long it took
   return (
     <div ref={ref} style={{ width: '100%' }}>
       <PlanReview title="Plan: redesign the pricing page" steps={steps} onStepsChange={setSteps} phase={phase} status={status} note={note}
-        meta={ms === undefined ? undefined : clock(ms)}
+        meta={ms === undefined || phase === 'done' ? undefined : clock(ms)}
         onRequestChanges={() => setNote('Tell the agent what to change in chat')}
         onApprove={() => { stop.current = false; setNote(undefined); setPhase('running'); }}
         onStop={() => { stop.current = true; }} onSeeChanges={() => {}} />

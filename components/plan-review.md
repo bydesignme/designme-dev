@@ -2,7 +2,7 @@
 
 > Check the agent's plan, edit steps, then let it run.
 
-Agent components / Review and approve. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/plan-review
+Components / Review and approve. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/plan-review
 
 ## Install
 
@@ -34,13 +34,13 @@ Plan review shows the plan an agent proposes before it starts work, as a numbere
 
 ### What it does
 
-- Three phases: `review` lets people edit steps, `running` shows progress and a Stop button, and `done` shows See changes.
+- Three phases: `review` lets people edit steps, `running` shows progress and a Stop button (the footer has no line of its own then), and `done` shows See changes. In Soft and Blueprint the footer sits under a hairline divider in every phase; in Clean it is the card's off-white foot strip.
 - In review, clicking a step makes its text editable. Enter saves it, and the step is marked as edited only if the words really changed.
 - Each step has a skip button. Skipped steps stay in the list, struck through, and lose their number until they are included again.
 - Add a step appends a new row and puts the cursor in it with the text selected.
-- Steps can show `state: 'run'` while the agent works on them, with a spinner and a shimmer on the text, `'retry'` in amber while it waits out a problem like a rate limit, and a check once `done`.
+- Steps can show `state: 'run'` while the agent works on them, with a spinner and a highlight sweeping across the text (and across its `detail`, like "Retrying"), `'retry'` in amber while it waits out a problem like a rate limit, and a check once `done`. The step's number, spinner, clock and tick crossfade into one another.
 - Each step can report a `detail` line under it, like "6 frames and 42 tokens read". It opens under the step and crossfades when it changes.
-- The status line defaults to how many steps are left in and about how many minutes they take. `status` and `note` replace the defaults. `meta` adds quiet text at the end of the header, like an elapsed time.
+- The status line defaults to about how many minutes the steps left in take (the list shows how many there are). `status` and `note` replace the defaults. `meta` adds quiet text at the end of the header, like an elapsed time while the agent works; the demo clears it once the run is over, as a finished plan shows no clock. While `phase` is `running` the status line has the same sweep.
 
 ### Accessibility
 
@@ -94,7 +94,7 @@ export default function PlanReviewDemo() {
       for (let i = 0; i < on.length && !stop.current; i++) {
         const s = on[i], plan = DONE.get(s.id);
         let done = !plan ? 'Done' : s.edited ? 'Done as you wrote it' : plan.done;
-        mark(s.id, { state: 'run' }); setStatus(`Step ${i + 1} of ${on.length}`); await wait(900);
+        mark(s.id, { state: 'run' }); setStatus(`About ${Math.max(1, Math.round((on.length - i) * .8))} min left`); await wait(900);
         // the second step hits a rate limit: the agent waits it out, counting down, and tries again
         if (s.id === 's1') {
           for (let k = 3; k > 0 && !stop.current; k--) { mark(s.id, { state: 'retry', detail: `Rate limited by the browser tool. Retrying in ${k}s` }); await wait(1000); }
@@ -119,10 +119,11 @@ export default function PlanReviewDemo() {
     stop.current = false; setNote(undefined); setPhase('running');
   });
 
+  // the header's clock runs while the agent works; a finished plan has none (owner, 18 Nov), its status line says how long it took
   return (
     <div ref={ref} style={{ width: '100%' }}>
       <PlanReview title="Plan: redesign the pricing page" steps={steps} onStepsChange={setSteps} phase={phase} status={status} note={note}
-        meta={ms === undefined ? undefined : clock(ms)}
+        meta={ms === undefined || phase === 'done' ? undefined : clock(ms)}
         onRequestChanges={() => setNote('Tell the agent what to change in chat')}
         onApprove={() => { stop.current = false; setNote(undefined); setPhase('running'); }}
         onStop={() => { stop.current = true; }} onSeeChanges={() => {}} />
@@ -140,7 +141,7 @@ export default function PlanReviewDemo() {
 | `defaultSteps` (optional) | `PlanReviewStep[]` |  |
 | `onStepsChange` (optional) | `(steps: PlanReviewStep[]) => void` |  |
 | `phase` (optional) | `PlanPhase` | review (steps can be edited), running (the agent works through them) or done |
-| `status` (optional) | `string` | The line under the title. Defaults to how many steps are left in and roughly how long they take |
+| `status` (optional) | `string` | The line under the title. Defaults to roughly how long the steps left in take (the list shows how many there are) |
 | `note` (optional) | `string` | The quiet line in the footer. Defaults to a hint for each phase |
 | `meta` (optional) | `ReactNode` | Quiet text at the end of the header, like an elapsed time "0:04" |
 | `onApprove` (optional) | `() => void` |  |
@@ -189,7 +190,8 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { Spin, Swap, Think, Tip, useGrow } from '../lib/motion';
+import { Spin, Swap, SwapIcon, Think, Tip, useGrow } from '../lib/motion';
+import { useHoverGlide } from '../lib/glide';
 import '../designme.css';
 import './plan-review.css';
 
@@ -217,7 +219,7 @@ export interface PlanReviewProps {
   onStepsChange?: (steps: PlanReviewStep[]) => void;
   /** review (steps can be edited), running (the agent works through them) or done */
   phase?: PlanPhase;
-  /** The line under the title. Defaults to how many steps are left in and roughly how long they take */
+  /** The line under the title. Defaults to roughly how long the steps left in take (the list shows how many there are) */
   status?: string;
   /** The quiet line in the footer. Defaults to a hint for each phase */
   note?: string;
@@ -232,11 +234,15 @@ export interface PlanReviewProps {
   className?: string;
 }
 
-const NOTE: Record<PlanPhase, string> = { review: 'Click a step to edit it', running: 'Running the approved plan', done: '' };
+// the foot never repeats the head: while the plan runs it has only Stop (owner, 18 Nov)
+const NOTE: Record<PlanPhase, string> = { review: 'Click a step to edit it', running: '', done: '' };
 let added = 0;
 
 /** A plan the agent proposes before it starts: edit a step, skip it, add one, then approve. */
 export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, phase = 'review', status, note, meta, onApprove, onRequestChanges, onStop, onSeeChanges, bare = false, className }: PlanReviewProps) {
+  // Clean's one hover glides from step to step
+  const listRef = useRef<HTMLOListElement>(null);
+  useHoverGlide(listRef, '.dm-plx-s');
   const [list, setList] = useControllable(steps, defaultSteps, onStepsChange);
   const live = useRef(list);
   useEffect(() => { live.current = list; });
@@ -262,14 +268,14 @@ export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, pha
   const [growRef, growIn] = useGrow();
 
   return (
-    <div data-dm="" ref={growRef} className={cx('dm-plx', 'dm-growing', !bare && 'dm-panel', className)}>
+    <div data-dm="" ref={growRef} className={cx('dm-plx', 'dm-growing dm-mx-grow', !bare && 'dm-panel', className)}>
       <div className="dm-grow" ref={growIn}>
       <div className="dm-plx-h">
         <Think on={phase === 'running'} className="dm-plx-mk" />
-        <div className="dm-plx-ht"><b>{title}</b><Swap className="dm-muted dm-plx-st">{status ?? `${included.length} steps, about ${Math.max(1, Math.round(included.length * .8))} min`}</Swap></div>
+        <div className="dm-plx-ht"><b>{title}</b><Swap className={cx('dm-muted dm-plx-st', phase === 'running' && 'dm-shim')}>{status ?? `About ${Math.max(1, Math.round(included.length * .8))} min`}</Swap></div>
         {meta !== undefined && <span className="dm-plx-tm dm-num">{meta}</span>}
       </div>
-      <ol className="dm-plx-list">
+      <ol ref={listRef} className="dm-plx-list dm-mx-glide dm-mx-ic">
         {list.map((s, i) => {
           const num = s.skipped ? '–' : String(++n);
           const entering = !entered.has(s.id);
@@ -277,7 +283,7 @@ export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, pha
             <li key={s.id} className={cx('dm-plx-s', entering && 'dm-enter', s.skipped && 'dm-off', s.state && 'dm-' + s.state, s.edited && 'dm-edited')}
               style={entering ? { animationDelay: (first.current.has(s.id) ? 100 + i * 60 : 0) + 'ms' } : undefined}
               onAnimationEnd={e => { if (e.target === e.currentTarget) setEntered(prev => new Set(prev).add(s.id)); }}>
-              <span className="dm-n">{s.state === 'done' ? <Icon name="check" size="xs" /> : s.state === 'run' ? <Spin /> : s.state === 'retry' ? <Icon name="clock" size="xs" /> : num}</span>
+              <span className="dm-n">{s.state ? <SwapIcon id={s.state}>{s.state === 'done' ? <Icon name="check" size="xs" /> : s.state === 'run' ? <Spin /> : s.state === 'retry' ? <Icon name="clock" size="xs" /> : num}</SwapIcon> : num}</span>
               <span className="dm-b">
               <span className={cx('dm-t', s.state === 'run' && 'dm-shim')} ref={el => { if (el) textRefs.current.set(s.id, el); else textRefs.current.delete(s.id); }}
                 contentEditable={editable} suppressContentEditableWarning spellCheck={false} role={editable ? 'textbox' : undefined} aria-label={editable ? `Step ${num}` : undefined}
@@ -285,12 +291,12 @@ export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, pha
                 onBlur={e => { const text = e.currentTarget.textContent ?? ''; if (text !== s.text) update(s.id, { text, edited: text.trim() !== original.current.get(s.id) }); }}>
                 {s.text}
               </span>
-              <span className={cx('dm-d', s.detail && 'dm-on', s.state === 'retry' && 'dm-warn')}><Swap>{s.detail ?? ''}</Swap></span>
+              <span className={cx('dm-d', s.detail && 'dm-on', s.state === 'retry' && 'dm-warn')}><Swap className={s.state === 'run' && s.detail ? 'dm-shim' : undefined}>{s.detail ?? ''}</Swap></span>
               </span>
               {editable && (
                 <Tip label={s.skipped ? 'Include step' : 'Skip step'}>
-                  <button type="button" className="dm-ib dm-plx-x" aria-label={s.skipped ? 'Include step' : 'Skip step'} onClick={() => update(s.id, { skipped: !s.skipped })}>
-                    <Icon name={s.skipped ? 'undo' : 'x'} size="xs" />
+                  <button type="button" className="dm-ib dm-plx-x dm-mx-press" aria-label={s.skipped ? 'Include step' : 'Skip step'} onClick={() => update(s.id, { skipped: !s.skipped })}>
+                    <SwapIcon id={s.skipped ? 'undo' : 'x'}><Icon name={s.skipped ? 'undo' : 'x'} size="xs" /></SwapIcon>
                   </button>
                 </Tip>
               )}
@@ -306,11 +312,11 @@ export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, pha
       <div className="dm-plx-f" key={phase}>
         <Swap className="dm-muted dm-plx-n">{note ?? NOTE[phase]}</Swap>
         {phase === 'review' && <>
-          <button type="button" className="dm-pill dm-ghost dm-sm dm-plx-chg" onClick={onRequestChanges}>Ask for changes</button>
+          <button type="button" className="dm-pill dm-ghost dm-sm dm-plx-chg dm-mx-press" onClick={onRequestChanges}>Ask for changes</button>
           <button type="button" className="dm-pill dm-primary dm-sm dm-plx-go" onClick={onApprove}>Approve plan</button>
         </>}
-        {phase === 'running' && <button type="button" className="dm-pill dm-ghost dm-sm dm-plx-stop dm-enter" style={{ animationDelay: '50ms' }} onClick={onStop}><Icon name="stop" size="xs" />Stop</button>}
-        {phase === 'done' && <button type="button" className="dm-pill dm-soft dm-sm dm-enter" onClick={onSeeChanges}><Icon name="eye" size="xs" />See changes</button>}
+        {phase === 'running' && <button type="button" className="dm-pill dm-ghost dm-sm dm-plx-stop dm-mx-press dm-enter" style={{ animationDelay: '50ms' }} onClick={onStop}><Icon name="stop" size="xs" />Stop</button>}
+        {phase === 'done' && <button type="button" className="dm-pill dm-line dm-sm dm-mx-press dm-enter" onClick={onSeeChanges}><Icon name="eye" size="xs" />See changes</button>}
       </div>
       </div>
     </div>
@@ -322,10 +328,6 @@ export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, pha
 
 - [Permission gate](https://designme.dev/components/permission-gate.md): The agent asks before it touches something new.
 - [Decision prompt](https://designme.dev/components/decision-prompt.md): The agent asks a few quick questions before it starts.
-- [Proposal card](https://designme.dev/components/proposal-card.md): A suggested change with confidence, alternatives and undo.
-- [Rewrite toolbar](https://designme.dev/components/rewrite-toolbar.md): Select a sentence and let the agent rewrite it in place.
 - [Inline text diff](https://designme.dev/components/inline-text-diff.md): The agent's edits to a piece of copy, accepted or rejected one by one.
-- [Draft review](https://designme.dev/components/draft-review.md): An email the agent drafted, to check and edit before it sends.
-- [Eval results](https://designme.dev/components/eval-results.md): An eval run case by case, against the run before.
 
 All components: https://designme.dev/llms.txt

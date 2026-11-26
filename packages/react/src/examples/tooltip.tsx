@@ -24,7 +24,7 @@ export default function TooltipDemo() {
   });
   return (
     <div ref={ref} style={{ width: '100%' }} onPointerEnter={() => { touched.current = true; setTip(undefined); setCard(c => (c ? null : c)); }}>
-      <Tooltip people={PEOPLE} openTip={tip} openCard={card} note="Labels wait a moment, then follow you instantly between buttons." />
+      <Tooltip people={PEOPLE} openTip={tip} openCard={card} />
     </div>
   );
 }

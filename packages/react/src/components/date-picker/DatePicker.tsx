@@ -5,6 +5,7 @@ import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
 import { Swap } from '../../lib/motion';
+import { useHoverGlide } from '../../lib/glide';
 import { usePopover } from '../../lib/popover';
 import '../../designme.css';
 import './date-picker.css';
@@ -92,6 +93,9 @@ export function DatePicker({
 
   // arrow keys move the focus a day or a week, across months too
   const grid = useRef<HTMLDivElement>(null);
+  // Clean's one hover: a neutral circle that glides from day to day
+  const vp = useRef<HTMLDivElement>(null);
+  useHoverGlide(vp, '.dm-dpk-d', { keep: '.dm-s' });
   const [focus, setFocus] = useState<string | null>(null);
   useIsoLayoutEffect(() => {
     if (!focus) return;
@@ -131,7 +135,7 @@ export function DatePicker({
           <button type="button" className="dm-ib dm-dpk-nx" aria-label="Next month" onClick={() => setView(startOfMonth(new Date(view.getFullYear(), view.getMonth() + 1, 1)))}><Icon name="chev-r" size="xs" /></button>
         </div>
         <div className="dm-dpk-wd dm-muted" aria-hidden="true">{weekdayNames(locale, weekStartsOn).map((w, i) => <span key={i}>{w}</span>)}</div>
-        <div className="dm-dpk-vp">
+        <div ref={vp} className="dm-dpk-vp">
           <div key={viewKey} ref={grid} className={cx('dm-dpk-g', dir < 0 && 'dm-in-l', dir > 0 && 'dm-in-r')} onKeyDown={keys}>
             {monthGrid(view, weekStartsOn).map(d => (
               <button type="button" key={isoDay(d)} data-date={isoDay(d)}

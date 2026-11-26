@@ -1,9 +1,9 @@
 'use client';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { cx } from '../../lib/cx';
-import { useControllable } from '../../lib/hooks';
+import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { enter, Fold, Seg, Spin, Swap } from '../../lib/motion';
+import { enter, Fold, Seg, Spin, Swap, useGrow } from '../../lib/motion';
 import '../../designme.css';
 import './eval-results.css';
 
@@ -69,6 +69,17 @@ function Glyph({ status }: { status: EvalStatus }) {
   );
 }
 
+/** A button whose words change ("Run evals", "Running", "Run again") is as wide as its words and eases to its new width */
+function useEaseWidth(key: unknown) {
+  const ref = useRef<HTMLButtonElement>(null), w = useRef(0), was = useRef<HTMLElement | null>(null), reduce = useReducedMotion();
+  useIsoLayoutEffect(() => {
+    const b = ref.current; if (!b) return;
+    const w1 = b.getBoundingClientRect().width, w0 = was.current === b ? w.current : 0, cs = getComputedStyle(b); w.current = w1; was.current = b;
+    if (w0 && !reduce && Math.abs(w1 - w0) > .5) b.animate([{ width: w0 + 'px' }, { width: w1 + 'px' }], { duration: (parseFloat(cs.getPropertyValue('--dm-t')) || .34) * 1000, easing: cs.getPropertyValue('--dm-ease').trim() || 'ease' });
+  }, [key]);
+  return ref;
+}
+
 const SEG: Record<EvalStatus, string | undefined> = { queued: undefined, running: 'dm-run', pass: 'dm-pass', fail: 'dm-fail' };
 
 /** An eval suite's latest run: a bar segment per case, the pass count against the run before, and the cases, all or only
@@ -82,13 +93,19 @@ export function EvalResults({ title, subtitle, cases, onRun, running = false, ru
   const delta = !settled || running || previousPassed === undefined ? '' : passed === cases.length ? 'All passing'
     : passed < previousPassed ? `${previousPassed - passed} fewer than the last run` : passed > previousPassed ? `${passed - previousPassed} more than the last run` : '';
   const dl = delta ? enter() : undefined;
+  // a case running on its own while the suite is not (a fix being checked) stays in the Failed view until it has its result
+  const again = (k: EvalCase) => k.status === 'running' && !running;
+  // no room is kept for the cases a filter hides or the empty state: the card eases to what it shows (as grow() on the site)
+  const [root, inner] = useGrow();
+  const runBtn = useEaseWidth(running ? 'running' : runLabel);
 
   return (
-    <div data-dm="" className={cx('dm-evr dm-panel', className)}>
+    <div data-dm="" ref={root} className={cx('dm-evr dm-panel dm-growing', className)}>
+      <div ref={inner} className="dm-grow">
       <div className="dm-evr-h">
         <div className="dm-evr-ht"><b>{title}</b>{subtitle && <Swap className="dm-muted dm-evr-st">{subtitle}</Swap>}</div>
         {onRun && (
-          <button type="button" className="dm-pill dm-primary dm-sm dm-evr-run" disabled={running} onClick={onRun}>
+          <button ref={runBtn} type="button" className="dm-pill dm-primary dm-sm dm-evr-run" disabled={running} onClick={onRun}>
             {running ? <><Spin />Running</> : <><Icon name="play" size="xs" />{runLabel}</>}
           </button>
         )}
@@ -96,7 +113,7 @@ export function EvalResults({ title, subtitle, cases, onRun, running = false, ru
       <div className="dm-evr-sum">
         <div className="dm-evr-segs" aria-hidden="true">{cases.map(k => <i key={k.id} className={SEG[k.status]} />)}</div>
         <div className="dm-evr-nums">
-          <span aria-live="polite"><Swap className="dm-evr-pass dm-num">{count}</Swap></span>
+          <span aria-live="polite"><Swap className={cx('dm-evr-pass dm-num', !settled && 'dm-shim')}>{count}</Swap></span>
           {delta && <span key={delta} className={cx('dm-tag dm-evr-dl', passed < (previousPassed ?? 0) ? 'dm-bad' : 'dm-ok', dl?.className)} style={dl?.style}>{delta}</span>}
         </div>
       </div>
@@ -111,7 +128,7 @@ export function EvalResults({ title, subtitle, cases, onRun, running = false, ru
           const fail = k.status === 'fail', isOpen = fail && opened.includes(k.id);
           const meta = <><Glyph status={k.status} /><span className="dm-evr-n">{k.name}</span><span className="dm-evr-tm dm-num">{k.status === 'pass' || fail ? k.time : ''}</span></>;
           return (
-            <Fold key={k.id} open={show === 'all' || fail} className="dm-evr-w">
+            <Fold key={k.id} open={show === 'all' || fail || again(k)} className="dm-evr-w">
               <div className={cx('dm-evr-i', `dm-${k.status}`)} role="listitem">
                 {fail ? (
                   <>
@@ -133,7 +150,13 @@ export function EvalResults({ title, subtitle, cases, onRun, running = false, ru
           );
         })}
       </div>
-      {show === 'fail' && !failed && <p className="dm-evr-none">No failed cases</p>}
+      {show === 'fail' && !failed && !cases.some(again) && (
+        <div className="dm-evr-em dm-evr-none">
+          <span className="dm-evr-em-art" aria-hidden="true" /><b>No failed cases</b><span>Every case passed in this run.</span>
+          <button type="button" className="dm-pill dm-line dm-sm" onClick={() => setShow('all')}>Show all cases</button>
+        </div>
+      )}
+      </div>
     </div>
   );
 }

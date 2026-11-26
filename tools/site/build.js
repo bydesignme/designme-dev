@@ -108,14 +108,47 @@ NEW.splice(0, NEW.length, ...NEW.filter(x => soft.includes(`data-c="${x.id}" id=
 for (const x of NEW){ MAP[x.cid] = x.id; EXTRA.push({ cid:x.cid, id:x.id, reg:x.id, title:x.title, section:x.section, after:x.after, icon:x.icon }); }
 /* the components taken out of the library (owner, 16 Nov: launch with fewer, each one polished). Their cards leave the page:
    a card cut from one of them is cut from the card that one was cut from, and the original page's cards for them go once
-   the new cards are in place. Their registry entries go with them (the registry build below drops entries with no card) */
-const REMOVED = new Set(['thread-panel', 'image-generation', 'tool-call', 'voice-capture', 'voice-orb', 'prompt-starters', 'prompt-library',
-  'browser-session', 'run-summary', 'agent-phases', 'action-log', 'run-queue', 'error-recovery', 'change-review', 'human-handoff', 'design-tuner',
-  'launch-checklist', 'steering', 'design-review', 'code-viewer', 'field-extraction', 'step-inspector', 'model-compare', 'color-picker', 'onboarding-checklist']);
-const DROP = Object.keys(MAP).filter(cid => REMOVED.has(MAP[cid]));
-for (const x of EXTRA){ let a = EXTRA.find(y => y.cid === x.after); while (a && REMOVED.has(a.id)){ x.after = a.after; a = EXTRA.find(y => y.cid === x.after); } }
-EXTRA.splice(0, EXTRA.length, ...EXTRA.filter(x => !REMOVED.has(x.id)));
+   the new cards are in place. Their registry entries go with them (the registry build below drops entries with no card).
+   Eight came back on 23 Nov for their Clean designs (owner): Hand-off to a person, Steering, Browser session, Voice orb, Image
+   generation, Tool call, Code viewer and Design tuner; they stay unlisted until they are live */
+const REMOVED = new Set(['thread-panel', 'voice-capture', 'prompt-starters', 'prompt-library', 'run-summary', 'agent-phases', 'action-log',
+  'run-queue', 'error-recovery', 'change-review', 'launch-checklist', 'design-review', 'field-extraction', 'step-inspector', 'model-compare',
+  'color-picker', 'onboarding-checklist']);
+/* ---------- what is live (owner, 24 Nov): live.js names the components the site lists and publishes, by registry name. The
+   others keep their code (soft-2/index.html, the React package, the docs content) but leave the page as the trimmed ones above
+   do: no card, no sidebar link, no search hit, no registry entry, no page. Their registry entries are still written, to
+   tools/pages/data/unlisted (never served), for the templates made of them and the React package's styles ---------- */
+const LIVE = new Set(require('./live.js'));
+const slugOf = n => n.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+// each card of the original page: its title and the name of its section
+const SITE_TITLE = {}, SITE_SECTION = {}, SITE_SECTIONS = [];
+for (const [, body] of site.matchAll(/<section class="lib-sec" id="[\w-]+">([\s\S]*?)<\/section>/g)){
+  const sec = (body.match(/<h2>([^<]*)<\/h2>/) || [])[1]; SITE_SECTIONS.push(sec);
+  for (const m of body.matchAll(/<article[^>]*\bid="(c\d+)"[^>]*>[\s\S]*?class="comp-title">([^<]*)</g)){ SITE_TITLE[m[1]] = m[2]; SITE_SECTION[m[1]] = sec; }
+}
+// every component with a card, by its card id: its registry name (what /components/<name> and npx designme add use), title and
+// section. A new card's are its own; an original card's name is its title's
+const ALL = {};
+for (const [cid, id] of Object.entries(MAP)){
+  if (REMOVED.has(id) || !soft.includes(`data-c="${id}" id="c-${id}"`)) continue;
+  const x = EXTRA.find(e => e.cid === cid);
+  ALL[cid] = x ? { id, reg:x.reg, title:x.title, section:x.section } : { id, reg:slugOf(SITE_TITLE[cid] || ''), title:SITE_TITLE[cid], section:SITE_SECTION[cid] };
+}
+{ const known = new Set(Object.values(ALL).map(x => x.reg)), miss = [...LIVE].filter(n => !known.has(n));
+  if (miss.length) throw new Error('live.js names components with no card in soft-2/index.html: ' + miss.join(', ')); }
+const UNLISTED = Object.keys(ALL).filter(cid => !LIVE.has(ALL[cid].reg));
+// off the page: the trimmed components and the ones not live yet
+const OFF = new Set([...REMOVED, ...UNLISTED.map(cid => ALL[cid].id)]);
+const DROP = Object.keys(MAP).filter(cid => OFF.has(MAP[cid]));
+for (const x of EXTRA){ let a = EXTRA.find(y => y.cid === x.after); while (a && OFF.has(a.id)){ x.after = a.after; a = EXTRA.find(y => y.cid === x.after); } }
+EXTRA.splice(0, EXTRA.length, ...EXTRA.filter(x => !OFF.has(x.id)));
 DROP.forEach(cid => delete MAP[cid]);
+const ON = new Set(Object.values(MAP));
+/* the library's two sets, Agent components and App basics, each with its own tab, sidebar label and counts in the copy, only
+   once two or more app basics are live (owner, 24 Nov: at launch, with one, it is one list). Below that, the app basics sit
+   in the one list after the agent components, numbered on from them, and the copy gives one count */
+const SPLIT_AT = 2;
+let SPLIT = true;
 
 /* ---------- read the Soft 2 page ---------- */
 const cssA = soft.indexOf('<style>\n[hidden]') + '<style>'.length;
@@ -509,8 +542,10 @@ const heightsOf = id => !HEIGHTS || !HEIGHTS.heights[id] ? '' : ` style="${HEIGH
 for (const [a, b, n] of [
   ["React and Tailwind versions are in progress, and you can follow them on the <a href=\"#/roadmap\">roadmap</a>. Sign up and you will get them as soon as they land.",
    "Yes. Every component comes in HTML, React and Astro: run npx designme add with the component name and <span class=\"nowrap\">--react</span> or <span class=\"nowrap\">--astro</span>, and the component lands in your project with its styles. The React version works in Next.js and React apps, and the shadcn CLI can add either one. To give them your shadcn/ui or Tailwind v4 theme, add the theme bridge with <span class=\"nowrap\">--theme-bridge</span>. A version styled with Tailwind classes is in progress on the <a href=\"#/roadmap\">roadmap</a>.", null],
+  // the live roadmap's 'react' idea (React and Tailwind versions) is the Tailwind part now: the roadmap's own list renames it,
+  // and the live list takes its words from here (make-patches.py)
   ["['react','React and Tailwind versions','Every component as a typed React component styled with Tailwind.','progress','Code'],",
-   "['react','React components','Every component as a typed React component for Next.js, React and Astro, with npx designme add <name> --react.','shipped','Code'],\n      ['astro','Astro components','Every component as an Astro component, with npx designme add <name> --astro.','shipped','Code'],\n      ['tailwind','Tailwind versions','Every component styled with Tailwind classes instead of its own CSS.','progress','Code'],", 1]
+   "['react','Tailwind versions','Every component styled with Tailwind classes instead of its own CSS.','progress','Code'],\n      ['reactc','React components','Every component as a typed React component for Next.js, React and Astro, with npx designme add <name> --react.','shipped','Code'],\n      ['astro','Astro components','Every component as an Astro component, with npx designme add <name> --astro.','shipped','Code'],", 1]
 ]) {
   const count = site.split(a).length - 1;
   if (!count || (n && count !== n)) throw new Error('React copy not found: ' + a.slice(0, 50));
@@ -536,8 +571,11 @@ const done = [];
 // pairs its half-width cards evenly; NARROW ones were wide on the old site but are narrow components
 const REG_ITEMS = REGDIR ? JSON.parse(fs.readFileSync(path.join(REGDIR, 'index.json'), 'utf8')).items : [];
 // 16 Nov: after the trim each section keeps an even number of half-width cards: Web search, Data picker, Carousel and Stepper
-// (in a wide container, owner) take a full row, and Plan review is wide again
-const STRETCH = ['web-search', 'data-picker', 'carousel', 'stepper'];
+// (in a wide container, owner) take a full row, and Plan review is wide again. Code viewer, back on 23 Nov, stretches as it did
+const STRETCH = ['code-viewer', 'web-search', 'data-picker', 'carousel', 'stepper'];
+// 24 Nov: at launch (live.js) Conversation has seven half-width cards, so Live answer, its first, takes the full row and the
+// other six pair up. The build warns when a section's half-width cards don't pair up (below, after the launch row)
+STRETCH.push('live-answer');
 const NARROW = ['form', 'payment-form'];
 main = main.replace(/<article([^>]*\bid="(c\d+)"[^>]*)>([\s\S]*?)<\/article>/g, (all, attrs, cid, body) => {
   const id = MAP[cid]; if (!id) return all;
@@ -588,7 +626,7 @@ main = main.replace(/<article([^>]*\bid="(c\d+)"[^>]*)>([\s\S]*?)<\/article>/g, 
   attrs = attrs.replace(/class="comp( wide)?"/, wide ? 'class="comp wide"' : 'class="comp"');
   // the registry name the install command and the React code view need; a title doesn't always spell it
   const extra = EXTRA.find(x => x.cid === cid);
-  const title = (body.match(/class="comp-title">([^<]*)</) || [])[1] || '', reg = (extra && extra.reg) || (REG_ITEMS.find(x => x.title === title) || {}).name || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const title = (body.match(/class="comp-title">([^<]*)</) || [])[1] || '', reg = (ALL[cid] || {}).reg || (extra && extra.reg) || (REG_ITEMS.find(x => x.title === title) || {}).name || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   if (HEIGHTS && !HEIGHTS.heights[id]) warn.push('no measured height for ' + id + ': run measure-heights.js');
   return `<article${attrs} data-v2="${id}" data-reg="${reg}"${heightsOf(id)}>${body}</article>`;
 });
@@ -596,10 +634,11 @@ main = main.replace(/<article([^>]*\bid="(c\d+)"[^>]*)>([\s\S]*?)<\/article>/g, 
    with what shows off an agent best. A wide card goes after an even number of half-width ones, so rows stay full ---------- */
 const SECTIONS_FIRST = ['s-conversation', 's-status'], GRP = {};
 const ORDER = {
-  's-conversation': ['live-answer', 'composer', 'artifact-card', 'rich-text-editor', 'answer-action-bar', 'response-versions', 'model-picker', 'attachment-tray', 'feedback-sheet'],
-  's-status': ['thinking', 'reasoning-trail', 'agent-lanes', 'agent-tree', 'agent-inbox', 'trace-view', 'agent-run-timeline', 'context-meter', 'run-cost', 'toast-stack', 'toast', 'status-pill', 'step-loader'],
-  's-review': ['plan-review', 'permission-gate', 'decision-prompt', 'proposal-card', 'rewrite-toolbar', 'inline-text-diff', 'draft-review', 'eval-results'],
-  's-data': ['terminal-stream', 'citation-hover', 'source-stack', 'metric-insight', 'details-panel', 'task-table'],
+  's-conversation': ['live-answer', 'composer', 'artifact-card', 'rich-text-editor', 'tool-call', 'voice-orb', 'answer-action-bar', 'response-versions', 'model-picker', 'attachment-tray', 'feedback-sheet'],
+  's-status': ['thinking', 'reasoning-trail', 'agent-lanes', 'agent-tree', 'agent-inbox', 'trace-view', 'browser-session', 'agent-run-timeline', 'context-meter', 'run-cost', 'toast-stack', 'toast', 'status-pill', 'step-loader'],
+  's-review': ['plan-review', 'permission-gate', 'human-handoff', 'decision-prompt', 'proposal-card', 'design-tuner', 'rewrite-toolbar', 'inline-text-diff',
+    'draft-review', 'steering', 'eval-results'],
+  's-data': ['code-viewer', 'terminal-stream', 'citation-hover', 'source-stack', 'metric-insight', 'details-panel', 'task-table'],
   's-workspace': ['automation-canvas', 'command-palette', 'memory-panel', 'agent-settings', 'tool-connections', 'knowledge-sources', 'scheduled-runs', 'file-explorer', 'workspace-rail'],
 };
 // Banner leads Collaboration (owner, 3 Nov); a half-width card further down fills the row the move opens (grid dense)
@@ -608,6 +647,10 @@ ORDER['s-collab'] = ['banner', 'comments', 'notifications', 'invite', 'reactions
 ORDER['s-workspace'].splice(ORDER['s-workspace'].indexOf('automation-canvas') + 1, 0, 'canvas-toolbar');
 // the new components in the sections that have an order
 for (const x of NEW) if (x.next){ const sec = Object.values(ORDER).find(ids => ids.includes(x.next)); sec.splice(sec.indexOf(x.next) + 1, 0, x.id); }
+// only the cards on the page (live.js); a section left with none leaves the page, and its group the sidebar (below)
+for (const sid of Object.keys(ORDER)){ ORDER[sid] = ORDER[sid].filter(id => ON.has(id)); if (!ORDER[sid].length) delete ORDER[sid]; }
+const EMPTY = [];
+main = main.replace(/<section class="lib-sec" id="([\w-]+)">[\s\S]*?<\/section>\n?/g, (m, sid) => /<article\b/.test(m) ? m : (EMPTY.push(sid), ''));
 {
   const secRe = id => new RegExp(`<section class="lib-sec" id="${id}">[\\s\\S]*?</section>`);
   for (const [sid, ids] of Object.entries(ORDER)){
@@ -630,9 +673,12 @@ for (const x of NEW) if (x.next){ const sec = Object.values(ORDER).find(ids => i
   // two sets on the page, Agent components and App basics, shown one at a time: each section knows its set, and each set
   // numbers its sections from 01
   const cut = main.indexOf('<h2>App basics</h2>'); if (cut < 0) throw new Error('App basics heading not found');
-  const mark = part => { let no = 0; return part.replace(/<section class="lib-sec" id="([\w-]+)">/g, (m, id) => (GRP[id] = GRP.cur, m.replace('>', ` data-grp="${GRP.cur}">`)))
-    .replace(/<span class="sec-no">\d+<\/span>/g, () => `<span class="sec-no">${String(++no).padStart(2, '0')}</span>`); };
-  GRP.cur = 'agent'; const head = mark(main.slice(0, cut)); GRP.cur = 'basics'; main = head + mark(main.slice(cut));
+  SPLIT = (main.slice(cut).match(/<article\b/g) || []).length >= SPLIT_AT;
+  // each section keeps its set (GRP, for the docs and llms.txt); on the page, one list is all one set
+  const mark = (part, no = 0) => part.replace(/<section class="lib-sec" id="([\w-]+)">/g, (m, id) => (GRP[id] = GRP.cur, m.replace('>', ` data-grp="${SPLIT ? GRP.cur : 'agent'}">`)))
+    .replace(/<span class="sec-no">\d+<\/span>/g, () => `<span class="sec-no">${String(++no).padStart(2, '0')}</span>`);
+  GRP.cur = 'agent'; const head = mark(main.slice(0, cut)); GRP.cur = 'basics';
+  main = head + mark(main.slice(cut), SPLIT ? 0 : (head.match(/<section class="lib-sec"/g) || []).length);
 }
 site = site.slice(0, mainA) + main + site.slice(mainB);
 // the sidebar's component groups are written from the main list, the same one the component pages' sidebar reads (through
@@ -640,10 +686,12 @@ site = site.slice(0, mainA) + main + site.slice(mainB);
 // link to each of its cards in card order under the card's own title. So the sidebar and the page can't drift apart
 {
   const grp = id => { const a = site.indexOf(`<div class="side-grp" data-s="${id}"`); if (a < 0) throw new Error('no side group ' + id); return a; };
+  // a section with no live component has no group (its list is links only, so the group ends with its three closing divs)
+  for (const sid of EMPTY){ const a = grp(sid), b = site.indexOf('</div></div></div>', a) + 18; site = site.slice(0, a) + site.slice(b); }
   const [ga, gb] = SECTIONS_FIRST.map(grp), next = i => site.indexOf('<div class="side-grp" data-s="', i + 10), gEnd = next(ga);
   if (next(gb) !== ga) throw new Error('side groups not next to each other');
   site = site.slice(0, gb) + site.slice(ga, gEnd) + site.slice(gb, ga) + site.slice(gEnd);
-  site = site.replace(/<div class="side-grp" data-s="([\w-]+)">/g, (m, id) => { if (!GRP[id]) throw new Error('no set for ' + id); return `<div class="side-grp" data-s="${id}" data-grp="${GRP[id]}">`; });
+  site = site.replace(/<div class="side-grp" data-s="([\w-]+)">/g, (m, id) => { if (!GRP[id]) throw new Error('no set for ' + id); return `<div class="side-grp" data-s="${id}" data-grp="${SPLIT ? GRP[id] : 'agent'}">`; });
   const secs = [...main.matchAll(/<section class="lib-sec" id="([\w-]+)"[^>]*>([\s\S]*?)<\/section>/g)];
   const groups = (site.match(/<div class="side-grp" data-s="s-/g) || []).length;
   if (secs.length !== groups) throw new Error(`${secs.length} sections on the page but ${groups} groups in the sidebar`);
@@ -776,8 +824,13 @@ const PRE = require('./token-prefix.js');
 const TOKENS = PRE.tokens({ css:[REG_CORE_CSS_SITE, ...Object.values(SECTIONS)], all:[CORE_JS, DEFS_JS, ...Object.values(CARDS).map(C => C.tpl)] });
 const dmCode = x => ({ ...x, html:PRE.html(x.html, TOKENS), css:PRE.css(x.css), js:PRE.js(x.js, TOKENS) });
 const REG_CORE_CSS = PRE.css(REG_CORE_CSS_SITE), REG_CORE_JS = PRE.js(REG_CORE_JS_SITE, TOKENS);
+/* a component whose parts are another component's (each toast in Toast stack is a Toast card) brings that one's CSS along, ahead
+   of its own, so its HTML and Astro installs need nothing else. The React package imports the other component instead and
+   keeps only the component's own section (scripts/sync.mjs cuts at its heading) */
+const MADE_OF = { 'toast-stack':['Toast'] };
 const regOne = id => { const C = CARDS[id], sec = SECTIONS[C.title] || ''; if (!sec) warn.push('no CSS section for ' + C.title);
-  return dmCode({ html:regHtml(id), css:`/* ---------- ${C.title} ---------- */\n` + regCss(sec), js:defOf(id) + '\n' }); };
+  const parts = (MADE_OF[id] || []).map(t => { if (!SECTIONS[t]) warn.push(`no CSS section for ${t} (part of ${C.title})`); return `/* ---------- ${t} ---------- */\n` + regCss(SECTIONS[t] || ''); }).join('\n');
+  return dmCode({ html:regHtml(id), css:parts + `/* ---------- ${C.title} ---------- */\n` + regCss(sec), js:defOf(id) + '\n' }); };
 
 /* ---------- code viewer and copy: the new code, in code-data.json next to the page, which fetches it when it needs it ---------- */
 {
@@ -791,48 +844,49 @@ const regOne = id => { const C = CARDS[id], sec = SECTIONS[C.title] || ''; if (!
   site = site.slice(0, a) + site.slice(b + '</script>'.length).replace(/^\n/, '');
 }
 
-/* ---------- the registry npx designme add downloads from ---------- */
+/* ---------- the registry npx designme add downloads from: an entry for each live component (live.js), listed in the
+   index in the library's order. A component that isn't live gets its entry written to tools/pages/data/unlisted instead,
+   which nothing serves, for the templates made of it and the React package's styles; it leaves r/ and the index ---------- */
 if (REGDIR){
   // same layout as the files already there: Python style separators, no trailing newline
   const pyDump = v => Array.isArray(v) ? '[' + v.map(pyDump).join(', ') + ']' : v && typeof v === 'object' ? '{' + Object.entries(v).map(([k, x]) => JSON.stringify(k) + ': ' + pyDump(x)).join(', ') + '}' : JSON.stringify(v);
   const idx = JSON.parse(fs.readFileSync(path.join(REGDIR, 'index.json'), 'utf8'));
-  const siteNames = {}; for (const m of fs.readFileSync(SITE, 'utf8').matchAll(/<article[^>]*\bid="(c\d+)"[^>]*>[\s\S]*?class="comp-title">([^<]*)</g)) siteNames[m[1]] = m[2];
-  const slug = n => n.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  let n = 0; const written = new Set();
-  for (const [cid, id] of Object.entries(MAP)){
-    const extra = EXTRA.find(x => x.cid === cid);
-    if (extra && !idx.items.some(x => x.name === extra.reg)){
-      // a new component: its own registry entry, listed after the card it follows
-      // it follows a card of the original page, or another new one
-      const after = idx.items.findIndex(x => x.title === (siteNames[extra.after] || (EXTRA.find(e => e.cid === extra.after) || {}).title));
-      idx.items.splice(after + 1, 0, { name:extra.reg, title:extra.title, section:extra.section, description:CARDS[id].desc });
-      fs.writeFileSync(path.join(REGDIR, extra.reg + '.json'), pyDump({ name:extra.reg, title:extra.title, section:extra.section, description:CARDS[id].desc, dependencies:['core'], files:[] }));
+  const OFFDIR = path.resolve(__dirname, '../pages/data/unlisted');
+  fs.mkdirSync(OFFDIR, { recursive:true });
+  const readIf = f => fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : null;
+  const pageOrder = [...main.matchAll(/<article\b[^>]*\bdata-reg="([\w-]+)"/g)].map(m => m[1]);
+  const items = [], off = new Set();
+  for (const x of Object.values(ALL)){
+    const live = LIVE.has(x.reg), file = path.join(REGDIR, x.reg + '.json'), offFile = path.join(OFFDIR, x.reg + '.json');
+    const old = readIf(file) || readIf(offFile) || {}, one = regOne(x.id), desc = CARDS[x.id].desc;
+    const item = { name:x.reg, title:x.title, section:x.section, description:desc, dependencies:['core'], ...old, description:desc, files:[
+      { path:`${x.reg}/${x.reg}.html`, content:one.html }, { path:`${x.reg}/${x.reg}.css`, content:one.css }, { path:`${x.reg}/${x.reg}.js`, content:one.js } ] };
+    if (live){
+      if (!pageOrder.includes(x.reg)) throw new Error(`${x.reg} is live but has no card on the page`);
+      fs.writeFileSync(file, pyDump(item)); fs.rmSync(offFile, { force:true });
+      items.push({ name:item.name, title:item.title, section:item.section, description:item.description });
+    } else {
+      fs.writeFileSync(offFile, pyDump(item)); off.add(x.reg + '.json');
+      if (fs.existsSync(file)){ fs.rmSync(file); console.log('registry entry unlisted:', x.reg); }
     }
-    const hit = extra ? idx.items.find(x => x.name === extra.reg) : idx.items.find(x => x.title === siteNames[cid]), name = hit ? hit.name : slug(siteNames[cid]), file = path.join(REGDIR, name + '.json');
-    if (!fs.existsSync(file)){ warn.push('no registry entry ' + name); continue; }
-    const old = JSON.parse(fs.readFileSync(file, 'utf8')), one = regOne(id);
-    const item = { ...old, description:CARDS[id].desc, files:[
-      { path:`${name}/${name}.html`, content:one.html }, { path:`${name}/${name}.css`, content:one.css }, { path:`${name}/${name}.js`, content:one.js } ] };
-    fs.writeFileSync(file, pyDump(item)); n++; written.add(name);
-    const it = idx.items.find(x => x.name === name); if (it) it.description = CARDS[id].desc;
   }
-  // a component taken out of the library (its card gone from soft-2/index.html) leaves the index, and its entry file goes
-  for (const x of idx.items.filter(x => !written.has(x.name))){
-    idx.items.splice(idx.items.indexOf(x), 1); fs.rmSync(path.join(REGDIR, x.name + '.json'), { force:true });
-    console.log('registry entry removed:', x.name);
-  }
+  // an entry left from a component that is gone (the 16 Nov trim) goes too
+  for (const x of idx.items) if (!items.some(y => y.name === x.name) && !off.has(x.name + '.json')){ fs.rmSync(path.join(REGDIR, x.name + '.json'), { force:true }); console.log('registry entry removed:', x.name); }
+  for (const f of fs.readdirSync(OFFDIR)) if (!off.has(f)) fs.rmSync(path.join(OFFDIR, f));
+  idx.items = items.sort((a, b) => pageOrder.indexOf(a.name) - pageOrder.indexOf(b.name));
+  if (idx.items.length !== LIVE.size) throw new Error(`the registry lists ${idx.items.length} components but live.js names ${LIVE.size}`);
   const corePath = path.join(REGDIR, 'core.json'), core = JSON.parse(fs.readFileSync(corePath, 'utf8'));
   core.files = [{ path:'core/core.css', content:REG_CORE_CSS }, { path:'core/core.js', content:REG_CORE_JS }];
   fs.writeFileSync(corePath, pyDump(core));
   fs.writeFileSync(path.join(REGDIR, 'index.json'), JSON.stringify(idx, null, 1));
-  console.log('registry entries written:', n);
+  console.log(`registry entries written: ${items.length} live in r/, ${off.size} unlisted in tools/pages/data/unlisted`);
 }
 
 /* this week's components open the library. Their code rides in the first section's script so the lead plays with the
    first screen, and the docs still list each one in the section it belongs to (SECTION_ORDER, read below) */
 // four wide cards and two normal ones: Permission gate takes Steering's place (owner, 16 Nov) beside Run cost, so every row is
 // full
-const LAUNCH = ['agent-tree', 'trace-view', 'agent-lanes', 'permission-gate', 'run-cost', 'agent-inbox'];
+const LAUNCH = ['agent-tree', 'trace-view', 'agent-lanes', 'permission-gate', 'run-cost', 'agent-inbox'].filter(id => ON.has(id));
 let SECTION_ORDER = null;
 /* ---------- the components' script goes last ---------- */
 {
@@ -848,6 +902,9 @@ let SECTION_ORDER = null;
     sectionOf[id] = order[0];
   }
   const P = defParts(sectionOf, order[0]), files = {};
+  // a component that isn't on the page (live.js) leaves no code in the page's scripts: its part ('_') is not written
+  delete P.files._; for (const id of Object.keys(P.of)) if (P.of[id] === '_') delete P.of[id];
+  P.all = P.all.filter(id => sectionOf[id]);
   // a card in a section with a file of its own gets its markup (its <template>) from that file too, so the page doesn't
   // carry markup for components nobody scrolls to (DM.tpl reads TPLS, below)
   site = site.replace(/(<article\b[^>]*\bdata-v2="([\w-]+)"[^>]*>[\s\S]*?)<template>([\s\S]*?)<\/template>(\s*<\/article>)/g, (m, head, id, tpl, end) => {
@@ -861,13 +918,38 @@ let SECTION_ORDER = null;
   const js = V2JS.replace('/*@@V2DEFS@@*/', () => P.main).replace('/*@@V2PARTS@@*/null', () => JSON.stringify({ files, of:P.of, all:P.all }));
   console.log(`components script: ${Math.round(js.length / 1024)} KB with ${order[0]}, ${V2_PARTS.length} section files of ${Math.round(V2_PARTS.reduce((n, f) => n + f.text.length, 0) / 1024)} KB, waiting for every section: ${P.all.join(', ') || 'none'}`);
   // then the pictures in the carousels' demos, which only the site shows (art/art.js), and the phone's DesignMe card (fab/fab.js)
-  site = site.slice(0, end) + '<script id="v2-js">\n' + js + '</script>\n<script src="/art/art.js?v=2" defer></script>\n<script src="/fab/fab.js" defer></script>\n' + site.slice(end);
+  site = site.slice(0, end) + '<script id="v2-js">\n' + js + '</script>\n<script src="/art/art.js?v=3" defer></script>\n<script src="/fab/fab.js" defer></script>\n' + site.slice(end);
 }
 /* ---------- site: the HTML / React switch in the code views, and thumbnails of components not yet started ---------- */
 for (const [a, b] of SITE_PATCHES.patches){
   const count = site.split(a).length - 1;
   if (count !== 1) throw new Error(`site patch matched ${count} times: ${a.slice(0, 70)}`);
   site = site.replace(a, () => b);
+}
+// one list (SPLIT, above): no switch between the sets, no App basics heading where Agent components end, no set labels in the
+// sidebar. What follows the switch (the launch row, or the first section when Recent or a search empties the row) takes its
+// place under the intro's line
+if (!SPLIT) site = site.replace('</head>', '<style id="one-list">.grp-sw,.grp-next,.side-lbl{display:none!important}'
+  + 'body.ui .grp-sw+.launch,body.ui .grp-sw+.launch:is(.filtered-out,:not(:has(.comp)))+.lib-sec{margin-top:calc(var(--ig) * 2 + 1px)}</style>\n</head>');
+// the number of components on the page (live.js), where the copy states it (make-patches.py writes it as @@COUNT@@)
+if (site.split('@@COUNT@@').length !== 2) throw new Error('the intro\'s component count (@@COUNT@@) is not on the page once');
+site = site.replace('@@COUNT@@', String(done.length));
+/* the roadmap's Coming next (make-patches.py writes it as @@NEXT@@): the components that aren't live yet (live.js), which go
+   live one by one after launch. The eight that came back on 23 Nov for their Clean designs come first, then the rest by their
+   library section, Conversation and Agent status first as on the page. Each group is [label, [titles]] */
+{
+  const FIRST = ['human-handoff', 'steering', 'browser-session', 'voice-orb', 'image-generation', 'tool-call', 'code-viewer', 'design-tuner'];
+  const off = UNLISTED.map(cid => ALL[cid]), first = FIRST.map(id => off.find(x => x.id === id)).filter(Boolean);
+  if (first.length !== FIRST.length) warn.push('Coming next: ' + FIRST.filter(id => !off.some(x => x.id === id)).join(', ') + ' are live or gone');
+  const order = ['Conversation', 'Agent status', ...SITE_SECTIONS.filter(x => x !== 'Conversation' && x !== 'Agent status' && x !== 'App basics')];
+  const rest = off.filter(x => !first.includes(x)), groups = [];
+  for (const sec of [...order, ...new Set(rest.map(x => x.section))]) if (!groups.some(g => g[0] === sec)){
+    const t = rest.filter(x => x.section === sec).map(x => x.title); if (t.length) groups.push([sec, t]);
+  }
+  if (groups.reduce((n, g) => n + g[1].length, first.length) !== off.length) throw new Error('Coming next lost a component');
+  const next = (first.length ? [['First up', first.map(x => x.title)]] : []).concat(groups);
+  if (site.split('@@NEXT@@').length !== 2) throw new Error("the roadmap's Coming next (@@NEXT@@) is not on the page once");
+  site = site.replace('@@NEXT@@', () => JSON.stringify(next).replace(/</g, '\\u003c'));
 }
 /* ---------- Your theme: the script that puts a visitor's pasted shadcn/Tailwind v4 theme over the demos (theme-bridge.js),
    right after the head's script that picks the style, so a saved theme is on before the page paints ---------- */
@@ -968,6 +1050,11 @@ site = site.replace(/(<style(?![^>]*id="v2-css")[^>]*>)([\s\S]*?)(<\/style>)/g, 
   const end = at + mark.length;
   site = site.slice(0, end) + '\n<div class="grid launch" id="launch" data-grp="agent">\n' + pulled.join('\n') + '\n</div>\n' + site.slice(end);
 }
+// every section's half-width cards pair up on the default view, so no row is left half empty (STRETCH, above)
+for (const [, sid, body] of site.matchAll(/<section class="lib-sec" id="([\w-]+)"[^>]*>([\s\S]*?)<\/section>/g)){
+  const half = [...body.matchAll(/<article class="comp"[^>]*>/g)].length;
+  if (half % 2) warn.push(`${sid} has ${half} half-width cards, so its last row is half empty: make one wide (STRETCH)`);
+}
 const split = splitAssets(site, path.dirname(OUT), V2_PARTS);
 fs.writeFileSync(OUT, split.html);
 console.log('assets:', split.files.join(' ') + '; ' + path.basename(OUT), split.html.length, 'bytes');
@@ -978,7 +1065,7 @@ console.log('swapped', done.length, 'cards; size', site.length);
   const text = h => h.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;|&rsquo;/g, "'").replace(/\s+/g, ' ').trim();
   const SETS = { agent:'Agent components', basics:'App basics' };
   const secs = [...site.matchAll(/<section class="lib-sec" id="([\w-]+)" data-grp="(\w+)">([\s\S]*?)<\/section>/g)].map(([, id, grp, body]) => ({
-    id, grp, title:text(body.match(/<h2>([\s\S]*?)<\/h2>/)[1]), about:text((body.match(/<div class="sec-head">[\s\S]*?<p>([\s\S]*?)<\/p>/) || [, ''])[1]),
+    id, grp:GRP[id] || grp, title:text(body.match(/<h2>([\s\S]*?)<\/h2>/)[1]), about:text((body.match(/<div class="sec-head">[\s\S]*?<p>([\s\S]*?)<\/p>/) || [, ''])[1]),
     cards:[...body.matchAll(/<article\b[^>]*\bdata-reg="([\w-]+)"[^>]*>[\s\S]*?class="comp-title">([\s\S]*?)<\/h2>[\s\S]*?class="comp-desc">([\s\S]*?)<\/p>/g)].map(([, reg, t, d]) => ({ reg, t:text(t), d:text(d) })) }));
   // the lead grid holds this week's cards on the homepage; the docs still list them in the section they were in
   if (SECTION_ORDER){
@@ -990,9 +1077,13 @@ console.log('swapped', done.length, 'cards; size', site.length);
     }
   }
   const count = secs.reduce((n, x) => n + x.cards.length, 0);
+  // the app basics on the page (live.js): their sections' names, or their own names while there are only a few
+  const basics = secs.filter(x => x.grp === 'basics' && x.cards.length), nBasics = basics.reduce((n, x) => n + x.cards.length, 0);
+  const basicsAre = (nBasics > 4 ? basics.map(x => x.title) : basics.flatMap(x => x.cards.map(c => c.t))).map(t => t.toLowerCase());
+  const list = a => a.length > 1 ? a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1] : a.join('');
   let md = `# Designme.dev
 
-> ${count} free, MIT-licensed UI components for products built around AI agents: status pills, reasoning trails, agent trees, permission gates, plan reviews, run costs and more, plus the app basics around them (charts, dates, forms, tables). Each one comes as plain HTML, CSS and JS, as a typed React component with no dependencies beyond React, or as an Astro component, in three styles (Soft, Blueprint and Clean) with light and dark mode.
+> ${count} free, MIT-licensed UI components for products built around AI agents: status pills, reasoning trails, agent trees, permission gates, plan reviews, run costs and more${SPLIT && nBasics ? `, plus the app ${nBasics === 1 ? 'basic' : 'basics'} around them (${list(basicsAre)})` : ''}. Each one comes as plain HTML, CSS and JS, as a typed React component with no dependencies beyond React, or as an Astro component, in three styles (Soft, Blueprint and Clean) with light and dark mode.
 
 Install with the CLI, which copies each component's source into your project so you own it:
 
@@ -1006,13 +1097,21 @@ Every CSS variable starts with \`--dm-\` in every version, and in the React vers
   // the docs pages that tools/pages builds, each as Markdown too
   const DOCS = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../pages/src/lib/docs-list.json'), 'utf8'));
   md += `\n## Docs\n\n` + DOCS.map(d => `- [${d.title}](https://designme.dev/docs/${d.slug}.md): ${d.desc}`).join('\n') + '\n';
-  for (const g of Object.keys(SETS)){
-    md += `\n## ${SETS[g]}\n`;
-    for (const sec of secs.filter(x => x.grp === g && x.cards.length)){
+  // one list (SPLIT): every section under one heading
+  for (const g of SPLIT ? Object.keys(SETS) : ['all']){
+    md += `\n## ${SPLIT ? SETS[g] : 'Components'}\n`;
+    for (const sec of secs.filter(x => (g === 'all' || x.grp === g) && x.cards.length)){
       md += `\n### ${sec.title}\n\n${sec.about ? sec.about + '\n\n' : ''}`;
       md += sec.cards.map(c => `- [${c.t}](https://designme.dev/components/${c.reg}.md): ${c.d} Install: \`npx designme add ${c.reg}\``).join('\n') + '\n';
     }
   }
+  // the templates (tools/pages/src/pages/templates, also in the sitemap): whole apps made of the components, each with the
+  // line its page describes itself with
+  const TEMPLATES = [['sales-crm', 'Sales CRM'], ['workflow-editor', 'Workflow editor'], ['dashboard-builder', 'Dashboard builder'], ['whiteboard', 'Whiteboard']];
+  md += `\n## Templates\n\nWhole apps made of the components, each a live page.\n\n` + TEMPLATES.map(([slug, name]) => {
+    const src = fs.readFileSync(path.resolve(__dirname, `../pages/src/pages/templates/${slug}.astro`), 'utf8'), d = src.match(/^const description = '((?:[^'\\]|\\.)*)';$/m);
+    if (!d) throw new Error(`llms.txt: the ${slug} template has no description line`);
+    return `- [${name}](https://designme.dev/templates/${slug}): ${d[1].replace(/\\'/g, "'")}`; }).join('\n') + '\n';
   md += `\n## Optional\n\n- [Component pages](https://designme.dev/components/composer): one page per component, at /components/<name>, with its demo, install, usage, props and code.\n- [The library](https://designme.dev/library): every demo on one page, in all three styles.\n- [Registry](https://designme.dev/r/react/composer.json): each component's React source as JSON, at /r/react/<name>.json (HTML at /r/<name>.json, Astro at /r/astro/<name>.json, shadcn items at /r/shadcn/<name>.json).\n`;
   if (count !== done.length) warn.push(`llms.txt lists ${count} of ${done.length} components`);
   // the same sections and cards, in page order, for the component pages that tools/pages builds
@@ -1030,13 +1129,27 @@ Every CSS variable starts with \`--dm-\` in every version, and in the React vers
   // to the bottom of its sidebar
   const sideFoot = (site.match(/<div class="side-foot">([\s\S]*?)<\/div>\s*<\/aside>/) || [])[1];
   if (!sideFoot || !sideFoot.includes('hire-btn')) throw new Error("the homepage's sidebar has no foot with Book a call");
-  fs.writeFileSync(PAGES_DATA, JSON.stringify({ sets:SETS, logo:site.match(/<a[^>]*class="brand[^"]*"[\s\S]*?(<svg[\s\S]*?<\/svg>)<\/a>/)[1], icons, sideFoot:sideFoot.trim(), sections:secs.filter(x => x.cards.length).map(x => ({
+  fs.writeFileSync(PAGES_DATA, JSON.stringify({ sets:SETS, split:SPLIT, logo:site.match(/<a[^>]*class="brand[^"]*"[\s\S]*?(<svg[\s\S]*?<\/svg>)<\/a>/)[1], icons, sideFoot:sideFoot.trim(), emptySections:EMPTY.map(sid => sid.replace(/^s-/, '')), unlisted:UNLISTED.map(cid => ({ reg:ALL[cid].reg, title:ALL[cid].title, v2:ALL[cid].id, section:ALL[cid].section })), sections:secs.filter(x => x.cards.length).map(x => ({
     slug:x.id.replace(/^s-/, ''), ...x,
     cards:x.cards.map(c => ({ reg:c.reg, title:c.t, desc:c.d, ...meta[c.reg] })) })) }, null, 1));
   // the designs each card with a design switch shows on its component page, by component (designsOf, above)
   const designs = {}; for (const id of Object.keys(CARDS)){ const d = designsOf(id); if (d) designs[id] = dmCode(d); }
   fs.writeFileSync(path.resolve(path.dirname(PAGES_DATA), 'designs.json'), JSON.stringify(designs));
   fs.writeFileSync(path.join(path.dirname(OUT), 'llms.txt'), md);
+  // the READMEs say how many components there are: the counts follow the page (live.js). Each sentence has to be there once,
+  // so a README reworded without its count stops the build rather than going stale (packages/react's README is written by
+  // its own scripts/index.mjs)
+  const nAgent = secs.filter(x => x.grp === 'agent').reduce((n, x) => n + x.cards.length, 0), basicsN = `${nBasics} app ${nBasics === 1 ? 'basic' : 'basics'}`;
+  for (const [file, re, to] of [
+    // two forms: with the two sets' counts (SPLIT), or one count with the agent examples
+    ['README.md', /\d+ of them: (?:\d+ agent components \(([^)]*)\) and \d+ app basics? around them\s*\([^)]*\)|([^.]*? and more))/,
+      (m, a, b) => SPLIT ? `${count} of them: ${nAgent} agent components (${a || b}) and ${basicsN} around them (${list(basicsAre)})` : `${count} of them: ${a || b}`],
+    ['packages/designme/README.md', /\d+ of them(?: \(\d+ agent components plus \d+ app basics?\))?, from/, () => SPLIT ? `${count} of them (${nAgent} agent components plus ${basicsN}), from` : `${count} of them, from`],
+  ]){
+    const f = path.resolve(__dirname, '../..', file), text = fs.readFileSync(f, 'utf8');
+    if ((text.match(new RegExp(re.source, 'g')) || []).length !== 1) throw new Error(`${file}: the sentence with the component count is not there once (${re.source})`);
+    const out = text.replace(re, to); if (out !== text) fs.writeFileSync(f, out);
+  }
   console.log('llms.txt:', count, 'components in', secs.filter(x => x.cards.length).length, 'sections');
 }
 
@@ -1053,7 +1166,7 @@ Every CSS variable starts with \`--dm-\` in every version, and in the React vers
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Page not found · Designme.dev</title><meta name="robots" content="noindex">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<script>try{var t=localStorage.getItem('dmui-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<script>try{var t=localStorage.getItem('dmui-theme'),s=localStorage.getItem('dmui-style');if(t)document.documentElement.setAttribute('data-theme',t);if(s==='blueprint')s='bp';if(s==='mine')s='soft';if(s!=='bp'&&s!=='soft'&&s!=='clean')s=(t||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'))==='dark'?'bp':'soft';document.documentElement.setAttribute('data-style',s)}catch(e){}</script>
 <style>
 ${fonts}
 :root{--bg:#fff;--fg:#121212;--dim:#525252;--stage:#fafafa;--line:rgba(18,18,18,.08);--ink:#121212;--on-ink:#fff;--focus:#858585;color-scheme:light}
@@ -1063,7 +1176,8 @@ ${fonts}
 body{margin:0;min-height:100vh;display:flex;flex-direction:column;background:var(--bg);color:var(--fg);font:14px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 header{padding:18px 24px;border-bottom:1px solid var(--line)}
 header a{display:inline-block;color:var(--fg)}
-header svg{display:block;height:21px;width:auto}
+header svg{display:block;height:21px;width:auto;fill:currentColor}
+/* (the wordmark's paths take the text colour, so it shows in dark mode too) */
 main{flex:1;width:100%;max-width:560px;margin:0 auto;padding:12vh 24px 64px}
 /* the page's title is the one text over 14px, at the site's page-title size (.pg-h1: 20px, weight 500); the rest is 14px
    or less, nothing heavier than 500, and no monospace outside code */
@@ -1080,7 +1194,14 @@ p code{font:12.5px ui-monospace,Menlo,monospace;color:var(--fg);background:var(-
 .hit i{font-style:normal;color:var(--dim)}
 .acts{display:flex;flex-wrap:wrap;gap:8px;margin:28px 0 0}
 .btn{display:inline-flex;align-items:center;height:36px;padding:0 16px;border-radius:999px;font-weight:500;text-decoration:none;color:var(--fg);box-shadow:inset 0 0 0 1px var(--line)}
-.btn.ink{background:var(--ink);color:var(--on-ink);box-shadow:none}
+/* the primary button is on the style's accent (Blueprint's lime, Soft's blue), as .pill.primary is on the site; Clean's is
+   its ink button. Until a visitor picks a style it follows their theme: light opens in Soft, dark in Blueprint */
+:root{--pri:#c2f23c;--on-pri:#121212}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--pri:#d4f84a}}
+:root[data-theme="dark"]{--pri:#d4f84a}
+:root[data-style="soft"]{--pri:#116ff8;--on-pri:#fff}
+:root[data-style="clean"]{--pri:var(--ink);--on-pri:var(--on-ink)}
+.btn.primary{background:var(--pri);color:var(--on-pri);box-shadow:none}
 /* keyboard focus: the site's quiet grey ring, never black */
 .btn:focus-visible,.hit:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 /* Skip to content: out of sight until Tab reaches it (it is the first thing there), then a small pill top left */
@@ -1096,7 +1217,7 @@ main:focus{outline:none}
   <h1 class="pg-h1">Page not found</h1>
   <p>There's no page at <code id="where">this address</code>.</p>
   <div class="hits" id="hits" hidden></div>
-  <div class="acts"><a class="btn ink" href="/library">All components</a><a class="btn" href="/library#/changelog">Changelog</a></div>
+  <div class="acts"><a class="btn primary" href="/library">All components</a><a class="btn" href="/library#/changelog">Changelog</a></div>
 </main>
 <script>
 (function(){

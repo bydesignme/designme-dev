@@ -6,7 +6,7 @@ Designme.dev docs. The same page with navigation: https://designme.dev/docs/intr
 
 ## What it is
 
-100 free components: 51 for the agent itself, like status pills, reasoning trails, agent trees, permission gates, plan reviews and run costs, and 49 app basics around it.
+37 free components for the AI agents in your product, like status pills, reasoning trails, agent trees, permission gates, plan reviews and run costs.
 
 Every component plays as a demo in the [library](https://designme.dev/library), and has a page of its own with its install command, React props, code and questions.
 
@@ -32,8 +32,6 @@ Each style has a light and a dark theme. Switch them in the header of any page h
 
 - [Live answer](https://designme.dev/components/live-answer.md)
 - [Composer](https://designme.dev/components/composer.md)
-- [Artifact card](https://designme.dev/components/artifact-card.md)
-- [Rich text editor](https://designme.dev/components/rich-text-editor.md)
 - [Answer action bar](https://designme.dev/components/answer-action-bar.md)
 - [Response versions](https://designme.dev/components/response-versions.md)
 - [Model picker](https://designme.dev/components/model-picker.md)
@@ -63,41 +61,29 @@ Each style has a light and a dark theme. Switch them in the header of any page h
 - [Plan review](https://designme.dev/components/plan-review.md)
 - [Permission gate](https://designme.dev/components/permission-gate.md)
 - [Decision prompt](https://designme.dev/components/decision-prompt.md)
-- [Proposal card](https://designme.dev/components/proposal-card.md)
-- [Rewrite toolbar](https://designme.dev/components/rewrite-toolbar.md)
 - [Inline text diff](https://designme.dev/components/inline-text-diff.md)
-- [Draft review](https://designme.dev/components/draft-review.md)
-- [Eval results](https://designme.dev/components/eval-results.md)
 
 ### Sources and output
 
 - [Terminal stream](https://designme.dev/components/terminal-stream.md)
 - [Citation hover card](https://designme.dev/components/citation-hover-card.md)
 - [Source stack](https://designme.dev/components/source-stack.md)
-- [Metric insight](https://designme.dev/components/metric-insight.md)
-- [Details panel](https://designme.dev/components/details-panel.md)
-- [Task table](https://designme.dev/components/task-table.md)
 
 ### Workspace
 
-- [Automation canvas](https://designme.dev/components/automation-canvas.md)
-- [Canvas toolbar](https://designme.dev/components/canvas-toolbar.md)
-- [Data picker](https://designme.dev/components/data-picker.md)
 - [Run drawer](https://designme.dev/components/run-drawer.md)
 - [Command palette](https://designme.dev/components/command-palette.md)
 - [Memory panel](https://designme.dev/components/memory-panel.md)
-- [Agent settings](https://designme.dev/components/agent-settings.md)
 - [Tools and connections](https://designme.dev/components/tool-connections.md)
 - [Knowledge sources](https://designme.dev/components/knowledge-sources.md)
 - [Scheduled runs](https://designme.dev/components/scheduled-runs.md)
 - [File explorer](https://designme.dev/components/file-explorer.md)
-- [Workspace rail](https://designme.dev/components/workspace-rail.md)
 
-### Harness
+### Dates
 
-- [Agent harness](https://designme.dev/components/agent-harness.md)
+- [Event calendar](https://designme.dev/components/event-calendar.md)
 
-There are also 49 app basics, like charts, date pickers and forms, for the product around the agent. They are all in the [library](https://designme.dev/library#s-charts).
+They are all in the [library](https://designme.dev/library).
 
 ## HTML, React or Astro
 

@@ -1,9 +1,12 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, DM, I, copied, enter, html } from '../core/core.js';
+import { $, DM, I, copied, enter, grow, html, iconSwap } from '../core/core.js';
 DM.def('terminal-stream', (r, c) => {
   const IC = { term:I('term'), stop:I('stop','xs'), copy:I('copy') };
   r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) => IC[k] || m);
   const root = $('.tmx', r), body = $('.tmx-body', r), st = $('.tmx-st', r), sv = $('.tmx-sv', r), stop = $('.tmx-stop', r), cp = $('.tmx-cp', r), ff = $('.tmx-ff', r), foot = $('.tmx-f', r);
+  // no room is kept for output still to come (owner, 17 Nov): the terminal grows as lines arrive, up to its 420px, once its
+  // entrance has played; then the output scrolls. Installed inside something else, it sizes to its content as it is
+  if (r === c.st) Promise.resolve().then(() => Promise.all(root.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && root.isConnected) c.offs.push(grow(root)); });
   // what the agent does: each command with the lines it prints and how long it takes, then the one line where it says what
   // went wrong and the edit that fixes it. [text, tone] marks a line ok (green), bad (red) or mu (grey)
   const F = (n, kb) => 'dist/' + n.padEnd(22) + kb.padStart(6) + ' kB';
@@ -32,29 +35,31 @@ DM.def('terminal-stream', (r, c) => {
     for (let t = 0; t < ms;){ if (halt) return false; const d = Math.min(250, ms - t); await c.wait(d); t += d; vt += d; if (!over) sv.textContent = 'Running · ' + clock(vt); each && each(t); }
     return !halt;
   };
-  // a command or an edit: what it is on the left, a spinner and its time on the right
+  // a command or an edit: its $ (or the edit's pencil) in the marks' column, what it is, and a spinner and its time on the right
   function row(mark, text){
-    const el = html(`<div class="tmx-blk" data-s="run"><div class="tmx-cmd"><span class="tmx-p">${mark}</span><span class="tmx-c"></span><span class="tmx-m"><span class="g"><span class="spin"></span></span><span class="t num"></span></span></div></div>`);
+    const el = html(`<div class="tmx-blk" data-s="run"><div class="tmx-cmd">${mark === '$' ? '<code class="tmx-p">$</code>' : `<span class="tmx-p">${mark}</span>`}<code class="tmx-c"></code><span class="tmx-m"><span class="g"><span class="spin"></span></span><span class="t num"></span></span></div></div>`);
     $('.tmx-c', el).textContent = text; body.appendChild(el); enter(el); return el;
   }
   function lines(el){
-    const more = html(`<button class="tmx-more" aria-expanded="false" hidden>${I('chev-d','xs')}<span></span></button>`), hid = html('<div class="fold shut"><div class="tmx-o"></div></div>'), tail = html('<div class="tmx-o"></div>');
+    const more = html(`<button class="tmx-more mx-press" aria-expanded="false" hidden>${I('chev-d','xs')}<span></span><i class="sp"></i></button>`), hid = html('<div class="fold shut"><code class="tmx-o"></code></div>'), tail = html('<code class="tmx-o"></code>');
     const inner = hid.firstElementChild; hid.inert = true; el.append(more, hid, tail);
     const label = () => { const n = inner.children.length, open = !hid.classList.contains('shut'); $('span', more).textContent = open ? 'Show fewer lines' : `Show ${n} more line${n > 1 ? 's' : ''}`; more.setAttribute('aria-expanded', open); };
     more.onclick = () => { hid.inert = hid.classList.toggle('shut'); label(); };
     return ([text, tone]) => {
-      const l = document.createElement('div'); l.className = 'tmx-l' + (tone ? ' ' + tone : ''); l.textContent = text; tail.appendChild(l);
+      const l = document.createElement('span'); l.className = 'tmx-l' + (tone ? ' ' + tone : ''); l.textContent = text; tail.appendChild(l);
       if (inner.children.length + tail.children.length > TAIL + 1) while (tail.children.length > TAIL) inner.appendChild(tail.firstElementChild);
       if (inner.children.length){ more.hidden = false; label(); }
     };
   }
-  const halted = el => { $('.tmx-m .g', el).innerHTML = '<span class="tag">Stopped</span>'; el.dataset.s = 'stop'; };
+  // (a mark that changes, the spinner into its tick, Exit tag or Stopped, crossfades in place: iconSwap())
+  const halted = el => { const g = $('.tmx-m .g', el); iconSwap(g, () => { g.innerHTML = '<span class="tag">Stopped</span>'; }); el.dataset.s = 'stop'; };
   function finish(how){
-    over = true; stop.hidden = true; root.classList.remove('live');
-    st.classList.toggle('ok', how === 'passed'); st.classList.toggle('bad', how === 'failed'); $('.g', st).innerHTML = I(how === 'passed' ? 'check' : 'stop', 'xs'); sv.textContent = how === 'passed' ? 'Passed' : how === 'failed' ? 'Failed' : 'Stopped';
-    // each command counts once, however many times it ran
+    over = true; stop.hidden = true; root.classList.remove('live'); sv.classList.remove('shim');
+    st.classList.toggle('ok', how === 'passed'); st.classList.toggle('bad', how === 'failed'); { const g = $('.g', st); iconSwap(g, () => { g.innerHTML = I(how === 'passed' ? 'check' : 'stop', 'xs'); }); } sv.textContent = how === 'passed' ? 'Passed' : how === 'failed' ? 'Failed' : 'Stopped';
+    // each command counts once, however many times it ran; how it went is the header's tag, so the summary doesn't say it
+    // again, and a finished line has no clock (owner, 18 Nov)
     const n = new Set(ran).size;
-    $('.tmx-fs', foot).textContent = `${n} command${n === 1 ? '' : 's'} · ${clock(vt)} · ${how}`;
+    $('.tmx-fs', foot).textContent = `Ran ${n} command${n === 1 ? '' : 's'}`;
     foot.className = 'tmx-f' + (how === 'stopped' ? ' stop' : how === 'failed' ? ' bad' : ''); $('.g', foot).innerHTML = I(how === 'passed' ? 'ok' : how === 'failed' ? 'alert' : 'stop');
     ff.classList.remove('shut');
   }
@@ -66,7 +71,7 @@ DM.def('terminal-stream', (r, c) => {
   const ro = new ResizeObserver(stick); ro.observe(body); c.offs.push(() => ro.disconnect());
   stop.onclick = () => { halt = true; };
   cp.onclick = () => copied(cp, log.join('\n'));
-  root.classList.add('live');
+  root.classList.add('live'); sv.classList.add('shim');
   c.run(async () => {
     let last = 0;
     for (const k of S){
@@ -81,8 +86,8 @@ DM.def('terminal-stream', (r, c) => {
         const el = row(I('edit','xs'), 'Edit ' + k.edit); el.dataset.s = 'edit';
         if (!await pass(k.ms)){ halted(el); return finish('stopped'); }
         $('.tmx-m', el).innerHTML = `<span class="add">+${k.add}</span><span class="del">−${k.del}</span>`; log.push(`# Edited ${k.edit} (+${k.add} −${k.del})`);
-        const df = document.createElement('div'); df.className = 'tmx-df';
-        k.diff.forEach((d, i) => { const l = document.createElement('div'); l.className = d[0] === '+' ? 'a' : d[0] === '-' ? 'd' : ''; l.textContent = d; df.appendChild(l); enter(l, i * 90); });
+        const df = document.createElement('code'); df.className = 'tmx-df';
+        k.diff.forEach((d, i) => { const l = document.createElement('span'); l.className = d[0] === '+' ? 'a' : d[0] === '-' ? 'd' : ''; l.textContent = d; df.appendChild(l); enter(l, i * 90); });
         el.appendChild(df); log.push(...k.diff);
         continue;
       }
@@ -95,7 +100,7 @@ DM.def('terminal-stream', (r, c) => {
         const pair = Array.isArray(ln) ? ln : [ln, '']; add(pair); log.push(pair[0]);
       }
       t.textContent = sec(k.ms); last = k.exit || 0;
-      $('.tmx-m .g', el).innerHTML = k.exit ? `<span class="tag bad">Exit ${k.exit}</span>` : `<span class="ok">${I('check','xs')}</span>`; el.dataset.s = k.exit ? 'bad' : 'ok';
+      { const g = $('.tmx-m .g', el); iconSwap(g, () => { g.innerHTML = k.exit ? `<span class="tag bad">Exit ${k.exit}</span>` : `<span class="ok">${I('check','xs')}</span>`; }); } el.dataset.s = k.exit ? 'bad' : 'ok';
     }
     finish(last ? 'failed' : 'passed');
   });

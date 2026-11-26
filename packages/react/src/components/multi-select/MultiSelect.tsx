@@ -1,8 +1,9 @@
 'use client';
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
+import { useHoverGlide } from '../../lib/glide';
 import '../../designme.css';
 import './multi-select.css';
 
@@ -53,13 +54,24 @@ export function MultiSelect({ label, options, value, defaultValue = [], onValueC
   const [seenQ, setSeenQ] = useState(q);
   if (seenQ !== q) { setSeenQ(q); if (q) setHi(0); }
   const field = useRef<HTMLDivElement>(null), input = useRef<HTMLInputElement>(null), list = useRef<HTMLDivElement>(null), root = useRef<HTMLDivElement>(null);
-  const [top, setTop] = useState(76);
+  useHoverGlide(list, '.dm-msc-o');
+  const [place, setPlace] = useState<CSSProperties>({}), pop = useRef<HTMLDivElement>(null);
   const name = (v: string) => options.find(o => o.value === v)?.label ?? v;
   const shown = options.filter(o => !q.trim() || (o.label ?? o.value).toLowerCase().includes(q.trim().toLowerCase()));
   const at = Math.min(hi, Math.max(0, shown.length - 1));
 
-  // the list sits under the box, which grows as the chips wrap
-  useIsoLayoutEffect(() => { const f = field.current; if (f) setTop(f.offsetTop + f.offsetHeight + 6); }, [picked.length, isOpen]);
+  // the list hangs 6px under the box, which grows as the chips wrap, or stands 6px over it when the room under it in the window
+  // is too short; its height at its tallest decides, so typing a filter never moves it to the other side
+  const up = useRef(false), was = useRef(false);
+  useIsoLayoutEffect(() => {
+    const r = root.current, f = field.current, p = pop.current, l = list.current; if (!r || !f || !p || !l) return;
+    if (isOpen && !was.current) {
+      const b = f.getBoundingClientRect(), tall = p.offsetHeight - l.offsetHeight + (parseFloat(getComputedStyle(l).maxHeight) || l.offsetHeight);
+      up.current = b.bottom + tall + 12 > innerHeight && b.top - tall - 12 > innerHeight - b.bottom;
+    }
+    was.current = isOpen;
+    setPlace(up.current ? { top: 'auto', bottom: r.offsetHeight - f.offsetTop + 6, ['--dm-origin' as string]: 'bottom left' } : { top: f.offsetTop + f.offsetHeight + 6, bottom: 'auto', ['--dm-origin' as string]: 'top left' });
+  }, [picked.length, isOpen]);
   // the highlighted row stays in view
   useEffect(() => { const o = list.current?.querySelector<HTMLElement>(`#${id}-o${at}`), l = list.current; if (!o || !l) return;
     if (o.offsetTop < l.scrollTop) l.scrollTop = o.offsetTop; else if (o.offsetTop + o.offsetHeight > l.scrollTop + l.clientHeight) l.scrollTop = o.offsetTop + o.offsetHeight - l.clientHeight; }, [at, id, isOpen]);
@@ -103,7 +115,7 @@ export function MultiSelect({ label, options, value, defaultValue = [], onValueC
           aria-activedescendant={isOpen && shown.length ? `${id}-o${at}` : undefined} value={q} placeholder={placeholder} spellCheck={false} autoComplete="off"
           onChange={e => { setQ(e.target.value); setHi(0); setOpen(true); }} onKeyDown={onKey} />
       </div>
-      <div className={cx('dm-msc-pop', isOpen && 'dm-open')} style={{ top }}>
+      <div ref={pop} className={cx('dm-pop dm-msc-pop', isOpen && 'dm-open')} inert={!isOpen} style={place}>
         <div ref={list} id={`${id}-l`} className="dm-msc-list" role="listbox" aria-multiselectable="true" aria-label={label}>
           {shown.length ? shown.map((o, i) => (
             <div key={o.value} id={`${id}-o${i}`} role="option" aria-selected={picked.includes(o.value)} className={cx('dm-msc-o', i === at && 'dm-hl')}

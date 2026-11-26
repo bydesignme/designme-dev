@@ -2,7 +2,7 @@
 
 > Shell commands the agent runs, with their output as it streams in.
 
-Agent components / Sources and output. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/terminal-stream
+Components / Sources and output. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/terminal-stream
 
 ## Install
 
@@ -23,7 +23,7 @@ npx shadcn@latest add https://designme.dev/r/shadcn/astro/terminal-stream.json  
 
 ## About
 
-Terminal stream shows the shell commands an agent runs as a compact terminal panel. The header has the working directory and how the run is going, with Stop while it runs and Copy. Each command shows as a `$ npm run build` line with its output streaming in underneath, and ends with a check or a red exit code, and how long it took. Output longer than five lines folds to its last four behind a "Show 24 more lines" button, and when the run is over a line at the foot sums it up, like "3 commands · 0:18 · passed".
+Terminal stream shows the shell commands an agent runs as a compact terminal panel. The header has the working directory and how the run is going, with Stop while it runs and Copy. Each command shows as a `$ npm run build` line with its output streaming in underneath, and ends with a check or a red exit code, and how long it took. Output longer than five lines folds to its last four behind a "Show 24 more lines" button, and when the run is over a line at the foot sums it up, like "Ran 3 commands".
 
 ### When to use it
 
@@ -34,21 +34,21 @@ Terminal stream shows the shell commands an agent runs as a compact terminal pan
 
 ### What it does
 
-- `entries` are commands, notes and edits, oldest first. A command has a `status` of `running`, `ok`, `failed` or `stopped`, with a spinner, a check, a red "Exit 1" tag (from `exitCode`) or a Stopped tag, and its `duration`. A line down its left says the same in colour: the accent, pulsing, while it runs, then green, red or grey.
+- `entries` are commands, notes and edits, oldest first. A command has a `status` of `running`, `ok`, `failed` or `stopped`, with a spinner, a green check, a red "Exit 1" tag (from `exitCode`) or a Stopped tag, and its `duration`. A grey line runs down its left, in the accent and pulsing while it runs and red if it failed; Clean leaves the line out.
 - Output lines can be coloured with a `tone`: `ok` green, `bad` red or `muted` grey. Lines wrap inside the panel, so a long line never scrolls the page sideways.
 - Output longer than `tail` + 1 lines folds to its last `tail` lines (4 by default) behind a "Show N more lines" button that opens the rest.
-- A note (`kind: 'note'`) is a line from the agent between commands, which shimmers while it is the newest entry of a run still going. An edit (`kind: 'edit'`) is a file it changed, with a violet line, the lines added and removed once it is done, and its `diff` under it: lines starting with "-" on a red tint and "+" on a green one.
-- The header shows `cwd` and the run's `status` as a tag in its colour: the accent while it runs, with `elapsed` beside Running and a light sweeping along the header's edge, then green when passed or red when failed. `onStop` adds a Stop button while it runs, and Copy copies the whole run as text, edits' diffs included.
-- While the run goes on, a block cursor blinks after the newest line, on the output's faint code surface.
-- Once the run is over, `summary` folds open at the foot. By default it counts each command once, however many times it ran, then gives `elapsed` and the result.
-- The terminal keeps one height, 420px, from the first command to the last. Its output scrolls inside it and stays on the newest line, unless someone has scrolled up to read; set `height` on it through `className` to change the size.
+- A note (`kind: 'note'`) is a line from the agent between commands, which shimmers while it is the newest entry of a run still going. An edit (`kind: 'edit'`) is a file it changed, with a pencil in place of the `$`, the lines added and removed once it is done, and its `diff` under it: lines starting with "-" on a red tint and "+" on a green one.
+- The header shows `cwd` and the run's `status` as a tag: grey while it runs, with `elapsed` beside Running shimmering like every loading line, then green when passed or red when failed. In Blueprint and Soft a light sweeps along the header's edge while it runs; in Clean the header is an off-white strip. `onStop` adds a Stop button while it runs, and Copy copies the whole run as text, edits' diffs included.
+- While the run goes on, a block cursor blinks after the newest line. The commands, their output and the diffs are code, in mono; the header, the times, the notes and the summary are in the interface's type.
+- Once the run is over, `summary` folds open at the foot. By default it says how many commands ran, counting each one once however many times it ran; how the run went is the header's tag, and the finished line has no clock.
+- The terminal grows with its output, eased, up to 420px, then its output scrolls inside it and stays on the newest line, unless someone has scrolled up to read. To change the most it grows to, give it a `className` and set `max-height` on it and on its `.dm-grow` child in your CSS.
 
 ### Accessibility
 
 - The output is a log region labelled "Terminal output", so screen readers can follow it as it arrives. It can be focused with Tab and scrolled with the arrow keys.
 - "Show N more lines" is a button that says whether the folded lines are open, and the folded lines can't be reached with Tab while they are shut.
-- Stop and Copy are labelled buttons, and Copy says "Copied to clipboard" in a tooltip once it has copied.
-- The coloured lines, the sweeping light and the cursor are decoration: each command's state is also written out, and with reduced motion they stop moving.
+- Stop and Copy are labelled buttons, and Copy says "Copied to clipboard" in a tooltip once it has copied, its icon crossfading into a tick. A command's spinner, and the header's, crossfade the same way into the tick, Exit tag or Stopped that ends them.
+- The coloured lines, the sweeping light, the shimmer and the cursor are decoration: each command's state is also written out, and with reduced motion they stop moving.
 
 ## Usage in React
 
@@ -145,8 +145,8 @@ export default function TerminalStreamDemo() {
 | `cwd` | `string` | The working directory, shown in the header, like "~/acme/web" |
 | `entries` | `TerminalEntry[]` | Commands, notes and edits, oldest first |
 | `status` (optional) | `TerminalStatus` | The run as a whole. Left out, it is running while any entry runs, then failed if the last command failed, else passed |
-| `elapsed` (optional) | `string` | How long the run has taken, like "0:18". Shown beside Running in the header and in the summary |
-| `summary` (optional) | `string \| false` | The line at the foot once the run is over. Defaults to "3 commands · 0:18 · passed", counting each command once however many times it ran; false hides it |
+| `elapsed` (optional) | `string` | How long the run has taken, like "0:18". Shown beside Running in the header while it runs |
+| `summary` (optional) | `string \| false` | The line at the foot once the run is over. Defaults to "Ran 3 commands", counting each command once however many times it ran (how it went is the header's tag, and a finished line has no clock); false hides it |
 | `tail` (optional) | `number` | How many lines a folded output keeps showing |
 | `onStop` (optional) | `() => void` | Adds the Stop button while the run is going |
 | `onCopy` (optional) | `(text: string) => void` | Called with the whole run as text when it is copied |
@@ -170,7 +170,7 @@ It plays its demo; change `terminal-stream.js` to show your own data. `data-styl
 
 No. It shows the `entries` you pass. Your code runs the commands, streams their output into `output`, and sets each one's `status` and `duration`. `onStop` tells you when someone pressed Stop.
 
-**Why does the summary say 3 commands when 4 ran?**
+**Why does the summary say Ran 3 commands when 4 ran?**
 
 It counts each command once, however many times it ran, so a test run again after a fix doesn't add one. Pass your own `summary` to say it another way, or `false` to hide it.
 
@@ -188,7 +188,7 @@ import { useEffect, useRef, useState } from 'react';
 import { cx } from '../lib/cx';
 import { useCopied } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { enter, Fold, Spin, Tip } from '../lib/motion';
+import { enter, Fold, Spin, SwapIcon, Tip, useGrow } from '../lib/motion';
 import '../designme.css';
 import './terminal-stream.css';
 
@@ -239,10 +239,10 @@ export interface TerminalStreamProps {
   entries: TerminalEntry[];
   /** The run as a whole. Left out, it is running while any entry runs, then failed if the last command failed, else passed */
   status?: TerminalStatus;
-  /** How long the run has taken, like "0:18". Shown beside Running in the header and in the summary */
+  /** How long the run has taken, like "0:18". Shown beside Running in the header while it runs */
   elapsed?: string;
-  /** The line at the foot once the run is over. Defaults to "3 commands · 0:18 · passed", counting each command once
-      however many times it ran; false hides it */
+  /** The line at the foot once the run is over. Defaults to "Ran 3 commands", counting each command once however many times
+      it ran (how it went is the header's tag, and a finished line has no clock); false hides it */
   summary?: string | false;
   /** How many lines a folded output keeps showing */
   tail?: number;
@@ -260,13 +260,14 @@ const isNote = (e: TerminalEntry): e is TerminalNote => e.kind === 'note';
 const isEdit = (e: TerminalEntry): e is TerminalEdit => e.kind === 'edit';
 
 function Lines({ lines }: { lines: TerminalLine[] }) {
-  return <div className="dm-tmx-o">{lines.map((l, i) => { const { text, tone } = lineOf(l); return <div key={i} className={cx('dm-tmx-l', tone && TONE[tone])}>{text}</div>; })}</div>;
+  return <code className="dm-tmx-o">{lines.map((l, i) => { const { text, tone } = lineOf(l); return <span key={i} className={cx('dm-tmx-l', tone && TONE[tone])}>{text}</span>; })}</code>;
 }
 
 /** The shell commands an agent runs, as a compact terminal: the working directory and how the run is going in the header,
     each command with its output streaming in under it and an exit code or a check with how long it took, and a summary
-    at the foot once it is over. Long output folds to its last lines. The terminal keeps one height (420px; set `height`
-    on it to change that) and its output scrolls, staying on the newest line unless the reader has scrolled up. */
+    at the foot once it is over. Long output folds to its last lines. The terminal grows with its output, eased, up to 420px
+    (set `max-height` on it and on its `.dm-grow` to change that); then its output scrolls, staying on the newest line unless
+    the reader has scrolled up. The output is code, in mono; everything around it is in the interface's type. */
 export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 4, onStop, onCopy, labels = {}, className }: TerminalStreamProps) {
   const L = { running: 'Running', passed: 'Passed', failed: 'Failed', stopped: 'Stopped', stop: 'Stop', copy: 'Copy', copied: 'Copied to clipboard',
     more: (n: number) => `Show ${n} more line${n === 1 ? '' : 's'}`, fewer: 'Show fewer lines', edit: 'Edit', ...labels };
@@ -278,7 +279,10 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
   const state: TerminalStatus = status ?? (busy ? 'running' : last?.status === 'failed' ? 'failed' : last?.status === 'stopped' ? 'stopped' : 'passed');
   const running = state === 'running';
   const n = new Set(cmds.map(c => c.command)).size;
-  const foot = summary !== undefined ? summary : [`${n} command${n === 1 ? '' : 's'}`, elapsed, state].filter(Boolean).join(' · ');
+  // how it went is the header's tag, so the summary doesn't say it again
+  const foot = summary !== undefined ? summary : `Ran ${n} command${n === 1 ? '' : 's'}`;
+  // no room is kept for output still to come (owner, 17 Nov): it grows as lines arrive (as grow() on the site)
+  const [root, inner] = useGrow();
   const toggle = (i: number) => setOpen(s => { const t = new Set(s); if (t.has(i)) t.delete(i); else t.add(i); return t; });
   // new output keeps the log on its newest line, unless the reader has scrolled up; then it stays where they are
   const log = useRef<HTMLDivElement>(null), pinned = useRef(true);
@@ -297,18 +301,19 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
   const copyAll = () => { const t = text(); copy(t); onCopy?.(t); };
 
   return (
-    <div data-dm="" className={cx('dm-tmx dm-panel', running && 'dm-live', className)} style={{ containerType: 'inline-size' }}>
+    <div data-dm="" ref={root} className={cx('dm-tmx dm-panel dm-growing dm-mx-grow dm-mx-ic', running && 'dm-live', className)} style={{ containerType: 'inline-size' }}>
+      <div ref={inner} className="dm-grow">
       <div className="dm-tmx-h">
         <span className="dm-tmx-ic"><Icon name="term" /></span>
         <span className="dm-tmx-cwd">{cwd}</span>
         <span className={cx('dm-tmx-st', state === 'passed' && 'dm-ok', state === 'failed' && 'dm-bad')}>
-          <span className="dm-g">{running ? <Spin /> : <Icon name={state === 'passed' ? 'check' : 'stop'} size="xs" />}</span>
-          <span className="dm-tmx-sv dm-num">{running ? (elapsed ? `${L.running} · ${elapsed}` : L.running) : L[state]}</span>
+          <span className="dm-g"><SwapIcon id={running ? 'run' : state}>{running ? <Spin /> : <Icon name={state === 'passed' ? 'check' : 'stop'} size="xs" />}</SwapIcon></span>
+          <span className={cx('dm-tmx-sv dm-num', running && 'dm-shim')}>{running ? (elapsed ? `${L.running} · ${elapsed}` : L.running) : L[state]}</span>
         </span>
         <span className="dm-sp" />
-        {running && onStop && <button type="button" className="dm-pill dm-ghost dm-sm dm-tmx-stop" aria-label="Stop the running command" onClick={onStop}><Icon name="stop" size="xs" />{L.stop}</button>}
+        {running && onStop && <button type="button" className="dm-pill dm-ghost dm-sm dm-tmx-stop dm-mx-press" aria-label="Stop the running command" onClick={onStop}><Icon name="stop" size="xs" />{L.stop}</button>}
         <Tip label={copied ? L.copied : L.copy} open={copied}>
-          <button type="button" className={cx('dm-ib dm-tmx-cp', copied && 'dm-copied')} aria-label="Copy the output" onClick={copyAll}><Icon name={copied ? 'check' : 'copy'} /></button>
+          <button type="button" className={cx('dm-ib dm-tmx-cp dm-mx-press', copied && 'dm-copied')} aria-label="Copy the output" onClick={copyAll}><SwapIcon id={copied ? 'check' : 'copy'}><Icon name={copied ? 'check' : 'copy'} /></SwapIcon></button>
         </Tip>
       </div>
       <div ref={log} className="dm-tmx-body" role="log" aria-label="Terminal output" tabIndex={0}
@@ -319,13 +324,12 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
           if (isNote(e)) return <div key={i} className={cx('dm-tmx-note', e0.className)} style={e0.style}><Icon name="spark" size="xs" /><span className={cx(running && i === entries.length - 1 && 'dm-shim')}>{e.text}</span></div>;
           if (isEdit(e)) return (
             <div key={i} className={cx('dm-tmx-blk', e0.className)} style={e0.style} data-s={e.status === 'stopped' ? 'stop' : 'edit'}>
-              <div className="dm-tmx-cmd"><span className="dm-tmx-p"><Icon name="edit" size="xs" /></span><span className="dm-tmx-c">{L.edit} {e.file}</span>
-                <span className="dm-tmx-m">{e.status === 'running' ? <span className="dm-g"><Spin /></span>
-                  : e.status === 'stopped' ? <span className="dm-g"><span className="dm-tag">{L.stopped}</span></span>
+              <div className="dm-tmx-cmd"><span className="dm-tmx-p"><Icon name="edit" size="xs" /></span><code className="dm-tmx-c">{L.edit} {e.file}</code>
+                <span className="dm-tmx-m">{e.status === 'running' || e.status === 'stopped' ? <span className="dm-g"><SwapIcon id={e.status}>{e.status === 'running' ? <Spin /> : <span className="dm-tag">{L.stopped}</span>}</SwapIcon></span>
                   : <>{e.added !== undefined && <span className="dm-add">+{e.added}</span>}{e.removed !== undefined && <span className="dm-del">−{e.removed}</span>}</>}</span>
               </div>
               {e.status !== 'running' && e.status !== 'stopped' && e.diff && e.diff.length > 0 && (
-                <div className="dm-tmx-df">{e.diff.map((d, j) => { const x = enter(j * 90); return <div key={j} className={cx(d[0] === '+' && 'dm-a', d[0] === '-' && 'dm-d', x.className)} style={x.style}>{d}</div>; })}</div>
+                <code className="dm-tmx-df">{e.diff.map((d, j) => { const x = enter(j * 90); return <span key={j} className={cx(d[0] === '+' && 'dm-a', d[0] === '-' && 'dm-d', x.className)} style={x.style}>{d}</span>; })}</code>
               )}
             </div>
           );
@@ -333,14 +337,14 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
           return (
             <div key={i} className={cx('dm-tmx-blk', e0.className)} style={e0.style} data-s={e.status === 'running' ? 'run' : e.status === 'ok' ? 'ok' : e.status === 'failed' ? 'bad' : 'stop'}>
               <div className="dm-tmx-cmd">
-                <span className="dm-tmx-p">$</span><span className="dm-tmx-c">{e.command}</span>
+                <code className="dm-tmx-p">$</code><code className="dm-tmx-c">{e.command}</code>
                 <span className="dm-tmx-m">
-                  <span className="dm-g">{e.status === 'running' ? <Spin /> : e.status === 'ok' ? <span className="dm-ok"><Icon name="check" size="xs" /></span>
-                    : e.status === 'failed' ? <span className="dm-tag dm-bad">Exit {e.exitCode ?? 1}</span> : <span className="dm-tag">{L.stopped}</span>}</span>
+                  <span className="dm-g"><SwapIcon id={e.status}>{e.status === 'running' ? <Spin /> : e.status === 'ok' ? <span className="dm-ok"><Icon name="check" size="xs" /></span>
+                    : e.status === 'failed' ? <span className="dm-tag dm-bad">Exit {e.exitCode ?? 1}</span> : <span className="dm-tag">{L.stopped}</span>}</SwapIcon></span>
                   {e.duration && <span className="dm-t dm-num">{e.duration}</span>}
                 </span>
               </div>
-              {fold && <button type="button" className="dm-tmx-more" aria-expanded={isOpen} onClick={() => toggle(i)}><Icon name="chev-d" size="xs" /><span>{isOpen ? L.fewer : L.more(hidden.length)}</span></button>}
+              {fold && <button type="button" className="dm-tmx-more dm-mx-press" aria-expanded={isOpen} onClick={() => toggle(i)}><Icon name="chev-d" size="xs" /><span>{isOpen ? L.fewer : L.more(hidden.length)}</span><i className="dm-sp" /></button>}
               {fold && <Fold open={isOpen}><Lines lines={hidden} /></Fold>}
               {shown.length > 0 && <Lines lines={shown} />}
             </div>
@@ -353,6 +357,7 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
           <span className="dm-tmx-fs dm-num">{foot || ''}</span>
         </div>
       </Fold>
+      </div>
     </div>
   );
 }
@@ -362,8 +367,5 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
 
 - [Citation hover card](https://designme.dev/components/citation-hover-card.md): Hover a citation to see the exact passage it came from.
 - [Source stack](https://designme.dev/components/source-stack.md): Everything the agent read, folded into one quiet pill.
-- [Metric insight](https://designme.dev/components/metric-insight.md): A number, its trend, and the agent's read on why it moved.
-- [Details panel](https://designme.dev/components/details-panel.md): Properties of a run you can change in place.
-- [Task table](https://designme.dev/components/task-table.md): Agent tasks in a sortable table with bulk actions.
 
 All components: https://designme.dev/llms.txt

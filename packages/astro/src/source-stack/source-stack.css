@@ -1,24 +1,33 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Source stack ---------- */
-.ssx{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
-.ssx-pill{display:inline-flex;align-items:center;gap:var(--dm-s-2);height:30px;padding:0 10px 0 5px;border-radius:var(--dm-r-pill);background:var(--dm-chip);font-size:12.5px;color:var(--dm-fg2);transition:background .25s,color .25s}
-@media (hover:hover) and (pointer:fine){.ssx-pill:hover{background:var(--dm-hover);color:var(--dm-fg)}}
+/* everything the agent read, folded into one pill under the answer: the first sources' marks side by side (never stacked
+   over each other, owner, 18 Nov) and the count. Open, a filter and the list: each source's mark, its title and where it
+   came from, how much it counted, and a button to open it. A mark is a vivid fill of its own with white letters (or an
+   avatar colour with its own ink); Clean keeps its marks one neutral grey. It sits on the stage, not on a card, so a row's
+   hover fill is a quiet step darker than the stage (owner, 18 Nov), reaching out round the row's mark and words */
+.ssx{display:flex;flex-direction:column;gap:10px;align-items:flex-start;--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
+/* its motion (the core's motion pieces, owner, 26 Nov): one highlight glides from source to source in every style (.mx-glide);
+   a filter moves the rows (reflow()) as the list eases to its new height, its hover fills kept while it does; a press on Open
+   shows at once, a step deeper than its hover (.mx-press) */
+.ssx{--dm-row-press:color-mix(in srgb,var(--dm-fg) 9%,transparent)}
+:root[data-style="clean"] .ssx,:root [data-style="clean"] .ssx,:root [data-style="clean"].ssx{--dm-row-press:var(--dm-row-on)}
+.ssx-list{overflow-clip-margin:8px}
+.ssx-pill{display:inline-flex;align-items:center;gap:var(--dm-s-2);height:30px;padding:0 10px 0 6px;border-radius:var(--dm-r-pill);background:var(--dm-chip-fill);font-size:12.5px;color:var(--dm-fg2);transition:background .25s,color .25s}
+@media (hover:hover) and (pointer:fine){.ssx-pill:hover{background:var(--dm-chip-fill-h);color:var(--dm-fg)}}
 .ssx-pill>svg{transition:transform .4s var(--dm-ease)}
 .ssx-pill[aria-expanded="true"]>svg{transform:rotate(180deg)}
-.ssx-ics{display:flex}
-.ssx-ics span{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:9px;font-weight:500;color:#fff;box-shadow:0 0 0 2px var(--dm-chip);margin-right:-6px;transition:margin .4s var(--dm-ease)}
-@media (hover:hover) and (pointer:fine){.ssx-pill:hover .ssx-ics span{margin-right:-3px}}
-.ssx-ics span:last-child{margin-right:0}
+.ssx-ics{display:flex;gap:2px}
+.ssx-ics span{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:9px;font-weight:500;color:#fff}
 .ssx-box{width:100%}
 .ssx-in{padding:2px 0 var(--dm-s-1);display:flex;flex-direction:column;gap:var(--dm-s-2)}
-.ssx-fl{display:flex;gap:var(--dm-s-1);flex-wrap:wrap}
+.ssx-fl{display:flex;gap:var(--dm-s-2);flex-wrap:wrap}
 /* the filters are white chips with a dimmed grey edge; the picked one's edge is a step stronger */
 .ssx-fl .chip{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-line) 50%,transparent)}
 @media (hover:hover) and (pointer:fine){.ssx-fl .chip:hover{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-faint) 50%,transparent)}}
 .ssx-list{display:flex;flex-direction:column;gap:2px;margin-inline:-6px}
 .ssx-s{display:flex;align-items:center;gap:10px;padding:7px 6px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;transition:background .25s}
 @media (hover:hover) and (pointer:fine){.ssx-s:hover{background:var(--dm-row)}}
-.ssx-s .fv{width:22px;height:22px;border-radius:calc(7px * var(--dm-rk-m,var(--dm-rk)));display:grid;place-items:center;font-size:9.5px;font-weight:500;flex:none}
+.ssx-s .fv{width:22px;height:22px;border-radius:calc(7px * var(--dm-rk-m,var(--dm-rk)));display:grid;place-items:center;font-size:9.5px;font-weight:500;color:#fff;flex:none}
 .ssx-s .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ssx-s .h{font-size:12px;color:var(--dm-muted)}
 .ssx-s .rel{width:36px;height:4px;border-radius:var(--dm-r-tiny,2px);background:var(--dm-line);overflow:hidden;flex:none}
@@ -27,3 +36,18 @@
 .ssx-s .ib{width:24px;height:24px;opacity:0;transition:opacity .2s}
 @media (hover:hover) and (pointer:fine){.ssx-s:hover .ib{opacity:1}}
 .ssx-s .ib:focus-visible{opacity:1}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov) */
+.ssx :is(.ib,.pill):active,:root[data-style="clean"] .ssx .ib:active,:root [data-style="clean"] .ssx .ib:active,:root [data-style="clean"].ssx .ib:active{transform:none}
+/* Clean (owner, 18 Nov): the sources' marks are one neutral grey with a hairline, not a colour each */
+:root[data-style="clean"] :is(.ssx-ics span,.ssx-s .fv),:root [data-style="clean"] :is(.ssx-ics span,.ssx-s .fv),:root [data-style="clean"]:is(.ssx-ics span,.ssx-s .fv){background:var(--dm-chip)!important;color:var(--dm-fg2)!important;box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .ssx-s,:root [data-style="clean"] .ssx-s,:root [data-style="clean"].ssx-s{border-radius:var(--dm-r-in)}
+/* the filter chips keep their quiet edge: the one hover fills them, and the picked one has the stronger fill (owner, 21 Nov:
+   never a stronger edge); the sources pill deepens by the same fill, and holds the stronger one while its list is open
+   (Agent harness keeps its own) */
+:root[data-style="clean"] .ssx-fl .chip,:root [data-style="clean"] .ssx-fl .chip,:root [data-style="clean"].ssx-fl .chip{transition:background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .ssx-fl .chip:not(.on):hover,:root [data-style="clean"] .ssx-fl .chip:not(.on):hover,:root [data-style="clean"].ssx-fl .chip:not(.on):hover{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-line) 50%,transparent),inset 0 0 0 99px var(--dm-row)}}
+:root[data-style="clean"] .ssx-fl .chip.on,:root [data-style="clean"] .ssx-fl .chip.on,:root [data-style="clean"].ssx-fl .chip.on{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-line) 50%,transparent),inset 0 0 0 99px var(--dm-row-on)}
+:root[data-style="clean"] .ssx-pill:not(.ahx *),:root [data-style="clean"] .ssx-pill:not(.ahx *),:root [data-style="clean"].ssx-pill:not(.ahx *){box-shadow:inset 0 0 0 99px transparent}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .ssx-pill:not(.ahx *):hover,:root [data-style="clean"] .ssx-pill:not(.ahx *):hover,:root [data-style="clean"].ssx-pill:not(.ahx *):hover{background:var(--dm-chip);box-shadow:inset 0 0 0 99px var(--dm-row)}}
+:root[data-style="clean"] .ssx-pill:not(.ahx *)[aria-expanded="true"],:root [data-style="clean"] .ssx-pill:not(.ahx *)[aria-expanded="true"],:root [data-style="clean"].ssx-pill:not(.ahx *)[aria-expanded="true"]{box-shadow:inset 0 0 0 99px var(--dm-row-on)}
+:root[data-style="clean"] :is(.ssx-pill,.ssx-s,.ssx-s .ib),:root [data-style="clean"] :is(.ssx-pill,.ssx-s,.ssx-s .ib),:root [data-style="clean"]:is(.ssx-pill,.ssx-s,.ssx-s .ib){transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}

@@ -283,6 +283,8 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 /* the sources button of an answer in the chat keeps its words on the column's edge when it reaches it (on a phone), its hover
    box reaching out round them; on a phone it ends the row, under the tab strip's last glyph (16px in, as the panel's close is) */
 .ahx-col .lva-sb{margin-right:-9px}
+/* (the harness keeps its sources button as it was: favicons 5px in) */
+.ahx .lva-sb{padding-left:5px}
 /* a component in the chat lines up with the messages on the left, instead of centring itself as it does on its own */
 .ahx-col .ahx-msg>*{margin-left:0;margin-right:auto}
 /* chat components sit on the chat itself, the way a bare card shows them; an artifact and a diff keep their card */
@@ -306,10 +308,16 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .ahx-bot::before{content:"";position:absolute;left:0;right:10px;bottom:100%;height:28px;background:linear-gradient(transparent,var(--dm-surface));pointer-events:none}
 .ahx-bot .cpx{max-width:632px;margin:0 auto}
 .ahx .cpx-thread{display:none}
+/* (the harness's composer keeps its earlier toolbar: the attach button reaching out round its glyph, chips padded on a phone) */
+.ahx .cpx-bar>.cpx-add{margin-left:-9px}
+:root[data-style="clean"] .ahx .cpx-bar>.cpx-add,:root [data-style="clean"] .ahx .cpx-bar>.cpx-add,:root [data-style="clean"].ahx .cpx-bar>.cpx-add{margin-left:-7px}
+@container (max-width:400px){.ahx .cpx-bar .chip{width:auto;padding:0 8px;justify-content:normal}:root[data-style="clean"] .ahx .cpx-bar .chip,:root [data-style="clean"] .ahx .cpx-bar .chip,:root [data-style="clean"].ahx .cpx-bar .chip{width:auto;padding:0 8px}}
 .ahx .ctm-ft{gap:2px;margin-right:1px;font-size:12px}
 .ahx .ctm-ft>span{color:var(--dm-muted);margin-right:2px}
 /* while the agent works in the chat on screen, a new message waits */
 .ahx.busy .cpx-bar .cpx-send{background:var(--dm-rail);color:var(--dm-surface);pointer-events:none}
+:root[data-style="clean"] .ahx.busy .cpx-bar .cpx-send,:root [data-style="clean"] .ahx.busy .cpx-bar .cpx-send,:root [data-style="clean"].ahx.busy .cpx-bar .cpx-send{color:var(--dm-surface)}
+:root[data-style="clean"] .ahx.busy .cpx-bar .cpx-send::before,:root [data-style="clean"] .ahx.busy .cpx-bar .cpx-send::before,:root [data-style="clean"].ahx.busy .cpx-bar .cpx-send::before{opacity:0}
 /* the panel beside the chat, for an artifact */
 /* shut, the panel is hidden as well as narrow, so Tab passes over its buttons */
 .ahx-pane{flex:none;width:0;overflow:hidden;background:var(--dm-surface);border-left:1px solid transparent;visibility:hidden;transition:width var(--dm-t) var(--dm-ease),border-color var(--dm-t) var(--dm-ease),visibility 0s var(--dm-t)}
@@ -386,28 +394,350 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 :root[data-style="clean"] .ahx-ph,:root [data-style="clean"] .ahx-ph,:root [data-style="clean"].ahx-ph{padding-right:var(--dm-s-2)}
 :root[data-style="clean"] .ahx.pn .ahx-pane,:root [data-style="clean"] .ahx.pn .ahx-pane,:root [data-style="clean"].ahx.pn .ahx-pane{border-left-color:var(--dm-line)}
 @container ahx (max-width:620px){:root[data-style="clean"] .ahx .ahx-menu,:root [data-style="clean"] .ahx .ahx-menu,:root [data-style="clean"].ahx .ahx-menu{margin-left:0}}
+/* (Agent harness: staging look, start) */
+/* Phase II (owner, 21 Nov): Agent harness stays as it is on staging until its own Clean pass, and so do the parts it embeds
+   (Composer's Send, Status pill, Thinking, Permission gate, Plan review, Decision prompt, Source stack, the menus' rows),
+   whatever their own reviews have changed since. Their staging rules are repeated here, scoped to the harness at a weight
+   (.ahx four times) that wins over the reviewed ones, with Clean's tokens as they were on staging: the solid row fill and, in
+   dark mode, the blue accent rather than the white one. Generated from staging's stylesheet; drop it at the harness's Clean pass */
+:root[data-style="clean"] .ahx.ahx.ahx.ahx,:root [data-style="clean"] .ahx.ahx.ahx.ahx,:root [data-style="clean"].ahx.ahx.ahx.ahx{--dm-row:#f7f7f7;--dm-row-on:#f7f7f7}
+:root[data-style="clean"][data-theme="dark"] .ahx.ahx.ahx.ahx,:root[data-theme="dark"] [data-style="clean"] .ahx.ahx.ahx.ahx,:root[data-theme="dark"] [data-style="clean"].ahx.ahx.ahx.ahx{--dm-row:#1a1a1a;--dm-row-on:#1a1a1a;--dm-accent:#116ff8;--dm-accent-2:color-mix(in srgb,#116ff8 84%,#fff);--dm-on-accent:#ffffff;--dm-accent-fg:#9dc4ff;--dm-accent-mark:#2f86ff;--dm-accent-bg:color-mix(in srgb,#116ff8 13%,transparent);--dm-sel:color-mix(in srgb,#116ff8 9%,transparent)}
+@media (prefers-color-scheme:dark){:root[data-style="clean"]:not([data-theme="light"]) .ahx.ahx.ahx.ahx,:root:not([data-theme="light"]) [data-style="clean"] .ahx.ahx.ahx.ahx,:root:not([data-theme="light"]) [data-style="clean"].ahx.ahx.ahx.ahx{--dm-row:#1a1a1a;--dm-row-on:#1a1a1a;--dm-accent:#116ff8;--dm-accent-2:color-mix(in srgb,#116ff8 84%,#fff);--dm-on-accent:#ffffff;--dm-accent-fg:#9dc4ff;--dm-accent-mark:#2f86ff;--dm-accent-bg:color-mix(in srgb,#116ff8 13%,transparent);--dm-sel:color-mix(in srgb,#116ff8 9%,transparent)}}
+@supports (corner-shape:squircle){.ahx.ahx.ahx.ahx .cpx-send,.ahx.ahx.ahx.ahx .plx-s .n,.ahx.ahx.ahx.ahx .ssx-ics span,.ahx.ahx.ahx.ahx .think i,.ahx.ahx.ahx.ahx .tk-st .mk{corner-shape:round}}
+.ahx.ahx.ahx.ahx .think{width:14px;height:14px;position:relative;flex:none;display:inline-block}
+.ahx.ahx.ahx.ahx .think i{position:absolute;width:3.4px;height:3.4px;border-radius:50%;background:currentColor;left:50%;top:50%;margin:-1.7px}
+.ahx.ahx.ahx.ahx .think i:nth-child(1){transform:translate(-3.6px,-3.6px)}
+.ahx.ahx.ahx.ahx .think i:nth-child(2){transform:translate(3.6px,-3.6px)}
+.ahx.ahx.ahx.ahx .think i:nth-child(3){transform:translate(3.6px,3.6px)}
+.ahx.ahx.ahx.ahx .think i:nth-child(4){transform:translate(-3.6px,3.6px)}
+.ahx.ahx.ahx.ahx .think.on{animation:thinkrot 1.6s var(--dm-ease-io) infinite}
+.ahx.ahx.ahx.ahx .think.on i{animation:thinkpulse 1.6s var(--dm-ease-io) infinite}
+.ahx.ahx.ahx.ahx .think.on i:nth-child(2){animation-delay:.2s}
+.ahx.ahx.ahx.ahx .think.on i:nth-child(3){animation-delay:.4s}
+.ahx.ahx.ahx.ahx .think.on i:nth-child(4){animation-delay:.6s}
+:root[data-theme="dark"] .ahx.ahx.ahx.ahx .ssx-ics span{color:#0d0d0d!important}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ahx.ahx.ahx.ahx .ssx-ics span{color:#0d0d0d!important}}
+.ahx.ahx.ahx.ahx .mi{display:flex;align-items:center;gap:10px;width:100%;padding:7px var(--dm-s-2);border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;text-align:left;color:var(--dm-fg);transition:background var(--dm-t-fast)}
+.ahx.ahx.ahx.ahx .mi.hl{background:var(--dm-row)}
+@media (hover:hover) and (pointer:fine){.ahx.ahx.ahx.ahx .mi:hover{background:var(--dm-row)}}
+.ahx.ahx.ahx.ahx .mi+.mi{margin-top:2px}
+.ahx.ahx.ahx.ahx .mi .i{color:var(--dm-fg2)}
+.ahx.ahx.ahx.ahx .mi .d{display:block;font-size:12px;color:var(--dm-muted)}
+@media (hover:hover) and (pointer:fine){.ahx.ahx.ahx.ahx .mi:is(:hover,.hl,[aria-checked="true"]) .d{color:var(--dm-fg2)}}
+.ahx.ahx.ahx.ahx .mi .r{margin-left:auto;color:var(--dm-muted);font-size:12px}
+.ahx.ahx.ahx.ahx .mi .ck{margin-left:auto;color:var(--dm-accent-fg,var(--dm-accent));opacity:0;transition:opacity var(--dm-t-fast)}
+.ahx.ahx.ahx.ahx .mi[aria-checked="true"] .ck{opacity:1}
+.ahx.ahx.ahx.ahx .mi[aria-checked="true"]{background:var(--dm-row);font-weight:500}
+@media (hover:hover) and (pointer:fine){:root[data-theme="dark"] .ahx.ahx.ahx.ahx :is(.plx-s:hover .n,.tpx-r:hover .tr){background:var(--dm-hover)}}
+@media (prefers-color-scheme:dark){@media (hover:hover) and (pointer:fine){:root:not([data-theme="light"]) .ahx.ahx.ahx.ahx :is(.plx-s:hover .n,.tpx-r:hover .tr){background:var(--dm-hover)}}}
+.ahx.ahx.ahx.ahx .spl-pill{background:var(--dm-surface);border-radius:var(--dm-r-pill);box-shadow:var(--dm-shadow);height:40px;display:flex;align-items:center;overflow:hidden;transition:width .6s var(--dm-ease),border-radius .5s var(--dm-ease),height .5s var(--dm-ease)}
+.ahx.ahx.ahx.ahx .spl-in{display:flex;align-items:center;gap:9px;padding:0 6px 0 14px;height:100%;white-space:nowrap;font-size:13px;transition:opacity .32s var(--dm-ease),filter .32s var(--dm-ease)}
+.ahx.ahx.ahx.ahx .spl-in.out{opacity:0;filter:blur(4px);transition-duration:.16s}
+.ahx.ahx.ahx.ahx .spl-in .g{display:grid;place-items:center;width:16px;color:var(--dm-fg2)}
+.ahx.ahx.ahx.ahx .spl-in .m{color:var(--dm-muted);font-variant-numeric:tabular-nums}
+.ahx.ahx.ahx.ahx .spl-in .end{width:0}
+.ahx.ahx.ahx.ahx .spl-in .pill{height:28px;margin-left:var(--dm-s-1)}
+.ahx.ahx.ahx.ahx .spl.bar .spl-pill{border-radius:var(--dm-r-card);height:62px;align-items:flex-start}
+.ahx.ahx.ahx.ahx .spl.bar .spl-in{height:46px;width:100%;padding:0 var(--dm-s-4)}
+.ahx.ahx.ahx.ahx .spl.bar .spl-in .m,.ahx.ahx.ahx.ahx .spl.bar .spl-in .pill{margin-left:auto}
+.ahx.ahx.ahx.ahx .spl.bar .spl-in .end{display:none}
+.ahx.ahx.ahx.ahx .spl-pill{position:relative}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .spl-pill,:root [data-style="clean"] .ahx.ahx.ahx.ahx .spl-pill,:root [data-style="clean"].ahx.ahx.ahx.ahx .spl-pill{height:36px;border-radius:999px;background:var(--dm-surface);box-shadow:var(--dm-shadow);transition:width .3s var(--dm-ease),border-radius .42s var(--dm-ease),height .42s var(--dm-ease)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .spl-in,:root [data-style="clean"] .ahx.ahx.ahx.ahx .spl-in,:root [data-style="clean"].ahx.ahx.ahx.ahx .spl-in{gap:8px;padding:0 5px 0 13px;font-size:13px;color:var(--dm-fg);transition:opacity .24s var(--dm-ease),transform .24s var(--dm-ease)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .spl-in.out,:root [data-style="clean"] .ahx.ahx.ahx.ahx .spl-in.out,:root [data-style="clean"].ahx.ahx.ahx.ahx .spl-in.out{opacity:0;filter:none;transform:translateY(-3px);transition:opacity .15s ease-in-out,transform .15s ease-in-out}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .spl-in .m,:root [data-style="clean"] .ahx.ahx.ahx.ahx .spl-in .m,:root [data-style="clean"].ahx.ahx.ahx.ahx .spl-in .m{color:var(--dm-muted)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .spl-in .pill,:root [data-style="clean"] .ahx.ahx.ahx.ahx .spl-in .pill,:root [data-style="clean"].ahx.ahx.ahx.ahx .spl-in .pill{height:26px;padding:0 11px;border-radius:999px;margin-left:2px}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .spl.bar .spl-pill,:root [data-style="clean"] .ahx.ahx.ahx.ahx .spl.bar .spl-pill,:root [data-style="clean"].ahx.ahx.ahx.ahx .spl.bar .spl-pill{height:58px;border-radius:var(--dm-r-card)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .spl.bar .spl-in,:root [data-style="clean"] .ahx.ahx.ahx.ahx .spl.bar .spl-in,:root [data-style="clean"].ahx.ahx.ahx.ahx .spl.bar .spl-in{height:42px;padding:0 14px}
+@media (prefers-reduced-motion:reduce){:root[data-style="clean"] .ahx.ahx.ahx.ahx :is(.spl-pill,.spl-in,.spl-in.out,.spl-fill),:root [data-style="clean"] .ahx.ahx.ahx.ahx :is(.spl-pill,.spl-in,.spl-in.out,.spl-fill),:root [data-style="clean"].ahx.ahx.ahx.ahx :is(.spl-pill,.spl-in,.spl-in.out,.spl-fill){transition:none!important}}
+.ahx.ahx.ahx.ahx .stage-in:has(>.tk){overflow-anchor:none}
+.ahx.ahx.ahx.ahx .tk{font-size:14px;width:100%;max-width:420px;margin-inline:auto;overflow-anchor:none}
+.ahx.ahx.ahx.ahx .stage-in>.tk{min-height:inherit}
+.ahx.ahx.ahx.ahx .tk-h{display:flex;align-items:center;gap:10px;width:calc(100% + 16px);margin:0 -8px;padding:6px var(--dm-s-2);border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));text-align:left;transition:background var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.ahx.ahx.ahx.ahx .tk-h:hover{background:var(--dm-row)}}
+.ahx.ahx.ahx.ahx .tk-mark{width:18px;height:18px;flex:none;display:grid;place-items:center;color:var(--dm-accent-mark,var(--dm-accent));transition:color .3s}
+.ahx.ahx.ahx.ahx .tk-h.tk-fin .tk-mark{color:var(--dm-ok)}
+.ahx.ahx.ahx.ahx .tk-h.tk-fin .tk-mark .i{animation:tkpop .5s var(--dm-ease) backwards}
+.ahx.ahx.ahx.ahx .tk-title{flex:1;min-width:0;color:var(--dm-fg)}
+.ahx.ahx.ahx.ahx .tk-time{color:var(--dm-muted);font-size:13px}
+.ahx.ahx.ahx.ahx .tk-chev{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
+.ahx.ahx.ahx.ahx .tk[data-open="0"] .tk-chev{transform:rotate(-90deg)}
+.ahx.ahx.ahx.ahx .tk-list{list-style:none;margin:0;padding:6px 0 0;display:flex;flex-direction:column}
+.ahx.ahx.ahx.ahx .tk-st{position:relative;display:flex;gap:10px;padding:6px 0}
+.ahx.ahx.ahx.ahx .tk-st .mk{position:relative;width:18px;height:18px;flex:none;margin-top:1px;display:grid;place-items:center;border-radius:50%;color:var(--dm-muted);transition:background .32s,color .32s}
+.ahx.ahx.ahx.ahx .tk-st .mk .spin{width:10px;height:10px}
+.ahx.ahx.ahx.ahx .tk-st.run .mk{color:var(--dm-accent-mark,var(--dm-accent));background:var(--dm-accent-bg);animation:tkhalo 1.8s var(--dm-ease-io) infinite}
+.ahx.ahx.ahx.ahx .tk-st.done .mk{background:var(--dm-ok-bg);color:var(--dm-ok)}
+.ahx.ahx.ahx.ahx .tk-st.done .mk .i{animation:tkpop .45s var(--dm-ease) backwards}
+.ahx.ahx.ahx.ahx .tk-st.retry .mk{background:var(--dm-warn-bg);color:var(--dm-warn);animation:tkhalow 1.8s var(--dm-ease-io) infinite}
+.ahx.ahx.ahx.ahx .tk-st .tx{flex:1;min-width:0;display:flex;flex-direction:column}
+.ahx.ahx.ahx.ahx .tk-st .tk-ln{display:flex;align-items:baseline;gap:var(--dm-s-2)}
+.ahx.ahx.ahx.ahx .tk-st .lab{flex:1;min-width:0;color:var(--dm-fg);transition:color .32s}
+.ahx.ahx.ahx.ahx .tk-st.done .lab{color:var(--dm-fg2)}
+.ahx.ahx.ahx.ahx .tk-st .tk-dur{flex:none;font-size:12px;color:var(--dm-muted)}
+.ahx.ahx.ahx.ahx .tk-st .res{display:grid;grid-template-rows:0fr;font-size:13px;color:var(--dm-muted);transition:grid-template-rows .32s var(--dm-ease),color .32s}
+.ahx.ahx.ahx.ahx .tk-st .res.on{grid-template-rows:1fr}
+.ahx.ahx.ahx.ahx .tk-st .res>span{overflow:hidden;min-height:0}
+.ahx.ahx.ahx.ahx .tk-st .res .w{display:inline-block;white-space:pre;animation:tkword .42s var(--dm-ease) backwards}
+.ahx.ahx.ahx.ahx .tk-st.retry .res{color:var(--dm-warn)}
+.ahx.ahx.ahx.ahx .tk-st .res [data-tip]{text-decoration:underline dotted var(--dm-faint);text-underline-offset:3px;cursor:default}
+:root:not([data-style="soft"],[data-style="clean"]) .ahx.ahx.ahx.ahx .tk-st.run .mk:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)),:root:not([data-style="soft"],[data-style="clean"]) .ahx.ahx.ahx.ahx .tk-st.retry .mk:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation:none}
+:root:not([data-style="soft"],[data-style="clean"]) .ahx.ahx.ahx.ahx .tk-st.run .mk:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:inset 0 0 0 1px var(--dm-accent-mark)}
+:root:not([data-style="soft"],[data-style="clean"]) .ahx.ahx.ahx.ahx .tk-st.done .mk .i:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)),:root:not([data-style="soft"],[data-style="clean"]) .ahx.ahx.ahx.ahx .tk-h.tk-fin .tk-mark .i:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation:none}
+:root:not([data-style="soft"],[data-style="clean"]) .ahx.ahx.ahx.ahx .tk-st .res .w:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation:bpin .3s var(--dm-ease) backwards}
+.ahx.ahx.ahx.ahx .cpx-send{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--dm-accent);color:var(--dm-on-accent);flex:none;transition:opacity .32s,transform .16s,background .16s}
+@media (hover:hover) and (pointer:fine){.ahx.ahx.ahx.ahx .cpx-send:hover{background:var(--dm-accent-2)}}
+.ahx.ahx.ahx.ahx .cpx-send[disabled]{opacity:1;cursor:not-allowed;background:var(--dm-dis-hatch),var(--dm-dis-fill);color:var(--dm-dis);box-shadow:var(--dm-soft-ring)}
+.ahx.ahx.ahx.ahx .cpx-bar>.cpx-send{flex:none}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .cpx-send,:root [data-style="clean"] .ahx.ahx.ahx.ahx .cpx-send,:root [data-style="clean"].ahx.ahx.ahx.ahx .cpx-send{width:28px;height:28px;transition:transform var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .cpx-send:not([disabled]),:root [data-style="clean"] .ahx.ahx.ahx.ahx .cpx-send:not([disabled]),:root [data-style="clean"].ahx.ahx.ahx.ahx .cpx-send:not([disabled]){color:var(--dm-on-btn);background:linear-gradient(180deg,var(--dm-btn-1),var(--dm-btn-2));box-shadow:var(--dm-btn-depth)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .ahx.ahx.ahx.ahx .cpx-send:not([disabled]):hover,:root [data-style="clean"] .ahx.ahx.ahx.ahx .cpx-send:not([disabled]):hover,:root [data-style="clean"].ahx.ahx.ahx.ahx .cpx-send:not([disabled]):hover{background:linear-gradient(180deg,color-mix(in srgb,var(--dm-btn-1) 88%,#808080),var(--dm-btn-2))}}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .cpx-send:not([disabled]):active,:root [data-style="clean"] .ahx.ahx.ahx.ahx .cpx-send:not([disabled]):active,:root [data-style="clean"].ahx.ahx.ahx.ahx .cpx-send:not([disabled]):active{transform:scale(.97);box-shadow:var(--dm-btn-press)}
+.ahx.ahx.ahx.ahx .dpx{padding:var(--dm-s-4) 0;display:flex;flex-direction:column;gap:var(--dm-s-3);outline:0;border-radius:var(--dm-r-in)}
+.ahx.ahx.ahx.ahx .dpx.panel{padding:var(--dm-s-4);border-radius:var(--dm-r-card)}
+.ahx.ahx.ahx.ahx .dpx:focus-visible{outline:2px solid var(--dm-focus);outline-offset:6px}
+.ahx.ahx.ahx.ahx .dpx-h{display:flex;align-items:center;justify-content:space-between}
+.ahx.ahx.ahx.ahx .dpx-k{font-size:12px}
+.ahx.ahx.ahx.ahx .dpx-dots{display:flex;gap:var(--dm-s-1)}
+.ahx.ahx.ahx.ahx .dpx-dots i{width:6px;height:6px;border-radius:var(--dm-r-tiny,3px);background:var(--dm-line);transition:width .45s var(--dm-ease),background .35s}
+.ahx.ahx.ahx.ahx .dpx-dots i.on{width:16px;background:var(--dm-accent-mark,var(--dm-accent))}
+.ahx.ahx.ahx.ahx .dpx-dots i.done{background:var(--dm-accent-mark,var(--dm-accent));opacity:.4}
+.ahx.ahx.ahx.ahx .dpx-body{min-height:168px}
+.ahx.ahx.ahx.ahx .dpx-q{font-size:14px;font-weight:500;margin-bottom:10px;text-wrap:balance}
+.ahx.ahx.ahx.ahx .dpx-o{display:flex;align-items:center;gap:10px;width:calc(100% + 20px);margin-inline:-10px;padding:9px 10px;border-radius:var(--dm-r-in);font-size:13px;text-align:left;color:var(--dm-fg2);transition:background .25s,color .25s}
+@media (hover:hover) and (pointer:fine){.ahx.ahx.ahx.ahx .dpx-o:hover{background:var(--dm-row);color:var(--dm-fg)}}
+.ahx.ahx.ahx.ahx .dpx-o.on{background:var(--dm-sel);color:var(--dm-fg)}
+.ahx.ahx.ahx.ahx .dpx-o .kbd{width:20px;text-align:center;transition:background .25s,color .25s}
+.ahx.ahx.ahx.ahx .dpx-o.on .kbd{background:var(--dm-accent);color:var(--dm-on-accent)}
+.ahx.ahx.ahx.ahx .dpx-o .d{margin-left:auto;font-size:12px;color:var(--dm-muted)}
+.ahx.ahx.ahx.ahx .dpx-f{display:flex;justify-content:flex-end;gap:6px}
+.ahx.ahx.ahx.ahx .dpx-sum{display:flex;flex-direction:column;gap:6px}
+.ahx.ahx.ahx.ahx .dpx-sr{display:flex;gap:10px;font-size:13px;padding:7px 0;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.ahx.ahx.ahx.ahx .dpx-sr:last-child{border:0}
+.ahx.ahx.ahx.ahx .dpx-sr span{color:var(--dm-muted);width:92px;flex:none}
+.ahx.ahx.ahx.ahx .dpx-run{display:flex;align-items:center;gap:var(--dm-s-2);font-size:13px;margin-top:6px}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .dpx.panel,:root [data-style="clean"] .ahx.ahx.ahx.ahx .dpx.panel,:root [data-style="clean"].ahx.ahx.ahx.ahx .dpx.panel{padding:19px 30px 20px 30px}
+.ahx.ahx.ahx.ahx .pgx{position:relative;width:100%;max-width:400px;margin:0 auto;padding:var(--dm-s-1) 0;display:flex;flex-direction:column;gap:var(--dm-s-3)}
+.ahx.ahx.ahx.ahx .pgx.panel{padding:var(--dm-s-4)}
+.ahx.ahx.ahx.ahx .pgx-h{display:flex;gap:var(--dm-s-3);align-items:center}
+.ahx.ahx.ahx.ahx .pgx-ic{width:32px;height:32px;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-chip);display:grid;place-items:center;flex:none}
+.ahx.ahx.ahx.ahx .pgx-ht{display:flex;flex-direction:column;min-width:0}
+.ahx.ahx.ahx.ahx .pgx-ht b{font-weight:500;font-size:14px}
+.ahx.ahx.ahx.ahx .pgx-ht span{font-size:13px}
+.ahx.ahx.ahx.ahx .pgx-sc{display:flex;flex-direction:column}
+.ahx.ahx.ahx.ahx .pgx-o{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;column-gap:var(--dm-s-3);margin-inline:0;padding:var(--dm-s-2) 7px var(--dm-s-2) 0;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));cursor:pointer;font-size:13px;transition:background .25s}
+.ahx.ahx.ahx.ahx .pgx-o>.bx{justify-self:center}
+@media (hover:hover) and (pointer:fine){.ahx.ahx.ahx.ahx .pgx-o:hover{background:var(--dm-row)}}
+.ahx.ahx.ahx.ahx .pgx-o input{position:absolute;opacity:0;pointer-events:none}
+.ahx.ahx.ahx.ahx .pgx-o .bx{width:18px;height:18px;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));box-shadow:inset 0 0 0 1.5px var(--dm-fg2);display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--dm-ease),box-shadow .3s,color .3s}
+.ahx.ahx.ahx.ahx .pgx-o .bx svg{transform:scale(.4);transition:transform .35s var(--dm-ease)}
+.ahx.ahx.ahx.ahx .pgx-o input:checked+.bx{background:var(--dm-accent);box-shadow:inset 0 0 0 1.5px var(--dm-accent-mark,var(--dm-accent));color:var(--dm-on-accent)}
+.ahx.ahx.ahx.ahx .pgx-o input:checked+.bx svg{transform:none}
+.ahx.ahx.ahx.ahx .pgx-o input:focus-visible+.bx{outline:2px solid var(--dm-focus);outline-offset:2px}
+.ahx.ahx.ahx.ahx .pgx-o .t{flex:1;min-width:0}
+.ahx.ahx.ahx.ahx .pgx-o.one{cursor:default}
+@media (hover:hover) and (pointer:fine){.ahx.ahx.ahx.ahx .pgx-o.one:hover{background:none}}
+.ahx.ahx.ahx.ahx .pgx-o.one>.oi{width:32px;height:32px;display:grid;place-items:center;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-chip);color:var(--dm-fg2)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o.one>.oi,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o.one>.oi,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx-o.one>.oi{box-shadow:inset 0 0 0 1px var(--dm-hair)}
+.ahx.ahx.ahx.ahx .pgx-o .d{display:block;font-size:12px;color:var(--dm-muted)}
+.ahx.ahx.ahx.ahx .pgx-f{display:flex;align-items:center;gap:6px;padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.ahx.ahx.ahx.ahx .pgx-f .sp{flex:1}
+@container (max-width:340px){.ahx.ahx.ahx.ahx .pgx-f{flex-wrap:wrap}.ahx.ahx.ahx.ahx .pgx-f .sp{flex-basis:100%}.ahx.ahx.ahx.ahx .pgx-no{margin:var(--dm-s-2) 0 0 auto}.ahx.ahx.ahx.ahx .pgx-ok{margin-top:var(--dm-s-2)}}
+.ahx.ahx.ahx.ahx .pgx-db{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--dm-s-2) 0 10px;margin-left:0;border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);white-space:nowrap;transition:background .16s,color .16s}
+.ahx.ahx.ahx.ahx .pgx-db[aria-expanded="true"]{background:var(--dm-row);color:var(--dm-fg)}
+@media (hover:hover) and (pointer:fine){.ahx.ahx.ahx.ahx .pgx-db:hover{background:var(--dm-row);color:var(--dm-fg)}}
+.ahx.ahx.ahx.ahx .pgx-db>svg{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
+.ahx.ahx.ahx.ahx .pgx-db[aria-expanded="true"]>svg{transform:rotate(180deg)}
+.ahx.ahx.ahx.ahx .pgx-pop{min-width:230px}
+.ahx.ahx.ahx.ahx .pgx-ok[disabled]{opacity:1;cursor:not-allowed;background:var(--dm-dis-hatch),var(--dm-dis-fill);color:var(--dm-dis);box-shadow:var(--dm-soft-ring)}
+.ahx.ahx.ahx.ahx .pgx-done{display:flex;align-items:center;gap:var(--dm-s-3);padding:10px 7px 10px 0;border-radius:var(--dm-r-in);background:var(--dm-chip);font-size:13px}
+.ahx.ahx.ahx.ahx .pgx-done>svg{margin-inline:8px}
+.ahx.ahx.ahx.ahx .pgx-done .pill{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-on-tint-btn)}
+@media (hover:hover) and (pointer:fine){.ahx.ahx.ahx.ahx .pgx-done .pill:hover{background:var(--dm-surface);box-shadow:var(--dm-on-tint-btn-h)}}
+.ahx.ahx.ahx.ahx .pgx-done .t{flex:1;color:var(--dm-fg)}
+.ahx.ahx.ahx.ahx .pgx-done .t span{display:block;font-size:12px;color:var(--dm-fg2)}
+.ahx.ahx.ahx.ahx .pgx-done>svg{color:var(--dm-ok)}
+.ahx.ahx.ahx.ahx .pgx-done .g{width:32px;height:18px;display:grid;place-items:center;flex:none;color:var(--dm-fg2)}
+.ahx.ahx.ahx.ahx .pgx-done.ok .g{color:var(--dm-ok)}
+.ahx.ahx.ahx.ahx .pgx-done .t b{display:block;font-weight:400}
+.ahx.ahx.ahx.ahx .pgx-ic{transition:background .32s var(--dm-ease)}
+.ahx.ahx.ahx.ahx .pgx-scope{display:flex;flex-direction:column;gap:var(--dm-s-3)}
+.ahx.ahx.ahx.ahx .pgx-sum{display:none}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx.panel{padding:16px 16px 0;overflow:clip;overflow-clip-margin:0px}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel:has(.pgx-pop.open),:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel:has(.pgx-pop.open),:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx.panel:has(.pgx-pop.open){overflow:visible}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-ic,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx-ic,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx-ic{box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-ht b,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx-ht b,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx-ht b{line-height:20px;letter-spacing:-.01em}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-ht span,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx-ht span,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx-ht span,:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o .d,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o .d,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx-o .d,:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-done .t span,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx-done .t span,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx-done .t span{line-height:18px}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx :is(.pgx-o,.pgx-done) .t,:root [data-style="clean"] .ahx.ahx.ahx.ahx :is(.pgx-o,.pgx-done) .t,:root [data-style="clean"].ahx.ahx.ahx.ahx :is(.pgx-o,.pgx-done) .t{line-height:20px}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx-o{position:relative;display:grid;grid-template-columns:32px minmax(0,1fr) auto;column-gap:12px;transition:background-color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o>.bx,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o>.bx,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx-o>.bx{justify-self:center}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o+.pgx-o,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o+.pgx-o,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx-o+.pgx-o{background-image:linear-gradient(var(--dm-hair),var(--dm-hair));background-repeat:no-repeat;background-position:0 0;background-size:100% 1px}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .ahx.ahx.ahx.ahx :is(.pgx-o:hover,.pgx-o:hover+.pgx-o),:root [data-style="clean"] .ahx.ahx.ahx.ahx :is(.pgx-o:hover,.pgx-o:hover+.pgx-o),:root [data-style="clean"].ahx.ahx.ahx.ahx :is(.pgx-o:hover,.pgx-o:hover+.pgx-o){background-image:none}}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o .bx,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o .bx,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx-o .bx{border-radius:calc(4px * var(--dm-rk-s,var(--dm-rk)));background:var(--dm-surface);box-shadow:inset 0 0 0 1.5px var(--dm-fg2),var(--dm-track-ring);transition:background .2s var(--dm-ease),box-shadow .2s var(--dm-ease)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o .bx svg,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o .bx svg,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx-o .bx svg{transform:none;stroke-dasharray:21;stroke-dashoffset:21;transition:stroke-dashoffset .3s var(--dm-ease)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o input:checked+.bx,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o input:checked+.bx,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx-o input:checked+.bx{background:linear-gradient(180deg,var(--dm-btn-1),var(--dm-btn-2));box-shadow:inset 0 0 0 1px var(--dm-btn-2),inset 0 2px 3px -1px rgba(255,255,255,.28);color:var(--dm-on-btn)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o input:checked+.bx svg,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o input:checked+.bx svg,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx-o input:checked+.bx svg{stroke-dashoffset:0;transition-delay:.06s}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o:active .bx,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx-o:active .bx,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx-o:active .bx{transform:scale(.94);transition:transform var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-sc,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-sc,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx.panel .pgx-sc{margin-bottom:-4px}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-f,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-f,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx.panel .pgx-f{margin:0 -16px;padding:8px;gap:4px;border-top:1px solid var(--dm-line);background:var(--dm-strip);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-f .pgx-db,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx-f .pgx-db,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx-f .pgx-db{padding:0 8px;margin:0;color:var(--dm-fg2);transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-f :is(.pgx-db:hover,.pgx-db[aria-expanded="true"],.pill.ghost:hover),:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx-f :is(.pgx-db:hover,.pgx-db[aria-expanded="true"],.pill.ghost:hover),:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx-f :is(.pgx-db:hover,.pgx-db[aria-expanded="true"],.pill.ghost:hover){background:var(--dm-hover);color:var(--dm-fg)}}
+@container (max-width:340px){:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-no,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx-no,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx-no{margin:0 0 0 auto}:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-ok,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx-ok,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx-ok{margin-top:0}}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-cnt,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx-cnt,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx-cnt{display:inline-grid}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-cnt>i,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx-cnt>i,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx-cnt>i{grid-area:1/1;font-style:normal;font-variant-numeric:tabular-nums}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-cnt>.iu,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx-cnt>.iu,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx-cnt>.iu{animation:pgxiu .22s var(--dm-ease) .1s both}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-cnt>.ou,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx-cnt>.ou,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx-cnt>.ou{animation:pgxou .16s var(--dm-ease) both}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-cnt>.id,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx-cnt>.id,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx-cnt>.id{animation:pgxid .22s var(--dm-ease) .1s both}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-cnt>.od,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx-cnt>.od,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx-cnt>.od{animation:pgxod .16s var(--dm-ease) both}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx.panel .pgx-done{display:grid;grid-template-columns:32px minmax(0,1fr) auto;grid-template-rows:auto 45px;column-gap:12px;row-gap:16px;align-items:center;padding:0;border-radius:0;background:none!important}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done>:is(.g,svg),:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done>:is(.g,svg),:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx.panel .pgx-done>:is(.g,svg){grid-area:1/1}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done>.t,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done>.t,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx.panel .pgx-done>.t{grid-area:1/2}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done .t b,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done .t b,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx.panel .pgx-done .t b{font-weight:500}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done .t b span,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done .t b span,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx.panel .pgx-done .t b span{font-size:inherit;line-height:inherit;color:inherit}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done .t span,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done .t span,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx.panel .pgx-done .t span{color:var(--dm-muted)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done>.pill,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done>.pill,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx.panel .pgx-done>.pill{grid-area:2/3;z-index:1;align-self:end;margin:0 -8px 8px 0;color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done>.pill:hover,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done>.pill:hover,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx.panel .pgx-done>.pill:hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done>.pill:active,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done>.pill:active,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx.panel .pgx-done>.pill:active{box-shadow:var(--dm-btn2-press)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-sum,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-sum,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx.panel .pgx-sum{display:block;grid-area:2/1/3/-1;align-self:stretch;margin:0 -16px -240px;padding:8px 88px 248px 16px;border-top:1px solid var(--dm-line);background:var(--dm-strip);line-height:28px;font-size:12px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-sum .s,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx-sum .s,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx-sum .s{display:none}
+@container (max-width:340px){:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-sum .l,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx-sum .l,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx-sum .l{display:none}:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx-sum .s,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx-sum .s,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx-sum .s{display:inline}}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done .g,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done .g,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx.panel .pgx-done .g{width:32px;height:32px;border-radius:50%;background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-hair);color:var(--dm-fg2);transition:background-color .3s var(--dm-ease),box-shadow .3s var(--dm-ease)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done.ok .g,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done.ok .g,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx.panel .pgx-done.ok .g{background:var(--dm-surface);box-shadow:inset 0 0 0 1.5px var(--dm-ok-mark);color:var(--dm-ok-mark)}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done.ok .g svg,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done.ok .g svg,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx.panel .pgx-done.ok .g svg{width:16px;height:16px;stroke-width:2;stroke-dasharray:21;animation:pgxdraw .5s var(--dm-ease) .12s both}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done>svg,:root [data-style="clean"] .ahx.ahx.ahx.ahx .pgx.panel .pgx-done>svg,:root [data-style="clean"].ahx.ahx.ahx.ahx .pgx.panel .pgx-done>svg{width:32px;height:32px;margin:0;padding:8px;box-sizing:border-box;border-radius:50%;background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-hair);color:var(--dm-fg2)}
+@media (prefers-reduced-motion:reduce){:root[data-style="clean"] .ahx.ahx.ahx.ahx :is(.pgx-o .bx,.pgx-o .bx svg,.pgx-done .g),:root [data-style="clean"] .ahx.ahx.ahx.ahx :is(.pgx-o .bx,.pgx-o .bx svg,.pgx-done .g),:root [data-style="clean"].ahx.ahx.ahx.ahx :is(.pgx-o .bx,.pgx-o .bx svg,.pgx-done .g){transition:none}:root[data-style="clean"] .ahx.ahx.ahx.ahx :is(.pgx-cnt>i,.pgx-done.ok .g svg),:root [data-style="clean"] .ahx.ahx.ahx.ahx :is(.pgx-cnt>i,.pgx-done.ok .g svg),:root [data-style="clean"].ahx.ahx.ahx.ahx :is(.pgx-cnt>i,.pgx-done.ok .g svg){animation:none}}
+.ahx.ahx.ahx.ahx .plx{padding:14px 0;display:flex;flex-direction:column;gap:10px}
+.ahx.ahx.ahx.ahx .plx.panel{padding:14px}
+.ahx.ahx.ahx.ahx .plx-h{display:flex;align-items:center;gap:10px}
+.ahx.ahx.ahx.ahx .plx-mk{color:var(--dm-accent-fg,var(--dm-accent))}
+.ahx.ahx.ahx.ahx .plx-ht{display:flex;flex-direction:column;min-width:0}
+.ahx.ahx.ahx.ahx .plx-ht b{font-weight:500;font-size:13px}
+.ahx.ahx.ahx.ahx .plx-st{font-size:12px}
+.ahx.ahx.ahx.ahx .plx-list{list-style:none;margin:0 -6px;padding:0;display:flex;flex-direction:column;counter-reset:s}
+.ahx.ahx.ahx.ahx .plx-s{display:flex;align-items:flex-start;gap:10px;padding:7px 6px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;transition:background .25s,opacity .35s;position:relative}
+@media (hover:hover) and (pointer:fine){.ahx.ahx.ahx.ahx .plx-s:hover{background:var(--dm-row)}}
+.ahx.ahx.ahx.ahx .plx-s .n{width:20px;height:20px;border-radius:50%;background:var(--dm-chip);display:grid;place-items:center;font-size:11px;font-variant-numeric:tabular-nums;color:var(--dm-muted);flex:none;transition:background .35s,color .35s}
+@media (hover:hover) and (pointer:fine){.ahx.ahx.ahx.ahx .plx-s:hover .n{background:var(--dm-surface)}}
+/* (the harness keeps its own skip button and number) */
+.ahx.ahx.ahx.ahx .plx-s .ib{margin-block:0}
+.ahx.ahx.ahx.ahx .plx-s .n{margin-top:0}
+.ahx.ahx.ahx.ahx .plx-s .b{flex:1;min-width:0;display:flex;flex-direction:column}
+.ahx.ahx.ahx.ahx .plx-s .t{min-width:0;outline:0;border-radius:var(--dm-r-tiny,5px);padding:1px 3px;margin:0 -3px;line-height:1.5}
+.ahx.ahx.ahx.ahx .plx-s .d{font-size:12px;color:var(--dm-muted);display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s var(--dm-ease)}
+.ahx.ahx.ahx.ahx .plx-s .d.on{grid-template-rows:1fr}
+.ahx.ahx.ahx.ahx .plx-s .d>span{overflow:hidden;min-height:0}
+.ahx.ahx.ahx.ahx .plx-s .d.warn{color:var(--dm-warn)}
+.ahx.ahx.ahx.ahx .plx-tm{margin-left:auto;font-size:12px;color:var(--dm-muted)}
+.ahx.ahx.ahx.ahx .plx-tm:empty{display:none}
+.ahx.ahx.ahx.ahx .plx-s .n .spin{width:10px;height:10px}
+.ahx.ahx.ahx.ahx .plx-s .t:focus{background:var(--dm-surface);box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+.ahx.ahx.ahx.ahx .plx-s .ib{width:24px;height:24px;opacity:0;transition:opacity .2s}
+.ahx.ahx.ahx.ahx .plx-s .ib:focus-visible{opacity:1}
+@media (hover:hover) and (pointer:fine){.ahx.ahx.ahx.ahx .plx-s:hover .ib{opacity:1}}
+.ahx.ahx.ahx.ahx .plx-s.off{opacity:.45}
+.ahx.ahx.ahx.ahx .plx-s.off .t{text-decoration:line-through}
+.ahx.ahx.ahx.ahx .plx-s.run .n{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}
+.ahx.ahx.ahx.ahx .plx-s.done .n{background:var(--dm-ok-bg);color:var(--dm-ok)}
+.ahx.ahx.ahx.ahx .plx-s.retry .n{background:var(--dm-warn-bg);color:var(--dm-warn)}
+.ahx.ahx.ahx.ahx .plx-add{display:flex;align-items:center;gap:var(--dm-s-2);font-size:12px;color:var(--dm-fg2);padding:var(--dm-s-1) 10px;margin-inline:-10px;align-self:flex-start;border-radius:var(--dm-r-pill)}
+@media (hover:hover) and (pointer:fine){.ahx.ahx.ahx.ahx .plx-add:hover{color:var(--dm-fg);background:var(--dm-row)}}
+.ahx.ahx.ahx.ahx .plx-f{display:flex;align-items:center;gap:6px}
+.ahx.ahx.ahx.ahx .plx-n{flex:1;font-size:12px;min-width:0}
+@media (max-width:480px){.ahx.ahx.ahx.ahx .plx-n{display:none}}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .plx.panel,:root [data-style="clean"] .ahx.ahx.ahx.ahx .plx.panel,:root [data-style="clean"].ahx.ahx.ahx.ahx .plx.panel{padding:18px 20px 26px 30px}
+.ahx.ahx.ahx.ahx .ssx{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.ahx.ahx.ahx.ahx .ssx-pill{display:inline-flex;align-items:center;gap:var(--dm-s-2);height:30px;padding:0 10px 0 5px;border-radius:var(--dm-r-pill);background:var(--dm-chip);font-size:12px;color:var(--dm-fg2);transition:background .25s,color .25s}
+@media (hover:hover) and (pointer:fine){.ahx.ahx.ahx.ahx .ssx-pill:hover{background:var(--dm-hover);color:var(--dm-fg)}}
+.ahx.ahx.ahx.ahx .ssx-pill>svg{transition:transform .4s var(--dm-ease)}
+.ahx.ahx.ahx.ahx .ssx-pill[aria-expanded="true"]>svg{transform:rotate(180deg)}
+.ahx.ahx.ahx.ahx .ssx-ics{display:flex}
+.ahx.ahx.ahx.ahx .ssx-ics span{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:500;color:#fff;box-shadow:0 0 0 2px var(--dm-chip);margin-right:-6px;transition:margin .4s var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){.ahx.ahx.ahx.ahx .ssx-pill:hover .ssx-ics span{margin-right:-3px}}
+.ahx.ahx.ahx.ahx .ssx-ics span:last-child{margin-right:0}
+.ahx.ahx.ahx.ahx .ssx-box{width:100%}
+.ahx.ahx.ahx.ahx .ssx-in{padding:2px 0 var(--dm-s-1);display:flex;flex-direction:column;gap:var(--dm-s-2)}
+.ahx.ahx.ahx.ahx .ssx-fl{display:flex;gap:var(--dm-s-1);flex-wrap:wrap}
+.ahx.ahx.ahx.ahx .ssx-fl .chip{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-line) 50%,transparent)}
+@media (hover:hover) and (pointer:fine){.ahx.ahx.ahx.ahx .ssx-fl .chip:hover{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-faint) 50%,transparent)}}
+.ahx.ahx.ahx.ahx .ssx-list{display:flex;flex-direction:column;gap:2px;margin-inline:-6px}
+.ahx.ahx.ahx.ahx .ssx-s{display:flex;align-items:center;gap:10px;padding:7px 6px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;transition:background .25s}
+@media (hover:hover) and (pointer:fine){.ahx.ahx.ahx.ahx .ssx-s:hover{background:var(--dm-row)}}
+.ahx.ahx.ahx.ahx .ssx-s .fv{width:22px;height:22px;border-radius:calc(7px * var(--dm-rk-m,var(--dm-rk)));display:grid;place-items:center;font-size:11px;font-weight:500;flex:none}
+.ahx.ahx.ahx.ahx .ssx-s .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ahx.ahx.ahx.ahx .ssx-s .h{font-size:12px;color:var(--dm-muted)}
+.ahx.ahx.ahx.ahx .ssx-s .rel{width:36px;height:4px;border-radius:var(--dm-r-tiny,2px);background:var(--dm-line);overflow:hidden;flex:none}
+.ahx.ahx.ahx.ahx .ssx-s .rel i{display:block;height:100%;background:var(--dm-accent-mark,var(--dm-accent));border-radius:var(--dm-r-tiny,2px);transform-origin:left;animation:ssrel .8s var(--dm-ease) both}
+.ahx.ahx.ahx.ahx .ssx-s .ib{width:24px;height:24px;opacity:0;transition:opacity .2s}
+@media (hover:hover) and (pointer:fine){.ahx.ahx.ahx.ahx .ssx-s:hover .ib{opacity:1}}
+.ahx.ahx.ahx.ahx .ssx-s .ib:focus-visible{opacity:1}
+.ahx.ahx.ahx.ahx .mi.hl .bdg{color:color-mix(in srgb,var(--dm-bdg-fg) 85%,var(--dm-fg))}
+@media (hover:hover) and (pointer:fine){.ahx.ahx.ahx.ahx .mi:hover .bdg{color:color-mix(in srgb,var(--dm-bdg-fg) 85%,var(--dm-fg))}}
+@media (hover:hover) and (pointer:fine){.ahx.ahx.ahx.ahx .mi:is(:hover,.hl) .bdg{--dm-cb-bg:color-mix(in srgb,var(--dm-cb-fg) 16%,var(--dm-surface));--dm-bdg-bg:color-mix(in srgb,var(--dm-bdg-fg) 16%,var(--dm-surface))}}
+@media (hover:hover) and (pointer:fine){.ahx.ahx.ahx.ahx .mi:is(:hover,.hl) .bdg:is(:not([data-tone]),[data-tone="neutral"]){--dm-cb-bg:var(--dm-surface);--dm-bdg-bg:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent)}}
+.ahx.ahx.ahx.ahx .ahx-tp .mi .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ahx.ahx.ahx.ahx .ahx-tp .mi .ahx-mk:empty{display:grid}
+.ahx.ahx.ahx.ahx .ahx-spl .spl-pill{height:30px;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.ahx.ahx.ahx.ahx .ahx-spl .spl-in{gap:7px;padding:0 var(--dm-s-1) 0 11px;font-size:12px}
+.ahx.ahx.ahx.ahx .ahx-spl .spl-in .g{width:14px}
+.ahx.ahx.ahx.ahx .ahx-spl .spl-in .pill{height:22px;padding:0 9px;margin-left:1px;font-size:12px}
+.ahx.ahx.ahx.ahx .ahx-msg:not(.box)>.panel:not(.keep){background:none;box-shadow:none;padding-left:0;padding-right:0;border-radius:0}
+.ahx.ahx.ahx.ahx .ahx-msg .dpx-body{min-height:0}
+.ahx.ahx.ahx.ahx .ahx-msg .dpx-f.leave{display:none}
+.ahx.ahx.ahx.ahx.ahx.busy .cpx-bar .cpx-send{background:var(--dm-rail);color:var(--dm-surface);pointer-events:none}
+@container ahm (max-width:560px){.ahx.ahx.ahx.ahx .ahx-spl .spl-in .m{display:none}}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .ahx-spl .spl-pill,:root [data-style="clean"] .ahx.ahx.ahx.ahx .ahx-spl .spl-pill,:root [data-style="clean"].ahx.ahx.ahx.ahx .ahx-spl .spl-pill{height:28px}
+/* what the reviews added that staging did not have, put back as it was there */
+.ahx.ahx.ahx.ahx .plx{--dm-row:inherit}
+.ahx.ahx.ahx.ahx .plx-h::before{content:none}
+.ahx.ahx.ahx.ahx .plx-mk{margin-inline:0}
+.ahx.ahx.ahx.ahx .plx-s .n{margin-inline:0;box-shadow:none}
+.ahx.ahx.ahx.ahx .plx-s .n .spin{border:1.5px solid currentColor;border-right-color:transparent;animation-duration:.8s}
+.ahx.ahx.ahx.ahx .plx-s.edited .t::after{color:var(--dm-accent-fg,var(--dm-accent))}
+.ahx.ahx.ahx.ahx .plx-add{margin:0 -10px}
+.ahx.ahx.ahx.ahx .plx-add .i{margin-inline:0}
+.ahx.ahx.ahx.ahx .plx-f{justify-content:normal;margin:0;padding:0;border-top:0;background:none;border-radius:0}
+.ahx.ahx.ahx.ahx .plx-f .plx-stop:last-child{margin-right:0}
+.ahx.ahx.ahx.ahx .dpx-f{min-height:0;margin:0;padding:0;border-top:0;background:none;border-radius:0}
+.ahx.ahx.ahx.ahx .ssx-ics{gap:normal}
+.ahx.ahx.ahx.ahx .ssx-ics span{box-shadow:0 0 0 2px var(--dm-chip);color:#fff!important}
+.ahx.ahx.ahx.ahx .ssx-s .fv{box-shadow:none}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .cpx-send,:root [data-style="clean"] .ahx.ahx.ahx.ahx .cpx-send,:root [data-style="clean"].ahx.ahx.ahx.ahx .cpx-send{isolation:auto}
+:root[data-style="clean"] .ahx.ahx.ahx.ahx .cpx-send::before,:root [data-style="clean"] .ahx.ahx.ahx.ahx .cpx-send::before,:root [data-style="clean"].ahx.ahx.ahx.ahx .cpx-send::before{content:none}
+.ahx.ahx.ahx.ahx .ahx-col .ahx-msg>*{margin-left:0;margin-right:auto}
+.ahx.ahx.ahx.ahx .tk{background:none;box-shadow:none;border-radius:0;overflow:visible}
+:root:not([data-style="soft"],[data-style="clean"]) .ahx.ahx.ahx.ahx .ssx-fl .chip.on:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-faint) 50%,transparent)}
+/* (Agent harness: staging look, end) */
 
 /* Profile menu */
 /* ---------- Profile menu ---------- */
-/* an app's top bar with the account behind the avatar. The menu opens under it, lined up with its right edge */
-.pfm{position:relative;width:100%;max-width:400px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
-.pfm-bar{display:flex;align-items:center;gap:10px;min-height:52px;padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-2) var(--dm-s-3);border-radius:calc(14px * var(--dm-rk-l,var(--dm-rk)))}
-.pfm-lg{width:26px;height:26px;border-radius:var(--dm-r-sm);display:grid;place-items:center;flex:none;font-size:12px;font-weight:500;background:var(--dm-chip);color:var(--dm-fg2);transition:background var(--dm-t) var(--dm-ease),color var(--dm-t) var(--dm-ease)}
-.pfm-lg[data-t="pb"]{--dm-tb:var(--dm-pb-bg);--dm-tc:var(--dm-pb)}.pfm-lg[data-t="pp"]{--dm-tb:var(--dm-pp-bg);--dm-tc:var(--dm-pp)}.pfm-lg[data-t="pl"]{--dm-tb:var(--dm-pl-bg);--dm-tc:var(--dm-pl)}.pfm-lg[data-t="pm"]{--dm-tb:var(--dm-pm-bg);--dm-tc:var(--dm-pm)}
-.pfm-lg[data-t="pr"]{--dm-tb:var(--dm-pr-bg);--dm-tc:var(--dm-pr)}.pfm-lg[data-t="py"]{--dm-tb:var(--dm-py-bg);--dm-tc:var(--dm-py)}.pfm-lg[data-t="pk"]{--dm-tb:var(--dm-pk-bg);--dm-tc:var(--dm-pk)}.pfm-lg[data-t="pt"]{--dm-tb:var(--dm-pt-bg);--dm-tc:var(--dm-pt)}
-/* the letter leans a little toward the text colour, so it reads at 4.5:1 on its tint in dark mode too, on a hovered row as well */
-.pfm-lg[data-t]{background:var(--dm-tb);color:color-mix(in srgb,var(--dm-tc) 80%,var(--dm-fg))}
-.pfm-ws{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3}
-.pfm-wn{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-.pfm-ws .muted{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pfm-tr{display:flex;align-items:center;gap:var(--dm-s-1);height:36px;padding:0 7px 0 var(--dm-s-1);border-radius:var(--dm-r-pill);color:var(--dm-muted);flex:none;transition:background var(--dm-t-fast)}
-.pfm-tr[aria-expanded="true"]{background:var(--dm-row)}
-@media (hover:hover) and (pointer:fine){.pfm-tr:hover{background:var(--dm-row)}}
+/* an app's top bar with the account behind the avatar. The menu opens under it, lined up with its right edge, over the room
+   the component keeps for it under the bar, so the bar never moves as the menu opens and shuts (owner, 20 Nov: menus open over
+   the component from their trigger and never move it) and the menu is never cut off. The bar's content sits 16px in all round
+   in every style: the workspace's tile on the left, the avatar's chevron on the right, its hover box reaching out round it */
+.pfm{position:relative;width:100%;max-width:400px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.pfm-bar{display:flex;align-items:center;gap:12px;min-height:64px;padding:12px;padding-left:16px;border-radius:var(--dm-r-card)}
+/* a workspace's tile is its identity mark: in Soft and Blueprint a vivid fill with its own ink, the avatars' colours (white on
+   blue, violet, red and pink; 4.5:1 and APCA Lc 60); Clean keeps its marks monochrome */
+.pfm-lg{--dm-tb:var(--dm-chip);--dm-tc:var(--dm-fg2);width:28px;height:28px;border-radius:var(--dm-r-sm);display:grid;place-items:center;flex:none;font-size:12px;font-weight:500;background:var(--dm-tb);color:var(--dm-tc);transition:background var(--dm-t) var(--dm-ease),color var(--dm-t) var(--dm-ease)}
+.pfm-lg[data-t="pb"]{--dm-tb:var(--dm-av-b);--dm-tc:var(--dm-av-b-ink)}.pfm-lg[data-t="pl"]{--dm-tb:var(--dm-av-l);--dm-tc:var(--dm-av-l-ink)}.pfm-lg[data-t="pr"]{--dm-tb:var(--dm-av-r);--dm-tc:var(--dm-av-r-ink)}.pfm-lg[data-t="pk"]{--dm-tb:var(--dm-av-k);--dm-tc:var(--dm-av-k-ink)}
+.pfm-lg[data-t="pm"]{--dm-tb:var(--dm-av-m);--dm-tc:var(--dm-av-m-ink)}.pfm-lg[data-t="pt"]{--dm-tb:var(--dm-av-t);--dm-tc:var(--dm-av-t-ink)}.pfm-lg[data-t="py"]{--dm-tb:var(--dm-av-y);--dm-tc:var(--dm-av-y-ink)}.pfm-lg[data-t="pp"]{--dm-tb:var(--dm-av-p);--dm-tc:var(--dm-av-p-ink)}
+.pfm-ws{flex:1;min-width:0;display:flex;flex-direction:column}
+.pfm-wn{font-size:13px;line-height:18px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.pfm-ws .muted{font-size:12px;line-height:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pfm-tr{display:flex;align-items:center;gap:6px;height:40px;padding:0 4px 0 6px;border-radius:var(--dm-r-pill);color:var(--dm-muted);flex:none;transition:background-color var(--dm-t-fast) var(--dm-ease)}
+.pfm-tr[aria-expanded="true"]{background:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
+@media (hover:hover) and (pointer:fine){.pfm-tr:hover{background:color-mix(in srgb,var(--dm-fg) 5%,transparent)}}
 .pfm-tr .av,.pfm-me .av{background:var(--dm-av-l);color:var(--dm-av-l-ink)}
 .pfm-tr .av{width:28px;height:28px;font-size:11px}
 .pfm-tr>.i{transition:transform var(--dm-t) var(--dm-ease)}
 .pfm-tr[aria-expanded="true"]>.i{transform:rotate(180deg)}
-.pfm-in{flex:none}
+.pfm-in{flex:none;margin-right:4px}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink primary alone presses. The same goes for the
+   other menus of this group (Context switcher, Filter menu, Context menu) and Ticket list */
+.pfm :is(.pill,.ib):active,:root[data-style="clean"] :is(.pfm,.csw,.flm,.cxm,.tkx) .ib:active,:root [data-style="clean"] :is(.pfm,.csw,.flm,.cxm,.tkx) .ib:active,:root [data-style="clean"]:is(.pfm,.csw,.flm,.cxm,.tkx) .ib:active{transform:none}
+/* the rows of these menus hover, and show the item picked, with a quiet fill that shows in light mode too (the owner's batch 2
+   notes: a hover fill shows on whatever it sits on; --dm-row barely shows on a white menu) */
+@media (hover:hover) and (pointer:fine){:is(.pfm-pop,.flm-pop,.cxm-pop,.cxm-pop2) .mi:is(:hover,.hl,[role="menuitemradio"][aria-checked="true"]){background:color-mix(in srgb,var(--dm-fg) 5%,transparent)}}
 .pfm-pop{width:256px}
 .pfm-me{display:flex;align-items:center;gap:10px;padding:var(--dm-s-2) var(--dm-s-2) 6px}
 .pfm-me .av{width:32px;height:32px;font-size:12px}
@@ -418,86 +748,204 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .pfm-pop .mi .d{white-space:nowrap}
 /* the theme row is a switch: on, it shows the switch on rather than a selected row */
 .pfm-th[aria-checked="true"]{background:none;font-weight:400}
-.pfm-th.hl{background:var(--dm-row)}
-@media (hover:hover) and (pointer:fine){.pfm-th[aria-checked="true"]:hover{background:var(--dm-row)}}
+.pfm-th.hl{background:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
+@media (hover:hover) and (pointer:fine){.pfm-th[aria-checked="true"]:hover{background:color-mix(in srgb,var(--dm-fg) 5%,transparent)}}
 .pfm-th .toggle{margin-left:auto}
 .pfm-th[aria-checked="true"] .toggle{background:var(--dm-accent);box-shadow:inset 0 0 0 1px var(--dm-accent-mark,var(--dm-accent))}
 .pfm-th[aria-checked="true"] .toggle::after{transform:translateX(12px);background:var(--dm-on-accent)}
 .pfm-ky .kbd{margin-left:auto}
-.pfm-keys{padding:10px var(--dm-s-3) var(--dm-s-3);border-radius:calc(14px * var(--dm-rk-l,var(--dm-rk)))}
-.pfm-kh{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-2);font-size:13px;margin-bottom:6px}
-.pfm-kh .ib{width:26px;height:26px;margin-right:-4px}
-.pfm-kl{margin:0;display:flex;flex-direction:column;gap:6px}
-.pfm-kl>div{display:flex;align-items:center;gap:10px;font-size:12px}
+/* the shortcuts: a plain list of keys and what they do, 16px in from every edge; Close sits on the title's line with its glyph
+   16px in */
+.pfm-keys{padding:var(--dm-s-4);border-radius:var(--dm-r-card)}
+.pfm-kh{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-2);height:20px;margin-bottom:var(--dm-s-3);font-size:13px}
+.pfm-kh b{font-weight:500}
+.pfm-kh .ib{width:26px;height:26px;margin:-3px -7px -3px 0}
+.pfm-kl{margin:0;display:flex;flex-direction:column;gap:var(--dm-s-2)}
+.pfm-kl>div{display:flex;align-items:center;gap:var(--dm-s-3);font-size:12px}
 .pfm-kl dt{display:flex;gap:var(--dm-s-1);width:88px;flex:none}
 .pfm-kl dd{margin:0;color:var(--dm-fg2);min-width:0}
-.pfm-note{margin:0;min-height:20px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;text-align:center}
-.pfm-note .i{color:var(--dm-ok)}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .pfm-bar.panel,:root [data-style="clean"] .pfm-bar.panel,:root [data-style="clean"].pfm-bar.panel{padding:20px 20px 20px 11px}
+/* what changed (a switch, the theme, signing out) is said to screen readers only: the bar and the menu already show it, so no
+   line of text repeats it under the bar (owner, 18 Nov) */
+.pfm-note{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* Clean: the bar is a card with 22px corners; the tiles are monochrome; the menu takes the card's corners with its rows
+   concentric inside them; the theme switch is ink when on; the shortcuts card has an off-white head strip with Close a 28px
+   circle 16px from its top and right edges (owner, 23 Nov) */
+:root[data-style="clean"] .pfm-lg[data-t],:root [data-style="clean"] .pfm-lg[data-t],:root [data-style="clean"].pfm-lg[data-t]{background:var(--dm-chip);color:var(--dm-fg2);box-shadow:inset 0 0 0 1px var(--dm-hair)}
+:root[data-style="clean"] .pfm-pop,:root [data-style="clean"] .pfm-pop,:root [data-style="clean"].pfm-pop{padding:6px;border-radius:var(--dm-r-card)}
+:root[data-style="clean"] .pfm-pop .mi,:root [data-style="clean"] .pfm-pop .mi,:root [data-style="clean"].pfm-pop .mi{border-radius:calc(var(--dm-r-card) - 6px)}
+:root[data-style="clean"] .pfm-th[aria-checked="true"] .toggle,:root [data-style="clean"] .pfm-th[aria-checked="true"] .toggle,:root [data-style="clean"].pfm-th[aria-checked="true"] .toggle{background:var(--dm-btn-2);box-shadow:inset 0 0 0 1px var(--dm-btn-2),inset 0 2px 4px -1px rgba(0,0,0,.3)}
+:root[data-style="clean"] .pfm-th[aria-checked="true"] .toggle::after,:root [data-style="clean"] .pfm-th[aria-checked="true"] .toggle::after,:root [data-style="clean"].pfm-th[aria-checked="true"] .toggle::after{background:var(--dm-on-btn)}
+:root[data-style="clean"] .pfm-keys,:root [data-style="clean"] .pfm-keys,:root [data-style="clean"].pfm-keys{padding:0 16px 16px}
+:root[data-style="clean"] .pfm-kh,:root [data-style="clean"] .pfm-kh,:root [data-style="clean"].pfm-kh{height:auto;margin:0 -16px 16px;padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-bottom:1px solid var(--dm-line);border-radius:var(--dm-r-card) var(--dm-r-card) 0 0;line-height:28px}
+:root[data-style="clean"] .pfm-kh .ib,:root [data-style="clean"] .pfm-kh .ib,:root [data-style="clean"].pfm-kh .ib{width:28px;height:28px;margin:0}
 
 /* Stat cards */
 /* ---------- Stat cards ---------- */
+/* a row of headline numbers, each with its change against the period before and a sparkline in the chart palette. The cards
+   aren't buttons, so a pointer over them changes nothing; the change chip says what it is measured against when you point
+   at it */
 .scx{display:flex;flex-direction:column;gap:10px;width:100%}
 .scx-h{display:flex;justify-content:flex-end}
 .scx-sg button{font-size:12px;height:26px;padding:0 10px}
 .scx-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 @media (max-width:820px){.scx-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-/* phones keep two columns, two rows: a little less padding, and the change chip goes under the number when it can't fit beside it */
-@media (max-width:520px){.scx-grid{gap:var(--dm-s-2)}.scx-c{padding:var(--dm-s-3)}.scx-v{flex-wrap:wrap;row-gap:var(--dm-s-1)}.scx-sp{height:28px}}
-.scx-c{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:6px;transition:transform .45s var(--dm-ease),box-shadow .3s;min-width:0}
-@media (hover:hover) and (pointer:fine){.scx-c:hover{transform:translateY(-2px);box-shadow:var(--dm-shadow-pop)}}
-.scx-k{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dm-muted)}
+/* phones keep two columns, two rows, with the cards' 16px insets, and the change chip goes under the number when it can't fit
+   beside it */
+@media (max-width:520px){.scx-grid{gap:var(--dm-s-2)}.scx-v{flex-wrap:wrap;row-gap:var(--dm-s-1)}.scx-sp{height:28px}}
+.scx-c{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:6px;min-width:0}
+.scx-k{display:flex;align-items:center;gap:6px;font-size:12px;line-height:18px;color:var(--dm-muted)}
 .scx-k .ic{display:grid;color:var(--dm-fg2)}
 .scx-v{display:flex;align-items:center;gap:var(--dm-s-2)}
-.scx-v b{font-size:14px;font-weight:500;letter-spacing:-.02em}
+.scx-v b{font-size:14px;line-height:20px;font-weight:500;letter-spacing:-.02em}
 .scx-d{font-size:12px;font-weight:500}
-.scx-d.tag{display:inline-flex;height:20px;padding:0 6px}
+.scx-d.tag{display:inline-flex;height:20px;padding:0 6px;cursor:default}
+.scx-sr{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .scx-sp{height:34px;margin-top:var(--dm-s-1)}
 .scx-sp svg{width:100%;height:100%;overflow:visible}
 .scx-sp path{fill:none;stroke-width:1.75;vector-effect:non-scaling-stroke;stroke-linejoin:round;transition:d .8s var(--dm-ease)}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .scx-c.panel,:root [data-style="clean"] .scx-c.panel,:root [data-style="clean"].scx-c.panel{padding:19px 20px 20px 20px}
+/* the area under a line, which only Clean draws */
+.scx-sp path.ar{display:none;stroke:none}
+/* Clean (owner, 17 and 18 Nov): each card's content 16px in from every edge */
+:root[data-style="clean"] .scx-c.panel,:root [data-style="clean"] .scx-c.panel,:root [data-style="clean"].scx-c.panel{padding:16px}
+/* Clean (owner, 21 Nov: "design something custom because apart from the switcher and the shape of the containers there's no
+   difference between Soft and Clean"): one panel instead of four cards. The period switch sits in its off-white head strip
+   under a hairline; under it the figures are cells of one grid, split by half-strength hairlines (the grid's 1px gaps), each
+   with its label, figure and change chip (a status chip) on the same lines as its neighbours', 16px in. The sparklines keep
+   the chart palette, as Soft's do (the first in the accent, white in dark through its token, then --dm-c2 to --dm-c4): thin lines
+   with straight segments and sharp corners, the area under each fading from its line's colour to nothing */
+:root[data-style="clean"] .scx,:root [data-style="clean"] .scx,:root [data-style="clean"].scx{gap:0;background:var(--dm-surface);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow);overflow:hidden}
+:root[data-style="clean"] .scx-h,:root [data-style="clean"] .scx-h,:root [data-style="clean"].scx-h{align-items:center;min-height:48px;padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-bottom:1px solid var(--dm-line)}
+:root[data-style="clean"] .scx>.scx-grid,:root [data-style="clean"] .scx>.scx-grid,:root [data-style="clean"].scx>.scx-grid{gap:1px;background:color-mix(in srgb,var(--dm-line) 50%,var(--dm-surface))}
+:root[data-style="clean"] .scx>.scx-grid>.scx-c.panel,:root [data-style="clean"] .scx>.scx-grid>.scx-c.panel,:root [data-style="clean"].scx>.scx-grid>.scx-c.panel{background:var(--dm-surface);border-radius:0;box-shadow:none}
+:root[data-style="clean"] .scx-sp path.ln,:root [data-style="clean"] .scx-sp path.ln,:root [data-style="clean"].scx-sp path.ln{stroke-width:1.25;stroke-linejoin:miter}
+:root[data-style="clean"] .scx-sp path.ar,:root [data-style="clean"] .scx-sp path.ar,:root [data-style="clean"].scx-sp path.ar{display:inline}
 
 /* Line chart */
 /* ---------- Line chart ---------- */
-/* this year against last year: a headline number, a legend that turns each line on and off, and a readout that follows the
-   pointer. The gridlines are a neutral grey at half strength, and each month's label sits under its own point. The readout is
-   the page's tooltip (opaque and neutral) beside the guide line, on the side with room, so it never covers the points it reads
-   or passes the chart's edge. The content sits 16px in from every edge: the legend's words end on the right edge and their
-   hover box reaches out round them, a quiet fill that shows in light mode */
-.lnx{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:10px;--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
-.lnx-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
-.lnx-h>div:first-child{display:flex;flex-direction:column;font-size:12px;line-height:18px}
-.lnx-v{font-size:14px;line-height:20px;font-weight:500;letter-spacing:-.02em;color:var(--dm-fg)}
-/* the toggles sit on the label's line, their words ending on the content's right edge */
-.lnx-lg{display:flex;gap:var(--dm-s-1);margin:-4px -9px 0 0}
-.lnx-k{display:flex;align-items:center;gap:6px;height:26px;padding:0 9px;border-radius:var(--dm-r-pill);font-size:12px;color:var(--dm-muted);transition:color var(--dm-t-fast) var(--dm-ease),background-color var(--dm-t-fast) var(--dm-ease)}
+/* one metric over a period, against the period before (owner, 21 Nov): straight segments with sharp joins, a saturated line in the accent, and a fill that fades from the line's colour
+   at the top to nothing at the bottom. A quiet head: the title, a picker for whose numbers they are, and the range switch, with
+   a hairline under them. Under it the plot: the values on the left, dashed vertical gridlines and no horizontal ones, the period
+   before as a dotted line in the chart palette's second colour across the whole period, and this period as a solid line up to
+   now, with an open ring and "Now" under it, then projected to the period's end as a dotted line in its own colour over a
+   fill at half strength, so the chart always runs full width (owner, 21 Nov: "I never seen charts that end mid way"). A legend under the plot names both lines and turns each on and off. Pointing at the plot, or the arrow keys on it, shows a dashed guide, a ring on each line and a readout card
+   beside the guide on the side with room, and the point's name becomes a grey chip on the axis. The content sits 16px in from
+   every edge; the picker's and the switch's hover boxes reach out round their words */
+.lnx{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-4);--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent);
+  --dm-lnx-line:var(--dm-accent-mark,var(--dm-accent));--dm-lnx-cmp:var(--dm-c2);--dm-lnx-fill:.2;--dm-lnx-pfill:.1;--dm-lnx-grid:var(--dm-line);--dm-lnx-guide:color-mix(in srgb,var(--dm-fg) 38%,transparent)}
+:root[data-theme="dark"] .lnx{--dm-lnx-fill:.3;--dm-lnx-pfill:.15}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .lnx{--dm-lnx-fill:.3;--dm-lnx-pfill:.15}}
+.lnx-h{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-2) var(--dm-s-3);flex-wrap:wrap;padding-bottom:var(--dm-s-4);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.lnx-tl{display:flex;align-items:center;gap:6px;min-width:0;font-size:13px;line-height:20px}
+.lnx-t{color:var(--dm-muted);white-space:nowrap}
+/* the picker: its mark and words in the text colour, no edge until hovered; its hover box reaches out round them */
+.lnx-pk{display:inline-flex;align-items:center;gap:6px;height:28px;margin:-4px -5px -4px 0;padding:0 5px 0 8px;border-radius:var(--dm-r-sm);color:var(--dm-fg);font-weight:500;white-space:nowrap;transition:background-color var(--dm-t-fast) var(--dm-ease)}
+.lnx-pk[aria-expanded="true"]{background:var(--dm-row)}
+@media (hover:hover) and (pointer:fine){.lnx-pk:hover{background:var(--dm-row)}}
+.lnx-pk .i{color:var(--dm-muted);margin-left:-2px}
+.lnx-mk{width:18px;height:18px;flex:none;display:grid;place-items:center;border-radius:calc(5px * var(--dm-rk-s,var(--dm-rk)));font-size:11px;font-weight:500;line-height:1;background:var(--dm-mk,var(--dm-av-b));color:var(--dm-mk-ink,var(--dm-av-b-ink))}
+.pop.lnx-pp{min-width:188px}
+.lnx-pp .mi{gap:var(--dm-s-2)}
+.lnx-rg button{font-size:12px;height:26px;padding:0 9px}
+/* on a narrow card the switch goes under the title, as wide as the content, its parts sharing the width */
+.lnx{container:lnx/inline-size}
+@container lnx (max-width:375px){.lnx-h{flex-direction:column;align-items:stretch}.lnx-rg{display:flex}.lnx-rg button{flex:1}.lnx-pk{margin-top:0;margin-bottom:0}}
+/* and on a phone the legend's three lines take two columns, so it is two rows whatever the range calls them, and switching the
+   range never changes the card's height */
+@container lnx (max-width:300px){.lnx .lnx-lg{display:grid;grid-template-columns:max-content max-content;gap:2px var(--dm-s-1);justify-content:start}}
+/* the plot: the values in a column on the left, each centred on its height; the axis under the drawing */
+.lnx-pl{display:grid;grid-template-rows:auto auto;grid-template-columns:auto minmax(0,1fr);column-gap:var(--dm-s-3);row-gap:var(--dm-s-2)}
+.lnx-y{display:flex;flex-direction:column;justify-content:space-between;margin:-8px 0;font-size:12px;line-height:16px;color:var(--dm-muted);text-align:right;white-space:nowrap}
+.lnx-ch{position:relative;height:168px;touch-action:pan-y}
+.lnx-ch:focus-visible{outline-offset:6px}
+.lnx-svg{position:absolute;left:0;top:0;width:100%;height:100%;display:block;overflow:visible}
+.lnx-svg .gl{stroke:var(--dm-lnx-grid);stroke-width:1;stroke-dasharray:3 4}
+.lnx-svg .ln{fill:none;stroke:var(--dm-lnx-line);stroke-width:2;stroke-linejoin:miter;stroke-miterlimit:8;stroke-linecap:butt}
+.lnx-svg :is(.cmp,.prj){fill:none;stroke:var(--dm-lnx-cmp);stroke-width:2;stroke-linecap:round;stroke-dasharray:0 5}
+.lnx-svg .prj{stroke:var(--dm-lnx-line)}
+/* now: an open ring on the line's end, with a dot of the line's colour inside */
+.lnx-now{position:absolute;left:0;top:0;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:radial-gradient(circle,var(--dm-lnx-line) 2px,var(--dm-surface) 2.6px);box-shadow:inset 0 0 0 2px var(--dm-lnx-line);pointer-events:none;transition:opacity var(--dm-t-fast) var(--dm-ease)}
+/* the guide, the rings and the readout show while the plot is pointed at or has the keyboard's focus */
+/* where the demo's pointer aims: an empty box centred on the point it reads */
+.lnx-aim{position:absolute;left:0;top:0;width:16px;height:16px;margin:-8px 0 0 -8px;pointer-events:none}
+.lnx-x{position:absolute;top:0;bottom:0;left:0;width:1px;margin-left:-.5px;background:repeating-linear-gradient(to bottom,var(--dm-lnx-guide) 0 3px,transparent 3px 7px);opacity:0;transition:opacity var(--dm-t-fast) var(--dm-ease);pointer-events:none}
+.lnx-pt{position:absolute;left:0;top:0;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:var(--dm-surface);box-shadow:inset 0 0 0 2px currentColor;opacity:0;transition:opacity var(--dm-t-fast) var(--dm-ease);pointer-events:none}
+.lnx-tt{position:absolute;left:0;top:0;z-index:2;min-width:156px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-raised);box-shadow:var(--dm-shadow-pop);font-size:12px;line-height:18px;white-space:nowrap;opacity:0;transform:translateY(4px);transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease);pointer-events:none}
+.lnx-tt-h{padding:6px 10px;font-size:12px;color:var(--dm-muted);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.lnx-tt-r{display:flex;align-items:center;gap:var(--dm-s-2);padding:6px 10px}
+.lnx-tt-r+.lnx-tt-r{padding-top:0}
+.lnx-tt-r i{width:12px;height:2px;flex:none;border-radius:1px;background:var(--dm-lnx-line)}
+.lnx-tt-r.c i{height:2px;background:radial-gradient(circle,var(--dm-lnx-cmp) .9px,transparent 1.1px) 0 50%/4px 2px repeat-x}
+.lnx-tt-r.p i{background:radial-gradient(circle,var(--dm-lnx-line) .9px,transparent 1.1px) 0 50%/4px 2px repeat-x}
+.lnx-tt-r span{flex:1;color:var(--dm-fg2)}
+.lnx-tt-r b{font-weight:500;color:var(--dm-fg)}
+.lnx-tt-r[hidden]{display:none}
+.lnx.on .lnx-x,.lnx.on .lnx-tt,.lnx.on .lnx-pt.on{opacity:1}
+.lnx.on .lnx-tt{transform:none}
+/* the axis: the period's first point on the left, Now under its point in the accent's text colour, the last on the right; the
+   point pointed at is a grey chip, and any label it would touch steps aside */
+.lnx-ax{grid-column:2;position:relative;height:20px;font-size:12px;line-height:20px;color:var(--dm-muted)}
+.lnx-ax span{position:absolute;top:0;left:0;white-space:nowrap;transition:opacity var(--dm-t-fast) var(--dm-ease)}
+/* the last label ends on the plot's right edge (6px in when it is Now's own, so it sits under the ring) */
+.lnx-ax .lnx-z:not([style]){left:auto;right:0}
+.lnx-ax .lnx-z.lnx-nw:not([style]){right:6px}
+.lnx-ax .lnx-nw{color:var(--dm-accent-fg,var(--dm-accent))}
+.lnx-ax .lnx-tk{padding:0 6px;border-radius:var(--dm-r-xs);background:var(--dm-chip);color:var(--dm-fg2);opacity:0}
+.lnx.on .lnx-ax .lnx-tk{opacity:1}
+.lnx-ax :is(.lnx-off,.lnx-hid){opacity:0}
+/* the legend: each line's swatch and name, a toggle; its words start on the content's edge and its hover reaches out round them.
+   On this card the toggles' boxes sit on the content's 16px column instead, so nothing reaches nearer the card's edge than the
+   rest of its content (owner, 21 Nov: insets measured in every style); a page that reuses the legend under a plot of its own
+   keeps the hover reaching out */
+.lnx-lg{display:flex;flex-wrap:wrap;gap:var(--dm-s-1);margin:-8px -8px -5px}
+.lnx:has(>.lnx-h>.lnx-tl)>.lnx-lg{margin:-8px 0 0}
+.lnx-k{display:flex;align-items:center;gap:6px;height:26px;padding:0 8px;border-radius:var(--dm-r-pill);font-size:12px;color:var(--dm-muted);transition:color var(--dm-t-fast) var(--dm-ease),background-color var(--dm-t-fast) var(--dm-ease)}
 @media (hover:hover) and (pointer:fine){.lnx-k:hover{background:var(--dm-row)}}
-.lnx-k.on{color:var(--dm-fg)}
-.lnx-k i{width:8px;height:8px;border-radius:50%;transition:transform var(--dm-t) var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease)}
-.lnx-k:not(.on) i{opacity:.3;transform:scale(.6)}
-.lnx-ch{position:relative;height:150px}
-.lnx-svg{width:100%;height:100%;display:block;overflow:visible}
-.lnx-svg .gl{stroke:color-mix(in srgb,var(--dm-line) 50%,transparent);stroke-width:1;vector-effect:non-scaling-stroke}
-.lnx-svg .ln{fill:none;stroke-width:2;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round;transition:opacity var(--dm-t) var(--dm-ease)}
-.lnx-svg .ln.off{opacity:0}
-.lnx-svg .ar{transition:opacity var(--dm-t) var(--dm-ease)}
-.lnx-x{position:absolute;top:0;bottom:0;width:1px;background:var(--dm-faint);opacity:0;transition:opacity var(--dm-t-fast) var(--dm-ease);pointer-events:none}
-/* the readout: the page's tooltip, beside the guide line (the script picks the side with room) */
-.lnx-tt{position:absolute;top:0;left:0;z-index:2;padding:6px 9px;border-radius:var(--dm-r-sm);background:var(--dm-tip-bg,var(--dm-ink));color:var(--dm-tip-fg,var(--dm-on-ink));box-shadow:var(--dm-tip-ring,none);font-size:12px;line-height:1.35;display:flex;flex-direction:column;opacity:0;transform:translateY(4px);transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease);pointer-events:none;white-space:nowrap}
-.lnx-tt b{font-weight:500}
-.lnx-tt span{color:color-mix(in srgb,var(--dm-tip-fg,var(--dm-on-ink)) 76%,var(--dm-tip-bg,var(--dm-ink)))}
-@media (hover:hover) and (pointer:fine){.lnx-ch:hover .lnx-x,.lnx-ch:hover .lnx-tt{opacity:1}}
-@media (hover:hover) and (pointer:fine){.lnx-ch:hover .lnx-tt{transform:none}}
-.lnx-pt{position:absolute;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:var(--dm-surface);box-shadow:0 0 0 2px currentColor;opacity:0;transition:opacity var(--dm-t-fast) var(--dm-ease);pointer-events:none}
-@media (hover:hover) and (pointer:fine){.lnx-ch:hover .lnx-pt.on{opacity:1}}
-/* each label sits centred under its own point (the script places them); the first starts on the chart's left edge and one on
-   the last point ends on its right edge */
-.lnx-ax{position:relative;height:16px;font-size:11px;line-height:16px}
-.lnx-ax span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
-.lnx-ax span:first-child{transform:none}
-.lnx-ax span.e{transform:translateX(-100%)}
+.lnx-k[aria-pressed="true"]{color:var(--dm-fg)}
+.lnx-k i{width:12px;height:2px;flex:none;border-radius:1px;background:var(--dm-lnx-line);transition:opacity var(--dm-t-fast) var(--dm-ease)}
+.lnx-k.c i{background:radial-gradient(circle,var(--dm-lnx-cmp) .9px,transparent 1.1px) 0 50%/4px 2px repeat-x}
+.lnx-k.p i{background:radial-gradient(circle,var(--dm-lnx-line) .9px,transparent 1.1px) 0 50%/4px 2px repeat-x}
+.lnx-k[aria-pressed="false"] i{opacity:.3}
+.lnx-svg :is(.ln,.ar,.cmp,.prj,.par){transition:opacity var(--dm-t) var(--dm-ease)}
+.lnx.lnx-noa .lnx-svg :is(.ln,.ar),.lnx.lnx-nop .lnx-svg :is(.prj,.par),.lnx.lnx-nob .lnx-svg .cmp{opacity:0}
+.lnx.lnx-noa .lnx-now{visibility:hidden}
+.lnx-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+.lnx-sr th{font-weight:400}
+@media (prefers-reduced-motion:reduce){.lnx :is(.lnx-x,.lnx-pt,.lnx-tt,.lnx-now,.lnx-ax span){transition:none}}
+/* Blueprint: square marks (the ring, the hover marks, the swatches) and square dots on the line before */
+/* Clean: the project marks are monochrome, a solid ink tile like a logo, its letter in the ink's own text colour */
+:root[data-style="clean"] .lnx-mk,:root [data-style="clean"] .lnx-mk,:root [data-style="clean"].lnx-mk{background:var(--dm-ink);color:var(--dm-on-ink)}
+/* Clean (owner, 21 Nov: Clean must read as Clean at a glance): the head and the legend sit on off-white strips that follow the
+   card's corners, their controls on the content's 16px column and 16px from the strip's top and bottom (owner, 23 Nov; the title's words on
+   the column, the switch ending on it). The picker's hover is a pill. The legend's toggles are flat pills: a line that is shown
+   has the stronger neutral fill (Clean's selected state), one that is hidden none until pointed at, when it takes Clean's one
+   hover fill. The readout is
+   Clean's popover: its corners, its 6px inset and rows like a menu's, scaling and fading in over 220ms. The pointed-at tick is
+   a pill. The strips belong to this card's own head (the title and the picker): a page that reuses the plot under a head of
+   its own keeps its layout */
+:root[data-style="clean"] .lnx>.lnx-h:has(>.lnx-tl),:root [data-style="clean"] .lnx>.lnx-h:has(>.lnx-tl),:root [data-style="clean"].lnx>.lnx-h:has(>.lnx-tl){margin:calc(-1 * var(--dm-s-4)) calc(-1 * var(--dm-s-4)) 0;padding:var(--dm-strip-y) var(--dm-s-4);background:var(--dm-strip);border-bottom:1px solid var(--dm-line);border-radius:var(--dm-r-card) var(--dm-r-card) 0 0}
+:root[data-style="clean"] .lnx-pk,:root [data-style="clean"] .lnx-pk,:root [data-style="clean"].lnx-pk{border-radius:var(--dm-r-pill)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .lnx-pk:hover,:root [data-style="clean"] .lnx-pk:hover,:root [data-style="clean"].lnx-pk:hover{background:var(--dm-row)}}
+:root[data-style="clean"] .lnx-pk[aria-expanded="true"],:root [data-style="clean"] .lnx-pk[aria-expanded="true"],:root [data-style="clean"].lnx-pk[aria-expanded="true"]{background:var(--dm-row-on)}
+:root[data-style="clean"] .lnx:has(>.lnx-h>.lnx-tl)>.lnx-lg,:root [data-style="clean"] .lnx:has(>.lnx-h>.lnx-tl)>.lnx-lg,:root [data-style="clean"].lnx:has(>.lnx-h>.lnx-tl)>.lnx-lg{margin:0 calc(-1 * var(--dm-s-4)) calc(-1 * var(--dm-s-4));padding:var(--dm-strip-y) var(--dm-s-4);gap:6px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+:root[data-style="clean"] .lnx:has(>.lnx-h>.lnx-tl)>.lnx-lg .lnx-k,:root [data-style="clean"] .lnx:has(>.lnx-h>.lnx-tl)>.lnx-lg .lnx-k,:root [data-style="clean"].lnx:has(>.lnx-h>.lnx-tl)>.lnx-lg .lnx-k{height:28px;padding:0 10px}
+/* (on a phone its two columns share the width, the second ending on the content's right edge like the switch above) */
+@container lnx (max-width:300px){:root[data-style="clean"] .lnx:has(>.lnx-h>.lnx-tl)>.lnx-lg,:root [data-style="clean"] .lnx:has(>.lnx-h>.lnx-tl)>.lnx-lg,:root [data-style="clean"].lnx:has(>.lnx-h>.lnx-tl)>.lnx-lg{grid-template-columns:1fr 1fr}}
+:root[data-style="clean"] .lnx:has(>.lnx-h>.lnx-tl)>.lnx-lg .lnx-k[aria-pressed="true"],:root [data-style="clean"] .lnx:has(>.lnx-h>.lnx-tl)>.lnx-lg .lnx-k[aria-pressed="true"],:root [data-style="clean"].lnx:has(>.lnx-h>.lnx-tl)>.lnx-lg .lnx-k[aria-pressed="true"]{background:var(--dm-row-on)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .lnx:has(>.lnx-h>.lnx-tl)>.lnx-lg .lnx-k[aria-pressed="false"]:hover,:root [data-style="clean"] .lnx:has(>.lnx-h>.lnx-tl)>.lnx-lg .lnx-k[aria-pressed="false"]:hover,:root [data-style="clean"].lnx:has(>.lnx-h>.lnx-tl)>.lnx-lg .lnx-k[aria-pressed="false"]:hover{background:var(--dm-row)}}
+:root[data-style="clean"] .lnx-tt,:root [data-style="clean"] .lnx-tt,:root [data-style="clean"].lnx-tt{padding:6px;border-radius:calc(14px * var(--dm-rk-l,var(--dm-rk)));transform:scale(.96);transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .lnx.on .lnx-tt,:root [data-style="clean"] .lnx.on .lnx-tt,:root [data-style="clean"].lnx.on .lnx-tt{transform:none}
+:root[data-style="clean"] .lnx-tt-h,:root [data-style="clean"] .lnx-tt-h,:root [data-style="clean"].lnx-tt-h{padding:2px 8px 4px;border-bottom:0}
+:root[data-style="clean"] .lnx-tt-r,:root [data-style="clean"] .lnx-tt-r,:root [data-style="clean"].lnx-tt-r,:root[data-style="clean"] .lnx-tt-r+.lnx-tt-r,:root [data-style="clean"] .lnx-tt-r+.lnx-tt-r,:root [data-style="clean"].lnx-tt-r+.lnx-tt-r{padding:5px 8px;border-radius:var(--dm-r-in)}
+:root[data-style="clean"] .lnx-ax .lnx-tk,:root [data-style="clean"] .lnx-ax .lnx-tk,:root [data-style="clean"].lnx-ax .lnx-tk{border-radius:var(--dm-r-pill)}
+/* Clean dark's accent is white (owner, 21 Nov; Clean dark's tokens): the line, its projection, its rings and "Now" are white,
+   so the area under them is a little fainter; the comparison keeps the palette's violet */
+:root[data-style="clean"][data-theme="dark"] .lnx,:root[data-theme="dark"] [data-style="clean"] .lnx,:root[data-theme="dark"] [data-style="clean"].lnx{--dm-lnx-fill:.16;--dm-lnx-pfill:.08}
+@media (prefers-color-scheme:dark){:root[data-style="clean"]:not([data-theme="light"]) .lnx,:root:not([data-theme="light"]) [data-style="clean"] .lnx,:root:not([data-theme="light"]) [data-style="clean"].lnx{--dm-lnx-fill:.16;--dm-lnx-pfill:.08}}
+@media (prefers-reduced-motion:reduce){:root[data-style="clean"] .lnx-tt,:root [data-style="clean"] .lnx-tt,:root [data-style="clean"].lnx-tt{transform:none}}
+:root:not([data-style="soft"],[data-style="clean"]) .lnx-svg :is(.cmp,.prj):not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){stroke-dasharray:2 3}
+:root:not([data-style="soft"],[data-style="clean"]) .lnx-now:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){background:linear-gradient(var(--dm-lnx-line),var(--dm-lnx-line)) center/4px 4px no-repeat,var(--dm-surface)}
+:root:not([data-style="soft"],[data-style="clean"]) :is(.lnx-tt-r,.lnx-k).c i:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){background:repeating-linear-gradient(90deg,var(--dm-lnx-cmp) 0 2px,transparent 2px 4px)}
+:root:not([data-style="soft"],[data-style="clean"]) :is(.lnx-tt-r,.lnx-k).p i:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){background:repeating-linear-gradient(90deg,var(--dm-lnx-line) 0 2px,transparent 2px 4px)}
 
 /* Bar chart */
 /* ---------- Bar chart ---------- */
@@ -529,26 +977,65 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 
 /* Donut chart */
 /* ---------- Donut chart ---------- */
-/* where the agent's time went: one ring in the chart palette's colours, in order, with the total in the middle and a legend
-   that names each part with its hours and share ("Other" is a mid grey that still passes 3:1). Pointing at a slice or a row
-   lights both. The content sits 16px in from every edge: each row's mark and values sit on the content's edges, and its hover
-   is a quiet fill that reaches out round them */
-.dnx{padding:var(--dm-s-4);display:flex;align-items:center;gap:28px;flex-wrap:wrap;justify-content:center;--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
-.dnx-ring{position:relative;width:150px;height:150px;flex:none}
-.dnx-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
-.dnx-ring circle{fill:none;stroke-width:12;cursor:default;transition:stroke-width var(--dm-t) var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease),stroke-dasharray 1s var(--dm-ease)}
-.dnx-ring circle.hl{stroke-width:16}
-.dnx-ring.hov circle:not(.hl){opacity:.3}
-.dnx-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
-.dnx-c b{font-size:14px;font-weight:500;letter-spacing:-.02em}
-.dnx-c span{font-size:11px}
-.dnx-lg{display:flex;flex-direction:column;gap:2px;flex:1;min-width:170px;margin:-6px -8px}
-.dnx-r{display:flex;align-items:center;gap:9px;padding:6px var(--dm-s-2);border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;line-height:18px;transition:background-color var(--dm-t-fast) var(--dm-ease);cursor:default}
+/* where the agent's time went this week, as a gauge (owner, 21 Nov): a half ring of parts in the
+   chart palette's saturated colours, in order, with small gaps and slightly rounded corners, and the rest of the week's budget
+   as a light grey track. The total sits in the middle with what it is out of, and the legend under the gauge names each part
+   with a bar of its colour and its hours. Pointing at a part or a row, or the keyboard on a row, lights both and puts that part
+   in the middle; a click on either (or Enter on a row) selects it, so it stays in the middle with its row filled until it is
+   clicked again or Escape clears it. A quiet head: the title with a hairline under it. The content sits 16px in from every
+   edge; each row's mark and hours sit on the content's edges, its hover a quiet fill that reaches out round them */
+.dnx{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-4);--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent);--dm-dnx-track:var(--dm-chip);--dm-dnx-th:18;--dm-dnx-cr:4}
+.dnx-h{padding-bottom:var(--dm-s-4);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13px;line-height:17px;color:var(--dm-fg)}
+.dnx-g{position:relative;width:220px;max-width:100%;margin:var(--dm-s-1) auto 0}
+.dnx-svg{display:block;width:100%;height:auto;overflow:visible}
+.dnx-svg path{stroke-linejoin:round;transition:opacity var(--dm-t-fast) var(--dm-ease);cursor:default}
+/* (a page that draws its own parts gives them their own stroke-width) */
+.dnx-svg path:not([stroke-width]){stroke-width:calc(var(--dm-dnx-cr) * 2px)}
+.dnx-svg .tr{fill:var(--dm-dnx-track);stroke:var(--dm-dnx-track);cursor:auto}
+.dnx-g.hov path:not(.hl,.tr){opacity:.3}
+.dnx-c{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;pointer-events:none}
+.dnx-c b{font-size:14px;line-height:20px;font-weight:500;letter-spacing:-.01em;color:var(--dm-fg)}
+.dnx-c span{font-size:12px;line-height:16px}
+/* the last row's words end 16px from the card's foot, its hover fill reaching out round them */
+.dnx-lg{position:relative;display:flex;flex-direction:column;gap:2px;margin:0 calc(-1 * var(--dm-s-2)) calc(-1 * var(--dm-s-2))}
+.dnx-r{position:relative;display:flex;align-items:center;gap:var(--dm-s-2);width:100%;padding:6px var(--dm-s-2);border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;line-height:20px;text-align:left;transition:background-color var(--dm-t-fast) var(--dm-ease)}
 .dnx-r.hl{background:var(--dm-row)}
 @media (hover:hover) and (pointer:fine){.dnx-r:hover{background:var(--dm-row)}}
-.dnx-r i{width:8px;height:8px;border-radius:var(--dm-r-tiny,3px);flex:none}
-.dnx-r .t{flex:1}
-.dnx-r .v{color:var(--dm-muted);font-size:12px}
+.dnx-r.sel{background:color-mix(in srgb,var(--dm-fg) 9%,transparent)}
+.dnx-r.sel .t{color:var(--dm-fg)}
+.dnx-svg path[data-i]{cursor:pointer}
+/* the hover that glides from row to row is Clean's (below); the other styles fill the row itself */
+.dnx-hv{display:none}
+.dnx-r:focus-visible{outline-offset:-2px}
+.dnx-r i{width:3px;height:14px;border-radius:2px;flex:none}
+.dnx-r .t{flex:1;min-width:0;color:var(--dm-fg2)}
+.dnx-r .v{color:var(--dm-fg)}
+/* Blueprint: square corners on the parts and the track */
+:root:not([data-style="soft"],[data-style="clean"]) .dnx-svg path:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){stroke-linejoin:miter}
+/* Clean (owner, 21 Nov: "it definitely has to be updated"): the title on an off-white head strip that follows the card's
+   corners; a slimmer ring (14px against Soft's 18) with a little rounder corners (5px against 4); the track recessed with
+   Clean's inner shadow (an SVG filter, since a path takes no inset box-shadow); the legend
+   Clean's 10px rows with its one hover, a neutral fill that eases in over 220ms and glides from row to
+   row (it only fades with reduced motion), and the selected row a stronger fill of the same shape. The middle's figure is set
+   with tabular figures and Clean's tighter tracking. In Clean dark the accent is white (owner, 21 Nov; Clean dark's tokens),
+   so the first part is white; the other parts keep the palette's hues */
+:root[data-style="clean"] .dnx,:root [data-style="clean"] .dnx,:root [data-style="clean"].dnx{--dm-dnx-th:14;--dm-dnx-cr:5}
+:root[data-style="clean"] .dnx-h,:root [data-style="clean"] .dnx-h,:root [data-style="clean"].dnx-h{margin:calc(-1 * var(--dm-s-4)) calc(-1 * var(--dm-s-4)) 0;padding:calc(var(--dm-strip-y) + 4px) var(--dm-s-4);background:var(--dm-strip);border-bottom:1px solid var(--dm-line);border-radius:var(--dm-r-card) var(--dm-r-card) 0 0;font-size:13px;line-height:20px;font-weight:500}
+:root[data-style="clean"] .dnx-svg .tr,:root [data-style="clean"] .dnx-svg .tr,:root [data-style="clean"].dnx-svg .tr{filter:var(--dm-dnx-in)}
+:root[data-style="clean"] .dnx-svg .dnx-in-s,:root [data-style="clean"] .dnx-svg .dnx-in-s,:root [data-style="clean"].dnx-svg .dnx-in-s{flood-color:rgba(0,0,0,.12)}
+:root[data-style="clean"] .dnx-svg .dnx-in-r,:root [data-style="clean"] .dnx-svg .dnx-in-r,:root [data-style="clean"].dnx-svg .dnx-in-r{flood-color:rgba(0,0,0,.04)}
+:root[data-style="clean"] .dnx-c b,:root [data-style="clean"] .dnx-c b,:root [data-style="clean"].dnx-c b{letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+:root[data-style="clean"] .dnx-c span,:root [data-style="clean"] .dnx-c span,:root [data-style="clean"].dnx-c span{color:var(--dm-muted);letter-spacing:0}
+:root[data-style="clean"] .dnx-r,:root [data-style="clean"] .dnx-r,:root [data-style="clean"].dnx-r{border-radius:var(--dm-r-in)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dnx-lg.gl .dnx-r:is(:hover,.hl),:root [data-style="clean"] .dnx-lg.gl .dnx-r:is(:hover,.hl),:root [data-style="clean"].dnx-lg.gl .dnx-r:is(:hover,.hl){background:transparent}}
+:root[data-style="clean"] .dnx-r.sel,:root [data-style="clean"] .dnx-r.sel,:root [data-style="clean"].dnx-r.sel,:root[data-style="clean"] .dnx-lg.gl .dnx-r.sel,:root [data-style="clean"] .dnx-lg.gl .dnx-r.sel,:root [data-style="clean"].dnx-lg.gl .dnx-r.sel{background:var(--dm-row-on)}
+:root[data-style="clean"] .dnx-hv,:root [data-style="clean"] .dnx-hv,:root [data-style="clean"].dnx-hv{display:block;position:absolute;left:0;right:0;top:0;height:32px;border-radius:var(--dm-r-in);background:var(--dm-row);opacity:0;pointer-events:none;transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t-fast) var(--dm-ease),height var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"][data-theme="dark"] .dnx-svg .dnx-in-s,:root[data-theme="dark"] [data-style="clean"] .dnx-svg .dnx-in-s,:root[data-theme="dark"] [data-style="clean"].dnx-svg .dnx-in-s{flood-color:rgba(0,0,0,.5)}
+:root[data-style="clean"][data-theme="dark"] .dnx-svg .dnx-in-r,:root[data-theme="dark"] [data-style="clean"] .dnx-svg .dnx-in-r,:root[data-theme="dark"] [data-style="clean"].dnx-svg .dnx-in-r{flood-color:rgba(255,255,255,.05)}
+@media (prefers-color-scheme:dark){
+  :root[data-style="clean"]:not([data-theme="light"]) .dnx-svg .dnx-in-s,:root:not([data-theme="light"]) [data-style="clean"] .dnx-svg .dnx-in-s,:root:not([data-theme="light"]) [data-style="clean"].dnx-svg .dnx-in-s{flood-color:rgba(0,0,0,.5)}
+  :root[data-style="clean"]:not([data-theme="light"]) .dnx-svg .dnx-in-r,:root:not([data-theme="light"]) [data-style="clean"] .dnx-svg .dnx-in-r,:root:not([data-theme="light"]) [data-style="clean"].dnx-svg .dnx-in-r{flood-color:rgba(255,255,255,.05)}}
+@media (prefers-reduced-motion:reduce){:root[data-style="clean"] .dnx-hv,:root [data-style="clean"] .dnx-hv,:root [data-style="clean"].dnx-hv{transition:opacity var(--dm-t-fast) var(--dm-ease)}}
 
 /* Funnel chart */
 /* ---------- Funnel ---------- */
@@ -579,8 +1066,17 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 /* Activity heatmap */
 /* ---------- Activity heatmap ---------- */
 .hmx{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:10px}
-.hmx-h{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.hmx-h>div:first-child{display:flex;flex-direction:column;font-size:13px}
+/* the ramp (owner, 20 Nov: "saturate the greens and blues"): from a light tint of the chart's mark colour to that colour at
+   full strength, mixed in oklch so the steps between stay vivid rather than greying. The busiest cells, and the key's More,
+   are the mark colour a touch toward the text, so they keep 3:1 on the card with room to spare (the blue in Soft and Clean,
+   Blueprint's green in light and its lime in dark), and the key shows the same ramp as the cells. In dark mode the quiet end
+   is a deeper tint, so it still reads against the card */
+.hmx{--dm-hm-hi:color-mix(in oklch,var(--dm-accent-mark,var(--dm-accent)) 92%,var(--dm-fg));--dm-hm-lo:color-mix(in oklch,var(--dm-hm-hi) 13%,var(--dm-surface))}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .hmx{--dm-hm-lo:color-mix(in oklch,var(--dm-hm-hi) 22%,var(--dm-surface))}}
+:root[data-theme="dark"] .hmx{--dm-hm-lo:color-mix(in oklch,var(--dm-hm-hi) 22%,var(--dm-surface))}
+/* the head sits over a hairline in every style (owner, 21 Nov), 10px from it on each side as the card's other gaps */
+.hmx-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:10px;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.hmx-h>div:first-child{display:flex;flex-direction:column;font-size:13px;line-height:1.4}
 .hmx-h b{font-weight:500}
 .hmx-st{font-size:12px}
 .hmx-sg button{font-size:12px;height:26px;padding:0 9px}
@@ -590,15 +1086,16 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .hmx-days{display:grid;grid-template-rows:repeat(7,1fr);gap:3px;font-size:11px}
 .hmx-days span{display:flex;align-items:center;height:100%}
 .hmx-grid{display:grid;grid-template-columns:repeat(24,minmax(0,1fr));gap:3px;min-width:0}
-.hmx-grid i{aspect-ratio:1;border-radius:var(--dm-r-tiny,3px);background:color-mix(in srgb,var(--dm-accent) calc(var(--dm-a) * 100%),var(--dm-chip));transition:background .5s var(--dm-ease),transform .2s;max-width:100%}
+.hmx-grid i{aspect-ratio:1;border-radius:var(--dm-r-tiny,3px);background:color-mix(in oklch,var(--dm-hm-hi) min(var(--dm-a) * 118%,100%),var(--dm-hm-lo));transition:background .5s var(--dm-ease),transform .2s;max-width:100%}
 @media (hover:hover) and (pointer:fine){.hmx-grid i:hover{transform:scale(1.35);box-shadow:0 0 0 1.5px var(--dm-surface);position:relative;z-index:1}}
 .hmx-f{grid-column:2;display:grid;grid-template-columns:repeat(4,1fr);font-size:11px}
 .hmx-f .x{display:none}
-/* phones, and narrow cards: half the day at a time in bigger cells, scrolled sideways by touch or trackpad, starting at the
-   latest hours. The edge the grid runs on past fades out, and the hour names come every three hours */
+/* phones, and narrow cards: the grid scrolls sideways by touch or trackpad in 20px cells (about half the day on a phone, a
+   little more on a wider card, never bigger cells for a wider card), starting at the latest hours. The edge the grid runs on
+   past fades out, and the hour names come every three hours */
 .hmx{container-type:inline-size}
 @container (max-width:400px){
-  .hmx-sc{grid-template-columns:34px calc((100cqw - 34px) * 2);column-gap:0;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;scroll-snap-type:x proximity;scroll-padding-left:34px;
+  .hmx-sc{grid-template-columns:34px calc(24 * 20px + 23 * 4px);column-gap:0;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;scroll-snap-type:x proximity;scroll-padding-left:34px;
     --dm-fl:0px;--dm-fr:0px;-webkit-mask-image:linear-gradient(to right,#000 34px,transparent 34px,#000 calc(34px + var(--dm-fl)),#000 calc(100% - var(--dm-fr)),transparent);mask-image:linear-gradient(to right,#000 34px,transparent 34px,#000 calc(34px + var(--dm-fl)),#000 calc(100% - var(--dm-fr)),transparent)}
   .hmx-sc::-webkit-scrollbar{display:none}
   .hmx-sc.ml{--dm-fl:16px}.hmx-sc.mr{--dm-fr:16px}
@@ -610,10 +1107,17 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
   .hmx-f{grid-template-columns:repeat(8,1fr)}
   .hmx-f .x{display:block}
 }
-.hmx-lg{align-self:flex-end;display:flex;align-items:center;gap:3px;font-size:11px}
-.hmx-lg i{width:9px;height:9px;border-radius:var(--dm-r-tiny,2px);background:color-mix(in srgb,var(--dm-accent) calc(var(--dm-a) * 100%),var(--dm-chip))}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .hmx.panel,:root [data-style="clean"] .hmx.panel,:root [data-style="clean"].hmx.panel{padding:18px 20px 18px 20px}
+.hmx-lg{align-self:flex-end;display:flex;align-items:center;gap:3px;font-size:11px;line-height:1.2}
+/* the key's squares are the cells a size down: the same shades, and corners as round for their size */
+.hmx-lg i{width:9px;height:9px;border-radius:calc(var(--dm-r-tiny,2.67px) * .75);background:color-mix(in oklch,var(--dm-hm-hi) min(var(--dm-a) * 118%,100%),var(--dm-hm-lo))}
+/* Clean (owner, 17 and 18 Nov): the content 16px in from every edge, and a cell under the pointer is ringed in a quiet grey
+   rather than growing */
+:root[data-style="clean"] .hmx.panel,:root [data-style="clean"] .hmx.panel,:root [data-style="clean"].hmx.panel{padding:16px}
+:root[data-style="clean"] .hmx-h,:root [data-style="clean"] .hmx-h,:root [data-style="clean"].hmx-h{border-bottom-color:var(--dm-line)}
+/* Clean: the Less to More key sits in the card's off-white foot strip, its words 16px in (owner, 21 Nov) */
+:root[data-style="clean"] .hmx.panel .hmx-lg,:root [data-style="clean"] .hmx.panel .hmx-lg,:root [data-style="clean"].hmx.panel .hmx-lg{align-self:stretch;justify-content:flex-end;min-height:calc(28px + 2 * var(--dm-strip-y) + 1px);margin:6px -16px -16px;padding:0 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+:root[data-style="clean"] .hmx-grid i,:root [data-style="clean"] .hmx-grid i,:root [data-style="clean"].hmx-grid i{transition:background .5s var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .hmx-grid i:hover,:root [data-style="clean"] .hmx-grid i:hover,:root [data-style="clean"].hmx-grid i:hover{transform:none;box-shadow:0 0 0 1px var(--dm-surface),0 0 0 2.5px var(--dm-line-strong)}}
 
 /* Top pages */
 /* ---------- Top pages ---------- */
@@ -640,7 +1144,6 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 
 /* Account table */
 /* ---------- Account table ---------- */
-.atb{overflow:hidden}
 /* the account table's colours run brighter than the shared tones: its plan tags take a stronger tint with saturated text
    (4.5:1 and APCA Lc 60 on the tint, in every style and theme) and the health bars vivid marks (3:1) */
 .atb{--dm-atb-ok:#1daa51;--dm-atb-warn:#cd7a00;--dm-atb-bad:#f04438;
@@ -652,46 +1155,106 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 :root[data-theme="dark"] .atb{--dm-atb-ok:#5fcb2a;--dm-atb-warn:#f59e0b;--dm-atb-bad:#fb4849;
   --dm-pb:#a4c9fe;--dm-pb-bg:color-mix(in srgb,#4890fa 22%,transparent);--dm-pl:#c9befe;--dm-pl-bg:color-mix(in srgb,#9776fa 22%,transparent);--dm-pm:#19e285;--dm-pm-bg:color-mix(in srgb,#1fad66 22%,transparent);--dm-pp:#feb68b;--dm-pp-bg:color-mix(in srgb,#dc7019 22%,transparent);
   --dm-pr:#feb1ad;--dm-pr-bg:color-mix(in srgb,#fb4652 22%,transparent);--dm-py:#feba28;--dm-py-bg:color-mix(in srgb,#bb881a 22%,transparent);--dm-pk:#feabcf;--dm-pk-bg:color-mix(in srgb,#fb27a2 22%,transparent);--dm-pt:#19daeb;--dm-pt-bg:color-mix(in srgb,#1fa5b1 22%,transparent)}
-.atb-h{display:flex;align-items:center;gap:var(--dm-s-2);padding:10px;flex-wrap:wrap;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.atb-s{display:flex;align-items:center;gap:var(--dm-s-2);height:32px;padding:0 10px;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);color:var(--dm-muted);flex:1;min-width:160px;transition:box-shadow var(--dm-t-fast)}
+/* the search and the plan filters: 16px in from the card's edges, the last filter ending on the content's right edge. The
+   field's glass sits in the logos' column and its words start on the names' column, as the rows under it do */
+.atb-h{display:flex;align-items:center;gap:var(--dm-s-2);padding:var(--dm-s-4) var(--dm-s-4) var(--dm-s-3);flex-wrap:wrap;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+/* a narrow card (a phone): the search takes the width and the filters go under it, on its left edge */
+.atb{container-type:inline-size}
+@container (max-width:420px){.atb-h{flex-direction:column;align-items:stretch}.atb-h>.atb-s{flex:none;min-width:0}}
+.atb-s{display:flex;align-items:center;gap:var(--dm-s-4);height:32px;padding:0 10px 0 6px;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);color:var(--dm-muted);flex:1;min-width:160px;transition:box-shadow var(--dm-t-fast)}
 @supports (corner-shape:squircle){.atb-s{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
-.atb-s input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--dm-fg)}
+.atb-s input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--dm-fg)}
 .atb-s:has(input:focus){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
 .atb-s input::placeholder{color:var(--dm-muted)}
 .atb-fl{display:flex;gap:var(--dm-s-1);flex-wrap:wrap}
 /* the filters are white chips with a dimmed grey edge; the picked one's edge is a step stronger */
 .atb-fl .chip{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-line) 50%,transparent)}
 @media (hover:hover) and (pointer:fine){.atb-fl .chip:hover{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-faint) 50%,transparent)}}
-.atb-sc{overflow-x:auto}
-.atb table{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
-.atb th{text-align:left;font-weight:500;font-size:12px;color:var(--dm-muted);padding:9px var(--dm-s-3);white-space:nowrap}
+/* the table sits 8px in from the card's sides, and its first and last cells keep 8px more: every column's words start where
+   its head's words start, the first 16px in and the last ending 16px from the right, and a row's hover fill reaches 8px out
+   round them with rounded corners, in place of the hairlines round it (owner, 18 Nov). On a phone the table scrolls sideways */
+/* the rows' fills reach as far toward the foot as toward the sides: 8px */
+.atb-sc{overflow-x:auto;padding:0 var(--dm-s-2) var(--dm-s-2)}
+.atb table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;min-width:560px}
+.atb th{text-align:left;font-weight:500;font-size:12px;line-height:18px;color:var(--dm-muted);padding:10px var(--dm-s-3);white-space:nowrap}
 .atb th.r,.atb td.r{text-align:right}
-.atb td{padding:9px var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);white-space:nowrap}
-.atb tr.row{cursor:pointer;transition:background .2s}
-@media (hover:hover) and (pointer:fine){.atb tr.row:hover{background:var(--dm-row)}}
+/* it reads as a table of columns (owner, 10 and 21 Nov): a hairline after every column but the last, in every style and
+   wherever the columns have been moved; the note under a row spans them all with none. The columns resize and move as in a
+   spreadsheet (cols()): a header takes the keyboard's focus so Alt and an arrow can move it, and sized by hand, a cell too
+   narrow for its words cuts them short */
+.atb{--dm-atb-col:color-mix(in srgb,color-mix(in srgb,var(--dm-line),var(--dm-fg) 9%) 50%,transparent)}
+.atb :is(th,td):not(:last-child){box-shadow:inset -1px 0 0 var(--dm-atb-col)}
+.atb th{position:relative}
+.atb th[tabindex]:focus-visible{outline-offset:-2px;border-radius:var(--dm-r-xs)}
+.atb table.cols-rz td{overflow:hidden;text-overflow:ellipsis}
+.atb td{padding:10px var(--dm-s-3);line-height:20px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);white-space:nowrap;transition:background-color var(--dm-t-fast) var(--dm-ease)}
+.atb :is(th,td):first-child{padding-left:var(--dm-s-2)}
+.atb :is(th,td):last-child{padding-right:var(--dm-s-2)}
+.atb tr.row{cursor:pointer}
+@media (hover:hover) and (pointer:fine){
+  .atb tr.row:hover td{background:color-mix(in srgb,var(--dm-fg) 4%,transparent);border-top-color:transparent}
+  .atb tr.row:hover td:first-child{border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk))) 0 0 calc(8px * var(--dm-rk-m,var(--dm-rk)))}
+  .atb tr.row:hover td:last-child{border-radius:0 calc(8px * var(--dm-rk-m,var(--dm-rk))) calc(8px * var(--dm-rk-m,var(--dm-rk))) 0}
+  .atb tr.row:hover+tr td{border-top-color:transparent}
+}
 /* a row that takes the focus fills the scrolling table, which would cut an outside ring: its ring is drawn inside */
 .atb tr.row:focus-visible{outline-offset:-2px}
-.atb tr.row.open{background:var(--dm-wash)}
-.atb .nm{display:flex;align-items:center;gap:9px;font-weight:500}
+.atb .nm{display:flex;align-items:center;gap:10px;font-weight:500}
 /* brand tiles sit a shade darker than the brand colour, so their white letter reads at 4.5:1 or more */
 .atb .lg{width:24px;height:24px;border-radius:calc(7px * var(--dm-rk-m,var(--dm-rk)));display:grid;place-items:center;font-size:11px;font-weight:500;color:#fff}
 .atb .hb{display:flex;align-items:center;gap:var(--dm-s-2)}
 .atb .hb i{width:54px;height:5px;border-radius:var(--dm-r-tiny,3px);background:var(--dm-line);overflow:hidden;display:block}
 .atb .hb i b{display:block;height:100%;border-radius:var(--dm-r-tiny,3px)}
-.atb .hb span{font-size:12px;color:var(--dm-fg2)}
+/* the 12px score sits in a box with the row's own 13px line, so it shares the other cells' baseline (the bar stays centred);
+   its own line is no taller than that box's, so the box keeps the row's 20px */
+.atb .hb .num{font-size:12px;line-height:1;color:var(--dm-fg2)}
+/* the agent's note opens under its row, with no hairline between them: the spark centred under the logos, the words on the
+   names' column, and its button ending where MRR ends, centred on the words */
 .atb tr.det td{padding:0;border-top:0}
-.atb-note{display:flex;align-items:center;gap:10px;padding:10px var(--dm-s-3) var(--dm-s-3) 45px;font-size:12px;color:var(--dm-fg2);white-space:normal}
-.atb-note>svg{color:var(--dm-accent-fg,var(--dm-accent));flex:none}
+/* the note is a detail row under its account (owner, 21 Nov): it spans every column, so the column lines stop at its top edge and
+   start again under it, and it sits in an inset panel of the style's quiet fill (Clean: its off-white with 10px corners), its
+   spark under the logos and its words on the names' column; the account it belongs to keeps a quiet fill while it is open */
+.atb-note{display:flex;align-items:center;gap:var(--dm-s-3);margin:0 0 var(--dm-s-2);padding:10px var(--dm-s-2) 10px 14px;border-radius:var(--dm-r-in);background:var(--dm-wash);font-size:12px;line-height:1.5;color:var(--dm-fg2);white-space:normal}
+.atb-note>svg{color:var(--dm-accent-mark,var(--dm-accent));flex:none;margin-right:4px}
 .atb-note span{flex:1}
-.atb-empty td{text-align:center;color:var(--dm-muted);padding:var(--dm-s-6)}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .atb.panel,:root [data-style="clean"] .atb.panel,:root [data-style="clean"].atb.panel{padding:6px 10px 6px 8px}
+/* Draft email is as wide as its words, and eases to the new width as it says Drafting, then Draft ready with the green tick */
+.atb-note .pill{flex:none;overflow:hidden}
+/* a white button on a tinted row takes the tint hairline (CLAUDE.md); Blueprint keeps its outlined edge */
+.atb-note .pill.line{box-shadow:var(--dm-on-tint-btn)}
+@media (hover:hover) and (pointer:fine){.atb-note .pill.line:hover{box-shadow:var(--dm-on-tint-btn-h)}}
+:root:not([data-style="soft"],[data-style="clean"]) .atb-note .pill.line:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.atb-note .pill .spin{width:12px;height:12px}
+.atb-note .pill .atb-done{display:grid;color:var(--dm-ok-mark)}
+/* nothing matches: the empty state of the lab's Clean (lab/clean), in every style. A small sketch of a table on a white card,
+   what happened, one muted line and the way back to every account */
+.atb-empty td{padding:28px var(--dm-s-4) 30px;text-align:center;white-space:normal}
+.atb-em{display:flex;flex-direction:column;align-items:center;gap:4px}
+.atb-em b{font-size:13px;line-height:18px;font-weight:500;color:var(--dm-fg)}
+.atb-em>span:not(.atb-em-art){max-width:290px;font-size:12px;line-height:1.5;color:var(--dm-muted)}
+.atb-em .pill{margin-top:12px}
+.atb-em-art{position:relative;display:block;width:136px;height:70px;margin:0 0 16px;border-radius:calc(10px * var(--dm-rk-l,var(--dm-rk)));background:var(--dm-surface);box-shadow:var(--dm-shadow)}
+.atb-em-art::before{content:"";position:absolute;left:14px;top:14px;width:10px;height:10px;border-radius:3px;background:var(--dm-ghost,var(--dm-chip));box-shadow:0 16px 0 var(--dm-ghost,var(--dm-chip)),0 32px 0 var(--dm-ghost-2,color-mix(in srgb,var(--dm-chip) 60%,var(--dm-surface)))}
+.atb-em-art::after{content:"";position:absolute;left:32px;top:16px;width:58px;height:6px;border-radius:3px;background:var(--dm-ghost,var(--dm-chip));box-shadow:0 16px 0 var(--dm-ghost,var(--dm-chip)),0 32px 0 var(--dm-ghost-2,color-mix(in srgb,var(--dm-chip) 60%,var(--dm-surface)))}
+/* Clean: the same 16px insets, the spark the quiet grey of Clean's chrome */
+:root[data-style="clean"] .atb-note>svg,:root [data-style="clean"] .atb-note>svg,:root [data-style="clean"].atb-note>svg{color:var(--dm-fg2)}
+:root[data-style="clean"] .atb-note,:root [data-style="clean"] .atb-note,:root [data-style="clean"].atb-note{border-radius:10px;background:var(--dm-strip);box-shadow:inset 0 0 0 1px var(--dm-hair)}
+.atb tr.row.open td{background:var(--dm-row);border-top-color:transparent}
+.atb tr.row.open td:first-child{border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk))) 0 0 calc(8px * var(--dm-rk-m,var(--dm-rk)))}
+.atb tr.row.open td:last-child{border-radius:0 calc(8px * var(--dm-rk-m,var(--dm-rk))) calc(8px * var(--dm-rk-m,var(--dm-rk))) 0}
+/* Clean: the search and the plan filters sit in the card's off-white head strip, with a hairline under it (owner, 21 Nov: "add
+   a gray background behind the search accounts"), 16px in at the sides and 16px from its top and bottom (owner, 23 Nov) */
+:root[data-style="clean"] .atb-h,:root [data-style="clean"] .atb-h,:root [data-style="clean"].atb-h{padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-bottom:1px solid var(--dm-line);border-radius:var(--dm-r-card) var(--dm-r-card) 0 0}
+/* the filter chips keep their quiet edge: the one hover fills them, and the picked one has the stronger fill (owner, 21 Nov) */
+:root[data-style="clean"] .atb-fl .chip,:root [data-style="clean"] .atb-fl .chip,:root [data-style="clean"].atb-fl .chip{transition:background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .atb-fl .chip:not(.on):hover,:root [data-style="clean"] .atb-fl .chip:not(.on):hover,:root [data-style="clean"].atb-fl .chip:not(.on):hover{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-line) 50%,transparent),inset 0 0 0 99px var(--dm-row)}}
+:root[data-style="clean"] .atb-fl .chip.on,:root [data-style="clean"] .atb-fl .chip.on,:root [data-style="clean"].atb-fl .chip.on{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-line) 50%,transparent),inset 0 0 0 99px var(--dm-row-on)}
 
 /* Notifications */
 /* ---------- Notifications ---------- */
-.ntx{padding:var(--dm-s-3);display:flex;flex-direction:column;gap:var(--dm-s-2);min-height:360px}
-/* on a card the inbox keeps the room its fullest list takes, so it stays centred while items arrive, after a filter and after Mark all read */
-.stage-in>.ntx{min-height:inherit}
+/* an inbox: a head with its name, the unread count and Mark all read, a filter, then the items, newest first. The rules
+   straight under this line are the inbox's parts as the Sales CRM's notifications menu uses them (a bare .ntx in its own
+   popover); the component's own card (.ntx.panel, below) sets its own measures over them */
+.ntx{padding:var(--dm-s-3);display:flex;flex-direction:column;gap:var(--dm-s-2)}
 .ntx-h{display:flex;align-items:center;gap:var(--dm-s-2);margin:0 -12px 2px;padding:2px var(--dm-s-3) 10px var(--dm-s-4);font-size:14px;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .ntx-h b{font-weight:500}
 .ntx-ct{min-width:20px;height:20px;padding:0 6px;border-radius:var(--dm-r-pill);background:var(--dm-accent);color:var(--dm-on-accent);font-size:11px;font-weight:500;display:grid;place-items:center;transition:transform .35s var(--dm-ease),opacity .3s}
@@ -703,7 +1266,14 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .ntx-list{display:flex;flex-direction:column}
 .ntx-n{display:flex;gap:10px;padding:9px var(--dm-s-2);border-radius:var(--dm-r-in);text-align:left;width:100%;position:relative;transition:background .2s}
 @media (hover:hover) and (pointer:fine){.ntx-n:hover{background:var(--dm-row)}}
-.ntx-n .ic{width:30px;height:30px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));display:grid;place-items:center;flex:none}
+/* what an agent did: its icon on its status's tint (a finished run green, one that paused amber, a run that started the
+   accent), in the status colours (owner, 3 Nov: saturated), never a washed-out mix; a tile given its own colour inline keeps it */
+.ntx-n .ic{width:30px;height:30px;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));display:grid;place-items:center;flex:none;background:var(--dm-ntx-tb,transparent);color:var(--dm-ntx-tc,var(--dm-fg2))}
+.ntx-n .ic[data-tone="ok"]{--dm-ntx-tb:var(--dm-ok-bg);--dm-ntx-tc:var(--dm-ok)}
+.ntx-n .ic[data-tone="warn"]{--dm-ntx-tb:var(--dm-warn-bg);--dm-ntx-tc:var(--dm-warn)}
+.ntx-n .ic[data-tone="bad"]{--dm-ntx-tb:var(--dm-bad-bg);--dm-ntx-tc:var(--dm-bad)}
+.ntx-n .ic[data-tone="accent"]{--dm-ntx-tb:var(--dm-accent-bg);--dm-ntx-tc:var(--dm-accent-fg)}
+.ntx-n .ic[data-tone="neutral"]{--dm-ntx-tb:var(--dm-chip);--dm-ntx-tc:var(--dm-fg2)}
 .ntx-n .ic .av{width:30px;height:30px;font-size:11px}
 .ntx-n .t{flex:1;min-width:0;font-size:13px;line-height:1.45;color:var(--dm-fg2)}
 .ntx-n .t b{font-weight:500;color:var(--dm-fg)}
@@ -714,26 +1284,196 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .ntx-n.new{animation:ntn .6s var(--dm-ease) both}
 @keyframes ntn{from{opacity:0;transform:translateY(-10px);filter:blur(4px)}}
 .ntx-e{padding:40px 10px;text-align:center;font-size:13px;color:var(--dm-muted)}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .ntx.panel,:root [data-style="clean"] .ntx.panel,:root [data-style="clean"].ntx.panel{padding:18px 20px 20px 20px}
+/* the component's own card. It sits on two columns (owner, 18 Nov), its content 16px from every edge in every style: the
+   head's neutral mark (the inbox's bell) in a 30px column with each item's icon or avatar centred under it, and the inbox's
+   name and each item's words 12px after it; Mark all read's words and the unread dots end on the content's right edge. The
+   head's hairline runs from edge to edge with 16px under it. An item is a button, so its hover fill reaches 8px out round it,
+   a quiet fill that shows in light mode too, with the card's corners less 8. A read item keeps its colours (owner, 20 Nov:
+   nothing fades to say it is past): only its unread dot goes. The card keeps no room for items to come: it grows as they
+   arrive (grow()), centred in its stage */
+.ntx.panel{padding:var(--dm-s-4);--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
+.ntx.panel .ntx-h{gap:var(--dm-s-3);margin:0 calc(-1 * var(--dm-s-4)) var(--dm-s-2);padding:0 var(--dm-s-4) var(--dm-s-4);line-height:20px}
+.ntx-hi{width:30px;height:30px;display:grid;place-items:center;flex:none;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));background:var(--dm-chip);color:var(--dm-fg2)}
+.ntx.panel .ntx-ct{margin-left:calc(-1 * var(--dm-s-1))}
+/* Mark all read is a text button: its words end on the content's edge and its hover box reaches out round them */
+.ntx.panel .ntx-all.pill{padding:0 var(--dm-s-2);margin-right:calc(-1 * var(--dm-s-2))}
+.ntx.panel .ntx-tabs{display:flex}
+.ntx.panel .ntx-list{margin:0 calc(-1 * var(--dm-s-2)) calc(-1 * var(--dm-s-2))}
+.ntx.panel .ntx-n{align-items:center;gap:var(--dm-s-3);padding:var(--dm-s-2);border-radius:calc(var(--dm-r-card) - var(--dm-s-2));transition:background-color var(--dm-t-fast)}
+.ntx.panel .ntx-n .t span{line-height:15px}
+.ntx.panel .ntx-n .u{margin-top:0}
+.ntx.panel .ntx-n.read .t{color:var(--dm-fg2)}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov) */
+.ntx.panel :is(.pill,.ntx-n):active{transform:none}
+/* an empty filter: a small sketch of a list on a white card, a title and one muted line (Clean's empty state, in every style) */
+.ntx-em{display:flex;flex-direction:column;align-items:center;gap:4px;padding:var(--dm-s-6) var(--dm-s-4) var(--dm-s-4);text-align:center}
+.ntx-em b{font-size:13px;line-height:18px;font-weight:500;color:var(--dm-fg)}
+.ntx-em>span:not(.ntx-em-art){max-width:290px;font-size:12px;line-height:1.5;color:var(--dm-muted)}
+.ntx-em-art{position:relative;display:block;width:136px;height:70px;margin:0 0 var(--dm-s-4);border-radius:calc(10px * var(--dm-rk-l,var(--dm-rk)));background:var(--dm-surface);box-shadow:var(--dm-shadow)}
+.ntx-em-art::before{content:"";position:absolute;left:14px;top:14px;width:10px;height:10px;border-radius:50%;background:var(--dm-ghost,var(--dm-chip));box-shadow:0 16px 0 var(--dm-ghost,var(--dm-chip)),0 32px 0 var(--dm-ghost-2,var(--dm-row))}
+.ntx-em-art::after{content:"";position:absolute;left:32px;top:16px;width:58px;height:6px;border-radius:3px;background:var(--dm-ghost,var(--dm-chip));box-shadow:0 16px 0 var(--dm-ghost,var(--dm-chip)),0 32px 0 var(--dm-ghost-2,var(--dm-row))}
+:root:not([data-style="soft"],[data-style="clean"]) .ntx-em-art:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){box-shadow:inset 0 0 0 1px var(--dm-line)}
+/* Clean: the head's mark has a hairline like the other tiles, and a new item rises in without a blur */
+:root[data-style="clean"] .ntx-hi,:root [data-style="clean"] .ntx-hi,:root [data-style="clean"].ntx-hi{box-shadow:inset 0 0 0 1px var(--dm-hair)}
+/* the head (the inbox, its count and Mark all read) is an off-white head strip, as every Clean card with a head has; its
+   controls sit 8px from the strip's top and bottom and on the content's 16px column */
+:root[data-style="clean"] .ntx.panel .ntx-h,:root [data-style="clean"] .ntx.panel .ntx-h,:root [data-style="clean"].ntx.panel .ntx-h{margin:calc(-1 * var(--dm-s-4)) calc(-1 * var(--dm-s-4)) var(--dm-s-2);padding:var(--dm-s-2) var(--dm-s-4);background:var(--dm-strip);border-bottom:1px solid var(--dm-line);border-radius:var(--dm-r-card) var(--dm-r-card) 0 0}
+:root[data-style="clean"] .ntx.panel .ntx-n.new,:root [data-style="clean"] .ntx.panel .ntx-n.new,:root [data-style="clean"].ntx.panel .ntx-n.new{animation:clpiece var(--dm-t-slow) var(--dm-ease) both}
 
 /* Toast */
 /* ---------- Toast ---------- */
-/* the toast on its way out and the one coming in share one cell, so each keeps its full width while they cross */
-.tst-slot{min-height:64px;width:100%;display:grid;justify-items:center;align-items:end}
-.tst-slot>*{grid-area:1/1}
-/* the same size as a toast in Toast stack: width, padding, type and icons */
-.tst-t{display:flex;align-items:center;gap:var(--dm-s-3);padding:var(--dm-s-3);background:var(--dm-raised);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow-toast);max-width:380px;width:100%;position:relative;overflow:hidden}
-.tst-t .g{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;flex:none}
-.tst-t .tx{flex:1;min-width:0;font-size:13px;line-height:1.35}
-.tst-t .tx b{font-weight:500;display:block}
-.tst-t .tx span{font-size:12px;color:var(--dm-muted)}
-.tst-t .acts{display:flex;align-items:center;gap:2px}
-.tst-t .life{display:none}
-.tst-in{animation:tstin .6s var(--dm-ease) both}
-@keyframes tstin{from{opacity:0;transform:translateY(14px) scale(.97);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}
-.tst-out{animation:tstout .35s var(--dm-ease) both}
+/* the Job toast (owner, 26 Nov, from the toast lab's 2a): a job the agent runs in the background lives in one toast from start
+   to finish. Its glyph is the news (a hand of slides, dealt as each one is drafted), its states change in place (working, a
+   problem with its fix, done), its steps open inside it, and Close drains a visible countdown. Plain toasts (a success or an
+   error with one action) are the same card: a status mark where the glyph goes, the words, Close, and the action in the
+   footer. It grows out of the button that started it, sits where its host puts it (centred in the stage here) and moves
+   with the library's own motion */
+.tst{position:relative}
+/* the toast on its way out and the one coming in share one cell, so each keeps its full width while they cross; the cell is
+   as tall as its toast and keeps no room when there is none */
+.tst-slot{position:relative;width:100%;display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;align-items:center}
+.tst-slot>:is(.tst-t,.tst-make){grid-area:1/1}
+/* the button that starts the job sits where its toast will: the toast grows out of it and, once closed, goes back into it */
+.tst-make.under{visibility:hidden}
+/* the card: up to 380px, the full width less its host's 16px gutters on a phone. Hover fills are a quiet 5% of the text
+   colour so they show on the white card. Its hairlines are 10% of the text colour, as the lab set them: half of --dm-line doesn't
+   show on Blueprint's dark raised grey */
+.tst-t{width:100%;max-width:380px;box-sizing:border-box;background:var(--dm-raised);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow-pop);--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent);--dm-tst-div:color-mix(in srgb,var(--dm-fg) 10%,transparent);overflow:clip;position:relative;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.tst-t[hidden]{display:none}
+/* (it grows with what it holds, grow(); its corners clip what is inside them exactly). The card's own height carries the motion,
+   so its steps and its footer open and shut at once and only fade: two eased heights on top of each other would leave the
+   card's edge trailing behind them */
+.tst-t.growing{overflow-clip-margin:0px}
+.tst-t .fold{transition:opacity var(--dm-t-fast) var(--dm-ease)}
+.tst-t .fold.shut{transition:opacity var(--dm-t-fast) var(--dm-ease),visibility 0s var(--dm-t-fast)}
+/* the head: the glyph, the words, then the toast's own buttons, all on one centre line, 16px in from every edge */
+.tst-hd{display:flex;align-items:center;gap:var(--dm-s-3);padding:var(--dm-s-4)}
+.tst-tx{flex:1;min-width:0}
+.tst-ti{display:block;width:fit-content;max-width:100%;font-size:13px;font-weight:500;line-height:18px}
+/* the line under the title wraps on a narrow toast rather than cutting off its news ("The sheet says 41k, not 14k") */
+.tst-de{display:block;font-size:12px;line-height:18px;color:var(--dm-muted);font-variant-numeric:tabular-nums}
+/* its icon buttons fill on hover, so they are measured by their box (ui-qa-gate, "boxes that fill"): Close's box, and the
+   countdown ring drawn on it, end on the content's right edge, 16px in, where the footer's buttons end */
+.tst-hb{display:flex;align-items:center;gap:var(--dm-s-1);flex:none}
+.tst-hb .ib{width:28px;height:28px;position:relative}
+.tst-hb .ib[hidden]{display:none}
+.tst-more .i{transition:transform var(--dm-t) var(--dm-ease)}
+.tst-more[aria-expanded="true"] .i{transform:rotate(180deg)}
+/* a plain toast's status mark sits where the glyph goes: the vivid green tick, the red alert, the warning sign in the bright
+   orange (its words stay in the text colour and its fix is .pill.warn, as the warning notices have them), a grey info mark or a spinner,
+   with no disc behind it, so a toast carries two hues at most */
+.tst-g{flex:none;width:20px;height:20px;display:grid;place-items:center;color:var(--dm-fg2)}
+.tst-g .i{width:20px;height:20px}
+.tst-g .spin{width:14px;height:14px;color:var(--dm-accent-mark)}
+.tst-g[data-s="success"]{color:var(--dm-ok-mark)}
+.tst-g[data-s="error"]{color:var(--dm-bad-mark)}
+.tst-g[data-s="warning"]{color:var(--dm-warn-mark)}
+.tst-g[data-s="stopped"]{color:var(--dm-muted)}
+/* the countdown you can see: a ring round Close that drains; the pointer or the focus on the toast holds it */
+.tst-ring{position:absolute;inset:0;width:28px;height:28px;pointer-events:none;fill:none}
+.tst-ring rect{rx:13.25px;ry:13.25px;stroke-width:1.5}
+:root:not([data-style="soft"],[data-style="clean"]) .tst-ring rect:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){rx:0;ry:0}
+.tst-ring .tst-tk{stroke:color-mix(in srgb,var(--dm-line) 70%,transparent)}
+.tst-ring .tst-rn{stroke:var(--dm-muted);stroke-dasharray:100 100;stroke-linecap:round}
+.tst-ring[hidden]{display:none}
+/* the steps, opened from the chevron, under a hairline: each step's mark sits centred in the glyph's column and its words
+   start where the title's words do; a step's count is the same size as its words, so the two share a baseline */
+/* (12px round the 28px rows puts the first and last step's words 16px and more from the hairline and the card's edge) */
+.tst-st{list-style:none;margin:0;padding:var(--dm-s-3) 0;border-top:1px solid var(--dm-tst-div)}
+.tst-st li{display:grid;grid-template-columns:var(--dm-tst-gw,64px) minmax(0,1fr) auto;column-gap:var(--dm-s-3);align-items:center;height:28px;padding:0 var(--dm-s-4);font-size:12px;line-height:18px;color:var(--dm-fg2)}
+.tst-st .tst-lb{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tst-st .tst-mk{justify-self:center;width:16px;height:16px;display:grid;place-items:center}
+.tst-st .tst-mk .i{width:16px;height:16px}
+.tst-st .tst-mk .spin{width:12px;height:12px}
+.tst-st .tst-vl{color:var(--dm-muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tst-st li[data-s="done"] .tst-mk{color:var(--dm-ok-mark)}
+.tst-st li[data-s="done"] .tst-mk .i{stroke-width:2}
+.tst-st li[data-s="now"]{color:var(--dm-fg)}
+.tst-st li[data-s="now"] .tst-mk{color:var(--dm-accent-mark)}
+.tst-st li[data-s="bad"]{color:var(--dm-fg)}
+.tst-st li[data-s="bad"] .tst-mk{color:var(--dm-bad-mark)}
+.tst-st li[data-s="paused"] .tst-mk{color:var(--dm-muted)}
+.tst-st li[data-s="wait"]{color:var(--dm-muted)}
+.tst-st .tst-pend{width:8px;height:8px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--dm-line-strong)}
+/* the footer: the actions under a hairline, on the right, 16px from the hairline, the card's bottom and its side */
+.tst-fi{display:flex;align-items:center;justify-content:flex-end;gap:var(--dm-s-2);padding:var(--dm-s-4);border-top:1px solid var(--dm-tst-div)}
+.tst-fi .pill{min-width:0}
+.tst-fi .pill.in{animation:tstbtn var(--dm-t) var(--dm-ease) backwards}
+@keyframes tstbtn{from{opacity:0;transform:translateY(4px)}}
+/* the box the toast grows out of: the button that started it, easing to where the toast sits and opening into it */
+.tst-fly{position:absolute;z-index:3;background:var(--dm-raised);box-shadow:var(--dm-shadow-pop);pointer-events:none}
+.tst-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+.tst-make .i{width:14px;height:14px}
+/* coming in without a button to grow from, and going: the library's own entrance for each style */
+.tst-in{animation:tstin var(--dm-t-slow) var(--dm-ease) backwards}
+@keyframes tstin{from{opacity:0;transform:translateY(14px) scale(.97);filter:blur(5px)}}
+.tst-out{animation:tstout var(--dm-t) var(--dm-ease) both;pointer-events:none}
 @keyframes tstout{to{opacity:0;transform:translateY(8px) scale(.98);filter:blur(4px)}}
+
+/* the glyph: a hand of slides, dealt as each one is drafted */
+.tst-dk{flex:none;width:64px;height:40px;display:block}
+.tst-dk svg{width:64px;height:40px;display:block;overflow:visible}
+/* the notes being read: a page with a line sweeping down it */
+.tst-dk .tst-pg{transform-box:view-box;transform-origin:32px 24px;transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease)}
+.tst-dk .tst-pp{fill:var(--dm-raised);stroke:var(--dm-muted);stroke-width:1.2}
+.tst-dk .tst-pl{stroke:var(--dm-faint);stroke-width:1.4;stroke-linecap:round}
+.tst-dk .tst-sc{stroke:var(--dm-accent-mark);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.tst-dk.read .tst-sc{opacity:1;animation:tstscan 1s var(--dm-ease-io) infinite alternate}
+@keyframes tstscan{to{transform:translateY(13px)}}
+.tst-dk:not(.read,.idle,.gone) .tst-pg{opacity:0;transform:scale(.6) translateY(10px)}
+/* the cards: an outline of dashed slots once the deck is planned; each slide dealt into its slot as it is drafted, the one being
+   drafted in the accent and in front; red where the check stopped */
+.tst-dk .tst-cd{transform-box:view-box;transform-origin:32px 56px;transform:scale(.7);opacity:0;transition:transform var(--dm-t) var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease)}
+.tst-dk .tst-cd .tst-b{fill:var(--dm-raised);stroke:var(--dm-faint);stroke-width:1.2;transition:fill var(--dm-t-fast) var(--dm-ease),stroke var(--dm-t-fast) var(--dm-ease)}
+.tst-dk .tst-cd .tst-l{fill:none;stroke:var(--dm-faint);stroke-width:1.3;stroke-linecap:round;stroke-dasharray:8 8;stroke-dashoffset:8;transition:stroke-dashoffset var(--dm-t) var(--dm-ease),stroke var(--dm-t-fast) var(--dm-ease)}
+:root:not([data-style="soft"],[data-style="clean"]) .tst-dk :is(.tst-cd .tst-b,.tst-pp):not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){rx:0}
+.tst-dk .tst-gh .tst-b{stroke:color-mix(in srgb,var(--dm-muted) 38%,var(--dm-raised));stroke-dasharray:2 1.6}
+.tst-dk .tst-gh .tst-l{display:none}
+.tst-dk.plan .tst-gh{opacity:1;transform:rotate(var(--dm-a));transition-delay:calc(var(--dm-i) * 36ms)}
+.tst-dk .tst-cd:is(.made,.now,.chk,.bad){opacity:1;transform:rotate(var(--dm-a))}
+.tst-dk .tst-cd.made .tst-b{stroke:var(--dm-fg2)}
+.tst-dk .tst-cd.made .tst-l{stroke-dashoffset:0;stroke:color-mix(in srgb,var(--dm-muted) 70%,var(--dm-raised))}
+.tst-dk .tst-cd.now{transform:rotate(var(--dm-a)) translateY(-3px)}
+.tst-dk .tst-cd:is(.now,.chk) .tst-b{stroke:var(--dm-accent-mark);fill:color-mix(in srgb,var(--dm-accent-mark) 10%,var(--dm-raised))}
+.tst-dk .tst-cd.now .tst-b{stroke-width:1.5}
+.tst-dk .tst-cd.now .tst-l{stroke:var(--dm-accent-mark);stroke-dashoffset:0}
+.tst-dk .tst-cd.chk{transform:rotate(var(--dm-a)) translateY(-2px)}
+.tst-dk .tst-cd.bad{transform:rotate(var(--dm-a)) translateY(-4px)}
+.tst-dk .tst-cd.bad .tst-b{fill:var(--dm-bad-mark);stroke:var(--dm-bad-mark)}
+.tst-dk .tst-cd.bad .tst-l{stroke:#fff;stroke-dashoffset:0}
+/* done: the hand closes into a neat deck and the green tick lands in front of it */
+.tst-dk.done .tst-gh{opacity:0;transition-delay:0s}
+.tst-dk.done .tst-cd:not(.tst-gh){transform:rotate(calc(var(--dm-a) * .16)) translateY(3px)}
+.tst-dk .tst-ok{transform-box:fill-box;transform-origin:center;transform:scale(0);opacity:0;transition:transform var(--dm-t) var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease)}
+.tst-dk .tst-ok circle{fill:var(--dm-ok-mark);stroke:var(--dm-raised);stroke-width:2}
+.tst-dk .tst-ok path{fill:none;stroke:#fff;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.tst-dk.done .tst-ok{transform:none;opacity:1;transition-delay:.2s}
+/* gone (undone or discarded): the cards fold back to where they came from, and the notes they were made from are back */
+.tst-dk.gone .tst-cd{opacity:0;transform:scale(.6);transition-delay:0s}
+/* reduced motion: things only fade; moves and turns happen at once */
+@media (prefers-reduced-motion:reduce){
+  .tst-dk *,.tst-more .i{transition-property:opacity!important;transition-delay:0s!important}
+  .tst-dk .tst-sc{animation:none}
+}
+@keyframes tstfade{from{opacity:0}}
+@keyframes tstfadeo{to{opacity:0}}
+
+/* Clean: the card's ordinary round corners (16px), the footer an off-white strip with its buttons 16px from its hairline, the
+   card's bottom and its side; the ink primary and the flat secondary are Clean's own. It rises 8px from .98 and leaves with a
+   fade, with no blur */
+:root[data-style="clean"] .tst-t,:root [data-style="clean"] .tst-t,:root [data-style="clean"].tst-t{border-radius:calc(12px * var(--dm-rk-l,var(--dm-rk)))}
+:root[data-style="clean"] .tst-st,:root [data-style="clean"] .tst-st,:root [data-style="clean"].tst-st{border-top-color:var(--dm-line)}
+:root[data-style="clean"] .tst-fi,:root [data-style="clean"] .tst-fi,:root [data-style="clean"].tst-fi{padding:var(--dm-strip-y) var(--dm-s-4);background:var(--dm-strip);border-top-color:var(--dm-line)}
+:root[data-style="clean"] .tst-in,:root [data-style="clean"] .tst-in,:root [data-style="clean"].tst-in{animation-name:clcard}
+@keyframes tstoutc{to{opacity:0;transform:translateY(6px) scale(.98)}}
+:root[data-style="clean"] .tst-out,:root [data-style="clean"] .tst-out,:root [data-style="clean"].tst-out{animation-name:tstoutc;animation-duration:var(--dm-t-fast)}
+/* Blueprint wipes in and goes in a short hard beat */
+@keyframes tstinb{from{opacity:0;clip-path:inset(0 0 100% 0)}35%{opacity:1}to{clip-path:inset(0 0 0 0)}}
+:root:not([data-style="soft"],[data-style="clean"]) .tst-in:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation-name:tstinb}
+@keyframes tstoutb{to{opacity:0;transform:translateY(4px)}}
+:root:not([data-style="soft"],[data-style="clean"]) .tst-out:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){animation-name:tstoutb;animation-duration:var(--dm-t-fast)}
+/* reduced motion: it only fades in and out, in every style (after the styles' own, which it outranks or ties) */
+@media (prefers-reduced-motion:reduce){.tst-slot .tst-t.tst-in,.tst-fi .pill.in{animation-name:tstfade}.tst-slot .tst-t.tst-out{animation-name:tstfadeo}}
 </style><style>/* Dashboard builder template: the layout around the components, the palette, the grid, and the parts the library doesn't
    have yet. Every colour, radius and space is a component token (--dm-*), so the screen follows Blueprint, Soft and Clean,
    light and dark. The library's parts are their own classes: Agent harness (the sidebar), Profile menu (the store's tile), Stat
@@ -830,15 +1570,16 @@ body:has(.dbb) .dmf{display:none}
 .dbb-met .scx-v b{font-size:14px}
 .dbb-met .scx-sp{flex:1;min-width:0;height:36px;margin:0}
 @container (max-width:299px){.dbb-met .scx-sp{display:none}}
-/* Line chart: the legend and the range switch on the right of its head; the chart takes the room left */
+/* Line chart: the library's own (the values on the left, the axis under it, the legend under that), its total under the title and
+   the range switch on the right; the plot takes the room the cell leaves */
 .dbb .dbb-line{gap:var(--dm-s-3)}
-.dbb-lr{display:flex;align-items:center;gap:var(--dm-s-2);margin-left:auto}
-.dbb-line .lnx-lg{margin:0}
+.dbb-line .lnx-h{flex-wrap:nowrap;align-items:flex-start;padding-bottom:var(--dm-s-3)}
+.dbb-lt{display:flex;flex-direction:column;min-width:0;font-size:12px;line-height:18px}
+.dbb-lt .lnx-v{font-size:14px;line-height:20px;font-weight:500;color:var(--dm-fg)}
 .dbb .dbb-rg button,.dbb .bcx-rg button,.dbb .fnx-sg button,.dbb .hmx-sg button,.dbb .tpx-sg button{font-size:12px;height:26px;padding:0 9px}
-.dbb .lnx-ch{flex:1;height:auto;min-height:60px}
-.dbb .lnx-ax{flex:none}
+.dbb-line .lnx-pl{flex:1;min-height:0;grid-template-rows:minmax(0,1fr) auto}
+.dbb .lnx-ch{height:auto;min-height:60px}
 @container (max-width:479px){.dbb-line .lnx-lg{display:none}}
-@container (max-width:299px){.dbb-line .lnx-h{flex-wrap:nowrap}.dbb-line .lnx-h>div:first-child{min-width:0}}
 /* Bar chart: the bars take the chart's height, each as tall as its share */
 .dbb .dbb-bar .bcx-ch{flex:1;height:auto;min-height:60px}
 .dbb .bcx-b{min-width:0}
@@ -846,15 +1587,15 @@ body:has(.dbb) .dmf{display:none}
 .dbb .bcx-st i{height:100%}
 .dbb .bcx-st{align-self:center;width:100%;max-width:40px}
 .dbb .bcx-l{white-space:nowrap}
-/* Donut chart: a head, then the ring beside its legend, smaller on a narrow card */
+/* Donut chart: a head, then the gauge beside its legend, smaller on a narrow card */
 .dbb .dbb-dn{flex-direction:column;align-items:stretch;flex-wrap:nowrap;justify-content:flex-start;gap:var(--dm-s-3)}
 .dbb-dnb{flex:1;min-height:0;display:flex;align-items:center;gap:var(--dm-s-5)}
-.dbb-dn .dnx-ring{width:132px;height:132px}
-.dbb-dn .dnx-lg{min-width:0;margin:0 -8px 0 0}
+.dbb-dn .dnx-g{flex:none;width:156px;margin:0}
+.dbb-dn .dnx-lg{flex:1;min-width:0;margin:0 -8px 0 0}
 .dbb-dn .dnx-r{padding:5px var(--dm-s-2)}
 .dbb-dn .dnx-r .t{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-@container (max-width:339px){.dbb-dnb{gap:var(--dm-s-3)}.dbb-dn .dnx-ring{width:104px;height:104px}.dbb-dn .dnx-r{gap:7px;padding:4px 6px}.dbb-dn .dnx-r .v{display:none}}
-@container (max-width:279px){.dbb-dnb{gap:10px}.dbb-dn .dnx-ring{width:88px;height:88px}.dbb-dn .dnx-r{font-size:12px;padding:4px}.dbb-dn .dnx-lg{margin-right:-4px}.dbb-dn .dnx-c span{display:none}}
+@container (max-width:339px){.dbb-dnb{gap:var(--dm-s-3)}.dbb-dn .dnx-g{width:124px}.dbb-dn .dnx-r{gap:7px;padding:4px 6px}.dbb-dn .dnx-r .v{display:none}}
+@container (max-width:279px){.dbb-dnb{gap:10px}.dbb-dn .dnx-g{width:104px}.dbb-dn .dnx-r{font-size:12px;padding:4px}.dbb-dn .dnx-lg{margin-right:-4px}.dbb-dn .dnx-c span{display:none}}
 /* Funnel: narrower labels on a narrow card */
 .dbb .dbb-fn .fnx-rows{flex:1}
 @container (max-width:339px){.dbb-fn .fnx-r{grid-template-columns:84px 1fr 34px;gap:var(--dm-s-2)}.dbb-fn .fnx-h{row-gap:var(--dm-s-2)}.dbb-fn .fnx-ins{display:none}}
@@ -1495,7 +2236,6 @@ const fitHits = window.dmFitHits || (() => {
 
   /* ---------- drawing the widgets ---------- */
   const seg2 = (cls, label, opts, on) => `<div class="seg2 ${cls}" role="group" aria-label="${label}">${opts.map(([v, t]) => `<button aria-pressed="${v === on}" data-v="${v}">${t}</button>`).join('')}</div>`;
-  const smooth = p => p.map((q, i) => { if (!i) return `M${q[0].toFixed(1)} ${q[1].toFixed(1)}`; const a = p[i - 1], m = (q[0] - a[0]) / 2; return `C${(a[0] + m).toFixed(1)} ${a[1].toFixed(1)} ${(q[0] - m).toFixed(1)} ${q[1].toFixed(1)} ${q[0].toFixed(1)} ${q[1].toFixed(1)}`; }).join(' ');
   const spark = s => { const lo = Math.min(...s) - .5, hi = Math.max(...s) + .5; return s.map((y, k) => `${k ? 'L' : 'M'}${(k / (s.length - 1) * 100).toFixed(1)} ${(28 - (y - lo) / (hi - lo) * 26).toFixed(1)}`).join(' '); };
   const MD = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
 
@@ -1506,34 +2246,74 @@ const fitHits = window.dmFitHits || (() => {
         $('.scx-sp svg', el).animate([{ clipPath:'inset(-4px 100% -4px 0)' }, { clipPath:'inset(-4px 0% -4px 0)' }], { duration:1000, delay:200, easing:'cubic-bezier(.45,0,.2,1)', fill:'backwards' }); }
     },
     line:{
-      html:(it, u) => { const L = LINE[it.v || 'revenue']; return `<div class="lnx panel dbb-p dbb-line"><div class="lnx-h"><div><span class="muted">${L.k}</span><b class="num lnx-v">0</b></div><div class="dbb-lr"><div class="lnx-lg"><button class="lnx-k on" data-s="0" aria-pressed="true"><i style="background:var(--dm-accent-mark,var(--dm-accent))"></i><span></span></button><button class="lnx-k on" data-s="1" aria-pressed="true"><i style="background:var(--dm-c2)"></i><span></span></button></div>${seg2('dbb-rg', 'Range', [['day', 'Day'], ['week', 'Week'], ['month', 'Month']], 'week')}</div></div><div class="lnx-ch"><svg class="lnx-svg" viewBox="0 0 320 140" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="lng-${u}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--dm-accent-mark,var(--dm-accent))" stop-opacity=".16"/><stop offset="1" stop-color="var(--dm-accent-mark,var(--dm-accent))" stop-opacity="0"/></linearGradient><clipPath id="lnc-${u}"><rect class="lnr" x="0" y="-10" width="320" height="160"/></clipPath></defs><g class="dbb-gl"></g><g clip-path="url(#lnc-${u})"><path class="ar" fill="url(#lng-${u})"/><path class="ln l1" stroke="var(--dm-c2)" stroke-dasharray="4 4"/><path class="ln l0" stroke="var(--dm-accent-mark,var(--dm-accent))"/></g></svg><div class="lnx-x"></div><span class="lnx-pt on" style="color:var(--dm-accent-mark,var(--dm-accent))"></span><span class="lnx-pt on" style="color:var(--dm-c2)"></span><div class="lnx-tt"><b class="num"></b><span></span></div></div><div class="lnx-ax muted num" aria-hidden="true"></div></div>`; },
+      // the library's Line chart (owner, 21 Nov): straight segments with sharp corners, the period before dotted, a fill that fades
+      // from the line to nothing, the values on the left and dashed gridlines at the axis' ticks; the widget's total under its title
+      html:it => { const L = LINE[it.v || 'revenue']; return `<div class="lnx panel dbb-p dbb-line"><div class="lnx-h"><div class="dbb-lt"><span class="muted">${L.k}</span><b class="num lnx-v">0</b></div>${seg2('dbb-rg', 'Range', [['day', 'Day'], ['week', 'Week'], ['month', 'Month']], 'week')}</div>`
+        + `<div class="lnx-pl"><div class="lnx-y num" aria-hidden="true"></div><div class="lnx-ch" tabindex="0" role="group" aria-roledescription="line chart" aria-label="${L.k}, this period against the one before. The arrow keys read each point"><svg class="lnx-svg" aria-hidden="true"></svg><span class="lnx-x"></span><span class="lnx-pt" style="color:var(--dm-lnx-cmp)"></span><span class="lnx-pt" style="color:var(--dm-lnx-line)"></span><span class="lnx-now"></span><div class="lnx-tt" aria-hidden="true"><div class="lnx-tt-h"></div><div class="lnx-tt-r"><i></i><span></span><b class="num"></b></div><div class="lnx-tt-r c"><i></i><span></span><b class="num"></b></div></div></div><div class="lnx-ax num" aria-hidden="true"></div></div>`
+        + `<div class="lnx-lg"><button class="lnx-k" data-s="0" aria-pressed="true"><i></i><span></span></button><button class="lnx-k c" data-s="1" aria-pressed="true"><i></i><span></span></button></div><p class="lnx-sr" aria-live="polite"></p></div>`; },
       draw:(el, it, o) => {
-        const L = LINE[it.v || 'revenue'], svg = $('.lnx-svg', el), ch = $('.lnx-ch', el), v = $('.lnx-v', el), tt = $('.lnx-tt', el), x = $('.lnx-x', el), pts = $$('.lnx-pt', ch), on = [true, true];
-        let R, A, B, pa, pb;
+        const L = LINE[it.v || 'revenue'], ch = $('.lnx-ch', el), svg = $('.lnx-svg', el), yl = $('.lnx-y', el), ax = $('.lnx-ax', el), tt = $('.lnx-tt', el), v = $('.lnx-v', el);
+        const guide = $('.lnx-x', el), mark = $('.lnx-now', el), live = $('p.lnx-sr', el), [pc, pm] = $$('.lnx-pt', el), on = [true, true], u = 'dbl' + Math.random().toString(36).slice(2, 8);
+        const short = n => (L.f === money ? '$' : '') + (n >= 1e3 ? parseFloat((n / 1e3).toFixed(1)) + 'k' : Math.round(n));
+        let R, A, B, S, at = -1, shown = 1, tok = 0;
         const total = () => sum(on[0] ? A : B);
-        function draw(k, anim){
+        const geo = () => { const W = ch.clientWidth, H = ch.clientHeight, n = A.length - 1, xr = W - 6; return { W, H, n, xr, X:i => i / n * xr, Y:val => H - val / S.top * H }; };
+        const near = (p, q) => p.offsetLeft < q.offsetLeft + q.offsetWidth + 6 && q.offsetLeft < p.offsetLeft + p.offsetWidth + 6;
+        function paint(){
+          if (!R || !ch.clientWidth) return;
+          const { W, H, n, xr, X, Y } = geo(), path = vs => vs.map((d, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)} ${Y(d).toFixed(1)}`).join('');
+          svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+          svg.innerHTML = `<defs><linearGradient id="${u}g" x1="0" x2="0" y1="0" y2="1"><stop offset="0" style="stop-color:var(--dm-lnx-line);stop-opacity:var(--dm-lnx-fill)"/><stop offset="1" style="stop-color:var(--dm-lnx-line);stop-opacity:0"/></linearGradient><clipPath id="${u}c"><rect x="-8" y="-8" height="${H + 16}" width="${(W + 16) * shown}"/></clipPath></defs>`
+            + R.ax.map(([i]) => `<line class="gl" x1="${Math.round(X(i)) + .5}" x2="${Math.round(X(i)) + .5}" y1="0" y2="${H}"/>`).join('')
+            + `<g clip-path="url(#${u}c)"><path class="cmp" d="${path(B)}"/><path class="ar" d="${path(A)}L${X(n).toFixed(1)} ${H}L0 ${H}Z" fill="url(#${u}g)"/><path class="ln" d="${path(A)}"/></g>`;
+          mark.style.left = X(n) + 'px'; mark.style.top = Y(A[n]) + 'px'; mark.style.opacity = shown >= 1 ? 1 : 0;
+          yl.innerHTML = Array.from({ length:S.top / S.s + 1 }, (_, j) => `<span>${short(S.top - j * S.s)}</span>`).join('');
+          // the axis: the range's ticks, each under its own point, the first on the left edge and the last on the right
+          ax.innerHTML = R.ax.map(([i, t]) => `<span data-i="${i}">${t}</span>`).join('') + '<span class="lnx-tk"></span>';
+          $$('span[data-i]', ax).forEach(sp => { const i = +sp.dataset.i, w = sp.offsetWidth; sp.style.left = (i === 0 ? 0 : i === n ? xr - w : X(i) - w / 2) + 'px'; });
+          if (at >= 0) show(at);
+        }
+        function show(i, say){
+          at = i; const { W, H, n, xr, X, Y } = geo(), x = X(i);
+          el.classList.add('on'); guide.style.left = pm.style.left = pc.style.left = x + 'px'; pm.style.top = Y(A[i]) + 'px'; pc.style.top = Y(B[i]) + 'px';
+          pm.classList.toggle('on', on[0] && i !== n); pc.classList.toggle('on', on[1]);
+          $('.lnx-tt-h', tt).textContent = R.at(i);
+          const [ra, rb] = $$('.lnx-tt-r', tt); ra.hidden = !on[0]; rb.hidden = !on[1];
+          $('span', ra).textContent = R.la; $('b', ra).textContent = L.f(A[i]); $('span', rb).textContent = R.lb; $('b', rb).textContent = L.f(B[i]);
+          const w = tt.offsetWidth, h = tt.offsetHeight, gap = 12, py = Y(on[0] ? A[i] : B[i]), side = x + gap + w <= W ? x + gap : x - gap - w >= 0 ? x - gap - w : null;
+          tt.style.left = (side ?? clamp(x - w / 2, 0, W - w)) + 'px';
+          tt.style.top = (side != null ? clamp(py - h / 2, 0, H - h) : py - gap - h >= -8 ? py - gap - h : py + gap) + 'px';
+          const tk = $('.lnx-tk', ax); tk.textContent = (R.ax.find(([j]) => j === i) || [0, R.at(i)])[1]; tk.style.left = clamp(x - tk.offsetWidth / 2, 0, xr - tk.offsetWidth) + 'px';
+          $$('span[data-i]', ax).forEach(l => l.classList.toggle('lnx-off', near(l, tk)));
+          if (say) live.textContent = `${R.at(i)}: ` + [on[0] && `${R.la} ${L.f(A[i])}`, on[1] && `${R.lb} ${L.f(B[i])}`].filter(Boolean).join(', ');
+        }
+        function hide(){ at = -1; el.classList.remove('on'); $$('span[data-i]', ax).forEach(l => l.classList.remove('lnx-off')); }
+        function load(k, anim){
           R = RANGES[k]; A = R.a.map(n => n * L.s); B = R.b.map(n => n * L.s);
-          const all = [...A, ...B], lo = Math.min(...all) * .92, hi = Math.max(...all) * 1.04, n = A.length - 1;
-          const P = s => s.map((d, i) => [i / n * 320, 136 - (d - lo) / (hi - lo) * 128]); pa = P(A); pb = P(B);
-          $('.dbb-gl', svg).innerHTML = [35, 70, 105].map(y => `<line class="gl" x1="0" x2="320" y1="${y}" y2="${y}"/>`).join('');
-          $('.ar', svg).setAttribute('d', smooth(pa) + ' L320 140 L0 140 Z'); $('.l0', svg).setAttribute('d', smooth(pa)); $('.l1', svg).setAttribute('d', smooth(pb));
-          $$('.lnx-k span', el).forEach((s, i) => { s.textContent = i ? R.lb : R.la; });
-          $('.lnx-ax', el).innerHTML = R.ax.map(([i, t]) => `<span style="left:${i / n * 100}%"${i === n ? ' class="e"' : ''}>${t}</span>`).join('');
-          if (anim && !REDUCE){ tween(0, 320, 1100, w => $('.lnr', svg).setAttribute('width', w), t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2); tween(0, total(), 1100, n => { v.textContent = L.f(n); }).then(() => { v.textContent = L.f(total()); }); }
+          const mx = Math.max(...A, ...B), raw = mx / 4, p10 = 10 ** Math.floor(Math.log10(raw)), st = [1, 2, 2.5, 5, 10].map(m => m * p10).find(m => m >= raw);
+          S = { s:st, top:Math.max(st, Math.ceil(mx * 1.04 / st) * st) };
+          $$('.lnx-k span', el).forEach((sp, i) => { sp.textContent = i ? R.lb : R.la; });
+          if (at > A.length - 1) at = A.length - 1;
+          const t = ++tok; shown = anim && !REDUCE ? 0 : 1; paint();
+          if (shown < 1){ tween(0, 1, 1100, f => { if (t !== tok) return; shown = f; const r = $('clipPath rect', svg); if (r) r.setAttribute('width', (ch.clientWidth + 16) * f); mark.style.opacity = f >= 1 ? 1 : 0; }, f => f < .5 ? 4 * f * f * f : 1 - Math.pow(-2 * f + 2, 3) / 2);
+            tween(0, total(), 1100, n => { v.textContent = L.f(n); }).then(() => { v.textContent = L.f(total()); }); }
           else v.textContent = L.f(total());
         }
-        draw('week', o.anim);
+        load('week', o.anim);
+        new ResizeObserver(() => paint()).observe(ch);
         if (!o.live) return;
-        seg($('.dbb-rg', el), k => draw(k, true));
-        ch.addEventListener('pointermove', e => {
-          const b = ch.getBoundingClientRect(), n = A.length - 1, i = clamp(Math.round((e.clientX - b.left) / b.width * n), 0, n), px = i / n * b.width;
-          x.style.left = px + 'px';
-          [pa, pb].forEach((p, k) => { pts[k].style.left = px + 'px'; pts[k].style.top = p[i][1] / 140 * b.height + 'px'; pts[k].classList.toggle('on', on[k]); });
-          const a = on[0] ? A[i] : B[i], dv = Math.round((A[i] / B[i] - 1) * 100);
-          $('b', tt).textContent = L.f(a); $('span', tt).textContent = R.at(i) + (on[0] && on[1] ? `, ${dv < 0 ? '−' : '+'}${Math.abs(dv)}% on ${R.vs}` : '');
-          const w = tt.offsetWidth; tt.style.left = Math.max(0, px + 12 + w <= b.width ? px + 12 : px - 12 - w) + 'px';
-        });
-        $$('.lnx-k', el).forEach(k => k.addEventListener('click', () => { const s = +k.dataset.s; if (on[s] && !on[1 - s]) return; on[s] = !on[s]; k.classList.toggle('on', on[s]); k.setAttribute('aria-pressed', on[s]); $('.l' + s, svg).classList.toggle('off', !on[s]); if (s === 0) $('.ar', svg).style.opacity = on[0] ? 1 : 0; v.textContent = L.f(total()); }));
+        seg($('.dbb-rg', el), k => load(k, true));
+        const idx = e => { const b = ch.getBoundingClientRect(), { n, xr } = geo(); return clamp(Math.round((e.clientX - b.left) / xr * n), 0, n); };
+        ch.addEventListener('pointermove', e => show(idx(e)));
+        ch.addEventListener('pointerdown', e => show(idx(e)));
+        ch.addEventListener('pointerleave', e => { if (e.pointerType !== 'touch' && !ch.matches(':focus-visible')) hide(); });
+        ch.addEventListener('focus', () => { if (ch.matches(':focus-visible')) show(at < 0 ? A.length - 1 : at, true); });
+        ch.addEventListener('blur', hide);
+        ch.addEventListener('keydown', e => { const n = A.length - 1, i = at < 0 ? n : at;
+          if (e.key === 'Escape' && at >= 0){ e.preventDefault(); hide(); return; }
+          const to = { ArrowLeft:i - 1, ArrowRight:i + 1, Home:0, End:n }[e.key]; if (to == null) return; e.preventDefault(); show(clamp(to, 0, n), true); });
+        $$('.lnx-k', el).forEach(k => k.addEventListener('click', () => { const s = +k.dataset.s; if (on[s] && !on[1 - s]) return; on[s] = !on[s]; k.setAttribute('aria-pressed', on[s]);
+          el.classList.toggle('lnx-noa', !on[0]); el.classList.toggle('lnx-nob', !on[1]); v.textContent = L.f(total()); if (at >= 0) show(at); }));
       }
     },
     bar:{
@@ -1562,19 +2342,30 @@ const fitHits = window.dmFitHits || (() => {
       }
     },
     donut:{
-      html:() => `<div class="dnx panel dbb-p dbb-dn"><div class="dbb-wh"><b>Sales by channel</b><span class="muted">This month</span></div><div class="dbb-dnb"><div class="dnx-ring"><svg viewBox="0 0 120 120" aria-hidden="true"></svg><div class="dnx-c"><b class="num dnx-v"></b><span class="muted dnx-l">All channels</span></div></div><div class="dnx-lg"></div></div></div>`,
+      // the library's Donut chart, a gauge (owner, 21 Nov): the channels as a half ring of parts beside the legend, the month's total
+      // in the middle; pointing at a part or a row puts its share there
+      html:() => `<div class="dnx panel dbb-p dbb-dn"><div class="dbb-wh"><b>Sales by channel</b><span class="muted">This month</span></div><div class="dbb-dnb"><div class="dnx-g"><svg class="dnx-svg" viewBox="0 0 220 110" aria-hidden="true"></svg><div class="dnx-c"><b class="num dnx-v"></b><span class="muted dnx-l">All channels</span></div></div><div class="dnx-lg"></div></div></div>`,
       draw:(el, it, o) => {
-        const tot = sum(CHANNELS.map(d => d[1])), C = 2 * Math.PI * 48, gap = 2, svg = $('svg', el), lg = $('.dnx-lg', el), ring = $('.dnx-ring', el), v = $('.dnx-v', el), l = $('.dnx-l', el);
-        let off = 0;
-        svg.innerHTML = CHANNELS.map((d, i) => { const len = d[1] / tot * C; const s = `<circle cx="60" cy="60" r="48" stroke="${d[2]}" stroke-dasharray="${o.anim && !REDUCE ? 0 : len - gap} ${C}" stroke-dashoffset="${-off}" data-i="${i}" data-len="${len - gap}"/>`; off += len; return s; }).join('');
-        lg.innerHTML = CHANNELS.map((d, i) => `<div class="dnx-r" data-i="${i}"><i style="background:${d[2]}"></i><span class="t">${d[0]}</span><span class="v num">$${d[1].toFixed(1)}k</span></div>`).join('');
-        const arcs = $$('circle', svg), rows = $$('.dnx-r', lg), whole = '$' + tot.toFixed(1) + 'k';
+        const tot = sum(CHANNELS.map(d => d[1])), svg = $('.dnx-svg', el), lg = $('.dnx-lg', el), g = $('.dnx-g', el), v = $('.dnx-v', el), l = $('.dnx-l', el), whole = '$' + tot.toFixed(1) + 'k';
+        // the half ring, 18px thick at its full size, the parts 4px apart with 4px corners (a stroke of the corner's radius round
+        // each part's shape inset by it; Blueprint joins it square)
+        const CX = 110, CY = 110, RO = 104, RI = 86, CR = 4, GAP = 4, P = (r, a) => `${(CX + r * Math.cos(a)).toFixed(2)} ${(CY - r * Math.sin(a)).toFixed(2)}`;
+        const part = (f0, f1, gs, ge) => { const ts = Math.PI * (1 - f0), te = Math.PI * (1 - f1), ro = RO - CR, ri = RI + CR;
+          let os = ts - Math.asin((gs + CR) / ro), oe = te + Math.asin((ge + CR) / ro), is = ts - Math.asin((gs + CR) / ri), ie = te + Math.asin((ge + CR) / ri);
+          if (os < oe) os = oe = (os + oe) / 2; if (is < ie) is = ie = (is + ie) / 2;
+          return `M${P(ro, os)}A${ro} ${ro} 0 0 1 ${P(ro, oe)}L${P(ri, ie)}A${ri} ${ri} 0 0 0 ${P(ri, is)}Z`; };
+        const cum = []; let acc = 0; CHANNELS.forEach(d => { cum.push([acc / tot, (acc + d[1]) / tot]); acc += d[1]; });
+        svg.innerHTML = CHANNELS.map((d, i) => `<path data-i="${i}" stroke-width="${CR * 2}" style="fill:${d[2]};stroke:${d[2]}"/>`).join('');
+        const arcs = $$('path', svg), to = f => cum.forEach(([a, b], i) => { const e = Math.min(b, f); arcs[i].setAttribute('d', e > a + .004 ? part(a, e, a ? GAP / 2 : 0, e < .999 ? GAP / 2 : 0) : ''); });
+        lg.innerHTML = CHANNELS.map((d, i) => `<div class="dnx-r" data-i="${i}"${o.live ? ' tabindex="0"' : ''}><i style="background:${d[2]}"></i><span class="t">${d[0]}</span><span class="v num">$${d[1].toFixed(1)}k</span></div>`).join('');
+        const rows = $$('.dnx-r', lg);
         v.textContent = whole;
-        if (o.anim && !REDUCE) setTimeout(() => arcs.forEach((a, i) => setTimeout(() => a.setAttribute('stroke-dasharray', `${a.dataset.len} ${C}`), i * 90)), 200);
+        if (o.anim && !REDUCE){ to(0); setTimeout(() => tween(0, 1, 1100, to, f => f < .5 ? 4 * f * f * f : 1 - Math.pow(-2 * f + 2, 3) / 2), 200); } else to(1);
         if (!o.live) return;
-        const hl = i => { ring.classList.toggle('hov', i != null); arcs.forEach((a, j) => a.classList.toggle('hl', j === i)); rows.forEach((x, j) => x.classList.toggle('hl', j === i));
+        const hl = i => { g.classList.toggle('hov', i != null); arcs.forEach((a, j) => a.classList.toggle('hl', j === i)); rows.forEach((x, j) => x.classList.toggle('hl', j === i));
           if (i == null){ v.textContent = whole; l.textContent = 'All channels'; } else { v.textContent = Math.round(CHANNELS[i][1] / tot * 100) + '%'; l.textContent = CHANNELS[i][0]; } };
         [...arcs, ...rows].forEach(x => { x.addEventListener('pointerenter', () => hl(+x.dataset.i)); x.addEventListener('pointerleave', () => hl(null)); });
+        rows.forEach(x => { x.addEventListener('focus', () => hl(+x.dataset.i)); x.addEventListener('blur', () => hl(null)); });
       }
     },
     funnel:{
@@ -2066,13 +2857,15 @@ const fitHits = window.dmFitHits || (() => {
 
   /* ---------- toasts: what was saved or removed, with Undo ---------- */
   const toasts = $('.dbb-toasts', app);
-  const TONE = { ok:['ok', 'var(--dm-ok)', 'var(--dm-ok-bg)'], bad:['trash', 'var(--dm-fg2)', 'var(--dm-chip)'] };
+  // Toast's plain toast: a status mark (the green tick, or a grey bin for what was removed), the words, Dismiss, and the action
+  // in the footer
+  const TONE = { ok:['ok', 'success'], bad:['trash', 'info'] };
   function toast(kind, b, s = '', act = null){
-    const [ic, col, bg] = TONE[kind];
-    const t = html(`<div class="tst-t tst-in" role="status"><span class="g" style="color:${col};background:${bg}">${I(ic)}</span><div class="tx"><b>${esc(b)}</b>${s ? `<span>${esc(s)}</span>` : ''}</div><div class="acts">${act ? `<button class="pill ghost sm">${act.t}</button>` : ''}<button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div></div>`);
+    const [ic, st] = TONE[kind];
+    const t = html(`<div class="tst-t tst-in" role="status"><div class="tst-hd"><span class="tst-g" data-s="${st}" aria-hidden="true">${I(ic)}</span><div class="tst-tx"><span class="tst-ti">${esc(b)}</span>${s ? `<span class="tst-de">${esc(s)}</span>` : ''}</div><div class="tst-hb"><button class="ib tst-x" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div></div>${act ? `<div class="tst-fi"><button class="pill line sm">${act.t}</button></div>` : ''}</div>`);
     const out = () => { if (!t.isConnected || t.classList.contains('tst-out')) return; t.classList.add('tst-out'); setTimeout(() => t.remove(), 320); };
-    $('.ib', t).onclick = out;
-    if (act) $('.pill', t).onclick = () => { act.run(); out(); };
+    $('.tst-x', t).onclick = out;
+    if (act) $('.tst-fi .pill', t).onclick = () => { act.run(); out(); };
     toasts.appendChild(t); while (toasts.children.length > 3) toasts.firstElementChild.remove();
     let left = 6000, t0 = performance.now(), tm = setTimeout(out, left);
     t.addEventListener('pointerenter', () => { clearTimeout(tm); left -= performance.now() - t0; });
@@ -2137,4 +2930,4 @@ const fitHits = window.dmFitHits || (() => {
     }).finally(() => away());
   }
 })();
-</script><script src="/art/art.js?v=2" defer></script><script src="/fab/fab.js" defer></script></body></html>
+</script><script src="/art/art.js?v=3" defer></script><script src="/fab/fab.js" defer></script></body></html>

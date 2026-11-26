@@ -3,7 +3,7 @@ import { useEffect, useImperativeHandle, useRef, useState, type ReactNode, type 
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
-import { Swap, Think, Tip } from '../../lib/motion';
+import { Swap, Think, Tip, useGrow } from '../../lib/motion';
 import '../../designme.css';
 import './rewrite-toolbar.css';
 
@@ -72,7 +72,9 @@ export function RewriteToolbar({
   const head = useRef<HTMLDivElement>(null);
   const spans = useRef<(HTMLSpanElement | null)[]>([]);
   const [at, setAt] = useState<{ left: number; top: number }>({ left: 0, top: 0 });
-  // keeping a shorter sentence keeps the doc's height, with the text centred in it, so it doesn't shrink under the reader
+  // no room is kept for a rewrite: the text grows as its words arrive and shrinks once one is kept, and the card eases with
+  // it. Only the text clips while it eases, so the toolbar never does
+  const [doc, docIn] = useGrow();
   const busy = job !== null;
   // the toolbar turns to Rewritten one beat after the last word, as the site does
   const phase = !busy ? 'menu' : job.text !== undefined && job.shown > words(job.text).length ? 'review' : 'working';
@@ -84,17 +86,20 @@ export function RewriteToolbar({
   // a new selection from outside says the same as a click does
   useEffect(() => { if (sel !== null && !busy) setStatus('Pick a rewrite'); }, [sel]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // the toolbar sits above the sentence's first line, or under its last when above would cover the header. The new
-  // sentence takes its full room as soon as it arrives, so the toolbar is placed clear of it before the words come in
+  // the toolbar sits above the sentence's first line, or under its last when above would cover the header, gliding down
+  // with it as the new words add lines. A toolbar that isn't showing yet jumps to its place
+  const shown = useRef(false);
   useIsoLayoutEffect(() => {
     const el = sel === null ? null : spans.current[sel], tb = bar.current, box = root.current;
+    const jump = !shown.current; shown.current = sel !== null;
     if (!el || !tb || !box) return;
-    const br = box.getBoundingClientRect(), rects = el.getClientRects(), f = rects[0]; if (!f) return;
-    const left = Math.max(8, Math.min(f.left - br.left, br.width - tb.offsetWidth - 8));
-    let top = f.top - br.top - tb.offsetHeight - 8;
-    if (top < (head.current ? head.current.getBoundingClientRect().bottom - br.top : 4)) top = rects[rects.length - 1].bottom - br.top + 8;
+    const br = box.getBoundingClientRect(), k = br.width / box.offsetWidth || 1, rects = el.getClientRects(), f = rects[0]; if (!f) return;
+    const left = Math.max(8, Math.min((f.left - br.left) / k, box.offsetWidth - tb.offsetWidth - 8));
+    let top = (f.top - br.top) / k - tb.offsetHeight - 8;
+    if (top < (head.current ? (head.current.getBoundingClientRect().bottom - br.top) / k : 4)) top = (rects[rects.length - 1].bottom - br.top) / k + 8;
+    if (jump) { tb.style.transitionProperty = 'opacity,transform,filter'; tb.style.left = left + 'px'; tb.style.top = top + 'px'; void tb.offsetWidth; tb.style.transitionProperty = ''; }
     setAt({ left, top });
-  }, [sel, view, job?.text]);
+  }, [sel, view, job?.text, job?.shown]);
 
   // a click anywhere else puts the toolbar away, unless a rewrite is waiting on an answer
   const latest = useRef({ busy, setSel });
@@ -133,18 +138,21 @@ export function RewriteToolbar({
   return (
     <div data-dm="" ref={root} className={cx('dm-rwx dm-panel', className)}>
       <div ref={head} className="dm-rwx-h"><span className="dm-ft">{kind}</span><span>{title}</span><Swap className="dm-muted dm-rwx-st">{status}</Swap></div>
-      <div className="dm-rwx-doc">
+      <div ref={doc} className="dm-rwx-doc dm-growing">
+        <div ref={docIn} className="dm-grow">
         {text.map((s, i) => {
           const mine = job?.index === i;
           return (
             <span key={i}>
               {i > 0 && ' '}
               <span ref={el => { spans.current[i] = el; }} className={cx('dm-rwx-s', sel === i && 'dm-sel')} onClick={e => { e.stopPropagation(); if (!mine) pick(i); }}>
-                {mine ? <><del>{job.old}</del> <ins>{job.text && words(job.text).map((w, k) => <span key={k} className={cx('dm-w', k < job.shown && 'dm-on')}>{w} </span>)}</ins></> : s}
+                {/* the new words arrive one at a time after the struck sentence, each only once it is written */}
+                {mine ? <><del>{job.old}</del> <ins>{job.text && words(job.text).slice(0, job.shown).map((w, k) => <span key={k} className="dm-w">{w} </span>)}</ins></> : s}
               </span>
             </span>
           );
         })}
+        </div>
       </div>
       <div ref={bar} className={cx('dm-rwx-tb', sel !== null && 'dm-show', view !== 'menu' && 'dm-act')} role="toolbar" aria-label="Rewrite" inert={sel === null} style={at}>
         {view === 'menu' ? (
@@ -156,7 +164,7 @@ export function RewriteToolbar({
             </Tip>
           </>
         ) : view === 'working' ? (
-          <span className="dm-lbl"><Think />Rewriting</span>
+          <span className="dm-lbl"><Think /><span className="dm-shim">Rewriting</span></span>
         ) : (
           <>
             <span className="dm-lbl"><Icon name="check" size="xs" />Rewritten</span>

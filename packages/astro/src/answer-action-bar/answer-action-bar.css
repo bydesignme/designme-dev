@@ -3,15 +3,26 @@
 /* every action on an answer in one raised rail under it: copy, regenerate with its versions, thumbs, and read aloud, which
    widens into a progress bar and a clock and lights each word as it reads it */
 .aab{display:flex;flex-direction:column;gap:var(--dm-s-3)}
-.aab-t{min-height:78px}
-.aab-t .w{transition:background .16s,color .16s;border-radius:var(--dm-r-xs)}
+/* no room kept for a longer answer or an empty status line, in every style (owner's notes, 18 Nov): the answer is as tall as
+   its words, the reasons and the status take room only while they show, and the component grows with them (grow()). While
+   a new version streams in, the answer keeps the height of the one it replaces, then eases to its own. The bar's shadow
+   shows past the growing box */
+.aab.growing{overflow-clip-margin:32px}
+.aab-why{transition:grid-template-rows var(--dm-t) var(--dm-ease),opacity var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease)}
+.aab-why.shut{margin-top:calc(-1 * var(--dm-s-3));transition:grid-template-rows var(--dm-t) var(--dm-ease),opacity var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease),visibility 0s var(--dm-t)}
+/* nothing in the bar shrinks or swells on a click (owner, 18 Nov): a rated thumb only tilts */
+.aab-bar .ib:active{transform:none}
+:root[data-style="clean"] .aab-bar .ib:active,:root [data-style="clean"] .aab-bar .ib:active,:root [data-style="clean"].aab-bar .ib:active{transform:none}
+/* (the word being read is lit with small corners, so a short word's highlight stays a rounded box, not a near-circle) */
+.aab-t .w{transition:background .16s,color .16s;border-radius:calc(3px * var(--dm-rk))}
 .aab-t .w.in{animation:aabw .42s var(--dm-ease) both}
 @keyframes aabw{from{opacity:0;filter:blur(4px)}to{opacity:1;filter:none}}
 .aab-t.out{animation:aabo .32s var(--dm-ease) both}
 @keyframes aabo{to{opacity:0;filter:blur(4px);transform:translateY(-2px)}}
 .aab-t .nw{background:var(--dm-hl-ok);border-radius:0}
 .aab-t .w.rd{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}
-.aab-row{display:flex;align-items:center;flex-wrap:wrap;gap:var(--dm-s-2) var(--dm-s-3)}
+.aab-row{display:flex;align-items:center;flex-wrap:nowrap;gap:var(--dm-s-2) var(--dm-s-3)}
+.aab-row>.aab-bar{flex:none}
 .aab-bar{display:inline-flex;align-items:center;gap:1px;padding:3px;border-radius:var(--dm-r-pill);background:var(--dm-surface);box-shadow:var(--dm-shadow)}
 .aab-bar .ib{width:28px;height:28px}
 .aab-bar .ib[disabled]{opacity:1;cursor:not-allowed;background:none;color:var(--dm-dis)}
@@ -19,29 +30,68 @@
 .aab-re.go svg{transform:rotate(360deg)}
 .aab-up[aria-pressed="true"]{color:var(--dm-ok);background:var(--dm-ok-bg)}
 .aab-dn[aria-pressed="true"]{color:var(--dm-bad);background:var(--dm-bad-bg)}
-.aab-up[aria-pressed="true"] svg,.aab-dn[aria-pressed="true"] svg{transform:scale(1.1) rotate(-8deg)}
+.aab-up[aria-pressed="true"] svg,.aab-dn[aria-pressed="true"] svg{transform:rotate(-8deg)}
 .aab-sep{width:1px;height:16px;background:var(--dm-line);margin:0 var(--dm-s-1)}
 /* the version pager only takes room once there is a second version */
 .aab-pg{display:inline-flex;align-items:center;max-width:0;overflow:hidden;opacity:0;transition:max-width .42s var(--dm-ease),opacity .32s}
 .aab-pg.on{max-width:96px;opacity:1}
-.aab-pg .ib{width:24px;height:24px}
+/* (the versions' arrows are the bar's own 28px icon buttons) */
+.aab-pg .ib{width:28px;height:28px}
 .aab-n{font-size:12px;color:var(--dm-muted);min-width:32px;text-align:center}
 .aab-rd{display:inline-flex;align-items:center;height:28px;padding:0 7px;border-radius:var(--dm-r-pill);color:var(--dm-fg2);transition:background .16s,color .16s}
-@media (hover:hover) and (pointer:fine){.aab-rd:hover{background:var(--dm-hover)}}
+@media (hover:hover) and (pointer:fine){.aab-rd:hover{background:var(--dm-row)}}
 .aab-rd .ic{display:grid;place-items:center;width:14px}
 .aab-rd[aria-pressed="true"]{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}
-.aab-rd.paused{background:var(--dm-chip);color:var(--dm-fg2)}
+.aab-rd.paused{background:var(--dm-chip-fill);color:var(--dm-fg2)}
 .aab-pr{width:0;height:3px;border-radius:var(--dm-r-tiny,2px);background:color-mix(in srgb,currentColor 22%,transparent);overflow:hidden;margin-left:0;transition:width .42s var(--dm-ease),margin .42s var(--dm-ease)}
 .aab-pr i{display:block;height:100%;width:0;background:currentColor;border-radius:inherit}
 .aab-tm{font-size:11.5px;max-width:0;overflow:hidden;white-space:nowrap;transition:max-width .42s var(--dm-ease),margin .42s var(--dm-ease)}
 .aab-rd.on .aab-pr{width:56px;margin-left:var(--dm-s-2)}
 .aab-rd.on .aab-tm{max-width:80px;margin-left:var(--dm-s-2)}
-.aab-meta{font-size:12px}
+.aab-meta{flex:0 1 auto;min-width:0;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .aab-wy{display:flex;flex-direction:column;gap:var(--dm-s-2);padding:2px 0 var(--dm-s-1)}
 .aab-wq{font-size:13px;font-weight:500}
 .aab-ch{display:flex;flex-wrap:wrap;gap:6px}
-.aab-ch .chip.on{background:var(--dm-sel);color:var(--dm-accent-fg,var(--dm-accent));box-shadow:none}
-.aab-st{margin:0;min-height:20px;font-size:12.5px;display:flex;align-items:center;gap:6px}
+/* the reasons sit on the stage: unpicked, a step above the chip's own grey and a step more under the pointer, as Feedback
+   sheet's are (owner, 23 Nov: "could these be a bit darker?"); a picked one is the accent tint. Clean keeps its own (below) */
+.aab-ch .chip{background:var(--dm-hover)}
+@media (hover:hover) and (pointer:fine){.aab-ch .chip:hover{background:var(--dm-press)}}
+.aab-ch .chip.on{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent));box-shadow:none}
+/* (the status line opens and closes on its own height at the moment the reasons fold does, so the card moves once, in one
+   direction: owner, 26 Nov. A line about to empty eases shut and fades with its words still in it; .off) */
+.aab-st{margin:0;max-height:20px;font-size:12.5px;display:flex;align-items:center;gap:6px;overflow:clip;overflow-clip-margin:2px;transition:max-height var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease)}
+.aab-st:is(:empty,.off){max-height:0;margin-top:calc(-1 * var(--dm-s-3))}
+.aab-st.off{opacity:0}
 .aab-st.warn{color:var(--dm-warn)}
 .aab-st.ok svg{color:var(--dm-ok);flex:none}
-@media (max-width:480px){.aab-rd.on .aab-tm{display:none}.aab-rd.on .aab-pr{width:40px}}
+.aab-rd.on .aab-pr{width:40px}
+@media (max-width:480px){.aab-rd.on .aab-tm{display:none}.aab-row{flex-direction:column;align-items:flex-start}.aab-meta{max-width:100%}}
+/* Clean (owner, 18 Nov): the chrome is monochrome: a rated thumb fills in ink on the selected fill in its round shape (owner, 23 Nov), with no green or red and no tilt, read aloud plays in ink on a grey track and lights the word
+   it reads in grey, and a picked reason is an ink chip like a toggle that is on. What a new version changed stays green, and
+   so does the status's tick; a problem stays amber. Words fade in and out without a blur */
+@keyframes aabwc{from{opacity:0}to{opacity:1}}
+@keyframes aaboc{to{opacity:0;transform:translateY(-2px)}}
+:root[data-style="clean"] .aab-bar,:root [data-style="clean"] .aab-bar,:root [data-style="clean"].aab-bar{border-radius:calc(28px / 2 + 3px)}
+:root[data-style="clean"] .aab-t .w.in,:root [data-style="clean"] .aab-t .w.in,:root [data-style="clean"].aab-t .w.in{animation-name:aabwc;animation-duration:var(--dm-t-slow)}
+:root[data-style="clean"] .aab-t.out,:root [data-style="clean"] .aab-t.out,:root [data-style="clean"].aab-t.out{animation-name:aaboc;animation-duration:var(--dm-t)}
+:root[data-style="clean"] .aab-bar .ib[aria-pressed="true"] svg,:root [data-style="clean"] .aab-bar .ib[aria-pressed="true"] svg,:root [data-style="clean"].aab-bar .ib[aria-pressed="true"] svg{transform:none}
+/* (the word being read is lit a step darker than the chip's next grey, so it shows on the stage) */
+:root[data-style="clean"] .aab-t .w.rd,:root [data-style="clean"] .aab-t .w.rd,:root [data-style="clean"].aab-t .w.rd{background:var(--dm-press);color:var(--dm-fg)}
+:root[data-style="clean"] .aab-bar .ib[aria-pressed="true"],:root [data-style="clean"] .aab-bar .ib[aria-pressed="true"],:root [data-style="clean"].aab-bar .ib[aria-pressed="true"]{background:var(--dm-row-on);color:var(--dm-fg)}
+:root[data-style="clean"] .aab-bar .ib[aria-pressed="true"] svg,:root [data-style="clean"] .aab-bar .ib[aria-pressed="true"] svg,:root [data-style="clean"].aab-bar .ib[aria-pressed="true"] svg{fill:currentColor}
+:root[data-style="clean"] .aab-rd[aria-pressed="true"],:root [data-style="clean"] .aab-rd[aria-pressed="true"],:root [data-style="clean"].aab-rd[aria-pressed="true"]{background:var(--dm-row-on);color:var(--dm-fg)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .aab-rd:hover,:root [data-style="clean"] .aab-rd:hover,:root [data-style="clean"].aab-rd:hover{background:var(--dm-row)}}
+:root[data-style="clean"] .aab-ch .chip.on,:root [data-style="clean"] .aab-ch .chip.on,:root [data-style="clean"].aab-ch .chip.on{background:var(--dm-btn-2);color:var(--dm-on-btn);box-shadow:inset 0 0 0 1px var(--dm-btn-2)}
+/* a reason not picked takes the one hover over its fill, easing over 220ms (owner, 21 Nov); on the stage its grey is two steps
+   above the chip's own, so it shows there as a chip does on a card */
+:root[data-style="clean"] .aab-ch .chip:not(.on),:root [data-style="clean"] .aab-ch .chip:not(.on),:root [data-style="clean"].aab-ch .chip:not(.on){background:var(--dm-press)}
+:root[data-style="clean"] .aab-ch .chip,:root [data-style="clean"] .aab-ch .chip,:root [data-style="clean"].aab-ch .chip{transition:background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .aab-ch .chip:not(.on):hover,:root [data-style="clean"] .aab-ch .chip:not(.on):hover,:root [data-style="clean"].aab-ch .chip:not(.on):hover{background:var(--dm-press);box-shadow:inset 0 0 0 99px var(--dm-row)}}
+:root[data-style="clean"] .aab-st.ok svg,:root [data-style="clean"] .aab-st.ok svg,:root [data-style="clean"].aab-st.ok svg{color:var(--dm-ok-mark)}
+/* its motion (owner's trial, 26 Nov; the core's motion pieces): a press on any of its buttons shows at once and eases back
+   (.mx-press, no scale); Copy's icon, the tick and the speaker, play and pause crossfade (.mx-ic); a rated thumb tilts on a
+   spring, and in Clean, which has no tilt, fills in over its fade; the reasons rise in one after another as they open, and the
+   component eases to its new height on the same spring */
+.aab-bar :is(.aab-up,.aab-dn) svg{transition:transform calc(var(--dm-t-in) * 1.4) var(--dm-ease-pop)}
+:root[data-style="clean"] .aab-bar :is(.aab-up,.aab-dn) svg,:root [data-style="clean"] .aab-bar :is(.aab-up,.aab-dn) svg,:root [data-style="clean"].aab-bar :is(.aab-up,.aab-dn) svg{fill:currentColor;fill-opacity:0;transition:fill-opacity var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .aab-bar :is(.aab-up,.aab-dn)[aria-pressed="true"] svg,:root [data-style="clean"] .aab-bar :is(.aab-up,.aab-dn)[aria-pressed="true"] svg,:root [data-style="clean"].aab-bar :is(.aab-up,.aab-dn)[aria-pressed="true"] svg{fill-opacity:1}

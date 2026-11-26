@@ -2,7 +2,7 @@
 
 > An orchestrator and its sub-agents, with cost rolled up per branch.
 
-Agent components / Agent status. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/agent-tree
+Components / Agent status. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/agent-tree
 
 ## Install
 
@@ -36,19 +36,20 @@ Agent tree shows one agent run as a tree that grows while it works: a header wit
 
 - `root` is the orchestrator. Each node has an `id`, a `name`, a `task` (what it is on now, shown after its name), a `status` of `queued`, `running`, `waiting`, `done` or `failed`, and `children`.
 - An agent's avatar is a solid tile in its `color` (one of the avatar colours, like `var(--dm-av-l)`, with its own ink) and its `icon`; the root's tile is ink. A step shows the `app` it works in (Figma, Slack and the other shared logos) or its `icon` on a plain tile. The lines never take these colours.
+- In Clean's dark mode the colour of a run in progress (its spinner, the waiting ring, the root's disc and the lines and band that follow the run) is white, as every Clean loader is; elsewhere it is the accent.
 - Each row starts with a small mark: a ring while queued, a spinner while running, a ring with a dot in the accent while waiting, and a filled disc with a tick or a cross once done or failed. The root's mark is the accent disc where the run starts. A new tick or cross draws itself.
 - A parent's line runs down from its mark and each child branches off it. Soft rounds each corner and Blueprint cuts it at 45 degrees. A line is the accent tint once its step has started, grey while it is queued, and red only for a failed step. Lines are drawn on every animation frame from where the marks are, so they meet each mark's edge and follow rows as they move.
 - A node added to `root` after the first render opens its space, its parent's line draws down to it and its branch out to its mark, and then its row rises in. New rows arrive one at a time.
 - One band per agent eases along its route from the root down to the step that agent is running, once that whole route is drawn, fading in as it leaves and out as it arrives.
-- A running step's task shimmers, and a task that changes rises into place.
-- Each row shows how long it has run (from `seconds`, or counted while it runs) and its `cost` in dollars. A branch's cost is its own plus everything under it; hover it to see the split, like "Its own $0.02, 3 steps $0.18". The total sits in the header.
+- A running step's task is loader text, in the text colour with a moving highlight, and a task that changes rises into place.
+- Each row shows how long it has run (from `seconds`, or counted while it runs) and its `cost` in dollars. A branch's cost is its own plus everything under it; hover it to see the split, like "Its own $0.02, 3 steps $0.18". The total sits in the header, with the run's clock, so the root's row leaves its own time and cost to it.
 - Under the tree, one line splits the picked node's cost into its own part and its children's and adds up its `tokens`, like "Design · its own $0.02 · 3 steps $0.18 · 2.4k tokens". It shows the whole run until a row is picked. `selected`, `defaultSelected` and `onSelectedChange` hold the pick.
 - A failed step with a `fix` shows a small button under it, like Use accent.500. Set `rerouted` on a failed step once a retry has taken its place: its row fades back and it no longer counts as failed.
-- A waiting step takes the accent tint behind its row, its task in the accent, and an `approval`: Approve in the accent, and Hold when `onHold` is given.
+- A waiting step has no band behind its row: its mark, its task in the accent and an `approval` say it: Approve in the accent, and Hold when `onHold` is given.
 - The header's status reads how many steps are running, Needs you, "1 failed", Wrapping up or Done, unless you pass `status`. The clock counts until the root is done, or shows `seconds`.
 - Click a branch's chevron to fold it; `collapsed`, `defaultCollapsed` and `onCollapsedChange` hold which branches are folded. A folded branch keeps its total.
-- `variant="bare"` leaves off the surface, `slim` hides the header, and `style` reaches the root (the demo uses it to keep the room the finished run needs, so the tree stays centred while it grows). Narrow trees hide each row's task, then its time, so the names keep their room.
-- Ships in Clean too (`data-style="clean"`): the tree keeps its colours (green ticks, agents' own colours, red only for a failure, with no red fill), sits in a round card with 20px all round, and the cost split is an off-white foot strip. In every style the card grows with its rows instead of keeping room for the finished run.
+- `variant="bare"` leaves off the surface, `slim` hides the header, and `style` reaches the root. Narrow trees hide each row's task, then its time, so the names keep their room.
+- Ships in Clean too (`data-style="clean"`): the tree keeps its colours (green ticks, agents' own colours, red only for a failure, with no red fill), sits in a round card with its content 16px in from every edge and each row's hover concentric with its corners, and the cost split is an off-white foot strip. In every style the card grows with its rows instead of keeping room for the finished run.
 
 ### Accessibility
 
@@ -215,6 +216,7 @@ import { useControllable, useIsoLayoutEffect, useReducedMotion, useSeconds } fro
 import { Icon, type IconName } from '../lib/icons';
 import { Brand, type BrandName } from '../lib/brands';
 import { avatarInk, Tip, useGrow } from '../lib/motion';
+import { useHoverGlide } from '../lib/glide';
 import '../designme.css';
 import './agent-tree.css';
 
@@ -440,6 +442,8 @@ export function AgentTree({ root, title, status, seconds, collapsed, defaultColl
   const [sel, setSel] = useControllable<string | null>(selected, defaultSelected, v => { if (v) onSelectedChange?.(v); });
   const [focus, setFocus] = useState(root.id);
   const treeRef = useRef<HTMLDivElement>(null);
+  // Clean's one hover glides from row to row, and the picked agent keeps its stronger fill
+  useHoverGlide(treeRef, '.dm-atr-b', { keep: '[aria-selected="true"]>.dm-atr-b' });
   // the panel grows with its rows and shrinks as a branch folds, staying centred where it is centred (owner, 17 Nov: no room
   // kept for a later state)
   const [growRef, growIn] = useGrow();
@@ -547,10 +551,12 @@ export function AgentTree({ root, title, status, seconds, collapsed, defaultColl
           <div className="dm-atr-r">
             <Mark key={m} m={m} />
             {who}
-            <span className="dm-atr-tx"><span className="dm-atr-nm">{n.name}</span>{k > 0 && <span className="dm-atr-tg" aria-hidden="true"><Icon name="chev-d" size="xs" /></span>}<span className="dm-atr-sub">{n.task}</span></span>
-            <span className="dm-atr-q dm-num">
-              {t >= 1 && <span className="dm-atr-sec"><span>{Math.floor(t)}s</span><span aria-hidden="true"> ·</span></span>}
-              {k ? <Tip label={`Its own ${money(n.cost ?? 0)}, ${kinds(k, lv)} ${money(v - (n.cost ?? 0))}`}>{cost}</Tip> : cost}
+            <span className="dm-atr-w">
+              <span className="dm-atr-tx"><span className="dm-atr-nm">{n.name}</span>{k > 0 && <span className="dm-atr-tg dm-mx-press" aria-hidden="true"><Icon name="chev-d" size="xs" /></span>}<span className="dm-atr-sub">{n.task}</span></span>
+              <span className="dm-atr-q dm-num">
+                {t >= 1 && <span className="dm-atr-sec"><span>{Math.floor(t)}s</span><span aria-hidden="true"> ·</span></span>}
+                {k ? <Tip label={`Its own ${money(n.cost ?? 0)}, ${kinds(k, lv)} ${money(v - (n.cost ?? 0))}`}>{cost}</Tip> : cost}
+              </span>
             </span>
           </div>
           {ask}
@@ -571,7 +577,7 @@ export function AgentTree({ root, title, status, seconds, collapsed, defaultColl
         <div className="dm-atr-hd"><b className="dm-atr-t">{title}</b><span className="dm-atr-s"><span className="dm-atr-dot" aria-hidden="true" /><span className="dm-atr-m">{line}</span><span aria-hidden="true">·</span><span className="dm-atr-time dm-num">{clock(secs)}</span></span></div>
         <span className="dm-atr-tot dm-num">{money(sum(root))}</span>
       </div>
-      <div ref={treeRef} className="dm-atr-tree" role="tree" aria-label="Agents" onKeyDown={onKey} onClick={onClick}>
+      <div ref={treeRef} className="dm-atr-tree dm-mx-glide" role="tree" aria-label="Agents" onKeyDown={onKey} onClick={onClick}>
         <svg className="dm-atr-ln" aria-hidden="true" />
         {node(root, 0)}
       </div>
@@ -595,7 +601,7 @@ export function AgentTree({ root, title, status, seconds, collapsed, defaultColl
 - [Context meter](https://designme.dev/components/context-meter.md): How full the context is and what fills it, with Compact to free room.
 - [Run cost](https://designme.dev/components/run-cost.md): Live credit and token spend, with a cap that pauses the run.
 - [Toast stack](https://designme.dev/components/toast-stack.md): Agent notifications that stack and fan out on hover.
-- [Toast](https://designme.dev/components/toast.md): One notification that changes shape with its state.
+- [Toast](https://designme.dev/components/toast.md): A background job in one toast, from start to finish.
 - [Status pill](https://designme.dev/components/status-pill.md): One live line for what the agent is doing right now.
 - [Step loader](https://designme.dev/components/step-loader.md): Named steps with a progress track and four loaders.
 - [Thinking states](https://designme.dev/components/thinking-states.md): Six thinking indicators to pick from, each with a status line.

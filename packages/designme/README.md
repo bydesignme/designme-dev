@@ -1,6 +1,6 @@
 # designme
 
-Free UI components for AI agent products, 100 of them (51 agent components plus 49 app basics), from [designme.dev](https://designme.dev). Each one comes as plain HTML, CSS and JavaScript, as a React component or as an Astro component, in two styles, Blueprint and Soft, with light and dark mode.
+Free UI components for AI agent products, 37 of them, from [designme.dev](https://designme.dev). Each one comes as plain HTML, CSS and JavaScript, as a React component or as an Astro component, in three styles, Blueprint, Soft and Clean, with light and dark mode.
 
 ```
 npx designme add status-pill thinking composer
@@ -34,27 +34,27 @@ Needs React 19. Add `--examples` for a `.example.tsx` beside each component that
 Every component also comes as an Astro component, with the same markup, CSS and script as the HTML version:
 
 ```
-npx designme add tool-call buttons --astro
+npx designme add live-answer status-pill --astro
 ```
 
 They land in `src/components/designme` (or `components/designme` when there is no `src`), with the shared core in `core/`. Each component brings its own styles and script, so importing it is all it takes:
 
 ```astro
 ---
-import ToolCall from '../components/designme/tool-call/ToolCall.astro';
+import LiveAnswer from '../components/designme/live-answer/LiveAnswer.astro';
 ---
-<ToolCall data-style="soft" />
+<LiveAnswer data-style="soft" />
 ```
 
-`data-style="soft"` draws one in the Soft style; without it, Blueprint. Any other attribute, like `class` or `style`, goes on its root element. The component plays its demo from designme.dev; change its `.js` to show your own data.
+`data-style="soft"` draws one in the Soft style and `data-style="clean"` in the Clean style; without it, Blueprint. Any other attribute, like `class` or `style`, goes on its root element. The component plays its demo from designme.dev; change its `.js` to show your own data.
 
 ## shadcn CLI
 
 The React and Astro versions are also shadcn registry items:
 
 ```
-npx shadcn@latest add https://designme.dev/r/shadcn/tool-call.json
-npx shadcn@latest add https://designme.dev/r/shadcn/astro/tool-call.json
+npx shadcn@latest add https://designme.dev/r/shadcn/live-answer.json
+npx shadcn@latest add https://designme.dev/r/shadcn/astro/live-answer.json
 ```
 
 ## Theme bridge

@@ -7,7 +7,7 @@ import { useStory } from './useScript';
 /* ---------- Profile menu: open it, switch to Acme Labs, then open it again and flip the theme ---------- */
 const WORKSPACES: ProfileMenuWorkspace[] = [
   { id: 'northwind', name: 'Northwind', detail: 'Pro, 12 members', tint: 'pb' },
-  { id: 'acme', name: 'Acme Labs', detail: 'Free, 3 members', tint: 'pp' },
+  { id: 'acme', name: 'Acme Labs', detail: 'Free, 3 members', tint: 'pk' },
   { id: 'personal', name: 'Personal', detail: 'Just you', tint: 'pl' }
 ];
 

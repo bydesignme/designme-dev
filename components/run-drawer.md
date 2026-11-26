@@ -2,7 +2,7 @@
 
 > A workflow's run under its canvas: the steps, the log and the data.
 
-Agent components / Workspace. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/run-drawer
+Components / Workspace. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/run-drawer
 
 ## Install
 
@@ -35,12 +35,12 @@ Run drawer shows a workflow's run in a drawer under its canvas. Its head says th
 ### What it does
 
 - The head holds a fold button with the run's name and its state, in colour: running in the accent with a spinner, waiting amber, passed green, failed red, stopped grey. Beside it the time, the tokens and the cost so far, then Steps, Log and Data, Stop while the run goes (Run again once it has ended) and Follow the run.
-- Steps is a timeline on an axis that grows with the run. Each step is a row with its tile, and its model and tool calls sit under it, indented. Each bar has its kind's colour: the trigger orange, AI steps and their model calls violet, tools teal, app steps and outputs blue, a branch yellow, an approval green. A failed try is red and says Failed, and the wait before a retry is hatched amber.
-- A step that waits for a person shows a hatched amber bar that grows while it waits, and under it the question with Approve and Reject. Approving lets the run carry on; rejecting fails it.
-- Log lists the run's lines with their times and levels in colour (debug grey, info blue, warn amber, error red), an error line on a red tint. The switch over it shows all of them, the warnings or the errors, with a count.
+- Steps is a timeline on an axis that grows with the run. Each step is a row with its tile, and its model and tool calls sit under it, indented. Each bar has its kind's colour: the trigger orange, AI steps and their model calls violet, tools teal, app steps and outputs blue, a branch yellow, an approval green. In Clean the tiles are one neutral grey and so are the bars, the top steps darker than the calls under them, and the running step's bar is in the accent (white in dark mode, as every Clean loader is). A failed try is red and says Failed, and the wait before a retry is hatched amber.
+- A step that waits for a person shows a hatched amber bar that grows while it waits, and under it a warning notice: a faint amber tint with the filled warning sign, the question in the text colour, Reject in white and Approve in the warning tint. Approving lets the run carry on; rejecting fails it.
+- Log lists the run's lines with their times and levels in colour (debug grey, info blue, warn amber, error red), an error line on a red tint (in Clean, its red level and words on the row as it is). The switch over it shows all of them, the warnings or the errors, with a count.
 - Data lists the steps that have finished; pick one to see its input and output as JSON, keys, strings and numbers each in their colour.
-- Over the drawer, the workflow's steps sit as a strip of tiles in their colours, linked by grey wires: the step under way is ringed in the accent (amber while it waits or retries), done steps are ticked, and the running step shows its name. Picking a tile, a row or a step in Data picks that step everywhere.
-- Follow the run (on by default) keeps the newest row and line in view, and the running step in the middle of the strip. Turn it off to read without the view moving.
+- Over the drawer, the workflow's steps sit as a strip of tiles in their colours (grey in Clean), linked by grey wires: the step under way is ringed in the accent (amber while it waits or retries), done steps are ticked, and the running step shows its name. Picking a tile, a row or a step in Data picks that step everywhere.
+- Follow the run (on by default) keeps the newest row and line in view, and the running step in the middle of the strip. Turn it off to read without the view moving. On, it sits on a quiet grey fill (a step stronger than a hover in Clean).
 - The fold button folds the drawer down to its head and opens it again. The drawer's top edge drags it taller or shorter, and the arrow keys do the same on it.
 - On designme.dev a test run plays at the pace of a real one: the company lookup is rate limited once, tries again, and the run waits for an approval. In React, pass the run as `spans`, `log` and `steps`, with `time` and `state`, and handle `onApprove`, `onStop` and `onRunAgain`; set `canvas` to put your own canvas over the drawer, or `null` for the drawer on its own.
 
@@ -233,6 +233,7 @@ import { cx } from '../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
 import { Seg, Spin, Tip } from '../lib/motion';
+import { hoverGlide, useHoverGlide } from '../lib/glide';
 import '../designme.css';
 import './run-drawer.css';
 
@@ -371,6 +372,10 @@ export function RunDrawer({ runId, label = 'Test run', state, time, tokens, cost
   const lines = log.filter(l => l.at <= time + 1e-6).sort((a, b) => a.at - b.at), seen = lines.filter(l => lvl === 'all' || l.level === lvl);
   const done = steps.filter(x => shown.some(s => s.step === x.id && !s.level && s.end != null && s.end <= time + 1e-6 && (s.state ?? 'ok') === 'ok'));
   const cur = done.find(x => x.id === pick) ?? done[done.length - 1];
+  // its motion pieces: one highlight glides from step to step in both lists, in every style; the picked step keeps its own fill
+  const ds = useRef<HTMLDivElement>(null);
+  useHoverGlide(rows, '.dm-rdr-r', { keep: '[aria-pressed="true"]' });
+  useEffect(() => hoverGlide(ds.current, 'button', { keep: '[aria-pressed="true"]' }), [!!cur]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // the newest row stays in view while the run is followed
   useEffect(() => {
@@ -402,21 +407,21 @@ export function RunDrawer({ runId, label = 'Test run', state, time, tokens, cost
         onPointerUp={() => setDrag(null)} onPointerCancel={() => setDrag(null)}
         onKeyDown={e => { const d = ({ ArrowUp: 24, ArrowDown: -24 } as Record<string, number>)[e.key]; let v: number | null = d ? h + d : null; if (e.key === 'Home') v = 120; if (e.key === 'End') v = maxH(); if (v == null) return; e.preventDefault(); if (!open) fold(true); size(v); }}><i /></div>
       <div className="dm-rdr-h">
-        <button type="button" className="dm-rdr-tg" aria-expanded={open} aria-controls={uid + '-b'} onClick={() => fold(!open)}>
+        <button type="button" className="dm-rdr-tg dm-mx-press" aria-expanded={open} aria-controls={uid + '-b'} onClick={() => fold(!open)}>
           <Icon name="chev-u" size="xs" /><span><span className="dm-w">{label} </span><span className="dm-num">#{runId}</span></span>
           <span className={cx('dm-rdr-st dm-tag', tag[0])}>{state === 'running' && <Spin />}{tag[1]}</span>
         </button>
         <span className="dm-rdr-meta dm-num">{meta}</span>
         <span className="dm-rdr-sp" />
         <Seg className="dm-rdr-tabs" label="Show" value={view} onChange={setView} options={[{ value: 'steps', label: 'Steps' }, { value: 'log', label: 'Log' }, { value: 'data', label: 'Data' }]} />
-        {live && onStop && <Tip label="Stop the run"><button type="button" className="dm-pill dm-ghost dm-sm dm-rdr-stop" aria-label="Stop the run" onClick={onStop}><Icon name="stop" size="xs" /><span>Stop</span></button></Tip>}
-        {!live && onRunAgain && <Tip label="Run again"><button type="button" className="dm-pill dm-ghost dm-sm dm-rdr-again" aria-label="Run again" onClick={onRunAgain}><Icon name="refresh" size="xs" /><span>Run again</span></button></Tip>}
-        <Tip label={fol ? 'Follow the run' : 'Stay put'}><button type="button" className="dm-ib dm-rdr-follow" aria-pressed={fol} aria-label="Follow the run" onClick={() => setFol(!fol)}><Icon name="target" /></button></Tip>
+        {live && onStop && <Tip label="Stop the run"><button type="button" className="dm-pill dm-ghost dm-sm dm-rdr-stop dm-mx-press" aria-label="Stop the run" onClick={onStop}><Icon name="stop" size="xs" /><span>Stop</span></button></Tip>}
+        {!live && onRunAgain && <Tip label="Run again"><button type="button" className="dm-pill dm-ghost dm-sm dm-rdr-again dm-mx-press" aria-label="Run again" onClick={onRunAgain}><Icon name="refresh" size="xs" /><span>Run again</span></button></Tip>}
+        <Tip label={fol ? 'Follow the run' : 'Stay put'}><button type="button" className="dm-ib dm-rdr-follow dm-mx-press" aria-pressed={fol} aria-label="Follow the run" onClick={() => setFol(!fol)}><Icon name="target" /></button></Tip>
       </div>
       <div className="dm-rdr-b" id={uid + '-b'} ref={body}>
         <div className="dm-rdr-v" data-v="steps" hidden={view !== 'steps'}>
           <div className="dm-rdr-ax" aria-hidden="true"><span>Step</span><span className="dm-rdr-sc" ref={axis}>{Array.from({ length: Math.floor(span / tick) }, (_, i) => <span key={i} style={{ left: `${i * tick / span * 100}%` }}>{i * tick}s</span>)}</span><span className="dm-ms">Time</span></div>
-          <div className="dm-rdr-rows" role="group" aria-label="Steps of the run" ref={rows} style={{ ['--dm-rdr-g' as string]: `${tick / span * 100}%` }}>
+          <div className="dm-rdr-rows dm-mx-glide" role="group" aria-label="Steps of the run" ref={rows} style={{ ['--dm-rdr-g' as string]: `${tick / span * 100}%` }}>
             {shown.map(s => {
               const st = stOf(s), e = s.end == null ? time : Math.min(s.end, time);
               return [
@@ -427,12 +432,14 @@ export function RunDrawer({ runId, label = 'Test run', state, time, tokens, cost
                   <span className="dm-rdr-ms dm-num">{st === 'wait' ? 'Waiting' : st === 'bad' ? 'Failed' : st === 'stop' ? 'Stopped' : secs(e - s.start)}</span>
                 </button>,
                 waiting && state === 'waiting' && waiting.step === s.step && !s.level && (
+                  // a warning notice (owner, 18 Nov): the filled warning sign, the words in the text colour, Reject white and
+                  // Approve, which resolves it, in the warning tint
                   <div key={s.id + 'ask'} className={cx('dm-rdr-ask', !reduce && 'dm-in')} role="group" aria-label={`${waiting.title} waits for you`}>
-                    <Tile kind="approval" icon="user" />
+                    <svg className="dm-rdr-sgi" viewBox="0 0 24 24" aria-hidden="true"><path className="dm-a" d="M12 3.6 2.6 19.9h18.8z" /><path className="dm-b" d="M12 9.6v4.4M12 17v.01" /></svg>
                     <span className="dm-tx"><b>{waiting.title}</b>{waiting.detail && <span>{waiting.detail}</span>}</span>
                     <span className="dm-acts">
-                      {onApprove && <button type="button" className="dm-pill dm-primary dm-sm" data-a="yes" onClick={onApprove}><Icon name="check" size="xs" />Approve</button>}
                       {onReject && <button type="button" className="dm-pill dm-line dm-sm" data-a="no" onClick={onReject}>Reject</button>}
+                      {onApprove && <button type="button" className="dm-pill dm-warn dm-sm" data-a="yes" onClick={onApprove}><Icon name="check" size="xs" />Approve</button>}
                     </span>
                   </div>
                 )
@@ -451,7 +458,7 @@ export function RunDrawer({ runId, label = 'Test run', state, time, tokens, cost
         </div>
         <div className="dm-rdr-v" data-v="data" hidden={view !== 'data'}>
           {cur ? <div className="dm-rdr-data">
-            <div className="dm-rdr-ds" role="group" aria-label="Steps">
+            <div ref={ds} className="dm-rdr-ds dm-mx-glide" role="group" aria-label="Steps">
               {done.map(x => <button type="button" key={x.id} aria-pressed={x === cur} onClick={() => setPick(x.id)}><Tile kind={x.kind} icon={x.icon} /><span>{x.title}</span></button>)}
             </div>
             <div className="dm-rdr-io"><h4>Input</h4><Json value={cur.input} label={`${cur.title} input`} /><h4>Output</h4><Json value={cur.output} label={`${cur.title} output`} /></div>
@@ -472,16 +479,11 @@ export function RunDrawer({ runId, label = 'Test run', state, time, tokens, cost
 
 ## More in Workspace
 
-- [Automation canvas](https://designme.dev/components/automation-canvas.md): A trigger, a few agent steps, and a run you can watch flow through.
-- [Canvas toolbar](https://designme.dev/components/canvas-toolbar.md): A floating toolbar for a workflow canvas: run, pick a tool, comment, fit and zoom.
-- [Data picker](https://designme.dev/components/data-picker.md): Map a field from earlier steps into a step's input.
 - [Command palette](https://designme.dev/components/command-palette.md): Jump anywhere or hand a task to the agent from one box.
 - [Memory panel](https://designme.dev/components/memory-panel.md): What the agent remembers about your team, editable and removable.
-- [Agent settings](https://designme.dev/components/agent-settings.md): How much the agent may do alone, with a save bar for changes.
 - [Tools and connections](https://designme.dev/components/tool-connections.md): The tools the agent can reach, and how much it may do with each.
 - [Knowledge sources](https://designme.dev/components/knowledge-sources.md): The files, sites and folders the agent knows, and how far each is indexed.
 - [Scheduled runs](https://designme.dev/components/scheduled-runs.md): Tasks the agent runs on a schedule, with their last result and a switch.
 - [File explorer](https://designme.dev/components/file-explorer.md): Project files, with the ones the agent touched marked.
-- [Workspace rail](https://designme.dev/components/workspace-rail.md): A slim app rail that opens into a labelled sidebar.
 
 All components: https://designme.dev/llms.txt

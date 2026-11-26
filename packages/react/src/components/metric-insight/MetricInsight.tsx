@@ -1,10 +1,12 @@
 'use client';
-import { useRef, useState, type PointerEvent } from 'react';
+import { useRef, useState, type CSSProperties, type PointerEvent } from 'react';
 import { cx } from '../../lib/cx';
-import { useControllable, useIsoLayoutEffect, useTween } from '../../lib/hooks';
+import { useControllable, useIsoLayoutEffect, useReducedMotion, useTween } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
 import { enter, Fold, Seg, Swap, Think, Tip } from '../../lib/motion';
 import '../../designme.css';
+// its menus' rows glide in Clean
+import '../../lib/glide';
 import './metric-insight.css';
 
 export interface MetricRange {
@@ -20,15 +22,17 @@ export interface MetricRange {
   change: number;
   /** One line on what happened, like "Jumped after the pricing page update on Sep 18." */
   insight: string;
-  /** A marker on the chart, like a release: `at` is 0 to 1 across, `label` shows on hover */
-  marker?: { at: number; label: string };
+  /** A marker on the chart, like a release: `at` is 0 to 1 across, `tag` is the short label on the chart (like "Sep 18"),
+   *  and `label` shows on hover */
+  marker?: { at: number; label: string; tag?: string };
 }
 
 export interface MetricDriver {
   label: string;
   /** Its share of the change, 0 to 100 */
   percent: number;
-  /** Any CSS colour, like 'var(--dm-accent)'. Defaults to the accent */
+  /** Its bar's colour, any CSS colour. Defaults to the accent's mark colour; give what the agent could not explain a grey,
+   *  like 'var(--dm-muted)'. The names tell the drivers apart, so they need no colour of their own */
   color?: string;
 }
 
@@ -46,7 +50,7 @@ export interface MetricInsightProps {
   formatChange?: (change: number) => string;
   /** What moved the number, shown under "Why did it move?" */
   drivers?: MetricDriver[];
-  /** Shows "Looking into it" on the button and keeps the breakdown shut, while you fetch the drivers */
+  /** Shows "Looking into it" on the button, its words shimmering, and keeps the breakdown shut, while you fetch the drivers */
   explaining?: boolean;
   /** Whether the breakdown is open. Leave it out to let the button toggle it */
   open?: boolean;
@@ -59,7 +63,8 @@ const pct = (v: number) => v.toFixed(1) + '%';
 const pts = (v: number) => (v < 0 ? '−' : '+') + Math.abs(v).toFixed(1) + ' pts';
 const W = 300, H = 90;
 
-/** A metric with its trend, a one-line explanation, and a breakdown of what moved it. */
+/** A metric with its trend, a one-line explanation, and a breakdown of what moved it. The chart follows the accent, and each
+ *  driver is a bar in the accent on a neutral track. */
 export function MetricInsight({ label, ranges, range, defaultRange, onRangeChange, format = pct, formatChange = pts, drivers, explaining = false, open, defaultOpen = false, onOpenChange, className }: MetricInsightProps) {
   const [key, setKey] = useControllable(range, defaultRange ?? ranges[0]?.key ?? '', onRangeChange);
   const [isOpen, setOpen] = useControllable(open, defaultOpen, onOpenChange);
@@ -89,11 +94,18 @@ export function MetricInsight({ label, ranges, range, defaultRange, onRangeChang
     setHover({ x: best[0], y: best[1], px: best[0] / W * b.width, py: best[1] / H * b.height, v: best[2] });
   };
 
-  // the button changes at once when it starts looking, then crossfades to its next label
-  const [looks, setLooks] = useState(0);
-  const [wasBusy, setWasBusy] = useState(explaining);
-  if (explaining !== wasBusy) { setWasBusy(explaining); if (explaining) setLooks(n => n + 1); }
   const shown = isOpen && !explaining && !!drivers?.length;
+  // the button is as wide as its words: a new label comes in and its width eases to fit (no room kept for a longer one)
+  const why = useRef<HTMLButtonElement>(null), whyW = useRef(0), reduce = useReducedMotion();
+  const words = explaining ? 'Looking into it' : shown ? 'Hide the breakdown' : 'Why did it move?';
+  useIsoLayoutEffect(() => {
+    const el = why.current; if (!el) return;
+    const w0 = whyW.current, w1 = el.getBoundingClientRect().width; whyW.current = w1;
+    if (!reduce && w0 && Math.abs(w1 - w0) > .5 && typeof el.animate === 'function') {
+      const cs = getComputedStyle(el), t = cs.getPropertyValue('--dm-t').trim();
+      el.animate([{ width: w0 + 'px' }, { width: w1 + 'px' }], { duration: (t.endsWith('ms') ? parseFloat(t) : parseFloat(t) * 1000) || 340, easing: cs.getPropertyValue('--dm-ease').trim() || 'ease' });
+    }
+  }, [words]);
   const [opened, setOpened] = useState(0);
   const [wasShown, setWasShown] = useState(shown);
   if (shown !== wasShown) { setWasShown(shown); if (shown) setOpened(n => n + 1); }
@@ -110,31 +122,31 @@ export function MetricInsight({ label, ranges, range, defaultRange, onRangeChang
       </div>
       <div className="dm-mix-ch" ref={chart} onPointerMove={move} onPointerLeave={() => setHover(null)}>
         <svg className="dm-mix-svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
-          <defs><linearGradient id="dm-mixg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="var(--dm-accent)" stopOpacity=".18" /><stop offset="1" stopColor="var(--dm-accent)" stopOpacity="0" /></linearGradient></defs>
+          <defs><linearGradient id="dm-mixg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="var(--dm-accent-mark,var(--dm-accent))" stopOpacity=".18" /><stop offset="1" stopColor="var(--dm-accent-mark,var(--dm-accent))" stopOpacity="0" /></linearGradient></defs>
           <path className="dm-mix-a" fill="url(#dm-mixg)" d={path && path + ` L${W} ${H} L0 ${H} Z`} />
-          <path className="dm-mix-l" fill="none" stroke="var(--dm-accent)" strokeWidth={2} vectorEffect="non-scaling-stroke" strokeLinejoin="round" d={path} />
+          <path className="dm-mix-l" fill="none" stroke="var(--dm-accent-mark,var(--dm-accent))" strokeWidth={2} vectorEffect="non-scaling-stroke" strokeLinejoin="round" d={path} />
           <line className="dm-mix-x" x1={hover?.x ?? 0} x2={hover?.x ?? 0} y1={0} y2={H} stroke="var(--dm-faint)" strokeDasharray="2 3" vectorEffect="non-scaling-stroke" />
         </svg>
         <span className="dm-mix-dot" style={hover ? { left: hover.px, top: hover.py } : undefined} />
-        {r?.marker && <Marker key={r.key} at={r.marker.at} label={r.marker.label} />}
+        {r?.marker && <Marker key={r.key} at={r.marker.at} label={r.marker.label} tag={r.marker.tag} />}
       </div>
       <div className="dm-mix-ins"><span className="dm-mix-ic"><Icon name="spark" size="xs" /></span><Swap className="dm-mix-t">{r?.insight ?? ''}</Swap></div>
       {drivers && (
-        <button type="button" className="dm-pill dm-soft dm-sm dm-mix-why" aria-expanded={shown} onClick={() => { if (!explaining) setOpen(!isOpen); }}>
+        <button ref={why} type="button" className="dm-pill dm-line dm-sm dm-mix-why" aria-expanded={shown} onClick={() => { if (!explaining) setOpen(!isOpen); }}>
+          {/* while the agent looks into it, its words shimmer */}
           {explaining && <Think />}
-          <Swap key={looks}>{explaining ? 'Looking into it' : shown ? 'Hide the breakdown' : 'Why did it move?'}</Swap>
+          <span className={explaining ? 'dm-shim' : undefined}>{words}</span>
         </button>
       )}
       {drivers && (
         <Fold open={shown} className="dm-mix-box">
           <div className="dm-mix-rs" key={opened}>
             {drivers.map((q, i) => {
-              const e = enter(i * 60), c = q.color ?? 'var(--dm-accent)';
+              const e = enter(i * 60);
               return (
                 <div key={q.label + i} className={cx('dm-mix-r', e.className)} style={e.style}>
-                  <span className="dm-dot" style={{ color: c }} />
                   <span className="dm-t">{q.label}</span>
-                  <span className="dm-bar"><i style={{ width: q.percent + '%', background: c }} /></span>
+                  <span className="dm-bar"><i style={{ width: q.percent + '%', ...(q.color ? { '--dm-k': q.color } : {}) } as CSSProperties} /></span>
                   <span className="dm-v dm-num">{q.percent}%</span>
                 </div>
               );
@@ -146,15 +158,16 @@ export function MetricInsight({ label, ranges, range, defaultRange, onRangeChang
   );
 }
 
-/** The marker on the chart. It fades in late, after the line, each time a range that has one comes up */
-function Marker({ at, label }: { at: number; label: string }) {
+/** The marker on the chart: a small label at the top of a dashed guide down through the chart, where the change happened.
+ *  It fades in late, after the line, each time a range that has one comes up */
+function Marker({ at, label, tag }: { at: number; label: string; tag?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
   // it renders hidden, then lets the stylesheet take over a frame later, so the delayed fade-in runs
   useIsoLayoutEffect(() => {
     const el = ref.current; if (!el) return;
     void el.offsetWidth;
-    const id = requestAnimationFrame(() => { el.style.opacity = ''; el.style.transform = ''; });
+    const id = requestAnimationFrame(() => { el.style.opacity = ''; });
     return () => cancelAnimationFrame(id);
   }, []);
-  return <Tip label={label}><span ref={ref} className="dm-mix-mk" style={{ left: at * 100 + '%', opacity: 0, transform: 'scale(.5)' }}><Icon name="spark" size="xs" /></span></Tip>;
+  return <span ref={ref} className="dm-mix-mk" style={{ left: at * 100 + '%', opacity: 0 }}><Tip label={label}><b><Icon name="spark" size="xs" />{tag}</b></Tip></span>;
 }

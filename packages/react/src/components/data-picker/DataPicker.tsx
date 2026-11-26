@@ -4,6 +4,7 @@ import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
 import { Tip } from '../../lib/motion';
+import { useHoverGlide } from '../../lib/glide';
 import '../../designme.css';
 import './data-picker.css';
 
@@ -71,6 +72,8 @@ export function DataPicker({ sources, fields, defaultFields = [], onFieldsChange
   const [first] = useState(() => new Set((fields ?? defaultFields).flatMap(f => f.refs.map(r => f.key + '|' + r))));
   const uid = useId().replace(/:/g, '');
   const root = useRef<HTMLDivElement>(null), pop = useRef<HTMLDivElement>(null), input = useRef<HTMLInputElement>(null), lsRef = useRef<HTMLDivElement>(null);
+  // the row the pointer or the arrows are on has Clean's one hover, gliding from row to row
+  useHoverGlide(lsRef, '.dm-fpk-o', { hl: '.dm-on', keep: ':not(*)' });
   const [place, setPlace] = useState<{ top: number; left: number } | null>(null);
   const of = (ref: string) => { const [s, f] = ref.split('.'); return { src: sources.find(x => x.id === s), f }; };
 
@@ -112,11 +115,14 @@ export function DataPicker({ sources, fields, defaultFields = [], onFieldsChange
         <div className="dm-fpk-f" key={fd.key}>
           <span className="dm-fpk-l">{fd.label}</span>
           <div className="dm-fpk-box" role="group" aria-label={fd.label}>
+            {/* the tokens wrap among themselves, so the + stays on the field's first line at its right end */}
+            <span className="dm-fpk-toks">
             {fd.refs.length ? fd.refs.map(ref => { const { src, f } = of(ref); return (
-              <span className={cx('dm-fpk-tok', !first.has(fd.key + '|' + ref) && 'dm-new')} key={ref}>
+              <span className={cx('dm-fpk-tok', !first.has(fd.key + '|' + ref) && 'dm-new')} data-k={src?.kind} key={ref}>
                 {src && <Tile kind={src.kind} icon={src.icon} />}<span className="dm-s">{src?.title ?? ref.split('.')[0]}</span><span className="dm-sep" aria-hidden="true">›</span><span className="dm-f">{f}</span>
                 <Tip label="Remove"><button type="button" className="dm-fpk-x" aria-label={`Remove ${f} from ${src?.title ?? ref.split('.')[0]}`} onClick={e => { remove(fd.key, ref); if (e.detail === 0) root.current?.querySelector<HTMLElement>(`[data-add="${CSS.escape(fd.key)}"]`)?.focus(); }}><Icon name="x" size="xs" /></button></Tip>
               </span>); }) : <span className="dm-fpk-ph">Pick data from an earlier step</span>}
+            </span>
             <Tip label="Insert data" off={openKey === fd.key}>
               <button type="button" className="dm-fpk-add" data-add={fd.key} aria-haspopup="dialog" aria-expanded={openKey === fd.key} aria-label={`Insert data into ${fd.label}`} onClick={e => openFor(fd.key, e.detail === 0)}><Icon name="plus" /></button>
             </Tip>

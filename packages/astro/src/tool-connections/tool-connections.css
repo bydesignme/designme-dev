@@ -1,33 +1,100 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Tools and connections ---------- */
-.hnx{padding:var(--dm-s-3);display:flex;flex-direction:column;gap:6px}
-.hnx-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 10px var(--dm-s-2)}
-.hnx-h>div{display:flex;flex-direction:column}
-.hnx-h b{font-weight:500;font-size:13.5px}
-.hnx-st{font-size:12px}
+/* the tools the agent can reach, each with an Off, Ask or Allow switch. The card sits on two columns (owner, 18 Nov), its
+   content 16px from every edge: the head's neutral mark in a 28px column with each tool's mark under it, and the title and
+   each tool's words 12px after it; the switches, Reconnect and Test all's words end on the content's right edge, and each
+   row shares one centre line. A row is not a button, so it has no hover fill. A tool's state is a small dot after its name,
+   beside it and never over its mark: green while it is connected, red once it has failed, a turning ring while it is tested
+   (the -mark colours, 3:1), none while it is off, when the row dims. Its mark is the tool's logo on a white tile, or its icon
+   on a vivid tile of its colour (white or the colour's own ink on it). A test's progress and result are a line in the foot,
+   beside Connect a tool. The card grows and shrinks with its rows (grow()) */
+.hnx{padding:var(--dm-s-4);display:flex;flex-direction:column}
+.hnx.growing:has(.pop.open){overflow:visible}
+.hnx-h{display:flex;align-items:center;gap:var(--dm-s-3);padding-bottom:var(--dm-s-2)}
+.hnx-hi{width:28px;height:28px;display:grid;place-items:center;flex:none;border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));color:var(--dm-fg2);background:var(--dm-chip)}
+.hnx-ht{flex:1;min-width:0;display:flex;flex-direction:column}
+.hnx-h b{font-weight:500;font-size:14px;line-height:20px}
+/* a test's progress and result sit in the foot, beside Connect a tool, its words ending on the content's right edge */
+/* the foot sits under a hairline in Soft and Blueprint (owner, 21 Nov: "blueprint should have divider lines at the bottom"),
+   its button's words 16px from the hairline and 16px from the card's bottom edge (owner, 23 Nov): the ghost button's 32px box
+   reaches 6px round its words, so the foot has 10px above it and reaches 6px into the card's bottom padding. Clean's is a foot
+   strip (below) */
+.hnx-ft{display:flex;align-items:center;gap:var(--dm-s-3);margin-top:0;margin-bottom:-6px;padding-top:10px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.hnx-st{display:flex;align-items:center;gap:5px;min-width:0;margin-left:auto;height:18px;font-size:12px;line-height:18px;white-space:nowrap}
+.hnx-st>span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.hnx-st .i{flex:none;color:var(--dm-ok-mark)}
+.hnx-st .shim{font-size:inherit}
+.hnx-st:empty{display:none}
+/* Test all: its hover box ends on the content's right edge (a box that fills keeps the card's 16px); it is as wide as its
+   words, and eases to its new width when they change */
+.hnx-test{flex:none;overflow:hidden}
+.hnx-test .spin{width:11px;height:11px}
 .hnx-list{display:flex;flex-direction:column}
-.hnx-t{display:flex;align-items:center;gap:var(--dm-s-3);padding:var(--dm-s-2) 10px;border-radius:var(--dm-r-in);font-size:13px;transition:background .2s}
-@media (hover:hover) and (pointer:fine){.hnx-t:hover{background:var(--dm-row)}}
-.hnx-t .ic{width:28px;height:28px;border-radius:calc(9px * var(--dm-rk-m,var(--dm-rk)));display:grid;place-items:center;flex:none;position:relative}
-.hnx-t .ic::after{content:"";position:absolute;right:-2px;bottom:-2px;width:8px;height:8px;border-radius:50%;background:var(--dm-ok);box-shadow:0 0 0 2px var(--dm-surface);transition:background .3s}
-.hnx-t.off .ic::after{background:var(--dm-faint)}
+.hnx-t{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;column-gap:var(--dm-s-3);padding:var(--dm-s-2) 0;font-size:13px}
+.hnx-t .ic{width:28px;height:28px;border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));display:grid;place-items:center;transition:opacity var(--dm-t-fast) var(--dm-ease)}
 .hnx-t .ic.brandic{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);color:var(--dm-fg)}
 .hnx-t .ic .brand{width:15px;height:15px}
-.hnx-t.err .ic::after{background:var(--dm-bad-mark)}
-.hnx-t.chk .ic::after{width:10px;height:10px;right:-3px;bottom:-3px;box-sizing:border-box;background:var(--dm-surface);border:1.5px solid var(--dm-accent-mark,var(--dm-accent));border-right-color:transparent;box-shadow:0 0 0 2px var(--dm-surface);animation:rot .8s linear infinite}
-.hnx-t .t{flex:1;min-width:0;display:flex;flex-direction:column}
-.hnx-t .t span{font-size:12px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hnx-t.err .t span{color:var(--dm-bad);white-space:normal;text-wrap:pretty}
-/* the same pill switch as every other segmented switch; its track darkens with a hovered row so it never melts into it */
-.hnx-pm{display:grid;grid-template-columns:repeat(3,auto);padding:2px;border-radius:var(--dm-r-pill);background:var(--dm-chip);position:relative;transition:background-color .2s}
-@media (hover:hover) and (pointer:fine){.hnx-t:hover .hnx-pm{background:color-mix(in srgb,var(--dm-fg) 8%,transparent)}}
-.hnx-pm button{position:relative;z-index:1;height:24px;padding:0 9px;border-radius:var(--dm-r-pill);font-size:11.5px;color:var(--dm-muted);transition:color .2s}
+.hnx-t .t{min-width:0;display:flex;flex-direction:column}
+.hnx-t .nm{display:flex;align-items:center;gap:6px;min-width:0;line-height:20px;transition:color var(--dm-t-fast) var(--dm-ease)}
+.hnx-t .nm>span:first-child{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hnx-t .d{font-size:12px;line-height:18px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hnx-t.err .d{color:var(--dm-bad);white-space:normal;text-wrap:pretty}
+/* the state: a dot after the name (connected, failed), a turning ring while it is tested */
+.hnx-dot{flex:none;width:6px;height:6px;border-radius:50%;background:var(--dm-ok-mark);transition:background-color var(--dm-t-fast) var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease)}
+.hnx-t.err .hnx-dot{background:var(--dm-bad-mark)}
+.hnx-t.off .hnx-dot{opacity:0}
+.hnx-t.chk .hnx-dot{width:10px;height:10px;box-sizing:border-box;background:none;border:1.5px solid var(--dm-accent-mark,var(--dm-accent));border-right-color:transparent;opacity:1;animation:rot .8s linear infinite;transition:none}
+/* the turning ring stays round in Blueprint, as its other loaders do */
+:root:not([data-style="soft"],[data-style="clean"]) .hnx-t.chk .hnx-dot:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){border-radius:50%!important}
+/* off: the mark fades and the name steps down to muted, so the text stays readable */
+.hnx-t.off .ic{opacity:.5}
+.hnx-t.off .nm{color:var(--dm-muted)}
+/* the same pill switch as every other segmented switch */
+.hnx-pm{display:grid;grid-template-columns:repeat(3,auto);padding:2px;border-radius:var(--dm-r-pill);background:var(--dm-chip);position:relative}
+.hnx-pm button{position:relative;z-index:1;height:24px;padding:0 9px;border-radius:var(--dm-r-pill);font-size:11.5px;color:var(--dm-muted);transition:color var(--dm-t-fast) var(--dm-ease)}
 @media (hover:hover) and (pointer:fine){.hnx-pm button:hover{color:var(--dm-fg2)}}
 .hnx-pm button[aria-pressed="true"]{color:var(--dm-fg)}
 .hnx-pm button:focus-visible{outline-offset:-2px}
-.hnx-pm .kn{position:absolute;top:2px;bottom:2px;border-radius:var(--dm-r-pill);background:var(--dm-surface);box-shadow:0 1px 2px rgba(0,0,0,.08);transition:left .4s var(--dm-ease),width .4s var(--dm-ease)}
-.hnx-add{display:flex;align-items:center;gap:var(--dm-s-2);height:30px;padding:0 var(--dm-s-3) 0 10px;font-size:12.5px;color:var(--dm-fg2);border-radius:var(--dm-r-pill);align-self:flex-start;transition:background-color .2s,color .2s}
+.hnx-pm .kn{position:absolute;top:2px;bottom:2px;border-radius:var(--dm-r-pill);background:var(--dm-surface);box-shadow:0 1px 2px rgba(0,0,0,.08);transition:left var(--dm-t) var(--dm-ease),width var(--dm-t) var(--dm-ease)}
+.hnx-t .pill .spin{width:11px;height:11px}
+/* Connect a tool: its + centred in the marks' column and its words on the title's; the hover box starts on the content's edge */
+.hnx-add{display:flex;align-items:center;gap:var(--dm-s-3);flex:none;height:32px;padding:0 var(--dm-s-3) 0 0;font-size:13px;color:var(--dm-fg2);border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+.hnx-add>.i{width:28px;padding:0 8px;box-sizing:border-box}
+.hnx-add[aria-expanded="true"]{color:var(--dm-fg);background:var(--dm-row)}
 @media (hover:hover) and (pointer:fine){.hnx-add:hover{color:var(--dm-fg);background:var(--dm-row)}}
 .hnx-pop{min-width:220px}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .hnx.panel,:root [data-style="clean"] .hnx.panel,:root [data-style="clean"].hnx.panel{padding:16px 10px 20px 20px}
+/* its motion (the core's motion pieces, owner, 26 Nov): Connect a tool's menu grows out of its button and goes back quicker,
+   its rows settle one after another and one highlight glides between them (.mx-pop, .mx-rows, .mx-glide); a press shows at once
+   (.mx-press); Test all eases to the width of its new words on the spring (mxWidth()); the card grows on the spring (.mx-grow) */
+.hnx-pop .mi .brand{width:12px;height:12px}
+/* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink primary alone presses */
+.hnx :is(.ib,.pill):active,:root[data-style="clean"] .hnx .ib:active,:root [data-style="clean"] .hnx .ib:active,:root [data-style="clean"].hnx .ib:active{transform:none}
+/* Clean (owner, 17 and 18 Nov): the head an off-white strip with a hairline under it, Test all a flat secondary button 16px
+   from the strip's top and bottom (owner, 23 Nov) and from the card's right edge; the tools' marks one neutral grey with a hairline (their logos keep their own
+   colours); Connect a tool a flat secondary button on an off-white foot strip, 16px from its top and bottom and 16px in from
+   the sides like everything in the card (21 Nov); the content 16px in from each edge and 16px from each strip; the switch is Clean's, a white knob on a track with an inner shadow */
+:root[data-style="clean"] .hnx.panel,:root [data-style="clean"] .hnx.panel,:root [data-style="clean"].hnx.panel{padding:0}
+/* the strips' buttons sit on the content's columns (owner, 21 Nov: "why do the components on the left have all different
+   alignment?", "same on the right"): Test all ends where the switches end, 16px in, and Connect a tool starts where the marks
+   start, 16px in; the strips keep 16px above and below them too (owner, 23 Nov) */
+:root[data-style="clean"] .hnx-h,:root [data-style="clean"] .hnx-h,:root [data-style="clean"].hnx-h{min-height:calc(28px + 2 * var(--dm-strip-y) + 1px);padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-bottom:1px solid var(--dm-line);border-radius:var(--dm-r-card) var(--dm-r-card) 0 0}
+:root[data-style="clean"] .hnx-hi,:root [data-style="clean"] .hnx-hi,:root [data-style="clean"].hnx-hi{background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-hair);border-radius:10px}
+:root[data-style="clean"] .pill.hnx-test,:root [data-style="clean"] .pill.hnx-test,:root [data-style="clean"].pill.hnx-test{margin:0;color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth);transition:box-shadow var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .pill.hnx-test:hover,:root [data-style="clean"] .pill.hnx-test:hover,:root [data-style="clean"].pill.hnx-test:hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
+:root[data-style="clean"] .pill.hnx-test:active,:root [data-style="clean"] .pill.hnx-test:active,:root [data-style="clean"].pill.hnx-test:active{box-shadow:var(--dm-btn2-press)}
+:root[data-style="clean"] .pill.hnx-test[disabled],:root [data-style="clean"] .pill.hnx-test[disabled],:root [data-style="clean"].pill.hnx-test[disabled]{color:var(--dm-muted);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .pill.hnx-test[disabled]:hover,:root [data-style="clean"] .pill.hnx-test[disabled]:hover,:root [data-style="clean"].pill.hnx-test[disabled]:hover{color:var(--dm-muted);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth)}}
+:root[data-style="clean"] .hnx-st .i,:root [data-style="clean"] .hnx-st .i,:root [data-style="clean"].hnx-st .i{color:color-mix(in srgb,var(--dm-ok-mark) 80%,var(--dm-ok))}
+:root[data-style="clean"] .hnx-list,:root [data-style="clean"] .hnx-list,:root [data-style="clean"].hnx-list{padding:var(--dm-s-2) var(--dm-s-4)}
+:root[data-style="clean"] .hnx-t .ic,:root [data-style="clean"] .hnx-t .ic,:root [data-style="clean"].hnx-t .ic,:root[data-style="clean"] .hnx-t .ic.brandic,:root [data-style="clean"] .hnx-t .ic.brandic,:root [data-style="clean"].hnx-t .ic.brandic{background:var(--dm-surface)!important;color:var(--dm-fg2)!important;box-shadow:inset 0 0 0 1px var(--dm-hair);border-radius:10px}
+:root[data-style="clean"] .hnx-pm,:root [data-style="clean"] .hnx-pm,:root [data-style="clean"].hnx-pm{background:var(--dm-chip);box-shadow:var(--dm-track-ring)}
+:root[data-style="clean"] .hnx-pm .kn,:root [data-style="clean"] .hnx-pm .kn,:root [data-style="clean"].hnx-pm .kn{background:var(--dm-knob);box-shadow:var(--dm-knob-shadow);transition:left var(--dm-t) var(--dm-ease),width var(--dm-t) var(--dm-ease)}
+:root[data-style="clean"] .hnx-pm button,:root [data-style="clean"] .hnx-pm button,:root [data-style="clean"].hnx-pm button{color:var(--dm-muted);font-weight:500;transition:color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .hnx-pm button[aria-pressed="true"],:root [data-style="clean"] .hnx-pm button[aria-pressed="true"],:root [data-style="clean"].hnx-pm button[aria-pressed="true"]{color:var(--dm-fg)}
+:root[data-style="clean"] .hnx-ft,:root [data-style="clean"] .hnx-ft,:root [data-style="clean"].hnx-ft{margin-top:0;margin-bottom:0;padding:var(--dm-strip-y) var(--dm-s-4);background:var(--dm-strip);border-top:1px solid var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
+:root[data-style="clean"] .hnx-add,:root [data-style="clean"] .hnx-add,:root [data-style="clean"].hnx-add{gap:6px;height:28px;margin:0;padding:0 12px 0 10px;border-radius:var(--dm-r-pill);font-weight:500;color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth);transition:box-shadow var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .hnx-add>.i,:root [data-style="clean"] .hnx-add>.i,:root [data-style="clean"].hnx-add>.i{width:12px;padding:0}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] :is(.hnx-add:hover,.hnx-add[aria-expanded="true"]),:root [data-style="clean"] :is(.hnx-add:hover,.hnx-add[aria-expanded="true"]),:root [data-style="clean"]:is(.hnx-add:hover,.hnx-add[aria-expanded="true"]){background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
+:root[data-style="clean"] .hnx-add:active,:root [data-style="clean"] .hnx-add:active,:root [data-style="clean"].hnx-add:active{box-shadow:var(--dm-btn2-press)}
+:root[data-style="clean"] .hnx-pop,:root [data-style="clean"] .hnx-pop,:root [data-style="clean"].hnx-pop{padding:6px;border-radius:var(--dm-r-card)}
+:root[data-style="clean"] .hnx-pop .mi,:root [data-style="clean"] .hnx-pop .mi,:root [data-style="clean"].hnx-pop .mi{border-radius:calc(var(--dm-r-card) - 6px)}

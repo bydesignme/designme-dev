@@ -35,7 +35,7 @@ function Glyph({ state }: { state: StatusPillState }) {
   if (state === 'reading') return <span className="dm-g" style={{ color: 'var(--dm-fg)' }}><Radar /></span>;
   if (state === 'working') return <span className="dm-g" style={{ color: 'var(--dm-fg)' }}><Spin /></span>;
   if (state === 'waiting') return <span className="dm-g" style={{ color: 'var(--dm-warn-mark)' }}><Dot /></span>;
-  if (state === 'done') return <span className="dm-g" style={{ color: 'var(--dm-ok)' }}><Icon name="ok" /></span>;
+  if (state === 'done') return <span className="dm-g" style={{ color: 'var(--dm-ok-mark)' }}><Icon name="ok" /></span>;
   return <span className="dm-g"><Dot color="var(--dm-faint)" /></span>;
 }
 
@@ -72,18 +72,27 @@ export function StatusPill(props: StatusPillProps) {
     return () => { clearTimeout(a); clearTimeout(b); };
   }, [variant, reduce]);
 
-  // the pill always hugs its content; the bar keeps a little extra room for its track
-  const box = useRef<HTMLDivElement>(null);
+  // the pill always hugs its content; the bar keeps a little extra room for its track. Neither is ever wider than the room
+  // it has (a phone): its words give way with an ellipsis
+  const box = useRef<HTMLDivElement>(null), rootRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState<number>();
+  const [room, setRoom] = useState(Infinity);
+  useEffect(() => {
+    // the room is what its container gives it (the pill itself is only as wide as its words)
+    const r = rootRef.current?.parentElement; if (!r || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(([e]) => setRoom(Math.round(e.contentRect.width) || Infinity));
+    ro.observe(r);
+    return () => ro.disconnect();
+  }, []);
   useIsoLayoutEffect(() => {
     const el = box.current; if (!el) return;
-    const fit = () => { el.style.width = 'max-content'; const w = el.scrollWidth; el.style.width = ''; setWidth(shape === 'bar' ? Math.max(w + 24, 300) : w); };
+    const fit = () => { el.style.width = 'max-content'; const w = el.scrollWidth; el.style.width = ''; setWidth(Math.min(shape === 'bar' ? Math.max(w + 24, 300) : w, room)); };
     fit();
     document.fonts?.ready.then(fit);
-  }, [prevKey, shape, view.meta]);
+  }, [prevKey, shape, view.meta, room]);
 
   return (
-    <div data-dm="" className={cx('dm-spl', shape === 'bar' && 'dm-bar', morphing && 'dm-mo', className)}>
+    <div ref={rootRef} data-dm="" className={cx('dm-spl', shape === 'bar' && 'dm-bar', morphing && 'dm-mo', className)}>
       <div className="dm-spl-pill" style={{ width: width ?? (shape === 'bar' ? 300 : 'max-content') }} aria-live="polite">
         <div ref={box} className={cx('dm-spl-in', (fading || morphing) && 'dm-out')}>
           <Glyph state={state} />

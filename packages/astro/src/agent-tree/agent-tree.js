@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, BRAND, DM, I, REDUCE, grow, html, reveal } from '../core/core.js';
+import { $, BRAND, DM, I, REDUCE, grow, hoverGlide, html, reveal } from '../core/core.js';
 /* the lines and the flow, drawn every frame from where the marks are. The tree's rows are treeitems (.atr-n, with data-id
    and data-s) whose mark is .atr-g (data-m); atrLines reads them from the page, so whatever draws the rows (this script,
    or React) gets the same lines. A row that appears after the start opens its space (data-ph="open"), its parent's line
@@ -179,6 +179,8 @@ DM.def('agent-tree', (r, c) => {
     { id:'cop1', p:'cop', n:'Post to Slack', t:'Needs your OK', app:'slack', cost:.006, tok:140 }
   ];
   const root = $('.atr', r), tree = $('.atr-tree', r), meta = $('.atr-m', r), time = $('.atr-time', r), tot = $('.atr-tot', r), foot = $('.atr-f', r), sr = $('.atr-sr', r);
+  // Clean's one hover glides from row to row, and the picked agent keeps its stronger fill (Agent harness keeps its own)
+  if (!r.closest('.ahx')) c.offs.push(hoverGlide(tree, '.atr-b', { keep:'[aria-selected="true"]>.atr-b' }));
   const N = RUN.map(x => ({ cost:0, tok:0, ...x, s:x.s || 'queued', kids:[], secs:0, t0:0 })), by = id => N.find(n => n.id === id);
   N.forEach(n => { n.parent = n.p ? by(n.p) : null; n.lv = n.parent ? n.parent.lv + 1 : 0; if (n.parent) n.parent.kids.push(n); });
   const money = v => '$' + v.toFixed(2), clock = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
@@ -191,7 +193,7 @@ DM.def('agent-tree', (r, c) => {
   const build = n => {
     const who = n.app ? `<span class="atr-av app" aria-hidden="true">${BRAND[n.app]}</span>` : `<span class="atr-av${n.av || !n.lv ? '' : ' app'}" aria-hidden="true"${n.av ? ` style="--dm-a:var(--dm-av-${n.av});--dm-ai:var(--dm-av-${n.av}-ink)"` : ''}>${I(n.ic, 'xs')}</span>`;
     const m = n.lv ? n.s : 'src';
-    n.el = html(`<div class="atr-n" role="treeitem" aria-level="${n.lv + 1}" aria-selected="false" tabindex="${n.lv ? -1 : 0}" data-id="${n.id}" data-s="${n.s}" style="--dm-lv:${n.lv}"><div class="atr-b"><div class="atr-r"><span class="atr-g" data-m="${m}" aria-hidden="true">${atrMark(m)}</span>${who}<span class="atr-tx"><span class="atr-nm"></span>${n.kids.length ? `<span class="atr-tg" aria-hidden="true">${I('chev-d', 'xs')}</span>` : ''}<span class="atr-sub"></span></span><span class="atr-q num"><span class="atr-c"></span></span></div></div></div>`);
+    n.el = html(`<div class="atr-n" role="treeitem" aria-level="${n.lv + 1}" aria-selected="false" tabindex="${n.lv ? -1 : 0}" data-id="${n.id}" data-s="${n.s}" style="--dm-lv:${n.lv}"><div class="atr-b"><div class="atr-r"><span class="atr-g" data-m="${m}" aria-hidden="true">${atrMark(m)}</span>${who}<span class="atr-w"><span class="atr-tx"><span class="atr-nm"></span>${n.kids.length ? `<span class="atr-tg mx-press" aria-hidden="true">${I('chev-d', 'xs')}</span>` : ''}<span class="atr-sub"></span></span><span class="atr-q num"><span class="atr-c"></span></span></span></div></div></div>`);
     $('.atr-nm', n.el).textContent = n.n; $('.atr-sub', n.el).textContent = n.t;
     n.tg = $('.atr-tg', n.el); if (n.tg) n.tg.hidden = true;
     if (n.kids.length){ n.fold = html('<div class="fold atr-kids"><div role="group"></div></div>'); n.kids.forEach(k => n.fold.firstElementChild.appendChild(build(k))); n.el.appendChild(n.fold); }

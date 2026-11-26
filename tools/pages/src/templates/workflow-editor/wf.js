@@ -236,18 +236,20 @@
 
   /* ---------- toasts: Toast ---------- */
   const toasts = $('.wf-toasts', app); $('.wf-work', app).appendChild(toasts);
-  const TONE = { ok:['ok', 'var(--dm-ok)', 'var(--dm-ok-bg)'], info:['info', 'var(--dm-fg2)', 'var(--dm-chip)'], warn:['warn', 'var(--dm-warn)', 'var(--dm-warn-bg)'], bad:['x', 'var(--dm-bad)', 'var(--dm-bad-bg)'], ai:['spark', 'var(--dm-accent-fg,var(--dm-accent))', 'var(--dm-accent-bg)'] };
+  // Toast's plain toast: a status mark (the green tick, a grey mark, the warning sign or the red alert), the words, Dismiss,
+  // and the action in the footer
+  const TONE = { ok:['ok', 'success'], info:['info', 'info'], warn:['warn', 'warning'], bad:['alert', 'error'], ai:['spark', 'info'] };
   // a toast fades out (Toast's own tst-out), then closes its room so the others glide together
   function toastOut(t){
     if (!t.isConnected || t.classList.contains('tst-out')) return;
     t.classList.add('tst-out'); shrink(t, { delay:120, gap:parseFloat(getComputedStyle(toasts).rowGap) || 8, fade:false, dur:MT('--dm-t') * .6 });
   }
   function toast(kind, b, s = '', act = null){
-    const [ic, col, bg] = TONE[kind];
-    const t = html(`<div class="tst-t tst-in" role="status"><span class="g" style="color:${col};background:${bg}">${I(ic)}</span><div class="tx"><b>${esc(b)}</b>${s ? `<span>${esc(s)}</span>` : ''}</div><div class="acts">${act ? `<button class="pill ghost sm">${esc(act.label)}</button>` : ''}<button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div></div>`);
+    const [ic, st] = TONE[kind];
+    const t = html(`<div class="tst-t tst-in" role="status"><div class="tst-hd"><span class="tst-g" data-s="${st}" aria-hidden="true">${I(ic)}</span><div class="tst-tx"><span class="tst-ti">${esc(b)}</span>${s ? `<span class="tst-de">${esc(s)}</span>` : ''}</div><div class="tst-hb"><button class="ib tst-x" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div></div>${act ? `<div class="tst-fi"><button class="pill line sm">${esc(act.label)}</button></div>` : ''}</div>`);
     const out = () => toastOut(t);
-    $('.ib', t).onclick = out;
-    if (act) $('.pill', t).onclick = () => { act.run(); out(); };
+    $('.tst-x', t).onclick = out;
+    if (act) $('.tst-fi .pill', t).onclick = () => { act.run(); out(); };
     // the toasts already shown glide to make room (on phones they stack up from the bottom)
     const was = new Map($$('.tst-t:not(.tst-out)', toasts).map(x => [x, x.getBoundingClientRect().top]));
     toasts.appendChild(t);

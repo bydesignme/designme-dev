@@ -22,24 +22,39 @@ fs.copyFileSync(path.join(DIST, 'sitemap.xml'), path.join(ROOT, 'sitemap.xml'));
 fs.copyFileSync(path.join(DIST, 'index.html'), path.join(ROOT, 'index.html'));
 fs.rmSync(path.join(ROOT, 'components.html'), { force:true });
 const site = JSON.parse(fs.readFileSync(path.join(HERE, 'data/site.json'), 'utf8'));
+// the components that aren't live yet (tools/site/live.js) have no page; their pictures (thumbnails, share images, the
+// landing page's wall) stay out of the published site too
+const LIVE = new Set(site.sections.flatMap(s => s.cards.map(c => c.reg))), UNLISTED = (site.unlisted || []).map(x => x.reg);
+for (const dir of ['components/thumbs', 'components/og', ...fs.readdirSync(path.join(ROOT, 'components/wall')).map(d => 'components/wall/' + d)]){
+  for (const f of fs.readdirSync(path.join(ROOT, dir))){
+    const name = f.replace(/\.[a-z]+$/, '').replace(/-(light|dark)$/, '');
+    if (UNLISTED.includes(name)) fs.rmSync(path.join(ROOT, dir, f));
+  }
+}
 fs.writeFileSync(path.join(ROOT, '_redirects'), [
   '# written by tools/pages/publish.mjs',
   '# the Fundraising CRM template is off the site for now (owner, 9 Nov); its code is in tools/pages/src/templates/fundraising-crm',
   '/templates/fundraising-crm /templates/sales-crm 302',
-  '# the library (/library) lists every component: the old list and section pages go there',
+  '# the library (/library) lists every component: the old list and section pages go there (a section with no live component',
+  '# yet, to the library)',
   '/components /library 301', '/components/ /library 301', '/components.html /library 301',
   ...site.sections.map(s => `/components/${s.slug} /library#${s.id} 301`),
+  ...(site.emptySections || []).map(slug => `/components/${slug} /library 302`),
   '# the React preview page is retired: each component has its own page with its React usage and code',
   '/packages/react/preview /library 301', '/packages/react/preview/* /library 301',
   '# Variant carousel and Image carousel became one component, Carousel, with a switch between the two (owner, 4 Nov)',
-  '/components/variant-carousel /components/carousel 301', '/components/image-carousel /components/carousel 301',
-  '/components/variant-carousel.md /components/carousel.md 301', '/components/image-carousel.md /components/carousel.md 301',
+  ...(LIVE.has('carousel') ? ['/components/variant-carousel /components/carousel 301', '/components/image-carousel /components/carousel 301',
+    '/components/variant-carousel.md /components/carousel.md 301', '/components/image-carousel.md /components/carousel.md 301']
+    : ['/components/variant-carousel /library 302', '/components/image-carousel /library 302', '/components/variant-carousel.md /library 302', '/components/image-carousel.md /library 302']),
   '# Agent builder was removed from the library (owner, 15 Nov): its page and its Markdown copy go to the library',
   '/components/agent-builder /library 301', '/components/agent-builder.md /library 301',
+  '# components not live yet (tools/site/live.js; owner, 24 Nov): each page and its Markdown copy go to the library until the',
+  '# component goes live',
+  ...UNLISTED.flatMap(n => [`/components/${n} /library 302`, `/components/${n}.md /library 302`]),
   '# 25 components left the library before launch (owner, 16 Nov: launch with fewer, each one polished): each page goes to the',
   '# section it was in in the library, and its Markdown copy to the library',
   ...[['thread-panel', 's-conversation'], ['image-generation', 's-conversation'], ['tool-call', 's-conversation'], ['voice-capture', 's-conversation'], ['voice-orb', 's-conversation'], ['prompt-starters', 's-conversation'], ['prompt-library', 's-conversation'], ['browser-session', 's-status'], ['run-summary', 's-status'], ['agent-phases', 's-status'], ['action-log', 's-status'], ['run-queue', 's-status'], ['error-recovery', 's-status'], ['change-review', 's-review'], ['human-handoff', 's-review'], ['design-tuner', 's-review'], ['launch-checklist', 's-review'], ['steering', 's-review'], ['design-review', 's-review'], ['code-viewer', 's-data'], ['field-extraction', 's-data'], ['step-inspector', 's-workspace'], ['model-compare', 's-workspace'], ['color-picker', 's-forms'], ['onboarding-checklist', 's-product']]
-    .flatMap(([n, s]) => [`/components/${n} /library#${s} 301`, `/components/${n}.md /library 301`]),
+    .filter(([n]) => !LIVE.has(n) && !UNLISTED.includes(n)).flatMap(([n, s]) => [`/components/${n} /library${site.sections.some(x => x.id === s) ? '#' + s : ''} 301`, `/components/${n}.md /library 301`]),
   '# the docs start at their introduction',
   '/docs /docs/introduction 302', '/docs/ /docs/introduction 302', ''
 ].join('\n'));

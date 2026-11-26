@@ -2,7 +2,7 @@
 
 > Answers that stream in with numbered sources and next steps.
 
-Agent components / Conversation. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/live-answer
+Components / Conversation. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/live-answer
 
 ## Install
 
@@ -170,7 +170,7 @@ import { Fragment, useState, type CSSProperties } from 'react';
 import { cx } from '../lib/cx';
 import { useCopied, useSeconds } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { avatarInk, enter, Fold, Think, Tip, useGrow } from '../lib/motion';
+import { avatarInk, enter, Fold, SwapIcon, Think, Tip, useGrow } from '../lib/motion';
 import '../designme.css';
 import './live-answer.css';
 
@@ -309,17 +309,17 @@ function Turn({ turn, followUps, onFollowUp, onRetry, onRate, onCopy, onSourceCl
       {done && (
         <>
           <div className="dm-lva-src dm-enter">
-            <span className="dm-lva-acts">
+            <span className="dm-lva-acts dm-mx-ic">
               <Tip label={copied ? 'Copied to clipboard' : 'Copy'} open={copied || undefined}>
-                <button type="button" className={cx('dm-ib', copied && 'dm-copied')} aria-label="Copy" onClick={copy}><Icon name={copied ? 'check' : 'copy'} /></button>
+                <button type="button" className={cx('dm-ib dm-mx-press', copied && 'dm-copied')} aria-label="Copy" onClick={copy}><SwapIcon id={copied ? 'check' : 'copy'}><Icon name={copied ? 'check' : 'copy'} /></SwapIcon></button>
               </Tip>
               <Tip label="Good answer">
-                <button type="button" className={cx('dm-ib', rating === 'good' && 'dm-on')} aria-label="Good answer" aria-pressed={rating === 'good'} onClick={() => rate('good')}><Icon name="up-thumb" /></button>
+                <button type="button" className={cx('dm-ib dm-mx-press', rating === 'good' && 'dm-on')} aria-label="Good answer" aria-pressed={rating === 'good'} onClick={() => rate('good')}><Icon name="up-thumb" /></button>
               </Tip>
               <Tip label="Bad answer">
-                <button type="button" className={cx('dm-ib', rating === 'bad' && 'dm-on')} aria-label="Bad answer" aria-pressed={rating === 'bad'} onClick={() => rate('bad')}><Icon name="down-thumb" /></button>
+                <button type="button" className={cx('dm-ib dm-mx-press', rating === 'bad' && 'dm-on')} aria-label="Bad answer" aria-pressed={rating === 'bad'} onClick={() => rate('bad')}><Icon name="down-thumb" /></button>
               </Tip>
-              {onRetry && <Tip label="Try again"><button type="button" className="dm-ib" aria-label="Try again" onClick={onRetry}><Icon name="refresh" /></button></Tip>}
+              {onRetry && <Tip label="Try again"><button type="button" className="dm-ib dm-mx-press" aria-label="Try again" onClick={onRetry}><Icon name="refresh" /></button></Tip>}
             </span>
             {sources.length > 0 && (
               <button type="button" className="dm-lva-sb" aria-expanded={listOpen} onClick={() => setListOpen(!listOpen)}>
@@ -370,7 +370,7 @@ export function LiveAnswer({ turns, followUps, onFollowUp, onRetry, onRate, onCo
   // grow() on the site)
   const [root, inner] = useGrow();
   return (
-    <div data-dm="" ref={root} className={cx('dm-lva dm-growing', className)}>
+    <div data-dm="" ref={root} className={cx('dm-lva dm-growing dm-mx-grow', className)}>
       <div ref={inner} className="dm-grow">
       {turns.length > 0 && turns[0].question && <div className="dm-lva-q"><div className="dm-bub">{turns[0].question}</div></div>}
       <div className="dm-lva-a">
@@ -391,8 +391,6 @@ export function LiveAnswer({ turns, followUps, onFollowUp, onRetry, onRate, onCo
 ## More in Conversation
 
 - [Composer](https://designme.dev/components/composer.md): Message input with attachments, what to work on, a mode and dictation.
-- [Artifact card](https://designme.dev/components/artifact-card.md): A file the agent made, with its versions, Open, Copy and Download.
-- [Rich text editor](https://designme.dev/components/rich-text-editor.md): A minimal editor with an inline AI menu that streams a suggestion to accept or discard.
 - [Answer action bar](https://designme.dev/components/answer-action-bar.md): Copy, regenerate, rate and listen to an answer from one row under it.
 - [Response versions](https://designme.dev/components/response-versions.md): Regenerate an answer and flip between versions.
 - [Model picker](https://designme.dev/components/model-picker.md): Pick a model by speed, quality and cost, and how hard it thinks.

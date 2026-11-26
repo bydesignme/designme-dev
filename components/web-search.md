@@ -2,7 +2,7 @@
 
 > The agent's searches as a trail: what it asked, what came back, what it read or skipped, and the answer with its sources.
 
-Agent components / Agent status. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/web-search
+Components / Agent status. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/web-search
 
 ## Install
 
@@ -33,13 +33,14 @@ The agent's web searches, shown as it makes them: each query with how many resul
 
 ### What it does
 
-- A header that says what is happening (Searching for “…”, Reading 4 pages) and, once done, sums it up; it opens and folds the trail.
-- Query rows with the query, the result count (No results in the warning colour) and the time; each opens to its pages.
+- A header that says what is happening (Searching the web, Reading the pages; the queries and pages are in the rows under it) and, once done, sums it up; it opens and folds the trail. While something runs, its words have a highlight sweeping across them: the header, a query and its Searching, and a page's Reading.
+- Query rows with the query, the result count (No results in the warning colour) and the time; each opens to its pages. A search that found nothing has no chevron and keeps no room for one: its count and time end on the content's right edge, where the chevrons' column ends.
 - A query asked again in other words is marked "Asked again in other words" under it, right after the one that found nothing.
-- Page rows with the site's initial, the title, the site and date, and a tag: Reading (with a spinner), Read, Skimmed, or Skipped with the reason as a warning tag.
-- A stack of up to four site initials in the header, with the rest counted (+3).
+- Page rows with the site's initial, the title, the site and date, and a tag on the content's right edge: Reading (with a spinner), Read, Skimmed, or Skipped with the reason as a warning tag. On a hovered or lit row the grey tag lifts to white (a step lighter in dark mode), so it stands out on the row's fill.
+- Up to four site initials in the header, side by side, with the rest counted (+3). In Clean a narrow card (400px or less, as on a phone) leaves them out, so the header line fits.
 - Citations in the answer ([1], [2]) are buttons: pointing at one or tabbing to it lights the page it came from (or its search, when that is folded) and its site's initial, and its tooltip names the page.
 - Page titles cut short with an ellipsis show in full in a tooltip on hover and on keyboard focus.
+- It grows and shrinks with what it shows, easing down to the header and the answer as the trail folds. Every row sits on the header's columns: its mark under the header's, its words where the header's start. In Clean it always has its card, `bare` or not.
 
 ### Accessibility
 
@@ -110,7 +111,7 @@ export default function WebSearchDemo() {
 | `answer` (optional) | `string` | The answer, with sources cited as [1], [2]. Each number points at the page with that `cite` |
 | `open` (optional) | `boolean` | Whether the trail is open. Left to the component, it folds once `done` turns true |
 | `onOpenChange` (optional) | `(open: boolean) => void` |  |
-| `bare` (optional) | `boolean` | Without the panel, for a chat stream (true) |
+| `bare` (optional) | `boolean` | Without the panel, for a chat stream (true). Clean keeps its card either way |
 | `className` (optional) | `string` |  |
 
 ## Usage in Astro
@@ -146,9 +147,9 @@ No. It shows what your agent reports: pass the queries and pages as they arrive 
 'use client';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import { cx } from '../lib/cx';
-import { useControllable } from '../lib/hooks';
+import { useControllable, useIsoLayoutEffect } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { Fold, Spin, Swap, Tip } from '../lib/motion';
+import { Fold, Spin, Swap, SwapIcon, Tip } from '../lib/motion';
 import '../designme.css';
 import './web-search.css';
 
@@ -167,7 +168,7 @@ export interface WebPage {
 export interface WebQuery {
   key: string;
   query: string;
-  /** searching shimmers; done shows the count and the time */
+  /** searching has the loader's highlight sweep; done shows the count and the time */
   status: 'searching' | 'done';
   /** How many results came back; 0 says No results */
   results?: number;
@@ -187,7 +188,7 @@ export interface WebSearchProps {
   /** Whether the trail is open. Left to the component, it folds once `done` turns true */
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  /** Without the panel, for a chat stream (true) */
+  /** Without the panel, for a chat stream (true). Clean keeps its card either way */
   bare?: boolean;
   className?: string;
 }
@@ -207,17 +208,34 @@ export function WebSearch({ queries, done = false, answer, open, onOpenChange, b
   const sites = [...new Set(pages.map(p => p.domain))];
   const read = pages.filter(p => p.status === 'read' || p.status === 'skimmed').length;
   const current = queries.find(q => q.status === 'searching'), reading = pages.filter(p => p.status === 'reading').length;
-  const line = done ? `${queries.length} searches, ${read} pages read` : current ? `Searching for “${current.query}”` : reading ? `Reading ${reading} pages` : 'Searching the web';
+  // the head says what is happening; the query and its pages are in the rows under it, so it repeats neither (owner, 18 Nov)
+  const line = done ? `${queries.length} searches, ${read} pages read` : reading && !current ? 'Reading the pages' : 'Searching the web';
   const cited = (n: number) => pages.find(p => p.cite === n);
   // only changes of phase are announced
   const [said, setSaid] = useState('');
   const last = useRef('');
   useEffect(() => { const t = done ? `Done: ${line}` : current ? `Searching for ${current.query}` : ''; if (t && t !== last.current) { last.current = t; setSaid(t); } }, [done, current?.key]); // eslint-disable-line react-hooks/exhaustive-deps
   const hotPage = hot != null ? cited(hot) : undefined;
+  // the trail grows and shrinks with what it holds, in every style (as grow() on designme.dev): its height follows its
+  // content, eased, as searches arrive and as it folds
+  const root = useRef<HTMLDivElement>(null), wrap = useRef<HTMLDivElement>(null);
+  useIsoLayoutEffect(() => {
+    const el = root.current, w = wrap.current;
+    if (!el || !w || typeof ResizeObserver === 'undefined') return;
+    let first = true;
+    const fit = () => {
+      const cs = getComputedStyle(el), h = Math.ceil(w.offsetHeight + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth));
+      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
+      else el.style.height = h + 'px';
+    };
+    const ro = new ResizeObserver(fit); ro.observe(w); fit();
+    return () => { ro.disconnect(); el.style.height = ''; };
+  }, []);
   return (
-    <div data-dm="" className={cx('dm-wsx', !bare && 'dm-panel', className)} style={bare ? { paddingInline: 0 } : undefined}>
-      <button type="button" className="dm-wsx-h" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
-        <span className="dm-wsx-ic">{done ? <Icon name="globe" size="xs" /> : <Spin />}</span>
+    <div data-dm="" ref={root} className={cx('dm-wsx', !bare && 'dm-panel', 'dm-growing dm-mx-grow dm-mx-ic', className)} style={bare ? { paddingInline: 0 } : undefined}>
+      <div className="dm-grow" ref={wrap}>
+      <button type="button" className="dm-wsx-h dm-mx-press" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
+        <span className="dm-wsx-ic"><SwapIcon id={done ? 'globe' : 'spin'}>{done ? <Icon name="globe" size="xs" /> : <Spin />}</SwapIcon></span>
         <Swap className={cx('dm-wsx-st', !done && 'dm-shim')}>{line}</Swap>
         <span className="dm-wsx-marks" aria-hidden="true">{sites.slice(0, 4).map(s => <span key={s} className={cx(hotPage?.domain === s && 'dm-hl')}>{s[0].toUpperCase()}</span>)}{sites.length > 4 && <span className="dm-n">+{sites.length - 4}</span>}</span>
         <Icon name="chev-d" size="xs" />
@@ -229,10 +247,10 @@ export function WebSearch({ queries, done = false, answer, open, onOpenChange, b
             const lit = hotPage && hotPage.q === q.key;
             return (
               <div key={q.key} className={cx('dm-wsx-q', lit && !o && 'dm-hl', 'dm-enter')}>
-                <button type="button" className={cx('dm-wsx-qh', !has && 'dm-empty')} aria-expanded={o} onClick={() => has && setQOpen({ ...qOpen, [q.key]: !o })}
+                <button type="button" className={cx('dm-wsx-qh dm-mx-press', !has && q.status === 'done' && 'dm-empty')} aria-expanded={o} onClick={() => has && setQOpen({ ...qOpen, [q.key]: !o })}
                   aria-label={q.status === 'done' ? `${q.query}: ${q.results ? q.results + ' results' : 'no results'}${q.time ? ', ' + q.time : ''}` : undefined}>
                   <Icon name="search" size="xs" /><span className={cx('dm-t', q.status === 'searching' && 'dm-shim')}>{q.query}</span>
-                  <span className={cx('dm-n', q.status === 'done' && !q.results && 'dm-none')}>{q.status === 'searching' ? 'Searching' : q.results ? `${q.results} results` : 'No results'}</span>
+                  <span className={cx('dm-n', q.status === 'searching' && 'dm-shim', q.status === 'done' && !q.results && 'dm-none')}>{q.status === 'searching' ? 'Searching' : q.results ? `${q.results} results` : 'No results'}</span>
                   <span className="dm-tm dm-num">{q.status === 'done' ? q.time : ''}</span><Icon name="chev-r" size="xs" />
                 </button>
                 {q.rewritten && <span className="dm-wsx-rw"><Icon name="refresh" size="xs" />Asked again in other words</span>}
@@ -242,7 +260,7 @@ export function WebSearch({ queries, done = false, answer, open, onOpenChange, b
                       aria-label={`${p.title}, ${p.domain}${p.date ? ', ' + p.date : ''}: ${STATUS[p.status][0]}`}>
                       <span className="dm-wsx-fav" aria-hidden="true">{p.domain[0].toUpperCase()}</span>
                       <span className="dm-tx"><span className="dm-t">{p.title}</span><span className="dm-d">{p.domain}{p.date ? ' · ' + p.date : ''}</span></span>
-                      <span className={cx('dm-tag', STATUS[p.status][1])}>{p.status === 'reading' && <Spin />}{STATUS[p.status][0]}</span>
+                      <span className={cx('dm-tag', STATUS[p.status][1])}>{p.status === 'reading' ? <><Spin /><span className="dm-shim">Reading</span></> : STATUS[p.status][0]}</span>
                     </li>
                   </Tip>))}</ul></Fold>}
               </div>
@@ -255,6 +273,7 @@ export function WebSearch({ queries, done = false, answer, open, onOpenChange, b
         return <Tip key={i} label={p ? `${p.title} · ${p.domain}` : `Source ${n}`}><button type="button" className={cx('dm-wsx-cite', hot === n && 'dm-on')} aria-label={p ? `Source ${n}: ${p.title}, ${p.domain}` : `Source ${n}`}
           onPointerEnter={() => setHot(n)} onPointerLeave={() => setHot(null)} onFocus={() => setHot(n)} onBlur={() => setHot(null)}>{n}</button></Tip>; })}</div>}
       <p className="dm-wsx-sr" role="status">{said}</p>
+      </div>
     </div>
   );
 }
@@ -272,7 +291,7 @@ export function WebSearch({ queries, done = false, answer, open, onOpenChange, b
 - [Context meter](https://designme.dev/components/context-meter.md): How full the context is and what fills it, with Compact to free room.
 - [Run cost](https://designme.dev/components/run-cost.md): Live credit and token spend, with a cap that pauses the run.
 - [Toast stack](https://designme.dev/components/toast-stack.md): Agent notifications that stack and fan out on hover.
-- [Toast](https://designme.dev/components/toast.md): One notification that changes shape with its state.
+- [Toast](https://designme.dev/components/toast.md): A background job in one toast, from start to finish.
 - [Status pill](https://designme.dev/components/status-pill.md): One live line for what the agent is doing right now.
 - [Step loader](https://designme.dev/components/step-loader.md): Named steps with a progress track and four loaders.
 - [Thinking states](https://designme.dev/components/thinking-states.md): Six thinking indicators to pick from, each with a status line.

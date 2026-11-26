@@ -2,7 +2,7 @@
 
 > Named steps with a progress track and four loaders.
 
-Agent components / Agent status. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/step-loader
+Components / Agent status. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/step-loader
 
 ## Install
 
@@ -34,9 +34,10 @@ Step loader shows an agent task as a short list of named steps, with the current
 
 ### What it does
 
-- Pass `steps` and a `current` index. Setting `current` to `steps.length` marks every step done and shows a check.
+- Pass `steps` and a `current` index. Setting `current` to `steps.length` marks every step done and shows a green check.
 - Each step has a running `label` and an optional `done` text that replaces it once the step is finished.
-- The row label and the count crossfade as the agent moves to the next step.
+- The row label and the count crossfade as the agent moves to the next step, and the label shimmers while its step runs. The loader and each step's mark crossfade as they change, and the list's rows settle in one after another as it opens.
+- In the open list, each step's mark sits under the row's loader and its words start where the row's do.
 - `loader` picks the animation beside the running step: `radar`, `dots`, `ring` or `bars`.
 - `doneLabel` sets the text once everything is finished, "Ready for review" by default.
 - The step list can be left to toggle itself, or controlled with `open`, `defaultOpen` and `onOpenChange`.
@@ -135,7 +136,7 @@ No. It shows whatever `current` you pass, so you move it forward as your agent r
 import { cx } from '../lib/cx';
 import { useControllable } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { Bars, Dot, Fold, Radar, Spin, Swap, Think } from '../lib/motion';
+import { Bars, Dot, Fold, Radar, Spin, Swap, SwapIcon, Think } from '../lib/motion';
 import '../designme.css';
 import './step-loader.css';
 
@@ -171,9 +172,9 @@ export function StepLoader({ steps, current, loader = 'radar', doneLabel = 'Read
   const [isOpen, setOpen] = useControllable(open, defaultOpen, onOpenChange);
   const n = steps.length, done = current >= n, at = Math.min(current, n - 1);
   return (
-    <div data-dm="" className={cx('dm-stl', className)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-      <button type="button" className="dm-stl-row" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
-        <span className="dm-stl-g">{done ? <span style={{ color: 'var(--dm-ok)', display: 'grid' }}><Icon name="ok" /></span> : <Loader kind={loader} />}</span>
+    <div data-dm="" className={cx('dm-stl dm-mx-ic', className)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+      <button type="button" className="dm-stl-row dm-mx-press" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
+        <span className="dm-stl-g"><SwapIcon id={done ? 'ok' : loader}>{done ? <span className="dm-stl-ok"><Icon name="ok" /></span> : <Loader kind={loader} />}</SwapIcon></span>
         <span className="dm-stl-t"><Swap className={cx('dm-stl-lab', !done && 'dm-shim')}>{done ? doneLabel : steps[at].label}</Swap></span>
         <Swap className="dm-stl-n dm-num">{`${done ? n : at + 1}/${n}`}</Swap>
         <Icon name="chev-d" size="xs" className="dm-stl-chev" />
@@ -182,12 +183,12 @@ export function StepLoader({ steps, current, loader = 'radar', doneLabel = 'Read
         {steps.map((_, i) => <i key={i} className={cx((done || i < current) && 'dm-on', !done && i === current && 'dm-run')} />)}
       </div>
       <Fold open={isOpen} className="dm-stl-fold">
-        <ol className="dm-stl-list">
+        <ol className={cx('dm-stl-list dm-mx-rows', isOpen && 'dm-mx-play')}>
           {steps.map((s, i) => {
             const finished = done || i < current, running = !done && i === current;
             return (
               <li key={i} className={cx(finished && 'dm-done', running && 'dm-run')}>
-                <span className="dm-g">{finished ? <span style={{ color: 'var(--dm-ok)', display: 'grid' }}><Icon name="check" size="xs" /></span> : running ? <Loader kind={loader} /> : <Dot color="var(--dm-faint)" />}</span>
+                <span className="dm-g"><SwapIcon id={finished ? 'check' : running ? loader : 'dot'}>{finished ? <span className="dm-stl-ok"><Icon name="check" size="xs" /></span> : running ? <Loader kind={loader} /> : <Dot color="var(--dm-faint)" />}</SwapIcon></span>
                 {finished ? s.done ?? s.label : s.label}
               </li>
             );
@@ -212,7 +213,7 @@ export function StepLoader({ steps, current, loader = 'radar', doneLabel = 'Read
 - [Context meter](https://designme.dev/components/context-meter.md): How full the context is and what fills it, with Compact to free room.
 - [Run cost](https://designme.dev/components/run-cost.md): Live credit and token spend, with a cap that pauses the run.
 - [Toast stack](https://designme.dev/components/toast-stack.md): Agent notifications that stack and fan out on hover.
-- [Toast](https://designme.dev/components/toast.md): One notification that changes shape with its state.
+- [Toast](https://designme.dev/components/toast.md): A background job in one toast, from start to finish.
 - [Status pill](https://designme.dev/components/status-pill.md): One live line for what the agent is doing right now.
 - [Thinking states](https://designme.dev/components/thinking-states.md): Six thinking indicators to pick from, each with a status line.
 

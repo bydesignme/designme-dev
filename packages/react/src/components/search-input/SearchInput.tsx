@@ -3,7 +3,8 @@ import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode 
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
-import { Fold, useReflow } from '../../lib/motion';
+import { useReflow } from '../../lib/motion';
+import { useHoverGlide } from '../../lib/glide';
 import '../../designme.css';
 import './search-input.css';
 
@@ -38,11 +39,11 @@ export interface SearchInputProps {
   scope?: string | null;
   defaultScope?: string | null;
   onScopeChange?: (scope: string | null) => void;
-  /** Whether the box is lifted with its results open. Focus opens it and leaving closes it when you leave it out */
+  /** Whether the list of results is open under the box. Focus opens it and leaving closes it when you leave it out */
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
-  /** An answer from the agent, shown above the results. Feed it as it grows and each new word fades in */
+  /** An answer from the agent, shown above the results once it has a word. Feed it as it grows and each new word fades in */
   answer?: string;
   /** Which items match the search. By default an item matches the whole search or any word longer than two letters */
   filter?: (item: SearchInputItem, search: string) => boolean;
@@ -53,6 +54,8 @@ export interface SearchInputProps {
   placeholder?: string;
   /** The key hint at the end of the empty box */
   shortcut?: string;
+  /** The heading over the results. Defaults to "Results" */
+  resultsLabel?: string;
   /** What the list says when nothing matches */
   emptyLabel?: string;
   className?: string;
@@ -78,7 +81,7 @@ const rowKey = (r: Row) => r.kind === 'item' ? 'i:' + r.item.label + '|' + r.ite
 /** Search with source filters, recent searches and an answer from the agent. Type @ to filter by source. */
 export function SearchInput({ items, sources = [], recent = [], value, defaultValue = '', onValueChange, scope, defaultScope = null, onScopeChange,
   open, defaultOpen = false, onOpenChange, answer, filter = matchAny, onSelect, onSubmit, placeholder = 'Search frames, files and docs',
-  shortcut = '⌘K', emptyLabel = 'No matches. Press Enter to ask the agent', className }: SearchInputProps) {
+  shortcut = '⌘K', resultsLabel = 'Results', emptyLabel = 'No matches. Press Enter to ask the agent', className }: SearchInputProps) {
   const [text, setText] = useControllable(value, defaultValue, onValueChange);
   const [sc, setScope] = useControllable(scope, defaultScope, onScopeChange);
   const [isOpen, setOpen] = useControllable(open, defaultOpen, onOpenChange);
@@ -100,9 +103,19 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
     : mode === 'recent' ? recent.map(search => ({ kind: 'recent', search }))
     : found.map(item => ({ kind: 'item', item }));
   const paint = `${opens}|${text}|${sc}`;
-  // places are read against the box, which glides as the list opens under it
-  const list = useRef<HTMLDivElement>(null), field = useRef<HTMLDivElement>(null);
-  useReflow(field, '.dm-six-res > [data-key]', { host: list });
+  // places are read against the list, which opens from the box
+  const list = useRef<HTMLDivElement>(null), field = useRef<HTMLDivElement>(null), pop = useRef<HTMLDivElement>(null);
+  // Clean's one hover: a highlight that glides from row to row
+  useHoverGlide(pop, '.dm-six-it');
+  useReflow(pop, '.dm-six-res > [data-key]', { host: list });
+  // the list opens under the box, or over it when the room under it in the window is too short, and keeps that side while it
+  // is open, growing away from the box as the answer and the results come in
+  const [up, setUp] = useState(false);
+  useIsoLayoutEffect(() => {
+    const f = field.current, p = pop.current; if (!isOpen || !f || !p) return;
+    const b = f.getBoundingClientRect();
+    setUp(b.bottom + p.offsetHeight + 12 > innerHeight && b.top - p.offsetHeight - 12 > innerHeight - b.bottom);
+  }, [isOpen]);
   const lastH = useRef(0), grow = useRef<Animation | null>(null), reduce = useReducedMotion();
   useIsoLayoutEffect(() => {
     const el = list.current; if (!el) { lastH.current = 0; return; }
@@ -149,8 +162,11 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
   };
 
   const words = answer?.split(' ').filter(Boolean) ?? [];
+  // the list shows while the box is open and has something to show
+  const shown = isOpen && (mode !== 'recent' || rows.length > 0);
   return (
     <div data-dm="" ref={root} className={cx('dm-six', className)}>
+      {/* the box: its edge steps up while it is in use */}
       <div ref={field} className={cx('dm-six-box', isOpen && 'dm-f')}>
         <div className="dm-six-in">
           <Icon name="search" size="xs" />
@@ -160,28 +176,29 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
           <input ref={input} placeholder={placeholder} aria-label="Search" spellCheck={false} value={text} role="combobox" aria-expanded={isOpen}
             aria-controls={`${id}-list`} aria-autocomplete="list" aria-activedescendant={isOpen && cur >= 0 ? `${id}-${cur}` : undefined}
             onChange={e => setText(e.target.value)} onFocus={() => setOpen(true)} onBlur={() => setOpen(false)} onKeyDown={key} />
-          <span className="dm-kbd" hidden={!!v || !!sc}>{shortcut}</span>
+          <span className="dm-kbd dm-six-k" hidden={!!v || !!sc}>{shortcut}</span>
           <button type="button" className="dm-ib dm-six-x" aria-label="Clear" hidden={!v && !sc} onMouseDown={e => { e.preventDefault(); setText(''); setScope(null); }}><Icon name="x" size="xs" /></button>
         </div>
-        <Fold open={isOpen}>
-          <div key={opens} ref={list} className="dm-six-res" id={`${id}-list`} role="listbox" aria-label="Results">
-            {mode === 'sources' && <>
-              <div className="dm-six-g" data-key="g">Filter by source</div>
-              {rows.map((r, i) => r.kind === 'source' && row(r, i, <><span className="dm-ic"><Icon name={r.source.icon} size="xs" /></span>{r.source.label}<span className="dm-d">@{r.source.key}</span></>))}
-            </>}
-            {mode === 'recent' && !!rows.length && <>
-              <div className="dm-six-g" data-key="g">Recent</div>
-              {rows.map((r, i) => r.kind === 'recent' && row(r, i, <><span className="dm-ic"><Icon name="history" size="xs" /></span>{r.search}</>))}
-            </>}
-            {mode === 'results' && <>
-              {answer !== undefined && <div className="dm-six-ans" data-key="ans"><Icon name="spark" size="xs" /><span>{words.map((w, i) => <span key={i} className="dm-w">{w} </span>)}</span></div>}
-              {rows.length ? <>
-                <div className="dm-six-g" data-key="g">{rows.length} {rows.length === 1 ? 'result' : 'results'}</div>
-                {rows.map((r, i) => r.kind === 'item' && row(r, i, <><span className="dm-ic"><Icon name={r.item.icon} size="xs" /></span><span>{marked(r.item.label, word)}</span><span className="dm-d">{r.item.source}</span></>))}
-              </> : <div className="dm-six-g" data-key="g">{emptyLabel}</div>}
-            </>}
-          </div>
-        </Fold>
+      </div>
+      <div ref={pop} className={cx('dm-pop dm-six-pop', shown && 'dm-open')} inert={!shown}
+        style={up ? { top: 'auto', bottom: 'calc(100% + 6px)', ['--dm-origin' as string]: 'bottom left' } : { top: 'calc(100% + 6px)', ['--dm-origin' as string]: 'top left' }}>
+        <div key={opens} ref={list} className="dm-six-res" id={`${id}-list`} role="listbox" aria-label="Results">
+          {mode === 'sources' && <>
+            <div className="dm-six-g" data-key="g">Filter by source</div>
+            {rows.map((r, i) => r.kind === 'source' && row(r, i, <><span className="dm-ic"><Icon name={r.source.icon} size="xs" /></span>{r.source.label}<span className="dm-d">@{r.source.key}</span></>))}
+          </>}
+          {mode === 'recent' && !!rows.length && <>
+            <div className="dm-six-g" data-key="g">Recent</div>
+            {rows.map((r, i) => r.kind === 'recent' && row(r, i, <><span className="dm-ic"><Icon name="history" size="xs" /></span>{r.search}</>))}
+          </>}
+          {mode === 'results' && <>
+            {words.length > 0 && <div className="dm-six-ans" data-key="ans"><Icon name="spark" size="xs" /><span>{words.map((w, i) => <span key={i} className="dm-w">{w} </span>)}</span></div>}
+            {rows.length ? <>
+              <div className="dm-six-g" data-key="g">{resultsLabel}</div>
+              {rows.map((r, i) => r.kind === 'item' && row(r, i, <><span className="dm-ic"><Icon name={r.item.icon} size="xs" /></span><span>{marked(r.item.label, word)}</span><span className="dm-d">{r.item.source}</span></>))}
+            </> : <div className="dm-six-g" data-key="g">{emptyLabel}</div>}
+          </>}
+        </div>
       </div>
     </div>
   );

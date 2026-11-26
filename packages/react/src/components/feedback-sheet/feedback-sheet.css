@@ -1,23 +1,64 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Feedback sheet ---------- */
 .dm-fbx{display:flex;flex-direction:column;gap:var(--dm-s-2)}
-.dm-fbx-bar{display:flex;align-items:center;gap:2px;margin-left:-6px}
+/* its motion (the core's motion pieces, owner, 26 Nov): a press on a thumb or Cancel shows at once (.mx-press); as the sheet
+   opens, its question, its reasons and the box rise in one after another (mxIn()); Send eases to the spinner's width on the
+   spring (mxWidth()); and it grows on the spring as the sheet opens and the thanks line comes in (.mx-grow) */
+/* the first thumb's icon starts where the answer does */
+.dm-fbx-bar{display:flex;align-items:center;gap:2px;margin-left:-8px}
 .dm-fbx-bar .dm-ib svg{transition:transform .45s var(--dm-ease)}
-.dm-fbx-bar .dm-ib.dm-on svg{transform:scale(1.12) rotate(-8deg)}
+.dm-fbx-bar .dm-ib.dm-on svg{transform:rotate(-8deg)}
+/* nothing in the row shrinks or swells on a click (owner, 18 Nov): a rated thumb only tilts */
+.dm-fbx-bar .dm-ib:active,.dm-fbx-f .dm-pill.dm-ghost:active{transform:none}
+/* the thumbs sit on the stage, where --dm-row is the stage's own colour: the bar sets --dm-row to a quiet 5% of the text colour, as
+   the other cards on the stage do, so the thumbs keep the one shared hover */
+.dm-fbx-bar{--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
+:root[data-style="clean"] .dm-fbx-bar .dm-ib:active,:root [data-style="clean"] .dm-fbx-bar .dm-ib:active,:root [data-style="clean"].dm-fbx-bar .dm-ib:active{transform:none}
 .dm-fbx-dn.dm-on{background:var(--dm-bad-bg);color:var(--dm-bad)}
 .dm-fbx-st{font-size:12.5px;margin-left:6px}
 .dm-fbx-box>div{margin-inline:-16px;padding-inline:var(--dm-s-4)}
-.dm-fbx-in{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:10px;margin:var(--dm-s-1) 0 18px}
+.dm-fbx-in{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:10px;margin:var(--dm-s-1) 0 0}
+/* the component grows with what it shows in every style (grow(), owner's notes 18 Nov), and keeps no room under the sheet:
+   its shadow shows past the fold and the growing box instead. The fold's own gap goes with it when it is shut */
+.dm-fbx.dm-growing,.dm-fbx-box>div{overflow-clip-margin:32px}
+.dm-fbx-box{transition:grid-template-rows var(--dm-t) var(--dm-ease),opacity var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease)}
+.dm-fbx-box.dm-shut{margin-top:calc(-1 * var(--dm-s-2));transition:grid-template-rows var(--dm-t) var(--dm-ease),opacity var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease),visibility 0s var(--dm-t)}
 .dm-fbx-q{font-size:13.5px;font-weight:500}
 .dm-fbx-ch{display:flex;flex-wrap:wrap;gap:6px}
-.dm-fbx-ch .dm-chip.dm-on{background:var(--dm-sel);color:var(--dm-accent-fg,var(--dm-accent));box-shadow:none}
+/* the reasons sit on the sheet: unpicked, they take the grey a step above the chip's own, so they read against what is
+   behind them (owner, 23 Nov: "could these be a bit darker?"), and a step more under the pointer; a picked one is the accent
+   tint with the accent's text colour. Answer action bar's reasons do the same; Clean keeps its own (below) */
+.dm-fbx-ch .dm-chip{background:var(--dm-hover)}
+@media (hover:hover) and (pointer:fine){.dm-fbx-ch .dm-chip:hover{background:var(--dm-press)}}
+.dm-fbx-ch .dm-chip.dm-on{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent));box-shadow:none}
 .dm-fbx-ta{display:block;width:100%;resize:none;border:0;outline:0;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);padding:10px var(--dm-s-3);font:inherit;font-size:13.5px;line-height:1.5;color:var(--dm-fg);transition:box-shadow var(--dm-t-fast)}
 @supports (corner-shape:squircle){.dm-fbx-ta{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
 .dm-fbx-ta:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
 .dm-fbx-ta::placeholder{color:var(--dm-muted)}
-.dm-fbx-f{display:flex;align-items:center;gap:6px}
+/* the footer sits under a hairline in Soft and Blueprint (owner, 21 Nov), 12px from it on each side; Clean's is a foot strip */
+.dm-fbx-f{display:flex;align-items:center;gap:6px;margin-top:var(--dm-s-1);padding-top:var(--dm-s-4);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .dm-fbx-n{font-size:12px;flex:1;min-width:0}
-.dm-fbx-thx{display:flex;align-items:center;gap:var(--dm-s-2);font-size:13px;padding:10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-ok-bg);color:var(--dm-ok)}
+/* sent: a neutral line with the green tick, no green fill (owner, 18 Nov: a finished state) */
+.dm-fbx-thx{display:flex;align-items:center;gap:var(--dm-s-2);font-size:13px;line-height:20px;color:var(--dm-fg2)}
+.dm-fbx-thx svg{flex:none;color:var(--dm-ok-mark)}
 @media (max-width:480px){.dm-fbx-n{display:none}}
-/* Clean: equal padding (owner, 17 Nov): its content 20px in from every edge */
-:root[data-style="clean"] .dm-fbx-in.dm-panel,:root [data-style="clean"] .dm-fbx-in.dm-panel,:root [data-style="clean"].dm-fbx-in.dm-panel{padding:18px 20px 20px 20px}
+/* Clean (owner, 18 Nov): the sheet's content sits 16px in from its edges, and its foot is an off-white strip: the note
+   starts where the question does, and Cancel and Send are 28px pills 16px from the card's edges and the strip's hairline (owner, 23 Nov).
+   The first thumb's icon starts where the answer and the sheet do. The chrome is monochrome: a rated
+   thumb fills in ink on the selected fill in its round shape (owner, 23 Nov), with no red and no tilt and a picked reason is an ink chip like a toggle that is on */
+:root[data-style="clean"] .dm-fbx-bar .dm-ib.dm-on svg,:root [data-style="clean"] .dm-fbx-bar .dm-ib.dm-on svg,:root [data-style="clean"].dm-fbx-bar .dm-ib.dm-on svg{transform:none}
+:root[data-style="clean"] .dm-fbx-bar .dm-ib.dm-on,:root [data-style="clean"] .dm-fbx-bar .dm-ib.dm-on,:root [data-style="clean"].dm-fbx-bar .dm-ib.dm-on{background:var(--dm-row-on);color:var(--dm-fg)}
+:root[data-style="clean"] .dm-fbx-bar .dm-ib.dm-on svg,:root [data-style="clean"] .dm-fbx-bar .dm-ib.dm-on svg,:root [data-style="clean"].dm-fbx-bar .dm-ib.dm-on svg{fill:currentColor}
+:root[data-style="clean"] .dm-fbx-in.dm-panel,:root [data-style="clean"] .dm-fbx-in.dm-panel,:root [data-style="clean"].dm-fbx-in.dm-panel{gap:12px;margin:4px 0 0;padding:16px 16px 0;overflow:clip}
+:root[data-style="clean"] .dm-fbx-q,:root [data-style="clean"] .dm-fbx-q,:root [data-style="clean"].dm-fbx-q{font-size:14px;line-height:20px}
+:root[data-style="clean"] .dm-fbx-ch .dm-chip.dm-on,:root [data-style="clean"] .dm-fbx-ch .dm-chip.dm-on,:root [data-style="clean"].dm-fbx-ch .dm-chip.dm-on{background:var(--dm-btn-2);color:var(--dm-on-btn);box-shadow:inset 0 0 0 1px var(--dm-btn-2)}
+/* a reason not picked takes the one hover over its fill, easing over 220ms (owner, 21 Nov) */
+:root[data-style="clean"] .dm-fbx-ch .dm-chip:not(.dm-on),:root [data-style="clean"] .dm-fbx-ch .dm-chip:not(.dm-on),:root [data-style="clean"].dm-fbx-ch .dm-chip:not(.dm-on){background:var(--dm-chip)}
+:root[data-style="clean"] .dm-fbx-ch .dm-chip,:root [data-style="clean"] .dm-fbx-ch .dm-chip,:root [data-style="clean"].dm-fbx-ch .dm-chip{transition:background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-fbx-ch .dm-chip:not(.dm-on):hover,:root [data-style="clean"] .dm-fbx-ch .dm-chip:not(.dm-on):hover,:root [data-style="clean"].dm-fbx-ch .dm-chip:not(.dm-on):hover{background:var(--dm-chip);box-shadow:inset 0 0 0 99px var(--dm-row)}}
+:root[data-style="clean"] .dm-fbx-f,:root [data-style="clean"] .dm-fbx-f,:root [data-style="clean"].dm-fbx-f{gap:8px;margin:4px -16px 0;padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-top:1px solid var(--dm-line)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-fbx-f .dm-pill.dm-ghost:hover,:root [data-style="clean"] .dm-fbx-f .dm-pill.dm-ghost:hover,:root [data-style="clean"].dm-fbx-f .dm-pill.dm-ghost:hover{background:var(--dm-row)}}
+/* the note keeps to one line, so the strip stays one control tall */
+:root[data-style="clean"] .dm-fbx-n,:root [data-style="clean"] .dm-fbx-n,:root [data-style="clean"].dm-fbx-n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* on a phone the note gives way, and Cancel and Send keep to the right edge */
+:root[data-style="clean"] .dm-fbx-x,:root [data-style="clean"] .dm-fbx-x,:root [data-style="clean"].dm-fbx-x{margin-left:auto}

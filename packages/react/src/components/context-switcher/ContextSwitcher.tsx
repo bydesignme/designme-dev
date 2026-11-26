@@ -4,12 +4,15 @@ import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
 import { Swap, Tip } from '../../lib/motion';
+import { useHoverGlide } from '../../lib/glide';
 import '../../designme.css';
+// its menus' rows glide in Clean
+import '../../lib/glide';
 import './context-switcher.css';
 
 /** A badge's colour, the same tones as Badge: neutral grey, the accent's tint, the three states, or a tag colour */
 export type ContextSwitcherTone = 'neutral' | 'accent' | 'success' | 'warning' | 'danger' | 'blue' | 'violet' | 'green' | 'orange' | 'red' | 'yellow' | 'pink' | 'teal';
-/** The tint of an item's tile */
+/** The colour of an item's tile: the avatars' fills (white letters on blue, violet, red and pink). Clean draws every tile grey */
 export type ContextSwitcherTint = 'blue' | 'violet' | 'green' | 'orange' | 'red' | 'yellow' | 'pink' | 'teal';
 
 /** One organisation, project or environment */
@@ -115,6 +118,8 @@ export function ContextSwitcher({ segments, value, defaultValue, onChange, onCre
 
   const root = useRef<HTMLDivElement>(null), bar = useRef<HTMLElement>(null), pop = useRef<HTMLDivElement>(null), mpop = useRef<HTMLDivElement>(null);
   const search = useRef<HTMLInputElement>(null), list = useRef<HTMLDivElement>(null), moreBtn = useRef<HTMLButtonElement>(null), mi = useRef<HTMLLIElement>(null);
+  // Clean's one hover: a highlight that glides from row to row
+  useHoverGlide(list, '.dm-csw-o');
   const trigs = useRef<(HTMLButtonElement | null)[]>([]), opts = useRef<(HTMLDivElement | null)[]>([]);
 
   // the switcher keeps showing the part it was opened for while it fades out
@@ -147,6 +152,19 @@ export function ContextSwitcher({ segments, value, defaultValue, onChange, onCre
     const rr = r.getBoundingClientRect(), ar = at.getBoundingClientRect(), br = b.getBoundingClientRect();
     return { left: Math.max(0, Math.min(ar.left - rr.left, rr.width - el.offsetWidth)), top: Math.round(br.bottom - rr.top + 6) };
   };
+  // a switcher opens over the component from its part and never moves the bar: the component keeps room under the bar for a
+  // switcher at its tallest (its search and a full list, which scrolls past that), so centred in a stage nothing is cut off
+  const [room, setRoom] = useState<number>();
+  useEffect(() => {
+    const fit = () => {
+      const b = bar.current, p = pop.current, l = list.current, m = mpop.current; if (!b || !p || !l) return;
+      const tall = p.offsetHeight - l.offsetHeight + (parseFloat(getComputedStyle(l).maxHeight) || 0);
+      setRoom(Math.ceil(b.offsetHeight + 6 + Math.max(tall, m?.offsetHeight ?? 0)));
+    };
+    fit(); const ro = new ResizeObserver(fit);
+    if (bar.current) ro.observe(bar.current);
+    return () => ro.disconnect();
+  }, []);
   // once a closed one has faded it goes back to the component's corner, so a narrower screen later never scrolls sideways to it
   useIsoLayoutEffect(() => {
     if (openKey) { setPlace(placeUnder(pop.current, anchor(openKey))); return; }
@@ -272,7 +290,7 @@ export function ContextSwitcher({ segments, value, defaultValue, onChange, onCre
   const hidden = segments.slice(0, -1), moreLabel = hidden.map(s => s.label).join(' and ');
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-csw', className)}>
+    <div data-dm="" ref={root} className={cx('dm-csw', className)} style={room ? { minHeight: room } : undefined}>
       <nav ref={bar} className="dm-csw-bar dm-panel" aria-label={label}>
         <ol className="dm-csw-path">
           <li ref={mi} className="dm-csw-mi">

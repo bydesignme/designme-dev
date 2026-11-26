@@ -2,7 +2,7 @@
 
 > The files, sites and folders the agent knows, and how far each is indexed.
 
-Agent components / Workspace. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/knowledge-sources
+Components / Workspace. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/knowledge-sources
 
 ## Install
 
@@ -34,14 +34,16 @@ A list of what an agent knows: uploaded files, websites it crawls and connected 
 
 ### What it does
 
-- Each source in `sources` shows its type's icon (`kind` of `files`, `web` or `folder`), its `name`, and a line under it that follows its `state`.
-- The dot on the icon is the state at a glance: grey while `queued`, a turning ring while `indexing`, green when `ready` and red when `failed`.
-- While indexing, the line becomes a progress bar and a count, like "64 of 142 pages", from `done` and `count`; `unit` switches pages to files.
+- Each source in `sources` shows its type's icon on a vivid tile (`kind` of `files`, `web` or `folder`), its `name`, and a line under it that follows its `state`. In Clean the tiles are one neutral grey.
+- The line leads with its state's mark: a green tick once `ready`, a clock while `queued`, and a red sign when `failed`.
+- While indexing, the line becomes a progress bar and a count that shimmers, like "64 of 142 pages", from `done` and `count`; `unit` switches pages to files.
 - A ready source reads like "142 pages · Synced 2m ago" from its `synced`; a queued one reads "Queued", or your own `note`.
 - A failed source shows its `error` in red, with a button labelled with its `fix` that calls `onFix`, and a Remove button when you pass `onRemove`.
 - Each row has a menu with Re-sync (`onResync`, unavailable while the source waits or indexes) and Remove (`onRemove`).
-- Add source opens a menu with an option for each handler you pass: Upload files opens the file picker and calls `onUpload` with the files; Add a website asks for an address and calls `onAddWebsite` with it, without http(s)://; Connect a folder lists `folders` and calls `onConnectFolder`.
-- The line under the title counts the sources and adds up their `chunks`, like "4 sources · 1,204 chunks", or shows your own `status`.
+- Add source opens a menu with an option for each handler you pass: Upload files opens the file picker and calls `onUpload` with the files; Add a website asks for an address and calls `onAddWebsite` with it, without http(s)://; Connect a folder lists `folders` and calls `onConnectFolder`. The menu opens under the button, or above it when there is no room below. Its rows settle in one after another as it opens, and again as it moves to its next step.
+- With no sources it shows an empty state: a small sketch of the list, "No sources yet", one line, and Add source.
+- The line under the title adds up the sources' `chunks`, like "1,204 chunks indexed", or shows your own `status`.
+- The card grows and shrinks with its rows, eased, and keeps no room for a state still to come.
 
 ### Accessibility
 
@@ -98,7 +100,8 @@ export default function KnowledgeSourcesDemo() {
     return () => clearInterval(id);
   }, []);
 
-  // the preview's story: add the docs site, which waits its turn, then read the scanned PDF again with OCR
+  // the preview's story: add the docs site, which waits its turn, then read the scanned PDF again with OCR. Indexing at work
+  // keeps going under the pointer, as designme.dev's does
   useStory(ref, async ({ wait, press, taken }) => {
     await wait(1500); press('.dm-ksx-add');
     await wait(1000); press('.dm-ksx-pop .dm-mi:nth-child(2)');
@@ -113,7 +116,7 @@ export default function KnowledgeSourcesDemo() {
     const failed = () => ref.current?.querySelector('.dm-ksx-s[data-st="failed"]');
     for (let k = 0; k < 150 && !failed(); k++) await wait(100);
     await wait(1000); press('.dm-ksx-s[data-st="failed"] .dm-ksx-fx .dm-accent');
-  });
+  }, { hold: false });
 
   return (
     <div ref={ref} style={{ width: '100%' }}>
@@ -149,7 +152,7 @@ export default function KnowledgeSourcesDemo() {
 | `onRemove` (optional) | `(key: string) => void` | Adds Remove to each source's menu, and beside the fix of a failed one |
 | `onFix` (optional) | `(key: string) => void` | Called by the fix button of a failed source |
 | `title` (optional) | `string` | Defaults to "Knowledge sources" |
-| `status` (optional) | `string` | The line under the title. Defaults to "4 sources · 1,204 chunks" |
+| `status` (optional) | `string` | The line under the title. Defaults to how many chunks are indexed, like "1,204 chunks indexed" |
 | `className` (optional) | `string` |  |
 
 ## Usage in Astro
@@ -191,9 +194,12 @@ import { useRef, useState, type CSSProperties, type FormEvent } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable, useIsoLayoutEffect } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
-import { enter, Fold, Swap, Tip } from '../lib/motion';
+import { enter, Fold, Swap, Tip, useGrow } from '../lib/motion';
+import { useHoverGlide } from '../lib/glide';
 import { usePopover } from '../lib/popover';
 import '../designme.css';
+// its menus' rows glide in Clean
+import '../lib/glide';
 import './knowledge-sources.css';
 
 /** files: uploaded files, web: a website the agent crawls, folder: a connected folder of docs (Notion, Drive and the like) */
@@ -256,49 +262,52 @@ export interface KnowledgeSourcesProps {
   onFix?: (key: string) => void;
   /** Defaults to "Knowledge sources" */
   title?: string;
-  /** The line under the title. Defaults to "4 sources · 1,204 chunks" */
+  /** The line under the title. Defaults to how many chunks are indexed, like "1,204 chunks indexed" */
   status?: string;
   className?: string;
 }
 
-const KIND: Record<KnowledgeSourceKind, [IconName, string]> = { files: ['file-text', 'var(--dm-pp)'], web: ['globe', 'var(--dm-pb)'], folder: ['folder', 'var(--dm-pm)'] };
+/* a type's icon on a vivid tile of its colour, with the colour's own ink */
+const KIND: Record<KnowledgeSourceKind, [IconName, string]> = { files: ['file-text', 'p'], web: ['globe', 'b'], folder: ['folder', 'm'] };
 const fmt = (n: number) => n.toLocaleString('en-US');
 const of = (n: number, unit: string) => `${fmt(n)} ${n === 1 ? unit.slice(0, -1) : unit}`;
 const line = (s: KnowledgeSource) => s.state === 'queued' ? s.note ?? 'Queued' : s.state === 'failed' ? s.error ?? 'Failed'
   : of(s.count, s.unit ?? 'pages') + (s.synced ? ' · Synced ' + s.synced : '');
+/* the line's mark: a tick once indexed, a clock while it waits, a sign when it failed */
+const MARK: Record<Exclude<KnowledgeSourceState, 'indexing'>, IconName> = { ready: 'ok', queued: 'clock', failed: 'alert' };
 
 /** One source: its type, name and state, and a menu with Re-sync and Remove */
 function Row({ s, delay, onResync, onRemove, onFix }: { s: KnowledgeSource; delay: number } & Pick<KnowledgeSourcesProps, 'onResync' | 'onRemove' | 'onFix'>) {
   const menu = usePopover({ align: 'end' });
-  const [icon, color] = KIND[s.kind];
+  const [icon, k] = KIND[s.kind];
   const motion = enter(delay), unit = s.unit ?? 'pages', done = Math.min(s.count, Math.max(0, Math.floor(s.done ?? 0)));
   const busy = s.state === 'queued' || s.state === 'indexing';
   const act = (f?: (key: string) => void) => { menu.closeSoon(); f?.(s.key); };
   return (
     <div className={cx('dm-ksx-s', motion.className)} style={motion.style} role="listitem" data-st={s.state}>
-      <span className="dm-ic" style={{ color, background: `color-mix(in srgb,${color} 12%,transparent)` }} aria-hidden="true"><Icon name={icon} size="xs" /></span>
+      <span className="dm-ic" style={{ background: `var(--dm-av-${k})`, color: `var(--dm-av-${k}-ink)` }} aria-hidden="true"><Icon name={icon} size="xs" /></span>
       <span className="dm-t">
         <span className="dm-nm">{s.name}</span>
         <span className="dm-d">
           {s.state === 'indexing'
-            ? <><span className="dm-ksx-bar" role="progressbar" aria-label={'Indexing ' + s.name} aria-valuemin={0} aria-valuemax={s.count} aria-valuenow={done}><i style={{ width: done / (s.count || 1) * 100 + '%' }} /></span><span className="dm-num">{fmt(done)} of {of(s.count, unit)}</span></>
-            : <Swap>{line(s)}</Swap>}
+            ? <><span className="dm-ksx-bar" role="progressbar" aria-label={'Indexing ' + s.name} aria-valuemin={0} aria-valuemax={s.count} aria-valuenow={done}><i style={{ width: done / (s.count || 1) * 100 + '%' }} /></span><span className="dm-num dm-shim">{fmt(done)} of {of(s.count, unit)}</span></>
+            : <><Icon name={MARK[s.state]} size="xs" /><Swap>{line(s)}</Swap></>}
         </span>
       </span>
       {(onResync || onRemove)
-        ? <Tip label="More" off={menu.open}><button type="button" className="dm-ib dm-ksx-more" aria-label={'Actions for ' + s.name} {...menu.trigger}><Icon name="more" /></button></Tip>
+        ? <Tip label="More" off={menu.open}><button type="button" className="dm-ib dm-ksx-more dm-mx-press" aria-label={'Actions for ' + s.name} {...menu.trigger}><Icon name="more" /></button></Tip>
         : <span />}
       {(onResync || onRemove) && (
-        <div {...menu.pop} className={cx(menu.pop.className, 'dm-ksx-mpop')} role="menu">
-          {onResync && <button type="button" className="dm-mi" role="menuitem" disabled={busy} onClick={() => act(onResync)}><Icon name="refresh" size="xs" />Re-sync</button>}
+        <div {...menu.pop} className={cx(menu.pop.className, 'dm-ksx-mpop dm-mx-pop dm-mx-rows dm-mx-glide')} role="menu">
+          {onResync && <button type="button" className="dm-mi dm-mx-press" role="menuitem" disabled={busy} onClick={() => act(onResync)}><Icon name="refresh" size="xs" />Re-sync</button>}
           {onResync && onRemove && <div className="dm-sep" />}
-          {onRemove && <button type="button" className="dm-mi dm-del" role="menuitem" onClick={() => act(onRemove)}><Icon name="trash" size="xs" />Remove</button>}
+          {onRemove && <button type="button" className="dm-mi dm-del dm-mx-press" role="menuitem" onClick={() => act(onRemove)}><Icon name="trash" size="xs" />Remove</button>}
         </div>
       )}
       <Fold open={s.state === 'failed' && !!(s.fix || onRemove)} className="dm-ksx-fx">
         <div>
           {s.fix && <button type="button" className="dm-pill dm-accent dm-sm" onClick={() => onFix?.(s.key)}>{s.fix}</button>}
-          {onRemove && <button type="button" className="dm-pill dm-ghost dm-sm" onClick={() => onRemove(s.key)}>Remove</button>}
+          {onRemove && <button type="button" className="dm-pill dm-ghost dm-sm dm-mx-press" onClick={() => onRemove(s.key)}>Remove</button>}
         </div>
       </Fold>
     </div>
@@ -309,21 +318,27 @@ function Row({ s, delay, onResync, onRemove, onFix }: { s: KnowledgeSource; dela
     and can offer a fix; Add source uploads files, adds a website or connects a folder. */
 export function KnowledgeSources({ sources, onUpload, onAddWebsite, address, defaultAddress = '', onAddressChange, folders = [], onConnectFolder,
   onResync, onRemove, onFix, title = 'Knowledge sources', status, className }: KnowledgeSourcesProps) {
-  const root = useRef<HTMLDivElement>(null);
   const file = useRef<HTMLInputElement>(null);
+  // Clean's one hover: a highlight that glides from source to source
+  const listRef = useRef<HTMLDivElement>(null);
+  useHoverGlide(listRef, '.dm-ksx-s');
   const field = useRef<HTMLInputElement>(null);
-  const menu = usePopover({ side: 'up' });
+  // a menu opens under its button, or above it when there is no room
+  const menu = usePopover();
+  // the card grows with its rows and shrinks as they go, eased (as grow() on the site)
+  const [root, inner] = useGrow();
   const [view, setView] = useState<'main' | 'web' | 'folder'>('main');
   const [url, setUrl] = useControllable(address, defaultAddress, onAddressChange);
-  // the menu grows upwards from Add source whichever step it shows, so it is held by its bottom edge
+  // a menu that opened above Add source grows upwards whichever step it shows, so it is held by its bottom edge
   const [bottom, setBottom] = useState<CSSProperties>({});
+  const up = String((menu.pop.style as Record<string, unknown>)['--dm-origin'] ?? '').startsWith('bottom');
   useIsoLayoutEffect(() => {
-    const b = root.current?.querySelector<HTMLElement>('.dm-ksx-add');
-    if (menu.open && b && root.current) setBottom({ top: 'auto', bottom: root.current.clientHeight - b.offsetTop + 6 });
-  }, [menu.open, view]);
+    const b = root.current?.querySelector<HTMLElement>('.dm-ksx-add,.dm-ksx-em .dm-pill'), r = b?.getBoundingClientRect(), h = root.current?.getBoundingClientRect();
+    setBottom(menu.open && up && r && h ? { top: 'auto', bottom: h.bottom - r.top + 6 } : {});
+  }, [menu.open, view, up]);
   // rows there from the start come in one after another; a row added later comes in on its own
   const [first] = useState(() => sources.map(s => s.key));
-  const total = status ?? `${sources.length} source${sources.length === 1 ? '' : 's'} · ${fmt(sources.reduce((a, s) => a + (s.chunks ?? 0), 0))} chunks`;
+  const total = status ?? `${fmt(sources.reduce((a, s) => a + (s.chunks ?? 0), 0))} chunks indexed`;
   const canAdd = !!(onUpload || onAddWebsite || onConnectFolder);
   const submit = (e: FormEvent) => {
     e.preventDefault();
@@ -332,18 +347,25 @@ export function KnowledgeSources({ sources, onUpload, onAddWebsite, address, def
     menu.close(); setUrl(''); onAddWebsite?.(v);
   };
   return (
-    <div data-dm="" ref={root} className={cx('dm-ksx dm-panel', className)}>
-      <div className="dm-ksx-h"><div><b>{title}</b><Swap className="dm-muted dm-ksx-st">{total}</Swap></div></div>
-      <div className="dm-ksx-list" role="list" aria-label="Sources">
+    <div data-dm="" ref={root} className={cx('dm-ksx dm-panel dm-growing dm-mx-grow', className)}>
+      <div ref={inner} className="dm-grow">
+      <div className="dm-ksx-h"><span className="dm-ksx-hi" aria-hidden="true"><Icon name="book" size="xs" /></span><div><b>{title}</b><Swap className="dm-muted dm-ksx-st">{total}</Swap></div></div>
+      <div ref={listRef} className="dm-ksx-list dm-mx-glide" role="list" aria-label="Sources">
         {sources.map(s => { const at = first.indexOf(s.key); return <Row key={s.key} s={s} delay={at >= 0 ? at * 50 : 0} onResync={onResync} onRemove={onRemove} onFix={onFix} />; })}
       </div>
+      {/* nothing left: the empty state, with Add source as an outline button */}
+      {!sources.length && (
+        <div className="dm-ksx-em"><span className="dm-ksx-em-art" aria-hidden="true" /><b>No sources yet</b><span>Add files, a website or a folder, and the agent reads them.</span>
+          {canAdd && <button type="button" className="dm-pill dm-line dm-sm dm-mx-press" {...menu.trigger} onClick={e => { if (!menu.open) setView('main'); menu.trigger.onClick(e); }}><Icon name="plus" size="xs" />Add source</button>}
+        </div>
+      )}
       {canAdd && <>
-        <button type="button" className="dm-ksx-add" {...menu.trigger} onClick={e => { if (!menu.open) setView('main'); menu.trigger.onClick(e); }}><Icon name="plus" size="xs" />Add source</button>
-        <div {...menu.pop} style={{ ...menu.pop.style, ...bottom }} className={cx(menu.pop.className, 'dm-ksx-pop')} role="menu" aria-label="Add source">
+        {sources.length > 0 && <div className="dm-ksx-ft"><button type="button" className="dm-ksx-add dm-mx-press" {...menu.trigger} onClick={e => { if (!menu.open) setView('main'); menu.trigger.onClick(e); }}><Icon name="plus" size="xs" />Add source</button></div>}
+        <div {...menu.pop} style={{ ...menu.pop.style, ...bottom }} className={cx(menu.pop.className, 'dm-ksx-pop dm-mx-pop dm-mx-rows dm-mx-glide')} role="menu" aria-label="Add source">
           {view === 'main' && <>
-            {onUpload && <button type="button" className="dm-mi" role="menuitem" onClick={() => { menu.closeSoon(); file.current?.click(); }}><Icon name="upload" size="xs" /><span>Upload files</span></button>}
-            {onAddWebsite && <button type="button" className="dm-mi" role="menuitem" onClick={() => { setView('web'); requestAnimationFrame(() => field.current?.focus({ preventScroll: true })); }}><Icon name="globe" size="xs" /><span>Add a website</span></button>}
-            {onConnectFolder && <button type="button" className="dm-mi" role="menuitem" onClick={() => setView('folder')}><Icon name="folder" size="xs" /><span>Connect a folder</span></button>}
+            {onUpload && <button type="button" className="dm-mi dm-mx-press" role="menuitem" onClick={() => { menu.closeSoon(); file.current?.click(); }}><Icon name="upload" size="xs" /><span>Upload files</span></button>}
+            {onAddWebsite && <button type="button" className="dm-mi dm-mx-press" role="menuitem" onClick={() => { setView('web'); requestAnimationFrame(() => field.current?.focus({ preventScroll: true })); }}><Icon name="globe" size="xs" /><span>Add a website</span></button>}
+            {onConnectFolder && <button type="button" className="dm-mi dm-mx-press" role="menuitem" onClick={() => setView('folder')}><Icon name="folder" size="xs" /><span>Connect a folder</span></button>}
           </>}
           {view === 'web' && (
             <form className="dm-ksx-web" onSubmit={submit}>
@@ -354,12 +376,13 @@ export function KnowledgeSources({ sources, onUpload, onAddWebsite, address, def
           {view === 'folder' && <>
             <div className="dm-ph">Connect a folder</div>
             {folders.length
-              ? folders.map(f => <button type="button" key={f.key} className="dm-mi" role="menuitem" onClick={() => { menu.closeSoon(); onConnectFolder?.(f.key); }}><Icon name="folder" size="xs" /><span>{f.name}{f.detail && <span className="dm-d">{f.detail}</span>}</span></button>)
+              ? folders.map(f => <button type="button" key={f.key} className="dm-mi dm-mx-press" role="menuitem" onClick={() => { menu.closeSoon(); onConnectFolder?.(f.key); }}><Icon name="folder" size="xs" /><span>{f.name}{f.detail && <span className="dm-d">{f.detail}</span>}</span></button>)
               : <div className="dm-ph">All folders connected</div>}
           </>}
         </div>
-        {onUpload && <input ref={file} type="file" multiple hidden onChange={e => { const fs = [...(e.target.files ?? [])]; e.target.value = ''; if (fs.length) onUpload(fs); }} />}
+        {onUpload && <input ref={file} type="file" multiple hidden title="" onChange={e => { const fs = [...(e.target.files ?? [])]; e.target.value = ''; if (fs.length) onUpload(fs); }} />}
       </>}
+      </div>
     </div>
   );
 }
@@ -367,16 +390,11 @@ export function KnowledgeSources({ sources, onUpload, onAddWebsite, address, def
 
 ## More in Workspace
 
-- [Automation canvas](https://designme.dev/components/automation-canvas.md): A trigger, a few agent steps, and a run you can watch flow through.
-- [Canvas toolbar](https://designme.dev/components/canvas-toolbar.md): A floating toolbar for a workflow canvas: run, pick a tool, comment, fit and zoom.
-- [Data picker](https://designme.dev/components/data-picker.md): Map a field from earlier steps into a step's input.
 - [Run drawer](https://designme.dev/components/run-drawer.md): A workflow's run under its canvas: the steps, the log and the data.
 - [Command palette](https://designme.dev/components/command-palette.md): Jump anywhere or hand a task to the agent from one box.
 - [Memory panel](https://designme.dev/components/memory-panel.md): What the agent remembers about your team, editable and removable.
-- [Agent settings](https://designme.dev/components/agent-settings.md): How much the agent may do alone, with a save bar for changes.
 - [Tools and connections](https://designme.dev/components/tool-connections.md): The tools the agent can reach, and how much it may do with each.
 - [Scheduled runs](https://designme.dev/components/scheduled-runs.md): Tasks the agent runs on a schedule, with their last result and a switch.
 - [File explorer](https://designme.dev/components/file-explorer.md): Project files, with the ones the agent touched marked.
-- [Workspace rail](https://designme.dev/components/workspace-rail.md): A slim app rail that opens into a labelled sidebar.
 
 All components: https://designme.dev/llms.txt

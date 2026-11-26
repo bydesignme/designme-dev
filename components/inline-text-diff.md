@@ -2,7 +2,7 @@
 
 > The agent's edits to a piece of copy, accepted or rejected one by one.
 
-Agent components / Review and approve. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/inline-text-diff
+Components / Review and approve. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/inline-text-diff
 
 ## Install
 
@@ -35,11 +35,12 @@ Inline text diff shows the agent's edits to a piece of copy where they sit in th
 ### What it does
 
 - `parts` hold the copy in order: plain strings, with edits between them. Each edit has a `key`, the words it replaces (`from`) and the words it suggests (`to`).
-- An edit with a `note` is marked in amber, and the note shows above its Accept and Reject buttons.
-- Clicking an edit opens its toolbar under the edit's last line. Accepting keeps the new words and rejecting keeps the old ones, both as plain text.
+- An edit with a `note` is marked in amber, and its toolbar becomes a warning notice: the note beside a filled warning sign, with Reject in the warning's colours and Accept beside it.
+- Clicking an edit opens its toolbar under the edit's last line, or above its first line when there is no room below. Accepting keeps the new words and rejecting keeps the old ones, both as plain text. The toolbar grows out of the edit and goes back into it quicker than it came.
 - `decisions` / `defaultDecisions` / `onDecisionsChange` keep what was decided, `accepted` or `rejected` per edit key.
 - The status under the title counts down the edits left, then says how many were accepted and rejected.
-- Accept all and Reject all take every edit still waiting. Once none are left, the buttons give way to `doneLabel`.
+- Accept all and Reject all take every edit still waiting. Once none are left, the buttons go and `doneLabel` shows under the copy with a green tick.
+- No room is kept for that line: the card eases shorter as edits fold into the text, and grows for `doneLabel` when it comes.
 
 ### Accessibility
 
@@ -137,7 +138,8 @@ import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { Swap } from '../lib/motion';
+import { enter, Swap, useGrow } from '../lib/motion';
+import { giveBack } from '../lib/popover';
 import '../designme.css';
 import './inline-text-diff.css';
 
@@ -171,14 +173,18 @@ export interface InlineTextDiffProps {
 }
 
 const isEdit = (p: TextPart): p is TextEdit => typeof p !== 'string';
+/** The filled warning sign, as the warning notices draw it */
+const WarnSign = () => <svg className="dm-itd-wi" viewBox="0 0 24 24" aria-hidden="true"><path className="dm-a" d="M12 3.6 2.6 19.9h18.8z" /><path className="dm-b" d="M12 9.6v4.4M12 17v.01" /></svg>;
 
 /** The agent's edits to a piece of copy, struck and added inline. Each one opens a small toolbar to accept or reject it,
     and the header takes the rest all at once. */
 export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {}, onDecisionsChange, doneLabel = 'Every edit reviewed', labels = {}, className }: InlineTextDiffProps) {
   const [dec, setDec] = useControllable(decisions, defaultDecisions, onDecisionsChange);
   const [cur, setCur] = useState<string | null>(null);
-  const [at, setAt] = useState({ left: 0, top: 0 });
-  const root = useRef<HTMLDivElement>(null), bar = useRef<HTMLDivElement>(null);
+  const [at, setAt] = useState({ left: 0, top: 0, up: false });
+  // no room is kept for the end: the card eases shorter as edits fold into the text, and grows for the note at the end
+  const [root, inner] = useGrow();
+  const bar = useRef<HTMLDivElement>(null);
   const chunks = useRef(new Map<string, HTMLSpanElement>());
   const L = { accept: 'Accept', reject: 'Reject', acceptAll: 'Accept all', rejectAll: 'Reject all', ...labels };
   const edits = parts.filter(isEdit);
@@ -187,19 +193,18 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
   const open = edits.find(e => e.key === cur);
   // the toolbar keeps the last edit's note while it fades out
   const last = useRef<TextEdit | undefined>(undefined); if (open) last.current = open;
-  // each decision folds an edit into plain text, and the last swaps the actions for a short note: from the first one the
-  // card keeps the height it had with every edit open, and centres what is left in it
-  const fresh = left === edits.length;
-  const openHeight = useRef<number | undefined>(undefined);
-  const [held, setHeld] = useState<number>();
-  useLayoutEffect(() => { if (fresh && root.current) openHeight.current = root.current.offsetHeight; });
-  useLayoutEffect(() => { setHeld(fresh ? undefined : openHeight.current); }, [fresh]);
-
-  // the toolbar opens under the edit's last line; inside a scaled preview the offsets are divided by its scale
+  // the toolbar opens under the edit's last line, or over its first when the page (or a box that clips it) has no room
+  // below; inside a scaled preview the offsets are divided by its scale
   useLayoutEffect(() => {
     const r = root.current, b = bar.current, el = cur ? chunks.current.get(cur) : null; if (!r || !b || !el) return;
-    const rb = r.getBoundingClientRect(), k = rb.width / r.offsetWidth || 1, rs = el.getClientRects(), cr = rs[rs.length - 1] ?? el.getBoundingClientRect();
-    setAt({ left: Math.max(12, Math.min((cr.left - rb.left) / k, r.offsetWidth - b.offsetWidth - 12)), top: (cr.bottom - rb.top) / k + 6 });
+    const rb = r.getBoundingClientRect(), k = rb.width / r.offsetWidth || 1, rs = el.getClientRects(), cr = rs[rs.length - 1] ?? el.getBoundingClientRect(), c0 = rs[0] ?? cr;
+    let top = 0, bottom = innerHeight;
+    for (let a = r.parentElement; a && a !== document.documentElement; a = a.parentElement) {
+      if (getComputedStyle(a).overflowY === 'visible') continue;
+      const ar = a.getBoundingClientRect(); top = Math.max(top, ar.top); bottom = Math.min(bottom, ar.bottom);
+    }
+    const h = b.offsetHeight * k, up = cr.bottom + 6 + h > bottom - 8 && c0.top - 6 - h >= top + 8;
+    setAt({ left: Math.max(12, Math.min(((up ? c0 : cr).left - rb.left) / k, r.offsetWidth - b.offsetWidth - 12)), top: up ? (c0.top - rb.top) / k - 6 - b.offsetHeight : (cr.bottom - rb.top) / k + 6, up });
   }, [cur]);
   // Enter or Space opens an edit's toolbar with the focus on Accept, as a dialog takes the focus; Escape brings it back
   const keyOpen = useRef(false);
@@ -216,19 +221,21 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
     if (!cur) return;
     const back = bar.current?.contains(document.activeElement), el = chunks.current.get(cur);
     setDec({ ...dec, [cur]: s }); setCur(null);
-    if (back) el?.focus({ preventScroll: true });
+    // the focus goes back to the edit, with a ring only when the answer came from the keyboard (a click never leaves one)
+    if (back && el) giveBack(el);
   };
   const all = (s: EditDecision) => { setCur(null); setDec({ ...Object.fromEntries(edits.filter(e => !dec[e.key]).map(e => [e.key, s])), ...dec }); };
 
   return (
     <div data-dm="" className={className} style={{ width: '100%' }}
       onKeyDown={e => { if (e.key === 'Escape' && cur) { const el = chunks.current.get(cur); setCur(null); el?.focus({ preventScroll: true }); } }}>
-      <div ref={root} className={cx('dm-itd dm-panel', held && 'dm-held')} style={held ? { minHeight: held } : undefined}>
+      <div ref={root} className="dm-itd dm-panel dm-growing dm-mx-grow">
+        <div ref={inner} className="dm-grow">
         <div className="dm-itd-h">
           <div className="dm-itd-ht"><b>{title}</b><Swap className="dm-muted dm-itd-st">{status}</Swap></div>
           {left > 0 && (
             <div className="dm-itd-a">
-              <button type="button" className="dm-pill dm-ghost dm-sm dm-itd-no" onClick={() => all('rejected')}>{L.rejectAll}</button>
+              <button type="button" className="dm-pill dm-ghost dm-sm dm-itd-no dm-mx-press" onClick={() => all('rejected')}>{L.rejectAll}</button>
               <button type="button" className="dm-pill dm-primary dm-sm dm-itd-ok" onClick={() => all('accepted')}>{L.acceptAll}</button>
             </div>
           )}
@@ -248,18 +255,22 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
             );
           })}
         </p>
-        <p className="dm-itd-f dm-muted" aria-live="polite">
-          {left === 0 && <span className="dm-enter" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Icon name="ok" size="xs" /><span>{doneLabel}</span></span>}
+        {/* the end: a neutral line with the green tick, only once every edit is decided. It comes in a beat after the card
+            starts to grow for it, so it never shows past the card's edge */}
+        <p className="dm-itd-f" aria-live="polite">
+          {left === 0 && <span className="dm-enter" style={{ ...enter(220).style, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Icon name="ok" size="xs" /><span>{doneLabel}</span></span>}
         </p>
-        <div ref={bar} className={cx('dm-itd-bar', open && 'dm-open')} role="dialog" aria-label="Edit" inert={!open} style={at}
+        </div>
+        {/* an edit the agent isn't sure of: the toolbar is a warning notice, and Reject, which settles it, is the warning's button */}
+        <div ref={bar} className={cx('dm-itd-bar dm-mx-pop', open && 'dm-open', at.up && 'dm-up', last.current?.note && 'dm-unsure')} role="dialog" aria-label="Edit" inert={!open} style={{ left: at.left, top: at.top }}
           // the left and right arrows move between Accept and Reject
           onKeyDown={e => { const bs = Array.from(bar.current?.querySelectorAll<HTMLElement>('button') ?? []), j = bs.indexOf(document.activeElement as HTMLElement); if (j < 0) return;
             const d = ({ ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 } as Record<string, number>)[e.key], to = d ? bs[(j + d + bs.length) % bs.length] : e.key === 'Home' ? bs[0] : e.key === 'End' ? bs[bs.length - 1] : null;
             if (to) { e.preventDefault(); to.focus({ preventScroll: true }); } }}>
-          {last.current?.note && <p className="dm-itd-why"><Icon name="alert" size="xs" /><span>{last.current.note}</span></p>}
+          {last.current?.note && <p className="dm-itd-why"><WarnSign /><span>{last.current.note}</span></p>}
           <div className="dm-itd-bb">
-            <button type="button" className="dm-pill dm-primary dm-sm dm-itd-acc" onClick={() => decide('accepted')}><Icon name="check" size="xs" />{L.accept}</button>
-            <button type="button" className="dm-pill dm-ghost dm-sm dm-itd-rej" onClick={() => decide('rejected')}><Icon name="x" size="xs" />{L.reject}</button>
+            <button type="button" className={cx('dm-pill dm-sm dm-itd-acc', last.current?.note ? 'dm-line dm-mx-press' : 'dm-primary')} onClick={() => decide('accepted')}><Icon name="check" size="xs" />{L.accept}</button>
+            <button type="button" className={cx('dm-pill dm-sm dm-itd-rej', last.current?.note ? 'dm-warn' : 'dm-ghost dm-mx-press')} onClick={() => decide('rejected')}><Icon name="x" size="xs" />{L.reject}</button>
           </div>
         </div>
       </div>
@@ -273,9 +284,5 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
 - [Plan review](https://designme.dev/components/plan-review.md): Check the agent's plan, edit steps, then let it run.
 - [Permission gate](https://designme.dev/components/permission-gate.md): The agent asks before it touches something new.
 - [Decision prompt](https://designme.dev/components/decision-prompt.md): The agent asks a few quick questions before it starts.
-- [Proposal card](https://designme.dev/components/proposal-card.md): A suggested change with confidence, alternatives and undo.
-- [Rewrite toolbar](https://designme.dev/components/rewrite-toolbar.md): Select a sentence and let the agent rewrite it in place.
-- [Draft review](https://designme.dev/components/draft-review.md): An email the agent drafted, to check and edit before it sends.
-- [Eval results](https://designme.dev/components/eval-results.md): An eval run case by case, against the run before.
 
 All components: https://designme.dev/llms.txt

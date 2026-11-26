@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, copied, enter, swap } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, copied, enter, grow, iconSwap, mxIn, mxT, swap } from '../core/core.js';
 DM.def('answer-action-bar', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{copy}', I('copy')).replace('{re}', I('refresh')).replace('{l}', I('chev-l','xs')).replace('{rr}', I('chev-r','xs'))
     .replace('{up}', I('up-thumb')).replace('{dn}', I('down-thumb')).replace('{vol}', I('vol','xs'));
@@ -17,18 +17,40 @@ DM.def('answer-action-bar', (r, c) => {
   // each word's HTML, with the space before it; inside the changed phrase the space is highlighted too, so the phrase reads as one
   const words = v => { let on = false; return v.t.split(' ').map((w, i) => { const a = w.startsWith('[['), b = w.includes(']]'), inner = on && !a; if (a) on = true;
     const s = (i ? `<span${inner ? ' class="nw"' : ''}> </span>` : '') + `<span class="w${on ? ' nw' : ''}">${w.replace(/\[\[|\]\]/g, '')}</span>`; if (b) on = false; return s; }); };
-  const status = (text, tone) => { st.className = 'aab-st muted' + (tone ? ' ' + tone : ''); if (tone === 'ok') { st.innerHTML = `${I('ok','xs')}<span>${text}</span>`; enter(st); } else swap(st, text); };
+  // the tone changes with the words: the words fading out keep their colour, and the new ones arrive in theirs (swap()
+  // writes them 170ms on)
+  // The line opens and closes on its own height at the same moment as the reasons (owner, 26 Nov: no jumping up and down): an
+  // empty line takes its words at once rather than after swap()'s fade, and a line that empties eases shut with its words still
+  // in it, then lets them go
+  const status = (text, tone) => { clearTimeout(st._tone); clearTimeout(st._off); const set = () => { st.classList.toggle('warn', tone === 'warn'); st.classList.toggle('ok', tone === 'ok'); };
+    const had = !!st.textContent.trim() && !st.classList.contains('off');
+    if (st._sw && (!text || !had)){ clearTimeout(st._sw.t); st._sw = null; st.classList.remove('out'); }
+    if (!text){ if (!st.textContent.trim()){ st.classList.remove('off'); return; } st.classList.add('off'); st._off = setTimeout(() => { st.textContent = ''; st.classList.remove('off', 'warn', 'ok'); }, REDUCE ? 0 : mxT(st, '--dm-t', 450)); return; }
+    st.classList.remove('off');
+    if (tone === 'ok') { set(); st.innerHTML = `${I('ok','xs')}<span>${text}</span>`; enter(st); return; }
+    if (!had){ set(); st.textContent = text; mxIn(st); return; }
+    const lag = !REDUCE && st.textContent !== text; swap(st, text); if (lag) st._tone = setTimeout(set, 170); else set(); };
   function nav(){
     n.textContent = (cur + 1) + ' / ' + vers.length; pg.classList.toggle('on', vers.length > 1); pg.inert = vers.length < 2;
     pv.disabled = cur === 0 || busy; nx.disabled = cur === vers.length - 1 || busy; re.disabled = busy;
     up.setAttribute('aria-pressed', vers[cur].rate === 'up'); dn.setAttribute('aria-pressed', vers[cur].rate === 'down');
     swap(meta, vers[cur].meta);
   }
+  // no room kept for a longer answer or an empty status, in every style (owner, 18 Nov). The component grows with what it
+  // shows (grow(), once its entrance has settled), and a version streaming in keeps the height of the one it replaces, then
+  // eases to its own
+  const aab = $('.aab', r);
+  Promise.resolve().then(() => Promise.all(aab.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && aab.isConnected) c.offs.push(grow(aab)); });
+  const keep = () => { if (t.textContent.trim()) t.style.minHeight = t.offsetHeight + 'px'; };
+  const fit = () => { if (!t.style.minHeight) return; const was = t.offsetHeight; t.style.minHeight = ''; const h = t.offsetHeight; if (h >= was || REDUCE) return;
+    t.style.minHeight = was + 'px'; void t.offsetHeight; t.style.transition = 'min-height var(--dm-t) var(--dm-ease)'; t.style.minHeight = h + 'px';
+    c.later(460, () => { t.style.transition = ''; t.style.minHeight = ''; }); };
   // a version streams in word by word; paging between versions shows one at once
   async function stream(v){
-    t.classList.add('out'); await c.wait(260); t.classList.remove('out'); t.innerHTML = '';
+    keep(); t.classList.add('out'); await c.wait(260); t.classList.remove('out'); t.innerHTML = '';
     const ws = words(v);
     for (let i = 0; i < ws.length; i++){ t.insertAdjacentHTML('beforeend', ws[i]); t.lastElementChild.classList.add('in'); await c.wait(38); }
+    fit();
   }
   async function show(i){ stop(); cur = i; nav(); t.classList.add('out'); await c.wait(240); t.classList.remove('out'); t.innerHTML = words(vers[i]).join(''); $$('.w', t).forEach((w, k) => { w.classList.add('in'); w.style.animationDelay = k * 10 + 'ms'; }); }
   pv.onclick = () => c.run(() => show(cur - 1));
@@ -39,25 +61,29 @@ DM.def('answer-action-bar', (r, c) => {
     c.run(async () => {
       if (failOnce){ failOnce = false;
         status('Writing a new version' + (note ? ' with your note' : '')); st.classList.add('shim'); await c.wait(1200); st.classList.remove('shim');
-        for (let k = 2; k > 0; k--){ status(`Couldn't reach Sonnet 5.5. Retrying in ${k}s`, 'warn'); await c.wait(1000); }
+        for (let k = 2; k > 0; k--){ status(`Couldn't reach the model. Retrying in ${k}s`, 'warn'); await c.wait(1000); }
       }
       status('Writing a new version' + (note ? ' with your note' : '')); st.classList.add('shim');
       const v = { ...POOL[Math.min(vers.length, POOL.length - 1)], rate:'' }; vers.push(v); cur = vers.length - 1; nav();
       await stream(v); busy = false; nav(); st.classList.remove('shim');
-      status(cur === 1 ? 'Version 2 fixes the saving: 21%, not 15%' : `Version ${cur + 1} of ${vers.length}`, 'ok');
+      // what the new version fixed, when it answers a reason; the pager already counts the versions
+      if (note) status('Fixes the saving: 21%, not 15%', 'ok'); else status('');
     });
   }
   re.onclick = () => regenerate();
-  cp.onclick = () => { copied(cp, plain(vers[cur])); status('Copied without the highlights', 'ok'); };
+  // the tooltip says it was copied, and how
+  cp.onclick = () => copied(cp, plain(vers[cur]), 'Copied without the highlights');
   // thumbs: up is a quiet thanks; down asks why, and a reason writes a version that answers it
   up.onclick = () => { const v = vers[cur]; v.rate = v.rate === 'up' ? '' : 'up'; why.classList.add('shut'); nav(); status(v.rate ? 'Thanks, noted for this project' : ''); };
-  dn.onclick = () => { const v = vers[cur]; v.rate = v.rate === 'down' ? '' : 'down'; why.classList.toggle('shut', v.rate !== 'down'); why.inert = v.rate !== 'down'; nav(); status(''); chips.forEach(x => x.classList.remove('on')); };
+  // (as the reasons open, the question and its chips rise in one after another, mxIn(): owner's trial, 26 Nov)
+  dn.onclick = () => { const v = vers[cur]; v.rate = v.rate === 'down' ? '' : 'down'; why.classList.toggle('shut', v.rate !== 'down'); why.inert = v.rate !== 'down'; nav(); status(''); chips.forEach(x => x.classList.remove('on')); if (v.rate === 'down') mxIn([$('.aab-wq', r), ...chips], { base:60 }); };
   chips.forEach(ch => ch.onclick = () => { chips.forEach(x => x.classList.toggle('on', x === ch)); c.later(400, () => { why.classList.add('shut'); why.inert = true; failOnce = vers.length === 1; regenerate(ch.textContent); }); });
   why.inert = true;
   // read aloud: about 0.28s a word, each word lit as it's read, with a progress bar and a clock
   let reading = 0, pos = 0;
   const clock = s => Math.floor(s / 60) + ':' + String(Math.floor(s) % 60).padStart(2, '0');
-  const icon = k => { $('.ic', rd).innerHTML = I(k, 'xs'); };
+  // (play, pause and the speaker crossfade: iconSwap())
+  let ico = 'vol'; const icon = k => { if (ico === k) return; ico = k; const ic = $('.ic', rd); iconSwap(ic, () => { ic.innerHTML = I(k, 'xs'); }, { inner:true }); };
   // stop drops the place (a new version, another page); pause keeps it, so the bar, the clock and the lit word stay
   function stop(){ if (reading) clearInterval(reading); reading = 0; pos = 0; rd.classList.remove('on', 'paused'); rd.setAttribute('aria-pressed', 'false'); rd.setAttribute('aria-label', 'Read aloud'); rd.dataset.tip = 'Read aloud'; icon('vol'); bar.style.width = '0%'; $$('.w.rd', t).forEach(w => w.classList.remove('rd')); }
   function pause(){ clearInterval(reading); reading = 0; rd.classList.add('paused'); rd.setAttribute('aria-pressed', 'false'); rd.setAttribute('aria-label', 'Resume reading'); rd.dataset.tip = 'Resume'; icon('play'); }

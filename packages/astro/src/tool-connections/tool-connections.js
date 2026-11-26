@@ -1,19 +1,22 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, BRAND, DM, I, enter, html, stagger, swap } from '../core/core.js';
+import { $, $$, BRAND, DM, I, REDUCE, enter, grow, html, mxWidth, popRoom, stagger, swap } from '../core/core.js';
 DM.def('tool-connections', (r, c) => {
-  r.innerHTML = r.innerHTML.replace('{refresh}', I('refresh','xs')).replace('{plus}', I('plus','xs'));
+  r.innerHTML = r.innerHTML.replace('{refresh}', I('refresh','xs')).replace('{plus}', I('plus','xs')).replace('{link}', I('link','xs'));
+  // [mark, name, detail, tile colour (a vivid avatar colour, for a mark without a logo), permission 0 Off, 1 Ask, 2 Allow]
   let T = [
-    ['@figma','Figma','Read and edit frames','var(--dm-pl)',1],
-    ['@github','GitHub','designme/web, PRs only','var(--dm-fg)',0],
-    ['@slack','Slack','#design, #launch','var(--dm-pm)',1],
-    ['db','Analytics','Read only, last 90 days','var(--dm-pt)',1],
-    ['globe','Web search','Any public site','var(--dm-pb)',2]
+    ['@figma','Figma','Read and edit frames','',1],
+    ['@github','GitHub','designme/web, PRs only','',0],
+    ['@slack','Slack','#design, #launch','',1],
+    ['db','Analytics','Read only, last 90 days','t',1],
+    ['globe','Web search','Any public site','b',2]
   ];
-  const ADD = [['table','Google Sheets','var(--dm-ok)'],['bell','Linear','var(--dm-pp)'],['mail','Gmail','var(--dm-pr)']];
-  const list = $('.hnx-list', r), st = $('.hnx-st', r), pop = $('.hnx-pop', r);
+  const ADD = [['table','Google Sheets','m'],['@linear','Linear',''],['@gmail','Gmail','']];
+  const root = $('.hnx', r) || r, list = $('.hnx-list', r), st = $('.hnx-st', r), pop = $('.hnx-pop', r);
   const PM = ['Off','Ask','Allow'];
+  // a tool's mark: its logo on a white tile, or its icon on a vivid tile of its colour, with white or the colour's own ink
+  const mark = (m, k) => m[0] === '@' ? `<span class="ic brandic" aria-hidden="true">${BRAND[m.slice(1)]}</span>` : `<span class="ic" style="background:var(--dm-av-${k});color:var(--dm-av-${k}-ink)" aria-hidden="true">${I(m,'xs')}</span>`;
   function row(t){
-    const el = html(`<div class="hnx-t${t[4] === 0 ? ' off' : ''}">${t[0][0] === '@' ? `<span class="ic brandic">${BRAND[t[0].slice(1)]}</span>` : `<span class="ic" style="color:${t[3]};background:color-mix(in srgb,${t[3]} 12%,transparent)">${I(t[0],'xs')}</span>`}<span class="t">${t[1]}<span>${t[2]}</span></span><div class="hnx-pm" role="group" aria-label="${t[1]} permission"><span class="kn"></span>${PM.map((p, i) => `<button aria-pressed="${i === t[4]}" data-tip="${['Agent cannot use it','Agent asks first','Agent uses it freely'][i]}">${p}</button>`).join('')}</div></div>`);
+    const el = html(`<div class="hnx-t${t[4] === 0 ? ' off' : ''}" role="listitem">${mark(t[0], t[3])}<span class="t"><span class="nm"><span>${t[1]}</span><i class="hnx-dot" aria-hidden="true"></i></span><span class="d">${t[2]}</span></span><div class="hnx-pm" role="group" aria-label="${t[1]} permission"><span class="kn"></span>${PM.map((p, i) => `<button aria-pressed="${i === t[4]}" data-tip="${['Agent cannot use it','Agent asks first','Agent uses it freely'][i]}">${p}</button>`).join('')}</div></div>`);
     const g = $('.hnx-pm', el), kn = $('.kn', g), bs = $$('button', g);
     // the knob slides when a choice changes; when the row first appears it is simply in place
     const place = now => { const b = bs[t[4]]; if (now) kn.style.transition = 'none'; kn.style.left = b.offsetLeft + 'px'; kn.style.width = b.offsetWidth + 'px'; if (now){ void kn.offsetWidth; kn.style.transition = ''; } };
@@ -23,45 +26,53 @@ DM.def('tool-connections', (r, c) => {
     requestAnimationFrame(() => place(true)); new ResizeObserver(() => place(true)).observe(g);
     el._t = t; return el;
   }
-  // the first count is written straight in, so the header doesn't crossfade from the template's number on load
-  const count = now => { const n = T.filter(t => t[4] > 0).length + ' connected'; if (now) st.textContent = n; else swap(st, n); };
+  // a test's line, in the foot beside Connect a tool, never a count that repeats the list (the owner's notes on batch 2):
+  // while it runs, what it tests, in words that shimmer; once it has run, how many are healthy, with the green tick when
+  // every one is. A change to a switch makes that result old, so the line goes again
+  const write = (h, now) => { if (now) st.innerHTML = h; else swap(st, h, true); };
+  const count = now => write('', now);
+  const healthy = (ok, n) => write((ok === n ? I('ok','xs') : '') + `<span>${ok} of ${n} healthy</span>`);
   T.forEach(t => list.appendChild(row(t))); stagger([...list.children], 50); count(true);
-  function menu(){ pop.innerHTML = ADD.length ? ADD.map((a, i) => `<button class="mi" role="menuitem" data-close data-i="${i}">${I(a[0],'xs')}<span>${a[1]}</span></button>`).join('') : '<div class="ph" style="padding:8px;font-size:12.5px;color:var(--dm-muted)">All tools connected</div>';
+  function menu(){ pop.innerHTML = ADD.length ? ADD.map((a, i) => `<button class="mi mx-press" role="menuitem" data-close data-i="${i}">${a[0][0] === '@' ? BRAND[a[0].slice(1)] : I(a[0],'xs')}<span>${a[1]}</span></button>`).join('') : '<div class="ph">All tools connected</div>';
     $$('.mi', pop).forEach(m => m.addEventListener('click', () => { const a = ADD.splice(+m.dataset.i, 1)[0]; const t = [a[0], a[1], 'Just connected', a[2], 1]; T.push(t); const el = row(t); list.appendChild(el); enter(el); count(); menu(); })); }
   menu();
-  // Test all: every connected tool shows a small spinner at once, and they settle one by one; only a failure changes its line
-  const test = $('.hnx-test', r), testWas = test.innerHTML;
+  // a menu opens over the card from its button: down when it fits below, up when it doesn't and fits above or has more room
+  // there (as placePop), within the stage's room, so it never spills over the card's caption under the stage (as Artifact
+  // card's version menu). The side is set on the button just before the menu is placed
+  const side = (btn, pop) => { const room = popRoom(btn), st = btn.closest('.stage-inner') || btn.closest('.stage');
+    if (st){ const sr = st.getBoundingClientRect(), cs = getComputedStyle(st); room.top = Math.max(room.top, sr.top + parseFloat(cs.paddingTop)); room.bottom = Math.min(room.bottom, sr.bottom - parseFloat(cs.paddingBottom)); }
+    const br = btn.getBoundingClientRect(), need = pop.offsetHeight + 12, below = room.bottom - br.bottom, above = br.top - room.top;
+    btn.dataset.popPos = below < need && (above >= need || above > below) ? 'up' : 'down'; };
+  const add = $('.hnx-add', r); c.on(add, 'click', () => { if (!pop.classList.contains('open')) side(add, pop); });
+  // Test all: every connected tool's dot turns at once, and they settle one by one; only a failure changes its line. The
+  // button is as wide as its words and eases to the new ones
+  const test = $('.hnx-test', r);
+  // (on the motion pieces' spring: mxWidth())
+  const label = h => { const w0 = test.offsetWidth; test.innerHTML = h; if (!REDUCE && w0) mxWidth(test, w0); };
+  const idle = I('refresh','xs') + '<span>Test all</span>';
   test.onclick = () => c.run(async () => {
     const rows = [...list.children].filter(el => el._t[4] > 0);
-    test.disabled = true; test.innerHTML = '<span class="spin"></span>Testing'; swap(st, 'Testing ' + rows.length + ' connections');
+    test.disabled = true; label('<span class="spin"></span><span>Testing</span>'); write(`<span class="shim">Testing ${rows.length} connections</span>`);
     rows.forEach(el => el.classList.add('chk'));
     for (const el of rows){ await c.wait(600); el.classList.remove('chk');
-      if (el._t[1] === 'Slack' && !el._t.ok){ el.classList.add('err'); swap($('.t span', el), 'Token expired. Reconnect to use it'); }
+      // the row turns red with its new words, not before them
+      if (el._t[1] === 'Slack' && !el._t.ok){ el._bad = true; swap($('.d', el), 'Token expired. Reconnect to use it'); c.later(REDUCE ? 0 : 170, () => el.classList.add('err')); }
     }
-    test.disabled = false; test.innerHTML = testWas;
-    swap(st, rows.filter(el => !el.classList.contains('err')).length + ' of ' + rows.length + ' healthy');
-    const bad = [...list.children].find(el => el.classList.contains('err'));
+    test.disabled = false; label(idle);
+    healthy(rows.filter(el => !el._bad).length, rows.length);
+    const bad = [...list.children].find(el => el._bad);
     // a second test finds the row already offering Reconnect, so it keeps that button
     const pm = bad && $('.hnx-pm', bad);
     if (pm){ const b = html(`<button class="pill accent sm">Reconnect</button>`); pm.replaceWith(b); enter(b);
-      b.onclick = () => c.run(async () => { b.innerHTML = '<span class="spin"></span>'; await c.wait(900); bad.classList.remove('err'); bad._t.ok = true; const n = row(bad._t); bad.replaceWith(n); swap(st, [...list.children].filter(el => el._t[4] > 0).length + ' of ' + [...list.children].filter(el => el._t[4] > 0).length + ' healthy'); }); }
+      // while it reconnects it keeps its colour and its width, with a spinner in place of its word, and takes no second press
+      b.onclick = () => c.run(async () => { if (b.getAttribute('aria-disabled')) return; b.setAttribute('aria-disabled', 'true'); b.setAttribute('aria-label', 'Reconnecting');
+        const w0 = b.getBoundingClientRect().width; b.innerHTML = '<span class="spin"></span>'; b.style.width = w0 + 'px';
+        await c.wait(900); bad.classList.remove('err'); bad._t.ok = true; const n = row(bad._t); bad.replaceWith(n); enter(n);
+        const on = [...list.children].filter(el => el._t[4] > 0).length; healthy(on, on); }); }
   });
-  // the room the list needs at its tallest (Slack's expired token, which wraps on a narrow panel, with Reconnect in place of
-  // its switch) is kept from the start, so the panel never grows or shrinks in its stage (16 Nov; as Agent tree)
-  const hp = r.classList.contains('hnx') ? r : $('.hnx', r);
-  if (hp){
-    const tallest = () => {
-      const p = hp.cloneNode(true);
-      p.style.cssText = `position:absolute;left:0;top:0;width:${hp.offsetWidth}px;min-height:0;visibility:hidden;pointer-events:none`;
-      p.setAttribute('aria-hidden', 'true'); p.inert = true;
-      const sl = [...p.querySelectorAll('.hnx-t')].find(x => /^Slack/.test(($('.t', x) || x).textContent));
-      if (sl){ sl.classList.add('err'); const d = $('.t span', sl); if (d) d.textContent = 'Token expired. Reconnect to use it'; }
-      hp.parentElement.appendChild(p); const h = p.offsetHeight; p.remove(); return h;
-    };
-    let hw = -1;
-    const keep = () => { const w = hp.offsetWidth; if (!w || w === hw) return; hw = w; hp.style.minHeight = tallest() + 'px'; };
-    keep(); const ro = new ResizeObserver(keep); ro.observe(hp); c.offs.push(() => ro.disconnect());
-  }
+  // the card grows with its rows, and eases when a line wraps or Reconnect takes a switch's place (owner, 17 Nov: no room
+  // kept for a later state)
+  c.offs.push(grow(root));
   // the preview's story: test everything, Slack's token has expired, reconnect it, and every connection is healthy
   c.story(async s => {
     await s.beat(3);

@@ -3,8 +3,10 @@ import { useId, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { Avatar, avatarInk, enter, Think, Tip } from '../../lib/motion';
+import { Avatar, avatarInk, enter, Think, Tip, useGrow } from '../../lib/motion';
 import '../../designme.css';
+// its menus' rows glide in Clean
+import '../../lib/glide';
 import './comments.css';
 
 export interface CommentsPerson {
@@ -60,7 +62,8 @@ export interface CommentsProps {
   /** Called with the reply when it is sent. Add it to `comments` to show it */
   onSend?: (text: string) => void;
   placeholder?: string;
-  /** Whether the thread is resolved, which fades it. Leave it out to let the Resolve button toggle it */
+  /** Whether the thread is resolved: the pin turns green, a Resolved chip shows and the reply field folds away, while the
+      thread keeps its colours. Leave it out to let the Resolve button toggle it */
   resolved?: boolean;
   defaultResolved?: boolean;
   onResolvedChange?: (resolved: boolean) => void;
@@ -145,25 +148,30 @@ export function Comments({ title, pin = 1, comments, people, value, defaultValue
 
   const [head, ...replies] = comments;
   const one = (c: CommentsEntry) => <Comment key={c.id} c={c} handles={handles} mine={yes.includes(c.id)} onAgree={() => agree(c.id)} />;
-  const status = done ? 'Resolved' : replies.length ? replies.length + (replies.length === 1 ? ' reply' : ' replies') : '';
+  // the thread keeps no room for replies to come: it eases taller as they arrive and as the agent's words stream in, and the
+  // reply field under it glides down with it
+  const [thRoot, thInner] = useGrow();
 
   return (
     <div data-dm="" className={cx('dm-cmx dm-panel', done && 'dm-done', className)}>
       <div className="dm-cmx-h">
         <span className="dm-cmx-pin" aria-hidden="true">{pin}</span>
         <b>{title}</b>
-        <span className="dm-cmx-st dm-num">{status}</span>
+        {/* the head says nothing the thread already shows (no count of the replies); once resolved, a green chip says so */}
+        <span className="dm-cmx-st">{done && <span className="dm-tag dm-ok dm-enter">Resolved</span>}</span>
         <Tip label={done ? 'Reopen thread' : 'Resolve thread'}>
           <button type="button" className="dm-ib dm-cmx-res" aria-label="Resolve thread" aria-pressed={done} onClick={() => setDone(!done)}>
             <Icon name={done ? 'undo' : 'check'} size="xs" />
           </button>
         </Tip>
       </div>
-      <div className="dm-cmx-th" aria-live="polite">
-        {head && one(head)}
-        {replies.length > 0 && <div className="dm-cmx-rp" role="group" aria-label="Replies">{replies.map(one)}</div>}
+      <div ref={thRoot} className="dm-cmx-th dm-growing" aria-live="polite">
+        <div ref={thInner} className="dm-grow">
+          {head && one(head)}
+          {replies.length > 0 && <div className="dm-cmx-rp" role="group" aria-label="Replies">{replies.map(one)}</div>}
+        </div>
       </div>
-      <div className="dm-cmx-in">
+      <div className="dm-cmx-in" inert={done}>
         <div className="dm-cmx-box">
           <input placeholder={placeholder} aria-label="Reply" spellCheck={false} autoComplete="off" value={draft} onChange={e => setDraft(e.target.value)} onKeyDown={key}
             role="combobox" aria-expanded={menuOpen} aria-autocomplete="list" aria-controls={`${id}-men`} aria-activedescendant={menuOpen ? `${id}-${at}` : undefined} />

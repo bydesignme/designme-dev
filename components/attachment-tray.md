@@ -2,7 +2,7 @@
 
 > Drop files for the agent and watch each one upload.
 
-Agent components / Conversation. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/attachment-tray
+Components / Conversation. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/attachment-tray
 
 ## Install
 
@@ -228,7 +228,7 @@ function Item({ file, delay, onRemove, clean }: { file: Attachment; delay: numbe
           </svg>}
       {onRemove && (
         <Tip label="Remove">
-          <button type="button" className="dm-ib" aria-label={`Remove ${file.name}`} disabled={leaving}
+          <button type="button" className="dm-ib dm-mx-press" aria-label={`Remove ${file.name}`} disabled={leaving}
             onClick={() => { setLeaving(true); t.current = setTimeout(() => onRemove(file.id), 320); }}><Icon name="x" size="xs" /></button>
         </Tip>
       )}
@@ -332,7 +332,7 @@ export function AttachmentTray({ files, onFiles, onRemove, title = 'Drop files h
   </>);
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-atx', clean && 'dm-growing', clean && (over || dragging) && 'dm-over', className)}
+    <div data-dm="" ref={root} className={cx('dm-atx dm-mx-grow', clean && 'dm-growing', clean && (over || dragging) && 'dm-over', className)}
       {...(clean ? { onDragEnter: hold, onDragOver: hold, onDragLeave: leave, onDrop: dropped } : {})}>
       {clean ? <div className="dm-grow" ref={inner}>{body}</div> : body}
     </div>
@@ -344,8 +344,6 @@ export function AttachmentTray({ files, onFiles, onRemove, title = 'Drop files h
 
 - [Live answer](https://designme.dev/components/live-answer.md): Answers that stream in with numbered sources and next steps.
 - [Composer](https://designme.dev/components/composer.md): Message input with attachments, what to work on, a mode and dictation.
-- [Artifact card](https://designme.dev/components/artifact-card.md): A file the agent made, with its versions, Open, Copy and Download.
-- [Rich text editor](https://designme.dev/components/rich-text-editor.md): A minimal editor with an inline AI menu that streams a suggestion to accept or discard.
 - [Answer action bar](https://designme.dev/components/answer-action-bar.md): Copy, regenerate, rate and listen to an answer from one row under it.
 - [Response versions](https://designme.dev/components/response-versions.md): Regenerate an answer and flip between versions.
 - [Model picker](https://designme.dev/components/model-picker.md): Pick a model by speed, quality and cost, and how hard it thinks.

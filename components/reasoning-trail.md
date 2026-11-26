@@ -2,7 +2,7 @@
 
 > The agent's plan, notes, sources and edits, after it thinks.
 
-Agent components / Agent status. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/reasoning-trail
+Components / Agent status. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/reasoning-trail
 
 ## Install
 
@@ -189,7 +189,7 @@ import { useRef, useState, type KeyboardEvent } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion, useSeconds } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { Dot, enter, Fold, Pulse, reflowGlide, SourceChip, Swap, Think, type Source } from '../lib/motion';
+import { Dot, enter, Fold, growFit, Pulse, reflowGlide, SourceChip, Swap, Think, type Source } from '../lib/motion';
 import '../designme.css';
 import './reasoning-trail.css';
 
@@ -279,15 +279,8 @@ export function ReasoningTrail({ running = false, seconds, title, plan, notes, s
     const el = rootRef.current, w = growRef.current;
     if (!el || !w || (el.closest('[data-style]') as HTMLElement | null)?.dataset.style !== 'clean') return;
     setClean(true);
-    if (typeof ResizeObserver === 'undefined') return;
-    let first = true;
-    const fit = () => {
-      const cs = getComputedStyle(el), h = Math.ceil(w.offsetHeight + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth));
-      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
-      else el.style.height = h + 'px';
-    };
-    el.classList.add('dm-growing'); const ro = new ResizeObserver(fit); ro.observe(w); fit();
-    return () => { ro.disconnect(); el.classList.remove('dm-growing'); el.style.height = ''; };
+    el.classList.add('dm-growing'); const stop = growFit(el, w);
+    return () => { stop(); el.classList.remove('dm-growing'); };
   }, []);
 
   // in Clean, a step that has just finished draws its tick and the rail down into the next, which starts to turn: each
@@ -369,9 +362,9 @@ export function ReasoningTrail({ running = false, seconds, title, plan, notes, s
   };
 
   return (
-    <div data-dm="" ref={rootRef} className={cx('dm-rtr', !bare && 'dm-panel', className)} style={bare ? { paddingInline: 0 } : undefined}>
+    <div data-dm="" ref={rootRef} className={cx('dm-rtr dm-mx-grow', !bare && 'dm-panel', className)} style={bare ? { paddingInline: 0 } : undefined}>
       <div ref={growRef} className="dm-grow">
-      <button type="button" className="dm-rtr-h" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)} onKeyDown={onHeadKey}>
+      <button type="button" className="dm-rtr-h dm-mx-press" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)} onKeyDown={onHeadKey}>
         <Think on={running} className="dm-rtr-mark" />
         <Swap className={cx('dm-rtr-title', running && 'dm-shim')}>{head}</Swap>
         <span className="dm-rtr-time dm-num dm-muted">{running ? secs + 's' : ''}</span>
@@ -402,7 +395,7 @@ export function ReasoningTrail({ running = false, seconds, title, plan, notes, s
 - [Context meter](https://designme.dev/components/context-meter.md): How full the context is and what fills it, with Compact to free room.
 - [Run cost](https://designme.dev/components/run-cost.md): Live credit and token spend, with a cap that pauses the run.
 - [Toast stack](https://designme.dev/components/toast-stack.md): Agent notifications that stack and fan out on hover.
-- [Toast](https://designme.dev/components/toast.md): One notification that changes shape with its state.
+- [Toast](https://designme.dev/components/toast.md): A background job in one toast, from start to finish.
 - [Status pill](https://designme.dev/components/status-pill.md): One live line for what the agent is doing right now.
 - [Step loader](https://designme.dev/components/step-loader.md): Named steps with a progress track and four loaders.
 - [Thinking states](https://designme.dev/components/thinking-states.md): Six thinking indicators to pick from, each with a status line.

@@ -8,24 +8,25 @@
   ],
   "features": [
     "Each run in `runs` shows its `name`, its `schedule` in words with its `next` run, and its last `result`: \"Passed 5 days ago\", \"Failed: Figma token expired\", \"Running now\" or \"No runs yet\".",
-    "The dot on its icon follows the result: green when it passed, red when it failed, a turning ring while it runs, grey when it is paused or has never run. Its tile shows a service logo (`brand`) or an `icon` on a tint of its `color`.",
+    "The result leads with its mark: a green tick when it passed, a red sign when it failed, and a turning ring while it runs, when its words shimmer. Its tile shows a service logo (`brand`) on white, or an `icon` on a vivid tile of its `color`; in Clean the tiles are one neutral grey.",
     "`onRunNow` adds a Run now button to each row; it is unavailable while the run is running or paused.",
     "The switch pauses and resumes a run (`enabled`), and the change comes back through `onRunsChange`. A paused row dims and reads \"Paused\" in place of its next run.",
-    "A failed run with a `fix` shows a button with that label that calls `onFix`; set `fixing` to spin it.",
-    "`onCreate` adds New schedule: a form with the task, Every day, Every Monday or Custom days, and a line saying when the first run would be. Create hands over the task, the days, the schedule in words and when it runs next.",
-    "The line under the title reads like \"3 active · 1 failed\", adding \"1 paused\" when one is paused, or shows your own `status`."
+    "A failed run with a `fix` shows a button with that label that calls `onFix`; set `fixing` to spin it. The button is as wide as its words and eases to \"Reconnecting\" and back.",
+    "`onCreate` adds New schedule: a form with the task, Every day, Every Monday or Custom days, and a line saying when the first run would be. Create hands over the task, the days, the schedule in words and when it runs next. The form opens under the button, or above it when there is no room below.",
+    "`status` adds a line under the title, like \"Next run in 17h\". Without it the head is the title alone, since the rows already say which runs are on, paused or failed.",
+    "The card grows and shrinks with its rows, eased, and keeps no room for a state still to come."
   ],
   "a11y": [
     "The runs form a list. Each Run now button is named for its run, like \"Run Weekly design QA now\".",
     "Each switch has role=\"switch\" and aria-checked, is named for its run, and has a Pause or Resume tooltip.",
-    "New schedule opens a dialog; its Repeat options are a labelled group of pressed buttons, and the Custom days are buttons named in full, like \"Wednesday\".",
-    "The line under the title is announced politely when it changes.",
+    "New schedule opens a dialog that grows out of the button and goes back into it as it closes; its Repeat options are a labelled group of pressed buttons, and the Custom days are buttons named in full, like \"Wednesday\".",
     "With reduced motion, rows appear without their entrance and text changes without the crossfade."
   ],
   "faq": [
     {"q": "Does Run now start the run?", "a": "No. It calls `onRunNow` with the run's key. Start it in your own code, set its `result` to 'running', and to 'passed' or 'failed' when it ends."},
     {"q": "How do I show a fix like reconnecting a service?", "a": "Give the failed run a `fix` label, like \"Reconnect Figma\". When `onFix` is called, set `fixing` while you reconnect, then run it again and update its `result`."},
     {"q": "What time do new schedules run at?", "a": "At `time`, 9:00 unless you change it, with `hour` set to match so the form can say when the first run is. The days come back as numbers, 0 for Monday to 6 for Sunday."},
-    {"q": "Can I write schedules my own way?", "a": "Yes. `schedule` and `next` are plain text, so \"Weekdays at 8:30\" or \"Next tomorrow\" work as well."}
+    {"q": "Can I write schedules my own way?", "a": "Yes. `schedule` and `next` are plain text, so \"Weekdays at 8:30\" or \"Next tomorrow\" work as well."},
+    {"q": "What colours can a run's tile take?", "a": "Any colour in `color`. One of the avatar colours, like 'var(--dm-av-l)', gives the icon that colour's own ink; any other colour gives it white. A `brand` logo sits on a white tile instead."}
   ]
 }

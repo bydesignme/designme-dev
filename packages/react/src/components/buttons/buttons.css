@@ -1,46 +1,71 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Buttons ---------- */
+/* the button sheet: each style once, buttons with an icon, the states a button goes through and the three sizes, each row
+   named on the left. A button is as wide as its words: when they change (Publishing, Copied, Running 0:03) it eases to the
+   new width instead of keeping room for the longest (owner, 18 Nov), so its words never sit in empty space */
 .dm-btx{display:flex;flex-direction:column;gap:14px;width:100%}
 .dm-btx-row{display:flex;align-items:center;gap:var(--dm-s-2);flex-wrap:wrap}
 .dm-btx-l{width:74px;font-size:12px;flex:none}
 @media (max-width:520px){.dm-btx-l{width:100%}}
+/* words on their way out while a button eases narrower stay inside it */
+.dm-btx-row .dm-pill{overflow:hidden}
 .dm-btx-lg{height:40px;padding:0 18px;font-size:14px}
-.dm-btx-load,.dm-btx-copy{min-width:100px;transition:min-width .4s var(--dm-ease),background .3s}
-.dm-btx-load .dm-spin{width:13px;height:13px;border-color:color-mix(in srgb,var(--dm-on-ink) 30%,transparent);border-top-color:var(--dm-on-ink)}
-.dm-pill.dm-btx-load.dm-ok{background:color-mix(in srgb,var(--dm-ok) 16%,var(--dm-surface));color:var(--dm-ok);opacity:1}
-@media (hover:hover) and (pointer:fine){.dm-pill.dm-btx-load.dm-ok:hover{background:color-mix(in srgb,var(--dm-ok) 16%,var(--dm-surface));color:var(--dm-ok);opacity:1}}
-.dm-btx-load.dm-busy{cursor:progress}
-.dm-btx-ask{min-width:110px;position:relative;overflow:hidden;isolation:isolate;transition:min-width .4s var(--dm-ease),background .3s}
+/* an icon button beside the pills is as tall as they are, so buttons side by side are one height */
+.dm-ib.dm-btx-ib{width:32px;height:32px}
+.dm-btx-row .dm-pill.dm-btx-ok{cursor:default}
+@media (hover:hover) and (pointer:fine){.dm-btx-row .dm-pill.dm-btx-ok:hover{cursor:default}}
+.dm-btx-row .dm-pill .dm-spin{width:13px;height:13px}
+.dm-btx-row .dm-pill.dm-busy{cursor:progress}
+/* Ask agent: a light sweeps across it under the pointer (not in Clean, whose hovers are a quiet fill); while the agent works it
+   is the accent's tint with the shimmering words, as a highlight */
+.dm-btx-ask{position:relative;isolation:isolate}
 .dm-btx-ask::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.42) 50%,transparent 70%);transform:translateX(-120%);pointer-events:none}
 .dm-btx-ask:focus-visible::after{transform:translateX(120%);transition:transform .85s var(--dm-ease)}
 @media (hover:hover) and (pointer:fine){.dm-btx-ask:hover::after{transform:translateX(120%);transition:transform .85s var(--dm-ease)}}
-.dm-btx-ask:is(.dm-busy,.dm-done)::after{display:none}
-.dm-btx-trial,.dm-btx-run{min-width:96px;transition:min-width .4s var(--dm-ease),background .3s,opacity .2s}
-.dm-btx-trial .dm-spin{border-color:color-mix(in srgb,var(--dm-on-accent) 35%,transparent);border-top-color:var(--dm-on-accent)}
-.dm-btx-run .dm-spin{width:13px;height:13px;border-color:color-mix(in srgb,var(--dm-on-ink) 30%,transparent);border-top-color:var(--dm-on-ink)}
-.dm-btx-run.dm-busy{cursor:pointer}
+.dm-btx-ask:is(.dm-busy,.dm-btx-ok)::after{display:none}
+.dm-pill.dm-btx-ask.dm-busy{background:var(--dm-accent-bg);color:var(--dm-accent-fg)}
+@media (hover:hover) and (pointer:fine){.dm-pill.dm-btx-ask.dm-busy:hover{background:var(--dm-accent-bg);color:var(--dm-accent-fg)}}
 .dm-btx-run .dm-sq{width:9px;height:9px;border-radius:var(--dm-r-tiny,2px);background:currentColor;flex:none}
-.dm-btx-pv{min-width:84px}
-.dm-pill.dm-btx-pv[aria-pressed="true"]{background:var(--dm-soft-h)}
-.dm-btx-live{position:relative;width:7px;height:7px;border-radius:50%;background:var(--dm-ok);flex:none}
+/* a button that has done its job (Published, Trial started, Run complete, Draft ready, Deleted) settles on the outlined face
+   (it takes .line) with the vivid green tick in place of its icon, at the same size: no green fill (owner, 18 Nov). A copy or a
+   menu pick says so the same way: the words stay in the text colour and only the tick is green */
+.dm-pill.dm-btx-ok .dm-i,.dm-pill.dm-btx-copy.dm-copied .dm-i{color:var(--dm-ok-mark)}
+.dm-pill.dm-btx-copy.dm-copied{color:var(--dm-fg)!important}
+@media (hover:hover) and (pointer:fine){.dm-pill.dm-btx-copy.dm-copied:hover{color:var(--dm-fg)!important}}
+.dm-ib.dm-btx-ib.dm-copied,.dm-ib.dm-btx-ib.dm-done{color:var(--dm-ok-mark)!important}
+@media (hover:hover) and (pointer:fine){.dm-ib.dm-btx-ib.dm-copied:hover{color:var(--dm-ok-mark)!important}}
+/* Preview is a toggle: on, it is the picked look (owner, 29 Oct), white with a slightly stronger grey edge, and a live dot */
+.dm-pill.dm-btx-pv[aria-pressed="true"]{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 55%,transparent)}
+@media (hover:hover) and (pointer:fine){.dm-pill.dm-btx-pv[aria-pressed="true"]:hover{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 55%,transparent)}}
+.dm-btx-live{position:relative;width:7px;height:7px;border-radius:50%;background:var(--dm-ok-mark);flex:none}
 .dm-btx-live::after{content:"";position:absolute;inset:0;border-radius:50%;background:inherit;animation:dm-ping 1.8s var(--dm-ease) infinite}
-.dm-btx-share{min-width:72px}
 /* a pill that swap() crossfades keeps its flex layout, so the icon put back in it later keeps its gap */
 .dm-btx-row .dm-pill.dm-sw{display:inline-flex}
 .dm-btx-sp{min-width:210px}
-.dm-btx-fig{min-width:128px;transition:min-width .4s var(--dm-ease),background .3s}
-.dm-btx-fig .dm-spin{width:13px;height:13px}
 .dm-btx-mp{min-width:200px}
 .dm-btx-mp .dm-mi.dm-del,.dm-btx-mp .dm-mi.dm-del .dm-i{color:var(--dm-bad)}
 @media (hover:hover) and (pointer:fine){.dm-btx-mp .dm-mi.dm-del:hover{background:var(--dm-bad-bg)}}
-.dm-ib.dm-btx-more.dm-done{color:var(--dm-ok)}
-.dm-pill.dm-btx-ask.dm-busy{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent));cursor:progress}
-@media (hover:hover) and (pointer:fine){.dm-pill.dm-btx-ask.dm-busy:hover{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent));cursor:progress}}
-.dm-pill.dm-btx-ask.dm-done{background:color-mix(in srgb,var(--dm-ok) 16%,var(--dm-surface));color:var(--dm-ok)}
-@media (hover:hover) and (pointer:fine){.dm-pill.dm-btx-ask.dm-done:hover{background:color-mix(in srgb,var(--dm-ok) 16%,var(--dm-surface));color:var(--dm-ok)}}
+/* Hold to delete: the danger tint, filling from the left with the danger colour as it is held. The fill carries a white copy of
+   the words, uncovered with it, so every letter reads on what is under it: red on the tint, white on the fill. Done, the fill
+   fades and it is the outlined face with the green tick like the others */
 .dm-btx-hold{position:relative;overflow:hidden;background:var(--dm-bad-bg);color:var(--dm-bad);user-select:none;-webkit-user-select:none;touch-action:none}
-.dm-btx-hold .dm-fill{position:absolute;inset:0;background:var(--dm-bad);transform-origin:left;transform:scaleX(0);transition:transform .25s var(--dm-ease)}
-.dm-btx-hold.dm-h .dm-fill{transform:scaleX(1);transition:transform 1.2s linear}
-.dm-btx-hold .dm-lb{position:relative;display:inline-flex;align-items:center;gap:7px;transition:color .3s}
-.dm-btx-hold.dm-h .dm-lb,.dm-btx-hold.dm-done .dm-lb{color:#fff}
-.dm-btx-hold.dm-done .dm-fill{transform:scaleX(1)}
+.dm-btx-hold .dm-fill{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:var(--dm-bad);color:#fff;clip-path:inset(0 100% 0 0);transition:clip-path .25s var(--dm-ease),opacity var(--dm-t) var(--dm-ease);pointer-events:none}
+.dm-btx-hold.dm-h .dm-fill{clip-path:inset(0);transition:clip-path 1.2s linear}
+.dm-btx-hold .dm-lb{position:relative;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.dm-btx-hold.dm-btx-ok .dm-fill{clip-path:inset(0);opacity:0}
+/* in dark mode the danger text colour is a light pink, too light under white words, so the fill is the danger mark taken
+   darker: white keeps 4.5:1 on it */
+:root[data-theme="dark"] .dm-btx-hold .dm-fill{background:color-mix(in srgb,var(--dm-bad-mark) 70%,#000)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dm-btx-hold .dm-fill{background:color-mix(in srgb,var(--dm-bad-mark) 70%,#000)}}
+/* Clean: secondary buttons are flat (owner, 18 Nov), so the icon buttons are too, with the hairline and white fill of the
+   outlined pills beside them; Preview's on state is that face with a slightly stronger edge; while the agent works Ask agent is
+   the flat face with its shimmering words, as the chrome stays monochrome; a done face (now .line) is flat and never presses */
+:root[data-style="clean"] .dm-ib.dm-btx-ib.dm-fill,:root [data-style="clean"] .dm-ib.dm-btx-ib.dm-fill,:root [data-style="clean"].dm-ib.dm-btx-ib.dm-fill{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth);transition:box-shadow var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-ib.dm-btx-ib.dm-fill:hover,:root [data-style="clean"] .dm-ib.dm-btx-ib.dm-fill:hover,:root [data-style="clean"].dm-ib.dm-btx-ib.dm-fill:hover{box-shadow:var(--dm-btn2-hover)}}
+:root[data-style="clean"] .dm-ib.dm-btx-ib.dm-fill:active,:root [data-style="clean"] .dm-ib.dm-btx-ib.dm-fill:active,:root [data-style="clean"].dm-ib.dm-btx-ib.dm-fill:active{box-shadow:var(--dm-btn2-press)}
+:root[data-style="clean"] .dm-pill.dm-soft.dm-btx-pv[aria-pressed="true"]:not([disabled]),:root [data-style="clean"] .dm-pill.dm-soft.dm-btx-pv[aria-pressed="true"]:not([disabled]),:root [data-style="clean"].dm-pill.dm-soft.dm-btx-pv[aria-pressed="true"]:not([disabled]){background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 55%,transparent)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-pill.dm-soft.dm-btx-pv[aria-pressed="true"]:not([disabled]):hover,:root [data-style="clean"] .dm-pill.dm-soft.dm-btx-pv[aria-pressed="true"]:not([disabled]):hover,:root [data-style="clean"].dm-pill.dm-soft.dm-btx-pv[aria-pressed="true"]:not([disabled]):hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 55%,transparent)}}
+:root[data-style="clean"] .dm-pill.dm-btx-ask.dm-busy:is(.dm-primary,.dm-accent):not([disabled]),:root [data-style="clean"] .dm-pill.dm-btx-ask.dm-busy:is(.dm-primary,.dm-accent):not([disabled]),:root [data-style="clean"].dm-pill.dm-btx-ask.dm-busy:is(.dm-primary,.dm-accent):not([disabled]){color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth);transform:none}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-pill.dm-btx-ask.dm-busy:is(.dm-primary,.dm-accent):not([disabled]):hover,:root [data-style="clean"] .dm-pill.dm-btx-ask.dm-busy:is(.dm-primary,.dm-accent):not([disabled]):hover,:root [data-style="clean"].dm-pill.dm-btx-ask.dm-busy:is(.dm-primary,.dm-accent):not([disabled]):hover{color:var(--dm-fg);background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-depth);transform:none}}
+:root[data-style="clean"] .dm-btx-ask::after,:root [data-style="clean"] .dm-btx-ask::after,:root [data-style="clean"].dm-btx-ask::after{display:none}
+:root[data-style="clean"] .dm-pill.dm-btx-ok:active,:root [data-style="clean"] .dm-pill.dm-btx-ok:active,:root [data-style="clean"].dm-pill.dm-btx-ok:active{transform:none}

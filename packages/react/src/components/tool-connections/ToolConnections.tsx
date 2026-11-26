@@ -1,12 +1,14 @@
 'use client';
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type RefObject } from 'react';
 import { Brand, type BrandName } from '../../lib/brands';
 import { cx } from '../../lib/cx';
-import { useControllable, useIsoLayoutEffect } from '../../lib/hooks';
+import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
-import { enter, Spin, Swap, Tip } from '../../lib/motion';
+import { avatarInk, enter, mxT, Spin, Swap, Tip, useGrow } from '../../lib/motion';
 import { usePopover } from '../../lib/popover';
 import '../../designme.css';
+// its menus' rows glide in Clean
+import '../../lib/glide';
 import './tool-connections.css';
 
 /** off: the agent cannot use it, ask: it asks first, allow: it uses it freely */
@@ -22,16 +24,16 @@ export interface ToolConnectionsTool {
   name: string;
   /** The quiet line under it, like "Read and edit frames" */
   detail?: string;
-  /** A service's own logo. Wins over `icon` */
+  /** A service's own logo, on a white tile. Wins over `icon` */
   brand?: BrandName;
-  /** An icon on a tinted tile, for tools without a logo */
+  /** An icon on a vivid tile of `color`, for tools without a logo */
   icon?: IconName;
-  /** The icon's colour, which also tints its tile, like 'var(--dm-pt)' */
+  /** The tile's colour, like 'var(--dm-av-t)'. The icon on it is white, or the colour's own ink for an avatar colour */
   color?: string;
   /** Defaults to ask */
   permission?: ToolConnectionsPermission;
   status?: ToolConnectionsStatus;
-  /** Shown instead of the detail while it is set, like "Testing" or "Token expired. Reconnect" */
+  /** Shown instead of the detail while it is set, like "Token expired. Reconnect to use it" */
   note?: string;
 }
 
@@ -46,13 +48,16 @@ export interface ToolConnectionsProps {
   onConnect?: (tool: ToolConnectionsTool) => void;
   /** Adds a Test all button. Report progress through each tool's status and note */
   onTest?: () => void;
-  /** A test is running: Test all shows a spinner and waits */
+  /** A test is running: Test all shows a spinner and waits, and the test's line shimmers */
   testing?: boolean;
   /** Called by the Reconnect button of a tool whose status is error */
   onReconnect?: (key: string) => void;
   title?: string;
-  /** The line under the title. Defaults to how many tools are connected */
+  /** A test's line, in the foot beside Connect a tool, like "4 of 4 healthy". It shimmers while `testing` is set. Left out,
+      there is none: the rows already say what is connected */
   status?: string;
+  /** Leads the test's line with the green tick, as after a test that found every tool healthy */
+  healthy?: boolean;
   className?: string;
 }
 
@@ -61,6 +66,16 @@ const PERMS: { value: ToolConnectionsPermission; label: string; tip: string }[] 
   { value: 'ask', label: 'Ask', tip: 'Agent asks first' },
   { value: 'allow', label: 'Allow', tip: 'Agent uses it freely' }
 ];
+
+/** A button that is as wide as its words and eases to its new width when they change, as on designme.dev */
+function useEaseWidth(ref: RefObject<HTMLElement | null>, words: unknown) {
+  const reduce = useReducedMotion(), was = useRef(0);
+  useIsoLayoutEffect(() => {
+    const b = ref.current; if (!b) return;
+    const w1 = b.getBoundingClientRect().width, w0 = was.current; was.current = w1;
+    if (w0 && !reduce && Math.abs(w1 - w0) > .5) b.animate([{ width: w0 + 'px' }, { width: w1 + 'px' }], { duration: mxT(b, 't-in', 360), easing: mxT(b, 'ease-spring', 'ease') });
+  }, [words]);
+}
 
 /** The three-way permission switch, with a knob that slides to the pick */
 function Permission({ name, value, onChange }: { name: string; value: ToolConnectionsPermission; onChange: (p: ToolConnectionsPermission) => void }) {
@@ -83,17 +98,28 @@ function Permission({ name, value, onChange }: { name: string; value: ToolConnec
   );
 }
 
-/** The logo, or the icon on its tinted tile, with a dot for its state */
+/** The logo on a white tile, or the icon on a vivid tile of its colour */
 const Mark = ({ tool }: { tool: ToolConnectionsTool }) => tool.brand
-  ? <span className="dm-ic dm-brandic"><Brand name={tool.brand} /></span>
-  : <span className="dm-ic" style={tool.color ? { color: tool.color, background: `color-mix(in srgb,${tool.color} 12%,transparent)` } : undefined}>{tool.icon && <Icon name={tool.icon} size="xs" />}</span>;
+  ? <span className="dm-ic dm-brandic" aria-hidden="true"><Brand name={tool.brand} /></span>
+  : <span className="dm-ic" style={{ background: tool.color ?? 'var(--dm-av-b)', color: avatarInk(tool.color ?? 'var(--dm-av-b)') ?? '#fff' }} aria-hidden="true">{tool.icon && <Icon name={tool.icon} size="xs" />}</span>;
+
+/** Reconnect, as wide as its words; while it reconnects it keeps its width and spins */
+function Reconnect({ busy, onClick }: { busy: boolean; onClick: () => void }) {
+  // its width with its word, kept while the spinner takes the word's place; it keeps its colour and takes no second press
+  const ref = useRef<HTMLButtonElement>(null), w = useRef<number>(0);
+  useIsoLayoutEffect(() => { if (!busy && ref.current) w.current = ref.current.getBoundingClientRect().width; });
+  return <button ref={ref} type="button" className="dm-pill dm-accent dm-sm dm-enter" style={busy && w.current ? { width: w.current } : undefined} aria-disabled={busy || undefined} aria-label={busy ? 'Reconnecting' : undefined} onClick={() => !busy && onClick()}>{busy ? <Spin /> : 'Reconnect'}</button>;
+}
 
 /** The tools the agent can reach, and how much it may do with each. */
-export function ToolConnections({ tools, defaultTools = [], onToolsChange, available = [], onConnect, onTest, testing = false, onReconnect, title = 'Tools and connections', status, className }: ToolConnectionsProps) {
+export function ToolConnections({ tools, defaultTools = [], onToolsChange, available = [], onConnect, onTest, testing = false, onReconnect, title = 'Tools and connections', status, healthy = false, className }: ToolConnectionsProps) {
   const [list, setList] = useControllable(tools, defaultTools, onToolsChange);
-  const menu = usePopover({ side: 'up' });
+  // a menu opens under its button, or above it when there is no room
+  const menu = usePopover();
+  const [root, inner] = useGrow();
+  const test = useRef<HTMLButtonElement>(null);
+  useEaseWidth(test, testing);
   const perm = (t: ToolConnectionsTool) => t.permission ?? 'ask';
-  const connected = list.filter(t => perm(t) !== 'off').length;
   const left = available.filter(a => !list.some(t => t.key === a.key));
 
   // rows there from the start come in one after another; a row connected later, or back from Reconnect, comes in on its own
@@ -114,31 +140,39 @@ export function ToolConnections({ tools, defaultTools = [], onToolsChange, avail
   };
 
   return (
-    <div data-dm="" className={cx('dm-hnx dm-panel', className)}>
-      <div className="dm-hnx-h">
-        <div><b>{title}</b><Swap className="dm-muted dm-hnx-st">{status ?? connected + ' connected'}</Swap></div>
-        {onTest && <button type="button" className="dm-pill dm-ghost dm-sm dm-hnx-test" onClick={onTest} disabled={testing}>{testing ? <><Spin />Testing</> : <><Icon name="refresh" size="xs" />Test all</>}</button>}
-      </div>
-      <div className="dm-hnx-list">
-        {list.map(t => {
-          const at = first.indexOf(t.key), again = epoch[t.key] ?? 0;
-          const motion = at >= 0 && !again ? enter(at * 50) : enter(0);
-          return (
-            <div key={t.key + ':' + again} className={cx('dm-hnx-t', motion.className, perm(t) === 'off' && 'dm-off', t.status === 'testing' && 'dm-chk', (t.status === 'error' || t.status === 'reconnecting') && 'dm-err')} style={motion.style}>
-              <Mark tool={t} />
-              <span className="dm-t">{t.name}<Swap>{t.note ?? t.detail ?? ''}</Swap></span>
-              {t.status === 'error' || t.status === 'reconnecting'
-                ? <button type="button" className="dm-pill dm-accent dm-sm dm-enter" onClick={() => t.status === 'error' && onReconnect?.(t.key)}>{t.status === 'reconnecting' ? <Spin /> : 'Reconnect'}</button>
-                : <Permission name={t.name} value={perm(t)} onChange={p => change(t.key, p)} />}
-            </div>
-          );
-        })}
-      </div>
-      <button type="button" className="dm-hnx-add" {...menu.trigger}><Icon name="plus" size="xs" />Connect a tool</button>
-      <div {...menu.pop} className={cx(menu.pop.className, 'dm-hnx-pop')} role="menu">
-        {left.length
-          ? left.map(a => <button type="button" key={a.key} className="dm-mi" role="menuitem" onClick={() => connect(a)}>{a.brand ? <Brand name={a.brand} /> : a.icon && <Icon name={a.icon} size="xs" />}<span>{a.name}</span></button>)
-          : <div className="dm-ph" style={{ padding: 8, fontSize: 12.5, color: 'var(--dm-muted)' }}>All tools connected</div>}
+    <div data-dm="" ref={root} className={cx('dm-hnx dm-panel dm-growing dm-mx-grow', className)}>
+      <div ref={inner} className="dm-grow">
+        <div className="dm-hnx-h">
+          <span className="dm-hnx-hi" aria-hidden="true"><Icon name="link" size="xs" /></span>
+          <div className="dm-hnx-ht"><b>{title}</b></div>
+          {onTest && <button ref={test} type="button" className="dm-pill dm-ghost dm-sm dm-hnx-test dm-mx-press" onClick={onTest} disabled={testing}>{testing ? <><Spin /><span>Testing</span></> : <><Icon name="refresh" size="xs" /><span>Test all</span></>}</button>}
+        </div>
+        <div className="dm-hnx-list" role="list" aria-label="Tools">
+          {list.map(t => {
+            const at = first.indexOf(t.key), again = epoch[t.key] ?? 0;
+            const motion = at >= 0 && !again ? enter(at * 50) : enter(0);
+            const err = t.status === 'error' || t.status === 'reconnecting';
+            return (
+              <div key={t.key + ':' + again} role="listitem" className={cx('dm-hnx-t', motion.className, perm(t) === 'off' && 'dm-off', t.status === 'testing' && 'dm-chk', err && 'dm-err')} style={motion.style}>
+                <Mark tool={t} />
+                <span className="dm-t"><span className="dm-nm"><span>{t.name}</span><i className="dm-hnx-dot" aria-hidden="true" /></span><Swap className="dm-d">{t.note ?? t.detail ?? ''}</Swap></span>
+                {err
+                  ? <Reconnect busy={t.status === 'reconnecting'} onClick={() => t.status === 'error' && onReconnect?.(t.key)} />
+                  : <Permission name={t.name} value={perm(t)} onChange={p => change(t.key, p)} />}
+              </div>
+            );
+          })}
+        </div>
+        <div className="dm-hnx-ft">
+          <button type="button" className="dm-hnx-add dm-mx-press" {...menu.trigger}><Icon name="plus" size="xs" />Connect a tool</button>
+          {/* a test's progress and result, beside Connect a tool */}
+          <span className="dm-muted dm-hnx-st" aria-live="polite">{status && <>{healthy && !testing && <Icon name="ok" size="xs" />}<Swap className={testing ? 'dm-shim' : undefined}>{status}</Swap></>}</span>
+        </div>
+        <div {...menu.pop} className={cx(menu.pop.className, 'dm-hnx-pop dm-mx-pop dm-mx-rows dm-mx-glide')} role="menu" aria-label="Connect a tool">
+          {left.length
+            ? left.map(a => <button type="button" key={a.key} className="dm-mi dm-mx-press" role="menuitem" onClick={() => connect(a)}>{a.brand ? <Brand name={a.brand} /> : a.icon && <Icon name={a.icon} size="xs" />}<span>{a.name}</span></button>)
+            : <div className="dm-ph">All tools connected</div>}
+        </div>
       </div>
     </div>
   );

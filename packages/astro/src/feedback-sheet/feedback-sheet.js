@@ -1,22 +1,29 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, enter, html, swap } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, enter, grow, html, mxIn, mxWidth, swap } from '../core/core.js';
 DM.def('feedback-sheet', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{up}', I('up-thumb')).replace('{dn}', I('down-thumb'));
   const up = $('.fbx-up', r), dn = $('.fbx-dn', r), box = $('.fbx-box', r), st = $('.fbx-st', r), go = $('.fbx-go', r), ta = $('.fbx-ta', r), chips = $$('.fbx-ch .chip', r);
+  // the component grows with what it shows in every style (grow(), once its entrance has settled), so the thanks line
+  // eases in as the sheet folds away
+  const fbx = $('.fbx', r);
+  Promise.resolve().then(() => Promise.all(fbx.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && fbx.isConnected) c.offs.push(grow(fbx)); });
   const ready = () => go.disabled = !(chips.some(x => x.classList.contains('on')) || ta.value.trim());
   chips.forEach(ch => ch.onclick = () => { ch.classList.toggle('on'); ready(); });
   ta.oninput = ready;
   up.onclick = () => { const on = !up.classList.contains('on'); up.classList.toggle('on', on); dn.classList.remove('on'); box.classList.add('shut'); swap(st, on ? 'Thanks, noted' : ''); };
   // the demo opens the sheet without taking the focus from wherever you are on the page
-  const down = focus => { const on = !dn.classList.contains('on'); dn.classList.toggle('on', on); up.classList.remove('on'); box.classList.toggle('shut', !on); swap(st, ''); if (on && focus) c.later(350, () => ta.focus({ preventScroll:true })); };
+  // (as the sheet opens, its question, its reasons and the box rise in one after another: mxIn(), motion pieces)
+  const down = focus => { const on = !dn.classList.contains('on'); dn.classList.toggle('on', on); up.classList.remove('on'); box.classList.toggle('shut', !on); swap(st, ''); if (on) mxIn([$('.fbx-q', r), ...chips, ta], { base:60 }); if (on && focus) c.later(350, () => ta.focus({ preventScroll:true })); };
   dn.onclick = e => down(e.isTrusted);
   $('.fbx-x', r).onclick = () => { box.classList.add('shut'); dn.classList.remove('on'); };
   go.onclick = () => c.run(async () => {
-    go.innerHTML = '<span class="spin"></span>'; await c.wait(800);
+    // the button is as wide as what it shows, and eases to the spinner's width
+    const w0 = go.offsetWidth; go.innerHTML = '<span class="spin"></span>'; if (!REDUCE) mxWidth(go, w0);
+    await c.wait(800);
     box.classList.add('shut'); await c.wait(300);
     const n = chips.filter(x => x.classList.contains('on')).length;
     const thx = html(`<div class="fbx-thx">${I('ok')}<span>Thanks. The agent will ${n ? 'avoid this' : 'use this'} next time in this project.</span></div>`);
-    r.firstElementChild.appendChild(thx); enter(thx); swap(st, 'Feedback sent');
+    ($(':scope>.dm-grow', fbx) || fbx).appendChild(thx); enter(thx); swap(st, '');
   });
   /* once it has entered, it rates the answer down and fills in the sheet by itself. Clicking, focusing or typing in it
      takes over, and what it had typed goes */

@@ -2,7 +2,7 @@
 
 > Jump anywhere or hand a task to the agent from one box.
 
-Agent components / Workspace. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/command-palette
+Components / Workspace. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/command-palette
 
 ## Install
 
@@ -34,11 +34,12 @@ A search box with a list of commands under it, grouped by heading, where a perso
 
 ### What it does
 
-- Filters `items` as you type, matching the letters of the query in order anywhere in the label, and marks the matching letters in the accent. Rows that come into the list rise in a short cascade.
-- Lists commands under their `group` heading, each with an icon on a tile in its `tone` (blue, purple, green, orange, red, yellow, pink or teal, grey when left out), an optional quiet `hint` after the label, and optional `keys` shown as keyboard chips.
-- A grey highlight glides to the row the arrows or the pointer are on, and the keyboard chips on it turn white.
+- Filters `items` as you type, matching the letters of the query in order anywhere in the label, and marks the matching letters in the accent (in Clean, in the text colour a step heavier). As the list changes, rows that stay glide to their new places, new ones rise in and the ones that go fade where they were.
+- Lists commands under their `group` heading, each with an icon on a tile in its `tone` (blue, purple, green, orange, red, yellow, pink or teal, grey when left out; Clean draws every tile grey), an optional quiet `hint` after the label, and optional `keys` shown as keyboard chips.
+- A grey highlight glides to the row the arrows or the pointer are on, and the keyboard chips on it turn white. The footer's key hints dip as you press ↑, ↓, Enter and Escape.
 - Adds an "Ask the agent" row at the end whenever the box has text, with the text in quotes and Enter shown while it is highlighted, which calls `onAsk` with that text.
-- Runs the highlighted command on click or Enter and calls `onRun` with it. The command's tile spins for a beat, then the footer says what ran, or shows your own `status` text.
+- Runs the highlighted command on click or Enter and calls `onRun` with it. The command's tile spins for a beat, then the footer says what ran on its left, beside the keys, or shows your own `status` text.
+- The list is as tall as the rows it shows, up to about six, and scrolls beyond that, its last row fading at the edge. The palette eases to its new height as a search narrows or widens it, its footer staying on its bottom edge as it goes.
 - Works controlled through `query` and `onQueryChange`, or holds its own text with `defaultQuery`.
 
 ### Accessibility
@@ -156,6 +157,8 @@ import { Fragment, useEffect, useId, useRef, useState, type CSSProperties, type 
 import { cx } from '../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
+import { SwapIcon, useGrow, useReflow } from '../lib/motion';
+import { useHoverGlide } from '../lib/glide';
 import '../designme.css';
 import './command-palette.css';
 
@@ -226,11 +229,17 @@ export function CommandPalette({ items, query, defaultQuery = '', onQueryChange,
   const [busy, setBusy] = useState<string>();
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   useEffect(() => () => clearTimeout(timer.current), []);
-  // rows that arrive after the first render play a short rise, in a cascade
-  const [ready, setReady] = useState(false);
-  useEffect(() => { setReady(true); }, []);
-
   const list = useRef<HTMLDivElement>(null);
+  // a search moves the list (motion pieces): rows that stay glide to their new places, new ones rise in out of a short blur and
+  // the ones that went fade where they were
+  useReflow(list, '.dm-cpl-i,.dm-cpl-g', { blur: true });
+  // the key hints answer the keys: the one pressed (↑, ↓, ↵ or esc) dips for a moment, as a key cap does
+  const [kp, setKp] = useState('');
+  const kpT = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => () => clearTimeout(kpT.current), []);
+  const press = (k: string) => { setKp(k); clearTimeout(kpT.current); kpT.current = setTimeout(() => setKp(''), 140); };
+  // Clean's one hover: a highlight that glides from row to row (Clean hides the palette's own)
+  useHoverGlide(list, '.dm-cpl-i');
   const btns = useRef<(HTMLButtonElement | null)[]>([]);
   const id = useId(), reduce = useReducedMotion();
   const [top, setTop] = useState<{ for: string; px: number }>();
@@ -247,47 +256,51 @@ export function CommandPalette({ items, query, defaultQuery = '', onQueryChange,
 
   const move = (d: number) => { if (rows.length) setHi({ at: (at + d + rows.length) % rows.length, for: v }); };
   const run = (i: number) => {
-    const row = rows[i], b = btns.current[i];
+    const row = rows[i];
     if (row === undefined) return;
     if (row) onRun?.(row); else onAsk?.(v);
     const said = row ? 'Ran: ' + row.label : 'Sent to the agent', k = row ? row.group + row.label : '\u0000ask';
-    setBusy(k); clearTimeout(timer.current);
+    press('Enter'); setBusy(k); clearTimeout(timer.current);
+    // (nothing in it scales when pressed, owner 18 Nov)
     timer.current = setTimeout(() => { setBusy(b => b === k ? undefined : b); setRan(said); }, reduce ? 0 : 650);
-    b?.animate?.([{ transform: 'scale(1)' }, { transform: 'scale(.98)' }, { transform: 'scale(1)' }], { duration: 260, easing: 'ease-out' });
   };
   const key = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (/^(ArrowDown|ArrowUp|Escape)$/.test(e.key)) press(e.key);
     if (e.key === 'ArrowDown') { move(1); e.preventDefault(); }
     else if (e.key === 'ArrowUp') { move(-1); e.preventDefault(); }
     else if (e.key === 'Enter') run(at);
     else if (e.key === 'Escape') { if (q) setQ(''); else onClose?.(); }
   };
 
+  // no room is kept for a longer list (owner, 18 Nov): the box is as tall as what it shows and eases to its new height as a
+  // search narrows or widens it (as grow() on the site)
+  const [box, inner] = useGrow();
   let group = '';
   return (
-    <div data-dm="" className={cx('dm-cpl dm-panel', className)}>
+    <div data-dm="" ref={box} className={cx('dm-cpl dm-panel dm-growing dm-mx-grow dm-mx-ic', className)}>
+      <div ref={inner} className="dm-grow">
       <div className="dm-cpl-in">
         <Icon name="search" />
         {/* the box keeps the focus and points at the highlighted row, so the rows are not tab stops */}
         <input className="dm-cpl-q" placeholder={placeholder} aria-label="Command" spellCheck={false} autoFocus={autoFocus} value={q}
           role="combobox" aria-expanded aria-controls={`${id}-list`} aria-autocomplete="list" aria-activedescendant={rows.length ? `${id}-${at}` : undefined}
           onChange={e => setQ(e.target.value)} onKeyDown={key} />
-        <span className="dm-kbd">esc</span>
+        <span className={cx('dm-kbd', kp === 'Escape' && 'dm-kp')}>esc</span>
       </div>
       <div className={cx('dm-cpl-list', more && 'dm-more')} role="listbox" id={`${id}-list`} aria-label="Commands" tabIndex={-1} ref={list} onScroll={edge}>
-        {/* a new list starts the highlight afresh, so it jumps into place instead of sliding */}
-        <span key={v} className="dm-cpl-hl" style={{ top: top?.for === v ? top.px : undefined }} />
+        {/* one highlight, kept as the list changes, so it glides from the row it was on to the one now highlighted */}
+        <span className="dm-cpl-hl" style={{ top: top?.px }} />
         {rows.map((row, i) => {
           const head = row ? row.group : 'Ask', k = row ? row.group + row.label : '\u0000ask';
-          const g = head !== group ? <div className="dm-cpl-g">{(group = head)}</div> : null;
+          const g = head !== group ? <div className="dm-cpl-g" data-key={'g:' + head}>{(group = head)}</div> : null;
           const tone = row?.tone ? TONE[row.tone] : undefined;
           return (
             <Fragment key={k}>
               {g}
-              <button type="button" ref={el => { btns.current[i] = el; }} className={cx('dm-cpl-i', !row && 'dm-ask', i === at && 'dm-hl', ready && 'dm-in')}
-                style={ready ? { animationDelay: `${Math.min(i, 6) * 28}ms` } : undefined}
+              <button type="button" ref={el => { btns.current[i] = el; }} className={cx('dm-cpl-i', !row && 'dm-ask', i === at && 'dm-hl')} data-key={k}
                 role="option" id={`${id}-${i}`} tabIndex={-1} aria-selected={i === at} onMouseEnter={() => setHi({ at: i, for: v })} onClick={() => run(i)}>
                 <span className="dm-ic" style={tone ? { '--dm-tc': `var(--dm-${tone})`, '--dm-tb': `var(--dm-${tone}-bg)` } as CSSProperties : undefined}>
-                  {busy === k ? <span className="dm-spin" aria-hidden="true" /> : <Icon name={row ? row.icon : 'spark'} size="xs" />}
+                  <SwapIcon id={busy === k ? 'spin' : 'icon'}>{busy === k ? <span className="dm-spin" aria-hidden="true" /> : <Icon name={row ? row.icon : 'spark'} size="xs" />}</SwapIcon>
                 </span>
                 <span className="dm-t">{row ? marked(row.label, v) : <>Ask the agent <span className="dm-q">“{v}”</span></>}</span>
                 {row?.hint && <span className="dm-h">{row.hint}</span>}
@@ -298,10 +311,12 @@ export function CommandPalette({ items, query, defaultQuery = '', onQueryChange,
           );
         })}
       </div>
-      <div className="dm-cpl-f dm-muted">
-        <span><span className="dm-kbd">↑</span><span className="dm-kbd">↓</span> move</span>
-        <span><span className="dm-kbd">↵</span> run</span>
+      {/* what ran last on the left, the keys on the right */}
+      <div className="dm-cpl-f dm-muted dm-mx-foot">
         <span className="dm-cpl-st">{(status ?? ran) && <span key={status ?? ran} className="dm-enter"><span className="dm-dot" aria-hidden="true" />{status ?? ran}</span>}</span>
+        <span><span className={cx('dm-kbd', kp === 'ArrowUp' && 'dm-kp')}>↑</span><span className={cx('dm-kbd', kp === 'ArrowDown' && 'dm-kp')}>↓</span> move</span>
+        <span><span className={cx('dm-kbd', kp === 'Enter' && 'dm-kp')}>↵</span> run</span>
+      </div>
       </div>
     </div>
   );
@@ -310,16 +325,11 @@ export function CommandPalette({ items, query, defaultQuery = '', onQueryChange,
 
 ## More in Workspace
 
-- [Automation canvas](https://designme.dev/components/automation-canvas.md): A trigger, a few agent steps, and a run you can watch flow through.
-- [Canvas toolbar](https://designme.dev/components/canvas-toolbar.md): A floating toolbar for a workflow canvas: run, pick a tool, comment, fit and zoom.
-- [Data picker](https://designme.dev/components/data-picker.md): Map a field from earlier steps into a step's input.
 - [Run drawer](https://designme.dev/components/run-drawer.md): A workflow's run under its canvas: the steps, the log and the data.
 - [Memory panel](https://designme.dev/components/memory-panel.md): What the agent remembers about your team, editable and removable.
-- [Agent settings](https://designme.dev/components/agent-settings.md): How much the agent may do alone, with a save bar for changes.
 - [Tools and connections](https://designme.dev/components/tool-connections.md): The tools the agent can reach, and how much it may do with each.
 - [Knowledge sources](https://designme.dev/components/knowledge-sources.md): The files, sites and folders the agent knows, and how far each is indexed.
 - [Scheduled runs](https://designme.dev/components/scheduled-runs.md): Tasks the agent runs on a schedule, with their last result and a switch.
 - [File explorer](https://designme.dev/components/file-explorer.md): Project files, with the ones the agent touched marked.
-- [Workspace rail](https://designme.dev/components/workspace-rail.md): A slim app rail that opens into a labelled sidebar.
 
 All components: https://designme.dev/llms.txt

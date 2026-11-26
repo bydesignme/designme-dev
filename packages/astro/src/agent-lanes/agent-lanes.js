@@ -1,5 +1,11 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, REDUCE, enter, hold, html, swap } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, enter, hold, html, iconSwap, swap } from '../core/core.js';
+// Pause and Resume: the icon crossfades and the words ease the pill to their width (motion pieces, 26 Nov)
+function alnPause(b, on, word){
+  const ic = $('.mx-icon', b), w = $('.aln-pl', b);
+  if (!ic || !w){ b.innerHTML = I(on ? 'play' : 'pause','xs') + (on ? 'Resume' : word); return; }
+  iconSwap(ic, () => { ic.innerHTML = I(on ? 'play' : 'pause','xs'); }, { inner:true }); swap(w, on ? 'Resume' : word);
+}
 DM.def('agent-lanes', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{users}', I('users')).replace('{pause}', I('pause','xs'));
   // each agent has a hue of its own (t names the palette slot): its badge, its track, its tag and its stretch of the relay line
@@ -10,7 +16,7 @@ DM.def('agent-lanes', (r, c) => {
   ];
   const root = $('.aln', r), rows = $('.aln-rows', r), ct = $('.aln-ct', r), say = $('.aln-say', r), STEPS = L.length * 3;
   L.forEach(l => {
-    l.el = html(`<div class="aln-lane" data-s="queued" style="--dm-c:var(--dm-${l.t});--dm-cb:var(--dm-${l.t}-bg);--dm-cm:var(--dm-aln-${l.t},var(--dm-${l.t}))"><button class="aln-row" aria-expanded="false"><span class="aln-av">${I(l.ic)}</span><span class="aln-who"><span class="aln-n">${l.n}</span><span class="aln-a">${l.wait || 'Queued'}</span></span><span class="aln-tr" aria-hidden="true"><i></i><i></i><i></i></span><span class="aln-st"><span class="tag">Queued</span></span></button><div class="fold shut"><div><div class="aln-det"></div></div></div></div>`);
+    l.el = html(`<div class="aln-lane" data-s="queued" style="--dm-c:var(--dm-${l.t});--dm-cb:var(--dm-${l.t}-bg);--dm-cm:var(--dm-aln-${l.t},var(--dm-${l.t}))"><button class="aln-row mx-press" aria-expanded="false"><span class="aln-av">${I(l.ic)}</span><span class="aln-who"><span class="aln-n">${l.n}</span><span class="aln-a">${l.wait || 'Queued'}</span></span><span class="aln-tr" aria-hidden="true"><i></i><i></i><i></i></span><span class="aln-st"><span class="tag">Queued</span></span></button><div class="fold shut"><div><div class="aln-det"></div></div></div></div>`);
     rows.appendChild(l.el); const b = $('.aln-row', l.el), f = $('.fold', l.el);
     b.onclick = () => { const s = f.classList.toggle('shut'); b.setAttribute('aria-expanded', !s); };
   });
@@ -29,7 +35,9 @@ DM.def('agent-lanes', (r, c) => {
     const w = L.find(l => l.running);
     swap(say, w ? (w.did ? `${w.n}: ${lc(w.did)}` : `${w.n} started: ${lc(w.acts[0])}`) : steps ? `${steps} of ${STEPS} steps` : `${L.length} agents queued`); };
   const pb = $('.aln-pause', r);
-  pb.onclick = () => { paused = !paused; pb.innerHTML = I(paused ? 'play' : 'pause','xs') + (paused ? 'Resume' : 'Pause all'); swap($('.aln-t', r), paused ? 'All agents paused' : '3 agents working');
+  // Pause all is the white outlined secondary (owner, 23 Nov); inside Agent harness (Phase II) it keeps its grey one for now
+  if (r.closest('.ahx')) pb.classList.replace('line', 'soft');
+  pb.onclick = () => { paused = !paused; alnPause(pb, paused, 'Pause all'); swap($('.aln-t', r), paused ? 'All agents paused' : '3 agents working');
     L.forEach(l => { if (l.running){ state(l, paused ? 'paused' : 'working'); $('.aln-a', l.el).classList.toggle('shim', !paused); } }); tell(); };
   c.every(1000, () => { if (!paused && !finished){ secs++; $('.aln-m', r).textContent = clk(); } });
   // time only passes for the agents while they aren't paused; each() hears how far through the wait they are

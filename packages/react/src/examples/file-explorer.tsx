@@ -16,7 +16,7 @@ const TREE: FileExplorerNode[] = [
 export default function FileExplorerDemo() {
   return (
     <div style={{ width: '100%' }}>
-      <FileExplorer tree={TREE} defaultOpen={['src', 'src/components', 'src/styles']} defaultSelected="src/components/PlanCard.tsx" />
+      <FileExplorer tree={TREE} defaultOpen={['src', 'src/components']} defaultSelected="src/components/PlanCard.tsx" />
     </div>
   );
 }

@@ -24,8 +24,8 @@ export default function DetailsPanelDemo() {
           { key: 'props', title: 'Properties', rows: [
             { key: 'status', label: 'Status', type: 'select', defaultValue: 'In review', options: [
               { value: 'In progress', label: 'In progress', color: 'var(--dm-py)' },
-              { value: 'In review', label: 'In review', color: 'var(--dm-accent)' },
-              { value: 'Shipped', label: 'Shipped', color: 'var(--dm-ok)' }] },
+              { value: 'In review', label: 'In review', color: 'var(--dm-accent-mark)' },
+              { value: 'Shipped', label: 'Shipped', color: 'var(--dm-ok-mark)' }] },
             { key: 'owner', label: 'Owner', type: 'select', defaultValue: 'Maya Kim', options: [
               { value: 'Maya Kim', label: 'Maya Kim', avatar: { initials: 'MK', color: 'var(--dm-av-l)' } },
               { value: 'Jon Ortiz', label: 'Jon Ortiz', avatar: { initials: 'JO', color: 'var(--dm-av-m)' } },
