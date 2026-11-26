@@ -73,8 +73,8 @@
   var add = function(){ if (document.querySelector('.lp-hero')) return landing(); document.body.appendChild(root); };
   if (document.body) add(); else document.addEventListener('DOMContentLoaded', add);
 
-  /* The landing page (owner, 26 Nov): the same smiley button, bottom right at every width, which comes in once the hero is
-     scrolled past and goes when it is back in view. It opens a small popover above it, in the motion pieces' .mx-pop manner
+  /* The landing page (owner, 26 Nov): the same smiley button, bottom right at every width (24px in, 16px on phones), shown from
+     load with a short fade and rise. It opens a small popover above it, in the motion pieces' .mx-pop manner
      (it grows out of the button from a short blur and goes back into it quicker; no blur in Blueprint and Clean): who made the
      library, Book a call (the landing page's own, square in Blueprint, a pill in Clean, a squircle rectangle in Soft) and the
      email. The button opens and closes it; Escape, a click outside or the button put it away, and focus goes back to the
@@ -83,9 +83,10 @@
     var BOOK = 'https://www.designme.agency/intro?utm_source=designme.dev&amp;utm_medium=referral&amp;utm_campaign=book_a_call';
     var MASK = 'url("data:image/svg+xml,' + encodeURIComponent(LOGO.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ').replace('currentColor', '#000')) + '")';
     var lc = ''
-      + '.dmf.dmf-lp{display:block;left:auto;right:16px;opacity:0;visibility:hidden;transform:translateY(12px) scale(.9);transform-origin:bottom right;'
+      + '.dmf.dmf-lp{display:block;width:56px;height:56px;pointer-events:none;left:auto;right:calc(24px + env(safe-area-inset-right,0px));bottom:calc(24px + env(safe-area-inset-bottom,0px));opacity:0;visibility:hidden;transform:translateY(8px);transform-origin:bottom right;'
       + 'transition:opacity .2s var(--dm-ease-io,ease),transform .2s var(--dm-ease-io,ease),visibility 0s .2s}'
-      + '.dmf.dmf-lp.in{opacity:1;visibility:visible;transform:none;transition:opacity .3s var(--dm-ease,ease),transform .45s cubic-bezier(.34,1.56,.64,1),visibility 0s}'
+      + '.dmf.dmf-lp.in{opacity:1;visibility:visible;transform:none;transition:opacity .5s var(--dm-ease,ease),transform .6s var(--dm-ease,ease),visibility 0s}'
+      + '@media (max-width:640px){.dmf.dmf-lp{right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px))}}'
       // the landing page has no SiteShell, so the shell's tokens the button uses are mapped from the page's (the shell's values)
       + '.dmf-lp{--sh-card:var(--pg-bg);--sh-line:var(--pg-line2);--sh-line-2:var(--pg-line2);--sh-text:var(--pg-fg);--sh-muted:var(--pg-muted);--sh-chip:var(--pg-chip);--sh-act:var(--pg-soft)}'
       + ':root[data-theme="dark"] .dmf-lp{--sh-card:#181818}'
@@ -98,16 +99,16 @@
       + ':root[data-theme="dark"] .dmf-gl{background-image:linear-gradient(115deg,transparent 38%,rgba(17,17,17,.35) 50%,transparent 62%)}'
       + '@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dmf-gl{background-image:linear-gradient(115deg,transparent 38%,rgba(17,17,17,.35) 50%,transparent 62%)}}'
       + '.dmf-lp.open .dmf-b{transform:none;opacity:1;pointer-events:auto}'
+      + '.dmf-lp.in .dmf-b,.dmf-lp.open .dmf-p{pointer-events:auto}'
       // a step bigger than on the other pages (owner, 26 Nov), with the smiley scaled with it
       + '.dmf-lp .dmf-b{width:56px;height:56px}'
       + '.dmf-lp .dmf-b>svg{width:30px;height:26px}'
-      // a calm call for attention until the pop-up has been opened once (this session): a neutral ring that leaves the
-      // button and fades, every 4s. Opacity and scale only, no colour
-      + '.dmf-lp .dmf-b::after{content:"";position:absolute;inset:-1px;border-radius:50%;border:1.5px solid color-mix(in srgb,var(--pg-fg) 28%,transparent);opacity:0;pointer-events:none}'
-      + '.dmf-lp.pulse.in:not(.open) .dmf-b::after{animation:dmf-ring 4s cubic-bezier(.22,1,.36,1) 1.2s infinite}'
-      + '@keyframes dmf-ring{0%{opacity:.9;transform:scale(1)}45%{opacity:0;transform:scale(1.5)}100%{opacity:0;transform:scale(1.5)}}'
+      // a calm call for attention until the pop-up has been opened once (this session): the button breathes (1 to 1.04)
+      // every 4s, inside its own place. Scale only, no colour
+      + '.dmf-lp.pulse.in:not(.open) .dmf-b{animation:dmf-breath 4s ease-in-out 1.6s infinite}'
+      + '@keyframes dmf-breath{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}'
       + '.dmf-lp .dmf-b:focus-visible{outline-color:var(--sh-line-2,var(--pg-line2))}'
-      + '.dmf-p{position:absolute;right:0;bottom:calc(100% + 12px);width:min(304px,calc(100vw - 32px));box-sizing:border-box;padding:16px;border-radius:16px;border:1px solid var(--pg-line);background:var(--pg-bg);color:var(--pg-fg);'
+      + '.dmf-p{position:absolute;right:0;bottom:calc(100% + 12px);width:min(304px,calc(100vw - 32px));box-sizing:border-box;padding:16px;border-radius:16px;border:1px solid color-mix(in srgb,var(--pg-line2) 50%,transparent);background:var(--pg-bg);color:var(--pg-fg);'
       + 'box-shadow:var(--dm-shadow-pop,0 1px 2px rgba(0,0,0,.06),0 24px 48px -16px rgba(0,0,0,.3));text-align:left;outline:0;'
       + 'opacity:0;visibility:hidden;transform:scale(.95);filter:blur(var(--dm-blur-in,0px));transform-origin:bottom right;'
       + 'transition:opacity var(--dm-t-out,.16s) var(--dm-ease-io,ease),transform var(--dm-t-out,.16s) var(--dm-ease-io,ease),filter var(--dm-t-out,.16s) var(--dm-ease-io,ease),visibility 0s var(--dm-t-out,.16s)}'
@@ -115,6 +116,9 @@
       + 'transition:opacity calc(var(--dm-t-in,.36s) * .6) var(--dm-ease,ease),transform var(--dm-t-in,.36s) var(--dm-ease-pop,ease),filter calc(var(--dm-t-in,.36s) * .7) var(--dm-ease,ease),visibility 0s}'
       + ':root[data-style="clean"] .dmf-p{border-radius:var(--dm-r-card,22px)}'
       + '@supports (corner-shape:squircle){:root[data-style="soft"] .dmf-p{corner-shape:squircle;border-radius:var(--dm-r-card,24px)}}'
+      // the dialog itself never shows a ring, so a screenshot shortcut's modifier keys after a click don't light it up; the
+      // controls inside keep the quiet keyboard ring
+      + '.dmf-lp .dmf-p:focus,.dmf-lp .dmf-p:focus-visible{outline:none}'
       // Blueprint keeps its square corners
       + ':root[data-style="bp"] .dmf-p,:root:not([data-style]) .dmf-p{border-radius:0}'
       // the 3D mark's stage over the words, on the words' left edge (owner, 26 Nov): as wide as the mark, the flat mark until the 3D one is drawn (or if it can't be)
@@ -135,7 +139,7 @@
       + '.dmf-p .dmf-mail{font-size:13px;line-height:20px;color:var(--pg-dim)}'
       + '.dmf-p .dmf-mail a{color:var(--pg-fg);text-decoration:underline;text-decoration-color:var(--pg-line2);text-underline-offset:3px}'
       + '.dmf-p .dmf-mail a:hover{text-decoration-color:currentColor}'
-      + '@media (prefers-reduced-motion:reduce){.dmf-lp .dmf-b::after{animation:none!important}.dmf-gl{animation:none;display:none}.dmf.dmf-lp,.dmf.dmf-lp.in,.dmf-p,.dmf-lp.open .dmf-p{transform:none!important;filter:none!important;transition:opacity .15s,visibility 0s!important}.dmf-lp.open .dmf-b,.dmf-lp .dmf-b{transform:none}}';
+      + '@media (prefers-reduced-motion:reduce){.dmf-lp .dmf-b{animation:none!important}.dmf-gl{animation:none;display:none}.dmf.dmf-lp,.dmf.dmf-lp.in,.dmf-p,.dmf-lp.open .dmf-p{transform:none!important;filter:none!important;transition:opacity .15s,visibility 0s!important}.dmf-lp.open .dmf-b,.dmf-lp .dmf-b{transform:none}}';
     var ls = document.createElement('style'); ls.textContent = lc; document.head.appendChild(ls);
     var fab = document.createElement('div'); fab.className = 'dmf dmf-lp';
     fab.innerHTML = '<button class="dmf-b" type="button" aria-expanded="false" aria-controls="dmf-p" aria-haspopup="dialog" aria-label="DesignMe: who made this, and Book a call">' + LOGO + '<span class="dmf-gl" aria-hidden="true"></span></button>'
@@ -167,12 +171,10 @@
     b.addEventListener('click', function(){ if (isOpen()) hide(true); else show(); });
     document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && isOpen()){ e.preventDefault(); hide(true); } });
     document.addEventListener('pointerdown', function(e){ if (!fab.contains(e.target)) hide(false); }, true);
-    // in once the hero is scrolled past (its foot above the view's top), out again when it comes back
-    var hero = document.querySelector('.lp-hero');
     var set = function(on){ fab.classList.toggle('in', on); fab.inert = !on; if (!on) hide(false); };
+    // shown from the start (owner, 26 Nov: "the DesignMe just disappeared"): it comes in once, a short fade and rise after load
     set(false);
-    if (window.IntersectionObserver) new IntersectionObserver(function(es){ var e = es[es.length - 1]; set(!e.isIntersecting && e.boundingClientRect.top < 0); }).observe(hero);
-    else set(true);
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ set(true); }); });
     document.body.appendChild(fab);
   }
 })();
