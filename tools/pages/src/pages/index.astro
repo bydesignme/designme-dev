@@ -37,6 +37,10 @@ const comp = reg => { const c = COMPONENTS.find(x => x.reg === reg); if (!c) thr
 const total = COMPONENTS.length;
 const nOf = g => SECTIONS.filter(s => s.grp === g).reduce((n, s) => n + s.cards.length, 0);
 const nAgent = nOf('agent'), nBasics = nOf('basics');
+// the release the hero's label names: the newest entry of the changelog (tools/site/make-patches.py writes the library's LOG),
+// so the label stays true as releases are added. A trailing .0 is left off (v1.2.0 reads v1.2)
+const RELEASE = (() => { const m = fs.readFileSync(path.join(ROOT, 'tools/site/make-patches.py'), 'utf8').match(/const LOG = \[[\s\S]*?\{ v:'(v\d+\.\d+(?:\.\d+)?)'/);
+  if (!m) throw new Error('landing: no release found in the changelog (make-patches.py LOG)'); return m[1].replace(/\.0$/, ''); })();
 
 // each stage is as tall as its component gets in the style on screen (measure-heights.js measures each style: components is
 // Soft), with its padding above and below, so the component sits in the middle and nothing below the stage moves while it
@@ -282,7 +286,33 @@ const jsonld = [
       /* the page's title: the page-title exception to the type rule (.pg-h1) */
       .pg-h1.lp-h1{max-width:920px;margin:0 auto;font-size:clamp(36px,4.4vw,64px);line-height:1.04;font-weight:500;letter-spacing:-.04em;text-wrap:balance}
       .lp-lead{margin:24px auto 0;max-width:640px;font-size:14px;line-height:1.65;color:var(--pg-dim);text-wrap:balance}
+      /* the lead in two lines, the first the longer (owner, 26 Nov); where one no longer fits (phones), each balances over two */
+      .lp-lead .lp-ln{display:block;text-wrap:balance}
+      @media (max-width:499px){.lp-lead{max-width:340px}}
       .lp-cta{display:flex;flex-wrap:wrap;gap:8px;margin-top:32px}
+      /* the release label over the title (owner, 26 Nov): a pill to the changelog, the version in a chip, in the accent's tints
+         (Blueprint's lime, square; Clean monochrome), with a light (1.5px) that travels round its edge (.lp-beam, a dash on an SVG
+         outline, so it keeps one speed all the way round). The light runs only while the label is on screen, never with
+         reduced motion, and is a line in the label's own colour: no glow, no shadow */
+      .lp-rel{--rel-bg:color-mix(in srgb,var(--dm-accent) 8%,var(--pg-bg));--rel-bg-h:color-mix(in srgb,var(--dm-accent) 12%,var(--pg-bg));--rel-line:color-mix(in srgb,var(--dm-accent) 22%,transparent);--rel-chip:color-mix(in srgb,var(--dm-accent) 15%,var(--pg-bg));--rel-fg:var(--dm-accent-fg);--rel-chip-fg:var(--dm-accent-fg);--rel-beam:var(--dm-accent-mark);
+        position:relative;display:inline-flex;align-items:center;gap:8px;max-width:100%;height:32px;margin:0 0 24px;padding:0 12px 0 4px;box-sizing:border-box;border-radius:999px;background:var(--rel-bg);box-shadow:inset 0 0 0 1px var(--rel-line);color:var(--rel-fg);font-size:13px;font-weight:500;line-height:1;letter-spacing:-.006em;text-decoration:none;white-space:nowrap;vertical-align:top;transition:background-color .22s var(--lp-ease)}
+      .lp-rel:hover{background:var(--rel-bg-h)}
+      .lp-rel:focus-visible{outline:2px solid var(--pg-line2);outline-offset:2px}
+      .lp-rel-v{display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:inherit;background:var(--rel-chip);color:var(--rel-chip-fg)}
+      .lp-rel-t{overflow:hidden;text-overflow:ellipsis}
+      .lp-rel .lp-ar{margin-left:-2px;transition:transform .22s var(--lp-ease)}
+      .lp-rel:hover .lp-ar{transform:translateX(2px)}
+      .lp-beam{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+      .lp-beam rect{fill:none;stroke:var(--rel-beam);stroke-width:1.5;stroke-linecap:round;opacity:0;animation:lpbeam 5s linear infinite paused}
+      .lp-beam rect:nth-child(1){--o:.16}.lp-beam rect:nth-child(2){--o:.4}.lp-beam rect:nth-child(3){--o:1}
+      .lp-rel.on .lp-beam rect{opacity:var(--o);animation-play-state:running}
+      /* each dash's leading end at the same point, so the three read as one light with a fading tail */
+      @keyframes lpbeam{from{stroke-dashoffset:var(--l)}to{stroke-dashoffset:calc(var(--l) - 100px)}}
+      /* Blueprint: square, on its lime; the version on the solid accent */
+      :root[data-style="bp"] .lp-rel,:root:not([data-style]) .lp-rel{--rel-bg:color-mix(in srgb,var(--dm-accent) 16%,var(--pg-bg));--rel-bg-h:color-mix(in srgb,var(--dm-accent) 26%,var(--pg-bg));--rel-line:color-mix(in srgb,var(--dm-accent-mark) 30%,transparent);--rel-chip:var(--dm-accent);--rel-chip-fg:var(--dm-on-accent);border-radius:0}
+      /* Clean: monochrome, a step off the page (darker in light, lighter in dark) */
+      :root[data-style="clean"] .lp-rel{--rel-bg:color-mix(in srgb,var(--pg-fg) 5%,var(--pg-bg));--rel-bg-h:color-mix(in srgb,var(--pg-fg) 8%,var(--pg-bg));--rel-line:color-mix(in srgb,var(--pg-fg) 10%,transparent);--rel-chip:color-mix(in srgb,var(--pg-fg) 10%,var(--pg-bg));--rel-fg:var(--pg-fg);--rel-chip-fg:var(--pg-fg);--rel-beam:var(--pg-fg)}
+      @media (prefers-reduced-motion:reduce){.lp-beam{display:none}.lp-rel,.lp-rel .lp-ar{transition:none}}
       .lp-hero .lp-cta{justify-content:center}
       /* buttons: the components' own (.pill, .pill.primary on the accent, .pill.line), a step taller on the page */
       .lp .lp-btn{height:40px;padding:0 18px;font-size:14px;text-decoration:none;gap:8px}
@@ -688,12 +718,29 @@ const jsonld = [
 
   <div class="lp">
     <section class="lp-in lp-hero" aria-labelledby="content">
+      <a class="lp-rel" href="/library#/changelog"><span class="lp-rel-v">{RELEASE}</span><span class="lp-rel-t">is live: {total} components, three styles</span><Fragment set:html={arrow} /><svg class="lp-beam" aria-hidden="true" focusable="false"><rect style="--l:30px" /><rect style="--l:15px" /><rect style="--l:7px" /></svg></a>
       <h1 class="pg-h1 lp-h1" id="content" tabindex="-1"><span class="lp-ln">UI components for the</span> <span class="lp-ln">AI agents in your product</span></h1>
-      <p class="lp-lead">{total} free, MIT-licensed components for AI agent products, in HTML, React or Astro and three styles.</p>
+      <p class="lp-lead"><span class="lp-ln">Free, MIT-licensed components and templates for AI agent products:</span> <span class="lp-ln">{total} components in HTML, React and Astro, in three styles.</span></p>
       <div class="lp-cta">
         <a class="pill primary lp-btn" href="/library">Browse the library<Fragment set:html={arrow} /></a>
         <a class="pill line lp-btn" href="/docs/introduction">Read the docs</a>
       </div>
+      <script is:inline>
+      // the release label's light: an outline drawn just inside the label's edge, its corners following the label's (square in
+      // Blueprint, round elsewhere), measured as 100 so the dash keeps one speed; it runs only while the label is on screen
+      (function(){
+        var rel = document.querySelector('.lp-rel'), svg = rel && rel.querySelector('.lp-beam'); if (!svg) return;
+        var fit = function(){ var w = rel.offsetWidth, h = rel.offsetHeight, r = Math.max(0, Math.min(parseFloat(getComputedStyle(rel).borderTopLeftRadius) || 0, h / 2) - .75);
+          [].forEach.call(svg.children, function(t){ var l = parseFloat(t.style.getPropertyValue('--l'));
+            t.setAttribute('x', .75); t.setAttribute('y', .75); t.setAttribute('width', Math.max(0, w - 1.5)); t.setAttribute('height', Math.max(0, h - 1.5));
+            t.setAttribute('rx', r); t.setAttribute('ry', r); t.setAttribute('pathLength', 100); t.setAttribute('stroke-dasharray', l + ' ' + (100 - l)); }); };
+        fit();
+        if (window.ResizeObserver) new ResizeObserver(fit).observe(rel);
+        new MutationObserver(fit).observe(document.documentElement, { attributes:true, attributeFilter:['data-style'] });
+        if (window.IntersectionObserver) new IntersectionObserver(function(es){ rel.classList.toggle('on', es[es.length - 1].isIntersecting); }).observe(rel);
+        else rel.classList.add('on');
+      })();
+      </script>
     </section>
 
     <section class="lp-bento-w" id="live" aria-label="Components, live">
