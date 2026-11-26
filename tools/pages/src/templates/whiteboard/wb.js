@@ -908,6 +908,15 @@
     if (!onBoard && !t.closest('.wb-rail,.wb-view')) return;
     if (e.key === ' ' && onBoard){ e.preventDefault(); if (!space){ space = true; cv.classList.add('space'); } return; }
     if (!onBoard){ if (KEYS[k] && !e.shiftKey && !t.closest('[role="radiogroup"]')){ setTool(KEYS[k]); } return; }
+    // Tab on the board steps through what is on it, one item at a time, and out of the board after the last
+    if (e.key === 'Tab' && t === cv){
+      const its = S.items.filter(i => i.k !== 'arrow').sort((a, b) => a.y - b.y || a.x - b.x), at = S.sel.length === 1 ? its.findIndex(i => i.id === S.sel[0]) : -1;
+      const nx = at < 0 ? (e.shiftKey ? its.length - 1 : 0) : at + (e.shiftKey ? -1 : 1);
+      if (at >= 0 && (nx < 0 || nx >= its.length)){ select([], true); return; }
+      const it = its[nx]; if (!it) return; e.preventDefault(); select([it.id]);
+      const b = toScreen(boxOf(it)), [W, H] = size(); if (b.x < 80 || b.y < 60 || b.x + b.w > W - 40 || b.y + b.h > H - 80){ unfollow(); const [cx, cy] = mid(boxOf(it)); setView({ z:V.z, x:W / 2 - cx * V.z, y:H / 2 - cy * V.z }, true); }
+      return;
+    }
     if ((e.key === 'Delete' || e.key === 'Backspace') && S.sel.length){ e.preventDefault(); del(); return; }
     if (e.key === 'Enter' && S.sel.length === 1 && ['sticky', 'shape', 'text'].includes(byId(S.sel[0]).k)){ e.preventDefault(); startEdit(S.sel[0]); return; }
     const ar = { ArrowLeft:[-1, 0], ArrowRight:[1, 0], ArrowUp:[0, -1], ArrowDown:[0, 1] }[e.key];
