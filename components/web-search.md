@@ -149,7 +149,7 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable, useIsoLayoutEffect } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { Fold, Spin, Swap, SwapIcon, Tip } from '../lib/motion';
+import { Fold, growFit, Spin, Swap, SwapIcon, Tip } from '../lib/motion';
 import '../designme.css';
 import './web-search.css';
 
@@ -219,18 +219,7 @@ export function WebSearch({ queries, done = false, answer, open, onOpenChange, b
   // the trail grows and shrinks with what it holds, in every style (as grow() on designme.dev): its height follows its
   // content, eased, as searches arrive and as it folds
   const root = useRef<HTMLDivElement>(null), wrap = useRef<HTMLDivElement>(null);
-  useIsoLayoutEffect(() => {
-    const el = root.current, w = wrap.current;
-    if (!el || !w || typeof ResizeObserver === 'undefined') return;
-    let first = true;
-    const fit = () => {
-      const cs = getComputedStyle(el), h = Math.ceil(w.offsetHeight + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth));
-      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
-      else el.style.height = h + 'px';
-    };
-    const ro = new ResizeObserver(fit); ro.observe(w); fit();
-    return () => { ro.disconnect(); el.style.height = ''; };
-  }, []);
+  useIsoLayoutEffect(() => { const el = root.current, w = wrap.current; if (el && w) return growFit(el, w); }, []);
   return (
     <div data-dm="" ref={root} className={cx('dm-wsx', !bare && 'dm-panel', 'dm-growing dm-mx-grow dm-mx-ic', className)} style={bare ? { paddingInline: 0 } : undefined}>
       <div className="dm-grow" ref={wrap}>

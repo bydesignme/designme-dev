@@ -394,12 +394,12 @@ export default function WebSearchDemo() {
 import WebSearch from &#39;../components/designme/web-search/WebSearch.astro&#39;;
 ---
 &lt;WebSearch /&gt;
-&lt;WebSearch data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything WebSearch takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>queries</code><span class="opt">required</span></td><td><code>WebQuery[]</code></td><td></td></tr><tr><td><code>done</code></td><td><code>boolean</code></td><td>True once the searching and reading are over: the trail folds to its summary</td></tr><tr><td><code>answer</code></td><td><code>string</code></td><td>The answer, with sources cited as [1], [2]. Each number points at the page with that `cite`</td></tr><tr><td><code>open</code></td><td><code>boolean</code></td><td>Whether the trail is open. Left to the component, it folds once `done` turns true</td></tr><tr><td><code>onOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>bare</code></td><td><code>boolean</code></td><td>Without the panel, for a chat stream (true). Clean keeps its card either way</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>WebSearch.tsx<span class="l">React · 134 lines</span></summary><pre class="cp-pre" data-name="WebSearch.tsx"><code>&#39;use client&#39;;
+&lt;WebSearch data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything WebSearch takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>queries</code><span class="opt">required</span></td><td><code>WebQuery[]</code></td><td></td></tr><tr><td><code>done</code></td><td><code>boolean</code></td><td>True once the searching and reading are over: the trail folds to its summary</td></tr><tr><td><code>answer</code></td><td><code>string</code></td><td>The answer, with sources cited as [1], [2]. Each number points at the page with that `cite`</td></tr><tr><td><code>open</code></td><td><code>boolean</code></td><td>Whether the trail is open. Left to the component, it folds once `done` turns true</td></tr><tr><td><code>onOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>bare</code></td><td><code>boolean</code></td><td>Without the panel, for a chat stream (true). Clean keeps its card either way</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>WebSearch.tsx<span class="l">React · 123 lines</span></summary><pre class="cp-pre" data-name="WebSearch.tsx"><code>&#39;use client&#39;;
 import { Fragment, useEffect, useRef, useState } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable, useIsoLayoutEffect } from &#39;../lib/hooks&#39;;
 import { Icon } from &#39;../lib/icons&#39;;
-import { Fold, Spin, Swap, SwapIcon, Tip } from &#39;../lib/motion&#39;;
+import { Fold, growFit, Spin, Swap, SwapIcon, Tip } from &#39;../lib/motion&#39;;
 import &#39;../designme.css&#39;;
 import &#39;./web-search.css&#39;;
 
@@ -469,18 +469,7 @@ export function WebSearch({ queries, done = false, answer, open, onOpenChange, b
   // the trail grows and shrinks with what it holds, in every style (as grow() on designme.dev): its height follows its
   // content, eased, as searches arrive and as it folds
   const root = useRef&lt;HTMLDivElement&gt;(null), wrap = useRef&lt;HTMLDivElement&gt;(null);
-  useIsoLayoutEffect(() =&gt; {
-    const el = root.current, w = wrap.current;
-    if (!el || !w || typeof ResizeObserver === &#39;undefined&#39;) return;
-    let first = true;
-    const fit = () =&gt; {
-      const cs = getComputedStyle(el), h = Math.ceil(w.offsetHeight + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth));
-      if (first) { el.style.transition = &#39;none&#39;; el.style.height = h + &#39;px&#39;; void el.offsetHeight; el.style.transition = &#39;&#39;; first = false; }
-      else el.style.height = h + &#39;px&#39;;
-    };
-    const ro = new ResizeObserver(fit); ro.observe(w); fit();
-    return () =&gt; { ro.disconnect(); el.style.height = &#39;&#39;; };
-  }, []);
+  useIsoLayoutEffect(() =&gt; { const el = root.current, w = wrap.current; if (el &amp;&amp; w) return growFit(el, w); }, []);
   return (
     &lt;div data-dm=&quot;&quot; ref={root} className={cx(&#39;dm-wsx&#39;, !bare &amp;&amp; &#39;dm-panel&#39;, &#39;dm-growing dm-mx-grow dm-mx-ic&#39;, className)} style={bare ? { paddingInline: 0 } : undefined}&gt;
       &lt;div className=&quot;dm-grow&quot; ref={wrap}&gt;

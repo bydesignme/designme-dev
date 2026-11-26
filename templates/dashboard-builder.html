@@ -1624,7 +1624,9 @@ body:has(.dbb) .dmf{display:none}
 .dbb .dbb-tb2 th:last-child,.dbb .dbb-tb2 td:last-child{padding-right:var(--dm-s-4)}
 .dbb .dbb-tb2 .nm{font-weight:400}
 .dbb .dbb-tb2 .nm .av{width:22px;height:22px;font-size:11px}
-:root[data-style="clean"] .dbb .atb.panel.dbb-tb2{padding:6px 4px 4px}
+/* Clean: the head strip runs to the card's edges, its corners the card's own, and the rows keep the 16px column (owner, 26 Nov:
+   one radius system; the strip inset 4px drew a corner that did not follow the card's) */
+:root[data-style="clean"] .dbb .atb.panel.dbb-tb2{padding:0}
 @container (max-width:419px){.dbb .dbb-tb2 .atb-fl{display:none}.dbb .dbb-tb2 table{min-width:0}.dbb .dbb-tb2 :is(th,td){padding-inline:var(--dm-s-2)}.dbb .dbb-tb2 .nm .av{display:none}}
 /* Notifications: the activity, grouped by day; its rows aren't buttons here */
 .dbb .dbb-act{min-height:0}
@@ -1781,7 +1783,7 @@ body:has(.dbb) .dmf{display:none}
 @media (min-width:761px){
   :root:is([data-style="soft"],[data-style="clean"]) .dbb[data-c]{background:var(--dm-stage)}
   :root:is([data-style="soft"],[data-style="clean"]) .dbb-side.ahx-side{border-right-color:transparent;padding-top:calc(var(--dm-s-2) + 6px)}
-  :root:is([data-style="soft"],[data-style="clean"]) :is(.dbb-main,.dbb-ed){margin:var(--dm-s-2) var(--dm-s-2) var(--dm-s-2) 0;border-radius:calc(12px * var(--dm-rk));background:var(--dm-surface);box-shadow:var(--dm-shadow)}
+  :root:is([data-style="soft"],[data-style="clean"]) :is(.dbb-main,.dbb-ed){margin:var(--dm-s-2) var(--dm-s-2) var(--dm-s-2) 0;border-radius:var(--dm-r-card);background:var(--dm-surface);box-shadow:var(--dm-shadow)}
   :root:is([data-style="soft"],[data-style="clean"]) .dbb-ed{margin:var(--dm-s-2);overflow:hidden}
   :root:is([data-style="soft"],[data-style="clean"])[data-theme="dark"] :is(.dbb-main,.dbb-ed){box-shadow:var(--dm-shadow),0 0 0 1px color-mix(in srgb,var(--dm-fg) 10%,transparent)}
   @media (prefers-color-scheme:dark){:root:is([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) :is(.dbb-main,.dbb-ed){box-shadow:var(--dm-shadow),0 0 0 1px color-mix(in srgb,var(--dm-fg) 10%,transparent)}}
@@ -2549,7 +2551,8 @@ const fitHits = window.dmFitHits || (() => {
   function syncSizes(){ $$('.dbb-w', eg.el).forEach(n => { const it = eg.items.find(x => x.id === n.dataset.key); if (!it) return; $$('.dbb-sz button', n).forEach(b => b.setAttribute('aria-pressed', +b.dataset.v === it.w)); }); app.dataset.cols = eg.cols; }
 
   // quiet: the demo's own presses move no focus, so the app never takes the keyboard from a page that shows it in a frame
-  function openEditor(quiet){
+  // still: no entrance (the first paint, which opens on the editor)
+  function openEditor(quiet, still){
     if (mode !== 'view') return;
     closePops(); mode = 'edit'; app.dataset.mode = 'edit';
     draft = { items:DASH[cur].items.map(x => ({ ...x })), shown:DASH[cur].shown };
@@ -2557,7 +2560,7 @@ const fitHits = window.dmFitHits || (() => {
     ed.hidden = false; syncShown(); markDirty();
     eg.items = draft.items; eg.cols = colsFor(eg.el.clientWidth); eg.render(false); syncSizes(); empty();
     cv.scrollTop = 0;
-    if (!REDUCE) ed.animate([{ opacity:0, transform:'translateY(8px) scale(.99)' }, { opacity:1, transform:'none' }], { duration:MT('--dm-t-slow'), easing:getComputedStyle(app).getPropertyValue('--dm-ease').trim() || 'ease' });
+    if (!REDUCE && !still) ed.animate([{ opacity:0, transform:'translateY(8px) scale(.99)' }, { opacity:1, transform:'none' }], { duration:MT('--dm-t-slow'), easing:getComputedStyle(app).getPropertyValue('--dm-ease').trim() || 'ease' });
     $('.dbb-view', app).inert = true;
     if (!quiet) $('#dbb-et', app).focus({ preventScroll:true });
   }
@@ -2873,10 +2876,14 @@ const fitHits = window.dmFitHits || (() => {
   }
 
   /* ---------- first paint ---------- */
+  // the builder opens on its editor, the widgets to add listed on the left (owner, 26 Nov: "whenever someone clicks through to
+  // the dashboard builder, they see the edit with all the components on the left"); Save or Cancel goes on to the dashboard
+  // itself. ?mode=view opens on the dashboard
   renderView(true);
+  if (new URLSearchParams(location.search).get('mode') !== 'view') openEditor(true, true);
 
-  /* ---------- the demo: a short story, as the components' previews tell theirs. It opens the builder, drags a bar chart from
-     the palette onto the dashboard, makes it full width and saves. A mouse resting on the app holds it where it is (the
+  /* ---------- the demo: a short story, as the components' previews tell theirs. From the editor the page opens on, it drags a
+     bar chart from the palette onto the dashboard and makes it full width, and stays in the editor (Save is the visitor's). A mouse resting on the app holds it where it is (the
      controller's waits), the first real click, key or touch in the app ends it for good, and with reduced motion it doesn't play ---------- */
   const c = ctl();
   const embedded = document.documentElement.hasAttribute('data-embed');
@@ -2900,12 +2907,13 @@ const fitHits = window.dmFitHits || (() => {
       // it starts once the app has settled, while the tab is open and the app is on screen
       await c.step(embedded ? 1200 : 1800);
       while (document.hidden) await c.step(300);
-      if (mode !== 'view' || cur !== 'overview') return;
-      await tap(edBtn); await c.step(700);
+      if (cur !== 'overview') return;
+      if (mode === 'view'){ await tap(edBtn); await c.step(700); }
+      if (mode !== 'edit') return;
       if (getComputedStyle(addw).display !== 'none'){
         // a phone: Add widget opens the palette as a sheet, and a tap on Bar chart puts it at the end
         await tap(addw); await c.step(600); await tap($('.dbb-tile[data-t="bar"]', app)); await c.step(1400);
-        await tap($('.dbb-save', app)); await c.step(700); away(); return;
+        away(); return;
       }
       // the bar chart: pressed in the palette, carried onto the canvas under the metrics, and let go
       const tile = $('.dbb-tile[data-t="bar"]', app); if (!tile.offsetParent) return;
@@ -2925,7 +2933,6 @@ const fitHits = window.dmFitHits || (() => {
       const n = eg.node(draft.items.find(x => x.t === 'bar')); if (!n) return;
       select(n); await c.step(500);
       await tap($('.dbb-sz [data-v="3"]', n)); await c.step(1300);
-      await tap($('.dbb-save', app)); await c.step(700);
       away();
     }).finally(() => away());
   }
