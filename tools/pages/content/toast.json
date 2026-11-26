@@ -1,42 +1,48 @@
 {
-  "summary": "Toast shows one notification at a time and lets it change as the agent's work moves on. A loading toast can turn into a success, and an error can offer Retry, all in the same spot on screen.",
+  "summary": "Toast holds a job the agent runs in the background in one toast, from start to finish. It grows out of the button that started it, its glyph shows the work as it happens, its words and buttons change in place as the job moves on (working, a problem with its fix, done), its steps open inside it, and Close drains a visible countdown. Plain toasts, a success or an error with one action, are the same card.",
   "use": [
-    "When an agent action needs a short confirmation, like \"Changes applied\" with an Undo button.",
-    "When a task starts as loading and you want the same toast to report the result.",
-    "When a failure needs a single clear next step, such as Retry.",
-    "When only the latest message matters and older ones should step aside."
+    "When an agent runs something that takes a while, like making slides from notes, and people should keep working while it runs.",
+    "When a job can hit a problem the person can fix, and the fix should happen in the same toast rather than in a new one.",
+    "When a finished job needs a way back, like Undo, or a next step, like Open.",
+    "For a plain confirmation or failure with one action, such as \"Changes applied\" with Undo."
   ],
   "features": [
-    "Four tones: `success`, `error`, `info` and `loading`. Each picks its own icon and colour, and loading shows a spinner, with a highlight sweeping across its title. In Clean the colour is on the icon alone, with no disc behind it, and only `success` (green) and `error` (red) take one; `info` and `loading` stay grey.",
-    "Give the toast a new `id` and the new one rises in while the old one slips away. Keep the `id` to update the text in place.",
-    "The `description` line crossfades when it changes, so progress text can update without a jump.",
-    "One optional `action` adds a button on the toast's row, just before the close button: the message, then the action, then close at the far end. It is a `ghost` button by default (the demo's Undo, Retry and Open all are), or `primary` on the accent. On a narrow toast (340px or less, as on a phone), or when the words run past two lines beside it, the action moves to a row of its own under the message, its words ending under the close button's glyph, and close stays at the top end.",
-    "Set `action.busy` and the button label turns into a spinner. Clicks are ignored while it is busy.",
-    "Set `action.done` and the button label turns into the green tick, as Undo does once it has undone. The button stays in place but is turned off. Whichever it turns into, the button eases to its new width.",
-    "The close button hides the toast straight away and calls `onDismiss`, even if your state has not cleared it yet."
+    "One toast per job: keep its `id` and change `status`, `title`, `description`, `steps` and `actions` as the work moves on, and the same card changes in place. A new `id` brings in a new toast and sends the old one away.",
+    "Six statuses: `working`, `success`, `error`, `warning`, `stopped` and `info`. While `working` the title has a highlight sweeping across it, and Stop (when you pass `onStop`) takes Close's place. Without a `glyph` the status picks the mark: the green tick, the red alert, the orange warning sign (its words stay in the text colour; give its fix `variant: 'warn'`), a grey info or pause mark, or a spinner.",
+    "`glyph` takes a live drawing in place of the mark. `DeckGlyph` is the one the demo uses: it sweeps a line down the notes while `reading`, lays out a dashed slot for each slide while `outlining`, deals each slide into its slot as it is drafted (`made`), draws the slide in progress (`active`) in the accent and in front, lifts a `flagged` slide in red, and closes the hand into a deck with a green tick when `done`.",
+    "`steps` adds a chevron to the head that opens them inside the toast, under a hairline, each with its mark (waiting, running, done, failed or paused) and an optional `detail` like \"3 of 12\". Use `stepsOpen` and `onStepsOpenChange` to control it, or leave them out.",
+    "`actions` puts one or two buttons in the footer, under a hairline (an off-white strip in Clean): a white outlined `secondary`, a `primary`, or `warn` for a warning's fix. The footer opens and closes smoothly as actions come and go.",
+    "The description stays on one line. It crossfades when it changes, and a counter ticks over at once: a change that keeps the words before its first number, like \"Slide 3 of 12\" becoming \"Slide 4 of 12\".",
+    "`duration` closes the toast after that many milliseconds and draws it as a ring that drains round Close. The pointer or the focus on the toast holds the countdown. It is not counted while `working`.",
+    "Pass `from`, a ref to the button that started the job, and the toast grows out of it as it comes in and goes back into it as it leaves. Without it, the toast uses the style's own entrance and exit.",
+    "Swipe it sideways to dismiss it, or press Escape while the focus is in it. `onDismiss` tells you how it was closed: `close`, `timeout`, `swipe` or `escape`.",
+    "Up to 380px wide, and the full width of its container below that, so on a phone it takes the screen less your own 16px gutters. The actions always sit on a row of their own, in the footer.",
+    "In Clean the primary action is the ink button, the secondary is flat, and in dark mode everything drawn in the accent (the spinner, the slide in progress) turns white."
   ],
   "a11y": [
-    "Each toast has `role=\"status\"` inside an `aria-live=\"polite\"` slot, so changes are announced without interrupting.",
-    "The action button sets `aria-busy` while `busy` is true. Once `done` it sets `aria-disabled` and is named by `action.doneLabel` (Done if you leave it out), since the tick has no words.",
-    "The close button has `aria-label=\"Dismiss\"`, and a toast that is leaving is `inert`.",
-    "With reduced motion turned on, the exit animation is skipped and the text swap happens at once."
+    "Two live regions announce it: `announce` (or the title when you leave it out) is read each time it changes, politely, and an `error` is read at once (assertive). The demo announces milestones (the start, a problem, the end), not every slide.",
+    "The glyph and the status marks are hidden from screen readers; the words carry the news.",
+    "Stop, Close and the chevron have labels (\"Stop the job\", \"Close\", \"Show the steps\" or \"Hide the steps\"), and the chevron sets `aria-expanded`. Closed steps and an empty footer are inert, so Tab passes over them.",
+    "Escape closes the toast while the focus is in it and hands the focus back to the `from` button.",
+    "The countdown pauses while the pointer or the keyboard focus is on the toast, so there is time to reach its buttons.",
+    "With reduced motion turned on, the toast only fades in and out, and the glyph's slides change in place without moving."
   ],
   "faq": [
     {
-      "q": "Does the toast close itself after a few seconds?",
-      "a": "No, the component has no timer. Set `toast` to null from your own timeout when you want it gone. The demo does this for success and info after 10 seconds, since they carry an action (Undo, Open) that needs time to reach, and pauses the timer on hover. Keep a toast with an action up for at least 10 seconds, or until it is dismissed."
+      "q": "How do I show a plain success or error toast?",
+      "a": "Leave out `glyph` and `steps`, set `status` to `success` or `error`, and give it one action if it needs one, like `actions: [{ label: 'Undo', onClick }]`. Set `duration` (10 seconds or more when it has an action) so it closes itself."
     },
     {
-      "q": "How do I turn a loading toast into a success toast?",
-      "a": "Keep the same `id` and change `tone`, `title` and `description`. The card stays in place and the description crossfades. Use a new `id` if you want a fresh toast to slide in instead."
+      "q": "How does a job's toast become its problem and then its fix?",
+      "a": "Keep the same `id`. When the job hits a problem, set `status: 'error'`, a title that says what is wrong, and the fix as the primary action. When it is pressed, set `status: 'working'` again with a title like \"Fixing slide 7…\". The demo does exactly this."
     },
     {
-      "q": "How do I show a spinner on Retry while the agent tries again?",
-      "a": "Set `action.busy` to true. The button shows a spinner, gets `aria-busy`, and ignores further clicks until you clear it."
+      "q": "What happens to the job when the toast is closed?",
+      "a": "Nothing: the toast is only the job's view. The demo keeps the job running and turns its button into Show progress, which brings the same toast back."
     },
     {
-      "q": "What does `onDismiss` need to do?",
-      "a": "The toast hides itself when its close button is pressed, so `onDismiss` is for your own state. Clearing `toast` there keeps the two in sync."
+      "q": "Can I use my own glyph?",
+      "a": "Yes. Pass any element 64 by 40 pixels as `glyph`; the steps' marks line up under its centre. `DeckGlyph` shows how one can follow the job's progress."
     }
   ]
 }
