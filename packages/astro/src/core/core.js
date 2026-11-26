@@ -276,6 +276,8 @@ const GROW_SIZING = /^(all|height|min-height|max-height|block-size|min-block-siz
 function sizingIn(w){
   for (const a of w.getAnimations({ subtree:true })){
     if (a.playState === 'finished' || a.playState === 'idle' || !a.effect || a.effect.pseudoElement) continue;
+    // (an element taken out of the flow, like a positioned underline growing, changes no height round it)
+    const tg = a.effect.target; if (tg && /^(absolute|fixed)$/.test(getComputedStyle(tg).position)) continue;
     const ps = typeof a.transitionProperty === 'string' ? [a.transitionProperty] : a.effect.getKeyframes ? a.effect.getKeyframes().flatMap(k => Object.keys(k)) : [];
     if (ps.some(p => GROW_SIZING.test(p.replace(/[A-Z]/g, ch => '-' + ch.toLowerCase())))) return true;
   }

@@ -369,6 +369,8 @@ function sizingIn(w: Element) {
   for (const a of w.getAnimations({ subtree: true })) {
     if (a.playState === 'finished' || a.playState === 'idle' || !a.effect || (a.effect as KeyframeEffect).pseudoElement) continue;
     const t = (a as CSSTransition).transitionProperty, e = a.effect as KeyframeEffect;
+    // (an element taken out of the flow, like a positioned underline growing, changes no height round it)
+    if (e.target instanceof Element && /^(absolute|fixed)$/.test(getComputedStyle(e.target).position)) continue;
     const ps = typeof t === 'string' ? [t] : typeof e.getKeyframes === 'function' ? e.getKeyframes().flatMap(k => Object.keys(k)) : [];
     if (ps.some(p => GROW_SIZING.test(p.replace(/[A-Z]/g, ch => '-' + ch.toLowerCase())))) return true;
   }
