@@ -89,7 +89,7 @@ body{background:var(--dm-page);color:var(--dm-fg);font-family:var(--dm-sans);fon
 .ts2b-tx{flex:1;min-width:0}
 .ts2b-ti{display:block;font-size:13px;font-weight:500;line-height:18px}
 .ts2b-de{display:block;font-size:12px;line-height:17px;color:var(--dm-muted);font-variant-numeric:tabular-nums}
-.ts2b-hb{display:flex;align-items:center;gap:var(--dm-s-1);margin-right:-2px}
+.ts2b-hb{display:flex;align-items:center;gap:var(--dm-s-1)}
 .ts2b-hb .pill{flex:none}
 .ts2b-hb .ib{width:28px;height:28px;position:relative}
 /* the preview of the words it changed, under the title's column */
@@ -135,6 +135,8 @@ body{background:var(--dm-page);color:var(--dm-fg);font-family:var(--dm-sans);fon
 .ts2b-g.s1 .pic{clip-path:inset(0 0 0 0)}
 .ts2b-g.s1 .scan{opacity:.85;transform:translateY(40px)}
 .ts2b-g.s2 .scan{opacity:0;transform:translateY(40px)}
+.ts2b-g .blur{transition:opacity .3s}
+.ts2b-g.s2 .blur{opacity:0}
 .ts2b-g .frame{fill:none;stroke:color-mix(in srgb,var(--dm-fg) 10%,transparent)}
 :root:not([data-style="soft"],[data-style="clean"]) .ts2b-g rect.clipr{rx:0}
 /* the source: three results are read, two fall away, the one that holds the number is kept and numbered */
@@ -241,7 +243,7 @@ DM.def('ts2b', (st, c, card) => {
 
   /* the picture the agent makes: a cover drawn in the chart palette */
   const picture = (id, blur) => `${blur ? `<defs><filter id="${id}b" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="3.2"/></filter></defs>` : ''}
-    <g${blur ? ` filter="url(#${id}b)"` : ''}><rect width="64" height="40" fill="var(--dm-pb-bg)"/><circle cx="46" cy="13" r="6.5" fill="var(--dm-c4)"/>
+    <rect width="64" height="40" fill="var(--dm-pb-bg)"/><g${blur ? ` class="blur" filter="url(#${id}b)"` : ''}><circle cx="46" cy="13" r="6.5" fill="var(--dm-c4)"/>
     <path d="M0 30 C12 20 22 21 32 27 S52 22 64 18 V40 H0z" fill="var(--dm-c2)"/><path d="M0 34 C14 28 26 31 38 35 S56 31 64 30 V40 H0z" fill="var(--dm-c3)"/>
     <path d="M30 40 C33 36 36 34 42 32.5" stroke="var(--dm-raised)" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".8"/></g>`;
 
@@ -308,7 +310,7 @@ DM.def('ts2b', (st, c, card) => {
 
   const add = kind => {
     const t = build(kind); all.unshift(t); stack.appendChild(t.el);
-    t.el.style.transition = 'none'; t.el.style.height = nat(t) + 'px'; t.el.style.opacity = '0'; t.el.style.transform = 'translateY(28px) scale(.96)'; void t.el.offsetWidth; t.el.style.transition = '';
+    t.el.style.transition = 'none'; t.el.style.height = nat(t) + 'px'; t.el.style.opacity = '0'; t.el.style.transform = getComputedStyle(win).getPropertyValue('--dm-motion').trim() === 'clean' ? 'translateY(8px) scale(.98)' : 'translateY(28px) scale(.96)'; void t.el.offsetWidth; t.el.style.transition = '';
     layout(); playGlyph(t, t.k.steps); countdown(t, 9000);
     tell(`${t.k.ti}. ${t.k.de}. ${t.k.act[1]} is available.`);
     return t;
@@ -361,22 +363,22 @@ DM.def('ts2b', (st, c, card) => {
   const undoEdit = t => { setLead(OLD); t.g.classList.add('back'); morph(t, 'Opening line restored', 'Back to your words', ['line', 'Redo', redoEdit]); };
   const redoEdit = t => { setLead(NEW); t.g.classList.remove('back'); morph(t, 'Opening line tightened', '9 words shorter', ['line', 'Undo', undoEdit]); };
   const insert = async t => {
-    t.a.disabled = true;
+    if (t.busy) return; t.busy = true;
     figPic.innerHTML = `<svg viewBox="0 0 64 40" preserveAspectRatio="xMidYMid slice">${picture('fig' + t.id)}</svg>`; figPic.classList.remove('in');
     fig.classList.add('open');
     const fb = fig.getBoundingClientRect(), w = fig.offsetWidth;
     const target = { left:fb.left, top:fb.top, width:w, height:w * 9 / 16 };
     const rr = getComputedStyle(figPic).borderTopLeftRadius;
     await fly(t.g, target, `<svg viewBox="0 0 64 40" preserveAspectRatio="xMidYMid slice">${picture('fly' + t.id)}</svg>`, getComputedStyle(st.querySelector('.ts2b-t')).borderTopLeftRadius === '0px' ? '0px' : '6px', rr);
-    figPic.classList.add('in'); t.a.disabled = false;
+    figPic.classList.add('in'); t.busy = false;
     morph(t, 'Cover image inserted', 'Under the opening line', ['line', 'Undo', t2 => removeImage(t2)]);
   };
   const removeImage = t => { figPic.classList.remove('in'); fig.classList.remove('open'); morph(t, 'Cover image removed', 'It stays in your files', ['primary', 'Insert', insert]); };
   const cite = async t => {
-    t.a.disabled = true; cw.innerHTML = '<span class="ts2b-cite" aria-label="Source 1">1</span>'; const sup = cw.firstChild; sup.style.opacity = '0';
+    if (t.busy) return; t.busy = true; cw.innerHTML = '<span class="ts2b-cite" aria-label="Source 1">1</span>'; const sup = cw.firstChild; sup.style.opacity = '0';
     const bd = t.g.querySelector('.bd circle'), sb = sup.getBoundingClientRect();
     await fly(bd, sb, '<span style="display:block;width:100%;height:100%;border-radius:999px;background:var(--dm-accent)"></span>', '999px', '999px', 560);
-    t.g.classList.add('used'); sup.style.opacity = ''; if (!REDUCE) sup.classList.add("ts2b-popin"); t.a.disabled = false;
+    t.g.classList.add('used'); sup.style.opacity = ''; if (!REDUCE) sup.classList.add("ts2b-popin"); t.busy = false;
     morph(t, 'Cited as source 1', 'Review time study, 2026', ['line', 'Undo', t2 => uncite(t2)]);
   };
   const uncite = t => { cw.innerHTML = ''; t.g.classList.remove('used'); morph(t, 'Citation removed', 'The source is still saved', ['primary', 'Cite', cite]); };
