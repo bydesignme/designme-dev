@@ -5,7 +5,8 @@
 // then its rows and controls are hovered, its menus opened, and every drawn element is checked against these rules:
 //   R1 Inset        what is drawn inside a shape keeps a minimum inset from the shape's edges (16px in a card, panel,
 //                   popover or strip with controls; 6px in a row fill, field or button; 4px in a small chip or an icon
-//                   button; never 0-3px). Full-bleed dividers and strips are exempt.
+//                   button; never 0-3px). Full-bleed dividers and strips are exempt. A row's hover or selected fill may reach
+//                   8px out round the row, into a card's padding, when the row's content keeps the card's 16px (owner, 26 Nov).
 //   R2 Even         a single line of things in a bar, strip, row, chip or button has equal room above and below (±1px);
 //                   things at both ends of a row have the same inset at both ends (±1px); a head or footer band has the same
 //                   room on the hairline side as on the card's edge
@@ -298,8 +299,18 @@ function rulesLib(){
       // (a button or a round thing inside a small shape (an avatar at the end of a pill, a send button inside a field, a key chip
       // at the end of a button) may sit as close to the side as it sits to the top and bottom: the corners stay concentric)
       if (it.k === 'shape' && !big && (it.shape.radius >= .4 * Math.min(W(it.q), H(it.q)) || it.el.matches('button,.pill,.ib,.kbd'))){ const v = Math.min(q.t - c.edge.t, c.edge.b - q.b); if (v >= 2) mn = { h:Math.min(mn.h, v - .5), v:mn.v }; }
+      // (a row's hover or selected fill in a card, strip or band reaches 8px out round the row, into the padding, while the row's
+      // content stays on the shape's 16px column (owner, 26 Nov: "none of the padding makes sense again", on Agent tree's rows
+      // pushed 8px in to keep their fills inside it). Such a fill (a row with no edge or lift of its own, a quiet ring at most)
+      // may sit 8px from the sides, as long as everything drawn in it keeps the full inset from the shape's edges: on those
+      // sides the content is what is measured, not the fill)
+      let rowOut = null;
+      if (it.k === 'shape' && big && it.shape.role === 'row' && !it.shape.de.all && !it.shape.de.ring && !it.shape.de.elev){
+        const inner = items.filter(x => x !== it && x.cont === it.shape && x.k !== 'hair' && !(x.k === 'shape' && x.shape.backdrop));
+        if (inner.length) rowOut = { left:Math.min(...inner.map(x => x.q.l)) - c.edge.l, right:c.edge.r - Math.max(...inner.map(x => x.q.r)) }; }
       if (W(q) <= 0 || H(q) <= 0) continue;
       const ins = { left:q.l - c.edge.l, right:c.edge.r - q.r, top:q.t - c.edge.t, bottom:c.edge.b - q.b };
+      if (rowOut) for (const k of ['left', 'right']) if (ins[k] !== undefined && ins[k] >= 8 - .5 && rowOut[k] >= mn.h - .5) delete ins[k];
       if (cut.l) delete ins.left; if (cut.r) delete ins.right; if (cut.t) delete ins.top; if (cut.b) delete ins.bottom; if (it.noRight) delete ins.right; if (it.noV){ delete ins.top; delete ins.bottom; }
       const fl = flushSides(it, c); for (const k of Object.keys(fl)) if (ins[k] !== undefined && ins[k] >= -.5 && ins[k] <= 1.5) delete ins[k];
       // a strip's or band's words (no control) keep the side inset; up and down they follow the row rule
