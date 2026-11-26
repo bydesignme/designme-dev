@@ -16680,7 +16680,8 @@ DM.def('toast-stack', (r, c) => {
   /* swipe a card away: it follows the finger or the pointer sideways and goes once it has moved far enough, or eases back */
   const fling = (k, dx, v) => {
     if (Math.abs(dx) > 90 || v > .6){ const dir = Math.sign(dx) || 1, M = motion();
-      k.el.animate([{ transform:`${k.base} translateX(${dx}px)`, opacity:k.el.style.opacity }, { transform:`${k.base} translateX(${dx + dir * 140}px)`, opacity:0 }], { duration:M.t, easing:M.ease, fill:'forwards' });
+      // (with reduced motion it only fades where it was let go)
+      k.el.animate([{ transform:`${k.base} translateX(${dx}px)`, opacity:k.el.style.opacity }, { transform:`${k.base} translateX(${REDUCE ? dx : dx + dir * 140}px)`, opacity:0 }], { duration:REDUCE ? M.fast : M.t, easing:M.ease, fill:'forwards' });
       k.drag = false; k.el.style.transition = ''; dismiss(k, 'swipe'); }
     else { k.drag = false; k.el.style.transition = ''; k.el.style.transform = k.base; k.el.style.opacity = 1; }
   };
