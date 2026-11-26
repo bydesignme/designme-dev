@@ -259,6 +259,9 @@ every session and every agent.
   already are. The site's own source keeps the short names.
 - Each component ships in HTML (`soft-2/index.html`) and React (`packages/react`), with its docs copy in
   `tools/pages/content/<id>.json`. Change all three together.
+- Toast takes the Job toast design from the toast lab (`lab/toasts/2a.html`, owner, 26 Nov): a live glyph that is the news,
+  states that morph in place (working, a problem with its fix, resolved), steps that open in the toast, and a visible
+  countdown on Close. It is the Toast component's preview and style, with the library's regular motion.
 
 ## People in demos
 - The people in the demos are initials avatars (`.av`), on the site and in installs. The photo avatars were removed before
