@@ -47,10 +47,11 @@
 @media (hover:hover) and (pointer:fine){.dm-rdr-grip:hover i{opacity:1}}
 .dm-rdr-grip:focus-visible i{opacity:1;background:var(--dm-line-strong)}
 .dm-rdr-dw.dm-drag{user-select:none}
-/* the drawer's content sits 16px in from its edges, in every style: the toggle's box, the rows' fills and hover boxes, the
-   notice and the data blocks start on that edge, and Follow, Stop and the rows end on it; the words sit 8px inside them */
+/* the drawer's content sits 16px in from its edges, in every style: the toggle's chevron, the steps' marks, the headings and
+   the log's words start on that edge, with the notice and the data blocks, and Follow, Stop, the times and the data blocks end
+   on it. The toggle's and the rows' hover and picked fills reach 8px out round them, into the padding (owner, 26 Nov) */
 .dm-rdr-h{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:44px;padding:0 var(--dm-s-4)}
-.dm-rdr-tg{flex:none;display:inline-flex;align-items:center;gap:var(--dm-s-2);min-width:0;height:30px;padding:0 var(--dm-s-2);border-radius:var(--dm-r-sm);font-size:13px;font-weight:500;white-space:nowrap;transition:background var(--dm-t-fast)}
+.dm-rdr-tg{flex:none;display:inline-flex;align-items:center;gap:var(--dm-s-2);min-width:0;height:30px;margin-left:calc(-1 * var(--dm-s-2));padding:0 var(--dm-s-2);border-radius:var(--dm-r-sm);font-size:13px;font-weight:500;white-space:nowrap;transition:background var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.dm-rdr-tg:hover{background:var(--dm-row)}}
 .dm-rdr-tg>.dm-i{color:var(--dm-muted);transform:rotate(180deg);transition:transform var(--dm-t) var(--dm-ease)}
 .dm-rdr-dw.dm-shut .dm-rdr-tg>.dm-i{transform:none}
@@ -70,13 +71,13 @@
    stuck (owner, 22 Nov); its hover and Stop's are the shared ones */
 :root[data-style="clean"] .dm-rdr-follow[aria-pressed="true"],:root [data-style="clean"] .dm-rdr-follow[aria-pressed="true"],:root [data-style="clean"].dm-rdr-follow[aria-pressed="true"]{background:var(--dm-row-on)}
 .dm-rdr-dw.dm-shut :is(.dm-rdr-tabs,.dm-rdr-follow){display:none}
-.dm-rdr-b{position:relative;flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--dm-rail) transparent;padding:0 var(--dm-s-4);margin-bottom:var(--dm-s-4)}
+.dm-rdr-b{position:relative;flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--dm-rail) transparent;padding:0 var(--dm-s-2);margin-bottom:var(--dm-s-4)}
 /* (the room under the rows is outside the scroll box, so nothing scrolls into the card's bottom 16px) */
 .dm-rdr-dw.dm-shut .dm-rdr-b{display:none}
 .dm-rdr-v[hidden]{display:none}
 /* Steps: the timeline */
 .dm-rdr-ax,.dm-rdr-r{display:grid;grid-template-columns:minmax(0,15fr) minmax(0,14fr) 56px;align-items:center;gap:var(--dm-s-2);padding:0 var(--dm-s-2)}
-.dm-rdr-ax{position:sticky;top:0;z-index:2;height:28px;background:var(--dm-surface);box-shadow:0 1px 0 color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12px;color:var(--dm-muted)}
+.dm-rdr-ax{position:sticky;top:0;z-index:2;height:29px;padding-bottom:1px;background:linear-gradient(color-mix(in srgb,var(--dm-line) 50%,var(--dm-surface)),color-mix(in srgb,var(--dm-line) 50%,var(--dm-surface))) var(--dm-s-2) 100%/calc(100% - 2 * var(--dm-s-2)) 1px no-repeat,var(--dm-surface);font-size:12px;color:var(--dm-muted)}
 .dm-rdr-ax .dm-ms{text-align:right}
 .dm-rdr-sc{position:relative;height:16px}
 .dm-rdr-sc span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
@@ -86,7 +87,7 @@
 @media (hover:hover) and (pointer:fine){.dm-rdr-r:hover{background:var(--dm-row)}}
 /* a picked step: the accent tint (Blueprint's lime takes its darker mark so the tint shows on white) */
 .dm-rdr-r[aria-pressed="true"]{background:var(--dm-accent-bg)}
-:root:not([data-style="soft"],[data-style="clean"]) :is(.dm-rdr-r,.dm-rdr-ds button)[aria-pressed="true"]:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){background:color-mix(in srgb,var(--dm-accent-mark) 12%,transparent)}
+:root:not([data-style="soft"],[data-style="clean"]) :is(.dm-rdr-r,.dm-rdr-ds button)[aria-pressed="true"]:not(:where([data-style="soft"],[data-style="soft"] *,[data-style="clean"],[data-style="clean"] *)){background:var(--dm-bp-pick)}
 .dm-rdr-r.dm-in{animation:dm-enter var(--dm-t) var(--dm-ease) backwards}
 .dm-rdr-n{display:flex;align-items:center;gap:6px;min-width:0;padding-left:calc(var(--dm-lv,0) * 18px)}
 .dm-rdr-nm{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -104,7 +105,7 @@
 /* what the run waits for: a person's yes, as a warning notice (owner, 18 Nov; Model picker's busy notice is the reference): a
    faint warning tint as wide as the rows' fills, the filled warning sign centred in the rows' tile column, the words in the
    text colour on the names' column, Approve (what resolves it) in the warning tint and Reject white, ending where the times end */
-.dm-rdr-ask{display:grid;grid-template-columns:18px minmax(0,1fr) auto;align-items:center;gap:var(--dm-s-2) 6px;width:100%;box-sizing:border-box;margin:6px 0 var(--dm-s-1);padding:10px var(--dm-s-2);border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));background:color-mix(in srgb,var(--dm-warn-bg) 45%,transparent);font-size:12.5px}
+.dm-rdr-ask{display:grid;grid-template-columns:18px minmax(0,1fr) auto;align-items:center;gap:var(--dm-s-2) 6px;width:auto;box-sizing:border-box;margin:6px var(--dm-s-2) var(--dm-s-1);padding:10px var(--dm-s-2);border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));background:color-mix(in srgb,var(--dm-warn-bg) 45%,transparent);font-size:12.5px}
 .dm-rdr-ask.dm-in{animation:dm-enter var(--dm-t) var(--dm-ease) backwards}
 .dm-rdr-sgi{grid-area:1/1;justify-self:center;align-self:start;width:16px;height:16px;margin-top:1px;overflow:visible}
 .dm-rdr-sgi .dm-a{fill:var(--dm-warn-mark);stroke:var(--dm-warn-mark);stroke-width:2;stroke-linejoin:round}
