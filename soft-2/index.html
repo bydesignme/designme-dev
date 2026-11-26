@@ -891,16 +891,17 @@ th:last-child>.col-rz{display:none}
 .ctm-bar i{height:100%;width:0;flex:none;background:var(--c);transition:width .42s var(--ease),opacity .16s}
 .ctm-bar.hl i:not(.on){opacity:.25}
 /* the legend's rows answer the pointer: the swatch sits on the content's edge and the hover reaches out round it */
-/* (the legend's rows and their hover fills are as wide as the content, their words 6px inside) */
-.ctm-leg{display:flex;flex-direction:column;margin:0}
-.ctm-l{display:flex;align-items:center;gap:var(--s-2);padding:5px 6px;border-radius:var(--r-sm);font-size:13px;line-height:18px;color:var(--fg2);cursor:default;transition:background var(--t-fast)}
+/* (the swatches start and the values end on the content's 16px column, as the head's words do; a row's hover fill reaches
+   8px out round it, into the padding (owner, 26 Nov)) */
+.ctm-leg{display:flex;flex-direction:column;margin:0 calc(-1 * var(--s-2))}
+.ctm-l{display:flex;align-items:center;gap:var(--s-2);padding:5px var(--s-2);border-radius:var(--r-sm);font-size:13px;line-height:18px;color:var(--fg2);cursor:default;transition:background var(--t-fast)}
 .ctm-l:hover{background:color-mix(in srgb,var(--fg) 5%,transparent)}
 /* its motion (the core's motion pieces, owner, 26 Nov): one highlight glides from part to part in the legend, in the hover's
    own grey (.mx-glide); a press on Compact shows at once; its box eases to its new words' width on the spring (mxWidth()) */
 .ctm-leg{--hg-bg:color-mix(in srgb,var(--fg) 5%,transparent)}
 :root[data-style="clean"] .ctm-leg{--hg-bg:var(--row)}
 /* the swatch is centred in a 16px column, the column of the message's sign and tick below, so their words line up */
-.ctm-l .sw{width:8px;height:8px;margin:0 4px;border-radius:var(--r-tiny,2px);flex:none;background:var(--c)}
+.ctm-l .sw{width:8px;height:8px;margin:0 4px 0 0;border-radius:var(--r-tiny,2px);flex:none;background:var(--c)}
 .ctm-l .v{margin-left:auto;color:var(--fg)}
 /* the message takes no room until it has something to say (owner, 17 Nov), and opens smoothly when it does. A warning is a
    warning notice (owner, 18 Nov): a faint warning tint, the filled warning sign in the warning mark and the words in the text
@@ -965,7 +966,7 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .ctm-bar i{transition:width .42s var(--ease),opacity .15s var(--ease)}
 :root[data-style="clean"] .ctm-bar i:first-child{border-radius:3px 0 0 3px}
 :root[data-style="clean"] .ctm-bar.hl i:not(.on){opacity:.28}
-:root[data-style="clean"] .ctm-leg{margin:8px 16px 0}
+:root[data-style="clean"] .ctm-leg{margin:8px 8px 0}
 :root[data-style="clean"] .ctm-l{padding:5px 8px;border-radius:calc(var(--r-card) - 8px);transition:background-color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .ctm-l:hover{background:var(--row)}
 :root[data-style="clean"] .ctm-msg{margin:0 16px}
@@ -991,8 +992,8 @@ th:last-child>.col-rz{display:none}
    where the run starts, and an accent ring with a dot while a step waits for a person */
 .atr{--atr-ind:22px;--atr-r:8;--atr-cut:0;--atr-run:var(--accent-mark,var(--accent));--atr-flow:color-mix(in srgb,var(--atr-run) 30%,var(--surface));--atr-ez:cubic-bezier(.22,1,.36,1);container:atr/inline-size;box-sizing:border-box;width:100%;max-width:480px;margin:0 auto;padding:11px var(--s-4) var(--s-1);font-size:13px;line-height:1.4;color:var(--fg)}
 /* its content sits 16px in from every edge (owner, 18 Nov): the head's words, the foot's hairline and words, and each row's
-   hover fill on the 16px edge (a row's fill is as wide as the content, no wider), with the row's mark 8px inside its fill;
-   nothing in it grows or shrinks when it is pressed */
+   mark and trailing cost on the 16px column, with the row's hover fill reaching 8px out round it into the padding (owner,
+   26 Nov: rows keep the head's and foot's columns); nothing in it grows or shrinks when it is pressed */
 .atr :is(.pill,.ib):active{transform:none}
 :root[data-style="bp"] .atr{--atr-r:10;--atr-cut:1}
 .atr.bare{max-width:none;padding:0}
@@ -1008,6 +1009,7 @@ th:last-child>.col-rz{display:none}
 /* the tree: one treeitem per agent or step (.atr-n), its row (.atr-b) and the group of its children under it. A row holds a
    mark, an avatar or an app, the name and what it is on now, and its time and cost (a branch adds up everything under it) */
 .atr-tree{position:relative;padding:var(--s-1) 0}
+.atr:not(.bare) .atr-tree{margin-inline:calc(-1 * var(--s-2))}
 .atr-n{position:relative;outline:0}
 /* (a row is clicked to pick its agent, so it takes the pointer) */
 .atr-b{border-radius:calc(8px * var(--rk-m,var(--rk)));cursor:pointer;transition:background var(--t-fast)}
@@ -1016,7 +1018,9 @@ th:last-child>.col-rz{display:none}
 .atr-n[aria-selected="true"]>.atr-b{background:color-mix(in srgb,var(--fg) 5%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent)}
 /* the keyboard's ring only: a row picked with the mouse or a finger shows none, even when a modifier key follows (data-nofv) */
 .atr-n:focus-visible:not([data-nofv])>.atr-b{box-shadow:inset 0 0 0 2px var(--focus)}
-.atr-r{display:flex;align-items:center;gap:var(--s-2);min-height:32px;padding:0 var(--s-2) 0 calc(var(--s-2) + var(--lv,0) * var(--atr-ind))}
+/* (a status mark is drawn 14px in its 18px box, which holds the waiting ring's halo, so the box starts 2px early and the mark
+   itself sits on the content's 16px column) */
+.atr-r{display:flex;align-items:center;gap:var(--s-2);min-height:32px;padding:0 var(--s-2) 0 calc(var(--s-2) - 2px + var(--lv,0) * var(--atr-ind))}
 /* the mark sits over the lines; the parts beside it rise in, so the mark never moves off the end of its line */
 .atr-g{position:relative;z-index:2;width:18px;height:18px;flex:none;display:grid;place-items:center;border-radius:50%;color:var(--line-strong)}
 .atr-ring{width:14px;height:14px;box-sizing:border-box;border-radius:50%;background:var(--surface);box-shadow:inset 0 0 0 1.75px currentColor}
@@ -1059,7 +1063,7 @@ th:last-child>.col-rz{display:none}
 /* a step that waits for a person: no band behind it (owner, 18 Nov); its mark, a calm line in the accent and Approve in place
    say it */
 .atr-n[data-s="wait"]>.atr-b .atr-sub{color:var(--accent-fg,var(--accent))}
-.atr-ask{display:flex;flex-wrap:wrap;gap:var(--s-2);padding:0 var(--s-2) var(--s-2) calc(var(--s-2) + var(--lv,0) * var(--atr-ind) + 56px)}
+.atr-ask{display:flex;flex-wrap:wrap;gap:var(--s-2);padding:0 var(--s-2) var(--s-2) calc(var(--s-2) - 2px + var(--lv,0) * var(--atr-ind) + 56px)}
 /* the tree grows with its rows (grow(), owner 17 Nov): each new row already opens its own height smoothly, so the panel
    follows its content frame by frame, with nothing cut off and no room left over; the way on under a row (a fix, Approve and
    Hold) opens its height the same way. Where a browser can't ease a height to auto, it appears at once */
@@ -1123,6 +1127,7 @@ th:last-child>.col-rz{display:none}
    edge: the rows sit 8px in with 8px of their own, their hover concentric with the card's corners (22px = 14px + 8px) */
 :root[data-style="clean"] .atr:not(.bare){padding:8px 8px 0}
 :root[data-style="clean"] .atr:not(.bare) .atr-ct-mix{margin-inline:8px}
+:root[data-style="clean"] .atr:not(.bare) .atr-tree{margin-inline:0}
 :root[data-style="clean"] .atr:not(.bare) .atr-h{padding:8px 8px 12px}
 :root[data-style="clean"] .atr:not(.bare) .atr-b{border-radius:calc(var(--r-card) - 8px)}
 /* the rows take Clean's one hover, gliding from row to row, and the picked agent its stronger fill with no edge (owner, 21 Nov) */
@@ -1392,9 +1397,10 @@ th:last-child>.col-rz{display:none}
    and latency. The run itself is the head: its mark, its name, how it is going, and its total tokens and time. The card
    sits on two columns (owner, 18 Nov): the head's mark in a 32px column with the title's words 12px after it; each span's
    mark is centred in that column (nested ones step in 16px a level) and the top spans' names start where the title's
-   words do, as do the key and the Span heading. Everything sits on the card's 16px column on both sides (owner, 22 Nov: "all padding inside the card"). A row's hover and
-   selection fill is a quiet grey as wide as the content, 16px from each edge, with the span's mark 7px inside it and the
-   times and tokens 8px inside its right end; the run's totals and the axis end on those columns too. Each kind has its colour (the chart
+   words do, as do the key and the Span heading. Everything sits on the card's 16px column on both sides (owner, 22 Nov: "all padding inside the card"): the
+   run's totals, the times and tokens and an open span's details end 16px from the right edge, as the head's tile starts 16px
+   from the left. A row's hover and selection fill is a quiet grey that reaches 8px out round the row on each side, into the
+   padding, as a select's box reaches out round its words (owner, 26 Nov: rows keep the head's columns). Each kind has its colour (the chart
    palette's identity slots): its bar and its count in the key, drawn at full strength so the key matches them. While the
    run streams, a playhead marks now and the running bars grow with a bright leading edge. A span over its time budget
    turns amber and hatched, and any span opens to show where it sat in the run, its input and its output, on the same
@@ -1410,7 +1416,7 @@ th:last-child>.col-rz{display:none}
 .trv-tt{flex:none;margin-right:-4px;font-size:12.5px;white-space:nowrap}
 .trv-tot{font-size:14px;font-weight:500;flex:none}
 /* (the tokens and the time share one baseline; the row round them stays centred on the tile) */
-.trv-nums{flex:none;display:flex;align-items:baseline;gap:12px;padding-right:var(--s-2)}
+.trv-nums{flex:none;display:flex;align-items:baseline;gap:12px}
 /* the key: each kind with its colour and how many of its spans have started */
 .trv-lg{display:flex;flex-wrap:wrap;gap:2px var(--s-3);padding:8px 0 12px 44px;font-size:12px;color:var(--muted)}
 .trv-lg span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;transition:color .3s}
@@ -1418,14 +1424,14 @@ th:last-child>.col-rz{display:none}
 .trv-lg b{font-weight:500;color:var(--fg2)}
 .trv-lg span.z{color:var(--dis)}.trv-lg span.z b{color:inherit}.trv-lg span.z i{opacity:.45}
 .trv-ax,.trv-r{display:grid;grid-template-columns:var(--cols);align-items:center;gap:var(--s-2)}
-.trv-ax{height:30px;padding-right:var(--s-2);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12px;color:var(--muted)}
+.trv-ax{height:30px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12px;color:var(--muted)}
 .trv-ax>span:first-child{padding-left:44px}
 .trv-tk,.trv-ms{text-align:right;white-space:nowrap}
 .trv-sc{position:relative;height:18px}
 .trv-sc span{position:absolute;top:0;transform:translateX(-50%);font-size:12px}
 .trv-sc span:first-child{transform:none}
 .trv-rows{display:flex;flex-direction:column;padding-bottom:var(--s-4)}
-.trv-r{width:100%;padding:0 var(--s-2) 0 0;min-height:32px;border-radius:calc(10px * var(--rk-m,var(--rk)));font-size:13px;text-align:left;transition:background .16s}
+.trv-r{width:calc(100% + 16px);margin:0 -8px;padding:0 8px;min-height:32px;border-radius:calc(10px * var(--rk-m,var(--rk)));font-size:13px;text-align:left;transition:background .16s}
 .trv-r:hover,.trv-r[aria-expanded="true"]{background:var(--row)}
 .trv-r[aria-expanded="true"] .trv-tk{color:var(--fg2)}
 .trv-r:focus-visible{outline:0;box-shadow:inset 0 0 0 2px var(--focus)}
@@ -1485,7 +1491,7 @@ th:last-child>.col-rz{display:none}
 :root[data-style="bp"] .trv-g i,:root[data-style="bp"] .trv-g i.el::after{background:var(--faint)}
 /* narrow: the names keep their room. Tokens move into each span's details, the slow tag leaves the amber bar and time to
    say it (the time keeps its tooltip), the tree draws closer, and the details give the start its own line. The head's mark
-   keeps its 32px tile, so each span's mark stays 7px inside its row's fill, with the words 8px after it; the same columns
+   keeps its 32px tile, so each span's mark stays centred under it, with the words 8px after it; the same columns
    run down the card, and the time axis is a little shorter */
 @container (max-width:330px){
   .trv-ax,.trv-r{grid-template-columns:minmax(0,1fr) 60px 44px}.trv-tk,.trv-n .tag{display:none}.trv-g{display:none}.trv-kv{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -1914,8 +1920,8 @@ th:last-child>.col-rz{display:none}
 /* ---------- Agent lanes ---------- */
 /* each agent has its own hue (--c, with its tint --cb): its badge, its track, its tag and its stretch of the relay line that
    joins the badges. A hand-off sends a light down that line from one agent to the next, and the stretch it crossed stays lit */
-/* the card's content, the head and the lanes, sits 16px in from every edge; a lane's hover fill spans that content width
-   and its own content sits 12px inside the fill (the working badge's breathing ring, 5px, keeps clear of the fill's edge) */
+/* the card's content, the head and the lanes, sits 16px in from every edge: each lane's badge starts and its tag ends on the
+   head's 16px column, and a lane's hover fill reaches 8px out round it, into the padding (owner, 26 Nov) */
 .aln{padding:var(--s-4)}
 /* the lanes' marks (tracks, lines, a finished badge) in livelier versions of the agents' hues, each 3:1 on the surface; their
    text keeps the agent's text colour. Dark mode's agent colours are light already, so they are used as they are */
@@ -1934,7 +1940,7 @@ th:last-child>.col-rz{display:none}
 /* the head's words (the title, its time and its step count) share one baseline, whatever their sizes; the row round them stays
    centred, so the icon and Pause all sit on the title's line (owner, 23 Nov: the 12.5px time sat 2px above the 14px title) */
 .aln-tx{display:flex;align-items:baseline;gap:10px;margin-right:auto}
-.aln-rows{position:relative}
+.aln-rows{position:relative;margin-inline:calc(-1 * var(--s-2))}
 .aln-rows>*{position:relative}
 .aln-lane{border-radius:calc(14px * var(--rk-l,var(--rk)));transition:background .3s}
 /* the hover fills the lane's row, the button a person clicks; an open log below it stays clear */
@@ -1944,15 +1950,15 @@ th:last-child>.col-rz{display:none}
 /* the agent at work gets no tinted band behind its row: its pulsing badge and the Working spinner say it is active (owner,
    18 Nov) */
 /* the relay line runs from badge to badge, through the lanes and the hand-offs between them, and stops short of each badge */
-.aln-rows>*::before{content:"";position:absolute;left:28px;width:2px;top:0;bottom:0;background:var(--line);pointer-events:none}
+.aln-rows>*::before{content:"";position:absolute;left:24px;width:2px;top:0;bottom:0;background:var(--line);pointer-events:none}
 .aln-lane::before{top:50px}
 .aln-lane:last-child::before{display:none}
-.aln-lane::after{content:"";position:absolute;left:28px;width:2px;top:0;height:8px;background:var(--line);pointer-events:none}
+.aln-lane::after{content:"";position:absolute;left:24px;width:2px;top:0;height:8px;background:var(--line);pointer-events:none}
 .aln-lane:first-child::after{display:none}
 /* a stretch that has carried a hand-off is drawn by its one lit stroke (.aln-pk, below), so the grey under it steps aside
    and the line from badge to badge stays a single clean line */
 .aln-rows>.aln-lane.sent::before,.aln-rows>.aln-lane.got::after,.aln-rows>.aln-hf.lit::before{background:transparent}
-.aln-row{display:grid;grid-template-columns:34px minmax(0,1.2fr) minmax(0,1fr) auto;align-items:center;gap:var(--s-3);width:100%;padding:var(--s-3);text-align:left}
+.aln-row{display:grid;grid-template-columns:34px minmax(0,1.2fr) minmax(0,1fr) auto;align-items:center;gap:var(--s-3);width:100%;padding:var(--s-3) var(--s-2);text-align:left}
 .aln-av{position:relative;width:34px;height:34px;border-radius:calc(11px * var(--rk-l,var(--rk)));display:grid;place-items:center;color:var(--c);background:var(--cb);transition:color .4s,background .4s}
 .aln-av::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none}
 .aln-lane[data-s="working"] .aln-av{animation:alnbreathe 2.4s var(--ease-io) infinite}
@@ -1982,20 +1988,20 @@ th:last-child>.col-rz{display:none}
 .aln-tg{background:var(--cb);color:var(--c)}
 .aln-tg .spin{width:9px;height:9px}
 /* (58px: the row's 12px, the 34px badge and the 12px gap, so the log starts under the agent's name) */
-.aln-det{padding:0 var(--s-3) var(--s-3) 58px;font-size:12.5px;color:var(--fg2)}
+.aln-det{padding:0 var(--s-2) var(--s-3) 54px;font-size:12.5px;color:var(--fg2)}
 .aln-det div{display:flex;align-items:center;gap:var(--s-2);padding:3px 0}
 .aln-det div::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--c);flex:none}
 .aln-det .muted{margin-left:auto}
 /* a hand-off opens a line between the lanes, glides the lanes below down and closes again */
 .aln-hf{transition-duration:var(--t-slow)}
-.aln-hand{padding:6px var(--s-3) 6px 58px;font-size:12.5px;line-height:18px;color:var(--fg2)}
+.aln-hand{padding:6px var(--s-2) 6px 54px;font-size:12.5px;line-height:18px;color:var(--fg2)}
 .aln-hand b{font-weight:500}
 .aln-hand .f{color:var(--from)}.aln-hand .t{color:var(--to)}
 /* the hand-off draws the relay line from the sender's badge down to the taker's, in the gap between them (it never passes
    over a badge): a stroke that fills from the sender's hue into the taker's, then stays as the lit stretch (owner, 4 Nov).
    It is one element from badge to badge that follows them as the lanes move, so there is never a second line under it */
 .aln-rows>.aln-pk::before{display:none}
-.aln-pk{position:absolute;left:28px;top:0;width:2px;background:linear-gradient(var(--from),var(--to));transform-origin:50% 0;pointer-events:none;z-index:2}
+.aln-pk{position:absolute;left:24px;top:0;width:2px;background:linear-gradient(var(--from),var(--to));transform-origin:50% 0;pointer-events:none;z-index:2}
 @media (max-width:600px){
   .aln-row{grid-template-columns:34px minmax(0,1fr) auto;row-gap:var(--s-2)}
   .aln-tr{grid-column:2 / -1;grid-row:2}
@@ -2004,7 +2010,7 @@ th:last-child>.col-rz{display:none}
   .aln-m{margin-right:auto}
 }
 @media (max-width:400px){.aln-ic{display:none}}
-:root[data-style="bp"] .aln-rows>*::before,:root[data-style="bp"] .aln-lane::after{width:1px;left:28.5px;background:repeating-linear-gradient(var(--rail) 0 3px,transparent 3px 6px)}
+:root[data-style="bp"] .aln-rows>*::before,:root[data-style="bp"] .aln-lane::after{width:1px;left:24.5px;background:repeating-linear-gradient(var(--rail) 0 3px,transparent 3px 6px)}
 :root[data-style="bp"] .aln-rows>.aln-lane.sent::before,:root[data-style="bp"] .aln-rows>.aln-lane.got::after,:root[data-style="bp"] .aln-rows>.aln-hf.lit::before{background:transparent}
 :root[data-style="bp"] .aln-lane[data-s="working"] .aln-av{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 45%,transparent)}
 :root[data-style="bp"] .aln-av{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 35%,transparent)}
@@ -2012,7 +2018,7 @@ th:last-child>.col-rz{display:none}
 @keyframes alnbp{0%,55%{box-shadow:inset 0 0 0 1px var(--c)}56%,100%{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 35%,transparent)}}
 :root[data-style="bp"] .aln-tr i{height:8px}
 :root[data-style="bp"] .aln-tr i.run::after{background:repeating-linear-gradient(135deg,var(--cm) 0 4px,color-mix(in srgb,var(--cm) 55%,var(--surface)) 4px 7px);animation:none}
-:root[data-style="bp"] .aln-pk{width:1px;left:28.5px;border-radius:0;background:var(--to)}
+:root[data-style="bp"] .aln-pk{width:1px;left:24.5px;border-radius:0;background:var(--to)}
 :root[data-style="bp"] .aln-av.ping::before{animation:alnpingbp .6s steps(3,end)}
 @keyframes alnpingbp{from{box-shadow:0 0 0 1px var(--c)}to{box-shadow:0 0 0 7px transparent}}
 /* the line saying what just happened, and once the run is done, how it went: Clean's foot strip shows it */
@@ -2035,6 +2041,7 @@ th:last-child>.col-rz{display:none}
 /* (Agent harness, Phase II, keeps staging's lanes as they were: the card 8px in, the lanes' fills to its padding with their
    content 10px inside (8px in Clean), the hover on the whole lane and the Working tag lifted onto the surface) */
 .ahx .aln{padding:var(--s-2)}
+.ahx .aln-rows{margin-inline:0}
 .ahx .aln-h{padding:var(--s-2) 10px 10px}
 .ahx .aln-row{padding:10px;border-radius:0}
 .ahx .aln-row:hover{background:none}
@@ -2058,7 +2065,7 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .ahx .aln-tr i.on{background:var(--rail)}
 :root[data-style="clean"] .ahx .aln-row:hover .aln-tr i:not(.on){background:var(--rail)}
 :root[data-style="clean"] .aln.panel .aln-pause{position:absolute;right:16px;bottom:var(--strip-y);margin:0}
-:root[data-style="clean"] .aln.panel .aln-rows{grid-row:2;grid-column:1 / -1;margin:4px 16px 8px}
+:root[data-style="clean"] .aln.panel .aln-rows{grid-row:2;grid-column:1 / -1;margin:4px 8px 8px}
 :root[data-style="clean"] .aln.panel .aln-say{display:block;grid-row:3;grid-column:1 / -1;align-self:center;min-width:0;margin:0 16px;font-size:12.5px;line-height:20px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* Pause all is pinned in the strip's corner rather than placed on the grid, so its width never squeezes the head on a phone;
    the line beside it keeps clear of it (the button, its 16px and a 12px gap) until the run is done and the button goes */
@@ -2073,12 +2080,12 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .aln-row:hover .aln-st .tag:not(.ok,.warn,.aln-tg){background:var(--surface)}
 /* a finished step is drawn by its fill, so the step under it takes the same colour */
 :root[data-style="clean"] .aln-tr i.on{background:var(--cm)}
-:root[data-style="clean"] .aln-rows>*::before,:root[data-style="clean"] .aln-lane::after{left:28.25px;width:1.5px;border-radius:1px;background:var(--faint)}
+:root[data-style="clean"] .aln-rows>*::before,:root[data-style="clean"] .aln-lane::after{left:24.25px;width:1.5px;border-radius:1px;background:var(--faint)}
 :root[data-style="clean"] .aln-lane::before{top:46px}
 :root[data-style="clean"] .aln-lane::after{height:12px}
 :root[data-style="clean"] .aln-lane:not(:has(~.aln-lane))::before{display:none}
 :root[data-style="clean"] .aln-rows>.aln-lane.sent::before,:root[data-style="clean"] .aln-rows>.aln-lane.got::after,:root[data-style="clean"] .aln-rows>.aln-hf.lit::before{background:transparent}
-:root[data-style="clean"] .aln-pk{left:28.25px;width:1.5px;border-radius:1px;box-sizing:content-box;padding:4px 0;margin-top:-4px}
+:root[data-style="clean"] .aln-pk{left:24.25px;width:1.5px;border-radius:1px;box-sizing:content-box;padding:4px 0;margin-top:-4px}
 /* a track and the steps still to come are neutral; an agent's colour shows only on the steps it is running or has done */
 :root[data-style="clean"] .aln-tr i{background:var(--rail)}
 /* on the hovered row the steps still to come turn a translucent grey, so the track still reads on the row's grey */
@@ -3575,9 +3582,9 @@ th:last-child>.col-rz{display:none}
 /* the legend's swatch is the instructions' part in small: the same grey and corners, its left edge on that part's (the bar's 2px
    inset and the part's 1px gap) */
 .atx-ctx-key i{width:8px;height:8px;margin-left:3px;border-radius:2px;background:var(--muted)}
-/* the rows' hover fill is as wide as the content above it (the bar, the head), no wider; a row's tile and words sit 8px
-   inside it */
-.atx-ctx-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+/* a row's tile starts and its count and toggle end on the content's 16px column, where the bar and the head do; its hover
+   fill reaches 8px out round it, into the padding (owner, 26 Nov) */
+.atx-ctx-list{list-style:none;margin:0 calc(-1 * var(--s-2));padding:0;display:flex;flex-direction:column}
 .atx-ctx-it{border-radius:var(--r-in);transition:background .25s,opacity .3s}
 .atx-ctx-it:hover{background:var(--row)}
 .atx-ctx-r{display:flex;align-items:center;gap:var(--s-3);min-height:48px;padding:var(--s-2)}
@@ -4269,10 +4276,10 @@ th:last-child>.col-rz{display:none}
 .pgx-ht b{font-weight:500;font-size:14px}
 .pgx-ht span{font-size:13px}
 /* the scopes line up with the head (owner, 18 Nov): each box centred in a 32px column under the icon tile, its words where the
-   question's start, and the row's hover fill exactly the content's width, from the tile's left edge to the right edge the
-   buttons below end on. The box sits 7px inside the fill, and a tag at the row's end sits 7px inside it too */
+   question's start, and a tag at the row's end on the right edge the buttons below end on. The row's hover fill reaches 8px
+   out round it, into the padding (owner, 26 Nov) */
 .pgx-sc{display:flex;flex-direction:column}
-.pgx-o{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;column-gap:var(--s-3);padding:var(--s-2) 7px var(--s-2) 0;border-radius:calc(10px * var(--rk-m,var(--rk)));cursor:pointer;font-size:13.5px;transition:background .25s}
+.pgx-o{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;column-gap:var(--s-3);margin-inline:calc(-1 * var(--s-2));padding:var(--s-2);border-radius:calc(10px * var(--rk-m,var(--rk)));cursor:pointer;font-size:13.5px;transition:background .25s}
 .pgx-o>.bx{justify-self:center}
 .pgx-o:hover{background:var(--row)}
 .pgx-o input{position:absolute;opacity:0;pointer-events:none}
@@ -4341,7 +4348,7 @@ th:last-child>.col-rz{display:none}
    hairlines between rows, which give way to the quiet fill of the row under the pointer */
 :root[data-style="clean"] .pgx-o{position:relative;display:grid;grid-template-columns:32px minmax(0,1fr) auto;column-gap:12px;transition:background-color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .pgx-o>.bx{justify-self:center}
-:root[data-style="clean"] .pgx-o+.pgx-o{background-image:linear-gradient(var(--hair),var(--hair));background-repeat:no-repeat;background-position:0 0;background-size:100% 1px}
+:root[data-style="clean"] .pgx-o+.pgx-o{background-image:linear-gradient(var(--hair),var(--hair));background-repeat:no-repeat;background-position:var(--s-2) 0;background-size:calc(100% - 2 * var(--s-2)) 1px}
 :root[data-style="clean"] :is(.pgx-o:hover,.pgx-o:hover+.pgx-o){background-image:none}
 /* asking again for one scope: nothing to tick, so the scope is an info row, its info mark where the box would be */
 
@@ -4520,9 +4527,10 @@ th:last-child>.col-rz{display:none}
 .plx-ht b{font-weight:500;font-size:13.5px}
 .plx-st{font-size:12.5px}
 /* every part on shared columns, in every style (owner, 18 Nov): the header's mark and each step's number are centred in one
-   32px column, so the steps' words start where the title's do; a step's hover fill spans the content and no wider */
-.plx-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;counter-reset:s}
-.plx-s{display:flex;align-items:flex-start;gap:10px;padding:7px 6px 7px 0;border-radius:calc(10px * var(--rk-m,var(--rk)));font-size:13px;transition:background .25s,opacity .35s;position:relative}
+   32px column, so the steps' words start where the title's do, and a step's buttons and time end on the content's right edge;
+   a step's hover fill reaches 8px out round it, into the padding, as Add a step's does (owner, 26 Nov) */
+.plx-list{list-style:none;margin:0 calc(-1 * var(--s-2));padding:0;display:flex;flex-direction:column;counter-reset:s}
+.plx-s{display:flex;align-items:flex-start;gap:10px;padding:7px var(--s-2);border-radius:calc(10px * var(--rk-m,var(--rk)));font-size:13px;transition:background .25s,opacity .35s;position:relative}
 .plx-s:hover{background:var(--row)}
 .plx-s .n{width:20px;height:20px;margin:1px 6px 0;border-radius:50%;background:var(--chip);display:grid;place-items:center;font-size:11px;font-variant-numeric:tabular-nums;color:var(--muted);flex:none;transition:background .35s,color .35s}
 .plx-s:hover .n{background:var(--surface)}
@@ -4550,7 +4558,7 @@ th:last-child>.col-rz{display:none}
 .plx-s.done .n{background:var(--chip);color:var(--ok)}
 .plx-s.retry .n{background:var(--warn-bg);color:var(--warn)}
 .plx-s.edited .t::after{content:"edited";margin-left:6px;font-size:11px;color:var(--accent-fg,var(--accent))}
-.plx-add{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--fg2);padding:6px 0;align-self:stretch;border-radius:calc(10px * var(--rk-m,var(--rk)))}
+.plx-add{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--fg2);margin-inline:calc(-1 * var(--s-2));padding:6px var(--s-2);align-self:stretch;border-radius:calc(10px * var(--rk-m,var(--rk)))}
 .plx-add .i{margin-inline:10px}
 .plx-add:hover{color:var(--fg);background:var(--row)}
 /* the footer's buttons end on the content's right edge, also on a phone, where the note beside them is left out */
@@ -4578,8 +4586,8 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .plx-ht b{line-height:20px}
 :root[data-style="clean"] .plx-st{line-height:18px}
 :root[data-style="clean"] .plx-tm{font-variant-numeric:tabular-nums}
-:root[data-style="clean"] .plx-list{margin:0}
-:root[data-style="clean"] .plx-s{gap:12px;padding:7px 6px 7px 0;border-radius:calc(7px * var(--rk-m,var(--rk)));transition:background-color var(--t-fast) var(--ease),opacity var(--t-fast) var(--ease)}
+:root[data-style="clean"] .plx-list{margin:0 calc(-1 * var(--s-2))}
+:root[data-style="clean"] .plx-s{gap:12px;padding:7px var(--s-2);border-radius:calc(7px * var(--rk-m,var(--rk)));transition:background-color var(--t-fast) var(--ease),opacity var(--t-fast) var(--ease)}
 :root[data-style="clean"] .plx-s .n{margin:1px 6px 0;background:none;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line-strong) 50%,transparent);transition:background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .plx-s:hover .n{background:var(--surface)}
 :root[data-style="clean"] .plx-s.run .n{box-shadow:none;color:var(--fg)}
@@ -4588,7 +4596,7 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .plx-s.done .n{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--ok-mark);color:var(--ok-mark)}
 :root[data-style="clean"] .plx-s.done .n .i{width:11px;height:11px;stroke-width:2.4}
 :root[data-style="clean"] .plx-s.edited .t::after{color:var(--muted)}
-:root[data-style="clean"] .plx-add{align-self:stretch;gap:12px;margin:-4px 0 0;padding:6px 0;border-radius:calc(7px * var(--rk-m,var(--rk)));transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
+:root[data-style="clean"] .plx-add{align-self:stretch;gap:12px;margin:-4px calc(-1 * var(--s-2)) 0;padding:6px var(--s-2);border-radius:calc(7px * var(--rk-m,var(--rk)));transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .plx-add .i{margin-inline:10px}
 :root[data-style="clean"] .plx.panel .plx-f .plx-stop{margin-right:0}
 :root[data-style="clean"] .plx.panel .plx-f{justify-content:flex-end;gap:4px;margin:6px -16px 0;padding:var(--strip-y) 16px;border-top:1px solid var(--line);background:var(--strip);border-radius:0 0 var(--r-card) var(--r-card)}
@@ -6578,10 +6586,11 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .rdr-grip:hover i,.rdr-grip.on i{opacity:1}
 .rdr-grip:focus-visible i{opacity:1;background:var(--line-strong)}
 .rdr-dw.drag{user-select:none}
-/* the drawer's content sits 16px in from its edges, in every style: the toggle's box, the rows' fills and hover boxes, the
-   notice and the data blocks start on that edge, and Follow, Stop and the rows end on it; the words sit 8px inside them */
+/* the drawer's content sits 16px in from its edges, in every style: the toggle's chevron, the steps' marks, the headings and
+   the log's words start on that edge, with the notice and the data blocks, and Follow, Stop, the times and the data blocks end
+   on it. The toggle's and the rows' hover and picked fills reach 8px out round them, into the padding (owner, 26 Nov) */
 .rdr-h{flex:none;display:flex;align-items:center;gap:var(--s-2);height:44px;padding:0 var(--s-4)}
-.rdr-tg{flex:none;display:inline-flex;align-items:center;gap:var(--s-2);min-width:0;height:30px;padding:0 var(--s-2);border-radius:var(--r-sm);font-size:13px;font-weight:500;white-space:nowrap;transition:background var(--t-fast)}
+.rdr-tg{flex:none;display:inline-flex;align-items:center;gap:var(--s-2);min-width:0;height:30px;margin-left:calc(-1 * var(--s-2));padding:0 var(--s-2);border-radius:var(--r-sm);font-size:13px;font-weight:500;white-space:nowrap;transition:background var(--t-fast)}
 .rdr-tg:hover{background:var(--row)}
 .rdr-tg>.i{color:var(--muted);transform:rotate(180deg);transition:transform var(--t) var(--ease)}
 .rdr-dw.shut .rdr-tg>.i{transform:none}
@@ -6601,13 +6610,13 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
    stuck (owner, 22 Nov); its hover and Stop's are the shared ones */
 :root[data-style="clean"] .rdr-follow[aria-pressed="true"]{background:var(--row-on)}
 .rdr-dw.shut :is(.rdr-tabs,.rdr-follow){display:none}
-.rdr-b{position:relative;flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--rail) transparent;padding:0 var(--s-4);margin-bottom:var(--s-4)}
+.rdr-b{position:relative;flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--rail) transparent;padding:0 var(--s-2);margin-bottom:var(--s-4)}
 /* (the room under the rows is outside the scroll box, so nothing scrolls into the card's bottom 16px) */
 .rdr-dw.shut .rdr-b{display:none}
 .rdr-v[hidden]{display:none}
 /* Steps: the timeline */
 .rdr-ax,.rdr-r{display:grid;grid-template-columns:minmax(0,15fr) minmax(0,14fr) 56px;align-items:center;gap:var(--s-2);padding:0 var(--s-2)}
-.rdr-ax{position:sticky;top:0;z-index:2;height:28px;background:var(--surface);box-shadow:0 1px 0 color-mix(in srgb,var(--line) 50%,transparent);font-size:12px;color:var(--muted)}
+.rdr-ax{position:sticky;top:0;z-index:2;height:29px;padding-bottom:1px;background:linear-gradient(color-mix(in srgb,var(--line) 50%,var(--surface)),color-mix(in srgb,var(--line) 50%,var(--surface))) var(--s-2) 100%/calc(100% - 2 * var(--s-2)) 1px no-repeat,var(--surface);font-size:12px;color:var(--muted)}
 .rdr-ax .ms{text-align:right}
 .rdr-sc{position:relative;height:16px}
 .rdr-sc span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
@@ -6635,7 +6644,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 /* what the run waits for: a person's yes, as a warning notice (owner, 18 Nov; Model picker's busy notice is the reference): a
    faint warning tint as wide as the rows' fills, the filled warning sign centred in the rows' tile column, the words in the
    text colour on the names' column, Approve (what resolves it) in the warning tint and Reject white, ending where the times end */
-.rdr-ask{display:grid;grid-template-columns:18px minmax(0,1fr) auto;align-items:center;gap:var(--s-2) 6px;width:100%;box-sizing:border-box;margin:6px 0 var(--s-1);padding:10px var(--s-2);border-radius:calc(8px * var(--rk-m,var(--rk)));background:color-mix(in srgb,var(--warn-bg) 45%,transparent);font-size:12.5px}
+.rdr-ask{display:grid;grid-template-columns:18px minmax(0,1fr) auto;align-items:center;gap:var(--s-2) 6px;width:auto;box-sizing:border-box;margin:6px var(--s-2) var(--s-1);padding:10px var(--s-2);border-radius:calc(8px * var(--rk-m,var(--rk)));background:color-mix(in srgb,var(--warn-bg) 45%,transparent);font-size:12.5px}
 .rdr-ask.in{animation:enter var(--t) var(--ease) backwards}
 .rdr-sgi{grid-area:1/1;justify-self:center;align-self:start;width:16px;height:16px;margin-top:1px;overflow:visible}
 .rdr-sgi .a{fill:var(--warn-mark);stroke:var(--warn-mark);stroke-width:2;stroke-linejoin:round}
@@ -6744,9 +6753,9 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .mmx-tab button{font-size:12px;height:26px;padding:0 9px}
 /* a narrow panel puts the filter on its own line under the title, from the content's left edge */
 @container mmx (max-width:330px){.mmx-h{display:grid;grid-template-columns:28px minmax(0,1fr)}.mmx-tab{grid-column:1/-1;justify-self:start}}
-/* a memory's hover fill is as wide as the content (the head), no wider; its mark and words sit 8px inside it. Clean keeps its
-   rows 8px out, concentric with the card (below) */
-.mmx-list{display:flex;flex-direction:column;margin:0}
+/* a memory's mark sits on the head's tile column and its actions end on the content's 16px edge; its hover fill reaches 8px
+   out round it, into the padding, in every style (owner, 26 Nov) */
+.mmx-list{display:flex;flex-direction:column;margin:0 calc(-1 * var(--s-2))}
 .mmx-m{display:flex;align-items:flex-start;gap:12px;padding:var(--s-2);border-radius:calc(10px * var(--rk-m,var(--rk)));font-size:13px;line-height:1.5;transition:background .3s}
 .mmx-m:hover{background:var(--row)}
 /* its motion (the core's motion pieces, owner, 26 Nov): one highlight glides from memory to memory in every style (.mx-glide);
@@ -6770,10 +6779,9 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .mmx-m .acts{display:flex;opacity:0;transition:opacity .2s}
 .mmx-m:focus-within .acts{opacity:1}
 .mmx-m:hover .acts{opacity:1}
-/* Edit's and Forget's hover circles sit 8px inside the row's fill, as its mark does (in Clean, Forget's glyph ends on the
-   content's edge, under the filter, its circle reaching out round it) */
+/* Forget's glyph ends on the content's edge, under the filter, its hover circle reaching out round it */
 .mmx-m .ib{width:24px;height:24px}
-:root[data-style="clean"] .mmx-m .acts{margin-right:-6px}
+.mmx-m .acts{margin-right:-6px}
 .mmx-m.learn .acts{visibility:hidden}
 /* a memory an answer uses pulses once with a quiet grey fill, and its source lifts */
 .mmx-m.use{animation:mmxuse 1.4s var(--ease)}
@@ -6787,8 +6795,8 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .mmx-gone span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mmx-gone button{flex:none;color:var(--accent-fg,var(--accent));font-weight:500;font-size:12.5px}
 /* the line at the foot: how often the memory is used, or the answer it is helping with now; its mark centred in the memories'
-   mark column and its words on their words column (8px in, as the rows' contents are) */
-.mmx-f{display:flex;align-items:center;gap:12px;margin-top:var(--s-1);padding:var(--s-4) var(--s-2) 0;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12px;line-height:18px;color:var(--muted)}
+   mark column and its words on their words column */
+.mmx-f{display:flex;align-items:center;gap:12px;margin-top:var(--s-1);padding:var(--s-4) 0 0;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12px;line-height:18px;color:var(--muted)}
 .mmx-fi{display:grid;place-items:center;flex:none;width:28px;color:var(--fg2)}
 .mmx-fi .brand{width:14px;height:14px}
 .mmx-ft{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -6804,7 +6812,6 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
    strip, edge to edge, its mark and words on the card's columns */
 :root[data-style="clean"] .mmx-ic{color:var(--fg2);background:var(--chip);box-shadow:inset 0 0 0 1px var(--hair)}
 :root[data-style="clean"] .mmx-src{box-shadow:inset 0 0 0 1px var(--hair)}
-:root[data-style="clean"] .mmx-list{margin:0 calc(-1 * var(--s-2))}
 :root[data-style="clean"] :is(.mmx-m,.mmx-gone){border-radius:calc(var(--r-card) - 8px);transition:background-color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .mmx-m .t[contenteditable="true"]{padding:1px 6px;margin:-1px -6px;border-radius:var(--r-field)}
 :root[data-style="clean"] .mmx-m .acts{transition:opacity var(--t-fast) var(--ease)}
@@ -7460,7 +7467,7 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .ahx.ahx.ahx.ahx .pgx-ht b{font-weight:500;font-size:14px}
 .ahx.ahx.ahx.ahx .pgx-ht span{font-size:13px}
 .ahx.ahx.ahx.ahx .pgx-sc{display:flex;flex-direction:column}
-.ahx.ahx.ahx.ahx .pgx-o{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;column-gap:var(--s-3);padding:var(--s-2) 7px var(--s-2) 0;border-radius:calc(10px * var(--rk-m,var(--rk)));cursor:pointer;font-size:13.5px;transition:background .25s}
+.ahx.ahx.ahx.ahx .pgx-o{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;column-gap:var(--s-3);margin-inline:0;padding:var(--s-2) 7px var(--s-2) 0;border-radius:calc(10px * var(--rk-m,var(--rk)));cursor:pointer;font-size:13.5px;transition:background .25s}
 .ahx.ahx.ahx.ahx .pgx-o>.bx{justify-self:center}
 .ahx.ahx.ahx.ahx .pgx-o:hover{background:var(--row)}
 .ahx.ahx.ahx.ahx .pgx-o input{position:absolute;opacity:0;pointer-events:none}
