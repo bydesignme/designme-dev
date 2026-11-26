@@ -178,6 +178,8 @@ every session and every agent.
     corners for menu and list rows), clearly visible in light and dark, not a faint wash.
   - One selected or active state: the same shape and a stronger neutral fill (and the tick where a menu shows one), never a
     border or a hue.
+  - In light mode the hover is `--row` (black at 4%) and the selected fill `--row-on` (black at 6.5%) (owner, 26 Nov: the
+    selected row was "too dark" at 9%).
   - Both ease in and out over Clean's 220ms with its ease, never instantly. In a menu or list, the hover highlight glides
     from row to row as the pointer moves. With reduced motion, it only fades.
   - Borders round Clean controls and pills are half strength.
