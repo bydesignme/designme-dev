@@ -380,7 +380,10 @@ export function RunDrawer({ runId, label = 'Test run', state, time, tokens, cost
   // the newest row stays in view while the run is followed
   useEffect(() => {
     const b = body.current; if (!b || !fol || !live) return;
-    if (view === 'steps') { const last = rows.current?.lastElementChild as HTMLElement | null; if (last && last.offsetTop + last.offsetHeight > b.scrollTop + b.clientHeight) b.scrollTop = last.offsetTop + last.offsetHeight - b.clientHeight + 6; }
+    // (where the last row sits in the scrolling body: its offsets add up to the body, since the list, which the gliding highlight
+    // positions, is an offset parent of its own)
+    if (view === 'steps') { const last = rows.current?.lastElementChild as HTMLElement | null; let y = 0; for (let e: HTMLElement | null = last; e && e !== b && b.contains(e); e = e.offsetParent as HTMLElement | null) y += e.offsetTop;
+      if (last && y + last.offsetHeight > b.scrollTop + b.clientHeight) b.scrollTop = y + last.offsetHeight - b.clientHeight + 6; }
     if (view === 'log') b.scrollTop = b.scrollHeight;
   }, [shown.length, lines.length, waiting, view, fol, live]);
   const running = steps.find(x => stepState(x.id) === 'run');

@@ -162,7 +162,11 @@ DM.def('inline-text-diff', (r, c) => {
     bar.classList.toggle('unsure', !!e.why);
     acc.className = 'pill sm itd-acc ' + (e.why ? 'line mx-press' : 'primary'); rej.className = 'pill sm itd-rej ' + (e.why ? 'warn' : 'ghost mx-press');
     const rb = root.getBoundingClientRect(), k = rb.width / root.offsetWidth || 1, rs = el.getClientRects(), cr = rs[rs.length - 1] || el.getBoundingClientRect(), c0 = rs[0] || cr;
-    const room = popRoom(el), up = cr.bottom + 6 + bar.offsetHeight * k > room.bottom - 8 && c0.top - 6 - bar.offsetHeight * k >= room.top + 8;
+    // (the room is the stage's as well as the page's, so in a card of fixed height, like the homepage's, it never hangs past the
+    // stage's edge: it opens over the edit when there is no room under it and more over it)
+    const room = popRoom(el), sg = el.closest('.stage-inner') || el.closest('.stage');
+    if (sg){ const sr = sg.getBoundingClientRect(), cs = getComputedStyle(sg); room.top = Math.max(room.top, sr.top + parseFloat(cs.paddingTop)); room.bottom = Math.min(room.bottom, sr.bottom - parseFloat(cs.paddingBottom)); }
+    const need = 6 + bar.offsetHeight * k, below = room.bottom - 8 - cr.bottom, above = c0.top - room.top - 8, up = below < need && (above >= need || above > below);
     bar.inert = false; bar.classList.toggle('up', up); void bar.offsetWidth; bar.classList.add('open');
     bar.style.left = Math.max(12, Math.min(((up ? c0 : cr).left - rb.left) / k, root.offsetWidth - bar.offsetWidth - 12)) + 'px';
     bar.style.top = (up ? (c0.top - rb.top) / k - 6 - bar.offsetHeight : (cr.bottom - rb.top) / k + 6) + 'px';
