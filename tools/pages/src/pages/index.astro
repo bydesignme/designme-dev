@@ -116,8 +116,9 @@ const VIEWS = [['sales-crm', 'Accounts', 'accounts'], ['sales-crm', 'Pipeline', 
   ['dashboard-builder', 'Dashboard', ''], ['whiteboard', 'Whiteboard', '']]
   .map(([slug, name, view, at = '']) => ({ slug, app:APPS[slug], name, view, at, url:`/templates/${slug}` }));
 const openOf = v => v.url + (v.view ? `?view=${v.view}` : '');
-// the wall: every component in the library, in its order, as four rows that drift in turn left and right
-const ROWS = [0, 1, 2, 3].map(i => COMPONENTS.slice(Math.round(i * COMPONENTS.length / 4), Math.round((i + 1) * COMPONENTS.length / 4)));
+// the wall: every component in the library, in its order, as two rows that drift in turn left and right (owner, 26 Nov: four
+// rows made the section too big)
+const ROWS = [0, 1].map(i => COMPONENTS.slice(Math.round(i * COMPONENTS.length / 2), Math.round((i + 1) * COMPONENTS.length / 2)));
 if (ROWS.flat().length !== total) throw new Error('landing: the wall shows ' + ROWS.flat().length + ' of ' + total + ' components');
 // and each card plays its component (owner, 26 Nov: "can we animate these cards here?"): the size each one gets at its largest
 // while it plays, in each style (tools/site/measure-wall.js writes wall-sizes.json), so its card frames it the way its picture
@@ -376,7 +377,7 @@ const jsonld = [
       :root[data-style="clean"] .lp-panes{background:var(--dm-stage)}
       .lp-pane{display:flex;flex-direction:column;min-width:0}
 
-      /* ---- the wall: every component, four rows that drift in turn left and right across the site's grey the full width of
+      /* ---- the wall: every component, two rows that drift in turn left and right across the site's grey the full width of
          the window, fading out into the grey at both sides. A row holds still under the pointer or while a tile in it has the
          focus; with reduced motion the rows stand still and scroll by hand ---- */
       .lp .lp-rows{--lp-wg:var(--pg-soft);position:relative;display:flex;flex-direction:column;gap:16px;padding:56px 0;background:var(--lp-wg)}
@@ -634,7 +635,7 @@ const jsonld = [
         </div>
       </div></div>
       <div class="lp-rows">
-        {ROWS.map((row, i) => <div class:list={['lp-row', { rev:i % 2 === 1 }]} style={`--dur:${[210, 240, 225, 255][i]}s`}>
+        {ROWS.map((row, i) => <div class:list={['lp-row', { rev:i % 2 === 1 }]} style={`--dur:${[420, 480][i]}s`}>
           <div class="lp-track">
             <div class="lp-set">{row.map(c => <a class="lp-wt" href={c.url} data-reg={c.reg}><img alt="" width="480" height="300" loading="lazy" decoding="async"><span>{c.title}</span></a>)}</div>
             <div class="lp-set" aria-hidden="true">{row.map(c => <a class="lp-wt" href={c.url} data-reg={c.reg} tabindex="-1"><img alt="" width="480" height="300" loading="lazy" decoding="async"><span>{c.title}</span></a>)}</div>
@@ -666,7 +667,7 @@ const jsonld = [
       // the card's picture frames the component (the component at its largest in the style on screen, 40px round it, at
       // 16:10) and scaled down to the picture's box, with the component in the middle of it, so it grows and shrinks there
       // without being cut off or moving its card.
-      //  - only the few cards nearest the middle of the screen play (six, three on a phone): every one playing at once (26 at
+      //  - only the few cards nearest the middle of the screen play (four, two on a phone: two and one a row): every one playing at once (26 at
       //    1440) dropped the drift to 15 frames a second. The others show their picture. A card's frame is made when it first
       //    comes to play (two a frame); one that stops holds its demo, as a mouse resting on a component holds it, pauses its
       //    animations and draws nothing (dm-idle, as the library's far-away cards), so its picture shows, and its frame is
@@ -688,11 +689,12 @@ const jsonld = [
           return { html:f('.html'), css:f('.css'), js:f('.js').replace(/<\/script/gi, '<\\/script') };
         })); };
         // the component's stage, as on its own page and in its picture (tools/pages/wall.mjs): the site's grey, the component in
-        // the middle; a demo's own switch (its variants, under the component) stays out of the picture, as there
+        // the middle; a demo's own switch (its variants, under the component) stays out of the picture, as there, and so do the demo's pointer and tooltips, which read as specks at a card's size
         var STAGE = 'html,body{margin:0;height:100%;overflow:hidden}html{background:#fafafa}html[data-theme="dark"]{background:#1c1c1c;color-scheme:dark}html[data-style="clean"]{background:var(--dm-stage)}'
           + 'body{font:14px/1.6 Inter,ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased}'
           + '.stage-inner{height:100%;display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;align-items:center}.stage-inner>.card{min-width:0;display:grid;place-items:center}'
           + '.stage-in>.dm>.demo{position:absolute!important;visibility:hidden!important}'
+          + '.hand,.tip{visibility:hidden!important}'
           + 'html.lp-off *,html.lp-off *::before,html.lp-off *::after{animation-play-state:paused!important}';
         var attrs = function(){ var s = styleOf(); return ' data-theme="' + themeOf() + '"' + (s === 'bp' ? '' : ' data-style="' + s + '"'); };
         // (the style tags are written out in pieces, so the page's build, which reads every style in the page, leaves them be)
@@ -751,7 +753,7 @@ const jsonld = [
         } else {
           // the cards that play: of those on screen, the ones nearest its middle (a card already playing keeps its place until
           // another is clearly nearer, so they don't swap back and forth), looked at as the cards drift and the page scrolls
-          var MAX = function(){ return window.DM_WALL_MAX || (innerWidth > 640 ? 6 : 3); };
+          var MAX = function(){ return window.DM_WALL_MAX || (innerWidth > 640 ? 4 : 2); };
           var pick = function(){ var cx = innerWidth / 2, cy = innerHeight / 2;
             var on = cards.filter(function(a){ return a._vis; }).map(function(a){ var r = a.getBoundingClientRect(), d = a._hov ? -1e9 : Math.hypot(r.left + r.width / 2 - cx, (r.top + r.height / 2 - cy) * 1.5) - (a._on ? 80 : 0); return [d, a]; })
               .sort(function(x, y){ return x[0] - y[0]; }).slice(0, MAX()).map(function(x){ return x[1]; });

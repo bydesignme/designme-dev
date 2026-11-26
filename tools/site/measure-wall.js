@@ -30,7 +30,7 @@ const serve = page => page.route('**/*', route => {
   for (const st of ['bp', 'soft', 'clean']) if (!STYLES.includes(st)) out[st] = old[st] || {};
   for (const style of STYLES){
     // wide enough for each row's cards to stand side by side on screen, so every component plays
-    const page = await browser.newPage({ viewport: { width: 2800, height: 1200 } });
+    const page = await browser.newPage({ viewport: { width: 5200, height: 1000 } });
     await serve(page);
     await page.addInitScript(s => { window.DM_WALL_MEASURE = true; try { localStorage.setItem('dmui-style', s); localStorage.setItem('dmui-theme', 'light'); } catch(e){} }, style);
     await page.goto('http://dm.local/index.html', { waitUntil: 'load' });
