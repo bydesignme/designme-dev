@@ -37,7 +37,7 @@
     var st = document.createElement('style'); st.textContent = f('.css'); document.head.appendChild(st);
     var sc = document.createElement('script'); sc.textContent = f('.js'); document.body.appendChild(sc);
     main.innerHTML = f('.html');
-    var card = main.firstElementChild; if (card && window.DM && DM.defs[card.dataset.c]) DM.mount(card);
+    var card = main.firstElementChild; if (card && typeof DM !== 'undefined' && DM.defs[card.dataset.c]) DM.mount(card);
     // the page sizes the frame to what the component needs, and lines its handles up with the component's own box
     var report = function(){ var box = main.querySelector('.stage-in > *') || main, b = box.getBoundingClientRect(), pad = parseFloat(getComputedStyle(document.body).paddingTop);
       post({ dmx:'size', h:Math.ceil(main.scrollHeight + 2 * pad), x:b.left, w:b.width, vw:innerWidth }); };
@@ -56,7 +56,7 @@
     if (d.dmx === 'theme') document.documentElement.setAttribute('data-theme', d.t === 'dark' ? 'dark' : 'light');
     else if (d.dmx === 'click'){ var el = at(d.p); if (el) el.click(); }
     else if (d.dmx === 'key'){ var k = at(d.p); if (k) k.dispatchEvent(new KeyboardEvent('keydown', { key:d.key, bubbles:true, cancelable:true })); }
-    else if (d.dmx === 'reset'){ var c = main.firstElementChild; if (c && window.DM && DM.defs[c.dataset.c]) DM.mount(c, true); }
+    else if (d.dmx === 'reset'){ var c = main.firstElementChild; if (c && typeof DM !== 'undefined' && DM.defs[c.dataset.c]) DM.mount(c, true); }
   });
 })();
 </script>
