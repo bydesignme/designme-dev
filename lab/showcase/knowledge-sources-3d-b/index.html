@@ -845,13 +845,6 @@ body.render #stage{left:0;top:0;transform:none!important}
 :root[data-theme="dark"]{--pg:color-mix(in srgb,var(--dm-fg) 11%,var(--dm-surface));--pg-ink:color-mix(in srgb,var(--dm-fg) 62%,var(--pg));--pg-line:color-mix(in srgb,var(--dm-fg) 20%,var(--pg));--pg-fold:color-mix(in srgb,var(--dm-fg) 22%,var(--pg));--pg-edge:color-mix(in srgb,var(--dm-fg) 26%,var(--dm-surface));--pg-back:color-mix(in srgb,var(--dm-fg) 8%,var(--dm-surface));--dust:color-mix(in srgb,var(--dm-fg) 55%,var(--dm-surface))}
 :root{--chunk:var(--dm-av-p)}
 :root[data-style="clean"]{--chunk:var(--dm-fg2)}
-/* completion marks: four-point sparks and a ring, in the accent's mark colour and neutral grey; strokes and fills, no glow */
-#fx{position:absolute;left:0;top:0;overflow:visible}
-#fx svg{position:absolute;left:0;top:0;overflow:visible}
-.spk{fill:var(--dm-accent-mark,var(--dm-accent))}
-.spk.n{fill:var(--dm-line-strong)}
-.ring{fill:none;stroke:var(--dm-accent-mark,var(--dm-accent));stroke-width:1.5}
-.ring.n{stroke:var(--dm-line-strong);stroke-width:1}
 #cur{position:absolute;left:0;top:0;width:22px;height:26px;transform-origin:2px 2px;pointer-events:none}
 #rip{position:absolute;left:-14px;top:-14px;width:28px;height:28px;border-radius:50%;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-fg) 45%,transparent)}
 /* the window's caption (not in renders) */
@@ -874,7 +867,6 @@ body.render .cap{display:none}
       <div class="dm-ksx-ft" id="ft"><button type="button" class="dm-ksx-add"><svg class="dm-i dm-xs" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add source</button></div>
     </div>
   </div>
-  <div id="fx"></div>
 </div>
 <canvas id="gl" aria-hidden="true"></canvas>
 <div id="over"><div id="rip"></div><svg id="cur" viewBox="0 0 22 26" aria-hidden="true"><path d="M2.5 2v19l5-4.6 3.6 8 3.4-1.5-3.5-7.8h6.8z" fill="#111" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
@@ -1127,7 +1119,7 @@ function drawAtlas(C){
 const designOf = i => i === 0 ? 0 : 1 + ((i - 1) % 3);
 const pageRect = d => [(d % 2) * .5, d < 2 ? .5 : 0, .5, .5];
 
-let leafMesh, tileMesh, dust, dustPos, dustA, C;
+let leafMesh, tileMesh, flakeMesh, dust, dustPos, dustA, C;
 function buildScene(){
   C = {
     pg: colourOf('var(--pg)'), ink: colourOf('var(--pg-ink)'), line: colourOf('var(--pg-line)'), fold: colourOf('var(--pg-fold)'),
@@ -1153,7 +1145,15 @@ function buildScene(){
   tileMesh.geometry.setAttribute('aCut', new THREE.InstancedBufferAttribute(tc, 1));
   tileMesh.castShadow = false; tileMesh.frustumCulled = false; scene.add(tileMesh);
   // paper dust: three specks shaken off each tile as it peels, neutral grey, solid (no glow)
-  const nd = N * 3; dustPos = new Float32Array(nd * 3); dustA = new Float32Array(nd);
+  // scraps: small slabs cut from the pages (each shows its own bit of a page)
+  flakeMesh = new THREE.InstancedMesh(slabGeometry(1, 1, .7, 0), slabMaterial(map, C, [1, 1]), NF);
+  const fr = new Float32Array(NF * 4);
+  flakes.forEach((f, i) => { const [u0, v0, du, dv] = pageRect(f.page); fr.set([u0 + du * f.u, v0 + dv * f.v, du * f.w / PW, dv * f.h / PH], i * 4); });
+  flakeMesh.geometry.setAttribute('aRect', new THREE.InstancedBufferAttribute(fr, 4));
+  flakeMesh.geometry.setAttribute('aMix', new THREE.InstancedBufferAttribute(new Float32Array(NF), 1));
+  flakeMesh.geometry.setAttribute('aCut', new THREE.InstancedBufferAttribute(new Float32Array(NF), 1));
+  flakeMesh.frustumCulled = false; scene.add(flakeMesh);
+  const nd = N * 3 + NP; dustPos = new Float32Array(nd * 3); dustA = new Float32Array(nd);
   const dg = new THREE.BufferGeometry();
   dg.setAttribute('position', new THREE.BufferAttribute(dustPos, 3).setUsage(THREE.DynamicDrawUsage));
   dg.setAttribute('aA', new THREE.BufferAttribute(dustA, 1).setUsage(THREE.DynamicDrawUsage));
@@ -1315,18 +1315,22 @@ function worldCSS(c){
   return `matrix3d(${_M.elements.map(v => +v.toFixed(7)).join(',')})`;
 }
 
-// ---------- completion marks (DOM, in the card's space): four-point sparks and a ring, accent mark and neutral; no glow ----------
-const fx = $('#fx'), NS = 'http://www.w3.org/2000/svg';
-const sparkPath = 'M0-7C.5-2.2 2.2-.5 7 0 2.2.5.5 2.2 0 7-.5 2.2-2.2.5-7 0-2.2-.5-.5-2.2 0-7z';
-const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('width', 1); svg.setAttribute('height', 1); fx.appendChild(svg);
-const ring = document.createElementNS(NS, 'circle'); ring.setAttribute('class', 'ring'); svg.appendChild(ring);
-const ring2 = document.createElementNS(NS, 'circle'); ring2.setAttribute('class', 'ring n'); svg.appendChild(ring2);
-const sparks = [];
-for (let i = 0; i < 12; i++){
-  const p = document.createElementNS(NS, 'path'); p.setAttribute('d', sparkPath); p.setAttribute('class', 'spk' + (i % 3 === 2 ? ' n' : ''));
-  svg.appendChild(p);
-  sparks.push({ p, a: Math.PI * .4 + i * (Math.PI * 1.2 / 11) + (rnd() - .5) * .16, d0: 18, d1: 34 + rnd() * 16, s: .8 + rnd() * .5, delay: rnd() * .1, rot: (rnd() - .5) * 140 });
-}
+// ---------- the finish: as the stack crushes into the mark, a few scraps of the pages puff out of it and settle back onto
+// it, then shrink into the mark. Paper, lit like the tiles, plus a little neutral dust; no stars, no rings, no glow ----------
+const PUFF = .12;                 // after the last landing: the crush is complete
+const NF = 14, NP = 26;           // paper scraps, and specks of dust with them
+const flakes = [...Array(NF)].map((_, i) => {
+  // out on the mark's open side (up, left and down), never toward the row's words; a short way to the right only
+  const left = i % 5 !== 4;
+  const a = left ? Math.PI * .45 + (i / (NF - 1)) * Math.PI * 1.1 + (rnd() - .5) * .3 : (rnd() - .5) * 1.1;
+  const w = 5 + rnd() * 4.5;
+  return { a, R: left ? 18 + rnd() * 16 : 7 + rnd() * 4, H: 24 + rnd() * 22, Tf: .44 + rnd() * .14, d: rnd() * .06,
+    w, h: w * (.6 + rnd() * .6), rest: 2 + rnd() * 7, ra: rnd() * Math.PI * 2, rot0: rnd() * Math.PI,
+    axis: new THREE.Vector3(rnd() - .5, rnd() - .5, rnd() * .4).normalize(), spin: (2.5 + rnd() * 3) * Math.PI,
+    // cut from the text page's grey lines only, so the scraps stay neutral
+    page: 1, u: .08 + rnd() * .7, v: rnd() < .7 ? .54 + rnd() * .34 : .09 + rnd() * .14, out: 1.05 + rnd() * .2 };
+});
+const specks = [...Array(NP)].map(() => ({ a: Math.PI * .4 + rnd() * Math.PI * 1.2, v: 30 + rnd() * 50, vz: 30 + rnd() * 50, life: .35 + rnd() * .35, s: .6 + rnd() * .5 }));
 
 // ---------- render one moment ----------
 const _o = new THREE.Matrix4(), _z = new THREE.Matrix4().makeScale(0, 0, 0);
@@ -1466,25 +1470,39 @@ function renderAt(t){
       dustA[o] = (1 - q / d.life) * .9 * d.s;
     });
   });
+  // ---------- the finish: scraps puff out of the crushed stack and settle back onto the mark ----------
+  const pq = t - DONE - PUFF;
+  flakes.forEach((f, i) => {
+    const q = pq - f.d;
+    if (q < 0 || q > f.Tf + 1.5){ flakeMesh.setMatrixAt(i, _z); return; }
+    const u = clamp(q / f.Tf), su = smooth(u);
+    // out and back: a puff that is pulled home, landing a few px from the mark's centre
+    const r = f.R * Math.sin(Math.PI * Math.min(1, u * f.out)) * (1 - .35 * u) + f.rest * su;
+    const ang = lerp(f.a, f.ra, su * su);
+    let z = f.H * 4 * u * (1 - u);
+    const hq = q - f.Tf; if (hq > 0 && hq < .16) z += f.H * .1 * Math.sin(Math.PI * hq / .16);   // one small hop, then still
+    // it tumbles out and lands flat
+    _q.setFromAxisAngle(_v.set(0, 0, 1), f.rot0);
+    _qs.setFromAxisAngle(f.axis, f.spin * (1 - su) * (1 - su));
+    _q.multiply(_qs);
+    // at rest for a moment, then drawn into the mark
+    const gone = eInCubic(seg(q, f.Tf + .1 + f.d * 2, .26));
+    const k = (1 - gone) * (u < .06 ? u / .06 : 1);
+    _o.compose(toV(tx + Math.cos(ang) * r * (1 - gone), ty + Math.sin(ang) * r * (1 - gone), z + .5), _q, _s.set(f.w * k, f.h * k, 1));
+    flakeMesh.setMatrixAt(i, k > .001 ? _o : _z);
+  });
+  flakeMesh.instanceMatrix.needsUpdate = true;
+  specks.forEach((d, m) => {
+    const o = N * 3 + m, q = pq;
+    if (q < 0 || q > d.life){ dustA[o] = 0; return; }
+    const dr = (1 - Math.exp(-q * 4)) / 4;
+    const p = toV(tx + Math.cos(d.a) * (12 + d.v * dr), ty + Math.sin(d.a) * (12 + d.v * dr), 2 + d.vz * dr - 40 * q * q);
+    dustPos[o * 3] = p.x; dustPos[o * 3 + 1] = p.y; dustPos[o * 3 + 2] = Math.max(.5, p.z);
+    dustA[o] = (1 - q / d.life) * .9 * d.s;
+  });
   dust.geometry.attributes.position.needsUpdate = true; dust.geometry.attributes.aA.needsUpdate = true;
 
   renderer.render(scene, camera);
-
-  // ---------- completion marks round the mark ----------
-  const mq = t - DONE - .1;
-  if (mq > 0 && mq < 1.1){
-    fx.style.display = '';
-    const rr = eOutCubic(clamp(mq / .6)), r2 = eOutCubic(clamp((mq - .08) / .7));
-    ring.setAttribute('cx', tx); ring.setAttribute('cy', ty); ring.setAttribute('r', (17 + rr * 18).toFixed(2));
-    ring.style.opacity = ((1 - rr) * .95).toFixed(3);
-    ring2.setAttribute('cx', tx); ring2.setAttribute('cy', ty); ring2.setAttribute('r', (17 + r2 * 26).toFixed(2));
-    ring2.style.opacity = ((1 - r2) * .5).toFixed(3);
-    for (const s of sparks){
-      const u = clamp((mq - s.delay) / .85), e = eOutCubic(u), d = lerp(s.d0, s.d1, e);
-      const sz = s.s * Math.sin(Math.PI * Math.min(1, u * 1.05));
-      s.p.setAttribute('transform', `translate(${(tx + Math.cos(s.a) * d).toFixed(2)} ${(ty + Math.sin(s.a) * d).toFixed(2)}) rotate(${(s.rot * e).toFixed(1)}) scale(${Math.max(0, sz).toFixed(3)})`);
-    }
-  } else fx.style.display = 'none';
 
   // ---------- the pointer, over the 3D layer, at the booklet's height ----------
   const c = cursorAt(t);
