@@ -2,7 +2,7 @@
    just rotating 360 very slowly"). The mark's own vector paths (fab.js passes the same <svg> the button draws) are read with
    three's SVGLoader and extruded deep, with bevelled edges, in neutral materials: white and silver in light mode, graphite
    with light edges in dark. Soft studio light from neutral lamps and a soft neutral shadow under it; no colour anywhere.
-   One turn every 14s at the display's rate (time-based), rendered only while the pop-up is open; with reduced motion a
+   One turn every 10.5s at the display's rate (time-based), rendered only while the pop-up is open; with reduced motion a
    still three-quarter view. three.js 0.170.0 is vendored next to this file (fab/three, MIT), loaded only when the pop-up
    first opens. */
 import * as THREE from './three/three.module.min.js';
@@ -53,9 +53,15 @@ export function mount(stage, svgText, opts){
   const shadow = new THREE.Mesh(new THREE.PlaneGeometry(900, 260), shadowMat);
   shadow.rotation.x = -Math.PI / 2; shadow.position.y = -(bb.max.y - bb.min.y) / 2 - 70; scene.add(shadow);
 
+  // a fine grain for dark mode's matte surface: noise in the roughness, repeated
+  const nc = document.createElement('canvas'); nc.width = nc.height = 64; const nx = nc.getContext('2d'), id = nx.createImageData(64, 64);
+  for (let i = 0; i < id.data.length; i += 4){ const v = 200 + Math.random() * 55; id.data[i] = id.data[i + 1] = id.data[i + 2] = v; id.data[i + 3] = 255; }
+  nx.putImageData(id, 0, 0); const grain = new THREE.CanvasTexture(nc); grain.wrapS = grain.wrapT = THREE.RepeatWrapping; grain.repeat.set(.02, .02);
   const theme = dark => {
-    if (dark){ faceMat.color.set(0x2b2b2b); faceMat.metalness = .55; faceMat.roughness = .38; sideMat.color.set(0xe6e6e6); sideMat.metalness = .5; sideMat.roughness = .3; hemi.intensity = 1.1; shadowMat.opacity = .9; }
-    else { faceMat.color.set(0xffffff); faceMat.metalness = .2; faceMat.roughness = .3; sideMat.color.set(0xc9c9c9); sideMat.metalness = .7; sideMat.roughness = .26; hemi.intensity = 1.4; shadowMat.opacity = .45; }
+    // dark (owner, 26 Nov): matte graphite, its thickness darker than its face, edges a dim highlight at most, a fine grain
+    if (dark){ faceMat.color.set(0x3a3a3a); faceMat.metalness = .15; faceMat.roughness = .72; faceMat.roughnessMap = grain; sideMat.color.set(0x1c1c1c); sideMat.metalness = .2; sideMat.roughness = .8; sideMat.roughnessMap = grain; hemi.intensity = 1.6; key.intensity = 3; rim.intensity = .9; shadowMat.opacity = .9; }
+    else { faceMat.color.set(0xffffff); faceMat.metalness = .2; faceMat.roughness = .3; faceMat.roughnessMap = null; sideMat.color.set(0xc9c9c9); sideMat.metalness = .7; sideMat.roughness = .26; sideMat.roughnessMap = null; hemi.intensity = 1.4; key.intensity = 2.6; rim.intensity = 1.6; shadowMat.opacity = .45; }
+    faceMat.needsUpdate = sideMat.needsUpdate = true;
   };
   theme(opts && opts.dark);
 
@@ -73,7 +79,7 @@ export function mount(stage, svgText, opts){
   };
   size();
 
-  const TURN = 14;
+  const TURN = 10.5;
   let raf = 0, t0 = performance.now(), base = 0;
   const draw = now => { pivot.rotation.y = reduce ? -.62 : base + ((now - t0) / 1000) * (Math.PI * 2 / TURN); renderer.render(scene, camera); };
   const loop = now => { raf = requestAnimationFrame(loop); draw(now); };

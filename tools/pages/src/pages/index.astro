@@ -311,13 +311,17 @@ const jsonld = [
       .lp-rel:hover{background:var(--rel-bg-h)}
       .lp-rel:focus-visible{outline:2px solid var(--pg-line2);outline-offset:2px}
       .lp-rel-v{display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:inherit;background:var(--rel-chip);color:var(--rel-chip-fg)}
+      /* Soft's version chip: white with a half-strength hairline in light, a step lighter in dark (owner, 26 Nov) */
+      :root[data-style="soft"] .lp-rel-v{background:var(--pg-bg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rel-line) 50%,var(--pg-line2))}
+      :root[data-style="soft"][data-theme="dark"] .lp-rel-v{background:color-mix(in srgb,var(--dm-accent) 26%,var(--pg-bg));box-shadow:none}
+      @media (prefers-color-scheme:dark){:root[data-style="soft"]:not([data-theme="light"]) .lp-rel-v{background:color-mix(in srgb,var(--dm-accent) 26%,var(--pg-bg));box-shadow:none}}
       .lp-rel-t{overflow:hidden;text-overflow:ellipsis}
       .lp-rel .lp-ar{margin-left:-2px;transition:transform .22s var(--lp-ease)}
       .lp-rel:hover .lp-ar{transform:translateX(2px)}
       /* the light (owner, 26 Nov: "lighter, not darker ... more like a particle effect, almost as if it's glowing"): a bright head
          with a soft neutral bloom and a short trail of fine sparks that twinkle and fade, a few drifting a hair off the edge,
          drawn on a canvas a little larger than the label. White-based in every style (a pale tint of the accent at most) */
-      .lp-spark{position:absolute;left:-8px;top:-8px;width:calc(100% + 16px);height:calc(100% + 16px);pointer-events:none}
+      .lp-spark{position:absolute;left:-16px;top:-16px;width:calc(100% + 32px);height:calc(100% + 32px);pointer-events:none}
       /* Blueprint: square, on its lime; the version on the solid accent */
       :root[data-style="bp"] .lp-rel,:root:not([data-style]) .lp-rel{--rel-bg:color-mix(in srgb,var(--dm-accent) 16%,var(--pg-bg));--rel-bg-h:color-mix(in srgb,var(--dm-accent) 26%,var(--pg-bg));--rel-line:color-mix(in srgb,var(--dm-accent-mark) 30%,transparent);--rel-chip:var(--dm-accent);--rel-chip-fg:var(--dm-on-accent);border-radius:0}
       /* Clean: monochrome, a step off the page (darker in light, lighter in dark) */
@@ -814,7 +818,7 @@ const jsonld = [
       (function(){
         var rel = document.querySelector('.lp-rel'), cv = rel && rel.querySelector('.lp-spark'); if (!cv) return;
         var cx = cv.getContext('2d'), root = document.documentElement, reduce = matchMedia('(prefers-reduced-motion:reduce)');
-        var P = 8, w = 0, h = 0, r = 0, L = 0, dpr = 1, on = false, raf = 0, last = 0, parts = [], spawn = 0, dark = false, tint = '255,255,255', core = '255,255,255', LAP = 5;
+        var P = 16, w = 0, h = 0, r = 0, L = 0, dpr = 1, on = false, raf = 0, last = 0, parts = [], spawn = 0, dark = false, light = true, edge = '0,0,0', tint = '255,255,255', core = '255,255,255', LAP = 5;
         var fit = function(){ w = rel.offsetWidth; h = rel.offsetHeight; r = Math.max(0, Math.min(parseFloat(getComputedStyle(rel).borderTopLeftRadius) || 0, h / 2) - .5);
           dpr = Math.min(2, window.devicePixelRatio || 1); cv.width = (w + 2 * P) * dpr; cv.height = (h + 2 * P) * dpr;
           var sw = w - 1 - 2 * r, sh = h - 1 - 2 * r; L = 2 * sw + 2 * sh + 2 * Math.PI * r;
@@ -822,8 +826,11 @@ const jsonld = [
           var hex = function(c){ c = c.trim(); var m = c.match(/^#([0-9a-f]{6})$/i); if (!m) return [255, 255, 255]; return [0, 2, 4].map(function(k){ return parseInt(m[1].substr(k, 2), 16); }); };
           var mix = function(a, f){ return a.map(function(v){ return Math.round(255 + (v - 255) * f); }).join(','); };
           var acc = hex(cs.getPropertyValue('--dm-accent'));
-          if (st === 'clean'){ tint = dark ? '255,255,255' : '196,196,196'; core = '255,255,255'; }
-          else { tint = mix(acc, dark ? .22 : .12); core = '255,255,255'; } };
+          var mk = hex(cs.getPropertyValue('--dm-accent-mark')); light = !dark;
+          // the light leans into each style's own colour (owner, 26 Nov): Soft a pale blue-white, Blueprint a pale lime, Clean neutral
+          if (st === 'clean'){ tint = dark ? '255,255,255' : '200,200,200'; core = '255,255,255'; edge = dark ? '255,255,255' : '110,110,110'; }
+          else if (st === 'soft'){ tint = mix(acc, dark ? .6 : .25); core = mix(acc, dark ? .3 : .06); edge = mk.join(','); }
+          else { tint = mix(acc, dark ? .9 : .5); core = mix(acc, dark ? .6 : .2); edge = mk.join(','); } };
         // the point at distance s along the edge (from the top's left end, clockwise), with its outward normal
         var at = function(s){ s = ((s % L) + L) % L; var x0 = .5, y0 = .5, sw = w - 1 - 2 * r, sh = h - 1 - 2 * r, q = Math.PI * r / 2;
           if (s < sw) return [x0 + r + s, y0, 0, -1]; s -= sw;
@@ -846,10 +853,19 @@ const jsonld = [
           for (var i = parts.length - 1; i >= 0; i--){ var q = parts[i]; q.age += dt; if (q.age >= q.life){ parts.splice(i, 1); continue; }
             q.x += q.vx * dt; q.y += q.vy * dt; var u = 1 - q.age / q.life, tw = .65 + .35 * Math.sin(q.ph + t * 22);
             cx.fillStyle = 'rgba(' + (u > .7 ? core : tint) + ',' + (u * tw * (dark ? .8 : .95)).toFixed(3) + ')'; cx.beginPath(); cx.arc(q.x, q.y, q.s * (.5 + .5 * u), 0, 6.283); cx.fill(); }
-          // the head: a bright core in a soft, neutral bloom
-          var hp = at(head); if (!dark){ hp[0] -= hp[2] * 1.2; hp[1] -= hp[3] * 1.2; } var g = cx.createRadialGradient(hp[0], hp[1], 0, hp[0], hp[1], 7);
-          g.addColorStop(0, 'rgba(' + core + ',' + (dark ? .55 : .95) + ')'); g.addColorStop(.35, 'rgba(' + tint + ',' + (dark ? .22 : .5) + ')'); g.addColorStop(1, 'rgba(' + tint + ',0)');
-          cx.fillStyle = g; cx.beginPath(); cx.arc(hp[0], hp[1], 7, 0, 6.283); cx.fill();
+          // the head. Dark: a wide, even bloom with no edge to it. Light: no disc at all; the border lights up under the head
+          // (a stronger run of the border's own colour that fades behind it) and a white light shows inside the label only
+          var hp = at(head), g;
+          if (dark){ g = cx.createRadialGradient(hp[0], hp[1], 0, hp[0], hp[1], 14);
+            [[0, .42], [.15, .34], [.3, .22], [.45, .13], [.6, .07], [.75, .03], [1, 0]].forEach(function(z){ g.addColorStop(z[0], 'rgba(' + (z[0] < .3 ? core : tint) + ',' + z[1] + ')'); });
+            cx.fillStyle = g; cx.beginPath(); cx.arc(hp[0], hp[1], 14, 0, 6.283); cx.fill(); }
+          else {
+            cx.lineCap = 'round';
+            for (var e = 0; e < 36; e++){ var e0 = at(head - e * 1.6), e1 = at(head - (e + 1) * 1.6), fe = 1 - e / 36; cx.strokeStyle = 'rgba(' + edge + ',' + (fe * fe * .32).toFixed(3) + ')'; cx.lineWidth = 1.2; cx.beginPath(); cx.moveTo(e0[0], e0[1]); cx.lineTo(e1[0], e1[1]); cx.stroke(); }
+            cx.save(); cx.beginPath(); if (cx.roundRect) cx.roundRect(1, 1, w - 2, h - 2, Math.max(0, r - .5)); else cx.rect(1, 1, w - 2, h - 2); cx.clip();
+            g = cx.createRadialGradient(hp[0], hp[1], 0, hp[0], hp[1], 12);
+            [[0, .95], [.2, .75], [.45, .38], [.7, .12], [1, 0]].forEach(function(z){ g.addColorStop(z[0], 'rgba(' + core + ',' + z[1] + ')'); });
+            cx.fillStyle = g; cx.beginPath(); cx.arc(hp[0], hp[1], 12, 0, 6.283); cx.fill(); cx.restore(); }
           cx.globalCompositeOperation = 'source-over';
           if (on && !reduce.matches && !document.hidden) raf = requestAnimationFrame(frame); else { last = 0; }
         };
