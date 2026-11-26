@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Live pill · Toasts 3a · Designme.dev lab</title>
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<!-- Toast variation 3a, "compact pill to rich card" (a): one live activity for a research run. A small pill at the top edge
+     of the app carries the run's updates in sequence; it opens into a rich card when there is more to say (or on hover)
+     and closes back. Its leading glyph is an orbit: sources land on it, get pulled into the core, the orbit turns into the
+     run's budget gauge, and the cited sources settle on it when the answer is ready. Nothing ships from here -->
+<script>
+(function(){
+  var d = document.documentElement, q = new URLSearchParams(location.search), t = q.get('theme'), s = q.get('style');
+  try { if (!t) t = localStorage.getItem('dmui-theme'); } catch(e){}
+  if (t !== 'dark' && t !== 'light') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  try { if (!s) s = localStorage.getItem('dmui-style'); } catch(e){}
+  if (s === 'blueprint') s = 'bp';
+  if (s !== 'soft' && s !== 'clean' && s !== 'bp') s = t === 'dark' ? 'bp' : 'soft';
+  d.setAttribute('data-theme', t);
+  if (s === 'bp') d.removeAttribute('data-style'); else d.setAttribute('data-style', s);
+})();
+</script>
+<link rel="stylesheet" href="assets/core.css">
+<style>
+@font-face{font-family:"Inter";font-weight:400;font-display:swap;src:url(../../fonts/inter-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:500;font-display:swap;src:url(../../fonts/inter-latin-500-normal.woff2) format("woff2")}
+
+/* ---------- the lab page around the stage ---------- */
+html,body{margin:0;background:var(--dm-page);color:var(--dm-fg);font-family:var(--dm-sans);-webkit-font-smoothing:antialiased}
+body{min-height:100vh;overflow-x:hidden}
+.ts3a-top{width:auto;max-width:792px;margin:0 auto;padding:32px 16px 20px;display:flex;flex-wrap:wrap;align-items:flex-end;gap:16px}
+.ts3a-top .ts3a-id{flex:1 1 320px;min-width:0}
+.ts3a-top .ts3a-k{margin:0 0 4px;font-size:12px;color:var(--dm-muted)}
+.ts3a-top h1{margin:0;font-size:14px;line-height:20px;font-weight:500}
+.ts3a-top .ts3a-say{margin:4px 0 0;font-size:13px;line-height:20px;color:var(--dm-muted);max-width:520px}
+.ts3a-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.ts3a-main{max-width:792px;margin:0 auto;padding:0 16px 48px}
+.ts3a-foot{margin:16px 0 0;font-size:12px;line-height:18px;color:var(--dm-muted);max-width:620px}
+
+/* ---------- the stage: a small app surface, the pill living on its top edge ---------- */
+[data-c="ts3a"]{width:100%;max-width:760px;margin:0 auto}
+[data-c="ts3a"]>.stage-in{max-width:none}
+.ts3a-stage{background:var(--dm-stage);border-radius:var(--dm-r-card);padding:32px;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.ts3a-scr{position:relative;height:440px;background:var(--dm-surface);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow);overflow:hidden;display:flex;flex-direction:column;isolation:isolate}
+.ts3a-bar{height:48px;flex:none;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13px;color:var(--dm-fg2)}
+.ts3a-bar .i{color:var(--dm-muted)}
+.ts3a-bar .ts3a-bar-r{margin-left:auto;display:flex;align-items:center;gap:8px}
+.ts3a-body{flex:1;min-height:0;display:flex;flex-direction:column;padding:16px}
+.ts3a-thread{flex:1;min-height:0;display:flex;flex-direction:column;gap:16px;overflow:hidden;padding-top:44px}
+.ts3a-thread .bub{font-size:13px;line-height:20px;max-width:78%}
+.ts3a-empty{margin:auto;text-align:center;font-size:13px;line-height:20px;color:var(--dm-muted);max-width:300px}
+.ts3a-ans{font-size:13px;line-height:20px;color:var(--dm-fg2);max-width:520px}
+.ts3a-ans b{display:block;color:var(--dm-fg);margin-bottom:4px}
+.ts3a-ans p{margin:0}
+.ts3a-ans .ts3a-cites{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+/* the composer: one field with the run button inside it */
+.ts3a-cmp{flex:none;display:flex;align-items:center;gap:8px;margin-top:12px;padding:6px 6px 6px 12px;background:var(--dm-surface);border-radius:var(--dm-r-box);box-shadow:inset 0 0 0 1px var(--dm-field-line);transition:box-shadow var(--dm-t-fast) var(--dm-ease)}
+@supports (corner-shape:squircle){.ts3a-cmp{border-radius:var(--dm-r-box-sq)}}
+.ts3a-cmp:focus-within{box-shadow:inset 0 0 0 1px var(--dm-field-line-strong)}
+.ts3a-cmp input{flex:1;min-width:0;border:0;background:none;outline:0;font-size:13px;line-height:20px;height:28px;color:var(--dm-fg)}
+
+/* ---------- the island: a pill that opens into a card ---------- */
+.ts3a-isl{position:absolute;z-index:10;top:8px;left:50%;width:var(--w,40px);height:var(--h,32px);transform:translateX(-50%);background:var(--dm-raised);box-shadow:var(--dm-shadow-toast);border-radius:var(--r,16px);overflow:hidden;
+  transition:width var(--ts3a-mt) var(--ts3a-me),height var(--ts3a-mt) var(--ts3a-me),border-radius var(--ts3a-mt) var(--ts3a-me),background-color var(--dm-t) var(--dm-ease);touch-action:pan-x}
+:root{--ts3a-mt:.56s;--ts3a-me:cubic-bezier(.32,1.12,.4,1)}
+:root:not([data-style="soft"],[data-style="clean"]){--ts3a-mt:.34s;--ts3a-me:cubic-bezier(.65,0,.25,1)}
+:root[data-style="clean"]{--ts3a-mt:.52s;--ts3a-me:cubic-bezier(.23,1,.32,1)}
+.ts3a-isl[hidden]{display:block!important;visibility:hidden}
+/* a warning notice: the faint warning tint (the tint at 45%) laid over the card, so the card stays opaque in dark mode too */
+.ts3a-isl::before{content:"";position:absolute;inset:0;background:color-mix(in srgb,var(--dm-warn-bg) 45%,transparent);opacity:0;transition:opacity var(--dm-t) var(--dm-ease);pointer-events:none}
+.ts3a-isl.warn::before{opacity:1}
+/* the two faces share the island's centre, so the card opens round the pill instead of from one side */
+.ts3a-face{position:absolute;top:0;left:50%;transform:translateX(-50%);transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t) var(--dm-ease)}
+.ts3a-face.off{opacity:0;pointer-events:none;transition-delay:0s}
+.ts3a-face:not(.off){transition-delay:.08s}
+.ts3a-pf.off{transform:translateX(-50%) scale(.92)}
+.ts3a-cf.off{transform:translateX(-50%) translateY(-6px)}
+
+/* the pill: the glyph, the words, the number that matters */
+.ts3a-pf{height:32px;display:flex;align-items:center;gap:8px;padding:0 14px 0 8px;white-space:nowrap;font-size:13px;line-height:20px;border-radius:16px}
+.ts3a-pf .ts3a-w{font-weight:500;color:var(--dm-fg)}
+.ts3a-pf .ts3a-n{font-size:12px;color:var(--dm-muted);font-variant-numeric:tabular-nums}
+.ts3a-pf:focus-visible{outline-offset:-2px}
+
+/* the card: 16px in from every edge; head (glyph, title, detail, collapse), an optional body, a foot under a hairline */
+.ts3a-cf{width:var(--cw,360px)}
+.ts3a-hd{display:grid;grid-template-columns:56px minmax(0,1fr) auto;align-items:center;column-gap:12px;padding:16px}
+.ts3a-hd .ts3a-tt{min-width:0;font-size:13px;line-height:20px}
+.ts3a-hd .ts3a-tt b{display:block;font-weight:500;color:var(--dm-fg)}
+.ts3a-hd .ts3a-tt span{display:block;font-size:12px;line-height:18px;color:var(--dm-muted);font-variant-numeric:tabular-nums}
+.ts3a-hd .ib{width:28px;height:28px;margin-right:-6px;align-self:center}
+.ts3a-bd{padding:0 16px 16px;display:flex;flex-direction:column;gap:8px;font-size:12.5px;line-height:18px;color:var(--dm-fg2)}
+.ts3a-bd:empty{display:none}
+.ts3a-row{display:grid;grid-template-columns:20px minmax(0,1fr) auto;align-items:center;column-gap:8px;min-height:20px}
+.ts3a-row .ts3a-d{color:var(--dm-muted);font-size:12px;font-variant-numeric:tabular-nums}
+.ts3a-fav{width:20px;height:20px;border-radius:calc(5px * var(--dm-rk-s,var(--dm-rk)));display:grid;place-items:center;background:var(--dm-chip-fill);color:var(--dm-fg2);font-size:10px;font-weight:500}
+.ts3a-mk{width:20px;height:20px;display:grid;place-items:center;color:var(--dm-muted)}
+.ts3a-mk.ok{color:var(--dm-ok-mark)}
+.ts3a-mk .i{width:14px;height:14px;stroke-width:2}
+.ts3a-mk .dot{width:5px;height:5px;background:var(--dm-faint)}
+.ts3a-row.now{color:var(--dm-fg)}
+.ts3a-row-in{animation:ts3arow var(--dm-t) var(--dm-ease) backwards}
+@keyframes ts3arow{from{opacity:0;transform:translateY(-6px)}}
+.ts3a-ft{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:16px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.ts3a-ft:empty{display:none}
+.ts3a-isl.warn .ts3a-ft{border-top-color:color-mix(in srgb,var(--dm-warn-mark) 18%,transparent)}
+.ts3a-ft .pill.line{background:var(--dm-surface)}
+.ts3a-isl.warn .ts3a-ft .pill.line{box-shadow:var(--dm-on-tint-btn)}
+
+/* the glyph: an orbit round a core. Grey where it only holds the shape; colour only where it carries the news */
+.ts3a-g{display:block;flex:none;overflow:visible}
+.ts3a-g .trk{fill:none;stroke:var(--dm-rail);stroke-width:var(--sw,1.5)}
+.ts3a-g .arc{fill:none;stroke:var(--dm-fg2);stroke-width:var(--aw,2.5);stroke-linecap:round;transition:stroke var(--dm-t) var(--dm-ease)}
+.ts3a-g .arc[data-t="warn"]{stroke:var(--dm-warn-mark)}
+.ts3a-g .arc[data-t="ok"]{stroke:var(--dm-ok-mark)}
+.ts3a-g .arc[data-t="acc"]{stroke:var(--dm-accent-mark)}
+.ts3a-g .ntc{stroke:var(--dm-muted);stroke-width:1.5;stroke-linecap:round}
+.ts3a-g .dt{fill:var(--dm-muted)}
+.ts3a-g .dt.acc{fill:var(--dm-accent-mark)}
+.ts3a-g .sat{fill:var(--dm-accent-mark)}
+.ts3a-g .core{fill:var(--dm-fg)}
+.ts3a-g .tri{fill:var(--dm-warn-mark)}
+.ts3a-g .tick{fill:none;stroke:var(--dm-ok-mark);stroke-width:var(--tw,2);stroke-linecap:round;stroke-linejoin:round}
+.ts3a-g .tbg{fill:var(--dm-ok-bg)}
+:root:not([data-style="soft"],[data-style="clean"]) .ts3a-g .arc{stroke-linecap:butt}
+
+/* the island's way in and out: it comes out of the top edge as a small bead and widens; it goes back the same way */
+.ts3a-isl.in{animation:ts3ain var(--ts3a-mt) var(--ts3a-me) both}
+@keyframes ts3ain{from{opacity:0;transform:translateX(-50%) translateY(-28px) scale(.6)}}
+.ts3a-isl.out{animation:ts3aout var(--dm-t) var(--dm-ease) both}
+@keyframes ts3aout{to{opacity:0;transform:translateX(-50%) translateY(-24px) scale(.7)}}
+:root:not([data-style="soft"],[data-style="clean"]) .ts3a-isl.in{animation-name:ts3ainbp}
+@keyframes ts3ainbp{from{opacity:0;clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)}}
+
+/* Clean: monochrome chrome, a hairline card, an off-white foot strip, round corners (16px on the card), its calm motion */
+:root[data-style="clean"] .ts3a-stage{box-shadow:none}
+:root[data-style="clean"] .ts3a-isl{box-shadow:var(--dm-shadow-pop)}
+:root[data-style="clean"] .ts3a-ft{background:var(--dm-strip);border-top-color:var(--dm-hair);padding:var(--dm-strip-y) 16px}
+:root[data-style="clean"] .ts3a-isl.warn .ts3a-ft{background:color-mix(in srgb,var(--dm-fg) 2.5%,transparent)}
+:root[data-style="clean"] .ts3a-fav{border-radius:6px;background:var(--dm-chip)}
+
+.ts3a-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+/* phones: the stage is the screen, edge to edge; the open card is the screen's width less 16px on each side */
+@media (max-width:600px){
+  .ts3a-main{padding:0 0 40px}
+  .ts3a-stage{padding:0;border-radius:0;box-shadow:none;background:none}
+  .ts3a-scr{border-radius:0;height:520px;box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
+  .ts3a-foot{padding:0 16px}
+}
+@media (prefers-reduced-motion:reduce){
+  .ts3a-isl,.ts3a-face{transition:opacity .2s linear!important}
+  .ts3a-isl.in{animation:ts3afade .2s linear both}.ts3a-isl.out{animation:ts3afade .2s linear reverse both}
+  .ts3a-face.off{transform:translateX(-50%)}
+  .ts3a-row-in{animation:none}
+}
+@keyframes ts3afade{from{opacity:0}}
+</style>
+</head>
+<body>
+<header class="ts3a-top" data-c="ts3a-chrome">
+  <div class="ts3a-id">
+    <p class="ts3a-k">Toasts · variation 3a</p>
+    <h1>Live pill</h1>
+    <p class="ts3a-say">One pill on the app's top edge carries a whole agent run, update by update, and opens into a card only when there is more to say.</p>
+  </div>
+  <div class="ts3a-ctl">
+    <div class="seg2" id="ts3a-style" role="group" aria-label="Style"><button type="button" data-v="bp">Blueprint</button><button type="button" data-v="soft">Soft</button><button type="button" data-v="clean">Clean</button></div>
+    <div class="seg2" id="ts3a-theme" role="group" aria-label="Theme"><button type="button" data-v="light">Light</button><button type="button" data-v="dark">Dark</button></div>
+    <button class="pill line sm" id="ts3a-replay" type="button"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button>
+  </div>
+</header>
+<main class="ts3a-main">
+  <div data-c="ts3a">
+    <div class="stage-in"></div>
+    <template>
+      <div class="ts3a-stage">
+        <div class="ts3a-scr">
+          <div class="ts3a-bar"><svg class="i s"><use href="#i-book"/></svg><span>Research</span><span class="ts3a-bar-r"><span class="av" style="background:var(--dm-av-l)">MK</span></span></div>
+          <div class="ts3a-body">
+            <div class="ts3a-thread"><p class="ts3a-empty">Ask a question and the agent researches it in the background. Its progress lives in the pill at the top.</p></div>
+            <form class="ts3a-cmp" autocomplete="off"><input class="ts3a-q" aria-label="Question" value="Compare the yearly running costs of a heat pump and a gas boiler"><button class="pill primary sm ts3a-run" type="submit">Research</button></form>
+          </div>
+          <div class="ts3a-isl" role="group" aria-label="Research run" hidden>
+            <button class="ts3a-face ts3a-pf" type="button" aria-expanded="false"><svg class="ts3a-g" data-g="s" width="40" height="22" viewBox="0 0 40 22" aria-hidden="true"></svg><span class="ts3a-w"></span><span class="ts3a-n"></span></button>
+            <div class="ts3a-face ts3a-cf off" inert>
+              <div class="ts3a-hd"><svg class="ts3a-g" data-g="l" width="56" height="32" viewBox="0 0 56 32" aria-hidden="true"></svg><div class="ts3a-tt"><b></b><span></span></div><button class="ib ts3a-fold" type="button" aria-label="Fold into the pill" data-tip="Fold"><svg class="i s"><use href="#i-chev-u"/></svg></button></div>
+              <div class="ts3a-bd"></div>
+              <div class="ts3a-ft"></div>
+            </div>
+          </div>
+          <div class="ts3a-sr" role="status" aria-live="polite"></div>
+          <div class="ts3a-sr" role="alert" aria-live="assertive"></div>
+        </div>
+      </div>
+    </template>
+  </div>
+  <p class="ts3a-foot">Try it: press Research. Point at the pill (or focus it) to open it, press it to keep it open, Escape or the chevron to fold it, Escape again or a swipe up to send it away until the run needs you. Raise or Stop really change the run; Open answer puts the answer in the thread.</p>
+</main>
+<script src="assets/core.js"></script>
+<script>
+/* ---------- the lab chrome: style, theme, replay ---------- */
+(() => {
+  const d = document.documentElement;
+  const cur = () => ({ s:d.getAttribute('data-style') || 'bp', t:d.getAttribute('data-theme') || 'light' });
+  const mark = () => { const { s, t } = cur(); $$('#ts3a-style button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === s)); $$('#ts3a-theme button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === t)); };
+  mark();
+  const remount = () => { const card = $('[data-c="ts3a"]'); if (card._c) DM.mount(card); };
+  seg($('#ts3a-style'), v => { if (v === 'bp') d.removeAttribute('data-style'); else d.setAttribute('data-style', v); try { localStorage.setItem('dmui-style', v); } catch(e){} remount(); });
+  seg($('#ts3a-theme'), v => { d.setAttribute('data-theme', v); try { localStorage.setItem('dmui-theme', v); } catch(e){} });
+  $('#ts3a-replay').addEventListener('click', () => DM.mount($('[data-c="ts3a"]')));
+})();
+
+/* ---------- Live pill ---------- */
+DM.def('ts3a', (st, c) => {
+  DM.PLAYS.add('ts3a');   // an agent at work: the demo keeps playing under the pointer
+  const scr = $('.ts3a-scr', st), isl = $('.ts3a-isl', st), pf = $('.ts3a-pf', st), cf = $('.ts3a-cf', st);
+  const thread = $('.ts3a-thread', st), form = $('.ts3a-cmp', st), q = $('.ts3a-q', st), runBtn = $('.ts3a-run', st);
+  const say = $$('.ts3a-sr', st), tt = $('.ts3a-tt b', st), dt = $('.ts3a-tt span', st), bd = $('.ts3a-bd', st), ft = $('.ts3a-ft', st);
+  const SRC = [['H', 'Home energy guide', 'Guide'], ['I', 'Installer price survey', 'Survey'], ['G', 'Grid tariff tables', 'Tables'], ['U', 'Upkeep cost study', 'Study'],
+    ['B', 'Boiler efficiency report', 'Report'], ['C', 'Climate zone data', 'Data'], ['R', 'Retrofit case notes', 'Notes'], ['F', 'Fuel price index', 'Index'], ['S', 'Seasonal COP tests', 'Tests']];
+  const money = v => '$' + v.toFixed(2);
+
+  /* the glyph: an orbit (a flat ellipse) round a core, drawn into both sizes from one state every frame it moves */
+  const G = { mode:'idle', dots:[], sat:false, satA:-Math.PI / 2, arc:0, arcTo:0, arcT:'ink', spin:false, core:'dot', coreK:1, pulse:0 };
+  const geo = { s:{ W:40, H:22, dot:1.7, sat:2.3, core:2.8, sw:1.3, aw:2.2, tw:1.6 }, l:{ W:56, H:32, dot:2.3, sat:3, core:3.8, sw:1.5, aw:2.8, tw:2 } };
+  const svgs = $$('.ts3a-g', st).map(svg => {
+    const g = geo[svg.dataset.g], cx = g.W / 2, cy = g.H / 2, rx = g.W / 2 - 3, ry = g.H / 2 - 3;
+    svg.style.setProperty('--sw', g.sw); svg.style.setProperty('--aw', g.aw); svg.style.setProperty('--tw', g.tw);
+    const ell = `M${cx} ${cy - ry}A${rx} ${ry} 0 1 1 ${cx} ${cy + ry}A${rx} ${ry} 0 1 1 ${cx} ${cy - ry}`;
+    svg.innerHTML = `<path class="trk" d="${ell}"/><path class="arc" d="${ell}" pathLength="100" stroke-dasharray="0 100"/><line class="ntc" x1="${cx}" y1="${cy - ry - 2.6}" x2="${cx}" y2="${cy - ry + 2.6}" opacity="0"/>`
+      + Array.from({ length:9 }, () => `<circle class="dt" r="0"/>`).join('') + `<circle class="sat" r="0"/>`
+      + `<circle class="tbg" cx="${cx}" cy="${cy}" r="0"/><circle class="core" cx="${cx}" cy="${cy}" r="${g.core}"/>`
+      + `<path class="tri" d="M${cx} ${cy - g.core * 1.35}L${cx + g.core * 1.3} ${cy + g.core * .95}L${cx - g.core * 1.3} ${cy + g.core * .95}Z" opacity="0"/>`
+      + `<path class="tick" d="M${cx - g.core * .95} ${cy + .2}l${g.core * .62} ${g.core * .6}l${g.core * 1.15} -${g.core * 1.25}" pathLength="10" stroke-dasharray="10" stroke-dashoffset="10"/>`;
+    return { svg, g, cx, cy, rx, ry, arc:$('.arc', svg), ntc:$('.ntc', svg), dts:$$('.dt', svg), sat:$('.sat', svg), core:$('.core', svg), tri:$('.tri', svg), tick:$('.tick', svg), tbg:$('.tbg', svg) };
+  });
+  let last = performance.now(), tickK = 0, triK = 0, ntcK = 0, spinA = 0;
+  const ease = (a, b, k) => a + (b - a) * k;
+  const draw = now => {
+    const dt = Math.min(64, now - last) / 1000; last = now;
+    const k = REDUCE ? 1 : 1 - Math.pow(.001, dt);    // eases a value most of the way to its target in about a second
+    if (G.sat) G.satA += dt * (G.mode === 'write' ? 2.4 : 3.4);
+    G.arc = ease(G.arc, G.arcTo, REDUCE ? 1 : 1 - Math.pow(.02, dt));
+    tickK = ease(tickK, G.core === 'tick' ? 1 : 0, k); triK = ease(triK, G.core === 'warn' ? 1 : 0, k); ntcK = ease(ntcK, G.arcTo > 0 || G.spin ? 1 : 0, k);
+    G.pulse = Math.max(0, G.pulse - dt * 3);
+    if (G.spin) spinA = (spinA + dt * 110) % 100;
+    G.dots.forEach(d => { d.k = ease(d.k, d.gone ? 0 : 1, REDUCE ? 1 : 1 - Math.pow(.0005, dt)); d.r = ease(d.r, d.in ? 0 : 1, REDUCE ? 1 : 1 - Math.pow(.004, dt)); });
+    for (const o of svgs){
+      const { g, cx, cy, rx, ry } = o, P = (a, r = 1) => [cx + Math.cos(a) * rx * r, cy + Math.sin(a) * ry * r];
+      if (G.spin){ o.arc.setAttribute('stroke-dasharray', '24 76'); o.arc.setAttribute('stroke-dashoffset', -spinA); }
+      else { o.arc.setAttribute('stroke-dasharray', `${Math.max(0, G.arc * 100).toFixed(2)} 100`); o.arc.setAttribute('stroke-dashoffset', 0); }
+      o.arc.dataset.t = G.arcT; o.ntc.setAttribute('opacity', ntcK.toFixed(3));
+      o.dts.forEach((el, i) => { const d = G.dots[i]; if (!d){ el.setAttribute('r', 0); return; } const [x, y] = P(d.a, d.r);
+        el.setAttribute('cx', x.toFixed(2)); el.setAttribute('cy', y.toFixed(2)); el.setAttribute('r', (g.dot * d.k * (d.in ? Math.max(.35, d.r) : 1)).toFixed(2)); el.classList.toggle('acc', !!d.acc); });
+      const [sx, sy] = P(G.satA); o.sat.setAttribute('cx', sx.toFixed(2)); o.sat.setAttribute('cy', sy.toFixed(2)); o.sat.setAttribute('r', G.sat ? g.sat : 0);
+      const cr = g.core * (1 + G.pulse * .45) * (1 - Math.max(tickK, triK));
+      o.core.setAttribute('r', Math.max(0, cr).toFixed(2));
+      o.tri.setAttribute('opacity', triK.toFixed(3)); o.tri.setAttribute('transform', `translate(${cx} ${cy}) scale(${(.6 + .4 * triK).toFixed(3)}) translate(${-cx} ${-cy})`);
+      o.tbg.setAttribute('r', (g.core * 2.1 * tickK).toFixed(2)); o.tick.setAttribute('stroke-dashoffset', (10 - 10 * tickK).toFixed(2));
+    }
+  };
+  c.loop(t => { draw(t); });
+
+  /* the island: its size follows the face that shows, and the faces cross over each other at its centre */
+  let open = false, pinned = false, hov = false, foc = false, gone = true, left = 0;
+  const cw = () => Math.min(360, scr.clientWidth - 32);
+  const fit = () => {
+    if (gone) return;
+    cf.style.setProperty('--cw', cw() + 'px');
+    const f = open ? cf : pf, r = open ? 'var(--dm-r-card)' : '16px';
+    isl.style.setProperty('--w', f.offsetWidth + 'px'); isl.style.setProperty('--h', f.offsetHeight + 'px'); isl.style.setProperty('--r', r);
+  };
+  new ResizeObserver(fit).observe(pf); new ResizeObserver(fit).observe(cf); new ResizeObserver(fit).observe(scr);
+  c.offs.push(() => {});
+  const setOpen = (v, why) => {
+    if (gone || v === open) return; open = v;
+    pf.classList.toggle('off', v); cf.classList.toggle('off', !v);
+    pf.inert = v; cf.inert = !v; pf.setAttribute('aria-expanded', v);
+    fit();
+    if (v && why === 'key') $('.ts3a-fold', st).focus();
+    if (!v && why === 'key') pf.focus();
+  };
+  // the card stays open while it is pointed at, focused, pinned with a press, or while the run needs an answer
+  const needs = () => G.mode === 'budget';
+  const settle = () => { if (gone) return; const want = pinned || hov || foc || needs() || G.mode === 'done' && !doneFolded; if (want) setOpen(true); else { clearTimeout(left); left = setTimeout(() => { if (!(pinned || hov || foc || needs() || (G.mode === 'done' && !doneFolded))) setOpen(false); }, 420); } };
+  c.offs.push(() => clearTimeout(left));
+  const show = () => { if (!gone) return; gone = false; isl.hidden = false; isl.classList.remove('out'); fit(); isl.classList.remove('in'); void isl.offsetWidth; isl.classList.add('in'); };
+  const hide = () => { if (gone) return; pinned = false; setOpen(false); gone = true; isl.classList.remove('in'); isl.classList.add('out');
+    if (isl.contains(document.activeElement)) q.focus({ preventScroll:true });
+    const end = () => { if (gone){ isl.hidden = true; isl.classList.remove('out'); } }; setTimeout(end, REDUCE ? 200 : 420); };
+  c.on(isl, 'pointerenter', e => { if (e.pointerType === 'mouse'){ hov = true; settle(); } });
+  c.on(isl, 'pointerleave', e => { if (e.pointerType === 'mouse'){ hov = false; settle(); } });
+  c.on(isl, 'focusin', () => { foc = isl.matches(':focus-within') && !!document.activeElement && document.activeElement.matches(':focus-visible'); if (foc) settle(); });
+  c.on(isl, 'focusout', () => setTimeout(() => { foc = isl.contains(document.activeElement) && document.activeElement.matches(':focus-visible'); settle(); }, 0));
+  c.on(pf, 'click', e => { if (dragged){ dragged = false; return; } pinned = true; setOpen(true, e.detail === 0 ? 'key' : ''); });
+  c.on($('.ts3a-fold', st), 'click', e => { pinned = false; hov = false; foc = false; doneFolded = true; setOpen(false, e.detail === 0 ? 'key' : ''); });
+  c.on(st, 'keydown', e => { if (e.key !== 'Escape' || gone) return; e.preventDefault();
+    if (open && !needs()){ pinned = false; foc = false; hov = false; doneFolded = true; setOpen(false, 'key'); } else if (!open){ away(); } });
+  // a swipe up sends the island away with some give: it follows the finger at half pace, then a little less, past 28px it goes
+  let dragY = null, dragged = false;
+  c.on(isl, 'pointerdown', e => { if (e.button !== 0 || e.target.closest('.ts3a-cf button')) return; dragY = { y:e.clientY, id:e.pointerId, d:0 }; });
+  c.on(window, 'pointermove', e => { if (!dragY || e.pointerId !== dragY.id) return; const dy = Math.min(0, e.clientY - dragY.y); dragY.d = dy;
+    if (dy < -4){ dragged = true; isl.style.transition = 'none'; const r = -Math.log1p(-dy / 24) * 18; isl.style.transform = `translateX(-50%) translateY(${r}px)`; isl.style.opacity = String(1 + r / 80); } });
+  c.on(window, 'pointerup', () => { if (!dragY) return; const d = dragY.d; dragY = null; isl.style.transition = ''; isl.style.transform = ''; isl.style.opacity = '';
+    if (d < -28) away(); setTimeout(() => { dragged = false; }, 0); });
+  // sent away mid-run: it comes back by itself when the run needs an answer or is done
+  const away = () => { hidden = true; hide(); };
+  let hidden = false, doneFolded = false;
+
+  const announce = (m, loud) => { const el = say[loud ? 1 : 0]; el.textContent = ''; setTimeout(() => { el.textContent = m; }, 60); };
+
+  /* the faces' words and parts for each step of the run */
+  const pill = (w, n, shim) => { const a = $('.ts3a-w', pf), b = $('.ts3a-n', pf);
+    if (a.textContent !== w){ a.textContent = w; if (!REDUCE) a.animate([{ opacity:0, transform:'translateY(4px)' }, { opacity:1, transform:'none' }], { duration:260, easing:'cubic-bezier(.22,1,.36,1)' }); }
+    a.classList.toggle('shim', !!shim); b.textContent = n; pf.setAttribute('aria-label', `${w}${n ? ', ' + n : ''}. Show details`); };
+  const head = (t, d, shim) => { if (tt.textContent !== t){ tt.textContent = t; } tt.classList.toggle('shim', !!shim); dt.textContent = d; };
+  const row = (mk, name, det, cls = '') => `<div class="ts3a-row ${cls}">${mk}<span>${name}</span><span class="ts3a-d">${det}</span></div>`;
+  const fav = s => `<span class="ts3a-fav" aria-hidden="true">${s[0]}</span>`;
+  const foot = h => { ft.innerHTML = h; };
+
+  let run = null;
+  const w = ms => c.wait(ms);
+  // waits that hold while the card is pointed at or focused, so its words never go while they are being read
+  const idle = async ms => { let t = 0; while (t < ms){ await w(100); if (!hov && !foc) t += 100; } };
+
+  async function research(){
+    if (run) return; run = {}; hidden = false; doneFolded = false; pinned = false;
+    const text = q.value.trim() || 'Your question';
+    thread.innerHTML = ''; const bub = html(`<div class="bub"></div>`); bub.textContent = text; thread.append(enter(bub)); runBtn.disabled = true;
+    G.mode = 'search'; G.dots = []; G.sat = true; G.arc = 0; G.arcTo = 0; G.arcT = 'ink'; G.spin = false; G.core = 'dot';
+    pill('Searching', '0 sources', true); head('Searching the web', '0 sources so far', true); bd.innerHTML = ''; foot('');
+    isl.classList.remove('warn'); show(); announce('Research started');
+    let cost = .12;
+    for (let i = 1; i <= 9; i++){
+      await w(i === 1 ? 700 : 300 + (i % 3) * 70);
+      G.dots.push({ a:G.satA, k:0, r:1, acc:true }); G.dots.forEach((d, j) => { if (j < i - 1) d.acc = false; }); G.pulse = .4;
+      pill('Searching', `${i} source${i > 1 ? 's' : ''}`, true); dt.textContent = `${i} source${i > 1 ? 's' : ''} so far`;
+      const r = html(row(fav(SRC[i - 1]), SRC[i - 1][1], SRC[i - 1][2], 'ts3a-row-in')); bd.prepend(r); while (bd.children.length > 3) bd.lastElementChild.remove();
+    }
+    G.dots.forEach(d => { d.acc = false; });
+    await w(500);
+    G.mode = 'read'; G.sat = false;
+    pill('Reading', '0 of 9', true); head('Reading the sources', `0 of 9 read · ${money(cost)}`, true);
+    bd.innerHTML = row(`<span class="ts3a-mk"><span class="spin"></span></span>`, SRC[0][1], '', 'now');
+    for (let i = 1; i <= 9; i++){
+      await w(290);
+      const d = G.dots[i - 1]; d.in = true; d.acc = true; setTimeout(() => { d.gone = true; G.pulse = 1; }, REDUCE ? 0 : 260);
+      cost = .12 + i * .19; pill('Reading', `${i} of 9`, true); dt.textContent = `${i} of 9 read · ${money(cost)}`;
+      if (i < 9) $('.ts3a-row span:nth-child(2)', bd).textContent = SRC[i][1];
+    }
+    await w(450);
+    // the budget: the orbit turns into the run's gauge, and the card opens on its own because the run needs an answer
+    G.mode = 'budget'; G.dots = []; G.arcT = 'warn'; G.arcTo = .92; G.core = 'warn'; cost = 1.84;
+    pill('92% of budget', money(cost), false);
+    head('Run is at 92% of its budget', `${money(cost)} of $2.00 · needs $0.40 more`, false);
+    bd.innerHTML = '';
+    foot(`<button class="pill line sm ts3a-stop" type="button">Stop run</button><button class="pill warn sm ts3a-raise" type="button">Raise to $3</button>`);
+    isl.classList.add('warn'); if (hidden){ hidden = false; show(); } settle(); announce('This run is at 92% of its budget. Raise it to 3 dollars, or stop the run.');
+    const pick = await new Promise(res => { run.pick = res; $('.ts3a-raise', ft).onclick = () => res('raise'); $('.ts3a-stop', ft).onclick = () => res('stop'); });
+    run.pick = null;
+    if (pick === 'stop'){
+      isl.classList.remove('warn'); G.arcT = 'ink'; G.core = 'dot'; G.arcTo = .92;
+      head('Run stopped', `${money(cost)} spent · nothing was written`, false); foot(''); pill('Run stopped', money(cost), false);
+      announce('Run stopped'); thread.append(enter(html(`<p class="ts3a-empty" style="margin:0">Stopped before writing. The 9 sources it read are kept.</p>`)));
+      pinned = false; G.mode = 'stopped'; settle(); setOpen(false); await idle(2600); hide(); runBtn.disabled = false; run = null; return;
+    }
+    // the fix, in place: the same card turns to the working state, then to the resolved one
+    G.mode = 'work'; G.spin = true; G.arcT = 'acc'; G.core = 'dot';
+    isl.classList.remove('warn'); foot('');
+    head('Raising the budget', `${money(cost)} of $3.00`, true); pill('Raising budget', '', true);
+    await w(1300);
+    G.spin = false; G.arc = 0; G.arcTo = cost / 3; G.arcT = 'ok'; G.core = 'tick'; G.mode = 'ok';
+    head('Budget raised to $3.00', `${Math.round(cost / 3 * 100)}% used · the run carries on`, false); pill('Budget raised', '61%', false);
+    announce('Budget raised to 3 dollars. The run carries on.');
+    await w(1700);
+    // writing: the orbit keeps the budget as a quiet grey gauge, and one bead circles while the words are written
+    G.mode = 'write'; G.core = 'dot'; G.arcT = 'ink'; G.sat = true; settle();
+    const secs = ['Running costs per year', 'Install and upkeep', 'Which suits your home'];
+    const list = i => secs.map((s, j) => row(j < i ? `<span class="ts3a-mk ok">${I('check')}</span>` : j === i ? `<span class="ts3a-mk"><span class="spin"></span></span>` : `<span class="ts3a-mk"><span class="dot"></span></span>`, s, '', j === i ? 'now' : '')).join('');
+    for (let i = 0; i < 3; i++){
+      pill('Writing', `${i + 1} of 3`, true); head('Writing the answer', `Section ${i + 1} of 3 · ${money(cost)}`, true); bd.innerHTML = list(i);
+      await w(950); cost += .074; G.arcTo = cost / 3;
+    }
+    // done: the cited sources settle on the orbit, the core turns into the tick, and the card opens to hand over the answer
+    G.mode = 'done'; G.sat = false; G.arcTo = 0; G.core = 'tick'; doneFolded = false;
+    [-.5, .9, 2.3, 3.7].forEach((a, i) => setTimeout(() => { G.dots.push({ a:a - Math.PI / 2, k:0, r:1, acc:true }); }, REDUCE ? 0 : i * 110));
+    pill('Answer ready', '4 cited', false); head('Answer ready', `4 sources cited · ${money(cost)} of $3.00`, false);
+    bd.innerHTML = list(3);
+    foot(`<button class="pill line sm ts3a-later" type="button">Later</button><button class="pill primary sm ts3a-open" type="button">Open answer</button>`);
+    settle(); announce('Answer ready, with 4 sources cited.');
+    const openIt = () => { if (!run) return;
+      const a = html(`<div class="ts3a-ans"><b>Running costs: heat pump or gas boiler</b><p>A heat pump costs about a third less to run each year in a mild climate, once its seasonal efficiency is above 3. A boiler stays cheaper where electricity costs more than four times as much as gas.</p><div class="ts3a-cites">${[0, 1, 3, 8].map((n, i) => `<span class="tag">${i + 1} · ${SRC[n][1]}</span>`).join('')}</div></div>`);
+      thread.append(enter(a)); finish(); };
+    const finish = () => { pinned = false; hov = false; foc = false; doneFolded = true; hide(); runBtn.disabled = false; run = null; };
+    $('.ts3a-open', ft).onclick = openIt;
+    $('.ts3a-later', ft).onclick = () => { doneFolded = true; pinned = false; setOpen(false); };
+    run.open = openIt;
+    // left alone, the card folds back to the pill after a while, and the pill stays until it is sent away or opened
+    await idle(5200); if (!run) return; doneFolded = true; settle();
+  }
+  c.on(form, 'submit', e => { e.preventDefault(); c.run(research); });
+
+  /* the demo: a person asks, glances at the pill while it searches, raises the budget when asked, then opens the answer */
+  c.story(async s => {
+    await s.beat(2);
+    await s.tap(runBtn);
+    await s.beat(3.2);
+    await s.point(pf, false); hov = true; settle();
+    await s.beat(3.4);
+    s.away(); hov = false; settle();
+    await s.until(() => G.mode === 'budget' && open);
+    await s.beat(2.6);
+    await s.tap($('.ts3a-raise', ft));
+    s.away();
+    await s.until(() => G.mode === 'done' && open);
+    await s.beat(2.4);
+    await s.tap($('.ts3a-open', ft));
+    s.away();
+    await s.beat(2);
+  });
+});
+</script>
+</body>
+</html>
