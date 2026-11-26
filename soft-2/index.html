@@ -18839,7 +18839,7 @@ DM.def('response-versions', (r, c) => {
   // no room kept for a longer answer, in every style (owner, 18 Nov). The component grows with its words (grow(), once its
   // entrance has settled), and a version streaming in keeps the height of the one it replaces, then eases to its own
   const rvx = $('.rvx', r);
-  Promise.resolve().then(() => Promise.all(rvx.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && rvx.isConnected) c.offs.push(grow(rvx)); });
+  const growing = Promise.resolve().then(() => Promise.all(rvx.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && rvx.isConnected) c.offs.push(grow(rvx)); });
   const keep = () => { if (t.textContent.trim()) t.style.minHeight = t.offsetHeight + 'px'; };
   const fit = () => { if (!t.style.minHeight) return; const was = t.offsetHeight; t.style.minHeight = ''; const h = t.offsetHeight; if (h >= was || REDUCE) return;
     t.style.minHeight = was + 'px'; void t.offsetHeight; t.style.transition = 'min-height var(--t) var(--ease)'; t.style.minHeight = h + 'px';
@@ -18858,7 +18858,8 @@ DM.def('response-versions', (r, c) => {
       await stream(s); busy = false; nav(); st.classList.remove('shim'); swap(st, ''); }); };
   const cp = $('.rvx-cp', r);
   cp.onclick = () => copied(cp, vers[cur]);
-  c.run(async () => { busy = true; nav(); await c.wait(300); await stream(vers[0]); busy = false; nav();
+  // (the first version starts once grow() has the component, so its first lines ease it open rather than jump it, motion pieces)
+  c.run(async () => { busy = true; nav(); await c.wait(300); await growing; await stream(vers[0]); busy = false; nav();
     // then one regenerate plays by itself, so the version count and arrows show what they do, unless you have taken over
     await c.step(1900); if (vers.length === 1) re.click(); });
 });
