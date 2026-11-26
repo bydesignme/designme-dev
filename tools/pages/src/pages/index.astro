@@ -30,7 +30,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import Page from '../layouts/Page.astro';
-import { ROOT, SITE, COMPONENTS, SECTIONS, SPLIT, BANDS, icon, MARKS, shadcnUrl } from '../lib/data.mjs';
+import { ROOT, SITE, COMPONENTS, SECTIONS, SPLIT, BANDS, icon, MARKS, shadcnUrl, FONT_CSS } from '../lib/data.mjs';
 import { FRAME_CSS, FRAME_JS } from '../lib/templates.mjs';
 
 const comp = reg => { const c = COMPONENTS.find(x => x.reg === reg); if (!c) throw new Error('landing: no component called ' + reg); return c; };
@@ -121,9 +121,16 @@ const VIEWS = [['sales-crm', 'Accounts', 'accounts'], ['sales-crm', 'Pipeline', 
   ['dashboard-builder', 'Dashboard', ''], ['whiteboard', 'Whiteboard', '']]
   .map(([slug, name, view, at = '']) => ({ slug, app:APPS[slug], name, view, at, url:`/templates/${slug}` }));
 const openOf = v => v.url + (v.view ? `?view=${v.view}` : '');
-// the wall: every component in the library, in its order, as four rows that drift in turn left and right
-const ROWS = [0, 1, 2, 3].map(i => COMPONENTS.slice(Math.round(i * COMPONENTS.length / 4), Math.round((i + 1) * COMPONENTS.length / 4)));
+// the wall: every component in the library, in its order, as two rows that drift in turn left and right (owner, 26 Nov: four
+// rows made the section too big)
+const ROWS = [0, 1].map(i => COMPONENTS.slice(Math.round(i * COMPONENTS.length / 2), Math.round((i + 1) * COMPONENTS.length / 2)));
 if (ROWS.flat().length !== total) throw new Error('landing: the wall shows ' + ROWS.flat().length + ' of ' + total + ' components');
+// and each card plays its component (owner, 26 Nov: "can we animate these cards here?"): the size each one gets at its largest
+// while it plays, in each style (tools/site/measure-wall.js writes wall-sizes.json), so its card frames it the way its picture
+// does (the component, 40px round it, at 16:10) at its largest, and nothing in it is cut off or jumps as it grows and shrinks.
+// A component missing there is framed by what it shows as it plays
+const WALL_SIZES = (() => { const f = path.join(ROOT, 'tools/site/wall-sizes.json'); return fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : {}; })();
+const WALL = JSON.stringify({ font:FONT_CSS, sizes:Object.fromEntries(COMPONENTS.map(c => [c.reg, Object.fromEntries(Object.keys(KEYS).map(st => [st, (WALL_SIZES[st] || {})[c.reg] || null]))])) }).replace(/</g, '\\u003c');
 const STYLE_DEMO = comp('decision-prompt');
 // the component the install commands and the editor name
 const HERO = comp('permission-gate');
@@ -275,7 +282,7 @@ const jsonld = [
       :root[data-style="clean"] .lp{--lp-r1:var(--dm-r-in);--lp-r2:var(--dm-r-card)}
       @supports (corner-shape:squircle){
         :root[data-style="soft"] .lp{--lp-r1:16px;--lp-r2:var(--dm-r-card)}
-        :root[data-style="soft"] :is(.lp-bg,.lp-win,.lp-show,.lp-show .dvf-dev:not(.mobile),.lp-wt,.lp-wt img,.lp-line){corner-shape:squircle}
+        :root[data-style="soft"] :is(.lp-bg,.lp-win,.lp-show,.lp-show .dvf-dev:not(.mobile),.lp-wt,.lp-wt img,.lp-wl,.lp-line){corner-shape:squircle}
       }
       .lp-in{max-width:1464px;margin:0 auto;padding-inline:32px}
       .lp code{font:500 12.5px/1.4 var(--pg-mono);font-variant-ligatures:none;background:var(--pg-chip);padding:1px 5px;border-radius:5px;color:var(--pg-fg)}
@@ -410,7 +417,7 @@ const jsonld = [
       :root[data-style="clean"] .lp-panes{background:var(--dm-stage)}
       .lp-pane{display:flex;flex-direction:column;min-width:0}
 
-      /* ---- the wall: every component, four rows that drift in turn left and right across the site's grey the full width of
+      /* ---- the wall: every component, two rows that drift in turn left and right across the site's grey the full width of
          the window, fading out into the grey at both sides. A row holds still under the pointer or while a tile in it has the
          focus; with reduced motion the rows stand still and scroll by hand ---- */
       .lp .lp-rows{--lp-wg:var(--pg-soft);position:relative;display:flex;flex-direction:column;gap:16px;padding:56px 0;background:var(--lp-wg)}
@@ -425,13 +432,23 @@ const jsonld = [
       .lp-set{display:flex;gap:16px;padding-right:16px}
       @keyframes lp-drift{to{transform:translateX(-50%)}}
       .lp-row:hover .lp-track,.lp-row:focus-within .lp-track{animation-play-state:paused}
-      .lp-wt{flex:none;display:flex;flex-direction:column;gap:8px;width:240px;padding:6px 6px 10px;border-radius:var(--lp-r2);background:var(--pg-bg);box-shadow:var(--dm-shadow);color:var(--pg-fg);text-decoration:none;transition:background-color 220ms var(--lp-ease)}
-      .lp-wt:hover{background:var(--pg-soft)}
+      .lp-wt{position:relative;flex:none;display:flex;flex-direction:column;gap:8px;width:240px;padding:6px 6px 10px;border-radius:var(--lp-r2);background:var(--pg-bg);box-shadow:var(--dm-shadow);color:var(--pg-fg);text-decoration:none;transition:background-color 220ms var(--lp-ease),transform 220ms var(--lp-ease),box-shadow 220ms var(--lp-ease)}
+      /* a card under the pointer lifts a little, with the neutral shadow, and its demo starts again from the beginning */
+      .lp-wt:hover{background:var(--pg-soft);transform:translateY(-2px);box-shadow:var(--dm-shadow-pop)}
       .lp-wt:focus-visible{outline:2px solid var(--pg-focus);outline-offset:-2px}
-      .lp-wt img{display:block;width:100%;height:auto;aspect-ratio:16/10;border-radius:max(0px,calc(var(--lp-r2) - 6px));background:var(--pg-soft)}
+      .lp-wt img,.lp-wl{display:block;width:100%;height:auto;aspect-ratio:16/10;border-radius:max(0px,calc(var(--lp-r2) - 6px));background:var(--pg-soft)}
+      /* the card's component, live, over its picture: the installed HTML, CSS and JS on the shared core, in a frame of its own
+         laid out at the size the picture frames it and scaled down to the picture's box. It shows once it has started, and
+         the picture stands in while it loads and while the card is out of view (dm-idle, as in the library: nothing in it is
+         drawn and its demo holds). The frame takes no pointer or focus, so a click is the card's link and a wheel scrolls
+         the page */
+      .lp-wl{position:absolute;top:6px;left:6px;width:calc(100% - 12px);overflow:hidden;background:none;pointer-events:none;opacity:0;transition:opacity 320ms var(--lp-ease);contain:layout paint style}
+      .lp-wl.on{opacity:1}
+      .lp-wl iframe{position:absolute;top:0;left:0;border:0;transform-origin:0 0;pointer-events:none;color-scheme:normal}
+      .lp-wt.dm-idle .lp-wl{content-visibility:hidden}
       .lp-wt span{padding:0 4px;font-size:13px;line-height:18px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
       @media (max-width:640px){.lp-wt{width:176px}.lp .lp-rows{padding:24px 0;margin:0}}
-      @media (prefers-reduced-motion:reduce){.lp-track{animation:none}.lp-set[aria-hidden]{display:none}.lp-row{overflow-x:auto;scrollbar-width:none}.lp-row::-webkit-scrollbar{display:none}}
+      @media (prefers-reduced-motion:reduce){.lp-wl{display:none}.lp-track{animation:none}.lp-set[aria-hidden]{display:none}.lp-row{overflow-x:auto;scrollbar-width:none}.lp-row::-webkit-scrollbar{display:none}}
 
       /* ---- styles (owner, 26 Nov: picked from the lab's 1b, with 2a's switch): one stage with the same live component in
          Blueprint, Soft and Clean laid over each other, each in a frame of its own (a style is set on <html>), cut by two
@@ -790,7 +807,7 @@ const jsonld = [
         </div>
       </div></div>
       <div class="lp-rows">
-        {ROWS.map((row, i) => <div class:list={['lp-row', { rev:i % 2 === 1 }]} style={`--dur:${[210, 240, 225, 255][i]}s`}>
+        {ROWS.map((row, i) => <div class:list={['lp-row', { rev:i % 2 === 1 }]} style={`--dur:${[420, 480][i]}s`}>
           <div class="lp-track">
             <div class="lp-set">{row.map(c => <a class="lp-wt" href={c.url} data-reg={c.reg}><img alt="" width="480" height="300" loading="lazy" decoding="async"><span>{c.title}</span></a>)}</div>
             <div class="lp-set" aria-hidden="true">{row.map(c => <a class="lp-wt" href={c.url} data-reg={c.reg} tabindex="-1"><img alt="" width="480" height="300" loading="lazy" decoding="async"><span>{c.title}</span></a>)}</div>
@@ -812,6 +829,125 @@ const jsonld = [
         else { near = true; set(); }
         new MutationObserver(set).observe(root, { attributes:true, attributeFilter:['data-style', 'data-theme'] });
         if (mq.addEventListener) mq.addEventListener('change', set);
+      })();
+      </script>
+      <script type="application/json" id="lp-wall-data" set:html={WALL} />
+      <script is:inline>
+      // and each card plays its component (owner, 26 Nov: "can we animate these cards here?"): the installed HTML, CSS and JS on
+      // the shared core (/r/<name>.json, as the bento loads them), each in a frame of its own, so everything the demo places
+      // by measuring (its pointer, popovers, tooltips) lands where it does in the library. The frame is laid out at the size
+      // the card's picture frames the component (the component at its largest in the style on screen, 40px round it, at
+      // 16:10) and scaled down to the picture's box, with the component in the middle of it, so it grows and shrinks there
+      // without being cut off or moving its card.
+      //  - only the few cards nearest the middle of the screen play (four, two on a phone: two and one a row): every one playing at once (26 at
+      //    1440) dropped the drift to 15 frames a second. The others show their picture. A card's frame is made when it first
+      //    comes to play (two a frame); one that stops holds its demo, as a mouse resting on a component holds it, pauses its
+      //    animations and draws nothing (dm-idle, as the library's far-away cards), so its picture shows, and its frame is
+      //    taken down once it has not played for 20 seconds
+      //  - the pointer coming onto a card plays its demo again from the beginning
+      //  - the frames follow the page's style and theme, and a new style starts them again, as it does the bento's demos
+      //  - with reduced motion there are no frames: the pictures stand still, as the rows do
+      (function(){
+        var rows = document.querySelector('.lp-rows'), data = document.getElementById('lp-wall-data');
+        if (!rows || !data || !('IntersectionObserver' in window) || !window.fetch) return;
+        var reduce = matchMedia('(prefers-reduced-motion: reduce)'); if (reduce.matches && !window.DM_WALL_MEASURE) return;
+        var W = JSON.parse(data.textContent), root = document.documentElement, mq = matchMedia('(prefers-color-scheme: dark)'), MEASURE = !!window.DM_WALL_MEASURE;
+        var cards = [].slice.call(rows.querySelectorAll('.lp-wt'));
+        var styleOf = function(){ var s = root.getAttribute('data-style'); return s === 'soft' || s === 'clean' ? s : 'bp'; };
+        var themeOf = function(){ var t = root.getAttribute('data-theme'); return t === 'dark' || t === 'light' ? t : mq.matches ? 'dark' : 'light'; };
+        var got = {};
+        var files = function(reg){ return got[reg] || (got[reg] = fetch('/r/' + reg + '.json').then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); }).then(function(d){
+          var f = function(ext){ var x = d.files.filter(function(x){ return x.path.slice(-ext.length) === ext; })[0]; return x ? x.content : ''; };
+          return { html:f('.html'), css:f('.css'), js:f('.js').replace(/<\/script/gi, '<\\/script') };
+        })); };
+        // the component's stage, as on its own page and in its picture (tools/pages/wall.mjs): the site's grey, the component in
+        // the middle; a demo's own switch (its variants, under the component) stays out of the picture, as there, and so do the demo's pointer and tooltips, which read as specks at a card's size
+        var STAGE = 'html,body{margin:0;height:100%;overflow:hidden}html{background:#fafafa}html[data-theme="dark"]{background:#1c1c1c;color-scheme:dark}html[data-style="clean"]{background:var(--dm-stage)}'
+          + 'body{font:14px/1.6 Inter,ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased}'
+          + '.stage-inner{height:100%;display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;align-items:center}.stage-inner>.card{min-width:0;display:grid;place-items:center}'
+          + '.stage-in>.dm>.demo{position:absolute!important;visibility:hidden!important}'
+          + '.hand,.tip{visibility:hidden!important}'
+          + 'html.lp-off *,html.lp-off *::before,html.lp-off *::after{animation-play-state:paused!important}';
+        var attrs = function(){ var s = styleOf(); return ' data-theme="' + themeOf() + '"' + (s === 'bp' ? '' : ' data-style="' + s + '"'); };
+        // (the style tags are written out in pieces, so the page's build, which reads every style in the page, leaves them be)
+        var css = function(t){ return '<' + 'style>' + t + '</' + 'style>'; };
+        var page = function(f){ return '<!doctype html><html lang="en"' + attrs() + '><head><meta charset="utf-8">' + css(W.font) + '<link rel="stylesheet" href="/components/assets/core.css">' + css(f.css) + css(STAGE) + '</head>'
+          + '<body><div class="stage-inner"></div><script src="/components/assets/core.js"><\/script><script>window.DM=DM;' + f.js + '<\/script><script src="/art/art.js?v=3"><\/script></body></html>'; };
+        // what the component shows: its main part (.dm-main) when it has one, or everything in its stage but the demo's pointer
+        var boxIn = function(f){ var s = f.doc && f.doc.querySelector('.stage-in'); if (!s) return null;
+          var m = s.querySelector('.dm-main'), els = m ? [m] : [].filter.call(s.children, function(e){ return !e.classList.contains('hand'); });
+          var x = 1 / 0, y = 1 / 0, X = -1 / 0, Y = -1 / 0;
+          els.forEach(function(e){ var b = e.getBoundingClientRect(); if (!b.width || !b.height) return; x = Math.min(x, b.left); y = Math.min(y, b.top); X = Math.max(X, b.right); Y = Math.max(Y, b.bottom); });
+          return X > x ? [Math.ceil(X - x), Math.ceil(Y - y)] : null; };
+        // the size a card frames: measured (wall-sizes.json), or bigger when a run shows more than was measured
+        var seen = {};
+        var sizeOf = function(reg){ var k = reg + ' ' + styleOf(), m = (W.sizes[reg] || {})[styleOf()], s = seen[k];
+          return m || s ? [Math.max(m ? m[0] : 0, s ? s[0] : 0), Math.max(m ? m[1] : 0, s ? s[1] : 0)] : null; };
+        var fit = function(a){ var f = a._lw; if (!f || !f.ifr) return;
+          var sz = MEASURE ? [976, 500] : sizeOf(a.dataset.reg) || [440, 320], vw = Math.ceil(Math.max(sz[0] + 80, (sz[1] + 80) * 1.6)), vh = Math.ceil(vw / 1.6), bw = f.el.clientWidth;
+          if (!bw) return; f.ifr.style.width = vw + 'px'; f.ifr.style.height = vh + 'px'; f.ifr.style.transform = 'scale(' + (bw / vw).toFixed(5) + ')'; };
+        var grew = function(a){ var f = a._lw, b = boxIn(f); if (!b || MEASURE) return; var reg = a.dataset.reg, sz = sizeOf(reg) || [0, 0];
+          if (b[0] <= sz[0] + 1 && b[1] <= sz[1] + 1) return;
+          seen[reg + ' ' + styleOf()] = [Math.max(b[0], sz[0]), Math.max(b[1], sz[1])];
+          cards.forEach(function(o){ if (o.dataset.reg === reg) fit(o); }); };
+        var play = function(a, on){ a.classList.toggle('dm-idle', !on); var f = a._lw; if (!f || !f.card) return;
+          f.doc.documentElement.classList.toggle('lp-off', !on);
+          var c = f.card._c; if (!c || c.dead) return;
+          if (on){ if (c.held){ c.held = false; c.release(); } } else c.held = true; };
+        var start = function(a, html){ var f = a._lw, w = f.ifr.contentWindow; if (!w || !w.DM) return;
+          f.win = w; f.doc = w.document;
+          var st = f.doc.querySelector('.stage-inner'); st.innerHTML = html; f.card = st.firstElementChild;
+          if (!f.card || !w.DM.defs[f.card.dataset.c]) return;
+          w.DM.mount(f.card); play(a, !!a._on);
+          new w.ResizeObserver(function(){ grew(a); }).observe(f.card);
+          requestAnimationFrame(function(){ requestAnimationFrame(function(){ if (a._lw === f) f.el.classList.add('on'); }); });
+        };
+        var make = function(a){ if (a._lw) return; var reg = a.dataset.reg;
+          var el = document.createElement('div'); el.className = 'lp-wl'; el.setAttribute('aria-hidden', 'true'); el.inert = true;
+          var img = a.querySelector('img'); a.insertBefore(el, img ? img.nextSibling : a.firstChild);
+          var f = a._lw = { el:el };
+          files(reg).then(function(x){ if (a._lw !== f) return;
+            var ifr = f.ifr = document.createElement('iframe'); ifr.tabIndex = -1; ifr.setAttribute('aria-hidden', 'true'); ifr.title = '';
+            ifr.addEventListener('load', function(){ if (a._lw === f) start(a, x.html); });
+            ifr.srcdoc = page(x); fit(a); el.appendChild(ifr);
+          }).catch(function(){});
+        };
+        var drop = function(a){ var f = a._lw; if (!f || a._on) return; if (f.card && f.card._c) f.card._c.stop(); f.el.remove(); a._lw = null; };
+        // made two a frame, so a row coming into view never holds up the page
+        var q = [], qr = 0;
+        var pump = function(){ qr = 0; for (var n = 0; n < 2 && q.length; n++){ var a = q.shift(); if (a._on || MEASURE) make(a); } if (q.length) qr = requestAnimationFrame(pump); };
+        var queue = function(a){ if (a._lw || q.indexOf(a) >= 0) return; q.push(a); if (!qr) qr = requestAnimationFrame(pump); };
+        if (MEASURE){
+          // tools/site/measure-wall.js: the rows stand still, and every component plays at once, at a component page's width
+          rows.querySelectorAll('.lp-track').forEach(function(t){ t.style.animation = 'none'; });
+          cards.filter(function(a){ return !a.closest('[aria-hidden]'); }).forEach(function(a){ a._vis = a._on = true; queue(a); });
+          window.dmWallBoxes = function(){ var o = {}; cards.forEach(function(a){ var b = a._lw && boxIn(a._lw); if (b) o[a.dataset.reg] = b; }); return o; };
+        } else {
+          // the cards that play: of those on screen, the ones nearest its middle (a card already playing keeps its place until
+          // another is clearly nearer, so they don't swap back and forth), looked at as the cards drift and the page scrolls
+          var MAX = function(){ return window.DM_WALL_MAX || (innerWidth > 640 ? 4 : 2); };
+          var pick = function(){ var cx = innerWidth / 2, cy = innerHeight / 2;
+            var on = cards.filter(function(a){ return a._vis; }).map(function(a){ var r = a.getBoundingClientRect(), d = a._hov ? -1e9 : Math.hypot(r.left + r.width / 2 - cx, (r.top + r.height / 2 - cy) * 1.5) - (a._on ? 80 : 0); return [d, a]; })
+              .sort(function(x, y){ return x[0] - y[0]; }).slice(0, MAX()).map(function(x){ return x[1]; });
+            cards.forEach(function(a){ var p = on.indexOf(a) >= 0; if (p === !!a._on) return; a._on = p;
+              if (p){ clearTimeout(a._drop); if (!a._lw) queue(a); } else if (a._lw){ clearTimeout(a._drop); a._drop = setTimeout(function(){ if (!a._on) drop(a); }, 20000); }
+              play(a, p); }); };
+          var pk = 0, later = function(){ if (!pk) pk = requestAnimationFrame(function(){ pk = 0; pick(); }); };
+          var vis = new IntersectionObserver(function(es){ es.forEach(function(en){ en.target._vis = en.isIntersecting; }); later(); });
+          setInterval(function(){ if (!document.hidden && cards.some(function(a){ return a._vis; })) pick(); }, 400);
+          addEventListener('scroll', later, { passive:true });
+          cards.forEach(function(a){ vis.observe(a);
+            // (the card under the pointer plays, whether or not it was one of them, from the beginning)
+            a.addEventListener('mouseenter', function(){ a._hov = true; pick(); var f = a._lw; if (f && f.card && f.win && f.card._c){ f.win.DM.mount(f.card); play(a, true); } });
+            a.addEventListener('mouseleave', function(){ a._hov = false; later(); }); });
+        }
+        var restyle = function(){ var s = styleOf(), t = themeOf();
+          cards.forEach(function(a){ var f = a._lw; if (!f || !f.doc) return; var h = f.doc.documentElement, was = h.getAttribute('data-style') || 'bp';
+            if (s === 'bp') h.removeAttribute('data-style'); else h.setAttribute('data-style', s); h.setAttribute('data-theme', t); fit(a);
+            if (was !== s && f.card && f.card._c){ f.win.DM.mount(f.card, true); play(a, !!a._on); } }); };
+        new MutationObserver(restyle).observe(root, { attributes:true, attributeFilter:['data-style', 'data-theme'] });
+        if (mq.addEventListener) mq.addEventListener('change', restyle);
+        var rz = 0; addEventListener('resize', function(){ if (!rz) rz = requestAnimationFrame(function(){ rz = 0; cards.forEach(fit); }); });
       })();
       </script>
     </section>
