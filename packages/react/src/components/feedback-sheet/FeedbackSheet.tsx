@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { Fold, mxIn, mxT, Spin, Swap, Tip } from '../../lib/motion';
+import { Fold, growFit, mxIn, mxT, Spin, Swap, Tip } from '../../lib/motion';
 import '../../designme.css';
 import './feedback-sheet.css';
 
@@ -63,22 +63,10 @@ export function FeedbackSheet({ children, rating, defaultRating = null, onRating
   const [busy, setBusy] = useState(false);
   const sending = sendingProp ?? busy;
   const [sent, setSent] = useControllable<Feedback | null>(sentProp, null, onSentChange);
-  // the container grows with what it holds, eased (grow() on the site), and stays centred wherever it is centred, in every
-  // style (owner, 18 Nov)
+  // the container grows with what it holds, in one smooth motion (growFit, grow() on the site), and stays centred wherever it
+  // is centred, in every style (owner, 18 Nov; 26 Nov: no jitter)
   const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
-  useIsoLayoutEffect(() => {
-    const el = root.current, w = inner.current;
-    if (!el || !w || typeof ResizeObserver === 'undefined') return;
-    let first = true;
-    const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
-    const fit = () => {
-      const h = Math.ceil(w.offsetHeight + box());
-      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
-      else el.style.height = h + 'px';
-    };
-    const ro = new ResizeObserver(fit); ro.observe(w); fit();
-    return () => { ro.disconnect(); el.style.height = ''; };
-  }, []);
+  useIsoLayoutEffect(() => { const el = root.current, w = inner.current; if (el && w) return growFit(el, w); }, []);
   // sent, it says so once: the thank-you line under the bar, nothing beside the thumbs
   const status = sent ? '' : rate === 'up' ? 'Thanks, noted' : '';
   const box = useRef<HTMLTextAreaElement>(null);

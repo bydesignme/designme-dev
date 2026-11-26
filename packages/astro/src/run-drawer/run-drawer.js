@@ -4,6 +4,9 @@ DM.def('run-drawer', (r, c) => {
   r.innerHTML = r.innerHTML.replace(/\{([\w-]+)(?:\.(xs))?\}/g, (m, k, z) => I(k, z || 's'));
   const uid = 'rdr' + Math.random().toString(36).slice(2, 7);
   const frame = $('.rdr', r), dw = $('.rdr-dw', r), flow = $('.rdr-flow', r), tg = $('.rdr-tg', r), stT = $('.rdr-st', r), idT = $('.rdr-id', r), meta = $('.rdr-meta', r);
+  // where a row sits in the scrolling body (its offsets add up to the body: the list, which the gliding highlight positions, is
+  // an offset parent of its own)
+  const topIn = el => { let y = 0; for (let e = el; e && e !== bd && bd.contains(e); e = e.offsetParent) y += e.offsetTop; return y; };
   const bd = $('.rdr-b', r), rowsEl = $('.rdr-rows', r), sc = $('.rdr-sc', r), logEl = $('.rdr-log', r), cnt = $('.rdr-lf .n', r), ds = $('.rdr-ds', r), io = $('.rdr-io', r);
   // its motion pieces (26 Nov): one highlight glides from step to step in both lists, in every style; the picked step keeps its
   // own fill
@@ -95,7 +98,7 @@ DM.def('run-drawer', (r, c) => {
       li.hidden = lvl !== 'all' && l.l !== lvl; logEl.appendChild(li); if (!force && !REDUCE && !li.hidden) li.classList.add('in'); }
     filterLog(false);
     // the newest line in view while the run is followed
-    if (follow && (R.st === 'run' || R.st === 'wait' || force)){ if (tab === 'steps'){ const b = rowsEl.lastElementChild; if (b && b.offsetTop + b.offsetHeight > bd.scrollTop + bd.clientHeight) bd.scrollTop = b.offsetTop + b.offsetHeight - bd.clientHeight + 6; } if (tab === 'log') bd.scrollTop = bd.scrollHeight; }
+    if (follow && (R.st === 'run' || R.st === 'wait' || force)){ if (tab === 'steps'){ const b = rowsEl.lastElementChild; if (b && topIn(b) + b.offsetHeight > bd.scrollTop + bd.clientHeight) bd.scrollTop = topIn(b) + b.offsetHeight - bd.clientHeight + 6; } if (tab === 'log') bd.scrollTop = bd.scrollHeight; }
     // the head: the run's state, its time, tokens and cost
     const tag = { run:['run', '<span class="spin"></span>Running'], wait:['warn', 'Waiting'], ok:['ok', 'Passed'], bad:['bad', 'Failed'], stopped:['', 'Stopped'] }[R.st];
     if (stT.dataset.s !== R.st){ stT.dataset.s = R.st; stT.className = 'rdr-st tag ' + tag[0]; stT.innerHTML = tag[1]; }
@@ -142,7 +145,7 @@ DM.def('run-drawer', (r, c) => {
     const a = e.target.closest('.rdr-ask [data-a]'); if (a) return decide(a.dataset.a === 'yes');
     const b = e.target.closest('.rdr-r, .rdr-nd, .rdr-ds button'); if (!b) return;
     pick(b.dataset.s);
-    if (b.matches('.rdr-nd') && tab === 'steps'){ const row = $(`.rdr-r[data-s="${b.dataset.s}"]`, rowsEl); if (row) bd.scrollTop = Math.max(0, row.offsetTop - 34); }
+    if (b.matches('.rdr-nd') && tab === 'steps'){ const row = $(`.rdr-r[data-s="${b.dataset.s}"]`, rowsEl); if (row) bd.scrollTop = Math.max(0, topIn(row) - 34); }
   });
   // Steps, Log and Data; the log's level filter
   const tabs = seg($('.rdr-tabs', r), v => { tab = v; $$('.rdr-v', r).forEach(x => x.hidden = x.dataset.v !== v); bd.scrollTop = 0; if (v === 'data') paintData(); if (v === 'log' && follow && R.st === 'run') bd.scrollTop = bd.scrollHeight; });

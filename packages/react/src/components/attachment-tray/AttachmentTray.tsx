@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type ChangeEvent, type CSSProperties, type
 import { cx } from '../../lib/cx';
 import { useIsoLayoutEffect } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { Swap, Tip } from '../../lib/motion';
+import { growFit, Swap, Tip } from '../../lib/motion';
 import '../../designme.css';
 import './attachment-tray.css';
 
@@ -137,18 +137,7 @@ export function AttachmentTray({ files, onFiles, onRemove, title = 'Drop files h
   const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
   const [clean, setClean] = useState(false);
   useIsoLayoutEffect(() => { setClean(root.current?.closest('[data-style]')?.getAttribute('data-style') === 'clean'); }, []);
-  useIsoLayoutEffect(() => {
-    const el = root.current, w = inner.current;
-    if (!clean || !el || !w || typeof ResizeObserver === 'undefined') return;
-    let first = true;
-    const fit = () => {
-      const h = Math.ceil(w.getBoundingClientRect().height);
-      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
-      else el.style.height = h + 'px';
-    };
-    const ro = new ResizeObserver(fit); ro.observe(w); fit();
-    return () => { ro.disconnect(); el.style.height = ''; };
-  }, [clean]);
+  useIsoLayoutEffect(() => { const el = root.current, w = inner.current; if (clean && el && w) return growFit(el, w); }, [clean]);
 
   const list = <div className="dm-atx-list">{files.map(f => <Item key={f.id} file={f} delay={seen.delay[f.id] ?? 0} onRemove={onRemove} clean={clean} />)}</div>;
   const body = !clean ? (<>

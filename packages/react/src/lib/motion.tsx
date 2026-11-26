@@ -365,14 +365,21 @@ export function useReflow(root: RefObject<HTMLElement | null>, selector: string,
 
 // the properties whose animation changes a box's height
 const GROW_SIZING = /^(all|height|min-height|max-height|block-size|min-block-size|max-block-size|grid-template-rows|grid-auto-rows|margin|margin-top|margin-bottom|margin-block(-start|-end)?|padding|padding-top|padding-bottom|padding-block(-start|-end)?|gap|row-gap|line-height|font-size|flex|flex-basis|flex-grow|border-width|border-top-width|border-bottom-width)$/;
+// 0 when nothing inside w eases a size, 2 when something does, 1 when what does has only just started (still pending, or
+// less than a frame in), so it has not moved the content yet: a change in that frame was made at once
 function sizingIn(w: Element) {
+  let r = 0;
   for (const a of w.getAnimations({ subtree: true })) {
     if (a.playState === 'finished' || a.playState === 'idle' || !a.effect || (a.effect as KeyframeEffect).pseudoElement) continue;
     const t = (a as CSSTransition).transitionProperty, e = a.effect as KeyframeEffect;
+    // (an element taken out of the flow, like a positioned underline growing, changes no height round it)
+    if (e.target instanceof Element && /^(absolute|fixed)$/.test(getComputedStyle(e.target).position)) continue;
     const ps = typeof t === 'string' ? [t] : typeof e.getKeyframes === 'function' ? e.getKeyframes().flatMap(k => Object.keys(k)) : [];
-    if (ps.some(p => GROW_SIZING.test(p.replace(/[A-Z]/g, ch => '-' + ch.toLowerCase())))) return true;
+    if (!ps.some(p => GROW_SIZING.test(p.replace(/[A-Z]/g, ch => '-' + ch.toLowerCase())))) continue;
+    const ct = a.pending ? 0 : Number(a.currentTime ?? 0) - (Number(e.getTiming?.().delay) || 0);
+    if (ct > 8) return 2; r = 1;
   }
-  return false;
+  return r;
 }
 /**
  * How a growing container (`el`, dm-growing) keeps the height of what it holds (`w`, its one dm-grow wrapper), in one smooth
@@ -406,7 +413,8 @@ export function growFit(el: HTMLElement, w: HTMLElement) {
     const dh = h - H, dt = Math.max(1, t - tc); if (Math.abs(dh) < .01) return; H = h; tc = t;
     // while the content eases, a step far from its speed (a line emptied at once as a fold opens) is a change made at once
     let jump = dh; if (dt > 50) vc = null;
-    if (sizingIn(w)) { const e = vc === null ? 0 : dh - vc * dt; jump = Math.abs(e) > Math.max(4, Math.abs((vc ?? 0) * dt)) ? e : 0; vc = (dh - jump) / (vc === null ? 1000 / 60 : dt); }
+    // (an easing that starts in the same frame as a change made at once has not moved yet: the whole step is the change)
+    if (sizingIn(w) === 2) { const e = vc === null ? 0 : dh - vc * dt; jump = Math.abs(e) > Math.max(4, Math.abs((vc ?? 0) * dt)) ? e : 0; vc = (dh - jump) / (vc === null ? 1000 / 60 : dt); }
     else vc = null;
     if (jump) { d -= jump; if (!raf) { last = t; raf = requestAnimationFrame(step); } }
     put();

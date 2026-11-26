@@ -435,7 +435,8 @@
   function syncSizes(){ $$('.dbb-w', eg.el).forEach(n => { const it = eg.items.find(x => x.id === n.dataset.key); if (!it) return; $$('.dbb-sz button', n).forEach(b => b.setAttribute('aria-pressed', +b.dataset.v === it.w)); }); app.dataset.cols = eg.cols; }
 
   // quiet: the demo's own presses move no focus, so the app never takes the keyboard from a page that shows it in a frame
-  function openEditor(quiet){
+  // still: no entrance (the first paint, which opens on the editor)
+  function openEditor(quiet, still){
     if (mode !== 'view') return;
     closePops(); mode = 'edit'; app.dataset.mode = 'edit';
     draft = { items:DASH[cur].items.map(x => ({ ...x })), shown:DASH[cur].shown };
@@ -443,7 +444,7 @@
     ed.hidden = false; syncShown(); markDirty();
     eg.items = draft.items; eg.cols = colsFor(eg.el.clientWidth); eg.render(false); syncSizes(); empty();
     cv.scrollTop = 0;
-    if (!REDUCE) ed.animate([{ opacity:0, transform:'translateY(8px) scale(.99)' }, { opacity:1, transform:'none' }], { duration:MT('--dm-t-slow'), easing:getComputedStyle(app).getPropertyValue('--dm-ease').trim() || 'ease' });
+    if (!REDUCE && !still) ed.animate([{ opacity:0, transform:'translateY(8px) scale(.99)' }, { opacity:1, transform:'none' }], { duration:MT('--dm-t-slow'), easing:getComputedStyle(app).getPropertyValue('--dm-ease').trim() || 'ease' });
     $('.dbb-view', app).inert = true;
     if (!quiet) $('#dbb-et', app).focus({ preventScroll:true });
   }
@@ -759,10 +760,14 @@
   }
 
   /* ---------- first paint ---------- */
+  // the builder opens on its editor, the widgets to add listed on the left (owner, 26 Nov: "whenever someone clicks through to
+  // the dashboard builder, they see the edit with all the components on the left"); Save or Cancel goes on to the dashboard
+  // itself. ?mode=view opens on the dashboard
   renderView(true);
+  if (new URLSearchParams(location.search).get('mode') !== 'view') openEditor(true, true);
 
-  /* ---------- the demo: a short story, as the components' previews tell theirs. It opens the builder, drags a bar chart from
-     the palette onto the dashboard, makes it full width and saves. A mouse resting on the app holds it where it is (the
+  /* ---------- the demo: a short story, as the components' previews tell theirs. From the editor the page opens on, it drags a
+     bar chart from the palette onto the dashboard and makes it full width, and stays in the editor (Save is the visitor's). A mouse resting on the app holds it where it is (the
      controller's waits), the first real click, key or touch in the app ends it for good, and with reduced motion it doesn't play ---------- */
   const c = ctl();
   const embedded = document.documentElement.hasAttribute('data-embed');
@@ -786,12 +791,13 @@
       // it starts once the app has settled, while the tab is open and the app is on screen
       await c.step(embedded ? 1200 : 1800);
       while (document.hidden) await c.step(300);
-      if (mode !== 'view' || cur !== 'overview') return;
-      await tap(edBtn); await c.step(700);
+      if (cur !== 'overview') return;
+      if (mode === 'view'){ await tap(edBtn); await c.step(700); }
+      if (mode !== 'edit') return;
       if (getComputedStyle(addw).display !== 'none'){
         // a phone: Add widget opens the palette as a sheet, and a tap on Bar chart puts it at the end
         await tap(addw); await c.step(600); await tap($('.dbb-tile[data-t="bar"]', app)); await c.step(1400);
-        await tap($('.dbb-save', app)); await c.step(700); away(); return;
+        away(); return;
       }
       // the bar chart: pressed in the palette, carried onto the canvas under the metrics, and let go
       const tile = $('.dbb-tile[data-t="bar"]', app); if (!tile.offsetParent) return;
@@ -811,7 +817,6 @@
       const n = eg.node(draft.items.find(x => x.t === 'bar')); if (!n) return;
       select(n); await c.step(500);
       await tap($('.dbb-sz [data-v="3"]', n)); await c.step(1300);
-      await tap($('.dbb-save', app)); await c.step(700);
       away();
     }).finally(() => away());
   }

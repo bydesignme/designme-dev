@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { enter, Spin, Swap, SwapIcon, Tip } from '../../lib/motion';
+import { enter, growFit, Spin, Swap, SwapIcon, Tip } from '../../lib/motion';
 import { usePopover } from '../../lib/popover';
 import '../../designme.css';
 // its menus' rows glide in Clean
@@ -121,19 +121,7 @@ export function PermissionGate({
   const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
   const [clean, setClean] = useState(false);
   useIsoLayoutEffect(() => { setClean(root.current?.closest('[data-style]')?.getAttribute('data-style') === 'clean'); }, []);
-  useIsoLayoutEffect(() => {
-    const el = root.current, w = inner.current;
-    if (!el || !w || typeof ResizeObserver === 'undefined') return;
-    let first = true;
-    const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
-    const fit = () => {
-      const h = Math.ceil(w.getBoundingClientRect().height + box());
-      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
-      else el.style.height = h + 'px';
-    };
-    const ro = new ResizeObserver(fit); ro.observe(w); fit();
-    return () => { ro.disconnect(); el.style.height = ''; };
-  }, []);
+  useIsoLayoutEffect(() => { const el = root.current, w = inner.current; if (el && w) return growFit(el, w); }, []);
   // Clean: the scopes fade up and out before the card eases to the result row's height
   const [fading, setFading] = useState(false);
   // asking again for one scope: nothing to tick, so the scope is a row led by a tile like the question's, and the button
