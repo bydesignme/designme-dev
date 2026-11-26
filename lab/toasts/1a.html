@@ -87,13 +87,15 @@ body{font-family:var(--dm-sans);font-size:14px;line-height:1.5;color:var(--dm-fg
 @keyframes ts1aback{from{opacity:0}}
 .ts1a-cf{display:flex;align-items:center;gap:var(--dm-s-2);padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-2) 12px}
 .ts1a-by{display:flex;align-items:center;gap:6px;min-width:0;font-size:12px;color:var(--dm-muted)}
+.ts1a-by span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@container (max-width:400px){.ts1a-to{display:none}}
 .ts1a-by .i{color:var(--dm-av-l)}
 .ts1a-to{margin-left:auto;font-size:12px;color:var(--dm-muted);white-space:nowrap}
 .ts1a-send{gap:6px}
 
 /* the toasts' corner: under the app's head, at its right edge */
 .ts1a-tr{position:absolute;z-index:5;top:calc(48px + var(--dm-s-4));right:var(--dm-s-4);width:min(360px,calc(100% - 2 * var(--dm-s-4)));pointer-events:none}
-.ts1a-t{pointer-events:auto;display:grid;grid-template-columns:54px minmax(0,1fr) auto;align-items:center;column-gap:var(--dm-s-3);padding:var(--dm-s-4);background:var(--dm-raised);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow-toast);--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
+.ts1a-t{pointer-events:auto;display:grid;grid-template-columns:52px minmax(0,1fr) auto;align-items:center;column-gap:var(--dm-s-3);padding:var(--dm-s-4);background:var(--dm-raised);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow-toast);--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
 :root[data-style="clean"] .ts1a-t{border-radius:calc(12px * var(--dm-rk-l,var(--dm-rk)))}
 .ts1a-t.ghost{visibility:hidden}
 .ts1a-tx{min-width:0;font-size:13px;line-height:18px}
@@ -110,7 +112,7 @@ body{font-family:var(--dm-sans);font-size:14px;line-height:1.5;color:var(--dm-fg
 .ts1a-ua:not(.on) .pill{opacity:0}
 
 /* the glyph: the message's trip */
-.ts1a-g{display:block;width:54px;height:36px;overflow:visible}
+.ts1a-g{display:block;width:52px;height:36px;overflow:visible}
 .ts1a-g .trk{fill:none;stroke:var(--dm-rail);stroke-width:1.5;stroke-dasharray:1.5 3;stroke-linecap:round}
 .ts1a-g .trl{fill:none;stroke:var(--dm-accent-mark);stroke-width:2;stroke-linecap:round;opacity:0;transition:stroke .3s}
 .ts1a-g .org{fill:var(--dm-fg2);transition:fill .3s,opacity .3s}
@@ -162,7 +164,7 @@ body{font-family:var(--dm-sans);font-size:14px;line-height:1.5;color:var(--dm-fg
           <label class="ts1a-sr" for="ts1a-ta">Reply to launch-notes</label>
           <textarea class="ts1a-ta" id="ts1a-ta" placeholder="Reply to #launch-notes">Launch notes are ready: 3 fixes and 1 new component. Can you check them by 4pm?</textarea>
           <div class="ts1a-cf">
-            <span class="ts1a-by"><svg class="i s" aria-hidden="true"><use href="#i-spark"/></svg>Drafted by Writer agent</span>
+            <span class="ts1a-by"><svg class="i s" aria-hidden="true"><use href="#i-spark"/></svg><span>Drafted by Writer agent</span></span>
             <span class="ts1a-to">To 4 people</span>
             <button type="button" class="pill primary sm ts1a-send"><svg class="i s" aria-hidden="true"><use href="#i-send"/></svg>Send</button>
           </div>
@@ -179,7 +181,7 @@ body{font-family:var(--dm-sans);font-size:14px;line-height:1.5;color:var(--dm-fg
 DM.PLAYS.add('ts1a');
 DM.def('ts1a', (r, c) => {
   const app = $('.ts1a-app', r), th = $('.ts1a-th', r), ta = $('.ts1a-ta', r), sendB = $('.ts1a-send', r), region = $('.ts1a-tr', r), live = $('.ts1a-live', r);
-  const DRAFT = ta.value, WINDOW = 6000;
+  const WINDOW = 5000;
   const EASE = () => getComputedStyle(app).getPropertyValue('--dm-ease').trim() || 'ease';
   const style = () => document.documentElement.dataset.style || 'bp';
   let state = 'idle', toast = null, msg = null, sentText = '', epoch = 0, hov = false, foc = false, demoHold = false, left = WINDOW;
@@ -197,7 +199,7 @@ DM.def('ts1a', (r, c) => {
   const quiet = p => p.catch(e => { if (e !== 'stale' && e !== 'stop') console.error(e); });
 
   /* ---- the glyph ---- */
-  const GLYPH = `<svg class="ts1a-g" viewBox="0 0 48 32" aria-hidden="true"><path class="trk" d="M6 25C11 9 25 4 34.5 11"/><path class="trl" d="M6 25C11 9 25 4 34.5 11"/><circle class="org" cx="6" cy="25" r="3"/><circle class="rng" cx="40.5" cy="14.5" r="6.5"/><path class="chk" pathLength="1" d="M37.7 14.8l1.9 1.9 3.6-3.7"/><circle class="dot" r="3" cx="6" cy="25"/></svg>`;
+  const GLYPH = `<svg class="ts1a-g" viewBox="2 0 46 32" aria-hidden="true"><path class="trk" d="M6 25C11 9 25 4 34.5 11"/><path class="trl" d="M6 25C11 9 25 4 34.5 11"/><circle class="org" cx="6" cy="25" r="3"/><circle class="rng" cx="40.5" cy="14.5" r="6.5"/><path class="chk" pathLength="1" d="M37.7 14.8l1.9 1.9 3.6-3.7"/><circle class="dot" r="3" cx="6" cy="25"/></svg>`;
   const G = t => { const s = $('.ts1a-g', t); const p = $('.trl', s); return { p, L:p.getTotalLength(), org:$('.org', s), rng:$('.rng', s), chk:$('.chk', s), dot:$('.dot', s) }; };
   // the trail drawn from a to b along the arc, as a dash moved along it
   const trail = (g, a, b) => { const n = Math.max(0, b - a); g.p.style.opacity = n < .4 ? 0 : 1; g.p.style.strokeDasharray = `${n} ${g.L * 2}`; g.p.style.strokeDashoffset = -a; };
@@ -285,7 +287,7 @@ DM.def('ts1a', (r, c) => {
     g.dot.style.opacity = 0; g.rng.classList.remove('wait'); g.rng.classList.add('ok', 'pop'); g.chk.classList.add('on');
     setTimeout(() => g.rng.classList.remove('pop'), 260);
     msgStatus(msg, 'Sent'); state = 'window'; left = WINDOW;
-    words('Sent to 4 people', null, false); tickText(left); undoOpen(true); say('Sent to 4 people. You can undo for 6 seconds');
+    words('Sent to 4 people', null, false); tickText(left); undoOpen(true); say('Sent to 4 people. You can undo for 5 seconds');
     // the arc it flew is the time left: it burns back towards the ring
     await hwait(WINDOW, my, ms => { left = ms; if (toast) trail(g, g.L * (1 - ms / WINDOW), g.L); tickText(ms); });
     deliver(my);
@@ -294,7 +296,7 @@ DM.def('ts1a', (r, c) => {
     state = 'delivered'; msgStatus(msg, '9:24'); undoOpen(false);
     if (toast){ const g = G(toast); trail(g, g.L, g.L); words('Delivered to 4 people', '#launch-notes, just now', false); }
     say('Delivered to 4 people');
-    quiet(hwait(4200, my).then(() => dismiss()));
+    quiet(hwait(3200, my).then(() => dismiss()));
   }
   function commitNow(){ ++epoch; if (state === 'window' || state === 'sending'){ msgStatus(msg, '9:24'); } const t = toast; toast = null; state = 'idle'; if (t) leave(t); }
   async function undo(){
@@ -307,7 +309,7 @@ DM.def('ts1a', (r, c) => {
     trail(g, 0, 0); g.dot.style.opacity = 0; g.org.classList.remove('gone');
     g.org.animate && !REDUCE && g.org.animate([{ transform:'scale(1.6)' }, { transform:'none' }], { duration:420, easing:'cubic-bezier(.3,1.6,.5,1)', composite:'replace' });
     dropMsg(msg); msg = null; state = 'undone'; words('Back in your draft', 'No one saw it', false); say('Undone. The message is back in your draft');
-    await quiet(hwait(1700, my)); if (my !== epoch) return;
+    await quiet(hwait(1500, my)); if (my !== epoch) return;
     goHome(my);
   }
   async function goHome(my){
@@ -340,14 +342,14 @@ DM.def('ts1a', (r, c) => {
   c.story(async s => {
     await s.beat(3);
     await s.tap(sendB); s.away();
-    await s.until(() => state === 'window'); await s.beat(4);
-    await s.tap($('.ts1a-undo', toast)); s.away();
-    await s.until(() => state === 'idle'); await s.beat(3);
-    await s.tap(sendB); s.away();
     await s.until(() => state === 'window'); await s.beat(3);
-    await s.point($('.ts1a-tx', toast), false); demoHold = true; onHold(); await s.beat(4);
+    await s.tap($('.ts1a-undo', toast)); s.away();
+    await s.until(() => state === 'idle'); await s.beat(2);
+    await s.tap(sendB); s.away();
+    await s.until(() => state === 'window'); await s.beat(2);
+    await s.point($('.ts1a-tx', toast), false); demoHold = true; onHold(); await s.beat(3);
     demoHold = false; onHold(); s.away();
-    await s.until(() => state === 'idle' && !toast); await s.beat(2);
+    await s.until(() => state === 'idle' && !toast); await s.beat(1);
   });
 });
 
