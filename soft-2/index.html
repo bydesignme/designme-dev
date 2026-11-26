@@ -528,6 +528,9 @@ th:last-child>.col-rz{display:none}
 .stl .dm-main{gap:10px}
 .stl-row{display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:var(--r-pill);box-shadow:var(--shadow);height:40px;padding:0 14px 0 13px;font-size:13.5px;min-width:250px;transition:background-color var(--t-fast) var(--ease)}
 .stl-row:hover{background:color-mix(in srgb,var(--fg) 4%,var(--surface))}
+/* its motion (the core's motion pieces, owner, 26 Nov): a press on the pill shows at once (.mx-press); a mark that changes, the
+   loader, the tick or a row's dot, crossfades in place (.mx-ic, iconSwap()); the list's rows settle one after another as it
+   opens (.mx-rows) */
 .stl-g{width:16px;display:grid;place-items:center;color:var(--fg)}
 /* a finished step's tick is the vivid mark green */
 .stl-ok{display:grid;color:var(--ok-mark)}
@@ -563,6 +566,8 @@ th:last-child>.col-rz{display:none}
 /* the row's hover is Clean's one hover laid over its fill (owner, 21 Nov), easing in and out over 220ms */
 :root[data-style="clean"] .stl-row{transition:box-shadow var(--t-fast) var(--ease)}
 :root[data-style="clean"] .stl-row:hover{background:var(--surface);box-shadow:var(--shadow),inset 0 0 0 99px var(--row)}
+/* (its press, the motion pieces' .mx-press: a step deeper than the hover, at once, in the hover's own layer) */
+:root[data-style="clean"] .stl-row.mx-press:active{box-shadow:var(--shadow),inset 0 0 0 99px var(--row-press);transition-duration:var(--t-press)}
 .bars3{display:inline-flex;gap:2px;align-items:center;height:12px}
 .bars3 i{width:2.5px;height:100%;border-radius:var(--r-tiny,2px);background:currentColor;animation:b3 .9s var(--ease-io) infinite}
 .bars3 i:nth-child(2){animation-delay:.15s}.bars3 i:nth-child(3){animation-delay:.3s}
@@ -580,6 +585,8 @@ th:last-child>.col-rz{display:none}
 .ths-row{display:flex;align-items:center;gap:10px;min-width:0}
 /* the animated mark has no tile or fill behind it in Soft and Clean (owner, 22 Nov: "remove the background container"): it sits
    in a 20px box on the line's centre line, the words 10px after it. Blueprint keeps its hairline tile */
+/* its motion (the core's motion pieces, owner, 26 Nov): picking another state crossfades its mark in for the last one (.mx-ic,
+   iconSwap()) */
 .ths-mk{position:relative;width:20px;height:20px;flex:none;display:grid;place-items:center;color:var(--accent-mark,var(--accent))}
 /* (the words and their seconds share one baseline; the mark stays centred on their line) */
 .ths-w{flex:0 1 auto;min-width:0;display:flex;align-items:baseline;gap:10px}
@@ -675,6 +682,8 @@ th:last-child>.col-rz{display:none}
 .rtr{width:100%;padding:6px}
 .rtr-h{display:flex;align-items:center;gap:10px;width:100%;padding:10px var(--s-3);border-radius:var(--r-in);font-size:13.5px;transition:background .2s}
 .rtr-h:hover{background:var(--row)}
+/* its motion (the core's motion pieces, owner, 26 Nov): a press on the header shows at once (.mx-press); in Clean the card grows on
+   the spring (.mx-grow) */
 .rtr-mark{color:var(--fg2)}
 .rtr-chev{margin-left:auto;color:var(--muted);transition:transform .4s var(--ease)}
 .rtr-h[aria-expanded="false"] .rtr-chev{transform:rotate(-90deg)}
@@ -708,6 +717,9 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .rtr-time{font-variant-numeric:tabular-nums}
 :root[data-style="clean"] .rtr-chev{width:14px;height:14px;border-radius:50%;box-shadow:0 0 0 7px transparent;transition:transform .4s var(--ease),background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .rtr-h:hover .rtr-chev{background:var(--row);box-shadow:0 0 0 7px var(--row);color:var(--fg)}
+/* (its press, the motion pieces' .mx-press: in Clean, where the header's hover is the chevron's fill, the press deepens that fill) */
+:root[data-style="clean"] .rtr-h.mx-press:active{background:none}
+:root[data-style="clean"] .rtr-h:active .rtr-chev{background:var(--row-press);box-shadow:0 0 0 7px var(--row-press);transition-duration:var(--t-press)}
 :root[data-style="clean"] .rtr-body{padding:10px 16px;border-top:1px solid var(--line)}
 :root[data-style="clean"] .rtr-body[data-v="sources"]{padding:16px}
 :root[data-style="clean"] .rtr-li{padding:6px 0 6px 28px;line-height:20px}
@@ -782,6 +794,11 @@ th:last-child>.col-rz{display:none}
 .tk-st.run .mk{color:var(--accent-mark,var(--accent));background:var(--accent-bg);animation:tkhalo 1.8s var(--ease-io) infinite}
 .tk-st.done .mk{background:var(--ok-bg);color:var(--ok)}
 .tk-st.done .mk .i{animation:tkpop .45s var(--ease) backwards}
+/* its motion (the core's motion pieces, owner, 26 Nov): a press on the header shows at once as a deeper fill round the chevron,
+   the hover's own shape; a mark that changes (a step's ring, clock and tick, the header's dots and finished mark) crossfades in
+   place (.mx-ic, iconSwap(), in place of the tick's own pop); the trace grows on the spring (.mx-grow) */
+.tk-h:active .tk-chev{background:var(--row-press);box-shadow:0 0 0 6px var(--row-press);transition-duration:var(--t-press)}
+.tk.mx-ic .tk-st.done .mk .i,.tk.mx-ic .tk-h.tk-fin .tk-mark .i{animation:none}
 .tk-st.retry .mk{background:var(--warn-bg);color:var(--warn);animation:tkhalow 1.8s var(--ease-io) infinite}
 @keyframes tkhalo{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--fg) 0%,transparent)}50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--fg) 6%,transparent)}}
 @keyframes tkhalow{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--fg) 0%,transparent)}50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--fg) 6%,transparent)}}
@@ -827,6 +844,7 @@ th:last-child>.col-rz{display:none}
 :root[data-style="clean"] .tk-time{margin-right:auto;font-variant-numeric:tabular-nums}
 :root[data-style="clean"] .tk-chev{width:14px;height:14px;border-radius:50%;box-shadow:0 0 0 7px transparent;transition:transform var(--t) var(--ease),background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 :root[data-style="clean"] .tk-h:hover .tk-chev{background:var(--row);box-shadow:0 0 0 7px var(--row);color:var(--fg)}
+:root[data-style="clean"] .tk-h:active .tk-chev{background:var(--row-press);box-shadow:0 0 0 7px var(--row-press);transition-duration:var(--t-press)}
 :root[data-style="clean"] .tk-mark{width:16px;height:16px;margin-right:2px;color:var(--accent-mark)}
 :root[data-style="clean"] .tk-h.tk-fin .tk-mark{width:16px;height:16px;border-radius:50%;background:var(--ok-mark);color:var(--surface);animation:tkdisc var(--t) var(--ease) backwards}
 :root[data-style="clean"] .tk-h.tk-fin .tk-mark .i{width:10px;height:10px;stroke-width:3.2;stroke-dasharray:21;animation:tkdraw var(--t) var(--ease) .14s backwards}
@@ -5559,6 +5577,9 @@ code.tmx-p{font-weight:500;color:var(--accent-fg,var(--fg))}
 /* (its hover fill ends on the content's 16px edge, as the output above it does) */
 .tmx-more{display:flex;align-items:center;gap:6px;width:calc(100% - 48px);margin:0 var(--s-4) 0 32px;padding:0 8px;border-radius:var(--r-sm);font-size:12px;line-height:inherit;text-align:left;color:var(--muted);transition:color var(--t-fast),background-color var(--t-fast)}
 .tmx-more:hover{color:var(--fg);background:var(--row)}
+/* its motion (the core's motion pieces, owner, 26 Nov): Stop, Copy and the folded lines' button press at once (.mx-press); Copy's
+   tick, and a mark that changes (the header's and each command's spinner into its tick, Exit tag or Stopped), crossfade in place
+   (.mx-ic, iconSwap()); the terminal grows on the spring (.mx-grow) */
 .tmx-more .sp{flex:1}
 .tmx-more svg{transition:transform var(--t) var(--ease)}
 .tmx-more[aria-expanded="true"] svg{transform:rotate(180deg)}
@@ -7031,6 +7052,9 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .shx-add>.i{width:28px;padding:0 8px;box-sizing:border-box}
 .shx-add[aria-expanded="true"]{color:var(--fg);background:var(--row)}
 .shx-add:hover{color:var(--fg);background:var(--row)}
+/* its motion (the core's motion pieces, owner, 26 Nov): New schedule and Run now press at once (.mx-press; Clean keeps its
+   button's own press); the New schedule dialog grows out of its button and goes back into it quicker (.mx-pop); the card grows
+   on the spring (.mx-grow) */
 .shx-pop{width:272px;padding:var(--s-3)}
 .shx-f{display:flex;flex-direction:column;gap:var(--s-2)}
 .shx-f h4{margin:0 0 2px;font-size:13px;font-weight:500}
@@ -11969,15 +11993,15 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 <article class="card wide bare" data-c="step-loader" id="c-step-loader">
   <div class="card-h"><div><h3>Step loader</h3><p>Named steps with a progress track and four loaders.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="stl dm"><div class="dm-main">
-  <button class="stl-row" aria-expanded="false">
+  <template><div class="stl dm mx-ic"><div class="dm-main">
+  <button class="stl-row mx-press" aria-expanded="false">
     <span class="stl-g"></span>
     <span class="stl-t"><span class="stl-lab shim">Reading Figma frames</span></span>
     <span class="stl-n num">1/4</span>
     <svg class="i xs stl-chev"><use href="#i-chev-d"/></svg>
   </button>
   <div class="stl-track"><i></i><i></i><i></i><i></i></div>
-  <div class="fold shut stl-fold"><div><ol class="stl-list"></ol></div></div>
+  <div class="fold shut stl-fold"><div><ol class="stl-list mx-rows"></ol></div></div>
   </div>
   <div class="demo"><div class="seg2" role="group" aria-label="Loader"><button aria-pressed="true" data-v="radar">Radar</button><button aria-pressed="false" data-v="think">Dots</button><button aria-pressed="false" data-v="spin">Ring</button><button aria-pressed="false" data-v="bars">Bars</button></div></div>
 </div></template>
@@ -11987,7 +12011,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <div class="card-h"><div><h3>Thinking states</h3><p>Six thinking indicators to pick from, each with a status line.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="ths-dm dm"><div class="dm-main">
-  <div class="ths" data-v="orbit">
+  <div class="ths mx-ic" data-v="orbit">
     <div class="ths-row">
       <span class="ths-mk" aria-hidden="true"></span>
       <span class="ths-w"><span class="ths-l" aria-hidden="true"><span class="ths-tx shim">Thinking</span><span class="ths-car" hidden></span></span>
@@ -12003,8 +12027,8 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 <article class="card bare" data-c="reasoning-trail" id="c-reasoning-trail">
   <div class="card-h"><div><h3>Reasoning trail</h3><p>The agent's plan, notes, sources and edits, after it thinks.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="rtr-dm dm"><div class="dm-main"><div class="rtr panel">
-  <button class="rtr-h" aria-expanded="true">
+  <template><div class="rtr-dm dm"><div class="dm-main"><div class="rtr panel mx-grow">
+  <button class="rtr-h mx-press" aria-expanded="true">
     <span class="think on rtr-mark"><i></i><i></i><i></i><i></i></span>
     <span class="rtr-title shim">Reasoning</span><span class="rtr-time num muted">0s</span>
     <svg class="i xs rtr-chev"><use href="#i-chev-d"/></svg>
@@ -12021,7 +12045,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 <article class="card bare" data-c="thinking" id="c-thinking">
   <div class="card-h"><div><h3>Thinking</h3><p>The live trace, written as the agent works, then folded away.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="tk" data-open="1">
+  <template><div class="tk mx-grow mx-ic" data-open="1">
   <button class="tk-h" aria-expanded="true">
     <span class="tk-mark"><span class="think on"><i></i><i></i><i></i><i></i></span></span>
     <span class="tk-title shim">Checking the pricing page</span><span class="tk-time num">0s</span>
@@ -12733,8 +12757,8 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 <article class="card wide" data-c="terminal-stream" id="c-terminal-stream">
   <div class="card-h"><div><h3>Terminal stream</h3><p>Shell commands the agent runs, with their output as it streams in.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="tmx panel" data-reveal="flat">
-  <div class="tmx-h"><span class="tmx-ic">{term}</span><span class="tmx-cwd">~/acme/web</span><span class="tmx-st"><span class="g"><span class="spin"></span></span><span class="tmx-sv num">Starting</span></span><span class="sp"></span><button class="pill ghost sm tmx-stop" aria-label="Stop the running command">{stop}Stop</button><button class="ib tmx-cp" aria-label="Copy the output" data-tip="Copy">{copy}</button></div>
+  <template><div class="tmx panel mx-grow mx-ic" data-reveal="flat">
+  <div class="tmx-h"><span class="tmx-ic">{term}</span><span class="tmx-cwd">~/acme/web</span><span class="tmx-st"><span class="g"><span class="spin"></span></span><span class="tmx-sv num">Starting</span></span><span class="sp"></span><button class="pill ghost sm tmx-stop mx-press" aria-label="Stop the running command">{stop}Stop</button><button class="ib tmx-cp mx-press" aria-label="Copy the output" data-tip="Copy">{copy}</button></div>
   <div class="tmx-body" role="log" aria-label="Terminal output" tabindex="0"></div>
   <div class="fold shut tmx-ff"><div><div class="tmx-f"><span class="g"></span><span class="tmx-fs num"></span></div></div></div>
 </div></template>
@@ -12982,11 +13006,11 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 <article class="card" data-c="scheduled-runs" id="c-scheduled-runs">
   <div class="card-h"><div><h3>Scheduled runs</h3><p>Tasks the agent runs on a schedule, with their last result and a switch.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="shx panel" data-reveal="flat">
+  <template><div class="shx panel mx-grow" data-reveal="flat">
   <div class="shx-h"><span class="shx-hi" aria-hidden="true"><svg class="i xs"><use href="#i-clock"/></svg></span><div><b>Scheduled runs</b></div></div>
   <div class="shx-list" role="list" aria-label="Schedules"></div>
-  <div class="shx-ft"><button class="shx-add" data-pop=".shx-pop" aria-haspopup="dialog" aria-expanded="false"><svg class="i xs"><use href="#i-plus"/></svg>New schedule</button></div>
-  <div class="pop shx-pop" role="dialog" aria-label="New schedule"><form class="shx-f">
+  <div class="shx-ft"><button class="shx-add mx-press" data-pop=".shx-pop" aria-haspopup="dialog" aria-expanded="false"><svg class="i xs"><use href="#i-plus"/></svg>New schedule</button></div>
+  <div class="pop shx-pop mx-pop" role="dialog" aria-label="New schedule"><form class="shx-f">
     <h4>New schedule</h4>
     <input class="shx-in" placeholder="What should the agent do?" aria-label="What should the agent do?" spellcheck="false" autocomplete="off">
     <div class="seg2 shx-rep" role="group" aria-label="Repeat"><button type="button" aria-pressed="true" data-v="day">Every day</button><button type="button" aria-pressed="false" data-v="mon">Every Monday</button><button type="button" aria-pressed="false" data-v="custom">Custom</button></div>
@@ -14813,12 +14837,19 @@ DM.def('step-loader', (r, c) => {
   const row = $('.stl-row', r), lab = $('.stl-lab', r), n = $('.stl-n', r), g = $('.stl-g', r), bars = $$('.stl-track i', r), list = $('.stl-list', r), fold = $('.stl-fold', r);
   let kind = 'radar', cur = 0, done = false;
   const glyph = () => kind === 'radar' ? '<span class="radar"></span>' : kind === 'think' ? '<span class="think on"><i></i><i></i><i></i><i></i></span>' : kind === 'spin' ? '<span class="spin"></span>' : '<span class="bars3"><i></i><i></i><i></i></span>';
+  // the rows stay and change in place: a mark that changes (the loader, the tick, the dot) crossfades (iconSwap()), and one
+  // that stays keeps playing where it is
+  const MARK = { ok:() => `<span class="stl-ok">${I('ok')}</span>`, check:() => `<span class="stl-ok">${I('check','xs')}</span>`, dot:() => '<span class="dot" style="color:var(--faint)"></span>' };
+  const mark = (el, k) => { if (el.dataset.k === k) return; const first = !el.dataset.k; el.dataset.k = k; const put = () => { el.innerHTML = (MARK[k] || glyph)(); }; first ? put() : iconSwap(el, put); };
+  list.innerHTML = steps.map(() => '<li><span class="g"></span> </li>').join('');
   const paint = () => {
-    g.innerHTML = done ? `<span class="stl-ok">${I('ok')}</span>` : glyph();
-    list.innerHTML = steps.map((s, i) => `<li class="${i < cur || done ? 'done' : i === cur ? 'run' : ''}"><span class="g">${i < cur || done ? `<span class="stl-ok">${I('check','xs')}</span>` : i === cur ? glyph() : '<span class="dot" style="color:var(--faint)"></span>'}</span>${i < cur || done ? s[1] : s[0]}</li>`).join('');
+    mark(g, done ? 'ok' : kind);
+    [...list.children].forEach((li, i) => { const fin = i < cur || done;
+      li.className = fin ? 'done' : i === cur ? 'run' : ''; mark(li.firstElementChild, fin ? 'check' : i === cur ? kind : 'dot'); li.lastChild.nodeValue = fin ? steps[i][1] : steps[i][0]; });
   };
   seg($('.seg2', r), v => { kind = v; paint(); });
-  row.onclick = () => { const o = fold.classList.toggle('shut'); row.setAttribute('aria-expanded', !o); };
+  // the list's rows settle one after another as it opens (.mx-rows)
+  row.onclick = () => { const o = fold.classList.toggle('shut'); row.setAttribute('aria-expanded', !o); list.classList.toggle('mx-play', !o); };
   paint();
   c.run(async () => {
     for (;;){
@@ -14892,7 +14923,8 @@ DM.def('thinking-states', (r, c) => {
     // a screen reader hears each new step once, never the letters as they type
     if (fresh) sr.textContent = t;
   };
-  const pick = x => { v = x; box.dataset.v = x; mk.innerHTML = MARKS[x]; show(steps[at], false); };
+  // (a new state's mark crossfades in for the last one, iconSwap())
+  const pick = x => { v = x; box.dataset.v = x; if (mk.firstChild) iconSwap(mk, () => { mk.innerHTML = MARKS[x]; }); else mk.innerHTML = MARKS[x]; show(steps[at], false); };
   seg($('.seg2', r), pick);
   pick(v);
   c.every(1000, () => { secs++; time.textContent = secs + 's'; });
@@ -15057,7 +15089,8 @@ DM.def('thinking', (r, c) => {
   // (the template's chevron names the sprite's icon directly, which the homepage renames, so it is drawn through I())
   $('.tk-chev', r).outerHTML = I('chev-d', 'xs tk-chev');
   // the header becomes what the work came to
-  const finish = () => { live = false; head.classList.add('tk-fin'); mark.innerHTML = clean ? I('check','xs') : I('ok'); enter(mark.firstElementChild); title.classList.remove('shim'); swap(title, '3 cards to fix, 2 changes planned'); };
+  // (the dots and the finished mark crossfade, iconSwap(); Clean draws its tick on its disc as before)
+  const finish = () => { live = false; head.classList.add('tk-fin'); if (clean){ mark.innerHTML = I('check','xs'); enter(mark.firstElementChild); } else iconSwap(mark, () => { mark.innerHTML = I('ok'); }); title.classList.remove('shim'); swap(title, '3 cards to fix, 2 changes planned'); };
   // the line under a step opens and then crossfades; what the step found writes itself in a word at a time, and a tip on it
   // holds the detail
   const words = t => t.split(' ').map((w, i, a) => `<span class="w" style="animation-delay:${i * 45}ms">${w}${i < a.length - 1 ? ' ' : ''}</span>`).join('');
@@ -15066,7 +15099,8 @@ DM.def('thinking', (r, c) => {
     clearTimeout(sp._tone); const set = () => sp.classList.toggle('warn', warn);
     if (found){ set(); sp._sw = null; sp.classList.remove('out'); sp.innerHTML = tip ? `<span data-tip="${tip}">${words(text)}</span>` : words(text); }
     else { const lag = !REDUCE && !!sp.textContent.trim() && sp.textContent !== text; swap(sp, text); if (lag) sp._tone = setTimeout(set, 170); else set(); } };
-  const glyph = (li, g) => { const mk = $('.mk', li); mk.innerHTML = g; enter(mk.firstElementChild); };
+  // (a step's mark crossfades on its tile, which keeps its fill: iconSwap(); Clean draws its disc and tick as before)
+  const glyph = (li, g) => { const mk = $('.mk', li), put = () => { mk.innerHTML = g; }; if (clean){ put(); enter(mk.firstElementChild); } else iconSwap(mk, put, { inner:true }); };
   let secs = 0, live = true; c.every(1000, () => { if (live){ secs++; time.textContent = secs + 's'; } });
   c.run(async () => {
     await c.wait(600);
@@ -20606,7 +20640,7 @@ DM.def('terminal-stream', (r, c) => {
     $('.tmx-c', el).textContent = text; body.appendChild(el); enter(el); return el;
   }
   function lines(el){
-    const more = html(`<button class="tmx-more" aria-expanded="false" hidden>${I('chev-d','xs')}<span></span><i class="sp"></i></button>`), hid = html('<div class="fold shut"><code class="tmx-o"></code></div>'), tail = html('<code class="tmx-o"></code>');
+    const more = html(`<button class="tmx-more mx-press" aria-expanded="false" hidden>${I('chev-d','xs')}<span></span><i class="sp"></i></button>`), hid = html('<div class="fold shut"><code class="tmx-o"></code></div>'), tail = html('<code class="tmx-o"></code>');
     const inner = hid.firstElementChild; hid.inert = true; el.append(more, hid, tail);
     const label = () => { const n = inner.children.length, open = !hid.classList.contains('shut'); $('span', more).textContent = open ? 'Show fewer lines' : `Show ${n} more line${n > 1 ? 's' : ''}`; more.setAttribute('aria-expanded', open); };
     more.onclick = () => { hid.inert = hid.classList.toggle('shut'); label(); };
@@ -20616,10 +20650,11 @@ DM.def('terminal-stream', (r, c) => {
       if (inner.children.length){ more.hidden = false; label(); }
     };
   }
-  const halted = el => { $('.tmx-m .g', el).innerHTML = '<span class="tag">Stopped</span>'; el.dataset.s = 'stop'; };
+  // (a mark that changes, the spinner into its tick, Exit tag or Stopped, crossfades in place: iconSwap())
+  const halted = el => { const g = $('.tmx-m .g', el); iconSwap(g, () => { g.innerHTML = '<span class="tag">Stopped</span>'; }); el.dataset.s = 'stop'; };
   function finish(how){
     over = true; stop.hidden = true; root.classList.remove('live'); sv.classList.remove('shim');
-    st.classList.toggle('ok', how === 'passed'); st.classList.toggle('bad', how === 'failed'); $('.g', st).innerHTML = I(how === 'passed' ? 'check' : 'stop', 'xs'); sv.textContent = how === 'passed' ? 'Passed' : how === 'failed' ? 'Failed' : 'Stopped';
+    st.classList.toggle('ok', how === 'passed'); st.classList.toggle('bad', how === 'failed'); { const g = $('.g', st); iconSwap(g, () => { g.innerHTML = I(how === 'passed' ? 'check' : 'stop', 'xs'); }); } sv.textContent = how === 'passed' ? 'Passed' : how === 'failed' ? 'Failed' : 'Stopped';
     // each command counts once, however many times it ran; how it went is the header's tag, so the summary doesn't say it
     // again, and a finished line has no clock (owner, 18 Nov)
     const n = new Set(ran).size;
@@ -20664,7 +20699,7 @@ DM.def('terminal-stream', (r, c) => {
         const pair = Array.isArray(ln) ? ln : [ln, '']; add(pair); log.push(pair[0]);
       }
       t.textContent = sec(k.ms); last = k.exit || 0;
-      $('.tmx-m .g', el).innerHTML = k.exit ? `<span class="tag bad">Exit ${k.exit}</span>` : `<span class="ok">${I('check','xs')}</span>`; el.dataset.s = k.exit ? 'bad' : 'ok';
+      { const g = $('.tmx-m .g', el); iconSwap(g, () => { g.innerHTML = k.exit ? `<span class="tag bad">Exit ${k.exit}</span>` : `<span class="ok">${I('check','xs')}</span>`; }); } el.dataset.s = k.exit ? 'bad' : 'ok';
     }
     finish(last ? 'failed' : 'passed');
   });
@@ -22601,7 +22636,7 @@ DM.def('scheduled-runs', (r, c) => {
   const inp = $('.shx-in', r), days = $('.shx-days', r), sum = $('.shx-sum', r), mk = $('.shx-mk', r);
   function row(x){
     const ic = x.mark[0] === '@' ? `<span class="ic brandic" aria-hidden="true">${BRAND[x.mark.slice(1)]}</span>` : `<span class="ic" style="background:var(--av-${x.col});color:var(--av-${x.col}-ink)" aria-hidden="true">${I(x.mark,'xs')}</span>`;
-    x.el = html(`<div class="shx-r" role="listitem">${ic}<span class="t"><span class="nm"></span><span class="d"></span><span class="res"></span></span><span class="shx-act"><button class="ib shx-run" data-tip="Run now">${I('play')}</button><button class="toggle" role="switch"></button></span><div class="shx-fx fold shut" inert><div><div><button class="pill accent sm shx-fix"></button></div></div></div></div>`);
+    x.el = html(`<div class="shx-r" role="listitem">${ic}<span class="t"><span class="nm"></span><span class="d"></span><span class="res"></span></span><span class="shx-act"><button class="ib shx-run mx-press" data-tip="Run now">${I('play')}</button><button class="toggle" role="switch"></button></span><div class="shx-fx fold shut" inert><div><div><button class="pill accent sm shx-fix"></button></div></div></div></div>`);
     $('.nm', x.el).textContent = x.name; $('.shx-run', x.el).setAttribute('aria-label', 'Run ' + x.name + ' now'); $('.toggle', x.el).setAttribute('aria-label', x.name);
     $('.shx-run', x.el).onclick = () => run(x);
     $('.toggle', x.el).onclick = () => { x.on = !x.on; paint(x); };

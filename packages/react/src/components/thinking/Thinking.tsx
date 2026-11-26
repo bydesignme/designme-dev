@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion, useSeconds } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { enter, Fold, growFit, Spin, Swap, Think, Tip } from '../../lib/motion';
+import { enter, Fold, growFit, Spin, Swap, SwapIcon, Think, Tip } from '../../lib/motion';
 import '../../designme.css';
 import './thinking.css';
 
@@ -78,10 +78,13 @@ function Result({ text, warn }: { text: string; warn: boolean }) {
   return <Swap className={tone ? 'dm-warn' : undefined}>{text}</Swap>;
 }
 
-function Mark({ state }: { state: ThinkingStep['state'] }) {
-  if (state === 'running') return <Spin />;
-  // keyed so each new mark plays its entrance once
-  return <span key={state} className="dm-enter" style={{ display: 'grid' }}><Icon name={state === 'retry' ? 'clock' : 'check'} size="xs" /></span>;
+function Mark({ state, clean }: { state: ThinkingStep['state']; clean: boolean }) {
+  const glyph = state === 'running' ? <Spin /> : <Icon name={state === 'retry' ? 'clock' : 'check'} size="xs" />;
+  // the mark crossfades on its tile, which keeps its fill (SwapIcon, a motion piece); Clean draws its disc and tick, keyed so
+  // each new mark plays its entrance once
+  if (!clean) return <SwapIcon id={state} style={{ display: 'grid' }}>{glyph}</SwapIcon>;
+  if (state === 'running') return glyph;
+  return <span key={state} className="dm-enter" style={{ display: 'grid' }}>{glyph}</span>;
 }
 
 /** The live trace: each step the agent takes on a line that turns green as they finish, and what each found, then a header
@@ -105,10 +108,11 @@ export function Thinking({ steps, running, seconds, title = 'Working on it', sum
   const done = !running && steps.length > 0;
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-tk', 'dm-growing', className)} data-open={isOpen ? '1' : '0'}>
+    <div data-dm="" ref={root} className={cx('dm-tk', 'dm-growing dm-mx-grow dm-mx-ic', className)} data-open={isOpen ? '1' : '0'}>
       <div ref={inner} className="dm-grow">
       <button type="button" className={cx('dm-tk-h', done && 'dm-tk-fin')} aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
-        <span className="dm-tk-mark">{done ? <span key="ok" {...enter()} style={{ display: 'grid' }}><Icon name={clean ? 'check' : 'ok'} size={clean ? 'xs' : 's'} /></span> : <Think on={running} />}</span>
+        <span className="dm-tk-mark">{clean ? (done ? <span key="ok" {...enter()} style={{ display: 'grid' }}><Icon name="check" size="xs" /></span> : <Think on={running} />)
+          : <SwapIcon id={done ? 'ok' : 'think'} style={{ display: 'grid' }}>{done ? <Icon name="ok" size="s" /> : <Think on={running} />}</SwapIcon>}</span>
         <Settle className="dm-tk-title" shimmer={running}>{done ? summary ?? `${steps.length} ${steps.length === 1 ? 'step' : 'steps'}` : title}</Settle>
         <span className="dm-tk-time dm-num">{secs + 's'}</span>
         <Icon name="chev-d" size="xs" className="dm-tk-chev" />
@@ -117,7 +121,7 @@ export function Thinking({ steps, running, seconds, title = 'Working on it', sum
         <ol className="dm-tk-list" aria-live="polite">
           {steps.map((s, i) => (
             <li key={i} className={cx('dm-tk-st dm-enter', s.state === 'running' ? 'dm-run' : 'dm-' + s.state)}>
-              <span className="dm-mk"><Mark state={s.state} /></span>
+              <span className="dm-mk"><Mark state={s.state} clean={clean} /></span>
               <div className="dm-tx">
                 <span className="dm-tk-ln">
                   <Settle className="dm-lab" shimmer={s.state === 'running'}>{s.label}</Settle>
