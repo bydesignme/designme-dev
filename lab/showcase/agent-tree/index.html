@@ -888,11 +888,11 @@ body.render #stage{left:0;top:0;transform:none!important}
 #card .dm-atr-dot{transform-origin:50% 50%}
 #card .dm-atr-ln .dm-drop{stroke:var(--dm-atr-run);stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round;fill:none}
 :root:not([data-style]) #card .dm-atr-ln .dm-drop{stroke-linecap:square}
-/* the marks: rings and four-point sparks in the accent's mark colour and neutral grey; strokes and fills, no glow */
+#card .dm-atr-ln .dm-wave{stroke:var(--dm-atr-run);stroke-width:2;fill:none;stroke-linecap:round}
+:root:not([data-style]) #card .dm-atr-ln .dm-wave{stroke-linecap:butt}
+/* the marks: rings in the accent's mark colour and neutral grey; strokes, no glow */
 #fx{position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible;pointer-events:none}
 #fx svg{position:absolute;left:0;top:0;overflow:visible}
-#fx .spk{fill:var(--dm-accent-mark,var(--dm-accent))}
-#fx .spk.n{fill:var(--dm-line-strong)}
 #fx .ring{fill:none;stroke:var(--dm-accent-mark,var(--dm-accent));stroke-width:1.5}
 #fx .ring.n{stroke:var(--dm-line-strong)}
 :root:not([data-style]) #fx .ring{stroke-linejoin:miter}
@@ -1039,10 +1039,15 @@ const ROWH = 32;
 // that has started, a branch to each child), drawn here as a function of time. Each new branch shoots out of its parent's
 // line and the row pops onto its end ----------
 const NS = 'http://www.w3.org/2000/svg', mk = (t, a = {}) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
-const gRail = mk('g'), gLine = mk('g'), gDrop = mk('g');
-ln.append(gRail, gLine, gDrop);
+const gRail = mk('g'), gLine = mk('g'), gWave = mk('g'), gDrop = mk('g');
+ln.append(gRail, gLine, gWave, gDrop);
 for (const n of N) if (n.kids.length){ n.pr = mk('path', { class:'dm-r' }); gRail.append(n.pr); n.pt = mk('path', { class:'dm-on' }); gLine.append(n.pt); }
 for (const n of N) if (n.lv){ n.pb = mk('path'); gLine.append(n.pb); }
+// the team's answer when the total lands: a pulse runs back down from the orchestrator along every line to every agent and
+// step (not the failed one), each line brightening in the accent's mark colour as it passes and fading behind it, and each
+// mark nodding as it arrives
+for (const n of N) if (n.lv && n.out !== 'fail'){ n.pw = mk('path', { class:'dm-wave' }); gWave.append(n.pw); }
+const WV = 400, W0 = () => DONE + .05;
 for (const d of drops){ d.el = mk('path', { class:'dm-drop' }); gDrop.append(d.el); }
 const markR = m => m === 'done' || m === 'fail' || m === 'src' || m === 'wait' ? 9 : 7;
 let LR = 8, CUT = false;
@@ -1054,17 +1059,8 @@ const draw = (p, d, reveal = 1) => {
 
 // ---------- marks: rings and sparks, in world space ----------
 const fx = $('#fx'), fsvg = mk('svg', { width:1, height:1 }); fx.appendChild(fsvg);
-const sparkPath = 'M0-7C.5-2.2 2.2-.5 7 0 2.2.5.5 2.2 0 7-.5 2.2-2.2.5-7 0-2.2-.5-.5-2.2 0-7z';
-const rings = [], bursts = [];
+const rings = [];
 const ring = (t0, dur, at, r0, r1, neutral, w = 1.5) => { const el = mk('circle', { class:'ring' + (neutral ? ' n' : '') }); fsvg.appendChild(el); rings.push({ el, t0, dur, at, r0, r1, w }); };
-const burst = (t0, at, n, a0, a1, d0, d1, size, dur = .8, vy = 1) => {
-  const ps = [];
-  for (let i = 0; i < n; i++){
-    const el = mk('path', { d:sparkPath, class:'spk' + (i % 3 === 1 ? ' n' : '') }); fsvg.appendChild(el);
-    ps.push({ el, a: lerp(a0, a1, n === 1 ? .5 : i / (n - 1)) + (rnd() - .5) * .22, d0, d1: d1 * (.8 + rnd() * .4), s: size * (.75 + rnd() * .5), delay: rnd() * .08, rot: (rnd() - .5) * 160 });
-  }
-  bursts.push({ t0, at, ps, dur, vy });
-};
 // (and one round the total when the last cent lands, opening out from round its figures)
 const totRing = mk('rect', { class:'ring' }); fsvg.appendChild(totRing);
 
@@ -1075,6 +1071,10 @@ let finalH = 0;
 function measureLayout(){
   const cs = getComputedStyle(card); LR = parseFloat(cs.getPropertyValue('--dm-atr-r')) || 8; CUT = cs.getPropertyValue('--dm-atr-cut').trim() === '1';
   renderAt(8.5); finalH = card.offsetHeight;
+  // where the pulse is when: each line's length from its parent's mark, added up from the orchestrator
+  ROOT.wDist = 0;
+  for (const n of N) if (n.lv){ n.wDistP = n.parent.wDist; let len = 0; if (n.pw){ n.pw.setAttribute('d', n.wd); len = n.pw.getTotalLength(); n.pw.setAttribute('d', ''); } n.wLen = len; n.wDist = n.wDistP + len; if (n.pw) n.waveAt = W0() + n.wDist / WV; }
+  renderAt(8.5);
   window.LAYOUT = { finalH, LR, CUT };
 }
 
@@ -1083,7 +1083,6 @@ for (const n of N) if (n.lv) ring(n.open + POP + .02, .45, () => wc(n.g), 8, 17,
 for (const n of N) if (n.lv) ring(n.end, .5, () => wc(n.g), 9, 19, true, 1.25);                              // a step settles
 ring(B.go, .55, () => wc(ROOT.g), 9, 24, false);                                                             // the orchestrator lights up
 ring(DONE, .7, () => wc(ROOT.g), 9, 30, false);
-burst(DONE, () => wc(tot), 13, -Math.PI * 1.02, Math.PI * .5, 30, 62, 1.05, .9, .62);                              // up, out and down round it
 
 // ---------- render one moment ----------
 function renderAt(t){
@@ -1123,7 +1122,8 @@ function renderAt(t){
     // a failed step jolts sideways, once, hard
     const jolt = n.out === 'fail' && t > n.end && t < n.end + .9 ? 5.5 * Math.sin((t - n.end) * 40) * Math.exp(-(t - n.end) * 6.5) : 0;
     const jx = jolt ? `translateX(${jolt.toFixed(2)}px) ` : '';
-    const gs = ms * (1 + doneHit + goHit + bump);
+    const nod = n.waveAt != null ? .24 * hit(t - n.waveAt, .06) : 0;
+    const gs = ms * (1 + doneHit + goHit + bump + nod);
     n.g.style.transform = gs !== 1 || jolt ? `${jx}scale(${gs.toFixed(4)})` : '';
     const spin = $('.dm-atr-spin', n.g); if (spin) spin.style.transform = `rotate(${((t * 450) % 360).toFixed(1)}deg)`;
     const pth = $('path', n.g);
@@ -1219,8 +1219,18 @@ function renderAt(t){
       const st = stateOf(k, t), lit = st !== 'queued' && reach >= y - .5;
       k.pb.setAttribute('class', st === 'fail' ? 'dm-bad' : lit ? 'dm-on' : 'dm-r');
       draw(k.pb, `M${x0} ${CUT ? y - .75 : y}` + (CUT ? `L${x0} ${y}` : '') + corner(x0, k.cy, x0 + LR) + `L${k.cx - k.r + 1} ${k.cy}`, bq);
+      k.wd = `M${x0} ${y0}V${y}` + corner(x0, k.cy, x0 + LR) + `L${k.cx - k.r + 1} ${k.cy}`;
     }
     for (const k of P.kids) if (!k.vis) draw(k.pb, '');
+  }
+
+  for (const k of N){
+    if (!k.pw) continue;
+    const q = (t - W0()) * WV - (k.wDistP ?? 1e9), len = k.wLen || 1;
+    if (q <= 0 || !k.vis){ draw(k.pw, ''); continue; }
+    const fade = 1 - clamp((t - (W0() + (k.wDistP + len) / WV)) / .5);
+    if (fade <= 0){ draw(k.pw, ''); continue; }
+    draw(k.pw, k.wd, clamp(q / len)); k.pw.style.opacity = fade.toFixed(3);
   }
 
   // ---------- the money flowing home: each cent a short bead of the accent that runs from its node's mark, along the
@@ -1265,16 +1275,6 @@ function renderAt(t){
     r.el.style.display = '';
     r.el.setAttribute('cx', p.x.toFixed(2)); r.el.setAttribute('cy', p.y.toFixed(2)); r.el.setAttribute('r', lerp(r.r0, r.r1, e).toFixed(2));
     r.el.style.strokeWidth = r.w; r.el.style.opacity = ((1 - e) * .9).toFixed(3);
-  }
-  for (const b of bursts){
-    const q = t - b.t0;
-    if (q <= 0 || q > b.dur + .15){ for (const s of b.ps) s.el.style.display = 'none'; continue; }
-    const c = b.at();
-    for (const s of b.ps){
-      const u = clamp((q - s.delay) / b.dur), e = eOutCubic(u), d = lerp(s.d0, s.d1, e), sz = s.s * Math.sin(Math.PI * Math.min(1, u * 1.05));
-      s.el.style.display = u > 0 && u < 1 ? '' : 'none';
-      s.el.setAttribute('transform', `translate(${(c.x + Math.cos(s.a) * d * 1.25).toFixed(2)} ${(c.y + Math.sin(s.a) * d * b.vy).toFixed(2)}) rotate(${(s.rot * e).toFixed(1)}) scale(${Math.max(0, sz).toFixed(3)})`);
-    }
   }
 
   // ---------- the camera: in on the work and the money (a nudge on the failure), a punch as the total lands, back out ----------
