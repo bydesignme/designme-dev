@@ -3,6 +3,8 @@
 // usage (from tools/site, see README.md): node build.js <site index.html> <soft-2 index.html> <out.html> [<registry dir>]
 // The library is written to library.html, served at /library (owner, 19 Nov); / is the landing page, which tools/pages builds
 const fs = require('fs'), path = require('path');
+// fab.js and the 3D mark it loads, addressed by a hash of their contents so no browser keeps an old copy (as Page.astro does)
+const FAB_V = require('crypto').createHash('sha1').update(['fab/fab.js', 'fab/logo3d.js'].map(f => fs.readFileSync(path.join(__dirname, '../..', f), 'utf8')).join('\n')).digest('hex').slice(0, 10);
 // edits to the site's own UI, written by make-patches.py
 const SITE_PATCHES = JSON.parse(fs.readFileSync(path.join(__dirname, 'site-patches.json'), 'utf8'));
 const postcss = require('postcss'), acorn = require('acorn');
@@ -918,7 +920,7 @@ let SECTION_ORDER = null;
   const js = V2JS.replace('/*@@V2DEFS@@*/', () => P.main).replace('/*@@V2PARTS@@*/null', () => JSON.stringify({ files, of:P.of, all:P.all }));
   console.log(`components script: ${Math.round(js.length / 1024)} KB with ${order[0]}, ${V2_PARTS.length} section files of ${Math.round(V2_PARTS.reduce((n, f) => n + f.text.length, 0) / 1024)} KB, waiting for every section: ${P.all.join(', ') || 'none'}`);
   // then the pictures in the carousels' demos, which only the site shows (art/art.js), and the phone's DesignMe card (fab/fab.js)
-  site = site.slice(0, end) + '<script id="v2-js">\n' + js + '</script>\n<script src="/art/art.js?v=3" defer></script>\n<script src="/fab/fab.js" defer></script>\n' + site.slice(end);
+  site = site.slice(0, end) + '<script id="v2-js">\n' + js + '</script>\n<script src="/art/art.js?v=3" defer></script>\n<script src="/fab/fab.js?v=' + FAB_V + '" defer></script>\n' + site.slice(end);
 }
 /* ---------- site: the HTML / React switch in the code views, and thumbnails of components not yet started ---------- */
 for (const [a, b] of SITE_PATCHES.patches){

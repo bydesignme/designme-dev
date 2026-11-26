@@ -156,7 +156,7 @@
     var stage = fab.querySelector('.dmf-3d'), logo = null, loading = null, reduceQ = matchMedia('(prefers-reduced-motion:reduce)');
     var isDark = function(){ return (getComputedStyle(document.documentElement).getPropertyValue('color-scheme') || '').indexOf('dark') >= 0; };
     var load3d = function(){ if (loading) return loading;
-      loading = import(new URL('logo3d.js', BASE).href).then(function(m){ logo = m.mount(stage, LOGO, { dark:isDark(), reduce:reduceQ.matches });
+      loading = import(new URL('logo3d.js' + new URL(BASE, location.href).search, BASE).href).then(function(m){ logo = m.mount(stage, LOGO, { dark:isDark(), reduce:reduceQ.matches });
         if (logo){ stage.classList.add('ready'); if (isOpen()) logo.start(); } }).catch(function(){ logo = null; });
       return loading; };
     new MutationObserver(function(){ if (logo) logo.theme(isDark()); }).observe(document.documentElement, { attributes:true, attributeFilter:['data-theme', 'data-style'] });
