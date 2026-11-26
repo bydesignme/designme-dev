@@ -30,6 +30,8 @@ designme.dev only, and are never part of what you install: installed components 
 
 ## On designme.dev only
 
+- **three.js** 0.170.0 (the 3D DesignMe mark in the landing page's DesignMe pop-up, `fab/logo3d.js`): `fab/three/`, from
+  [three.js](https://threejs.org), MIT licence (`fab/three/LICENSE`). SVGLoader's import points at the copy beside it.
 These are part of the site, not of anything you install.
 
 - **Fonts** in `fonts/`: [Inter](https://github.com/rsms/inter) by The Inter Project Authors and
