@@ -363,23 +363,66 @@ export function useReflow(root: RefObject<HTMLElement | null>, selector: string,
   }, [root]);
 }
 
+// the properties whose animation changes a box's height
+const GROW_SIZING = /^(all|height|min-height|max-height|block-size|min-block-size|max-block-size|grid-template-rows|grid-auto-rows|margin|margin-top|margin-bottom|margin-block(-start|-end)?|padding|padding-top|padding-bottom|padding-block(-start|-end)?|gap|row-gap|line-height|font-size|flex|flex-basis|flex-grow|border-width|border-top-width|border-bottom-width)$/;
+function sizingIn(w: Element) {
+  for (const a of w.getAnimations({ subtree: true })) {
+    if (a.playState === 'finished' || a.playState === 'idle' || !a.effect || (a.effect as KeyframeEffect).pseudoElement) continue;
+    const t = (a as CSSTransition).transitionProperty, e = a.effect as KeyframeEffect;
+    const ps = typeof t === 'string' ? [t] : typeof e.getKeyframes === 'function' ? e.getKeyframes().flatMap(k => Object.keys(k)) : [];
+    if (ps.some(p => GROW_SIZING.test(p.replace(/[A-Z]/g, ch => '-' + ch.toLowerCase())))) return true;
+  }
+  return false;
+}
+/**
+ * How a growing container (`el`, dm-growing) keeps the height of what it holds (`w`, its one dm-grow wrapper), in one smooth
+ * motion: it is always as tall as `w` plus an offset that springs to nothing, set in the same frame `w` changes, so its edges,
+ * the content and its place where it is centred move together. Content that eases its own height (a fold, a row opening, a
+ * line's max-height: a running transition or animation of a size inside it) is followed frame by frame on its own curve; a
+ * change made at once keeps the height on screen and springs to the new one (critically damped: no overshoot, and its speed
+ * carries into a change that lands mid-way, so quick changes never stutter or start over). Heights are `w`'s layout box,
+ * unrounded and untouched by an entrance's scale. Timing: --dm-grow-t, or --dm-t-in × 1.4 on a dm-mx-grow container; none
+ * with reduced motion. Returns a function that stops it.
+ */
+export function growFit(el: HTMLElement, w: HTMLElement) {
+  if (typeof ResizeObserver === 'undefined') return () => {};
+  let H: number | null = null, d = 0, v = 0, raf = 0, last = 0, vc: number | null = null, tc = 0;
+  const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
+  const dur = () => still() ? 0 : el.classList.contains('dm-mx-grow') && !el.closest('.dm-ahx') ? mxT(el, 't-in', 360) * 1.4 : mxT(el, 'grow-t', 550);
+  // (--dm-grow-d is the offset, which a foot marked dm-mx-foot rides, so it stays on the container's bottom edge)
+  const put = () => { el.style.height = Math.max(0, (H ?? 0) + box() + d) + 'px'; el.style.setProperty('--dm-grow-d', d.toFixed(2) + 'px'); };
+  // the spring, solved exactly for each frame's step (stiffness from the duration: settled within it, 92% there halfway)
+  const step = (now: number) => {
+    raf = 0; const T = dur() / 1000, dt = Math.min(.064, Math.max(0, (now - last) / 1000)); last = now;
+    if (!T || !el.isConnected) { d = v = 0; put(); return; }
+    const k = 8.4 / T, e = Math.exp(-k * dt), c = v + k * d;
+    d = (d + c * dt) * e; v = (v - k * c * dt) * e;
+    if (Math.abs(d) < .05 && Math.abs(v) < 2) { d = v = 0; put(); return; }
+    put(); raf = requestAnimationFrame(step);
+  };
+  const ro = new ResizeObserver(es => {
+    const b = es[es.length - 1].borderBoxSize, h = b && b[0] ? b[0].blockSize : w.offsetHeight, t = performance.now();
+    if (H === null || !dur()) { H = h; d = v = 0; vc = null; put(); return; }
+    const dh = h - H, dt = Math.max(1, t - tc); if (Math.abs(dh) < .01) return; H = h; tc = t;
+    // while the content eases, a step far from its speed (a line emptied at once as a fold opens) is a change made at once
+    let jump = dh; if (dt > 50) vc = null;
+    if (sizingIn(w)) { const e = vc === null ? 0 : dh - vc * dt; jump = Math.abs(e) > Math.max(4, Math.abs((vc ?? 0) * dt)) ? e : 0; vc = (dh - jump) / (vc === null ? 1000 / 60 : dt); }
+    else vc = null;
+    if (jump) { d -= jump; if (!raf) { last = t; raf = requestAnimationFrame(step); } }
+    put();
+  });
+  ro.observe(w);
+  return () => { ro.disconnect(); cancelAnimationFrame(raf); el.style.height = ''; el.style.removeProperty('--dm-grow-d'); };
+}
 /** A container that grows with what it holds: put `outer` on the container (with the dm-growing class) and `inner` on one
- *  wrapper around its content (dm-grow). The container's height follows the content's, eased, so it opens smoothly as rows
- *  arrive and closes as they go, staying centred wherever it is centred. */
+ *  wrapper around its content (dm-grow). The container's height follows the content's in one smooth motion (growFit), so it
+ *  opens as rows arrive and closes as they go, staying centred wherever it is centred. */
 export function useGrow<T extends HTMLElement = HTMLDivElement>() {
   const outer = useRef<T>(null), inner = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
     const el = outer.current, w = inner.current;
-    if (!el || !w || typeof ResizeObserver === 'undefined') return;
-    let first = true;
-    const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
-    const fit = () => {
-      const h = Math.ceil(w.offsetHeight + box());
-      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
-      else el.style.height = h + 'px';
-    };
-    const ro = new ResizeObserver(fit); ro.observe(w); fit();
-    return () => { ro.disconnect(); el.style.height = ''; };
+    if (!el || !w) return;
+    return growFit(el, w);
   }, []);
   return [outer, inner] as const;
 }

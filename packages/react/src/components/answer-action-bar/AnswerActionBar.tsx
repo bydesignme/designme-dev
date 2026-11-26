@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useCopied, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { enter, Fold, mxIn, Swap, SwapIcon, Tip } from '../../lib/motion';
+import { enter, Fold, growFit, mxIn, mxT, Swap, SwapIcon, Tip } from '../../lib/motion';
 import '../../designme.css';
 import './answer-action-bar.css';
 
@@ -84,6 +84,20 @@ export function AnswerActionBar({
     return () => clearTimeout(t);
   }, [status, statusTone, reduce]);
   const shownTone = statusTone === 'ok' ? 'ok' : tone;
+  // the status line opens and closes on its own height at the moment the reasons fold does, so the card moves once (owner,
+  // 26 Nov): a line that empties eases shut with its words still in it, then lets them go; an empty line takes its words at
+  // once (they rise in) rather than after Swap's fade
+  const stRef = useRef<HTMLParagraphElement>(null);
+  const [kept, setKept] = useState(status);
+  useEffect(() => {
+    if (status) { setKept(status); return; }
+    const t = setTimeout(() => setKept(''), reduce || !stRef.current ? 0 : mxT(stRef.current, 't', 450));
+    return () => clearTimeout(t);
+  }, [status, reduce]);
+  const line = status || kept;
+  const fresh = useRef(0), was = useRef(line);
+  if (was.current !== line) { if (!was.current.trim() && line.trim()) fresh.current++; was.current = line; }
+  useIsoLayoutEffect(() => { if (fresh.current && stRef.current) mxIn([stRef.current]); }, [fresh.current]);
 
   // the words, with the changed phrase marked
   const text = v?.text ?? '';
@@ -113,19 +127,7 @@ export function AnswerActionBar({
   // the container grows with what it holds, eased (grow() on the site), and stays centred wherever it is centred, in every
   // style (owner, 18 Nov)
   const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
-  useIsoLayoutEffect(() => {
-    const el = root.current, w = inner.current;
-    if (!el || !w || typeof ResizeObserver === 'undefined') return;
-    let first = true;
-    const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
-    const fit = () => {
-      const h = Math.ceil(w.offsetHeight + box());
-      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
-      else el.style.height = h + 'px';
-    };
-    const ro = new ResizeObserver(fit); ro.observe(w); fit();
-    return () => { ro.disconnect(); el.style.height = ''; };
-  }, []);
+  useIsoLayoutEffect(() => { const el = root.current, w = inner.current; if (el && w) return growFit(el, w); }, []);
   // while a new version streams in, the answer keeps the height of the one it replaces, then eases to its own
   const tRef = useRef<HTMLParagraphElement>(null), prevT = useRef({ at: -1, h: 0 });
   useIsoLayoutEffect(() => {
@@ -190,8 +192,8 @@ export function AnswerActionBar({
           </div>
         </div>
       </Fold>
-      <p className={cx('dm-aab-st dm-muted', shownTone && 'dm-' + shownTone, !status && 'dm-off')} aria-live="polite">
-        {statusTone === 'ok' && status ? <><Icon name="ok" size="xs" /><span key={status} {...enter()}>{status}</span></> : <Swap className={streaming && status && statusTone !== 'warn' ? 'dm-shim' : undefined}>{status}</Swap>}
+      <p ref={stRef} className={cx('dm-aab-st dm-muted', shownTone && 'dm-' + shownTone, !status && 'dm-off')} aria-live="polite">
+        {statusTone === 'ok' && status ? <><Icon name="ok" size="xs" /><span key={status} {...enter()}>{status}</span></> : <Swap key={fresh.current} className={streaming && status && statusTone !== 'warn' ? 'dm-shim' : undefined}>{line}</Swap>}
       </p>
       </div>
     </div>

@@ -3,7 +3,7 @@ import { useRef, useState, type KeyboardEvent } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion, useSeconds } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { Dot, enter, Fold, Pulse, reflowGlide, SourceChip, Swap, Think, type Source } from '../../lib/motion';
+import { Dot, enter, Fold, growFit, Pulse, reflowGlide, SourceChip, Swap, Think, type Source } from '../../lib/motion';
 import '../../designme.css';
 import './reasoning-trail.css';
 
@@ -93,15 +93,8 @@ export function ReasoningTrail({ running = false, seconds, title, plan, notes, s
     const el = rootRef.current, w = growRef.current;
     if (!el || !w || (el.closest('[data-style]') as HTMLElement | null)?.dataset.style !== 'clean') return;
     setClean(true);
-    if (typeof ResizeObserver === 'undefined') return;
-    let first = true;
-    const fit = () => {
-      const cs = getComputedStyle(el), h = Math.ceil(w.offsetHeight + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth));
-      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
-      else el.style.height = h + 'px';
-    };
-    el.classList.add('dm-growing'); const ro = new ResizeObserver(fit); ro.observe(w); fit();
-    return () => { ro.disconnect(); el.classList.remove('dm-growing'); el.style.height = ''; };
+    el.classList.add('dm-growing'); const stop = growFit(el, w);
+    return () => { stop(); el.classList.remove('dm-growing'); };
   }, []);
 
   // in Clean, a step that has just finished draws its tick and the rail down into the next, which starts to turn: each
