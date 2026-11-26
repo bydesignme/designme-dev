@@ -2,23 +2,32 @@
 /* ---------- Context meter ---------- */
 /* a pill with the ring opens what fills the context: one bar split by kind, a legend whose rows list their items, and Compact */
 /* it never anchors the page's scroll, so the page can't follow it as it changes; on a card it sits in the middle of its room */
-.dm-ctm{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:var(--dm-s-2);width:100%;max-width:340px;margin-inline:auto;overflow-anchor:none}
+/* the panel opens above the pill, as it does under a chat composer (owner, 26 Nov), and below it only where there is no room
+   above (data-pos="down", set as it opens). The pill comes first for the keyboard and the panel is drawn above it. On a card
+   the two sit centred together: the pill rests in the middle and glides down as the panel opens over it */
+.dm-ctm{display:flex;flex-direction:column-reverse;align-items:flex-start;justify-content:center;gap:var(--dm-s-2);width:100%;max-width:340px;margin-inline:auto;overflow-anchor:none}
 .dm-stage-in:has(>.dm-ctm){overflow-anchor:none}
 .dm-stage-in>.dm-ctm{min-height:inherit}
 /* nothing in it grows or shrinks when it is pressed (owner, 18 Nov) */
 .dm-ctm :is(.dm-pill,.dm-ib,.dm-ctm-tg):active{transform:none}
+.dm-ctm[data-pos="down"]{flex-direction:column}
 .dm-ctm-tg{display:inline-flex;align-items:center;gap:var(--dm-s-2);height:32px;padding:0 10px 0 7px;border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);background:var(--dm-surface);box-shadow:var(--dm-shadow);transition:box-shadow var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.dm-ctm-tg:hover{box-shadow:var(--dm-shadow-pop)}}
 .dm-ctm-tg .dm-ctm-pc{color:var(--dm-fg);font-weight:500}
 .dm-ctm-tg>svg:last-child{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
-.dm-ctm[data-open="0"] .dm-ctm-tg>svg:last-child{transform:rotate(-90deg)}
+/* the chevron points the way the panel opens while it is shut, and turns over once it is open: up, then down (as Run drawer's
+   does); below, it is the usual down, then up */
+.dm-ctm[data-open="0"]:not([data-pos="down"]) .dm-ctm-tg>svg:last-child,.dm-ctm[data-pos="down"][data-open="1"] .dm-ctm-tg>svg:last-child{transform:rotate(180deg)}
 /* shut, the panel folds away to nothing (owner, 17 Nov: no room kept for a later state): its height eases to 0 as it fades,
    so the meter shrinks with it and stays centred in its stage, and opens back the same way. Where the browser can't ease a
    height to auto, it opens and shuts at once. It only fades as its height eases, with no glide on top (owner, 19 Nov). Its
-   content sits 16px in from every edge (owner, 18 Nov) */
+   content sits 16px in from every edge (owner, 18 Nov). It grows out of the pill: its edge next to the pill stays put, its
+   content holds to that edge as the far one eases out, and it scales a little from the pill's corner as it fades */
 .dm-ctm{interpolate-size:allow-keywords}
-.dm-ctm-pop{width:100%;min-height:0;padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-3);overflow:clip;transition:opacity .32s var(--dm-ease),transform .42s var(--dm-ease),height .42s var(--dm-ease),margin-top .42s var(--dm-ease),padding .42s var(--dm-ease),visibility 0s}
-.dm-ctm[data-open="0"] .dm-ctm-pop{height:0;margin-top:calc(-1 * var(--dm-s-2));padding-block:0;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .16s var(--dm-ease),transform .32s var(--dm-ease),height .32s var(--dm-ease),margin-top .32s var(--dm-ease),padding .32s var(--dm-ease),visibility 0s .32s}
+.dm-ctm-pop{width:100%;min-height:0;padding:var(--dm-s-4);display:flex;flex-direction:column;justify-content:flex-end;gap:var(--dm-s-3);overflow:clip;transform-origin:0 100%;transition:opacity .32s var(--dm-ease),transform .42s var(--dm-ease),height .42s var(--dm-ease),margin .42s var(--dm-ease),padding .42s var(--dm-ease),visibility 0s}
+.dm-ctm[data-pos="down"] .dm-ctm-pop{justify-content:flex-start;transform-origin:0 0}
+.dm-ctm[data-open="0"] .dm-ctm-pop{height:0;margin-bottom:calc(-1 * var(--dm-s-2));padding-block:0;opacity:0;transform:scale(.98);visibility:hidden;pointer-events:none;transition:opacity .16s var(--dm-ease),transform .32s var(--dm-ease),height .32s var(--dm-ease),margin .32s var(--dm-ease),padding .32s var(--dm-ease),visibility 0s .32s}
+.dm-ctm[data-pos="down"][data-open="0"] .dm-ctm-pop{margin-bottom:0;margin-top:calc(-1 * var(--dm-s-2))}
 @media (prefers-reduced-motion:reduce){.dm-ctm-pop,.dm-ctm[data-open="0"] .dm-ctm-pop{transition:none}}
 .dm-ctm-ph{display:flex;align-items:baseline;justify-content:space-between;gap:var(--dm-s-3);font-size:13px;line-height:18px;color:var(--dm-muted)}
 .dm-ctm-ph b{color:var(--dm-fg);font-weight:500}
@@ -76,7 +85,7 @@
 
 /* Clean (owner, 17 and 18 Nov): the pill is the flat secondary control (a hairline and a light fill, no press); the ring is
    the accent's mark on a grey rail. The panel is a 22px card with an off-white head strip and foot strip, opening and
-   shutting with a fade and no move or blur, its content 16px in from every edge: the legend's rows sit 8px in with 8px of their
+   shutting with a fade and a slight scale from the pill, no move or blur, its content 16px in from every edge: the legend's rows sit 8px in with 8px of their
    own, their hover concentric with the card's corners, and Compact is a 28px secondary pill 16px from the foot's side, bottom
    and hairline (owner, 23 Nov). The
    parts of the bar keep their colours */
@@ -84,8 +93,8 @@
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .dm-ctm-tg:hover,:root [data-style="clean"] .dm-ctm-tg:hover,:root [data-style="clean"].dm-ctm-tg:hover{box-shadow:var(--dm-btn2-hover)}}
 :root[data-style="clean"] .dm-ctm-tg:active,:root [data-style="clean"] .dm-ctm-tg:active,:root [data-style="clean"].dm-ctm-tg:active{box-shadow:var(--dm-btn2-press)}
 :root[data-style="clean"] .dm-ctm-ring .dm-tr,:root [data-style="clean"] .dm-ctm-ring .dm-tr,:root [data-style="clean"].dm-ctm-ring .dm-tr{stroke:var(--dm-rail)}
-:root[data-style="clean"] .dm-ctm-pop,:root [data-style="clean"] .dm-ctm-pop,:root [data-style="clean"].dm-ctm-pop{padding:0;gap:0;transition:opacity .24s var(--dm-ease),transform .32s var(--dm-ease),height .32s var(--dm-ease),margin-top .32s var(--dm-ease),visibility 0s}
-:root[data-style="clean"] .dm-ctm[data-open="0"] .dm-ctm-pop,:root [data-style="clean"] .dm-ctm[data-open="0"] .dm-ctm-pop,:root [data-style="clean"].dm-ctm[data-open="0"] .dm-ctm-pop{transition:opacity .15s var(--dm-ease),transform .2s var(--dm-ease),height .24s var(--dm-ease),margin-top .24s var(--dm-ease),visibility 0s .24s}
+:root[data-style="clean"] .dm-ctm-pop,:root [data-style="clean"] .dm-ctm-pop,:root [data-style="clean"].dm-ctm-pop{padding:0;gap:0;transition:opacity .22s var(--dm-ease),transform .32s var(--dm-ease),height .32s var(--dm-ease),margin .32s var(--dm-ease),visibility 0s}
+:root[data-style="clean"] .dm-ctm[data-open="0"] .dm-ctm-pop,:root [data-style="clean"] .dm-ctm[data-open="0"] .dm-ctm-pop,:root [data-style="clean"].dm-ctm[data-open="0"] .dm-ctm-pop{transition:opacity .15s var(--dm-ease),transform .2s var(--dm-ease),height .24s var(--dm-ease),margin .24s var(--dm-ease),visibility 0s .24s}
 :root[data-style="clean"] .dm-ctm-ph,:root [data-style="clean"] .dm-ctm-ph,:root [data-style="clean"].dm-ctm-ph{padding:calc(var(--dm-strip-y) + 5px) 16px;background:var(--dm-strip);border-bottom:1px solid var(--dm-line);font-size:12.5px;line-height:18px}
 :root[data-style="clean"] .dm-ctm-bar,:root [data-style="clean"] .dm-ctm-bar,:root [data-style="clean"].dm-ctm-bar{margin:16px 16px 0;height:6px;gap:2px;border-radius:var(--dm-r-tiny,3px);background:var(--dm-rail)}
 :root[data-style="clean"] .dm-ctm-bar i,:root [data-style="clean"] .dm-ctm-bar i,:root [data-style="clean"].dm-ctm-bar i{transition:width .42s var(--dm-ease),opacity .15s var(--dm-ease)}
