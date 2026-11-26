@@ -35,7 +35,7 @@ Model picker is the control a person uses to choose which model answers in a cha
 ### What it does
 
 - Each model row has a coloured tile, a name, a one-line `note`, and three five-step meters for `speed`, `quality` and `cost`. `speedDetail`, `qualityDetail` and `costDetail` show on hover, like "74 tokens a second".
-- The picked row is tinted and checked, and its meters turn the accent colour. The trigger above the list shows the picked model and effort, and both crossfade when they change.
+- The picked row is tinted and checked, and its meters turn the accent colour. The trigger above the list shows the picked model and effort, and both crossfade when they change, the trigger easing to its new width.
 - A model's `status` can be `checking`, which spins beside its name, or `busy`, which turns its tile and line amber. `statusText` replaces the note, like "At capacity, about 20s wait".
 - `suggestion` opens a warning notice under the list: a warning sign, its words, and its buttons, the last one in the warning tint, like Wait for Opus and Use Sonnet on high. It opens and closes by its height.
 - The thinking effort is a small dropdown under the list. `efforts` defaults to Off, Low, Medium and High, each with a line shown in the menu and under "Thinking", like "Up to 8k thinking tokens".
@@ -182,7 +182,7 @@ import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 
 import { cx } from '../lib/cx';
 import { useControllable } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { enter, Fold, Spin, Swap, Tip } from '../lib/motion';
+import { enter, Fold, Spin, Swap, SwapIcon, Tip } from '../lib/motion';
 import { useHoverGlide } from '../lib/glide';
 import { usePopover } from '../lib/popover';
 import '../designme.css';
@@ -269,6 +269,9 @@ export function ModelPicker({
   // thinking effort is a small dropdown under the list
   const effMenu = usePopover({ align: 'end' });
   const [isOpen, setOpen] = useControllable(open, defaultOpen, onOpenChange);
+  // each time it opens, its rows settle one after another (dm-mx-play), but not as it first appears
+  const [play, setPlay] = useState(false), seen = useRef(false);
+  useEffect(() => { if (seen.current) setPlay(isOpen); seen.current = true; }, [isOpen]);
   const picked = models.find(m => m.id === cur) ?? models[0];
   const rows = useRef<(HTMLButtonElement | null)[]>([]);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -297,23 +300,24 @@ export function ModelPicker({
     <div ref={root} data-dm="" className={cx('dm-mpk', className)} onKeyDown={e => { if (e.key === 'Escape' && isOpen) { setOpen(false); trigger.current?.focus(); } }}>
       <div className="dm-mpk-top">
         <span className="dm-muted dm-mpk-lb">{label}</span>
-        <button ref={trigger} type="button" className="dm-mpk-tr" aria-haspopup="true" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
-          <span className="dm-mpk-mk" style={{ ['--dm-mc' as string]: picked?.color }}>{picked?.mark ?? picked?.name[0]}</span>
-          <Swap className="dm-mpk-nm">{picked?.name ?? ''}</Swap>
-          <Swap className="dm-mpk-ef dm-muted">{eff}</Swap>
+        {/* its mark crossfades to the new model's, and its box eases to the new words' width (motion pieces) */}
+        <button ref={trigger} type="button" className="dm-mpk-tr dm-mx-press dm-mx-ic" aria-haspopup="true" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
+          <SwapIcon id={picked?.id ?? ''} className="dm-mpk-mk" style={{ ['--dm-mc' as string]: picked?.color }}>{picked?.mark ?? picked?.name[0]}</SwapIcon>
+          <Swap className="dm-mpk-nm dm-mx-w">{picked?.name ?? ''}</Swap>
+          <Swap className="dm-mpk-ef dm-muted dm-mx-w">{eff}</Swap>
           <Icon name="chev-d" size="xs" />
         </button>
       </div>
       <Fold open={isOpen} className="dm-mpk-fold">
         <div className="dm-mpk-p dm-panel">
           <div className="dm-mpk-hd" aria-hidden="true"><span /><span /><span>Speed</span><span>Quality</span><span>Cost</span></div>
-          <div ref={listRef} className="dm-mpk-list" role="radiogroup" aria-label="Model" onKeyDown={move}>
+          <div ref={listRef} className={cx('dm-mpk-list dm-mx-rows dm-mx-glide dm-mx-ic', play && 'dm-mx-play')} role="radiogroup" aria-label="Model" onKeyDown={move}>
             {models.map((m, i) => (
               <button key={m.id} ref={el => { rows.current[i] = el; }} type="button" role="radio" aria-checked={m.id === picked?.id} tabIndex={m.id === picked?.id ? 0 : -1}
-                className={cx('dm-mpk-o', m.status === 'busy' && 'dm-busy')} onClick={() => setCur(m.id)}>
+                className={cx('dm-mpk-o dm-mx-press', m.status === 'busy' && 'dm-busy')} onClick={() => setCur(m.id)}>
                 <span className="dm-mpk-mk" style={{ ['--dm-mc' as string]: m.color }}>{m.mark ?? m.name[0]}</span>
                 <span className="dm-t">
-                  <b>{m.name}<span className="dm-ck">{m.status === 'checking' ? <Spin /> : <Icon name="check" size="xs" />}</span></b>
+                  <b>{m.name}<span className="dm-ck"><SwapIcon id={m.status === 'checking' ? 'spin' : 'check'}>{m.status === 'checking' ? <Spin /> : <Icon name="check" size="xs" />}</SwapIcon></span></b>
                   <Swap className="dm-d">{(m.status && m.status !== 'ready' && m.statusText) || m.note || ''}</Swap>
                 </span>
                 <Meter value={m.speed} tip={m.speedDetail} below={clean && !i} /><Meter value={m.quality} tip={m.qualityDetail} below={clean && !i} /><Meter value={m.cost} tip={m.costDetail} below={clean && !i} />
@@ -332,15 +336,15 @@ export function ModelPicker({
           </Fold>
           <div className="dm-mpk-th">
             <div className="dm-mpk-thh"><Icon name="brain" size="xs" /><span className="dm-mpk-tw"><b>Thinking</b><Swap className="dm-muted dm-mpk-thd">{efforts.find(e => e.label === eff)?.detail ?? ''}</Swap></span></div>
-            <button {...effMenu.trigger} type="button" className="dm-mpk-eb" aria-label="Thinking effort"><Swap className="dm-mpk-ev">{eff}</Swap><Icon name="chev-d" size="xs" /></button>
+            <button {...effMenu.trigger} type="button" className="dm-mpk-eb" aria-label="Thinking effort"><Swap className="dm-mpk-ev dm-mx-w">{eff}</Swap><Icon name="chev-d" size="xs" /></button>
           </div>
           {/* in Clean the confirmation is the card's last strip, under Thinking */}
           {clean && noteLine}
         </div>
       </Fold>
-      <div {...effMenu.pop} className={cx(effMenu.pop.className, 'dm-mpk-pop')} role="menu" aria-label="Thinking effort">
+      <div {...effMenu.pop} className={cx(effMenu.pop.className, 'dm-mpk-pop dm-mx-pop dm-mx-rows dm-mx-glide')} role="menu" aria-label="Thinking effort">
         {efforts.map(e => (
-          <button key={e.label} type="button" className="dm-mi" role="menuitemradio" aria-checked={e.label === eff} onClick={() => { setEff(e.label); effMenu.closeSoon(); }}>
+          <button key={e.label} type="button" className="dm-mi dm-mx-press" role="menuitemradio" aria-checked={e.label === eff} onClick={() => { setEff(e.label); effMenu.closeSoon(); }}>
             <span>{e.label}{e.detail && <span className="dm-d">{e.detail}</span>}</span><span className="dm-ck"><Icon name="check" size="xs" /></span>
           </button>
         ))}

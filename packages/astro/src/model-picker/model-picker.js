@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, centre, enter, hoverGlide, swap, tip } from '../core/core.js';
+import { $, $$, DM, I, centre, enter, hoverGlide, iconSwap, swap, tip } from '../core/core.js';
 DM.def('model-picker', (r, c) => {
   r.innerHTML = r.innerHTML.replace(/\{chev\}/g, I('chev-d','xs')).replace('{brain}', I('brain','xs')).replace(/\{chk\}/g, I('check','xs'));
   // speed, quality and cost out of five, and the numbers behind them: tokens a second, and a typical reply's seconds and
@@ -15,7 +15,7 @@ DM.def('model-picker', (r, c) => {
   // in Clean the first row's numbers show under its meters, so they never sit over the column heads
   const clean = r.closest('[data-style]')?.dataset.style === 'clean';
   const meter = (v, tip, i) => `<span class="mpk-m" data-tip="${tip}"${clean && !i ? ' data-tip-at="below"' : ''}>${[1, 2, 3, 4, 5].map(k => `<i${k <= v ? ' class="on"' : ''}></i>`).join('')}</span>`;
-  list.innerHTML = M.map((x, i) => `<button class="mpk-o" role="radio" aria-checked="false" tabindex="-1" data-i="${i}"><span class="mpk-mk" style="--dm-mc:${x.c};--dm-mt:${x.t}">${x.m}</span><span class="t"><b>${x.n}<span class="ck">${I('check','xs')}</span></b><span class="d">${x.d}</span></span>${meter(x.s, x.tps + ' tokens a second', i)}${meter(x.q, 'Quality ' + x.q + ' of 5', i)}${meter(x.p, '$' + x.cost.toFixed(3) + ' a reply', i)}</button>`).join('');
+  list.innerHTML = M.map((x, i) => `<button class="mpk-o mx-press" role="radio" aria-checked="false" tabindex="-1" data-i="${i}"><span class="mpk-mk" style="--dm-mc:${x.c};--dm-mt:${x.t}">${x.m}</span><span class="t"><b>${x.n}<span class="ck">${I('check','xs')}</span></b><span class="d">${x.d}</span></span>${meter(x.s, x.tps + ' tokens a second', i)}${meter(x.q, 'Quality ' + x.q + ' of 5', i)}${meter(x.p, '$' + x.cost.toFixed(3) + ' a reply', i)}</button>`).join('');
   const rows = $$('.mpk-o', list);
   // Clean's one hover glides from model to model; the picked one keeps its stronger fill
   if (!r.closest('.ahx')) c.offs.push(hoverGlide(list, '.mpk-o'));
@@ -23,7 +23,9 @@ DM.def('model-picker', (r, c) => {
   let cur = 1, eff = 2, busy = 20, waiting = false;
   function paint(){
     rows.forEach((b, i) => { b.setAttribute('aria-checked', i === cur); b.tabIndex = i === cur ? 0 : -1; });
-    const mk = $('.mpk-mk', tr); mk.style.setProperty('--dm-mc', M[cur].c); mk.style.setProperty('--dm-mt', M[cur].t); mk.textContent = M[cur].m;
+    // the trigger's mark crossfades to the new model's (iconSwap(); at once as it is first drawn)
+    const mk = $('.mpk-mk', tr), mark = () => { mk.style.setProperty('--dm-mc', M[cur].c); mk.style.setProperty('--dm-mt', M[cur].t); mk.textContent = M[cur].m; };
+    if (mk.textContent && mk.textContent !== M[cur].m) iconSwap(mk, mark); else mark();
     swap($('.mpk-nm', tr), M[cur].n); swap($('.mpk-ef', tr), E[eff][0]); swap(thd, E[eff][1]); swap(ev, E[eff][0]);
     items.forEach((m, i) => m.setAttribute('aria-checked', i === eff));
   }
@@ -41,7 +43,7 @@ DM.def('model-picker', (r, c) => {
     ck.innerHTML = '<span class="spin"></span>'; swap(d, 'Checking it can take this chat'); say('');
     c.run(async () => {
       await c.wait(1000);
-      ck.innerHTML = I('check','xs'); row.classList.add('busy'); swap(d, `At capacity, about ${busy}s wait`);
+      iconSwap(ck, () => { ck.innerHTML = I('check','xs'); }); row.classList.add('busy'); swap(d, `At capacity, about ${busy}s wait`);
       sgt.textContent = `Opus 5.5 is at capacity for about ${busy}s. Sonnet 5.5 on high thinking comes close on long reviews and starts now.`; sg(true);
     });
   }
@@ -68,7 +70,8 @@ DM.def('model-picker', (r, c) => {
   const centred = clean ? () => {} : centre(c, mpk, () => { const shut = fold.classList.contains('shut'), sgx = sgf.classList.contains('shut') ? 0 : sgf.firstElementChild.scrollHeight;
     let h = mpk.offsetHeight - fold.offsetHeight + (shut ? 0 : fold.firstElementChild.scrollHeight - sgf.offsetHeight + sgx);
     return effp.classList.contains('open') ? Math.max(h, effp.offsetTop + effp.offsetHeight) : h; }, [fold.firstElementChild, effp]);
-  const open = v => { fold.classList.toggle('shut', !v); fold.inert = !v; tr.setAttribute('aria-expanded', v); centred(); };
+  // (its rows settle one after another each time it opens: .mx-play)
+  const open = v => { fold.classList.toggle('shut', !v); fold.inert = !v; tr.setAttribute('aria-expanded', v); list.classList.toggle('mx-play', v); centred(); };
   tr.onclick = () => open(tr.getAttribute('aria-expanded') !== 'true');
   c.on(r, 'keydown', e => { if (e.key === 'Escape' && tr.getAttribute('aria-expanded') === 'true'){ open(false); tr.focus({ preventScroll:true }); } });
   paint();

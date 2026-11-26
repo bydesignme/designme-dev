@@ -190,7 +190,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable, useCopied, useIsoLayoutEffect, useReducedMotion } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { enter, Fold, Swap, Tip } from '../lib/motion';
+import { enter, Fold, mxIn, Swap, SwapIcon, Tip } from '../lib/motion';
 import '../designme.css';
 import './answer-action-bar.css';
 
@@ -294,6 +294,9 @@ export function AnswerActionBar({
   const regenerate = () => { if (streaming) return; setRead('idle'); setPos(0); setSpin(true); setTimeout(() => setSpin(false), 700); onRegenerate?.(); };
   const copy = () => { copyText(text); onCopy?.(text); };
   const why = rating === 'down' && !asked[at];
+  // as the reasons open, the question and its chips rise in one after another (motion pieces)
+  const wy = useRef<HTMLDivElement>(null);
+  useIsoLayoutEffect(() => { const el = wy.current; if (why && el) mxIn([el.querySelector('.dm-aab-wq'), ...el.querySelectorAll('.dm-chip')], { base: 60 }); }, [why]);
   // the container grows with what it holds, eased (grow() on the site), and stays centred wherever it is centred, in every
   // style (owner, 18 Nov)
   const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
@@ -327,7 +330,7 @@ export function AnswerActionBar({
   }, [streaming, at, reduce]);
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-aab', !bare && 'dm-panel', 'dm-growing', className)} style={bare ? undefined : { padding: 16 }}>
+    <div data-dm="" ref={root} className={cx('dm-aab', !bare && 'dm-panel', 'dm-growing dm-mx-grow', className)} style={bare ? undefined : { padding: 16 }}>
       <div ref={inner} className="dm-grow">
       {question && <div className="dm-bub">{question}</div>}
       <p ref={tRef} className="dm-msg dm-aab-t" aria-live="polite">
@@ -337,28 +340,28 @@ export function AnswerActionBar({
         ))}
       </p>
       <div className="dm-aab-row">
-        <div className="dm-aab-bar" role="toolbar" aria-label="Answer actions" onKeyDown={e => {
+        <div className="dm-aab-bar dm-mx-ic" role="toolbar" aria-label="Answer actions" onKeyDown={e => {
           // Left and Right move between the toolbar's buttons, skipping any that are switched off
           const k = ({ ArrowRight: 1, ArrowLeft: -1 } as Record<string, number>)[e.key]; if (!k) return;
           const bs = [...e.currentTarget.querySelectorAll('button')].filter(b => !b.disabled && !b.closest('[inert]')), i = bs.indexOf(document.activeElement as HTMLButtonElement);
           if (i < 0) return; e.preventDefault(); bs[(i + k + bs.length) % bs.length].focus();
         }}>
-          <Tip label={copied ? 'Copied to clipboard' : 'Copy'} open={copied || undefined}><button type="button" className={cx('dm-ib dm-aab-cp', copied && 'dm-copied')} aria-label="Copy" onClick={copy}><Icon name={copied ? 'check' : 'copy'} /></button></Tip>
-          {onRegenerate && <Tip label="Regenerate"><button type="button" className={cx('dm-ib dm-aab-re', spin && 'dm-go')} aria-label="Regenerate" disabled={streaming} onClick={regenerate}><Icon name="refresh" /></button></Tip>}
+          <Tip label={copied ? 'Copied to clipboard' : 'Copy'} open={copied || undefined}><button type="button" className={cx('dm-ib dm-aab-cp dm-mx-press', copied && 'dm-copied')} aria-label="Copy" onClick={copy}><SwapIcon id={copied ? 'check' : 'copy'}><Icon name={copied ? 'check' : 'copy'} /></SwapIcon></button></Tip>
+          {onRegenerate && <Tip label="Regenerate"><button type="button" className={cx('dm-ib dm-aab-re dm-mx-press', spin && 'dm-go')} aria-label="Regenerate" disabled={streaming} onClick={regenerate}><Icon name="refresh" /></button></Tip>}
           <span className={cx('dm-aab-pg', versions.length > 1 && 'dm-on')} inert={versions.length < 2}>
-            <Tip label="Previous version"><button type="button" className="dm-ib" aria-label="Previous version" disabled={at === 0 || streaming} onClick={() => setCur(at - 1)}><Icon name="chev-l" size="xs" /></button></Tip>
+            <Tip label="Previous version"><button type="button" className="dm-ib dm-mx-press" aria-label="Previous version" disabled={at === 0 || streaming} onClick={() => setCur(at - 1)}><Icon name="chev-l" size="xs" /></button></Tip>
             <span className="dm-aab-n dm-num" aria-live="polite">{at + 1} / {Math.max(versions.length, 1)}</span>
-            <Tip label="Next version"><button type="button" className="dm-ib" aria-label="Next version" disabled={at === last || streaming} onClick={() => setCur(at + 1)}><Icon name="chev-r" size="xs" /></button></Tip>
+            <Tip label="Next version"><button type="button" className="dm-ib dm-mx-press" aria-label="Next version" disabled={at === last || streaming} onClick={() => setCur(at + 1)}><Icon name="chev-r" size="xs" /></button></Tip>
           </span>
           <span className="dm-aab-sep" aria-hidden="true" />
-          <Tip label="Good answer"><button type="button" className="dm-ib dm-aab-up" aria-label="Good answer" aria-pressed={rating === 'up'} onClick={() => rate('up')}><Icon name="up-thumb" /></button></Tip>
-          <Tip label="Bad answer"><button type="button" className="dm-ib dm-aab-dn" aria-label="Bad answer" aria-pressed={rating === 'down'} onClick={() => rate('down')}><Icon name="down-thumb" /></button></Tip>
+          <Tip label="Good answer"><button type="button" className="dm-ib dm-aab-up dm-mx-press" aria-label="Good answer" aria-pressed={rating === 'up'} onClick={() => rate('up')}><Icon name="up-thumb" /></button></Tip>
+          <Tip label="Bad answer"><button type="button" className="dm-ib dm-aab-dn dm-mx-press" aria-label="Bad answer" aria-pressed={rating === 'down'} onClick={() => rate('down')}><Icon name="down-thumb" /></button></Tip>
           <span className="dm-aab-sep" aria-hidden="true" />
           <Tip label={read === 'playing' ? 'Pause' : read === 'paused' ? 'Resume' : 'Read aloud'}>
-            <button type="button" className={cx('dm-aab-rd', read !== 'idle' && 'dm-on', read === 'paused' && 'dm-paused')} aria-pressed={read === 'playing'}
+            <button type="button" className={cx('dm-aab-rd dm-mx-press', read !== 'idle' && 'dm-on', read === 'paused' && 'dm-paused')} aria-pressed={read === 'playing'}
               aria-label={read === 'playing' ? 'Pause reading' : read === 'paused' ? 'Resume reading' : 'Read aloud'} disabled={streaming || !words.length}
               onClick={() => setRead(read === 'playing' ? 'paused' : 'playing')}>
-              <span className="dm-ic"><Icon name={read === 'playing' ? 'pause' : read === 'paused' ? 'play' : 'vol'} size="xs" /></span>
+              <span className="dm-ic"><SwapIcon id={read}><Icon name={read === 'playing' ? 'pause' : read === 'paused' ? 'play' : 'vol'} size="xs" /></SwapIcon></span>
               <span className="dm-aab-pr" aria-hidden="true"><i style={{ width: Math.min(100, pos / Math.max(words.length, 1) * 100) + '%' }} /></span>
               <span className="dm-aab-tm dm-num">{clock(pos * secondsPerWord)} / {clock(words.length * secondsPerWord)}</span>
             </button>
@@ -367,7 +370,7 @@ export function AnswerActionBar({
         <Swap className="dm-aab-meta dm-muted dm-num">{v?.meta ?? ''}</Swap>
       </div>
       <Fold open={why} className="dm-aab-why">
-        <div className="dm-aab-wy">
+        <div ref={wy} className="dm-aab-wy">
           <span className="dm-aab-wq">What was off?</span>
           <div className="dm-aab-ch">
             {reasons.map(r => <button key={r} type="button" className="dm-chip dm-sm" onClick={() => { setAsked(a => ({ ...a, [at]: r })); onReason?.(at, r); }}>{r}</button>)}

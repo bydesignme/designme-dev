@@ -3,7 +3,7 @@ TPLS["draft-review"] = "<div class=\"drf panel\">\n  <div class=\"drf-h\"><span 
 TPLS["inline-text-diff"] = "<div class=\"itd panel\">\n  <div class=\"itd-h\"><div class=\"itd-ht\"><b>Pricing intro</b><span class=\"muted itd-st\" aria-live=\"polite\">4 edits to review</span></div><div class=\"itd-a\"><button class=\"pill ghost sm itd-no\">Reject all</button><button class=\"pill primary sm itd-ok\">Accept all</button></div></div>\n  <p class=\"itd-t\"></p>\n  <p class=\"itd-f\" aria-live=\"polite\"></p>\n  <div class=\"itd-bar\" role=\"dialog\" aria-label=\"Edit\">\n    <p class=\"itd-why\"><svg class=\"itd-wi\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path class=\"a\" d=\"M12 3.6 2.6 19.9h18.8z\"/><path class=\"b\" d=\"M12 9.6v4.4M12 17v.01\"/></svg><span></span></p>\n    <div class=\"itd-bb\"><button class=\"pill primary sm itd-acc\"><svg class=\"i xs\"><use href=\"#v2i-check\"/></svg>Accept</button><button class=\"pill ghost sm itd-rej\"><svg class=\"i xs\"><use href=\"#v2i-x\"/></svg>Reject</button></div>\n  </div>\n</div>";
 TPLS["rewrite-toolbar"] = "<div class=\"rwx panel\">\n  <div class=\"rwx-h\"><span class=\"ft\">DOC</span><span>Onboarding intro</span><span class=\"muted rwx-st\">Click a sentence</span></div>\n  <div class=\"rwx-doc\"></div>\n  <div class=\"rwx-tb\" role=\"toolbar\" aria-label=\"Rewrite\">\n    <button class=\"rwx-b\" data-k=\"clear\">{spark}Clearer</button><button class=\"rwx-b\" data-k=\"short\">Shorter</button><button class=\"rwx-b\" data-k=\"warm\">Friendlier</button><span class=\"rwx-sep\"></span><button class=\"rwx-b ic\" aria-label=\"Ask the agent\" data-tip=\"Ask the agent\" data-tip-k=\"⌘K\">{at}</button>\n  </div>\n</div>";
 TPLS["proposal-card"] = "<div class=\"prx panel\">\n  <div class=\"prx-h\"><span class=\"prx-ic\">{wand}</span><div class=\"prx-ht\"><b>Raise contrast on the secondary button</b><span class=\"muted\">Pricing, frame 2 of 3</span></div></div>\n  <div class=\"prx-diff\"><div class=\"prx-sw\"><span class=\"prx-c\" style=\"background:#c9cfd8\"></span><span class=\"num\">#C9CFD8</span><span class=\"tag bad\">2.1 : 1</span></div><span class=\"prx-ar\">{right}</span><div class=\"prx-sw prx-new\"><span class=\"prx-c\" style=\"background:#5b6472\"></span><span class=\"num\">#5B6472</span><span class=\"tag ok\"><span class=\"prx-rt\">5.9 : 1</span></span></div></div>\n  <div class=\"prx-cf\"><span class=\"muted\">Confidence</span><div class=\"prx-seg\"><i></i><i></i><i></i><i></i><i></i></div><span class=\"num prx-pc\">0%</span></div>\n  <button class=\"prx-alt-t\">{chev}<span>2 other options</span></button>\n  <div class=\"fold shut prx-alt\"><div><div class=\"prx-alts\"></div></div></div>\n  <div class=\"prx-f\"><button class=\"pill ghost sm prx-no\">Not now</button><button class=\"pill primary sm prx-ok\">Accept</button></div>\n</div>";
-TPLS["decision-prompt"] = "<div class=\"dpx panel\" tabindex=\"0\">\n  <div class=\"dpx-h\"><span class=\"dpx-k muted num\">Question 1 of 3</span><div class=\"dpx-dots\"><i class=\"on\"></i><i></i><i></i></div></div>\n  <div class=\"dpx-body\"></div>\n  <div class=\"dpx-f\"><button class=\"pill ghost sm dpx-skip\">Skip</button><button class=\"pill primary sm dpx-go\">Continue <span class=\"kbd\">↵</span></button></div>\n  <p class=\"dpx-live\" aria-live=\"polite\"></p>\n</div>";
+TPLS["decision-prompt"] = "<div class=\"dpx panel mx-grow\" tabindex=\"0\">\n  <div class=\"dpx-h\"><span class=\"dpx-k muted num\">Question 1 of 3</span><div class=\"dpx-dots\"><i class=\"on\"></i><i></i><i></i></div></div>\n  <div class=\"dpx-body\"></div>\n  <div class=\"dpx-f\"><button class=\"pill ghost sm dpx-skip\">Skip</button><button class=\"pill primary sm dpx-go\">Continue <span class=\"kbd\">↵</span></button></div>\n  <p class=\"dpx-live\" aria-live=\"polite\"></p>\n</div>";
 TPLS["plan-review"] = "<div class=\"plx panel\">\n  <div class=\"plx-h\"><span class=\"think plx-mk\"><i></i><i></i><i></i><i></i></span><div class=\"plx-ht\"><b>Plan: redesign the pricing page</b><span class=\"muted plx-st\">About 4 min</span></div><span class=\"plx-tm num\" aria-label=\"Elapsed\"></span></div>\n  <ol class=\"plx-list\"></ol>\n  <button class=\"plx-add\">{plus}Add a step</button>\n  <div class=\"plx-f\"><span class=\"muted plx-n\">Click a step to edit it</span><button class=\"pill ghost sm plx-chg\">Ask for changes</button><button class=\"pill primary sm plx-go\">Approve plan</button></div>\n</div>";
 
 /* ---------- Decision prompt ---------- */
@@ -13,8 +13,10 @@ DM.def('decision-prompt', (r, c) => {
     ['How bold can the changes be?', 'Scope', [['Polish spacing and type','Safe'],['Rework the layout','Medium'],['Fresh direction','Bold']]],
     ['Where should the result go?', 'Output', [['New Figma page','Keeps the original'],['Branch in the repo','Opens a PR'],['Both','Recommended']]]
   ];
-  const ans = []; let qi = 0, sel = 0, done = false;
+  const ans = []; let qi = 0, sel = 0, done = false, turning = false;
   const body = $('.dpx-body', r), k = $('.dpx-k', r), dots = $$('.dpx-dots i', r), go = $('.dpx-go', r), skip = $('.dpx-skip', r), card = $('.dpx', r), foot = $('.dpx-f', r);
+  // its motion pieces (owner's trial, 26 Nov): Agent harness, which places it in its chat, keeps it as it was
+  const mx = !r.closest('.ahx');
   // no room is kept for the next question or the summary: the card grows and shrinks with them, once its entrance (which
   // scales it from .98 in Clean) has ended, so it measures the card at its real size
   Promise.resolve().then(() => Promise.all(card.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && card.isConnected) c.offs.push(grow(card)); });
@@ -22,28 +24,36 @@ DM.def('decision-prompt', (r, c) => {
     k.textContent = 'Question ' + (qi + 1) + ' of 3';
     dots.forEach((d, i) => { d.classList.toggle('on', i === qi); d.classList.toggle('done', i < qi); });
     const q = Q[qi];
-    body.innerHTML = `<div class="dpx-q">${q[0]}</div><div class="dpx-opts" role="radiogroup" aria-label="${q[0]}">` + q[2].map((o, i) => `<button class="dpx-o${i === sel ? ' on' : ''}" role="radio" aria-checked="${i === sel}" data-i="${i}"><span class="kbd">${i + 1}</span>${o[0]}<span class="d">${o[1]}</span></button>`).join('') + '</div>';
+    body.innerHTML = `<div class="dpx-q">${q[0]}</div><div class="dpx-opts" role="radiogroup" aria-label="${q[0]}">` + q[2].map((o, i) => `<button class="dpx-o${i === sel ? ' on' : ''}${mx ? ' mx-press' : ''}" role="radio" aria-checked="${i === sel}" data-i="${i}"><span class="kbd">${i + 1}</span>${o[0]}<span class="d">${o[1]}</span></button>`).join('') + '</div>';
     // the next question plays its entrance; the first comes in with the card's own entrance and is drawn from the start, so a
     // frame that doesn't animate yet (a small live preview off screen, as on the docs' Introduction) still shows it
-    if (qi){ enter($('.dpx-q', body)); stagger($$('.dpx-o', body), 50, 60); }
+    // (the motion pieces' next question comes in from the side it moves towards, one piece after another, as the card eases to
+    // its height)
+    if (qi){ if (mx) mxIn([$('.dpx-q', body), ...$$('.dpx-o', body)], { x:12, base:20 }); else { enter($('.dpx-q', body)); stagger($$('.dpx-o', body), 50, 60); } }
     $$('.dpx-o', body).forEach(b => { b.onclick = () => choose(+b.dataset.i); b.ondblclick = next; });
   }
   function choose(i){ sel = i; $$('.dpx-o', body).forEach((b, j) => { b.classList.toggle('on', j === i); b.setAttribute('aria-checked', j === i); }); }
+  // (with the motion pieces, the question answered leaves to the side first, quickly, and the next one comes in from the other;
+  // a key pressed while it turns waits for it)
+  const turn = (els, then) => { if (!mx || REDUCE){ then(); return; } turning = true; mxOut(els, { x:-12 }).then(() => { turning = false; if (!c.dead) then(); }); };
   function next(skipped){
-    if (done) return; ans.push(skipped === true ? 'Agent decides' : Q[qi][2][sel][0]); qi++; sel = 0;
-    if (qi < Q.length) return paint();
+    if (done || turning) return; ans.push(skipped === true ? 'Agent decides' : Q[qi][2][sel][0]); qi++; sel = 0;
+    if (qi < Q.length) return turn([...body.children], paint);
     // the steps are over: the dots fade away where they are (owner, 21 Nov), and the head keeps its place
-    done = true; dots.forEach(d => { d.classList.remove('on'); d.classList.add('done'); }); $('.dpx-dots', r).classList.add('gone'); k.textContent = 'All set'; card.classList.add('done'); $('.dpx-live', r).textContent = 'All questions answered';
+    done = true; dots.forEach(d => { d.classList.remove('on'); d.classList.add('done'); }); $('.dpx-dots', r).classList.add('gone'); $('.dpx-live', r).textContent = 'All questions answered';
     // the buttons give way to the line saying the agent has started (its words shimmer while it gets going); a focus that
-    // was on them comes back to the card
+    // was on them comes back to the card. With the motion pieces the head, the last question and the buttons leave first
     const had = foot.contains(document.activeElement);
-    body.innerHTML = `<div class="dpx-sum">${Q.map((q, i) => `<div class="dpx-sr"><span>${q[1]}</span>${ans[i]}</div>`).join('')}</div>`;
-    foot.classList.add('run'); foot.innerHTML = `<div class="dpx-run" aria-live="polite"><span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Starting the redesign</span></div>`;
-    if (had) giveBack(card);
-    stagger([...$$('.dpx-sr', body), $('.dpx-run', foot)], 70);
+    turn([$('.dpx-k', r), ...body.children, ...foot.children], () => {
+      k.textContent = 'All set'; card.classList.add('done');
+      body.innerHTML = `<div class="dpx-sum">${Q.map((q, i) => `<div class="dpx-sr"><span>${q[1]}</span>${ans[i]}</div>`).join('')}</div>`;
+      foot.classList.add('run'); foot.innerHTML = `<div class="dpx-run" aria-live="polite"><span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Starting the redesign</span></div>`;
+      if (had) giveBack(card);
+      if (mx) mxIn([...$$('.dpx-sr', body), $('.dpx-run', foot)], { step:50 }); else stagger([...$$('.dpx-sr', body), $('.dpx-run', foot)], 70);
+    });
   }
   go.onclick = () => next(); skip.onclick = () => next(true);
-  c.on(card, 'keydown', e => { if (done) return; if (/^[1-3]$/.test(e.key)){ choose(+e.key - 1); e.preventDefault(); } else if (e.key === 'Enter'){ next(); e.preventDefault(); } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ choose((sel + (e.key === 'ArrowDown' ? 1 : 2)) % 3); e.preventDefault(); } });
+  c.on(card, 'keydown', e => { if (done || turning) return; if (/^[1-3]$/.test(e.key)){ choose(+e.key - 1); e.preventDefault(); } else if (e.key === 'Enter'){ next(); e.preventDefault(); } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ choose((sel + (e.key === 'ArrowDown' ? 1 : 2)) % 3); e.preventDefault(); } });
   paint();
 });
 /* ---------- Proposal card ---------- */

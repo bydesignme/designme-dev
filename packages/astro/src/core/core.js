@@ -127,7 +127,9 @@ function swap(el, html, isHTML){
   if (p){ if (p.v === html && p.h === !!isHTML) return; clearTimeout(p.t); el._sw = null; }
   const cur = isHTML ? el.innerHTML : el.textContent; if (cur === html){ if (p) el.classList.remove('out'); return; }
   el.classList.add('sw'); el.classList.add('out');
-  const s = el._sw = { v:html, h:!!isHTML, t:setTimeout(() => { if (el._sw !== s) return; el._sw = null; isHTML ? el.innerHTML = html : el.textContent = html; el.classList.remove('out'); }, REDUCE ? 0 : 170) };
+  // (words marked .mx-w ease their box to the new width as they arrive: mxWidth())
+  const s = el._sw = { v:html, h:!!isHTML, t:setTimeout(() => { if (el._sw !== s) return; el._sw = null; const w0 = !REDUCE && el.classList.contains('mx-w') ? el.offsetWidth : 0;
+    isHTML ? el.innerHTML = html : el.textContent = html; el.classList.remove('out'); if (w0) mxWidth(el, w0); }, REDUCE ? 0 : 170) };
 }
 function tween(from, to, ms, step, ease = t => 1 - Math.pow(1 - t, 3)){
   return new Promise(res => { const t0 = performance.now(); const f = t => { const p = Math.max(0, Math.min(1, (t - t0) / (REDUCE ? 1 : ms))); step(from + (to - from) * ease(p), p); p < 1 ? requestAnimationFrame(f) : res(); }; requestAnimationFrame(f); });
@@ -137,6 +139,49 @@ function enter(el, delay = 0){ if (!el) return el; el.classList.remove('enter');
   const end = e => { if (e.target !== el || e.animationName !== 'enter') return; el.classList.remove('enter'); el.removeEventListener('animationend', end); el.removeEventListener('animationcancel', end); };
   el.addEventListener('animationend', end); el.addEventListener('animationcancel', end); return el; }
 function stagger(els, step = 60, base = 0){ els.forEach((e, i) => enter(e, base + i * step)); }
+/* ---------- motion pieces (owner's trial, 26 Nov; the CSS's "motion pieces" says what each is for) ---------- */
+// a motion token on el: a time in ms or a length in px when d is a number, else the value as written
+const mxT = (el, k, d) => { const v = getComputedStyle(el).getPropertyValue(k).trim(); if (!v) return d; return typeof d === 'number' ? parseFloat(v) * (/ms$/.test(v) ? 1 : /s$/.test(v) ? 1000 : 1) : v; };
+/* mxIn(): content just drawn arrives: it fades and rises a few px (o.y) out of a short blur (--blur-in; none in Blueprint and
+   Clean), one piece after another (o.step, the style's --mx-step); o.x brings it in from the side instead (the next question).
+   With reduced motion it only fades. mxOut(): content about to go leaves the same way, quicker (--t-out), upwards or to o.x;
+   it stays gone until it is replaced or brought back with mxIn(). Both return a promise for the end, and either cancels the
+   other on the same element */
+function mxMove(els, o, out){
+  els = [].concat(els).filter(e => e && e.isConnected && e.animate); if (!els.length) return Promise.resolve();
+  const e0 = els[0], b = mxT(e0, '--dm-blur-in', 0) * (o.blur ?? .7), E = out ? 'cubic-bezier(.4,0,1,1)' : mxT(e0, o.spring ? '--dm-ease-spring' : '--dm-ease', 'ease');
+  const ms = o.ms || mxT(e0, out ? '--dm-t-out' : '--dm-t-in', out ? 160 : 360), step = o.step ?? (out ? 0 : mxT(e0, '--dm-mx-step', 24));
+  const away = REDUCE ? { opacity:0 } : { opacity:0, translate:o.x ? `${o.x}px 0` : `0 ${o.y ?? (out ? -4 : 4)}px`, filter:b ? `blur(${b}px)` : 'none' };
+  const here = REDUCE ? { opacity:1 } : { opacity:1, translate:'0 0', filter:b ? 'blur(0px)' : 'none' };
+  return Promise.all(els.map((el, i) => { (el._mx || []).forEach(a => a.cancel());
+    const a = el.animate(out ? [here, away] : [away, here], { duration:REDUCE ? 140 : ms, delay:(o.base || 0) + i * step, easing:REDUCE ? 'linear' : E, fill:out ? 'forwards' : 'backwards' });
+    el._mx = [a]; return a.finished.catch(() => {}); }));
+}
+const mxIn = (els, o = {}) => mxMove(els, o, false), mxOut = (els, o = {}) => mxMove(els, o, true);
+/* iconSwap(): an icon that changes, inside an .mx-ic control, goes out small and soft and the new one comes back with a little
+   spring (--ic-scale, --blur-ic, --ease-pop; with reduced motion only a fade). change() makes the change: a new href, new
+   markup. o.inner animates el's first child rather than el (a tile that keeps its fill while its glyph changes). Elsewhere the
+   change is made at once, as before. A change asked for while one is under way lands first, so the newest always wins */
+function iconSwap(el, change, o = {}){
+  if (!el || !el.animate || !el.closest('.mx-ic') || !el.isConnected){ change(); return; }
+  if (el._icGo) el._icGo();
+  (el._ic || []).forEach(a => a.cancel());
+  const pick = () => (o.inner ? el.firstElementChild : el) || el, k = mxT(el, '--dm-ic-scale', .6), b = mxT(el, '--dm-blur-ic', 0);
+  const off = REDUCE ? { opacity:0 } : { opacity:0, scale:String(k), filter:b ? `blur(${b}px)` : 'none' }, on = REDUCE ? { opacity:1 } : { opacity:1, scale:'1', filter:b ? 'blur(0px)' : 'none' };
+  let done = false; const go = el._icGo = () => { if (done) return; done = true; el._icGo = null; change(); };
+  const t = pick(), a = t.animate([on, off], { duration:REDUCE ? 70 : 90, easing:'cubic-bezier(.4,0,1,1)', fill:'forwards' });
+  el._ic = [a];
+  a.onfinish = () => { go(); const n = pick(); if (!n.isConnected) return; const i = n.animate([off, on], { duration:REDUCE ? 120 : mxT(el, '--dm-t-in', 360) * .8, easing:REDUCE ? 'linear' : mxT(el, '--dm-ease-pop', 'ease') }); a.cancel(); el._ic = [i]; };
+  a.oncancel = go;
+}
+// mxWidth(): an .mx-w element whose words just changed eases from the width it had (w0) to its new one, its spill clipped meanwhile
+function mxWidth(el, w0){
+  if (el._mw) el._mw.cancel();
+  const w1 = el.offsetWidth; if (Math.abs(w1 - w0) < 1 || !el.animate) return;
+  el.style.overflow = 'clip';
+  const a = el._mw = el.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:mxT(el, '--dm-t-in', 360), easing:mxT(el, '--dm-ease-spring', 'ease') });
+  a.onfinish = a.oncancel = () => { if (el._mw === a){ el._mw = null; el.style.overflow = ''; } };
+}
 /* reflow(): a list that changes under a filter, a search or a sort. The change happens at once, in change(); this only
    shows it. items() gives the list's items, each known by its o.by attribute (data-key by default). The items that stay
    glide from where they were to where they are now, new ones fade in from 4px down, and the ones that went fade out where
@@ -146,7 +191,9 @@ function stagger(els, step = 60, base = 0){ els.forEach((e, i) => enter(e, base 
    An item the change hides counts as gone. Only items that don't sit inside one another can be listed (a group and its own
    rows would glide twice).
    o: { by, root (the component, which places are measured against), enter:false (new items come in some other way),
-   leave:false (items that go fade some other way), host (where a copy goes when the change redrew the item's own parent) } */
+   leave:false (items that go fade some other way), host (where a copy goes when the change redrew the item's own parent),
+   blur:true (new items also come out of a short blur, half the style's --blur-in, and items that go fade in half the time:
+   a motion piece, owner's trial of 26 Nov) } */
 function reflow(items, change, o = {}){
   const by = o.by || 'data-key', live = () => items().filter(el => !el.hasAttribute('data-ghost'));
   if (REDUCE || !document.body.animate){ change(); return; }
@@ -165,13 +212,14 @@ function reflow(items, change, o = {}){
   const r1 = box(), sx = r1.left - r0.left, sy = r1.top - r0.top;
   const now = live(), at = now[0] || [...hosts].find(p => p.isConnected) || document.documentElement, cs = getComputedStyle(at);
   const E = cs.getPropertyValue('--dm-ease').trim() || 'ease', T = (parseFloat(cs.getPropertyValue('--dm-t-fast')) || .22) * 1000, seen = new Set();
+  const B = o.blur ? (parseFloat(cs.getPropertyValue('--dm-blur-in')) || 0) / 2 : 0, IN = B ? [{ opacity:0, transform:'translateY(4px)', filter:`blur(${B}px)` }, { opacity:1, transform:'none', filter:'blur(0px)' }] : [{ opacity:0, transform:'translateY(4px)' }, { opacity:1, transform:'none' }];
   let n = 0;
   for (const el of now){
     const k = el.getAttribute(by), a = was.get(k);
     (el._rf || []).forEach(x => x.cancel()); el._rf = [];
     const b = el.getBoundingClientRect(); if (!b.width && !b.height) continue;
     seen.add(k);
-    if (!a){ if (o.enter !== false) el._rf.push(el.animate([{ opacity:0, transform:'translateY(4px)' }, { opacity:1, transform:'none' }], { duration:T, delay:Math.min(n++, 5) * 24, easing:E, fill:'backwards' })); continue; }
+    if (!a){ if (o.enter !== false) el._rf.push(el.animate(IN, { duration:T, delay:Math.min(n++, 5) * 24, easing:E, fill:'backwards' })); continue; }
     const dx = a.b.left + sx - b.left, dy = a.b.top + sy - b.top;
     if (Math.abs(dx) > .5 || Math.abs(dy) > .5) el._rf.push(el.animate([{ transform:`translate(${dx}px,${dy}px)` }, { transform:'none' }], { duration:T + 40, easing:E }));
     if (a.o < .99) el._rf.push(el.animate([{ opacity:a.o }, { opacity:1 }], { duration:T, easing:E }));
@@ -187,7 +235,8 @@ function reflow(items, change, o = {}){
     if (a.w) [...g.cells].forEach((td, i) => { td.style.boxSizing = 'border-box'; td.style.width = a.w[i] + 'px'; });
     p.appendChild(g);
     const gb = g.getBoundingClientRect(); g.style.transform = `translate(${a.b.left + sx - gb.left}px,${a.b.top + sy - gb.top}px)`;
-    const f = g.animate([{ opacity:a.o }, { opacity:0 }], { duration:T * .8, easing:E, fill:'forwards' });
+    // (with o.blur a row that goes leaves quicker and softly, so a row gliding into its place never reads over it)
+    const f = g.animate(B ? [{ opacity:a.o, filter:'blur(0px)' }, { opacity:0, filter:`blur(${B}px)` }] : [{ opacity:a.o }, { opacity:0 }], { duration:T * (o.blur ? .45 : .8), easing:E, fill:'forwards' });
     f.onfinish = f.oncancel = () => g.remove();
   });
 }
@@ -517,7 +566,10 @@ function reveal(st){
       if (transform) el.animate([{ transform }, { transform:'none' }], { duration:ms, delay, easing:M.ease, fill:'backwards', composite:'add' }); };
     // a component can ask for less: data-reveal="flat" moves only its container, "none" skips the entrance
     const how = root.dataset.reveal; if (how === 'none') return;
-    go(root, M.root, M.rootMs, 0);
+    // "pop": a surface that is called up over the stage, like a command palette, drops in a little from above out of a blur as
+    // it scales up (Soft; Blueprint and Clean keep their own entrance: a motion piece, owner's trial of 26 Nov)
+    if (how === 'pop' && M === REVEAL.soft) go(root, [{ opacity:0, filter:`blur(${2 * mxT(root, '--dm-blur-in', 0)}px)`, transform:'translateY(-10px) scale(.94)' }, { opacity:1, filter:'blur(0px)', offset:.6 }, { opacity:1, filter:'blur(0px)' }], 640, 0);
+    else go(root, M.root, M.rootMs, 0);
     if (how !== 'flat') revealParts(root).forEach((p, i) => go(p, M.part, M.partMs, Math.min(M.first + i * M.step, M.max)));
   });
 }
@@ -657,10 +709,11 @@ function copied(btn, text, label = 'Copied to clipboard'){
   const use = btn.querySelector('use');
   const st = btn._cp || (btn._cp = { tip: btn.dataset.tip, href: use && use.getAttribute('href') });
   clearTimeout(st.t);
-  if (use) use.setAttribute('href', '#i-check');
+  // (in an .mx-ic control the copy icon and the tick crossfade, iconSwap())
+  if (use) iconSwap(use.parentNode, () => use.setAttribute('href', '#i-check'));
   btn.classList.add('copied'); btn.dataset.tip = label; showTip(btn);
   st.t = setTimeout(() => {
-    if (use) use.setAttribute('href', st.href);
+    if (use) iconSwap(use.parentNode, () => use.setAttribute('href', st.href));
     btn.classList.remove('copied');
     if (st.tip === undefined) delete btn.dataset.tip; else btn.dataset.tip = st.tip;
     if (tipFor === btn) hideTip(true);
@@ -847,4 +900,4 @@ const mountAll = () => {
 document.addEventListener('DOMContentLoaded', mountAll);
 document.addEventListener('astro:page-load', mountAll);
 
-export { $, $$, AV, BRAND, DM, FLAG, FLAGS, I, MODS, REDUCE, REVEAL, SPRITE, byKey, carousel, centre, closePops, cols, copied, ctl, enter, fitHits, giveBack, grow, hideTip, hold, hoverGlide, html, isMenu, lastInput, menuGlide, menuOpen, openPop, placePop, placeTip, popFocus, popItems, popRoom, popStep, reflow, release, reveal, revealParts, seg, showTip, stagger, swap, tip, tipAt, tipFollow, tipFor, tipHid, tipNext, tipRaf, tipT, tipWatch, tween };
+export { $, $$, AV, BRAND, DM, FLAG, FLAGS, I, MODS, REDUCE, REVEAL, SPRITE, byKey, carousel, centre, closePops, cols, copied, ctl, enter, fitHits, giveBack, grow, hideTip, hold, hoverGlide, html, iconSwap, isMenu, lastInput, menuGlide, menuOpen, mxIn, mxMove, mxOut, mxT, mxWidth, openPop, placePop, placeTip, popFocus, popItems, popRoom, popStep, reflow, release, reveal, revealParts, seg, showTip, stagger, swap, tip, tipAt, tipFollow, tipFor, tipHid, tipNext, tipRaf, tipT, tipWatch, tween };
