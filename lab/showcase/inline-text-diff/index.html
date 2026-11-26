@@ -829,14 +829,8 @@ body.render #stage{left:0;top:0;transform:none!important}
 :root[data-style="clean"] #fslot{margin-left:-16px;margin-right:-16px}
 :root[data-style="clean"] #fslot>.dm-itd-f{margin:var(--dm-s-1) 0 0}
 .dm-itd-f>span{display:inline-flex;align-items:center;gap:6px}
-#tick{transform-origin:50% 50%}
+#tick circle,#tick path{stroke-dasharray:1;stroke-dashoffset:1}
 .dm-itd-bar{visibility:visible;transition:none}
-/* completion marks: four-point sparks and a ring, in the accent's mark colour and neutral grey; strokes and fills, no glow */
-#fx{position:absolute;left:0;top:0;overflow:visible}
-#fx svg{position:absolute;left:0;top:0;overflow:visible}
-.spk{fill:var(--dm-accent-mark,var(--dm-accent))}
-.spk.n{fill:var(--dm-line-strong)}
-.ring{fill:none;stroke:var(--dm-accent-mark,var(--dm-accent));stroke-width:1.5}
 #cur{position:absolute;left:0;top:0;width:22px;height:26px;transform-origin:2px 2px;pointer-events:none}
 .rip{position:absolute;left:-14px;top:-14px;width:28px;height:28px;border-radius:50%;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-fg) 45%,transparent);opacity:0}
 /* the window's caption (not in renders) */
@@ -852,14 +846,13 @@ body.render .cap{display:none}
     <div class="dm-itd dm-panel" id="card">
       <div class="dm-itd-h" id="hd"><div class="dm-itd-ht"><b>Pricing intro</b><span class="dm-muted dm-itd-st" id="st" aria-live="polite"><span id="s0"></span><span id="s1"></span></span></div><div class="dm-itd-a" id="acts"><button type="button" class="dm-pill dm-ghost dm-sm dm-itd-no">Reject all</button><button type="button" class="dm-pill dm-primary dm-sm dm-itd-ok" id="okall">Accept all</button></div></div>
       <p class="dm-itd-t" id="tx"><span id="boxes"></span><span id="words"></span><span id="caret"></span></p>
-      <div id="fslot"><p class="dm-itd-f" id="ft" aria-live="polite"><span><svg class="dm-i dm-xs" id="tick" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.2 12.3 2.6 2.6 5-5.2"/></svg><span>Saved to Pricing v4</span></span></p></div>
+      <div id="fslot"><p class="dm-itd-f" id="ft" aria-live="polite"><span><svg class="dm-i dm-xs" id="tick" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" pathLength="1" transform="rotate(-90 12 12)"/><path d="m8.2 12.3 2.6 2.6 5-5.2" pathLength="1"/></svg><span>Saved to Pricing v4</span></span></p></div>
       <div class="dm-itd-bar dm-open dm-unsure" id="bar" role="dialog" aria-label="Edit">
         <p class="dm-itd-why"><svg class="dm-itd-wi" viewBox="0 0 24 24" aria-hidden="true"><path class="dm-a" d="M12 3.6 2.6 19.9h18.8z"/><path class="dm-b" d="M12 9.6v4.4M12 17v.01"/></svg><span>Not in the pricing brief: there is no free month</span></p>
         <div class="dm-itd-bb"><button type="button" class="dm-pill dm-sm dm-itd-acc dm-line"><svg class="dm-i dm-xs" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Accept</button><button type="button" class="dm-pill dm-sm dm-itd-rej dm-warn" id="rej"><svg class="dm-i dm-xs" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>Reject</button></div>
       </div>
     </div>
   </div>
-  <div id="fx"></div>
   <div class="rip" id="rip1"></div><div class="rip" id="rip2"></div><div class="rip" id="rip3"></div>
   <svg id="cur" viewBox="0 0 22 26" aria-hidden="true"><path d="M2.5 2v19l5-4.6 3.6 8 3.4-1.5-3.5-7.8h6.8z" fill="#111" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>
 </div></div>
@@ -883,7 +876,7 @@ const FMT = new URLSearchParams(location.search).get('f') === '4x5' ? { W:600, H
 const W = FMT.W, H = FMT.H, CL = (W - 440) / 2;
 const T = 12;
 const stage = $('#stage'), world = $('#world'), cw = $('#cw'), card = $('#card'), tx = $('#tx'), wordsEl = $('#words'), boxesEl = $('#boxes');
-const caret = $('#caret'), bar = $('#bar'), acts = $('#acts'), fslot = $('#fslot'), tick = $('#tick'), cur = $('#cur');
+const caret = $('#caret'), bar = $('#bar'), acts = $('#acts'), fslot = $('#fslot'), tick = $('#tick'), tickC = $('#tick circle'), tickP = $('#tick path'), cur = $('#cur');
 stage.style.width = W + 'px'; stage.style.height = H + 'px'; cw.style.left = CL + 'px';
 const LH = 25.2;          // 14px type at a line height of 1.8, as the install
 const BOX_T = 4.1, BOX_H = 17;   // the tints' band in a line: Inter's content area at 14px
@@ -1066,18 +1059,10 @@ function cursorAt(t){
   return mv(p3, d, seg(t, B.click3 + .25, .8), -10);
 }
 
-// ---------- completion marks round the foot's tick ----------
-const fx = $('#fx'), NS = 'http://www.w3.org/2000/svg';
-const sparkPath = 'M0-7C.5-2.2 2.2-.5 7 0 2.2.5.5 2.2 0 7-.5 2.2-2.2.5-7 0-2.2-.5-.5-2.2 0-7z';
-const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('width', 1); svg.setAttribute('height', 1); fx.appendChild(svg);
-const ring = document.createElementNS(NS, 'circle'); ring.setAttribute('class', 'ring'); svg.appendChild(ring);
-const sparks = [];
-for (let i = 0; i < 9; i++){
-  const p = document.createElementNS(NS, 'path'); p.setAttribute('d', sparkPath); p.setAttribute('class', 'spk' + (i % 3 === 2 ? ' n' : ''));
-  svg.appendChild(p);
-  // they burst out on the card's open side, to the left of the tick, never over the words
-  sparks.push({ p, a: Math.PI * .58 + i * (Math.PI * .84 / 8) + (rnd() - .5) * .14, d0: 12, d1: 26 + rnd() * 14, s: .7 + rnd() * .45, delay: rnd() * .08, rot: (rnd() - .5) * 140 });
-}
+// ---------- the ink-settle: after Accept all, a wave runs through the paragraph in reading order; each accepted word darkens
+// from its green to the text's ink as the wave reaches it, and every word settles a pixel as it passes ----------
+const WAVE = .5;
+const waveAt = (x, line) => B.stamp - .1 + ((line + x / LW) / 2) * WAVE;
 
 // ---------- small writers that skip unchanged values ----------
 const put = (el, k, v) => { const c = el._c || (el._c = {}); if (c[k] !== v){ c[k] = v; el.style[k] = v; } };
@@ -1151,9 +1136,10 @@ function renderAt(t){
         ya = hop; yb = jolt + hop;
       }
     } else {
-      // an added word: its letters drop in as they are typed; on Accept its colour settles to the text's
+      // an added word: its letters drop in as they are typed; on Accept its tint goes flat, and the ink wave darkens it to the
+      // text's colour
       const ins = e.why ? 'var(--dm-warn)' : 'var(--dm-ok)';
-      const settle = e.acc ? eOutCubic(seg(t, e.acc + .2, .16)) : 0;
+      const settle = e.acc ? eInOutCubic(seg(t, waveAt(x, it.line), .22)) : 0;
       ca = cb = colMix(settle, fg, ins);
       const ls = L.a.children;
       for (let j = 0; j < ls.length; j++){
@@ -1170,8 +1156,8 @@ function renderAt(t){
       }
     }
     put(L.el, 'display', textOn || oa * ob > 0 ? '' : 'none');
-    // the landing: a quick ripple down through the settled words, left to right
-    const land = 1.6 * hit(t - (B.stamp - .05 + (x / LW) * .1 + it.line * .03), .05);
+    // the landing: the ink wave presses each word down a pixel as it passes
+    const lq = seg(t, waveAt(x, it.line), .2), land = lq > 0 && lq < 1 ? 1.4 * Math.sin(Math.PI * lq) * (1 - lq) : 0;
     put(L.el, 'transform', `translate(${(x + dx).toFixed(2)}px,${(y + land).toFixed(2)}px)`);
     put(L.el, 'opacity', op.toFixed(3));
     put(L.a, 'color', ca); put(L.b, 'color', cb);
@@ -1264,24 +1250,14 @@ function renderAt(t){
   put(bar, 'transformOrigin', 'top left');
   put(bar, 'transform', `translateY(${(-6 * (1 - bo) - 3 * bc).toFixed(2)}px) scale(${(.92 + .08 * eOutBack(seg(t, B.barIn, .32), 1.4) - .03 * bc).toFixed(4)})`);
 
-  // ---------- the foot: Saved, its tick landing with a ring and a few sparks ----------
+  // ---------- the foot: Saved, its tick drawn ----------
   const fc = eOutExpo(seg(t, B.foot + .16, .6));
   const fts = $('#ft>span');
   put(fts, 'opacity', fc.toFixed(3)); put(fts, 'transform', `translateY(${((1 - fc) * 8).toFixed(2)}px)`); put(fts, 'filter', fc < 1 ? `blur(${((1 - fc) * 4).toFixed(2)}px)` : '');
-  const tp = seg(t, B.foot + .24, .4);
-  put(tick, 'transform', `scale(${(tp > 0 ? .4 + .6 * eOutBack(tp, 2.6) : .4).toFixed(4)})`);
-  const mq = t - (B.foot + .3);
-  if (mq > 0 && mq < 1){
-    put(fx, 'display', '');
-    const tb = offsetIn(fts, world), tcx = tb.x + 7, tcy = tb.y + fts.offsetHeight / 2 + thud;
-    const rr = eOutCubic(clamp(mq / .5));
-    ring.setAttribute('cx', tcx); ring.setAttribute('cy', tcy); ring.setAttribute('r', (8 + rr * 16).toFixed(2));
-    ring.style.opacity = ((1 - rr) * .9).toFixed(3);
-    for (const s of sparks){
-      const u = clamp((mq - s.delay) / .8), e = eOutCubic(u), d = lerp(s.d0, s.d1, e), sz = s.s * Math.sin(Math.PI * Math.min(1, u * 1.05));
-      s.p.setAttribute('transform', `translate(${(tcx + Math.cos(s.a) * d).toFixed(2)} ${(tcy + Math.sin(s.a) * d).toFixed(2)}) rotate(${(s.rot * e).toFixed(1)}) scale(${Math.max(0, sz).toFixed(3)})`);
-    }
-  } else put(fx, 'display', 'none');
+  // the save tick draws itself: its circle first, from the top round, then the check, stroke by stroke
+  const c1 = eInOutCubic(seg(t, B.foot + .34, .42)), c2 = eOutCubic(seg(t, B.foot + .68, .24));
+  put(tickC, 'strokeDashoffset', (1 - c1).toFixed(4)); put(tickC, 'opacity', c1 > 0 ? '1' : '0');
+  put(tickP, 'strokeDashoffset', (1 - c2).toFixed(4)); put(tickP, 'opacity', c2 > 0 ? '1' : '0');
 
   // ---------- the pointer and its clicks ----------
   const c = cursorAt(t);
