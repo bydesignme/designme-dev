@@ -58,6 +58,9 @@ every session and every agent.
 - Greys: one neutral scale for the site chrome and Soft (no blue-tinted greys anywhere). Blueprint keeps its warm greys
   as their own named set.
 - Primary buttons are `.pill.primary` (on the accent). There are no ink buttons for now.
+- A secondary action on a white card is the white outlined button (`.pill.line`: white with a half-strength grey edge) in Soft
+  and Blueprint, never the grey filled `.pill.soft`, which reads as pressed or disabled on white (owner, 23 Nov). Clean keeps
+  its own flat secondary. The Buttons demo still shows `.pill.soft` as one of the styles.
 - Accents have roles: `--accent` fills, `--accent-fg` text (4.5:1), `--accent-mark` lines, rings and chart marks (3:1),
   `--accent-bg` / `--sel` tints. Charts follow the accent.
 - Every colour pairing must pass a contrast check before it ships: text 4.5:1 (WCAG 2) and APCA Lc 60 or more for
@@ -152,8 +155,9 @@ every session and every agent.
 - Padding is measured, not eyeballed (owner, 17 Nov; 16px since 18 Nov): every Clean card has its content 16px in from each
   edge, and so do the controls in its head and foot strips (owner, 21 Nov, replacing the 18 Nov 8px for strip controls: a
   strip's "Connect a tool" and "Test all" sat 8px off the rows' tiles and buttons). A strip control sits on the content's
-  16px column at the sides and 8px from the strip's own top and bottom; a select in a strip lines up by its words, not its
-  hover box. Check with a script that measures
+  16px column at the sides and 16px from the strip's own top and bottom, so a foot strip's controls are 16px from the
+  card's bottom edge as well as its side (owner, 23 Nov, replacing 8px top and bottom, which jammed them into the corner);
+  a select in a strip lines up by its words, not its hover box. Check with a script that measures
   each card's insets at 1440 and fix every mismatch above 1px. Measure through the whole demo (sampled while it plays, to its
   end state) and in every design a card can switch to, not one settled frame (owner, 18 Nov).
 - Clean has an outer glow only in dark mode, and only around buttons (owner, 18 Nov): a faint neutral glow around the white
@@ -216,6 +220,20 @@ every session and every agent.
   in installs and never changes the component's design.
 - A showcase still uses the component's real design, the type and colour-contrast rules, the no-coloured-glow rule and the
   no-copying rule. Only components the owner names get one (first: Knowledge sources).
+- Each showcase ends on its own finishing moment that grows out of what the component does (a bar flexing, a pulse running
+  back down a tree, ink settling): no shared sparkle burst repeated across showcases (owner, 26 Nov: "you're using this effect
+  a bit too much"). Where sparkles are used at all, they are few, fine and varied in size, never the same chunky star burst.
+- Showcases are flat (owner, 26 Nov): no 3D tilts, no perspective and no camera orbit, unlike the Knowledge sources 3D tests.
+  The camera only zooms and repositions on a flat surface. The reference for movement, speed, easing and effects is the
+  owner's set of reels (personalities, payments, motion reel, admin dashboard, doors closed, carousel loops, dashboard
+  dopamine, empty states, contribution skyline): quick, confident moves that settle softly, things that travel and land,
+  numbers that count, cards dealt like a hand, line-art that draws itself.
+- A component that only makes sense in a wider setting (Context meter under a chat's composer) is shown in its showcase with
+  the other library components it lives among (Composer, the chat's messages); in the library it stays a standalone piece.
+- Before animating a showcase, describe the planned motion to the owner in plain words and wait for approval (owner, 26 Nov).
+  One cut (Soft light) unless the owner asks for more.
+- Showcases keep every padding and alignment rule (Alignment and fit): the component's insets, columns and centre lines are
+  exactly as in the library at every frame, and nothing that flies in lands off its column.
 
 ## Spacing and radius
 - Soft is plush (owner, 3 Nov): every corner radius in a component is scaled by `--rk` (1.25, and 1.7 where the browser
@@ -291,6 +309,9 @@ every session and every agent.
   up with the head's title, icon and total and with the foot, and the row's hover fill reaches 8px outward round the row
   (into the padding), never pushing the row's content inward (owner, 26 Nov: "none of the padding makes sense again", on Agent
   tree's rows sitting 8px inside its head).
+- File explorer is the one exception to rows on the 16px column (owner, 26 Nov: "it's ok the way it is now since icons have
+  bounding box around them"): its rows' chevrons sit centred under the search field's magnifier and the M/A/D letters under
+  the filter button's icon, as set up on 18 Nov. Leave them there.
 - The parts of one row (icon, word, detail, button) share one centre line: never mix `align-items:baseline` with an
   `align-self:center` child. Buttons side by side are the same drawn height.
 - Ghost buttons and icon buttons (Stop, Copy, a head's chevron, a row's Read) share one hover in each style: the same quiet
@@ -308,6 +329,8 @@ every session and every agent.
   before anything is shown to the owner, and every frame is looked at as well: the script does not replace looking.
 
 ## QA before every push
+- Follow the `ui-qa-gate` skill (`.claude/skills/ui-qa-gate/SKILL.md`) before any UI change is committed as done, published
+  or shown to the owner, and paste its rules into every agent's brief.
 - All three styles (Soft, Blueprint and Clean), light and dark, at 1440, 768, 390 and 360.
 - No console errors and no sideways scroll.
 - The type rules above.

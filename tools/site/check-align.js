@@ -220,12 +220,27 @@ function sample(id){
     const meet = (w, x) => ({ left:Math.max(w.left, x.left), right:Math.min(w.right, x.right), top:Math.max(w.top, x.top), bottom:Math.min(w.bottom, x.bottom) });
     const boxes = A.filter(a => !inStrip(a.e) && !fl(a.e)).map(a => { const d = drawn(a); return Object.assign(clip(a.e, d), { noRight:d.noRight, alt:d.alt && clip(a.e, d.alt) }); });
     const fill = (cs, cbgOk) => !((cs.backgroundColor === 'rgba(0, 0, 0, 0)' || (!cbgOk && cs.backgroundColor === cbg)) && !(parseFloat(cs.borderTopWidth) > 0 || parseFloat(cs.borderLeftWidth) > 0) && !shade(cs));
+    // a row's hover or selected fill reaches 8px out round the row, into the padding, while the row's content keeps the card's
+    // 16px column (owner, 26 Nov: "none of the padding makes sense again", on Agent tree's rows pushed 8px in to keep their
+    // fills inside it). Such a fill (half the card wide or more, no edge or lift of its own, a quiet inset ring at most, its
+    // content 6px or more inside it) is not the content's edge: what it holds is measured as it is
+    // (what it holds is read from what is drawn: its words, icons and filled marks, not the boxes they sit in)
+    const rowFill = (e, b, cs) => { if (b.width < Math.min(120, C.width * .5) || b.height > 160 || b.left - C.left < 6 || C.right - b.right < 6) return false;
+      if (parseFloat(cs.borderTopWidth) > 0 || parseFloat(cs.borderLeftWidth) > 0) return false;
+      if (cs.boxShadow !== 'none' && cs.boxShadow.split(/,(?![^(]*\))/).some(s => !/inset/.test(s) && !clear(s))) return false;
+      if (!e.textContent.trim()) return false;
+      let l = Infinity, r = -Infinity; const take = q => { if (q.width > 0 && q.height > 0){ l = Math.min(l, q.left); r = Math.max(r, q.right); } };
+      const tw = document.createTreeWalker(e, NodeFilter.SHOW_TEXT); let n; while ((n = tw.nextNode())){ if (!n.textContent.trim() || !vis(n.parentElement)) continue; const g = document.createRange(); g.selectNodeContents(n); take(g.getBoundingClientRect()); }
+      e.querySelectorAll('svg,img').forEach(k => { if (!k.closest('svg svg') && vis(k)) take(k.getBoundingClientRect()); });
+      e.querySelectorAll('*').forEach(k => { if (k.closest('svg') || !vis(k)) return; const kb = k.getBoundingClientRect(); if (kb.width > b.width * .6) return; if (fill(getComputedStyle(k), true)) take(kb); });
+      return l < Infinity && l - b.left >= 6 && b.right - r >= 6; };
     card.querySelectorAll('*').forEach(e => { if (!vis(e) || inStrip(e) || fl(e) || e.closest('.pop,.hand,.tip')) return; const cs = getComputedStyle(e);
       if (cs.position !== 'static') for (const ps of ['::before', '::after']){ const q = getComputedStyle(e, ps); if (q.content === 'none' || q.display === 'none' || q.position !== 'absolute' || +q.opacity < .1 || !fill(q, true)) continue;
         const eb = e.getBoundingClientRect(), w = parseFloat(q.width), h = parseFloat(q.height), l = eb.left + parseFloat(cs.borderLeftWidth) + parseFloat(q.left) + parseFloat(q.marginLeft), t = eb.top + parseFloat(cs.borderTopWidth) + parseFloat(q.top) + parseFloat(q.marginTop);
         if (w > 2 && h > 2 && w < C.width - 4 && [l, t].every(Number.isFinite)) boxes.push(clip(e, { left:l, right:l + w, top:t, bottom:t + h })); }
       const b = e.getBoundingClientRect(); if (b.height <= 2 || b.width <= 2 || b.width > C.width - 4) return;
       if (!fill(cs)){ const g = ring(e); if (g && !A.some(x => x.e === e)) boxes.push(Object.assign(clip(e, { left:b.left - g, right:b.right + g, top:b.top - g, bottom:b.bottom + g }), { alt:clip(e, b) })); return; }
+      if (rowFill(e, b, cs)) return;
       boxes.push(clip(e, b)); });
     const measure = alt => { const live = boxes.map(r => alt && r.alt ? Object.assign({}, r.alt, { noRight:r.noRight }) : r).filter(r => r.right - r.left > 1 && r.bottom - r.top > 1); if (!live.length) return null;
       const rl = live.filter(r => !r.noRight), rmax = rl.length ? Math.max(...rl.map(r => r.right)) : -Infinity;
