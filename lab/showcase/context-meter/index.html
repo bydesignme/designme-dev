@@ -905,7 +905,7 @@ body.render #stage{left:0;top:0;transform:none!important}
 #stage *,#stage *::before,#stage *::after{animation:none!important;transition:none!important}
 #world{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:0 0}
 /* the thread: bottom-anchored, older lines scroll up under a soft fade */
-#thr{position:absolute;left:0;top:0;overflow:hidden;-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 40px);mask-image:linear-gradient(to bottom,transparent 0,#000 40px)}
+#thr{position:absolute;left:0;top:0;overflow:hidden;-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 var(--fade,40px));mask-image:linear-gradient(to bottom,transparent 0,#000 var(--fade,40px))}
 #thr .ti{position:absolute;left:0;right:0;top:0;display:flex;flex-direction:column;align-items:flex-start;gap:6px}
 #thr .ti.user{align-items:flex-end}
 #thr .dm-bub{padding:9px 13px;font-size:14px;line-height:20px;max-width:85%}
@@ -950,9 +950,11 @@ body.render #stage{left:0;top:0;transform:none!important}
 .rt .dm-ctm-run{height:28px}
 .dm-pill.dm-warn.hov{box-shadow:inset 0 0 0 99px var(--dm-tint-h)}
 .dm-pill.dm-line.hov{background:var(--dm-row)}
-/* a pulse: a dot in its kind's colour with a short trail, no glow */
-#pulses{position:absolute;left:0;top:0}
-.pl i{position:absolute;left:0;top:0;width:7px;height:7px;border-radius:50%;background:var(--dm-c)}
+/* the ring's glow (owner, 26 Nov: an approved exception for this showcase only): a blurred copy of the ring's own stroke behind
+   it, in its own colour, at low opacity; it swells with each step and eases back */
+#glow circle{fill:none;stroke-width:5;stroke-linecap:round}
+#ga{stroke:var(--dm-accent-mark,var(--dm-accent))}
+#gw{stroke:var(--dm-warn-mark)}
 /* the landing's mark: fine neutral compression lines, strokes only, no glow */
 #fx{position:absolute;left:0;top:0;overflow:visible}
 #fx svg{position:absolute;left:0;top:0;overflow:visible}
@@ -979,7 +981,7 @@ body.render .cap{display:none}
   </div>
   <div id="cw">
     <div class="dm-ctm" data-dm="" data-open="1" id="ctm">
-      <button type="button" class="dm-ctm-tg" id="tg" aria-expanded="true" aria-label="Context, 0% used"><span class="dm-ctm-ring" aria-hidden="true"><svg viewBox="0 0 20 20"><circle class="dm-tr" cx="10" cy="10" r="7.5"/><circle class="dm-fl" id="arc" cx="10" cy="10" r="7.5" pathLength="100" style="stroke-dasharray:0 100"/><circle class="dm-fl" id="arcw" cx="10" cy="10" r="7.5" pathLength="100" style="stroke-dasharray:0 100;opacity:0"/></svg></span><span><span class="dm-ctm-pc dm-num" id="pc">0%</span> of context used</span><svg class="dm-i dm-xs" id="chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></button>
+      <button type="button" class="dm-ctm-tg" id="tg" aria-expanded="true" aria-label="Context, 0% used"><span class="dm-ctm-ring" aria-hidden="true"><svg viewBox="0 0 20 20"><defs><filter id="cmg" x="-1" y="-1" width="3" height="3"><feGaussianBlur stdDeviation="2"/></filter></defs><g id="glow" filter="url(#cmg)" style="opacity:0"><circle id="ga" cx="10" cy="10" r="7.5" pathLength="100" style="stroke-dasharray:0 100"/><circle id="gw" cx="10" cy="10" r="7.5" pathLength="100" style="stroke-dasharray:0 100"/></g><circle class="dm-tr" cx="10" cy="10" r="7.5"/><circle class="dm-fl" id="arc" cx="10" cy="10" r="7.5" pathLength="100" style="stroke-dasharray:0 100"/><circle class="dm-fl" id="arcw" cx="10" cy="10" r="7.5" pathLength="100" style="stroke-dasharray:0 100;opacity:0"/></svg></span><span><span class="dm-ctm-pc dm-num" id="pc">0%</span> of context used</span><svg class="dm-i dm-xs" id="chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></button>
       <div class="dm-ctm-pop dm-panel" id="pop" role="region" aria-label="What fills the context">
         <div class="dm-ctm-ph" id="ph"><span>In context</span><span class="dm-num"><b class="dm-ctm-tot" id="tot">0.0k</b> of 200k tokens</span></div>
         <div class="dm-ctm-bar" id="bar" aria-hidden="true"></div>
@@ -989,7 +991,6 @@ body.render .cap{display:none}
       </div>
     </div>
   </div>
-  <div id="pulses"></div>
   <div id="fx"></div>
   <div id="rip"></div>
   <svg id="cur" viewBox="0 0 22 26" aria-hidden="true"><path d="M2.5 2v19l5-4.6 3.6 8 3.4-1.5-3.5-7.8h6.8z" fill="#111" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>
@@ -1017,7 +1018,7 @@ const FMT = F45 ? { W:460, H:575, out:[1080, 1350], zoom:1.16, col:380, base:1, 
 const W = FMT.W, H = FMT.H, COL = FMT.col, CX = (W - COL) / 2;
 const T = 16;
 const stage = $('#stage'), world = $('#world'), cw = $('#cw'), ctm = $('#ctm'), tg = $('#tg'), pop = $('#pop'), ph = $('#ph');
-const arcw = $('#arcw'), bar = $('#bar'), leg = $('#leg'), msg = $('#msg'), msgIn = $('#msgIn'), ft = $('#ft'), arc = $('#arc'), pc = $('#pc'), tot = $('#tot');
+const ga = $('#ga'), gw = $('#gw'), glow = $('#glow'), arcw = $('#arcw'), bar = $('#bar'), leg = $('#leg'), msg = $('#msg'), msgIn = $('#msgIn'), ft = $('#ft'), arc = $('#arc'), pc = $('#pc'), tot = $('#tot');
 const go = $('#go'), run = $('#run'), undo = $('#undo'), rt = $('#rt'), cur = $('#cur'), rip = $('#rip'), spin = $('#spin');
 const chat = $('#chat'), thr = $('#thr'), box = $('#box'), att = $('#att'), fchip = $('#fchip'), fcn = $('#fcn'), fci = $('#fci'), tx = $('#tx'), phd = $('#phd'), send = $('#send');
 stage.style.width = W + 'px'; stage.style.height = H + 'px';
@@ -1039,7 +1040,7 @@ leg.innerHTML = P.map(p => `<div class="dm-ctm-l" style="--dm-c:${p.c}"><span cl
 const parts = [...bar.children], rows = [...leg.children], sws = rows.map(r => r.querySelector('.dm-sw')), vals = rows.map(r => r.querySelector('.dm-v'));
 const fmt = v => v.toFixed(1) + 'k';
 
-// ---------- the conversation: each thing it adds sends a pulse into the pill ----------
+// ---------- the conversation: each thing it adds is counted in the pill the moment it lands ----------
 const IC = {
   figma:'<path d="M9 3h3v6H9a3 3 0 0 1 0-6zM12 3h3a3 3 0 0 1 0 6h-3zM9 9h3v6H9a3 3 0 0 1 0-6zM15 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6zM9 15h3v3a3 3 0 1 1-3-3z"/>',
   search:'<circle cx="11" cy="11" r="6.5"/><path d="m20 20-4-4"/>',
@@ -1060,8 +1061,7 @@ const EV = [
   { ty:'agent', at:5.4,  k:2, tok:28, text:'Updated the cards. Try a darker hero?' },
   { ty:'tool',  at:5.95, k:1, tok:16, ic:'eye',    text:'Ran a contrast check', d:'38 pairs' },
 ];
-const PULSE = .62;
-EV.forEach(e => { e.go = e.at + .32; e.L = e.go + PULSE; });
+EV.forEach(e => { e.L = e.at + .12; });
 // the thread: one line from the agent was already there, then the events
 const SEED = { ty:'agent', at:-99, text:'Ready when you are. What are we designing?' };
 const ITEMS = [SEED, ...EV];
@@ -1071,14 +1071,12 @@ for (const it of ITEMS){
   else if (it.ty === 'agent') el.innerHTML = `<span class="dm-cpx-ag">${svgI('spark')}<span>${it.text}</span></span>`;
   else el.innerHTML = `<span class="tl"><span class="tl-ic" style="--dm-c:${P[it.k].c}">${svgI(it.ic)}</span><span>${it.text}${it.d ? `<span class="tl-d"> · ${it.d}</span>` : ''}</span></span>`;
   thr.appendChild(el); it.el = el;
-  // where its pulse leaves from: the file chip's icon, the tool's tile, the agent's mark
-  it.src = el.querySelector(it.ty === 'user' ? '.dm-fchip svg' : it.ty === 'tool' ? '.tl-ic' : '.dm-cpx-ag svg');
 }
-// pulses: a dot in the kind's colour with a short trail
-const pulses = EV.map(e => {
-  const g = document.createElement('div'); g.className = 'pl'; g.style.setProperty('--dm-c', P[e.k].c);
-  g.innerHTML = '<i></i><i></i><i></i><i></i>'; $('#pulses').appendChild(g); return { e, g, dots: [...g.children] };
-});
+// Compact folds the older turns into one row at the top of the thread; the last three stay as they are
+const SUM = document.createElement('div'); SUM.className = 'ti tool sum';
+SUM.innerHTML = `<span class="tl"><span class="tl-ic" style="--dm-c:var(--dm-muted)"><svg class="dm-i dm-xs" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 9 4.8-9 4.8-9-4.8z"/><path d="m3 12.3 9 4.8 9-4.8M3 16.3l9 4.8 9-4.8"/></svg></span><span>Summary of 48 turns</span></span>`;
+thr.appendChild(SUM);
+const KEEP = 3;
 const arrivals = P.map((_, k) => EV.filter(e => e.k === k).map(e => e.L));
 const allArr = EV.map(e => e.L);
 const LAST = Math.max(...allArr);
@@ -1100,6 +1098,8 @@ const B = {
   load:9.65, loadD:.85,       // anticipation: the bar draws itself out and thins
   squeeze:10.5, squeezeD:.2,  // the squeeze: every part is pressed down, the counts run down
   thud:10.7,                  // it lands: a pressure wave runs back along the bar
+  fold:10.45, foldD:.7,       // the older turns fold together into one summary row at the top of the thread
+  frame:9.6, frameD:.8,       // the camera eases out a little so the thread's top shows above the panel
   swap:10.85,                 // the warning gives way to the result; the status gives way to Undo
   back:12.05, backD:.55,      // the pointer comes back to the pill
   close:12.75, closeD:.32,    // a click: the panel folds back into the pill
@@ -1122,7 +1122,7 @@ function measureFoot(){ for (const [k, el] of [['go', go], ['run', run], ['undo'
 
 // ---------- layout ----------
 function offsetIn(el){ let x = 0, y = 0; for (let e = el; e && e !== world; e = e.offsetParent){ x += e.offsetLeft; y += e.offsetTop; } return { x, y }; }
-let ZM = 1, BR = 0, ATT = 0, PILL_B = 0, H1 = 0;
+let SUMH = 22, ZM = 1, BR = 0, ATT = 0, PILL_B = 0, H1 = 0;
 function measureLayout(){
   measureMsg(); measureFoot();
   // the panel's height with the warning open (the camera moves in as far as the panel and pill still fit)
@@ -1132,6 +1132,7 @@ function measureLayout(){
   thr.style.width = COL + 'px';
   for (const it of ITEMS){ it.h = it.el.offsetHeight; }
   BR = parseFloat(getComputedStyle(bar).borderTopLeftRadius) || 0;
+  SUM.style.display = ''; SUMH = SUM.offsetHeight; SUM.style.display = 'none';
   att.style.height = 'auto'; ATT = att.offsetHeight;
   PILL_B = H - (F45 ? 26 : 18);
   window.LAYOUT = { ZM, H1, ATT, HOT, LAST, items: ITEMS.map(i => i.h) };
@@ -1171,7 +1172,7 @@ function renderAt(t){
   // the entrance plays at the end of the loop, as negative time, so the loop opens on the chat already in
   if (t >= T + B.in - .05) t -= T;
 
-  // ---------- the counts: up as each pulse lands, then down in the squeeze ----------
+  // ---------- the counts: up as each thing lands in the chat, then down in the squeeze ----------
   const sq = eInQuad(seg(t, B.squeeze, B.squeezeD));
   const v = P.map((p, k) => t < B.squeeze ? filled(k, t, COUNT) : lerp(p.full, p.after, sq));
   const vb = P.map((p, k) => t < B.squeeze ? filled(k, t, GROW) : v[k]);
@@ -1216,9 +1217,18 @@ function renderAt(t){
   arcw.style.stroke = 'var(--dm-warn-mark)';
   arcw.style.strokeDasharray = (arcLen * wk).toFixed(2) + ' 100';
   arcw.style.opacity = wk > .001 ? '1' : '0';
-  let rb = 0; for (const a of allArr) rb += .2 * hit(t - a, .06);
-  rb = Math.min(rb, .3) + .16 * hit(th - .02, .07);
-  $('.dm-ctm-ring svg').style.transform = `rotate(-90deg) scale(${(1 + rb).toFixed(4)})`;
+  // the glow follows the ring: the warning part in the warning mark, the rest in the accent, never one over the other
+  const ws = arcLen * wk;
+  ga.style.strokeDasharray = Math.max(0, arcLen - ws).toFixed(2) + ' 100'; ga.style.strokeDashoffset = (-ws).toFixed(2);
+  gw.style.strokeDasharray = ws.toFixed(2) + ' 100';
+  gw.style.visibility = ws > .05 ? 'visible' : 'hidden'; ga.style.visibility = arcLen - ws > .05 ? 'visible' : 'hidden';
+  // each step: the ring swells in its own colour (a soft blurred copy of its stroke behind it) and lifts a touch, then both
+  // ease back over about 0.6s; once more, gently, when the squeeze drops it back
+  const env = q => q <= 0 ? 0 : q < .14 ? eOutCubic(q / .14) : 1 - eInOutCubic(clamp((q - .14) / .6));
+  let gl = 0; for (const a of allArr) gl = Math.max(gl, env(t - a));
+  gl = Math.max(gl, .7 * env(t - B.thud - .05));
+  $('.dm-ctm-ring svg').style.transform = `rotate(-90deg) scale(${(1 + .06 * gl).toFixed(4)})`;
+  glow.style.opacity = (.8 * gl).toFixed(3);
   // the warning's nudge: the pill gives one firm push sideways and settles
   const nudge = 3.2 * hit(t - HOT - .05, .07) - 1.4 * hit(t - HOT - .22, .08);
 
@@ -1288,8 +1298,21 @@ function renderAt(t){
   const thrTop = F45 ? 24 : 14, thrBot = boxTop - 12;
   thr.style.top = thrTop + 'px'; thr.style.height = Math.max(0, thrBot - thrTop) + 'px'; thr.style.left = CX + 'px'; thr.style.width = COL + 'px';
   thr.style.transform = yThr ? `translateY(${yThr.toFixed(2)}px)` : '';
-  // the thread, bottom up: each item opens its room and rises in when it arrives; older ones scroll up and under the fade
+  // the panel's state, and the chat stepping back behind it (each line dims; the summary row stays clear)
+  const ok = eOutCubic(seg(t, B.open, B.openD)), ck = eInOutCubic(seg(t, B.close + .06, B.closeD));
+  const pk = ok * (1 - ck);
+  // (it comes back only once the panel has folded away, so the panel's words never sit over the chat's)
+  const dimK = 1 - .62 * eInOutCubic(seg(t, B.open - .05, .25)) * (1 - eInOutCubic(seg(t, B.close + B.closeD, .35)));
+  box.style.opacity = (parseFloat(box.style.opacity || 1) * dimK).toFixed(3);
+  // the thread, bottom up: each item opens its room and rises in when it arrives; older ones scroll up and under the fade.
+  // Compact folds the older turns up into one summary row at the top; the last three settle under it
+  const fk = eInOutCubic(seg(t, B.fold, B.foldD));
+  thr.style.setProperty('--fade', (40 * (1 - fk)).toFixed(1) + 'px');
   let yb = thrBot - thrTop;
+  const nOld = ITEMS.length - KEEP;
+  // where each kept item lands after the fold, top down under the summary
+  const sumH = SUMH, after = [];
+  { let y = sumH + 12; for (let i = nOld; i < ITEMS.length; i++){ after[i] = y; y += ITEMS[i].h + 12; } }
   for (let i = ITEMS.length - 1; i >= 0; i--){
     const it = ITEMS[i], g = it.at < -10 ? 1 : eOutCubic(seg(t, it.at, .42));
     if (g <= 0){ it.el.style.display = 'none'; it.y = yb; continue; }
@@ -1298,18 +1321,26 @@ function renderAt(t){
     yb -= room;
     it.y = yb;
     const ap = it.at < -10 ? 1 : eOutExpo(seg(t, it.at, .55));
-    it.el.style.transform = `translateY(${(yb + (1 - ap) * 10).toFixed(2)}px)`;
-    it.el.style.opacity = ap.toFixed(3);
+    let y = yb + (1 - ap) * 10, op = ap, sy = 1;
+    if (fk > 0){
+      if (i < nOld){
+        // an older turn folds up into the summary row: it rises to the top as it flattens and fades
+        // (they are gone before the summary forms, so no two lines of words ever overlap)
+        const u = eInOutCubic(seg(t, B.fold + (nOld - 1 - i) * .02, .4));
+        y = lerp(yb, 0, u); sy = 1 - .75 * u; op *= 1 - clamp(u * 1.8);
+      } else y = lerp(yb, after[i], fk);
+    }
+    it.el.style.transform = `translateY(${y.toFixed(2)}px)` + (sy < 1 ? ` scaleY(${sy.toFixed(3)})` : '');
+    it.el.style.opacity = (op * dimK).toFixed(3);
     it.el.style.filter = ap < 1 ? `blur(${((1 - ap) * 4).toFixed(2)}px)` : '';
   }
+  // the summary row: it forms where the older turns gather, clear of the panel, at full strength
+  const si = eOutCubic(seg(t, B.fold + .42, .45));
+  SUM.style.display = si > 0 ? '' : 'none';
+  SUM.style.transform = `translateY(${((1 - si) * 6).toFixed(2)}px)`;
+  SUM.style.opacity = si.toFixed(3);
 
   // ---------- the meter: the pill under the composer's left edge; its panel opens upward over the chat ----------
-  const ok = eOutCubic(seg(t, B.open, B.openD)), ck = eInCubic(seg(t, B.close, B.closeD));
-  const pk = ok * (1 - ck);
-  // while the panel is open, the chat behind it steps back so the panel reads on its own
-  const dimK = 1 - .62 * eInOutCubic(seg(t, B.open, .35)) * (1 - eInOutCubic(seg(t, B.close, .35)));
-  thr.style.opacity = (parseFloat(thr.style.opacity || 1) * dimK).toFixed(3);
-  box.style.opacity = (parseFloat(box.style.opacity || 1) * dimK).toFixed(3);
   ctm.dataset.open = '1';
   tg.setAttribute('aria-expanded', pk > .5);
   pop.inert = pk <= .5;
@@ -1320,38 +1351,19 @@ function renderAt(t){
   $('#chev').style.transform = `rotate(${lerp(-90, -180, pk).toFixed(1)}deg)`;
   const popOut = eInCubic(seg(t, B.out - .2, .4));
   pop.style.visibility = pk > .001 ? 'visible' : 'hidden';
-  pop.style.opacity = (clamp(pk * 1.6) * (1 - popOut)).toFixed(3);
+  // opening, the surface is solid almost at once and its words follow; closing, the words leave first
+  pop.style.opacity = (clamp(pk * (t < B.close ? 3 : 1.3)) * (1 - popOut)).toFixed(3);
   pop.style.transform = `translateY(${((1 - pk) * 12).toFixed(2)}px) scale(${(.94 + .06 * pk).toFixed(4)})`;
   // its parts follow the panel up, one after another
   const kids = [ph, bar, ...rows, msgIn, ft];
   kids.forEach((el, i) => {
-    const e = eOutCubic(seg(t, B.open + .06 + (kids.length - 1 - i) * .03, .36)) * (1 - ck);
+    // on the way out its words leave first, so nothing shows through the folding panel
+    const e = eOutCubic(seg(t, B.open + .14 + (kids.length - 1 - i) * .03, .34)) * (1 - eOutCubic(seg(t, B.close - .02, .12)));
     if (el === bar){ el.style.opacity = e.toFixed(3); return; }
     el.style.opacity = e.toFixed(3); el.style.transform = `translateY(${((1 - e) * 6).toFixed(2)}px)`;
   });
 
-  // ---------- the pulses: from the new item, left into the margin, down beside the composer, into the pill's ring ----------
-  const pillY = pillTop + pillH / 2, ringX = CX + 7 + 10, lane = CX - 14;
-  const thrOff = thrTop + yThr;
-  for (const pz of pulses){
-    const e = pz.e;
-    if (t < e.go - .02 || t > e.L + .05){ pz.g.style.display = 'none'; continue; }
-    pz.g.style.display = '';
-    // where its source sits: measured inside its item (both carry the same transforms), then placed in the thread
-    const ir = e.el.getBoundingClientRect(), sr = e.src.getBoundingClientRect(), k = ir.width / e.el.offsetWidth;
-    const x0 = CX + (sr.left - ir.left + sr.width / 2) / k, y0 = thrOff + e.y + (sr.top - ir.top + sr.height / 2) / k;
-    const pts = [[x0, y0], [lane, y0], [lane, pillY], [ringX, pillY]];
-    const L = [0]; for (let q = 1; q < 4; q++) L.push(L[q - 1] + Math.hypot(pts[q][0] - pts[q - 1][0], pts[q][1] - pts[q - 1][1]));
-    const at = f => { const d = clamp(f) * L[3]; let q = 1; while (q < 3 && L[q] < d) q++; const kk = (d - L[q - 1]) / ((L[q] - L[q - 1]) || 1); return [lerp(pts[q - 1][0], pts[q][0], kk), lerp(pts[q - 1][1], pts[q][1], kk)]; };
-    const f = u => eInOutCubic(seg(u, e.go, PULSE));
-    const born = eOutCubic(seg(t, e.go - .02, .12));
-    pz.dots.forEach((d, i) => {
-      const [x, y] = at(f(t - i * .028));
-      const s = (1 - i * .2) * born * (t > e.L ? 1 - clamp((t - e.L) / .05) : 1);
-      d.style.transform = `translate(${(x - 3.5).toFixed(2)}px,${(y - 3.5).toFixed(2)}px) scale(${Math.max(0, s).toFixed(3)})`;
-      d.style.opacity = (i === 0 ? 1 : .55 - i * .12).toFixed(3);
-    });
-  }
+  const pillY = pillTop + pillH / 2;
 
   // ---------- the landing's mark: three fine compression lines at the stack's new end ----------
   const bo = offsetIn(bar);
@@ -1389,9 +1401,12 @@ function renderAt(t){
   // ---------- the camera: in on the panel while it is open, back out to the chat when it folds ----------
   const zi = eInOutCubic(seg(t, B.camIn, B.camInD)), zo = eInOutCubic(seg(t, B.camOut, B.camOutD));
   const z = zi * (1 - zo);
-  const Sc = lerp(FMT.base, ZM, z) + .025 * hit(th, .05) * (1 - zo);
+  // from Compact on, the frame takes the whole height so the summary row shows above the panel, and keeps it to the end
+  const fr = eInOutCubic(seg(t, B.frame, B.frameD));
+  const ZF = Math.min(ZM, H / (PILL_B + 10 - 8)), FYF = (8 + PILL_B + 10) / 2;
+  const Sc = lerp(lerp(FMT.base, ZM, z), ZF, fr) + .025 * hit(th, .05) * (1 - zo);
   const shake = 1.8 * hit(th, .045);
-  const fxp = lerp(W / 2, CX + 170, z), fyp = lerp(H / 2 + FMT.dy, PILL_B - H1 / 2, z);
+  const fxp = lerp(lerp(W / 2, CX + 170, z), W / 2, fr), fyp = lerp(lerp(H / 2 + FMT.dy, PILL_B - H1 / 2, z), FYF, fr);
   world.style.transform = `translate(${(W / 2 - fxp * Sc).toFixed(2)}px,${(H / 2 - fyp * Sc + shake).toFixed(2)}px) scale(${Sc.toFixed(4)})`;
 }
 
